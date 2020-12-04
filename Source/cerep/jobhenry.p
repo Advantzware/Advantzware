@@ -478,7 +478,11 @@ FOR EACH ef
                 "<C3>Machine: " (IF AVAILABLE wrk-op THEN (wrk-op.m-code + " - " + wrk-op.m-dscr) ELSE "") FORMAT "x(40)" SKIP
                 "<C3>Cycles: " (IF AVAILABLE wrk-op THEN STRING(wrk-op.num-sh[1]) ELSE "") FORMAT "x(20)"  SKIP(1)
                 "<P9><C3>Furnish: "  cBoardDscr  FORMAT "x(40)" SKIP
-                "<C3>Pulp: "  SKIP(4) "<P10>".
+                "<C3>Pulp: "  SKIP
+                 "<C3>Mold Time: " (IF AVAILABLE wrk-op THEN STRING(wrk-op.mr[1],"->>,>>9.99") ELSE "") FORMAT "x(10)"  "<C17> Dry Time:" SKIP
+                 "<C3>Agitate: "    "<C17> Over Temp:" SKIP
+                 "<C3>Delay: "      "<C17> Belt Speed: " (IF AVAILABLE wrk-op THEN STRING(wrk-op.speed[1]) ELSE "") SKIP(1)
+                "<P10>".
    
             PUT "<=#3><R-10> <C32><B> Item List </b> "  SKIP
                 "<C33>  Item ID        <C45>Item Name              <C66.5>Mold Count  <P9>" FORMAT "x(200)" SKIP    .
@@ -760,14 +764,38 @@ DO:
     FOR EACH bf-jobhdr NO-LOCK WHERE bf-jobhdr.company = job-hdr.company
         AND bf-jobhdr.job-no = job-hdr.job-no
         AND bf-jobhdr.job-no2 = job-hdr.job-no2
-        BREAK BY bf-jobhdr.blank-no:
+        BREAK BY bf-jobhdr.frm
+        BY bf-jobhdr.blank-no:
         IF FIRST-OF(bf-jobhdr.blank-no) THEN 
         DO:
             IF s-prt-fgimage THEN 
-            DO:  
+            DO:            
                 FIND FIRST itemfg NO-LOCK
                     WHERE itemfg.company EQ job-hdr.company 
                     AND itemfg.i-no    EQ bf-jobhdr.i-no NO-ERROR.
+                    
+                IF avail itemfg THEN    
+                FOR EACH ATTACH  NO-LOCK
+                    WHERE attach.company EQ cocode
+                    AND trim(attach.est-no) EQ trim(bf-jobhdr.est-no)
+                    AND  attach.i-no EQ itemfg.i-no
+                    AND ATTACH.spare-int-1 EQ 1 BREAK BY attach.i-no :
+                    
+                    IF FIRST(attach.i-no) THEN
+                    PAGE.
+                    
+                   PUT UNFORMATTED "<#12><C1><FROM><C106><R+47><RECT><||3><C80>" /*v-qa-text*/ SKIP
+                           "<=12><C30><FROM><R+4><C30><LINE><|3>"
+                           "<=12><C60><FROM><R+4><C60><LINE><|3>"
+                          "<=12><R+1><C5>Job # <C30> Estimate #" "<C60> FG Item:" itemfg.i-no
+                          "<=12><R+2><C8>" string(bf-jobhdr.job-no + "-" + STRING(bf-jobhdr.job-no,"99")) FORMAT "x(12)"   "<C35>"  bf-jobhdr.est-no  
+                          "<C60> File Name: " STRING( SUBSTR(attach.attach-file,r-INDEX(attach.attach-file,'\') + 1)) FORMAT "x(50)"
+                          "<=12><R+4><C1><FROM><C106><LINE><||3>"
+                          "<=12><R+5><C5><#21><R+42><C+90><IMAGE#21=" attach.attach-file ">" SKIP. 
+                      PAGE.
+                END.
+                    
+                    
                 ls-fgitem-img = IF AVAILABLE itemfg THEN itemfg.box-image ELSE "" .
                 PAGE.
                 PUT UNFORMATTED 
