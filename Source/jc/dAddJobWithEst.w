@@ -52,6 +52,7 @@ ELSE
 
 {est/ttInputEst.i NEW}  
 {sys/inc/var.i NEW shared}
+{jc/ttMultiSelectItem.i}
 {custom/gcompany.i}  
 ASSIGN
 cocode = g_company
@@ -87,6 +88,11 @@ DEF NEW SHARED BUFFER xest           FOR est.
 DEF NEW SHARED BUFFER xef            FOR ef.
 DEF NEW SHARED BUFFER xeb            FOR eb.
 DEF NEW SHARED BUFFER xqty           FOR est-qty.
+
+DEFINE TEMP-TABLE ttCompareEst NO-UNDO
+       FIELD est-no AS CHARACTER
+       FIELD stock-no AS CHARACTER
+       FIELD num-len AS DECIMAL .
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -125,10 +131,12 @@ DEF NEW SHARED BUFFER xqty           FOR est-qty.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS BROWSE-1 cMachCode cBoard iTargetCyl Btn_OK ~
 Btn_Cancel btn-add btn-copy btn-update btn-delete btn-viewjob dtDueDate ~
-btn-add-multiple btn-imp-bal btn-sel-head tb_auto 
+btn-add-multiple btn-imp-bal btn-sel-head tb_auto btnCalendar-1
 &Scoped-Define DISPLAYED-OBJECTS cMachCode cBoard iTargetCyl cJobNo ~
 cLineDscr cBoardDscr dtCreatedDate cUserID dtStartDate cStatus dtEstCom cEstNo ~
 dtDueDate iItem dTotSqFt iMolds dUtilization tb_auto 
+
+&Scoped-define calendarPopup btnCalendar-1 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -143,6 +151,11 @@ dtDueDate iItem dTotSqFt iMolds dUtilization tb_auto
 /* Define a dialog box                                                  */
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON btnCalendar-1 
+    IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
+    LABEL "" 
+    SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
+
 DEFINE BUTTON btn-add 
      LABEL "Add " 
      SIZE 15 BY 1.14.
@@ -239,7 +252,7 @@ DEFINE VARIABLE dtCreatedDate AS DATE FORMAT "99/99/9999":U
 DEFINE VARIABLE dtDueDate AS DATE FORMAT "99/99/9999":U 
      LABEL "Due Date" 
      VIEW-AS FILL-IN 
-     SIZE 20.2 BY 1
+     SIZE 14.2 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
 DEFINE VARIABLE dtEstCom AS DATE FORMAT "99/99/9999":U 
@@ -332,6 +345,7 @@ DEFINE FRAME D-Dialog
      cLineDscr AT ROW 2 COL 37.4 COLON-ALIGNED NO-LABEL WIDGET-ID 202
      cBoardDscr AT ROW 4.29 COL 43.4 COLON-ALIGNED NO-LABEL 
      dtDueDate AT ROW 5.43 COL 130.8 COLON-ALIGNED WIDGET-ID 280
+     btnCalendar-1 AT ROW 5.43 COL 147.6
      btn-add AT ROW 21.19 COL 4.2 WIDGET-ID 16
      btn-copy AT ROW 21.19 COL 19.8 WIDGET-ID 252
      btn-update AT ROW 21.19 COL 35.4 WIDGET-ID 256
@@ -426,6 +440,8 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR RECTANGLE RECT-6 IN FRAME D-Dialog
    NO-ENABLE                                                            */
+/* SETTINGS FOR BUTTON btnCalendar-1 IN FRAME  D-Dialog
+   3                                                                    */   
 ASSIGN 
        tb_auto:PRIVATE-DATA IN FRAME D-Dialog     = 
                 "parm".
@@ -522,7 +538,46 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-add-multiple D-Dialog
 ON CHOOSE OF btn-add-multiple IN FRAME D-Dialog /* Add Multiple */
 DO:
-         
+       DEFINE VARIABLE lv-rowid AS ROWID NO-UNDO.
+       DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
+       DEFINE BUFFER bf-ttInputEst FOR ttInputEst.
+       
+       RUN valid-mach(OUTPUT lError) NO-ERROR.
+       IF lError THEN RETURN NO-APPLY.
+            
+       IF INTEGER(iTargetCyl:SCREEN-VALUE) LE 0 THEN 
+       DO:
+           MESSAGE "Target Cycles must not be 0..." VIEW-AS ALERT-BOX INFORMATION .
+           APPLY "entry" TO iTargetCyl .
+           RETURN NO-APPLY.
+       END.            
+       
+       RUN jc/dMultiSelectItem.w (OUTPUT TABLE ttMultiSelectItem) . 
+       
+       FOR EACH ttMultiSelectItem NO-LOCK
+           WHERE ttMultiSelectItem.isSelect:
+           CREATE bf-ttInputEst.
+            ASSIGN
+                bf-ttInputEst.cEstType = "MoldTandem"
+                bf-ttInputEst.cSetType = "MoldEstTandem"
+                bf-ttInputEst.cCompany = cocode 
+                bf-ttInputEst.cStockNo = ttMultiSelectItem.fgItem
+                bf-ttInputEst.iMolds   = 1 
+                bf-ttInputEst.iQuantityYield = 1 * INTEGER(iTargetCyl:SCREEN-VALUE)
+                bf-ttInputEst.dSqFt    = dMachBlankSqFt * 1
+                lv-rowid               = ROWID(bf-ttInputEst).
+                FIND FIRST itemfg NO-LOCK 
+                     WHERE itemfg.company EQ cocode
+                     AND itemfg.i-no EQ ttMultiSelectItem.fgItem NO-ERROR .
+                IF AVAILABLE itemfg THEN
+                DO:
+                  ASSIGN
+                      bf-ttInputEst.cPartName = itemfg.i-name 
+                      bf-ttInputEst.cFgEstNo  = itemfg.est-no .               
+                END.          
+       END.
+            
+       RUN repo-query (lv-rowid).               
 
     END.
 
@@ -678,9 +733,12 @@ DO:
         DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
         DEFINE VARIABLE riEb AS ROWID NO-UNDO .
         DEFINE VARIABLE riJob AS ROWID NO-UNDO.
+        DEFINE VARIABLE cKeyItem AS CHARACTER NO-UNDO.
+        DEFINE VARIABLE lEstimateCreate AS LOGICAL NO-UNDO.
         
         DEFINE BUFFER bff-eb FOR eb.
         DEFINE BUFFER bf-job FOR job.
+        DEFINE BUFFER bf-ttInputEst FOR ttInputEst.
         
         iCount = 0.
         FOR EACH ttInputEst NO-LOCK :
@@ -709,7 +767,10 @@ DO:
   
         RUN create-ttfrmout.
         
-        RUN est/BuildEstimate.p ("C", OUTPUT riEb).
+        RUN pCheckEstimate(INPUT iCount, OUTPUT lEstimateCreate, OUTPUT riEb).
+              
+        IF NOT lEstimateCreate THEN
+        RUN est/BuildEstimate.p ("F", OUTPUT riEb).
          
 
         FIND FIRST bff-eb NO-LOCK
@@ -722,14 +783,20 @@ DO:
           ipType = "created".
         END.
         
-        RUN jc/MoldJobProcs.p(INPUT ROWID(bff-eb),INPUT dtDueDate, OUTPUT riJob).
+        FOR EACH bf-ttInputEst NO-LOCK
+             WHERE bf-ttInputEst.lKeyItem:
+             cKeyItem = bf-ttInputEst.cStockNo .
+             LEAVE.
+        END.
+        
+        RUN jc/MoldJobProcs.p(INPUT ROWID(bff-eb),INPUT dtDueDate, INPUT cKeyItem, OUTPUT riJob).
         
         FIND FIRST bf-job NO-LOCK
              WHERE ROWID(bf-job) EQ riJob NO-ERROR .
         IF AVAIL bf-job THEN
         DO:
          ASSIGN
-           cJobNo:SCREEN-VALUE         =  STRING(bf-job.job-no) + "-" + STRING(bf-job.job-no2)
+           cJobNo:SCREEN-VALUE         =  STRING(bf-job.job-no) + "-" + STRING(bf-job.job-no2,"99")
            dtCreatedDate:SCREEN-VALUE  =  STRING(bf-job.create-date)
            cUserID:SCREEN-VALUE        = STRING(bf-job.user-id)
            cStatus:SCREEN-VALUE        = STRING(bf-job.stat)  
@@ -738,7 +805,28 @@ DO:
            opcJobNo                    = bf-job.job-no. 
         END.
          
-         MESSAGE "Process complete." VIEW-AS ALERT-BOX INFO.            
+         MESSAGE "Process complete." VIEW-AS ALERT-BOX INFO.           
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME btnCalendar-1
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalendar-1 D-Dialog
+ON CHOOSE OF btnCalendar-1 IN FRAME D-Dialog
+    DO:
+    {methods/btnCalendar.i dtDueDate }
+        APPLY "entry" TO dtDueDate .
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME dtDueDate
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL dtDueDate D-Dialog
+ON HELP OF dtDueDate IN FRAME D-Dialog /* due Date */
+    DO:
+  {methods/calpopup.i}
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -849,7 +937,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     {methods/nowait.i}     
     DO WITH FRAME {&frame-name}:  
         
-        DISABLE btn-viewjob btn-add-multiple btn-imp-bal btn-sel-head tb_auto.     
+        DISABLE btn-viewjob btn-imp-bal btn-sel-head tb_auto.     
         APPLY "entry" TO cMachCode.    
     END.
     IF NOT THIS-PROCEDURE:PERSISTENT THEN
@@ -999,7 +1087,7 @@ PROCEDURE enable_UI :
       WITH FRAME D-Dialog.
   ENABLE BROWSE-1 cMachCode cBoard iTargetCyl Btn_OK Btn_Cancel btn-add 
          btn-copy btn-update btn-delete btn-viewjob dtDueDate btn-add-multiple 
-         btn-imp-bal btn-sel-head tb_auto 
+         btn-imp-bal btn-sel-head tb_auto btnCalendar-1
       WITH FRAME D-Dialog.
   VIEW FRAME D-Dialog.
   {&OPEN-BROWSERS-IN-QUERY-D-Dialog}
@@ -1030,6 +1118,63 @@ PROCEDURE pNewMachine :
         END.         
     END.
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckEstimate D-Dialog 
+PROCEDURE pCheckEstimate :
+/*------------------------------------------------------------------------------
+          Purpose:     
+          Parameters:  <none>
+          Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipiCount AS INTEGER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplEstimateCreate AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opriRowid AS ROWID NO-UNDO.
+    DEFINE BUFFER bf-eb FOR eb.
+    DEFINE BUFFER bff-ttInputEst FOR ttInputEst .
+    DEFINE VARIABLE lCheckEb AS LOGICAL NO-UNDO.
+    
+
+    FOR EACH bff-ttInputEst NO-LOCK:                   
+     FOR EACH bf-eb  NO-LOCK
+         WHERE bf-eb.company EQ cocode 
+         AND bf-eb.est-type EQ 4
+         AND bf-eb.stock-no EQ bff-ttInputEst.cStockNo
+         AND bf-eb.num-len EQ  bff-ttInputEst.iMolds :               
+                              
+         CREATE ttCompareEst.
+            ASSIGN
+            ttCompareEst.est-no   = bf-eb.est-no
+            ttCompareEst.stock-no = bf-eb.stock-no
+            ttCompareEst.num-len  = bf-eb.num-len
+            .
+     END.
+    END.
+    
+    MAIN-COMPARE:    
+    FOR EACH ttCompareEst:
+        j = 0.
+        FOR EACH bf-eb  NO-LOCK
+            WHERE bf-eb.company EQ cocode 
+            AND bf-eb.est-type EQ 4
+            AND bf-eb.est-no EQ ttCompareEst.est-no:               
+            FIND FIRST bff-ttInputEst NO-LOCK
+                 WHERE bff-ttInputEst.cStockNo EQ  bf-eb.stock-no 
+                 AND bff-ttInputEst.iMolds EQ  bf-eb.num-len NO-ERROR.
+             IF NOT AVAIL bff-ttInputEst THEN NEXT MAIN-COMPARE. 
+             j = j + 1 .  
+             opriRowid = ROWID(bf-eb) .
+        END.
+        IF  ipiCount EQ j THEN
+        DO:                  
+            oplEstimateCreate = YES.
+            LEAVE MAIN-COMPARE.
+        END.     
+    END.      
+        
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

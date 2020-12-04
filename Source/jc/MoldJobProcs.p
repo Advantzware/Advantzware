@@ -15,6 +15,7 @@
 /* ***************************  Definitions  ************************** */
 DEFINE INPUT PARAMETER ipriRowid AS ROWID NO-UNDO. 
 DEFINE INPUT PARAMETER ipdtDueDate AS DATE NO-UNDO.
+DEFINE INPUT PARAMETER ipcKeyItem AS CHARACTER NO-UNDO.
 DEFINE OUTPUT PARAMETER opriJob AS ROWID NO-UNDO.
 
 DEFINE VARIABLE riEb      AS ROWID   NO-UNDO.
@@ -68,6 +69,8 @@ ELSE
     bf-job.orderType = "O".               
                        
 RUN jc/jc-calc.p (RECID(bf-job), YES) NO-ERROR. 
+
+RUN pUpdateKeyItem(BUFFER bf-job, INPUT ipcKeyItem).
 
 opriJob = ROWID(bf-job).
 
@@ -167,5 +170,25 @@ PROCEDURE pGetControlValue PRIVATE:
     
        
 END PROCEDURE.
-
-
+                              
+PROCEDURE pUpdateKeyItem PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:  update job-hdr item 
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-job FOR job.
+    DEFINE INPUT PARAMETER ipcKeyItem  AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-job-hdr FOR job-hdr.
+    
+    FIND FIRST bf-job-hdr EXCLUSIVE-LOCK
+         WHERE bf-job-hdr.company EQ ipbf-job.company
+         AND bf-job-hdr.job-no EQ ipbf-job.job-no
+         AND bf-job-hdr.job-no2 EQ ipbf-job.job-no2
+         AND bf-job-hdr.i-no EQ ipcKeyItem NO-ERROR.
+    IF AVAIL bf-job-hdr THEN
+    DO:
+       ASSIGN bf-job-hdr.keyItem = YES.        
+    END.
+       
+END PROCEDURE.               

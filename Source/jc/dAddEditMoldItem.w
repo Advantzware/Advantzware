@@ -59,9 +59,9 @@ DEFINE VARIABLE v-count         AS INTEGER   NO-UNDO.
 &Scoped-define FRAME-NAME Dialog-Frame
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS cStock Btn_OK Btn_Done Btn_Cancel iMolds ~
-RECT-21 RECT-39 
-&Scoped-Define DISPLAYED-OBJECTS cStock iMolds 
+&Scoped-Define ENABLED-OBJECTS cStock iMolds Btn_OK Btn_Done Btn_Cancel ~
+RECT-21 RECT-39 tb_default 
+&Scoped-Define DISPLAYED-OBJECTS cStock iMolds tb_default 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -77,60 +77,66 @@ RECT-21 RECT-39
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON Btn_Cancel 
-    IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U NO-FOCUS FLAT-BUTTON
-    LABEL "Cancel" 
-    SIZE 8 BY 1.91
-    BGCOLOR 8 .
+     IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U NO-FOCUS FLAT-BUTTON
+     LABEL "Cancel" 
+     SIZE 8 BY 1.91
+     BGCOLOR 8 .
 
 DEFINE BUTTON Btn_Done AUTO-END-KEY DEFAULT 
-    LABEL "&Done" 
-    SIZE 15 BY 1.14
-    BGCOLOR 8 .
+     LABEL "&Done" 
+     SIZE 15 BY 1.14
+     BGCOLOR 8 .
 
 DEFINE BUTTON Btn_OK 
-    IMAGE-UP FILE "Graphics/32x32/floppy_disk.ico":U NO-FOCUS FLAT-BUTTON
-    LABEL "&Save" 
-    SIZE 8 BY 1.91
-    BGCOLOR 8 .
+     IMAGE-UP FILE "Graphics/32x32/floppy_disk.ico":U NO-FOCUS FLAT-BUTTON
+     LABEL "&Save" 
+     SIZE 8 BY 1.91
+     BGCOLOR 8 .
 
 DEFINE VARIABLE cStock AS CHARACTER FORMAT "X(15)":U 
-    LABEL "FG Item" 
-    VIEW-AS FILL-IN 
-    SIZE 27 BY 1
-    BGCOLOR 15 FONT 1 NO-UNDO.
+     LABEL "FG Item" 
+     VIEW-AS FILL-IN 
+     SIZE 27 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE iMolds AS INTEGER   FORMAT "->,>>>,>>9":U INITIAL 0 
-    LABEL "Molds" 
-    VIEW-AS FILL-IN 
-    SIZE 16 BY 1
-    BGCOLOR 15 FONT 1 NO-UNDO.
+DEFINE VARIABLE iMolds AS INTEGER FORMAT "->,>>>,>>9":U INITIAL 0 
+     LABEL "Molds" 
+     VIEW-AS FILL-IN 
+     SIZE 16 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-21
-    EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-    SIZE 19 BY 2.38
-    BGCOLOR 15 .
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 19 BY 2.38
+     BGCOLOR 15 .
 
 DEFINE RECTANGLE RECT-39
-    EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-    SIZE 95.8 BY 3.14
-    BGCOLOR 15 .
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 95.8 BY 3.14
+     BGCOLOR 15 .
+
+DEFINE VARIABLE tb_default AS LOGICAL INITIAL no 
+     LABEL "Key Item" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 14.2 BY 1 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Dialog-Frame
-    cStock AT ROW 1.91 COL 15 COLON-ALIGNED WIDGET-ID 176
-    iMolds AT ROW 1.86 COL 59 COLON-ALIGNED WIDGET-ID 322
-    Btn_OK AT ROW 4.71 COL 78.6
-    Btn_Done AT ROW 5 COL 79.6
-    Btn_Cancel AT ROW 4.71 COL 87.6         
-    RECT-21 AT ROW 4.48 COL 77.6
-    RECT-39 AT ROW 1.19 COL 1.2 WIDGET-ID 2
-    SPACE(0.79) SKIP(2.80)
+     cStock AT ROW 1.91 COL 15 COLON-ALIGNED WIDGET-ID 176
+     iMolds AT ROW 1.86 COL 59 COLON-ALIGNED WIDGET-ID 322
+     Btn_OK AT ROW 4.71 COL 78.6
+     Btn_Done AT ROW 5 COL 79.6
+     Btn_Cancel AT ROW 4.71 COL 87.6
+     tb_default AT ROW 1.76 COL 80 WIDGET-ID 324
+     RECT-21 AT ROW 4.48 COL 77.6
+     RECT-39 AT ROW 1.19 COL 1.2 WIDGET-ID 2
+     SPACE(0.79) SKIP(2.80)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
-    SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
-    FGCOLOR 1 FONT 6
-    TITLE "Add/Update Item".
+         SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
+         FGCOLOR 1 FONT 6
+         TITLE "Add/Update Item".
 
 
 /* *********************** Procedure Settings ************************ */
@@ -160,11 +166,15 @@ DEFINE FRAME Dialog-Frame
 /* SETTINGS FOR DIALOG-BOX Dialog-Frame
    FRAME-NAME Custom                                                    */
 ASSIGN 
-    FRAME Dialog-Frame:SCROLLABLE = FALSE
-    FRAME Dialog-Frame:HIDDEN     = TRUE.
+       FRAME Dialog-Frame:SCROLLABLE       = FALSE
+       FRAME Dialog-Frame:HIDDEN           = TRUE.
 
 ASSIGN 
-    RECT-39:HIDDEN IN FRAME Dialog-Frame = TRUE.
+       RECT-39:HIDDEN IN FRAME Dialog-Frame           = TRUE.
+
+ASSIGN 
+       tb_default:PRIVATE-DATA IN FRAME Dialog-Frame     = 
+                "parm".
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -188,7 +198,7 @@ ASSIGN
 &Scoped-define SELF-NAME Dialog-Frame
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
 ON HELP OF FRAME Dialog-Frame /* Add/Update Item */
-    DO:
+DO:
         DEFINE VARIABLE char-val   AS cha    NO-UNDO.
         DEFINE VARIABLE lv-handle  AS HANDLE NO-UNDO.
         DEFINE VARIABLE look-recid AS RECID  NO-UNDO .
@@ -213,7 +223,7 @@ ON HELP OF FRAME Dialog-Frame /* Add/Update Item */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
 ON RETURN OF FRAME Dialog-Frame /* Add/Update Item */
-    ANYWHERE
+ANYWHERE
     DO:
         APPLY "tab" TO SELF.
         RETURN NO-APPLY.
@@ -225,7 +235,7 @@ ON RETURN OF FRAME Dialog-Frame /* Add/Update Item */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
 ON WINDOW-CLOSE OF FRAME Dialog-Frame /* Add/Update Item */
-    DO:
+DO:
             
         IF AVAILABLE ttInputEst THEN
             op-rowid = ROWID(ttInputEst) .
@@ -249,7 +259,7 @@ ON WINDOW-CLOSE OF FRAME Dialog-Frame /* Add/Update Item */
 &Scoped-define SELF-NAME Btn_Cancel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Cancel Dialog-Frame
 ON CHOOSE OF Btn_Cancel IN FRAME Dialog-Frame /* Cancel */
-    DO:
+DO:
         
     
         IF AVAILABLE ttInputEst THEN
@@ -272,7 +282,7 @@ ON CHOOSE OF Btn_Cancel IN FRAME Dialog-Frame /* Cancel */
 &Scoped-define SELF-NAME Btn_Done
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Done Dialog-Frame
 ON CHOOSE OF Btn_Done IN FRAME Dialog-Frame /* Done */
-    DO:
+DO:
         
   &IF DEFINED (adm-panel) NE 0 &THEN
         RUN dispatch IN THIS-PROCEDURE ('exit').
@@ -288,7 +298,7 @@ ON CHOOSE OF Btn_Done IN FRAME Dialog-Frame /* Done */
 &Scoped-define SELF-NAME Btn_OK
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_OK Dialog-Frame
 ON CHOOSE OF Btn_OK IN FRAME Dialog-Frame /* Save */
-    DO:
+DO:
         DEFINE VARIABLE ld              AS DECIMAL   NO-UNDO.
         DEFINE VARIABLE lValidateResult AS LOGICAL   NO-UNDO.
         DEFINE VARIABLE lError          AS LOGICAL   NO-UNDO.
@@ -297,7 +307,7 @@ ON CHOOSE OF Btn_OK IN FRAME Dialog-Frame /* Save */
         DEFINE VARIABLE dCostHandling   AS DECIMAL   NO-UNDO .
         DEFINE VARIABLE hftp            AS HANDLE    NO-UNDO.
 
-        
+        DEFINE BUFFER bf-ttInputEst FOR ttInputEst.
         IF ip-type EQ "view" THEN 
         DO: 
             APPLY "go" TO FRAME {&FRAME-NAME}.
@@ -309,6 +319,7 @@ ON CHOOSE OF Btn_OK IN FRAME Dialog-Frame /* Save */
         
         RUN valid-molds(OUTPUT lValidateResult) NO-ERROR.
         IF lValidateResult THEN RETURN NO-APPLY.
+        
                
         DO TRANSACTION:           
 
@@ -330,19 +341,25 @@ ON CHOOSE OF Btn_OK IN FRAME Dialog-Frame /* Save */
             ttInputEst.iMolds    = iMolds 
             ttInputEst.iQuantityYield = ttInputEst.iMolds * ipiTragetCyc
             ttInputEst.dSqFt     = ipdBlankSqFt * iMolds
-                       
-            .        
+            ttInputEst.lKeyItem = tb_default .                           
+                   
         FIND FIRST itemfg NO-LOCK 
             WHERE itemfg.company EQ cocode
             AND itemfg.i-no EQ cStock NO-ERROR .
         IF AVAILABLE itemfg THEN
         DO:
             ASSIGN
-                ttInputEst.cPartName = itemfg.i-no 
-                ttInputEst.cFgEstNo  = itemfg.est-no .           
-             
+                ttInputEst.cPartName = itemfg.i-name 
+                ttInputEst.cFgEstNo  = itemfg.est-no .               
         END.
-            
+        IF tb_default THEN
+        DO:
+          FOR EACH bf-ttInputEst 
+              WHERE bf-ttInputEst.cStockNo NE cStock:
+              ASSIGN 
+                  ttInputEst.lKeyItem = NO .
+          END.             
+        END.
         
         op-rowid = ROWID(ttInputEst).
         
@@ -353,10 +370,11 @@ ON CHOOSE OF Btn_OK IN FRAME Dialog-Frame /* Save */
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
 &Scoped-define SELF-NAME cStock
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cStock Dialog-Frame
-ON LEAVE OF cStock IN FRAME Dialog-Frame /* Molds */
-    DO:
+ON LEAVE OF cStock IN FRAME Dialog-Frame /* FG Item */
+DO:
         DEFINE VARIABLE lValidateResult AS LOGICAL NO-UNDO  .
         IF LASTKEY NE -1 THEN 
         DO:
@@ -372,7 +390,7 @@ ON LEAVE OF cStock IN FRAME Dialog-Frame /* Molds */
 &Scoped-define SELF-NAME iMolds
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL iMolds Dialog-Frame
 ON LEAVE OF iMolds IN FRAME Dialog-Frame /* Molds */
-    DO:
+DO:
         DEFINE VARIABLE lValidateResult AS LOGICAL NO-UNDO  .
         IF LASTKEY NE -1 THEN 
         DO:
@@ -439,16 +457,16 @@ RUN disable_UI.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI Dialog-Frame  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
-    /*------------------------------------------------------------------------------
-      Purpose:     DISABLE the User Interface
-      Parameters:  <none>
-      Notes:       Here we clean-up the user-interface by deleting
-                   dynamic widgets we have created and/or hide 
-                   frames.  This procedure is usually called when
-                   we are ready to "clean-up" after running.
-    ------------------------------------------------------------------------------*/
-    /* Hide all frames. */
-    HIDE FRAME Dialog-Frame.
+/*------------------------------------------------------------------------------
+  Purpose:     DISABLE the User Interface
+  Parameters:  <none>
+  Notes:       Here we clean-up the user-interface by deleting
+               dynamic widgets we have created and/or hide 
+               frames.  This procedure is usually called when
+               we are ready to "clean-up" after running.
+------------------------------------------------------------------------------*/
+  /* Hide all frames. */
+  HIDE FRAME Dialog-Frame.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -456,7 +474,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE display-item Dialog-Frame 
 PROCEDURE display-item :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
                           Purpose:     
                           PARAMs:  <none>
                           Notes:       
@@ -493,21 +511,21 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI Dialog-Frame  _DEFAULT-ENABLE
 PROCEDURE enable_UI :
-    /*------------------------------------------------------------------------------
-      Purpose:     ENABLE the User Interface
-      Parameters:  <none>
-      Notes:       Here we display/view/enable the widgets in the
-                   user-interface.  In addition, OPEN all queries
-                   associated with each FRAME and BROWSE.
-                   These statements here are based on the "Other 
-                   Settings" section of the widget Property Sheets.
-    ------------------------------------------------------------------------------*/
-    DISPLAY cStock iMolds 
-        WITH FRAME Dialog-Frame.
-    ENABLE cStock Btn_OK Btn_Done Btn_Cancel iMolds RECT-21 RECT-39 
-        WITH FRAME Dialog-Frame.
-    VIEW FRAME Dialog-Frame.
-    {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
+/*------------------------------------------------------------------------------
+  Purpose:     ENABLE the User Interface
+  Parameters:  <none>
+  Notes:       Here we display/view/enable the widgets in the
+               user-interface.  In addition, OPEN all queries
+               associated with each FRAME and BROWSE.
+               These statements here are based on the "Other 
+               Settings" section of the widget Property Sheets.
+------------------------------------------------------------------------------*/
+  DISPLAY cStock iMolds tb_default 
+      WITH FRAME Dialog-Frame.
+  ENABLE cStock iMolds Btn_OK Btn_Done Btn_Cancel RECT-21 RECT-39 tb_default 
+      WITH FRAME Dialog-Frame.
+  VIEW FRAME Dialog-Frame.
+  {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -515,7 +533,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-exit Dialog-Frame 
 PROCEDURE local-exit :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
                  Purpose:
                  Notes:
                 ------------------------------------------------------------------------------*/
@@ -533,11 +551,9 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-itemfg Dialog-Frame 
 PROCEDURE valid-itemfg :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
           Purpose:     
           Parameters:  <none>
           Notes:       
@@ -545,6 +561,8 @@ PROCEDURE valid-itemfg :
     DEFINE OUTPUT PARAMETER oplOutError AS LOGICAL NO-UNDO .
     DEFINE VARIABLE lActive AS LOG       NO-UNDO.
     DEFINE VARIABLE cMsg    AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-ttInputEst FOR ttInputEst.
     
     DO WITH FRAME {&FRAME-NAME}:
     
@@ -566,7 +584,18 @@ PROCEDURE valid-itemfg :
             MESSAGE cMsg VIEW-AS ALERT-BOX ERROR.
             APPLY "entry" TO cStock .
             oplOutError = YES .
+            RETURN.
         END.
+        
+        FIND FIRST bf-ttInputEst NO-LOCK
+            WHERE bf-ttInputEst.cStockNo EQ cStock:SCREEN-VALUE NO-ERROR.
+            
+        IF AVAIL bf-ttInputEst AND ip-type NE "update" THEN
+        DO:
+            MESSAGE "Item: " bf-ttInputEst.cStockNo " already added to Head." VIEW-AS ALERT-BOX ERROR.
+            APPLY "entry" TO cStock .
+            oplOutError = YES .            
+        END.         
     END.      
 
 END PROCEDURE.
@@ -574,10 +603,9 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-molds Dialog-Frame 
 PROCEDURE valid-molds :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
           Purpose:     
           Parameters:  <none>
           Notes:       
@@ -596,5 +624,4 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 

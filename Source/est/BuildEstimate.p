@@ -77,7 +77,7 @@ FOR EACH ttInputEst NO-LOCK BREAK BY ttInputEst.iFormNo
     ELSE IF ttInputEst.cSetType EQ "MoldEstTandem" THEN
     DO:  
         IF FIRST(ttInputEst.iFormNo) THEN DO:
-        RUN est/NewEstimate.p ('C', 8,OUTPUT opriEb).                                
+        RUN est/NewEstimate.p ('F', 4,OUTPUT opriEb).                                
         END.
         ELSE DO:                
             IF FIRST-OF(ttInputEst.iFormNo) THEN DO:
@@ -85,7 +85,7 @@ FOR EACH ttInputEst NO-LOCK BREAK BY ttInputEst.iFormNo
               FIND FIRST ef OF eb NO-LOCK NO-ERROR.
               FIND FIRST est OF ef NO-LOCK NO-ERROR.
                           
-               RUN est/NewEstimateForm.p ('C', ROWID(est), OUTPUT opriEb).
+               RUN est/NewEstimateForm.p ('F', ROWID(est), OUTPUT opriEb).
                     
             END.
             ELSE IF FIRST-OF(ttInputEst.iBlankNo) THEN DO:
@@ -268,13 +268,7 @@ FOR EACH ttInputEst NO-LOCK BREAK BY ttInputEst.iFormNo
     IF ttInputEst.iQuantityYield GT 0 THEN 
         eb.yld-qty      = ttInputEst.iQuantityYield.
     ELSE 
-        eb.yld-qty      = eb.eqty.
-        
-    IF ttInputEst.cEstType EQ "MoldTandem" THEN
-    DO: 
-       IF ttInputEst.iQuantityYield GT 0 THEN 
-         eb.bl-qty      = ttInputEst.iQuantityYield.
-    END.
+        eb.yld-qty      = eb.eqty.      
         
     IF ttInputEst.cCustomer NE "" THEN 
         FIND FIRST cust NO-LOCK 
@@ -406,13 +400,19 @@ FOR EACH ttInputEst NO-LOCK BREAK BY ttInputEst.iFormNo
          est.estimateTypeID = "WOOD" .
          
     END. 
+    IF ttInputEst.cEstType EQ "MoldTandem" THEN
+    DO: 
+       IF ttInputEst.iQuantityYield GT 0 THEN 
+         eb.bl-qty      = ttInputEst.iQuantityYield.
+         eb.num-len     = ttInputEst.iMolds.   
+    END.
        
     RUN est/BuildDefaultPreps.p (BUFFER est,
         BUFFER ef,
         INPUT eb.form-no,
         INPUT 0).
 
-                  
+       
 /*    REFACTOR ALL /* create set header record */                                                        */
 /*    IF iArtiosCount > 1 THEN                                                              */
 /*    DO:                                                                                   */

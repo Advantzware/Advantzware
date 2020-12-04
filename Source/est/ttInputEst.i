@@ -77,6 +77,7 @@ DEFINE {1} SHARED TEMP-TABLE ttInputEst
     FIELD iMolds AS INTEGER /* Optional*/
     FIELD dSqFt AS DECIMAL /* Optional*/
     FIELD cFgEstNo AS CHARACTER /* Optional*/
+    FIELD lKeyItem AS LOGICAL /* Optional*/
     .
 
 
