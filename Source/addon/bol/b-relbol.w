@@ -2752,10 +2752,15 @@ PROCEDURE print-bol :
   DEF VAR v-create-backorder AS LOG NO-UNDO.
   DEFINE VARIABLE v-scan-qty-c AS INTEGER  INITIAL 0 NO-UNDO.
   DEFINE VARIABLE v-rel-qty-c AS INTEGER  INITIAL 0 NO-UNDO .
-
+  DEFINE VARIABLE lMsgResponse AS LOGICAL NO-UNDO.
+    
   RUN validate-scan(OUTPUT v-create-backorder) NO-ERROR.
 
   IF ERROR-STATUS:ERROR THEN RETURN .
+  
+  RUN displayMessageQuestion ("58", OUTPUT lMsgResponse).
+  
+  IF NOT lMsgResponse THEN RETURN NO-APPLY.
 
    /* Ticket 13130 */
   FOR EACH tt-relbol NO-LOCK BREAK BY tt-relbol.release# 
