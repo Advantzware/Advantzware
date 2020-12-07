@@ -720,7 +720,7 @@ PROCEDURE do-copy :
         kest-op.company = io-eb.company
         kest-op.est-no  = io-eb.est-no
         kest-op.s-num   = io-eb.form-no 
-        kest-op.b-num   = io-eb.blank-no .
+        kest-op.b-num   = IF est-op.b-num EQ 0 THEN 0 ELSE io-eb.blank-no .
      end.
     END.     
     IF tb_miscsub AND ip-add-what EQ "form" THEN do:

@@ -70,7 +70,7 @@ DEFINE VARIABLE li-cnt AS INTEGER NO-UNDO.
 DEFINE VARIABLE lv-eqty LIKE est-qty.eqty NO-UNDO.
 DEFINE VARIABLE v-override-mode AS LOGICAL NO-UNDO.
 
-&SCOPED-DEFINE sortby-phrase BY est-op.line
+&SCOPED-DEFINE sortby-phrase BY est-op.s-num
 
 DO WITH TRANSACTION:
    {sys\inc\ceroute#out.i}
