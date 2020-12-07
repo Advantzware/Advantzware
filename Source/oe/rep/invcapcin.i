@@ -2,9 +2,10 @@
 /* INVOICE PRINT  Program for N-K-1-INVPRINT = CapCityIN                        */
 /* ------------------------------------------------------------------------- */
 
-ASSIGN  v-blt-addr1 = inv-head.addr[1]
-        v-blt-addr2 = inv-head.addr[2]
-        v-blt-addr3 = v-addr3
+ASSIGN  cSoldName   = IF cSoldID NE "" THEN cSoldName ELSE inv-head.cust-name
+        v-blt-addr1 = IF cSoldID NE "" THEN cSoldAddress[1]  ELSE inv-head.addr[1]
+        v-blt-addr2 = IF cSoldID NE "" THEN cSoldAddress[2]  ELSE inv-head.addr[2]
+        v-blt-addr3 = IF cSoldID NE "" THEN (cSoldCity + ", " + cSoldState + "  " + cSoldZip) ELSE v-addr3 
                   
         v-sh-addr1 = v-shipto-addr[1]
         v-sh-addr2 = v-shipto-addr[2]
@@ -16,8 +17,8 @@ PUT "<C+25><#1>".
 PUT "<=1>" SKIP.
 PUT "<C1><#2><P10>"
      "<FCourier New>"
-        SPACE(7) "Bill To:" SPACE(43) "Ship To:"        SKIP
-        SPACE(7) inv-head.cust-name v-shipto-name AT 59 SKIP.
+        SPACE(7) "Sold To:" SPACE(43) "Ship To:"        SKIP
+        SPACE(7) cSoldName v-shipto-name AT 59 SKIP.
 
 IF TRIM(v-blt-addr1) NE "" 
   THEN PUT SPACE(7) v-blt-addr1.
@@ -86,7 +87,7 @@ PUT "<R6><C50><FROM><R6><C80><LINE><||3>" SKIP
     "<R4><C59><FROM><R6><C59><LINE><||3>" SKIP
     "<R6><C65><FROM><R8><C65><LINE><||3>" SKIP.
         
-PUT "<FArial><P12><=#3><R-2> <B>Invoice#: " inv-head.inv-no "</B><P10>                            Page: " string(PAGE-NUM - v-page-num,">>9") SKIP
+PUT "<FArial><P12><=#3><R-2> <B>Invoice#: " inv-head.inv-no FORMAT ">>>>>>>" "</B><P10>                            Page: " string(PAGE-NUM - v-page-num,">>9") SKIP
     "<=#3> Customer ID           Contact"
     "<=#3><R+2> Telephone                        Fax"
     "<=#3><R+4>" SPACE(30) "Invoice Date <FCourier New>"    
