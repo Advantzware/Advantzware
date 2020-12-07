@@ -40,7 +40,7 @@ DEFINE VARIABLE lv-type-dscr AS cha NO-UNDO.
 DEFINE VARIABLE ll-casetag   AS LOG NO-UNDO.
 
 DEFINE TEMP-TABLE tt-rel-order LIKE oe-rel
-    FIELD release#     AS INTEGER 
+    FIELD release#     AS INTEGER FORMAT ">>>>>>9" 
     FIELD ord-rel-date AS DATE  .
 
 &scoped-define fld-name-1 string(tt-rel-order.release#)
