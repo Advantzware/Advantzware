@@ -162,6 +162,8 @@ DEFINE SHARED VARIABLE s-prt-set-header AS LOG       NO-UNDO.
 DEFINE SHARED VARIABLE s-prt-label      AS LOG       NO-UNDO.
 DEFINE SHARED VARIABLE lIncludeLastPage AS LOGICAL   NO-UNDO .
 DEFINE SHARED VARIABLE cRdOptionMclean  AS CHARACTER NO-UNDO .
+DEFINE SHARED VARIABLE cJobType AS CHARACTER NO-UNDO .
+DEFINE SHARED VARIABLE lFSC AS LOGICAL NO-UNDO .
     
 {custom/notesdef.i}
 DEFINE VARIABLE v-inst2          AS cha  EXTENT 70 NO-UNDO.    
@@ -288,9 +290,8 @@ DEFINE VARIABLE cCaseCount AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCasePerPallet AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lPrintSetHeader AS LOGICAL NO-UNDO.
 
-IF reprint EQ NO THEN
-    cNewOrderValue = CAPS("NEW ORDER") .
-ELSE "" .
+cNewOrderValue = CAPS(cJobType) .
+
 
 
 FORMAT "  Customer:" oe-ord.cust-name "Sold To:" oe-ord.sold-id
@@ -496,8 +497,6 @@ FOR EACH job-hdr NO-LOCK
     v-est-qty = IF AVAILABLE est THEN est.est-qty[1] ELSE 0.
     FIND FIRST oe-ord WHERE oe-ord.company EQ job-hdr.company
         AND oe-ord.ord-no  EQ job-hdr.ord-no NO-LOCK NO-ERROR.
-    IF AVAILABLE oe-ord AND oe-ord.type EQ "C" THEN 
-        cNewOrderValue = "CHANGE".
     IF FIRST-OF(job-hdr.job-no2) THEN v-first = YES.
     /** PRINT JOB HEADER **/
     IF v-first THEN 
@@ -573,7 +572,7 @@ FOR EACH job-hdr NO-LOCK
         PUT "<C68>Job #: </B>" v-job-no SPACE(0) "-" SPACE(0) v-job-no2 FORMAT "99" SKIP
             "<C2><b>" cLabelSetPart FORMAT "x(18)" cSetPartNo FORMAT "x(15)" SKIP
             v-fill SKIP .
-        PUT "<R4.8><C40><P20>" cNewOrderValue FORMAT "x(12)" "<P10><R6></b>" SKIP  .
+        PUT "<R4.8><P20><C20>" IF lFSC THEN "FSC" ELSE "" "<C40>" cNewOrderValue FORMAT "x(13)" "<P10><R6></b>" SKIP  .
 
         /*view frame head.*/
 
@@ -1178,10 +1177,11 @@ FOR EACH job-hdr NO-LOCK
                                          "<C45><b>Cad#: </b>" bff-eb.cad-no FORMAT "x(20)" skip
                                          
                                          "<P10><C20><b>Adhesive: </B>" bff-eb.adhesive FORMAT "x(15)"  
-                                         "<C45><b>Art#: </b>" bff-eb.Plate-no FORMAT "x(12)" SKIP
+                                         "<C45><b>Art#: </b>" bff-eb.Plate-no FORMAT "x(30)" SKIP
                                          
                                          "<C2><B>Blank | </B>" STRING(bff-eb.blank-no,"99")  
-                                         "<P10><C20><b>Size: </B>" (string(bff-eb.len,">9.9999") + " x " + STRING(bff-eb.wid,">9.9999") + " x " + STRING(bff-eb.dep,">9.9999")) FORMAT "x(40)" SKIP .
+                                         "<P10><C20><b>Size: </B>" (string(bff-eb.len,">9.9999") + " x " + STRING(bff-eb.wid,">9.9999") + " x " + STRING(bff-eb.dep,">9.9999")) FORMAT "x(40)" 
+                                          "<C45>" bff-eb.spc-no FORMAT "x(30)" SKIP .
                                          IF LINE-COUNTER > 70 THEN DO: 
                                              PUT "<C74><R64>Page: " string(PAGE-NUM - lv-pg-num,">>9") + " of <#PAGES>"  FORM "x(20)" .
                                              PAGE.
@@ -1242,8 +1242,9 @@ FOR EACH job-hdr NO-LOCK
                                     "<C30><b>Sheet: </b>" ef.gsh-wid  SPACE(3) ef.gsh-len 
                                     "<C54><b># Out:</b>" ef.n-out  "<C66><b>Total Yield Qty: </b>" STRING(iEbTotalYldQty) SKIP
                                     "<C2><b>Material: </b>" (IF AVAILABLE ITEM THEN ITEM.i-no ELSE "") FORMAT "x(10)"
-                                    "<C16><FROM><C+13><R+2><BARCODE,TYPE=128A,CHECKSUM=NONE,VALUE= " + string((job-hdr.job-no) + "-" + STRING(job-hdr.job-no2) + "-" + STRING( eb.form-no)) + "><R-2>" FORMAT "x(250)"
+                                    "<C16><FROM><C+13><R+2><BARCODE,TYPE=128A,CHECKSUM=NONE,VALUE=" + string((job-hdr.job-no) + "-" + STRING(job-hdr.job-no2) + "-" + STRING( eb.form-no)) + "><R-2>" FORMAT "x(250)"
                                     "<C30><b>Press: </b>" ef.nsh-wid  SPACE(3) ef.nsh-len  "<C66><b>Total Req. Qty: </b>" STRING(iEbTotalblQty)  SKIP
+                                    "<C2>" (IF AVAILABLE ITEM THEN ITEM.i-dscr ELSE "") FORMAT "x(24)"
                                     "<C30><b>Die:    </b>" ef.trim-w FORMAT ">>9.9999" SPACE(3) ef.trim-l FORMAT ">>9.9999"  "<C54><b>Total # Up: </b>" STRING(iEbTotalUpQty)  
                                      "<C65>   <b>Die#: </b>" eb.die-no FORMAT "x(20)" SKIP(1) .
                                 
@@ -1268,8 +1269,8 @@ FOR EACH job-hdr NO-LOCK
                                             AND xjob-mat.job-no  EQ job-hdr.job-no
                                             AND xjob-mat.job-no2 EQ job-hdr.job-no2
                                             AND xjob-mat.frm = wrk-op.s-num
-                                            /*AND (xjob-mat.blank-no = job-hdr.blank-no
-                                                 OR xjob-mat.blank-no = 0)*/  NO-LOCK,
+                                                    /*AND (xjob-mat.blank-no = job-hdr.blank-no
+                                                         OR xjob-mat.blank-no = 0)*/  NO-LOCK,
                                             FIRST bf-item WHERE bf-item.company = cocode AND
                                             bf-item.i-no = xjob-mat.rm-i-no AND
                                             bf-item.mat-type = SUBSTRING(wrk-op.dept,1,1) NO-LOCK :
@@ -1400,11 +1401,13 @@ FOR EACH job-hdr NO-LOCK
                                   "<C70><B><P10>Req Qty: </B>" TRIM(STRING(iEbTotalblQty)) FORMAT "x(12)"  skip
 
                                   "<P10><C20><b>Adhesive: </B>" eb.adhesive FORMAT "x(15)"  
-                                  "<C45><b>Art#: </b>" eb.Plate-no FORMAT "x(12)"
+                                  "<C45><b>Art#: </b>" eb.Plate-no FORMAT "x(30)"
                                   "<C70><B><P10>Over Qty: </B>" TRIM(STRING(iEbTotalOverQty)) FORMAT "x(12)" SKIP 
                                   
                                   "<C2><B>Blank | </B>" STRING(eb.blank-no,"99")  "<C10><B># Up: </b>" string(eb.num-up)
-                                  "<P10><C20><b>Size: </B>" (string(eb.len,">9.9999") + " x " + STRING(eb.wid,">9.9999") + " x " + STRING(eb.dep,">9.9999")) FORMAT "x(40)" SKIP .
+                                  "<P10><C20><b>Size: </B>" (string(eb.len,">9.9999") + " x " + STRING(eb.wid,">9.9999") + " x " + STRING(eb.dep,">9.9999")) FORMAT "x(40)" 
+                                  "<C45>" eb.spc-no FORMAT "x(30)"
+                                  SKIP .
                         
                                   IF LINE-COUNTER > 70 THEN 
                                     DO:
@@ -1423,7 +1426,7 @@ FOR EACH job-hdr NO-LOCK
                                   "<C45><b>Ctn/Bdl.Per: </b>" cCasePerPallet SKIP
 
                                   "<P10><C20><b>Count: </B>" cCaseCount 
-                                  /*"<C45><b>Label: </b>" (IF eb.layer-pad NE "" OR eb.divider NE "" THEN "Y" ELSE "N" )*/ SKIP  .
+                                                /*"<C45><b>Label: </b>" (IF eb.layer-pad NE "" OR eb.divider NE "" THEN "Y" ELSE "N" )*/ SKIP  .
                              
                                    RUN pPrintMiscItems(eb.est-no,eb.form-no,eb.blank-no,"5,6,M").
                               END.
@@ -1471,11 +1474,12 @@ FOR EACH job-hdr NO-LOCK
                                          "<C70><B><P10>Req Qty: </B>" TRIM(STRING(iEbTotalblQty)) FORMAT "x(12)"  skip
                                          
                                          "<P10><C20><b>Adhesive: </B>" bff-eb.adhesive FORMAT "x(15)"  
-                                         "<C45><b>Art#: </b>" bff-eb.Plate-no FORMAT "x(12)"
+                                         "<C45><b>Art#: </b>" bff-eb.Plate-no FORMAT "x(30)"
                                          "<C70><B><P10>Over Qty: </B>" TRIM(STRING(iEbTotalOverQty)) FORMAT "x(12)" SKIP
                                          
                                          "<C2><B>Blank | </B>" STRING(bff-eb.blank-no,"99")  "<C10><B># Up: </B>" string(bff-eb.num-up)
-                                         "<P10><C20><b>Size: </B>" (string(bff-eb.len,">9.9999") + " x " + STRING(bff-eb.wid,">9.9999") + " x " + STRING(bff-eb.dep,">9.9999")) FORMAT "x(40)" SKIP .
+                                         "<P10><C20><b>Size: </B>" (string(bff-eb.len,">9.9999") + " x " + STRING(bff-eb.wid,">9.9999") + " x " + STRING(bff-eb.dep,">9.9999")) FORMAT "x(40)" 
+                                         "<C45>" bff-eb.spc-no FORMAT "x(30)" SKIP .
 
                                         IF LINE-COUNTER > 70 THEN DO:
                                             PUT "<C74><R64>Page: " string(PAGE-NUM - lv-pg-num,">>9") + " of <#PAGES>"  FORM "x(20)" .
@@ -1493,7 +1497,7 @@ FOR EACH job-hdr NO-LOCK
                                          "<C45><b>Ctn/Bdl.Per: </b>" cCasePerPallet SKIP
 
                                          "<P10><C20><b>Count: </B>" cCaseCount  
-                                         /*"<C45><b>Label: </b>" (IF bff-eb.layer-pad NE "" OR bff-eb.divider NE "" THEN "Y" ELSE "N" )*/ SKIP  .
+                                                    /*"<C45><b>Label: </b>" (IF bff-eb.layer-pad NE "" OR bff-eb.divider NE "" THEN "Y" ELSE "N" )*/ SKIP  .
                                          RUN pPrintMiscItems(bff-eb.est-no,bff-eb.form-no,bff-eb.blank-no,"5,6,M").
                                       END.
                                       ELSE 
@@ -1557,10 +1561,11 @@ FOR EACH bf-jobhdr NO-LOCK WHERE bf-jobhdr.company = job-hdr.company
         
         
         FOR EACH notes WHERE notes.rec_key = job.rec_key 
-             AND notes.note_code <> ''  NO-LOCK,
-             FIRST bf-ttSoule WHERE  bf-ttSoule.frm EQ notes.note_form_no
-              AND  bf-ttSoule.runForm EQ YES NO-LOCK  
+             AND notes.note_code <> ''  NO-LOCK               
               BY notes.note_form_no:
+          FIND FIRST bf-ttSoule WHERE  bf-ttSoule.frm EQ notes.note_form_no
+              AND  bf-ttSoule.runForm EQ YES NO-LOCK NO-ERROR.
+          IF NOT AVAILABLE bf-ttSoule AND NOT notes.note_form_no EQ 0 THEN NEXT.
             v-inst2 = "".
             IF v-prev-note-rec <> ? AND
                 v-prev-note-rec <> RECID(notes) THEN v-prev-extent = lv-note-cnt.

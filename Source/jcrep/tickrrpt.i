@@ -248,9 +248,8 @@ IF ip-industry EQ "Fold" AND tb_fold AND CAN-DO("Frankstn,Keystone,Ruffino,Fibre
       AND CAN-DO("FibreFC",lv-format-f) THEN
     RUN cerep/d-fibr1.w (ROWID(job-hdr), job-mat.frm).
 
-  IF FIRST(job-hdr.job) AND CAN-DO("McLean",lv-format-f) 
-           AND est.est-type NE 1 THEN DO:
-            RUN cerep/d-mclean.w (ROWID(job-hdr)).
+  IF FIRST(job-hdr.job) AND CAN-DO("McLean",lv-format-f) THEN DO:
+    RUN cerep/d-mclean.w (ROWID(job-hdr)).
   END.
 
 END.
