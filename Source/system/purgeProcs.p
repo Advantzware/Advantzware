@@ -333,7 +333,8 @@ PROCEDURE pPurgeJob PRIVATE:
         END.
         IF iplPurge THEN DO:
             RUN jc/jc-dall.p (RECID(bf-job)).
-            OUTPUT STREAM sReftable TO VALUE(cOutDir + "\DataFiles\reftable.d") APPEND.
+            IF NOT iplCalledFromTrigger THEN 
+                OUTPUT STREAM sReftable TO VALUE(cOutDir + "\DataFiles\reftable.d") APPEND.
             FOR EACH reftable EXCLUSIVE-LOCK
                 WHERE reftable.reftable EQ "jc/jc-calc.p"
                  AND reftable.company   EQ bf-Job.company
@@ -381,7 +382,8 @@ PROCEDURE pPurgeJob PRIVATE:
                 INPUT iplgLogChildRecords,
                 INPUT iplCalledFromTrigger
                 ). 
-        OUTPUT STREAM sReftable CLOSE.                              
+        IF iplPurge AND NOT iplCalledFromTrigger THEN
+            OUTPUT STREAM sReftable CLOSE.                              
     END. /* Transaction */    
     PROCESS EVENTS.
 END PROCEDURE.
