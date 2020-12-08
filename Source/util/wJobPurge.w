@@ -374,13 +374,13 @@ DO:
     IF NOT v-process THEN RETURN NO-APPLY.
     
     RUN pSetup. /* Resets directory for run */
-    
-    DYNAMIC-FUNCTION ("fStartPurge", "job").
      
     /* ensure job-no values are formatted correctly */
     APPLY "LEAVE":U TO fiStartJob.
     APPLY "LEAVE":U TO fiEndJob.
-
+    
+    DISABLE TRIGGERS FOR LOAD OF job.
+    
     /* Optimize these to use the best index given entered values */
     IF rsOpen:SCREEN-VALUE EQ "C" THEN DO:  /* Closed jobs only, use close-date for index */
         FOR EACH job NO-LOCK WHERE 
@@ -400,9 +400,25 @@ DO:
             STATUS DEFAULT "Purging job #" + job.job-no + "-" + STRING(job.job-no2,"99") + "...".
             
             IF rsPurge:SCREEN-VALUE EQ "P" THEN 
-                RUN purge ("job", ROWID(job), lVerbose, OUTPUT lSuccess, OUTPUT cMessage).
+                RUN Purge_SimulateOrDeleteRecordsByTable(
+                    INPUT  "job",
+                    INPUT  ROWID(job),
+                    INPUT  YES,       /* Purge Records? */
+                    INPUT  lVerbose,  /* Create .csv for child tables? */
+                    INPUT  NO,        /* Called from trigger? */
+                    OUTPUT lSuccess,
+                    OUTPUT cMessage
+                    ). 
             ELSE 
-                RUN PrePurge ("job", ROWID(job), lVerbose, OUTPUT lSuccess, OUTPUT cMessage).   
+                RUN Purge_SimulateOrDeleteRecordsByTable(
+                    INPUT  "job",
+                    INPUT  ROWID(job),
+                    INPUT  NO,        /* Purge Records? */
+                    INPUT  lVerbose,  /* Create .csv for child tables? */
+                    INPUT  NO,        /* Called from trigger? */
+                    OUTPUT lSuccess,
+                    OUTPUT cMessage
+                    ).  
         END.
     END.
     ELSE DO: /* Closed and open jobs, full table scan */
@@ -424,15 +440,29 @@ DO:
             STATUS DEFAULT "Purging job #" + job.job-no + "-" + STRING(job.job-no2,"99") + "...".
             
             IF rsPurge:SCREEN-VALUE EQ "P" THEN 
-                RUN purge ("job", ROWID(job), lVerbose, OUTPUT lSuccess, OUTPUT cMessage).
+                RUN Purge_SimulateOrDeleteRecordsByTable(
+                    INPUT  "job",
+                    INPUT  ROWID(job),
+                    INPUT  YES,       /* Purge Recordss? */
+                    INPUT  lVerbose,  /* Create .csv for child tables? */
+                    INPUT  NO,        /* Called from trigger? */
+                    OUTPUT lSuccess,
+                    OUTPUT cMessage
+                    ). 
             ELSE 
-                RUN PrePurge ("job", ROWID(job), lVerbose, OUTPUT lSuccess, OUTPUT cMessage).
+                RUN Purge_SimulateOrDeleteRecordsByTable(
+                    INPUT  "job",
+                    INPUT  ROWID(job),
+                    INPUT  NO,         /* Purge Records? */
+                    INPUT  lVerbose,   /* Create .csv for child tables?*/
+                    INPUT  NO,         /* Called from trigger? */
+                    OUTPUT lSuccess,
+                    OUTPUT cMessage
+                    ).  
         END.         
     END.
 
-    MESSAGE TRIM(c-win:TITLE) + " Process Is Completed." VIEW-AS ALERT-BOX.
-    DYNAMIC-FUNCTION ("fEndPurge", "job").
-    
+    MESSAGE TRIM(c-win:TITLE) + " Process Is Completed." VIEW-AS ALERT-BOX.    
 END.
 
 /* _UIB-CODE-BLOCK-END */

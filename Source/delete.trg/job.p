@@ -3,14 +3,16 @@
 &Scoped-define TABLENAME job
 
 TRIGGER PROCEDURE FOR DELETE OF {&TABLENAME}.
+
+DEFINE VARIABLE lSuccess AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+
 /* not delete if estimate exists */
 FIND est WHERE est.rec_key = {&TABLENAME}.rec_key NO-LOCK NO-ERROR.
 IF NOT AVAIL est THEN DO:
     {methods/triggers/delete.i}
 END.
     
-
-
 {sys/inc/var.i NEW SHARED}
 ASSIGN
  cocode = {&TABLENAME}.company
@@ -48,91 +50,17 @@ IF lv-msg NE "" THEN DO:
   RETURN ERROR.
 END.
 */
-{jc/jc-dall.i}
-               
-FOR EACH job-hdr
-    WHERE job-hdr.company EQ {&TABLENAME}.company
-      AND job-hdr.job     EQ {&TABLENAME}.job
-      AND job-hdr.job-no  EQ {&TABLENAME}.job-no
-      AND job-hdr.job-no2 EQ {&TABLENAME}.job-no2
-    EXCLUSIVE-LOCK:            
-  {util/dljobkey.i}
-
-  DELETE job-hdr.
-END.
-
-FOR EACH job-mch
-    WHERE job-mch.company EQ {&TABLENAME}.company
-      AND job-mch.job     EQ {&TABLENAME}.job
-      AND job-mch.job-no  EQ {&TABLENAME}.job-no
-      AND job-mch.job-no2 EQ {&TABLENAME}.job-no2
-    EXCLUSIVE-LOCK:
-  DELETE job-mch.
-END.
-
-FOR EACH job-mat
-    WHERE job-mat.company EQ {&TABLENAME}.company
-      AND job-mat.job     EQ {&TABLENAME}.job
-      AND job-mat.job-no  EQ {&TABLENAME}.job-no
-      AND job-mat.job-no2 EQ {&TABLENAME}.job-no2
-    EXCLUSIVE-LOCK:
-  DELETE job-mat.
-END.
-
-FOR EACH job-prep
-    WHERE job-prep.company EQ {&TABLENAME}.company
-      AND job-prep.job     EQ {&TABLENAME}.job
-      AND job-prep.job-no  EQ {&TABLENAME}.job-no
-      AND job-prep.job-no2 EQ {&TABLENAME}.job-no2
-    EXCLUSIVE-LOCK:
-  DELETE job-prep.
-END.
-
-FOR EACH job-farm-rctd 
-    WHERE job-farm-rctd.company EQ {&TABLENAME}.company      
-      AND job-farm-rctd.job-no  EQ {&TABLENAME}.job-no
-      AND job-farm-rctd.job-no2 EQ {&TABLENAME}.job-no2
-    EXCLUSIVE-LOCK:
-  DELETE job-farm-rctd.
-END.
-
-FOR EACH job-farm
-      WHERE job-farm.company EQ {&TABLENAME}.company      
-      AND job-farm.job-no  EQ {&TABLENAME}.job-no
-      AND job-farm.job-no2 EQ {&TABLENAME}.job-no2
-    EXCLUSIVE-LOCK:
-
-END.
-
-FOR EACH reftable
-    WHERE reftable.reftable EQ "jc/jc-calc.p"
-      AND reftable.company  EQ {&TABLENAME}.company
-      AND reftable.loc      EQ ""
-      AND reftable.code     EQ STRING({&TABLENAME}.job,"999999999")
-    EXCLUSIVE-LOCK:
-  DELETE reftable.
-END.
-
-
-FOR EACH reftable
-    WHERE reftable.reftable EQ "job.create-time"
-      AND reftable.company  EQ {&TABLENAME}.company
-      AND reftable.loc      EQ ""
-      AND reftable.code     EQ STRING({&TABLENAME}.job,"9999999999")
-    EXCLUSIVE-LOCK:
-  DELETE reftable.
-END.
-
-FOR EACH reftable
-    WHERE reftable.reftable EQ "job.qty-changed"
-      AND reftable.company  EQ {&TABLENAME}.company
-      AND reftable.loc      EQ ""
-      AND reftable.code     EQ STRING({&TABLENAME}.job,"9999999999")
-    EXCLUSIVE-LOCK:
-  DELETE reftable.
-END.
-         
-IF {&TABLENAME}.exported THEN DO:
-  {&TABLENAME}.stat = "X".
-  {jc/kiwiexp4.i}
-END.
+RUN Purge_SimulateOrDeleteRecordsByTable(
+    INPUT  {&TABLENAME},
+    INPUT  ROWID({&TABLENAME}),
+    INPUT  YES,        /* Delete Records ? */
+    INPUT  NO,         /* Create .csv files for child tables? */
+    INPUT  YES,        /* Called from trigger?  */
+    OUTPUT lSuccess,
+    OUTPUT cMessage
+    ). 
+    
+/* Clear out any error-status from find with no-error that is false */
+DEF VAR ll-error AS LOG NO-UNDO.
+ll-error = YES NO-ERROR.    
+     
