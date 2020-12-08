@@ -20,8 +20,10 @@ Use this template to create a new Structured Procedure file to compile and run P
 /*----------------------------------------------------------------------*/
 
 /* ***************************  Definitions  ************************** */
-DEF STREAM datafiles.
-DEF STREAM listfile.
+DEFINE STREAM datafiles.
+DEFINE STREAM listfile.
+DEFINE STREAM sReftable.
+
 DEF VAR cOutDir AS CHAR NO-UNDO.
 DEF VAR cListFile AS CHAR NO-UNDO.
 DEF VAR lPurge AS LOG NO-UNDO.
@@ -33,8 +35,6 @@ DEF VAR lVerbose AS LOG NO-UNDO.
 DEFINE VARIABLE hdOutputProcs AS HANDLE NO-UNDO.
 DEFINE VARIABLE hdPurgeProcs  AS HANDLE NO-UNDO.
 
-MESSAGE "here"
-VIEW-AS ALERT-BOX.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -223,7 +223,7 @@ PROCEDURE pDeleteJobRecords PRIVATE:
                     FOR EACH reftable EXCLUSIVE-LOCK
                         WHERE reftable.reftable EQ ENTRY(iIndex,cJobHdrRefTbl) + ipcCompany
                           AND reftable.code2    EQ hdBuffer:BUFFER-FIELD ("j-no"):BUFFER-VALUE:
-                        EXPORT STREAM datafiles reftable.                                
+                        EXPORT STREAM sReftable reftable.                                
                         DELETE reftable.
                     END.
                 END.
@@ -333,13 +333,13 @@ PROCEDURE pPurgeJob PRIVATE:
         END.
         IF iplPurge THEN DO:
             RUN jc/jc-dall.p (RECID(bf-job)).
-            OUTPUT STREAM dataFiles TO VALUE(cOutDir + "\DataFiles\reftable.d") APPEND.
+            OUTPUT STREAM sReftable TO VALUE(cOutDir + "\DataFiles\reftable.d") APPEND.
             FOR EACH reftable EXCLUSIVE-LOCK
                 WHERE reftable.reftable EQ "jc/jc-calc.p"
                  AND reftable.company   EQ bf-Job.company
                  AND reftable.loc       EQ ""
                  AND reftable.code      EQ STRING(bf-Job.job,"999999999"):
-                EXPORT STREAM datafiles reftable.     
+                EXPORT STREAM sReftable reftable.     
                 DELETE reftable.
             END.
             FOR EACH reftable EXCLUSIVE-LOCK
@@ -347,7 +347,7 @@ PROCEDURE pPurgeJob PRIVATE:
                   AND reftable.company  EQ bf-Job.company
                   AND reftable.loc      EQ ""
                   AND reftable.code     EQ STRING(bf-Job.job,"9999999999"):
-                EXPORT STREAM datafiles reftable.                      
+                EXPORT STREAM sReftable reftable.                      
                 DELETE reftable.
             END.
             
@@ -356,7 +356,7 @@ PROCEDURE pPurgeJob PRIVATE:
                   AND reftable.company  EQ bf-Job.company
                   AND reftable.loc      EQ ""
                   AND reftable.code     EQ STRING(bf-Job.job,"9999999999"):
-                EXPORT STREAM datafiles reftable.                      
+                EXPORT STREAM sReftable reftable.                      
                 DELETE reftable.
             END.
         END. 
@@ -381,7 +381,7 @@ PROCEDURE pPurgeJob PRIVATE:
                 INPUT iplgLogChildRecords,
                 INPUT iplCalledFromTrigger
                 ). 
-        OUTPUT STREAM datafiles CLOSE.                              
+        OUTPUT STREAM sReftable CLOSE.                              
     END. /* Transaction */    
     PROCESS EVENTS.
 END PROCEDURE.
