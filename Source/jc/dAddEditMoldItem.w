@@ -17,7 +17,7 @@ SESSION:DEBUG-ALERT = FALSE.
 /* PARAMs Definitions ---                                           */
 DEFINE INPUT PARAMETER ip-recid  AS RECID     NO-UNDO.
 DEFINE INPUT PARAMETER ip-type   AS CHARACTER NO-UNDO.   /* add,update,view */ 
-DEFINE INPUT PARAMETER ipiTragetCyc AS INTEGER NO-UNDO.  
+DEFINE INPUT PARAMETER ipiTargetCycles AS INTEGER NO-UNDO.  
 DEFINE INPUT PARAMETER ipdBlankSqFt AS DECIMAL NO-UNDO.
 DEFINE OUTPUT PARAMETER op-rowid AS ROWID     NO-UNDO.
 
@@ -339,8 +339,8 @@ DO:
         ASSIGN
             ttInputEst.cStockNo  = cStock
             ttInputEst.iMolds    = iMolds 
-            ttInputEst.iQuantityYield = ttInputEst.iMolds * ipiTragetCyc
-            ttInputEst.dSqFt     = ipdBlankSqFt * iMolds
+            ttInputEst.iQuantityYield = ttInputEst.iMolds * ipiTargetCycles
+
             ttInputEst.lKeyItem = tb_default .                           
                    
         FIND FIRST itemfg NO-LOCK 
@@ -350,7 +350,8 @@ DO:
         DO:
             ASSIGN
                 ttInputEst.cPartName = itemfg.i-name 
-                ttInputEst.cFgEstNo  = itemfg.est-no .               
+                ttInputEst.cFgEstNo  = itemfg.est-no
+                ttInputEst.dSqFt     = itemfg.t-sqft * iMolds .               
         END.
         IF tb_default THEN
         DO:

@@ -22,6 +22,9 @@ DEFINE VARIABLE riEb      AS ROWID   NO-UNDO.
 DEFINE VARIABLE li        LIKE job.job.
 DEFINE VARIABLE iJobNo2   AS INTEGER NO-UNDO.
 DEFINE VARIABLE v-bld-job LIKE job.job-no NO-UNDO.
+DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+
 DEFINE BUFFER bf-job FOR job.
 
 /* ********************  Preprocessor Definitions  ******************** */
@@ -67,8 +70,9 @@ IF bf-job.job-no2 GT 0 THEN
     bf-job.orderType = "R".                                 
 ELSE 
     bf-job.orderType = "O".               
-                       
-RUN jc/jc-calc.p (RECID(bf-job), YES) NO-ERROR. 
+
+RUN jc/BuildJob.p (ROWID(bf-job), 0, OUTPUT lError, OUTPUT cMessage).                       
+//RUN jc/jc-calc.p (RECID(bf-job), YES) NO-ERROR. 
 
 RUN pUpdateKeyItem(BUFFER bf-job, INPUT ipcKeyItem).
 

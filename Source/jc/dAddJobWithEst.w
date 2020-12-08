@@ -52,6 +52,7 @@ ELSE
 
 {est/ttInputEst.i NEW}  
 {sys/inc/var.i NEW shared}
+{fgrep/ttFGReorder.i}
 {jc/ttMultiSelectItem.i}
 {custom/gcompany.i}  
 ASSIGN
@@ -129,17 +130,16 @@ DEFINE TEMP-TABLE ttCompareEst NO-UNDO
     ~{&OPEN-QUERY-BROWSE-1}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS BROWSE-1 cMachCode cBoard iTargetCyl Btn_OK ~
-Btn_Cancel btn-add btn-copy btn-update btn-delete btn-viewjob dtDueDate ~
-btn-add-multiple btn-imp-bal btn-sel-head tb_auto btnCalendar-1
+&Scoped-Define ENABLED-OBJECTS BROWSE-1 cMachCode cBoard iTargetCyl ~
+dtDueDate btnCalendar-1 btn-add btn-copy btn-update btn-delete btn-viewjob ~
+btn-add-multiple btn-imp-bal btn-sel-head tb_auto Btn_OK Btn_Cancel 
 &Scoped-Define DISPLAYED-OBJECTS cMachCode cBoard iTargetCyl cJobNo ~
-cLineDscr cBoardDscr dtCreatedDate cUserID dtStartDate cStatus dtEstCom cEstNo ~
-dtDueDate iItem dTotSqFt iMolds dUtilization tb_auto 
-
-&Scoped-define calendarPopup btnCalendar-1 
+cLineDscr cBoardDscr dtDueDate dtCreatedDate cUserID dtStartDate cStatus ~
+dtEstCom cEstNo iItem dTotSqFt iMolds dUtilization tb_auto 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
+&Scoped-define List-3 btnCalendar-1 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -151,11 +151,6 @@ dtDueDate iItem dTotSqFt iMolds dUtilization tb_auto
 /* Define a dialog box                                                  */
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btnCalendar-1 
-    IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
-    LABEL "" 
-    SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
-
 DEFINE BUTTON btn-add 
      LABEL "Add " 
      SIZE 15 BY 1.14.
@@ -188,6 +183,11 @@ DEFINE BUTTON btn-viewjob
      LABEL "View Job Queue" 
      SIZE 23.2 BY 1.14.
 
+DEFINE BUTTON btnCalendar-1 
+     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
+     LABEL "" 
+     SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
+
 DEFINE BUTTON Btn_Cancel 
      LABEL "&Cancel" 
      SIZE 15 BY 1.29
@@ -203,6 +203,11 @@ DEFINE VARIABLE cBoard AS CHARACTER FORMAT "X(10)":U
      VIEW-AS FILL-IN 
      SIZE 23.6 BY 1 NO-UNDO.
 
+DEFINE VARIABLE cBoardDscr AS CHARACTER FORMAT "X(35)":U 
+     VIEW-AS FILL-IN 
+     SIZE 33.6 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
+
 DEFINE VARIABLE cEstNo AS CHARACTER FORMAT "X(10)":U 
      LABEL "Estimate ID" 
      VIEW-AS FILL-IN 
@@ -217,12 +222,7 @@ DEFINE VARIABLE cJobNo AS CHARACTER FORMAT "X(10)":U
 
 DEFINE VARIABLE cLineDscr AS CHARACTER FORMAT "X(35)":U 
      VIEW-AS FILL-IN 
-     SIZE 33.6 BY 1
-     BGCOLOR 15 FONT 1 NO-UNDO.       
- 
-DEFINE VARIABLE cBoardDscr AS CHARACTER FORMAT "X(35)":U 
-     VIEW-AS FILL-IN 
-     SIZE 33.6 BY 1
+     SIZE 39.0 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
 DEFINE VARIABLE cMachCode AS CHARACTER FORMAT "X(8)":U 
@@ -304,7 +304,7 @@ DEFINE RECTANGLE RECT-4
 
 DEFINE RECTANGLE RECT-6
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 62.4 BY 2.72
+     SIZE 62.4 BY 2.71
      BGCOLOR 15 .
 
 DEFINE VARIABLE tb_auto AS LOGICAL INITIAL yes 
@@ -341,9 +341,9 @@ DEFINE FRAME D-Dialog
      cMachCode AT ROW 2 COL 19.6 COLON-ALIGNED WIDGET-ID 176
      cBoard AT ROW 4.29 COL 19.4 COLON-ALIGNED WIDGET-ID 88
      iTargetCyl AT ROW 5.43 COL 19.4 COLON-ALIGNED WIDGET-ID 42
-     cJobNo AT ROW 2 COL 91.2 COLON-ALIGNED WIDGET-ID 196       
+     cJobNo AT ROW 2 COL 91.2 COLON-ALIGNED WIDGET-ID 196
      cLineDscr AT ROW 2 COL 37.4 COLON-ALIGNED NO-LABEL WIDGET-ID 202
-     cBoardDscr AT ROW 4.29 COL 43.4 COLON-ALIGNED NO-LABEL 
+     cBoardDscr AT ROW 4.29 COL 43.4 COLON-ALIGNED NO-LABEL
      dtDueDate AT ROW 5.43 COL 130.8 COLON-ALIGNED WIDGET-ID 280
      btnCalendar-1 AT ROW 5.43 COL 147.6
      btn-add AT ROW 21.19 COL 4.2 WIDGET-ID 16
@@ -356,22 +356,24 @@ DEFINE FRAME D-Dialog
      dtStartDate AT ROW 3.1 COL 130.8 COLON-ALIGNED WIDGET-ID 272
      cStatus AT ROW 4.29 COL 91.2 COLON-ALIGNED WIDGET-ID 274
      dtEstCom AT ROW 4.29 COL 130.8 COLON-ALIGNED WIDGET-ID 276
-     cEstNo AT ROW 5.43 COL 91.2 COLON-ALIGNED WIDGET-ID 278       
-     iItem AT ROW 22.96 COL 14.2 COLON-ALIGNED WIDGET-ID 282
-     dTotSqFt AT ROW 22.96 COL 45.2 COLON-ALIGNED WIDGET-ID 286
-     iMolds AT ROW 24.06 COL 14.2 COLON-ALIGNED WIDGET-ID 284
-     dUtilization AT ROW 24.06 COL 45.2 COLON-ALIGNED WIDGET-ID 288
+     cEstNo AT ROW 5.43 COL 91.2 COLON-ALIGNED WIDGET-ID 278
+     iItem AT ROW 22.95 COL 14.2 COLON-ALIGNED WIDGET-ID 282
+     dTotSqFt AT ROW 22.95 COL 45.2 COLON-ALIGNED WIDGET-ID 286
+     iMolds AT ROW 24.05 COL 14.2 COLON-ALIGNED WIDGET-ID 284
+     dUtilization AT ROW 24.05 COL 45.2 COLON-ALIGNED WIDGET-ID 288
      btn-add-multiple AT ROW 6.57 COL 4.2 WIDGET-ID 292
      btn-imp-bal AT ROW 6.57 COL 32.6 WIDGET-ID 296
      btn-sel-head AT ROW 6.57 COL 68.2 WIDGET-ID 294
      tb_auto AT ROW 24.05 COL 81.6 WIDGET-ID 260
      Btn_OK AT ROW 23.91 COL 110.4
      Btn_Cancel AT ROW 23.91 COL 135.4
+     " Head Analysis" VIEW-AS TEXT
+          SIZE 18 BY .71 AT ROW 22.33 COL 6 WIDGET-ID 206
+     "%" VIEW-AS TEXT
+          SIZE 2.8 BY .62 AT ROW 24.24 COL 62.2 WIDGET-ID 298
      RECT-4 AT ROW 1.48 COL 2 WIDGET-ID 236
      RECT-6 AT ROW 22.52 COL 3.6 WIDGET-ID 290
-     " Head Analysis" VIEW-AS TEXT
-          SIZE 18 BY .71 AT ROW 22.32 COL 6 WIDGET-ID 206
-     SPACE(90.59) SKIP(0.66)
+     SPACE(90.00) SKIP(0.83)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          FGCOLOR 1 FONT 6
@@ -395,7 +397,7 @@ DEFINE FRAME D-Dialog
 {src/adm/method/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME  
+&ANALYZE-RESUME
 
 
 
@@ -410,14 +412,16 @@ ASSIGN
        FRAME D-Dialog:SCROLLABLE       = FALSE
        FRAME D-Dialog:HIDDEN           = TRUE.
 
+/* SETTINGS FOR BUTTON btnCalendar-1 IN FRAME D-Dialog
+   3                                                                    */
+/* SETTINGS FOR FILL-IN cBoardDscr IN FRAME D-Dialog
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN cEstNo IN FRAME D-Dialog
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN cJobNo IN FRAME D-Dialog
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN cLineDscr IN FRAME D-Dialog
    NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN cBoardDscr IN FRAME D-Dialog
-   NO-ENABLE                                                            */      
 /* SETTINGS FOR FILL-IN cStatus IN FRAME D-Dialog
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN cUserID IN FRAME D-Dialog
@@ -440,8 +444,6 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR RECTANGLE RECT-6 IN FRAME D-Dialog
    NO-ENABLE                                                            */
-/* SETTINGS FOR BUTTON btnCalendar-1 IN FRAME  D-Dialog
-   3                                                                    */   
 ASSIGN 
        tb_auto:PRIVATE-DATA IN FRAME D-Dialog     = 
                 "parm".
@@ -474,6 +476,17 @@ OPEN QUERY {&SELF-NAME} FOR EACH ttInputEst WHERE ttInputEst.cCompany = cocode ~
 
 
 /* ************************  Control Triggers  ************************ */
+
+&Scoped-define BROWSE-NAME BROWSE-1
+&Scoped-define SELF-NAME BROWSE-1
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-1 D-Dialog
+ON DEFAULT-ACTION OF BROWSE-1 IN FRAME D-Dialog /* BROWSE-1 */
+DO:
+        APPLY "CHOOSE" TO btn-update .
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &Scoped-define SELF-NAME D-Dialog
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL D-Dialog D-Dialog
@@ -523,7 +536,7 @@ DO:
         RUN jc/dAddEditMoldItem.w (?,
                                "Add", 
                                int(iTargetCyl:SCREEN-VALUE), 
-                               dMachBlankSqFt,
+                               0,
                                OUTPUT lv-rowid) . 
         
             RUN repo-query (lv-rowid). 
@@ -561,19 +574,20 @@ DO:
                 bf-ttInputEst.cEstType = "MoldTandem"
                 bf-ttInputEst.cSetType = "MoldEstTandem"
                 bf-ttInputEst.cCompany = cocode 
-                bf-ttInputEst.cStockNo = ttMultiSelectItem.fgItem
-                bf-ttInputEst.iMolds   = 1 
-                bf-ttInputEst.iQuantityYield = 1 * INTEGER(iTargetCyl:SCREEN-VALUE)
-                bf-ttInputEst.dSqFt    = dMachBlankSqFt * 1
+                bf-ttInputEst.cStockNo = ttMultiSelectItem.itemID
+                bf-ttInputEst.iMolds   = ttMultiSelectItem.multiplier 
+                bf-ttInputEst.iQuantityYield = ttMultiSelectItem.quantityToOrder
                 lv-rowid               = ROWID(bf-ttInputEst).
                 FIND FIRST itemfg NO-LOCK 
                      WHERE itemfg.company EQ cocode
-                     AND itemfg.i-no EQ ttMultiSelectItem.fgItem NO-ERROR .
+                     AND itemfg.i-no EQ ttMultiSelectItem.itemID NO-ERROR .
                 IF AVAILABLE itemfg THEN
                 DO:
                   ASSIGN
                       bf-ttInputEst.cPartName = itemfg.i-name 
-                      bf-ttInputEst.cFgEstNo  = itemfg.est-no .               
+                      bf-ttInputEst.cFgEstNo  = itemfg.est-no
+                      bf-ttInputEst.dSqFt = itemfg.t-sqft * bf-ttInputEst.iMolds
+                      .               
                 END.          
        END.
             
@@ -700,6 +714,18 @@ DO:
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME btnCalendar-1
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalendar-1 D-Dialog
+ON CHOOSE OF btnCalendar-1 IN FRAME D-Dialog
+DO:
+    {methods/btnCalendar.i dtDueDate }
+        APPLY "entry" TO dtDueDate .
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME Btn_Cancel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Cancel D-Dialog
 ON CHOOSE OF Btn_Cancel IN FRAME D-Dialog /* Cancel */
@@ -727,7 +753,7 @@ DO:
 
 &Scoped-define SELF-NAME Btn_OK
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_OK D-Dialog
-ON CHOOSE OF Btn_OK IN FRAME D-Dialog /* Create */
+ON CHOOSE OF Btn_OK IN FRAME D-Dialog /* Create Head/Job */
 DO:
         DEFINE VARIABLE lError AS LOGICAL NO-UNDO .
         DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
@@ -805,28 +831,9 @@ DO:
            opcJobNo                    = bf-job.job-no. 
         END.
          
-         MESSAGE "Process complete." VIEW-AS ALERT-BOX INFO.           
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&Scoped-define SELF-NAME btnCalendar-1
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalendar-1 D-Dialog
-ON CHOOSE OF btnCalendar-1 IN FRAME D-Dialog
-    DO:
-    {methods/btnCalendar.i dtDueDate }
-        APPLY "entry" TO dtDueDate .
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&Scoped-define SELF-NAME dtDueDate
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL dtDueDate D-Dialog
-ON HELP OF dtDueDate IN FRAME D-Dialog /* due Date */
-    DO:
-  {methods/calpopup.i}
+         MESSAGE "Process complete." VIEW-AS ALERT-BOX INFO. 
+         
+         APPLY "END-ERROR":U TO SELF.
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -920,6 +927,17 @@ DO:
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME dtDueDate
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL dtDueDate D-Dialog
+ON HELP OF dtDueDate IN FRAME D-Dialog /* Due Date */
+DO:
+  {methods/calpopup.i}
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define BROWSE-NAME BROWSE-1
 &UNDEFINE SELF-NAME
 
@@ -937,7 +955,16 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     {methods/nowait.i}     
     DO WITH FRAME {&frame-name}:  
         
-        DISABLE btn-viewjob btn-imp-bal btn-sel-head tb_auto.     
+        DISABLE btn-viewjob btn-imp-bal btn-sel-head tb_auto.
+        ASSIGN
+         cJobNo:HIDDEN = YES
+         dtCreatedDate:HIDDEN = YES 
+         cUserID:HIDDEN = YES
+         cStatus:HIDDEN = YES
+         dtEstCom:HIDDEN = YES
+         dtStartDate:HIDDEN = YES
+         cEstNo:HIDDEN = YES
+         .
         APPLY "entry" TO cMachCode.    
     END.
     IF NOT THIS-PROCEDURE:PERSISTENT THEN
@@ -1081,43 +1108,16 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY cMachCode cBoard iTargetCyl cJobNo cLineDscr dtCreatedDate cUserID 
-          dtStartDate cStatus dtEstCom cEstNo dtDueDate iItem dTotSqFt iMolds 
-          dUtilization tb_auto cBoardDscr
+  DISPLAY cMachCode cBoard iTargetCyl cJobNo cLineDscr cBoardDscr dtDueDate 
+          dtCreatedDate cUserID dtStartDate cStatus dtEstCom cEstNo iItem 
+          dTotSqFt iMolds dUtilization tb_auto 
       WITH FRAME D-Dialog.
-  ENABLE BROWSE-1 cMachCode cBoard iTargetCyl Btn_OK Btn_Cancel btn-add 
-         btn-copy btn-update btn-delete btn-viewjob dtDueDate btn-add-multiple 
-         btn-imp-bal btn-sel-head tb_auto btnCalendar-1
+  ENABLE BROWSE-1 cMachCode cBoard iTargetCyl dtDueDate btnCalendar-1 btn-add 
+         btn-copy btn-update btn-delete btn-viewjob btn-add-multiple 
+         btn-imp-bal btn-sel-head tb_auto Btn_OK Btn_Cancel 
       WITH FRAME D-Dialog.
   VIEW FRAME D-Dialog.
   {&OPEN-BROWSERS-IN-QUERY-D-Dialog}
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pNewMachine D-Dialog 
-PROCEDURE pNewMachine :
-/*------------------------------------------------------------------------------
-          Purpose:     
-          Parameters:  <none>
-          Notes:       
-        ------------------------------------------------------------------------------*/
-    
-    DO WITH FRAME {&FRAME-NAME}:
-        FIND FIRST mach
-            {sys/look/machW.i}
-            AND mach.m-code EQ cMachCode:screen-value 
-        NO-LOCK NO-ERROR.
-
-        IF AVAILABLE mach THEN 
-        DO:
-            cLineDscr:SCREEN-VALUE = "L:" + STRING(mach.max-len) + " ft " + "W:" + STRING(mach.max-wid) + " ft - " + STRING(mach.max-len * mach.max-wid) + " Sq Ft" . 
-            dMachBlankSqFt = mach.max-len  * mach.max-wid .
-        END.         
-    END.
-
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1175,6 +1175,33 @@ PROCEDURE pCheckEstimate :
         END.     
     END.      
         
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pNewMachine D-Dialog 
+PROCEDURE pNewMachine :
+/*------------------------------------------------------------------------------
+          Purpose:     
+          Parameters:  <none>
+          Notes:       
+        ------------------------------------------------------------------------------*/
+    
+    DO WITH FRAME {&FRAME-NAME}:
+        FIND FIRST mach
+            {sys/look/machW.i}
+            AND mach.m-code EQ cMachCode:screen-value 
+        NO-LOCK NO-ERROR.
+
+        IF AVAILABLE mach THEN 
+        DO:
+            dMachBlankSqFt = mach.max-len  * mach.max-wid / 144 .
+            cLineDscr:SCREEN-VALUE = "L:" + STRING(mach.max-len / 12) + " ft " + "W:" + STRING(mach.max-wid / 12) + " ft - " + STRING(dMachBlankSqFt) + " Sq Ft" . 
+            
+        END.         
+    END.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
