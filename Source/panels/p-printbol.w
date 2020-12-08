@@ -59,7 +59,6 @@ DEFINE VARIABLE panel-type   AS CHARACTER NO-UNDO INIT 'SAVE':U.
 DEFINE VARIABLE add-active   AS LOGICAL NO-UNDO INIT no.
 
 {methods/defines/hndldefs.i}
-{methods/prgsecdt.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -78,8 +77,7 @@ DEFINE VARIABLE add-active   AS LOGICAL NO-UNDO INIT no.
 &Scoped-define FRAME-NAME Panel-Frame
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Btn-Save Btn-Add Btn-Delete Btn-Cancel ~
-btn-qty 
+&Scoped-Define ENABLED-OBJECTS btn-print 
 
 /* Custom List Definitions                                              */
 /* Box-Rectangle,List-2,List-3,List-4,List-5,List-6                     */
@@ -94,43 +92,19 @@ btn-qty
 
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON Btn-Add 
-     LABEL "&Add" 
-     SIZE 9 BY 1.29
-     FONT 4.
-
-DEFINE BUTTON Btn-Cancel 
-     LABEL "Ca&ncel" 
-     SIZE 9 BY 1.29
-     FONT 4.
-
-DEFINE BUTTON Btn-Delete 
-     LABEL "&Delete" 
-     SIZE 9 BY 1.29
-     FONT 4.
-
-DEFINE BUTTON btn-qty 
-     LABEL "&Qty" 
-     SIZE 9.6 BY 1.14.
-
-DEFINE BUTTON Btn-Save 
-     LABEL "&Save" 
-     SIZE 9 BY 1.29
-     FONT 4.
+DEFINE BUTTON btn-print 
+     LABEL "&Print BOL" 
+     SIZE 13 BY 1.14.
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 79 BY 1.76.
+     SIZE 18 BY 1.76.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Panel-Frame
-     Btn-Save AT ROW 1.24 COL 2
-     Btn-Add AT ROW 1.24 COL 20
-     Btn-Delete AT ROW 1.24 COL 38
-     Btn-Cancel AT ROW 1.24 COL 47      
-     btn-qty AT ROW 1.24 COL 56 WIDGET-ID 2     
+     btn-print AT ROW 1.33 COL 2.8
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY NO-HELP 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -164,8 +138,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW C-WIn ASSIGN
-         HEIGHT             = 3.05
-         WIDTH              = 92.8.
+         HEIGHT             = 2.71
+         WIDTH              = 62.8.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -213,94 +187,13 @@ ASSIGN
 
 /* ************************  Control Triggers  ************************ */
 
-&Scoped-define SELF-NAME Btn-Add
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn-Add C-WIn
-ON CHOOSE OF Btn-Add IN FRAME Panel-Frame /* Add */
-DO:
-  add-active = yes.
-
-  RUN notify ('add-record':U).
-  
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME Btn-Cancel
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn-Cancel C-WIn
-ON CHOOSE OF Btn-Cancel IN FRAME Panel-Frame /* Cancel */
-DO:
-  DO WITH FRAME Panel-Frame:
-      add-active = no.
-      RUN notify ('cancel-record':U).
-   END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME Btn-Delete
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn-Delete C-WIn
-ON CHOOSE OF Btn-Delete IN FRAME Panel-Frame /* Delete */
-DO:
-   RUN notify ('delete-record':U).  
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME btn-qty
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-qty C-WIn
-ON CHOOSE OF btn-qty IN FRAME Panel-Frame /* Qty */
+&Scoped-define SELF-NAME btn-print
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-print C-WIn
+ON CHOOSE OF btn-print IN FRAME Panel-Frame /* Print BOL */
 DO:
     RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"tableio-target",OUTPUT char-hdl).
-    RUN set-go-to-qty IN WIDGET-HANDLE(char-hdl).
+    RUN print-bol IN WIDGET-HANDLE(char-hdl).
 
-    RUN new-state('update-begin':U).
-    ASSIGN add-active = no.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME Btn-Save
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn-Save C-WIn
-ON CHOOSE OF Btn-Save IN FRAME Panel-Frame /* Save */
-DO:
-&IF LOOKUP("Btn-Add":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-  /* If we're in a persistent add-mode then don't change any labels. Just make */
-  /* a call to update the last record and then add another record.             */
-  RUN get-attribute IN THIS-PROCEDURE ('AddFunction':U).
-  IF (RETURN-VALUE = 'Multiple-Records':U) AND add-active THEN 
-  DO:
-     RUN notify ('update-record':U).
-     IF RETURN-VALUE NE "ADM-ERROR":U THEN
-         RUN notify ('add-record':U). 
-  END.
-  ELSE 
-&ENDIF
-  DO:
-     IF panel-type = 'UPDATE':U THEN
-     DO WITH FRAME Panel-Frame:
-        IF Btn-Save:LABEL = '&Update' THEN 
-        DO:
-           RUN new-state('update-begin':U).
-           ASSIGN add-active = no.
-        END.
-        ELSE 
-        DO: /* Save */
-           RUN notify ('update-record':U).
-        END.                              
-     END.
-     ELSE 
-     DO: /* Normal 'Save'-style SmartPanel */
-        RUN notify ('update-record':U).
-     END.
-  END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -325,10 +218,7 @@ END.
   /* If the application hasn't enabled the behavior that a RETURN in a frame = GO,
      then enable the usage of the Save button as the default button. (Note that in
      8.0, the Save button was *always* the default button.) */
-  IF SESSION:DATA-ENTRY-RETURN NE yes THEN 
-  ASSIGN
-      Btn-Save:DEFAULT IN FRAME {&FRAME-NAME} = yes
-      FRAME {&FRAME-NAME}:DEFAULT-BUTTON = Btn-Save:HANDLE.
+        
   
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
@@ -349,7 +239,7 @@ PROCEDURE auto-add :
 ------------------------------------------------------------------------------*/
   
 
-  APPLY "choose" TO BTn-add IN FRAME {&FRAME-NAME} .
+  /*APPLY "choose" TO BTn-add IN FRAME {&FRAME-NAME} .*/
 
 END PROCEDURE.
 
@@ -381,7 +271,7 @@ PROCEDURE do-cancel :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  APPLY "choose" TO BTn-cancel IN FRAME {&FRAME-NAME} .
+  /*APPLY "choose" TO BTn-cancel IN FRAME {&FRAME-NAME} .*/
 
 END PROCEDURE.
 
@@ -510,7 +400,7 @@ DO WITH FRAME Panel-Frame:
 &IF LOOKUP("Btn-Cancel":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
              Btn-Cancel:SENSITIVE = NO.
 &ENDIF
-     ASSIGN btn-qty:SENSITIVE = NO.
+     ASSIGN Btn-print:SENSITIVE = NO /*btn-qty:SENSITIVE = NO */.
   END. /* panel-state = 'disable-all' */
   
   ELSE IF panel-state = 'initial':U THEN DO:
@@ -540,7 +430,7 @@ DO WITH FRAME Panel-Frame:
 &IF LOOKUP("Btn-Cancel":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
              Btn-Cancel:SENSITIVE = NO.
 &ENDIF
-       ASSIGN btn-qty:SENSITIVE = YES.
+       ASSIGN Btn-print:SENSITIVE = YES /*btn-qty:SENSITIVE = YES*/ .
   END. /* panel-state = 'initial' */
 
   ELSE IF panel-state = 'add-only':U THEN DO:
@@ -567,7 +457,7 @@ DO WITH FRAME Panel-Frame:
 &IF LOOKUP("Btn-Cancel":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
              Btn-Cancel:SENSITIVE = NO.
 &ENDIF
-           ASSIGN btn-qty:SENSITIVE = NO.
+           ASSIGN Btn-print:SENSITIVE = NO /*btn-qty:SENSITIVE = NO*/ .
   END. /* panel-state = 'add-only' */
  
   ELSE DO: /* panel-state = action-chosen */ 
@@ -597,7 +487,7 @@ DO WITH FRAME Panel-Frame:
 &IF LOOKUP("Btn-Cancel":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
              Btn-Cancel:SENSITIVE = YES.
 &ENDIF
-        ASSIGN btn-qty:SENSITIVE = NO.
+        ASSIGN Btn-print:SENSITIVE = NO /*btn-qty:SENSITIVE = NO*/ .
   END. /* panel-state = action-chosen */
 
 /*  {custom/secpanel.i}*/
@@ -622,7 +512,7 @@ PROCEDURE set-label :
 DEFINE INPUT PARAMETER label-string as CHARACTER NO-UNDO.
 
 DO WITH FRAME panel-frame: 
-  Btn-Save:LABEL = label-string.
+/*  Btn-Save:LABEL = label-string.*/
 END.
 END PROCEDURE.
 
