@@ -16,7 +16,8 @@
 /*Gets rid of stack trace window when pressing F1*/
 SESSION:DEBUG-ALERT = FALSE.
 
-{jc/ttMultiSelectItem.i}
+{fgrep/ttFGReorder.i}
+{jc/ttMultiSelectItem.i}  
 
 /* PARAMs Definitions ---                                           */ 
 DEFINE OUTPUT PARAMETER TABLE FOR ttMultiSelectItem .
@@ -35,7 +36,7 @@ DEFINE VARIABLE lSelectTrigger           AS LOGICAL NO-UNDO.
 
 /*{sys/inc/f16to32.i}*/
 {sys/inc/lastship.i}
-
+ 
 
 
 /* _UIB-CODE-BLOCK-END */
@@ -59,8 +60,8 @@ DEFINE VARIABLE lSelectTrigger           AS LOGICAL NO-UNDO.
 &Scoped-define INTERNAL-TABLES ttMultiSelectItem
 
 /* Definitions for BROWSE BROWSE-2                                      */
-&Scoped-define FIELDS-IN-QUERY-BROWSE-2 ttMultiSelectItem.isSelect ttMultiSelectItem.fgItem ttMultiSelectItem.onHand ttMultiSelectItem.onOrder ttMultiSelectItem.allocated ttMultiSelectItem.qtyAvail ttMultiSelectItem.availOnHand ttMultiSelectItem.dueDate ttMultiSelectItem.reOrderLevel ttMultiSelectItem.minOrder ttMultiSelectItem.maxOrder ttMultiSelectItem.custPart ttMultiSelectItem.Customer ttMultiSelectItem.custName ttMultiSelectItem.estNo ttMultiSelectItem.style ttMultiSelectItem.cat   
-&Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-2 ttMultiSelectItem.isSelect   
+&Scoped-define FIELDS-IN-QUERY-BROWSE-2 ttMultiSelectItem.isSelected ttMultiSelectItem.multiplier ttMultiSelectItem.quantityToOrder ttMultiSelectItem.quantityToOrderSuggested ttMultiSelectItem.itemID ttMultiSelectItem.itemName ttMultiSelectItem.quantityReorderLevel ttMultiSelectItem.quantityOnHand ttMultiSelectItem.quantityOnOrder ttMultiSelectItem.quantityAllocated ttMultiSelectItem.quantityAvailable ttMultiSelectItem.availOnHand ttMultiSelectItem.dateDueDateEarliest ttMultiSelectItem.quantityReorderLevel ttMultiSelectItem.quantityMinOrder ttMultiSelectItem.quantityMaxOrder ttMultiSelectItem.itemCustPart ttMultiSelectItem.itemCust ttMultiSelectItem.itemCustName ttMultiSelectItem.itemEstNO ttMultiSelectItem.itemStyle ttMultiSelectItem.itemWhse   
+&Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-2 ttMultiSelectItem.isSelected ttMultiSelectItem.multiplier ttMultiSelectItem.quantityToOrder   
 &Scoped-define ENABLED-TABLES-IN-QUERY-BROWSE-2 ttMultiSelectItem
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-BROWSE-2 ttMultiSelectItem
 &Scoped-define SELF-NAME BROWSE-2
@@ -163,42 +164,46 @@ DEFINE QUERY BROWSE-2 FOR
 DEFINE BROWSE BROWSE-2
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-2 Dialog-Frame _FREEFORM
   QUERY BROWSE-2 NO-LOCK DISPLAY
-      ttMultiSelectItem.isSelect COLUMN-LABEL "[ ] All" 
+      ttMultiSelectItem.isSelected COLUMN-LABEL "[ ] All" 
             WIDTH 8 VIEW-AS TOGGLE-BOX
-      ttMultiSelectItem.fgItem COLUMN-LABEL "FG Item" FORMAT "x(15)":U
-            WIDTH 23
-      ttMultiSelectItem.onHand COLUMN-LABEL "On Hand" FORMAT "->>,>>>,>>9":U
+      ttMultiSelectItem.multiplier COLUMN-LABEL "#Up" FORMAT ">9" 
+      ttMultiSelectItem.quantityToOrder COLUMN-LABEL "Quantity To Order" FORMAT "->>>,>>>,>>9"
+      ttMultiSelectItem.quantityToOrderSuggested COLUMN-LABEL "Suggested Reorder" FORMAT "->>>,>>>,>>9"
+      ttMultiSelectItem.itemID COLUMN-LABEL "FG Item" FORMAT "x(15)":U WIDTH 23
+      ttMultiSelectItem.itemName COLUMN-LABEL "FG Name" WIDTH 30 FORMAT "x(30)"
+      ttMultiSelectItem.quantityReorderLevel COLUMN-LABEL "Min Level" FORMAT "->>>,>>>,>>9"
+      ttMultiSelectItem.quantityOnHand COLUMN-LABEL "On Hand" FORMAT "->>,>>>,>>9":U
             WIDTH 13
-      ttMultiSelectItem.onOrder COLUMN-LABEL "On Order" FORMAT "->>,>>>,>>9":U
+      ttMultiSelectItem.quantityOnOrder COLUMN-LABEL "On Order" FORMAT "->>,>>>,>>9":U
             WIDTH 15  
-      ttMultiSelectItem.allocated COLUMN-LABEL "Allocated" FORMAT "->>,>>>,>>9":U
+      ttMultiSelectItem.quantityAllocated COLUMN-LABEL "Allocated" FORMAT "->>,>>>,>>9":U
             WIDTH 15
-      ttMultiSelectItem.qtyAvail COLUMN-LABEL "Available" FORMAT "->>,>>>,>>9":U
+      ttMultiSelectItem.quantityAvailable COLUMN-LABEL "Available" FORMAT "->>,>>>,>>9":U
             WIDTH 15
       ttMultiSelectItem.availOnHand COLUMN-LABEL "Available On-Hand" FORMAT "->>,>>>,>>9":U
             WIDTH 22              
-      ttMultiSelectItem.dueDate COLUMN-LABEL "Due Date" FORMAT "99/99/9999":U
-            WIDTH 15  
-      ttMultiSelectItem.reOrderLevel COLUMN-LABEL "Reorder Level" FORMAT "->>,>>>,>>9":U
-            WIDTH 17
-      ttMultiSelectItem.minOrder COLUMN-LABEL "Minimum Order" FORMAT "->>,>>>,>>9":U
+      ttMultiSelectItem.dateDueDateEarliest COLUMN-LABEL "Due Date" FORMAT "99/99/9999":U
+            WIDTH 15       
+      ttMultiSelectItem.quantityMinOrder COLUMN-LABEL "Minimum Order" FORMAT "->>,>>>,>>9":U
             WIDTH 19
-      ttMultiSelectItem.maxOrder COLUMN-LABEL "Maximum Order" FORMAT "->>,>>>,>>9":U
+      ttMultiSelectItem.quantityMaxOrder COLUMN-LABEL "Maximum Order" FORMAT "->>,>>>,>>9":U
             WIDTH 19        
-      ttMultiSelectItem.custPart COLUMN-LABEL "Customer Part" FORMAT "x(15)":U
+      ttMultiSelectItem.itemCustPart COLUMN-LABEL "Customer Part" FORMAT "x(15)":U
             WIDTH 23
-      ttMultiSelectItem.Customer COLUMN-LABEL "Customer" FORMAT "x(8)":U
+      ttMultiSelectItem.itemCust COLUMN-LABEL "Customer" FORMAT "x(8)":U
             WIDTH 11
-      ttMultiSelectItem.custName COLUMN-LABEL "Cust Name" FORMAT "x(30)":U
+      ttMultiSelectItem.itemCustName COLUMN-LABEL "Cust Name" FORMAT "x(30)":U
             WIDTH 33
-      ttMultiSelectItem.estNo COLUMN-LABEL "Estimate" FORMAT "x(8)":U
+      ttMultiSelectItem.itemEstNO COLUMN-LABEL "Estimate" FORMAT "x(8)":U
             WIDTH 10
-      ttMultiSelectItem.style COLUMN-LABEL "Style" FORMAT "x(8)":U
+      ttMultiSelectItem.itemStyle COLUMN-LABEL "Style" FORMAT "x(8)":U
             WIDTH 10             
-      ttMultiSelectItem.cat COLUMN-LABEL "Category" FORMAT "x(8)":U
+      ttMultiSelectItem.itemWhse COLUMN-LABEL "Category" FORMAT "x(8)":U
             WIDTH 10
 
-      ENABLE ttMultiSelectItem.isSelect
+      ENABLE ttMultiSelectItem.isSelected
+             ttMultiSelectItem.multiplier 
+             ttMultiSelectItem.quantityToOrder
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ROW-MARKERS SEPARATORS SIZE 157.6 BY 22.38
@@ -339,7 +344,7 @@ DO:
 ON WINDOW-CLOSE OF FRAME Dialog-Frame /* Multiple Selet Item */
 DO:
         FOR EACH ttMultiSelectItem:
-            ttMultiSelectItem.isSelect = NO.
+            ttMultiSelectItem.isSelected = NO.
         END.      
         
         APPLY "END-ERROR":U TO SELF.     
@@ -367,12 +372,12 @@ END.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-2 Dialog-Frame
 ON START-SEARCH OF BROWSE-2 IN FRAME Dialog-Frame
-DO:
-    IF SELF:CURRENT-COLUMN:NAME EQ "isSelect" THEN DO:
+DO:  
+    IF SELF:CURRENT-COLUMN:NAME EQ "isSelected" THEN DO:
         lSelectTrigger = NOT lSelectTrigger.
-
+                     
         FOR EACH ttMultiSelectItem:
-            ttMultiSelectItem.isSelect = lSelectTrigger.
+            ttMultiSelectItem.isSelected = lSelectTrigger.  
         END.
 
         SELF:CURRENT-COLUMN:LABEL = IF lSelectTrigger THEN
@@ -380,7 +385,7 @@ DO:
                                     ELSE
                                         "[ ] All".
 
-        RUN repo-query.  
+        RUN repo-query(NO,NO).  
     END.  
 END.
 
@@ -393,7 +398,7 @@ END.
 ON CHOOSE OF btExit IN FRAME Dialog-Frame /* Exit */
 DO:    
     FOR EACH ttMultiSelectItem:
-            ttMultiSelectItem.isSelect = NO.
+            ttMultiSelectItem.isSelected = NO.
     END.  
     APPLY "CLOSE":U TO THIS-PROCEDURE.
 END.
@@ -405,61 +410,13 @@ END.
 &Scoped-define SELF-NAME btFilter
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btFilter Dialog-Frame
 ON CHOOSE OF btFilter IN FRAME Dialog-Frame /* Filter */
-DO:
-    DEFINE VARIABLE cErrorMessage AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE lcRequestData AS LONGCHAR  NO-UNDO.
+DO: 
 
-     EMPTY TEMP-TABLE ttMultiSelectItem.
-          
      DO WITH FRAME {&FRAME-NAME}:
         ASSIGN {&DISPLAYED-OBJECTS}.    
-     END.
-     
-     FOR EACH itemfg  NO-LOCK
-         WHERE itemfg.company    eq cocode              
-         and (itemfg.i-no EQ cFGItem OR cFGItem EQ "")         
-         and (itemfg.procat EQ cCat OR cCat EQ "")
-         AND (itemfg.style EQ cStyle OR cStyle EQ "")
-         AND (itemfg.loc LE cLoc OR cLoc EQ "") :
-
-         CREATE ttMultiSelectItem. 
-         ASSIGN
-            ttMultiSelectItem.fgItem       = itemfg.i-no
-            ttMultiSelectItem.custPart     = itemfg.part-no
-            ttMultiSelectItem.Customer     = itemfg.cust-no
-            ttMultiSelectItem.custName     = itemfg.cust-name
-            ttMultiSelectItem.estNo        = itemfg.est-no
-            ttMultiSelectItem.style        = itemfg.style
-            ttMultiSelectItem.cat          = itemfg.procat
-            ttMultiSelectItem.onHand       = itemfg.q-onh
-            ttMultiSelectItem.onOrder      = itemfg.q-ono
-            ttMultiSelectItem.allocated    = itemfg.q-alloc
-            ttMultiSelectItem.qtyAvail     = itemfg.q-avail
-            ttMultiSelectItem.availOnHand  = itemfg.q-onh - itemfg.q-alloc           
-            ttMultiSelectItem.reOrderLevel = itemfg.ord-level
-            ttMultiSelectItem.minOrder     = itemfg.ord-max
-            ttMultiSelectItem.maxOrder     = itemfg.ord-min    .
-
-            FIND FIRST cust NO-LOCK
-                 WHERE cust.company EQ cocode 
-                 AND cust.cust-no EQ itemfg.cust-no 
-                 AND cust.cust-no NE "" NO-ERROR.
-             IF avail cust THEN    
-             ASSIGN ttMultiSelectItem.dueDate = TODAY + cust.ship-days.
-
-            IF  lastship-cha = "Stock/Custom" THEN DO:
-             /* If fgitem has no estimate. */
-              IF itemfg.est-no = "" THEN
-                 ASSIGN ttMultiSelectItem.dueDate = TODAY + lastship-int.
-              ELSE
-                 ASSIGN ttMultiSelectItem.dueDate = TODAY + INT(lastship-dec).
-            END.
-            IF lastship-cha eq "Fibre" then
-            assign             
-             ttMultiSelectItem.dueDate  = TODAY + (lastship-int * 1).               
-     END.                 
+     END.                     
    
-     RUN repo-query.
+     RUN repo-query(YES,YES).
     
 END.
 
@@ -552,6 +509,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         
      RUN enable_UI.
      {methods/nowait.i} 
+     
+     RUN repo-query(YES,YES). 
        
     IF NOT THIS-PROCEDURE:PERSISTENT THEN
        WAIT-FOR CLOSE OF THIS-PROCEDURE. 
@@ -627,13 +586,54 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE repo-query Dialog-Frame 
 PROCEDURE repo-query :
+     DEFINE INPUT PARAMETER iplOpenQuery AS LOGICAL NO-UNDO.
+     DEFINE INPUT PARAMETER iplReOrderLevel AS LOGICAL NO-UNDO.
+     DEFINE VARIABLE hdFGReorder AS HANDLE NO-UNDO.
+     IF iplOpenQuery THEN
+     DO:      
+         EMPTY TEMP-TABLE ttMultiSelectItem.
+         EMPTY TEMP-TABLE ttFGReorder.
+                   
+         RUN fgrep\fgReorder.p PERSISTENT SET hdFGReorder.
+         RUN BuildReport IN hdFGReorder (cocode, OUTPUT TABLE ttFGReorder).
+         
+         FOR EACH ttFGReorder  NO-LOCK
+             WHERE ttFGReorder.company    eq cocode              
+             and (ttFGReorder.itemID BEGINS cFGItem OR cFGItem EQ "")         
+             and (ttFGReorder.productCategoryID BEGINS cCat OR cCat EQ "")
+             AND (ttFGReorder.itemStyle BEGINS cStyle OR cStyle EQ "")
+             AND (ttFGReorder.itemWhse BEGINS cLoc OR cLoc EQ "") 
+             AND (ttFGReorder.quantityReorderLevel GT 0 OR NOT iplReOrderLevel) :
+             
+             CREATE ttMultiSelectItem.
+             BUFFER-COPY ttFGReorder TO ttMultiSelectItem. 
 
-CLOSE QUERY BROWSE-2.
-DO WITH FRAME {&FRAME-NAME}:
-     
-    OPEN QUERY BROWSE-2 FOR EACH ttMultiSelectItem
-        NO-LOCK BY ttMultiSelectItem.fgItem.          
-END.    
+                FIND FIRST cust NO-LOCK
+                     WHERE cust.company EQ cocode 
+                     AND cust.cust-no EQ ttFGReorder.itemCust 
+                     AND cust.cust-no NE "" NO-ERROR.
+                 IF avail cust THEN    
+                 ASSIGN ttMultiSelectItem.dateDueDateEarliest = TODAY + cust.ship-days
+                        ttMultiSelectItem.itemCustName = cust.name.
+
+                IF  lastship-cha = "Stock/Custom" THEN DO:
+                 /* If fgitem has no estimate. */
+                  IF ttFGReorder.itemEstNO = "" THEN
+                     ASSIGN ttMultiSelectItem.dateDueDateEarliest = TODAY + lastship-int.
+                  ELSE
+                     ASSIGN ttMultiSelectItem.dateDueDateEarliest = TODAY + INT(lastship-dec).
+                END.
+                IF lastship-cha eq "Fibre" then
+                assign             
+                 ttMultiSelectItem.dateDueDateEarliest  = TODAY + (lastship-int * 1).                         
+         END.
+     END.
+
+    CLOSE QUERY BROWSE-2.
+    DO WITH FRAME {&FRAME-NAME}:      
+        OPEN QUERY BROWSE-2 FOR EACH ttMultiSelectItem
+            NO-LOCK BY ttMultiSelectItem.itemID.          
+    END.    
     
 END PROCEDURE.
 

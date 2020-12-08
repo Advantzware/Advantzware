@@ -1,20 +1,4 @@
 
-DEFINE TEMP-TABLE ttMultiSelectItem NO-UNDO
-    FIELDS isSelect AS LOGICAL
-    FIELDS fgItem AS CHARACTER
-    FIELDS custPart AS CHARACTER
-    FIELDS Customer AS CHARACTER
-    FIELDS custName AS CHARACTER
-    FIELDS estNo AS CHARACTER
-    FIELDS style AS CHARACTER
-    FIELDS cat AS CHARACTER
-    FIELDS onHand AS INTEGER
-    FIELD onOrder AS INTEGER
-    FIELD allocated AS INTEGER
-    FIELD qtyAvail AS INTEGER
-    FIELD availOnHand AS INTEGER
-    FIELD dueDate AS DATE
-    FIELD reOrderLevel AS INTEGER
-    FIELD minOrder AS INTEGER
-    FIELD maxOrder AS INTEGER
-    .
+DEFINE TEMP-TABLE ttMultiSelectItem LIKE ttFGReorder 
+                  FIELD itemCustName AS CHARACTER
+                  FIELD availOnHand AS INTEGER.

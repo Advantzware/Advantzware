@@ -52,6 +52,7 @@ ELSE
 
 {est/ttInputEst.i NEW}  
 {sys/inc/var.i NEW shared}
+{fgrep/ttFGReorder.i}
 {jc/ttMultiSelectItem.i}
 {custom/gcompany.i}  
 ASSIGN
@@ -221,7 +222,7 @@ DEFINE VARIABLE cJobNo AS CHARACTER FORMAT "X(10)":U
 
 DEFINE VARIABLE cLineDscr AS CHARACTER FORMAT "X(35)":U 
      VIEW-AS FILL-IN 
-     SIZE 33.6 BY 1
+     SIZE 39.0 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
 DEFINE VARIABLE cMachCode AS CHARACTER FORMAT "X(8)":U 
@@ -476,6 +477,17 @@ OPEN QUERY {&SELF-NAME} FOR EACH ttInputEst WHERE ttInputEst.cCompany = cocode ~
 
 /* ************************  Control Triggers  ************************ */
 
+&Scoped-define BROWSE-NAME BROWSE-1
+&Scoped-define SELF-NAME BROWSE-1
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-1 D-Dialog
+ON DEFAULT-ACTION OF BROWSE-1 IN FRAME D-Dialog /* BROWSE-1 */
+DO:
+        APPLY "CHOOSE" TO btn-update .
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &Scoped-define SELF-NAME D-Dialog
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL D-Dialog D-Dialog
 ON WINDOW-CLOSE OF FRAME D-Dialog /* Head ID Creator */
@@ -562,13 +574,13 @@ DO:
                 bf-ttInputEst.cEstType = "MoldTandem"
                 bf-ttInputEst.cSetType = "MoldEstTandem"
                 bf-ttInputEst.cCompany = cocode 
-                bf-ttInputEst.cStockNo = ttMultiSelectItem.fgItem
-                bf-ttInputEst.iMolds   = 1 
-                bf-ttInputEst.iQuantityYield = 1 * INTEGER(iTargetCyl:SCREEN-VALUE)
+                bf-ttInputEst.cStockNo = ttMultiSelectItem.itemID
+                bf-ttInputEst.iMolds   = ttMultiSelectItem.multiplier 
+                bf-ttInputEst.iQuantityYield = ttMultiSelectItem.quantityToOrder
                 lv-rowid               = ROWID(bf-ttInputEst).
                 FIND FIRST itemfg NO-LOCK 
                      WHERE itemfg.company EQ cocode
-                     AND itemfg.i-no EQ ttMultiSelectItem.fgItem NO-ERROR .
+                     AND itemfg.i-no EQ ttMultiSelectItem.itemID NO-ERROR .
                 IF AVAILABLE itemfg THEN
                 DO:
                   ASSIGN
@@ -819,7 +831,9 @@ DO:
            opcJobNo                    = bf-job.job-no. 
         END.
          
-         MESSAGE "Process complete." VIEW-AS ALERT-BOX INFO.           
+         MESSAGE "Process complete." VIEW-AS ALERT-BOX INFO. 
+         
+         APPLY "END-ERROR":U TO SELF.
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -941,7 +955,16 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     {methods/nowait.i}     
     DO WITH FRAME {&frame-name}:  
         
-        DISABLE btn-viewjob btn-imp-bal btn-sel-head tb_auto.     
+        DISABLE btn-viewjob btn-imp-bal btn-sel-head tb_auto.
+        ASSIGN
+         cJobNo:HIDDEN = YES
+         dtCreatedDate:HIDDEN = YES 
+         cUserID:HIDDEN = YES
+         cStatus:HIDDEN = YES
+         dtEstCom:HIDDEN = YES
+         dtStartDate:HIDDEN = YES
+         cEstNo:HIDDEN = YES
+         .
         APPLY "entry" TO cMachCode.    
     END.
     IF NOT THIS-PROCEDURE:PERSISTENT THEN

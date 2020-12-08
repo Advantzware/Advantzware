@@ -86,6 +86,11 @@ PROCEDURE BuildReport:
                 ttFGReorder.itemDesc1 = itemfg.part-dscr1
                 ttFGReorder.itemDesc2 = itemfg.part-dscr2
                 ttFGReorder.itemDesc3 = itemfg.part-dscr3
+		        ttFGReorder.itemStyle = itemfg.style
+               	ttFGReorder.itemWhse = itemfg.loc
+                ttFGReorder.itemEstNo = itemfg.est-no
+                ttFGReorder.itemCust = itemfg.cust-no
+		        ttFGReorder.itemCustPart = itemfg.part-no
                 ttFGReorder.blankArea = itemfg.t-sqin
                 ttFGReorder.blankAreaUOM = "SI"
                 ttFGReorder.blankDimUom = "IN"
