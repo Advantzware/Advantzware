@@ -19,7 +19,7 @@ DEFINE OUTPUT PARAMETER opriEB AS ROWID NO-UNDO.
 {est\ttInputEst.i}
 
 DEFINE VARIABLE riEb AS ROWID NO-UNDO.
-
+DEFINE VARIABLE lCalcLayoutDim AS LOGICAL NO-UNDO INITIAL YES.
 
 /*Refactor - From B-estitm.w*/
 DEF SHARED BUFFER xest           FOR est.
@@ -27,6 +27,8 @@ DEF SHARED BUFFER xef            FOR ef.
 DEF SHARED BUFFER xeb            FOR eb.
 DEF SHARED BUFFER xqty           FOR est-qty.
 DEFINE     BUFFER bf-existing-eb FOR eb.
+
+
 
 
 /* ********************  Preprocessor Definitions  ******************** */
@@ -96,6 +98,7 @@ FOR EACH ttInputEst NO-LOCK BREAK BY ttInputEst.iFormNo
                     
             END.
         END.        
+        lCalcLayoutDim = NO.
     END.  /* cSetType EQ "MoldEstSingle"*/   
        
     FIND eb 
@@ -365,7 +368,7 @@ FOR EACH ttInputEst NO-LOCK BREAK BY ttInputEst.iFormNo
         ROWID(eb),
         YES,  /*New Layout vs. Recalculation*/
         NO, /*Prompt to Reset*/
-        YES /*Recalc dimensions - Refactor - should be no if Style is foam*/).       
+        lCalcLayoutDim /*Recalc dimensions - Refactor - should be no if Style is foam*/).       
     
     RUN pCalcPacking(ROWID(eb)).
     IF ttInputEst.cEstType EQ "MiscEstimate" THEN DO:
