@@ -2,9 +2,10 @@
 /* INVOICE PRINT  Program for N-K-1-INVPRINT = CapCityIN                        */
 /* ------------------------------------------------------------------------- */
 
-ASSIGN  v-blt-addr1 = ar-inv.addr[1]
-        v-blt-addr2 = ar-inv.addr[2]
-        v-blt-addr3 = v-addr3
+ASSIGN  cSoldName   = IF cSoldID NE "" THEN cSoldName ELSE ar-inv.cust-name
+        v-blt-addr1 = IF cSoldID NE "" THEN cSoldAddress[1] ELSE ar-inv.addr[1]
+        v-blt-addr2 = IF cSoldID NE "" THEN cSoldAddress[2]  ELSE ar-inv.addr[2]
+        v-blt-addr3 = IF cSoldID NE "" THEN (cSoldCity + ", " + cSoldState + "  " + cSoldZip) ELSE v-addr3
                   
         v-sh-addr1 = v-shipto-addr[1]
         v-sh-addr2 = v-shipto-addr[2]
@@ -16,8 +17,8 @@ PUT "<C+25><#1>".
 PUT "<=1>" SKIP.
 PUT "<C1><#2><P10>" 
             "<FCourier New>"
-            space(7) "Bill To:" SPACE(47) "Ship To:"      SKIP
-            SPACE(7) ar-inv.cust-name v-shipto-name AT 63 SKIP.
+            space(7) "Sold To:" SPACE(47) "Ship To:"      SKIP
+            SPACE(7) cSoldName v-shipto-name AT 63 SKIP.
 
 IF TRIM(v-blt-addr1) NE "" 
   THEN PUT SPACE(7) v-blt-addr1.
