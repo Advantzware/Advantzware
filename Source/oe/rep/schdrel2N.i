@@ -161,97 +161,7 @@ form header
 
   IF tb_excel THEN 
   DO:
-  /*    IF chosen EQ 2 THEN 
-      DO:
-          if v-sort eq "N" THEN
-          DO: 
-              if v-ponum THEN
-                excelheader = (IF v-qty-opt NE "Job#" THEN "Quantity On Hand," ELSE "Job No,") 
-                            + "Item Name,PO Number,Order Number,Rel Num,"
-                            + "Item,Order Quantity,Quantity Shipped,Release Quantity,Release Date,Status,Due Alert,Carrier".
-              ELSE
-                excelheader = (IF v-qty-opt NE "Job#" THEN "Quantity On Hand," ELSE "Job No,")
-                            + "Item Name,Order Number,Rel Num,"
-                            + "Item,Order Quantity,Quantity,Shipped,Release Quantity,Release Date,Status,Due Alert,Carrier".
-          END.
-          ELSE if v-print eq "I" THEN 
-          DO:
-              if v-sort eq "T" then 
-                 excelheader = (IF v-qty-opt NE "Job#" THEN "Quantity On Hand," ELSE "Job No,")
-                             + "Customer Name,Ship To,Job No,Ter,Del Zone,Order Number,"
-                             + "Rel Num,Item,Description,Release Quantity,Release Date,Status,Due Alert,Carrier".
-              ELSE IF v-ponum THEN
-                excelheader = (IF v-qty-opt NE "Job#" THEN "Quantity On Hand," ELSE "Job No,")
-                            + "Customer Name,Ship To,PO Number,Order Number,"
-                            + "Rel Num,Item,Description,Release Quantity,Release Date,Status,Due Alert,Carrier".
-              ELSE
-                excelheader = (IF v-qty-opt NE "Job#" THEN "Quantity On Hand," ELSE "Job No,")
-                            + "Customer Name,Ship To,Order Number,"
-                            + "Rel Num,Item,Description,Release Quantity,Release Date,Status,Due Alert,Carrier".
-          END.
-          ELSE if v-print eq "S" then 
-          do:
-              if v-sort eq "T" THEN
-                excelheader = (IF v-qty-opt NE "Job#" THEN "Quantity On Hand," ELSE "Job No,")
-                            + "Customer Name,Ship To,Job No,Ter,Del Zone,Order Number,"
-                            + "Rel Num,Item,Release Quantity,Release Date,Status,Sales Value,MSF,Due Alert,"
-                            + "Carrier".
-              ELSE if v-ponum then
-                excelheader = (IF v-qty-opt NE "Job#" THEN "Quantity On Hand," ELSE "Job No,")
-                            + "Customer Name,Ship To,PO Number,Order Number,"
-                            + "Rel Num,Item,Release Quantity,Release Date,Status,Sales Value,MSF,Due Alert,"
-                            + "Carrier".
-              ELSE
-                excelheader = (IF v-qty-opt NE "Job#" THEN "Quantity On Hand," ELSE "Job No,")
-                            + "Customer Name,Ship To,Order Number,"
-                            + "Rel Num,Item,Release Quantity,Release Date,Status,Sales Value,MSF,Due Alert,"
-                            + "Carrier".
-          END.
-          ELSE if v-sort eq "T" THEN
-            excelheader = (IF v-qty-opt NE "Job#" THEN "Quantity On Hand," ELSE "Job No,")
-                        + "Customer Name,Job No,Ter,Del Zone,Order Number,"
-                        + "Rel Num,Item,Order Quantity,Quantity Shipped,Release Quantity,Due Alert,"
-                        + "Release Date,Status,Due Alert,Carrier".
-          ELSE IF v-ponum THEN 
-            excelheader = (IF v-qty-opt NE "Job#" THEN "Quantity On Hand," ELSE "Job No,")
-                        + "Customer Name,PO Number,Order Number,"
-                        + "Rel Num,Item,Order Quantity,Quantity Shipped,Release Quantity,"
-                        + "Release Date,Status,Due Alert,Carrier".
-          ELSE
-            excelheader = (IF v-qty-opt NE "Job#" THEN "Quantity On Hand," ELSE "Job No,")
-                        + "Customer Name,Order Number,"
-                        + "Rel Num,Item,Order Quantity,Quantity Shipped,Release Quantity,"
-                        + "Release Date,Status,Due Alert,Carrier".
-      END.
-      ELSE 
-      DO:
-          IF tb_prt-qoh THEN 
-          DO:
-              IF tb_prt-last THEN
-                excelheader = "Quantity On Hand,Customer Name,Release Date,Status,"
-                            + "LastShip Date,PO Number,Job No,Part Number,Item,Description,"
-                            + "Release Quantity,"
-                            + (IF rd_print2 BEGINS "P" THEN "Pallet Qty" ELSE "MSF,Style").
-              ELSE
-                excelheader = "Quantity On Hand,Customer Name,Release Date,Status,"
-                            + "PO Number,Job No,Part Number,Item,Description,"
-                            + "Release Quantity,"
-                            + (IF rd_print2 BEGINS "P" THEN "Pallet Qty" ELSE "MSF,Style").
-          END.
-          ELSE DO:
-              IF tb_prt-last THEN
-                excelheader = "Customer Name,Release Date,Status,LastShip Date,"
-                            + "PO Number,Job No,Part Number,Item,Description,"
-                            + "Release Quantity,"
-                            + (IF rd_print2 BEGINS "P" THEN "Pallet Qty" ELSE "MSF,Style").
-              ELSE
-                excelheader = "Customer Name,Release Date,Status,"
-                            + "PO Number,Job No,Part Number,Item,Description,"
-                            + "Release Quantity,"
-                            + (IF rd_print2 BEGINS "P" THEN "Pallet Qty" ELSE "MSF,Style").  
-          END.
-      END.
-    */
+  
     OUTPUT STREAM excel TO VALUE(cFileName).
     PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' skip.
     
@@ -620,6 +530,11 @@ form header
       w-ord.palls = w-ord.palls + ld-palls.
 
       IF NOT FIRST-OF(tt-report.key-02) AND v-sort EQ "C" THEN w-ord.cust-name = "".
+      
+      RUN pGetVenderPoInfo( INPUT oe-ordl.po-no-po, INPUT oe-ordl.job-no, INPUT oe-ordl.job-no2,
+                         OUTPUT w-ord.vend-id, OUTPUT w-ord.vend-name, OUTPUT w-ord.vend-po,
+                         OUTPUT w-ord.po-due-date, OUTPUT w-ord.po-rm-item, OUTPUT w-ord.po-rm-item-name,
+                         OUTPUT w-ord.po-uom, OUTPUT w-ord.po-ord-qty, OUTPUT w-ord.po-rec-qty).        
 
       IF v-comps AND itemfg.isaset THEN DO:
         RUN fg/fullset.p (ROWID(itemfg)).

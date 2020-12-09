@@ -69,7 +69,7 @@ CREATE WIDGET-POOL.
 
 /* Definitions for BROWSE Browser-Table                                 */
 &Scoped-define FIELDS-IN-QUERY-Browser-Table job-code.code job-code.cat ~
-job-code.dscr 
+job-code.dscr job-code.dmiID 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH job-code WHERE ~{&KEY-PHRASE} NO-LOCK ~
     ~{&SORTBY-PHRASE}
@@ -106,7 +106,7 @@ DEFINE BUTTON Btn_Clear_Find
 DEFINE VARIABLE auto_find AS CHARACTER FORMAT "X(256)":U 
      LABEL "Auto Find" 
      VIEW-AS FILL-IN 
-     SIZE 14 BY 1 NO-UNDO.
+     SIZE 21 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fi_sortby AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
@@ -121,7 +121,7 @@ DEFINE VARIABLE browse-order AS INTEGER
 
 DEFINE RECTANGLE RECT-4
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 88 BY 1.43.
+     SIZE 95 BY 1.43.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -129,7 +129,8 @@ DEFINE QUERY Browser-Table FOR
       job-code
     FIELDS(job-code.code
       job-code.cat
-      job-code.dscr) SCROLLING.
+      job-code.dscr
+      job-code.dmiID) SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
@@ -139,9 +140,10 @@ DEFINE BROWSE Browser-Table
       job-code.code FORMAT "x(5)":U LABEL-BGCOLOR 14
       job-code.cat FORMAT "x(3)":U LABEL-BGCOLOR 14
       job-code.dscr FORMAT "x(45)":U LABEL-BGCOLOR 14
+      job-code.dmiID COLUMN-LABEL "DMI" FORMAT ">>>9":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 88 BY 18.1
+    WITH NO-ASSIGN SEPARATORS SIZE 95 BY 22.86
          FONT 2 ROW-HEIGHT-CHARS .57.
 
 
@@ -150,16 +152,16 @@ DEFINE BROWSE Browser-Table
 DEFINE FRAME F-Main
      Browser-Table AT ROW 1 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
-     fi_sortby AT ROW 18.62 COL 28 COLON-ALIGNED NO-LABEL WIDGET-ID 2
-     browse-order AT ROW 19.33 COL 6 HELP
+     fi_sortby AT ROW 23.38 COL 28 COLON-ALIGNED NO-LABEL WIDGET-ID 2
+     browse-order AT ROW 24.1 COL 6 HELP
           "Select Browser Sort Order" NO-LABEL
-     auto_find AT ROW 19.33 COL 59 COLON-ALIGNED HELP
+     auto_find AT ROW 24.1 COL 59 COLON-ALIGNED HELP
           "Enter Auto Find Value"
-     Btn_Clear_Find AT ROW 19.33 COL 75 HELP
+     Btn_Clear_Find AT ROW 24.1 COL 82 HELP
           "CLEAR AUTO FIND Value"
      "By:" VIEW-AS TEXT
-          SIZE 4 BY 1 AT ROW 19.33 COL 2
-     RECT-4 AT ROW 19.1 COL 1
+          SIZE 4 BY 1 AT ROW 24.1 COL 2
+     RECT-4 AT ROW 23.86 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -192,8 +194,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW B-table-Win ASSIGN
-         HEIGHT             = 19.62
-         WIDTH              = 88.
+         HEIGHT             = 24.29
+         WIDTH              = 95.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -218,7 +220,7 @@ END.
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
-/* BROWSE-TAB Browser-Table TEXT-1 F-Main */
+/* BROWSE-TAB Browser-Table 1 F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
@@ -246,11 +248,13 @@ ASSIGN
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = "USED"
      _FldNameList[1]   > ASI.job-code.code
-"job-code.code" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"code" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.job-code.cat
-"job-code.cat" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"cat" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.job-code.dscr
-"job-code.dscr" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"dscr" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[4]   > ASI.job-code.dmiID
+"dmiID" "DMI" ? "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
@@ -378,6 +382,31 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE export-xl B-table-Win 
+PROCEDURE export-xl :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+DEF VAR first-cust AS CHAR NO-UNDO.
+DEF VAR last-cust AS CHAR NO-UNDO.
+
+/*GET FIRST Browser-Table .
+ASSIGN first-cust = cust.cust-no .
+GET LAST Browser-Table .
+ASSIGN last-cust = cust.cust-no . */
+
+/*RUN fg/phon-exp.w (first-cust ,last-cust).*/
+
+RUN jc/jbcod-exp.w ("", "").
+
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-open-query B-table-Win 
 PROCEDURE local-open-query :
 /*------------------------------------------------------------------------------
@@ -440,27 +469,3 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE export-xl B-table-Win 
-PROCEDURE export-xl :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-DEF VAR first-cust AS CHAR NO-UNDO.
-DEF VAR last-cust AS CHAR NO-UNDO.
-
-/*GET FIRST Browser-Table .
-ASSIGN first-cust = cust.cust-no .
-GET LAST Browser-Table .
-ASSIGN last-cust = cust.cust-no . */
-
-/*RUN fg/phon-exp.w (first-cust ,last-cust).*/
-
-RUN jc/jbcod-exp.w ("", "").
-
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME

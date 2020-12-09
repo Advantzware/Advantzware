@@ -92,6 +92,7 @@ DEF VAR v-phone AS cha NO-UNDO.
 DEF VAR v-shipto-contact LIKE shipto.contact NO-UNDO.
 DEF VAR v-ship-i AS cha EXTENT 4 FORM "x(60)" NO-UNDO.
 DEF VAR v-tmp-lines AS DEC NO-UNDO.
+DEFINE VARIABLE cSoldId AS CHARACTER NO-UNDO.
 
 DEF VAR ls-image1 AS cha NO-UNDO.
 DEF VAR ls-full-img1 AS cha FORM "x(100)" NO-UNDO.
@@ -179,38 +180,30 @@ for each xxreport where xxreport.term-id eq v-term-id,
     IF v-phone = "" THEN v-phone = "(" + shipto.area-code + ")" + string(shipto.phone,"xxx-xxxx").
     IF v-shipto-contact = "" THEN v-shipto-contact = shipto.contact.
 
-    if shipto.broker then DO:
-       ASSIGN v-comp-add1 = cust.addr[1]
-              v-comp-add2 = cust.addr[2]
-              v-comp-add3   = cust.city + ", " +
-                        cust.state + "  " +
-                        cust.zip
-              v-comp-add4 = "Phone:  " + string(cust.area-code,"(999)") + string(cust.phone,"999-9999") 
-              v-comp-add5 = "Fax     :  " + string(cust.fax,"(999)999-9999") 
-              lv-email    = "Email:  " + cust.email   
-              lv-comp-name = cust.NAME .
-       /* sold to address from order */
-       FIND FIRST oe-boll where oe-boll.company eq oe-bolh.company and oe-boll.b-no eq oe-bolh.b-no NO-LOCK NO-ERROR.
-       IF AVAIL oe-boll THEN DO:
-          FIND FIRST oe-ord WHERE oe-ord.company = oe-bolh.company
-                              AND oe-ord.ord-no = oe-boll.ord-no NO-LOCK NO-ERROR.
-          IF AVAIL oe-ord THEN
-             ASSIGN lv-comp-name = oe-ord.sold-name
-                    v-comp-add1 = oe-ord.sold-addr[1]
-                    v-comp-add2 = oe-ord.sold-addr[2]
-                    v-comp-add3 = oe-ord.sold-city + ", " +
-                                  oe-ord.sold-state + "  " +
-                                  oe-ord.sold-zip.        
-       END.
-    END.
-    ELSE
-       ASSIGN v-comp-add1 = v-cusx-add1
-              v-comp-add2 = v-cusx-add2    
-              v-comp-add3 = v-cusx-add3    
-              v-comp-add4 = v-cusx-add4                
-              v-comp-add5 = v-cusx-add5
-              lv-email    = v-cusx-email
-              lv-comp-name = v-cusx-name.
+    /* sold to address from order */
+    FIND FIRST oe-boll where oe-boll.company eq oe-bolh.company and oe-boll.b-no eq oe-bolh.b-no NO-LOCK NO-ERROR.
+    IF AVAIL oe-boll THEN DO:
+      FIND FIRST oe-ord WHERE oe-ord.company = oe-bolh.company
+                          AND oe-ord.ord-no = oe-boll.ord-no NO-LOCK NO-ERROR.
+      IF AVAIL oe-ord THEN
+      DO:
+         FIND FIRST soldto NO-LOCK
+                  WHERE soldto.company = cocode 
+                  AND soldto.cust-no = oe-ord.cust-no
+                  AND trim(soldto.sold-id) = trim(oe-ord.sold-id)
+                  NO-ERROR.
+         IF avail soldto THEN         
+         ASSIGN cSoldId = soldto.sold-id   
+                v-comp-name = soldto.sold-name
+                v-comp-addr[1] = soldto.sold-addr[1]
+                v-comp-addr[2] = soldto.sold-addr[2]
+                v-comp-addr3 = soldto.sold-city + ", " +
+                              soldto.sold-state + "  " +
+                              soldto.sold-zip.        
+      END.
+    END.  
+    
+    IF cSoldId EQ "" THEN
     assign
        v-comp-name    = cust.name
        v-comp-addr[1] = cust.addr[1]

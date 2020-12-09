@@ -53,7 +53,7 @@ ELSE
 {est/ttInputEst.i NEW}  
 {sys/inc/var.i NEW shared}
 {fgrep/ttFGReorder.i}
-{jc/ttMultiSelectItem.i}
+
 {custom/gcompany.i}  
 ASSIGN
 cocode = g_company
@@ -554,42 +554,45 @@ ON CHOOSE OF btn-add-multiple IN FRAME D-Dialog /* Add Multiple */
 DO:
        DEFINE VARIABLE lv-rowid AS ROWID NO-UNDO.
        DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
+       DEFINE VARIABLE dTotalCyclesRequired AS DECIMAL NO-UNDO.
        DEFINE BUFFER bf-ttInputEst FOR ttInputEst.
        
        RUN valid-mach(OUTPUT lError) NO-ERROR.
        IF lError THEN RETURN NO-APPLY.
-            
-       IF INTEGER(iTargetCyl:SCREEN-VALUE) LE 0 THEN 
-       DO:
-           MESSAGE "Target Cycles must not be 0..." VIEW-AS ALERT-BOX INFORMATION .
-           APPLY "entry" TO iTargetCyl .
-           RETURN NO-APPLY.
-       END.            
+                            
+       RUN jc/dMultiSelectItem.w (OUTPUT dTotalCyclesRequired, OUTPUT TABLE ttFGReorderSelection) . 
        
-       RUN jc/dMultiSelectItem.w (OUTPUT TABLE ttMultiSelectItem) . 
+       ASSIGN 
+           iTargetCyl:SCREEN-VALUE =  STRING(dTotalCyclesRequired) .
        
-       FOR EACH ttMultiSelectItem NO-LOCK
-           WHERE ttMultiSelectItem.isSelect:
-           CREATE bf-ttInputEst.
-            ASSIGN
-                bf-ttInputEst.cEstType = "MoldTandem"
-                bf-ttInputEst.cSetType = "MoldEstTandem"
-                bf-ttInputEst.cCompany = cocode 
-                bf-ttInputEst.cStockNo = ttMultiSelectItem.itemID
-                bf-ttInputEst.iMolds   = ttMultiSelectItem.multiplier 
-                bf-ttInputEst.iQuantityYield = ttMultiSelectItem.quantityToOrder
-                lv-rowid               = ROWID(bf-ttInputEst).
-                FIND FIRST itemfg NO-LOCK 
-                     WHERE itemfg.company EQ cocode
-                     AND itemfg.i-no EQ ttMultiSelectItem.itemID NO-ERROR .
-                IF AVAILABLE itemfg THEN
-                DO:
-                  ASSIGN
-                      bf-ttInputEst.cPartName = itemfg.i-name 
-                      bf-ttInputEst.cFgEstNo  = itemfg.est-no
-                      bf-ttInputEst.dSqFt = itemfg.t-sqft * bf-ttInputEst.iMolds
-                      .               
-                END.          
+       FOR EACH ttFGReorderSelection NO-LOCK
+           WHERE ttFGReorderSelection.isSelect:
+           FIND FIRST bf-ttInputEst NO-LOCK
+                WHERE bf-ttInputEst.cStockNo EQ ttFGReorderSelection.itemID NO-ERROR .
+           IF not AVAIL bf-ttInputEst THEN
+           DO:             
+               CREATE bf-ttInputEst.
+                ASSIGN
+                    bf-ttInputEst.cEstType = "MoldTandem"
+                    bf-ttInputEst.cSetType = "MoldEstTandem"
+                    bf-ttInputEst.cCompany = cocode 
+                    bf-ttInputEst.cStockNo = ttFGReorderSelection.itemID
+                    bf-ttInputEst.iMolds   = ttFGReorderSelection.multiplier 
+                    bf-ttInputEst.iQuantityYield = ttFGReorderSelection.quantityToOrder
+                    bf-ttInputEst.lKeyItem = ttFGReorderSelection.KeyItem 
+                    lv-rowid               = ROWID(bf-ttInputEst).
+                    FIND FIRST itemfg NO-LOCK 
+                         WHERE itemfg.company EQ cocode
+                         AND itemfg.i-no EQ ttFGReorderSelection.itemID NO-ERROR .
+               IF AVAILABLE itemfg THEN
+               DO:
+               ASSIGN
+                  bf-ttInputEst.cPartName = itemfg.i-name 
+                  bf-ttInputEst.cFgEstNo  = itemfg.est-no
+                  bf-ttInputEst.dSqFt = itemfg.t-sqft * bf-ttInputEst.iMolds
+                  .               
+               END.  
+           END.     
        END.
             
        RUN repo-query (lv-rowid).               

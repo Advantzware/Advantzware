@@ -114,6 +114,12 @@ DEF VAR v-licnt         AS INT                          NO-UNDO.
 DEF VAR v-notes         AS CHAR FORMAT "x(80)" EXTENT 5 NO-UNDO.
 DEF VAR note-count      AS INT                          NO-UNDO. 
 DEF VAR v-text1         AS CHAR FORMAT "x(170)" EXTENT 10 NO-UNDO.
+DEFINE VARIABLE cSoldID as CHARACTER format "x(30)" NO-UNDO.
+DEFINE VARIABLE cSoldName as CHARACTER format "x(30)" NO-UNDO.
+DEFINE VARIABLE cSoldAddress as CHARACTER format "x(30)" extent 2 NO-UNDO.
+DEFINE VARIABLE cSoldCity as CHARACTER format "x(15)" NO-UNDO.
+DEFINE VARIABLE cSoldState as CHARACTER format "x(2)" NO-UNDO.
+DEFINE VARIABLE cSoldZip as CHARACTER format "x(10)" NO-UNDO.
 
 DEF BUFFER bf-inv-head FOR inv-head .
 EMPTY TEMP-TABLE tt-inv-line.
@@ -217,6 +223,31 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
       FOR EACH xinv-line NO-LOCK WHERE xinv-line.r-no EQ inv-head.r-no
          BREAK BY xinv-line.po-no
                BY xinv-line.i-no:
+               
+         IF FIRST(xinv-line.po-no) THEN
+         DO:      
+             FIND FIRST oe-ord NO-LOCK
+                  WHERE oe-ord.company = cocode 
+                  AND oe-ord.ord-no = xinv-line.ord-no 
+                  NO-ERROR.    
+             IF AVAIL oe-ord THEN
+             DO:
+                 FIND FIRST soldto NO-LOCK
+                      WHERE soldto.company = cocode 
+                      AND soldto.cust-no = oe-ord.cust-no
+                      AND trim(soldto.sold-id) = trim(oe-ord.sold-id)
+                      NO-ERROR.        
+             IF avail soldto THEN
+             ASSIGN
+                 cSoldID         = soldto.sold-id
+                 cSoldName       = soldto.sold-name
+                 cSoldAddress[1] = soldto.sold-addr[1]
+                 cSoldAddress[2] = soldto.sold-addr[2]
+                 cSoldCity       = soldto.sold-city
+                 cSoldState      = soldto.sold-state
+                 cSoldZip        = soldto.sold-zip .              
+             END.    
+         END.
         
          DO i = 1 TO 3:
            IF xinv-line.sman[i] NE "" THEN DO:

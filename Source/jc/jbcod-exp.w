@@ -58,9 +58,9 @@ DEFINE STREAM excel.
 DEF VAR ldummy AS LOG NO-UNDO.
 DEF VAR cTextListToSelect AS cha NO-UNDO.
 DEF VAR cFieldListToSelect AS cha NO-UNDO.
-ASSIGN cTextListToSelect = "Code,Category,Description"
+ASSIGN cTextListToSelect = "Code,Category,Description,DMI"
 
-      cFieldListToSelect = "code,cat,dscr" .
+      cFieldListToSelect = "code,cat,dscr,dmiID" .
 {sys/inc/ttRptSel.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -854,11 +854,13 @@ IF v-excelheader NE "" THEN PUT STREAM excel UNFORMATTED v-excelheader SKIP.
        FOR EACH ttRptSelected:
          /* IF LOOKUP(ttRptSelected.TextList, "Contact,Title,Email") <> 0    THEN do: */
               IF ttRptSelected.TextList = "code" THEN
-              v-excel-detail-lines = v-excel-detail-lines + appendXLLine(job-code.CODE).
+              v-excel-detail-lines = v-excel-detail-lines + appendXLLine(job-code.code).
               IF ttRptSelected.TextList = "Category" THEN
               v-excel-detail-lines = v-excel-detail-lines + appendXLLine(job-code.cat).
               IF ttRptSelected.TextList = "Description" THEN
               v-excel-detail-lines = v-excel-detail-lines + appendXLLine(job-code.dscr).
+              IF ttRptSelected.TextList = "DMI" THEN
+              v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(job-code.dmiID)).
         END.  /* each ttrptse */
 
        PUT STREAM excel UNFORMATTED v-excel-detail-lines SKIP.
