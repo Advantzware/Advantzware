@@ -59,7 +59,7 @@ DEF VAR char-val AS cha NO-UNDO.
 
 &Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 
 /* External Tables                                                      */
@@ -74,7 +74,8 @@ DEFINE QUERY external_tables FOR job-code.
 &Scoped-define ENABLED-TABLES job-code
 &Scoped-define FIRST-ENABLED-TABLE job-code
 &Scoped-Define ENABLED-OBJECTS RECT-1 
-&Scoped-Define DISPLAYED-FIELDS job-code.code job-code.cat job-code.dscr 
+&Scoped-Define DISPLAYED-FIELDS job-code.code job-code.dmiID job-code.cat ~
+job-code.dscr 
 &Scoped-define DISPLAYED-TABLES job-code
 &Scoped-define FIRST-DISPLAYED-TABLE job-code
 
@@ -113,7 +114,7 @@ RUN set-attribute-list (
 
 /* Definitions of the field level widgets                               */
 DEFINE RECTANGLE RECT-1
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 78 BY 2.62.
 
 
@@ -125,6 +126,10 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 15 BY 1
           BGCOLOR 15 FONT 4
+     job-code.dmiID AT ROW 1.24 COL 46 COLON-ALIGNED WIDGET-ID 2
+          VIEW-AS FILL-IN 
+          SIZE 6.8 BY 1
+          BGCOLOR 15 FONT 0
      job-code.cat AT ROW 1.24 COL 67 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 9 BY 1
@@ -191,13 +196,15 @@ END.
 /* SETTINGS FOR WINDOW V-table-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE Size-to-Fit                                              */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
 /* SETTINGS FOR FILL-IN job-code.code IN FRAME F-Main
    EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN job-code.dmiID IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -211,7 +218,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
