@@ -14,6 +14,7 @@
 
 /* ***************************  Definitions  ************************** */
 {fgrep/ttFGReorder.i}
+{jc/ttMultiSelectItem.i}
 
 /* ********************  Preprocessor Definitions  ******************** */
 
@@ -30,28 +31,31 @@ PROCEDURE AssessSelections:
     and selection detail
  Notes: RUN AssessSelections IN hdFGReorder (OUTPUT iCountSelected, OUTPUT dTotalSqin, OUTPUT dTotalCyclesRequired, OUTPUT TABLE ttFGReorderSelection).
 ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER TABLE FOR ttMultiSelectItem. 
     DEFINE OUTPUT PARAMETER opiCountSelected AS INTEGER NO-UNDO.
     DEFINE OUTPUT PARAMETER opdTotalArea AS DECIMAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opdTotalCyclesRequired AS DECIMAL NO-UNDO.
     DEFINE OUTPUT PARAMETER TABLE FOR ttFGReorderSelection.
-
+          
     EMPTY TEMP-TABLE ttFGReorderSelection.
-    FOR EACH ttFgReorder NO-LOCK 
-        WHERE ttFGReorder.isSelected:
+    FOR EACH ttMultiSelectItem NO-LOCK 
+        WHERE ttMultiSelectItem.isSelected :     
         CREATE ttFGReorderSelection.
-        BUFFER-COPY ttFGReorder TO ttFGReorderSelection.
+        BUFFER-COPY ttMultiSelectItem TO ttFGReorderSelection.
         ASSIGN 
             opiCountSelected       = opiCountSelected + 1
-            opdTotalArea           = opdTotalArea + ttFGReorder.blankArea * (MAXIMUM(1,ttFGReorder.multiplier))
-            ttFGReorderSelection.quantityCyclesRequired  = ttFGReorder.quantityToOrder / (MAXIMUM(1,ttFGReorder.multiplier))
+            opdTotalArea           = opdTotalArea + ttMultiSelectItem.blankArea * (MAXIMUM(1,ttMultiSelectItem.multiplier))
+            ttFGReorderSelection.quantityCyclesRequired  = ttMultiSelectItem.quantityToOrder / (MAXIMUM(1,ttMultiSelectItem.multiplier))
             opdTotalCyclesRequired = IF ttFGReorderSelection.quantityCyclesRequired GT opdTotalCyclesRequired THEN ttFGReorderSelection.quantityCyclesRequired ELSE opdTotalCyclesRequired
-            .            
+            .
     END.
     FOR EACH ttFGReorderSelection:
         ASSIGN 
             ttFGReorderSelection.quantityCyclesSurplus = opdTotalCyclesRequired - ttFGReorderSelection.quantityCyclesRequired
             ttFGReorderSelection.quantityToOrderSurplus = ttFGReorderSelection.quantityCyclesSurplus * (MAXIMUM(1,ttFGReorderSelection.multiplier))
-            .
+            ttFGReorderSelection.KeyItem =  (ttFGReorderSelection.quantityToOrder / (MAXIMUM(1,ttFGReorderSelection.multiplier))) EQ  opdTotalCyclesRequired
+            .      
+            
     END.
     
 END PROCEDURE.

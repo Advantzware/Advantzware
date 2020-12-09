@@ -17,10 +17,12 @@
 SESSION:DEBUG-ALERT = FALSE.
 
 {fgrep/ttFGReorder.i}
-{jc/ttMultiSelectItem.i}  
+{jc/ttMultiSelectItem.i}
 
 /* PARAMs Definitions ---                                           */ 
-DEFINE OUTPUT PARAMETER TABLE FOR ttMultiSelectItem .
+DEFINE OUTPUT PARAMETER opdTotalCyclesRequired AS DECIMAL NO-UNDO.
+DEFINE OUTPUT PARAMETER TABLE FOR ttFGReorderSelection .
+
 {methods/defines/hndldefs.i}
 {custom/globdefs.i}     
 {sys/inc/var.i new shared}
@@ -31,8 +33,8 @@ ASSIGN
 
 DEFINE VARIABLE char-val        AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lSelectTrigger           AS LOGICAL NO-UNDO.
-
-/*{Inventory/ttInventory.i "NEW SHARED"}  */
+DEFINE VARIABLE hdFGReorder AS HANDLE NO-UNDO.
+RUN fgrep\fgReorder.p PERSISTENT SET hdFGReorder.
 
 /*{sys/inc/f16to32.i}*/
 {sys/inc/lastship.i}
@@ -77,9 +79,9 @@ DEFINE VARIABLE lSelectTrigger           AS LOGICAL NO-UNDO.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-39 btExit btFilter cFGItem cStyle btOk ~
-cCat cLoc BROWSE-2 
+cCat cLoc tb_sugg-qty BROWSE-2 
 &Scoped-Define DISPLAYED-OBJECTS fieventIDlb fiStyleLebel cFGItem cStyle ~
-fiCatLabel filocLabel cCat cLoc 
+fiCatLabel filocLabel cCat cLoc tb_sugg-qty
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -148,6 +150,11 @@ DEFINE VARIABLE fiStyleLebel AS CHARACTER FORMAT "X(256)":U INITIAL "Style"
      VIEW-AS FILL-IN 
      SIZE 11 BY 1
      FONT 6 NO-UNDO.
+    
+DEFINE VARIABLE tb_sugg-qty AS LOGICAL INITIAL YES 
+     LABEL "Only Items With Suggested Quantity" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 50.2 BY .95 NO-UNDO.
 
 DEFINE RECTANGLE RECT-39
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
@@ -214,20 +221,21 @@ DEFINE BROWSE BROWSE-2
 
 DEFINE FRAME Dialog-Frame
     
-     fieventIDlb AT ROW 1.76 COL 7.2 COLON-ALIGNED NO-LABEL WIDGET-ID 32
-     fiStyleLebel AT ROW 1.76 COL 71.6 COLON-ALIGNED NO-LABEL WIDGET-ID 68
-     cFGItem AT ROW 2.81 COL 7.2 COLON-ALIGNED NO-LABEL WIDGET-ID 30
-     cCat AT ROW 2.81 COL 31 COLON-ALIGNED NO-LABEL WIDGET-ID 70
-     cLoc AT ROW 2.81 COL 51.2 COLON-ALIGNED NO-LABEL WIDGET-ID 74
-     cStyle AT ROW 2.81 COL 71.6 COLON-ALIGNED NO-LABEL WIDGET-ID 66
-     fiCatLabel AT ROW 1.76 COL 31 COLON-ALIGNED NO-LABEL WIDGET-ID 72
-     filocLabel AT ROW 1.76 COL 51.2 COLON-ALIGNED NO-LABEL WIDGET-ID 76      
+     fieventIDlb AT ROW 1.36 COL 7.2 COLON-ALIGNED NO-LABEL WIDGET-ID 32
+     fiStyleLebel AT ROW 1.36 COL 71.6 COLON-ALIGNED NO-LABEL WIDGET-ID 68
+     cFGItem AT ROW 2.41 COL 7.2 COLON-ALIGNED NO-LABEL WIDGET-ID 30
+     cCat AT ROW 2.41 COL 31 COLON-ALIGNED NO-LABEL WIDGET-ID 70
+     cLoc AT ROW 2.41 COL 51.2 COLON-ALIGNED NO-LABEL WIDGET-ID 74
+     cStyle AT ROW 2.41 COL 71.6 COLON-ALIGNED NO-LABEL WIDGET-ID 66
+     fiCatLabel AT ROW 1.36 COL 31 COLON-ALIGNED NO-LABEL WIDGET-ID 72
+     filocLabel AT ROW 1.36 COL 51.2 COLON-ALIGNED NO-LABEL WIDGET-ID 76 
+     tb_sugg-qty AT ROW 3.55 COL 45.6 WIDGET-ID 6
      btFilter AT ROW 1.71 COL 100.4 WIDGET-ID 18
      btOk AT ROW 2.81 COL 124 WIDGET-ID 24
      BROWSE-2 AT ROW 4.81 COL 2 WIDGET-ID 200     
      btExit AT ROW 1.24 COL 149 WIDGET-ID 326
      " Filter" VIEW-AS TEXT
-          SIZE 7 BY .62 AT ROW 1 COL 3.6 WIDGET-ID 52
+          SIZE 7 BY .62 AT ROW 1 COL 2.6 WIDGET-ID 52
           FONT 6
      RECT-39 AT ROW 1.19 COL 1.2 WIDGET-ID 2
      SPACE(19.79) SKIP(22.85)
@@ -385,7 +393,7 @@ DO:
                                     ELSE
                                         "[ ] All".
 
-        RUN repo-query(NO,NO).  
+        RUN repo-query(NO).  
     END.  
 END.
 
@@ -416,7 +424,7 @@ DO:
         ASSIGN {&DISPLAYED-OBJECTS}.    
      END.                     
    
-     RUN repo-query(YES,YES).
+     RUN repo-query(YES).
     
 END.
 
@@ -428,8 +436,18 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btOk Dialog-Frame
 ON CHOOSE OF btOk IN FRAME Dialog-Frame /* OK */
 DO:
-  APPLY "CLOSE":U TO THIS-PROCEDURE.
-
+     DEFINE VARIABLE iCountSelected AS INTEGER NO-UNDO.
+    DEFINE VARIABLE dTotalArea AS DECIMAL NO-UNDO.      
+   
+    RUN AssessSelections IN hdFGReorder (
+                       INPUT TABLE ttMultiSelectItem,
+                       OUTPUT iCountSelected,
+                       OUTPUT dTotalArea, 
+                       OUTPUT opdTotalCyclesRequired,
+                       OUTPUT TABLE ttFGReorderSelection
+                       ).       
+        
+   APPLY "END-ERROR":U TO SELF.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -510,7 +528,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      RUN enable_UI.
      {methods/nowait.i} 
      
-     RUN repo-query(YES,YES). 
+     RUN repo-query(YES). 
        
     IF NOT THIS-PROCEDURE:PERSISTENT THEN
        WAIT-FOR CLOSE OF THIS-PROCEDURE. 
@@ -553,9 +571,9 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY fieventIDlb fiStyleLebel cFGItem cStyle fiCatLabel filocLabel cCat 
-          cLoc 
+          cLoc tb_sugg-qty 
       WITH FRAME Dialog-Frame.
-  ENABLE RECT-39 btExit btFilter cFGItem cStyle btOk cCat cLoc BROWSE-2 
+  ENABLE RECT-39 btExit btFilter cFGItem cStyle btOk cCat cLoc tb_sugg-qty BROWSE-2 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
@@ -587,14 +605,13 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE repo-query Dialog-Frame 
 PROCEDURE repo-query :
      DEFINE INPUT PARAMETER iplOpenQuery AS LOGICAL NO-UNDO.
-     DEFINE INPUT PARAMETER iplReOrderLevel AS LOGICAL NO-UNDO.
-     DEFINE VARIABLE hdFGReorder AS HANDLE NO-UNDO.
+          
      IF iplOpenQuery THEN
-     DO:      
+     DO:          
          EMPTY TEMP-TABLE ttMultiSelectItem.
          EMPTY TEMP-TABLE ttFGReorder.
-                   
-         RUN fgrep\fgReorder.p PERSISTENT SET hdFGReorder.
+         EMPTY TEMP-TABLE ttFGReorderSelection.
+                  
          RUN BuildReport IN hdFGReorder (cocode, OUTPUT TABLE ttFGReorder).
          
          FOR EACH ttFGReorder  NO-LOCK
@@ -603,7 +620,7 @@ PROCEDURE repo-query :
              and (ttFGReorder.productCategoryID BEGINS cCat OR cCat EQ "")
              AND (ttFGReorder.itemStyle BEGINS cStyle OR cStyle EQ "")
              AND (ttFGReorder.itemWhse BEGINS cLoc OR cLoc EQ "") 
-             AND (ttFGReorder.quantityReorderLevel GT 0 OR NOT iplReOrderLevel) :
+             AND (ttFGReorder.quantityToOrderSuggested GT 0 OR NOT tb_sugg-qty) :
              
              CREATE ttMultiSelectItem.
              BUFFER-COPY ttFGReorder TO ttMultiSelectItem. 
