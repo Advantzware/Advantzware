@@ -1443,15 +1443,15 @@ PROCEDURE move-columns :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  /*DO WITH FRAME {&FRAME-NAME}:
+  DO WITH FRAME {&FRAME-NAME}:
      ASSIGN
         Browser-Table:COLUMN-MOVABLE = v-col-move
         Browser-Table:COLUMN-RESIZABLE = v-col-move
         v-col-move = NOT v-col-move
         FI_moveCol = IF v-col-move = NO THEN "Move" ELSE "Sort".
      DISPLAY FI_moveCol.
-  END.*/
-run testers/OperationsTester.w .
+  END.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
