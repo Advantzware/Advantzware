@@ -3257,7 +3257,17 @@ PROCEDURE pValidateInvoicesToPost PRIVATE:
         
         IF iplgUpdateTax THEN 
             RUN pUpdateTax(BUFFER bf-ttInvoiceToPost, dTotalTax).
-               
+        
+        lValidateRequired = fGetInvoiceApprovalVal(bf-inv-head.company,"ApplyInvoiceApprovals",bf-inv-head.cust-no,iplIsValidateOnly).
+
+        IF NOT lValidateRequired THEN DO:
+            RUN pAddTagInfo(
+                INPUT ROWID(bf-inv-head),
+                INPUT "Auto approval is not set for this customer"
+                ).  
+            NEXT.                  
+        END.    
+                 
         lValidateRequired = fGetInvoiceApprovalVal(bf-inv-head.company,"InvoiceApprovalTaxCalc",bf-inv-head.cust-no,iplIsValidateOnly).        
         IF lValidateRequired AND lError THEN 
         DO:
