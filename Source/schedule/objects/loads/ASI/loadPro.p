@@ -677,6 +677,12 @@ FOR EACH job-hdr NO-LOCK
            AND oe-ordl.job-no EQ job-mch.job-no
            AND oe-ordl.job-no2 EQ job-mch.job-no2 
            AND oe-ordl.i-no EQ job-mch.i-no NO-ERROR.
+    IF NOT AVAILABLE oe-ordl THEN
+    FIND FIRST oe-ordl NO-LOCK
+         WHERE oe-ordl.company EQ job-mch.company
+           AND oe-ordl.job-no EQ job-mch.job-no
+           AND oe-ordl.job-no2 EQ job-mch.job-no2 
+           AND oe-ordl.i-no EQ job-hdr.i-no NO-ERROR.
     IF AVAILABLE oe-ordl THEN DO:
       IF ufOERel THEN DO:
         FOR EACH oe-rel NO-LOCK
