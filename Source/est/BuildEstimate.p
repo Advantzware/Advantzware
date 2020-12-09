@@ -407,7 +407,10 @@ FOR EACH ttInputEst NO-LOCK BREAK BY ttInputEst.iFormNo
     DO: 
        IF ttInputEst.iQuantityYield GT 0 THEN 
          eb.bl-qty      = ttInputEst.iQuantityYield.
-         eb.num-len     = ttInputEst.iMolds.   
+        ASSIGN 
+            eb.num-len     = ttInputEst.iMolds
+            eb.num-up      = ttInputEst.iMolds
+            .   
     END.
        
     RUN est/BuildDefaultPreps.p (BUFFER est,
