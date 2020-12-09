@@ -220,9 +220,9 @@ DEFINE VARIABLE cJobNo AS CHARACTER FORMAT "X(10)":U
      SIZE 18.8 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE cLineDscr AS CHARACTER FORMAT "X(35)":U 
+DEFINE VARIABLE cLineDscr AS CHARACTER FORMAT "X(50)":U 
      VIEW-AS FILL-IN 
-     SIZE 39.0 BY 1
+     SIZE 39 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
 DEFINE VARIABLE cMachCode AS CHARACTER FORMAT "X(8)":U 
@@ -373,7 +373,7 @@ DEFINE FRAME D-Dialog
           SIZE 2.8 BY .62 AT ROW 24.24 COL 62.2 WIDGET-ID 298
      RECT-4 AT ROW 1.48 COL 2 WIDGET-ID 236
      RECT-6 AT ROW 22.52 COL 3.6 WIDGET-ID 290
-     SPACE(90.00) SKIP(0.83)
+     SPACE(90.00) SKIP(1.36)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          FGCOLOR 1 FONT 6
@@ -477,17 +477,6 @@ OPEN QUERY {&SELF-NAME} FOR EACH ttInputEst WHERE ttInputEst.cCompany = cocode ~
 
 /* ************************  Control Triggers  ************************ */
 
-&Scoped-define BROWSE-NAME BROWSE-1
-&Scoped-define SELF-NAME BROWSE-1
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-1 D-Dialog
-ON DEFAULT-ACTION OF BROWSE-1 IN FRAME D-Dialog /* BROWSE-1 */
-DO:
-        APPLY "CHOOSE" TO btn-update .
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &Scoped-define SELF-NAME D-Dialog
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL D-Dialog D-Dialog
 ON WINDOW-CLOSE OF FRAME D-Dialog /* Head ID Creator */
@@ -509,6 +498,18 @@ DO:
         
             APPLY "END-ERROR":U TO SELF.
         END.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define BROWSE-NAME BROWSE-1
+&Scoped-define SELF-NAME BROWSE-1
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-1 D-Dialog
+ON DEFAULT-ACTION OF BROWSE-1 IN FRAME D-Dialog
+DO:
+        APPLY "CHOOSE" TO btn-update .
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -938,7 +939,6 @@ DO:
 &ANALYZE-RESUME
 
 
-&Scoped-define BROWSE-NAME BROWSE-1
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK D-Dialog 
@@ -1197,7 +1197,7 @@ PROCEDURE pNewMachine :
         IF AVAILABLE mach THEN 
         DO:
             dMachBlankSqFt = mach.max-len  * mach.max-wid / 144 .
-            cLineDscr:SCREEN-VALUE = "L:" + STRING(mach.max-len / 12) + " ft " + "W:" + STRING(mach.max-wid / 12) + " ft - " + STRING(dMachBlankSqFt) + " Sq Ft" . 
+            cLineDscr:SCREEN-VALUE = "L: " + TRIM(STRING(mach.max-len / 12,">>>>>>9.9")) + " ft x W: " + TRIM(STRING(mach.max-wid / 12 , ">>>>>>9.9")) + " ft - " + TRIM(STRING(dMachBlankSqFt, ">>>>>>9.9")) + " Sq Ft" . 
             
         END.         
     END.

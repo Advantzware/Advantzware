@@ -44,7 +44,7 @@ PROCEDURE AssessSelections:
             opiCountSelected       = opiCountSelected + 1
             opdTotalArea           = opdTotalArea + ttFGReorder.blankArea * (MAXIMUM(1,ttFGReorder.multiplier))
             ttFGReorderSelection.quantityCyclesRequired  = ttFGReorder.quantityToOrder / (MAXIMUM(1,ttFGReorder.multiplier))
-            opdTotalCyclesRequired = IF ttFGReorderSelection.quantityCyclesRequired GT opdTotalCyclesRequired THEN ttFGReorderSelection.quantityCyclesRequired ELSE opdTotalCyclesRequired
+            opdTotalCyclesRequired = IF ttFGReorderSelection.quantityCyclesRequired LT opdTotalCyclesRequired OR opdTotalCyclesRequired EQ 0 THEN ttFGReorderSelection.quantityCyclesRequired ELSE opdTotalCyclesRequired
             .            
     END.
     FOR EACH ttFGReorderSelection:
@@ -67,6 +67,7 @@ PROCEDURE BuildReport:
     DEFINE VARIABLE dQuantityOnHand AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dQuantityOnOrder AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dQuantityAllocated AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dQuantityMinimum AS DECIMAL NO-UNDO.
 
 
     FOR EACH itemfg NO-LOCK 
@@ -76,8 +77,9 @@ PROCEDURE BuildReport:
             dQuantityOnHand = itemfg.q-onh
             dQuantityOnOrder = itemfg.q-ono
             dQuantityAllocated = itemfg.q-alloc
+            dQuantityMinimum = itemfg.ord-min
             .
-        IF dQuantityOnHand NE 0 OR dQuantityOnOrder NE 0 OR dQuantityAllocated NE 0 THEN DO:
+        IF dQuantityOnHand NE 0 OR dQuantityOnOrder NE 0 OR dQuantityAllocated NE 0 OR dQuantityMinimum NE 0 THEN DO:
             CREATE ttFGReorder.
             ASSIGN 
                 ttFGReorder.company = itemfg.company
@@ -102,7 +104,7 @@ PROCEDURE BuildReport:
                 ttFGReorder.quantityAllocated = dQuantityAllocated
                 ttFGReorder.quantityOnHand = dQuantityOnHand
                 ttFGReorder.quantityOnOrder = dQuantityOnOrder
-                ttFGReorder.quantityMinOrder = itemfg.ord-min
+                ttFGReorder.quantityMinOrder = dQuantityMinimum
                 ttFGReorder.quantityMaxOrder = itemfg.ord-max
                 ttFGReorder.quantityReorderLevel = itemfg.ord-level
                 ttFGReorder.quantityAvailable = dQuantityOnHand + dQuantityOnOrder - dQuantityAllocated
