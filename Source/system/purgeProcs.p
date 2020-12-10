@@ -250,7 +250,6 @@ PROCEDURE pDeleteJobRecords PRIVATE:
                         RUN Session_CreateAuditHistory(
                             INPUT "DELETE",
                             INPUT "ASI",
-                            INPUT "job",
                             INPUT hdBUffer
                             ).          
                     PUT STREAM datafiles UNFORMATTED DYNAMIC-FUNCTION("DynExport" IN hdPurgeProcs,hdBuffer," ") SKIP.
