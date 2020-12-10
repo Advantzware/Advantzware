@@ -25,6 +25,7 @@ CREATE WIDGET-POOL.
 
 &SCOPED-DEFINE winReSize
 &SCOPED-DEFINE browseOnly
+&SCOPED-DEFINE proc-init proc-init
 {methods/defines/winReSize.i}
 
 /* Parameters Definitions ---                                           */
@@ -41,8 +42,6 @@ ASSIGN
 
 DEF VAR ls-status AS cha NO-UNDO.
 
-&SCOPED-DEFINE yellowColumnsName inv-head
-&SCOPED-DEFINE browse2 oe/j-oeinv.i
 
 DEF VAR li-ord-no LIKE inv-line.ord-no NO-UNDO.
 DEF VAR vcText    AS CHAR NO-UNDO INIT 'By:'.
@@ -78,7 +77,13 @@ DEFINE VARIABLE lSortAsc AS LOGICAL   NO-UNDO.
           AND (IF cbStatus = "A" THEN YES ELSE IF cbStatus = '' THEN inv-head.stat = cbStatus or inv-head.stat = "X" ELSE IF cbStatus = "H" THEN inv-head.stat = "H" ELSE inv-head.stat = "W")~
           AND (IF cbPrinted = "All" THEN YES ELSE inv-head.printed = LOGICAL(cbPrinted)) ~
           and (if cbAutoApproved = "All" then YES ELSE inv-head.autoApproved EQ LOGICAL(cbAutoApproved)) ~
-          AND inv-head.multi-invoice = NO
+          AND inv-head.multi-invoice = NO 
+          
+    &SCOPED-DEFINE for-each2                     ~
+    FIRST cust NO-LOCK                    ~
+          WHERE cust.company EQ cocode   ~
+          AND cust.cust-no EQ inv-head.cust-no    ~
+          AND (cust.accountant BEGINS fiBillOwner or fiBillOwner eq "")  
  
   &SCOPED-DEFINE sortby-log  BY ~
   IF cSortBy  EQ 'cust-no'       THEN inv-head.cust-no ELSE ~
@@ -99,7 +104,8 @@ DEFINE VARIABLE lSortAsc AS LOGICAL   NO-UNDO.
   IF cSortBy  EQ 'multi-inv-no'  THEN STRING(inv-head.multi-inv-no,'>>>>>9') ELSE ~
   IF cSortBy  EQ 'ediInvoice'    THEN STRING(inv-head.ediInvoice) ELSE ~
   IF cSortBy  EQ 'spare-char-5'  THEN STRING(inv-head.spare-char-5) ELSE ~
-  IF cSortBy  EQ 'cFreight'      THEN frt-pay ELSE ~
+  IF cSortBy  EQ 'cFreight'      THEN inv-head.frt-pay ELSE ~
+  IF cSortBy  EQ 'accountant'    THEN cust.accountant ELSE ~
   STRING(inv-head.inv-no,'>>>>>>9') ~  
   
 &SCOPED-DEFINE sortby-phrase-asc ~
@@ -126,7 +132,7 @@ DEFINE VARIABLE lSortAsc AS LOGICAL   NO-UNDO.
 &Scoped-define BROWSE-NAME Browser-Table
 
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
-&Scoped-define INTERNAL-TABLES inv-head
+&Scoped-define INTERNAL-TABLES inv-head cust
 
 /* Define KEY-PHRASE in case it is used by any query. */
 &Scoped-define KEY-PHRASE TRUE
@@ -135,21 +141,28 @@ DEFINE VARIABLE lSortAsc AS LOGICAL   NO-UNDO.
 &Scoped-define FIELDS-IN-QUERY-Browser-Table inv-head.inv-no ~
 inv-head.cust-no inv-head.cust-name inv-head.inv-date inv-head.bol-no ~
 f-ordno() @ li-ord-no inv-head.printed inv-head.t-inv-rev ~
-getStatus() @ ls-status inv-head.r-no inv-head.company ~
-f-cust-Po() @ li-cust-Po inv-head.t-inv-tax inv-head.t-inv-freight ~
-inv-head.fob-code pGetFreightTerms() @ cFreight inv-head.multi-invoice ~
-inv-head.multi-inv-no inv-head.ediInvoice inv-head.spare-char-5 ~
-pGetMargin() @ dMargin inv-head.autoApproved 
+getStatus() @ ls-status inv-head.autoApproved inv-head.r-no ~
+inv-head.company f-cust-Po() @ li-cust-Po inv-head.t-inv-tax ~
+inv-head.t-inv-freight inv-head.fob-code pGetFreightTerms() @ cFreight ~
+inv-head.multi-invoice inv-head.multi-inv-no inv-head.ediInvoice ~
+inv-head.spare-char-5 pGetMargin() @ dMargin cust.accountant
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH inv-head WHERE ~{&KEY-PHRASE} ~
       AND inv-head.company = cocode and ~
-ASI.inv-head.multi-invoice = no NO-LOCK ~
+ASI.inv-head.multi-invoice = no NO-LOCK, ~
+FIRST cust NO-LOCK                    ~
+          WHERE cust.company EQ cocode   ~
+          AND cust.cust-no EQ inv-head.cust-no    ~
     ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY Browser-Table FOR EACH inv-head WHERE ~{&KEY-PHRASE} ~
       AND inv-head.company = cocode and ~
-ASI.inv-head.multi-invoice = no NO-LOCK ~
+ASI.inv-head.multi-invoice = no NO-LOCK, ~
+FIRST cust NO-LOCK                    ~
+          WHERE cust.company EQ cocode   ~
+          AND cust.cust-no EQ inv-head.cust-no    ~
     ~{&SORTBY-PHRASE}.
-&Scoped-define TABLES-IN-QUERY-Browser-Table inv-head
+&Scoped-define TABLES-IN-QUERY-Browser-Table inv-head cust
+&Scoped-define FIRST-TABLE-IN-QUERY-Browser-Table inv-head
 &Scoped-define FIRST-TABLE-IN-QUERY-Browser-Table inv-head
 
 
@@ -157,9 +170,10 @@ ASI.inv-head.multi-invoice = no NO-LOCK ~
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-4 RECT-7 fiCustNumber btGo btShow ~
-fiInvoice fiBol cbPrinted cbAutoApproved fiCustName cbStatus Browser-Table 
+fiInvoice fiBol cbPrinted fiBillOwner fiCustName cbStatus cbAutoApproved ~
+Browser-Table 
 &Scoped-Define DISPLAYED-OBJECTS fiCustNumber fiInvoice fiBol cbPrinted ~
-cbAutoApproved fiCustName cbStatus 
+fiBillOwner fiCustName cbStatus cbAutoApproved 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -223,20 +237,20 @@ DEFINE BUTTON btShow
      LABEL "Show All" 
      SIZE 15 BY 1.14.
 
-DEFINE VARIABLE cbPrinted AS CHARACTER FORMAT "X(256)" INITIAL "All" 
-     LABEL "Printed" 
-     VIEW-AS COMBO-BOX INNER-LINES 5
-     LIST-ITEMS "All","Yes","No" 
-     DROP-DOWN-LIST
-     SIZE 16 BY 1 NO-UNDO.
- 
 DEFINE VARIABLE cbAutoApproved AS CHARACTER FORMAT "X(256)" INITIAL "All" 
      LABEL "Auto Approved" 
      VIEW-AS COMBO-BOX INNER-LINES 5
      LIST-ITEMS "All","Yes","No" 
      DROP-DOWN-LIST
      SIZE 15 BY 1 NO-UNDO.
-     
+
+DEFINE VARIABLE cbPrinted AS CHARACTER FORMAT "X(256)" INITIAL "All" 
+     LABEL "Printed" 
+     VIEW-AS COMBO-BOX INNER-LINES 5
+     LIST-ITEMS "All","Yes","No" 
+     DROP-DOWN-LIST
+     SIZE 16 BY 1 NO-UNDO.
+
 DEFINE VARIABLE cbStatus AS CHARACTER FORMAT "X(256)":U INITIAL "A" 
      LABEL "Status" 
      VIEW-AS COMBO-BOX INNER-LINES 5
@@ -250,6 +264,12 @@ DEFINE VARIABLE cbStatus AS CHARACTER FORMAT "X(256)":U INITIAL "A"
 DEFINE VARIABLE auto_find AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
      SIZE 41 BY 1 NO-UNDO.
+
+DEFINE VARIABLE fiBillOwner AS CHARACTER FORMAT "X(8)":U 
+     LABEL "Billing Owner" 
+     VIEW-AS FILL-IN 
+     SIZE 14 BY 1
+     BGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE fiBol AS INTEGER FORMAT ">>>>>>>>":U INITIAL 0 
      LABEL "BOL #" 
@@ -298,10 +318,6 @@ DEFINE RECTANGLE RECT-4
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 145 BY 1.43.
 
-DEFINE VARIABLE fi_cust-PO AS CHARACTER FORMAT "X(256)":U 
-     LABEL "PO#" 
-     VIEW-AS FILL-IN 
-     SIZE 26 BY 1 NO-UNDO.
 DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 145 BY 2.86.
@@ -309,7 +325,11 @@ DEFINE RECTANGLE RECT-7
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY Browser-Table FOR 
-      inv-head SCROLLING.
+      inv-head,
+      cust 
+      FIELDS(cust.company
+             cust.cust-no
+             cust.accountant) SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
@@ -331,7 +351,8 @@ DEFINE BROWSE Browser-Table
             WIDTH 16.6 LABEL-BGCOLOR 14
       getStatus() @ ls-status COLUMN-LABEL "Status" FORMAT "x(8)":U
             WIDTH 11.6 LABEL-BGCOLOR 14
-      inv-head.autoApproved COLUMN-LABEL "Auto" FORMAT "Yes/No":U WIDTH 9.6 LABEL-BGCOLOR 14      
+      inv-head.autoApproved COLUMN-LABEL "Auto" FORMAT "Yes/No":U
+            WIDTH 9.6 LABEL-BGCOLOR 14
       inv-head.r-no FORMAT ">>>>>>>9":U LABEL-BGCOLOR 14
       inv-head.company FORMAT "x(3)":U
       f-cust-Po() @ li-cust-Po COLUMN-LABEL "PO#" LABEL-BGCOLOR 14
@@ -350,6 +371,8 @@ DEFINE BROWSE Browser-Table
       inv-head.spare-char-5 COLUMN-LABEL "Comment" FORMAT "x(60)":U
             LABEL-BGCOLOR 14
       pGetMargin() @ dMargin COLUMN-LABEL "Margin%" LABEL-BGCOLOR 14
+      cust.accountant COLUMN-LABEL "Billing Owner" FORMAT "x(10)":U
+            LABEL-BGCOLOR 14
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 145 BY 16.57
@@ -359,15 +382,16 @@ DEFINE BROWSE Browser-Table
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     fiCustNumber AT ROW 1.19 COL 39.2 COLON-ALIGNED WIDGET-ID 26
-     btGo AT ROW 1.19 COL 112.8 WIDGET-ID 34
-     btShow AT ROW 1.19 COL 128.2 WIDGET-ID 36
-     fiInvoice AT ROW 1.24 COL 10.2 COLON-ALIGNED WIDGET-ID 30
-     fiBol AT ROW 1.24 COL 61.8 COLON-ALIGNED WIDGET-ID 32
-     cbPrinted AT ROW 1.24 COL 87.2 COLON-ALIGNED WIDGET-ID 46      
-     fiCustName AT ROW 2.38 COL 39.2 COLON-ALIGNED WIDGET-ID 28
-     cbStatus AT ROW 2.48 COL 87 COLON-ALIGNED WIDGET-ID 50
-     cbAutoApproved AT ROW 2.48 COL 126 COLON-ALIGNED WIDGET-ID 150
+     fiCustNumber AT ROW 1.19 COL 44.6 COLON-ALIGNED WIDGET-ID 26
+     btGo AT ROW 1.19 COL 113.4 WIDGET-ID 34
+     btShow AT ROW 1.19 COL 128.8 WIDGET-ID 36
+     fiInvoice AT ROW 1.24 COL 13.2 COLON-ALIGNED WIDGET-ID 30
+     fiBol AT ROW 1.24 COL 67.2 COLON-ALIGNED WIDGET-ID 32
+     cbPrinted AT ROW 1.24 COL 91.4 COLON-ALIGNED WIDGET-ID 46
+     fiBillOwner AT ROW 2.38 COL 13.2 COLON-ALIGNED WIDGET-ID 152
+     fiCustName AT ROW 2.38 COL 44.6 COLON-ALIGNED WIDGET-ID 28
+     cbStatus AT ROW 2.48 COL 91.2 COLON-ALIGNED WIDGET-ID 50
+     cbAutoApproved AT ROW 2.48 COL 126.6 COLON-ALIGNED WIDGET-ID 150
      Browser-Table AT ROW 3.86 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
      browse-order AT ROW 19.33 COL 6 HELP
@@ -426,7 +450,7 @@ END.
 {src/adm/method/browser.i}
 {src/adm/method/query.i}
 {methods/template/browser.i}
-{custom/yellowColumns.i}
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -441,7 +465,7 @@ END.
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
-/* BROWSE-TAB Browser-Table cbStatus F-Main */
+/* BROWSE-TAB Browser-Table cbAutoApproved F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
@@ -500,7 +524,7 @@ ASSIGN
      _Where[1]         = "ASI.inv-head.company = cocode and
 ASI.inv-head.multi-invoice = no"
      _FldNameList[1]   > ASI.inv-head.inv-no
-"inv-head.inv-no" "Invoice#" ? "integer" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"inv-head.inv-no" "Invoice#" ">>>>>>9" "integer" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.inv-head.cust-no
 "inv-head.cust-no" "Cust #" ? "character" ? ? ? 14 ? ? no ? no no "10.6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.inv-head.cust-name
@@ -543,6 +567,8 @@ ASI.inv-head.multi-invoice = no"
 "inv-head.spare-char-5" "Comment" "x(60)" "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[22]   > "_<CALC>"
 "pGetMargin() @ dMargin" "Margin%" ? ? ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[23]   > ASI.cust.accountant
+"cust.accountant" "Billing Owner" "x(10)" "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
@@ -659,6 +685,7 @@ DO:
             cbstatus
             cbAutoApproved
             lFirst = NO
+            fiBillOwner
             .
             
     IF ficustName:SCREEN-VALUE EQ "" AND ficustNumber:SCREEN-VALUE EQ "" AND 
@@ -686,6 +713,7 @@ DO:
             ficustNumber:SCREEN-VALUE  = ""
             fibol:SCREEN-VALUE         = ""
             fiinvoice:SCREEN-VALUE     = ""
+            fiBillOwner:SCREEN-VALUE   = ""
             cbstatus:SCREEN-VALUE      = "A"
             cbprinted:SCREEN-VALUE     = "All"
             cbAutoApproved:SCREEN-VALUE = "All"
@@ -697,6 +725,20 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&Scoped-define SELF-NAME fiBillOwner
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiBillOwner B-table-Win
+ON HELP OF fiBillOwner IN FRAME F-Main
+DO:   
+  DEFINE VARIABLE char-val AS CHARACTER NO-UNDO.   
+
+  run windows/l-users.w (fiBillOwner:SCREEN-VALUE in frame {&frame-name}, output char-val).
+  IF char-val <> "" THEN ASSIGN fiBillOwner:SCREEN-VALUE = ENTRY(1,char-val)  . 
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 &UNDEFINE SELF-NAME
@@ -734,6 +776,22 @@ PROCEDURE adm-row-available :
   /* Process the newly available records (i.e. display fields,
      open queries, and/or pass records on to any RECORD-TARGETS).    */
   {src/adm/template/row-end.i}
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE check-inv-file B-table-Win 
+PROCEDURE check-inv-file :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+   RUN oe/AutoApproveInvoices.w .
+   RUN value-changed-proc. 
 
 END PROCEDURE.
 
@@ -799,6 +857,21 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE proc-init B-table-Win 
+PROCEDURE proc-init :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Notes:       
+------------------------------------------------------------------------------*/   
+
+    fiBillOwner = USERID(LDBNAME(1)).
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-open-query B-table-Win 
 PROCEDURE local-open-query :
 /*------------------------------------------------------------------------------
@@ -812,25 +885,28 @@ PROCEDURE local-open-query :
   /* Code placed here will execute AFTER standard behavior.    */
     IF lFirst THEN DO:
        &SCOPED-DEFINE open-query               ~
-        OPEN QUERY {&browse-name} {&for-each1} ~
+        OPEN QUERY {&browse-name} {&for-each1}, ~
+        {&for-each2}
         
         IF lSortAsc THEN {&open-query} {&sortby-phrase-asc}.
-                    ELSE {&open-query} {&sortby-phrase-desc}.
+                    ELSE {&open-query} {&sortby-phrase-desc}. 
     END.
   
     ELSE DO:
         IF fibol NE 0 THEN DO:
             &SCOPED-DEFINE open-query              ~
             OPEN QUERY {&browse-name} {&for-each1} ~
-            AND inv-head.bol-no EQ fibol           ~
+            AND inv-head.bol-no EQ fibol ,          ~
+            {&for-each2}
             
             IF lSortAsc THEN {&open-query} {&sortby-phrase-asc}.
-                        ELSE {&open-query} {&sortby-phrase-desc}.
+                        ELSE {&open-query} {&sortby-phrase-desc}. 
         END.
       
         ELSE IF ficustNAME NE "" OR ficustNumber NE "" THEN DO:
             &SCOPED-DEFINE open-query              ~
-            OPEN QUERY {&browse-name} {&for-each1} ~
+            OPEN QUERY {&browse-name} {&for-each1}, ~
+            {&for-each2}
    
             IF lSortAsc THEN {&open-query} {&sortby-phrase-asc}.
                         ELSE {&open-query} {&sortby-phrase-desc}.
@@ -839,7 +915,8 @@ PROCEDURE local-open-query :
         ELSE IF fiinvoice NE 0 THEN DO:
              &SCOPED-DEFINE open-query               ~
              OPEN QUERY {&browse-name} {&for-each1}  ~
-             AND inv-head.inv-no = fiinvoice         ~
+             AND inv-head.inv-no = fiinvoice,        ~
+             {&for-each2}
   
              IF lSortAsc THEN {&open-query} {&sortby-phrase-asc}.
                          ELSE {&open-query} {&sortby-phrase-desc}.   
@@ -1039,23 +1116,6 @@ PROCEDURE value-changed-proc :
    DO WITH FRAME {&FRAME-NAME}:
       APPLY "VALUE-CHANGED" TO BROWSE {&browse-name}.
    END.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE check-inv-file V-table-Win 
-PROCEDURE check-inv-file :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-
-   RUN oe/AutoApproveInvoices.w .
-   RUN value-changed-proc. 
-
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

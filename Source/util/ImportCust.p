@@ -98,6 +98,7 @@ DEFINE TEMP-TABLE ttImportCust
     FIELD marketSegment AS CHARACTER FORMAT "x(16)" COLUMN-LABEL "Market Segment" HELP "Market segment for sales reporting Optional - Size:16"
     FIELD naicsCode     AS CHARACTER FORMAT "999999" COLUMN-LABEL "NAICS" HELP "NAICS Code, link to NaicsTable, Default = 999999"
     FIELD classId       AS INTEGER   FORMAT ">>" COLUMN-LABEL "AR ClassID" HELP "Optional - Integer  Default = blank or 0 "    
+    FIELD accountant    AS CHARACTER FORMAT "x(10)" COLUMN-LABEL "Billing Owner" HELP "Optional - Size:10 "    
     .
 
 DEFINE VARIABLE giIndexOffset AS INTEGER NO-UNDO INIT 2. /*Set to 1 if there is a Company field in temp-table since this will not be part of the mport data*/
@@ -299,7 +300,10 @@ PROCEDURE pValidate PRIVATE:
 
         IF oplValid AND ipbf-ttImportCust.CSRUser NE "" THEN 
             RUN pIsValidUserId IN hdValidator (ipbf-ttImportCust.CSRUser, NO, OUTPUT oplValid, OUTPUT cValidNote).
-
+            
+         IF oplValid AND ipbf-ttImportCust.accountant NE "" THEN 
+            RUN pIsValidUserId IN hdValidator (ipbf-ttImportCust.accountant, NO, OUTPUT oplValid, OUTPUT cValidNote).    
+        
         IF oplValid AND ipbf-ttImportCust.cCurrency NE "" THEN 
             RUN pIsValidCurrency IN hdValidator (ipbf-ttImportCust.cCurrency, NO, ipbf-ttImportCust.Company, OUTPUT oplValid, OUTPUT cValidNote).
 
@@ -486,6 +490,7 @@ PROCEDURE pProcessRecord PRIVATE:
     RUN pAssignValueC (ipbf-ttImportCust.marketSegment, iplIgnoreBlanks, INPUT-OUTPUT bf-cust.marketSegment).
     RUN pAssignValueC (ipbf-ttImportCust.naicsCode, iplIgnoreBlanks, INPUT-OUTPUT bf-cust.naicsCode).
     RUN pAssignValueC (ipbf-ttImportCust.classId, iplIgnoreBlanks, INPUT-OUTPUT bf-cust.classId).
+    RUN pAssignValueC (ipbf-ttImportCust.accountant, iplIgnoreBlanks, INPUT-OUTPUT bf-cust.accountant).
 
     FIND FIRST bf-shipto EXCLUSIVE-LOCK 
         WHERE bf-shipto.company EQ bf-cust.company
