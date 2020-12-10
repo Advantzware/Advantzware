@@ -1450,7 +1450,8 @@ PROCEDURE pUpdateLineRequestData PRIVATE:
     RUN updateRequestData(INPUT-OUTPUT ioplcLineData, "InvoiceQty",STRING(ipbf-ttLines.quantity)). 
     RUN updateRequestData(INPUT-OUTPUT ioplcLineData, "UOM",DYNAMIC-FUNCTION("fReplaceExceptionCharacters",ipbf-ttLines.priceUOM)).
     RUN updateRequestData(INPUT-OUTPUT ioplcLineData, "UnitPrice",DYNAMIC-FUNCTION("fReplaceExceptionCharacters",STRING(ttLines.pricePerUOM))). 
-    RUN updateRequestData(INPUT-OUTPUT ioplcLineData, "ItemNo",DYNAMIC-FUNCTION("fReplaceExceptionCharacters",ipbf-ttLines.customerPartID)).
+    RUN updateRequestData(INPUT-OUTPUT ioplcLineData, "CustomerPartID",DYNAMIC-FUNCTION("fReplaceExceptionCharacters",ipbf-ttLines.customerPartID)).
+    RUN updateRequestData(INPUT-OUTPUT ioplcLineData, "ItemID",DYNAMIC-FUNCTION("fReplaceExceptionCharacters",ipbf-ttLines.itemID)).
     RUN updateRequestData(INPUT-OUTPUT ioplcLineData, "ItemName",DYNAMIC-FUNCTION("fReplaceExceptionCharacters",ipbf-ttLines.itemName)).
     RUN updateRequestData(INPUT-OUTPUT ioplcLineData, "LineSubTotalAmount",STRING(ttLines.priceTotal)).
     RUN updateRequestData(INPUT-OUTPUT ioplcLineData, "ShiptoID",ttInv.shiptoID).    
