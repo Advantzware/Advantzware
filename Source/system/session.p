@@ -21,6 +21,8 @@
 USING system.SharedConfig.
 USING system.SessionConfig.
 
+{methods/auditfunc.i}
+
 DEFINE VARIABLE cCompany            AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cLocation           AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cLookupTitle        AS CHARACTER NO-UNDO INITIAL ?.
@@ -680,6 +682,182 @@ PROCEDURE pSetCompanyContexts PRIVATE:
     sessionInstance:SetValue("CompanyState",bf-company.state).
     sessionInstance:SetValue("CompanyPostalCode",bf-company.zip). 
            
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
+&IF DEFINED(EXCLUDE-Session_CreateAuditDtlFromBuffer) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Session_CreateAuditDtlFromBuffer Procedure
+PROCEDURE Session_CreateAuditDtlFromBuffer:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipiAuditID   AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER iphdBuffer   AS HANDLE    NO-UNDO.
+    DEFINE INPUT PARAMETER ipcType      AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE iAuditIdx    AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iExtent      AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iExtentBase  AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cIdxFields   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cBeforeValue AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cAfterValue  AS CHARACTER NO-UNDO.
+    
+    /* get primary index fields */
+    RUN nosweat/primflds.p(
+        INPUT  iphdBuffer:NAME,
+        OUTPUT cIdxFields
+        ).
+    
+    DO iAuditIdx = 1 TO iphdBuffer:NUM-FIELDS:    
+        iExtentBase = IF iphdBuffer:BUFFER-FIELD(iAuditIdx):EXTENT GT 0 THEN 1 ELSE 0.
+        IF iphdBuffer:BUFFER-FIELD(iAuditIdx):DATA-TYPE EQ "CLOB" OR
+           iphdBuffer:BUFFER-FIELD(iAuditIdx):DATA-TYPE EQ "BLOB" THEN
+            NEXT.
+        DO iExtent = iExtentBase TO iphdBuffer:BUFFER-FIELD(iAuditIdx):EXTENT:
+            CASE ipcType:
+                WHEN "CREATE" THEN
+                IF CAN-DO(cIdxFields,iphdBuffer:BUFFER-FIELD(iAuditIdx):NAME) THEN 
+                    cAfterValue = fFormatValue(iphdBuffer,iphdBuffer:BUFFER-FIELD(iAuditIdx):NAME, iExtent).
+                WHEN "DELETE" THEN
+                    cAfterValue = fFormatValue(iphdBuffer,iphdBuffer:BUFFER-FIELD(iAuditIdx):NAME, iExtent).
+            END CASE.
+            RUN spCreateAuditDtl(
+                INPUT ipiAuditID,
+                INPUT iphdBuffer:BUFFER-FIELD(iAuditIdx):NAME,
+                INPUT iExtent,
+                INPUT fFormatValue(iphdBuffer,iphdBuffer:BUFFER-FIELD(iAuditIdx):NAME, iExtent),
+                INPUT "",
+                INPUT CAN-DO(cIdxFields,iphdBuffer:BUFFER-FIELD(iAuditIdx):NAME)
+                ).
+        END. /* do iextent */
+    END. /* do */
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
+&IF DEFINED(EXCLUDE-Session_CreateAuditHistory) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Session_CreateAuditHistory Procedure
+PROCEDURE Session_CreateAuditHistory:
+/*------------------------------------------------------------------------------
+ Purpose: Creates Audit History records
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcAuditType   AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcAuditDB     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER iphdBuffer     AS HANDLE    NO-UNDO.  
+    
+    DEFINE VARIABLE cStack          AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lIsAuditEnabled AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE iIndex          AS INTEGER   NO-UNDO INIT 2.
+    DEFINE VARIABLE iStackID        AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iAuditId        AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cIdxFields      AS CHARACTER NO-UNDO.
+      
+    DEFINE BUFFER bf-AuditTbl   FOR AuditTbl.
+    DEFINE BUFFER bf-AuditStack FOR AuditStack.
+    DEFINE BUFFER bf-AuditHdr   FOR AuditHdr.
+    
+    FIND FIRST bf-AuditTbl NO-LOCK 
+         WHERE bf-AuditTbl.AuditTable EQ iphdBuffer:NAME
+         NO-ERROR.  
+           
+    IF AVAILABLE bf-AuditTbl THEN
+        lIsAuditEnabled = bf-AuditTbl.AuditStack.
+        
+    /* get primary index fields */
+    RUN nosweat/primflds.p (
+        INPUT  iphdBuffer:NAME,
+        OUTPUT cIdxFields
+        ).             
+    /*Ceate Header Record */
+    RUN spCreateAuditHdr(
+        INPUT  ipcAuditType,
+        INPUT  ipcAuditDB,
+        INPUT  iphdBuffer:NAME,
+        INPUT  fAuditKey(iphdBuffer,cIdxFields),
+        OUTPUT iAuditID
+        ). 
+           
+    RUN Session_CreateAuditDtlFromBuffer(   
+        INPUT iAuditID,
+        INPUT iphdBuffer,
+        INPUT ipcAuditType
+        ). 
+    IF lIsAuditEnabled THEN DO:
+        DO WHILE TRUE:
+            ASSIGN 
+                cStack = cStack + PROGRAM-NAME(iIndex) + ","
+                iIndex = iIndex + 1
+                .
+            IF PROGRAM-NAME(iIndex) EQ ? THEN
+                LEAVE. 
+        END. /* do while true */
+        cStack = TRIM(cStack,",").
+
+        FIND FIRST bf-AuditStack NO-LOCK
+             WHERE bf-AuditStack.AuditStack EQ cStack
+             NO-ERROR.
+        IF NOT AVAILABLE bf-AuditStack  THEN DO: 
+            RUN Session_CreateAuditStack(
+                INPUT  cStack,
+                OUTPUT iStackID
+                ).         
+        END. /* not avail */                
+    END. 
+    FIND FIRST bf-AuditHdr EXCLUSIVE-LOCK 
+         WHERE bf-AuditHdr.AuditID EQ iAuditID
+         NO-ERROR.
+    IF AVAILABLE bf-AuditHdr THEN
+        ASSIGN
+            bf-AuditHdr.AuditRecKey  = iphdBuffer:BUFFER-FIELD("rec_key"):BUFFER-VALUE
+            bf-AuditHdr.AuditStackID = iStackID
+            .   
+                       
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
+&IF DEFINED(EXCLUDE-Session_CreateAuditStack) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Session_CreateAuditStack Procedure
+PROCEDURE Session_CreateAuditStack:
+/*------------------------------------------------------------------------------
+ Purpose: Public procedure to create audit stack record
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcStack   AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER ipiStackID AS INTEGER   NO-UNDO.
+    
+    DEFINE BUFFER bf-AuditStack FOR AuditStack.
+    
+    CREATE bf-AuditStack.    
+    ASSIGN 
+        bf-AuditStack.AuditStackID = NEXT-VALUE(stack_trace)
+        bf-AuditStack.AuditStack   = ipcStack
+        ipiStackID                 = bf-AuditStack.AuditStackID
+        .
+        
+    RELEASE bf-AuditStack.
 END PROCEDURE.
 	
 /* _UIB-CODE-BLOCK-END */

@@ -160,21 +160,22 @@ PROCEDURE pDeleteJobRecords PRIVATE:
     DEFINE INPUT PARAMETER iplLogChildRecords   AS LOGICAL   NO-UNDO.
     DEFINE INPUT PARAMETER iplCalledFromTrigger AS LOGICAL   NO-UNDO.
     
-    DEFINE VARIABLE hdBuffer         AS HANDLE    NO-UNDO.
-    DEFINE VARIABLE hdQuery          AS HANDLE    NO-UNDO.
-    DEFINE VARIABLE hdTempTable      AS HANDLE    NO-UNDO.
-    DEFINE VARIABLE hdTTBuffer       AS HANDLE    NO-UNDO.
-    DEFINE VARIABLE iCount           AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE iIndex           AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE hdCompany        AS HANDLE    NO-UNDO.
-    DEFINE VARIABLE hdJob            AS HANDLE    NO-UNDO.
-    DEFINE VARIABLE hdJobNo          AS HANDLE    NO-UNDO.
-    DEFINE VARIABLE hdJobNo2         AS HANDLE    NO-UNDO.
-    DEFINE VARIABLE cQueryString     AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cTableName       AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE lSuccess         AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE cMessage         AS CHARACTER NO-UNDO. 
-    DEFINE VARIABLE cJobHdrRefTbl    AS CHARACTER NO-UNDO. 
+    DEFINE VARIABLE hdBuffer      AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE hdQuery       AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE hdTempTable   AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE hdTTBuffer    AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE iCount        AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iIndex        AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE hdCompany     AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE hdJob         AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE hdJobNo       AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE hdJobNo2      AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE cQueryString  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cTableName    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lSuccess      AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage      AS CHARACTER NO-UNDO. 
+    DEFINE VARIABLE cJobHdrRefTbl AS CHARACTER NO-UNDO. 
+    DEFINE VARIABLE iAuditId      AS INTEGER   NO-UNDO.
     
     cJobHdrRefTbl = "JOB-HDR01,JOB-HDR02,JOB-HDR03,JOB-HDR04".  
 
@@ -215,8 +216,12 @@ PROCEDURE pDeleteJobRecords PRIVATE:
         hdQuery:QUERY-OPEN().
         hdQuery:GET-FIRST().
         
+        IF NOT iplCalledFromTrigger THEN 
+            hdBuffer:DISABLE-LOAD-TRIGGERS(FALSE).
+            
         IF iplPurge AND NOT iplCalledFromTrigger THEN 
-            OUTPUT STREAM datafiles TO VALUE (cOutDir + "\DataFiles\" + cTableName + ".d") APPEND.   
+            OUTPUT STREAM datafiles TO VALUE (cOutDir + "\DataFiles\" + cTableName + ".d") APPEND.
+               
         DO WHILE NOT hdQuery:QUERY-OFF-END:                
             IF cTableName = "job-hdr" AND iplPurge THEN DO:
                 DO iIndex = 1 TO NUM-ENTRIES(cJobHdrRefTbl):
@@ -240,8 +245,16 @@ PROCEDURE pDeleteJobRecords PRIVATE:
                 hdTTBuffer:BUFFER-COPY(hdBuffer).
             END.    
             IF iplPurge THEN DO:
-                IF NOT iplCalledFromTrigger  THEN 
+                IF NOT iplCalledFromTrigger THEN DO:
+                    IF hdBuffer:NAME EQ "job" THEN 
+                        RUN Session_CreateAuditHistory(
+                            INPUT "DELETE",
+                            INPUT "ASI",
+                            INPUT "job",
+                            INPUT hdBUffer
+                            ).          
                     PUT STREAM datafiles UNFORMATTED DYNAMIC-FUNCTION("DynExport" IN hdPurgeProcs,hdBuffer," ") SKIP.
+                END.
                 hdQuery:GET-CURRENT(EXCLUSIVE-LOCK).
                 hdBuffer:BUFFER-DELETE().    
                 hdBuffer:BUFFER-RELEASE(). 
@@ -303,19 +316,6 @@ PROCEDURE pPurgeJob PRIVATE:
         .
         
     IF NOT iplCalledFromTrigger THEN DO:
-        cPurgeDirectory = fGetPurgeDir("Job").
-      
-        RUN FileSys_CreateDirectory(
-            INPUT cPurgeDirectory + "\Csv\",
-            OUTPUT lSuccess,
-            OUTPUT cMessage 
-            ).
-        IF iplPurge THEN  
-            RUN FileSys_CreateDirectory(
-                INPUT cPurgeDirectory + "\DataFiles\",
-                OUTPUT lSuccess,
-                OUTPUT cMessage 
-                ).
         /*If not called from trigger then delete the job in the end*/       
         cOrphanTableList = cOrphanTableList + ",job".                                          
     END.        

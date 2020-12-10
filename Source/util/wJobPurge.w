@@ -345,8 +345,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-process C-Win
 ON CHOOSE OF btn-process IN FRAME DEFAULT-FRAME /* Start Purge */
 DO:
-    DEF VAR lSuccess AS LOG NO-UNDO.
-    DEF VAR cMessage AS CHAR NO-UNDO.
+    DEFINE VARIABLE lSuccess        AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage        AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cPurgeDirectory AS CHARACTER NO-UNDO.
 
     /* Validate that start job is LE end job, if entered */
     IF fiStartJob:SCREEN-VALUE NE "" 
@@ -380,6 +381,20 @@ DO:
     APPLY "LEAVE":U TO fiEndJob.
     
     DISABLE TRIGGERS FOR LOAD OF job.
+    
+    cPurgeDirectory = DYNAMIC-FUNCTION ("fGetPurgeDir", "job").
+      
+    RUN FileSys_CreateDirectory(
+        INPUT cPurgeDirectory + "\Csv\",
+        OUTPUT lSuccess,
+        OUTPUT cMessage 
+        ).
+    IF rsPurge:SCREEN-VALUE EQ "P" THEN  
+        RUN FileSys_CreateDirectory(
+            INPUT cPurgeDirectory + "\DataFiles\",
+            OUTPUT lSuccess,
+            OUTPUT cMessage 
+            ).
     
     /* Optimize these to use the best index given entered values */
     IF rsOpen:SCREEN-VALUE EQ "C" THEN DO:  /* Closed jobs only, use close-date for index */
