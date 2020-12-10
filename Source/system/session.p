@@ -696,7 +696,7 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Session_CreateAuditDtlFromBuffer Procedure
 PROCEDURE Session_CreateAuditDtlFromBuffer:
 /*------------------------------------------------------------------------------
- Purpose:
+ Purpose: Create Audit detail records from buffer handle
  Notes:
 ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipiAuditID   AS INTEGER   NO-UNDO.
@@ -708,7 +708,6 @@ PROCEDURE Session_CreateAuditDtlFromBuffer:
     DEFINE VARIABLE iExtentBase  AS INTEGER   NO-UNDO.
     DEFINE VARIABLE cIdxFields   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cBeforeValue AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cAfterValue  AS CHARACTER NO-UNDO.
     
     /* get primary index fields */
     RUN nosweat/primflds.p(
@@ -725,15 +724,15 @@ PROCEDURE Session_CreateAuditDtlFromBuffer:
             CASE ipcType:
                 WHEN "CREATE" THEN
                 IF CAN-DO(cIdxFields,iphdBuffer:BUFFER-FIELD(iAuditIdx):NAME) THEN 
-                    cAfterValue = fFormatValue(iphdBuffer,iphdBuffer:BUFFER-FIELD(iAuditIdx):NAME, iExtent).
+                    cBeforeValue = fFormatValue(iphdBuffer,iphdBuffer:BUFFER-FIELD(iAuditIdx):NAME, iExtent).
                 WHEN "DELETE" THEN
-                    cAfterValue = fFormatValue(iphdBuffer,iphdBuffer:BUFFER-FIELD(iAuditIdx):NAME, iExtent).
+                    cBeforeValue = fFormatValue(iphdBuffer,iphdBuffer:BUFFER-FIELD(iAuditIdx):NAME, iExtent).
             END CASE.
             RUN spCreateAuditDtl(
                 INPUT ipiAuditID,
                 INPUT iphdBuffer:BUFFER-FIELD(iAuditIdx):NAME,
                 INPUT iExtent,
-                INPUT fFormatValue(iphdBuffer,iphdBuffer:BUFFER-FIELD(iAuditIdx):NAME, iExtent),
+                INPUT cBeforeValue,
                 INPUT "",
                 INPUT CAN-DO(cIdxFields,iphdBuffer:BUFFER-FIELD(iAuditIdx):NAME)
                 ).
