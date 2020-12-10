@@ -22,12 +22,8 @@ DEFINE VARIABLE lSuccess             AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage             AS CHARACTER NO-UNDO.
 DEFINE VARIABLE gcRequestFile        AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lAPIOutboundTestMode AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE scInstance           AS CLASS System.SharedConfig NO-UNDO. 
 
-ASSIGN 
-    scInstance           = SharedConfig:instance
-    lAPIOutboundTestMode = LOGICAL(scInstance:GetValue("APIOutboundTestMode")) NO-ERROR
-    .
+lAPIOutboundTestMode = LOGICAL(SharedConfig:Instance:GetValue("APIOutboundTestMode")) NO-ERROR.
 
 FIND FIRST APIOutboundEvent EXCLUSIVE-LOCK
      WHERE APIOutboundEvent.apiOutboundEventID EQ ipiOutboundEventID
@@ -35,28 +31,7 @@ FIND FIRST APIOutboundEvent EXCLUSIVE-LOCK
 IF NOT AVAILABLE APIOutboundEvent AND iplReTrigger THEN
     RETURN. /* Do not create APIOutboundEvent in case of invalid re-trigger event */
     
-IF AVAILABLE APIOutboundEvent THEN DO:
-    ASSIGN
-        lcNotes                          = APIOutboundEvent.notes
-        APIOutboundEvent.responseData    = iplcReponseData
-        APIOutboundEvent.callingProgram  = ipcProgramName
-        APIOutboundEvent.success         = iplSuccess
-        APIOutboundEvent.errorMessage    = ipcMessage
-        APIOutboundEvent.requestDateTime = ipcDateTime
-        APIOutboundEvent.notes           = lcNotes
-                                         + "~n"
-                                         + STRING(NOW, "99/99/9999 HH:MM:SS.SSS")
-                                         + " - "
-                                         + USERID("ASI")
-                                         + " - "
-                                         + "Subsequent Trigger"
-                                         + " - "
-                                         + STRING(iplSuccess, "SUCCESS/FAILURE")
-                                         + " - "
-                                         + ipcMessage
-        .
-END.     
-ELSE DO:
+IF NOT AVAILABLE APIOutboundEvent THEN DO:
     CREATE APIOutboundEvent.
     ASSIGN
         APIOutboundEvent.company          = ipcCompany
@@ -66,23 +41,37 @@ ELSE DO:
         APIOutboundEvent.sourceTriggerID  = ipcTriggerID
         APIOutboundEvent.primaryID        = ipcPrimaryID
         APIOutboundEvent.eventDescription = ipcEventDescription
-        APIOutboundEvent.requestData      = iplcRequestData
-        APIOutboundEvent.responseData     = iplcReponseData
-        APIOutboundEvent.callingProgram   = ipcProgramName
-        APIOutboundEvent.success          = iplSuccess
-        APIOutboundEvent.errorMessage     = ipcMessage
-        APIOutboundEvent.requestDateTime  = ipcDateTime
-        APIOutboundEvent.notes            = STRING(ipcDateTime) 
-                                          + " - " 
-                                          + USERID("ASI") 
-                                          + " - "
-                                          + "Initial Trigger"
-                                          + " - "
-                                          + STRING(iplSuccess, "SUCCESS/FAILURE")
-                                          + " - "
-                                          + ipcMessage
-        .
+        APIOutboundEvent.requestData      = iplcRequestData        
+        .    
 END.
+    
+ASSIGN
+    lcNotes                          = APIOutboundEvent.notes
+    APIOutboundEvent.responseData    = iplcReponseData
+    APIOutboundEvent.callingProgram  = ipcProgramName
+    APIOutboundEvent.success         = iplSuccess
+    APIOutboundEvent.errorMessage    = ipcMessage
+    APIOutboundEvent.requestDateTime = ipcDateTime
+    APIOutboundEvent.userField1      = SharedConfig:Instance:ConsumeValue("APIOutboundEvent_UserField1")
+    APIOutboundEvent.userField2      = SharedConfig:Instance:ConsumeValue("APIOutboundEvent_UserField2")        
+    APIOutboundEvent.notes           = lcNotes
+                                     + (IF NEW APIOutboundEvent THEN
+                                            ""
+                                        ELSE
+                                            "~n")
+                                     + STRING(NOW, "99/99/9999 HH:MM:SS.SSS")
+                                     + " - "
+                                     + USERID("ASI")
+                                     + " - "
+                                     + (IF NEW APIOutboundEvent THEN
+                                            "Initial Trigger"
+                                        ELSE
+                                            "Subsequent Trigger")
+                                     + " - "
+                                     + STRING(iplSuccess, "SUCCESS/FAILURE")
+                                     + " - "
+                                     + ipcMessage
+    .
 
 opiOutboundEventID = APIOutboundEvent.apiOutboundEventID.
 

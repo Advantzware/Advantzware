@@ -112,8 +112,8 @@ SESSION:ADD-SUPER-PROCEDURE (hTags).
           opcOrderID = orderID
           .            
 
-      SharedConfig:Instance:SetValue("UserField1", orderID).
-      SharedConfig:Instance:SetValue("UserField2", getNodeValue('shipTo','AddressID')).
+      SharedConfig:Instance:SetValue("APIInboundEvent_UserField1", orderID).
+      SharedConfig:Instance:SetValue("APIInboundEvent_UserField2", getNodeValue('shipTo','AddressID')).
       
       /* Validation of orderID */
       IF orderID EQ "" THEN DO:
@@ -628,7 +628,7 @@ PROCEDURE genOrderLinesLocal:
       ttOrdLines.ttpayLoadID = ttOrdHead.ttpayLoadID
       BY ttItemLineNumber:
      
-     SharedConfig:Instance:SetValue("UserField3", ttOrdLines.ttitemSupplierPartID).
+     SharedConfig:Instance:SetValue("APIInboundEvent_UserField3", ttOrdLines.ttitemSupplierPartID).
 
      IF ttOrdLines.ttitemSupplierPartID EQ "" THEN DO:
         ASSIGN

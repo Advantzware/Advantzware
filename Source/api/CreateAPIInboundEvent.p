@@ -84,9 +84,9 @@ ASSIGN
     APIInboundEvent.responseData            = iplcReponseData
     APIInboundEvent.success                 = iplSuccess
     APIInboundEvent.requestDateTime         = ipcDateTime
-    APIInboundEvent.userField1              = SharedConfig:Instance:ConsumeValue("UserField1")
-    APIInboundEvent.userField2              = SharedConfig:Instance:ConsumeValue("UserField2")
-    APIInboundEvent.userField3              = SharedConfig:Instance:ConsumeValue("UserField3")
+    APIInboundEvent.userField1              = SharedConfig:Instance:ConsumeValue("APIInboundEvent_UserField1")
+    APIInboundEvent.userField2              = SharedConfig:Instance:ConsumeValue("APIInboundEvent_UserField2")
+    APIInboundEvent.userField3              = SharedConfig:Instance:ConsumeValue("APIInboundEvent_UserField3")
     .
  
 opcAPIInboundEvent = STRING(ROWID(APIInboundEvent))

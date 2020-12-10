@@ -45,7 +45,6 @@ CREATE WIDGET-POOL.
 DEFINE VARIABLE lReTrigger           AS LOGICAL NO-UNDO.
 DEFINE VARIABLE hdOutputProcs        AS HANDLE  NO-UNDO.
 DEFINE VARIABLE hdInboundProcs       AS HANDLE  NO-UNDO.
-DEFINE VARIABLE hdBuffer             AS HANDLE  NO-UNDO.
 DEFINE VARIABLE hdQuery              AS HANDLE  NO-UNDO.
 DEFINE VARIABLE hdUserField1Column   AS HANDLE  NO-UNDO.
 DEFINE VARIABLE hdUserField2Column   AS HANDLE  NO-UNDO.
@@ -589,7 +588,6 @@ DO:
     DEFINE VARIABLE lcRequestData  AS LONGCHAR  NO-UNDO.
     DEFINE VARIABLE cQuery         AS CHARACTER NO-UNDO.
     DEFINE VARIABLE iCount         AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE lCompanyFilter AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE iBeginTime     AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iEndTime       AS INTEGER   NO-UNDO.
     
@@ -612,18 +610,14 @@ DO:
         iEndTime   = (INTEGER(fiEndHours:SCREEN-VALUE) * 60 +  INTEGER(fiEndMins:SCREEN-VALUE)) * 60 * 1000 + 60 * 1000 - 1
         .
 
-    cQuery = "FOR EACH APIInboundEvent FIELDS (apiRoute requestDateTime success requestedBy apiInboundEventID errorMessage requestData userField1 userField2 userField3 delayedProcessingStatus) NO-LOCK WHERE TRUE ".
+    cQuery = "FOR EACH APIInboundEvent FIELDS (company apiRoute requestDateTime success requestedBy apiInboundEventID errorMessage requestData userField1 userField2 userField3 delayedProcessingStatus) NO-LOCK WHERE TRUE ".
     
     IF fiEventID:SCREEN-VALUE NE "0" THEN
         cQuery = cQuery + " AND APIInboundEvent.apiInboundEventID EQ " + REPLACE(fiEventID:SCREEN-VALUE,",","").
 
     IF fiAPIID:SCREEN-VALUE NE "ALL" AND fiAPIID:SCREEN-VALUE NE "" THEN
-        ASSIGN
-            cQuery         = cQuery 
-/*                           + " AND APIInboundEvent.company EQ '" + g_company + "'"*/
-                           + " AND APIInboundEvent.apiRoute EQ '" + fiAPIID:SCREEN-VALUE + "'"
-            lCompanyFilter = TRUE
-            .
+        cQuery = cQuery 
+               + " AND APIInboundEvent.apiRoute EQ '" + fiAPIID:SCREEN-VALUE + "'".
     
     IF fiBeginRequestDate:SCREEN-VALUE NE ?  AND
        fiBeginRequestDate:SCREEN-VALUE NE "" AND
@@ -656,6 +650,9 @@ DO:
     
     DO WHILE hdQuery:GET-NEXT():                
         IF fiRequestData:SCREEN-VALUE NE "" THEN DO:
+            IF APIInboundEvent.company NE g_company THEN
+                NEXT.
+                 
             /* Searching CLOB data takes a lot of processing time, 
                so search if any of the user fields contains the search criteria before */
             IF APIInboundEvent.userField1 BEGINS fiRequestData:SCREEN-VALUE OR
@@ -708,9 +705,9 @@ DO:
         INPUT fiAPIID:SCREEN-VALUE
         ).
     
-    SESSION:SET-WAIT-STATE("").
-    
     {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
+
+    SESSION:SET-WAIT-STATE("").    
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1044,6 +1041,12 @@ PROCEDURE pUpdateUserFieldLabels PRIVATE :
     DEFINE VARIABLE cUserField1Label AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cUserField2Label AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cUserField3Label AS CHARACTER NO-UNDO.
+
+    ASSIGN
+        cUserField1Label = "User Field 1"
+        cUserField2Label = "User Field 2"
+        cUserField3Label = "User Field 3"
+        .
     
     CASE ipcAPIRoute:
         WHEN "/api/cXMLOrder" THEN
@@ -1051,12 +1054,6 @@ PROCEDURE pUpdateUserFieldLabels PRIVATE :
                 cUserField1Label = "PO #"
                 cUserField2Label = "Site #"
                 cUserField3Label = "Part #"
-                .
-        OTHERWISE
-            ASSIGN
-                cUserField1Label = "User Field 1"
-                cUserField2Label = "User Field 2"
-                cUserField3Label = "User Field 3"
                 .
     END.
     
