@@ -266,7 +266,7 @@ DEFINE VARIABLE auto_find AS CHARACTER FORMAT "X(256)":U
      SIZE 41 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fiBillOwner AS CHARACTER FORMAT "X(8)":U 
-     LABEL "Billing Owner" 
+     LABEL "Accountant" 
      VIEW-AS FILL-IN 
      SIZE 14 BY 1
      BGCOLOR 15  NO-UNDO.
@@ -371,7 +371,7 @@ DEFINE BROWSE Browser-Table
       inv-head.spare-char-5 COLUMN-LABEL "Comment" FORMAT "x(60)":U
             LABEL-BGCOLOR 14
       pGetMargin() @ dMargin COLUMN-LABEL "Margin%" LABEL-BGCOLOR 14
-      cust.accountant COLUMN-LABEL "Billing Owner" FORMAT "x(10)":U
+      cust.accountant COLUMN-LABEL "Accountant" FORMAT "x(10)":U
             LABEL-BGCOLOR 14
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -568,7 +568,7 @@ ASI.inv-head.multi-invoice = no"
      _FldNameList[22]   > "_<CALC>"
 "pGetMargin() @ dMargin" "Margin%" ? ? ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[23]   > ASI.cust.accountant
-"cust.accountant" "Billing Owner" "x(10)" "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"cust.accountant" "Accountant" "x(10)" "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME

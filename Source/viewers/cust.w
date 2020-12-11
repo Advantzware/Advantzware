@@ -405,7 +405,7 @@ DEFINE FRAME F-Main
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
      cust.accountant AT ROW 6.71 COL 136.8 COLON-ALIGNED WIDGET-ID 18
-          LABEL "Billing Owner"
+          LABEL "Accountant"
           VIEW-AS FILL-IN 
           SIZE 13.6 BY 1
           BGCOLOR 15 
@@ -3008,7 +3008,7 @@ PROCEDURE valid-bill-owner :
    IF cust.csrUser_id:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" THEN DO:
        IF NOT CAN-FIND(FIRST users WHERE users.USER_ID EQ cust.accountant:SCREEN-VALUE IN FRAME {&FRAME-NAME})
        THEN DO:
-           MESSAGE "Invalid customer CSR. Try help." VIEW-AS ALERT-BOX ERROR.
+           MESSAGE "Invalid customer Accountant. Try help." VIEW-AS ALERT-BOX ERROR.
            APPLY "entry" TO cust.accountant.
            oplReturnError = YES.
        END.

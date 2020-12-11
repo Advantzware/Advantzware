@@ -98,7 +98,7 @@ DEFINE TEMP-TABLE ttImportCust
     FIELD marketSegment AS CHARACTER FORMAT "x(16)" COLUMN-LABEL "Market Segment" HELP "Market segment for sales reporting Optional - Size:16"
     FIELD naicsCode     AS CHARACTER FORMAT "999999" COLUMN-LABEL "NAICS" HELP "NAICS Code, link to NaicsTable, Default = 999999"
     FIELD classId       AS INTEGER   FORMAT ">>" COLUMN-LABEL "AR ClassID" HELP "Optional - Integer  Default = blank or 0 "    
-    FIELD accountant    AS CHARACTER FORMAT "x(10)" COLUMN-LABEL "Billing Owner" HELP "Optional - Size:10 "    
+    FIELD accountant    AS CHARACTER FORMAT "x(10)" COLUMN-LABEL "Accountant" HELP "Optional - Size:10 "    
     .
 
 DEFINE VARIABLE giIndexOffset AS INTEGER NO-UNDO INIT 2. /*Set to 1 if there is a Company field in temp-table since this will not be part of the mport data*/

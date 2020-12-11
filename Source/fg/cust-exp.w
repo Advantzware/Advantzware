@@ -78,7 +78,7 @@ ASSIGN cTextListToSelect = "Customer,Name,Status,Address1,Address2,City,State,Zi
                            "Profit Percent PTD,Profit Percent YDT,Profit Percent LYear,Commissions PTD,Commissions YDT,Commissions LYear,MSF PTD,MSF YDT,MSF LYear," +
                            "High Balance,On,Last Payment,On Date,Total# of Inv Paid,Avg# Days to Pay,Open Orders Balance,Account Balance,On Account,Title,CPhone,Ext,CSR," +
                            "Note 1,Note 2,Note 3,Note 4,ShipTo Name,ShipTo Address 1,ShipTo Address 2,ShipTo City,ShipTo State,ShipTo Zip,Paperless Invoice?,Contract Pricing," +
-                           "Bank Account,Swift Code,Routing,Account Type,Split Type,Parent Cust,Market segment,NAICS Code,AR ClassId,Billing Owner"
+                           "Bank Account,Swift Code,Routing,Account Type,Split Type,Parent Cust,Market segment,NAICS Code,AR ClassId,Accountant"
 
       cFieldListToSelect = "cust-no,name,active,addr[1],addr[2],city,state,zip,email,spare-char-2,date-field[1],type,custype-dscr,contact,sman,sname," +
                            "flat-comm,area-code,phone,scomm,fax,fax-prefix,fax-country,terms,terms-dscr,cr-use,cr-hold-invdays,cr-hold-invdue,cr-rating," +
@@ -100,7 +100,7 @@ ASSIGN cTextListToSelect = "Customer,Name,Status,Address1,Address2,City,State,Zi
                                  "Territory,Pallet ID,Overrun%,Underrun%,Pallet,Case/Bundle,Mark-up,No Load Tags,Whse Days,Pallet Positions," +
                                  "PO# Mandatory,Show Set Parts,Paperless Invoice?,Partial Ship,Taxable,Tax Prep Code,Tax Code,Tax Resale#,Exp," +
                                  "Email,Group,Broker Comm%,Flat Comm%,Prefix,Contract Pricing,Bank Account,Swift Code,Routing,Account Type," + 
-                                 "Split Type,Parent Cust,Market segment,NAICS Code,AR ClassId,Billing Owner" .
+                                 "Split Type,Parent Cust,Market segment,NAICS Code,AR ClassId,Accountant" .
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
