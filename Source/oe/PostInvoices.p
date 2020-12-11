@@ -3433,7 +3433,7 @@ PROCEDURE pAddTagInfo PRIVATE:
         WHERE ROWID(bf-inv-head) EQ ipriRowid NO-ERROR .
     IF AVAIL bf-inv-head THEN
     DO:
-        RUN AddTagHoldInfo (
+        RUN AddTagInfo (
             INPUT bf-inv-head.rec_key,
             INPUT "inv-head",
             INPUT ipcProblemMessage,
