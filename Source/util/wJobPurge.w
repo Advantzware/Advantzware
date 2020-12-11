@@ -27,6 +27,8 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+     
+USING system.sharedConfig.
 
 CREATE WIDGET-POOL.
 
@@ -348,7 +350,22 @@ DO:
     DEFINE VARIABLE lSuccess        AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cMessage        AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cPurgeDirectory AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE hdOutputProcs   AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE cTableList      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE hdTempTable     AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE iCount          AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE scInstance      AS CLASS system.SharedConfig NO-UNDO.
 
+    RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
+    
+    scInstance = SharedConfig:instance.
+    
+    /* Any addition or deletion of table should also be done pPurgeJob procedure in system/purgeprocs.p */
+    
+    cTableList = "job-hdr,job-mat,job-mch,job-prep,job-farm,job-farm-rctd,mat-act,mch-act,misc-act" +       
+                 "sbStatus,sbNote,jobMatl,jobMach,sbJob,jobItems,jobStack,jobSheet,jobCad,jobPrep," +
+                 "jobNotes,jobs,asi2corr,corr2asi,job-all,job-brd,job".
+                 
     /* Validate that start job is LE end job, if entered */
     IF fiStartJob:SCREEN-VALUE NE "" 
         AND fiEndJob:SCREEN-VALUE NE "" 
@@ -389,12 +406,14 @@ DO:
         OUTPUT lSuccess,
         OUTPUT cMessage 
         ).
-    IF rsPurge:SCREEN-VALUE EQ "P" THEN  
+    IF rsPurge:SCREEN-VALUE EQ "P" THEN DO:
         RUN FileSys_CreateDirectory(
             INPUT cPurgeDirectory + "\DataFiles\",
             OUTPUT lSuccess,
             OUTPUT cMessage 
             ).
+       DISABLE TRIGGERS FOR LOAD OF reftable.     
+    END.        
     
     /* Optimize these to use the best index given entered values */
     IF rsOpen:SCREEN-VALUE EQ "C" THEN DO:  /* Closed jobs only, use close-date for index */
@@ -476,7 +495,28 @@ DO:
                     ).  
         END.         
     END.
-
+    /* Export csv only for job if child tables not selected */
+    IF NOT lVerbose THEN 
+        cTableList = "job".
+    
+    /* Fetch the temp-table handles created in pDeleteJobRecords procedure in "util/wJobPurge.w" */    
+    DO iCount = 1 TO NUM-ENTRIES(cTableList):      
+        hdTempTable = HANDLE(scInstance:ConsumeValue("JobPurge-" + TRIM(ENTRY(iCount,cTableList)))) NO-ERROR. 
+        IF VALID-HANDLE(hdTempTable) THEN DO:
+            RUN Output_TempTableToCSV IN hdOutputProcs (
+                INPUT hdTempTable,
+                INPUT cPurgeDirectory + "\Csv\" + ENTRY(iCount,cTableList)  + ".csv",
+                INPUT TRUE,  /* Export Header */
+                INPUT FALSE, /* Auto increment File name */
+                OUTPUT lSuccess,
+                OUTPUT cMessage
+                ).
+            DELETE OBJECT hdTempTable.          
+        END.                   
+    END. 
+    IF VALID-HANDLE(hdOutputProcs) THEN 
+        DELETE PROCEDURE hdOutputProcs. 
+              
     MESSAGE TRIM(c-win:TITLE) + " Process Is Completed." VIEW-AS ALERT-BOX.    
 END.
 

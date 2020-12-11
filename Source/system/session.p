@@ -697,7 +697,7 @@ END PROCEDURE.
 PROCEDURE Session_CreateAuditDtlFromBuffer:
 /*------------------------------------------------------------------------------
  Purpose: Create Audit detail records from buffer handle
- Notes:
+ Notes:   Only supports "Create" and "Delete" audit history
 ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipiAuditID   AS INTEGER   NO-UNDO.
     DEFINE INPUT PARAMETER iphdBuffer   AS HANDLE    NO-UNDO.
@@ -723,19 +723,30 @@ PROCEDURE Session_CreateAuditDtlFromBuffer:
         DO iExtent = iExtentBase TO iphdBuffer:BUFFER-FIELD(iAuditIdx):EXTENT:
             CASE ipcType:
                 WHEN "CREATE" THEN
-                IF CAN-DO(cIdxFields,iphdBuffer:BUFFER-FIELD(iAuditIdx):NAME) THEN 
+                IF CAN-DO(cIdxFields,iphdBuffer:BUFFER-FIELD(iAuditIdx):NAME) THEN DO:
                     cBeforeValue = fFormatValue(iphdBuffer,iphdBuffer:BUFFER-FIELD(iAuditIdx):NAME, iExtent).
-                WHEN "DELETE" THEN
+                    RUN spCreateAuditDtl(
+                        INPUT ipiAuditID,
+                        INPUT iphdBuffer:BUFFER-FIELD(iAuditIdx):NAME,
+                        INPUT iExtent,
+                        INPUT cBeforeValue,
+                        INPUT "",
+                        INPUT CAN-DO(cIdxFields,iphdBuffer:BUFFER-FIELD(iAuditIdx):NAME)
+                        ).                    
+                END.    
+                WHEN "DELETE" THEN DO:
                     cBeforeValue = fFormatValue(iphdBuffer,iphdBuffer:BUFFER-FIELD(iAuditIdx):NAME, iExtent).
+                    RUN spCreateAuditDtl(
+                        INPUT ipiAuditID,
+                        INPUT iphdBuffer:BUFFER-FIELD(iAuditIdx):NAME,
+                        INPUT iExtent,
+                        INPUT cBeforeValue,
+                        INPUT "",
+                        INPUT CAN-DO(cIdxFields,iphdBuffer:BUFFER-FIELD(iAuditIdx):NAME)
+                        ).                   
+                END.             
             END CASE.
-            RUN spCreateAuditDtl(
-                INPUT ipiAuditID,
-                INPUT iphdBuffer:BUFFER-FIELD(iAuditIdx):NAME,
-                INPUT iExtent,
-                INPUT cBeforeValue,
-                INPUT "",
-                INPUT CAN-DO(cIdxFields,iphdBuffer:BUFFER-FIELD(iAuditIdx):NAME)
-                ).
+
         END. /* do iextent */
     END. /* do */
 
@@ -754,7 +765,7 @@ END PROCEDURE.
 PROCEDURE Session_CreateAuditHistory:
 /*------------------------------------------------------------------------------
  Purpose: Creates Audit History records
- Notes:
+ Notes: Only supports "Create" and "Delete" audit history
 ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ipcAuditType   AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcAuditDB     AS CHARACTER NO-UNDO.
@@ -771,6 +782,8 @@ PROCEDURE Session_CreateAuditHistory:
     DEFINE BUFFER bf-AuditStack FOR AuditStack.
     DEFINE BUFFER bf-AuditHdr   FOR AuditHdr.
     
+    IF NOT (ipcAuditType EQ "Create" OR ipcAuditType EQ "Delete") THEN 
+        RETURN.
     FIND FIRST bf-AuditTbl NO-LOCK 
          WHERE bf-AuditTbl.AuditTable EQ iphdBuffer:NAME
          NO-ERROR.  

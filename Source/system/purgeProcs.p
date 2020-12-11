@@ -20,6 +20,8 @@ Use this template to create a new Structured Procedure file to compile and run P
 /*----------------------------------------------------------------------*/
 
 /* ***************************  Definitions  ************************** */
+USING system.sharedConfig.
+
 DEFINE STREAM datafiles.
 DEFINE STREAM listfile.
 DEFINE STREAM sReftable.
@@ -176,6 +178,9 @@ PROCEDURE pDeleteJobRecords PRIVATE:
     DEFINE VARIABLE cMessage      AS CHARACTER NO-UNDO. 
     DEFINE VARIABLE cJobHdrRefTbl AS CHARACTER NO-UNDO. 
     DEFINE VARIABLE iAuditId      AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE scInstance    AS CLASS system.SharedConfig NO-UNDO.
+    
+    scInstance = SharedConfig:instance.
     
     cJobHdrRefTbl = "JOB-HDR01,JOB-HDR02,JOB-HDR03,JOB-HDR04".  
 
@@ -183,12 +188,18 @@ PROCEDURE pDeleteJobRecords PRIVATE:
         cTableName = ENTRY(iCount,ipcTableList).
         CREATE BUFFER hdBuffer FOR TABLE cTableName.
         CREATE QUERY hdQuery.
-        CREATE TEMP-TABLE hdTempTable.
         
-        hdTempTable:CREATE-LIKE(hdBuffer).
-        hdTempTable:TEMP-TABLE-PREPARE(cTableName).
-        hdTTBuffer = hdTempTable:DEFAULT-BUFFER-HANDLE.
-                
+        hdTempTable = HANDLE(scInstance:GetValue("JobPurge-" + TRIM(cTableName))) NO-ERROR.
+        IF NOT VALID-HANDLE(hdTempTable) THEN DO:      
+            CREATE TEMP-TABLE hdTempTable.      
+            hdTempTable:CREATE-LIKE(hdBuffer).
+            hdTempTable:TEMP-TABLE-PREPARE(cTableName).
+            
+            /*Store Dynamic Temp-table handle in shared config object, later used in util/wjobPurge.w */
+            scInstance:SetValue("JobPurge-" + TRIM(cTableName),STRING(hdTempTable)).
+        END.   
+        hdTTBuffer = hdTempTable:DEFAULT-BUFFER-HANDLE.      
+                            
         ASSIGN 
             hdCompany = hdBuffer:BUFFER-FIELD("Company")
             hdJob     = hdBUffer:BUFFER-FIELD("job")
@@ -262,19 +273,13 @@ PROCEDURE pDeleteJobRecords PRIVATE:
         END.
         
         IF iplPurge AND NOT iplCalledFromTrigger THEN  
-            OUTPUT STREAM datafiles CLOSE.
-        
-        /* Create .csv for parent table i.e. job, if not called from the trigger Or create csv
-          for all child tables if iplLogChildRecords is YES */    
-        IF iplLogChildRecords OR (hdBuffer:NAME EQ "job" AND NOT iplCalledFromTrigger) THEN   
-           RUN Output_TempTableToCSV IN hdOutputProcs (
-               INPUT hdTempTable,
-               INPUT cOutDir + "\Csv\" + hdTTBuffer:NAME + ".csv",
-               INPUT TRUE,  /* Export Header */
-               INPUT FALSE, /* Auto increment File name */
-               OUTPUT lSuccess,
-               OUTPUT cMessage
-               ).               
+            OUTPUT STREAM datafiles CLOSE.  
+         
+        /* hdTempTable handle deletion in done in util/w-purge.w, do not delete it here */   
+        IF VALID-HANDLE(hdQuery) THEN 
+            DELETE OBJECT hdQuery. 
+        IF VALID-HANDLE(hdBuffer) THEN 
+            DELETE OBJECT hdBuffer.                               
     END.
 END PROCEDURE.
 	
