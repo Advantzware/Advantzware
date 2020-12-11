@@ -1610,6 +1610,30 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipChangeCostMethod C-Win
+PROCEDURE ipChangeCostMethod:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RUN ipStatus ("    Change cost method in IF2").
+
+    DEF BUFFER bFg-ctrl FOR fg-ctrl.
+    
+    FOR EACH bFg-ctrl EXCLUSIVE
+        WHERE bFg-ctrl.inv-meth EQ "S":
+        ASSIGN 
+            bFg-ctrl.inv-meth = "L".
+    END.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipCheckPayMaster C-Win 
 PROCEDURE ipCheckPayMaster :
 /*------------------------------------------------------------------------------
@@ -3430,6 +3454,7 @@ PROCEDURE ipDataFix999999 :
     RUN ipDeleteAudit.
     RUN ipCleanTemplates.
     RUN ipLoadEstCostData.
+    RUN ipChangeCostMethod.
     
 END PROCEDURE.
 
