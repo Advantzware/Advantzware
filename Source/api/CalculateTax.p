@@ -10,6 +10,8 @@
     Created     : Tue Jun 23 07:33:22 EDT 2020
     Notes       :
   ----------------------------------------------------------------------*/
+USING system.SharedConfig.
+
 {api/ttArgs.i}
 {api/CommonAPIProcs.i}
 
@@ -344,6 +346,8 @@ ELSE DO:
                     RUN updateRequestData(INPUT-OUTPUT lcFlexiCodeData, "FlexibleFieldID", "1").
                     RUN updateRequestData(INPUT-OUTPUT lcFlexiCodeData, "FlexibleCode", cBOLID).
                     
+                    SharedConfig:Instance:SetValue("APIOutboundEvent_UserField1", cBOLID).
+                    
                     lcConcatFlexiCodeData = lcConcatFlexiCodeData + lcFlexiCodeData.
                     
                     /* Send Order No in flexible field 2 */
@@ -351,6 +355,8 @@ ELSE DO:
                     
                     RUN updateRequestData(INPUT-OUTPUT lcFlexiCodeData, "FlexibleFieldID", "2").
                     RUN updateRequestData(INPUT-OUTPUT lcFlexiCodeData, "FlexibleCode", STRING(inv-line.ord-no)).
+                    
+                    SharedConfig:Instance:SetValue("APIOutboundEvent_UserField2", STRING(inv-line.ord-no)).
                     
                     lcConcatFlexiCodeData = lcConcatFlexiCodeData + lcFlexiCodeData.
 
