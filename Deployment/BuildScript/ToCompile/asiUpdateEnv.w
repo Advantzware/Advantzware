@@ -2029,7 +2029,7 @@ PROCEDURE ipConfirmMonitorUser :
         users.isLocked = false
         users.phone = "2153697800"
         users.phone-cnty = "1"
-        users.securityLevel = 1000
+        users.securityLevel = 100
         users.showOnAck = false
         users.showOnBol = false
         users.showOnInv = false
