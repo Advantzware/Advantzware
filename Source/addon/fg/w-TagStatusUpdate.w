@@ -58,14 +58,14 @@ CREATE WIDGET-POOL.
     {wip/keyboardDefs.i}
     {custom/globdefs.i}
     
-    DEFINE TEMP-TABLE ttFGBin NO-UNDO
+    DEFINE TEMP-TABLE ttFGBin2 NO-UNDO
         FIELD company         AS CHARACTER
         FIELD quantity        AS DECIMAL
         FIELD warehouseID     AS CHARACTER
         FIELD tag             AS CHARACTER
         FIELD jobID           AS CHARACTER
         FIELD inventoryStatus AS CHARACTER
-        FIELD poID            AS INTEGER 
+        FIELD poID            AS INTEGER
         .
 
     RUN sys/ref/nk1look.p(
@@ -111,16 +111,16 @@ CREATE WIDGET-POOL.
 &Scoped-define BROWSE-NAME BROWSE-2
 
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
-&Scoped-define INTERNAL-TABLES ttFGBin
+&Scoped-define INTERNAL-TABLES ttFGBin2
 
 /* Definitions for BROWSE BROWSE-2                                      */
-&Scoped-define FIELDS-IN-QUERY-BROWSE-2 ttFGBin.quantity ttFGBin.tag ttFGBin.warehouseID ttFGBin.jobID ttFGBin.poID fGetInventoryStatus(ttFGBin.inventoryStatus) @ cInventoryStatus  
+&Scoped-define FIELDS-IN-QUERY-BROWSE-2 ttFGBin2.quantity ttFGBin2.tag ttFGBin2.warehouseID ttFGBin2.jobID ttFGBin2.poID fGetInventoryStatus(ttFGBin2.inventoryStatus) @ cInventoryStatus  
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-2   
 &Scoped-define SELF-NAME BROWSE-2
-&Scoped-define QUERY-STRING-BROWSE-2 FOR EACH ttFGBin
-&Scoped-define OPEN-QUERY-BROWSE-2 OPEN QUERY {&SELF-NAME} FOR EACH ttFGBin.
-&Scoped-define TABLES-IN-QUERY-BROWSE-2 ttFGBin
-&Scoped-define FIRST-TABLE-IN-QUERY-BROWSE-2 ttFGBin
+&Scoped-define QUERY-STRING-BROWSE-2 FOR EACH ttFGBin2
+&Scoped-define OPEN-QUERY-BROWSE-2 OPEN QUERY {&SELF-NAME} FOR EACH ttFGBin2.
+&Scoped-define TABLES-IN-QUERY-BROWSE-2 ttFGBin2
+&Scoped-define FIRST-TABLE-IN-QUERY-BROWSE-2 ttFGBin2
 
 
 /* Definitions for FRAME F-Main                                         */
@@ -204,19 +204,19 @@ DEFINE RECTANGLE RECT-30
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY BROWSE-2 FOR 
-      ttFGBin SCROLLING.
+      ttFGBin2 SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
 DEFINE BROWSE BROWSE-2
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-2 W-Win _FREEFORM
   QUERY BROWSE-2 DISPLAY
-      ttFGBin.quantity    WIDTH 25 COLUMN-LABEL "Qty On-hand" FORMAT ">>>,>>>,>>>9":U  
-      ttFGBin.tag         WIDTH 50 COLUMN-LABEL "Tag #"    FORMAT "X(30)"   
-      ttFGBin.warehouseID WIDTH 25 COLUMN-LABEL "Location" FORMAT "X(12)"
-      ttFGBin.jobID       WIDTH 20 COLUMN-LABEL "Job #"    FORMAT "X(20)"
-      ttFGBin.poID        WIDTH 20 COLUMN-LABEL "PO #"     FORMAT ">>>>>9"       
-      fGetInventoryStatus(ttFGBin.inventoryStatus) @ cInventoryStatus WIDTH 50 COLUMN-LABEL "Status"   FORMAT "X(40)"
+      ttFGBin2.quantity    WIDTH 25 COLUMN-LABEL "Qty On-hand" FORMAT ">>>,>>>,>>>9":U  
+      ttFGBin2.tag         WIDTH 50 COLUMN-LABEL "Tag #"    FORMAT "X(30)"   
+      ttFGBin2.warehouseID WIDTH 25 COLUMN-LABEL "Location" FORMAT "X(12)"
+      ttFGBin2.jobID       WIDTH 20 COLUMN-LABEL "Job #"    FORMAT "X(20)"
+      ttFGBin2.poID        WIDTH 20 COLUMN-LABEL "PO #"     FORMAT ">>>>>9"       
+      fGetInventoryStatus(ttFGBin2.inventoryStatus) @ cInventoryStatus WIDTH 50 COLUMN-LABEL "Status"   FORMAT "X(40)"
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ROW-MARKERS SEPARATORS SIZE 187 BY 26.43
@@ -326,7 +326,7 @@ THEN W-Win:HIDDEN = yes.
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE BROWSE-2
 /* Query rebuild information for BROWSE BROWSE-2
      _START_FREEFORM
-OPEN QUERY {&SELF-NAME} FOR EACH ttFGBin.
+OPEN QUERY {&SELF-NAME} FOR EACH ttFGBin2.
      _END_FREEFORM
      _Query            is OPENED
 */  /* BROWSE BROWSE-2 */
@@ -385,7 +385,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnFirst W-Win
 ON CHOOSE OF btnFirst IN FRAME F-Main /* First */
 DO:
-    IF AVAILABLE ttFGBin THEN 
+    IF AVAILABLE ttFGBin2 THEN 
         APPLY "HOME":U TO BROWSE {&BROWSE-NAME}.
 END.
 
@@ -412,7 +412,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnLast W-Win
 ON CHOOSE OF btnLast IN FRAME F-Main /* Last */
 DO: 
-    IF AVAILABLE ttFGBin THEN
+    IF AVAILABLE ttFGBin2 THEN
         APPLY "END":U TO BROWSE {&BROWSE-NAME}.    
 END.
 
@@ -424,7 +424,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnNext W-Win
 ON CHOOSE OF btnNext IN FRAME F-Main /* Next */
 DO:
-    IF AVAILABLE ttFGBin THEN
+    IF AVAILABLE ttFGBin2 THEN
         BROWSE {&BROWSE-NAME}:SELECT-NEXT-ROW().
 END.
 
@@ -436,7 +436,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnPrevious W-Win
 ON CHOOSE OF btnPrevious IN FRAME F-Main /* Previous */
 DO:
-    IF AVAILABLE ttFGBin THEN
+    IF AVAILABLE ttFGBin2 THEN
         BROWSE {&BROWSE-NAME}:SELECT-PREV-ROW().
 END.
 
@@ -666,24 +666,24 @@ PROCEDURE pCreateTTRecord PRIVATE :
     DEFINE INPUT PARAMETER ipcPoNo     AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcStatusID AS CHARACTER NO-UNDO.
 
-    FIND FIRST ttFGBin 
-         WHERE ttFGBin.company EQ ipcCompany
-           AND ttFGBin.tag     EQ ipcTagNo
+    FIND FIRST ttFGBin2 
+         WHERE ttFGBin2.company EQ ipcCompany
+           AND ttFGBin2.tag     EQ ipcTagNo
          NO-ERROR.
          
-    IF AVAILABLE ttFGBin THEN 
-        ttFGBin.inventoryStatus = ipcStatusID.
+    IF AVAILABLE ttFGBin2 THEN 
+        ttFGBin2.inventoryStatus = ipcStatusID.
                         
     ELSE DO:            
-        CREATE ttFGBin.
+        CREATE ttFGBin2.
         ASSIGN
-            ttFGBin.company         = ipcCompany
-            ttFGBin.quantity        = ipdQuantity
-            ttFGBin.warehouseID     = ipcLocation    
-            ttFGBin.tag             = ipcTagNo       
-            ttFGBin.jobID           = ipcJobID       
-            ttFGBin.inventoryStatus = ipcStatusID    
-            ttFGBin.poID            = INTEGER(ipcPoNo)
+            ttFGBin2.company         = ipcCompany
+            ttFGBin2.quantity        = ipdQuantity
+            ttFGBin2.warehouseID     = ipcLocation    
+            ttFGBin2.tag             = ipcTagNo       
+            ttFGBin2.jobID           = ipcJobID       
+            ttFGBin2.inventoryStatus = ipcStatusID    
+            ttFGBin2.poID            = INTEGER(ipcPoNo)
              .
     END.               
 END PROCEDURE.
@@ -919,7 +919,7 @@ PROCEDURE send-records :
   {src/adm/template/snd-head.i}
 
   /* For each requested table, put it's ROWID in the output list.      */
-  {src/adm/template/snd-list.i "ttFGBin"}
+  {src/adm/template/snd-list.i "ttFGBin2"}
 
   /* Deal with any unexpected table requests before closing.           */
   {src/adm/template/snd-end.i}
