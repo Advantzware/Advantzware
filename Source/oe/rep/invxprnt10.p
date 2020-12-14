@@ -724,7 +724,7 @@ find first company where company.company eq cocode NO-LOCK.
             assign v-printline = v-printline + 2.
           end.
             
-          put inv-misc.charge AT 10 inv-misc.dscr inv-misc.amt FORMAT "$->>,>>9.99"  SKIP.
+          put inv-misc.charge AT 3 inv-misc.po-no inv-misc.dscr inv-misc.amt FORMAT "$->>,>>9.99"  SKIP.
           ASSIGN
              v-subtot-lines = v-subtot-lines + inv-misc.amt
              v-printline = v-printline + 1.

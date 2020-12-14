@@ -215,6 +215,171 @@ END PROCEDURE.
 &ENDIF
 
 
+&IF DEFINED(EXCLUDE-pTestInvoice) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pTestInvoice Procedure
+PROCEDURE pTestInvoice:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEF INPUT PARAMETER ipcFileName AS CHAR NO-UNDO.
+    DEF INPUT PARAMETER ipcRecKeyPrefix AS CHAR NO-UNDO.
+    DEF OUTPUT PARAMETER oplError AS LOG NO-UNDO.
+    DEF OUTPUT PARAMETER opcMessage AS CHAR NO-UNDO.
+    DEF VAR cFieldList AS CHAR NO-UNDO.
+    DEF VAR lError AS LOG NO-UNDO.
+    DEF VAR lWarning AS LOG NO-UNDO.
+    DEF VAR cMessage AS CHAR NO-UNDO.
+    DEF VAR cRule AS CHAR NO-UNDO.
+    
+    CREATE BUFFER hBuffer FOR TABLE ipcFileName.
+    CREATE QUERY hQuery.
+
+    ASSIGN
+        hRecKey = ?
+        hCompanyField = ?
+        hCustNoField = ?
+        hInvNoField = ?
+        hXnoField = ?.
+    
+    /* Assign buffer-field names IF they are indexed fields */
+    DO ictr = 1 TO hBuffer:NUM-FIELDS:
+        ASSIGN 
+            hTestField = hBuffer:BUFFER-FIELD(iCtr).
+        /* Assign field names if exist in this table */        
+        IF hTestField:NAME EQ "rec_key" THEN ASSIGN
+            hRecKey = hBuffer:BUFFER-FIELD(iCtr).
+        ELSE IF hTestField:NAME EQ "company" THEN ASSIGN
+            hCompanyField = hBuffer:BUFFER-FIELD(iCtr).
+        ELSE IF hTestField:NAME EQ "cust-no" THEN ASSIGN
+            hCustNoField = hBuffer:BUFFER-FIELD(iCtr).
+        ELSE IF hTestField:NAME EQ "inv-no" THEN ASSIGN
+            hInvNoField = hBuffer:BUFFER-FIELD(iCtr).
+        ELSE IF hTestField:NAME EQ "x-no" THEN ASSIGN
+            hXnoField = hBuffer:BUFFER-FIELD(iCtr).
+    END.
+
+    hQuery:ADD-BUFFER(hBuffer).
+    hQuery:QUERY-PREPARE ("FOR EACH " + ipcFileName + " WHERE " +
+        ipcFileName + ".rec_key LT '" + ipcRecKeyPrefix + "'" +
+        (IF hCompanyField NE ? THEN (" AND " + ipcFileName + ".company EQ '" + cThisCompany + "'") ELSE "") + 
+        " NO-LOCK").
+    hQuery:QUERY-OPEN().
+    hQuery:GET-FIRST().
+    
+    DO WHILE NOT hQuery:QUERY-OFF-END:
+        /* Company tests */
+        IF hCompanyField NE ? THEN 
+        DO:
+            IF hCompanyField:BUFFER-VALUE EQ "" THEN ASSIGN 
+                    lError = TRUE 
+                    cRule = cRule + ",Blank Company"
+                    cMessage = cMessage + ",<blank>".
+            ELSE IF NOT CAN-FIND(FIRST company WHERE 
+                    company.company EQ hCompanyField:BUFFER-VALUE) THEN ASSIGN 
+                        lError = TRUE 
+                        cRule = cRule + ",Invalid Company"
+                        cMessage = cMessage + ",Company=" + hCompanyField:BUFFER-VALUE.  
+        END.
+
+        /* Cust-no tests */
+        IF hCustNoField NE ? THEN 
+        DO:
+            IF hCustNoField:BUFFER-VALUE EQ "" THEN ASSIGN 
+                    lError = TRUE 
+                    cRule = cRule + ",Blank Cust-No"
+                    cMessage = cMessage + ",<blank>".
+            ELSE IF hCustNoField:BUFFER-VALUE NE "" 
+                    AND NOT CAN-FIND(FIRST cust WHERE 
+                    cust.cust-no EQ hCustNoField:BUFFER-VALUE) THEN ASSIGN 
+                        lError = TRUE 
+                        cRule = cRule + ",Invalid Cust-no"
+                        cMessage = cMessage + ",Cust-no=" + hCustNoField:BUFFER-VALUE.
+        END.
+
+        /* Inv-no tests */
+        IF hInvNoField NE ? THEN 
+        DO:
+            IF hInvNoField:BUFFER-VALUE EQ "" THEN ASSIGN 
+                    lError = TRUE 
+                    cRule = cRule + ",Blank Inv No"
+                    cMessage = cMessage + ",<blank>".
+            ELSE IF hInvNoField:BUFFER-VALUE NE 0
+                    AND NOT CAN-FIND(FIRST inv-head WHERE 
+                    inv-head.company EQ hCompanyField:BUFFER-VALUE AND 
+                    inv-head.inv-no EQ hInvNoField:BUFFER-VALUE) 
+                    AND NOT CAN-FIND(FIRST ar-inv WHERE 
+                    ar-inv.company EQ hCompanyField:BUFFER-VALUE AND 
+                    ar-inv.inv-no EQ hInvNoField:BUFFER-VALUE)THEN ASSIGN 
+                        lError = TRUE 
+                        cRule = cRule + ",Invalid Inv No"
+                        cMessage = cMessage + ",Inv-no=" + hInvNoField:BUFFER-VALUE. 
+                 
+        END.
+        
+        /* X-no tests */
+        IF hXNoField NE ? THEN 
+        DO:
+            IF hXNoField:BUFFER-VALUE EQ "" THEN ASSIGN 
+                    lError = TRUE 
+                    cRule = cRule + ",Blank X-no"
+                    cMessage = cMessage + ",<blank>".
+            ELSE IF NOT CAN-FIND(FIRST ar-inv WHERE 
+                    ar-inv.company EQ hCompanyField:BUFFER-VALUE AND     
+                    ar-inv.x-no EQ hXNoField:BUFFER-VALUE) THEN ASSIGN 
+                        lError = TRUE 
+                        cRule = cRule + ",Invalid X-no"
+                        cMessage = cMessage + ",X-no=" + hXNoField:BUFFER-VALUE.  
+        END.
+        
+        IF lError 
+            OR lWarning THEN 
+        DO:
+            CREATE ttFileList.
+            ASSIGN 
+                ttFileList.cFileName    = ipcFileName
+                ttFileList.rRowID       = hBuffer:ROWID
+                ttFileList.cRec_key     = hRecKey:BUFFER-VALUE
+                ttFileList.cError       = IF lError THEN "Error" ELSE IF lWarning THEN "Warning" ELSE ""
+                ttFileList.lPurge       = lError
+                ttFileList.cRule        = SUBSTRING(cRule,2)
+                ttFileList.cMessage     = SUBSTRING(cMessage,2)
+                ttFileList.cKeyValues   = (IF hCompanyField NE ? THEN hCompanyField:BUFFER-VALUE ELSE "") + "," +
+                                          (IF hCustNoField NE ? THEN hCustNoField:BUFFER-VALUE ELSE "") + "," +
+                                          (IF hLocField NE ? THEN hLocField:BUFFER-VALUE ELSE "") + "," +
+                                          (IF hOrdNoField NE ? THEN hOrdNoField:BUFFER-VALUE ELSE "") + "," +
+                                          (IF hRNoField NE ? THEN hRNoField:BUFFER-VALUE ELSE "") + "," +
+                                          (IF hBolNoField NE ? THEN hBolNoField:BUFFER-VALUE ELSE "") + "," +
+                                          (IF hBNoField NE ? THEN hBNoField:BUFFER-VALUE ELSE "") + "," +
+                                          (IF hInvNoField NE ? THEN hInvNoField:BUFFER-VALUE ELSE "") + "," +
+                                          (IF hINoField NE ? THEN hINoField:BUFFER-VALUE ELSE "") + "," +
+                                          (IF hXNoField NE ? THEN hXNoField:BUFFER-VALUE ELSE "") + "," +
+                                          (IF hActNumField NE ? THEN hActNumField:BUFFER-VALUE ELSE "")
+                iErrorCount             = IF ttFileList.cError EQ "Error" THEN iErrorCount + 1 ELSE iErrorCount
+                iWarningCount           = IF ttFileList.cError EQ "Warning" THEN iWarningCount + 1 ELSE iWarningCount
+                .
+                
+        END.        
+        ASSIGN 
+            lError = FALSE 
+            lWarning = FALSE  
+            cRule = ""
+            cMessage = ""
+            iProcessedCount = iProcessedCount + 1.
+        hQuery:GET-NEXT().
+    END.
+
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
 &IF DEFINED(EXCLUDE-pTestBlankCompany) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pTestOneFile Procedure
@@ -455,7 +620,8 @@ PROCEDURE pTestOneFile:
                                  ar-inv.inv-no EQ hInvNoField:BUFFER-VALUE)THEN ASSIGN 
                 lError = TRUE 
                 cRule = cRule + ",Invalid Inv No"
-                cMessage = cMessage + ",Inv-no=" + hInvNoField:BUFFER-VALUE.  
+                cMessage = cMessage + ",Inv-no=" + hInvNoField:BUFFER-VALUE. 
+                 
         END.
         
         /* Loc tests */
@@ -793,10 +959,16 @@ PROCEDURE testOrphans:
     ASSIGN 
         cOutputDir = ipcOutputDir.
          
-    RUN pTestOneFile (ipcFileName,
-                      cRecKeyPrefix,
-                      OUTPUT oplError,
-                      OUTPUT opcMessage).
+    IF CAN-DO("ar-inv,ar-invl,ar-invm,inv-head,inv-line,inv-misc",ipcFileName) THEN 
+        RUN pTestInvoice (ipcFileName,
+                          cRecKeyPrefix,
+                          OUTPUT oplError,
+                          OUTPUT opcMessage).
+    ELSE 
+        RUN pTestOneFile (ipcFileName,
+                          cRecKeyPrefix,
+                          OUTPUT oplError,
+                          OUTPUT opcMessage).
     
     
     ASSIGN 

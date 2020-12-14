@@ -139,7 +139,7 @@ FIND FIRST obf-shipto NO-LOCK
      WHERE obf-shipto.ship-id EQ iopcShipToID NO-ERROR.
 IF NOT AVAILABLE obf-shipto THEN DO:
     ASSIGN
-        opcMessage = "AddressID (" + iopcShipToID + ") is not valid : PO# " + ipcOrderID 
+        opcMessage = "AddressID is not valid" 
         oplSuccess = NO
         .
         

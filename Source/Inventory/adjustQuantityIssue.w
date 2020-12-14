@@ -71,8 +71,7 @@ btnDiv btn7 btn8 btn9 btnMult rsAdjustType btn4 btn5 btn6 btnMinus ~
 fiTotalQty btn1 btn2 btn3 btnPlus btnZero btnPeriod btnEqual Btn_OK ~
 Btn_Cancel 
 &Scoped-Define DISPLAYED-OBJECTS fiText fiItem fiResult fiItemName ~
-fiQtyIssue fiQtyReq rsAdjustType fiTotalQtyLabel fiTotalQty ~
-fiReasonCodeLabel cbReasonCode 
+fiQtyIssue fiQtyReq rsAdjustType fiTotalQtyLabel fiTotalQty 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -190,7 +189,7 @@ DEFINE BUTTON Btn_OK AUTO-GO
 DEFINE VARIABLE cbReasonCode AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS COMBO-BOX INNER-LINES 5
      DROP-DOWN-LIST
-     SIZE 61.4 BY 1
+     SIZE 61.4 BY 1.29
      FONT 36 NO-UNDO.
 
 DEFINE VARIABLE fiItem AS CHARACTER FORMAT "X(256)":U 
@@ -237,16 +236,16 @@ DEFINE VARIABLE fiTotalQty AS DECIMAL FORMAT "->,>>>,>>9.99<<<<<":U INITIAL 0
      SIZE 40 BY 1.43
      FONT 37 NO-UNDO.
 
-DEFINE VARIABLE fiTotalQtyLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Total Quantity:" 
+DEFINE VARIABLE fiTotalQtyLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Quantity:" 
      VIEW-AS FILL-IN 
-     SIZE 22.2 BY 1.43
+     SIZE 14.6 BY 1.43
      FONT 36 NO-UNDO.
 
 DEFINE VARIABLE rsAdjustType AS CHARACTER 
      VIEW-AS RADIO-SET HORIZONTAL
      RADIO-BUTTONS 
           "Reduce", "Reduce",
-"Count Remaining", "Count Remaining"
+"Count", "Count"
      SIZE 61 BY 1.43
      FONT 36 NO-UNDO.
 
@@ -267,14 +266,14 @@ DEFINE RECTANGLE RECT-32
 
 DEFINE FRAME Dialog-Frame
      fiText AT ROW 1.33 COL 144.4 RIGHT-ALIGNED NO-LABEL WIDGET-ID 44
-     fiItem AT ROW 1.71 COL 20 COLON-ALIGNED WIDGET-ID 152
+     fiItem AT ROW 1.71 COL 20 COLON-ALIGNED WIDGET-ID 152 NO-TAB-STOP 
      fiResult AT ROW 2.81 COL 144.4 RIGHT-ALIGNED NO-LABEL WIDGET-ID 50
-     fiItemName AT ROW 3.24 COL 20 COLON-ALIGNED WIDGET-ID 154
+     fiItemName AT ROW 3.24 COL 20 COLON-ALIGNED WIDGET-ID 154 NO-TAB-STOP 
      btnDel AT ROW 4.76 COL 105.2 WIDGET-ID 4 NO-TAB-STOP 
      btnClear AT ROW 4.76 COL 125.6 WIDGET-ID 2 NO-TAB-STOP 
      btnDiv AT ROW 4.76 COL 136 WIDGET-ID 6 NO-TAB-STOP 
-     fiQtyIssue AT ROW 4.81 COL 20 COLON-ALIGNED WIDGET-ID 156
-     fiQtyReq AT ROW 4.81 COL 71 COLON-ALIGNED WIDGET-ID 158
+     fiQtyIssue AT ROW 4.81 COL 20 COLON-ALIGNED WIDGET-ID 156 NO-TAB-STOP 
+     fiQtyReq AT ROW 4.81 COL 71 COLON-ALIGNED WIDGET-ID 158 NO-TAB-STOP 
      btn7 AT ROW 6.81 COL 105.2 WIDGET-ID 18 NO-TAB-STOP 
      btn8 AT ROW 6.81 COL 115.4 WIDGET-ID 10 NO-TAB-STOP 
      btn9 AT ROW 6.81 COL 125.6 WIDGET-ID 12 NO-TAB-STOP 
@@ -284,7 +283,7 @@ DEFINE FRAME Dialog-Frame
      btn5 AT ROW 8.91 COL 115.4 WIDGET-ID 22 NO-TAB-STOP 
      btn6 AT ROW 8.91 COL 125.6 WIDGET-ID 24 NO-TAB-STOP 
      btnMinus AT ROW 8.91 COL 136 WIDGET-ID 26 NO-TAB-STOP 
-     fiTotalQtyLabel AT ROW 9.38 COL 14.4 COLON-ALIGNED NO-LABEL WIDGET-ID 128
+     fiTotalQtyLabel AT ROW 9.38 COL 22 COLON-ALIGNED NO-LABEL WIDGET-ID 128
      fiTotalQty AT ROW 9.38 COL 37.2 COLON-ALIGNED NO-LABEL WIDGET-ID 88
      fiReasonCodeLabel AT ROW 10.91 COL 6 COLON-ALIGNED NO-LABEL WIDGET-ID 146
      btn1 AT ROW 10.95 COL 105.2 WIDGET-ID 28 NO-TAB-STOP 
@@ -330,7 +329,10 @@ ASSIGN
        FRAME Dialog-Frame:HIDDEN           = TRUE.
 
 /* SETTINGS FOR COMBO-BOX cbReasonCode IN FRAME Dialog-Frame
-   NO-ENABLE                                                            */
+   NO-DISPLAY NO-ENABLE                                                 */
+ASSIGN 
+       cbReasonCode:HIDDEN IN FRAME Dialog-Frame           = TRUE.
+
 /* SETTINGS FOR FILL-IN fiItem IN FRAME Dialog-Frame
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fiItemName IN FRAME Dialog-Frame
@@ -340,7 +342,10 @@ ASSIGN
 /* SETTINGS FOR FILL-IN fiQtyReq IN FRAME Dialog-Frame
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fiReasonCodeLabel IN FRAME Dialog-Frame
-   NO-ENABLE                                                            */
+   NO-DISPLAY NO-ENABLE                                                 */
+ASSIGN 
+       fiReasonCodeLabel:HIDDEN IN FRAME Dialog-Frame           = TRUE.
+
 /* SETTINGS FOR FILL-IN fiResult IN FRAME Dialog-Frame
    NO-ENABLE ALIGN-R                                                    */
 ASSIGN 
@@ -750,7 +755,7 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY fiText fiItem fiResult fiItemName fiQtyIssue fiQtyReq rsAdjustType 
-          fiTotalQtyLabel fiTotalQty fiReasonCodeLabel cbReasonCode 
+          fiTotalQtyLabel fiTotalQty 
       WITH FRAME Dialog-Frame.
   ENABLE RECT-30 RECT-31 RECT-32 btnDel btnClear btnDiv btn7 btn8 btn9 btnMult 
          rsAdjustType btn4 btn5 btn6 btnMinus fiTotalQty btn1 btn2 btn3 btnPlus 

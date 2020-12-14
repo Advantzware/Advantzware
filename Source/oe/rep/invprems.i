@@ -11,7 +11,7 @@ PUT "<FTimes New Roman>".
             "<P10><=2><R+5.5>"
             "<FCourier New>"
             SPACE(14) "<P11><B>ABN 11 620 887 149</B><P10>" SKIP(1).
-       IF company.company = '006' THEN
+       IF company.company = '004' THEN
          PUT SPACE(12) "REMIT TO: Premier Packaging Canada, LLC" SKIP
             SPACE(12) "          Dept 400175" SKIP
             SPACE(12) "          PO Box 4375 STN A" SKIP 

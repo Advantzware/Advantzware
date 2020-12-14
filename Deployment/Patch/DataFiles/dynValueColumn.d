@@ -122,21 +122,21 @@
 11 "_default" "dynSubjct." 0 10 yes "ttAuditHistory.AuditKey" "Audit Key" "x(16)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007304264005466865" no "" "" 0 0 "" no
 11 "_default" "dynSubjct." 0 11 yes "ttAuditHistory.AuditBeforeValue" "Before Value" "x(40)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007304264005466866" no "" "" 0 0 "" no
 11 "_default" "dynSubjct." 0 12 yes "ttAuditHistory.AuditAfterValue" "After Value" "x(40)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007304264005466867" no "" "" 0 0 "" no
-12 "_default" "dynSubjct." 0 1 yes "ttCashReceiptBySalesRepName.salesRep" "Sales Rep" "x(3)" 0 "character" 1 no yes "" "" no "" "" no no no "" "202005136533305265635" no "" "" 0 0 "" no
-12 "_default" "dynSubjct." 0 2 yes "ttCashReceiptBySalesRepName.salesName" "Sales Name" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202005136533305265636" no "" "" 0 0 "" no
-12 "_default" "dynSubjct." 0 3 yes "ttCashReceiptBySalesRepName.custNo" "Customer" "x(8)" 0 "character" 2 no yes "" "" no "" "" no no no "" "202005136533305265637" no "" "" 0 0 "" no
-12 "_default" "dynSubjct." 0 4 yes "ttCashReceiptBySalesRepName.custName" "Customer Name" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202005136533305265638" no "" "" 0 0 "" no
-12 "_default" "dynSubjct." 0 5 yes "ttCashReceiptBySalesRepName.terms" "Terms" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202005136533305265639" no "" "" 0 0 "" no
-12 "_default" "dynSubjct." 0 6 yes "ttCashReceiptBySalesRepName.invoiceNo" "Invoice" ">>>>>>>>" 0 "integer" 3 no no "" "" no "" "" no no no "" "202005136533305265640" no "" "" 0 0 "" no
-12 "_default" "dynSubjct." 0 7 yes "ttCashReceiptBySalesRepName.invDate" "Inv Date" "99/99/9999" 0 "date" 0 no no "" "" no "" "" no no no "" "202005136533305265641" no "" "" 0 0 "" no
-12 "_default" "dynSubjct." 0 8 yes "ttCashReceiptBySalesRepName.chkDate" "Check Date" "99/99/9999" 0 "date" 0 no no "" "" no "" "" no no no "" "202005136533305265642" no "" "" 0 0 "" no
-12 "_default" "dynSubjct." 0 9 yes "ttCashReceiptBySalesRepName.Aging" "Aging" "$->>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202005136533305265643" no "" "" 0 0 "" no
-12 "_default" "dynSubjct." 0 10 yes "ttCashReceiptBySalesRepName.invAmt" "Inv Amount" "$->>>,>>>,>>9.99" 0 "decimal" 0 no no "" "Report,Sum,[Group] Customer,Sum,[Group] Sales Rep,Sum" no "" "" no no no "" "202005136533305265644" no "" "" 0 0 "" no
-12 "_default" "dynSubjct." 0 11 yes "ttCashReceiptBySalesRepName.amtPaid" "Amt Paid" "$->>>,>>>,>>9.99" 0 "decimal" 0 no no "" "Report,Sum,[Group] Customer,Sum,[Group] Sales Rep,Sum" no "" "" no no no "" "202005136533305265645" no "" "" 0 0 "" no
-12 "_default" "dynSubjct." 0 12 yes "ttCashReceiptBySalesRepName.discount" "Discount" "$->>>>,>>9.99" 0 "decimal" 0 no no "" "Report,Sum,[Group] Customer,Sum,[Group] Sales Rep,Sum" no "" "" no no no "" "202005136533305265646" no "" "" 0 0 "" no
-12 "_default" "dynSubjct." 0 13 yes "ttCashReceiptBySalesRepName.balAftPay" "Bal Aft Pymt" "$->>>,>>>,>>9.99" 0 "decimal" 0 no no "" "Report,Sum,[Group] Customer,Sum,[Group] Sales Rep,Sum" no "" "" no no no "" "202005136533305265647" no "" "" 0 0 "" no
-12 "_default" "dynSubjct." 0 14 yes "ttCashReceiptBySalesRepName.commAmt" "Comm Amt" "$->>,>>>,>>9.99" 0 "decimal" 0 no no "" "Report,Sum,[Group] Customer,Sum,[Group] Sales Rep,Sum" no "" "" no no no "" "202005136533305265648" no "" "" 0 0 "" no
-12 "_default" "dynSubjct." 0 15 yes "ttCashReceiptBySalesRepName.commPct" "Comm Pct" "->>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202005136533305265649" no "" "" 0 0 "" no
+12 "_default" "dynSubjct." 0 1 yes "ttCashReceiptBySalesRepName.salesRep" "Sales Rep" "x(3)" 0 "character" 1 no yes "" "" no "" "" no no no "" "202011142522405854416" no "" "" 0 0 "" no
+12 "_default" "dynSubjct." 0 2 yes "ttCashReceiptBySalesRepName.salesName" "Sales Name" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011142522405854417" no "" "" 0 0 "" no
+12 "_default" "dynSubjct." 0 3 yes "ttCashReceiptBySalesRepName.custNo" "Customer" "x(8)" 0 "character" 2 no yes "" "" no "" "" no no no "" "202011142522405854418" no "" "" 0 0 "" no
+12 "_default" "dynSubjct." 0 4 yes "ttCashReceiptBySalesRepName.custName" "Customer Name" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011142522405854419" no "" "" 0 0 "" no
+12 "_default" "dynSubjct." 0 5 yes "ttCashReceiptBySalesRepName.terms" "Terms" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011142522405854420" no "" "" 0 0 "" no
+12 "_default" "dynSubjct." 0 6 yes "ttCashReceiptBySalesRepName.invoiceNo" "Invoice" ">>>>>>>>" 0 "integer" 3 no no "" "" no "" "" no no no "" "202011142522405854421" no "" "" 0 0 "" no
+12 "_default" "dynSubjct." 0 7 yes "ttCashReceiptBySalesRepName.invDate" "Inv Date" "99/99/9999" 0 "date" 0 no no "" "" no "" "" no no no "" "202011142522405854422" no "" "" 0 0 "" no
+12 "_default" "dynSubjct." 0 8 yes "ttCashReceiptBySalesRepName.chkDate" "Check Date" "99/99/9999" 0 "date" 0 no no "" "" no "" "" no no no "" "202011142522405854423" no "" "" 0 0 "" no
+12 "_default" "dynSubjct." 0 9 yes "ttCashReceiptBySalesRepName.Aging" "Aging" "$->>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202011142522405854424" no "" "" 0 0 "" no
+12 "_default" "dynSubjct." 0 10 yes "ttCashReceiptBySalesRepName.invAmt" "Inv Amount" "$->>>,>>>,>>9.99" 0 "decimal" 0 no no "" "Report,Sum,[Group] Customer,Sum,[Group] Sales Rep,Sum" no "" "" no no no "" "202011142522405854425" no "" "" 0 0 "" no
+12 "_default" "dynSubjct." 0 11 yes "ttCashReceiptBySalesRepName.amtPaid" "Amt Paid" "$->>>,>>>,>>9.99" 0 "decimal" 0 no no "" "Report,Sum,[Group] Customer,Sum,[Group] Sales Rep,Sum" no "" "" no no no "" "202011142522405854426" no "" "" 0 0 "" no
+12 "_default" "dynSubjct." 0 12 yes "ttCashReceiptBySalesRepName.discount" "Discount" "$->>>>,>>9.99" 0 "decimal" 0 no no "" "Report,Sum,[Group] Customer,Sum,[Group] Sales Rep,Sum" no "" "" no no no "" "202011142522405854427" no "" "" 0 0 "" no
+12 "_default" "dynSubjct." 0 13 yes "ttCashReceiptBySalesRepName.balAftPay" "Bal Aft Pymt" "$->>>,>>>,>>9.99" 0 "decimal" 0 no no "" "Report,Sum,[Group] Customer,Sum,[Group] Sales Rep,Sum" no "" "" no no no "" "202011142522405854428" no "" "" 0 0 "" no
+12 "_default" "dynSubjct." 0 14 yes "ttCashReceiptBySalesRepName.commAmt" "Comm Amt" "$->>,>>>,>>9.99" 0 "decimal" 0 no no "" "Report,Sum,[Group] Customer,Sum,[Group] Sales Rep,Sum" no "" "" no no no "" "202011142522405854429" no "" "" 0 0 "" no
+12 "_default" "dynSubjct." 0 15 yes "ttCashReceiptBySalesRepName.commPct" "Comm Pct" "->>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202011142522405854430" no "" "" 0 0 "" no
 13 "_default" "dynSubjct." 0 1 yes "oe-ordl.ord-no" "Order#" ">>>>>9" 0 "integer" 1 no no "" "" no "" "" no no no "" "202008144873305575642" no "" "" 0 0 "" no
 13 "_default" "dynSubjct." 0 2 yes "oe-ordl.cust-no" "Customer" "x(8)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202008144873305575643" no "" "" 0 0 "" no
 13 "_default" "dynSubjct." 0 3 yes "oe-ord.cust-name" "Customer Name" "x(30)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202008144873305575644" no "" "" 0 0 "" no
@@ -230,31 +230,31 @@
 18 "_default" "dynSubjct." 0 31 yes "ttOrdersBookedByOrderNo.lossp" "Loss" ">>9.99%" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202005200024705277090" no "" "" 0 0 "" no
 18 "_default" "dynSubjct." 0 32 yes "ttOrdersBookedByOrderNo.bolNo" "BOL No" ">>>>>>>>" 0 "integer" 0 no no "" "" no "" "" no no no "" "202005200024705277091" no "" "" 0 0 "" no
 18 "_default" "dynSubjct." 0 33 yes "ttOrdersBookedByOrderNo.invoiceNo" "Invoice No" ">>>>>>" 0 "integer" 0 no no "" "" no "" "" no no no "" "202005200024705277092" no "" "" 0 0 "" no
-19 "_default" "dynSubjct." 0 1 yes "ttPostBOLCreateInvoice.bolDate" "Date" "99/99/9999" 0 "date" 0 no no "" "" no "" "" no no no "" "202008178452105590784" no "" "" 0 0 "" no
-19 "_default" "dynSubjct." 0 2 yes "ttPostBOLCreateInvoice.bolNo" "BOL" ">>>>>>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202008178452105590785" no "" "" 0 0 "" no
-19 "_default" "dynSubjct." 0 3 yes "ttPostBOLCreateInvoice.carrier" "Carrier" "x(5)" 0 "character" 0 no no "" "" no "" "" no no no "" "202008178452105590786" no "" "" 0 0 "" no
-19 "_default" "dynSubjct." 0 4 yes "ttPostBOLCreateInvoice.trailer" "Trailer" "x(20)" 0 "character" 0 no no "" "" no "" "" no no no "" "202008178452105590787" no "" "" 0 0 "" no
-19 "_default" "dynSubjct." 0 5 yes "ttPostBOLCreateInvoice.freight" "Freight" "->>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202008178452105590788" no "" "" 0 0 "" no
-19 "_default" "dynSubjct." 0 6 yes "ttPostBOLCreateInvoice.cwt" "Rate" ">>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202008178452105590789" no "" "" 0 0 "" no
-19 "_default" "dynSubjct." 0 7 yes "ttPostBOLCreateInvoice.totWgt" "Tot WT" "->>>,>>9" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202008178452105590790" no "" "" 0 0 "" no
-19 "_default" "dynSubjct." 0 8 yes "ttPostBOLCreateInvoice.custNo" "Customer" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202008178452105590791" no "" "" 0 0 "" no
-19 "_default" "dynSubjct." 0 9 yes "ttPostBOLCreateInvoice.shipID" "Ship ID" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202008178452105590792" no "" "" 0 0 "" no
-19 "_default" "dynSubjct." 0 10 yes "ttPostBOLCreateInvoice.deleted" "Deleted" "yes/no" 0 "logical" 0 no no "" "" no "" "" no no no "" "202008178452105590793" no "" "" 0 0 "" no
-19 "_default" "dynSubjct." 0 11 yes "ttPostBOLCreateInvoice.iNo" "Item No" "x(15)" 0 "character" 0 no no "" "" no "" "" no no no "" "202008178452105590794" no "" "" 0 0 "" no
-19 "_default" "dynSubjct." 0 12 yes "ttPostBOLCreateInvoice.iName" "Item Name" "x(20)" 0 "character" 0 no no "" "" no "" "" no no no "" "202008178452105590795" no "" "" 0 0 "" no
-19 "_default" "dynSubjct." 0 13 yes "ttPostBOLCreateInvoice.poNo" "PO No" "x(15)" 0 "character" 0 no no "" "" no "" "" no no no "" "202008178452105590796" no "" "" 0 0 "" no
-19 "_default" "dynSubjct." 0 14 yes "ttPostBOLCreateInvoice.ordNo" "Order" ">>>>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202008178452105590797" no "" "" 0 0 "" no
-19 "_default" "dynSubjct." 0 15 yes "ttPostBOLCreateInvoice.relNo" "Release" ">>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202008178452105590798" no "" "" 0 0 "" no
-19 "_default" "dynSubjct." 0 16 yes "ttPostBOLCreateInvoice.bOrdNo" "B-Ord" "99" 0 "integer" 0 no no "" "" no "" "" no no no "" "202008178452105590799" no "" "" 0 0 "" no
-19 "_default" "dynSubjct." 0 17 yes "ttPostBOLCreateInvoice.loc" "Whse" "x(5)" 0 "character" 0 no no "" "" no "" "" no no no "" "202008178452105590800" no "" "" 0 0 "" no
-19 "_default" "dynSubjct." 0 18 yes "ttPostBOLCreateInvoice.locBin" "Bin Loc" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202008178452105590801" no "" "" 0 0 "" no
-19 "_default" "dynSubjct." 0 19 yes "ttPostBOLCreateInvoice.tag" "Tag" "x(20)" 0 "character" 0 no no "" "" no "" "" no no no "" "202008178452105590802" no "" "" 0 0 "" no
-19 "_default" "dynSubjct." 0 20 yes "ttPostBOLCreateInvoice.cases" "Cases" "->>>,>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202008178452105590803" no "" "" 0 0 "" no
-19 "_default" "dynSubjct." 0 21 yes "ttPostBOLCreateInvoice.qtyCase" "Qty/Case" "->>>,>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202008178452105590804" no "" "" 0 0 "" no
-19 "_default" "dynSubjct." 0 22 yes "ttPostBOLCreateInvoice.partial" "Partial" "->>>,>>9" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202008178452105590805" no "" "" 0 0 "" no
-19 "_default" "dynSubjct." 0 23 yes "ttPostBOLCreateInvoice.weight" "Weight" "->>>,>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202008178452105590806" no "" "" 0 0 "" no
-19 "_default" "dynSubjct." 0 24 yes "ttPostBOLCreateInvoice.bolStatus" "Status" "x(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "202008178452105590807" no "" "" 0 0 "" no
-19 "_default" "dynSubjct." 0 25 yes "ttPostBOLCreateInvoice.reason" "Reason" "x(60)" 0 "character" 0 no no "" "" no "" "" no no no "" "202008178452105590808" no "" "" 0 0 "" no
+19 "_default" "dynSubjct." 0 1 yes "ttPostBOLCreateInvoice.bolDate" "Date" "99/99/9999" 0 "date" 0 no no "" "" no "" "" no no no "" "202011190346405859072" no "" "" 0 0 "" no
+19 "_default" "dynSubjct." 0 2 yes "ttPostBOLCreateInvoice.bolNo" "BOL" ">>>>>>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202011190346405859073" no "" "" 0 0 "" no
+19 "_default" "dynSubjct." 0 3 yes "ttPostBOLCreateInvoice.carrier" "Carrier" "x(5)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011190346405859074" no "" "" 0 0 "" no
+19 "_default" "dynSubjct." 0 4 yes "ttPostBOLCreateInvoice.trailer" "Trailer" "x(20)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011190346405859075" no "" "" 0 0 "" no
+19 "_default" "dynSubjct." 0 5 yes "ttPostBOLCreateInvoice.freight" "Freight" "->>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202011190346405859076" no "" "" 0 0 "" no
+19 "_default" "dynSubjct." 0 6 yes "ttPostBOLCreateInvoice.cwt" "Rate" ">>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202011190346405859077" no "" "" 0 0 "" no
+19 "_default" "dynSubjct." 0 7 yes "ttPostBOLCreateInvoice.totWgt" "Tot WT" "->>>,>>9" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202011190346405859078" no "" "" 0 0 "" no
+19 "_default" "dynSubjct." 0 8 yes "ttPostBOLCreateInvoice.custNo" "Customer" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011190346405859079" no "" "" 0 0 "" no
+19 "_default" "dynSubjct." 0 9 yes "ttPostBOLCreateInvoice.shipID" "Ship ID" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011190346405859080" no "" "" 0 0 "" no
+19 "_default" "dynSubjct." 0 10 yes "ttPostBOLCreateInvoice.deleted" "Deleted" "yes/no" 0 "logical" 0 no no "" "" no "" "" no no no "" "202011190346405859081" no "" "" 0 0 "" no
+19 "_default" "dynSubjct." 0 11 yes "ttPostBOLCreateInvoice.iNo" "Item No" "x(15)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011190346405859082" no "" "" 0 0 "" no
+19 "_default" "dynSubjct." 0 12 yes "ttPostBOLCreateInvoice.iName" "Item Name" "x(20)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011190346405859083" no "" "" 0 0 "" no
+19 "_default" "dynSubjct." 0 13 yes "ttPostBOLCreateInvoice.poNo" "PO No" "x(15)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011190346405859084" no "" "" 0 0 "" no
+19 "_default" "dynSubjct." 0 14 yes "ttPostBOLCreateInvoice.ordNo" "Order" ">>>>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202011190346405859085" no "" "" 0 0 "" no
+19 "_default" "dynSubjct." 0 15 yes "ttPostBOLCreateInvoice.relNo" "Release" ">>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202011190346405859086" no "" "" 0 0 "" no
+19 "_default" "dynSubjct." 0 16 yes "ttPostBOLCreateInvoice.bOrdNo" "B-Ord" "99" 0 "integer" 0 no no "" "" no "" "" no no no "" "202011190346405859087" no "" "" 0 0 "" no
+19 "_default" "dynSubjct." 0 17 yes "ttPostBOLCreateInvoice.loc" "Whse" "x(5)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011190346405859088" no "" "" 0 0 "" no
+19 "_default" "dynSubjct." 0 18 yes "ttPostBOLCreateInvoice.locBin" "Bin Loc" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011190346405859089" no "" "" 0 0 "" no
+19 "_default" "dynSubjct." 0 19 yes "ttPostBOLCreateInvoice.tag" "Tag" "x(20)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011190346405859090" no "" "" 0 0 "" no
+19 "_default" "dynSubjct." 0 20 yes "ttPostBOLCreateInvoice.cases" "Cases" "->>>,>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202011190346405859091" no "" "" 0 0 "" no
+19 "_default" "dynSubjct." 0 21 yes "ttPostBOLCreateInvoice.qtyCase" "Qty/Case" "->>>,>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202011190346405859092" no "" "" 0 0 "" no
+19 "_default" "dynSubjct." 0 22 yes "ttPostBOLCreateInvoice.partial" "Partial" "->>>,>>9" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202011190346405859093" no "" "" 0 0 "" no
+19 "_default" "dynSubjct." 0 23 yes "ttPostBOLCreateInvoice.weight" "Weight" "->>>,>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202011190346405859094" no "" "" 0 0 "" no
+19 "_default" "dynSubjct." 0 24 yes "ttPostBOLCreateInvoice.bolStatus" "Status" "x(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011190346405859095" no "" "" 0 0 "" no
+19 "_default" "dynSubjct." 0 25 yes "ttPostBOLCreateInvoice.reason" "Reason" "x(60)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011190346405859096" no "" "" 0 0 "" no
 20 "_default" "dynSubjct." 0 1 yes "ttOpenOrderReport.custNo" "Cust No" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202006125642705356648" no "" "" 0 0 "" no
 20 "_default" "dynSubjct." 0 2 yes "ttOpenOrderReport.lineDueDate" "Line Due Dt" "99/99/9999" 0 "date" 0 no no "" "" no "" "" no no no "" "202006125642705356649" no "" "" 0 0 "" no
 20 "_default" "dynSubjct." 0 3 yes "ttOpenOrderReport.relDueDate" "Rel Due Dt" "99/99/9999" 0 "date" 0 no no "" "" no "" "" no no no "" "202006125642705356650" no "" "" 0 0 "" no
@@ -308,10 +308,10 @@
 24 "_default" "dynSubjct." 0 1 yes "loc.loc" "Location" "x(5)" 0 "STRING" 0 no no "" "" no "" "" yes yes yes "" "202005136533605266162" no "" "" 0 0 "" no
 24 "_default" "dynSubjct." 0 2 yes "loc.dscr" "Description" "x(30)" 0 "STRING" 0 no no "" "" no "" "" yes yes yes "" "202005136533605266163" no "" "" 0 0 "" no
 24 "_default" "dynSubjct." 0 3 yes "loc.active" "Active" "yes/no" 0 "logical" 0 no no "" "" no "" "" yes yes yes "" "202005136533605266164" no "" "" 0 0 "" no
-25 "_default" "dynSubjct." 0 1 yes "itemfg.i-no" "Item No" "x(15)" 0 "STRING" 0 no no "" "" no "" "" yes yes yes "" "202005136533605266177" no "" "" 0 0 "" no
-25 "_default" "dynSubjct." 0 2 yes "itemfg.i-name" "Name" "x(30)" 0 "STRING" 0 no no "" "" no "" "" yes yes yes "" "202005136533605266178" no "" "" 0 0 "" no
-26 "_default" "dynSubjct." 0 1 yes "item.i-no" "Item No" "x(10)" 0 "STRING" 0 no no "" "" no "" "" yes yes yes "" "202005200051905277508" no "" "" 0 0 "" no
-26 "_default" "dynSubjct." 0 2 yes "item.i-name" "Name" "x(30)" 0 "STRING" 0 no no "" "" no "" "" yes yes yes "" "202005200051905277509" no "" "" 0 0 "" no
+25 "_default" "dynSubjct." 0 1 yes "itemfg.i-no" "Item No" "x(30)" 0 "STRING" 0 no no "" "" no "" "" yes yes yes "" "202011190213905859033" no "" "" 0 0 "" no
+25 "_default" "dynSubjct." 0 2 yes "itemfg.i-name" "Name" "x(30)" 0 "STRING" 0 no no "" "" no "" "" yes yes yes "" "202011190213905859034" no "" "" 0 0 "" no
+26 "_default" "dynSubjct." 0 1 yes "item.i-no" "Item No" "x(30)" 0 "STRING" 0 no no "" "" no "" "" yes yes yes "" "202011190210305859015" no "" "" 0 0 "" no
+26 "_default" "dynSubjct." 0 2 yes "item.i-name" "Name" "x(30)" 0 "STRING" 0 no no "" "" no "" "" yes yes yes "" "202011190210305859016" no "" "" 0 0 "" no
 27 "_default" "dynSubjct." 0 1 yes "oe-ord.ord-no" "Order#" ">>>>>9" 0 "integer" 0 no no "" "" no "" "" yes yes yes "" "202005136533605266205" no "" "" 0 0 "" no
 27 "_default" "dynSubjct." 0 2 yes "oe-ord.ord-date" "Date" "99/99/9999" 0 "date" 0 no no "" "" no "" "" yes yes yes "" "202005136533605266206" no "" "" 0 0 "" no
 27 "_default" "dynSubjct." 0 3 yes "oe-ord.cust-no" "Cust. #" "x(8)" 0 "STRING" 0 no no "" "" no "" "" yes yes yes "" "202005136533605266207" no "" "" 0 0 "" no
@@ -801,10 +801,12 @@
 61 "_default" "dynSubjct." 0 67 yes "cust.Bank-Acct" "Bank Acct" "x(18)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202005136534805268224" no "" "" 0 0 "" no
 61 "_default" "dynSubjct." 0 68 yes "cust.SwiftBIC" "Swift BIC" "x(11)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202005136534805268225" no "" "" 0 0 "" no
 61 "_default" "dynSubjct." 0 69 yes "cust.Bank-RTN" "Routing" ">999999999" 0 "integer" 0 no no "" "" no "" "" no no no "" "202005136534805268226" no "" "" 0 0 "" no
-62 "_default" "dynSubjct." 0 1 yes "carrier.carrier" "Carrier" "x(5)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202005136534805268267" no "" "" 0 0 "" no
-62 "_default" "dynSubjct." 0 2 yes "carrier.dscr" "Description" "x(30)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202005136534805268268" no "" "" 0 0 "" no
-62 "_default" "dynSubjct." 0 3 yes "carrier.loc" "Location" "x(5)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202005136534805268269" no "" "" 0 0 "" no
-62 "_default" "dynSubjct." 0 4 yes "carrier.chg-method" "Charge Method" "!" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202005136534805268270" no "" "" 0 0 "" no
+62 "_default" "dynSubjct." 0 1 yes "carrier.carrier" "Carrier" "x(5)" 6.6 "STRING" 0 no no "" "" no "" "" no no no "" "202011165201205856537" no "" "" 0 0 "" no
+62 "_default" "dynSubjct." 0 2 yes "carrier.dscr" "Description" "x(30)" 30 "STRING" 0 no no "" "" no "" "" no no no "" "202011165201205856538" no "" "" 0 0 "" no
+62 "_default" "dynSubjct." 0 3 yes "carrier.loc" "Location" "x(5)" 8 "STRING" 0 no no "" "" no "" "" no no no "" "202011165201205856539" no "" "" 0 0 "" no
+62 "_default" "dynSubjct." 0 4 yes "loc.dscr" "Description" "x(30)" 30 "STRING" 0 no no "" "" no "" "" no no no "" "202011165201205856540" no "" "" 0 0 "" no
+62 "_default" "dynSubjct." 0 5 yes "CalcChargeMethod" "Charge Method" "x(10)" 0 "Character" 0 no no "" "" yes "calcGetChgMethod" "carrier.chg-method" no no no "" "202011165201205856541" no "" "" 0 0 "" no
+62 "_default" "dynSubjct." 0 6 yes "CalcInactive" "Inactive" "x(10)" 0 "Character" 0 no no "" "" yes "calcGetCarrierInActive" "carrier.company|carrier.carrier" no no no "" "202011165201205856542" no "" "" 0 0 "" no
 63 "_default" "dynSubjct." 0 1 yes "prep.dscr" "Description" "x(20)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202005136534905268343" no "" "" 0 0 "" no
 63 "_default" "dynSubjct." 0 2 yes "prep.code" "Code" "x(5)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202005136534905268344" no "" "" 0 0 "" no
 63 "_default" "dynSubjct." 0 3 yes "prep.mat-type" "Mat'l Type" "X" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202005136534905268345" no "" "" 0 0 "" no
@@ -2205,12 +2207,12 @@
 148 "_default" "dynSubjct." 0 1 yes "dept.code" "Code" "x(2)" 0 "STRING" 0 no no "" "" no "" "" yes yes yes "" "202010172754805764216" no "" "" 0 0 "" no
 148 "_default" "dynSubjct." 0 2 yes "dept.dscr" "Description" "x(25)" 0 "STRING" 0 no no "" "" no "" "" yes yes yes "" "202010172754805764217" no "" "" 0 0 "" no
 148 "_default" "dynSubjct." 0 3 yes "dept.industry" "Industry" "x" 0 "STRING" 0 no no "" "" no "" "" yes yes yes "" "202010172754805764218" no "" "" 0 0 "" no
-149 "_default" "dynSubjct." 0 1 yes "itemfg.part-no" "Cust Part #" "x(12)" 12 "STRING" 0 no no "" "" no "" "" yes yes yes "" "202011112243105839606" no "" "" 0 0 "" no
-149 "_default" "dynSubjct." 0 2 yes "itemfg.i-no" "Item No" "x(15)" 15 "STRING" 0 no no "" "" no "" "" yes yes yes "" "202011112243105839607" no "" "" 0 0 "" no
-149 "_default" "dynSubjct." 0 3 yes "itemfg.i-name" "Name" "x(30)" 30 "STRING" 0 no no "" "" no "" "" yes yes yes "" "202011112243105839608" no "" "" 0 0 "" no
-150 "_default" "dynSubjct." 0 1 yes "loc.loc" "Location" "x(5)" 0 "STRING" 0 no no "" "" no "" "" yes yes yes "" "202010278444305811902" no "" "" 0 0 "" no
-150 "_default" "dynSubjct." 0 2 yes "loc.dscr" "Description" "x(30)" 0 "STRING" 0 no no "" "" no "" "" yes yes yes "" "202010278444305811903" no "" "" 0 0 "" no
-150 "_default" "dynSubjct." 0 3 yes "loc.active" "Active" "yes/no" 0 "logical" 0 no no "" "" no "" "" yes yes yes "" "202010278444305811904" no "" "" 0 0 "" no
+149 "_default" "dynSubjct." 0 1 yes "itemfg.part-no" "Cust Part #" "x(25)" 12 "STRING" 0 no no "" "" no "" "" yes yes yes "" "202011190217105859051" no "" "" 0 0 "" no
+149 "_default" "dynSubjct." 0 2 yes "itemfg.i-no" "Item No" "x(30)" 15 "STRING" 0 no no "" "" no "" "" yes yes yes "" "202011190217105859052" no "" "" 0 0 "" no
+149 "_default" "dynSubjct." 0 3 yes "itemfg.i-name" "Name" "x(30)" 30 "STRING" 0 no no "" "" no "" "" yes yes yes "" "202011190217105859053" no "" "" 0 0 "" no
+150 "_default" "dynSubjct." 0 1 yes "loc.loc" "Location" "x(5)" 0 "STRING" 0 no no "" "" no "" "" yes yes yes "" "202011174590905857053" no "" "" 0 0 "" no
+150 "_default" "dynSubjct." 0 2 yes "loc.dscr" "Description" "x(30)" 0 "STRING" 0 no no "" "" no "" "" yes yes yes "" "202011174590905857054" no "" "" 0 0 "" no
+150 "_default" "dynSubjct." 0 3 yes "loc.active" "Active" "yes/no" 0 "logical" 0 no no "" "" no "" "" yes yes yes "" "202011174590905857055" no "" "" 0 0 "" no
 151 "_default" "dynSubjct." 0 1 yes "ttJobItem.cJob" "SALES-ORD" "x(12)" 0 "character" 2 no no "" "" no "" "" no no no "" "202011112366805839837" no "" "" 0 0 "" no
 151 "_default" "dynSubjct." 0 2 yes "ttJobItem.cItemID" "FG  ID" "x(15)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011112366805839838" no "" "" 0 0 "" no
 151 "_default" "dynSubjct." 0 3 yes "ttJobItem.dtOrderDate" "ORD-DATE" "99/99/9999" 0 "date" 5 no no "" "" no "" "" no no no "" "202011112366805839839" no "" "" 0 0 "" no
@@ -2232,12 +2234,13 @@
 151 "_default" "dynSubjct." 0 19 yes "ttJobItem.cAsOfDateOption" "As Of Date Option" "x(20)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011112366805839855" no "" "" 0 0 "" no
 151 "_default" "dynSubjct." 0 20 no "ttJobItem.iFormNumber" "FORM" ">>9" 0 "integer" 3 no no "" "" no "" "" no no no "" "202011112366805839856" no "" "" 0 0 "" no
 151 "_default" "dynSubjct." 0 21 no "ttJobItem.iBlankNumber" "BLANK" ">9" 0 "integer" 4 no no "" "" no "" "" no no no "" "202011112366805839857" no "" "" 0 0 "" no
-152 "_default" "dynSubjct." 0 1 yes "cust-part.part-no" "Cust Part #" "x(12)" 0 "STRING" 0 no no "" "" no "" "" yes yes yes "" "202011113419305840827" no "" "" 0 0 "" no
-152 "_default" "dynSubjct." 0 2 yes "itemfg.part-dscr1" "Item Description" "x(30)" 0 "STRING" 0 no no "" "" no "" "" yes yes yes "" "202011113419305840828" no "" "" 0 0 "" no
-152 "_default" "dynSubjct." 0 3 yes "itemfg.q-onh" "Qty On-Hand" "->>,>>>,>>9.999" 0 "decimal" 0 no no "" "" no "" "" yes yes yes "" "202011113419305840829" no "" "" 0 0 "" no
-152 "_default" "dynSubjct." 0 4 yes "cust-part.cust-no" "Cust. #" "x(8)" 0 "STRING" 0 no no "" "" no "" "" yes yes yes "" "202011113419305840830" no "" "" 0 0 "" no
-152 "_default" "dynSubjct." 0 5 yes "itemfg.i-no" "Item No" "x(15)" 0 "STRING" 0 no no "" "" no "" "" yes yes yes "" "202011113419305840831" no "" "" 0 0 "" no
-152 "_default" "dynSubjct." 0 6 yes "itemfg.part-dscr2" "Item Description" "x(30)" 0 "STRING" 0 no no "" "" no "" "" yes yes yes "" "202011113419305840832" no "" "" 0 0 "" no
+152 "_default" "dynSubjct." 0 1 yes "cust-part.part-no" "Cust Part #" "x(12)" 12 "STRING" 0 no no "" "" no "" "" yes yes yes "" "202011205652505870356" no "" "" 0 0 "" no
+152 "_default" "dynSubjct." 0 2 yes "CalcItemDescription" "Item Description" "x(30)" 0 "Character" 0 no no "" "" yes "calcGetPartDscr1FromFgitem" "cust-part.company|cust-part.i-no" no no no "" "202011205652505870357" no "" "" 0 0 "" no
+152 "_default" "dynSubjct." 0 3 yes "CalcQtyonHand" "Qty on Hand" "->>,>>>,>>9" 0 "Integer" 0 no no "" "" yes "calcGetQtyOnHandFromFgitem" "cust-part.company|cust-part.i-no" no no no "" "202011205652505870358" no "" "" 0 0 "" no
+152 "_default" "dynSubjct." 0 4 yes "cust-part.cust-no" "Cust. #" "x(8)" 8 "STRING" 0 no no "" "" no "" "" yes yes yes "" "202011205652505870359" no "" "" 0 0 "" no
+152 "_default" "dynSubjct." 0 5 yes "cust-part.i-no" "Item No" "x(15)" 15 "STRING" 0 no no "" "" no "" "" yes yes yes "" "202011205652505870360" no "" "" 0 0 "" no
+152 "_default" "dynSubjct." 0 6 yes "CalcItemDescription2" "Item Description2" "x(30)" 0 "Character" 0 no no "" "" yes "calcGetPartDscr2FromFgitem" "cust-part.company|cust-part.i-no" no no no "" "202011205652505870361" no "" "" 0 0 "" no
+152 "_default" "dynSubjct." 0 7 no "cust-part.company" "Company" "x(3)" 0 "STRING" 0 no no "" "" no "" "" yes yes yes "" "202011205652505870362" no "" "" 0 0 "" no
 153 "_default" "dynSubjct." 0 1 yes "cust-part.part-no" "Cust Part #" "x(12)" 14.2 "STRING" 0 no no "" "" no "" "" yes yes yes "" "202011112370805839908" no "" "" 0 0 "" no
 153 "_default" "dynSubjct." 0 2 yes "itemfg.part-dscr1" "Item Description" "x(30)" 30 "STRING" 0 no no "" "" no "" "" yes yes yes "" "202011112370805839909" no "" "" 0 0 "" no
 153 "_default" "dynSubjct." 0 3 yes "itemfg.q-onh" "Qty On-Hand" "->>,>>>,>>9.999" 16.4 "decimal" 0 no no "" "" no "" "" yes yes yes "" "202011112370805839910" no "" "" 0 0 "" no

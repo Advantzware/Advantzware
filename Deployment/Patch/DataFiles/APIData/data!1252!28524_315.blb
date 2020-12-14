@@ -1,0 +1,16 @@
+<HLLoop1 type="Loop">
+<HL type="Segment">
+<!--Hierarchical ID Number-->
+<HL01>$HLCount$</HL01>
+<!--Hierarchical Parent ID Number-->
+<HL02>$HLTareParent$</HL02>
+<!--Hierarchical Level Code-->
+<HL03><!--Tare-->T</HL03>
+</HL>
+<MAN type="Segment">
+<!--Tag Type-->
+<MAN01>GM</MAN01>
+<!--SSCC ID-->
+<MAN02>$SSCCTagID$</MAN02>
+</MAN >
+</HLLoop1>

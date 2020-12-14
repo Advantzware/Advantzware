@@ -1395,7 +1395,7 @@ PROCEDURE local-assign-record :
   IF ld-prev-auto-approved NE inv-head.autoApproved AND inv-head.autoApproved THEN
   DO:
      RUN ClearTagsByRecKey(inv-head.rec_key).  /*Clear all hold tags - TagProcs.p*/
-     RUN AddTagHoldInfo(
+     RUN AddTagInfo(
         INPUT inv-head.rec_key,
         INPUT "inv-head",
         INPUT "Manually Approved",

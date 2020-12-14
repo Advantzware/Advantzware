@@ -1708,16 +1708,6 @@ END.
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiPostdate C-Win
-ON VALUE-CHANGED OF fiPostdate IN FRAME FRAME-A /* Post Date */
-DO:
-    ASSIGN {&SELF-NAME}.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &Scoped-define SELF-NAME fi_depts
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_depts C-Win
 ON LEAVE OF fi_depts IN FRAME FRAME-A
@@ -4236,7 +4226,7 @@ PROCEDURE pdAOABOLPost:
                     + "<End Range Value>|" // endLocDescription
                     + g_loc + "|" // location
                     + "yes|" // post
-                    + STRING(TODAY,"99/99/9999") + "|" // postDate
+                    + STRING(fiPostDate,"99/99/9999") + "|" // postDate
                     + STRING(begin_bol#) + "|" // startBOL
                     + STRING(begin_date,"99/99/9999") + "|" // startBOLDate
                     + "<Start Range Value>|" // startCustName

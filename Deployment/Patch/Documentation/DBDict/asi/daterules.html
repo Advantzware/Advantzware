@@ -66,20 +66,20 @@
       <tr class="shadedrow">
         <td>CREATE</td>
         <td>create.trg/dateRules.p</td>
-        <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
         <td style="text-align: center;"> <input type="checkbox" disabled checked /> </td>
+        <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
       </tr>
       <tr class="shadedrow">
         <td>DELETE</td>
-        <td>delete.trg\dateRules.p</td>
-        <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+        <td>delete.trg/dateRules.p</td>
         <td style="text-align: center;"> <input type="checkbox" disabled checked /> </td>
+        <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
       </tr>
       <tr class="shadedrow">
         <td>WRITE</td>
-        <td>write.trg\dateRules.p</td>
-        <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+        <td>write.trg/dateRules.p</td>
         <td style="text-align: center;"> <input type="checkbox" disabled checked /> </td>
+        <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
       </tr>
     </table>
   </div>
@@ -109,7 +109,7 @@
     <th>Description</th>
   </tr>
   <tr class="oddrow">
-    <td>50</td>
+    <td>40</td>
     <td>baseField</td>
     <td><a href="00-cross-b.html#baseField"><small>X</small></a></td>
     <td>Base Field</td>
@@ -120,7 +120,7 @@
     <td></td>
   </tr>
   <tr class="evenrow">
-    <td>40</td>
+    <td>30</td>
     <td>baseTable</td>
     <td><a href="00-cross-b.html#baseTable"><small>X</small></a></td>
     <td>Base Table</td>
@@ -134,15 +134,26 @@
     <td>10</td>
     <td>dateRuleID</td>
     <td><a href="00-cross-d.html#dateRuleID"><small>X</small></a></td>
-    <td>Rule ID</td>
-    <td>integer</td>
-    <td>&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;9</td>
-    <td>0</td>
+    <td>Date Rule ID</td>
+    <td>character</td>
+    <td>x(16)</td>
+    <td></td>
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
   <tr class="evenrow">
-    <td>60</td>
+    <td>20</td>
+    <td>dateRuleName</td>
+    <td><a href="00-cross-d.html#dateRuleName"><small>X</small></a></td>
+    <td>Date Rule Name</td>
+    <td>character</td>
+    <td>x(32)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>50</td>
     <td>days</td>
     <td><a href="00-cross-d.html#days"><small>X</small></a></td>
     <td>Days from Base</td>
@@ -152,8 +163,8 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="oddrow">
-    <td>110</td>
+  <tr class="evenrow">
+    <td>100</td>
     <td><a href="addrphone.html">rec_key</a></td>
     <td><a href="00-cross-r.html#rec_key"><small>X</small></a></td>
     <td>Record Key</td>
@@ -163,8 +174,8 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="evenrow">
-    <td>100</td>
+  <tr class="oddrow">
+    <td>90</td>
     <td>resultField</td>
     <td><a href="00-cross-r.html#resultField"><small>X</small></a></td>
     <td>Result Field</td>
@@ -174,8 +185,8 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="oddrow">
-    <td>90</td>
+  <tr class="evenrow">
+    <td>80</td>
     <td>resultTable</td>
     <td><a href="00-cross-r.html#resultTable"><small>X</small></a></td>
     <td>Result Table</td>
@@ -185,30 +196,8 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="evenrow">
-    <td>20</td>
-    <td>scope</td>
-    <td><a href="00-cross-s.html#scope"><small>X</small></a></td>
-    <td>Scope</td>
-    <td>character</td>
-    <td>x(16)</td>
-    <td></td>
-    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
-    <td></td>
-  </tr>
   <tr class="oddrow">
-    <td>30</td>
-    <td>scopeID</td>
-    <td><a href="00-cross-s.html#scopeID"><small>X</small></a></td>
-    <td>Scope ID</td>
-    <td>character</td>
-    <td>x(32)</td>
-    <td></td>
-    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
-    <td></td>
-  </tr>
-  <tr class="evenrow">
-    <td>80</td>
+    <td>70</td>
     <td>skipDays</td>
     <td><a href="00-cross-s.html#skipDays"><small>X</small></a></td>
     <td>Days to Skip</td>
@@ -218,8 +207,8 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="oddrow">
-    <td>70</td>
+  <tr class="evenrow">
+    <td>60</td>
     <td>skipTime</td>
     <td><a href="00-cross-s.html#skipTime"><small>X</small></a></td>
     <td>Skip Time</td>
@@ -256,37 +245,26 @@
     <td>10</td>
     <td>dateRuleID</td>
     <td><a href="00-cross-d.html#dateRuleID"><small>X</small></a></td>
-    <td>Rule ID</td>
-    <td>integer</td>
-    <td>&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;9</td>
-    <td>0</td>
-    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
-    <td></td>
-  </tr>
-  <tr class="evenrow">
-    <td>20</td>
-    <td>scope</td>
-    <td><a href="00-cross-s.html#scope"><small>X</small></a></td>
-    <td>Scope</td>
+    <td>Date Rule ID</td>
     <td>character</td>
     <td>x(16)</td>
     <td></td>
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="oddrow">
-    <td>30</td>
-    <td>scopeID</td>
-    <td><a href="00-cross-s.html#scopeID"><small>X</small></a></td>
-    <td>Scope ID</td>
+  <tr class="evenrow">
+    <td>20</td>
+    <td>dateRuleName</td>
+    <td><a href="00-cross-d.html#dateRuleName"><small>X</small></a></td>
+    <td>Date Rule Name</td>
     <td>character</td>
     <td>x(32)</td>
     <td></td>
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="evenrow">
-    <td>40</td>
+  <tr class="oddrow">
+    <td>30</td>
     <td>baseTable</td>
     <td><a href="00-cross-b.html#baseTable"><small>X</small></a></td>
     <td>Base Table</td>
@@ -296,8 +274,8 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="oddrow">
-    <td>50</td>
+  <tr class="evenrow">
+    <td>40</td>
     <td>baseField</td>
     <td><a href="00-cross-b.html#baseField"><small>X</small></a></td>
     <td>Base Field</td>
@@ -307,8 +285,8 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="evenrow">
-    <td>60</td>
+  <tr class="oddrow">
+    <td>50</td>
     <td>days</td>
     <td><a href="00-cross-d.html#days"><small>X</small></a></td>
     <td>Days from Base</td>
@@ -318,8 +296,8 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="oddrow">
-    <td>70</td>
+  <tr class="evenrow">
+    <td>60</td>
     <td>skipTime</td>
     <td><a href="00-cross-s.html#skipTime"><small>X</small></a></td>
     <td>Skip Time</td>
@@ -329,8 +307,8 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="evenrow">
-    <td>80</td>
+  <tr class="oddrow">
+    <td>70</td>
     <td>skipDays</td>
     <td><a href="00-cross-s.html#skipDays"><small>X</small></a></td>
     <td>Days to Skip</td>
@@ -340,8 +318,8 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="oddrow">
-    <td>90</td>
+  <tr class="evenrow">
+    <td>80</td>
     <td>resultTable</td>
     <td><a href="00-cross-r.html#resultTable"><small>X</small></a></td>
     <td>Result Table</td>
@@ -351,8 +329,8 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="evenrow">
-    <td>100</td>
+  <tr class="oddrow">
+    <td>90</td>
     <td>resultField</td>
     <td><a href="00-cross-r.html#resultField"><small>X</small></a></td>
     <td>Result Field</td>
@@ -362,8 +340,8 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="oddrow">
-    <td>110</td>
+  <tr class="evenrow">
+    <td>100</td>
     <td><a href="addrphone.html">rec_key</a></td>
     <td><a href="00-cross-r.html#rec_key"><small>X</small></a></td>
     <td>Record Key</td>
@@ -390,7 +368,7 @@
     <td>iDateRuleID</td>
     <td>P U     </td>
     <td>dateRuleID (+)</td>
-    <td>integer</td>
+    <td>character</td>
   </tr>
   <tr class="evenrow">
     <td>iBase</td>
@@ -405,33 +383,33 @@
     <td>character</td>
   </tr>
   <tr class="oddrow">
+    <td>iDateRuleName</td>
+    <td>        </td>
+    <td>dateRuleName (+)</td>
+    <td>character</td>
+  </tr>
+  <tr class="evenrow">
     <td>iRecKey</td>
     <td>        </td>
     <td>rec_key (+)</td>
     <td>character</td>
   </tr>
-  <tr class="evenrow">
+  <tr class="oddrow">
     <td>iResult</td>
     <td>        </td>
     <td>resultTable (+)</td>
     <td>character</td>
   </tr>
-  <tr class="evenrow">
+  <tr class="oddrow">
     <td>&nbsp;</td>
     <td>&nbsp;</td>
     <td>resultField (+)</td>
     <td>character</td>
   </tr>
-  <tr class="oddrow">
+  <tr class="evenrow">
     <td>iScope</td>
     <td>        </td>
-    <td>scope (+)</td>
-    <td>character</td>
-  </tr>
-  <tr class="evenrow">
-    <td>iScopeID</td>
-    <td>        </td>
-    <td>scopeID (+)</td>
+    <td>dateRuleID (+)</td>
     <td>character</td>
   </tr>
 </table>
@@ -457,7 +435,7 @@
 <hr style="clear:both">
 <hr>
 <table style="width:100%; margin-top:10px;">
-  <tr><td style="text-align:right;"><i><small>generated 1-7-2020 20:23</small></i></td></tr>
+  <tr><td style="text-align:right;"><i><small>generated 23-11-2020 16:22</small></i></td></tr>
 </table>
 </body>
 </html>

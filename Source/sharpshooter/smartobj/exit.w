@@ -30,7 +30,8 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 
-{methods/defines/hndlset.i}
+DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
+DEFINE VARIABLE phandle  AS HANDLE    NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -71,7 +72,7 @@ DEFINE BUTTON btExit
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     btExit AT ROW 1 COL 1
+     btExit AT ROW 1 COL 1 NO-TAB-STOP 
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE .
@@ -172,8 +173,6 @@ END.
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
   RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF
-
-RUN Tool_Tips IN Persistent-Handle (FRAME {&FRAME-NAME}:HANDLE).
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

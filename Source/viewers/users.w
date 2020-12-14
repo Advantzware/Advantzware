@@ -119,9 +119,9 @@ DEFINE QUERY external_tables FOR users, usr.
 &Scoped-Define ENABLED-FIELDS users.AMPM users.user_name users.phone-cnty ~
 users.isManager users.isLocked users.mobile users.image_filename ~
 users.user_program[1] users.user_program[2] users.user_program[3] ~
-users.userImage[1] users.track_usage users.use_colors users.use_fonts ~
-users.menuSize users.developer users.userLanguage users.showMenuImages ~
-users.showCueCards users.showMnemonic users.positionMnemonic 
+users.userImage[1] users.use_colors users.use_fonts users.menuSize ~
+users.userLanguage users.showMenuImages users.showCueCards ~
+users.showMnemonic users.positionMnemonic 
 &Scoped-define ENABLED-TABLES users
 &Scoped-define FIRST-ENABLED-TABLE users
 &Scoped-Define DISPLAYED-FIELDS users.AMPM users.user_id users.user_name ~
@@ -129,8 +129,8 @@ users.userAlias users.department users.phone-cnty users.phone ~
 users.securityLevel users.isActive users.isManager users.isLocked ~
 users.mobile users.fax users.image_filename users.user_program[1] ~
 users.user_program[2] users.user_program[3] users.userImage[1] ~
-users.track_usage users.use_colors users.manager users.use_fonts ~
-users.menuSize users.developer users.userLanguage users.showMenuImages ~
+users.use_colors users.manager users.use_fonts users.menuSize ~
+users.purchaseLimit users.userLanguage users.showMenuImages ~
 users.showCueCards users.showMnemonic users.positionMnemonic ~
 users.sessionLimit 
 &Scoped-define DISPLAYED-TABLES users
@@ -480,39 +480,38 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
-     users.track_usage AT ROW 11.95 COL 23
-          VIEW-AS TOGGLE-BOX
-          SIZE 19.8 BY 1
-     users.use_colors AT ROW 12.91 COL 23
+     users.use_colors AT ROW 11.91 COL 23
           VIEW-AS TOGGLE-BOX
           SIZE 27 BY 1
-     users.manager AT ROW 12.95 COL 65 COLON-ALIGNED
+     users.manager AT ROW 13.38 COL 65 COLON-ALIGNED
           LABEL "Manager"
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
           BGCOLOR 15 
-     users.use_fonts AT ROW 13.86 COL 23
+     users.use_fonts AT ROW 12.86 COL 23
           VIEW-AS TOGGLE-BOX
           SIZE 26.2 BY 1
-     users.menuSize AT ROW 13.95 COL 65 COLON-ALIGNED WIDGET-ID 112
+     users.menuSize AT ROW 14.57 COL 65 COLON-ALIGNED WIDGET-ID 112
           VIEW-AS COMBO-BOX INNER-LINES 3
           LIST-ITEMS "Small","Medium","Large" 
           DROP-DOWN-LIST
           SIZE 16 BY 1
-     users.developer AT ROW 14.81 COL 23
-          VIEW-AS TOGGLE-BOX
-          SIZE 16.8 BY 1
-     users.userLanguage AT ROW 14.95 COL 52 COLON-ALIGNED WIDGET-ID 114
+     users.purchaseLimit AT ROW 15.71 COL 21 COLON-ALIGNED
+          LABEL "PO Limit"
+          VIEW-AS FILL-IN 
+          SIZE 19 BY 1
+          BGCOLOR 15 
+     users.userLanguage AT ROW 15.76 COL 61 COLON-ALIGNED WIDGET-ID 114
           VIEW-AS COMBO-BOX INNER-LINES 10
           LIST-ITEM-PAIRS "Englist","EN"
           DROP-DOWN-LIST
-          SIZE 29 BY 1
-     users.showMenuImages AT ROW 15.76 COL 23 WIDGET-ID 528
+          SIZE 20 BY 1
+     users.showMenuImages AT ROW 13.76 COL 23 WIDGET-ID 528
           VIEW-AS TOGGLE-BOX
           SIZE 22 BY 1
-     users.showCueCards AT ROW 16 COL 54 WIDGET-ID 532
+     users.showCueCards AT ROW 14.71 COL 23 WIDGET-ID 532
           VIEW-AS TOGGLE-BOX
-          SIZE 20 BY .81
+          SIZE 20 BY 1
      users.showMnemonic AT ROW 16.71 COL 23 NO-LABEL WIDGET-ID 120
           VIEW-AS RADIO-SET HORIZONTAL
           RADIO-BUTTONS 
@@ -542,6 +541,10 @@ DEFINE FRAME F-Main
      "Environments:" VIEW-AS TEXT
           SIZE 16 BY .62 AT ROW 11.24 COL 91 WIDGET-ID 58
           FONT 4
+     "BG Color:" VIEW-AS TEXT
+          SIZE 9 BY 1 AT ROW 20.05 COL 43 WIDGET-ID 516
+     "FG Color:" VIEW-AS TEXT
+          SIZE 9 BY 1 AT ROW 18.86 COL 43 WIDGET-ID 520
      "Phone: (Country)" VIEW-AS TEXT
           SIZE 16 BY 1 AT ROW 3.62 COL 15 WIDGET-ID 92
      "?" VIEW-AS TEXT
@@ -557,16 +560,16 @@ DEFINE FRAME F-Main
      "(Area)" VIEW-AS TEXT
           SIZE 8 BY 1 AT ROW 3.62 COL 40 WIDGET-ID 96
           BGCOLOR 15 
-     "HotKey (Mnemonic):" VIEW-AS TEXT
-          SIZE 20 BY 1 AT ROW 16.71 COL 3 WIDGET-ID 124
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE .
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
+     "HotKey (Mnemonic):" VIEW-AS TEXT
+          SIZE 20 BY 1 AT ROW 16.71 COL 3 WIDGET-ID 124
      "Options:" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 12.19 COL 14 WIDGET-ID 42
+          SIZE 8 BY .62 AT ROW 12.14 COL 14 WIDGET-ID 42
      "HotKey Position:" VIEW-AS TEXT
           SIZE 16 BY 1 AT ROW 17.91 COL 6 WIDGET-ID 130
      "Databases:" VIEW-AS TEXT
@@ -587,10 +590,6 @@ DEFINE FRAME F-Main
           SIZE 2 BY .62 AT ROW 18.14 COL 62 WIDGET-ID 514
      "Menu Level 1" VIEW-AS TEXT
           SIZE 13 BY .67 AT ROW 18.14 COL 43 WIDGET-ID 518
-     "BG Color:" VIEW-AS TEXT
-          SIZE 9 BY 1 AT ROW 20.05 COL 43 WIDGET-ID 516
-     "FG Color:" VIEW-AS TEXT
-          SIZE 9 BY 1 AT ROW 18.86 COL 43 WIDGET-ID 520
      RECT-5 AT ROW 5.05 COL 88 WIDGET-ID 78
      cUserImage AT ROW 10.76 COL 72 WIDGET-ID 118
      colorChoice-0 AT ROW 18.86 COL 84 WIDGET-ID 472
@@ -844,6 +843,8 @@ ASSIGN
 
 /* SETTINGS FOR FILL-IN users.phone-cnty IN FRAME F-Main
    2 4 EXP-LABEL                                                        */
+/* SETTINGS FOR FILL-IN users.purchaseLimit IN FRAME F-Main
+   NO-ENABLE EXP-LABEL                                                  */
 /* SETTINGS FOR RECTANGLE RECT-1 IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR RECTANGLE RECT-2 IN FRAME F-Main
@@ -2342,6 +2343,8 @@ PROCEDURE local-update-record :
         ASSIGN 
             users.userAlias = users.userAlias:screen-value in frame {&frame-name}
             users.securityLevel = iSecLevel 
+            users.sessionLimit = INTEGER(users.sessionLimit:SCREEN-VALUE)
+            users.purchaseLimit = DECIMAL(users.purchaseLimit:SCREEN-VALUE)
             users.userType = cbUserType:SCREEN-VALUE IN FRAME {&FRAME-NAME}
 /* 39245 - User MODE does not save - 12/10/18 - MYT - remove references to db-based fields; use .usr file only */
 /*            users.envList = slEnvironments:SCREEN-VALUE*/
@@ -2378,6 +2381,8 @@ PROCEDURE local-update-record :
         cbUserType
         users.userAlias
         users.securityLevel
+        users.sessionLImit
+        users.purchaseLimit
         slEnvironments
         slDatabases
         slModes
@@ -2464,11 +2469,8 @@ PROCEDURE proc-enable :
   Notes:       
 ------------------------------------------------------------------------------*/
     ASSIGN 
-        users.track_usage:SENSITIVE IN FRAME {&FRAME-NAME} = lAdmin
-        users.use_colors:SENSITIVE    = lAdmin
-        users.use_fonts:SENSITIVE     = lAdmin
-        users.developer:SENSITIVE     = lAdmin
-        users.developer:SENSITIVE     = lSuperAdmin 
+        users.use_colors:SENSITIVE IN FRAME {&frame-name} = lAdmin
+        users.use_fonts:SENSITIVE     = lAdmin          
         users.userAlias:SENSITIVE     = lAdmin
         users.securityLevel:SENSITIVE = lAdmin
         users.sessionLimit:SENSITIVE  = lAdmin
@@ -2487,6 +2489,7 @@ PROCEDURE proc-enable :
         bAll3:SENSITIVE               = lAdmin
         bNone3:SENSITIVE              = lAdmin
         bDefaults:SENSITIVE           = lAdmin
+        users.purchaseLimit:SENSITIVE = lAdmin
         cbUserType:SCREEN-VALUE       = users.userType
         slEnvironments:SCREEN-VALUE   = IF ttUsers.ttfEnvList NE "" THEN ttUsers.ttfEnvList ELSE slEnvironments:LIST-ITEMS 
         slDatabases:SCREEN-VALUE      = IF ttUsers.ttfDbList NE "" THEN ttUsers.ttfDbList ELSE slDatabases:LIST-ITEMS 

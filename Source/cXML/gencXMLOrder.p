@@ -12,6 +12,7 @@
     Notes       : *** This is modelled after internal procedure (gencXMLOrder)
                   from cXML\cXMLOrderProc.i ***
   ----------------------------------------------------------------------*/
+USING system.SharedConfig.
 
 &SCOPED-DEFINE NEW NEW
 {methods/defines/globdefs.i}
@@ -110,6 +111,10 @@ SESSION:ADD-SUPER-PROCEDURE (hTags).
           orderID    = getNodeValue('OrderRequestHeader','orderID')
           opcOrderID = orderID
           .            
+
+      SharedConfig:Instance:SetValue("APIInboundEvent_UserField1", orderID).
+      SharedConfig:Instance:SetValue("APIInboundEvent_UserField2", getNodeValue('shipTo','AddressID')).
+      
       /* Validation of orderID */
       IF orderID EQ "" THEN DO:
           ASSIGN
@@ -128,7 +133,7 @@ SESSION:ADD-SUPER-PROCEDURE (hTags).
       IF payLoadID EQ "" THEN DO:
           ASSIGN
               oplSuccess     = NO
-              opcReturnValue = 'PayloadID is empty : PO # ' + orderID 
+              opcReturnValue = 'PayloadID is empty'
               .
               
           RETURN.
@@ -139,7 +144,7 @@ SESSION:ADD-SUPER-PROCEDURE (hTags).
       IF fromIdentity EQ "" THEN DO:
           ASSIGN
               oplSuccess     = NO
-              opcReturnValue = 'FromIdentity is empty : PO # ' + orderID
+              opcReturnValue = 'FromIdentity is empty'
               .
               
           RETURN.
@@ -150,7 +155,7 @@ SESSION:ADD-SUPER-PROCEDURE (hTags).
       IF orderDate EQ "" THEN DO:
           ASSIGN
               oplSuccess     = NO
-              opcReturnValue = 'orderDate is empty : PO # ' + orderID
+              opcReturnValue = 'OrderDate is empty'
               .
               
           RETURN.
@@ -160,7 +165,7 @@ SESSION:ADD-SUPER-PROCEDURE (hTags).
       /* Validation of AddressID */    
       IF shipToID EQ "" THEN DO:
           ASSIGN
-              opcReturnValue = "AddressID is empty : PO # " + orderID
+              opcReturnValue = "AddressID is empty"
               oplSuccess     = NO
               .
               
@@ -228,7 +233,7 @@ SESSION:ADD-SUPER-PROCEDURE (hTags).
       IF AVAILABLE oe-ord AND orderID GT "" THEN DO:
           ASSIGN
               oplSuccess     = NO
-              opcReturnValue = 'Order already exists with PO#: ' + orderID + ', Payload ID: ' + payloadID
+              opcReturnValue = 'Order already exists'
               .
               
           RETURN.
@@ -249,7 +254,7 @@ SESSION:ADD-SUPER-PROCEDURE (hTags).
       IF NOT AVAILABLE ttNodes THEN DO:
           ASSIGN
               oplSuccess = NO
-              opcReturnValue = 'Part Number is missing from XML file  : PO # ' + orderID
+              opcReturnValue = 'Part Number is missing'
               .
               
           RETURN.
@@ -320,7 +325,7 @@ SESSION:ADD-SUPER-PROCEDURE (hTags).
          fromIdentity EQ "" OR
          orderDate EQ ? THEN DO:
           ASSIGN
-              opcReturnValue = "Requested XML is not in valid format : PO # " + orderID
+              opcReturnValue = "Requested XML is not in valid format"
               oplSuccess     = NO
               .
           RETURN. 
@@ -337,7 +342,7 @@ SESSION:ADD-SUPER-PROCEDURE (hTags).
             IF NOT AVAILABLE itemfg THEN DO:
                 ASSIGN
                     oplSuccess     = NO
-                    opcReturnValue = 'Part Number is missing from XML file : PO # ' + orderID 
+                    opcReturnValue = 'Part Number is missing'
                     .
                     
                 RETURN.                
@@ -441,7 +446,7 @@ SESSION:ADD-SUPER-PROCEDURE (hTags).
       
   ASSIGN
       oplSuccess     = TRUE
-      opcReturnValue = 'Successfully Generated Order : PO # ' + orderID 
+      opcReturnValue = 'Successfully Generated Order'
       .
 
 /* Procedure genTempOrderLinesLocal is modelled after internal procedure (genTempOrderLines)
@@ -623,10 +628,12 @@ PROCEDURE genOrderLinesLocal:
       ttOrdLines.ttpayLoadID = ttOrdHead.ttpayLoadID
       BY ttItemLineNumber:
      
+     SharedConfig:Instance:SetValue("APIInboundEvent_UserField3", ttOrdLines.ttitemSupplierPartID).
+
      IF ttOrdLines.ttitemSupplierPartID EQ "" THEN DO:
         ASSIGN
             oplSuccess     = NO
-            opcReturnValue = "SupplierPartID is empty for line (" + ttItemLineNumber + ") : PO #" + ttOrdHead.ttOrderID
+            opcReturnValue = "SupplierPartID is empty for line (" + ttItemLineNumber + ")"
             .
 
         RETURN.
@@ -654,7 +661,7 @@ PROCEDURE genOrderLinesLocal:
          ).
         
      IF NOT oplSuccess THEN DO:
-        opcReturnValue = "SupplierPartID (" + ttOrdLines.ttItemSupplierPartID + ") does not exist : PO #" + ttOrdHead.ttOrderID.
+        opcReturnValue = "SupplierPartID does not exist".
 
         RETURN.
      END.

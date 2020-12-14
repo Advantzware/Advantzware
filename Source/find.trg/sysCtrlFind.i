@@ -60,7 +60,8 @@ IF fSuperRunning("session.") THEN DO:
         "",?,"",0,"","",0,"",
     &ENDIF
         cStackTrace,
-        iSecurityLevelUser
+        iSecurityLevelUser,
+        {&tableName}.isPassword
         ).
     
     IF {&tableName}.name NE "TaskerNotRunning" THEN DO:

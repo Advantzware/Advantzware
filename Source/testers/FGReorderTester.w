@@ -403,7 +403,7 @@ PROCEDURE pAssessSelection PRIVATE :
             iCountSelected       = iCountSelected + 1
             dTotalSqin           = dTotalSqin + ttFGReorder.blankArea * (MAXIMUM(1,ttFGReorder.multiplier))
             dCyclesRequired      = ttFGReorder.quantityToOrder / (MAXIMUM(1,ttFGReorder.multiplier))
-            dTotalCyclesRequired = IF dCyclesRequired GT dTotalCyclesRequired THEN dCyclesRequired ELSE dTotalCyclesRequired            
+            dTotalCyclesRequired = IF dCyclesRequired LT dTotalCyclesRequired OR dTotalCyclesRequired EQ 0 THEN dCyclesRequired ELSE dTotalCyclesRequired            
             .     
     END.
     FOR EACH ttFgReorder NO-LOCK 
@@ -411,7 +411,7 @@ PROCEDURE pAssessSelection PRIVATE :
         ASSIGN 
             cMessageDetail       = cMessageDetail + STRING(ttFGReorder.itemID,"x(15)") + " " +  
                 STRING(ttFGReorder.quantityToOrder) + " / " + STRING(MAXIMUM(1,ttFGReorder.multiplier)) + " = " + STRING(ttFGReorder.quantityToOrder / (MAXIMUM(1,ttFGReorder.multiplier))) + 
-                " Surplus " + STRING(dTotalCyclesRequired * MAXIMUM(1,ttFGReorder.multiplier) - ttFGReorder.quantityToOrder) + CHR(13).
+                " Remaining " + STRING(ttFGReorder.quantityToOrder - dTotalCyclesRequired * MAXIMUM(1,ttFGReorder.multiplier)) + CHR(13).
     END.
     
     MESSAGE "Selected: " iCountSelected SKIP 

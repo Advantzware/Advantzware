@@ -1307,6 +1307,7 @@ PROCEDURE pAddLeaf PRIVATE:
     DEFINE INPUT PARAMETER ipcItemCode AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcDescription AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipiBlankNo AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiIndex AS INTEGER NO-UNDO.
     DEFINE INPUT PARAMETER ipdLength AS DECIMAL NO-UNDO.
     DEFINE INPUT PARAMETER ipdWidth AS DECIMAL NO-UNDO.
             
@@ -1337,6 +1338,7 @@ PROCEDURE pAddLeaf PRIVATE:
             AND ttLeaf.iFormNo EQ ipbf-estCostForm.formNo
             AND ttLeaf.iBlankNo EQ ipiBlankNo
             AND ttLeaf.cItemID EQ ipcItemCode
+            AND ttLeaf.iIndex EQ ipiIndex
             NO-ERROR.
         IF NOT AVAILABLE ttLeaf THEN 
         DO:
@@ -1353,6 +1355,7 @@ PROCEDURE pAddLeaf PRIVATE:
                 ttLeaf.cQtyUOM             = IF bf-item.cons-uom EQ "" THEN "LB" ELSE bf-item.cons-uom    
                 ttLeaf.dDimLength          = ipdLength
                 ttLeaf.dDimWidth           = ipdWidth    
+                ttLeaf.cDimUOM             = "IN"
                 ttLeaf.dAreaInSqInAperture = ipdLength * ipdWidth 
                 ttLeaf.cDescription        = IF ipcDescription NE "" THEN ipcDescription ELSE ttLeaf.cDescription
                 ttLeaf.dCoverageRate       = bf-item.sqin-lb
@@ -2432,7 +2435,7 @@ PROCEDURE pBuildLeafForEf PRIVATE:
 
     DO iIndex = 1 TO 4:
         IF ipbf-ef.leaf[iIndex] NE "" THEN
-            RUN pAddLeaf(BUFFER ipbf-estCostHeader, BUFFER ipbf-estCostForm, ipbf-ef.leaf[iIndex], ipbf-ef.leaf-dscr[iIndex], ipbf-ef.leaf-bnum[iIndex], ipbf-ef.leaf-l[iIndex], ipbf-ef.leaf-w[iIndex]).
+            RUN pAddLeaf(BUFFER ipbf-estCostHeader, BUFFER ipbf-estCostForm, ipbf-ef.leaf[iIndex], ipbf-ef.leaf-dscr[iIndex], ipbf-ef.leaf-bnum[iIndex], iIndex, ipbf-ef.leaf-l[iIndex], ipbf-ef.leaf-w[iIndex]).
     END.
     
 

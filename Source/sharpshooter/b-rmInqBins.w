@@ -470,6 +470,35 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pReOpenBrowse B-table-Win
+PROCEDURE pReOpenBrowse PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    CASE cColumnLabel:
+        WHEN "quantity" THEN
+            RUN pByQuantity.
+        WHEN "locationID" THEN
+            RUN pByLocationID.
+        WHEN "tag" THEN
+            RUN pByTag.
+        WHEN "poID" THEN
+            RUN pByPOID.
+        WHEN "jobID" THEN
+            RUN pByJobID.
+        OTHERWISE
+        {&OPEN-QUERY-{&BROWSE-NAME}}
+    END CASE.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ScanItem B-table-Win 
 PROCEDURE ScanItem :
 /*------------------------------------------------------------------------------

@@ -917,8 +917,8 @@ PROCEDURE issue-mat :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-
-  IF AVAIL job-farm THEN RUN jc/issuemat.p (ROWID(job-farm)).
+/* Commenting the below code as issuemat.w handles only job-mat ROWID as input for now */
+/*  IF AVAIL job-farm THEN RUN jc/issuemat.p (ROWID(job-farm)).*/
 
 END PROCEDURE.
 

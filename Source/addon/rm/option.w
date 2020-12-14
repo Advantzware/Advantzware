@@ -256,10 +256,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Inquiry s-object
 ON CHOOSE OF Btn_Inquiry IN FRAME F-Main /* Material Inquiry */
 DO:
-    RUN inventory/w-rmInquiry.w (
-        INPUT cocode,
-        INPUT locode
-        ).
+    RUN sharpshooter/w-rmInquiry.w.
 END.
 
 /* _UIB-CODE-BLOCK-END */

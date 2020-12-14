@@ -463,6 +463,7 @@ PROCEDURE do-copy :
   DEFINE BUFFER kest-op FOR est-op.
   DEF BUFFER b-ref FOR reftable.
   DEFINE BUFFER bf-prep FOR est-prep.
+  DEFINE BUFFER bf-est-op FOR est-op.
   DEFINE VARIABLE li-next AS INTEGER NO-UNDO.
   DEF VAR v-str AS CHAR NO-UNDO.
   DEF VAR v-side-count AS INT NO-UNDO.
@@ -714,13 +715,24 @@ PROCEDURE do-copy :
         AND est-op.s-num    EQ eb.form-no  
         AND (est-op.b-num   EQ eb.blank-no OR  est-op.b-num EQ 0 )
       NO-LOCK:
+      
+      li-next = 1.
+      FOR EACH bf-est-op NO-LOCK
+          WHERE bf-est-op.company EQ io-eb.company
+          AND bf-est-op.est-no  EQ io-eb.est-no
+          AND bf-est-op.line    LT 500
+          BY bf-est-op.line DESCENDING:
+          li-next = bf-est-op.line + 1.
+          LEAVE.
+      END.   
       create kest-op.
       buffer-copy est-op except rec_key to kest-op
        assign
         kest-op.company = io-eb.company
         kest-op.est-no  = io-eb.est-no
+        kest-op.LINE    = li-next
         kest-op.s-num   = io-eb.form-no 
-        kest-op.b-num   = io-eb.blank-no .
+        kest-op.b-num   = IF est-op.b-num EQ 0 THEN 0 ELSE io-eb.blank-no .
      end.
     END.     
     IF tb_miscsub AND ip-add-what EQ "form" THEN do:

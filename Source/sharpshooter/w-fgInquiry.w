@@ -12,7 +12,7 @@
 *********************************************************************/
 /*------------------------------------------------------------------------
 
-  File: Inventory/w-fgInquiry.w
+  File: sharpshooter/w-fgInquiry.w
 
   Description: FG Inquiry and quantity adjustment
 
@@ -60,12 +60,14 @@ DEFINE VARIABLE lError     AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lHasAccess AS LOGICAL   NO-UNDO.
 
-DEFINE VARIABLE cCharHandle AS CHARACTER NO-UNDO.
-DEFINE VARIABLE hdItemBins  AS HANDLE    NO-UNDO.
-DEFINE VARIABLE hdItemLoc   AS HANDLE    NO-UNDO.
+DEFINE VARIABLE cCharHandle  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hdItemBins   AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hdItemLoc    AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hdItemLocBin AS HANDLE    NO-UNDO.
 
-DEFINE VARIABLE lLocQueryRan  AS LOGICAL NO-UNDO.
-DEFINE VARIABLE lBinsQueryRan AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lLocQueryRan     AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lBinsQueryRan    AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lLocBinsQueryRan AS LOGICAL NO-UNDO.
 
 &SCOPED-DEFINE SORTBY-PHRASE BY ttBrowseInventory.tag
 
@@ -86,10 +88,10 @@ DEFINE VARIABLE lBinsQueryRan AS LOGICAL NO-UNDO.
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS tgSummary fiFGItem fiCustItem fiLocation ~
+&Scoped-Define ENABLED-OBJECTS rdView fiFGItem fiCustItem fiLocation ~
 btItemHelp btnKeyboardItem btnKeyboardLoc btnNumPad btItemNameHelp ~
-btnKeyboardItemName btLocHelp RECT-33 
-&Scoped-Define DISPLAYED-OBJECTS tgSummary fiFGItem fiCustItem fiLocation ~
+btnKeyboardItemName btLocHelp RECT-33 RECT-34 
+&Scoped-Define DISPLAYED-OBJECTS rdView fiFGItem fiCustItem fiLocation ~
 fiSellUOM 
 
 /* Custom List Definitions                                              */
@@ -110,15 +112,20 @@ DEFINE VARIABLE h_adjustqty AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_adjustqty-2 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_b-fginqbins AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_b-fginqloc AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_b-fginqlocbin AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_exit AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_navigatefirst AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_navigatefirst-2 AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_navigatefirst-3 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_navigatelast AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_navigatelast-2 AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_navigatelast-3 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_navigatenext AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_navigatenext-2 AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_navigatenext-3 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_navigateprev AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_navigateprev-2 AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_navigateprev-3 AS HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btItemHelp 
@@ -159,12 +166,12 @@ DEFINE BUTTON btnNumPad
 DEFINE VARIABLE fiCustItem AS CHARACTER FORMAT "X(256)":U 
      LABEL "Customer Part #" 
      VIEW-AS FILL-IN 
-     SIZE 66.2 BY 1.43 NO-UNDO.
+     SIZE 49.6 BY 1.43 NO-UNDO.
 
 DEFINE VARIABLE fiFGItem AS CHARACTER FORMAT "X(256)":U 
      LABEL "FG Item#" 
      VIEW-AS FILL-IN 
-     SIZE 66.2 BY 1.43 NO-UNDO.
+     SIZE 49.6 BY 1.43 NO-UNDO.
 
 DEFINE VARIABLE fiLocation AS CHARACTER FORMAT "X(256)":U 
      LABEL "Location" 
@@ -174,7 +181,15 @@ DEFINE VARIABLE fiLocation AS CHARACTER FORMAT "X(256)":U
 DEFINE VARIABLE fiSellUOM AS CHARACTER FORMAT "X(256)":U 
      LABEL "UOM" 
      VIEW-AS FILL-IN 
-     SIZE 14.8 BY 1.43 NO-UNDO.
+     SIZE 9.8 BY 1.43 NO-UNDO.
+
+DEFINE VARIABLE rdView AS INTEGER 
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "Detail", 1,
+"Warehouse", 2,
+"Bin Location", 3
+     SIZE 63 BY 1.33 NO-UNDO.
 
 DEFINE RECTANGLE RECT-2
      EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
@@ -185,29 +200,32 @@ DEFINE RECTANGLE RECT-33
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 197.8 BY .1.
 
-DEFINE VARIABLE tgSummary AS LOGICAL INITIAL no 
-     LABEL "View Summary" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 26 BY .95 NO-UNDO.
+DEFINE RECTANGLE RECT-34
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 65.8 BY 1.95.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     tgSummary AT ROW 3.76 COL 145 WIDGET-ID 150
-     fiFGItem AT ROW 1.86 COL 25.4 COLON-ALIGNED WIDGET-ID 2
-     fiCustItem AT ROW 3.52 COL 25.4 COLON-ALIGNED WIDGET-ID 4
-     fiLocation AT ROW 1.86 COL 123.2 COLON-ALIGNED WIDGET-ID 142
-     btItemHelp AT ROW 1.81 COL 94.4 WIDGET-ID 138 NO-TAB-STOP 
-     btnKeyboardItem AT ROW 1.81 COL 101.8 WIDGET-ID 136 NO-TAB-STOP 
-     btnKeyboardLoc AT ROW 1.81 COL 165.8 WIDGET-ID 144 NO-TAB-STOP 
-     btnNumPad AT ROW 2.05 COL 178.6 WIDGET-ID 120 NO-TAB-STOP 
-     btItemNameHelp AT ROW 3.48 COL 94.4 WIDGET-ID 140 NO-TAB-STOP 
-     btnKeyboardItemName AT ROW 3.48 COL 102 WIDGET-ID 134 NO-TAB-STOP 
-     btLocHelp AT ROW 1.81 COL 158.4 WIDGET-ID 146 NO-TAB-STOP 
-     fiSellUOM AT ROW 3.52 COL 123.2 COLON-ALIGNED WIDGET-ID 148
-     RECT-33 AT ROW 5.33 COL 3.2 WIDGET-ID 6
-     RECT-2 AT ROW 1.86 COL 177.6 WIDGET-ID 130
+     rdView AT ROW 3.76 COL 96.6 NO-LABEL WIDGET-ID 160 NO-TAB-STOP 
+     fiFGItem AT ROW 1.38 COL 25.4 COLON-ALIGNED WIDGET-ID 2
+     fiCustItem AT ROW 3.62 COL 25.4 COLON-ALIGNED WIDGET-ID 4
+     fiLocation AT ROW 1.38 COL 106.4 COLON-ALIGNED WIDGET-ID 142
+     btItemHelp AT ROW 1.33 COL 77.6 WIDGET-ID 138 NO-TAB-STOP 
+     btnKeyboardItem AT ROW 1.33 COL 85 WIDGET-ID 136 NO-TAB-STOP 
+     btnKeyboardLoc AT ROW 1.33 COL 149 WIDGET-ID 144 NO-TAB-STOP 
+     btnNumPad AT ROW 1.57 COL 178.6 WIDGET-ID 120 NO-TAB-STOP 
+     btItemNameHelp AT ROW 3.57 COL 77.6 WIDGET-ID 140 NO-TAB-STOP 
+     btnKeyboardItemName AT ROW 3.57 COL 85.2 WIDGET-ID 134 NO-TAB-STOP 
+     btLocHelp AT ROW 1.33 COL 141.6 WIDGET-ID 146 NO-TAB-STOP 
+     fiSellUOM AT ROW 1.48 COL 164.2 COLON-ALIGNED WIDGET-ID 148 NO-TAB-STOP 
+     "View Inventory By" VIEW-AS TEXT
+          SIZE 21 BY .67 AT ROW 3.14 COL 97.8 WIDGET-ID 154
+          FONT 6
+     RECT-33 AT ROW 5.62 COL 2.6 WIDGET-ID 6
+     RECT-34 AT ROW 3.38 COL 95 WIDGET-ID 152
+     RECT-2 AT ROW 1.38 COL 177.6 WIDGET-ID 130
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -221,7 +239,7 @@ DEFINE FRAME F-Main
 /* Settings for THIS-PROCEDURE
    Type: SmartWindow
    Allow: Basic,Browse,DB-Fields,Query,Smart,Window
-   Design Page: 2
+   Design Page: 1
  */
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS
 
@@ -628,17 +646,22 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME tgSummary
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tgSummary W-Win
-ON VALUE-CHANGED OF tgSummary IN FRAME F-Main /* View Summary */
+&Scoped-define SELF-NAME rdView
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rdView W-Win
+ON VALUE-CHANGED OF rdView IN FRAME F-Main
 DO:
-    IF SELF:CHECKED THEN DO:    
+    IF SELF:SCREEN-VALUE EQ "2" THEN DO:    
         RUN select-page(2).
         IF NOT lLocQueryRan THEN
             RUN pScanItem.
     END.
+    ELSE IF SELF:SCREEN-VALUE EQ "3" THEN DO:    
+        RUN select-page(3).
+        IF NOT lLocBinsQueryRan THEN
+            RUN pScanItem.
+    END.
     ELSE
-        RUN select-page(1).
+        RUN select-page(1).    
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -682,7 +705,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_exit ).
-       RUN set-position IN h_exit ( 1.76 , 190.00 ) NO-ERROR.
+       RUN set-position IN h_exit ( 1.33 , 190.00 ) NO-ERROR.
        /* Size in UIB:  ( 2.62 , 11.00 ) */
 
        /* Adjust the tab order of the smart objects. */
@@ -690,14 +713,6 @@ PROCEDURE adm-create-objects :
              fiFGItem:HANDLE IN FRAME F-Main , 'AFTER':U ).
     END. /* Page 0 */
     WHEN 1 THEN DO:
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'sharpshooter/smartobj/adjustqty.w':U ,
-             INPUT  FRAME F-Main:HANDLE ,
-             INPUT  '':U ,
-             OUTPUT h_adjustqty ).
-       RUN set-position IN h_adjustqty ( 18.43 , 190.00 ) NO-ERROR.
-       /* Size in UIB:  ( 2.62 , 11.00 ) */
-
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'sharpshooter/b-fginqbins.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
@@ -738,8 +753,13 @@ PROCEDURE adm-create-objects :
        RUN set-position IN h_navigateprev ( 10.76 , 190.00 ) NO-ERROR.
        /* Size in UIB:  ( 2.62 , 11.00 ) */
 
-       /* Links to SmartObject h_adjustqty. */
-       RUN add-link IN adm-broker-hdl ( h_b-fginqbins , 'ADJUST':U , h_adjustqty ).
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'sharpshooter/smartobj/adjustqty.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_adjustqty ).
+       RUN set-position IN h_adjustqty ( 18.38 , 190.00 ) NO-ERROR.
+       /* Size in UIB:  ( 2.62 , 11.00 ) */
 
        /* Links to SmartBrowser h_b-fginqbins. */
        RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'Bins':U , h_b-fginqbins ).
@@ -756,27 +776,34 @@ PROCEDURE adm-create-objects :
        /* Links to SmartObject h_navigateprev. */
        RUN add-link IN adm-broker-hdl ( h_b-fginqbins , 'NAV-PREV':U , h_navigateprev ).
 
+       /* Links to SmartObject h_adjustqty. */
+       RUN add-link IN adm-broker-hdl ( h_b-fginqbins , 'ADJUST':U , h_adjustqty ).
+
        /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_adjustqty ,
-             tgSummary:HANDLE IN FRAME F-Main , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_b-fginqbins ,
-             fiSellUOM:HANDLE IN FRAME F-Main , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_navigatefirst ,
-             h_b-fginqbins , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_navigatelast ,
              h_navigatefirst , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_navigatenext ,
              h_navigatelast , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_navigateprev ,
              h_navigatenext , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_adjustqty ,
+             h_navigateprev , 'AFTER':U ).
     END. /* Page 1 */
     WHEN 2 THEN DO:
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'sharpshooter/b-fginqloc.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_b-fginqloc ).
+       RUN set-position IN h_b-fginqloc ( 6.00 , 2.20 ) NO-ERROR.
+       RUN set-size IN h_b-fginqloc ( 27.62 , 187.00 ) NO-ERROR.
+
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'sharpshooter/smartobj/adjustqty.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_adjustqty-2 ).
-       RUN set-position IN h_adjustqty-2 ( 18.43 , 190.00 ) NO-ERROR.
+       RUN set-position IN h_adjustqty-2 ( 18.38 , 190.00 ) NO-ERROR.
        /* Size in UIB:  ( 2.62 , 11.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -811,13 +838,8 @@ PROCEDURE adm-create-objects :
        RUN set-position IN h_navigateprev-2 ( 10.76 , 190.00 ) NO-ERROR.
        /* Size in UIB:  ( 2.62 , 11.00 ) */
 
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'sharpshooter/b-fginqloc.w':U ,
-             INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Layout = ':U ,
-             OUTPUT h_b-fginqloc ).
-       RUN set-position IN h_b-fginqloc ( 6.00 , 2.20 ) NO-ERROR.
-       RUN set-size IN h_b-fginqloc ( 27.62 , 187.00 ) NO-ERROR.
+       /* Links to SmartBrowser h_b-fginqloc. */
+       RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'Loc':U , h_b-fginqloc ).
 
        /* Links to SmartObject h_adjustqty-2. */
        RUN add-link IN adm-broker-hdl ( h_b-fginqloc , 'ADJUST':U , h_adjustqty-2 ).
@@ -834,12 +856,7 @@ PROCEDURE adm-create-objects :
        /* Links to SmartObject h_navigateprev-2. */
        RUN add-link IN adm-broker-hdl ( h_b-fginqloc , 'NAV-PREV':U , h_navigateprev-2 ).
 
-       /* Links to SmartBrowser h_b-fginqloc. */
-       RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'Loc':U , h_b-fginqloc ).
-
        /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_adjustqty-2 ,
-             tgSummary:HANDLE IN FRAME F-Main , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_navigatelast-2 ,
              h_adjustqty-2 , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_navigatefirst-2 ,
@@ -848,9 +865,71 @@ PROCEDURE adm-create-objects :
              h_navigatefirst-2 , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_navigateprev-2 ,
              h_navigatenext-2 , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_b-fginqloc ,
-             fiSellUOM:HANDLE IN FRAME F-Main , 'AFTER':U ).
     END. /* Page 2 */
+    WHEN 3 THEN DO:
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'sharpshooter/smartobj/navigateprev.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_navigateprev-3 ).
+       RUN set-position IN h_navigateprev-3 ( 10.76 , 190.00 ) NO-ERROR.
+       /* Size in UIB:  ( 2.62 , 11.00 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'sharpshooter/smartobj/navigatelast.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_navigatelast-3 ).
+       RUN set-position IN h_navigatelast-3 ( 31.00 , 190.00 ) NO-ERROR.
+       /* Size in UIB:  ( 2.62 , 11.00 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'sharpshooter/smartobj/navigatenext.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_navigatenext-3 ).
+       RUN set-position IN h_navigatenext-3 ( 26.00 , 190.00 ) NO-ERROR.
+       /* Size in UIB:  ( 2.62 , 11.00 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'sharpshooter/b-fginqlocbin.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_b-fginqlocbin ).
+       RUN set-position IN h_b-fginqlocbin ( 6.00 , 2.20 ) NO-ERROR.
+       RUN set-size IN h_b-fginqlocbin ( 27.62 , 187.00 ) NO-ERROR.
+
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'sharpshooter/smartobj/navigatefirst.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_navigatefirst-3 ).
+       RUN set-position IN h_navigatefirst-3 ( 6.00 , 190.00 ) NO-ERROR.
+       /* Size in UIB:  ( 2.62 , 11.00 ) */
+
+       /* Links to SmartObject h_navigateprev-3. */
+       RUN add-link IN adm-broker-hdl ( h_b-fginqlocbin , 'NAV-PREV':U , h_navigateprev-3 ).
+
+       /* Links to SmartObject h_navigatelast-3. */
+       RUN add-link IN adm-broker-hdl ( h_b-fginqlocbin , 'NAV-LAST':U , h_navigatelast-3 ).
+
+       /* Links to SmartObject h_navigatenext-3. */
+       RUN add-link IN adm-broker-hdl ( h_b-fginqlocbin , 'NAV-NEXT':U , h_navigatenext-3 ).
+
+       /* Links to SmartBrowser h_b-fginqlocbin. */
+       RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'LocBin':U , h_b-fginqlocbin ).
+
+       /* Links to SmartObject h_navigatefirst-3. */
+       RUN add-link IN adm-broker-hdl ( h_b-fginqlocbin , 'NAV-FIRST':U , h_navigatefirst-3 ).
+
+       /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_navigatenext-3 ,
+             h_navigatelast-3 , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_b-fginqlocbin ,
+             h_navigatenext-3 , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_navigatefirst-3 ,
+             h_b-fginqlocbin , 'AFTER':U ).
+    END. /* Page 3 */
 
   END CASE.
   /* Select a Startup page. */
@@ -914,11 +993,11 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY tgSummary fiFGItem fiCustItem fiLocation fiSellUOM 
+  DISPLAY rdView fiFGItem fiCustItem fiLocation fiSellUOM 
       WITH FRAME F-Main IN WINDOW W-Win.
-  ENABLE tgSummary fiFGItem fiCustItem fiLocation btItemHelp btnKeyboardItem 
+  ENABLE rdView fiFGItem fiCustItem fiLocation btItemHelp btnKeyboardItem 
          btnKeyboardLoc btnNumPad btItemNameHelp btnKeyboardItemName btLocHelp 
-         RECT-33 
+         RECT-33 RECT-34 
       WITH FRAME F-Main IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-F-Main}
   VIEW W-Win.
@@ -1046,6 +1125,15 @@ PROCEDURE pScanItem :
             ).
         hdItemLoc = HANDLE(cCharHandle).
     END.
+
+    IF NOT VALID-HANDLE(hdItemLocBin) THEN DO:
+        RUN get-link-handle IN adm-broker-hdl(
+            INPUT  THIS-PROCEDURE,
+            INPUT  "LocBin-TARGET",
+            OUTPUT cCharHandle
+            ).
+        hdItemLocBin = HANDLE(cCharHandle).
+    END.
     
     IF VALID-HANDLE(hdItemBins) THEN DO:
         lBinsQueryRan = TRUE.
@@ -1075,12 +1163,25 @@ PROCEDURE pScanItem :
             OUTPUT cMessage
             ).
     END.
+
+    IF VALID-HANDLE(hdItemLocBin) THEN DO:
+        lLocBinsQueryRan = TRUE.
+        RUN ScanItem IN hdItemLocBin (
+            INPUT  cCompany,
+            INPUT  cItemID,
+            INPUT  cCustItem,
+            OUTPUT lError,
+            OUTPUT cMessage
+            ).
+    END.
     
     ASSIGN
         fiFGItem:SCREEN-VALUE   = cItemID
         fiCustItem:SCREEN-VALUE = cCustItem
         fiSellUOM:SCREEN-VALUE  = cSellUOM
         .
+    
+    APPLY "ENTRY" TO fiFGItem.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

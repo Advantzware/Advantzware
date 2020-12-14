@@ -59,6 +59,22 @@ for each item
   end.
 
   run rm/rm-reset.p (recid(item)).
+  
+  /*reset average cost */
+  FOR EACH b-rm-bin FIELDS(qty cost) NO-LOCK
+      WHERE b-rm-bin.company EQ item.company
+      AND b-rm-bin.i-no    EQ item.i-no
+      AND b-rm-bin.cost    NE ?:
+      ASSIGN
+          dCost = dCost + (b-rm-bin.cost *
+                   (b-rm-bin.qty * IF b-rm-bin.qty LT 0 THEN -1 ELSE 1))
+          dQty = dQty +
+                   (b-rm-bin.qty * IF b-rm-bin.qty LT 0 THEN -1 ELSE 1).
+  END.
+  FIND CURRENT ITEM EXCLUSIVE-LOCK.
+  item.avg-cost = IF dQty EQ 0 THEN 0 ELSE (dCost / dQty) .
+  FIND CURRENT item NO-LOCK.
+  
 end. /* each item */
 
 /* end ---------------------------------- copr. 1997  advanced software, inc. */

@@ -1202,10 +1202,22 @@ END.
 &Scoped-define FRAME-NAME searchFrame
 &Scoped-define SELF-NAME menuTreeFilter
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL menuTreeFilter MAINMENU
-ON VALUE-CHANGED OF menuTreeFilter IN FRAME searchFrame
+ON LEAVE OF menuTreeFilter IN FRAME searchFrame
 DO:
     ASSIGN {&SELF-NAME}.
     RUN pSearchSelections.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL menuTreeFilter MAINMENU
+ON RETURN OF menuTreeFilter IN FRAME searchFrame
+DO:
+    APPLY "LEAVE":U TO menuTreeFilter.
+    APPLY "ENTRY":U TO SELF.
+    RETURN NO-APPLY.
 END.
 
 /* _UIB-CODE-BLOCK-END */

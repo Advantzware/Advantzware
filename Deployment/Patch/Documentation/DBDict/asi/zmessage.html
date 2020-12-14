@@ -54,6 +54,35 @@
                             <td>       </td></tr>
     </table>
   </div>
+  <div class="tbcol" >
+    <h2>Triggers</h2>
+    <table style="border-style:none;">
+      <tr>
+        <th>Event</th>
+        <th>Procedure</th>
+        <th>Overr</th>
+        <th>CRC</th>
+      </tr>
+      <tr class="shadedrow">
+        <td>CREATE</td>
+        <td>create.trg\zMessage.p</td>
+        <td style="text-align: center;"> <input type="checkbox" disabled checked /> </td>
+        <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+      </tr>
+      <tr class="shadedrow">
+        <td>DELETE</td>
+        <td>delete.trg\zMessage.p</td>
+        <td style="text-align: center;"> <input type="checkbox" disabled checked /> </td>
+        <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+      </tr>
+      <tr class="shadedrow">
+        <td>WRITE</td>
+        <td>write.trg\zMessage.p</td>
+        <td style="text-align: center;"> <input type="checkbox" disabled checked /> </td>
+        <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+      </tr>
+    </table>
+  </div>
 <div class="clearboth"></div>
 <hr style="margin-top:20px;">
 <h2>Fields</h2>
@@ -267,6 +296,17 @@
     <td>D: Is used in other programs (Long char field) like zoho hot key field</td>
   </tr>
   <tr class="evenrow">
+    <td>200</td>
+    <td><a href="addrphone.html">rec_key</a></td>
+    <td><a href="00-cross-r.html#rec_key"><small>X</small></a></td>
+    <td>Record Key</td>
+    <td>character</td>
+    <td>X(21)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
     <td>180</td>
     <td>rtnValue</td>
     <td><a href="00-cross-r.html#rtnValue"><small>X</small></a></td>
@@ -277,7 +317,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td>D: messages, particularly "question" types, are expected to return values to the calling program, even if simple responses like "Do you want to continue?". This should be included in the message file.</td>
   </tr>
-  <tr class="oddrow">
+  <tr class="evenrow">
     <td>150</td>
     <td>userSuppress</td>
     <td><a href="00-cross-u.html#userSuppress"><small>X</small></a></td>
@@ -520,6 +560,17 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td>D: When running a message, the programmer would often want to include context information, such as "Customer CU123 already exists. Try again.". The ability to have formatted messages with programmer submitted variables would be beneficial, and possible if the database allowed it</td>
   </tr>
+  <tr class="evenrow">
+    <td>200</td>
+    <td><a href="addrphone.html">rec_key</a></td>
+    <td><a href="00-cross-r.html#rec_key"><small>X</small></a></td>
+    <td>Record Key</td>
+    <td>character</td>
+    <td>X(21)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
 </table>
 </div>
 
@@ -534,10 +585,10 @@
     <th>Datatype</th>
   </tr>
   <tr class="oddrow">
-    <td>default</td>
+    <td>si-rec_key</td>
     <td>P       </td>
-    <td> &nbsp; </td>
-    <td> &nbsp; </td>
+    <td>rec_key (+)</td>
+    <td>character</td>
   </tr>
 </table>
 <table style="width:100%; margin-top:10px;">
@@ -550,9 +601,27 @@
     <td>W = Wordindex</td>
   </tr>
 </table> 
+  <h2>Related tables</h2>
+  <table style="width:50%; float:left;">
+    <tr>
+      <th>Parent tables</th>
+    </tr>
+    <tr class="shadedrow">
+      <td><a href="costHeader.html">costHeader</a>&nbsp;&nbsp; </td>
+    </tr>
+  </table>
+  <table style="width:50%; float:left;">
+    <tr>
+      <th>Child tables</th>
+    </tr>
+    <tr class="shadedrow">
+      <td><a href="systemconfigusage.html">systemConfigUsage</a>&nbsp;&nbsp; </td>
+    </tr>
+  </table>
+<hr style="clear:both">
 <hr>
 <table style="width:100%; margin-top:10px;">
-  <tr><td style="text-align:right;"><i><small>generated 1-7-2020 20:23</small></i></td></tr>
+  <tr><td style="text-align:right;"><i><small>generated 23-11-2020 16:22</small></i></td></tr>
 </table>
 </body>
 </html>

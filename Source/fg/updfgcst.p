@@ -1,27 +1,36 @@
 /* -------------------------------------------------- fg/updfgcst.p 03/97 JLF */
 /* -------------------------------------------------------------------------- */
 
-def input parameter v-i-no like itemfg.i-no.
-DEF INPUT PARAMETER iplCalcCostFromHist AS LOGICAL NO-UNDO.
+DEFINE INPUT PARAMETER ipcItemID LIKE itemfg.i-no.
+DEFINE INPUT PARAMETER iplCalcCostFromHist AS LOGICAL NO-UNDO.
 
 {sys/inc/var.i shared}
+{Inventory/ttInventory.i "NEW SHARED"}
+DEFINE BUFFER bf-itemfg FOR itemfg.
 
+DEFINE VARIABLE hdInventoryProcs AS HANDLE.
+RUN inventory\InventoryProcs.p PERSISTENT SET hdInventoryProcs.
 
-for each itemfg
-    where itemfg.company eq cocode
-      and (if v-i-no eq "*" then yes
-	   else itemfg.i-no eq v-i-no)
-    no-lock:
+FOR EACH bf-itemfg
+    WHERE bf-itemfg.company EQ cocode
+    AND (IF ipcItemID EQ "*" THEN YES
+    ELSE bf-itemfg.i-no EQ ipcItemID)
+    NO-LOCK:
 
-  status default "Please wait...  Updating item: " + trim(itemfg.i-no).
+    STATUS DEFAULT "Please wait...  Updating item: " + TRIM(bf-itemfg.i-no).
 
-  IF itemfg.isaset AND itemfg.alloc THEN
-    RUN util/fixfgcst.p (ROWID(itemfg)).
-  ELSE
-    RUN fg/updfgcs1.p (recid(itemfg), YES, iplCalcCostFromHist).
-end.
-
-status default "".
+    IF bf-itemfg.isaset AND bf-itemfg.alloc THEN
+        RUN util/fixfgcst.p (ROWID(bf-itemfg)).
+    ELSE
+        RUN fg/updfgcs1.p (RECID(bf-itemfg), YES, iplCalcCostFromHist).
+    
+    FIND CURRENT bf-itemfg EXCLUSIVE-LOCK.
+    RUN Inventory_GetAverageCostFG IN hdInventoryProcs (bf-itemfg.company, bf-itemfg.i-no , OUTPUT bf-itemfg.avg-cost).
+    FIND CURRENT bf-itemfg NO-LOCK.
+END.
+DELETE OBJECT hdInventoryProcs.
+RELEASE bf-itemfg.
+STATUS DEFAULT "".
 
 /* end ---------------------------------- copr. 1997  Advanced Software, Inc. */
 

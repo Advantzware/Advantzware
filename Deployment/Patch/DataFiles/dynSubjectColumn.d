@@ -309,9 +309,9 @@
 24 yes 2 "loc.dscr" "Description" "x(30)" "loc" 0 "STRING" "ASI" 0 no no "" "" no "" "" "201911064565804355958" yes yes yes "" no "" "" 0 0 "" no
 24 yes 1 "loc.loc" "Location" "x(5)" "loc" 0 "STRING" "ASI" 0 no no "" "" no "" "" "201911064565804355959" yes yes yes "" no "" "" 0 0 "" no
 25 yes 2 "itemfg.i-name" "Name" "x(30)" "itemfg" 0 "STRING" "ASI" 0 no no "" "" no "" "" "201911064565804355960" yes yes yes "" no "" "" 0 0 "" no
-25 yes 1 "itemfg.i-no" "Item No" "x(15)" "itemfg" 0 "STRING" "ASI" 0 no no "" "" no "" "" "201911064565804355961" yes yes yes "" no "" "" 0 0 "" no
+25 yes 1 "itemfg.i-no" "Item No" "x(30)" "itemfg" 0 "STRING" "ASI" 0 no no "" "" no "" "" "201911064565804355961" yes yes yes "" no "" "" 0 0 "" no
 26 yes 2 "item.i-name" "Name" "x(30)" "item" 0 "STRING" "ASI" 0 no no "" "" no "" "" "201911064565804355962" yes yes yes "" no "" "" 0 0 "" no
-26 yes 1 "item.i-no" "Item No" "x(10)" "item" 0 "STRING" "ASI" 0 no no "" "" no "" "" "201911064565804355963" yes yes yes "" no "" "" 0 0 "" no
+26 yes 1 "item.i-no" "Item No" "x(30)" "item" 0 "STRING" "ASI" 0 no no "" "" no "" "" "201911064565804355963" yes yes yes "" no "" "" 0 0 "" no
 27 yes 4 "oe-ord.cust-name" "Customer Name" "x(30)" "oe-ord" 0 "STRING" "ASI" 0 no no "" "" no "" "" "201911064565804355964" yes yes yes "" no "" "" 0 0 "" no
 27 yes 3 "oe-ord.cust-no" "Cust. #" "x(8)" "oe-ord" 0 "STRING" "ASI" 0 no no "" "" no "" "" "201911064565804355965" yes yes yes "" no "" "" 0 0 "" no
 27 yes 2 "oe-ord.ord-date" "Date" "99/99/9999" "oe-ord" 0 "date" "ASI" 0 no no "" "" no "" "" "201911064565804355966" yes yes yes "" no "" "" 0 0 "" no
@@ -805,10 +805,12 @@
 61 yes 16 "cust.type" "Type" "x(8)" "cust" 0 "STRING" "ASI" 0 no no "" "" no "" "" "202001187833004586917" no no no "" no "" "" 0 0 "" no
 61 yes 45 "cust.under-pct" "Underrun %" ">>9.99%" "cust" 0 "decimal" "ASI" 0 no no "" "" no "" "" "202001187833004586946" no no no "" no "" "" 0 0 "" no
 61 yes 8 "cust.zip" "Zip Code" "x(10)" "cust" 0 "STRING" "ASI" 0 no no "" "" no "" "" "202001187832904586696" no no no "" no "" "" 0 0 "" no
-62 yes 1 "carrier.carrier" "Carrier" "x(5)" "carrier" 0 "STRING" "ASI" 0 no no "" "" no "" "" "202001187832904586715" no no no "" no "" "" 0 0 "" no
-62 yes 4 "carrier.chg-method" "Charge Method" "!" "carrier" 0 "STRING" "ASI" 0 no no "" "" no "" "" "202001187832904586718" no no no "" no "" "" 0 0 "" no
-62 yes 2 "carrier.dscr" "Description" "x(30)" "carrier" 0 "STRING" "ASI" 0 no no "" "" no "" "" "202001187832904586716" no no no "" no "" "" 0 0 "" no
-62 yes 3 "carrier.loc" "Location" "x(5)" "carrier" 0 "STRING" "ASI" 0 no no "" "" no "" "" "202001187832904586717" no no no "" no "" "" 0 0 "" no
+62 yes 5 "CalcChargeMethod" "Charge Method" "x(10)" "" 0 "Character" "ASI" 0 no no "" "" yes "calcGetChgMethod" "carrier.chg-method" "202011132348305850716" no no no "" no "" "" 0 0 "" no
+62 yes 6 "CalcInactive" "Inactive" "x(10)" "" 0 "Character" "ASI" 0 no no "" "" yes "calcGetCarrierInActive" "carrier.company|carrier.carrier" "202011132348305850717" no no no "" no "" "" 0 0 "" no
+62 yes 1 "carrier.carrier" "Carrier" "x(5)" "carrier" 6.6 "STRING" "ASI" 0 no no "" "" no "" "" "202001187832904586715" no no no "" no "" "" 0 0 "" no
+62 yes 2 "carrier.dscr" "Description" "x(30)" "carrier" 30 "STRING" "ASI" 0 no no "" "" no "" "" "202001187832904586716" no no no "" no "" "" 0 0 "" no
+62 yes 3 "carrier.loc" "Location" "x(5)" "carrier" 8 "STRING" "ASI" 0 no no "" "" no "" "" "202001187832904586717" no no no "" no "" "" 0 0 "" no
+62 yes 4 "loc.dscr" "Description" "x(30)" "loc" 30 "STRING" "ASI" 0 no no "" "" no "" "" "202011132171405850593" no no no "" no "" "" 0 0 "" no
 63 yes 19 "prep.actnum" "Account No" "x(25)" "prep" 0 "STRING" "ASI" 0 no no "" "" no "" "" "202001187832904586737" no no no "" no "" "" 0 0 "" no
 63 yes 7 "prep.amtz" "Amtz" ">>9.99" "prep" 0 "decimal" "ASI" 0 no no "" "" no "" "" "202001187832904586725" no no no "" no "" "" 0 0 "" no
 63 yes 33 "prep.box-style" "Box Style" "x(4)" "prep" 0 "STRING" "ASI" 0 no no "" "" no "" "" "202001187832904586751" no no no "" no "" "" 0 0 "" no
@@ -2220,8 +2222,8 @@
 148 yes 2 "dept.dscr" "Description" "x(25)" "dept" 0 "STRING" "ASI" 0 no no "" "" no "" "" "202009217129805648031" yes yes yes "" no "" "" 0 0 "" no
 148 yes 3 "dept.industry" "Industry" "x" "dept" 0 "STRING" "ASI" 0 no no "" "" no "" "" "202009217129805648032" yes yes yes "" no "" "" 0 0 "" no
 149 yes 3 "itemfg.i-name" "Name" "x(30)" "itemfg" 30 "STRING" "ASI" 0 no no "" "" no "" "" "202010191868705766848" yes yes yes "" no "" "" 0 0 "" no
-149 yes 2 "itemfg.i-no" "Item No" "x(15)" "itemfg" 15 "STRING" "ASI" 0 no no "" "" no "" "" "202010191868705766849" yes yes yes "" no "" "" 0 0 "" no
-149 yes 1 "itemfg.part-no" "Cust Part #" "x(12)" "itemfg" 12 "STRING" "ASI" 0 no no "" "" no "" "" "202010191897905766871" yes yes yes "" no "" "" 0 0 "" no
+149 yes 2 "itemfg.i-no" "Item No" "x(30)" "itemfg" 15 "STRING" "ASI" 0 no no "" "" no "" "" "202010191868705766849" yes yes yes "" no "" "" 0 0 "" no
+149 yes 1 "itemfg.part-no" "Cust Part #" "x(25)" "itemfg" 12 "STRING" "ASI" 0 no no "" "" no "" "" "202010191897905766871" yes yes yes "" no "" "" 0 0 "" no
 150 yes 3 "loc.active" "Active" "yes/no" "loc" 0 "logical" "ASI" 0 no no "" "" no "" "" "202010212808805776602" yes yes yes "" no "" "" 0 0 "" no
 150 yes 2 "loc.dscr" "Description" "x(30)" "loc" 0 "STRING" "ASI" 0 no no "" "" no "" "" "202010212808805776603" yes yes yes "" no "" "" 0 0 "" no
 150 yes 1 "loc.loc" "Location" "x(5)" "loc" 0 "STRING" "ASI" 0 no no "" "" no "" "" "202010212808805776604" yes yes yes "" no "" "" 0 0 "" no
@@ -2246,9 +2248,10 @@
 151 yes 3 "ttJobItem.dtOrderDate" "ORD-DATE" "99/99/9999" "ttJobItem" 0 "date" "ASI" 5 no no "" "" no "" "" "202010235629605801104" no no no "" no "" "" 0 0 "" no
 151 no 21 "ttJobItem.iBlankNumber" "BLANK" ">9" "ttJobItem" 0 "integer" "ASI" 4 no no "" "" no "" "" "202010235629605801105" no no no "" no "" "" 0 0 "" no
 151 no 20 "ttJobItem.iFormNumber" "FORM" ">>9" "ttJobItem" 0 "integer" "ASI" 3 no no "" "" no "" "" "202010235629605801106" no no no "" no "" "" 0 0 "" no
-152 yes 4 "cust-part.cust-no" "Cust. #" "x(8)" "cust-part" 0 "STRING" "ASI" 0 no no "" "" no "" "" "202011112454205840103" yes yes yes "" no "" "" 0 0 "" no
-152 yes 1 "cust-part.part-no" "Cust Part #" "x(12)" "cust-part" 0 "STRING" "ASI" 0 no no "" "" no "" "" "202011112454205840104" yes yes yes "" no "" "" 0 0 "" no
-152 yes 5 "itemfg.i-no" "Item No" "x(15)" "itemfg" 0 "STRING" "ASI" 0 no no "" "" no "" "" "202011112454205840105" yes yes yes "" no "" "" 0 0 "" no
-152 yes 2 "itemfg.part-dscr1" "Item Description" "x(30)" "itemfg" 0 "STRING" "ASI" 0 no no "" "" no "" "" "202011112454205840106" yes yes yes "" no "" "" 0 0 "" no
-152 yes 6 "itemfg.part-dscr2" "Item Description" "x(30)" "itemfg" 0 "STRING" "ASI" 0 no no "" "" no "" "" "202011112454205840107" yes yes yes "" no "" "" 0 0 "" no
-152 yes 3 "itemfg.q-onh" "Qty On-Hand" "->>,>>>,>>9.999" "itemfg" 0 "decimal" "ASI" 0 no no "" "" no "" "" "202011112454205840108" yes yes yes "" no "" "" 0 0 "" no
+152 yes 2 "CalcItemDescription" "Item Description" "x(30)" "" 0 "Character" "ASI" 0 no no "" "" yes "calcGetPartDscr1FromFgitem" "cust-part.company|cust-part.i-no" "202011120639205842894" no no no "" no "" "" 0 0 "" no
+152 yes 6 "CalcItemDescription2" "Item Description2" "x(30)" "" 0 "Character" "ASI" 0 no no "" "" yes "calcGetPartDscr2FromFgitem" "cust-part.company|cust-part.i-no" "202011120639205842895" no no no "" no "" "" 0 0 "" no
+152 yes 3 "CalcQtyonHand" "Qty on Hand" "->>,>>>,>>9" "" 0 "Integer" "ASI" 0 no no "" "" yes "calcGetQtyOnHandFromFgitem" "cust-part.company|cust-part.i-no" "202011120639205842896" no no no "" no "" "" 0 0 "" no
+152 no 7 "cust-part.company" "Company" "x(3)" "cust-part" 0 "STRING" "ASI" 0 no no "" "" no "" "" "202011205652305870354" yes yes yes "" no "" "" 0 0 "" no
+152 yes 4 "cust-part.cust-no" "Cust. #" "x(8)" "cust-part" 8 "STRING" "ASI" 0 no no "" "" no "" "" "202011120639205842897" yes yes yes "" no "" "" 0 0 "" no
+152 yes 5 "cust-part.i-no" "Item No" "x(15)" "cust-part" 15 "STRING" "ASI" 0 no no "" "" no "" "" "202011120639205842898" yes yes yes "" no "" "" 0 0 "" no
+152 yes 1 "cust-part.part-no" "Cust Part #" "x(12)" "cust-part" 12 "STRING" "ASI" 0 no no "" "" no "" "" "202011120639205842899" yes yes yes "" no "" "" 0 0 "" no

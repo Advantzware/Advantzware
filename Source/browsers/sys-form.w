@@ -147,15 +147,7 @@ DEFINE RECTANGLE RECT-4
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY Browser-Table FOR 
-      sys-ctrl-shipto
-    FIELDS(sys-ctrl-shipto.cust-vend
-      sys-ctrl-shipto.cust-vend-no
-      sys-ctrl-shipto.ship-id
-      sys-ctrl-shipto.char-fld
-      sys-ctrl-shipto.date-fld
-      sys-ctrl-shipto.dec-fld
-      sys-ctrl-shipto.int-fld
-      sys-ctrl-shipto.log-fld) SCROLLING.
+      sys-ctrl-shipto SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
@@ -163,21 +155,16 @@ DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
       sys-ctrl-shipto.cust-vend COLUMN-LABEL "Type" FORMAT "Cust/Vend":U
-            LABEL-BGCOLOR 14
       sys-ctrl-shipto.cust-vend-no COLUMN-LABEL "Cust/Vend" FORMAT "x(8)":U
-            WIDTH 12.2 LABEL-BGCOLOR 14
+            WIDTH 12.2
       sys-ctrl-shipto.ship-id COLUMN-LABEL "ShipTo" FORMAT "x(8)":U
-            WIDTH 12.2 LABEL-BGCOLOR 14
+            WIDTH 12.2
       sys-ctrl-shipto.char-fld COLUMN-LABEL "Character" FORMAT "x(35)":U
             WIDTH 40 LABEL-BGCOLOR 14
       sys-ctrl-shipto.date-fld COLUMN-LABEL "Date" FORMAT "99/99/9999":U
-            LABEL-BGCOLOR 14
       sys-ctrl-shipto.dec-fld COLUMN-LABEL "Decimal" FORMAT "->>,>>9.99":U
-            LABEL-BGCOLOR 14
       sys-ctrl-shipto.int-fld COLUMN-LABEL "Integer" FORMAT "->,>>>,>>9":U
-            LABEL-BGCOLOR 14
       sys-ctrl-shipto.log-fld COLUMN-LABEL "Log" FORMAT "yes/no":U
-            LABEL-BGCOLOR 14
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 127 BY 16.43
@@ -267,8 +254,8 @@ ASSIGN
 
 ASSIGN 
        Browser-Table:PRIVATE-DATA IN FRAME F-Main           = 
-                "4".
-       Browser-Table:ALLOW-COLUMN-SEARCHING IN FRAME F-Main = TRUE.     /*task# 12271301*/
+                "4"
+       Browser-Table:ALLOW-COLUMN-SEARCHING IN FRAME F-Main = TRUE.
 
 /* SETTINGS FOR FILL-IN fi_sortby IN FRAME F-Main
    NO-ENABLE                                                            */
@@ -286,7 +273,6 @@ ASSIGN
 /* Query rebuild information for BROWSE Browser-Table
      _TblList          = "ASI.sys-ctrl-shipto OF asi.sys-ctrl"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
-     _TblOptList       = "USED"
      _Where[1]         = "~{&KEY-PHRASE}"
      _FldNameList[1]   > ASI.sys-ctrl-shipto.cust-vend
 "sys-ctrl-shipto.cust-vend" "Type" ? "logical" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
@@ -345,6 +331,7 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON START-SEARCH OF Browser-Table IN FRAME F-Main
 DO:
@@ -356,6 +343,7 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON VALUE-CHANGED OF Browser-Table IN FRAME F-Main
@@ -461,7 +449,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-open-query B-table-Win 
 PROCEDURE local-open-query :

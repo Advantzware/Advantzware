@@ -948,7 +948,13 @@ PROCEDURE issue-mat :
   Notes:       
 ------------------------------------------------------------------------------*/
 
-  IF AVAIL job-mat THEN RUN jc/issuemat.p (ROWID(job-mat)).
+  IF AVAIL job-mat THEN 
+      RUN jc/issuemat.p (
+          INPUT ROWID(job-mat),
+          INPUT job-mat.qty,
+          INPUT TRUE, /* Prompt for bin selection */
+          INPUT FALSE
+          ).
 
 END PROCEDURE.
 

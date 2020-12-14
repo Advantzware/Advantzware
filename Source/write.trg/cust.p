@@ -57,6 +57,9 @@ FOR EACH inv-head
   DELETE inv-head.
 END.
 
+IF {&TABLENAME}.ord-bal NE old-{&TABLENAME}.ord-bal AND {&TABLENAME}.ord-bal LT 0 THEN 
+    {&TABLENAME}.ord-bal = 0.    
+
 /* Clear out any error-status from find with no-error that is false */
 DEF VAR ll-error AS LOG NO-UNDO.
 ll-error = YES NO-ERROR.

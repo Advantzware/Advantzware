@@ -573,11 +573,117 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pDeleteOrphanRecords C-Win
+PROCEDURE pDeleteOrphanRecords PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes: Delete orphan oe-boll or oe-bolh records (Either a company is blank
+        or no header/parent Record)   
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany        AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcRecKeyPrefix   AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER iplDeleteInvoices AS LOGICAL   NO-UNDO.    
+    
+    DEFINE BUFFER bf-oe-boll  FOR oe-boll.
+    DEFINE BUFFER bf-oe-bolh  FOR oe-bolh.
+    DEFINE BUFFER bf-inv-head FOR inv-head.
+    DEFINE BUFFER bf-inv-line FOR inv-line.
+    DEFINE BUFFER bf-inv-misc FOR inv-misc.
+    
+    FOR EACH bf-oe-boll NO-LOCK 
+        WHERE (bf-oe-boll.company EQ ipcCompany OR bf-oe-boll.company EQ "") 
+          AND (IF bf-oe-boll.company EQ "" THEN YES ELSE (bf-oe-boll.b-no EQ 0 OR bf-oe-boll.b-no EQ ?)):
+        IF DYNAMIC-FUNCTION("sfGetRecKeyPrefix",bf-oe-boll.rec_key) LT ipcRecKeyPrefix THEN DO:   
+            IF tbArchive THEN DO:
+                IF lProcess THEN 
+                    EXPORT STREAM soe-boll bf-oe-boll.
+                ELSE IF lSimulate 
+                    THEN EXPORT STREAM soe-boll DELIMITER "," bf-oe-boll.
+            END.
+            IF lProcess THEN DO: 
+                FIND CURRENT bf-oe-boll EXCLUSIVE-LOCK NO-ERROR.
+                DELETE bf-oe-boll.
+            END.
+        END.                           
+    END.
+    
+    FOR EACH bf-oe-bolh NO-LOCK
+        WHERE bf-oe-bolh.company EQ ipcCompany 
+          AND NOT CAN-FIND(FIRST bf-oe-boll
+                           WHERE bf-oe-boll.company EQ bf-oe-bolh.company
+                             AND bf-oe-boll.b-no    EQ bf-oe-bolh.b-no):
+        IF DYNAMIC-FUNCTION("sfGetRecKeyPrefix",bf-oe-bolh.rec_key) LT ipcRecKeyPrefix THEN DO:
+            IF iplDeleteInvoices THEN DO:
+                FOR EACH bf-inv-head NO-LOCK  
+                    WHERE bf-inv-head.company EQ bf-oe-bolh.company 
+                      AND bf-inv-head.bol-no  EQ bf-oe-bolh.bol-no:
+    
+                    FOR EACH bf-inv-line NO-LOCK 
+                        WHERE bf-inv-line.r-no    EQ bf-inv-head.r-no 
+                          AND bf-inv-line.company EQ bf-inv-head.company:
+                        IF tbArchive THEN DO:
+                            IF lProcess THEN 
+                                EXPORT STREAM sinv-line bf-inv-line.
+                            ELSE IF lSimulate THEN 
+                                EXPORT STREAM sinv-line DELIMITER "," bf-inv-line.
+                        END.
+                        IF lProcess THEN DO: 
+                            FIND CURRENT bf-inv-line EXCLUSIVE-LOCK NO-ERROR.
+                            DELETE bf-inv-line.
+                        END.    
+                    END. /* inv-line */
+                    FOR EACH bf-inv-misc NO-LOCK  
+                        WHERE bf-inv-misc.r-no    EQ bf-inv-head.r-no 
+                          AND bf-inv-misc.company EQ bf-inv-head.company:
+                        IF tbArchive THEN DO:
+                            IF lProcess THEN 
+                                EXPORT STREAM sinv-misc bf-inv-misc.
+                            ELSE IF lSimulate THEN 
+                                EXPORT STREAM sinv-misc DELIMITER "," bf-inv-misc.
+                        END.
+                        IF lProcess THEN DO:
+                            FIND CURRENT bf-inv-misc EXCLUSIVE-LOCK NO-ERROR.
+                            DELETE bf-inv-misc.
+                        END.    
+                    END. /* inv-misc */
+                    IF tbArchive THEN DO:
+                        IF lProcess THEN 
+                            EXPORT STREAM sinv-head bf-inv-head.
+                        ELSE IF lSimulate THEN 
+                            EXPORT STREAM sinv-head DELIMITER "," bf-inv-head.
+                    END.
+                    IF lProcess THEN DO:
+                        FIND CURRENT bf-inv-head EXCLUSIVE-LOCK NO-ERROR.
+                        DELETE bf-inv-head.
+                    END.    
+                END. /* inv-head */
+            END.                          
+            IF tbArchive THEN DO:
+                IF lProcess THEN 
+                    EXPORT STREAM soe-bolh bf-oe-bolh.
+                ELSE IF lSimulate 
+                    THEN EXPORT STREAM soe-bolh DELIMITER "," bf-oe-bolh.
+            END.
+            IF lProcess THEN DO:
+                FIND CURRENT bf-oe-bolh EXCLUSIVE-LOCK NO-ERROR.
+                DELETE bf-oe-bolh.
+            END.  
+        END.                    
+    END.
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE run-process C-Win 
 PROCEDURE run-process :
 DEFINE VARIABLE v-post-date AS DATE INIT TODAY NO-UNDO.
     DEFINE VARIABLE v-first-ord LIKE oe-ord.ord-no NO-UNDO.
     DEFINE VARIABLE v-last-ord LIKE oe-ord.ord-no NO-UNDO.
+    DEFINE VARIABLE cRecKeyPrefix AS CHARACTER NO-UNDO.
     
 /*  DISABLE TRIGGERS FOR LOAD OF oe-ord.                                                                      */
 /*  Leaving triggers to fire for oe-ord so that audit is written                                              */
@@ -625,7 +731,10 @@ DEFINE VARIABLE v-post-date AS DATE INIT TODAY NO-UNDO.
             tbInvoices
             tbArchive.
     END.
-    
+    cRecKeyPrefix = STRING(YEAR(purge_date),"9999") +
+                    STRING(MONTH(purge_date),"99")  +
+                    STRING(DAY(purge_date),"99").
+                    
     IF tbArchive THEN DO:
         OS-CREATE-DIR VALUE(cDumpLoc).
         OUTPUT STREAM soe-ord       TO VALUE (cDumpLoc + "/oe-ord" + (IF lSimulate THEN ".csv" ELSE ".d")) APPEND.    
@@ -1017,7 +1126,11 @@ DEFINE VARIABLE v-post-date AS DATE INIT TODAY NO-UNDO.
             END.
             IF lProcess THEN DELETE oe-ord.
         END. /* oe-ord */
-
+        RUN pDeleteOrphanRecords(
+            INPUT cocode,
+            INPUT cRecKeyPrefix,
+            INPUT tbArchive
+            ).
         IF tbArchive THEN DO:
             OUTPUT STREAM soe-ord       CLOSE. 
             OUTPUT STREAM soe-rel       CLOSE. 

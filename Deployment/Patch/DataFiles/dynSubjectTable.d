@@ -61,6 +61,7 @@
 59 1 "EACH" "mach" "Machine Master" "" "ASI" "202001187833104587006"
 61 1 "EACH" "cust" "Customer Master" "" "ASI" "202001187833104587008"
 62 1 "EACH" "carrier" "Common Carriers" "" "ASI" "202001187833104587009"
+62 2 "FIRST" "loc" "Location Master" "" "ASI" "202011132171405850583"
 63 1 "EACH" "prep" "Prep Master" "" "ASI" "202001187833104587010"
 65 2 "EACH" "eb" "Estimate Blank" "" "ASI" "202008170544105582454"
 65 3 "FIRST" "ef" "Estimate Forms" "" "ASI" "202008170544105582453"
@@ -155,4 +156,3 @@
 149 1 "EACH" "itemfg" "FG Item Master" "" "ASI" "202010191868705766843"
 150 1 "EACH" "loc" "Location Master" "" "ASI" "202010212808805776597"
 152 1 "EACH" "cust-part" "Customer Part Number " "" "ASI" "202011112454205840089"
-152 2 "FIRST" "itemfg" "FG Item Master" "" "ASI" "202011112454205840090"

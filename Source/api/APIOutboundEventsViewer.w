@@ -39,12 +39,18 @@ CREATE WIDGET-POOL.
 /* Local Variable Definitions ---                                       */
 {methods/defines/hndldefs.i}
 {methods/prgsecur.i}
-{methods/template/brwcustomdef.i}
+{methods/defines/sortByDefs.i}
+
 DEFINE VARIABLE lReTrigger      AS LOGICAL   NO-UNDO INITIAL FALSE.
 DEFINE VARIABLE hdOutputProcs   AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hdOutboundProcs AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hdQuery         AS HANDLE  NO-UNDO.
 DEFINE VARIABLE cCompany        AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cLocation       AS CHARACTER NO-UNDO.
+
+DEFINE VARIABLE hdUserField1Column AS HANDLE  NO-UNDO.
+DEFINE VARIABLE hdUserField2Column AS HANDLE  NO-UNDO.
+DEFINE VARIABLE hdPrimaryIDColumn  AS HANDLE  NO-UNDO.
 
 ASSIGN
     cCompany  = g_company
@@ -60,6 +66,8 @@ DEFINE TEMP-TABLE ttAPIOutboundEvent NO-UNDO
     FIELDS primaryID          AS CHARACTER
     FIELDS eventDescription   AS CHARACTER    
     FIELDS callingProgram     AS CHARACTER
+    FIELDS userField1         AS CHARACTER
+    FIELDS userField2         AS CHARACTER
     FIELDS requestDateTime    AS DATETIME
     FIELDS success            AS LOGICAL
     FIELDS apiOutboundEventID AS INTEGER
@@ -79,6 +87,12 @@ DEFINE TEMP-TABLE ttPrintAPIOutboundEvent NO-UNDO
     FIELDS apiOutboundEventID AS INTEGER   LABEL "Outbound Event ID"
     .
 
+&SCOPED-DEFINE SORTBY-PHRASE BY ttAPIOutboundEvent.requestDateTime DESC
+
+CREATE QUERY hdQuery.
+       
+hdQuery:SET-BUFFERS(BUFFER APIOutboundEvent:HANDLE).
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -92,36 +106,39 @@ DEFINE TEMP-TABLE ttPrintAPIOutboundEvent NO-UNDO
 
 /* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME DEFAULT-FRAME
-&Scoped-define BROWSE-NAME BROWSE-2
+&Scoped-define BROWSE-NAME ttAPIOutboundEvent
 
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
 &Scoped-define INTERNAL-TABLES ttAPIOutboundEvent
 
-/* Definitions for BROWSE BROWSE-2                                      */
-&Scoped-define FIELDS-IN-QUERY-BROWSE-2 ttAPIOutboundEvent.retryEvent ttAPIOutboundEvent.apiID ttAPIOutboundEvent.primaryID ttAPIOutboundEvent.clientID ttAPIOutboundEvent.sourceTriggerID ttAPIOutboundEvent.requestDateTime ttAPIOutboundEvent.success ttAPIOutboundEvent.apiOutboundEventID   
-&Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-2 ttAPIOutboundEvent.retryEvent   
-&Scoped-define ENABLED-TABLES-IN-QUERY-BROWSE-2 ttAPIOutboundEvent
-&Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-BROWSE-2 ttAPIOutboundEvent
-&Scoped-define SELF-NAME BROWSE-2
-&Scoped-define QUERY-STRING-BROWSE-2 FOR EACH ttAPIOutboundEvent       BY ttAPIOutboundEvent.requestDateTime DESCENDING
-&Scoped-define OPEN-QUERY-BROWSE-2 OPEN QUERY {&SELF-NAME} FOR EACH ttAPIOutboundEvent       BY ttAPIOutboundEvent.requestDateTime DESCENDING.
-&Scoped-define TABLES-IN-QUERY-BROWSE-2 ttAPIOutboundEvent
-&Scoped-define FIRST-TABLE-IN-QUERY-BROWSE-2 ttAPIOutboundEvent
+/* Definitions for BROWSE ttAPIOutboundEvent                            */
+&Scoped-define FIELDS-IN-QUERY-ttAPIOutboundEvent ttAPIOutboundEvent.retryEvent ttAPIOutboundEvent.apiID ttAPIOutboundEvent.clientID ttAPIOutboundEvent.sourceTriggerID ttAPIOutboundEvent.requestDateTime ttAPIOutboundEvent.success ttAPIOutboundEvent.primaryID ttAPIOutboundEvent.userField1 ttAPIOutboundEvent.userField2 ttAPIOutboundEvent.apiOutboundEventID   
+&Scoped-define ENABLED-FIELDS-IN-QUERY-ttAPIOutboundEvent ttAPIOutboundEvent.retryEvent   
+&Scoped-define ENABLED-TABLES-IN-QUERY-ttAPIOutboundEvent ~
+ttAPIOutboundEvent
+&Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-ttAPIOutboundEvent ttAPIOutboundEvent
+&Scoped-define SELF-NAME ttAPIOutboundEvent
+&Scoped-define QUERY-STRING-ttAPIOutboundEvent FOR EACH ttAPIOutboundEvent ~{&SORTBY-PHRASE}
+&Scoped-define OPEN-QUERY-ttAPIOutboundEvent OPEN QUERY {&SELF-NAME} FOR EACH ttAPIOutboundEvent ~{&SORTBY-PHRASE}.
+&Scoped-define TABLES-IN-QUERY-ttAPIOutboundEvent ttAPIOutboundEvent
+&Scoped-define FIRST-TABLE-IN-QUERY-ttAPIOutboundEvent ttAPIOutboundEvent
 
 
 /* Definitions for FRAME DEFAULT-FRAME                                  */
 &Scoped-define OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME ~
-    ~{&OPEN-QUERY-BROWSE-2}
+    ~{&OPEN-QUERY-ttAPIOutboundEvent}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-13 btTest btExit btFilter btAPIIDLookup ~
-fiEventID fiPrimaryID fiAPIId btClientIDLookup btTriggerIDLookup fiClientID ~
-fiTriggerID btExport btRestart btBeginRequestDateCal btEndRequestDateCal ~
-fiBeginRequestDate fiEndRequestDate cbSuccess BROWSE-2 
+&Scoped-Define ENABLED-OBJECTS RECT-13 btExport btExit btFilter ~
+btAPIIDLookup fiEventID fiPrimaryID fiAPIId btClientIDLookup ~
+btTriggerIDLookup fiClientID fiTriggerID btRestart btBeginRequestDateCal ~
+btEndRequestDateCal fiBeginRequestDate fiEndRequestDate cbSuccess ~
+ttAPIOutboundEvent 
 &Scoped-Define DISPLAYED-OBJECTS fiEventIDLabel fiEventID fiPrimaryIDLabel ~
 fiPrimaryID fiAPIIDLabel fiAPIId fiClientIDLabel fiClientID ~
 fiTriggerIDLabel fiTriggerID fiBeginRequestDate fiEndRequestDate ~
-fiBeginRequestDatelabel fiEndRequestDatelabel fiSuccessLabel cbSuccess 
+fiBeginRequestDatelabel fiEndRequestDatelabel fiSuccessLabel cbSuccess ~
+fiMessage 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -176,11 +193,6 @@ DEFINE BUTTON btRestart
      IMAGE-UP FILE "Graphics/32x32/refresh.ico":U
      LABEL "Restart" 
      SIZE 9 BY 2.14 TOOLTIP "Retry Event(s)".
-
-DEFINE BUTTON btTest 
-     IMAGE-UP FILE "Graphics/32x32/add.ico":U
-     LABEL "Test" 
-     SIZE 11 BY 2.62 TOOLTIP "Add Outbound Event".
 
 DEFINE BUTTON btTriggerIDLookup 
      IMAGE-UP FILE "Graphics/16x16/magnifying_glass.gif":U NO-CONVERT-3D-COLORS
@@ -244,6 +256,11 @@ DEFINE VARIABLE fiEventIDLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Event ID:
      SIZE 12 BY 1
      FONT 6 NO-UNDO.
 
+DEFINE VARIABLE fiMessage AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS FILL-IN 
+     SIZE 62.8 BY 1
+     FONT 6 NO-UNDO.
+
 DEFINE VARIABLE fiPrimaryID AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
      SIZE 28 BY 1
@@ -271,71 +288,75 @@ DEFINE VARIABLE fiTriggerIDLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Trigger
 
 DEFINE RECTANGLE RECT-13
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 133 BY 6.05.
+     SIZE 134 BY 5.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
-DEFINE QUERY BROWSE-2 FOR 
+DEFINE QUERY ttAPIOutboundEvent FOR 
       ttAPIOutboundEvent SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
-DEFINE BROWSE BROWSE-2
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-2 C-Win _FREEFORM
-  QUERY BROWSE-2 NO-LOCK DISPLAY
+DEFINE BROWSE ttAPIOutboundEvent
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS ttAPIOutboundEvent C-Win _FREEFORM
+  QUERY ttAPIOutboundEvent NO-LOCK DISPLAY
       ttAPIOutboundEvent.retryEvent COLUMN-LABEL "[ ] All" 
             WIDTH 8 VIEW-AS TOGGLE-BOX
       ttAPIOutboundEvent.apiID COLUMN-LABEL "API ID" FORMAT "x(32)":U
-            WIDTH 28
-      ttAPIOutboundEvent.primaryID COLUMN-LABEL "Primary ID" FORMAT "x(32)":U
-            WIDTH 16
+            WIDTH 28 LABEL-BGCOLOR 14
       ttAPIOutboundEvent.clientID COLUMN-LABEL "Client ID" FORMAT "x(32)":U
             WIDTH 14
       ttAPIOutboundEvent.sourceTriggerID COLUMN-LABEL "Trigger ID" FORMAT "x(32)":U
             WIDTH 28
       ttAPIOutboundEvent.requestDateTime COLUMN-LABEL "Last Request Date" FORMAT "99/99/9999 HH:MM:SS.SSS":U
-            WIDTH 32
+            WIDTH 32 LABEL-BGCOLOR 14
       ttAPIOutboundEvent.success COLUMN-LABEL "Success" FORMAT "SUCCESS/FAILED":U
-            WIDTH 12
+            WIDTH 12 LABEL-BGCOLOR 14
+      ttAPIOutboundEvent.primaryID COLUMN-LABEL "Primary ID" FORMAT "x(32)":U
+            WIDTH 16 LABEL-BGCOLOR 14
+      ttAPIOutboundEvent.userField1 COLUMN-LABEL "User Field 1" FORMAT "x(32)":U
+            WIDTH 16 LABEL-BGCOLOR 14
+      ttAPIOutboundEvent.userField2 COLUMN-LABEL "User Field 2" FORMAT "x(32)":U
+            WIDTH 16 LABEL-BGCOLOR 14
       ttAPIOutboundEvent.apiOutboundEventID COLUMN-LABEL "Event ID" FORMAT "9999999":U
-            WIDTH 15
+            WIDTH 15 LABEL-BGCOLOR 14
       ENABLE ttAPIOutboundEvent.retryEvent
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 158.2 BY 21.19
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 198.2 BY 22.33
          FONT 34 ROW-HEIGHT-CHARS .9 FIT-LAST-COLUMN.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
-     btTest AT ROW 1.71 COL 136.4 WIDGET-ID 20
-     btExit AT ROW 1.71 COL 149.2 WIDGET-ID 2
-     btFilter AT ROW 2 COL 124.4 WIDGET-ID 18
-     btAPIIDLookup AT ROW 2.24 COL 116.6 WIDGET-ID 46
-     fiEventIDLabel AT ROW 2.29 COL 2 COLON-ALIGNED NO-LABEL WIDGET-ID 48
-     fiEventID AT ROW 2.29 COL 14.4 COLON-ALIGNED NO-LABEL WIDGET-ID 50
-     fiPrimaryIDLabel AT ROW 2.29 COL 31.8 COLON-ALIGNED NO-LABEL WIDGET-ID 64
-     fiPrimaryID AT ROW 2.29 COL 46 COLON-ALIGNED NO-LABEL WIDGET-ID 66
-     fiAPIIDLabel AT ROW 2.29 COL 75 COLON-ALIGNED NO-LABEL WIDGET-ID 6
-     fiAPIId AT ROW 2.29 COL 84.2 COLON-ALIGNED NO-LABEL WIDGET-ID 24
-     btClientIDLookup AT ROW 3.86 COL 49.2 WIDGET-ID 60
-     btTriggerIDLookup AT ROW 3.86 COL 116.6 WIDGET-ID 62
-     fiClientIDLabel AT ROW 3.91 COL 1.8 COLON-ALIGNED NO-LABEL WIDGET-ID 52
-     fiClientID AT ROW 3.91 COL 14.4 COLON-ALIGNED NO-LABEL WIDGET-ID 54
-     fiTriggerIDLabel AT ROW 3.91 COL 65.2 COLON-ALIGNED NO-LABEL WIDGET-ID 56
-     fiTriggerID AT ROW 3.91 COL 78.8 COLON-ALIGNED NO-LABEL WIDGET-ID 58
-     btExport AT ROW 4.67 COL 136.4 WIDGET-ID 44
-     btRestart AT ROW 4.91 COL 124.4 WIDGET-ID 26
-     btBeginRequestDateCal AT ROW 5.43 COL 43.2 WIDGET-ID 40
-     btEndRequestDateCal AT ROW 5.43 COL 87.2 WIDGET-ID 42
-     fiBeginRequestDate AT ROW 5.48 COL 26 COLON-ALIGNED NO-LABEL WIDGET-ID 10
-     fiEndRequestDate AT ROW 5.48 COL 70 COLON-ALIGNED NO-LABEL WIDGET-ID 36
-     fiBeginRequestDatelabel AT ROW 5.52 COL 1.8 COLON-ALIGNED NO-LABEL WIDGET-ID 8
-     fiEndRequestDatelabel AT ROW 5.52 COL 48 COLON-ALIGNED NO-LABEL WIDGET-ID 38
-     fiSuccessLabel AT ROW 5.52 COL 91.8 COLON-ALIGNED NO-LABEL WIDGET-ID 12
-     cbSuccess AT ROW 5.52 COL 103.2 COLON-ALIGNED NO-LABEL WIDGET-ID 14
-     BROWSE-2 AT ROW 8.1 COL 1.8 WIDGET-ID 200
+     btExport AT ROW 1.71 COL 176.4 WIDGET-ID 44
+     btExit AT ROW 1.71 COL 189.2 WIDGET-ID 2
+     btFilter AT ROW 1.76 COL 124.4 WIDGET-ID 18
+     btAPIIDLookup AT ROW 1.95 COL 116.6 WIDGET-ID 46
+     fiEventIDLabel AT ROW 2 COL 2 COLON-ALIGNED NO-LABEL WIDGET-ID 48
+     fiEventID AT ROW 2 COL 14.4 COLON-ALIGNED NO-LABEL WIDGET-ID 50
+     fiPrimaryIDLabel AT ROW 2 COL 31.8 COLON-ALIGNED NO-LABEL WIDGET-ID 64
+     fiPrimaryID AT ROW 2 COL 46 COLON-ALIGNED NO-LABEL WIDGET-ID 66
+     fiAPIIDLabel AT ROW 2 COL 75 COLON-ALIGNED NO-LABEL WIDGET-ID 6
+     fiAPIId AT ROW 2 COL 84.2 COLON-ALIGNED NO-LABEL WIDGET-ID 24
+     btClientIDLookup AT ROW 3.38 COL 49.2 WIDGET-ID 60
+     btTriggerIDLookup AT ROW 3.38 COL 116.6 WIDGET-ID 62
+     fiClientIDLabel AT ROW 3.43 COL 1.8 COLON-ALIGNED NO-LABEL WIDGET-ID 52
+     fiClientID AT ROW 3.43 COL 14.4 COLON-ALIGNED NO-LABEL WIDGET-ID 54
+     fiTriggerIDLabel AT ROW 3.43 COL 65.2 COLON-ALIGNED NO-LABEL WIDGET-ID 56
+     fiTriggerID AT ROW 3.43 COL 78.8 COLON-ALIGNED NO-LABEL WIDGET-ID 58
+     btRestart AT ROW 4 COL 124.4 WIDGET-ID 26
+     btBeginRequestDateCal AT ROW 4.91 COL 43.2 WIDGET-ID 40
+     btEndRequestDateCal AT ROW 4.91 COL 87.2 WIDGET-ID 42
+     fiBeginRequestDate AT ROW 4.95 COL 26 COLON-ALIGNED NO-LABEL WIDGET-ID 10
+     fiEndRequestDate AT ROW 4.95 COL 70 COLON-ALIGNED NO-LABEL WIDGET-ID 36
+     fiBeginRequestDatelabel AT ROW 5 COL 1.8 COLON-ALIGNED NO-LABEL WIDGET-ID 8
+     fiEndRequestDatelabel AT ROW 5 COL 48 COLON-ALIGNED NO-LABEL WIDGET-ID 38
+     fiSuccessLabel AT ROW 5 COL 91.8 COLON-ALIGNED NO-LABEL WIDGET-ID 12
+     cbSuccess AT ROW 5 COL 103.2 COLON-ALIGNED NO-LABEL WIDGET-ID 14
+     fiMessage AT ROW 5.1 COL 135.2 COLON-ALIGNED NO-LABEL WIDGET-ID 68
+     ttAPIOutboundEvent AT ROW 6.95 COL 1.8 WIDGET-ID 200
      "Filter" VIEW-AS TEXT
           SIZE 7 BY .62 AT ROW 1.14 COL 9 WIDGET-ID 30
           FONT 6
@@ -343,7 +364,7 @@ DEFINE FRAME DEFAULT-FRAME
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 160 BY 28.57
+         SIZE 199.8 BY 28.57
          BGCOLOR 15 FGCOLOR 1  WIDGET-ID 100.
 
 
@@ -365,11 +386,11 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          HIDDEN             = YES
          TITLE              = "API Outbound Events"
          HEIGHT             = 28.57
-         WIDTH              = 160
+         WIDTH              = 199.8
          MAX-HEIGHT         = 33.57
-         MAX-WIDTH          = 170
+         MAX-WIDTH          = 199.8
          VIRTUAL-HEIGHT     = 33.57
-         VIRTUAL-WIDTH      = 170
+         VIRTUAL-WIDTH      = 199.8
          CONTROL-BOX        = no
          MIN-BUTTON         = no
          MAX-BUTTON         = no
@@ -395,10 +416,7 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME DEFAULT-FRAME
    FRAME-NAME                                                           */
-/* BROWSE-TAB BROWSE-2 cbSuccess DEFAULT-FRAME */
-ASSIGN 
-       BROWSE-2:ALLOW-COLUMN-SEARCHING IN FRAME DEFAULT-FRAME = TRUE.
-
+/* BROWSE-TAB ttAPIOutboundEvent fiMessage DEFAULT-FRAME */
 /* SETTINGS FOR FILL-IN fiAPIIDLabel IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fiBeginRequestDatelabel IN FRAME DEFAULT-FRAME
@@ -409,12 +427,17 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fiEventIDLabel IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiMessage IN FRAME DEFAULT-FRAME
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fiPrimaryIDLabel IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fiSuccessLabel IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fiTriggerIDLabel IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
+ASSIGN 
+       ttAPIOutboundEvent:ALLOW-COLUMN-SEARCHING IN FRAME DEFAULT-FRAME = TRUE.
+
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = no.
 
@@ -424,15 +447,14 @@ THEN C-Win:HIDDEN = no.
 
 /* Setting information for Queries and Browse Widgets fields            */
 
-&ANALYZE-SUSPEND _QUERY-BLOCK BROWSE BROWSE-2
-/* Query rebuild information for BROWSE BROWSE-2
+&ANALYZE-SUSPEND _QUERY-BLOCK BROWSE ttAPIOutboundEvent
+/* Query rebuild information for BROWSE ttAPIOutboundEvent
      _START_FREEFORM
-OPEN QUERY {&SELF-NAME} FOR EACH ttAPIOutboundEvent
-      BY ttAPIOutboundEvent.requestDateTime DESCENDING.
+OPEN QUERY {&SELF-NAME} FOR EACH ttAPIOutboundEvent ~{&SORTBY-PHRASE}.
      _END_FREEFORM
      _Options          = "NO-LOCK INDEXED-REPOSITION"
      _Query            is OPENED
-*/  /* BROWSE BROWSE-2 */
+*/  /* BROWSE ttAPIOutboundEvent */
 &ANALYZE-RESUME
 
  
@@ -461,47 +483,6 @@ DO:
   /* This event will close the window and terminate the procedure.  */
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define BROWSE-NAME BROWSE-2
-&Scoped-define SELF-NAME BROWSE-2
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-2 C-Win
-ON DEFAULT-ACTION OF BROWSE-2 IN FRAME DEFAULT-FRAME
-DO:
-    IF AVAILABLE ttAPIOutboundEvent THEN DO:
-        RUN api/ResponseDataViewer.w (
-            ttAPIOutboundEvent.eventRowID
-            ).
-    END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-2 C-Win
-ON START-SEARCH OF BROWSE-2 IN FRAME DEFAULT-FRAME
-DO:
-	{methods/template/sortindicator.i} 
-    IF SELF:CURRENT-COLUMN:NAME EQ "retryEvent" THEN DO:
-        lReTrigger = NOT lReTrigger.
-        
-        FOR EACH ttAPIOutboundEvent:
-            ttAPIOutboundEvent.retryEvent = lReTrigger.
-        END.
-        
-        SELF:CURRENT-COLUMN:LABEL = IF lReTrigger THEN
-                                        "[*] All"
-                                    ELSE
-                                        "[ ] All".
-                                        
-        {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}    
-    END.    
-	{methods/template/sortindicatorend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -656,6 +637,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btFilter C-Win
 ON CHOOSE OF btFilter IN FRAME DEFAULT-FRAME /* Filter */
 DO:
+    DEFINE VARIABLE cQuery AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iCount AS INTEGER   NO-UNDO.
+    
     IF fiBeginRequestDate:SCREEN-VALUE NE ?  AND
        fiBeginRequestDate:SCREEN-VALUE NE "" AND
        fiBeginRequestDate:SCREEN-VALUE NE "/  /" AND
@@ -669,54 +653,79 @@ DO:
     END.       
     
     EMPTY TEMP-TABLE ttAPIOutboundEvent.
-    FOR EACH APIOutboundEvent NO-LOCK
-        WHERE APIOutboundEvent.company EQ cCompany
-          AND (IF INTEGER(fiEventID:SCREEN-VALUE) EQ 0 THEN
-                   TRUE
-               ELSE
-                   APIOutboundEvent.apiOutboundEventID EQ INTEGER(fiEventID:SCREEN-VALUE))
-          AND (IF fiPrimaryID:SCREEN-VALUE EQ "ALL" OR fiPrimaryID:SCREEN-VALUE EQ "" THEN
-                   TRUE
-               ELSE
-                   APIOutboundEvent.primaryID   EQ fiPrimaryID:SCREEN-VALUE)
-          AND (IF fiAPIID:SCREEN-VALUE EQ "ALL" OR fiAPIID:SCREEN-VALUE EQ "" THEN
-                   TRUE
-               ELSE
-                   APIOutboundEvent.apiID       EQ fiAPIID:SCREEN-VALUE)
-          AND (IF fiClientID:SCREEN-VALUE EQ "ALL" OR fiClientID:SCREEN-VALUE EQ "" THEN
-                   TRUE
-               ELSE
-                   APIOutboundEvent.clientID    EQ fiClientID:SCREEN-VALUE)
-          AND (IF fiTriggerID:SCREEN-VALUE EQ "ALL" OR fiTriggerID:SCREEN-VALUE EQ "" THEN
-                   TRUE
-               ELSE
-                   APIOutboundEvent.sourceTriggerID EQ fiTriggerID:SCREEN-VALUE)
-          AND (IF fiBeginRequestDate:SCREEN-VALUE EQ ?  OR
-                  fiBeginRequestDate:SCREEN-VALUE EQ "" OR
-                  fiBeginRequestDate:SCREEN-VALUE EQ "/  /" THEN
-                  TRUE
-               ELSE
-                  DATE(APIOutboundEvent.requestDateTime) GE DATE(fiBeginRequestDate:SCREEN-VALUE))
-          AND (IF fiEndRequestDate:SCREEN-VALUE EQ ?  OR
-                  fiEndRequestDate:SCREEN-VALUE EQ "" OR
-                  fiEndRequestDate:SCREEN-VALUE EQ "/  /" THEN
-                  TRUE
-               ELSE
-                  DATE(APIOutboundEvent.requestDateTime) LE DATE(fiEndRequestDate:SCREEN-VALUE))
-          AND (IF cbSuccess:SCREEN-VALUE = "ALL" THEN
-                   TRUE
-               ELSE IF cbSuccess:SCREEN-VALUE = "SUCCESS" THEN
-                   APIOutboundEvent.success = TRUE
-               ELSE
-                   APIOutboundEvent.success = FALSE)
-        BY APIOutboundEvent.requestDateTime DESCENDING:
+
+    cQuery = "FOR EACH APIOutboundEvent NO-LOCK WHERE TRUE ".
+    
+    IF fiEventID:SCREEN-VALUE NE "0" THEN
+        cQuery = cQuery + " AND APIOutboundEvent.apiOutboundEventID EQ " + REPLACE(fiEventID:SCREEN-VALUE,",","").
+
+    IF fiAPIID:SCREEN-VALUE NE "ALL" AND fiAPIID:SCREEN-VALUE NE "" THEN
+        cQuery = cQuery 
+               + " AND APIOutboundEvent.apiID EQ '" + fiAPIID:SCREEN-VALUE + "'".
+
+    IF fiPrimaryID:SCREEN-VALUE NE "ALL" AND fiPrimaryID:SCREEN-VALUE NE "" THEN
+        cQuery = cQuery
+               + " AND APIOutboundEvent.primaryID EQ '" + fiPrimaryID:SCREEN-VALUE + "'".
+
+    IF fiClientID:SCREEN-VALUE NE "ALL" AND fiClientID:SCREEN-VALUE NE "" THEN
+        cQuery = cQuery
+               + " AND APIOutboundEvent.clientID EQ '" + fiClientID:SCREEN-VALUE + "'".
+        
+    IF fiTriggerID:SCREEN-VALUE NE "ALL" AND fiTriggerID:SCREEN-VALUE NE "" THEN
+        cQuery = cQuery
+               + " AND APIOutboundEvent.sourceTriggerID EQ '" + fiTriggerID:SCREEN-VALUE + "'".
+    
+    IF fiBeginRequestDate:SCREEN-VALUE NE ?  AND
+       fiBeginRequestDate:SCREEN-VALUE NE "" AND
+       fiBeginRequestDate:SCREEN-VALUE NE "/  /" THEN
+        cQuery = cQuery + " AND APIOutboundEvent.requestDateTime GE '" + STRING(DATETIME(DATE(fiBeginRequestDate:SCREEN-VALUE), 0)) + "'".
+
+    IF fiEndRequestDate:SCREEN-VALUE NE ?  AND
+       fiEndRequestDate:SCREEN-VALUE NE "" AND
+       fiEndRequestDate:SCREEN-VALUE NE "/  /" THEN
+        cQuery = cQuery + " AND APIOutboundEvent.requestDateTime LT '" + STRING(DATETIME(DATE(fiEndRequestDate:SCREEN-VALUE) + 1, 0)) + "'".
+        
+    IF cbSuccess:SCREEN-VALUE = "SUCCESS" THEN
+        cQuery = cQuery
+               + " AND APIOutboundEvent.success = TRUE".
+    ELSE IF cbSuccess:SCREEN-VALUE = "FAILED" THEN
+        cQuery = cQuery
+               + " AND APIOutboundEvent.success = FALSE".
+
+    
+    fiMessage:SCREEN-VALUE = "Searching...".
+    
+    SESSION:SET-WAIT-STATE("GENERAL").
+    
+    hdQuery:QUERY-PREPARE(cQuery).
+
+    ETIME(YES).
+    
+    hdQuery:QUERY-OPEN().
+    
+    DO WHILE hdQuery:GET-NEXT():
+        IF APIOutboundEvent.company NE g_company THEN
+            NEXT.
         
         CREATE ttAPIOutboundEvent.
         BUFFER-COPY APIOutboundEvent TO ttAPIOutboundEvent.
         ttAPIOutboundEvent.eventRowID = ROWID(APIOutboundEvent).        
-    END.
+
+        iCount = iCount + 1.
+    END.   
     
+    IF iCount EQ 0 THEN
+        fiMessage:SCREEN-VALUE = "No records found!".
+    ELSE    
+        fiMessage:SCREEN-VALUE = STRING(iCount) + " Record(s) found in " + TRIM(STRING(ROUND(ETIME / 1000, 2),">>>>>>>>>>9.99")) + "s".
+
+    RUN pUpdateUserFieldLabels (
+        INPUT fiAPIID:SCREEN-VALUE
+        ).
+        
     {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
+
+    SESSION:SET-WAIT-STATE("").    
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -742,6 +751,8 @@ DO:
     IF NOT AVAILABLE buf_ttAPIOutboundEvent THEN
         RETURN.
         
+    fiMessage:SCREEN-VALUE = "Re-triggering requests...".
+    
     SESSION:SET-WAIT-STATE("GENERAL").
 
     FOR EACH buf_ttAPIOutboundEvent
@@ -778,7 +789,9 @@ DO:
     END.
        
     SESSION:SET-WAIT-STATE("").
-     
+    
+    fiMessage:SCREEN-VALUE = "Process complete!".
+    
     MESSAGE "Outbound Event(s) updated" SKIP
             "Total Records attempted:" iTotalEvents SKIP
             "Total Success Records:" iSuccessEvents SKIP
@@ -786,23 +799,6 @@ DO:
        VIEW-AS ALERT-BOX INFORMATION.
     
     {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME btTest
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btTest C-Win
-ON CHOOSE OF btTest IN FRAME DEFAULT-FRAME /* Test */
-DO:
-    DEFINE VARIABLE cRunProc AS CHARACTER NO-UNDO.
-    
-    RUN Get_Procedure IN Persistent-Handle (
-        "APIOutboundTest.",
-        OUTPUT cRunProc,
-        TRUE
-        ).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -911,6 +907,63 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define BROWSE-NAME ttAPIOutboundEvent
+&Scoped-define SELF-NAME ttAPIOutboundEvent
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ttAPIOutboundEvent C-Win
+ON DEFAULT-ACTION OF ttAPIOutboundEvent IN FRAME DEFAULT-FRAME
+DO:
+    IF AVAILABLE ttAPIOutboundEvent THEN DO:
+        RUN api/ResponseDataViewer.w (
+            ttAPIOutboundEvent.eventRowID
+            ).
+    END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ttAPIOutboundEvent C-Win
+ON START-SEARCH OF ttAPIOutboundEvent IN FRAME DEFAULT-FRAME
+DO:
+    IF SELF:CURRENT-COLUMN:NAME EQ "retryEvent" THEN DO:
+        lReTrigger = NOT lReTrigger.
+        
+        FOR EACH ttAPIOutboundEvent:
+            ttAPIOutboundEvent.retryEvent = lReTrigger.
+        END.
+        
+        SELF:CURRENT-COLUMN:LABEL = IF lReTrigger THEN
+                                        "[*] All"
+                                    ELSE
+                                        "[ ] All".
+                                        
+        {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}    
+    END.
+    ELSE IF {&BROWSE-NAME}:CURRENT-COLUMN:NAME NE ? THEN DO:
+        cColumnLabel = BROWSE {&BROWSE-NAME}:CURRENT-COLUMN:NAME.
+        
+        IF cColumnLabel EQ cSaveLabel THEN
+            lAscending = NOT lAscending.
+        IF VALID-HANDLE(hSaveLabel) THEN
+            hSaveLabel:LABEL-BGCOLOR = ?.
+    
+        ASSIGN
+            hColumnLabel               = {&BROWSE-NAME}:CURRENT-COLUMN
+            hColumnLabel:LABEL-BGCOLOR = 14
+            hSaveLabel                 = hColumnLabel
+            cSaveLabel                 = cColumnLabel
+            .
+        RUN pReopenBrowse.
+    END.
+    
+    RETURN NO-APPLY.        
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK C-Win 
@@ -921,7 +974,7 @@ END.
 /* Set CURRENT-WINDOW: this will parent dialog-boxes and frames.        */
 ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME} 
        THIS-PROCEDURE:CURRENT-WINDOW = {&WINDOW-NAME}.
-{methods/template/brwcustom.i}
+
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
 ON CLOSE OF THIS-PROCEDURE 
@@ -935,6 +988,8 @@ PAUSE 0 BEFORE-HIDE.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:    
+    DEFINE VARIABLE iBrowseColumn AS INTEGER NO-UNDO.
+
     FIND FIRST company NO-LOCK 
          WHERE company.company EQ cCompany
          NO-ERROR .
@@ -944,6 +999,15 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                          + STRING(company.name) + " - " + cLocation.
 
     RUN enable_UI.
+
+    DO iBrowseColumn = 1 TO BROWSE {&BROWSE-NAME}:NUM-COLUMNS :
+        IF {&BROWSE-NAME}:GET-BROWSE-COLUMN(iBrowseColumn):NAME = "userField1" THEN
+            hdUserField1Column = {&BROWSE-NAME}:GET-BROWSE-COLUMN(iBrowseColumn).
+        ELSE IF {&BROWSE-NAME}:GET-BROWSE-COLUMN(iBrowseColumn):NAME = "userField2" THEN
+            hdUserField2Column = {&BROWSE-NAME}:GET-BROWSE-COLUMN(iBrowseColumn).
+        ELSE IF {&BROWSE-NAME}:GET-BROWSE-COLUMN(iBrowseColumn):NAME = "primaryID" THEN
+            hdPrimaryIDColumn = {&BROWSE-NAME}:GET-BROWSE-COLUMN(iBrowseColumn).            
+    END.
 
     /* Fetch current day's records to temp-table when launched */
     ASSIGN
@@ -961,6 +1025,17 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     IF NOT THIS-PROCEDURE:PERSISTENT THEN
       WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
+
+&Scoped-define sdBrowseName ttAPIOutboundEvent
+{methods/sortByProc.i "pByAPIID" "ttAPIOutboundEvent.apiID"}
+{methods/sortByProc.i "pByPrimaryID" "ttAPIOutboundEvent.primaryID"}
+{methods/sortByProc.i "pByUserField1" "ttAPIOutboundEvent.userField1"}
+{methods/sortByProc.i "pByUserField2" "ttAPIOutboundEvent.userField2"}
+{methods/sortByProc.i "pByEventID" "ttAPIOutboundEvent.apiOutboundEventID"}
+{methods/sortByProc.i "pBySuccess" "ttAPIOutboundEvent.success"}
+{methods/sortByProc.i "pByRequestDate" "ttAPIOutboundEvent.requestDateTime"}
+
+{sys/inc/f3help.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1001,12 +1076,12 @@ PROCEDURE enable_UI :
   DISPLAY fiEventIDLabel fiEventID fiPrimaryIDLabel fiPrimaryID fiAPIIDLabel 
           fiAPIId fiClientIDLabel fiClientID fiTriggerIDLabel fiTriggerID 
           fiBeginRequestDate fiEndRequestDate fiBeginRequestDatelabel 
-          fiEndRequestDatelabel fiSuccessLabel cbSuccess 
+          fiEndRequestDatelabel fiSuccessLabel cbSuccess fiMessage 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE RECT-13 btTest btExit btFilter btAPIIDLookup fiEventID fiPrimaryID 
+  ENABLE RECT-13 btExport btExit btFilter btAPIIDLookup fiEventID fiPrimaryID 
          fiAPIId btClientIDLookup btTriggerIDLookup fiClientID fiTriggerID 
-         btExport btRestart btBeginRequestDateCal btEndRequestDateCal 
-         fiBeginRequestDate fiEndRequestDate cbSuccess BROWSE-2 
+         btRestart btBeginRequestDateCal btEndRequestDateCal fiBeginRequestDate 
+         fiEndRequestDate cbSuccess ttAPIOutboundEvent 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
@@ -1030,4 +1105,76 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pReOpenBrowse C-Win
+PROCEDURE pReOpenBrowse:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    CASE cColumnLabel:
+        WHEN "apiID" THEN
+            RUN pByAPIID.
+        WHEN "userField1" THEN
+            RUN pByUserField1.
+        WHEN "userField2" THEN
+            RUN pByUserField2.
+        WHEN "primaryID" THEN
+            RUN pByPrimaryID.
+        WHEN "apiOutboundEventID" THEN
+            RUN pByEventID.
+        WHEN "success" THEN
+            RUN pBySuccess.
+        WHEN "requestDateTime" THEN
+            RUN pByRequestDate.
+        OTHERWISE
+        {&OPEN-QUERY-{&BROWSE-NAME}}
+    END CASE.
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateUserFieldLabels C-Win
+PROCEDURE pUpdateUserFieldLabels PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcAPIID AS CHARACTER NO-UNDO.    
+    
+    DEFINE VARIABLE cUserField1Label AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cUserField2Label AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cUserField3Label AS CHARACTER NO-UNDO.
+
+    ASSIGN
+        cUserField1Label = "User Field 1"
+        cUserField2Label = "User Field 2"
+        cUserField3Label = "Primary ID"
+        .
+    
+    CASE ipcAPIID:
+        WHEN "CalculateTax" THEN
+            ASSIGN
+                cUserField1Label = "BOL #"
+                cUserField2Label = "Order #"
+                cUserField3Label = "Invoice #"
+                .
+    END.
+    
+    IF VALID-HANDLE(hdUserField1Column) THEN
+        hdUserField1Column:LABEL = cUserField1Label.
+
+    IF VALID-HANDLE(hdUserField2Column) THEN
+        hdUserField2Column:LABEL = cUserField2Label.
+ 
+    IF VALID-HANDLE(hdPrimaryIDColumn) THEN
+        hdPrimaryIDColumn:LABEL = cUserField3Label.
+     
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 

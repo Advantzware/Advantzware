@@ -127,6 +127,8 @@ DEF NEW SHARED VAR v-newfilm  AS LOG NO-UNDO INIT FALSE.
 DEF NEW SHARED VAR v-newcombo AS LOG NO-UNDO INIT FALSE.
 DEFINE NEW SHARED VARIABLE lIncludeLastPage AS LOGICAL NO-UNDO .
 DEFINE NEW SHARED VARIABLE cRdOptionMclean AS CHARACTER INITIAL "M" NO-UNDO .
+DEFINE NEW SHARED VARIABLE cJobType AS CHARACTER NO-UNDO .
+DEFINE NEW SHARED VARIABLE lFSC AS LOGICAL NO-UNDO .
 DEF BUFFER b-reftable-freeze FOR reftable.
 DEF BUFFER b-reftable-split FOR reftable.
 
@@ -2979,7 +2981,7 @@ PROCEDURE output-to-printer :
 /*      MESSAGE "lv-format-f  " lv-format-f VIEW-AS ALERT-BOX ERROR.*/
       IF /*index("Interpac,Dayton,FibreFC,Livngstn",lv-format-f) > 0 */
         lookup(lv-format-f, 
-          "Interpac,FibreFC,HPB,Metro,Dayton,Livngstn,CentBox,Wingate,Keystone,Ruffino,Frankstn,Colonial,Unipak,OttPkg,MWFibre,Shelby,CCC,Indiana-XL,PPI,PackRite,Rosmar,Accord,Knight,MidYork,Dee,Badger,Carded,McLean,Carded2,Coburn,Knight***,jobcardf 1,jobcardf 2") > 0 THEN
+          "Interpac,FibreFC,HPB,Metro,Dayton,Livngstn,CentBox,Wingate,Keystone,Ruffino,Frankstn,Colonial,Unipak,OttPkg,MWFibre,Shelby,CCC,Indiana-XL,PPI,PackRite,Rosmar,Accord,Knight,MidYork,Dee,Badger,Carded,McLean,Carded2,Coburn,Knight***,jobcardf 1,jobcardf 2,Henry") > 0 THEN
      DO:   
          FILE-INFO:FILE-NAME = list-name.
          RUN printfile (FILE-INFO:FILE-NAME).   
@@ -3037,7 +3039,7 @@ IF ( tb_fold AND lv-format-f EQ "xml")   THEN
      end.
 
      IF  /*index("Interpac,FibreFC,Dayton,Livngstn",lv-format-f) > 0 */
-        lookup(lv-format-f, "Interpac,FibreFC,HPB,Metro,Dayton,Livngstn,CentBox,Wingate,Keystone,Ruffino,Frankstn,Colonial,Unipak,OTTPkg,MWFibre,Shelby,CCC,Indiana-XL,PPI,PackRite,Rosmar,Accord,MidYork,Knight,Dee,Badger,Carded,McLean,Carded2,Coburn,Knight***,jobcardf 1,jobcardf 2") > 0 THEN
+        lookup(lv-format-f, "Interpac,FibreFC,HPB,Metro,Dayton,Livngstn,CentBox,Wingate,Keystone,Ruffino,Frankstn,Colonial,Unipak,OTTPkg,MWFibre,Shelby,CCC,Indiana-XL,PPI,PackRite,Rosmar,Accord,MidYork,Knight,Dee,Badger,Carded,McLean,Carded2,Coburn,Knight***,jobcardf 1,jobcardf 2,Henry") > 0 THEN
      DO:
          FILE-INFO:FILE-NAME = list-name.
          RUN printfile (FILE-INFO:FILE-NAME).
@@ -3111,10 +3113,10 @@ PROCEDURE pRunFormatValueChanged :
 ------------------------------------------------------------------------------*/
     DO WITH FRAME {&FRAME-NAME}:
         
-        IF LOOKUP(lv-format-c,"Artios,Protagon,VINELAND,CapCity,Trilakes2,Suthrlnd,RFC2,Peachtree,jobcardc 1,jobcardc 2,xprint,Valley,Fluted,jobcardf 1,jobcardf 2") > 0 THEN
+        IF LOOKUP(lv-format-c,"Artios,Protagon,VINELAND,CapCity,Trilakes2,Suthrlnd,RFC2,Peachtree,jobcardc 1,jobcardc 2,xprint,Valley,Fluted,jobcardf 1,jobcardf 2,Henry") > 0 THEN
             ASSIGN tb_fgimage:SENSITIVE = YES.
         ELSE  ASSIGN tb_fgimage:SENSITIVE = NO.
-        IF LOOKUP(lv-format-f,"jobcardf 1,jobcardf 2") > 0 THEN
+        IF LOOKUP(lv-format-f,"jobcardf 1,jobcardf 2,Henry") > 0 THEN
             ASSIGN tb_fgimage:SENSITIVE = YES.
         ELSE ASSIGN tb_fgimage:SENSITIVE = NO.
         

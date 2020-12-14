@@ -3313,12 +3313,24 @@ END.
 
 &Scoped-define SELF-NAME subjectSearch
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL subjectSearch C-Win
-ON VALUE-CHANGED OF subjectSearch IN FRAME DEFAULT-FRAME
+ON LEAVE OF subjectSearch IN FRAME DEFAULT-FRAME
 DO:
     ASSIGN {&SELF-NAME}.
     {&OPEN-QUERY-subjectBrowse}
     IF AVAILABLE dynSubject THEN
     APPLY "VALUE-CHANGED":U TO subjectBrowse.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL subjectSearch C-Win
+ON RETURN OF subjectSearch IN FRAME DEFAULT-FRAME
+DO:
+    APPLY "LEAVE":U TO SELF.
+    APPLY "ENTRY":U TO SELF.
+    RETURN NO-APPLY.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -4645,7 +4657,7 @@ PROCEDURE pGenerateDefsInclude :
         cVariable = fGetVariable(dynValueParam.paramName,dynValueParam.dataType).
         PUT UNFORMATTED
             "DEFINE VARIABLE " cVariable            
-            " AS " dynValueParam.dataType " NO-UNDO."
+            " AS " CAPS(dynValueParam.dataType) " NO-UNDO."
             SKIP.
     END. /* each dynvalueparam */
     PUT UNFORMATTED
@@ -4670,17 +4682,17 @@ PROCEDURE pGenerateDefsInclude :
             "DYNAMIC-FUNCTION(~"fGetDynParamValue~",~""
             dynValueParam.paramName "~")"
             .
-        IF dynValueParam.dataType EQ "Logical" THEN
-        PUT UNFORMATTED " EQ ~"YES~"".
         IF dynValueParam.dataType EQ "Date" THEN
         PUT UNFORMATTED ")".
+        IF dynValueParam.dataType EQ "Logical" THEN
+        PUT UNFORMATTED " EQ ~"YES~"".
         PUT UNFORMATTED SKIP.
-        IF dynValueParam.paramName BEGINS "DatePickList" THEN
+        IF dynValueParam.dataType EQ "Date" THEN
         cPriorParam = cVariable.
         IF cPriorParam NE "" AND cPriorParam NE cVariable THEN DO:
             PUT UNFORMATTED FILL(" ",8)
-                cVariable " = DYNAMIC-FUNCTION(~"fDateOptionDate~","
-                cPriorParam "," cVariable ")"
+                cPriorParam " = DYNAMIC-FUNCTION(~"fDateOptionDate~","
+                cVariable "," cPriorParam ")"
                 SKIP.
             cPriorParam = "".
         END. /* if cpriorparam */
@@ -4754,8 +4766,11 @@ PROCEDURE pGetCustListID :
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO.
+
+    RUN spGetSessionParam ("Company", OUTPUT cCompany).
     FOR EACH sys-ctrl-shipto NO-LOCK
-        WHERE sys-ctrl-shipto.company EQ "001"
+        WHERE sys-ctrl-shipto.company EQ cCompany
           AND sys-ctrl-shipto.name    EQ "CustomerList"
         BREAK BY sys-ctrl-shipto.char-fld
         :

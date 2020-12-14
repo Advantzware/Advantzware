@@ -229,7 +229,8 @@ PROCEDURE pAddJobItem PRIVATE:
     END CASE.
     
     CREATE opbf-ttJobItem.
-    ASSIGN 
+    ASSIGN
+        ipcJobID                               = LEFT-TRIM(ipcJobID)
         opbf-ttJobItem.cCompany                = ipcCompany
         opbf-ttJobItem.cCustomerID             = CAPS(ipcCustomerID)
         opbf-ttJobItem.cItemID                 = CAPS(ipcItemID)

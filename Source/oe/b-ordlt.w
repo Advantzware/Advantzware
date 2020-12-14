@@ -96,8 +96,9 @@ DEFINE VARIABLE lUpdateOrderItem AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lAccessClose AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cAccessList AS CHARACTER NO-UNDO.
 DEFINE VARIABLE scInstance AS CLASS system.SharedConfig NO-UNDO.
-DEFINE VARIABLE hdOutboundProcs AS HANDLE NO-UNDO.
-DEFINE VARIABLE hdOrderProcs    AS HANDLE NO-UNDO.
+DEFINE VARIABLE hdOutboundProcs AS HANDLE  NO-UNDO.
+DEFINE VARIABLE hdOrderProcs    AS HANDLE  NO-UNDO.
+DEFINE VARIABLE lResponse       AS LOGICAL NO-UNDO.
 
 &SCOPED-DEFINE SORTBY-PHRASE BY oe-ordl.set-hdr-line BY oe-ordl.line
 
@@ -1405,10 +1406,15 @@ PROCEDURE delete-item :
                oe-ordl.est-type NE 3  AND
                oe-ordl.est-type NE 4  AND
                oe-ordl.est-type NE 8  THEN DO:
+              scInstance = SharedConfig:instance.
+              scInstance:SetValue("Estimate",TRIM(est.est-no)).
+              scInstance:SetValue("FGItemNumber",TRIM(oe-ordl.i-no)).    
               choice = YES.
-              MESSAGE "Remove FG Item# from the Estimate?"
-                 VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE choice.
-              v-blank-fg-on-est = int(choice) + 1.
+              RUN displayMessageQuestionLog(
+                  INPUT 56,
+                  OUTPUT lResponse
+                  ).
+              v-blank-fg-on-est = INTEGER(lResponse) + 1.
             END.
             IF v-blank-fg-on-est EQ 2 THEN eb.stock-no = "".
        END.

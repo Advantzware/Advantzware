@@ -1,0 +1,11 @@
+        {
+          "Company": "$Company$",
+          "ItemID": "$ItemID$",
+          "CustomerID": "$CustomerID$",
+          "ShipToID": "$ShipToID$",
+          "Quantity": $Quantity$,
+          "QuantityUOM": "$QuantityUOM$",
+          "TargetUOM": "$TargetUOM$",
+          "Price": $Price$,
+          "PriceUOM": "$PriceUOM$"
+        }

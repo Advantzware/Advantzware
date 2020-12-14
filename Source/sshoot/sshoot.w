@@ -52,6 +52,8 @@ OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
     cNewSshootMenu = cRtnChar NO-ERROR.
 
+RUN spSetSessionParam ("Company", g_company).
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

@@ -122,7 +122,7 @@ ASSIGN
                 "jobcardc 1,jobcardc 2,Printers,Valley,jobcardc 20,Valley20,Delta10,HoneyCell,AtlanticBox,PkgAtlanta,AmCarton," +
                 "Fluted,PreCorr" 
  str-init[33] = "ASI,HOP,Fibre,Century,Interpac,FibreFC,HPB,Dayton,Livngstn,CentBox,Metro,Keystone,Frankstn,Colonial,Unipak,OTTPkg,Shelby,CCC,Indiana-XL,PPI,Accord,Knight,MidYork,Dee,Badger,Rosmar,Carded,Carded2,PackRite,Prystup,Knight***,Coburn," + /*MWFibre=Keystone*/
-                "jobcardf 1,jobcardf 2,xml,Wingate,Ruffino,McLean"
+                "jobcardf 1,jobcardf 2,xml,Wingate,Ruffino,McLean,Henry"
  str-init[34] = "Manual,Matrix"
  str-init[35] = "ShipTo,Header"
  str-init[36] = "ShipTo,FGFile"
@@ -191,7 +191,7 @@ ASSIGN
  str-init[96] = ",Michcor,Trilakes,Woodland,PremierPkg,St.Clair,NStock,Blue,Freedman,Shamrock"  /* GP */
  str-init[97] = "DC Only,OE & DC"   /* oeprep */
  str-init[98] = "None,1/8,1/8Up,1/4,1/4Up,1/2,1/2Up,1,1Up"  /* celayout */
- str-init[99] = "Fibre"
+ str-init[99] = "Fibre,1Up1099,2Up1099"
  str-init[100] = "Customer,CustX"  /* 1099-MISC */
  str-init[101] = ",Skip Open Order Calc"
  str-init[102] = ""
@@ -246,7 +246,7 @@ ASSIGN str-init[125] = "Ship Only,Invoice Only,Bill and Ship,Transfer Only"
        str-init[149] = ",Job-Item,Item-Job"
        str-init[150] = ",RMLot"
        str-init[151] = "Xprint,bolfmt1,GPI"
-       str-init[152] = ",Open,Hold"
+       str-init[152] = ",Open,Hold,User Limit"
        str-init[153] = "Trailer#,ShipTo,Indiana,StdBOLMaster"
        str-init[154] = "Square Feet,Board Cost,Factory Cost,Full Cost"
        str-init[155] = "Yes,No,Ask"
@@ -276,7 +276,7 @@ ASSIGN str-init[125] = "Ship Only,Invoice Only,Bill and Ship,Transfer Only"
        str-init[179] = "ROUNDUP,ROUNDDOWN,NONE"
        str-init[180] = ",API"
        str-init[181] = "ItemMatch,NoMatch"
-       str-init[182] = "Standard,McLean,By Form With Summary First,By Form With Summary Last,By Form Mult Qty Analysis,By Form With Summary First Mult Qty,Config"
+       str-init[182] = "Standard,By Form With Summary First,By Form With Summary Last,By Form Mult Qty Analysis,By Form With Summary First Mult Qty,Config"
        str-init[183] = "HOLD,INFO"
        str-init[184] = "HOLD,INFO"
        str-init[185] = "HOLD,INFO"

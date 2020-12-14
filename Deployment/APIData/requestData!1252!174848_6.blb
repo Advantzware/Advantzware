@@ -1,1 +1,0 @@
-{"cod_company":"$po-ord.company$","doctype":"$po-ord.type$","docentry":"$po-ord.po-no$","docnum":"$po-ord.po-no$","docstatus":"$po-ord.stat$","docdate":"$po-ord.po-date$","reqdate":"$po-ord.last-ship-date$","cardcode":"$po-ord.vend-no$","cardname":"$cCardName$","numatcard":"$TBD9$","docduedate":"$po-ord.due-date$","last_request_ip":"$TBD11$","detail":[$TBD12$]}

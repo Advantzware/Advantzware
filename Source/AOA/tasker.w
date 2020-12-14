@@ -462,6 +462,9 @@ PROCEDURE CtrlFrame.PSTimer.Tick .
     DEFINE VARIABLE iConfigID         AS INTEGER   NO-UNDO.
     DEFINE VARIABLE lTaskerNotRunning AS LOGICAL   NO-UNDO.
 
+    DEFINE BUFFER bConfig     FOR config.
+    DEFINE BUFFER emailConfig FOR emailConfig.
+
     {&WINDOW-NAME}:TITLE = "AOA Tasker - Scanning Tasks".
     RUN pTasks.
     {&WINDOW-NAME}:TITLE = "AOA Tasker - Scanning Emails".
@@ -475,9 +478,9 @@ PROCEDURE CtrlFrame.PSTimer.Tick .
         ).
     iConfigID = INTEGER(cTaskerNotRunning).
     DO TRANSACTION:
-        FIND FIRST config EXCLUSIVE-LOCK.
-        config.taskerLastExecuted = NOW.
-        FIND FIRST config NO-LOCK.
+        FIND FIRST bConfig EXCLUSIVE-LOCK.
+        bConfig.taskerLastExecuted = NOW.
+        FIND FIRST bConfig NO-LOCK.
         IF CAN-FIND(FIRST emailConfig
                     WHERE emailConfig.configID EQ iConfigID
                       AND emailConfig.isActive EQ YES
@@ -673,8 +676,12 @@ PROCEDURE pGetSettings :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE idx     AS INTEGER NO-UNDO.
+    DEFINE VARIABLE idx AS INTEGER NO-UNDO.
     
+    DEFINE BUFFER user-print FOR user-print.
+
+    RUN pTrackAudit ("Started").
+
     FIND FIRST user-print NO-LOCK
          WHERE user-print.program-id EQ "{&program-id}"
            AND user-print.user-id    EQ USERID("ASI")
@@ -755,12 +762,13 @@ PROCEDURE pRunCommand :
     RUN spGetSessionParam ("Password", OUTPUT cPassword).
     IF cPassword NE "" THEN
     cPassword = " -U " + USERID("ASI") + " -P " + cPassword.
-    opcRun = cEXE
-           + REPLACE(opcRun,"-U " + USERID("ASI") + " -P","")
-           + cPassword
-           + " -p &1 -param &2"
-           + " -debugalert"
-           .
+    ASSIGN
+        opcRun = REPLACE(opcRun,"-U " + USERID("ASI") + " -P","")
+        opcRun = cEXE
+               + REPLACE(opcRun,"-ld ASI","-ld ASI " + cPassword)
+               + " -p &1 -param &2"
+               + " -debugalert"
+               .
 
 END PROCEDURE.
 
@@ -774,8 +782,13 @@ PROCEDURE pSaveSettings :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE idx AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iAuditID AS INTEGER NO-UNDO.
+    DEFINE VARIABLE idx      AS INTEGER NO-UNDO.
     
+    DEFINE BUFFER user-print FOR user-print.
+
+    RUN pTrackAudit ("Stopped").
+
     FIND FIRST user-print EXCLUSIVE-LOCK
          WHERE user-print.program-id EQ "{&program-id}"
            AND user-print.user-id    EQ USERID("ASI")
@@ -868,18 +881,25 @@ PROCEDURE pTaskEmails :
                     FILE-INFO:FILE-NAME = "AOA\TaskEmail.p" 
                     cRunProgram = FILE-INFO:FULL-PATHNAME
                     .
-                OS-COMMAND NO-WAIT VALUE(
-                    SUBSTITUTE(
-                        cRun,
-                        cRunProgram,           "~"" +
-                        PROPATH               + "+" +
-                        bTaskEmail.subject    + "+" +
-                        bTaskEmail.body       + "+" +
-                        bTaskEmail.attachment + "+" +
-                        bTaskEmail.recipients + "+" +
-                        bTaskEmail.rec_key    + "~""
-                        )
+                RUN VALUE(cRunProgram) (
+                    bTaskEmail.subject,
+                    bTaskEmail.body,
+                    bTaskEmail.attachment,
+                    bTaskEmail.recipients,
+                    bTaskEmail.rec_key
                     ).
+/*                OS-COMMAND NO-WAIT VALUE(            */
+/*                    SUBSTITUTE(                      */
+/*                        cRun,                        */
+/*                        cRunProgram,           "~"" +*/
+/*                        PROPATH               + "+" +*/
+/*                        bTaskEmail.subject    + "+" +*/
+/*                        bTaskEmail.body       + "+" +*/
+/*                        bTaskEmail.attachment + "+" +*/
+/*                        bTaskEmail.recipients + "+" +*/
+/*                        bTaskEmail.rec_key    + "~"" */
+/*                        )                            */
+/*                    ).                               */
             END. /* else */
             DELETE bTaskEmail.
             lRefresh = YES.
@@ -960,6 +980,37 @@ PROCEDURE pTasks :
 
 END PROCEDURE.
 
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pTrackAudit C-Win
+PROCEDURE pTrackAudit:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcType AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE iAuditID AS INTEGER NO-UNDO.
+
+    RUN spCreateAuditHdr (
+        "LOG",           /* type  */
+        "ASI",           /* db    */
+        "{&program-id}", /* table */
+        "ND1",           /* key   */
+        OUTPUT iAuditID
+        ).
+    RUN spCreateAuditDtl (
+        iAuditID, /* audit id     */
+        "",       /* field        */
+        0,        /* extent       */
+        ipcType,  /* before value */
+        "",       /* after value  */
+        NO        /* index field  */
+        ).
+
+END PROCEDURE.
+	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

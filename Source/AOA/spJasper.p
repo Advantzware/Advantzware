@@ -1072,7 +1072,7 @@ PROCEDURE pJasperLastPageFooter :
                        AND bDynValueParam.user-id      EQ dynValueParam.user-id
                        AND bDynValueParam.prgmName     EQ dynValueParam.prgmName
                        AND bDynValueParam.paramValueID EQ dynValueParam.paramValueID
-                       AND bDynValueParam.sortOrder    EQ dynValueParam.sortOrder + 1 
+                       AND bDynValueParam.sortOrder    EQ dynValueParam.sortOrder + 1
                      NO-ERROR.
                 IF AVAILABLE bDynValueParam AND
                    bDynValueParam.paramLabel EQ ? AND
@@ -1084,7 +1084,7 @@ PROCEDURE pJasperLastPageFooter :
                         cParameter[iParameterRow] = cParameter[iParameterRow] + " (" + bDynValueParam.paramValue + ")"
                         cValue = STRING(DYNAMIC-FUNCTION("fDateOptionDate" IN hAppSrvBin, bDynValueParam.paramValue, dtDate),"99/99/9999")
                         .
-                END.
+                END. /* if avail */
                 IF cValue EQ ? THEN
                 cValue = "".
                 ASSIGN
@@ -1576,8 +1576,11 @@ PROCEDURE pJasterTitleBand :
     
     DEFINE VARIABLE cSubTitle   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cParamValue AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE dtDate      AS DATE      NO-UNDO.
     DEFINE VARIABLE idx         AS INTEGER   NO-UNDO.
     DEFINE VARIABLE lParamFound AS LOGICAL   NO-UNDO.
+
+    DEFINE BUFFER bDynValueParam FOR dynValueParam.
 
     /* title band */
     FOR EACH dynSubjectParamSet NO-LOCK
@@ -1600,11 +1603,27 @@ PROCEDURE pJasterTitleBand :
                AND dynValueParam.paramValueID EQ dynParamValue.paramValueID
                AND dynValueParam.paramName    EQ dynParamSetDtl.paramName
              NO-ERROR.
-        IF AVAILABLE dynValueParam THEN
-        ASSIGN
-            cParamValue = dynValueParam.paramValue
-            lParamFound = YES
-            .
+        IF AVAILABLE dynValueParam THEN DO:
+            ASSIGN
+                cParamValue = dynValueParam.paramValue
+                lParamFound = YES
+                .
+            FIND FIRST bDynValueParam NO-LOCK
+                 WHERE bDynValueParam.subjectID    EQ dynValueParam.subjectID
+                   AND bDynValueParam.user-id      EQ dynValueParam.user-id
+                   AND bDynValueParam.prgmName     EQ dynValueParam.prgmName
+                   AND bDynValueParam.paramValueID EQ dynValueParam.paramValueID
+                   AND bDynValueParam.sortOrder    EQ dynValueParam.sortOrder + 1
+                 NO-ERROR.
+            IF AVAILABLE bDynValueParam AND
+               bDynValueParam.paramLabel EQ ? AND
+               INDEX(bDynValueParam.paramName,"DatePickList") NE 0 THEN DO:
+                dtDate = DATE(dynValueParam.paramValue) NO-ERROR.
+                IF ERROR-STATUS:ERROR THEN
+                dtDate = ?.
+                cParamValue = STRING(DYNAMIC-FUNCTION("fDateOptionDate" IN hAppSrvBin, bDynValueParam.paramValue, dtDate),"99/99/9999").
+            END. /* if avail */
+        END. /* if avail */
         IF cParamValue EQ CHR(254) THEN
         cParamValue = "".
         IF lParamFound THEN

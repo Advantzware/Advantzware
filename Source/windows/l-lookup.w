@@ -1279,6 +1279,7 @@ PROCEDURE pCalcFields :
                  WHERE ROWID(dynValueColumn) EQ rDynValueColumn[idx]
                  NO-ERROR.
             IF NOT AVAILABLE dynValueColumn THEN NEXT.
+            cCalcParam = "".
             DO jdx = 1 TO NUM-ENTRIES(dynValueColumn.calcParam,"|"):
                 cCalcParam[1] = ENTRY(jdx,dynValueColumn.calcParam,"|").
                 IF NUM-ENTRIES(cCalcParam[1],".") GT 1 THEN

@@ -129,7 +129,12 @@ DEF VAR v-licnt         AS INT                          NO-UNDO.
 DEF VAR v-notes         AS CHAR FORMAT "x(80)" EXTENT 5 NO-UNDO.
 DEF VAR note-count      AS INT                          NO-UNDO. 
 DEF VAR v-text1         AS CHAR FORMAT "x(170)" EXTENT 10 NO-UNDO.
-
+DEFINE VARIABLE cSoldID as CHARACTER format "x(30)" NO-UNDO.
+DEFINE VARIABLE cSoldName as CHARACTER format "x(30)" NO-UNDO.
+DEFINE VARIABLE cSoldAddress as CHARACTER format "x(30)" extent 2 NO-UNDO.
+DEFINE VARIABLE cSoldCity as CHARACTER format "x(15)" NO-UNDO.
+DEFINE VARIABLE cSoldState as CHARACTER format "x(2)" NO-UNDO.
+DEFINE VARIABLE cSoldZip as CHARACTER format "x(10)" NO-UNDO.
 
 FOR EACH tt-ar-invl NO-LOCK:
    DELETE tt-ar-invl.
@@ -353,7 +358,30 @@ ELSE lv-comp-color = "BLACK".
             no-lock no-error.
 
         IF AVAIL ar-invl THEN
+        DO:
            lv-bol-no = ar-invl.bol-no.
+           FIND FIRST oe-ord NO-LOCK
+                  WHERE oe-ord.company = cocode 
+                  AND oe-ord.ord-no = ar-invl.ord-no 
+                  NO-ERROR.    
+             IF AVAIL oe-ord THEN
+             DO:
+                 FIND FIRST soldto NO-LOCK
+                      WHERE soldto.company = cocode 
+                      AND soldto.cust-no = oe-ord.cust-no
+                      AND trim(soldto.sold-id) = trim(oe-ord.sold-id)
+                      NO-ERROR.        
+             IF avail soldto THEN
+             ASSIGN
+                 cSoldID         = soldto.sold-id
+                 cSoldName       = soldto.sold-name
+                 cSoldAddress[1] = soldto.sold-addr[1]
+                 cSoldAddress[2] = soldto.sold-addr[2]
+                 cSoldCity       = soldto.sold-city
+                 cSoldState      = soldto.sold-state
+                 cSoldZip        = soldto.sold-zip .              
+             END.    
+        END.                     
 
         {ar/rep/invcapcin.i}
 

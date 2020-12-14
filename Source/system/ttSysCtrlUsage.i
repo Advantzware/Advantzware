@@ -20,6 +20,7 @@ DEFINE TEMP-TABLE ttSysCtrlUsage NO-UNDO
     FIELD sysCtrlID    LIKE sys-ctrl-shipto.sysCtrlID
     FIELD typeCode     LIKE sys-ctrl-shipto.typeCode
     FIELD stackTrace     AS CHARACTER                    LABEL "Stack"
+    FIELD isPassword   LIKE sys-ctrl.isPassword          LABEL "Password"
         INDEX ttSysCtrlUsage IS PRIMARY
             company module name
             .

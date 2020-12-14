@@ -150,6 +150,11 @@ if chosen eq 2 then DO:
                       cVarValue = STRING(w-ord.due-date) .
                   ELSE cVarValue = "" .
                 END.
+                WHEN "po-due-date" THEN DO:
+                  IF w-ord.po-due-date NE ? THEN
+                      cVarValue = STRING(w-ord.po-due-date,"99/99/9999") .
+                  ELSE cVarValue = "" .
+                END.
                 WHEN "ord-date" THEN DO:
                   IF w-ord.ord-date NE ? THEN
                       cVarValue = STRING(w-ord.ord-date) .

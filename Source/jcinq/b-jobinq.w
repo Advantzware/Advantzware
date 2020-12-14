@@ -1457,6 +1457,7 @@ PROCEDURE move-columns :
        /* FI_moveCol = IF v-col-move = NO THEN "Move" ELSE "Sort".
      DISPLAY FI_moveCol.*/
   END.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

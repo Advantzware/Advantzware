@@ -351,7 +351,7 @@ ON CHOOSE OF btLoad IN FRAME DEFAULT-FRAME /* Load */
 DO:
     cCSVFile = fiFileSelector:SCREEN-VALUE.
     
-    RUN LoadRequestsFomCSV IN hdInboundProcs (
+    RUN LoadRequestsFromCSV IN hdInboundProcs (
         INPUT cCSVFile,
         OUTPUT TABLE ttInboundRequest
         ) NO-ERROR.

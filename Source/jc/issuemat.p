@@ -1,6 +1,8 @@
   
-DEF INPUT PARAM ip-rowid AS ROWID NO-UNDO.
-
+DEFINE INPUT PARAMETER ip-rowid              AS ROWID   NO-UNDO.
+DEFINE INPUT PARAMETER ipdQuantity           AS DECIMAL NO-UNDO.
+DEFINE INPUT PARAMETER iplPromptBinSelection AS LOGICAL NO-UNDO.
+DEFINE INPUT PARAMETER iplPostIssues         AS LOGICAL NO-UNDO.
 {sys/inc/var.i SHARED}
 
 DO TRANSACTION:
@@ -41,7 +43,7 @@ IF AVAIL job-mat THEN DO:
         AND item.i-no EQ job-mat.rm-i-no
       NO-ERROR.
   IF AVAIL item THEN DO:
-    ld-qty = job-mat.qty.
+    ld-qty = ipdQuantity.
 
     IF job-mat.qty-uom NE item.cons-uom AND item.cons-uom NE "" THEN
       RUN sys/ref/convquom.p(job-mat.qty-uom,
@@ -53,6 +55,7 @@ IF AVAIL job-mat THEN DO:
                              ld-qty,
                              OUTPUT ld-qty).
 
-    {rm/rm-autoi.i rm-rctd rm-rctd item ld-qty I}
+    {rm/rm-autoi.i rm-rctd rm-rctd item ld-qty I iplPromptBinSelection iplPostIssues}
   END.
 END.
+ 

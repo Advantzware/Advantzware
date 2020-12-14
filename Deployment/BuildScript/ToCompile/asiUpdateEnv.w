@@ -103,7 +103,7 @@ DEF TEMP-TABLE ttLookups LIKE lookups.
 DEF TEMP-TABLE ttReftable LIKE reftable.
 DEF TEMP-TABLE ttSysCtrl LIKE sys-ctrl.
 DEF TEMP-TABLE ttSys-Ctrl LIKE sys-ctrl.
-DEF TEMP-TABLE ttSysCtrlShipto LIKE sys-ctrl-shipto.
+DEF TEMP-TABLE ttSys-Ctrl-Shipto LIKE sys-ctrl-shipto.
 DEF TEMP-TABLE ttTranslation LIKE translation.
 DEF TEMP-TABLE ttUserLanguage LIKE userlanguage.
 DEF TEMP-TABLE ttXuserMenu LIKE xuserMenu.
@@ -1610,6 +1610,30 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipChangeCostMethod C-Win
+PROCEDURE ipChangeCostMethod:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RUN ipStatus ("    Change cost method in IF2").
+
+    DEF BUFFER bFg-ctrl FOR fg-ctrl.
+    
+    FOR EACH bFg-ctrl EXCLUSIVE
+        WHERE bFg-ctrl.inv-meth EQ "S":
+        ASSIGN 
+            bFg-ctrl.inv-meth = "L".
+    END.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipCheckPayMaster C-Win 
 PROCEDURE ipCheckPayMaster :
 /*------------------------------------------------------------------------------
@@ -2005,7 +2029,7 @@ PROCEDURE ipConfirmMonitorUser :
         users.isLocked = false
         users.phone = "2153697800"
         users.phone-cnty = "1"
-        users.securityLevel = 1000
+        users.securityLevel = 100
         users.showOnAck = false
         users.showOnBol = false
         users.showOnInv = false
@@ -3430,6 +3454,7 @@ PROCEDURE ipDataFix999999 :
     RUN ipDeleteAudit.
     RUN ipCleanTemplates.
     RUN ipLoadEstCostData.
+    RUN ipChangeCostMethod.
     
 END PROCEDURE.
 
@@ -3766,6 +3791,12 @@ PROCEDURE ipExpandFiles :
     OS-COMMAND SILENT VALUE(cCmdLine2).
     OS-COMMAND SILENT VALUE(cCmdLine3).
 
+    /* Copy DataDigger saved files to CustFiles\DDBackups */
+    OS-CREATE-DIR VALUE(cTgtEnv + "\CustFiles\DDBackups").
+    OS-CREATE-DIR VALUE(cTgtEnv + "\CustFiles\DDBackups\Cache").
+    OS-COPY VALUE(cTgtEnv + "\Programs\DataDigger\Datadigger-*.ini") VALUE(cTgtEnv + "\CustFiles\DDBackups").
+    OS-COPY VALUE(cTgtEnv + "\Programs\DataDigger\Cache\*.*") VALUE(cTgtEnv + "\CustFiles\DDBackups\Cache").
+    
     /* Skip the copy part, just MOVE the files  */
     RUN ipStatus ("  Moving expanded files from ").
     RUN ipStatus ("    " + cUpdProgramDir + " to").
@@ -3790,6 +3821,11 @@ PROCEDURE ipExpandFiles :
     OS-DELETE VALUE(cTgtEnv + "\ProgramsO") RECURSIVE.
     OS-DELETE VALUE(cTgtEnv + "\ResourcesO") RECURSIVE.
 
+    /* Now restore DD files from backed up copies and remove Backup dirs */
+    OS-COPY VALUE(cTgtEnv + "\CustFiles\DDBackups\*.*") VALUE(cTgtEnv + "\Programs\DataDigger").
+    OS-COPY VALUE(cTgtEnv + "\CustFiles\DDBackups\Cache\*.*") VALUE(cTgtEnv + "\\Programs\DataDigger\Cache").
+    OS-DELETE VALUE(cTgtEnv + "\CustFiles\DDBackups") RECURSIVE.
+    
     RUN ipStatus ("Installation of new system files complete").
     
     ASSIGN 
@@ -5092,7 +5128,8 @@ PROCEDURE ipLoadNewUserData :
             users.showMnemonic = IF users.showMnemonic = "" THEN "All" ELSE users.showMnemonic
             users.positionMnemonic = IF users.positionMnemonic = "" THEN "Begin" ELSE users.positionMnemonic
             users.use_colors = FALSE
-            users.use_fonts = FALSE.
+            users.use_fonts = FALSE
+            users.track_usage = TRUE.
 
         IF users.userType = "" OR users.userType = ? THEN DO:
             CASE users.user_id:
@@ -6829,6 +6866,37 @@ PROCEDURE ipUpdateNK1s :
     FOR EACH  sys-ctrl WHERE
         sys-ctrl.name EQ "RMKEEPZEROBIN":
         DELETE sys-ctrl.
+    END.
+    
+    /* 94653 Passwords Displayed in Plain Text */
+    RUN ipStatus ("  NK1 password field").
+    INPUT FROM VALUE(cUpdDataDir + "\sys-ctrl.d") NO-ECHO.
+    REPEAT:
+        CREATE ttsys-ctrl.
+        IMPORT ttsys-ctrl.
+    END.
+    INPUT CLOSE.
+    INPUT FROM VALUE(cUpdDataDir + "\sys-ctrl-shipto.d") NO-ECHO.
+    REPEAT:
+        CREATE ttsys-ctrl-shipto.
+        IMPORT ttsys-ctrl-shipto.
+    END.
+    INPUT CLOSE.
+    FOR EACH sys-ctrl EXCLUSIVE:
+        FIND FIRST ttsys-ctrl WHERE
+            ttsys-ctrl.company EQ "001" AND 
+            ttsys-ctrl.name EQ sys-ctrl.name
+            NO-ERROR.
+        IF AVAIL ttsys-ctrl THEN ASSIGN 
+                sys-ctrl.isPassword = ttsys-ctrl.isPassword.
+    END.
+    FOR EACH sys-ctrl-shipto EXCLUSIVE:
+        FIND FIRST ttsys-ctrl-shipto WHERE
+            ttsys-ctrl-shipto.company EQ "001" AND 
+            ttsys-ctrl-shipto.name EQ sys-ctrl-shipto.name 
+            NO-ERROR.
+        IF AVAIL ttsys-ctrl-shipto THEN ASSIGN 
+            sys-ctrl-shipto.isPassword = ttsys-ctrl-shipto.isPassword.
     END.
     
     ASSIGN 

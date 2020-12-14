@@ -42,6 +42,7 @@ CREATE WIDGET-POOL.
 DEFINE VARIABLE lHasAccess AS LOGICAL NO-UNDO.
 
 {Inventory/ttInventory.i "NEW SHARED"}
+{jc/jcgl-sh.i  NEW}
 {methods/defines/sortByDefs.i}
 
 DEFINE VARIABLE hdInventoryProcs AS HANDLE NO-UNDO.
@@ -406,7 +407,6 @@ PROCEDURE AdjustQuantity :
                 RUN Inventory_AdjustFinishedGoodBinQty IN hdInventoryProcs (
                     INPUT  TO-ROWID(ttBrowseInventory.inventoryStockID),
                     INPUT  dTotalQuantity - ttBrowseInventory.quantity,
-                    INPUT  dPartialQuantity - ttBrowseInventory.quantityPartial,
                     INPUT  cAdjReasonCode,
                     OUTPUT lSuccess,
                     OUTPUT cMessage

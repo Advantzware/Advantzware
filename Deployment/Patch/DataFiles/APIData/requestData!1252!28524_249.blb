@@ -1,0 +1,81 @@
+<TransactionSet>
+<TX-00401-856 type="TransactionSet">
+<Meta>
+<!--Transaction Set Identifier Code-->
+<ST01><!--Ship Notice/Manifest-->856</ST01>
+<!--Transaction Set Control Number-->
+<ST02>$ClientTransCounter|999999999|Int|$</ST02>
+</Meta>
+<BSN type="Segment">
+<!--Transaction Set Purpose Code-->
+<BSN01><!--Original-->00</BSN01>
+<!--Shipment Identification-->
+<BSN02>$BOLID$</BSN02>
+<!--Date-->
+<BSN03>$NoticeDate|YYYYMMDD|Date|$</BSN03>
+<!--Time-->
+<BSN04>162859</BSN04>
+</BSN>
+<DTM type="Segment">
+<!--Date/Time Qualifier-->
+<DTM01><!--Shipped-->011</DTM01>
+<!--Date-->
+<DTM02>$BOLDate|YYYYMMDD|Date|$</DTM02>
+</DTM>
+<DTM type="Segment">
+<!--Date/Time Qualifier-->
+<DTM01><!--Delivery-->017</DTM01>
+<!--Date-->
+<DTM02>$EstimatedTimeOfArrival|YYYYMMDD|Date|$</DTM02>
+</DTM>
+<HLLoop1 type="Loop">
+<HL type="Segment">
+<!--Hierarchical ID Number-->
+<HL01>1</HL01>
+<!--Hierarchical Parent ID Number-->
+<HL02 xsi:nil="true"/>
+<!--Hierarchical Level Code-->
+<HL03><!--Shipment-->S</HL03>
+</HL>
+<REF type="Segment">
+<!--Reference Identification Qualifier-->
+<REF01><!--Bill of Lading Number-->BM</REF01>
+<!--Reference Identification-->
+<REF02>$BOLID$</REF02>
+</REF>
+</HLLoop1>
+<N1Loop1 type="Loop">
+<N1 type="Segment">
+<!--Entity Identifier Code-->
+<N101><!--Ship From-->ST</N101>
+<!--Name-->
+<N102>$ShipToName$</N102>
+</N1>
+<N3 type="Segment">
+<!--Address Information-->
+<N301>$ShipToPostalAddressStreet$</N301>
+</N3>
+<N4 type="Segment">
+<!--City Name-->
+<N401>$ShipToPostalAddressCity$</N401>
+<!--State or Province Code-->
+<N402>$ShipToPostalAddressState$</N402>
+<!--Postal Code-->
+<N403>$ShipToPostalAddressPostalCode$</N403>
+<!--Country Code-->
+<N404>$ShipToPostalAddressCountryCode$</N404>
+</N4>
+</N1Loop1>
+$OrderDetailID$
+$ItemDetailID$
+<CTT type="Segment">
+<!--Number of Line Items-->
+<CTT01>$LineCount$</CTT01>
+</CTT>
+<SE type="Segment">
+<SE01><!--Ship Notice/Manifest-->856</SE01>
+<!--Transaction Set Control Number-->
+<SE02>$ClientTransCounter|999999999|Int|$</SE02>
+</SE>
+</TX-00401-856>
+</TransactionSet>

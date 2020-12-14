@@ -249,7 +249,7 @@ DEFINE VARIABLE fiResult AS CHARACTER FORMAT "X(256)":U
      SIZE 39.6 BY 1.76
      FONT 37 NO-UNDO.
 
-DEFINE VARIABLE fiSubUnitCount AS DECIMAL FORMAT "->,>>>,>>9.99<<<<<":U INITIAL 0 
+DEFINE VARIABLE fiSubUnitCount AS DECIMAL FORMAT ">,>>>,>>9.99<<<<<":U INITIAL 0 
      VIEW-AS FILL-IN 
      SIZE 40 BY 1.43
      FONT 37 NO-UNDO.
@@ -259,7 +259,7 @@ DEFINE VARIABLE fiSubUnitCountLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Case
      SIZE 28.8 BY 1.43
      FONT 36 NO-UNDO.
 
-DEFINE VARIABLE fiSubUnits AS DECIMAL FORMAT "->,>>>,>>9.99<<<<<":U INITIAL 0 
+DEFINE VARIABLE fiSubUnits AS DECIMAL FORMAT ">,>>>,>>9.99<<<<<":U INITIAL 0 
      VIEW-AS FILL-IN 
      SIZE 40 BY 1.43
      FONT 37 NO-UNDO.
@@ -269,7 +269,7 @@ DEFINE VARIABLE fiSubUnitsLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Case/Bun
      SIZE 19.4 BY 1.43
      FONT 36 NO-UNDO.
 
-DEFINE VARIABLE fiSubUnitsPerUnit AS DECIMAL FORMAT "->,>>>,>>9.99<<<<<":U INITIAL 0 
+DEFINE VARIABLE fiSubUnitsPerUnit AS DECIMAL FORMAT ">,>>>,>>9.99<<<<<":U INITIAL 0 
      VIEW-AS FILL-IN 
      SIZE 40 BY 1.43
      FONT 37 NO-UNDO.
@@ -284,17 +284,17 @@ DEFINE VARIABLE fiText AS CHARACTER FORMAT "X(256)":U
      SIZE 39.6 BY 1.19
      FONT 35 NO-UNDO.
 
-DEFINE VARIABLE fiTotalQty AS DECIMAL FORMAT "->,>>>,>>9.99<<<<<":U INITIAL 0 
+DEFINE VARIABLE fiTotalQty AS DECIMAL FORMAT ">,>>>,>>9.99<<<<<":U INITIAL 0 
      VIEW-AS FILL-IN 
      SIZE 40 BY 1.43
      FONT 37 NO-UNDO.
 
-DEFINE VARIABLE fiTotalQtyLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Total Quantity:" 
+DEFINE VARIABLE fiTotalQtyLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Quantity:" 
      VIEW-AS FILL-IN 
-     SIZE 22.2 BY 1.43
+     SIZE 14.2 BY 1.43
      FONT 36 NO-UNDO.
 
-DEFINE VARIABLE fiUnitCount AS DECIMAL FORMAT "->,>>>,>>9.99<<<<<":U INITIAL 0 
+DEFINE VARIABLE fiUnitCount AS DECIMAL FORMAT ">,>>>,>>9.99<<<<<":U INITIAL 0 
      VIEW-AS FILL-IN 
      SIZE 40 BY 1.43
      FONT 37 NO-UNDO.
@@ -304,7 +304,7 @@ DEFINE VARIABLE fiUnitCountLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Pallet 
      SIZE 19 BY 1.43
      FONT 36 NO-UNDO.
 
-DEFINE VARIABLE fiUnits AS DECIMAL FORMAT "->,>>>,>>9.99<<<<<":U INITIAL 0 
+DEFINE VARIABLE fiUnits AS DECIMAL FORMAT ">,>>>,>>9.99<<<<<":U INITIAL 0 
      VIEW-AS FILL-IN 
      SIZE 40 BY 1.43
      FONT 37 NO-UNDO.
@@ -318,7 +318,6 @@ DEFINE VARIABLE rsAdjustType AS CHARACTER
      VIEW-AS RADIO-SET HORIZONTAL
      RADIO-BUTTONS 
           "Reduce", "Reduce",
-"Add", "Add",
 "Count", "Count"
      SIZE 61 BY 1.43
      FONT 36 NO-UNDO.
@@ -339,15 +338,15 @@ DEFINE RECTANGLE RECT-32
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Dialog-Frame
-     fiItem AT ROW 1.33 COL 15.6 COLON-ALIGNED WIDGET-ID 154
-     fiItemName AT ROW 1.33 COL 68 COLON-ALIGNED WIDGET-ID 156
-     fiJobQty AT ROW 2.91 COL 15.6 COLON-ALIGNED WIDGET-ID 158
-     fiRcvdQty AT ROW 2.91 COL 65 COLON-ALIGNED WIDGET-ID 160
-     fiOnHandQty AT ROW 2.91 COL 114.6 COLON-ALIGNED WIDGET-ID 162
+     fiItem AT ROW 1.33 COL 15.6 COLON-ALIGNED WIDGET-ID 154 NO-TAB-STOP 
+     fiItemName AT ROW 1.33 COL 68 COLON-ALIGNED WIDGET-ID 156 NO-TAB-STOP 
+     fiJobQty AT ROW 2.91 COL 15.6 COLON-ALIGNED WIDGET-ID 158 NO-TAB-STOP 
+     fiRcvdQty AT ROW 2.91 COL 65 COLON-ALIGNED WIDGET-ID 160 NO-TAB-STOP 
+     fiOnHandQty AT ROW 2.91 COL 114.6 COLON-ALIGNED WIDGET-ID 162 NO-TAB-STOP 
      fiText AT ROW 4.91 COL 144.4 RIGHT-ALIGNED NO-LABEL WIDGET-ID 44
-     rsAdjustType AT ROW 5 COL 18.6 NO-LABEL WIDGET-ID 148
+     rsAdjustType AT ROW 5 COL 18.6 NO-LABEL WIDGET-ID 148 NO-TAB-STOP 
      fiResult AT ROW 6.38 COL 144.4 RIGHT-ALIGNED NO-LABEL WIDGET-ID 50
-     fiTotalQtyLabel AT ROW 6.95 COL 14.4 COLON-ALIGNED NO-LABEL WIDGET-ID 128
+     fiTotalQtyLabel AT ROW 6.95 COL 22.4 COLON-ALIGNED NO-LABEL WIDGET-ID 128
      fiTotalQty AT ROW 6.95 COL 37.2 COLON-ALIGNED NO-LABEL WIDGET-ID 88
      btnDel AT ROW 8.33 COL 105.2 WIDGET-ID 4 NO-TAB-STOP 
      btnClear AT ROW 8.33 COL 125.6 WIDGET-ID 2 NO-TAB-STOP 
@@ -1193,13 +1192,13 @@ PROCEDURE pInit :
     
     IF NOT iplAllowFractions THEN
         ASSIGN
-            fiTotalQty:FORMAT           = "->,>>>,>>>,>>9"
-            fiSubUnits:FORMAT           = "->,>>>,>>>,>>9"
-            fiSubUnitCount:FORMAT       = "->,>>>,>>>,>>9"
-            fiSubUnitsPerUnit:FORMAT    = "->,>>>,>>>,>>9"
-            fiUnitCount:FORMAT          = "->,>>>,>>>,>>9"
-            fiPartial:FORMAT            = "->,>>>,>>>,>>9"
-            fiUnits:FORMAT              = "->,>>>,>>>,>>9"
+            fiTotalQty:FORMAT           = ">,>>>,>>>,>>9"
+            fiSubUnits:FORMAT           = ">,>>>,>>>,>>9"
+            fiSubUnitCount:FORMAT       = ">,>>>,>>>,>>9"
+            fiSubUnitsPerUnit:FORMAT    = ">,>>>,>>>,>>9"
+            fiUnitCount:FORMAT          = ">,>>>,>>>,>>9"
+            fiPartial:FORMAT            = ">,>>>,>>>,>>9"
+            fiUnits:FORMAT              = ">,>>>,>>>,>>9"
             NO-ERROR.
     
     RUN inventory/InventoryProcs.p PERSISTENT SET hdInventoryProcs.

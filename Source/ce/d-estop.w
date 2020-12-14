@@ -770,7 +770,25 @@ DO:
         DO:
             RUN valid-mach NO-ERROR.
             IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
+            
+            FIND FIRST mach NO-LOCK
+                {sys/look/machW.i}
+                AND mach.m-code EQ {&self-name}:SCREEN-VALUE 
+                NO-ERROR.
+            IF AVAILABLE MACH THEN DO:
+                ASSIGN
+                    {&SELF-NAME}:SCREEN-VALUE  = CAPS(mach.m-code)
+                    est-op.m-dscr:SCREEN-VALUE = mach.m-dscr
+                    .   
+     
+                IF mach.p-type EQ "B" AND
+                    INT(est-op.b-num:SCREEN-VALUE ) EQ 0 THEN
+                    est-op.b-num:SCREEN-VALUE  = "1".
+    
+                IF mach.p-type NE "B" THEN
+                    est-op.b-num:SCREEN-VALUE  = "0".
+            END.
+            
             ll-import-all = NO.   
             IF ll-import-stds AND NOT CAN-DO("RC,GU",lv-dept) THEN
                 IF CAN-DO("PR,CT",lv-dept) THEN 
@@ -785,38 +803,6 @@ DO:
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.m-code Dialog-Frame
-ON VALUE-CHANGED OF est-op.m-code IN FRAME Dialog-Frame /* Machine */
-DO:
-        DEFINE VARIABLE li AS INTEGER NO-UNDO.
-
-
-        FIND mach
-            {sys/look/machW.i}
-            AND mach.m-code BEGINS est-op.m-code:SCREEN-VALUE 
-        NO-LOCK NO-ERROR.
-        IF AVAILABLE MACH THEN 
-        DO:
-            ASSIGN
-                est-op.m-code:SCREEN-VALUE = CAPS(mach.m-code)
-                est-op.m-dscr:SCREEN-VALUE = mach.m-dscr.
-
-            DO li = 1 TO LENGTH({&self-name}:SCREEN-VALUE ):
-                APPLY "cursor-right" TO {&self-name} .
-            END.
-
-            IF mach.p-type EQ "B"                                           AND
-                INT(est-op.b-num:SCREEN-VALUE ) EQ 0 THEN
-                est-op.b-num:SCREEN-VALUE  = "1".
-
-            IF mach.p-type NE "B" THEN
-                est-op.b-num:SCREEN-VALUE  = "0".
-        END.
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 
 &Scoped-define SELF-NAME est-op.m-dscr

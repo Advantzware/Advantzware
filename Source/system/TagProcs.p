@@ -60,9 +60,9 @@ PROCEDURE AddTagHold:
         
 END PROCEDURE.
 
-PROCEDURE AddTagHoldInfo:
+PROCEDURE AddTagInfo:
 /*------------------------------------------------------------------------------
- Purpose: Wrapper to Add tag, specifically for HOLDINFO
+ Purpose: Wrapper to Add tag, specifically for INFO
  Notes:
 ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcLinkRecKey  AS CHARACTER NO-UNDO.
@@ -77,7 +77,7 @@ PROCEDURE AddTagHoldInfo:
                       AND tag.description EQ ipcDescription) THEN 
     RUN pAddTag(
         INPUT ipcLinkRecKey,
-        INPUT gcTypeHold,
+        INPUT gcTypeInfo,
         INPUT ipcLinkTable,
         INPUT ipcDescription,
         INPUT ipcNotes

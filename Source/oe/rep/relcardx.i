@@ -24,7 +24,8 @@ def TEMP-TABLE w-bin
    field w-x   as   log
    FIELD w-i-no AS cha
    FIELD w-po-no AS cha
-   FIELD l-display AS LOGICAL  .
+   FIELD l-display AS LOGICAL
+   FIELD w-job-no AS CHARACTER.
 
 def buffer b-cust  for cust.
 def buffer b-ship  for shipto.
@@ -316,6 +317,7 @@ if v-zone-p then v-zone-hdr = "Route No.:".
              w-tag    = fg-bin.tag
              w-loc    = fg-bin.loc
              w-bin    = fg-bin.loc-bin
+             w-job-no = fg-bin.job-no 
              w-qty[1] = fg-bin.qty
              w-qty[2] = fg-bin.qty 
              w-c-c    = fg-bin.case-count
@@ -438,8 +440,9 @@ if v-zone-p then v-zone-hdr = "Route No.:".
           end.
           lCheckRelQty = NO . 
           main-loop:
-          for each w-bin break by w-qty[2] desc by w-qty[1] desc:
-            IF v-rel-qty EQ w-qty[1] AND w-loc EQ  w-oe-rell.loc AND w-bin EQ  w-oe-rell.loc-bin THEN do:
+          for each w-bin WHERE w-job-no NE "" break by w-qty[2] desc by w-qty[1] desc:
+            IF w-loc EQ  w-oe-rell.loc AND w-bin EQ  w-oe-rell.loc-bin
+              AND w-job-no EQ w-oe-rell.job-no THEN do:   
                 l-display = YES .
                 lCheckRelQty = YES.
                 LEAVE main-loop.

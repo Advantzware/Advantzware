@@ -10,6 +10,8 @@
     Created     : Tue Jun 21 07:33:22 EDT 2019
     Notes       :
   ----------------------------------------------------------------------*/
+USING System.SharedConfig.
+
 DEFINE INPUT  PARAMETER iplReTrigger        AS LOGICAL   NO-UNDO.
 DEFINE INPUT  PARAMETER ipiInboundEventID   AS INTEGER   NO-UNDO.
 DEFINE INPUT  PARAMETER ipcCompany          AS CHARACTER NO-UNDO.
@@ -82,6 +84,9 @@ ASSIGN
     APIInboundEvent.responseData            = iplcReponseData
     APIInboundEvent.success                 = iplSuccess
     APIInboundEvent.requestDateTime         = ipcDateTime
+    APIInboundEvent.userField1              = SharedConfig:Instance:ConsumeValue("APIInboundEvent_UserField1")
+    APIInboundEvent.userField2              = SharedConfig:Instance:ConsumeValue("APIInboundEvent_UserField2")
+    APIInboundEvent.userField3              = SharedConfig:Instance:ConsumeValue("APIInboundEvent_UserField3")
     .
  
 opcAPIInboundEvent = STRING(ROWID(APIInboundEvent))

@@ -72,6 +72,7 @@ DEFINE VARIABLE lCheckStartDate AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lCalcJobDueDate AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cCalcJobDueDate AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCalcDueDateMsg AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cJobType AS CHARACTER NO-UNDO.
 
 RUN sys/ref/nk1look.p (cocode, "CalcJobDueDate", "L", NO, NO, "", "", 
                        OUTPUT cCalcJobDueDate, OUTPUT llRecFound).
@@ -88,6 +89,12 @@ RUN sys/ref/nk1look.p (cocode, "JOBHoldReason", "L", NO, NO, "", "",
                        OUTPUT lcReturn, OUTPUT llRecFound).
 IF llRecFound THEN
 JobHoldReason-log = LOGICAL(lcReturn) NO-ERROR.
+
+RUN sys/ref/nk1look.p (INPUT cocode, "JobType", "C" /* Logical */, NO /* check by cust */, 
+                     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+                     OUTPUT lcReturn, OUTPUT llRecFound).
+IF llRecFound THEN
+    cJobType = lcReturn NO-ERROR.  
 
 DEFINE BUFFER xjob FOR job.
 
@@ -722,7 +729,28 @@ PROCEDURE add-job :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  RUN dispatch ('add-record').
+  DEFINE VARIABLE lCreateJob AS LOGICAL NO-UNDO.
+  DEFINE VARIABLE cJobNo AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
+  DEFINE BUFFER bf-job-hdr FOR job-hdr.
+  IF cJobType EQ "Molded" THEN
+  DO:                          
+    RUN jc/dAddJobWithEst.w("",ROWID(job), OUTPUT lCreateJob, OUTPUT cJobNo).
+    IF lCreateJob THEN
+    DO:
+         FIND FIRST bf-job-hdr NO-LOCK
+              WHERE bf-job-hdr.company EQ cocode
+              AND bf-job-hdr.job-no EQ cJobNo NO-ERROR .
+           
+         RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"record-source", OUTPUT char-hdl). 
+         IF AVAILABLE bf-job-hdr THEN
+         RUN reopen-query IN WIDGET-HANDLE(char-hdl) (ROWID(bf-job-hdr)).          
+    END.
+  END.
+  ELSE 
+  DO:
+    RUN dispatch ('add-record').
+  END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1686,7 +1714,7 @@ PROCEDURE local-update-record :
                              STRING(v-reprint) + ',' +  "0" ). /* gdm - 07130906 */  
   END.
 
-  IF ll-new THEN
+  IF lCalcJobDueDate AND ll-new THEN
   RUN pCalcDueDate (YES).
 
   /* re-open the query so when user selects Estimate folder, it shows the new estimate added. */
@@ -2203,7 +2231,7 @@ PROCEDURE update-job-mch :
       RUN custom/schedule.p PERSISTENT SET scheduleHndl.
       RUN scheduleJob IN scheduleHndl (ROWID(job),OUTPUT calcStartDate,OUTPUT calcDueDate).
       IF calcDueDate NE job.due-date THEN
-      MESSAGE 'Machine Capacity calulated Scheduled Completion date of'
+      MESSAGE 'Machine Capacity calculated Scheduled Completion date of'
         calcDueDate SKIP 'Update Due Date?'
         VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO
         UPDATE updateDueDate AS LOGICAL.

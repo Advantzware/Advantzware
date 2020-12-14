@@ -367,7 +367,7 @@ DEF VAR v-bwt LIKE po-ordl.s-len NO-UNDO.
 DEF VAR li AS INT NO-UNDO.
 
 DEF BUFFER b-rm-bin FOR rm-bin.
-
+DEF BUFFER bf-rm-bin FOR rm-bin.
 
 SESSION:SET-WAIT-STATE("General").
 
@@ -407,14 +407,24 @@ FOR EACH rm-rcpth
    v-dep   = item.s-dep
    lv-uom  = item.cons-uom
    lv-cost = item.avg-cost.
-
-  FIND FIRST rm-bin
-      WHERE rm-bin.company EQ rm-rcpth.company
-        AND rm-bin.i-no    EQ rm-rcpth.i-no
-        AND rm-bin.loc     EQ rm-rdtlh.loc
-        AND rm-bin.loc-bin EQ rm-rdtlh.loc-bin
-        AND rm-bin.tag     EQ rm-rdtlh.tag
-      NO-ERROR.
+   
+  IF rm-rdtlh.tag NE "" THEN 
+  DO:
+      FIND FIRST rm-bin
+          WHERE rm-bin.company EQ rm-rcpth.company
+            AND rm-bin.i-no    EQ rm-rcpth.i-no        
+            AND rm-bin.tag     EQ rm-rdtlh.tag
+          NO-ERROR.
+  END.
+  ELSE DO:       
+      FIND FIRST rm-bin
+          WHERE rm-bin.company EQ rm-rcpth.company
+            AND rm-bin.i-no    EQ rm-rcpth.i-no
+            AND rm-bin.loc     EQ rm-rdtlh.loc
+            AND rm-bin.loc-bin EQ rm-rdtlh.loc-bin
+            AND rm-bin.tag     EQ rm-rdtlh.tag
+          NO-ERROR.   
+  END.
   IF AVAIL rm-bin     AND
      rm-bin.cost NE 0 AND
      rm-bin.cost NE ? THEN lv-cost = rm-bin.cost.
@@ -469,7 +479,21 @@ FOR EACH rm-rcpth
 
   IF lv-cost EQ ? THEN lv-cost = 0.
 
-  IF AVAIL rm-bin THEN rm-bin.cost = lv-cost.
+  IF AVAIL rm-bin THEN
+  do: 
+      IF rm-bin.tag NE "" THEN
+      DO:
+         FOR EACH bf-rm-bin EXCLUSIVE-LOCK
+             WHERE bf-rm-bin.company EQ rm-bin.company
+             AND bf-rm-bin.i-no    EQ rm-bin.i-no        
+             AND bf-rm-bin.tag     EQ rm-bin.tag:
+             bf-rm-bin.cost = lv-cost.
+         END.
+         RELEASE bf-rm-bin.
+      END.
+      ELSE
+      rm-bin.cost = lv-cost.
+  END.
 
   IF lv-cost NE 0 THEN DO:  
     ASSIGN 

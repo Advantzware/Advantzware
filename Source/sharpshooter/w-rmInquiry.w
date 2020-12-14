@@ -12,7 +12,7 @@
 *********************************************************************/
 /*------------------------------------------------------------------------
 
-  File: inventory/w-rmInquiry.w
+  File: sharpshooter/w-rmInquiry.w
 
   Description: RM Inquiry and quantity adjustment
 
@@ -61,6 +61,10 @@ DEFINE VARIABLE cMessage   AS CHARACTER NO-UNDO.
 
 DEFINE VARIABLE cCharHandle AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hdItemBins  AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hdItemSumm  AS HANDLE    NO-UNDO.
+
+DEFINE VARIABLE lSummQueryRan AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lBinsQueryRan AS LOGICAL NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -80,8 +84,10 @@ DEFINE VARIABLE hdItemBins  AS HANDLE    NO-UNDO.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-33 btItemHelp btnKeyboardItem btLocHelp ~
-btnKeyboardLoc fiRMItem fiLocation btnNumPad 
-&Scoped-Define DISPLAYED-OBJECTS fiRMItem fiLocation fiRMName fiConsUOM 
+btnKeyboardLoc fiRMItem fiLocation btnNumPad btNameHelp btnKeyboardName ~
+fiRMName tgSummary 
+&Scoped-Define DISPLAYED-OBJECTS fiRMItem fiLocation fiRMName fiConsUOM ~
+tgSummary 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -99,6 +105,7 @@ DEFINE VAR W-Win AS WIDGET-HANDLE NO-UNDO.
 /* Definitions of handles for SmartObjects                              */
 DEFINE VARIABLE h_adjustqty AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_b-rminqbins AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_b-rminqsumm AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_exit AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_navigatefirst AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_navigatelast AS HANDLE NO-UNDO.
@@ -116,12 +123,22 @@ DEFINE BUTTON btLocHelp
      LABEL "" 
      SIZE 6.6 BY 1.57.
 
+DEFINE BUTTON btNameHelp 
+     IMAGE-UP FILE "Graphics/32x32/magnifying_glass.ico":U
+     LABEL "" 
+     SIZE 6.6 BY 1.57.
+
 DEFINE BUTTON btnKeyboardItem 
      IMAGE-UP FILE "Graphics/24x24/keyboard.gif":U
      LABEL "Keyboard" 
      SIZE 6.4 BY 1.52 TOOLTIP "Keyboard".
 
 DEFINE BUTTON btnKeyboardLoc 
+     IMAGE-UP FILE "Graphics/24x24/keyboard.gif":U
+     LABEL "Keyboard" 
+     SIZE 6.4 BY 1.52 TOOLTIP "Keyboard".
+
+DEFINE BUTTON btnKeyboardName 
      IMAGE-UP FILE "Graphics/24x24/keyboard.gif":U
      LABEL "Keyboard" 
      SIZE 6.4 BY 1.52 TOOLTIP "Keyboard".
@@ -149,7 +166,7 @@ DEFINE VARIABLE fiRMItem AS CHARACTER FORMAT "X(256)":U
 DEFINE VARIABLE fiRMName AS CHARACTER FORMAT "X(256)":U 
      LABEL "RM Name" 
      VIEW-AS FILL-IN 
-     SIZE 85.8 BY 1.43 NO-UNDO.
+     SIZE 69.8 BY 1.43 NO-UNDO.
 
 DEFINE RECTANGLE RECT-2
      EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
@@ -159,6 +176,11 @@ DEFINE RECTANGLE RECT-2
 DEFINE RECTANGLE RECT-33
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 197.8 BY .1.
+
+DEFINE VARIABLE tgSummary AS LOGICAL INITIAL no 
+     LABEL "View Summary" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 26 BY .95 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -171,8 +193,11 @@ DEFINE FRAME F-Main
      fiRMItem AT ROW 1.86 COL 18.2 COLON-ALIGNED WIDGET-ID 2
      fiLocation AT ROW 1.86 COL 120.8 COLON-ALIGNED WIDGET-ID 142
      btnNumPad AT ROW 1.86 COL 178.6 WIDGET-ID 120 NO-TAB-STOP 
-     fiRMName AT ROW 3.52 COL 18.2 COLON-ALIGNED WIDGET-ID 4 NO-TAB-STOP 
+     btNameHelp AT ROW 3.43 COL 91.2 WIDGET-ID 152 NO-TAB-STOP 
+     btnKeyboardName AT ROW 3.43 COL 98.8 WIDGET-ID 154 NO-TAB-STOP 
+     fiRMName AT ROW 3.52 COL 18.2 COLON-ALIGNED WIDGET-ID 4
      fiConsUOM AT ROW 3.52 COL 120.8 COLON-ALIGNED WIDGET-ID 148
+     tgSummary AT ROW 3.76 COL 145 WIDGET-ID 150
      RECT-33 AT ROW 5.33 COL 3.2 WIDGET-ID 6
      RECT-2 AT ROW 1.67 COL 177.6 WIDGET-ID 130
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -241,9 +266,10 @@ ASSIGN
 ASSIGN 
        btnKeyboardLoc:HIDDEN IN FRAME F-Main           = TRUE.
 
+ASSIGN 
+       btnKeyboardName:HIDDEN IN FRAME F-Main           = TRUE.
+
 /* SETTINGS FOR FILL-IN fiConsUOM IN FRAME F-Main
-   NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN fiRMName IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR RECTANGLE RECT-2 IN FRAME F-Main
    NO-ENABLE                                                            */
@@ -308,6 +334,17 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME btNameHelp
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btNameHelp W-Win
+ON CHOOSE OF btNameHelp IN FRAME F-Main
+DO:
+    APPLY "HELP" TO fiRMName.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME btnKeyboardItem
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnKeyboardItem W-Win
 ON CHOOSE OF btnKeyboardItem IN FRAME F-Main /* Keyboard */
@@ -332,6 +369,22 @@ DO:
     
     RUN pKeyboard (
         INPUT fiLocation:HANDLE,
+        INPUT "Qwerty"
+        ).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnKeyboardName
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnKeyboardName W-Win
+ON CHOOSE OF btnKeyboardName IN FRAME F-Main /* Keyboard */
+DO:
+    APPLY "ENTRY":U TO fiRMName.
+    
+    RUN pKeyboard (
+        INPUT fiRMName:HANDLE,
         INPUT "Qwerty"
         ).
 END.
@@ -573,6 +626,23 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME tgSummary
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tgSummary W-Win
+ON VALUE-CHANGED OF tgSummary IN FRAME F-Main /* View Summary */
+DO:
+    IF SELF:CHECKED THEN DO:    
+        RUN select-page(2).
+        IF NOT lSummQueryRan THEN
+            RUN pScanItem.
+    END.
+    ELSE
+        RUN select-page(1).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK W-Win 
@@ -684,7 +754,7 @@ PROCEDURE adm-create-objects :
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_b-rminqbins ,
-             fiConsUOM:HANDLE IN FRAME F-Main , 'AFTER':U ).
+             tgSummary:HANDLE IN FRAME F-Main , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_navigatefirst ,
              h_b-rminqbins , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_navigateprev ,
@@ -696,6 +766,22 @@ PROCEDURE adm-create-objects :
        RUN adjust-tab-order IN adm-broker-hdl ( h_navigatelast ,
              h_navigatenext , 'AFTER':U ).
     END. /* Page 1 */
+    WHEN 2 THEN DO:
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'sharpshooter/b-rminqsumm.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_b-rminqsumm ).
+       RUN set-position IN h_b-rminqsumm ( 5.91 , 2.60 ) NO-ERROR.
+       RUN set-size IN h_b-rminqsumm ( 27.86 , 186.00 ) NO-ERROR.
+
+       /* Links to SmartBrowser h_b-rminqsumm. */
+       RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'Summ':U , h_b-rminqsumm ).
+
+       /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_b-rminqsumm ,
+             tgSummary:HANDLE IN FRAME F-Main , 'AFTER':U ).
+    END. /* Page 2 */
 
   END CASE.
   /* Select a Startup page. */
@@ -759,10 +845,10 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY fiRMItem fiLocation fiRMName fiConsUOM 
+  DISPLAY fiRMItem fiLocation fiRMName fiConsUOM tgSummary 
       WITH FRAME F-Main IN WINDOW W-Win.
   ENABLE RECT-33 btItemHelp btnKeyboardItem btLocHelp btnKeyboardLoc fiRMItem 
-         fiLocation btnNumPad 
+         fiLocation btnNumPad btNameHelp btnKeyboardName fiRMName tgSummary 
       WITH FRAME F-Main IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-F-Main}
   VIEW W-Win.
@@ -852,7 +938,8 @@ PROCEDURE pScanItem :
         hdItemBins = HANDLE(cCharHandle).
     END.
     
-    IF VALID-HANDLE(hdItemBins) THEN
+    IF VALID-HANDLE(hdItemBins) THEN DO:
+        lBinsQueryRan = TRUE.
         RUN ScanItem IN hdItemBins (
             INPUT        cCompany,
             INPUT        cWarehouse,
@@ -865,6 +952,26 @@ PROCEDURE pScanItem :
             OUTPUT       lError,
             OUTPUT       cMessage
             ).
+    END.
+
+    IF NOT VALID-HANDLE(hdItemSumm) THEN DO:
+        RUN get-link-handle IN adm-broker-hdl(
+            INPUT  THIS-PROCEDURE,
+            INPUT  "Summ-TARGET",
+            OUTPUT cCharHandle
+            ).
+        hdItemSumm = HANDLE(cCharHandle).
+    END.
+    
+    IF VALID-HANDLE(hdItemSumm) THEN DO:
+        lSummQueryRan = TRUE.
+        RUN ScanItem IN hdItemSumm (
+            INPUT  cCompany,
+            INPUT  cItemID,
+            OUTPUT lError,
+            OUTPUT cMessage
+            ).
+    END.
     
     ASSIGN
         fiRMItem:SCREEN-VALUE  = cItemID

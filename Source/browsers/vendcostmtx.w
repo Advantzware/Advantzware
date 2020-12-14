@@ -197,10 +197,7 @@ IF AVAILABLE users THEN ASSIGN
 vendItemCost.itemID vendItemCost.vendorID vendItemCost.customerID ~
 vendItemCost.estimateNo get-eff-date() @ dtEffDate ~
 vendItemCost.expirationDate vendItemCost.vendorItemID ~
-fGetLevel(1) @ cLevel[1] fGetLevel(2) @ cLevel[2] fGetLevel(3) @ cLevel[3] ~
-fGetLevel(4) @ cLevel[4] fGetLevel(5) @ cLevel[5] fGetLevel(6) @ cLevel[6] ~
-fGetLevel(7) @ cLevel[7] fGetLevel(8) @ cLevel[8] fGetLevel(9) @ cLevel[9] ~
-fGetLevel(10) @ cLevel[10] 
+fGetCostLevels() @ cLevel[1] 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH vendItemCost WHERE ~{&KEY-PHRASE} NO-LOCK ~
     ~{&SORTBY-PHRASE}
@@ -270,9 +267,9 @@ RUN set-attribute-list (
 
 /* ************************  Function Prototypes ********************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetLevel B-table-Win 
-FUNCTION fGetLevel RETURNS CHARACTER
-  ( ipiLevel AS INTEGER )  FORWARD.
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetCostLevels B-table-Win 
+FUNCTION fGetCostLevels RETURNS CHARACTER PRIVATE
+  (  ) FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -376,16 +373,8 @@ DEFINE BROWSE Browser-Table
       vendItemCost.expirationDate FORMAT "99/99/9999":U LABEL-BGCOLOR 14
       vendItemCost.vendorItemID COLUMN-LABEL "Vendor Item" FORMAT "x(16)":U
             LABEL-BGCOLOR 14
-      fGetLevel(1) @ cLevel[1] COLUMN-LABEL "Level 1" FORMAT "x(30)":U
-      fGetLevel(2) @ cLevel[2] COLUMN-LABEL "Level 2" FORMAT "x(30)":U
-      fGetLevel(3) @ cLevel[3] COLUMN-LABEL "Level 3" FORMAT "x(30)":U
-      fGetLevel(4) @ cLevel[4] COLUMN-LABEL "Level 4" FORMAT "x(30)":U
-      fGetLevel(5) @ cLevel[5] COLUMN-LABEL "Level 5" FORMAT "x(30)":U
-      fGetLevel(6) @ cLevel[6] COLUMN-LABEL "Level 6" FORMAT "x(30)":U
-      fGetLevel(7) @ cLevel[7] COLUMN-LABEL "Level 7" FORMAT "x(30)":U
-      fGetLevel(8) @ cLevel[8] COLUMN-LABEL "Level 8" FORMAT "x(30)":U
-      fGetLevel(9) @ cLevel[9] COLUMN-LABEL "Level 9" FORMAT "x(30)":U
-      fGetLevel(10) @ cLevel[10] COLUMN-LABEL "Level 10" FORMAT "x(30)":U
+      fGetCostLevels() @ cLevel[1] COLUMN-LABEL "Cost Levels" FORMAT "X(256)":U
+            WIDTH 200
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 142.6 BY 15.43
@@ -525,25 +514,7 @@ ASSIGN
      _FldNameList[8]   > asi.vendItemCost.vendorItemID
 "vendItemCost.vendorItemID" "Vendor Item" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[9]   > "_<CALC>"
-"fGetLevel(1) @ cLevel[1]" "Level 1" "x(30)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[10]   > "_<CALC>"
-"fGetLevel(2) @ cLevel[2]" "Level 2" "x(30)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[11]   > "_<CALC>"
-"fGetLevel(3) @ cLevel[3]" "Level 3" "x(30)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[12]   > "_<CALC>"
-"fGetLevel(4) @ cLevel[4]" "Level 4" "x(30)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[13]   > "_<CALC>"
-"fGetLevel(5) @ cLevel[5]" "Level 5" "x(30)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[14]   > "_<CALC>"
-"fGetLevel(6) @ cLevel[6]" "Level 6" "x(30)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[15]   > "_<CALC>"
-"fGetLevel(7) @ cLevel[7]" "Level 7" "x(30)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[16]   > "_<CALC>"
-"fGetLevel(8) @ cLevel[8]" "Level 8" "x(30)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[17]   > "_<CALC>"
-"fGetLevel(9) @ cLevel[9]" "Level 9" "x(30)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[18]   > "_<CALC>"
-"fGetLevel(10) @ cLevel[10]" "Level 10" "x(30)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fGetCostLevels() @ cLevel[1]" "Cost Levels" "X(256)" ? ? ? ? ? ? ? no ? no no "200" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
@@ -1557,29 +1528,38 @@ END PROCEDURE.
 
 /* ************************  Function Implementations ***************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetLevel B-table-Win 
-FUNCTION fGetLevel RETURNS CHARACTER
-  ( ipiLevel AS INTEGER ) :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetCostLevels B-table-Win 
+FUNCTION fGetCostLevels RETURNS CHARACTER PRIVATE
+  (  ):
 /*------------------------------------------------------------------------------
-  Purpose:  
-    Notes:  
+ Purpose:
+ Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE lc-result AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cResult AS CHARACTER NO-UNDO.
-   j = 1 . 
-   FOR EACH vendItemCostLevel NO-LOCK
-       WHERE vendItemCostLevel.vendItemCostID EQ vendItemCost.vendItemCostID 
-       BREAK BY vendItemCostLevel.vendItemCostLevelID :
-
-       IF ipiLevel EQ j THEN
-           ASSIGN 
-           lc-result = "Up To "  + trim(string(vendItemCostLevel.quantityTo)) 
-                       + " @ $" + trim(string(vendItemCostLevel.costPerUOM)) + "/" + vendItemCost.vendorUOM .
-       j = j + 1 .
-   END.
-
-    RETURN lc-result.   /* Function return value. */
+    DEFINE VARIABLE cCostLevels AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE dQuantity   AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE iIndex      AS INTEGER NO-UNDO.
     
+    cCostLevels = IF vendItemCost.useQuantityFromBase THEN "From (" + vendItemCost.vendorUOM + "):"
+                  ELSE "Up To (" + vendItemCost.vendorUOM + "):".
+    iIndex = 1. 
+    FOR EACH vendItemCostLevel NO-LOCK
+        WHERE vendItemCostLevel.vendItemCostID EQ vendItemCost.vendItemCostID 
+        BY vendItemCostLevel.quantityBase: 
+        IF iIndex LE 6 THEN DO:
+            IF iIndex LE 5 THEN DO:  
+                dQuantity = IF vendItemCost.useQuantityFromBase THEN vendItemCostLevel.quantityFrom ELSE vendItemCostLevel.quantityTo.
+                     
+                cCostLevels =  cCostLevels + (IF iIndex EQ 1 THEN "" ELSE ", ") + TRIM(STRING(dQuantity,">>>>>>>>>>9.99<<<<"))
+                               + (IF vendItemCostLevel.useForBestCost THEN " (B)" ELSE "")
+                               + " - $" + TRIM(STRING(vendItemCostLevel.costPerUOM)) .                      
+            END.            
+            IF iIndex EQ 6 THEN 
+                cCostLevels = cCostLevels + ", + ..." .               
+            iIndex = iIndex + 1.           
+        END.
+    END.
+    RETURN cCostLevels. 
+
 END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */

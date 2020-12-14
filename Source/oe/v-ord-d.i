@@ -482,7 +482,7 @@ DEF VAR loop-limit AS INT NO-UNDO.
       no-error.
   if avail cust then do:
       cust.ord-bal  = cust.ord-bal - v-totord.
-    if cust.ord-bal lt 0 then assign cust.ord-bal = 0.
+/*    if cust.ord-bal lt 0 then assign cust.ord-bal = 0. Handled in write trigger of cust table*/
     if v-new-ord then
       assign
        cust.n-sales[13]      = cust.n-sales[13]  - 1

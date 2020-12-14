@@ -883,7 +883,7 @@ PROCEDURE pProcessRecord PRIVATE:
                 dLinePrice       = IF NUM-ENTRIES(cPOLineDetails[iIndex]) GE 4 THEN
                                        DECIMAL(ENTRY(4,cPOLineDetails[iIndex]))
                                    ELSE
-                                       0.01
+                                       0
                 cLineDescription = IF NUM-ENTRIES(cPOLineDetails[iIndex]) GE 5 THEN
                                        ENTRY(5,cPOLineDetails[iIndex])
                                    ELSE 
@@ -947,7 +947,6 @@ PROCEDURE pProcessRecord PRIVATE:
     IF ipbf-ttImportAP1.TotalAmount EQ 0 THEN  
         ASSIGN
             lHold                        = YES
-            ipbf-ttImportAP1.TotalAmount = 0.01
             cHoldNote                    = IF cHoldNote EQ '' THEN
                                                "Total Amount is Null"
                                            ELSE  
@@ -1009,7 +1008,7 @@ PROCEDURE pFetchInvoiceDetails:
         opcPOLineDetails[1] = IF cPOLineDetails[1] NE "" THEN                                     
                                   STRING(hdTTBuffer:BUFFER-FIELD("LinePONumber1"):BUFFER-VALUE) + "," + cPOLineDetails[1]
                               ELSE IF hdTTBuffer:BUFFER-FIELD("LinePONumber1"):BUFFER-VALUE NE 0 THEN
-                                  STRING(hdTTBuffer:BUFFER-FIELD("LinePONumber1"):BUFFER-VALUE) + "," + ",1,0.01,"
+                                  STRING(hdTTBuffer:BUFFER-FIELD("LinePONumber1"):BUFFER-VALUE) + "," + ",1,0,"
                               ELSE
                                   "".                                      
         DO iIndex = 2 TO EXTENT(cPOLineDetails):
@@ -1023,7 +1022,7 @@ PROCEDURE pFetchInvoiceDetails:
             opcPOLineDetails[iIndex] = IF cPOLineDetails[iIndex] NE "" THEN 
                                            STRING(hdTTBuffer:BUFFER-FIELD("LinePONumber" + STRING(iIndex)):BUFFER-VALUE) + "," + cPOLineDetails[iIndex]
                                        ELSE IF hdTTBuffer:BUFFER-FIELD("LinePONumber" + STRING(iIndex)):BUFFER-VALUE NE 0 THEN
-                                           STRING(hdTTBuffer:BUFFER-FIELD("LinePONumber" + STRING(iIndex)):BUFFER-VALUE) + "," + ",1,0.01,"
+                                           STRING(hdTTBuffer:BUFFER-FIELD("LinePONumber" + STRING(iIndex)):BUFFER-VALUE) + "," + ",1,0,"
                                        ELSE "".   
         END.                          
 END PROCEDURE.
@@ -1045,10 +1044,8 @@ PROCEDURE pFetchInvoiceLineDetails:
                                         STRING(iphdTTBuffer:BUFFER-FIELD("LineQuantity" + STRING(iIndex)):BUFFER-VALUE)) 
                                  + "," 
                                   
-                                 + (IF iphdTTBuffer:BUFFER-FIELD("LinePrice" + STRING(iIndex)):BUFFER-VALUE EQ 0 THEN
-                                        "0.01"
-                                    ELSE 
-                                        STRING(iphdTTBuffer:BUFFER-FIELD("LinePrice" + STRING(iIndex)):BUFFER-VALUE))
+                                 + STRING(iphdTTBuffer:BUFFER-FIELD("LinePrice" + STRING(iIndex)):BUFFER-VALUE)
+                                 
                                  + ","
                                  
                                  + iphdTTBuffer:BUFFER-FIELD("LineDescription"+ STRING(iIndex)):BUFFER-VALUE      

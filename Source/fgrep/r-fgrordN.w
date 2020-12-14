@@ -70,16 +70,26 @@ DEF VAR cFieldLength AS cha NO-UNDO.
 DEF VAR cColumnInit AS LOG INIT YES NO-UNDO.
 DEF VAR cTextListToDefault AS cha NO-UNDO.
 DEFINE VARIABLE cItemLoc AS CHARACTER NO-UNDO .
+DEFINE VARIABLE cEstStyle AS CHARACTER NO-UNDO .
+DEFINE VARIABLE cEstBoard AS CHARACTER NO-UNDO .
+DEFINE VARIABLE dEstLength AS DECIMAL NO-UNDO .
+DEFINE VARIABLE dEstWidth AS DECIMAL NO-UNDO .
+DEFINE VARIABLE dEstDepth AS DECIMAL NO-UNDO .
+DEFINE VARIABLE cEstPlate AS CHARACTER NO-UNDO .
+DEFINE VARIABLE iCount AS INTEGER NO-UNDO .
+  
 
 ASSIGN cTextListToSelect = "ITEM #,CUST PART #,DESC,PROD CAT,UOM,REORD LVL,QTY ON HAND,WHSE," + 
                            "QTY ALLOC,QTY ORD,MIN ORD QTY,MAX ORD QTY,QTY AVAIL,SELL PRC,SUGT REORDER QTY," +
                            "VENDOR ITEM#,HISTORY,WHS DAYS,LAST SHIP,PO DUE DATE,JOB DUE DATE,CUSTOMER#,SALES REP,COST,COST UOM," +
-                           "MO AVG,SUGT - AVG,SUGT REORDER MSF,STATUS,ESTIMATE ROUTING,OPTIMAL ORDER QTY,CSR NAME"
+                           "MO AVG,SUGT - AVG,SUGT REORDER MSF,STATUS,ESTIMATE ROUTING,OPTIMAL ORDER QTY,CSR NAME," +
+                           "EST STYLE,EST BOARD,EST LENGTH,EST WIDTH,EST DEPTH,EST PLATE#,ITEM COUNT"
        cFieldListToSelect = "itemfg.i-no,itemfg.part-no,itemfg.i-name,itemfg.procat,itemfg.sell-uom,itemfg.ord-level,v-qty-onh,whse," +
                             "v-alloc-qty,itemfg.q-ono,itemfg.ord-min,itemfg.ord-max,v-qty-avail,itemfg.sell-price,v-reord-qty," +
                             "itemfg.vend-item,li-hist,whs-day,last-ship,po-due-dt,job-due-dt,itemfg.cust-no,v-rep,itemfg.total-std-cost,itemfg.prod-uom," +
-                            "mo-avg,sug-avg,msf-reord,itemfg.stat,est-rout,opt-qty,csr-name"
-       cFieldLength = "15,15,20,8,3,12,13,5,11,9,12,12,9,9,16,17,47,8,10,11,12,9,20,11,8," + "8,10,16,6,30,17,30"  .
+                            "mo-avg,sug-avg,msf-reord,itemfg.stat,est-rout,opt-qty,csr-name," +
+                            "est-style,est-board,est-length,est-wid,est-depth,est-plate,item-count"
+       cFieldLength = "15,15,20,8,3,12,13,5,11,9,12,12,9,9,16,17,47,8,10,11,12,9,20,11,8," + "8,10,16,6,30,17,30," + "9,10,10,10,10,15,10"  .
 
 {sys/inc/ttRptSel.i}
 ASSIGN cTextListToDefault  = "ITEM #,CUST PART #,DESC,PROD CAT,UOM,REORD LVL,QTY ON HAND," + 
@@ -1034,7 +1044,7 @@ DO:
 
   SESSION:SET-WAIT-STATE("general").
   
-  cFieldLength = "15,15,20,8,3,12,13,5,11,9,12,12,9,9,16,17," + STRING(8 * display_hist)  + ",8,10,11,12,9,20,11,8," + "8,10,16,6,30,17,30"  .
+  cFieldLength = "15,15,20,8,3,12,13,5,11,9,12,12,9,9,16,17," + STRING(8 * display_hist)  + ",8,10,11,12,9,20,11,8," + "8,10,16,6,30,17,30," +  "9,10,10,10,10,15,10" .
   
   RUN GetSelectionList.
   FIND FIRST  ttCustList NO-LOCK NO-ERROR.
@@ -2541,6 +2551,47 @@ PROCEDURE SetCustRange :
         btnCustList:SENSITIVE = iplChecked
        .
     ELSE btnCustList:SENSITIVE = iplChecked .
+  END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetEstValues C-Win 
+PROCEDURE pGetEstValues :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE INPUT PARAMETER ipcCompany    AS CHARACTER NO-UNDO.
+  DEFINE INPUT PARAMETER ipcEstimate   AS CHARACTER NO-UNDO.
+  DEFINE INPUT PARAMETER ipcItemfg     AS CHARACTER NO-UNDO.
+  DEFINE OUTPUT PARAMETER opcEstStyle  AS CHARACTER NO-UNDO.
+  DEFINE OUTPUT PARAMETER opcEstBoard  AS CHARACTER NO-UNDO.
+  DEFINE OUTPUT PARAMETER opdEstLength AS DECIMAL NO-UNDO.
+  DEFINE OUTPUT PARAMETER opdEstWidth  AS DECIMAL NO-UNDO.
+  DEFINE OUTPUT PARAMETER opdEstDepth  AS DECIMAL NO-UNDO.
+  DEFINE OUTPUT PARAMETER opcEstPlate  AS CHARACTER NO-UNDO.
+      
+  FIND FIRST eb NO-LOCK
+       WHERE eb.company EQ ipcCompany
+       AND eb.est-no EQ ipcEstimate
+       AND eb.stock-no EQ ipcItemfg NO-ERROR .
+  IF AVAIL eb THEN
+  DO:
+     FIND FIRST ef NO-LOCK
+          WHERE ef.company EQ eb.company
+          AND ef.est-no EQ eb.est-no 
+          AND ef.form-no EQ eb.form-no NO-ERROR .
+     ASSIGN
+        opcEstStyle  = eb.style
+        opcEstBoard  = IF AVAIL ef THEN ef.board ELSE ""
+        opdEstLength = eb.len
+        opdEstWidth  = eb.wid
+        opdEstDepth  = eb.dep
+        opcEstPlate  = eb.plate .      
   END.
 
 END PROCEDURE.
