@@ -9,7 +9,6 @@
 ---------------------------------------------------------------------------*/
 
 /* ***************************  Definitions  ************************** */
-DEFINE VARIABLE hTagProcs    AS HANDLE NO-UNDO.
 DEFINE VARIABLE hdPriceProcs AS HANDLE NO-UNDO.
 {custom/globdefs.i}
 {sys/inc/var.i SHARED}
@@ -30,10 +29,7 @@ DEFINE TEMP-TABLE ttValidation
 /* ***************************  Main Block  *************************** */
 IF NOT VALID-HANDLE(hdPriceProcs) THEN 
     RUN oe/PriceProcs.p PERSISTENT SET hdPriceProcs.
-IF NOT VALID-HANDLE(hTagProcs) THEN 
-    RUN system/tagprocs.p PERSISTENT SET hTagProcs.
-
-
+    
 /* **********************  Internal Procedures  *********************** */
 
 PROCEDURE pAddHold PRIVATE:
@@ -575,7 +571,9 @@ PROCEDURE RemoveManualRelease:
     DEFINE  OUTPUT PARAMETER oplHold AS LOG NO-UNDO.
     DEFINE  OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
 
-    RUN ClearTagsRelease IN hTagProcs (ipcRecKey).
+    RUN ClearTagsRelease(
+        INPUT ipcRecKey
+        ).
         
     ASSIGN 
         oplHold    = FALSE 
@@ -593,7 +591,9 @@ PROCEDURE SetManualRelease:
     DEFINE  OUTPUT PARAMETER oplHold AS LOG NO-UNDO.
     DEFINE  OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
 
-    RUN addTagRelease IN hTagProcs (ipcRecKey,"oe-ord").
+    RUN addTagRelease (
+        INPUT ipcRecKey,"oe-ord"
+        ).
         
     ASSIGN 
         oplHold    = FALSE 
@@ -630,7 +630,7 @@ PROCEDURE ValidateOrder:
             oplHold    = TRUE
             opcMessage = "Error: Invalid Order RowID provided to Validate Order"
             .
-        RUN AddTagHold IN hTagProcs (
+        RUN AddTagHold (
             INPUT bf-oe-ord.rec_key,
             INPUT "oe-ord",
             INPUT opcMessage,
@@ -641,7 +641,9 @@ PROCEDURE ValidateOrder:
    
     RUN pBuildValidationsToRun(bf-oe-ord.company).    
                     
-    RUN ClearTagsHold IN hTagProcs (bf-oe-ord.rec_key).
+    RUN ClearTagsHold (
+        INPUT bf-oe-ord.rec_key
+        ).
     iCountHold = 0.
     FOR EACH ttValidation NO-LOCK:
         RUN VALUE(ttValidation.cProgram) IN THIS-PROCEDURE(
@@ -654,7 +656,7 @@ PROCEDURE ValidateOrder:
         DO:
             IF ttValidation.cHoldOrInfo EQ "HOLD" THEN 
             DO:
-                RUN AddTagHold IN hTagProcs (
+                RUN AddTagHold (
                     INPUT bf-oe-ord.rec_key,
                     INPUT "oe-ord",
                     INPUT ttValidation.cHoldMessage,
@@ -667,7 +669,7 @@ PROCEDURE ValidateOrder:
             END.    
             ELSE 
             DO:
-                RUN AddTagHoldInfo IN hTagProcs (
+                RUN AddTagInfo (
                     INPUT bf-oe-ord.rec_key,
                     INPUT "oe-ord",
                     INPUT ttValidation.cHoldMessage,
