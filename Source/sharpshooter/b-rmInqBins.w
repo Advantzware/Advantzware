@@ -525,6 +525,8 @@ PROCEDURE ScanItem :
         INPUT        ipcLocation,        
         INPUT-OUTPUT iopcItemID,
         INPUT-OUTPUT iopcItemName,
+        INPUT        "",  /* JobID */
+        INPUT        0,   /* JobID2 */
         INPUT        iplZeroQtyBins,  /* Include Zero qty bins */
         INPUT        iplEmptyTags,    /* Include empty tag bins */
         OUTPUT       opcConsUOM,
