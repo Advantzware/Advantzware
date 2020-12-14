@@ -297,6 +297,7 @@ END.
 {custom/getcmpny.i}
 /* Include custom  Main Block code for SmartWindows. */
 {src/adm/template/windowmn.i}
+{custom/initializeprocs.i}
 
  run valid-license no-error.
  if error-status:error then do:

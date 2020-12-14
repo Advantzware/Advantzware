@@ -305,7 +305,7 @@ END.
 &SCOPED-DEFINE mfRecKey misc_rec_key_value
 &SCOPED-DEFINE mfHeader misc_header_value
 {methods/miscflds.i}
-
+{custom/initializeprocs.i}
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

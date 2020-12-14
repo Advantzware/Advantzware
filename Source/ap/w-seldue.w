@@ -1036,6 +1036,7 @@ END.
 {methods/template/brwcustom.i}
 {sys/inc/f3helpw.i}
 {custom/yellowColumns.i}
+{custom/initializeprocs.i}
 SESSION:DATA-ENTRY-RETURN = YES.
 /* Ticket# : 92946
    Hiding this widget for now, as browser's column label should be indicating the column which is sorted by */

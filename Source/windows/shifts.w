@@ -259,7 +259,7 @@ END.
 /* Include custom  Main Block code for SmartWindows. */
 {sys/inc/f3helpd.i} 
 {src/adm/template/windowmn.i}
-
+{custom/initializeprocs.i}
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

@@ -228,24 +228,24 @@ FOR EACH toreposition WHERE toreposition.resizepage = pgno:
     DO:     
         deRowPos = 0. 
         deColPos = 0.     
-        RUN get-position IN  WIDGET-HANDLE(toreposition.widhand)(OUTPUT deRowPos ,OUTPUT deColPos) .
-        RUN set-position IN WIDGET-HANDLE(toreposition.widhand) (INPUT deRowPos  ,INPUT deColPos + deDeltaWidthchange).
+        RUN get-position IN  WIDGET-HANDLE(toreposition.widhand)(OUTPUT deRowPos ,OUTPUT deColPos) NO-ERROR.
+        RUN set-position IN WIDGET-HANDLE(toreposition.widhand) (INPUT deRowPos  ,INPUT deColPos + deDeltaWidthchange) NO-ERROR .
     END.  
     ELSE IF toreposition.widtype   = "movedown" AND VALID-HANDLE(WIDGET-HANDLE(toreposition.widhand)) THEN
     DO: 
         deRowPos = 0. 
         deColPos = 0.            
-        RUN get-position IN  WIDGET-HANDLE(toreposition.widhand)(OUTPUT deRowPos ,OUTPUT deColPos ). 
-        RUN set-position IN WIDGET-HANDLE(toreposition.widhand) (INPUT deRowPos + deDeltaHeightchange ,INPUT deColPos ).
+        RUN get-position IN  WIDGET-HANDLE(toreposition.widhand)(OUTPUT deRowPos ,OUTPUT deColPos ) NO-ERROR. 
+        RUN set-position IN WIDGET-HANDLE(toreposition.widhand) (INPUT deRowPos + deDeltaHeightchange ,INPUT deColPos ) NO-ERROR.
     END.               
     ELSE IF  VALID-HANDLE(WIDGET-HANDLE(toreposition.widhand)) THEN
     DO:
         deRowPos = 0. 
         deColPos = 0. 
-        RUN get-position IN  WIDGET-HANDLE(toreposition.widhand) (OUTPUT deRowPos , OUTPUT deColPos ) . 
-        RUN set-position IN  WIDGET-HANDLE(toreposition.widhand) (INPUT deRowPos ,  INPUT deColPos + deDeltaWidthchange ) . 
+        RUN get-position IN  WIDGET-HANDLE(toreposition.widhand) (OUTPUT deRowPos , OUTPUT deColPos ) NO-ERROR. 
+        RUN set-position IN  WIDGET-HANDLE(toreposition.widhand) (INPUT deRowPos ,  INPUT deColPos + deDeltaWidthchange ) NO-ERROR. 
     END.
-           
+    widresizedlise = widresizedlise + "," + toreposition.widhand.        
 END. 
 
 cPageVisited      = cPageVisited + pgno + ",".

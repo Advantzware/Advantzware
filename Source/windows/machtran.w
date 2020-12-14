@@ -268,7 +268,7 @@ END.
 
 /* Include custom  Main Block code for SmartWindows. */
 {src/adm/template/windowmn.i}
-
+{custom/initializeprocs.i}
 
 &SCOPED-DEFINE sysCtrlCompany company_code
 &SCOPED-DEFINE sysCtrlName MiscJobCL

@@ -111,9 +111,9 @@ DEFINE BUTTON Select_spec
      SIZE 6.4 BY 1.52 TOOLTIP "Spec Notes".
 
 DEFINE BUTTON UDF 
-     IMAGE-UP FILE "Graphics/32x32/window_dialog.png":U
-     IMAGE-DOWN FILE "Graphics/32x32/window_dialog_hover.png":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/window_dialog_disabled.png":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/udf.png":U
+     IMAGE-DOWN FILE "Graphics/32x32/udf_hover.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/udf_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "UDF" 
      SIZE 6.4 BY 1.52 TOOLTIP "UDF Viewer".
 

@@ -39,7 +39,8 @@ CREATE WIDGET-POOL.
 {custom/globdefs.i}
 {sys/inc/VAR.i NEW SHARED}
 {methods/template/brwCustomDef.i}
-
+&SCOPED-DEFINE winReSize
+{methods/defines/winReSize.i}
 DO TRANSACTION:
 {pc/pcprdd4u.i NEW}
 {fg/invrecpt.i NEW}
@@ -873,7 +874,7 @@ END.
 /* ***************************  Main Block  *************************** */
 {custom/getcmpny.i}
 {custom/getloc.i}
-
+{methods/winReSize.i}
 DO TRANSACTION:
     {sys/inc/closejob.i FGPost}
     {sys/inc/fgpostgl.i}

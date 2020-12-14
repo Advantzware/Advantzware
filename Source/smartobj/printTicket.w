@@ -61,7 +61,7 @@ CREATE WIDGET-POOL.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON printTicket 
-     IMAGE-UP FILE "Graphics/32x32/printer.png":U
+     IMAGE-UP FILE "Graphics/32x32/printerbtn.png":U
      IMAGE-Down FILE "Graphics/32x32/printer_hover.png":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/printer_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 

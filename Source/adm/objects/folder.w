@@ -617,7 +617,7 @@ PROCEDURE set-size :
              
    
    
-   
+       
    /* Adjust the virtual height to match the new height, to avoid
             scrollbars - note that the frame can't be made non-scrollable
             because that may cause errors *during* a resize. 
@@ -634,7 +634,7 @@ PROCEDURE set-size :
                  (FRAME {&FRAME-NAME}:WIDTH-PIXELS 
                    / width-tab-values[tab-type] ))
             THEN FRAME {&FRAME-NAME}:WIDTH-PIXELS
-            ELSE number-of-pages * width-tab-values[tab-type] + 2.
+            ELSE number-of-pages * width-tab-values[tab-type] + 2 NO-ERROR.
             
   ASSIGN Rect-Main:X               = 0
          Rect-Main:Y               = {&tab-height} 
@@ -648,7 +648,7 @@ PROCEDURE set-size :
          Rect-Top:HEIGHT-PIXELS    = 3                         
          Rect-Top:HIDDEN    = no                             
          Rect-Main:HIDDEN   = no
-         . 
+         NO-ERROR. 
   END.
           
   RETURN.

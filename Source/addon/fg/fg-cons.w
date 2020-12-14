@@ -38,7 +38,10 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-
+&SCOPED-DEFINE winReSize
+&SCOPED-DEFINE h_Browse01 h_b-cons
+&SCOPED-DEFINE h_Object02 h_p-updbar
+&SCOPED-DEFINE h_Object03 h_v-post
 {custom/gcompany.i}
 
 &SCOPED-DEFINE asi-exit local-exit
@@ -271,7 +274,7 @@ END.
 
 /* Include custom  Main Block code for SmartWindows. */
 {src/adm/template/windowmn.i}
-
+{custom/initializeprocs.i}
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

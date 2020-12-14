@@ -289,7 +289,7 @@ END.
 
 /* Include custom  Main Block code for SmartWindows. */
 {src/adm/template/windowmn.i}
-
+{custom/initializeprocs.i}
 bfFedex:VISIBLE IN FRAME {&FRAME-NAME} = FALSE.
 
 /* _UIB-CODE-BLOCK-END */

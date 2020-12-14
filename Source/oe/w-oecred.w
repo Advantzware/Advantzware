@@ -316,7 +316,7 @@ end procedure.
 &ENDIF
 /* Include custom  Main Block code for SmartWindows. */
 {src/adm/template/windowmn.i}
-
+{custom/initializeprocs.i}
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

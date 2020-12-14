@@ -272,7 +272,7 @@ SUBSCRIBE TO "SetCurrentCustomer" ANYWHERE.
     ASSIGN
      cocode = g_company
      locode = g_loc.
-
+{custom/initializeprocs.i}
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

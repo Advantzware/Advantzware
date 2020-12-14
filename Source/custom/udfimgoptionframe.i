@@ -9,8 +9,8 @@ PROCEDURE udf-image :
    DO WITH FRAME {&FRAME-NAME}:
 
       IF NOT ip-log THEN
-         UDF:LOAD-IMAGE("Graphics/32x32/window_dialog.png").
+         UDF:LOAD-IMAGE("Graphics/32x32/udf.png").
       ELSE
-         UDF:LOAD-IMAGE("Graphics/32x32/window_dialog_star.png").
+         UDF:LOAD-IMAGE("Graphics/32x32/udf_star.png").
    END.
 END PROCEDURE.

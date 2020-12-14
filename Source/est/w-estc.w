@@ -29,12 +29,13 @@ CREATE WIDGET-POOL.
 &SCOPED-DEFINE h_Object02 h_p-estc
 &SCOPED-DEFINE h_Object03 h_fgadd
 &SCOPED-DEFINE h_Object04 h_vp-est
-&SCOPED-DEFINE h_Object05 h_p-probe
-&SCOPED-DEFINE h_Object06 h_vp-box
+&SCOPED-DEFINE h_Object08 h_p-probe
+&SCOPED-DEFINE h_Object09 h_vp-box
 &SCOPED-DEFINE h_Object07 h_vp-spec
-&SCOPED-DEFINE h_Object08 h_p-estop
-&SCOPED-DEFINE moveRight {&h_Object08}
-
+&SCOPED-DEFINE h_Object05 h_p-estop
+&SCOPED-DEFINE h_Object06 h_p-estprp
+&SCOPED-DEFINE moveRight {&h_Object05},{&h_Object06}
+ 
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
@@ -359,11 +360,11 @@ ASSIGN
     locode = g_Loc.
 {sys/inc/vendItemCost.i}
 
-session:data-entry-return = yes.
+SESSION:DATA-ENTRY-RETURN = YES.
 /* Include custom  Main Block code for SmartWindows. */
 {src/adm/template/windowmn.i}
 {sys/inc/f3helpw.i}
-
+{custom/initializeprocs.i}
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

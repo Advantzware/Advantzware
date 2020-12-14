@@ -992,7 +992,7 @@ END.
 {sys/inc/f3helpw.i}
 {custom/yellowColumns.i}
 {methods/template/brwcustom.i}
-
+{custom/initializeprocs.i}
 
 ON 'leave':U OF tt-sel.inv-no IN BROWSE {&browse-name} 
 DO:    

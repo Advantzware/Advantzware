@@ -83,7 +83,7 @@ DEFINE BUTTON Select_help
      SIZE 6.4 BY 1.52 TOOLTIP "Help".
 
 DEFINE BUTTON Select_List 
-     IMAGE-UP FILE "Graphics/32x32/printer.png":U
+     IMAGE-UP FILE "Graphics/32x32/printerbtn.png":U
      IMAGE-DOWN FILE "Graphics/32x32/printer_hover.png":U
      IMAGE-INSENSITIVE FILE "Graphics\32x32\printer_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "List" 
@@ -104,9 +104,9 @@ DEFINE BUTTON Select_spec
      SIZE 6.4 BY 1.52 TOOLTIP "Notes".
 
 DEFINE BUTTON UDF 
-     IMAGE-UP FILE "Graphics/32x32/window_dialog.png":U
-     IMAGE-DOWN FILE "Graphics/32x32/window_dialog_hover.png":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/window_dialog_disabled.png":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/udf.png":U
+     IMAGE-DOWN FILE "Graphics/32x32/udf_hover.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/udf_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Home" 
      SIZE 6.4 BY 1.52 TOOLTIP "UDF Viewer".
 
