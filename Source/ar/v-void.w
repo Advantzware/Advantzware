@@ -131,7 +131,7 @@ DEFINE VARIABLE fi_cust AS CHARACTER FORMAT "X(8)":U
      SIZE 19 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE fi_fchk AS INTEGER FORMAT ">>>>>>>>>>" INITIAL 0 
+DEFINE VARIABLE fi_fchk AS INT64 FORMAT ">>>>>>>>>>>>" INITIAL 0 
      LABEL "Check#" 
      VIEW-AS FILL-IN 
      SIZE 22 BY 1
@@ -160,7 +160,7 @@ DEFINE FRAME F-Main
      fi_name AT ROW 1.48 COL 68.8 COLON-ALIGNED HELP
           "Enter Finished Goods Name used for Alpha Numeric Searches." NO-LABEL
      btn_go AT ROW 2.91 COL 13
-     ar-cash.check-no AT ROW 4.1 COL 19 COLON-ALIGNED FORMAT "9999999999"
+     ar-cash.check-no AT ROW 4.1 COL 19 COLON-ALIGNED FORMAT "999999999999"
           VIEW-AS FILL-IN 
           SIZE 19 BY 1
      ar-cash.check-amt AT ROW 4.1 COL 56.8 COLON-ALIGNED
@@ -475,13 +475,13 @@ DO:
       IF LASTKEY = -1 THEN RETURN.
      {&methods/lValidateError.i YES}
 
-      IF int(fi_fchk:SCREEN-VALUE) = 0 THEN DO:
+      IF INT64(fi_fchk:SCREEN-VALUE) = 0 THEN DO:
          MESSAGE "Check number must be entered..." VIEW-AS ALERT-BOX.
          RETURN NO-APPLY.
       END.
 
-      IF INT(fi_fchk:SCREEN-VALUE) >= 90000000 AND
-         INT(fi_fchk:SCREEN-VALUE) <= 99999999 THEN
+      IF INT64(fi_fchk:SCREEN-VALUE) >= 90000000 AND
+         INT64(fi_fchk:SCREEN-VALUE) <= 99999999 THEN
           DO:
              MESSAGE "This number reserved for CR/DB memos." VIEW-AS ALERT-BOX ERROR.
              RETURN NO-APPLY.

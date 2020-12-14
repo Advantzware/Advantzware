@@ -78,7 +78,7 @@ DEF VAR lv-last-rowid2 AS ROWID NO-UNDO.
 
 &SCOPED-DEFINE sortby-log                                                                                                                                           ~
     IF lv-sort-by EQ "cust-no"    THEN ar-cashl.cust-no                                                                                                        ELSE ~
-    IF lv-sort-by EQ "check-no"   THEN STRING(ar-cash.check-no,"9999999999")                                                                                   ELSE ~
+    IF lv-sort-by EQ "check-no"   THEN STRING(ar-cash.check-no,"999999999999")                                                                                   ELSE ~
     IF lv-sort-by EQ "check-date" THEN STRING(YEAR(ar-cash.check-date),"9999") + STRING(MONTH(ar-cash.check-date),"99") + STRING(DAY(ar-cash.check-date),"99") ELSE ~
     IF lv-sort-by EQ "inv-no"     THEN STRING(ar-cashl.inv-no,"9999999999")                                                                                    ELSE ~
     IF lv-sort-by EQ "amt-due"    THEN STRING(ar-cashl.amt-due,"-9999999999.999999")                                                                           ELSE ~
@@ -227,7 +227,7 @@ DEFINE BROWSE Browser-Table
   QUERY Browser-Table NO-LOCK DISPLAY
       ar-cashl.cust-no COLUMN-LABEL "Customer#" FORMAT "x(8)":U
             WIDTH 18.2 LABEL-BGCOLOR 14
-      ar-cash.check-no COLUMN-LABEL "Check#" FORMAT ">>>>>>>>>>":U
+      ar-cash.check-no COLUMN-LABEL "Check#" FORMAT ">>>>>>>>>>>>":U
             WIDTH 18.2 LABEL-BGCOLOR 14
       ar-cash.check-date COLUMN-LABEL "Date" FORMAT "99/99/9999":U
             WIDTH 14.2 LABEL-BGCOLOR 14
@@ -360,7 +360,7 @@ ASSIGN
      _FldNameList[1]   > asi.ar-cashl.cust-no
 "ar-cashl.cust-no" "Customer#" ? "character" ? ? ? 14 ? ? yes ? no no "18.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > asi.ar-cash.check-no
-"ar-cash.check-no" "Check#" ">>>>>>>>>>" "integer" ? ? ? 14 ? ? yes ? no no "18.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"ar-cash.check-no" "Check#" ">>>>>>>>>>>>" "integer" ? ? ? 14 ? ? yes ? no no "18.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > asi.ar-cash.check-date
 "ar-cash.check-date" "Date" ? "date" ? ? ? 14 ? ? yes ? no no "14.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > asi.ar-cashl.inv-no

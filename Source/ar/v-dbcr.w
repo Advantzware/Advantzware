@@ -138,7 +138,7 @@ DEFINE FRAME F-Main
           SIZE 20 BY 1
      cust_name AT ROW 1.48 COL 41 COLON-ALIGNED NO-LABEL
      ar-cash.check-no AT ROW 2.67 COL 20 COLON-ALIGNED
-          LABEL "Memo Number" FORMAT "9999999999"
+          LABEL "Memo Number" FORMAT "999999999999"
           VIEW-AS FILL-IN 
           SIZE 20 BY 1
      lv-status AT ROW 2.67 COL 59 COLON-ALIGNED

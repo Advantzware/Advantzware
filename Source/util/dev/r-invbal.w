@@ -745,10 +745,10 @@ PROCEDURE run-util :
    def var t-balance as DEC format ">>,>>>,>>>.99" NO-UNDO.
    DEF VAR ll-valid AS LOG NO-UNDO.
    def var v-open AS LOG NO-UNDO.
-   DEF VAR fi_fchk AS INT NO-UNDO.
-   DEF VAR fi_tchk AS INT INIT 2147483647 NO-UNDO.
-   DEF VAR li-fchk AS INT NO-UNDO.
-   DEF VAR li-tchk AS INT INIT 2147483647 NO-UNDO.
+   DEF VAR fi_fchk AS INT64 NO-UNDO.
+   DEF VAR fi_tchk AS INT64 INIT 2147483647 NO-UNDO.
+   DEF VAR li-fchk AS INT64 NO-UNDO.
+   DEF VAR li-tchk AS INT64 INIT 2147483647 NO-UNDO.
    def var t-check-no AS CHAR FORMAT "x(8)" NO-UNDO.
    def var v-tot-due AS DEC FORMAT "->,>>>,>>9.99" NO-UNDO.
    DEF VAR li-seq AS INT NO-UNDO.

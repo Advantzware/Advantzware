@@ -813,7 +813,7 @@ PROCEDURE create-onaccount :
      end.
 
      ASSIGN
-     bf-cashl.check-no = string(ar-cash.check-no,"9999999999")
+     bf-cashl.check-no = string(ar-cash.check-no,"999999999999")
      bf-cashl.on-account = yes
      bf-cashl.company = cocode
      bf-cashl.cust-no = ar-cash.cust-no
@@ -1065,7 +1065,7 @@ PROCEDURE local-create-record :
          ar-cashl.c-no = ar-cash.c-no
          ar-cashl.LINE = li-next-line + 1
          ar-cashl.cust-no = ar-cash.cust-no
-         ar-cashl.check-no = STRING(ar-cash.check-no,"9999999999")
+         ar-cashl.check-no = STRING(ar-cash.check-no,"999999999999")
          ar-cashl.inv-date = TODAY.
 
   find first ar-ctrl where ar-ctrl.company = ar-cash.company no-lock no-error.

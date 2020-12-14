@@ -112,7 +112,7 @@ FOR EACH ar-cash
              CASE cTmpField: 
                   WHEN "cust"     THEN cVarValue = IF AVAIL cust THEN string(cust.cust-no) ELSE "" .
                   WHEN "name"    THEN cVarValue = IF AVAIL cust THEN string(cust.NAME,"x(30)") ELSE "" . 
-                  WHEN "chk"    THEN cVarValue = IF v-header-chk = YES THEN STRING(ar-cash.check-no,">>>>>>>>>>") ELSE "".
+                  WHEN "chk"    THEN cVarValue = IF v-header-chk = YES THEN STRING(ar-cash.check-no,">>>>>>>>>>>>") ELSE "".
                   WHEN "date"     THEN cVarValue = IF ar-cash.check-date <> ? AND v-header-chk = YES THEN STRING(ar-cash.check-date) ELSE "" .
                   WHEN "chs-rec"    THEN cVarValue = IF v-header-chk = YES THEN  STRING(tt-post.curr-amt,"->>>>>>9.99") ELSE "" .
                   WHEN "inv"     THEN cVarValue = STRING(ar-cashl.inv-no,">>>>>>>>9") .

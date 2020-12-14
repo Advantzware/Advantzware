@@ -152,7 +152,7 @@ DEF TEMP-TABLE tt-inv NO-UNDO  FIELD sorter    LIKE ar-inv.inv-no
       ELSE                                               ~
       DO:                                                ~
          v-gltrans-desc = "VOID " + cust.cust-no + " " + ~
-                          STRING(ar-cash.check-no,"9999999999") + ~
+                          STRING(ar-cash.check-no,"999999999999") + ~
                          " Inv# " + STRING(ar-cashl.inv-no). ~
          FIND FIRST gltrans WHERE ~
               gltrans.company EQ cust.company AND ~
@@ -440,7 +440,7 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
            ELSE                                               
            DO:                                                
               v-gltrans-desc = "VOID " + cust.cust-no + " " + 
-                               STRING(ar-cash.check-no,"9999999999") +
+                               STRING(ar-cash.check-no,"999999999999") +
                               " Inv# " + STRING(ar-cashl.inv-no).
               FIND FIRST gltrans WHERE 
                    gltrans.company EQ cust.company AND
@@ -635,7 +635,7 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
            ELSE                                               
            DO:                                                
               v-gltrans-desc = "VOID " + cust.cust-no + " " + 
-                               STRING(ar-cash.check-no,"9999999999") +
+                               STRING(ar-cash.check-no,"999999999999") +
                               " Inv# " + STRING(ar-cashl.inv-no).
               FIND FIRST gltrans WHERE 
                    gltrans.company EQ cust.company AND
@@ -675,7 +675,7 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
         else
         DO:
            v-tr-dscr = "VOID " + cust.cust-no + " "
-                     + STRING(ar-cash.check-no,"9999999999")
+                     + STRING(ar-cash.check-no,"999999999999")
                      + " Inv# " + STRING(ar-cashl.inv-no).
 
            IF ar-cashl.amt-paid GT 0 AND
@@ -860,7 +860,7 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
               ELSE
               DO:
                  v-gltrans-desc = "VOID " + cust.cust-no + " " +
-                                  STRING(ar-cash.check-no,"9999999999") +
+                                  STRING(ar-cash.check-no,"999999999999") +
                                  " Inv# " + STRING(ar-cashl.inv-no).
 
                  FIND FIRST gltrans WHERE
@@ -1047,7 +1047,7 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
       else
       DO:
          v-tr-dscr = "VOID " + cust.cust-no + " "
-                   + STRING(ar-cash.check-no,"9999999999")
+                   + STRING(ar-cash.check-no,"999999999999")
                    + " Inv# " + STRING(ar-cashl.inv-no).
 
          IF ar-cashl.voided EQ YES OR
@@ -1082,7 +1082,7 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
             ELSE
             DO:
                v-gltrans-desc = "VOID " + cust.cust-no + " " +
-                                STRING(ar-cash.check-no,"9999999999") +
+                                STRING(ar-cash.check-no,"999999999999") +
                                 " Inv# " + STRING(ar-cashl.inv-no).
 
                FIND FIRST gltrans WHERE
@@ -1199,7 +1199,7 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
            ELSE
            DO:
               v-gltrans-desc = "VOID " + cust.cust-no + " " +
-                               STRING(ar-cash.check-no,"9999999999") +
+                               STRING(ar-cash.check-no,"999999999999") +
                                " Inv# " + STRING(ar-cashl.inv-no).
 
               FIND FIRST gltrans WHERE

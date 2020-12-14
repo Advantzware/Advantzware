@@ -127,7 +127,7 @@ DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
       ar-cash.cust-no FORMAT "x(8)":U WIDTH 16.2
-      ar-cash.check-no FORMAT "9999999999":U WIDTH 19.2
+      ar-cash.check-no FORMAT "999999999999":U WIDTH 19.2
       ar-cash.check-date FORMAT "99/99/9999":U WIDTH 17.2
       ar-cash.check-amt FORMAT "->>,>>>,>>9.99":U WIDTH 21.2
 /* _UIB-CODE-BLOCK-END */
@@ -232,7 +232,7 @@ ASSIGN
      _FldNameList[1]   > ASI.ar-cash.cust-no
 "ar-cash.cust-no" ? ? "character" ? ? ? ? ? ? no ? no no "16.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.ar-cash.check-no
-"ar-cash.check-no" ? "9999999999" "integer" ? ? ? ? ? ? no ? no no "19.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"ar-cash.check-no" ? "999999999999" "integer" ? ? ? ? ? ? no ? no no "19.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.ar-cash.check-date
 "ar-cash.check-date" ? ? "date" ? ? ? ? ? ? no ? no no "17.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > ASI.ar-cash.check-amt

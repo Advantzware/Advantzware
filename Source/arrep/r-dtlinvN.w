@@ -1631,7 +1631,7 @@ FOR EACH ar-ledger
           AND ar-cash.posted   EQ YES
           AND ar-cash.memo     EQ NO
           AND ar-cash.cust-no  EQ ar-ledger.cust-no
-          AND ar-cash.check-no EQ INT(SUBSTR(ar-ledger.ref-num,6,10))
+          AND ar-cash.check-no EQ INT64(SUBSTR(ar-ledger.ref-num,6,12))
         NO-LOCK :
 
       /*  FIRST ar-cashl WHERE ar-cashl.c-no EQ ar-cash.c-no NO-LOCK: */

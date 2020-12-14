@@ -1,7 +1,7 @@
 
 DEF INPUT PARAM ip-rowid AS ROWID NO-UNDO.
 
-DEF VAR li AS INT NO-UNDO.
+DEF VAR li AS INT64 NO-UNDO.
 DEF VAR ld AS DEC NO-UNDO.
 
 
@@ -28,7 +28,7 @@ IF AVAIL cust THEN DO:
              ar-ledger.ref-num BEGINS "INV#")
       NO-LOCK:
                            
-    li = INT(SUBSTRING(ar-ledger.ref-num,6,LENGTH(ar-ledger.ref-num))) NO-ERROR.
+    li = INT64(SUBSTRING(ar-ledger.ref-num,6,LENGTH(ar-ledger.ref-num))) NO-ERROR.
     IF ERROR-STATUS:ERROR THEN li = 0.
 
     IF li NE 0 THEN

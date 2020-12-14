@@ -161,7 +161,7 @@ DEFINE BUTTON btn-ok
      LABEL "&OK" 
      SIZE 15 BY 1.14.
 
-DEFINE VARIABLE begin_check-no AS INTEGER FORMAT ">>>>>>>>>9" INITIAL 0 
+DEFINE VARIABLE begin_check-no AS INT64 FORMAT ">>>>>>>>>>>9" INITIAL 0 
      LABEL "Beginning Check No" 
      VIEW-AS FILL-IN 
      SIZE 17 BY 1.
@@ -176,7 +176,7 @@ DEFINE VARIABLE begin_date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001
      VIEW-AS FILL-IN 
      SIZE 17 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_check-no AS INTEGER FORMAT ">>>>>>>>>9" INITIAL 999999999 
+DEFINE VARIABLE end_check-no AS INT64 FORMAT ">>>>>>>>>>>9" INITIAL 999999999 
      LABEL "Ending Check No" 
      VIEW-AS FILL-IN 
      SIZE 17 BY 1.
@@ -1191,7 +1191,7 @@ PROCEDURE post-gl :
                          ttGLTrans.actnum    = ar-cashl.actnum
                          ttGLTrans.jrnl      = "CASHR"
                          ttGLTrans.tr-dscr   = cust.cust-no + " " +
-                                             STRING(ar-cash.check-no,"9999999999") +
+                                             STRING(ar-cash.check-no,"999999999999") +
                                              " Inv# " + STRING(ar-cashl.inv-no)
                          ttGLTrans.tr-date   = tran-date
                          ttGLTrans.tr-amt    = ar-cashl.amt-paid - ar-cashl.amt-disc
@@ -1207,7 +1207,7 @@ PROCEDURE post-gl :
                             ttGLTrans.actnum  = xdis-acct
                             ttGLTrans.jrnl    = "CRDIS"
                             ttGLTrans.tr-dscr = cust.cust-no + " " +
-                                           STRING(ar-cash.check-no,"9999999999") +
+                                           STRING(ar-cash.check-no,"999999999999") +
                                            " Inv# " + STRING(ar-cashl.inv-no)
                             ttGLTrans.tr-date = tran-date
                             ttGLTrans.tr-amt  = ar-cashl.amt-disc
@@ -1220,7 +1220,7 @@ PROCEDURE post-gl :
                             ttARLedger.cust-no  = ar-cash.cust-no
                             ttARLedger.amt      = ar-cashl.amt-disc
                             ttARLedger.ref-num  = "DISC " +
-                                                 STRING(ar-cash.check-no,"9999999999") +
+                                                 STRING(ar-cash.check-no,"999999999999") +
                                                  "-" + STRING(ar-cashl.line,"9999999999")
                             ttARLedger.ref-date = ar-cash.check-date
                             ttARLedger.tr-date  = tran-date
@@ -1271,7 +1271,7 @@ PROCEDURE post-gl :
                 ttARLedger.company  = cocode
                 ttARLedger.cust-no  = ar-cash.cust-no
                 ttARLedger.amt      = ar-cash.check-amt
-                ttARLedger.ref-num  = "CHK# " + STRING(ar-cash.check-no,"9999999999")
+                ttARLedger.ref-num  = "CHK# " + STRING(ar-cash.check-no,"999999999999")
                 ttARLedger.ref-date = ar-cash.check-date
                 ttARLedger.tr-date  = tran-date
                 ttARLedger.tr-num   = xtrnum
@@ -1355,7 +1355,7 @@ def var v-disc-tot as dec format "->>>,>>9.99" no-undo.
 def var v-on-act-amt as dec format "->>>>>>9.99" no-undo.
 def var v-on-act-sub as dec format "->>>>>>9.99" no-undo.
 def var v-on-act-tot as dec format "->>>>>>9.99" no-undo.
-def var archk as dec format ">>>>>>>>>>".
+def var archk as dec format ">>>>>>>>>>>>".
 def var sort-by-cust as log init yes format "Customer/Sequence" no-UNDO.
 /*
 DEF VAR tmp-dir AS cha NO-UNDO. 

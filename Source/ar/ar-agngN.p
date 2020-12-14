@@ -461,7 +461,7 @@ DEF VAR cToCust AS CHAR NO-UNDO.
                     ELSE                                                    
                     DO:                                                        
                         v-gltrans-desc = "VOID " + cust.cust-no + " " +                          
-                            STRING(ar-cash.check-no,"9999999999")
+                            STRING(ar-cash.check-no,"999999999999")
                             +                          " Inv# " + STRING(ar-cashl.inv-no).         
                         FIND FIRST gltrans WHERE               gltrans.company EQ cust.company
                             AND               gltrans.jrnl EQ "CASHRVD"
@@ -606,7 +606,7 @@ DEF VAR cToCust AS CHAR NO-UNDO.
                     ELSE                                               
                     DO:                                                
                         v-gltrans-desc = "VOID " + cust.cust-no + " " + 
-                            STRING(tt-ar-cash.check-no,"9999999999") +
+                            STRING(tt-ar-cash.check-no,"999999999999") +
                             " Inv# " + STRING(tt-ar-cashl.inv-no).
                         FIND FIRST gltrans WHERE 
                             gltrans.company EQ cust.company AND
@@ -826,7 +826,7 @@ DEF VAR cToCust AS CHAR NO-UNDO.
                         ELSE                                               
                         DO:                                                
                             v-gltrans-desc = "VOID " + cust.cust-no + " " + 
-                                STRING(tt-ar-cash.check-no,"9999999999") +
+                                STRING(tt-ar-cash.check-no,"999999999999") +
                                 " Inv# " + STRING(tt-ar-cashl.inv-no).
                             FIND FIRST gltrans WHERE 
                                 gltrans.company EQ cust.company AND
@@ -866,7 +866,7 @@ DEF VAR cToCust AS CHAR NO-UNDO.
                     ELSE
                     DO:
                         v-tr-dscr = "VOID " + cust.cust-no + " "
-                            + STRING(tt-ar-cash.check-no,"9999999999")
+                            + STRING(tt-ar-cash.check-no,"999999999999")
                             + " Inv# " + STRING(tt-ar-cashl.inv-no).
 
                         IF tt-ar-cashl.amt-paid GT 0 AND
@@ -1110,7 +1110,7 @@ DEF VAR cToCust AS CHAR NO-UNDO.
                                 ELSE
                                 DO:
                                     v-gltrans-desc = "VOID " + cust.cust-no + " " +
-                                        STRING(tt-ar-cash.check-no,"9999999999") +
+                                        STRING(tt-ar-cash.check-no,"999999999999") +
                                         " Inv# " + STRING(tt-ar-cashl.inv-no).
 
                                     FIND FIRST gltrans WHERE
@@ -1414,7 +1414,7 @@ DEF VAR cToCust AS CHAR NO-UNDO.
             ELSE
             DO:
                 v-tr-dscr = "VOID " + cust.cust-no + " "
-                    + STRING(tt-ar-cash.check-no,"9999999999")
+                    + STRING(tt-ar-cash.check-no,"999999999999")
                     + " Inv# " + STRING(tt-ar-cashl.inv-no).
 
                 IF 
@@ -1452,7 +1452,7 @@ DEF VAR cToCust AS CHAR NO-UNDO.
                     ELSE
                     DO:
                         v-gltrans-desc = "VOID " + cust.cust-no + " " +
-                            STRING(tt-ar-cash.check-no,"9999999999") +
+                            STRING(tt-ar-cash.check-no,"999999999999") +
                             " Inv# " + STRING(tt-ar-cashl.inv-no).
 
                         FIND FIRST gltrans WHERE
@@ -1585,7 +1585,7 @@ DEF VAR cToCust AS CHAR NO-UNDO.
                     ELSE
                     DO:
                         v-gltrans-desc = "VOID " + cust.cust-no + " " +
-                            STRING(tt-ar-cash.check-no,"9999999999") +
+                            STRING(tt-ar-cash.check-no,"999999999999") +
                             " Inv# " + STRING(tt-ar-cashl.inv-no).
 
                         FIND FIRST gltrans WHERE

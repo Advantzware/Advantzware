@@ -344,7 +344,7 @@ DEFINE BROWSE Browser-Table
       rm-rdtlh.loc-bin COLUMN-LABEL "Bin" FORMAT "x(8)":U LABEL-BGCOLOR 14
       rm-rdtlh.tag COLUMN-LABEL "Tag" FORMAT "x(20)":U LABEL-BGCOLOR 14
       fnVenTag () @ cVenTag COLUMN-LABEL "Vendor Tag#" FORMAT "x(25)":U LABEL-BGCOLOR 14
-      rm-rdtlh.qty COLUMN-LABEL "Qty" FORMAT "->>>>,>>9.9<<<<<":U
+      rm-rdtlh.qty COLUMN-LABEL "Qty" FORMAT "->>>,>>>,>>9.9<<<<<":U
             LABEL-BGCOLOR 14
       rm-rcpth.pur-uom COLUMN-LABEL "Qty/UOM" FORMAT "x(8)":U WIDTH 10.2
             LABEL-BGCOLOR 14
