@@ -198,10 +198,10 @@ DEFINE BROWSE Browser-Table
       rm-bin.loc-bin COLUMN-LABEL "Bin Loc" FORMAT "x(8)":U LABEL-BGCOLOR 14
       rm-bin.tag COLUMN-LABEL "Tag #" FORMAT "x(20)":U LABEL-BGCOLOR 14
       fnVenTag () @ cVenTag COLUMN-LABEL "Vendor Tag#" FORMAT "x(25)":U LABEL-BGCOLOR 14
-      rm-bin.qty COLUMN-LABEL "Quantity" FORMAT "->>>,>>9.9<<":U
+      rm-bin.qty COLUMN-LABEL "Quantity" FORMAT "->>>,>>>,>>9.9<<":U
             LABEL-BGCOLOR 14
-      rm-bin.cost COLUMN-LABEL "Cost" FORMAT "->>>,>>9.99<<<<":U
-      ext-cost (1) @ v-ext-cost COLUMN-LABEL "Ext. Cost" FORMAT "->>,>>>,>>9.99<<":U
+      rm-bin.cost COLUMN-LABEL "Cost" FORMAT "->>>,>>>,>>9.99<<<<":U
+      ext-cost (1) @ v-ext-cost COLUMN-LABEL "Ext. Cost" FORMAT "->>>,>>>,>>9.99<<":U
             WIDTH 20
       msf-cost (1) @ v-msf-cost COLUMN-LABEL "Cost/MSF" FORMAT "->>>,>>9.99<<<":U
 /* _UIB-CODE-BLOCK-END */
@@ -322,11 +322,11 @@ ASSIGN
      _FldNameList[4]   > ASI.rm-bin.tag
 "rm-bin.tag" "Tag #" "x(20)" "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > ASI.rm-bin.qty
-"rm-bin.qty" "Quantity" "->>>,>>9.9<<" "decimal" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"rm-bin.qty" "Quantity" "->>>,>>>,>>9.9<<" "decimal" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > ASI.rm-bin.cost
-"rm-bin.cost" "Cost" ? "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"rm-bin.cost" "Cost" "->>>,>>>,>>9.99<<<<" "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   > "_<CALC>"
-"ext-cost (1) @ v-ext-cost" "Ext. Cost" "->>,>>>,>>9.99<<" ? ? ? ? ? ? ? no ? no no "20" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"ext-cost (1) @ v-ext-cost" "Ext. Cost" "->>>,>>>,>>9.99<<" ? ? ? ? ? ? ? no ? no no "20" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > "_<CALC>"
 "msf-cost (1) @ v-msf-cost" "Cost/MSF" "->>>,>>9.99<<<" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[9]   > "_<CALC>"

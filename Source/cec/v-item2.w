@@ -328,10 +328,10 @@ DEFINE FRAME F-Main
      item.q-ono AT ROW 16 COL 38 COLON-ALIGNED NO-LABEL FORMAT "->>>,>>>,>>9.99"
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
-     item.q-comm AT ROW 16 COL 58 COLON-ALIGNED NO-LABEL FORMAT ">>>,>>>,>>9.99"
+     item.q-comm AT ROW 16 COL 58 COLON-ALIGNED NO-LABEL FORMAT "->>>,>>>,>>9.99"
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
-     item.q-back AT ROW 16 COL 78 COLON-ALIGNED NO-LABEL FORMAT ">>>,>>>,>>9.99"
+     item.q-back AT ROW 16 COL 78 COLON-ALIGNED NO-LABEL FORMAT "->>>,>>>,>>9.99"
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
      item.q-avail AT ROW 16 COL 98 COLON-ALIGNED NO-LABEL FORMAT "->>>,>>>,>>9.99"
