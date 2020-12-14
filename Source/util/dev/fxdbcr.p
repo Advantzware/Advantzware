@@ -12,6 +12,6 @@ FOR EACH ar-cash WHERE posted EQ YES,
   ar-cashl.dscr = IF ar-cashl.amt-disc - ar-cashl.amt-paid LT 0
                   THEN "Debit" ELSE "Credit".
 
-  DISPLAY ar-cash.check-no FORMAT ">>>>>>>>>>"
+  DISPLAY ar-cash.check-no FORMAT ">>>>>>>>>>>>"
       WITH TITLE "Fix Memo Description".
 END.

@@ -458,7 +458,7 @@ FOR EACH ar-inv
         AND CAN-FIND(FIRST ar-cash WHERE ar-cash.c-no EQ ar-cashl.c-no USE-INDEX c-no)
       USE-INDEX inv-no:
 
-    IF NOT rd_paid AND ar-cashl.check-no EQ "0089999999" THEN DO:
+    IF NOT rd_paid AND ar-cashl.check-no EQ "000089999999" THEN DO:
       FIND FIRST ar-cash WHERE ar-cash.c-no EQ ar-cashl.c-no USE-INDEX c-no NO-ERROR.
 
       DELETE ar-cashl.
@@ -524,7 +524,7 @@ FOR EACH ar-inv
      ar-cashl.on-account = NO
      ar-cashl.memo       = NO
      ar-cashl.cust-no    = ar-cash.cust-no
-     ar-cashl.check-no   = STRING(ar-cash.check-no,"9999999999")
+     ar-cashl.check-no   = STRING(ar-cash.check-no,"999999999999")
      ar-cashl.actnum     = bank.actnum
      ar-cashl.inv-no     = ar-inv.inv-no
      ar-cashl.amt-paid   = ld-amt-to-pay

@@ -117,7 +117,7 @@ DEF TEMP-TABLE tt-inv NO-UNDO
                 v-check-date = ar-cashl.voidDate.           ~
             ELSE DO:                                       ~
                 v-gltrans-desc = "VOID " + cust.cust-no + " " + ~
-                          STRING(ar-cash.check-no,"9999999999") + ~
+                          STRING(ar-cash.check-no,"999999999999") + ~
                          " Inv# " + STRING(ar-cashl.inv-no). ~
                 FIND FIRST gltrans WHERE ~
                     gltrans.company EQ cust.company AND ~
@@ -360,7 +360,7 @@ DEF TEMP-TABLE tt-factored
                         v-check-date = ar-cashl.voidDate.               
                     ELSE DO:                                                
                         v-gltrans-desc = "VOID " + cust.cust-no + " " + 
-                                       STRING(ar-cash.check-no,"9999999999") +
+                                       STRING(ar-cash.check-no,"999999999999") +
                                         " Inv# " + STRING(ar-cashl.inv-no).
                         FIND FIRST gltrans WHERE 
                             gltrans.company EQ cust.company AND
@@ -544,7 +544,7 @@ DEF TEMP-TABLE tt-factored
            ELSE                                               
            DO:                                                
               v-gltrans-desc = "VOID " + cust.cust-no + " " + 
-                               STRING(ar-cash.check-no,"9999999999") +
+                               STRING(ar-cash.check-no,"999999999999") +
                               " Inv# " + STRING(ar-cashl.inv-no).
               FIND FIRST gltrans WHERE 
                    gltrans.company EQ cust.company AND
@@ -584,7 +584,7 @@ DEF TEMP-TABLE tt-factored
         else
         DO:
            v-tr-dscr = "VOID " + cust.cust-no + " "
-                     + STRING(ar-cash.check-no,"9999999999")
+                     + STRING(ar-cash.check-no,"999999999999")
                      + " Inv# " + STRING(ar-cashl.inv-no).
 
            IF ar-cashl.amt-paid GT 0 AND
@@ -619,7 +619,7 @@ DEF TEMP-TABLE tt-factored
 
           if det-rpt = 1 then do:
             if v-disc-type eq "DISC" then do:
-              display ar-cashl.check-no at 4 FORMAT "x(10)" when not v-days-old 
+              display ar-cashl.check-no at 4 FORMAT "x(12)" when not v-days-old 
                       v-type at 16
                       ar-cashl.inv-no at 23
                       ar-cash.check-date at 31 FORMAT "99/99/99"
@@ -632,7 +632,7 @@ DEF TEMP-TABLE tt-factored
                                  ar-cash.check-date, v-cr-db-amt, 0, 0, 0, 0).
             end.
             IF det-rpt <> 3 THEN
-            display ar-cashl.check-no at 4 FORMAT "x(10)" when not v-days-old 
+            display ar-cashl.check-no at 4 FORMAT "x(12)" when not v-days-old 
                     v-disc-type at 16
                     ar-cashl.inv-no at 23
                     ar-cash.check-date at 31 FORMAT "99/99/99"
@@ -656,7 +656,7 @@ DEF TEMP-TABLE tt-factored
               ELSE
               DO:
                  v-gltrans-desc = "VOID " + cust.cust-no + " " +
-                                  STRING(ar-cash.check-no,"9999999999") +
+                                  STRING(ar-cash.check-no,"999999999999") +
                                  " Inv# " + STRING(ar-cashl.inv-no).
 
                  FIND FIRST gltrans WHERE
@@ -674,7 +674,7 @@ DEF TEMP-TABLE tt-factored
            ELSE
               v-check-date = ar-cash.check-date.
           IF det-rpt = 1 THEN
-          display ar-cashl.check-no at 4 FORMAT "x(10)" when not v-days-old 
+          display ar-cashl.check-no at 4 FORMAT "x(12)" when not v-days-old 
                   v-type at 16
                   ar-cashl.inv-no at 23
                   v-check-date @ ar-cash.check-date at 31 FORMAT "99/99/99"
@@ -797,7 +797,7 @@ DEF TEMP-TABLE tt-factored
       else
       DO:
          v-tr-dscr = "VOID " + cust.cust-no + " "
-                   + STRING(ar-cash.check-no,"9999999999")
+                   + STRING(ar-cash.check-no,"999999999999")
                    + " Inv# " + STRING(ar-cashl.inv-no).
 
          IF ar-cashl.voided = YES OR
@@ -832,7 +832,7 @@ DEF TEMP-TABLE tt-factored
             ELSE
             DO:
                v-gltrans-desc = "VOID " + cust.cust-no + " " +
-                                STRING(ar-cash.check-no,"9999999999") +
+                                STRING(ar-cash.check-no,"999999999999") +
                                 " Inv# " + STRING(ar-cashl.inv-no).
 
                FIND FIRST gltrans WHERE
@@ -853,7 +853,7 @@ DEF TEMP-TABLE tt-factored
          if det-rpt = 1 then
          
            display skip(1)
-                   ar-cashl.check-no at 4 FORMAT "x(10)" when not v-days-old 
+                   ar-cashl.check-no at 4 FORMAT "x(12)" when not v-days-old 
                    v-type at 16
                    v-neg-text at 23
                    v-check-date @ ar-cash.check-date at 31 FORMAT "99/99/99"
@@ -896,7 +896,7 @@ DEF TEMP-TABLE tt-factored
            ELSE
            DO:
               v-gltrans-desc = "VOID " + cust.cust-no + " " +
-                               STRING(ar-cash.check-no,"9999999999") +
+                               STRING(ar-cash.check-no,"999999999999") +
                                " Inv# " + STRING(ar-cashl.inv-no).
 
               FIND FIRST gltrans WHERE
@@ -915,7 +915,7 @@ DEF TEMP-TABLE tt-factored
            v-check-date = ar-cash.check-date.
 
         if det-rpt = 1 then
-          display ar-cashl.check-no at 4 FORMAT "x(10)" when not v-days-old 
+          display ar-cashl.check-no at 4 FORMAT "x(12)" when not v-days-old 
                   v-type at 16
                   v-neg-text at 23
                   v-check-date @ ar-cash.check-date at 31 FORMAT "99/99/99"

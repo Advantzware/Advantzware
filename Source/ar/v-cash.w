@@ -148,7 +148,7 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 19 BY 1
      bank_name AT ROW 2.43 COL 39 COLON-ALIGNED NO-LABEL
-     ar-cash.check-no AT ROW 3.57 COL 19 COLON-ALIGNED FORMAT "9999999999"
+     ar-cash.check-no AT ROW 3.57 COL 19 COLON-ALIGNED FORMAT "999999999999"
           VIEW-AS FILL-IN 
           SIZE 19 BY 1
      ar-cash.check-date AT ROW 4.76 COL 19 COLON-ALIGNED
@@ -369,14 +369,14 @@ ON LEAVE OF ar-cash.check-no IN FRAME F-Main /* Check No */
 DO:
     IF LASTKEY = -1 THEN RETURN.
     {&methods/lValidateError.i YES}
-    IF int(ar-cash.check-no:SCREEN-VALUE) = 0 THEN DO:
+    IF INT64(ar-cash.check-no:SCREEN-VALUE) = 0 THEN DO:
         MESSAGE "Check number must be entered..." VIEW-AS ALERT-BOX.
         RETURN NO-APPLY.
     END.
 
     IF ar-cash.check-no:MODIFIED THEN DO:
-       IF INT(ar-cash.check-no:SCREEN-VALUE) >= 90000000 AND
-          INT(ar-cash.check-no:SCREEN-VALUE) <= 99999999
+       IF INT64(ar-cash.check-no:SCREEN-VALUE) >= 90000000 AND
+          INT64(ar-cash.check-no:SCREEN-VALUE) <= 99999999
        THEN DO:
           MESSAGE "This number reserved for CR/DB memos." VIEW-AS ALERT-BOX ERROR.
           RETURN NO-APPLY.
@@ -385,7 +385,7 @@ DO:
 
     FIND FIRST bf-cash WHERE bf-cash.company = g_company
                           AND bf-cash.cust-no = ar-cash.cust-no:SCREEN-VALUE
-                          AND bf-cash.check-no = int(ar-cash.check-no:SCREEN-VALUE)
+                          AND bf-cash.check-no = INT64(ar-cash.check-no:SCREEN-VALUE)
                           AND RECID(bf-cash) <> RECID(ar-cash)
                           NO-LOCK NO-ERROR.
     IF AVAIL bf-cash THEN DO:
@@ -702,13 +702,13 @@ PROCEDURE local-update-record :
 
      END.
      IF ar-cash.check-no:MODIFIED THEN DO:
-       IF int(ar-cash.check-no:SCREEN-VALUE) = 0 THEN DO:
+       IF INT64(ar-cash.check-no:SCREEN-VALUE) = 0 THEN DO:
            MESSAGE "Check number must be entered..." VIEW-AS ALERT-BOX.
            APPLY "entry" TO ar-cash.check-no.
            RETURN.
        END.
-       IF INT(ar-cash.check-no:SCREEN-VALUE) >= 90000000 AND
-          INT(ar-cash.check-no:SCREEN-VALUE) <= 99999999
+       IF INT64(ar-cash.check-no:SCREEN-VALUE) >= 90000000 AND
+          INT64(ar-cash.check-no:SCREEN-VALUE) <= 99999999
        THEN DO:
           MESSAGE "This number reserved for CR/DB memos." VIEW-AS ALERT-BOX ERROR.
           APPLY "entry" TO ar-cash.check-no.
@@ -729,7 +729,7 @@ PROCEDURE local-update-record :
 
      FIND FIRST bf-cash WHERE bf-cash.company = g_company
                           AND bf-cash.cust-no = ar-cash.cust-no:SCREEN-VALUE
-                          AND bf-cash.check-no = int(ar-cash.check-no:SCREEN-VALUE)
+                          AND bf-cash.check-no = INT64(ar-cash.check-no:SCREEN-VALUE)
                           AND recid(bf-cash) <> RECID(ar-cash)
                           NO-LOCK NO-ERROR.
      IF AVAIL bf-cash THEN DO:

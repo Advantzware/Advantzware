@@ -229,7 +229,7 @@
 
         STATUS DEFAULT "Printing Customer#/Check#: " +
                        TRIM(ar-cash.cust-no) + "/"  +
-                       TRIM(STRING(ar-cash.check-no,">>>>>>>>>>")).
+                       TRIM(STRING(ar-cash.check-no,">>>>>>>>>>>>")).
 
         v-prodc = "MEMO".
 

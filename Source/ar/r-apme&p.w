@@ -62,7 +62,7 @@ def var xdis-acct as char NO-UNDO.
 def var xcust like cust.cust-no NO-UNDO.
 def var xchk  like ar-cashl.check-no NO-UNDO.
 def var tmp-amt-paid like ar-cashl.amt-paid NO-UNDO.
-def var alf-check as char format "x(10)" no-undo.
+def var alf-check as char format "x(12)" no-undo.
 def var v-non-zero as log no-undo.
 def var fcust like ar-cashl.cust-no init "" NO-UNDO.
 def var tcust like fcust            init "zzzzzzzz" NO-UNDO.
@@ -603,7 +603,7 @@ PROCEDURE alf-check :
 ------------------------------------------------------------------------------*/
 
   assign
-   alf-check  = fill(" ",10 - length(trim(alf-check))) + trim(alf-check)
+   alf-check  = fill(" ",12 - length(trim(alf-check))) + trim(alf-check)
    v-non-zero = no.
          
   do i = 1 to length(alf-check):
@@ -950,7 +950,7 @@ SESSION:SET-WAIT-STATE("general").
             ck-onac = ck-onac + b-line.amt-paid - b-line.amt-disc.
         end.
         
-        alf-check = string(ar-cashl.check-no,"9999999999").
+        alf-check = string(ar-cashl.check-no,"999999999999").
         
         run alf-check.
          
@@ -960,7 +960,7 @@ SESSION:SET-WAIT-STATE("general").
           if not v-non-zero then substr(alf-check,i,1) = " ".
         end.
         
-        put alf-check to 55
+        put alf-check to 53
             ar-cash.check-date  at 60
             ck-onac at 72
             ar-cashl.inv-no at 95.
@@ -1075,7 +1075,7 @@ SESSION:SET-WAIT-STATE("general").
       else
         tmp-amt-paid = ar-cashl.amt-paid.
         
-      alf-check = string(ar-cash.check-no,"9999999999").
+      alf-check = string(ar-cash.check-no,"999999999999").
       
       run alf-check.
                

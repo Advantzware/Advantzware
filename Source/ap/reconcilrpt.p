@@ -190,7 +190,7 @@ FOR EACH ar-cash NO-LOCK
     WHERE ar-ledger.company  EQ ar-cash.company
       AND ar-ledger.cust-no  EQ ar-cash.cust-no
       AND ar-ledger.ref-date EQ ar-cash.check-date
-      AND ar-ledger.ref-num  EQ "CHK# " + STRING(ar-cash.check-no,"9999999999"),
+      AND ar-ledger.ref-num  EQ "CHK# " + STRING(ar-cash.check-no,"999999999999"),
     FIRST bank FIELDS(bank-code) NO-LOCK
     WHERE bank.company   EQ ar-cash.company
       AND bank.bank-code EQ ar-cash.bank-code

@@ -74,7 +74,7 @@ DEF VAR cTextListToDefault AS cha NO-UNDO.
 
 ASSIGN cTextListToSelect = "BANK,ACCT NUMBER,CUST NUMBER,DATE,TRANSACTION#,DAILY TOTAL,CHECK#,INV#"
        cFieldListToSelect = "bank,act,cust,date,trns,ttl,chk,inv"
-       cFieldLength = "8,20,30,10,12,14,10,7"
+       cFieldLength = "8,20,30,10,12,14,12,7"
        cFieldType = "c,c,c,c,c,i,c,c"
     .
 
@@ -1253,7 +1253,7 @@ PROCEDURE get-detail-values :
    lv-name     = "".
 
   IF ip-jrnl EQ "CASHR" THEN DO:
-     lv-check-no = INT(SUBSTR(ip-dscr,INDEX(ip-dscr," Inv# ") - 10,10)) NO-ERROR.
+     lv-check-no = INT64(SUBSTR(ip-dscr,INDEX(ip-dscr," Inv# ") - 10,12)) NO-ERROR.
      IF ERROR-STATUS:ERROR THEN lv-check-no = 0.
 
      lv-inv-no = INT(SUBSTR(ip-dscr,INDEX(ip-dscr," Inv# ") + 6,10)) NO-ERROR.
@@ -1576,7 +1576,7 @@ FOR EACH ar-cash NO-LOCK
         FIND FIRST ar-ledger NO-LOCK
              WHERE ar-ledger.company EQ ar-cash.company
                AND ar-ledger.cust-no EQ ar-cash.cust-no
-               AND ar-ledger.ref-num EQ "CHK# " + STRING(ar-cash.check-no,"9999999999")
+               AND ar-ledger.ref-num EQ "CHK# " + STRING(ar-cash.check-no,"999999999999")
                AND ar-ledger.tr-date GE v-s-date
                AND ar-ledger.tr-date LE v-e-date
              NO-ERROR.
@@ -1584,7 +1584,7 @@ FOR EACH ar-cash NO-LOCK
         FIND FIRST ar-ledger NO-LOCK
              WHERE ar-ledger.company EQ ar-cash.company
                AND ar-ledger.cust-no EQ ar-cash.cust-no
-               AND ar-ledger.ref-num EQ "VOIDED CHK# " + STRING(ar-cash.check-no,"9999999999")
+               AND ar-ledger.ref-num EQ "VOIDED CHK# " + STRING(ar-cash.check-no,"999999999999")
                AND ar-ledger.tr-date GE v-s-date
                AND ar-ledger.tr-date LE v-e-date
              NO-ERROR.
@@ -1597,7 +1597,7 @@ FOR EACH ar-cash NO-LOCK
         tt-gltrans.actnum  = ar-cash.bank-code
         tt-gltrans.jrnl    = "CASHR"
         tt-gltrans.tr-dscr = ar-cash.cust-no + " " +
-                             STRING(ar-cash.check-no,"9999999999") +
+                             STRING(ar-cash.check-no,"999999999999") +
                              " Inv# " + STRING(ar-cashl.inv-no)
         tt-gltrans.tr-date = ar-ledger.tr-date
         tt-gltrans.tr-amt  = ar-cashl.amt-paid
@@ -1720,7 +1720,7 @@ FOR EACH bank
                   WHEN "date"   THEN cVarValue = "" .
                   WHEN "trns"   THEN cVarValue = "" .
                   WHEN "ttl"    THEN cVarValue = STRING(lv-amt,"->>,>>>,>>9.99") .
-                  WHEN "chk"    THEN cVarValue = IF lv-check-no NE 0 THEN STRING(lv-check-no,">>>>>>>>>>")  ELSE "" .
+                  WHEN "chk"    THEN cVarValue = IF lv-check-no NE 0 THEN STRING(lv-check-no,">>>>>>>>>>>>")  ELSE "" .
                   WHEN "inv"    THEN cVarValue = IF lv-inv-no NE 0 THEN STRING(lv-inv-no,">>>>>>>") ELSE ""  .
 
              END CASE.

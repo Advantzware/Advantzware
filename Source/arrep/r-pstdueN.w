@@ -107,7 +107,7 @@ ASSIGN cTextListToSelect = "Customer,Name,Contact,SalesRep,Terms,Address1,Addres
        cFieldListToSelect = "cust,name,cont,rep,trm,add1,add2,cty," +
                             "stat,zip,crdt,phon,fax,chk-mmo,dy-old,typ,inv," +
                             "inv-dt,inv-amt,curr"
-       cFieldLength = "8,30,25,25,30,30,30,15," + "5,10,12,15,15,10,10,5,10," + "10,13,13"
+       cFieldLength = "8,30,25,25,30,30,30,15," + "5,10,12,15,15,12,10,5,10," + "10,13,13"
        cFieldType = "c,c,c,c,c,c,c,c," + "c,c,i,c,c,c,c,c,c," + "c,i,i"
     .
 

@@ -160,7 +160,7 @@ FOR EACH ar-cash NO-LOCK WHERE
         ar-ledger.company  EQ ar-cash.company AND 
         ar-ledger.cust-no  EQ ar-cash.cust-no AND 
         ar-ledger.ref-date EQ ar-cash.check-date AND 
-        ar-ledger.ref-num  EQ "CHK# " + STRING(ar-cash.check-no,"9999999999")
+        ar-ledger.ref-num  EQ "CHK# " + STRING(ar-cash.check-no,"999999999999")
         BREAK BY ar-ledger.tr-num:
         
         IF NOT CAN-FIND (FIRST bank WHERE 

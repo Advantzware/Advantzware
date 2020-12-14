@@ -1098,7 +1098,7 @@ PROCEDURE openQuery:
     IF sortColumn EQ 'Memo Date' THEN STRING(YEAR(ar-cash.check-date),'9999') + ~
                                        STRING(MONTH(ar-cash.check-date),'99') + ~
                                        STRING(DAY(ar-cash.check-date),'99') ELSE ~
-       STRING(ar-cash.check-no, '9999999999') 
+       STRING(ar-cash.check-no, '999999999999') 
 
 &ELSEIF '{&yellowColumnsName}' EQ 'ar-cashl' &THEN
    &SCOPED-DEFINE SORTBY-PHRASE BY ~

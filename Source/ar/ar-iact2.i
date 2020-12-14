@@ -49,7 +49,7 @@ if ar-cashl.amt-paid ne 0 then do:
      t-balance  = t-credits
      t-check-no = "Payment"
      v-gltrans-desc = "VOID " + cust.cust-no + " "
-                    +  STRING(ar-cash.check-no,"9999999999")
+                    +  STRING(ar-cash.check-no,"999999999999")
                     + " Inv# " + STRING(ar-cashl.inv-no).
 
      IF t-credits LT 0 AND

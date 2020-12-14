@@ -242,7 +242,7 @@ FOR EACH cust
                     DO:
                         IF v-disc-type EQ "DISC" THEN 
                         DO:
-                            DISPLAY ar-cashl.check-no AT 4 FORMAT "x(10)" 
+                            DISPLAY ar-cashl.check-no AT 4 FORMAT "x(12)" 
                                 WHEN NOT v-days-old 
                                 v-type AT 16
                                 ar-cashl.inv-no AT 23
@@ -256,7 +256,7 @@ FOR EACH cust
                                     ar-cash.check-date, v-cr-db-amt, 0).
                         END.
 
-                        DISPLAY ar-cashl.check-no AT 4 FORMAT "x(10)" 
+                        DISPLAY ar-cashl.check-no AT 4 FORMAT "x(12)" 
                             WHEN NOT v-days-old 
                             v-disc-type AT 16
                             ar-cashl.inv-no AT 23
@@ -274,7 +274,7 @@ FOR EACH cust
                 ELSE
                     IF det-rpt2 THEN 
                     DO:
-                        DISPLAY ar-cashl.check-no AT 4 FORMAT "x(10)" 
+                        DISPLAY ar-cashl.check-no AT 4 FORMAT "x(12)" 
                             WHEN NOT v-days-old 
                             v-type AT 16
                             ar-cashl.inv-no AT 23
@@ -430,7 +430,7 @@ FOR EACH cust
 
                 IF det-rpt2 THEN
                     DISPLAY SKIP(1)
-                        ar-cashl.check-no AT 4 FORMAT "x(10)" WHEN NOT v-days-old 
+                        ar-cashl.check-no AT 4 FORMAT "x(12)" WHEN NOT v-days-old 
                         v-type AT 16
                         "ON ACCT" AT 23
                         ar-cash.check-date AT 31 FORMAT "99/99/99"
@@ -452,7 +452,7 @@ FOR EACH cust
             ELSE 
             DO:
                 IF det-rpt2 THEN
-                    DISPLAY ar-cashl.check-no AT 4 FORMAT "x(10)" WHEN NOT v-days-old 
+                    DISPLAY ar-cashl.check-no AT 4 FORMAT "x(12)" WHEN NOT v-days-old 
                         v-type AT 16
                         "ON ACCT" AT 23
                         ar-cash.check-date AT 31 FORMAT "99/99/99"

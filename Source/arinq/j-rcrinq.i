@@ -17,7 +17,7 @@ IF fi_fchk NE 0 THEN DO:
       OPEN QUERY {&browse-name}                                       ~
         {&for-each1}                                                  ~
               AND (ar-cashl.check-no EQ STRING(fi_fchk,"99999999") OR ~
-                   ar-cashl.check-no EQ STRING(fi_fchk,"9999999999")) ~
+                   ar-cashl.check-no EQ STRING(fi_fchk,"999999999999")) ~
             NO-LOCK,                                                  ~
             {&for-each2}
 

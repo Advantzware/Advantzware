@@ -838,7 +838,7 @@ PROCEDURE post-gl :
              gltrans.actnum    = ar-cashl.actnum
              gltrans.jrnl      = "CASHRVD"
              gltrans.tr-dscr   = "VOID " + cust.cust-no + " " +
-                                 STRING(ar-cash.check-no,"9999999999") +
+                                 STRING(ar-cash.check-no,"999999999999") +
                                  " Inv# " + STRING(ar-cashl.inv-no)
              gltrans.tr-date   = tran-date
              gltrans.tr-amt    = -1 * ar-cashl.amt-paid
@@ -855,7 +855,7 @@ PROCEDURE post-gl :
               gltrans.actnum  = xdis-acct
               gltrans.jrnl    = "CRDISVD"
               gltrans.tr-dscr = "VOID " + cust.cust-no + " " +
-                                STRING(ar-cash.check-no,"9999999999") +
+                                STRING(ar-cash.check-no,"999999999999") +
                                 " Inv# " + STRING(ar-cashl.inv-no)
               gltrans.tr-date = tran-date
               gltrans.tr-amt  = -1 * ar-cashl.amt-disc
@@ -870,7 +870,7 @@ PROCEDURE post-gl :
               ar-ledger.cust-no  = ar-cash.cust-no
               ar-ledger.amt      = -1 * ar-cashl.amt-disc
               ar-ledger.ref-num  = "DISC VD" +
-                                   STRING(ar-cash.check-no,"9999999999") +
+                                   STRING(ar-cash.check-no,"999999999999") +
                                    "-" + STRING(ar-cashl.line,"9999999999")
               ar-ledger.ref-date = ar-cash.check-date
               ar-ledger.tr-date  = tran-date
@@ -913,7 +913,7 @@ PROCEDURE post-gl :
         ar-ledger.company = cocode
         ar-ledger.cust-no = ar-cash.cust-no
         ar-ledger.amt = -1 * ar-cash.check-amt
-        ar-ledger.ref-num = "VOIDED CHK# " + STRING(ar-cash.check-no,"9999999999")
+        ar-ledger.ref-num = "VOIDED CHK# " + STRING(ar-cash.check-no,"999999999999")
         ar-ledger.ref-date = ar-cash.check-date
         ar-ledger.tr-date = tran-date
         ar-ledger.tr-num = v-trnum.
@@ -1007,7 +1007,7 @@ for each ar-cash FIELDS(company cleared posted check-no check-date check-amt
          cust.cust-no = ar-cash.cust-no
          no-lock no-error.
 
-    display ar-cash.check-no FORMAT "ZZZZZZZZZ9"
+    display ar-cash.check-no FORMAT "ZZZZZZZZZZZ9"
             ar-cash.check-date
             ar-cash.check-amt
             ar-cash.cust-no
