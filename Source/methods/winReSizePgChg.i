@@ -121,7 +121,7 @@ ASSIGN
     toreposition.resizepage = pgno.
 toreposition.widtype   = "movedown".
     &IF DEFINED(moveRight) NE 0 &THEN 
-IF LOOKUP('{&h_Object03}',"{&moveRight}",",") > 0 THEN
+IF LOOKUP('{&h_Object07}',"{&moveRight}",",") > 0 THEN
     toreposition.widtype   = "moveright".
     &endif 
 &endif
@@ -134,7 +134,7 @@ ASSIGN
     toreposition.resizepage = pgno.
 toreposition.widtype   = "movedown".
     &IF DEFINED(moveRight) NE 0 &THEN 
-IF LOOKUP('{&h_Object04}',"{&moveRight}",",") > 0 THEN
+IF LOOKUP('{&h_Object08}',"{&moveRight}",",") > 0 THEN
     toreposition.widtype   = "moveright".
     &endif 
 &endif
@@ -147,7 +147,7 @@ ASSIGN
     toreposition.resizepage = pgno.
 toreposition.widtype   = "movedown".
     &IF DEFINED(moveRight) NE 0 &THEN 
-IF LOOKUP('{&h_Object05}',"{&moveRight}",",") > 0 THEN
+IF LOOKUP('{&h_Object09}',"{&moveRight}",",") > 0 THEN
     toreposition.widtype   = "moveright".
     &endif  
 &endif
@@ -160,7 +160,20 @@ ASSIGN
     toreposition.resizepage = pgno.
 toreposition.widtype   = "movedown".
     &IF DEFINED(moveRight) NE 0 &THEN 
-IF LOOKUP('{&h_Object06}',"{&moveRight}",",") > 0 THEN
+IF LOOKUP('{&h_Object10}',"{&moveRight}",",") > 0 THEN
+    toreposition.widtype   = "moveright".
+    &endif
+&endif
+&IF DEFINED(h_Object11) NE 0 &THEN
+FIND FIRST toreposition WHERE toreposition.widhand =  STRING({&h_Object11}) NO-ERROR.
+IF NOT AVAILABLE toreposition THEN
+    CREATE toreposition.
+ASSIGN 
+    toreposition.widhand    = STRING({&h_Object11})
+    toreposition.resizepage = pgno.
+toreposition.widtype   = "movedown".
+    &IF DEFINED(moveRight) NE 0 &THEN 
+IF LOOKUP('{&h_Object11}',"{&moveRight}",",") > 0 THEN
     toreposition.widtype   = "moveright".
     &endif
 &endif

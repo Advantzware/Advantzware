@@ -12,6 +12,14 @@
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
 {methods/template/globaldef.i}
+
+IF VALID-HANDLE({&WINDOW-NAME}) THEN 
+
+    ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME} 
+       {&WINDOW-NAME}:KEEP-FRAME-Z-ORDER = YES
+       THIS-PROCEDURE:CURRENT-WINDOW = {&WINDOW-NAME}.
+       
+
 ON CLOSE OF THIS-PROCEDURE 
     RUN dispatch IN THIS-PROCEDURE ('destroy':U).
 

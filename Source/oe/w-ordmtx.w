@@ -146,10 +146,10 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 320
          VIRTUAL-HEIGHT     = 320
          VIRTUAL-WIDTH      = 320
-         MAX-BUTTON         = no
-         RESIZE             = no
-         SCROLL-BARS        = no
-         STATUS-AREA        = yes
+         MAX-BUTTON         = NO
+         RESIZE             = YES
+         SCROLL-BARS        = NO
+         STATUS-AREA        = YES
          BGCOLOR            = ?
          FGCOLOR            = ?
          THREE-D            = yes
@@ -269,6 +269,13 @@ END.
 SUBSCRIBE TO "SetCurrentCustomer" ANYWHERE.
 /* Include custom  Main Block code for SmartWindows. */
 {src/adm/template/windowmn.i}
+{custom/initializeprocs.i}
+/* Set the option frame size and colour to give blue background to icons and 
+add the handle of scope define object to temptable for resizizng */
+RUN beforeinitialize.        
+/* Add the handle of all smart object to be resized/shifted on resize to the temptable and 
+Shift all the icons towards right */
+RUN afterinitialize.
     {sys/inc/var.i new shared}
     ASSIGN
      cocode = g_company

@@ -1,5 +1,5 @@
 PROCEDURE beforeinitialize:
-        
+     
     ASSIGN
         hTempWinmn    = ?
         deResizeVal   = 0
@@ -13,17 +13,7 @@ PROCEDURE beforeinitialize:
 
     IF VALID-HANDLE({&WINDOW-NAME}) THEN 
     DO:
-        ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME} 
-        {&WINDOW-NAME}:KEEP-FRAME-Z-ORDER         = YES
-        THIS-PROCEDURE:CURRENT-WINDOW             = {&WINDOW-NAME}       
-        FRAME {&FRAME-NAME}:height                = {&WINDOW-NAME}:height
-        FRAME {&FRAME-NAME}:WIDTH                 = {&WINDOW-NAME}:width 
-        FRAME {&FRAME-NAME}:VIRTUAL-HEIGHT-PIXELS = FRAME {&FRAME-NAME}:HEIGHT-PIXELS
-        FRAME {&FRAME-NAME}:VIRTUAL-WIDTH-PIXELS  = FRAME {&FRAME-NAME}:WIDTH-PIXELS
-        FRAME {&FRAME-NAME}:row                   = 1
-        FRAME {&FRAME-NAME}:COLUMN                = 1 
-        NO-ERROR.
-    
+
         hTempWinmn  = FRAME {&FRAME-NAME}:handle.
 
         IF VALID-HANDLE(hTempWinmn) THEN
@@ -156,7 +146,7 @@ PROCEDURE beforeinitialize:
         toreposition.resizepage = "1"
         toreposition.widtype    = "movedown".
         &IF DEFINED(moveRight) NE 0 &THEN 
-    IF LOOKUP('{&h_Object03}',"{&moveRight}",",") > 0  THEN
+    IF LOOKUP('{&h_Object07}',"{&moveRight}",",") > 0  THEN
         toreposition.widtype   = "moveright".
         &endif   
     &endif
@@ -170,7 +160,7 @@ PROCEDURE beforeinitialize:
         toreposition.resizepage = "1"      
         toreposition.widtype    = "movedown".
         &IF DEFINED(moveRight) NE 0 &THEN 
-    IF LOOKUP('{&h_Object04}',"{&moveRight}",",") > 0  THEN
+    IF LOOKUP('{&h_Object08}',"{&moveRight}",",") > 0  THEN
         toreposition.widtype   = "moveright".
         &endif
     &endif 
@@ -184,7 +174,7 @@ PROCEDURE beforeinitialize:
         toreposition.resizepage = "1"  
         toreposition.widtype    = "movedown".
         &IF DEFINED(moveRight) NE 0 &THEN 
-    IF LOOKUP('{&h_Object05}',"{&moveRight}",",") > 0  THEN
+    IF LOOKUP('{&h_Object09}',"{&moveRight}",",") > 0  THEN
         toreposition.widtype   = "moveright".
         &endif  
     &endif
@@ -198,7 +188,7 @@ PROCEDURE beforeinitialize:
         toreposition.resizepage = "1"     
         toreposition.widtype    = "movedown".
         &IF DEFINED(moveRight) NE 0 &THEN 
-    IF LOOKUP('{&h_Object06}',"{&moveRight}",",") > 0  THEN
+    IF LOOKUP('{&h_Object10}',"{&moveRight}",",") > 0  THEN
         toreposition.widtype   = "moveright".
         &endif 
     &endif

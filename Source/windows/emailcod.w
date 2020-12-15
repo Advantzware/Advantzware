@@ -121,7 +121,7 @@ DEFINE FRAME FRAME-A
 DEFINE FRAME message-frame
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1.95
+         AT COL 33 ROW 12
          SIZE 63 BY .95
          BGCOLOR 15 .
 
@@ -284,7 +284,7 @@ END.
 IF NOT CAN-FIND(FIRST emaildtl) THEN CREATE emaildtl.
 /* Include custom  Main Block code for SmartWindows. */
 {src/adm/template/windowmn.i}
-
+{custom/initializeprocs.i}
 IF NOT CAN-FIND(FIRST asi._file WHERE asi._file._FILE-NAME = "empalert") THEN
 DO:
    RUN get-link-handle IN adm-broker-hdl
@@ -363,7 +363,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_smartmsg ).
-       RUN set-position IN h_smartmsg ( 1.71 , 2.00 ) NO-ERROR.
+       RUN set-position IN h_smartmsg ( 12 , 33 ) NO-ERROR.
        /* Size in UIB:  ( 1.14 , 32.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
