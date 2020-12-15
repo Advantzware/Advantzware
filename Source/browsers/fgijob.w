@@ -608,7 +608,11 @@ PROCEDURE adm-row-available :
                the Record-Source and process it.
   Parameters:  <none>
 ------------------------------------------------------------------------------*/
-
+    /* Set Onhold and showZeroBins flags to NO once user changes the item */
+    ASSIGN 
+        lv-show-zero-bins = NO
+        lIncludeOnHold    = NO
+        .
   /* Define variables needed by this internal procedure.             */
     {src/adm/template/row-head.i}
 
