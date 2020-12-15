@@ -72,7 +72,7 @@ DEF VAR ld-return-amt AS DEC NO-UNDO.
 
 &SCOPED-DEFINE sortby-log                                                                                                                                          ~
     IF lv-sort-by EQ "cust-no"   THEN ar-cash.cust-no                                                                                                         ELSE ~
-    IF lv-sort-by EQ "check-no"  THEN STRING(ar-cash.check-no,"9999999999")                                                                                   ELSE ~
+    IF lv-sort-by EQ "check-no"  THEN STRING(ar-cash.check-no,"999999999999")                                                                                   ELSE ~
     IF lv-sort-by EQ "name"      THEN cust.name                                                                                                               ELSE ~
     IF lv-sort-by EQ "check-amt" THEN STRING(ar-cash.check-amt,"-9999999999.99999")                                                                           ELSE ~
                                       STRING(YEAR(ar-cash.check-date),"9999") + STRING(MONTH(ar-cash.check-date),"99") + STRING(DAY(ar-cash.check-date),"99")
@@ -175,7 +175,7 @@ DEFINE VARIABLE fi_cust AS CHARACTER FORMAT "X(8)":U
      SIZE 19 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE fi_fchk AS INTEGER FORMAT ">>>>>>>>>" INITIAL 0 
+DEFINE VARIABLE fi_fchk AS INT64 FORMAT ">>>>>>>>>>>>" INITIAL 0 
      LABEL "Memo#" 
      VIEW-AS FILL-IN 
      SIZE 22 BY 1
@@ -210,8 +210,8 @@ DEFINE BROWSE Browser-Table
       ar-cash.cust-no COLUMN-LABEL "Customer#" FORMAT "x(8)":U
             WIDTH 13 LABEL-BGCOLOR 14
       cust.name COLUMN-LABEL "Name" FORMAT "x(30)":U WIDTH 40 LABEL-BGCOLOR 14
-      ar-cash.check-no COLUMN-LABEL "Check#" FORMAT ">>>>>>>>>>":U
-            WIDTH 15 LABEL-BGCOLOR 14
+      ar-cash.check-no COLUMN-LABEL "Check#" FORMAT ">>>>>>>>>>>>":U
+            WIDTH 17 LABEL-BGCOLOR 14
       ar-cash.check-date COLUMN-LABEL "Memo Date" FORMAT "99/99/9999":U
             WIDTH 15 LABEL-BGCOLOR 14
       display-amt() @ ld-amt COLUMN-LABEL "Amount" FORMAT "->>>,>>>,>>9.99":U
@@ -327,7 +327,7 @@ ASSIGN
      _FldNameList[2]   > ASI.cust.name
 "cust.name" "Name" ? "character" ? ? ? 14 ? ? yes ? no no "40" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.ar-cash.check-no
-"ar-cash.check-no" "Check#" ">>>>>>>>>>" "integer" ? ? ? 14 ? ? yes ? no no "15" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"ar-cash.check-no" "Check#" ">>>>>>>>>>>>" "int64" ? ? ? 14 ? ? yes ? no no "15" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > ASI.ar-cash.check-date
 "ar-cash.check-date" "Memo Date" ? "date" ? ? ? 14 ? ? yes ? no no "15" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > "_<CALC>"

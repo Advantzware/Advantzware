@@ -172,9 +172,9 @@ DEFINE BUTTON btn_show
      SIZE 12 BY 1
      FONT 6.
 
-DEFINE VARIABLE fi_check-no AS INTEGER FORMAT ">>>>>>>>>>":U INITIAL 0 
+DEFINE VARIABLE fi_check-no AS INT64 FORMAT ">>>>>>>>>>>>":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 18 BY 1
+     SIZE 20 BY 1
      BGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE fi_cust-no AS CHARACTER FORMAT "X(8)":U 
@@ -258,7 +258,7 @@ DEFINE BROWSE Browser-Table
 DEFINE FRAME F-Main
      fi_cust-no AT ROW 2.19 COL 3 COLON-ALIGNED NO-LABEL
      fi_check-no AT ROW 2.19 COL 20 COLON-ALIGNED NO-LABEL
-     fi_inv-no AT ROW 2.19 COL 41 COLON-ALIGNED NO-LABEL
+     fi_inv-no AT ROW 2.19 COL 43 COLON-ALIGNED NO-LABEL
      tb_posted AT ROW 2.43 COL 64
      tb_unposted AT ROW 1.48 COL 64
      btn_go AT ROW 3.62 COL 8
@@ -267,7 +267,7 @@ DEFINE FRAME F-Main
      Browser-Table AT ROW 5.05 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
      "Invoice#" VIEW-AS TEXT
-          SIZE 13 BY .71 AT ROW 1.24 COL 44
+          SIZE 13 BY .71 AT ROW 1.24 COL 46
           FGCOLOR 9 FONT 6
      "Check#" VIEW-AS TEXT
           SIZE 13 BY .71 AT ROW 1.24 COL 24

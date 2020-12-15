@@ -110,7 +110,7 @@ RUN set-attribute-list (
 
 
 /* Definitions of the field level widgets                               */
-DEFINE VARIABLE fl_checkno AS INTEGER FORMAT "9999999999":U INITIAL 0 
+DEFINE VARIABLE fl_checkno AS INT64 FORMAT "999999999999":U INITIAL 0 
      LABEL "Check No" 
      VIEW-AS FILL-IN 
      SIZE 19.6 BY 1 NO-UNDO.
@@ -464,7 +464,7 @@ PROCEDURE local-assign-record :
        reftable.company  = ar-mcash.company
        reftable.loc      = STRING(ar-mcash.m-no,">>>>>>9")
        reftable.code     = ar-mcash.rec_key
-       reftable.code2 = STRING(fl_checkno,"9999999999").
+       reftable.code2 = STRING(fl_checkno,"999999999999").
     END.                                                
 
     RELEASE reftable.
@@ -562,7 +562,7 @@ PROCEDURE local-display-fields :
       AND reftable.code     = ar-mcash.rec_key NO-ERROR.
   IF AVAIL reftable THEN
     ASSIGN fl_checkno:SCREEN-VALUE IN FRAME {&FRAME-NAME} = 
-                    STRING(reftable.code2,"9999999999") .
+                    STRING(reftable.code2,"999999999999") .
 
 END PROCEDURE.
 
