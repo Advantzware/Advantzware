@@ -164,32 +164,32 @@ DEFINE BUTTON btn-ok
 DEFINE VARIABLE begin_check-no AS INT64 FORMAT ">>>>>>>>>>>9" INITIAL 0 
      LABEL "Beginning Check No" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY 1.
+     SIZE 19 BY 1.
 
 DEFINE VARIABLE begin_cust AS CHARACTER FORMAT "X(8)" 
      LABEL "Beginning Customer#" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY 1.
+     SIZE 19 BY 1.
 
 DEFINE VARIABLE begin_date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001 
      LABEL "Beginning Receipt Date" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY 1 NO-UNDO.
+     SIZE 19 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_check-no AS INT64 FORMAT ">>>>>>>>>>>9" INITIAL 999999999 
      LABEL "Ending Check No" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY 1.
+     SIZE 19 BY 1.
 
 DEFINE VARIABLE end_cust AS CHARACTER FORMAT "X(8)" INITIAL "zzzzzzzz" 
      LABEL "Ending Customer#" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY 1.
+     SIZE 19 BY 1.
 
 DEFINE VARIABLE end_date AS DATE FORMAT "99/99/9999":U INITIAL 12/31/9999 
      LABEL "Ending Receipt Date" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY 1 NO-UNDO.
+     SIZE 19 BY 1 NO-UNDO.
 
 DEFINE VARIABLE lbl_sort AS CHARACTER FORMAT "X(256)":U INITIAL "Sort By?" 
      VIEW-AS FILL-IN 
