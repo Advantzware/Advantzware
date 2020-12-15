@@ -237,6 +237,34 @@ PROCEDURE Inventory_BuildFGBinForItem:
         ).
 END PROCEDURE.
 
+PROCEDURE Inventory_BuildRMHistory:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany         AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcItemID          AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcWarehouse       AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcLocation        AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcJobNo           AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiJobNo2          AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTransactionType AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER iplEmptyRecords    AS LOGICAL   NO-UNDO.
+    
+    IF iplEmptyRecords THEN
+        EMPTY TEMP-TABLE ttBrowseInventory.
+
+    RUN pBuildRMHistory (
+        INPUT ipcCompany,
+        INPUT ipcItemID,
+        INPUT ipcWarehouse,
+        INPUT ipcLocation,
+        INPUT ipcJobNo,
+        INPUT ipiJobNo2,
+        INPUT ipcTransactionType
+        ).
+END PROCEDURE.
+
 PROCEDURE Inventory_GetAverageCostFG:
     /*------------------------------------------------------------------------------
      Purpose:  Returns average cost of on-hand bins 
@@ -312,6 +340,65 @@ PROCEDURE Inventory_FGQuantityAdjust:
         OUTPUT oplError,
         OUTPUT opcMessage
         ).
+END PROCEDURE.
+
+PROCEDURE pBuildRMHistory PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: Builds temp-table from rm-rcpth and rm-rdtlh records for given criteria
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany         AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcItemID          AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcWarehouse       AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcLocation        AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcJobNo           AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiJobNo2          AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTransactionType AS CHARACTER NO-UNDO.
+
+    DEFINE BUFFER bf-rm-rcpth FOR rm-rcpth. 
+    DEFINE BUFFER bf-rm-rdtlh FOR rm-rdtlh.
+    
+    FOR EACH bf-rm-rcpth NO-LOCK
+        WHERE bf-rm-rcpth.company    EQ ipcCompany
+          AND bf-rm-rcpth.i-no       EQ ipcItemID
+          AND (bf-rm-rcpth.rita-code EQ ipcTransactionType OR ipcTransactionType EQ "")
+          AND (bf-rm-rcpth.job-no    EQ ipcJobNo OR ipcJobNo EQ "")
+          AND (bf-rm-rcpth.job-no2   EQ ipiJobNo2 OR ipiJobNo2 EQ 0 OR ipcJobNo EQ ""),
+        EACH bf-rm-rdtlh NO-LOCK
+        WHERE bf-rm-rdtlh.r-no      EQ bf-rm-rcpth.r-no
+          AND bf-rm-rdtlh.rita-code EQ bf-rm-rcpth.rita-code
+        USE-INDEX rm-rdtl:
+        FIND FIRST ttBrowseInventory
+             WHERE ttBrowseInventory.company  EQ bf-rm-rcpth.company
+               AND ttBrowseInventory.rmItemID EQ bf-rm-rcpth.i-no
+               AND ttBrowseInventory.tag      EQ bf-rm-rdtlh.tag
+             NO-ERROR.
+        IF NOT AVAILABLE ttbrowseInventory THEN DO:
+            CREATE ttBrowseInventory.
+            ASSIGN
+                ttBrowseInventory.company             = bf-rm-rcpth.company
+                ttBrowseInventory.rmItemID            = bf-rm-rcpth.i-no
+                ttBrowseInventory.primaryID           = bf-rm-rcpth.i-no
+                ttBrowseInventory.itemType            = gcItemTypeRM
+                ttBrowseInventory.quantity            = bf-rm-rdtlh.qty
+                ttBrowseInventory.jobID               = bf-rm-rcpth.job-no
+                ttBrowseInventory.jobID2              = bf-rm-rcpth.job-no2
+                ttBrowseInventory.formNo              = bf-rm-rdtlh.s-num
+                ttBrowseInventory.blankNo             = bf-rm-rdtlh.b-num
+                ttBrowseInventory.tag                 = bf-rm-rdtlh.tag
+                ttBrowseInventory.warehouseID         = bf-rm-rdtlh.loc
+                ttBrowseInventory.locationID          = bf-rm-rdtlh.loc-bin
+                ttBrowseInventory.quantityOriginal    = bf-rm-rdtlh.qty
+                .    
+                
+        END.
+        
+        ASSIGN
+            ttBrowseInventory.inventoryStatus     = gcStatusStockConsumed
+            ttBrowseInventory.rec_key             = bf-rm-rcpth.rec_key
+            ttBrowseInventory.inventoryStockID    = STRING(ROWID(bf-rm-rcpth))
+            .
+    END.  
 END PROCEDURE.
 
 PROCEDURE pFGQuantityAdjust PRIVATE:
@@ -1097,18 +1184,24 @@ PROCEDURE Inventory_BuildRMBinForItem:
     DEFINE INPUT        PARAMETER ipcLocationID  AS CHARACTER NO-UNDO.
     DEFINE INPUT-OUTPUT PARAMETER iopcItemID     AS CHARACTER NO-UNDO.
     DEFINE INPUT-OUTPUT PARAMETER iopcItemName   AS CHARACTER NO-UNDO.
+    DEFINE INPUT        PARAMETER ipcJobID       AS CHARACTER NO-UNDO.
+    DEFINE INPUT        PARAMETER ipiJobID2      AS INTEGER   NO-UNDO.
     DEFINE INPUT        PARAMETER iplZeroQtyBins AS LOGICAL   NO-UNDO.
     DEFINE INPUT        PARAMETER iplEmptyTags   AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT       PARAMETER opcConsUOM     AS CHARACTER NO-UNDO.
     DEFINE OUTPUT       PARAMETER oplError       AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT       PARAMETER opcMessage     AS CHARACTER NO-UNDO.
-
+    
+    EMPTY TEMP-TABLE ttBrowseInventory.
+    
     RUN pBuildRMBinForItem (
         INPUT        ipcCompany,
         INPUT        ipcWarehouseID,
         INPUT        ipcLocationID,
         INPUT-OUTPUT iopcItemID,
         INPUT-OUTPUT iopcItemName,
+        INPUT        ipcJobID,
+        INPUT        ipiJobID2,
         INPUT        iplZeroQtyBins,
         INPUT        iplEmptyTags,
         OUTPUT       opcConsUOM,
@@ -1127,6 +1220,8 @@ PROCEDURE pBuildRMBinForItem PRIVATE:
     DEFINE INPUT        PARAMETER ipcLocationID  AS CHARACTER NO-UNDO.
     DEFINE INPUT-OUTPUT PARAMETER iopcItemID     AS CHARACTER NO-UNDO.
     DEFINE INPUT-OUTPUT PARAMETER iopcItemName   AS CHARACTER NO-UNDO.
+    DEFINE INPUT        PARAMETER ipcJobID       AS CHARACTER NO-UNDO.
+    DEFINE INPUT        PARAMETER ipiJobID2      AS INTEGER   NO-UNDO.
     DEFINE INPUT        PARAMETER iplZeroQtyBins AS LOGICAL   NO-UNDO.
     DEFINE INPUT        PARAMETER iplEmptyTags   AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT       PARAMETER opcConsUOM     AS CHARACTER NO-UNDO.
@@ -1136,6 +1231,12 @@ PROCEDURE pBuildRMBinForItem PRIVATE:
     DEFINE VARIABLE lRecAvail         AS LOGICAL NO-UNDO.
     DEFINE VARIABLE lIsWarehouseEmpty AS LOGICAL NO-UNDO.
     DEFINE VARIABLE lIsLocationEmpty  AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lIsJobEmpty       AS LOGICAL NO-UNDO.
+    
+    DEFINE VARIABLE cJobID   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iJobID2  AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iFormNo  AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iBlankNo AS INTEGER   NO-UNDO.
     
     DEFINE BUFFER bf-item   FOR item.
     DEFINE BUFFER bf-rm-bin FOR rm-bin.
@@ -1177,6 +1278,7 @@ PROCEDURE pBuildRMBinForItem PRIVATE:
     ASSIGN
         lIsWarehouseEmpty = ipcWarehouseID EQ ""
         lIsLocationEmpty  = ipcLocationID EQ ""
+        lIsJobEmpty       = ipcJobID EQ ""
         .
 
     FOR EACH bf-rm-bin NO-LOCK
@@ -1185,7 +1287,20 @@ PROCEDURE pBuildRMBinForItem PRIVATE:
           AND ((bf-rm-bin.loc     EQ ipcWarehouseID) OR lIsWarehouseEmpty)
           AND ((bf-rm-bin.loc-bin EQ ipcLocationID)  OR lIsLocationEmpty)
           AND (((bf-rm-bin.qty NE 0)  AND NOT iplZeroQtyBins) OR iplZeroQtyBins)
-          AND (((bf-rm-bin.tag NE "") AND NOT iplEmptyTags)   OR iplEmptyTags):        
+          AND (((bf-rm-bin.tag NE "") AND NOT iplEmptyTags)   OR iplEmptyTags):                
+        RUN pGetJobFromPOAndRMItem (
+            INPUT  bf-rm-bin.company,
+            INPUT  bf-rm-bin.i-no,
+            INPUT  bf-rm-bin.po-no,
+            OUTPUT cJobID,
+            OUTPUT iJobID2,
+            OUTPUT iFormNo,
+            OUTPUT iBlankNo
+            ). 
+        /* If material type is "R" (Real) then load all the tags */
+        IF bf-item.i-code NE "R" AND NOT lIsJobEmpty AND NOT(cJobID EQ ipcJobID AND iJobID2 EQ ipiJobID2) THEN
+            NEXT.  
+
         CREATE ttBrowseInventory.
         ASSIGN
             ttBrowseInventory.company            = bf-rm-bin.company
@@ -1196,19 +1311,15 @@ PROCEDURE pBuildRMBinForItem PRIVATE:
             ttBrowseInventory.locationID         = bf-rm-bin.loc-bin
             ttBrowseInventory.tag                = bf-rm-bin.tag
             ttBrowseInventory.quantity           = bf-rm-bin.qty
+            ttBrowseInventory.quantityOriginal   = bf-rm-bin.qty
             ttBrowseInventory.costStandardPerUOM = bf-rm-bin.cost
+            ttBrowseInventory.inventoryStatus    = gcStatusStockReceived
             ttBrowseInventory.inventoryStockID   = STRING(ROWID(bf-rm-bin))
-            .
-        
-        RUN pGetJobFromPOAndRMItem (
-            INPUT  ttBrowseInventory.company,
-            INPUT  ttBrowseInventory.rmItemID,
-            INPUT  ttBrowseInventory.poID,
-            OUTPUT ttBrowseInventory.jobID,
-            OUTPUT ttBrowseInventory.jobID2,
-            OUTPUT ttBrowseInventory.formNo,
-            OUTPUT ttBrowseInventory.blankNo
-            ).  
+            ttBrowseInventory.jobID              = cJobID
+            ttBrowseInventory.jobID2             = iJobID2
+            ttBrowseInventory.formNo             = iFormNo
+            ttBrowseInventory.blankNo            = iBlankNo
+            .             
     END.
     
     IF NOT TEMP-TABLE ttBrowseInventory:HAS-RECORDS THEN DO:
@@ -1413,7 +1524,9 @@ PROCEDURE Inventory_PostRawMaterials:
             ).
     END.
 
-    FOR EACH ttBrowseInventory:
+    FOR EACH ttRawMaterialsToPost,
+        FIRST ttBrowseInventory
+        WHERE ttBrowseInventory.inventoryStockID EQ STRING(ttRawMaterialsToPost.rmRctdRowID):
         FIND FIRST bf-rm-rctd NO-LOCK
              WHERE ROWID(bf-rm-rctd) EQ TO-ROWID(ttBrowseInventory.inventoryStockID)
              NO-ERROR.
@@ -1785,7 +1898,7 @@ PROCEDURE pCreateRMIssueFromTag PRIVATE:
             bf-rm-rctd.cost-uom = bf-item.cons-uom
             .
 
-    RUN pRebuildRMBrowse (
+    RUN pBuildRMTransactions (
         INPUT  ipcCompany,
         INPUT  bf-rm-rctd.job-no,
         INPUT  "",           /* Machine ID */
@@ -1793,6 +1906,7 @@ PROCEDURE pCreateRMIssueFromTag PRIVATE:
         INPUT  bf-rm-rctd.s-num,
         INPUT  bf-rm-rctd.b-num,
         INPUT  bf-rm-rctd.i-no,
+        INPUT  bf-rm-rctd.rita-code,
         INPUT  FALSE     /* Use new inventory tables */
         ).
     
@@ -6090,7 +6204,7 @@ PROCEDURE RebuildRMBrowse:
     
     EMPTY TEMP-TABLE ttBrowseInventory.
     
-    RUN pRebuildRMBrowse (
+    RUN pBuildRMTransactions (
         INPUT  ipcCompany,
         INPUT  ipcJobno,
         INPUT  ipcMachine,
@@ -6098,27 +6212,31 @@ PROCEDURE RebuildRMBrowse:
         INPUT  ipiFormno,
         INPUT  ipiBlankno,
         INPUT  ipcRMItem,
+        INPUT  "",
         INPUT  TRUE /* Use new inventory tables */
         ).
         
 END PROCEDURE.
 
-PROCEDURE RebuildRMBrowseLegacy:
+PROCEDURE Inventory_BuildRMTransactions:
     /*------------------------------------------------------------------------------
      Purpose: Rebuilds browse temp-table from legacy tables
      Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER ipcCompany   AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcJobno     AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcMachine   AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipiJobno2    AS INTEGER   NO-UNDO.
-    DEFINE INPUT  PARAMETER ipiFormno    AS INTEGER   NO-UNDO.
-    DEFINE INPUT  PARAMETER ipiBlankno   AS INTEGER   NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcRMItem    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcCompany         AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcJobno           AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcMachine         AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiJobno2          AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiFormno          AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiBlankno         AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcRMItem          AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTransactionType AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER iplEmptyRecords    AS LOGICAL   NO-UNDO.
     
-    EMPTY TEMP-TABLE ttBrowseInventory.
+    IF iplEmptyRecords THEN
+        EMPTY TEMP-TABLE ttBrowseInventory.
     
-    RUN pRebuildRMBrowse (
+    RUN pBuildRMTransactions (
         INPUT  ipcCompany,
         INPUT  ipcJobno,
         INPUT  ipcMachine,
@@ -6126,12 +6244,13 @@ PROCEDURE RebuildRMBrowseLegacy:
         INPUT  ipiFormno,
         INPUT  ipiBlankno,
         INPUT  ipcRMItem,
+        INPUT  ipcTransactionType,
         INPUT  FALSE     /* Use new inventory tables */
         ).
         
 END PROCEDURE.
 
-PROCEDURE pRebuildRMBrowse PRIVATE:
+PROCEDURE pBuildRMTransactions PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose: Rebuilds browse temp-table
      Notes:
@@ -6143,10 +6262,9 @@ PROCEDURE pRebuildRMBrowse PRIVATE:
     DEFINE INPUT  PARAMETER ipiFormno             AS INTEGER   NO-UNDO.
     DEFINE INPUT  PARAMETER ipiBlankno            AS INTEGER   NO-UNDO.
     DEFINE INPUT  PARAMETER ipcRMItem             AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTransactionType    AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER iplUseInventoryTables AS LOGICAL   NO-UNDO.    
-    
-    EMPTY TEMP-TABLE ttBrowseInventory.
-    
+        
     DEFINE BUFFER bf-rm-rctd FOR rm-rctd.
     
     IF iplUseInventoryTables THEN DO:
@@ -6168,7 +6286,7 @@ PROCEDURE pRebuildRMBrowse PRIVATE:
     ELSE DO:
         FOR EACH bf-rm-rctd NO-LOCK 
             WHERE bf-rm-rctd.company   EQ ipcCompany
-              AND bf-rm-rctd.rita-code EQ "I"
+              AND bf-rm-rctd.rita-code EQ ipcTransactionType
               AND bf-rm-rctd.qty       GT 0
               AND bf-rm-rctd.tag       NE ''
               AND bf-rm-rctd.job-no    EQ ipcJobNo
@@ -6177,7 +6295,10 @@ PROCEDURE pRebuildRMBrowse PRIVATE:
               AND bf-rm-rctd.b-num     EQ ipiBlankNo
               AND bf-rm-rctd.i-no      EQ ipcRMItem:
             FIND FIRST ttBrowseInventory
-                 WHERE ttBrowseInventory.inventoryStockID EQ STRING(ROWID(rm-rctd))
+                 WHERE ttBrowseInventory.inventoryStockID EQ STRING(ROWID(bf-rm-rctd))
+                    OR (ttBrowseInventory.company         EQ bf-rm-rctd.company
+                   AND ttBrowseInventory.rmItemID         EQ bf-rm-rctd.i-no
+                   AND ttBrowseInventory.tag              EQ bf-rm-rctd.tag)
                  NO-ERROR.
             IF NOT AVAILABLE ttbrowseInventory THEN
                 CREATE ttBrowseInventory.
@@ -6200,15 +6321,7 @@ PROCEDURE pRebuildRMBrowse PRIVATE:
                 ttBrowseInventory.rec_key             = bf-rm-rctd.rec_key
                 ttBrowseInventory.inventoryStockID    = STRING(ROWID(bf-rm-rctd))
                 .
-        END.
-        
-        FOR EACH ttBrowseInventory:
-            FIND FIRST bf-rm-rctd NO-LOCK
-                 WHERE ROWID(bf-rm-rctd) EQ TO-ROWID(ttBrowseInventory.inventoryStockID)
-                 NO-ERROR.
-            IF NOT AVAILABLE bf-rm-rctd THEN
-                ttBrowseInventory.inventoryStatus = gcStatusStockConsumed.
-        END.
+        END.        
     END.
      
 END PROCEDURE.
