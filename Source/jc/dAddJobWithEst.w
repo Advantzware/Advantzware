@@ -578,9 +578,11 @@ DO:
                     bf-ttInputEst.cCompany = cocode 
                     bf-ttInputEst.cStockNo = ttFGReorderSelection.itemID
                     bf-ttInputEst.iMolds   = ttFGReorderSelection.multiplier 
-                    bf-ttInputEst.iQuantityYield = ttFGReorderSelection.quantityToOrder
+                    bf-ttInputEst.iQuantityYield = dTotalCyclesRequired * ttFGReorderSelection.multiplier
                     bf-ttInputEst.lKeyItem = ttFGReorderSelection.KeyItem 
                     lv-rowid               = ROWID(bf-ttInputEst).
+                    IF ttFGReorderSelection.dateDueDateEarliest NE ? AND (ttFGReorderSelection.dateDueDateEarliest GT date(dtDueDate:SCREEN-VALUE) OR date(dtDueDate:SCREEN-VALUE) EQ ?) THEN
+                    dtDueDate:SCREEN-VALUE = string(ttFGReorderSelection.dateDueDateEarliest) . 
                     FIND FIRST itemfg NO-LOCK 
                          WHERE itemfg.company EQ cocode
                          AND itemfg.i-no EQ ttFGReorderSelection.itemID NO-ERROR .

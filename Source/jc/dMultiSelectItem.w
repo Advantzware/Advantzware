@@ -38,7 +38,8 @@ RUN fgrep\fgReorder.p PERSISTENT SET hdFGReorder.
 
 /*{sys/inc/f16to32.i}*/
 {sys/inc/lastship.i}
- 
+
+&SCOPED-DEFINE yellowColumnsName dMultiSelectItem
 
 
 /* _UIB-CODE-BLOCK-END */
@@ -67,8 +68,8 @@ RUN fgrep\fgReorder.p PERSISTENT SET hdFGReorder.
 &Scoped-define ENABLED-TABLES-IN-QUERY-BROWSE-2 ttMultiSelectItem
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-BROWSE-2 ttMultiSelectItem
 &Scoped-define SELF-NAME BROWSE-2
-&Scoped-define QUERY-STRING-BROWSE-2 FOR EACH ttMultiSelectItem
-&Scoped-define OPEN-QUERY-BROWSE-2 OPEN QUERY {&SELF-NAME} FOR EACH ttMultiSelectItem.
+&Scoped-define QUERY-STRING-BROWSE-2 FOR EACH ttMultiSelectItem NO-LOCK ~{&SORTBY-PHRASE}
+&Scoped-define OPEN-QUERY-BROWSE-2 OPEN QUERY {&SELF-NAME} FOR EACH ttMultiSelectItem ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-BROWSE-2 ttMultiSelectItem
 &Scoped-define FIRST-TABLE-IN-QUERY-BROWSE-2 ttMultiSelectItem
 
@@ -81,7 +82,7 @@ RUN fgrep\fgReorder.p PERSISTENT SET hdFGReorder.
 &Scoped-Define ENABLED-OBJECTS RECT-39 btExit btFilter cFGItem cStyle btOk ~
 cCat cLoc tb_sugg-qty BROWSE-2 
 &Scoped-Define DISPLAYED-OBJECTS fieventIDlb fiStyleLebel cFGItem cStyle ~
-fiCatLabel filocLabel cCat cLoc tb_sugg-qty
+fiCatLabel filocLabel cCat cLoc tb_sugg-qty fi_sortby
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -160,6 +161,11 @@ DEFINE RECTANGLE RECT-39
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
      SIZE 140.8 BY 3.38
      BGCOLOR 15 .
+     
+DEFINE VARIABLE fi_sortby    AS CHARACTER FORMAT "X(256)":U 
+    VIEW-AS FILL-IN 
+    SIZE 47 BY 1
+    BGCOLOR 14 FONT 6 NO-UNDO.     
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -173,40 +179,40 @@ DEFINE BROWSE BROWSE-2
   QUERY BROWSE-2 NO-LOCK DISPLAY
       ttMultiSelectItem.isSelected COLUMN-LABEL "[ ] All" 
             WIDTH 8 VIEW-AS TOGGLE-BOX
-      ttMultiSelectItem.multiplier COLUMN-LABEL "#Up" FORMAT ">9" 
-      ttMultiSelectItem.quantityToOrder COLUMN-LABEL "Quantity To Order" FORMAT "->>>,>>>,>>9"
-      ttMultiSelectItem.quantityToOrderSuggested COLUMN-LABEL "Suggested Reorder" FORMAT "->>>,>>>,>>9"
-      ttMultiSelectItem.itemID COLUMN-LABEL "FG Item" FORMAT "x(15)":U WIDTH 23
-      ttMultiSelectItem.itemName COLUMN-LABEL "FG Name" WIDTH 30 FORMAT "x(30)"
-      ttMultiSelectItem.quantityReorderLevel COLUMN-LABEL "Min Level" FORMAT "->>>,>>>,>>9"
+      ttMultiSelectItem.multiplier COLUMN-LABEL "#Up" FORMAT ">9" LABEL-BGCOLOR 14
+      ttMultiSelectItem.quantityToOrder COLUMN-LABEL "Quantity To Order" FORMAT "->>>,>>>,>>9" LABEL-BGCOLOR 14
+      ttMultiSelectItem.quantityToOrderSuggested COLUMN-LABEL "Suggested Reorder" FORMAT "->>>,>>>,>>9" LABEL-BGCOLOR 14
+      ttMultiSelectItem.itemID COLUMN-LABEL "FG Item" FORMAT "x(15)":U WIDTH 23 LABEL-BGCOLOR 14
+      ttMultiSelectItem.itemName COLUMN-LABEL "FG Name" WIDTH 30 FORMAT "x(30)"  LABEL-BGCOLOR 14
+      ttMultiSelectItem.quantityReorderLevel COLUMN-LABEL "Min Level" FORMAT "->>>,>>>,>>9" LABEL-BGCOLOR 14
       ttMultiSelectItem.quantityOnHand COLUMN-LABEL "On Hand" FORMAT "->>,>>>,>>9":U
-            WIDTH 13
+            WIDTH 13 LABEL-BGCOLOR 14
       ttMultiSelectItem.quantityOnOrder COLUMN-LABEL "On Order" FORMAT "->>,>>>,>>9":U
-            WIDTH 15  
+            WIDTH 15 LABEL-BGCOLOR 14 
       ttMultiSelectItem.quantityAllocated COLUMN-LABEL "Allocated" FORMAT "->>,>>>,>>9":U
-            WIDTH 15
+            WIDTH 15 LABEL-BGCOLOR 14
       ttMultiSelectItem.quantityAvailable COLUMN-LABEL "Available" FORMAT "->>,>>>,>>9":U
-            WIDTH 15
+            WIDTH 15 LABEL-BGCOLOR 14
       ttMultiSelectItem.availOnHand COLUMN-LABEL "Available On-Hand" FORMAT "->>,>>>,>>9":U
-            WIDTH 22              
-      ttMultiSelectItem.dateDueDateEarliest COLUMN-LABEL "Due Date" FORMAT "99/99/9999":U
-            WIDTH 15       
+            WIDTH 22 LABEL-BGCOLOR 14             
+      ttMultiSelectItem.dateDueDateEarliest COLUMN-LABEL "Earliest Due Date" FORMAT "99/99/9999":U
+            WIDTH 20  LABEL-BGCOLOR 14     
       ttMultiSelectItem.quantityMinOrder COLUMN-LABEL "Minimum Order" FORMAT "->>,>>>,>>9":U
-            WIDTH 19
+            WIDTH 19  LABEL-BGCOLOR 14
       ttMultiSelectItem.quantityMaxOrder COLUMN-LABEL "Maximum Order" FORMAT "->>,>>>,>>9":U
-            WIDTH 19        
+            WIDTH 19 LABEL-BGCOLOR 14       
       ttMultiSelectItem.itemCustPart COLUMN-LABEL "Customer Part" FORMAT "x(15)":U
-            WIDTH 23
+            WIDTH 23  LABEL-BGCOLOR 14
       ttMultiSelectItem.itemCust COLUMN-LABEL "Customer" FORMAT "x(8)":U
-            WIDTH 11
+            WIDTH 11 LABEL-BGCOLOR 14
       ttMultiSelectItem.itemCustName COLUMN-LABEL "Cust Name" FORMAT "x(30)":U
-            WIDTH 33
+            WIDTH 33 LABEL-BGCOLOR 14
       ttMultiSelectItem.itemEstNO COLUMN-LABEL "Estimate" FORMAT "x(8)":U
-            WIDTH 10
+            WIDTH 10 LABEL-BGCOLOR 14
       ttMultiSelectItem.itemStyle COLUMN-LABEL "Style" FORMAT "x(8)":U
-            WIDTH 10             
-      ttMultiSelectItem.itemWhse COLUMN-LABEL "Category" FORMAT "x(8)":U
-            WIDTH 10
+            WIDTH 10  LABEL-BGCOLOR 14           
+      ttMultiSelectItem.itemWhse COLUMN-LABEL "Warehouse" FORMAT "x(8)":U
+            WIDTH 10  LABEL-BGCOLOR 14
 
       ENABLE ttMultiSelectItem.isSelected
              ttMultiSelectItem.multiplier 
@@ -238,6 +244,7 @@ DEFINE FRAME Dialog-Frame
           SIZE 7 BY .62 AT ROW 1 COL 2.6 WIDGET-ID 52
           FONT 6
      RECT-39 AT ROW 1.19 COL 1.2 WIDGET-ID 2
+     fi_sortby AT ROW 3.76 COL 10 COLON-ALIGNED NO-LABEL
      SPACE(19.79) SKIP(22.85)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
@@ -290,6 +297,10 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fiStyleLebel IN FRAME Dialog-Frame
    NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fi_sortby IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
+ASSIGN 
+    fi_sortby:HIDDEN IN FRAME Dialog-Frame = TRUE.   
 ASSIGN 
        RECT-39:HIDDEN IN FRAME Dialog-Frame           = TRUE.
 
@@ -394,7 +405,9 @@ DO:
                                         "[ ] All".
 
         RUN repo-query(NO).  
-    END.  
+    END.   
+    
+    RUN startSearch.        
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -520,13 +533,14 @@ END.
 /* ***************************  Main Block  *************************** */
 
 {sys/inc/f3helpw.i} 
+
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:      
      
-        
+     {custom/yellowColumns.i}   
      RUN enable_UI.
-     {methods/nowait.i} 
+     {methods/nowait.i}      
      
      RUN repo-query(YES). 
        
@@ -621,7 +635,7 @@ PROCEDURE repo-query :
              AND (ttFGReorder.itemStyle BEGINS cStyle OR cStyle EQ "")
              AND (ttFGReorder.itemWhse BEGINS cLoc OR cLoc EQ "") 
              AND (ttFGReorder.quantityToOrderSuggested GT 0 OR NOT tb_sugg-qty) :
-             
+                        
              CREATE ttMultiSelectItem.
              BUFFER-COPY ttFGReorder TO ttMultiSelectItem. 
 
@@ -630,19 +644,19 @@ PROCEDURE repo-query :
                      AND cust.cust-no EQ ttFGReorder.itemCust 
                      AND cust.cust-no NE "" NO-ERROR.
                  IF avail cust THEN    
-                 ASSIGN ttMultiSelectItem.dateDueDateEarliest = TODAY + cust.ship-days
-                        ttMultiSelectItem.itemCustName = cust.name.
-
-                IF  lastship-cha = "Stock/Custom" THEN DO:
-                 /* If fgitem has no estimate. */
-                  IF ttFGReorder.itemEstNO = "" THEN
-                     ASSIGN ttMultiSelectItem.dateDueDateEarliest = TODAY + lastship-int.
-                  ELSE
-                     ASSIGN ttMultiSelectItem.dateDueDateEarliest = TODAY + INT(lastship-dec).
-                END.
-                IF lastship-cha eq "Fibre" then
-                assign             
-                 ttMultiSelectItem.dateDueDateEarliest  = TODAY + (lastship-int * 1).                         
+                 ASSIGN 
+                    ttMultiSelectItem.itemCustName = cust.name.
+                        
+                 FOR EACH oe-ordl NO-LOCK
+                     WHERE oe-ordl.company EQ cocode
+                     AND oe-ordl.opened EQ YES
+                     AND oe-ordl.stat NE 'C'
+                     AND oe-ordl.i-no EQ ttFGReorder.itemID
+                     BREAK BY oe-ordl.req-date DESC:
+                    ttMultiSelectItem.dateDueDateEarliest = oe-ordl.req-date.
+                    LEAVE.
+                 END. 
+                 IF ttMultiSelectItem.dateDueDateEarliest EQ ? THEN ttMultiSelectItem.dateDueDateEarliest = 01/01/0001.
          END.
      END.
 

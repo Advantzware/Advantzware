@@ -41,20 +41,20 @@ PROCEDURE AssessSelections:
     FOR EACH ttMultiSelectItem NO-LOCK 
         WHERE ttMultiSelectItem.isSelected :     
         CREATE ttFGReorderSelection.
-        BUFFER-COPY ttMultiSelectItem TO ttFGReorderSelection.
+        BUFFER-COPY ttMultiSelectItem TO ttFGReorderSelection.   
         ASSIGN 
             opiCountSelected       = opiCountSelected + 1
             opdTotalArea           = opdTotalArea + ttMultiSelectItem.blankArea * (MAXIMUM(1,ttMultiSelectItem.multiplier))
             ttFGReorderSelection.quantityCyclesRequired  = ttMultiSelectItem.quantityToOrder / (MAXIMUM(1,ttMultiSelectItem.multiplier))
-            opdTotalCyclesRequired = IF ttFGReorderSelection.quantityCyclesRequired GT opdTotalCyclesRequired THEN ttFGReorderSelection.quantityCyclesRequired ELSE opdTotalCyclesRequired
-            .
+            opdTotalCyclesRequired = IF opdTotalCyclesRequired EQ 0 THEN ttFGReorderSelection.quantityCyclesRequired ELSE IF ttFGReorderSelection.quantityCyclesRequired  LT opdTotalCyclesRequired  THEN ttFGReorderSelection.quantityCyclesRequired  ELSE  opdTotalCyclesRequired 
+            .  
     END.
     FOR EACH ttFGReorderSelection:
         ASSIGN 
             ttFGReorderSelection.quantityCyclesSurplus = opdTotalCyclesRequired - ttFGReorderSelection.quantityCyclesRequired
             ttFGReorderSelection.quantityToOrderSurplus = ttFGReorderSelection.quantityCyclesSurplus * (MAXIMUM(1,ttFGReorderSelection.multiplier))
-            ttFGReorderSelection.KeyItem =  (ttFGReorderSelection.quantityToOrder / (MAXIMUM(1,ttFGReorderSelection.multiplier))) EQ  opdTotalCyclesRequired
-            .      
+            ttFGReorderSelection.KeyItem = ttFGReorderSelection.quantityToOrder EQ (MAXIMUM(1,ttFGReorderSelection.multiplier) *  opdTotalCyclesRequired ) 
+            .   
             
     END.
     
@@ -73,7 +73,7 @@ PROCEDURE BuildReport:
     DEFINE VARIABLE dQuantityAllocated AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dQuantityMinimum AS DECIMAL NO-UNDO.
 
-
+    EMPTY TEMP-TABLE ttFGReorder.
     FOR EACH itemfg NO-LOCK 
         WHERE itemfg.company EQ ipcCompany
         :

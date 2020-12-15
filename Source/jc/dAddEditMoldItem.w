@@ -486,6 +486,7 @@ PROCEDURE display-item :
         ASSIGN
             cStock = ttInputEst.cStockNo
             iMolds = ttInputEst.iMolds
+            tb_default = ttInputEst.lKeyItem
             .
    
     IF ip-type EQ "Add" THEN 
@@ -494,7 +495,7 @@ PROCEDURE display-item :
     END.             
     
     DISPLAY   
-        cStock iMolds WITH FRAME Dialog-Frame.    
+        cStock iMolds tb_default WITH FRAME Dialog-Frame.    
         
     IF ip-type NE "view" THEN 
     DO:
