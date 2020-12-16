@@ -790,6 +790,21 @@ PROCEDURE genOrderLinesLocal:
       FIND CURRENT oe-ord EXCLUSIVE-LOCK NO-ERROR.
       oe-ord.due-date = dRequestedDeliveryDate.
   END.
+
+  RUN Order_CreateMiscChargeByDeliveryDate IN hOrderProcs (
+      INPUT oe-ord.company,
+      INPUT oe-ord.ord-no,
+      INPUT NOW,  /* Order Date and time */
+      INPUT oe-ord.promiseDate
+      ).
+  
+  /* Commision calculation is already part of Order Validation in OrderProcs.p */
+  IF NOT lOEAutoApproval THEN
+      RUN CalcOrderCommission IN hOrderProcs (
+          INPUT  rOrdRec, 
+          OUTPUT lError, 
+          OUTPUT cMessage
+          ).
   
   RELEASE oe-ord.  
   RELEASE oe-ordl.

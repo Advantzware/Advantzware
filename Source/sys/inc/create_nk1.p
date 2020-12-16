@@ -47,7 +47,7 @@ v-std-list = "LoadTagSSCC,IR12,OEDateChange,FGRecptPassWord,InvStatus,BOLQtyPopu
            + "CapacityHTMLFolder,InvoiceApprovalBillNotes,InvoiceApprovalFreightAmount,InvoiceApprovalFreightTerms,InvoiceApprovalPriceGTCost,InvoiceApprovalInvoiceStatus,"
            + "InvoiceApprovalTaxableCheck,CalcJobDueDate,FGBOLTransferPost,FGMasterLoc,FGOversDefault,InvoiceApprovalTaxCalc,SSTagStatus,CEWindow,"            
            + "ZohoRefreshToken,ZohoClientID,ZohoClientSecret,cXMLCustomerPartSource,CEAddCustomerOption,TruckPlan,SSJobInquiryAdjust,SSJobInquiryIssue,"
-           + "InvoiceApprovalExpectZero,CEFormatConfig,JobType,ApplyInvoiceApprovals".
+           + "InvoiceApprovalExpectZero,CEFormatConfig,JobType,ApplyInvoiceApprovals,APIOrderSurchargeSameDay,APIOrderSurchargeWeekendDelivery,APIOrderSurchargeWeekendOrder,APIOrderSurchargeNextDay".
 
 IF CAN-DO(v-std-list,ip-nk1-value) THEN
 CASE ip-nk1-value:
@@ -1349,6 +1349,50 @@ CASE ip-nk1-value:
             INPUT ip-nk1-value, 
             INPUT NO,                                   /* Prompt? */
             INPUT "Utilize auto approval of invoices",  /* Description */
+            INPUT "",                                   /* Char Value */
+            INPUT 0,                                    /* Int value */
+            INPUT NO,                                   /* Logical value */ 
+            INPUT 0                                     /* Dec value*/
+            ).                     
+    WHEN "APIOrderSurchargeSameDay" THEN 
+        RUN sys/inc/addnk1.p (
+            INPUT cocode, 
+            INPUT ip-nk1-value, 
+            INPUT NO,                                   /* Prompt? */
+            INPUT "API Order Surcharge code for Same Day delivery",  /* Description */
+            INPUT "",                                   /* Char Value */
+            INPUT 0,                                    /* Int value */
+            INPUT NO,                                   /* Logical value */ 
+            INPUT 0                                     /* Dec value*/
+            ).                     
+    WHEN "APIOrderSurchargeWeekendDelivery" THEN 
+        RUN sys/inc/addnk1.p (
+            INPUT cocode, 
+            INPUT ip-nk1-value, 
+            INPUT NO,                                   /* Prompt? */
+            INPUT "API Order Surcharge code for Weekend delivery",  /* Description */
+            INPUT "",                                   /* Char Value */
+            INPUT 0,                                    /* Int value */
+            INPUT NO,                                   /* Logical value */ 
+            INPUT 0                                     /* Dec value*/
+            ).                     
+    WHEN "APIOrderSurchargeNextDay" THEN 
+        RUN sys/inc/addnk1.p (
+            INPUT cocode, 
+            INPUT ip-nk1-value, 
+            INPUT NO,                                   /* Prompt? */
+            INPUT "API Order Surcharge code for Next Day delivery",  /* Description */
+            INPUT "",                                   /* Char Value */
+            INPUT 0,                                    /* Int value */
+            INPUT NO,                                   /* Logical value */ 
+            INPUT 0                                     /* Dec value*/
+            ).                     
+    WHEN "APIOrderSurchargeWeekendOrder" THEN 
+        RUN sys/inc/addnk1.p (
+            INPUT cocode, 
+            INPUT ip-nk1-value, 
+            INPUT NO,                                   /* Prompt? */
+            INPUT "API Order Surcharge code for Weekend order",  /* Description */
             INPUT "",                                   /* Char Value */
             INPUT 0,                                    /* Int value */
             INPUT NO,                                   /* Logical value */ 
