@@ -2834,8 +2834,8 @@ PROCEDURE add-tandem :
    DEFINE VARIABLE riRowid AS ROWID NO-UNDO.
    DEFINE VARIABLE lNewTandem AS LOG NO-UNDO.
 
-   DEF BUFFER est FOR est.
-   DEF BUFFER eb FOR eb.
+  /* DEF BUFFER est FOR est.
+   DEF BUFFER eb FOR eb. */
 
    DO WITH FRAME {&FRAME-NAME}:
     RUN est/d-selest.w (?, NO, "",
