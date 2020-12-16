@@ -97,6 +97,11 @@ ECHO audDbVer=%cNewVer% >> C:%patchDir%\patch.mft
 IF NOT EXIST C:%patchDir%\Admin\EnvAdmin\prerun%iCurVer%.r (
     COPY /Y C:%patchDir%\prerun.r C:%patchDir%\Admin\EnvAdmin\prerun%iCurVer%.r
     )
+:: Get the file containing SQL statements from /Build into the DFFiles dir 
+IF EXIST C:\Asigui\Build\allFiles.SQL (
+    COPY /Y C:\Asigui\Build\allFiles.SQL C:%patchDir%\Structure\allFiles.SQL
+    )
+
 ECHO   Directory build complete
 ECHO   Directory build complete >> %blog%
 ECHO   Directory build complete >> %vlog%

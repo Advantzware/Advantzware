@@ -5895,6 +5895,7 @@ PROCEDURE ipProcessAll :
         iopiStatus = iopiStatus + 5
         rStatusBar:WIDTH = MIN(75,(iopiStatus / 100) * 75).
     
+    RUN ipUpdateSQLSettings IN THIS-PROCEDURE.
     RUN ipBackupDataFiles IN THIS-PROCEDURE ("NEW").
     RUN ipSetNewDbVersion IN THIS-PROCEDURE.
     
@@ -6906,6 +6907,58 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipUpdateSQLSettings C-Win
+PROCEDURE ipUpdateSQLSettings:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes: Just an overview:
+            Read the conmgr.properties file to see if there is a "special" port for SQL server
+            If not, use the "regular" DB port
+            Output some values to a file /Admin/SQLParms.txt. This contains
+                dbname=<dbname>
+                dbport=<port>
+                cusername=asi
+                cpassword=Boxco2020
+            This file will be used later by the batch file to ensure SQL permissions are given to all files
+            It will then be deleted as part of the normal upgrade
+            
+            DB name is from input variable ipcName, normal port is from ipcPort
+------------------------------------------------------------------------------*/
+    DEF VAR cRaw AS CHAR NO-UNDO.
+    DEF VAR cTestString AS CHAR NO-UNDO.
+    DEF VAR cSQLDbPort AS CHAR NO-UNDO.
+    DEF VAR lInSection AS LOG.
+    INPUT FROM VALUE(cDLCDir + "\properties\conmgr.properties").
+    REPEAT:
+        IMPORT UNFORMATTED cRaw.
+        IF INDEX(cRaw,"servergroup." + ipcName + ".defaultConfiguration") NE 0 
+        AND INDEX(cRaw,"sql") NE 0 THEN ASSIGN
+            lInSection = TRUE.
+        IF lInSection
+        AND INDEX(TRIM(cRaw),"port=") NE 0 THEN ASSIGN
+            cTestString = TRIM(cRaw)
+            cSQLDbPort = ENTRY(2,cTestString,"=")
+            cSQLDbPort = TRIM(cSQLDbPort).
+        IF cSQLDbPort NE "" THEN LEAVE.
+    END. 
+    INPUT CLOSE.
+    IF cSQLDbPort EQ "" THEN ASSIGN 
+        cSQLDbPort = ipcPort.
+    OUTPUT TO VALUE(cAdminDir).
+    PUT UNFORMATTED "dbname=" + ipcName + CHR(10).         
+    PUT UNFORMATTED "dbport=" + cSQLDbPort + CHR(10).         
+    PUT UNFORMATTED "cusername=asi" + CHR(10).         
+    PUT UNFORMATTED "cpassword=Boxco2020" + CHR(10).         
+    OUTPUT CLOSE.    
+    
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipUpdateTTIniFile C-Win 
 PROCEDURE ipUpdateTTIniFile :

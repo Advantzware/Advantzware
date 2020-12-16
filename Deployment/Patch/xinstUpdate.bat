@@ -1,6 +1,7 @@
 @ECHO ON
 SET iniFile=..\Admin\advantzware.ini
 SET tgtDir=..\Admin\EnvAdmin
+IF NOT EXIST %iniFile% goto :QUIT
 
 :: Read advantzware.ini and set variable values
 FOR /F "tokens=1,2 delims==" %%G IN (%iniFile%) DO SET %%G=%%H
@@ -97,10 +98,13 @@ CD ..\Admin\Envadmin
 
 CALL !DLCDir!\bin\prowin.exe -basekey INI -ininame dbms.ini -pf advantzware.pf -p asiUpdate.w  
 
-:: Switch progress.cfg back to .run version
-
 CD ..\..\Updates
 
+:: Run the batch program to update SQL permissions
+xUpdateSQLPermissions.bat
+DEL /Q ..\Admin\SQLparms.txt
+
+:: Switch progress.cfg back to .run version
 COPY /Y !DLCDir!\progress.cfg !DLCDir!\progress.dev > NUL
 COPY /Y .\progress.cfg !DLCDir!\progress.cfg > NUL
 CACLS !DLCDir!\progress.cfg /e /p Everyone:f
@@ -119,9 +123,16 @@ IF EXIST "ASI Update" (
     DEL /S /Q "ASI Update"* > NUL
 )
 
-:QUIT
-CD ..\Admin\EnvAdmin
-EmptyFolder.bat
+CD ..\Admin
+DEL /Q SQLparms.txt > NUL
 
+:QUIT
+@ECHO OFF
+CD ..\Admin\EnvAdmin
+CLS
+SET /p cDoMore="Do you want to repeat this update? (Y/N)"
+IF /I NOT "%cDoMore%"=="Y" ( 
+    EmptyFolder.bat
+)
 EXIT
 
