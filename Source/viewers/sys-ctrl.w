@@ -126,7 +126,7 @@ DEFINE RECTANGLE RECT-1
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     sys-ctrl.name AT ROW 1.24 COL 20 COLON-ALIGNED FORMAT "X(30)"
+     sys-ctrl.name AT ROW 1.24 COL 20 COLON-ALIGNED FORMAT "X(40)"
           VIEW-AS FILL-IN 
           SIZE 47 BY 1
      sys-ctrl.isPassword AT ROW 1.24 COL 70 WIDGET-ID 2
