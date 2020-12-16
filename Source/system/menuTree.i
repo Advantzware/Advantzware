@@ -527,7 +527,9 @@ PROCEDURE pDisplayMenuTree:
 END PROCEDURE.
 
 PROCEDURE pInitMenuTree:
+    cMenuCreated = "".
     FOR EACH ttMenuTree:
+        
         IF VALID-HANDLE(ttMenuTree.hLevel) THEN
         DELETE OBJECT ttMenuTree.hLevel.
         IF VALID-HANDLE(ttMenuTree.hRectangle) THEN

@@ -53,6 +53,7 @@ DEFINE VARIABLE hLayoutHandle      AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hLayoutParent      AS HANDLE    NO-UNDO.
 DEFINE VARIABLE lContinue          AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE iUserSecurityLevel AS INTEGER   NO-UNDO.
+DEFINE VARIABLE iEditorBGColor AS INTEGER NO-UNDO INITIAL 32.
 
 DEFINE TEMP-TABLE ttIsRunning NO-UNDO
     FIELD prgTitle AS CHARACTER 
@@ -1863,21 +1864,23 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pBuildMenuTree C-Win 
-PROCEDURE pBuildMenuTree :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pBuildttMenuTree C-Win 
+PROCEDURE pBuildttMenuTree :
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcparentname AS CHARACTER.
     DEFINE VARIABLE iOrder AS INTEGER NO-UNDO.
     
-    RUN pInitMenuTree.
+    //RUN pInitMenuTree.
 
-    FOR EACH ttIsRunning
+    FOR EACH ttIsRunning WHERE ttIsRunning.prgTitle = (IF ipcparentname = "file" THEN  ttIsRunning.prgTitle ELSE ipcparentname)
         BREAK BY ttIsRunning.prgTitle
               BY ttIsRunning.prgmName
         :
+
         IF FIRST-OF(ttIsRunning.prgTitle) THEN DO:
             iOrder = iOrder + 1.
             RUN pCreatettMenuTree (
@@ -1885,14 +1888,15 @@ PROCEDURE pBuildMenuTree :
                 iOrder,
                 1,
                 YES,
-                "",
+                "file",
                 ttIsRunning.prgTitle,
                 ttIsRunning.prgTitle,
                 "tab_pane.png",
+                ttIsRunning.prgTitle,
                 "",
                 "",
-                "",
-                YES
+                YES,
+                ipcparentname
                 ).
         END. /* if first-of prgTitle */
         IF FIRST-OF(ttIsRunning.prgmName) THEN DO:
@@ -1906,10 +1910,11 @@ PROCEDURE pBuildMenuTree :
                 ttIsRunning.prgmName,
                 ttIsRunning.prgmName,
                 "hand_point_right2.png",
+                ttIsRunning.prgmName,
                 "",
                 "",
-                "",
-                YES
+                YES,
+                ipcparentname
                 ).
         END. /* if first-of prgTitle */
     END. /* each ttIsRunning */
@@ -1919,14 +1924,15 @@ PROCEDURE pBuildMenuTree :
         iOrder,
         1,
         NO,
-        "",
+        "file",
         "Exit",
         "Exit",
         "navigate_cross.png",
+        "Exit",
         "",
         "",
-        "",
-        YES
+        YES,
+        ipcparentname
         ).
 
 END PROCEDURE.
@@ -2001,7 +2007,7 @@ PROCEDURE pClearView :
         IF hWidget:TYPE NE "BUTTON" AND
            hWidget:SELECTABLE EQ NO AND 
            hWidget:SENSITIVE THEN
-        hWidget:SCREEN-VALUE = if hWidget:TYPE EQ "TOGGLE-BOX" THEN "YES" ELSE "".
+        hWidget:SCREEN-VALUE = IF hWidget:TYPE EQ "TOGGLE-BOX" THEN "YES" ELSE "".
         hWidget = hWidget:NEXT-SIBLING.
     END. /* do while */
     ASSIGN 
@@ -2349,7 +2355,7 @@ PROCEDURE pGetIsRunning :
     DEFINE VARIABLE hFrame  AS HANDLE NO-UNDO.
     DEFINE VARIABLE hChild  AS HANDLE NO-UNDO.
     
-    EMPTY TEMP-TABLE ttIsRunning.
+   // EMPTY TEMP-TABLE ttIsRunning.
     
     ASSIGN 
         hWidget = SESSION:HANDLE
@@ -2438,11 +2444,13 @@ PROCEDURE pInit :
   Notes:       
 ------------------------------------------------------------------------------*/
     RUN pGetIsRunning.
-    RUN pBuildMenuTree.
-    RUN pDisplayMenuTree (FRAME filterFrame:HANDLE, "", YES, 1).
-    FIND FIRST ttMenuTree.
-    IF AVAILABLE ttMenuTree AND VALID-HANDLE(ttMenuTree.hEditor) THEN
-    RUN pClickMenuTree (ttMenuTree.hEditor).
+    RUN pInitMenuTree.
+    RUN pBuildttMenuTree("file").
+    RUN pDisplayMenuTree (FRAME filterFrame:HANDLE, "file", YES, 1).
+    FIND FIRST ttMenuTree NO-ERROR.
+   IF AVAILABLE ttMenuTree AND VALID-HANDLE(ttMenuTree.hEditor) THEN
+   RUN pClickMenuTree (ttMenuTree.hEditor).
+
     RUN pSetFocus.
 
 END PROCEDURE.

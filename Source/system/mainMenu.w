@@ -348,7 +348,7 @@ DEFINE BUTTON btnClear  NO-FOCUS
      BGCOLOR 21 FONT 22.
 
 DEFINE BUTTON btnFavorite 
-     IMAGE-UP FILE "Graphics/16x16/navigate_plus.png":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/16x16/move_plus.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Fav" 
      SIZE 5 BY 1.19.
 
@@ -358,17 +358,17 @@ DEFINE BUTTON BtnFavorites
      SIZE 5.6 BY 1.24 TOOLTIP "Search Menu / Edit Favorites".
 
 DEFINE BUTTON btnMoveDown 
-     IMAGE-UP FILE "Graphics/16x16/navigate_down.png":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/16x16/move_down.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 4.4 BY 1 TOOLTIP "Move Favorite Down".
 
 DEFINE BUTTON btnMoveUp 
-     IMAGE-UP FILE "Graphics/16x16/navigate_up.png":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/16x16/move_up.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 4.4 BY 1 TOOLTIP "Move Favorite Up".
 
 DEFINE BUTTON btnRemove 
-     IMAGE-UP FILE "Graphics/16x16/navigate_cross.png":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/16x16/move_cross.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 4.4 BY 1 TOOLTIP "Remove Favorite".
 
@@ -1298,7 +1298,7 @@ END.
 ON VALUE-CHANGED OF searchSelections IN FRAME searchFrame
 DO:
     lFavorite = ENTRY(2,SELF:SCREEN-VALUE,"|") EQ "yes".
-    btnFavorite:LOAD-IMAGE("Graphics/16x16/navigate_"
+    btnFavorite:LOAD-IMAGE("Graphics/16x16/move_"
         + (IF lFavorite THEN "minus" ELSE "plus")
         + ".png")
         .
