@@ -97,6 +97,10 @@ IF llRecFound THEN
     cJobType = lcReturn NO-ERROR.  
 
 DEFINE BUFFER xjob FOR job.
+DEFINE NEW SHARED BUFFER xest FOR est.
+DEFINE NEW SHARED BUFFER xef FOR ef.
+DEFINE NEW SHARED VARIABLE sh-wid AS DECIMAL   NO-UNDO.
+DEFINE NEW SHARED VARIABLE sh-len AS DECIMAL   NO-UNDO.
 
 noDate = CAN-FIND(FIRST sys-ctrl
                   WHERE sys-ctrl.company EQ cocode
@@ -2815,6 +2819,63 @@ PROCEDURE view-user-id :
 
       DISPLAY job.user-id.
    END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE add-tandem V-table-Win 
+PROCEDURE add-tandem :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DEF VAR lv-rowid AS ROWID NO-UNDO.
+   DEF VAR ll-new-tandem AS LOG NO-UNDO.
+
+   DEF BUFFER est FOR est.
+   DEF BUFFER eb FOR eb.
+
+   DO WITH FRAME {&FRAME-NAME}:
+    RUN est/d-selest.w (?, NO, "",
+                        OUTPUT ll-new-tandem, OUTPUT lv-rowid).
+    FIND eb WHERE ROWID(eb) EQ lv-rowid NO-LOCK NO-ERROR.
+    
+    IF ll-new-tandem THEN DO:
+      RUN dispatch ("add-record").
+      job.est-no:SCREEN-VALUE = eb.est-no.
+      
+      FIND FIRST xest NO-LOCK WHERE 
+        xest.company EQ eb.company AND 
+        xest.est-no EQ eb.est-no 
+        NO-ERROR.
+        
+      RELEASE xeb.
+      
+      RUN est/oeselest.p.
+      
+      APPLY "entry" TO job.est-no.
+    END.        
+   END.       
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE check-tandem-button V-table-Win 
+PROCEDURE check-tandem-button :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEF OUTPUT PARAM op-enabled AS LOG NO-UNDO.
+
+
+  RUN custom/frame-en.p (FRAME {&FRAME-NAME}:HANDLE, "{&ENABLED-FIELDS}", OUTPUT op-enabled).
+            
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
