@@ -1335,6 +1335,14 @@ FUNCTION getValue-itemfg RETURNS CHARACTER
                     lc-return = "Group by Date".
             END CASE.
         END.
+        WHEN "accountType"  THEN DO:
+            CASE ipb-itemfg.accountType :
+                WHEN "" THEN
+                    lc-return = "None".                 
+                OTHERWISE
+                    lc-return = ipb-itemfg.accountType.
+            END CASE.
+        END.
         WHEN "ship-name"  THEN DO:
             IF AVAIL shipto THEN
                 lc-return = shipto.ship-name .
