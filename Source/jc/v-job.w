@@ -2831,18 +2831,18 @@ PROCEDURE add-tandem :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-   DEF VAR lv-rowid AS ROWID NO-UNDO.
-   DEF VAR ll-new-tandem AS LOG NO-UNDO.
+   DEFINE VARIABLE riRowid AS ROWID NO-UNDO.
+   DEFINE VARIABLE lNewTandem AS LOG NO-UNDO.
 
    DEF BUFFER est FOR est.
    DEF BUFFER eb FOR eb.
 
    DO WITH FRAME {&FRAME-NAME}:
     RUN est/d-selest.w (?, NO, "",
-                        OUTPUT ll-new-tandem, OUTPUT lv-rowid).
-    FIND eb WHERE ROWID(eb) EQ lv-rowid NO-LOCK NO-ERROR.
+                        OUTPUT lNewTandem, OUTPUT riRowid).
+    FIND eb WHERE ROWID(eb) EQ riRowid NO-LOCK NO-ERROR.
     
-    IF ll-new-tandem THEN DO:
+    IF lNewTandem THEN DO:
       RUN dispatch ("add-record").
       job.est-no:SCREEN-VALUE = eb.est-no.
       
