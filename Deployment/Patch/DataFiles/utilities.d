@@ -215,6 +215,7 @@ Display all job material quantities that are less than zero." 900
 "unPostBOL.r" "OP" "OS1" "Unpost BOLs where the post fails" "If a BOL is marked as posted but did not post to inventory or otherwise did not post correctly.
 
 If no invoice, it will set BOL to unposted as well as all lines." 900
+"unPostBOLs.r" "UTIL" "" "UnPost multiple BOLs from input or file" "" 900
 "unPostRel.r" "OP" "OT1" "Unpost Releases where the release post fails" "Allows user to enter a company and release, set it back to unposted." 1000
 "upd-box.r" "CE" "EB" "Update Box Design Disk Drive Letter" "Update the box design drive or path." 900
 "updappay.r" "AP" "" "Update check date of Posted Checks" "Update date of a posted AP check." 900

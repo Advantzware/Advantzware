@@ -255,27 +255,27 @@
 19 yes 7 "ttPostBOLCreateInvoice.totWgt" "Tot WT" "->>>,>>9" "ttPostBOLCreateInvoice" 0 "decimal" "ASI" 0 no no "" "" no "" "" "201911064565904356101" no no no "" no "" "" 0 0 "" no
 19 yes 4 "ttPostBOLCreateInvoice.trailer" "Trailer" "x(20)" "ttPostBOLCreateInvoice" 0 "character" "ASI" 0 no no "" "" no "" "" "201911064565904356102" no no no "" no "" "" 0 0 "" no
 19 yes 23 "ttPostBOLCreateInvoice.weight" "Weight" "->>>,>>9" "ttPostBOLCreateInvoice" 0 "integer" "ASI" 0 no no "" "" no "" "" "201911064565904356103" no no no "" no "" "" 0 0 "" no
-20 yes 8 "ttOpenOrderReport.cadNo" "CAD" "x(15)" "ttOpenOrderReport" 0 "character" "ASI" 0 no no "" "" no "" "" "201911064565904356104" no no no "" no "" "" 0 0 "" no
-20 yes 21 "ttOpenOrderReport.cstatus" "Status" "x(20)" "ttOpenOrderReport" 0 "character" "ASI" 0 no no "" "" no "" "" "201911064565904356105" no no no "" no "" "" 0 0 "" no
-20 yes 1 "ttOpenOrderReport.custNo" "Cust No" "x(8)" "ttOpenOrderReport" 0 "character" "ASI" 0 no no "" "" no "" "" "201911064565904356106" no no no "" no "" "" 0 0 "" no
-20 yes 4 "ttOpenOrderReport.custPartNo" "Cust Part" "x(15)" "ttOpenOrderReport" 0 "character" "ASI" 0 no no "" "" no "" "" "201911064565904356202" no no no "" no "" "" 0 0 "" no
-20 yes 5 "ttOpenOrderReport.fgItemName" "Item Description" "x(30)" "ttOpenOrderReport" 0 "character" "ASI" 0 no no "" "" no "" "" "201911064565904356203" no no no "" no "" "" 0 0 "" no
-20 yes 6 "ttOpenOrderReport.fgItemNo" "FG Item" "x(15)" "ttOpenOrderReport" 0 "character" "ASI" 0 no no "" "" no "" "" "201911064565904356204" no no no "" no "" "" 0 0 "" no
-20 yes 2 "ttOpenOrderReport.lineDueDate" "Line Due Dt" "99/99/9999" "ttOpenOrderReport" 0 "date" "ASI" 0 no no "" "" no "" "" "201911064565904356205" no no no "" no "" "" 0 0 "" no
-20 yes 7 "ttOpenOrderReport.orderNo" "Order No" ">>>>>>" "ttOpenOrderReport" 0 "integer" "ASI" 0 no no "" "" no "" "" "201911064565904356206" no no no "" no "" "" 0 0 "" no
-20 yes 18 "ttOpenOrderReport.pallet" "Pallet" ">>9" "ttOpenOrderReport" 0 "integer" "ASI" 0 no no "" "" no "" "" "201911064565904356207" no no no "" no "" "" 0 0 "" no
-20 yes 19 "ttOpenOrderReport.palletCount" "Pallet Count" ">>>,>>9" "ttOpenOrderReport" 0 "integer" "ASI" 0 no no "" "" no "" "" "201911064565904356208" no no no "" no "" "" 0 0 "" no
-20 yes 9 "ttOpenOrderReport.poNo" "PO No" "x(10)" "ttOpenOrderReport" 0 "character" "ASI" 0 no no "" "" no "" "" "201911064565904356209" no no no "" no "" "" 0 0 "" no
-20 yes 13 "ttOpenOrderReport.qtyActRel" "Qty ActRel" "->,>>>,>>9" "ttOpenOrderReport" 0 "integer" "ASI" 0 no no "" "" no "" "" "201911064565904356210" no no no "" no "" "" 0 0 "" no
-20 yes 15 "ttOpenOrderReport.qtyAvail" "Qty Avail" "->,>>>,>>9" "ttOpenOrderReport" 0 "integer" "ASI" 0 no no "" "" no "" "" "201911064565904356211" no no no "" no "" "" 0 0 "" no
-20 yes 11 "ttOpenOrderReport.qtyOnhand" "Qty Onhand" "->,>>>,>>9" "ttOpenOrderReport" 0 "integer" "ASI" 0 no no "" "" no "" "" "201911064565904356212" no no no "" no "" "" 0 0 "" no
-20 yes 10 "ttOpenOrderReport.qtyOrd" "Order Qty" "->,>>>,>>9" "ttOpenOrderReport" 0 "integer" "ASI" 0 no no "" "" no "" "" "201911064565904356213" no no no "" no "" "" 0 0 "" no
-20 yes 12 "ttOpenOrderReport.qtyShipped" "Qty Shipped" "->,>>>,>>9" "ttOpenOrderReport" 0 "integer" "ASI" 0 no no "" "" no "" "" "201911064565904356214" no no no "" no "" "" 0 0 "" no
-20 yes 14 "ttOpenOrderReport.qtyWIP" "Qty WIP" "->,>>>,>>9" "ttOpenOrderReport" 0 "integer" "ASI" 0 no no "" "" no "" "" "201911064565904356215" no no no "" no "" "" 0 0 "" no
-20 yes 3 "ttOpenOrderReport.relDueDate" "Rel Due Dt" "99/99/9999" "ttOpenOrderReport" 0 "date" "ASI" 0 no no "" "" no "" "" "201911064565904356216" no no no "" no "" "" 0 0 "" no
-20 yes 16 "ttOpenOrderReport.salesRep" "Rep" "x(3)" "ttOpenOrderReport" 0 "character" "ASI" 0 no no "" "" no "" "" "201911064565904356217" no no no "" no "" "" 0 0 "" no
-20 yes 20 "ttOpenOrderReport.sellPrice" "Sell Price" "->,>>>,>>9.99" "ttOpenOrderReport" 0 "decimal" "ASI" 0 no no "" "" no "" "" "201911064565904356218" no no no "" no "" "" 0 0 "" no
-20 yes 17 "ttOpenOrderReport.unit" "Unit" ">>>>>9" "ttOpenOrderReport" 0 "integer" "ASI" 0 no no "" "" no "" "" "201911064565904356219" no no no "" no "" "" 0 0 "" no
+20 yes 8 "ttOpenOrderReport.cadNo" "CAD" "x(15)" "ttOpenOrderReport" 15 "character" "ASI" 0 no no "" "" no "" "" "201911064565904356104" no no no "" no "" "" 0 0 "" no
+20 yes 21 "ttOpenOrderReport.cstatus" "Status" "x(20)" "ttOpenOrderReport" 20 "character" "ASI" 0 no no "" "" no "" "" "201911064565904356105" no no no "" no "" "" 0 0 "" no
+20 yes 1 "ttOpenOrderReport.custNo" "Cust No" "x(8)" "ttOpenOrderReport" 8 "character" "ASI" 0 no no "" "" no "" "" "201911064565904356106" no no no "" no "" "" 0 0 "" no
+20 yes 4 "ttOpenOrderReport.custPartNo" "Cust Part" "x(15)" "ttOpenOrderReport" 15 "character" "ASI" 0 no no "" "" no "" "" "201911064565904356202" no no no "" no "" "" 0 0 "" no
+20 yes 5 "ttOpenOrderReport.fgItemName" "Item Description" "x(30)" "ttOpenOrderReport" 30 "character" "ASI" 0 no no "" "" no "" "" "201911064565904356203" no no no "" no "" "" 0 0 "" no
+20 yes 6 "ttOpenOrderReport.fgItemNo" "FG Item" "x(15)" "ttOpenOrderReport" 15 "character" "ASI" 0 no no "" "" no "" "" "201911064565904356204" no no no "" no "" "" 0 0 "" no
+20 yes 2 "ttOpenOrderReport.lineDueDate" "Line Due Dt" "99/99/9999" "ttOpenOrderReport" 11.2 "date" "ASI" 0 no no "" "" no "" "" "201911064565904356205" no no no "" no "" "" 0 0 "" no
+20 yes 7 "ttOpenOrderReport.orderNo" "Order No" ">>>>>>" "ttOpenOrderReport" 8.8 "integer" "ASI" 0 no no "" "" no "" "" "201911064565904356206" no no no "" no "" "" 0 0 "" no
+20 yes 18 "ttOpenOrderReport.pallet" "Pallet" ">>9" "ttOpenOrderReport" 5.2 "integer" "ASI" 0 no no "" "" no "" "" "201911064565904356207" no no no "" no "" "" 0 0 "" no
+20 yes 19 "ttOpenOrderReport.palletCount" "Pallet Count" ">>>,>>9" "ttOpenOrderReport" 11.6 "integer" "ASI" 0 no no "" "" no "" "" "201911064565904356208" no no no "" no "" "" 0 0 "" no
+20 yes 9 "ttOpenOrderReport.poNo" "PO No" "x(15)" "ttOpenOrderReport" 13 "character" "ASI" 0 no no "" "" no "" "" "201911064565904356209" no no no "" no "" "" 0 0 "" no
+20 yes 13 "ttOpenOrderReport.qtyActRel" "Qty ActRel" "->,>>>,>>9" "ttOpenOrderReport" 10.8 "integer" "ASI" 0 no no "" "" no "" "" "201911064565904356210" no no no "" no "" "" 0 0 "" no
+20 yes 15 "ttOpenOrderReport.qtyAvail" "Qty Avail" "->,>>>,>>9" "ttOpenOrderReport" 10.8 "integer" "ASI" 0 no no "" "" no "" "" "201911064565904356211" no no no "" no "" "" 0 0 "" no
+20 yes 11 "ttOpenOrderReport.qtyOnhand" "Qty Onhand" "->,>>>,>>9" "ttOpenOrderReport" 11.8 "integer" "ASI" 0 no no "" "" no "" "" "201911064565904356212" no no no "" no "" "" 0 0 "" no
+20 yes 10 "ttOpenOrderReport.qtyOrd" "Order Qty" "->,>>>,>>9" "ttOpenOrderReport" 10.8 "integer" "ASI" 0 no no "" "" no "" "" "201911064565904356213" no no no "" no "" "" 0 0 "" no
+20 yes 12 "ttOpenOrderReport.qtyShipped" "Qty Shipped" "->,>>>,>>9" "ttOpenOrderReport" 11.8 "integer" "ASI" 0 no no "" "" no "" "" "201911064565904356214" no no no "" no "" "" 0 0 "" no
+20 yes 14 "ttOpenOrderReport.qtyWIP" "Qty WIP" "->,>>>,>>9" "ttOpenOrderReport" 10.8 "integer" "ASI" 0 no no "" "" no "" "" "201911064565904356215" no no no "" no "" "" 0 0 "" no
+20 yes 3 "ttOpenOrderReport.relDueDate" "Rel Due Dt" "99/99/9999" "ttOpenOrderReport" 11.2 "date" "ASI" 0 no no "" "" no "" "" "201911064565904356216" no no no "" no "" "" 0 0 "" no
+20 yes 16 "ttOpenOrderReport.salesRep" "Rep" "x(3)" "ttOpenOrderReport" 3.8 "character" "ASI" 0 no no "" "" no "" "" "201911064565904356217" no no no "" no "" "" 0 0 "" no
+20 yes 20 "ttOpenOrderReport.sellPrice" "Sell Price" "->,>>>,>>9.99" "ttOpenOrderReport" 14 "decimal" "ASI" 0 no no "" "" no "" "" "201911064565904356218" no no no "" no "" "" 0 0 "" no
+20 yes 17 "ttOpenOrderReport.unit" "Unit" ">>>>>9" "ttOpenOrderReport" 6 "integer" "ASI" 0 no no "" "" no "" "" "201911064565904356219" no no no "" no "" "" 0 0 "" no
 20 no 22 "ttOpenOrderReport.xxSort1" "Sort 1" "x(100)" "ttOpenOrderReport" 0 "character" "ASI" 1 no no "" "" no "" "" "201911064565904356220" no no no "" no "" "" 0 0 "" no
 20 no 23 "ttOpenOrderReport.xxSort2" "Sort 2" "x(100)" "ttOpenOrderReport" 0 "character" "ASI" 2 no no "" "" no "" "" "201911064565904356221" no no no "" no "" "" 0 0 "" no
 21 yes 8 "cust.acc-bal" "Account Balance" "->>>,>>>,>>9.99" "cust" 0 "decimal" "ASI" 0 no no "" "" no "" "" "201911064565904356222" no no no "" no "" "" 0 0 "" no
@@ -1044,12 +1044,15 @@
 83 yes 1 "APIInboundEvent.company" "Company" "x(3)" "APIInboundEvent" 0 "STRING" "ASI" 0 no no "" "" no "" "" "202006100045105348450" no no no "" no "" "" 0 0 "" no
 83 yes 5 "APIInboundEvent.errorMessage" "errorMessage" "x(200)" "APIInboundEvent" 0 "STRING" "ASI" 0 no no "" "" no "" "" "202006100045105348454" no no no "" no "" "" 0 0 "" no
 83 yes 7 "APIInboundEvent.externalID" "externalID" "x(30)" "APIInboundEvent" 0 "STRING" "ASI" 0 no no "" "" no "" "" "202006100045105348456" no no no "" no "" "" 0 0 "" no
-83 yes 11 "APIInboundEvent.notes" "notes" "x(200)" "APIInboundEvent" 0 "STRING" "ASI" 0 no no "" "" no "" "" "202006100045105348512" no no no "" no "" "" 0 0 "" no
+83 yes 14 "APIInboundEvent.notes" "notes" "x(200)" "APIInboundEvent" 0 "STRING" "ASI" 0 no no "" "" no "" "" "202006100045105348512" no no no "" no "" "" 0 0 "" no
 83 yes 8 "APIInboundEvent.recordSource" "recordSource" "x(8)" "APIInboundEvent" 0 "STRING" "ASI" 0 no no "" "" no "" "" "202006100045105348457" no no no "" no "" "" 0 0 "" no
 83 yes 9 "APIInboundEvent.rec_key" "rec_key" "x(21)" "APIInboundEvent" 0 "STRING" "ASI" 0 no no "" "" no "" "" "202006100045105348510" no no no "" no "" "" 0 0 "" no
 83 yes 3 "APIInboundEvent.requestDateTime" "requestDateTime" "99/99/9999 HH:MM:SS.SSS" "APIInboundEvent" 0 "datetime" "ASI" 0 no no "" "" no "" "" "202006100045105348452" no no no "" no "" "" 0 0 "" no
 83 yes 10 "APIInboundEvent.requestedBy" "requestedBy" "x(8)" "APIInboundEvent" 0 "STRING" "ASI" 0 no no "" "" no "" "" "202006100045105348511" no no no "" no "" "" 0 0 "" no
 83 yes 4 "APIInboundEvent.success" "success" "Success/Failure" "APIInboundEvent" 0 "logical" "ASI" 0 no no "" "" no "" "" "202006100045105348453" no no no "" no "" "" 0 0 "" no
+83 yes 11 "APIInboundEvent.userField1" "User Field 1" "x(8)" "APIInboundEvent" 0 "STRING" "ASI" 0 no no "" "" no "" "" "202012072596905903372" no no no "" no "" "" 0 0 "" no
+83 yes 12 "APIInboundEvent.userField2" "User Field 2" "x(8)" "APIInboundEvent" 0 "STRING" "ASI" 0 no no "" "" no "" "" "202012072596905903373" no no no "" no "" "" 0 0 "" no
+83 yes 13 "APIInboundEvent.userField3" "User Field 3" "x(8)" "APIInboundEvent" 0 "STRING" "ASI" 0 no no "" "" no "" "" "202012072596905903374" no no no "" no "" "" 0 0 "" no
 84 yes 51 "ttFinishGoods.avg-cost" "Average Cost" "->>,>>>,>>9.99" "ttFinishGoods" 0 "decimal" "ASI" 0 no no "" "" no "" "" "202007062124305434800" no no no "" no "" "" 0 0 "" no
 84 yes 71 "ttFinishGoods.beg-bal" "Beginning Balance" "->>,>>>,>>>,>>9.99" "ttFinishGoods" 0 "decimal" "ASI" 0 no no "" "" no "" "" "202007062124305434801" no no no "" no "" "" 0 0 "" no
 84 yes 70 "ttFinishGoods.beg-date" "Beginning Date" "99/99/9999" "ttFinishGoods" 0 "date" "ASI" 0 no no "" "" no "" "" "202007062124305434802" no no no "" no "" "" 0 0 "" no

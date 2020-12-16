@@ -3,7 +3,6 @@
 "" "" "" "AuditTable" 143 "_default" 0 "202009096944005640998"
 "" "" "" "begin_comp" 41 "_default" 0 "202007235942505498370"
 "" "" "" "begin_cust-no" 127 "_default" 0 "202008035592205523588"
-"" "" "" "cAccount" 107 "_default" 0 "202008056377505468363"
 "" "" "" "cEndCustNo" 23 "_default" 0 "201908306750003793465"
 "" "" "" "cStartCustNo" 23 "_default" 0 "201908306748503793464"
 "" "" "" "cTaxGroup" 43 "_default" 0 "201908306755803793466"
@@ -83,3 +82,4 @@
 "" "ASI" "stax" "tax-acc1" 107 "_default" 0 "202006308632005423131"
 "" "ASI" "Task" "taskID" 57 "_default" 0 "201911223998504359371"
 "" "ASI" "vendItemCost" "vendorID" 32 "_default" 0 "201910025907304351069"
+"sharpShooter/w-jobInquiry." "" "" "fiJobNo" 3 "_default" 0 "202012010450105888690"
