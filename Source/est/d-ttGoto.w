@@ -27,6 +27,7 @@
 
 /* ***************************  Definitions  ************************** */
 {est/ttGoto.i}
+{methods/template/brwCustomDef.i}
 
 /* Parameters Definitions ---                                           */
 DEFINE INPUT  PARAMETER ipcCompany     AS CHARACTER NO-UNDO.
@@ -390,6 +391,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL brGoto Dialog-Frame
 ON ROW-DISPLAY OF brGoto IN FRAME Dialog-Frame
 DO:
+   &SCOPED-DEFINE exclude-row-display true
+   {methods/template/brwRowDisplay.i}
+   
     DEFINE VARIABLE dSheetsRequired AS DECIMAL NO-UNDO.
     
     DEFINE BUFFER bf-ttGoto FOR ttGoto.
@@ -644,6 +648,7 @@ THEN FRAME {&FRAME-NAME}:PARENT = ACTIVE-WINDOW.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
+    {methods/template/brwcustom.i}
     RUN enable_UI.
     FRAME {&FRAME-NAME}:TITLE = "Estimate Form for " + ipcEstNo.
     RUN pInit.

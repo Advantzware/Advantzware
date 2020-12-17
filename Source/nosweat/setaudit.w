@@ -40,6 +40,7 @@ CREATE WIDGET-POOL.
 
 {methods/defines/hndldefs.i}
 {methods/prgsecur.i}
+{methods/template/brwcustomdef.i}
 
 DEFINE VARIABLE hFieldColumn AS HANDLE  NO-UNDO EXTENT 20.
 DEFINE VARIABLE hTableColumn AS HANDLE  NO-UNDO EXTENT 20.
@@ -568,6 +569,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL dbFields C-Win
 ON ROW-DISPLAY OF dbFields IN FRAME DEFAULT-FRAME /* Fields */
 DO:
+    &scoped-define exclude-row-display true 
+    {methods/template/brwrowdisplay.i}    
     ASSIGN
         hFieldColumn[5]:BGCOLOR = IF ttField.audit NE ttField.auditDefault THEN 14 ELSE ?
         hFieldColumn[6]:BGCOLOR = IF ttField.auditDefault THEN 10 ELSE 12
@@ -598,6 +601,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL dbTables C-Win
 ON ROW-DISPLAY OF dbTables IN FRAME DEFAULT-FRAME /* Database Tables */
 DO:
+    &scoped-define exclude-row-display true 
+    {methods/template/brwrowdisplay.i}    
     ASSIGN
         hTableColumn[5]:BGCOLOR  = IF ttTable.expireDays NE ttTable.expireDaysDefault THEN 14 ELSE ?
         /* create */
@@ -769,6 +774,7 @@ RUN util/CheckModule.p ("ASI","Audit", YES, OUTPUT lContinue).
 &ELSE
 lContinue = YES.
 &ENDIF
+{methods/template/brwcustom.i}
 
 /* Now enable the interface and wait for the exit condition.            */
 /* (NOTE: handle ERROR and END-KEY so cleanup code will always fire.    */

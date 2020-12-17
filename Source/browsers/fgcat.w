@@ -33,7 +33,7 @@ CREATE WIDGET-POOL.
 /* rtc 2*/
 &SCOPED-DEFINE yellowColumnsName fgcat
 &SCOPED-DEFINE winReSize
-&SCOPED-DEFINE sizeOption HEIGHT
+//&SCOPED-DEFINE sizeOption HEIGHT
 {methods/defines/winReSize.i}
 
 /* Parameters Definitions ---                                           */

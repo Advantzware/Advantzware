@@ -39,6 +39,7 @@ CREATE WIDGET-POOL.
 &SCOPED-DEFINE winReSize
 &SCOPED-DEFINE browseOnly
 {methods/defines/winReSize.i}
+{methods/template/brwcustomdef.i}
 
 /* Parameters Definitions ---                                           */
 
@@ -59,7 +60,7 @@ DEFINE VARIABLE lvLastRowID AS ROWID NO-UNDO.
 
 DEF VAR ll-first AS LOG INIT YES NO-UNDO.
 DEF VAR lv-sort-by AS CHAR INIT "i-no"  NO-UNDO.
-DEF VAR lv-sort-by-lab AS CHAR INIT "custor No"  NO-UNDO.
+DEF VAR lv-sort-by-lab AS CHAR INIT "Cust.#"  NO-UNDO.
 DEF VAR ll-sort-asc AS LOG INIT YES NO-UNDO.
 DEF VAR char-hdl AS CHAR NO-UNDO.
 DEF VAR phandle AS HANDLE NO-UNDO.
@@ -76,7 +77,11 @@ DEF VAR lv-last-show-cust-no AS cha NO-UNDO.
 DEF VAR lv-first-show-cust-no AS cha NO-UNDO.
 DEF VAR v-rec-key-list AS CHAR NO-UNDO.
 DEF VAR lActive AS LOG NO-UNDO.
-
+/*
+DEF VAR colHand AS WIDGET-HANDLE NO-UNDO.
+DEF VAR colHandList AS CHAR NO-UNDO.
+DEF VAR icnt as integer no-undo.
+*/
 ASSIGN cocode = g_company
        locode = g_loc.
 
@@ -180,9 +185,9 @@ DEFINE {&NEW} SHARED VARIABLE g_lookup-var AS CHARACTER NO-UNDO.
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE Browser-Table                                 */
-&Scoped-define FIELDS-IN-QUERY-Browser-Table cust.company cust.cust-no ~
-cust.name cust.city cust.state cust.zip cust.area-code cust.phone cust.type cust.sman cust.terr cust.spare-char-2 ~
-cust.rec_key 
+&Scoped-define FIELDS-IN-QUERY-Browser-Table cust.terr cust.sman cust.type ~
+cust.phone cust.area-code cust.zip cust.state cust.city cust.name ~
+cust.cust-no cust.company 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH cust WHERE ~{&KEY-PHRASE} ~
       AND cust.company = gcompany NO-LOCK ~
@@ -195,18 +200,23 @@ cust.rec_key
 
 
 /* Definitions for FRAME F-Main                                         */
+&Scoped-define OPEN-BROWSERS-IN-QUERY-F-Main ~
+    ~{&OPEN-QUERY-Browser-Table}
+
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS tb_act fi_cust-no fi_i-name fi_city fi_stat ~
-fi_zip fi_type fi_terr fi_sman tb_in-act btn_go btn_prev btn_next btn_show ~
-Browser-Table 
+&Scoped-Define ENABLED-OBJECTS RECT-1 RECT-2 RECT-3 btn_go tb_act ~
+fi_cust-no fi_i-name fi_city fi_stat fi_zip fi_type fi_sman fi_terr ~
+tb_in-act btn_prev btn_next btn_show Browser-Table fi_sort-by 
 &Scoped-Define DISPLAYED-OBJECTS tb_act fi_cust-no fi_i-name fi_city ~
-fi_stat fi_zip fi_type fi_terr fi_sman tb_in-act fi_sort-by FI_moveCol 
+fi_stat fi_zip fi_type fi_sman fi_terr tb_in-act fi_sort-by 
+//FI_moveCol 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _XFTR "Foreign Keys" B-table-Win _INLINE
 /* Actions: ? adm/support/keyedit.w ? ? ? */
@@ -250,90 +260,115 @@ RUN set-attribute-list (
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
 /* ***********************  Control Definitions  ********************** */
+
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btn_go 
+     IMAGE-UP FILE "Graphics/32x32/search_new.png":U
+     IMAGE-DOWN FILE "Graphics/32x32/search_hover_new.png":U
      LABEL "&Go" 
-     SIZE 12 BY 1
-     FONT 6.
+     SIZE 6.4 BY 1.52
+     BGCOLOR 21 FGCOLOR 15 FONT 23.
 
 DEFINE BUTTON btn_next 
+     IMAGE-UP FILE "Graphics/32x32/next-btn.png":U
+     IMAGE-DOWN FILE "Graphics/32x32/next-btn-hover.png":U
      LABEL "Show &Next" 
-     SIZE 15 BY 1
+     SIZE 11 BY 1.05
      FONT 6.
 
 DEFINE BUTTON btn_prev 
+     IMAGE-UP FILE "Graphics/32x32/pre-btn.png":U
+     IMAGE-DOWN FILE "Graphics/32x32/pre-btn-hover.png":U
      LABEL "Show &Previous" 
-     SIZE 20 BY 1
+     SIZE 11 BY 1.05
      FONT 6.
 
 DEFINE BUTTON btn_show 
+     IMAGE-UP FILE "Graphics/32x32/show-all-btn.png":U
+     IMAGE-DOWN FILE "Graphics/32x32/show-all-btn-hover.png":U
      LABEL "&Show All" 
-     SIZE 12 BY 1
+     SIZE 12.8 BY 1.05
      FONT 6.
-
-DEFINE VARIABLE fi_terr AS CHARACTER FORMAT "X(3)":U 
-     VIEW-AS FILL-IN 
-     SIZE 10 BY 1
-     BGCOLOR 15  NO-UNDO.
-
-DEFINE VARIABLE fi_sman AS CHARACTER FORMAT "X(3)":U 
-     VIEW-AS FILL-IN 
-     SIZE 10 BY 1
-     BGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE fi_city AS CHARACTER FORMAT "X(13)":U 
      VIEW-AS FILL-IN 
-     SIZE 20 BY 1
-     BGCOLOR 15  NO-UNDO.
-
-DEFINE VARIABLE fi_i-name AS CHARACTER FORMAT "X(20)":U 
-     VIEW-AS FILL-IN 
-     SIZE 30 BY 1
-     BGCOLOR 15  NO-UNDO.
-
-DEFINE VARIABLE FI_moveCol AS CHARACTER FORMAT "X(4)":U 
-     VIEW-AS FILL-IN 
-     SIZE 9 BY 1
-     BGCOLOR 14 FONT 6 NO-UNDO.
-
-DEFINE VARIABLE fi_sort-by AS CHARACTER FORMAT "X(256)":U 
-     VIEW-AS FILL-IN 
-     SIZE 34.6 BY 1
-     BGCOLOR 14 FONT 6 NO-UNDO.
-
-DEFINE VARIABLE fi_stat AS CHARACTER FORMAT "X(5)":U 
-     VIEW-AS FILL-IN 
-     SIZE 10 BY 1
-     BGCOLOR 15  NO-UNDO.
-
-DEFINE VARIABLE fi_type AS CHARACTER FORMAT "X(8)":U 
-     VIEW-AS FILL-IN 
-     SIZE 16 BY 1
-     BGCOLOR 15  NO-UNDO.
+     SIZE 20 BY 1.1
+     BGCOLOR 15 FONT 22 NO-UNDO.
 
 DEFINE VARIABLE fi_cust-no AS CHARACTER FORMAT "X(8)":U 
      VIEW-AS FILL-IN 
-     SIZE 13 BY 1
-     BGCOLOR 15  NO-UNDO.
+     SIZE 13 BY 1.1
+     BGCOLOR 15 FONT 22 NO-UNDO.
+
+DEFINE VARIABLE fi_i-name AS CHARACTER FORMAT "X(20)":U 
+     VIEW-AS FILL-IN 
+     SIZE 30 BY 1.1
+     BGCOLOR 15 FONT 22 NO-UNDO.
+/*
+DEFINE VARIABLE FI_moveCol AS CHARACTER FORMAT "X(4)":U 
+      VIEW-AS TEXT 
+     SIZE 8.2 BY .71
+     FONT 22 NO-UNDO.*/
+
+DEFINE VARIABLE fi_sman AS CHARACTER FORMAT "X(3)":U 
+     VIEW-AS FILL-IN 
+     SIZE 10 BY 1.1
+     BGCOLOR 15 FONT 22 NO-UNDO.
+
+DEFINE VARIABLE fi_sort-by AS CHARACTER FORMAT "X(256)":U 
+      VIEW-AS TEXT 
+     SIZE 34.6 BY .71
+     FONT 22 NO-UNDO.
+
+DEFINE VARIABLE fi_stat AS CHARACTER FORMAT "X(5)":U 
+     VIEW-AS FILL-IN 
+     SIZE 10 BY 1.1
+     BGCOLOR 15 FONT 22 NO-UNDO.
+
+DEFINE VARIABLE fi_terr AS CHARACTER FORMAT "X(3)":U 
+     VIEW-AS FILL-IN 
+     SIZE 10 BY 1.1
+     BGCOLOR 15 FONT 22 NO-UNDO.
+
+DEFINE VARIABLE fi_type AS CHARACTER FORMAT "X(8)":U 
+     VIEW-AS FILL-IN 
+     SIZE 16 BY 1.1
+     BGCOLOR 15 FONT 22 NO-UNDO.
 
 DEFINE VARIABLE fi_zip AS CHARACTER FORMAT "X(8)":U 
      VIEW-AS FILL-IN 
-     SIZE 16 BY 1
-     BGCOLOR 15  NO-UNDO.
+     SIZE 16 BY 1.1
+     BGCOLOR 15 FONT 22 NO-UNDO.
 
-DEFINE VARIABLE tb_act AS LOGICAL INITIAL YES 
+DEFINE RECTANGLE RECT-1
+     EDGE-PIXELS 2 GRAPHIC-EDGE    
+     SIZE 156 BY 2.19
+     BGCOLOR 23 FGCOLOR 23 .
+
+DEFINE RECTANGLE RECT-2
+     EDGE-PIXELS 2 GRAPHIC-EDGE    
+     SIZE .6 BY 1.62
+     BGCOLOR 24 FGCOLOR 23 .
+
+DEFINE RECTANGLE RECT-3
+     EDGE-PIXELS 2 GRAPHIC-EDGE    
+     SIZE .6 BY 1.19
+     BGCOLOR 24 FGCOLOR 24 .
+
+DEFINE VARIABLE tb_act AS LOGICAL INITIAL yes 
      LABEL "Active" 
      VIEW-AS TOGGLE-BOX
-     SIZE 13.4 BY .81
-     FGCOLOR 9 FONT 6 NO-UNDO.
+     SIZE 13 BY .62
+     BGCOLOR 23 FGCOLOR 24 FONT 22 NO-UNDO.
 
 DEFINE VARIABLE tb_in-act AS LOGICAL INITIAL no 
      LABEL "Inactive" 
      VIEW-AS TOGGLE-BOX
-     SIZE 13.4 BY .81
-     FGCOLOR 9 FONT 6 NO-UNDO.
+     SIZE 13 BY .62
+     BGCOLOR 23 FGCOLOR 24 FONT 22 NO-UNDO.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -358,18 +393,18 @@ DEFINE QUERY Browser-Table FOR
 DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
-      cust.company FORMAT "x(3)":U
-      cust.cust-no FORMAT "x(8)":U WIDTH 11.2 LABEL-BGCOLOR 14
-      cust.name COLUMN-LABEL "Name" FORMAT "x(30)":U LABEL-BGCOLOR 14
-      cust.city FORMAT "x(15)":U LABEL-BGCOLOR 14
-      cust.state FORMAT "x(2)":U WIDTH 6.2 LABEL-BGCOLOR 14
-      cust.zip COLUMN-LABEL "Zip" FORMAT "x(10)":U LABEL-BGCOLOR 14
-      cust.area-code FORMAT "(999)":U LABEL-BGCOLOR 14
-      cust.phone COLUMN-LABEL "Phone #" FORMAT "999-9999":U LABEL-BGCOLOR 14
-      cust.type COLUMN-LABEL "Type" FORMAT "x(8)":U LABEL-BGCOLOR 14
-      cust.sman COLUMN-LABEL "SalesGrp" FORMAT "x(3)":U LABEL-BGCOLOR 14
-      cust.terr COLUMN-LABEL "Territory" FORMAT "x(3)":U LABEL-BGCOLOR 14
-      cust.spare-char-2 COLUMN-LABEL "Group" FORMAT "x(8)":U LABEL-BGCOLOR 14
+      cust.company FORMAT "x(3)":U  LABEL-FONT 23
+      cust.cust-no FORMAT "x(8)":U WIDTH 11.2 LABEL-BGCOLOR 14 LABEL-FONT 23
+      cust.name COLUMN-LABEL "Name" FORMAT "x(30)":U LABEL-BGCOLOR 14 LABEL-FONT 23
+      cust.city FORMAT "x(15)":U LABEL-BGCOLOR 14 LABEL-FONT 23
+      cust.state FORMAT "x(2)":U WIDTH 6.2 LABEL-BGCOLOR 14 LABEL-FONT 23
+      cust.zip COLUMN-LABEL "Zip" FORMAT "x(10)":U LABEL-BGCOLOR 14 LABEL-FONT 23
+      cust.area-code FORMAT "(999)":U LABEL-BGCOLOR 14 LABEL-FONT 23
+      cust.phone COLUMN-LABEL "Phone #" FORMAT "999-9999":U LABEL-BGCOLOR 14 LABEL-FONT 23
+      cust.type COLUMN-LABEL "Type" FORMAT "x(8)":U LABEL-BGCOLOR 14 LABEL-FONT 23
+      cust.sman COLUMN-LABEL "SalesGrp" FORMAT "x(3)":U LABEL-BGCOLOR 14 LABEL-FONT 23
+      cust.terr COLUMN-LABEL "Territory" FORMAT "x(3)":U LABEL-BGCOLOR 14 LABEL-FONT 23
+      cust.spare-char-2 COLUMN-LABEL "Group" FORMAT "x(8)":U LABEL-BGCOLOR 14 LABEL-FONT 23
       cust.rec_key FORMAT "X(20)":U
       ENABLE
       cust.company          
@@ -388,67 +423,68 @@ DEFINE BROWSE Browser-Table
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 150 BY 17.90
-         FONT 2.
+    WITH NO-BOX NO-ASSIGN SEPARATORS SIZE 154.6 BY 17.91
+         FONT 22 ROW-HEIGHT-CHARS .84 FIT-LAST-COLUMN.
 
 
 /* ************************  Frame Definitions  *********************** */
+
 DEFINE FRAME F-Main
-     tb_act AT ROW 1.33 COL 133.8 WIDGET-ID 48
-     fi_cust-no AT ROW 2.19 COL 1 COLON-ALIGNED NO-LABEL WIDGET-ID 2
-     fi_i-name AT ROW 2.19 COL 14.6 COLON-ALIGNED NO-LABEL WIDGET-ID 40
-     fi_city AT ROW 2.19 COL 45.2 COLON-ALIGNED NO-LABEL WIDGET-ID 16
-     fi_stat AT ROW 2.19 COL 65.8 COLON-ALIGNED NO-LABEL WIDGET-ID 20
-     fi_zip AT ROW 2.19 COL 76.2 COLON-ALIGNED NO-LABEL WIDGET-ID 18
-     fi_type AT ROW 2.19 COL 93.2 COLON-ALIGNED NO-LABEL WIDGET-ID 32
-     fi_sman AT ROW 2.19 COL 109.8 COLON-ALIGNED NO-LABEL WIDGET-ID 36
-     fi_terr AT ROW 2.19 COL 120.2 COLON-ALIGNED NO-LABEL WIDGET-ID 36
-     tb_in-act AT ROW 2.48 COL 133.8 WIDGET-ID 50
-     btn_go AT ROW 3.62 COL 1.8 WIDGET-ID 4
-     btn_prev AT ROW 3.62 COL 13.8 WIDGET-ID 8
-     btn_next AT ROW 3.62 COL 34 WIDGET-ID 6
-     btn_show AT ROW 3.62 COL 49.2 WIDGET-ID 10
-     fi_sort-by AT ROW 3.62 COL 78 COLON-ALIGNED NO-LABEL WIDGET-ID 12
-     FI_moveCol AT ROW 3.62 COL 141 COLON-ALIGNED NO-LABEL WIDGET-ID 46
-     Browser-Table AT ROW 5.29 COL 2.4 HELP
+     btn_go AT ROW 1.38 COL 148.8 WIDGET-ID 4
+     tb_act AT ROW 1.43 COL 133.4 WIDGET-ID 48
+     fi_cust-no AT ROW 1.81 COL 1 COLON-ALIGNED NO-LABEL WIDGET-ID 2
+     fi_i-name AT ROW 1.81 COL 14.6 COLON-ALIGNED NO-LABEL WIDGET-ID 40
+     fi_city AT ROW 1.81 COL 45.2 COLON-ALIGNED NO-LABEL WIDGET-ID 16
+     fi_stat AT ROW 1.81 COL 65.8 COLON-ALIGNED NO-LABEL WIDGET-ID 20
+     fi_zip AT ROW 1.81 COL 76.2 COLON-ALIGNED NO-LABEL WIDGET-ID 18
+     fi_type AT ROW 1.81 COL 93.2 COLON-ALIGNED NO-LABEL WIDGET-ID 32
+     fi_sman AT ROW 1.81 COL 109.8 COLON-ALIGNED NO-LABEL WIDGET-ID 36
+     fi_terr AT ROW 1.81 COL 120.2 COLON-ALIGNED NO-LABEL WIDGET-ID 36
+     tb_in-act AT ROW 2.24 COL 133.4 WIDGET-ID 50
+     btn_prev AT ROW 3.52 COL 118.8 WIDGET-ID 8
+     btn_next AT ROW 3.52 COL 130.2 WIDGET-ID 6
+     btn_show AT ROW 3.52 COL 143.4 WIDGET-ID 10
+     Browser-Table AT ROW 4.67 COL 1.6 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
-     "Name" VIEW-AS TEXT
-          SIZE 18 BY .71 AT ROW 1.24 COL 19.8 WIDGET-ID 42
-          FGCOLOR 9 FONT 6
-     "Customer#" VIEW-AS TEXT
-          SIZE 13 BY .71 AT ROW 1.24 COL 3 WIDGET-ID 24
-          FGCOLOR 9 FONT 6
-     "Click on Yellow Field to Sort" VIEW-AS TEXT
-          SIZE 28 BY .95 AT ROW 3.62 COL 114 WIDGET-ID 14
+     fi_sort-by AT ROW 3.86 COL 11.6 COLON-ALIGNED NO-LABEL WIDGET-ID 12
+    // FI_moveCol AT ROW 3.86 COL 58.8 COLON-ALIGNED NO-LABEL WIDGET-ID 46
+   /*  "Mode:" VIEW-AS TEXT
+          SIZE 7 BY .71 AT ROW 3.86 COL 53.4 WIDGET-ID 66
+          FONT 22*/
      "Type" VIEW-AS TEXT
-          SIZE 12 BY .71 AT ROW 1.24 COL 97.8 WIDGET-ID 34
-          FGCOLOR 9 FONT 6
-     "Terr" VIEW-AS TEXT
-          SIZE 10 BY .71 AT ROW 1.24 COL 123 WIDGET-ID 38
-          FGCOLOR 9 FONT 6
-     "Rep" VIEW-AS TEXT
-          SIZE 10 BY .71 AT ROW 1.24 COL 112.20 WIDGET-ID 38
-          FGCOLOR 9 FONT 6
-     "City" VIEW-AS TEXT
-          SIZE 13 BY .71 AT ROW 1.24 COL 50.6 WIDGET-ID 22
-          FGCOLOR 9 FONT 6
-     "Sorted By:" VIEW-AS TEXT
-          SIZE 12 BY 1 AT ROW 3.62 COL 68 WIDGET-ID 30
-          FONT 6
+          SIZE 12 BY .62 AT ROW 1.19 COL 97.8 WIDGET-ID 34
+          BGCOLOR 23 FGCOLOR 24 FONT 22
+     "Customer#" VIEW-AS TEXT
+          SIZE 13 BY .62 AT ROW 1.19 COL 3 WIDGET-ID 24
+          BGCOLOR 23 FGCOLOR 24 FONT 22
+    /* "Sorted By:" VIEW-AS TEXT
+          SIZE 12 BY .71 AT ROW 3.86 COL 1.8 WIDGET-ID 30
+          FONT 22 */
      "Zip" VIEW-AS TEXT
-          SIZE 12 BY .71 AT ROW 1.24 COL 81 WIDGET-ID 28
-          FGCOLOR 9 FONT 6
-     /*"Browser Col. Mode:" VIEW-AS TEXT
-          SIZE 22.6 BY .62 AT ROW 18.38 COL 99.6 WIDGET-ID 6
-          FONT 6*/
+          SIZE 12 BY .62 AT ROW 1.19 COL 81 WIDGET-ID 28
+          BGCOLOR 23 FGCOLOR 24 FONT 22
+     "Terr" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 1.19 COL 123 WIDGET-ID 38
+          BGCOLOR 23 FGCOLOR 24 FONT 22
+     "Rep" VIEW-AS TEXT
+          SIZE 10 BY .62 AT ROW 1.19 COL 112.2 WIDGET-ID 38
+          BGCOLOR 23 FGCOLOR 24 FONT 22
+     "Name" VIEW-AS TEXT
+          SIZE 18 BY .62 AT ROW 1.19 COL 19.8 WIDGET-ID 42
+          BGCOLOR 23 FGCOLOR 24 FONT 22
      "State" VIEW-AS TEXT
-          SIZE 7.2 BY .71 AT ROW 1.24 COL 69.8 WIDGET-ID 26
-          FGCOLOR 9 FONT 6
+          SIZE 7.2 BY .62 AT ROW 1.19 COL 69.8 WIDGET-ID 26
+          BGCOLOR 23 FGCOLOR 24 FONT 22
+     "City" VIEW-AS TEXT
+          SIZE 13 BY .62 AT ROW 1.19 COL 50.6 WIDGET-ID 22
+          BGCOLOR 23 FGCOLOR 24 FONT 22
+     RECT-1 AT ROW 1.05 COL 1 WIDGET-ID 52
+     RECT-2 AT ROW 1.29 COL 147 WIDGET-ID 54
+     RECT-3 AT ROW 3.48 COL 142.4 WIDGET-ID 56
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
-         BGCOLOR 8 FGCOLOR 0 
-         DEFAULT-BUTTON btn_go WIDGET-ID 100.
+         BGCOLOR 15  WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -477,8 +513,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW B-table-Win ASSIGN
-         HEIGHT             = 19.52
-         WIDTH              = 150.
+         HEIGHT             = 21.57
+         WIDTH              = 156.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -506,7 +542,7 @@ END.
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
-/* BROWSE-TAB Browser-Table TEXT-2 F-Main */
+/* BROWSE-TAB Browser-Table btn_show F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
@@ -514,18 +550,11 @@ ASSIGN
 ASSIGN 
        Browser-Table:PRIVATE-DATA IN FRAME F-Main           = 
                 "2"
-       Browser-Table:ALLOW-COLUMN-SEARCHING IN FRAME F-Main = TRUE.
-
-ASSIGN 
-       cust.rec_key:VISIBLE IN BROWSE Browser-Table = FALSE.
+       Browser-Table:ALLOW-COLUMN-SEARCHING IN FRAME F-Main = TRUE
+       Browser-Table:SEPARATOR-FGCOLOR IN FRAME F-Main      = 15.
 
 /* SETTINGS FOR FILL-IN FI_moveCol IN FRAME F-Main
    NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN fi_sortby IN FRAME F-Main
-   NO-ENABLE                                                            */
-/*ASSIGN 
-       fi_sortby:READ-ONLY IN FRAME F-Main        = TRUE.
-  */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -538,32 +567,29 @@ ASSIGN
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = "USED"
      _Where[1]         = "cust.company = gcompany"
-     _FldNameList[1]   = ASI.cust.company
-     _FldNameList[2]   > ASI.cust.cust-no
-"cust.cust-no" ? ? "character" ? ? ? 14 ? ? no ? no no "11.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[3]   > ASI.cust.name
-"cust.name" "Name" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[4]   > ASI.cust.city
-"cust.city" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[5]   > ASI.cust.state
-"cust.state" ? ? "character" ? ? ? 14 ? ? no ? no no "6.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[1]   > ASI.cust.terr
+"cust.terr" "Territory" ? "character" ? ? ? 27 ? 23 no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[2]   > ASI.cust.sman
+"cust.sman" "SalesGrp" ? "character" ? ? ? 27 ? 23 no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[3]   > ASI.cust.type
+"cust.type" "Type" ? "character" ? ? ? 27 ? 23 no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[4]   > ASI.cust.phone
+"cust.phone" "Phone #" ? "character" ? ? ? 27 ? 23 no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[5]   > ASI.cust.area-code
+"cust.area-code" ? ? "character" ? ? ? 27 ? 23 no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > ASI.cust.zip
-"cust.zip" "Zip" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-    _FldNameList[7]   > ASI.cust.area-code
-"cust.area-code" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[8]   > ASI.cust.phone
-"cust.phone" "Phone #" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[9]   > ASI.cust.type
-"cust.type" "Type" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[10]   > ASI.cust.sman
-"cust.sman" "SalesGrp" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[11]   > ASI.cust.terr
-"cust.terr" "Territory" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
- _FldNameList[11]   > ASI.cust.spare-char-2
-"cust.spare-char-2" "Group" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[12]   > ASI.cust.rec_key
-"cust.rec_key" ? ? "character" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _Query            is NOT OPENED
+"cust.zip" "Zip" ? "character" ? ? ? 27 ? 23 no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[7]   > ASI.cust.state
+"cust.state" ? ? "character" ? ? ? 27 ? 23 no ? no no "6.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[8]   > ASI.cust.city
+"cust.city" ? ? "character" ? ? ? 27 ? 23 no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[9]   > ASI.cust.name
+"cust.name" "Name" ? "character" ? ? ? 27 ? 23 no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[10]   > ASI.cust.cust-no
+"cust.cust-no" ? ? "character" ? ? ? 27 ? 23 no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[11]   > ASI.cust.company
+"cust.company" ? ? "character" ? ? ? 28 ? 23 no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _Query            is OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
 
@@ -579,8 +605,9 @@ ASSIGN
 
 
 /* ************************  Control Triggers  ************************ */
+
 &Scoped-define SELF-NAME F-Main
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL F-Main Browser-Table
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL F-Main B-table-Win
 ON HELP OF FRAME F-Main
 DO:
    def var lv-handle as handle no-undo.
@@ -642,56 +669,9 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&Scoped-define BROWSE-NAME Browser-Table
-&Scoped-define SELF-NAME fi_i-name
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_i-name B-table-Win
-ON HELP OF fi_i-name IN FRAME F-Main
-DO:
-   DEF VAR char-val AS cha NO-UNDO.
-
-   run windows/l-cust.w (g_company,"", output char-val).
-   if char-val <> "" then DO:
-       assign fi_i-name:SCREEN-VALUE = entry(2,char-val)
-           /*ocat-desc:screen-value = entry(2,char-val)*/ .
-       APPLY 'tab' TO fi_i-name.
-   END.
-   RETURN NO-APPLY.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&Scoped-define SELF-NAME fi_cust-no
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_cust-no B-table-Win
-ON HELP OF fi_cust-no IN FRAME F-Main
-DO:
-   DEF VAR char-val AS cha NO-UNDO.
-
-   run windows/l-cust.w (g_company,fi_cust-no:SCREEN-VALUE, output char-val).
-   if char-val <> "" then DO:
-       assign fi_cust-no:SCREEN-VALUE = entry(1,char-val)
-           /*ocat-desc:screen-value = entry(2,char-val)*/ .
-       APPLY 'tab' TO fi_cust-no.
-   END.
-   RETURN NO-APPLY.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
 &Scoped-define BROWSE-NAME Browser-Table
 &Scoped-define SELF-NAME Browser-Table
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
-ON ROW-ENTRY OF Browser-Table IN FRAME F-Main
-DO:
-  /* This code displays initial values for newly added or copied rows. */
-  {src/adm/template/brsentry.i}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON DEFAULT-ACTION OF Browser-Table IN FRAME F-Main
 DO:
@@ -702,6 +682,99 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
+ON ROW-DISPLAY OF Browser-Table IN FRAME F-Main
+DO:
+&scoped-define exclude-row-display true 
+{methods/template/brwrowdisplay.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
+ON ROW-ENTRY OF Browser-Table IN FRAME F-Main
+DO:
+  /* This code displays initial values for newly added or copied rows. */
+  {src/adm/template/brsentry.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
+ON ROW-LEAVE OF Browser-Table IN FRAME F-Main
+DO:
+    /* Do not disable this code or no updates will take place except
+     by pressing the Save button on an Update SmartPanel. */
+   {src/adm/template/brsleave.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
+ON START-SEARCH OF Browser-Table IN FRAME F-Main  
+DO: 
+
+{methods/template/sortindicator.i} 
+  /*RUN startSearch.*/
+     DEF VAR lh-column AS HANDLE NO-UNDO.
+  DEF VAR lv-column-nam AS CHAR NO-UNDO.
+  DEF VAR lv-column-lab AS CHAR NO-UNDO.
+  
+
+  ASSIGN
+   lh-column     = {&BROWSE-NAME}:CURRENT-COLUMN 
+   lv-column-nam = lh-column:NAME
+   lv-column-lab = lh-column:LABEL.
+   
+  /* IF NOT lh-column:SORT-ASCENDING THEN 
+       lh-column:SORT-ASCENDING = TRUE.
+   ELSE   
+       lh-column:SORT-ASCENDING = FALSE.*/
+
+  IF lv-sort-by EQ lv-column-nam THEN ll-sort-asc = NOT ll-sort-asc.
+  ELSE
+    ASSIGN
+     lv-sort-by     = lv-column-nam
+     lv-sort-by-lab = lv-column-lab.
+
+  APPLY 'END-SEARCH' TO {&BROWSE-NAME}.
+  RUN dispatch ("open-query").
+  {methods/template/sortindicatorend.i} 
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
+ON VALUE-CHANGED OF Browser-Table IN FRAME F-Main
+DO:
+  /* This ADM trigger code must be preserved in order to notify other
+     objects when the browser's current row changes. */
+  {src/adm/template/brschnge.i}
+  {methods/template/local/setvalue.i}
+  
+  ASSIGN s-rec_key = cust.rec_key WHEN AVAIL cust.
+  RUN spec-book-image-proc .  /* task 10221306 */
+ // run udf-image-proc.
+  IF AVAIL cust THEN
+  DO:
+     RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"custto-source", OUTPUT char-hdl).
+     RUN set-s-rec_key IN WIDGET-HANDLE(char-hdl) (INPUT cust.rec_key).
+  END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME btn_go
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_go B-table-Win
@@ -807,61 +880,39 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
-ON ROW-LEAVE OF Browser-Table IN FRAME F-Main
+
+&Scoped-define SELF-NAME fi_cust-no
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_cust-no B-table-Win
+ON HELP OF fi_cust-no IN FRAME F-Main
 DO:
-    /* Do not disable this code or no updates will take place except
-     by pressing the Save button on an Update SmartPanel. */
-   {src/adm/template/brsleave.i}
+   DEF VAR char-val AS cha NO-UNDO.
+
+   run windows/l-cust.w (g_company,fi_cust-no:SCREEN-VALUE, output char-val).
+   if char-val <> "" then DO:
+       assign fi_cust-no:SCREEN-VALUE = entry(1,char-val)
+           /*ocat-desc:screen-value = entry(2,char-val)*/ .
+       APPLY 'tab' TO fi_cust-no.
+   END.
+   RETURN NO-APPLY.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
-ON START-SEARCH OF Browser-Table IN FRAME F-Main
+&Scoped-define SELF-NAME fi_i-name
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_i-name B-table-Win
+ON HELP OF fi_i-name IN FRAME F-Main
 DO:
-  /*RUN startSearch.*/
-     DEF VAR lh-column AS HANDLE NO-UNDO.
-  DEF VAR lv-column-nam AS CHAR NO-UNDO.
-  DEF VAR lv-column-lab AS CHAR NO-UNDO.
+   DEF VAR char-val AS cha NO-UNDO.
 
-  ASSIGN
-   lh-column     = {&BROWSE-NAME}:CURRENT-COLUMN 
-   lv-column-nam = lh-column:NAME
-   lv-column-lab = lh-column:LABEL.
-
-  IF lv-sort-by EQ lv-column-nam THEN ll-sort-asc = NOT ll-sort-asc.
-  ELSE
-    ASSIGN
-     lv-sort-by     = lv-column-nam
-     lv-sort-by-lab = lv-column-lab.
-
-  APPLY 'END-SEARCH' TO {&BROWSE-NAME}.
-  RUN dispatch ("open-query").
-  
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
-ON VALUE-CHANGED OF Browser-Table IN FRAME F-Main
-DO:
-  /* This ADM trigger code must be preserved in order to notify other
-     objects when the browser's current row changes. */
-  {src/adm/template/brschnge.i}
-  {methods/template/local/setvalue.i}
-  
-  assign s-rec_key = cust.rec_key when avail cust.
-  RUN spec-book-image-proc .  /* task 10221306 */
-  IF AVAIL cust THEN
-  DO:
-     run get-link-handle in adm-broker-hdl(this-procedure,"custto-source", output char-hdl).
-     run set-s-rec_key in widget-handle(char-hdl) (INPUT cust.rec_key).
-  END.
+   run windows/l-cust.w (g_company,"", output char-val).
+   if char-val <> "" then DO:
+       assign fi_i-name:SCREEN-VALUE = entry(2,char-val)
+           /*ocat-desc:screen-value = entry(2,char-val)*/ .
+       APPLY 'tab' TO fi_i-name.
+   END.
+   RETURN NO-APPLY.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -879,7 +930,6 @@ END.
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF
-
 {methods/winReSize.i}
 
 &SCOPED-DEFINE cellColumnDat browsers-cust
@@ -904,9 +954,13 @@ IF NOT AVAIL sys-ctrl THEN DO:
         sys-ctrl.log-fld = NO
         sys-ctrl.descrip = "Check credit limit for past due invoices when adding release?".
 END.
-
-FI_moveCol = "Sort".
-DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}.
+// {custom\udfimgchange.i}
+/*FI_moveCol = "Sort".
+DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}.*/
+/* Ticket# : 92946
+   Hiding this widget for now, as browser's column label should be indicating the column which is sorted by */
+fi_sort-by:HIDDEN  = TRUE.
+fi_sort-by:VISIBLE = FALSE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -962,6 +1016,29 @@ PROCEDURE disable_UI :
   /* Hide all frames. */
   HIDE FRAME F-Main.
   IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE export-xl B-table-Win 
+PROCEDURE export-xl :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+DEF VAR first-cust AS CHAR NO-UNDO.
+DEF VAR last-cust AS CHAR NO-UNDO.
+
+GET FIRST Browser-Table .
+ASSIGN first-cust = cust.cust-no .
+GET LAST Browser-Table .
+ASSIGN last-cust = cust.cust-no .
+
+RUN fg/cust-exp.w (first-cust ,last-cust).
+
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1024,26 +1101,6 @@ PROCEDURE local-display-fields :
     fi_sort-by:SCREEN-VALUE = TRIM(lv-sort-by-lab)               + " " +
                               TRIM(STRING(ll-sort-asc,"As/Des")) + "cending".
   END.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-row-changed B-table-Win 
-PROCEDURE local-row-changed :
-/*------------------------------------------------------------------------------
-  Purpose:     Override standard ADM method
-  Notes:       
-------------------------------------------------------------------------------*/
-
-  /* Code placed here will execute PRIOR to standard behavior. */
-
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'row-changed':U ) .
-
-  /* Code placed here will execute AFTER standard behavior.    */
-  IF AVAIL cust THEN APPLY "value-changed" TO BROWSE {&browse-name}.
-
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1152,10 +1209,10 @@ PROCEDURE local-initialize :
          cust.sman:READ-ONLY IN BROWSE {&browse-name} = YES
          cust.terr:READ-ONLY IN BROWSE {&browse-name} = YES
          cust.spare-char-2:READ-ONLY IN BROWSE {&browse-name} = YES 
-         cust.rec_key:READ-ONLY IN BROWSE {&browse-name} = YES
-         FI_moveCol = "Sort".
+         cust.rec_key:READ-ONLY IN BROWSE {&browse-name} = YES.
+      /*   FI_moveCol = "Sort".
   
-  DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}.
+  DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}.*/
 
    APPLY 'ENTRY':U TO fi_cust-no IN FRAME {&FRAME-NAME}.
 
@@ -1231,6 +1288,26 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-row-changed B-table-Win 
+PROCEDURE local-row-changed :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'row-changed':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+  IF AVAIL cust THEN APPLY "value-changed" TO BROWSE {&browse-name}.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE move-columns B-table-Win 
 PROCEDURE move-columns :
 /*------------------------------------------------------------------------------
@@ -1242,9 +1319,10 @@ DO WITH FRAME {&FRAME-NAME}:
   ASSIGN
      Browser-Table:COLUMN-MOVABLE = v-col-move
      Browser-Table:COLUMN-RESIZABLE = v-col-move
-     v-col-move = NOT v-col-move
-     FI_moveCol = IF v-col-move = NO THEN "Move" ELSE "Sort".
-  DISPLAY FI_moveCol.
+     v-col-move = NOT v-col-move.
+	 
+     /*FI_moveCol = IF v-col-move = NO THEN "Move" ELSE "Sort".
+  DISPLAY FI_moveCol.*/
 END.
 END PROCEDURE.
 
@@ -1297,7 +1375,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCRM B-table-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCRMType B-table-Win 
 PROCEDURE pCRMType :
 /*------------------------------------------------------------------------------
   Purpose:     
@@ -1834,6 +1912,20 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE setBrowseFocus B-table-Win 
+PROCEDURE setBrowseFocus :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  APPLY 'ENTRY':U TO BROWSE {&BROWSE-NAME}.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE show-prev-next B-table-Win 
 PROCEDURE show-prev-next :
 /*------------------------------------------------------------------------------
@@ -1956,15 +2048,25 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE setBrowseFocus B-table-Win 
-PROCEDURE setBrowseFocus :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spec-book-image-proc B-table-Win 
+PROCEDURE spec-book-image-proc :
 /*------------------------------------------------------------------------------
   Purpose:     
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  APPLY 'ENTRY':U TO BROWSE {&BROWSE-NAME}.
-
+   DEF VAR v-spec AS LOG NO-UNDO.
+   DEF VAR char-hdl AS CHAR NO-UNDO.
+  
+  IF AVAIL cust THEN
+      v-spec = CAN-FIND(FIRST notes WHERE
+               notes.rec_key = cust.rec_key AND
+               notes.note_type <> "o").
+   
+   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, 'attachcust-target':U, OUTPUT char-hdl).
+  
+   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+      RUN spec-book-image IN WIDGET-HANDLE(char-hdl) (INPUT v-spec).
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1990,51 +2092,3 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE export-xl B-table-Win 
-PROCEDURE export-xl :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-DEF VAR first-cust AS CHAR NO-UNDO.
-DEF VAR last-cust AS CHAR NO-UNDO.
-
-GET FIRST Browser-Table .
-ASSIGN first-cust = cust.cust-no .
-GET LAST Browser-Table .
-ASSIGN last-cust = cust.cust-no .
-
-RUN fg/cust-exp.w (first-cust ,last-cust).
-
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spec-book-image-proc B-table-Win 
-PROCEDURE spec-book-image-proc :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-   DEF VAR v-spec AS LOG NO-UNDO.
-   DEF VAR char-hdl AS CHAR NO-UNDO.
-  
-  IF AVAIL cust THEN
-      v-spec = CAN-FIND(FIRST notes WHERE
-               notes.rec_key = cust.rec_key AND
-               notes.note_type <> "o").
-   
-   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, 'attachcust-target':U, OUTPUT char-hdl).
-  
-   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
-      RUN spec-book-image IN WIDGET-HANDLE(char-hdl) (INPUT v-spec).
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME

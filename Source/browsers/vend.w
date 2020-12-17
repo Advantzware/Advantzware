@@ -179,7 +179,8 @@ vend.buyer vend.city vend.state vend.zip
 fi_zip fi_type fi_buyer tb_in-act btn_go btn_prev btn_next btn_show ~
 Browser-Table 
 &Scoped-Define DISPLAYED-OBJECTS tb_act fi_vend-no fi_i-name fi_city ~
-fi_stat fi_zip fi_type fi_buyer tb_in-act fi_sort-by FI_moveCol 
+fi_stat fi_zip fi_type fi_buyer tb_in-act fi_sort-by
+// FI_moveCol 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -270,10 +271,10 @@ DEFINE VARIABLE fi_i-name AS CHARACTER FORMAT "X(20)":U
      SIZE 30 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE FI_moveCol AS CHARACTER FORMAT "X(4)":U 
+/*DEFINE VARIABLE FI_moveCol AS CHARACTER FORMAT "X(4)":U 
      VIEW-AS FILL-IN 
      SIZE 9 BY 1
-     BGCOLOR 14 FONT 6 NO-UNDO.
+     BGCOLOR 14 FONT 6 NO-UNDO.*/
 
 DEFINE VARIABLE fi_sort-by AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
@@ -370,7 +371,7 @@ DEFINE FRAME F-Main
      btn_next AT ROW 3.62 COL 34 WIDGET-ID 6
      btn_show AT ROW 3.62 COL 49.2 WIDGET-ID 10
      fi_sort-by AT ROW 3.62 COL 78 COLON-ALIGNED NO-LABEL WIDGET-ID 12
-     FI_moveCol AT ROW 3.62 COL 141 COLON-ALIGNED NO-LABEL WIDGET-ID 46
+   //  FI_moveCol AT ROW 3.62 COL 141 COLON-ALIGNED NO-LABEL WIDGET-ID 46
      Browser-Table AT ROW 5.29 COL 2.4 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
      "Name" VIEW-AS TEXT
@@ -379,8 +380,8 @@ DEFINE FRAME F-Main
      "Vendor#" VIEW-AS TEXT
           SIZE 13 BY .71 AT ROW 1.24 COL 5 WIDGET-ID 24
           FGCOLOR 9 FONT 6
-     "Click on Yellow Field to Sort" VIEW-AS TEXT
-          SIZE 28 BY .95 AT ROW 3.62 COL 114 WIDGET-ID 14
+    /* "Click on Yellow Field to Sort" VIEW-AS TEXT
+          SIZE 28 BY .95 AT ROW 3.62 COL 114 WIDGET-ID 14  */
      "Type" VIEW-AS TEXT
           SIZE 12 BY .71 AT ROW 1.24 COL 103 WIDGET-ID 34
           FGCOLOR 9 FONT 6
@@ -390,9 +391,9 @@ DEFINE FRAME F-Main
      "City" VIEW-AS TEXT
           SIZE 13 BY .71 AT ROW 1.24 COL 51.4 WIDGET-ID 22
           FGCOLOR 9 FONT 6
-     "Sorted By:" VIEW-AS TEXT
+    /* "Sorted By:" VIEW-AS TEXT
           SIZE 12 BY 1 AT ROW 3.62 COL 68 WIDGET-ID 30
-          FONT 6
+          FONT 6 */
      "Zip" VIEW-AS TEXT
           SIZE 12 BY .71 AT ROW 1.24 COL 84.8 WIDGET-ID 28
           FGCOLOR 9 FONT 6
@@ -566,6 +567,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON START-SEARCH OF Browser-Table IN FRAME F-Main
 DO:
+{methods/template/sortindicator.i}
    /*RUN startSearch.*/
   DEF VAR lh-column AS HANDLE NO-UNDO.
   DEF VAR lv-column-nam AS CHAR NO-UNDO.
@@ -584,7 +586,7 @@ DO:
 
   APPLY 'END-SEARCH' TO {&BROWSE-NAME}.
   RUN dispatch ("open-query").
-
+    {methods/template/sortindicatorend.i} 
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -818,9 +820,12 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
 &SCOPED-DEFINE cellColumnDat b-vend
 {methods/browsers/setCellColumns.i}
 
-FI_moveCol = "Sort".
-DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}.
-
+/*FI_moveCol = "Sort".
+DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}. */
+/* Ticket# : 92946
+   Hiding this widget for now, as browser's column label should be indicating the column which is sorted by */
+fi_sort-by:HIDDEN  = TRUE.
+fi_sort-by:VISIBLE = FALSE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1083,9 +1088,9 @@ PROCEDURE local-initialize :
 /*         vend.city:READ-ONLY IN BROWSE {&browse-name} = YES     */
 /*         vend.state:READ-ONLY IN BROWSE {&browse-name} = YES    */
 /*         vend.zip:READ-ONLY IN BROWSE {&browse-name} = YES      */
-         FI_moveCol = "Sort".
+     /*    FI_moveCol = "Sort".
   
-  DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}.
+  DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}.*/
 
    APPLY 'ENTRY':U TO fi_vend-no IN FRAME {&FRAME-NAME}.
 
@@ -1172,9 +1177,9 @@ PROCEDURE move-columns :
      ASSIGN
         Browser-Table:COLUMN-MOVABLE = v-col-move
         Browser-Table:COLUMN-RESIZABLE = v-col-move
-        v-col-move = NOT v-col-move
-        FI_moveCol = IF v-col-move = NO THEN "Move" ELSE "Sort".
-     DISPLAY FI_moveCol.
+        v-col-move = NOT v-col-move.
+     /*   FI_moveCol = IF v-col-move = NO THEN "Move" ELSE "Sort".
+     DISPLAY FI_moveCol.*/
   END.
 END PROCEDURE.
 

@@ -62,26 +62,30 @@ Select_MF_Design Select_Security
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON Select_Font_Color 
-     IMAGE-UP FILE "Graphics/32x32/window_font.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/window_font.png":U
+	IMAGE-DOWN FILE "Graphics/32x32/window_font_hover.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/window_font_disable.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Font_Color" 
      SIZE 7.8 BY 1.81 TOOLTIP "Set Font and Colors".
 
 DEFINE BUTTON Select_Menu_Bar 
-     IMAGE-UP FILE "Graphics/32x32/drop_down_list.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/drop_down_list.png":U
+	IMAGE-DOWN FILE "Graphics/32x32/drop_down_list_hover.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/drop_down_list_disable.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Menu_Bar" 
      SIZE 7.8 BY 1.81 TOOLTIP "Menu Bar".
 
 DEFINE BUTTON Select_MF_Design 
-     IMAGE-UP FILE "Graphics/32x32/compasses.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/compasses.png":U
+	IMAGE-DOWN FILE "Graphics/32x32/compasses_hover.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/compasses_disable.png":U NO-FOCUS FLAT-BUTTON
      LABEL "MF_Design" 
      SIZE 7.8 BY 1.81 TOOLTIP "Misc Fields Design Screen".
 
 DEFINE BUTTON Select_Security 
-     IMAGE-UP FILE "Graphics/32x32/spy.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/spy.png":U
+	IMAGE-DOWN FILE "Graphics/32x32/spy_hover.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/spy_disable.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Security" 
      SIZE 7.8 BY 1.81 TOOLTIP "Security".
 
@@ -95,7 +99,8 @@ DEFINE FRAME F-Main
      Select_Security AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE .
+         AT COL 1 ROW 1 SCROLLABLE 
+		BGCOLOR 21.
 
 
 /* *********************** Procedure Settings ************************ */

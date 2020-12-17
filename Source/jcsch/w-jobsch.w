@@ -350,7 +350,7 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_b-mach , 'Record':U , h_b-jobsch ).
        RUN add-link IN adm-broker-hdl ( h_pv-jobsch , 'TableIO':U , h_b-jobsch ).
        RUN add-link IN adm-broker-hdl ( h_b-jobsch , 'Record':U , THIS-PROCEDURE ).
-
+	   RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'udficon':U , h_options2 ).
        /* Adjust the tab order of the smart objects. */
     END. /* Page 1 */
 

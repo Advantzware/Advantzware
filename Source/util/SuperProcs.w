@@ -38,7 +38,7 @@ CREATE WIDGET-POOL.
 
 {methods/defines/sortByDefs.i}
 {AOA/tempTable/ttSuperProc.i}
-
+{methods/template/brwcustomdef.i}
 DEFINE TEMP-TABLE ttRunning NO-UNDO
     FIELD procHandle AS CHARACTER 
     FIELD procName   AS CHARACTER 
@@ -496,6 +496,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL superProcsBrowse C-Win
 ON START-SEARCH OF superProcsBrowse IN FRAME DEFAULT-FRAME
 DO:
+	{methods/template/sortindicator.i} 
     IF SELF:CURRENT-COLUMN:NAME NE ? THEN DO:
         cColumnLabel = SELF:CURRENT-COLUMN:NAME.
         IF cColumnLabel EQ cSaveLabel THEN
@@ -503,6 +504,7 @@ DO:
         cSaveLabel = cColumnLabel.
         RUN pReopenBrowse.
     END.
+	{methods/template/sortindicatorend.i} 
     RETURN NO-APPLY.
 END.
 

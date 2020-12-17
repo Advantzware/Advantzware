@@ -56,8 +56,8 @@ RUN methods/prgsecur.p
              OUTPUT lAccessClose, /* used in template/windows.i  */
              OUTPUT cAccessList). /* list 1's and 0's indicating yes or no to run, create, update, delete */
 
-def var li-current-page as int INIT 1 no-undo.
-def var li-prev-page as int INIT 1 no-undo.
+DEF VAR li-current-page AS INT INIT 1 NO-UNDO.
+DEF VAR li-prev-page AS INT INIT 1 NO-UNDO.
 DEF VAR li-page-b4VendCost AS INT NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
@@ -206,14 +206,14 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 320
          VIRTUAL-HEIGHT     = 320
          VIRTUAL-WIDTH      = 320
-         RESIZE             = no
-         SCROLL-BARS        = no
-         STATUS-AREA        = yes
+         RESIZE             = YES
+         SCROLL-BARS        = NO
+         STATUS-AREA        = YES
          BGCOLOR            = ?
          FGCOLOR            = ?
-         THREE-D            = yes
-         MESSAGE-AREA       = no
-         SENSITIVE          = yes.
+         THREE-D            = YES
+         MESSAGE-AREA       = NO
+         SENSITIVE          = YES.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
@@ -258,7 +258,7 @@ ASSIGN XXTABVALXX = FRAME message-frame:MOVE-BEFORE-TAB-ITEM (FRAME OPTIONS-FRAM
 /* SETTINGS FOR FRAME OPTIONS-FRAME
                                                                         */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(W-Win)
-THEN W-Win:HIDDEN = yes.
+THEN W-Win:HIDDEN = YES.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -334,7 +334,7 @@ SESSION:SET-WAIT-STATE('').
 
 /* Include custom  Main Block code for SmartWindows. */
 {src/adm/template/windowmn.i}
-
+{custom/initializeprocs.i}
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -413,7 +413,8 @@ PROCEDURE adm-create-objects :
 
        /* Links to SmartObject h_options. */
        RUN add-link IN adm-broker-hdl ( h_b-itemfg , 'spec':U , h_options ).
-
+   //    RUN add-link IN adm-broker-hdl ( h_b-itemfg , 'udfmsg':U , h_options ).
+	   RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'udficon':U , h_options ).
        /* Links to SmartObject h_attach. */
        RUN add-link IN adm-broker-hdl ( h_b-itemfg , 'attach':U , h_attach ).
 
@@ -1560,11 +1561,11 @@ PROCEDURE select_add :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  def var char-hdl as cha no-undo.
-  IF lAccessCreateFG THEN do:
-      run select-page(2).
-      run get-link-handle in adm-broker-hdl(this-procedure,"add-item-target", output char-hdl).
-      run add-item in widget-handle(char-hdl).
+  DEF VAR char-hdl AS cha NO-UNDO.
+  IF lAccessCreateFG THEN DO:
+      RUN select-page(2).
+      RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"add-item-target", OUTPUT char-hdl).
+      RUN add-item IN WIDGET-HANDLE(char-hdl).
   END.
 
 END PROCEDURE.

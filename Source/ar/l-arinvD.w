@@ -29,16 +29,16 @@
 
 /* Parameters Definitions ---                                           */
 
-def input parameter ip-company like itemfg.company no-undo.
+DEF INPUT PARAMETER ip-company LIKE itemfg.company NO-UNDO.
 DEF INPUT PARAM ip-cust-no LIKE ar-inv.cust-no NO-UNDO.
-def input parameter ip-cur-val as cha no-undo.
-def output parameter op-char-val as cha no-undo. /* string i-code + i-name */
-def output param op-rec-val as recid no-undo.
-def var lv-type-dscr as cha no-undo.
+DEF INPUT PARAMETER ip-cur-val AS cha NO-UNDO.
+DEF OUTPUT PARAMETER op-char-val AS cha NO-UNDO. /* string i-code + i-name */
+DEF OUTPUT PARAM op-rec-val AS RECID NO-UNDO.
+DEF VAR lv-type-dscr AS cha NO-UNDO.
 
 /* Local Variable Definitions ---                                       */
 {custom/globdefs.i}
-
+{methods/template/brwcustomdef.i}
 {sys/inc/VAR.i NEW SHARED}
 
 ASSIGN
@@ -451,6 +451,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-3 Dialog-Frame
 ON START-SEARCH OF BROWSE-3 IN FRAME Dialog-Frame
 DO:
+  {methods/template/sortindicator.i}
    DEF VAR lh-column AS HANDLE NO-UNDO.
   DEF VAR lv-column-nam AS CHAR NO-UNDO.
   DEF VAR lv-column-lab AS CHAR NO-UNDO.
@@ -476,6 +477,7 @@ DO:
   APPLY 'END-SEARCH' TO {&BROWSE-NAME}.
 
   APPLY "choose" TO btn_go.
+  {methods/template/sortindicatorend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -680,7 +682,12 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
 
   fi_cust-no = ip-cust-no.
+  
   RUN enable_UI.
+    /* Ticket# : 92946
+     Hiding this widget for now, as browser's column label should be indicating the column which is sorted by */
+    fi_sortby:HIDDEN  = TRUE.
+    fi_sortby:VISIBLE = FALSE.
   RUN Initproc.
   WAIT-FOR GO OF FRAME {&FRAME-NAME}.
 END.

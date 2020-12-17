@@ -32,6 +32,7 @@ CREATE WIDGET-POOL.
 /* ***************************  Definitions  ************************** */
 
 &SCOPED-DEFINE winReSize
+&SCOPED-DEFINE browseOnly
 {methods/defines/winReSize.i}
 
 /* Parameters Definitions ---                                           */
@@ -257,8 +258,8 @@ DEFINE FRAME F-Main
      "Message#" VIEW-AS TEXT
           SIZE 13 BY .71 AT ROW 1.24 COL 3 WIDGET-ID 42
           /*FGCOLOR 9 FONT 6*/
-     "Click on Column Title to Sort" VIEW-AS TEXT
-          SIZE 28 BY .95 AT ROW 3.33 COL 113.4 WIDGET-ID 14
+    /* "Click on Column Title to Sort" VIEW-AS TEXT
+          SIZE 28 BY .95 AT ROW 3.33 COL 113.4 WIDGET-ID 14 */
      "Frame Name" VIEW-AS TEXT
           SIZE 20 BY .71 AT ROW 1.24 COL 70.8 WIDGET-ID 56
           /*FGCOLOR 9 FONT 6*/
@@ -410,6 +411,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON START-SEARCH OF Browser-Table IN FRAME F-Main
 DO:
+		{methods/template/sortindicator.i} 
         /*RUN startSearch.*/
         DEFINE VARIABLE lh-column     AS HANDLE NO-UNDO.
         DEFINE VARIABLE lv-column-nam AS CHARACTER   NO-UNDO.
@@ -428,6 +430,7 @@ DO:
 
         APPLY 'END-SEARCH' TO {&BROWSE-NAME}.
         RUN dispatch ("open-query").
+		{methods/template/sortindicatorend.i} 
   
     END.
 
@@ -529,7 +532,10 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
 &SCOPED-DEFINE cellColumnDat browsers-hlp-head
 
 {methods/browsers/setCellColumns.i}
-
+/* Ticket# : 92946
+   Hiding this widget for now, as browser's column label should be indicating the column which is sorted by */
+fi_sort-by:HIDDEN  = TRUE.
+fi_sort-by:VISIBLE = FALSE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

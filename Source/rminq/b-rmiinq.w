@@ -68,7 +68,7 @@ RUN sys/ref/nk1look.p (INPUT cocode, "RMHistoryBrowse", "DT" /* Logical */, NO /
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
 OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
-    dtDateChar = date(cRtnChar) NO-ERROR. 
+    dtDateChar = DATE(cRtnChar) NO-ERROR. 
 
 &SCOPED-DEFINE key-phrase rm-rcpth.company EQ cocode
 
@@ -174,9 +174,9 @@ rm-rdtlh.user-id rm-rdtlh.receiver-no
 fi_tag# fi_job-no fi_job-no2 fi_rita-code fi_date btn_go btn_show fi_po-no ~
 RECT-1 
 &Scoped-Define DISPLAYED-OBJECTS fi_rm-i-no fi_tag# fi_job-no fi_job-no2 ~
-fi_rita-code fi_date fi_sort-by FI_moveCol fi_name fi_q-onh fi_q-ton ~
+fi_rita-code fi_date fi_sort-by  fi_name fi_q-onh fi_q-ton ~
 fi_q-lf fi_q-msf fi_po-no 
-
+//FI_moveCol
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
 &Scoped-define List-1 fi_tag# fi_po-no 
@@ -241,10 +241,10 @@ DEFINE VARIABLE fi_job-no2 AS INTEGER FORMAT "99":U INITIAL 0
      SIZE 4 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE FI_moveCol AS CHARACTER FORMAT "X(4)":U 
+/*DEFINE VARIABLE FI_moveCol AS CHARACTER FORMAT "X(4)":U 
      VIEW-AS FILL-IN 
      SIZE 9 BY 1
-     BGCOLOR 14 FONT 6 NO-UNDO.
+     BGCOLOR 14 FONT 6 NO-UNDO.*/
 
 DEFINE VARIABLE fi_name AS CHARACTER FORMAT "x(30)" 
      LABEL "Item Name" 
@@ -379,7 +379,7 @@ DEFINE BROWSE Browser-Table
       rm-rcpth.pur-uom
       rm-rdtlh.cost
       rm-rdtlh.tag2
-      rm-rdtlh.user-id
+      rm-rdtlh.USER-ID
       rm-rdtlh.receiver-no
       
 /* _UIB-CODE-BLOCK-END */
@@ -404,7 +404,7 @@ DEFINE FRAME F-Main
      btn_go AT ROW 2.91 COL 2
      btn_show AT ROW 2.91 COL 15
      fi_sort-by AT ROW 2.91 COL 36.4 COLON-ALIGNED
-     FI_moveCol AT ROW 2.91 COL 80.4 COLON-ALIGNED NO-LABEL WIDGET-ID 4
+   //  FI_moveCol AT ROW 2.91 COL 80.4 COLON-ALIGNED NO-LABEL WIDGET-ID 4
      fi_name AT ROW 4.33 COL 1.6 HELP
           "Enter Finished Goods Name used for Alpha Numeric Searches."
      fi_q-onh AT ROW 4.33 COL 70 COLON-ALIGNED
@@ -412,9 +412,9 @@ DEFINE FRAME F-Main
      fi_q-lf AT ROW 4.33 COL 110 COLON-ALIGNED
      fi_q-msf AT ROW 4.33 COL 131 COLON-ALIGNED
      fi_po-no AT ROW 2.91 COL 130 COLON-ALIGNED
-     "BrwsCol. Mode:" VIEW-AS TEXT
+   /*  "BrwsCol. Mode:" VIEW-AS TEXT
           SIZE 17 BY .62 AT ROW 3.1 COL 64.6 WIDGET-ID 6
-          FONT 6
+          FONT 6*/
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -589,10 +589,10 @@ DO:
     DELETE OBJECT hPgmSecurity.
 
   IF lResult AND AVAIL rm-rcpth THEN DO:
-   IF INDEX(PROGRAM-NAME(2),"rminq/w-rmiinq.")  NE 0 THEN do:
+   IF INDEX(PROGRAM-NAME(2),"rminq/w-rmiinq.")  NE 0 THEN DO:
        RUN rminq/d-rmiinq.w (ROWID(rm-rcpth),ROWID(rm-rdtlh), "view", OUTPUT lv-rowid) .
    END.
-   ELSE do:
+   ELSE DO:
        RUN rminq/d-rmiinq.w (ROWID(rm-rcpth),ROWID(rm-rdtlh), "update", OUTPUT lv-rowid) .
        RUN repo-query (ROWID(rm-rcpth)).
    END.
@@ -629,6 +629,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON START-SEARCH OF Browser-Table IN FRAME F-Main
 DO:
+{methods/template/sortindicator.i} 
   DEF VAR lh-column AS HANDLE NO-UNDO.
   DEF VAR lv-column-nam AS CHAR NO-UNDO.
   DEF VAR lv-column-lab AS CHAR NO-UNDO.
@@ -665,6 +666,7 @@ DO:
   APPLY 'END-SEARCH' TO {&BROWSE-NAME}.
 
   APPLY "choose" TO btn_go.
+  {methods/template/sortindicatorend.i} 
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1181,7 +1183,10 @@ DO WITH FRAME {&FRAME-NAME}:
 &SCOPED-DEFINE cellColumnDat browsers-hist
 
 {methods/browsers/setCellColumns.i} */
-
+/* Ticket# : 92946
+   Hiding this widget for now, as browser's column label should be indicating the column which is sorted by */
+fi_sort-by:HIDDEN  IN FRAME {&frame-name} = TRUE.
+fi_sort-by:VISIBLE IN FRAME {&frame-name} = FALSE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1418,9 +1423,9 @@ PROCEDURE display-item :
           v-onh[i] = item.q-onh.
         ELSE
           RUN sys/ref/convquom.p(item.cons-uom, v-uom[i], item.basis-w,
-                                 (if item.r-wid eq 0 THEN item.s-len
+                                 (IF item.r-wid EQ 0 THEN item.s-len
                                                      ELSE 12),
-                                 (if item.r-wid eq 0 THEN item.s-wid
+                                 (IF item.r-wid EQ 0 THEN item.s-wid
                                                      ELSE item.r-wid),
                                  item.s-dep,                    
                                  item.q-onh, OUTPUT v-onh[i]).
@@ -1479,7 +1484,7 @@ PROCEDURE local-display-fields :
               RUN epCanAccess IN hPgmSecurity ("rminq/b-rmiinq.w", "", OUTPUT lResult).
     DELETE OBJECT hPgmSecurity.
 
-  IF not lResult THEN
+  IF NOT lResult THEN
      ASSIGN btCopy:HIDDEN = YES
             btCopy:SENSITIVE = NO
             btDelete:HIDDEN = YES
@@ -1533,10 +1538,10 @@ PROCEDURE local-initialize :
   {methods/winReSizeLocInit.i}
 
   RUN set-focus.
-
+/*
 FI_moveCol = "Sort".
 DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}.
-
+*/
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1571,8 +1576,8 @@ PROCEDURE local-open-query :
     ELSE 
       OPEN QUERY Browser-Table FOR EACH rm-rcpth WHERE rm-rcpth.company EQ cocode AND rm-rcpth.i-no EQ "zzzzzzzzzzzzzzzzzzzzzzzzz" NO-LOCK, ~
                                    EACH rm-rdtlh WHERE TRUE /* Join to rm-rcpth incomplete */ ~
-                                                   AND rm-rdtlh.r-no eq rm-rcpth.r-no and ~
-                                                       rm-rdtlh.rita-code eq rm-rcpth.rita-code NO-LOCK.
+                                                   AND rm-rdtlh.r-no EQ rm-rcpth.r-no AND ~
+                                                       rm-rdtlh.rita-code EQ rm-rcpth.rita-code NO-LOCK.
   END.
 
   IF NOT ll-first THEN DO:
@@ -1603,9 +1608,9 @@ PROCEDURE move-columns :
      ASSIGN
         Browser-Table:COLUMN-MOVABLE = v-col-move
         Browser-Table:COLUMN-RESIZABLE = v-col-move
-        v-col-move = NOT v-col-move
-        FI_moveCol = IF v-col-move = NO THEN "Move" ELSE "Sort".
-     DISPLAY FI_moveCol.
+        v-col-move = NOT v-col-move.
+    /*    FI_moveCol = IF v-col-move = NO THEN "Move" ELSE "Sort".
+     DISPLAY FI_moveCol.*/
   END.
 END PROCEDURE.
 
@@ -1690,7 +1695,7 @@ PROCEDURE set-defaults :
      fi_date      = 01/01/0001
      fi_tag#      = ""
      fi_po-no     = 0
-     ll-first     = yes. /* DD 05/01/2007 TASK 0501-0709 */
+     ll-first     = YES. /* DD 05/01/2007 TASK 0501-0709 */
 
     DISPLAY
      fi_rm-i-no
@@ -1984,7 +1989,7 @@ PROCEDURE valid-tag-no :
 
    IF rm-rdtlh.tag:SCREEN-VALUE IN BROWSE {&browse-name} NE "" AND
        rm-rcpth.rita-code:SCREEN-VALUE IN BROWSE {&browse-name} EQ "R" AND  
-       int(rm-rdtlh.qty:SCREEN-VALUE IN BROWSE {&browse-name}) GT 0 THEN do:
+       int(rm-rdtlh.qty:SCREEN-VALUE IN BROWSE {&browse-name}) GT 0 THEN DO:
 
        FIND FIRST  b-rm-rdtlh NO-LOCK
            WHERE b-rm-rdtlh.company EQ cocode

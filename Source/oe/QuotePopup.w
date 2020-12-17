@@ -41,6 +41,9 @@ DEFINE VARIABLE iQuoteFirst AS INTEGER NO-UNDO .
 DEF VAR idx AS INT NO-UNDO.
 DEF VAR columnCounts AS INT NO-UNDO.
 DEF VAR cellColumn AS HANDLE EXTENT 10 NO-UNDO.
+
+{methods/template/brwcustomdef.i}
+
 DEFINE TEMP-TABLE ttQuoteList
     FIELD price LIKE oe-ordl.price
     FIELD qty LIKE oe-ordl.qty
@@ -269,7 +272,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-3 Dialog-Frame
 ON ROW-DISPLAY OF BROWSE-3 IN FRAME gDialog
 DO:
-   
+    &scoped-define exclude-row-display true 
+    {methods/template/brwrowdisplay.i}   
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -344,7 +348,7 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
-
+{methods/template/brwcustom.i}
 RUN BuildListing.
 DO WITH FRAME {&FRAME-NAME}:
     IF ipxButtton EQ "" THEN DO:

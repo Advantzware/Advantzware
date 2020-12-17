@@ -421,6 +421,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   {custom/yellowColumns.i}
   
   RUN enable_UI.
+    /* Ticket# : 92946
+     Hiding this widget for now, as browser's column label should be indicating the column which is sorted by */
+    fi_sortby:HIDDEN  = TRUE.
+    fi_sortby:VISIBLE = FALSE.
 /*
   DO WITH frame {&frame-name}:
     {&browse-name}:SET-REPOSITIONED-ROW(INT({&browse-name}:DOWN / 2),"always").

@@ -29,6 +29,9 @@ CREATE WIDGET-POOL.
 {custom/gcompany.i}
 {custom/gloc.i}
 {sys/inc/var.i new shared}
+DEFINE VARIABLE colHand     AS WIDGET-HANDLE NO-UNDO.
+DEFINE VARIABLE colHandList AS CHARACTER     NO-UNDO.
+DEFINE VARIABLE icnt        AS INTEGER       NO-UNDO.
 DEF VAR ll-auto-calc-selected AS LOG NO-UNDO.
 DEF VAR k_frac AS DEC INIT 6.25 NO-UNDO.
 &IF DEFINED(UIB_is_Running) NE 0 &THEN
@@ -2634,8 +2637,28 @@ PROCEDURE local-display-fields :
                VISIBLE = YES 
                SENSITIVE = TRUE  
                BGCOLOR = 8
-               SEPARATORS = YES.
+               SEPARATORS = YES
+               bgcolor = 25
+               separator-fgcolor = 15
+               row-height-chars = 0.84
+               font = 22.
 
+       on row-display of br-flm
+       DO:
+              IF CURRENT-RESULT-ROW(br-flm:name) mod 2 = 0 then 
+              DO iCnt = 1 TO num-entries(colHandList, ","): 
+                  colHand = handle(entry(iCnt,colHandList,",")).
+                  if VALID-HANDLE(colHand) then
+                  colHand:BGCOLOR = 25. 
+              END. 
+              else
+              DO iCnt = 1 TO num-entries(colHandList, ","):
+                  colHand = handle(entry(iCnt,colHandList,",")).
+                  if VALID-HANDLE(colHand) then
+                  colHand:BGCOLOR = 26.
+              END.
+       END.
+        
         OPEN QUERY q-flm FOR EACH est-flm WHERE est-flm.company = eb.company
                                              AND est-flm.est-no = eb.est-no
                                             NO-LOCK
@@ -2649,7 +2672,12 @@ PROCEDURE local-display-fields :
                 lh-bnum = br-flm:ADD-LIKE-COLUMN("est-flm.bnum")
                 lh-len = br-flm:ADD-LIKE-COLUMN("est-flm.len")
                 lh-wid = br-flm:ADD-LIKE-COLUMN("est-flm.wid").
-
+                
+        REPEAT icnt = 1 TO br-flm:NUM-COLUMNS:
+            colHandList =  colHandList + ","  + string(br-flm:GET-BROWSE-COLUMN(icnt)).
+        END.
+        colHandList = trim(colHandList, ",").
+        
          br-flm:REFRESH() NO-ERROR.
 
         IF NUM-RESULTS("q-flm":U) = ? OR  /* query not opened */

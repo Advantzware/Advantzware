@@ -145,7 +145,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 150
          VIRTUAL-HEIGHT     = 24
          VIRTUAL-WIDTH      = 150
-         RESIZE             = NO
+         RESIZE             = yes
          SCROLL-BARS        = NO
          STATUS-AREA        = YES
          BGCOLOR            = ?
@@ -268,7 +268,7 @@ END.
 
 /* Include custom  Main Block code for SmartWindows. */
 {src/adm/template/windowmn.i}
-
+{custom/initializeprocs.i}
 
 &SCOPED-DEFINE sysCtrlCompany company_code
 &SCOPED-DEFINE sysCtrlName MiscJobCL
@@ -348,7 +348,7 @@ PROCEDURE adm-create-objects :
 
        /* Links to SmartFolder h_folder. */
        RUN add-link IN adm-broker-hdl ( h_folder , 'Page':U , THIS-PROCEDURE ).
-
+	   RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'udficon':U , h_options ).
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_optnote-2 ,
              h_options , 'AFTER':U ).

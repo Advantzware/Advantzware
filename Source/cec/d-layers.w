@@ -58,6 +58,8 @@ DEF VAR cellColumn AS HANDLE NO-UNDO EXTENT 20.
 DEF VAR columnCount AS INT NO-UNDO.
 DEF VAR ll-assem-part AS LOG NO-UNDO.
 
+{methods/template/brwCustomDef.i}
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -243,6 +245,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-2 D-Dialog
 ON ROW-DISPLAY OF BROWSE-2 IN FRAME D-Dialog
 DO:
+    &SCOPED-DEFINE exclude-row-display true
+    {methods/template/brwRowDisplay.i}
+        
   DEF VAR li AS INT NO-UNDO.
 
 
@@ -284,7 +289,7 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
-
+{methods/template/brwcustom.i}
 FIND eb NO-LOCK WHERE ROWID(eb) EQ ip-rowid NO-ERROR.
 
 IF AVAIL eb THEN DO:

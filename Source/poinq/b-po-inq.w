@@ -305,7 +305,8 @@ fi_vend-i-no fi_due-date fi_job-no fi_job-no2 tb_unpaid tb_paid btn_go ~
 btn_show btn_prev Browser-Table tb_open tb_closed tb_hold RECT-1 
 &Scoped-Define DISPLAYED-OBJECTS tb_approved fi_po-no fi_vend-no fi_i-no ~
 fi_vend-i-no fi_due-date fi_job-no fi_job-no2 tb_unpaid tb_paid fi_sort-by ~
-FI_moveCol tb_open tb_closed tb_hold 
+ tb_open tb_closed tb_hold 
+ //FI_moveCol
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -418,10 +419,10 @@ DEFINE VARIABLE fi_job-no2 AS INTEGER FORMAT "99":U INITIAL 0
      SIZE 4 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE FI_moveCol AS CHARACTER FORMAT "X(4)":U 
+/*DEFINE VARIABLE FI_moveCol AS CHARACTER FORMAT "X(4)":U 
      VIEW-AS FILL-IN 
      SIZE 9 BY 1
-     BGCOLOR 14 FONT 6 NO-UNDO.
+     BGCOLOR 14 FONT 6 NO-UNDO.*/
 
 DEFINE VARIABLE fi_po-no AS INTEGER FORMAT ">>>>>>>>":U INITIAL 0 
      VIEW-AS FILL-IN 
@@ -604,7 +605,7 @@ DEFINE FRAME F-Main
      fi_sort-by AT ROW 3.38 COL 76.4 COLON-ALIGNED
      btn_prev AT ROW 3.38 COL 14
      btn_next AT ROW 3.38 COL 34
-     FI_moveCol AT ROW 3.38 COL 134 COLON-ALIGNED NO-LABEL WIDGET-ID 4
+  //   FI_moveCol AT ROW 3.38 COL 134 COLON-ALIGNED NO-LABEL WIDGET-ID 4
      Browser-Table AT ROW 4.57 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
      tb_open AT ROW 1.24 COL 122.6 WIDGET-ID 10
@@ -613,9 +614,9 @@ DEFINE FRAME F-Main
      "Vendor#" VIEW-AS TEXT
           SIZE 10 BY .95 AT ROW 1.24 COL 17
           FGCOLOR 9 
-     "Browser Col. Mode:" VIEW-AS TEXT
+  /*   "Browser Col. Mode:" VIEW-AS TEXT
           SIZE 22.6 BY .62 AT ROW 3.62 COL 112.2 WIDGET-ID 6
-          FONT 6
+          FONT 6*/
      "PO#" VIEW-AS TEXT
           SIZE 6 BY .95 AT ROW 1.24 COL 6.4
           BGCOLOR 8 FGCOLOR 9 
@@ -849,6 +850,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON START-SEARCH OF Browser-Table IN FRAME F-Main
 DO:
+  {methods/template/sortindicator.i} 
   DEF VAR lh-column AS HANDLE NO-UNDO.
   DEF VAR lv-column-nam AS CHAR NO-UNDO.
   DEF VAR lv-column-lab AS CHAR NO-UNDO.
@@ -881,6 +883,7 @@ DO:
   APPLY 'END-SEARCH' TO {&BROWSE-NAME}.
 
   RUN dispatch ("open-query").
+  {methods/template/sortindicatorend.i} 
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1171,7 +1174,10 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
 &ENDIF
 
 {methods/winReSize.i}
-
+/* Ticket# : 92946
+   Hiding this widget for now, as browser's column label should be indicating the column which is sorted by */
+fi_sort-by:HIDDEN IN FRAME {&frame-name} = TRUE.
+fi_sort-by:VISIBLE IN FRAME {&frame-name} = FALSE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1590,8 +1596,8 @@ PROCEDURE local-initialize :
    po-ordl.cust-no:READ-ONLY IN BROWSE {&browse-name} = YES 
    .
 
-  FI_moveCol = "Sort".
-  DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}.
+  /*FI_moveCol = "Sort".
+  DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}.*/
 
   RUN set-focus.
 
@@ -1736,9 +1742,9 @@ DO WITH FRAME {&FRAME-NAME}:
   ASSIGN
      Browser-Table:COLUMN-MOVABLE = v-col-move
      Browser-Table:COLUMN-RESIZABLE = v-col-move
-     v-col-move = NOT v-col-move
-     FI_moveCol = IF v-col-move = NO THEN "Move" ELSE "Sort".
-  DISPLAY FI_moveCol.
+     v-col-move = NOT v-col-move.
+  /*   FI_moveCol = IF v-col-move = NO THEN "Move" ELSE "Sort".
+  DISPLAY FI_moveCol.*/
 END.
 END PROCEDURE.
 

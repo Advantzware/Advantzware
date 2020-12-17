@@ -33,6 +33,7 @@ CREATE WIDGET-POOL.
 &SCOPED-DEFINE repositionBrowse
 &SCOPED-DEFINE xlocal-destroy xlocal-destroy
 {methods/defines/winReSize.i}
+{methods/template/brwcustomdef.i}
 
 /* Parameters Definitions ---                                           */
 
@@ -267,8 +268,8 @@ fi_part-no fi_po-no1 fi_est-no fi_job-no fi_job-no2 fi_cad-no fi_sman ~
 btn_go btn_prev Browser-Table fi_i-name RECT-1 
 &Scoped-Define DISPLAYED-OBJECTS tb_web fi_ord-no fi_cust-no fi_i-no ~
 fi_part-no fi_po-no1 fi_est-no fi_job-no fi_job-no2 fi_cad-no fi_sman ~
-fi_sort-by FI_moveCol fi_i-name 
-
+fi_sort-by  fi_i-name 
+//FI_moveCol
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
 
@@ -460,10 +461,10 @@ DEFINE VARIABLE fi_job-no2 AS INTEGER FORMAT "99":U INITIAL 0
      SIZE 4 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE FI_moveCol AS CHARACTER FORMAT "X(4)":U 
+/*DEFINE VARIABLE FI_moveCol AS CHARACTER FORMAT "X(4)":U 
      VIEW-AS FILL-IN 
      SIZE 9 BY 1
-     BGCOLOR 14 FONT 6 NO-UNDO.
+     BGCOLOR 14 FONT 6 NO-UNDO.*/
 
 DEFINE VARIABLE fi_ord-no AS INTEGER FORMAT ">>>>>>>>":U INITIAL 0 
      VIEW-AS FILL-IN 
@@ -613,7 +614,7 @@ DEFINE FRAME F-Main
      btn_prev AT ROW 3.14 COL 8
      btn_next AT ROW 3.14 COL 20
      fi_sort-by AT ROW 3.14 COL 87.2 COLON-ALIGNED NO-LABEL
-     FI_moveCol AT ROW 3.14 COL 130 COLON-ALIGNED NO-LABEL WIDGET-ID 4
+  //   FI_moveCol AT ROW 3.14 COL 130 COLON-ALIGNED NO-LABEL WIDGET-ID 4
      Browser-Table AT ROW 4.33 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
      fi_i-name AT ROW 3.14 COL 28 COLON-ALIGNED NO-LABEL WIDGET-ID 8
@@ -629,15 +630,15 @@ DEFINE FRAME F-Main
      "Estimate#" VIEW-AS TEXT
           SIZE 12 BY .71 AT ROW 1.24 COL 90
           FGCOLOR 9 FONT 6
-     "BrwsrColMode:" VIEW-AS TEXT
+   /*  "BrwsrColMode:" VIEW-AS TEXT
           SIZE 16.6 BY 1 AT ROW 3.14 COL 115 WIDGET-ID 6
-          FONT 6
+          FONT 6*/
      "CAD#" VIEW-AS TEXT
           SIZE 8 BY .71 AT ROW 1.24 COL 119
           FGCOLOR 9 FONT 6
-     "Sorted By:" VIEW-AS TEXT
+    /* "Sorted By:" VIEW-AS TEXT
           SIZE 13 BY 1 AT ROW 3.14 COL 76 WIDGET-ID 18
-          FONT 6
+          FONT 6 */
      "Order#" VIEW-AS TEXT
           SIZE 10 BY .71 AT ROW 1.24 COL 2
           FGCOLOR 9 FONT 6
@@ -854,6 +855,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON ROW-DISPLAY OF Browser-Table IN FRAME F-Main
 DO:
+    &scoped-define exclude-row-display true 
+    {methods/template/brwrowdisplay.i}    
   li-pct:FGCOLOR IN BROWSE {&BROWSE-NAME} = IF get-pct(get-prod(li-bal)) LT 0 THEN 12 ELSE 0.
 END.
 
@@ -892,6 +895,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON START-SEARCH OF Browser-Table IN FRAME F-Main
 DO:
+{methods/template/sortindicator.i}
   DEFINE VARIABLE lh-column AS HANDLE NO-UNDO.
   DEFINE VARIABLE lv-column-nam AS CHARACTER NO-UNDO.
   DEFINE VARIABLE lv-column-lab AS CHARACTER NO-UNDO.
@@ -918,6 +922,8 @@ DO:
   APPLY 'END-SEARCH' TO {&BROWSE-NAME}.
 
   RUN dispatch ("open-query").
+
+  {methods/template/sortindicatorend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1317,7 +1323,10 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
 &Scoped-define sdQuery {&BROWSE-NAME}
 {methods/pSessionAuditKey.i}
 {methods/winReSize.i}
-
+/* Ticket# : 92946
+   Hiding this widget for now, as browser's column label should be indicating the column which is sorted by */
+fi_sort-by:HIDDEN  = TRUE.
+fi_sort-by:VISIBLE = FALSE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1716,13 +1725,13 @@ PROCEDURE local-initialize :
       oe-ordl.po-no:READ-ONLY IN BROWSE {&browse-name} = YES
       oe-ordl.est-no:READ-ONLY IN BROWSE {&browse-name} = YES
       oe-ordl.job-no:READ-ONLY IN BROWSE {&browse-name} = YES
-      oe-ordl.job-no2:READ-ONLY IN BROWSE {&browse-name} = YES
-      FI_moveCol = "Sort"
-      .
+      oe-ordl.job-no2:READ-ONLY IN BROWSE {&browse-name} = YES.
+    /*  FI_moveCol = "Sort"
+      .*/
 
   {methods/winReSizeLocInit.i}
 
-  DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}.
+ // DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}.
   APPLY 'ENTRY':U TO fi_ord-no IN FRAME {&FRAME-NAME}.
 
 END PROCEDURE.
@@ -1807,9 +1816,9 @@ DO WITH FRAME {&FRAME-NAME}:
   ASSIGN
      Browser-Table:COLUMN-MOVABLE = v-col-move
      Browser-Table:COLUMN-RESIZABLE = v-col-move
-     v-col-move = NOT v-col-move
-     FI_moveCol = IF v-col-move = NO THEN "Move" ELSE "Sort".
-  DISPLAY FI_moveCol.
+     v-col-move = NOT v-col-move.
+   /*  FI_moveCol = IF v-col-move = NO THEN "Move" ELSE "Sort".
+  DISPLAY FI_moveCol.*/
 END.
 END PROCEDURE.
 

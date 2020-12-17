@@ -25,6 +25,7 @@ CREATE WIDGET-POOL.
 &SCOPED-DEFINE winReSize
 &SCOPED-DEFINE browseOnly
 {methods/defines/winReSize.i}
+{methods/template/brwcustomdef.i}
 
 /* Parameters Definitions ---                                           */
 
@@ -129,9 +130,9 @@ RUN methods/prgsecur.p
 &Scoped-Define ENABLED-OBJECTS btn-go btn-all lv-period-fr lv-period-to ~
 iRunFrom iRunTo dtDateFrom dtDateTo begin_acct lv-year btn-print br_table 
 &Scoped-Define DISPLAYED-OBJECTS lv-period-fr lv-period-to iRunFrom iRunTo ~
-dtDateFrom dtDateTo begin_acct lv-year FI_moveCol lv-open-bal lv-close-bal ~
+dtDateFrom dtDateTo begin_acct lv-year  lv-open-bal lv-close-bal ~
 acct_dscr
-
+//FI_moveCol
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
 &Scoped-define List-1 lv-period-fr lv-period-to iRunFrom iRunTo dtDateFrom ~
@@ -215,10 +216,10 @@ DEFINE VARIABLE dtDateTo AS DATE FORMAT "99/99/9999":U
      SIZE 15 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE FI_moveCol AS CHARACTER FORMAT "X(4)":U 
+/*DEFINE VARIABLE FI_moveCol AS CHARACTER FORMAT "X(4)":U 
      VIEW-AS FILL-IN 
      SIZE 9 BY 1
-     BGCOLOR 14 FONT 6 NO-UNDO.
+     BGCOLOR 14 FONT 6 NO-UNDO.*/
 
 DEFINE VARIABLE iRunFrom AS INTEGER FORMAT ">>>>>>9":U INITIAL 0 
      VIEW-AS FILL-IN 
@@ -307,7 +308,7 @@ DEFINE FRAME F-Main
      btn-go AT ROW 2 COL 128.2
      btn-all AT ROW 2 COL 144.6     
      btn-print AT ROW 3.33 COL 111.2
-     FI_moveCol AT ROW 3.33 COL 145.4 COLON-ALIGNED NO-LABEL WIDGET-ID 46
+  //   FI_moveCol AT ROW 3.33 COL 145.4 COLON-ALIGNED NO-LABEL WIDGET-ID 46
      lv-open-bal AT ROW 3.38 COL 48.8 COLON-ALIGNED
      lv-close-bal AT ROW 3.38 COL 86.2 COLON-ALIGNED
      acct_dscr AT ROW 3.43 COL 1 COLON-ALIGNED NO-LABEL
@@ -320,8 +321,8 @@ DEFINE FRAME F-Main
           FGCOLOR 9 FONT 6
      "__" VIEW-AS TEXT
           SIZE 1.6 BY .67 AT ROW 1.91 COL 76.2 WIDGET-ID 64
-     "Click on Yellow Field to " VIEW-AS TEXT
-          SIZE 24 BY .95 AT ROW 3.33 COL 124.4 WIDGET-ID 14
+    /* "Click on Yellow Field to " VIEW-AS TEXT
+          SIZE 24 BY .95 AT ROW 3.33 COL 124.4 WIDGET-ID 14 */
      "__" VIEW-AS TEXT
           SIZE 1.6 BY .67 AT ROW 1.95 COL 54.2 WIDGET-ID 62
      "Run #" VIEW-AS TEXT
@@ -555,6 +556,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
 ON START-SEARCH OF br_table IN FRAME F-Main
 DO:
+  {methods/template/sortindicator.i} 
   DEF VAR lh-column AS HANDLE NO-UNDO.
   DEF VAR lv-column-nam AS CHAR NO-UNDO.
   DEF VAR lv-column-lab AS CHAR NO-UNDO.
@@ -626,7 +628,7 @@ DO:
            ELSE OPEN QUERY {&SELF-NAME} FOR EACH tt-glinq BY tt-glinq.tr-yr {&sortby-des}.
       END.
   END CASE.
-
+  {methods/template/sortindicatorend.i} 
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -657,7 +659,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
 ON ROW-DISPLAY OF br_table IN FRAME F-Main
 DO:   
-  
+    &scoped-define exclude-row-display true 
+    {methods/template/brwrowdisplay.i}  
   IF AVAIL tt-glinq AND MONTH(tt-glinq.tr-date) NE tt-glinq.tr-period  THEN
     ASSIGN   tt-glinq.tr-date:BGCOLOR IN BROWSE {&BROWSE-NAME}      = 3  .
       
@@ -969,8 +972,8 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
 &SCOPED-DEFINE cellColumnDat b-glinq
 {methods/browsers/setCellColumns.i}
 
-FI_moveCol = "Sort".
-DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}.
+/*FI_moveCol = "Sort".
+DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}.*/
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1213,11 +1216,11 @@ PROCEDURE local-initialize :
     ASSIGN tt-glinq.tr-date:READ-ONLY IN BROWSE {&browse-name} = YES
            tt-glinq.jrnl:READ-ONLY IN BROWSE {&browse-name} = YES
            tt-glinq.tr-dscr:READ-ONLY IN BROWSE {&browse-name} = YES               
-           tt-glinq.actnum:READ-ONLY = YES
-           FI_moveCol = "Sort"
+           tt-glinq.actnum:READ-ONLY = YES.
+         /*  FI_moveCol = "Sort"
            .
           
-        DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}.
+        DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}.*/
         APPLY 'ENTRY':U TO begin_acct IN FRAME {&FRAME-NAME}.
 
 
@@ -1237,9 +1240,9 @@ PROCEDURE move-columns :
      ASSIGN
         br_table:COLUMN-MOVABLE = v-col-move
         br_table:COLUMN-RESIZABLE = v-col-move
-        v-col-move = NOT v-col-move
-        FI_moveCol = IF v-col-move = NO THEN "Move" ELSE "Sort".
-     DISPLAY FI_moveCol.
+        v-col-move = NOT v-col-move.
+       /* FI_moveCol = IF v-col-move = NO THEN "Move" ELSE "Sort".
+     DISPLAY FI_moveCol.*/
   END.
 END PROCEDURE.
 

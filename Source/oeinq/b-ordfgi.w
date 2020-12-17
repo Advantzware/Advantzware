@@ -217,7 +217,8 @@ AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code NO-LOCK ~
 fi_job-no fi_job-no2 fi_rita-code fi_date btn_del fi_tag# btnPreFix ~
 fi_po-no btn_copy btn_go btn_show RECT-1 
 &Scoped-Define DISPLAYED-OBJECTS fi_i-no fi_job-no fi_job-no2 fi_rita-code ~
-fi_date fi_tag# fi_po-no fi_name fi_q-onh fi_q-avail fi_sort-by FI_moveCol 
+fi_date fi_tag# fi_po-no fi_name fi_q-onh fi_q-avail fi_sort-by 
+//FI_moveCol 
 
 /* Custom List Definitions                                              */
 /* goFields,List-2,List-3,List-4,List-5,List-6                          */
@@ -329,10 +330,10 @@ DEFINE VARIABLE fi_job-no2 AS INTEGER FORMAT "99":U INITIAL 0
      SIZE 4 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE FI_moveCol AS CHARACTER FORMAT "X(4)":U 
+/*DEFINE VARIABLE FI_moveCol AS CHARACTER FORMAT "X(4)":U 
      VIEW-AS FILL-IN 
      SIZE 9 BY 1
-     BGCOLOR 14 FONT 6 NO-UNDO.
+     BGCOLOR 14 FONT 6 NO-UNDO.*/
 
 DEFINE VARIABLE fi_name AS CHARACTER FORMAT "x(30)" 
      LABEL "Item Name" 
@@ -431,7 +432,7 @@ DEFINE BROWSE Browser-Table
             LABEL-BGCOLOR 14
       fg-rdtlh.qty-case COLUMN-LABEL "Qty/Unit" FORMAT "->>>,>>9":U
             LABEL-BGCOLOR 14
-      get-pallet-info (output li-qty-pal) @ li-pallets COLUMN-LABEL "Pallets" FORMAT "->>>>>>":U
+      get-pallet-info (OUTPUT li-qty-pal) @ li-pallets COLUMN-LABEL "Pallets" FORMAT "->>>>>>":U
             WIDTH 9.4 LABEL-BGCOLOR 14
       fg-rdtlh.stacks-unit COLUMN-LABEL "Units/Pallet" FORMAT ">,>>9":U
             LABEL-BGCOLOR 14
@@ -519,9 +520,9 @@ DEFINE FRAME F-Main
      btn_go AT ROW 4.81 COL 3
      btn_show AT ROW 4.81 COL 18
      fi_sort-by AT ROW 4.81 COL 39.2 COLON-ALIGNED
-     FI_moveCol AT ROW 4.81 COL 124 COLON-ALIGNED NO-LABEL WIDGET-ID 10
-     "Click on Yellow Field, Sorts From 1st to Last" VIEW-AS TEXT
-          SIZE 43 BY 1 AT ROW 4.81 COL 81.2
+ //    FI_moveCol AT ROW 4.81 COL 124 COLON-ALIGNED NO-LABEL WIDGET-ID 10
+     /* "Click on Yellow Field, Sorts From 1st to Last" VIEW-AS TEXT
+          SIZE 43 BY 1 AT ROW 4.81 COL 81.2 */
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -755,6 +756,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON START-SEARCH OF Browser-Table IN FRAME F-Main
 DO:
+{methods/template/sortindicator.i} 
   DEF VAR lh-column AS HANDLE NO-UNDO.
   DEF VAR lv-column-nam AS CHAR NO-UNDO.
   DEF VAR lv-column-lab AS CHAR NO-UNDO.
@@ -785,6 +787,7 @@ DO:
   APPLY 'END-SEARCH' TO {&BROWSE-NAME}.
 
   APPLY "choose" TO btn_go.
+  {methods/template/sortindicatorend.i} 
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1190,7 +1193,7 @@ RUN sys/ref/nk1look.p (INPUT cocode, "FGHistoryDate", "DT" /* Logical */, NO /* 
                           INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
                           OUTPUT cRtnChar, OUTPUT lRecFound).
    IF lRecFound THEN
-       dtDateChar = date(cRtnChar) NO-ERROR. 
+       dtDateChar = DATE(cRtnChar) NO-ERROR. 
 
    IF dtDateChar NE ? THEN
         fi_date = dtDateChar.
@@ -1219,7 +1222,10 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
 &ENDIF
 
 {methods/winReSize.i}
-
+/* Ticket# : 92946
+   Hiding this widget for now, as browser's column label should be indicating the column which is sorted by */
+fi_sort-by:HIDDEN  = TRUE.
+fi_sort-by:VISIBLE = FALSE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1368,7 +1374,7 @@ PROCEDURE export-xl :
             '"' STRING(fg-rdtlh.cost)                                                           '",'
             '"' STRING(fg-rdtlh.cases)                                                          '",'
             '"' STRING(fg-rdtlh.qty-case)                                                       '",'
-            '"' get-pallet-info (output li-qty-pal)                                             '",'
+            '"' get-pallet-info (OUTPUT li-qty-pal)                                             '",'
             '"' STRING(fg-rdtlh.stacks-unit)                                                    '",'
             '"' STRING(fg-rdtlh.partial)                                                        '",'
             '"' STRING(li-qty-pal)                                                              '",'
@@ -1544,13 +1550,14 @@ PROCEDURE local-initialize :
 /*    fg-rdtlh.stacks-unit:READ-ONLY IN BROWSE {&browse-name} = YES */
 /*    fg-rdtlh.stack-code:READ-ONLY IN BROWSE {&browse-name} = YES  */
 /*    reftable.code:READ-ONLY IN BROWSE {&browse-name} = YES        */
-   FI_moveCol = "Sort".
+ /*  FI_moveCol = "Sort".
 
-  DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}.
+  DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}.*/
+  
   IF NOT v-upd-perms THEN
-      ASSIGN btn_copy:VISIBLE = NO
-             btn_del:VISIBLE = NO
-             btCompress:VISIBLE = NO.              
+      ASSIGN btn_copy:VISIBLE IN FRAME {&FRAME-NAME}= NO
+             btn_del:VISIBLE IN FRAME {&FRAME-NAME}= NO
+             btCompress:VISIBLE IN FRAME {&FRAME-NAME}= NO.              
   RUN set-focus.
 
 END PROCEDURE.
@@ -1613,9 +1620,9 @@ PROCEDURE move-columns :
       ASSIGN
          Browser-Table:COLUMN-MOVABLE = v-col-move
          Browser-Table:COLUMN-RESIZABLE = v-col-move
-         v-col-move = NOT v-col-move
-         FI_moveCol = IF v-col-move = NO THEN "Move" ELSE "Sort".
-      DISPLAY FI_moveCol.
+         v-col-move = NOT v-col-move.
+     /*    FI_moveCol = IF v-col-move = NO THEN "Move" ELSE "Sort".
+      DISPLAY FI_moveCol.*/
    END.
 END PROCEDURE.
 

@@ -44,6 +44,7 @@ DEF INPUT        PARAM ip-loc       AS   CHAR               NO-UNDO.
 DEF OUTPUT       PARAM oplUseMax    AS   LOG                NO-UNDO.
 
 {sys/inc/var.i SHARED}
+{methods/template/brwcustomdef.i}
 
 DEF BUFFER b-itemfg FOR itemfg.
 DEF BUFFER b-fg-rctd FOR fg-rctd.
@@ -299,10 +300,10 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-2 Dialog-Frame
 ON ROW-DISPLAY OF BROWSE-2 IN FRAME Dialog-Frame
 DO:
+  &scoped-define exclude-row-display true 
+  {methods/template/brwrowdisplay.i} 
+     
   RUN set-bg-color.
-
-
-
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -380,7 +381,7 @@ THEN FRAME {&FRAME-NAME}:PARENT = ACTIVE-WINDOW.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-  
+    {methods/template/brwcustom.i}  
   FIND fg-rctd WHERE ROWID(fg-rctd) EQ ip-rowid2 EXCLUSIVE-LOCK NO-ERROR.
 
   IF AVAIL fg-rctd THEN DO:

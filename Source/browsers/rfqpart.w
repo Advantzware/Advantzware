@@ -35,6 +35,7 @@ def var K_frac as dec init 6.25 no-undo.
 
 {sys/inc/VAR.i NEW SHARED}
 {sys/inc/varasgn.i}
+{methods/template/brwCustomDef.i}
 
 cocode = g_company.
 
@@ -309,7 +310,8 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON ROW-DISPLAY OF Browser-Table IN FRAME F-Main
 DO:
-
+    &SCOPED-DEFINE exclude-row-display true
+    {methods/template/brwRowDisplay.i}
    find style where style.company = rfq.company and
                       style.style = rfqitem.style
                       no-lock no-error.

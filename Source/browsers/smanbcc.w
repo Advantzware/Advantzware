@@ -32,7 +32,7 @@ CREATE WIDGET-POOL.
 /* ***************************  Definitions  ************************** */
 
 &SCOPED-DEFINE winReSize
-&SCOPED-DEFINE sizeOption HEIGHT
+//&SCOPED-DEFINE sizeOption HEIGHT
 &SCOPED-DEFINE browseOnly
 {methods/defines/winReSize.i}
 
@@ -238,8 +238,8 @@ DEFINE FRAME F-Main
      br_table AT ROW 2.19 COL 1
      cb_cust AT ROW 2.91 COL 19 COLON-ALIGNED
      cb_procat AT ROW 2.91 COL 22 COLON-ALIGNED
-     "Sort By:" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 1.29 COL 42
+    /* "Sort By:" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 1.29 COL 42 */
      "Budget per Customer/Category" VIEW-AS TEXT
           SIZE 32 BY .95 AT ROW 1.24 COL 2
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -358,26 +358,26 @@ ON HELP OF br_table IN FRAME F-Main
 DO:
    DEF VAR char-val AS cha NO-UNDO.
    CASE FOCUS:NAME:
-        when "cust-no" then do:
-             run windows/l-cust.w (g_company,focus:screen-value, output char-val).
-             if char-val <> "" AND AVAIL tt-bud then DO:
-                assign tt-bud.cust-no:screen-value IN BROWSE {&browse-name} = entry(1,char-val)
+        WHEN "cust-no" THEN DO:
+             RUN windows/l-cust.w (g_company,FOCUS:SCREEN-VALUE, OUTPUT char-val).
+             IF char-val <> "" AND AVAIL tt-bud THEN DO:
+                ASSIGN tt-bud.cust-no:screen-value IN BROWSE {&browse-name} = ENTRY(1,char-val)
                        /*ocat-desc:screen-value = entry(2,char-val)*/
                        .
                 APPLY 'tab' TO tt-bud.cust-no.
              END.
-        end.
-        when "procat" then do:
+        END.
+        WHEN "procat" THEN DO:
              IF rd_cust-procat = "C" THEN
-                run windows/l-fgcat.w (g_company,focus:screen-value, output char-val).
-             ELSE run windows/l-cust.w (g_company,focus:screen-value, output char-val).
-             if char-val <> "" AND AVAIL tt-bud then DO:
-                assign tt-bud.procat:SCREEN-VALUE IN BROWSE {&browse-name} = entry(1,char-val)
+                RUN windows/l-fgcat.w (g_company,FOCUS:SCREEN-VALUE, OUTPUT char-val).
+             ELSE RUN windows/l-cust.w (g_company,FOCUS:SCREEN-VALUE, OUTPUT char-val).
+             IF char-val <> "" AND AVAIL tt-bud THEN DO:
+                ASSIGN tt-bud.procat:SCREEN-VALUE IN BROWSE {&browse-name} = ENTRY(1,char-val)
                        /*ocat-desc:screen-value = entry(2,char-val)*/
                        .
                 APPLY 'tab' TO tt-bud.procat.
              END.
-        end.
+        END.
    END CASE.
    RETURN NO-APPLY.
 END.
@@ -412,6 +412,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
 ON START-SEARCH OF br_table IN FRAME F-Main
 DO:
+  {methods/template/sortindicator.i} 
   DEF VAR lh-column AS HANDLE NO-UNDO.
   DEF VAR lv-column-nam AS CHAR NO-UNDO.
   DEF VAR lv-column-lab AS CHAR NO-UNDO.
@@ -427,7 +428,7 @@ DO:
 
   APPLY 'END-SEARCH' TO {&BROWSE-NAME}.
   RUN dispatch ('open-query').
-
+  {methods/template/sortindicatorend.i} 
   /*APPLY "choose" TO btn_go.*/
 END.
 

@@ -38,6 +38,7 @@ DEFINE INPUT PARAMETER ipcType AS CHARACTER NO-UNDO .
 {sys/inc/VAR.i NEW SHARED}
 
 {jc/ttJobItem.i SHARED}
+{methods/template/brwcustomdef.i}
 
 DEFINE VARIABLE ll-secure AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cColumnLabel AS CHARACTER NO-UNDO .
@@ -261,7 +262,9 @@ ON ROW-LEAVE OF BROWSE-3 IN FRAME Dialog-Frame
 &Scoped-define SELF-NAME BROWSE-3
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-3 Dialog-Frame
 ON ROW-DISPLAY OF BROWSE-3 IN FRAME Dialog-Frame
-DO:   
+DO: 
+    &scoped-define exclude-row-display true 
+    {methods/template/brwrowdisplay.i}      
     IF AVAIL tt-job-item THEN DO:
         IF tt-job-item.mat-alloc = YES THEN DO:
             tt-job-item.IS-SELECTED:BGCOLOR IN BROWSE {&BROWSE-NAME} = 2 .
@@ -380,7 +383,7 @@ IF VALID-HANDLE(ACTIVE-WINDOW) AND FRAME {&FRAME-NAME}:PARENT EQ ?
 /* Now enable the interface and wait for the exit condition.            */
 /* (NOTE: handle ERROR and END-KEY so cleanup code will always fire.    */
 {sys/inc/f3helpw.i}
-
+{methods/template/brwcustom.i}
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:

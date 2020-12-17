@@ -36,6 +36,7 @@ CREATE WIDGET-POOL.
 {custom/globdefs.i}
 
 {sys/inc/VAR.i "new shared"}
+{methods/template/brwcustomdef.i}
 
 ASSIGN
  cocode = g_company
@@ -351,6 +352,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
 ON ROW-DISPLAY OF br_table IN FRAME F-Main
 DO:
+    &scoped-define exclude-row-display true 
+    {methods/template/brwrowdisplay.i}    
   RUN set-row-bgcolor.
 END.
 
@@ -475,7 +478,10 @@ END.
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF
-
+/* Ticket# : 92946
+   Hiding this widget for now, as browser's column label should be indicating the column which is sorted by */
+fi_sortby:HIDDEN  = TRUE.
+fi_sortby:VISIBLE = FALSE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

@@ -316,7 +316,7 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_p-navico-2 , 'Navigation':U , h_b-cppoln-3 ).
        RUN add-link IN adm-broker-hdl ( h_p-updonly-2 , 'TableIO':U , h_b-cppoln-3 ).
        RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'consource':U , h_b-cppoln-3 ).
-
+	   RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'udficon':U , h_options ).
        /* Links to SmartFolder h_folder. */
        RUN add-link IN adm-broker-hdl ( h_folder , 'Page':U , THIS-PROCEDURE ).
 

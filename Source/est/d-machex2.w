@@ -35,6 +35,7 @@ DEFINE OUTPUT PARAMETER op-valid-machines AS LOG NO-UNDO.
 {est/d-machex.i}
 {est/d-machex2.i}
 {ce/mach-lst.i}
+{methods/template/brwCustomDef.i}
 
 def shared buffer xest for est.
 
@@ -214,6 +215,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-2 D-Dialog
 ON ROW-DISPLAY OF BROWSE-2 IN FRAME D-Dialog
 DO:
+   &SCOPED-DEFINE exclude-row-display true
+   {methods/template/brwRowDisplay.i}
+       
    IF tt-mach-route.reason NE "Valid Machine" THEN
       ASSIGN
          tt-mach-route.form-no:BGCOLOR IN BROWSE {&BROWSE-NAME} = 12
@@ -264,7 +268,7 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
-
+    {methods/template/brwcustom.i}
   IF NOT CAN-FIND(FIRST tt-mach-exc) THEN
   DO:
      op-valid-machines = YES.

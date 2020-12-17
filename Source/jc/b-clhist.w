@@ -193,14 +193,14 @@ DEFINE FRAME F-Main
      "Import Date" VIEW-AS TEXT
           SIZE 20 BY .71 AT ROW 1.24 COL 36.4
           FGCOLOR 9 FONT 6
-     "Sorted By:" VIEW-AS TEXT
+    /* "Sorted By:" VIEW-AS TEXT
           SIZE 12 BY 1 AT ROW 3.62 COL 44
-          FONT 6
+          FONT 6 */
      "Job#" VIEW-AS TEXT
           SIZE 13 BY .71 AT ROW 1.24 COL 9
           FGCOLOR 9 FONT 6
-     "Click on Yellow Field, Sorts From 1st to Last" VIEW-AS TEXT
-          SIZE 42 BY .95 AT ROW 3.62 COL 89
+    /* "Click on Yellow Field, Sorts From 1st to Last" VIEW-AS TEXT
+          SIZE 42 BY .95 AT ROW 3.62 COL 89 */
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 

@@ -50,12 +50,17 @@ ASSIGN
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
 &ANALYZE-SUSPEND _UIB-PREPROCESSOR-BLOCK 
 
 /* ********************  Preprocessor Definitions  ******************** */
 
+
+
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
+
+
 
 /* *********************** Procedure Settings ************************ */
 
@@ -80,10 +85,11 @@ ASSIGN
                                                                         */
 &ANALYZE-RESUME
 
+ 
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK Include 
-
-/* ***************************  Main Block  *************************** */
-
+{methods/template/brwcustom.i}
 {methods/ctrl-a_browser.i}
 &IF "{&IAMWHAT}" = "" &THEN
   &IF DEFINED(BRWSDEFS) NE 0 &THEN
@@ -98,6 +104,7 @@ ASSIGN
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
 /* **********************  Internal Procedures  *********************** */
 
@@ -414,8 +421,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE runCueCard Include
-PROCEDURE runCueCard:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE runCueCard Include 
+PROCEDURE runCueCard :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -426,7 +433,7 @@ PROCEDURE runCueCard:
     lRunCueCard = YES.
     
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -445,3 +452,4 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+

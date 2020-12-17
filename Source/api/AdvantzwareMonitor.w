@@ -40,6 +40,8 @@ CREATE WIDGET-POOL.
 /* Local Variable Definitions ---                                       */
 {methods/defines/hndldefs.i}
 {methods/prgsecur.i}
+{methods/template/brwcustomdef.i}
+
 DEFINE SHARED VARIABLE cIniLoc AS CHARACTER NO-UNDO.
 
 DEFINE VARIABLE hdAdvantzwareMonitorProcs AS HANDLE    NO-UNDO.
@@ -404,6 +406,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-10 C-Win
 ON ROW-DISPLAY OF BROWSE-10 IN FRAME DEFAULT-FRAME
 DO:
+    &scoped-define exclude-row-display true 
+    {methods/template/brwrowdisplay.i}  
+      
    DEFINE VARIABLE iColor AS INTEGER NO-UNDO.
     
    iColor = IF AVAILABLE serverResource AND serverResource.resourceStatus MATCHES "*Running" THEN
@@ -659,7 +664,7 @@ END PROCEDURE.
 /* Set CURRENT-WINDOW: this will parent dialog-boxes and frames.        */
 ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME} 
        THIS-PROCEDURE:CURRENT-WINDOW = {&WINDOW-NAME}.
-
+{methods/template/brwcustom.i}
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
 ON CLOSE OF THIS-PROCEDURE 

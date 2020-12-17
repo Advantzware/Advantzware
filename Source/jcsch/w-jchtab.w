@@ -37,6 +37,7 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 {custom/globdefs.i}
+{methods/template/brwcustomdef.i}
 
 DEFINE VARIABLE rec_key_value AS CHARACTER NO-UNDO.
 DEFINE VARIABLE header_value AS CHARACTER NO-UNDO.
@@ -382,7 +383,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-2 W-Win
 ON ROW-DISPLAY OF BROWSE-2 IN FRAME F-Main
 DO:
-  
+    &scoped-define exclude-row-display true 
+    {methods/template/brwrowdisplay.i} 
   /*  ASSIGN tt-sch.m-code:BGCOLOR IN BROWSE {&browse-name} = ?
               tt-sch.job-list[1]:BGCOLOR IN BROWSE {&browse-name} = ?
               tt-sch.job-list[2]:BGCOLOR IN BROWSE {&browse-name} = ?
@@ -425,6 +427,7 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
+{methods/template/brwcustom.i}
 
 ON 'mouse-select-dblclick':U OF tt-sch.job-list[1] IN BROWSE {&browse-name}
     OR 'mouse-select-dblclick':U OF tt-sch.job-list[2] IN BROWSE {&browse-name}

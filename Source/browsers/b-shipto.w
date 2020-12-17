@@ -184,7 +184,8 @@ shipto.ship-zip shipto.company display-rep() @ cust-rep shipto.siteID
 fi_zip fi_siteID btn_go btn_prev btn_next btn_show ~
 Browser-Table 
 &Scoped-Define DISPLAYED-OBJECTS fi_ship-id fi_i-name fi_city ~
-fi_stat fi_zip fi_siteID fi_sort-by FI_moveCol 
+fi_stat fi_zip fi_siteID fi_sort-by
+// FI_moveCol 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -279,10 +280,10 @@ DEFINE VARIABLE fi_i-name AS CHARACTER FORMAT "X(20)":U
      SIZE 30 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE FI_moveCol AS CHARACTER FORMAT "X(4)":U 
+/*DEFINE VARIABLE FI_moveCol AS CHARACTER FORMAT "X(4)":U 
      VIEW-AS FILL-IN 
      SIZE 9 BY 1
-     BGCOLOR 14 FONT 6 NO-UNDO.
+     BGCOLOR 14 FONT 6 NO-UNDO.*/
 
 DEFINE VARIABLE fi_sort-by AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
@@ -369,7 +370,7 @@ DEFINE FRAME F-Main
      btn_next AT ROW 3.62 COL 34 WIDGET-ID 6
      btn_show AT ROW 3.62 COL 49.2 WIDGET-ID 10
      fi_sort-by AT ROW 3.62 COL 78 COLON-ALIGNED NO-LABEL WIDGET-ID 12
-     FI_moveCol AT ROW 3.62 COL 141 COLON-ALIGNED NO-LABEL WIDGET-ID 46
+    // FI_moveCol AT ROW 3.62 COL 141 COLON-ALIGNED NO-LABEL WIDGET-ID 46
      Browser-Table AT ROW 5.29 COL 2.4 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
      "Ship Name" VIEW-AS TEXT
@@ -378,8 +379,8 @@ DEFINE FRAME F-Main
      "Shipto Code" VIEW-AS TEXT
           SIZE 14 BY .71 AT ROW 1.24 COL 3 WIDGET-ID 24
           FGCOLOR 9 FONT 6
-     "Click on Yellow Field to Sort" VIEW-AS TEXT
-          SIZE 28 BY .95 AT ROW 3.62 COL 114 WIDGET-ID 14
+    /* "Click on Yellow Field to Sort" VIEW-AS TEXT
+          SIZE 28 BY .95 AT ROW 3.62 COL 114 WIDGET-ID 14  */
      /*"Cust #" VIEW-AS TEXT
           SIZE 12 BY .71 AT ROW 1.24 COL 95.8 WIDGET-ID 34
           FGCOLOR 9 FONT 6
@@ -392,9 +393,9 @@ DEFINE FRAME F-Main
      "City" VIEW-AS TEXT
           SIZE 13 BY .71 AT ROW 1.24 COL 50.6 WIDGET-ID 22
           FGCOLOR 9 FONT 6
-     "Sorted By:" VIEW-AS TEXT
+     /* "Sorted By:" VIEW-AS TEXT
           SIZE 12 BY 1 AT ROW 3.62 COL 68 WIDGET-ID 30
-          FONT 6
+          FONT 6 */
      "Ship Zip" VIEW-AS TEXT
           SIZE 12 BY .71 AT ROW 1.24 COL 81 WIDGET-ID 28
           FGCOLOR 9 FONT 6
@@ -702,6 +703,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON START-SEARCH OF Browser-Table IN FRAME F-Main
 DO:
+{methods/template/sortindicator.i}
   /*RUN startSearch.*/
      DEF VAR lh-column AS HANDLE NO-UNDO.
   DEF VAR lv-column-nam AS CHAR NO-UNDO.
@@ -720,7 +722,7 @@ DO:
 
   APPLY 'END-SEARCH' TO {&BROWSE-NAME}.
   RUN dispatch ("open-query").
-  
+    {methods/template/sortindicatorend.i} 
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -775,9 +777,12 @@ IF NOT AVAIL sys-ctrl THEN DO:
         sys-ctrl.descrip = "Check credit limit for past due invoices when adding release?".
 END.
 
-FI_moveCol = "Sort".
-DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}.
-
+/*FI_moveCol = "Sort".
+DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}.*/
+/* Ticket# : 92946
+   Hiding this widget for now, as browser's column label should be indicating the column which is sorted by */
+fi_sort-by:HIDDEN  = TRUE.
+fi_sort-by:VISIBLE = FALSE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1018,10 +1023,10 @@ PROCEDURE local-initialize :
          shipto.ship-city:READ-ONLY IN BROWSE {&browse-name} = YES
          shipto.ship-state:READ-ONLY IN BROWSE {&browse-name} = YES
          shipto.ship-zip:READ-ONLY IN BROWSE {&browse-name} = YES
-         shipto.siteID:READ-ONLY IN BROWSE {&browse-name} = YES
-         FI_moveCol = "Sort".
+         shipto.siteID:READ-ONLY IN BROWSE {&browse-name} = YES.
+        /* FI_moveCol = "Sort".
   
-  DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}.
+  DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}.*/
 
    APPLY 'ENTRY':U TO fi_ship-id IN FRAME {&FRAME-NAME}.
 
@@ -1108,9 +1113,9 @@ DO WITH FRAME {&FRAME-NAME}:
   ASSIGN
      Browser-Table:COLUMN-MOVABLE = v-col-move
      Browser-Table:COLUMN-RESIZABLE = v-col-move
-     v-col-move = NOT v-col-move
-     FI_moveCol = IF v-col-move = NO THEN "Move" ELSE "Sort".
-  DISPLAY FI_moveCol.
+     v-col-move = NOT v-col-move.
+    /* FI_moveCol = IF v-col-move = NO THEN "Move" ELSE "Sort".
+  DISPLAY FI_moveCol. */
 END.
 END PROCEDURE.
 

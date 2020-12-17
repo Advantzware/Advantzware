@@ -30,7 +30,8 @@ CREATE WIDGET-POOL.
 &SCOPED-DEFINE h_Object03 h_vp-est
 &SCOPED-DEFINE h_Object04 h_p-probe
 &SCOPED-DEFINE h_Object05 h_p-estop
-&SCOPED-DEFINE moveRight {&h_Object05}
+&SCOPED-DEFINE h_Object06 h_p-estprp
+&SCOPED-DEFINE moveRight {&h_Object05},{&h_Object06}
 
 &SCOPED-DEFINE winViewPrgmName w-est
 
@@ -178,9 +179,9 @@ DEFINE FRAME message-frame
 DEFINE FRAME OPTIONS-FRAME
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 36 ROW 1
-         SIZE 123 BY 2.14
-         BGCOLOR 15 .
+         AT COL 1 ROW 1
+         SIZE 158 BY 2.14
+         BGCOLOR 21 .
 
 
 /* *********************** Procedure Settings ************************ */
@@ -207,7 +208,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 320
          VIRTUAL-HEIGHT     = 320
          VIRTUAL-WIDTH      = 320
-         RESIZE             = no
+         RESIZE             = yes
          SCROLL-BARS        = no
          STATUS-AREA        = yes
          BGCOLOR            = ?
@@ -335,7 +336,7 @@ ASSIGN
 
 /* Include custom  Main Block code for SmartWindows. */
 {src/adm/template/windowmn.i}
-
+{custom/initializeprocs.i}
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -416,7 +417,7 @@ PROCEDURE adm-create-objects :
 
        /* Links to SmartFolder h_folder. */
        RUN add-link IN adm-broker-hdl ( h_folder , 'Page':U , THIS-PROCEDURE ).
-
+	   RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'udficon':U , h_options3 ).
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_printquo ,
              h_options3 , 'AFTER':U ).
