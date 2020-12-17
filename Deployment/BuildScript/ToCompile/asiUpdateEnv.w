@@ -1619,8 +1619,12 @@ PROCEDURE ipChangeCostMethod:
 ------------------------------------------------------------------------------*/
     RUN ipStatus ("    Change cost method in IF2").
 
+    
     DEF BUFFER bFg-ctrl FOR fg-ctrl.
     
+    DISABLE TRIGGERS FOR LOAD OF fg-ctrl.
+    DISABLE TRIGGERS FOR LOAD OF bfg-ctrl.
+
     FOR EACH bFg-ctrl EXCLUSIVE
         WHERE bFg-ctrl.inv-meth EQ "S":
         ASSIGN 
