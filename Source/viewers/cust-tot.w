@@ -756,12 +756,11 @@ PROCEDURE display-Account-Type :
 
   IF AVAIL cust THEN
   DO WITH FRAME {&FRAME-NAME}:
-    CASE cust.accountType:
-      WHEN "" THEN cust.accountType:SCREEN-VALUE = "  ".   /* value refresh with blank value*/   
+    CASE cust.accountType:      
       WHEN "Split" THEN cust.accountType:SCREEN-VALUE = "Split".  
       WHEN "Originated" THEN cust.accountType:SCREEN-VALUE = "Originated".
       WHEN "Handed" THEN cust.accountType:SCREEN-VALUE = "Handed".
-          OTHERWISE cust.accountType:SCREEN-VALUE = "".
+          OTHERWISE cust.accountType:SCREEN-VALUE = " ".
     END CASE.
   END.
 
