@@ -583,18 +583,29 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL F-Main Browser-Table
 ON HELP OF FRAME F-Main
 DO:
-   def var lv-handle as handle no-undo.
-   def var char-val as cha no-undo.
-   DEF VAR rec-val as recid no-undo. 
-   DEF VAR city-val as cha no-undo. 
-   DEF VAR state-val as cha no-undo. 
+   DEFINE VARIABLE lv-handle     AS HANDLE    NO-UNDO.
+   DEFINE VARIABLE char-val      AS CHARACTER NO-UNDO.
+   DEFINE VARIABLE rec-val       AS RECID     NO-UNDO. 
+   DEFINE VARIABLE city-val      AS CHARACTER NO-UNDO. 
+   DEFINE VARIABLE state-val     AS CHARACTER NO-UNDO. 
+   DEFINE VARIABLE cFieldsValue  AS CHARACTER NO-UNDO.
+   DEFINE VARIABLE cFoundValue   AS CHARACTER NO-UNDO.
+   DEFINE VARIABLE recFoundRecID AS RECID     NO-UNDO.   
 
    CASE FOCUS:NAME:
      WHEN "fi_sman" THEN DO:
-         
-        run windows/l-sman.w  (g_company, output char-val). 
-            if char-val <> "" then 
-              focus:screen-value in frame {&frame-name} = entry(1,char-val).                
+        RUN system/openLookup.p (
+            INPUT  g_company, 
+            INPUT  "",  /* Lookup ID */
+            INPUT  29,  /* Subject ID */
+            INPUT  "",  /* User ID */
+            INPUT  0,   /* Param Value ID */
+            OUTPUT cFieldsValue, 
+            OUTPUT cFoundValue, 
+            OUTPUT recFoundRecID
+            ).
+            IF cFoundValue NE "" THEN 
+              FOCUS:SCREEN-VALUE IN FRAME {&frame-name} = cFoundValue.                
      END. 
       WHEN "fi_city" THEN DO:
        RUN windows/l-city.w (FOCUS:SCREEN-VALUE,OUTPUT char-val,OUTPUT rec-val).

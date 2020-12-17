@@ -647,11 +647,22 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ar-invl.sman[1] Browser-Table _BROWSE-COLUMN B-table-Win
 ON HELP OF ar-invl.sman[1] IN BROWSE Browser-Table /* SlsRep */
 DO:
-   DEF VAR char-val AS CHAR NO-UNDO.
-
-   run windows/l-sman2.w (g_company, output char-val).
-   if char-val ne "" THEN
-      ar-invl.sman[1]:SCREEN-VALUE IN BROWSE {&browse-name} = entry(1,char-val).
+   DEFINE VARIABLE cFieldsValue  AS CHARACTER NO-UNDO.
+   DEFINE VARIABLE cFoundValue   AS CHARACTER NO-UNDO.
+   DEFINE VARIABLE recFoundRecID AS RECID     NO-UNDO.
+   
+   RUN system/openLookup.p (
+       INPUT  g_company, 
+       INPUT  "",   /* Lookup ID */
+       INPUT  29,   /* Subject ID */
+       INPUT  "",   /* User ID */
+       INPUT  0,    /* Param Value ID */
+       OUTPUT cFieldsValue, 
+       OUTPUT cFoundValue, 
+       OUTPUT recFoundRecID
+       ).  
+   if cFoundValue ne "" THEN
+      ar-invl.sman[1]:SCREEN-VALUE IN BROWSE {&browse-name} = cFoundValue.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -684,11 +695,22 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ar-invl.sman[2] Browser-Table _BROWSE-COLUMN B-table-Win
 ON HELP OF ar-invl.sman[2] IN BROWSE Browser-Table /* SlsRep */
 DO:
-   DEF VAR char-val AS CHAR NO-UNDO.
-
-   run windows/l-sman2.w (g_company, output char-val).
-   if char-val ne "" THEN
-      ar-invl.sman[2]:SCREEN-VALUE IN BROWSE {&browse-name} = entry(1,char-val).
+   DEFINE VARIABLE cFieldsValue  AS CHARACTER NO-UNDO.
+   DEFINE VARIABLE cFoundValue   AS CHARACTER NO-UNDO.
+   DEFINE VARIABLE recFoundRecID AS RECID     NO-UNDO.
+   
+   RUN system/openLookup.p (
+       INPUT  g_company, 
+       INPUT  "", /* Lookup ID */
+       INPUT  155,  /* Subject ID */
+       INPUT  "", /* User ID */
+       INPUT  0,  /* Param Value ID */
+       OUTPUT cFieldsValue, 
+       OUTPUT cFoundValue, 
+       OUTPUT recFoundRecID
+       ). 
+   if cFoundValue ne "" THEN
+      ar-invl.sman[2]:SCREEN-VALUE IN BROWSE {&browse-name} = cFoundValue.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -721,11 +743,22 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ar-invl.sman[3] Browser-Table _BROWSE-COLUMN B-table-Win
 ON HELP OF ar-invl.sman[3] IN BROWSE Browser-Table /* SlsRep */
 DO:
-   DEF VAR char-val AS CHAR NO-UNDO.
-
-   run windows/l-sman2.w (g_company, output char-val).
-   if char-val ne "" THEN
-      ar-invl.sman[3]:SCREEN-VALUE IN BROWSE {&browse-name} = entry(1,char-val).
+   DEFINE VARIABLE cFieldsValue  AS CHARACTER NO-UNDO.
+   DEFINE VARIABLE cFoundValue   AS CHARACTER NO-UNDO.
+   DEFINE VARIABLE recFoundRecID AS RECID     NO-UNDO.
+   
+   RUN system/openLookup.p (
+       INPUT  g_company, 
+       INPUT  "", /* Lookup ID */
+       INPUT  155,  /* Subject ID */
+       INPUT  "", /* User ID */
+       INPUT  0,  /* Param Value ID */
+       OUTPUT cFieldsValue, 
+       OUTPUT cFoundValue, 
+       OUTPUT recFoundRecID
+       ).  
+   if cFoundValue ne "" THEN
+      ar-invl.sman[3]:SCREEN-VALUE IN BROWSE {&browse-name} = cFoundValue.
 END.
 
 /* _UIB-CODE-BLOCK-END */

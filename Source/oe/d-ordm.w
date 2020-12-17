@@ -453,11 +453,14 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
 ON HELP OF FRAME Dialog-Frame /* Misc. Charge Item Update */
     DO:
-        DEFINE VARIABLE char-val   AS CHARACTER     NO-UNDO.
-        DEFINE VARIABLE look-recid AS RECID         NO-UNDO.
-        DEFINE VARIABLE v-li       AS INTEGER       NO-UNDO.
-        DEFINE VARIABLE lw-focus   AS WIDGET-HANDLE NO-UNDO.
-        DEFINE VARIABLE lv-handle  AS HANDLE        NO-UNDO.
+        DEFINE VARIABLE char-val      AS CHARACTER     NO-UNDO.
+        DEFINE VARIABLE look-recid    AS RECID         NO-UNDO.
+        DEFINE VARIABLE v-li          AS INTEGER       NO-UNDO.
+        DEFINE VARIABLE lw-focus      AS WIDGET-HANDLE NO-UNDO.
+        DEFINE VARIABLE lv-handle     AS HANDLE        NO-UNDO.
+        DEFINE VARIABLE cFieldsValue  AS CHARACTER     NO-UNDO.
+        DEFINE VARIABLE cFoundValue   AS CHARACTER     NO-UNDO.
+        DEFINE VARIABLE recFoundRecID AS RECID         NO-UNDO.        
 
         lw-focus = FOCUS.
 
@@ -481,17 +484,26 @@ ON HELP OF FRAME Dialog-Frame /* Misc. Charge Item Update */
             WHEN "s-man" THEN 
                 DO:
                     v-li = FRAME-INDEX.
-                    RUN windows/l-sman.w (oe-ord.company, OUTPUT char-val).
-                    IF char-val NE "" THEN 
+                    RUN system/openLookup.p (
+                        INPUT  oe-ord.company, 
+                        INPUT  "",  /* Lookup ID */
+                        INPUT  29,  /* Subject ID */
+                        INPUT  "",  /* User ID */
+                        INPUT  0,   /* Param Value ID */
+                        OUTPUT cFieldsValue, 
+                        OUTPUT cFoundValue, 
+                        OUTPUT recFoundRecID
+                        ).
+                    IF cFoundValue NE "" THEN 
                     DO:
-                        IF v-li EQ 1 AND oe-ordm.s-man[1]:SCREEN-VALUE NE ENTRY(1,char-val) THEN 
-                            oe-ordm.s-man[1]:SCREEN-VALUE = ENTRY(1,char-val).
+                        IF v-li EQ 1 AND oe-ordm.s-man[1]:SCREEN-VALUE NE cFoundValue THEN 
+                            oe-ordm.s-man[1]:SCREEN-VALUE = cFoundValue.
                         ELSE
-                            IF v-li EQ 2 AND oe-ordm.s-man[2]:SCREEN-VALUE NE ENTRY(1,char-val) THEN 
-                                oe-ordm.s-man[2]:SCREEN-VALUE = ENTRY(1,char-val).
+                            IF v-li EQ 2 AND oe-ordm.s-man[2]:SCREEN-VALUE NE cFoundValue THEN 
+                                oe-ordm.s-man[2]:SCREEN-VALUE = cFoundValue.
                             ELSE
-                                IF v-li EQ 3 AND oe-ordm.s-man[3]:SCREEN-VALUE NE ENTRY(1,char-val) THEN 
-                                    oe-ordm.s-man[3]:SCREEN-VALUE = ENTRY(1,char-val).
+                                IF v-li EQ 3 AND oe-ordm.s-man[3]:SCREEN-VALUE NE cFoundValue THEN 
+                                    oe-ordm.s-man[3]:SCREEN-VALUE = cFoundValue.
                                 ELSE v-li = 0.
                         IF v-li NE 0 THEN RUN new-s-man (v-li).
                     END.
@@ -1979,10 +1991,11 @@ PROCEDURE valid-s-man :
         IF lv-sman NE "" THEN 
         DO:
             IF NOT CAN-FIND(FIRST sman
-                WHERE sman.company EQ cocode
-                AND sman.sman    EQ lv-sman) THEN 
+                            WHERE sman.company  EQ cocode
+                              AND sman.sman     EQ lv-sman
+                              AND sman.inActive EQ NO) THEN 
             DO:
-                MESSAGE "Invalid Sales Rep, try help..." VIEW-AS ALERT-BOX ERROR.
+                MESSAGE "Inactive/Invalid Sales Rep, try help..." VIEW-AS ALERT-BOX ERROR.
                 IF ip-int EQ 3 THEN APPLY "entry" TO oe-ordm.s-man[3] IN FRAME {&FRAME-NAME}.
                 ELSE
                     IF ip-int EQ 2 THEN APPLY "entry" TO oe-ordm.s-man[2] IN FRAME {&FRAME-NAME}.

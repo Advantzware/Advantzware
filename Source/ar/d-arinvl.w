@@ -872,11 +872,22 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ar-invl.sman[1] Dialog-Frame
 ON HELP OF ar-invl.sman[1] IN FRAME Dialog-Frame /* Salesman Code[1] */
 DO:
-   DEF VAR char-val AS CHAR NO-UNDO.
-
-   run windows/l-sman2.w (g_company, output char-val).
-   if char-val ne "" THEN
-      ar-invl.sman[1]:SCREEN-VALUE  = entry(1,char-val).
+   DEFINE VARIABLE cFieldsValue  AS CHARACTER NO-UNDO.
+   DEFINE VARIABLE cFoundValue   AS CHARACTER NO-UNDO.
+   DEFINE VARIABLE recFoundRecID AS RECID     NO-UNDO.
+   
+   RUN system/openLookup.p (
+       INPUT  g_company, 
+       INPUT  "",  /* Lookup ID */
+       INPUT  29,  /* Subject ID */
+       INPUT  "",  /* User ID */
+       INPUT  0,   /* Param Value ID */
+       OUTPUT cFieldsValue, 
+       OUTPUT cFoundValue, 
+       OUTPUT recFoundRecID
+       ). 
+   IF cFoundValue NE "" THEN
+      ar-invl.sman[1]:SCREEN-VALUE  = cFoundValue.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -891,11 +902,12 @@ DO:
    IF ar-invl.sman[1]:MODIFIED  THEN DO:
 
       IF ar-invl.sman[1]:SCREEN-VALUE NE "" AND
-         NOT CAN-FIND(FIRST sman WHERE
-         sman.company EQ g_company AND
-         sman.sman EQ ar-invl.sman[1]:SCREEN-VALUE) THEN
+         NOT CAN-FIND(FIRST sman 
+                      WHERE sman.company  EQ g_company 
+                        AND sman.sman     EQ ar-invl.sman[1]:SCREEN-VALUE
+                        AND sman.inactive EQ NO) THEN
          DO:
-            MESSAGE "Invalid Sales Rep." VIEW-AS ALERT-BOX ERROR.
+            MESSAGE "Inactive/Invalid Sales Rep." VIEW-AS ALERT-BOX ERROR.
             RETURN NO-APPLY.
          END.
    END.
@@ -909,11 +921,22 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ar-invl.sman[2] Dialog-Frame
 ON HELP OF ar-invl.sman[2] IN FRAME Dialog-Frame /* Salesman Code[2] */
 DO:
-   DEF VAR char-val AS CHAR NO-UNDO.
-
-   run windows/l-sman2.w (g_company, output char-val).
-   if char-val ne "" THEN
-      ar-invl.sman[2]:SCREEN-VALUE = entry(1,char-val).
+   DEFINE VARIABLE cFieldsValue  AS CHARACTER NO-UNDO.
+   DEFINE VARIABLE cFoundValue   AS CHARACTER NO-UNDO.
+   DEFINE VARIABLE recFoundRecID AS RECID     NO-UNDO.
+   
+   RUN system/openLookup.p (
+       INPUT  g_company, 
+       INPUT  "",   /* Lookup ID */
+       INPUT  29,   /* Subject ID */
+       INPUT  "",   /* User ID */
+       INPUT  0,    /* Param Value ID */
+       OUTPUT cFieldsValue, 
+       OUTPUT cFoundValue, 
+       OUTPUT recFoundRecID
+       ). 
+   IF cFoundValue ne "" THEN
+      ar-invl.sman[2]:SCREEN-VALUE = cFoundValue.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -928,11 +951,12 @@ DO:
    IF ar-invl.sman[2]:MODIFIED  THEN DO:
 
       IF ar-invl.sman[2]:SCREEN-VALUE NE "" AND
-         NOT CAN-FIND(FIRST sman WHERE
-         sman.company EQ g_company AND
-         sman.sman EQ ar-invl.sman[2]:SCREEN-VALUE) THEN
+         NOT CAN-FIND(FIRST sman 
+                      WHERE sman.company  EQ g_company 
+                        AND sman.sman     EQ ar-invl.sman[2]:SCREEN-VALUE
+                        AND sman.inactive EQ NO ) THEN
          DO:
-            MESSAGE "Invalid Sales Rep." VIEW-AS ALERT-BOX ERROR.
+            MESSAGE "Inactive/Invalid Sales Rep." VIEW-AS ALERT-BOX ERROR.
             RETURN NO-APPLY.
          END.
    END.
@@ -946,11 +970,22 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ar-invl.sman[3] Dialog-Frame
 ON HELP OF ar-invl.sman[3] IN FRAME Dialog-Frame /* Salesman Code[3] */
 DO:
-   DEF VAR char-val AS CHAR NO-UNDO.
-
-   run windows/l-sman2.w (g_company, output char-val).
-   if char-val ne "" THEN
-      ar-invl.sman[3]:SCREEN-VALUE  = entry(1,char-val).
+   DEFINE VARIABLE cFieldsValue  AS CHARACTER NO-UNDO.
+   DEFINE VARIABLE cFoundValue   AS CHARACTER NO-UNDO.
+   DEFINE VARIABLE recFoundRecID AS RECID     NO-UNDO.
+   
+   RUN system/openLookup.p (
+       INPUT  g_company, 
+       INPUT  "",    /* Lookup ID */
+       INPUT  29,    /* Subject ID */
+       INPUT  "",    /* User ID */
+       INPUT  0,     /* Param Value ID */
+       OUTPUT cFieldsValue, 
+       OUTPUT cFoundValue, 
+       OUTPUT recFoundRecID
+       ). 
+   IF cFoundValue NE "" THEN
+      ar-invl.sman[3]:SCREEN-VALUE  = cFoundValue.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -965,11 +1000,12 @@ DO:
    IF ar-invl.sman[3]:MODIFIED  THEN DO:
 
       IF ar-invl.sman[3]:SCREEN-VALUE NE "" AND
-         NOT CAN-FIND(FIRST sman WHERE
-         sman.company EQ g_company AND
-         sman.sman EQ ar-invl.sman[3]:SCREEN-VALUE) THEN
+         NOT CAN-FIND(FIRST sman
+                      WHERE sman.company  EQ g_company 
+                        AND sman.sman     EQ ar-invl.sman[3]:SCREEN-VALUE
+                        AND sman.inactive EQ NO) THEN
          DO:
-            MESSAGE "Invalid Sales Rep." VIEW-AS ALERT-BOX ERROR.
+            MESSAGE "Inactive/Invalid Sales Rep." VIEW-AS ALERT-BOX ERROR.
             RETURN NO-APPLY.
          END.
    END.

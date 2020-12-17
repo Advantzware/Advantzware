@@ -1945,12 +1945,16 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cFieldValue C-Win
 ON HELP OF cFieldValue IN FRAME viewFrame /* Value */
 DO:
-    DEFINE VARIABLE cNameValue AS CHARACTER      NO-UNDO.
-    DEFINE VARIABLE cCharValue AS CHARACTER      NO-UNDO.
-    DEFINE VARIABLE cLoc     LIKE fg-bin.loc     NO-UNDO.
-    DEFINE VARIABLE cLocBin  LIKE fg-bin.loc-bin NO-UNDO.
-    DEFINE VARIABLE cCharFld   AS CHARACTER      NO-UNDO.
-    DEFINE VARIABLE cRtnValue  AS CHARACTER      NO-UNDO.
+    DEFINE VARIABLE cNameValue    AS CHARACTER        NO-UNDO.
+    DEFINE VARIABLE cCharValue    AS CHARACTER        NO-UNDO.
+    DEFINE VARIABLE cLoc          LIKE fg-bin.loc     NO-UNDO.
+    DEFINE VARIABLE cLocBin       LIKE fg-bin.loc-bin NO-UNDO.
+    DEFINE VARIABLE cCharFld      AS CHARACTER        NO-UNDO.
+    DEFINE VARIABLE cRtnValue     AS CHARACTER        NO-UNDO.
+    DEFINE VARIABLE cFieldsValue  AS CHARACTER        NO-UNDO.
+    DEFINE VARIABLE cFoundValue   AS CHARACTER        NO-UNDO.
+    DEFINE VARIABLE recFoundRecID AS RECID            NO-UNDO.
+     
 
     IF cDataType:SCREEN-VALUE EQ "Character" THEN DO:
         cNameValue = ttSysCtrl.name.
@@ -2044,9 +2048,18 @@ DO:
                 END. /* else */
             END. /* bardir */
             WHEN "SALESREP" THEN DO:
-                RUN windows/l-sman.w (gcompany,OUTPUT cCharValue).
-                IF cCharValue NE "" THEN
-                cFieldValue:SCREEN-VALUE = ENTRY(1,cCharValue).
+                  RUN system/openLookup.p (
+                      INPUT  gcompany, 
+                      INPUT  "", /* Lookup ID */
+                      INPUT  29, /* Subject ID */
+                      INPUT  "", /* User ID */
+                      INPUT  0,  /* Param Value ID */
+                      OUTPUT cFieldsValue, 
+                      OUTPUT cFoundValue, 
+                      OUTPUT recFoundRecID
+                      ).
+                IF cFoundValue NE "" THEN
+                cFieldValue:SCREEN-VALUE = cFoundValue.
                 RETURN NO-APPLY.
             END. /* salesrep */
             WHEN "BolPrint" THEN DO:

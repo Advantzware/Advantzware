@@ -321,10 +321,14 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL DEFAULT-FRAME C-Win
 ON HELP OF FRAME DEFAULT-FRAME
 DO:
-  def var char-val as cha no-undo.
-  def var look-recid as recid no-undo.
-  DEF VAR li AS INT NO-UNDO.
-  DEF VAR lw-focus AS WIDGET-HANDLE NO-UNDO.
+  DEFINE VARIABLE char-val      AS CHARACTER     NO-UNDO.
+  DEFINE VARIABLE look-recid    AS RECID         NO-UNDO.
+  DEFINE VARIABLE li            AS INTEGER       NO-UNDO.
+  DEFINE VARIABLE lw-focus      AS WIDGET-HANDLE NO-UNDO.
+  DEFINE VARIABLE cFieldsValue  AS CHARACTER     NO-UNDO.
+  DEFINE VARIABLE cFoundValue   AS CHARACTER     NO-UNDO.
+  DEFINE VARIABLE recFoundRecID AS RECID         NO-UNDO.
+   
   lw-focus = FOCUS.                         
     case lw-focus:name :
          WHEN "begin_cust-no" THEN DO:
@@ -342,15 +346,33 @@ DO:
               END.
          END.
          WHEN "begin_slmn" THEN DO:
-            RUN windows/l-sman2.w (g_company, OUTPUT char-val).
-            IF char-val NE "" THEN 
-            ASSIGN begin_slmn:SCREEN-VALUE IN FRAME {&FRAME-NAME} = ENTRY(1,char-val).
+              RUN system/openLookup.p (
+                INPUT  g_company, 
+                INPUT  "",  /* Lookup ID */
+                INPUT  29,  /* Subject ID */
+                INPUT  "",  /* User ID */
+                INPUT  0,   /* Param Value ID */
+                OUTPUT cFieldsValue, 
+                OUTPUT cFoundValue, 
+                OUTPUT recFoundRecID
+                ). 
+            IF cFoundValue NE "" THEN 
+            ASSIGN begin_slmn:SCREEN-VALUE IN FRAME {&FRAME-NAME} = cFoundValue.
          END.
 
          WHEN "end_slmn" THEN DO:
-            RUN windows/l-sman2.w (g_company, OUTPUT char-val).
-            IF char-val NE "" THEN 
-            ASSIGN end_slmn:SCREEN-VALUE IN FRAME {&FRAME-NAME} = ENTRY(1,char-val).
+              RUN system/openLookup.p (
+                INPUT  g_company, 
+                INPUT  "",  /* Lookup ID */
+                INPUT  29,  /* Subject ID */
+                INPUT  "",  /* User ID */
+                INPUT  0,   /* Param Value ID */
+                OUTPUT cFieldsValue, 
+                OUTPUT cFoundValue, 
+                OUTPUT recFoundRecID
+                ).
+            IF cFoundValue NE "" THEN 
+            ASSIGN end_slmn:SCREEN-VALUE IN FRAME {&FRAME-NAME} = cFoundValue.
          END.
 
     end case.

@@ -1228,10 +1228,22 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_sman B-table-Win
 ON HELP OF fi_sman IN FRAME F-Main
 DO:
-    DEFINE VARIABLE char-val AS cha NO-UNDO.
-    RUN windows/l-sman.w (g_company, OUTPUT char-val).
-    IF char-val NE "" THEN 
-        {&SELF-NAME}:screen-value = ENTRY(1,char-val).
+    DEFINE VARIABLE cFieldsValue  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFoundValue   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE recFoundRecID AS RECID     NO-UNDO.
+  
+    RUN system/openLookup.p (
+        INPUT  g_company, 
+        INPUT  "",  /* Lookup ID */
+        INPUT  29,  /* Subject ID */
+        INPUT  "",  /* User ID */
+        INPUT  0,   /* Param Value ID */
+        OUTPUT cFieldsValue, 
+        OUTPUT cFoundValue, 
+        OUTPUT recFoundRecID
+        ).
+    IF cFoundValue NE "" THEN 
+        {&SELF-NAME}:screen-value = cFoundValue.
 END.
 
 /* _UIB-CODE-BLOCK-END */
