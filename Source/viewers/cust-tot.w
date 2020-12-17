@@ -670,7 +670,8 @@ PROCEDURE local-display-fields :
   {methods/viewers/rowavail.i}
 
   RUN Display-Field ("ptd-sales").
-
+  RUN display-Account-Type.
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -738,6 +739,30 @@ PROCEDURE recalc-tot :
 
     FIND CURRENT cust NO-LOCK.
     RUN dispatch ("display-fields").
+  END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE display-Account-Type V-table-Win 
+PROCEDURE display-Account-Type :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  IF AVAIL cust THEN
+  DO WITH FRAME {&FRAME-NAME}:
+    CASE cust.accountType:
+      WHEN "" THEN cust.accountType:SCREEN-VALUE = "  ".   /* value refresh with blank value*/   
+      WHEN "Split" THEN cust.accountType:SCREEN-VALUE = "Split".  
+      WHEN "Originated" THEN cust.accountType:SCREEN-VALUE = "Originated".
+      WHEN "Handed" THEN cust.accountType:SCREEN-VALUE = "Handed".
+          OTHERWISE cust.accountType:SCREEN-VALUE = "".
+    END CASE.
   END.
 
 END PROCEDURE.
