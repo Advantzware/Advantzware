@@ -1392,6 +1392,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     RUN pGetFavorites.
     RUN pLoadFavorites.
     menuTreeMsg:HIDDEN = YES.
+    RUN pMenuSize.
     RUN pDisplayMenuTree (FRAME menuTreeFrame:HANDLE, "file", YES, 1).
     {system/runCueCard.i}
     RUN sys/ref/nk1look.p (
@@ -1568,7 +1569,7 @@ PROCEDURE pBuildttMenuTree :
         "file",               /* parent            */
         "exit",               /* child             */
         "Exit",               /* text              */
-        "logout.png", /* image             */
+        "logout.ico", /* image             */
         "X",                  /* mnemonic          */
         cShowMnemonic,        /* show mnemonic     */
         cPositionMnemonic,    /* position mnemonic */
@@ -2121,7 +2122,7 @@ PROCEDURE pMenuSize :
                 ttMenuTree.hLevel:WIDTH  = dObjectWidth
                 ttMenuTree.hLevel:HEIGHT = dObjectHeight
                 .
-            ttMenuTree.hLevel:LOAD-IMAGE(SEARCH(cImageFolder + "plus.png")).
+            ttMenuTree.hLevel:LOAD-IMAGE(SEARCH(cImageFolder + "plus.ico")).
         END. /* if hlevel */
         IF VALID-HANDLE(ttMenuTree.hImage) THEN DO:
             ASSIGN

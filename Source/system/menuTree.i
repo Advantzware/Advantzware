@@ -145,7 +145,7 @@ PROCEDURE pClickMenuTree:
               AND bttMenuTree.level  GE ttMenuTree.level
             :
             IF NOT bttMenuTree.lWidgetExist THEN NEXT.
-            bttMenuTree.hLevel:LOAD-IMAGE(SEARCH(cImageFolder + "minus.png")).
+            bttMenuTree.hLevel:LOAD-IMAGE(SEARCH(cImageFolder + "plus.ico")).
             bttMenuTree.isOpen = NO.
         END. /* each bttmenutree */
         IF ttMenuTree.isOpen THEN
@@ -153,10 +153,11 @@ PROCEDURE pClickMenuTree:
         ASSIGN
             ttMenuTree.isOpen = NOT ttMenuTree.isOpen
             cImage = SEARCH(cImageFolder
-                   + IF ttMenuTree.isOpen THEN "minus.png"
-                     ELSE "plus.png")
+                   + IF ttMenuTree.isOpen THEN "minus.ico"
+                     ELSE "plus.ico")
                    .
         ttMenuTree.hLevel:LOAD-IMAGE(cImage).
+        
         RUN pDisplayMenuTree (
             iphWidget:FRAME:HANDLE,
             ttMenuTree.treeChild,
@@ -278,9 +279,6 @@ PROCEDURE pCreatettMenuTree:
                     SENSITIVE = YES
                     WIDTH = dObjectWidth
                    HEIGHT = dObjectHeight
-                //    HEIGHT-PIXELS = 16
-                 //   WIDTH-PIXELS = 16
-                  //  STRETCH-TO-FIT = YES
                     TRANSPARENT = YES
                     PRIVATE-DATA = "," + STRING(ROWID(ttMenuTree))                
               TRIGGERS:
@@ -289,8 +287,10 @@ PROCEDURE pCreatettMenuTree:
               END TRIGGERS.
             IF VALID-HANDLE(hWidget) THEN DO:
                 ttMenuTree.hLevel = hWidget. 
-                hWidget:LOAD-IMAGE(SEARCH(cImageFolder + "plus.png")).
+                hWidget:LOAD-IMAGE(SEARCH(cImageFolder + "plus.ico")).
             END.
+            hWidget:HEIGHT-PIXELS = 16.
+            hWidget:WIDTH-PIXELS = 16.
         END. /* if ismenu */
             
 
@@ -305,9 +305,6 @@ PROCEDURE pCreatettMenuTree:
                 HIDDEN = YES
               WIDTH = dObjectWidth
                 HEIGHT = dObjectHeight
-        //    HEIGHT-PIXELS = 16
-         //   WIDTH-PIXELS = 16
-         //   STRETCH-TO-FIT = YES
                 TRANSPARENT = YES
             RETAIN-SHAPE = TRUE
                 PRIVATE-DATA = "," + STRING(ROWID(ttMenuTree))
@@ -420,9 +417,10 @@ PROCEDURE pDisplayMenuTree:
 
     IF ipcParent <> "file" AND
        lookup(ipcParent, cMenuCreated,"," ) LE 0 THEN 
-
-        RUN pBuildttMenuTree(ipcParent).
-
+       DO:       
+           RUN pBuildttMenuTree(ipcParent).
+           RUN pMenuSize.
+       END.
         
     cMenuCreated = cMenuCreated + "," + ipcParent.
         

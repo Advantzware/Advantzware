@@ -1029,6 +1029,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   RUN pGetUsers.
   RUN pBuildttMenuTree("file").
   menuTreeMsg:HIDDEN = YES.
+  RUN pMenuSize.
   RUN pDisplayMenuTree (FRAME menuTreeFrame:HANDLE, "file", YES, 1).
   WAIT-FOR GO OF FRAME {&FRAME-NAME}.
 END.
