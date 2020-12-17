@@ -1437,7 +1437,7 @@ PROCEDURE openQuery:
 
 &ELSEIF '{&yellowColumnsName}' EQ 'dMultiSelectItem' &THEN
   &SCOPED-DEFINE SORTBY-PHRASE BY ~
-  IF sortColumn EQ '#Up' THEN string(ttMultiSelectItem.multiplier,"999999999") ELSE ~
+  IF sortColumn EQ 'Molds' THEN string(ttMultiSelectItem.multiplier,"999999999") ELSE ~
   IF sortColumn EQ 'Quantity To Order' THEN string(ttMultiSelectItem.quantityToOrder,"-999999999")  ELSE ~
   IF sortColumn EQ 'Earliest Due Date' THEN STRING(YEAR(ttMultiSelectItem.dateDueDateEarliest),'9999') + ~
                                    STRING(MONTH(ttMultiSelectItem.dateDueDateEarliest),'99') + ~
@@ -1446,7 +1446,7 @@ PROCEDURE openQuery:
   IF sortColumn EQ 'FG Name' THEN string(ttMultiSelectItem.itemName)  ELSE ~
   IF sortColumn EQ 'Min Level' THEN string(ttMultiSelectItem.quantityReorderLevel,"-999999999")  ELSE ~
   IF sortColumn EQ 'On Hand' THEN string(ttMultiSelectItem.quantityOnHand,"-999999999")  ELSE ~
-  IF sortColumn EQ 'On Order' THEN string(ttMultiSelectItem.quantityOnOrder,"-999999999")  ELSE ~
+  IF sortColumn EQ 'Scheduled for Jobs' THEN string(ttMultiSelectItem.quantityOnOrder,"-999999999")  ELSE ~
   IF sortColumn EQ 'Allocated' THEN string(ttMultiSelectItem.quantityAllocated,"-999999999")  ELSE ~
   IF sortColumn EQ 'Available' THEN string(ttMultiSelectItem.quantityAvailable,"-999999999")  ELSE ~
   IF sortColumn EQ 'Available On-Hand' THEN string(ttMultiSelectItem.availOnHand,"-999999999")  ELSE ~
@@ -1458,6 +1458,7 @@ PROCEDURE openQuery:
   IF sortColumn EQ 'Estimate' THEN string(ttMultiSelectItem.itemEstNO)  ELSE ~
   IF sortColumn EQ 'Style' THEN string(ttMultiSelectItem.itemStyle)  ELSE ~
   IF sortColumn EQ 'Warehouse' THEN string(ttMultiSelectItem.itemWhse)  ELSE ~
+  IF sortColumn EQ 'Furnish' THEN string(ttMultiSelectItem.board)  ELSE ~
      string(ttMultiSelectItem.itemID) ~{&SORTED}
 
 

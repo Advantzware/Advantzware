@@ -48,7 +48,8 @@ DEFINE TEMP-TABLE ttFGReorder NO-UNDO
     FIELD itemCustPart AS CHARACTER
     FIELD KeyItem AS LOGICAL 
     FIELD itemCustName AS CHARACTE
-    FIELD availOnHand AS INTEGER   
+    FIELD availOnHand AS INTEGER  
+    FIELD board AS CHARACTER 
     .  
     
 DEFINE TEMP-TABLE ttFGReorderSelection NO-UNDO 
