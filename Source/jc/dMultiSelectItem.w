@@ -63,7 +63,7 @@ RUN fgrep\fgReorder.p PERSISTENT SET hdFGReorder.
 &Scoped-define INTERNAL-TABLES ttMultiSelectItem
 
 /* Definitions for BROWSE BROWSE-2                                      */
-&Scoped-define FIELDS-IN-QUERY-BROWSE-2 ttMultiSelectItem.isSelected ttMultiSelectItem.multiplier ttMultiSelectItem.quantityToOrder ttMultiSelectItem.quantityToOrderSuggested ttMultiSelectItem.itemID ttMultiSelectItem.itemName ttMultiSelectItem.quantityReorderLevel ttMultiSelectItem.quantityOnHand ttMultiSelectItem.quantityOnOrder ttMultiSelectItem.quantityAllocated ttMultiSelectItem.quantityAvailable ttMultiSelectItem.availOnHand ttMultiSelectItem.dateDueDateEarliest ttMultiSelectItem.quantityReorderLevel ttMultiSelectItem.quantityMinOrder ttMultiSelectItem.quantityMaxOrder ttMultiSelectItem.itemCustPart ttMultiSelectItem.itemCust ttMultiSelectItem.itemCustName ttMultiSelectItem.itemEstNO ttMultiSelectItem.itemStyle ttMultiSelectItem.itemWhse   
+&Scoped-define FIELDS-IN-QUERY-BROWSE-2 ttMultiSelectItem.isSelected ttMultiSelectItem.multiplier ttMultiSelectItem.quantityToOrder ttMultiSelectItem.quantityToOrderSuggested ttMultiSelectItem.itemID ttMultiSelectItem.itemName ttMultiSelectItem.quantityReorderLevel ttMultiSelectItem.quantityOnHand ttMultiSelectItem.quantityOnOrder ttMultiSelectItem.quantityAllocated ttMultiSelectItem.quantityAvailable ttMultiSelectItem.availOnHand ttMultiSelectItem.dateDueDateEarliest ttMultiSelectItem.quantityReorderLevel ttMultiSelectItem.quantityMinOrder ttMultiSelectItem.quantityMaxOrder ttMultiSelectItem.itemCustPart ttMultiSelectItem.itemCust ttMultiSelectItem.itemCustName ttMultiSelectItem.itemEstNO ttMultiSelectItem.itemStyle ttMultiSelectItem.itemWhse ttMultiSelectItem.board  
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-2 ttMultiSelectItem.isSelected ttMultiSelectItem.multiplier ttMultiSelectItem.quantityToOrder   
 &Scoped-define ENABLED-TABLES-IN-QUERY-BROWSE-2 ttMultiSelectItem
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-BROWSE-2 ttMultiSelectItem
@@ -80,9 +80,9 @@ RUN fgrep\fgReorder.p PERSISTENT SET hdFGReorder.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-39 btExit btFilter cFGItem cStyle btOk ~
-cCat cLoc tb_sugg-qty BROWSE-2 
+cCat cLoc cBoard tb_sugg-qty BROWSE-2 
 &Scoped-Define DISPLAYED-OBJECTS fieventIDlb fiStyleLebel cFGItem cStyle ~
-fiCatLabel filocLabel cCat cLoc tb_sugg-qty fi_sortby
+fiCatLabel filocLabel fiBoardLabel cCat cLoc cBoard tb_sugg-qty fi_sortby
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -131,6 +131,11 @@ DEFINE VARIABLE cStyle AS CHARACTER FORMAT "X(8)":U
      VIEW-AS FILL-IN 
      SIZE 18.8 BY 1
      FONT 6 NO-UNDO.
+ 
+DEFINE VARIABLE cBoard AS CHARACTER FORMAT "X(10)":U 
+     VIEW-AS FILL-IN 
+     SIZE 18.8 BY 1
+     FONT 6 NO-UNDO.
 
 DEFINE VARIABLE fiCatLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Category" 
      VIEW-AS FILL-IN 
@@ -150,6 +155,11 @@ DEFINE VARIABLE filocLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Warehouse"
 DEFINE VARIABLE fiStyleLebel AS CHARACTER FORMAT "X(256)":U INITIAL "Style" 
      VIEW-AS FILL-IN 
      SIZE 11 BY 1
+     FONT 6 NO-UNDO.
+   
+DEFINE VARIABLE fiBoardLabel AS CHARACTER FORMAT "X(10)":U INITIAL "Furnish" 
+     VIEW-AS FILL-IN 
+     SIZE 14.6 BY 1
      FONT 6 NO-UNDO.
     
 DEFINE VARIABLE tb_sugg-qty AS LOGICAL INITIAL YES 
@@ -179,7 +189,7 @@ DEFINE BROWSE BROWSE-2
   QUERY BROWSE-2 NO-LOCK DISPLAY
       ttMultiSelectItem.isSelected COLUMN-LABEL "[ ] All" 
             WIDTH 8 VIEW-AS TOGGLE-BOX
-      ttMultiSelectItem.multiplier COLUMN-LABEL "#Up" FORMAT ">9" LABEL-BGCOLOR 14
+      ttMultiSelectItem.multiplier COLUMN-LABEL "Molds" FORMAT ">9" LABEL-BGCOLOR 14
       ttMultiSelectItem.quantityToOrder COLUMN-LABEL "Quantity To Order" FORMAT "->>>,>>>,>>9" LABEL-BGCOLOR 14
       ttMultiSelectItem.quantityToOrderSuggested COLUMN-LABEL "Suggested Reorder" FORMAT "->>>,>>>,>>9" LABEL-BGCOLOR 14
       ttMultiSelectItem.itemID COLUMN-LABEL "FG Item" FORMAT "x(15)":U WIDTH 23 LABEL-BGCOLOR 14
@@ -187,8 +197,8 @@ DEFINE BROWSE BROWSE-2
       ttMultiSelectItem.quantityReorderLevel COLUMN-LABEL "Min Level" FORMAT "->>>,>>>,>>9" LABEL-BGCOLOR 14
       ttMultiSelectItem.quantityOnHand COLUMN-LABEL "On Hand" FORMAT "->>,>>>,>>9":U
             WIDTH 13 LABEL-BGCOLOR 14
-      ttMultiSelectItem.quantityOnOrder COLUMN-LABEL "On Order" FORMAT "->>,>>>,>>9":U
-            WIDTH 15 LABEL-BGCOLOR 14 
+      ttMultiSelectItem.quantityOnOrder COLUMN-LABEL "Scheduled for Jobs" FORMAT "->>,>>>,>>9":U
+            WIDTH 22 LABEL-BGCOLOR 14 
       ttMultiSelectItem.quantityAllocated COLUMN-LABEL "Allocated" FORMAT "->>,>>>,>>9":U
             WIDTH 15 LABEL-BGCOLOR 14
       ttMultiSelectItem.quantityAvailable COLUMN-LABEL "Available" FORMAT "->>,>>>,>>9":U
@@ -200,7 +210,9 @@ DEFINE BROWSE BROWSE-2
       ttMultiSelectItem.quantityMinOrder COLUMN-LABEL "Minimum Order" FORMAT "->>,>>>,>>9":U
             WIDTH 19  LABEL-BGCOLOR 14
       ttMultiSelectItem.quantityMaxOrder COLUMN-LABEL "Maximum Order" FORMAT "->>,>>>,>>9":U
-            WIDTH 19 LABEL-BGCOLOR 14       
+            WIDTH 19 LABEL-BGCOLOR 14
+      ttMultiSelectItem.board COLUMN-LABEL "Furnish" FORMAT "x(10)":U
+            WIDTH 15  LABEL-BGCOLOR 14      
       ttMultiSelectItem.itemCustPart COLUMN-LABEL "Customer Part" FORMAT "x(15)":U
             WIDTH 23  LABEL-BGCOLOR 14
       ttMultiSelectItem.itemCust COLUMN-LABEL "Customer" FORMAT "x(8)":U
@@ -233,11 +245,13 @@ DEFINE FRAME Dialog-Frame
      cCat AT ROW 2.41 COL 31 COLON-ALIGNED NO-LABEL WIDGET-ID 70
      cLoc AT ROW 2.41 COL 51.2 COLON-ALIGNED NO-LABEL WIDGET-ID 74
      cStyle AT ROW 2.41 COL 71.6 COLON-ALIGNED NO-LABEL WIDGET-ID 66
+     cBoard  AT ROW 2.41 COL 91.6 COLON-ALIGNED NO-LABEL WIDGET-ID 80
      fiCatLabel AT ROW 1.36 COL 31 COLON-ALIGNED NO-LABEL WIDGET-ID 72
      filocLabel AT ROW 1.36 COL 51.2 COLON-ALIGNED NO-LABEL WIDGET-ID 76 
+     fiBoardLabel AT ROW 1.36 COL 91.6 COLON-ALIGNED NO-LABEL WIDGET-ID 78
      tb_sugg-qty AT ROW 3.55 COL 45.6 WIDGET-ID 6
-     btFilter AT ROW 1.71 COL 100.4 WIDGET-ID 18
-     btOk AT ROW 2.81 COL 124 WIDGET-ID 24
+     btFilter AT ROW 1.71 COL 114.4 WIDGET-ID 18
+     btOk AT ROW 2.81 COL 125.5 WIDGET-ID 24
      BROWSE-2 AT ROW 4.81 COL 2 WIDGET-ID 200     
      btExit AT ROW 1.24 COL 149 WIDGET-ID 326
      " Filter" VIEW-AS TEXT
@@ -299,6 +313,8 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fi_sortby IN FRAME Dialog-Frame
    NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiBoardLabel IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */   
 ASSIGN 
     fi_sortby:HIDDEN IN FRAME Dialog-Frame = TRUE.   
 ASSIGN 
@@ -314,15 +330,16 @@ ASSIGN
 /* Query rebuild information for BROWSE BROWSE-2
      _START_FREEFORM
 OPEN QUERY {&SELF-NAME} FOR EACH ttMultiSelectItem
+      ~{&SORTBY-PHRASE}.
      _END_FREEFORM
-     _Options          = "NO-LOCK INDEXED-REPOSITION"
+     _Options          = "NO-LOCK INDEXED-REPOSITION SORTBY-PHRASE"
      _Query            is OPENED
 */  /* BROWSE BROWSE-2 */
 &ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _QUERY-BLOCK DIALOG-BOX Dialog-Frame
 /* Query rebuild information for DIALOG-BOX Dialog-Frame
-     _Options          = "SHARE-LOCK"
+     _Options          = "SHARE-LOCK SORTBY-PHRASE"
      _Query            is NOT OPENED
 */  /* DIALOG-BOX Dialog-Frame */
 &ANALYZE-RESUME
@@ -585,9 +602,9 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY fieventIDlb fiStyleLebel cFGItem cStyle fiCatLabel filocLabel cCat 
-          cLoc tb_sugg-qty 
+          fiBoardLabel cLoc cBoard tb_sugg-qty 
       WITH FRAME Dialog-Frame.
-  ENABLE RECT-39 btExit btFilter cFGItem cStyle btOk cCat cLoc tb_sugg-qty BROWSE-2 
+  ENABLE RECT-39 btExit btFilter cFGItem cStyle btOk cCat cLoc cBoard tb_sugg-qty BROWSE-2 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
@@ -625,15 +642,16 @@ PROCEDURE repo-query :
          EMPTY TEMP-TABLE ttMultiSelectItem.
          EMPTY TEMP-TABLE ttFGReorder.
          EMPTY TEMP-TABLE ttFGReorderSelection.
-                  
+                 
          RUN BuildReport IN hdFGReorder (cocode, OUTPUT TABLE ttFGReorder).
-         
+           
          FOR EACH ttFGReorder  NO-LOCK
              WHERE ttFGReorder.company    eq cocode              
              and (ttFGReorder.itemID BEGINS cFGItem OR cFGItem EQ "")         
              and (ttFGReorder.productCategoryID BEGINS cCat OR cCat EQ "")
              AND (ttFGReorder.itemStyle BEGINS cStyle OR cStyle EQ "")
              AND (ttFGReorder.itemWhse BEGINS cLoc OR cLoc EQ "") 
+             AND (ttFGReorder.board BEGINS cBoard OR cBoard EQ "")
              AND (ttFGReorder.quantityToOrderSuggested GT 0 OR NOT tb_sugg-qty) :
                         
              CREATE ttMultiSelectItem.
@@ -656,7 +674,7 @@ PROCEDURE repo-query :
                     ttMultiSelectItem.dateDueDateEarliest = oe-ordl.req-date.
                     LEAVE.
                  END. 
-                 IF ttMultiSelectItem.dateDueDateEarliest EQ ? THEN ttMultiSelectItem.dateDueDateEarliest = 01/01/0001.
+                 IF ttMultiSelectItem.dateDueDateEarliest EQ ? THEN ttMultiSelectItem.dateDueDateEarliest = 01/01/0001.                 
          END.
      END.
 

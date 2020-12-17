@@ -114,13 +114,25 @@ PROCEDURE BuildReport:
                 ttFGReorder.quantityAvailable = dQuantityOnHand + dQuantityOnOrder - dQuantityAllocated
                 ttFGReorder.quantityToOrderSuggested = MAX(0,ttFGReorder.quantityReorderLevel - ttFGReorder.quantityAvailable)
                 .
+            FIND FIRST eb NO-LOCK
+                 WHERE eb.company EQ itemfg.company
+                 AND eb.est-no EQ itemfg.est-no
+                 AND eb.stock-no EQ itemfg.i-no NO-ERROR .
+            IF AVAIL eb THEN
+            DO:
+              FIND FIRST ef NO-LOCK
+                   WHERE ef.company EQ itemfg.company
+                   AND ef.est-no EQ eb.est-no NO-ERROR .
+              IF AVAIL ef THEN
+                ASSIGN ttFGReorder.board = ef.board.
+            END.    
             IF ttFGReorder.quantityToOrderSuggested NE 0 AND ttFGReorder.quantityToOrderSuggested LT ttFGReorder.quantityMinOrder THEN 
                 ttFGReorder.quantityToOrderSuggested = ttFGReorder.quantityMinOrder.
             IF ttFGReorder.quantityMaxOrder NE 0 AND ttFGReorder.quantityToOrderSuggested GT ttFGReorder.quantityMaxOrder THEN 
                 ttFGReorder.quantityToOrderSuggested = ttFGReorder.quantityMaxOrder.
             ttFGReorder.quantityToOrder = ttFGReorder.quantityToOrderSuggested.
-            IF ttFGReorder.quantityToOrder EQ 0 THEN DELETE ttFGReorder.
-                
+            IF ttFGReorder.quantityToOrder EQ 0 THEN DELETE ttFGReorder.  
+            
         END.
     END.
 

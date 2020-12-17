@@ -116,7 +116,7 @@ DEFINE TEMP-TABLE ttCompareEst NO-UNDO
 &Scoped-define INTERNAL-TABLES ttInputEst
 
 /* Definitions for BROWSE BROWSE-1                                      */
-&Scoped-define FIELDS-IN-QUERY-BROWSE-1 ttInputEst.cStockNo ttInputEst.cPartName ttInputEst.iQuantityYield ttInputEst.iMolds ttInputEst.cFgEstNo ttInputEst.dSqFt   
+&Scoped-define FIELDS-IN-QUERY-BROWSE-1 ttInputEst.cStockNo ttInputEst.cPartName ttInputEst.iQuantityYield ttInputEst.iMolds ttInputEst.cFgEstNo ttInputEst.dSqFt ttInputEst.lKeyItem  
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-1   
 &Scoped-define SELF-NAME BROWSE-1
 &Scoped-define QUERY-STRING-BROWSE-1 FOR EACH ttInputEst WHERE ttInputEst.cCompany = cocode ~         ~{&SORTBY-PHRASE}
@@ -328,6 +328,7 @@ DEFINE BROWSE BROWSE-1
     ttInputEst.iMolds LABEL "Molds" FORMAT ">>>>>>9" WIDTH 15 LABEL-BGCOLOR 14
     ttInputEst.cFgEstNo LABEL "Estimate" FORMAT "x(8)" WIDTH 18 LABEL-BGCOLOR 14
     ttInputEst.dSqFt LABEL "Total Sq Ft" FORMAT "->>,>>>,>>9.99" WIDTH 20 LABEL-BGCOLOR 14
+    ttInputEst.lKeyItem LABEL "Key Item" FORMAT "Yes/No" WIDTH 15 LABEL-BGCOLOR 14
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 151.6 BY 13.05
@@ -555,10 +556,7 @@ DO:
        DEFINE VARIABLE lv-rowid AS ROWID NO-UNDO.
        DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
        DEFINE VARIABLE dTotalCyclesRequired AS DECIMAL NO-UNDO.
-       DEFINE BUFFER bf-ttInputEst FOR ttInputEst.
-       
-       RUN valid-mach(OUTPUT lError) NO-ERROR.
-       IF lError THEN RETURN NO-APPLY.
+       DEFINE BUFFER bf-ttInputEst FOR ttInputEst.       
                             
        RUN jc/dMultiSelectItem.w (OUTPUT dTotalCyclesRequired, OUTPUT TABLE ttFGReorderSelection) . 
        
@@ -656,6 +654,11 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-imp-bal D-Dialog
 ON CHOOSE OF btn-imp-bal IN FRAME D-Dialog /* Import Remaining Balances */
 DO:
+    DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
+    RUN valid-mach(OUTPUT lError) NO-ERROR.
+            IF lError THEN RETURN NO-APPLY. 
+            
+    RUN pImportRemaingBalance.        
         
     END.
 
@@ -909,7 +912,7 @@ ON LEAVE OF cMachCode IN FRAME D-Dialog /* Line */
 DO:
         DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
    
-        IF LASTKEY NE -1 THEN 
+        IF LASTKEY NE -1 AND cMachCode:SCREEN-VALUE NE "" THEN 
         DO:
             RUN valid-mach(OUTPUT lError) NO-ERROR.
             IF lError THEN RETURN NO-APPLY.
@@ -926,6 +929,18 @@ DO:
         IF cMachCode:SCREEN-VALUE NE "" THEN 
         DO:
             RUN pNewMachine.
+        END. 
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL iTargetCyl D-Dialog
+ON VALUE-CHANGED OF iTargetCyl IN FRAME D-Dialog /* Target Cycles */
+DO:     
+        IF INTEGER(iTargetCyl:SCREEN-VALUE) GT 0 THEN 
+        DO:
+            RUN pTargetCycles.
         END. 
     END.
 
@@ -960,7 +975,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     {methods/nowait.i}     
     DO WITH FRAME {&frame-name}:  
         
-        DISABLE btn-viewjob btn-imp-bal btn-sel-head tb_auto.
+        DISABLE btn-viewjob btn-sel-head tb_auto.
         ASSIGN
          cJobNo:HIDDEN = YES
          dtCreatedDate:HIDDEN = YES 
@@ -1360,3 +1375,132 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pTargetCycles D-Dialog 
+PROCEDURE pTargetCycles :
+/*------------------------------------------------------------------------------
+          Purpose:     
+          Parameters:  <none>
+          Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lv-rowid  AS ROWID NO-UNDO.
+    DEFINE BUFFER bf-ttInputEst FOR ttInputEst.
+    
+    DO WITH FRAME {&FRAME-NAME}:                       
+       FOR EACH bf-ttInputEst :
+          bf-ttInputEst.iQuantityYield = INTEGER(iTargetCyl:SCREEN-VALUE) * bf-ttInputEst.iMolds .    
+                  
+       END.
+       
+            
+    END.
+    RUN repo-query (lv-rowid).               
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pImportRemaingBalance D-Dialog 
+PROCEDURE pImportRemaingBalance :
+/*------------------------------------------------------------------------------
+          Purpose:     
+          Parameters:  <none>
+          Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lv-rowid  AS ROWID NO-UNDO.
+    DEFINE VARIABLE cMachineCode AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iJob AS INTEGER NO-UNDO.
+    DEFINE VARIABLE dTotalCyclesRequired AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dQuantityCyclesRequired AS DECIMAL NO-UNDO.    
+    DEFINE VARIABLE iQuantityReorderLevel AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iQuantityAvailable AS INTEGER NO-UNDO.
+    DEFINE VARIABLE dQuantityToOrderSuggested AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dtDateDueDateEarliest AS DATE NO-UNDO.
+    
+    DEFINE BUFFER bf-ttInputEst FOR ttInputEst.
+    
+    cMachineCode =  cMachCode:SCREEN-VALUE IN FRAME {&FRAME-NAME}.
+    
+    FOR EACH job-mch NO-LOCK
+         WHERE job-mch.company EQ cocode
+         AND job-mch.m-code EQ cMachineCode 
+         BY job-mch.end-date DESC BY job-mch.end-time :
+         
+        iJob = job-mch.job .
+        LEAVE.
+    END.
+    FOR EACH job-hdr NO-LOCK
+        WHERE job-hdr.company EQ cocode
+        AND job-hdr.job EQ iJob 
+        AND job-hdr.keyItem NE YES:           
+        
+        FIND FIRST bf-ttInputEst NO-LOCK
+                WHERE bf-ttInputEst.cStockNo EQ job-hdr.i-no NO-ERROR .
+           IF not AVAIL bf-ttInputEst THEN
+           DO:  
+               FIND FIRST eb NO-LOCK 
+                    WHERE eb.company EQ cocode
+                    AND eb.est-no EQ job-hdr.est-no 
+                    AND eb.stock-no EQ job-hdr.i-no NO-ERROR .
+               
+               CREATE bf-ttInputEst.
+                ASSIGN
+                    bf-ttInputEst.cEstType = "MoldTandem"
+                    bf-ttInputEst.cSetType = "MoldEstTandem"
+                    bf-ttInputEst.cCompany = cocode 
+                    bf-ttInputEst.cStockNo = job-hdr.i-no
+                    bf-ttInputEst.iMolds   = IF AVAIL eb THEN eb.num-up ELSE 1
+                    bf-ttInputEst.iQuantityYield = 1 
+                    bf-ttInputEst.lKeyItem = NO 
+                    lv-rowid               = ROWID(bf-ttInputEst).
+                    
+                    FIND FIRST itemfg NO-LOCK 
+                         WHERE itemfg.company EQ cocode
+                         AND itemfg.i-no EQ job-hdr.i-no NO-ERROR .
+               dQuantityToOrderSuggested = 0.          
+               IF AVAILABLE itemfg THEN
+               DO:
+               ASSIGN
+                  bf-ttInputEst.cPartName = itemfg.i-name 
+                  bf-ttInputEst.cFgEstNo  = itemfg.est-no
+                  bf-ttInputEst.dSqFt = itemfg.t-sqft * bf-ttInputEst.iMolds
+                  
+                  iQuantityReorderLevel = itemfg.ord-level
+                  iQuantityAvailable = itemfg.q-onh + itemfg.q-ono - itemfg.q-alloc
+                  dQuantityToOrderSuggested = MAX(0,iQuantityReorderLevel - iQuantityAvailable)
+                  bf-ttInputEst.quantityToOrderSuggested = dQuantityToOrderSuggested.
+                  
+                  
+               ASSIGN   
+                 dQuantityCyclesRequired  = dQuantityToOrderSuggested / (MAXIMUM(1,bf-ttInputEst.iMolds))
+                 dTotalCyclesRequired = IF dTotalCyclesRequired EQ 0 THEN dQuantityCyclesRequired ELSE IF dQuantityCyclesRequired  LT dTotalCyclesRequired  THEN dQuantityCyclesRequired  ELSE  dTotalCyclesRequired .
+                  
+               END. 
+               FOR EACH oe-ordl NO-LOCK
+                  WHERE oe-ordl.company EQ cocode
+                  AND oe-ordl.opened EQ YES
+                  AND oe-ordl.stat NE 'C'
+                  AND oe-ordl.i-no EQ job-hdr.i-no
+                  BREAK BY oe-ordl.req-date DESC:      
+                    IF dtDateDueDateEarliest EQ ? OR (dtDateDueDateEarliest NE ? AND oe-ordl.req-date GT dtDateDueDateEarliest)  THEN
+                    dtDateDueDateEarliest = oe-ordl.req-date.
+                  LEAVE.
+               END. 
+               IF dQuantityToOrderSuggested EQ 0 THEN DELETE bf-ttInputEst. 
+           END.          
+    END.
+    IF dtDateDueDateEarliest NE ? THEN
+    dtDueDate:SCREEN-VALUE IN FRAME {&FRAME-NAME} = string(dtDateDueDateEarliest) .
+    
+    FOR EACH bf-ttInputEst :
+      bf-ttInputEst.iQuantityYield = bf-ttInputEst.iMolds *  dTotalCyclesRequired . 
+      bf-ttInputEst.lKeyItem = bf-ttInputEst.quantityToOrderSuggested EQ (MAXIMUM(1,bf-ttInputEst.iMolds) *  dTotalCyclesRequired ) . 
+      iTargetCyl:SCREEN-VALUE IN FRAME {&FRAME-NAME} =  STRING(dTotalCyclesRequired) .       
+    END.
+    
+    RUN repo-query (lv-rowid).               
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
