@@ -6950,7 +6950,7 @@ PROCEDURE ipUpdateSQLSettings:
     INPUT CLOSE.
     IF cSQLDbPort EQ "" THEN ASSIGN 
         cSQLDbPort = ipcPort.
-    OUTPUT TO VALUE(cAdminDir).
+    OUTPUT TO VALUE(cAdminDir + "\SQLParms.txt").
     PUT UNFORMATTED "dbname=" + ipcName + CHR(10).         
     PUT UNFORMATTED "dbport=" + cSQLDbPort + CHR(10).         
     PUT UNFORMATTED "cusername=asi" + CHR(10).         

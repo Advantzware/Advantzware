@@ -1,4 +1,4 @@
-@echo off
+::@echo off
 
 SET iniFile=..\Admin\advantzware.ini
 SET tgtDir=..\Admin\EnvAdmin
@@ -110,6 +110,7 @@ goto SETPARAMS
 
 :START
 ::   type "%DLC%"\version
-%JVMSTRT% -a "%TOOLSPROP%"::%TOOLSGRP% -o stderr -s -m silent "%JVM%" -DInstall.Dir="%DLC%" %PROSQLJVMARGS% %SQLEXPCLASS% %PARMS%
+CALL %JVMSTRT% -a "%TOOLSPROP%"::%TOOLSGRP% -o NUL -s -m silent "%JVM%" -DInstall.Dir="%DLC%" %PROSQLJVMARGS% %SQLEXPCLASS% %PARMS% > NUL
 
 :END
+::EXIT

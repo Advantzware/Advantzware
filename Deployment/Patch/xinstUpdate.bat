@@ -101,7 +101,7 @@ CALL !DLCDir!\bin\prowin.exe -basekey INI -ininame dbms.ini -pf advantzware.pf -
 CD ..\..\Updates
 
 :: Run the batch program to update SQL permissions
-xUpdateSQLPermissions.bat
+CALL xUpdateSQLPermissions.bat
 DEL /Q ..\Admin\SQLparms.txt
 
 :: Switch progress.cfg back to .run version
@@ -122,17 +122,8 @@ cd ..\Desktop
 IF EXIST "ASI Update" (
     DEL /S /Q "ASI Update"* > NUL
 )
-
-CD ..\Admin
-DEL /Q SQLparms.txt > NUL
-
 :QUIT
-@ECHO OFF
 CD ..\Admin\EnvAdmin
-CLS
-SET /p cDoMore="Do you want to repeat this update? (Y/N)"
-IF /I NOT "%cDoMore%"=="Y" ( 
-    EmptyFolder.bat
-)
+EmptyFolder.bat
 EXIT
 
