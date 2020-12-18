@@ -2061,10 +2061,12 @@ PROCEDURE setBOLRange:
                         AND INDEX(vcHoldStats, b-{&head}1.stat) EQ 0:
 
                         IF b-{&head}1.{&bolno} LT INT(begin_bol-SCREEN-VALUE) THEN
-                            opbegin_bol-SCREEN-VALUE = STRING(b-{&head}1.{&bolno}).
-
-                        IF b-{&head}1.{&bolno} GT INT(end_bol-SCREEN-VALUE) THEN
+                        DO:
+                          ASSIGN
+                            opbegin_bol-SCREEN-VALUE = STRING(b-{&head}1.{&bolno})
                             opend_bol-SCREEN-VALUE = STRING(b-{&head}1.{&bolno}).
+                            LEAVE.
+                        END.                          
                     END.
                     
                     IF int(begin_bol-SCREEN-VALUE) EQ 0 THEN opbegin_bol-SCREEN-VALUE = "0".
