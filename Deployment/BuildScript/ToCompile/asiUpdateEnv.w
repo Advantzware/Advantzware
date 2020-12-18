@@ -1045,118 +1045,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipArchiveFiles C-Win 
-PROCEDURE ipArchiveFiles :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    RUN ipStatus ("Archiving ASI System Files").
-
-    DEF VAR cCmdZip AS CHAR NO-UNDO.
-    DEF VAR lProdExists AS LOG NO-UNDO.
-    DEF VAR lProdOverExists AS LOG NO-UNDO.
-    
-    FILE-INFO:FILE-NAME = cEnvProdDir.
-    ASSIGN
-        lSuccess = FALSE 
-        lProdExists = FILE-INFO:FULL-PATHNAME NE ?.
-        
-    IF SEARCH(cUpdProgramDir + "\programs.7z") NE ? THEN DO:
-        RUN ipStatus ("Archiving old program files").
-
-        /* Default is to pull from Env\Prod, but if not found, will also search root drive and Rcode */
-        IF SEARCH(cEnvProdDir + "\Programs\nosweat.r") NE ? THEN DO:
-            ASSIGN
-                cCmdZip = cUpdProgramDir + "\7z.exe a " + 
-                          cPgmBackup + "\Programs" + 
-                          STRING(YEAR(TODAY)) +
-                          STRING(MONTH(TODAY),"99") +
-                          STRING(DAY(TODAY),"99") + ".7z " +
-                          cEnvProdDir + "\Programs\*".
-            OS-COMMAND SILENT VALUE(cCmdZip).
-        END.    
-        ELSE IF SEARCH(cMapDir + "\Programs\nosweat.r") NE ? THEN DO:
-            ASSIGN
-                cCmdZip = cUpdProgramDir + "\7z.exe a " + 
-                          cPgmBackup + "\Programs" + 
-                          STRING(YEAR(TODAY)) +
-                          STRING(MONTH(TODAY),"99") +
-                          STRING(DAY(TODAY),"99") + ".7z " +
-                          cMapDir + "\Programs\*".
-            OS-COMMAND SILENT VALUE(cCmdZip).
-        END.
-        ELSE IF SEARCH(cMapDir + "\Rcode\Programs\nosweat.r") NE ? THEN DO:
-            ASSIGN
-                cCmdZip = cUpdProgramDir + "\7z.exe a " + 
-                          cPgmBackup + "\Programs" + 
-                          STRING(YEAR(TODAY),"99") +
-                          STRING(MONTH(TODAY),"99") +
-                          STRING(DAY(TODAY)) + ".7z " +
-                          cMapDir + "\Rcode\Programs\*".
-            OS-COMMAND SILENT VALUE(cCmdZip).
-        END.
-    END.
-
-    IF SEARCH(cUpdProgramDir + "\resources.7z") NE ? THEN DO:
-        RUN ipStatus ("Archiving old resource files").
-
-        IF SEARCH(cEnvProdDir + "\Resources\quoter.exe") NE ? THEN DO:
-            ASSIGN
-                cCmdZip = cUpdProgramDir + "\7z.exe a " + 
-                          cResBackup + "\Resources" + 
-                          STRING(YEAR(TODAY)) +
-                          STRING(MONTH(TODAY),"99") +
-                          STRING(DAY(TODAY),"99") + ".7z " +
-                          cEnvProdDir + "\Resources\*".
-            OS-COMMAND SILENT VALUE(cCmdZip).
-        END.
-        ELSE IF SEARCH(cMapDir + "\Resources\quoter.exe") NE ? THEN DO:
-            ASSIGN
-                cCmdZip = cUpdProgramDir + "\7z.exe a " + 
-                          cResBackup + "\Resources" + 
-                          STRING(YEAR(TODAY)) +
-                          STRING(MONTH(TODAY),"99") +
-                          STRING(DAY(TODAY),"99") + ".7z " +
-                          cMapDir + "\Resources\*".
-            OS-COMMAND SILENT VALUE(cCmdZip).
-        END.
-        ELSE IF SEARCH(cMapDir + "\Rcode\Resources\quoter.exe") NE ? THEN DO:
-            ASSIGN
-                cCmdZip = cUpdProgramDir + "\7z.exe a " + 
-                          cResBackup + "\Resources" + 
-                          STRING(YEAR(TODAY)) +
-                          STRING(MONTH(TODAY),"99") +
-                          STRING(DAY(TODAY),"99") + ".7z " +
-                          cMapDir + "\Rcode\Resources\*".
-            OS-COMMAND SILENT VALUE(cCmdZip).
-        END.
-    END.
-
-    FILE-INFO:FILE-NAME = cEnvProdDir + "\Override".
-    ASSIGN
-        lProdOverExists = FILE-INFO:FULL-PATHNAME NE ?.
-    IF lProdOverExists THEN DO:
-        RUN ipStatus ("Archiving old hotfix files").
-        ASSIGN
-            cCmdZip = cUpdProgramDir + "\7z.exe a " + 
-                      cPgmBackup + "\Override" + 
-                      STRING(YEAR(TODAY)) +
-                      STRING(MONTH(TODAY),"99") +
-                      STRING(DAY(TODAY),"99") + ".7z " +
-                      cEnvProdDir + "\Override\*".
-        OS-COMMAND SILENT VALUE(cCmdZip).
-    END.
-
-    ASSIGN 
-        lSuccess = TRUE.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipAuditSysCtrl C-Win 
 PROCEDURE ipAuditSysCtrl :
 /*------------------------------------------------------------------------------
@@ -1527,62 +1415,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipBuildCustFilesTree C-Win 
-PROCEDURE ipBuildCustFilesTree :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    RUN ipStatus ("Creating CustFiles Structure").
-
-    DEF VAR cCmdLine1 AS CHAR NO-UNDO.
-    DEF VAR cCmdLine2 AS CHAR NO-UNDO.
-    DEF VAR cCmdLine3 AS CHAR NO-UNDO.
-    DEF VAR cFileType AS CHAR NO-UNDO.
-    DEF VAR lProdExists AS LOG NO-UNDO.
-    DEF VAR lTestExists AS LOG NO-UNDO.
-    DEF VAR lProdFilesExist AS LOG NO-UNDO.
-    DEF VAR lTestFilesExist AS LOG NO-UNDO.
-    DEF VAR cTestDir AS CHAR NO-UNDO.
-    DEF VAR cBaseDir AS CHAR NO-UNDO.
-    DEF VAR iNumPasses AS INT NO-UNDO.
-    DEF VAR cCmdLine AS CHAR NO-UNDO.
-    
-    FILE-INFO:FILE-NAME = cEnvProdDir.
-    ASSIGN
-        lProdExists = FILE-INFO:FULL-PATHNAME NE ?.
-    FILE-INFO:FILE-NAME = cEnvTestDir.
-    ASSIGN
-        lTestExists = FILE-INFO:FULL-PATHNAME NE ?
-        cCmdLine1 = cUpdProgramDir + "\7z.exe x ".
-    FILE-INFO:FILE-NAME = cEnvProdDir + "\CustFiles\Logs".
-    ASSIGN
-        lProdFilesExist = FILE-INFO:FULL-PATHNAME NE ?.
-    FILE-INFO:FILE-NAME = cEnvTestDir + "\CustFiles\Logs".
-    ASSIGN
-        lTestFilesExist = FILE-INFO:FULL-PATHNAME NE ?.
-    
-    IF lProdFilesExist
-    AND lTestFilesExist THEN RETURN.
-    
-    IF NOT lProdFilesExist
-    AND SEARCH(cUpdatesDir + "\" + "Patch" + cPatchNo + "\Deployment\CustFiles.7z") NE ? THEN DO:
-        ASSIGN
-            cCmdLine2 = cCmdLine1 + cUpdatesDir + "\" + "Patch" + cPatchNo + "\Deployment\CustFiles..7z -y -o".
-        IF lProdExists THEN DO:
-            OS-CREATE-DIR VALUE(cEnvProdDir + "\CustFiles").
-            ASSIGN
-                cCmdLine3 = cCmdLine2 + cEnvProdDir + "\CustFiles".
-            OS-COMMAND SILENT VALUE(cCmdLine3).
-        END.
-    END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipBuildDirs C-Win 
 PROCEDURE ipBuildDirs :
 /*------------------------------------------------------------------------------
@@ -1603,8 +1435,6 @@ PROCEDURE ipBuildDirs :
         OS-CREATE-DIR VALUE(cBadDir).
     END.
     
-    RUN ipBuildCustFilesTree.
-        
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3455,7 +3285,7 @@ PROCEDURE ipDataFix999999 :
     RUN ipLoadAPIConfigData.
     RUN ipLoadAPIData.
     RUN ipSetCueCards.
-    RUN ipDeleteAudit.
+/*    RUN ipDeleteAudit.*/
     RUN ipCleanTemplates.
     RUN ipLoadEstCostData.
     RUN ipChangeCostMethod.
@@ -3784,46 +3614,20 @@ PROCEDURE ipExpandFiles :
 
     RUN ipStatus ("  Expanding files...").
 
-    ASSIGN
-        cCmdLine1 = cUpdProgramDir + "\7z.exe x " + cUpdProgramDir + "\Override.7z -y -o" + cUpdProgramDir + "\Override"
-        cCmdLine2 = cUpdProgramDir + "\7z.exe x " + cUpdProgramDir + "\Programs.7z -y -o" + cUpdProgramDir + "\Programs"
-        cCmdLine3 = cUpdProgramDir + "\7z.exe x " + cUpdProgramDir + "\Resources.7z -y -o" + cUpdProgramDir + "\Resources".
-    
-    IF SEARCH(cUpdProgramDir + "\Override.7z") NE ? THEN DO:
-        OS-COMMAND SILENT VALUE(cCmdLine1).
-    END.
-    OS-COMMAND SILENT VALUE(cCmdLine2).
-    OS-COMMAND SILENT VALUE(cCmdLine3).
-
     /* Copy DataDigger saved files to CustFiles\DDBackups */
     OS-CREATE-DIR VALUE(cTgtEnv + "\CustFiles\DDBackups").
     OS-CREATE-DIR VALUE(cTgtEnv + "\CustFiles\DDBackups\Cache").
     OS-COPY VALUE(cTgtEnv + "\Programs\DataDigger\Datadigger-*.ini") VALUE(cTgtEnv + "\CustFiles\DDBackups").
     OS-COPY VALUE(cTgtEnv + "\Programs\DataDigger\Cache\*.*") VALUE(cTgtEnv + "\CustFiles\DDBackups\Cache").
     
-    /* Skip the copy part, just MOVE the files  */
-    RUN ipStatus ("  Moving expanded files from ").
+    /* Unzip/move breaks for any number of security reasons; just copy  */
+    RUN ipStatus ("  Copying system files from ").
     RUN ipStatus ("    " + cUpdProgramDir + " to").
     RUN ipStatus ("    " + cTgtEnv).
-    OS-RENAME VALUE(cUpdProgramDir + "\Override") VALUE(cTgtEnv + "\OverrideN").
-    OS-RENAME VALUE(cUpdProgramDir + "\Programs") VALUE(cTgtEnv + "\ProgramsN").
-    OS-RENAME VALUE(cUpdProgramDir + "\Resources") VALUE(cTgtEnv + "\ResourcesN").
 
-    /* Rename the old files to "O", then new files from "N", then delete "O" */
-    RUN ipStatus ("  Renaming old " + cThisEntry + " directories").
-    OS-RENAME VALUE(cTgtEnv + "\Override") VALUE(cTgtEnv + "\OverrideO").
-    OS-RENAME VALUE(cTgtEnv + "\Programs") VALUE(cTgtEnv + "\ProgramsO").
-    OS-RENAME VALUE(cTgtEnv + "\Resources") VALUE(cTgtEnv + "\ResourcesO").
-
-    RUN ipStatus ("  Moving temp directories in " + cThisEntry + " to permanents").
-    OS-RENAME VALUE(cTgtEnv + "\OverrideN") VALUE(cTgtEnv + "\Override").
-    OS-RENAME VALUE(cTgtEnv + "\ProgramsN") VALUE(cTgtEnv + "\Programs").
-    OS-RENAME VALUE(cTgtEnv + "\ResourcesN") VALUE(cTgtEnv + "\Resources").
-
-    RUN ipStatus ("  Deleting old files from " + cThisEntry + " directories").
-    OS-DELETE VALUE(cTgtEnv + "\OverrideO") RECURSIVE.
-    OS-DELETE VALUE(cTgtEnv + "\ProgramsO") RECURSIVE.
-    OS-DELETE VALUE(cTgtEnv + "\ResourcesO") RECURSIVE.
+    OS-COPY VALUE(cUpdProgramDir + "\Override\*.*") VALUE(cTgtEnv + "\Override").
+    OS-COPY VALUE(cUpdProgramDir + "\Resources\*.*") VALUE(cTgtEnv + "\Resources").
+    OS-COPY VALUE(cUpdProgramDir + "\Programs\*.*") VALUE(cTgtEnv + "\Programs").
 
     /* Now restore DD files from backed up copies and remove Backup dirs */
     OS-COPY VALUE(cTgtEnv + "\CustFiles\DDBackups\*.*") VALUE(cTgtEnv + "\Programs\DataDigger").
@@ -5815,17 +5619,6 @@ PROCEDURE ipProcessAll :
         iopiStatus = iopiStatus + 4
         rStatusBar:WIDTH = MIN(75,(iopiStatus / 100) * 75).
 
-    IF tbBackupFiles:CHECKED IN FRAME {&FRAME-NAME} THEN DO:
-        RUN ipArchiveFiles.
-        IF lSuccess EQ TRUE THEN ASSIGN 
-            iopiStatus = iopiStatus + 10
-            rStatusBar:WIDTH = MIN(75,(iopiStatus / 100) * 75).
-        ELSE RETURN.
-    END.
-    ELSE ASSIGN 
-        iopiStatus = iopiStatus + 10
-        rStatusBar:WIDTH = MIN(75,(iopiStatus / 100) * 75).
-    
     IF tbInstallFiles:CHECKED IN FRAME {&FRAME-NAME} THEN DO:
         RUN ipExpandFiles.
         IF lSuccess EQ TRUE THEN ASSIGN 

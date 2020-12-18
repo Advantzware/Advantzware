@@ -366,16 +366,19 @@ ECHO . >> %vlog%
 
 :FinalizePatch
 :ZipEnv
-ECHO Compressing distribution files (programs, resources, override)
-ECHO Compressing distribution files (programs, resources, override) >> %blog%
-ECHO Compressing distribution files (programs, resources, override) >> %vlog%
+ECHO Copying distribution files (programs, resources, override)
+ECHO Copying distribution files (programs, resources, override) >> %blog%
+ECHO Copying distribution files (programs, resources, override) >> %vlog%
 CD %buildDir%
-CALL C:\asigui\Admin\EnvAdmin\7z.exe a -r C:\asigui\upgrades\PATCH%cNewVer%\ProgramFiles\programs.7z C:\asigui\Environments\%cNewVer%\Programs\*.* >> %vlog%
-CALL C:\asigui\Admin\EnvAdmin\7z.exe a -r C:\asigui\upgrades\PATCH%cNewVer%\ProgramFiles\resources.7z C:\asigui\Environments\%cNewVer%\Resources\*.* >> %vlog%
-CALL C:\asigui\Admin\EnvAdmin\7z.exe a -r C:\asigui\upgrades\PATCH%cNewVer%\ProgramFiles\override.7z C:\asigui\Environments\%cNewVer%\Override\*.* >> %vlog%
-ECHO   Compression complete
-ECHO   Compression complete >> %blog%
-ECHO   Compression complete >> %vlog%
+MKDIR C:\asigui\upgrades\PATCH%cNewVer%\ProgramFiles\Programs
+MKDIR C:\asigui\upgrades\PATCH%cNewVer%\ProgramFiles\Resources
+MKDIR C:\asigui\upgrades\PATCH%cNewVer%\ProgramFiles\Override
+COPY /Y C:\asigui\Environments\%cNewVer%\Programs\*.* C:\asigui\upgrades\PATCH%cNewVer%\ProgramFiles\Programs >> %vlog%
+COPY /Y C:\asigui\Environments\%cNewVer%\Resources\*.* C:\asigui\upgrades\PATCH%cNewVer%\ProgramFiles\Resources >> %vlog%
+COPY /Y C:\asigui\Environments\%cNewVer%\Override\*.* C:\asigui\upgrades\PATCH%cNewVer%\ProgramFiles\Override >> %vlog%
+ECHO   Copy complete
+ECHO   Copy complete >> %blog%
+ECHO   Copy complete >> %vlog%
 ECHO .
 ECHO . >> %blog%
 ECHO . >> %vlog%
