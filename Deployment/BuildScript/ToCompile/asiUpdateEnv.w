@@ -3625,10 +3625,10 @@ PROCEDURE ipExpandFiles :
     RUN ipStatus ("    " + cUpdProgramDir + " to").
     RUN ipStatus ("    " + cTgtEnv).
 
-    OS-COPY VALUE(cUpdProgramDir + "\Override\*.*") VALUE(cTgtEnv + "\Override").
-    OS-COPY VALUE(cUpdProgramDir + "\Resources\*.*") VALUE(cTgtEnv + "\Resources").
-    OS-COPY VALUE(cUpdProgramDir + "\Programs\*.*") VALUE(cTgtEnv + "\Programs").
-
+    OS-COMMAND SILENT VALUE("XCOPY /S /Y " + cUpdProgramDir + "\Override\*.* " +  cTgtEnv + "\Override > NUL").
+    OS-COMMAND SILENT VALUE("XCOPY /S /Y " + cUpdProgramDir + "\Resources\*.* " +  cTgtEnv + "\Resources > NUL").
+    OS-COMMAND SILENT VALUE("XCOPY /S /Y " + cUpdProgramDir + "\Programs\*.* " +  cTgtEnv + "\Programs > NUL").
+    
     /* Now restore DD files from backed up copies and remove Backup dirs */
     OS-COPY VALUE(cTgtEnv + "\CustFiles\DDBackups\*.*") VALUE(cTgtEnv + "\Programs\DataDigger").
     OS-COPY VALUE(cTgtEnv + "\CustFiles\DDBackups\Cache\*.*") VALUE(cTgtEnv + "\\Programs\DataDigger\Cache").
