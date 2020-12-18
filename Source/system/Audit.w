@@ -44,7 +44,7 @@ CREATE WIDGET-POOL.
 {methods/defines/hndldefs.i}
 {methods/prgsecur.i}
 {methods/defines/sortByDefs.i}
-
+{methods/template/brwcustomdef.i}
 DEFINE VARIABLE lContinue          AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lHeaderSorting     AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE dtStartDateTime    AS DATETIME  NO-UNDO.
@@ -1121,6 +1121,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL AuditDetail C-Win
 ON START-SEARCH OF AuditDetail IN FRAME DEFAULT-FRAME /* Audit Detail */
 DO:
+	{methods/template/sortindicator.i} 
     IF {&BROWSE-NAME}:CURRENT-COLUMN:NAME NE ? THEN DO:
         cColumnLabel = BROWSE AuditDetail:CURRENT-COLUMN:NAME.
         IF cColumnLabel EQ cSaveLabel THEN
@@ -1134,6 +1135,7 @@ DO:
             .
         RUN pReopenBrowse.
     END.
+	{methods/template/sortindicatorend.i} 
     RETURN NO-APPLY.
 END.
 
@@ -1174,6 +1176,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL AuditHeader C-Win
 ON START-SEARCH OF AuditHeader IN FRAME DEFAULT-FRAME /* Audit Header */
 DO:
+	{methods/template/sortindicator.i} 
     IF {&BROWSE-NAME}:CURRENT-COLUMN:NAME NE ? THEN DO:
         cColumnLabel = BROWSE AuditHeader:CURRENT-COLUMN:NAME.
         IF cColumnLabel EQ cSaveLabel THEN
@@ -1187,6 +1190,7 @@ DO:
             .
         RUN pReopenBrowse.
     END.
+	{methods/template/sortindicatorend.i} 
     RETURN NO-APPLY.
 END.
 

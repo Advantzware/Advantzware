@@ -61,8 +61,9 @@ CREATE WIDGET-POOL.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON printAck 
-     IMAGE-UP FILE "Graphics/32x32/printer_ok.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/printerbtn.png":U
+	 IMAGE-DOWN FILE "Graphics/32x32/printer_hover.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/printer_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 7.8 BY 1.81 TOOLTIP "Print Acknowledgement".
 
@@ -73,7 +74,8 @@ DEFINE FRAME F-Main
      printAck AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE .
+         AT COL 1 ROW 1 SCROLLABLE 
+BGCOLOR 21.
 
 
 /* *********************** Procedure Settings ************************ */

@@ -19,18 +19,18 @@
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-def input param ip-recid AS recid no-undo.
-def input param ip-po-no LIKE po-ord.po-no no-undo.
-def output param op-rec-val as recid no-undo.
-def var v-term as cha no-undo.
-def var v-term-2 as cha no-undo.
+DEF INPUT PARAM ip-recid AS RECID NO-UNDO.
+DEF INPUT PARAM ip-po-no LIKE po-ord.po-no NO-UNDO.
+DEF OUTPUT PARAM op-rec-val AS RECID NO-UNDO.
+DEF VAR v-term AS cha NO-UNDO.
+DEF VAR v-term-2 AS cha NO-UNDO.
 DEF VAR v-col-move AS LOG NO-UNDO.
 {custom/globdefs.i}
 {sys/inc/VAR.i "new shared"}
 &scoped-define cellcolumnDat l-poven
 ASSIGN cocode = g_company
        locode = g_loc.
-
+{methods/template/brwcustomdef.i}
 DEF TEMP-TABLE tt-report NO-UNDO
     FIELD key-01 AS CHAR
     FIELD term-id AS CHAR
@@ -334,6 +334,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-1 Dialog-Frame
 ON START-SEARCH OF BROWSE-1 IN FRAME Dialog-Frame
 DO:
+  {methods/template/sortindicator.i} 
   DEF VAR lh-column AS HANDLE NO-UNDO.
   DEF VAR lv-column-nam AS CHAR NO-UNDO.
   DEF VAR lv-column-lab AS CHAR NO-UNDO.
@@ -354,6 +355,7 @@ DO:
 
   /*APPLY "open_query" TO BROWSE {&browse-name}.*/
   {&open-query-{&browse-name}}
+  {methods/template/sortindicatorend.i} 
 END.
 
 /* _UIB-CODE-BLOCK-END */

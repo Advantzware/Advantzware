@@ -58,7 +58,7 @@ END.
 &Scoped-define mainMenuBGColor 1
 &Scoped-define mainMenuFGColor 15
 &Scoped-define FGColor ?
-&Scoped-define BGColor 8
+&Scoped-define BGColor 32
 
 {methods/defines/globdefs.i}
 {methods/defines/hndldefs.i}
@@ -139,14 +139,15 @@ cEulaFile = SEARCH("{&EulaFile}").
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS imageSettings imageCompany menuLinkZoHo ~
-imageFolder imagePrinter imageScheduler imageRunUlitity 
+imageFolder imagePrinter imageScheduler imageRunUlitity RECT-24 RECT-25 ~
+fFollow 
 &Scoped-Define DISPLAYED-OBJECTS company_name loc_loc users_user_id ~
-Mnemonic 
+Mnemonic fFollow 
 
 /* Custom List Definitions                                              */
 /* searchFilters,List-2,List-3,List-4,List-5,colorPallet                */
-&Scoped-define searchFilters btnMoveDown menuTreeFilter btnMoveUp ~
-searchSelections btnRemove btnFavorite svFavoriteText 
+&Scoped-define searchFilters menuTreeFilter searchSelections btnMoveDown ~
+btnMoveUp btnRemove btnFavorite svFavoriteText 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -189,26 +190,31 @@ DEFINE VARIABLE chCtrlFrame AS COMPONENT-HANDLE NO-UNDO.
 DEFINE VARIABLE company_name AS CHARACTER FORMAT "X(256)":U 
       VIEW-AS TEXT 
      SIZE 35 BY .62
-     FONT 6 NO-UNDO.
+     FONT 23 NO-UNDO.
+
+DEFINE VARIABLE fFollow AS CHARACTER FORMAT "X(256)":U INITIAL "Follow Us on" 
+      VIEW-AS TEXT 
+     SIZE 14 BY .52
+     BGCOLOR 31 FONT 23 NO-UNDO.
 
 DEFINE VARIABLE loc_loc AS CHARACTER FORMAT "X(256)":U 
       VIEW-AS TEXT 
      SIZE 9 BY .62
-     FONT 6 NO-UNDO.
+     FONT 23 NO-UNDO.
 
 DEFINE VARIABLE Mnemonic AS CHARACTER FORMAT "X(256)":U 
       VIEW-AS TEXT 
-     SIZE 5 BY .62
-     FONT 6 NO-UNDO.
+     SIZE 6 BY .62
+     FONT 23 NO-UNDO.
 
 DEFINE VARIABLE users_user_id AS CHARACTER FORMAT "X(256)":U 
       VIEW-AS TEXT 
-     SIZE 13 BY .62
-     FONT 6 NO-UNDO.
+     SIZE 14 BY .62
+     FONT 23 NO-UNDO.
 
 DEFINE IMAGE boxes
-     FILENAME "Graphics/advantzware_logo.jpg":U
-     SIZE 103 BY 18.1.
+     FILENAME "Graphics/bg-option2.jpg":U
+     SIZE 103.8 BY 20.95.
 
 DEFINE IMAGE imageCompany
      FILENAME "Graphics/32x32/office_building.png":U TRANSPARENT
@@ -227,84 +233,100 @@ DEFINE IMAGE imageRunUlitity
      SIZE 6.4 BY 1.52 TOOLTIP "Utility Application".
 
 DEFINE IMAGE imageScheduler
-     FILENAME "Graphics/32x32/calendar_clock.ico":U TRANSPARENT
+     FILENAME "Graphics/32x32/calendar_clock.png":U TRANSPARENT
      SIZE 6.4 BY 1.52 TOOLTIP "Task Scheduler".
 
 DEFINE IMAGE imageSettings
-     FILENAME "Graphics/32x32/gearwheels.ico":U TRANSPARENT
+     FILENAME "Graphics/32x32/gearwheels.png":U TRANSPARENT
      SIZE 6.4 BY 1.52 TOOLTIP "Settings".
 
 DEFINE IMAGE menu-image
      FILENAME "Graphics/logo1.bmp":U CONVERT-3D-COLORS
-     SIZE 90 BY 4.52.
+     SIZE 93.8 BY 4.62.
 
 DEFINE IMAGE menuLink-1
-     SIZE 12 BY 2.29.
+     SIZE 7 BY 1.67.
 
 DEFINE IMAGE menuLink-2
-     SIZE 12 BY 2.29.
+     SIZE 7 BY 1.67.
 
 DEFINE IMAGE menuLink-3
-     SIZE 12 BY 2.29.
+     SIZE 7 BY 1.67.
 
 DEFINE IMAGE menuLink-4
-     SIZE 12 BY 2.29.
+     SIZE 7 BY 1.67.
 
 DEFINE IMAGE menuLink-5
-     SIZE 12 BY 2.29.
+     SIZE 7 BY 1.67.
 
 DEFINE IMAGE menuLink-6
-     SIZE 12 BY 2.29.
+     SIZE 7 BY 1.67.
 
 DEFINE IMAGE menuLink-7
-     SIZE 12 BY 2.29.
+     SIZE 7 BY 1.67.
 
 DEFINE IMAGE menuLink-8
-     SIZE 12 BY 2.29.
+     SIZE 7 BY 1.67.
 
 DEFINE IMAGE menuLinkASI TRANSPARENT
      SIZE 7 BY 1.67 TOOLTIP "Advantzware Link".
 
 DEFINE IMAGE menuLinkZoHo TRANSPARENT
-     SIZE 7 BY 1.67 TOOLTIP "Advantzware Help Tickets".
+     SIZE 6.4 BY 1.52 TOOLTIP "Advantzware Help Tickets".
 
 DEFINE RECTANGLE RECT-10
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
      SIZE 92 BY 5.
 
 DEFINE RECTANGLE RECT-11
-     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 10 BY 5.
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
+     SIZE 9 BY 2
+     BGCOLOR 15 FGCOLOR 24 .
+
+DEFINE RECTANGLE RECT-12
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
+     SIZE 9 BY 2
+     BGCOLOR 15 FGCOLOR 24 .
 
 DEFINE RECTANGLE RECT-2
-     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
+     EDGE-PIXELS 1 GRAPHIC-EDGE    
      SIZE 159.6 BY 2.14
-     BGCOLOR 1 FGCOLOR 15 .
+     BGCOLOR 21 FGCOLOR 21 .
+
+DEFINE RECTANGLE RECT-24
+     EDGE-PIXELS 2 GRAPHIC-EDGE    
+     SIZE .6 BY 1.71
+     BGCOLOR 35 .
+
+DEFINE RECTANGLE RECT-25
+     EDGE-PIXELS 2 GRAPHIC-EDGE    
+     SIZE .6 BY 1.71
+     BGCOLOR 35 .
 
 DEFINE RECTANGLE RECT-5
-     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
+     EDGE-PIXELS 1 GRAPHIC-EDGE    
      SIZE 48 BY 1.19
-     BGCOLOR 15 .
+     BGCOLOR 15 FGCOLOR 21 .
 
 DEFINE RECTANGLE RECT-6
-     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
+     EDGE-PIXELS 1 GRAPHIC-EDGE    
      SIZE 25 BY 1.19
-     BGCOLOR 15 .
+     BGCOLOR 15 FGCOLOR 21 .
 
 DEFINE RECTANGLE RECT-7
-     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
+     EDGE-PIXELS 1 GRAPHIC-EDGE    
      SIZE 21 BY 1.19
-     BGCOLOR 15 .
+     BGCOLOR 15 FGCOLOR 21 .
 
 DEFINE RECTANGLE RECT-8
-     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
+     EDGE-PIXELS 1 GRAPHIC-EDGE    
      SIZE 9 BY 1.19
-     BGCOLOR 15 .
+     BGCOLOR 15 FGCOLOR 21 .
 
 DEFINE RECTANGLE RECT-9
      EDGE-PIXELS 1 GRAPHIC-EDGE    
      SIZE 159.6 BY .05
-     BGCOLOR 0 .
+     BGCOLOR 15 FGCOLOR 15 .
 
 DEFINE VARIABLE menuTreeMsg AS CHARACTER FORMAT "X(256)":U INITIAL " Initializing Menus, One Moment Please ..." 
       VIEW-AS TEXT 
@@ -323,103 +345,111 @@ DEFINE VARIABLE upgradeMsg AS CHARACTER FORMAT "X(256)":U INITIAL "   Checking i
 DEFINE BUTTON btnClear  NO-FOCUS
      LABEL "Clear" 
      SIZE 8.4 BY 1.05 TOOLTIP "Clear Search Filters"
-     FONT 1.
+     BGCOLOR 21 FONT 22.
 
 DEFINE BUTTON btnFavorite 
-     IMAGE-UP FILE "Graphics/16x16/navigate_plus.gif":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/16x16/move_plus.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Fav" 
      SIZE 5 BY 1.19.
 
 DEFINE BUTTON BtnFavorites 
-     IMAGE-UP FILE "Graphics/16x16/star.gif":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/16x16/star.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
-     SIZE 4.6 BY 1 TOOLTIP "Search Menu / Edit Favorites".
+     SIZE 5.6 BY 1.24 TOOLTIP "Search Menu / Edit Favorites".
 
 DEFINE BUTTON btnMoveDown 
-     IMAGE-UP FILE "Graphics/16x16/navigate_down.jpg":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/16x16/move_down.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 4.4 BY 1 TOOLTIP "Move Favorite Down".
 
 DEFINE BUTTON btnMoveUp 
-     IMAGE-UP FILE "Graphics/16x16/navigate_up.jpg":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/16x16/move_up.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 4.4 BY 1 TOOLTIP "Move Favorite Up".
 
 DEFINE BUTTON btnRemove 
-     IMAGE-UP FILE "Graphics/16x16/navigate_cross.gif":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/16x16/move_cross.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 4.4 BY 1 TOOLTIP "Remove Favorite".
 
 DEFINE BUTTON btnSearch 
-     IMAGE-UP FILE "Graphics/16x16/filterwindow.bmp":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/16x16/filterwindow.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
-     SIZE 4 BY 1 TOOLTIP "Search Menu / Edit Favorites".
+     SIZE 5.6 BY 1.24 TOOLTIP "Search Menu / Edit Favorites".
 
 DEFINE VARIABLE menuTreeFilter AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
      SIZE 52 BY 1 TOOLTIP "Name Search"
-     BGCOLOR 15 FGCOLOR 1 FONT 1 NO-UNDO.
+     BGCOLOR 15 FGCOLOR 1 FONT 22 NO-UNDO.
 
 DEFINE VARIABLE svFavoriteText AS CHARACTER FORMAT "X(256)":U INITIAL "Favorites" 
       VIEW-AS TEXT 
      SIZE 10 BY .71
-     FONT 1 NO-UNDO.
+     FONT 22 NO-UNDO.
 
 DEFINE RECTANGLE RECT-23
-     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
-     SIZE 45 BY 1
-     BGCOLOR 15 .
+     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     SIZE 42 BY 1
+     BGCOLOR 15 FGCOLOR 15 .
 
 DEFINE VARIABLE favoritesList AS CHARACTER 
      VIEW-AS SELECTION-LIST SINGLE SCROLLBAR-VERTICAL 
      LIST-ITEM-PAIRS "FAVORITES","FAVORITES" 
-     SIZE 45 BY 12.62 NO-UNDO.
+     SIZE 45 BY 12.62
+     BGCOLOR 15 FONT 22 NO-UNDO.
 
 DEFINE VARIABLE searchSelections AS CHARACTER 
      VIEW-AS SELECTION-LIST SINGLE SORT SCROLLBAR-VERTICAL 
      SIZE 56 BY 11.43
-     FONT 1 NO-UNDO.
+     BGCOLOR 15 FONT 22 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-USER
      company_name AT ROW 1.71 COL 13 COLON-ALIGNED NO-LABEL
-     loc_loc AT ROW 1.71 COL 68 COLON-ALIGNED NO-LABEL
-     users_user_id AT ROW 1.71 COL 98 COLON-ALIGNED NO-LABEL
+     loc_loc AT ROW 1.71 COL 61.2 COLON-ALIGNED NO-LABEL
+     users_user_id AT ROW 1.71 COL 90.4 COLON-ALIGNED NO-LABEL
      Mnemonic AT ROW 1.71 COL 141 COLON-ALIGNED NO-LABEL WIDGET-ID 2
-     "Company:" VIEW-AS TEXT
-          SIZE 10 BY .62 AT ROW 1.71 COL 4
-     "User ID:" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 1.71 COL 91
+     fFollow AT ROW 26.57 COL 100 COLON-ALIGNED NO-LABEL WIDGET-ID 116
      "Location:" VIEW-AS TEXT
-          SIZE 9 BY .62 AT ROW 1.71 COL 61
-     boxes AT ROW 8.62 COL 57
-     menu-image AT ROW 3.62 COL 58
+          SIZE 10 BY .62 AT ROW 1.71 COL 52.6
+          FONT 22
+     "Company:" VIEW-AS TEXT
+          SIZE 11 BY .62 AT ROW 1.71 COL 3.6
+          FONT 22
+     "User ID:" VIEW-AS TEXT
+          SIZE 9 BY .62 AT ROW 1.71 COL 83
+          FONT 22
+     boxes AT ROW 8.38 COL 56.2
+     menu-image AT ROW 3.24 COL 56.2
      RECT-2 AT ROW 1 COL 1
      RECT-5 AT ROW 1.48 COL 3 WIDGET-ID 38
-     RECT-6 AT ROW 1.48 COL 90 WIDGET-ID 40
-     RECT-7 AT ROW 1.48 COL 60 WIDGET-ID 42
+     RECT-6 AT ROW 1.48 COL 82 WIDGET-ID 40
+     RECT-7 AT ROW 1.48 COL 51.6 WIDGET-ID 42
      RECT-8 AT ROW 1.48 COL 141 WIDGET-ID 44
      RECT-9 AT ROW 3.29 COL 1 WIDGET-ID 46
-     RECT-10 AT ROW 3.38 COL 57 WIDGET-ID 48
+     RECT-10 AT ROW 5.81 COL 57 WIDGET-ID 48
      imageSettings AT ROW 1.24 COL 152 WIDGET-ID 52
-     imageCompany AT ROW 1.24 COL 52 WIDGET-ID 54
+     imageCompany AT ROW 1.24 COL 73 WIDGET-ID 54
      menuLinkASI AT ROW 3.86 COL 152 WIDGET-ID 56
-     RECT-11 AT ROW 3.38 COL 150 WIDGET-ID 58
+     RECT-11 AT ROW 3.71 COL 151.6 WIDGET-ID 58
      menuLinkZoHo AT ROW 6 COL 152 WIDGET-ID 64
-     menuLink-1 AT ROW 26.95 COL 148 WIDGET-ID 66
-     menuLink-2 AT ROW 26.95 COL 135 WIDGET-ID 68
-     menuLink-3 AT ROW 26.95 COL 122 WIDGET-ID 70
-     menuLink-4 AT ROW 26.95 COL 109 WIDGET-ID 72
-     menuLink-5 AT ROW 26.95 COL 96 WIDGET-ID 74
-     menuLink-6 AT ROW 26.95 COL 83 WIDGET-ID 76
-     menuLink-7 AT ROW 26.95 COL 70 WIDGET-ID 78
-     menuLink-8 AT ROW 26.95 COL 57 WIDGET-ID 80
-     imageFolder AT ROW 1.24 COL 82 WIDGET-ID 86
+     menuLink-1 AT ROW 27.62 COL 134.4 WIDGET-ID 66
+     menuLink-2 AT ROW 27.62 COL 126.6 WIDGET-ID 68
+     menuLink-3 AT ROW 27.62 COL 118.4 WIDGET-ID 70
+     menuLink-4 AT ROW 27.62 COL 110.2 WIDGET-ID 72
+     menuLink-5 AT ROW 27.62 COL 102 WIDGET-ID 74
+     menuLink-6 AT ROW 27.62 COL 93.8 WIDGET-ID 76
+     menuLink-7 AT ROW 27.62 COL 85.6 WIDGET-ID 78
+     menuLink-8 AT ROW 27.62 COL 77.4 WIDGET-ID 80
+     imageFolder AT ROW 1.24 COL 107.4 WIDGET-ID 86
      imagePrinter AT ROW 1.24 COL 116 WIDGET-ID 98
      imageScheduler AT ROW 1.24 COL 124 WIDGET-ID 102
      imageRunUlitity AT ROW 1.24 COL 133 WIDGET-ID 104
+     RECT-24 AT ROW 1.19 COL 79.6 WIDGET-ID 106
+     RECT-25 AT ROW 1.19 COL 114.2 WIDGET-ID 108
+     RECT-12 AT ROW 5.86 COL 151.6 WIDGET-ID 112
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -430,43 +460,43 @@ DEFINE FRAME menuTreeFrame
      svFocus AT ROW 1 COL 1 NO-LABEL WIDGET-ID 82
      menuTreeMsg AT ROW 1.24 COL 2 NO-LABEL WIDGET-ID 84
      upgradeMsg AT ROW 1.24 COL 2 NO-LABEL WIDGET-ID 86
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 4.57
          SIZE 55 BY 24.91
-         BGCOLOR 15  WIDGET-ID 100.
+         BGCOLOR 31  WIDGET-ID 100.
 
 DEFINE FRAME searchFrame
-     BtnFavorites AT ROW 1 COL 1 HELP
-          "Search Menu / Edit Favorites" WIDGET-ID 54
-     btnMoveDown AT ROW 5.76 COL 1 HELP
-          "Move Favorite Down" WIDGET-ID 58
-     menuTreeFilter AT ROW 1 COL 54 COLON-ALIGNED HELP
-          "Enter Search Filter" NO-LABEL WIDGET-ID 2
-     btnMoveUp AT ROW 3.38 COL 1 HELP
-          "Move Favorite Up" WIDGET-ID 56
-     favoritesList AT ROW 2.19 COL 6 NO-LABEL WIDGET-ID 52
-     searchSelections AT ROW 2.19 COL 52 NO-LABEL WIDGET-ID 44
-     btnRemove AT ROW 4.57 COL 1 HELP
-          "Remove Favorite" WIDGET-ID 26
-     btnSearch AT ROW 1 COL 51 HELP
-          "Search Menu / Edit Favorites" WIDGET-ID 40
-     btnFavorite AT ROW 13.62 COL 52 WIDGET-ID 46
      btnClear AT ROW 13.86 COL 100 HELP
           "Clear Search Filters" WIDGET-ID 42
-     svFavoriteText AT ROW 13.86 COL 55 COLON-ALIGNED NO-LABEL WIDGET-ID 50
+     BtnFavorites AT ROW 1.1 COL 1 HELP
+          "Search Menu / Edit Favorites" WIDGET-ID 54
+     btnSearch AT ROW 1.1 COL 49.8 HELP
+          "Search Menu / Edit Favorites" WIDGET-ID 40
+     menuTreeFilter AT ROW 1.14 COL 54 COLON-ALIGNED HELP
+          "Enter Search Filter" NO-LABEL WIDGET-ID 2
+     favoritesList AT ROW 2.29 COL 6 NO-LABEL WIDGET-ID 52
+     searchSelections AT ROW 2.29 COL 52 NO-LABEL WIDGET-ID 44
+     btnMoveDown AT ROW 5.86 COL 1 HELP
+          "Move Favorite Down" WIDGET-ID 58
+     btnMoveUp AT ROW 3.48 COL 1 HELP
+          "Move Favorite Up" WIDGET-ID 56
+     btnRemove AT ROW 4.67 COL 1 HELP
+          "Remove Favorite" WIDGET-ID 26
+     btnFavorite AT ROW 13.62 COL 52 WIDGET-ID 46
+     svFavoriteText AT ROW 13.95 COL 55 COLON-ALIGNED NO-LABEL WIDGET-ID 50
      "FAVORITES" VIEW-AS TEXT
           SIZE 13 BY .62 AT ROW 1.24 COL 21 WIDGET-ID 62
           BGCOLOR 15 
      "FAVORITES" VIEW-AS TEXT
-          SIZE 13 BY .62 AT ROW 1.24 COL 21 WIDGET-ID 62
-          BGCOLOR 15 
-     RECT-23 AT ROW 1 COL 6 WIDGET-ID 60
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+          SIZE 13 BY .62 AT ROW 1.33 COL 21 WIDGET-ID 62
+          BGCOLOR 15 FGCOLOR 1 FONT 22
+     RECT-23 AT ROW 1.19 COL 7.2 WIDGET-ID 60
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 3.38
+         AT COL 1 ROW 3.14
          SIZE 108 BY 14.05
-         FGCOLOR 1  WIDGET-ID 600.
+         BGCOLOR 34 FGCOLOR 1  WIDGET-ID 600.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -680,8 +710,8 @@ THEN MAINMENU:HIDDEN = no.
 
 CREATE CONTROL-FRAME CtrlFrame ASSIGN
        FRAME           = FRAME FRAME-USER:HANDLE
-       ROW             = 1
-       COLUMN          = 1
+       ROW             = 18.38
+       COLUMN          = 16
        HEIGHT          = 4.76
        WIDTH           = 20
        WIDGET-ID       = 84
@@ -846,7 +876,7 @@ DO:
             HIDE {&searchFilters} btnClear.
             ASSIGN
                 favoritesList:HIDDEN = YES
-                FRAME searchFrame:VIRTUAL-HEIGHT = btnSearch:HEIGHT + .1
+                FRAME searchFrame:VIRTUAL-HEIGHT = btnSearch:HEIGHT + .2
                 FRAME searchFrame:VIRTUAL-WIDTH  = btnSearch:COL + btnSearch:WIDTH
                 FRAME searchFrame:HEIGHT = FRAME searchFrame:VIRTUAL-HEIGHT
                 FRAME searchFrame:WIDTH  = FRAME searchFrame:VIRTUAL-WIDTH
@@ -1268,9 +1298,9 @@ END.
 ON VALUE-CHANGED OF searchSelections IN FRAME searchFrame
 DO:
     lFavorite = ENTRY(2,SELF:SCREEN-VALUE,"|") EQ "yes".
-    btnFavorite:LOAD-IMAGE("Graphics/16x16/navigate_"
+    btnFavorite:LOAD-IMAGE("Graphics/16x16/move_"
         + (IF lFavorite THEN "minus" ELSE "plus")
-        + ".gif")
+        + ".png")
         .
 END.
 
@@ -1358,10 +1388,11 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       hFocus = svFocus:HANDLE
       .
     DISPLAY menuTreeMsg WITH FRAME menuTreeFrame.
-    RUN pBuildttMenuTree.
+    RUN pBuildttMenuTree("file").
     RUN pGetFavorites.
     RUN pLoadFavorites.
     menuTreeMsg:HIDDEN = YES.
+    RUN pMenuSize.
     RUN pDisplayMenuTree (FRAME menuTreeFrame:HANDLE, "file", YES, 1).
     {system/runCueCard.i}
     RUN sys/ref/nk1look.p (
@@ -1460,16 +1491,16 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   RUN control_load.
-  DISPLAY company_name loc_loc users_user_id Mnemonic 
+  DISPLAY company_name loc_loc users_user_id Mnemonic fFollow 
       WITH FRAME FRAME-USER IN WINDOW MAINMENU.
   ENABLE imageSettings imageCompany menuLinkZoHo imageFolder imagePrinter 
-         imageScheduler imageRunUlitity 
+         imageScheduler imageRunUlitity RECT-24 RECT-25 fFollow 
       WITH FRAME FRAME-USER IN WINDOW MAINMENU.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-USER}
   DISPLAY menuTreeFilter favoritesList searchSelections svFavoriteText 
       WITH FRAME searchFrame IN WINDOW MAINMENU.
-  ENABLE BtnFavorites btnMoveDown menuTreeFilter btnMoveUp favoritesList 
-         searchSelections btnRemove btnSearch btnFavorite 
+  ENABLE BtnFavorites btnSearch menuTreeFilter favoritesList searchSelections 
+         btnMoveDown btnMoveUp btnRemove btnFavorite 
       WITH FRAME searchFrame IN WINDOW MAINMENU.
   VIEW FRAME searchFrame IN WINDOW MAINMENU.
   {&OPEN-BROWSERS-IN-QUERY-searchFrame}
@@ -1492,9 +1523,9 @@ PROCEDURE pBuildttMenuTree :
   Notes:       
 ------------------------------------------------------------------------------*/
     DEFINE VARIABLE lActive AS LOGICAL NO-UNDO.
-    
-    EMPTY TEMP-TABLE ttMenuTree.
-    
+    DEFINE INPUT PARAMETER ipcparentname AS CHARACTER.
+   // EMPTY TEMP-TABLE ttMenuTree.
+
     FOR EACH prgrms NO-LOCK
         WHERE prgrms.menu_item EQ YES
           AND prgrms.menuOrder GT 0
@@ -1522,11 +1553,14 @@ PROCEDURE pBuildttMenuTree :
                 prgrms.mnemonic,
                 cShowMnemonic,
                 cPositionMnemonic,
-                lActive
+                lActive,
+                ipcparentname 
                 ).
         END. /* if ccemenu */
     END. /* each prgrms */
     /* create an Exit option */
+    IF ipcparentname = "FILE" THEN
+    
     RUN pCreatettMenuTree (
         FRAME menuTreeFrame:HANDLE,
         9999,                 /* order             */
@@ -1535,11 +1569,12 @@ PROCEDURE pBuildttMenuTree :
         "file",               /* parent            */
         "exit",               /* child             */
         "Exit",               /* text              */
-        "navigate_cross.png", /* image             */
+        "logout.ico", /* image             */
         "X",                  /* mnemonic          */
         cShowMnemonic,        /* show mnemonic     */
         cPositionMnemonic,    /* position mnemonic */
-        YES                   /* active            */
+        YES,                  /* active            */
+        "file"
         ).
 
 END PROCEDURE.
@@ -2056,22 +2091,22 @@ PROCEDURE pMenuSize :
         WHEN 1 THEN
         ASSIGN
             cImageFolder  = "Graphics/16X16/"
-            dObjectHeight = .95
-            dObjectWidth  = 4
+            dObjectHeight = 1.11    
+            dObjectWidth  = 3.20
             iFont         = 32
             .
         WHEN 2 THEN
         ASSIGN
             cImageFolder  = "Graphics/24X24/"
             dObjectHeight = 1.33
-            dObjectWidth  = 5.6
+            dObjectWidth  = 4.8
             iFont         = 34
             .
         WHEN 3 THEN
         ASSIGN
             cImageFolder  = "Graphics/32X32/"
-            dObjectHeight = 1.67
-            dObjectWidth  = 7
+            dObjectHeight = 2
+            dObjectWidth  = 6.40
             iFont         = 36
             .
     END CASE.
@@ -2079,7 +2114,7 @@ PROCEDURE pMenuSize :
     SESSION:SET-WAIT-STATE("General").
     RUN LockWindowUpdate (ACTIVE-WINDOW:HWND,OUTPUT i).
     
-    FOR EACH ttMenuTree:
+    FOR EACH ttMenuTree where ttMenuTree.lWidgetExist:
         IF VALID-HANDLE(ttMenuTree.hLevel) THEN DO:
             ASSIGN
                 ttMenuTree.hLevel:HIDDEN = YES
@@ -2087,7 +2122,7 @@ PROCEDURE pMenuSize :
                 ttMenuTree.hLevel:WIDTH  = dObjectWidth
                 ttMenuTree.hLevel:HEIGHT = dObjectHeight
                 .
-            ttMenuTree.hLevel:LOAD-IMAGE(SEARCH(cImageFolder + "navigate_right.png")).
+            ttMenuTree.hLevel:LOAD-IMAGE(SEARCH(cImageFolder + "plus.ico")).
         END. /* if hlevel */
         IF VALID-HANDLE(ttMenuTree.hImage) THEN DO:
             ASSIGN
@@ -2104,6 +2139,13 @@ PROCEDURE pMenuSize :
             ttMenuTree.hEditor:ROW    = 1
             ttMenuTree.hEditor:HEIGHT = dObjectHeight
             ttMenuTree.hEditor:FONT   = iFont
+            .
+            IF VALID-HANDLE(ttMenuTree.hRectangle) THEN
+        ASSIGN
+            ttMenuTree.hRectangle:HIDDEN = YES
+            ttMenuTree.hRectangle:ROW    = 1
+            ttMenuTree.hRectangle:HEIGHT = dObjectHeight
+            ttMenuTree.hRectangle:WIDTH   = dObjectWidth
             .
         IF VALID-HANDLE(ttMenuTree.hToggle) THEN
         ASSIGN
@@ -2230,7 +2272,7 @@ PROCEDURE pProcessClick :
         IF ttMenuTree.isMenu AND NOT ttMenuTree.isOpen THEN
         ASSIGN
             ttMenuTree.hEditor:FONT    = iFont
-            ttMenuTree.hEditor:BGCOLOR = ?
+            ttMenuTree.hEditor:BGCOLOR = iEditorBGColor
             ttMenuTree.hEditor:FGCOLOR = ?
             .
         ELSE
@@ -2282,7 +2324,7 @@ PROCEDURE pRebuildMenuTree :
     RUN LockWindowUpdate (ACTIVE-WINDOW:HWND,OUTPUT i).
     
     RUN pInitMenuTree.
-    RUN pBuildttMenuTree.
+    RUN pBuildttMenuTree("file").
     RUN pMenuSize.
     RUN pDisplayMenuTree (FRAME menuTreeFrame:HANDLE, "file", YES, 1).
     RUN pGetFavorites.
@@ -2315,7 +2357,7 @@ PROCEDURE pReset :
         ASSIGN
             ttMenuTree.baseText             = fTranslate(ENTRY(1,ttMenuTree.hEditor:PRIVATE-DATA),NO)
             ttMenuTree.hEditor:FONT         = iFont
-            ttMenuTree.hEditor:BGCOLOR      = ?
+            ttMenuTree.hEditor:BGCOLOR      = iEditorBGColor
             ttMenuTree.hEditor:FGCOLOR      = ?
             ttMenuTree.hEditor:SCREEN-VALUE = fTreeText(ttMenuTree.isMenu,
                                               ttMenuTree.baseText,
@@ -2485,6 +2527,12 @@ PROCEDURE pWinReSize :
             ttMenuTree.hToggle:COL    = 1
             ttMenuTree.hToggle:ROW    = 1
             .
+        IF VALID-HANDLE(ttMenuTree.hRectangle) THEN
+            ASSIGN
+                ttMenuTree.hRectangle:HIDDEN = YES
+                ttMenuTree.hRectangle:COL    = 1
+                ttMenuTree.hRectangle:ROW    = 1
+                .
     END. /* each ttMenuTree */
     
     DO WITH FRAME {&FRAME-NAME}:
@@ -2515,8 +2563,10 @@ PROCEDURE pWinReSize :
             RECT-9:HIDDEN        = YES
             RECT-10:HIDDEN       = YES
             RECT-11:HIDDEN       = YES
+            RECT-12:HIDDEN       = YES
             menuLinkASI:HIDDEN   = YES 
             menuLinkZoHo:HIDDEN  = YES
+            fFollow:HIDDEN       = YES 
             menuLink-1:HIDDEN    = YES
             menuLink-2:HIDDEN    = YES
             menuLink-3:HIDDEN    = YES
@@ -2525,6 +2575,8 @@ PROCEDURE pWinReSize :
             menuLink-6:HIDDEN    = YES
             menuLink-7:HIDDEN    = YES
             menuLink-8:HIDDEN    = YES 
+            fFollow:Row = FRAME {&FRAME-NAME}:HEIGHT - 2.5
+            
             menuLink-1:ROW       = FRAME {&FRAME-NAME}:HEIGHT - 1.61
             menuLink-2:ROW       = menuLink-1:ROW
             menuLink-3:ROW       = menuLink-1:ROW
@@ -2536,22 +2588,26 @@ PROCEDURE pWinReSize :
             imageSettings:COL    = FRAME {&FRAME-NAME}:WIDTH - 8
             menu-image:COL       = FRAME {&FRAME-NAME}:WIDTH - menu-image:WIDTH   - 12
             boxes:COL            = FRAME {&FRAME-NAME}:WIDTH - boxes:WIDTH
+        //    boxes:height         = FRAME {&FRAME-NAME}:height - 2.5
             RECT-2:WIDTH         = FRAME {&FRAME-NAME}:WIDTH - .4
             RECT-8:COL           = FRAME {&FRAME-NAME}:WIDTH - 19
             RECT-9:WIDTH         = FRAME {&FRAME-NAME}:WIDTH - .4
             RECT-10:COL          = FRAME {&FRAME-NAME}:WIDTH - RECT-10:WIDTH      - 11
             RECT-11:COL          = FRAME {&FRAME-NAME}:WIDTH - RECT-11:WIDTH
+            RECT-12:COL          = FRAME {&FRAME-NAME}:WIDTH - RECT-12:WIDTH
             Mnemonic:COL         = FRAME {&FRAME-NAME}:WIDTH - 17 
             menuLinkASI:COL      = FRAME {&FRAME-NAME}:WIDTH - menuLinkASI:WIDTH  - 1
             menuLinkZoHo:COL     = FRAME {&FRAME-NAME}:WIDTH - menuLinkZoHo:WIDTH - 1
-            menuLink-1:COL       = FRAME {&FRAME-NAME}:WIDTH - menuLink-1:WIDTH
-            menuLink-2:COL       = menuLink-1:COL - 13
-            menuLink-3:COL       = menuLink-2:COL - 13
-            menuLink-4:COL       = menuLink-3:COL - 13
-            menuLink-5:COL       = menuLink-4:COL - 13
-            menuLink-6:COL       = menuLink-5:COL - 13
-            menuLink-7:COL       = menuLink-6:COL - 13
-            menuLink-8:COL       = menuLink-7:COL - 13
+                        menuLink-1:COL       = FRAME {&FRAME-NAME}:WIDTH - menuLink-1:WIDTH  - 15
+            menuLink-2:COL       = menuLink-1:COL - 9
+            menuLink-3:COL       = menuLink-2:COL - 9
+            menuLink-4:COL       = menuLink-3:COL - 9
+            
+            menuLink-5:COL       = menuLink-4:COL - 9
+            fFollow:col = menuLink-5:COL
+            menuLink-6:COL       = menuLink-5:COL - 9
+            menuLink-7:COL       = menuLink-6:COL - 9
+            menuLink-8:COL       = menuLink-7:COL - 9
             imageSettings:HIDDEN = NO
             menu-image:HIDDEN    = NO
             boxes:HIDDEN         = NO
@@ -2559,8 +2615,9 @@ PROCEDURE pWinReSize :
             RECT-2:HIDDEN        = NO
             RECT-8:HIDDEN        = NO
             RECT-9:HIDDEN        = NO
-            RECT-10:HIDDEN       = NO
+           // RECT-10:HIDDEN       = NO
             RECT-11:HIDDEN       = NO
+            RECT-12:HIDDEN       = NO
             menuLinkASI:HIDDEN   = NO  
             menuLinkZoHo:HIDDEN  = NO
             menuLink-1:HIDDEN    = NO

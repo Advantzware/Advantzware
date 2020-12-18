@@ -1,0 +1,127 @@
+UPDATE FIELD "buyer" OF "ap-inv"
+  FORMAT "x(10)"
+  LABEL "Buyer User"
+
+ADD FIELD "userField1" OF "APIInboundEvent" AS character
+  FORMAT "x(8)"
+  POSITION 16
+  INITIAL ""
+  LABEL "User Field 1"
+  COLUMN-LABEL "User Field 1"
+  ORDER 150
+  MAX-WIDTH 16
+
+ADD FIELD "userField2" OF "APIInboundEvent" AS character
+  FORMAT "x(8)"
+  POSITION 17
+  INITIAL ""
+  LABEL "User Field 2"
+  COLUMN-LABEL "User Field 2"
+  ORDER 160
+  MAX-WIDTH 16
+
+ADD FIELD "userField3" OF "APIInboundEvent" AS character
+  FORMAT "x(8)"
+  POSITION 18
+  INITIAL ""
+  LABEL "User Field 3"
+  COLUMN-LABEL "User Field 3"
+  ORDER 170
+  MAX-WIDTH 16
+
+ADD FIELD "userField1" OF "APIOutboundEvent" AS character
+  FORMAT "x(256)"
+  POSITION 19
+  INITIAL ""
+  LABEL "User Field 1"
+  COLUMN-LABEL "User Field 1"
+  ORDER 180
+  MAX-WIDTH 512
+
+ADD FIELD "userField2" OF "APIOutboundEvent" AS character
+  FORMAT "x(256)"
+  POSITION 20
+  INITIAL ""
+  LABEL "User Field 1"
+  COLUMN-LABEL "User Field 1"
+  ORDER 190
+  MAX-WIDTH 512
+
+UPDATE FIELD "c-no" OF "ar-cash" AS int64
+  FORMAT ">>>>>>999999"
+
+UPDATE FIELD "check-no" OF "ar-cash" AS int64
+  FORMAT ">>>>>>999999"
+
+ADD FIELD "checkID" OF "ar-cash" AS character
+  FORMAT "x(12)"
+  POSITION 51
+  INITIAL ""
+  LABEL "Check ID"
+  ORDER 480
+  MAX-WIDTH 24
+
+UPDATE FIELD "c-no" OF "ar-cashl" AS int64
+  FORMAT ">>>>>>999999"
+
+ADD FIELD "checkID" OF "ar-cashl" AS character
+  FORMAT "x(12)"
+  POSITION 43
+  INITIAL ""
+  LABEL "Check ID"
+  ORDER 430
+  MAX-WIDTH 24
+
+UPDATE FIELD "check-no" OF "ar-inv" AS int64
+  FORMAT ">>>>>>999999"
+
+ADD FIELD "checkID" OF "ar-inv" AS character
+  FORMAT "x(12)"
+  POSITION 119
+  INITIAL ""
+  LABEL "Check ID"
+  ORDER 1180
+  MAX-WIDTH 24
+
+ADD FIELD "accountant" OF "cust" AS character
+  FORMAT "x(12)"
+  POSITION 173
+  INITIAL ""
+  HELP "Billing owner"
+  LABEL "Billing owner"
+  ORDER 1710
+  MAX-WIDTH 24
+
+ADD FIELD "keyItem" OF "job-hdr" AS logical
+  FORMAT "yes/no"
+  POSITION 54
+  INITIAL "no"
+  LABEL "Key Item"
+  ORDER 550
+  MAX-WIDTH 1
+
+ADD FIELD "inActive" OF "sman" AS logical
+  FORMAT "yes/no"
+  POSITION 31
+  INITIAL "no"
+  LABEL "Inactive"
+  ORDER 290
+  MAX-WIDTH 1
+
+ADD FIELD "purchaseLimit" OF "users" AS decimal
+  FORMAT "->>>,>>>,>>9.99"
+  POSITION 62
+  INITIAL "0"
+  LABEL "P/O Limit"
+  DECIMALS 2
+  ORDER 571
+  MAX-WIDTH 17
+
+UPDATE FIELD "rec_key" OF "zMessage"
+  DECIMALS ?
+
+.
+PSC
+cpstream=ISO8859-1
+.
+0000002453

@@ -39,6 +39,7 @@ CREATE WIDGET-POOL.
 {custom/globdefs.i}
 {sys/inc/VAR.i NEW SHARED}
 {sys/inc/varasgn.i}
+{methods/template/brwcustomdef.i}
 
 /* DEFINE VARIABLE cellColumn AS HANDLE NO-UNDO EXTENT 20. */
 DEFINE VARIABLE columnCount AS INTEGER NO-UNDO.
@@ -188,9 +189,11 @@ asi.itemfg.i-no eq "###" NO-LOCK ~
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS tb_act fi_i-no fi_part-no fi_cust-no ~
 fi_i-name fi_est-no fi_style fi_procat tb_in-act btn_go btn_next btn_show ~
-fi_movecol r_table 
+ r_table 
+ // fi_movecol
 &Scoped-Define DISPLAYED-OBJECTS tb_act fi_i-no fi_part-no fi_cust-no ~
-fi_i-name fi_est-no fi_style fi_procat tb_in-act fi_sort-by fi_movecol 
+fi_i-name fi_est-no fi_style fi_procat tb_in-act fi_sort-by
+// fi_movecol 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -286,9 +289,9 @@ DEFINE VARIABLE fi_i-no AS CHARACTER FORMAT "X(15)":U
      SIZE 21 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE fi_movecol AS CHARACTER FORMAT "X(256)":U 
+/*DEFINE VARIABLE fi_movecol AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
-     SIZE 14 BY 1 NO-UNDO.
+     SIZE 14 BY 1 NO-UNDO.*/
 
 DEFINE VARIABLE fi_part-no AS CHARACTER FORMAT "X(15)":U 
      VIEW-AS FILL-IN 
@@ -384,7 +387,7 @@ DEFINE FRAME F-Main
      btn_next AT ROW 3.14 COL 47 WIDGET-ID 6
      btn_show AT ROW 3.14 COL 64 WIDGET-ID 10
      fi_sort-by AT ROW 3.14 COL 93 COLON-ALIGNED NO-LABEL WIDGET-ID 12
-     fi_movecol AT ROW 3.14 COL 155 COLON-ALIGNED NO-LABEL WIDGET-ID 46
+  //   fi_movecol AT ROW 3.14 COL 155 COLON-ALIGNED NO-LABEL WIDGET-ID 46
      r_table AT ROW 4.33 COL 1
      "Customer Part#" VIEW-AS TEXT
           SIZE 18 BY .71 AT ROW 1.24 COL 26 WIDGET-ID 42
@@ -395,8 +398,8 @@ DEFINE FRAME F-Main
      "Name" VIEW-AS TEXT
           SIZE 7.2 BY .71 AT ROW 1.24 COL 64 WIDGET-ID 26
           FGCOLOR 9 FONT 6
-     "Click on Yellow Field to Sort" VIEW-AS TEXT
-          SIZE 27 BY .95 AT ROW 3.14 COL 129 WIDGET-ID 14
+    /* "Click on Yellow Field to Sort" VIEW-AS TEXT
+          SIZE 27 BY .95 AT ROW 3.14 COL 129 WIDGET-ID 14 */
      "Style" VIEW-AS TEXT
           SIZE 10 BY .71 AT ROW 1.24 COL 115 WIDGET-ID 34
           FGCOLOR 9 FONT 6
@@ -406,9 +409,9 @@ DEFINE FRAME F-Main
      "Customer#" VIEW-AS TEXT
           SIZE 13 BY .71 AT ROW 1.24 COL 47 WIDGET-ID 22
           FGCOLOR 9 FONT 6
-     "Sorted By:" VIEW-AS TEXT
+    /* "Sorted By:" VIEW-AS TEXT
           SIZE 12 BY 1 AT ROW 3.14 COL 83 WIDGET-ID 30
-          FONT 6
+          FONT 6 */
      "Estimate#" VIEW-AS TEXT
           SIZE 12 BY .71 AT ROW 1.24 COL 100 WIDGET-ID 28
           FGCOLOR 9 FONT 6
@@ -833,7 +836,9 @@ END.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL r_table B-table-Win
 ON ROW-DISPLAY OF r_table IN FRAME F-Main
-DO:   
+DO: 
+  &scoped-define exclude-row-display true 
+  {methods/template/brwrowdisplay.i}  
   find first sys-ctrl where sys-ctrl.company eq cocode
                       and sys-ctrl.name    eq "FGBrowse"
                         no-lock no-error.
@@ -887,6 +892,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL r_table B-table-Win
 ON START-SEARCH OF r_table IN FRAME F-Main
 DO:
+  {methods/template/sortindicator.i} 
   DEF VAR lh-column AS HANDLE NO-UNDO.
   DEF VAR lv-column-nam AS CHAR NO-UNDO.
   DEF VAR lv-column-lab AS CHAR NO-UNDO.
@@ -904,6 +910,7 @@ DO:
 
   APPLY 'END-SEARCH' TO {&BROWSE-NAME}.
   RUN dispatch ("open-query").
+  {methods/template/sortindicatorend.i} 
 
 END.
 
@@ -931,6 +938,7 @@ DO:
 
   RUN paper-clip-image-proc(INPUT itemfg.rec_key).
   RUN spec-image-proc.
+  run udf-image-proc.
 
   /* disable/enable set parts tab */
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE, "container-source", OUTPUT char-hdl).
@@ -968,7 +976,10 @@ RUN sys/ref/CustList.p (INPUT cocode,
 {methods/winReSize.i}
 &SCOPED-DEFINE cellColumnDat b-itemfg.w 
  {methods/browsers/setCellColumns.i}
-
+/* Ticket# : 92946
+   Hiding this widget for now, as browser's column label should be indicating the column which is sorted by */
+fi_sort-by:HIDDEN  = TRUE.
+fi_sort-by:VISIBLE = FALSE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1307,10 +1318,10 @@ PROCEDURE local-initialize :
          itemfg.cad-no:READ-ONLY IN BROWSE {&browse-name} = YES
          itemfg.spc-no:READ-ONLY IN BROWSE {&browse-name} = YES
          itemfg.stocked:READ-ONLY IN BROWSE {&browse-name} = YES
-         itemfg.q-onh:READ-ONLY IN BROWSE {&browse-name} = YES                  
-         FI_moveCol = "Sort".
+         itemfg.q-onh:READ-ONLY IN BROWSE {&browse-name} = YES  .                
+      /*   FI_moveCol = "Sort".
 
-  DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}.
+  DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}.*/
 
    APPLY 'ENTRY':U TO fi_i-no IN FRAME {&FRAME-NAME}.
 
@@ -1397,9 +1408,9 @@ PROCEDURE move-columns :
      ASSIGN
       {&BROWSE-NAME}:COLUMN-MOVABLE = v-col-move
          {&BROWSE-NAME}:COLUMN-RESIZABLE = v-col-move
-        v-col-move = NOT v-col-move
-        FI_moveCol = IF v-col-move = NO THEN "Move" ELSE "Sort".
-     DISPLAY FI_moveCol.
+        v-col-move = NOT v-col-move.
+     /*   FI_moveCol = IF v-col-move = NO THEN "Move" ELSE "Sort".
+     DISPLAY FI_moveCol.*/
   END.
 END PROCEDURE.
 
@@ -2200,6 +2211,27 @@ PROCEDURE state-changed :
          or add new cases. */
       {src/adm/template/bstates.i}
   END CASE.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE udf-image-proc B-table-Win 
+PROCEDURE udf-image-proc :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DEF VAR v-udf AS LOG NO-UNDO.
+   DEF VAR char-hdl AS CHAR NO-UNDO.
+
+   v-udf = CAN-FIND(FIRST mfvalues WHERE mfvalues.rec_key = itemfg.rec_key). 
+
+   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, 'udfmsg-target':U, OUTPUT char-hdl).
+
+   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+      RUN udf-image IN WIDGET-HANDLE(char-hdl) (INPUT v-udf).
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

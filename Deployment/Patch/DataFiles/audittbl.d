@@ -17,7 +17,7 @@
 "ap-sel" no no no no no no no no 0 0
 "aphist" no no no no no no no no 0 0
 "apiClient" no no no no no no no no 0 0
-"apiClientXref" no no no no no no no no 0 0
+"apiClientXref" no no no no yes yes yes yes 0 0
 "APIInbound" no no no no no no no no 0 0
 "APIInboundDetail" no no no no no no no no 0 0
 "APIInboundEvent" no no no no no no no no 0 0
@@ -95,7 +95,7 @@
 "e-item-vend" no no no no no no no no 0 0
 "e-itemfg" no no no no no no no no 0 0
 "e-itemfg-vend" no no no no no no no no 0 0
-"eb" no yes no no no yes no no 0 0
+"eb" no yes no no yes yes no no 0 0
 "ed" no no no no no no no no 0 0
 "EDAPCheck" no no no no no no no no 0 0
 "EDCat" no no no no no no no no 0 0
@@ -140,7 +140,7 @@
 "est" no no no no no no no no 0 0
 "est-flm" no no no no no no no no 0 0
 "est-inst" no no no no no no no no 0 0
-"est-op" no no no no no no no no 0 0
+"est-op" no no no no yes yes yes yes 0 0
 "est-pf" no no no no no no no no 0 0
 "est-prep" no no no no no no no no 0 0
 "est-qty" no no no no no no no no 0 0
@@ -202,14 +202,14 @@
 "inventoryStockSnapshot" no no no no no no no no 0 0
 "inventoryTransaction" no no no no no no no no 0 0
 "InvoiceLines" no no no no no no no no 0 0
-"item" no no no no no no no no 0 0
+"item" no no no no yes no yes yes 0 0
 "item-bom" no no no no no no no no 0 0
 "item-comm" no no no no no no no no 0 0
 "item-spec" no no no no no no no no 0 0
-"itemfg" no no no no no no no no 0 0
+"itemfg" no no no no yes yes yes yes 0 0
 "itemfg-bom" no no no no no no no no 0 0
 "itemfg-ink" no no no no no no no no 0 0
-"itemfg-loc" no no no no yes yes yes yes 0 0
+"itemfg-loc" no no no no yes yes yes no 0 0
 "itemfgdtl" no no no no no no no no 0 0
 "itemUom" no no no no no no no no 0 0
 "jc-ctrl" no no no no no no yes no 0 0
@@ -321,7 +321,7 @@
 "procat" no no no no no no no no 0 0
 "prod" no no no no no no no no 0 0
 "prodl" no no no no no no no no 0 0
-"quote" no no no no no no no no 0 0
+"quote" no no no no yes yes yes yes 0 0
 "quotechg" no no no no no no no no 0 0
 "quotehd" no no no no no no no no 0 0
 "quoteit" no no no no no no no no 0 0

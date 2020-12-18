@@ -34,6 +34,7 @@ DEFINE INPUT PARAMETER ipcType AS CHARACTER NO-UNDO.
 /* Local Variable Definitions ---                                       */
 
 {custom/globdefs.i}
+{methods/template/brwCustomDef.i}
 
 DEFINE TEMP-TABLE tt-oe-route 
     FIELD tt-recid    AS RECID
@@ -216,7 +217,8 @@ ON WINDOW-CLOSE OF FRAME Dialog-Frame /* Delete Multipal Route */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL browse-route Dialog-Frame
 ON ROW-DISPLAY OF browse-route IN FRAME Dialog-Frame
     DO:   
-   
+   &SCOPED-DEFINE exclude-row-display true
+   {methods/template/brwRowDisplay.i}   
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -328,7 +330,7 @@ DEFINE VARIABLE liNumUsrx   AS INTEGER   NO-UNDO.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-  
+    {methods/template/brwcustom.i}
     RUN enable_UI.
 
     RUN build-table .

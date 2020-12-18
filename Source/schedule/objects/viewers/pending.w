@@ -37,6 +37,7 @@ CREATE WIDGET-POOL.
 {{&viewers}/includes/sharedVars.i NEW}
 &SCOPED-DEFINE useTable ttblJob
 {{&includes}/jobStatusFunc.i}
+{methods/template/brwcustomdef.i}
 
 /* Parameters Definitions ---                                           */
 
@@ -887,6 +888,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL jobID sObject
 ON ROW-DISPLAY OF jobID IN FRAME F-Main
 DO:
+    &scoped-define exclude-row-display true 
+    {methods/template/brwrowdisplay.i}    
   cellColumn[1]:BGCOLOR = IF jobID.jobSelected THEN 14 ELSE ?.
 END.
 
@@ -897,12 +900,14 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL jobID sObject
 ON START-SEARCH OF jobID IN FRAME F-Main
 DO:
+{methods/template/sortindicator.i} 
   IF {&BROWSE-NAME}:CURRENT-COLUMN:LABEL-BGCOLOR EQ 14 THEN DO:
     ASSIGN
       columnLabel = {&BROWSE-NAME}:CURRENT-COLUMN:NAME
       ascendingFlag = NOT ascendingFlag.
     RUN openQueryJobID.
   END.
+  {methods/template/sortindicatorend.i} 
   RETURN NO-APPLY.
 END.
 
@@ -1030,6 +1035,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL pendingJob sObject
 ON ROW-DISPLAY OF pendingJob IN FRAME F-Main
 DO:
+    &scoped-define exclude-row-display true 
+    {methods/template/brwrowdisplay.i}    
   bgColorJob = jobBGColor().
   DO idx = 10 TO 11:
     IF NOT VALID-HANDLE(cellColumn[idx]) THEN LEAVE.
@@ -1094,7 +1101,7 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
-
+{methods/template/brwcustom.i}
 {{&viewers}/includes/winTitle.i}
 
 /* If testing in the UIB, initialize the SmartObject. */  

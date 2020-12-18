@@ -44,7 +44,7 @@ DEFINE VARIABLE total-time   AS CHARACTER NO-UNDO.
 {methods/defines/sortByDefs.i}
 {custom/globdefs.i}
 {custom/gcompany.i}
-
+{methods/template/brwcustomdef.i}
 gcompany = "001".
 
 /* _UIB-CODE-BLOCK-END */
@@ -291,6 +291,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL MachTrans C-Win
 ON START-SEARCH OF MachTrans IN FRAME DEFAULT-FRAME
 DO:
+	{methods/template/sortindicator.i} 
     IF {&BROWSE-NAME}:CURRENT-COLUMN:NAME NE ? THEN DO:
         cColumnLabel = BROWSE {&BROWSE-NAME}:CURRENT-COLUMN:NAME.
         IF cColumnLabel EQ cSaveLabel THEN
@@ -298,6 +299,7 @@ DO:
         cSaveLabel = cColumnLabel.
         RUN pReopenBrowse.
     END.
+	{methods/template/sortindicatorend.i} 
     RETURN NO-APPLY.
 END.
 

@@ -44,6 +44,7 @@ IF PROGRAM-NAME(2) MATCHES "*viewers/itemfg.*"  THEN
 {methods/prgsecur.i}               
 {methods/defines/hndldefs.i}               
 {sys/inc/VAR.i NEW SHARED}
+{methods/template/brwCustomDef.i}
 
 ASSIGN 
     cocode = g_company
@@ -419,7 +420,8 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-1 W-Win
 ON ROW-DISPLAY OF BROWSE-1 IN FRAME F-Main
 DO:
-    
+   &SCOPED-DEFINE exclude-row-display true
+   {methods/template/brwRowDisplay.i}    
    
     END.
 
@@ -614,6 +616,7 @@ DO:
 
 
 /* ***************************  Main Block  *************************** */
+{methods/template/brwcustom.i}
 {sys/inc/f3helpw.i}
 /*{custom/yellowColumns.i}*/
 SESSION:DATA-ENTRY-RETURN = YES.

@@ -56,6 +56,7 @@ ASSIGN
   v-prgmname = SUBSTR(v-prgmname,1,INDEX(v-prgmname,".")).
 
 {sys/inc/var.i new shared}
+{methods/template/brwCustomDef.i}
 
 cocode = ip-company.
 
@@ -390,6 +391,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-1 Dialog-Frame
 ON ROW-DISPLAY OF BROWSE-1 IN FRAME Dialog-Frame
 DO:
+   &SCOPED-DEFINE exclude-row-display true
+   {methods/template/brwRowDisplay.i}
+       
     DEF VAR v-fg-est-no AS cha NO-UNDO.
     FIND FIRST eb WHERE eb.company = itemfg.company 
                         AND eb.stock-no = itemfg.i-no  NO-LOCK NO-ERROR.
@@ -517,14 +521,17 @@ THEN FRAME {&FRAME-NAME}:PARENT = ACTIVE-WINDOW.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-
+    {methods/template/brwcustom.i}  
   IF ip-cur-val EQ "0" THEN ip-cur-val = "".
 
   RUN getCellColumns.
    rd-sort:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "1".
    
   RUN enable_UI.
-
+    /* Ticket# : 92946
+       Hiding this widget for now, as browser's column label should be indicating the column which is sorted by */
+    fi_sortby:HIDDEN  = TRUE.
+    fi_sortby:VISIBLE = FALSE.
   DO WITH FRAME {&FRAME-NAME}:
     {custom/usrprint.i}
     lv-search = ip-cur-val.

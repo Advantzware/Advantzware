@@ -18,7 +18,7 @@
 "001" "Reports" "Selectable Report Columns" 0 0 "JR15" ? yes "" "0402201509662302" yes "" "" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
 "001" "Reports" "Selectable Report Columns" 0 0 "VR9" ? yes "" "0330201509654914" yes "" "" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
 "001" "Reports" "Selectable Report Columns" 0 0 "VR7" ? yes "" "0330201509654936" yes "" "" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
-"001" "Reports" "Selectable Report Columns" 0 0 "AL1" ? yes "" "0328201509654071" yes "" "" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
+"001" "Reports" "Selectable Report Columns" 0 0 "AL1" ? no "" "0328201509654071" yes "" "" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
 "001" "Reports" "Selectable Report Columns" 0 0 "JR2" ? yes "" "0722201509752516" yes "" "" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
 "001" "Reports" "Selectable Report Columns" 0 0 "DR7" ? yes "" "0610201509720483" yes "" "" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
 "001" "Reports" "Selectable Report Columns" 0 0 "DR11" ? yes "" "0609201509719078" yes "" "" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
@@ -88,7 +88,7 @@
 "001" "Reports" "Selectable Report Columns" 0 0 "OR6" ? yes "" "0424201409227435" yes "" "" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
 "001" "Reports" "Selectable Report Columns" 0 0 "DR14" ? yes "" "0425201409229897" yes "" "" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
 "001" "Reports" "Selectable Report Columns" 0 0 "OR4" ? yes "" "1006201409425523" yes "" "" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
-"001" "REPORTS" "" 0 0 "HR3" ? no "" "0602201409274843" yes "" "" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
+"001" "REPORTS" "" 0 0 "HR3" ? yes "" "0602201409274843" yes "" "" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
 "001" "Reports" "Selectable Report Columns" 0 0 "IR14" ? yes "" "1006201409424633" yes "" "" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
 "001" "REPORTSCUSTLIST" "" 0 0 "AR4" ? yes "" "0916201409401565" yes "" "" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
 "001" "Reports" "Selectable Report Columns" 0 0 "OZ7" ? yes "" "1103201409461377" yes "" "" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
@@ -324,7 +324,6 @@
 "001" "REPORTS" "" 0 0 "PR12" ? yes "" "201902254479002904432" yes "" "" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
 "001" "CustomerList" "" 0 0 "OB1" ? yes "" "201909043721103794297" yes "" "" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
 "001" "CustomerList" "" 0 0 "OS1" ? yes "" "201909043722503794300" yes "" "" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
-"001" "Reports" "Run AOA Version (Logical = ?)" 0 0 "DE1" ? yes "" "201906181241903556988" yes "" "" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
 "001" "REPORTS" "" 0 0 "OB1" ? yes "" "201910115593004369266" yes "" "" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
 "001" "CustomerList" "" 0 0 "OU4" ? yes "" "202005213678605300738" yes "" "" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
 "001" "CustomerList" "" 0 0 "OU6" ? yes "" "202005213687405300749" yes "" "" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
@@ -363,11 +362,11 @@
 "001" "cXMLASN" "" 0 0 ".\CustFiles\XMLOutput\HA" ? no "" "201909273888104296109" yes "HA1000" "HA1000" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
 "001" "REPORTSCUSTLIST" "" 0 0 "AR4" ? yes "" "0916201409400725" yes "HER1000" "" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
 "001" "RELPOST" "" 0 0 "BOL" ? yes "OW4" "0223201801867994" yes "HER1000" "" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
-"001" "BOLFMT" "" 0 0 "Mclean-Excel" ? yes "OS3" "202011043764805819239" yes "HER1000" "" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
 "001" "INVEMAILS" "" 0 0 "One Invoice per Email" ? yes "OP" "0114201509563254" yes "HER1000" "HER1000" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
 "001" "REPORTSCUSTLIST" "" 0 1 "AR4" ? yes "" "0916201409400724" yes "HEW1000" "" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
 "001" "PUSHPIN" "" 0 0 "Q:\RCODE\PUSH PIN FILES\HP" ? no "" "0629201509732619" yes "HEW1000" "" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
 "001" "" "" 0 0 "QuoPrint 1" ? no "" "201902213232002900240" yes "HEW1000" "" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
+"001" "BOLFMT" "" 1 0 "CCC" ? yes "OS3" "202012083702505906444" yes "HEW1000" "" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
 "001" "" "" 0 0 "QuoPrint 1" ? yes "" "201902213235802900242" yes "Hew1000" "HEW1000" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
 "001" "OEImport" "" 0 0 "PREMIER" ? no "OW" "0203201207740081" yes "IBM1000" "" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
 "001" "INEXPORT" "" 0 0 "GOODMAN" ? no "" "1101201005828041" yes "IBM1000" "" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
@@ -389,7 +388,7 @@
 "001" "LOADTAG" "" 4 0 "ASI" ? no "OU1" "0305201801880154" yes "ibm1000" "ibmmex" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
 "001" "CINVOICE" "" 0 0 "FIBREMEXICO" ? no "" "1005200905020091" yes "iggle01" "iggle01" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
 "001" "QUOIMAGE" "" 0 1 "P:\ASI\Environments\EnvFiles\images\Lagunitas\Advaned Box Company Logo v2.png" ? no "" "0614201700587529" yes "Lag10001" "" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
-"001" "InvoiceApprovalExpectZero" "" 0 0 "" ? yes "" "202011185927305858102" yes "lten10" "" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
+"001" "ApplyInvoiceApprovals" "" 0 0 "" ? yes "" "202012095760205908616" yes "LTen10" "" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
 "001" "STMTPRINT" "" 0 0 "souleexcel" ? yes "AR4" "202006038340205334918" yes "Matt12" "" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
 "001" "BOLPOST" "" 0 0 "AutoSelectShipFrom" ? yes "OS5" "1020201610193650" yes "Matt21" "" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
 "001" "STMTPRINT" "" 0 0 "soule" ? yes "AR4" "202006038337505334917" yes "Matt21" "" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
@@ -415,5 +414,4 @@
 "001" "cXMLShipToPrefix" "" 0 0 "DICKS:" ? no "" "1111201409488089" yes "ZOV100" "" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
 "001" "LoadTagSSCC" "" 0 0 "" ? yes "OU7" "0111201609886898" yes "ZOV100" "" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
 "001" "BOLPOST" "" 0 0 "AutoSelectShipFrom" ? yes "OS5" "0916201610173875" yes "ZOV100" "" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
-"001" "BOLFMT" "" 0 0 "PremCan" ? no "OS3" "202006244196005381509" yes "ZOV100" "" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
 "001" "CINVOICE" "" 0 0 "FibreMexico" ? yes "" "201903264705203421834" yes "ZOV100" "ZOVBRK" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no

@@ -32,8 +32,9 @@ CREATE WIDGET-POOL.
 /* ***************************  Definitions  ************************** */
 
 &SCOPED-DEFINE winReSize
-&SCOPED-DEFINE sizeOption HEIGHT
+//&SCOPED-DEFINE sizeOption HEIGHT
 &SCOPED-DEFINE useMatches
+&SCOPED-DEFINE browseOnly
 {methods/defines/winReSize.i}
 
 /* Parameters Definitions ---                                           */
@@ -404,6 +405,7 @@ lCommReport EQ NO)"
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON START-SEARCH OF Browser-Table IN FRAME F-Main
 DO:
+	{methods/template/sortindicator.i}
     IF {&BROWSE-NAME}:CURRENT-COLUMN:NAME NE ? THEN DO:
         ASSIGN
             cColumnLabel = BROWSE {&BROWSE-NAME}:CURRENT-COLUMN:NAME
@@ -414,6 +416,7 @@ DO:
         cSaveLabel = cColumnLabel.
         RUN pReopenBrowse.
     END.
+	{methods/template/sortindicatorend.i}
     RETURN NO-APPLY.
 END.
 
@@ -531,7 +534,10 @@ ASSIGN
 {methods/sortByProc.i "pByInactive" "account.inactive"}
 {methods/sortByProc.i "pBySalesReport" "account.salesReport"}
 {methods/sortByProc.i "pByType" "account.type"}
-
+/* Ticket# : 92946
+   Hiding this widget for now, as browser's column label should be indicating the column which is sorted by */
+fi_sortby:HIDDEN  = TRUE.
+fi_sortby:VISIBLE = FALSE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

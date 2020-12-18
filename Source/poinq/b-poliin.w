@@ -32,7 +32,7 @@ CREATE WIDGET-POOL.
 /* ***************************  Definitions  ************************** */
 
 &SCOPED-DEFINE winReSize
-&SCOPED-DEFINE browseOnly
+//&SCOPED-DEFINE browseOnly
 {methods/defines/winReSize.i}
 {custom/globdefs.i}
 /* Parameters Definitions ---                                           */

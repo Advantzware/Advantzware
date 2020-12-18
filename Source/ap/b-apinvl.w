@@ -26,6 +26,7 @@ CREATE WIDGET-POOL.
 &SCOPED-DEFINE yellowColumnsName ap-invl
 &SCOPED-DEFINE winReSize
 {methods/defines/winReSize.i}
+{methods/template/brwCustomDef.i}
 
 /* Parameters Definitions ---                                           */
 
@@ -536,6 +537,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON ROW-DISPLAY OF Browser-Table IN FRAME F-Main
 DO:
+     &SCOPED-DEFINE exclude-row-display true
+    {methods/template/brwRowDisplay.i} 
      li-line-num = li-line-num + 1.
 END.
 
@@ -779,7 +782,10 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
 /*{custom/resizmn.i} */
 
 {methods/winReSize.i}
-
+/* Ticket# : 92946
+   Hiding this widget for now, as browser's column label should be indicating the column which is sorted by */
+fi_sortby:HIDDEN  = TRUE.
+fi_sortby:VISIBLE = FALSE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

@@ -141,6 +141,7 @@ ON SCROLL-NOTIFY OF br_table IN FRAME F-Main DO:
 END.
 
 ON START-SEARCH OF br_table IN FRAME F-Main DO:
+{methods/template/sortindicator.i} 
     DEF VAR AscDes AS CHAR NO-UNDO.
     DEF VAR hColumn AS HANDLE NO-UNDO.
     ASSIGN 
@@ -173,6 +174,7 @@ ON START-SEARCH OF br_table IN FRAME F-Main DO:
         END.
         ASSIGN
             hHandle:LABEL-BGCOLOR = IF AscDes = "ASC" THEN 10 ELSE 12.
+	{methods/template/sortindicatorend.i} 
 END.
 
 ON VALUE-CHANGED OF br_table IN FRAME F-Main DO:

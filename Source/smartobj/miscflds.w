@@ -61,8 +61,9 @@ CREATE WIDGET-POOL.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON selectMiscFlds 
-     IMAGE-UP FILE "Graphics/32x32/document_checks.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/document_checks.png":U
+	 IMAGE-DOWN FILE "Graphics/32x32/document_checks_hover.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/document_checks_disable.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Misc Fields" 
      SIZE 7.8 BY 1.81 TOOLTIP "Misc Fields".
 
@@ -73,7 +74,8 @@ DEFINE FRAME F-Main
      selectMiscFlds AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE .
+         AT COL 1 ROW 1 SCROLLABLE 
+		 BGCOLOR 21.
 
 
 /* *********************** Procedure Settings ************************ */

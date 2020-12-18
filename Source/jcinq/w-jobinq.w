@@ -169,7 +169,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 320
          VIRTUAL-HEIGHT     = 320
          VIRTUAL-WIDTH      = 320
-         RESIZE             = no
+         RESIZE             = yes
          SCROLL-BARS        = no
          STATUS-AREA        = yes
          BGCOLOR            = ?
@@ -305,7 +305,7 @@ END.
 &SCOPED-DEFINE mfRecKey misc_rec_key_value
 &SCOPED-DEFINE mfHeader misc_header_value
 {methods/miscflds.i}
-
+{custom/initializeprocs.i}
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -387,7 +387,7 @@ PROCEDURE adm-create-objects :
 
        /* Links to SmartObject h_options. */
        RUN add-link IN adm-broker-hdl ( h_b-jobinq , 'spec':U , h_options ).
-
+	   RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'udficon':U , h_options ).
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_expxls ,
              h_xferjobdata , 'AFTER':U ).
@@ -1008,20 +1008,20 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-change-page W-Win 
 PROCEDURE local-change-page :
-/*------------------------------------------------------------------------------
-  Purpose:     Override standard ADM method
-  Notes:       
-------------------------------------------------------------------------------*/
-
+    /*------------------------------------------------------------------------------
+      Purpose:     Override standard ADM method
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'change-page':U ) .
   /* Code placed here will execute PRIOR to standard behavior. */
   {methods/winReSizePgChg.i}
 
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'change-page':U ) .
+  
 
   /* Code placed here will execute AFTER standard behavior.    */
   RUN get-attribute ('Current-Page':U).
-  lv-current-page = int(return-value).
+  lv-current-page = int(RETURN-VALUE).
 
   IF lv-current-page EQ 1 THEN
      RUN value-changed-proc IN h_b-jobinq.

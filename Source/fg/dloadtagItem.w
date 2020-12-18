@@ -33,7 +33,8 @@
 {custom/globdefs.i}
 {sys/inc/VAR.i NEW SHARED}
 
-{fg/ttTransBins.i shared} 
+{fg/ttTransBins.i shared}
+{methods/template/brwcustomdef.i}
 
 DEFINE VARIABLE ll-secure    AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cColumnLabel AS CHARACTER NO-UNDO .
@@ -258,7 +259,9 @@ ON ROW-LEAVE OF BROWSE-3 IN FRAME Dialog-Frame
 &Scoped-define SELF-NAME BROWSE-3
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-3 Dialog-Frame
 ON ROW-DISPLAY OF BROWSE-3 IN FRAME Dialog-Frame
-    DO:   
+    DO: 
+        &scoped-define exclude-row-display true 
+        {methods/template/brwrowdisplay.i}  
         IF AVAILABLE ttTransBin THEN 
         DO:
                 
@@ -370,6 +373,7 @@ IF VALID-HANDLE(ACTIVE-WINDOW) AND FRAME {&FRAME-NAME}:PARENT EQ ?
 
 /* Now enable the interface and wait for the exit condition.            */
 /* (NOTE: handle ERROR and END-KEY so cleanup code will always fire.    */
+{methods/template/brwcustom.i}
 {sys/inc/f3helpw.i}
 
 MAIN-BLOCK:

@@ -34,6 +34,7 @@ CREATE WIDGET-POOL.
 {custom/globdefs.i}
 
 {sys/inc/var.i "new shared"}
+{methods/template/brwcustomdef.i}
 
 ASSIGN
  cocode = g_company
@@ -564,7 +565,9 @@ ASI.inv-head.multi-invoice = no"
 &Scoped-define SELF-NAME Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON ROW-DISPLAY OF Browser-Table IN FRAME F-Main
-DO:   
+DO:  
+    &scoped-define exclude-row-display true 
+    {methods/template/brwrowdisplay.i}     
   /* gdm - 11180901 */
   IF invcopys-cha NE "" THEN
      RUN set-row-bgcolor.
@@ -600,7 +603,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON START-SEARCH OF Browser-Table IN FRAME F-Main
 DO:
-    
+   {methods/template/sortindicator.i}  
     DEFINE VARIABLE hdColumn    AS HANDLE     NO-UNDO.
     DEFINE VARIABLE cColumnName AS CHARACTER  NO-UNDO.
 
@@ -617,6 +620,7 @@ DO:
     APPLY 'END-SEARCH' TO {&BROWSE-NAME}.
 
     APPLY "CHOOSE" TO btGo.
+	{methods/template/sortindicatorend.i} 
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -711,7 +715,10 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
 &ENDIF
 
 {methods/winReSize.i}
-
+/* Ticket# : 92946
+   Hiding this widget for now, as browser's column label should be indicating the column which is sorted by */
+fi_sortby:HIDDEN  = TRUE.
+fi_sortby:VISIBLE = FALSE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

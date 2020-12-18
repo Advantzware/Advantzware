@@ -36,7 +36,7 @@ CREATE WIDGET-POOL.
 &SCOPED-DEFINE SORTBY-PHRASE ~
 BY STRING(mch.form-no,'999') BY STRING(mch.blank-no,'999') BY STRING(mch.line,'999')
 &SCOPED-DEFINE winReSize
-&SCOPED-DEFINE sizeOption HEIGHT
+//&SCOPED-DEFINE sizeOption HEIGHT
 {methods/defines/winReSize.i}
 
 /* Parameters Definitions ---                                           */

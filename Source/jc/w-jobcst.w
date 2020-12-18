@@ -196,7 +196,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 320
          VIRTUAL-HEIGHT     = 320
          VIRTUAL-WIDTH      = 320
-         RESIZE             = NO
+         RESIZE             = yes
          SCROLL-BARS        = NO
          STATUS-AREA        = YES
          BGCOLOR            = ?
@@ -336,7 +336,7 @@ END.
 &SCOPED-DEFINE mfRecKey misc_rec_key_value
 &SCOPED-DEFINE mfHeader misc_header_value
 {methods/miscflds.i}
-
+{custom/initializeprocs.i}
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -447,7 +447,7 @@ PROCEDURE adm-create-objects :
             
        /* Links to SmartObject h_attach. */
        RUN add-link IN adm-broker-hdl ( h_b-jobinq , 'attach':U , h_attach ).
-
+	   RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'udficon':U , h_options2 ).
        /* Links to SmartViewer h_expxls. */
        RUN add-link IN adm-broker-hdl ( h_expxls , 'sort-data':U , THIS-PROCEDURE ).
 
@@ -1186,7 +1186,7 @@ PROCEDURE local-create-objects :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'create-objects':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  {methods/winReSizePgChg.i}
+ // {methods/winReSizePgChg.i}
 
 END PROCEDURE.
 

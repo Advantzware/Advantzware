@@ -28,6 +28,7 @@ CREATE WIDGET-POOL.
 &SCOPED-DEFINE programVersion
 &SCOPED-DEFINE winReSize
 {methods/defines/winReSize.i}
+{methods/template/brwcustomdef.i}
 
 /* Parameters Definitions ---                                           */
 
@@ -346,7 +347,8 @@ tt-report.flute oe-rel.spare-char-1 oe-rel.spare-char-2 tt-report.q-rel
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS br_table 
-&Scoped-Define DISPLAYED-OBJECTS br_table FI_moveCol 
+&Scoped-Define DISPLAYED-OBJECTS br_table 
+//FI_moveCol 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -441,10 +443,10 @@ DEFINE BUTTON btnCalendar
      LABEL "" 
      SIZE 4.6 BY .86 TOOLTIP "PopUp Calendar".
 
-DEFINE VARIABLE FI_moveCol AS CHARACTER FORMAT "X(4)":U 
+/*DEFINE VARIABLE FI_moveCol AS CHARACTER FORMAT "X(4)":U 
      VIEW-AS FILL-IN 
      SIZE 13 BY 1
-     BGCOLOR 14 FONT 6 NO-UNDO.
+     BGCOLOR 14 FONT 6 NO-UNDO.*/
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -535,10 +537,10 @@ DEFINE BROWSE br_table
 DEFINE FRAME F-Main
      btnCalendar AT ROW 1.91 COL 125
      br_table AT ROW 1 COL 1
-      "Browser Col. Mode:" VIEW-AS TEXT
+    /*  "Browser Col. Mode:" VIEW-AS TEXT
           SIZE 22.6 BY .62 AT ROW 13.80 COL 112 
-          FONT 6
-     FI_moveCol AT ROW 13.60 COL 133 COLON-ALIGNED NO-LABEL WIDGET-ID 4
+          FONT 6*/
+  //   FI_moveCol AT ROW 13.60 COL 133 COLON-ALIGNED NO-LABEL WIDGET-ID 4
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -755,6 +757,9 @@ ON RETURN OF br_table IN FRAME F-Main
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
 ON ROW-DISPLAY OF br_table IN FRAME F-Main
 DO: 
+    &scoped-define exclude-row-display true 
+    {methods/template/brwrowdisplay.i}  
+      
   DEF BUFFER bfOeRel FOR oe-rel.
   DEF VAR v-stat AS CHAR NO-UNDO.
   v-stat = get-rel-stat().
@@ -806,6 +811,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
 ON START-SEARCH OF br_table IN FRAME F-Main
 DO:
+{methods/template/sortindicator.i}
   DEF VAR lh-column AS HANDLE NO-UNDO.
   DEF VAR lv-column-nam AS CHAR NO-UNDO.
   DEF VAR lv-column-lab AS CHAR NO-UNDO.
@@ -827,6 +833,7 @@ DO:
 
   /*APPLY "choose" TO btn_go.*/
   RUN resort-query .
+    {methods/template/sortindicatorend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -906,8 +913,8 @@ SESSION:DATA-ENTRY-RETURN = YES.
 
 {methods/browsers/setCellColumns.i}
 
-  FI_moveCol = "Sort".
-  DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}.
+ /* FI_moveCol = "Sort".
+  DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}.*/
 
 
     RUN-PROC = "sbo/oerel-recalc-act.p".
@@ -3595,8 +3602,8 @@ PROCEDURE move-columns :
          br_table:COLUMN-MOVABLE = v-col-move
          br_table:COLUMN-RESIZABLE = v-col-move
          v-col-move = NOT v-col-move.
-      FI_moveCol = IF v-col-move = NO THEN "Move" ELSE "Sort".
-      DISPLAY FI_moveCol.
+    /*  FI_moveCol = IF v-col-move = NO THEN "Move" ELSE "Sort".
+      DISPLAY FI_moveCol.*/
    END.
 END PROCEDURE.
 

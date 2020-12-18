@@ -2,6 +2,7 @@
 
 DEFINE VARIABLE sortBy AS LOGICAL NO-UNDO.
 DEFINE VARIABLE sortColumn AS CHARACTER NO-UNDO.
+DEFINE VARIABLE sortColumnhand AS HANDLE NO-UNDO.
 DEFINE VARIABLE colLabels AS CHARACTER NO-UNDO.
 DEFINE VARIABLE browserTitle AS CHARACTER NO-UNDO.
 
@@ -1437,7 +1438,7 @@ PROCEDURE openQuery:
 
 &ELSEIF '{&yellowColumnsName}' EQ 'dMultiSelectItem' &THEN
   &SCOPED-DEFINE SORTBY-PHRASE BY ~
-  IF sortColumn EQ '#Up' THEN string(ttMultiSelectItem.multiplier,"999999999") ELSE ~
+  IF sortColumn EQ 'Molds' THEN string(ttMultiSelectItem.multiplier,"999999999") ELSE ~
   IF sortColumn EQ 'Quantity To Order' THEN string(ttMultiSelectItem.quantityToOrder,"-999999999")  ELSE ~
   IF sortColumn EQ 'Earliest Due Date' THEN STRING(YEAR(ttMultiSelectItem.dateDueDateEarliest),'9999') + ~
                                    STRING(MONTH(ttMultiSelectItem.dateDueDateEarliest),'99') + ~
@@ -1446,7 +1447,7 @@ PROCEDURE openQuery:
   IF sortColumn EQ 'FG Name' THEN string(ttMultiSelectItem.itemName)  ELSE ~
   IF sortColumn EQ 'Min Level' THEN string(ttMultiSelectItem.quantityReorderLevel,"-999999999")  ELSE ~
   IF sortColumn EQ 'On Hand' THEN string(ttMultiSelectItem.quantityOnHand,"-999999999")  ELSE ~
-  IF sortColumn EQ 'On Order' THEN string(ttMultiSelectItem.quantityOnOrder,"-999999999")  ELSE ~
+  IF sortColumn EQ 'Scheduled for Jobs' THEN string(ttMultiSelectItem.quantityOnOrder,"-999999999")  ELSE ~
   IF sortColumn EQ 'Allocated' THEN string(ttMultiSelectItem.quantityAllocated,"-999999999")  ELSE ~
   IF sortColumn EQ 'Available' THEN string(ttMultiSelectItem.quantityAvailable,"-999999999")  ELSE ~
   IF sortColumn EQ 'Available On-Hand' THEN string(ttMultiSelectItem.availOnHand,"-999999999")  ELSE ~
@@ -1458,6 +1459,7 @@ PROCEDURE openQuery:
   IF sortColumn EQ 'Estimate' THEN string(ttMultiSelectItem.itemEstNO)  ELSE ~
   IF sortColumn EQ 'Style' THEN string(ttMultiSelectItem.itemStyle)  ELSE ~
   IF sortColumn EQ 'Warehouse' THEN string(ttMultiSelectItem.itemWhse)  ELSE ~
+  IF sortColumn EQ 'Furnish' THEN string(ttMultiSelectItem.board)  ELSE ~
      string(ttMultiSelectItem.itemID) ~{&SORTED}
 
 
@@ -1545,17 +1547,27 @@ END PROCEDURE.
 
 PROCEDURE startSearch:
   DEFINE VARIABLE sortDisplay AS CHARACTER NO-UNDO.
-
+  IF BROWSE {&BROWSE-NAME}:CURRENT-COLUMN:LABEL-BGCOLOR = 30 THEN
+  BROWSE {&BROWSE-NAME}:CURRENT-COLUMN:LABEL-BGCOLOR = 14.
+  IF VALID-HANDLE(sortcolumnhand) AND sortcolumnhand:LABEL-BGCOLOR = 30 THEN
+  sortcolumnhand:LABEL-BGCOLOR        = 14.
+  
   IF colLabels EQ '' THEN RUN getColLabels.
 
   IF NOT CAN-DO(colLabels,BROWSE {&BROWSE-NAME}:CURRENT-COLUMN:LABEL) THEN
   RETURN NO-APPLY.
+  
+    BROWSE {&BROWSE-NAME}:CLEAR-SORT-ARROWS( ) NO-ERROR.
 
   IF sortColumn EQ BROWSE {&BROWSE-NAME}:CURRENT-COLUMN:LABEL THEN
-     sortBy = NOT sortBy.
+	ASSIGN
+     sortBy = NOT sortBy
+	 BROWSE {&BROWSE-NAME}:CURRENT-COLUMN:SORT-ASCENDING = sortBy.
+
 
   ASSIGN
     sortColumn = BROWSE {&BROWSE-NAME}:CURRENT-COLUMN:LABEL
+	BROWSE {&BROWSE-NAME}:CURRENT-COLUMN:SORT-ASCENDING = sortBy
     sortDisplay = TRIM(sortColumn + ' - ' + STRING(sortBy,'Ascending/Descending'))
     &IF DEFINED(noSortByField) EQ 0 &THEN
     fi_sortBy:SCREEN-VALUE IN FRAME {&FRAME-NAME} = sortDisplay
@@ -1569,9 +1581,17 @@ PROCEDURE startSearch:
     lv-search
     &ENDIF
     .
-  IF browserTitle NE '' THEN
-  BROWSE {&BROWSE-NAME}:TITLE = browserTitle + ' (sorted by: ' + sortDisplay + ')'.
+
+ // IF browserTitle NE '' THEN
+  //BROWSE {&BROWSE-NAME}:TITLE = browserTitle + ' (sorted by: ' + sortDisplay + ')'.
+
   RUN openQuery.
+
+  BROWSE {&BROWSE-NAME}:CURRENT-COLUMN:LABEL-BGCOLOR = 30.
+
+ASSIGN
+    sortColumn = BROWSE {&BROWSE-NAME}:CURRENT-COLUMN:LABEL
+	sortcolumnhand = BROWSE {&BROWSE-NAME}:CURRENT-COLUMN.
 END PROCEDURE.
 
 /* Sort removed from b-cusinq 'Date' */
@@ -1580,3 +1600,8 @@ END PROCEDURE.
            DAY(tt-arinq.tr-date) + ~
            (IF tt-arinq.inv-no EQ 0 THEN 99999999 ELSE 0),'99999999') ~
   ELSE ~*/
+ 
+&IF DEFINED(noSortByField) EQ 0 &THEN  
+fi_sortBy:HIDDEN IN FRAME {&frame-name}= TRUE.
+fi_sortBy:VISIBLE IN FRAME {&frame-name} = FALSE.
+ &ENDIf

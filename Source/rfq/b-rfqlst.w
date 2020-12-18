@@ -41,6 +41,7 @@ CREATE WIDGET-POOL.
 /* Local Variable Definitions ---                                       */
 {methods/defines/hndldefs.i}
 {custom/globdefs.i}
+{methods/template/brwcustomdef.i}
 /*&Scoped-define Item-KEY-PHRASE TRUE */
 
 def var CurRowIdent as rowid no-undo.
@@ -413,9 +414,9 @@ DEFINE FRAME F-Main
      "Customer" VIEW-AS TEXT
           SIZE 13 BY .62 AT ROW 1.24 COL 22
           FGCOLOR 9 FONT 6
-     "Click Field Heading to Sort By:" VIEW-AS TEXT
+    /* "Click Field Heading to Sort By:" VIEW-AS TEXT
           SIZE 36 BY .62 AT ROW 5.05 COL 79
-          FONT 6
+          FONT 6 */
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -656,6 +657,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON ROW-DISPLAY OF Browser-Table IN FRAME F-Main
 DO:
+    &scoped-define exclude-row-display true 
+    {methods/template/brwrowdisplay.i}  
+      
     find style where style.company = rfq.company and
                       style.style = rfqitem.style
                       no-lock no-error.
@@ -704,6 +708,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON START-SEARCH OF Browser-Table IN FRAME F-Main
 DO:
+{methods/template/sortindicator.i} 
    DEF VAR lh-column AS HANDLE NO-UNDO.
   DEF VAR lv-column-nam AS CHAR NO-UNDO.
   DEF VAR lv-column-lab AS CHAR NO-UNDO.
@@ -724,6 +729,7 @@ DO:
   APPLY 'END-SEARCH' TO {&BROWSE-NAME}.
 
   APPLY "choose" TO btn_go.
+  {methods/template/sortindicatorend.i} 
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1011,6 +1017,7 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
+{methods/template/brwcustom.i}
 {sys/inc/f3help.i}
 /*
 FIND FIRST ce-ctrl WHERE ce-ctrl.company = gcompany and
@@ -1026,7 +1033,10 @@ SESSION:DATA-ENTRY-RETURN = YES.
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF
-
+/* Ticket# : 92946
+   Hiding this widget for now, as browser's column label should be indicating the column which is sorted by */
+fi_sort-by:HIDDEN  = TRUE.
+fi_sort-by:VISIBLE = FALSE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

@@ -28,16 +28,16 @@
 2 "_default" "dynSubjct." 0 4 yes "AuditDtl.AuditBeforeValue" "Before Value" "x(16)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202009034462805625813" no "" "" 0 0 "" no
 2 "_default" "dynSubjct." 0 5 yes "AuditDtl.AuditAfterValue" "After Value" "x(16)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202009034462805625814" no "" "" 0 0 "" no
 2 "_default" "dynSubjct." 0 6 yes "AuditHdr.AuditUser" "User ID" "x(16)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202009034462805625815" no "" "" 0 0 "" no
-3 "_default" "dynSubjct." 0 1 yes "job-hdr.job-no" "Job Number" "x(6)" 0 "STRING" 1 no no "" "" no "" "" yes yes yes "" "202005136533005265262" no "" "" 0 0 "" no
-3 "_default" "dynSubjct." 0 2 yes "job-hdr.job-no2" "Run #" ">9" 0 "integer" 0 no no "" "" no "" "" yes yes yes "" "202005136533005265263" no "" "" 0 0 "" no
-3 "_default" "dynSubjct." 0 3 yes "job-hdr.frm" "Form" ">>9" 0 "integer" 0 no no "" "" no "" "" yes yes yes "" "202005136533005265264" no "" "" 0 0 "" no
-3 "_default" "dynSubjct." 0 4 yes "job-hdr.blank-no" "Blank" ">9" 0 "integer" 0 no no "" "" no "" "" yes yes yes "" "202005136533005265265" no "" "" 0 0 "" no
-3 "_default" "dynSubjct." 0 5 yes "job-hdr.i-no" "Item No" "x(15)" 0 "STRING" 0 no no "" "" no "" "" yes yes yes "" "202005136533005265266" no "" "" 0 0 "" no
-3 "_default" "dynSubjct." 0 6 yes "job-hdr.est-no" "Estimate #" "x(5)" 0 "STRING" 0 no no "" "" no "" "" yes yes yes "" "202005136533005265267" no "" "" 0 0 "" no
-3 "_default" "dynSubjct." 0 7 yes "job-hdr.ord-no" "Order#" ">>>>>9" 0 "integer" 0 no no "" "" no "" "" yes yes yes "" "202005136533005265268" no "" "" 0 0 "" no
-3 "_default" "dynSubjct." 0 8 yes "job-hdr.cust-no" "Cust. #" "x(8)" 0 "STRING" 0 no no "" "" no "" "" yes yes yes "" "202005136533005265269" no "" "" 0 0 "" no
-3 "_default" "dynSubjct." 0 9 yes "job-hdr.due-date" "Due Date" "99/99/9999" 0 "date" 0 no no "" "" no "" "" yes yes yes "" "202005136533005265270" no "" "" 0 0 "" no
-3 "_default" "dynSubjct." 0 10 yes "job-hdr.opened" "Status" "Open/Closed" 0 "logical" 0 no no "" "" no "" "" yes yes yes "" "202005136533005265271" no "" "" 0 0 "" no
+3 "_default" "dynSubjct." 0 1 yes "job-hdr.job-no" "Job Number" "x(6)" 0 "STRING" 1 no no "" "" no "" "" yes yes yes "" "202012057390805902948" no "" "" 0 0 "" no
+3 "_default" "dynSubjct." 0 2 yes "job-hdr.job-no2" "Run #" ">9" 0 "integer" 0 no no "" "" no "" "" yes yes yes "" "202012057390805902949" no "" "" 0 0 "" no
+3 "_default" "dynSubjct." 0 3 yes "job-hdr.frm" "Form" ">>9" 0 "integer" 0 no no "" "" no "" "" yes yes yes "" "202012057390805902950" no "" "" 0 0 "" no
+3 "_default" "dynSubjct." 0 4 yes "job-hdr.blank-no" "Blank" ">9" 0 "integer" 0 no no "" "" no "" "" yes yes yes "" "202012057390805902951" no "" "" 0 0 "" no
+3 "_default" "dynSubjct." 0 5 yes "job-hdr.i-no" "Item No" "x(15)" 0 "STRING" 0 no no "" "" no "" "" yes yes yes "" "202012057390805902952" no "" "" 0 0 "" no
+3 "_default" "dynSubjct." 0 6 yes "job-hdr.est-no" "Estimate #" "x(5)" 0 "STRING" 0 no no "" "" no "" "" yes yes yes "" "202012057390805902953" no "" "" 0 0 "" no
+3 "_default" "dynSubjct." 0 7 yes "job-hdr.ord-no" "Order#" ">>>>>9" 0 "integer" 0 no no "" "" no "" "" yes yes yes "" "202012057390805902954" no "" "" 0 0 "" no
+3 "_default" "dynSubjct." 0 8 yes "job-hdr.cust-no" "Cust. #" "x(8)" 0 "STRING" 0 no no "" "" no "" "" yes yes yes "" "202012057390805902955" no "" "" 0 0 "" no
+3 "_default" "dynSubjct." 0 9 yes "job-hdr.due-date" "Due Date" "99/99/9999" 0 "date" 0 no no "" "" no "" "" yes yes yes "" "202012057390805902956" no "" "" 0 0 "" no
+3 "_default" "dynSubjct." 0 10 yes "job-hdr.opened" "Status" "Open/Closed" 0 "logical" 0 no no "" "" no "" "" yes yes yes "" "202012057390805902957" no "" "" 0 0 "" no
 5 "_default" "dynSubjct." 0 1 yes "ttTempTable.firstRouting" "First Resource" "x(6)" 0 "character" 0 no no "" "" no "" "" no no no "" "202006246578305384912" no "" "" 0 0 "" no
 5 "_default" "dynSubjct." 0 2 yes "ttTempTable.itemNo" "FG Item" "x(15)" 0 "character" 1 no yes "" "" no "" "" no no no "" "202006246578305384913" no "" "" 0 0 "" no
 5 "_default" "dynSubjct." 0 3 yes "ttTempTable.descrip" "Description" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202006246578305384914" no "" "" 0 0 "" no
@@ -255,29 +255,29 @@
 19 "_default" "dynSubjct." 0 23 yes "ttPostBOLCreateInvoice.weight" "Weight" "->>>,>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202011190346405859094" no "" "" 0 0 "" no
 19 "_default" "dynSubjct." 0 24 yes "ttPostBOLCreateInvoice.bolStatus" "Status" "x(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011190346405859095" no "" "" 0 0 "" no
 19 "_default" "dynSubjct." 0 25 yes "ttPostBOLCreateInvoice.reason" "Reason" "x(60)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011190346405859096" no "" "" 0 0 "" no
-20 "_default" "dynSubjct." 0 1 yes "ttOpenOrderReport.custNo" "Cust No" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202006125642705356648" no "" "" 0 0 "" no
-20 "_default" "dynSubjct." 0 2 yes "ttOpenOrderReport.lineDueDate" "Line Due Dt" "99/99/9999" 0 "date" 0 no no "" "" no "" "" no no no "" "202006125642705356649" no "" "" 0 0 "" no
-20 "_default" "dynSubjct." 0 3 yes "ttOpenOrderReport.relDueDate" "Rel Due Dt" "99/99/9999" 0 "date" 0 no no "" "" no "" "" no no no "" "202006125642705356650" no "" "" 0 0 "" no
-20 "_default" "dynSubjct." 0 4 yes "ttOpenOrderReport.custPartNo" "Cust Part" "x(15)" 0 "character" 0 no no "" "" no "" "" no no no "" "202006125642705356651" no "" "" 0 0 "" no
-20 "_default" "dynSubjct." 0 5 yes "ttOpenOrderReport.fgItemName" "Item Description" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202006125642705356652" no "" "" 0 0 "" no
-20 "_default" "dynSubjct." 0 6 yes "ttOpenOrderReport.fgItemNo" "FG Item" "x(15)" 0 "character" 0 no no "" "" no "" "" no no no "" "202006125642705356653" no "" "" 0 0 "" no
-20 "_default" "dynSubjct." 0 7 yes "ttOpenOrderReport.orderNo" "Order No" ">>>>>>" 0 "integer" 0 no no "" "" no "" "" no no no "" "202006125642705356654" no "" "" 0 0 "" no
-20 "_default" "dynSubjct." 0 8 yes "ttOpenOrderReport.cadNo" "CAD" "x(15)" 0 "character" 0 no no "" "" no "" "" no no no "" "202006125642705356655" no "" "" 0 0 "" no
-20 "_default" "dynSubjct." 0 9 yes "ttOpenOrderReport.poNo" "PO No" "x(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "202006125642805356656" no "" "" 0 0 "" no
-20 "_default" "dynSubjct." 0 10 yes "ttOpenOrderReport.qtyOrd" "Order Qty" "->,>>>,>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202006125642805356657" no "" "" 0 0 "" no
-20 "_default" "dynSubjct." 0 11 yes "ttOpenOrderReport.qtyOnhand" "Qty Onhand" "->,>>>,>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202006125642805356658" no "" "" 0 0 "" no
-20 "_default" "dynSubjct." 0 12 yes "ttOpenOrderReport.qtyShipped" "Qty Shipped" "->,>>>,>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202006125642805356659" no "" "" 0 0 "" no
-20 "_default" "dynSubjct." 0 13 yes "ttOpenOrderReport.qtyActRel" "Qty ActRel" "->,>>>,>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202006125642805356660" no "" "" 0 0 "" no
-20 "_default" "dynSubjct." 0 14 yes "ttOpenOrderReport.qtyWIP" "Qty WIP" "->,>>>,>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202006125642805356661" no "" "" 0 0 "" no
-20 "_default" "dynSubjct." 0 15 yes "ttOpenOrderReport.qtyAvail" "Qty Avail" "->,>>>,>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202006125642805356662" no "" "" 0 0 "" no
-20 "_default" "dynSubjct." 0 16 yes "ttOpenOrderReport.salesRep" "Rep" "x(3)" 0 "character" 0 no no "" "" no "" "" no no no "" "202006125642805356663" no "" "" 0 0 "" no
-20 "_default" "dynSubjct." 0 17 yes "ttOpenOrderReport.unit" "Unit" ">>>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202006125642805356664" no "" "" 0 0 "" no
-20 "_default" "dynSubjct." 0 18 yes "ttOpenOrderReport.pallet" "Pallet" ">>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202006125642805356665" no "" "" 0 0 "" no
-20 "_default" "dynSubjct." 0 19 yes "ttOpenOrderReport.palletCount" "Pallet Count" ">>>,>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202006125642805356666" no "" "" 0 0 "" no
-20 "_default" "dynSubjct." 0 20 yes "ttOpenOrderReport.sellPrice" "Sell Price" "->,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202006125642805356667" no "" "" 0 0 "" no
-20 "_default" "dynSubjct." 0 21 yes "ttOpenOrderReport.cstatus" "Status" "x(20)" 0 "character" 0 no no "" "" no "" "" no no no "" "202006125642805356668" no "" "" 0 0 "" no
-20 "_default" "dynSubjct." 0 22 no "ttOpenOrderReport.xxSort1" "Sort 1" "x(100)" 0 "character" 1 no no "" "" no "" "" no no no "" "202006125642805356669" no "" "" 0 0 "" no
-20 "_default" "dynSubjct." 0 23 no "ttOpenOrderReport.xxSort2" "Sort 2" "x(100)" 0 "character" 2 no no "" "" no "" "" no no no "" "202006125642805356670" no "" "" 0 0 "" no
+20 "_default" "dynSubjct." 0 1 yes "ttOpenOrderReport.custNo" "Cust No" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202012093750605907849" no "" "" 0 0 "" no
+20 "_default" "dynSubjct." 0 2 yes "ttOpenOrderReport.lineDueDate" "Line Due Dt" "99/99/9999" 0 "date" 0 no no "" "" no "" "" no no no "" "202012093750605907850" no "" "" 0 0 "" no
+20 "_default" "dynSubjct." 0 3 yes "ttOpenOrderReport.relDueDate" "Rel Due Dt" "99/99/9999" 0 "date" 0 no no "" "" no "" "" no no no "" "202012093750605907851" no "" "" 0 0 "" no
+20 "_default" "dynSubjct." 0 4 yes "ttOpenOrderReport.custPartNo" "Cust Part" "x(15)" 0 "character" 0 no no "" "" no "" "" no no no "" "202012093750605907852" no "" "" 0 0 "" no
+20 "_default" "dynSubjct." 0 5 yes "ttOpenOrderReport.fgItemName" "Item Description" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202012093750605907853" no "" "" 0 0 "" no
+20 "_default" "dynSubjct." 0 6 yes "ttOpenOrderReport.fgItemNo" "FG Item" "x(15)" 0 "character" 0 no no "" "" no "" "" no no no "" "202012093750605907854" no "" "" 0 0 "" no
+20 "_default" "dynSubjct." 0 7 yes "ttOpenOrderReport.orderNo" "Order No" ">>>>>>" 0 "integer" 0 no no "" "" no "" "" no no no "" "202012093750605907855" no "" "" 0 0 "" no
+20 "_default" "dynSubjct." 0 8 yes "ttOpenOrderReport.cadNo" "CAD" "x(15)" 0 "character" 0 no no "" "" no "" "" no no no "" "202012093750605907856" no "" "" 0 0 "" no
+20 "_default" "dynSubjct." 0 9 yes "ttOpenOrderReport.poNo" "PO No" "x(15)" 0 "character" 0 no no "" "" no "" "" no no no "" "202012093750605907857" no "" "" 0 0 "" no
+20 "_default" "dynSubjct." 0 10 yes "ttOpenOrderReport.qtyOrd" "Order Qty" "->,>>>,>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202012093750605907858" no "" "" 0 0 "" no
+20 "_default" "dynSubjct." 0 11 yes "ttOpenOrderReport.qtyOnhand" "Qty Onhand" "->,>>>,>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202012093750605907859" no "" "" 0 0 "" no
+20 "_default" "dynSubjct." 0 12 yes "ttOpenOrderReport.qtyShipped" "Qty Shipped" "->,>>>,>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202012093750605907860" no "" "" 0 0 "" no
+20 "_default" "dynSubjct." 0 13 yes "ttOpenOrderReport.qtyActRel" "Qty ActRel" "->,>>>,>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202012093750605907861" no "" "" 0 0 "" no
+20 "_default" "dynSubjct." 0 14 yes "ttOpenOrderReport.qtyWIP" "Qty WIP" "->,>>>,>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202012093750605907862" no "" "" 0 0 "" no
+20 "_default" "dynSubjct." 0 15 yes "ttOpenOrderReport.qtyAvail" "Qty Avail" "->,>>>,>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202012093750605907863" no "" "" 0 0 "" no
+20 "_default" "dynSubjct." 0 16 yes "ttOpenOrderReport.salesRep" "Rep" "x(3)" 0 "character" 0 no no "" "" no "" "" no no no "" "202012093750605907864" no "" "" 0 0 "" no
+20 "_default" "dynSubjct." 0 17 yes "ttOpenOrderReport.unit" "Unit" ">>>>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202012093750605907865" no "" "" 0 0 "" no
+20 "_default" "dynSubjct." 0 18 yes "ttOpenOrderReport.pallet" "Pallet" ">>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202012093750605907866" no "" "" 0 0 "" no
+20 "_default" "dynSubjct." 0 19 yes "ttOpenOrderReport.palletCount" "Pallet Count" ">>>,>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202012093750605907867" no "" "" 0 0 "" no
+20 "_default" "dynSubjct." 0 20 yes "ttOpenOrderReport.sellPrice" "Sell Price" "->,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202012093750605907868" no "" "" 0 0 "" no
+20 "_default" "dynSubjct." 0 21 yes "ttOpenOrderReport.cstatus" "Status" "x(20)" 0 "character" 0 no no "" "" no "" "" no no no "" "202012093750605907869" no "" "" 0 0 "" no
+20 "_default" "dynSubjct." 0 22 no "ttOpenOrderReport.xxSort1" "Sort 1" "x(100)" 0 "character" 1 no no "" "" no "" "" no no no "" "202012093750605907870" no "" "" 0 0 "" no
+20 "_default" "dynSubjct." 0 23 no "ttOpenOrderReport.xxSort2" "Sort 2" "x(100)" 0 "character" 2 no no "" "" no "" "" no no no "" "202012093750605907871" no "" "" 0 0 "" no
 21 "_default" "dynSubjct." 0 1 yes "cust.cust-no" "Cust. #" "x(8)" 0 "STRING" 1 no no "" "" no "" "" no no no "" "202008074710905470359" no "" "" 0 0 "" no
 21 "_default" "dynSubjct." 0 2 yes "cust.name" "Customer Name" "x(30)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202008074710905470360" no "" "" 0 0 "" no
 21 "_default" "dynSubjct." 0 3 yes "cust.phone" "Phone Number" "999-9999" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202008074710905470361" no "" "" 0 0 "" no
@@ -1033,192 +1033,193 @@
 82 "_default" "dynSubjct." 0 11 yes "item-comm.freight-percent" "Freight%" ">>>9.99<" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202006125528905355705" no "" "" 0 0 "" no
 82 "_default" "dynSubjct." 0 12 yes "item-comm.industrial-percent" "Industrial%" ">>>9.99<" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202006125528905355706" no "" "" 0 0 "" no
 82 "_default" "dynSubjct." 0 13 yes "item-comm.comm-rate-percent" "Commission%" ">>>9.99<" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202006125528905355707" no "" "" 0 0 "" no
-83 "_default" "dynSubjct." 0 1 yes "APIInboundEvent.company" "Company" "x(3)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202005136535305269072" no "" "" 0 0 "" no
-83 "_default" "dynSubjct." 0 2 yes "APIInboundEvent.apiInboundEventID" "apiInboundEventID" "->,>>>,>>9" 0 "int64" 1 no no "" "" no "" "" no no no "" "202005136535305269073" no "" "" 0 0 "" no
-83 "_default" "dynSubjct." 0 3 yes "APIInboundEvent.requestDateTime" "requestDateTime" "99/99/9999 HH:MM:SS.SSS" 0 "datetime" 0 no no "" "" no "" "" no no no "" "202005136535305269074" no "" "" 0 0 "" no
-83 "_default" "dynSubjct." 0 4 yes "APIInboundEvent.success" "success" "Success/Failure" 0 "logical" 0 no no "" "" no "" "" no no no "" "202005136535305269075" no "" "" 0 0 "" no
-83 "_default" "dynSubjct." 0 5 yes "APIInboundEvent.errorMessage" "errorMessage" "x(200)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202005136535305269076" no "" "" 0 0 "" no
-83 "_default" "dynSubjct." 0 6 yes "APIInboundEvent.apiRoute" "apiRoute" "x(32)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202005136535305269077" no "" "" 0 0 "" no
-83 "_default" "dynSubjct." 0 7 yes "APIInboundEvent.externalID" "externalID" "x(30)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202005136535305269078" no "" "" 0 0 "" no
-83 "_default" "dynSubjct." 0 8 yes "APIInboundEvent.recordSource" "recordSource" "x(8)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202005136535305269079" no "" "" 0 0 "" no
-83 "_default" "dynSubjct." 0 9 yes "APIInboundEvent.rec_key" "rec_key" "x(21)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202005136535305269080" no "" "" 0 0 "" no
-83 "_default" "dynSubjct." 0 10 no "APIInboundEvent.requestData" "requestData" "x(8)" 0 "clob" 0 no no "" "" no "" "" no no no "" "202005136535305269081" no "" "" 0 0 "" no
-83 "_default" "dynSubjct." 0 11 yes "APIInboundEvent.requestedBy" "requestedBy" "x(8)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202005136535305269082" no "" "" 0 0 "" no
-83 "_default" "dynSubjct." 0 12 no "APIInboundEvent.responseData" "responseData" "x(8)" 0 "clob" 0 no no "" "" no "" "" no no no "" "202005136535305269083" no "" "" 0 0 "" no
-83 "_default" "dynSubjct." 0 13 yes "APIInboundEvent.notes" "notes" "x(200)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202005136535305269084" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 1 yes "ttFinishGoods.i-no" "Item#" "x(15)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193505463548" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 2 yes "ttFinishGoods.i-name" "Item Name" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193505463549" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 3 yes "ttFinishGoods.part-no" "Customer Part #" "x(15)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193505463550" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 4 yes "ttFinishGoods.cust-no" "Customer" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193505463551" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 5 yes "ttFinishGoods.cust-name" "Customer Name #" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193505463552" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 6 yes "ttFinishGoods.est-no" "Estimate" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193505463553" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 7 yes "ttFinishGoods.style" "Style" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193505463554" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 8 yes "ttFinishGoods.procat" "Category" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193505463555" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 9 yes "ttFinishGoods.procat-desc" "Category Description" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193505463556" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 10 yes "ttFinishGoods.part-dscr1" "Description" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193505463557" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 11 yes "ttFinishGoods.part-dscr2" "Description 2" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193505463558" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 12 yes "ttFinishGoods.part-dscr3" "Description 3" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193505463559" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 13 yes "ttFinishGoods.i-code" "Stock/Custom" "x(15)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193505463560" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 14 yes "ttFinishGoods.die-no" "Die #" "x(15)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193505463561" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 15 yes "ttFinishGoods.plate-no" "Plate #" "x(15)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193505463562" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 16 yes "ttFinishGoods.upc-no" "UPC#" "x(15)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193505463563" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 17 yes "ttFinishGoods.cad-no" "CAD #" "x(15)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193505463564" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 18 yes "ttFinishGoods.spc-no" "Quality/SPC #" "x(15)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193505463565" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 19 yes "ttFinishGoods.stocked" "Stocked" "yes/No" 0 "logical" 0 no no "" "" no "" "" no no no "" "202007138193505463566" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 20 yes "ttFinishGoods.isaset" "Set Header" "Yes/No" 0 "logical" 0 no no "" "" no "" "" no no no "" "202007138193505463567" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 21 yes "ttFinishGoods.spare-char-1" "Group" "x(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193505463568" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 22 yes "ttFinishGoods.exempt-disc" "Exempt from Disc" "yes/no" 0 "logical" 0 no no "" "" no "" "" no no no "" "202007138193505463569" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 23 yes "ttFinishGoods.pur-man" "P/M" "P/M" 0 "logical" 0 no no "" "" no "" "" no no no "" "202007138193505463570" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 24 yes "ttFinishGoods.sell-price" "Sell Price" ">>,>>9.99<<<" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202007138193505463571" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 25 yes "ttFinishGoods.sell-uom" "Sell Price UOM" "x(3)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193505463572" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 26 yes "ttFinishGoods.type-code" "Type Code" "x(5)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193505463573" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 27 yes "ttFinishGoods.curr-code1" "Currency" "x(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193505463574" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 28 yes "ttFinishGoods.def-loc" "Warehouse" "x(5)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193505463575" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 29 yes "ttFinishGoods.def-loc-bin" "Bin" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193505463576" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 30 yes "ttFinishGoods.class" "Inventory Class" "x(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193505463577" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 31 yes "ttFinishGoods.cc-code" "Cycle Count Code" "x(2)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193505463578" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 32 yes "ttFinishGoods.prod-code" "Production Code" "x(5)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193505463579" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 33 yes "ttFinishGoods.case-count" "Count" "->>,>>>,>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202007138193505463580" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 34 yes "ttFinishGoods.weight-100" "Weight" "->>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202007138193505463581" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 35 yes "ttFinishGoods.spare-int-1" "Freeze Weight" "->>,>>>,>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202007138193505463582" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 36 yes "ttFinishGoods.prod-notes" "Pk Note" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193505463583" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 37 yes "ttFinishGoods.frt-class" "Freight Class" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193505463584" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 38 yes "ttFinishGoods.frt-class-dscr" "Freight Class Desc" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193505463585" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 39 yes "ttFinishGoods.trno" "TrNo" "x(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193505463586" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 40 yes "ttFinishGoods.spare-char-4" "Zone" "x(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193505463587" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 41 yes "ttFinishGoods.stackHeight" "StackHeight" ">>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202007138193505463588" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 42 yes "ttFinishGoods.unitLength" "PalletLen" ">>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202007138193505463589" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 43 yes "ttFinishGoods.unitWidth" "PalletWid" ">>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202007138193505463590" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 44 yes "ttFinishGoods.unitHeight" "PalletDep" ">>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202007138193505463591" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 45 yes "ttFinishGoods.palletVolume" "StdPalletVol" "->>>,>>9.99<<" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202007138193505463592" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 46 yes "ttFinishGoods.std-mat-cost" "Std Material Cost" "->>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202007138193505463593" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 47 yes "ttFinishGoods.std-lab-cost" "Std Labor Cost" "->>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202007138193505463594" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 48 yes "ttFinishGoods.std-var-cost" "Std Var OH Cost" "->>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202007138193505463595" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 49 yes "ttFinishGoods.std-fix-cost" "Std Fix OH Cost" "->>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202007138193505463596" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 50 yes "ttFinishGoods.total-std-cost" "Total Std Cost" "->>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202007138193505463597" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 51 yes "ttFinishGoods.avg-cost" "Average Cost" "->>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202007138193505463598" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 52 yes "ttFinishGoods.last-cost" "Last Cost" "->>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202007138193505463599" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 53 yes "ttFinishGoods.prod-uom" "Cost UOM" "x(3)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193505463600" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 54 yes "ttFinishGoods.spare-dec-1" "Full Cost" "->>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202007138193505463601" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 55 yes "ttFinishGoods.spare-char-2" "Varied" "x(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193505463602" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 56 yes "ttFinishGoods.taxable" "Taxable" "Yes/No" 0 "logical" 0 no no "" "" no "" "" no no no "" "202007138193505463603" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 57 yes "ttFinishGoods.stat" "Status" "x(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193505463604" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 58 yes "ttFinishGoods.ship-meth" "Ship Method" "Case/Pallet" 0 "logical" 0 no no "" "" no "" "" no no no "" "202007138193505463605" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 59 yes "ttFinishGoods.vend-no" "Vendor 1" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193505463606" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 60 yes "ttFinishGoods.vend-item" "Vendor 1 Item #" "x(15)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193505463607" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 61 yes "ttFinishGoods.vend2-no" "Vendor 2" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193505463608" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 62 yes "ttFinishGoods.vend2-item" "Vendor 2 Item #" "x(15)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193505463609" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 63 yes "ttFinishGoods.dfuncAlloc" "Set Allocation" "x(25)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193505463610" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 64 yes "ttFinishGoods.ord-policy" "Reorder Policy" "R/L" 0 "logical" 0 no no "" "" no "" "" no no no "" "202007138193505463611" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 65 yes "ttFinishGoods.ord-level" "Reorder Level" ">>>,>>>,>>9.999" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202007138193505463612" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 66 yes "ttFinishGoods.ord-min" "Minimum Order" "->>,>>>,>>9" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202007138193505463613" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 67 yes "ttFinishGoods.ord-max" "Maximum Order" "->>,>>>,>>9" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202007138193505463614" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 68 yes "ttFinishGoods.pur-uom" "Purchased Qty UOM" "x(3)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193505463615" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 69 yes "ttFinishGoods.lead-days" "Lead Time (Days)" "->>,>>>,>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202007138193505463616" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 70 yes "ttFinishGoods.beg-date" "Beginning Date" "99/99/9999" 0 "date" 0 no no "" "" no "" "" no no no "" "202007138193505463617" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 71 yes "ttFinishGoods.beg-bal" "Beginning Balance" "->>,>>>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202007138193505463618" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 72 yes "ttFinishGoods.q-onh" "Qty On-hand" "->>,>>>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202007138193505463619" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 73 yes "ttFinishGoods.q-ono" "Qty On Ord" "->>,>>>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202007138193505463620" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 74 yes "ttFinishGoods.q-alloc" "Qty Allocated" "->>,>>>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202007138193505463621" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 75 yes "ttFinishGoods.q-back" "Qty Backordered" "->>,>>>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202007138193505463622" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 76 yes "ttFinishGoods.q-avail" "Qty Available" "->>,>>>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202007138193505463623" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 77 yes "ttFinishGoods.q-ptd" "Qty Ordered PTD" "->>,>>>,>>9" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202007138193505463624" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 78 yes "ttFinishGoods.q-ord-ytd" "Qty Ordered YTD" "->>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202007138193505463625" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 79 yes "ttFinishGoods.u-ord-ytd" "Qty Ordered Last Yr" "->>>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202007138193505463626" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 80 yes "ttFinishGoods.q-prod-ptd" "Qty Produced PTD" "->>>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202007138193505463627" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 81 yes "ttFinishGoods.q-prod-ytd" "Qty Produced YTD" "->>>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202007138193505463628" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 82 yes "ttFinishGoods.u-prod-ytd" "Qty Produced Last Yr" "->>>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202007138193505463629" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 83 yes "ttFinishGoods.q-ship-ptd" "Qty Shipped PTD" "->>>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202007138193505463630" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 84 yes "ttFinishGoods.q-ship-ytd" "Qty Shipped YTD" "->>>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202007138193505463631" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 85 yes "ttFinishGoods.u-ship-ytd" "Qty Shipped Last Yr" "->>>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202007138193505463632" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 86 yes "ttFinishGoods.q-inv-ptd" "Qty Invoiced PTD" "->>>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202007138193505463633" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 87 yes "ttFinishGoods.q-inv-ytd" "Qty Invoiced YTD" "->>>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202007138193505463634" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 88 yes "ttFinishGoods.u-inv-ytd" "Qty Invoiced Last Yr" "->>>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202007138193505463635" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 89 yes "ttFinishGoods.dfuncTotMSFPTD" "Total MSF PTD" "->>>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202007138193505463636" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 90 yes "ttFinishGoods.ytd-msf" "Total MSF YTD" "->>,>>>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202007138193505463637" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 91 yes "ttFinishGoods.lyytd-msf" "Total MSF Last Yr" "->>,>>>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202007138193505463638" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 92 yes "ttFinishGoods.l-score50" "Box Length" "->>,>>>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202007138193505463639" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 93 yes "ttFinishGoods.w-score50" "Box Width" "->>,>>>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202007138193505463640" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 94 yes "ttFinishGoods.d-score50" "Box Depth" "->>,>>>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202007138193505463641" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 95 yes "ttFinishGoods.t-len" "Blank Length" ">>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202007138193505463642" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 96 yes "ttFinishGoods.t-wid" "Blank Width" ">>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202007138193505463643" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 97 yes "ttFinishGoods.t-sqin" "Total Sq In" "->>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202007138193505463644" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 98 yes "ttFinishGoods.t-sqft" "Total Sq Ft" "->>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202007138193505463645" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 99 yes "ttFinishGoods.col1" "Est Ink1" "x(20)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193505463646" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 100 yes "ttFinishGoods.col1desc" "Est Ink1 Desc" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193505463647" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 101 yes "ttFinishGoods.col2" "Est Ink2" "x(20)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193505463648" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 102 yes "ttFinishGoods.col2desc" "Est Ink2 Desc" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193505463649" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 103 yes "ttFinishGoods.col3" "Est Ink3" "x(20)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193505463650" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 104 yes "ttFinishGoods.col3desc" "Est Ink3 Desc" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193505463651" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 105 yes "ttFinishGoods.col4" "Est Ink4" "x(20)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193505463652" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 106 yes "ttFinishGoods.col4desc" "Est Ink4 Desc" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193505463653" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 107 yes "ttFinishGoods.col5" "Est Ink5" "x(20)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193505463654" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 108 yes "ttFinishGoods.col5desc" "Est Ink5 Desc" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193505463655" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 109 yes "ttFinishGoods.col6" "Est Ink6" "x(20)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193505463656" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 110 yes "ttFinishGoods.col6desc" "Est Ink6 Desc" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193505463657" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 111 yes "ttFinishGoods.col7" "Est Ink7" "x(20)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193505463658" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 112 yes "ttFinishGoods.col7desc" "Est Ink7 Desc" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193505463659" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 113 yes "ttFinishGoods.col8" "Est Ink8" "x(20)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193505463660" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 114 yes "ttFinishGoods.col8desc" "Est Ink8 Desc" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193505463661" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 115 yes "ttFinishGoods.col9" "Est Ink9" "x(20)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193505463662" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 116 yes "ttFinishGoods.col9desc" "Est Ink9 Desc" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193505463663" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 117 yes "ttFinishGoods.col10" "Est Ink10" "x(20)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193505463664" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 118 yes "ttFinishGoods.col10desc" "Est Ink10 Desc" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193505463665" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 119 yes "ttFinishGoods.cat1" "Est Coating1" "x(20)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193505463666" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 120 yes "ttFinishGoods.cat2" "Est Coating2" "x(20)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193505463667" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 121 yes "ttFinishGoods.cat3" "Est Coating3" "x(20)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193505463668" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 122 yes "ttFinishGoods.brd-cd" "Board Code" "x(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193505463669" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 123 yes "ttFinishGoods.brd-nam" "Board Name" "x(20)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193505463670" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 124 yes "ttFinishGoods.cas-qt" "Case Qty" "->>,>>>,>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202007138193505463671" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 125 yes "ttFinishGoods.cas-nam" "Case Name" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193505463672" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 126 yes "ttFinishGoods.skid-cd" "Skid Code" "x(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193505463673" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 127 yes "ttFinishGoods.skid-nam" "Skid Name" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193505463674" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 128 yes "ttFinishGoods.skid-qt" "Skid Qty" "->>,>>>,>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202007138193505463675" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 129 yes "ttFinishGoods.spare-int-2" "Release Sequence" "->>,>>>,>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202007138193505463676" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 130 yes "ttFinishGoods.case-pall" "Units/Pall" ">>>,>>>" 0 "integer" 0 no no "" "" no "" "" no no no "" "202007138193505463677" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 131 yes "ttFinishGoods.factored" "Factor Invoice" "Yes/No" 0 "logical" 0 no no "" "" no "" "" no no no "" "202007138193505463678" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 132 yes "ttFinishGoods.spare-char-3" "Sales Rep" "x(5)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193505463679" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 133 yes "ttFinishGoods.spc-grp1" "Spec Note 1 Group" "x(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193505463680" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 134 yes "ttFinishGoods.spc-title1" "Spec Note 1 Title" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193505463681" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 135 yes "ttFinishGoods.spc-note1" "Spec Note 1 Note [Large]" "x(100)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193505463682" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 136 yes "ttFinishGoods.spc-grp2" "Spec Note 2 Group" "x(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193505463683" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 137 yes "ttFinishGoods.spc-title2" "Spec Note 2 Title" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193505463684" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 138 yes "ttFinishGoods.spc-note2" "Spec Note 2 Note [Large]" "x(100)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193505463685" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 139 yes "ttFinishGoods.spc-grp3" "Spec Note 3 Group" "x(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193505463686" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 140 yes "ttFinishGoods.spc-title3" "Spec Note 3 Title" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193605463687" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 141 yes "ttFinishGoods.spc-note3" "Spec Note 3 Note [Large]" "x(100)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193605463688" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 142 yes "ttFinishGoods.spc-grp4" "Spec Note 4 Group" "x(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193605463689" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 143 yes "ttFinishGoods.spc-title4" "Spec Note 4 Title" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193605463690" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 144 yes "ttFinishGoods.spc-note4" "Spec Note 4 Note [Large]" "x(100)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193605463691" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 145 yes "ttFinishGoods.spc-grp5" "Spec Note 5 Group" "x(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193605463692" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 146 yes "ttFinishGoods.spc-title5" "Spec Note 5 Title" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193605463693" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 147 yes "ttFinishGoods.spc-note5" "Spec Note 5 Note [Large]" "x(100)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193605463694" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 148 yes "ttFinishGoods.setupBy" "Setup By UserId" "x(16)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193605463695" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 149 yes "ttFinishGoods.setupDate" "Setup Date" "99/99/9999" 0 "date" 0 no no "" "" no "" "" no no no "" "202007138193605463696" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 150 yes "ttFinishGoods.modifiedBy" "Modified By" "x(16)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193605463697" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 151 yes "ttFinishGoods.modifiedDate" "Modified Date" "99/99/9999" 0 "date" 0 no no "" "" no "" "" no no no "" "202007138193605463698" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 152 yes "ttFinishGoods.pallet-qty" "Pallet Quantity" ">>>,>>>,>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202007138193605463699" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 153 yes "ttFinishGoods.fgcol1" "FgItem Color1" "x(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193605463700" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 154 yes "ttFinishGoods.fgcol1Desc" "FgItem Color1 Desc" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193605463701" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 155 yes "ttFinishGoods.fgcol2" "FgItem Color2" "x(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193605463702" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 156 yes "ttFinishGoods.fgcol2Desc" "FgItem Color2 Desc" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193605463703" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 157 yes "ttFinishGoods.fgcol3" "FgItem Color3" "x(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193605463704" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 158 yes "ttFinishGoods.fgcol3Desc" "FgItem Color3 Desc" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193605463705" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 159 yes "ttFinishGoods.fgcol4" "FgItem Color4" "x(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193605463706" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 160 yes "ttFinishGoods.fgcol4Desc" "FgItem Color4 Desc" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193605463707" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 161 yes "ttFinishGoods.fgcol5" "FgItem Color5" "x(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193605463708" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 162 yes "ttFinishGoods.fgcol5Desc" "FgItem Color5 Desc" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193605463709" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 163 yes "ttFinishGoods.fgcol6" "FgItem Color6" "x(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193605463710" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 164 yes "ttFinishGoods.fgcol6Desc" "FgItem Color6 Desc" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193605463711" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 165 yes "ttFinishGoods.fgcol7" "FgItem Color7" "x(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193605463712" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 166 yes "ttFinishGoods.fgcol7Desc" "FgItem Color7 Desc" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193605463713" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 167 yes "ttFinishGoods.fgcol8" "FgItem Color8" "x(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193605463714" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 168 yes "ttFinishGoods.fgcol8Desc" "FgItem Color8 Desc" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193605463715" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 169 yes "ttFinishGoods.fgcol9" "FgItem Color9" "x(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193605463716" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 170 yes "ttFinishGoods.fgcol9Desc" "FgItem Color9 Desc" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193605463717" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 171 yes "ttFinishGoods.fgcol10" "FgItem Color10" "x(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193605463718" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 172 yes "ttFinishGoods.fgcol10Desc" "FgItem Color10 Desc" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193605463719" no "" "" 0 0 "" no
-84 "_default" "dynSubjct." 0 173 yes "ttFinishGoods.productTaxClass" "Product Tax Class" "x(18)" 0 "character" 0 no no "" "" no "" "" no no no "" "202007138193605463720" no "" "" 0 0 "" no
+83 "_default" "dynSubjct." 0 1 yes "APIInboundEvent.company" "Company" "x(3)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202012072643905903636" no "" "" 0 0 "" no
+83 "_default" "dynSubjct." 0 2 yes "APIInboundEvent.apiInboundEventID" "apiInboundEventID" "->,>>>,>>9" 0 "int64" 1 no no "" "" no "" "" no no no "" "202012072643905903637" no "" "" 0 0 "" no
+83 "_default" "dynSubjct." 0 3 yes "APIInboundEvent.requestDateTime" "requestDateTime" "99/99/9999 HH:MM:SS.SSS" 0 "datetime" 0 no no "" "" no "" "" no no no "" "202012072643905903638" no "" "" 0 0 "" no
+83 "_default" "dynSubjct." 0 4 yes "APIInboundEvent.success" "success" "Success/Failure" 0 "logical" 0 no no "" "" no "" "" no no no "" "202012072643905903639" no "" "" 0 0 "" no
+83 "_default" "dynSubjct." 0 5 yes "APIInboundEvent.errorMessage" "errorMessage" "x(200)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202012072643905903640" no "" "" 0 0 "" no
+83 "_default" "dynSubjct." 0 6 yes "APIInboundEvent.apiRoute" "apiRoute" "x(32)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202012072643905903641" no "" "" 0 0 "" no
+83 "_default" "dynSubjct." 0 7 yes "APIInboundEvent.externalID" "externalID" "x(30)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202012072643905903642" no "" "" 0 0 "" no
+83 "_default" "dynSubjct." 0 8 yes "APIInboundEvent.recordSource" "recordSource" "x(8)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202012072643905903643" no "" "" 0 0 "" no
+83 "_default" "dynSubjct." 0 9 yes "APIInboundEvent.rec_key" "rec_key" "x(21)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202012072643905903644" no "" "" 0 0 "" no
+83 "_default" "dynSubjct." 0 10 yes "APIInboundEvent.requestedBy" "requestedBy" "x(8)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202012072643905903645" no "" "" 0 0 "" no
+83 "_default" "dynSubjct." 0 11 yes "APIInboundEvent.userField1" "User Field 1" "x(8)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202012072643905903646" no "" "" 0 0 "" no
+83 "_default" "dynSubjct." 0 12 yes "APIInboundEvent.userField2" "User Field 2" "x(8)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202012072643905903647" no "" "" 0 0 "" no
+83 "_default" "dynSubjct." 0 13 yes "APIInboundEvent.userField3" "User Field 3" "x(8)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202012072643905903648" no "" "" 0 0 "" no
+83 "_default" "dynSubjct." 0 14 yes "APIInboundEvent.notes" "notes" "x(200)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202012072643905903649" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 1 yes "ttFinishGoods.cust-name" "Customer Name #" "x(30)" 0 "character" 1 no no "" "" no "" "" no no no "" "202011304299505886231" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 1 yes "ttFinishGoods.i-no" "Item#" "x(15)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299505886232" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 2 yes "ttFinishGoods.cust-no" "Customer" "x(8)" 0 "character" 2 no no "" "" no "" "" no no no "" "202011304299505886233" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 2 yes "ttFinishGoods.i-name" "Item Name" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299505886234" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 3 yes "ttFinishGoods.part-no" "Customer Part #" "x(15)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299505886235" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 6 yes "ttFinishGoods.est-no" "Estimate" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299505886236" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 7 yes "ttFinishGoods.style" "Style" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299505886237" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 8 yes "ttFinishGoods.procat" "Category" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299505886238" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 9 yes "ttFinishGoods.procat-desc" "Category Description" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299505886239" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 10 yes "ttFinishGoods.part-dscr1" "Description" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299505886240" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 11 yes "ttFinishGoods.part-dscr2" "Description 2" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299505886241" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 12 yes "ttFinishGoods.part-dscr3" "Description 3" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299505886242" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 13 yes "ttFinishGoods.i-code" "Stock/Custom" "x(15)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299505886243" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 14 yes "ttFinishGoods.die-no" "Die #" "x(15)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299505886244" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 15 yes "ttFinishGoods.plate-no" "Plate #" "x(15)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299505886245" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 16 yes "ttFinishGoods.upc-no" "UPC#" "x(15)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299505886246" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 17 yes "ttFinishGoods.cad-no" "CAD #" "x(15)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299505886247" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 18 yes "ttFinishGoods.spc-no" "Quality/SPC #" "x(15)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299505886248" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 19 yes "ttFinishGoods.stocked" "Stocked" "yes/No" 0 "logical" 0 no no "" "" no "" "" no no no "" "202011304299505886249" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 20 yes "ttFinishGoods.isaset" "Set Header" "Yes/No" 0 "logical" 0 no no "" "" no "" "" no no no "" "202011304299505886250" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 21 yes "ttFinishGoods.spare-char-1" "Group" "x(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299505886251" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 22 yes "ttFinishGoods.exempt-disc" "Exempt from Disc" "yes/no" 0 "logical" 0 no no "" "" no "" "" no no no "" "202011304299505886252" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 23 yes "ttFinishGoods.pur-man" "P/M" "P/M" 0 "logical" 0 no no "" "" no "" "" no no no "" "202011304299505886253" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 24 yes "ttFinishGoods.sell-price" "Sell Price" ">>,>>9.99<<<" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202011304299505886254" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 25 yes "ttFinishGoods.sell-uom" "Sell Price UOM" "x(3)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299505886255" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 26 yes "ttFinishGoods.type-code" "Type Code" "x(5)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299505886256" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 27 yes "ttFinishGoods.curr-code1" "Currency" "x(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299505886257" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 28 yes "ttFinishGoods.def-loc" "Warehouse" "x(5)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299505886258" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 29 yes "ttFinishGoods.def-loc-bin" "Bin" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299505886259" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 30 yes "ttFinishGoods.class" "Inventory Class" "x(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299505886260" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 31 yes "ttFinishGoods.cc-code" "Cycle Count Code" "x(2)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299505886261" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 32 yes "ttFinishGoods.prod-code" "Production Code" "x(5)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299505886262" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 33 yes "ttFinishGoods.case-count" "Count" "->>,>>>,>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202011304299505886263" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 34 yes "ttFinishGoods.weight-100" "Weight" "->>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202011304299505886264" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 35 yes "ttFinishGoods.spare-int-1" "Freeze Weight" "->>,>>>,>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202011304299505886265" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 36 yes "ttFinishGoods.prod-notes" "Pk Note" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299505886266" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 37 yes "ttFinishGoods.frt-class" "Freight Class" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299505886267" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 38 yes "ttFinishGoods.frt-class-dscr" "Freight Class Desc" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299505886268" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 39 yes "ttFinishGoods.trno" "TrNo" "x(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299505886269" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 40 yes "ttFinishGoods.spare-char-4" "Zone" "x(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299505886270" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 41 yes "ttFinishGoods.stackHeight" "StackHeight" ">>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202011304299505886271" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 42 yes "ttFinishGoods.unitLength" "PalletLen" ">>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202011304299505886272" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 43 yes "ttFinishGoods.unitWidth" "PalletWid" ">>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202011304299505886273" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 44 yes "ttFinishGoods.unitHeight" "PalletDep" ">>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202011304299505886274" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 45 yes "ttFinishGoods.palletVolume" "StdPalletVol" "->>>,>>9.99<<" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202011304299505886275" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 46 yes "ttFinishGoods.std-mat-cost" "Std Material Cost" "->>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202011304299505886276" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 47 yes "ttFinishGoods.std-lab-cost" "Std Labor Cost" "->>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202011304299505886277" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 48 yes "ttFinishGoods.std-var-cost" "Std Var OH Cost" "->>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202011304299505886278" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 49 yes "ttFinishGoods.std-fix-cost" "Std Fix OH Cost" "->>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202011304299505886279" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 50 yes "ttFinishGoods.total-std-cost" "Total Std Cost" "->>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202011304299505886280" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 51 yes "ttFinishGoods.avg-cost" "Average Cost" "->>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202011304299505886281" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 52 yes "ttFinishGoods.last-cost" "Last Cost" "->>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202011304299505886282" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 53 yes "ttFinishGoods.prod-uom" "Cost UOM" "x(3)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299505886283" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 54 yes "ttFinishGoods.spare-dec-1" "Full Cost" "->>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202011304299505886284" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 55 yes "ttFinishGoods.spare-char-2" "Varied" "x(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299505886285" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 56 yes "ttFinishGoods.taxable" "Taxable" "Yes/No" 0 "logical" 0 no no "" "" no "" "" no no no "" "202011304299505886286" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 57 yes "ttFinishGoods.stat" "Status" "x(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299505886287" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 58 yes "ttFinishGoods.ship-meth" "Ship Method" "Case/Pallet" 0 "logical" 0 no no "" "" no "" "" no no no "" "202011304299505886288" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 59 yes "ttFinishGoods.vend-no" "Vendor 1" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299505886289" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 60 yes "ttFinishGoods.vend-item" "Vendor 1 Item #" "x(15)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299505886290" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 61 yes "ttFinishGoods.vend2-no" "Vendor 2" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299505886291" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 62 yes "ttFinishGoods.vend2-item" "Vendor 2 Item #" "x(15)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299505886292" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 63 yes "ttFinishGoods.dfuncAlloc" "Set Allocation" "x(25)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299505886293" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 64 yes "ttFinishGoods.ord-policy" "Reorder Policy" "R/L" 0 "logical" 0 no no "" "" no "" "" no no no "" "202011304299505886294" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 65 yes "ttFinishGoods.ord-level" "Reorder Level" ">>>,>>>,>>9.999" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202011304299505886295" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 66 yes "ttFinishGoods.ord-min" "Minimum Order" "->>,>>>,>>9" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202011304299505886296" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 67 yes "ttFinishGoods.ord-max" "Maximum Order" "->>,>>>,>>9" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202011304299505886297" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 68 yes "ttFinishGoods.pur-uom" "Purchased Qty UOM" "x(3)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299505886298" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 69 yes "ttFinishGoods.lead-days" "Lead Time (Days)" "->>,>>>,>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202011304299505886299" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 70 yes "ttFinishGoods.beg-date" "Beginning Date" "99/99/9999" 0 "date" 0 no no "" "" no "" "" no no no "" "202011304299505886300" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 71 yes "ttFinishGoods.beg-bal" "Beginning Balance" "->>,>>>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202011304299505886301" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 72 yes "ttFinishGoods.q-onh" "Qty On-hand" "->>,>>>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202011304299505886302" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 73 yes "ttFinishGoods.q-ono" "Qty On Ord" "->>,>>>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202011304299505886303" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 74 yes "ttFinishGoods.q-alloc" "Qty Allocated" "->>,>>>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202011304299505886304" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 75 yes "ttFinishGoods.q-back" "Qty Backordered" "->>,>>>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202011304299505886305" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 76 yes "ttFinishGoods.q-avail" "Qty Available" "->>,>>>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202011304299505886306" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 77 yes "ttFinishGoods.q-ptd" "Qty Ordered PTD" "->>,>>>,>>9" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202011304299505886307" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 78 yes "ttFinishGoods.q-ord-ytd" "Qty Ordered YTD" "->>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202011304299505886308" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 79 yes "ttFinishGoods.u-ord-ytd" "Qty Ordered Last Yr" "->>>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202011304299505886309" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 80 yes "ttFinishGoods.q-prod-ptd" "Qty Produced PTD" "->>>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202011304299505886310" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 81 yes "ttFinishGoods.q-prod-ytd" "Qty Produced YTD" "->>>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202011304299505886311" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 82 yes "ttFinishGoods.u-prod-ytd" "Qty Produced Last Yr" "->>>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202011304299505886312" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 83 yes "ttFinishGoods.q-ship-ptd" "Qty Shipped PTD" "->>>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202011304299505886313" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 84 yes "ttFinishGoods.q-ship-ytd" "Qty Shipped YTD" "->>>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202011304299505886314" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 85 yes "ttFinishGoods.u-ship-ytd" "Qty Shipped Last Yr" "->>>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202011304299505886315" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 86 yes "ttFinishGoods.q-inv-ptd" "Qty Invoiced PTD" "->>>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202011304299505886316" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 87 yes "ttFinishGoods.q-inv-ytd" "Qty Invoiced YTD" "->>>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202011304299505886317" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 88 yes "ttFinishGoods.u-inv-ytd" "Qty Invoiced Last Yr" "->>>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202011304299505886318" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 89 yes "ttFinishGoods.dfuncTotMSFPTD" "Total MSF PTD" "->>>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202011304299505886319" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 90 yes "ttFinishGoods.ytd-msf" "Total MSF YTD" "->>,>>>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202011304299505886320" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 91 yes "ttFinishGoods.lyytd-msf" "Total MSF Last Yr" "->>,>>>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202011304299505886321" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 92 yes "ttFinishGoods.l-score50" "Box Length" "->>,>>>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202011304299505886322" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 93 yes "ttFinishGoods.w-score50" "Box Width" "->>,>>>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202011304299505886323" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 94 yes "ttFinishGoods.d-score50" "Box Depth" "->>,>>>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202011304299505886324" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 95 yes "ttFinishGoods.t-len" "Blank Length" ">>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202011304299505886325" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 96 yes "ttFinishGoods.t-wid" "Blank Width" ">>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202011304299505886326" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 97 yes "ttFinishGoods.t-sqin" "Total Sq In" "->>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202011304299505886327" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 98 yes "ttFinishGoods.t-sqft" "Total Sq Ft" "->>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202011304299505886328" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 99 yes "ttFinishGoods.col1" "Est Ink1" "x(20)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299505886329" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 100 yes "ttFinishGoods.col1desc" "Est Ink1 Desc" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299505886330" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 101 yes "ttFinishGoods.col2" "Est Ink2" "x(20)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299505886331" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 102 yes "ttFinishGoods.col2desc" "Est Ink2 Desc" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299505886332" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 103 yes "ttFinishGoods.col3" "Est Ink3" "x(20)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299505886333" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 104 yes "ttFinishGoods.col3desc" "Est Ink3 Desc" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299505886334" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 105 yes "ttFinishGoods.col4" "Est Ink4" "x(20)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299505886335" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 106 yes "ttFinishGoods.col4desc" "Est Ink4 Desc" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299505886336" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 107 yes "ttFinishGoods.col5" "Est Ink5" "x(20)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299505886337" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 108 yes "ttFinishGoods.col5desc" "Est Ink5 Desc" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299505886338" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 109 yes "ttFinishGoods.col6" "Est Ink6" "x(20)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299505886339" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 110 yes "ttFinishGoods.col6desc" "Est Ink6 Desc" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299505886340" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 111 yes "ttFinishGoods.col7" "Est Ink7" "x(20)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299505886341" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 112 yes "ttFinishGoods.col7desc" "Est Ink7 Desc" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299505886342" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 113 yes "ttFinishGoods.col8" "Est Ink8" "x(20)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299505886343" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 114 yes "ttFinishGoods.col8desc" "Est Ink8 Desc" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299505886344" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 115 yes "ttFinishGoods.col9" "Est Ink9" "x(20)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299505886345" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 116 yes "ttFinishGoods.col9desc" "Est Ink9 Desc" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299505886346" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 117 yes "ttFinishGoods.col10" "Est Ink10" "x(20)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299505886347" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 118 yes "ttFinishGoods.col10desc" "Est Ink10 Desc" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299505886348" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 119 yes "ttFinishGoods.cat1" "Est Coating1" "x(20)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299505886349" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 120 yes "ttFinishGoods.cat2" "Est Coating2" "x(20)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299505886350" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 121 yes "ttFinishGoods.cat3" "Est Coating3" "x(20)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299505886351" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 122 yes "ttFinishGoods.brd-cd" "Board Code" "x(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299505886352" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 123 yes "ttFinishGoods.brd-nam" "Board Name" "x(20)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299605886353" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 124 yes "ttFinishGoods.cas-qt" "Case Qty" "->>,>>>,>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202011304299605886354" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 125 yes "ttFinishGoods.cas-nam" "Case Name" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299605886355" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 126 yes "ttFinishGoods.skid-cd" "Skid Code" "x(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299605886356" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 127 yes "ttFinishGoods.skid-nam" "Skid Name" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299605886357" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 128 yes "ttFinishGoods.skid-qt" "Skid Qty" "->>,>>>,>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202011304299605886358" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 129 yes "ttFinishGoods.spare-int-2" "Release Sequence" "->>,>>>,>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202011304299605886359" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 130 yes "ttFinishGoods.case-pall" "Units/Pall" ">>>,>>>" 0 "integer" 0 no no "" "" no "" "" no no no "" "202011304299605886360" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 131 yes "ttFinishGoods.factored" "Factor Invoice" "Yes/No" 0 "logical" 0 no no "" "" no "" "" no no no "" "202011304299605886361" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 132 yes "ttFinishGoods.spare-char-3" "Sales Rep" "x(5)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299605886362" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 133 yes "ttFinishGoods.spc-grp1" "Spec Note 1 Group" "x(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299605886363" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 134 yes "ttFinishGoods.spc-title1" "Spec Note 1 Title" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299605886364" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 135 yes "ttFinishGoods.spc-note1" "Spec Note 1 Note [Large]" "x(100)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299605886365" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 136 yes "ttFinishGoods.spc-grp2" "Spec Note 2 Group" "x(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299605886366" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 137 yes "ttFinishGoods.spc-title2" "Spec Note 2 Title" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299605886367" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 138 yes "ttFinishGoods.spc-note2" "Spec Note 2 Note [Large]" "x(100)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299605886368" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 139 yes "ttFinishGoods.spc-grp3" "Spec Note 3 Group" "x(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299605886369" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 140 yes "ttFinishGoods.spc-title3" "Spec Note 3 Title" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299605886370" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 141 yes "ttFinishGoods.spc-note3" "Spec Note 3 Note [Large]" "x(100)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299605886371" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 142 yes "ttFinishGoods.spc-grp4" "Spec Note 4 Group" "x(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299605886372" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 143 yes "ttFinishGoods.spc-title4" "Spec Note 4 Title" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299605886373" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 144 yes "ttFinishGoods.spc-note4" "Spec Note 4 Note [Large]" "x(100)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299605886374" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 145 yes "ttFinishGoods.spc-grp5" "Spec Note 5 Group" "x(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299605886375" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 146 yes "ttFinishGoods.spc-title5" "Spec Note 5 Title" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299605886376" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 147 yes "ttFinishGoods.spc-note5" "Spec Note 5 Note [Large]" "x(100)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299605886377" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 148 yes "ttFinishGoods.setupBy" "Setup By UserId" "x(16)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299605886378" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 149 yes "ttFinishGoods.setupDate" "Setup Date" "99/99/9999" 0 "date" 0 no no "" "" no "" "" no no no "" "202011304299605886379" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 150 yes "ttFinishGoods.modifiedBy" "Modified By" "x(16)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299605886380" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 151 yes "ttFinishGoods.modifiedDate" "Modified Date" "99/99/9999" 0 "date" 0 no no "" "" no "" "" no no no "" "202011304299605886381" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 152 yes "ttFinishGoods.pallet-qty" "Pallet Quantity" ">>>,>>>,>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202011304299605886382" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 153 yes "ttFinishGoods.fgcol1" "FgItem Color1" "x(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299605886383" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 154 yes "ttFinishGoods.fgcol1Desc" "FgItem Color1 Desc" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299605886384" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 155 yes "ttFinishGoods.fgcol2" "FgItem Color2" "x(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299605886385" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 156 yes "ttFinishGoods.fgcol2Desc" "FgItem Color2 Desc" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299605886386" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 157 yes "ttFinishGoods.fgcol3" "FgItem Color3" "x(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299605886387" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 158 yes "ttFinishGoods.fgcol3Desc" "FgItem Color3 Desc" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299605886388" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 159 yes "ttFinishGoods.fgcol4" "FgItem Color4" "x(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299605886389" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 160 yes "ttFinishGoods.fgcol4Desc" "FgItem Color4 Desc" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299605886390" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 161 yes "ttFinishGoods.fgcol5" "FgItem Color5" "x(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299605886391" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 162 yes "ttFinishGoods.fgcol5Desc" "FgItem Color5 Desc" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299605886392" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 163 yes "ttFinishGoods.fgcol6" "FgItem Color6" "x(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299605886393" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 164 yes "ttFinishGoods.fgcol6Desc" "FgItem Color6 Desc" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299605886394" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 165 yes "ttFinishGoods.fgcol7" "FgItem Color7" "x(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299605886395" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 166 yes "ttFinishGoods.fgcol7Desc" "FgItem Color7 Desc" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299605886396" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 167 yes "ttFinishGoods.fgcol8" "FgItem Color8" "x(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299605886397" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 168 yes "ttFinishGoods.fgcol8Desc" "FgItem Color8 Desc" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299605886398" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 169 yes "ttFinishGoods.fgcol9" "FgItem Color9" "x(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299605886399" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 170 yes "ttFinishGoods.fgcol9Desc" "FgItem Color9 Desc" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299605886400" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 171 yes "ttFinishGoods.fgcol10" "FgItem Color10" "x(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299605886401" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 172 yes "ttFinishGoods.fgcol10Desc" "FgItem Color10 Desc" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299605886402" no "" "" 0 0 "" no
+84 "_default" "dynSubjct." 0 173 yes "ttFinishGoods.productTaxClass" "Product Tax Class" "x(18)" 0 "character" 0 no no "" "" no "" "" no no no "" "202011304299605886403" no "" "" 0 0 "" no
 86 "_default" "dynSubjct." 0 1 yes "sman.sman" "Sales Rep" "x(3)" 18.2 "STRING" 0 no no "" "" no "" "" no no no "" "202005260237205315319" no "" "" 0 0 "" no
 86 "_default" "dynSubjct." 0 2 yes "sman.sname" "Name" "x(20)" 24.2 "STRING" 0 no no "" "" no "" "" no no no "" "202005260237205315320" no "" "" 0 0 "" no
 86 "_default" "dynSubjct." 0 3 yes "sman.commbasis" "Basis" "X" 4.8 "STRING" 0 no no "" "" no "" "" no no no "" "202005260237205315321" no "" "" 0 0 "" no

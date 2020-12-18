@@ -200,8 +200,9 @@ job.start-date job.close-date job.stat
 fi_i-no fi_cust-no fi_est-no fi_ord-no tb_open tb_closed btn_go btn_prev ~
 Browser-Table RECT-1 
 &Scoped-Define DISPLAYED-OBJECTS fibeginDate fiEndDate fi_job-no fi_job-no2 ~
-fi_i-no fi_cust-no fi_est-no fi_ord-no tb_open tb_closed fi_sort-by ~
-FI_moveCol 
+fi_i-no fi_cust-no fi_est-no fi_ord-no tb_open tb_closed fi_sort-by 
+/*~
+FI_moveCol */
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -331,10 +332,10 @@ DEFINE VARIABLE fi_job-no2 AS INTEGER FORMAT "99":U INITIAL 0
      SIZE 7 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE FI_moveCol AS CHARACTER FORMAT "X(4)":U 
+/*DEFINE VARIABLE FI_moveCol AS CHARACTER FORMAT "X(4)":U 
      VIEW-AS FILL-IN 
      SIZE 9 BY 1
-     BGCOLOR 14 FONT 6 NO-UNDO.
+     BGCOLOR 14 FONT 6 NO-UNDO.*/
 
 DEFINE VARIABLE fi_ord-no AS INTEGER FORMAT ">>>>>>>>":U INITIAL 0 
      VIEW-AS FILL-IN 
@@ -430,7 +431,7 @@ DEFINE FRAME F-Main
      btn_prev AT ROW 3.86 COL 16.6
      btn_next AT ROW 3.86 COL 38
      fi_sort-by AT ROW 3.86 COL 66 COLON-ALIGNED
-     FI_moveCol AT ROW 3.86 COL 122 COLON-ALIGNED NO-LABEL WIDGET-ID 46
+  //   FI_moveCol AT ROW 3.86 COL 122 COLON-ALIGNED NO-LABEL WIDGET-ID 46
      Browser-Table AT ROW 5.29 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
      "Job#" VIEW-AS TEXT
@@ -448,8 +449,8 @@ DEFINE FRAME F-Main
      "Order#" VIEW-AS TEXT
           SIZE 10 BY .71 AT ROW 1.14 COL 92.8
           FGCOLOR 9 FONT 6
-     "Click on Yellow Field to" VIEW-AS TEXT
-          SIZE 27 BY 1.19 AT ROW 3.86 COL 96
+    /* "Click on Yellow Field to" VIEW-AS TEXT
+          SIZE 27 BY 1.19 AT ROW 3.86 COL 96 */
      "Begin Due Date" VIEW-AS TEXT
           SIZE 18.4 BY .71 AT ROW 1.14 COL 107.4 WIDGET-ID 52
           FGCOLOR 9 FONT 6
@@ -640,6 +641,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON START-SEARCH OF Browser-Table IN FRAME F-Main
 DO:
+  {methods/template/sortindicator.i} 
   DEFINE VARIABLE lh-column AS HANDLE NO-UNDO.
   DEFINE VARIABLE lv-column-nam AS CHARACTER NO-UNDO.
   DEFINE VARIABLE lv-column-lab AS CHARACTER NO-UNDO.
@@ -665,6 +667,7 @@ DO:
   APPLY 'END-SEARCH' TO {&BROWSE-NAME}.
 
   APPLY "choose" TO btn_go.
+  {methods/template/sortindicatorend.i} 
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1064,11 +1067,14 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
      RUN sys/ref/CustList.p (INPUT cocode,INPUT 'JC',
                             INPUT YES,OUTPUT lActive).
 {sys/inc/chblankcust.i "v-whereamI" }
-
+/*
 FI_moveCol = "Sort".
  
-DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}.
-
+DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}.*/
+/* Ticket# : 92946
+   Hiding this widget for now, as browser's column label should be indicating the column which is sorted by */
+fi_sort-by:HIDDEN  = TRUE.
+fi_sort-by:VISIBLE = FALSE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1321,10 +1327,10 @@ PROCEDURE local-initialize :
    job-hdr.cust-no:READ-ONLY IN BROWSE {&browse-name} = YES 
    job.start-date:READ-ONLY IN BROWSE {&browse-name} = YES
    job.close-date:READ-ONLY IN BROWSE {&browse-name} = YES
-   job.stat:READ-ONLY IN BROWSE {&browse-name} = YES
-    FI_moveCol = "Sort"
+   job.stat:READ-ONLY IN BROWSE {&browse-name} = YES.
+ /*   FI_moveCol = "Sort"
    .
-  DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}.
+  DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}.*/
   APPLY 'ENTRY':U TO fi_job-no IN FRAME {&FRAME-NAME}.
 
   RUN set-focus.
@@ -1447,9 +1453,9 @@ PROCEDURE move-columns :
      ASSIGN
         Browser-Table:COLUMN-MOVABLE = v-col-move
         Browser-Table:COLUMN-RESIZABLE = v-col-move
-        v-col-move = NOT v-col-move
-        FI_moveCol = IF v-col-move = NO THEN "Move" ELSE "Sort".
-     DISPLAY FI_moveCol.
+        v-col-move = NOT v-col-move.
+       /* FI_moveCol = IF v-col-move = NO THEN "Move" ELSE "Sort".
+     DISPLAY FI_moveCol.*/
   END.
 
 END PROCEDURE.

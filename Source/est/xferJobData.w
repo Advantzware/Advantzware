@@ -61,7 +61,7 @@ DEFINE VARIABLE ipQuery AS HANDLE NO-UNDO.
 {methods/defines/globdefs.i}
 {methods/defines/hndldefs.i}
 {sys/inc/var.i "NEW SHARED"}
-
+{methods/template/brwcustomdef.i}
 DEFINE VARIABLE jobhdrRowID AS ROWID NO-UNDO.
 DEFINE VARIABLE estQty AS INTEGER NO-UNDO.
 DEFINE VARIABLE iv-eqty LIKE est-qty.eqty NO-UNDO.
@@ -807,6 +807,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ttblEstOp C-Win
 ON START-SEARCH OF ttblEstOp IN FRAME DEFAULT-FRAME
 DO:
+  {methods/template/sortindicator.i} 
   CASE ttblEstOp:CURRENT-COLUMN:NAME:
     WHEN 'mCode' THEN DO:
       ASSIGN
@@ -876,6 +877,7 @@ DO:
     END. /* mrStd */
   END CASE.
   {&OPEN-QUERY-ttblEstOp}
+  {methods/template/sortindicatorend.i} 
 END.
 
 /* _UIB-CODE-BLOCK-END */

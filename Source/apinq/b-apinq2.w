@@ -24,7 +24,7 @@ CREATE WIDGET-POOL.
 /* ***************************  Definitions  ************************** */
 &SCOPED-DEFINE setUserPrint
 &SCOPED-DEFINE winReSize
-&SCOPED-DEFINE sizeOption HEIGHT
+//&SCOPED-DEFINE sizeOption HEIGHT
 &SCOPED-DEFINE browseOnly
 {methods/defines/winReSize.i}
 
@@ -136,7 +136,7 @@ ap-inv.due ap-inv.stat ap-inv.user-id
 fi_finv fi_vend fi_date-to btnCalendar-2 tb_unposted btn_go btn_show ~
 Browser-Table 
 &Scoped-Define DISPLAYED-OBJECTS fi_date tb_posted fi_finv fi_vend ~
-fi_date-to tb_unposted fi_sort-by FI_moveCol 
+fi_date-to tb_unposted fi_sort-by 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -186,10 +186,6 @@ DEFINE VARIABLE fi_finv AS CHARACTER FORMAT "x(12)"
      SIZE 24 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE FI_moveCol AS CHARACTER FORMAT "X(4)":U 
-     VIEW-AS FILL-IN 
-     SIZE 9 BY 1
-     BGCOLOR 14 FONT 6 NO-UNDO.
 
 DEFINE VARIABLE fi_sort-by AS CHARACTER FORMAT "X(256)":U 
      LABEL "Sorted By" 
@@ -207,12 +203,12 @@ DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 145 BY 4.29.
 
-DEFINE VARIABLE tb_posted AS LOGICAL INITIAL no 
+DEFINE VARIABLE tb_posted AS LOGICAL INITIAL NO 
      LABEL "Posted" 
      VIEW-AS TOGGLE-BOX
      SIZE 21 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_unposted AS LOGICAL INITIAL yes 
+DEFINE VARIABLE tb_unposted AS LOGICAL INITIAL YES 
      LABEL "Unposted" 
      VIEW-AS TOGGLE-BOX
      SIZE 20 BY 1 NO-UNDO.
@@ -267,14 +263,13 @@ DEFINE FRAME F-Main
      btnCalendar-2 AT ROW 2.29 COL 138
      tb_unposted AT ROW 2.43 COL 4
      fi_sort-by AT ROW 3.76 COL 61 COLON-ALIGNED
-     FI_moveCol AT ROW 3.76 COL 132.6 COLON-ALIGNED NO-LABEL WIDGET-ID 4
      btn_go AT ROW 3.86 COL 12
      btn_show AT ROW 3.86 COL 31
      Browser-Table AT ROW 5.29 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
-     "Browser Col. Mode:" VIEW-AS TEXT
+    /* "Browser Col. Mode:" VIEW-AS TEXT
           SIZE 22.6 BY .62 AT ROW 4 COL 111.8 WIDGET-ID 6
-          FONT 6
+          FONT 6*/
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -431,6 +426,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON START-SEARCH OF Browser-Table IN FRAME F-Main
 DO:
+  {methods/template/sortindicator.i} 
   DEF VAR lh-column AS HANDLE NO-UNDO.
   DEF VAR lv-column-nam AS CHAR NO-UNDO.
   DEF VAR lv-column-lab AS CHAR NO-UNDO.
@@ -455,6 +451,7 @@ DO:
   APPLY 'END-SEARCH' TO {&BROWSE-NAME}.
 
   APPLY "choose" TO btn_go.
+  {methods/template/sortindicatorend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -602,7 +599,10 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
 &ENDIF
 
 {methods/winReSize.i}
-
+/* Ticket# : 92946
+   Hiding this widget for now, as browser's column label should be indicating the column which is sorted by */
+fi_sort-by:HIDDEN  = TRUE.
+fi_sort-by:VISIBLE = FALSE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -902,9 +902,8 @@ PROCEDURE local-initialize :
    ap-inv.net:READ-ONLY IN BROWSE {&browse-name} = YES
    ap-inv.due:READ-ONLY IN BROWSE {&browse-name} = YES
    ap-inv.stat:READ-ONLY IN BROWSE {&browse-name} = YES
-   ap-inv.user-id:READ-ONLY IN BROWSE {&browse-name} = YES
-  FI_moveCol = "Sort".
-  DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}.
+   ap-inv.user-id:READ-ONLY IN BROWSE {&browse-name} = YES.
+ 
   
 END PROCEDURE.
 
@@ -990,10 +989,7 @@ PROCEDURE move-columns :
 DO WITH FRAME {&FRAME-NAME}:
   ASSIGN
      Browser-Table:COLUMN-MOVABLE = v-col-move
-     Browser-Table:COLUMN-RESIZABLE = v-col-move
-     v-col-move = NOT v-col-move
-     FI_moveCol = IF v-col-move = NO THEN "Move" ELSE "Sort".
-  DISPLAY FI_moveCol.
+     Browser-Table:COLUMN-RESIZABLE = v-col-move.
 END.
 END PROCEDURE.
 
@@ -1066,9 +1062,9 @@ PROCEDURE pushpin-image-proc :
    ASSIGN
    v-inv-no = STRING(ap-inv.inv-no,"X(12)") + "APINV"
    v-att = CAN-FIND(FIRST attach WHERE
-           attach.company = cocode and
+           attach.company = cocode AND
            attach.rec_key = ip-rec_key AND
-           (attach.est-no eq v-inv-no OR ATTACH.est-no EQ "")).
+           (attach.est-no EQ v-inv-no OR ATTACH.est-no EQ "")).
 
    RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, 'attachinv-target':U, OUTPUT char-hdl).
 

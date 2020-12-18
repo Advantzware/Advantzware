@@ -35,7 +35,7 @@ DEFINE VARIABLE oplRebuildMenu AS LOGICAL NO-UNDO.
 &Scoped-define mainMenuBGColor 1
 &Scoped-define mainMenuFGColor 15
 &Scoped-define FGColor ?
-&Scoped-define BGColor 8
+&Scoped-define BGColor 32
 
 {methods/defines/globdefs.i}
 {methods/defines/hndldefs.i}
@@ -157,27 +157,27 @@ DEFINE VARIABLE cUser AS CHARACTER FORMAT "X(256)":U
      SIZE 38 BY 1 TOOLTIP "Selected User" NO-UNDO.
 
 DEFINE IMAGE IMAGE-1
-     FILENAME "Graphics/16x16/navigate_right.png":U TRANSPARENT
+     FILENAME "Graphics/16x16/plus.png":U TRANSPARENT
      SIZE 3.2 BY .76.
 
 DEFINE IMAGE IMAGE-2
-     FILENAME "Graphics/24x24/navigate_right.png":U TRANSPARENT
+     FILENAME "Graphics/24x24/plus.png":U TRANSPARENT
      SIZE 4.8 BY 1.14.
 
 DEFINE IMAGE IMAGE-3
-     FILENAME "Graphics/32x32/navigate_right.png":U TRANSPARENT
+     FILENAME "Graphics/32x32/plus.png":U TRANSPARENT
      SIZE 6.4 BY 1.52.
 
 DEFINE IMAGE IMAGE-4
-     FILENAME "Graphics/16x16/calendar_clock.png":U TRANSPARENT
+     FILENAME "Graphics/16x16/Scheduling.png":U TRANSPARENT
      SIZE 3.2 BY .76.
 
 DEFINE IMAGE IMAGE-5
-     FILENAME "Graphics/24x24/calendar_clock.png":U TRANSPARENT
+     FILENAME "Graphics/24x24/Scheduling.png":U TRANSPARENT
      SIZE 4.8 BY 1.14.
 
 DEFINE IMAGE IMAGE-6
-     FILENAME "Graphics/32x32/calendar_clock.ico":U TRANSPARENT
+     FILENAME "Graphics/32x32/Scheduling.png":U TRANSPARENT
      SIZE 6.4 BY 1.52.
 
 DEFINE VARIABLE cPositionMnemonic AS CHARACTER INITIAL "Begin" 
@@ -921,7 +921,7 @@ DO:
         .
     RUN pGetUserSettings.
     RUN pInitMenuTree.
-    RUN pBuildttMenuTree.
+    RUN pBuildttMenuTree("file").
     RUN pMenuSize.
     RUN pDisplayMenuTree (FRAME menuTreeFrame:HANDLE, "file", YES, 1).
 END.
@@ -1027,8 +1027,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   RUN pInit.
   RUN pGetUserSettings.
   RUN pGetUsers.
-  RUN pBuildttMenuTree.
+  RUN pBuildttMenuTree("file").
   menuTreeMsg:HIDDEN = YES.
+  RUN pMenuSize.
   RUN pDisplayMenuTree (FRAME menuTreeFrame:HANDLE, "file", YES, 1).
   WAIT-FOR GO OF FRAME {&FRAME-NAME}.
 END.
@@ -1099,9 +1100,10 @@ PROCEDURE pBuildttMenuTree :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcparentname AS CHARACTER.
     DEFINE VARIABLE lActive AS LOGICAL NO-UNDO.
     
-    EMPTY TEMP-TABLE ttMenuTree.
+   // EMPTY TEMP-TABLE ttMenuTree.
     
     FOR EACH prgrms NO-LOCK
         WHERE prgrms.menu_item EQ YES
@@ -1130,7 +1132,8 @@ PROCEDURE pBuildttMenuTree :
                 prgrms.mnemonic,
                 cShowMnemonic,
                 cPositionMnemonic,
-                lActive
+                lActive,
+                ipcparentname
                 ).
         END. /* if ccemenu */
     END. /* each prgrms */
@@ -1436,7 +1439,7 @@ PROCEDURE pMenuSize :
         WHEN 1 THEN
         ASSIGN
             cImageFolder  = "Graphics/16X16/"
-            dObjectHeight = .95
+            dObjectHeight = 1.11
             dObjectWidth  = 4
             iFont         = 32
             .
@@ -1460,6 +1463,7 @@ PROCEDURE pMenuSize :
     RUN LockWindowUpdate (ACTIVE-WINDOW:HWND,OUTPUT i).
     
     FOR EACH ttMenuTree:
+        IF NOT ttMenuTree.lWidgetExist THEN NEXT.
         IF VALID-HANDLE(ttMenuTree.hLevel) THEN DO:
             ASSIGN
                 ttMenuTree.hLevel:HIDDEN = YES
@@ -1467,7 +1471,7 @@ PROCEDURE pMenuSize :
                 ttMenuTree.hLevel:WIDTH  = dObjectWidth
                 ttMenuTree.hLevel:HEIGHT = dObjectHeight
                 .
-            ttMenuTree.hLevel:LOAD-IMAGE(SEARCH(cImageFolder + "navigate_right.png")).
+            ttMenuTree.hLevel:LOAD-IMAGE(SEARCH(cImageFolder + "plus.png")).
         END. /* if hlevel */
         IF VALID-HANDLE(ttMenuTree.hImage) THEN DO:
             ASSIGN
@@ -1484,6 +1488,13 @@ PROCEDURE pMenuSize :
             ttMenuTree.hEditor:ROW    = 1
             ttMenuTree.hEditor:HEIGHT = dObjectHeight
             ttMenuTree.hEditor:FONT   = iFont
+            .
+        IF VALID-HANDLE(ttMenuTree.hRectangle) THEN
+        ASSIGN
+            ttMenuTree.hRectangle:HIDDEN = YES
+            ttMenuTree.hRectangle:ROW    = 1
+            ttMenuTree.hRectangle:HEIGHT = dObjectHeight
+            ttMenuTree.hRectangle:WIDTH  = dObjectWidth
             .
         IF VALID-HANDLE(ttMenuTree.hToggle) THEN
         ASSIGN
@@ -1514,7 +1525,7 @@ PROCEDURE pProcessClick :
     IF AVAILABLE ttMenuTree AND ttMenuTree.isMenu AND NOT ttMenuTree.isOpen THEN
     ASSIGN
         ttMenuTree.hEditor:FONT    = iFont
-        ttMenuTree.hEditor:BGCOLOR = ?
+        ttMenuTree.hEditor:BGCOLOR = iEditorBGColor
         ttMenuTree.hEditor:FGCOLOR = ?
         .
 
@@ -1539,10 +1550,11 @@ PROCEDURE pReset :
     RUN LockWindowUpdate (ACTIVE-WINDOW:HWND,OUTPUT i).
 
     FOR EACH ttMenuTree:
+    IF NOT ttMenuTree.lWidgetExist THEN NEXT. 
         ASSIGN
             ttMenuTree.baseText             = fTranslate(ENTRY(1,ttMenuTree.hEditor:PRIVATE-DATA),NO)
             ttMenuTree.hEditor:FONT         = iFont
-            ttMenuTree.hEditor:BGCOLOR      = ?
+            ttMenuTree.hEditor:BGCOLOR      = iEditorBGColor
             ttMenuTree.hEditor:FGCOLOR      = ?
             ttMenuTree.hEditor:TOOLTIP      = "HotKey: " + ttMenuTree.mnemonic
             ttMenuTree.hEditor:SCREEN-VALUE = fTreeText(

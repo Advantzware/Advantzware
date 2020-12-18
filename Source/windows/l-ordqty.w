@@ -41,6 +41,8 @@ DEF VAR columnCounts AS INT NO-UNDO.
 DEF VAR cellColumn AS HANDLE EXTENT 10 NO-UNDO.
 DEF VAR idx AS INT NO-UNDO.
 
+{methods/template/brwcustomdef.i}
+
 &SCOPED-DEFINE sortby-phrase BY quoteqty.quote-date DESC BY quoteqty.qty
 
 /* _UIB-CODE-BLOCK-END */
@@ -240,6 +242,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-1 Dialog-Frame
 ON ROW-DISPLAY OF BROWSE-1 IN FRAME Dialog-Frame
 DO:
+    &scoped-define exclude-row-display true 
+    {methods/template/brwrowdisplay.i}
+        
   DO idx = 1 TO columncounts:
      IF quoteqty.quote-date = lv-first-quote-date THEN
         cellColumn[idx]:BGCOLOR = 10.
@@ -262,7 +267,7 @@ END.
 IF VALID-HANDLE(ACTIVE-WINDOW) AND FRAME {&FRAME-NAME}:PARENT eq ?
 THEN FRAME {&FRAME-NAME}:PARENT = ACTIVE-WINDOW.
 
-
+{methods/template/brwcustom.i}
 /* Now enable the interface and wait for the exit condition.            */
 /* (NOTE: handle ERROR and END-KEY so cleanup code will always fire.    */
 MAIN-BLOCK:

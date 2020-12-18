@@ -62,7 +62,8 @@ CREATE WIDGET-POOL.
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btnHTML 
      IMAGE-UP FILE "Graphics/32x32/html_tag.png":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
+	 IMAGE-down FILE "Graphics/32x32/html_tag_hover.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/html_tag_disable.png":U NO-FOCUS FLAT-BUTTON
      LABEL "HTML" 
      SIZE 7.8 BY 1.81 TOOLTIP "Capacity Page".
 
@@ -73,7 +74,8 @@ DEFINE FRAME F-Main
      btnHTML AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE .
+         AT COL 1 ROW 1 SCROLLABLE
+		BGCOLOR 21.
 
 
 /* *********************** Procedure Settings ************************ */

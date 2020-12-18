@@ -92,7 +92,7 @@ DEFINE TEMP-TABLE ttImportCust
     FIELD SwiftBIC      AS CHARACTER FORMAT "x(11)" COLUMN-LABEL "Swift Code" HELP "Optional - Validated - Size:11"
     FIELD BankRTN       AS INTEGER FORMAT "999999999" COLUMN-LABEL "Routing" HELP "Optional - Integer"
     
-    FIELD accountType   AS CHARACTER FORMAT "X(12)" COLUMN-LABEL "Account Type" HELP "Account type is used for sales reporting optional - Size:12 Split,Originated,Handed"
+    FIELD accountType   AS CHARACTER FORMAT "X(12)" COLUMN-LABEL "Account Type" HELP "Account type is used for sales reporting optional - Size:12 Split,Originated,Handed,None, None for no change"
     FIELD splitType     AS INTEGER FORMAT "9" COLUMN-LABEL "Split Type" HELP "Split type used for sales reporting Optional - default 0"
     FIELD parentCust    AS CHARACTER FORMAT "x(12)" COLUMN-LABEL "Parent Customer" HELP "Master customer account Optional - Size:12"
     FIELD marketSegment AS CHARACTER FORMAT "x(16)" COLUMN-LABEL "Market Segment" HELP "Market segment for sales reporting Optional - Size:16"
@@ -144,7 +144,14 @@ PROCEDURE pValidate PRIVATE:
                 oplValid = NO
                 opcNote  = "Key Field Blank: Customer".
     END.
-    
+    IF oplValid THEN 
+    DO:
+        IF ipbf-ttImportCust.accountType EQ '' THEN 
+            ASSIGN 
+                oplValid = NO
+                opcNote  = "Key Field Blank: Account Type, Use None for no change".
+    END.
+            
     IF oplValid THEN 
     DO:
         IF ipbf-ttImportCust.CustType EQ '' THEN 
@@ -339,8 +346,8 @@ PROCEDURE pValidate PRIVATE:
         IF oplValid AND ipbf-ttImportCust.cTaxGr NE "" THEN 
             RUN pIsValidTaxGroup IN hdValidator (ipbf-ttImportCust.cTaxGr, NO, ipbf-ttImportCust.Company, OUTPUT oplValid, OUTPUT cValidNote).
             
-        IF oplValid AND ipbf-ttImportCust.accountType NE "" THEN 
-            RUN pIsValidFromList IN hdValidator ("Account Type", ipbf-ttImportCust.accountType, ",Split,Originated,Handed", OUTPUT oplValid, OUTPUT cValidNote).                
+        IF oplValid THEN 
+            RUN pIsValidFromList IN hdValidator ("Account Type", ipbf-ttImportCust.accountType, "None,Split,Originated,Handed", OUTPUT oplValid, OUTPUT cValidNote).                
             
         IF oplValid AND ipbf-ttImportCust.splitType NE 0 THEN 
             RUN pIsValidFromList IN hdValidator ("Split Type", ipbf-ttImportCust.splitType, "0,1,2,3,4,5,6,7,8,9", OUTPUT oplValid, OUTPUT cValidNote).                     
@@ -480,6 +487,7 @@ PROCEDURE pProcessRecord PRIVATE:
     RUN pAssignValueC (ipbf-ttImportCust.BankAcct, YES, INPUT-OUTPUT bf-cust.Bank-Acct).
     RUN pAssignValueC (ipbf-ttImportCust.SwiftBIC, YES, INPUT-OUTPUT bf-cust.SwiftBIC).
     RUN pAssignValueC (ipbf-ttImportCust.BankRTN, iplIgnoreBlanks, INPUT-OUTPUT bf-cust.Bank-RTN).
+    IF ipbf-ttImportCust.accountType NE "None" THEN
     RUN pAssignValueC (ipbf-ttImportCust.accountType, iplIgnoreBlanks, INPUT-OUTPUT bf-cust.accountType).
     RUN pAssignValueI (ipbf-ttImportCust.splitType, iplIgnoreBlanks, INPUT-OUTPUT bf-cust.splitType).
     RUN pAssignValueC (ipbf-ttImportCust.parentCust, iplIgnoreBlanks, INPUT-OUTPUT bf-cust.parentCust).

@@ -30,7 +30,7 @@ CREATE WIDGET-POOL.
 /* Local Variable Definitions ---                                       */
 
 {methods/defines/hndlset.i}
-
+DEFINE VARIABLE flag AS LOGICAL.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -61,10 +61,12 @@ CREATE WIDGET-POOL.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btnMoveCol 
-     IMAGE-UP FILE "Graphics/32x32/spreadsheet_column.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/sort_up_down2.png":U
+     IMAGE-DOWN FILE "Graphics/32x32/sort_up_down2.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/config-table_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Phone" 
-     SIZE 7.8 BY 1.81 TOOLTIP "Change Move/Sort Column Mode".
+     SIZE 6.4 BY 1.52 TOOLTIP "Change Move/Sort Column Mode"
+     BGCOLOR 21 .
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -73,7 +75,8 @@ DEFINE FRAME F-Main
      btnMoveCol AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE .
+         AT COL 1 ROW 1 SCROLLABLE 
+         BGCOLOR 21 .
 
 
 /* *********************** Procedure Settings ************************ */
@@ -102,7 +105,7 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW s-object ASSIGN
-         HEIGHT             = 1.81
+         HEIGHT             = 1.52
          WIDTH              = 66.
 /* END WINDOW DEFINITION */
                                                                         */
@@ -153,10 +156,20 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnMoveCol s-object
 ON CHOOSE OF btnMoveCol IN FRAME F-Main /* Phone */
 DO:
+   
+    
+    SELF:LOAD-IMAGE("Graphics/32x32/"
+        + IF flag THEN "sort_up_down2.png"
+        ELSE "left_right_arrows.png")
+        . 
+    IF flag THEN 
+        flag = FALSE.
+    ELSE
+        flag = TRUE.
     DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
 
     RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,'move-columns-source':U,OUTPUT char-hdl).
-    RUN move-columns in WIDGET-HANDLE(char-hdl).
+    RUN move-columns IN WIDGET-HANDLE(char-hdl).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -200,7 +213,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE make-insensitive s-object 
 PROCEDURE make-insensitive :

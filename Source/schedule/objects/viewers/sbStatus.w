@@ -35,7 +35,7 @@ CREATE WIDGET-POOL.
 {{&includes}/filterVars.i}
 {{&includes}/ttblJob.i}
 {{&viewers}/includes/sharedVars.i NEW}
-
+{methods/template/brwcustomdef.i}
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
@@ -355,11 +355,13 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL browseJob sObject
 ON START-SEARCH OF browseJob IN FRAME F-Main
 DO:
+{methods/template/sortindicator.i} 
   IF CAN-DO('job,jobSequence',{&BROWSE-NAME}:CURRENT-COLUMN:NAME) THEN
   DO:
     columnLabel = {&BROWSE-NAME}:CURRENT-COLUMN:NAME.
     RUN reopenBrowse.
   END.
+  {methods/template/sortindicatorend.i} 
   RETURN NO-APPLY.
 END.
 

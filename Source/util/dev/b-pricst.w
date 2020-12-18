@@ -35,7 +35,9 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 {custom/globdefs.i}
+&SCOPED-DEFINE winReSize
 
+{methods/defines/winReSize.i}
 {sys/inc/VAR.i NEW SHARED}
 
 ASSIGN
@@ -345,7 +347,7 @@ END.
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF
-
+{methods/winReSize.i}
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
