@@ -197,7 +197,8 @@ DEFINE TEMP-TABLE ttInv NO-UNDO
     FIELD shiptoAddress2              AS CHARACTER 
     FIELD shiptoCity                  AS CHARACTER 
     FIELD shiptoState                 AS CHARACTER 
-    FIELD shiptoPostalCode            AS CHARACTER 
+    FIELD shiptoPostalCode            AS CHARACTER
+    FIELD siteID                      AS CHARACTER 
     FIELD termsDays                   AS INTEGER
     FIELD customerPO                  AS CHARACTER
     FIELD payloadID                   AS CHARACTER
@@ -1012,7 +1013,8 @@ DO:
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CustomerPostalCode",DYNAMIC-FUNCTION("fReplaceExceptionCharacters",ttInv.customerPostalcode)).
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CustomerStreet1",DYNAMIC-FUNCTION("fReplaceExceptionCharacters",ttInv.customerAddress1)).
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CustomerStreet2",DYNAMIC-FUNCTION("fReplaceExceptionCharacters",ttInv.customerAddress2)).
-    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ShiptoID", ttInv.shiptoID).    
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ShiptoID", ttInv.shiptoID). 
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "SiteID",ttInv.siteID).   
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ShiptoName",DYNAMIC-FUNCTION("fReplaceExceptionCharacters",ttInv.shiptoName)).
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ShiptoCity", DYNAMIC-FUNCTION("fReplaceExceptionCharacters",ttInv.shiptoCity)).
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ShiptoState",DYNAMIC-FUNCTION("fReplaceExceptionCharacters",ttInv.shiptoState)).
@@ -1135,6 +1137,7 @@ PROCEDURE pAssignCommonHeaderData PRIVATE:
             ipbf-ttInv.shiptoCity       = bf-shipto.ship-city
             ipbf-ttInv.shiptoState      = bf-shipto.ship-state
             ipbf-ttInv.shiptoPostalCode = bf-shipto.ship-zip
+            ipbf-ttinv.siteID           = bf-shipto.siteID
             .
 
     FIND FIRST bf-terms NO-LOCK 
