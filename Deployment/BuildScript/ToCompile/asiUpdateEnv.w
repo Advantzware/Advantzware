@@ -111,6 +111,7 @@ DEF TEMP-TABLE ttUtilities LIKE utilities.
 DEF TEMP-TABLE ttZmessage LIKE zMessage.
 DEF TEMP-TABLE ttEmailConfig LIKE emailConfig.
 DEF TEMP-TABLE ttServerResource LIKE serverResource.
+DEF TEMP-TABLE ttInventoryStatusType LIKE inventoryStatusType.
 
 DEF TEMP-TABLE ttAPIOutbound 
     FIELD apiOutboundID AS INT64 
@@ -3097,11 +3098,18 @@ PROCEDURE ipDataFix200100:
     /* 64885 - Load inventoryStatusType data */
     INPUT FROM VALUE(cUpdDataDir + "\inventoryStatusType.d") NO-ECHO.
     REPEAT:
-        CREATE inventoryStatusType.
-        IMPORT inventoryStatusType.
+        CREATE ttInventoryStatusType.
+        IMPORT ttInventoryStatusType.
+    END.
+    FOR EACH ttInventoryStatusType:
+        FIND FIRST inventoryStatusType NO-LOCK WHERE
+            inventoryStatusType.statusID EQ ttInventoryStatusType.statusID.
+        IF NOT AVAIL inventoryStatusType THEN DO:
+            CREATE inventoryStatusType.
+            BUFFER-COPY ttInventoryStatusType TO inventoryStatusType.
+        END.
     END.
     
-            
 END PROCEDURE.
 	
 /* _UIB-CODE-BLOCK-END */
