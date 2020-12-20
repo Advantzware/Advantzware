@@ -6239,6 +6239,9 @@ PROCEDURE ipSetCurrencyAccounts:
     RUN ipStatus ("    Setting Currency Accounts").
 
     DEF BUFFER bcurrency FOR currency.
+
+    DISABLE TRIGGERS FOR LOAD OF currency.
+    DISABLE TRIGGERS FOR LOAD OF bcurrency.
     
     FOR EACH bcurrency EXCLUSIVE WHERE 
         bcurrency.ar-ast-acct EQ "":
