@@ -70,7 +70,13 @@ DEF TEMP-TABLE w-jm NO-UNDO
 
 DEF VAR lv-prev-prdd-rowid AS ROWID NO-UNDO.
 DEF VAR lv-initial AS LOG INIT YES NO-UNDO.
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
+DEFINE VARIABLE iJobRecalc AS INTEGER NO-UNDO.
+DEFINE VARIABLE iQtyProduced AS INTEGER NO-UNDO.
 DEFINE VARIABLE hdOpProcs    AS HANDLE.
+DEFINE VARIABLE hdJobProcs   AS HANDLE    NO-UNDO.
+
 DEF TEMP-TABLE tt-prdd2 NO-UNDO LIKE tt-prdd.
 
 DO TRANSACTION:
@@ -79,6 +85,10 @@ DO TRANSACTION:
 END.
 
 RUN est\OperationProcs.p PERSISTENT SET hdOpProcs.
+RUN jc/JobProcs.p   PERSISTENT SET hdJobProcs.
+
+RUN sys/ref/nk1look.p (g_company, "JobRecalc", "I", NO, NO, "", "", OUTPUT cRtnChar, OUTPUT lRecFound).
+    iJobRecalc = IF lRecFound THEN integer(cRtnChar) ELSE 0. 
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1165,6 +1175,18 @@ PROCEDURE local-assign-record :
           IF job-mch.n-on  EQ 0 THEN RUN get-num-on. 
           
           FIND CURRENT job-mch NO-LOCK NO-ERROR .         
+     END.
+     IF iJobRecalc EQ 1 AND cAction EQ "Replace" AND AVAIL job THEN
+     DO:
+         RUN fg/GetProductionQty.p (INPUT job.company,
+                INPUT job.job-no,
+                INPUT job.job-no2,
+                INPUT tt-prdd.i-no,
+                INPUT NO,
+                OUTPUT iQtyProduced).
+         IF iQtyProduced EQ 0 THEN
+         RUN  RecalcJobCostForJob IN hdJobProcs (ROWID(job)). 
+        
      END.
     
 

@@ -49,15 +49,22 @@ DEF VAR lv-crt-rowid AS ROWID NO-UNDO.
 DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE oeDateAuto-log AS LOGICAL NO-UNDO.
+DEFINE VARIABLE iJobRecalc AS INTEGER NO-UNDO.
+DEFINE VARIABLE iQtyProduced AS INTEGER NO-UNDO.
 DEFINE VARIABLE hdOpProcs    AS HANDLE.
+DEFINE VARIABLE hdJobProcs   AS HANDLE    NO-UNDO.
+RUN jc/JobProcs.p   PERSISTENT SET hdJobProcs.
 
-RUN est\OperationProcs.p PERSISTENT SET hdOpProcs.
+RUN est/OperationProcs.p PERSISTENT SET hdOpProcs.
 
 RUN sys/ref/nk1look.p (INPUT g_company, "DCClosedJobs", "L" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
 OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
     oeDateAuto-log = LOGICAL(cRtnChar) NO-ERROR.
+    
+RUN sys/ref/nk1look.p (g_company, "JobRecalc", "I", NO, NO, "", "", OUTPUT cRtnChar, OUTPUT lRecFound).
+    iJobRecalc = IF lRecFound THEN integer(cRtnChar) ELSE 0.    
 
 DEF TEMP-TABLE tt-job-mch NO-UNDO LIKE job-mch 
     FIELD row-id AS ROWID
@@ -1318,6 +1325,18 @@ PROCEDURE local-assign-record :
          IF job-mch.n-on  EQ 0 THEN RUN get-num-on.
        
          FIND CURRENT job-mch NO-LOCK NO-ERROR.  
+    END.
+    IF iJobRecalc EQ 1 AND cAction EQ "Replace" AND AVAIL job THEN
+    DO:
+         RUN fg/GetProductionQty.p (INPUT job.company,
+                INPUT job.job-no,
+                INPUT job.job-no2,
+                INPUT pc-prdd.i-no,
+                INPUT NO,
+                OUTPUT iQtyProduced).
+         IF iQtyProduced EQ 0 THEN
+         RUN  RecalcJobCostForJob IN hdJobProcs (ROWID(job)). 
+        
     END.
     
   IF ll-job-mch THEN DO:
