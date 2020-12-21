@@ -491,7 +491,7 @@ PROCEDURE pAddInvoiceLineToPost PRIVATE:
         OUTPUT ttInvoiceLineToPost.costStdDeviation, 
         OUTPUT ttInvoiceLineToPost.costStdManufacture).
     
-    IF NOT ttPostingMaster.blockZeroCost AND ipbf-inv-line.inv-qty NE 0 AND ttInvoiceLineToPost.costTotal EQ 0 THEN 
+    IF ttPostingMaster.blockZeroCost AND ipbf-inv-line.inv-qty NE 0 AND ttInvoiceLineToPost.costTotal EQ 0 THEN 
     DO:
         lFGItemAllowZeroCost = fGetFgValueForZeroCost(ipbf-inv-line.company,ipbf-inv-line.i-no).
          
@@ -1916,7 +1916,7 @@ PROCEDURE pGetSettings PRIVATE:
     DEFINE VARIABLE lFound  AS LOGICAL   NO-UNDO.
 
     RUN sys/ref/nk1look.p (ipbf-ttPostingMaster.company, "INVPOST", "L", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
-    IF lFound THEN ipbf-ttPostingMaster.blockZeroCost = cReturn EQ "YES".
+    IF lFound THEN ipbf-ttPostingMaster.blockZeroCost = cReturn EQ "NO".
     
     RUN sys/ref/nk1look.p (ipbf-ttPostingMaster.company, "OEPREP", "L", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
     IF lFound THEN ipbf-ttPostingMaster.deleteEstPrep = cReturn EQ "YES".
