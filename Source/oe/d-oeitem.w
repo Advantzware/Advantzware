@@ -1097,9 +1097,18 @@ DO:
               END.
          END.
          WHEN "s-man" THEN DO:
-              RUN windows/l-sman.w (g_company, OUTPUT char-val).
-              IF char-val NE "" AND lw-focus:SCREEN-VALUE NE entry(1,char-val) THEN DO:
-                 lw-focus:SCREEN-VALUE = ENTRY(1,char-val).
+              RUN system/openLookup.p (
+                  INPUT  g_company, 
+                  INPUT  "",  /* Lookup ID */
+                  INPUT  29,  /* Subject ID */
+                  INPUT  "",  /* User ID */
+                  INPUT  0,   /* Param Value ID */
+                  OUTPUT cAllFields, 
+                  OUTPUT cMainField, 
+                  OUTPUT recRecordID
+                  ).
+              IF cMainField NE "" AND lw-focus:SCREEN-VALUE NE cMainField THEN DO:
+                 lw-focus:SCREEN-VALUE = cMainField.
                  RUN new-s-man (lw-focus:INDEX).
               END.
          END.  
@@ -9264,9 +9273,10 @@ PROCEDURE valid-s-man :
     
     IF lv-sman NE "" THEN DO:
       IF NOT CAN-FIND(FIRST sman
-                      WHERE sman.company EQ cocode
-                        AND sman.sman    EQ lv-sman) THEN DO:
-        MESSAGE "Invalid Sales Rep, try help..." VIEW-AS ALERT-BOX ERROR.
+                      WHERE sman.company  EQ cocode
+                        AND sman.sman     EQ lv-sman
+                        AND sman.inActive EQ NO) THEN DO:
+        MESSAGE "Inactive/Invalid Sales Rep, try help..." VIEW-AS ALERT-BOX ERROR.
         IF ip-int EQ 3 THEN APPLY "entry" TO oe-ordl.s-man[3].
         ELSE
         IF ip-int EQ 2 THEN APPLY "entry" TO oe-ordl.s-man[2].

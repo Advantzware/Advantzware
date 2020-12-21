@@ -21,7 +21,7 @@ DEFINE TEMP-TABLE ttImportRmRctd
     FIELD loc       AS CHARACTER FORMAT "x(5)" COLUMN-LABEL "Warehouse" HELP "Required - Size:5"
     FIELD locBin    AS CHARACTER FORMAT "x(8)" COLUMN-LABEL "Bin   " HELP "Optional - - Size:8"
     FIELD tag       AS CHARACTER FORMAT "x(5)" COLUMN-LABEL "Tag   " HELP "Optional - Size:5"
-    FIELD qty       AS DECIMAL   FORMAT "->>>>>>9.9<<<<<" COLUMN-LABEL "Qty   " HELP "Optional - Decimal"
+    FIELD qty       AS DECIMAL   FORMAT "->>>>>>9.9<<" COLUMN-LABEL "Qty   " HELP "Optional - Decimal"
     FIELD cost      AS DECIMAL   FORMAT "->>>,>>9.99<<<<" COLUMN-LABEL "Cost  " HELP "Optional - Decimal"
     FIELD ritaCode  AS CHARACTER FORMAT "x" COLUMN-LABEL "Rita Code" HELP "Required - Size:1"
     FIELD sNum      AS INTEGER   FORMAT ">>9" COLUMN-LABEL "S-Num" HELP "Optional - Integer"
@@ -126,10 +126,10 @@ PROCEDURE pProcessRecord PRIVATE:
            ipbf-ttImportRmRctd.costUom = item.cons-uom .              
       END.        
     END.
-    
+      
     RUN pAssignValueC (ipbf-ttImportRmRctd.purUom, iplIgnoreBlanks, INPUT-OUTPUT bf-rm-rctd.pur-uom).                                 
     RUN pAssignValueC (ipbf-ttImportRmRctd.costUom, iplIgnoreBlanks, INPUT-OUTPUT bf-rm-rctd.cost-uom). 
-    RUN pAssignValueD (ipbf-ttImportRmRctd.qty, iplIgnoreBlanks, INPUT-OUTPUT bf-rm-rctd.qty).                                                   
+    RUN pAssignValueD (ROUND(ipbf-ttImportRmRctd.qty,3), iplIgnoreBlanks, INPUT-OUTPUT bf-rm-rctd.qty).                                                   
     RUN pAssignValueD (ipbf-ttImportRmRctd.cost, iplIgnoreBlanks, INPUT-OUTPUT bf-rm-rctd.cost).
     
 

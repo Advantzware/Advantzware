@@ -242,30 +242,39 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
 ON HELP OF  FRAME Dialog-Frame
     DO:
-        DEFINE VARIABLE char-val AS cha           NO-UNDO.
-        DEFINE VARIABLE li       AS INTEGER       NO-UNDO.
-        DEFINE VARIABLE lw-focus AS WIDGET-HANDLE NO-UNDO.
-
+        DEFINE VARIABLE li            AS INTEGER       NO-UNDO.
+        DEFINE VARIABLE lw-focus      AS WIDGET-HANDLE NO-UNDO.
+        DEFINE VARIABLE cFieldsValue  AS CHARACTER     NO-UNDO.
+        DEFINE VARIABLE cFoundValue   AS CHARACTER     NO-UNDO.
+        DEFINE VARIABLE recFoundRecID AS RECID         NO-UNDO.
+        
+        RUN system/openLookup.p (
+            INPUT  ar-inv.company, 
+            INPUT  "",  /* Lookup ID */
+            INPUT  29,  /* Subject ID */
+            INPUT  "",  /* User ID */
+            INPUT  0,   /* Param Value ID */
+            OUTPUT cFieldsValue, 
+            OUTPUT cFoundValue, 
+            OUTPUT recFoundRecID
+            ).
         lw-focus = FOCUS.
 
         CASE lw-focus:NAME :          
             WHEN "sman_first" THEN 
                 DO:
-                    RUN windows/l-sman.w (ar-inv.company, OUTPUT char-val).
-                    sman_first:screen-value = ENTRY(1,char-val).
-                    sman_first-dscr:screen-value = ENTRY(2,char-val).
+                    sman_first:screen-value      = cFoundValue.
+                    sman_first-dscr:screen-value = DYNAMIC-FUNCTION("sfDynLookupValue", "sname", cFieldsValue).
                 END.
             WHEN "sman_sec" THEN 
                 DO:
-                    RUN windows/l-sman.w (ar-inv.company, OUTPUT char-val).
-                    sman_sec:screen-value = ENTRY(1,char-val).
-                    sman_sec-dscr:screen-value = ENTRY(2,char-val).
+                    sman_sec:screen-value      = cFoundValue.
+                    sman_sec-dscr:screen-value = DYNAMIC-FUNCTION("sfDynLookupValue", "sname", cFieldsValue).
                 END.
             WHEN "sman_third" THEN 
                 DO:
-                    RUN windows/l-sman.w (ar-inv.company, OUTPUT char-val).
-                    sman_third:screen-value = ENTRY(1,char-val).
-                    sman_third-dscr:screen-value = ENTRY(2,char-val).
+                    sman_third:screen-value      = cFoundValue.
+                    sman_third-dscr:screen-value = DYNAMIC-FUNCTION("sfDynLookupValue", "sname", cFieldsValue).
                 END.
         END CASE.
 
@@ -633,10 +642,11 @@ PROCEDURE valid-sman :
         IF lv-sman NE "" THEN 
         DO:
             IF NOT CAN-FIND(FIRST sman
-                WHERE sman.company EQ ar-invl.company
-                AND sman.sman    EQ lv-sman) THEN 
+                            WHERE sman.company  EQ ar-invl.company
+                              AND sman.sman     EQ lv-sman
+                              AND sman.inactive EQ NO) THEN 
             DO:
-                MESSAGE "Invalid Sales Rep, try help..." VIEW-AS ALERT-BOX ERROR.
+                MESSAGE "Inactive/Invalid Sales Rep, try help..." VIEW-AS ALERT-BOX ERROR.
                 IF ip-int EQ 3 THEN APPLY "entry" TO sman_third .
                 ELSE
                     IF ip-int EQ 2 THEN APPLY "entry" TO sman_sec .
@@ -645,9 +655,10 @@ PROCEDURE valid-sman :
             END.
 
             FIND FIRST sman NO-LOCK
-                WHERE sman.company EQ ar-invl.company
-                AND sman.sman    EQ lv-sman
-                NO-ERROR.
+                 WHERE sman.company  EQ ar-invl.company
+                   AND sman.sman     EQ lv-sman
+                   AND sman.inactive EQ NO
+                 NO-ERROR.
             IF AVAILABLE sman THEN 
             DO:
                 IF ip-int EQ 3 THEN

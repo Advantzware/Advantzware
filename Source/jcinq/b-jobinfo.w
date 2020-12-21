@@ -3,8 +3,9 @@
 /* Connected Databases 
           asi              PROGRESS
 */
-&Scoped-define WINDOW-NAME C-Win
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS C-Win 
+&Scoped-define WINDOW-NAME CURRENT-WINDOW
+&Scoped-define FRAME-NAME Dialog-Frame
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS Dialog-Frame 
 /*------------------------------------------------------------------------
 
   File: 
@@ -29,7 +30,8 @@
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
 
-CREATE WIDGET-POOL.
+SESSION:DEBUG-ALERT = FALSE.
+
 &SCOPED-DEFINE yellowColumnsName d-jobinfo#
 
 /* ***************************  Definitions  ************************** */
@@ -95,12 +97,13 @@ END.
 
 /* ********************  Preprocessor Definitions  ******************** */
 
-&Scoped-define PROCEDURE-TYPE Window
+&Scoped-define PROCEDURE-TYPE SmartDialog
 &Scoped-define DB-AWARE no
 
+&Scoped-define ADM-CONTAINER DIALOG-BOX
 
 /* Name of designated FRAME-NAME and/or first browse and/or first query */
-&Scoped-define FRAME-NAME F-Main
+&Scoped-define FRAME-NAME Dialog-Frame
 &Scoped-define BROWSE-NAME BROWSE-1
 
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
@@ -147,8 +150,8 @@ overUnderPct(onHandQty) @ overUnderPct fgItemNo() @ fgItemNo
 &Scoped-define SECOND-TABLE-IN-QUERY-BROWSE-1 job
 
 
-/* Definitions for FRAME F-Main                                         */
-&Scoped-define OPEN-BROWSERS-IN-QUERY-F-Main ~
+/* Definitions for FRAME Dialog-Frame                                         */
+&Scoped-define OPEN-BROWSERS-IN-QUERY-Dialog-Frame ~
     ~{&OPEN-QUERY-BROWSE-1}
 
 /* Standard List Definitions                                            */
@@ -163,63 +166,63 @@ overUnderPct(onHandQty) @ overUnderPct fgItemNo() @ fgItemNo
 
 
 /* ************************  Function Prototypes ********************** */
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD custPart C-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD custPart Dialog-Frame 
 FUNCTION custPart RETURNS CHARACTER
     ( /* parameter-definitions */ )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fgItemNo C-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fgItemNo Dialog-Frame 
 FUNCTION fgItemNo RETURNS CHARACTER
     ( /* parameter-definitions */ )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD invoiceQty C-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD invoiceQty Dialog-Frame 
 FUNCTION invoiceQty RETURNS INTEGER
     ( /* parameter-definitions */ )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD onHandQty C-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD onHandQty Dialog-Frame 
 FUNCTION onHandQty RETURNS INTEGER
     (OUTPUT opQtyOnHand AS INTEGER)  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD orderQty C-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD orderQty Dialog-Frame 
 FUNCTION orderQty RETURNS INTEGER
     ( /* parameter-definitions */ )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD overUnderPct C-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD overUnderPct Dialog-Frame 
 FUNCTION overUnderPct RETURNS INTEGER
     (ipBalance AS INTEGER)  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD producedQty C-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD producedQty Dialog-Frame 
 FUNCTION producedQty RETURNS INTEGER
     (OUTPUT opBalance AS INTEGER)  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD shipQty C-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD shipQty Dialog-Frame 
 FUNCTION shipQty RETURNS INTEGER
     ( /* parameter-definitions */ )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD wipQty C-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD wipQty Dialog-Frame 
 FUNCTION wipQty RETURNS INTEGER
     ( /* parameter-definitions */ )  FORWARD.
 
@@ -228,8 +231,7 @@ FUNCTION wipQty RETURNS INTEGER
 
 /* ***********************  Control Definitions  ********************** */
 
-/* Define the widget handle for the window                              */
-DEFINE VARIABLE C-Win AS WIDGET-HANDLE NO-UNDO.
+/* Define a dialog box                                                  */
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btn-ok 
@@ -275,7 +277,7 @@ DEFINE QUERY BROWSE-1 FOR
 
 /* Browse definitions                                                   */
 DEFINE BROWSE BROWSE-1
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-1 C-Win _FREEFORM
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-1 Dialog-Frame _FREEFORM
     QUERY BROWSE-1 DISPLAY
     job-hdr.job-no COLUMN-LABEL "Job#" FORMAT "x(7)":U COLUMN-BGCOLOR 8
     LABEL-BGCOLOR 14
@@ -309,7 +311,7 @@ DEFINE BROWSE BROWSE-1
 
 /* ************************  Frame Definitions  *********************** */
 
-DEFINE FRAME F-Main
+DEFINE FRAME Dialog-Frame
     BROWSE-1 AT ROW 4.81 COL 2.2
     btn-ok AT ROW 1.90 COL 126
     citem AT ROW 2.14 COL 13.8 COLON-ALIGNED WIDGET-ID 200
@@ -317,76 +319,58 @@ DEFINE FRAME F-Main
     cItemName AT ROW 2.14 COL 39.6 COLON-ALIGNED NO-LABELS WIDGET-ID 318
     RECT-1 AT ROW 1.71 COL 1.8 WIDGET-ID 82
     fi_sortby AT ROW 3.76 COL 10 COLON-ALIGNED NO-LABELS
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-    SIDE-LABELS NO-UNDERLINE THREE-D 
-    AT COL 1.2 ROW 1
-    SIZE 149 BY 23.71
-    FGCOLOR 1 FONT 6.
+    WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
+         SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
+         FGCOLOR 1 FONT 6
+         TITLE "View Jobs".
 
 
 /* *********************** Procedure Settings ************************ */
 
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
-   Type: Window
-   Allow: Basic,Browse,DB-Fields,Query,Window
+   Type: SmartDialog
+   Allow: Basic,Browse,DB-Fields,Query,Smart
    Other Settings: COMPILE
  */
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS
 
-/* *************************  Create Window  ************************** */
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB Dialog-Frame 
+/* ************************* Included-Libraries *********************** */
 
-&ANALYZE-SUSPEND _CREATE-WINDOW
-IF SESSION:DISPLAY-TYPE = "GUI":U THEN
-    CREATE WINDOW C-Win ASSIGN
-        HIDDEN             = YES
-        TITLE              = "View Jobs"
-        HEIGHT             = 20.57
-        WIDTH              = 135.8
-        MAX-HEIGHT         = 24.71
-        MAX-WIDTH          = 156
-        VIRTUAL-HEIGHT     = 24.71
-        VIRTUAL-WIDTH      = 156
-        RESIZE             = NO
-        SCROLL-BARS        = NO
-        STATUS-AREA        = YES
-        BGCOLOR            = ?
-        FGCOLOR            = ?
-        THREE-D            = YES
-        MESSAGE-AREA       = NO
-        SENSITIVE          = YES.
-ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
-/* END WINDOW DEFINITION                                                */
+{src/adm/method/containr.i}
+
+/* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
 
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
-/* SETTINGS FOR WINDOW C-Win
+/* SETTINGS FOR WINDOW Dialog-Frame
   VISIBLE,,RUN-PERSISTENT                                               */
-/* SETTINGS FOR FRAME F-Main
+/* SETTINGS FOR FRAME Dialog-Frame
    FRAME-NAME                                                         */
-/* BROWSE-TAB BROWSE-1 1 F-Main */
+/* BROWSE-TAB BROWSE-1 1 Dialog-Frame */
 ASSIGN 
-    BROWSE-1:ALLOW-COLUMN-SEARCHING IN FRAME F-Main = TRUE.
+    BROWSE-1:ALLOW-COLUMN-SEARCHING IN FRAME Dialog-Frame = TRUE.
 
 ASSIGN 
-       BROWSE-1:NUM-LOCKED-COLUMNS IN FRAME F-Main     = 2.
+       BROWSE-1:NUM-LOCKED-COLUMNS IN FRAME Dialog-Frame     = 2.
 
-/* SETTINGS FOR FILL-IN fi_sortby IN FRAME F-Main
+/* SETTINGS FOR FILL-IN fi_sortby IN FRAME Dialog-Frame
    NO-ENABLE                                                            */
 ASSIGN 
-    fi_sortby:HIDDEN IN FRAME F-Main = TRUE.
+    fi_sortby:HIDDEN IN FRAME Dialog-Frame = TRUE.
 
-/* SETTINGS FOR FILL-IN citem IN FRAME F-Main
+/* SETTINGS FOR FILL-IN citem IN FRAME Dialog-Frame
    NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN cItemName IN FRAME F-Main
+/* SETTINGS FOR FILL-IN cItemName IN FRAME Dialog-Frame
    NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN cLoc IN FRAME F-Main
+/* SETTINGS FOR FILL-IN cLoc IN FRAME Dialog-Frame
    NO-ENABLE                                                            */
-IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-    THEN C-Win:HIDDEN = NO.
+
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -417,33 +401,12 @@ OPEN QUERY {&SELF-NAME} FOR EACH job-hdr NO-LOCK                               ~
                  
 /* ************************  Control Triggers  ************************ */
 
-&Scoped-define SELF-NAME C-Win
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON END-ERROR OF C-Win /* New Miscellaneous Product Estimate - Releases */
-    OR ENDKEY OF {&WINDOW-NAME} ANYWHERE 
+&Scoped-define SELF-NAME Dialog-Frame 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
+ON WINDOW-CLOSE OF FRAME Dialog-Frame /* New Miscellaneous Product Estimate - Releases */
     DO:
-        /* This case occurs when the user presses the "Esc" key.
-           In a persistently run window, just ignore this.  If we did not, the
-           application would exit. */
-        IF THIS-PROCEDURE:PERSISTENT THEN RETURN NO-APPLY.
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON WINDOW-CLOSE OF C-Win /* New Miscellaneous Product Estimate - Releases */
-    DO:
-        /* This ADM code must be left here in order for the SmartWindow
-           and its descendents to terminate properly on exit. */
-  
-        /*  APPLY "CLOSE":U TO THIS-PROCEDURE.
-        RETURN NO-APPLY.
-        */
-        APPLY "choose" TO btn-ok IN FRAME {&FRAME-NAME}.
-        RETURN NO-APPLY.
-
+    
+       APPLY "END-ERROR":U TO SELF. 
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -452,8 +415,8 @@ ON WINDOW-CLOSE OF C-Win /* New Miscellaneous Product Estimate - Releases */
 
 &Scoped-define BROWSE-NAME BROWSE-1
 &Scoped-define SELF-NAME BROWSE-1
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-1 C-Win
-ON DEFAULT-ACTION OF BROWSE-1 IN FRAME F-Main
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-1 Dialog-Frame
+ON DEFAULT-ACTION OF BROWSE-1 IN FRAME Dialog-Frame
     DO:
     /* DEFINE VARIABLE lv-rowid AS ROWID NO-UNDO.
      IF AVAILABLE eb THEN 
@@ -475,8 +438,8 @@ ON DEFAULT-ACTION OF BROWSE-1 IN FRAME F-Main
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-1 C-Win
-ON ROW-ENTRY OF BROWSE-1 IN FRAME F-Main
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-1 Dialog-Frame
+ON ROW-ENTRY OF BROWSE-1 IN FRAME Dialog-Frame
     DO:
     /* This code displays initial values for newly added or copied rows. */
     /*{src/adm/template/brsentry.i}*/
@@ -486,8 +449,8 @@ ON ROW-ENTRY OF BROWSE-1 IN FRAME F-Main
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-1 C-Win
-ON START-SEARCH OF BROWSE-1 IN FRAME F-Main
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-1 Dialog-Frame
+ON START-SEARCH OF BROWSE-1 IN FRAME Dialog-Frame
     DO:
         RUN startSearch.  
     END.
@@ -497,8 +460,8 @@ ON START-SEARCH OF BROWSE-1 IN FRAME F-Main
 
 
 &Scoped-define SELF-NAME btn-ok
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-ok C-Win
-ON CHOOSE OF btn-ok IN FRAME F-Main /* OK */
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-ok Dialog-Frame
+ON CHOOSE OF btn-ok IN FRAME Dialog-Frame /* OK */
     DO:
     
         APPLY "close" TO THIS-PROCEDURE.
@@ -510,7 +473,7 @@ ON CHOOSE OF btn-ok IN FRAME F-Main /* OK */
 &Scoped-define BROWSE-NAME BROWSE-1
 &UNDEFINE SELF-NAME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK C-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK Dialog-Frame 
 
 
 /* ***************************  Main Block  *************************** */
@@ -585,7 +548,7 @@ END.
 
 /* **********************  Internal Procedures  *********************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE adm-create-objects C-Win  _ADM-CREATE-OBJECTS
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE adm-create-objects Dialog-Frame  _ADM-CREATE-OBJECTS
 PROCEDURE adm-create-objects :
 /*------------------------------------------------------------------------------
   Purpose:     Create handles for all SmartObjects used in this procedure.
@@ -599,7 +562,7 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI C-Win  _DEFAULT-DISABLE
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI Dialog-Frame  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
     /*------------------------------------------------------------------------------
       Purpose:     DISABLE the User Interface
@@ -609,16 +572,14 @@ PROCEDURE disable_UI :
                    frames.  This procedure is usually called when
                    we are ready to "clean-up" after running.
     ------------------------------------------------------------------------------*/
-    /* Delete the WINDOW we created */
-    IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-        THEN DELETE WIDGET C-Win.
-    IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
+    /* Hide all frames. */
+  HIDE FRAME Dialog-Frame.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI C-Win  _DEFAULT-ENABLE
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI Dialog-Frame  _DEFAULT-ENABLE
 PROCEDURE enable_UI :
     /*------------------------------------------------------------------------------
       Purpose:     ENABLE the User Interface
@@ -630,20 +591,18 @@ PROCEDURE enable_UI :
                    Settings" section of the widget Property Sheets.
     ------------------------------------------------------------------------------*/
     DISPLAY btn-ok RECT-1 citem cLoc cItemName BROWSE-1 
-        WITH FRAME F-Main IN WINDOW C-Win.
+        WITH FRAME Dialog-Frame.
     ENABLE btn-ok RECT-1 BROWSE-1 
-        WITH FRAME F-Main IN WINDOW C-Win.
-    {&OPEN-BROWSERS-IN-QUERY-F-Main}
-    VIEW FRAME F-Main IN WINDOW C-Win.
-    {&OPEN-BROWSERS-IN-QUERY-F-Main}
-    VIEW C-Win.
+        WITH FRAME Dialog-Frame.    
+    VIEW FRAME Dialog-Frame.
+    {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-exit C-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-exit Dialog-Frame 
 PROCEDURE local-exit :
     /* -----------------------------------------------------------
           Purpose:  Starts an "exit" by APPLYing CLOSE event, which starts "destroy".
@@ -659,7 +618,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed C-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed Dialog-Frame 
 PROCEDURE state-changed :
     /* -----------------------------------------------------------
           Purpose:     
@@ -675,7 +634,7 @@ END PROCEDURE.
 
 /* ************************  Function Implementations ***************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION custPart C-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION custPart Dialog-Frame 
 FUNCTION custPart RETURNS CHARACTER
     ( /* parameter-definitions */ ) :
     /*------------------------------------------------------------------------------
@@ -698,7 +657,7 @@ END FUNCTION.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fgItemNo C-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fgItemNo Dialog-Frame 
 FUNCTION fgItemNo RETURNS CHARACTER
     ( /* parameter-definitions */ ) :
     /*------------------------------------------------------------------------------
@@ -712,7 +671,7 @@ END FUNCTION.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION invoiceQty C-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION invoiceQty Dialog-Frame 
 FUNCTION invoiceQty RETURNS INTEGER
     ( /* parameter-definitions */ ) :
     /*------------------------------------------------------------------------------
@@ -736,7 +695,7 @@ END FUNCTION.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION onHandQty C-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION onHandQty Dialog-Frame 
 FUNCTION onHandQty RETURNS INTEGER
     (OUTPUT opQtyOnHand AS INTEGER) :
     /*------------------------------------------------------------------------------
@@ -767,7 +726,7 @@ END FUNCTION.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION orderQty C-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION orderQty Dialog-Frame 
 FUNCTION orderQty RETURNS INTEGER
     ( /* parameter-definitions */ ) :
     /*------------------------------------------------------------------------------
@@ -791,7 +750,7 @@ END FUNCTION.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION overUnderPct C-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION overUnderPct Dialog-Frame 
 FUNCTION overUnderPct RETURNS INTEGER
     (ipBalance AS INTEGER) :
     /*------------------------------------------------------------------------------
@@ -819,7 +778,7 @@ END FUNCTION.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION producedQty C-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION producedQty Dialog-Frame 
 FUNCTION producedQty RETURNS INTEGER
     (OUTPUT opBalance AS INTEGER) :
     /*------------------------------------------------------------------------------
@@ -905,7 +864,7 @@ END FUNCTION.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION shipQty C-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION shipQty Dialog-Frame 
 FUNCTION shipQty RETURNS INTEGER
     ( /* parameter-definitions */ ) :
     /*------------------------------------------------------------------------------
@@ -936,7 +895,7 @@ END FUNCTION.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION wipQty C-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION wipQty Dialog-Frame 
 FUNCTION wipQty RETURNS INTEGER
     ( /* parameter-definitions */ ) :
     /*------------------------------------------------------------------------------

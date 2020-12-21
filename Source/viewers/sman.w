@@ -304,8 +304,17 @@ DO:
 
    CASE Focus:name :
      when "salesManager" OR when "salesManager2" OR when "salesManager3" then do:
-           RUN windows/l-sman.w (sman.company, OUTPUT char-val).
-          IF char-val <> "" THEN focus:SCREEN-VALUE in frame {&frame-name} = ENTRY(1,char-val).               
+          RUN system/openLookup.p (
+              INPUT  gcompany, 
+              INPUT  "", /* Lookup ID */
+              INPUT  155,  /* Subject ID */
+              INPUT  "", /* User ID */
+              INPUT  0,  /* Param Value ID */
+              OUTPUT cAllFields, 
+              OUTPUT cMainField, 
+              OUTPUT recRecordID
+              ). 
+          IF cMainField <> "" THEN focus:SCREEN-VALUE in frame {&frame-name} = cMainField.               
            return no-apply.  
      end.          
   end case.  

@@ -510,8 +510,11 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL F-Main V-table-Win
 ON HELP OF FRAME F-Main
 DO:
-    DEF VAR char-val AS cha NO-UNDO.
-    DEF VAR lv-handle AS HANDLE NO-UNDO.
+    DEFINE VARIABLE char-val      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lv-handle     AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE cFieldsValue  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFoundValue   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE recFoundRecID AS RECID     NO-UNDO.    
 
 
     CASE FOCUS:NAME :
@@ -547,11 +550,20 @@ DO:
             if char-val <> "" then 
               focus:screen-value in frame {&frame-name} = entry(1,char-val).
           end.
-          when "spare-char-1" then do:
-            run windows/l-sman.w  (gcompany, output char-val). 
-            if char-val <> "" then 
-              focus:screen-value in frame {&frame-name} = entry(1,char-val).
-          end.
+          WHEN "spare-char-1" THEN DO:
+             RUN system/openLookup.p (
+                 INPUT  gcompany, 
+                 INPUT  "", /* Lookup ID */
+                 INPUT  29, /* Subject ID */
+                 INPUT  "", /* User ID */
+                 INPUT  0,  /* Param Value ID */
+                 OUTPUT cFieldsValue, 
+                 OUTPUT cFoundValue, 
+                 OUTPUT recFoundRecID
+                 ). 
+            IF cFoundValue <> "" THEN 
+              FOCUS:SCREEN-VALUE IN FRAME {&frame-name} = cFoundValue.
+          END.
           when "pallet" then do:
            run windows/l-itemp.w 
               (gcompany,"",focus:screen-value in frame {&frame-name}, output char-val).

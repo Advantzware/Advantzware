@@ -296,30 +296,51 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd-fgexp rd-fgexp
 ON HELP OF FRAME rd-fgexp /* Export FG Items to Excel */
 DO:
-DEF VAR lw-focus AS WIDGET-HANDLE NO-UNDO.
-DEF VAR ls-cur-val AS CHAR NO-UNDO.
-DEF VAR char-val AS CHAR NO-UNDO.
+DEFINE VARIABLE lw-focus      AS WIDGET-HANDLE NO-UNDO.
+DEFINE VARIABLE ls-cur-val    AS CHARACTER     NO-UNDO.
+DEFINE VARIABLE char-val      AS CHARACTER     NO-UNDO.
+DEFINE VARIABLE cFieldsValue  AS CHARACTER     NO-UNDO.
+DEFINE VARIABLE cFoundValue   AS CHARACTER     NO-UNDO.
+DEFINE VARIABLE recFoundRecID AS RECID         NO-UNDO.
 
    lw-focus = FOCUS.
 
-   case lw-focus:name :
+   CASE lw-focus:NAME :
 
-       when "begin_slsmn" then do:
-           ls-cur-val = lw-focus:screen-value.
-           RUN windows/l-sman2.w (cocode, output char-val).
-           if char-val <> "" then do:
-              lw-focus:screen-value =  ENTRY(1,char-val).
-           end.
-           return no-apply.
-       end.  /* itemfg */
-       when "end_slsmn" then do:
-           ls-cur-val = lw-focus:screen-value.
-           run windows/l-sman2.w (cocode, output char-val).
-           if char-val <> "" then do:
-              lw-focus:screen-value =  ENTRY(1,char-val).
-           end.
-           return no-apply.
-       end.  /* itemfg*/
+       WHEN "begin_slsmn" THEN DO:
+           ls-cur-val = lw-focus:SCREEN-VALUE.
+              RUN system/openLookup.p (
+                INPUT  cocode, 
+                INPUT  "",  /* Lookup ID */
+                INPUT  29,  /* Subject ID */
+                INPUT  "",  /* User ID */
+                INPUT  0,   /* Param Value ID */
+                OUTPUT cFieldsValue, 
+                OUTPUT cFoundValue, 
+                OUTPUT recFoundRecID
+                ).
+           IF char-val <> "" THEN DO:
+              lw-focus:SCREEN-VALUE = cFoundValue.
+           END.
+           RETURN NO-APPLY.
+       END.  /* itemfg */
+       WHEN "end_slsmn" THEN DO:
+           ls-cur-val = lw-focus:SCREEN-VALUE.
+              RUN system/openLookup.p (
+                INPUT  cocode, 
+                INPUT  "",  /* Lookup ID */
+                INPUT  29,  /* Subject ID */
+                INPUT  "",  /* User ID */
+                INPUT  0,   /* Param Value ID */
+                OUTPUT cFieldsValue, 
+                OUTPUT cFoundValue, 
+                OUTPUT recFoundRecID
+                ).
+           IF char-val <> "" THEN DO:
+              lw-focus:SCREEN-VALUE =  cFoundValue.
+           END.
+           RETURN NO-APPLY.
+       END.  /* itemfg*/
 
 END CASE.
 END.

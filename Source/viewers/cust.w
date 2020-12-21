@@ -139,7 +139,7 @@ DEFINE QUERY external_tables FOR cust.
 cust.addr[2] cust.spare-char-3 cust.city cust.state cust.zip ~
 cust.fax-country cust.spare-char-2 cust.type cust.date-field[1] ~
 cust.contact cust.sman cust.area-code cust.phone cust.fax-prefix ~
-cust.ASNClientID cust.csrUser_id cust.scomm cust.terms cust.cr-use ~
+cust.accountant cust.csrUser_id cust.scomm cust.terms cust.cr-use ~
 cust.cr-hold-invdays cust.cr-hold-invdue cust.cr-rating cust.cust-level ~
 cust.cr-lim cust.ord-lim cust.disc cust.curr-code cust.cr-hold cust.fin-chg ~
 cust.auto-reprice cust.an-edi-cust cust.factored cust.sort cust.tax-gr ~
@@ -155,7 +155,7 @@ cust.imported cust.show-set cust.nationalAcct cust.log-field[1]
 cust.addr[1] cust.addr[2] cust.spare-char-3 cust.city cust.state cust.zip ~
 cust.fax-country cust.spare-char-2 cust.type cust.date-field[1] ~
 cust.contact cust.sman cust.area-code cust.phone cust.fax-prefix ~
-cust.ASNClientID cust.csrUser_id cust.scomm cust.terms cust.cr-use ~
+cust.accountant cust.csrUser_id cust.scomm cust.terms cust.cr-use ~
 cust.cr-hold-invdays cust.cr-hold-invdue cust.cr-rating cust.cust-level ~
 cust.cr-lim cust.ord-lim cust.disc cust.curr-code cust.cr-hold cust.fin-chg ~
 cust.auto-reprice cust.an-edi-cust cust.factored cust.sort cust.tax-gr ~
@@ -404,7 +404,8 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
-     cust.ASNClientID AT ROW 6.71 COL 136.8 COLON-ALIGNED WIDGET-ID 18
+     cust.accountant AT ROW 6.71 COL 136.8 COLON-ALIGNED WIDGET-ID 18
+          LABEL "Accountant"
           VIEW-AS FILL-IN 
           SIZE 13.6 BY 1
           BGCOLOR 15 
@@ -750,6 +751,8 @@ ASSIGN
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN cust.csrUser_id IN FRAME F-Main
    4 EXP-LABEL                                                          */
+/* SETTINGS FOR FILL-IN cust.accountant IN FRAME F-Main
+   EXP-LABEL                                                          */   
 /* SETTINGS FOR FILL-IN cust.curr-code IN FRAME F-Main
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN cust.cust-level IN FRAME F-Main
@@ -921,6 +924,12 @@ DO:
          run windows/l-users.w (cust.csrUser_id:SCREEN-VALUE in frame {&frame-name}, output char-val).
            if char-val <> "" then 
               assign cust.csrUser_id:screen-value in frame {&frame-name} = entry(1,char-val).
+           return no-apply.
+     end.
+     when "accountant" then do:
+         run windows/l-users.w (cust.accountant:SCREEN-VALUE in frame {&frame-name}, output char-val).
+           if char-val <> "" then 
+              assign cust.accountant:screen-value in frame {&frame-name} = entry(1,char-val).
            return no-apply.
      end.
      when "classId" then do:
@@ -1203,6 +1212,21 @@ DO:
   IF LASTKEY <> -1 THEN DO:
      RUN valid-custcsr NO-ERROR.
      IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  END.
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME cust.accountant
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cust.accountant V-table-Win
+ON LEAVE OF cust.accountant IN FRAME F-Main /* Billing Owner */
+DO:
+   DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
+  IF LASTKEY <> -1 THEN DO:
+     RUN valid-bill-owner(OUTPUT lReturnError) NO-ERROR.
+     IF lReturnError THEN RETURN NO-APPLY.
   END.
 
 END.
@@ -2363,6 +2387,7 @@ PROCEDURE local-update-record :
   DEF VAR ll-new-record AS LOG NO-UNDO.
   DEFINE VARIABLE cOld-fob    AS CHARACTER NO-UNDO.
   DEFINE VARIABLE cOld-freight AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
 
   def buffer bf-cust for cust.
   /*def buffer bf-shipto for shipto.
@@ -2429,7 +2454,10 @@ PROCEDURE local-update-record :
      IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
      RUN valid-custcsr NO-ERROR.
-     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY. 
+     
+     RUN valid-bill-owner(OUTPUT lReturnError) NO-ERROR.
+     IF lReturnError THEN RETURN NO-APPLY.
 
      RUN valid-sman NO-ERROR. 
      IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
@@ -2958,6 +2986,31 @@ PROCEDURE valid-custcsr :
        THEN DO:
            MESSAGE "Invalid customer CSR. Try help." VIEW-AS ALERT-BOX ERROR.
            RETURN ERROR.
+       END.
+   END.
+
+  {methods/lValidateError.i NO}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-bill-owner V-table-Win 
+PROCEDURE valid-bill-owner :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
+  {methods/lValidateError.i YES}
+
+   IF cust.csrUser_id:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" THEN DO:
+       IF NOT CAN-FIND(FIRST users WHERE users.USER_ID EQ cust.accountant:SCREEN-VALUE IN FRAME {&FRAME-NAME})
+       THEN DO:
+           MESSAGE "Invalid customer Accountant. Try help." VIEW-AS ALERT-BOX ERROR.
+           APPLY "entry" TO cust.accountant.
+           oplReturnError = YES.
        END.
    END.
 

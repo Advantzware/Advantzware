@@ -357,9 +357,22 @@ END.
 ON HELP OF maillist.sman IN FRAME F-Main /* Salesman */
 DO:
 
-   def var char-val as cha no-undo.
-   run windows/l-sman.w (g_company,output char-val).
-   if char-val <> "" then assign self:screen-value = entry(1,char-val).
+   DEFINE VARIABLE cFieldsValue  AS CHARACTER NO-UNDO.
+   DEFINE VARIABLE cFoundValue   AS CHARACTER NO-UNDO.
+   DEFINE VARIABLE recFoundRecID AS RECID     NO-UNDO. 
+      
+   RUN system/openLookup.p (
+       INPUT  g_company, 
+       INPUT  "", /* Lookup ID */
+       INPUT  29, /* Subject ID */
+       INPUT  "", /* User ID */
+       INPUT  0,  /* Param Value ID */
+       OUTPUT cFieldsValue, 
+       OUTPUT cFoundValue, 
+       OUTPUT recFoundRecID
+       ).
+   IF cFoundValue NE ""  THEN
+       SELF:SCREEN-VALUE = cFoundValue.
 END.
 
 /* _UIB-CODE-BLOCK-END */

@@ -111,9 +111,18 @@ ELSE IF (ls-cur-val = 'BARDIR' OR ls-cur-val = 'RMBARDIR') THEN DO:
 
 END.
 ELSE IF ls-cur-val = 'SALESREP' THEN DO:
-  RUN windows/l-sman.w (gcompany,OUTPUT char-val).
-  IF char-val NE '' THEN
-  {&tableName}.char-fld:SCREEN-VALUE = ENTRY(1,char-val).
+  RUN system/openLookup.p (
+      INPUT  gcompany, 
+      INPUT  "", /* Lookup ID */
+      INPUT  29, /* Subject ID */
+      INPUT  "", /* User ID */
+      INPUT  0,  /* Param Value ID */
+      OUTPUT cFieldsValue, 
+      OUTPUT cFoundValue, 
+      OUTPUT recFoundRecID
+      ).
+  IF cFoundValue NE '' THEN
+  {&tableName}.char-fld:SCREEN-VALUE = cFoundValue.
   RETURN NO-APPLY.
 END.
 ELSE IF ls-cur-val = 'BolPrint' THEN DO:

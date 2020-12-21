@@ -419,9 +419,12 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL F-Main V-table-Win
 ON HELP OF FRAME F-Main
 DO:
-   def var char-val as cha no-undo.
-   def var lv-handle as handle no-undo.   
-   DEF VAR rec-val AS RECID NO-UNDO.
+   DEFINE VARIABLE char-val      AS CHARACTER NO-UNDO.
+   DEFINE VARIABLE lv-handle     AS HANDLE    NO-UNDO.   
+   DEFINE VARIABLE rec-val       AS RECID     NO-UNDO.
+   DEFINE VARIABLE cFieldsValue  AS CHARACTER NO-UNDO.
+   DEFINE VARIABLE cFoundValue   AS CHARACTER NO-UNDO.
+   DEFINE VARIABLE recFoundRecID AS RECID     NO-UNDO.    
 
    case focus:name :
         when "cust-no" then do:
@@ -450,9 +453,20 @@ DO:
               return no-apply.
         END.
        WHEN "sman" THEN DO:
-           RUN windows/l-sman.w (gcompany,OUTPUT char-val).
-           IF char-val <> "" THEN ASSIGN quotehd.sman:SCREEN-VALUE = ENTRY(1,char-val)
-                                         sman_desc:SCREEN-VALUE = ENTRY(2,char-val).
+            RUN system/openLookup.p (
+                INPUT  gcompany, 
+                INPUT  "", /* Lookup ID */
+                INPUT  29, /* Subject ID */
+                INPUT  "", /* User ID */
+                INPUT  0,  /* Param Value ID */
+                OUTPUT cFieldsValue, 
+                OUTPUT cFoundValue, 
+                OUTPUT recFoundRecID
+                ). 
+           IF cFoundValue NE "" THEN 
+               ASSIGN 
+                   quotehd.sman:SCREEN-VALUE = cFoundValue
+                   sman_desc:SCREEN-VALUE    =  DYNAMIC-FUNCTION("sfDynLookupValue", "sname", cFieldsValue).
        END.
        when "del-zone" then do:
            run windows/l-delzon.w 
@@ -617,9 +631,13 @@ DO:
   {&methods/lValidateError.i YES}
    sman_desc:SCREEN-VALUE = ''.
    IF quotehd.sman:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ '' THEN RETURN.
-   FIND FIRST sman NO-LOCK WHERE sman.sman EQ quotehd.sman:SCREEN-VALUE NO-ERROR.
+   FIND FIRST sman NO-LOCK 
+        WHERE sman.company  EQ gCompany
+          AND sman.sman     EQ quotehd.sman:SCREEN-VALUE
+          AND sman.inActive EQ NO
+        NO-ERROR.
    IF NOT AVAILABLE sman THEN DO:
-     MESSAGE 'Invalid SalesGrp. Try Help.' VIEW-AS ALERT-BOX ERROR.
+     MESSAGE 'Inactive/Invalid SalesGrp. Try Help.' VIEW-AS ALERT-BOX ERROR.
      RETURN NO-APPLY.
    END.
    sman_desc:SCREEN-VALUE = sman.sname.

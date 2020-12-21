@@ -139,6 +139,7 @@ DEFINE VARIABLE h_w-jobfg AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_optonote AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_attach AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_import AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_vp-tandm AS HANDLE NO-UNDO.
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -568,6 +569,18 @@ PROCEDURE adm-create-objects :
              OUTPUT h_p-jobhdr ).
        RUN set-position IN h_p-jobhdr ( 22.67 , 41.00 ) NO-ERROR.
        RUN set-size IN h_p-jobhdr ( 1.76 , 74.00 ) NO-ERROR.
+       
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'oe/vp-tandm.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'Initial-Lock = NO-LOCK,
+                     Hide-on-Init = no,
+                     Disable-on-Init = no,
+                     Layout = ,
+                     Create-On-Add = ?':U ,
+             OUTPUT h_vp-tandm ).
+       RUN set-position IN h_vp-tandm ( 22.57 , 20.00 ) NO-ERROR.
+       RUN set-size IN h_vp-tandm ( 1.76 , 17.00 ) NO-ERROR.
 
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
@@ -588,6 +601,9 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_p-jobhdr , 'TableIO':U , h_b-jobhdr ).
        RUN add-link IN adm-broker-hdl ( h_v-job , 'Record':U , h_b-jobhdr ).
        RUN add-link IN adm-broker-hdl ( h_b-jobhdr , 'p2':U , THIS-PROCEDURE ).
+       
+       /* Links to SmartViewer h_vp-tandm. */
+       RUN add-link IN adm-broker-hdl ( h_v-job , 'tandem':U , h_vp-tandm ).
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_v-job ,
