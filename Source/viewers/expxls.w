@@ -295,6 +295,40 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE make-insensitive V-table-Win
+PROCEDURE make-insensitive:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Parameters: <None>    
+ Notes:
+------------------------------------------------------------------------------*/
+    btn-excel-exp:SENSITIVE IN FRAME F-Main = FALSE.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE make-sensitive V-table-Win
+PROCEDURE make-sensitive:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Parameters: <None>    
+ Notes:
+------------------------------------------------------------------------------*/
+    btn-excel-exp:SENSITIVE IN FRAME F-Main = TRUE.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed s-object 
 PROCEDURE state-changed :
 /* -----------------------------------------------------------
