@@ -60,7 +60,7 @@ DEFINE BUTTON Select_empalert
      IMAGE-DOWN FILE "Graphics/32x32/user-alert_hover.png":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/user-alert_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
-     SIZE 6.4 BY 1.52 TOOLTIP "Employee Alert"
+     SIZE 7.8 BY 1.81 TOOLTIP "Employee Alert"
      BGCOLOR 21 .
 
 
@@ -100,7 +100,7 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW s-object ASSIGN
-         HEIGHT             = 1.57
+         HEIGHT             = 1.81
          WIDTH              = 41.
 /* END WINDOW DEFINITION */
                                                                         */

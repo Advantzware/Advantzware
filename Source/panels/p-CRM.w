@@ -65,7 +65,7 @@ DEFINE BUTTON btnCRM
      IMAGE-DOWN FILE "Graphics/32x32/crm_hover_new.png":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
      LABEL "CRM" 
-     SIZE 6.4 BY 1.52 TOOLTIP "Phone Info."
+     SIZE 7.8 BY 1.81 TOOLTIP "Phone Info."
      BGCOLOR 21 .
 
 
@@ -105,7 +105,7 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW s-object ASSIGN
-         HEIGHT             = 1.57
+         HEIGHT             = 1.81
          WIDTH              = 66.
 /* END WINDOW DEFINITION */
                                                                         */

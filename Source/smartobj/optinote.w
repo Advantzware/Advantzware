@@ -65,7 +65,7 @@ DEFINE BUTTON Select_InvNote
 	 IMAGE-DOWN FILE "Graphics/32x32/currency_dollar_hover.png":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/currency_dollar_disable.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Operator Notes" 
-     SIZE 8 BY 1.81 TOOLTIP "Collection Notes".
+     SIZE 7.8 BY 1.81 TOOLTIP "Collection Notes".
 
 
 /* ************************  Frame Definitions  *********************** */

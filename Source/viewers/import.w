@@ -70,7 +70,7 @@ DEFINE BUTTON btn-import
      IMAGE-DOWN FILE "Graphics/32x32/import_hover.png":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/import_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
-     SIZE 6.4 BY 1.52 TOOLTIP "Import".
+     SIZE 7.8 BY 1.81 TOOLTIP "Import".
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -109,7 +109,7 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW s-object ASSIGN
-         HEIGHT             = 1.52
+         HEIGHT             = 1.81
          WIDTH              = 66.
 /* END WINDOW DEFINITION */
                                                                         */

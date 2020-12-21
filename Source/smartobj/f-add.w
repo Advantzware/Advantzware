@@ -65,7 +65,7 @@ DEFINE BUTTON Select_add
      IMAGE-DOWN FILE "Graphics/32x32/add_hover.png":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/add_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Add" 
-     SIZE 6.4 BY 1.52 TOOLTIP "Add"
+     SIZE 7.8 BY 1.81 TOOLTIP "Add"
      BGCOLOR 21 .
 
 
@@ -105,8 +105,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW s-object ASSIGN
-         HEIGHT             = 1.57
-         WIDTH              = 39.
+         HEIGHT             = 1.81
+         WIDTH              = 66.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
