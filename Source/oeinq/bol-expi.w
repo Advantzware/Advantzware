@@ -66,13 +66,13 @@ DEF VAR cTextListToDefault AS cha NO-UNDO.
                             "FG Item#,FG Item Name,Ship To,Bol Date,Release,Bol Status,carrier,Trailer#,Freight Terms,Seal#," +
                             "Freight Cost,Rate/100 Wt,Total Weight,Total Pallets,Added/Updated By,Upd Date,Cust Addr1,Cust Addr2,Cust city,Cust State,Cust Zip," +
                             "Ship Name,Ship Addr1,Ship Addr2,Ship City,Ship State,Ship Zip,Tag,Whse,Bin,Job NO,Job no2,Units,Qty/Unit,Partial,Qty Shipped,Weight,Freight,P/C,Customer Lot#," +
-                            "Unts/Pallet,Total Shipped Sq Ft,Estimate No,Est RM item No,Posted/Unposted,Quoted Freight,Quoted Note,Expected Revenue,Printed"
+                            "Unts/Pallet,Total Shipped Sq Ft,Estimate No,Est RM item No,Posted/Unposted,Quoted Freight,Quoted Note,Expected Revenue,Printed,Ordered By"
                             
         cFieldListToSelect = "bol-no,ord-no,po-no,cust-no,cust-name,cust-part," +
                             "i-no,i-name,ship-id,bol-date,rel-no,stat,carrier,trailer,frt-pay,airway-bill," +
                             "freight,cwt,tot-wt,tot-pallets,user-id,upd-date,cust-addr1,cust-addr2,cust-city,cust-state,cust-zip," +
                             "ship-name,ship-addr1,ship-addr2,ship-city,ship-state,ship-zip,tag,loc,loc-bin,job-no,job-no2,cases,qty-case,partial,qty,weight,freight,p-c,lot-no," +
-                            "unit-pallet,tot-sqft,est-no,est-rm-item,posted,quotedFreight,quoteNote,expectedRevenue,printed"
+                            "unit-pallet,tot-sqft,est-no,est-rm-item,posted,quotedFreight,quoteNote,expectedRevenue,printed,ord-by"
                              .
 
 {sys/inc/ttRptSel.i}
@@ -1274,7 +1274,7 @@ FOR EACH  oe-bolh WHERE oe-bolh.company EQ cocode
                 END.
                 ELSE 
                 do:
-                    CASE ttRptSelected.FieldList:                                                               
+                    CASE ttRptSelected.FieldList:                        
                         WHEN "qty" THEN                                                               
                             v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(iQtyShipped)). 
                         WHEN "weight" THEN                                                               
@@ -1703,6 +1703,17 @@ FUNCTION getValue-itemfg RETURNS CHARACTER
                     lc-return = "Posted" .
             ELSE lc-return = "Unposted" .
         END.
+        
+        WHEN "ord-by" THEN
+        DO:
+            FIND FIRST oe-ord NO-LOCK
+                 WHERE oe-ord.company EQ cocode
+                 AND oe-ord.ord-no EQ oe-boll.ord-no
+                 NO-ERROR.
+                
+            lc-return = IF AVAIL oe-ord THEN oe-ord.entered-id ELSE "" .               
+            
+        END.    
        
         OTHERWISE DO:
             IF INDEX(ipc-field,"[") > 0 THEN DO:
