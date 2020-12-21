@@ -459,6 +459,9 @@ FOR EACH report
             gchWorkSheet:Range("B18"):VALUE = string(cBoard,"x(30)")
             gchWorkSheet:Range("B19"):VALUE = STRING(dWeight)
             gchWorkSheet:Range("B20"):VALUE = cInks .
+               
+             IF cCertFormat EQ "CCC" AND cust.cust-no EQ "PYR1000"  AND AVAIL oe-ordl THEN 
+              gchWorkSheet:Range("B17"):VALUE =  oe-ordl.i-name + "  " + oe-ordl.part-dscr1 + "  " + oe-ordl.part-dscr2 + "  " + oe-ordl.part-dscr3 . 
 
             IF cCertFormat EQ "CCC2" AND AVAIL eb AND eb.adhesive EQ "Glue" THEN 
                 gchWorkSheet:Range("B21"):VALUE = IF AVAIL eb THEN eb.adhesive ELSE "" .
