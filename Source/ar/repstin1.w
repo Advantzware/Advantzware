@@ -512,10 +512,13 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL F-Main B-table-Win
 ON HELP OF FRAME F-Main
 DO:
-  def var char-val as cha no-undo.
-  DEF VAR li AS INT NO-UNDO.
-  DEF VAR lw-focus AS WIDGET-HANDLE NO-UNDO.
-  DEFINE VARIABLE oprRecid as RECID no-undo.
+  DEFINE VARIABLE char-val      AS CHARACTER     NO-UNDO.
+  DEFINE VARIABLE li            AS INTEGER       NO-UNDO.
+  DEFINE VARIABLE lw-focus      AS WIDGET-HANDLE NO-UNDO.
+  DEFINE VARIABLE oprRecid      AS RECID         NO-UNDO.
+  DEFINE VARIABLE cFieldsValue  AS CHARACTER     NO-UNDO.
+  DEFINE VARIABLE cFoundValue   AS CHARACTER     NO-UNDO.
+  DEFINE VARIABLE recFoundRecID AS RECID         NO-UNDO.  
 
   lw-focus = FOCUS.
 
@@ -530,15 +533,33 @@ DO:
           if char-val ne "" then 
               end_inv-no:screen-value = entry(1,char-val).
       END.
-      when "begin_sman" then do:
-          run windows/l-sman.w (cocode, output char-val).
-          if char-val ne "" then 
-              begin_sman:screen-value = entry(1,char-val).
+      WHEN "begin_sman" THEN DO:        
+          RUN system/openLookup.p (
+              INPUT  cocode, 
+              INPUT  "",  /* Lookup ID */
+              INPUT  29,  /* Subject ID */
+              INPUT  "",  /* User ID */
+              INPUT  0,   /* Param Value ID */
+              OUTPUT cFieldsValue, 
+              OUTPUT cFoundValue, 
+              OUTPUT recFoundRecID
+              ).
+          IF cFoundValue NE "" THEN 
+              begin_sman:screen-value = cFoundValue.
       END.
-      when "end_sman" then do:
-          run windows/l-sman.w (cocode, output char-val).
-          if char-val ne "" then 
-              end_sman:screen-value = entry(1,char-val).
+      WHEN "end_sman" THEN DO:
+          RUN system/openLookup.p (
+              INPUT  cocode, 
+              INPUT  "",  /* Lookup ID */
+              INPUT  29,  /* Subject ID */
+              INPUT  "",  /* User ID */
+              INPUT  0,   /* Param Value ID */
+              OUTPUT cFieldsValue, 
+              OUTPUT cFoundValue, 
+              OUTPUT recFoundRecID
+              ).
+          IF cFoundValue NE "" THEN 
+              end_sman:SCREEN-VALUE = cFoundValue.
       END.
       when "begin_cust-no" then do:
           run windows/l-cust.w (cocode,begin_cust-no:screen-value, output char-val).
@@ -564,25 +585,37 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
 ON HELP OF br_table IN FRAME F-Main
 DO:
-  def var char-val as cha no-undo.
-  DEF VAR li AS INT NO-UNDO.
-  DEF VAR lw-focus AS WIDGET-HANDLE NO-UNDO.
+  DEFINE VARIABLE char-val AS cha NO-UNDO.
+  DEFINE VARIABLE li AS INTEGER NO-UNDO.
+  DEFINE VARIABLE lw-focus AS WIDGET-HANDLE NO-UNDO.
+  DEFINE VARIABLE cFieldsValue  AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cFoundValue   AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE recFoundRecID AS RECID     NO-UNDO.  
 
   lw-focus = FOCUS.
 
-  case lw-focus:name :   
-     when "sman" then do:
-         li = frame-index.
-         run windows/l-sman.w (ar-inv.company, output char-val).
-         if char-val ne "" then do:
-           if li eq 1 and ar-invl.sman[1]:screen-value IN BROWSE {&browse-name} ne entry(1,char-val) then 
-             ar-invl.sman[1]:screen-value = entry(1,char-val).
-           else
-           if li eq 2 and ar-invl.sman[2]:screen-value IN BROWSE {&browse-name} ne entry(1,char-val) then 
-             ar-invl.sman[2]:screen-value = entry(1,char-val).
-           else
-           if li eq 3 and ar-invl.sman[3]:screen-value IN BROWSE {&browse-name} ne entry(1,char-val) then 
-             ar-invl.sman[3]:screen-value = entry(1,char-val).
+  CASE lw-focus:NAME :   
+     WHEN "sman" THEN DO:
+         li = FRAME-INDEX.
+         RUN system/openLookup.p (
+             INPUT  ar-inv.company, 
+             INPUT  "", /* Lookup ID */
+             INPUT  29,  /* Subject ID */
+             INPUT  "", /* User ID */
+             INPUT  0,  /* Param Value ID */
+             OUTPUT cFieldsValue, 
+             OUTPUT cFoundValue, 
+             OUTPUT recFoundRecID
+             ).
+         IF cFoundValue NE "" THEN DO:
+           IF li EQ 1 AND ar-invl.sman[1]:screen-value IN BROWSE {&browse-name} NE cFoundValue THEN 
+             ar-invl.sman[1]:screen-value = cFoundValue.
+           ELSE
+           IF li EQ 2 AND ar-invl.sman[2]:screen-value IN BROWSE {&browse-name} NE cFoundValue THEN 
+             ar-invl.sman[2]:screen-value = cFoundValue.
+           ELSE
+           IF li EQ 3 AND ar-invl.sman[3]:screen-value IN BROWSE {&browse-name} NE cFoundValue THEN 
+             ar-invl.sman[3]:screen-value = cFoundValue.
          end.
      end.
   end case.
@@ -2051,9 +2084,10 @@ PROCEDURE valid-sman :
     
     IF lv-sman NE "" THEN DO:
       IF NOT CAN-FIND(FIRST sman
-                      WHERE sman.company EQ cocode
-                        AND sman.sman    EQ lv-sman) THEN DO:
-        MESSAGE "Invalid Sales Rep, try help..." VIEW-AS ALERT-BOX ERROR.
+                      WHERE sman.company  EQ cocode
+                        AND sman.sman     EQ lv-sman
+                        AND sman.inactive EQ NO) THEN DO:
+        MESSAGE "Inactive/Invalid Sales Rep, try help..." VIEW-AS ALERT-BOX ERROR.
         IF ip-int EQ 3 THEN APPLY "entry" TO ar-invl.sman[3] IN BROWSE {&browse-name}.
         ELSE
         IF ip-int EQ 2 THEN APPLY "entry" TO ar-invl.sman[2] IN BROWSE {&browse-name}.

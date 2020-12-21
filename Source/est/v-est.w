@@ -495,14 +495,26 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Fold V-table-Win
 ON HELP OF FRAME Fold
 DO:
-   DEF VAR lv-handle AS WIDGET-HANDLE NO-UNDO.
+   DEFINE VARIABLE lv-handle     AS WIDGET-HANDLE NO-UNDO.
+   DEFINE VARIABLE cFieldsValue  AS CHARACTER     NO-UNDO.
+   DEFINE VARIABLE cFoundValue   AS CHARACTER     NO-UNDO.
+   DEFINE VARIABLE recFoundRecID AS RECID         NO-UNDO.
    CASE FOCUS:NAME :
         WHEN "sman" THEN DO:
-             RUN windows/l-sman.w (gcompany, OUTPUT char-val).
-             IF char-val <> "" THEN 
-                ASSIGN FOCUS:SCREEN-VALUE = ENTRY(1,char-val)
-                       sman_sname:screen-value = ENTRY(2,char-val)
-                       eb.comm:screen-value = ENTRY(3,char-val).
+            RUN system/openLookup.p (
+                INPUT  gcompany, 
+                INPUT  "", /* Lookup ID */
+                INPUT  29, /* Subject ID */
+                INPUT  "", /* User ID */
+                INPUT  0,  /* Param Value ID */
+                OUTPUT cFieldsValue, 
+                OUTPUT cFoundValue, 
+                OUTPUT recFoundRecID
+                ). 
+             IF cFoundValue <> "" THEN 
+                ASSIGN FOCUS:SCREEN-VALUE = cFoundValue
+                       sman_sname:screen-value = DYNAMIC-FUNCTION("sfDynLookupValue", "sname", cFieldsValue)
+                       eb.comm:screen-value = DYNAMIC-FUNCTION("sfDynLookupValue", "scomm", cFieldsValue).
              RETURN NO-APPLY.          
         END.
         WHEN "req-date" OR WHEN "due-date" THEN DO:
@@ -537,9 +549,11 @@ DO:
               */
                      .                
    
-                 FIND sman WHERE sman.company = gcompany AND
-                              sman.sman = eb.sman:screen-value
-                              NO-LOCK NO-ERROR.
+                 FIND FIRST sman NO-LOCK
+                      WHERE sman.company  EQ gcompany 
+                        AND sman.sman     EQ eb.sman:screen-value
+                        AND sman.inactive EQ NO
+                      NO-ERROR.
                  ASSIGN sman_sname:screen-value = IF AVAIL sman THEN sman.sname ELSE ""
                      eb.comm:screen-value = IF AVAIL sman THEN STRING(sman.scomm) ELSE "0"
                      .

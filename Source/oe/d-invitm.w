@@ -435,9 +435,12 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
 ON HELP OF FRAME Dialog-Frame /* Invoice Item Detail */
 DO:
-     def var char-val as cha no-undo.
-     def var look-recid as recid no-undo. 
-     DEFINE VARIABLE dTotalPrice AS DECIMAL NO-UNDO.
+     DEFINE VARIABLE char-val      AS CHARACTER  NO-UNDO.
+     DEFINE VARIABLE look-recid    AS RECID      NO-UNDO. 
+     DEFINE VARIABLE dTotalPrice   AS DECIMAL    NO-UNDO.
+     DEFINE VARIABLE cFieldsValue  AS CHARACTER  NO-UNDO.
+     DEFINE VARIABLE cFoundValue   AS CHARACTER  NO-UNDO.
+     DEFINE VARIABLE recFoundRecID AS RECID      NO-UNDO.     
     
      FIND FIRST inv-head WHERE inv-head.company = g_company 
                            AND inv-head.r-no = inv-line.r-no NO-LOCK NO-ERROR.
@@ -467,25 +470,34 @@ DO:
                       apply "entry" to inv-line.part-no.
                end.             
           end.
-          when "sman" then do:
-             run windows/l-sman.w (g_company, output char-val).
-             if char-val <> "" then do:
-                case focus:index:
-                     when 1 then assign inv-line.sman[1]:screen-value = entry(1,char-val)
-                                        inv-line.sname[1]:screen-value = entry(2,char-val) 
-                                        inv-line.comm-amt[1]:screen-value = entry(3,char-val)
+          WHEN "sman" THEN DO:
+             RUN system/openLookup.p (
+                 INPUT  g_company, 
+                 INPUT  "",  /* Lookup ID */
+                 INPUT  29,  /* Subject ID */
+                 INPUT  "",  /* User ID */
+                 INPUT  0,   /* Param Value ID */
+                 OUTPUT cFieldsValue, 
+                 OUTPUT cFoundValue, 
+                 OUTPUT recFoundRecID
+                 ).
+             IF cFoundValue <> "" THEN DO:
+                CASE FOCUS:INDEX:
+                     WHEN 1 THEN ASSIGN inv-line.sman[1]:screen-value     = cFoundValue
+                                        inv-line.sname[1]:screen-value    = DYNAMIC-FUNCTION("sfDynLookupValue", "sname",  cFieldsValue) 
+                                        inv-line.comm-amt[1]:screen-value = DYNAMIC-FUNCTION("sfDynLookupValue", "scomm",  cFieldsValue)
                                         .
-                     when 2 then assign inv-line.sman[2]:screen-value = entry(1,char-val)
-                                        inv-line.sname[2]:screen-value = entry(2,char-val)
-                                        inv-line.comm-amt[2]:screen-value = entry(3,char-val)
+                     WHEN 2 THEN ASSIGN inv-line.sman[2]:screen-value     = cFoundValue
+                                        inv-line.sname[2]:screen-value    = DYNAMIC-FUNCTION("sfDynLookupValue", "sname",  cFieldsValue)
+                                        inv-line.comm-amt[2]:screen-value = DYNAMIC-FUNCTION("sfDynLookupValue", "scomm",  cFieldsValue)
                                         .
-                     when 3 then assign inv-line.sman[3]:screen-value = entry(1,char-val)
-                                        inv-line.sname[3]:screen-value = entry(2,char-val) 
-                                        inv-line.comm-amt[3]:screen-value = entry(3,char-val)
+                     WHEN 3 THEN ASSIGN inv-line.sman[3]:screen-value     = cFoundValue
+                                        inv-line.sname[3]:screen-value    = DYNAMIC-FUNCTION("sfDynLookupValue", "sname",  cFieldsValue) 
+                                        inv-line.comm-amt[3]:screen-value = DYNAMIC-FUNCTION("sfDynLookupValue", "scomm",  cFieldsValue)
                                         .
-                end.
-             end.
-         end.  
+                END.
+             END.
+         END.  
           /*
           when "price" then do:       /* oe/history2.p */              
                run windows/l-report.w (g_company,oe-ord.cust-no,inv-line.i-no:screen-value, output char-val).
@@ -1707,9 +1719,10 @@ PROCEDURE valid-s-man :
     
     IF lv-sman NE "" THEN DO:
       IF NOT CAN-FIND(FIRST sman
-                      WHERE sman.company EQ cocode
-                        AND sman.sman    EQ lv-sman) THEN DO:
-        MESSAGE "Invalid Sales Rep, try help..." VIEW-AS ALERT-BOX ERROR.
+                      WHERE sman.company  EQ cocode
+                        AND sman.sman     EQ lv-sman
+                        AND sman.inActive EQ NO) THEN DO:
+        MESSAGE "Inactive/Invalid Sales Rep, try help..." VIEW-AS ALERT-BOX ERROR.
         IF ip-int EQ 3 THEN APPLY "entry" TO inv-line.sman[3].
         ELSE
         IF ip-int EQ 2 THEN APPLY "entry" TO inv-line.sman[2].

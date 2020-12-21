@@ -718,12 +718,22 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_slmn C-Win
 ON HELP OF begin_slmn IN FRAME FRAME-A /* Beginning Salesrep# */
 DO:
-
-    DEF VAR v-opchar AS CHAR NO-UNDO.
-
-    RUN windows/l-sman2.w (g_company, OUTPUT v-opchar).
-    IF v-opchar NE "" THEN 
-     ASSIGN begin_slmn:SCREEN-VALUE IN FRAME {&FRAME-NAME} = ENTRY(1,v-opchar).
+   DEFINE VARIABLE cFieldsValue  AS CHARACTER NO-UNDO.
+   DEFINE VARIABLE cFoundValue   AS CHARACTER NO-UNDO.
+   DEFINE VARIABLE recFoundRecID AS RECID     NO-UNDO.
+   
+   RUN system/openLookup.p (
+       INPUT  g_company, 
+       INPUT  "",  /* Lookup ID */
+       INPUT  29,  /* Subject ID */
+       INPUT  "",  /* User ID */
+       INPUT  0,   /* Param Value ID */
+       OUTPUT cFieldsValue, 
+       OUTPUT cFoundValue, 
+       OUTPUT recFoundRecID
+       ).  
+   IF cFoundValue ne "" THEN 
+     ASSIGN begin_slmn:SCREEN-VALUE IN FRAME {&FRAME-NAME} = cFoundValue.
 
 END.
 
@@ -998,11 +1008,22 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_slmn C-Win
 ON HELP OF end_slmn IN FRAME FRAME-A /* Ending Salesrep# */
 DO:
-    DEF VAR v-opchar AS CHAR NO-UNDO.
-
-    RUN windows/l-sman2.w (g_company, OUTPUT v-opchar).
-    IF v-opchar NE "" THEN 
-     ASSIGN end_slmn:SCREEN-VALUE IN FRAME {&FRAME-NAME} = ENTRY(1,v-opchar).
+   DEFINE VARIABLE cFieldsValue  AS CHARACTER NO-UNDO.
+   DEFINE VARIABLE cFoundValue   AS CHARACTER NO-UNDO.
+   DEFINE VARIABLE recFoundRecID AS RECID     NO-UNDO.
+   
+   RUN system/openLookup.p (
+       INPUT  g_company, 
+       INPUT  "",  /* Lookup ID */
+       INPUT  29,  /* Subject ID */
+       INPUT  "",  /* User ID */
+       INPUT  0,   /* Param Value ID */
+       OUTPUT cFieldsValue, 
+       OUTPUT cFoundValue, 
+       OUTPUT recFoundRecID
+       ).  
+   IF cFoundValue ne "" THEN 
+     ASSIGN end_slmn:SCREEN-VALUE IN FRAME {&FRAME-NAME} = cFoundValue.
 END.
 
 /* _UIB-CODE-BLOCK-END */

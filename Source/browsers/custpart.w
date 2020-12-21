@@ -305,8 +305,11 @@ OPEN QUERY {&SELF-NAME} FOR EACH cust-part WHERE cust-part.company = itemfg.comp
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
 ON HELP OF br_table IN FRAME F-Main
 DO:
-  DEF VAR char-val AS cha NO-UNDO.
-
+  DEFINE VARIABLE char-val      AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cFieldsValue  AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cFoundValue   AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE recFoundRecID AS RECID     NO-UNDO.
+  
   CASE FOCUS:NAME:
     WHEN "cust-no" THEN DO:
      
@@ -317,9 +320,18 @@ DO:
       
     END.
     WHEN "spare-char-1" THEN DO:
-       run windows/l-sman.w (itemfg.company, output char-val).
-       if char-val ne "" THEN    
-          cust-part.spare-char-1:screen-value IN BROWSE {&browse-name} = entry(1,char-val).
+        RUN system/openLookup.p (
+            INPUT  itemfg.company, 
+            INPUT  "",  /* Lookup ID */
+            INPUT  29,  /* Subject ID */
+            INPUT  "",  /* User ID */
+            INPUT  0,   /* Param Value ID */
+            OUTPUT cFieldsValue, 
+            OUTPUT cFoundValue, 
+            OUTPUT recFoundRecID
+            ).
+       IF cFoundValue NE "" THEN    
+          cust-part.spare-char-1:SCREEN-VALUE IN BROWSE {&browse-name} = cFoundValue.
 
     END.
   END. 
@@ -903,10 +915,13 @@ PROCEDURE valid-sman :
     /* Blank is valid */
     IF cust-part.spare-char-1:SCREEN-VALUE IN BROWSE {&browse-name} EQ "" THEN
       RETURN.
-    FIND FIRST sman NO-LOCK WHERE sman.company EQ cust-part.company
-                              AND sman.sman    EQ cust-part.spare-char-1:SCREEN-VALUE IN BROWSE {&browse-name} NO-ERROR.
+    FIND FIRST sman NO-LOCK 
+         WHERE sman.company  EQ cust-part.company
+           AND sman.sman     EQ cust-part.spare-char-1:SCREEN-VALUE IN BROWSE {&browse-name} 
+           AND sman.inactive EQ NO
+         NO-ERROR.
     IF NOT AVAILABLE sman THEN DO:
-      MESSAGE "Invalid Sales Rep, try help..." VIEW-AS ALERT-BOX ERROR.
+      MESSAGE "Inactive/Invalid Sales Rep, try help..." VIEW-AS ALERT-BOX ERROR.
       APPLY "entry" TO cust-part.spare-char-1 IN BROWSE {&browse-name}.
       RETURN ERROR.
     END.

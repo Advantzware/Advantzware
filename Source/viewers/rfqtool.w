@@ -316,25 +316,41 @@ ASSIGN
 ON HELP OF FRAME F-Main
 DO:
    def var lv-handle as widget-handle no-undo.
-   case focus:name :
-        when "sman" then do:
-             run windows/l-sman.w (gcompany, output char-val).
-             if char-val <> "" then 
-                assign rfq.sman:screen-value = entry(1,char-val)
-                       sman_sname:screen-value = entry(2,char-val)
-                       rfq.comm:screen-value = entry(3,char-val).
-                find FIRST sman where sman.company = gcompany AND                                      
-                                sman.sman = FOCUS:SCREEN-VALUE
-                        no-lock no-error.
+   
+   DEFINE VARIABLE cFieldsValue  AS CHARACTER NO-UNDO.
+   DEFINE VARIABLE cFoundValue   AS CHARACTER NO-UNDO.
+   DEFINE VARIABLE recFoundRecID AS RECID     NO-UNDO.
+   
+   CASE FOCUS:NAME :
+        WHEN "sman" THEN DO:
+             RUN system/openLookup.p (
+                 INPUT  gcompany, 
+                 INPUT  "", /* Lookup ID */
+                 INPUT  29, /* Subject ID */
+                 INPUT  "", /* User ID */
+                 INPUT  0,  /* Param Value ID */
+                 OUTPUT cFieldsValue, 
+                 OUTPUT cFoundValue, 
+                 OUTPUT recFoundRecID
+                 ).
+             IF cFoundValue <> "" THEN 
+                ASSIGN rfq.sman:screen-value = cFoundValue
+                       sman_sname:screen-value = DYNAMIC-FUNCTION("sfDynLookupValue", "sname", cFieldsValue)
+                       rfq.comm:screen-value = DYNAMIC-FUNCTION("sfDynLookupValue", "scomm", cFieldsValue).
+                FIND FIRST sman 
+                     WHERE sman.company  EQ gcompany 
+                       AND sman.sman     EQ FOCUS:SCREEN-VALUE
+                       AND sman.inactive EQ NO
+                        NO-LOCK NO-ERROR.
                 FIND FIRST cust WHERE cust.company = gcompany
                             AND cust.cust-no = rfq.cust-no:SCREEN-VALUE NO-LOCK NO-ERROR.
                 IF AVAIL sman THEN 
                    FIND FIRST sman-mtx OF sman WHERE sman-mtx.custype = cust.type NO-LOCK NO-ERROR.
-                IF AVAIL sman-mtx THEN ASSIGN rfq.comm:screen-value in frame {&frame-name} = string(sman-mtx.type-comm).
+                IF AVAIL sman-mtx THEN ASSIGN rfq.comm:screen-value IN FRAME {&frame-name} = STRING(sman-mtx.type-comm).
            .
 
-             return no-apply.          
-        end.
+             RETURN NO-APPLY.          
+        END.
         when "req-date" or when "due-date" then do:
              /*{methods/calendar.i}  run on self's help trigger*/
         end.
@@ -609,7 +625,7 @@ DO:
  IF LASTKEY EQ -1 THEN Return .
  {&methods/lValidateError.i YES}
  IF NOT AVAIL sman THEN DO:
-    MESSAGE "Invalid Sales Rep." VIEW-AS ALERT-BOX ERROR.
+    MESSAGE "Inactive/Invalid Sales Rep." VIEW-AS ALERT-BOX ERROR.
     RETURN NO-APPLY.
  END.
  FIND FIRST cust WHERE cust.company = gcompany

@@ -661,8 +661,11 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL D-Dialog D-Dialog
 ON HELP OF FRAME D-Dialog /* Customer Maintenance */
 DO:
-   def var lv-handle as handle no-undo.
-   def var char-val as cha no-undo.
+   DEFINE VARIABLE lv-handle     AS HANDLE    NO-UNDO.
+   DEFINE VARIABLE char-val      AS CHARACTER NO-UNDO.
+   DEFINE VARIABLE cFieldsValue  AS CHARACTER NO-UNDO.
+   DEFINE VARIABLE cFoundValue   AS CHARACTER NO-UNDO.
+   DEFINE VARIABLE recFoundRecID AS RECID     NO-UNDO.  
    
    CASE Focus:name :
        when "del-zone" then do:
@@ -693,13 +696,21 @@ DO:
               assign focus:screen-value in frame {&frame-name} = entry(1,char-val).
            return no-apply.  
      end.
-     when "sman" then do:
-           run windows/l-sman.w 
-              (gcompany,output char-val).
-           if char-val <> "" then 
-              assign focus:screen-value in frame {&frame-name} = entry(1,char-val).
-           return no-apply.  
-     end.
+     WHEN "sman" THEN DO:
+            RUN system/openLookup.p (
+                INPUT  gcompany, 
+                INPUT  "", /* Lookup ID */
+                INPUT  29, /* Subject ID */
+                INPUT  "", /* User ID */
+                INPUT  0,  /* Param Value ID */
+                OUTPUT cFieldsValue, 
+                OUTPUT cFoundValue, 
+                OUTPUT recFoundRecID
+                ).
+           IF cFoundValue <> "" THEN 
+              ASSIGN FOCUS:SCREEN-VALUE IN FRAME {&frame-name} = cFoundValue.
+           RETURN NO-APPLY.  
+     END.
      when "terms" then do:
            run windows/l-terms.w 
               (gcompany,focus:screen-value in frame {&frame-name},output char-val).

@@ -395,9 +395,22 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL itemfg.spare-char-3 V-table-Win
 ON HELP OF itemfg.spare-char-3 IN FRAME F-Main /* Sales Rep */
 DO:
-  run windows/l-sman.w (g_company, output char-val).
-  if char-val ne "" THEN    
-      itemfg.spare-char-3:screen-value = entry(1,char-val).
+   DEFINE VARIABLE cFieldsValue  AS CHARACTER NO-UNDO.
+   DEFINE VARIABLE cFoundValue   AS CHARACTER NO-UNDO.
+   DEFINE VARIABLE recFoundRecID AS RECID     NO-UNDO. 
+      
+   RUN system/openLookup.p (
+       INPUT  g_company, 
+       INPUT  "", /* Lookup ID */
+       INPUT  29, /* Subject ID */
+       INPUT  "", /* User ID */
+       INPUT  0,  /* Param Value ID */
+       OUTPUT cFieldsValue, 
+       OUTPUT cFoundValue, 
+       OUTPUT recFoundRecID
+       ).
+  IF cFoundValue ne "" THEN    
+      itemfg.spare-char-3:screen-value = cFoundValue.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -846,10 +859,13 @@ PROCEDURE valid-sman :
     IF itemfg.spare-char-3:SCREEN-VALUE EQ "" THEN 
       RETURN.
 
-    FIND FIRST sman NO-LOCK WHERE sman.company EQ cocode
-                              AND sman.sman    EQ itemfg.spare-char-3:SCREEN-VALUE NO-ERROR.
+    FIND FIRST sman NO-LOCK 
+         WHERE sman.company  EQ cocode
+           AND sman.sman     EQ itemfg.spare-char-3:SCREEN-VALUE 
+           AND sman.inActive EQ NO 
+         NO-ERROR.
     IF NOT AVAILABLE sman THEN DO:
-      MESSAGE "Invalid Sales Rep, try help..." VIEW-AS ALERT-BOX ERROR.
+      MESSAGE "Inactive/Invalid Sales Rep, try help..." VIEW-AS ALERT-BOX ERROR.
       APPLY "entry" TO itemfg.spare-char-3.
       RETURN ERROR.
     END.

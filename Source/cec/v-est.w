@@ -794,26 +794,37 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Corr V-table-Win
 ON HELP OF FRAME Corr
 DO:
-   DEF VAR lv-handle as widget-handle no-undo.
-   DEF VAR ls-cur-val as cha no-undo.
-   DEF VAR lv-eb-tmpid as recid no-undo.
-   DEF VAR lv-prep-type AS cha NO-UNDO.
-   DEF VAR lv-rowid as rowid no-undo.
-   DEF VAR li AS INT NO-UNDO.
-   DEF VAR lw-focus AS WIDGET-HANDLE NO-UNDO.
-
-
+   DEFINE VARIABLE lv-handle     AS WIDGET-HANDLE NO-UNDO.
+   DEFINE VARIABLE ls-cur-val    AS CHARACTER     NO-UNDO.
+   DEFINE VARIABLE lv-eb-tmpid   AS RECID         NO-UNDO.
+   DEFINE VARIABLE lv-prep-type  AS CHARACTER     NO-UNDO.
+   DEFINE VARIABLE lv-rowid      AS ROWID         NO-UNDO.
+   DEFINE VARIABLE li            AS INTEGER       NO-UNDO.
+   DEFINE VARIABLE lw-focus      AS WIDGET-HANDLE NO-UNDO.
+   DEFINE VARIABLE cFieldsValue  AS CHARACTER     NO-UNDO.
+   DEFINE VARIABLE cFoundValue   AS CHARACTER     NO-UNDO.
+   DEFINE VARIABLE recFoundRecID AS RECID         NO-UNDO.   
+   
    lw-focus = FOCUS.
 
-   case lw-focus:name :
-        when "sman" then do:
-             run windows/l-sman.w (cocode, output char-val).
-             if char-val <> "" and entry(1,char-val) ne lw-focus:screen-value then do:
-                lw-focus:screen-value = entry(1,char-val).
-                run new-sman.
+   CASE lw-focus:NAME :
+        WHEN "sman" THEN DO:
+            RUN system/openLookup.p (
+                INPUT  cocode, 
+                INPUT  "",  /* Lookup ID */
+                INPUT  29,  /* Subject ID */
+                INPUT  "",  /* User ID */
+                INPUT  0,   /* Param Value ID */
+                OUTPUT cFieldsValue, 
+                OUTPUT cFoundValue, 
+                OUTPUT recFoundRecID
+                ).
+             IF cFoundValue <> "" AND cFoundValue NE lw-focus:SCREEN-VALUE THEN DO:
+                lw-focus:SCREEN-VALUE = cFoundValue.
+                RUN new-sman.
               APPLY "ENTRY":U TO eb.sman . 
-             end.          
-        end.
+             END.          
+        END.
         when "req-date" or when "due-date" then do:
              /*{methods/calendar.i}  run on self's help trigger*/
 
@@ -5029,13 +5040,14 @@ PROCEDURE valid-sman :
   Notes:       
 ------------------------------------------------------------------------------*/
   {methods/lValidateError.i YES}
-   FIND FIRST sman
-        WHERE sman.company EQ cocode
-          AND sman.sman    EQ eb.sman:SCREEN-VALUE IN FRAME {&FRAME-NAME}
-        NO-LOCK NO-ERROR.
+   FIND FIRST sman NO-LOCK 
+        WHERE sman.company  EQ cocode
+          AND sman.sman     EQ eb.sman:SCREEN-VALUE IN FRAME {&FRAME-NAME}
+          AND sman.inactive EQ NO 
+        NO-ERROR.
 
     IF NOT AVAIL sman THEN DO:
-       MESSAGE "Invalid SalesGrp. Try help." VIEW-AS ALERT-BOX ERROR.
+       MESSAGE "Inactive/Invalid SalesGrp. Try help." VIEW-AS ALERT-BOX ERROR.
        APPLY "entry" TO eb.sman.
        RETURN ERROR.
     END.
