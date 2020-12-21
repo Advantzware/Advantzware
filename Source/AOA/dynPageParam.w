@@ -183,8 +183,8 @@ DEFINE QUERY tableBrowse FOR
 DEFINE BROWSE dynParam
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS dynParam Dialog-Frame _STRUCTURED
   QUERY dynParam NO-LOCK DISPLAY
-      dynParamSetDtl.paramLabel FORMAT "x(40)":U LABEL-BGCOLOR 14
-      dynParamSetDtl.paramName FORMAT "x(20)":U WIDTH 41.6 LABEL-BGCOLOR 14
+      dynParamSetDtl.paramLabel FORMAT "x(40)":U LABEL-BGCOLOR 22
+      dynParamSetDtl.paramName FORMAT "x(20)":U WIDTH 41.6 LABEL-BGCOLOR 22
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ROW-MARKERS SEPARATORS SIZE 87 BY 19.05
@@ -281,9 +281,9 @@ ASSIGN
      _Where[2]         = "dynParamSetDtl.paramSetID EQ dynSubjectParamSet.paramSetID AND
 dynParamSetDtl.paramLabel NE """""
      _FldNameList[1]   > ASI.dynParamSetDtl.paramLabel
-"dynParamSetDtl.paramLabel" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"dynParamSetDtl.paramLabel" ? ? "character" ? ? ? 22 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.dynParamSetDtl.paramName
-"dynParamSetDtl.paramName" ? ? "character" ? ? ? 14 ? ? no ? no no "41.6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"dynParamSetDtl.paramName" ? ? "character" ? ? ? 22 ? ? no ? no no "41.6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is OPENED
 */  /* BROWSE dynParam */
 &ANALYZE-RESUME
@@ -359,14 +359,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL dynParam Dialog-Frame
 ON START-SEARCH OF dynParam IN FRAME Dialog-Frame /* Double-Click to ADD Parameter */
 DO:
-    IF SELF:CURRENT-COLUMN:NAME NE ? THEN DO:
-        cColumnLabel = SELF:CURRENT-COLUMN:NAME.
-        IF cColumnLabel EQ cSaveLabel THEN
-        lAscending = NOT lAscending.
-        cSaveLabel = cColumnLabel.
-        RUN pReopenBrowse.
-    END.
-    RETURN NO-APPLY.
+    {AOA/includes/startSearch.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -433,14 +426,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL pageParam Dialog-Frame
 ON START-SEARCH OF pageParam IN FRAME Dialog-Frame /* Double-Click to DELETE */
 DO:
-    IF SELF:CURRENT-COLUMN:NAME NE ? THEN DO:
-        cColumnLabel = SELF:CURRENT-COLUMN:NAME.
-        IF cColumnLabel EQ cSaveLabel THEN
-        lAscending = NOT lAscending.
-        cSaveLabel = cColumnLabel.
-        RUN pReopenBrowse.
-    END.
-    RETURN NO-APPLY.
+    {AOA/includes/startSearch.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -480,10 +466,18 @@ END.
 
 /* ***************************  Main Block  *************************** */
 
+&Scoped-define sdBrowseName pageParam
+{methods/template/brwcustom.i 1}
+&Scoped-define sdBrowseName dynParam
+{methods/template/brwcustom.i 2}
+&Scoped-define sdBrowseName tableBrowse
+{methods/template/brwcustom.i 3}
+&Scoped-define sdBrowseName fieldsBrowse
+{methods/template/brwcustom.i 4}
+
 /* Parent the dialog-box to the ACTIVE-WINDOW, if there is no parent.   */
 IF VALID-HANDLE(ACTIVE-WINDOW) AND FRAME {&FRAME-NAME}:PARENT eq ?
 THEN FRAME {&FRAME-NAME}:PARENT = ACTIVE-WINDOW.
-
 
 /* Now enable the interface and wait for the exit condition.            */
 /* (NOTE: handle ERROR and END-KEY so cleanup code will always fire.    */
@@ -672,6 +666,7 @@ PROCEDURE pReopenBrowse :
         OTHERWISE
         {&OPEN-QUERY-{&BROWSE-NAME}}
     END CASE.
+    {AOA/includes/pReopenBrowse.i}
     SESSION:SET-WAIT-STATE("").
 
 END PROCEDURE.

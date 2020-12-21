@@ -39,12 +39,32 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 
-DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
-DEFINE VARIABLE pHandle  AS HANDLE    NO-UNDO.
-DEFINE VARIABLE rRowID   AS ROWID     NO-UNDO.
+DEFINE VARIABLE char-hdl    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hColumn     AS HANDLE    NO-UNDO EXTENT 4.
+DEFINE VARIABLE hContainer  AS HANDLE    NO-UNDO.
+DEFINE VARIABLE lAdvanced    AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lUpdateMode AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE pHandle     AS HANDLE    NO-UNDO.
+DEFINE VARIABLE rRowID      AS ROWID     NO-UNDO.
 
-DEFINE TEMP-TABLE ttSubjectColumn NO-UNDO LIKE dynSubjectColumn.
-
+DEFINE TEMP-TABLE ttSubjectColumn NO-UNDO LIKE dynSubjectColumn
+    FIELD allData AS CHARACTER
+        INDEX allData sortOrder allData
+        .
+DEFINE TEMP-TABLE ttSort NO-UNDO
+    FIELD subjectID      LIKE ttSubjectColumn.subjectID
+    FIELD sortOrder      LIKE ttSubjectColumn.sortCol
+    FIELD fieldLabel     LIKE ttSubjectColumn.fieldLabel
+    FIELD sortDescending LIKE ttSubjectColumn.sortDescending
+    FIELD colRowID         AS ROWID
+        INDEX ttSort IS PRIMARY subjectID sortOrder
+        .
+DEFINE TEMP-TABLE ttGroup NO-UNDO
+    FIELD subjectID  LIKE ttSubjectColumn.subjectID
+    FIELD fieldLabel LIKE ttSubjectColumn.fieldLabel
+    FIELD groupLabel LIKE ttSubjectColumn.groupLabel
+    FIELD colRowID AS ROWID
+    .
 {AOA/tempTable/ttGroupCalc.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -60,125 +80,240 @@ DEFINE TEMP-TABLE ttSubjectColumn NO-UNDO LIKE dynSubjectColumn.
 
 /* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
-&Scoped-define BROWSE-NAME subjectColumnBrowse
+&Scoped-define BROWSE-NAME groupBrowse
 
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
-&Scoped-define INTERNAL-TABLES ttSubjectColumn
+&Scoped-define INTERNAL-TABLES ttGroup ttSort ttSubjectColumn
+
+/* Definitions for BROWSE groupBrowse                                   */
+&Scoped-define FIELDS-IN-QUERY-groupBrowse ttGroup.fieldLabel ttGroup.groupLabel   
+&Scoped-define ENABLED-FIELDS-IN-QUERY-groupBrowse ttGroup.groupLabel   
+&Scoped-define ENABLED-TABLES-IN-QUERY-groupBrowse ttGroup
+&Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-groupBrowse ttGroup
+&Scoped-define SELF-NAME groupBrowse
+&Scoped-define QUERY-STRING-groupBrowse FOR EACH ttGroup
+&Scoped-define OPEN-QUERY-groupBrowse OPEN QUERY {&SELF-NAME} FOR EACH ttGroup.
+&Scoped-define TABLES-IN-QUERY-groupBrowse ttGroup
+&Scoped-define FIRST-TABLE-IN-QUERY-groupBrowse ttGroup
+
+
+/* Definitions for BROWSE sortBrowse                                    */
+&Scoped-define FIELDS-IN-QUERY-sortBrowse ttSort.sortOrder ttSort.sortDescending ttSort.fieldLabel   
+&Scoped-define ENABLED-FIELDS-IN-QUERY-sortBrowse ttSort.sortDescending   
+&Scoped-define ENABLED-TABLES-IN-QUERY-sortBrowse ttSort
+&Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-sortBrowse ttSort
+&Scoped-define SELF-NAME sortBrowse
+&Scoped-define QUERY-STRING-sortBrowse FOR EACH ttSort
+&Scoped-define OPEN-QUERY-sortBrowse OPEN QUERY {&SELF-NAME} FOR EACH ttSort.
+&Scoped-define TABLES-IN-QUERY-sortBrowse ttSort
+&Scoped-define FIRST-TABLE-IN-QUERY-sortBrowse ttSort
+
 
 /* Definitions for BROWSE subjectColumnBrowse                           */
-&Scoped-define FIELDS-IN-QUERY-subjectColumnBrowse ttSubjectColumn.sortOrder ttSubjectColumn.isActive ttSubjectColumn.fieldLabel ttSubjectColumn.sortCol ttSubjectColumn.sortDescending ttSubjectColumn.isGroup ttSubjectColumn.groupLabel ttSubjectColumn.fieldName ttSubjectColumn.isCalcField ttSubjectColumn.fieldFormat ttSubjectColumn.isStatusField ttSubjectColumn.statusCompare ttSubjectColumn.compareValue ttSubjectColumn.custListField ttSubjectColumn.calcProc ttSubjectColumn.calcParam ttSubjectColumn.groupCalc ttSubjectColumn.calcFormula   
-&Scoped-define ENABLED-FIELDS-IN-QUERY-subjectColumnBrowse ttSubjectColumn.isActive ttSubjectColumn.fieldLabel ttSubjectColumn.sortCol ttSubjectColumn.sortDescending ttSubjectColumn.isGroup ttSubjectColumn.groupLabel   
+&Scoped-define FIELDS-IN-QUERY-subjectColumnBrowse ttSubjectColumn.isActive ttSubjectColumn.fieldLabel ttSubjectColumn.sortOrder ttSubjectColumn.groupCalc ttSubjectColumn.fieldName ttSubjectColumn.fieldFormat   
+&Scoped-define ENABLED-FIELDS-IN-QUERY-subjectColumnBrowse ttSubjectColumn.isActive ttSubjectColumn.fieldLabel   
 &Scoped-define ENABLED-TABLES-IN-QUERY-subjectColumnBrowse ttSubjectColumn
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-subjectColumnBrowse ttSubjectColumn
 &Scoped-define SELF-NAME subjectColumnBrowse
-&Scoped-define QUERY-STRING-subjectColumnBrowse FOR EACH ttSubjectColumn WHERE ttSubjectColumn.subjectID EQ dynSubject.subjectID BY ttSubjectColumn.sortOrder
-&Scoped-define OPEN-QUERY-subjectColumnBrowse OPEN QUERY {&SELF-NAME} FOR EACH ttSubjectColumn WHERE ttSubjectColumn.subjectID EQ dynSubject.subjectID BY ttSubjectColumn.sortOrder.
+&Scoped-define QUERY-STRING-subjectColumnBrowse FOR EACH ttSubjectColumn WHERE ttSubjectColumn.subjectID EQ dynSubject.subjectID AND ttSubjectColumn.allData MATCHES "*" + searchBar + "*" BY ttSubjectColumn.sortOrder
+&Scoped-define OPEN-QUERY-subjectColumnBrowse OPEN QUERY {&SELF-NAME} FOR EACH ttSubjectColumn WHERE ttSubjectColumn.subjectID EQ dynSubject.subjectID AND ttSubjectColumn.allData MATCHES "*" + searchBar + "*" BY ttSubjectColumn.sortOrder.
 &Scoped-define TABLES-IN-QUERY-subjectColumnBrowse ttSubjectColumn
 &Scoped-define FIRST-TABLE-IN-QUERY-subjectColumnBrowse ttSubjectColumn
 
 
 /* Definitions for FRAME F-Main                                         */
+&Scoped-define OPEN-BROWSERS-IN-QUERY-F-Main ~
+    ~{&OPEN-QUERY-groupBrowse}~
+    ~{&OPEN-QUERY-sortBrowse}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnMoveUp subjectColumnBrowse btnGroupCalc ~
-btnMoveDown btnSave 
+&Scoped-Define ENABLED-OBJECTS searchBar sortBrowse btnColMoveDown ~
+subjectColumnBrowse groupBrowse btnColMoveUp btnAdvanced btnGroupCalc ~
+btnSave btnAddGroup btnAddSort btnRemoveGroup btnRemoveSort btnSortMoveDown ~
+btnSortMoveUp 
+&Scoped-Define DISPLAYED-OBJECTS searchBar 
 
 /* Custom List Definitions                                              */
-/* columnObjects,columnPanel,List-3,List-4,List-5,List-6                */
-&Scoped-define columnObjects btnMoveUp btnGroupCalc btnMoveDown 
-&Scoped-define columnPanel btnMoveUp btnGroupCalc btnMoveDown 
+/* SortGroupButtons,List-2,List-3,List-4,List-5,List-6                  */
+&Scoped-define SortGroupButtons btnColMoveDown btnColMoveUp btnAdvanced ~
+btnGroupCalc btnAddGroup btnAddSort btnRemoveGroup btnRemoveSort ~
+btnSortMoveDown btnSortMoveUp 
+&Scoped-define List-2 btnGroupCalc 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
 
-
-/* ************************  Function Prototypes ********************** */
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fSetSaveButton s-object 
-FUNCTION fSetSaveButton RETURNS LOGICAL
-  (iplSave AS LOGICAL) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 
 /* ***********************  Control Definitions  ********************** */
 
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON btnAddGroup 
+     IMAGE-UP FILE "Graphics/32x32/media_play.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/media_play_disabled.png":U NO-FOCUS FLAT-BUTTON
+     LABEL "Add Group" 
+     SIZE 8 BY 1.91 TOOLTIP "Add Group".
+
+DEFINE BUTTON btnAddSort 
+     IMAGE-UP FILE "Graphics/32x32/media_play.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/media_play_disabled.png":U NO-FOCUS FLAT-BUTTON
+     LABEL "Add Sort" 
+     SIZE 8 BY 1.91 TOOLTIP "Add Sort".
+
+DEFINE BUTTON btnAdvanced 
+     IMAGE-UP FILE "Graphics/32x32/indent_increase.png":U NO-FOCUS FLAT-BUTTON
+     LABEL "" 
+     CONTEXT-HELP-ID 0
+     SIZE 8 BY 1.91 TOOLTIP "Advanced".
+
+DEFINE BUTTON btnColMoveDown 
+     IMAGE-UP FILE "Graphics/32x32/navigate_close.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_close_disabled.png":U NO-FOCUS FLAT-BUTTON
+     LABEL "Move Down Column" 
+     SIZE 8 BY 1.91 TOOLTIP "Move Down Column".
+
+DEFINE BUTTON btnColMoveUp 
+     IMAGE-UP FILE "Graphics/32x32/navigate_open.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_open_disabled.png":U NO-FOCUS FLAT-BUTTON
+     LABEL "Move Up Column" 
+     SIZE 8 BY 1.91 TOOLTIP "Move Up Column".
+
 DEFINE BUTTON btnGroupCalc 
-     IMAGE-UP FILE "Graphics/16x16/spreadsheet_sum.png":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/spreadsheet_sum.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/spreadsheet_sum_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
-     SIZE 4.4 BY 1 TOOLTIP "Group Calculations".
+     SIZE 8 BY 1.91 TOOLTIP "Group Calculations".
 
-DEFINE BUTTON btnMoveDown 
-     IMAGE-UP FILE "Graphics/16x16/navigate_down.jpg":U NO-FOCUS FLAT-BUTTON
-     LABEL "" 
-     SIZE 4.4 BY 1 TOOLTIP "Move Down".
+DEFINE BUTTON btnRemoveGroup 
+     IMAGE-UP FILE "Graphics/32x32/garbage_can.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/garbage_can_disabled.png":U NO-FOCUS FLAT-BUTTON
+     LABEL "Remove Group" 
+     SIZE 8 BY 1.91 TOOLTIP "Remove Group".
 
-DEFINE BUTTON btnMoveUp 
-     IMAGE-UP FILE "Graphics/16x16/navigate_up.jpg":U NO-FOCUS FLAT-BUTTON
-     LABEL "" 
-     SIZE 4.4 BY 1 TOOLTIP "Move Up".
+DEFINE BUTTON btnRemoveSort 
+     IMAGE-UP FILE "Graphics/32x32/garbage_can.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/garbage_can_disabled.png":U NO-FOCUS FLAT-BUTTON
+     LABEL "Remove Sort" 
+     SIZE 8 BY 1.91 TOOLTIP "Remove Sort".
+
+DEFINE BUTTON btnReset 
+     IMAGE-UP FILE "Graphics/32x32/undo_32.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/undo_32_disabled.png":U NO-FOCUS FLAT-BUTTON
+     LABEL "Reset" 
+     SIZE 8 BY 1.91 TOOLTIP "Update/Save Sort".
 
 DEFINE BUTTON btnSave 
-     IMAGE-UP FILE "Graphics/16x16/floppy_disk.gif":U NO-FOCUS FLAT-BUTTON
-     LABEL "" 
-     SIZE 4.4 BY 1 TOOLTIP "Save".
+     IMAGE-UP FILE "Graphics/32x32/pencil.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/pencil_disabled.png":U NO-FOCUS FLAT-BUTTON
+     LABEL "Update/Save Columns" 
+     SIZE 8 BY 1.91 TOOLTIP "Update/Save Columns".
+
+DEFINE BUTTON btnSortMoveDown 
+     IMAGE-UP FILE "Graphics/32x32/navigate_close.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_close_disabled.png":U NO-FOCUS FLAT-BUTTON
+     LABEL "Move Down" 
+     SIZE 8 BY 1.91 TOOLTIP "Move Down".
+
+DEFINE BUTTON btnSortMoveUp 
+     IMAGE-UP FILE "Graphics/32x32/navigate_open.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_open_disabled.png":U NO-FOCUS FLAT-BUTTON
+     LABEL "Move Up" 
+     SIZE 8 BY 1.91 TOOLTIP "Move Up".
+
+DEFINE VARIABLE searchBar AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Search" 
+     VIEW-AS FILL-IN 
+     SIZE 42 BY 1 NO-UNDO.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
+DEFINE QUERY groupBrowse FOR 
+      ttGroup SCROLLING.
+
+DEFINE QUERY sortBrowse FOR 
+      ttSort SCROLLING.
+
 DEFINE QUERY subjectColumnBrowse FOR 
       ttSubjectColumn SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
+DEFINE BROWSE groupBrowse
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS groupBrowse s-object _FREEFORM
+  QUERY groupBrowse DISPLAY
+      ttGroup.fieldLabel
+ttGroup.groupLabel
+ENABLE
+ttGroup.groupLabel
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+    WITH NO-ROW-MARKERS SIZE 56 BY 8.33
+         TITLE "Column Groups" ROW-HEIGHT-CHARS .81.
+
+DEFINE BROWSE sortBrowse
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS sortBrowse s-object _FREEFORM
+  QUERY sortBrowse DISPLAY
+      ttSort.sortOrder
+ttSort.sortDescending COLUMN-LABEL "Descending" VIEW-AS TOGGLE-BOX
+ttSort.fieldLabel
+ENABLE
+ttSort.sortDescending
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+    WITH NO-ROW-MARKERS SIZE 56 BY 15.71
+         TITLE "Column Sort By" ROW-HEIGHT-CHARS .81 FIT-LAST-COLUMN.
+
 DEFINE BROWSE subjectColumnBrowse
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS subjectColumnBrowse s-object _FREEFORM
   QUERY subjectColumnBrowse DISPLAY
-      ttSubjectColumn.sortOrder
-ttSubjectColumn.isActive VIEW-AS TOGGLE-BOX
+      ttSubjectColumn.isActive VIEW-AS TOGGLE-BOX
 ttSubjectColumn.fieldLabel
-ttSubjectColumn.sortCol
-ttSubjectColumn.sortDescending VIEW-AS TOGGLE-BOX
-ttSubjectColumn.isGroup VIEW-AS TOGGLE-BOX
-ttSubjectColumn.groupLabel
-ttSubjectColumn.fieldName
-ttSubjectColumn.isCalcField VIEW-AS TOGGLE-BOX
-ttSubjectColumn.fieldFormat
-ttSubjectColumn.isStatusField VIEW-AS TOGGLE-BOX
-ttSubjectColumn.statusCompare
-ttSubjectColumn.compareValue
-ttSubjectColumn.custListField VIEW-AS TOGGLE-BOX
-ttSubjectColumn.calcProc
-ttSubjectColumn.calcParam
+ttSubjectColumn.sortOrder
 ttSubjectColumn.groupCalc
-ttSubjectColumn.calcFormula
+ttSubjectColumn.fieldName FORMAT "x(40)"
+ttSubjectColumn.fieldFormat
 ENABLE
 ttSubjectColumn.isActive
 ttSubjectColumn.fieldLabel
-ttSubjectColumn.sortCol
-ttSubjectColumn.sortDescending
-ttSubjectColumn.isGroup
-ttSubjectColumn.groupLabel
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 151 BY 26.95
-         TITLE "Columns".
+    WITH NO-ROW-MARKERS SIZE 42 BY 23.33
+         TITLE "Column Order" ROW-HEIGHT-CHARS .81.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     btnMoveUp AT ROW 3.86 COL 2 HELP
-          "Move Up" WIDGET-ID 64
-     subjectColumnBrowse AT ROW 1 COL 7 WIDGET-ID 200
-     btnGroupCalc AT ROW 6.24 COL 2 HELP
+     searchBar AT ROW 1.24 COL 7 COLON-ALIGNED HELP
+          "Enter Search" WIDGET-ID 22
+     sortBrowse AT ROW 1.24 COL 103 WIDGET-ID 300
+     btnColMoveDown AT ROW 8.38 COL 1 HELP
+          "Move Down Column" WIDGET-ID 14
+     subjectColumnBrowse AT ROW 2.19 COL 9 WIDGET-ID 200
+     groupBrowse AT ROW 17.19 COL 103 WIDGET-ID 400
+     btnColMoveUp AT ROW 6.48 COL 1 HELP
+          "Move Up Column" WIDGET-ID 16
+     btnAdvanced AT ROW 2.67 COL 1 HELP
+          "Expand/Collapse Columns" WIDGET-ID 668
+     btnGroupCalc AT ROW 18.14 COL 1 HELP
           "Group Calculations" WIDGET-ID 272
-     btnMoveDown AT ROW 5.05 COL 2 HELP
-          "Move Down" WIDGET-ID 62
-     btnSave AT ROW 7.43 COL 2 HELP
-          "Save" WIDGET-ID 274
+     btnSave AT ROW 12.19 COL 1 HELP
+          "Update/Save Columns" WIDGET-ID 24
+     btnReset AT ROW 14.1 COL 1 HELP
+          "Reset" WIDGET-ID 28
+     btnAddGroup AT ROW 18.62 COL 95 HELP
+          "Add Group" WIDGET-ID 10
+     btnAddSort AT ROW 2.67 COL 95 HELP
+          "Add Sort" WIDGET-ID 2
+     btnRemoveGroup AT ROW 23.62 COL 95 HELP
+          "Remove Group" WIDGET-ID 12
+     btnRemoveSort AT ROW 15.05 COL 95 HELP
+          "Remove Sort" WIDGET-ID 4
+     btnSortMoveDown AT ROW 8.38 COL 95 HELP
+          "Move Down" WIDGET-ID 8
+     btnSortMoveUp AT ROW 6.48 COL 95 HELP
+          "Move Up" WIDGET-ID 6
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -210,8 +345,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW s-object ASSIGN
-         HEIGHT             = 27.48
-         WIDTH              = 160.
+         HEIGHT             = 24.62
+         WIDTH              = 158.4.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -234,21 +369,36 @@ END.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
-/* BROWSE-TAB subjectColumnBrowse 1 F-Main */
+/* BROWSE-TAB sortBrowse searchBar F-Main */
+/* BROWSE-TAB subjectColumnBrowse btnColMoveDown F-Main */
+/* BROWSE-TAB groupBrowse subjectColumnBrowse F-Main */
 ASSIGN 
        FRAME F-Main:HIDDEN           = TRUE
-       FRAME F-Main:HEIGHT           = 26.95
+       FRAME F-Main:HEIGHT           = 24.52
        FRAME F-Main:WIDTH            = 158.
 
+/* SETTINGS FOR BUTTON btnAddGroup IN FRAME F-Main
+   1                                                                    */
+/* SETTINGS FOR BUTTON btnAddSort IN FRAME F-Main
+   1                                                                    */
+/* SETTINGS FOR BUTTON btnAdvanced IN FRAME F-Main
+   1                                                                    */
+/* SETTINGS FOR BUTTON btnColMoveDown IN FRAME F-Main
+   1                                                                    */
+/* SETTINGS FOR BUTTON btnColMoveUp IN FRAME F-Main
+   1                                                                    */
 /* SETTINGS FOR BUTTON btnGroupCalc IN FRAME F-Main
    1 2                                                                  */
-/* SETTINGS FOR BUTTON btnMoveDown IN FRAME F-Main
-   1 2                                                                  */
-/* SETTINGS FOR BUTTON btnMoveUp IN FRAME F-Main
-   1 2                                                                  */
-ASSIGN 
-       btnSave:HIDDEN IN FRAME F-Main           = TRUE.
-
+/* SETTINGS FOR BUTTON btnRemoveGroup IN FRAME F-Main
+   1                                                                    */
+/* SETTINGS FOR BUTTON btnRemoveSort IN FRAME F-Main
+   1                                                                    */
+/* SETTINGS FOR BUTTON btnReset IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR BUTTON btnSortMoveDown IN FRAME F-Main
+   1                                                                    */
+/* SETTINGS FOR BUTTON btnSortMoveUp IN FRAME F-Main
+   1                                                                    */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -262,11 +412,30 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _QUERY-BLOCK BROWSE groupBrowse
+/* Query rebuild information for BROWSE groupBrowse
+     _START_FREEFORM
+OPEN QUERY {&SELF-NAME} FOR EACH ttGroup.
+     _END_FREEFORM
+     _Query            is OPENED
+*/  /* BROWSE groupBrowse */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _QUERY-BLOCK BROWSE sortBrowse
+/* Query rebuild information for BROWSE sortBrowse
+     _START_FREEFORM
+OPEN QUERY {&SELF-NAME} FOR EACH ttSort.
+     _END_FREEFORM
+     _Query            is OPENED
+*/  /* BROWSE sortBrowse */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE subjectColumnBrowse
 /* Query rebuild information for BROWSE subjectColumnBrowse
      _START_FREEFORM
 OPEN QUERY {&SELF-NAME} FOR EACH ttSubjectColumn
 WHERE ttSubjectColumn.subjectID EQ dynSubject.subjectID
+AND ttSubjectColumn.allData MATCHES "*" + searchBar + "*"
 BY ttSubjectColumn.sortOrder.
      _END_FREEFORM
      _Query            is NOT OPENED
@@ -279,11 +448,70 @@ BY ttSubjectColumn.sortOrder.
 
 /* ************************  Control Triggers  ************************ */
 
+&Scoped-define SELF-NAME btnAddGroup
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnAddGroup s-object
+ON CHOOSE OF btnAddGroup IN FRAME F-Main /* Add Group */
+DO:
+    RUN pAddGroup.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnAddSort
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnAddSort s-object
+ON CHOOSE OF btnAddSort IN FRAME F-Main /* Add Sort */
+DO:
+    RUN pAddSort.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnAdvanced
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnAdvanced s-object
+ON CHOOSE OF btnAdvanced IN FRAME F-Main
+DO:
+    lAdvanced = NOT lAdvanced.
+    SELF:LOAD-IMAGE("Graphics/32x32/"
+        + IF lAdvanced THEN "indent_decrease.png"
+          ELSE "indent_increase.png")
+        .
+    RUN pAdvanced.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnColMoveDown
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnColMoveDown s-object
+ON CHOOSE OF btnColMoveDown IN FRAME F-Main /* Move Down Column */
+DO:
+    RUN pMoveCol (1).  
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnColMoveUp
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnColMoveUp s-object
+ON CHOOSE OF btnColMoveUp IN FRAME F-Main /* Move Up Column */
+DO:
+    RUN pMoveCol (-1).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME btnGroupCalc
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnGroupCalc s-object
 ON CHOOSE OF btnGroupCalc IN FRAME F-Main
 DO:
-    IF AVAILABLE ttSubjectColumn THEN
     RUN pJasperGroupCalc.
 END.
 
@@ -291,22 +519,33 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btnMoveDown
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnMoveDown s-object
-ON CHOOSE OF btnMoveDown IN FRAME F-Main
+&Scoped-define SELF-NAME btnRemoveGroup
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnRemoveGroup s-object
+ON CHOOSE OF btnRemoveGroup IN FRAME F-Main /* Remove Group */
 DO:
-    RUN pMove (1).
+    RUN pRemoveGroup.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btnMoveUp
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnMoveUp s-object
-ON CHOOSE OF btnMoveUp IN FRAME F-Main
+&Scoped-define SELF-NAME btnRemoveSort
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnRemoveSort s-object
+ON CHOOSE OF btnRemoveSort IN FRAME F-Main /* Remove Sort */
 DO:
-    RUN pMove (-1).
+    RUN pRemoveSort.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnReset
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnReset s-object
+ON CHOOSE OF btnReset IN FRAME F-Main /* Reset */
+DO:
+    RUN pReset.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -315,44 +554,74 @@ END.
 
 &Scoped-define SELF-NAME btnSave
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnSave s-object
-ON CHOOSE OF btnSave IN FRAME F-Main
+ON CHOOSE OF btnSave IN FRAME F-Main /* Update/Save Columns */
 DO:
+    IF lUpdateMode THEN
     RUN pSave.
+    ASSIGN
+        lUpdateMode = NOT lUpdateMode
+        btnReset:SENSITIVE = lUpdateMode
+        .
+    btnSave:LOAD-IMAGE("Graphics/32x32/" 
+        + IF lUpdateMode THEN "floppy_disk.png"
+          ELSE "pencil.png").
+    RUN pUpdateMode (lUpdateMode).
+    IF lUpdateMode THEN
+    APPLY "ENTRY":U TO ttSubjectColumn.fieldLabel IN BROWSE subjectColumnBrowse.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define BROWSE-NAME subjectColumnBrowse
-&Scoped-define SELF-NAME subjectColumnBrowse
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL subjectColumnBrowse s-object
-ON DEFAULT-ACTION OF subjectColumnBrowse IN FRAME F-Main /* Columns */
+&Scoped-define SELF-NAME btnSortMoveDown
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnSortMoveDown s-object
+ON CHOOSE OF btnSortMoveDown IN FRAME F-Main /* Move Down */
 DO:
-    APPLY "CHOOSE":U TO btnGroupCalc.
+    RUN pMoveSort (1).
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL subjectColumnBrowse s-object
-ON ROW-LEAVE OF subjectColumnBrowse IN FRAME F-Main /* Columns */
+&Scoped-define SELF-NAME btnSortMoveUp
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnSortMoveUp s-object
+ON CHOOSE OF btnSortMoveUp IN FRAME F-Main /* Move Up */
 DO:
-    IF dynParamValue.user-id NE "_default" THEN
-    fSetSaveButton (BROWSE subjectColumnBrowse:MODIFIED).
+    RUN pMoveSort (-1).
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME searchBar
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL searchBar s-object
+ON VALUE-CHANGED OF searchBar IN FRAME F-Main /* Search */
+DO:
+    ASSIGN {&SELF-NAME}.
+    {&OPEN-QUERY-subjectColumnBrowse}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define BROWSE-NAME groupBrowse
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK s-object 
 
 
 /* ***************************  Main Block  *************************** */
+
+&Scoped-define sdBrowseName subjectColumnBrowse
+{methods/template/brwcustom.i 1}
+&Scoped-define sdBrowseName sortBrowse
+{methods/template/brwcustom.i 2}
+&Scoped-define sdBrowseName groupBrowse
+{methods/template/brwcustom.i 3}
 
 /* If testing in the UIB, initialize the SmartObject. */  
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
@@ -398,6 +667,10 @@ PROCEDURE local-initialize :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
+  RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,'CONTAINER':U,OUTPUT char-hdl).
+  hContainer = WIDGET-HANDLE(char-hdl).
+  RUN pAdvanced.
+  RUN pSetSortGroupButtons (YES).
 
 END PROCEDURE.
 
@@ -418,12 +691,100 @@ PROCEDURE local-view :
 
   /* Code placed here will execute AFTER standard behavior.    */
   RUN pUserColumns.
-  fSetSaveButton (NO).
+  RUN pUpdateMode (NO).
   FRAME {&FRAME-NAME}:MOVE-TO-TOP().
-  IF AVAILABLE dynParamValue AND dynParamValue.user-id EQ "_default" THEN
-  HIDE {&columnPanel} btnSave IN FRAME {&FRAME-NAME}.
-  ELSE
-  VIEW {&columnPanel} IN FRAME {&FRAME-NAME}.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pAddGroup s-object 
+PROCEDURE pAddGroup :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE rRowID AS ROWID NO-UNDO.
+
+    IF NOT AVAILABLE ttSubjectColumn THEN RETURN.
+    IF CAN-FIND(FIRST ttGroup
+                WHERE ttGroup.colRowID EQ ROWID(ttSubjectColumn)) THEN
+    RETURN.
+    CREATE ttGroup.
+    ASSIGN
+        ttGroup.colRowID   = ROWID(ttSubjectColumn)
+        ttGroup.subjectID  = ttSubjectColumn.subjectID
+        ttGroup.fieldLabel = ttSubjectColumn.fieldLabel
+        rRowID             = ROWID(ttGroup)
+        ttSubjectColumn.isGroup = YES
+        .
+    {&OPEN-QUERY-groupBrowse}
+    REPOSITION groupBrowse TO ROWID rRowID.
+    APPLY "ENTRY":U TO ttGroup.groupLabel IN BROWSE groupBrowse.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pAddSort s-object 
+PROCEDURE pAddSort :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE iOrder AS INTEGER NO-UNDO.
+    DEFINE VARIABLE rRowID AS ROWID   NO-UNDO.
+
+    IF NOT AVAILABLE ttSubjectColumn THEN RETURN.
+    IF CAN-FIND(FIRST ttSort
+                WHERE ttSort.colRowID EQ ROWID(ttSubjectColumn)) THEN
+    RETURN.
+    FIND LAST ttSort NO-ERROR.
+    iOrder = IF AVAILABLE ttSort THEN ttSort.sortOrder + 1 ELSE 1.
+    CREATE ttSort.
+    ASSIGN
+        ttSort.colRowID   = ROWID(ttSubjectColumn)
+        ttSort.subjectID  = ttSubjectColumn.subjectID
+        ttSort.fieldLabel = ttSubjectColumn.fieldLabel
+        ttSort.sortOrder  = iOrder
+        rRowID            = ROWID(ttSort)
+        ttSubjectColumn.sortOrder = iOrder
+        .
+    {&OPEN-QUERY-sortBrowse}
+    REPOSITION sortBrowse TO ROWID rRowID.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pAdvanced s-object 
+PROCEDURE pAdvanced :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE BUFFER bttSubjectColumn FOR ttSubjectColumn.
+
+    ASSIGN
+        lAdvanced = ttSubjectColumn.fieldName:VISIBLE IN BROWSE subjectColumnBrowse
+        lAdvanced = NOT lAdvanced
+        ttSubjectColumn.sortOrder:VISIBLE      = lAdvanced
+        ttSubjectColumn.groupCalc:VISIBLE      = lAdvanced
+        ttSubjectColumn.fieldName:VISIBLE      = lAdvanced
+        ttSubjectColumn.fieldFormat:VISIBLE    = lAdvanced
+        BROWSE subjectColumnBrowse:WIDTH       = IF lAdvanced THEN 86 ELSE 42
+        searchBar:WIDTH IN FRAME {&FRAME-NAME} = BROWSE subjectColumnBrowse:WIDTH
+        .
+     FOR EACH bttSubjectColumn:
+         bttSubjectColumn.allData = bttSubjectColumn.fieldLabel
+                                  + (IF lAdvanced THEN "|" + bttSubjectColumn.fieldName
+                                     ELSE "")
+                                  .
+     END. /* each bttsubjectcolumn */
+     {&OPEN-QUERY-subjectColumnBrowse}
 
 END PROCEDURE.
 
@@ -444,8 +805,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pMove s-object 
-PROCEDURE pMove :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pMoveCol s-object 
+PROCEDURE pMoveCol :
 /*------------------------------------------------------------------------------
   Purpose:     
   Parameters:  <none>
@@ -463,6 +824,132 @@ PROCEDURE pMove :
     IF NOT AVAILABLE dynSubject THEN RETURN.
     iSubjectID = dynSubject.subjectID.
     {AOA/includes/pMove.i "ttSubjectColumn" "subjectColumnBrowse"}
+    APPLY "CHOOSE":U TO btnSave IN FRAME {&FRAME-NAME}.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pMoveSort s-object 
+PROCEDURE pMoveSort :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipiMove AS INTEGER NO-UNDO.
+    
+    DEFINE VARIABLE iCurrent   AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iMoveTo    AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iSubjectID AS INTEGER NO-UNDO.
+    DEFINE VARIABLE rRowID     AS ROWID   NO-UNDO.
+    
+    DEFINE BUFFER bttSort FOR ttSort.
+    
+    IF NOT AVAILABLE dynSubject THEN RETURN.
+    iSubjectID = dynSubject.subjectID.
+    {AOA/includes/pMove.i "ttSort" "sortBrowse"}
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRemoveGroup s-object 
+PROCEDURE pRemoveGroup :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cGroupCalc AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE idx        AS INTEGER   NO-UNDO.
+
+    DEFINE BUFFER bttSubjectColumn FOR ttSubjectColumn.
+    
+    IF NOT AVAILABLE ttGroup THEN RETURN.
+    FIND FIRST bttSubjectColumn
+         WHERE ROWID(bttSubjectColumn) EQ ttGroup.colRowID
+         NO-ERROR.
+    IF NOT AVAILABLE bttSubjectColumn THEN RETURN.
+    ASSIGN
+        bttSubjectColumn.groupLabel = ""
+        bttSubjectColumn.isGroup = NO
+        .
+    /* locate any records using the group removed */
+    FOR EACH bttSubjectColumn
+        WHERE bttSubjectColumn.subjectID EQ ttGroup.subjectID
+          AND INDEX(bttSubjectColumn.groupCalc,ttGroup.fieldLabel) NE 0
+        :
+        DO idx =  1 TO NUM-ENTRIES(bttSubjectColumn.groupCalc):
+            IF INDEX(ENTRY(idx,bttSubjectColumn.groupCalc),ttGroup.fieldLabel) NE 0 THEN
+            ASSIGN
+                ENTRY(idx + 1,bttSubjectColumn.groupCalc) = ""
+                ENTRY(idx,bttSubjectColumn.groupCalc) = ""
+                .
+        END. /* do idx */
+        ASSIGN
+            /* remove emptry entries */
+            bttSubjectColumn.groupCalc = REPLACE(bttSubjectColumn.groupCalc,",,",",")
+            /* remove entry entry on the end */
+            bttSubjectColumn.groupCalc = TRIM(bttSubjectColumn.groupCalc,",")
+            .
+    END. /* each bttSubjectColumn */
+    DELETE ttGroup.
+    BROWSE groupBrowse:DELETE-CURRENT-ROW ().
+    FIND FIRST ttGroup NO-ERROR.
+    IF AVAILABLE ttGroup THEN
+    BROWSE groupBrowse:REFRESH().
+    BROWSE subjectColumnBrowse:REFRESH() NO-ERROR.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRemoveSort s-object 
+PROCEDURE pRemoveSort :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE idx AS INTEGER NO-UNDO.
+
+    DEFINE BUFFER bttSubjectColumn FOR ttSubjectColumn.
+    
+    IF NOT AVAILABLE ttSort THEN RETURN.
+    FIND FIRST bttSubjectColumn
+         WHERE ROWID(bttSubjectColumn) EQ ttSort.colRowID
+         NO-ERROR.
+    IF NOT AVAILABLE bttSubjectColumn THEN RETURN.
+    ASSIGN
+        bttSubjectColumn.sortCol = 0
+        bttSubjectColumn.sortDescending = NO
+        .
+    DELETE ttSort.
+    BROWSE sortBrowse:DELETE-CURRENT-ROW ().
+    FOR EACH ttSort:
+        ASSIGN
+            idx = idx + 1
+            ttSort.sortOrder = idx
+            .
+        IF idx GT 10 THEN LEAVE.
+    END. /* each ttsort */
+    IF idx GT 0 THEN
+    BROWSE sortBrowse:REFRESH().
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pReset s-object 
+PROCEDURE pReset :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RUN pUserColumns.
+    RUN pUpdateMode (YES).
 
 END PROCEDURE.
 
@@ -480,6 +967,9 @@ PROCEDURE pSave :
     
     DEFINE BUFFER ttSubjectColumn FOR ttSubjectColumn.
     
+    APPLY "ROW-LEAVE":U TO BROWSE subjectColumnBrowse.
+    APPLY "ROW-LEAVE":U TO BROWSE sortBrowse.
+    APPLY "ROW-LEAVE":U TO BROWSE groupBrowse.
     DO TRANSACTION:
         FOR EACH dynValueColumn EXCLUSIVE-LOCK
             WHERE dynValueColumn.subjectID    EQ dynParamValue.subjectID
@@ -493,6 +983,22 @@ PROCEDURE pSave :
         FOR EACH ttSubjectColumn
               BY ttSubjectColumn.sortOrder
             :
+            FIND FIRST ttSort
+                 WHERE ttSort.colRowID EQ ROWID(ttSubjectColumn)
+                 NO-ERROR.
+            IF AVAILABLE ttSort THEN
+            ASSIGN
+                ttSubjectColumn.sortCol        = ttSort.sortOrder
+                ttSubjectColumn.sortDescending = ttSort.sortDescending
+                .
+            FIND FIRST ttGroup
+                 WHERE ttGroup.colRowID EQ ROWID(ttSubjectColumn)
+                 NO-ERROR.
+            IF AVAILABLE ttGroup THEN
+            ASSIGN
+                ttSubjectColumn.groupLabel = ttGroup.groupLabel
+                ttSubjectColumn.isGroup = YES
+                .
             CREATE dynValueColumn.
             ASSIGN
                 dynValueColumn.subjectID      = dynParamValue.subjectID
@@ -527,8 +1033,57 @@ PROCEDURE pSave :
                 .
         END. /* each ttSubjectColumn */
     END. /* do trans */
-    BROWSE subjectColumnBrowse:MODIFIED = NO.
-    fSetSaveButton (NO).
+    IF CAN-FIND(FIRST ttSubjectColumn) THEN
+    BROWSE subjectColumnBrowse:REFRESH().
+    IF CAN-FIND(FIRST ttSort) THEN
+    BROWSE sortBrowse:REFRESH().
+    IF CAN-FIND(FIRST ttGroup) THEN
+    BROWSE groupBrowse:REFRESH().
+    RUN pSetSortGroupButtons (YES).
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetSortGroupButtons s-object 
+PROCEDURE pSetSortGroupButtons :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iplSensitive AS LOGICAL NO-UNDO.
+    
+    IF iplSensitive THEN
+    ENABLE {&SortGroupButtons} WITH FRAME {&FRAME-NAME}.
+    ELSE
+    DISABLE {&SortGroupButtons} WITH FRAME {&FRAME-NAME}.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateMode s-object 
+PROCEDURE pUpdateMode :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iplUpdateMode AS LOGICAL NO-UNDO.
+
+    ASSIGN
+        lUpdateMode = iplUpdateMode
+        hColumn[1] = BROWSE subjectColumnBrowse:GET-BROWSE-COLUMN(1)
+        hColumn[1]:READ-ONLY = NOT lUpdateMode
+        hColumn[2] = BROWSE subjectColumnBrowse:GET-BROWSE-COLUMN(2)
+        hColumn[2]:READ-ONLY = NOT lUpdateMode
+        hColumn[3] = BROWSE sortBrowse:GET-BROWSE-COLUMN(2)
+        hColumn[3]:READ-ONLY = lUpdateMode
+        hColumn[4] = BROWSE groupBrowse:GET-BROWSE-COLUMN(2)
+        hColumn[4]:READ-ONLY = lUpdateMode
+        .
+    RUN pSetSortGroupButtons (NOT lUpdateMode).
 
 END PROCEDURE.
 
@@ -542,9 +1097,12 @@ PROCEDURE pUserColumns :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE idx AS INTEGER NO-UNDO.
-    DEFINE VARIABLE jdx AS INTEGER NO-UNDO.
+    DEFINE VARIABLE idx        AS INTEGER NO-UNDO.
+    DEFINE VARIABLE jdx        AS INTEGER NO-UNDO.
+    DEFINE VARIABLE lSensitive AS LOGICAL NO-UNDO.
 
+    EMPTY TEMP-TABLE ttGroup.
+    EMPTY TEMP-TABLE ttSort.
     EMPTY TEMP-TABLE ttSubjectColumn.
     {&OPEN-QUERY-subjectColumnBrowse}
     {methods/run_link.i "CONTAINER" "pGetParamValueRowID" "(OUTPUT rRowID)"}
@@ -563,7 +1121,7 @@ PROCEDURE pUserColumns :
         :
         CREATE ttSubjectColumn.
         ASSIGN
-            ttSubjectColumn.subjectID      = dynValueColumn.subjectID     
+            ttSubjectColumn.subjectID      = dynValueColumn.subjectID
             ttSubjectColumn.sortOrder      = dynValueColumn.sortOrder     
             ttSubjectColumn.calcFormula    = dynValueColumn.calcFormula   
             ttSubjectColumn.calcParam      = dynValueColumn.calcParam     
@@ -573,7 +1131,7 @@ PROCEDURE pUserColumns :
             ttSubjectColumn.compareValue   = dynValueColumn.compareValue
             ttSubjectColumn.dataType       = dynValueColumn.dataType      
             ttSubjectColumn.fieldFormat    = dynValueColumn.colFormat     
-            ttSubjectColumn.fieldLabel     = dynValueColumn.colLabel      
+            ttSubjectColumn.fieldLabel     = dynValueColumn.colLabel
             ttSubjectColumn.fieldName      = dynValueColumn.colName       
             ttSubjectColumn.groupCalc      = dynValueColumn.groupCalc     
             ttSubjectColumn.groupLabel     = dynValueColumn.groupLabel    
@@ -589,7 +1147,29 @@ PROCEDURE pUserColumns :
             ttSubjectColumn.statusAction   = dynValueColumn.statusAction
             ttSubjectColumn.statusCompare  = dynValueColumn.statusCompare
             ttSubjectColumn.textColor      = dynValueColumn.textColor
+            ttSubjectColumn.allData        = ttSubjectColumn.fieldLabel
+                                           + (IF lAdvanced THEN "|" + ttSubjectColumn.fieldName
+                                              ELSE "")
             .
+        IF ttSubjectColumn.sortCol NE 0 THEN DO:
+            CREATE ttSort.
+            ASSIGN
+                ttSort.colRowID       = ROWID(ttSubjectColumn)
+                ttSort.subjectID      = ttSubjectColumn.subjectID
+                ttSort.sortOrder      = ttSubjectColumn.sortCol
+                ttSort.fieldLabel     = ttSubjectColumn.fieldLabel
+                ttSort.sortDescending = ttSubjectColumn.sortDescending                
+                .
+        END. /* if isgroup */
+        IF ttSubjectColumn.isGroup THEN DO:
+            CREATE ttGroup.
+            ASSIGN
+                ttGroup.colRowID   = ROWID(ttSubjectColumn)
+                ttGroup.subjectID  = ttSubjectColumn.subjectID
+                ttGroup.fieldLabel = ttSubjectColumn.fieldLabel
+                ttGroup.groupLabel = ttSubjectColumn.groupLabel
+                .
+        END. /* if isgroup */
         IF ttSubjectColumn.groupCalc NE "" THEN
         DO jdx = 1 TO NUM-ENTRIES(ttSubjectColumn.groupCalc) BY 2:
             CREATE ttGroupCalc.
@@ -602,6 +1182,8 @@ PROCEDURE pUserColumns :
         END. /* do idx */
     END. /* each dynvaluecolumn */
     {&OPEN-QUERY-subjectColumnBrowse}
+    {&OPEN-QUERY-sortBrowse}
+    {&OPEN-QUERY-groupBrowse}
 
 END PROCEDURE.
 
@@ -624,8 +1206,9 @@ PROCEDURE pWinReSize :
         FRAME {&FRAME-NAME}:VIRTUAL-WIDTH  = ipdWidth
         FRAME {&FRAME-NAME}:HEIGHT         = ipdHeight
         FRAME {&FRAME-NAME}:WIDTH          = ipdWidth
-        BROWSE subjectColumnBrowse:HEIGHT  = ipdHeight
-        BROWSE subjectColumnBrowse:WIDTH   = ipdWidth - BROWSE subjectColumnBrowse:COL + 1
+        BROWSE subjectColumnBrowse:HEIGHT  = ipdHeight - BROWSE subjectColumnBrowse:ROW + 1
+        BROWSE groupBrowse:HEIGHT          = ipdHeight - BROWSE groupBrowse:ROW + 1
+        btnRemoveGroup:ROW                 = ipdHeight - btnRemoveGroup:HEIGHT + 1
         .
     VIEW FRAME {&FRAME-NAME}.
 
@@ -651,31 +1234,6 @@ PROCEDURE state-changed :
   END CASE.
   
 END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-/* ************************  Function Implementations ***************** */
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fSetSaveButton s-object 
-FUNCTION fSetSaveButton RETURNS LOGICAL
-  (iplSave AS LOGICAL):
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-    IF AVAILABLE dynParamValue AND dynParamValue.user-id EQ "_default" THEN
-    RETURN FALSE.
-    
-    DO WITH FRAME {&FRAME-NAME}:
-        ASSIGN
-            btnSave:HIDDEN    = NOT iplSave
-            btnSave:SENSITIVE = iplSave
-            .
-    END. /* with frame */
-    RETURN iplSave.
-
-END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

@@ -116,67 +116,59 @@ DEFINE BUTTON btnAddEmail
      SIZE 4.4 BY 1.05 TOOLTIP "Add Recipents".
 
 DEFINE BUTTON btnCSV 
-     IMAGE-UP FILE "Graphics/32x32/csv.jpg":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/spreadsheet_sum.png":U NO-FOCUS FLAT-BUTTON
      LABEL "csv" 
      SIZE 8 BY 1.91 TOOLTIP "Excel CSV".
 
 DEFINE BUTTON btnDOCX 
-     IMAGE-UP FILE "Graphics/32x32/docx.jpg":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/docx.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 8 BY 1.91 TOOLTIP "Word DOCX".
 
 DEFINE BUTTON btnHTML 
-     IMAGE-UP FILE "Graphics/32x32/html_tag.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/html_tag.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 8 BY 1.91 TOOLTIP "HTML".
 
 DEFINE BUTTON btnLocalCSV 
-     IMAGE-UP FILE "Graphics/32x32/excel.bmp":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/csv.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 8 BY 1.91 TOOLTIP "Local Excel CSV".
 
 DEFINE BUTTON btnPageFormat 
-     IMAGE-UP FILE "Graphics/32x32/document_gear.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/document_gear.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 8 BY 1.91 TOOLTIP "Page Format".
 
 DEFINE BUTTON btnPDF 
-     IMAGE-UP FILE "Graphics/32x32/pdf.jpg":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/pdf.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 8 BY 1.91 TOOLTIP "PDF".
 
 DEFINE BUTTON btnPrint 
-     IMAGE-UP FILE "Graphics/32x32/printer.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/printer.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 8 BY 1.91 TOOLTIP "Printer".
 
 DEFINE BUTTON btnRunResults 
-     IMAGE-UP FILE "Graphics/32x32/table.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/table.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Results Grid" 
      SIZE 8 BY 1.91 TOOLTIP "Results Grid".
 
 DEFINE BUTTON btnView 
-     IMAGE-UP FILE "Graphics/32x32/jss_icon_32.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/jss_icon.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 8 BY 1.91 TOOLTIP "Jasper Viewer".
 
 DEFINE BUTTON btnXLS 
-     IMAGE-UP FILE "Graphics/32x32/xls.jpg":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/xls.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 8 BY 1.91 TOOLTIP "Excel XLS".
 
 DEFINE VARIABLE svRecipients AS CHARACTER 
      VIEW-AS EDITOR SCROLLBAR-VERTICAL
-     SIZE 55 BY 1.67
+     SIZE 69 BY 1.67
      BGCOLOR 15 .
-
-DEFINE VARIABLE svSetAlignment AS CHARACTER INITIAL "Custom" 
-     VIEW-AS RADIO-SET VERTICAL
-     RADIO-BUTTONS 
-          "Columns", "Columns",
-"Rows", "Rows",
-"Custom", "Custom"
-     SIZE 13 BY 1.91 NO-UNDO.
 
 DEFINE RECTANGLE RECT-PANEL
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
@@ -263,28 +255,27 @@ DEFINE FRAME resultsFrame
          BGCOLOR 15 FGCOLOR 1  WIDGET-ID 1200.
 
 DEFINE FRAME outputFrame
-     btnLocalCSV AT ROW 1.48 COL 87 HELP
-          "Local Excel CSV" WIDGET-ID 656
-     btnPageFormat AT ROW 1.48 COL 143 HELP
-          "Page Format" WIDGET-ID 652
-     btnRunResults AT ROW 1.48 COL 79 HELP
-          "Results Grid" WIDGET-ID 254
-     svRecipients AT ROW 1.24 COL 8 NO-LABEL WIDGET-ID 600
      btnCSV AT ROW 1.48 COL 95 HELP
           "Excel CSV" WIDGET-ID 140
-     svSetAlignment AT ROW 1.95 COL 64 NO-LABEL WIDGET-ID 646
+     btnLocalCSV AT ROW 1.48 COL 87 HELP
+          "Local Excel CSV" WIDGET-ID 656
+     svRecipients AT ROW 1.24 COL 8 NO-LABEL WIDGET-ID 600
      svRunSync AT ROW 2.91 COL 8 HELP
           "Toggle to Run Synchronous" WIDGET-ID 654
+     btnPageFormat AT ROW 1.48 COL 143 HELP
+          "Page Format" WIDGET-ID 652
      svShowAll AT ROW 4.1 COL 8 WIDGET-ID 18
-     btnHTML AT ROW 1.48 COL 127 HELP
-          "HTML" WIDGET-ID 144
      svShowReportHeader AT ROW 4.1 COL 24 WIDGET-ID 2
      svShowReportFooter AT ROW 4.1 COL 45 WIDGET-ID 4
+     btnRunResults AT ROW 1.48 COL 79 HELP
+          "Results Grid" WIDGET-ID 254
      svShowPageHeader AT ROW 4.1 COL 66 WIDGET-ID 6
      svShowPageFooter AT ROW 4.1 COL 85 WIDGET-ID 8
      svShowGroupHeader AT ROW 4.1 COL 104 WIDGET-ID 10
      svShowGroupFooter AT ROW 4.1 COL 124 WIDGET-ID 12
      svShowParameters AT ROW 4.1 COL 143 WIDGET-ID 16
+     btnHTML AT ROW 1.48 COL 127 HELP
+          "HTML" WIDGET-ID 144
      btnView AT ROW 1.48 COL 151 HELP
           "Jasper Viewer" WIDGET-ID 148
      btnAddEmail AT ROW 1.95 COL 3 HELP
@@ -297,8 +288,6 @@ DEFINE FRAME outputFrame
           "PDF" WIDGET-ID 146
      btnXLS AT ROW 1.48 COL 103 HELP
           "Excel XLS" WIDGET-ID 150
-     "Set Alignment" VIEW-AS TEXT
-          SIZE 13.6 BY .62 AT ROW 1.24 COL 64 WIDGET-ID 650
      "Email:" VIEW-AS TEXT
           SIZE 6 BY .62 AT ROW 1.24 COL 2 WIDGET-ID 640
      RECT-PANEL AT ROW 1.24 COL 78 WIDGET-ID 256
@@ -307,8 +296,16 @@ DEFINE FRAME outputFrame
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
          SIZE 160 BY 5.24
-         BGCOLOR 15 
+         BGCOLOR 21 FGCOLOR 15 
          TITLE BGCOLOR 15 "Parameters" WIDGET-ID 1300.
+
+DEFINE FRAME blankFrame
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 12 ROW 6.48
+         SIZE 19 BY 2.38
+         BGCOLOR 15 FGCOLOR 1 
+         TITLE "Building Grid ..." WIDGET-ID 1400.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -361,8 +358,14 @@ IF NOT C-Win:LOAD-ICON("Graphics/32x32/jss_icon_32.ico":U) THEN
 /* SETTINGS FOR WINDOW C-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* REPARENT FRAME */
-ASSIGN FRAME outputFrame:FRAME = FRAME paramFrame:HANDLE
+ASSIGN FRAME blankFrame:FRAME = FRAME paramFrame:HANDLE
+       FRAME outputFrame:FRAME = FRAME paramFrame:HANDLE
        FRAME resultsFrame:FRAME = FRAME paramFrame:HANDLE.
+
+/* SETTINGS FOR FRAME blankFrame
+                                                                        */
+ASSIGN 
+       FRAME blankFrame:HIDDEN           = TRUE.
 
 /* SETTINGS FOR FRAME outputFrame
                                                                         */
@@ -400,7 +403,8 @@ ASSIGN
 
 DEFINE VARIABLE XXTABVALXX AS LOGICAL NO-UNDO.
 
-ASSIGN XXTABVALXX = FRAME outputFrame:MOVE-BEFORE-TAB-ITEM (FRAME resultsFrame:HANDLE)
+ASSIGN XXTABVALXX = FRAME resultsFrame:MOVE-BEFORE-TAB-ITEM (FRAME blankFrame:HANDLE)
+       XXTABVALXX = FRAME outputFrame:MOVE-BEFORE-TAB-ITEM (FRAME resultsFrame:HANDLE)
 /* END-ASSIGN-TABS */.
 
 /* SETTINGS FOR FRAME resultsFrame
@@ -416,6 +420,12 @@ THEN C-Win:HIDDEN = no.
 
 
 /* Setting information for Queries and Browse Widgets fields            */
+
+&ANALYZE-SUSPEND _QUERY-BLOCK FRAME blankFrame
+/* Query rebuild information for FRAME blankFrame
+     _Query            is NOT OPENED
+*/  /* FRAME blankFrame */
+&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _QUERY-BLOCK FRAME paramFrame
 /* Query rebuild information for FRAME paramFrame
@@ -762,11 +772,18 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   RUN enable_UI.
   RUN pCreateDynParameters (FRAME paramFrame:HANDLE, YES).
   IF iplParameters EQ NO THEN DO:
+/*    IF dynParamValue.user-id NE "{&defaultUser}" AND*/
+/*       dynParamValue.paramValueID NE 0 THEN DO:     */
+        FRAME blankFrame:HIDDEN = NO.
+        FRAME blankFrame:MOVE-TO-TOP().
+/*    END. /* if user-id */*/
     IF dynParamValue.outputFormat EQ "LocalCSV" THEN
     APPLY "CHOOSE":U TO btnLocalCSV.
     ELSE
     APPLY "CHOOSE":U TO btnRunResults.
   END. /* if no */
+  ELSE
+  FRAME blankFrame:HIDDEN = YES.
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -807,15 +824,14 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY svRecipients svSetAlignment svRunSync svShowAll svShowReportHeader 
-          svShowReportFooter svShowPageHeader svShowPageFooter svShowGroupHeader 
-          svShowGroupFooter svShowParameters 
+  DISPLAY svRecipients svRunSync svShowAll svShowReportHeader svShowReportFooter 
+          svShowPageHeader svShowPageFooter svShowGroupHeader svShowGroupFooter 
+          svShowParameters 
       WITH FRAME outputFrame IN WINDOW C-Win.
-  ENABLE btnLocalCSV btnPageFormat btnRunResults svRecipients btnCSV 
-         svSetAlignment svRunSync svShowAll btnHTML svShowReportHeader 
-         svShowReportFooter svShowPageHeader svShowPageFooter svShowGroupHeader 
-         svShowGroupFooter svShowParameters btnView btnAddEmail btnPrint 
-         btnDOCX btnPDF btnXLS 
+  ENABLE btnCSV btnLocalCSV svRecipients svRunSync btnPageFormat svShowAll 
+         svShowReportHeader svShowReportFooter btnRunResults svShowPageHeader 
+         svShowPageFooter svShowGroupHeader svShowGroupFooter svShowParameters 
+         btnHTML btnView btnAddEmail btnPrint btnDOCX btnPDF btnXLS 
       WITH FRAME outputFrame IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-outputFrame}
   VIEW FRAME paramFrame IN WINDOW C-Win.
@@ -823,6 +839,8 @@ PROCEDURE enable_UI :
   ENABLE btnSaveResults btnCloseResults 
       WITH FRAME resultsFrame IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-resultsFrame}
+  VIEW FRAME blankFrame IN WINDOW C-Win.
+  {&OPEN-BROWSERS-IN-QUERY-blankFrame}
   VIEW C-Win.
 END PROCEDURE.
 
@@ -1062,8 +1080,15 @@ PROCEDURE pWinReSize :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lResultsFrameHidden AS LOGICAL NO-UNDO.
+
     SESSION:SET-WAIT-STATE("General").
+    RUN LockWindowUpdate (ACTIVE-WINDOW:HWND,OUTPUT i).
+    lResultsFrameHidden = FRAME resultsFrame:HIDDEN.
     DO WITH FRAME {&FRAME-NAME}:
+        hQueryBrowse:HIDDEN = YES.
+        HIDE FRAME blankFrame.
+        HIDE FRAME resultsFrame.
         HIDE FRAME {&FRAME-NAME}.
         IF {&WINDOW-NAME}:HEIGHT LT 28.57 THEN
         {&WINDOW-NAME}:HEIGHT = 28.57.
@@ -1072,17 +1097,27 @@ PROCEDURE pWinReSize :
         ASSIGN
             FRAME {&FRAME-NAME}:VIRTUAL-HEIGHT = {&WINDOW-NAME}:HEIGHT
             FRAME {&FRAME-NAME}:VIRTUAL-WIDTH  = {&WINDOW-NAME}:WIDTH
-            FRAME {&FRAME-NAME}:HEIGHT         = {&WINDOW-NAME}:HEIGHT
-            FRAME {&FRAME-NAME}:WIDTH          = {&WINDOW-NAME}:WIDTH
-            FRAME resultsFrame:HIDDEN          = YES
-            FRAME resultsFrame:COL             = 1
-            FRAME resultsFrame:ROW             = 1
             FRAME resultsFrame:VIRTUAL-HEIGHT  = FRAME {&FRAME-NAME}:HEIGHT
             FRAME resultsFrame:VIRTUAL-WIDTH   = FRAME {&FRAME-NAME}:WIDTH
+            FRAME blankFrame:VIRTUAL-HEIGHT    = FRAME {&FRAME-NAME}:HEIGHT
+            FRAME blankFrame:VIRTUAL-WIDTH     = FRAME {&FRAME-NAME}:WIDTH
+            FRAME {&FRAME-NAME}:HEIGHT         = {&WINDOW-NAME}:HEIGHT
+            FRAME {&FRAME-NAME}:WIDTH          = {&WINDOW-NAME}:WIDTH
             FRAME resultsFrame:HEIGHT          = FRAME {&FRAME-NAME}:HEIGHT
             FRAME resultsFrame:WIDTH           = FRAME {&FRAME-NAME}:WIDTH
+            FRAME blankFrame:HEIGHT            = FRAME {&FRAME-NAME}:HEIGHT
+            FRAME blankFrame:WIDTH             = FRAME {&FRAME-NAME}:WIDTH
+            FRAME resultsFrame:COL             = 1
+            FRAME resultsFrame:ROW             = 1
+            FRAME blankFrame:COL               = 1
+            FRAME blankFrame:ROW               = 1
             .
+        IF iplParameters THEN
         VIEW FRAME {&FRAME-NAME}.
+        ELSE DO:
+            FRAME blankFrame:HIDDEN = NO.
+            FRAME blankFrame:MOVE-TO-TOP().
+        END.
     END. /* do with */
     DO WITH FRAME resultsFrame:
         ASSIGN
@@ -1093,9 +1128,15 @@ PROCEDURE pWinReSize :
             ASSIGN
                 hQueryBrowse:HEIGHT = FRAME resultsFrame:HEIGHT - .1
                 hQueryBrowse:WIDTH  = FRAME resultsFrame:WIDTH - .32
+                hQueryBrowse:HIDDEN = NO
                 .
         END. /* if valid-handle */
     END. /* do with */
+    IF NOT lResultsFrameHidden THEN DO:
+        VIEW FRAME resultsFrame.
+        FRAME resultsFrame:MOVE-TO-TOP().
+    END.
+    RUN LockWindowUpdate (0,OUTPUT i).
     SESSION:SET-WAIT-STATE("").
 
 END PROCEDURE.

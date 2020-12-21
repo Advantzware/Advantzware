@@ -141,11 +141,12 @@ dynLookup.tableName dynLookup.subjectID dynLookup.prgmName
     ~{&OPEN-QUERY-subjectBrowse}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS subjectBrowse paramSetBrowse lookupBrowse ~
-btnExit lExportSubject lExportParamSet cImportExportFolder btnExport ~
-lDefaultOnly lExportDynLookup lExportDynPageParams btnImport 
+&Scoped-Define ENABLED-OBJECTS subjectBrowse btnExit paramSetBrowse ~
+lExportSubject lExportParamSet lExportDynLookup btnExport ~
+lExportDynPageParams lDefaultOnly cImportExportFolder lookupBrowse ~
+btnImport 
 &Scoped-Define DISPLAYED-OBJECTS lExportSubject lExportParamSet ~
-cImportExportFolder lDefaultOnly lExportDynLookup lExportDynPageParams 
+lExportDynLookup lExportDynPageParams lDefaultOnly cImportExportFolder 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -162,25 +163,25 @@ DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btnExit 
-     IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/exit_white.png":U NO-FOCUS FLAT-BUTTON
      LABEL "E&xit" 
      SIZE 8 BY 1.91 TOOLTIP "Exit"
      FONT 4.
 
 DEFINE BUTTON btnExport 
-     IMAGE-UP FILE "Graphics/32x32/export.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/export.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Export" 
      SIZE 8 BY 1.91 TOOLTIP "Export"
      FONT 4.
 
 DEFINE BUTTON btnImport 
-     IMAGE-UP FILE "Graphics/32x32/import.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/import.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Import" 
      SIZE 8 BY 1.91 TOOLTIP "Import"
      FONT 4.
 
 DEFINE VARIABLE cImportExportFolder AS CHARACTER FORMAT "X(256)":U INITIAL "C:~\tmp" 
-     LABEL "Import/Export Folder" 
+     LABEL "Imp/Exp Folder" 
      VIEW-AS FILL-IN 
      SIZE 35 BY 1 NO-UNDO.
 
@@ -230,10 +231,10 @@ DEFINE QUERY subjectBrowse FOR
 DEFINE BROWSE lookupBrowse
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS lookupBrowse C-Win _STRUCTURED
   QUERY lookupBrowse NO-LOCK DISPLAY
-      dynLookup.fieldName FORMAT "x(20)":U LABEL-BGCOLOR 14
-      dynLookup.tableName FORMAT "x(20)":U LABEL-BGCOLOR 14
-      dynLookup.subjectID FORMAT ">,>>>,>>9":U LABEL-BGCOLOR 14
-      dynLookup.prgmName FORMAT "x(40)":U LABEL-BGCOLOR 14
+      dynLookup.fieldName FORMAT "x(20)":U LABEL-BGCOLOR 22
+      dynLookup.tableName FORMAT "x(20)":U LABEL-BGCOLOR 22
+      dynLookup.subjectID FORMAT ">,>>>,>>9":U LABEL-BGCOLOR 22
+      dynLookup.prgmName FORMAT "x(40)":U LABEL-BGCOLOR 22
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ROW-MARKERS SEPARATORS SIZE 75 BY 24.76
@@ -242,9 +243,9 @@ DEFINE BROWSE lookupBrowse
 DEFINE BROWSE paramSetBrowse
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS paramSetBrowse C-Win _FREEFORM
   QUERY paramSetBrowse DISPLAY
-      ttDynParamSet.setName LABEL-BGCOLOR 14
-ttDynParamSet.paramSetID LABEL-BGCOLOR 14
-ttDynParamSet.paramSetType LABEL-BGCOLOR 14
+      ttDynParamSet.setName LABEL-BGCOLOR 22
+ttDynParamSet.paramSetID LABEL-BGCOLOR 22
+ttDynParamSet.paramSetType LABEL-BGCOLOR 22
 ttDynParamSet.exportParamSet VIEW-AS TOGGLE-BOX
 ENABLE
 ttDynParamSet.exportParamSet
@@ -256,9 +257,9 @@ ttDynParamSet.exportParamSet
 DEFINE BROWSE subjectBrowse
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS subjectBrowse C-Win _FREEFORM
   QUERY subjectBrowse NO-LOCK DISPLAY
-      ttDynSubject.subjectTitle LABEL-BGCOLOR 14
-ttDynSubject.subjectID LABEL-BGCOLOR 14
-ttDynSubject.subjectType LABEL-BGCOLOR 14
+      ttDynSubject.subjectTitle LABEL-BGCOLOR 22
+ttDynSubject.subjectID LABEL-BGCOLOR 22
+ttDynSubject.subjectType LABEL-BGCOLOR 22
 ttDynSubject.exportSubject VIEW-AS TOGGLE-BOX
 ENABLE
 ttDynSubject.exportSubject
@@ -272,22 +273,22 @@ ttDynSubject.exportSubject
 
 DEFINE FRAME DEFAULT-FRAME
      subjectBrowse AT ROW 1 COL 2 WIDGET-ID 200
-     paramSetBrowse AT ROW 1 COL 65 WIDGET-ID 300
-     lookupBrowse AT ROW 1 COL 128 WIDGET-ID 400
-     btnExit AT ROW 27.43 COL 194 HELP
+     btnExit AT ROW 1.24 COL 194 HELP
           "Exit Design Layout Window" WIDGET-ID 32
+     paramSetBrowse AT ROW 1 COL 65 WIDGET-ID 300
      lExportSubject AT ROW 1.24 COL 55 WIDGET-ID 2
      lExportParamSet AT ROW 1.24 COL 118 WIDGET-ID 38
-     cImportExportFolder AT ROW 26.24 COL 149 COLON-ALIGNED HELP
-          "Enter Import~\Export Folder" WIDGET-ID 4
-     btnExport AT ROW 27.43 COL 170 HELP
+     lExportDynLookup AT ROW 1.48 COL 129 WIDGET-ID 36
+     btnExport AT ROW 1.24 COL 178 HELP
           "Export" WIDGET-ID 26
-     lDefaultOnly AT ROW 26.24 COL 187 WIDGET-ID 42
-     lExportDynLookup AT ROW 27.43 COL 133 WIDGET-ID 36
-     lExportDynPageParams AT ROW 28.38 COL 133 WIDGET-ID 40
-     btnImport AT ROW 27.43 COL 178 HELP
+     lExportDynPageParams AT ROW 2.43 COL 129 WIDGET-ID 40
+     lDefaultOnly AT ROW 3.38 COL 129 WIDGET-ID 42
+     cImportExportFolder AT ROW 3.38 COL 165 COLON-ALIGNED HELP
+          "Enter Import~\Export Folder" WIDGET-ID 4
+     lookupBrowse AT ROW 4.81 COL 128 WIDGET-ID 400
+     btnImport AT ROW 1.24 COL 186 HELP
           "Import" WIDGET-ID 24
-     portRect AT ROW 26 COL 128 WIDGET-ID 20
+     portRect AT ROW 1 COL 128 WIDGET-ID 20
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -347,9 +348,9 @@ IF NOT C-Win:LOAD-ICON("Graphics/32x32/jss_icon_32.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME DEFAULT-FRAME
    FRAME-NAME                                                           */
-/* BROWSE-TAB subjectBrowse portRect DEFAULT-FRAME */
-/* BROWSE-TAB paramSetBrowse subjectBrowse DEFAULT-FRAME */
-/* BROWSE-TAB lookupBrowse paramSetBrowse DEFAULT-FRAME */
+/* BROWSE-TAB subjectBrowse 1 DEFAULT-FRAME */
+/* BROWSE-TAB paramSetBrowse btnExit DEFAULT-FRAME */
+/* BROWSE-TAB lookupBrowse cImportExportFolder DEFAULT-FRAME */
 ASSIGN 
        lookupBrowse:ALLOW-COLUMN-SEARCHING IN FRAME DEFAULT-FRAME = TRUE.
 
@@ -375,13 +376,13 @@ THEN C-Win:HIDDEN = no.
      _TblList          = "ASI.dynLookup"
      _Options          = "NO-LOCK INDEXED-REPOSITION SORTBY-PHRASE"
      _FldNameList[1]   > ASI.dynLookup.fieldName
-"dynLookup.fieldName" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"dynLookup.fieldName" ? ? "character" ? ? ? 22 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.dynLookup.tableName
-"dynLookup.tableName" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"dynLookup.tableName" ? ? "character" ? ? ? 22 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.dynLookup.subjectID
-"dynLookup.subjectID" ? ? "integer" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"dynLookup.subjectID" ? ? "integer" ? ? ? 22 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > ASI.dynLookup.prgmName
-"dynLookup.prgmName" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"dynLookup.prgmName" ? ? "character" ? ? ? 22 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is OPENED
 */  /* BROWSE lookupBrowse */
 &ANALYZE-RESUME
@@ -478,7 +479,7 @@ END.
 
 &Scoped-define SELF-NAME cImportExportFolder
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cImportExportFolder C-Win
-ON HELP OF cImportExportFolder IN FRAME DEFAULT-FRAME /* Import/Export Folder */
+ON HELP OF cImportExportFolder IN FRAME DEFAULT-FRAME /* Imp/Exp Folder */
 DO:
     cFolder = cImportExportFolder.
     SYSTEM-DIALOG GET-DIR cFolder INITIAL-DIR cFolder TITLE "Dynamic Import/Export Folder".
@@ -541,16 +542,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lookupBrowse C-Win
 ON START-SEARCH OF lookupBrowse IN FRAME DEFAULT-FRAME /* Dynamic Lookups */
 DO:
-    IF SELF:CURRENT-COLUMN:NAME NE ? THEN DO:
-        ASSIGN
-            cColumnLabel = SELF:CURRENT-COLUMN:NAME
-            cBrowseName  = "{&BROWSE-NAME}"
-            .
-        IF cColumnLabel EQ cSaveLabel THEN
-        lAscending = NOT lAscending.
-        cSaveLabel = cColumnLabel.
-        RUN pReopenBrowse.
-    END.
+    cBrowseName = SELF:NAME.
+    {AOA/includes/startSearch.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -562,16 +555,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL paramSetBrowse C-Win
 ON START-SEARCH OF paramSetBrowse IN FRAME DEFAULT-FRAME /* Dynamic Parameter Sets */
 DO:
-    IF SELF:CURRENT-COLUMN:NAME NE ? THEN DO:
-        ASSIGN
-            cColumnLabel = SELF:CURRENT-COLUMN:NAME
-            cBrowseName  = "{&BROWSE-NAME}"
-            .
-        IF cColumnLabel EQ cSaveLabel THEN
-        lAscending = NOT lAscending.
-        cSaveLabel = cColumnLabel.
-        RUN pReopenBrowse.
-    END.
+    cBrowseName = SELF:NAME.
+    {AOA/includes/startSearch.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -583,16 +568,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL subjectBrowse C-Win
 ON START-SEARCH OF subjectBrowse IN FRAME DEFAULT-FRAME /* Dynamic Subjects */
 DO:
-    IF SELF:CURRENT-COLUMN:NAME NE ? THEN DO:
-        ASSIGN
-            cColumnLabel = SELF:CURRENT-COLUMN:NAME
-            cBrowseName  = "{&BROWSE-NAME}"
-            .
-        IF cColumnLabel EQ cSaveLabel THEN
-        lAscending = NOT lAscending.
-        cSaveLabel = cColumnLabel.
-        RUN pReopenBrowse.
-    END.
+    cBrowseName = SELF:NAME.
+    {AOA/includes/startSearch.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -615,6 +592,13 @@ ON CLOSE OF THIS-PROCEDURE
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
+
+&Scoped-define sdBrowseName subjectBrowse
+{methods/template/brwcustom.i 1}
+&Scoped-define sdBrowseName paramSetBrowse
+{methods/template/brwcustom.i 2}
+&Scoped-define sdBrowseName lookupBrowse
+{methods/template/brwcustom.i 3}
 
 /* Now enable the interface and wait for the exit condition.            */
 /* (NOTE: handle ERROR and END-KEY so cleanup code will always fire.    */
@@ -681,12 +665,12 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY lExportSubject lExportParamSet cImportExportFolder lDefaultOnly 
-          lExportDynLookup lExportDynPageParams 
+  DISPLAY lExportSubject lExportParamSet lExportDynLookup lExportDynPageParams 
+          lDefaultOnly cImportExportFolder 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE subjectBrowse paramSetBrowse lookupBrowse btnExit lExportSubject 
-         lExportParamSet cImportExportFolder btnExport lDefaultOnly 
-         lExportDynLookup lExportDynPageParams btnImport 
+  ENABLE subjectBrowse btnExit paramSetBrowse lExportSubject lExportParamSet 
+         lExportDynLookup btnExport lExportDynPageParams lDefaultOnly 
+         cImportExportFolder lookupBrowse btnImport 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
@@ -1293,6 +1277,7 @@ PROCEDURE pReopenBrowse :
             {&OPEN-QUERY-lookupBrowse}
         END CASE.
     END CASE.
+    {AOA/includes/pReopenBrowse.i}
     SESSION:SET-WAIT-STATE("").
 
 END PROCEDURE.

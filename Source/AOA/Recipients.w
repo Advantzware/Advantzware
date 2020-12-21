@@ -96,12 +96,12 @@ DEFINE TEMP-TABLE ttEmail NO-UNDO
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btnCancel AUTO-END-KEY 
-     IMAGE-UP FILE "Graphics/32x32/navigate_cross.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/navigate_cross.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Cancel" 
      SIZE 8 BY 1.91 TOOLTIP "Cancel".
 
 DEFINE BUTTON btnOK AUTO-GO 
-     IMAGE-UP FILE "Graphics/32x32/navigate_check.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/navigate_check.png":U NO-FOCUS FLAT-BUTTON
      LABEL "OK" 
      SIZE 8 BY 1.91 TOOLTIP "OK"
      BGCOLOR 8 .
@@ -125,10 +125,10 @@ DEFINE QUERY recipients FOR
 DEFINE BROWSE recipients
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS recipients Dialog-Frame _FREEFORM
   QUERY recipients DISPLAY
-      ttEmail.isActive LABEL-BGCOLOR 14 VIEW-AS TOGGLE-BOX
-ttEmail.user-id LABEL-BGCOLOR 14
-ttEmail.userName LABEL-BGCOLOR 14
-ttEmail.email LABEL-BGCOLOR 14
+      ttEmail.isActive LABEL-BGCOLOR 22 VIEW-AS TOGGLE-BOX
+ttEmail.user-id LABEL-BGCOLOR 22
+ttEmail.userName LABEL-BGCOLOR 22
+ttEmail.email LABEL-BGCOLOR 22
 ENABLE
 ttEmail.isActive
 /* _UIB-CODE-BLOCK-END */
@@ -233,14 +233,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL recipients Dialog-Frame
 ON START-SEARCH OF recipients IN FRAME Dialog-Frame /* Recipient Emails */
 DO:
-    IF SELF:CURRENT-COLUMN:NAME NE ? THEN DO:
-        cColumnLabel = BROWSE {&BROWSE-NAME}:CURRENT-COLUMN:NAME.
-        IF cColumnLabel EQ cSaveLabel THEN
-        lAscending = NOT lAscending.
-        cSaveLabel = cColumnLabel.
-        RUN pReopenBrowse.
-    END.
-    RETURN NO-APPLY.
+    {AOA/includes/startSearch.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -272,10 +265,11 @@ DO:
     APPLY "TAB":U.
 END.
 
+{methods/template/brwcustom.i}
+
 /* Parent the dialog-box to the ACTIVE-WINDOW, if there is no parent.   */
 IF VALID-HANDLE(ACTIVE-WINDOW) AND FRAME {&FRAME-NAME}:PARENT eq ?
 THEN FRAME {&FRAME-NAME}:PARENT = ACTIVE-WINDOW.
-
 
 /* Now enable the interface and wait for the exit condition.            */
 /* (NOTE: handle ERROR and END-KEY so cleanup code will always fire.    */
@@ -400,6 +394,7 @@ PROCEDURE pReopenBrowse :
         &SCOPED-DEFINE SORTBY-PHRASE
         {&OPEN-QUERY-{&BROWSE-NAME}}
     END CASE.
+    {AOA/includes/pReopenBrowse.i}
     SESSION:SET-WAIT-STATE("").
 
 END PROCEDURE.

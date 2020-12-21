@@ -93,7 +93,7 @@ cPoolName = "QueryPool" + STRING(TIME).
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS btnField btnCalcField btnUseIndex ~
-btnConstant tableType btnOF ofType fieldType keywordType parameterColor ~
+btnConstant btnOF tableType ofType fieldType keywordType parameterColor ~
 calcfieldType btnTable useindexType btnWhere forFillIn btnAnd btnBegins ~
 btnEQ btnGE btnGT btnKeyword btnLE btnLT btnMatches btnNE btnOR btnParam ~
 btnSave btnUndo 
@@ -257,7 +257,7 @@ DEFINE BUTTON btnParam  NO-FOCUS FLAT-BUTTON
      FONT 6.
 
 DEFINE BUTTON btnSave 
-     IMAGE-UP FILE "Graphics/32x32/floppy_disk.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/floppy_disk.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Save" 
      SIZE 8 BY 1.91 TOOLTIP "Save".
 
@@ -267,7 +267,7 @@ DEFINE BUTTON btnTable  NO-FOCUS FLAT-BUTTON
      FONT 6.
 
 DEFINE BUTTON btnUndo 
-     IMAGE-UP FILE "Graphics/32x32/undo_32.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/undo_32.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Undo" 
      SIZE 8 BY 1.91 TOOLTIP "Undo Changes".
 
@@ -329,7 +329,7 @@ DEFINE RECTANGLE RECT-1
 DEFINE RECTANGLE RECT-2
      EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 18 BY 23.33
-     BGCOLOR 1 .
+     BGCOLOR 21 .
 
 DEFINE RECTANGLE RECT-SAVE
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
@@ -343,8 +343,8 @@ DEFINE FRAME DEFAULT-FRAME
      btnCalcField AT ROW 22.67 COL 3 WIDGET-ID 316
      btnUseIndex AT ROW 25.76 COL 3 WIDGET-ID 312
      btnConstant AT ROW 23.86 COL 3 WIDGET-ID 338
-     tableType AT ROW 1.24 COL 19 COLON-ALIGNED NO-LABEL WIDGET-ID 8
      btnOF AT ROW 6 COL 3 WIDGET-ID 300
+     tableType AT ROW 1.24 COL 19 COLON-ALIGNED NO-LABEL WIDGET-ID 8
      ofType AT ROW 1.24 COL 53 COLON-ALIGNED NO-LABEL WIDGET-ID 340
      fieldType AT ROW 1.24 COL 61 COLON-ALIGNED NO-LABEL WIDGET-ID 12
      keywordType AT ROW 1.24 COL 76 COLON-ALIGNED NO-LABEL WIDGET-ID 14
@@ -372,13 +372,13 @@ DEFINE FRAME DEFAULT-FRAME
           "Undo Changes" WIDGET-ID 282
      "Add . . ." VIEW-AS TEXT
           SIZE 9 BY .62 AT ROW 4.1 COL 3 WIDGET-ID 334
-          BGCOLOR 1 FGCOLOR 15 FONT 6
-     "Query:" VIEW-AS TEXT
-          SIZE 8 BY .86 AT ROW 2.57 COL 6 WIDGET-ID 336
-          FONT 6
+          BGCOLOR 21 FGCOLOR 15 FONT 6
      "Color Legend:" VIEW-AS TEXT
           SIZE 16 BY 1 AT ROW 1.24 COL 4 WIDGET-ID 4
           BGCOLOR 15 FONT 6
+     "Query:" VIEW-AS TEXT
+          SIZE 8 BY .86 AT ROW 2.57 COL 6 WIDGET-ID 336
+          FONT 6
      RECT-1 AT ROW 1 COL 2 WIDGET-ID 10
      RECT-SAVE AT ROW 27.43 COL 2 WIDGET-ID 246
      RECT-2 AT ROW 3.86 COL 2 WIDGET-ID 332
@@ -882,7 +882,7 @@ PROCEDURE enable_UI :
   DISPLAY tableType ofType fieldType keywordType parameterColor calcfieldType 
           useindexType forFillIn 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE btnField btnCalcField btnUseIndex btnConstant tableType btnOF ofType 
+  ENABLE btnField btnCalcField btnUseIndex btnConstant btnOF tableType ofType 
          fieldType keywordType parameterColor calcfieldType btnTable 
          useindexType btnWhere forFillIn btnAnd btnBegins btnEQ btnGE btnGT 
          btnKeyword btnLE btnLT btnMatches btnNE btnOR btnParam btnSave btnUndo 
