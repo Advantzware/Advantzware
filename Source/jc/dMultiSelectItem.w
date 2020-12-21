@@ -80,7 +80,7 @@ RUN fgrep\fgReorder.p PERSISTENT SET hdFGReorder.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-39 btExit btFilter cFGItem cStyle btOk ~
-cCat cLoc cBoard tb_sugg-qty BROWSE-2 
+cCat cLoc cBoard tb_sugg-qty BROWSE-2 btViewJob btViewAllocated 
 &Scoped-Define DISPLAYED-OBJECTS fieventIDlb fiStyleLebel cFGItem cStyle ~
 fiCatLabel filocLabel fiBoardLabel cCat cLoc cBoard tb_sugg-qty fi_sortby
 
@@ -111,6 +111,16 @@ DEFINE BUTTON btOk
      LABEL "OK" 
      SIZE 15 BY 1.14
      FONT 6.
+     
+DEFINE BUTTON btViewAllocated 
+     LABEL "View Allocated" 
+     SIZE 19 BY 1
+     FONT 6.
+
+DEFINE BUTTON btViewJob 
+     LABEL "View Jobs" 
+     SIZE 19 BY 1
+     FONT 6.     
 
 DEFINE VARIABLE cCat AS CHARACTER FORMAT "X(8)":U 
      VIEW-AS FILL-IN 
@@ -231,7 +241,7 @@ DEFINE BROWSE BROWSE-2
              ttMultiSelectItem.quantityToOrder
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 157.6 BY 22.38
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 157.6 BY 21.43
          FONT 34 ROW-HEIGHT-CHARS 0.9.
 
 
@@ -252,8 +262,10 @@ DEFINE FRAME Dialog-Frame
      tb_sugg-qty AT ROW 3.55 COL 45.6 WIDGET-ID 6
      btFilter AT ROW 1.71 COL 114.4 WIDGET-ID 18
      btOk AT ROW 2.81 COL 125.5 WIDGET-ID 24
-     BROWSE-2 AT ROW 4.81 COL 2 WIDGET-ID 200     
+     BROWSE-2 AT ROW 5.76 COL 2 WIDGET-ID 200     
      btExit AT ROW 1.24 COL 149 WIDGET-ID 326
+     btViewJob AT ROW 4.67 COL 2 WIDGET-ID 328
+     btViewAllocated AT ROW 4.67 COL 22 WIDGET-ID 330
      " Filter" VIEW-AS TEXT
           SIZE 7 BY .62 AT ROW 1 COL 2.6 WIDGET-ID 52
           FONT 6
@@ -484,6 +496,69 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME btViewAllocated
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btViewAllocated Dialog-Frame
+ON CHOOSE OF btViewAllocated IN FRAME Dialog-Frame /* View Allocated */
+DO:
+    DEFINE VARIABLE cLocation AS CHARACTER NO-UNDO .
+    IF AVAIL ttMultiSelectItem THEN
+       cLocation =  ttMultiSelectItem.itemWhse .
+    FIND FIRST itemfg NO-LOCK
+         WHERE itemfg.company EQ cocode
+         AND itemfg.i-no EQ ttMultiSelectItem.itemID NO-ERROR.
+    IF NOT AVAILABLE itemfg THEN RETURN NO-APPLY.      
+    IF itemfg.q-alloc NE 0 THEN
+    DO:    
+        RUN oeinq/b-ordinfo.w(ROWID(itemfg), cLocation) .
+    END. 
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btViewJob
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btViewJob Dialog-Frame
+ON CHOOSE OF btViewJob IN FRAME Dialog-Frame /* View Jobs */
+DO:
+   DEFINE VARIABLE cLocation AS CHARACTER NO-UNDO .
+    IF AVAIL ttMultiSelectItem THEN
+       cLocation =  ttMultiSelectItem.itemWhse . 
+    FIND FIRST itemfg NO-LOCK
+         WHERE itemfg.company EQ cocode
+         AND itemfg.i-no EQ ttMultiSelectItem.itemID NO-ERROR.
+    IF NOT AVAILABLE itemfg THEN RETURN NO-APPLY.  
+    IF itemfg.q-ono NE 0 THEN DO:
+        FIND FIRST job-hdr NO-LOCK
+             WHERE job-hdr.company EQ itemfg.company
+               AND job-hdr.i-no    EQ itemfg.i-no
+               AND job-hdr.opened  EQ YES
+               AND CAN-FIND(FIRST job
+                            WHERE job.company EQ job-hdr.company
+                              AND job.job     EQ job-hdr.job
+                              AND job.job-no  EQ job-hdr.job-no
+                              AND job.job-no2 EQ job-hdr.job-no2)
+             NO-ERROR.
+        IF AVAILABLE job-hdr THEN             
+              RUN jcinq/b-jobinfo.w(ROWID(itemfg),cLocation).              
+        ELSE DO:
+            FIND FIRST fg-set NO-LOCK
+                 WHERE fg-set.company EQ itemfg.company
+                   AND fg-set.part-no EQ itemfg.i-no
+                 NO-ERROR.
+            IF AVAILABLE fg-set THEN
+             RUN jcinq/b-jobinfo.w(ROWID(itemfg),cLocation).            
+        END.
+        IF NOT AVAIL job-hdr AND NOT AVAIL fg-set THEN
+            MESSAGE "No jobs for this item.." VIEW-AS ALERT-BOX INFORMATION . 
+    END.
+  
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME cCat
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cCat Dialog-Frame
 ON HELP OF cCat IN FRAME Dialog-Frame
@@ -605,7 +680,7 @@ PROCEDURE enable_UI :
           fiBoardLabel cLoc cBoard tb_sugg-qty 
       WITH FRAME Dialog-Frame.
   ENABLE RECT-39 btExit btFilter cFGItem cStyle btOk cCat cLoc cBoard tb_sugg-qty BROWSE-2 
-      WITH FRAME Dialog-Frame.
+          btViewJob btViewAllocated WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
 END PROCEDURE.
