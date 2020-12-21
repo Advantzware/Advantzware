@@ -429,6 +429,55 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE export-xl B-table-Win 
+PROCEDURE export-xl :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+DEFINE VARIABLE lcItemFrom AS CHAR NO-UNDO.
+DEFINE VARIABLE lcItemTo   AS CHAR NO-UNDO.
+DEFINE VARIABLE lcItemUomFrom AS CHAR NO-UNDO.
+DEFINE VARIABLE lcItemUomTo   AS CHAR NO-UNDO.
+
+
+    IF ItemUom.ItemId NE "" THEN 
+    ASSIGN
+         lcItemFrom = ItemUom.ItemId
+         lcItemTo   = ItemUom.ItemId.
+    IF ItemUom.uom NE "" THEN 
+    ASSIGN
+         lcItemUomFrom = ItemUom.uom
+         lcItemUomTo   = ItemUom.uom.     
+    
+    RUN fg/rd-uomexp.w (lcItemFrom,
+                       lcItemTo,
+                       lcItemUomFrom,
+                       lcItemUomTo                       
+                       ).
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE import-file W-Win 
+PROCEDURE import-file :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+ RUN util/dev/impFGUom.p .
+ RUN local-open-query .
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records B-table-Win  _ADM-SEND-RECORDS
 PROCEDURE send-records :
 /*------------------------------------------------------------------------------

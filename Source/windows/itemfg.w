@@ -156,6 +156,8 @@ DEFINE VARIABLE h_v-itemsp AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_v-navest AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_v-navest-2 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_v-spcard AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_export4 AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_import2 AS HANDLE NO-UNDO.
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -1015,6 +1017,22 @@ PROCEDURE adm-create-objects :
     END. /* Page 11 */
     WHEN 12 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
+             INPUT  'viewers/export.w':U ,
+             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_export4 ).
+       RUN set-position IN h_export4 ( 1.00 , 85.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 7.80 ) */
+       
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'viewers/import.w':U ,
+             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_import2 ).
+       RUN set-position IN h_import2 ( 1.00 , 76.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 7.80 ) */
+    
+       RUN init-object IN THIS-PROCEDURE (
              INPUT  'viewerid/itemfg.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
@@ -1059,6 +1077,13 @@ PROCEDURE adm-create-objects :
        /* Links to SmartViewer h_itemUOM-2. */
        RUN add-link IN adm-broker-hdl ( h_itemUOM , 'Record':U , h_itemUOM-2 ).
        RUN add-link IN adm-broker-hdl ( h_p-updsav , 'TableIO':U , h_itemUOM-2 ).
+       
+       /* Links to SmartViewer h_import2. */
+       RUN add-link IN adm-broker-hdl ( h_itemUOM , 'import':U , h_import2 ).
+       
+       /* Links to SmartObject h_export4. */
+       RUN add-link IN adm-broker-hdl ( h_itemUOM , 'export-xl':U , h_export4 ).
+       
     END. /* Page 12 */
     WHEN 13 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
