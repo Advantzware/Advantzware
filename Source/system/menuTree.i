@@ -164,6 +164,24 @@ PROCEDURE pClickMenuTree:
             ttMenuTree.isOpen,
             ttMenuTree.level
             ).
+            
+        FOR FIRST ttMenuTree WHERE ROWID(ttMenuTree) EQ rRowID :
+            FOR EACH bttMenuTree
+                WHERE ROWID(bttMenuTree) NE rRowID
+                AND bttMenuTree.isMenu EQ YES
+                AND bttMenuTree.isOpen EQ YES
+                AND bttMenuTree.level  LT ttMenuTree.level
+                :
+                IF NOT bttMenuTree.lWidgetExist THEN NEXT.
+                bttMenuTree.hLevel:LOAD-IMAGE(SEARCH(cImageFolder + "minus.ico")).
+            END. /* each bttmenutree */
+            ASSIGN
+                cImage            = SEARCH(cImageFolder
+                       + IF ttMenuTree.isOpen THEN "minus.ico"
+                         ELSE "plus.ico")
+               .
+            ttMenuTree.hLevel:LOAD-IMAGE(cImage).
+        END.
     END. /* if ismenu */
     FIND FIRST ttMenuTree WHERE ROWID(ttMenuTree) EQ rRowID NO-ERROR.
 
@@ -232,6 +250,8 @@ PROCEDURE pCreatettMenuTree:
     DEFINE VARIABLE hWidget   AS HANDLE    NO-UNDO.
     DEFINE VARIABLE dWidth    AS DECIMAL   NO-UNDO.
     
+    DEFINE VARIABLE cImage AS CHARACTER NO-UNDO.
+    
     IF createWidgetOfParent = "file" THEN
     DO:       
         FIND FIRST ttMenuTree WHERE  ttMenuTree.mnemonic =  ipcMnemonic NO-ERROR.
@@ -287,7 +307,12 @@ PROCEDURE pCreatettMenuTree:
               END TRIGGERS.
             IF VALID-HANDLE(hWidget) THEN DO:
                 ttMenuTree.hLevel = hWidget. 
-                hWidget:LOAD-IMAGE(SEARCH(cImageFolder + "plus.ico")).
+              //  hWidget:LOAD-IMAGE(SEARCH(cImageFolder + "plus.ico")).
+                cImage = SEARCH(cImageFolder
+                    + IF createWidgetOfParent = "file" THEN "plus.ico"
+                    ELSE "minus.ico")
+                    .
+                hWidget:LOAD-IMAGE(cImage).
             END.
             hWidget:HEIGHT-PIXELS = 16.
             hWidget:WIDTH-PIXELS = 16.

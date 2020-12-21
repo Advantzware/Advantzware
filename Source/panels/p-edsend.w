@@ -105,7 +105,7 @@ DEFINE BUTTON btn-resend
      IMAGE-DOWN FILE "Graphics/32x32/documents_exchange_hover.png":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/documents_exchange_disable.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
-     SIZE 9 BY 1.91.
+     SIZE 7.8 BY 1.81.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -144,8 +144,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW C-WIn ASSIGN
-         HEIGHT             = 2.57
-         WIDTH              = 30.2.
+         HEIGHT             = 1.81
+         WIDTH              = 66.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME

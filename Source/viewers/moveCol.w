@@ -65,7 +65,7 @@ DEFINE BUTTON btnMoveCol
      IMAGE-DOWN FILE "Graphics/32x32/sort_up_down2.png":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/config-table_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Phone" 
-     SIZE 6.4 BY 1.52 TOOLTIP "Change Move/Sort Column Mode"
+     SIZE 7.8 BY 1.81 TOOLTIP "Change Move/Sort Column Mode"
      BGCOLOR 21 .
 
 
@@ -105,7 +105,7 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW s-object ASSIGN
-         HEIGHT             = 1.52
+         HEIGHT             = 1.81
          WIDTH              = 66.
 /* END WINDOW DEFINITION */
                                                                         */

@@ -66,49 +66,49 @@ DEFINE BUTTON Select_appl
      IMAGE-DOWN FILE "Graphics/32x32/window_gear_hover.png":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/window_gear_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Run App" 
-     SIZE 6.4 BY 1.52 TOOLTIP "Utility Application".
+     SIZE 7.8 BY 1.81 TOOLTIP "Utility Application".
 
 DEFINE BUTTON Select_frac 
      IMAGE-UP FILE "Graphics/32x32/calculator.png":U
      IMAGE-DOWN FILE "Graphics/32x32/calculator_hover.png":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/calculator_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Calculate" 
-     SIZE 6.4 BY 1.52 TOOLTIP "Conversions".
+     SIZE 7.8 BY 1.81 TOOLTIP "Conversions".
 
 DEFINE BUTTON Select_help 
      IMAGE-UP FILE "Graphics/32x32/question.png":U
      IMAGE-DOWN FILE "Graphics/32x32/question_hover.png":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/question_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Help" 
-     SIZE 6.4 BY 1.52 TOOLTIP "Help".
+     SIZE 7.8 BY 1.81 TOOLTIP "Help".
 
 DEFINE BUTTON Select_List 
      IMAGE-UP FILE "Graphics/32x32/printerbtn.png":U
      IMAGE-DOWN FILE "Graphics/32x32/printer_hover.png":U
      IMAGE-INSENSITIVE FILE "Graphics\32x32\printer_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "List" 
-     SIZE 6.4 BY 1.52 TOOLTIP "List".
+     SIZE 7.8 BY 1.81 TOOLTIP "List".
 
 DEFINE BUTTON Select_Notes 
      IMAGE-UP FILE "Graphics/32x32/edit.png":U
      IMAGE-DOWN FILE "Graphics/32x32/edit_hover.png":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/edit_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Notes" 
-     SIZE 6.4 BY 1.52 TOOLTIP "Notes".
+     SIZE 7.8 BY 1.81 TOOLTIP "Notes".
 
 DEFINE BUTTON Select_spec 
      IMAGE-UP FILE "Graphics/32x32/book_open.png":U
      IMAGE-DOWN FILE "Graphics/32x32/book_open_hover.png":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/book_open_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Notes" 
-     SIZE 6.4 BY 1.52 TOOLTIP "Notes".
+     SIZE 7.8 BY 1.81 TOOLTIP "Notes".
 
 DEFINE BUTTON UDF 
      IMAGE-UP FILE "Graphics/32x32/udf.png":U
      IMAGE-DOWN FILE "Graphics/32x32/udf_hover.png":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/udf_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Home" 
-     SIZE 6.4 BY 1.52 TOOLTIP "UDF Viewer".
+     SIZE 7.8 BY 1.81 TOOLTIP "UDF Viewer".
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -154,7 +154,7 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW s-object ASSIGN
-         HEIGHT             = 1.52
+         HEIGHT             = 1.81
          WIDTH              = 55.8.
 /* END WINDOW DEFINITION */
                                                                         */

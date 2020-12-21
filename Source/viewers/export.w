@@ -65,7 +65,7 @@ DEFINE BUTTON btnExcel
      IMAGE-DOWN FILE "Graphics/32x32/excel_hover.png":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/excel_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Excel" 
-     SIZE 6.4 BY 1.52 TOOLTIP "Excel Export".
+     SIZE 7.8 BY 1.81 TOOLTIP "Excel Export".
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -104,7 +104,7 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW s-object ASSIGN
-         HEIGHT             = 1.52
+         HEIGHT             = 1.81
          WIDTH              = 66.
 /* END WINDOW DEFINITION */
                                                                         */

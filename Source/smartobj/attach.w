@@ -65,7 +65,7 @@ DEFINE BUTTON Select_att
      IMAGE-DOWN FILE "Graphics/32x32/pin2_hover.png":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/pin2_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Attachment" 
-     SIZE 6.4 BY 1.52 TOOLTIP "Attachments"
+     SIZE 7.8 BY 1.81 TOOLTIP "Attachments"
      BGCOLOR 21 .
 
 
@@ -105,8 +105,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW s-object ASSIGN
-         HEIGHT             = 1.57
-         WIDTH              = 41.
+         HEIGHT             = 1.81
+         WIDTH              = 66.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
