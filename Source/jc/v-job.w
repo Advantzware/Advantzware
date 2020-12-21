@@ -97,6 +97,10 @@ IF llRecFound THEN
     cJobType = lcReturn NO-ERROR.  
 
 DEFINE BUFFER xjob FOR job.
+DEFINE NEW SHARED BUFFER xest FOR est.
+DEFINE NEW SHARED BUFFER xef FOR ef.
+DEFINE NEW SHARED VARIABLE sh-wid AS DECIMAL   NO-UNDO.
+DEFINE NEW SHARED VARIABLE sh-len AS DECIMAL   NO-UNDO.
 
 noDate = CAN-FIND(FIRST sys-ctrl
                   WHERE sys-ctrl.company EQ cocode
@@ -2815,6 +2819,60 @@ PROCEDURE view-user-id :
 
       DISPLAY job.user-id.
    END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE add-tandem V-table-Win 
+PROCEDURE add-tandem :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DEFINE VARIABLE riRowid AS ROWID NO-UNDO.
+   DEFINE VARIABLE lNewTandem AS LOG NO-UNDO.
+ 
+   DO WITH FRAME {&FRAME-NAME}:
+    RUN est/d-selest.w (?, NO, "",
+                        OUTPUT lNewTandem, OUTPUT riRowid).
+    FIND eb WHERE ROWID(eb) EQ riRowid NO-LOCK NO-ERROR.
+    
+    IF lNewTandem THEN DO:
+      RUN dispatch ("add-record").
+      job.est-no:SCREEN-VALUE = eb.est-no.
+      
+      FIND FIRST xest NO-LOCK WHERE 
+        xest.company EQ eb.company AND 
+        xest.est-no EQ eb.est-no 
+        NO-ERROR.
+        
+      RELEASE xeb.
+      
+      RUN est/oeselest.p.
+      
+      APPLY "entry" TO job.est-no.
+    END.        
+   END.       
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE check-tandem-button V-table-Win 
+PROCEDURE check-tandem-button :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEF OUTPUT PARAM op-enabled AS LOG NO-UNDO.
+
+
+  RUN custom/frame-en.p (FRAME {&FRAME-NAME}:HANDLE, "{&ENABLED-FIELDS}", OUTPUT op-enabled).
+            
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
