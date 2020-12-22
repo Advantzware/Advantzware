@@ -41,11 +41,14 @@ DO:
         /* Now enable the interface and wait for the exit condition.            */
         /* Set the option frame size and colour to give blue background to icons and 
           add the handle of scope define object to temptable for resizizng */
-        RUN beforeinitialize NO-ERROR.
+        RUN beforeinitialize IN THIS-PROCEDURE NO-ERROR.  
+             
         RUN dispatch ('initialize':U).
+        
         /* Add the handle of all smart object to be resized/shifted on resize to the temptable and 
           Shift all the icons towards right */
-        RUN afterinitialize NO-ERROR.
+        RUN afterinitialize IN THIS-PROCEDURE NO-ERROR.
+        
         IF NOT THIS-PROCEDURE:PERSISTENT THEN
             WAIT-FOR CLOSE OF THIS-PROCEDURE.
     END.
