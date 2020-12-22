@@ -603,33 +603,34 @@ PROCEDURE ipPostBols:
     DEFINE VARIABLE iNextTempLn AS INTEGER NO-UNDO.
     DEFINE VARIABLE cCurrentCust AS CHARACTER NO-UNDO.
     rCurrentInvHeadRow = ?.
-    FOR EACH report WHERE report.term-id EQ v-term,
+    FOR EACH report NO-LOCK
+        WHERE report.term-id EQ v-term,
 
-        FIRST oe-boll WHERE RECID(oe-boll) EQ report.rec-id,
+        FIRST oe-boll NO-LOCK WHERE RECID(oe-boll) EQ report.rec-id,
         
-        FIRST oe-bolh WHERE oe-bolh.b-no EQ oe-boll.b-no,
+        FIRST oe-bolh NO-LOCK WHERE oe-bolh.b-no EQ oe-boll.b-no,
         
-        FIRST oe-ordl
+        FIRST oe-ordl NO-LOCK
         WHERE oe-ordl.company EQ oe-boll.company
         AND oe-ordl.ord-no  EQ oe-boll.ord-no
         AND oe-ordl.line    EQ oe-boll.line
         AND oe-ordl.i-no    EQ oe-boll.i-no
         USE-INDEX ord-no,
     
-        FIRST oe-rell
+        FIRST oe-rell NO-LOCK
         WHERE oe-rell.company EQ oe-boll.company
         AND oe-rell.ord-no  EQ oe-boll.ord-no
         AND oe-rell.r-no    EQ oe-boll.r-no
         AND oe-rell.i-no    EQ oe-boll.i-no
         AND oe-rell.line    EQ oe-boll.line,
 
-        FIRST oe-relh WHERE oe-relh.r-no EQ oe-rell.r-no,
+        FIRST oe-relh NO-LOCK WHERE oe-relh.r-no EQ oe-rell.r-no,
       
         FIRST cust NO-LOCK
         WHERE cust.company EQ oe-bolh.company
         AND cust.cust-no EQ oe-bolh.cust-no,
 
-        FIRST oe-ord
+        FIRST oe-ord NO-LOCK
         WHERE oe-ord.company EQ oe-boll.company
         AND oe-ord.ord-no  EQ oe-boll.ord-no,
       
@@ -674,10 +675,15 @@ PROCEDURE ipPostBols:
             .
         CREATE tt-report.
         BUFFER-COPY report TO tt-report.
-        DELETE report.
-            
+/*        DELETE report.*/
     END.
-    
+
+    FOR EACH report EXCLUSIVE-LOCK
+        WHERE report.term-id EQ v-term
+        :
+        DELETE report.
+    END.
+
     /* Assign a line number to each record */
     iNextTempLn = 0.
     FOR EACH ttPreInvLine,

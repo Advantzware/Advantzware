@@ -1629,7 +1629,7 @@ PROCEDURE testPrint :
   END. /* if runprint */
   RUN VALUE(runPrint) ('{&Board}',reportFormat,rptTitle,ipExcel,NO /*showParametersPage*/).
   IF ipExcel THEN
-  OS-COMMAND NO-WAIT start excel.exe VALUE(SEARCH(printFile)).
+  OS-COMMAND NO-WAIT start nVALUE(SEARCH(printFile)).
   ELSE
 &IF DEFINED(FWD-VERSION) > 0 &THEN
   open-mime-resource "text/plain" string("file:///" + printFile) false.
