@@ -156,6 +156,7 @@ PROCEDURE pBuildConfigFromTemplate PRIVATE:
     DEFINE INPUT PARAMETER ipcFormatMaster AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcFormatFont AS CHARACTER NO-UNDO.
     DEFINE PARAMETER BUFFER opbf-ttCEFormatConfig FOR ttCEFormatConfig.
+
     
     CREATE opbf-ttCEFormatConfig.
     ASSIGN 
@@ -171,10 +172,6 @@ PROCEDURE pBuildConfigFromTemplate PRIVATE:
         opbf-ttCEFormatConfig.printAnalysis               = INDEX(ipcFormatMaster, "Analysis") GT 0
         opbf-ttCEFormatConfig.printNotes                  = INDEX(ipcFormatMaster, "No Notes") EQ 0
         opbf-ttCEFormatConfig.showProfitPercent           = YES
-        opbf-ttCEFormatConfig.printByForm                 = YES
-        opbf-ttCEFormatConfig.printSummary                = YES
-        opbf-ttCEFormatConfig.printSummaryFirst           = YES
-        opbf-ttCEFormatConfig.showAllQuantities           = NO
         opbf-ttCEFormatConfig.summColItemNameShow         = YES
         opbf-ttCEFormatConfig.summColItemNameCol          = 2
         opbf-ttCEFormatConfig.summColItemNameWidth        = 30
@@ -222,13 +219,24 @@ PROCEDURE pBuildConfigFromTemplate PRIVATE:
     END.
         
     CASE ipcFormatMaster:
-        WHEN "Standard" THEN
+        WHEN "Standard" OR 
+        WHEN "Config" THEN
             ASSIGN
-                opbf-ttCEFormatConfig.showProfitPercent = YES
-                opbf-ttCEFormatConfig.printByForm       = YES
-                opbf-ttCEFormatConfig.printSummary      = YES
-                opbf-ttCEFormatConfig.printSummaryFirst = YES
-                opbf-ttCEFormatConfig.showAllQuantities = NO
+                opbf-ttCEFormatConfig.showProfitPercent          = NO
+                opbf-ttCEFormatConfig.printByForm                = YES
+                opbf-ttCEFormatConfig.printSummary               = YES
+                opbf-ttCEFormatConfig.printSummaryFirst          = YES
+                opbf-ttCEFormatConfig.showAllQuantities          = NO
+                opbf-ttCEFormatConfig.summColQuantityShow        = YES
+                opbf-ttCEFormatConfig.summColQuantityRequestShow = NO
+                opbf-ttCEFormatConfig.summColQuantityYieldShow   = NO
+                opbf-ttCEFormatConfig.summColWeightShow          = NO
+                opbf-ttCEFormatConfig.summColDirectCostShow      = YES
+                opbf-ttCEFormatConfig.summColFactoryCostShow     = YES
+                opbf-ttCEFormatConfig.summColFullCostShow        = NO
+                opbf-ttCEFormatConfig.summColSellPriceShow       = YES
+                opbf-ttCEFormatConfig.summColSellPriceCol        = 66
+                opbf-ttCEFormatConfig.useReferenceQuantity       = YES
                 .
     END.
     
@@ -440,6 +448,8 @@ PROCEDURE pLoadConfig PRIVATE:
     DEFINE VARIABLE cReadMode   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lFound      AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cFile       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cMessage    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lValid      AS LOGICAL   NO-UNDO.
 
 
     RUN sys/ref/nk1look.p (INPUT ipcCompany, "CEFormatConfig", "C" /* Logical */, NO /* check by cust */, 
@@ -448,13 +458,61 @@ PROCEDURE pLoadConfig PRIVATE:
     
     IF lFound AND cFile NE "" THEN 
     DO: 
+        RUN FileSys_ValidateFile(cFile, OUTPUT lValid, OUTPUT cMessage).
         
         ASSIGN
             cSourceType = "file"
             cReadMode   = "empty"
             .
 
-        oplLoaded = iphTT:READ-JSON(cSourceType, cFile, cReadMode).
+        IF lValid THEN 
+            oplLoaded = iphTT:READ-JSON(cSourceType, cFile, cReadMode).
+    END.
+    
+END PROCEDURE.
+
+PROCEDURE pPrintConsolidated PRIVATE:
+    /*------------------------------------------------------------------------------
+        Purpose: Processes the output for a given form
+        Notes:
+       ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcEstFormRecKey AS CHARACTER NO-UNDO.
+    DEFINE PARAMETER BUFFER ipbf-ttCEFormatConfig FOR ttCEFormatConfig.
+    DEFINE INPUT-OUTPUT PARAMETER iopiPageCount AS INTEGER NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER iopiRowCount AS INTEGER NO-UNDO. 
+
+    FIND FIRST estCostHeader NO-LOCK 
+        WHERE estCostHeader.rec_key EQ ipcEstFormRecKey
+        NO-ERROR.
+    IF NOT AVAILABLE estCostHeader THEN RETURN.
+    RUN pPrintPageHeader(BUFFER estCostHeader, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+    FOR EACH estCostForm NO-LOCK 
+        WHERE estCostForm.estCostHeaderID EQ estCostHeader.estCostHeaderID:
+        RUN pPrintItemInfoForForm(BUFFER estCostHeader, BUFFER estCostForm, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+        IF fTypePrintsLayout(estCostHeader.estType) THEN 
+            RUN pPrintLayoutInfoForForm(BUFFER estCostHeader, BUFFER estCostForm, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+    END.
+    FOR EACH estCostForm NO-LOCK 
+        WHERE estCostForm.estCostHeaderID EQ estCostHeader.estCostHeaderID:
+        RUN pPrintMaterialInfoForForm(BUFFER estCostHeader, BUFFER estCostForm, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+    END.
+    FOR EACH estCostForm NO-LOCK 
+        WHERE estCostForm.estCostHeaderID EQ estCostHeader.estCostHeaderID:
+        RUN pPrintMiscInfoForForm(BUFFER estCostHeader, BUFFER estCostForm, "Prep", ipbf-ttCEFormatConfig.SIMONListInclude, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+        RUN pPrintMiscInfoForForm(BUFFER estCostHeader, BUFFER estCostForm, "Misc", ipbf-ttCEFormatConfig.SIMONListInclude, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+    END.
+    FOR EACH estCostForm NO-LOCK 
+        WHERE estCostForm.estCostHeaderID EQ estCostHeader.estCostHeaderID:
+        RUN pPrintOperationsInfoForForm(BUFFER estCostHeader, BUFFER estCostForm, BUFFER ipbf-ttCEFormatConfig, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+    END.
+    FOR EACH estCostForm NO-LOCK 
+        WHERE estCostForm.estCostHeaderID EQ estCostHeader.estCostHeaderID:
+        RUN pPrintFreightWarehousingAndHandlingForForm(BUFFER estCostHeader, BUFFER estCostForm, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+        //RUN pPrintCostSummaryInfoForForm(BUFFER estCostHeader, BUFFER estCostForm, BUFFER ipbf-ttCEFormatConfig, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).        
+    END.
+    FOR EACH estCostForm NO-LOCK 
+        WHERE estCostForm.estCostHeaderID EQ estCostHeader.estCostHeaderID:
+        RUN pPrintSeparateChargeInfoForForm(BUFFER estCostHeader, BUFFER estCostForm, BUFFER ipbf-ttCEFormatConfig, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
     END.
     
 END PROCEDURE.
@@ -1516,7 +1574,7 @@ PROCEDURE pProcessSections PRIVATE:
             WHEN "Form" THEN 
             RUN pPrintForm(ttSection.rec_keyParent, BUFFER ipbf-ttCEFormatConfig, INPUT-OUTPUT iPageCount, INPUT-OUTPUT iRowCount).
             WHEN "Consolidated" THEN 
-            RUN pPrintConsolidated(ttSection.rec_keyParent, INPUT-OUTPUT iPageCount, INPUT-OUTPUT iRowCount).
+            RUN pPrintConsolidated(ttSection.rec_keyParent, BUFFER ipbf-ttCEFormatConfig, INPUT-OUTPUT iPageCount, INPUT-OUTPUT iRowCount).
             WHEN "Summary" THEN 
             RUN pPrintSummary(ttSection.rec_keyParent, BUFFER ipbf-ttCEFormatConfig, INPUT-OUTPUT iPageCount, INPUT-OUTPUT iRowCount).      
             WHEN "Notes" THEN 
