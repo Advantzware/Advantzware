@@ -22,7 +22,7 @@ DEFINE VARIABLE giTimer             AS INTEGER   NO-UNDO.
 DEFINE VARIABLE gcOutputFile        AS CHARACTER INITIAL "C:\temp\estPrintOut.xpr".
 DEFINE VARIABLE gcProfilerFile      AS CHARACTER INITIAL "C:\temp\estCalcProfile.prof".
 DEFINE VARIABLE gcCompany           AS CHARACTER INITIAL "001".
-DEFINE VARIABLE gcEstimate          AS CHARACTER INITIAL "  100386".
+DEFINE VARIABLE gcEstimate          AS CHARACTER INITIAL "  100989".
 DEFINE VARIABLE glDoJob             AS LOGICAL   INITIAL NO.
 DEFINE VARIABLE glPurge             AS LOGICAL   INITIAL YES.
 
@@ -39,6 +39,8 @@ SESSION:ADD-SUPER-PROCEDURE (ghSession).
 RUN est\EstimateCalcProcs.p PERSISTENT SET ghEstimateCalcProcs.
 THIS-PROCEDURE:ADD-SUPER-PROCEDURE (ghEstimateCalcProcs).
 
+RUN spSetSessionParam ("Company",  gcCompany).
+
 FIND FIRST job NO-LOCK 
     WHERE job.company EQ gcCompany
     AND job.est-no EQ gcEstimate
@@ -49,7 +51,7 @@ IF AVAILABLE job AND glDoJob THEN
         cJobID = job.job-no
         iJobID2 = job.job-no2
         .
-RUN CalculateEstimate(gcCompany,gcEstimate, glPurge).
+//RUN CalculateEstimate(gcCompany,gcEstimate, glPurge).
 
 RUN pOnOffProfiler.
 IF glPurge THEN 
