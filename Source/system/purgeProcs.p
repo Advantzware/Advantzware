@@ -20,8 +20,12 @@ Use this template to create a new Structured Procedure file to compile and run P
 /*----------------------------------------------------------------------*/
 
 /* ***************************  Definitions  ************************** */
-DEF STREAM datafiles.
-DEF STREAM listfile.
+USING system.sharedConfig.
+
+DEFINE STREAM datafiles.
+DEFINE STREAM listfile.
+DEFINE STREAM sReftable.
+
 DEF VAR cOutDir AS CHAR NO-UNDO.
 DEF VAR cListFile AS CHAR NO-UNDO.
 DEF VAR lPurge AS LOG NO-UNDO.
@@ -30,6 +34,8 @@ DEF VAR cocode AS CHAR NO-UNDO.
 DEF VAR locode AS CHAR NO-UNDO.
 DEF VAR lVerbose AS LOG NO-UNDO.
 
+DEFINE VARIABLE hdOutputProcs AS HANDLE NO-UNDO.
+DEFINE VARIABLE hdPurgeProcs  AS HANDLE NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -139,6 +145,151 @@ FUNCTION pfWriteLine RETURNS LOGICAL PRIVATE
 
 /* **********************  Internal Procedures  *********************** */
 
+&IF DEFINED(EXCLUDE-pDeleteJobRecords) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pDeleteJobRecords Procedure
+PROCEDURE pDeleteJobRecords PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: Delete the job and its child tables 
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany           AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiJob               AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER ipcJobNo             AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiJobNo2            AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER ipcTableList         AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER iplPurge             AS LOGICAL   NO-UNDO.
+    DEFINE INPUT PARAMETER iplLogChildRecords   AS LOGICAL   NO-UNDO.
+    DEFINE INPUT PARAMETER iplCalledFromTrigger AS LOGICAL   NO-UNDO.
+    
+    DEFINE VARIABLE hdBuffer      AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE hdQuery       AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE hdTempTable   AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE hdTTBuffer    AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE iCount        AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iIndex        AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE hdCompany     AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE hdJob         AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE hdJobNo       AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE hdJobNo2      AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE cQueryString  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cTableName    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lSuccess      AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage      AS CHARACTER NO-UNDO. 
+    DEFINE VARIABLE cJobHdrRefTbl AS CHARACTER NO-UNDO. 
+    DEFINE VARIABLE iAuditId      AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE scInstance    AS CLASS system.SharedConfig NO-UNDO.
+    
+    scInstance = SharedConfig:instance.
+    
+    cJobHdrRefTbl = "JOB-HDR01,JOB-HDR02,JOB-HDR03,JOB-HDR04".  
+
+    DO iCount = 1 TO NUM-ENTRIES(ipcTableList):
+        cTableName = ENTRY(iCount,ipcTableList).
+        CREATE BUFFER hdBuffer FOR TABLE cTableName.
+        CREATE QUERY hdQuery.
+        
+        hdTempTable = HANDLE(scInstance:GetValue("JobPurge-" + TRIM(cTableName))) NO-ERROR.
+        IF NOT VALID-HANDLE(hdTempTable) THEN DO:      
+            CREATE TEMP-TABLE hdTempTable.      
+            hdTempTable:CREATE-LIKE(hdBuffer).
+            hdTempTable:TEMP-TABLE-PREPARE(cTableName).
+            
+            /*Store Dynamic Temp-table handle in shared config object, later used in util/wjobPurge.w */
+            scInstance:SetValue("JobPurge-" + TRIM(cTableName),STRING(hdTempTable)).
+        END.   
+        hdTTBuffer = hdTempTable:DEFAULT-BUFFER-HANDLE.      
+                            
+        ASSIGN 
+            hdCompany = hdBuffer:BUFFER-FIELD("Company")
+            hdJob     = hdBUffer:BUFFER-FIELD("job")
+            hdJobNo   = hdBuffer:BUFFER-FIELD("job-no")
+            hdJobNo2  = hdBuffer:BUFFER-FIELD("job-no2")
+            NO-ERROR.
+            
+        /* IF none of the above fields are available or if only company field is available then skip*/    
+        IF (hdCompany   EQ ? AND hdJob    EQ ? 
+            AND hdJobNo EQ ? AND hdJobNo2 EQ ?) OR 
+           (hdCompany   NE ? AND hdJob    EQ ?
+            AND hdJobNo EQ ? AND hdJobNo2 EQ ?) THEN 
+            NEXT.
+             
+        cQueryString = "FOR EACH " + cTableName + " NO-LOCK WHERE "       
+                       + (IF hdCompany NE ? THEN cTableName + ".company EQ " + QUOTER(ipcCompany) ELSE "")
+                       + (IF hdJob NE ? THEN (IF hdCompany NE ? THEN " AND " + cTableName + ".job EQ " + (IF hdJob:DATA-TYPE EQ "CHARACTER" THEN QUOTER(ipiJob) ELSE STRING(ipiJob)) 
+                          ELSE cTableName + ".job EQ " + (IF hdJob:DATA-TYPE EQ "CHARACTER" THEN QUOTER(ipiJob) ELSE STRING(ipiJob))) ELSE "")
+                       + (IF hdJobNo NE ? THEN (IF hdcompany NE ? OR hdjob NE ? THEN " AND " +  cTableName + ".job-no EQ " + QUOTER(ipcJobNo) ELSE cTableName + ".job-no EQ " + QUOTER(ipcJobNo) ) ELSE "")
+                       + (IF hdjobNo2 NE ? THEN (IF hdcompany NE ? OR hdJob NE ? OR hdJobNo2 NE ? THEN " AND " + cTableName + ".job-no2 EQ " + STRING(ipiJobNo2)  ELSE cTableName + ".job-no2 EQ " + STRING(ipiJobNo2))  ELSE "")
+                       . 
+                            
+        hdQuery:ADD-BUFFER(hdBuffer).
+        hdQuery:QUERY-PREPARE(cQueryString).
+        hdQuery:QUERY-OPEN().
+        hdQuery:GET-FIRST().
+        
+        IF NOT iplCalledFromTrigger THEN 
+            hdBuffer:DISABLE-LOAD-TRIGGERS(FALSE).
+            
+        IF iplPurge AND NOT iplCalledFromTrigger THEN 
+            OUTPUT STREAM datafiles TO VALUE (cOutDir + "\DataFiles\" + cTableName + ".d") APPEND.
+               
+        DO WHILE NOT hdQuery:QUERY-OFF-END:                
+            IF cTableName = "job-hdr" AND iplPurge THEN DO:
+                DO iIndex = 1 TO NUM-ENTRIES(cJobHdrRefTbl):
+                    FOR EACH reftable EXCLUSIVE-LOCK
+                        WHERE reftable.reftable EQ ENTRY(iIndex,cJobHdrRefTbl) + ipcCompany
+                          AND reftable.code2    EQ hdBuffer:BUFFER-FIELD ("j-no"):BUFFER-VALUE:
+                        EXPORT STREAM sReftable reftable.                                
+                        DELETE reftable.
+                    END.
+                END.
+            END.
+            IF hdBuffer:NAME EQ "job" AND hdBuffer:BUFFER-FIELD("exported"):BUFFER-VALUE THEN DO:
+                hdQuery:GET-CURRENT(EXCLUSIVE-LOCK).
+                hdBuffer:BUFFER-FIELD("stat"):BUFFER-VALUE= "X".
+                RUN jc/kiwiexp2.p (hdBuffer:RECID).
+            END. 
+             
+            /* Log Child Records*/  
+            IF iplLogChildRecords OR (hdBuffer:NAME EQ "job" AND NOT iplCalledFromTrigger) THEN DO:
+                hdTTBuffer:BUFFER-CREATE().
+                hdTTBuffer:BUFFER-COPY(hdBuffer).
+            END.    
+            IF iplPurge THEN DO:
+                IF NOT iplCalledFromTrigger THEN DO:
+                    IF hdBuffer:NAME EQ "job" THEN 
+                        RUN Session_CreateAuditHistory(
+                            INPUT "DELETE",
+                            INPUT "ASI",
+                            INPUT hdBUffer
+                            ).          
+                    PUT STREAM datafiles UNFORMATTED DYNAMIC-FUNCTION("DynExport" IN hdPurgeProcs,hdBuffer," ") SKIP.
+                END.
+                hdQuery:GET-CURRENT(EXCLUSIVE-LOCK).
+                hdBuffer:BUFFER-DELETE().    
+                hdBuffer:BUFFER-RELEASE(). 
+            END.   
+            hdQuery:GET-NEXT().     
+        END.
+        
+        IF iplPurge AND NOT iplCalledFromTrigger THEN  
+            OUTPUT STREAM datafiles CLOSE.  
+         
+        /* hdTempTable handle deletion in done in util/w-purge.w, do not delete it here */   
+        IF VALID-HANDLE(hdQuery) THEN 
+            DELETE OBJECT hdQuery. 
+        IF VALID-HANDLE(hdBuffer) THEN 
+            DELETE OBJECT hdBuffer.                               
+    END.
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
 &IF DEFINED(EXCLUDE-pPurgeJob) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pPurgeJob Procedure
@@ -147,293 +298,98 @@ PROCEDURE pPurgeJob PRIVATE:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-&Scoped-define ACTION DELETE
-&Scoped-define DBNAME ASI
-&Scoped-define TABLENAME job
-
-    DEF INPUT PARAMETER iprRowid AS ROWID.
-    DEF OUTPUT PARAMETER oplSuccess AS LOG INITIAL TRUE.
-    DEF OUTPUT PARAMETER opcMessage AS CHAR INITIAL "OK".
-    DEFINE BUFFER bjob FOR job.
+    DEFINE INPUT  PARAMETER iprRowid             AS ROWID.
+    DEFINE INPUT  PARAMETER iplPurge             AS LOGICAL NO-UNDO.
+    DEFINE INPUT  PARAMETER iplgLogChildRecords  AS LOGICAL NO-UNDO.
+    DEFINE INPUT  PARAMETER iplCalledFromTrigger AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplSuccess           AS LOGICAL   INITIAL TRUE.
+    DEFINE OUTPUT PARAMETER opcMessage           AS CHARACTER INITIAL "OK".
     
-    DISABLE TRIGGERS FOR LOAD OF job-farm.        
-    DISABLE TRIGGERS FOR LOAD OF job-farm-rctd.        
-    DISABLE TRIGGERS FOR LOAD OF job-hdr.        
-    DISABLE TRIGGERS FOR LOAD OF job-mat.        
-    DISABLE TRIGGERS FOR LOAD OF job-mch.        
-    DISABLE TRIGGERS FOR LOAD OF job-prep.        
-    DISABLE TRIGGERS FOR LOAD OF mat-act.        
-    DISABLE TRIGGERS FOR LOAD OF mch-act.        
-    DISABLE TRIGGERS FOR LOAD OF misc-act.        
-/*    DISABLE TRIGGERS FOR LOAD OF job.*/
-    DISABLE TRIGGERS FOR LOAD OF reftable.
-
+    DEFINE BUFFER bf-job FOR job.
+    
+    DEFINE VARIABLE cTableList       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cOrphanTableList AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cPurgeDirectory  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lSuccess         AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage         AS CHARACTER NO-UNDO.
+    
+    ASSIGN     
+        cTableList       = "job-hdr,job-mat,job-mch,job-prep,job-farm,job-farm-rctd,mat-act,mch-act,misc-act"        
+        cOrphanTableList = "sbStatus,sbNote,jobMatl,jobMach,sbJob,jobItems,jobStack,jobSheet,jobCad,jobPrep," +
+                           "jobNotes,jobs,asi2corr,corr2asi,job-all,job-brd"
+        .
+        
+    IF NOT iplCalledFromTrigger THEN DO:
+        /*If not called from trigger then delete the job in the end*/       
+        cOrphanTableList = cOrphanTableList + ",job".                                          
+    END.        
+        
     DO TRANSACTION:
-        FIND FIRST bjob NO-LOCK WHERE
-            ROWID(bjob) EQ iprRowid
+        FIND FIRST bf-job NO-LOCK WHERE
+            ROWID(bf-job) EQ iprRowid
             NO-ERROR.
-        IF NOT AVAIL bjob THEN 
+        IF NOT AVAIL bf-job THEN 
         DO:
             ASSIGN 
                 oplSuccess = FALSE 
                 opcMessage = "Job not found by rowid".
             RETURN.
         END.
-        pfWriteLine("JOB","Head",STRING(bjob.company) + "-" + 
-                                 STRING(bjob.job-no) + "-" +
-                                 STRING(bjob.job-no2)). 
-        IF lPurge THEN 
-            RUN jc/jc-dall.p (RECID(bjob)).
-
-&SCOPED-DEFINE cFileName job-hdr        
-        OUTPUT STREAM datafiles TO VALUE (cOutDir + "\{&cFileName}.d") APPEND.
-        FOR EACH {&cFileName} EXCLUSIVE WHERE 
-            {&cFileName}.company EQ bjob.company AND 
-            {&cFileName}.job     EQ bjob.job AND 
-            {&cFileName}.job-no  EQ bjob.job-no AND 
-            {&cFileName}.job-no2 EQ bjob.job-no2:
-            IF lPurge THEN 
-            DO:
-            {util/dljobkey.i}
-                pfWriteLine("{&cFileName}","company|job|job-no|job-no2",STRING({&cFileName}.company) + "|" + 
-                    STRING({&cFileName}.job) + "|" +
-                    STRING({&cFileName}.job-no) + "|" +
-                    STRING({&cFileName}.job-no2,"99")). 
-                EXPORT STREAM datafiles {&cFileName}.
-                DELETE {&cFileName}.
-            END.  
-            ELSE        
-                pfWriteLine("{&cFileName}","company|job|job-no|job-no2",STRING({&cFileName}.company) + "|" + 
-                    STRING({&cFileName}.job) + "|" +
-                    STRING({&cFileName}.job-no) + "|" +
-                    STRING({&cFileName}.job-no2,"99")).
-        END.
-        OUTPUT STREAM datafiles CLOSE.
- 
-&SCOPED-DEFINE cFileName job-mat        
-        OUTPUT STREAM datafiles TO VALUE (cOutDir + "\{&cFileName}.d") APPEND.
-        FOR EACH {&cFileName} EXCLUSIVE WHERE 
-            {&cFileName}.company EQ bjob.company AND 
-            {&cFileName}.job     EQ bjob.job AND 
-            {&cFileName}.job-no  EQ bjob.job-no AND 
-            {&cFileName}.job-no2 EQ bjob.job-no2:
-            IF lPurge THEN 
-            DO:
-                pfWriteLine("{&cFileName}","company|job|job-no|job-no2",STRING({&cFileName}.company) + "|" + 
-                    STRING({&cFileName}.job) + "|" +
-                    STRING({&cFileName}.job-no) + "|" +
-                    STRING({&cFileName}.job-no2,"99")). 
-                EXPORT STREAM datafiles {&cFileName}.
-                DELETE {&cFileName}.
-            END.  
-            ELSE        
-                pfWriteLine("{&cFileName}","company|job|job-no|job-no2",STRING({&cFileName}.company) + "|" + 
-                    STRING({&cFileName}.job) + "|" +
-                    STRING({&cFileName}.job-no) + "|" +
-                    STRING({&cFileName}.job-no2,"99")).
-        END.
-        OUTPUT STREAM datafiles CLOSE.
-
-
-&SCOPED-DEFINE cFileName job-mch        
-        OUTPUT STREAM datafiles TO VALUE (cOutDir + "\{&cFileName}.d") APPEND.
-        FOR EACH {&cFileName} EXCLUSIVE WHERE 
-            {&cFileName}.company EQ bjob.company AND 
-            {&cFileName}.job     EQ bjob.job AND 
-            {&cFileName}.job-no  EQ bjob.job-no AND 
-            {&cFileName}.job-no2 EQ bjob.job-no2:
-            IF lPurge THEN 
-            DO:
-                {util/dljobkey.i}
-                pfWriteLine("{&cFileName}","company|job|job-no|job-no2",STRING({&cFileName}.company) + "|" + 
-                    STRING({&cFileName}.job) + "|" +
-                    STRING({&cFileName}.job-no) + "|" +
-                    STRING({&cFileName}.job-no2,"99")). 
-                EXPORT STREAM datafiles {&cFileName}.
-                DELETE {&cFileName}.
-            END.  
-            ELSE        
-                pfWriteLine("{&cFileName}","company|job|job-no|job-no2",STRING({&cFileName}.company) + "|" + 
-                    STRING({&cFileName}.job) + "|" +
-                    STRING({&cFileName}.job-no) + "|" +
-                    STRING({&cFileName}.job-no2,"99")).
-        END.
-        OUTPUT STREAM datafiles CLOSE.
-
-&SCOPED-DEFINE cFileName job-prep        
-        OUTPUT STREAM datafiles TO VALUE (cOutDir + "\{&cFileName}.d") APPEND.
-        FOR EACH {&cFileName} EXCLUSIVE WHERE 
-            {&cFileName}.company EQ bjob.company AND 
-            {&cFileName}.job     EQ bjob.job AND 
-            {&cFileName}.job-no  EQ bjob.job-no AND 
-            {&cFileName}.job-no2 EQ bjob.job-no2:
-            IF lPurge THEN 
-            DO:
-                {util/dljobkey.i}
-                pfWriteLine("{&cFileName}","company|job|job-no|job-no2",STRING({&cFileName}.company) + "|" + 
-                    STRING({&cFileName}.job) + "|" +
-                    STRING({&cFileName}.job-no) + "|" +
-                    STRING({&cFileName}.job-no2,"99")). 
-                EXPORT STREAM datafiles {&cFileName}.
-                DELETE {&cFileName}.
-            END.  
-            ELSE        
-                pfWriteLine("{&cFileName}","company|job|job-no|job-no2",STRING({&cFileName}.company) + "|" + 
-                    STRING({&cFileName}.job) + "|" +
-                    STRING({&cFileName}.job-no) + "|" +
-                    STRING({&cFileName}.job-no2,"99")).
-        END.
-        OUTPUT STREAM datafiles CLOSE.
-
-&SCOPED-DEFINE cFileName job-farm        
-        OUTPUT STREAM datafiles TO VALUE (cOutDir + "\{&cFileName}.d") APPEND.
-        FOR EACH {&cFileName} EXCLUSIVE WHERE 
-            {&cFileName}.company EQ bjob.company AND 
-            {&cFileName}.job-no  EQ bjob.job-no AND 
-            {&cFileName}.job-no2 EQ bjob.job-no2:
-            IF lPurge THEN 
-            DO:
-                {util/dljobkey.i}
-                pfWriteLine("{&cFileName}","company|job-no|job-no2",STRING({&cFileName}.company) + "|" + 
-                    STRING({&cFileName}.job-no) + "|" +
-                    STRING({&cFileName}.job-no2,"99")). 
-                EXPORT STREAM datafiles {&cFileName}.
-                DELETE {&cFileName}.
-            END.  
-            ELSE        
-                pfWriteLine("{&cFileName}","company|job-no|job-no2",STRING({&cFileName}.company) + "|" + 
-                    STRING({&cFileName}.job-no) + "|" +
-                    STRING({&cFileName}.job-no2,"99")).
-        END.
-        OUTPUT STREAM datafiles CLOSE.
-
-&SCOPED-DEFINE cFileName job-farm-rctd        
-        OUTPUT STREAM datafiles TO VALUE (cOutDir + "\{&cFileName}.d") APPEND.
-        FOR EACH {&cFileName} EXCLUSIVE WHERE 
-            {&cFileName}.company EQ bjob.company AND 
-            {&cFileName}.job-no  EQ bjob.job-no AND 
-            {&cFileName}.job-no2 EQ bjob.job-no2:
-            IF lPurge THEN 
-            DO:
-                {util/dljobkey.i}
-                pfWriteLine("{&cFileName}","company|job-no|job-no2",STRING({&cFileName}.company) + "|" + 
-                    STRING({&cFileName}.job-no) + "|" +
-                    STRING({&cFileName}.job-no2,"99")). 
-                EXPORT STREAM datafiles {&cFileName}.
-                DELETE {&cFileName}.
-            END.  
-            ELSE        
-                pfWriteLine("{&cFileName}","company|job-no|job-no2",STRING({&cFileName}.company) + "|" + 
-                    STRING({&cFileName}.job-no) + "|" +
-                    STRING({&cFileName}.job-no2,"99")).
-        END.
-        OUTPUT STREAM datafiles CLOSE.
-
-&SCOPED-DEFINE cFileName mat-act        
-        OUTPUT STREAM datafiles TO VALUE (cOutDir + "\{&cFileName}.d") APPEND.
-        FOR EACH {&cFileName} EXCLUSIVE WHERE 
-            {&cFileName}.company EQ bjob.company AND 
-            {&cFileName}.job     EQ bjob.job AND 
-            {&cFileName}.job-no  EQ bjob.job-no AND 
-            {&cFileName}.job-no2 EQ bjob.job-no2:
-            IF lPurge THEN 
-            DO:
-                {util/dljobkey.i}
-                pfWriteLine("{&cFileName}","company|job|job-no|job-no2",STRING({&cFileName}.company) + "|" + 
-                    STRING({&cFileName}.job) + "|" +
-                    STRING({&cFileName}.job-no) + "|" +
-                    STRING({&cFileName}.job-no2,"99")). 
-                EXPORT STREAM datafiles {&cFileName}.
-                DELETE {&cFileName}.
-            END.  
-            ELSE        
-                pfWriteLine("{&cFileName}","company|job|job-no|job-no2",STRING({&cFileName}.company) + "|" + 
-                    STRING({&cFileName}.job) + "|" +
-                    STRING({&cFileName}.job-no) + "|" +
-                    STRING({&cFileName}.job-no2,"99")).
-        END.
-        OUTPUT STREAM datafiles CLOSE.
-
-&SCOPED-DEFINE cFileName mch-act        
-        OUTPUT STREAM datafiles TO VALUE (cOutDir + "\{&cFileName}.d") APPEND.
-        FOR EACH {&cFileName} EXCLUSIVE WHERE 
-            {&cFileName}.company EQ bjob.company AND 
-            {&cFileName}.job     EQ bjob.job AND 
-            {&cFileName}.job-no  EQ bjob.job-no AND 
-            {&cFileName}.job-no2 EQ bjob.job-no2:
-            IF lPurge THEN 
-            DO:
-                {util/dljobkey.i}
-                pfWriteLine("{&cFileName}","company|job|job-no|job-no2",STRING({&cFileName}.company) + "|" + 
-                    STRING({&cFileName}.job) + "|" +
-                    STRING({&cFileName}.job-no) + "|" +
-                    STRING({&cFileName}.job-no2,"99")). 
-                EXPORT STREAM datafiles {&cFileName}.
-                DELETE {&cFileName}.
-            END.  
-            ELSE        
-                pfWriteLine("{&cFileName}","company|job|job-no|job-no2",STRING({&cFileName}.company) + "|" + 
-                    STRING({&cFileName}.job) + "|" +
-                    STRING({&cFileName}.job-no) + "|" +
-                    STRING({&cFileName}.job-no2,"99")).
-        END.
-        OUTPUT STREAM datafiles CLOSE.
-
-&SCOPED-DEFINE cFileName misc-act        
-        OUTPUT STREAM datafiles TO VALUE (cOutDir + "\{&cFileName}.d") APPEND.
-        FOR EACH {&cFileName} EXCLUSIVE WHERE 
-            {&cFileName}.company EQ bjob.company AND 
-            {&cFileName}.job     EQ bjob.job AND 
-            {&cFileName}.job-no  EQ bjob.job-no AND 
-            {&cFileName}.job-no2 EQ bjob.job-no2:
-            IF lPurge THEN 
-            DO:
-                {util/dljobkey.i}
-                pfWriteLine("{&cFileName}","company|job|job-no|job-no2",STRING({&cFileName}.company) + "|" + 
-                    STRING({&cFileName}.job) + "|" +
-                    STRING({&cFileName}.job-no) + "|" +
-                    STRING({&cFileName}.job-no2,"99")). 
-                EXPORT STREAM datafiles {&cFileName}.
-                DELETE {&cFileName}.
-            END.  
-            ELSE        
-                pfWriteLine("{&cFileName}","company|job|job-no|job-no2",STRING({&cFileName}.company) + "|" + 
-                    STRING({&cFileName}.job) + "|" +
-                    STRING({&cFileName}.job-no) + "|" +
-                    STRING({&cFileName}.job-no2,"99")).
-        END.
-        OUTPUT STREAM datafiles CLOSE.
-
-        IF bjob.exported THEN 
-        DO:
-            bjob.stat = "X".
-            RUN jc/kiwiexp2.p (RECID(bjob)).
-        END.
-
-&scoped-define cFileName job
-        OUTPUT STREAM datafiles TO VALUE (cOutDir + "\{&cFileName}.d") APPEND.
-        IF lPurge THEN 
-        DO:
-            FIND CURRENT bjob EXCLUSIVE.
-            pfWriteLine("{&cFileName}","company|job|job-no|job-no2",STRING(b{&cFileName}.company) + "|" + 
-                STRING(b{&cFileName}.job) + "|" +
-                STRING(b{&cFileName}.job-no) + "|" +
-                STRING(b{&cFileName}.job-no2)).
-            EXPORT STREAM datafiles b{&cFileName}.
-            DELETE bjob.
-        END.
-        ELSE        
-            pfWriteLine("{&cFileName}","company|job|job-no|job-no2",STRING(b{&cFileName}.company) + "|" + 
-                STRING(b{&cFileName}.job) + "|" +
-                STRING(b{&cFileName}.job-no) + "|" +
-                STRING(b{&cFileName}.job-no2)).
-        OUTPUT STREAM datafiles CLOSE.
-        
-    END. /* Transaction */ 
-    
+        IF iplPurge THEN DO:
+            RUN jc/jc-dall.p (RECID(bf-job)).
+            IF NOT iplCalledFromTrigger THEN 
+                OUTPUT STREAM sReftable TO VALUE(cOutDir + "\DataFiles\reftable.d") APPEND.
+            FOR EACH reftable EXCLUSIVE-LOCK
+                WHERE reftable.reftable EQ "jc/jc-calc.p"
+                 AND reftable.company   EQ bf-Job.company
+                 AND reftable.loc       EQ ""
+                 AND reftable.code      EQ STRING(bf-Job.job,"999999999"):
+                EXPORT STREAM sReftable reftable.     
+                DELETE reftable.
+            END.
+            FOR EACH reftable EXCLUSIVE-LOCK
+                WHERE reftable.reftable EQ "job.create-time"
+                  AND reftable.company  EQ bf-Job.company
+                  AND reftable.loc      EQ ""
+                  AND reftable.code     EQ STRING(bf-Job.job,"9999999999"):
+                EXPORT STREAM sReftable reftable.                      
+                DELETE reftable.
+            END.
+            
+            FOR EACH reftable EXCLUSIVE-LOCK
+                WHERE reftable.reftable EQ "job.qty-changed"
+                  AND reftable.company  EQ bf-Job.company
+                  AND reftable.loc      EQ ""
+                  AND reftable.code     EQ STRING(bf-Job.job,"9999999999"):
+                EXPORT STREAM sReftable reftable.                      
+                DELETE reftable.
+            END.
+        END. 
+        RUN pDeleteJobRecords(
+            INPUT bf-job.company,
+            INPUT bf-job.job,
+            INPUT bf-job.job-no,
+            INPUT bf-job.job-no2,
+            INPUT cTableList,            /* Table List */
+            INPUT iplPurge,              /* Purge records? */   
+            INPUT iplgLogChildRecords,   /* Create .csv files for child tables ? */
+            INPUT iplCalledFromTrigger   /* Called from trigger? */
+            ).
+        IF NOT iplCalledFromTrigger THEN 
+            RUN pDeleteJobRecords(
+                INPUT bf-job.company,
+                INPUT bf-job.job,
+                INPUT bf-job.job-no,
+                INPUT bf-job.job-no2,
+                INPUT cOrphanTableList,
+                INPUT iplPurge,
+                INPUT iplgLogChildRecords,
+                INPUT iplCalledFromTrigger
+                ). 
+        IF iplPurge AND NOT iplCalledFromTrigger THEN
+            OUTPUT STREAM sReftable CLOSE.                              
+    END. /* Transaction */    
     PROCESS EVENTS.
-
-
 END PROCEDURE.
 	
 /* _UIB-CODE-BLOCK-END */
@@ -441,61 +397,43 @@ END PROCEDURE.
 
 
 &ENDIF
+&IF DEFINED(EXCLUDE-Purge_SimulateOrDeleteRecordsByTable) = 0 &THEN
 
-
-&IF DEFINED(EXCLUDE-PrePurge) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE PrePurge Procedure
-PROCEDURE PrePurge:
-    /*------------------------------------------------------------------------------
-     Purpose:
-     Notes:
-    ------------------------------------------------------------------------------*/
-    DEF INPUT PARAMETER ipcTable AS CHAR NO-UNDO.
-    DEF INPUT PARAMETER iprRowid AS ROWID NO-UNDO.
-    DEF INPUT PARAMETER iplVerbose AS LOG NO-UNDO.
-    DEF OUTPUT PARAMETER oplSuccess AS LOG NO-UNDO.
-    DEF OUTPUT PARAMETER opcMessage AS CHAR NO-UNDO.
-    
-    ASSIGN 
-        lPurge = FALSE
-        lVerbose = iplVerbose.
-    
-    CASE ipcTable:
-        WHEN "job" THEN RUN pPurgeJob (iprRowid, OUTPUT oplSuccess, OUTPUT opcMessage).
-    END CASE.
-
-END PROCEDURE.
-	
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ENDIF
-
-
-&IF DEFINED(EXCLUDE-Purge) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Purge Procedure
-PROCEDURE Purge:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Purge_SimulateOrDeleteRecordsByTable Procedure
+PROCEDURE Purge_SimulateOrDeleteRecordsByTable:
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DEF INPUT PARAMETER ipcTable AS CHAR NO-UNDO.
-    DEF INPUT PARAMETER iprRowid AS ROWID NO-UNDO.
-    DEF INPUT PARAMETER iplVerbose AS LOG NO-UNDO.
-    DEF OUTPUT PARAMETER oplSuccess AS LOG NO-UNDO.
-    DEF OUTPUT PARAMETER opcMessage AS CHAR NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTable             AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER iprRowid             AS ROWID     NO-UNDO.
+    DEFINE INPUT  PARAMETER iplPurge             AS LOGICAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER iplLogChildRecord    AS LOGICAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER iplCalledFromTrigger AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplSuccess           AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage           AS CHARACTER NO-UNDO.
     
-    ASSIGN 
-        lPurge = TRUE
-        lVerbose = iplVerbose.
-    
+    RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
+    RUN util/PurgeProcs.p    PERSISTENT SET hdPurgeProcs.
+        
     CASE ipcTable:
-        WHEN "job" THEN RUN pPurgeJob (iprRowid, OUTPUT oplSuccess, OUTPUT opcMessage).
+        WHEN "job" THEN 
+            RUN pPurgeJob(
+                INPUT  iprRowid,
+                INPUT  iplPurge,
+                INPUT  iplLogChildRecord,
+                INPUT  iplCalledFromTrigger,
+                OUTPUT oplSuccess,
+                OUTPUT opcMessage
+                ).
     END CASE.
-
+    IF VALID-HANDLE(hdOutputProcs) THEN 
+        DELETE PROCEDURE hdOutputProcs.
+        
+    IF VALID-HANDLE(hdPurgeProcs) THEN 
+        DELETE PROCEDURE hdPurgeProcs.
+        
+        
 END PROCEDURE.
 	
 /* _UIB-CODE-BLOCK-END */
@@ -503,7 +441,6 @@ END PROCEDURE.
 
 
 &ENDIF
-
 
 
 /* ************************  Function Implementations ***************** */
@@ -544,8 +481,12 @@ FUNCTION fGetPurgeDir RETURNS CHARACTER
 ------------------------------------------------------------------------------*/
     DEFINE VARIABLE crOutDir AS CHARACTER NO-UNDO.
     
+    RUN FileSys_GetTempDirectory(
+        OUTPUT cOutDir
+        ).
+    
     ASSIGN 
-        cOutDir = "C:\tmp\" + cTable + "purge" + STRING(YEAR(TODAY),"9999") + 
+        cOutDir = cOutDir + "\" + cTable + "purge" + STRING(YEAR(TODAY),"9999") + 
                                           STRING(MONTH(TODAY),"99") + 
                                           STRING(DAY(TODAY),"99") + 
                                           "-" + STRING(TIME)
