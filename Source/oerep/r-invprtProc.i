@@ -755,66 +755,31 @@ define buffer b-{&head}1 for {&head}.
 /* Start with true, if any oe-boll lines are out of range, set to false */
 lInRange = TRUE. 
 
-
-
-IF lCustInvMeth EQ ? THEN
-DO:
-    /* If multi-invoice, must be inv-head */
-    FOR EACH b-{&head}1 NO-LOCK
-        WHERE b-{&head}1.company       EQ ipbf-inv-head.company
-          AND b-{&head}1.cust-no       EQ ipbf-inv-head.cust-no
-          AND b-{&head}1.inv-no        EQ ipbf-inv-head.inv-no
-          AND b-{&head}1.{&multiinvoice} EQ NO            
-          AND INDEX(vcHoldStats, b-{&head}1.stat) EQ 0 
-        :
-
-            
-            &SCOPED-DEFINE bol-check-range                      ~
-                   IF oe-bolh.bol-no   LT fbol  OR              ~
-                      oe-bolh.bol-no   GT tbol  OR              ~
-                      oe-bolh.bol-date LT fdate  OR             ~
-                      oe-bolh.bol-date GT tdate THEN            ~
-                       lInRange = FALSE.                        
-
-            
-
-        RELEASE oe-bolh.        
-        
-            IF b-{&head}1.{&bolno} NE 0 THEN DO:       
-                    
-                FOR EACH oe-bolh NO-LOCK 
-                    WHERE  oe-bolh.bol-no EQ b-{&head}1.{&bolno}:
-
-                    {&bol-check-range}
-                END.
-             END.        
-
-    END. /* Each b-{&head}1 */
-
-END. /* If multi-invoice */
-
-ELSE 
-DO: 
-      /* Not multi-invoice */                                        
-      RELEASE oe-bolh.
-      
-      IF  "{&head}" EQ "inv-head" THEN DO:
-           FOR EACH buf-{&line}1 no-lock
-              WHERE buf-{&line}1.{&rno} EQ ipbf-inv-head.{&rno}
-              :
-                  
-               IF buf-{&line}1.{&bno} NE 0 THEN DO:
-                    FOR EACH oe-bolh NO-LOCK 
-                        WHERE oe-bolh.b-no EQ buf-{&line}1.b-no:
-
-                      {&bol-check-range}
-                    END.
-               END.
+ &SCOPED-DEFINE bol-check-range                      ~
+                IF oe-bolh.bol-no   LT fbol  OR              ~
+                   oe-bolh.bol-no   GT tbol  OR              ~
+                   oe-bolh.bol-date LT fdate  OR             ~
+                   oe-bolh.bol-date GT tdate THEN            ~
+                   lInRange = FALSE.   
+                   
+  /* Not multi-invoice */                                        
+  RELEASE oe-bolh.
+  
+  IF  "{&head}" EQ "inv-head" THEN DO:
+       FOR EACH buf-{&line}1 no-lock
+          WHERE buf-{&line}1.{&rno} EQ ipbf-inv-head.{&rno}
+          :
                
-           END. /* each line */
-      END.
-END. /* else do: not for multi-invoice */
-
+           IF buf-{&line}1.{&bno} NE 0 THEN DO:
+                FOR EACH oe-bolh NO-LOCK 
+                    WHERE oe-bolh.b-no EQ buf-{&line}1.b-no:
+                           
+                  {&bol-check-range}
+                END.
+           END.
+           
+       END. /* each line */
+  END.   
 
 END PROCEDURE.
 
@@ -2061,10 +2026,12 @@ PROCEDURE setBOLRange:
                         AND INDEX(vcHoldStats, b-{&head}1.stat) EQ 0:
 
                         IF b-{&head}1.{&bolno} LT INT(begin_bol-SCREEN-VALUE) THEN
-                            opbegin_bol-SCREEN-VALUE = STRING(b-{&head}1.{&bolno}).
-
-                        IF b-{&head}1.{&bolno} GT INT(end_bol-SCREEN-VALUE) THEN
+                        DO:
+                          ASSIGN
+                            opbegin_bol-SCREEN-VALUE = STRING(b-{&head}1.{&bolno})
                             opend_bol-SCREEN-VALUE = STRING(b-{&head}1.{&bolno}).
+                            LEAVE.
+                        END.                          
                     END.
                     
                     IF int(begin_bol-SCREEN-VALUE) EQ 0 THEN opbegin_bol-SCREEN-VALUE = "0".
