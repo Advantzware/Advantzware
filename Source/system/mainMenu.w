@@ -1532,6 +1532,7 @@ PROCEDURE pBuildttMenuTree :
           AND prgrms.menuLevel GT 0
           AND prgrms.mnemonic  NE ""
           AND prgrms.securityLevelUser LE users.securityLevel
+          AND prgrms.itemParent = (IF ipcparentname = "file" THEN prgrms.itemParent ELSE ipcparentname) 
         BY prgrms.menuOrder
         :
         IF cCEMenu EQ "Both" OR 
