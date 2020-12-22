@@ -69,6 +69,7 @@ DEFINE VARIABLE iUserSecurityLevel AS INTEGER   NO-UNDO INITIAL 9999.
 DEFINE VARIABLE lAppSrvBin         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lContinue          AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lJasper            AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lMoveColumn        AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lSortMove          AS LOGICAL   NO-UNDO INITIAL YES.
 
 DEFINE BUFFER bDynParamValue FOR dynParamValue.
@@ -478,8 +479,8 @@ DEFINE BROWSE auditBrowse
       AuditDtl.AuditAfterValue FORMAT "x(16)":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 160 BY 4.19
-         TITLE "History" ROW-HEIGHT-CHARS .62.
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 160 BY 5
+         TITLE "History".
 
 DEFINE BROWSE taskBrowse
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS taskBrowse C-Win _FREEFORM
@@ -561,6 +562,8 @@ DEFINE FRAME viewFrame
           "Add Recipents" WIDGET-ID 636
      btnRunNow AT ROW 22.67 COL 92 HELP
           "Run Now" WIDGET-ID 634
+     btnClose AT ROW 1 COL 156 HELP
+          "Close" WIDGET-ID 72
      Task.paramValueID AT ROW 1.24 COL 19 COLON-ALIGNED WIDGET-ID 658
           LABEL "Schedule ID"
           VIEW-AS FILL-IN 
@@ -583,8 +586,6 @@ DEFINE FRAME viewFrame
           VIEW-AS TOGGLE-BOX
           SIZE 125 BY 1
           BGCOLOR 14 FONT 6
-     btnClose AT ROW 1 COL 156 HELP
-          "Close" WIDGET-ID 72
      Task.frequency AT ROW 4.1 COL 21 NO-LABEL WIDGET-ID 604
           VIEW-AS RADIO-SET VERTICAL
           RADIO-BUTTONS 
@@ -611,6 +612,8 @@ DEFINE FRAME viewFrame
      Task.dayOfWeek1 AT ROW 6.48 COL 35 WIDGET-ID 488
           VIEW-AS TOGGLE-BOX
           SIZE 11 BY .81
+     btnFirst AT ROW 22.67 COL 126 HELP
+          "First" WIDGET-ID 274
      Task.dayOfWeek2 AT ROW 6.48 COL 51 WIDGET-ID 490
           VIEW-AS TOGGLE-BOX
           SIZE 11 BY .81
@@ -620,8 +623,6 @@ DEFINE FRAME viewFrame
      Task.dayOfWeek4 AT ROW 6.48 COL 83 WIDGET-ID 494
           VIEW-AS TOGGLE-BOX
           SIZE 15 BY .81
-     btnFirst AT ROW 22.67 COL 126 HELP
-          "First" WIDGET-ID 274
      Task.dayOfWeek5 AT ROW 6.48 COL 101 WIDGET-ID 496
           VIEW-AS TOGGLE-BOX
           SIZE 13.2 BY .81
@@ -659,12 +660,12 @@ DEFINE FRAME viewFrame
           LABEL "5"
           VIEW-AS TOGGLE-BOX
           SIZE 6 BY .81
+     btnLast AT ROW 22.71 COL 150 HELP
+          "Last" WIDGET-ID 68
      Task.dayOfMonth[6] AT ROW 7.91 COL 75 WIDGET-ID 534
           LABEL "6"
           VIEW-AS TOGGLE-BOX
           SIZE 6 BY .81
-     btnLast AT ROW 22.71 COL 150 HELP
-          "Last" WIDGET-ID 68
      Task.dayOfMonth[7] AT ROW 7.91 COL 83 WIDGET-ID 536
           LABEL "7"
           VIEW-AS TOGGLE-BOX
@@ -721,8 +722,6 @@ DEFINE FRAME viewFrame
           LABEL "20"
           VIEW-AS TOGGLE-BOX
           SIZE 6 BY .81
-     btnNext AT ROW 22.67 COL 142 HELP
-          "Next" WIDGET-ID 276
      Task.dayOfMonth[21] AT ROW 9.81 COL 83 WIDGET-ID 560
           LABEL "21"
           VIEW-AS TOGGLE-BOX
@@ -735,6 +734,8 @@ DEFINE FRAME viewFrame
           LABEL "23"
           VIEW-AS TOGGLE-BOX
           SIZE 6 BY .81
+     btnNext AT ROW 22.67 COL 142 HELP
+          "Next" WIDGET-ID 276
      Task.dayOfMonth[24] AT ROW 10.76 COL 51 WIDGET-ID 578
           LABEL "24"
           VIEW-AS TOGGLE-BOX
@@ -833,11 +834,14 @@ DEFINE FRAME viewFrame
           VIEW-AS FILL-IN 
           SIZE 14.6 BY 1
           BGCOLOR 15 
-     btnPrev AT ROW 22.67 COL 134 HELP
-          "Previous" WIDGET-ID 278
      Task.user-id AT ROW 25.05 COL 36 COLON-ALIGNED WIDGET-ID 516
           VIEW-AS FILL-IN 
           SIZE 15 BY 1
+          BGCOLOR 15 
+     Task.prgmName AT ROW 25.05 COL 62 COLON-ALIGNED WIDGET-ID 512
+          LABEL "Program"
+          VIEW-AS FILL-IN 
+          SIZE 26 BY 1
           BGCOLOR 15 
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -847,11 +851,6 @@ DEFINE FRAME viewFrame
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME viewFrame
-     Task.prgmName AT ROW 25.05 COL 62 COLON-ALIGNED WIDGET-ID 512
-          LABEL "Program"
-          VIEW-AS FILL-IN 
-          SIZE 26 BY 1
-          BGCOLOR 15 
      cPrgmTitle AT ROW 25.05 COL 95 COLON-ALIGNED WIDGET-ID 616
      Task.module AT ROW 25.05 COL 149 COLON-ALIGNED WIDGET-ID 160
           VIEW-AS COMBO-BOX INNER-LINES 20
@@ -859,6 +858,8 @@ DEFINE FRAME viewFrame
           DROP-DOWN-LIST
           SIZE 8.2 BY 1
           BGCOLOR 15 
+     btnPrev AT ROW 22.67 COL 134 HELP
+          "Previous" WIDGET-ID 278
      btnAdd AT ROW 22.71 COL 23 HELP
           "Add" WIDGET-ID 20
      btnCancel AT ROW 22.71 COL 55 HELP
