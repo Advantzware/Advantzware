@@ -235,8 +235,9 @@ for each report where report.term-id eq v-term-id,
     END.
   END.
   /* end of summary mods */
-  ELSE DO:
-          
+  ELSE DO:  
+    IF (oe-boll.qty-case * oe-boll.cases ) + oe-boll.partial NE 0 THEN
+    DO:    
      DISPLAY  {1}
           oe-ordl.ord-no WHEN AVAIL oe-ordl                                                
           oe-boll.po-no AT 11
@@ -272,7 +273,8 @@ for each report where report.term-id eq v-term-id,
      down {1} with frame bol-mid2.
 
      v-printline = v-printline + 5.
-
+    END.  /* (oe-boll.qty-case * oe-boll.cases ) + oe-boll.partial NE 0*/
+    
      IF v-print-dept THEN
      DO:
         FOR EACH notes WHERE

@@ -356,62 +356,64 @@ FOR each report
                {ar/rep/invloyjit.i}
                v-printline = 29.
             END.
-           
-            PUT 
-              SPACE(1)
-                v-po-no         FORMAT "x(15)" 
-              SPACE(1)
-                ar-invl.part-no FORMAT "x(30)" 
-              SPACE(1)
-                v-ship-qty  FORMAT "->>>>>>9"              
-              SPACE(1)
-                v-inv-qty   FORMAT "->>>>>9" 
-              SPACE(1)
-              SPACE(6)                               
-                v-price    FORMAT "->>>,>>9.9999" 
-                v-t-price-2  FORMAT "->>>,>>9.99"                
-             SKIP
-              SPACE(1)
-                v-ord-no    FORMAT ">>>>>>" 
-              SPACE(10) v-i-dscr    FORMAT "x(30)"
-              SPACE(2) v-qty FORMAT "->>>>>9"
-              SPACE(13) v-pc  
-              SPACE(1)  v-price-head 
-              SPACE(1) 
-             SKIP
-              SPACE(1)
-                ar-invl.lot-no FORMAT "x(15)" 
-               SPACE(1) v-i-dscr2  FORMAT "x(30)"
-             SKIP
-              SPACE(17) ar-invl.part-dscr2 FORMAT "x(30)"
-             SKIP.
-           
-            ASSIGN v-printline = v-printline + 4.
+            IF v-ship-qty NE 0 OR  v-inv-qty NE 0 THEN
+            DO:
+                PUT 
+                  SPACE(1)
+                  v-po-no         FORMAT "x(15)" 
+                  SPACE(1)
+                  ar-invl.part-no FORMAT "x(30)" 
+                  SPACE(1)
+                  v-ship-qty  FORMAT "->>>>>>9"              
+                  SPACE(1)
+                  v-inv-qty   FORMAT "->>>>>9" 
+                  SPACE(1)
+                  SPACE(6)                               
+                  v-price    FORMAT "->>>,>>9.9999" 
+                  v-t-price-2  FORMAT "->>>,>>9.99"                
+                  SKIP
+                  SPACE(1)
+                  v-ord-no    FORMAT ">>>>>>" 
+                  SPACE(10) v-i-dscr    FORMAT "x(30)"
+                  SPACE(2) v-qty FORMAT "->>>>>9"
+                  SPACE(13) v-pc  
+                  SPACE(1)  v-price-head 
+                  SPACE(1) 
+                  SKIP
+                  SPACE(1)
+                  ar-invl.lot-no FORMAT "x(15)" 
+                  SPACE(1) v-i-dscr2  FORMAT "x(30)"
+                  SKIP
+                  SPACE(17) ar-invl.part-dscr2 FORMAT "x(30)"
+                  SKIP.
+               
+                ASSIGN v-printline = v-printline + 4.
 
-            IF AVAIL oe-ordl AND oe-ordl.part-dscr3 NE "" THEN do:
-              PUT SPACE(17)  oe-ordl.part-dscr3 FORMAT "x(30)" SKIP .       /*Task# 02191403*/     
-              v-printline = v-printline + 1.
-            END.
-           
-            FOR EACH tt-bol:
-           
-               ASSIGN v-str = FILL(" ",17)
-                            + "BOL: "
-                            + TRIM(STRING(tt-bol.bol-no))
-                            + " Ship Date: "
-                            + TRIM(STRING(tt-bol.ship-date))
-                            + FILL(" ",3)
-                            + STRING(tt-bol.ship-qty,">>>>>>9").
-           
-               PUT v-str SKIP.
-               v-printline = v-printline + 1.
-            END.
-           
-            IF v-printline GE 60 THEN do:           
-               PAGE.
-               {ar/rep/invloyjit.i}
-               v-printline = 29.
-            END.
+                IF AVAIL oe-ordl AND oe-ordl.part-dscr3 NE "" THEN do:
+                  PUT SPACE(17)  oe-ordl.part-dscr3 FORMAT "x(30)" SKIP .       /*Task# 02191403*/     
+                  v-printline = v-printline + 1.
+                END.
+               
+                FOR EACH tt-bol:
+               
+                   ASSIGN v-str = FILL(" ",17)
+                                + "BOL: "
+                                + TRIM(STRING(tt-bol.bol-no))
+                                + " Ship Date: "
+                                + TRIM(STRING(tt-bol.ship-date))
+                                + FILL(" ",3)
+                                + STRING(tt-bol.ship-qty,">>>>>>9").
+               
+                   PUT v-str SKIP.
+                   v-printline = v-printline + 1.
+                END.
+               
+                IF v-printline GE 60 THEN do:           
+                   PAGE.
+                   {ar/rep/invloyjit.i}
+                   v-printline = 29.
+                END.
+            END.  /* v-ship-qty NE 0 OR  v-inv-qty NE 0*/
          END.
      END. /* each ar-invl */
 

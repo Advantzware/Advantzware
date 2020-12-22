@@ -548,43 +548,45 @@ FOR each report
          IF v-i-dscr2 = "" THEN v-i-dscr2 = ar-invl.i-dscr.
 
          IF v-ord-no = 0 AND v-ship-qty = 0 THEN v-ship-qty = v-inv-qty.
-         
-         PUT 
-           SPACE(1)
-             v-po-no         FORMAT "x(15)" 
-           SPACE(1)
-             ar-invl.part-no FORMAT "x(30)" 
-           SPACE(1)
-             v-ship-qty  FORMAT "->>>>>>9"              
-           SPACE(1)
-             v-inv-qty   FORMAT "->>>>>9" 
-           SPACE(1)
-           SPACE(6)                               
-             v-price     FORMAT "->>>,>>9.9999" 
-           SPACE(0)
-             ar-invl.amt FORMAT "->>>,>>9.99"                
-          SKIP
-           SPACE(1)
-             v-ord-no    FORMAT ">>>>>>" 
-           SPACE(10) v-i-dscr    FORMAT "x(30)"
-           SPACE(2) ar-invl.qty FORMAT "->>>>>9"
-           SPACE(13) v-pc  
-           SPACE(1)  v-price-head 
-           SPACE(1) 
-          SKIP
-           SPACE(1)
-             ar-invl.lot-no FORMAT "x(15)" 
-            SPACE(1) v-i-dscr2  FORMAT "x(30)"
-          SKIP
-           SPACE(17) ar-invl.part-dscr2 FORMAT "x(30)"
-          SKIP.
+         IF v-ship-qty NE 0 OR  v-inv-qty NE 0 THEN
+         DO:
+             PUT 
+               SPACE(1)
+               v-po-no         FORMAT "x(15)" 
+               SPACE(1)
+               ar-invl.part-no FORMAT "x(30)" 
+               SPACE(1)
+               v-ship-qty  FORMAT "->>>>>>9"              
+               SPACE(1)
+               v-inv-qty   FORMAT "->>>>>9" 
+               SPACE(1)
+               SPACE(6)                               
+               v-price     FORMAT "->>>,>>9.9999" 
+               SPACE(0)
+               ar-invl.amt FORMAT "->>>,>>9.99"                
+               SKIP
+               SPACE(1)
+               v-ord-no    FORMAT ">>>>>>" 
+               SPACE(10) v-i-dscr    FORMAT "x(30)"
+               SPACE(2) ar-invl.qty FORMAT "->>>>>9"
+               SPACE(13) v-pc  
+               SPACE(1)  v-price-head 
+               SPACE(1) 
+               SKIP
+               SPACE(1)
+               ar-invl.lot-no FORMAT "x(15)" 
+               SPACE(1) v-i-dscr2  FORMAT "x(30)"
+               SKIP
+               SPACE(17) ar-invl.part-dscr2 FORMAT "x(30)"
+               SKIP.
 
-         ASSIGN v-printline = v-printline + 4.
+             ASSIGN v-printline = v-printline + 4.
 
-         IF AVAIL oe-ordl AND oe-ordl.part-dscr3 NE "" THEN do:
-              PUT SPACE(17)  oe-ordl.part-dscr3 FORMAT "x(30)" SKIP .       /*Task# 02191403*/     
-              v-printline = v-printline + 1.
-         END.
+             IF AVAIL oe-ordl AND oe-ordl.part-dscr3 NE "" THEN do:
+                  PUT SPACE(17)  oe-ordl.part-dscr3 FORMAT "x(30)" SKIP .       /*Task# 02191403*/     
+                  v-printline = v-printline + 1.
+             END.
+         END.   /* v-ship-qty NE 0 OR  v-inv-qty NE 0 */
 
      END. /* each ar-invl */
 
