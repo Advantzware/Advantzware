@@ -319,7 +319,9 @@ PROCEDURE pCreatettMenuTree:
         END. /* if ismenu */
             
 
-         
+        IF lMenuImage THEN 
+        DO:
+            
         CREATE IMAGE hWidget IN WIDGET-POOL cMenuTreePool
             ASSIGN
                 FRAME = iphFrame
@@ -340,8 +342,9 @@ PROCEDURE pCreatettMenuTree:
         IF VALID-HANDLE(hWidget) THEN DO:
             ttMenuTree.hImage = hWidget.
     
-            IF lMenuImage THEN
+            
             hWidget:LOAD-IMAGE(SEARCH(cImageFolder + ttMenuTree.treeImage)).
+        END.
         END.
     
         ASSIGN
@@ -444,7 +447,7 @@ PROCEDURE pDisplayMenuTree:
        lookup(ipcParent, cMenuCreated,"," ) LE 0 THEN 
        DO:       
            RUN pBuildttMenuTree(ipcParent).
-           RUN pMenuSize.
+           RUN pMenuSize IN THIS-PROCEDURE NO-ERROR.
        END.
         
     cMenuCreated = cMenuCreated + "," + ipcParent.
@@ -456,8 +459,9 @@ PROCEDURE pDisplayMenuTree:
         WHERE bttMenuTree.level     GT ipiLevel
           AND bttMenuTree.isVisible EQ YES AND bttMenuTree.lWidgetExist
         :
-        ASSIGN
-            bttMenuTree.hImage:HIDDEN  = YES
+        IF VALID-HANDLE(bttMenuTree.hImage) THEN
+            bttMenuTree.hImage:HIDDEN  = YES.
+        ASSIGN       
             bttMenuTree.hEditor:HIDDEN = YES
             bttMenuTree.hRectangle:HIDDEN = YES
             bttMenuTree.isVisible      = NO
@@ -509,7 +513,7 @@ PROCEDURE pDisplayMenuTree:
                  .
         ELSE
         &ENDIF
-        IF lMenuImage THEN 
+        IF lMenuImage AND valid-handle(bttMenuTree.hImage)THEN 
         ASSIGN
             bttMenuTree.hImage:COL = dCol
             bttMenuTree.hImage:ROW = dRow
