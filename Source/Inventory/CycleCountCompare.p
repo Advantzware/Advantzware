@@ -850,7 +850,7 @@ PROCEDURE pCheckInvalidItems:
             WHERE itemfg.company EQ cocode
             AND itemfg.i-no EQ fg-bin.i-no
             NO-ERROR.
-        IF NOT AVAIL itemfg OR (itemfg.q-onh EQ 0 AND fg-bin.qty GT 0) OR (itemfg.stat EQ "I" AND fg-bin.qty GT 0) THEN DO:
+        IF NOT AVAIL itemfg OR (itemfg.q-onh EQ 0 AND fg-bin.qty GT 0) OR (itemfg.stat EQ "I" AND fg-bin.qty GT 0) OR (fg-bin.tag EQ "") THEN DO:
             CREATE ttProblems.             
             ASSIGN 
                 ttProblems.loc1             = fg-bin.loc + " " + fg-bin.loc-bin
@@ -1802,6 +1802,8 @@ DEFINE VARIABLE cProblemList AS CHARACTER NO-UNDO.
                 cProblemList = cProblemList + " On Hand Qty but no bin,".
             IF ttProblems.lDuplicateFound THEN 
                 cProblemList = cProblemList + " Duplicate Tag,".
+            IF ttProblems.Tag EQ "" THEN 
+                cProblemList = cProblemList + " Tag is blank,".    
             cProblemList = TRIM(TRIM(cProblemList,",")).
             IF FIRST-OF(ttProblems.tag) THEN 
             EXPORT STREAM sOutput DELIMITER ","

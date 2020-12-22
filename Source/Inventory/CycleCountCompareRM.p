@@ -860,8 +860,7 @@ PROCEDURE pCheckInvalidItems:
   
     FOR EACH rm-bin NO-LOCK
         WHERE rm-bin.company EQ ipcCompany
-          AND rm-bin.qty GT 0
-          AND rm-bin.tag GT "" 
+          AND rm-bin.qty GT 0           
           AND rm-bin.i-no GE ipcFgItemStart
           AND rm-bin.i-no LE ipcFgItemEnd
            AND LOOKUP(rm-bin.loc, ipcWhseList) GT 0
@@ -870,7 +869,7 @@ PROCEDURE pCheckInvalidItems:
             WHERE ITEM.company EQ cocode 
               AND ITEM.i-no EQ rm-bin.i-no
             NO-ERROR.
-        IF NOT AVAIL item OR (item.q-onh EQ 0 AND rm-bin.qty GT 0) OR (item.stat EQ "I" AND rm-bin.qty GT 0) THEN DO:
+        IF NOT AVAIL item OR (item.q-onh EQ 0 AND rm-bin.qty GT 0) OR (item.stat EQ "I" AND rm-bin.qty GT 0) OR rm-bin.tag EQ "" THEN DO:
             CREATE ttProblems.             
             ASSIGN 
                 ttProblems.loc1              = rm-bin.loc + rm-bin.loc-bin
@@ -1787,6 +1786,8 @@ DEFINE VARIABLE cProblemList AS CHARACTER NO-UNDO.
                 cProblemList = cProblemList + " On Hand Qty but no bin,".
             IF ttProblems.lDuplicateFound THEN 
                 cProblemList = cProblemList + " Duplicate Tag,".
+            IF ttProblems.tag EQ "" THEN 
+                cProblemList = cProblemList + " Tag is Blank,". 
             cProblemList = TRIM(TRIM(cProblemList,",")).
             IF FIRST-OF(ttProblems.tag) THEN 
             EXPORT STREAM sOutput DELIMITER ","
