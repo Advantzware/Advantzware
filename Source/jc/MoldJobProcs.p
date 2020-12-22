@@ -72,7 +72,9 @@ ELSE
     bf-job.orderType = "O".               
 
 RUN jc/BuildJob.p (ROWID(bf-job), 0, OUTPUT lError, OUTPUT cMessage).                       
-//RUN jc/jc-calc.p (RECID(bf-job), YES) NO-ERROR. 
+//RUN jc/jc-calc.p (RECID(bf-job), YES) NO-ERROR.
+
+RUN pUpdateFGItemQty(BUFFER bf-job).
 
 RUN pUpdateKeyItem(BUFFER bf-job, INPUT ipcKeyItem).
 
@@ -195,4 +197,25 @@ PROCEDURE pUpdateKeyItem PRIVATE:
        ASSIGN bf-job-hdr.keyItem = YES.        
     END.
        
-END PROCEDURE.               
+END PROCEDURE.  
+
+PROCEDURE pUpdateFGItemQty PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:  update job-hdr item 
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-job FOR job.
+        
+    DEFINE BUFFER bf-job-hdr FOR job-hdr.
+    
+    FOR EACH bf-job-hdr NO-LOCK
+         WHERE bf-job-hdr.company EQ ipbf-job.company
+         AND bf-job-hdr.job-no EQ ipbf-job.job-no
+         AND bf-job-hdr.job-no2 EQ ipbf-job.job-no2:
+         
+         RUN util/upditmfg.p (
+                    INPUT ROWID(bf-job-hdr),
+                    INPUT 1
+                    ).       
+    END.   
+END PROCEDURE.   
