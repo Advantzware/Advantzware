@@ -983,6 +983,7 @@ PROCEDURE pGetFreightForCarrierBuffers PRIVATE:
     DEFINE VARIABLE dCostMultiplier AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dQtyToLookup    AS DECIMAL NO-UNDO.
     
+    opdFreightMin   = ipbf-carr-mtx.min-rate.
     CASE ipbf-carrier.chg-method:
         WHEN "W" THEN
             ASSIGN 
@@ -1009,8 +1010,7 @@ PROCEDURE pGetFreightForCarrierBuffers PRIVATE:
         IF ipbf-carr-mtx.weight[iLevel] GE dQtyToLookup THEN LEAVE.
     END.
     IF iLevel LE 10 THEN 
-        ASSIGN 
-            opdFreightMin   = ipbf-carr-mtx.min-rate
+        ASSIGN             
             opdFreightTotal = ipbf-carr-mtx.rate[iLevel] * dCostMultiplier
             .
     IF opdFreightTotal LT opdFreightMin THEN 
