@@ -123,6 +123,74 @@ PROCEDURE GetSecondaryJobForJob:
     RELEASE bf-job-hdr.
 END PROCEDURE.
 
+PROCEDURE GetFormNoForJobHeader:
+    /*------------------------------------------------------------------------------
+     Purpose: Returns all available secondary job list for a given jobID
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT        PARAMETER ipcCompany      AS CHARACTER NO-UNDO.
+    DEFINE INPUT        PARAMETER ipcJobno        AS CHARACTER NO-UNDO.
+    DEFINE INPUT        PARAMETER ipiJobno2       AS INTEGER   NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER opcFormnoList   AS CHARACTER NO-UNDO.    
+
+    DEFINE BUFFER bf-job-hdr FOR job-hdr.
+    DEFINE BUFFER bf-job     FOR job.
+    
+    FOR EACH bf-job NO-LOCK
+        WHERE bf-job.company EQ ipcCompany
+          AND bf-job.job-no  EQ ipcJobno
+          AND bf-job.job-no2 EQ ipiJobno2
+          AND bf-job.opened,
+    EACH bf-job-hdr NO-LOCK
+        WHERE bf-job-hdr.company EQ ipcCompany
+          AND bf-job-hdr.job     EQ bf-job.job
+          AND bf-job-hdr.job-no  EQ ipcJobno
+          AND bf-job-hdr.job-no2 EQ ipiJobNo2
+          AND bf-job-hdr.opened  EQ TRUE
+           BY bf-job-hdr.job-no2:
+        opcFormnoList = IF opcFormnoList EQ "" THEN 
+                            STRING(bf-job-hdr.frm,"99")
+                        ELSE IF INDEX(opcFormnoList,STRING(bf-job-hdr.frm,"99")) GT 0 THEN 
+                            opcFormnoList
+                        ELSE 
+                            opcFormnoList + "," + STRING(bf-job-hdr.frm,"99").        
+    END.    
+END PROCEDURE.
+
+PROCEDURE GetBlankNoForJobHeader:
+    /*------------------------------------------------------------------------------
+     Purpose: Returns all available secondary job list for a given jobID
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT        PARAMETER ipcCompany      AS CHARACTER NO-UNDO.
+    DEFINE INPUT        PARAMETER ipcJobno        AS CHARACTER NO-UNDO.
+    DEFINE INPUT        PARAMETER ipiJobno2       AS INTEGER   NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER opcBlankNoList  AS CHARACTER NO-UNDO.    
+
+    DEFINE BUFFER bf-job-hdr FOR job-hdr.
+    DEFINE BUFFER bf-job     FOR job.
+    
+    FOR EACH bf-job NO-LOCK
+        WHERE bf-job.company EQ ipcCompany
+          AND bf-job.job-no  EQ ipcJobno
+          AND bf-job.job-no2 EQ ipiJobno2
+          AND bf-job.opened,
+    EACH bf-job-hdr NO-LOCK
+        WHERE bf-job-hdr.company EQ ipcCompany
+          AND bf-job-hdr.job     EQ bf-job.job
+          AND bf-job-hdr.job-no  EQ ipcJobno
+          AND bf-job-hdr.job-no2 EQ ipiJobNo2
+          AND bf-job-hdr.opened  EQ TRUE
+           BY bf-job-hdr.job-no2:
+        opcBlankNoList = IF opcBlankNoList EQ "" THEN 
+                             STRING(bf-job-hdr.blank-no,"99")
+                         ELSE IF INDEX(opcBlankNoList,STRING(bf-job-hdr.blank-no,"99")) GT 0 THEN 
+                             opcBlankNoList
+                         ELSE 
+                             opcBlankNoList + "," + STRING(bf-job-hdr.blank-no,"99").        
+    END.    
+END PROCEDURE.
+
 PROCEDURE GetFormnoForJob:
     /*------------------------------------------------------------------------------
      Purpose: Returns form no list for a given jobID
