@@ -76,13 +76,13 @@ DEFINE RECTANGLE RECT-11
      SIZE 66 BY 4.62.
 
 DEFINE VARIABLE tb_alltag AS LOGICAL INITIAL no 
-     LABEL "Update all tags for this Job/PO" 
+     LABEL "Update all tags for this Job" 
      VIEW-AS TOGGLE-BOX
      SIZE 40.4 BY .95 
      FONT 6 NO-UNDO.
 
 DEFINE VARIABLE tb_jobpo AS LOGICAL INITIAL no 
-     LABEL "Update Job/PO Cost" 
+     LABEL "Update Job Cost" 
      VIEW-AS TOGGLE-BOX
      SIZE 36.2 BY .81 
      FONT 6 NO-UNDO.
@@ -92,7 +92,7 @@ DEFINE VARIABLE tb_jobpo AS LOGICAL INITIAL no
 
 DEFINE FRAME Dialog-Frame
      tb_alltag AT ROW 2.24 COL 16 HELP
-          "Update all tags for this Job/PO"
+          "Update all tags for this Job"
      tb_jobpo AT ROW 3.81 COL 16 HELP
           "Select to Update Order's Part Description 3" WIDGET-ID 2
      Btn_OK AT ROW 6.62 COL 15.8
