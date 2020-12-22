@@ -374,7 +374,7 @@ ASSIGN
         if avail oe-ord then
           if not oe-ctrl.p-fact and (oe-ord.stat eq "H" OR oe-ord.priceHold) then next.
 
-        v-due-date = if avail oe-ord then oe-ord.due-date else ?.
+        v-due-date = job.due-date.
         v-start-date = IF AVAIL oe-ord THEN oe-ord.ord-date ELSE job-hdr.start-date.
 
         if not first(job-hdr.job-no) then page.
@@ -1573,7 +1573,7 @@ ASSIGN
           cStatus = IF AVAIL oe-ord AND oe-ord.stat EQ "Hold" THEN "On Hold"
               ELSE "Original" .
 
-          v-due-date = if avail oe-ord then oe-ord.due-date else ?.
+          v-due-date = job.due-date.
 
           FIND FIRST cust WHERE cust.company = job-hdr.company AND
               cust.cust-no = job-hdr.cust-no NO-LOCK NO-ERROR.
