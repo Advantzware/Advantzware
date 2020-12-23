@@ -941,6 +941,13 @@ PROCEDURE ipClickOk :
 
     /* This is the normal operation for Mode choices */
     IF NOT cbMode = "Monitor Users" THEN DO: 
+
+        /* 95512 Optimize use of .ini files to set color and fonts */
+        IF iEnvLevel GE 21000000 THEN DO:
+            LOAD "dbmsNewUI".
+            USE "dbmsNewUI".
+        END.
+
         /* Set current dir */
         RUN ipSetCurrentDir (cMapDir + "\" + cEnvDir + "\" + cbEnvironment). 
         
