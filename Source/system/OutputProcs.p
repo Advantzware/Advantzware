@@ -21,14 +21,6 @@ DEFINE VARIABLE giRowCount    AS INTEGER   NO-UNDO.
 DEFINE VARIABLE giPageCount   AS INTEGER   NO-UNDO. 
 DEFINE VARIABLE giRowsPerPage AS INTEGER   NO-UNDO.
 
-{custom/globdefs.i}
-{sys/inc/var.i new shared}
-
-ASSIGN
-    cocode = g_company
-    locode = g_loc
-    .
-
 
 /* ********************  Preprocessor Definitions  ******************** */
 
@@ -182,14 +174,18 @@ PROCEDURE Output_GetValueNK1OutputCSV:
  Purpose: To get the character value of NK1 "OutputCSV"
  Notes:
 ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER  ipcCompany      AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER oplReplaceQuote AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER oplAddTab       AS LOGICAL   NO-UNDO.
     
     DEFINE VARIABLE cOutputCSV AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE lRecFound  AS LOGICAL   NO-UNDO.  
+    DEFINE VARIABLE lRecFound  AS LOGICAL   NO-UNDO. 
+    
+    IF ipcCompany EQ "" THEN
+        RUN spGetSessionParam ("Company", OUTPUT ipcCompany).
     
     RUN sys/ref/nk1look.p(
-        INPUT cocode,
+        INPUT ipcCompany,
         INPUT "OutputCSV",
         INPUT "C",
         INPUT NO,
@@ -349,6 +345,7 @@ PROCEDURE Output_TempTableToCSV:
         RETURN.    
     
     RUN Output_GetValueNK1OutputCSV (
+        INPUT  "",
         OUTPUT lReplaceQuote,
         OUTPUT lAddTab
         ).
