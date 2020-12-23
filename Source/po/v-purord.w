@@ -635,6 +635,14 @@ DO:
                     RUN display-vend-to.
                  END.
             END.
+            ELSE IF ls-ship-choice = "S" THEN DO:
+                 RUN windows/l-loc.w (g_company,lw-focus:SCREEN-VALUE, OUTPUT char-val).
+                 IF char-val NE "" THEN DO:
+                    ASSIGN lw-focus:SCREEN-VALUE = ENTRY(1,char-val)
+                       .
+                    RUN display-loc-to(0).
+                 END.
+            END.
         END.  /* when ship-id */
         WHEN "buyer" THEN DO:
             RUN windows/l-buyer.w (g_company, lw-focus:SCREEN-VALUE, OUTPUT char-val).
@@ -821,21 +829,14 @@ DO:
   assign {&self-name}.
   ls-ship-choice =  rd_drop-shipment:SCREEN-VALUE IN FRAME {&FRAME-NAME}.
   IF rd_drop-shipment:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "S"  THEN DO:       
-       po-ord.ship-id:SENSITIVE = NO .
+       po-ord.ship-id:SENSITIVE = YES .
        po-ord.cust-no:HIDDEN = YES.
        po-ord.cust-no:SCREEN-VALUE = "".
-       ls-ship-choice = "".
+       ls-ship-choice = "S".
        ls-drop-custno = "".
-       FIND FIRST company NO-LOCK WHERE company.company EQ cocode NO-ERROR.
-      IF AVAILABLE company THEN
-        ASSIGN
-         po-ord.ship-id:SCREEN-VALUE      = company.company
-         po-ord.ship-name:SCREEN-VALUE    = company.name
-         po-ord.ship-addr[1]:SCREEN-VALUE = company.addr[1]
-         po-ord.ship-addr[2]:SCREEN-VALUE = company.addr[2]
-         po-ord.ship-city:SCREEN-VALUE    = company.city
-         po-ord.ship-state:SCREEN-VALUE   = company.state
-         po-ord.ship-zip:SCREEN-VALUE     = company.zip.
+       
+      RUN display-loc-to(1).      
+       
     END.
     ELSE IF rd_drop-shipment:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "V"  THEN DO:
         po-ord.ship-id:SENSITIVE = YES .
@@ -868,6 +869,42 @@ DO:
        APPLY 'entry' TO po-ord.cust-no. 
        RETURN NO-APPLY.
   END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL po-ord.ship-id V-table-Win
+ON VALUE-CHANGED OF po-ord.ship-id IN FRAME F-Main /* Ship To */
+DO:
+    IF rd_drop-shipment EQ "C" THEN DO:
+      RUN new-ship-to.
+    END.
+    ELSE IF rd_drop-shipment EQ "V" THEN DO:  /* vendor */
+        RUN display-vend-to.
+    END.
+    ELSE IF rd_drop-shipment EQ "S" THEN DO:  /* Company */
+        FIND FIRST loc NO-LOCK WHERE loc.company EQ cocode
+                          AND loc.loc EQ INPUT po-ord.ship-id
+                        NO-ERROR.
+                        
+        FIND FIRST company WHERE company.company = cocode NO-LOCK NO-ERROR.
+  
+        IF AVAILABLE loc THEN DO:
+          RUN new-loc. 
+        END.
+        ELSE IF AVAIL company AND company.company EQ po-ord.ship-id:SCREEN-VALUE THEN
+        DO:
+           ASSIGN po-ord.ship-id:SCREEN-VALUE      = company.company
+                  po-ord.ship-name:SCREEN-VALUE    = company.NAME
+                  po-ord.ship-addr[1]:SCREEN-VALUE = company.addr[1]
+                  po-ord.ship-addr[2]:SCREEN-VALUE = company.addr[2]
+                  po-ord.ship-city:SCREEN-VALUE    = company.city
+                  po-ord.ship-state:SCREEN-VALUE   = company.state
+                  po-ord.ship-zip:SCREEN-VALUE     = company.zip.            
+        END.        
+    END.     
+  
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -914,7 +951,7 @@ DO:
              ASSIGN fil_id = RECID(shipto).
          END.
     END.
-    ELSE DO:  /* vendor */
+    ELSE IF rd_drop-shipment EQ "V" THEN DO:  /* vendor */
         FIND FIRST vend NO-LOCK WHERE vend.company EQ cocode
                           AND vend.vend-no EQ INPUT po-ord.ship-id
                         NO-ERROR.
@@ -933,6 +970,31 @@ DO:
         END.
         ELSE DO:
             MESSAGE "Invalid Vendor. Try help. " VIEW-AS ALERT-BOX ERROR.
+            RETURN NO-APPLY.
+        END.
+    END.
+    ELSE IF rd_drop-shipment EQ "S" THEN DO:  /* Company */
+        FIND FIRST loc NO-LOCK WHERE loc.company EQ cocode
+                          AND loc.loc EQ INPUT po-ord.ship-id
+                        NO-ERROR.
+                        
+        FIND FIRST company WHERE company.company = cocode NO-LOCK NO-ERROR.
+  
+        IF AVAILABLE loc THEN DO:
+          RUN new-loc. 
+        END.
+        ELSE IF AVAIL company AND company.company EQ po-ord.ship-id:SCREEN-VALUE THEN
+        DO:
+           ASSIGN po-ord.ship-id:SCREEN-VALUE      = company.company
+                  po-ord.ship-name:SCREEN-VALUE    = company.NAME
+                  po-ord.ship-addr[1]:SCREEN-VALUE = company.addr[1]
+                  po-ord.ship-addr[2]:SCREEN-VALUE = company.addr[2]
+                  po-ord.ship-city:SCREEN-VALUE    = company.city
+                  po-ord.ship-state:SCREEN-VALUE   = company.state
+                  po-ord.ship-zip:SCREEN-VALUE     = company.zip.            
+        END.
+        ELSE DO:
+            MESSAGE "Invalid Warehouse. Try help. " VIEW-AS ALERT-BOX ERROR.
             RETURN NO-APPLY.
         END.
     END.
@@ -1338,6 +1400,69 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+                 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE display-loc-to V-table-Win 
+PROCEDURE display-loc-to :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE INPUT PARAMETER ipiShipType AS INTEGER NO-UNDO.
+  DO WITH FRAME {&frame-name}:
+    FIND FIRST vend NO-LOCK 
+        WHERE vend.company EQ po-ord.company
+          AND vend.vend-no EQ po-ord.vend-no:SCREEN-VALUE
+        USE-INDEX vend NO-ERROR.
+     
+      FIND FIRST company NO-LOCK WHERE company.company EQ cocode NO-ERROR.
+      
+    IF AVAILABLE company AND company.company EQ po-ord.ship-id:SCREEN-VALUE THEN
+    DO:         
+        ASSIGN
+         po-ord.ship-id:SCREEN-VALUE      = company.company
+         po-ord.ship-name:SCREEN-VALUE    = company.name
+         po-ord.ship-addr[1]:SCREEN-VALUE = company.addr[1]
+         po-ord.ship-addr[2]:SCREEN-VALUE = company.addr[2]
+         po-ord.ship-city:SCREEN-VALUE    = company.city
+         po-ord.ship-state:SCREEN-VALUE   = company.state
+         po-ord.ship-zip:SCREEN-VALUE     = company.zip.
+    END.    
+    ELSE IF avail vend THEN
+    DO:
+       IF ipiShipType EQ 0 THEN
+       DO:       
+        FIND FIRST loc NO-LOCK 
+             WHERE loc.company EQ cocode 
+             AND loc.loc EQ po-ord.ship-id:SCREEN-VALUE NO-ERROR.
+       END.      
+       ELSE DO:       
+        FIND FIRST loc NO-LOCK 
+             WHERE loc.company EQ cocode 
+             AND loc.loc EQ vend.loc NO-ERROR.  
+        END.    
+       IF AVAIL loc THEN
+       DO:
+         FIND FIRST location NO-LOCK
+              WHERE location.locationCode = loc.loc
+              AND location.rec_key = loc.addrRecKey NO-ERROR .
+       
+           ASSIGN              
+             po-ord.ship-id:SCREEN-VALUE      = loc.loc
+             po-ord.ship-name:SCREEN-VALUE    = loc.dscr
+             po-ord.ship-addr[1]:SCREEN-VALUE = IF AVAIL location THEN location.streetAddr[1] ELSE ""
+             po-ord.ship-addr[2]:SCREEN-VALUE = IF AVAIL location THEN location.streetAddr[2] ELSE ""
+             po-ord.ship-city:SCREEN-VALUE    = IF AVAIL location THEN location.subCode3 ELSE ""
+             po-ord.ship-state:SCREEN-VALUE   = IF AVAIL location THEN location.subCode1 ELSE ""
+             po-ord.ship-zip:SCREEN-VALUE     = IF AVAIL location THEN location.subCode4 ELSE "".
+       END.         
+    END.   
+  END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE get-parameters V-table-Win 
 PROCEDURE get-parameters :
@@ -1496,8 +1621,9 @@ PROCEDURE local-assign-record :
       FIND FIRST cust NO-LOCK
            WHERE cust.company EQ cocode
              AND cust.active = "X" NO-ERROR.
-      IF AVAIL cust AND cust.loc NE "" THEN
-          ASSIGN po-ord.loc = cust.loc .    
+      IF AVAIL company AND company.company EQ po-ord.ship-id AND AVAIL cust AND cust.loc NE "" THEN
+          ASSIGN po-ord.loc = cust.loc .
+      ELSE  ASSIGN po-ord.loc = po-ord.ship-id .   
   END.
   ELSE do:
       IF ls-drop-custno NE "" THEN do:
@@ -1764,10 +1890,10 @@ PROCEDURE local-create-record :
          lv_vend-area-code = ""
          lv_vend-phone     = "".
          rd_drop-shipment:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "S" .     
-         po-ord.ship-id:SENSITIVE IN FRAME {&FRAME-NAME} = NO .
+         po-ord.ship-id:SENSITIVE IN FRAME {&FRAME-NAME} = YES .
          po-ord.cust-no:HIDDEN IN FRAME {&FRAME-NAME} = YES.
          po-ord.cust-no:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "".
-         ls-ship-choice = "".
+         ls-ship-choice = "S".
          ls-drop-custno = "".
    
   DISPLAY lv_vend-name lv_vend-add1 lv_vend-add2 lv_vend-city
@@ -1781,7 +1907,7 @@ PROCEDURE local-create-record :
                                    po-ord.ship-addr[2] = company.addr[2]
                                    po-ord.ship-city    = company.city
                                    po-ord.ship-state   = company.state
-                                   po-ord.ship-zip     = company.zip.
+                                   po-ord.ship-zip     = company.zip. 
 
  RELEASE po-ctrl.
  FIND CURRENT po-ord NO-LOCK NO-ERROR.
@@ -1819,14 +1945,15 @@ PROCEDURE local-display-fields :
   approved_text:HIDDEN = IF AVAILABLE po-ord and po-ord.stat EQ "H" THEN TRUE ELSE FALSE .
 
   IF AVAILABLE po-ord THEN DO:
-   FIND FIRST company WHERE company.company = cocode NO-LOCK NO-ERROR.
-   IF po-ord.ship-id EQ company.company THEN
+   FIND FIRST company WHERE company.company = cocode NO-LOCK NO-ERROR. 
+   FIND FIRST loc NO-LOCK WHERE loc.company EQ cocode AND loc.loc EQ po-ord.ship-id NO-ERROR.
+   IF AVAIL loc OR company.company EQ po-ord.ship-id THEN
     ASSIGN 
     rd_drop-shipment = "S" 
     rd_drop-shipment:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "S"
     po-ord.cust-no:HIDDEN IN FRAME {&FRAME-NAME} = YES
     po-ord.ship-id:SENSITIVE IN FRAME {&FRAME-NAME} = NO
-    ls-ship-choice = "" 
+    ls-ship-choice = "S" 
     ls-drop-custno = "".
     ELSE IF po-ord.cust-no NE "" THEN
     DO:
@@ -2139,6 +2266,75 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE new-loc V-table-Win 
+PROCEDURE new-loc :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  DO WITH FRAME {&frame-name}:
+    FIND FIRST loc NO-LOCK 
+         WHERE loc.company EQ cocode 
+         AND loc.loc EQ po-ord.ship-id:SCREEN-VALUE NO-ERROR.
+       IF AVAIL loc THEN
+       DO:
+         FIND FIRST location NO-LOCK
+              WHERE location.locationCode = loc.loc
+              AND location.rec_key = loc.addrRecKey NO-ERROR .
+       
+           ASSIGN              
+             po-ord.ship-id:SCREEN-VALUE      = loc.loc
+             po-ord.ship-name:SCREEN-VALUE    = loc.dscr
+             po-ord.ship-addr[1]:SCREEN-VALUE = IF AVAIL location THEN location.streetAddr[1] ELSE ""
+             po-ord.ship-addr[2]:SCREEN-VALUE = IF AVAIL location THEN location.streetAddr[2] ELSE ""
+             po-ord.ship-city:SCREEN-VALUE    = IF AVAIL location THEN location.subCode3 ELSE ""
+             po-ord.ship-state:SCREEN-VALUE   = IF AVAIL location THEN location.subCode1 ELSE ""
+             po-ord.ship-zip:SCREEN-VALUE     = IF AVAIL location THEN location.subCode4 ELSE "".
+       END.
+  END.    
+  
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE new-ship-to V-table-Win 
+PROCEDURE new-ship-to :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  DO WITH FRAME {&frame-name}:
+    FIND FIRST shipto NO-LOCK WHERE shipto.company EQ cocode
+                          AND shipto.cust-no EQ ls-drop-custno
+                          AND shipto.ship-id EQ INPUT po-ord.ship-id
+                          NO-ERROR.
+         IF AVAILABLE shipto THEN
+         DO:             
+             FIND cust OF shipto NO-LOCK NO-ERROR.
+             ASSIGN po-ord.ship-id:SCREEN-VALUE      = shipto.ship-id
+                    po-ord.ship-name:SCREEN-VALUE    = shipto.ship-name
+                    po-ord.ship-addr[1]:SCREEN-VALUE = shipto.ship-addr[1]
+                    po-ord.ship-addr[2]:SCREEN-VALUE = shipto.ship-addr[2]
+                    po-ord.ship-city:SCREEN-VALUE    = shipto.ship-city
+                    po-ord.ship-state:SCREEN-VALUE   = shipto.ship-state
+                    po-ord.ship-zip:SCREEN-VALUE     = shipto.ship-zip
+                    lv-ship-no                       = shipto.ship-no
+                    shipAreaCode:SCREEN-VALUE        = IF AVAILABLE cust THEN cust.area-code ELSE ""
+                    shipPhone:SCREEN-VALUE           = IF AVAILABLE cust THEN cust.phone ELSE "".
+             ASSIGN fil_id = RECID(shipto).
+         END.
+  END.    
+  
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE post-enable V-table-Win 
 PROCEDURE post-enable :
 /*------------------------------------------------------------------------------
@@ -2156,10 +2352,8 @@ PROCEDURE post-enable :
     IF adm-new-record AND NOT adm-adding-record THEN
       po-ord.po-date:SCREEN-VALUE IN FRAME {&FRAME-NAME} = STRING(TODAY).
     rd_drop-shipment:SENSITIVE = TRUE .
-    IF rd_drop-shipment:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "S" /*AVAIL(po-ord) AND po-ord.type NE "D" AND NOT adm-new-record*/ THEN DO:
-      /*DISABLE po-ord.ship-id.
-      ls-drop-custno = "". */
-       po-ord.ship-id:SENSITIVE = NO .
+    IF rd_drop-shipment:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "S" THEN DO:      
+       po-ord.ship-id:SENSITIVE = YES .
     END.
     ELSE IF rd_drop-shipment:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "V"  THEN DO:
         po-ord.ship-id:SENSITIVE = YES .
