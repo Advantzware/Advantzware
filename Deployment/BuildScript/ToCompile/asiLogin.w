@@ -585,7 +585,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
     IF cSessionParam EQ "" THEN DO:
         RUN enable_UI.
-        
+        RUN ipCheck3dPartyVersions.
         ASSIGN
             cbDatabase:SCREEN-VALUE = ENTRY(1,cbDatabase:LIST-ITEMS)
             cbEnvironment:SCREEN-VALUE = ENTRY(1,cbEnvironment:LIST-ITEMS)
@@ -893,6 +893,99 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipCheck3dPartyVersions C-Win
+PROCEDURE ipCheck3dPartyVersions:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEF VAR cCommand AS CHAR NO-UNDO.
+    DEF VAR cVersionLine AS CHAR NO-UNDO.
+    DEF VAR lInXprint AS LOG NO-UNDO.
+    DEF VAR lInJasper AS LOG NO-UNDO.
+    DEF VAR cActXprintVersion AS CHAR NO-UNDO.
+    DEF VAR cActJasperVersion AS CHAR NO-UNDO.
+    DEF VAR cTgtXprintVersion AS CHAR NO-UNDO INITIAL "10.27".
+    DEF VAR cTgtJasperVersion AS CHAR NO-UNDO INITIAL "3.4.1".
+    
+    OS-DELETE VALUE("3PVersion1.txt").
+    OS-DELETE VALUE("3PVersion2.txt").
+    OS-DELETE VALUE("3PVersion.txt").
+
+    ASSIGN 
+        cCommand = "reg export HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall 3PVersion1.txt".
+    OS-COMMAND SILENT VALUE(cCommand).
+    ASSIGN 
+        cCommand = "reg export HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\JasperStarter 3PVersion2.txt".
+    OS-COMMAND SILENT VALUE(cCommand).
+    OS-COMMAND SILENT VALUE("COPY 3PVersion1.txt + 3PVersion2.txt 3PVersion.txt").
+    
+    INPUT FROM VALUE("3PVersion.txt").
+    REPEAT:
+        IMPORT UNFORMATTED cVersionLine.
+        IF INDEX(cVersionLine,'"DisplayName"="vpxPrint') EQ 0
+        AND INDEX(cVersionLine,'"DisplayName"="JasperStarter') EQ 0 
+        AND NOT lInXprint 
+        AND NOT lInJasper THEN 
+            NEXT.
+        ELSE IF INDEX(cVersionLine,'"DisplayName"="JasperStarter') NE 0 THEN DO: 
+            ASSIGN 
+                cActJasperVersion = REPLACE(cVersionLine,'"DisplayName"="JasperStarter',"")
+                cActJasperVersion = REPLACE(cActJasperVersion,'"',"")
+                cActJasperVersion = TRIM(cActJasperVersion)
+                lInJasper = FALSE.
+        END.
+        ELSE IF lInXprint 
+        AND INDEX(cVersionLine,'"DisplayVersion"=') NE 0 THEN DO:
+            ASSIGN 
+                cActXprintVersion = REPLACE(cVersionLine,'"DisplayVersion"=',"")
+                cActXprintVersion = REPLACE(cActXprintVersion,'"',"")
+                lInXprint = FALSE.
+        END.
+        ELSE DO:
+            IF INDEX(cVersionLine,'"DisplayName"="vpxPrint') NE 0 THEN ASSIGN 
+                lInXprint = TRUE.
+            ELSE IF INDEX(cVersionLine,'"DisplayName"="JasperStarter') NE 0 THEN ASSIGN 
+                lInJasper = TRUE. 
+        END.
+    END.
+    INPUT CLOSE.
+
+    OS-DELETE VALUE("3PVersion1.txt").
+    OS-DELETE VALUE("3PVersion2.txt").
+    OS-DELETE VALUE("3PVersion.txt").
+
+    IF cActXprintVersion LT cTgtXprintVersion THEN DO:
+        MESSAGE
+            "Your XPRINT software version is out of date." SKIP 
+            "The current supported version is " + cTgtXprintVersion SKIP 
+            "(Your version is " + (IF cActXprintVersion EQ "" THEN "not installed" ELSE cActXprintVersion) + ") To correct this, open the " SKIP 
+            "N:\Install\LocalPrint folder and run the latest version" SKIP 
+            "of the vpxprint installer."
+            VIEW-AS ALERT-BOX TITLE "Some software is out of date".
+        QUIT.
+    END.
+    IF cActJasperVersion LT cTgtJasperVersion 
+    AND cActJasperVersion NE "" THEN 
+    DO:
+        MESSAGE
+            "Your JASPER software version is out of date." SKIP 
+            "The current supported version is " + cTgtJasperVersion SKIP 
+            "(Your version is " + cActJasperVersion + ") To correct this, open the " SKIP 
+            "N:\Install\JasperStarter folder and run the latest version" SKIP 
+            "of the jasperstarter installer."
+            VIEW-AS ALERT-BOX TITLE "Some software is out of date".
+        QUIT.
+    END.
+            
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipClickOk C-Win 
 PROCEDURE ipClickOk :
