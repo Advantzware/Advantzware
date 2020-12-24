@@ -70,6 +70,7 @@ DEFINE VARIABLE hdOutputProcs AS HANDLE  NO-UNDO.
 RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
 
 RUN Output_GetValueNK1OutputCSV IN hdOutputProcs(
+    INPUT cocode,
     OUTPUT lReplaceQuote,
     OUTPUT lAddTab
     ). 
