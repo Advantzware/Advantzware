@@ -35,7 +35,7 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 DEFINE VARIABLE iPrevPartialValue AS INTEGER NO-UNDO.
-DEFINE VARIABLE iOversPct         AS INTEGER NO-UNDO.
+DEFINE VARIABLE iOversPct         AS DECIMAL NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -518,7 +518,7 @@ PROCEDURE pUpdateQuantities :
   Notes:       
 ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ipiBaseQuantity    AS INTEGER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipiOvers           AS INTEGER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiOvers           AS DECIMAL NO-UNDO.
     DEFINE INPUT  PARAMETER ipiSubUnits        AS INTEGER NO-UNDO.
     DEFINE INPUT  PARAMETER ipiSubUnitsPerUnit AS INTEGER NO-UNDO.
     DEFINE INPUT  PARAMETER ipiPartial         AS INTEGER NO-UNDO.
@@ -542,7 +542,7 @@ PROCEDURE pUpdateQuantities :
         ipiCopies = 1.
 
     ASSIGN
-        iQuantity = ipiBaseQuantity + (ipiBaseQuantity * ipiOvers / 100 )
+        iQuantity = TRUNCATE(ipiBaseQuantity + (ipiBaseQuantity * ipiOvers / 100 ), 0)
         iQuantity = iQuantity + ipiPartial
         . 
     
