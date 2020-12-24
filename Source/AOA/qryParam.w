@@ -127,8 +127,8 @@ DEFINE QUERY BROWSE-1 FOR
 DEFINE BROWSE BROWSE-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-1 Dialog-Frame _STRUCTURED
   QUERY BROWSE-1 NO-LOCK DISPLAY
-      dynParamSetDtl.paramLabel FORMAT "x(40)":U LABEL-BGCOLOR 22
-      dynParamSetDtl.paramName FORMAT "x(20)":U WIDTH 41.6 LABEL-BGCOLOR 22
+      dynParamSetDtl.paramLabel FORMAT "x(40)":U LABEL-BGCOLOR 14
+      dynParamSetDtl.paramName FORMAT "x(20)":U WIDTH 41.6 LABEL-BGCOLOR 14
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ROW-MARKERS SEPARATORS SIZE 87 BY 19.52.
@@ -272,7 +272,7 @@ END.
 
 /* ***************************  Main Block  *************************** */
 
-{methods/template/brwcustom.i}
+{methods/template/brwcustom2.i}
 
 /* Parent the dialog-box to the ACTIVE-WINDOW, if there is no parent.   */
 IF VALID-HANDLE(ACTIVE-WINDOW) AND FRAME {&FRAME-NAME}:PARENT eq ?

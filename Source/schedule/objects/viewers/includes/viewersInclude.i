@@ -427,6 +427,7 @@ PROCEDURE reopenBrowse :
     {{&viewers}/includes/byReopenBrowse.i "user" 122}
     {{&viewers}/includes/byReopenBrowse.i "user" 123}
   END CASE.
+  {AOA/includes/pReopenBrowse.i}
 END PROCEDURE.
 
 &SCOPED-DEFINE startDatePhrase ~

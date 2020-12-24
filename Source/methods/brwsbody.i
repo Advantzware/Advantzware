@@ -186,7 +186,7 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 &IF "{&IAMWHAT}" = "SEARCH" &THEN
 &Scoped-define LOADIMAGE document_view
 &ELSEIF "{&IAMWHAT}" = "LOOKUP" &THEN
-&Scoped-define LOADIMAGE question
+&Scoped-define LOADIMAGE magnifying_glass
 &ENDIF
 
 IF NOT {&WINDOW-NAME}:LOAD-ICON("Graphics\32x32\{&LOADIMAGE}":U) THEN

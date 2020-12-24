@@ -124,7 +124,7 @@ cueCardText.isActive cueCardText.cueOrder cueCardText.cueText
 
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnView btnReload svFocus cueCardBrowse ~
+&Scoped-Define ENABLED-OBJECTS btnView svFocus cueCardBrowse btnReload ~
 btnRestoreDefaults btnRunCueCard 
 &Scoped-Define DISPLAYED-OBJECTS svFocus 
 
@@ -188,12 +188,12 @@ DEFINE VARIABLE svFocus AS CHARACTER FORMAT "X(256)":U
      BGCOLOR 8  NO-UNDO.
 
 DEFINE BUTTON checkLayout 
-     IMAGE-UP FILE "Graphics/32x32/check.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/navigate_check.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Check Layout" 
      SIZE 8 BY 1.91 TOOLTIP "Reset Layout".
 
 DEFINE BUTTON resetLayout 
-     IMAGE-UP FILE "Graphics/32x32/undo_32.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/undo_32.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Reset Layout" 
      SIZE 8 BY 1.91 TOOLTIP "Reset Layout".
 
@@ -312,14 +312,14 @@ DEFINE RECTANGLE RECT-4
      SIZE 9.8 BY 2.38.
 
 DEFINE BUTTON btnAdd 
-     IMAGE-UP FILE "Graphics/32x32/navigate_plus.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_plus_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/navigate_plus.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_plus_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Add" 
      SIZE 8 BY 1.91 TOOLTIP "Add".
 
 DEFINE BUTTON btnCancel 
-     IMAGE-UP FILE "Graphics/32x32/navigate_cross.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_cross_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/navigate_cross.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_cross_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Cancel" 
      SIZE 8 BY 1.91 TOOLTIP "Cancel".
 
@@ -329,8 +329,8 @@ DEFINE BUTTON btnClose
      SIZE 4.2 BY 1 TOOLTIP "Close".
 
 DEFINE BUTTON btnCopy 
-     IMAGE-UP FILE "Graphics/32x32/element_copy.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics\32x32\form_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/element_copy.png":U
+     IMAGE-INSENSITIVE FILE "Graphics\32x32\element_copy_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Copy" 
      SIZE 8 BY 1.91 TOOLTIP "Copy".
 
@@ -341,56 +341,56 @@ DEFINE BUTTON btnCueCardLayout
      SIZE 8 BY 1.91 TOOLTIP "Cue Card Layout".
 
 DEFINE BUTTON btnDelete 
-     IMAGE-UP FILE "Graphics/32x32/navigate_minus.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_minus_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/garbage_can.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/garbage_can_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Delete" 
      SIZE 8 BY 1.91 TOOLTIP "Delete".
 
 DEFINE BUTTON btnDown 
      IMAGE-UP FILE "Graphics/16x16/down.jpg":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/window_size_disabled.ico":U NO-FOCUS FLAT-BUTTON
-     LABEL "Move Cur Card Down" 
-     SIZE 4 BY .95 TOOLTIP "Move Cur Card Down".
+     LABEL "Move Cue Card Down" 
+     SIZE 4 BY .95 TOOLTIP "Move Cue Card Down".
 
 DEFINE BUTTON btnFirst 
-     IMAGE-UP FILE "Graphics/32x32/navigate_beginning.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_beginning_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/navigate_beginning.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_beginning_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "First" 
      SIZE 8 BY 1.91 TOOLTIP "First".
 
 DEFINE BUTTON btnLast 
-     IMAGE-UP FILE "Graphics/32x32/navigate_end.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_end_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/navigate_end.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_end_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Last" 
      SIZE 8 BY 1.91 TOOLTIP "Last".
 
 DEFINE BUTTON btnNext 
-     IMAGE-UP FILE "Graphics/32x32/navigate_right.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_right_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/navigate_right.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_right_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Next" 
      SIZE 8 BY 1.91 TOOLTIP "Next".
 
 DEFINE BUTTON btnPrev 
-     IMAGE-UP FILE "Graphics/32x32/navigate_left.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_left_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/navigate_left.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_left_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Previous" 
      SIZE 8 BY 1.91 TOOLTIP "Previous".
 
 DEFINE BUTTON btnReset 
-     IMAGE-UP FILE "Graphics/32x32/undo_32.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/undo_32_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/undo_32.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/undo_32_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Reset" 
      SIZE 8 BY 1.91 TOOLTIP "Reset".
 
 DEFINE BUTTON btnUp 
      IMAGE-UP FILE "Graphics/16x16/up.jpg":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/window_size_disabled.ico":U NO-FOCUS FLAT-BUTTON
-     LABEL "Move Cur Card Up" 
-     SIZE 4 BY .95 TOOLTIP "Move Cur Card Up".
+     LABEL "Move Cue Card Up" 
+     SIZE 4 BY .95 TOOLTIP "Move Cue Card Up".
 
 DEFINE BUTTON btnUpdate 
-     IMAGE-UP FILE "Graphics/32x32/pencil.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/pencil_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/pencil.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/pencil_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Update" 
      SIZE 8 BY 1.91 TOOLTIP "Update/Save".
 
@@ -598,10 +598,10 @@ DEFINE BROWSE cueCardBrowse
 DEFINE FRAME DEFAULT-FRAME
      btnView AT ROW 1 COL 70 HELP
           "Access View" WIDGET-ID 48
-     btnReload AT ROW 1 COL 66 HELP
-          "Reload Running Frames" WIDGET-ID 46
      svFocus AT ROW 1 COL 1 NO-LABEL WIDGET-ID 4
      cueCardBrowse AT ROW 1.95 COL 62 WIDGET-ID 500
+     btnReload AT ROW 1 COL 66 HELP
+          "Reload Running Frames" WIDGET-ID 46
      btnRestoreDefaults AT ROW 1 COL 62 HELP
           "Restore Defaults" WIDGET-ID 42
      btnRunCueCard AT ROW 1 COL 74 HELP
@@ -612,19 +612,11 @@ DEFINE FRAME DEFAULT-FRAME
          SIZE 160 BY 28.57
          FGCOLOR 1  WIDGET-ID 100.
 
-DEFINE FRAME filterFrame
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1
-         SIZE 61 BY 28.57
-         BGCOLOR 15 FGCOLOR 1 
-         TITLE BGCOLOR 8 "Running Objects" WIDGET-ID 200.
-
 DEFINE FRAME viewFrame
      btnDown AT ROW 17.19 COL 60 HELP
-          "Move Cur Card Down" WIDGET-ID 444
+          "Move Cue Card Down" WIDGET-ID 444
      btnUp AT ROW 16.24 COL 60 HELP
-          "Move Cur Card Up" WIDGET-ID 442
+          "Move Cue Card Up" WIDGET-ID 442
      btnFirst AT ROW 16.24 COL 66 HELP
           "First" WIDGET-ID 274
      btnLast AT ROW 16.24 COL 90 HELP
@@ -698,14 +690,15 @@ DEFINE FRAME viewFrame
      created AT ROW 14.33 COL 2 NO-LABEL WIDGET-ID 458
      cCuetextFont AT ROW 14.81 COL 35 COLON-ALIGNED HELP
           "Select Font Size" NO-LABEL WIDGET-ID 396
-     "Ff" VIEW-AS TEXT
-          SIZE 3 BY .76 AT ROW 11 COL 46 WIDGET-ID 358
-          FGCOLOR 0 FONT 0
+     "13" VIEW-AS TEXT
+          SIZE 3 BY .71 AT ROW 9.71 COL 80.4 WIDGET-ID 436
+          BGCOLOR 13 FGCOLOR 15 
+     "Ii" VIEW-AS TEXT
+          SIZE 3 BY .76 AT ROW 11 COL 81 WIDGET-ID 378
+          FGCOLOR 0 FONT 5
      "?" VIEW-AS TEXT
-          SIZE 2 BY .76 AT ROW 9.1 COL 39 WIDGET-ID 354
+          SIZE 2 BY .76 AT ROW 11 COL 39 WIDGET-ID 390
           FGCOLOR 0 FONT 6
-     "BG:" VIEW-AS TEXT
-          SIZE 4 BY 1 AT ROW 9.57 COL 26 WIDGET-ID 350
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 62 ROW 11
@@ -714,61 +707,72 @@ DEFINE FRAME viewFrame
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME viewFrame
-     "4" VIEW-AS TEXT
-          SIZE 2 BY .71 AT ROW 8.48 COL 74 WIDGET-ID 418
-          BGCOLOR 4 FGCOLOR 15 
-     "12" VIEW-AS TEXT
-          SIZE 3 BY .71 AT ROW 9.71 COL 73.4 WIDGET-ID 434
-          BGCOLOR 12 FGCOLOR 15 
-     "7" VIEW-AS TEXT
-          SIZE 2 BY .71 AT ROW 8.48 COL 95 WIDGET-ID 424
-          BGCOLOR 7 FGCOLOR 15 
-     "0" VIEW-AS TEXT
-          SIZE 2 BY .71 AT ROW 8.48 COL 46 WIDGET-ID 402
-          BGCOLOR 0 FGCOLOR 15 
-     "11" VIEW-AS TEXT
-          SIZE 3 BY .71 AT ROW 9.71 COL 66.4 WIDGET-ID 432
-          BGCOLOR 11 FGCOLOR 0 
-     "14" VIEW-AS TEXT
-          SIZE 3 BY .71 AT ROW 9.71 COL 87.4 WIDGET-ID 438
-          BGCOLOR 14 FGCOLOR 0 
      "Zz" VIEW-AS TEXT
           SIZE 3 BY .76 AT ROW 11 COL 88 WIDGET-ID 382
           FGCOLOR 0 FONT 6
-     "Ee" VIEW-AS TEXT
-          SIZE 3 BY .76 AT ROW 11 COL 95 WIDGET-ID 386
-          FGCOLOR 0 FONT 7
      "BG:" VIEW-AS TEXT
-          SIZE 4 BY 1 AT ROW 8.38 COL 26 WIDGET-ID 348
-     "Frame FG Color:" VIEW-AS TEXT
-          SIZE 16 BY 1 AT ROW 8.38 COL 2 WIDGET-ID 344
-     "Oo" VIEW-AS TEXT
-          SIZE 3 BY .76 AT ROW 11 COL 53 WIDGET-ID 362
-          FGCOLOR 0 FONT 1
-     "Ss" VIEW-AS TEXT
-          SIZE 3 BY .76 AT ROW 11 COL 74 WIDGET-ID 374
-          FGCOLOR 0 FONT 4
-     "13" VIEW-AS TEXT
-          SIZE 3 BY .71 AT ROW 9.71 COL 80.4 WIDGET-ID 436
-          BGCOLOR 13 FGCOLOR 15 
-     "1" VIEW-AS TEXT
-          SIZE 2 BY .71 AT ROW 8.48 COL 53 WIDGET-ID 412
-          BGCOLOR 1 FGCOLOR 15 
+          SIZE 4 BY 1 AT ROW 9.57 COL 26 WIDGET-ID 350
+     "12" VIEW-AS TEXT
+          SIZE 3 BY .71 AT ROW 9.71 COL 73.4 WIDGET-ID 434
+          BGCOLOR 12 FGCOLOR 15 
+     "4" VIEW-AS TEXT
+          SIZE 2 BY .71 AT ROW 8.48 COL 74 WIDGET-ID 418
+          BGCOLOR 4 FGCOLOR 15 
      "?" VIEW-AS TEXT
-          SIZE 2 BY .76 AT ROW 11 COL 39 WIDGET-ID 390
+          SIZE 2 BY .76 AT ROW 9.1 COL 39 WIDGET-ID 354
           FGCOLOR 0 FONT 6
-     "3" VIEW-AS TEXT
-          SIZE 2 BY .71 AT ROW 8.48 COL 67 WIDGET-ID 416
-          BGCOLOR 3 FGCOLOR 15 
+     "Ff" VIEW-AS TEXT
+          SIZE 3 BY .76 AT ROW 11 COL 46 WIDGET-ID 358
+          FGCOLOR 0 FONT 0
      "15" VIEW-AS TEXT
           SIZE 3 BY .71 AT ROW 9.71 COL 94.4 WIDGET-ID 440
           BGCOLOR 15 FGCOLOR 0 
      "6" VIEW-AS TEXT
           SIZE 2 BY .71 AT ROW 8.48 COL 88 WIDGET-ID 422
           BGCOLOR 6 FGCOLOR 15 
-     "8" VIEW-AS TEXT
-          SIZE 2 BY .71 AT ROW 9.71 COL 46 WIDGET-ID 426
-          BGCOLOR 8 FGCOLOR 0 
+     "Ss" VIEW-AS TEXT
+          SIZE 3 BY .76 AT ROW 11 COL 74 WIDGET-ID 374
+          FGCOLOR 0 FONT 4
+     "Oo" VIEW-AS TEXT
+          SIZE 3 BY .76 AT ROW 11 COL 53 WIDGET-ID 362
+          FGCOLOR 0 FONT 1
+     "Frame FG Color:" VIEW-AS TEXT
+          SIZE 16 BY 1 AT ROW 8.38 COL 2 WIDGET-ID 344
+     "BG:" VIEW-AS TEXT
+          SIZE 4 BY 1 AT ROW 8.38 COL 26 WIDGET-ID 348
+     "Ee" VIEW-AS TEXT
+          SIZE 3 BY .76 AT ROW 11 COL 95 WIDGET-ID 386
+          FGCOLOR 0 FONT 7
+     "7" VIEW-AS TEXT
+          SIZE 2 BY .71 AT ROW 8.48 COL 95 WIDGET-ID 424
+          BGCOLOR 7 FGCOLOR 15 
+     "14" VIEW-AS TEXT
+          SIZE 3 BY .71 AT ROW 9.71 COL 87.4 WIDGET-ID 438
+          BGCOLOR 14 FGCOLOR 0 
+     "9" VIEW-AS TEXT
+          SIZE 2 BY .71 AT ROW 9.71 COL 53 WIDGET-ID 428
+          BGCOLOR 9 FGCOLOR 15 
+     "10" VIEW-AS TEXT
+          SIZE 3 BY .71 AT ROW 9.71 COL 59.4 WIDGET-ID 430
+          BGCOLOR 10 FGCOLOR 0 
+     "0" VIEW-AS TEXT
+          SIZE 2 BY .71 AT ROW 8.48 COL 46 WIDGET-ID 402
+          BGCOLOR 0 FGCOLOR 15 
+     "11" VIEW-AS TEXT
+          SIZE 3 BY .71 AT ROW 9.71 COL 66.4 WIDGET-ID 432
+          BGCOLOR 11 FGCOLOR 0 
+     "Nn" VIEW-AS TEXT
+          SIZE 3 BY .76 AT ROW 11 COL 60 WIDGET-ID 366
+          FGCOLOR 0 FONT 2
+     "1" VIEW-AS TEXT
+          SIZE 2 BY .71 AT ROW 8.48 COL 53 WIDGET-ID 412
+          BGCOLOR 1 FGCOLOR 15 
+     "3" VIEW-AS TEXT
+          SIZE 2 BY .71 AT ROW 8.48 COL 67 WIDGET-ID 416
+          BGCOLOR 3 FGCOLOR 15 
+     "5" VIEW-AS TEXT
+          SIZE 2 BY .71 AT ROW 8.48 COL 81 WIDGET-ID 420
+          BGCOLOR 5 FGCOLOR 15 
      "Tt" VIEW-AS TEXT
           SIZE 3 BY .76 AT ROW 11 COL 67 WIDGET-ID 370
           FGCOLOR 0 FONT 3
@@ -779,20 +783,11 @@ DEFINE FRAME viewFrame
           SIZE 15 BY .81 AT ROW 6.48 COL 3 WIDGET-ID 298
      "Fonts:" VIEW-AS TEXT
           SIZE 6 BY .71 AT ROW 11 COL 30 WIDGET-ID 398
+     "8" VIEW-AS TEXT
+          SIZE 2 BY .71 AT ROW 9.71 COL 46 WIDGET-ID 426
+          BGCOLOR 8 FGCOLOR 0 
      "Text FG Color:" VIEW-AS TEXT
           SIZE 14 BY 1 AT ROW 9.57 COL 4 WIDGET-ID 346
-     "Ii" VIEW-AS TEXT
-          SIZE 3 BY .76 AT ROW 11 COL 81 WIDGET-ID 378
-          FGCOLOR 0 FONT 5
-     "9" VIEW-AS TEXT
-          SIZE 2 BY .71 AT ROW 9.71 COL 53 WIDGET-ID 428
-          BGCOLOR 9 FGCOLOR 15 
-     "10" VIEW-AS TEXT
-          SIZE 3 BY .71 AT ROW 9.71 COL 59.4 WIDGET-ID 430
-          BGCOLOR 10 FGCOLOR 0 
-     "5" VIEW-AS TEXT
-          SIZE 2 BY .71 AT ROW 8.48 COL 81 WIDGET-ID 420
-          BGCOLOR 5 FGCOLOR 15 
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 62 ROW 11
@@ -801,9 +796,6 @@ DEFINE FRAME viewFrame
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME viewFrame
-     "Nn" VIEW-AS TEXT
-          SIZE 3 BY .76 AT ROW 11 COL 60 WIDGET-ID 366
-          FGCOLOR 0 FONT 2
      transPanel AT ROW 15.95 COL 1 WIDGET-ID 16
      transPanel-8 AT ROW 15.95 COL 65 WIDGET-ID 280
      transPanel-2 AT ROW 15.95 COL 51 WIDGET-ID 32
@@ -844,6 +836,14 @@ DEFINE FRAME viewFrame
          SIZE 99 BY 18.4
          FGCOLOR 1 
          TITLE "View" WIDGET-ID 400.
+
+DEFINE FRAME filterFrame
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1
+         SIZE 61 BY 28.57
+         BGCOLOR 15 FGCOLOR 1 
+         TITLE BGCOLOR 8 "Running Objects" WIDGET-ID 200.
 
 DEFINE FRAME helperFrame
      checkLayout AT ROW 12.91 COL 46 HELP
@@ -1204,9 +1204,9 @@ ASSIGN
 ASSIGN 
        fontChoice-default:SELECTABLE IN FRAME viewFrame       = TRUE.
 
-/* SETTINGS FOR TOGGLE-BOX cueCardText.isActive IN FRAME viewFrame
-   NO-ENABLE 4 5                                                        */
 /* SETTINGS FOR TOGGLE-BOX cueCard.isActive IN FRAME viewFrame
+   NO-ENABLE 4 5                                                        */
+/* SETTINGS FOR TOGGLE-BOX cueCardText.isActive IN FRAME viewFrame
    NO-ENABLE 4 5                                                        */
 /* SETTINGS FOR TOGGLE-BOX lDismissFont IN FRAME viewFrame
    NO-ENABLE 6                                                          */
@@ -1406,7 +1406,7 @@ END.
 
 &Scoped-define SELF-NAME btnDown
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnDown C-Win
-ON CHOOSE OF btnDown IN FRAME viewFrame /* Move Cur Card Down */
+ON CHOOSE OF btnDown IN FRAME viewFrame /* Move Cue Card Down */
 DO:
     RUN pChangeOrder (1).
 END.
@@ -1509,7 +1509,7 @@ END.
 &Scoped-define FRAME-NAME viewFrame
 &Scoped-define SELF-NAME btnUp
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnUp C-Win
-ON CHOOSE OF btnUp IN FRAME viewFrame /* Move Cur Card Up */
+ON CHOOSE OF btnUp IN FRAME viewFrame /* Move Cue Card Up */
 DO:
     RUN pChangeOrder (-1).
 END.
@@ -1797,7 +1797,7 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY svFocus 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE btnView btnReload svFocus cueCardBrowse btnRestoreDefaults 
+  ENABLE btnView svFocus cueCardBrowse btnReload btnRestoreDefaults 
          btnRunCueCard 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
@@ -1866,7 +1866,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pBuildttMenuTree C-Win 
 PROCEDURE pBuildttMenuTree :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -2099,7 +2099,7 @@ PROCEDURE pCRUD :
                     BROWSE cueCardBrowse:SENSITIVE = NO
                     .
                 ENABLE {&transUpdate} {&enabledFields} {&colorFontPalette}.
-                btnUpdate:LOAD-IMAGE("Graphics\32x32\Save_As.ico").
+                btnUpdate:LOAD-IMAGE("Graphics\32x32\floppy_disk.png").
                 IF iphMode:LABEL EQ "Add" THEN DO:
                     RUN pClearView.
                     DISABLE btnReset.
@@ -2219,7 +2219,7 @@ PROCEDURE pCRUD :
                 END. /* save */
                 DISABLE {&transPanel} {&enabledFields} {&colorFontPalette}.
                 ENABLE {&transInit}.
-                btnUpdate:LOAD-IMAGE("Graphics\32x32\Pencil.ico").
+                btnUpdate:LOAD-IMAGE("Graphics\32x32\Pencil.png").
                 ASSIGN
                     FRAME viewFrame:TITLE          = "View"
                     btnUpdate:LABEL                = "Update"

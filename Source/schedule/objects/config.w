@@ -269,22 +269,22 @@ DEFINE RECTANGLE colorChoice-15
 DEFINE RECTANGLE colorChoice-16
      EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 7.2 BY 1
-     BGCOLOR 30 .
+     BGCOLOR 51 .
 
 DEFINE RECTANGLE colorChoice-17
      EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 7.2 BY 1
-     BGCOLOR 31 .
+     BGCOLOR 52 .
 
 DEFINE RECTANGLE colorChoice-18
      EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 7.2 BY 1
-     BGCOLOR 32 .
+     BGCOLOR 53 .
 
 DEFINE RECTANGLE colorChoice-19
      EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 7.2 BY 1
-     BGCOLOR 33 .
+     BGCOLOR 54 .
 
 DEFINE RECTANGLE colorChoice-2
      EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
@@ -294,52 +294,52 @@ DEFINE RECTANGLE colorChoice-2
 DEFINE RECTANGLE colorChoice-20
      EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 7.2 BY 1
-     BGCOLOR 34 .
+     BGCOLOR 55 .
 
 DEFINE RECTANGLE colorChoice-21
      EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 7.2 BY 1
-     BGCOLOR 35 .
+     BGCOLOR 56 .
 
 DEFINE RECTANGLE colorChoice-22
      EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 7.2 BY 1
-     BGCOLOR 36 .
+     BGCOLOR 57 .
 
 DEFINE RECTANGLE colorChoice-23
      EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 7.2 BY 1
-     BGCOLOR 37 .
+     BGCOLOR 58 .
 
 DEFINE RECTANGLE colorChoice-24
      EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 7.2 BY 1
-     BGCOLOR 38 .
+     BGCOLOR 59 .
 
 DEFINE RECTANGLE colorChoice-25
      EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 7.2 BY 1
-     BGCOLOR 39 .
+     BGCOLOR 60 .
 
 DEFINE RECTANGLE colorChoice-26
      EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 7.2 BY 1
-     BGCOLOR 40 .
+     BGCOLOR 61 .
 
 DEFINE RECTANGLE colorChoice-27
      EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 7.2 BY 1
-     BGCOLOR 41 .
+     BGCOLOR 62 .
 
 DEFINE RECTANGLE colorChoice-28
      EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 7.2 BY 1
-     BGCOLOR 42 .
+     BGCOLOR 63 .
 
 DEFINE RECTANGLE colorChoice-29
      EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 7.2 BY 1
-     BGCOLOR 43 .
+     BGCOLOR 64 .
 
 DEFINE RECTANGLE colorChoice-3
      EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
@@ -2368,9 +2368,9 @@ DEFINE FRAME colorsFrame
      completedCheckoffValue AT ROW 21.95 COL 83 HELP
           "Select to Apply Completed Checkoff to Whole Job vs. Each Resour"
      reloadStatusValue AT ROW 22.19 COL 21 NO-LABEL
-     statusCheckoffTypeValue AT ROW 22.67 COL 93 NO-LABEL WIDGET-ID 4
+     statusCheckoffTypeValue AT ROW 22.67 COL 93 NO-LABEL
      btnHTMLPageLocation AT ROW 24.1 COL 82 HELP
-          "Click to Set HTML Page Location" WIDGET-ID 2
+          "Click to Set HTML Page Location"
      dueDateUsedValue AT ROW 24.33 COL 32 HELP
           "Select Due Date/Production Date" NO-LABEL
      "Status Checkoffs:" VIEW-AS TEXT
@@ -2385,7 +2385,7 @@ DEFINE FRAME colorsFrame
           SIZE 17 BY 1 AT ROW 3.14 COL 44
           FONT 1
      "Done By:" VIEW-AS TEXT
-          SIZE 10 BY 1 AT ROW 22.67 COL 83 WIDGET-ID 8
+          SIZE 10 BY 1 AT ROW 22.67 COL 83
      "Downtime Conflict Color" VIEW-AS TEXT
           SIZE 23 BY .62 AT ROW 19.1 COL 86
      "<Due><Start--Now--End>" VIEW-AS TEXT
@@ -2627,12 +2627,12 @@ DEFINE FRAME fieldsFrame
      userField48 AT ROW 22.19 COL 27
      userField49 AT ROW 23.14 COL 27
      userField50 AT ROW 24.1 COL 27
-     userField106 AT ROW 1.24 COL 52 WIDGET-ID 16
+     userField106 AT ROW 1.24 COL 52
      userField65 AT ROW 2.19 COL 52
      userField67 AT ROW 3.14 COL 52
      userField09 AT ROW 4.1 COL 52
-     userField107 AT ROW 5.05 COL 52 WIDGET-ID 18
-     userField104 AT ROW 6 COL 52 WIDGET-ID 12
+     userField107 AT ROW 5.05 COL 52
+     userField104 AT ROW 6 COL 52
      userField83 AT ROW 6.95 COL 52
      userField10 AT ROW 7.91 COL 52
      userField32 AT ROW 8.86 COL 52
@@ -2643,11 +2643,11 @@ DEFINE FRAME fieldsFrame
      userField62 AT ROW 13.62 COL 52
      userField94 AT ROW 14.57 COL 52
      userField96 AT ROW 15.52 COL 52
-     userField102 AT ROW 16.48 COL 52 WIDGET-ID 8
-     userField100 AT ROW 17.43 COL 52 WIDGET-ID 4
+     userField102 AT ROW 16.48 COL 52
+     userField100 AT ROW 17.43 COL 52
      userField98 AT ROW 18.38 COL 52
      userField78 AT ROW 19.33 COL 52
-     userField111 AT ROW 20.29 COL 52 WIDGET-ID 26
+     userField111 AT ROW 20.29 COL 52
      userField87 AT ROW 21.24 COL 52
      userField60 AT ROW 22.19 COL 52
      userField56 AT ROW 23.14 COL 52
@@ -2659,7 +2659,7 @@ DEFINE FRAME fieldsFrame
      userField16 AT ROW 5.05 COL 77
      userField35 AT ROW 6 COL 77
      userField57 AT ROW 6.95 COL 77
-     userField110 AT ROW 7.91 COL 77 WIDGET-ID 24
+     userField110 AT ROW 7.91 COL 77
      userField52 AT ROW 8.86 COL 77
      userField38 AT ROW 9.81 COL 77
      userField37 AT ROW 10.76 COL 77
@@ -2674,21 +2674,21 @@ DEFINE FRAME fieldsFrame
      userField54 AT ROW 12.67 COL 77
      userField15 AT ROW 13.62 COL 77
      userField97 AT ROW 14.57 COL 77
-     userField103 AT ROW 15.52 COL 77 WIDGET-ID 10
-     userField101 AT ROW 16.48 COL 77 WIDGET-ID 6
+     userField103 AT ROW 15.52 COL 77
+     userField101 AT ROW 16.48 COL 77
      userField36 AT ROW 17.43 COL 77
      useNotes AT ROW 18.38 COL 77
-     userField109 AT ROW 19.33 COL 77 WIDGET-ID 22
-     userField108 AT ROW 20.29 COL 77 WIDGET-ID 20
+     userField109 AT ROW 19.33 COL 77
+     userField108 AT ROW 20.29 COL 77
      userField23 AT ROW 21.24 COL 77
      userField39 AT ROW 22.19 COL 77
      userField40 AT ROW 23.14 COL 77
-     userField99 AT ROW 24.1 COL 77 WIDGET-ID 2
+     userField99 AT ROW 24.1 COL 77
      userField88 AT ROW 1.24 COL 103
      useStatus AT ROW 2.19 COL 103
      userField13 AT ROW 3.14 COL 103
      userField53 AT ROW 4.1 COL 103
-     userField105 AT ROW 5.05 COL 103 WIDGET-ID 14
+     userField105 AT ROW 5.05 COL 103
      userField29 AT ROW 6 COL 103
      userField33 AT ROW 6.95 COL 103
      userField86 AT ROW 7.91 COL 103
@@ -2697,18 +2697,18 @@ DEFINE FRAME fieldsFrame
      userField70 AT ROW 10.76 COL 103
      userField17 AT ROW 11.71 COL 103
      userField11 AT ROW 12.67 COL 103
-     userField112 AT ROW 13.62 COL 103 WIDGET-ID 28
-     userField113 AT ROW 14.57 COL 103 WIDGET-ID 30
-     userField114 AT ROW 15.52 COL 103 WIDGET-ID 32
-     userField115 AT ROW 16.48 COL 103 WIDGET-ID 34
-     userField116 AT ROW 17.43 COL 103 WIDGET-ID 36
-     userField117 AT ROW 18.38 COL 103 WIDGET-ID 38
-     userField118 AT ROW 19.33 COL 103 WIDGET-ID 40
-     userField119 AT ROW 20.29 COL 103 WIDGET-ID 42
-     userField120 AT ROW 21.24 COL 103 WIDGET-ID 44
-     userField121 AT ROW 22.19 COL 103 WIDGET-ID 46
-     userField122 AT ROW 23.14 COL 103 WIDGET-ID 48
-     userField123 AT ROW 24.1 COL 103 WIDGET-ID 50
+     userField112 AT ROW 13.62 COL 103
+     userField113 AT ROW 14.57 COL 103
+     userField114 AT ROW 15.52 COL 103
+     userField115 AT ROW 16.48 COL 103
+     userField116 AT ROW 17.43 COL 103
+     userField117 AT ROW 18.38 COL 103
+     userField118 AT ROW 19.33 COL 103
+     userField119 AT ROW 20.29 COL 103
+     userField120 AT ROW 21.24 COL 103
+     userField121 AT ROW 22.19 COL 103
+     userField122 AT ROW 23.14 COL 103
+     userField123 AT ROW 24.1 COL 103
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 24 ROW 1.24
@@ -2759,7 +2759,7 @@ DEFINE FRAME defaultsFrame
      viewRefreshValue AT ROW 12.43 COL 14 COLON-ALIGNED HELP
           "Enter Auto View Refresh Interval Minutes" NO-LABEL
      monitorIntervalValue AT ROW 12.43 COL 23 COLON-ALIGNED HELP
-          "Enter Auto Monitor Interval Minutes" NO-LABEL WIDGET-ID 2
+          "Enter Auto Monitor Interval Minutes" NO-LABEL
      priority2Value AT ROW 12.43 COL 103 NO-LABEL
      priority3Value AT ROW 13.38 COL 103 NO-LABEL
      btnDetailBoard AT ROW 13.86 COL 3 HELP
@@ -2829,9 +2829,9 @@ DEFINE FRAME defaultsFrame
      "Job Selection Highlight Color" VIEW-AS TEXT
           SIZE 27.6 BY .62 AT ROW 10.52 COL 10
      "Interval Minutes" VIEW-AS TEXT
-          SIZE 16 BY .62 AT ROW 12.19 COL 32 WIDGET-ID 4
+          SIZE 16 BY .62 AT ROW 12.19 COL 32
      "(Zero=Off)" VIEW-AS TEXT
-          SIZE 12 BY .62 AT ROW 12.91 COL 34 WIDGET-ID 6
+          SIZE 12 BY .62 AT ROW 12.91 COL 34
      "Time Line Color" VIEW-AS TEXT
           SIZE 15.4 BY .62 AT ROW 8.14 COL 10
      "[Resource Popup Settings]" VIEW-AS TEXT
@@ -5469,7 +5469,7 @@ PROCEDURE saveColors :
   DEFINE VARIABLE i AS INTEGER NO-UNDO.
 
   OUTPUT TO VALUE(SEARCH('{&data}/sbColors.dat')).
-  DO i = 30 TO 43:
+  DO i = 51 TO 64:
     ASSIGN
       redValue = COLOR-TABLE:GET-RED-VALUE(i)
       greenValue = COLOR-TABLE:GET-GREEN-VALUE(i)

@@ -166,13 +166,13 @@ DEFINE QUERY dynParamBrowse FOR
 DEFINE BROWSE dynParamBrowse
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS dynParamBrowse s-object _FREEFORM
   QUERY dynParamBrowse DISPLAY
-      dynParam.paramID LABEL-BGCOLOR 22
-dynParam.paramName LABEL-BGCOLOR 22
-dynParam.paramLabel LABEL-BGCOLOR 22
-dynParam.viewAs LABEL-BGCOLOR 22
-dynParam.dataType LABEL-BGCOLOR 22
+      dynParam.paramID LABEL-BGCOLOR 14
+dynParam.paramName LABEL-BGCOLOR 14
+dynParam.paramLabel LABEL-BGCOLOR 14
+dynParam.viewAs LABEL-BGCOLOR 14
+dynParam.dataType LABEL-BGCOLOR 14
 dynParam.paramFormat
-dynParam.paramType LABEL-BGCOLOR 22
+dynParam.paramType LABEL-BGCOLOR 14
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ROW-MARKERS SEPARATORS SIZE 75 BY 24.57
@@ -594,7 +594,7 @@ END.
 
 /* ***************************  Main Block  *************************** */
 
-{methods/template/brwcustom.i}
+{methods/template/brwcustom2.i}
 
 /* If testing in the UIB, initialize the SmartObject. */  
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
