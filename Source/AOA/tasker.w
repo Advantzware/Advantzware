@@ -80,13 +80,11 @@ END. /* if jasperstarter */
 AuditHdr.AuditTable fTAskLog(AuditHdr.AuditID) @ cTaskLog 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-AuditBrowse 
 &Scoped-define QUERY-STRING-AuditBrowse FOR EACH AuditHdr ~
-      WHERE AuditHdr.AuditDB EQ "ASI" AND ~
-AuditHdr.AuditType EQ "TASK" AND ~
+      WHERE AuditHdr.AuditType EQ "TASK" AND ~
 AuditHdr.AuditDateTime GE dttOpenDateTime NO-LOCK ~
     BY AuditHdr.AuditDateTime DESCENDING INDEXED-REPOSITION
 &Scoped-define OPEN-QUERY-AuditBrowse OPEN QUERY AuditBrowse FOR EACH AuditHdr ~
-      WHERE AuditHdr.AuditDB EQ "ASI" AND ~
-AuditHdr.AuditType EQ "TASK" AND ~
+      WHERE AuditHdr.AuditType EQ "TASK" AND ~
 AuditHdr.AuditDateTime GE dttOpenDateTime NO-LOCK ~
     BY AuditHdr.AuditDateTime DESCENDING INDEXED-REPOSITION.
 &Scoped-define TABLES-IN-QUERY-AuditBrowse AuditHdr
@@ -316,8 +314,7 @@ THEN C-Win:HIDDEN = NO.
      _TblList          = "Audit.AuditHdr"
      _Options          = "NO-LOCK INDEXED-REPOSITION"
      _OrdList          = "Audit.AuditHdr.AuditDateTime|no"
-     _Where[1]         = "AuditHdr.AuditDB EQ ""ASI"" AND
-AuditHdr.AuditType EQ ""TASK"" AND
+     _Where[1]         = "AuditHdr.AuditType EQ ""TASK"" AND
 AuditHdr.AuditDateTime GE dttOpenDateTime"
      _FldNameList[1]   > Audit.AuditHdr.AuditDateTime
 "AuditHdr.AuditDateTime" "Date Time" ? "datetime" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
@@ -470,6 +467,8 @@ PROCEDURE CtrlFrame.PSTimer.Tick .
     {&WINDOW-NAME}:TITLE = "AOA Tasker - Scanning Emails".
     RUN pTaskEmails.
     {&WINDOW-NAME}:TITLE = "AOA Tasker - Idle".
+    IF DATE(dttOpenDateTime) NE DATE(NOW) THEN
+    dttOpenDateTime = NOW.
     {&OPEN-QUERY-AuditBrowse}
     RUN spGetSessionParam ("Company", OUTPUT cCompany).
     RUN sys/ref/nk1look.p (
