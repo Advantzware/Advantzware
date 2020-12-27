@@ -345,30 +345,34 @@ DO:
         STATUS DEFAULT.
          
         RETURN NO-APPLY.    
-    END.                      
-    cBrowseQuery = " FOR EACH oe-ordl NO-LOCK"
-                   + " WHERE oe-ordl.company EQ '001'"
-                   + " AND oe-ordl.opened EQ YES"
-                   + " AND oe-ordl.stat NE 'C'" 
-                   + " AND oe-ordl.cust-no BEGINS " + QUOTER(fiCustNo)
-                   + " AND oe-ordl.rec_key GE " + QUOTER(cRecKey)
-                   + " USE-INDEX rec_key"
-                   + " ,FIRST oe-ord of oe-ordl"
-                   + " WHERE oe-ord.stat NE 'W'"
-                   + " USE-INDEX ord-no"
-                   + " BY oe-ord.ord-date DESC BY oe-ord.ord-no DESC"
-                   .     
-                   
-    RUN pPrepareAndExecuteQuery(
-        INPUT  BROWSE BROWSE-2:QUERY,
-        INPUT  cBrowseQuery,
-        INPUT  "oe-ordl,oe-ord",
-        INPUT  "",
-        INPUT  "",
-        INPUT  NO,
-        INPUT  NO ,
-        OUTPUT cRecKey
-        ).  
+    END. 
+    IF cRecKey EQ "ShowAll" THEN 
+        APPLY "CHOOSE" TO btShowAll.
+    ELSE DO:                      
+        cBrowseQuery = " FOR EACH oe-ordl NO-LOCK"
+                       + " WHERE oe-ordl.company EQ '001'"
+                       + " AND oe-ordl.opened EQ YES"
+                       + " AND oe-ordl.stat NE 'C'" 
+                       + " AND oe-ordl.cust-no BEGINS " + QUOTER(fiCustNo)
+                       + " AND oe-ordl.rec_key GE " + QUOTER(cRecKey)
+                       + " USE-INDEX rec_key"
+                       + " ,FIRST oe-ord of oe-ordl"
+                       + " WHERE oe-ord.stat NE 'W'"
+                       + " USE-INDEX ord-no"
+                       + " BY oe-ord.ord-date DESC BY oe-ord.ord-no DESC"
+                       .     
+                       
+        RUN pPrepareAndExecuteQuery(
+            INPUT  BROWSE BROWSE-2:QUERY,
+            INPUT  cBrowseQuery,
+            INPUT  "oe-ordl,oe-ord",
+            INPUT  "",
+            INPUT  "",
+            INPUT  NO,
+            INPUT  NO ,
+            OUTPUT cRecKey
+            ). 
+    END.          
         
     SESSION:SET-WAIT-STATE ("").
         
@@ -559,6 +563,9 @@ PROCEDURE pPrepareAndExecuteQuery PRIVATE :
     DEFINE VARIABLE iTimeTaken    AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iTotalCount   AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iIndex        AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cTitle        AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cResponse     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lResponse     AS LOGICAL   NO-UNDO.
     
     /* If is a limiting query then create query and set the buffers */
     IF iplIsLimitingQuery THEN DO:    
@@ -605,20 +612,33 @@ PROCEDURE pPrepareAndExecuteQuery PRIVATE :
                 LEAVE MainLoop. 
             ELSE IF iplIsLimitingQuery THEN DO:
                 IF iCount GE fiNumRecords THEN 
-                    cMessage = "You have reached your record limit of " + STRING(iTotalCount) + ", Time taken = " + STRING(iTimeTaken) + " ms" + ". Do you want to continue searching?".
-                ELSE DO:
-                    iIndex = iIndex + 1.
-                    cMessage = "You have reached timelimit of " + STRING(fiTimeOut * iIndex) + " ms, Records searched= " + STRING(iTotalCount) + ". Do you want to continue searching?".         
-                END.  
-                MESSAGE cMessage
-                VIEW-AS ALERT-BOX BUTTONS YES-NO 
-                UPDATE lResponse AS LOGICAL. 
-            
-                /* Break the query if user doesnot want to proceed */    
-                IF NOT lResponse THEN 
-                    LEAVE MainLoop. 
+                    ASSIGN 
+                        cMessage = "You have reached your record limit of " + STRING(iTotalCount) + ", Time taken = " + STRING(iTimeTaken) + " ms" + ". Do you want to continue searching?"
+                        cTitle   = "Record Limit Reached"
+                        .
                 ELSE 
-                    NEXT MainLoop.
+                    ASSIGN 
+                        iIndex = iIndex + 1
+                        cMessage = "You have reached timelimit of " + STRING(fiTimeOut * iIndex) + " ms, Records searched= " + STRING(iTotalCount) + ". Do you want to continue searching?"        
+                        cTitle   = "Time Limit Reached"
+                        .
+                RUN system/d-QueryLimitAlert.w(
+                    INPUT  cMessage,
+                    INPUT  cTitle,
+                    OUTPUT cResponse
+                    ) NO-ERROR.
+                
+                IF cResponse EQ "ShowAll" THEN DO: 
+                    opcReturnValue = "ShowAll".
+                    LEAVE MainLoop.
+                END.        
+                lResponse = LOGICAL(cResponse) NO-ERROR.  
+                  
+                /* Break the query if user doesnot want to proceed */    
+                IF lResponse THEN 
+                    NEXT MainLoop. 
+                ELSE 
+                    LEAVE MainLoop.
             END. /* End of Else IF */         
         END.
     END. 

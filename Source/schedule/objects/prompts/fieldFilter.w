@@ -917,7 +917,7 @@ PROCEDURE applyFields :
       RUN VALUE(runPrint) (ipBoard,runFormat,runTitle,outputTo EQ 'Excel',showParametersPage).
       runPrint = findProgram('{&print}/',ID,'/output.p').
       IF outputTo EQ 'Excel' THEN
-      OS-COMMAND NO-WAIT start excel.exe VALUE(SEARCH(printFile)).
+      OS-COMMAND NO-WAIT start VALUE(SEARCH(printFile)).
       ELSE
       IF ID BEGINS 'ASI' AND (SEARCH(runPrint) NE ? OR SEARCH(REPLACE(runPrint,'.p','.r')) NE ?)THEN
       RUN VALUE(runPrint) (printFile,outputTo,runProgram,printPrgm,fontValue,orientationValue).
