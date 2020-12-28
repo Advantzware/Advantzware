@@ -113,7 +113,7 @@ DEFINE FRAME F-Main
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
          SIZE 157.2 BY 26
-         BGCOLOR 4 .
+         BGCOLOR 15 .
 
 
 /* *********************** Procedure Settings ************************ */
@@ -383,7 +383,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_cust-4 ).
-       RUN set-position IN h_cust-4 ( 2.57 , 23.00 ) NO-ERROR.
+       RUN set-position IN h_cust-4 ( 2.57 , 2.00 ) NO-ERROR.
        /* Size in UIB:  ( 2.14 , 107.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -391,7 +391,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_soldto ).
-       RUN set-position IN h_soldto ( 4.71 , 23.00 ) NO-ERROR.
+       RUN set-position IN h_soldto ( 4.71 , 2.00 ) NO-ERROR.
        RUN set-size IN h_soldto ( 11.19 , 107.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
@@ -403,8 +403,8 @@ PROCEDURE adm-create-objects :
                      Layout = ,
                      Create-On-Add = Yes':U ,
              OUTPUT h_soldto-2 ).
-       RUN set-position IN h_soldto-2 ( 16.14 , 23.00 ) NO-ERROR.
-       /* Size in UIB:  ( 6.19 , 71.00 ) */
+       RUN set-position IN h_soldto-2 ( 16.14 , 2.00 ) NO-ERROR.
+       /* Size in UIB:  ( 6.67 , 71.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'panels/p-cstsld.w':U ,
@@ -453,8 +453,8 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_cust-tot ).
-       RUN set-position IN h_cust-tot ( 5.43 , 23.00 ) NO-ERROR.
-       /* Size in UIB:  ( 13.81 , 107.00 ) */
+       RUN set-position IN h_cust-tot ( 5.81 , 2.00 ) NO-ERROR.
+       /* Size in UIB:  ( 13.81 , 149.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'smartobj/p-csttot.w':U ,

@@ -67,15 +67,19 @@ PROCEDURE ebfgSave:
   APPLY 'ROW-LEAVE':U TO BROWSE {&BROWSE-NAME}.
 
   FOR EACH ebfg NO-LOCK:
-    IF ebfg.i-row EQ 1 THEN RUN getRefTable (ROWID(eb),0,OUTPUT rtRowID,YES).
-    IF ebfg.i-row EQ 13 THEN RUN getRefTable (ROWID(eb),1,OUTPUT rtRowID,YES).
+
+  //  IF ebfg.i-row EQ 1 THEN RUN getRefTable (ROWID(eb),0,OUTPUT rtRowID,YES).
+  //  IF ebfg.i-row EQ 13 THEN RUN getRefTable (ROWID(eb),1,OUTPUT rtRowID,YES).
+
     IF ebfg.i-row EQ 1 OR ebfg.i-row EQ 13 THEN
-     FIND CURRENT eb EXCLUSIVE-LOCK NO-ERROR.
-     IF AVAILABLE eb THEN  
-    ASSIGN
-      eb.unitNo[ebfg.i-row] = ebfg.unit#
-      unit#1[ebfg.i-row] = ebfg.unit#.
-     FIND CURRENT eb NO-LOCK NO-ERROR. 
+    DO:  
+        FIND CURRENT eb EXCLUSIVE-LOCK NO-ERROR.          
+        IF AVAILABLE eb THEN  
+        ASSIGN
+        eb.unitNo[ebfg.i-row] = ebfg.unit#.
+        unit#1[ebfg.i-row] = ebfg.unit#.
+        FIND CURRENT eb NO-LOCK NO-ERROR. 
+     END.
   END. /* each ebfg */
   
   FOR EACH ef OF eb NO-LOCK,
