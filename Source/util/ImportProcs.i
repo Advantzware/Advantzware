@@ -98,6 +98,9 @@ DEFINE INPUT PARAMETER ipcValueForTrue AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER iplIgnoreBlanks AS LOGICAL NO-UNDO.
 DEFINE INPUT-OUTPUT PARAMETER ioplValueAssigned AS LOGICAL NO-UNDO.
 
+IF CAN-DO("YES,Y,TRUE,T,ON,CASE,R",ipcValueToAssign) THEN
+    ipcValueToAssign = ipcValueForTrue.
+
 IF ipcValueToAssign NE "" OR NOT iplIgnoreBlanks THEN 
     ioplValueAssigned = ipcValueToAssign EQ ipcValueForTrue. 
     
