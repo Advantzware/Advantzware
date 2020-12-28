@@ -1822,16 +1822,7 @@ PROCEDURE local-create-record :
           lv_vend-state lv_vend-zip lv_vend-area-code lv_vend-phone          
     WITH FRAME {&FRAME-NAME}.
     
-  RUN pAssignAddressFromCompany(YES).
-  
- /* FIND FIRST company WHERE company.company = cocode NO-LOCK NO-ERROR.
-  IF AVAILABLE company THEN ASSIGN po-ord.ship-id      = company.company
-                                   po-ord.ship-name    = company.NAME
-                                   po-ord.ship-addr[1] = company.addr[1]
-                                   po-ord.ship-addr[2] = company.addr[2]
-                                   po-ord.ship-city    = company.city
-                                   po-ord.ship-state   = company.state
-                                   po-ord.ship-zip     = company.zip.  */
+  RUN pAssignAddressFromCompany(YES). 
 
  RELEASE po-ctrl.
  FIND CURRENT po-ord NO-LOCK NO-ERROR.
