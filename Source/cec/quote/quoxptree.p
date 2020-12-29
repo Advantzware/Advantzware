@@ -32,7 +32,7 @@ def var trim-size like quoteitm.size no-undo.
 def var temp-trim-size like quoteitm.size no-undo.
 def var cc as int no-undo.
 def var v-printline as int initial 0 no-undo.
-def var v-first-q-no like quotehd.q-no no-undo.
+def var v-first-q-no AS INT FORMAT ">>>>>9" no-undo.
 DEF VAR v-lines AS INT NO-UNDO.
 def var v-rels as int.
 def var v-part              like quoteitm.part-no                        no-undo.
