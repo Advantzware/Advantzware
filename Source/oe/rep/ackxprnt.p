@@ -53,7 +53,7 @@ DEF VAR v-line-total AS DEC NO-UNDO.
 DEF VAR v-quo-total AS DEC NO-UNDO.
 def var v-t-tax      as   dec extent 3 NO-UNDO.
 def var v-bot-lab    as   char format "x(63)" extent 3 NO-UNDO.
-DEF VAR v-q-no LIKE oe-ord.q-no NO-UNDO.
+DEF VAR v-q-no AS INT FORMAT ">>>>>9" NO-UNDO.
 DEF VAR v-billinst AS cha FORM "x(70)" EXTENT 4 NO-UNDO.
 DEF VAR v-inst-lines AS INT NO-UNDO.
 DEF VAR lv-first-note AS LOG NO-UNDO.
