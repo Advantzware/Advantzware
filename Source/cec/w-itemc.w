@@ -998,6 +998,13 @@ PROCEDURE local-change-page :
     /*{methods/winReSizePgChg.i}*/
 
    
+    IF VALID-HANDLE(h_vp-rmov) THEN 
+    DO:
+        IF li-current-page EQ 3 THEN 
+            RUN ipShowBtn IN h_vp-rmov (TRUE).
+        ELSE
+            RUN ipShowBtn IN h_vp-rmov (FALSE).
+    END.   
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
