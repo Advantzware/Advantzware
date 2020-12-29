@@ -472,6 +472,11 @@ PROCEDURE openQuery:
   IF sortColumn EQ 'Ship To' THEN po-ord.ship-id ELSE ~
   STRING(po-ordl.po-no,'>>>>>9') ~{&SORTED}
 
+&ELSEIF '{&yellowColumnsName}' EQ 'b-estitm' &THEN
+  &SCOPED-DEFINE SORTBY-PHRASE BY ~
+  IF sortColumn EQ 'Cust. #' THEN STRING(eb.cust-no) ELSE ~
+  IF sortColumn EQ 'FG Item#' THEN string(eb.stock-no) ELSE ~
+  STRING(eb.stock-no) ~{&SORTED}
 &ELSEIF '{&yellowColumnsName}' EQ 'l-jobno' &THEN
   &SCOPED-DEFINE SORTBY-PHRASE BY ~
   IF sortColumn EQ 'Item No' THEN  job-hdr.i-no ELSE ~
