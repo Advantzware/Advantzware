@@ -282,6 +282,12 @@ ASSIGN
     cocode = g_company
     locode = g_loc
     .
+/* Set the option frame size and colour to give blue background to icons and 
+      add the handle of scope define object to temptable for resizizng */
+RUN beforeinitialize IN THIS-PROCEDURE NO-ERROR.
+/* Add the handle of all smart object to be resized/shifted on resize to the temptable and 
+          Shift all the icons towards right */
+RUN afterinitialize IN THIS-PROCEDURE NO-ERROR.    
 {custom/initializeprocs.i}
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -340,8 +346,8 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/folder.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'FOLDER-LABELS = ':U + 'Browse|Vendor Cost|Restrictions' + ',
-                     FOLDER-TAB-TYPE = 1':U ,
+             INPUT  'FOLDER-LABELS = ':U + 'Browse|Detail|Limit' + ',
+                     FOLDER-TAB-TYPE = 2':U ,
              OUTPUT h_folder ).
        RUN set-position IN h_folder ( 3.14 , 1.00 ) NO-ERROR.
        RUN set-size IN h_folder ( 21.67 , 148.00 ) NO-ERROR.
