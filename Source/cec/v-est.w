@@ -1166,8 +1166,10 @@ DO:
     cadFile = ''.
   IF lArtiosCAD THEN
    iInitialFilter = 2.
-   ELSE iInitialFilter = 1.
-   
+  ELSE iInitialFilter = 1.
+     
+  IF lArtiosCAD THEN
+  DO:
      SYSTEM-DIALOG GET-FILE cadfile 
                 TITLE 'Select Image File to insert'
                 FILTERS 'JPG Files    (*.jpg)' '*.jpg',
@@ -1175,10 +1177,23 @@ DO:
                         'Bitmap files (*.bmp)' '*.bmp',
                         'JPEG Files   (*.jpeg)' '*.jpeg',
                         'TIF Files    (*.tif)' '*.tif',
+                        'All Files    (*.*) ' '*.*'  
+                        INITIAL-FILTER iInitialFilter
+                INITIAL-DIR initDir                      
+                MUST-EXIST USE-FILENAME UPDATE okClicked.      
+  END.
+  ELSE DO:
+      SYSTEM-DIALOG GET-FILE cadfile 
+                TITLE 'Select Image File to insert'
+                FILTERS 'JPG Files    (*.jpg)' '*.jpg',                         
+                        'Bitmap files (*.bmp)' '*.bmp',
+                        'JPEG Files   (*.jpeg)' '*.jpeg',
+                        'TIF Files    (*.tif)' '*.tif',
                         'All Files    (*.*) ' '*.*'
                         INITIAL-FILTER iInitialFilter
                 INITIAL-DIR initDir                      
-                MUST-EXIST USE-FILENAME UPDATE okClicked.   
+                MUST-EXIST USE-FILENAME UPDATE okClicked.  
+  END.           
   
   IF okClicked THEN
   eb.cad-no:SCREEN-VALUE = imageName(cadfile).
