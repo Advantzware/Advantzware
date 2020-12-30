@@ -13,6 +13,59 @@ DEFINE VARIABLE lAutoSave AS LOGICAL NO-UNDO.
 
 cellColumnDat = './users/' + USERID('ASI') + '/{&cellColumnDat}.dat'.
 
+
+
+/* **********************  Internal Procedures  *********************** */
+
+
+PROCEDURE pmoveDatFileToDb PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: Move data of .DAT file into database.
+ Notes:
+------------------------------------------------------------------------------*/
+  DEFINE VARIABLE iCount        AS INTEGER NO-UNDO INITIAL 1.
+  DEFINE VARIABLE lUserResponse AS LOGICAL.
+  
+  DEFINE BUFFER bf-userColumn FOR userColumn.
+
+  FIND FIRST users NO-LOCK 
+       WHERE users.user_id  EQ USERID("ASI")
+         AND users.isActive EQ YES 
+       NO-ERROR.
+  IF AVAILABLE users THEN DO:
+     RUN displayMessageQuestion (
+         INPUT  "59",
+         OUTPUT lUserResponse
+         ). 
+        
+     IF lUserResponse THEN DO:
+        INPUT FROM VALUE(cellColumnDat) NO-ECHO.
+        MAINLOOP:
+        DO TRANSACTION:
+            REPEAT ON ERROR UNDO MAINLOOP, LEAVE MAINLOOP:           
+                CREATE bf-userColumn.  
+                IMPORT bf-userColumn.colName bf-userColumn.colWidth.
+                ASSIGN 
+                    bf-userColumn.colPosition = iCount
+                    bf-userColumn.usrId       = USERID("ASI")
+                    bf-userColumn.programName = "{&cellColumnDat}"          
+                    iCount = iCount + 1
+                    .                              
+            END. /* REPEAT */
+        END. /* DO TRANSACTION */
+        INPUT CLOSE.                     
+     END. /* IF lUserResponse */   
+     IF NOT ERROR-STATUS:ERROR THEN DO:
+         IF lUserResponse THEN 
+             MESSAGE "Conversion Complete." VIEW-AS ALERT-BOX INFO BUTTONS OK.
+         OS-DELETE VALUE(SEARCH(cellColumnDat)).   
+     END.
+     ELSE 
+         MESSAGE "Error during conversion." 
+             VIEW-AS ALERT-BOX ERROR .                               
+  END.
+END PROCEDURE.
+
 PROCEDURE setCellColumns:
   DEFINE VARIABLE userColumn AS CHARACTER NO-UNDO EXTENT 200.
   DEFINE VARIABLE i AS INTEGER NO-UNDO.
@@ -21,18 +74,28 @@ PROCEDURE setCellColumns:
   DEFINE VARIABLE v-index AS INT NO-UNDO.
   
   lAutoSave = YES.
-  IF SEARCH(cellColumnDat) NE ? THEN DO:
-     /* get user cell column order */
-     INPUT FROM VALUE(cellColumnDat) NO-ECHO.
-     REPEAT:
-        IMPORT userColumn[j] columnWidth[j].
-        j = j + 1.
-     END. /* repeat */
-     INPUT CLOSE.
+  
+  IF SEARCH(cellColumnDat) NE ? THEN
+      RUN pmoveDatFileToDb.
+      
+  IF CAN-FIND(FIRST userColumn WHERE userColumn.usrid EQ USERID('ASI') 
+                AND userColumn.programName EQ "{&cellColumnDat}" ) THEN DO:       
+                    
      /* change default columns to user order */
      DO i = 1 TO {&BROWSE-NAME}:NUM-COLUMNS IN FRAME {&FRAME-NAME}:
         cellColumn[i] = {&BROWSE-NAME}:GET-BROWSE-COLUMN(i).
      END.
+     
+     FOR EACH userColumn NO-LOCK
+         WHERE userColumn.usrId       EQ USERID('ASI') 
+           AND userColumn.programName EQ "{&cellColumnDat}":
+         IF userColumn.colPosition = j THEN              
+             ASSIGN 
+                 userColumn[j]  = userColumn.colName        
+                 columnWidth[j] = userColumn.colWidth               
+                 j = j + 1
+                 .  
+      END.
     
      j = j - 1.
      OUTERLOOP:
@@ -66,7 +129,7 @@ PROCEDURE setCellColumns:
         END.
      END. /* do i */
 
-  END. /* search */
+  END. /* IF CAN-FIND */
   /* read new order to check for changes when exiting */
   DO i = 1 TO {&BROWSE-NAME}:NUM-COLUMNS IN FRAME {&FRAME-NAME}:
     ASSIGN
@@ -85,6 +148,8 @@ PROCEDURE local-destroy:
   DEFINE VARIABLE i AS INTEGER NO-UNDO.
   DEFINE VARIABLE j AS INTEGER NO-UNDO.
   DEFINE VARIABLE saveChanges AS LOG INITIAL NO NO-UNDO.
+  
+  DEFINE BUFFER bf-userColumn FOR userColumn.
 
   /* check for any columns changes */
   DO i = 1 TO {&BROWSE-NAME}:NUM-COLUMNS IN FRAME {&FRAME-NAME}:
@@ -95,12 +160,27 @@ PROCEDURE local-destroy:
         MESSAGE 'Save Column Changes?' VIEW-AS ALERT-BOX
         QUESTION BUTTONS YES-NO UPDATE saveChanges.
     IF saveChanges OR lAutoSave THEN DO:
-      OS-CREATE-DIR VALUE("./users/" + USERID("ASI")). 
-      OUTPUT TO VALUE(cellColumnDat).
+      IF CAN-FIND (FIRST userColumn WHERE userColumn.usrid EQ USERID('ASI') 
+                     AND userColumn.programName EQ "{&cellColumnDat}" ) THEN DO:
+         FOR EACH bf-userColumn EXCLUSIVE-LOCK 
+             WHERE bf-userColumn.usrid       EQ USERID('ASI')
+               AND bf-userColumn.programName EQ "{&cellColumnDat}":
+             DELETE bf-userColumn.
+         END.    
+      END.       
+      
       DO j = 1 TO {&BROWSE-NAME}:NUM-COLUMNS IN FRAME {&FRAME-NAME}:
-        EXPORT {&BROWSE-NAME}:GET-BROWSE-COLUMN(j):NAME {&BROWSE-NAME}:GET-BROWSE-COLUMN(j):WIDTH-PIXELS.
+    
+        CREATE bf-userColumn.
+        ASSIGN 
+            bf-userColumn.colName     = {&BROWSE-NAME}:GET-BROWSE-COLUMN(j):NAME
+            bf-userColumn.colWidth    = {&BROWSE-NAME}:GET-BROWSE-COLUMN(j):WIDTH-PIXELS
+            bf-userColumn.colPosition = j
+            bf-userColumn.usrId       = USERID("ASI")
+            bf-userColumn.programName = "{&cellColumnDat}"
+            .
+        RELEASE bf-userColumn.   
       END. /* do j */
-      OUTPUT CLOSE.
     END. /* if savechanges */
     LEAVE.
   END. /* do i */
