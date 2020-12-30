@@ -546,7 +546,7 @@ DO:
       REPOSITION {&browse-name} TO ROWID lv-rowid NO-ERROR.
     END.
 END.
-
+{methods/template/brwcustom.i}
 SESSION:DATA-ENTRY-RETURN = YES.
 
 FIND eb WHERE ROWID(eb) EQ ip-rowid NO-LOCK NO-ERROR.

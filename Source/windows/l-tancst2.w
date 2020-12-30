@@ -458,7 +458,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    */
    &scoped-define sortby-phrase {&sortby-1}
    &scoped-define IAMWHAT LOOKUP
-
+    {methods/template/brwcustom.i}
    RUN build-report.
 
    RUN enable_UI.
