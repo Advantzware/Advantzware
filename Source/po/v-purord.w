@@ -821,6 +821,36 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME po-ord.stat
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL po-ord.stat V-table-Win
+ON VALUE-CHANGED OF po-ord.stat IN FRAME F-Main /* PO status */
+DO:
+   DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
+  IF LASTKEY NE -1 THEN DO:    
+    RUN valid-po-status(OUTPUT lReturnError) NO-ERROR.
+    IF lReturnError THEN RETURN NO-APPLY.    
+  END.
+  
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME po-ord.stat
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL po-ord.stat V-table-Win
+ON LEAVE OF po-ord.stat IN FRAME F-Main /* PO status */
+DO:
+   DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
+  IF LASTKEY NE -1 AND po-ord.stat:MODIFIED  THEN DO:    
+    RUN valid-po-status(OUTPUT lReturnError) NO-ERROR.
+    IF lReturnError THEN RETURN NO-APPLY.    
+  END.
+  
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME rd_drop-shipment
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd_drop-shipment V-table-Win
@@ -1051,7 +1081,6 @@ END.
 
 
 &Scoped-define SELF-NAME po-ord.type
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL po-ord.type V-table-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL po-ord.type V-table-Win
 ON LEAVE OF po-ord.type IN FRAME F-Main /* Type */
 DO:
@@ -1493,6 +1522,7 @@ PROCEDURE local-assign-record :
   DEFINE VARIABLE v-new-orders AS CHARACTER NO-UNDO.
   DEFINE VARIABLE vi           AS INTEGER   NO-UNDO.
   DEFINE VARIABLE cOldLoc      AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cPoStatus    AS CHARACTER NO-UNDO.
 
   /* Code placed here will execute PRIOR to standard behavior. */
   EMPTY TEMP-TABLE tt-ord-no.
@@ -1501,6 +1531,7 @@ PROCEDURE local-assign-record :
   lv-prev-vend-no  = IF AVAILABLE po-ord THEN po-ord.vend-no ELSE ""
   lv-due-date      = po-ord.due-date
   cOldLoc          = po-ord.loc .
+  cPoStatus        = po-ord.stat:SCREEN-VALUE IN FRAME {&FRAME-NAME}.
      FIND bx-poord WHERE RECID(bx-poord) = iv-copy-from-rec NO-LOCK NO-ERROR.
      IF AVAILABLE bx-poord THEN DO:
          ASSIGN ip-company    = bx-poord.company
@@ -1531,7 +1562,8 @@ PROCEDURE local-assign-record :
   /* Code placed here will execute AFTER standard behavior.    */
   ASSIGN
    po-ord.ship-no = lv-ship-no
-   po-ord.cust-no = ls-drop-custno .
+   po-ord.cust-no = ls-drop-custno
+   po-ord.stat    = cPoStatus.
   DO WITH FRAME {&FRAME-NAME} :
      IF trim(v-postatus-cha) = "Hold" THEN
          IF po-ord.stat:SCREEN-VALUE NE "C" THEN
@@ -1891,6 +1923,7 @@ PROCEDURE local-display-fields :
     END.         
   END.   
   rd_drop-shipment:SENSITIVE IN FRAME {&FRAME-NAME} = NO .
+  po-ord.stat:SENSITIVE IN FRAME {&FRAME-NAME} = NO.
 /* IF po-ord.stat <> "H" THEN ENABLE po-ord.approved-date fc_app_time.
  IF po-ord.stat <> "H" THEN ENABLE po-ord.approved-id.*/
 
@@ -1929,7 +1962,12 @@ PROCEDURE local-update-record :
   
     RUN valid-po-date(OUTPUT lReturnError) NO-ERROR.
     IF lReturnError THEN RETURN NO-APPLY.
-  
+    
+    IF po-ord.stat:MODIFIED THEN do:
+      RUN valid-po-status(OUTPUT lReturnError) NO-ERROR.
+      IF lReturnError THEN RETURN NO-APPLY.
+    END.
+    
     RUN valid-vend-no(OUTPUT lReturnError) NO-ERROR.
     IF lReturnError THEN RETURN NO-APPLY.
     
@@ -2293,7 +2331,9 @@ PROCEDURE post-enable :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-
+  DEFINE VARIABLE hPgmSecurity AS HANDLE NO-UNDO.
+  DEFINE VARIABLE lResult AS LOGICAL NO-UNDO.
+  
   DO WITH FRAME {&FRAME-NAME}: 
     IF AVAILABLE po-ord THEN 
         ASSIGN
@@ -2314,6 +2354,12 @@ PROCEDURE post-enable :
         po-ord.ship-id:SENSITIVE = YES .
         po-ord.cust-no:HIDDEN = NO.
     END.
+     RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
+     RUN epCanAccess IN hPgmSecurity ("po/v-purord.w", "stat", OUTPUT lResult).
+     DELETE OBJECT hPgmSecurity.
+     IF NOT lResult OR po-ord.stat EQ "H" THEN 
+     po-ord.stat:SENSITIVE = NO.
+     ELSE po-ord.stat:SENSITIVE = YES.
   END.
 
 END PROCEDURE.
@@ -2810,6 +2856,31 @@ PROCEDURE valid-po-date :
                APPLY "entry" TO po-ord.po-date.
                oplReturnError = YES.
         END.  
+  END.
+  {methods/lValidateError.i NO}
+    
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-po-status V-table-Win 
+PROCEDURE valid-po-status :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
+  
+  {methods/lValidateError.i YES}
+  DO WITH FRAME {&FRAME-NAME}:
+        po-ord.stat:SCREEN-VALUE = CAPS(po-ord.stat:SCREEN-VALUE).
+        IF LOOKUP(po-ord.stat:SCREEN-VALUE,"C,O,U") EQ 0 THEN DO:        
+               MESSAGE "PO status can be changed to (U)pdated, (C)losed or (O)pen. " VIEW-AS ALERT-BOX INFO.
+               APPLY "entry" TO po-ord.stat.
+               oplReturnError = YES.                 
+        END.         
   END.
   {methods/lValidateError.i NO}
     

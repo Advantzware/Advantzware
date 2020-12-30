@@ -87,6 +87,7 @@ PROCEDURE epCanAccessUser:
                 (ipProgName EQ "browsers/APIOutbound.w" AND ipFunction EQ "") OR /* Check security for Admin */
                 (ipProgName EQ "viewers/APIInbound.w" AND ipFunction EQ "") OR /* Check security for Admin */
                 (ipProgName EQ "viewers/APIInboundDetail.w" AND ipFunction EQ "") OR /* Check security for Admin */
+                (ipProgName EQ "po/v-purord.w" AND ipFunction EQ "stat") OR /* Check security for Admin */
                 (ipProgName EQ "" AND ipFunction EQ "")
                 ) THEN ASSIGN opCanAccess = FALSE.
             /* Second group - programs/functions ONLY available to Administrators */
