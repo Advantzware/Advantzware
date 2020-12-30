@@ -54,15 +54,9 @@ PROCEDURE pmoveDatFileToDb PRIVATE:
             END. /* REPEAT */
         END. /* DO TRANSACTION */
         INPUT CLOSE.                     
-     END. /* IF lUserResponse */   
-     IF NOT ERROR-STATUS:ERROR THEN DO:
-         IF lUserResponse THEN 
-             MESSAGE "Conversion Complete." VIEW-AS ALERT-BOX INFO BUTTONS OK.
-         OS-DELETE VALUE(SEARCH(cellColumnDat)).   
-     END.
-     ELSE 
-         MESSAGE "Error during conversion." 
-             VIEW-AS ALERT-BOX ERROR .                               
+     END. /* IF lUserResponse */  
+                 
+     OS-DELETE VALUE(SEARCH(cellColumnDat)).                                       
   END.
 END PROCEDURE.
 
