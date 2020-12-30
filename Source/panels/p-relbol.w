@@ -79,7 +79,7 @@ DEFINE VARIABLE add-active   AS LOGICAL NO-UNDO INIT no.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS Btn-Save Btn-Add Btn-Delete Btn-Cancel ~
-btn-qty 
+btn-print btn-qty 
 
 /* Custom List Definitions                                              */
 /* Box-Rectangle,List-2,List-3,List-4,List-5,List-6                     */
@@ -109,6 +109,10 @@ DEFINE BUTTON Btn-Delete
      SIZE 9 BY 1.29
      FONT 4.
 
+DEFINE BUTTON btn-print 
+     LABEL "&Print BOL" 
+     SIZE 13 BY 1.14.
+
 DEFINE BUTTON btn-qty 
      LABEL "&Qty" 
      SIZE 9.6 BY 1.14.
@@ -129,8 +133,9 @@ DEFINE FRAME Panel-Frame
      Btn-Save AT ROW 1.24 COL 2
      Btn-Add AT ROW 1.24 COL 20
      Btn-Delete AT ROW 1.24 COL 38
-     Btn-Cancel AT ROW 1.24 COL 47      
-     btn-qty AT ROW 1.24 COL 56 WIDGET-ID 2     
+     Btn-Cancel AT ROW 1.24 COL 47
+     btn-print AT ROW 1.24 COL 56
+     btn-qty AT ROW 1.24 COL 69.2 WIDGET-ID 2
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY NO-HELP 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -246,6 +251,19 @@ END.
 ON CHOOSE OF Btn-Delete IN FRAME Panel-Frame /* Delete */
 DO:
    RUN notify ('delete-record':U).  
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btn-print
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-print C-WIn
+ON CHOOSE OF btn-print IN FRAME Panel-Frame /* Print BOL */
+DO:
+    RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"tableio-target",OUTPUT char-hdl).
+    RUN print-bol IN WIDGET-HANDLE(char-hdl).
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -510,7 +528,7 @@ DO WITH FRAME Panel-Frame:
 &IF LOOKUP("Btn-Cancel":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
              Btn-Cancel:SENSITIVE = NO.
 &ENDIF
-     ASSIGN btn-qty:SENSITIVE = NO.
+     ASSIGN Btn-print:SENSITIVE = NO btn-qty:SENSITIVE = NO.
   END. /* panel-state = 'disable-all' */
   
   ELSE IF panel-state = 'initial':U THEN DO:
@@ -540,7 +558,7 @@ DO WITH FRAME Panel-Frame:
 &IF LOOKUP("Btn-Cancel":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
              Btn-Cancel:SENSITIVE = NO.
 &ENDIF
-       ASSIGN btn-qty:SENSITIVE = YES.
+       ASSIGN Btn-print:SENSITIVE = YES btn-qty:SENSITIVE = YES.
   END. /* panel-state = 'initial' */
 
   ELSE IF panel-state = 'add-only':U THEN DO:
@@ -567,7 +585,7 @@ DO WITH FRAME Panel-Frame:
 &IF LOOKUP("Btn-Cancel":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
              Btn-Cancel:SENSITIVE = NO.
 &ENDIF
-           ASSIGN btn-qty:SENSITIVE = NO.
+           ASSIGN Btn-print:SENSITIVE = NO btn-qty:SENSITIVE = NO.
   END. /* panel-state = 'add-only' */
  
   ELSE DO: /* panel-state = action-chosen */ 
@@ -597,7 +615,7 @@ DO WITH FRAME Panel-Frame:
 &IF LOOKUP("Btn-Cancel":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
              Btn-Cancel:SENSITIVE = YES.
 &ENDIF
-        ASSIGN btn-qty:SENSITIVE = NO.
+        ASSIGN Btn-print:SENSITIVE = NO btn-qty:SENSITIVE = NO.
   END. /* panel-state = action-chosen */
 
 /*  {custom/secpanel.i}*/
