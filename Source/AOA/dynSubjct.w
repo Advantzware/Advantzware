@@ -77,7 +77,7 @@ DEFINE VARIABLE subjectSection     AS CHARACTER NO-UNDO.
 {methods/defines/hndldefs.i}
 {methods/prgsecur.i}
 {methods/defines/sortByDefs.i}
-
+{methods/template/brwcustomdefmulti.i}
 DEFINE TEMP-TABLE ttTable NO-UNDO
     FIELD tableName     AS CHARACTER FORMAT "x(20)" LABEL "Table"
     FIELD tableDB       AS CHARACTER FORMAT "x(10)" LABEL "Database"
@@ -3675,7 +3675,7 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
-
+/*
 {methods/menus/stdHelpMenu.i}
 &Scoped-define sdBrowseName subjectBrowse
 {methods/template/brwcustom.i 1}
@@ -3693,12 +3693,29 @@ END.
 {methods/template/brwcustom.i 7}
 &Scoped-define sdBrowseName subjectColumnBrowse
 {methods/template/brwcustom.i 8}
+*/
 
-
+brwHandList = STRING(BROWSE subjectBrowse:handle).
+brwHandList = brwHandList + "," + string(BROWSE paramSetBrowse:handle).
+brwHandList = brwHandList + "," + string(BROWSE subjectParamSetBrowse:handle).
+brwHandList = brwHandList + "," + string(BROWSE tableBrowse:handle).
+brwHandList = brwHandList + "," + string(BROWSE subjectTableBrowse:handle).
+brwHandList = brwHandList + "," + string(BROWSE fieldBrowse:handle).
+brwHandList = brwHandList + "," + string(BROWSE subjectWhereBrowse:handle).
+brwHandList = brwHandList + "," + string(BROWSE subjectColumnBrowse:handle).
+{methods/template/brwcustommulti.i &brw-list=brwHandList }
+{methods/template/brwrowdisplaymulti.i &brw-name="subjectBrowse" }
+{methods/template/brwrowdisplaymulti.i &brw-name="paramSetBrowse" }
+{methods/template/brwrowdisplaymulti.i &brw-name="subjectParamSetBrowse" }
+{methods/template/brwrowdisplaymulti.i &brw-name="tableBrowse" }
+{methods/template/brwrowdisplaymulti.i &brw-name="subjectTableBrowse" }
+{methods/template/brwrowdisplaymulti.i &brw-name="fieldBrowse" }
+{methods/template/brwrowdisplaymulti.i &brw-name="subjectWhereBrowse" }
+{methods/template/brwrowdisplaymulti.i &brw-name="subjectColumnBrowse" }
 /* Set CURRENT-WINDOW: this will parent dialog-boxes and frames.        */
 ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME} 
        THIS-PROCEDURE:CURRENT-WINDOW = {&WINDOW-NAME}.
-{methods/template/brwcustom.i}
+//{methods/template/brwcustom.i}
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
 ON CLOSE OF THIS-PROCEDURE DO:

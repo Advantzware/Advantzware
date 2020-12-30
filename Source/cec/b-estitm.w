@@ -24,6 +24,7 @@ CREATE WIDGET-POOL.
 /* ***************************  Definitions  ************************** */
 &SCOPED-DEFINE yellowColumnsName b-estitm
 &SCOPED-DEFINE winReSize
+&SCOPED-DEFINE noSortByField 1
 {methods/defines/winReSize.i}
 {methods/template/brwcustomdef.i}
 
