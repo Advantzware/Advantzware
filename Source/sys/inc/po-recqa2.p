@@ -97,7 +97,6 @@ IF AVAIL po-ord THEN
   END.
 
   ELSE DO:
-    ASSIGN  op-qty = po-ordl.t-rec-qty  .
     ASSIGN
       v-basis-w = IF AVAIL item THEN item.basis-w ELSE v-basis-w
       v-dep = IF AVAIL item THEN item.s-dep ELSE v-dep
@@ -125,9 +124,10 @@ IF AVAIL po-ord THEN
             AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code:
     
         ASSIGN  
-          lCkeckRec = YES .
-        /* op-qty = op-qty + fg-rdtlh.qty
-         op-amt = op-amt + (fg-rdtlh.qty / 1000 * fg-rdtlh.cost).*/
+          lCkeckRec = YES 
+          op-qty = op-qty + fg-rdtlh.qty
+          .
+         /*op-amt = op-amt + (fg-rdtlh.qty / 1000 * fg-rdtlh.cost).*/
       END.
 
  IF lCkeckRec THEN do:
