@@ -120,6 +120,10 @@ END.
 DEFINE VARIABLE lAccessCreateFG AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lAccessClose AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cAccessList AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cRecValue   AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound   AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cArtiosCAD   AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lArtiosCAD   AS LOGICAL NO-UNDO.
 RUN methods/prgsecur.p
             (INPUT "p-upditm.",
              INPUT "CREATE", /* based on run, create, update, delete or all */
@@ -1143,30 +1147,54 @@ ON CHOOSE OF btnCadLookup IN FRAME Corr
 DO:
   DEF VAR initDir AS CHARACTER NO-UNDO.
   DEF VAR okClicked AS LOGICAL NO-UNDO.
-
-  FIND FIRST sys-ctrl NO-LOCK WHERE sys-ctrl.company EQ cocode
-                                AND sys-ctrl.name EQ 'CADFILE' NO-ERROR.
-  IF NOT AVAILABLE sys-ctrl THEN DO:
-    CREATE sys-ctrl.
-    ASSIGN sys-ctrl.company = cocode
-           sys-ctrl.name = 'CADFILE'
-           sys-ctrl.descrip = 'Dictate the location of the cad image to search.'
-           sys-ctrl.char-fld = '.\'.
-    FIND CURRENT sys-ctrl NO-LOCK.
-  END.
+  DEFINE VARIABLE iInitialFilter AS INTEGER NO-UNDO.
+  
+  RUN sys/ref/nk1look.p (INPUT cocode, "ArtiosCAD", "L" /* Logical */, YES /* check by cust */, 
+                         INPUT YES /* use cust not vendor */, eb.cust-no:SCREEN-VALUE /* cust */, eb.ship-id:SCREEN-VALUE /* ship-to*/,
+                         OUTPUT cRecValue, OUTPUT lRecFound).
+  IF lRecFound THEN
+     lArtiosCAD = logical(cRecValue) NO-ERROR. 
+    
+  RUN sys/ref/nk1look.p (INPUT cocode, "ArtiosCAD", "C" /* Logical */, YES /* check by cust */, 
+                         INPUT YES /* use cust not vendor */, eb.cust-no:SCREEN-VALUE /* cust */, eb.ship-id:SCREEN-VALUE /* ship-to*/,
+                         OUTPUT cRecValue, OUTPUT lRecFound).    
+  IF lRecFound THEN
+    cArtiosCAD = cRecValue NO-ERROR.  
+  
   ASSIGN
-    initDir = sys-ctrl.char-fld
+    initDir = cArtiosCAD 
     cadFile = ''.
-
-  SYSTEM-DIALOG GET-FILE cadfile 
+  IF lArtiosCAD THEN
+   iInitialFilter = 2.
+  ELSE iInitialFilter = 1.
+     
+  IF lArtiosCAD THEN
+  DO:
+     SYSTEM-DIALOG GET-FILE cadfile 
                 TITLE 'Select Image File to insert'
                 FILTERS 'JPG Files    (*.jpg)' '*.jpg',
+                        'ARD Files    (*.ARD)' '*.ARD',
+                        'Bitmap files (*.bmp)' '*.bmp',
+                        'JPEG Files   (*.jpeg)' '*.jpeg',
+                        'TIF Files    (*.tif)' '*.tif',
+                        'All Files    (*.*) ' '*.*'  
+                        INITIAL-FILTER iInitialFilter
+                INITIAL-DIR initDir                      
+                MUST-EXIST USE-FILENAME UPDATE okClicked.      
+  END.
+  ELSE DO:
+      SYSTEM-DIALOG GET-FILE cadfile 
+                TITLE 'Select Image File to insert'
+                FILTERS 'JPG Files    (*.jpg)' '*.jpg',                         
                         'Bitmap files (*.bmp)' '*.bmp',
                         'JPEG Files   (*.jpeg)' '*.jpeg',
                         'TIF Files    (*.tif)' '*.tif',
                         'All Files    (*.*) ' '*.*'
-                INITIAL-DIR initDir
-                MUST-EXIST USE-FILENAME UPDATE okClicked.
+                        INITIAL-FILTER iInitialFilter
+                INITIAL-DIR initDir                      
+                MUST-EXIST USE-FILENAME UPDATE okClicked.  
+  END.           
+  
   IF okClicked THEN
   eb.cad-no:SCREEN-VALUE = imageName(cadfile).
 END.
