@@ -52,7 +52,7 @@ DEFINE VARIABLE cPrgmName          AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cOutputFormat      AS CHARACTER NO-UNDO INITIAL
     "Grid,LocalCSV,CSV,XLS,DOCX,PDF,HTML,Print -d,View".
 DEFINE VARIABLE cOutputImage       AS CHARACTER NO-UNDO INITIAL
-    "table.png,CSV.png,spreadsheet_sum.png,XLS.png,DOCX.png,PDF.png,html_tag.png,printer.png,table.png".
+    "table.png,CSV.png,spreadsheet_sum.png,XLS.png,DOCX.png,PDF.png,html_tag.png,print_new.png,table.png".
 DEFINE VARIABLE cUserID            AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hAppSrvBin         AS HANDLE    NO-UNDO.
 DEFINE VARIABLE iUserSecurityLevel AS INTEGER   NO-UNDO.
@@ -169,7 +169,7 @@ DEFINE BUTTON btnPDF
      SIZE 8 BY 1.9 TOOLTIP "PDF".
 
 DEFINE BUTTON btnPrint 
-     IMAGE-UP FILE "Graphics/32x32/printer.png":U
+     IMAGE-UP FILE "Graphics/32x32/print_new.png":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/printer_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 8 BY 1.9 TOOLTIP "Printer".
@@ -199,8 +199,8 @@ DEFINE BUTTON btnScheduleTask
      SIZE 8 BY 1.91 TOOLTIP "Schedule Task".
 
 DEFINE BUTTON btnSubjctAttr 
-     IMAGE-UP FILE "Graphics/32x32/window_dialog.png":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/window_dialog_disabled.png":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/udf.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/udf_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Subject Attributes" 
      SIZE 8 BY 1.91 TOOLTIP "Set External Form".
 

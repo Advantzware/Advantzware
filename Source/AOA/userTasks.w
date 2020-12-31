@@ -274,17 +274,17 @@ DEFINE BROWSE browseTasks
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS browseTasks s-object _FREEFORM
   QUERY browseTasks DISPLAY
       ttDynParamValue.favorite COLUMN-LABEL "Fav" VIEW-AS TOGGLE-BOX
-ttDynParamValue.titleDescription LABEL-BGCOLOR 22
-ttDynParamValue.module LABEL-BGCOLOR 22
-fUserID(ttDynParamValue.user-id) @ ttDynParamValue.user-id LABEL-BGCOLOR 22
-ttDynParamValue.mnemonic LABEL-BGCOLOR 22
-ttDynParamValue.subjectGroup LABEL-BGCOLOR 22
+ttDynParamValue.titleDescription LABEL-BGCOLOR 14
+ttDynParamValue.module LABEL-BGCOLOR 14
+fUserID(ttDynParamValue.user-id) @ ttDynParamValue.user-id LABEL-BGCOLOR 14
+ttDynParamValue.mnemonic LABEL-BGCOLOR 14
+ttDynParamValue.subjectGroup LABEL-BGCOLOR 14
 ttDynParamValue.scheduled VIEW-AS TOGGLE-BOX
-fParamValueID(ttDynParamValue.paramValueID) @ cParamValueID COLUMN-LABEL "Sched ID" LABEL-BGCOLOR 22
-fSubjectID(ttDynParamValue.subjectID) @ cSubjectID COLUMN-LABEL "Subject" LABEL-BGCOLOR 22
+fParamValueID(ttDynParamValue.paramValueID) @ cParamValueID COLUMN-LABEL "Sched ID" LABEL-BGCOLOR 14
+fSubjectID(ttDynParamValue.subjectID) @ cSubjectID COLUMN-LABEL "Subject" LABEL-BGCOLOR 14
 ttDynParamValue.email VIEW-AS TOGGLE-BOX
-ttDynParamValue.outputFormat LABEL-BGCOLOR 22
-ttDynParamValue.lastRunDateTime LABEL-BGCOLOR 22
+ttDynParamValue.outputFormat LABEL-BGCOLOR 14
+ttDynParamValue.lastRunDateTime LABEL-BGCOLOR 14
 ttDynParamValue.securityLevel
 ttDynParamValue.runSync VIEW-AS TOGGLE-BOX
 ttDynParamValue.subjectType
@@ -674,7 +674,7 @@ END.
 
 /* ***************************  Main Block  *************************** */
 
-{methods/template/brwcustom.i}
+{methods/template/brwcustom2.i}
 
 /* If testing in the UIB, initialize the SmartObject. */  
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          

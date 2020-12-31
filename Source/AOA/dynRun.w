@@ -146,7 +146,7 @@ DEFINE BUTTON btnPDF
      SIZE 8 BY 1.91 TOOLTIP "PDF".
 
 DEFINE BUTTON btnPrint 
-     IMAGE-UP FILE "Graphics/32x32/printer.png":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/print_new.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 8 BY 1.91 TOOLTIP "Printer".
 

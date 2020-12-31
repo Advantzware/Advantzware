@@ -7,20 +7,20 @@
   DEFINE VARIABLE i AS INTEGER NO-UNDO.
 
   COLOR-TABLE:NUM-ENTRIES = 99.
-  DO i = 30 TO 43:
+  DO i = 51 TO 64:
     COLOR-TABLE:SET-DYNAMIC(i,YES).
   END.
 
   IF SEARCH('{&data}/sbColors.dat') EQ ? THEN DO:
     OUTPUT TO '{&data}/sbColors.dat'.
-    DO i = 30 TO 43:
+    DO i = 51 TO 64:
       PUT UNFORMATTED '0,0,0' SKIP.
     END.
     OUTPUT CLOSE.
   END.
   
   INPUT FROM VALUE(SEARCH('{&data}/sbColors.dat')) NO-ECHO.
-  DO i = 30 TO 43:
+  DO i = 51 TO 64:
     IMPORT colorValue.
     ASSIGN
       redValue = INTEGER(ENTRY(1,colorValue))

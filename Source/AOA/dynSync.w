@@ -160,16 +160,16 @@ DEFINE QUERY dynSync FOR
 DEFINE BROWSE dynSync
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS dynSync C-Win _FREEFORM
   QUERY dynSync DISPLAY
-      ttDynSync.subjectID LABEL-BGCOLOR 22
-ttDynSync.subjectTitle LABEL-BGCOLOR 22
-ttDynSync.paramDescription LABEL-BGCOLOR 22
-ttDynSync.colName LABEL-BGCOLOR 22
-ttDynSync.sync LABEL-BGCOLOR 22 VIEW-AS TOGGLE-BOX
-ttDynSync.valueAction LABEL-BGCOLOR 22
-ttDynSync.valueType LABEL-BGCOLOR 22
-ttDynSync.defaultValue LABEL-BGCOLOR 22
-ttDynSync.currentValue LABEL-BGCOLOR 22
-ttDynSync.user-id LABEL-BGCOLOR 22
+      ttDynSync.subjectID LABEL-BGCOLOR 14
+ttDynSync.subjectTitle LABEL-BGCOLOR 14
+ttDynSync.paramDescription LABEL-BGCOLOR 14
+ttDynSync.colName LABEL-BGCOLOR 14
+ttDynSync.sync LABEL-BGCOLOR 14 VIEW-AS TOGGLE-BOX
+ttDynSync.valueAction LABEL-BGCOLOR 14
+ttDynSync.valueType LABEL-BGCOLOR 14
+ttDynSync.defaultValue LABEL-BGCOLOR 14
+ttDynSync.currentValue LABEL-BGCOLOR 14
+ttDynSync.user-id LABEL-BGCOLOR 14
 ttDynSync.paramValueID
 ttDynSync.sortOrder
 ENABLE
@@ -375,13 +375,13 @@ END.
 
 &Scoped-Define ExcludeAuditHistory
 {methods/menus/stdHelpMenu.i}
-{methods/template/brwcustom.i}
+{methods/template/brwcustom2.i}
 
 
 /* Set CURRENT-WINDOW: this will parent dialog-boxes and frames.        */
 ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME} 
        THIS-PROCEDURE:CURRENT-WINDOW = {&WINDOW-NAME}.
-{methods/template/brwcustom.i}
+{methods/template/brwcustom2.i}
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
 ON CLOSE OF THIS-PROCEDURE 

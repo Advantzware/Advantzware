@@ -231,10 +231,10 @@ DEFINE QUERY subjectBrowse FOR
 DEFINE BROWSE lookupBrowse
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS lookupBrowse C-Win _STRUCTURED
   QUERY lookupBrowse NO-LOCK DISPLAY
-      dynLookup.fieldName FORMAT "x(20)":U LABEL-BGCOLOR 22
-      dynLookup.tableName FORMAT "x(20)":U LABEL-BGCOLOR 22
-      dynLookup.subjectID FORMAT ">,>>>,>>9":U LABEL-BGCOLOR 22
-      dynLookup.prgmName FORMAT "x(40)":U LABEL-BGCOLOR 22
+      dynLookup.fieldName FORMAT "x(20)":U LABEL-BGCOLOR 14
+      dynLookup.tableName FORMAT "x(20)":U LABEL-BGCOLOR 14
+      dynLookup.subjectID FORMAT ">,>>>,>>9":U LABEL-BGCOLOR 14
+      dynLookup.prgmName FORMAT "x(40)":U LABEL-BGCOLOR 14
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ROW-MARKERS SEPARATORS SIZE 75 BY 24.76
@@ -243,9 +243,9 @@ DEFINE BROWSE lookupBrowse
 DEFINE BROWSE paramSetBrowse
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS paramSetBrowse C-Win _FREEFORM
   QUERY paramSetBrowse DISPLAY
-      ttDynParamSet.setName LABEL-BGCOLOR 22
-ttDynParamSet.paramSetID LABEL-BGCOLOR 22
-ttDynParamSet.paramSetType LABEL-BGCOLOR 22
+      ttDynParamSet.setName LABEL-BGCOLOR 14
+ttDynParamSet.paramSetID LABEL-BGCOLOR 14
+ttDynParamSet.paramSetType LABEL-BGCOLOR 14
 ttDynParamSet.exportParamSet VIEW-AS TOGGLE-BOX
 ENABLE
 ttDynParamSet.exportParamSet
@@ -257,9 +257,9 @@ ttDynParamSet.exportParamSet
 DEFINE BROWSE subjectBrowse
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS subjectBrowse C-Win _FREEFORM
   QUERY subjectBrowse NO-LOCK DISPLAY
-      ttDynSubject.subjectTitle LABEL-BGCOLOR 22
-ttDynSubject.subjectID LABEL-BGCOLOR 22
-ttDynSubject.subjectType LABEL-BGCOLOR 22
+      ttDynSubject.subjectTitle LABEL-BGCOLOR 14
+ttDynSubject.subjectID LABEL-BGCOLOR 14
+ttDynSubject.subjectType LABEL-BGCOLOR 14
 ttDynSubject.exportSubject VIEW-AS TOGGLE-BOX
 ENABLE
 ttDynSubject.exportSubject
@@ -594,11 +594,11 @@ ON CLOSE OF THIS-PROCEDURE
 PAUSE 0 BEFORE-HIDE.
 
 &Scoped-define sdBrowseName subjectBrowse
-{methods/template/brwcustom.i 1}
+{methods/template/brwcustom2.i 1}
 &Scoped-define sdBrowseName paramSetBrowse
-{methods/template/brwcustom.i 2}
+{methods/template/brwcustom2.i 2}
 &Scoped-define sdBrowseName lookupBrowse
-{methods/template/brwcustom.i 3}
+{methods/template/brwcustom2.i 3}
 
 /* Now enable the interface and wait for the exit condition.            */
 /* (NOTE: handle ERROR and END-KEY so cleanup code will always fire.    */

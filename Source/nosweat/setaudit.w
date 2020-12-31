@@ -121,9 +121,9 @@ DEFINE TEMP-TABLE ttField NO-UNDO
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS btnResetField btnResetTable btnSaveField ~
-btnSaveTable svFilter ResetFromDefault dbTables dbFields ~
-svToggleAuditCreate svToggleAuditDelete btnBeforeValueFilterClear ~
-svToggleAuditUpdate svStackTrace toggleFields btnExit 
+svFilter btnSaveTable dbTables ResetFromDefault dbFields ~
+svToggleAuditCreate svToggleAuditDelete svToggleAuditUpdate svStackTrace ~
+btnBeforeValueFilterClear toggleFields btnExit 
 &Scoped-Define DISPLAYED-OBJECTS svFilter svToggleAuditCreate ~
 svToggleAuditDelete svToggleAuditUpdate svStackTrace toggleFields 
 
@@ -133,19 +133,15 @@ svToggleAuditDelete svToggleAuditUpdate svStackTrace toggleFields
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
 
+
 /* ************************  Function Prototypes ********************** */
 
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fSetSaveButton C-Win
-FUNCTION fSetSaveButton RETURNS LOGICAL 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fSetSaveButton C-Win 
+FUNCTION fSetSaveButton RETURNS LOGICAL
   (iplSave AS LOGICAL) FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
-
 
 
 /* ***********************  Control Definitions  ********************** */
@@ -300,23 +296,23 @@ DEFINE FRAME DEFAULT-FRAME
      btnResetField AT ROW 1.48 COL 151 WIDGET-ID 62
      btnResetTable AT ROW 2.91 COL 8 WIDGET-ID 60
      btnSaveField AT ROW 1.48 COL 146 WIDGET-ID 64
-     btnSaveTable AT ROW 2.91 COL 3 WIDGET-ID 58
      svFilter AT ROW 2.43 COL 32 COLON-ALIGNED HELP
           "Enter Filter Value" WIDGET-ID 6
+     btnSaveTable AT ROW 2.91 COL 3 WIDGET-ID 58
+     dbTables AT ROW 3.86 COL 2 WIDGET-ID 100
      ResetFromDefault AT ROW 1.48 COL 3 HELP
           "Reset From Defaults" WIDGET-ID 48
-     dbTables AT ROW 3.86 COL 2 WIDGET-ID 100
      dbFields AT ROW 3.86 COL 145 WIDGET-ID 200
      svToggleAuditCreate AT ROW 3.91 COL 83 HELP
           "Select to Toggle Audit Create" WIDGET-ID 4
      svToggleAuditDelete AT ROW 3.91 COL 98 HELP
           "Select to Toggle Audit Delete" WIDGET-ID 8
-     btnBeforeValueFilterClear AT ROW 2.43 COL 66 HELP
-          "Click to Clear Value Filter" WIDGET-ID 40
      svToggleAuditUpdate AT ROW 3.91 COL 113 HELP
           "Select to Toggle Audit Update" WIDGET-ID 10
      svStackTrace AT ROW 3.91 COL 128 HELP
           "Select to Toggle Audit Stack Trace" WIDGET-ID 42
+     btnBeforeValueFilterClear AT ROW 2.43 COL 66 HELP
+          "Click to Clear Value Filter" WIDGET-ID 40
      toggleFields AT ROW 3.91 COL 221.6 HELP
           "Toggle ON/OFF" WIDGET-ID 44
      btnExit AT ROW 1.48 COL 229 HELP
@@ -324,15 +320,15 @@ DEFINE FRAME DEFAULT-FRAME
      " CYAN : Field Audit Overrides Exist" VIEW-AS TEXT
           SIZE 34 BY .62 AT ROW 2.91 COL 175 WIDGET-ID 56
           BGCOLOR 11 
+     " PURPLE: Default Overridden" VIEW-AS TEXT
+          SIZE 29 BY .62 AT ROW 2.91 COL 115 WIDGET-ID 54
+          BGCOLOR 13 FGCOLOR 15 
+     " RED : Default Value is OFF" VIEW-AS TEXT
+          SIZE 27 BY .62 AT ROW 2.91 COL 87 WIDGET-ID 50
+          BGCOLOR 12 FGCOLOR 15 
      " GREEN : Default Value is ON" VIEW-AS TEXT
           SIZE 29 BY .62 AT ROW 2.91 COL 145 WIDGET-ID 52
           BGCOLOR 10 
-     " RED : Default Value is OFF" VIEW-AS TEXT
-          SIZE 27 BY .62 AT ROW 2.91 COL 86 WIDGET-ID 50
-          BGCOLOR 12 FGCOLOR 15 
-     " YELLOW : Default Overridden" VIEW-AS TEXT
-          SIZE 30 BY .62 AT ROW 2.91 COL 114 WIDGET-ID 54
-          BGCOLOR 14 
      RECT-11 AT ROW 1.24 COL 2 WIDGET-ID 2
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -386,8 +382,8 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME DEFAULT-FRAME
    FRAME-NAME                                                           */
-/* BROWSE-TAB dbTables ResetFromDefault DEFAULT-FRAME */
-/* BROWSE-TAB dbFields dbTables DEFAULT-FRAME */
+/* BROWSE-TAB dbTables btnSaveTable DEFAULT-FRAME */
+/* BROWSE-TAB dbFields ResetFromDefault DEFAULT-FRAME */
 /* SETTINGS FOR BUTTON btnOK IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
 ASSIGN 
@@ -572,7 +568,7 @@ DO:
     &scoped-define exclude-row-display true 
     {methods/template/brwrowdisplay.i}    
     ASSIGN
-        hFieldColumn[5]:BGCOLOR = IF ttField.audit NE ttField.auditDefault THEN 14 ELSE ?
+        hFieldColumn[5]:BGCOLOR = IF ttField.audit NE ttField.auditDefault THEN 13 ELSE ?
         hFieldColumn[6]:BGCOLOR = IF ttField.auditDefault THEN 10 ELSE 12
         .
 END.
@@ -604,23 +600,23 @@ DO:
     &scoped-define exclude-row-display true 
     {methods/template/brwrowdisplay.i}    
     ASSIGN
-        hTableColumn[5]:BGCOLOR  = IF ttTable.expireDays NE ttTable.expireDaysDefault THEN 14 ELSE ?
+        hTableColumn[5]:BGCOLOR  = IF ttTable.expireDays NE ttTable.expireDaysDefault THEN 13 ELSE ?
         /* create */
-        hTableColumn[7]:BGCOLOR  = IF ttTable.audit[1] NE ttTable.auditDefault[1] THEN 14 ELSE ?
+        hTableColumn[7]:BGCOLOR  = IF ttTable.audit[1] NE ttTable.auditDefault[1] THEN 13 ELSE ?
         hTableColumn[8]:BGCOLOR  = IF ttTable.auditDefault[1] THEN 10 ELSE 12
         /* delete */
-        hTableColumn[9]:BGCOLOR  = IF ttTable.audit[2] NE ttTable.auditDefault[2] THEN 14 ELSE ?
+        hTableColumn[9]:BGCOLOR  = IF ttTable.audit[2] NE ttTable.auditDefault[2] THEN 13 ELSE ?
         hTableColumn[10]:BGCOLOR = IF ttTable.auditDefault[2] THEN 10 ELSE 12
         /* update */
-        hTableColumn[11]:BGCOLOR = IF ttTable.audit[3] NE ttTable.auditDefault[3] THEN 14 ELSE ?
+        hTableColumn[11]:BGCOLOR = IF ttTable.audit[3] NE ttTable.auditDefault[3] THEN 13 ELSE ?
         hTableColumn[12]:BGCOLOR = IF ttTable.auditDefault[3] THEN 10 ELSE 12
         hTableColumn[11]:BGCOLOR = IF CAN-FIND(FIRST ttField
                                                WHERE ttField.AuditTable EQ ttTable.AuditTable
                                                  AND ttField.Audit NE ttField.AuditDefault) THEN 11
-                                   ELSE IF ttTable.audit[3] NE ttTable.auditDefault[3] THEN 14
+                                   ELSE IF ttTable.audit[3] NE ttTable.auditDefault[3] THEN 13
                                    ELSE ?
         /* stack trace */
-        hTableColumn[13]:BGCOLOR = IF ttTable.audit[4] NE ttTable.auditDefault[4] THEN 14 ELSE ?
+        hTableColumn[13]:BGCOLOR = IF ttTable.audit[4] NE ttTable.auditDefault[4] THEN 13 ELSE ?
         hTableColumn[14]:BGCOLOR = IF ttTable.auditDefault[4] THEN 10 ELSE 12
         .
 END.
@@ -774,7 +770,11 @@ RUN util/CheckModule.p ("ASI","Audit", YES, OUTPUT lContinue).
 &ELSE
 lContinue = YES.
 &ENDIF
-{methods/template/brwcustom.i}
+
+&Scoped-define sdBrowseName dbTables
+{methods/template/brwcustom2.i 1}
+&Scoped-define sdBrowseName dbFields
+{methods/template/brwcustom2.i 2}
 
 /* Now enable the interface and wait for the exit condition.            */
 /* (NOTE: handle ERROR and END-KEY so cleanup code will always fire.    */
@@ -844,10 +844,10 @@ PROCEDURE enable_UI :
   DISPLAY svFilter svToggleAuditCreate svToggleAuditDelete svToggleAuditUpdate 
           svStackTrace toggleFields 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE btnResetField btnResetTable btnSaveField btnSaveTable svFilter 
-         ResetFromDefault dbTables dbFields svToggleAuditCreate 
-         svToggleAuditDelete btnBeforeValueFilterClear svToggleAuditUpdate 
-         svStackTrace toggleFields btnExit 
+  ENABLE btnResetField btnResetTable btnSaveField svFilter btnSaveTable 
+         dbTables ResetFromDefault dbFields svToggleAuditCreate 
+         svToggleAuditDelete svToggleAuditUpdate svStackTrace 
+         btnBeforeValueFilterClear toggleFields btnExit 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
@@ -1343,11 +1343,10 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 /* ************************  Function Implementations ***************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fSetSaveButton C-Win
-FUNCTION fSetSaveButton RETURNS LOGICAL 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fSetSaveButton C-Win 
+FUNCTION fSetSaveButton RETURNS LOGICAL
   (iplSave AS LOGICAL):
 /*------------------------------------------------------------------------------
  Purpose:
@@ -1368,6 +1367,7 @@ FUNCTION fSetSaveButton RETURNS LOGICAL
     RETURN lSave.
 
 END FUNCTION.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+

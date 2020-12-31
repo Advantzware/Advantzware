@@ -36,7 +36,6 @@ CREATE WIDGET-POOL.
 {{&includes}/filterVars.i}
 {{&includes}/ttblJob.i}
 {{&viewers}/includes/sharedVars.i NEW}
-{methods/template/brwcustomdef.i}
 
 /* Parameters Definitions ---                                           */
 
@@ -46,6 +45,7 @@ DEFINE VARIABLE resourceValue AS CHARACTER NO-UNDO.
 DEFINE VARIABLE popupHandle AS HANDLE NO-UNDO.
 
 {{&viewers}/includes/browseDef.i}
+{methods/defines/sortByDefs.i}
 
 /* configuration vars */
 {{&includes}/configVars.i}
@@ -90,8 +90,8 @@ DEFINE VARIABLE popupHandle AS HANDLE NO-UNDO.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS resources btnFilter btnPrint ~
-btnDataCollection btnRefresh RECT-1 jobPhrase btnSort btnGoTo browseJob 
-&Scoped-Define DISPLAYED-OBJECTS resources jobPhrase sortableColumns 
+btnDataCollection btnRefresh RECT-1 jobPhrase btnGoTo browseJob 
+&Scoped-Define DISPLAYED-OBJECTS resources jobPhrase 
 
 /* Custom List Definitions                                              */
 /* ttblResourceFields,phraseFields,List-3,List-4,List-5,List-6          */
@@ -131,10 +131,6 @@ DEFINE BUTTON btnRefresh
      LABEL "" 
      SIZE 5 BY 1.1 TOOLTIP "Refresh".
 
-DEFINE BUTTON btnSort 
-     LABEL "&Ascending" 
-     SIZE 13 BY 1 TOOLTIP "Toggle Ascending/Descending Sort".
-
 DEFINE VARIABLE resources AS CHARACTER FORMAT "X(256)":U INITIAL "<Select ...>" 
      LABEL "&Resource" 
      VIEW-AS COMBO-BOX SORT INNER-LINES 30
@@ -147,11 +143,6 @@ DEFINE VARIABLE jobPhrase AS CHARACTER FORMAT "X(256)":U
      LABEL "&Job" 
      VIEW-AS FILL-IN 
      SIZE 24 BY 1 NO-UNDO.
-
-DEFINE VARIABLE sortableColumns AS CHARACTER FORMAT "X(256)":U INITIAL " Sortable Columns" 
-      VIEW-AS TEXT 
-     SIZE 18 BY 1
-     BGCOLOR 14  NO-UNDO.
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
@@ -180,7 +171,7 @@ DEFINE BROWSE browseJob
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     resources AT ROW 1 COL 106.4 HELP
+     resources AT ROW 1 COL 108.2 HELP
           "Select Resource"
      btnFilter AT ROW 1.05 COL 31 HELP
           "Click to Set Filter Values"
@@ -191,10 +182,8 @@ DEFINE FRAME F-Main
      btnRefresh AT ROW 1.05 COL 100 HELP
           "Click to Refresh Resource Browser"
      jobPhrase AT ROW 1.1 COL 5 COLON-ALIGNED
-     btnSort AT ROW 1.1 COL 55
      btnGoTo AT ROW 1.1 COL 75
      browseJob AT ROW 2.19 COL 1
-     sortableColumns AT ROW 1.1 COL 35 COLON-ALIGNED NO-LABEL
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -272,8 +261,6 @@ ASSIGN
    2                                                                    */
 /* SETTINGS FOR COMBO-BOX resources IN FRAME F-Main
    ALIGN-L                                                              */
-/* SETTINGS FOR FILL-IN sortableColumns IN FRAME F-Main
-   NO-ENABLE                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -346,8 +333,6 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL browseJob sObject
 ON ROW-DISPLAY OF browseJob IN FRAME F-Main
 DO:
-    &scoped-define exclude-row-display true 
-    {methods/template/brwrowdisplay.i}    
   {{&viewers}/includes/rowDisplay.i}
 END.
 
@@ -358,13 +343,10 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL browseJob sObject
 ON START-SEARCH OF browseJob IN FRAME F-Main
 DO:
-{methods/template/sortindicator.i} 
-  IF {&BROWSE-NAME}:CURRENT-COLUMN:NAME NE ? THEN DO:
-    columnLabel = {&BROWSE-NAME}:CURRENT-COLUMN:NAME.
-    RUN reopenBrowse.
-  END.
-  {methods/template/sortindicatorend.i} 
-  RETURN NO-APPLY.
+  IF SELF:CURRENT-COLUMN:NAME NE ? THEN
+  columnLabel = SELF:CURRENT-COLUMN:NAME.
+  &Scoped-define ScheduleBoard
+  {AOA/includes/startSearch.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -438,20 +420,6 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btnSort
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnSort sObject
-ON CHOOSE OF btnSort IN FRAME F-Main /* Ascending */
-DO:
-  ASSIGN
-    ascendingSort = NOT ascendingSort
-    SELF:LABEL = IF ascendingSort THEN '&Ascending' ELSE '&Descending'.
-  RUN reopenBrowse.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &Scoped-define SELF-NAME jobPhrase
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL jobPhrase sObject
 ON VALUE-CHANGED OF jobPhrase IN FRAME F-Main /* Job */
@@ -483,7 +451,6 @@ END.
 
 /* ***************************  Main Block  *************************** */
 
-{methods/template/brwcustom.i}
 {{&viewers}/includes/winTitle.i}
 {{&viewers}/includes/viewersInclude.i}
 
@@ -491,6 +458,8 @@ END.
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
   RUN initializeObject.
 &ENDIF
+
+{methods/template/brwcustom2.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -525,7 +494,6 @@ PROCEDURE displayFields :
 ------------------------------------------------------------------------------*/
   RUN getCellColumns.
   DO WITH FRAME {&FRAME-NAME}:
-    DISPLAY sortableColumns.
     {&OPEN-QUERY-{&BROWSE-NAME}}
   END.
 

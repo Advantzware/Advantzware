@@ -31,6 +31,7 @@ DEFINE VARIABLE hQuery          AS HANDLE    NO-UNDO.
 DEFINE VARIABLE idx             AS INTEGER   NO-UNDO.
 DEFINE VARIABLE iFGColor        AS INTEGER   NO-UNDO.
 DEFINE VARIABLE iNumColumns     AS INTEGER   NO-UNDO.
+DEFINE VARIABLE iRow            AS INTEGER   NO-UNDO.
 
 {sys/ref/CustList.i NEW}
 
@@ -131,6 +132,11 @@ ON ROW-DISPLAY OF hQueryBrowse DO:
             hBrowseColumn[dynValueColumn.sortOrder]:FORMAT  = dynValueColumn.colFormat
             hBrowseColumn[dynValueColumn.sortOrder]:FGCOLOR = iFGColor
             .
+        iRow = iRow + 1.
+        DO idx = 1 TO iNumColumns:
+            IF VALID-HANDLE(hBrowseColumn[idx]) THEN
+            hBrowseColumn[idx]:BGCOLOR = IF hBrowseQuery:CURRENT-RESULT-ROW MOD 2 EQ 0 THEN 25 ELSE 26.
+        END. /* else */
         IF dynValueColumn.isStatusField AND
            dynValueColumn.textColor NE dynValueColumn.cellColor AND
            DYNAMIC-FUNCTION("fDynStatusField" IN hDynCalcField,
