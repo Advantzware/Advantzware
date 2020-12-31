@@ -98,11 +98,13 @@ DEFINE INPUT PARAMETER ipcValueForTrue AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER iplIgnoreBlanks AS LOGICAL NO-UNDO.
 DEFINE INPUT-OUTPUT PARAMETER ioplValueAssigned AS LOGICAL NO-UNDO.
 
-IF CAN-DO("YES,Y,TRUE,T,ON,CASE,R",ipcValueToAssign) THEN
-    ipcValueToAssign = ipcValueForTrue.
+DEFINE VARIABLE cValuesForTrue AS CHARACTER NO-UNDO INITIAL "YES,Y,TRUE,T,ON,CASE,R".
+
+IF NOT CAN-DO(cValuesForTrue,ipcValueForTrue) THEN
+    cValuesForTrue = cValuesForTrue + "," + ipcValueForTrue.
 
 IF ipcValueToAssign NE "" OR NOT iplIgnoreBlanks THEN 
-    ioplValueAssigned = ipcValueToAssign EQ ipcValueForTrue. 
+    ioplValueAssigned = LOOKUP(ipcValueToAssign, cValuesForTrue) GT 0.
     
 END PROCEDURE.
 
