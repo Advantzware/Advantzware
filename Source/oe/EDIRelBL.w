@@ -39,7 +39,7 @@ CREATE WIDGET-POOL.
 /* Local Variable Definitions ---                                       */
 
 {methods/defines/globdefs.i}
-{methods/template/brwcustomdefmulti.i}
+
 DEFINE NEW SHARED VARIABLE cocode AS CHARACTER NO-UNDO.
 DEFINE NEW SHARED VARIABLE locode AS CHARACTER NO-UNDO.
 DEFINE NEW SHARED VARIABLE relh-recid AS RECID NO-UNDO.
@@ -728,11 +728,12 @@ END.
 /* Set CURRENT-WINDOW: this will parent dialog-boxes and frames.        */
 ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME} 
        THIS-PROCEDURE:CURRENT-WINDOW = {&WINDOW-NAME}.
-brwHandList = string(browse EDIRelease:handle).
-brwHandList = brwHandList + "," + string(browse EDIBOLPost:handle).
-{methods/template/brwcustommulti.i &brw-list=brwHandList }
-{methods/template/brwrowdisplaymulti.i &brw-name="EDIRelease" }
-{methods/template/brwrowdisplaymulti.i &brw-name="EDIBOLPost" }
+
+&Scoped-define sdBrowseName EDIRelease
+{methods/template/brwcustom2.i 1}
+&Scoped-define sdBrowseName EDIBOLPost
+{methods/template/brwcustom2.i 2}
+
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
 ON CLOSE OF THIS-PROCEDURE 
