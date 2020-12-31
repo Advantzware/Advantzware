@@ -37,7 +37,7 @@ DEFINE VARIABLE gcAdderMatTypes                       AS CHARACTER NO-UNDO INITI
 DEFINE VARIABLE gcDeptsForPrinters                    AS CHARACTER NO-UNDO INITIAL "PR".
 DEFINE VARIABLE gcDeptsForGluers                      AS CHARACTER NO-UNDO INITIAL "GL,QS".
 DEFINE VARIABLE gcDeptsForLeafers                     AS CHARACTER NO-UNDO INITIAL "WN,WS,FB,FS".
-DEFINE VARIABLE gcDeptsForSheeters                    AS CHARACTER NO-UNDO INITIAL "RC,RS".
+DEFINE VARIABLE gcDeptsForSheeters                    AS CHARACTER NO-UNDO INITIAL "RC,RS,CR".
 DEFINE VARIABLE gcDeptsForCoaters                     AS CHARACTER NO-UNDO INITIAL "PR,CT".
 
 DEFINE VARIABLE gcIndustryFolding                     AS CHARACTER NO-UNDO INITIAL "Folding".
@@ -463,6 +463,7 @@ PROCEDURE pAddEstBlank PRIVATE:
         opbf-estCostBlank.priceBasedOnYield       = ipbf-eb.yrprice AND ipbf-estCostHeader.estType EQ gcTypeCombo
         .
         
+    
     FIND FIRST bf-estCostItem EXCLUSIVE-LOCK 
         WHERE bf-estCostItem.estCostHeaderID EQ opbf-estCostBlank.estCostHeaderID
         AND bf-estCostItem.customerPart EQ ipbf-eb.part-no
@@ -471,21 +472,22 @@ PROCEDURE pAddEstBlank PRIVATE:
     IF AVAILABLE bf-estCostItem THEN 
     DO:
         ASSIGN 
-            opbf-estCostBlank.estCostItemID    = bf-estCostItem.estCostItemID
+            opbf-estCostBlank.estCostItemID = bf-estCostItem.estCostItemID
             bf-estCostItem.sizeDesc            = TRIM(STRING(opbf-estCostBlank.dimLength,">>>9.99")) + " x " + TRIM(STRING(opbf-estCostBlank.dimWidth,">>>9.99"))
-            opbf-estCostBlank.quantityPerSet   = IF bf-estCostItem.quantityPerSet EQ 0 THEN 1 ELSE bf-estCostItem.quantityPerSet
+            opbf-estCostBlank.quantityPerSet   = IF opbf-estCostBlank.formNo EQ 0 OR bf-estCostItem.quantityPerSet EQ 0 THEN 1 ELSE bf-estCostItem.quantityPerSet
             opbf-estCostBlank.quantityRequired = opbf-estCostBlank.quantityRequired * opbf-estCostBlank.quantityPerSet
             opbf-estCostBlank.quantityYielded  = opbf-estCostBlank.quantityYielded * opbf-estCostBlank.quantityPerSet
             .
         IF opbf-estCostBlank.dimDepth NE 0 THEN 
             bf-estCostItem.sizeDesc = bf-estCostItem.sizeDesc + " x " + TRIM(STRING(opbf-estCostBlank.dimDepth,">>>9.99")).
-        
+            
         RELEASE bf-estCostItem.
     END.
     ASSIGN 
         ipbf-estCostForm.numOutBlanksOnNet = ipbf-estCostForm.numOutBlanksOnNet + opbf-estCostBlank.numOut
         ipbf-estCostForm.blankArea         = ipbf-estCostForm.blankArea + opbf-estCostBlank.blankArea * opbf-estCostBlank.numOut
         . 
+    
     IF IsSetType(ipbf-estCostHeader.estType) AND opbf-estCostBlank.formNo NE 0 THEN 
     DO:
         FIND FIRST bf-SetHeader-estCostBlank EXCLUSIVE-LOCK 
@@ -625,9 +627,7 @@ PROCEDURE pAddEstItem PRIVATE:
         opbf-estCostItem.blankNo                   = ipbf-eb.blank-no
         
         .
-    
-
-     
+        
     IF ipbf-estCostHeader.estType EQ gcTypeCombo THEN 
         ASSIGN 
             opbf-estCostItem.quantityRequired = ipbf-eb.bl-qty
@@ -1054,7 +1054,7 @@ PROCEDURE pAddEstOperationFromEstOp PRIVATE:
         IF fIsDepartment(gcDeptsForLeafers, opbf-estCostOperation.departmentID)  THEN 
             opbf-estCostOperation.isLeafer = YES.
         
-        IF CAN-DO("R,S",opbf-estCostOperation.feedType) THEN 
+        IF CAN-DO("R,S,A,P",opbf-estCostOperation.feedType) THEN 
         DO:
             FOR EACH bf-est-op NO-LOCK 
                 WHERE bf-est-op.company EQ ipbf-est-op.company
@@ -1067,7 +1067,7 @@ PROCEDURE pAddEstOperationFromEstOp PRIVATE:
                 WHERE bf-mach.company EQ bf-est-op.company
                 AND bf-mach.m-code EQ bf-est-op.m-code 
                 BY bf-est-op.line:
-                IF bf-mach.p-type EQ "B" OR bf-mach.p-type EQ "A" OR bf-mach.p-type EQ "P" THEN  /*Last machine before a blank fed*/
+                IF bf-mach.p-type EQ "B" THEN  /*Last machine before a blank fed*/
                     ASSIGN 
                         opbf-estCostOperation.isBlankMaker = YES
                         opbf-estCostOperation.outputType   = "B"
@@ -4597,16 +4597,17 @@ PROCEDURE pProcessOperation PRIVATE:
             ipbf-estCostOperation.quantityInRunWaste        = 0
             ipbf-estCostOperation.quantityInSetupWaste      = 0
             .
-    ELSE IF ipbf-estCostOperation.feedType EQ "P" AND IsSetType(ipbf-estCostHeader.estType) THEN DO: 
-        dPartCount = fGetPartCount(ipbf-estCostHeader.estCostHeaderID).
-        ASSIGN 
-            ipbf-estCostOperation.quantityIn                = ipbf-estCostOperation.quantityIn * dPartCount
-            ipbf-estCostOperation.quantityInAfterSetupWaste = ipbf-estCostOperation.quantityInAfterSetupWaste * dPartCount
-            ipbf-estCostOperation.quantityInNoWaste         = ipbf-estCostOperation.quantityInNoWaste * dPartCount
-            ipbf-estCostOperation.quantityInRunWaste        = ipbf-estCostOperation.quantityInRunWaste * dPartCount
-            ipbf-estCostOperation.quantityInSetupWaste      = ipbf-estCostOperation.quantityInSetupWaste * dPartCount
-            .
-    END.
+    ELSE IF ipbf-estCostOperation.feedType EQ "P" AND IsSetType(ipbf-estCostHeader.estType) THEN 
+        DO:
+            dPartCount = fGetPartCount(ipbf-estCostHeader.estCostHeaderID).
+            ASSIGN
+                ipbf-estCostOperation.quantityIn                = ipbf-estCostOperation.quantityIn * dPartCount
+                ipbf-estCostOperation.quantityInAfterSetupWaste = ipbf-estCostOperation.quantityInAfterSetupWaste * dPartCount
+                ipbf-estCostOperation.quantityInNoWaste         = ipbf-estCostOperation.quantityInNoWaste * dPartCount
+                ipbf-estCostOperation.quantityInRunWaste        = ipbf-estCostOperation.quantityInRunWaste * dPartCount
+                ipbf-estCostOperation.quantityInSetupWaste      = ipbf-estCostOperation.quantityInSetupWaste * dPartCount
+                .
+        END.
 END PROCEDURE.
 
 PROCEDURE pPurgeCalculation PRIVATE:
@@ -4928,7 +4929,8 @@ FUNCTION fGetPartCount RETURNS DECIMAL PRIVATE
     DEFINE VARIABLE dParts AS DECIMAL NO-UNDO.
     
     FOR EACH estCostBlank NO-LOCK 
-        WHERE estCostBlank.estCostHeaderID EQ ipiEstCostHeaderID:
+        WHERE estCostBlank.estCostHeaderID EQ ipiEstCostHeaderID
+        AND estCostBlank.formNo NE 0:
         dParts = dParts + estCostBlank.quantityPerSet.
     END.
     
