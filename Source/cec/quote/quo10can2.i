@@ -36,11 +36,11 @@
    PUT "<FArial><P12><=#3>" /*<R-3>" "    Page#: " + string(PAGE-NUM - lv-pg-num,">>9") + " of " + string(lv-tot-pg) FORM "x(20)" */ .
    IF NOT s-sep-page THEN DO:
      PUT    "<=#3><R-3><C+22> " " Pg: " + string(PAGE-NUM,">>9") + " of " +  "<#PAGES>" FORM "x(30)" .
-     PUT    "<=#3><R-1.5><C-0> <B>Soumission / Quotation#: " v-first-q-no "</B>" .
+     PUT    "<=#3><R-1.5><C-0> <B>Soumission / Quotation#: " v-first-q-no FORMAT ">>>>>9" "</B>" .
    END.
    ELSE DO:
        PUT    "<=#3><R-2><C+22>" "     Pg: " + string(PAGE-NUM - lv-pg-num,">>9") + " of " + string(lv-tot-pg)  FORM "x(30)" .
-       PUT    "<=#3><R-1.5><C-0> <B>Soumission / Quotation#: " v-first-q-no "</B>" .
+       PUT    "<=#3><R-1.5><C-0> <B>Soumission / Quotation#: " v-first-q-no FORMAT ">>>>>9" "</B>" .
    END.
 
      PUT  "<P10>" SKIP
