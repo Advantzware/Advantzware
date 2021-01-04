@@ -460,7 +460,7 @@ DEFINE VARIABLE iCaseQty      AS INTEGER   NO-UNDO.
               assign v-bo-qty = if ( ar-invl.qty - ar-invl.ship-qty ) < 0
                                   then 0 else ar-invl.qty - ar-invl.ship-qty.
 
-            assign v-inv-qty = ar-invl.qty
+            assign v-inv-qty = ar-invl.inv-qty
                    v-ship-qty = ar-invl.ship-qty
                    v-i-no = ar-invl.i-no
                    v-i-dscr = ar-invl.part-no /*i-name*/
