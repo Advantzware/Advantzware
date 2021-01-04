@@ -269,7 +269,7 @@ DEFINE IMAGE menuLink-8
      SIZE 7 BY 1.67.
 
 DEFINE IMAGE menuLinkASI TRANSPARENT
-     SIZE 7 BY 1.67 TOOLTIP "Advantzware Link".
+     SIZE 6.4 BY 1.52 TOOLTIP "Advantzware Link".
 
 DEFINE IMAGE menuLinkZoHo TRANSPARENT
      SIZE 6.4 BY 1.52 TOOLTIP "Advantzware Help Tickets".
@@ -279,12 +279,12 @@ DEFINE RECTANGLE RECT-10
      SIZE 92 BY 5.
 
 DEFINE RECTANGLE RECT-11
-     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
      SIZE 9 BY 2
      BGCOLOR 15 FGCOLOR 24 .
 
 DEFINE RECTANGLE RECT-12
-     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
      SIZE 9 BY 2
      BGCOLOR 15 FGCOLOR 24 .
 
@@ -379,17 +379,17 @@ DEFINE BUTTON btnSearch
 
 DEFINE VARIABLE menuTreeFilter AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
-     SIZE 52 BY 1 TOOLTIP "Name Search"
+     SIZE 53 BY 1 TOOLTIP "Name Search"
      BGCOLOR 15 FGCOLOR 1 FONT 22 NO-UNDO.
 
 DEFINE VARIABLE svFavoriteText AS CHARACTER FORMAT "X(256)":U INITIAL "Favorites" 
       VIEW-AS TEXT 
      SIZE 10 BY .71
-     FONT 22 NO-UNDO.
+     FGCOLOR 15 FONT 22 NO-UNDO.
 
 DEFINE RECTANGLE RECT-23
      EDGE-PIXELS 1 GRAPHIC-EDGE    
-     SIZE 42 BY 1
+     SIZE 43 BY 1
      BGCOLOR 15 FGCOLOR 15 .
 
 DEFINE VARIABLE favoritesList AS CHARACTER 
@@ -415,11 +415,11 @@ DEFINE FRAME FRAME-USER
      "Location:" VIEW-AS TEXT
           SIZE 10 BY .62 AT ROW 1.71 COL 52.6
           FONT 22
-     "Company:" VIEW-AS TEXT
-          SIZE 11 BY .62 AT ROW 1.71 COL 3.6
-          FONT 22
      "User ID:" VIEW-AS TEXT
           SIZE 9 BY .62 AT ROW 1.71 COL 83
+          FONT 22
+     "Company:" VIEW-AS TEXT
+          SIZE 11 BY .62 AT ROW 1.71 COL 3.6
           FONT 22
      boxes AT ROW 8.38 COL 56.2
      menu-image AT ROW 3.24 COL 56.2
@@ -432,9 +432,9 @@ DEFINE FRAME FRAME-USER
      RECT-10 AT ROW 5.81 COL 57 WIDGET-ID 48
      imageSettings AT ROW 1.24 COL 152 WIDGET-ID 52
      imageCompany AT ROW 1.24 COL 73 WIDGET-ID 54
-     menuLinkASI AT ROW 3.86 COL 152 WIDGET-ID 56
-     RECT-11 AT ROW 3.71 COL 151.6 WIDGET-ID 58
-     menuLinkZoHo AT ROW 6 COL 152 WIDGET-ID 64
+     menuLinkASI AT ROW 3.62 COL 152 WIDGET-ID 56
+     RECT-11 AT ROW 3.38 COL 151 WIDGET-ID 58
+     menuLinkZoHo AT ROW 5.76 COL 152 WIDGET-ID 64
      menuLink-1 AT ROW 27.62 COL 134.4 WIDGET-ID 66
      menuLink-2 AT ROW 27.62 COL 126.6 WIDGET-ID 68
      menuLink-3 AT ROW 27.62 COL 118.4 WIDGET-ID 70
@@ -449,12 +449,44 @@ DEFINE FRAME FRAME-USER
      imageRunUlitity AT ROW 1.24 COL 133 WIDGET-ID 104
      RECT-24 AT ROW 1.19 COL 79.6 WIDGET-ID 106
      RECT-25 AT ROW 1.19 COL 114.2 WIDGET-ID 108
-     RECT-12 AT ROW 5.86 COL 151.6 WIDGET-ID 112
+     RECT-12 AT ROW 5.52 COL 151 WIDGET-ID 112
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
          SIZE 160 BY 28.57
          BGCOLOR 15 .
+
+DEFINE FRAME searchFrame
+     btnClear AT ROW 13.86 COL 100 HELP
+          "Clear Search Filters" WIDGET-ID 42
+     menuTreeFilter AT ROW 1.14 COL 53 COLON-ALIGNED HELP
+          "Enter Search Filter" NO-LABEL WIDGET-ID 2
+     favoritesList AT ROW 2.29 COL 6 NO-LABEL WIDGET-ID 52
+     searchSelections AT ROW 2.29 COL 52 NO-LABEL WIDGET-ID 44
+     BtnFavorites AT ROW 1.1 COL 1 HELP
+          "Search Menu / Edit Favorites" WIDGET-ID 54
+     btnSearch AT ROW 1 COL 49 HELP
+          "Search Menu / Edit Favorites" WIDGET-ID 40
+     btnMoveDown AT ROW 5.86 COL 1 HELP
+          "Move Favorite Down" WIDGET-ID 58
+     btnMoveUp AT ROW 3.48 COL 1 HELP
+          "Move Favorite Up" WIDGET-ID 56
+     btnRemove AT ROW 4.67 COL 1 HELP
+          "Remove Favorite" WIDGET-ID 26
+     btnFavorite AT ROW 13.86 COL 52 WIDGET-ID 46
+     svFavoriteText AT ROW 13.95 COL 55 COLON-ALIGNED NO-LABEL WIDGET-ID 50
+     "FAVORITES" VIEW-AS TEXT
+          SIZE 13 BY .62 AT ROW 1.24 COL 21 WIDGET-ID 62
+          BGCOLOR 15 
+     "FAVORITES" VIEW-AS TEXT
+          SIZE 13 BY .62 AT ROW 1.33 COL 21 WIDGET-ID 62
+          BGCOLOR 15 FGCOLOR 1 FONT 22
+     RECT-23 AT ROW 1.19 COL 6 WIDGET-ID 60
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 3.14
+         SIZE 108 BY 14.05
+         BGCOLOR 21 FGCOLOR 1  WIDGET-ID 600.
 
 DEFINE FRAME menuTreeFrame
      svFocus AT ROW 1 COL 1 NO-LABEL WIDGET-ID 82
@@ -465,38 +497,6 @@ DEFINE FRAME menuTreeFrame
          AT COL 1 ROW 4.57
          SIZE 55 BY 24.91
          BGCOLOR 31  WIDGET-ID 100.
-
-DEFINE FRAME searchFrame
-     btnClear AT ROW 13.86 COL 100 HELP
-          "Clear Search Filters" WIDGET-ID 42
-     BtnFavorites AT ROW 1.1 COL 1 HELP
-          "Search Menu / Edit Favorites" WIDGET-ID 54
-     btnSearch AT ROW 1.1 COL 49.8 HELP
-          "Search Menu / Edit Favorites" WIDGET-ID 40
-     menuTreeFilter AT ROW 1.14 COL 54 COLON-ALIGNED HELP
-          "Enter Search Filter" NO-LABEL WIDGET-ID 2
-     favoritesList AT ROW 2.29 COL 6 NO-LABEL WIDGET-ID 52
-     searchSelections AT ROW 2.29 COL 52 NO-LABEL WIDGET-ID 44
-     btnMoveDown AT ROW 5.86 COL 1 HELP
-          "Move Favorite Down" WIDGET-ID 58
-     btnMoveUp AT ROW 3.48 COL 1 HELP
-          "Move Favorite Up" WIDGET-ID 56
-     btnRemove AT ROW 4.67 COL 1 HELP
-          "Remove Favorite" WIDGET-ID 26
-     btnFavorite AT ROW 13.62 COL 52 WIDGET-ID 46
-     svFavoriteText AT ROW 13.95 COL 55 COLON-ALIGNED NO-LABEL WIDGET-ID 50
-     "FAVORITES" VIEW-AS TEXT
-          SIZE 13 BY .62 AT ROW 1.24 COL 21 WIDGET-ID 62
-          BGCOLOR 15 
-     "FAVORITES" VIEW-AS TEXT
-          SIZE 13 BY .62 AT ROW 1.33 COL 21 WIDGET-ID 62
-          BGCOLOR 15 FGCOLOR 1 FONT 22
-     RECT-23 AT ROW 1.19 COL 7.2 WIDGET-ID 60
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 3.14
-         SIZE 108 BY 14.05
-         BGCOLOR 34 FGCOLOR 1  WIDGET-ID 600.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -624,6 +624,8 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR RECTANGLE RECT-11 IN FRAME FRAME-USER
    NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-12 IN FRAME FRAME-USER
+   NO-ENABLE                                                            */
 /* SETTINGS FOR RECTANGLE RECT-2 IN FRAME FRAME-USER
    NO-ENABLE                                                            */
 /* SETTINGS FOR RECTANGLE RECT-5 IN FRAME FRAME-USER
@@ -718,7 +720,7 @@ CREATE CONTROL-FRAME CtrlFrame ASSIGN
        HIDDEN          = yes
        SENSITIVE       = yes.
 /* CtrlFrame OCXINFO:CREATE-CONTROL from: {F0B88A90-F5DA-11CF-B545-0020AF6ED35A} type: PSTimer */
-      CtrlFrame:MOVE-BEFORE(FRAME searchFrame:HANDLE).
+      CtrlFrame:MOVE-AFTER(FRAME menuTreeFrame:HANDLE).
 
 &ENDIF
 
@@ -1499,7 +1501,7 @@ PROCEDURE enable_UI :
   {&OPEN-BROWSERS-IN-QUERY-FRAME-USER}
   DISPLAY menuTreeFilter favoritesList searchSelections svFavoriteText 
       WITH FRAME searchFrame IN WINDOW MAINMENU.
-  ENABLE BtnFavorites btnSearch menuTreeFilter favoritesList searchSelections 
+  ENABLE menuTreeFilter favoritesList searchSelections BtnFavorites btnSearch 
          btnMoveDown btnMoveUp btnRemove btnFavorite 
       WITH FRAME searchFrame IN WINDOW MAINMENU.
   VIEW FRAME searchFrame IN WINDOW MAINMENU.
@@ -2387,8 +2389,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pResetByUser MAINMENU
-PROCEDURE pResetByUser:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pResetByUser MAINMENU 
+PROCEDURE pResetByUser :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -2401,7 +2403,7 @@ PROCEDURE pResetByUser:
     END. /* if rebuild */
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
