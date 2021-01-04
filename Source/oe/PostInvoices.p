@@ -1190,7 +1190,12 @@ PROCEDURE pCreateARInvHeader PRIVATE:
         bf-ar-inv.net          = bf-ar-inv.t-sales
         bf-ar-inv.curr-code[1] = ipbf-ttInvoiceToPost.currencyCode
         bf-ar-inv.ex-rate      = ipbf-ttInvoiceToPost.currencyExRate
-        .
+        
+        bf-ar-inv.postedDate     = ipbf-ttInvoiceToPost.postDate
+        bf-ar-inv.runNumber      = fGetNextRun(ttPostingMaster.company, NO)       
+        bf-ar-inv.invoiceComment = ipbf-inv-head.spare-char-1
+        bf-ar-inv.glYear         = year(ipbf-ttInvoiceToPost.postDate)
+        .        
     
     IF ipbf-inv-head.f-bill THEN /*Exclude Freight billed from total true sales*/ 
         ASSIGN 
