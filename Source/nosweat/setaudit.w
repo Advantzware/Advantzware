@@ -156,13 +156,13 @@ DEFINE BUTTON btnBeforeValueFilterClear
      SIZE 4.4 BY 1.05 TOOLTIP "Clear Filter Value".
 
 DEFINE BUTTON btnExit DEFAULT 
-     IMAGE-UP FILE "Graphics/32x32/navigate_cross.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/navigate_cross.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 8 BY 1.91 TOOLTIP "Exit"
      BGCOLOR 8 FONT 4.
 
 DEFINE BUTTON btnOK AUTO-GO DEFAULT 
-     IMAGE-UP FILE "Graphics/32x32/navigate_check.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/navigate_check.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 8 BY 1.91 TOOLTIP "Save"
      BGCOLOR 8 FONT 4.
@@ -178,7 +178,7 @@ DEFINE BUTTON btnResetTable
      SIZE 4.4 BY 1.05 TOOLTIP "Reset From Default".
 
 DEFINE BUTTON btnSaveAsDefault 
-     IMAGE-UP FILE "Graphics/32x32/floppy_disk.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/floppy_disk.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Save As Defaults" 
      SIZE 8 BY 1.91 TOOLTIP "Save As Defaults".
 
@@ -193,7 +193,7 @@ DEFINE BUTTON btnSaveTable
      SIZE 4.4 BY 1.05 TOOLTIP "Save To Default".
 
 DEFINE BUTTON ResetFromDefault 
-     IMAGE-UP FILE "Graphics/32x32/undo_32.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/undo_32.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Reset ALL From Defaults" 
      SIZE 8 BY 1.91.
 

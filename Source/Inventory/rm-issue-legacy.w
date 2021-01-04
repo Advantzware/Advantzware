@@ -160,7 +160,7 @@ DEFINE BUTTON btConsumed
      FONT 36.
 
 DEFINE BUTTON btExit AUTO-END-KEY 
-     IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U NO-FOCUS
+     IMAGE-UP FILE "Graphics/32x32/exit_white.png":U NO-FOCUS
      LABEL "" 
      SIZE 11 BY 2.62.
 

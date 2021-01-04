@@ -61,7 +61,7 @@ DEFINE OUTPUT PARAMETER opcOption        AS CHARACTER NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btExit AUTO-END-KEY 
-     IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U
+     IMAGE-UP FILE "Graphics/32x32/exit_white.png":U
      LABEL "" 
      SIZE 11 BY 2.62.
 

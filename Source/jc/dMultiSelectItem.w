@@ -98,7 +98,7 @@ fiCatLabel filocLabel fiBoardLabel cCat cLoc cBoard tb_sugg-qty fi_sortby
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btExit 
-     IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U
+     IMAGE-UP FILE "Graphics/32x32/exit_white.png":U
      LABEL "Exit" 
      SIZE 11 BY 2.62.
 

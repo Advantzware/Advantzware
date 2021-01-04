@@ -70,13 +70,13 @@ Btn_Cancel
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON Btn_Cancel AUTO-END-KEY 
-     IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U
+     IMAGE-UP FILE "Graphics/32x32/exit_white.png":U
      LABEL "Cancel" 
      SIZE 8 BY 1.91
      BGCOLOR 8 .
 
 DEFINE BUTTON Btn_OK AUTO-GO 
-     IMAGE-UP FILE "Graphics/32x32/floppy_disk.ico":U
+     IMAGE-UP FILE "Graphics/32x32/floppy_disk.png":U
      LABEL "OK" 
      SIZE 8 BY 1.91
      BGCOLOR 8 .

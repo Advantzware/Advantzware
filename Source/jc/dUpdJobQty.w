@@ -122,7 +122,7 @@ DEFINE BUTTON Btn_reset-qty  NO-CONVERT-3D-COLORS
      BGCOLOR 8 .
 
 DEFINE BUTTON Btn_save 
-     IMAGE-UP FILE "Graphics/32x32/floppy_disk.ico":U
+     IMAGE-UP FILE "Graphics/32x32/floppy_disk.png":U
      LABEL "&Save" 
      SIZE 8 BY 1.81
      BGCOLOR 8 .

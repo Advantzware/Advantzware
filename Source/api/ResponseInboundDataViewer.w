@@ -67,7 +67,7 @@ fiResponseDataLabel edResponseData fiErrorMessageLabel edErrorMessage
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON Btn_Cancel 
-     IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U
+     IMAGE-UP FILE "Graphics/32x32/exit_white.png":U
      LABEL "Cancel" 
      SIZE 20 BY 2.62
      BGCOLOR 8 .
