@@ -1728,7 +1728,7 @@ DO:
                         IF tb_office-copy THEN RUN value(v-program) ("Office Copy",YES).
                         IF tb_sman-copy  THEN RUN value(v-program) ("Salesman Copy",YES).
                     END.
-                    ELSE IF LOOKUP(v-print-fmt,"nStock,nStockLogo") > 0 THEN 
+                    ELSE IF LOOKUP(v-print-fmt,"nStock,nStockLogo,NStockLogo1,NStockLogo2") > 0 THEN 
                     DO:    
                         RUN value(v-program) (v-print-fmt). 
                     END.
@@ -2454,7 +2454,7 @@ PROCEDURE SetInvForm:
                 v-program      = "oe/rep/invhughs.p"  /*Hughes format*/
                 lines-per-page = 66
                 is-xprint-form = YES.
-        WHEN "NStock" OR WHEN "NStockLogo" THEN
+        WHEN "NStock" OR WHEN "NStockLogo" OR WHEN "NStockLogo1" OR WHEN "NStockLogo2" THEN
             ASSIGN
                 v-program      = "oe/rep/invnstok.p"  /*NStock nStockLogo format*/
                 lines-per-page = 66
@@ -3047,7 +3047,7 @@ PROCEDURE SetInvPostForm:
                 v-program      = "ar/rep/invhughs.p"  /*Hughes format*/
                 lines-per-page = 66
                 is-xprint-form = YES.
-        WHEN "NStock" OR WHEN "NStockLogo" THEN
+        WHEN "NStock" OR WHEN "NStockLogo" OR WHEN "NStockLogo1" OR WHEN "NStockLogo2" THEN
             ASSIGN
                 v-program      = "ar/rep/invnstok.p"  /*NStock nStockLogo format*/
                 lines-per-page = 66

@@ -2208,7 +2208,7 @@ PROCEDURE pRunFormatValueChanged :
          IF (v-print-fmt EQ "Packrite" OR  
              v-print-fmt EQ "Hughes" OR
              v-print-fmt EQ "NStock" OR 
-             v-print-fmt EQ "nStockLogo") THEN
+             v-print-fmt EQ "nStockLogo" OR v-print-fmt EQ "NStockLogo1" OR v-print-fmt EQ "NStockLogo2") THEN
              ASSIGN tb_setcomp:HIDDEN = NO.
          ELSE ASSIGN tb_setcomp:HIDDEN = YES.
          

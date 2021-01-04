@@ -106,8 +106,9 @@ DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 DEFINE VARIABLE ls-full-img1 AS CHAR FORMAT "x(200)" NO-UNDO.
 DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
-
-IF opcFormat EQ "nStockLogo" THEN do:
+DEFINE VARIABLE cls-image1     AS CHAR NO-UNDO.
+         
+IF opcFormat EQ "nStockLogo" THEN DO:
     RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
         INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
     OUTPUT cRtnChar, OUTPUT lRecFound).
@@ -132,6 +133,19 @@ IF opcFormat EQ "nStockLogo" THEN do:
     END.
 
     ASSIGN ls-full-img1 = cRtnChar + ">" .
+END.
+ELSE IF opcFormat EQ "NStockLogo1" THEN DO:   
+   ASSIGN 
+    cls-image1 = "images\ArgrovLogo.png"
+    FILE-INFO:FILE-NAME = cls-image1
+    ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">" .
+END.
+ELSE IF opcFormat EQ "NStockLogo2" THEN DO:
+  ASSIGN 
+    cls-image1 = "images\CheepCheepLogo.png"
+    FILE-INFO:FILE-NAME = cls-image1
+    ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">" .
+
 END.
 
     find first company where company.company = cocode no-lock no-error.

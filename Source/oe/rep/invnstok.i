@@ -1,7 +1,7 @@
 /*oe/rep/invnstok.i  */
 
      PUT "<FArial>".
-        IF opcFormat EQ "nStockLogo" THEN
+        IF opcFormat EQ "nStockLogo" OR opcFormat EQ "NStockLogo1" OR opcFormat EQ "NStockLogo2" THEN
            PUT "<C1><#1> <R+10><C45><IMAGE#1=" ls-full-img1 SKIP. 
          ELSE
             PUT "<C+25><#1>". 
@@ -33,7 +33,7 @@
             "<R6><C65><FROM><R8><C65><LINE>" SKIP
             "<R8><C65><FROM><R10><C65><LINE>" SKIP.
         
-PUT "<FArial><P12><=#3><R2.5> <B>Invoice#: " inv-head.inv-no "</B><P10>" SKIP
+PUT "<FArial><P12><=#3><R2.5> <B>Invoice#: " inv-head.inv-no format ">>>>>>9" "</B><P10>" SKIP
     "<=#3> Customer ID             Contact"
     "<=#3><R+2> Telephone                        Fax" 
     "<=#3><R+4> Customer PO                  Invoice Date <FCourier New>"    
