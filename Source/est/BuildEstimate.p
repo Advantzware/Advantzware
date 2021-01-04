@@ -393,7 +393,21 @@ FOR EACH ttInputEst NO-LOCK BREAK BY ttInputEst.iFormNo
       IF NOT CAN-FIND(FIRST itemfg
                   WHERE itemfg.company EQ eb.company
                     AND itemfg.i-no    EQ eb.stock-no) THEN DO:
-          RUN fg/ce-addfg.p (xeb.stock-no).
+        IF eb.sourceEstimate NE "" THEN
+        DO:
+           FIND FIRST xeb EXCLUSIVE-LOCK
+                WHERE xeb.company EQ eb.company          
+                AND xeb.est-no EQ eb.sourceEstimate NO-ERROR.
+           FIND FIRST xest NO-LOCK
+                WHERE xest.company EQ eb.company          
+                AND xest.est-no EQ eb.sourceEstimate NO-ERROR.
+           ASSIGN 
+               xeb.stock-no = eb.stock-no
+               xeb.part-no = eb.part-no
+               xeb.part-dscr1 = eb.part-dscr1.
+           FIND CURRENT xeb NO-LOCK NO-ERROR.    
+        END.                  
+        RUN fg/ce-addfg.p (eb.stock-no).
       END.
       RUN cec/mach-seq.p (eb.form-no, eb.eqty, NO).
     END.
