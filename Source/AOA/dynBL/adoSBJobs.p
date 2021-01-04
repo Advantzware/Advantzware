@@ -259,7 +259,6 @@ PROCEDURE pSBJobs:
             job-hdr.due-date   = ttSBJobs.due-date
             job-hdr.qty        = ttSBJobs.qty
             .
-    
         FIND FIRST job-mch EXCLUSIVE-LOCK
              WHERE job-mch.company  EQ ttSBJobs.company
                AND job-mch.line     EQ ttSBJobs.line
@@ -273,15 +272,16 @@ PROCEDURE pSBJobs:
         IF NOT AVAILABLE job-mch THEN DO:
             CREATE job-mch.
             ASSIGN
-                job-mch.company  = ttSBJobs.company
-                job-mch.line     = ttSBJobs.line
-                job-mch.m-code   = ttSBJobs.m-code
-                job-mch.job-no   = ttSBJobs.job-no
-                job-mch.job-no2  = ttSBJobs.job-no2
-                job-mch.frm      = ttSBJobs.frm
-                job-mch.blank-no = ttSBJobs.blank-no
-                job-mch.pass     = ttSBJobs.pass
-                job-mch.job      = ttUniqueJob.job
+                job-mch.company        = ttSBJobs.company
+                job-mch.line           = ttSBJobs.line
+                job-mch.m-code         = ttSBJobs.m-code
+                job-mch.job-no         = ttSBJobs.job-no
+                job-mch.job-no2        = ttSBJobs.job-no2
+                job-mch.frm            = ttSBJobs.frm
+                job-mch.blank-no       = ttSBJobs.blank-no
+                job-mch.pass           = ttSBJobs.pass
+                job-mch.est-op_rec_key = "None"
+                job-mch.job            = ttUniqueJob.job
                 .                    
         END. /* if not avail */
         ASSIGN

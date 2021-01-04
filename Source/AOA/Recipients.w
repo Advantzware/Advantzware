@@ -125,10 +125,10 @@ DEFINE QUERY recipients FOR
 DEFINE BROWSE recipients
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS recipients Dialog-Frame _FREEFORM
   QUERY recipients DISPLAY
-      ttEmail.isActive LABEL-BGCOLOR 22 VIEW-AS TOGGLE-BOX
-ttEmail.user-id LABEL-BGCOLOR 22
-ttEmail.userName LABEL-BGCOLOR 22
-ttEmail.email LABEL-BGCOLOR 22
+      ttEmail.isActive LABEL-BGCOLOR 14 VIEW-AS TOGGLE-BOX
+ttEmail.user-id LABEL-BGCOLOR 14
+ttEmail.userName LABEL-BGCOLOR 14
+ttEmail.email LABEL-BGCOLOR 14
 ENABLE
 ttEmail.isActive
 /* _UIB-CODE-BLOCK-END */
@@ -265,7 +265,7 @@ DO:
     APPLY "TAB":U.
 END.
 
-{methods/template/brwcustom.i}
+{methods/template/brwcustom2.i}
 
 /* Parent the dialog-box to the ACTIVE-WINDOW, if there is no parent.   */
 IF VALID-HANDLE(ACTIVE-WINDOW) AND FRAME {&FRAME-NAME}:PARENT eq ?

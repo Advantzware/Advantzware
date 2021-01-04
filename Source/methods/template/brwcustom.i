@@ -27,6 +27,7 @@ FRAME {&frame-name}:BGCOLOR      = 15.
 {&BROWSE-NAME}:SEPARATOR-FGCOLOR = 15.
 {&BROWSE-NAME}:ROW-HEIGHT-CHARS  = 0.84.
 {&BROWSE-NAME}:FONT              = 22.
+{&BROWSE-NAME}:fit-last-column    = TRUE.
 
 hColumnRowColor = {&BROWSE-NAME}:first-column.
 DO WHILE VALID-HANDLE(hColumnRowColor).

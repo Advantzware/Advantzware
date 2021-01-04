@@ -468,8 +468,29 @@ PROCEDURE openQuery:
   IF sortColumn EQ 'Due Date' THEN STRING(YEAR(po-ordl.due-date),'9999') + ~
   STRING(MONTH(po-ordl.due-date),'99') + ~
   STRING(DAY(po-ordl.due-date),'99') ELSE ~
+  IF sortColumn EQ 'Vendor' THEN STRING(po-ordl.vend-no) ELSE ~
   IF sortColumn EQ 'Ship To' THEN po-ord.ship-id ELSE ~
   STRING(po-ordl.po-no,'>>>>>9') ~{&SORTED}
+
+&ELSEIF '{&yellowColumnsName}' EQ 'b-estitm' &THEN
+  &SCOPED-DEFINE SORTBY-PHRASE BY ~
+  IF sortColumn EQ 'Cust. #' THEN STRING(eb.cust-no) ELSE ~
+  IF sortColumn EQ 'FG Item#' THEN string(eb.stock-no) ELSE ~
+  STRING(eb.stock-no) ~{&SORTED}
+  
+ 
+        
+  &ELSEIF '{&yellowColumnsName}' EQ 'prgrms' &THEN
+  &SCOPED-DEFINE SORTBY-PHRASE BY ~
+  IF sortColumn EQ 'Menu' THEN  string(prgrms.menu_item) ELSE ~
+  IF sortColumn EQ 'Order' THEN  string(prgrms.menuOrder) ELSE ~
+  IF sortColumn EQ 'Menu Level' THEN string(prgrms.menuLevel) ELSE ~
+  IF sortColumn EQ 'Hotkey' THEN string(prgrms.mnemonic) ELSE ~
+  IF sortColumn EQ 'Parent' THEN string(prgrms.itemParent) ELSE ~
+  IF sortColumn EQ 'Type' THEN string(prgrms.systemType) ELSE ~
+  string(prgrms.systemType) ~{&SORTED}
+
+
 
 &ELSEIF '{&yellowColumnsName}' EQ 'l-jobno' &THEN
   &SCOPED-DEFINE SORTBY-PHRASE BY ~
@@ -1547,27 +1568,29 @@ END PROCEDURE.
 
 PROCEDURE startSearch:
   DEFINE VARIABLE sortDisplay AS CHARACTER NO-UNDO.
-  IF BROWSE {&BROWSE-NAME}:CURRENT-COLUMN:LABEL-BGCOLOR = 30 THEN
-  BROWSE {&BROWSE-NAME}:CURRENT-COLUMN:LABEL-BGCOLOR = 14.
+  DEFINE VARIABLE brwCurrentColumn AS HANDLE NO-UNDO.
+  brwCurrentColumn = BROWSE {&BROWSE-NAME}:CURRENT-COLUMN.
+  IF brwCurrentColumn:LABEL-BGCOLOR = 30 THEN
+      brwCurrentColumn:LABEL-BGCOLOR = 14.
   IF VALID-HANDLE(sortcolumnhand) AND sortcolumnhand:LABEL-BGCOLOR = 30 THEN
   sortcolumnhand:LABEL-BGCOLOR        = 14.
-  
+
   IF colLabels EQ '' THEN RUN getColLabels.
 
-  IF NOT CAN-DO(colLabels,BROWSE {&BROWSE-NAME}:CURRENT-COLUMN:LABEL) THEN
+  IF NOT CAN-DO(colLabels,brwCurrentColumn:LABEL) THEN
   RETURN NO-APPLY.
   
     BROWSE {&BROWSE-NAME}:CLEAR-SORT-ARROWS( ) NO-ERROR.
 
-  IF sortColumn EQ BROWSE {&BROWSE-NAME}:CURRENT-COLUMN:LABEL THEN
+  IF sortColumn EQ brwCurrentColumn:LABEL THEN
 	ASSIGN
      sortBy = NOT sortBy
-	 BROWSE {&BROWSE-NAME}:CURRENT-COLUMN:SORT-ASCENDING = sortBy.
+	 brwCurrentColumn:SORT-ASCENDING = sortBy.
 
 
   ASSIGN
-    sortColumn = BROWSE {&BROWSE-NAME}:CURRENT-COLUMN:LABEL
-	BROWSE {&BROWSE-NAME}:CURRENT-COLUMN:SORT-ASCENDING = sortBy
+    sortColumn = brwCurrentColumn:LABEL
+    brwCurrentColumn:SORT-ASCENDING = sortBy
     sortDisplay = TRIM(sortColumn + ' - ' + STRING(sortBy,'Ascending/Descending'))
     &IF DEFINED(noSortByField) EQ 0 &THEN
     fi_sortBy:SCREEN-VALUE IN FRAME {&FRAME-NAME} = sortDisplay
@@ -1587,11 +1610,12 @@ PROCEDURE startSearch:
 
   RUN openQuery.
 
-  BROWSE {&BROWSE-NAME}:CURRENT-COLUMN:LABEL-BGCOLOR = 30.
+    brwCurrentColumn:LABEL-BGCOLOR = 30.
 
 ASSIGN
-    sortColumn = BROWSE {&BROWSE-NAME}:CURRENT-COLUMN:LABEL
-	sortcolumnhand = BROWSE {&BROWSE-NAME}:CURRENT-COLUMN.
+    sortColumn = brwCurrentColumn:LABEL
+	sortcolumnhand = brwCurrentColumn.
+
 END PROCEDURE.
 
 /* Sort removed from b-cusinq 'Date' */

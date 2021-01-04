@@ -136,9 +136,9 @@ DEFINE QUERY dynParamSetDtlBrowse FOR
 DEFINE BROWSE dynParamSetDtlBrowse
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS dynParamSetDtlBrowse s-object _FREEFORM
   QUERY dynParamSetDtlBrowse DISPLAY
-      dynParamSetDtl.paramID LABEL-BGCOLOR 22
-dynParamSetDtl.paramName LABEL-BGCOLOR 22
-dynParamSetDtl.paramLabel LABEL-BGCOLOR 22
+      dynParamSetDtl.paramID LABEL-BGCOLOR 14
+dynParamSetDtl.paramName LABEL-BGCOLOR 14
+dynParamSetDtl.paramLabel LABEL-BGCOLOR 14
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ROW-MARKERS SEPARATORS SIZE 75 BY 23.62
@@ -454,7 +454,7 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
-{methods/template/brwcustom.i}
+{methods/template/brwcustom2.i}
 /* If testing in the UIB, initialize the SmartObject. */  
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
   RUN dispatch IN THIS-PROCEDURE ('initialize':U).        

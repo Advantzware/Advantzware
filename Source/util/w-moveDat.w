@@ -1,12 +1,26 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
-/* Connected Databases 
-*/
 &Scoped-define WINDOW-NAME W-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS W-Win 
+/*********************************************************************
+* Copyright (C) 2000 by Progress Software Corporation. All rights    *
+* reserved. Prior versions of this work may contain portions         *
+* contributed by participants of Possenet.                           *
+*                                                                    *
+*********************************************************************/
 /*------------------------------------------------------------------------
 
-  File: addon/bol/w-relbol.w
+  File: 
+
+  Description: from cntnrwin.w - ADM SmartWindow Template
+
+  Input Parameters:
+      <none>
+
+  Output Parameters:
+      lUserResponse - Sending user response
+
+  History: 
           
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
@@ -22,15 +36,15 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
-&SCOPED-DEFINE winViewPrgmName w-updrel
-
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
 
-{custom/gcompany.i}
-
-&scoped-define asi-exit local-exit
+DEFINE TEMP-TABLE ttFileName NO-UNDO 
+    FIELD cProgramName AS CHARACTER
+    FIELD cFilePath    AS CHARACTER
+    FIELD cUserId      AS CHARACTER
+    .
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -48,6 +62,10 @@ CREATE WIDGET-POOL.
 /* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 
+/* Standard List Definitions                                            */
+&Scoped-Define ENABLED-OBJECTS fibeginUserId fiendUserId btCancel btOk 
+&Scoped-Define DISPLAYED-OBJECTS fibeginUserId fiendUserId 
+
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
 
@@ -61,35 +79,40 @@ CREATE WIDGET-POOL.
 /* Define the widget handle for the window                              */
 DEFINE VAR W-Win AS WIDGET-HANDLE NO-UNDO.
 
-/* Definitions of handles for SmartObjects                              */
-DEFINE VARIABLE h_b-updrel AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_exit AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_folder AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_p-relbol AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_smartmsg AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_p-printbol AS HANDLE NO-UNDO.
+/* Definitions of the field level widgets                               */
+DEFINE BUTTON btCancel AUTO-END-KEY 
+     LABEL "&Cancel" 
+     SIZE 15 BY 1.14.
+
+DEFINE BUTTON btOk 
+     LABEL "&OK" 
+     SIZE 15 BY 1.14.
+
+DEFINE VARIABLE fibeginUserId AS CHARACTER FORMAT "X(8)":U 
+     LABEL "Beginning User ID" 
+     VIEW-AS FILL-IN 
+     SIZE 16 BY 1 NO-UNDO.
+
+DEFINE VARIABLE fiendUserId AS CHARACTER FORMAT "X(8)":U INITIAL "zzzzzzzz" 
+     LABEL "Ending User ID" 
+     VIEW-AS FILL-IN 
+     SIZE 16 BY 1 NO-UNDO.
+
+
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
+     fibeginUserId AT ROW 2.19 COL 26 COLON-ALIGNED HELP
+          "Enter the Beginning User ID" WIDGET-ID 6
+     fiendUserId AT ROW 4.57 COL 26 COLON-ALIGNED HELP
+          "Enter the Ending User ID" WIDGET-ID 8
+     btCancel AT ROW 7.38 COL 39 WIDGET-ID 4
+     btOk AT ROW 7.43 COL 17 WIDGET-ID 2
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 150 BY 24
-         BGCOLOR 15 .
-
-DEFINE FRAME OPTIONS-FRAME
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 2 ROW 1
-         SIZE 148 BY 1.91
-         BGCOLOR 15 .
-
-DEFINE FRAME message-frame
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 23 ROW 2.91
-         SIZE 128 BY 1.43
-         BGCOLOR 15 .
+         SIZE 80 BY 9.57
+         DEFAULT-BUTTON btOk WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -98,8 +121,6 @@ DEFINE FRAME message-frame
 /* Settings for THIS-PROCEDURE
    Type: SmartWindow
    Allow: Basic,Browse,DB-Fields,Query,Smart,Window
-   Design Page: 1
-   Other Settings: COMPILE
  */
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS
 
@@ -109,13 +130,13 @@ DEFINE FRAME message-frame
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW W-Win ASSIGN
          HIDDEN             = YES
-         TITLE              = "Update/Release Scan and Create BOL"
-         HEIGHT             = 16.24
-         WIDTH              = 116.8
-         MAX-HEIGHT         = 33.29
-         MAX-WIDTH          = 204.8
-         VIRTUAL-HEIGHT     = 33.29
-         VIRTUAL-WIDTH      = 204.8
+         TITLE              = "Load .DAT file into Database"
+         HEIGHT             = 9.57
+         WIDTH              = 80
+         MAX-HEIGHT         = 33.57
+         MAX-WIDTH          = 273.2
+         VIRTUAL-HEIGHT     = 33.57
+         VIRTUAL-WIDTH      = 273.2
          RESIZE             = no
          SCROLL-BARS        = no
          STATUS-AREA        = yes
@@ -125,12 +146,6 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MESSAGE-AREA       = no
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
-
-&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT W-Win:LOAD-ICON("adeicon\progress":U) THEN
-    MESSAGE "Unable to load icon: adeicon\progress"
-            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
-&ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
@@ -138,7 +153,6 @@ IF NOT W-Win:LOAD-ICON("adeicon\progress":U) THEN
 /* ************************* Included-Libraries *********************** */
 
 {src/adm/method/containr.i}
-{methods/template/windows.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -151,47 +165,12 @@ IF NOT W-Win:LOAD-ICON("adeicon\progress":U) THEN
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
 /* SETTINGS FOR WINDOW W-Win
   VISIBLE,,RUN-PERSISTENT                                               */
-/* REPARENT FRAME */
-ASSIGN FRAME message-frame:FRAME = FRAME F-Main:HANDLE
-       FRAME OPTIONS-FRAME:FRAME = FRAME F-Main:HANDLE.
-
 /* SETTINGS FOR FRAME F-Main
    FRAME-NAME                                                           */
-
-DEFINE VARIABLE XXTABVALXX AS LOGICAL NO-UNDO.
-
-ASSIGN XXTABVALXX = FRAME OPTIONS-FRAME:MOVE-BEFORE-TAB-ITEM (FRAME message-frame:HANDLE)
-/* END-ASSIGN-TABS */.
-
-/* SETTINGS FOR FRAME message-frame
-                                                                        */
-/* SETTINGS FOR FRAME OPTIONS-FRAME
-                                                                        */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(W-Win)
 THEN W-Win:HIDDEN = yes.
 
 /* _RUN-TIME-ATTRIBUTES-END */
-&ANALYZE-RESUME
-
-
-/* Setting information for Queries and Browse Widgets fields            */
-
-&ANALYZE-SUSPEND _QUERY-BLOCK FRAME F-Main
-/* Query rebuild information for FRAME F-Main
-     _Query            is NOT OPENED
-*/  /* FRAME F-Main */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _QUERY-BLOCK FRAME message-frame
-/* Query rebuild information for FRAME message-frame
-     _Query            is NOT OPENED
-*/  /* FRAME message-frame */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _QUERY-BLOCK FRAME OPTIONS-FRAME
-/* Query rebuild information for FRAME OPTIONS-FRAME
-     _Query            is NOT OPENED
-*/  /* FRAME OPTIONS-FRAME */
 &ANALYZE-RESUME
 
  
@@ -202,7 +181,7 @@ THEN W-Win:HIDDEN = yes.
 
 &Scoped-define SELF-NAME W-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL W-Win W-Win
-ON END-ERROR OF W-Win /* Update/Release Scan and Create BOL */
+ON END-ERROR OF W-Win /* Load .DAT file into Database */
 OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
   /* This case occurs when the user presses the "Esc" key.
      In a persistently run window, just ignore this.  If we did not, the
@@ -215,13 +194,42 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL W-Win W-Win
-ON WINDOW-CLOSE OF W-Win /* Update/Release Scan and Create BOL */
+ON WINDOW-CLOSE OF W-Win /* Load .DAT file into Database */
 DO:
   /* This ADM code must be left here in order for the SmartWindow
      and its descendents to terminate properly on exit. */
-
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btCancel
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btCancel W-Win
+ON CHOOSE OF btCancel IN FRAME F-Main /* Cancel */
+DO:
+  APPLY "CLOSE" TO THIS-PROCEDURE.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btOk
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btOk W-Win
+ON CHOOSE OF btOk IN FRAME F-Main /* OK */
+DO: 
+    ASSIGN 
+        fibeginUserId 
+        fiendUserId
+        .
+    MESSAGE "Are you sure you want to " + TRIM(W-Win:TITLE)
+        VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE lUserResponse AS LOGICAL.
+
+    IF lUserResponse THEN 
+        RUN runProcess.    
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -234,8 +242,6 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
-
-{custom/getcmpny.i}
 
 /* Include custom  Main Block code for SmartWindows. */
 {src/adm/template/windowmn.i}
@@ -253,91 +259,6 @@ PROCEDURE adm-create-objects :
                After SmartObjects are initialized, then SmartLinks are added.
   Parameters:  <none>
 ------------------------------------------------------------------------------*/
-  DEFINE VARIABLE adm-current-page  AS INTEGER NO-UNDO.
-
-  RUN get-attribute IN THIS-PROCEDURE ('Current-Page':U).
-  ASSIGN adm-current-page = INTEGER(RETURN-VALUE).
-
-  CASE adm-current-page: 
-
-    WHEN 0 THEN DO:
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'smartobj/exit.w':U ,
-             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
-             INPUT  '':U ,
-             OUTPUT h_exit ).
-       RUN set-position IN h_exit ( 1.00 , 1.00 ) NO-ERROR.
-       /* Size in UIB:  ( 1.81 , 7.80 ) */
-
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'smartobj/smartmsg.w':U ,
-             INPUT  FRAME message-frame:HANDLE ,
-             INPUT  '':U ,
-             OUTPUT h_smartmsg ).
-       RUN set-position IN h_smartmsg ( 1.00 , 32.00 ) NO-ERROR.
-       /* Size in UIB:  ( 1.14 , 32.00 ) */
-
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'adm/objects/folder.w':U ,
-             INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'FOLDER-LABELS = ':U + 'Release Scan' + ',
-                     FOLDER-TAB-TYPE = 1':U ,
-             OUTPUT h_folder ).
-       RUN set-position IN h_folder ( 3.14 , 1.00 ) NO-ERROR.
-       RUN set-size IN h_folder ( 14.05 , 117.00 ) NO-ERROR.
-
-       /* Links to SmartFolder h_folder. */
-       RUN add-link IN adm-broker-hdl ( h_folder , 'Page':U , THIS-PROCEDURE ).
-
-       /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_folder ,
-             FRAME message-frame:HANDLE , 'AFTER':U ).
-    END. /* Page 0 */
-    WHEN 1 THEN DO:
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'addon/bol/b-updrel.w':U ,
-             INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Layout = ':U ,
-             OUTPUT h_b-updrel ).
-       RUN set-position IN h_b-updrel ( 4.57 , 2.00 ) NO-ERROR.
-       RUN set-size IN h_b-updrel ( 10.24 , 114.00 ) NO-ERROR.
-
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'panels/p-relbol.w':U ,
-             INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Edge-Pixels = 2,
-                     SmartPanelType = Update,
-                     AddFunction = One-Record':U ,
-             OUTPUT h_p-relbol ).
-       RUN set-position IN h_p-relbol ( 15.05 , 3.00 ) NO-ERROR.
-       RUN set-size IN h_p-relbol ( 1.76 , 61.00 ) NO-ERROR.
-       
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'panels/p-printbol.w':U ,
-             INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Edge-Pixels = 2,
-                     SmartPanelType = Update,
-                     AddFunction = One-Record':U ,
-             OUTPUT h_p-printbol ).
-       RUN set-position IN h_p-printbol ( 15.05 , 100.00 ) NO-ERROR.
-       RUN set-size IN h_p-printbol ( 1.76 , 15.00 ) NO-ERROR.
-
-       /* Links to SmartBrowser h_b-updrel. */
-       RUN add-link IN adm-broker-hdl ( h_p-relbol , 'TableIO':U , h_b-updrel ).
-       RUN add-link IN adm-broker-hdl ( h_b-updrel , 'release':U , THIS-PROCEDURE ).
-       RUN add-link IN adm-broker-hdl ( h_b-updrel , 'Record':U , h_p-printbol ).
-
-       /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_b-updrel ,
-             h_folder , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_p-relbol ,
-             h_b-updrel , 'AFTER':U ).
-    END. /* Page 1 */
-
-  END CASE.
-  /* Select a Startup page. */
-  IF adm-current-page eq 0 
-  THEN RUN select-page IN THIS-PROCEDURE ( 1 ).
 
 END PROCEDURE.
 
@@ -396,33 +317,12 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  VIEW FRAME F-Main IN WINDOW W-Win.
+  DISPLAY fibeginUserId fiendUserId 
+      WITH FRAME F-Main IN WINDOW W-Win.
+  ENABLE fibeginUserId fiendUserId btCancel btOk 
+      WITH FRAME F-Main IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-F-Main}
-  VIEW FRAME OPTIONS-FRAME IN WINDOW W-Win.
-  {&OPEN-BROWSERS-IN-QUERY-OPTIONS-FRAME}
-  VIEW FRAME message-frame IN WINDOW W-Win.
-  {&OPEN-BROWSERS-IN-QUERY-message-frame}
   VIEW W-Win.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-create-objects W-Win 
-PROCEDURE local-create-objects :
-/*------------------------------------------------------------------------------
-  Purpose:     Override standard ADM method
-  Notes:       
-------------------------------------------------------------------------------*/
-
-  /* Code placed here will execute PRIOR to standard behavior. */
-  
-
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'create-objects':U ) .
-
-  /* Code placed here will execute AFTER standard behavior.    */
-
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -435,15 +335,106 @@ PROCEDURE local-exit :
   Parameters:  <none>
   Notes:    If activated, should APPLY CLOSE, *not* dispatch adm-exit.   
 -------------------------------------------------------------*/
-  
-  APPLY "CLOSE":U TO THIS-PROCEDURE.
+   APPLY "CLOSE":U TO THIS-PROCEDURE.
    
-  RETURN.
+   RETURN.
        
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE runProcess W-Win
+PROCEDURE runProcess:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+  DEFINE VARIABLE cDir      AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cFileName AS CHARACTER NO-UNDO. 
+  DEFINE VARIABLE cFileData AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE iCount    AS INTEGER   NO-UNDO INITIAL 1.
+  DEFINE VARIABLE lCheck    AS LOGICAL   NO-UNDO.
+   
+  DEFINE BUFFER bf-userColumn FOR userColumn.
+        
+  EMPTY TEMP-TABLE ttfilename.
+
+  SESSION:SET-WAIT-STATE("general"). 
+    
+  STATUS DEFAULT "Processing...". 
+      
+  FOR EACH users NO-LOCK 
+      WHERE users.user_id GE fibeginUserId 
+        AND users.user_id LE fiendUserId
+        AND isActive      EQ YES:
+              
+      cDir = './users/' + users.user_id.
+            
+      INPUT FROM OS-DIR (cDir) NO-ECHO.
+      REPEAT:
+          IMPORT cFileName.
+          IF INDEX(cFileName,".dat") GT 0 THEN DO:
+             CREATE ttFileName.
+             ASSIGN 
+                 ttFileName.cFilePath    = cDir + "/" + cFileName
+                 ttFileName.cProgramName = SUBSTRING(cFileName,1,(INDEX(cFileName,".dat") - 1))
+                 ttFileName.cUserId      = users.user_id
+                 .
+          END.                 
+        END. /* REPEAT... */
+        INPUT CLOSE.                                    
+  END. /* FOR EACH users */   
+          
+  FOR EACH ttFileName:
+        
+      IF SEARCH(ttFileName.cFilePath) NE ? THEN DO:
+            
+          lCheck = YES.
+           
+          INPUT FROM VALUE(ttFileName.cFilePath).
+           
+          MAINLOOP:
+          DO TRANSACTION:    
+              REPEAT ON ERROR UNDO MAINLOOP, LEAVE MAINLOOP:
+                  IMPORT UNFORMATTED cFileData.                   
+               
+                  IF lCheck EQ YES THEN  
+                      IF NUM-ENTRIES(cFileData,"") NE 2 OR INDEX(cFileData, '"') EQ 0 THEN                        
+                          LEAVE. 
+                      
+                  lCheck = NO.                   
+                     
+                  CREATE bf-userColumn.  
+                  ASSIGN  
+                      bf-userColumn.colName     = TRIM(ENTRY(1,cFileData,""), '"')
+                      bf-userColumn.colWidth    = DECIMAL(TRIM(ENTRY(2,cFileData,""),'"'))               
+                      bf-userColumn.colPosition = iCount
+                      bf-userColumn.usrId       = ttFileName.cUserId
+                      bf-userColumn.programName = ttFileName.cProgramName          
+                      iCount = iCount + 1
+                      .
+              END. /* REPEAT */
+              OS-DELETE VALUE(SEARCH(ttFileName.cFilePath)). 
+          END. /* DO TRANSACTION */                                   
+          INPUT CLOSE.                  
+      END. /* IF SEARCH */
+    END.   
+      
+    MESSAGE "Process Completed." VIEW-AS ALERT-BOX INFO BUTTONS OK.
+      
+    SESSION:SET-WAIT-STATE(""). 
+    
+    STATUS DEFAULT "". 
+    APPLY "CLOSE" TO THIS-PROCEDURE.      
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records W-Win  _ADM-SEND-RECORDS
 PROCEDURE send-records :

@@ -2436,6 +2436,8 @@ PROCEDURE local-delete-record :
 
   /* Code placed here will execute AFTER standard behavior.    */
   RUN display-qtys.
+  
+  RUN pEnablePrintButton.     
 
 END PROCEDURE.
 
@@ -2530,6 +2532,8 @@ PROCEDURE local-update-record :
   RUN display-qtys.
 
   RUN need-scroll.
+  
+  RUN pEnablePrintButton.
   
   IF ssbol-int EQ 0 OR v-scan-qty LT v-rel-qty THEN RUN scan-next.
 
@@ -2800,14 +2804,14 @@ PROCEDURE print-bol :
   DEF VAR v-create-backorder AS LOG NO-UNDO.
   DEF VAR li AS LOG INIT YES NO-UNDO.
   DEFINE VARIABLE v-scan-qty-c AS INTEGER  INITIAL 0 NO-UNDO.
-  DEFINE VARIABLE v-rel-qty-c AS INTEGER  INITIAL 0 NO-UNDO .   
+  DEFINE VARIABLE v-rel-qty-c AS INTEGER  INITIAL 0 NO-UNDO .
   DEFINE VARIABLE lMsgResponse AS LOGICAL NO-UNDO.
-  
+
   RUN validate-scan (OUTPUT v-create-backorder) NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN .
   
   RUN displayMessageQuestion ("58", OUTPUT lMsgResponse).
-  
+
   IF NOT lMsgResponse THEN RETURN NO-APPLY.
 
    FOR EACH tt-relbol NO-LOCK BREAK BY tt-relbol.release# 
@@ -2911,6 +2915,8 @@ PROCEDURE print-bol :
   APPLY "ENTRY" TO scr-rel# IN FRAME {&FRAME-NAME}.
 
   RUN dispatch ('open-query').
+  
+  RUN pEnablePrintButton.
  
   SESSION:SET-WAIT-STATE(""). 
 
@@ -3065,6 +3071,8 @@ PROCEDURE release#-value-changed :
          RUN addon/bol/GetTagList.p(INPUT cocode,INPUT ip-release#, OUTPUT cTagList) .
 
      RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .
+     
+    RUN pEnablePrintButton.
    
 END PROCEDURE.
 
@@ -3672,6 +3680,28 @@ PROCEDURE validate-tag-status :
   END.
 
   {methods/lValidateError.i NO}
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pEnablePrintButton B-table-Win 
+PROCEDURE pEnablePrintButton :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE VARIABLE cAction AS CHARACTER NO-UNDO.
+  
+  IF AVAIL tt-relbol THEN 
+  cAction = "initial".
+  ELSE cAction = "disable-all".
+  
+  RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"Record-target",OUTPUT char-hdl).
+  IF valid-handle(widget-handle(char-hdl)) THEN
+  RUN set-buttons IN WIDGET-HANDLE(char-hdl)(INPUT cAction).
 
 END PROCEDURE.
 

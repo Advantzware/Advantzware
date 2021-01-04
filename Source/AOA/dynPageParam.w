@@ -183,8 +183,8 @@ DEFINE QUERY tableBrowse FOR
 DEFINE BROWSE dynParam
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS dynParam Dialog-Frame _STRUCTURED
   QUERY dynParam NO-LOCK DISPLAY
-      dynParamSetDtl.paramLabel FORMAT "x(40)":U LABEL-BGCOLOR 22
-      dynParamSetDtl.paramName FORMAT "x(20)":U WIDTH 41.6 LABEL-BGCOLOR 22
+      dynParamSetDtl.paramLabel FORMAT "x(40)":U LABEL-BGCOLOR 14
+      dynParamSetDtl.paramName FORMAT "x(20)":U WIDTH 41.6 LABEL-BGCOLOR 14
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ROW-MARKERS SEPARATORS SIZE 87 BY 19.05
@@ -467,13 +467,13 @@ END.
 /* ***************************  Main Block  *************************** */
 
 &Scoped-define sdBrowseName pageParam
-{methods/template/brwcustom.i 1}
+{methods/template/brwcustom2.i 1}
 &Scoped-define sdBrowseName dynParam
-{methods/template/brwcustom.i 2}
+{methods/template/brwcustom2.i 2}
 &Scoped-define sdBrowseName tableBrowse
-{methods/template/brwcustom.i 3}
+{methods/template/brwcustom2.i 3}
 &Scoped-define sdBrowseName fieldsBrowse
-{methods/template/brwcustom.i 4}
+{methods/template/brwcustom2.i 4}
 
 /* Parent the dialog-box to the ACTIVE-WINDOW, if there is no parent.   */
 IF VALID-HANDLE(ACTIVE-WINDOW) AND FRAME {&FRAME-NAME}:PARENT eq ?

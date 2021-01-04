@@ -617,11 +617,11 @@ END.
 /* ***************************  Main Block  *************************** */
 
 &Scoped-define sdBrowseName subjectColumnBrowse
-{methods/template/brwcustom.i 1}
+{methods/template/brwcustom2.i 1}
 &Scoped-define sdBrowseName sortBrowse
-{methods/template/brwcustom.i 2}
+{methods/template/brwcustom2.i 2}
 &Scoped-define sdBrowseName groupBrowse
-{methods/template/brwcustom.i 3}
+{methods/template/brwcustom2.i 3}
 
 /* If testing in the UIB, initialize the SmartObject. */  
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          

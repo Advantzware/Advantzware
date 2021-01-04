@@ -395,17 +395,17 @@ FUNCTION get-type RETURNS CHARACTER
 DEFINE BUTTON btn_go 
      LABEL "&Go" 
      SIZE 14 BY 1
-     FONT 6.
+     FONT 22.
 
 DEFINE BUTTON btn_next 
      LABEL "Show &Next" 
      SIZE 16 BY 1
-     FONT 6.
+     FONT 22.
 
 DEFINE BUTTON btn_prev 
      LABEL "Show &Previous" 
      SIZE 20 BY 1
-     FONT 6.
+     FONT 22.
 
 DEFINE VARIABLE begin_cust-no AS CHARACTER FORMAT "X(8)":U 
      VIEW-AS FILL-IN 
@@ -425,7 +425,7 @@ DEFINE VARIABLE begin_ship AS CHARACTER FORMAT "X(8)":U
 DEFINE VARIABLE fi_sort-by AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
      SIZE 31 BY 1
-     BGCOLOR 14 FONT 6 NO-UNDO.
+     BGCOLOR 14 FONT 22 NO-UNDO.
 
 DEFINE VARIABLE vi_cad-no AS CHARACTER FORMAT "x(15)":U 
      VIEW-AS FILL-IN 
@@ -454,7 +454,7 @@ DEFINE VARIABLE vi_est-date AS DATE FORMAT "99/99/9999":U
 DEFINE VARIABLE vi_est-no AS CHARACTER FORMAT "x(8)":U 
      VIEW-AS FILL-IN 
      SIZE 15 BY 1
-     BGCOLOR 15 FONT 2 NO-UNDO.
+     BGCOLOR 15 FONT 22 NO-UNDO.
 
 DEFINE VARIABLE vi_len AS DECIMAL FORMAT "->>,>>9.99":U INITIAL 0 
      VIEW-AS FILL-IN 
@@ -616,7 +616,7 @@ DEFINE BROWSE Browser-Table
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 151 BY 14.76
-         FONT 2.
+         FONT 22.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -654,24 +654,24 @@ DEFINE FRAME F-Main
           SIZE 3 BY 1 AT ROW 2.91 COL 101
      "Estimate" VIEW-AS TEXT
           SIZE 11 BY .67 AT ROW 1.24 COL 3
-          FGCOLOR 9 FONT 6
+          FGCOLOR 9 FONT 22
      "Customer" VIEW-AS TEXT
           SIZE 13 BY .62 AT ROW 1.24 COL 17
-          FGCOLOR 9 FONT 6
+          FGCOLOR 9 FONT 22
      "FG Item# / Name" VIEW-AS TEXT
           SIZE 20 BY .62 AT ROW 1.24 COL 51
-          FGCOLOR 9 FONT 6
+          FGCOLOR 9 FONT 22
      "Style" VIEW-AS TEXT
           SIZE 9 BY .62 AT ROW 1.24 COL 73
-          FGCOLOR 9 FONT 6
+          FGCOLOR 9 FONT 22
      "to" VIEW-AS TEXT
           SIZE 3 BY 1 AT ROW 1.95 COL 101
      "Customer Part#" VIEW-AS TEXT
           SIZE 19 BY .62 AT ROW 1.24 COL 31
-          FGCOLOR 9 FONT 6
+          FGCOLOR 9 FONT 22
      "Ship To" VIEW-AS TEXT
           SIZE 10 BY .62 AT ROW 3.14 COL 6
-          FGCOLOR 9 FONT 6
+          FGCOLOR 9 FONT 22
      "Match" VIEW-AS TEXT
           SIZE 6.8 BY .62 AT ROW 2.76 COL 144 WIDGET-ID 6
 /*"Sort By:" VIEW-AS TEXT
@@ -681,10 +681,10 @@ DEFINE FRAME F-Main
           SIZE 3 BY 1 AT ROW 3.86 COL 101
      "Die # / Cad # / Plate #" VIEW-AS TEXT
           SIZE 28 BY .62 AT ROW 1.24 COL 118
-          FGCOLOR 9 FONT 6
+          FGCOLOR 9 FONT 22
      "L x W x D" VIEW-AS TEXT
           SIZE 13 BY .62 AT ROW 1.24 COL 96
-          FGCOLOR 9 FONT 6
+          FGCOLOR 9 FONT 22
    /*  "Browser Col. Mode:" VIEW-AS TEXT
           SIZE 22.6 BY .62 AT ROW 5.29 COL 115.2 WIDGET-ID 10
           FONT 6*/

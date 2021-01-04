@@ -1014,6 +1014,8 @@ PROCEDURE createTtblProdAce:
       IF INDEX(ENTRY(2,lvProdAceData),"Invalid WO") NE 0 THEN NEXT.
       /* check if valid entry to process */
       IF INDEX(ENTRY(2,lvProdAceData),"n/f") NE 0 THEN NEXT.
+      /* check if valid entry to process */
+      IF INDEX(ENTRY(2,lvProdAceData),"Unscheduled") NE 0 THEN NEXT.
       /* make sure job is in long format */
       IF NUM-ENTRIES(ENTRY(2,lvProdAceData),'.') LT 2 THEN NEXT.
       CREATE ttblStatus.
@@ -1457,7 +1459,7 @@ PROCEDURE pExport :
         FOR EACH ttblProductID:
             PUT UNFORMATTED '"'
                 ttblProductID.productID '",'
-                STRING(ttblProductID.dmiID,'999') ',"","","'
+                /*STRING(ttblProductID.dmiID,'999')*/ ',"","","'
                 REPLACE(ttblProductID.productDesc,',','') '",'
                 TRIM(STRING(ttblProductID.standardCycle,'>>>>9.9<<<')) ','
                 180 ',' 1 ',' 0 ',' 0 ',' 0

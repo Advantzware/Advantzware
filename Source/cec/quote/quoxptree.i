@@ -150,7 +150,7 @@ FOR EACH xqitm OF xquo NO-LOCK
            ELSE trim-size = "".
       END.
       lv-part-dscr2 = IF ll-prt-dscr2 THEN xqitm.part-dscr2 ELSE style-dscr.
-      PUT  xquo.q-no trim-size AT 8 FORM "x(21)" lv-part-dscr2 FORM "x(30)" .
+      PUT  xquo.q-no FORMAT ">>>>>9" trim-size AT 8 FORM "x(21)" lv-part-dscr2 FORM "x(30)" .
     END.
     ELSE
     IF i EQ 3 THEN DO:

@@ -162,12 +162,12 @@ DEFINE BROWSE taskResultBrowse
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS taskResultBrowse C-Win _STRUCTURED
   QUERY taskResultBrowse NO-LOCK DISPLAY
       taskResult.fileDateTime FORMAT "99/99/9999 HH:MM:SS.SSS":U
-            LABEL-BGCOLOR 22
-      taskResult.fileType FORMAT "x(8)":U LABEL-BGCOLOR 22
-      taskResult.user-id FORMAT "x(10)":U LABEL-BGCOLOR 22
-      taskResult.viewed FORMAT "yes/no":U LABEL-BGCOLOR 22 VIEW-AS TOGGLE-BOX
-      taskResult.archived FORMAT "99/99/9999 HH:MM:SS.SSS":U LABEL-BGCOLOR 22
-      taskResult.folderFile FORMAT "x(256)":U LABEL-BGCOLOR 22
+            LABEL-BGCOLOR 14
+      taskResult.fileType FORMAT "x(8)":U LABEL-BGCOLOR 14
+      taskResult.user-id FORMAT "x(10)":U LABEL-BGCOLOR 14
+      taskResult.viewed FORMAT "yes/no":U LABEL-BGCOLOR 14 VIEW-AS TOGGLE-BOX
+      taskResult.archived FORMAT "99/99/9999 HH:MM:SS.SSS":U LABEL-BGCOLOR 14
+      taskResult.folderFile FORMAT "x(256)":U LABEL-BGCOLOR 14
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ROW-MARKERS SEPARATORS SIZE 160 BY 26.19
@@ -504,7 +504,7 @@ END.
 
 &Scoped-Define ExcludeAuditHistory
 {methods/menus/stdHelpMenu.i}
-{methods/template/brwcustom.i}
+{methods/template/brwcustom2.i}
 
 /* Set CURRENT-WINDOW: this will parent dialog-boxes and frames.        */
 ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME} 

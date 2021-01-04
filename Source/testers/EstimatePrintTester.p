@@ -22,9 +22,11 @@ DEFINE VARIABLE giTimer             AS INTEGER   NO-UNDO.
 DEFINE VARIABLE gcOutputFile        AS CHARACTER INITIAL "C:\temp\estPrintOut.xpr".
 DEFINE VARIABLE gcProfilerFile      AS CHARACTER INITIAL "C:\temp\estCalcProfile.prof".
 DEFINE VARIABLE gcCompany           AS CHARACTER INITIAL "001".
-DEFINE VARIABLE gcEstimate          AS CHARACTER INITIAL "  100989".
+DEFINE VARIABLE gcEstimate          AS CHARACTER INITIAL "   13210".
 DEFINE VARIABLE glDoJob             AS LOGICAL   INITIAL NO.
+DEFINE VARIABLE glDoCalc            AS LOGICAL   INITIAL YES.
 DEFINE VARIABLE glPurge             AS LOGICAL   INITIAL YES.
+DEFINE VARIABLE glAlt               AS LOGICAL   INITIAL NO.
 
 DEFINE VARIABLE cJobID AS CHARACTER NO-UNDO.
 DEFINE VARIABLE iJobID2 AS INTEGER NO-UNDO.
@@ -36,7 +38,11 @@ DEFINE VARIABLE iJobID2 AS INTEGER NO-UNDO.
 
 RUN system\session.p PERSISTENT SET ghSession.
 SESSION:ADD-SUPER-PROCEDURE (ghSession).
-RUN est\EstimateCalcProcs.p PERSISTENT SET ghEstimateCalcProcs.
+
+IF glAlt THEN 
+    RUN est\EstimateCalcProcsAlt.p PERSISTENT SET ghEstimateCalcProcs.
+ELSE 
+    RUN est\EstimateCalcProcs.p PERSISTENT SET ghEstimateCalcProcs.
 THIS-PROCEDURE:ADD-SUPER-PROCEDURE (ghEstimateCalcProcs).
 
 RUN spSetSessionParam ("Company",  gcCompany).
@@ -51,10 +57,11 @@ IF AVAILABLE job AND glDoJob THEN
         cJobID = job.job-no
         iJobID2 = job.job-no2
         .
-//RUN CalculateEstimate(gcCompany,gcEstimate, glPurge).
+IF glDoCalc THEN 
+    RUN CalculateEstimate(gcCompany,gcEstimate, glPurge).
 
 RUN pOnOffProfiler.
-IF glPurge THEN 
+IF glPurge AND NOT glAlt THEN 
     FIND FIRST estCostHeader NO-LOCK
         WHERE estCostHeader.company EQ gcCompany
         AND estCostHeader.estimateNo EQ gcEstimate

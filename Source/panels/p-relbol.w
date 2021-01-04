@@ -129,8 +129,8 @@ DEFINE FRAME Panel-Frame
      Btn-Save AT ROW 1.24 COL 2
      Btn-Add AT ROW 1.24 COL 20
      Btn-Delete AT ROW 1.24 COL 38
-     Btn-Cancel AT ROW 1.24 COL 47      
-     btn-qty AT ROW 1.24 COL 56 WIDGET-ID 2     
+     Btn-Cancel AT ROW 1.24 COL 47     
+     btn-qty AT ROW 1.24 COL 69.2 WIDGET-ID 2
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY NO-HELP 
          SIDE-LABELS NO-UNDERLINE THREE-D 

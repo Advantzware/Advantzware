@@ -42,7 +42,7 @@ CREATE WIDGET-POOL.
 {methods/defines/hndldefs.i}
 {methods/prgsecur.i}
 {sys/inc/var.i "new shared"}
-{methods/template/brwcustomdefmulti.i}
+
 DEFINE VARIABLE onlyone    AS LOGICAL NO-UNDO.
 DEFINE VARIABLE save-rowid AS ROWID   NO-UNDO.
 DEFINE BUFFER b-usercomp  FOR usercomp.
@@ -123,7 +123,7 @@ usercomp.loc NE "" AND ~
     ~{&OPEN-QUERY-locations}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS companies Btn_Cancel locations Btn_OK 
+&Scoped-Define ENABLED-OBJECTS Btn_Cancel Btn_OK companies locations 
 &Scoped-Define DISPLAYED-OBJECTS sysdate 
 
 /* Custom List Definitions                                              */
@@ -141,12 +141,12 @@ DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON Btn_Cancel 
-     IMAGE-UP FILE "Graphics/32x32/navigate_cross.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/exit_white.png":U NO-FOCUS FLAT-BUTTON
      LABEL "&Cancel" 
      SIZE 8 BY 1.91 TOOLTIP "Cancel".
 
 DEFINE BUTTON Btn_OK 
-     IMAGE-UP FILE "Graphics/32x32/navigate_check.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/navigate_check.png":U NO-FOCUS FLAT-BUTTON
      LABEL "&OK" 
      SIZE 8 BY 1.91 TOOLTIP "OK".
 
@@ -194,14 +194,14 @@ DEFINE BROWSE locations
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
-     companies AT ROW 1 COL 1 HELP
-          "Select Company"
      Btn_Cancel AT ROW 5.29 COL 100 HELP
           "CANCEL Select Company/Department"
-     locations AT ROW 1 COL 46 HELP
-          "Select Department"
      Btn_OK AT ROW 5.29 COL 92 HELP
           "Select Company/Department"
+     companies AT ROW 1 COL 1 HELP
+          "Select Company"
+     locations AT ROW 1 COL 46 HELP
+          "Select Department"
      sysdate AT ROW 2.43 COL 90 COLON-ALIGNED HELP
           "Enter System Date" NO-LABEL
      "System Date" VIEW-AS TEXT
@@ -265,7 +265,7 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
 /* SETTINGS FOR FRAME DEFAULT-FRAME
    FRAME-NAME                                                           */
 /* BROWSE-TAB companies TEXT-1 DEFAULT-FRAME */
-/* BROWSE-TAB locations Btn_Cancel DEFAULT-FRAME */
+/* BROWSE-TAB locations companies DEFAULT-FRAME */
 ASSIGN 
        Btn_Cancel:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
                 "ribbon-button".
@@ -428,16 +428,17 @@ END.
 
 /* ***************************  Main Block  *************************** */
 
+&Scoped-define sdBrowseName companies
+{methods/template/brwcustom2.i 1}
+&Scoped-define sdBrowseName locations
+{methods/template/brwcustom2.i 2}
+
 /* Set CURRENT-WINDOW: this will parent dialog-boxes and frames.        */
 ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME} 
        THIS-PROCEDURE:CURRENT-WINDOW = {&WINDOW-NAME}.
-brwHandList = string(browse companies:handle).
-brwHandList = brwHandList + "," + string(browse locations:handle).
-{methods/template/brwcustommulti.i &brw-list=brwHandList }
-{methods/template/brwrowdisplaymulti.i &brw-name="companies" }
-{methods/template/brwrowdisplaymulti.i &brw-name="locations" }
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
+
 ON CLOSE OF THIS-PROCEDURE 
    RUN disable_UI.
 
@@ -518,7 +519,7 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY sysdate 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE companies Btn_Cancel locations Btn_OK 
+  ENABLE Btn_Cancel Btn_OK companies locations 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.

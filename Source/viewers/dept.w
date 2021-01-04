@@ -64,14 +64,16 @@ assign
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR dept.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS dept.dscr dept.fc 
 &Scoped-define FIELD-PAIRS~
  ~{&FP1}dscr ~{&FP2}dscr ~{&FP3}~
  ~{&FP1}fc ~{&FP2}fc ~{&FP3}
+&Scoped-Define ENABLED-FIELDS dept.dscr dept.fc dept.isInactive 
 &Scoped-define ENABLED-TABLES dept
 &Scoped-define FIRST-ENABLED-TABLE dept
 &Scoped-Define ENABLED-OBJECTS RECT-1 
-&Scoped-Define DISPLAYED-FIELDS dept.code dept.dscr dept.fc 
+&Scoped-Define DISPLAYED-FIELDS dept.code dept.isRequired dept.dscr dept.fc ~
+dept.isInactive 
+
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,List-5,F1 */
@@ -108,8 +110,8 @@ RUN set-attribute-list (
 
 /* Definitions of the field level widgets                               */
 DEFINE RECTANGLE RECT-1
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
-     SIZE 49 BY 3.81.
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 49 BY 5.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -120,6 +122,9 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 4.4 BY 1
           BGCOLOR 15 FONT 4
+     dept.isRequired AT ROW 1.24 COL 35 WIDGET-ID 4
+          VIEW-AS TOGGLE-BOX
+          SIZE 13.4 BY .81
      dept.dscr AT ROW 2.43 COL 15 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 32 BY 1
@@ -128,6 +133,9 @@ DEFINE FRAME F-Main
           LABEL "Sequence"
           VIEW-AS FILL-IN 
           SIZE 4.4 BY 1
+     dept.isInactive AT ROW 4.76 COL 14.8 COLON-ALIGNED WIDGET-ID 2
+          VIEW-AS FILL-IN 
+          SIZE 5.6 BY 1
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -162,7 +170,7 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW V-table-Win ASSIGN
-         HEIGHT             = 3.81
+         HEIGHT             = 5
          WIDTH              = 49.
 /* END WINDOW DEFINITION */
                                                                         */

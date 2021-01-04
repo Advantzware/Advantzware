@@ -75,7 +75,8 @@ DEFINE VARIABLE h_exit AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_folder AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-relbol AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_smartmsg AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_p-printbol AS HANDLE NO-UNDO.                          
+DEFINE VARIABLE h_p-printbol AS HANDLE NO-UNDO.
+
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
@@ -353,7 +354,7 @@ PROCEDURE adm-create-objects :
        /* Links to SmartObject h_b-relbol. */
        RUN add-link IN adm-broker-hdl ( h_p-relbol , 'TableIO':U , h_b-relbol ).
        RUN add-link IN adm-broker-hdl ( h_b-relbol , 'release':U , THIS-PROCEDURE ).
-       RUN add-link IN adm-broker-hdl ( h_p-printbol , 'TableIO':U , h_b-relbol ).
+       RUN add-link IN adm-broker-hdl ( h_b-relbol , 'Record':U , h_p-printbol ).
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_p-relbol ,

@@ -2378,6 +2378,8 @@ PROCEDURE local-delete-record :
 
   /* Code placed here will execute AFTER standard behavior.    */
   RUN display-qtys.
+  
+  RUN pEnablePrintButton.
 
 END PROCEDURE.
 
@@ -2477,6 +2479,9 @@ PROCEDURE local-update-record :
   RUN display-qtys.
 
   RUN need-scroll.
+  
+  RUN pEnablePrintButton.
+   
   /* If updating, bf-ssrelbol will be available so don't auto open new line */
   IF (ssbol-int EQ 0 OR v-scan-qty LT v-rel-qty) AND NOT AVAIL bf-ssrelbol THEN      
       RUN scan-next.
@@ -2753,13 +2758,13 @@ PROCEDURE print-bol :
   DEFINE VARIABLE v-scan-qty-c AS INTEGER  INITIAL 0 NO-UNDO.
   DEFINE VARIABLE v-rel-qty-c AS INTEGER  INITIAL 0 NO-UNDO .
   DEFINE VARIABLE lMsgResponse AS LOGICAL NO-UNDO.
-    
+  
   RUN validate-scan(OUTPUT v-create-backorder) NO-ERROR.
 
   IF ERROR-STATUS:ERROR THEN RETURN .
   
   RUN displayMessageQuestion ("58", OUTPUT lMsgResponse).
-  
+
   IF NOT lMsgResponse THEN RETURN NO-APPLY.
 
    /* Ticket 13130 */
@@ -2820,6 +2825,8 @@ PROCEDURE print-bol :
   /* If tt-relbol is empty, printed flag should be reset for blank browser */
     is-bol-printed = NO.
   RUN dispatch ('open-query').
+  
+  RUN pEnablePrintButton.
  
   SESSION:SET-WAIT-STATE(""). 
 
@@ -3516,6 +3523,28 @@ PROCEDURE validate-tag-status :
   END.
 
   {methods/lValidateError.i NO}
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pEnablePrintButton B-table-Win 
+PROCEDURE pEnablePrintButton :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE VARIABLE cAction AS CHARACTER NO-UNDO.
+  
+  IF AVAIL tt-relbol THEN 
+  cAction = "initial".
+  ELSE cAction = "disable-all".
+  
+  RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"Record-target",OUTPUT char-hdl).
+  IF valid-handle(widget-handle(char-hdl)) THEN
+  RUN set-buttons IN WIDGET-HANDLE(char-hdl)(INPUT cAction).
 
 END PROCEDURE.
 
