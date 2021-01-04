@@ -154,7 +154,7 @@ est-op.plates est-op.fountains est-op.n_out_div est-op.op-pass
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON Btn_Cancel 
-     IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/exit_white.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Cancel" 
      SIZE 8 BY 1.91
      BGCOLOR 8 .
@@ -165,7 +165,7 @@ DEFINE BUTTON Btn_Done AUTO-END-KEY DEFAULT
      BGCOLOR 8 .
 
 DEFINE BUTTON Btn_OK 
-     IMAGE-UP FILE "Graphics/32x32/floppy_disk.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/floppy_disk.png":U NO-FOCUS FLAT-BUTTON
      LABEL "&Save" 
      SIZE 8 BY 1.91
      BGCOLOR 8 .

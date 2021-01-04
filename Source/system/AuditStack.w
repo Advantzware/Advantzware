@@ -62,7 +62,7 @@ DEFINE VARIABLE idx AS INTEGER NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btnExit AUTO-GO 
-     IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/exit_white.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 8.4 BY 2
      BGCOLOR 8 .
