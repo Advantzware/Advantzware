@@ -177,7 +177,7 @@ PROCEDURE pProcessRecord PRIVATE:
     RUN pAssignValueI (ipbf-ttImportFG.ReleaseSequence, iplIgnoreBlanks, INPUT-OUTPUT bf-itemfg.spare-int-2).
     RUN pAssignValueC (ipbf-ttImportFG.ActiveStatus, YES, INPUT-OUTPUT bf-itemfg.stat).
     RUN pAssignValueCToL (ipbf-ttImportFG.Purchased, "P", iplIgnoreBlanks, INPUT-OUTPUT bf-itemfg.pur-man).      
-    RUN pAssignValueCToL (ipbf-ttImportFG.ShipByCas, "C", iplIgnoreBlanks, INPUT-OUTPUT bf-itemfg.ship-meth).
+    RUN pAssignValueCToL (ipbf-ttImportFG.ShipByCas, "C,CASE", iplIgnoreBlanks, INPUT-OUTPUT bf-itemfg.ship-meth).
     RUN pAssignValueC (ipbf-ttImportFG.StockItem, YES, INPUT-OUTPUT bf-itemfg.i-code).
     RUN pAssignValueD (ipbf-ttImportFG.SellPrice, iplIgnoreBlanks, INPUT-OUTPUT bf-itemfg.sell-price).
     RUN pAssignValueC (ipbf-ttImportFG.SellPriceUOM, YES, INPUT-OUTPUT bf-itemfg.sell-uom).
@@ -206,7 +206,7 @@ PROCEDURE pProcessRecord PRIVATE:
     RUN pAssignValueD (ipbf-ttImportFG.WidthBlank, iplIgnoreBlanks, INPUT-OUTPUT bf-itemfg.t-wid).
     RUN pAssignValueC (ipbf-ttImportFG.SalesRepID, iplIgnoreBlanks, INPUT-OUTPUT bf-itemfg.spare-char-3).
     RUN pAssignValueCToL (ipbf-ttImportFG.FactorInvoice, "Y", iplIgnoreBlanks, INPUT-OUTPUT bf-itemfg.factored).
-    RUN pAssignValueCToL (ipbf-ttImportFG.ReorderPoint, "Y", iplIgnoreBlanks, INPUT-OUTPUT bf-itemfg.ord-policy).
+    RUN pAssignValueCToL (ipbf-ttImportFG.ReorderPoint, "R", iplIgnoreBlanks, INPUT-OUTPUT bf-itemfg.ord-policy).
     RUN pAssignValueI (ipbf-ttImportFG.ReorderLevel, iplIgnoreBlanks, INPUT-OUTPUT bf-itemfg.ord-level).
     RUN pAssignValueI (ipbf-ttImportFG.OrderMinimum, iplIgnoreBlanks, INPUT-OUTPUT bf-itemfg.ord-min).
     RUN pAssignValueI (ipbf-ttImportFG.OrderMaximum, iplIgnoreBlanks, INPUT-OUTPUT bf-itemfg.ord-max).
