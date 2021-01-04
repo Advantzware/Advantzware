@@ -1278,7 +1278,11 @@ DEF VAR ll-rcpth AS LOG.
         UNDO, NEXT.
     
     ASSIGN
-        ap-inv.period = tran-period.
+        ap-inv.period = tran-period
+        ap-inv.postedDate = tran-date
+        ap-inv.runNumber  = v-trnum
+        ap-inv.glYear     = YEAR(tran-date)
+        .
         total-msf     = 0
         .
     
