@@ -82,9 +82,9 @@ RUN jc\JobProcs.p PERSISTENT SET hdJobProcs.
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR job.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS fiJobNo RECT-31 btExit RECT-32 rSelected ~
-cbJobNo2 btFGInq btFGItems btMaterials btRoutings btnFirst btnPrevious ~
-btnNext btnLast 
+&Scoped-Define ENABLED-OBJECTS btFGInq btFGItems btRoutings btMaterials ~
+fiJobNo btExit cbJobNo2 btnFirst btnPrevious btnNext btnLast RECT-31 ~
+RECT-32 rSelected 
 &Scoped-Define DISPLAYED-OBJECTS fiJobNo cbJobNo2 fiJoblabel fiStatusLabel ~
 fiStatus fiCreatedLabel fiCreated fiDueLabel fiDue fiCSRLabel fiCSR 
 
@@ -115,17 +115,17 @@ DEFINE BUTTON btExit
      LABEL "" 
      SIZE 11 BY 2.62.
 
-DEFINE BUTTON btFGInq 
+DEFINE BUTTON btFGInq  NO-FOCUS
      LABEL "View FG" 
      SIZE 19 BY 2.52
      FONT 37.
 
-DEFINE BUTTON btFGItems 
+DEFINE BUTTON btFGItems  NO-FOCUS
      LABEL "FG Items" 
      SIZE 30 BY 2.52
      FONT 37.
 
-DEFINE BUTTON btMaterials 
+DEFINE BUTTON btMaterials  NO-FOCUS
      LABEL "Materials" 
      SIZE 30 BY 2.52
      FONT 37.
@@ -150,12 +150,12 @@ DEFINE BUTTON btnPrevious
      LABEL "Prev" 
      SIZE 11 BY 2.62 TOOLTIP "Previous".
 
-DEFINE BUTTON btRMInq 
+DEFINE BUTTON btRMInq  NO-FOCUS
      LABEL "View RM" 
      SIZE 19 BY 2.52
      FONT 37.
 
-DEFINE BUTTON btRoutings 
+DEFINE BUTTON btRoutings  NO-FOCUS
      LABEL "Routings" 
      SIZE 30 BY 2.52
      FONT 37.
@@ -234,6 +234,11 @@ DEFINE RECTANGLE rSelected
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
+     btFGInq AT ROW 7.91 COL 130 WIDGET-ID 130
+     btRMInq AT ROW 7.91 COL 151 WIDGET-ID 132
+     btFGItems AT ROW 7.95 COL 7.6 WIDGET-ID 118
+     btRoutings AT ROW 7.95 COL 70.8 WIDGET-ID 120
+     btMaterials AT ROW 7.95 COL 39.2 WIDGET-ID 122
      fiJobNo AT ROW 2.43 COL 19.2 COLON-ALIGNED NO-LABEL WIDGET-ID 10
      btExit AT ROW 1.91 COL 192 WIDGET-ID 126
      cbJobNo2 AT ROW 2.48 COL 61.6 COLON-ALIGNED NO-LABEL WIDGET-ID 50
@@ -246,11 +251,6 @@ DEFINE FRAME F-Main
      fiDue AT ROW 4.81 COL 58 COLON-ALIGNED NO-LABEL WIDGET-ID 106
      fiCSRLabel AT ROW 4.81 COL 126.4 COLON-ALIGNED NO-LABEL WIDGET-ID 102
      fiCSR AT ROW 4.81 COL 135.4 COLON-ALIGNED NO-LABEL WIDGET-ID 100
-     btFGInq AT ROW 7.91 COL 130 WIDGET-ID 130
-     btRMInq AT ROW 7.91 COL 151 WIDGET-ID 132
-     btFGItems AT ROW 7.95 COL 7.6 WIDGET-ID 118
-     btMaterials AT ROW 7.95 COL 39.2 WIDGET-ID 122
-     btRoutings AT ROW 7.95 COL 70.8 WIDGET-ID 120
      btnFirst AT ROW 11.48 COL 192 WIDGET-ID 44
      btnPrevious AT ROW 14.29 COL 192 WIDGET-ID 40
      btnNext AT ROW 27.95 COL 192 WIDGET-ID 42
@@ -644,14 +644,6 @@ PROCEDURE adm-create-objects :
     END. /* Page 0 */
     WHEN 1 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'sharpshooter/b-job-hdr.w':U ,
-             INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Layout = ':U ,
-             OUTPUT h_b-job-hdr ).
-       RUN set-position IN h_b-job-hdr ( 11.48 , 7.40 ) NO-ERROR.
-       RUN set-size IN h_b-job-hdr ( 21.91 , 181.60 ) NO-ERROR.
-
-       RUN init-object IN THIS-PROCEDURE (
              INPUT  'sharpshooter/smartobj/adjustqty.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
@@ -659,29 +651,29 @@ PROCEDURE adm-create-objects :
        RUN set-position IN h_adjustqty ( 21.24 , 192.00 ) NO-ERROR.
        /* Size in UIB:  ( 2.62 , 11.00 ) */
 
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'sharpshooter/b-job-hdr.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_b-job-hdr ).
+       RUN set-position IN h_b-job-hdr ( 11.48 , 7.40 ) NO-ERROR.
+       RUN set-size IN h_b-job-hdr ( 21.91 , 181.60 ) NO-ERROR.
+
+       /* Links to SmartObject h_adjustqty. */
+       RUN add-link IN adm-broker-hdl ( h_b-job-hdr , 'ADJUST':U , h_adjustqty ).
+
        /* Links to SmartBrowser h_b-job-hdr. */
        RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'FGInq':U , h_b-job-hdr ).
        RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'PAGE_1':U , h_b-job-hdr ).
        RUN add-link IN adm-broker-hdl ( h_b-job-hdr , 'Record':U , THIS-PROCEDURE ).
 
-       /* Links to SmartObject h_adjustqty. */
-       RUN add-link IN adm-broker-hdl ( h_b-job-hdr , 'ADJUST':U , h_adjustqty ).
-
        /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_b-job-hdr ,
-             btRoutings:HANDLE IN FRAME F-Main , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_adjustqty ,
-             btnPrevious:HANDLE IN FRAME F-Main , 'AFTER':U ).
+             btnLast:HANDLE IN FRAME F-Main , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_b-job-hdr ,
+             h_adjustqty , 'AFTER':U ).
     END. /* Page 1 */
     WHEN 2 THEN DO:
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'sharpshooter/b-job-mat.w':U ,
-             INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Layout = ':U ,
-             OUTPUT h_b-job-mat ).
-       RUN set-position IN h_b-job-mat ( 11.48 , 7.40 ) NO-ERROR.
-       RUN set-size IN h_b-job-mat ( 21.91 , 181.60 ) NO-ERROR.
-
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'sharpshooter/smartobj/issueqty.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
@@ -690,22 +682,30 @@ PROCEDURE adm-create-objects :
        RUN set-position IN h_issueqty ( 21.24 , 192.00 ) NO-ERROR.
        /* Size in UIB:  ( 2.62 , 11.00 ) */
 
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'sharpshooter/b-job-mat.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_b-job-mat ).
+       RUN set-position IN h_b-job-mat ( 11.48 , 7.40 ) NO-ERROR.
+       RUN set-size IN h_b-job-mat ( 21.91 , 181.60 ) NO-ERROR.
+
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
+
+       /* Links to SmartObject h_issueqty. */
+       RUN add-link IN adm-broker-hdl ( h_b-job-mat , 'ISSUE':U , h_issueqty ).
 
        /* Links to SmartBrowser h_b-job-mat. */
        RUN add-link IN adm-broker-hdl ( h_b-job-hdr , 'Record':U , h_b-job-mat ).
        RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'PAGE_2':U , h_b-job-mat ).
        RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'RMInq':U , h_b-job-mat ).
 
-       /* Links to SmartObject h_issueqty. */
-       RUN add-link IN adm-broker-hdl ( h_b-job-mat , 'ISSUE':U , h_issueqty ).
-
        /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_b-job-mat ,
-             btRoutings:HANDLE IN FRAME F-Main , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_issueqty ,
-             btnPrevious:HANDLE IN FRAME F-Main , 'AFTER':U ).
+             btnLast:HANDLE IN FRAME F-Main , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_b-job-mat ,
+             h_issueqty , 'AFTER':U ).
     END. /* Page 2 */
     WHEN 3 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
@@ -725,7 +725,7 @@ PROCEDURE adm-create-objects :
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_b-job-mch ,
-             btRoutings:HANDLE IN FRAME F-Main , 'AFTER':U ).
+             btnLast:HANDLE IN FRAME F-Main , 'AFTER':U ).
     END. /* Page 3 */
 
   END CASE.
@@ -802,8 +802,8 @@ PROCEDURE enable_UI :
   DISPLAY fiJobNo cbJobNo2 fiJoblabel fiStatusLabel fiStatus fiCreatedLabel 
           fiCreated fiDueLabel fiDue fiCSRLabel fiCSR 
       WITH FRAME F-Main IN WINDOW W-Win.
-  ENABLE fiJobNo RECT-31 btExit RECT-32 rSelected cbJobNo2 btFGInq btFGItems 
-         btMaterials btRoutings btnFirst btnPrevious btnNext btnLast 
+  ENABLE btFGInq btFGItems btRoutings btMaterials fiJobNo btExit cbJobNo2 
+         btnFirst btnPrevious btnNext btnLast RECT-31 RECT-32 rSelected 
       WITH FRAME F-Main IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-F-Main}
   VIEW W-Win.

@@ -70,11 +70,15 @@ DEFINE VARIABLE iEditorFGColor    AS INTEGER   NO-UNDO INITIAL {&FGColor}.
 
 DEFINE VARIABLE iLevel            AS INTEGER   NO-UNDO.
 
+&Scoped-define BGColor 32
+
 {methods/defines/globdefs.i}
 {methods/defines/hndldefs.i}
 
 /* System Constant Values */
 {system/sysconst.i}
+
+DEFINE VARIABLE iEditorBGColor    AS INTEGER   NO-UNDO INITIAL {&BGColor}.
 
 {system/menuTree.i}
 ASSIGN
