@@ -280,7 +280,6 @@ PROCEDURE pResultsBrowser :
             hBrowseColumn[dynValueColumn.sortOrder] = hColumn
             .
         IF NOT VALID-HANDLE(hColumn) THEN NEXT.
-/*        IF idx MOD 2 EQ 0 THEN hColumn:COLUMN-BGCOLOR = 11.*/
         IF dynValueColumn.columnSize NE 0 THEN
         hColumn:WIDTH-CHARS = dynValueColumn.columnSize.
         iNumColumns = iNumColumns + 1.
@@ -444,7 +443,12 @@ PROCEDURE pRunSubject :
         FIND CURRENT dynParamValue NO-LOCK.
         FIND CURRENT dynSubject NO-LOCK.
     END. /* do trans */
-    RUN pSetDynParamValue (dynSubject.subjectID, ipcUserID, ipcPrgmName, 0).
+    RUN pSetDynParamValue (
+        dynSubject.subjectID,
+        ipcUserID,
+        ipcPrgmName,
+        dynParamValue.paramValueID
+        ).
     IF iplRun THEN
     RUN pSaveDynParamValues (ipcType).
     cTaskRecKey = IF AVAILABLE Task THEN Task.rec_key ELSE "NoTask".

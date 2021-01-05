@@ -1136,6 +1136,14 @@ PROCEDURE pSetButtons :
     DEFINE INPUT PARAMETER ipcUserID       AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER iplFavorite     AS LOGICAL   NO-UNDO.
 
+    IF iplAvailable THEN DO:
+        RUN enable-folder-page IN h_folder (2).
+        RUN enable-folder-page IN h_folder (3).
+    END. /* if */
+    ELSE DO:
+        RUN disable-folder-page IN h_folder (2).
+        RUN disable-folder-page IN h_folder (3).
+    END. /* else */
     DO WITH FRAME {&FRAME-NAME}:
         RUN pSetFavorite (iplFavorite).
         ASSIGN
