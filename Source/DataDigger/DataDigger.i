@@ -11,7 +11,7 @@
 /*----------------------------------------------------------------------*/
 
 &GLOBAL-DEFINE version {version.i}
-&GLOBAL-DEFINE edition Pure Gold
+&GLOBAL-DEFINE edition Rudolf
 &GLOBAL-DEFINE build {build.i}
 
 &GLOBAL-DEFINE QUERYSEP CHR(1, SESSION:CPINTERNAL, "UTF-8")
@@ -261,9 +261,7 @@ DEFINE TEMP-TABLE ttConfig NO-UNDO
   FIELD cSetting AS CHARACTER
   FIELD cValue   AS CHARACTER
   FIELD lUser    AS LOGICAL
-  FIELD lDirty   AS LOGICAL
   INDEX idxPrim IS PRIMARY cSection cSetting
-  INDEX idxDirty lDirty
   INDEX idxUser  lUser
   .
 
