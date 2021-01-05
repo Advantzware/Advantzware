@@ -207,14 +207,14 @@ po-ordl.dscr[1] po-ordl.cost po-ordl.pr-uom po-ordl.cons-cost ~
 po-ordl.cons-uom po-ordl.dscr[2] po-ordl.setup po-ordl.s-wid po-ordl.s-len ~
 po-ordl.disc po-ordl.actnum po-ordl.vend-i-no po-ordl.tax po-ordl.over-pct ~
 po-ordl.under-pct po-ordl.cust-no po-ordl.ord-no po-ordl.t-cost ~
-po-ordl.item-type po-ordl.excludeFroimVoucher 
+po-ordl.item-type po-ordl.excludeFromVoucher 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Dialog-Frame po-ordl.i-no ~
 po-ordl.job-no po-ordl.job-no2 po-ordl.s-num po-ordl.b-num po-ordl.due-date ~
 po-ordl.i-name po-ordl.ord-qty po-ordl.pr-qty-uom po-ordl.dscr[1] ~
 po-ordl.cost po-ordl.pr-uom po-ordl.dscr[2] po-ordl.setup po-ordl.s-wid ~
 po-ordl.s-len po-ordl.disc po-ordl.actnum po-ordl.vend-i-no po-ordl.tax ~
 po-ordl.over-pct po-ordl.under-pct po-ordl.cust-no po-ordl.ord-no ~
-po-ordl.item-type po-ordl.excludeFroimVoucher
+po-ordl.item-type po-ordl.excludeFromVoucher
 &Scoped-define ENABLED-TABLES-IN-QUERY-Dialog-Frame po-ordl
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-Dialog-Frame po-ordl
 &Scoped-define QUERY-STRING-Dialog-Frame FOR EACH po-ordl SHARE-LOCK, ~
@@ -233,7 +233,7 @@ po-ordl.pr-qty-uom po-ordl.dscr[1] po-ordl.cost po-ordl.pr-uom ~
 po-ordl.dscr[2] po-ordl.setup po-ordl.s-wid po-ordl.s-len po-ordl.disc ~
 po-ordl.actnum po-ordl.vend-i-no po-ordl.tax po-ordl.over-pct ~
 po-ordl.under-pct po-ordl.cust-no po-ordl.ord-no po-ordl.item-type ~
-po-ordl.excludeFroimVoucher
+po-ordl.excludeFromVoucher
 &Scoped-define ENABLED-TABLES po-ordl
 &Scoped-define FIRST-ENABLED-TABLE po-ordl
 &Scoped-Define ENABLED-OBJECTS btnCalendar-1 Btn_Done Btn_Cancel Btn_OK ~
@@ -245,7 +245,7 @@ po-ordl.cost po-ordl.pr-uom po-ordl.cons-cost po-ordl.cons-uom ~
 po-ordl.dscr[2] po-ordl.setup po-ordl.s-wid po-ordl.s-len po-ordl.disc ~
 po-ordl.actnum po-ordl.vend-i-no po-ordl.tax po-ordl.over-pct ~
 po-ordl.under-pct po-ordl.cust-no po-ordl.ord-no po-ordl.t-cost ~
-po-ordl.item-type po-ordl.excludeFroimVoucher 
+po-ordl.item-type po-ordl.excludeFromVoucher 
 &Scoped-define DISPLAYED-TABLES po-ordl
 &Scoped-define FIRST-DISPLAYED-TABLE po-ordl
 &Scoped-Define DISPLAYED-OBJECTS fiCount fi_c-a-hdr fi_uom scr-cons-uom ~
@@ -528,8 +528,7 @@ DEFINE FRAME Dialog-Frame
      po-ordl.under-pct AT ROW 12.76 COL 18 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
-     po-ordl.excludeFroimVoucher AT ROW 12.19 COL 64.2 COLON-ALIGNED
-          LABEL ""
+     po-ordl.excludeFromVoucher AT ROW 12.19 COL 64.2 COLON-ALIGNED
           VIEW-AS TOGGLE-BOX
           SIZE 4.2 BY 1     
      fi_pb-qty AT ROW 13.91 COL 104 COLON-ALIGNED
@@ -655,7 +654,7 @@ ASSIGN
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN po-ordl.dscr[2] IN FRAME Dialog-Frame
    EXP-LABEL                                                            */
-/* SETTINGS FOR TOGGLE-BOX po-ordl.excludeFroimVoucher IN FRAME Dialog-Frame
+/* SETTINGS FOR TOGGLE-BOX po-ordl.excludeFromVoucher IN FRAME Dialog-Frame
    EXP-LABEL                                                            */   
 /* SETTINGS FOR FILL-IN fiCount IN FRAME Dialog-Frame
    NO-ENABLE                                                            */
@@ -3999,7 +3998,7 @@ PROCEDURE enable_UI :
           po-ordl.dscr[2] po-ordl.setup po-ordl.s-wid po-ordl.s-len po-ordl.disc 
           po-ordl.actnum po-ordl.vend-i-no po-ordl.tax po-ordl.over-pct 
           po-ordl.under-pct po-ordl.cust-no po-ordl.ord-no po-ordl.t-cost 
-          po-ordl.item-type po-ordl.excludeFroimVoucher 
+          po-ordl.item-type po-ordl.excludeFromVoucher 
       WITH FRAME Dialog-Frame.
   ENABLE po-ordl.i-no po-ordl.job-no po-ordl.job-no2 po-ordl.s-num 
          po-ordl.b-num po-ordl.due-date btnCalendar-1 po-ordl.i-name 
@@ -4008,7 +4007,7 @@ PROCEDURE enable_UI :
          po-ordl.s-len po-ordl.disc po-ordl.actnum po-ordl.vend-i-no 
          po-ordl.tax po-ordl.over-pct po-ordl.under-pct po-ordl.cust-no 
          po-ordl.ord-no Btn_Done Btn_Cancel Btn_OK po-ordl.item-type RECT-21 
-         RECT-38 po-ordl.excludeFroimVoucher
+         RECT-38 po-ordl.excludeFromVoucher
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
