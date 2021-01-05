@@ -169,6 +169,7 @@ DEF VAR v-packslip AS CHAR FORMAT "X(100)" NO-UNDO.
 DEF VAR td-pck-lst AS LOG INIT NO NO-UNDO.
 DEFINE VARIABLE d-print-fmt-dec  AS DECIMAL NO-UNDO.
 DEFINE VARIABLE cBolCocEmail     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCInvoice        AS CHARACTER NO-UNDO.
 /* gdm - 07240906 */
 DEF VAR v-tglflg   AS LOG NO-UNDO INIT YES.
 DEF NEW SHARED VAR v-ship-inst AS LOG NO-UNDO.
@@ -251,7 +252,9 @@ invstatus-log = LOGICAL(v-rtn-char).
 /* Invstatus to determine invoice status when created  */
 RUN sys/ref/nk1look.p (cocode, "INVSTATUS", "C", no, no, "", "", 
                       Output invstatus-char, output v-rec-found).
-
+                      
+RUN sys/ref/nk1look.p (cocode, "CINVOICE", "C", no, no, "", "", 
+                      Output cCInvoice, output lRecFound).
 
 DEF TEMP-TABLE tt-email NO-UNDO
       FIELD tt-recid AS RECID
@@ -3127,6 +3130,7 @@ PROCEDURE CommercialInvoice :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  DEFINE VARIABLE cRunFormat AS CHARACTER NO-UNDO.
   SESSION:SET-WAIT-STATE ("general").
 
   EMPTY TEMP-TABLE tt-ci-form.
@@ -3141,23 +3145,23 @@ PROCEDURE CommercialInvoice :
            can-find (FIRST b1-oe-boll WHERE
                            b1-oe-boll.company EQ b1-oe-bolh.company AND
                            b1-oe-boll.b-no    EQ b1-oe-bolh.b-no)
-           NO-LOCK,
-      FIRST sys-ctrl-shipto WHERE
-            sys-ctrl-shipto.company      EQ cocode AND
-            sys-ctrl-shipto.name         EQ "CINVOICE" AND
-            sys-ctrl-shipto.cust-vend    EQ YES AND
-            sys-ctrl-shipto.cust-vend-no EQ b1-oe-bolh.cust-no AND
-            sys-ctrl-shipto.ship-id      EQ b1-oe-bolh.ship-id
-            NO-LOCK:
-
+           NO-LOCK:
+      FIND FIRST sys-ctrl-shipto NO-LOCK
+            WHERE sys-ctrl-shipto.company      EQ cocode 
+            AND sys-ctrl-shipto.name         EQ "CINVOICE" 
+            AND sys-ctrl-shipto.cust-vend    EQ YES 
+            AND sys-ctrl-shipto.cust-vend-no EQ b1-oe-bolh.cust-no 
+            AND sys-ctrl-shipto.ship-id      EQ b1-oe-bolh.ship-id
+            NO-ERROR.
+      cRunFormat = IF AVAIL sys-ctrl-shipto THEN sys-ctrl-shipto.char-fld ELSE cCInvoice.
       FIND FIRST tt-ci-form WHERE
-           tt-ci-form.form-name = sys-ctrl-shipto.char-fld
+           tt-ci-form.form-name EQ cRunFormat
            NO-ERROR.
 
       IF NOT AVAIL tt-ci-form THEN
       DO:
          CREATE tt-ci-form.
-         ASSIGN tt-ci-form.form-name = sys-ctrl-shipto.char-fld.
+         ASSIGN tt-ci-form.form-name = cRunFormat.
       END.
       tt-ci-form.form-bol      = b1-oe-bolh.bol-no .
       tt-ci-form.total-pallets = tt-ci-form.total-pallets
