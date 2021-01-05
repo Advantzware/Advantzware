@@ -1945,7 +1945,8 @@ PROCEDURE local-disable-fields :
 
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'disable-fields':U ) .
 
-    {methods/template/local/disable.i}
+  {methods/template/local/disable.i}
+  {methods/run_link.i "CONTAINER-SOURCE" "SetUpdateEnd"}  
 
 END PROCEDURE.
 
@@ -2054,7 +2055,7 @@ PROCEDURE local-enable-fields :
 
     {methods/template/local/enable.i}
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'reset-record':U ) .
-
+  {methods/run_link.i "CONTAINER-SOURCE" "SetUpdateBegin"}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

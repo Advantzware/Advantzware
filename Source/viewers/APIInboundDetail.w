@@ -52,6 +52,10 @@ RUN epCanAccess IN hdPgmMstrSecur (
     
 DELETE PROCEDURE hdPgmMstrSecur.
 
+/* The below variables are used in run_link.i */
+DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
+DEFINE VARIABLE pHandle  AS HANDLE    NO-UNDO.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -376,6 +380,7 @@ PROCEDURE local-disable-fields :
 
     /* Code placed here will execute AFTER standard behavior.    */
     RUN pDisableFields.
+    {methods/run_link.i "CONTAINER-SOURCE" "SetUpdateEnd}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -414,6 +419,7 @@ PROCEDURE local-enable-fields :
 
     /* Code placed here will execute AFTER standard behavior.    */
     RUN pEnableFields.
+    {methods/run_link.i "CONTAINER-SOURCE" "SetUpdateBegin"}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
