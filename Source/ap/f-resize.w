@@ -902,8 +902,11 @@ do transaction on error undo postit:
       hide message no-pause.
       undo postit, leave postit.
     end.
-
-    ap-inv.period = tran-period.
+ASSIGN
+    ap-inv.period = tran-period
+    ap-inv.postedDate = tran-date
+    ap-inv.runNumber  = v-trnum
+    ap-inv.glYear     = YEAR(tran-date)
     v-upd = yes.
 
     for each ap-invl where ap-invl.i-no eq ap-inv.i-no no-lock,
