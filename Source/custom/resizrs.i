@@ -1,8 +1,14 @@
 /* custom/resizrs.i*/
-/*
-ON 'window-restored':U OF {&WINDOW-NAME}
-DO:
 
+ON 'WINDOW-RESTORED':U OF {&WINDOW-NAME}
+DO:
+    ASSIGN 
+        {&WINDOW-NAME}:HEIGHT = deOrigWinWidth
+        {&WINDOW-NAME}:WIDTH  = deOrigWinHeight
+        .    
+END.    
+
+/*
 IF winstate = 3 THEN ASSIGN winstate = 0 NO-ERROR.
 ELSE 
 DO:

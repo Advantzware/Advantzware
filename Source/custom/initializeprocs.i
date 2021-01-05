@@ -12,7 +12,44 @@ PROCEDURE beforeinitialize:
         .
 
     IF VALID-HANDLE({&WINDOW-NAME}) THEN 
-    DO:
+    DO:             
+        FIND FIRST userWindow NO-LOCK 
+             WHERE userWindow.usrId       EQ USERID('ASI')
+               AND userwindow.programname EQ THIS-PROCEDURE:FILE-NAME 
+             NO-ERROR.
+        IF AVAILABLE userWindow THEN 
+        DO:   
+            IF  userWindow.sessionWidth  GT SESSION:WIDTH-PIXELS 
+            AND userWindow.sessionHeight GT SESSION:HEIGHT-PIXELS THEN 
+                
+                ASSIGN  
+                    {&WINDOW-NAME}:WIDTH-PIXELS  = userWindow.winWidth  - (userwindow.sessionwidth - SESSION:WIDTH-PIXELS)
+                    {&WINDOW-NAME}:HEIGHT-PIXELS = userWindow.winHeight - (userwindow.sessionheight - SESSION:HEIGHT-PIXELS)
+                    .
+                
+            IF  userWindow.sessionWidth  LT SESSION:WIDTH-PIXELS 
+            AND userWindow.sessionHeight LT SESSION:HEIGHT-PIXELS THEN 
+            
+                ASSIGN 
+                    {&WINDOW-NAME}:WIDTH-PIXELS = userWindow.winWidth - (userWindow.sessionWidth - SESSION:WIDTH-PIXELS)
+                    {&WINDOW-NAME}:HEIGHT-PIXELS = userwindow.winHeight - (userWindow.sessionHeight - SESSION:HEIGHT-PIXELS)
+                    .
+                 
+           IF  userWindow.sessionWidth   EQ SESSION:WIDTH-PIXELS 
+           AND userWindow.sessionHeight  EQ SESSION:HEIGHT-PIXELS THEN DO:
+          
+               ASSIGN                 
+                   {&WINDOW-NAME}:WIDTH-PIXELS  = userWindow.winWidth
+                   {&WINDOW-NAME}:HEIGHT-PIXELS = userwindow.winHeight
+                   .
+          END.           
+               ASSIGN                 
+                   {&WINDOW-NAME}:X                          = userwindow.winxpos
+                   {&WINDOW-NAME}:Y                          = userwindow.winypos
+                   {&WINDOW-NAME}:VIRTUAL-HEIGHT-PIXELS      = {&WINDOW-NAME}:HEIGHT-PIXELS
+                   {&WINDOW-NAME}:VIRTUAL-WIDTH-PIXELS       = {&WINDOW-NAME}:WIDTH-PIXELS 
+                   .                 
+        END.                  
 
         hTempWinmn  = FRAME {&FRAME-NAME}:handle.
 
@@ -271,7 +308,7 @@ PROCEDURE afterinitialize:
         deTempColPos = toreposition.colpos.          
     END.
 
-
+    APPLY "WINDOW-RESIZED" TO {&WINDOW-NAME}. 
     lastBtnPos = deResizeVal.
 END PROCEDURE.
 
