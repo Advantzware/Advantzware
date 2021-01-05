@@ -735,6 +735,7 @@ PROCEDURE pAddInvoiceToPost PRIVATE:
         opbf-ttInvoiceToPost.bolID                        = ipbf-inv-head.bol-no
         opbf-ttInvoiceToPost.termsCode                    = ipbf-inv-head.terms
         opbf-ttInvoiceToPost.taxGroup                     = ipbf-inv-head.tax-gr
+        opbf-ttInvoiceToPost.runID                        = ipbf-ttPostingMaster.runID
         .
     IF opbf-ttInvoiceToPost.isFreightBillable THEN 
         opbf-ttInvoiceToPost.amountBilledFreight = ipbf-inv-head.t-inv-freight.
@@ -1192,7 +1193,7 @@ PROCEDURE pCreateARInvHeader PRIVATE:
         bf-ar-inv.ex-rate      = ipbf-ttInvoiceToPost.currencyExRate
         
         bf-ar-inv.postedDate     = ipbf-ttInvoiceToPost.postDate
-        bf-ar-inv.runNumber      = fGetNextRun(ttPostingMaster.company, NO)       
+        bf-ar-inv.runNumber      = ipbf-ttInvoiceToPost.runID       
         bf-ar-inv.invoiceComment = ipbf-inv-head.spare-char-1
         bf-ar-inv.glYear         = year(ipbf-ttInvoiceToPost.postDate)
         .        
