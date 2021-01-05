@@ -63,7 +63,7 @@ RUN fgrep\fgReorder.p PERSISTENT SET hdFGReorder.
 &Scoped-define INTERNAL-TABLES ttMultiSelectItem
 
 /* Definitions for BROWSE BROWSE-2                                      */
-&Scoped-define FIELDS-IN-QUERY-BROWSE-2 ttMultiSelectItem.isSelected ttMultiSelectItem.multiplier ttMultiSelectItem.quantityToOrder ttMultiSelectItem.quantityToOrderSuggested ttMultiSelectItem.itemID ttMultiSelectItem.itemName ttMultiSelectItem.quantityReorderLevel ttMultiSelectItem.quantityOnHand ttMultiSelectItem.quantityOnOrder ttMultiSelectItem.quantityAllocated ttMultiSelectItem.quantityAvailable ttMultiSelectItem.availOnHand ttMultiSelectItem.dateDueDateEarliest ttMultiSelectItem.quantityReorderLevel ttMultiSelectItem.quantityMinOrder ttMultiSelectItem.quantityMaxOrder ttMultiSelectItem.itemCustPart ttMultiSelectItem.itemCust ttMultiSelectItem.itemCustName ttMultiSelectItem.itemEstNO ttMultiSelectItem.itemStyle ttMultiSelectItem.itemWhse ttMultiSelectItem.board  
+&Scoped-define FIELDS-IN-QUERY-BROWSE-2 ttMultiSelectItem.isSelected ttMultiSelectItem.multiplier ttMultiSelectItem.quantityToOrder ttMultiSelectItem.quantityToOrderSuggested ttMultiSelectItem.itemID ttMultiSelectItem.itemName ttMultiSelectItem.quantityReorderLevel ttMultiSelectItem.quantityOnHand ttMultiSelectItem.quantityOnOrder ttMultiSelectItem.quantityAllocated ttMultiSelectItem.quantityAvailable ttMultiSelectItem.availOnHand ttMultiSelectItem.dateDueDateEarliest ttMultiSelectItem.orderQtyEarliest ttMultiSelectItem.quantityReorderLevel ttMultiSelectItem.quantityMinOrder ttMultiSelectItem.quantityMaxOrder ttMultiSelectItem.itemCustPart ttMultiSelectItem.itemCust ttMultiSelectItem.itemCustName ttMultiSelectItem.itemEstNO ttMultiSelectItem.itemStyle ttMultiSelectItem.itemWhse ttMultiSelectItem.board  
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-2 ttMultiSelectItem.isSelected ttMultiSelectItem.multiplier ttMultiSelectItem.quantityToOrder   
 &Scoped-define ENABLED-TABLES-IN-QUERY-BROWSE-2 ttMultiSelectItem
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-BROWSE-2 ttMultiSelectItem
@@ -216,7 +216,9 @@ DEFINE BROWSE BROWSE-2
       ttMultiSelectItem.availOnHand COLUMN-LABEL "Available On-Hand" FORMAT "->>,>>>,>>9":U
             WIDTH 22 LABEL-BGCOLOR 14             
       ttMultiSelectItem.dateDueDateEarliest COLUMN-LABEL "Earliest Due Date" FORMAT "99/99/9999":U
-            WIDTH 20  LABEL-BGCOLOR 14     
+            WIDTH 20  LABEL-BGCOLOR 14 
+      ttMultiSelectItem.orderQtyEarliest COLUMN-LABEL "Earliest Order Qty" FORMAT "->>>,>>>,>>9":U
+            WIDTH 25  LABEL-BGCOLOR 14      
       ttMultiSelectItem.quantityMinOrder COLUMN-LABEL "Minimum Order" FORMAT "->>,>>>,>>9":U
             WIDTH 19  LABEL-BGCOLOR 14
       ttMultiSelectItem.quantityMaxOrder COLUMN-LABEL "Maximum Order" FORMAT "->>,>>>,>>9":U
@@ -241,7 +243,7 @@ DEFINE BROWSE BROWSE-2
              ttMultiSelectItem.quantityToOrder
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 157.6 BY 21.43
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 177.6 BY 21.43
          FONT 34 ROW-HEIGHT-CHARS 0.9.
 
 
@@ -433,7 +435,7 @@ DO:
                                     ELSE
                                         "[ ] All".
 
-        RUN repo-query(NO).  
+        RUN repo-query(NO,NO).  
     END.   
     
     RUN startSearch.        
@@ -466,7 +468,7 @@ DO:
         ASSIGN {&DISPLAYED-OBJECTS}.    
      END.                     
    
-     RUN repo-query(YES).
+     RUN repo-query(YES,NO).
     
 END.
 
@@ -634,7 +636,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      RUN enable_UI.
      {methods/nowait.i}      
      
-     RUN repo-query(YES). 
+     RUN repo-query(YES,YES). 
        
     IF NOT THIS-PROCEDURE:PERSISTENT THEN
        WAIT-FOR CLOSE OF THIS-PROCEDURE. 
@@ -711,6 +713,7 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE repo-query Dialog-Frame 
 PROCEDURE repo-query :
      DEFINE INPUT PARAMETER iplOpenQuery AS LOGICAL NO-UNDO.
+     DEFINE INPUT PARAMETER iplDefault AS LOGICAL NO-UNDO.
           
      IF iplOpenQuery THEN
      DO:          
@@ -745,18 +748,25 @@ PROCEDURE repo-query :
                      AND oe-ordl.opened EQ YES
                      AND oe-ordl.stat NE 'C'
                      AND oe-ordl.i-no EQ ttFGReorder.itemID
-                     BREAK BY oe-ordl.req-date DESC:
+                     BREAK BY oe-ordl.req-date :
                     ttMultiSelectItem.dateDueDateEarliest = oe-ordl.req-date.
+                    ttMultiSelectItem.orderQtyEarliest = oe-ordl.qty.
                     LEAVE.
                  END. 
-                 IF ttMultiSelectItem.dateDueDateEarliest EQ ? THEN ttMultiSelectItem.dateDueDateEarliest = 01/01/0001.                 
+                 IF ttMultiSelectItem.dateDueDateEarliest EQ ? THEN ttMultiSelectItem.dateDueDateEarliest = 01/01/0001.
+                 IF iplDefault THEN 
+                 ttMultiSelectItem.isSelected = YES.
          END.
      END.
 
     CLOSE QUERY BROWSE-2.
     DO WITH FRAME {&FRAME-NAME}:      
         OPEN QUERY BROWSE-2 FOR EACH ttMultiSelectItem
-            NO-LOCK BY ttMultiSelectItem.itemID.          
+            NO-LOCK BY ttMultiSelectItem.itemID. 
+            IF iplDefault THEN do: 
+               ttMultiSelectItem.isSelected:LABEL IN BROWSE {&BROWSE-NAME} = "[*] All".
+               lSelectTrigger = YES.
+            END.   
     END.    
     
 END PROCEDURE.

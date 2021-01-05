@@ -131,7 +131,7 @@ DEFINE TEMP-TABLE ttCompareEst NO-UNDO
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS BROWSE-1 cMachCode cBoard iTargetCyl ~
-dtDueDate btnCalendar-1 btn-add btn-copy btn-update btn-delete btn-viewjob ~
+dtDueDate btnCalendar-1 btn-add btn-update btn-delete btn-viewjob ~
 btn-add-multiple btn-imp-bal btn-sel-head tb_auto Btn_OK Btn_Cancel 
 &Scoped-Define DISPLAYED-OBJECTS cMachCode cBoard iTargetCyl cJobNo ~
 cLineDscr cBoardDscr dtDueDate dtCreatedDate cUserID dtStartDate cStatus ~
@@ -158,10 +158,6 @@ DEFINE BUTTON btn-add
 DEFINE BUTTON btn-add-multiple 
      LABEL "Add Multiple" 
      SIZE 27.8 BY 1.14.
-
-DEFINE BUTTON btn-copy 
-     LABEL "Copy " 
-     SIZE 15 BY 1.14.
 
 DEFINE BUTTON btn-delete 
      LABEL "Delete " 
@@ -347,10 +343,9 @@ DEFINE FRAME D-Dialog
      cBoardDscr AT ROW 4.29 COL 43.4 COLON-ALIGNED NO-LABEL
      dtDueDate AT ROW 5.43 COL 130.8 COLON-ALIGNED WIDGET-ID 280
      btnCalendar-1 AT ROW 5.43 COL 147.6
-     btn-add AT ROW 21.19 COL 4.2 WIDGET-ID 16
-     btn-copy AT ROW 21.19 COL 19.8 WIDGET-ID 252
-     btn-update AT ROW 21.19 COL 35.4 WIDGET-ID 256
-     btn-delete AT ROW 21.19 COL 51.4 WIDGET-ID 254
+     btn-add AT ROW 21.19 COL 4 WIDGET-ID 16       
+     btn-update AT ROW 21.19 COL 19.4 WIDGET-ID 256
+     btn-delete AT ROW 21.19 COL 34.80 WIDGET-ID 254
      btn-viewjob AT ROW 3.05 COL 21.8 WIDGET-ID 266
      dtCreatedDate AT ROW 2 COL 130.8 COLON-ALIGNED WIDGET-ID 268
      cUserID AT ROW 3.1 COL 91.2 COLON-ALIGNED WIDGET-ID 270
@@ -597,30 +592,6 @@ DO:
             
        RUN repo-query (lv-rowid).               
 
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME btn-copy
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-copy D-Dialog
-ON CHOOSE OF btn-copy IN FRAME D-Dialog /* Copy  */
-DO:
-        DEFINE VARIABLE lv-rowid AS ROWID NO-UNDO.
-            
-        IF AVAILABLE ttInputEst THEN
-        DO:   
-            
-            RUN jc/dAddEditMoldItem.w (RECID(ttInputEst),
-                                   "Copy",
-                                   iTargetCyl:SCREEN-VALUE, 
-                                   dMachBlankSqFt,
-                                   OUTPUT lv-rowid) .            
-            
-            RUN repo-query (lv-rowid).            
-        END.      
-  
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1133,7 +1104,7 @@ PROCEDURE enable_UI :
           dTotSqFt iMolds dUtilization tb_auto 
       WITH FRAME D-Dialog.
   ENABLE BROWSE-1 cMachCode cBoard iTargetCyl dtDueDate btnCalendar-1 btn-add 
-         btn-copy btn-update btn-delete btn-viewjob btn-add-multiple 
+         btn-update btn-delete btn-viewjob btn-add-multiple 
          btn-imp-bal btn-sel-head tb_auto Btn_OK Btn_Cancel 
       WITH FRAME D-Dialog.
   VIEW FRAME D-Dialog.
@@ -1257,7 +1228,8 @@ PROCEDURE repo-query :
           iItem:SCREEN-VALUE = string(i) 
           iMolds:SCREEN-VALUE = STRING(iMoldsCount)
           dTotSqFt:SCREEN-VALUE = STRING(dTotSqFtCount)
-          dUtilization:SCREEN-VALUE = string((dTotSqFtCount / dMachBlankSqFt) * 100).                  
+          dUtilization:SCREEN-VALUE = string((dTotSqFtCount / dMachBlankSqFt) * 100).
+          IF dUtilization:SCREEN-VALUE EQ ? THEN dUtilization:SCREEN-VALUE = "0".
     END.
     
 END PROCEDURE.

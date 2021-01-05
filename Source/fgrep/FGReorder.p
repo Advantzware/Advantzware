@@ -76,6 +76,7 @@ PROCEDURE BuildReport:
     EMPTY TEMP-TABLE ttFGReorder.
     FOR EACH itemfg NO-LOCK 
         WHERE itemfg.company EQ ipcCompany
+        AND itemfg.stat EQ "A"
         :
         ASSIGN 
             dQuantityOnHand = itemfg.q-onh
@@ -130,8 +131,7 @@ PROCEDURE BuildReport:
                 ttFGReorder.quantityToOrderSuggested = ttFGReorder.quantityMinOrder.
             IF ttFGReorder.quantityMaxOrder NE 0 AND ttFGReorder.quantityToOrderSuggested GT ttFGReorder.quantityMaxOrder THEN 
                 ttFGReorder.quantityToOrderSuggested = ttFGReorder.quantityMaxOrder.
-            ttFGReorder.quantityToOrder = ttFGReorder.quantityToOrderSuggested.
-            IF ttFGReorder.quantityToOrder EQ 0 THEN DELETE ttFGReorder.  
+            ttFGReorder.quantityToOrder = ttFGReorder.quantityToOrderSuggested.              
             
         END.
     END.
