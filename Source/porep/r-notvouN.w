@@ -1550,7 +1550,7 @@ display "" with frame r-top.
         and po-ord.po-date le tdat
         AND po-ord.vend-no GE fvend
         AND po-ord.vend-no LE tvend
-        AND NOT po-ord.excludeFroimVoucher
+        AND NOT po-ord.excludeFromVoucher
       no-lock:
       {custom/statusMsg.i " 'Processing PO#  '  + string(po-ordl.po-no) "}
     assign
