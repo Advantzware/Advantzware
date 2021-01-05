@@ -1540,7 +1540,7 @@ display "" with frame r-top.
         and po-ordl.po-no     ge fpo
         and po-ordl.po-no     le tpo
         and po-ordl.t-rec-qty gt 0
-        AND NOT po-ordl.excludeFroimVoucher
+        AND NOT po-ordl.excludeFromVoucher
       USE-INDEX opened no-lock,
 
       first po-ord
