@@ -50,6 +50,7 @@ DEFINE TEMP-TABLE ttFGReorder NO-UNDO
     FIELD itemCustName AS CHARACTE
     FIELD availOnHand AS INTEGER  
     FIELD board AS CHARACTER 
+    FIELD orderQtyEarliest AS INTEGER
     .  
     
 DEFINE TEMP-TABLE ttFGReorderSelection NO-UNDO 
