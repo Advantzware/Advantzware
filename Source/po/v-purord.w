@@ -142,23 +142,26 @@ DEFINE QUERY external_tables FOR po-ord.
 &Scoped-Define ENABLED-FIELDS po-ord.po-date po-ord.type po-ord.vend-no ~
 po-ord.cust-no po-ord.ship-id po-ord.buyer po-ord.contact po-ord.due-date ~
 po-ord.last-ship-date po-ord.under-pct po-ord.over-pct po-ord.carrier ~
-po-ord.tax-gr po-ord.terms po-ord.frt-pay po-ord.fob-code po-ord.t-freight 
+po-ord.excludeFromVoucher po-ord.tax-gr po-ord.terms po-ord.frt-pay ~
+po-ord.fob-code po-ord.t-freight 
 &Scoped-define ENABLED-TABLES po-ord
 &Scoped-define FIRST-ENABLED-TABLE po-ord
-&Scoped-Define ENABLED-OBJECTS btnCalendar-1 btnCalendar-2 btnCalendar-3 ~
-approved_text RECT-1 RECT-13 rd_drop-shipment 
+&Scoped-Define ENABLED-OBJECTS btnCalendar-1 rd_drop-shipment btnCalendar-2 ~
+btnCalendar-3 approved_text RECT-1 RECT-13 
 &Scoped-Define DISPLAYED-FIELDS po-ord.po-no po-ord.po-date po-ord.type ~
 po-ord.stat po-ord.vend-no po-ord.cust-no po-ord.ship-id po-ord.ship-name ~
 po-ord.ship-addr[1] po-ord.ship-addr[2] po-ord.ship-city po-ord.ship-state ~
 po-ord.ship-zip po-ord.buyer po-ord.contact po-ord.due-date ~
 po-ord.last-ship-date po-ord.under-pct po-ord.over-pct po-ord.carrier ~
-po-ord.tax-gr po-ord.terms po-ord.frt-pay po-ord.fob-code po-ord.t-freight ~
-po-ord.tax po-ord.t-cost po-ord.approved-date po-ord.approved-id 
+po-ord.excludeFromVoucher po-ord.tax-gr po-ord.terms po-ord.frt-pay ~
+po-ord.fob-code po-ord.t-freight po-ord.tax po-ord.t-cost ~
+po-ord.approved-date po-ord.approved-id 
 &Scoped-define DISPLAYED-TABLES po-ord
 &Scoped-define FIRST-DISPLAYED-TABLE po-ord
-&Scoped-Define DISPLAYED-OBJECTS fc_app_time lv_vend-name lv_vend-add1 ~
-lv_vend-add2 lv_vend-city lv_vend-state lv_vend-zip shipAreaCode shipPhone ~
-lv_vend-area-code lv_vend-phone typeDescr approved_text lbl_sort rd_drop-shipment 
+&Scoped-Define DISPLAYED-OBJECTS fc_app_time rd_drop-shipment lv_vend-name ~
+lv_vend-add1 lv_vend-add2 lv_vend-city lv_vend-state lv_vend-zip ~
+shipAreaCode shipPhone lv_vend-area-code lv_vend-phone typeDescr ~
+approved_text lbl_sort 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,List-5,F1 */
@@ -274,8 +277,8 @@ DEFINE VARIABLE rd_drop-shipment AS CHARACTER INITIAL "Customer"
      VIEW-AS RADIO-SET HORIZONTAL
      RADIO-BUTTONS 
           "Vendor", "V",
-          "Customer", "C",
-          "Company Ship", "S"
+"Customer", "C",
+"Company Ship", "S"
      SIZE 50.2 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-1
@@ -303,11 +306,11 @@ DEFINE FRAME F-Main
           SIZE 4 BY 1
      po-ord.stat AT ROW 1.24 COL 119 COLON-ALIGNED
           VIEW-AS FILL-IN 
-          SIZE 3.2 BY 1         
+          SIZE 3.2 BY 1
      po-ord.vend-no AT ROW 3.52 COL 23 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
-     rd_drop-shipment AT ROW 2.38 COL 73.8 NO-LABEL WIDGET-ID 16       
+     rd_drop-shipment AT ROW 2.38 COL 73.8 NO-LABEL WIDGET-ID 16
      po-ord.cust-no AT ROW 3.52 COL 56.4 COLON-ALIGNED
           LABEL "Cust #"
           VIEW-AS FILL-IN 
@@ -368,9 +371,6 @@ DEFINE FRAME F-Main
      po-ord.over-pct AT ROW 14.71 COL 36 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
-     po-ord.carrier AT ROW 9.95 COL 83 COLON-ALIGNED FORMAT "x(5)"
-          VIEW-AS FILL-IN 
-          SIZE 14 BY 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -378,6 +378,13 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
+     po-ord.carrier AT ROW 9.95 COL 83 COLON-ALIGNED FORMAT "x(5)"
+          VIEW-AS FILL-IN 
+          SIZE 14 BY 1
+     po-ord.excludeFromVoucher AT ROW 8.62 COL 120.8
+          LABEL "Vouchered"
+          VIEW-AS TOGGLE-BOX
+          SIZE 24 BY 1
      po-ord.tax-gr AT ROW 11.14 COL 83 COLON-ALIGNED
           LABEL "Tax Code"
           VIEW-AS FILL-IN 
@@ -417,7 +424,7 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
      approved_text AT ROW 1.24 COL 128.2 COLON-ALIGNED NO-LABEL WIDGET-ID 12
-     lbl_sort AT ROW 2.43 COL 61.2 COLON-ALIGNED NO-LABEL WIDGET-ID 14        
+     lbl_sort AT ROW 2.43 COL 61.2 COLON-ALIGNED NO-LABEL WIDGET-ID 14
      "FOB:" VIEW-AS TEXT
           SIZE 6 BY .81 AT ROW 15.05 COL 78
      "Freight Payment:" VIEW-AS TEXT
@@ -498,6 +505,10 @@ ASSIGN
    3                                                                    */
 /* SETTINGS FOR FILL-IN po-ord.carrier IN FRAME F-Main
    EXP-FORMAT                                                           */
+/* SETTINGS FOR toggle-box po-ord.excludeFromVoucher IN FRAME F-Main
+   EXP-LABEL                                                           */   
+/* SETTINGS FOR FILL-IN po-ord.cust-no IN FRAME F-Main
+   EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN fc_app_time IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN lbl_sort IN FRAME F-Main
@@ -558,8 +569,6 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN po-ord.under-pct IN FRAME F-Main
    EXP-LABEL                                                            */
-/* SETTINGS FOR FILL-IN po-ord.cust-no IN FRAME F-Main
-   EXP-LABEL                                                            */       
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -806,43 +815,13 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&Scoped-define SELF-NAME po-ord.po-date
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL po-ord.po-date V-table-Win
 ON LEAVE OF po-ord.po-date IN FRAME F-Main /* PO Date */
 DO:
    DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
   IF LASTKEY NE -1 THEN DO:    
     RUN valid-po-date(OUTPUT lReturnError) NO-ERROR.
-    IF lReturnError THEN RETURN NO-APPLY.    
-  END.
-  
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&Scoped-define SELF-NAME po-ord.stat
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL po-ord.stat V-table-Win
-ON VALUE-CHANGED OF po-ord.stat IN FRAME F-Main /* PO status */
-DO:
-   DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
-  IF LASTKEY NE -1 THEN DO:    
-    RUN valid-po-status(OUTPUT lReturnError) NO-ERROR.
-    IF lReturnError THEN RETURN NO-APPLY.    
-  END.
-  
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&Scoped-define SELF-NAME po-ord.stat
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL po-ord.stat V-table-Win
-ON LEAVE OF po-ord.stat IN FRAME F-Main /* PO status */
-DO:
-   DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
-  IF LASTKEY NE -1 AND po-ord.stat:MODIFIED  THEN DO:    
-    RUN valid-po-status(OUTPUT lReturnError) NO-ERROR.
     IF lReturnError THEN RETURN NO-APPLY.    
   END.
   
@@ -899,36 +878,6 @@ DO:
        APPLY 'entry' TO po-ord.cust-no. 
        RETURN NO-APPLY.
   END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL po-ord.ship-id V-table-Win
-ON VALUE-CHANGED OF po-ord.ship-id IN FRAME F-Main /* Ship To */
-DO:
-    IF rd_drop-shipment EQ "C" THEN DO:
-      RUN pAssignAddressFromShipto(po-ord.ship-id:SCREEN-VALUE).
-    END.
-    ELSE IF rd_drop-shipment EQ "V" THEN DO:  /* vendor */
-        RUN display-vend-to.
-    END.
-    ELSE IF rd_drop-shipment EQ "S" THEN DO:  /* Company */
-        FIND FIRST loc NO-LOCK WHERE loc.company EQ cocode
-                          AND loc.loc EQ INPUT po-ord.ship-id
-                        NO-ERROR.
-                        
-        FIND FIRST company WHERE company.company = cocode NO-LOCK NO-ERROR.
-  
-        IF AVAILABLE loc THEN DO:
-          RUN pAssignAddressFromLocation(loc.loc). 
-        END.
-        ELSE IF AVAIL company AND company.company EQ po-ord.ship-id:SCREEN-VALUE THEN
-        DO:
-           RUN pAssignAddressFromCompany(NO).            
-        END.        
-    END.     
-  
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1017,6 +966,68 @@ DO:
     END.
  END. /* modified */
  {&methods/lValidateError.i NO}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL po-ord.ship-id V-table-Win
+ON VALUE-CHANGED OF po-ord.ship-id IN FRAME F-Main /* Ship To */
+DO:
+    IF rd_drop-shipment EQ "C" THEN DO:
+      RUN pAssignAddressFromShipto(po-ord.ship-id:SCREEN-VALUE).
+    END.
+    ELSE IF rd_drop-shipment EQ "V" THEN DO:  /* vendor */
+        RUN display-vend-to.
+    END.
+    ELSE IF rd_drop-shipment EQ "S" THEN DO:  /* Company */
+        FIND FIRST loc NO-LOCK WHERE loc.company EQ cocode
+                          AND loc.loc EQ INPUT po-ord.ship-id
+                        NO-ERROR.
+                        
+        FIND FIRST company WHERE company.company = cocode NO-LOCK NO-ERROR.
+  
+        IF AVAILABLE loc THEN DO:
+          RUN pAssignAddressFromLocation(loc.loc). 
+        END.
+        ELSE IF AVAIL company AND company.company EQ po-ord.ship-id:SCREEN-VALUE THEN
+        DO:
+           RUN pAssignAddressFromCompany(NO).            
+        END.        
+    END.     
+  
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME po-ord.stat
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL po-ord.stat V-table-Win
+ON LEAVE OF po-ord.stat IN FRAME F-Main /* Status */
+DO:
+   DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
+  IF LASTKEY NE -1 AND po-ord.stat:MODIFIED  THEN DO:    
+    RUN valid-po-status(OUTPUT lReturnError) NO-ERROR.
+    IF lReturnError THEN RETURN NO-APPLY.    
+  END.
+  
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL po-ord.stat V-table-Win
+ON VALUE-CHANGED OF po-ord.stat IN FRAME F-Main /* Status */
+DO:
+   DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
+  IF LASTKEY NE -1 THEN DO:    
+    RUN valid-po-status(OUTPUT lReturnError) NO-ERROR.
+    IF lReturnError THEN RETURN NO-APPLY.    
+  END.
+  
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1302,6 +1313,50 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE display-loc-to V-table-Win 
+PROCEDURE display-loc-to :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE INPUT PARAMETER ipiShipType AS INTEGER NO-UNDO.
+  DO WITH FRAME {&frame-name}:
+    FIND FIRST vend NO-LOCK 
+         WHERE vend.company EQ po-ord.company
+         AND vend.vend-no EQ po-ord.vend-no:SCREEN-VALUE
+         USE-INDEX vend NO-ERROR.
+     
+    FIND FIRST company NO-LOCK WHERE company.company EQ cocode NO-ERROR.
+      
+    IF AVAILABLE company AND company.company EQ po-ord.ship-id:SCREEN-VALUE THEN
+    DO:         
+        RUN pAssignAddressFromCompany(NO).
+    END.    
+    ELSE IF avail vend THEN
+    DO:
+       IF ipiShipType EQ 0 THEN
+       DO:       
+        FIND FIRST loc NO-LOCK 
+             WHERE loc.company EQ cocode 
+             AND loc.loc EQ po-ord.ship-id:SCREEN-VALUE NO-ERROR.
+       END.      
+       ELSE DO:       
+        FIND FIRST loc NO-LOCK 
+             WHERE loc.company EQ cocode 
+             AND loc.loc EQ vend.loc NO-ERROR.  
+        END.    
+       IF AVAIL loc THEN
+       DO:
+          RUN pAssignAddressFromLocation(loc.loc).
+       END.         
+    END.   
+  END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE display-vend V-table-Win 
 PROCEDURE display-vend :
@@ -1363,51 +1418,6 @@ PROCEDURE display-vend-to :
        po-ord.ship-zip:SCREEN-VALUE    = IF AVAILABLE vend THEN vend.zip ELSE ''
        shipAreaCode:SCREEN-VALUE       = IF AVAILABLE vend THEN vend.area-code ELSE ''
        shipPhone:SCREEN-VALUE          = IF AVAILABLE vend THEN vend.phone ELSE ''.
-  END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-                 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE display-loc-to V-table-Win 
-PROCEDURE display-loc-to :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEFINE INPUT PARAMETER ipiShipType AS INTEGER NO-UNDO.
-  DO WITH FRAME {&frame-name}:
-    FIND FIRST vend NO-LOCK 
-         WHERE vend.company EQ po-ord.company
-         AND vend.vend-no EQ po-ord.vend-no:SCREEN-VALUE
-         USE-INDEX vend NO-ERROR.
-     
-    FIND FIRST company NO-LOCK WHERE company.company EQ cocode NO-ERROR.
-      
-    IF AVAILABLE company AND company.company EQ po-ord.ship-id:SCREEN-VALUE THEN
-    DO:         
-        RUN pAssignAddressFromCompany(NO).
-    END.    
-    ELSE IF avail vend THEN
-    DO:
-       IF ipiShipType EQ 0 THEN
-       DO:       
-        FIND FIRST loc NO-LOCK 
-             WHERE loc.company EQ cocode 
-             AND loc.loc EQ po-ord.ship-id:SCREEN-VALUE NO-ERROR.
-       END.      
-       ELSE DO:       
-        FIND FIRST loc NO-LOCK 
-             WHERE loc.company EQ cocode 
-             AND loc.loc EQ vend.loc NO-ERROR.  
-        END.    
-       IF AVAIL loc THEN
-       DO:
-          RUN pAssignAddressFromLocation(loc.loc).
-       END.         
-    END.   
   END.
 
 END PROCEDURE.
@@ -1504,7 +1514,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-assign-record V-table-Win 
 PROCEDURE local-assign-record :
@@ -2106,6 +2115,30 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE new-cust-no V-table-Win 
+PROCEDURE new-cust-no :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  DO WITH FRAME {&frame-name}:
+    FIND FIRST shipto NO-LOCK
+         WHERE shipto.company EQ g_company 
+         AND shipto.cust-no EQ ls-drop-custno
+         NO-ERROR.
+    IF AVAILABLE shipto THEN DO:         
+      RUN pAssignAddressFromShipto(shipto.ship-id).       
+    END.
+  END.    
+  
+  ll-got-vendor = YES.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE new-fob-code V-table-Win 
 PROCEDURE new-fob-code :
 /*------------------------------------------------------------------------------
@@ -2219,6 +2252,39 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pAssignAddressFromCompany V-table-Win 
+PROCEDURE pAssignAddressFromCompany :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+ DEFINE INPUT PARAMETER iplAssignValue AS LOGICAL NO-UNDO.
+ DO WITH FRAME {&frame-name}:
+  FIND FIRST company WHERE company.company = cocode NO-LOCK NO-ERROR.
+  
+  IF AVAILABLE company AND iplAssignValue THEN 
+     ASSIGN po-ord.ship-id      = company.company
+            po-ord.ship-name    = company.NAME
+            po-ord.ship-addr[1] = company.addr[1]
+            po-ord.ship-addr[2] = company.addr[2]
+            po-ord.ship-city    = company.city
+            po-ord.ship-state   = company.state
+            po-ord.ship-zip     = company.zip.
+  ELSE IF AVAIL company THEN 
+     ASSIGN po-ord.ship-id:SCREEN-VALUE      = company.company
+            po-ord.ship-name:SCREEN-VALUE    = company.NAME
+            po-ord.ship-addr[1]:SCREEN-VALUE = company.addr[1]
+            po-ord.ship-addr[2]:SCREEN-VALUE = company.addr[2]
+            po-ord.ship-city:SCREEN-VALUE    = company.city
+            po-ord.ship-state:SCREEN-VALUE   = company.state
+            po-ord.ship-zip:SCREEN-VALUE     = company.zip.   
+ END.                                  
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pAssignAddressFromLocation V-table-Win 
 PROCEDURE pAssignAddressFromLocation :
 /*------------------------------------------------------------------------------
@@ -2290,39 +2356,20 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pAssignAddressFromCompany V-table-Win 
-PROCEDURE pAssignAddressFromCompany :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckUpdateMode V-table-Win 
+PROCEDURE pCheckUpdateMode :
 /*------------------------------------------------------------------------------
   Purpose:     
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
- DEFINE INPUT PARAMETER iplAssignValue AS LOGICAL NO-UNDO.
- DO WITH FRAME {&frame-name}:
-  FIND FIRST company WHERE company.company = cocode NO-LOCK NO-ERROR.
-  
-  IF AVAILABLE company AND iplAssignValue THEN 
-     ASSIGN po-ord.ship-id      = company.company
-            po-ord.ship-name    = company.NAME
-            po-ord.ship-addr[1] = company.addr[1]
-            po-ord.ship-addr[2] = company.addr[2]
-            po-ord.ship-city    = company.city
-            po-ord.ship-state   = company.state
-            po-ord.ship-zip     = company.zip.
-  ELSE IF AVAIL company THEN 
-     ASSIGN po-ord.ship-id:SCREEN-VALUE      = company.company
-            po-ord.ship-name:SCREEN-VALUE    = company.NAME
-            po-ord.ship-addr[1]:SCREEN-VALUE = company.addr[1]
-            po-ord.ship-addr[2]:SCREEN-VALUE = company.addr[2]
-            po-ord.ship-city:SCREEN-VALUE    = company.city
-            po-ord.ship-state:SCREEN-VALUE   = company.state
-            po-ord.ship-zip:SCREEN-VALUE     = company.zip.   
- END.                                  
+DEFINE OUTPUT PARAMETER oplUpdateMode AS LOGICAL NO-UNDO.
+  oplUpdateMode = lUpdateMode .
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME                                   
-                                   
+&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE post-enable V-table-Win 
 PROCEDURE post-enable :
@@ -2367,30 +2414,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE new-cust-no V-table-Win 
-PROCEDURE new-cust-no :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-
-  DO WITH FRAME {&frame-name}:
-    FIND FIRST shipto NO-LOCK
-         WHERE shipto.company EQ g_company 
-         AND shipto.cust-no EQ ls-drop-custno
-         NO-ERROR.
-    IF AVAILABLE shipto THEN DO:         
-      RUN pAssignAddressFromShipto(shipto.ship-id).       
-    END.
-  END.    
-  
-  ll-got-vendor = YES.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRunAPIOutboundTrigger V-table-Win 
 PROCEDURE pRunAPIOutboundTrigger :
 /*------------------------------------------------------------------------------
@@ -2430,6 +2453,34 @@ PROCEDURE pRunAPIOutboundTrigger :
             ) NO-ERROR.
         RUN Outbound_ResetContext IN hdOutboundProcs.
     END. /*avail po-ord*/
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRunResetFGQty V-table-Win 
+PROCEDURE pRunResetFGQty :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/     
+  DEFINE BUFFER bf-itemfg FOR itemfg.
+  DEFINE BUFFER bf-po-ordl FOR po-ordl.
+  
+  IF AVAIL po-ord THEN
+  DO:
+     FOR EACH bf-po-ordl NO-LOCK
+         WHERE bf-po-ordl.company EQ po-ord.company
+         AND bf-po-ordl.po-no EQ po-ord.po-no :
+         FIND FIRST bf-itemfg NO-LOCK
+              WHERE bf-itemfg.company EQ po-ord.company 
+              AND bf-itemfg.i-no EQ bf-po-ordl.i-no NO-ERROR .
+         IF AVAIL bf-itemfg AND NOT bf-po-ordl.item-type THEN
+          RUN fg/fg-reset.p(INPUT RECID(bf-itemfg)).         
+     END.     
+  END.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2551,34 +2602,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRunResetFGQty V-table-Win 
-PROCEDURE pRunResetFGQty :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/     
-  DEFINE BUFFER bf-itemfg FOR itemfg.
-  DEFINE BUFFER bf-po-ordl FOR po-ordl.
-  
-  IF AVAIL po-ord THEN
-  DO:
-     FOR EACH bf-po-ordl NO-LOCK
-         WHERE bf-po-ordl.company EQ po-ord.company
-         AND bf-po-ordl.po-no EQ po-ord.po-no :
-         FIND FIRST bf-itemfg NO-LOCK
-              WHERE bf-itemfg.company EQ po-ord.company 
-              AND bf-itemfg.i-no EQ bf-po-ordl.i-no NO-ERROR .
-         IF AVAIL bf-itemfg AND NOT bf-po-ordl.item-type THEN
-          RUN fg/fg-reset.p(INPUT RECID(bf-itemfg)).         
-     END.     
-  END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed V-table-Win 
 PROCEDURE state-changed :
 /* -----------------------------------------------------------
@@ -2620,16 +2643,158 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckUpdateMode V-table-Win 
-PROCEDURE pCheckUpdateMode :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-cust-no V-table-Win 
+PROCEDURE valid-cust-no :
 /*------------------------------------------------------------------------------
   Purpose:     
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-DEFINE OUTPUT PARAMETER oplUpdateMode AS LOGICAL NO-UNDO.
-  oplUpdateMode = lUpdateMode .
+    DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
+  {methods/lValidateError.i YES}
+  DO WITH FRAME {&FRAME-NAME}:
+    IF rd_drop-shipment:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "C"  THEN DO:      
+        FIND FIRST cust NO-LOCK
+            WHERE cust.company EQ cocode
+              AND cust.cust-no EQ po-ord.cust-no:SCREEN-VALUE
+              AND INDEX("AXSE",cust.active) GT 0
+              NO-ERROR.
+        IF NOT AVAILABLE cust   THEN DO:
+          
+            MESSAGE "Invalid " + TRIM(po-ord.cust-no:LABEL) + ", try help..."
+                VIEW-AS ALERT-BOX ERROR.
+          oplReturnError = TRUE.
+          APPLY "entry" TO po-ord.cust-no.
+        END.
+    END.
+  END.
+  {methods/lValidateError.i NO}
+    
+END PROCEDURE.
 
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-is-dropship V-table-Win 
+PROCEDURE valid-is-dropship :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
+  {methods/lValidateError.i YES}
+  DO WITH FRAME {&FRAME-NAME}:
+    IF po-ord.TYPE:SCREEN-VALUE EQ "D" THEN DO:
+        IF rd_drop-shipment:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "S" THEN DO:
+           MESSAGE "Po is drop shipment. Please select Vendor or Customer Ship To. " VIEW-AS ALERT-BOX INFO.
+           APPLY "entry" TO po-ord.TYPE.
+           oplReturnError = YES.
+        END.
+    END.
+  END.
+  {methods/lValidateError.i NO}
+    
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-po-date V-table-Win 
+PROCEDURE valid-po-date :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
+  DEFINE VARIABLE lCheckError AS LOGICAL NO-UNDO.
+  {methods/lValidateError.i YES}
+  DO WITH FRAME {&FRAME-NAME}:
+        IF date(po-ord.po-date:SCREEN-VALUE) EQ ? THEN DO:        
+               MESSAGE "Please enter PO Date. " VIEW-AS ALERT-BOX INFO.
+               APPLY "entry" TO po-ord.po-date.
+               oplReturnError = YES.
+               lCheckError = YES .
+        END.
+        IF date(po-ord.po-date:SCREEN-VALUE) LT (TODAY - 90) AND NOT lCheckError THEN DO:        
+               MESSAGE "PO Date cannot be more then 90 days earlier than today" VIEW-AS ALERT-BOX INFO.
+               APPLY "entry" TO po-ord.po-date.
+               oplReturnError = YES.
+        END.  
+  END.
+  {methods/lValidateError.i NO}
+    
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-po-status V-table-Win 
+PROCEDURE valid-po-status :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
+  
+  {methods/lValidateError.i YES}
+  DO WITH FRAME {&FRAME-NAME}:
+        po-ord.stat:SCREEN-VALUE = CAPS(po-ord.stat:SCREEN-VALUE).
+        IF LOOKUP(po-ord.stat:SCREEN-VALUE,"C,O,U") EQ 0 THEN DO:        
+               MESSAGE "PO status can be changed to (U)pdated, (C)losed or (O)pen. " VIEW-AS ALERT-BOX INFO.
+               APPLY "entry" TO po-ord.stat.
+               oplReturnError = YES.                 
+        END.         
+  END.
+  {methods/lValidateError.i NO}
+    
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-ship-id V-table-Win 
+PROCEDURE valid-ship-id :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
+  {methods/lValidateError.i YES}
+  DO WITH FRAME {&FRAME-NAME}:
+    IF rd_drop-shipment:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "C"  THEN DO:      
+        
+      FIND FIRST shipto NO-LOCK WHERE shipto.company EQ cocode
+                          AND shipto.cust-no EQ ls-drop-custno
+                          AND shipto.ship-id EQ po-ord.ship-id:SCREEN-VALUE
+                          NO-ERROR.
+         IF NOT AVAILABLE shipto THEN
+         DO:
+            MESSAGE "Shipto " + INPUT po-ord.ship-id +
+                   " Unavailable for Customer " + ls-drop-custno + ". Please Re-Enter."
+                  VIEW-AS ALERT-BOX ERROR.
+            APPLY "entry" TO po-ord.ship-id.
+           oplReturnError = YES.
+         END.
+         
+    END.
+    ELSE IF rd_drop-shipment:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "V"  THEN DO:
+        FIND FIRST vend NO-LOCK WHERE vend.company EQ cocode
+                          AND vend.vend-no EQ po-ord.ship-id:SCREEN-VALUE
+                        NO-ERROR.
+        
+        IF NOT AVAIL vend THEN DO:
+            MESSAGE "Invalid Vendor. Try help. " VIEW-AS ALERT-BOX ERROR.
+            APPLY "entry" TO po-ord.ship-id.
+            oplReturnError = YES.
+        END.
+    END.
+  END.
+  {methods/lValidateError.i NO}
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2727,163 +2892,6 @@ PROCEDURE valid-vend-no :
   {methods/lValidateError.i NO}
 
   {methods/lValidateError.i NO}
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-cust-no V-table-Win 
-PROCEDURE valid-cust-no :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
-  {methods/lValidateError.i YES}
-  DO WITH FRAME {&FRAME-NAME}:
-    IF rd_drop-shipment:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "C"  THEN DO:      
-        FIND FIRST cust NO-LOCK
-            WHERE cust.company EQ cocode
-              AND cust.cust-no EQ po-ord.cust-no:SCREEN-VALUE
-              AND INDEX("AXSE",cust.active) GT 0
-              NO-ERROR.
-        IF NOT AVAILABLE cust   THEN DO:
-          
-            MESSAGE "Invalid " + TRIM(po-ord.cust-no:LABEL) + ", try help..."
-                VIEW-AS ALERT-BOX ERROR.
-          oplReturnError = TRUE.
-          APPLY "entry" TO po-ord.cust-no.
-        END.
-    END.
-  END.
-  {methods/lValidateError.i NO}
-    
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-ship-id V-table-Win 
-PROCEDURE valid-ship-id :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
-  {methods/lValidateError.i YES}
-  DO WITH FRAME {&FRAME-NAME}:
-    IF rd_drop-shipment:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "C"  THEN DO:      
-        
-      FIND FIRST shipto NO-LOCK WHERE shipto.company EQ cocode
-                          AND shipto.cust-no EQ ls-drop-custno
-                          AND shipto.ship-id EQ po-ord.ship-id:SCREEN-VALUE
-                          NO-ERROR.
-         IF NOT AVAILABLE shipto THEN
-         DO:
-            MESSAGE "Shipto " + INPUT po-ord.ship-id +
-                   " Unavailable for Customer " + ls-drop-custno + ". Please Re-Enter."
-                  VIEW-AS ALERT-BOX ERROR.
-            APPLY "entry" TO po-ord.ship-id.
-           oplReturnError = YES.
-         END.
-         
-    END.
-    ELSE IF rd_drop-shipment:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "V"  THEN DO:
-        FIND FIRST vend NO-LOCK WHERE vend.company EQ cocode
-                          AND vend.vend-no EQ po-ord.ship-id:SCREEN-VALUE
-                        NO-ERROR.
-        
-        IF NOT AVAIL vend THEN DO:
-            MESSAGE "Invalid Vendor. Try help. " VIEW-AS ALERT-BOX ERROR.
-            APPLY "entry" TO po-ord.ship-id.
-            oplReturnError = YES.
-        END.
-    END.
-  END.
-  {methods/lValidateError.i NO}
-    
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-is-dropship V-table-Win 
-PROCEDURE valid-is-dropship :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
-  {methods/lValidateError.i YES}
-  DO WITH FRAME {&FRAME-NAME}:
-    IF po-ord.TYPE:SCREEN-VALUE EQ "D" THEN DO:
-        IF rd_drop-shipment:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "S" THEN DO:
-           MESSAGE "Po is drop shipment. Please select Vendor or Customer Ship To. " VIEW-AS ALERT-BOX INFO.
-           APPLY "entry" TO po-ord.TYPE.
-           oplReturnError = YES.
-        END.
-    END.
-  END.
-  {methods/lValidateError.i NO}
-    
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-po-date V-table-Win 
-PROCEDURE valid-po-date :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
-  DEFINE VARIABLE lCheckError AS LOGICAL NO-UNDO.
-  {methods/lValidateError.i YES}
-  DO WITH FRAME {&FRAME-NAME}:
-        IF date(po-ord.po-date:SCREEN-VALUE) EQ ? THEN DO:        
-               MESSAGE "Please enter PO Date. " VIEW-AS ALERT-BOX INFO.
-               APPLY "entry" TO po-ord.po-date.
-               oplReturnError = YES.
-               lCheckError = YES .
-        END.
-        IF date(po-ord.po-date:SCREEN-VALUE) LT (TODAY - 90) AND NOT lCheckError THEN DO:        
-               MESSAGE "PO Date cannot be more then 90 days earlier than today" VIEW-AS ALERT-BOX INFO.
-               APPLY "entry" TO po-ord.po-date.
-               oplReturnError = YES.
-        END.  
-  END.
-  {methods/lValidateError.i NO}
-    
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-po-status V-table-Win 
-PROCEDURE valid-po-status :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
-  
-  {methods/lValidateError.i YES}
-  DO WITH FRAME {&FRAME-NAME}:
-        po-ord.stat:SCREEN-VALUE = CAPS(po-ord.stat:SCREEN-VALUE).
-        IF LOOKUP(po-ord.stat:SCREEN-VALUE,"C,O,U") EQ 0 THEN DO:        
-               MESSAGE "PO status can be changed to (U)pdated, (C)losed or (O)pen. " VIEW-AS ALERT-BOX INFO.
-               APPLY "entry" TO po-ord.stat.
-               oplReturnError = YES.                 
-        END.         
-  END.
-  {methods/lValidateError.i NO}
-    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
