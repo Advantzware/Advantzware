@@ -142,7 +142,7 @@ DEFINE QUERY external_tables FOR po-ord.
 &Scoped-Define ENABLED-FIELDS po-ord.po-date po-ord.type po-ord.vend-no ~
 po-ord.cust-no po-ord.ship-id po-ord.buyer po-ord.contact po-ord.due-date ~
 po-ord.last-ship-date po-ord.under-pct po-ord.over-pct po-ord.carrier ~
-po-ord.excludeFroimVoucher po-ord.tax-gr po-ord.terms po-ord.frt-pay ~
+po-ord.excludeFromVoucher po-ord.tax-gr po-ord.terms po-ord.frt-pay ~
 po-ord.fob-code po-ord.t-freight 
 &Scoped-define ENABLED-TABLES po-ord
 &Scoped-define FIRST-ENABLED-TABLE po-ord
@@ -153,7 +153,7 @@ po-ord.stat po-ord.vend-no po-ord.cust-no po-ord.ship-id po-ord.ship-name ~
 po-ord.ship-addr[1] po-ord.ship-addr[2] po-ord.ship-city po-ord.ship-state ~
 po-ord.ship-zip po-ord.buyer po-ord.contact po-ord.due-date ~
 po-ord.last-ship-date po-ord.under-pct po-ord.over-pct po-ord.carrier ~
-po-ord.excludeFroimVoucher po-ord.tax-gr po-ord.terms po-ord.frt-pay ~
+po-ord.excludeFromVoucher po-ord.tax-gr po-ord.terms po-ord.frt-pay ~
 po-ord.fob-code po-ord.t-freight po-ord.tax po-ord.t-cost ~
 po-ord.approved-date po-ord.approved-id 
 &Scoped-define DISPLAYED-TABLES po-ord
@@ -381,7 +381,7 @@ DEFINE FRAME F-Main
      po-ord.carrier AT ROW 9.95 COL 83 COLON-ALIGNED FORMAT "x(5)"
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
-     po-ord.excludeFroimVoucher AT ROW 8.62 COL 120.8
+     po-ord.excludeFromVoucher AT ROW 8.62 COL 120.8
           LABEL "Vouchered"
           VIEW-AS TOGGLE-BOX
           SIZE 24 BY 1
@@ -505,7 +505,7 @@ ASSIGN
    3                                                                    */
 /* SETTINGS FOR FILL-IN po-ord.carrier IN FRAME F-Main
    EXP-FORMAT                                                           */
-/* SETTINGS FOR toggle-box po-ord.excludeFroimVoucher IN FRAME F-Main
+/* SETTINGS FOR toggle-box po-ord.excludeFromVoucher IN FRAME F-Main
    EXP-LABEL                                                           */   
 /* SETTINGS FOR FILL-IN po-ord.cust-no IN FRAME F-Main
    EXP-LABEL                                                            */
