@@ -2839,7 +2839,8 @@ PROCEDURE add-tandem :
                         OUTPUT lNewTandem, OUTPUT riRowid).
     FIND eb WHERE ROWID(eb) EQ riRowid NO-LOCK NO-ERROR.
     
-    IF lNewTandem THEN DO:
+    IF lNewTandem THEN DO: 
+      SESSION:SET-WAIT-STATE ("general").    
       RUN dispatch ("add-record").
       job.est-no:SCREEN-VALUE = eb.est-no.
       
@@ -2853,6 +2854,7 @@ PROCEDURE add-tandem :
       RUN est/oeselest.p.
       
       APPLY "entry" TO job.est-no.
+      SESSION:SET-WAIT-STATE ("").
     END.        
    END.       
 
