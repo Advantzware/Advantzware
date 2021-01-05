@@ -44,6 +44,10 @@ DEFINE VARIABLE v-score-more       AS LOG     NO-UNDO.
 DEFINE VARIABLE v-cur-position     AS INTEGER NO-UNDO.
 DEFINE VARIABLE li-lscore-len      AS INTEGER INIT 80 NO-UNDO.
 
+/* The below variables are used in run_link.i */
+DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
+DEFINE VARIABLE pHandle  AS HANDLE    NO-UNDO. 
+
 PROCEDURE ShellExecuteA EXTERNAL "shell32":u :
     DEFINE INPUT PARAMETER hwnd AS long.
     DEFINE INPUT PARAMETER lpOperation AS CHARACTER.
@@ -570,6 +574,27 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-disable-fields V-table-Win
+PROCEDURE local-disable-fields:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+  /* Code placed here will execute PRIOR to standard behavior. */
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'disable-fields':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+  {methods/run_link.i "CONTAINER-SOURCE" "SetUpdateEnd"}
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
    PROCEDURE WinExec EXTERNAL "KERNEL32.DLL":
@@ -1368,7 +1393,7 @@ PROCEDURE local-enable-fields :
   END.
 
   RUN release-shared-buffers.
-
+  {methods/run_link.i "CONTAINER-SOURCE" "SetUpdateBegin"}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

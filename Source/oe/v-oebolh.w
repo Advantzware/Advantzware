@@ -1676,7 +1676,7 @@ PROCEDURE local-disable-fields :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'disable-fields':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-
+  {methods/run_link.i "CONTAINER-SOURCE" "SetUpdateEnd"} 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1788,8 +1788,7 @@ PROCEDURE local-enable-fields :
     
     RUN enable-bol-fields.     
   END.
-  
-
+  {methods/run_link.i "CONTAINER-SOURCE" "SetUpdateBegin"} 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
