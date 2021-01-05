@@ -3229,12 +3229,13 @@ PROCEDURE valid-sman :
 ------------------------------------------------------------------------------*/
   {methods/lValidateError.i YES}
   FIND FIRST sman
-        WHERE sman.company EQ cocode
-          AND sman.sman    EQ cust.sman:SCREEN-VALUE IN FRAME {&FRAME-NAME}
+        WHERE sman.company  EQ cocode
+          AND sman.sman     EQ cust.sman:SCREEN-VALUE IN FRAME {&FRAME-NAME}
+          AND sman.inActive EQ NO
         NO-LOCK NO-ERROR.
 
     IF NOT AVAIL sman THEN DO:
-       MESSAGE "Invalid Sales Rep. Try help." VIEW-AS ALERT-BOX ERROR.
+       MESSAGE "Inactive/Invalid Sales Rep. Try help." VIEW-AS ALERT-BOX ERROR.
        APPLY "entry" TO cust.sman.
        RETURN ERROR.
     END.
