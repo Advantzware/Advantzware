@@ -115,6 +115,20 @@ IF lRecFound THEN
     
 RUN Po/POProcs.p PERSISTENT SET hdPOProcs.
 
+DEFINE VARIABLE lAllowedEditStatus AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lAccessClose AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cAccessList AS CHARACTER NO-UNDO.
+
+RUN methods/prgsecur.p
+	    (INPUT "AllowEditPoStatus.",
+	     INPUT "ALL", /* based on run, create, update, delete or all */
+	     INPUT NO,    /* use the directory in addition to the program */
+	     INPUT NO,    /* Show a message if not authorized */
+	     INPUT NO,    /* Group overrides user security? */
+	     OUTPUT lAllowedEditStatus, /* Allowed? Yes/NO */
+	     OUTPUT lAccessClose, /* used in template/windows.i  */
+	     OUTPUT cAccessList). /* list 1's and 0's indicating yes or no to run, create, update, delete */
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -2377,10 +2391,7 @@ PROCEDURE post-enable :
   Purpose:     
   Parameters:  <none>
   Notes:       
-------------------------------------------------------------------------------*/
-  DEFINE VARIABLE hPgmSecurity AS HANDLE NO-UNDO.
-  DEFINE VARIABLE lResult AS LOGICAL NO-UNDO.
-  
+------------------------------------------------------------------------------*/      
   DO WITH FRAME {&FRAME-NAME}: 
     IF AVAILABLE po-ord THEN 
         ASSIGN
@@ -2401,12 +2412,10 @@ PROCEDURE post-enable :
         po-ord.ship-id:SENSITIVE = YES .
         po-ord.cust-no:HIDDEN = NO.
     END.
-     RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
-     RUN epCanAccess IN hPgmSecurity ("po/v-purord.w", "stat", OUTPUT lResult).
-     DELETE OBJECT hPgmSecurity.
-     IF NOT lResult OR po-ord.stat EQ "H" THEN 
-     po-ord.stat:SENSITIVE = NO.
-     ELSE po-ord.stat:SENSITIVE = YES.
+     
+    IF NOT lAllowedEditStatus OR po-ord.stat EQ "H" THEN 
+    po-ord.stat:SENSITIVE = NO.
+    ELSE po-ord.stat:SENSITIVE = YES.
   END.
 
 END PROCEDURE.
