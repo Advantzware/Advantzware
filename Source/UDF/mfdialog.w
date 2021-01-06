@@ -73,13 +73,13 @@ attr_proc
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btnCancel AUTO-END-KEY 
-     IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/exit_white.png":U NO-FOCUS FLAT-BUTTON
      LABEL "&Cancel" 
      SIZE 8 BY 1.91
      BGCOLOR 8 FONT 4.
 
 DEFINE BUTTON btnOK AUTO-GO 
-     IMAGE-UP FILE "Graphics/32x32/floppy_disk.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/floppy_disk.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 8 BY 1.91
      BGCOLOR 8 FONT 4.

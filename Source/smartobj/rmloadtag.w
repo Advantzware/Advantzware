@@ -63,7 +63,7 @@ CREATE WIDGET-POOL.
 DEFINE BUTTON btnRmLoadTag 
      IMAGE-UP FILE "Graphics/32x32/printer_barcode.png":U
 	 IMAGE-DOWN FILE "Graphics/32x32/printer_barcode_hover.png":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/printer_barcode_disable.png":U NO-FOCUS FLAT-BUTTON
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/printer_barcode_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Excel" 
      SIZE 7.8 BY 1.81 TOOLTIP "Print Loadtag".
 

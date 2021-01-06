@@ -87,8 +87,7 @@ END TRIGGERS.
 &Scoped-define FRAME-NAME DEFAULT-FRAME
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnExit btnSaveExit btnDelete Rect-Top ~
-Rect-Left Rect-Right Rect-Bottom btnSave 
+&Scoped-Define ENABLED-OBJECTS btnSaveExit btnExit btnDelete btnSave 
 &Scoped-Define DISPLAYED-OBJECTS mfgroupList mfRecKey mfgroupLabel ~
 mfRecKeyLabel 
 
@@ -107,27 +106,27 @@ DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btnDelete 
-     IMAGE-UP FILE "Graphics/32x32/delete.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/garbage_can.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Delete" 
      SIZE 8 BY 1.91 TOOLTIP "Delete"
      FONT 4.
 
 DEFINE BUTTON btnExit 
-     IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/exit_white.png":U NO-FOCUS FLAT-BUTTON
      LABEL "E&xit" 
      SIZE 8 BY 1.91 TOOLTIP "Exit"
      FONT 4.
 
 DEFINE BUTTON btnSave 
-     IMAGE-UP FILE "Graphics/32x32/floppy_disk.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/floppy_disk.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Save" 
      SIZE 8 BY 1.91 TOOLTIP "Save"
      FONT 4.
 
 DEFINE BUTTON btnSaveExit 
-     IMAGE-UP FILE "Graphics/32x32/navigate_check.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/navigate_check.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Save Exit" 
-     SIZE 8 BY 1.91 TOOLTIP "Save"
+     SIZE 8 BY 1.91 TOOLTIP "Save and Exit"
      FONT 4.
 
 DEFINE VARIABLE mfgroupList AS CHARACTER FORMAT "X(256)":U 
@@ -172,23 +171,23 @@ DEFINE RECTANGLE Rect-Right
 DEFINE RECTANGLE Rect-Top
      EDGE-PIXELS 0    
      SIZE 90 BY .19
-     BGCOLOR 15 .
+     BGCOLOR 24 .
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
+     btnSaveExit AT ROW 21.71 COL 76 HELP
+          "Save and Exit" WIDGET-ID 12
      btnExit AT ROW 21.71 COL 84 HELP
           "Exit Design Layout Window" WIDGET-ID 2
-     btnSaveExit AT ROW 21.71 COL 60 HELP
-          "Save and Exit" WIDGET-ID 12
-     btnDelete AT ROW 21.71 COL 68 HELP
-          "Delete" WIDGET-ID 4
-     btnSave AT ROW 21.71 COL 76 HELP
-          "Save" WIDGET-ID 6
      mfgroupList AT ROW 21.48 COL 9 COLON-ALIGNED HELP
           "Select Group Name" NO-LABEL
+     btnDelete AT ROW 21.71 COL 60 HELP
+          "Delete" WIDGET-ID 4
      mfRecKey AT ROW 22.67 COL 9 COLON-ALIGNED NO-LABEL WIDGET-ID 8
+     btnSave AT ROW 21.71 COL 68 HELP
+          "Save" WIDGET-ID 6
      mfgroupLabel AT ROW 21.48 COL 3 NO-LABEL
      mfRecKeyLabel AT ROW 22.67 COL 1 NO-LABEL WIDGET-ID 10
      Rect-Main AT ROW 2.05 COL 1.6
@@ -259,7 +258,15 @@ ASSIGN
 
 /* SETTINGS FOR FILL-IN mfRecKeyLabel IN FRAME DEFAULT-FRAME
    NO-ENABLE ALIGN-L                                                    */
+/* SETTINGS FOR RECTANGLE Rect-Bottom IN FRAME DEFAULT-FRAME
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE Rect-Left IN FRAME DEFAULT-FRAME
+   NO-ENABLE                                                            */
 /* SETTINGS FOR RECTANGLE Rect-Main IN FRAME DEFAULT-FRAME
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE Rect-Right IN FRAME DEFAULT-FRAME
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE Rect-Top IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = no.
@@ -299,8 +306,6 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON WINDOW-CLOSE OF C-Win /* User Defined Fields Viewer */
 DO:
-  APPLY 'choose' TO btnSave IN FRAME {&frame-name}.
-
   IF hMFPersist NE ? THEN DELETE PROCEDURE hMFPersist.
   /* This event will close the window and terminate the procedure.  */
   APPLY "CLOSE":U TO THIS-PROCEDURE.
@@ -326,8 +331,6 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnExit C-Win
 ON CHOOSE OF btnExit IN FRAME DEFAULT-FRAME /* Exit */
 DO:
-  APPLY 'choose' TO btnSave IN FRAME {&frame-name}.
-
   IF hMFPersist NE ? THEN DELETE PROCEDURE hMFPersist.
   APPLY "CLOSE" TO THIS-PROCEDURE.
 END.
@@ -341,7 +344,6 @@ END.
 ON CHOOSE OF btnSave IN FRAME DEFAULT-FRAME /* Save */
 DO:
   RUN pSave.
-  MESSAGE "UDF Values Saved" VIEW-AS ALERT-BOX TITLE "Save".
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -539,7 +541,8 @@ PROCEDURE createTabs :
           FORMAT = "X(13)":U
           SENSITIVE = YES 
           FONT = ?
-          BGCOLOR = 8
+          BGCOLOR = 22
+          FGCOLOR = 0
           SCREEN-VALUE = ENTRY(1,ENTRY(i,{&dbnm}mfgroup.mfgroup_tabs),"|")
         TRIGGERS:      
           ON MOUSE-SELECT-CLICK 
@@ -547,19 +550,23 @@ PROCEDURE createTabs :
         END TRIGGERS.
       /* show tabs as down tabs initially */
       ASSIGN      
-        ldummy = tabImage[i]:LOAD-IMAGE("adeicon/ts-dn72")
+        ldummy = tabImage[i]:LOAD-IMAGE("Graphics/32x32/tabdown72.png")
         ldummy = tabImage[i]:MOVE-TO-TOP()
         ldummy = tabLabel[i]:MOVE-TO-TOP()
-        tabImage[i]:HIDDEN = NO
-        tabLabel[i]:HIDDEN = NO
+        tabImage[i]:HIDDEN  = NO
+        tabLabel[i]:HIDDEN  = NO
+        tabLabel[i]:BGCOLOR = 22
+        tabLabel[i]:FGCOLOR = 0
         .
   END.
   /* use up tab image for currently selected tab */
   ASSIGN
     tabImage[currentTab]:HEIGHT-PIXEL = 27
-    ldummy = tabImage[currentTab]:LOAD-IMAGE("adeicon/ts-up72")
+    ldummy = tabImage[currentTab]:LOAD-IMAGE("Graphics/32x32/tabup72.png")
     ldummy = tabImage[currentTab]:MOVE-TO-TOP()
     ldummy = tabLabel[currentTab]:MOVE-TO-TOP()
+    tabLabel[currentTab]:BGCOLOR = 29
+    tabLabel[currentTab]:FGCOLOR = 15
     .
 &IF DEFINED(FWD-VERSION) EQ 0 &THEN
   RUN LockWindowUpdate (0,OUTPUT i).
@@ -720,6 +727,7 @@ PROCEDURE dynamicWidget :
             {&defaults-code} ~
             EDGE-PIXELS = 1 ~
             FILLED = NO ~
+            ROUNDED = YES ~
             HEIGHT-PIXELS = ttAttrb.attr_height ~
             WIDTH-PIXELS = ttAttrb.attr_width ~
             {&trigger-code}
@@ -870,8 +878,7 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY mfgroupList mfRecKey mfgroupLabel mfRecKeyLabel 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE btnExit btnSaveExit btnDelete Rect-Top Rect-Left Rect-Right 
-         Rect-Bottom btnSave 
+  ENABLE btnSaveExit btnExit btnDelete btnSave 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
@@ -896,17 +903,21 @@ PROCEDURE labelTrigger :
 &ENDIF
     ASSIGN
         tabImage[currentTab]:HEIGHT-PIXEL = 24
-        ldummy = tabImage[currentTab]:LOAD-IMAGE("adeicon/ts-dn72")
+        ldummy = tabImage[currentTab]:LOAD-IMAGE("Graphics/32x32/tabdown72.png")
         ldummy = tabImage[currentTab]:MOVE-TO-TOP()
         ldummy = tabLabel[currentTab]:MOVE-TO-TOP()
+        tabLabel[currentTab]:BGCOLOR = 22
+        tabLabel[currentTab]:FGCOLOR = 0
         currentTab = tabno
         .
     RUN createWidgets.
     ASSIGN
         tabImage[currentTab]:HEIGHT-PIXEL = 27
-        ldummy = tabImage[currentTab]:LOAD-IMAGE("adeicon/ts-up72")
+        ldummy = tabImage[currentTab]:LOAD-IMAGE("Graphics/32x32/tabup72.png")
         ldummy = tabImage[currentTab]:MOVE-TO-TOP()
         ldummy = tabLabel[currentTab]:MOVE-TO-TOP()
+        tabLabel[currentTab]:BGCOLOR = 29
+        tabLabel[currentTab]:FGCOLOR = 15
         .
     RUN moveObjects.
 &IF DEFINED(FWD-VERSION) EQ 0 &THEN
@@ -939,12 +950,12 @@ PROCEDURE loadWidgetData :
     MESSAGE "No '" + ipcGroup + "' Group Exists!!!" VIEW-AS ALERT-BOX INFORMATION.
     RETURN "EMPTY".
   END.
-  OUTPUT TO VALUE("users/" + USERID("NOSWEAT") + "/miscflds.dat").
+  OUTPUT TO VALUE("users/" + USERID("ASI") + "/miscflds.dat").
   FOR EACH {&dbnm}mfdata NO-LOCK:
     PUT UNFORMATTED {&dbnm}mfdata.miscflds_data SKIP.
   END.
   OUTPUT CLOSE.
-  INPUT FROM VALUE("users/" + USERID("NOSWEAT") + "/miscflds.dat") NO-ECHO.
+  INPUT FROM VALUE("users/" + USERID("ASI") + "/miscflds.dat") NO-ECHO.
   REPEAT:
     CREATE ttAttrb.
     IMPORT ttAttrb.
@@ -1012,8 +1023,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSave C-Win
-PROCEDURE pSave:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSave C-Win 
+PROCEDURE pSave :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -1023,7 +1034,7 @@ PROCEDURE pSave:
     RUN Show-MF-Message IN iphSmartMsg (YES).
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

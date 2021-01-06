@@ -63,7 +63,7 @@ CREATE WIDGET-POOL.
 DEFINE BUTTON Select_ONote 
      IMAGE-UP FILE "Graphics/32x32/gearwheels.png":U
 	 IMAGE-DOWN FILE "Graphics/32x32/gearwheels_hover.png":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/gearwheels_disable.png":U NO-FOCUS FLAT-BUTTON
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/gearwheels_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 8 BY 1.81 TOOLTIP "Job Notes".
 
