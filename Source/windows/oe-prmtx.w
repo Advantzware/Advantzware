@@ -35,6 +35,7 @@ CREATE WIDGET-POOL.
 
 &SCOPED-DEFINE winReSize
 &SCOPED-DEFINE h_Browse01 h_oe-prmtx
+&SCOPED-DEFINE local-destroy local-destroy
 
 /* Parameters Definitions ---                                           */
 
@@ -599,6 +600,9 @@ PROCEDURE local-destroy :
   Notes:       
 ------------------------------------------------------------------------------*/
   /* Code placed here will execute PRIOR to standard behavior. */
+  
+  {custom/userWindow.i} 
+  
   IF v-calling-program  NE ? THEN
       RUN hide-estimate IN v-calling-program.
   /* Dispatch standard ADM method.                             */

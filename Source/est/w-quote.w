@@ -38,6 +38,7 @@ CREATE WIDGET-POOL.
 &SCOPED-DEFINE h_Object01 h_p-qtmisc
 &SCOPED-DEFINE h_Object02 h_p-qtqty
 &SCOPED-DEFINE h_Object03 h_vp-qtrpc
+&SCOPED-DEFINE local-destroy local-destroy
 
 /* Parameters Definitions ---                                           */
 
@@ -794,6 +795,7 @@ PROCEDURE local-destroy :
         VIEW-AS ALERT-BOX INFO BUTTONS OK.
      
     END.
+    {custom/userWindow.i} 
   END.
 
   /* Code placed here will execute PRIOR to standard behavior. */

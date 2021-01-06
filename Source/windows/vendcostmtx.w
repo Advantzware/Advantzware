@@ -36,6 +36,7 @@ CREATE WIDGET-POOL.
 &SCOPED-DEFINE winReSize
 &SCOPED-DEFINE h_Browse01 h_venditemcost
 &SCOPED-DEFINE SetUserExit SetUserExit
+&SCOPED-DEFINE local-destroy local-destroy
 
 /* Parameters Definitions ---                                           */
 
@@ -282,12 +283,15 @@ ASSIGN
     cocode = g_company
     locode = g_loc
     .
+    
+IF THIS-PROCEDURE:FILE-NAME = "windows/vendcostmtx.w" THEN DO:    
 /* Set the option frame size and colour to give blue background to icons and 
       add the handle of scope define object to temptable for resizizng */
-RUN beforeinitialize IN THIS-PROCEDURE NO-ERROR.
+    RUN beforeinitialize IN THIS-PROCEDURE NO-ERROR.
 /* Add the handle of all smart object to be resized/shifted on resize to the temptable and 
           Shift all the icons towards right */
-RUN afterinitialize IN THIS-PROCEDURE NO-ERROR.    
+    RUN afterinitialize IN THIS-PROCEDURE NO-ERROR.  
+END.  
 {custom/initializeprocs.i}
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -665,7 +669,10 @@ PROCEDURE local-destroy :
   Notes:       
 ------------------------------------------------------------------------------*/
   /* Code placed here will execute PRIOR to standard behavior. */
- 
+  
+  IF THIS-PROCEDURE:FILE-NAME = "windows/vendcostmtx.r" THEN DO:
+      {custom/userWindow.i} 
+  END.
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
 
