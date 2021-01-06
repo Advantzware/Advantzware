@@ -42,6 +42,7 @@ DEFINE VARIABLE lShowSysCtrlUsage AS LOGICAL NO-UNDO INITIAL YES.
 {methods/defines/globdefs.i}
 {system/ttPermissions.i}
 {system/ttSysCtrlUsage.i}
+{methods/defines/sortByDefs.i}
 
 DEFINE TEMP-TABLE bttSysCtrlUsage NO-UNDO LIKE ttSysCtrlUsage.
 
@@ -97,18 +98,18 @@ APIOutbound.apiOutboundID EQ APIOutboundTrigger.apiOutboundID ~
 &Scoped-define FIELDS-IN-QUERY-Permissions ttPermissions.mnemonic ttPermissions.prgmName ttPermissions.prgTitle ttPermissions.can_run ttPermissions.can_create ttPermissions.can_delete ttPermissions.can_update   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Permissions   
 &Scoped-define SELF-NAME Permissions
-&Scoped-define QUERY-STRING-Permissions FOR EACH ttPermissions
-&Scoped-define OPEN-QUERY-Permissions OPEN QUERY {&SELF-NAME} FOR EACH ttPermissions.
+&Scoped-define QUERY-STRING-Permissions FOR EACH ttPermissions  ~{&SORTBY-PHRASE}
+&Scoped-define OPEN-QUERY-Permissions OPEN QUERY {&SELF-NAME} FOR EACH ttPermissions  ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-Permissions ttPermissions
 &Scoped-define FIRST-TABLE-IN-QUERY-Permissions ttPermissions
 
 
 /* Definitions for BROWSE sysCtrlUsage                                  */
-&Scoped-define FIELDS-IN-QUERY-sysCtrlUsage ttSysCtrlUsage   
+&Scoped-define FIELDS-IN-QUERY-sysCtrlUsage ttSysCtrlUsage.company ttSysCtrlUsage.module ttSysCtrlUsage.name ttSysCtrlUsage.char-fld ttSysCtrlUsage.date-fld ttSysCtrlUsage.dec-fld ttSysCtrlUsage.int-fld ttSysCtrlUsage.log-fld ttSysCtrlUsage.descrip ttSysCtrlUsage.usageNow ttSysCtrlUsage.category ttSysCtrlUsage.cust-vend ttSysCtrlUsage.cust-vend-no ttSysCtrlUsage.seqNo ttSysCtrlUsage.ship-id ttSysCtrlUsage.subCategory ttSysCtrlUsage.sysCtrlID ttSysCtrlUsage.typeCode   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-sysCtrlUsage   
 &Scoped-define SELF-NAME sysCtrlUsage
-&Scoped-define QUERY-STRING-sysCtrlUsage FOR EACH ttSysCtrlUsage
-&Scoped-define OPEN-QUERY-sysCtrlUsage OPEN QUERY {&SELF-NAME} FOR EACH ttSysCtrlUsage.
+&Scoped-define QUERY-STRING-sysCtrlUsage FOR EACH ttSysCtrlUsage  ~{&SORTBY-PHRASE}
+&Scoped-define OPEN-QUERY-sysCtrlUsage OPEN QUERY {&SELF-NAME} FOR EACH ttSysCtrlUsage  ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-sysCtrlUsage ttSysCtrlUsage
 &Scoped-define FIRST-TABLE-IN-QUERY-sysCtrlUsage ttSysCtrlUsage
 
@@ -185,9 +186,9 @@ DEFINE BROWSE API
 DEFINE BROWSE Permissions
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Permissions C-Win _FREEFORM
   QUERY Permissions NO-LOCK DISPLAY
-      ttPermissions.mnemonic
-ttPermissions.prgmName
-ttPermissions.prgTitle
+      ttPermissions.mnemonic LABEL-BGCOLOR 14
+ttPermissions.prgmName LABEL-BGCOLOR 14
+ttPermissions.prgTitle LABEL-BGCOLOR 14
 ttPermissions.can_run
 ttPermissions.can_create
 ttPermissions.can_delete
@@ -199,7 +200,24 @@ ttPermissions.can_update
 DEFINE BROWSE sysCtrlUsage
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS sysCtrlUsage C-Win _FREEFORM
   QUERY sysCtrlUsage DISPLAY
-      ttSysCtrlUsage
+      ttSysCtrlUsage.company LABEL-BGCOLOR 14
+ttSysCtrlUsage.module LABEL-BGCOLOR 14
+ttSysCtrlUsage.name LABEL-BGCOLOR 14
+ttSysCtrlUsage.char-fld LABEL-BGCOLOR 14
+ttSysCtrlUsage.date-fld LABEL-BGCOLOR 14
+ttSysCtrlUsage.dec-fld LABEL-BGCOLOR 14
+ttSysCtrlUsage.int-fld LABEL-BGCOLOR 14
+ttSysCtrlUsage.log-fld LABEL-BGCOLOR 14
+ttSysCtrlUsage.descrip LABEL-BGCOLOR 14
+ttSysCtrlUsage.usageNow LABEL-BGCOLOR 14
+ttSysCtrlUsage.category LABEL-BGCOLOR 14
+ttSysCtrlUsage.cust-vend
+ttSysCtrlUsage.cust-vend-no
+ttSysCtrlUsage.seqNo
+ttSysCtrlUsage.ship-id
+ttSysCtrlUsage.subCategory
+ttSysCtrlUsage.sysCtrlID
+ttSysCtrlUsage.typeCode
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ROW-MARKERS SEPARATORS SIZE 160 BY 27.62 ROW-HEIGHT-CHARS .62.
@@ -271,7 +289,11 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* BROWSE-TAB Permissions sysCtrlUsage DEFAULT-FRAME */
 /* BROWSE-TAB API Permissions DEFAULT-FRAME */
 ASSIGN 
-       Permissions:HIDDEN  IN FRAME DEFAULT-FRAME                = TRUE.
+       Permissions:HIDDEN  IN FRAME DEFAULT-FRAME                = TRUE
+       Permissions:ALLOW-COLUMN-SEARCHING IN FRAME DEFAULT-FRAME = TRUE.
+
+ASSIGN 
+       sysCtrlUsage:ALLOW-COLUMN-SEARCHING IN FRAME DEFAULT-FRAME = TRUE.
 
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = no.
@@ -311,7 +333,8 @@ APIOutbound.apiOutboundID EQ APIOutboundTrigger.apiOutboundID"
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE Permissions
 /* Query rebuild information for BROWSE Permissions
      _START_FREEFORM
-OPEN QUERY {&SELF-NAME} FOR EACH ttPermissions.
+OPEN QUERY {&SELF-NAME} FOR EACH ttPermissions
+ ~{&SORTBY-PHRASE}.
      _END_FREEFORM
      _Options          = "NO-LOCK INDEXED-REPOSITION SORTBY-PHRASE"
      _Query            is OPENED
@@ -321,7 +344,8 @@ OPEN QUERY {&SELF-NAME} FOR EACH ttPermissions.
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE sysCtrlUsage
 /* Query rebuild information for BROWSE sysCtrlUsage
      _START_FREEFORM
-OPEN QUERY {&SELF-NAME} FOR EACH ttSysCtrlUsage.
+OPEN QUERY {&SELF-NAME} FOR EACH ttSysCtrlUsage
+ ~{&SORTBY-PHRASE}.
      _END_FREEFORM
      _Query            is OPENED
 */  /* BROWSE sysCtrlUsage */
@@ -395,6 +419,18 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define BROWSE-NAME Permissions
+&Scoped-define SELF-NAME Permissions
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Permissions C-Win
+ON START-SEARCH OF Permissions IN FRAME DEFAULT-FRAME
+DO:
+    {AOA/includes/startSearch.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME showBrowse
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL showBrowse C-Win
 ON VALUE-CHANGED OF showBrowse IN FRAME DEFAULT-FRAME
@@ -426,6 +462,16 @@ END.
 &ANALYZE-RESUME
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sysCtrlUsage C-Win
+ON START-SEARCH OF sysCtrlUsage IN FRAME DEFAULT-FRAME
+DO:
+    {AOA/includes/startSearch.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define BROWSE-NAME API
 &UNDEFINE SELF-NAME
 
@@ -433,6 +479,13 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
+
+&Scoped-define sdBrowseName API
+{methods/template/brwcustom2.i 1}
+&Scoped-define sdBrowseName Permissions
+{methods/template/brwcustom2.i 2}
+&Scoped-define sdBrowseName sysCtrlUsage
+{methods/template/brwcustom2.i 3}
 
 /* Set CURRENT-WINDOW: this will parent dialog-boxes and frames.        */
 ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME} 
@@ -460,6 +513,24 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
+
+&Scoped-define sdBrowseName sysCtrlUsage
+{methods/sortByProc.i "pByCompany" "ttSysCtrlUsage.company"}
+{methods/sortByProc.i "pByModule" "ttSysCtrlUsage.module"}
+{methods/sortByProc.i "pByName" "ttSysCtrlUsage.name"}
+{methods/sortByProc.i "pByCharFld" "ttSysCtrlUsage.char-fld"}
+{methods/sortByProc.i "pByDateFld" "ttSysCtrlUsage.date-fld"}
+{methods/sortByProc.i "pByDecFld" "ttSysCtrlUsage.dec-fld"}
+{methods/sortByProc.i "pByIntFld" "ttSysCtrlUsage.int-fld"}
+{methods/sortByProc.i "pByLogFld" "ttSysCtrlUsage.log-fld"}
+{methods/sortByProc.i "pByDescrip" "ttSysCtrlUsage.descrip"}
+{methods/sortByProc.i "pByUsageNow" "ttSysCtrlUsage.usageNow"}
+{methods/sortByProc.i "pByCategory" "ttSysCtrlUsage.category"}
+
+&Scoped-define sdBrowseName Permissions
+{methods/sortByProc.i "pByMnemonic" "ttPermissions.mnemonic"}
+{methods/sortByProc.i "pByPrgmName" "ttPermissions.prgmName"}
+{methods/sortByProc.i "pByPrgTitle" "ttPermissions.prgTitle"}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -593,6 +664,51 @@ PROCEDURE pGetTtPermissions :
     DELETE OBJECT hQuery[1].
     
     {&OPEN-QUERY-Permissions}
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pReopenBrowse C-Win 
+PROCEDURE pReopenBrowse :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    SESSION:SET-WAIT-STATE("General").
+    CASE cColumnLabel:
+        WHEN "company" THEN
+        RUN pByCompany.
+        WHEN "module" THEN
+        RUN pByModule.
+        WHEN "name" THEN
+        RUN pByName.
+        WHEN "char-fld" THEN
+        RUN pByCharFld.
+        WHEN "date-fld" THEN
+        RUN pByDateFld.
+        WHEN "dec-fld" THEN
+        RUN pByDecFld.
+        WHEN "int-fld" THEN
+        RUN pByIntFld.
+        WHEN "log-fld" THEN
+        RUN pByLogFld.
+        WHEN "descrip" THEN
+        RUN pByDescrip.
+        WHEN "usageNow" THEN
+        RUN pByUsageNow.
+        WHEN "category" THEN
+        RUN pByCategory.
+        WHEN "mnemonic" THEN
+        RUN pByMnemonic.
+        WHEN "prgmName" THEN
+        RUN pByPrgmName.
+        WHEN "prgTitle" THEN
+        RUN pByPrgTitle.
+    END CASE.
+    {AOA/includes/pReopenBrowse.i}
+    SESSION:SET-WAIT-STATE("").
 
 END PROCEDURE.
 
