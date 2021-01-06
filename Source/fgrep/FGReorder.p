@@ -82,7 +82,7 @@ PROCEDURE BuildReport:
             dQuantityOnHand = itemfg.q-onh
             dQuantityOnOrder = itemfg.q-ono
             dQuantityAllocated = itemfg.q-alloc
-            dQuantityMinimum = itemfg.ord-min
+            dQuantityMinimum = itemfg.ord-level
             .
         IF dQuantityOnHand NE 0 OR dQuantityOnOrder NE 0 OR dQuantityAllocated NE 0 OR dQuantityMinimum NE 0 THEN DO:
             CREATE ttFGReorder.
@@ -109,9 +109,9 @@ PROCEDURE BuildReport:
                 ttFGReorder.quantityAllocated = dQuantityAllocated
                 ttFGReorder.quantityOnHand = dQuantityOnHand
                 ttFGReorder.quantityOnOrder = dQuantityOnOrder
-                ttFGReorder.quantityMinOrder = dQuantityMinimum
+                ttFGReorder.quantityMinOrder = itemfg.ord-min
                 ttFGReorder.quantityMaxOrder = itemfg.ord-max
-                ttFGReorder.quantityReorderLevel = itemfg.ord-level
+                ttFGReorder.quantityReorderLevel = dQuantityMinimum
                 ttFGReorder.quantityAvailable = dQuantityOnHand + dQuantityOnOrder - dQuantityAllocated
                 ttFGReorder.quantityToOrderSuggested = MAX(0,ttFGReorder.quantityReorderLevel - ttFGReorder.quantityAvailable)
                 .

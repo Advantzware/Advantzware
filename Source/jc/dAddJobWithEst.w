@@ -557,13 +557,10 @@ DO:
        
        ASSIGN 
            iTargetCyl:SCREEN-VALUE =  STRING(dTotalCyclesRequired) .
-       
+       EMPTY TEMP-TABLE ttInputEst.
        FOR EACH ttFGReorderSelection NO-LOCK
-           WHERE ttFGReorderSelection.isSelect:
-           FIND FIRST bf-ttInputEst NO-LOCK
-                WHERE bf-ttInputEst.cStockNo EQ ttFGReorderSelection.itemID NO-ERROR .
-           IF not AVAIL bf-ttInputEst THEN
-           DO:             
+           WHERE ttFGReorderSelection.isSelect:           
+                        
                CREATE bf-ttInputEst.
                 ASSIGN
                     bf-ttInputEst.cEstType = "MoldTandem"
@@ -586,8 +583,7 @@ DO:
                   bf-ttInputEst.cFgEstNo  = itemfg.est-no
                   bf-ttInputEst.dSqFt = itemfg.t-sqft * bf-ttInputEst.iMolds
                   .               
-               END.  
-           END.     
+               END.               
        END.
             
        RUN repo-query (lv-rowid).               
@@ -1178,7 +1174,7 @@ PROCEDURE pNewMachine :
           Parameters:  <none>
           Notes:       
         ------------------------------------------------------------------------------*/
-    
+    DEFINE VARIABLE lv-rowid  AS ROWID NO-UNDO.
     DO WITH FRAME {&FRAME-NAME}:
         FIND FIRST mach
             {sys/look/machW.i}
@@ -1189,7 +1185,7 @@ PROCEDURE pNewMachine :
         DO:
             dMachBlankSqFt = mach.max-len  * mach.max-wid / 144 .
             cLineDscr:SCREEN-VALUE = "L: " + TRIM(STRING(mach.max-len / 12,">>>>>>9.9")) + " ft x W: " + TRIM(STRING(mach.max-wid / 12 , ">>>>>>9.9")) + " ft - " + TRIM(STRING(dMachBlankSqFt, ">>>>>>9.9")) + " Sq Ft" . 
-            
+            RUN repo-query(lv-rowid).
         END.         
     END.
 
