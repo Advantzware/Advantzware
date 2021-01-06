@@ -54,7 +54,7 @@ END. /* do while */
 colHandList{1} = TRIM(colHandList{1}, ",").
  
 &IF DEFINED(exclude-row-display) EQ 0 &THEN
-ON "ROW-DISPLAY":U OF {&sdBrowseName} 
+ON ROW-DISPLAY OF {&sdBrowseName} 
 DO:
     DO iCnt{1} = 1 TO NUM-ENTRIES(colHandList{1},","):
         ASSIGN
