@@ -29,7 +29,7 @@ DEF OUTPUT PARAM op-rowid   AS   ROWID          NO-UNDO.
 
 /* Local Variable Definitions ---                                       */
 {sys/inc/var.i SHARED}
-
+{methods/template/brwCustomDef.i}
 DEF VAR ll-master AS LOG NO-UNDO.
 DEF VAR ll-spec AS LOG INIT YES NO-UNDO.
 DEF VAR ll-dept AS LOG INIT YES NO-UNDO.
@@ -135,13 +135,13 @@ DEFINE BROWSE BROWSE-2
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-2 D-Dialog _FREEFORM
   QUERY BROWSE-2 DISPLAY
       tt-est.selekt
-     tt-est.eqty FORMAT ">,>>>,>>>,>>9"
-     eb.est-no   FORMAT "x(8)"
-     eb.die-no
-     eb.part-no
-     eb.stock-no
-     eb.style
-     eb.part-dscr1
+     tt-est.eqty FORMAT ">,>>>,>>>,>>9" LABEL-BGCOLOR 14
+     eb.est-no   FORMAT "x(8)" LABEL-BGCOLOR 14
+     eb.die-no LABEL-BGCOLOR 14
+     eb.part-no LABEL-BGCOLOR 14
+     eb.stock-no LABEL-BGCOLOR 14
+     eb.style LABEL-BGCOLOR 14
+     eb.part-dscr1 LABEL-BGCOLOR 14
      ENABLE tt-est.selekt tt-est.eqty
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -271,6 +271,51 @@ DO:
   /* Add Trigger to equate WINDOW-CLOSE to END-ERROR. */
   op-success = NO.
   APPLY "choose" TO btn_ok.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define BROWSE-NAME BROWSE-2
+&Scoped-define SELF-NAME BROWSE-2
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-2 D-Dialog
+ON START-SEARCH OF BROWSE-2 IN FRAME D-Dialog
+DO:
+{methods/template/sortindicator.i}     
+    IF {&browse-name}:current-column:label = "selected" THEN
+       OPEN QUERY {&SELF-NAME} FOR EACH tt-est,
+           FIRST eb WHERE ROWID(eb) EQ tt-est.row-id NO-LOCK
+           BY tt-est.selekt.
+    IF {&browse-name}:current-column:label = "Qty" THEN
+        OPEN QUERY {&SELF-NAME} FOR EACH tt-est,
+            FIRST eb WHERE ROWID(eb) EQ tt-est.row-id NO-LOCK
+            BY tt-est.eqty.
+    IF {&browse-name}:current-column:label = "Estimate #" THEN
+        OPEN QUERY {&SELF-NAME} FOR EACH tt-est,
+            FIRST eb WHERE ROWID(eb) EQ tt-est.row-id NO-LOCK
+            BY eb.est-no.
+    IF {&browse-name}:current-column:label = "Die #" THEN
+        OPEN QUERY {&SELF-NAME} FOR EACH tt-est,
+            FIRST eb WHERE ROWID(eb) EQ tt-est.row-id NO-LOCK
+            BY eb.die-no.
+    IF {&browse-name}:current-column:label = "Cust Part #" THEN
+        OPEN QUERY {&SELF-NAME} FOR EACH tt-est,
+            FIRST eb WHERE ROWID(eb) EQ tt-est.row-id NO-LOCK
+            BY eb.part-no.
+    IF {&browse-name}:current-column:label = "Stock Box #" THEN
+        OPEN QUERY {&SELF-NAME} FOR EACH tt-est,
+            FIRST eb WHERE ROWID(eb) EQ tt-est.row-id NO-LOCK
+            BY eb.stock-no.
+    IF {&browse-name}:current-column:label = "Style Code" THEN
+        OPEN QUERY {&SELF-NAME} FOR EACH tt-est,
+            FIRST eb WHERE ROWID(eb) EQ tt-est.row-id NO-LOCK
+            BY eb.style.
+    IF {&browse-name}:current-column:label = "Item Description" THEN
+        OPEN QUERY {&SELF-NAME} FOR EACH tt-est,
+            FIRST eb WHERE ROWID(eb) EQ tt-est.row-id NO-LOCK
+            BY eb.part-dscr1.
+    {methods/template/sortindicatorend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
