@@ -97,7 +97,7 @@ auditHdr.auditKey ne "" NO-LOCK, ~
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON bExit 
-     IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U
+     IMAGE-UP FILE "Graphics/32x32/exit_white.png":U
      LABEL "" 
      SIZE 8 BY 1.67 TOOLTIP "Exit"
      BGCOLOR 8 .

@@ -71,8 +71,8 @@ END.
 &Scoped-define FRAME-NAME DEFAULT-FRAME
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btn-close ed-scr-view btn-font btn-print ~
-btn-save 
+&Scoped-Define ENABLED-OBJECTS btn-close btn-print btn-save ed-scr-view ~
+btn-font 
 &Scoped-Define DISPLAYED-OBJECTS ed-scr-view 
 
 /* Custom List Definitions                                              */
@@ -90,22 +90,22 @@ DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btn-close AUTO-GO 
-     IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/exit_white.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 8 BY 1.91 TOOLTIP "Exit".
 
 DEFINE BUTTON btn-font 
-     IMAGE-UP FILE "Graphics/32x32/font.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/window_font.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 8 BY 1.91 TOOLTIP "Font".
 
 DEFINE BUTTON btn-print 
-     IMAGE-UP FILE "Graphics/32x32/printer.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/print_new.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 8 BY 1.91 TOOLTIP "Print".
 
 DEFINE BUTTON btn-save 
-     IMAGE-UP FILE "Graphics/32x32/floppy_disk.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/floppy_disk.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 8 BY 1.91 TOOLTIP "Save As".
 
@@ -123,10 +123,10 @@ DEFINE RECTANGLE RECT-1
 
 DEFINE FRAME DEFAULT-FRAME
      btn-close AT ROW 27.43 COL 152 WIDGET-ID 4
-     ed-scr-view AT ROW 1 COL 1 NO-LABEL WIDGET-ID 2
-     btn-font AT ROW 27.43 COL 144 WIDGET-ID 6
      btn-print AT ROW 27.43 COL 128 WIDGET-ID 8
      btn-save AT ROW 27.43 COL 136 WIDGET-ID 10
+     ed-scr-view AT ROW 1 COL 1 NO-LABEL WIDGET-ID 2
+     btn-font AT ROW 27.43 COL 144 WIDGET-ID 6
      RECT-1 AT ROW 27.19 COL 127 WIDGET-ID 12
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -157,15 +157,15 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 320
          VIRTUAL-HEIGHT     = 320
          VIRTUAL-WIDTH      = 320
-         RESIZE             = YES
-         SCROLL-BARS        = NO
-         STATUS-AREA        = YES
+         RESIZE             = yes
+         SCROLL-BARS        = no
+         STATUS-AREA        = yes
          BGCOLOR            = ?
          FGCOLOR            = ?
-         KEEP-FRAME-Z-ORDER = YES
-         THREE-D            = YES
-         MESSAGE-AREA       = NO
-         SENSITIVE          = YES.
+         KEEP-FRAME-Z-ORDER = yes
+         THREE-D            = yes
+         MESSAGE-AREA       = no
+         SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
@@ -182,7 +182,7 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* SETTINGS FOR RECTANGLE RECT-1 IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-THEN C-Win:HIDDEN = NO.
+THEN C-Win:HIDDEN = no.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -395,7 +395,7 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY ed-scr-view 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE btn-close ed-scr-view btn-font btn-print btn-save 
+  ENABLE btn-close btn-print btn-save ed-scr-view btn-font 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.

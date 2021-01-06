@@ -381,10 +381,9 @@ FUNCTION fPOMaterial RETURNS LOGICAL (
           AND job-mat.job-no    EQ ipJobNo
           AND job-mat.job-no2   EQ ipJobNo2
           AND job-mat.frm       EQ ipForm
-          AND (job-mat.blank-no EQ ipBlankNo
-           OR job-mat.blank-no  EQ 0),
+          AND (job-mat.blank-no EQ ipBlankNo OR ipBlankNo EQ 0),
          EACH item OF job-mat NO-LOCK
-        WHERE item.mat-type   EQ ipMatType, 
+        WHERE item.mat-type EQ ipMatType, 
          EACH rm-rcpth NO-LOCK
         WHERE rm-rcpth.company   EQ job-mat.company
           AND rm-rcpth.job-no    EQ job-mat.job-no

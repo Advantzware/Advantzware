@@ -98,14 +98,14 @@ DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btnReset 
-     IMAGE-UP FILE "Graphics/32x32/undo_32.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/undo_32_disabled.ico":U NO-FOCUS
+     IMAGE-UP FILE "Graphics/32x32/undo_32.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/undo_32_disabled.png":U NO-FOCUS
      LABEL "Reset" 
      SIZE 8 BY 1.91.
 
 DEFINE BUTTON btnSave 
-     IMAGE-UP FILE "Graphics/32x32/floppy_disk.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/floppy_disk_disabled.ico":U NO-FOCUS
+     IMAGE-UP FILE "Graphics/32x32/floppy_disk.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/floppy_disk_disabled.png":U NO-FOCUS
      LABEL "Save" 
      SIZE 8 BY 1.91 TOOLTIP "Save".
 

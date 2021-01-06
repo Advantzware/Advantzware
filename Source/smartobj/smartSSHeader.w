@@ -66,7 +66,7 @@ fiLocation
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON Select_Exit 
-     IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U
+     IMAGE-UP FILE "Graphics/32x32/exit_white.png":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS
      LABEL "Exit" 
      SIZE 12 BY 2.86 TOOLTIP "Exit".

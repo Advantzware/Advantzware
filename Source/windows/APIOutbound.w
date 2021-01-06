@@ -41,10 +41,6 @@ CREATE WIDGET-POOL.
 
 &SCOPED-DEFINE winReSize
 &SCOPED-DEFINE h_Browse01 h_APIOutBound
-&SCOPED-DEFINE EXCLUDE-select-page
-/* Do not edit/remove the below line. This is required to override the standard
-   select-page procudure */ 
-
 
 /* Parameters Definitions ---                                           */
 
@@ -178,7 +174,6 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 {src/adm/method/containr.i}
 {methods/template/windows.i}
-{methods/template/selectpage.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

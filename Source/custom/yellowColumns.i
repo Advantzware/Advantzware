@@ -1474,6 +1474,7 @@ PROCEDURE openQuery:
   IF sortColumn EQ 'Available On-Hand' THEN string(ttMultiSelectItem.availOnHand,"-999999999")  ELSE ~
   IF sortColumn EQ 'Minimum Order' THEN string(ttMultiSelectItem.quantityMinOrder,"-999999999")  ELSE ~
   IF sortColumn EQ 'Maximum Order' THEN string(ttMultiSelectItem.quantityMaxOrder,"-999999999")  ELSE ~
+  IF sortColumn EQ 'Earliest Order Qty' THEN string(ttMultiSelectItem.dateDueDateEarliest,"-999999999")  ELSE ~
   IF sortColumn EQ 'Customer Part' THEN string(ttMultiSelectItem.itemCustPart)  ELSE ~
   IF sortColumn EQ 'Customer' THEN string(ttMultiSelectItem.itemCust)  ELSE ~
   IF sortColumn EQ 'Cust Name' THEN string(ttMultiSelectItem.itemCustName)  ELSE ~

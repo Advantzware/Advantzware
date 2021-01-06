@@ -175,7 +175,7 @@ DEFINE BUTTON btEndRequestDateCal
      SIZE 5.2 BY 1.24.
 
 DEFINE BUTTON btExit 
-     IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U
+     IMAGE-UP FILE "Graphics/32x32/exit_white.png":U
      LABEL "Exit" 
      SIZE 11 BY 2.62 TOOLTIP "Exit".
 

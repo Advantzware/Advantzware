@@ -43,6 +43,10 @@ def var lv-wscore like box-design-hdr.wscore no-undo.
 def var lv-wcum-score like box-design-hdr.wcum-score no-undo.
 DEFINE VARIABLE cDesignNo AS CHARACTER NO-UNDO.
 
+/* The below variables are used in run_link.i */
+DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
+DEFINE VARIABLE pHandle  AS HANDLE    NO-UNDO.
+
 PROCEDURE ShellExecuteA EXTERNAL "shell32":u :
       define input parameter hwnd as long.
       define input parameter lpOperation as char.
@@ -997,6 +1001,7 @@ PROCEDURE local-disable-fields :
 
   /* Code placed here will execute AFTER standard behavior.    */
 /*  disable lv-wscore lv-wcum-score with frame {&frame-name}. */
+  {methods/run_link.i "CONTAINER-SOURCE" "SetUpdateEnd"}
 
 END PROCEDURE.
 
@@ -1076,6 +1081,7 @@ PROCEDURE local-enable-fields :
 
   /* Code placed here will execute AFTER standard behavior.    */
 /*  enable lv-wscore lv-wcum-score with frame {&frame-name}. */
+  {methods/run_link.i "CONTAINER-SOURCE" "SetUpdateBegin"}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

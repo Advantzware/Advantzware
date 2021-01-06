@@ -165,7 +165,23 @@ FOR EACH ttInputEst NO-LOCK:
                     AND itemfg.i-no    EQ eb.stock-no) THEN DO:
           FIND FIRST xeb WHERE ROWID(xeb) EQ ROWID(eb) NO-LOCK NO-ERROR.
           FIND FIRST xest WHERE ROWID(xest) EQ ROWID(est) NO-LOCK NO-ERROR.
-          RUN fg/ce-addfg.p (xeb.stock-no).
+          
+          IF eb.sourceEstimate NE "" THEN
+          DO:       
+           FIND FIRST xeb EXCLUSIVE-LOCK
+                WHERE xeb.company EQ eb.company          
+                AND xeb.est-no EQ eb.sourceEstimate NO-ERROR.
+           FIND FIRST xest NO-LOCK
+                WHERE xest.company EQ eb.company          
+                AND xest.est-no EQ eb.sourceEstimate NO-ERROR.
+           ASSIGN 
+               xeb.stock-no = eb.stock-no
+               xeb.part-no = eb.part-no
+               xeb.part-dscr1 = eb.part-dscr1.
+           FIND CURRENT xeb NO-LOCK NO-ERROR.             
+          END.     
+          
+          RUN fg/ce-addfg.p (eb.stock-no).
       END.
     
 
