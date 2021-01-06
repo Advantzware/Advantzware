@@ -1139,9 +1139,12 @@ do transaction on error undo with width 255:
     put screen row lorow columns 70 string(ar-inv.inv-no,">>>>>>9") .
 
     assign
-     ar-inv.period = tran-period
-     ar-inv.posted = yes
-     ar-inv.prod-date = tran-date /* Using prod-date as a posted-date #53205 */
+     ar-inv.period     = tran-period
+     ar-inv.posted     = yes
+     ar-inv.prod-date  = tran-date /* Using prod-date as a posted-date #53205 */
+     ar-inv.postedDate = tran-date
+     ar-inv.runNumber  = v-trnum
+     ar-inv.glYear     = year(tran-date)
      .
 
      run oe/sonofile.p (1,recid(ar-inv)).
