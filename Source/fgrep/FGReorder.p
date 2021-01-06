@@ -84,7 +84,7 @@ PROCEDURE BuildReport:
             dQuantityAllocated = itemfg.q-alloc
             dQuantityMinimum = itemfg.ord-min
             .
-        IF dQuantityOnHand NE 0 OR dQuantityOnOrder NE 0 OR dQuantityAllocated NE 0 OR dQuantityMinimum NE 0 THEN DO:
+        IF dQuantityOnHand NE 0 OR dQuantityOnOrder NE 0 OR dQuantityAllocated NE 0 OR dQuantityMinimum NE 0 OR itemfg.ord-level NE 0 THEN DO:
             CREATE ttFGReorder.
             ASSIGN 
                 ttFGReorder.company = itemfg.company

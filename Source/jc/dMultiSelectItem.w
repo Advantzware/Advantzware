@@ -18,6 +18,7 @@ SESSION:DEBUG-ALERT = FALSE.
 
 {fgrep/ttFGReorder.i}
 {jc/ttMultiSelectItem.i}
+{est/ttInputEst.i }
 
 /* PARAMs Definitions ---                                           */ 
 DEFINE OUTPUT PARAMETER opdTotalCyclesRequired AS DECIMAL NO-UNDO.
@@ -435,7 +436,7 @@ DO:
                                     ELSE
                                         "[ ] All".
 
-        RUN repo-query(NO,NO).  
+        RUN repo-query(NO).  
     END.   
     
     RUN startSearch.        
@@ -468,7 +469,7 @@ DO:
         ASSIGN {&DISPLAYED-OBJECTS}.    
      END.                     
    
-     RUN repo-query(YES,NO).
+     RUN repo-query(YES).
     
 END.
 
@@ -636,7 +637,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      RUN enable_UI.
      {methods/nowait.i}      
      
-     RUN repo-query(YES,YES). 
+     RUN repo-query(YES). 
        
     IF NOT THIS-PROCEDURE:PERSISTENT THEN
        WAIT-FOR CLOSE OF THIS-PROCEDURE. 
@@ -713,8 +714,7 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE repo-query Dialog-Frame 
 PROCEDURE repo-query :
      DEFINE INPUT PARAMETER iplOpenQuery AS LOGICAL NO-UNDO.
-     DEFINE INPUT PARAMETER iplDefault AS LOGICAL NO-UNDO.
-          
+               
      IF iplOpenQuery THEN
      DO:          
          EMPTY TEMP-TABLE ttMultiSelectItem.
@@ -750,23 +750,25 @@ PROCEDURE repo-query :
                      AND oe-ordl.i-no EQ ttFGReorder.itemID
                      BREAK BY oe-ordl.req-date :
                     ttMultiSelectItem.dateDueDateEarliest = oe-ordl.req-date.
-                    ttMultiSelectItem.orderQtyEarliest = oe-ordl.qty.
+                    ttMultiSelectItem.orderQtyEarliest = oe-ordl.qty - oe-ordl.ship-qty.
                     LEAVE.
                  END. 
                  IF ttMultiSelectItem.dateDueDateEarliest EQ ? THEN ttMultiSelectItem.dateDueDateEarliest = 01/01/0001.
-                 IF iplDefault THEN 
-                 ttMultiSelectItem.isSelected = YES.
+                  
+                   FIND FIRST ttInputEst NO-LOCK 
+                        WHERE ttInputEst.cStockNo EQ ttMultiSelectItem.itemID NO-ERROR.
+                   IF AVAILABLE ttInputEst THEN 
+                   ASSIGN
+                   ttMultiSelectItem.isSelected = YES
+                   ttMultiSelectItem.multiplier = ttInputEst.iMolds
+                   ttMultiSelectItem.quantityToOrder = ttInputEst.iQuantityYield .                  
          END.
      END.
 
     CLOSE QUERY BROWSE-2.
     DO WITH FRAME {&FRAME-NAME}:      
         OPEN QUERY BROWSE-2 FOR EACH ttMultiSelectItem
-            NO-LOCK BY ttMultiSelectItem.itemID. 
-            IF iplDefault THEN do: 
-               ttMultiSelectItem.isSelected:LABEL IN BROWSE {&BROWSE-NAME} = "[*] All".
-               lSelectTrigger = YES.
-            END.   
+            NO-LOCK BY ttMultiSelectItem.itemID.                
     END.    
     
 END PROCEDURE.
