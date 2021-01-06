@@ -789,7 +789,7 @@ DO:
                     END. /* first-of(po-no) */
                     IF LAST-OF (b1-po-ord.vend-no) THEN
                     DO:
-                       IF tb_print-loadtag AND iPOLoadtagInt EQ 3 THEN
+                       IF tb_print-loadtag AND iPOLoadtagInt EQ 1 THEN
                        lCheckEmailPo = NO .
                        IF lCheckEmailPo THEN
                        RUN GenerateMail(NO,"") .
@@ -850,7 +850,7 @@ DO:
                 END. /* first-of(po-no) */
                 IF LAST-OF (b1-po-ord.vend-no)  THEN
                 DO:
-                   IF tb_print-loadtag AND iPOLoadtagInt EQ 3 THEN
+                   IF tb_print-loadtag AND iPOLoadtagInt EQ 1 THEN
                        lCheckEmailPo = NO .
                    IF lCheckEmailPo THEN
                    RUN GenerateMail(NO,"") .               
@@ -864,17 +864,17 @@ DO:
  
     END.  /* NOT vendor-specific formst */
     
-    IF tb_print-loadtag AND (iPOLoadtagInt EQ 1 OR iPOLoadtagInt EQ 2 OR iPOLoadtagInt EQ 3) THEN
+    IF tb_print-loadtag AND (iPOLoadtagInt EQ 1 OR iPOLoadtagInt EQ 2 ) THEN
     DO:
         PAUSE 1.           
         FOR EACH tt-report BREAK BY tt-report.key-01 BY  tt-report.key-02:
-          IF iPOLoadtagInt NE 3 THEN
+          IF iPOLoadtagInt NE 1 THEN
           cPdfFilesAttach = "" .
           IF FIRST-OF (tt-report.key-02) THEN DO:                      
              RUN run-report-loadtag(tt-report.key-02,tt-report.key-01) . 
              RUN GenerateReportTag(tt-report.key-01, tt-report.key-01) .
           END. /* first-of(po-no) */
-          IF LAST-OF (tt-report.key-01) AND (iPOLoadtagInt EQ 1 OR iPOLoadtagInt EQ 3) THEN
+          IF LAST-OF (tt-report.key-01) AND (iPOLoadtagInt EQ 1 OR (iPOLoadtagInt EQ 2 AND rd-dest EQ 5 )) THEN
              RUN GenerateMail(YES,tt-report.key-03) .
            
           DELETE tt-report .
@@ -1493,16 +1493,16 @@ PROCEDURE GenerateMail :
               . 
        cMailId = "Vendor" .       
        IF iplLoadtagMail THEN DO:
-          IF iPOLoadtagInt EQ 1 then
+          IF iPOLoadtagInt EQ 2 AND rd-dest = 5 then
              ASSIGN                 
               lcSubject = "PO Load Tag(s) Attached"
               cMailId = "Loc" .
-          ELSE 
+          ELSE
              ASSIGN                 
               lcSubject = "Purchase Orders: " + STRING(cPoMailList)  + ", PO Load Tag(s) Attached"
               cMailId = "Loc" .
        END.
-               
+              
       RUN custom/xpmail2.p   (INPUT   cMailId,
                               INPUT   'R-POPRT.',
                               INPUT   cPdfFilesAttach,
@@ -2323,13 +2323,13 @@ PROCEDURE run-report-loadtag :
       
       CASE rd-dest:
           WHEN 1 THEN do:
-            IF iPOLoadtagInt EQ 1 OR iPOLoadtagInt EQ 3 THEN
+            IF iPOLoadtagInt EQ 1 THEN
                PUT "<PREVIEW><FORMAT=LETTER></PROGRESS><PDF-LEFT=5mm><PDF-TOP=10mm><PDF-OUTPUT=" + lv-pdf-file  + ".pdf>" FORM "x(180)".
             ELSE IF iPOLoadtagInt EQ 2 THEN  
             PUT  "<PRINTER?></PROGRESS>".
           END.
           WHEN 2 THEN do:
-            IF iPOLoadtagInt EQ 1 OR iPOLoadtagInt EQ 3 THEN
+            IF iPOLoadtagInt EQ 1 THEN
                PUT "<PREVIEW><FORMAT=LETTER></PROGRESS><PDF-LEFT=5mm><PDF-TOP=10mm><PDF-OUTPUT=" + lv-pdf-file  + ".pdf>" FORM "x(180)".
             ELSE IF iPOLoadtagInt EQ 2 THEN do:
               IF NOT lBussFormModle THEN
@@ -2344,7 +2344,7 @@ PROCEDURE run-report-loadtag :
               PUT UNFORMATTED "<PRINTER?><EXPORT=" Ls-fax-file ",BW></PROGRESS>".
           END.
           WHEN 5 OR WHEN 6 THEN DO:
-              IF iPOLoadtagInt EQ 1 OR iPOLoadtagInt EQ 2 OR iPOLoadtagInt EQ 3 THEN
+              IF iPOLoadtagInt EQ 1 OR iPOLoadtagInt EQ 2 THEN
               PUT "<PREVIEW><FORMAT=LETTER></PROGRESS><PDF-LEFT=5mm><PDF-TOP=10mm><PDF-OUTPUT=" + lv-pdf-file  + ".pdf>" FORM "x(180)".
           END.
       END CASE.
@@ -2384,21 +2384,21 @@ PROCEDURE GenerateReportTag :
   DO WITH FRAME {&FRAME-NAME}: 
      CASE rd-dest:
        WHEN 1 THEN do:
-         IF iPOLoadtagInt EQ 1 OR iPOLoadtagInt EQ 3 THEN DO:
+         IF iPOLoadtagInt EQ 1 THEN DO:
            RUN pRunxPrint.         
          END.
          ELSE IF iPOLoadtagInt EQ 2 THEN
          RUN output-to-printer.
        END.
        WHEN 2 THEN do:
-          IF iPOLoadtagInt EQ 1 OR iPOLoadtagInt EQ 3 THEN DO:
+          IF iPOLoadtagInt EQ 1  THEN DO:
             RUN pRunxPrint. 
           END.
           ELSE IF iPOLoadtagInt EQ 2 THEN
           RUN output-to-screen.
        END.
        WHEN 3 THEN do:
-          IF iPOLoadtagInt EQ 1 OR iPOLoadtagInt EQ 3 THEN DO:
+          IF iPOLoadtagInt EQ 1 THEN DO:
             RUN pRunxPrint. 
           END.
           ELSE IF iPOLoadtagInt EQ 2 THEN
@@ -2430,7 +2430,7 @@ PROCEDURE GenerateReportTag :
        END.
 
        WHEN 6 THEN do:
-          IF iPOLoadtagInt EQ 1 OR iPOLoadtagInt EQ 3 THEN DO:
+          IF iPOLoadtagInt EQ 1 THEN DO:
             RUN pRunxPrint. 
           END.
           ELSE IF iPOLoadtagInt EQ 2 THEN
