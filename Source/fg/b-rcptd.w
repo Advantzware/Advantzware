@@ -67,6 +67,10 @@ DEF VAR lrMissingRow        AS ROWID NO-UNDO.
 DEF VAR gvcCurrentItem      AS CHAR  NO-UNDO.
 DEFINE VARIABLE hInventoryProcs AS HANDLE NO-UNDO.
 DEFINE VARIABLE lColMove AS LOGICAL NO-UNDO INIT TRUE.
+DEF VAR lv-cost-basis AS CHAR NO-UNDO.
+DEF VAR v-auto-add-tag AS LOG NO-UNDO.
+DEF VAR fg-uom-list  AS CHAR NO-UNDO.
+
 DEF TEMP-TABLE tt-fg-rctd LIKE fg-rctd
     FIELD tt-rowid AS ROWID
     FIELD po-rowid AS ROWID.
@@ -81,6 +85,7 @@ DEFINE TEMP-TABLE w-rowid
 {oe/d-selbin.i NEW}
 {fg/fullset.i NEW}
 {fg/d-selpos.i NEW}
+{sys/inc/rfidtag.i}
 
 &SCOPED-DEFINE item-key-phrase TRUE
 &SCOPED-DEFINE init-proc init-proc
@@ -122,6 +127,8 @@ RUN methods/prgsecur.p
 	     OUTPUT lPostSec, /* Allowed? Yes/NO */
 	     OUTPUT lAccessClose, /* used in template/windows.i  */
 	     OUTPUT cAccessList). /* list 1's and 0's indicating yes or no to run, create, update, delete */
+         
+RUN sys/ref/uom-fg.p (?, OUTPUT fg-uom-list).         
 
 /* ********************  Preprocessor Definitions  ******************** */
 
@@ -1283,6 +1290,640 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE select-bin B-table-Win 
+PROCEDURE select-bin :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+DEFINE VARIABLE lv-rowids      AS CHARACTER    NO-UNDO.
+DEFINE VARIABLE li             AS INTEGER      NO-UNDO.
+DEFINE VARIABLE iSelectedQty   AS INTEGER      NO-UNDO.
+DEFINE VARIABLE v-next-tag     AS CHARACTER    NO-UNDO.
+DEFINE VARIABLE lv-rno         LIKE fg-rctd.r-no NO-UNDO.
+DEFINE VARIABLE full-qty       AS INTEGER      NO-UNDO.
+DEFINE VARIABLE rPrevRec       AS ROWID        NO-UNDO.
+DEFINE VARIABLE cSelectionItem AS CHARACTER    NO-UNDO.
+DEFINE VARIABLE dMaxQty        AS DECIMAL      NO-UNDO.
+
+
+DEF BUFFER bfFgRctd FOR fg-rctd.
+DEF BUFFER b-fg-rctd FOR fg-rctd.
+
+IF NOT AVAIL fg-rctd THEN
+  RETURN.
+
+dMaxQty = maxComponentQty().
+cSelectionItem = fg-rctd.i-no.
+iSelectedQty = 0.
+gvcCurrentItem = fg-rctd.i-no.
+
+ RUN fg/d-selbin.w (INPUT 3,
+                    INPUT ?,
+                    INPUT "ALL",
+                    INPUT fg-rctd.i-no,
+                    INPUT dMaxQty,
+                    INPUT lv-linker,
+                    OUTPUT lv-rowids).
+ 
+ IF lv-rowids NE "" THEN DO:
+   RUN dispatch ('open-query').
+
+   FOR EACH w-rowid:
+     DELETE w-rowid.
+   END.
+  
+   DO li = 1 TO NUM-ENTRIES(lv-rowids):
+     IF ENTRY(li,lv-rowids) NE "" THEN DO:      
+       CREATE w-rowid.
+       w-rowid = ENTRY(li,lv-rowids).
+     END.
+   END.
+
+   DO WHILE AVAIL fg-rctd AND CAN-FIND(FIRST w-rowid):
+     FIND FIRST fg-bin WHERE fg-bin.company EQ fg-rctd.company
+       AND fg-bin.i-no EQ fg-rctd.i-no
+       AND fg-bin.tag  EQ fg-rctd.tag
+       AND fg-bin.loc  EQ fg-rctd.loc
+       AND fg-bin.loc-bin EQ fg-rctd.loc-bin
+       NO-LOCK NO-ERROR.
+   
+     IF AVAIL fg-bin THEN
+     FIND FIRST w-rowid WHERE w-rowid EQ STRING(ROWID(fg-bin)) NO-ERROR.
+
+     /* If the selected record already exists, remove w-rowid so no duplicates */
+     IF AVAIL w-rowid THEN DO:
+       
+        DELETE w-rowid.        
+        iSelectedQty = iSelectedQty + fg-rctd.qty.
+     END.
+     ELSE DO:
+       /* If current tag was not selected by user, delete it */
+       IF fg-rctd.i-no = cSelectionItem THEN DO:
+         
+         FIND CURRENT fg-rctd EXCLUSIVE-LOCK.
+         FOR EACH ASI.reftable WHERE reftable.reftable EQ "fg-rctd.user-id" 
+           AND reftable.company  EQ fg-rctd.company 
+           AND reftable.loc      EQ STRING(fg-rctd.r-no,"9999999999") 
+           AND (reftable.dscr    EQ lv-linker AND reftable.dscr BEGINS "fg-rctd: ")
+           EXCLUSIVE-LOCK:
+           DELETE reftable.
+         END.
+         DELETE fg-rctd.
+       END.
+     END.
+     RELEASE fg-rctd.
+    
+     RUN dispatch ('get-next').
+     IF AVAIL(fg-rctd) AND ROWID(fg-rctd) EQ rPrevRec THEN
+       LEAVE.
+     rPrevRec = ROWID(fg-rctd).
+
+   END. /* do while .. */
+
+   CREATE-FG-RCTD:
+   FOR EACH w-rowid:
+     
+     /* Create fg-rctd from bin */
+     FIND FIRST fg-bin WHERE ROWID(fg-bin) EQ TO-ROWID(w-rowid.w-rowid) NO-LOCK NO-ERROR. 
+
+     IF NOT AVAIL fg-bin THEN
+       NEXT CREATE-FG-RCTD.
+
+     /* Don't create records with a zero quantity which would happen */
+     /* if the selected tags have a qty greater than what's needed   */
+     IF ABS(iSelectedQty) GE dMaxQty THEN DO:
+    
+       LEAVE CREATE-FG-RCTD.
+
+     END.
+       
+     CREATE bfFgRctd.
+
+     /* Code placed here will execute PRIOR to standard behavior. */
+     lv-cost-basis = "".
+     FIND LAST b-fg-rctd USE-INDEX fg-rctd NO-LOCK NO-ERROR.
+     IF AVAIL b-fg-rctd AND b-fg-rctd.r-no GT lv-rno THEN lv-rno = b-fg-rctd.r-no.
+
+     FIND LAST fg-rcpth USE-INDEX r-no NO-LOCK NO-ERROR.
+     IF AVAIL fg-rcpth AND fg-rcpth.r-no GT lv-rno THEN lv-rno = fg-rcpth.r-no.
+
+     
+     DO WHILE TRUE:
+       lv-rno = lv-rno + 1.
+       FIND FIRST fg-rcpth WHERE fg-rcpth.r-no EQ lv-rno USE-INDEX r-no NO-LOCK NO-ERROR.
+       IF AVAIL fg-rcpth THEN NEXT.
+       FIND FIRST b-fg-rctd WHERE b-fg-rctd.r-no EQ lv-rno USE-INDEX fg-rctd NO-LOCK NO-ERROR.
+       IF AVAIL b-fg-rctd THEN NEXT.
+       LEAVE.
+     END.
+
+     ASSIGN
+      bfFgRctd.rct-date    = TODAY
+      bfFgRctd.trans-time   = TIME
+      bfFgRctd.units-pallet = 1
+      bfFgRctd.cases-unit   = 1
+      bfFgRctd.ext-cost     = 0
+      bfFgRctd.partial      = 0
+      bfFgRctd.qty          = 0
+      bfFgRctd.qty-case     = 0
+      bfFgRctd.i-no         = fg-bin.i-no
+      bfFgRctd.tag          = fg-bin.tag
+      bfFgRctd.po-no        = fg-bin.po-no
+      bfFgRctd.loc          = fg-bin.loc
+      bfFgRctd.loc-bin      = fg-bin.loc-bin.
+
+     /*BV - This code sets the new receipt date to the latest existing receipt date. This code
+     was identified as causing slowness at Hughes, however we found a bunch of "orphaned" set parts receipts 
+     that should be handled separately (04181326)*/
+     FOR EACH b-fg-rctd NO-LOCK
+         WHERE b-fg-rctd.company   EQ g_company
+           AND b-fg-rctd.rita-code EQ "R"
+           AND ROWID(b-fg-rctd)    NE ROWID(bfFgRctd)         
+          ,
+         FIRST reftable NO-LOCK
+         WHERE reftable.reftable EQ "fg-rctd.user-id"
+           AND reftable.company  EQ b-fg-rctd.company
+           AND reftable.loc      EQ STRING(b-fg-rctd.r-no,"9999999999")
+           AND NOT reftable.dscr BEGINS "fg-rctd: " /*not a set part receipt*/
+ /*           AND ((reftable.dscr   EQ lv-linker AND reftable.dscr BEGINS "fg-rctd: ") OR */
+ /*                (NOT ll-set-parts AND NOT reftable.dscr BEGINS "fg-rctd: "))           */
+         BY b-fg-rctd.r-no DESC:  /*Last one added, not necessarily the last date*/
+       bfFgRctd.rct-date = b-fg-rctd.rct-date.
+       LEAVE.
+     END.
+   
+
+     ASSIGN
+      bfFgRctd.company   = g_company
+      bfFgRctd.r-no      = lv-rno
+      bfFgRctd.rita-code = "R"
+      bfFgRctd.trans-time   = TIME
+      .   
+      FIND FIRST reftable NO-LOCK
+         WHERE reftable.reftable EQ "fg-rctd.user-id"
+           AND reftable.company  EQ bfFgRctd.company
+           AND reftable.loc      EQ STRING(bfFgRctd.r-no,"9999999999")
+           AND reftable.dscr EQ lv-linker
+           AND reftable.dscr BEGINS "fg-rctd: " 
+          NO-ERROR.
+      IF NOT AVAIL reftable THEN DO:
+        CREATE reftable.
+        ASSIGN
+         reftable.reftable = "fg-rctd.user-id"
+         reftable.company  = bfFgRctd.company
+         reftable.loc      = STRING(bfFgRctd.r-no,"9999999999")
+         reftable.dscr = lv-linker.         
+      END.
+
+      /* as in local-assign logic */
+      IF ll-set-parts THEN DO:
+        FIND FIRST fg-rcpts WHERE fg-rcpts.r-no EQ bfFgRctd.r-no NO-ERROR.
+        IF NOT AVAIL fg-rcpts THEN DO:
+          CREATE fg-rcpts.
+          fg-rcpts.r-no       = bfFgRctd.r-no.
+        END.
+        ASSIGN
+         fg-rcpts.company    = cocode
+         fg-rcpts.i-no       = bfFgRctd.i-no
+         fg-rcpts.i-name     = bfFgRctd.i-name
+         fg-rcpts.trans-date = bfFgRctd.rct-date
+         fg-rcpts.linker     = lv-linker. /* Set in local-open-query */
+         FIND FIRST itemfg WHERE itemfg.company = g_company
+            AND itemfg.i-no = bfFgRctd.i-no  NO-LOCK NO-ERROR.
+         IF AVAIL ITEMfg THEN
+             ASSIGN bfFgRctd.i-name = itemfg.i-name.
+      END.
+      
+      /* As in local-assign logic */
+      IF glFGPOTag# AND bfFgRctd.tag EQ "" THEN DO:
+         RUN get-next-tag (INPUT bfFgRctd.i-no, OUTPUT v-next-tag).
+         RUN create-loadtag (INPUT-OUTPUT v-next-tag, INPUT ROWID(bfFgRctd)).
+         bfFgRctd.tag = v-next-tag.
+      END.
+  
+
+      /* If total quantity was used for cost, update the other records with the new cost */  
+      IF lv-cost-basis = "FULLQTY" THEN DO:  
+          RUN get-set-full-qty (INPUT bfFgRctd.std-cost, INPUT NO, OUTPUT full-qty).
+      END.
+      
+      RUN copyBinInfo (INPUT ROWID(fg-bin), ROWID(bfFgRctd)).
+    
+      iSelectedQty = iSelectedQty +  bfFgRctd.t-qty.
+      RUN dispatch ('open-query').
+
+   END. /* each w-rowid */
+ END. /* lv-rowids not blank */
+ RUN dispatch ('open-query').
+
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE get-set-full-qty B-table-Win 
+PROCEDURE get-set-full-qty :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEF INPUT PARAMETER ip-cost-to-set AS DEC NO-UNDO.
+  DEF INPUT PARAMETER ip-on-screen AS LOG NO-UNDO.
+  DEF OUTPUT PARAMETER op-out-qty AS DEC NO-UNDO.
+  DEF VAR v-len LIKE po-ordl.s-len NO-UNDO.
+  DEF VAR v-wid LIKE po-ordl.s-len NO-UNDO.
+  DEF VAR v-dep LIKE po-ordl.s-len NO-UNDO. 
+  DEF VAR v-bwt LIKE po-ordl.s-len NO-UNDO.
+  DEF VAR lv-out-qty AS DEC NO-UNDO.
+  DEF VAR lv-out-cost AS DEC NO-UNDO.
+  DEF VAR lv-calc-cost AS DEC.
+  DEF VAR lv-recalc-cost AS DEC.
+  DEF VAR lv-ext-cost AS DEC.
+  DEF VAR v-rec-qty AS INT NO-UNDO.
+  DEF VAR ll-ea AS LOG NO-UNDO.
+
+  DEF BUFFER b-fg-rctd FOR fg-rctd.
+  DEF BUFFER b1-fg-rctd FOR fg-rctd.
+
+
+  cocode = g_company.
+
+  lv-out-qty = 0.
+  FOR EACH b-fg-rctd WHERE b-fg-rctd.company EQ g_company AND
+           (b-fg-rctd.rita-code EQ "R" OR b-fg-rctd.rita-code EQ "E")
+           AND trim(b-fg-rctd.job-no) = trim(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name})
+           AND b-fg-rctd.job-no2 = INT(fg-rctd.job-no2:SCREEN-VALUE)
+           AND b-fg-rctd.i-no = fg-rctd.i-no:SCREEN-VALUE 
+           AND (RECID(b-fg-rctd) <> recid(fg-rctd) 
+                OR (adm-new-record AND NOT adm-adding-record))
+           NO-LOCK,     
+    FIRST ASI.reftable WHERE reftable.reftable EQ "fg-rctd.user-id" AND
+      reftable.company  EQ fg-rctd.company AND
+      reftable.loc      EQ STRING(fg-rctd.r-no,"9999999999")  AND
+      (reftable.dscr    EQ lv-linker AND reftable.dscr BEGINS "fg-rctd: ")  
+    USE-INDEX loc:
+
+      lv-out-qty = lv-out-qty + b-fg-rctd.t-qty.     
+      IF ip-cost-to-set GT 0 THEN DO:
+
+          /* convert cost to b1-fg-rctd uom */
+
+          FIND b1-fg-rctd WHERE ROWID(b1-fg-rctd) EQ ROWID(b-fg-rctd)
+              EXCLUSIVE-LOCK NO-ERROR.
+          IF AVAIL b1-fg-rctd THEN DO WITH FRAME {&FRAME-NAME}:
+        
+            FIND itemfg WHERE itemfg.company EQ cocode
+                          AND itemfg.i-no  EQ b-fg-rctd.i-no
+                        USE-INDEX i-no NO-LOCK NO-ERROR.
+            
+            ASSIGN
+              v-bwt             = 0
+              v-dep             = 0.
+            
+            IF AVAIL itemfg THEN
+              ASSIGN v-len       = itemfg.t-len
+                     v-wid       = itemfg.t-wid.
+            
+            /* Always find just to get quantity */
+            FIND FIRST po-ordl WHERE po-ordl.company = cocode
+                                 AND po-ordl.po-no   = int(b-fg-rctd.po-no)
+                                 AND po-ordl.i-no    = b-fg-rctd.i-no
+                                 AND po-ordl.job-no  = b-fg-rctd.job-no
+                                 AND po-ordl.job-no2 = b-fg-rctd.job-no2
+                                 AND po-ordl.item-type = NO
+                                 NO-LOCK NO-ERROR.
+            IF NOT AVAIL po-ordl THEN
+                FIND FIRST po-ordl WHERE po-ordl.company = cocode
+                                     AND po-ordl.po-no   = integer(b-fg-rctd.po-no)
+                                     AND po-ordl.i-no    = b-fg-rctd.i-no
+                                     AND po-ordl.item-type = NO
+                                     NO-LOCK NO-ERROR.
+            
+            
+            IF AVAIL po-ordl THEN
+              ASSIGN
+                v-len = po-ordl.s-len
+                v-wid = po-ordl.s-wid.
+            lv-calc-cost = ip-cost-to-set.
+            lv-recalc-cost = lv-calc-cost.
+            IF fg-rctd.cost-uom EQ b-fg-rctd.cost-uom               OR
+              (LOOKUP(fg-rctd.cost-uom,fg-uom-list) GT 0 AND
+               LOOKUP(b-fg-rctd.cost-uom,fg-uom-list) GT 0)   THEN.
+            ELSE
+               RUN rm/convcuom.p(fg-rctd.cost-uom, b-fg-rctd.cost-uom, 
+                                 v-bwt, v-len, v-wid, v-dep,
+                                 lv-calc-cost, OUTPUT lv-recalc-cost).
+            
+            b1-fg-rctd.std-cost = lv-recalc-cost.
+            ASSIGN
+             lv-ext-cost = b1-fg-rctd.t-qty * b1-fg-rctd.std-cost                          
+             b1-fg-rctd.ext-cost = lv-ext-cost + b1-fg-rctd.frt-cost.
+          END.
+
+      END.
+  END.
+  IF ip-on-screen THEN
+    lv-out-qty = lv-out-qty + int(fg-rctd.t-qty:SCREEN-VALUE).
+  op-out-qty = lv-out-qty.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE copyBinInfo B-table-Win 
+PROCEDURE copyBinInfo :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+DEF INPUT PARAMETER iprFgBin AS ROWID NO-UNDO.
+DEF INPUT PARAMETER iprFgRctd AS ROWID NO-UNDO.
+
+DEF BUFFER bfFgBin FOR fg-bin.
+DEF BUFFER bfFgRctd FOR fg-rctd.
+
+ DEF VAR dMaxQty     AS DECIMAL NO-UNDO.
+ DEF VAR cHeaderItem AS CHAR NO-UNDO.
+ DEF VAR dMaxCompQty AS DEC NO-UNDO. /* Max component quantity */
+ DEF VAR dTotalQty   AS DEC NO-UNDO.
+DEF VAR rSaveFgrctd AS ROWID NO-UNDO.
+IF AVAIL fg-rctd THEN
+  rSaveFgRctd = ROWID(fg-rctd).
+
+FIND bfFgBin WHERE ROWID(bfFgBin) EQ iprFgBin NO-LOCK.
+IF iprFgRctd NE ? THEN DO:
+    FIND FIRST bfFgRctd WHERE ROWID(bfFgRctd) EQ iprFgRctd EXCLUSIVE-LOCK NO-ERROR.
+    FIND fg-rctd WHERE ROWID(fg-rctd) EQ iprFgRctd EXCLUSIVE-LOCK NO-ERROR.
+END.
+
+/* Obtain quantity of set header record */                        
+dMaxCompQty = maxComponentQty().
+
+IF AVAIL bfFgBin  THEN DO:
+  
+  /* dTotalQty is the qty in other lines with the same item number */
+  RUN get-selected-full-qty (INPUT bfFgBin.std-tot-cost, INPUT NO, OUTPUT dTotalQty).
+  
+  dTotalQty = ABS(dTotalQty).
+  IF iprFgRctd EQ ? THEN
+    dTotalQty = dTotalQty - ABS(DEC(fg-rctd.t-qty:SCREEN-VALUE IN BROWSE {&browse-name})).
+  ELSE
+    dTotalQty = dTotalQty - ABS(DEC(fg-rctd.t-qty)).
+  
+  /* dMaxCompQty is the max that can be used from bfFgBin */
+  IF ABS(dMaxCompQty) GT 0 AND ABS(dTotalQty) GT 0 THEN DO:
+    
+    dMaxCompQty = dMaxCompQty - ABS(dTotalQty).
+    
+  END.  
+    
+  IF dMaxCompQty LT 0 THEN DO:    
+    dMaxCompQty = 0.  
+  END.
+
+  IF dMaxCompQty GT bfFgBin.qty THEN
+    dMaxCompQty = bfFgBin.qty.
+  
+  IF iprFgRctd EQ ? THEN DO:
+  
+    IF /*ABS(DECIMAL(fg-rctd.t-qty:SCREEN-VALUE IN BROWSE {&browse-name})) GE bfFgBin.qty */ 
+        ABS(dTotalQty) + ABS(bfFgBin.qty) LE ABS(dMaxCompQty) THEN DO:
+    
+      ASSIGN
+        fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name} = bfFgBin.i-no
+        fg-rctd.cases:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(-1 * TRUNC((bfFgBin.qty - bfFgBin.partial-count) / bfFgBin.case-count,0))
+        fg-rctd.qty-case:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(bfFgBin.case-count)
+        fg-rctd.cases-unit:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(bfFgBin.cases-unit)
+        fg-rctd.partial:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(-1 * bfFgBin.partial-count)
+        fg-rctd.t-qty:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(-1 * bfFgBin.qty).
+    END.
+    ELSE DO:
+      
+      ASSIGN            
+        fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name} = bfFgBin.i-no
+        fg-rctd.cases:SCREEN-VALUE IN BROWSE {&browse-name} = "0" /* STRING(-1 * TRUNC(dMaxCompQty / bfFgBin.case-count,0)) */
+        fg-rctd.qty-case:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(dMaxCompQty)
+        fg-rctd.cases-unit:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(bfFgBin.cases-unit)
+        fg-rctd.partial:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(-1 * dMaxCompQty)
+        fg-rctd.t-qty:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(-1 * dMaxCompQty).
+    END.
+  END.
+  ELSE DO:
+    IF ABS(dTotalQty) + ABS(bfFgBin.qty) LE ABS(dMaxCompQty) THEN DO:
+    
+      ASSIGN
+        fg-rctd.i-no = bfFgBin.i-no
+        fg-rctd.cases = -1 * TRUNC((bfFgBin.qty - bfFgBin.partial-count) / bfFgBin.case-count,0)
+        fg-rctd.qty-case = bfFgBin.case-count
+        fg-rctd.cases-unit = bfFgBin.cases-unit
+        fg-rctd.partial = -1 * bfFgBin.partial-count
+        fg-rctd.t-qty = -1 * bfFgBin.qty.
+    END.
+    ELSE DO:
+    
+      ASSIGN            
+        fg-rctd.i-no = bfFgBin.i-no
+        fg-rctd.cases = 0 /* STRING(-1 * TRUNC(dMaxCompQty / bfFgBin.case-count,0)) */
+        fg-rctd.qty-case = dMaxCompQty
+        fg-rctd.cases-unit = bfFgBin.cases-unit
+        fg-rctd.partial = -1 * dMaxCompQty
+        fg-rctd.t-qty = -1 * dMaxCompQty.
+    END.
+  END.
+    /* Task 12061305 */
+    IF bfFgBin.job-no <> "" THEN DO:
+      IF iprFgRctd EQ ? THEN
+        ASSIGN
+          fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} = bfFgBin.job-no
+          fg-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name} = FILL(" ",6 - LENGTH(TRIM(STRING(bfFgBin.job-no2)))) +
+                                                            TRIM(STRING(bfFgBin.job-no2)).
+      ELSE
+        ASSIGN
+          fg-rctd.job-no = bfFgBin.job-no
+          fg-rctd.job-no2 = bfFgBin.job-no2.
+    END.
+END. /* avail bin */
+IF rSaveFgRctd NE ? THEN 
+  FIND fg-rctd WHERE ROWID(fg-rctd) EQ rSaveFgRctd NO-LOCK NO-ERROR.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE create-loadtag B-table-Win 
+PROCEDURE create-loadtag :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       From r-loadtg.w
+------------------------------------------------------------------------------*/
+
+DEF INPUT-OUTPUT PARAM io-tag-no AS CHAR NO-UNDO.
+DEF INPUT PARAM fg-rctd-row AS ROWID NO-UNDO.
+
+DEF BUFFER b-loadtag FOR loadtag.
+DEF BUFFER b-po-ordl FOR po-ordl.
+DEF BUFFER bf-eb FOR eb.
+DEF BUFFER b-fg-rctd FOR fg-rctd.
+
+DEFINE VARIABLE li                    AS INTEGER       NO-UNDO.
+DEFINE VARIABLE lv-got-job            AS LOGICAL       NO-UNDO.
+DEFINE VARIABLE lv-out-cost           AS DECIMAL       DECIMALS 4 NO-UNDO.
+DEFINE VARIABLE lv-out-qty            AS DECIMAL       NO-UNDO.
+DEFINE VARIABLE lv-from-uom           AS CHARACTER     NO-UNDO.
+DEFINE VARIABLE lv-cost-uom           AS CHARACTER     NO-UNDO.
+DEFINE VARIABLE lv-ord-qty            AS INTEGER       NO-UNDO.
+DEFINE VARIABLE lv-ord-uom            AS CHARACTER     NO-UNDO.
+DEFINE VARIABLE lv-setup-included     AS LOGICAL       NO-UNDO.
+DEFINE VARIABLE lv-setup-per-cost-uom AS DECIMAL       NO-UNDO.
+DEFINE VARIABLE v-bwt                 LIKE po-ordl.s-len NO-UNDO.
+DEFINE VARIABLE v-len                 LIKE po-ordl.s-len NO-UNDO.
+DEFINE VARIABLE v-wid                 LIKE po-ordl.s-len NO-UNDO.
+DEFINE VARIABLE v-dep                 LIKE po-ordl.s-len NO-UNDO.
+DEFINE VARIABLE dRFIDTag              AS DECIMAL       NO-UNDO.
+
+DEF VAR v-fgrecpt   AS LOG NO-UNDO. 
+DEF VAR tb_ret      AS LOG INIT YES NO-UNDO.
+DEF VAR v-loadtag   AS CHAR NO-UNDO .
+DEF VAR v-mult      AS INT NO-UNDO.
+DEF VAR v-cas-lab   AS LOG NO-UNDO.
+DEF VAR v-tags      AS DEC NO-UNDO.
+
+FIND FIRST sys-ctrl
+  WHERE sys-ctrl.company EQ cocode
+    AND sys-ctrl.name    EQ "FGRECPT"
+  NO-LOCK NO-ERROR.
+ASSIGN
+v-fgrecpt = AVAIL sys-ctrl AND sys-ctrl.char-fld EQ "LoadTag".
+
+FIND FIRST sys-ctrl
+  WHERE sys-ctrl.company EQ cocode
+    AND sys-ctrl.name    EQ "LOADTAG"
+  NO-LOCK NO-ERROR.
+IF AVAIL sys-ctrl THEN
+ASSIGN v-loadtag = sys-ctrl.char-fld
+       v-mult    = sys-ctrl.int-fld
+       v-cas-lab = sys-ctrl.log-fld
+       v-tags    = sys-ctrl.dec-fld.
+
+FIND b-fg-rctd WHERE ROWID(b-fg-rctd) EQ fg-rctd-row NO-LOCK NO-ERROR.
+FIND FIRST itemfg WHERE itemfg.company EQ cocode
+                    AND itemfg.i-no    EQ b-fg-rctd.i-no
+                  NO-LOCK NO-ERROR.
+
+
+CREATE loadtag.
+ASSIGN
+  loadtag.company      = cocode
+  loadtag.tag-no       = io-tag-no
+  loadtag.item-type    = NO /*FGitem*/
+  loadtag.job-no       = b-fg-rctd.job-no
+  loadtag.job-no2      = b-fg-rctd.job-no2
+  /*
+  loadtag.ord-no       = IF CAN-FIND(FIRST cust WHERE cust.company = cocode
+                                                  AND cust.cust-no     = itemfg.cust-no
+                                                  AND cust.active      = "X")
+                         THEN 0 ELSE b-fg-rctd.ord-no
+  */
+  loadtag.i-no         = CAPS(b-fg-rctd.i-no)
+  loadtag.i-name       = b-fg-rctd.i-name
+  loadtag.qty          = b-fg-rctd.qty
+  loadtag.qty-case     = b-fg-rctd.qty-case
+  loadtag.case-bundle  = b-fg-rctd.cases-stack
+  loadtag.pallet-count = IF b-fg-rctd.units-pallet GT 0 THEN 
+                            b-fg-rctd.qty MOD b-fg-rctd.units-pallet
+                         ELSE
+                            0
+  loadtag.partial      = IF b-fg-rctd.qty-case GT 0 THEN 
+                            b-fg-rctd.qty MOD b-fg-rctd.qty-case
+                         ELSE
+                            0
+  loadtag.sts          = "Printed" 
+  loadtag.tag-date     = TODAY
+  loadtag.tag-time     = TIME
+  loadtag.misc-dec[1]  = b-fg-rctd.tot-wt
+  /*
+  loadtag.misc-dec[2]  = b-fg-rctd.pallt-wt
+  loadtag.misc-char[2] = b-fg-rctd.lot
+  */
+  loadtag.po-no = INT(b-fg-rctd.po-no).
+
+IF v-fgrecpt AND tb_ret THEN loadtag.tot-cases  = (loadtag.pallet-COUNT - loadtag.partial) / loadtag.case-bundle.
+
+IF v-loadtag = "CentBox" THEN DO:
+  ASSIGN loadtag.loc     = itemfg.def-loc
+         loadtag.loc-bin = itemfg.def-loc-bin.
+  FIND FIRST fg-bin WHERE fg-bin.company EQ itemfg.company
+                      AND fg-bin.i-no    EQ itemfg.i-no
+                      AND fg-bin.job-no  EQ b-fg-rctd.job-no
+                      AND fg-bin.tag     EQ loadtag.tag-no
+                    NO-LOCK NO-ERROR.
+  IF AVAIL fg-bin THEN
+  ASSIGN loadtag.loc     = fg-bin.loc
+         loadtag.loc-bin = fg-bin.loc-bin.
+  
+END.
+ELSE RUN fg/autopost.p (ROWID(itemfg), b-fg-rctd.job-no, b-fg-rctd.job-no2,
+                        OUTPUT loadtag.loc , OUTPUT loadtag.loc-bin).
+
+IF RFIDTag-log THEN DO:
+  FIND FIRST oe-ctrl WHERE oe-ctrl.company = loadtag.company 
+                     NO-ERROR.
+  dRFIDTag = IF AVAIL oe-ctrl AND oe-ctrl.spare-char-1 <> ""
+             THEN dec(oe-ctrl.spare-char-1) ELSE 111110000000000000000001.
+  oe-ctrl.spare-char-1 = STRING(dRFIDTag + 1).
+  CREATE rfidtag.
+  ASSIGN rfidtag.company   = loadtag.company
+         rfidtag.item-type = loadtag.item-type
+         rfidtag.tag-no    = loadtag.tag-no
+         rfidtag.rfidtag   = STRING(dRFIDTag).
+  RELEASE oe-ctrl.
+END.
+
+
+FIND CURRENT loadtag NO-LOCK NO-ERROR.
+FIND CURRENT b-fg-rctd NO-LOCK NO-ERROR.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE get-next-tag B-table-Win 
+PROCEDURE get-next-tag :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEF INPUT PARAMETER ipc-i-no AS CHAR NO-UNDO.
+  DEF OUTPUT PARAMETER opc-next-tag AS CHAR NO-UNDO.
+  DEF BUFFER bf-loadtag FOR loadtag.
+  DEF VAR io-tag-no AS INT NO-UNDO.
+
+  FIND LAST bf-loadtag NO-LOCK
+      WHERE bf-loadtag.company     EQ cocode
+        AND bf-loadtag.item-type   EQ NO
+        AND bf-loadtag.is-case-tag EQ NO
+        AND bf-loadtag.tag-no      BEGINS ipc-i-no
+        AND SUBSTR(bf-loadtag.tag-no,1,15) EQ ipc-i-no
+      USE-INDEX tag NO-ERROR.
+
+  io-tag-no = (IF AVAIL bf-loadtag THEN INT(SUBSTR(bf-loadtag.tag-no,16,5)) ELSE 0) + 1.
+
+  opc-next-tag = STRING(CAPS(ipc-i-no),"x(15)") + STRING(io-tag-no,"99999").
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records B-table-Win  _ADM-SEND-RECORDS
 PROCEDURE send-records :
 /*------------------------------------------------------------------------------
@@ -1538,6 +2179,24 @@ PROCEDURE pGetRecord :
     
     IF AVAILABLE fg-rctd THEN
         oplRecord = TRUE .
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE get-current-qty B-table-Win 
+PROCEDURE get-current-qty :
+/*------------------------------------------------------------------------------
+              Purpose:     
+              Parameters:  <none>
+              Notes:       
+            ------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opcItem AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdQty AS DECIMAL NO-UNDO.
+    IF AVAILABLE fg-rctd THEN
+        ASSIGN opdQty  = fg-rctd.t-qty
+            opcItem = fg-rctd.i-no.
 
 END PROCEDURE.
 
