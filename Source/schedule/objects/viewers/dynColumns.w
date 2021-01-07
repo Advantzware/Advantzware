@@ -48,6 +48,7 @@ opRunAgain = NO.
 {{&includes}/sharedVars.i}
 {{&includes}/rptTables.i}
 {methods/template/brwcustomdef.i}
+{methods/defines/sortByDefs.i}
 
 DEFINE VARIABLE currentColumn AS HANDLE NO-UNDO.
 DEFINE VARIABLE moveColumns AS LOGICAL NO-UNDO.
