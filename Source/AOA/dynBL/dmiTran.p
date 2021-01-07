@@ -28,6 +28,7 @@
 PROCEDURE createTtblProdAce:
     DEFINE VARIABLE cChargeCode           AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cProdAceBlankEmployee AS CHARACTER NO-UNDO INITIAL "ProdAce".
+    DEFINE VARIABLE cShift                AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cState                AS CHARACTER NO-UNDO.
     DEFINE VARIABLE idx                   AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iJobMchID             AS INTEGER   NO-UNDO.
@@ -66,6 +67,13 @@ PROCEDURE createTtblProdAce:
                 cChargeCode = job-code.code
                 .
         END. /* if dt and dt reason given */
+        RUN Get-Shift (
+            mach.company,
+            mach.sch-m-code,
+            dmiTrans.startTime,
+            "START",
+            OUTPUT cShift
+            ).
         CREATE ttblProdAce.
         ASSIGN
             ttblProdAce.prodAceResource      = mach.m-code
@@ -73,7 +81,7 @@ PROCEDURE createTtblProdAce:
             ttblProdAce.prodAceJob           = dmiTrans.jobID
             ttblProdAce.prodAceItem          = dmiTrans.productID
             ttblProdAce.prodAceSeq           = dmiTrans.seq
-            ttblProdAce.prodAceShift         = dmiTrans.shift
+            ttblProdAce.prodAceShift         = cShift
             ttblProdAce.prodAceShiftDate     = dmiTrans.shiftDate
             ttblProdAce.prodAceStartDate     = dmiTrans.startDate
             ttblProdAce.prodAceStartTime     = dmiTrans.startTime
@@ -117,3 +125,5 @@ PROCEDURE pBusinessLogic:
     RUN prodAceDetail.
 /*    RUN prodAceSummary.*/
 END PROCEDURE.
+
+{custom/shftproc.i}
