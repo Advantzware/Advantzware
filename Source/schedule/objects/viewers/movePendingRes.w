@@ -37,6 +37,7 @@ CREATE WIDGET-POOL.
 {{&includes}/ttblJob.i}
 {{&viewers}/includes/sharedVars.i NEW}
 {methods/template/brwcustomdef.i}
+{methods/defines/sortByDefs.i}
 
 /* Parameters Definitions ---                                           */
 
