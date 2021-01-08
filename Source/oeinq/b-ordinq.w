@@ -463,22 +463,22 @@ FUNCTION getTotalReturned RETURNS DECIMAL
 DEFINE BUTTON btn_go 
      LABEL "&Go" 
      SIZE 12 BY 1
-     FONT 6.
+     FONT 22.
 
 DEFINE BUTTON btn_next 
      LABEL "Show &Next" 
      SIZE 15 BY 1
-     FONT 6.
+     FONT 22.
 
 DEFINE BUTTON btn_prev 
      LABEL "Show &Previous" 
      SIZE 20 BY 1
-     FONT 6.
+     FONT 22.
 
 DEFINE BUTTON btn_show 
      LABEL "&Show All" 
      SIZE 12 BY 1
-     FONT 6.
+     FONT 22.
 
 DEFINE VARIABLE fiTotal AS INTEGER FORMAT "->,>>>,>>9":U INITIAL 0 
      LABEL "Total Records" 
@@ -543,7 +543,7 @@ DEFINE VARIABLE fi_po-no1 AS CHARACTER FORMAT "X(15)":U
 DEFINE VARIABLE fi_sort-by AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
      SIZE 35.2 BY 1
-     BGCOLOR 14 FONT 6 NO-UNDO.
+     BGCOLOR 14 FONT 22 NO-UNDO.
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -553,13 +553,13 @@ DEFINE VARIABLE tb_closed AS LOGICAL INITIAL NO
      LABEL "Closed" 
      VIEW-AS TOGGLE-BOX
      SIZE 13 BY 1
-     FGCOLOR 12 FONT 6 NO-UNDO.
+     FGCOLOR 12 FONT 22 NO-UNDO.
 
 DEFINE VARIABLE tb_open AS LOGICAL INITIAL YES 
      LABEL "Open" 
      VIEW-AS TOGGLE-BOX
      SIZE 13 BY 1
-     FONT 6 NO-UNDO.
+     FONT 22 NO-UNDO.
 
 DEFINE VARIABLE fi_ord-date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001
      LABEL "From Date"
@@ -708,28 +708,28 @@ DEFINE FRAME F-Main
      btnCalendar-1 AT ROW 3.38 COL 121
      "Job#" VIEW-AS TEXT
           SIZE 8 BY .71 AT ROW 1.24 COL 119
-          FGCOLOR 9 FONT 6
+          FGCOLOR 9 FONT 22
     /* "Sorted By:" VIEW-AS TEXT
           SIZE 12 BY 1 AT ROW 4.57 COL 64.8
           FONT 6 */
      "Order#" VIEW-AS TEXT
           SIZE 10 BY .71 AT ROW 1.24 COL 4
-          FGCOLOR 9 FONT 6
+          FGCOLOR 9 FONT 22
      "Customer#" VIEW-AS TEXT
           SIZE 13 BY .71 AT ROW 1.24 COL 18
-          FGCOLOR 9 FONT 6
+          FGCOLOR 9 FONT 22
      "FG Item#" VIEW-AS TEXT
           SIZE 13 BY .71 AT ROW 1.24 COL 36
-          FGCOLOR 9 FONT 6
+          FGCOLOR 9 FONT 22
      "Cust Part#" VIEW-AS TEXT
           SIZE 13 BY .71 AT ROW 1.24 COL 56
-          FGCOLOR 9 FONT 6
+          FGCOLOR 9 FONT 22
      "Order / Item PO#" VIEW-AS TEXT
           SIZE 18 BY .71 AT ROW 1.24 COL 75
-          FGCOLOR 9 FONT 6
+          FGCOLOR 9 FONT 22
      "Estimate#" VIEW-AS TEXT
           SIZE 12 BY .71 AT ROW 1.24 COL 96
-          FGCOLOR 9 FONT 6
+          FGCOLOR 9 FONT 22
     /* "Browser Col. Mode:" VIEW-AS TEXT
           SIZE 22.6 BY .62 AT ROW 4.81 COL 114.2 WIDGET-ID 6
           FONT 6*/

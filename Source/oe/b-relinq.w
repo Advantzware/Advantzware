@@ -247,17 +247,17 @@ FUNCTION get-shipto-zone RETURNS CHARACTER
 DEFINE BUTTON btn_go 
      LABEL "&Go" 
      SIZE 12 BY 1
-     FONT 6.
+     FONT 22.
 
 DEFINE BUTTON btn_next 
      LABEL "Show &Next" 
      SIZE 16 BY 1
-     FONT 6.
+     FONT 22.
 
 DEFINE BUTTON btn_prev 
      LABEL "Show &Previous" 
      SIZE 20 BY 1
-     FONT 6.
+     FONT 22.
 
 DEFINE VARIABLE fi_cust-no AS CHARACTER FORMAT "X(8)":U 
      VIEW-AS FILL-IN 
@@ -303,7 +303,7 @@ DEFINE VARIABLE fi_rel-no AS INTEGER FORMAT ">>>>>>>>":U INITIAL 0
 DEFINE VARIABLE fi_sort-by AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
      SIZE 29 BY 1
-     BGCOLOR 14 FONT 6 NO-UNDO.
+     BGCOLOR 14 FONT 22 NO-UNDO.
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -393,25 +393,25 @@ DEFINE FRAME F-Main
      btn_next AT ROW 3.62 COL 38
      "Job#" VIEW-AS TEXT
           SIZE 8 BY .71 AT ROW 1.24 COL 99
-          FGCOLOR 9 FONT 6
+          FGCOLOR 9 FONT 22
     /* "Sorted By:" VIEW-AS TEXT
           SIZE 12 BY 1 AT ROW 3.62 COL 59
           FONT 6 */
      "Order#" VIEW-AS TEXT
           SIZE 10 BY .71 AT ROW 1.24 COL 23
-          FGCOLOR 9 FONT 6
+          FGCOLOR 9 FONT 22
      "Customer#" VIEW-AS TEXT
           SIZE 13 BY .71 AT ROW 1.24 COL 37
-          FGCOLOR 9 FONT 6
+          FGCOLOR 9 FONT 22
      "FG Item#" VIEW-AS TEXT
           SIZE 13 BY .71 AT ROW 1.24 COL 55
-          FGCOLOR 9 FONT 6
+          FGCOLOR 9 FONT 22
      "Customer PO#" VIEW-AS TEXT
           SIZE 18 BY .71 AT ROW 1.24 COL 75
-          FGCOLOR 9 FONT 6
+          FGCOLOR 9 FONT 22
      "Release#" VIEW-AS TEXT
           SIZE 12 BY .71 AT ROW 1.24 COL 4
-          FGCOLOR 9 FONT 6
+          FGCOLOR 9 FONT 22
    /*  "BrwsrColMode:" VIEW-AS TEXT
           SIZE 18 BY .95 AT ROW 3.62 COL 112*/
      RECT-1 AT ROW 1 COL 1
