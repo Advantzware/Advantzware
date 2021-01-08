@@ -1,4 +1,6 @@
 PROCEDURE beforeinitialize:
+    
+    DEFINE VARIABLE cFileName AS CHARACTER NO-UNDO.
      
     ASSIGN
         hTempWinmn    = ?
@@ -12,10 +14,12 @@ PROCEDURE beforeinitialize:
         .
 
     IF VALID-HANDLE({&WINDOW-NAME}) THEN 
-    DO:             
+    DO:            
+        cFileName = ENTRY(1, THIS-PROCEDURE:FILE-NAME, ".").
+                
         FIND FIRST userWindow NO-LOCK 
              WHERE userWindow.usrId       EQ USERID('ASI')
-               AND userwindow.programname EQ THIS-PROCEDURE:FILE-NAME 
+               AND userwindow.programname EQ cFileName 
              NO-ERROR.
         IF AVAILABLE userWindow THEN 
         DO:   
@@ -23,32 +27,41 @@ PROCEDURE beforeinitialize:
             AND userWindow.sessionHeight GT SESSION:HEIGHT-PIXELS THEN 
                 
                 ASSIGN  
-                    {&WINDOW-NAME}:WIDTH-PIXELS  = userWindow.winWidth  - (userwindow.sessionwidth - SESSION:WIDTH-PIXELS)
-                    {&WINDOW-NAME}:HEIGHT-PIXELS = userWindow.winHeight - (userwindow.sessionheight - SESSION:HEIGHT-PIXELS)
+                    {&WINDOW-NAME}:WIDTH  = userWindow.winWidth
+                    {&WINDOW-NAME}:HEIGHT = userWindow.winHeight
+                    {&WINDOW-NAME}:WIDTH-PIXELS  = {&WINDOW-NAME}:WIDTH-PIXELS  - (userwindow.sessionwidth - SESSION:WIDTH-PIXELS)
+                    {&WINDOW-NAME}:HEIGHT-PIXELS = {&WINDOW-NAME}:HEIGHT-PIXELS - (userwindow.sessionheight - SESSION:HEIGHT-PIXELS)
+                    NO-ERROR 
                     .
                 
             IF  userWindow.sessionWidth  LT SESSION:WIDTH-PIXELS 
             AND userWindow.sessionHeight LT SESSION:HEIGHT-PIXELS THEN 
             
                 ASSIGN 
-                    {&WINDOW-NAME}:WIDTH-PIXELS = userWindow.winWidth - (userWindow.sessionWidth - SESSION:WIDTH-PIXELS)
-                    {&WINDOW-NAME}:HEIGHT-PIXELS = userwindow.winHeight - (userWindow.sessionHeight - SESSION:HEIGHT-PIXELS)
+                    {&WINDOW-NAME}:WIDTH  = userWindow.winWidth
+                    {&WINDOW-NAME}:HEIGHT = userWindow.winHeight
+                    {&WINDOW-NAME}:WIDTH-PIXELS = {&WINDOW-NAME}:WIDTH-PIXELS - (userWindow.sessionWidth - SESSION:WIDTH-PIXELS)
+                    {&WINDOW-NAME}:HEIGHT-PIXELS = {&WINDOW-NAME}:HEIGHT-PIXELS - (userWindow.sessionHeight - SESSION:HEIGHT-PIXELS)
+                    NO-ERROR 
                     .
                  
            IF  userWindow.sessionWidth   EQ SESSION:WIDTH-PIXELS 
            AND userWindow.sessionHeight  EQ SESSION:HEIGHT-PIXELS THEN DO:
           
                ASSIGN                 
-                   {&WINDOW-NAME}:WIDTH-PIXELS  = userWindow.winWidth
-                   {&WINDOW-NAME}:HEIGHT-PIXELS = userwindow.winHeight
+                   {&WINDOW-NAME}:WIDTH  = userWindow.winWidth
+                   {&WINDOW-NAME}:HEIGHT = userwindow.winHeight
+                   NO-ERROR 
                    .
           END.           
-               ASSIGN                 
-                   {&WINDOW-NAME}:X                          = userwindow.winxpos
-                   {&WINDOW-NAME}:Y                          = userwindow.winypos
-                   {&WINDOW-NAME}:VIRTUAL-HEIGHT-PIXELS      = {&WINDOW-NAME}:HEIGHT-PIXELS
-                   {&WINDOW-NAME}:VIRTUAL-WIDTH-PIXELS       = {&WINDOW-NAME}:WIDTH-PIXELS 
-                   .                 
+          
+          ASSIGN                 
+              {&WINDOW-NAME}:X                     = userwindow.winxpos
+              {&WINDOW-NAME}:Y                     = userwindow.winypos
+              {&WINDOW-NAME}:VIRTUAL-HEIGHT-PIXELS = {&WINDOW-NAME}:HEIGHT-PIXELS
+              {&WINDOW-NAME}:VIRTUAL-WIDTH-PIXELS  = {&WINDOW-NAME}:WIDTH-PIXELS 
+              NO-ERROR 
+              .                 
         END.                  
 
         hTempWinmn  = FRAME {&FRAME-NAME}:handle.
@@ -307,7 +320,7 @@ PROCEDURE afterinitialize:
              
         deTempColPos = toreposition.colpos.          
     END.
-
+    
     APPLY "WINDOW-RESIZED" TO {&WINDOW-NAME}. 
     lastBtnPos = deResizeVal.
 END PROCEDURE.
