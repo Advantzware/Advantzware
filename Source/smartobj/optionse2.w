@@ -64,7 +64,7 @@ Select_frac Select_add Select_appl Select_help
 DEFINE BUTTON Select_add 
      IMAGE-UP FILE "Graphics/32x32/add.png":U
      IMAGE-DOWN FILE "Graphics/32x32/add_hover.png":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/add_disable.png":U NO-FOCUS FLAT-BUTTON
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/add_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Add" 
      SIZE 7.8 BY 1.81 TOOLTIP "Add".
 

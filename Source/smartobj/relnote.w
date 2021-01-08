@@ -63,7 +63,7 @@ CREATE WIDGET-POOL.
 DEFINE BUTTON Select_dept2 
      IMAGE-UP FILE "Graphics/32x32/calendar_clock.png":U
 	 IMAGE-DOWN FILE "Graphics/32x32/calendar_clock_hover.png":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/calendar_clock_disable.png":U NO-FOCUS FLAT-BUTTON
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/calendar_clock_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Notes" 
      SIZE 8 BY 1.81 TOOLTIP "Date Change Notes".
 

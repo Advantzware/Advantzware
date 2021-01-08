@@ -64,21 +64,21 @@ Select_Security
 DEFINE BUTTON Select_Font_Color 
      IMAGE-UP FILE "Graphics/32x32/window_font.png":U
      IMAGE-DOWN FILE "Graphics/32x32/window_font_hover.png":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/window_font_disable.png":U NO-FOCUS FLAT-BUTTON
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/window_font_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Font_Color" 
      SIZE 7.8 BY 1.81 TOOLTIP "Set Font and Colors".
 
 DEFINE BUTTON Select_MF_Design 
      IMAGE-UP FILE "Graphics/32x32/compasses.png":U
      IMAGE-DOWN FILE "Graphics/32x32/compasses_hover.png":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/compasses_disable.png":U NO-FOCUS FLAT-BUTTON
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/compasses_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "MF_Design" 
      SIZE 7.8 BY 1.81 TOOLTIP "Misc Fields Design Screen".
 
 DEFINE BUTTON Select_Security 
      IMAGE-UP FILE "Graphics/32x32/spy.png":U
      IMAGE-DOWN FILE "Graphics/32x32/spy_hover.png":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/spy_disable.png":U NO-FOCUS FLAT-BUTTON
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/spy_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Security" 
      SIZE 7.8 BY 1.81 TOOLTIP "Security".
 

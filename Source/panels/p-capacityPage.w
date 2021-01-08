@@ -63,7 +63,7 @@ CREATE WIDGET-POOL.
 DEFINE BUTTON btnHTML 
      IMAGE-UP FILE "Graphics/32x32/html_tag.png":U
 	 IMAGE-down FILE "Graphics/32x32/html_tag_hover.png":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/html_tag_disable.png":U NO-FOCUS FLAT-BUTTON
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/html_tag_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "HTML" 
      SIZE 7.8 BY 1.81 TOOLTIP "Capacity Page".
 

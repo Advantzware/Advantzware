@@ -63,7 +63,7 @@ CREATE WIDGET-POOL.
 DEFINE BUTTON printInv 
      IMAGE-UP FILE "Graphics/32x32/printer_currency_dollar.png":U
 	 IMAGE-DOWN FILE "Graphics/32x32/printer_currency_dollar_hover.png":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/printer_currency_dollar_disable.png":U NO-FOCUS FLAT-BUTTON
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/printer_currency_dollar_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 7.8 BY 1.81 TOOLTIP "Print Invoice".
 

@@ -120,10 +120,10 @@ DEFINE TEMP-TABLE ttField NO-UNDO
     ~{&OPEN-QUERY-dbTables}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnResetField btnResetTable btnSaveField ~
-svFilter btnSaveTable dbTables ResetFromDefault dbFields ~
-svToggleAuditCreate svToggleAuditDelete svToggleAuditUpdate svStackTrace ~
-btnBeforeValueFilterClear toggleFields btnExit 
+&Scoped-Define ENABLED-OBJECTS btnBeforeValueFilterClear btnExit svFilter ~
+btnResetField dbTables dbFields btnResetTable svToggleAuditCreate ~
+btnSaveField svToggleAuditDelete svToggleAuditUpdate svStackTrace ~
+btnSaveTable toggleFields ResetFromDefault 
 &Scoped-Define DISPLAYED-OBJECTS svFilter svToggleAuditCreate ~
 svToggleAuditDelete svToggleAuditUpdate svStackTrace toggleFields 
 
@@ -151,18 +151,18 @@ DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btnBeforeValueFilterClear 
-     IMAGE-UP FILE "Graphics/16x16/navigate_cross.png":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/16x16/move_cross.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 4.4 BY 1.05 TOOLTIP "Clear Filter Value".
 
 DEFINE BUTTON btnExit DEFAULT 
-     IMAGE-UP FILE "Graphics/32x32/navigate_cross.png":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/exit_white.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 8 BY 1.91 TOOLTIP "Exit"
      BGCOLOR 8 FONT 4.
 
 DEFINE BUTTON btnOK AUTO-GO DEFAULT 
-     IMAGE-UP FILE "Graphics/32x32/navigate_check.png":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/floppy_disk.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 8 BY 1.91 TOOLTIP "Save"
      BGCOLOR 8 FONT 4.
@@ -289,43 +289,43 @@ ttTable.audit[4]
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
+     btnBeforeValueFilterClear AT ROW 2.43 COL 66 HELP
+          "Click to Clear Value Filter" WIDGET-ID 40
      btnOK AT ROW 1.48 COL 221 HELP
           "Use this function to ACCEPT selected field"
+     btnExit AT ROW 1.48 COL 229 HELP
+          "Use this function to CANCEL field selecition"
      btnSaveAsDefault AT ROW 1.48 COL 11 HELP
           "Save As Defaults" WIDGET-ID 46
-     btnResetField AT ROW 1.48 COL 151 WIDGET-ID 62
-     btnResetTable AT ROW 2.91 COL 8 WIDGET-ID 60
-     btnSaveField AT ROW 1.48 COL 146 WIDGET-ID 64
      svFilter AT ROW 2.43 COL 32 COLON-ALIGNED HELP
           "Enter Filter Value" WIDGET-ID 6
-     btnSaveTable AT ROW 2.91 COL 3 WIDGET-ID 58
+     btnResetField AT ROW 1.48 COL 151 WIDGET-ID 62
      dbTables AT ROW 3.86 COL 2 WIDGET-ID 100
-     ResetFromDefault AT ROW 1.48 COL 3 HELP
-          "Reset From Defaults" WIDGET-ID 48
      dbFields AT ROW 3.86 COL 145 WIDGET-ID 200
+     btnResetTable AT ROW 2.91 COL 8 WIDGET-ID 60
      svToggleAuditCreate AT ROW 3.91 COL 83 HELP
           "Select to Toggle Audit Create" WIDGET-ID 4
+     btnSaveField AT ROW 1.48 COL 146 WIDGET-ID 64
      svToggleAuditDelete AT ROW 3.91 COL 98 HELP
           "Select to Toggle Audit Delete" WIDGET-ID 8
      svToggleAuditUpdate AT ROW 3.91 COL 113 HELP
           "Select to Toggle Audit Update" WIDGET-ID 10
      svStackTrace AT ROW 3.91 COL 128 HELP
           "Select to Toggle Audit Stack Trace" WIDGET-ID 42
-     btnBeforeValueFilterClear AT ROW 2.43 COL 66 HELP
-          "Click to Clear Value Filter" WIDGET-ID 40
+     btnSaveTable AT ROW 2.91 COL 3 WIDGET-ID 58
      toggleFields AT ROW 3.91 COL 221.6 HELP
           "Toggle ON/OFF" WIDGET-ID 44
-     btnExit AT ROW 1.48 COL 229 HELP
-          "Use this function to CANCEL field selecition"
-     " CYAN : Field Audit Overrides Exist" VIEW-AS TEXT
-          SIZE 34 BY .62 AT ROW 2.91 COL 175 WIDGET-ID 56
-          BGCOLOR 11 
-     " PURPLE: Default Overridden" VIEW-AS TEXT
-          SIZE 29 BY .62 AT ROW 2.91 COL 115 WIDGET-ID 54
-          BGCOLOR 13 FGCOLOR 15 
+     ResetFromDefault AT ROW 1.48 COL 3 HELP
+          "Reset From Defaults" WIDGET-ID 48
      " RED : Default Value is OFF" VIEW-AS TEXT
           SIZE 27 BY .62 AT ROW 2.91 COL 87 WIDGET-ID 50
           BGCOLOR 12 FGCOLOR 15 
+     " PURPLE: Default Overridden" VIEW-AS TEXT
+          SIZE 29 BY .62 AT ROW 2.91 COL 115 WIDGET-ID 54
+          BGCOLOR 13 FGCOLOR 15 
+     " CYAN : Field Audit Overrides Exist" VIEW-AS TEXT
+          SIZE 34 BY .62 AT ROW 2.91 COL 175 WIDGET-ID 56
+          BGCOLOR 11 
      " GREEN : Default Value is ON" VIEW-AS TEXT
           SIZE 29 BY .62 AT ROW 2.91 COL 145 WIDGET-ID 52
           BGCOLOR 10 
@@ -382,8 +382,8 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME DEFAULT-FRAME
    FRAME-NAME                                                           */
-/* BROWSE-TAB dbTables btnSaveTable DEFAULT-FRAME */
-/* BROWSE-TAB dbFields ResetFromDefault DEFAULT-FRAME */
+/* BROWSE-TAB dbTables btnResetField DEFAULT-FRAME */
+/* BROWSE-TAB dbFields dbTables DEFAULT-FRAME */
 /* SETTINGS FOR BUTTON btnOK IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
 ASSIGN 
@@ -844,10 +844,10 @@ PROCEDURE enable_UI :
   DISPLAY svFilter svToggleAuditCreate svToggleAuditDelete svToggleAuditUpdate 
           svStackTrace toggleFields 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE btnResetField btnResetTable btnSaveField svFilter btnSaveTable 
-         dbTables ResetFromDefault dbFields svToggleAuditCreate 
-         svToggleAuditDelete svToggleAuditUpdate svStackTrace 
-         btnBeforeValueFilterClear toggleFields btnExit 
+  ENABLE btnBeforeValueFilterClear btnExit svFilter btnResetField dbTables 
+         dbFields btnResetTable svToggleAuditCreate btnSaveField 
+         svToggleAuditDelete svToggleAuditUpdate svStackTrace btnSaveTable 
+         toggleFields ResetFromDefault 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.

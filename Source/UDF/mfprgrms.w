@@ -121,19 +121,19 @@ DEFINE BUTTON btnClearSrchPrgTitle
      SIZE 4.2 BY 1 TOOLTIP "Clear Program Search".
 
 DEFINE BUTTON btnExit AUTO-END-KEY 
-     IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/exit_white.png":U NO-FOCUS FLAT-BUTTON
      LABEL "E&xit" 
      SIZE 8 BY 1.91 TOOLTIP "Exit"
      FONT 4.
 
 DEFINE BUTTON btnRestore 
-     IMAGE-UP FILE "Graphics/32x32/refresh.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/undo_32.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Reset" 
      SIZE 8 BY 1.91 TOOLTIP "Reset"
      FONT 4.
 
 DEFINE BUTTON btnSave AUTO-GO 
-     IMAGE-UP FILE "Graphics/32x32/floppy_disk.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/floppy_disk.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Save" 
      SIZE 8 BY 1.91 TOOLTIP "Save"
      FONT 4.
@@ -428,6 +428,11 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
+
+&Scoped-define sdBrowseName browseMFPrgrms
+{methods/template/brwcustom2.i 1}
+&Scoped-define sdBrowseName browsePrgrms
+{methods/template/brwcustom2.i 2}
 
 /* Parent the dialog-box to the ACTIVE-WINDOW, if there is no parent.   */
 IF VALID-HANDLE(ACTIVE-WINDOW) AND FRAME {&FRAME-NAME}:PARENT eq ?

@@ -18,21 +18,9 @@
 
 /* ***************************  Definitions  ************************** */
 
-IF CURRENT-RESULT-ROW("{&BROWSE-NAME}") MOD 2 EQ 0 THEN
-  DO iCnt = 1 TO NUM-ENTRIES(cColHandList, ","): 
-      hColumnRowColor = HANDLE(ENTRY(iCnt,cColHandList,",")).
-      IF VALID-HANDLE(hColumnRowColor) THEN
-         hColumnRowColor:BGCOLOR = 25.   
-  END. 
-  ELSE
-  DO iCnt = 1 TO NUM-ENTRIES(cColHandList, ","):
-      hColumnRowColor = HANDLE(ENTRY(iCnt,cColHandList,",")).
-      IF VALID-HANDLE(hColumnRowColor) THEN
-         hColumnRowColor:BGCOLOR = 26.
-  END.
-
-
-
-
-
-
+DO iCnt = 1 TO NUM-ENTRIES(cColHandList, ","):
+    hColumnRowColor = HANDLE(ENTRY(iCnt,cColHandList,",")).
+    IF VALID-HANDLE(hColumnRowColor) THEN
+    hColumnRowColor:BGCOLOR = IF CURRENT-RESULT-ROW("{&BROWSE-NAME}") MOD 2 EQ 0 THEN 25
+                              ELSE 26.   
+END. 
