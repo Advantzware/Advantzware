@@ -747,7 +747,9 @@
        b-fg-bin.case-count   = {2}.qty-case
        b-fg-bin.units-pallet = fg-bin.units-pallet
        b-fg-bin.cases-unit   = fg-bin.cases-unit
-       b-fg-bin.po-no        = {2}.po-no.
+       b-fg-bin.po-no        = {2}.po-no       
+       b-fg-bin.onHold       = fg-bin.onHold
+       b-fg-bin.statusID     = fg-bin.statusID .	
     END.
     IF {2}.po-no GT "" THEN
         b-fg-bin.po-no = {2}.po-no.
