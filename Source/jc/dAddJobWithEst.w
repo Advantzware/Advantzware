@@ -82,6 +82,7 @@ DEFINE VARIABLE cStackCode       AS CHARACTER NO-UNDO .
 DEFINE VARIABLE iOldQty          AS INTEGER   NO-UNDO .
 DEFINE VARIABLE lShowMessage     AS LOGICAL   NO-UNDO .
 DEFINE VARIABLE dMachBlankSqFt   AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE cJobQueueURL     AS CHARACTER NO-UNDO.
 
 
 DEFINE BUFFER bf-eb FOR eb.
@@ -143,6 +144,19 @@ dtEstCom cEstNo iItem dTotSqFt iMolds dUtilization tb_auto
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
+
+/* ************************  Function Prototypes ********************** */
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetJobQueueURL D-Dialog
+FUNCTION fGetJobQueueURL RETURNS CHARACTER PRIVATE
+  (ipcCompany AS CHARACTER) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 
 
@@ -684,7 +698,9 @@ DO:
 ON CHOOSE OF btn-viewjob IN FRAME D-Dialog /* View Job Queue */
 DO:
                                                
-    END.
+    OS-COMMAND NO-WAIT START VALUE(cJobQueueURL).
+
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -941,8 +957,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     RUN enable_UI.
     {methods/nowait.i}     
     DO WITH FRAME {&frame-name}:  
-        
-        DISABLE btn-viewjob btn-sel-head tb_auto.
+        cJobQueueURL = fGetJobQueueURL(cocode).
+        IF cJobQueueURL EQ "" THEN DISABLE btn-viewjob.
+        DISABLE btn-sel-head tb_auto.
         ASSIGN
          cJobNo:HIDDEN = YES
          dtCreatedDate:HIDDEN = YES 
@@ -1393,7 +1410,7 @@ PROCEDURE pImportRemaingBalance :
     FOR EACH job-mch NO-LOCK
          WHERE job-mch.company EQ cocode
          AND job-mch.m-code EQ cMachineCode 
-         BY job-mch.end-date DESC BY job-mch.end-time :
+         BY job-mch.end-date DESC BY job-mch.end-time DESC :
          
         iJob = job-mch.job .
         LEAVE.
@@ -1472,3 +1489,29 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+/* ************************  Function Implementations ***************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetJobQueueURL D-Dialog
+FUNCTION fGetJobQueueURL RETURNS CHARACTER PRIVATE
+  ( ipcCompany AS CHARACTER  ):
+/*------------------------------------------------------------------------------
+ Purpose: Returns NK1 value of the JobQueueURL setting
+ Notes:
+------------------------------------------------------------------------------*/
+	DEFINE VARIABLE cURL AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lFound AS LOGICAL NO-UNDO.
+    
+    RUN sys/ref/nk1look.p (
+        g_company,"JobQueueURL","C",NO,NO,"","",
+        OUTPUT cURL, OUTPUT lFound).
+    
+	RETURN cURL.
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
