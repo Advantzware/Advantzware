@@ -1076,6 +1076,7 @@ PROCEDURE local-change-page:
         RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostSourceFrom = ""' ).
         RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCost=""').
         RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostType = ""' ).
+        RUN show-current-page IN h_folder ("7").
         
         RETURN.     
     END.

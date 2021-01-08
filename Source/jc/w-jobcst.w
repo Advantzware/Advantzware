@@ -31,6 +31,7 @@ CREATE WIDGET-POOL.
 &SCOPED-DEFINE h_Object04 h_p-updsav-3
 &SCOPED-DEFINE h_Object05 h_p-updsav-2
 &SCOPED-DEFINE h_Object06 h_p-farmh
+&SCOPED-DEFINE h_Object07 h_vp-tandm
 
 
 /* Parameters Definitions ---                                           */

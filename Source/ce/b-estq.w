@@ -300,17 +300,17 @@ FUNCTION get-type RETURNS CHARACTER
 DEFINE BUTTON btn_go 
      LABEL "&Go" 
      SIZE 14 BY 1
-     FONT 6.
+     FONT 22.
 
 DEFINE BUTTON btn_next 
      LABEL "Show &Next" 
      SIZE 16 BY 1
-     FONT 6.
+     FONT 22.
 
 DEFINE BUTTON btn_prev 
      LABEL "Show &Previous" 
      SIZE 20 BY 1
-     FONT 6.
+     FONT 22.
 
 DEFINE VARIABLE begin_cust-no AS CHARACTER FORMAT "X(8)":U 
      VIEW-AS FILL-IN 
@@ -359,7 +359,7 @@ DEFINE VARIABLE vi_est-date AS DATE FORMAT "99/99/9999":U
 DEFINE VARIABLE vi_est-no AS CHARACTER FORMAT "x(8)":U 
      VIEW-AS FILL-IN 
      SIZE 15 BY 1
-     BGCOLOR 15 FONT 2 NO-UNDO.
+     BGCOLOR 15 FONT 22 NO-UNDO.
 
 DEFINE VARIABLE vi_len AS DECIMAL FORMAT "->>,>>9.99999":U INITIAL 0 
      VIEW-AS FILL-IN 
@@ -527,8 +527,8 @@ DEFINE FRAME F-Main
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
      "Style" VIEW-AS TEXT
           SIZE 9 BY .62 AT ROW 1.24 COL 73
-          FGCOLOR 9 FONT 6
-    /* "Sort By:" VIEW-AS TEXT
+          FGCOLOR 9 FONT 22
+              /* "Sort By:" VIEW-AS TEXT
           SIZE 9.8 BY .62 AT ROW 5.29 COL 73
           FONT 6 */
      "to" VIEW-AS TEXT
@@ -542,24 +542,24 @@ DEFINE FRAME F-Main
           FONT 6*/
      "Customer" VIEW-AS TEXT
           SIZE 13 BY .62 AT ROW 1.24 COL 17
-          FGCOLOR 9 FONT 6
+          FGCOLOR 9 FONT 22
      "Die # / Cad # / Plate #" VIEW-AS TEXT
           SIZE 28 BY .62 AT ROW 1.24 COL 118
-          FGCOLOR 9 FONT 6
+          FGCOLOR 9 FONT 22
      "L x W x D" VIEW-AS TEXT
           SIZE 13 BY .62 AT ROW 1.24 COL 96
-          FGCOLOR 9 FONT 6
+          FGCOLOR 9 FONT 22
      "FG Item# / Name" VIEW-AS TEXT
           SIZE 20 BY .62 AT ROW 1.24 COL 51
-          FGCOLOR 9 FONT 6
+          FGCOLOR 9 FONT 22
      "Estimate" VIEW-AS TEXT
           SIZE 11 BY .67 AT ROW 1.24 COL 3
-          FGCOLOR 9 FONT 6
+          FGCOLOR 9 FONT 22
      "to" VIEW-AS TEXT
           SIZE 3 BY 1 AT ROW 2.91 COL 101
      "Customer Part#" VIEW-AS TEXT
           SIZE 19 BY .62 AT ROW 1.24 COL 31
-          FGCOLOR 9 FONT 6
+          FGCOLOR 9 FONT 22
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
