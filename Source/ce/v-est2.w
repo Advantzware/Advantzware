@@ -1449,7 +1449,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ef.m-code V-table-Win
 ON LEAVE OF ef.m-code IN FRAME fold /* Machine */
 DO:
-
+    DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
     IF LASTKEY = -1 THEN RETURN.
 
     IF ll-is-sheet-calc THEN DO:
@@ -1465,15 +1465,10 @@ DO:
               ef.lsh-len:screen-value = "0".
     END.
 
-    IF LASTKEY <> -1 AND ef.m-code:screen-value <> "" AND
-       NOT CAN-FIND (FIRST mach WHERE mach.company = gcompany AND
-                                      mach.loc = eb.loc AND
-                                      mach.m-code = ef.m-code:screen-value)
-    THEN DO:
-    {&methods/lValidateError.i YES}
-         MESSAGE "Invalid Machine Code. Try Help." VIEW-AS ALERT-BOX ERROR.
-         RETURN NO-APPLY.
-    {&methods/lValidateError.i NO}
+    IF LASTKEY <> -1 AND ef.m-code:screen-value <> "" THEN DO:
+         RUN valid-mach(OUTPUT lReturnError) NO-ERROR.
+         IF lReturnError THEN RETURN NO-APPLY.
+       
     END.
 
     IF ll-auto-calc-selected THEN RUN auto-calc2.  /* from ce/uest2.p */
@@ -2725,23 +2720,17 @@ PROCEDURE local-update-record :
   DEF VAR hd1 AS HANDLE NO-UNDO.
   DEF VAR hd2 AS HANDLE NO-UNDO.
   DEF VAR li AS INT NO-UNDO.
-
+  DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
   DEF BUFFER bf-eb FOR eb.
 
 {&methods/lValidateError.i YES}
   /* Code placed here will execute PRIOR to standard behavior. */
   /* ==== Folding  item validation ======== */
   DO WITH FRAME {&frame-name} :  /* validation */
-    IF ef.m-code:screen-value <> "" AND
-       NOT CAN-FIND (FIRST mach WHERE mach.company = gcompany AND
-                                      mach.loc = eb.loc AND
-                                      mach.m-code = ef.m-code:screen-value)
-    THEN DO:
-         MESSAGE "Invalid Machine Code. Try Help." VIEW-AS ALERT-BOX ERROR.
-         APPLY "Entry" TO ef.m-code.
-         RETURN NO-APPLY.
-    END.
-    ELSE IF ef.m-code:screen-value = "" THEN ef.m-dscr:screen-value = "". 
+  
+     RUN valid-mach(OUTPUT lReturnError) NO-ERROR.
+     IF lReturnError THEN RETURN NO-APPLY.    
+    
 
     RUN new-m-code.
 
@@ -4030,7 +4019,44 @@ PROCEDURE pShowHideCostFiled :
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME 
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-mach V-table-Win 
+PROCEDURE valid-mach :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
+  {methods/lValidateError.i YES}
+  DO WITH FRAME {&FRAME-NAME}:
+     IF ef.m-code:SCREEN-VALUE NE "" THEN
+        DO:
+          FIND FIRST mach NO-LOCK
+                    WHERE mach.company = gcompany and
+                    mach.m-code = ef.m-code:SCREEN-VALUE NO-ERROR.
+               IF NOT AVAIL mach THEN
+               DO:
+                    MESSAGE "Invalid Machine Code. Try Help." VIEW-AS ALERT-BOX ERROR.
+                    APPLY "entry" TO ef.m-code.
+                    ef.m-dscr:screen-value = "".
+                    oplReturnError = YES.
+               END.
+               IF AVAIL mach AND mach.loc NE eb.loc THEN DO:
+                    MESSAGE "Invalid Machine Code as Estimate Location is " +  eb.loc + " and Machine Location is " + mach.loc + "." + "  Machine must be in the same location as estimate." VIEW-AS ALERT-BOX ERROR.
+                    APPLY "entry" TO ef.m-code.
+                    ef.m-dscr:screen-value = "".
+                    oplReturnError = YES.
+          END.
+        END.
+     END.
+
+  {methods/lValidateError.i NO}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 /* ************************  Function Implementations ***************** */
 
