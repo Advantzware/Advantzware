@@ -134,7 +134,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 204.8
          VIRTUAL-HEIGHT     = 34.33
          VIRTUAL-WIDTH      = 204.8
-         RESIZE             = no
+         RESIZE             = yes
          SCROLL-BARS        = no
          STATUS-AREA        = no
          BGCOLOR            = ?
@@ -215,7 +215,15 @@ END.
 /* ***************************  Main Block  *************************** */
 /* Include custom  Main Block code for SmartWindows. */
 {src/adm/template/windowmn.i}
-
+IF THIS-PROCEDURE:FILE-NAME = "windows/w-qtest.w" THEN DO:    
+/* Set the option frame size and colour to give blue background to icons and 
+      add the handle of scope define object to temptable for resizizng */
+    RUN beforeinitialize IN THIS-PROCEDURE NO-ERROR.
+/* Add the handle of all smart object to be resized/shifted on resize to the temptable and 
+          Shift all the icons towards right */
+    RUN afterinitialize IN THIS-PROCEDURE NO-ERROR.  
+END.  
+{custom/initializeprocs.i}
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

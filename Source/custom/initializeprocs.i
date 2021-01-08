@@ -1,7 +1,4 @@
 PROCEDURE beforeinitialize:
-    
-    DEFINE VARIABLE cFileName AS CHARACTER NO-UNDO.
-     
     ASSIGN
         hTempWinmn    = ?
         deResizeVal   = 0
@@ -14,56 +11,21 @@ PROCEDURE beforeinitialize:
         .
 
     IF VALID-HANDLE({&WINDOW-NAME}) THEN 
-    DO:            
-        cFileName = ENTRY(1, THIS-PROCEDURE:FILE-NAME, ".").
-                
-        FIND FIRST userWindow NO-LOCK 
-             WHERE userWindow.usrId       EQ USERID('ASI')
-               AND userwindow.programname EQ cFileName 
-             NO-ERROR.
-        IF AVAILABLE userWindow THEN 
-        DO:   
-            IF  userWindow.sessionWidth  GT SESSION:WIDTH-PIXELS 
-            AND userWindow.sessionHeight GT SESSION:HEIGHT-PIXELS THEN 
-                
-                ASSIGN  
-                    {&WINDOW-NAME}:WIDTH  = userWindow.winWidth
-                    {&WINDOW-NAME}:HEIGHT = userWindow.winHeight
-                    {&WINDOW-NAME}:WIDTH-PIXELS  = {&WINDOW-NAME}:WIDTH-PIXELS  - (userwindow.sessionwidth - SESSION:WIDTH-PIXELS)
-                    {&WINDOW-NAME}:HEIGHT-PIXELS = {&WINDOW-NAME}:HEIGHT-PIXELS - (userwindow.sessionheight - SESSION:HEIGHT-PIXELS)
-                    NO-ERROR 
-                    .
-                
-            IF  userWindow.sessionWidth  LT SESSION:WIDTH-PIXELS 
-            AND userWindow.sessionHeight LT SESSION:HEIGHT-PIXELS THEN 
-            
-                ASSIGN 
-                    {&WINDOW-NAME}:WIDTH  = userWindow.winWidth
-                    {&WINDOW-NAME}:HEIGHT = userWindow.winHeight
-                    {&WINDOW-NAME}:WIDTH-PIXELS = {&WINDOW-NAME}:WIDTH-PIXELS - (userWindow.sessionWidth - SESSION:WIDTH-PIXELS)
-                    {&WINDOW-NAME}:HEIGHT-PIXELS = {&WINDOW-NAME}:HEIGHT-PIXELS - (userWindow.sessionHeight - SESSION:HEIGHT-PIXELS)
-                    NO-ERROR 
-                    .
-                 
-           IF  userWindow.sessionWidth   EQ SESSION:WIDTH-PIXELS 
-           AND userWindow.sessionHeight  EQ SESSION:HEIGHT-PIXELS THEN DO:
-          
-               ASSIGN                 
-                   {&WINDOW-NAME}:WIDTH  = userWindow.winWidth
-                   {&WINDOW-NAME}:HEIGHT = userwindow.winHeight
-                   NO-ERROR 
-                   .
-          END.           
-          
-          ASSIGN                 
-              {&WINDOW-NAME}:X                     = userwindow.winxpos
-              {&WINDOW-NAME}:Y                     = userwindow.winypos
-              {&WINDOW-NAME}:VIRTUAL-HEIGHT-PIXELS = {&WINDOW-NAME}:HEIGHT-PIXELS
-              {&WINDOW-NAME}:VIRTUAL-WIDTH-PIXELS  = {&WINDOW-NAME}:WIDTH-PIXELS 
-              NO-ERROR 
-              .                 
-        END.                  
-
+    DO:
+        CREATE pagewinsize.
+        ASSIGN 
+            pagewinsize.pageNo    = "Default"
+            pagewinsize.WinWidth  = {&WINDOW-NAME}:WIDTH
+            pagewinsize.winHeight = {&WINDOW-NAME}:HEIGHT 
+            .  
+        // capture the original window size       
+        deOrigWinWidth = {&WINDOW-NAME}:WIDTH.
+        deOrigWinHeight = {&WINDOW-NAME}:HEIGHT.
+         
+        // set window position captured when it was closed 
+        RUN set-captured-window-position.
+              
+        // set the option frame with equal to window withd and set its color to blue
         hTempWinmn  = FRAME {&FRAME-NAME}:handle.
 
         IF VALID-HANDLE(hTempWinmn) THEN
@@ -83,6 +45,7 @@ PROCEDURE beforeinitialize:
                     hTempWinmn:VIRTUAL-HEIGHT-PIXELS = hTempWinmn:HEIGHT-PIXELS
                     hTempWinmn:VIRTUAL-WIDTH-PIXELS  = hTempWinmn:WIDTH-PIXELS
                     . 
+                // get all the objects handle created before initialization to be resized or repositioned     
                 FIND FIRST toreposition WHERE toreposition.widhand =  STRING(hTempWinmn) NO-ERROR.
                 IF NOT AVAILABLE toreposition THEN
                     CREATE toreposition.
@@ -102,8 +65,8 @@ PROCEDURE beforeinitialize:
 
     hTempWinmn = ?.
      
-
-    &IF DEFINED(h_Object01) NE 0 &THEN
+ // get all the scoped define objects handle created before initialization to be moved down oe right
+     &IF DEFINED(h_Object01) NE 0 &THEN
     FIND FIRST toreposition WHERE toreposition.widhand =  STRING({&h_Object01}) NO-ERROR.
     IF NOT AVAILABLE toreposition THEN
         CREATE toreposition.
@@ -248,17 +211,11 @@ END PROCEDURE.
 
 PROCEDURE afterinitialize:
 
-    CREATE pagewinsize.
-    ASSIGN 
-        pagewinsize.pageNo    = "Default"
-        pagewinsize.WinWidth  = {&WINDOW-NAME}:WIDTH
-        pagewinsize.winHeight = {&WINDOW-NAME}:HEIGHT 
-        . 
     RUN getlinktable IN adm-broker-hdl(
         INPUT THIS-PROCEDURE:UNIQUE-ID, 
         OUTPUT cSmartObjList
         ).
-
+   // get all the object handles that have bbe created after initialization
     DO iCntWidHand = 1 TO NUM-ENTRIES(cSmartObjList,","): 
                        
         hTempWinmn = HANDLE(ENTRY(iCntWidHand,cSmartObjList,",")).
@@ -301,7 +258,7 @@ PROCEDURE afterinitialize:
    
     IF VALID-HANDLE({&WINDOW-NAME}) THEN 
         deResizeVal = {&WINDOW-NAME}:WIDTH.
-       
+    // shift all the buttons in toolbar towards right   
     FOR EACH toreposition BY toreposition.colpos DESCENDING :
 
         IF toreposition.widtype = "Browse" THEN 
@@ -321,7 +278,113 @@ PROCEDURE afterinitialize:
         deTempColPos = toreposition.colpos.          
     END.
     
+    // set the window size to last captured size
+    RUN set-captured-window-size.
+    
+    // if window size have been changed the apply window resize trigger to repositioned or resize objects
+    IF  deOrigWinWidth NE  {&WINDOW-NAME}:WIDTH OR
+    deOrigWinHeight NE {&WINDOW-NAME}:HEIGHT
+    THEN
     APPLY "WINDOW-RESIZED" TO {&WINDOW-NAME}. 
+    
     lastBtnPos = deResizeVal.
 END PROCEDURE.
 
+
+&IF DEFINED(local-destroy) eq 0 &THEN 
+PROCEDURE local-destroy:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+     // capture the window position and size when window is closed and save to DB
+    {custom/userWindow.i}
+
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
+
+END PROCEDURE.
+&endif
+
+PROCEDURE set-captured-window-size:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cFileName AS CHARACTER NO-UNDO.
+    cFileName = ENTRY(1, THIS-PROCEDURE:FILE-NAME, ".").
+                
+    FIND FIRST userWindow NO-LOCK 
+        WHERE userWindow.usrId       EQ USERID('ASI')
+        AND userwindow.programname EQ cFileName 
+        NO-ERROR.
+    IF AVAILABLE userWindow THEN 
+    DO:   
+        IF  userWindow.sessionWidth  GT SESSION:WIDTH-PIXELS 
+            AND userWindow.sessionHeight GT SESSION:HEIGHT-PIXELS THEN 
+                
+            ASSIGN  
+                {&WINDOW-NAME}:WIDTH         = userWindow.winWidth
+                {&WINDOW-NAME}:HEIGHT        = userWindow.winHeight
+                {&WINDOW-NAME}:WIDTH-PIXELS  = {&WINDOW-NAME}:WIDTH-PIXELS  - (userwindow.sessionwidth - SESSION:WIDTH-PIXELS)
+                {&WINDOW-NAME}:HEIGHT-PIXELS = {&WINDOW-NAME}:HEIGHT-PIXELS - (userwindow.sessionheight - SESSION:HEIGHT-PIXELS)
+                    NO-ERROR 
+                .
+         
+        IF  userWindow.sessionWidth  LT SESSION:WIDTH-PIXELS 
+            AND userWindow.sessionHeight LT SESSION:HEIGHT-PIXELS THEN 
+            
+            ASSIGN 
+                {&WINDOW-NAME}:WIDTH         = userWindow.winWidth
+                {&WINDOW-NAME}:HEIGHT        = userWindow.winHeight
+                {&WINDOW-NAME}:WIDTH-PIXELS  = {&WINDOW-NAME}:WIDTH-PIXELS - (userWindow.sessionWidth - SESSION:WIDTH-PIXELS)
+                {&WINDOW-NAME}:HEIGHT-PIXELS = {&WINDOW-NAME}:HEIGHT-PIXELS - (userWindow.sessionHeight - SESSION:HEIGHT-PIXELS)
+                    NO-ERROR 
+                .
+                 
+        IF  userWindow.sessionWidth   EQ SESSION:WIDTH-PIXELS 
+            AND userWindow.sessionHeight  EQ SESSION:HEIGHT-PIXELS THEN 
+        DO:
+          
+            ASSIGN                 
+                {&WINDOW-NAME}:WIDTH  = userWindow.winWidth
+                {&WINDOW-NAME}:HEIGHT = userwindow.winHeight
+                   NO-ERROR 
+                .
+        END.           
+        IF deOrigWinWidth > {&WINDOW-NAME}:WIDTH THEN
+            {&WINDOW-NAME}:WIDTH = deOrigWinWidth.
+        IF deOrigWinHeight > {&WINDOW-NAME}:HEIGHT THEN
+            {&WINDOW-NAME}:HEIGHT = deOrigWinHeight. 
+            
+        ASSIGN                 
+           // {&WINDOW-NAME}:X                     = userwindow.winxpos
+          //  {&WINDOW-NAME}:Y                     = userwindow.winypos
+            {&WINDOW-NAME}:VIRTUAL-HEIGHT-PIXELS = {&WINDOW-NAME}:HEIGHT-PIXELS
+            {&WINDOW-NAME}:VIRTUAL-WIDTH-PIXELS  = {&WINDOW-NAME}:WIDTH-PIXELS 
+              NO-ERROR 
+            .                 
+    END.
+
+END PROCEDURE.
+
+PROCEDURE set-captured-window-position:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cFileName AS CHARACTER NO-UNDO.
+    cFileName = ENTRY(1, THIS-PROCEDURE:FILE-NAME, ".").
+                
+    FIND FIRST userWindow NO-LOCK 
+        WHERE userWindow.usrId       EQ USERID('ASI')
+        AND userwindow.programname EQ cFileName 
+        NO-ERROR.
+    IF AVAILABLE userWindow THEN  
+        ASSIGN                 
+            {&WINDOW-NAME}:X                     = userwindow.winxpos
+            {&WINDOW-NAME}:Y                     = userwindow.winypos
+              NO-ERROR 
+            .                 
+
+END PROCEDURE.

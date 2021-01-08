@@ -326,7 +326,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
+/*
 &IF DEFINED(local-destroy) EQ 0 &THEN 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy Include
 PROCEDURE local-destroy:
@@ -346,7 +346,7 @@ END PROCEDURE.
 &ANALYZE-RESUME
 &ENDIF.
 
-
+*/
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-initialize Include 
 PROCEDURE local-initialize :

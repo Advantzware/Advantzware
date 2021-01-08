@@ -147,7 +147,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 320
          VIRTUAL-HEIGHT     = 320
          VIRTUAL-WIDTH      = 320
-         MAX-BUTTON         = NO
+         MAX-BUTTON         = YES
          RESIZE             = YES
          SCROLL-BARS        = NO
          STATUS-AREA        = YES
@@ -573,6 +573,8 @@ PROCEDURE local-destroy :
   /* Code placed here will execute PRIOR to standard behavior. */
   IF v-calling-program  NE ? THEN
       RUN hide-estimate IN v-calling-program.
+      
+    {custom/userWindow.i}
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
 
