@@ -21,6 +21,8 @@
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
 
+USING jc.JobHeader.
+
 /* Create an unnamed pool to store all the widgets created 
      by this procedure. This is a good default which assures
      that this procedure's triggers and internal procedures 
@@ -30,7 +32,6 @@
 CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
-{custom/globdefs.i}
 
 /* Parameters Definitions ---                                           */
 
@@ -43,6 +44,9 @@ DEFINE VARIABLE hdJobDetails            AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hdJobDetailsWin         AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hdJobProcs              AS HANDLE    NO-UNDO.
 DEFINE VARIABLE cFormattedJobno         AS CHARACTER NO-UNDO.
+DEFINE VARIABLE oJobHeader              AS JobHeader NO-UNDO.
+
+oJobHeader = NEW JobHeader().
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -547,6 +551,23 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetJobHeader s-object
+PROCEDURE GetJobHeader:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opoJobHeader AS JobHeader NO-UNDO.
+
+    opoJobHeader = oJobHeader. 
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE No-Resize s-object 
 PROCEDURE No-Resize :
 /*------------------------------------------------------------------------------
@@ -654,9 +675,10 @@ PROCEDURE pInit :
     DO WITH FRAME {&FRAME-NAME}:
     END.
     
+    RUN spGetSessionParam ("Company", OUTPUT cCompany).
+    RUN spGetSessionParam ("Location", OUTPUT cLocation).
+    
     ASSIGN
-        cCompany                    = g_company
-        cLocation                   = g_loc
         fiJobNoLabel:SCREEN-VALUE   = "Job #:"
         fiFormNoLabel:SCREEN-VALUE  = "Form #:"
         fiBlankNoLabel:SCREEN-VALUE = "Blank #:"
@@ -694,16 +716,8 @@ PROCEDURE pJobScan PRIVATE :
 
     btJobDetails:SENSITIVE = FALSE.
 
-    RUN ValidateJob IN hdJobProcs (
-        INPUT  ipcCompany,
-        INPUT  ipcJobNo,
-        INPUT  "", /* Blank Machine Code */
-        INPUT  ipiJobNo2,
-        INPUT  ipiFormNo,
-        INPUT  ipiBlankNo,
-        OUTPUT lValidJob
-        ).
-
+    lValidJob = oJobHeader:SetContext (INPUT ipcCompany, INPUT ipcJobNo, INPUT ipiJobNo2, INPUT ipiFormNo, INPUT ipiBlankNo).
+    
     btJobDetails:SENSITIVE = lValidJob.
 
     IF NOT lValidJob THEN DO:
@@ -735,16 +749,8 @@ PROCEDURE pOnValueChangeOfJobDeails PRIVATE :
     DO WITH FRAME {&FRAME-NAME}:
     END.
 
-    RUN ValidateJob IN hdJobProcs (
-        INPUT  cCompany,
-        INPUT  cFormattedJobno,
-        INPUT  "", /* Blank Machine Code */
-        INPUT  INTEGER(cbJobNo2:SCREEN-VALUE),
-        INPUT  INTEGER(cbFormNo:SCREEN-VALUE),
-        INPUT  INTEGER(cbBlankNo:SCREEN-VALUE),
-        OUTPUT lValidJob
-        ).
-
+    lValidJob = oJobHeader:SetContext (INPUT cCompany, INPUT cFormattedJobno, INPUT INTEGER(cbJobNo2:SCREEN-VALUE), INPUT INTEGER(cbFormNo:SCREEN-VALUE), INPUT INTEGER(cbBlankNo:SCREEN-VALUE)).
+    
     IF NOT lValidJob THEN DO: 
         cMessage = "Invalid Job Entry".
         MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.

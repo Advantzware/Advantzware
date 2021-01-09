@@ -34,8 +34,13 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-DEFINE VARIABLE cUserFieldList AS CHARACTER NO-UNDO INIT "Overs,Partials,Unit Weight,Pallet Weight,Lot Number,SSCC,Item Description,Customer Part #,Location / Bin".
+DEFINE VARIABLE cUserFieldListFormat AS CHARACTER NO-UNDO INIT ",Overs|DECIMAL|>9.<<,Unit Weight|DECIMAL|>>>>>>9.<<<<<<,Pallet Weight|DECIMAL|>>>>>>9.<<<<<<,Lot Number|CHARACTER|X(20),SSCC|CHARACTER|X(30),Item Description|CHARACTER|X(30),Customer Part #|CHARACTER|X(30),Location / Bin|CHARACTER|X(20)".
 
+DEFINE TEMP-TABLE ttUserField NO-UNDO
+    FIELD fieldLabel  AS CHARACTER
+    FIELD fieldFormat AS CHARACTER
+    FIELD fieldType   AS CHARACTER
+    .
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -338,6 +343,23 @@ PROCEDURE pInit :
     DO WITH FRAME {&FRAME-NAME}:
     END.
     
+    DEFINE VARIABLE iUserFieldsCount AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cUserFieldList   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cUserFieldInfo   AS CHARACTER NO-UNDO.
+    
+    DO iUserFieldsCount = 1 TO NUM-ENTRIES(cUserFieldListFormat):
+        cUserFieldInfo = ENTRY (iUserFieldsCount, cUserFieldListFormat).
+        
+        CREATE ttUserField.
+        ASSIGN
+            ttUserField.fieldLabel = ENTRY(1, cUserFieldInfo, "|")
+            ttUserField.fieldType  = ENTRY(2, cUserFieldInfo, "|")
+            ttUserField.fieldType  = ENTRY(3, cUserFieldInfo, "|")
+            NO-ERROR.
+            
+        cUserFieldList = cUserFieldList + ttUserField.fieldLabel.
+    END.
+    
     ASSIGN
         cbUserField1:LIST-ITEMS = cUserFieldList
         cbUserField2:LIST-ITEMS = cUserFieldList
@@ -347,6 +369,138 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateUserField s-object
+PROCEDURE pUpdateUserField PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcUserField      AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcUserFieldValue AS CHARACTER NO-UNDO.  
+    DEFINE INPUT PARAMETER ipiUserFieldCount AS INTEGER   NO-UNDO. 
+    
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+    
+    FIND FIRST ttUserField
+         WHERE ttUserField.fieldLabel EQ ipcUserField
+         NO-ERROR.
+    IF ipiUserFieldCount EQ 1 THEN DO:
+        IF AVAILABLE ttUserField THEN
+            ASSIGN
+                cbUserField1:HIDDEN       = FALSE
+                cbUserField1:SCREEN-VALUE = ipcUserField
+                cbUserField1:SENSITIVE    = FALSE
+                fiUserField1:DATA-TYPE    = ttUserField.fieldType
+                fiUserField1:FORMAT       = ttUserField.fieldFormat
+                fiUserField1:SCREEN-VALUE = ipcUserFieldValue
+                fiUserField1:SENSITIVE    = TRUE
+                .
+        ELSE
+            ASSIGN
+                cbUserField1:SENSITIVE    = FALSE
+                cbUserField1:HIDDEN       = TRUE
+                fiUserField1:SENSITIVE    = FALSE
+                fiUserField1:HIDDEN       = TRUE
+                .            
+    END.
+    ELSE IF ipiUserFieldCount EQ 2 THEN DO:
+        IF AVAILABLE ttUserField THEN
+            ASSIGN
+                cbUserField2:HIDDEN       = FALSE
+                cbUserField2:SCREEN-VALUE = ipcUserField
+                cbUserField2:SENSITIVE    = FALSE
+                fiUserField2:DATA-TYPE    = ttUserField.fieldType
+                fiUserField2:FORMAT       = ttUserField.fieldFormat
+                fiUserField2:SCREEN-VALUE = ipcUserFieldValue
+                fiUserField2:SENSITIVE    = TRUE
+                .
+        ELSE
+            ASSIGN
+                cbUserField2:SENSITIVE    = FALSE
+                cbUserField2:HIDDEN       = TRUE
+                fiUserField2:SENSITIVE    = FALSE
+                fiUserField2:HIDDEN       = TRUE
+                .
+    END.            
+    ELSE IF ipiUserFieldCount EQ 3 THEN DO:
+        IF AVAILABLE ttUserField THEN
+            ASSIGN
+                cbUserField3:HIDDEN       = FALSE
+                cbUserField3:SCREEN-VALUE = ipcUserField
+                cbUserField3:SENSITIVE    = FALSE
+                fiUserField3:DATA-TYPE    = ttUserField.fieldType
+                fiUserField3:FORMAT       = ttUserField.fieldFormat
+                fiUserField3:SCREEN-VALUE = ipcUserFieldValue
+                fiUserField3:SENSITIVE    = TRUE
+                .
+        ELSE
+            ASSIGN
+                cbUserField3:SENSITIVE    = FALSE
+                cbUserField3:HIDDEN       = TRUE
+                fiUserField3:SENSITIVE    = FALSE
+                fiUserField3:HIDDEN       = TRUE
+                .  
+    END.
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE SetUserFields s-object
+PROCEDURE SetUserFields:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcUserField1      AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcUserField2      AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcUserField3      AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcUserFieldValue1 AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcUserFieldValue2 AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcUserFieldValue3 AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE cUserField AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cUserValue AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iCount     AS INTEGER   NO-UNDO.
+    
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+        
+    DO iCount = 1 TO 3:
+        IF iCount EQ 1 THEN
+            ASSIGN
+                cUserField = ipcUserField1
+                cUserValue = ipcUserFieldValue1
+                .
+        ELSE IF iCount EQ 2 THEN
+            ASSIGN
+                cUserField = ipcUserField2
+                cUserValue = ipcUserFieldValue2
+                .
+        ELSE IF iCount EQ 3 THEN
+            ASSIGN
+                cUserField = ipcUserField3
+                cUserValue = ipcUserFieldValue3
+                .
+        
+        RUN pUpdateUserField (
+            INPUT cUserField,
+            INPUT cUserValue,
+            INPUT iCount
+            ).  
+    END.
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed s-object 
 PROCEDURE state-changed :

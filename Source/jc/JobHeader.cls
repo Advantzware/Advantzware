@@ -29,9 +29,13 @@ CLASS jc.JobHeader:
             ).
     END CONSTRUCTOR.
     
+    CONSTRUCTOR PUBLIC JobHeader():
+    
+    END CONSTRUCTOR.
+    
     METHOD PUBLIC LOGICAL SetContext (INPUT ipcCompany AS CHARACTER, INPUT ipcJobNo AS CHARACTER, INPUT ipiJobNo2 AS INTEGER, INPUT ipiFormNo AS INTEGER, INPUT ipiBlankNo AS INTEGER):
         lIsAvailable = FALSE.
-        
+
         FIND FIRST bf-job NO-LOCK
              WHERE bf-job.company EQ ipcCompany
                AND bf-job.job-no  EQ ipcJobno
@@ -45,8 +49,10 @@ CLASS jc.JobHeader:
                    AND bf-job-hdr.frm      EQ ipiFormNo
                    AND bf-job-hdr.blank-no EQ ipiBlankNo
                  NO-ERROR.
-        IF AVAILABLE bf-job-hdr THEN
-            lIsAvailable = TRUE.        
+        
+        lIsAvailable = AVAILABLE bf-job AND AVAILABLE bf-job-hdr.    
+
+        RETURN lIsAvailable.    
     END METHOD.
     
 	METHOD PUBLIC CHARACTER GetValue(INPUT ipcType AS CHARACTER):	    
@@ -55,21 +61,29 @@ CLASS jc.JobHeader:
 	       RETURN "".
 	       	    
 	    CASE ipcType:
-	       WHEN "Job" THEN 
-	           RETURN STRING(bf-job-hdr.job).
-	       WHEN "JobNo" THEN
-	           RETURN STRING(bf-job-hdr.job-no).
-	       WHEN "JobNo2" THEN 
-               RETURN STRING(bf-job-hdr.job-no2).
-	       WHEN "Quantity" THEN 
-	           RETURN STRING(bf-job-hdr.qty).	           
-	       OTHERWISE
-	           RETURN "".
+	        WHEN "Company" THEN
+	            RETURN bf-job-hdr.company. 
+	        WHEN "Job" THEN 
+	            RETURN STRING(bf-job-hdr.job).
+	        WHEN "JobNo" THEN
+	            RETURN STRING(bf-job-hdr.job-no).
+	        WHEN "JobNo2" THEN 
+                RETURN STRING(bf-job-hdr.job-no2).
+            WHEN "FormNo" THEN 
+                RETURN STRING(bf-job-hdr.frm).
+            WHEN "BlankNo" THEN 
+                RETURN STRING(bf-job-hdr.blank-no).            
+	        WHEN "Quantity" THEN 
+	            RETURN STRING(bf-job-hdr.qty).	
+	        WHEN "FGItem" THEN
+	            RETURN bf-job-hdr.i-no.           
+	        OTHERWISE
+	            RETURN "".
 	    END.
 	END METHOD.
 
 	METHOD PUBLIC LOGICAL IsAvailable ():
-        RETURN lIsAvailable.	 
+        RETURN AVAILABLE bf-job-hdr.	 
 	END METHOD.
 
     

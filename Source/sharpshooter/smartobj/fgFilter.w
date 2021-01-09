@@ -20,6 +20,7 @@
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
+USING fg.ItemFG.
 
 /* Create an unnamed pool to store all the widgets created 
      by this procedure. This is a good default which assures
@@ -30,18 +31,21 @@
 CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
-{custom/globdefs.i}
 
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
 DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO.
 
+DEFINE VARIABLE oItemFG AS ItemFG NO-UNDO.
+
 DEFINE VARIABLE hdJobProcs AS HANDLE NO-UNDO.
 
 RUN jc/JobProcs.p PERSISTENT SET hdJobProcs.
 
-cCompany = g_company.
+RUN spGetSessionParam ("Company", OUTPUT cCompany).
+
+oItemFG = NEW ItemFG().
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -202,10 +206,9 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cbFGItem s-object
 ON VALUE-CHANGED OF cbFGItem IN FRAME F-Main /* FG Item # */
 DO:
-    RUN pUpdateFGItemName (
-        INPUT cCompany,
-        INPUT SELF:SCREEN-VALUE
-        ).
+    oItemFG:SetContext (INPUT cCompany, INPUT SELF:SCREEN-VALUE).
+    
+    RUN pUpdateFGItemName.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -375,6 +378,23 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetItemFG s-object
+PROCEDURE GetItemFG:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opoItemFG AS ItemFG NO-UNDO.
+
+    opoItemFG = oItemFG.
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE No-Resize s-object 
 PROCEDURE No-Resize :
 /*------------------------------------------------------------------------------
@@ -394,22 +414,11 @@ PROCEDURE pUpdateFGItemName PRIVATE :
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER ipcCompany AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcFGItem  AS CHARACTER NO-UNDO.
-    
-    DEFINE BUFFER bf-itemfg FOR itemfg.
-    
     DO WITH FRAME {&FRAME-NAME}:
     END.
     
-    fiFGItemName:SCREEN-VALUE = "".
-    
-    FIND FIRST bf-itemfg NO-LOCK
-         WHERE bf-itemfg.company EQ ipcCompany 
-           AND bf-itemfg.i-no    EQ ipcFGItem
-         NO-ERROR.    
-    IF AVAILABLE bf-itemfg THEN
-        fiFGItemName:SCREEN-VALUE = bf-itemfg.i-name.
+    fiFGItemName:SCREEN-VALUE = oItemFG:GetValue("ItemName").
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -448,7 +457,8 @@ PROCEDURE UpdateItemForJob :
     DEFINE INPUT  PARAMETER ipiFormNo  AS INTEGER   NO-UNDO.
     DEFINE INPUT  PARAMETER ipiBlankNo AS INTEGER   NO-UNDO.
     
-    DEFINE VARIABLE cItemList AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cItemList  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lValidItem AS LOGICAL   NO-UNDO.
     
     DO WITH FRAME {&FRAME-NAME}:
     END.
@@ -462,20 +472,20 @@ PROCEDURE UpdateItemForJob :
         INPUT-OUTPUT cItemList
         ).
     
-    IF cItemList NE "" THEN
-        RUN new-state (
-            INPUT "fgitem-valid"
-            ).
-                
     ASSIGN
         cbFGItem:LIST-ITEMS   = cItemList
         cbFGItem:SCREEN-VALUE = ENTRY(1, cItemList) 
         NO-ERROR.
-        
-    RUN pUpdateFGItemName (
-        INPUT ipcCompany,
-        INPUT cbFGItem:SCREEN-VALUE
-        ).
+    
+    lValidItem = oItemFG:SetContext (INPUT ipcCompany, INPUT cbFGItem:SCREEN-VALUE).
+
+    IF lValidItem THEN
+        RUN new-state (
+            INPUT "fgitem-valid"
+            ).
+    
+    
+    RUN pUpdateFGItemName.
     
     cbFGItem:SENSITIVE = TRUE.
 END PROCEDURE.

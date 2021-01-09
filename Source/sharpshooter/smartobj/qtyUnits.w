@@ -340,8 +340,8 @@ DO:
     RUN pUpdateQuantities (
         INPUT INTEGER(fiQuantity:SCREEN-VALUE),
         INPUT iOversPct,
-        INPUT 1,  /* Sub Units */
         INPUT INTEGER(SELF:SCREEN-VALUE),
+        INPUT 1,  /* Sub Units Per Unit */
         INPUT 0,  /* Partial */
         INPUT INTEGER(fiCopies:SCREEN-VALUE)
         ).      
@@ -583,6 +583,36 @@ PROCEDURE SetOversPercent:
     DEFINE INPUT  PARAMETER ipiOversPct AS INTEGER NO-UNDO.
 
     iOversPct = ipiOversPct.
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE SetQuantities s-object
+PROCEDURE SetQuantities:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipiBaseQuantity    AS INTEGER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiOvers           AS DECIMAL NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiSubUnits        AS INTEGER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiSubUnitsPerUnit AS INTEGER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiPartial         AS INTEGER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiCopies          AS INTEGER NO-UNDO.
+
+    RUN pUpdateQuantities(
+        INPUT ipiBaseQuantity,
+        INPUT ipiOvers,
+        INPUT ipiSubUnits,
+        INPUT ipiSubUnitsPerUnit,
+        INPUT ipiPartial,
+        INPUT ipiCopies
+        ).
+    
 END PROCEDURE.
 	
 /* _UIB-CODE-BLOCK-END */

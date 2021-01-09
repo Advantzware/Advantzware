@@ -1,5 +1,7 @@
 DEFINE {1} TEMP-TABLE ttLoadTag
-    FIELD   company         AS      CHARACTER       
+    FIELD   company         AS      CHARACTER     
+    FIELD   warehouseID     AS      CHARACTER 
+    FIELD   locationID      AS      CHARACTER  
     FIELD   orderID         LIKE    oe-ord.ord-no       
     FIELD   jobID           LIKE    oe-ordl.job-no      
     FIELD   jobID2          LIKE    oe-ordl.job-no2     
@@ -44,7 +46,8 @@ DEFINE {1} TEMP-TABLE ttLoadTag
     FIELD   upcNo           LIKE    eb.upc-no       
     FIELD   mult            AS      INTEGER     
     FIELD   estID           LIKE    oe-ordl.est-no      
-    FIELD   formNo          LIKE    oe-ordl.form-no     
+    FIELD   formNo          LIKE    oe-ordl.form-no    
+    FIELD   blankNo         LIKE    job-hdr.blank-no 
     FIELD   boxLen          AS      DECIMAL FORMAT  ">>>9.99<<<"
     FIELD   boxWid          AS      DECIMAL FORMAT  ">>>9.99<<<"
     FIELD   boxDep          AS      DECIMAL FORMAT  ">>>9.99<<<"
@@ -57,7 +60,7 @@ DEFINE {1} TEMP-TABLE ttLoadTag
     FIELD   sheetWieght     AS      DECIMAL FORMAT  ">>>9.99"
     FIELD   uom             LIKE    oe-ordl.pr-uom      
     FIELD   partial         AS      INTEGER FORMAT  ">>>,>>9"
-    FIELD   dontrunset      AS      LOGICAL
+    FIELD   dontRunSet      AS      LOGICAL
     FIELD   caseNo          LIKE    eb.cas-no       
     FIELD   prodNotes       LIKE    itemfg.prod-notes       
     FIELD   poID            LIKE    po-ord.po-no        
@@ -70,8 +73,8 @@ DEFINE {1} TEMP-TABLE ttLoadTag
     FIELD   qtyBefore       LIKE    oe-ordl.qty     
     FIELD   style           AS      CHARACTER       
     FIELD   styleDesc       AS      CHARACTER   FORMAT  "X(30)"
-    FIELD   orddeSC1        AS      CHARACTER   FORMAT  "X(30)"
-    FIELD   orddeSC2        AS      CHARACTER   FORMAT  "X(30)"
+    FIELD   orderDesc1      AS      CHARACTER   FORMAT  "X(30)"
+    FIELD   orderDesc2      AS      CHARACTER   FORMAT  "X(30)"
     FIELD   dueDateJob      AS      CHARACTER    
     FIELD   dueDateJobHdr   AS      CHARACTER   
     FIELD   isComponent     AS      LOGICAL     
@@ -88,5 +91,10 @@ DEFINE {1} TEMP-TABLE ttLoadTag
     FIELD   poLineID        AS      INTEGER     
     FIELD   zoneID          AS      CHARACTER       
     FIELD   broker          AS      LOGICAL     
-    FIELD   ipReturn        AS      LOGICAL     
+    FIELD   ipReturn        AS      LOGICAL
+    FIELD   extCost         AS      DECIMAL
+    FIELD   tagStatus       AS      CHARACTER
+    FIELD   recordSource    AS      CHARACTER
+    FIELD   recordID        AS      INTEGER
+    INDEX   recordID IS PRIMARY UNIQUE recordID
     .                   

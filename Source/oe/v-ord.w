@@ -264,6 +264,10 @@ DEFINE VARIABLE hdCustomerProcs AS HANDLE NO-UNDO.
 
 RUN system/CustomerProcs.p PERSISTENT SET hdCustomerProcs.
 
+/* The below variables are used in run_link.i */
+DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
+DEFINE VARIABLE pHandle  AS HANDLE    NO-UNDO.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -5384,7 +5388,7 @@ PROCEDURE local-disable-fields :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'disable-fields':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-
+  {methods/run_link.i "CONTAINER-SOURCE" "SetUpdateEnd"}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -5516,7 +5520,7 @@ PROCEDURE local-enable-fields :
   RUN release-shared-buffers.
   
 /*  ENABLE oe-ord.priority WITH FRAME {&FRAME-NAME}.*/
-
+  {methods/run_link.i "CONTAINER-SOURCE" "SetUpdateBegin"}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

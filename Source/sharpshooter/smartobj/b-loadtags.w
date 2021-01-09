@@ -168,6 +168,7 @@ DEFINE BROWSE br_table
       ttLoadTag.partial COLUMN-LABEL "Partial" WIDTH 12
       ttLoadTag.totalUnit FORMAT ">,>>>,>>9" COLUMN-LABEL "Total Qty!Per Pallet" WIDTH 15
       ttLoadTag.totalTags COLUMN-LABEL "No. of!Tags" WIDTH 12
+      ttLoadTag.totalUnit * ttLoadTag.totalTags @ iTotalQty FORMAT ">,>>>,>>9" COLUMN-LABEL "Total Qty"
       ttLoadTag.unitWeight COLUMN-LABEL "Unit!Wt" WIDTH 12
       ttLoadTag.palletWeight COLUMN-LABEL "Pallet!Wt" WIDTH 12
       ttLoadTag.lotID FORMAT "X(20)" COLUMN-LABEL "FG Lot#" WIDTH 30
@@ -403,6 +404,25 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE CreateLoadTagFromTT B-table-Win
+PROCEDURE CreateLoadTagFromTT:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RUN CreateLoadTagFromTT IN hdLoadTagProcs.
+
+    RUN dispatch (
+        INPUT "open-query"
+        ).
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI B-table-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :

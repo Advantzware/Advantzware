@@ -27,6 +27,8 @@
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
+USING jc.JobHeader.
+USING fg.ItemFG.
 
 /* Create an unnamed pool to store all the widgets created 
      by this procedure. This is a good default which assures
@@ -37,14 +39,16 @@
 CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
-{custom/globdefs.i}
 
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
 DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO.
 
-cCompany = g_company.
+DEFINE VARIABLE oJobHeader AS JobHeader NO-UNDO.
+DEFINE VARIABLE oItemFG    AS ItemFG    NO-UNDO.
+
+RUN spGetSessionParam ("Company", OUTPUT cCompany).
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -284,6 +288,20 @@ DO:
     RUN select-page(2).
     
     rHighlight:X = SELF:X - 2.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btPrint
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btPrint W-Win
+ON CHOOSE OF btPrint IN FRAME F-Main /* Print */
+DO:
+    RUN state-changed (
+        INPUT THIS-PROCEDURE,
+        INPUT "print-tags"
+        ).  
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -596,24 +614,63 @@ PROCEDURE state-changed :
             {methods/run_link.i "USERFIELD-SOURCE" "DisableUserFields"}
             btCreate:SENSITIVE = FALSE.         
         END.
-        WHEN "job-valid" THEN DO:      
-            {methods/run_link.i "JOB-SOURCE" "GetJobDetails" "(OUTPUT cJobNo, OUTPUT iJobNo2, OUTPUT iFormNo, OUTPUT iBlankNo)"}            
+        WHEN "job-valid" THEN DO:
             
+            {methods/run_link.i "JOB-SOURCE" "GetJobHeader" "(OUTPUT oJobHeader)"}
+            
+            ASSIGN
+                cJobNo   = oJobHeader:GetValue("JobNo")
+                iJobNo2  = INTEGER(oJobHeader:GetValue("JobNo2"))
+                iFormNo  = INTEGER(oJobHeader:GetValue("FormNo"))
+                iBlankNo = INTEGER(oJobHeader:GetValue("BlankNo"))
+                .
+
             {methods/run_link.i "FGITEM-SOURCE" "UpdateItemForJob" "(INPUT cCompany, INPUT cJobNo, INPUT iJobNo2, INPUT iFormNo, INPUT iBlankNo)"}
         END.
         WHEN "fgitem-valid" THEN DO:
+            
             {methods/run_link.i "QTY-SOURCE" "EnableQuantities"}
             {methods/run_link.i "USERFIELD-SOURCE" "EnableUserFields"}
+            
+            {methods/run_link.i "FGITEM-SOURCE" "GetItemFG" "(OUTPUT oItemFG)"}
+            {methods/run_link.i "JOB-SOURCE" "GetJobHeader" "(OUTPUT oJobHeader)"}
+            
+            ASSIGN
+                iSubUnits        = INTEGER(oItemFG:GetValue("SubUnits"))
+                iSubUnitsPerUnit = INTEGER(oItemFG:GetValue("SubUnitsPerUnit"))
+                iQuantity        = INTEGER(oJobHeader:GetValue("Quantity"))
+                .
+            
+/*            OECount nk1*/
+/*            IF NOT lOECount THEN     */
+            iSubUnitsPerUnit = 1.
+                
+            {methods/run_link.i "QTY-SOURCE" "SetQuantities" "(INPUT iQuantity, INPUT 0, INPUT iSubUnits, INPUT iSubUnitsPerUnit, INPUT 0, INPUT 1)"}
+                        
             btCreate:SENSITIVE = TRUE.         
         END.
         WHEN "create-tags" THEN DO:
-            {methods/run_link.i "JOB-SOURCE" "GetJobDetails" "(OUTPUT cJobNo, OUTPUT iJobNo2, OUTPUT iFormNo, OUTPUT iBlankNo)"}
-            {methods/run_link.i "FGITEM-SOURCE" "GetFGItem" "(OUTPUT cItemID)"}
+            {methods/run_link.i "JOB-SOURCE" "GetJobHeader" "(OUTPUT oJobHeader)"}
+            
+            ASSIGN
+                cJobNo   = oJobHeader:GetValue("JobNo")
+                iJobNo2  = INTEGER(oJobHeader:GetValue("JobNo2"))
+                iFormNo  = INTEGER(oJobHeader:GetValue("FormNo"))
+                iBlankNo = INTEGER(oJobHeader:GetValue("BlankNo"))
+                .
+            
+            {methods/run_link.i "FGITEM-SOURCE" "GetItemFG" "(OUTPUT oItemFG)"}
+            
+            cItemID = oItemFG:GetValue("ItemID").
+            
             {methods/run_link.i "QTY-SOURCE" "GetQuantities" "(OUTPUT iQuantity, OUTPUT iSubUnits, OUTPUT iSubUnitsPerUnit, OUTPUT iQuantityPerPallet, OUTPUT iPartial, OUTPUT iPalletTags, OUTPUT iCopies)"}
             {methods/run_link.i "USERFIELD-SOURCE" "GetUserFields" "(OUTPUT cUserField1, OUTPUT cUserField2, OUTPUT cUserField3, OUTPUT cUserFieldValue1, OUTPUT cUserFieldValue2, OUTPUT cUserFieldValue3)" }
             
             {methods/run_link.i "LOADTAG-SOURCE" "BuildLoadTagsFromJob" "(INPUT cCompany, INPUT cJobNo, INPUT iJobNo2, INPUT iFormNo, INPUT iBlankNo, INPUT cItemID, INPUT iQuantity, INPUT iSubUnits, INPUT iSubUnitsPerUnit, INPUT iQuantityPerPallet, INPUT iPartial, INPUT iPalletTags, INPUT iCopies, INPUT cUserField1, INPUT cUserField2, INPUT cUserField3, INPUT cUserFieldValue1, INPUT cUserFieldValue2, INPUT cUserFieldValue3)" }
         END. 
+        WHEN "print-tags" THEN DO:
+            {methods/run_link.i "LOADTAG-SOURCE" "CreateLoadTagFromTT"}
+        END.
     END CASE.  
 END PROCEDURE.
 
