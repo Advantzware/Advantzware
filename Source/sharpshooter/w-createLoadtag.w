@@ -449,6 +449,7 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_fgfilter , 'State':U , THIS-PROCEDURE ).
 
        /* Links to SmartObject h_userfields. */
+       RUN add-link IN adm-broker-hdl ( h_userfields , 'State':U , THIS-PROCEDURE ).
        RUN add-link IN adm-broker-hdl ( h_userfields , 'USERFIELD':U , THIS-PROCEDURE ).
 
        /* Links to SmartObject h_qtyunits. */
@@ -604,6 +605,8 @@ PROCEDURE state-changed :
     DEFINE VARIABLE cUserFieldValue2 AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cUserFieldValue3 AS CHARACTER NO-UNDO.
     
+    DEFINE VARIABLE dOvers AS DECIMAL NO-UNDO.
+    
     DO WITH FRAME {&FRAME-NAME}:
     END.    
     
@@ -644,10 +647,16 @@ PROCEDURE state-changed :
 /*            OECount nk1*/
 /*            IF NOT lOECount THEN     */
             iSubUnitsPerUnit = 1.
-                
+            
             {methods/run_link.i "QTY-SOURCE" "SetQuantities" "(INPUT iQuantity, INPUT 0, INPUT iSubUnits, INPUT iSubUnitsPerUnit, INPUT 0, INPUT 1)"}
-                        
+            {methods/run_link.i "QTY-SOURCE" "SetOvers" "(INPUT 0)"} 
+                       
             btCreate:SENSITIVE = TRUE.         
+        END.
+        WHEN "overs-changed" THEN DO:
+            {methods/run_link.i "USERFIELD-SOURCE" "GetOvers" "(OUTPUT dOvers)" }
+            
+            {methods/run_link.i "QTY-SOURCE" "SetOvers" "(INPUT dOvers)"}
         END.
         WHEN "create-tags" THEN DO:
             {methods/run_link.i "JOB-SOURCE" "GetJobHeader" "(OUTPUT oJobHeader)"}

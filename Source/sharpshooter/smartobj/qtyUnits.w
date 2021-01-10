@@ -34,8 +34,13 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-DEFINE VARIABLE iPrevPartialValue AS INTEGER NO-UNDO.
-DEFINE VARIABLE iOversPct         AS DECIMAL NO-UNDO.
+DEFINE VARIABLE iOversPct          AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE cQuantity          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cSubUnits          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cSubUnitsPerUnit   AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cQuantityPerPallet AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cPartial           AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cPalletTags        AS CHARACTER NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -258,10 +263,24 @@ ASSIGN
 
 &Scoped-define SELF-NAME fiPalletTags
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiPalletTags s-object
+ON ENTRY OF fiPalletTags IN FRAME F-Main
+DO:
+    cPalletTags = SELF:SCREEN-VALUE.  
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiPalletTags s-object
 ON LEAVE OF fiPalletTags IN FRAME F-Main
 DO:
     DEFINE VARIABLE iSubUnitsPerUnit AS INTEGER NO-UNDO.       
-    
+
+    IF cPalletTags EQ SELF:SCREEN-VALUE THEN
+        RETURN.
+            
     iSubUnitsPerUnit = INTEGER(((INTEGER(fiQuantity:SCREEN-VALUE) + INTEGER(fiPartial:SCREEN-VALUE)) / INTEGER(SELF:SCREEN-VALUE) / INTEGER(fiSubUnits:SCREEN-VALUE))).
     
     RUN pUpdateQuantities (
@@ -282,7 +301,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiPartial s-object
 ON ENTRY OF fiPartial IN FRAME F-Main
 DO:
-    iPrevPartialValue = INTEGER(SELF:SCREEN-VALUE).
+    cPartial = SELF:SCREEN-VALUE.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -292,7 +311,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiPartial s-object
 ON LEAVE OF fiPartial IN FRAME F-Main
 DO:    
-    IF iPrevPartialValue EQ INTEGER(SELF:SCREEN-VALUE) THEN
+    IF cPartial EQ SELF:SCREEN-VALUE THEN
         RETURN.
         
     RUN pUpdateQuantities (
@@ -300,7 +319,7 @@ DO:
         INPUT iOversPct,
         INPUT INTEGER(fiSubUnits:SCREEN-VALUE),
         INPUT INTEGER(fiSubUnitsPerUnit:SCREEN-VALUE),
-        INPUT INTEGER(SELF:SCREEN-VALUE) - iPrevPartialValue,
+        INPUT INTEGER(SELF:SCREEN-VALUE) - INTEGER(cPartial),
         INPUT INTEGER(fiCopies:SCREEN-VALUE)
         ).  
 END.
@@ -311,14 +330,27 @@ END.
 
 &Scoped-define SELF-NAME fiQuantity
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiQuantity s-object
+ON ENTRY OF fiQuantity IN FRAME F-Main
+DO:
+    cQuantity = SELF:SCREEN-VALUE.  
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiQuantity s-object
 ON LEAVE OF fiQuantity IN FRAME F-Main
-DO:    
+DO:  
     IF INTEGER(SELF:SCREEN-VALUE) EQ 0 OR INTEGER(SELF:SCREEN-VALUE) EQ ? THEN DO:
         MESSAGE "Quantity cannot be " + SELF:SCREEN-VALUE
         VIEW-AS ALERT-BOX ERROR.
         SELF:SCREEN-VALUE = "1".    
     END.
-     
+    
+    IF cQuantity EQ SELF:SCREEN-VALUE THEN
+        RETURN.
+         
     RUN pUpdateQuantities (
         INPUT INTEGER(SELF:SCREEN-VALUE),
         INPUT iOversPct,
@@ -335,8 +367,21 @@ END.
 
 &Scoped-define SELF-NAME fiQuantityPerPallet
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiQuantityPerPallet s-object
+ON ENTRY OF fiQuantityPerPallet IN FRAME F-Main
+DO:
+    cQuantityPerPallet = SELF:SCREEN-VALUE.  
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiQuantityPerPallet s-object
 ON LEAVE OF fiQuantityPerPallet IN FRAME F-Main
 DO:
+    IF cQuantityPerPallet EQ SELF:SCREEN-VALUE THEN
+        RETURN.
+        
     RUN pUpdateQuantities (
         INPUT INTEGER(fiQuantity:SCREEN-VALUE),
         INPUT iOversPct,
@@ -345,6 +390,28 @@ DO:
         INPUT 0,  /* Partial */
         INPUT INTEGER(fiCopies:SCREEN-VALUE)
         ).      
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME fiSubUnits
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiSubUnits s-object
+ON ENTRY OF fiSubUnits IN FRAME F-Main
+DO:
+    cSubUnits = SELF:SCREEN-VALUE.  
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME fiSubUnitsPerUnit
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiSubUnitsPerUnit s-object
+ON ENTRY OF fiSubUnitsPerUnit IN FRAME F-Main
+DO:
+    cSubUnitsPerUnit = SELF:SCREEN-VALUE.  
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -441,20 +508,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE No-Resize s-object 
-PROCEDURE No-Resize :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetQuantities s-object 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetQuantities s-object 
 PROCEDURE GetQuantities :
 /*------------------------------------------------------------------------------
   Purpose:     
@@ -481,6 +535,19 @@ PROCEDURE GetQuantities :
         opiPalletTags        = INTEGER(fiPalletTags:SCREEN-VALUE)
         opiCopies            = INTEGER(fiCopies:SCREEN-VALUE)
         .
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE No-Resize s-object 
+PROCEDURE No-Resize :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -573,26 +640,29 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE SetOversPercent s-object
-PROCEDURE SetOversPercent:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE SetOvers s-object 
+PROCEDURE SetOvers :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ipiOversPct AS INTEGER NO-UNDO.
 
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+    
     iOversPct = ipiOversPct.
+    
+    cQuantity = "".
+    
+    APPLY "LEAVE" TO fiQuantity.
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE SetQuantities s-object
-PROCEDURE SetQuantities:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE SetQuantities s-object 
+PROCEDURE SetQuantities :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -614,11 +684,9 @@ PROCEDURE SetQuantities:
         ).
     
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed s-object 
 PROCEDURE state-changed :

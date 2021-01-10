@@ -1,5 +1,8 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS Procedure
+USING OpenEdge.DataAdmin.IUser FROM PROPATH.
+&ANALYZE-RESUME
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS s-object 
 /*********************************************************************
@@ -34,13 +37,20 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-DEFINE VARIABLE cUserFieldListFormat AS CHARACTER NO-UNDO INIT ",Overs|DECIMAL|>9.<<,Unit Weight|DECIMAL|>>>>>>9.<<<<<<,Pallet Weight|DECIMAL|>>>>>>9.<<<<<<,Lot Number|CHARACTER|X(20),SSCC|CHARACTER|X(30),Item Description|CHARACTER|X(30),Customer Part #|CHARACTER|X(30),Location / Bin|CHARACTER|X(20)".
+DEFINE VARIABLE cUserFieldListFormat AS CHARACTER NO-UNDO INIT "Overs|DECIMAL|999.99,Unit Weight|DECIMAL|9999999999.999999,Pallet Weight|DECIMAL|9999999999.999999,Lot Number|CHARACTER|X(20),SSCC|CHARACTER|X(30),Item Description|CHARACTER|X(30),Customer Part #|CHARACTER|X(30),Location / Bin|CHARACTER|X(20)".
+
+DEFINE VARIABLE lDisableWidgets AS LOGICAL NO-UNDO INIT FALSE.
+DEFINE VARIABLE iNumUserFields  AS INTEGER NO-UNDO INIT 3.
 
 DEFINE TEMP-TABLE ttUserField NO-UNDO
     FIELD fieldLabel  AS CHARACTER
     FIELD fieldFormat AS CHARACTER
     FIELD fieldType   AS CHARACTER
     .
+
+DEFINE VARIABLE hdUserFieldValue AS HANDLE    NO-UNDO EXTENT 3.
+DEFINE VARIABLE cUserFieldValue  AS CHARACTER NO-UNDO EXTENT 3.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -52,13 +62,12 @@ DEFINE TEMP-TABLE ttUserField NO-UNDO
 &Scoped-define PROCEDURE-TYPE SmartObject
 &Scoped-define DB-AWARE no
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-38 
-&Scoped-Define DISPLAYED-OBJECTS cbUserField1 fiUserField1 cbUserField2 ~
-fiUserField2 cbUserField3 fiUserField3 
+&Scoped-Define DISPLAYED-OBJECTS cbUserField1 cbUserField2 cbUserField3 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -73,34 +82,19 @@ fiUserField2 cbUserField3 fiUserField3
 
 /* Definitions of the field level widgets                               */
 DEFINE VARIABLE cbUserField1 AS CHARACTER FORMAT "X(256)":U 
-     LABEL "1" 
      VIEW-AS COMBO-BOX INNER-LINES 5
      DROP-DOWN-LIST
      SIZE 28 BY 1 NO-UNDO.
 
 DEFINE VARIABLE cbUserField2 AS CHARACTER FORMAT "X(256)":U 
-     LABEL "2" 
-     VIEW-AS COMBO-BOX INNER-LINES 5
-     DROP-DOWN-LIST
-     SIZE 28 BY 1.29 NO-UNDO.
-
-DEFINE VARIABLE cbUserField3 AS CHARACTER FORMAT "X(256)":U 
-     LABEL "3" 
      VIEW-AS COMBO-BOX INNER-LINES 5
      DROP-DOWN-LIST
      SIZE 28 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fiUserField1 AS CHARACTER FORMAT "X(256)":U 
-     VIEW-AS FILL-IN 
-     SIZE 33 BY 1.24 NO-UNDO.
-
-DEFINE VARIABLE fiUserField2 AS CHARACTER FORMAT "X(256)":U 
-     VIEW-AS FILL-IN 
-     SIZE 33 BY 1.24 NO-UNDO.
-
-DEFINE VARIABLE fiUserField3 AS CHARACTER FORMAT "X(256)":U 
-     VIEW-AS FILL-IN 
-     SIZE 33 BY 1.24 NO-UNDO.
+DEFINE VARIABLE cbUserField3 AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS COMBO-BOX INNER-LINES 5
+     DROP-DOWN-LIST
+     SIZE 28 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-38
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
@@ -110,12 +104,9 @@ DEFINE RECTANGLE RECT-38
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     cbUserField1 AT ROW 2.62 COL 4 COLON-ALIGNED WIDGET-ID 36
-     fiUserField1 AT ROW 2.62 COL 33 COLON-ALIGNED NO-LABEL WIDGET-ID 42
-     cbUserField2 AT ROW 4.05 COL 4 COLON-ALIGNED WIDGET-ID 38
-     fiUserField2 AT ROW 4.05 COL 33 COLON-ALIGNED NO-LABEL WIDGET-ID 46
-     cbUserField3 AT ROW 5.48 COL 4 COLON-ALIGNED WIDGET-ID 40
-     fiUserField3 AT ROW 5.48 COL 33 COLON-ALIGNED NO-LABEL WIDGET-ID 44
+     cbUserField1 AT ROW 2.62 COL 4 COLON-ALIGNED NO-LABEL WIDGET-ID 36
+     cbUserField2 AT ROW 4.05 COL 4 COLON-ALIGNED NO-LABEL WIDGET-ID 38
+     cbUserField3 AT ROW 5.48 COL 4 COLON-ALIGNED NO-LABEL WIDGET-ID 40
      "User Fields" VIEW-AS TEXT
           SIZE 17 BY .86 AT ROW 1.1 COL 26 WIDGET-ID 34
           FONT 17
@@ -175,7 +166,7 @@ END.
 /* SETTINGS FOR WINDOW s-object
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE Size-to-Fit                                              */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
@@ -185,12 +176,6 @@ ASSIGN
 /* SETTINGS FOR COMBO-BOX cbUserField2 IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR COMBO-BOX cbUserField3 IN FRAME F-Main
-   NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN fiUserField1 IN FRAME F-Main
-   NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN fiUserField2 IN FRAME F-Main
-   NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN fiUserField3 IN FRAME F-Main
    NO-ENABLE                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -207,6 +192,56 @@ ASSIGN
 
  
 
+
+
+/* ************************  Control Triggers  ************************ */
+
+&Scoped-define SELF-NAME cbUserField1
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cbUserField1 s-object
+ON VALUE-CHANGED OF cbUserField1 IN FRAME F-Main
+DO:
+    RUN pUpdateUserField (
+        INPUT SELF:SCREEN-VALUE,
+        INPUT "",
+        INPUT 1
+        ).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME cbUserField2
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cbUserField2 s-object
+ON VALUE-CHANGED OF cbUserField2 IN FRAME F-Main
+DO:
+    RUN pUpdateUserField (
+        INPUT SELF:SCREEN-VALUE,
+        INPUT "",
+        INPUT 2
+        ).  
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME cbUserField3
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cbUserField3 s-object
+ON VALUE-CHANGED OF cbUserField3 IN FRAME F-Main
+DO:
+    RUN pUpdateUserField (
+        INPUT SELF:SCREEN-VALUE,
+        INPUT "",
+        INPUT 3
+        ).  
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK s-object 
 
@@ -234,15 +269,19 @@ PROCEDURE DisableUserFields :
 ------------------------------------------------------------------------------*/
     DO WITH FRAME {&FRAME-NAME}:
     END.
-
+    
+    DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
+    
     ASSIGN
         cbUserField1:SENSITIVE = FALSE
         cbUserField2:SENSITIVE = FALSE
         cbUserField3:SENSITIVE = FALSE
-        fiUserField1:SENSITIVE = FALSE
-        fiUserField2:SENSITIVE = FALSE
-        fiUserField3:SENSITIVE = FALSE
         .
+    
+    DO iCount = 1 TO iNumUserFields:
+        IF VALID-HANDLE(hdUserFieldValue[iCount]) THEN
+            hdUserFieldValue[iCount]:SENSITIVE = FALSE.
+    END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -272,6 +311,8 @@ PROCEDURE EnableUserFields :
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
+    
     DO WITH FRAME {&FRAME-NAME}:
     END.
 
@@ -279,18 +320,44 @@ PROCEDURE EnableUserFields :
         cbUserField1:SENSITIVE = TRUE
         cbUserField2:SENSITIVE = TRUE
         cbUserField3:SENSITIVE = TRUE
-        fiUserField1:SENSITIVE = TRUE
-        fiUserField2:SENSITIVE = TRUE
-        fiUserField3:SENSITIVE = TRUE
         .
+        
+    DO iCount = 1 TO iNumUserFields:
+        IF VALID-HANDLE(hdUserFieldValue[iCount]) THEN
+            hdUserFieldValue[iCount]:SENSITIVE = FALSE.
+    END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetUserFields s-object
-PROCEDURE GetUserFields:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetOvers Procedure
+PROCEDURE GetOvers:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opdOvers AS DECIMAL NO-UNDO.
+    
+    DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
+    
+    DO iCount = 1 TO iNumUserFields:
+        IF VALID-HANDLE(hdUserFieldValue[iCount]) AND hdUserFieldValue[iCount]:PRIVATE-DATA EQ "Overs" THEN DO:
+            opdOvers = DECIMAL(hdUserFieldValue[iCount]:SCREEN-VALUE) NO-ERROR.
+            LEAVE.
+        END.
+    END.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetUserFields s-object 
+PROCEDURE GetUserFields :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -302,6 +369,8 @@ PROCEDURE GetUserFields:
     DEFINE OUTPUT PARAMETER opcUserFieldValue2 AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opcUserFieldValue3 AS CHARACTER NO-UNDO.
     
+    DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
+    
     DO WITH FRAME {&FRAME-NAME}:
     END.
     
@@ -309,16 +378,22 @@ PROCEDURE GetUserFields:
         opcUserField1      = cbUserField1:SCREEN-VALUE
         opcUserField2      = cbUserField1:SCREEN-VALUE
         opcUserField3      = cbUserField1:SCREEN-VALUE
-        opcUserFieldValue1 = fiUserField1:SCREEN-VALUE
-        opcUserFieldValue2 = fiUserField1:SCREEN-VALUE
-        opcUserFieldValue3 = fiUserField1:SCREEN-VALUE
-        .    
+        .   
+        
+    DO iCount = 1 TO iNumUserFields:
+        IF VALID-HANDLE(hdUserFieldValue[iCount]) THEN DO:
+            IF iCount EQ 1 THEN
+                opcUserFieldValue1 = hdUserFieldValue[iCount]:SCREEN-VALUE.
+            ELSE IF iCount EQ 2 THEN
+                opcUserFieldValue2 = hdUserFieldValue[iCount]:SCREEN-VALUE.
+            ELSE IF iCount EQ 3 THEN
+                opcUserFieldValue3 = hdUserFieldValue[iCount]:SCREEN-VALUE.
+        END.
+    END. 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE No-Resize s-object 
 PROCEDURE No-Resize :
@@ -333,6 +408,71 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCreateFillinWidget s-object
+PROCEDURE pCreateFillinWidget:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcUserFieldLabel  AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiUserFieldCount  AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER ipcUserFieldType   AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcUserFieldFormat AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcUserFieldValue  AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiYPosition       AS INTEGER   NO-UNDO.
+    
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+     
+    IF VALID-HANDLE(hdUserFieldValue[ipiUserFieldCount]) THEN
+        DELETE OBJECT hdUserFieldValue[ipiUserFieldCount].
+        
+    CREATE FILL-IN hdUserFieldValue[ipiUserFieldCount]
+    ASSIGN 
+        FRAME         = FRAME {&FRAME-NAME}:HANDLE
+        Y             = ipiYPosition
+        X             = 170
+        SENSITIVE     = TRUE
+        HEIGHT-PIXELS = 27
+        WIDTH-PIXELS  = 160
+        DATA-TYPE     = ipcUserFieldType
+        FORMAT        = ipcUserFieldFormat
+        VISIBLE       = TRUE
+        SCREEN-VALUE  = ipcUserFieldValue
+        PRIVATE-DATA  = ipcUserFieldLabel
+        TRIGGERS:
+            ON ENTRY PERSISTENT RUN pFieldEntry IN THIS-PROCEDURE (ipiUserFieldCount).
+            ON LEAVE PERSISTENT RUN pNotify IN THIS-PROCEDURE (ipiUserFieldCount, ipcUserFieldLabel).
+        END TRIGGERS.
+    
+    cUserFieldValue[ipiUserFieldCount] = "".
+    
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pFieldEntry Procedure
+PROCEDURE pFieldEntry:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipiUserFieldID AS INTEGER NO-UNDO.
+
+    IF VALID-HANDLE(hdUserFieldValue[ipiUserFieldID]) THEN
+        cUserFieldValue[ipiUserFieldID] = hdUserFieldValue[ipiUserFieldID]:SCREEN-VALUE.
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pInit s-object 
 PROCEDURE pInit :
 /*------------------------------------------------------------------------------
@@ -346,19 +486,21 @@ PROCEDURE pInit :
     DEFINE VARIABLE iUserFieldsCount AS INTEGER   NO-UNDO.
     DEFINE VARIABLE cUserFieldList   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cUserFieldInfo   AS CHARACTER NO-UNDO.
-    
+
     DO iUserFieldsCount = 1 TO NUM-ENTRIES(cUserFieldListFormat):
         cUserFieldInfo = ENTRY (iUserFieldsCount, cUserFieldListFormat).
         
         CREATE ttUserField.
         ASSIGN
-            ttUserField.fieldLabel = ENTRY(1, cUserFieldInfo, "|")
-            ttUserField.fieldType  = ENTRY(2, cUserFieldInfo, "|")
-            ttUserField.fieldType  = ENTRY(3, cUserFieldInfo, "|")
+            ttUserField.fieldLabel  = ENTRY(1, cUserFieldInfo, "|")
+            ttUserField.fieldType   = ENTRY(2, cUserFieldInfo, "|")
+            ttUserField.fieldFormat = ENTRY(3, cUserFieldInfo, "|")
             NO-ERROR.
             
-        cUserFieldList = cUserFieldList + ttUserField.fieldLabel.
+        cUserFieldList = cUserFieldList + "," + ttUserField.fieldLabel.
     END.
+    
+    cUserFieldList = TRIM(cUserFieldList,",").
     
     ASSIGN
         cbUserField1:LIST-ITEMS = cUserFieldList
@@ -370,10 +512,32 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pNotify s-object 
+PROCEDURE pNotify PRIVATE :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipiUserFieldID AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcUserField   AS CHARACTER NO-UNDO.
 
+    IF VALID-HANDLE(hdUserFieldValue[ipiUserFieldID]) AND cUserFieldValue[ipiUserFieldID] EQ hdUserFieldValue[ipiUserFieldID]:SCREEN-VALUE THEN
+        RETURN.
+            
+    CASE ipcUserField:
+        WHEN "Overs" THEN
+            RUN new-state (
+               INPUT "overs-changed"
+                ).
+    END CASE.
+END PROCEDURE.
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateUserField s-object
-PROCEDURE pUpdateUserField PRIVATE:
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateUserField s-object 
+PROCEDURE pUpdateUserField PRIVATE :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -381,7 +545,9 @@ PROCEDURE pUpdateUserField PRIVATE:
     DEFINE INPUT PARAMETER ipcUserField      AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcUserFieldValue AS CHARACTER NO-UNDO.  
     DEFINE INPUT PARAMETER ipiUserFieldCount AS INTEGER   NO-UNDO. 
-    
+
+    DEFINE VARIABLE iYPosition AS INTEGER   NO-UNDO.
+        
     DO WITH FRAME {&FRAME-NAME}:
     END.
     
@@ -391,69 +557,69 @@ PROCEDURE pUpdateUserField PRIVATE:
     IF ipiUserFieldCount EQ 1 THEN DO:
         IF AVAILABLE ttUserField THEN
             ASSIGN
-                cbUserField1:HIDDEN       = FALSE
+                cbUserField1:HIDDEN       = lDisableWidgets
                 cbUserField1:SCREEN-VALUE = ipcUserField
-                cbUserField1:SENSITIVE    = FALSE
-                fiUserField1:DATA-TYPE    = ttUserField.fieldType
-                fiUserField1:FORMAT       = ttUserField.fieldFormat
-                fiUserField1:SCREEN-VALUE = ipcUserFieldValue
-                fiUserField1:SENSITIVE    = TRUE
+                cbUserField1:SENSITIVE    = NOT lDisableWidgets
+                iYPosition                = cbUserField1:Y
                 .
+        
         ELSE
             ASSIGN
                 cbUserField1:SENSITIVE    = FALSE
                 cbUserField1:HIDDEN       = TRUE
-                fiUserField1:SENSITIVE    = FALSE
-                fiUserField1:HIDDEN       = TRUE
                 .            
     END.
     ELSE IF ipiUserFieldCount EQ 2 THEN DO:
         IF AVAILABLE ttUserField THEN
             ASSIGN
-                cbUserField2:HIDDEN       = FALSE
+                cbUserField2:HIDDEN       = lDisableWidgets
                 cbUserField2:SCREEN-VALUE = ipcUserField
-                cbUserField2:SENSITIVE    = FALSE
-                fiUserField2:DATA-TYPE    = ttUserField.fieldType
-                fiUserField2:FORMAT       = ttUserField.fieldFormat
-                fiUserField2:SCREEN-VALUE = ipcUserFieldValue
-                fiUserField2:SENSITIVE    = TRUE
+                cbUserField2:SENSITIVE    = NOT lDisableWidgets
+                iYPosition                = cbUserField2:Y
                 .
         ELSE
             ASSIGN
                 cbUserField2:SENSITIVE    = FALSE
                 cbUserField2:HIDDEN       = TRUE
-                fiUserField2:SENSITIVE    = FALSE
-                fiUserField2:HIDDEN       = TRUE
                 .
     END.            
     ELSE IF ipiUserFieldCount EQ 3 THEN DO:
         IF AVAILABLE ttUserField THEN
             ASSIGN
-                cbUserField3:HIDDEN       = FALSE
+                cbUserField3:HIDDEN       = lDisableWidgets
                 cbUserField3:SCREEN-VALUE = ipcUserField
-                cbUserField3:SENSITIVE    = FALSE
-                fiUserField3:DATA-TYPE    = ttUserField.fieldType
-                fiUserField3:FORMAT       = ttUserField.fieldFormat
-                fiUserField3:SCREEN-VALUE = ipcUserFieldValue
-                fiUserField3:SENSITIVE    = TRUE
+                cbUserField3:SENSITIVE    = NOT lDisableWidgets
+                iYPosition                = cbUserField3:Y
                 .
         ELSE
             ASSIGN
                 cbUserField3:SENSITIVE    = FALSE
                 cbUserField3:HIDDEN       = TRUE
-                fiUserField3:SENSITIVE    = FALSE
-                fiUserField3:HIDDEN       = TRUE
                 .  
     END.
+    
+    IF AVAILABLE ttUserField THEN DO:
+        RUN pCreateFillinWidget(
+            INPUT ttUserField.fieldLabel,
+            INPUT ipiUserFieldCount,
+            INPUT ttUserField.fieldType,
+            INPUT ttUserField.fieldFormat,
+            INPUT ipcUserFieldValue,
+            INPUT iYPosition
+            ).
+    END.
+    ELSE DO:
+        IF VALID-HANDLE(hdUserFieldValue[ipiUserFieldCount]) THEN
+            DELETE OBJECT hdUserFieldValue[ipiUserFieldCount].
+    END.
+    
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE SetUserFields s-object
-PROCEDURE SetUserFields:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE SetUserFields s-object 
+PROCEDURE SetUserFields :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -496,11 +662,9 @@ PROCEDURE SetUserFields:
             ).  
     END.
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed s-object 
 PROCEDURE state-changed :
