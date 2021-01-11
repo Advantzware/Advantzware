@@ -23,6 +23,29 @@ FUNCTION GL_GetAccountAR RETURNS CHARACTER
 
 /* **********************  Internal Procedures  *********************** */ 
 
+PROCEDURE checkInvalidGLAccount:
+/*------------------------------------------------------------------------------
+ Purpose: Check GL Account
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany  AS CHARACTER NO-UNDO. 
+    DEFINE INPUT PARAMETER ipcAccount  AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opInactive AS LOGICAL   NO-UNDO.
+    
+    FIND FIRST account NO-LOCK
+         WHERE account.company EQ ipcCompany
+           AND account.type    NE "T" 
+           AND account.actnum  EQ ipcAccount  
+           NO-ERROR.
+    IF AVAILABLE account THEN DO: 
+        IF account.inactive EQ YES THEN 
+            opInactive = YES.
+        ELSE    
+            opInactive = FALSE. 
+    END.                                     
+
+END PROCEDURE.
+
 PROCEDURE pGetAccountAR PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose: get AR Class GL Account

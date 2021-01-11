@@ -41,6 +41,10 @@ DEF TEMP-TABLE ar-mcashl NO-UNDO LIKE ar-mcash
     FIELD acct-dscr LIKE account.dscr.
 
 DEF VAR ll-new-record AS LOG NO-UNDO.
+DEFINE VARIABLE lInactive AS LOGICAL NO-UNDO.
+DEFINE VARIABLE hGLProcs  AS HANDLE  NO-UNDO.
+
+RUN system/GLProcs.p PERSISTENT SET hGLProcs.
     
 &SCOPED-DEFINE BRWSDEFS ar-mcashl
 
@@ -309,16 +313,27 @@ END.
 
 /* ***************************  Main Block  *************************** */
 DEF VAR lw-focus AS HANDLE NO-UNDO.
-DEF VAR lv-char AS CHAR NO-UNDO.
-
 
 ON HELP OF ar-mcashl.actnum IN BROWSE Browser-Table /* Reconciled */
 DO:
+  DEFINE VARIABLE cFieldsValue  AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cFoundValue   AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE recFoundRecID AS RECID     NO-UNDO.
+    
   lw-focus = FOCUS.
-
-  RUN windows/l-acct3.w (cocode, "T", lw-focus:SCREEN-VALUE, OUTPUT lv-char) NO-ERROR.
-  IF lv-char NE "" AND ENTRY(1,lv-char) NE lw-focus:SCREEN-VALUE THEN DO:
-    lw-focus:SCREEN-VALUE = ENTRY(1,lv-char).
+  
+  RUN system/openLookup.p (
+      INPUT  g_company, 
+      INPUT  "",  /* Lookup ID */
+      INPUT  87,  /* Subject ID */
+      INPUT  "",  /* User ID */
+      INPUT  0,   /* Param Value ID */
+      OUTPUT cFieldsValue, 
+      OUTPUT cFoundValue, 
+      OUTPUT recFoundRecID
+      ).    
+  IF cFoundValue NE "" AND cFoundValue NE lw-focus:SCREEN-VALUE THEN DO:
+    lw-focus:SCREEN-VALUE = cFoundValue.
     RUN new-actnum (lw-focus).
   END.
 END.
@@ -328,6 +343,8 @@ DO:
   IF LASTKEY NE -1 THEN DO:
     RUN valid-actnum (FOCUS) NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    IF lInactive THEN 
+        ar-mcashl.actnum:SCREEN-VALUE IN BROWSE {&browse-name} = ar-mcashl.actnum:SCREEN-VALUE IN BROWSE {&browse-name} + "Inactive".
   END.
 END.    
     
@@ -755,6 +772,11 @@ PROCEDURE local-update-record :
   DO WITH FRAME {&FRAME-NAME}:
     RUN valid-actnum (ar-mcashl.actnum:HANDLE IN BROWSE {&browse-name}) NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    IF lInactive THEN DO:
+        ar-mcashl.actnum:SCREEN-VALUE IN BROWSE {&browse-name} = ar-mcashl.actnum:SCREEN-VALUE IN BROWSE {&browse-name} + "Inactive".
+        APPLY "ENTRY" TO ar-mcashl.actnum IN BROWSE {&browse-name}.
+        RETURN NO-APPLY.
+    END.    
   END.
 
   ASSIGN
@@ -846,7 +868,7 @@ PROCEDURE valid-actnum :
 ------------------------------------------------------------------------------*/
   DEF INPUT PARAM ip-focus AS WIDGET-HANDLE NO-UNDO.
 
-
+  lInactive = FALSE.
   DO WITH FRAME {&FRAME-NAME}:
     ip-focus:SCREEN-VALUE = CAPS(ip-focus:SCREEN-VALUE).
 
@@ -859,6 +881,12 @@ PROCEDURE valid-actnum :
       APPLY "entry" TO ip-focus.
       RETURN ERROR.
     END.
+    
+    RUN checkInvalidGLAccount IN hGLProcs(
+        INPUT cocode,
+        INPUT ip-focus:SCREEN-VALUE,
+        OUTPUT lInactive
+        ). 
   END.
 
 END PROCEDURE.

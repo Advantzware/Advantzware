@@ -163,6 +163,8 @@ DEFINE BUFFER bf-e-itemfg-vend FOR e-itemfg-vend.
 
 DEFINE VARIABLE ghVendorCost AS HANDLE no-undo.
 DEFINE VARIABLE scInstance AS CLASS system.SharedConfig NO-UNDO.
+DEFINE VARIABLE hGLProcs  AS HANDLE  NO-UNDO.
+DEFINE VARIABLE lInactive AS LOGICAL NO-UNDO.
 
 {windows/l-jobmt1.i}
 
@@ -181,6 +183,8 @@ FIND FIRST uom NO-LOCK WHERE uom.uom EQ "ROLL" NO-ERROR.
 IF AVAILABLE uom THEN ld-roll-len = uom.mult.
 
 RUN Po/POProcs.p PERSISTENT SET hdPOProcs.
+
+RUN system/GLProcs.p PERSISTENT SET hGLProcs.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -779,6 +783,9 @@ DO:
     DEFINE VARIABLE lw-focus     AS WIDGET-HANDLE NO-UNDO.
     DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
     DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFieldsValue  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFoundValue   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE recFoundRecID AS RECID     NO-UNDO.
 
 
     ASSIGN
@@ -835,10 +842,21 @@ DO:
               IF char-val NE "" THEN RUN new-job-s-b (look-recid).
             END.
         END.
-        WHEN "actnum" THEN DO:
-             RUN windows/l-acct3.w(g_company,"T",lw-focus:SCREEN-VALUE, OUTPUT char-val).
-             IF char-val <> "" THEN ASSIGN lw-focus:SCREEN-VALUE  = ENTRY(1,char-val)
-                                           v-gl-desc:SCREEN-VALUE = ENTRY(2,char-val).
+        WHEN "actnum" THEN DO:             
+            RUN system/openLookup.p (
+                INPUT  g_company, 
+                INPUT  "",  /* Lookup ID */
+                INPUT  87,  /* Subject ID */
+                INPUT  "",  /* User ID */
+                INPUT  0,   /* Param Value ID */
+                OUTPUT cFieldsValue, 
+                OUTPUT cFoundValue, 
+                OUTPUT recFoundRecID
+                ).    
+            IF cFoundValue <> "" THEN 
+                ASSIGN 
+                    lw-focus:SCREEN-VALUE  = cFoundValue
+                    v-gl-desc:SCREEN-VALUE = DYNAMIC-FUNCTION("sfDynLookupValue", "dscr", cFieldsValue).
         END.
         WHEN "cust-no" THEN DO:
             RUN windows/l-cust.w (g_company, po-ordl.cust-no:SCREEN-VALUE, OUTPUT char-val).
@@ -936,6 +954,8 @@ DO:
          WHERE account.company EQ g_company
            AND account.actnum  EQ SELF:SCREEN-VALUE NO-ERROR.
     v-gl-desc:SCREEN-VALUE = IF AVAILABLE account THEN account.dscr ELSE ''.
+    IF lInactive THEN 
+        SELF:SCREEN-VALUE = SELF:SCREEN-VALUE + "Inactive".
   END.
 END.
 
@@ -1081,6 +1101,12 @@ DO:
 
   RUN valid-actnum NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  
+  IF lInactive THEN DO :
+      po-ordl.actnum:SCREEN-VALUE = po-ordl.actnum:SCREEN-VALUE + "Inactive".
+      APPLY "ENTRY" TO po-ordl.actnum.
+      RETURN NO-APPLY.
+  END.    
   
   RUN validate-all NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
@@ -5620,6 +5646,8 @@ PROCEDURE valid-actnum :
     ------------------------------------------------------------------------------*/
   
     DO WITH FRAME {&FRAME-NAME}:
+        lInactive = FALSE.
+        
         IF (po-ordl.actnum:SCREEN-VALUE EQ "" OR
             NOT CAN-FIND(FIRST account
             WHERE account.company EQ g_company
@@ -5634,6 +5662,11 @@ PROCEDURE valid-actnum :
             APPLY "entry" TO po-ordl.actnum.
             RETURN ERROR.
         END.
+        RUN checkInvalidGLAccount IN hGLProcs(
+            INPUT g_company,
+            INPUT po-ordl.actnum:SCREEN-VALUE,
+            OUTPUT lInactive
+            ). 
     END.
   
 END PROCEDURE.

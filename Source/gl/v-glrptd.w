@@ -49,6 +49,10 @@ ASSIGN cocode = g_company
 
 DEF VAR lv-gl-type AS INT NO-UNDO.
 DEF VAR lv-rowid AS ROWID NO-UNDO.
+DEFINE VARIABLE lInactive AS LOGICAL NO-UNDO.
+DEFINE VARIABLE hGLProcs  AS HANDLE  NO-UNDO.
+
+RUN system/GLProcs.p PERSISTENT SET hGLProcs.
 
 
 /* _UIB-CODE-BLOCK-END */
@@ -506,18 +510,30 @@ ASSIGN
 ON HELP OF FRAME F-Main
 DO:
     DEF VAR char-val AS cha NO-UNDO.
+    DEFINE VARIABLE cFieldsValue  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFoundValue   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE recFoundRecID AS RECID     NO-UNDO.
 
 
     CASE FOCUS:NAME :
         WHEN "acrange" OR WHEN "acrange1" OR WHEN "actnum" THEN DO:
-             RUN windows/l-acct3.w (g_company,"T",focus:screen-value,OUTPUT char-val).
-             IF char-val <> "" THEN DO:
-                ASSIGN FOCUS:SCREEN-VALUE = ENTRY(1,char-val).
+            RUN system/openLookup.p (
+            INPUT  g_company, 
+            INPUT  "",  /* Lookup ID */
+            INPUT  87,  /* Subject ID */
+            INPUT  "",  /* User ID */
+            INPUT  0,   /* Param Value ID */
+            OUTPUT cFieldsValue, 
+            OUTPUT cFoundValue, 
+            OUTPUT recFoundRecID
+            ).   
+            IF cFoundValue <> "" THEN DO:
+                ASSIGN FOCUS:SCREEN-VALUE = cFoundValue.
                 /*CASE FOCUS:INDEX:
                     WHEN 1 THEN 
                 END CASE.
                 */
-             END.
+             END.            
         END.
         WHEN "lv-d-type" THEN DO:
             RUN gl/l-dtypes.w (OUTPUT char-val).
@@ -535,7 +551,7 @@ END.
 &Scoped-define SELF-NAME gl-rpt.acrange1[1]
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL gl-rpt.acrange1[1] V-table-Win
 ON LEAVE OF gl-rpt.acrange1[1] IN FRAME F-Main /* Fr Acct2 */
-DO:
+DO:   
   IF LASTKEY = -1  THEN RETURN.
   RUN validate-acct (gl-rpt.acrange1[1]:SCREEN-VALUE IN FRAME {&FRAME-NAME}) NO-ERROR.
   {&methods/lValidateError.i YES}
@@ -543,6 +559,8 @@ DO:
      APPLY "entry" TO gl-rpt.acrange1[1]. 
      RETURN NO-APPLY.
   END.
+  IF lInactive THEN     
+      gl-rpt.acrange1[1]:SCREEN-VALUE = gl-rpt.acrange1[1]:SCREEN-VALUE + "Inactive".
   {&methods/lValidateError.i NO}
 END.
 
@@ -562,6 +580,8 @@ DO:
      APPLY "entry" TO gl-rpt.acrange1[2]. 
      RETURN NO-APPLY.
   END.
+  IF lInactive THEN     
+      gl-rpt.acrange1[2]:SCREEN-VALUE = gl-rpt.acrange1[2]:SCREEN-VALUE + "Inactive".
   {&methods/lValidateError.i NO}
 END.
 
@@ -581,6 +601,8 @@ DO:
        APPLY "entry" TO gl-rpt.acrange1[3]. 
        RETURN NO-APPLY.
     END.
+    IF lInactive THEN     
+        gl-rpt.acrange1[3]:SCREEN-VALUE = gl-rpt.acrange1[3]:SCREEN-VALUE + "Inactive".
     {&methods/lValidateError.i NO}
 END.
 
@@ -600,6 +622,8 @@ DO:
        APPLY "entry" TO gl-rpt.acrange1[4]. 
        RETURN NO-APPLY.
     END.
+    IF lInactive THEN     
+        gl-rpt.acrange1[4]:SCREEN-VALUE = gl-rpt.acrange1[4]:SCREEN-VALUE + "Inactive".
     {&methods/lValidateError.i NO}
 END.
 
@@ -619,6 +643,8 @@ DO:
        APPLY "entry" TO gl-rpt.acrange1[5].
        RETURN NO-APPLY.
     END.
+    IF lInactive THEN     
+        gl-rpt.acrange1[5]:SCREEN-VALUE = gl-rpt.acrange1[5]:SCREEN-VALUE + "Inactive".
     {&methods/lValidateError.i NO}
 END.
 
@@ -638,6 +664,8 @@ DO:
        APPLY "entry" TO gl-rpt.acrange1[6]. 
        RETURN NO-APPLY.
     END.
+    IF lInactive THEN     
+        gl-rpt.acrange1[6]:SCREEN-VALUE = gl-rpt.acrange1[6]:SCREEN-VALUE + "Inactive".
     {&methods/lValidateError.i NO}
 END.
 
@@ -657,6 +685,8 @@ DO:
        APPLY "entry" TO gl-rpt.acrange1[7]. 
        RETURN NO-APPLY.
     END.
+    IF lInactive THEN     
+        gl-rpt.acrange1[7]:SCREEN-VALUE = gl-rpt.acrange1[7]:SCREEN-VALUE + "Inactive".
     {&methods/lValidateError.i NO}
 END.
 
@@ -676,6 +706,8 @@ DO:
        APPLY "entry" TO gl-rpt.acrange1[8]. 
        RETURN NO-APPLY.
     END.
+    IF lInactive THEN     
+        gl-rpt.acrange1[8]:SCREEN-VALUE = gl-rpt.acrange1[8]:SCREEN-VALUE + "Inactive".
     {&methods/lValidateError.i NO}
 END.
 
@@ -695,6 +727,8 @@ DO:
      APPLY "entry" TO gl-rpt.acrange[1]. 
      RETURN NO-APPLY.
   END.
+  IF lInactive THEN     
+      gl-rpt.acrange[1]:SCREEN-VALUE = gl-rpt.acrange[1]:SCREEN-VALUE + "Inactive".
   {&methods/lValidateError.i NO}
 END.
 
@@ -714,6 +748,8 @@ DO:
      APPLY "entry" TO gl-rpt.acrange[2]. 
      RETURN NO-APPLY.
   END.
+  IF lInactive THEN     
+      gl-rpt.acrange[2]:SCREEN-VALUE = gl-rpt.acrange[2]:SCREEN-VALUE + "Inactive".
   {&methods/lValidateError.i NO}
 END.
 
@@ -1073,51 +1109,51 @@ PROCEDURE local-update-record :
   IF ERROR-STATUS:ERROR THEN RETURN.
 
   RUN validate-acct (gl-rpt.acrange[1]:SCREEN-VALUE IN FRAME {&FRAME-NAME}) NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN do:
+  IF ERROR-STATUS:ERROR OR lInactive THEN do:
      APPLY "entry" TO gl-rpt.acrange[1]. 
      RETURN.
   END.
   RUN validate-acct (gl-rpt.acrange[2]:SCREEN-VALUE IN FRAME {&FRAME-NAME}) NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN do:
+  IF ERROR-STATUS:ERROR OR lInactive THEN do:
      APPLY "entry" TO gl-rpt.acrange[2]. 
      RETURN.
   END.
   RUN validate-acct (gl-rpt.acrange1[1]:SCREEN-VALUE IN FRAME {&FRAME-NAME}) NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN do:
+  IF ERROR-STATUS:ERROR OR lInactive THEN do:
      APPLY "entry" TO gl-rpt.acrange1[1]. 
      RETURN.
   END.
   RUN validate-acct (gl-rpt.acrange1[2]:SCREEN-VALUE IN FRAME {&FRAME-NAME}) NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN do:
+  IF ERROR-STATUS:ERROR OR lInactive THEN do:
      APPLY "entry" TO gl-rpt.acrange1[2]. RETURN.
   END.
   RUN validate-acct (gl-rpt.acrange1[3]:SCREEN-VALUE IN FRAME {&FRAME-NAME}) NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN do:
+  IF ERROR-STATUS:ERROR OR lInactive THEN do:
      APPLY "entry" TO gl-rpt.acrange1[3]. 
      RETURN.
   END.
   RUN validate-acct (gl-rpt.acrange1[4]:SCREEN-VALUE IN FRAME {&FRAME-NAME}) NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN do:
+  IF ERROR-STATUS:ERROR OR lInactive THEN do:
      APPLY "entry" TO gl-rpt.acrange1[4]. 
      RETURN.
   END.
   RUN validate-acct (gl-rpt.acrange1[5]:SCREEN-VALUE IN FRAME {&FRAME-NAME}) NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN do:
+  IF ERROR-STATUS:ERROR OR lInactive THEN do:
      APPLY "entry" TO gl-rpt.acrange1[5]. 
      RETURN.
   END.
   RUN validate-acct (gl-rpt.acrange1[6]:SCREEN-VALUE IN FRAME {&FRAME-NAME}) NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN do:
+  IF ERROR-STATUS:ERROR OR lInactive THEN do:
      APPLY "entry" TO gl-rpt.acrange1[6]. 
      RETURN.
   END.
   RUN validate-acct (gl-rpt.acrange1[7]:SCREEN-VALUE IN FRAME {&FRAME-NAME}) NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN do:
+  IF ERROR-STATUS:ERROR OR lInactive THEN do:
      APPLY "entry" TO gl-rpt.acrange1[7]. 
      RETURN.
   END.
   RUN validate-acct (gl-rpt.acrange1[8]:SCREEN-VALUE IN FRAME {&FRAME-NAME}) NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN do:
+  IF ERROR-STATUS:ERROR OR lInactive THEN do:
      APPLY "entry" TO gl-rpt.acrange1[8]. 
      RETURN.
   END.
@@ -1303,6 +1339,8 @@ PROCEDURE validate-acct :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF INPUT PARAMETER ip-account LIKE account.actnum.
+  
+  lInactive = FALSE.
 
   {methods/lValidateError.i YES}
   FIND FIRST account WHERE account.company = g_company
@@ -1314,6 +1352,12 @@ PROCEDURE validate-acct :
   END.
 
   {methods/lValidateError.i NO}
+  
+  RUN checkInvalidGLAccount IN hGLProcs(
+      INPUT g_company,
+      INPUT ip-account,
+      OUTPUT lInactive
+      ).           
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

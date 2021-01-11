@@ -41,6 +41,9 @@ DEF VAR lv-account-recid AS RECID NO-UNDO.
 DEF VAR v-debit AS DEC NO-UNDO.
 DEF VAR v-credit AS DEC NO-UNDO.
 DEF VAR lv-acct-dscr AS cha FORM "x(30)" LABEL "Account Name " NO-UNDO.
+DEFINE VARIABLE hGLProcs AS HANDLE  NO-UNDO.
+
+RUN system/GLProcs.p PERSISTENT SET hGLProcs.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -315,16 +318,26 @@ END.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON HELP OF Browser-Table IN FRAME F-Main
-DO:
-  DEF VAR char-val AS cha NO-UNDO.
-  DEF VAR lk-recid AS RECID NO-UNDO.
+DO:  
+  DEFINE VARIABLE cFieldsValue  AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cFoundValue   AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE recFoundRecID AS RECID     NO-UNDO.
 
   
   CASE FOCUS:NAME:   
     WHEN "actnum" THEN DO:
-      RUN windows/l-acct3.w (gl-jrn.company,"T",FOCUS:SCREEN-VALUE, OUTPUT char-val).
-      IF char-val NE "" AND ENTRY(1,char-val) NE FOCUS:SCREEN-VALUE THEN DO:
-        FOCUS:SCREEN-VALUE = ENTRY(1,char-val).
+        RUN system/openLookup.p (
+            INPUT  g_company, 
+            INPUT  "",  /* Lookup ID */
+            INPUT  87,  /* Subject ID */
+            INPUT  "",  /* User ID */
+            INPUT  0,   /* Param Value ID */
+            OUTPUT cFieldsValue, 
+            OUTPUT cFoundValue, 
+            OUTPUT recFoundRecID
+          ).    
+      IF cFoundValue NE "" AND cFoundValue NE FOCUS:SCREEN-VALUE THEN DO:
+        FOCUS:SCREEN-VALUE = cFoundValue.
         RUN new-actnum (0).
       END.
     END.
@@ -401,6 +414,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL gl-jrnl.actnum Browser-Table _BROWSE-COLUMN B-table-Win
 ON LEAVE OF gl-jrnl.actnum IN BROWSE Browser-Table /* Account Number */
 DO:
+    DEFINE VARIABLE lInactive AS LOGICAL NO-UNDO.
     IF LASTKEY NE -1 THEN DO:
        /* gdm - 09200703*/
       FIND FIRST account
@@ -416,6 +430,14 @@ DO:
         APPLY "entry" TO gl-jrnl.actnum IN BROWSE {&browse-name}.
         RETURN NO-APPLY.    
       END.
+      
+      RUN checkInvalidGLAccount IN hGLProcs(
+          INPUT g_company,
+          INPUT gl-jrnl.actnum:SCREEN-VALUE IN BROWSE {&browse-name},
+          OUTPUT lInactive
+          ). 
+      IF lInactive THEN
+          gl-jrnl.actnum:SCREEN-VALUE IN BROWSE {&browse-name} = gl-jrnl.actnum:SCREEN-VALUE IN BROWSE {&browse-name} + "Inactive".
 
 /*      RUN valid-actnum NO-ERROR.                   */
 /*     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.   */
@@ -703,9 +725,21 @@ PROCEDURE local-update-record :
   /* gdm - 09200703 */
   DEF VAR ll-new-record AS LOG NO-UNDO.
   DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
+  DEFINE VARIABLE lInactive    AS LOGICAL NO-UNDO.
   /* Code placed here will execute PRIOR to standard behavior. */
   RUN valid-actnum(OUTPUT lReturnError) NO-ERROR.
   IF lReturnError THEN RETURN NO-APPLY.
+  
+  RUN checkInvalidGLAccount IN hGLProcs(
+      INPUT g_company,
+      INPUT gl-jrnl.actnum:SCREEN-VALUE IN BROWSE {&browse-name},
+      OUTPUT lInactive
+      ). 
+  IF lInactive THEN DO: 
+      gl-jrnl.actnum:SCREEN-VALUE IN BROWSE {&browse-name} = gl-jrnl.actnum:SCREEN-VALUE IN BROWSE {&browse-name} + "Inactive".
+      APPLY "ENTRY" TO gl-jrnl.actnum IN BROWSE {&browse-name}.
+      RETURN NO-APPLY.
+  END.    
 
   /* gdm - 09200703 */
   ASSIGN ll-new-record = adm-new-record.

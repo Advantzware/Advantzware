@@ -47,6 +47,10 @@ DEF TEMP-TABLE tt-account FIELD actnum LIKE account.actnum
 
 DEF BUFFER b-tt-acc FOR tt-account.
 
+DEFINE VARIABLE hGLProcs AS HANDLE  NO-UNDO.
+
+RUN system/GLProcs.p PERSISTENT SET hGLProcs.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -269,15 +273,26 @@ OPEN QUERY {&SELF-NAME} FOR EACH tt-account.
 &Scoped-define SELF-NAME br_table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
 ON HELP OF br_table IN FRAME F-Main
-DO:
-  DEF VAR char-val AS cha NO-UNDO.
-  DEF VAR help-recid AS RECID NO-UNDO.
+DO:  
+  DEFINE VARIABLE cFieldsValue  AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cFoundValue   AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE recFoundRecID AS RECID     NO-UNDO.
 
 
   CASE FOCUS:NAME :
-    WHEN "actnum" THEN DO:
-      RUN windows/l-acct3.w (g_company,"T",FOCUS:SCREEN-VALUE,OUTPUT char-val).
-      IF char-val NE "" THEN FOCUS:SCREEN-VALUE = ENTRY(1,char-val).
+    WHEN "actnum" THEN DO:      
+      RUN system/openLookup.p (
+          INPUT  g_company, 
+          INPUT  "",  /* Lookup ID */
+          INPUT  87,  /* Subject ID */
+          INPUT  "",  /* User ID */
+          INPUT  0,   /* Param Value ID */
+          OUTPUT cFieldsValue, 
+          OUTPUT cFoundValue, 
+          OUTPUT recFoundRecID
+          ).    
+      IF cFoundValue NE "" THEN 
+          FOCUS:SCREEN-VALUE = cFoundValue.
     END.
   END CASE.
 
@@ -615,11 +630,22 @@ PROCEDURE local-update-record :
 ------------------------------------------------------------------------------*/
   DEF VAR ll-new-record AS LOG NO-UNDO.
   DEF VAR lv-rowid AS ROWID NO-UNDO.
+  DEFINE VARIABLE lInactive AS LOGICAL NO-UNDO.
 
 
   /* Code placed here will execute PRIOR to standard behavior. */
   RUN valid-actnum NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  RUN checkInvalidGLAccount IN hGLProcs(
+      INPUT cocode,
+      INPUT tt-account.actnum:SCREEN-VALUE IN BROWSE {&BROWSE-NAME},
+      OUTPUT lInactive
+      ). 
+  IF lInactive THEN DO:
+      tt-account.actnum:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} = tt-account.actnum:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} + "Inactive".
+      APPLY "ENTRY" TO tt-account.actnum IN BROWSE {&BROWSE-NAME}.
+      RETURN NO-APPLY.
+  END.
 
   ASSIGN
    ll-new-record = adm-new-record
