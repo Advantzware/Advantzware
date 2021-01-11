@@ -57,7 +57,7 @@ DEFINE {1} TEMP-TABLE ttLoadTag
     FIELD   grossWeight     AS      DECIMAL FORMAT  ">>>>9.99"
     FIELD   tareWeight      AS      DECIMAL FORMAT  ">>>>9.99"
     FIELD   netWeight       AS      DECIMAL FORMAT  ">>>>9.99"
-    FIELD   sheetWieght     AS      DECIMAL FORMAT  ">>>9.99"
+    FIELD   sheetWeight     AS      DECIMAL FORMAT  ">>>9.99"
     FIELD   uom             LIKE    oe-ordl.pr-uom      
     FIELD   partial         AS      INTEGER FORMAT  ">>>,>>9"
     FIELD   dontRunSet      AS      LOGICAL

@@ -39,8 +39,8 @@ CREATE WIDGET-POOL.
 /* Local Variable Definitions ---                                       */
 DEFINE VARIABLE cUserFieldListFormat AS CHARACTER NO-UNDO INIT "Overs|DECIMAL|999.99,Unit Weight|DECIMAL|9999999999.999999,Pallet Weight|DECIMAL|9999999999.999999,Lot Number|CHARACTER|X(20),SSCC|CHARACTER|X(30),Item Description|CHARACTER|X(30),Customer Part #|CHARACTER|X(30),Location / Bin|CHARACTER|X(20)".
 
-DEFINE VARIABLE lDisableWidgets AS LOGICAL NO-UNDO INIT FALSE.
-DEFINE VARIABLE iNumUserFields  AS INTEGER NO-UNDO INIT 3.
+DEFINE VARIABLE lDisableWidgets AS LOGICAL NO-UNDO INITIAL FALSE.
+DEFINE VARIABLE iNumUserFields  AS INTEGER NO-UNDO INITIAL 3.
 
 DEFINE TEMP-TABLE ttUserField NO-UNDO
     FIELD fieldLabel  AS CHARACTER
@@ -522,7 +522,8 @@ PROCEDURE pNotify PRIVATE :
     DEFINE INPUT  PARAMETER ipiUserFieldID AS INTEGER   NO-UNDO.
     DEFINE INPUT  PARAMETER ipcUserField   AS CHARACTER NO-UNDO.
 
-    IF VALID-HANDLE(hdUserFieldValue[ipiUserFieldID]) AND cUserFieldValue[ipiUserFieldID] EQ hdUserFieldValue[ipiUserFieldID]:SCREEN-VALUE THEN
+    IF VALID-HANDLE(hdUserFieldValue[ipiUserFieldID]) AND 
+       cUserFieldValue[ipiUserFieldID] EQ hdUserFieldValue[ipiUserFieldID]:SCREEN-VALUE THEN
         RETURN.
             
     CASE ipcUserField:

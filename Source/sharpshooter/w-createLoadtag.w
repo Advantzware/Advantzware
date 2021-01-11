@@ -44,7 +44,7 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO.
-
+ 
 DEFINE VARIABLE oJobHeader AS JobHeader NO-UNDO.
 DEFINE VARIABLE oItemFG    AS ItemFG    NO-UNDO.
 
@@ -644,12 +644,8 @@ PROCEDURE state-changed :
                 iQuantity        = INTEGER(oJobHeader:GetValue("Quantity"))
                 .
             
-/*            OECount nk1*/
-/*            IF NOT lOECount THEN     */
-            iSubUnitsPerUnit = 1.
-            
-            {methods/run_link.i "QTY-SOURCE" "SetQuantities" "(INPUT iQuantity, INPUT 0, INPUT iSubUnits, INPUT iSubUnitsPerUnit, INPUT 0, INPUT 1)"}
             {methods/run_link.i "QTY-SOURCE" "SetOvers" "(INPUT 0)"} 
+            {methods/run_link.i "QTY-SOURCE" "SetQuantities" "(INPUT iQuantity, INPUT 0, INPUT iSubUnits, INPUT iSubUnitsPerUnit, INPUT 0, INPUT 1)"}
                        
             btCreate:SENSITIVE = TRUE.         
         END.
@@ -679,6 +675,9 @@ PROCEDURE state-changed :
         END. 
         WHEN "print-tags" THEN DO:
             {methods/run_link.i "LOADTAG-SOURCE" "CreateLoadTagFromTT"}
+            
+            MESSAGE "Process complete!"
+            VIEW-AS ALERT-BOX INFORMATION.
         END.
     END CASE.  
 END PROCEDURE.
