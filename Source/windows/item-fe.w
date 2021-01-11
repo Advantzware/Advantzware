@@ -312,7 +312,7 @@ END.
 
 /* Include custom  Main Block code for SmartWindows. */
 {src/adm/template/windowmn.i}
-
+{custom/initializeprocs.i}
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -916,7 +916,13 @@ PROCEDURE local-change-page :
 
   /* Code placed here will execute AFTER standard behavior.    */
   /*{methods/winReSizePgChg.i}*/
-
+  IF VALID-HANDLE(h_vp-rmov) THEN 
+    DO:
+        IF li-current-page EQ 3 THEN 
+            RUN ipShowBtn IN h_vp-rmov (TRUE).
+        ELSE
+            RUN ipShowBtn IN h_vp-rmov (FALSE).
+    END. 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
