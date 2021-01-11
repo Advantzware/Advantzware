@@ -29,7 +29,10 @@ DEF OUTPUT PARAM op-rowid   AS   ROWID          NO-UNDO.
 
 /* Local Variable Definitions ---                                       */
 {sys/inc/var.i SHARED}
-
+            DEFINE VARIABLE hColumnLabel AS HANDLE    NO-UNDO.
+            DEFINE VARIABLE cColumnLabel AS CHARACTER.
+            DEFINE VARIABLE cSaveLabel   AS CHARACTER.
+            DEFINE VARIABLE lAscending   AS LOGICAL.
 DEF VAR ll-master AS LOG NO-UNDO.
 DEF VAR ll-spec AS LOG INIT YES NO-UNDO.
 DEF VAR ll-dept AS LOG INIT YES NO-UNDO.
@@ -74,9 +77,9 @@ DEF BUFFER b-tt-est FOR tt-est.
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-BROWSE-2 tt-est
 &Scoped-define SELF-NAME BROWSE-2
 &Scoped-define QUERY-STRING-BROWSE-2 FOR EACH tt-est, ~
-                                   FIRST eb WHERE ROWID(eb) EQ tt-est.row-id NO-LOCK                             BY (IF fi_die-no EQ "" THEN "" ELSE eb.die-no)                             BY eb.est-no BY eb.form-no BY eb.blank-no
+                                   FIRST eb WHERE ROWID(eb) EQ tt-est.row-id NO-LOCK                             BY (IF fi_die-no EQ "" THEN "" ELSE eb.die-no)                             BY eb.est-no BY eb.form-no BY eb.blank-no ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-BROWSE-2 OPEN QUERY {&SELF-NAME} FOR EACH tt-est, ~
-                                   FIRST eb WHERE ROWID(eb) EQ tt-est.row-id NO-LOCK                             BY (IF fi_die-no EQ "" THEN "" ELSE eb.die-no)                             BY eb.est-no BY eb.form-no BY eb.blank-no.
+                                   FIRST eb WHERE ROWID(eb) EQ tt-est.row-id NO-LOCK                             BY (IF fi_die-no EQ "" THEN "" ELSE eb.die-no)                             BY eb.est-no BY eb.form-no BY eb.blank-no ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-BROWSE-2 tt-est eb
 &Scoped-define FIRST-TABLE-IN-QUERY-BROWSE-2 tt-est
 &Scoped-define SECOND-TABLE-IN-QUERY-BROWSE-2 eb
@@ -134,14 +137,14 @@ DEFINE QUERY BROWSE-2 FOR
 DEFINE BROWSE BROWSE-2
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-2 D-Dialog _FREEFORM
   QUERY BROWSE-2 DISPLAY
-      tt-est.selekt
-     tt-est.eqty FORMAT ">,>>>,>>>,>>9"
-     eb.est-no   FORMAT "x(8)"
-     eb.die-no
-     eb.part-no
-     eb.stock-no
-     eb.style
-     eb.part-dscr1
+      tt-est.selekt LABEL-BGCOLOR 14
+     tt-est.eqty FORMAT ">,>>>,>>>,>>9" LABEL-BGCOLOR 14
+     eb.est-no   FORMAT "x(8)" LABEL-BGCOLOR 14
+     eb.die-no LABEL-BGCOLOR 14
+     eb.part-no LABEL-BGCOLOR 14
+     eb.stock-no LABEL-BGCOLOR 14
+     eb.style LABEL-BGCOLOR 14
+     eb.part-dscr1 LABEL-BGCOLOR 14
      ENABLE tt-est.selekt tt-est.eqty
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -195,6 +198,9 @@ ASSIGN
        FRAME D-Dialog:SCROLLABLE       = FALSE
        FRAME D-Dialog:HIDDEN           = TRUE.
 
+ASSIGN 
+       BROWSE-2:ALLOW-COLUMN-SEARCHING IN FRAME D-Dialog = TRUE.
+
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -207,7 +213,7 @@ ASSIGN
 OPEN QUERY {&SELF-NAME} FOR EACH tt-est,
                             FIRST eb WHERE ROWID(eb) EQ tt-est.row-id NO-LOCK
                             BY (IF fi_die-no EQ "" THEN "" ELSE eb.die-no)
-                            BY eb.est-no BY eb.form-no BY eb.blank-no.
+                            BY eb.est-no BY eb.form-no BY eb.blank-no ~{&SORTBY-PHRASE}.
      _END_FREEFORM
      _Query            is OPENED
 */  /* BROWSE BROWSE-2 */
@@ -271,6 +277,18 @@ DO:
   /* Add Trigger to equate WINDOW-CLOSE to END-ERROR. */
   op-success = NO.
   APPLY "choose" TO btn_ok.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define BROWSE-NAME BROWSE-2
+&Scoped-define SELF-NAME BROWSE-2
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-2 D-Dialog
+ON START-SEARCH OF BROWSE-2 IN FRAME D-Dialog
+DO:
+    {AOA/includes/startSearch.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -546,7 +564,7 @@ DO:
       REPOSITION {&browse-name} TO ROWID lv-rowid NO-ERROR.
     END.
 END.
-
+{methods/template/brwCustom.i}
 SESSION:DATA-ENTRY-RETURN = YES.
 
 FIND eb WHERE ROWID(eb) EQ ip-rowid NO-LOCK NO-ERROR.
@@ -565,6 +583,16 @@ IF lv-est-type EQ 0 THEN DO:
 END.
 
 {src/adm/template/dialogmn.i}
+
+
+{methods/sortByProc.i "pByselekt" "tt-est.selekt"}
+{methods/sortByProc.i "pByeqty" "tt-est.eqty"}
+{methods/sortByProc.i "pByest-no" "eb.est-no"}
+{methods/sortByProc.i "pBydie-no" "eb.die-no"}
+{methods/sortByProc.i "pBypart-no" "eb.part-no"}
+{methods/sortByProc.i "pBystock-no" "eb.stock-no"}
+{methods/sortByProc.i "pBystyle" "eb.style"}
+{methods/sortByProc.i "pBypart-dscr1" "eb.part-dscr1"}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -831,6 +859,42 @@ PROCEDURE local-initialize :
 
   /* Code placed here will execute AFTER standard behavior.    */
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pReopenBrowse D-Dialog 
+PROCEDURE pReopenBrowse :
+/*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+
+    SESSION:SET-WAIT-STATE("General").
+    CASE cColumnLabel:
+        WHEN "selected" THEN
+        RUN pByselekt.
+        WHEN "Qty" THEN
+        RUN pByeqty.
+        WHEN "Estimate #" THEN
+        RUN pByest-no.
+        WHEN "Die #" THEN
+        RUN pBydie-no.
+        WHEN "Stock Box #" THEN
+        RUN pByestock-no.
+        WHEN "Cust part #" THEN
+        RUN pBypart-no.
+        WHEN "Style Code" THEN
+        RUN pBystyle.
+        WHEN "Item Description" THEN
+        RUN pBypart-dscr1.
+        OTHERWISE
+        {&OPEN-QUERY-{&BROWSE-NAME}}
+    END CASE.
+    {AOA/includes/pReopenBrowse.i}
+    SESSION:SET-WAIT-STATE("").
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
