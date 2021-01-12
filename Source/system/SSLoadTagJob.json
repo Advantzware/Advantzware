@@ -14,11 +14,7 @@
 	"LOADTAG" : {
 		"Description" : "NK1 LOADTAG - Special Load tag print options, e.g. barcode printer",
 		"Active" : false,
-		"Printer" : {
-			"value" : "ASI",
-			"default" : "ASI",
-			"accepted" : "ASI,SSLABEL"
-		}
+		"Printer" : "ASI"
 	},
 	"CreateRFIDTag" : {
 		"Description" : "NK1 RFIDTag - Create rfIDTag for a lodatag",
@@ -31,11 +27,7 @@
 	"CreateFGReceipts" : {
 		"Description" : "NK1 FGRECPT - Is Job# or PO# mandatory on FG Receipts?",
 		"Active" : false,
-		"Type" : {
-			"value" : "Manual",
-			"default" : "Manual",
-			"accepted" : "Manual"
-		}
+		"Type" : "Manual"
 	},
 	"FGReceiptRules" : {
 		"Description" : "NK1 FGReceiptRules",

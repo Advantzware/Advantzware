@@ -11,8 +11,16 @@
 
 USING Progress.Lang.*.
 
-INTERFACE System.Config:       
+INTERFACE system.Config:       
     METHOD PUBLIC CHARACTER GetAttributeValue (ipcKey AS CHARACTER ).
     
     METHOD PUBLIC CHARACTER GetAttributeValue (ipcConfig AS CHARACTER, ipcAttribute AS CHARACTER).
+    
+    METHOD PUBLIC CHARACTER GetAttributeValue (ipcConfig AS CHARACTER, ipcAttribute AS CHARACTER, ipcSubAttribute AS CHARACTER).
+    
+    METHOD PUBLIC LOGICAL IsAttributeAvailable (ipcKey AS CHARACTER ).
+    
+    METHOD PUBLIC LOGICAL IsAttributeAvailable (ipcConfig AS CHARACTER, ipcAttribute AS CHARACTER).
+    
+    METHOD PUBLIC LOGICAL IsAttributeAvailable (ipcConfig AS CHARACTER, ipcAttribute AS CHARACTER, ipcSubAttribute AS CHARACTER).    
 END INTERFACE.

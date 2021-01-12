@@ -35,6 +35,11 @@ CLASS system.JSONConfig IMPLEMENTS system.Config:
     DEFINE PRIVATE VARIABLE iConfigIDIndex AS INTEGER   NO-UNDO.
     DEFINE PRIVATE VARIABLE cDataTypeList  AS CHARACTER NO-UNDO INITIAL "String,Number,Boolean,Object,Array,Null".
     
+    DESTRUCTOR PUBLIC JSONConfig():
+        EMPTY TEMP-TABLE ttConfig.
+        EMPTY TEMP-TABLE ttAttribute.
+    END.
+    
     CONSTRUCTOR PUBLIC JSONConfig(ipcJSONFile AS CHARACTER):
         pLoadJSON(INPUT ipcJSONFile).
     END CONSTRUCTOR.
@@ -107,8 +112,22 @@ CLASS system.JSONConfig IMPLEMENTS system.Config:
             ttAttribute.attributeType  = ipcAttributeType
             .
     END METHOD.
+    
+    METHOD PRIVATE CHARACTER pGetAttributeValue(ipcConfig AS CHARACTER, ipcAttribute AS CHARACTER, ipcSubAttribute AS CHARACTER, ipiParentID AS INTEGER):
+        DEFINE VARIABLE lIsAttributeAvailable AS LOGICAL NO-UNDO.
         
-	METHOD PRIVATE CHARACTER pGetAttributeValue(ipcConfig AS CHARACTER, ipcAttribute AS CHARACTER, ipiParentID AS INTEGER):	    
+        RETURN pGetAttributeValue(ipcConfig, ipcAttribute, ipcSubAttribute, ipiParentID, OUTPUT lIsAttributeAvailable).
+    END METHOD.
+
+    METHOD PRIVATE LOGICAL pIsAttributeAvailable(ipcConfig AS CHARACTER, ipcAttribute AS CHARACTER, ipcSubAttribute AS CHARACTER, ipiParentID AS INTEGER):
+        DEFINE VARIABLE lIsAttributeAvailable AS LOGICAL NO-UNDO.
+        
+        pGetAttributeValue(ipcConfig, ipcAttribute, ipcSubAttribute, ipiParentID, OUTPUT lIsAttributeAvailable).
+        
+        RETURN lIsAttributeAvailable.
+    END METHOD.
+        
+	METHOD PRIVATE CHARACTER pGetAttributeValue(ipcConfig AS CHARACTER, ipcAttribute AS CHARACTER, ipcSubAttribute AS CHARACTER, ipiParentID AS INTEGER, OUTPUT oplIsAttributeAvailable AS LOGICAL):	    
         DEFINE VARIABLE cAttributeValue AS CHARACTER NO-UNDO.
 
 	    DEFINE BUFFER bf-ttConfig    FOR ttConfig.
@@ -126,18 +145,37 @@ CLASS system.JSONConfig IMPLEMENTS system.Config:
 	             NO-ERROR.
 	    
 	    IF AVAILABLE bf-ttAttribute THEN
-	        cAttributeValue = bf-ttAttribute.attributeValue.
-	    ELSE
-	        cAttributeValue = pGetAttributeValue(ipcAttribute, "value", bf-ttConfig.configID).
+	        ASSIGN
+	           cAttributeValue         = bf-ttAttribute.attributeValue
+	           oplIsAttributeAvailable = TRUE
+	           .
+	    ELSE IF AVAILABLE bf-ttConfig AND ipcSubAttribute NE "" THEN
+	        cAttributeValue = pGetAttributeValue(ipcAttribute, ipcSubAttribute, "" , bf-ttConfig.configID, OUTPUT oplIsAttributeAvailable).
 	    
 	    RETURN cAttributeValue.
 	END METHOD.
 
 	METHOD PUBLIC CHARACTER GetAttributeValue (ipcAttribute AS CHARACTER):
-        RETURN pGetAttributeValue("root", ipcAttribute, 1).
+        RETURN pGetAttributeValue("root", ipcAttribute, "", 1).
 	END METHOD.
 
     METHOD PUBLIC CHARACTER GetAttributeValue (ipcConfig AS CHARACTER, ipcAttribute AS CHARACTER):
-        RETURN pGetAttributeValue(ipcConfig, ipcAttribute, 1).
+        RETURN pGetAttributeValue(ipcConfig, ipcAttribute, "", 1).
+    END METHOD.    
+
+    METHOD PUBLIC CHARACTER GetAttributeValue (ipcConfig AS CHARACTER, ipcAttribute AS CHARACTER, ipcSubAttribute AS CHARACTER):
+        RETURN pGetAttributeValue(ipcConfig, ipcAttribute, ipcSubAttribute, 1).
+    END METHOD.
+    
+    METHOD PUBLIC LOGICAL IsAttributeAvailable (ipcAttribute AS CHARACTER):
+        RETURN pIsAttributeAvailable("root", ipcAttribute, "", 1).
+    END METHOD.
+
+    METHOD PUBLIC LOGICAL IsAttributeAvailable (ipcConfig AS CHARACTER, ipcAttribute AS CHARACTER):
+        RETURN pIsAttributeAvailable(ipcConfig, ipcAttribute, "", 1).
+    END METHOD.    
+
+    METHOD PUBLIC LOGICAL IsAttributeAvailable (ipcConfig AS CHARACTER, ipcAttribute AS CHARACTER, ipcSubAttribute AS CHARACTER):
+        RETURN pIsAttributeAvailable(ipcConfig, ipcAttribute, ipcSubAttribute, 1).
     END METHOD.    
 END CLASS.

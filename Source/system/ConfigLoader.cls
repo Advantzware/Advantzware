@@ -14,7 +14,7 @@ USING Progress.Lang.*.
 BLOCK-LEVEL ON ERROR UNDO, THROW.
 
 CLASS system.ConfigLoader:
-    DEFINE TEMP-TABLE ttClass
+    DEFINE PRIVATE TEMP-TABLE ttClass
        FIELD className     AS CHARACTER 
        FIELD classInstance AS CLASS Object
        FIELD configType    AS CHARACTER
@@ -42,35 +42,49 @@ CLASS system.ConfigLoader:
         EMPTY TEMP-TABLE ttClass.
     END DESTRUCTOR.   
     
-    METHOD PUBLIC Object GetConfig (ipcConfig AS CHARACTER):
-        FIND FIRST ttClass
-             WHERE ttClass.className  EQ ipcConfig
-               AND ttClass.configType EQ cCONFIG_TYPE_JSON
+    METHOD PRIVATE system.Config pGetConfig (ipcConfig AS CHARACTER):       
+        DEFINE VARIABLE cConfigType AS CHARACTER NO-UNDO.
+        
+        DEFINE BUFFER bf-ttClass FOR ttClass.
+ 
+        cConfigType = pGetConfigType(ipcConfig).
+
+        FIND FIRST bf-ttClass
+             WHERE bf-ttClass.className  EQ ipcConfig
+               AND bf-ttClass.configType EQ cConfigType
              NO-ERROR.
-        IF NOT AVAILABLE ttClass THEN DO:
-            CREATE ttClass.
+        IF NOT AVAILABLE bf-ttClass THEN DO:
+            CREATE bf-ttClass.
             ASSIGN
-                ttClass.className  = ipcConfig
-                ttClass.configType = cCONFIG_TYPE_JSON
+                bf-ttClass.className  = ipcConfig
+                bf-ttClass.configType = cCONFIG_TYPE_JSON
                 .
             
             IF pGetConfigType(ipcConfig) EQ cCONFIG_TYPE_JSON THEN
-                ttClass.classInstance = NEW system.JSONConfig(pGetJSONConfigFile(ipcConfig)).
+                bf-ttClass.classInstance = NEW system.JSONConfig(pGetJSONConfigFile(ipcConfig)).
         END.
         
-        RETURN ttClass.classInstance.
+        RETURN CAST(bf-ttClass.classInstance, system.Config).
     END METHOD. 
+    
+    METHOD PUBLIC system.Config GetConfig (ipcConfig AS CHARACTER):
+        RETURN pGetConfig(ipcConfig).
+    END METHOD.
     
     METHOD PRIVATE CHARACTER pGetJSONConfigFile (ipcConfig AS CHARACTER):
         CASE ipcConfig:
             WHEN "SSLoadTagJob" THEN
                 RETURN SEARCH("system/SSLoadTagJob.json").
+            WHEN "SSLoadTagJobDesign" THEN
+                RETURN SEARCH("system/SSLoadTagJobDesign.json").
         END CASE.
     END METHOD.     
 
     METHOD PRIVATE CHARACTER pGetConfigType (ipcConfig AS CHARACTER):
         CASE ipcConfig:
             WHEN "SSLoadTagJob" THEN
+                RETURN cCONFIG_TYPE_JSON.
+            WHEN "SSLoadTagJobDesign" THEN
                 RETURN cCONFIG_TYPE_JSON.
         END CASE.
     END METHOD. 

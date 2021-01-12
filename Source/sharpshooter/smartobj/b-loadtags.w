@@ -362,11 +362,8 @@ PROCEDURE BuildLoadTagsFromJob :
     DEFINE INPUT  PARAMETER ipiBlankNo           AS INTEGER   NO-UNDO.
     DEFINE INPUT  PARAMETER ipcItemID            AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipiQuantity          AS INTEGER   NO-UNDO.
-    DEFINE INPUT  PARAMETER ipiSubUnits          AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiQuantityInSubUnit AS INTEGER   NO-UNDO.
     DEFINE INPUT  PARAMETER ipiSubUnitsPerUnit   AS INTEGER   NO-UNDO.
-    DEFINE INPUT  PARAMETER ipiQuantityPerPallet AS INTEGER   NO-UNDO.
-    DEFINE INPUT  PARAMETER ipiPartial           AS INTEGER   NO-UNDO.
-    DEFINE INPUT  PARAMETER ipiPalletTags        AS INTEGER   NO-UNDO.
     DEFINE INPUT  PARAMETER ipiCopies            AS INTEGER   NO-UNDO.
     DEFINE INPUT  PARAMETER ipcUserField1        AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcUserField2        AS CHARACTER NO-UNDO.
@@ -374,7 +371,7 @@ PROCEDURE BuildLoadTagsFromJob :
     DEFINE INPUT  PARAMETER ipcUserFieldValue1   AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcUserFieldValue2   AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcUserFieldValue3   AS CHARACTER NO-UNDO.
-
+    
     RUN BuildLoadTagsFromJob IN hdLoadTagProcs (
         INPUT ipcCompany,
         INPUT ipcJobno,
@@ -383,11 +380,8 @@ PROCEDURE BuildLoadTagsFromJob :
         INPUT ipiBlankNo,
         INPUT ipcItemID,
         INPUT ipiQuantity,
-        INPUT ipiSubUnits,
+        INPUT ipiQuantityInSubUnit,
         INPUT ipiSubUnitsPerUnit,
-        INPUT ipiQuantityPerPallet,
-        INPUT ipiPartial,
-        INPUT ipiPalletTags,
         INPUT ipiCopies,
         INPUT ipcUserField1,
         INPUT ipcUserField2,

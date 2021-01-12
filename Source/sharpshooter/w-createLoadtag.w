@@ -126,12 +126,12 @@ DEFINE BUTTON btSplit
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
-     SIZE 186.2 BY 18.62
+     SIZE 203.2 BY 18.62
      BGCOLOR 1 FGCOLOR 1 .
 
 DEFINE RECTANGLE RECT-34
      EDGE-PIXELS 1 GRAPHIC-EDGE    
-     SIZE 186.2 BY 1.67
+     SIZE 203.2 BY 1.67
      BGCOLOR 3 .
 
 DEFINE RECTANGLE rHighlight
@@ -149,15 +149,15 @@ DEFINE FRAME F-Main
      btReturn AT ROW 1.38 COL 76.6 WIDGET-ID 50
      btReprint AT ROW 1.38 COL 100.4 WIDGET-ID 52
      btSplit AT ROW 1.38 COL 124.2 WIDGET-ID 54
-     btCreate AT ROW 19.1 COL 168 WIDGET-ID 58
-     btPrint AT ROW 21.62 COL 177 WIDGET-ID 30
+     btCreate AT ROW 3.14 COL 186.2 WIDGET-ID 58
+     btPrint AT ROW 21.62 COL 194.2 WIDGET-ID 30
      RECT-1 AT ROW 2.86 COL 3.8 WIDGET-ID 4
      RECT-34 AT ROW 1.29 COL 3.8 WIDGET-ID 18
      rHighlight AT ROW 1.29 COL 3.8 WIDGET-ID 20
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 192.4 BY 31.43
+         SIZE 208 BY 31.86
          BGCOLOR 15 FONT 17 WIDGET-ID 100.
 
 
@@ -177,12 +177,12 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW W-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Create LoadTag"
-         HEIGHT             = 31.43
-         WIDTH              = 192.4
+         HEIGHT             = 31.86
+         WIDTH              = 208
          MAX-HEIGHT         = 32.81
-         MAX-WIDTH          = 192.4
+         MAX-WIDTH          = 208
          VIRTUAL-HEIGHT     = 32.81
-         VIRTUAL-WIDTH      = 192.4
+         VIRTUAL-WIDTH      = 208
          RESIZE             = no
          SCROLL-BARS        = no
          STATUS-AREA        = no
@@ -398,7 +398,7 @@ PROCEDURE adm-create-objects :
              INPUT  'Layout = ':U ,
              OUTPUT h_b-loadtags-3 ).
        RUN set-position IN h_b-loadtags-3 ( 21.67 , 4.00 ) NO-ERROR.
-       RUN set-size IN h_b-loadtags-3 ( 10.29 , 172.00 ) NO-ERROR.
+       RUN set-size IN h_b-loadtags-3 ( 10.29 , 190.00 ) NO-ERROR.
 
        /* Links to SmartBrowser h_b-loadtags-3. */
        RUN add-link IN adm-broker-hdl ( h_b-loadtags-3 , 'LOADTAG':U , THIS-PROCEDURE ).
@@ -421,24 +421,24 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_fgfilter ).
-       RUN set-position IN h_fgfilter ( 6.48 , 5.00 ) NO-ERROR.
+       RUN set-position IN h_fgfilter ( 7.10 , 5.00 ) NO-ERROR.
        /* Size in UIB:  ( 3.76 , 85.00 ) */
-
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'sharpshooter/smartobj/userfields.w':U ,
-             INPUT  FRAME F-Main:HANDLE ,
-             INPUT  '':U ,
-             OUTPUT h_userfields ).
-       RUN set-position IN h_userfields ( 10.24 , 73.80 ) NO-ERROR.
-       /* Size in UIB:  ( 11.05 , 68.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'sharpshooter/smartobj/qtyunits.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_qtyunits ).
-       RUN set-position IN h_qtyunits ( 10.57 , 4.80 ) NO-ERROR.
-       /* Size in UIB:  ( 10.71 , 68.40 ) */
+       RUN set-position IN h_qtyunits ( 11.14 , 4.80 ) NO-ERROR.
+       /* Size in UIB:  ( 9.24 , 131.40 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'sharpshooter/smartobj/userfields.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_userfields ).
+       RUN set-position IN h_userfields ( 11.24 , 138.20 ) NO-ERROR.
+       /* Size in UIB:  ( 9.62 , 68.00 ) */
 
        /* Links to SmartObject h_jobfilter. */
        RUN add-link IN adm-broker-hdl ( h_jobfilter , 'JOB':U , THIS-PROCEDURE ).
@@ -448,22 +448,22 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_fgfilter , 'FGITEM':U , THIS-PROCEDURE ).
        RUN add-link IN adm-broker-hdl ( h_fgfilter , 'State':U , THIS-PROCEDURE ).
 
+       /* Links to SmartObject h_qtyunits. */
+       RUN add-link IN adm-broker-hdl ( h_qtyunits , 'QTY':U , THIS-PROCEDURE ).
+
        /* Links to SmartObject h_userfields. */
        RUN add-link IN adm-broker-hdl ( h_userfields , 'State':U , THIS-PROCEDURE ).
        RUN add-link IN adm-broker-hdl ( h_userfields , 'USERFIELD':U , THIS-PROCEDURE ).
-
-       /* Links to SmartObject h_qtyunits. */
-       RUN add-link IN adm-broker-hdl ( h_qtyunits , 'QTY':U , THIS-PROCEDURE ).
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_jobfilter ,
              btSplit:HANDLE IN FRAME F-Main , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_fgfilter ,
-             h_jobfilter , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_userfields ,
-             h_fgfilter , 'AFTER':U ).
+             btCreate:HANDLE IN FRAME F-Main , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_qtyunits ,
-             h_userfields , 'AFTER':U ).
+             h_fgfilter , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_userfields ,
+             h_qtyunits , 'AFTER':U ).
     END. /* Page 1 */
 
   END CASE.
@@ -591,11 +591,8 @@ PROCEDURE state-changed :
     DEFINE VARIABLE cItemID  AS CHARACTER NO-UNDO.
     
     DEFINE VARIABLE iQuantity          AS INTEGER NO-UNDO.
-    DEFINE VARIABLE iSubUnits          AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iQuantityInSubUnit AS INTEGER NO-UNDO.
     DEFINE VARIABLE iSubUnitsPerUnit   AS INTEGER NO-UNDO.
-    DEFINE VARIABLE iQuantityPerPallet AS INTEGER NO-UNDO.
-    DEFINE VARIABLE iPartial           AS INTEGER NO-UNDO.
-    DEFINE VARIABLE iPalletTags        AS INTEGER NO-UNDO.
     DEFINE VARIABLE iCopies            AS INTEGER NO-UNDO.
 
     DEFINE VARIABLE cUserField1      AS CHARACTER NO-UNDO.
@@ -639,13 +636,14 @@ PROCEDURE state-changed :
             {methods/run_link.i "JOB-SOURCE" "GetJobHeader" "(OUTPUT oJobHeader)"}
             
             ASSIGN
-                iSubUnits        = INTEGER(oItemFG:GetValue("SubUnits"))
-                iSubUnitsPerUnit = INTEGER(oItemFG:GetValue("SubUnitsPerUnit"))
-                iQuantity        = INTEGER(oJobHeader:GetValue("Quantity"))
+                iQuantityInSubUnit = INTEGER(oItemFG:GetValue("QuantityInSubUnit"))
+                iSubUnitsPerUnit   = INTEGER(oItemFG:GetValue("SubUnitsPerUnit"))
+/*                iQuantity        = INTEGER(oJobHeader:GetValue("Quantity"))*/
+                iQuantity          = iQuantityInSubUnit * iSubUnitsPerUnit
                 .
             
+            {methods/run_link.i "QTY-SOURCE" "SetQuantities" "(INPUT iQuantity, INPUT iQuantityInSubUnit, INPUT iSubUnitsPerUnit, INPUT 0)"}
             {methods/run_link.i "QTY-SOURCE" "SetOvers" "(INPUT 0)"} 
-            {methods/run_link.i "QTY-SOURCE" "SetQuantities" "(INPUT iQuantity, INPUT 0, INPUT iSubUnits, INPUT iSubUnitsPerUnit, INPUT 0, INPUT 1)"}
                        
             btCreate:SENSITIVE = TRUE.         
         END.
@@ -668,10 +666,10 @@ PROCEDURE state-changed :
             
             cItemID = oItemFG:GetValue("ItemID").
             
-            {methods/run_link.i "QTY-SOURCE" "GetQuantities" "(OUTPUT iQuantity, OUTPUT iSubUnits, OUTPUT iSubUnitsPerUnit, OUTPUT iQuantityPerPallet, OUTPUT iPartial, OUTPUT iPalletTags, OUTPUT iCopies)"}
+            {methods/run_link.i "QTY-SOURCE" "GetQuantities" "(OUTPUT iQuantity, OUTPUT iQuantityInSubUnit, OUTPUT iSubUnitsPerUnit, OUTPUT iCopies)"}
             {methods/run_link.i "USERFIELD-SOURCE" "GetUserFields" "(OUTPUT cUserField1, OUTPUT cUserField2, OUTPUT cUserField3, OUTPUT cUserFieldValue1, OUTPUT cUserFieldValue2, OUTPUT cUserFieldValue3)" }
             
-            {methods/run_link.i "LOADTAG-SOURCE" "BuildLoadTagsFromJob" "(INPUT cCompany, INPUT cJobNo, INPUT iJobNo2, INPUT iFormNo, INPUT iBlankNo, INPUT cItemID, INPUT iQuantity, INPUT iSubUnits, INPUT iSubUnitsPerUnit, INPUT iQuantityPerPallet, INPUT iPartial, INPUT iPalletTags, INPUT iCopies, INPUT cUserField1, INPUT cUserField2, INPUT cUserField3, INPUT cUserFieldValue1, INPUT cUserFieldValue2, INPUT cUserFieldValue3)" }
+            {methods/run_link.i "LOADTAG-SOURCE" "BuildLoadTagsFromJob" "(INPUT cCompany, INPUT cJobNo, INPUT iJobNo2, INPUT iFormNo, INPUT iBlankNo, INPUT cItemID, INPUT iQuantity, INPUT iQuantityInSubUnit, INPUT iSubUnitsPerUnit, INPUT iCopies, INPUT cUserField1, INPUT cUserField2, INPUT cUserField3, INPUT cUserFieldValue1, INPUT cUserFieldValue2, INPUT cUserFieldValue3)" }
         END. 
         WHEN "print-tags" THEN DO:
             {methods/run_link.i "LOADTAG-SOURCE" "CreateLoadTagFromTT"}

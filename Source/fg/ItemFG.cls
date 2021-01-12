@@ -42,7 +42,7 @@ CLASS fg.ItemFG:
                 RETURN STRING(bf-itemfg.i-no).
             WHEN "ItemName" THEN
                 RETURN STRING(bf-itemfg.i-name).
-            WHEN "SubUnits" THEN 
+            WHEN "QuantityInSubUnit" THEN 
                 RETURN STRING(bf-itemfg.case-count).
             WHEN "SubUnitsPerUnit" THEN
                 RETURN STRING(bf-itemfg.case-pall).

@@ -34,13 +34,7 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-DEFINE VARIABLE iOversPct          AS DECIMAL   NO-UNDO.
-DEFINE VARIABLE cQuantity          AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cSubUnits          AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cSubUnitsPerUnit   AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cQuantityPerPallet AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cPartial           AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cPalletTags        AS CHARACTER NO-UNDO.
+DEFINE VARIABLE dOversPct AS DECIMAL NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -57,11 +51,10 @@ DEFINE VARIABLE cPalletTags        AS CHARACTER NO-UNDO.
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-36 
-&Scoped-Define DISPLAYED-OBJECTS fiQuantityLabel fiQuantity fiSubUnitsLabel ~
-fiSubUnits fiSubUnitsPerUnitLabel fiSubUnitsPerUnit ~
-fiQuantityPerPalletLabel fiQuantityPerPallet fiPartialLabel fiPartial ~
-fiPalletTagsLabel fiPalletTags fiCopiesLabel fiCopies 
+&Scoped-Define ENABLED-OBJECTS RECT-37 RECT-39 
+&Scoped-Define DISPLAYED-OBJECTS fiQuantity fiQuantityOfSubUnits ~
+fiQuantityInSubUnit fiTotalTags fiSubUnitsPerUnit fiFullTags fiPartial ~
+fiPartialTags fiQuantityOfUnits fiCopies 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -76,84 +69,85 @@ fiPalletTagsLabel fiPalletTags fiCopiesLabel fiCopies
 
 /* Definitions of the field level widgets                               */
 DEFINE VARIABLE fiCopies AS INTEGER FORMAT "->,>>>,>>9":U INITIAL 0 
+     LABEL "Copies" 
      VIEW-AS FILL-IN 
      SIZE 32 BY 1.38 NO-UNDO.
 
-DEFINE VARIABLE fiCopiesLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Copies:" 
+DEFINE VARIABLE fiFullTags AS INTEGER FORMAT "->,>>>,>>9":U INITIAL 0 
+     LABEL "Full Tags" 
      VIEW-AS FILL-IN 
-     SIZE 11.4 BY 1.38 NO-UNDO.
-
-DEFINE VARIABLE fiPalletTags AS INTEGER FORMAT "->,>>>,>>9":U INITIAL 0 
-     VIEW-AS FILL-IN 
-     SIZE 32 BY 1.38 NO-UNDO.
-
-DEFINE VARIABLE fiPalletTagsLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Pallet Tags:" 
-     VIEW-AS FILL-IN 
-     SIZE 17.4 BY 1.38 NO-UNDO.
+     SIZE 32 BY 1.38 TOOLTIP "Total number of full loadtags" NO-UNDO.
 
 DEFINE VARIABLE fiPartial AS INTEGER FORMAT "->,>>>,>>9":U INITIAL 0 
+     LABEL "Partail Quantity" 
      VIEW-AS FILL-IN 
      SIZE 32 BY 1.38 NO-UNDO.
 
-DEFINE VARIABLE fiPartialLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Partial:" 
+DEFINE VARIABLE fiPartialTags AS INTEGER FORMAT "->,>>>,>>9":U INITIAL 0 
+     LABEL "Partial Tags" 
      VIEW-AS FILL-IN 
-     SIZE 11 BY 1.38 NO-UNDO.
+     SIZE 32 BY 1.38 TOOLTIP "Total num ber of partial tags" NO-UNDO.
 
 DEFINE VARIABLE fiQuantity AS INTEGER FORMAT "->,>>>,>>9":U INITIAL 0 
+     LABEL "Total Quantity" 
      VIEW-AS FILL-IN 
-     SIZE 32 BY 1.38 NO-UNDO.
+     SIZE 32 BY 1.38 TOOLTIP "Total Quantity" NO-UNDO.
 
-DEFINE VARIABLE fiQuantityLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Quantity:" 
+DEFINE VARIABLE fiQuantityInSubUnit AS INTEGER FORMAT "->,>>>,>>9":U INITIAL 0 
+     LABEL "Per Case" 
      VIEW-AS FILL-IN 
-     SIZE 14 BY 1.38 NO-UNDO.
+     SIZE 32 BY 1.38 TOOLTIP "Quantity in a single case" NO-UNDO.
 
-DEFINE VARIABLE fiQuantityPerPallet AS INTEGER FORMAT "->,>>>,>>9":U INITIAL 0 
+DEFINE VARIABLE fiQuantityOfSubUnits AS INTEGER FORMAT "->,>>>,>>9":U INITIAL 0 
+     LABEL "Cases" 
      VIEW-AS FILL-IN 
-     SIZE 32 BY 1.38 NO-UNDO.
+     SIZE 32 BY 1.38 TOOLTIP "Total number of cases for the quantity" NO-UNDO.
 
-DEFINE VARIABLE fiQuantityPerPalletLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Quantity Per Pallet:" 
+DEFINE VARIABLE fiQuantityOfUnits AS INTEGER FORMAT "->,>>>,>>9":U INITIAL 0 
+     LABEL "Per Pallet" 
      VIEW-AS FILL-IN 
-     SIZE 28.4 BY 1.38 NO-UNDO.
-
-DEFINE VARIABLE fiSubUnits AS INTEGER FORMAT "->,>>>,>>9":U INITIAL 0 
-     VIEW-AS FILL-IN 
-     SIZE 32 BY 1.38 NO-UNDO.
-
-DEFINE VARIABLE fiSubUnitsLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Sub Units:" 
-     VIEW-AS FILL-IN 
-     SIZE 15.6 BY 1.38 NO-UNDO.
+     SIZE 32 BY 1.38 TOOLTIP "Total number of Pallets" NO-UNDO.
 
 DEFINE VARIABLE fiSubUnitsPerUnit AS INTEGER FORMAT "->,>>>,>>9":U INITIAL 0 
+     LABEL "Cases Per Pallet" 
      VIEW-AS FILL-IN 
-     SIZE 32 BY 1.38 NO-UNDO.
+     SIZE 32 BY 1.38 TOOLTIP "Total number of cases in a pallet" NO-UNDO.
 
-DEFINE VARIABLE fiSubUnitsPerUnitLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Sub Units Per Unit:" 
+DEFINE VARIABLE fiTotalTags AS INTEGER FORMAT "->,>>>,>>9":U INITIAL 0 
+     LABEL "Tags" 
      VIEW-AS FILL-IN 
-     SIZE 28 BY 1.38 NO-UNDO.
+     SIZE 32 BY 1.38 TOOLTIP "Total number of tags including partial tags" NO-UNDO.
 
-DEFINE RECTANGLE RECT-36
+DEFINE RECTANGLE RECT-37
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 68.2 BY 10.71.
+     SIZE 66 BY 8.81.
+
+DEFINE RECTANGLE RECT-39
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 63.4 BY 8.81.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     fiQuantityLabel AT ROW 1.24 COL 16.8 COLON-ALIGNED NO-LABEL WIDGET-ID 28
-     fiQuantity AT ROW 1.24 COL 31.2 COLON-ALIGNED NO-LABEL WIDGET-ID 26
-     fiSubUnitsLabel AT ROW 2.71 COL 15.2 COLON-ALIGNED NO-LABEL WIDGET-ID 36
-     fiSubUnits AT ROW 2.71 COL 31.2 COLON-ALIGNED NO-LABEL WIDGET-ID 32
-     fiSubUnitsPerUnitLabel AT ROW 4.19 COL 2.8 COLON-ALIGNED NO-LABEL WIDGET-ID 40
-     fiSubUnitsPerUnit AT ROW 4.19 COL 31.2 COLON-ALIGNED NO-LABEL WIDGET-ID 38
-     fiQuantityPerPalletLabel AT ROW 5.67 COL 2.4 COLON-ALIGNED NO-LABEL WIDGET-ID 46 DEBLANK  DISABLE-AUTO-ZAP 
-     fiQuantityPerPallet AT ROW 5.67 COL 31.2 COLON-ALIGNED NO-LABEL WIDGET-ID 44
-     fiPartialLabel AT ROW 7.14 COL 19.8 COLON-ALIGNED NO-LABEL WIDGET-ID 50
-     fiPartial AT ROW 7.14 COL 31.2 COLON-ALIGNED NO-LABEL WIDGET-ID 48
-     fiPalletTagsLabel AT ROW 8.62 COL 13.4 COLON-ALIGNED NO-LABEL WIDGET-ID 54
-     fiPalletTags AT ROW 8.62 COL 31.2 COLON-ALIGNED NO-LABEL WIDGET-ID 52
-     fiCopiesLabel AT ROW 10.1 COL 19.4 COLON-ALIGNED NO-LABEL WIDGET-ID 42
-     fiCopies AT ROW 10.1 COL 31.2 COLON-ALIGNED NO-LABEL WIDGET-ID 56
-     RECT-36 AT ROW 1 COL 1.2 WIDGET-ID 58
+     fiQuantity AT ROW 1.86 COL 31.2 COLON-ALIGNED WIDGET-ID 26
+     fiQuantityOfSubUnits AT ROW 1.86 COL 96.2 COLON-ALIGNED WIDGET-ID 32
+     fiQuantityInSubUnit AT ROW 3.33 COL 31.2 COLON-ALIGNED WIDGET-ID 60
+     fiTotalTags AT ROW 3.38 COL 96.2 COLON-ALIGNED WIDGET-ID 52
+     fiSubUnitsPerUnit AT ROW 4.81 COL 31.2 COLON-ALIGNED WIDGET-ID 38
+     fiFullTags AT ROW 4.91 COL 96.2 COLON-ALIGNED WIDGET-ID 68
+     fiPartial AT ROW 6.33 COL 31.2 COLON-ALIGNED WIDGET-ID 48
+     fiPartialTags AT ROW 6.38 COL 96.2 COLON-ALIGNED WIDGET-ID 72
+     fiQuantityOfUnits AT ROW 7.86 COL 31 COLON-ALIGNED WIDGET-ID 64
+     fiCopies AT ROW 7.91 COL 96 COLON-ALIGNED WIDGET-ID 56
+     "Units Count" VIEW-AS TEXT
+          SIZE 14 BY .91 AT ROW 1 COL 71 WIDGET-ID 82
+          FONT 6
+     "Quantities" VIEW-AS TEXT
+          SIZE 12.4 BY .91 AT ROW 1 COL 3.6 WIDGET-ID 76
+          FONT 6
+     RECT-37 AT ROW 1.48 COL 1.2 WIDGET-ID 74
+     RECT-39 AT ROW 1.48 COL 69 WIDGET-ID 80
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -186,8 +180,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW s-object ASSIGN
-         HEIGHT             = 10.86
-         WIDTH              = 73.2.
+         HEIGHT             = 9.29
+         WIDTH              = 132.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -216,31 +210,23 @@ ASSIGN
 
 /* SETTINGS FOR FILL-IN fiCopies IN FRAME F-Main
    NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN fiCopiesLabel IN FRAME F-Main
-   NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN fiPalletTags IN FRAME F-Main
-   NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN fiPalletTagsLabel IN FRAME F-Main
+/* SETTINGS FOR FILL-IN fiFullTags IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fiPartial IN FRAME F-Main
    NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN fiPartialLabel IN FRAME F-Main
+/* SETTINGS FOR FILL-IN fiPartialTags IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fiQuantity IN FRAME F-Main
    NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN fiQuantityLabel IN FRAME F-Main
+/* SETTINGS FOR FILL-IN fiQuantityInSubUnit IN FRAME F-Main
    NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN fiQuantityPerPallet IN FRAME F-Main
+/* SETTINGS FOR FILL-IN fiQuantityOfSubUnits IN FRAME F-Main
    NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN fiQuantityPerPalletLabel IN FRAME F-Main
-   NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN fiSubUnits IN FRAME F-Main
-   NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN fiSubUnitsLabel IN FRAME F-Main
+/* SETTINGS FOR FILL-IN fiQuantityOfUnits IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fiSubUnitsPerUnit IN FRAME F-Main
    NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN fiSubUnitsPerUnitLabel IN FRAME F-Main
+/* SETTINGS FOR FILL-IN fiTotalTags IN FRAME F-Main
    NO-ENABLE                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -261,146 +247,44 @@ ASSIGN
 
 /* ************************  Control Triggers  ************************ */
 
-&Scoped-define SELF-NAME fiPalletTags
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiPalletTags s-object
-ON ENTRY OF fiPalletTags IN FRAME F-Main
-DO:
-    cPalletTags = SELF:SCREEN-VALUE.  
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiPalletTags s-object
-ON LEAVE OF fiPalletTags IN FRAME F-Main
-DO:
-    DEFINE VARIABLE iSubUnitsPerUnit AS INTEGER NO-UNDO.       
-
-    IF cPalletTags EQ SELF:SCREEN-VALUE THEN
-        RETURN.
-            
-    iSubUnitsPerUnit = INTEGER(((INTEGER(fiQuantity:SCREEN-VALUE) + INTEGER(fiPartial:SCREEN-VALUE)) / INTEGER(SELF:SCREEN-VALUE) / INTEGER(fiSubUnits:SCREEN-VALUE))).
-    
-    RUN pUpdateQuantities (
-        INPUT INTEGER(fiQuantity:SCREEN-VALUE),
-        INPUT iOversPct,
-        INPUT INTEGER(fiSubUnits:SCREEN-VALUE),
-        INPUT iSubUnitsPerUnit,
-        INPUT 0,
-        INPUT INTEGER(fiCopies:SCREEN-VALUE)
-        ).  
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME fiPartial
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiPartial s-object
-ON ENTRY OF fiPartial IN FRAME F-Main
-DO:
-    cPartial = SELF:SCREEN-VALUE.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiPartial s-object
-ON LEAVE OF fiPartial IN FRAME F-Main
-DO:    
-    IF cPartial EQ SELF:SCREEN-VALUE THEN
-        RETURN.
-        
-    RUN pUpdateQuantities (
-        INPUT INTEGER(fiQuantity:SCREEN-VALUE),
-        INPUT iOversPct,
-        INPUT INTEGER(fiSubUnits:SCREEN-VALUE),
-        INPUT INTEGER(fiSubUnitsPerUnit:SCREEN-VALUE),
-        INPUT INTEGER(SELF:SCREEN-VALUE) - INTEGER(cPartial),
-        INPUT INTEGER(fiCopies:SCREEN-VALUE)
-        ).  
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &Scoped-define SELF-NAME fiQuantity
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiQuantity s-object
-ON ENTRY OF fiQuantity IN FRAME F-Main
-DO:
-    cQuantity = SELF:SCREEN-VALUE.  
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiQuantity s-object
-ON LEAVE OF fiQuantity IN FRAME F-Main
+ON LEAVE OF fiQuantity IN FRAME F-Main /* Total Quantity */
 DO:  
     IF INTEGER(SELF:SCREEN-VALUE) EQ 0 OR INTEGER(SELF:SCREEN-VALUE) EQ ? THEN DO:
         MESSAGE "Quantity cannot be " + SELF:SCREEN-VALUE
         VIEW-AS ALERT-BOX ERROR.
         SELF:SCREEN-VALUE = "1".    
     END.
-    
-    IF cQuantity EQ SELF:SCREEN-VALUE THEN
-        RETURN.
          
     RUN pUpdateQuantities (
-        INPUT INTEGER(SELF:SCREEN-VALUE),
-        INPUT iOversPct,
-        INPUT INTEGER(fiSubUnits:SCREEN-VALUE),
+        INPUT INTEGER(fiQuantity:SCREEN-VALUE),
+        INPUT INTEGER(fiQuantityInSubUnit:SCREEN-VALUE),
         INPUT INTEGER(fiSubUnitsPerUnit:SCREEN-VALUE),
-        INPUT 0,  /* Partial */
-        INPUT INTEGER(fiCopies:SCREEN-VALUE)
-        ).    
+        INPUT dOversPct
+        ).   
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME fiQuantityPerPallet
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiQuantityPerPallet s-object
-ON ENTRY OF fiQuantityPerPallet IN FRAME F-Main
-DO:
-    cQuantityPerPallet = SELF:SCREEN-VALUE.  
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiQuantityPerPallet s-object
-ON LEAVE OF fiQuantityPerPallet IN FRAME F-Main
-DO:
-    IF cQuantityPerPallet EQ SELF:SCREEN-VALUE THEN
-        RETURN.
-        
+&Scoped-define SELF-NAME fiQuantityInSubUnit
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiQuantityInSubUnit s-object
+ON LEAVE OF fiQuantityInSubUnit IN FRAME F-Main /* Per Case */
+DO:  
+    IF INTEGER(SELF:SCREEN-VALUE) EQ 0 OR INTEGER(SELF:SCREEN-VALUE) EQ ? THEN DO:
+        MESSAGE "Value cannot be " + SELF:SCREEN-VALUE
+        VIEW-AS ALERT-BOX ERROR.
+        SELF:SCREEN-VALUE = "1".    
+    END.
+         
     RUN pUpdateQuantities (
         INPUT INTEGER(fiQuantity:SCREEN-VALUE),
-        INPUT iOversPct,
-        INPUT INTEGER(SELF:SCREEN-VALUE),
-        INPUT 1,  /* Sub Units Per Unit */
-        INPUT 0,  /* Partial */
-        INPUT INTEGER(fiCopies:SCREEN-VALUE)
-        ).      
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME fiSubUnits
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiSubUnits s-object
-ON ENTRY OF fiSubUnits IN FRAME F-Main
-DO:
-    cSubUnits = SELF:SCREEN-VALUE.  
+        INPUT INTEGER(fiQuantityInSubUnit:SCREEN-VALUE),
+        INPUT INTEGER(fiSubUnitsPerUnit:SCREEN-VALUE),
+        INPUT dOversPct
+        ).  
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -409,9 +293,20 @@ END.
 
 &Scoped-define SELF-NAME fiSubUnitsPerUnit
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiSubUnitsPerUnit s-object
-ON ENTRY OF fiSubUnitsPerUnit IN FRAME F-Main
+ON LEAVE OF fiSubUnitsPerUnit IN FRAME F-Main /* Cases Per Pallet */
 DO:
-    cSubUnitsPerUnit = SELF:SCREEN-VALUE.  
+    IF INTEGER(SELF:SCREEN-VALUE) EQ 0 OR INTEGER(SELF:SCREEN-VALUE) EQ ? THEN DO:
+        MESSAGE "Value cannot be " + SELF:SCREEN-VALUE
+        VIEW-AS ALERT-BOX ERROR.
+        SELF:SCREEN-VALUE = "1".    
+    END.
+         
+    RUN pUpdateQuantities (
+        INPUT INTEGER(fiQuantity:SCREEN-VALUE),
+        INPUT INTEGER(fiQuantityInSubUnit:SCREEN-VALUE),
+        INPUT INTEGER(fiSubUnitsPerUnit:SCREEN-VALUE),
+        INPUT dOversPct
+        ).    
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -450,16 +345,9 @@ PROCEDURE DisableQuantities :
     
     ASSIGN
         fiQuantity:SENSITIVE             = FALSE
-        fiQuantityPerPallet:SENSITIVE    = FALSE
-        fiPartial:SENSITIVE              = FALSE
-        fiPalletTags:SENSITIVE           = FALSE
+        fiQuantityInSubUnit:SENSITIVE    = FALSE
+        fiSubUnitsPerUnit:SENSITIVE      = FALSE
         fiCopies:SENSITIVE               = FALSE
-        fiQuantity:SCREEN-VALUE          = "1"
-        fiSubUnits:SCREEN-VALUE          = "1"
-        fiSubUnitsPerUnit:SCREEN-VALUE   = "1"
-        fiQuantityPerPallet:SCREEN-VALUE = "1"
-        fiPartial:SCREEN-VALUE           = "0"
-        fiPalletTags:SCREEN-VALUE        = "1"
         fiCopies:SCREEN-VALUE            = "1"          
         .
 END PROCEDURE.
@@ -498,9 +386,8 @@ PROCEDURE EnableQuantities :
     
     ASSIGN
         fiQuantity:SENSITIVE          = TRUE
-        fiQuantityPerPallet:SENSITIVE = TRUE
-        fiPartial:SENSITIVE           = TRUE
-        fiPalletTags:SENSITIVE        = TRUE
+        fiQuantityInSubUnit:SENSITIVE = TRUE
+        fiSubUnitsPerUnit:SENSITIVE   = TRUE
         fiCopies:SENSITIVE            = TRUE
         .
 END PROCEDURE.
@@ -516,11 +403,8 @@ PROCEDURE GetQuantities :
   Notes:       
 ------------------------------------------------------------------------------*/
     DEFINE OUTPUT PARAMETER opiQuantity          AS INTEGER NO-UNDO.
-    DEFINE OUTPUT PARAMETER opiSubUnits          AS INTEGER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiQuantityInSubUnit AS INTEGER NO-UNDO.
     DEFINE OUTPUT PARAMETER opiSubUnitsPerUnit   AS INTEGER NO-UNDO.
-    DEFINE OUTPUT PARAMETER opiQuantityPerPallet AS INTEGER NO-UNDO.
-    DEFINE OUTPUT PARAMETER opiPartial           AS INTEGER NO-UNDO.
-    DEFINE OUTPUT PARAMETER opiPalletTags        AS INTEGER NO-UNDO.
     DEFINE OUTPUT PARAMETER opiCopies            AS INTEGER NO-UNDO.
     
     DO WITH FRAME {&FRAME-NAME}:
@@ -528,11 +412,8 @@ PROCEDURE GetQuantities :
     
     ASSIGN
         opiQuantity          = INTEGER(fiQuantity:SCREEN-VALUE)
-        opiSubUnits          = INTEGER(fiSubUnits:SCREEN-VALUE)
+        opiQuantityInSubUnit = INTEGER(fiQuantityInSubUnit:SCREEN-VALUE)
         opiSubUnitsPerUnit   = INTEGER(fiSubUnitsPerUnit:SCREEN-VALUE)
-        opiQuantityPerPallet = INTEGER(fiQuantityPerPallet:SCREEN-VALUE)
-        opiPartial           = INTEGER(fiPartial:SCREEN-VALUE)
-        opiPalletTags        = INTEGER(fiPalletTags:SCREEN-VALUE)
         opiCopies            = INTEGER(fiCopies:SCREEN-VALUE)
         .
 END PROCEDURE.
@@ -560,18 +441,44 @@ PROCEDURE pInit :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE oSSLoadTagJobDesignConfig AS system.Config NO-UNDO.
+     
     DO WITH FRAME {&FRAME-NAME}:
     END.
     
-    ASSIGN
-        fiQuantityLabel:SCREEN-VALUE          = "Quantity:"
-        fiSubUnitsLabel:SCREEN-VALUE          = "Sub Units:"
-        fiSubUnitsPerUnitLabel:SCREEN-VALUE   = "Sub Units Per Unit:"
-        fiQuantityPerPalletLabel:SCREEN-VALUE = "Quantity Per Pallet:"
-        fiPartialLabel:SCREEN-VALUE           = "Partial:"
-        fiPalletTagsLabel:SCREEN-VALUE        = "Pallet Tags:"
-        fiCopiesLabel:SCREEN-VALUE            = "Copies:"
-        .
+    oSSLoadTagJobDesignConfig = system.ConfigLoader:Instance:GetConfig("SSLoadTagJobDesign").
+    
+    IF VALID-OBJECT(oSSLoadTagJobDesignConfig) THEN DO:
+        IF oSSLoadTagJobDesignConfig:IsAttributeAvailable("Quantities", "Quantity", "label") THEN
+            fiQuantity:LABEL = oSSLoadTagJobDesignConfig:GetAttributeValue("Quantities", "Quantity", "label").
+
+        IF oSSLoadTagJobDesignConfig:IsAttributeAvailable("Quantities", "QuantityOfUnits", "label") THEN
+            fiQuantityOfUnits:LABEL = oSSLoadTagJobDesignConfig:GetAttributeValue("Quantities", "QuantityOfUnits", "label").
+            
+        IF oSSLoadTagJobDesignConfig:IsAttributeAvailable("Quantities", "QuantityInSubUnit", "label") THEN
+            fiQuantityInSubUnit:LABEL = oSSLoadTagJobDesignConfig:GetAttributeValue("Quantities", "QuantityInSubUnit", "label").
+
+        IF oSSLoadTagJobDesignConfig:IsAttributeAvailable("Quantities", "QuantityOfSubUnits", "label") THEN
+            fiQuantityOfSubUnits:LABEL = oSSLoadTagJobDesignConfig:GetAttributeValue("Quantities", "QuantityOfSubUnits", "label").
+
+        IF oSSLoadTagJobDesignConfig:IsAttributeAvailable("Quantities", "SubUnitsPerUnit", "label") THEN
+            fiSubUnitsPerUnit:LABEL = oSSLoadTagJobDesignConfig:GetAttributeValue("Quantities", "SubUnitsPerUnit", "label").
+
+        IF oSSLoadTagJobDesignConfig:IsAttributeAvailable("Quantities", "Partial", "label") THEN
+            fiPartial:LABEL = oSSLoadTagJobDesignConfig:GetAttributeValue("Quantities", "Partial", "label").
+
+        IF oSSLoadTagJobDesignConfig:IsAttributeAvailable("Quantities", "TotalTags", "label") THEN
+            fiTotalTags:LABEL = oSSLoadTagJobDesignConfig:GetAttributeValue("Quantities", "TotalTags", "label").
+
+        IF oSSLoadTagJobDesignConfig:IsAttributeAvailable("Quantities", "FullTags", "label") THEN
+            fiFullTags:LABEL = oSSLoadTagJobDesignConfig:GetAttributeValue("Quantities", "FullTags", "label").
+
+        IF oSSLoadTagJobDesignConfig:IsAttributeAvailable("Quantities", "PartialTags", "label") THEN
+            fiPartialTags:LABEL = oSSLoadTagJobDesignConfig:GetAttributeValue("Quantities", "PartialTags", "label").
+
+        IF oSSLoadTagJobDesignConfig:IsAttributeAvailable("Quantities", "Copies", "label") THEN
+            fiCopies:LABEL = oSSLoadTagJobDesignConfig:GetAttributeValue("Quantities", "Copies", "label").            
+    END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -584,56 +491,52 @@ PROCEDURE pUpdateQuantities :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER ipiBaseQuantity    AS INTEGER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipiOvers           AS DECIMAL NO-UNDO.
-    DEFINE INPUT  PARAMETER ipiSubUnits        AS INTEGER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipiSubUnitsPerUnit AS INTEGER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipiPartial         AS INTEGER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipiCopies          AS INTEGER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiQuantity          AS INTEGER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiQuantityInSubUnit AS INTEGER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiSubUnitsPerUnit   AS INTEGER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdOvers             AS DECIMAL NO-UNDO.
     
-    DEFINE VARIABLE iQuantity          AS INTEGER NO-UNDO.
-    DEFINE VARIABLE iQuantityPerPallet AS INTEGER NO-UNDO.
-    DEFINE VARIABLE iPalletTags        AS INTEGER NO-UNDO.
-    DEFINE VARIABLE iPartial           AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iQuantityOfSubUnits AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iQuantityInUnit     AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iPartial            AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iTotalTags          AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iFullTags           AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iPartialTags        AS INTEGER NO-UNDO.
     
     DO WITH FRAME {&FRAME-NAME}:
     END.
     
-    IF ipiBaseQuantity EQ ? THEN
-        ipiBaseQuantity = 0.
+    IF ipiQuantity EQ ? OR ipiQuantity EQ 0 THEN
+        ipiQuantity = 1.
         
-    IF ipiOvers EQ ? THEN
-        ipiOvers = 0.
-    
-    IF ipiCopies EQ ? OR ipiCopies EQ 0 THEN
-        ipiCopies = 1.
-
-    ASSIGN
-        iQuantity = TRUNCATE(ipiBaseQuantity + (ipiBaseQuantity * ipiOvers / 100 ), 0)
-        iQuantity = iQuantity + ipiPartial
-        . 
-    
-    IF ipiSubUnits EQ ? OR ipiSubUnits EQ 0 THEN
-        ipiSubUnits = 1.
+    IF ipiQuantityInSubUnit EQ ? OR ipiQuantityInSubUnit EQ 0 THEN
+        ipiQuantityInSubUnit = 1.
 
     IF ipiSubUnitsPerUnit EQ ? OR ipiSubUnitsPerUnit EQ 0 THEN
         ipiSubUnitsPerUnit = 1.
+        
+    IF ipdOvers EQ ? THEN
+        ipdOvers = 0.
 
     ASSIGN
-        iQuantityPerPallet = ipiSubUnits * ipiSubUnitsPerUnit.
-        iPalletTags        = (iQuantity / iQuantityPerPallet) + INTEGER((iQuantity MOD iQuantityPerPallet) GT 0)
+        iQuantityofSubUnits = TRUNCATE(ipiQuantity / ipiQuantityInSubUnit, 0)
+        iQuantityInUnit     = ipiQuantityInSubUnit * ipiSubUnitsPerUnit
+        iTotalTags          = TRUNCATE(ipiQuantity / iQuantityInUnit, 0) + INTEGER(NOT (ipiQuantity MOD iQuantityInUnit EQ 0))
+        iFullTags           = TRUNCATE(ipiQuantity / iQuantityInUnit, 0)
+        iPartialTags        = iTotalTags - iFullTags
+        iPartial            = ipiQuantity - (iFullTags * iQuantityInUnit)
         .
     
-    iPartial = iQuantity MOD iQuantityPerPallet.
-    
     ASSIGN
-        fiQuantity:SCREEN-VALUE          = STRING(iQuantity)
-        fiSubUnits:SCREEN-VALUE          = STRING(ipiSubUnits)
-        fiSubUnitsPerUnit:SCREEN-VALUE   = STRING(ipiSubUnitsPerUnit)
-        fiQuantityPerPallet:SCREEN-VALUE = STRING(iQuantityPerPallet)
-        fiPartial:SCREEN-VALUE           = STRING(iPartial)
-        fiPalletTags:SCREEN-VALUE        = STRING(iPalletTags)
-        fiCopies:SCREEN-VALUE            = STRING(ipiCopies)        
+        fiQuantity:SCREEN-VALUE           = STRING(ipiQuantity)
+        fiQuantityInSubUnit:SCREEN-VALUE  = STRING(ipiQuantityInSubUnit)
+        fiSubUnitsPerUnit:SCREEN-VALUE    = STRING(ipiSubUnitsPerUnit)
+        fiQuantityOfSubUnits:SCREEN-VALUE = STRING(iQuantityofSubUnits)
+        fiQuantityOfUnits:SCREEN-VALUE    = STRING(iQuantityInUnit)
+        fiPartial:SCREEN-VALUE            = STRING(iPartial)
+        fiTotalTags:SCREEN-VALUE          = STRING(iTotalTags)
+        fiFullTags:SCREEN-VALUE           = STRING(iFullTags)
+        fiPartialTags:SCREEN-VALUE        = STRING(iPartialTags)       
         .
 END PROCEDURE.
 
@@ -646,15 +549,13 @@ PROCEDURE SetOvers :
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER ipiOversPct AS INTEGER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdOversPct AS DECIMAL NO-UNDO.
 
     DO WITH FRAME {&FRAME-NAME}:
     END.
     
-    iOversPct = ipiOversPct.
-    
-    cQuantity = "".
-    
+    dOversPct = ipdOversPct.
+
     APPLY "LEAVE" TO fiQuantity.
 END PROCEDURE.
 
@@ -667,20 +568,16 @@ PROCEDURE SetQuantities :
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER ipiBaseQuantity    AS INTEGER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipiOvers           AS DECIMAL NO-UNDO.
-    DEFINE INPUT  PARAMETER ipiSubUnits        AS INTEGER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipiSubUnitsPerUnit AS INTEGER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipiPartial         AS INTEGER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipiCopies          AS INTEGER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiQuantity          AS INTEGER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiQuantityInSubUnit AS INTEGER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiSubUnitsPerUnit   AS INTEGER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdOvers             AS DECIMAL NO-UNDO.
 
     RUN pUpdateQuantities(
-        INPUT ipiBaseQuantity,
-        INPUT ipiOvers,
-        INPUT ipiSubUnits,
+        INPUT ipiQuantity,
+        INPUT ipiQuantityInSubUnit,
         INPUT ipiSubUnitsPerUnit,
-        INPUT ipiPartial,
-        INPUT ipiCopies
+        INPUT ipdOvers
         ).
     
 END PROCEDURE.

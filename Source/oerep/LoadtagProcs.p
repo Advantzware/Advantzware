@@ -98,6 +98,7 @@ PROCEDURE CreateLoadTagFromTT:
             ttLoadTag.tagStatus = "Printed".
         END.
         
+        EMPTY TEMP-TABLE ttLoadTag.
         iTagCounter = 0.
     END.
 END PROCEDURE.
@@ -757,14 +758,14 @@ PROCEDURE pPrintLoadTag PRIVATE:
                
         PUT UNFORMATTED
         '"'  fReplaceQuotes(ipbf-ttLoadTag.custName)  '",'
-        ipbf-ttLoadTag.orderID  ","
+             ipbf-ttLoadTag.orderID  ","
         '"'  IF ipbf-ttLoadTag.jobID EQ "" THEN STRING(ipbf-ttLoadTag.orderID) ELSE ipbf-ttLoadTag.jobID + "-" + STRING(ipbf-ttLoadTag.jobID2, "99")  '",'
         '"'  CAPS(fReplaceQuotes(ipbf-ttLoadTag.itemID))  FORM "x(15)" '",'
         '"'  fReplaceQuotes(ipbf-ttLoadTag.custPartNo) '",'
         '"'  fReplaceQuotes(ipbf-ttLoadTag.custPONo)  '",'
-        ipbf-ttLoadTag.pcs  ","
-        ipbf-ttLoadTag.bundle  ","
-        TRIM(STRING(ipbf-ttLoadTag.totalUnit, ">>>>>>>9")) ","
+             ipbf-ttLoadTag.pcs  ","
+             ipbf-ttLoadTag.bundle  ","
+             TRIM(STRING(ipbf-ttLoadTag.totalUnit, ">>>>>>>9")) ","
         '"'  fReplaceQuotes(ipbf-ttLoadTag.shipID)  '",'
         '"'  fReplaceQuotes(ipbf-ttLoadTag.shipName)  '",'
         '"'  fReplaceQuotes(ipbf-ttLoadTag.shipAddress1)  '",'
@@ -791,10 +792,10 @@ PROCEDURE pPrintLoadTag PRIVATE:
         '"'  ipbf-ttLoadTag.flute  '",'
         '"'  ipbf-ttLoadTag.test  '",'
         '"'  ipbf-ttLoadTag.vendor  '",'
-        ipbf-ttLoadTag.grossWeight  ","
-        ipbf-ttLoadTag.tareWeight  ","
-        ipbf-ttLoadTag.netWeight  ","
-        ipbf-ttLoadTag.sheetWeight  ","
+             ipbf-ttLoadTag.grossWeight  ","
+             ipbf-ttLoadTag.tareWeight  ","
+             ipbf-ttLoadTag.netWeight  ","
+             ipbf-ttLoadTag.sheetWeight  ","
         '"'  ipbf-ttLoadTag.uom  '",'
         '"'  fReplaceQuotes(ipbf-ttLoadTag.style) '",'
         '"'  fReplaceQuotes(ipbf-ttLoadTag.styleDesc) '",'
@@ -812,7 +813,7 @@ PROCEDURE pPrintLoadTag PRIVATE:
         '"'  /* fReplaceQuotes(v-dept-note[6]) */ '",'
         '"'  /* fReplaceQuotes(v-dept-note[7]) */ '",'
         '"'  /* fReplaceQuotes(v-dept-note[8]) */ '",'
-        ipbf-ttLoadTag.poID ","
+             ipbf-ttLoadTag.poID ","
         '"'  /* fReplaceQuotes(v-dept-note[9])  */ '",'
         '"'  /* fReplaceQuotes(v-dept-note[10]) */ '",'
         '"'  /* fReplaceQuotes(v-dept-note[11]) */ '",'
@@ -878,7 +879,7 @@ PROCEDURE pPrintLoadTagHeader PRIVATE:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    OUTPUT TO VALUE (gcLabelMatrixLoadTagOutputPath + gcLabelMatrixLoadTagOutputFile) APPEND.
+    OUTPUT TO VALUE (gcLabelMatrixLoadTagOutputPath + gcLabelMatrixLoadTagOutputFile).
     
     PUT UNFORMATTED
         "CUSTOMER,ORDNUMBER,JOBNUMBER,ITEM,CUSTPARTNO,CUSTPONO,PCS,BUNDLE,TOTAL,"
@@ -1057,6 +1058,7 @@ PROCEDURE pCreateTTLoadTagFromItem:
             bf-ttLoadTag.style         = bf-itemfg.style
             bf-ttLoadTag.vendor        = bf-company.name
             bf-ttLoadTag.zoneID        = bf-itemfg.spare-char-4
+            bf-ttLoadTag.sheetWeight   = bf-itemfg.weight-100 / 100
             bf-ttLoadTag.tagStatus     = "Created"
             bf-ttLoadTag.recordSource  = "FGITEM"
             .
@@ -1081,7 +1083,7 @@ PROCEDURE pUpdateConfig PRIVATE:
 ------------------------------------------------------------------------------*/    
     DEFINE VARIABLE oSSLoadTagJobConfig AS system.Config NO-UNDO.
 
-    oSSLoadTagJobConfig = CAST(system.ConfigLoader:Instance:GetConfig("SSLoadTagJob"), system.Config).
+    oSSLoadTagJobConfig = system.ConfigLoader:Instance:GetConfig("SSLoadTagJob").
     
     IF VALID-OBJECT(oSSLoadTagJobConfig) THEN
         ASSIGN
@@ -1253,11 +1255,8 @@ PROCEDURE BuildLoadTagsFromJob:
     DEFINE INPUT  PARAMETER ipiBlankNo           AS INTEGER   NO-UNDO.
     DEFINE INPUT  PARAMETER ipcItemID            AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipiQuantity          AS INTEGER   NO-UNDO.
-    DEFINE INPUT  PARAMETER ipiSubUnits          AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiQuantityInSubUnit AS INTEGER   NO-UNDO.
     DEFINE INPUT  PARAMETER ipiSubUnitsPerUnit   AS INTEGER   NO-UNDO.
-    DEFINE INPUT  PARAMETER ipiQuantityPerPallet AS INTEGER   NO-UNDO.
-    DEFINE INPUT  PARAMETER ipiPartial           AS INTEGER   NO-UNDO.
-    DEFINE INPUT  PARAMETER ipiPalletTags        AS INTEGER   NO-UNDO.
     DEFINE INPUT  PARAMETER ipiCopies            AS INTEGER   NO-UNDO.
     DEFINE INPUT  PARAMETER ipcUserField1        AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcUserField2        AS CHARACTER NO-UNDO.
@@ -1277,11 +1276,8 @@ PROCEDURE BuildLoadTagsFromJob:
         INPUT  ipiBlankNo,
         INPUT  ipcItemID,
         INPUT  ipiQuantity,
-        INPUT  ipiSubUnits,
+        INPUT  ipiQuantityInSubUnit,
         INPUT  ipiSubUnitsPerUnit,
-        INPUT  ipiQuantityPerPallet,
-        INPUT  ipiPartial,
-        INPUT  ipiPalletTags,
         INPUT  ipiCopies,
         INPUT  ipcUserField1,
         INPUT  ipcUserField2,
@@ -1306,11 +1302,8 @@ PROCEDURE pBuildLoadTagsFromJob PRIVATE:
     DEFINE INPUT  PARAMETER ipiBlankNo           AS INTEGER   NO-UNDO.
     DEFINE INPUT  PARAMETER ipcItemID            AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipiQuantity          AS INTEGER   NO-UNDO.
-    DEFINE INPUT  PARAMETER ipiSubUnits          AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiQuantityInSubUnit AS INTEGER   NO-UNDO.
     DEFINE INPUT  PARAMETER ipiSubUnitsPerUnit   AS INTEGER   NO-UNDO.
-    DEFINE INPUT  PARAMETER ipiQuantityPerPallet AS INTEGER   NO-UNDO.
-    DEFINE INPUT  PARAMETER ipiPartial           AS INTEGER   NO-UNDO.
-    DEFINE INPUT  PARAMETER ipiPalletTags        AS INTEGER   NO-UNDO.
     DEFINE INPUT  PARAMETER ipiCopies            AS INTEGER   NO-UNDO.
     DEFINE INPUT  PARAMETER ipcUserField1        AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcUserField2        AS CHARACTER NO-UNDO.
@@ -1323,7 +1316,14 @@ PROCEDURE pBuildLoadTagsFromJob PRIVATE:
     
     DEFINE VARIABLE iTTLoadTagRecordID AS INTEGER NO-UNDO.
     DEFINE VARIABLE lSetsCreated       AS LOGICAL NO-UNDO.
-    
+
+    DEFINE VARIABLE iQuantityOfSubUnits AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iQuantityInUnit     AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iPartial            AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iTotalTags          AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iFullTags           AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iPartialTags        AS INTEGER NO-UNDO.
+            
     DEFINE BUFFER bf-job       FOR job.
     DEFINE BUFFER bf-job-hdr   FOR job-hdr.
     DEFINE BUFFER bf-oe-ord    FOR oe-ord.
@@ -1391,7 +1391,16 @@ PROCEDURE pBuildLoadTagsFromJob PRIVATE:
             ).
         IF oplError THEN
             UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK.
-        
+
+        ASSIGN
+            iQuantityofSubUnits = TRUNCATE(ipiQuantity / ipiQuantityInSubUnit, 0)
+            iQuantityInUnit     = ipiQuantityInSubUnit * ipiSubUnitsPerUnit
+            iTotalTags          = TRUNCATE(ipiQuantity / iQuantityInUnit, 0) + INTEGER(NOT (ipiQuantity MOD iQuantityInUnit EQ 0))
+            iFullTags           = TRUNCATE(ipiQuantity / iQuantityInUnit, 0)
+            iPartialTags        = iTotalTags - iFullTags
+            iPartial            = ipiQuantity - (iFullTags * iQuantityInUnit)
+            .
+                
         ASSIGN
             bf-ttLoadTag.orderID       = bf-job-hdr.ord-no
             bf-ttLoadTag.jobID         = bf-job-hdr.job-no
@@ -1404,7 +1413,10 @@ PROCEDURE pBuildLoadTagsFromJob PRIVATE:
             bf-ttLoadTag.estID         = bf-job.est-no
             bf-ttLoadTag.formNo        = bf-job-hdr.frm
             bf-ttLoadTag.blankNo       = bf-job-hdr.blank-no
+            bf-ttLoadTag.custPONo      = bf-job-hdr.po-no
+            bf-ttLoadTag.netWeight     = bf-ttLoadTag.sheetWeight * iQuantityInUnit
             bf-ttLoadTag.tareWeight    = 10
+            bf-ttLoadTag.grossWeight   = bf-ttLoadTag.netWeight + bf-ttLoadTag.tareWeight
             bf-ttLoadTag.uom           = "EA"
             bf-ttLoadTag.mult          = ipiCopies
             bf-ttLoadTag.dueDateJob    = IF bf-job.due-date <> ? THEN STRING(bf-job.due-date, "99/99/9999") ELSE ""
@@ -1415,16 +1427,11 @@ PROCEDURE pBuildLoadTagsFromJob PRIVATE:
             bf-ttLoadTag.recordSource  = "JOB"
             .
 
-        RUN pGetReleaseInfo (
-            INPUT  ROWID(bf-job-hdr),
-            OUTPUT bf-ttLoadTag.custPONo,
-            OUTPUT bf-ttLoadTag.relDate,
-            OUTPUT bf-ttLoadTag.rellotID,
-            OUTPUT bf-ttLoadTag.shipNotes,
-            OUTPUT bf-ttLoadTag.relQuantity,
-            OUTPUT bf-ttLoadTag.orderDesc1,
-            OUTPUT bf-ttLoadTag.orderDesc2,
-            OUTPUT bf-ttLoadTag.runShip
+        RUN pUpdateOrderDetails (
+            INPUT bf-job-hdr.company,
+            INPUT bf-job-hdr.ord-no,
+            INPUT bf-job-hdr.i-no,
+            INPUT bf-ttLoadTag.recordID
             ).
             
         bf-ttLoadTag.lotID = bf-ttLoadTag.rellotID.
@@ -1437,11 +1444,11 @@ PROCEDURE pBuildLoadTagsFromJob PRIVATE:
 
         ASSIGN
             bf-ttLoadTag.jobQuantity = ipiQuantity
-            bf-ttLoadTag.pcs         = ipiSubUnits
+            bf-ttLoadTag.pcs         = ipiQuantityInSubUnit
             bf-ttLoadTag.bundle      = ipiSubUnitsPerUnit
-            bf-ttLoadTag.partial     = ipiPartial
-            bf-ttLoadTag.totalUnit   = ipiQuantityPerPallet
-            bf-ttLoadTag.totalTags   = ipiPalletTags
+            bf-ttLoadTag.partial     = iPartial
+            bf-ttLoadTag.totalUnit   = iQuantityInUnit
+            bf-ttLoadTag.totalTags   = IF iFullTags NE 0 THEN iFullTags ELSE iPartialTags
             .
 
         IF ipcUserField1 EQ "Lot Number" THEN
@@ -1487,124 +1494,142 @@ PROCEDURE pBuildLoadTagsFromJob PRIVATE:
     END. 
 END PROCEDURE.
 
-PROCEDURE pGetReleaseInfo:
+PROCEDURE pUpdateOrderDetails:
 /*------------------------------------------------------------------------------
-      Purpose: Given a job-hdr returns the release details
+      Purpose:
       Parameters:  <none>
-      Notes: This is a replacement procedure for get-rel-info     
+      Notes:    
     ------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER ipriJobHdr    AS ROWID     NO-UNDO.
-    DEFINE OUTPUT PARAMETER opcCustPONO   AS CHARACTER NO-UNDO.
-    DEFINE OUTPUT PARAMETER opdtRelDate   AS DATE      NO-UNDO.
-    DEFINE OUTPUT PARAMETER opcRelLotID   AS CHARACTER NO-UNDO.
-    DEFINE OUTPUT PARAMETER opcShipNotes  AS CHARACTER NO-UNDO EXTENT 4.
-    DEFINE OUTPUT PARAMETER opiRelQty     AS INTEGER   NO-UNDO.
-    DEFINE OUTPUT PARAMETER opcOrderDesc1 AS CHARACTER NO-UNDO.
-    DEFINE OUTPUT PARAMETER opcOrderDesc2 AS CHARACTER NO-UNDO.
-    DEFINE OUTPUT PARAMETER oplRunShip    AS LOGICAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcCompany           AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiOrderID           AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcItemID            AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiTTLoadTagRecordID AS INTEGER   NO-UNDO.
 
-    DEFINE BUFFER bf-job-hdr FOR job-hdr.
-    DEFINE BUFFER bf-oe-rell FOR oe-rell.
-    DEFINE BUFFER bf-oe-ordl FOR oe-ordl.
-    DEFINE BUFFER bf-oe-rel  FOR oe-rel.
-    DEFINE BUFFER bf-oe-relh FOR oe-relh.
+    DEFINE BUFFER bf-oe-rell   FOR oe-rell.
+    DEFINE BUFFER bf-oe-ordl   FOR oe-ordl.
+    DEFINE BUFFER bf-oe-ord    FOR oe-ord.
+    DEFINE BUFFER bf-oe-rel    FOR oe-rel.
+    DEFINE BUFFER bf-oe-relh   FOR oe-relh.
+    DEFINE BUFFER bf-ttLoadTag FOR ttLoadTag.
     
-    FIND FIRST bf-job-hdr NO-LOCK
-         WHERE ROWID(bf-job-hdr) EQ ipriJobHdr
-         NO-ERROR .
-    IF NOT AVAILABLE bf-job-hdr THEN
-        RETURN.
-    
-    IF bf-job-hdr.ord-no EQ 0 THEN
-        RETURN.
-
-    FIND FIRST bf-oe-ordl NO-LOCK
-         WHERE bf-oe-ordl.company EQ bf-job-hdr.company
-           AND bf-oe-ordl.ord-no  EQ bf-job-hdr.ord-no
-           AND bf-oe-ordl.i-no    EQ bf-job-hdr.i-no
-         NO-ERROR.
-    
-    IF NOT AVAILABLE bf-oe-ordl THEN
-        RETURN.
-    
-    ASSIGN
-        opcOrderDesc1 = bf-oe-ordl.part-dscr1
-        opcOrderDesc2 = bf-oe-ordl.part-dscr2
-        oplRunShip    = bf-oe-ordl.whsed
-        .
-        
-    FOR EACH bf-oe-rell NO-LOCK
-        WHERE bf-oe-rell.company  EQ bf-oe-ordl.company
-          AND bf-oe-rell.ord-no   EQ bf-oe-ordl.ord-no
-          AND bf-oe-rell.i-no     EQ bf-oe-ordl.i-no
-          AND bf-oe-rell.line     EQ bf-oe-ordl.line,
-        FIRST bf-oe-relh NO-LOCK
-        WHERE bf-oe-relh.r-no     EQ bf-oe-rell.r-no
-           BY bf-oe-relh.rel-date
-           BY bf-oe-relh.r-no:
-
-        ASSIGN
-            opcCustPONo     = bf-oe-rell.po-no
-            opdtRelDate     = bf-oe-relh.rel-date
-            opcShipNotes[1] = bf-oe-relh.ship-i[1]
-            opcShipNotes[2] = bf-oe-relh.ship-i[2]
-            opcShipNotes[3] = bf-oe-relh.ship-i[3]
-            opcShipNotes[4] = bf-oe-relh.ship-i[4]
-            opiRelQty       = bf-oe-rell.qty 
-            .
-        LEAVE.
-    END.
-
-    IF AVAILABLE bf-oe-rell THEN
-        FIND FIRST bf-oe-rel NO-LOCK
-             WHERE bf-oe-rel.r-no EQ bf-oe-rell.link-no
+    MAIN-BLOCK:
+    DO ON ERROR UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
+        ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
+        FIND FIRST bf-ttLoadTag
+             WHERE bf-ttLoadTag.recordID EQ ipiTTLoadTagRecordID
              NO-ERROR.
-    ELSE DO:
-        FOR EACH bf-oe-rel NO-LOCK
-            WHERE bf-oe-rel.company  EQ bf-oe-ordl.company
-              AND bf-oe-rel.ord-no   EQ bf-oe-ordl.ord-no
-              AND bf-oe-rel.i-no     EQ bf-oe-ordl.i-no
-              AND bf-oe-rel.line     EQ bf-oe-ordl.line
-              AND bf-oe-rel.rel-no   EQ 0
-            BY bf-oe-rel.rel-date
-            BY bf-oe-rel.r-no:
-            ASSIGN
-                opcCustPONo     = (IF bf-oe-rel.po-no GT "" THEN bf-oe-rel.po-no ELSE bf-oe-ordl.po-no)
-                opdtRelDate     = bf-oe-rel.rel-date
-                opcShipNotes[1] = bf-oe-rel.ship-i[1]
-                opcShipNotes[2] = bf-oe-rel.ship-i[2]
-                opcShipNotes[3] = bf-oe-rel.ship-i[3]
-                opcShipNotes[4] = bf-oe-rel.ship-i[4]
-                .
-            LEAVE.
-        END.
-    END.  
-
-    IF NOT AVAILABLE bf-oe-rel THEN DO:
-        FOR EACH bf-oe-rel NO-LOCK
-            WHERE bf-oe-rel.company  EQ bf-oe-ordl.company
-              AND bf-oe-rel.ord-no   EQ bf-oe-ordl.ord-no
-              AND bf-oe-rel.i-no     EQ bf-oe-ordl.i-no
-              AND bf-oe-rel.line     EQ bf-oe-ordl.line
-               BY bf-oe-rel.rel-date
-               BY bf-oe-rel.r-no:
-
-            ASSIGN 
-                opcCustPONo     = (IF bf-oe-rel.po-no GT "" THEN bf-oe-rel.po-no ELSE bf-oe-ordl.po-no)
-                opdtRelDate     = bf-oe-rel.rel-date
-                opcShipNotes[1] = bf-oe-rel.ship-i[1]
-                opcShipNotes[2] = bf-oe-rel.ship-i[2]
-                opcShipNotes[3] = bf-oe-rel.ship-i[3]
-                opcShipNotes[4] = bf-oe-rel.ship-i[4]
-                .
-            LEAVE.
-        END.
-    END.
+        IF NOT AVAILABLE bf-ttLoadTag THEN
+            UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK.
     
-    IF AVAILABLE bf-oe-rel THEN 
-        ASSIGN opcRelLotID = bf-oe-rel.lot-no.
-
-    opcCustPONo = bf-job-hdr.po-no.
+        FIND FIRST bf-oe-ordl NO-LOCK
+             WHERE bf-oe-ordl.company EQ ipcCompany
+               AND bf-oe-ordl.ord-no  EQ ipiOrderID
+               AND bf-oe-ordl.i-no    EQ ipcItemID
+             NO-ERROR.
+        
+        IF NOT AVAILABLE bf-oe-ordl THEN
+            RETURN.
+        
+        FIND FIRST bf-oe-ord NO-LOCK
+             WHERE bf-oe-ord.company EQ ipcCompany
+               AND bf-oe-ord.ord-no  EQ ipiOrderID
+             NO-ERROR.
+        IF AVAILABLE bf-oe-ord THEN
+            ASSIGN
+                bf-ttLoadTag.soldID       = bf-oe-ord.sold-id
+                bf-ttLoadTag.soldName     = bf-oe-ord.sold-name
+                bf-ttLoadTag.soldAddress1 = bf-oe-ord.sold-add[1]
+                bf-ttLoadTag.soldAddress2 = bf-oe-ord.sold-add[2]
+                bf-ttLoadTag.soldCity     = bf-oe-ord.sold-city
+                bf-ttLoadTag.soldState    = bf-oe-ord.sold-state
+                bf-ttLoadTag.soldZip      = bf-oe-ord.sold-zip
+                bf-ttLoadTag.dueDate      = bf-oe-ord.due-date
+                .
+                  
+        ASSIGN
+            bf-ttLoadTag.orderDesc1 = bf-oe-ordl.part-dscr1
+            bf-ttLoadTag.orderDesc2 = bf-oe-ordl.part-dscr2
+            bf-ttLoadTag.runShip    = bf-oe-ordl.whsed
+            bf-ttLoadTag.poID       = bf-oe-ordl.po-no-po
+            .
+        
+        IF bf-ttLoadTag.dueDate EQ ? THEN
+            bf-ttLoadTag.dueDate = bf-oe-ordl.req-date.
+        
+        IF bf-ttLoadTag.dueDate EQ ? THEN
+            bf-ttLoadTag.dueDate = TODAY.
+            
+        FOR EACH bf-oe-rell NO-LOCK
+            WHERE bf-oe-rell.company  EQ bf-oe-ordl.company
+              AND bf-oe-rell.ord-no   EQ bf-oe-ordl.ord-no
+              AND bf-oe-rell.i-no     EQ bf-oe-ordl.i-no
+              AND bf-oe-rell.line     EQ bf-oe-ordl.line,
+            FIRST bf-oe-relh NO-LOCK
+            WHERE bf-oe-relh.r-no     EQ bf-oe-rell.r-no
+               BY bf-oe-relh.rel-date
+               BY bf-oe-relh.r-no:
+    
+            ASSIGN
+                bf-ttLoadTag.custPONo     = bf-oe-rell.po-no
+                bf-ttLoadTag.relDate      = bf-oe-relh.rel-date
+                bf-ttLoadTag.shipNotes[1] = bf-oe-relh.ship-i[1]
+                bf-ttLoadTag.shipNotes[2] = bf-oe-relh.ship-i[2]
+                bf-ttLoadTag.shipNotes[3] = bf-oe-relh.ship-i[3]
+                bf-ttLoadTag.shipNotes[4] = bf-oe-relh.ship-i[4]
+                bf-ttLoadTag.relQuantity  = bf-oe-rell.qty 
+                .
+            LEAVE.
+        END.
+    
+        IF AVAILABLE bf-oe-rell THEN
+            FIND FIRST bf-oe-rel NO-LOCK
+                 WHERE bf-oe-rel.r-no EQ bf-oe-rell.link-no
+                 NO-ERROR.
+        ELSE DO:
+            FOR EACH bf-oe-rel NO-LOCK
+                WHERE bf-oe-rel.company  EQ bf-oe-ordl.company
+                  AND bf-oe-rel.ord-no   EQ bf-oe-ordl.ord-no
+                  AND bf-oe-rel.i-no     EQ bf-oe-ordl.i-no
+                  AND bf-oe-rel.line     EQ bf-oe-ordl.line
+                  AND bf-oe-rel.rel-no   EQ 0
+                BY bf-oe-rel.rel-date
+                BY bf-oe-rel.r-no:
+                ASSIGN
+                    bf-ttLoadTag.custPONo     = (IF bf-oe-rel.po-no GT "" THEN bf-oe-rel.po-no ELSE bf-oe-ordl.po-no)
+                    bf-ttLoadTag.relDate      = bf-oe-rel.rel-date
+                    bf-ttLoadTag.shipNotes[1] = bf-oe-rel.ship-i[1]
+                    bf-ttLoadTag.shipNotes[2] = bf-oe-rel.ship-i[2]
+                    bf-ttLoadTag.shipNotes[3] = bf-oe-rel.ship-i[3]
+                    bf-ttLoadTag.shipNotes[4] = bf-oe-rel.ship-i[4]
+                    .
+                LEAVE.
+            END.
+        END.  
+    
+        IF NOT AVAILABLE bf-oe-rel THEN DO:
+            FOR EACH bf-oe-rel NO-LOCK
+                WHERE bf-oe-rel.company  EQ bf-oe-ordl.company
+                  AND bf-oe-rel.ord-no   EQ bf-oe-ordl.ord-no
+                  AND bf-oe-rel.i-no     EQ bf-oe-ordl.i-no
+                  AND bf-oe-rel.line     EQ bf-oe-ordl.line
+                   BY bf-oe-rel.rel-date
+                   BY bf-oe-rel.r-no:
+    
+                ASSIGN 
+                    bf-ttLoadTag.custPONo     = (IF bf-oe-rel.po-no GT "" THEN bf-oe-rel.po-no ELSE bf-oe-ordl.po-no)
+                    bf-ttLoadTag.relDate      = bf-oe-rel.rel-date
+                    bf-ttLoadTag.shipNotes[1] = bf-oe-rel.ship-i[1]
+                    bf-ttLoadTag.shipNotes[2] = bf-oe-rel.ship-i[2]
+                    bf-ttLoadTag.shipNotes[3] = bf-oe-rel.ship-i[3]
+                    bf-ttLoadTag.shipNotes[4] = bf-oe-rel.ship-i[4]
+                    .
+                LEAVE.
+            END.
+        END.
+        
+        IF AVAILABLE bf-oe-rel THEN 
+            bf-ttLoadTag.rellotID = bf-oe-rel.lot-no.
+    END.
 END PROCEDURE.
 
 /* ************************  Function Implementations ***************** */
