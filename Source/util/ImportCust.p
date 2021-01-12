@@ -99,6 +99,8 @@ DEFINE TEMP-TABLE ttImportCust
     FIELD naicsCode     AS CHARACTER FORMAT "999999" COLUMN-LABEL "NAICS" HELP "NAICS Code, link to NaicsTable, Default = 999999"
     FIELD classId       AS INTEGER   FORMAT ">>" COLUMN-LABEL "AR ClassID" HELP "Optional - Integer  Default = blank or 0 "    
     FIELD accountant    AS CHARACTER FORMAT "x(10)" COLUMN-LABEL "Accountant" HELP "Optional - Size:10 "    
+    FIELD matrixPrecision AS INTEGER FORMAT "9"   COLUMN-LABEL "Matrix Precision" HELP "Optional - Integer"
+    FIELD matrixRounding  AS CHARACTER FORMAT "X" COLUMN-LABEL "Matrix Rounding"  HELP "Optional - N,U,D"
     .
 
 DEFINE VARIABLE giIndexOffset AS INTEGER NO-UNDO INIT 2. /*Set to 1 if there is a Company field in temp-table since this will not be part of the mport data*/
@@ -258,7 +260,20 @@ PROCEDURE pValidate PRIVATE:
                 oplValid = NO
                 opcNote  = "Pallet Id can not be Negative.".
     END.
-    
+    IF oplValid THEN DO:
+        IF ipbf-ttImportCust.matrixPrecision GT 6 THEN
+            ASSIGN 
+                oplValid = NO
+                opcNote  = "Precision cannot be greater than 6"
+                .     
+    END.
+    IF oplValid THEN DO:
+        IF LOOKUP(ipbf-ttImportCust.matrixRounding,",N,U,D") EQ 0 THEN
+            ASSIGN
+                oplValid = NO
+                opcNote  = "Invalid Rounding method"
+                .
+    END.
     IF oplValid THEN 
     DO:
         FIND FIRST cust NO-LOCK 
@@ -499,6 +514,8 @@ PROCEDURE pProcessRecord PRIVATE:
     RUN pAssignValueC (ipbf-ttImportCust.naicsCode, iplIgnoreBlanks, INPUT-OUTPUT bf-cust.naicsCode).
     RUN pAssignValueC (ipbf-ttImportCust.classId, iplIgnoreBlanks, INPUT-OUTPUT bf-cust.classId).
     RUN pAssignValueC (ipbf-ttImportCust.accountant, iplIgnoreBlanks, INPUT-OUTPUT bf-cust.accountant).
+    RUN pAssignValueI (ipbf-ttImportCust.matrixPrecision, iplIgnoreBlanks, INPUT-OUTPUT bf-cust.matrixPrecision).
+    RUN pAssignValueC (ipbf-ttImportCust.matrixRounding, iplIgnoreBlanks, INPUT-OUTPUT bf-cust.matrixRounding).
 
     FIND FIRST bf-shipto EXCLUSIVE-LOCK 
         WHERE bf-shipto.company EQ bf-cust.company

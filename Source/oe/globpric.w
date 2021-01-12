@@ -66,9 +66,19 @@ def var ctr             as INT NO-UNDO.
 
 DEF VAR iPurgeCount AS INT NO-UNDO.
 DEF VAR cFileName AS CHAR FORMAT "x(30)" NO-UNDO .
+DEFINE VARIABLE lProcess     AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cExcelHeader AS CHARACTER NO-UNDO.
 DEF TEMP-TABLE ttRowidsToPurge
     FIELD ttRowid AS ROWID.
 DEF STREAM excel.
+
+DEFINE TEMP-TABLE ttPriceMatrix NO-UNDO
+    LIKE oe-prmtx
+    .
+cExcelHeader = "Eff. Date,Customer,Type,Category,Item Code,Price Basis,Qty1,Price1,Dsc1,UOM1,Qty2,Price2,Dsc2,UOM2,"+
+                "Qty3,Price3,Dsc3,UOM3,Qty4,Price4,Dsc4,UOM4,Qty5,Price5,Dsc5,UOM5,Qty6,Price6,Dsc6,UOM6," + 
+                "Qty7,Price7,Dsc7,UOM7,Qty8,Price8,Dsc8,UOM8,Qty9,Price9,Dsc9,UOM9,Qty10,Price10,Dsc10,UOM10," +
+                "Exp Date,ShipTo,Online,Customer Part #,Item Name,Item Description 1".
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -88,12 +98,13 @@ DEF STREAM excel.
 &Scoped-Define ENABLED-OBJECTS RECT-17 tbPurge begin_cust end_cust ~
 begin_cust-type end_cust-type begin_i-no end_i-no begin_cat end_cat ~
 begin_level end_level beg_eff_date end_eff_date tg_new_eff_date td_imported ~
-rd_basis rd_divide percent_chg rd_round btn-process btn-cancel 
+cbPriceBasis cbUse cbMatrixPrecision cbMatrixRounding percent_chg ~
+btSimulate btn-process btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS tbPurge begin_cust end_cust ~
 begin_cust-type end_cust-type begin_i-no end_i-no begin_cat end_cat ~
 begin_level end_level beg_eff_date end_eff_date new_eff_date ~
-tg_new_eff_date tg_newmatrix td_imported lbl_price rd_basis rd_divide ~
-percent_chg lbl_rnd-meth rd_round 
+tg_new_eff_date tg_newmatrix td_imported cbPriceBasis cbUse ~
+cbMatrixPrecision cbMatrixRounding percent_chg 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -132,6 +143,42 @@ DEFINE BUTTON btn-cancel
 DEFINE BUTTON btn-process 
      LABEL "&Start Process" 
      SIZE 18 BY 1.14.
+
+DEFINE BUTTON btSimulate 
+     LABEL "Simulate" 
+     SIZE 16.6 BY 1.14.
+
+DEFINE VARIABLE cbMatrixPrecision AS CHARACTER FORMAT "X(256)":U INITIAL "0" 
+     LABEL "Matrix Precision" 
+     VIEW-AS COMBO-BOX INNER-LINES 5
+     LIST-ITEMS "0","1","2","3","4","5","6","Customer" 
+     DROP-DOWN-LIST
+     SIZE 16 BY 1 NO-UNDO.
+
+DEFINE VARIABLE cbMatrixRounding AS CHARACTER FORMAT "X(256)":U INITIAL "U" 
+     LABEL "Matrix Rounding" 
+     VIEW-AS COMBO-BOX INNER-LINES 5
+     LIST-ITEM-PAIRS "Up","U",
+                     "Down","D",
+                     "Normal","N",
+                     "Customer","C"
+     DROP-DOWN-LIST
+     SIZE 16 BY 1 NO-UNDO.
+
+DEFINE VARIABLE cbPriceBasis AS CHARACTER FORMAT "X(256)":U INITIAL "Price" 
+     LABEL "Price Basis" 
+     VIEW-AS COMBO-BOX INNER-LINES 5
+     LIST-ITEMS "Price","Discount" 
+     DROP-DOWN-LIST
+     SIZE 16 BY 1 NO-UNDO.
+
+DEFINE VARIABLE cbUse AS CHARACTER FORMAT "X(256)":U INITIAL "D" 
+     LABEL "Use" 
+     VIEW-AS COMBO-BOX INNER-LINES 5
+     LIST-ITEM-PAIRS "% Profit","D",
+                     "% Increase","M"
+     DROP-DOWN-LIST
+     SIZE 16 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_cat AS CHARACTER FORMAT "X(5)":U 
      LABEL "Beginning Category" 
@@ -193,14 +240,6 @@ DEFINE VARIABLE end_level AS INTEGER FORMAT ">>":U INITIAL 10
      VIEW-AS FILL-IN 
      SIZE 5 BY 1 NO-UNDO.
 
-DEFINE VARIABLE lbl_price AS CHARACTER FORMAT "X(256)":U INITIAL "Price Basis?" 
-     VIEW-AS FILL-IN 
-     SIZE 13 BY .95 NO-UNDO.
-
-DEFINE VARIABLE lbl_rnd-meth AS CHARACTER FORMAT "X(256)":U INITIAL "Rounding Method?" 
-     VIEW-AS FILL-IN 
-     SIZE 20 BY 1 NO-UNDO.
-
 DEFINE VARIABLE new_eff_date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001 
      LABEL "New Effective Date" 
      VIEW-AS FILL-IN 
@@ -210,29 +249,6 @@ DEFINE VARIABLE percent_chg AS DECIMAL FORMAT "->>>>9.99":U INITIAL 0
      LABEL "Percent Change" 
      VIEW-AS FILL-IN 
      SIZE 14 BY 1 NO-UNDO.
-
-DEFINE VARIABLE rd_basis AS CHARACTER INITIAL "Price" 
-     VIEW-AS RADIO-SET HORIZONTAL
-     RADIO-BUTTONS 
-          "Discount", "Discount",
-"Price", "Price"
-     SIZE 27 BY .95 NO-UNDO.
-
-DEFINE VARIABLE rd_divide AS CHARACTER 
-     VIEW-AS RADIO-SET HORIZONTAL
-     RADIO-BUTTONS 
-          "% Profit", "D",
-"% Increase", "M"
-     SIZE 32 BY 1.19 TOOLTIP "Choose (% Profit) = Price / (100 - %) OR (%Increase) = Price + (Price * %)" NO-UNDO.
-
-DEFINE VARIABLE rd_round AS CHARACTER INITIAL "P" 
-     VIEW-AS RADIO-SET HORIZONTAL
-     RADIO-BUTTONS 
-          "Dollar", "B",
-"Dime", "D",
-"2 Decimals", "P",
-"4 Decimals", "F"
-     SIZE 49 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-17
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -292,18 +308,15 @@ DEFINE FRAME FRAME-A
      tg_new_eff_date AT ROW 10.1 COL 19.2
      tg_newmatrix AT ROW 11 COL 19.2 WIDGET-ID 8
      td_imported AT ROW 11 COL 45
-     lbl_price AT ROW 12.1 COL 24.8 COLON-ALIGNED NO-LABEL
-     rd_basis AT ROW 12.1 COL 40.6 NO-LABEL
-     rd_divide AT ROW 13.48 COL 53 HELP
-          "% Profit = Price / (100 - %) , %Increase = Price + (Price * %)" NO-LABEL WIDGET-ID 2
-     percent_chg AT ROW 13.52 COL 24.6 COLON-ALIGNED HELP
+     cbPriceBasis AT ROW 11.95 COL 24.8 COLON-ALIGNED WIDGET-ID 10
+     cbUse AT ROW 11.95 COL 65.2 COLON-ALIGNED WIDGET-ID 12
+     cbMatrixPrecision AT ROW 13.33 COL 25 COLON-ALIGNED WIDGET-ID 16
+     cbMatrixRounding AT ROW 13.33 COL 65.4 COLON-ALIGNED WIDGET-ID 14
+     percent_chg AT ROW 14.81 COL 43 COLON-ALIGNED HELP
           "Enter a Negative or Positive Percentage"
-     lbl_rnd-meth AT ROW 14.95 COL 17 COLON-ALIGNED NO-LABEL
-     rd_round AT ROW 14.95 COL 39 NO-LABEL
-     btn-process AT ROW 16.71 COL 21
-     btn-cancel AT ROW 16.71 COL 53
-     "Use" VIEW-AS TEXT
-          SIZE 9 BY 1.1 AT ROW 13.48 COL 44 WIDGET-ID 6
+     btSimulate AT ROW 16.71 COL 15.6 WIDGET-ID 18
+     btn-process AT ROW 16.71 COL 36.2
+     btn-cancel AT ROW 16.71 COL 57.8
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY 1 AT ROW 1.48 COL 5
      RECT-17 AT ROW 1 COL 1
@@ -372,28 +385,8 @@ ASSIGN
        btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "ribbon-button".
 
-/* SETTINGS FOR FILL-IN lbl_price IN FRAME FRAME-A
-   NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN lbl_rnd-meth IN FRAME FRAME-A
-   NO-ENABLE                                                            */
-ASSIGN 
-       lbl_rnd-meth:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "rd_rnd-meth".
-
 /* SETTINGS FOR FILL-IN new_eff_date IN FRAME FRAME-A
    NO-ENABLE                                                            */
-ASSIGN 
-       rd_basis:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "parm".
-
-ASSIGN 
-       rd_divide:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "parm".
-
-ASSIGN 
-       rd_round:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "parm".
-
 /* SETTINGS FOR TOGGLE-BOX tg_newmatrix IN FRAME FRAME-A
    NO-ENABLE                                                            */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
@@ -452,7 +445,10 @@ DO:
     DEF VAR cConfirmPurge AS CHAR NO-UNDO.
     
     DO WITH FRAME {&FRAME-NAME}:
-        ASSIGN {&displayed-objects}.
+        ASSIGN 
+            {&displayed-objects}
+            lProcess = YES
+            .
     END.
 
     IF NOT tbPurge:CHECKED IN FRAME {&frame-name} THEN DO:  /* 'Normal' processing */
@@ -498,33 +494,69 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME rd_basis
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd_basis C-Win
-ON VALUE-CHANGED OF rd_basis IN FRAME FRAME-A
+&Scoped-define SELF-NAME btSimulate
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btSimulate C-Win
+ON CHOOSE OF btSimulate IN FRAME FRAME-A /* Simulate */
 DO:
-  assign {&self-name}.
+    ASSIGN 
+        {&displayed-objects}
+        .
+    MESSAGE 
+        "Are you sure you want to simulate the process within the selection parameters?"
+        VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO 
+        UPDATE lResponse AS LOGICAL .
+    IF lResponse THEN DO:
+        EMPTY TEMP-TABLE ttPriceMatrix.
+        lProcess = NO.
+        IF tbPurge:CHECKED THEN 
+            RUN pPurgePhase1. 
+        ELSE     
+            RUN run-process.     
+    END.    
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME rd_divide
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd_divide C-Win
-ON VALUE-CHANGED OF rd_divide IN FRAME FRAME-A
+&Scoped-define SELF-NAME cbMatrixPrecision
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cbMatrixPrecision C-Win
+ON VALUE-CHANGED OF cbMatrixPrecision IN FRAME FRAME-A /* Matrix Precision */
 DO:
-  ASSIGN {&self-name}.
+    ASSIGN {&SELF-NAME}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME rd_round
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd_round C-Win
-ON VALUE-CHANGED OF rd_round IN FRAME FRAME-A
+&Scoped-define SELF-NAME cbMatrixRounding
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cbMatrixRounding C-Win
+ON VALUE-CHANGED OF cbMatrixRounding IN FRAME FRAME-A /* Matrix Rounding */
 DO:
-  assign {&self-name}.
+    ASSIGN {&SELF-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME cbPriceBasis
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cbPriceBasis C-Win
+ON VALUE-CHANGED OF cbPriceBasis IN FRAME FRAME-A /* Price Basis */
+DO:
+    ASSIGN {&SELF-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME cbUse
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cbUse C-Win
+ON VALUE-CHANGED OF cbUse IN FRAME FRAME-A /* Use */
+DO:
+    ASSIGN {&SELF-NAME}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -639,12 +671,13 @@ PROCEDURE enable_UI :
   DISPLAY tbPurge begin_cust end_cust begin_cust-type end_cust-type begin_i-no 
           end_i-no begin_cat end_cat begin_level end_level beg_eff_date 
           end_eff_date new_eff_date tg_new_eff_date tg_newmatrix td_imported 
-          lbl_price rd_basis rd_divide percent_chg lbl_rnd-meth rd_round 
+          cbPriceBasis cbUse cbMatrixPrecision cbMatrixRounding percent_chg 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-17 tbPurge begin_cust end_cust begin_cust-type end_cust-type 
          begin_i-no end_i-no begin_cat end_cat begin_level end_level 
-         beg_eff_date end_eff_date tg_new_eff_date td_imported rd_basis 
-         rd_divide percent_chg rd_round btn-process btn-cancel 
+         beg_eff_date end_eff_date tg_new_eff_date td_imported cbPriceBasis 
+         cbUse cbMatrixPrecision cbMatrixRounding percent_chg btSimulate 
+         btn-process btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -661,6 +694,8 @@ PROCEDURE markdown :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEFINE PARAMETER BUFFER ipb-oe-prmtx FOR oe-prmtx.
+  DEFINE INPUT  PARAMETER ipcRoundingType  AS CHARACTER NO-UNDO.
+  DEFINE INPUT  PARAMETER ipiRoundingLevel AS INTEGER   NO-UNDO.
 
   do ctr = start-level to min(10,end-level):
     if price-basis eq "D" then 
@@ -670,9 +705,14 @@ PROCEDURE markdown :
     if price-basis eq "P" then 
       ipb-oe-prmtx.price[ctr]    = ipb-oe-prmtx.price[ctr] +
                                (ipb-oe-prmtx.price[ctr] * percent-change).
-
-    RUN rounding (INPUT-OUTPUT ipb-oe-prmtx.price[ctr]).
-  end.
+                                                     
+    IF ipcRoundingType EQ "U" THEN  
+        RUN rounding (INPUT-OUTPUT ipb-oe-prmtx.price[ctr]).
+    ELSE IF ipcRoundingType EQ "D" THEN
+         ipb-oe-prmtx.price[ctr] = TRUNCATE(ipb-oe-prmtx.price[ctr],ipiRoundingLevel).
+    ELSE
+        ipb-oe-prmtx.price[ctr] = ROUND(ipb-oe-prmtx.price[ctr],ipiRoundingLevel).      
+  END.
 
 END PROCEDURE.
 
@@ -686,7 +726,9 @@ PROCEDURE markup :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-DEFINE PARAMETER BUFFER ipb-oe-prmtx FOR oe-prmtx.
+  DEFINE PARAMETER BUFFER ipb-oe-prmtx FOR oe-prmtx.
+  DEFINE INPUT  PARAMETER ipcRoundingType  AS CHARACTER NO-UNDO.
+  DEFINE INPUT  PARAMETER ipiRoundingLevel AS INTEGER   NO-UNDO.
 
   do ctr = start-level to min(10,end-level):
     if percent-change eq 1 then do:
@@ -712,7 +754,12 @@ DEFINE PARAMETER BUFFER ipb-oe-prmtx FOR oe-prmtx.
            ipb-oe-prmtx.price[ctr]    = ipb-oe-prmtx.price[ctr] * (1 + percent-change).
       END.
     end.
-    RUN rounding (INPUT-OUTPUT ipb-oe-prmtx.price[ctr]).
+    IF ipcRoundingType EQ "U" THEN  
+        RUN rounding (INPUT-OUTPUT ipb-oe-prmtx.price[ctr]).
+    ELSE IF ipcRoundingType EQ "D" THEN
+         ipb-oe-prmtx.price[ctr] = TRUNCATE(ipb-oe-prmtx.price[ctr],ipiRoundingLevel).
+    ELSE
+        ipb-oe-prmtx.price[ctr] = ROUND(ipb-oe-prmtx.price[ctr],ipiRoundingLevel).
   end.
 
 END PROCEDURE.
@@ -720,17 +767,99 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCreateCSVRecords C-Win 
+PROCEDURE pCreateCSVRecords PRIVATE :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbfttPriceMatrix FOR ttPriceMatrix.
+    
+    DEFINE VARIABLE cConcatRecords AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cItemName      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cPartNo        AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cItemDescr     AS CHARACTER NO-UNDO.
+    
+    FIND FIRST itemfg NO-LOCK
+         WHERE itemfg.company EQ ipbfttPriceMatrix.company
+           AND itemfg.i-no    EQ SUBSTRING(ipbfttPriceMatrix.i-no,1,15)
+         NO-ERROR.
+    IF AVAIL itemfg THEN
+        ASSIGN
+            cItemName   = itemfg.i-name
+            cPartNo     = itemfg.part-no
+            cItemDescr  = itemfg.part-dscr1
+            .
+    
+            ASSIGN
+            cConcatRecords = cConcatRecords + appendXLLine(STRING(ipbfttPriceMatrix.eff-date,"99/99/9999"))
+            cConcatRecords = cConcatRecords + appendXLLine(STRING(ipbfttPriceMatrix.cust-no))
+            cConcatRecords = cConcatRecords + appendXLLine(ipbfttPriceMatrix.custype)
+            cConcatRecords = cConcatRecords + appendXLLine(STRING(ipbfttPriceMatrix.procat))
+            cConcatRecords = cConcatRecords + appendXLLine(SUBSTRING(ipbfttPriceMatrix.i-no,1,15))                      
+            cConcatRecords = cConcatRecords + appendXLLine(STRING(IF ipbfttPriceMatrix.meth THEN "Price" ELSE "Discount"))
+            cConcatRecords = cConcatRecords + appendXLLine(STRING(ipbfttPriceMatrix.qty[1]      ))
+            cConcatRecords = cConcatRecords + appendXLLine(STRING(ipbfttPriceMatrix.price[1]    ))
+            cConcatRecords = cConcatRecords + appendXLLine(STRING(ipbfttPriceMatrix.discount[1] ))
+            cConcatRecords = cConcatRecords + appendXLLine(STRING(ipbfttPriceMatrix.uom[1]      ))
+            cConcatRecords = cConcatRecords + appendXLLine(STRING(ipbfttPriceMatrix.qty[2]      ))
+            cConcatRecords = cConcatRecords + appendXLLine(STRING(ipbfttPriceMatrix.price[2]    ))
+            cConcatRecords = cConcatRecords + appendXLLine(STRING(ipbfttPriceMatrix.discount[2] ))
+            cConcatRecords = cConcatRecords + appendXLLine(STRING(ipbfttPriceMatrix.uom[2]      ))
+            cConcatRecords = cConcatRecords + appendXLLine(STRING(ipbfttPriceMatrix.qty[3]      ))
+            cConcatRecords = cConcatRecords + appendXLLine(STRING(ipbfttPriceMatrix.price[3]    )) 
+            cConcatRecords = cConcatRecords + appendXLLine(STRING(ipbfttPriceMatrix.discount[3] ))
+            cConcatRecords = cConcatRecords + appendXLLine(STRING(ipbfttPriceMatrix.uom[3]      ))
+            cConcatRecords = cConcatRecords + appendXLLine(STRING(ipbfttPriceMatrix.qty[4]      ))
+            cConcatRecords = cConcatRecords + appendXLLine(STRING(ipbfttPriceMatrix.price[4]    ))
+            cConcatRecords = cConcatRecords + appendXLLine(STRING(ipbfttPriceMatrix.discount[4] ))
+            cConcatRecords = cConcatRecords + appendXLLine(STRING(ipbfttPriceMatrix.uom[4]      ))
+            cConcatRecords = cConcatRecords + appendXLLine(STRING(ipbfttPriceMatrix.qty[5]      ))
+            cConcatRecords = cConcatRecords + appendXLLine(STRING(ipbfttPriceMatrix.price[5]    ))
+            cConcatRecords = cConcatRecords + appendXLLine(STRING(ipbfttPriceMatrix.discount[5] ))
+            cConcatRecords = cConcatRecords + appendXLLine(STRING(ipbfttPriceMatrix.uom[5]      ))
+            cConcatRecords = cConcatRecords + appendXLLine(STRING(ipbfttPriceMatrix.qty[6]      ))
+            cConcatRecords = cConcatRecords + appendXLLine(STRING(ipbfttPriceMatrix.price[6]    ))
+            cConcatRecords = cConcatRecords + appendXLLine(STRING(ipbfttPriceMatrix.discount[6] ))
+            cConcatRecords = cConcatRecords + appendXLLine(STRING(ipbfttPriceMatrix.uom[6]      ))
+            cConcatRecords = cConcatRecords + appendXLLine(STRING(ipbfttPriceMatrix.qty[7]      ))
+            cConcatRecords = cConcatRecords + appendXLLine(STRING(ipbfttPriceMatrix.price[7]    ))
+            cConcatRecords = cConcatRecords + appendXLLine(STRING(ipbfttPriceMatrix.discount[7] ))
+            cConcatRecords = cConcatRecords + appendXLLine(STRING(ipbfttPriceMatrix.uom[7]      ))
+            cConcatRecords = cConcatRecords + appendXLLine(STRING(ipbfttPriceMatrix.qty[8]      ))
+            cConcatRecords = cConcatRecords + appendXLLine(STRING(ipbfttPriceMatrix.price[8]    ))
+            cConcatRecords = cConcatRecords + appendXLLine(STRING(ipbfttPriceMatrix.discount[8] ))
+            cConcatRecords = cConcatRecords + appendXLLine(STRING(ipbfttPriceMatrix.uom[8]      ))
+            cConcatRecords = cConcatRecords + appendXLLine(STRING(ipbfttPriceMatrix.qty[9]      ))
+            cConcatRecords = cConcatRecords + appendXLLine(STRING(ipbfttPriceMatrix.price[9]    ))
+            cConcatRecords = cConcatRecords + appendXLLine(STRING(ipbfttPriceMatrix.discount[9] ))
+            cConcatRecords = cConcatRecords + appendXLLine(STRING(ipbfttPriceMatrix.uom[9]      ))
+            cConcatRecords = cConcatRecords + appendXLLine(STRING(ipbfttPriceMatrix.qty[10]     ))
+            cConcatRecords = cConcatRecords + appendXLLine(STRING(ipbfttPriceMatrix.price[10]   ))
+            cConcatRecords = cConcatRecords + appendXLLine(STRING(ipbfttPriceMatrix.discount[10]))
+            cConcatRecords = cConcatRecords + appendXLLine(STRING(ipbfttPriceMatrix.uom[10]     )) 
+            cConcatRecords = cConcatRecords + appendXLLine(IF ipbfttPriceMatrix.exp-date NE ? THEN  STRING(ipbfttPriceMatrix.exp-date,"99/99/9999") ELSE "")
+            cConcatRecords = cConcatRecords + appendXLLine(string(ipbfttPriceMatrix.custShipID))
+            cConcatRecords = cConcatRecords + appendXLLine(STRING(ipbfttPriceMatrix.online))
+            cConcatRecords = cConcatRecords + appendXLLine(cPartNo) 
+            cConcatRecords = cConcatRecords + appendXLLine(cItemName) 
+            cConcatRecords = cConcatRecords + appendXLLine(cItemDescr)
+            .
+    PUT STREAM excel UNFORMATTED cConcatRecords SKIP.
+    
+END PROCEDURE.
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pPurgePhase1 C-Win
-PROCEDURE pPurgePhase1:
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pPurgePhase1 C-Win 
+PROCEDURE pPurgePhase1 :
 /*------------------------------------------------------------------------------
  Purpose: create temp-table for every record to be purged; write export file
  Notes:
 ------------------------------------------------------------------------------*/
     DEF BUFFER b-oe-prmtx FOR oe-prmtx.
-
-    DEF VAR v-excelheader AS CHAR NO-UNDO.
-    DEF VAR v-excel-detail-lines AS CHAR NO-UNDO.
+    
     DEF VAR ino AS CHAR FORMAT "x(15)" NO-UNDO.
     DEF VAR pricbas AS CHAR NO-UNDO.
     DEFINE VARIABLE cIName AS CHARACTER   NO-UNDO.
@@ -740,10 +869,6 @@ PROCEDURE pPurgePhase1:
     RUN sys/ref/ExcelNameExt.p (INPUT "c:\tmp\PriceMtxPurge.csv", OUTPUT cFileName) .
 
     ASSIGN 
-        v-excelheader = "Eff. Date,Customer,Type,Category,Item Code,Price Basis,Qty1,Price1,Dsc1,UOM1,Qty2,Price2,Dsc2,UOM2,"+
-                        "Qty3,Price3,Dsc3,UOM3,Qty4,Price4,Dsc4,UOM4,Qty5,Price5,Dsc5,UOM5,Qty6,Price6,Dsc6,UOM6," + 
-                        "Qty7,Price7,Dsc7,UOM7,Qty8,Price8,Dsc8,UOM8,Qty9,Price9,Dsc9,UOM9,Qty10,Price10,Dsc10,UOM10," +
-                        "Exp Date,ShipTo,Online,Customer Part #,Item Name,Item Description 1"
         start-cust-no   = begin_cust
         end-cust-no     = end_cust
         start-cust-type = begin_cust-type
@@ -754,8 +879,8 @@ PROCEDURE pPurgePhase1:
         end-prod-cat    = end_cat
         start-level     = begin_level
         end-level       = end_level
-        price-basis     = SUBSTR(rd_basis,1,1)
-        pct-divide      = SUBSTR(rd_divide,1,1)
+        price-basis     = SUBSTR(cbPriceBasis,1,1)
+        pct-divide      = SUBSTR(cbUse,1,1)
         percent-change  = percent_chg / 100
         li-factor       = 1
         iPurgeCount     = 0.
@@ -765,7 +890,7 @@ PROCEDURE pPurgePhase1:
     SESSION:SET-WAIT-STATE ("general").
 
     OUTPUT STREAM excel TO VALUE(cFileName).
-    PUT STREAM excel UNFORMATTED v-excelheader SKIP.
+    PUT STREAM excel UNFORMATTED cExcelHeader SKIP.
     
     FOR EACH b-oe-prmtx WHERE b-oe-prmtx.company = cocode 
         AND b-oe-prmtx.cust-no GE begin_cust
@@ -784,81 +909,12 @@ PROCEDURE pPurgePhase1:
         ASSIGN 
             ttRowidsToPurge.ttRowid = ROWID(b-oe-prmtx)
             iPurgeCount = iPurgeCount + 1.
+        CREATE ttPriceMatrix.
+        BUFFER-COPY b-oe-prmtx TO ttPriceMatrix.    
 
-        ASSIGN 
-            ino = substring(b-oe-prmtx.i-no,01,15)
-            cIName = ''
-            cCustPart = ''
-            cIDesc1 = ''
-            .
-        FIND FIRST itemfg
-            WHERE itemfg.company EQ b-oe-prmtx.company
-            AND itemfg.i-no EQ ino
-            NO-LOCK NO-ERROR.
-        IF AVAIL itemfg THEN
-            ASSIGN
-                cIName = itemfg.i-name
-                cCustPart = itemfg.part-no
-                cIDesc1 = itemfg.part-dscr1
-                .
-        ASSIGN
-            pricbas = (IF b-oe-prmtx.meth EQ YES THEN "Price" ELSE "Discount")
-            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(b-oe-prmtx.eff-date,"99/99/9999"))
-            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(b-oe-prmtx.cust-no))
-            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(b-oe-prmtx.custype)
-            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(b-oe-prmtx.procat))
-            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(ino)                      
-            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(pricbas))
-            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(b-oe-prmtx.qty[1]      ))
-            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(b-oe-prmtx.price[1]    ))
-            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(b-oe-prmtx.discount[1] ))
-            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(b-oe-prmtx.uom[1]      ))
-            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(b-oe-prmtx.qty[2]      ))
-            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(b-oe-prmtx.price[2]    ))
-            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(b-oe-prmtx.discount[2] ))
-            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(b-oe-prmtx.uom[2]      ))
-            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(b-oe-prmtx.qty[3]      ))
-            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(b-oe-prmtx.price[3]    )) 
-            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(b-oe-prmtx.discount[3] ))
-            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(b-oe-prmtx.uom[3]      ))
-            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(b-oe-prmtx.qty[4]      ))
-            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(b-oe-prmtx.price[4]    ))
-            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(b-oe-prmtx.discount[4] ))
-            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(b-oe-prmtx.uom[4]      ))
-            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(b-oe-prmtx.qty[5]      ))
-            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(b-oe-prmtx.price[5]    ))
-            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(b-oe-prmtx.discount[5] ))
-            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(b-oe-prmtx.uom[5]      ))
-            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(b-oe-prmtx.qty[6]      ))
-            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(b-oe-prmtx.price[6]    ))
-            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(b-oe-prmtx.discount[6] ))
-            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(b-oe-prmtx.uom[6]      ))
-            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(b-oe-prmtx.qty[7]      ))
-            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(b-oe-prmtx.price[7]    ))
-            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(b-oe-prmtx.discount[7] ))
-            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(b-oe-prmtx.uom[7]      ))
-            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(b-oe-prmtx.qty[8]      ))
-            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(b-oe-prmtx.price[8]    ))
-            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(b-oe-prmtx.discount[8] ))
-            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(b-oe-prmtx.uom[8]      ))
-            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(b-oe-prmtx.qty[9]      ))
-            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(b-oe-prmtx.price[9]    ))
-            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(b-oe-prmtx.discount[9] ))
-            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(b-oe-prmtx.uom[9]      ))
-            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(b-oe-prmtx.qty[10]     ))
-            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(b-oe-prmtx.price[10]   ))
-            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(b-oe-prmtx.discount[10]))
-            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(b-oe-prmtx.uom[10]     )) 
-            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(IF b-oe-prmtx.exp-date NE ? THEN  STRING(b-oe-prmtx.exp-date,"99/99/9999") ELSE "")
-            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(b-oe-prmtx.custShipID))
-            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(b-oe-prmtx.online)) 
-            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(cCustPart) 
-            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(cIName) 
-            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(cIDesc1)
-            .
-
-        PUT STREAM excel UNFORMATTED v-excel-detail-lines SKIP.
-        v-excel-detail-lines = "".
+        RUN pCreateCSVRecords(
+            BUFFER ttPriceMatrix  
+            ).
     END.
 
     OUTPUT STREAM excel CLOSE.
@@ -866,15 +922,12 @@ PROCEDURE pPurgePhase1:
     SESSION:SET-WAIT-STATE ("").
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pPurgePhase2 C-Win
-PROCEDURE pPurgePhase2:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pPurgePhase2 C-Win 
+PROCEDURE pPurgePhase2 :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -890,11 +943,65 @@ PROCEDURE pPurgePhase2:
     END. 
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSimulateRounding C-Win 
+PROCEDURE pSimulateRounding :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbfttPriceMatrix FOR ttPriceMatrix.
+    DEFINE INPUT  PARAMETER iplMarkup         AS LOGICAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcRoundingType   AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiRoundingLevel  AS INTEGER   NO-UNDO.
+ 
 
+    DO ctr = start-level TO min(10,end-level):
+        IF iplMarkup THEN DO:            
+            IF percent-change EQ 1 THEN DO:
+              IF price-basis EQ "D" THEN 
+                ipbfttPriceMatrix.discount[ctr] = ipbfttPriceMatrix.discount[ctr] * 2.
+              ELSE
+              IF price-basis EQ "P" THEN 
+                ipbfttPriceMatrix.price[ctr]    = ipbfttPriceMatrix.price[ctr] * 2.
+            END.
+        
+            ELSE DO:
+                IF price-basis EQ "D" THEN DO:
+                  IF pct-divide = "D" THEN
+                     ipbfttPriceMatrix.discount[ctr] = ipbfttPriceMatrix.discount[ctr] / (1 - percent-change).
+                  ELSE
+                     ipbfttPriceMatrix.discount[ctr] = ipbfttPriceMatrix.discount[ctr] * (1 + percent-change).
+                END.
+                ELSE IF price-basis EQ "P" THEN DO:
+                  IF pct-divide = "D" THEN
+                     ipbfttPriceMatrix.price[ctr] = ipbfttPriceMatrix.price[ctr] / (1 - percent-change).
+                  ELSE                             
+                     ipbfttPriceMatrix.price[ctr] = ipbfttPriceMatrix.price[ctr] * (1 + percent-change).
+                END.
+            END.
+        END.
+        ELSE DO:
+            IF price-basis EQ "D" THEN 
+                ipbfttPriceMatrix.discount[ctr] = ipbfttPriceMatrix.discount[ctr] + (ipbfttPriceMatrix.discount[ctr] * percent-change).
+            ELSE IF price-basis EQ "P" THEN 
+                ipbfttPriceMatrix.price[ctr]    = ipbfttPriceMatrix.price[ctr] + (ipbfttPriceMatrix.price[ctr] * percent-change).           
+        END. 
+        IF ipcRoundingType EQ "U" THEN  
+        RUN rounding (INPUT-OUTPUT ipbfttPriceMatrix.price[ctr]).
+        
+        ELSE IF ipcRoundingType EQ "D" THEN
+             ipbfttPriceMatrix.price[ctr] = TRUNCATE(ipbfttPriceMatrix.price[ctr],ipiRoundingLevel).
+        ELSE
+            ipbfttPriceMatrix.price[ctr] = ROUND(ipbfttPriceMatrix.price[ctr],ipiRoundingLevel).        
+    END.                        
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE rounding C-Win 
 PROCEDURE rounding :
@@ -925,9 +1032,12 @@ PROCEDURE run-process :
 
 SESSION:SET-WAIT-STATE("General").
 
-DEF VAR v-date AS DATE NO-UNDO.
-DEF VAR v-date-str AS CHAR NO-UNDO.
-DEF VAR v-start-i-no AS CHAR FORMAT "X(108)" NO-UNDO.
+DEFINE VARIABLE v-date         AS DATE      NO-UNDO.
+DEFINE VARIABLE v-date-str     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE v-start-i-no   AS CHARACTER FORMAT "X(108)" NO-UNDO.
+DEFINE VARIABLE cRoundingType  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iRoundingLevel AS INTEGER   NO-UNDO.
+DEFINE VARIABLE cOutputDir     AS CHARACTER NO-UNDO.
 DEF BUFFER bf-oe-prmtx FOR oe-prmtx.
 
 ASSIGN
@@ -941,14 +1051,34 @@ ASSIGN
  end-prod-cat    = end_cat
  start-level     = begin_level
  end-level       = end_level
- price-basis     = SUBSTR(rd_basis,1,1)
- pct-divide      = SUBSTR(rd_divide,1,1)
+ price-basis     = SUBSTR(cbPriceBasis,1,1)
+ pct-divide      = SUBSTR(cbUse,1,1)
  percent-change  = percent_chg / 100
- li-factor       = 1.
+ li-factor       = 1
+ cRoundingType   = cbMatrixRounding
+ .
 
-DO ctr = 1 TO INDEX("DPTF",rd_round):
-    li-factor = li-factor * 10.    
+IF cbMatrixPrecision NE "Customer" THEN DO:
+    DO ctr = 1 TO INTEGER(cbMatrixPrecision):
+        li-factor = li-factor * 10.    
+    END.
+    iRoundingLevel = INTEGER(cbMatrixPrecision).
 END.
+RUN FileSys_GetTempDirectory(
+    OUTPUT cOutputDir
+    ).
+IF tbPurge:CHECKED IN FRAME {&FRAME-NAME} THEN 
+    cOutputDir = cOutputDir + "\PriceMtxPurge.csv".
+ELSE    
+    cOutputDir = cOutputDir + "\PriceMatrix.csv".
+             
+RUN sys/ref/ExcelNameExt.p (
+    INPUT cOutputDir, 
+    OUTPUT cFileName
+    ).
+OUTPUT STREAM excel TO VALUE(cFileName).
+PUT STREAM excel UNFORMATTED cExcelHeader SKIP.
+                
 MAIN:
 REPEAT PRESELECT EACH oe-prmtx EXCLUSIVE-LOCK
     WHERE oe-prmtx.company    EQ cocode 
@@ -987,35 +1117,80 @@ REPEAT PRESELECT EACH oe-prmtx EXCLUSIVE-LOCK
 /*        v-date GE beg_eff_date AND                        */
 /*        v-date LE end_eff_date THEN                       */
 /*        DO:                                               */
+
+          IF cbMatrixPrecision EQ "Customer" THEN DO:
+              DO ctr = 1 TO INTEGER(cust.matrixPrecision):
+                  li-factor = li-factor * 10.    
+              END.
+              iRoundingLevel = INTEGER(cust.matrixPrecision).
+          END.
+          IF cRoundingType EQ "C" THEN DO:
+              IF cust.matrixRounding EQ "" THEN
+                  cRoundingType = "U".
+              ELSE
+                  cRoundingType = cust.matrixRounding.               
+          END.               
           IF tg_newmatrix THEN DO:
-              IF isLatestEffDate(BUFFER oe-prmtx) THEN DO:
-                CREATE bf-oe-prmtx.
-                BUFFER-COPY oe-prmtx EXCEPT oe-prmtx.rec_key TO bf-oe-prmtx.
+              IF isLatestEffDate(BUFFER oe-prmtx) THEN DO:  
+                  IF lProcess THEN DO:     
+                      CREATE bf-oe-prmtx.
+                      BUFFER-COPY oe-prmtx EXCEPT oe-prmtx.rec_key TO bf-oe-prmtx.
+                  END.
+                  CREATE ttPriceMatrix.
+                  BUFFER-COPY bf-oe-prmtx TO ttPriceMatrix.
               END.
           END.
-          ELSE
+          ELSE DO:
               FIND FIRST bf-oe-prmtx WHERE ROWID(bf-oe-prmtx) EQ ROWID(oe-prmtx).
+              IF AVAILABLE bf-oe-prmtx THEN DO:
+                  CREATE ttPriceMatrix.
+                  BUFFER-COPY bf-oe-prmtx TO ttPriceMatrix. 
+              END.    
+          END.    
           IF AVAIL bf-oe-prmtx THEN DO:
-              IF tg_new_eff_date THEN
-                  bf-oe-prmtx.eff-date = new_eff_date.
+              IF tg_new_eff_date THEN DO:
+                  IF lProcess THEN 
+                      bf-oe-prmtx.eff-date = new_eff_date.
+                  ttPriceMatrix.eff-date = new_eff_date. 
+              END.    
 /*                  ASSIGN                                                    */
 /*                     v-date-str = STRING(new_eff_date,"99/99/9999")         */
 /*                     lb-oe-prmtx.i-no = STRING(lb-oe-prmtx.i-no,"x(100)") + */
 /*                                     SUBSTR(v-date-str,7,4) +               */
 /*                                     SUBSTR(v-date-str,1,2) +               */
 /*                                     SUBSTR(v-date-str,4,2).                */
-
-              IF percent-change LE 0 THEN
-                 RUN markdown (BUFFER bf-oe-prmtx).
-              ELSE 
-                 RUN markup  (BUFFER bf-oe-prmtx).
+              RUN pSimulateRounding(
+                    BUFFER ttPriceMatrix,
+                    INPUT  IF percent-change LE 0 THEN NO ELSE YES,
+                    INPUT  cRoundingType,
+                    INPUT  iRoundingLevel
+                    ).
+              RUN pCreateCSVRecords(
+                  BUFFER ttPriceMatrix
+                  ) .        
+              IF lProcess THEN DO:
+                  IF percent-change LE 0 THEN
+                     RUN markdown (
+                        BUFFER bf-oe-prmtx,
+                        INPUT  cRoundingType,
+                        INPUT  iRoundingLevel
+                        ).
+                  ELSE 
+                     RUN markup (
+                        BUFFER bf-oe-prmtx,
+                        INPUT  cRoundingType,
+                        INPUT  iRoundingLevel
+                        ).
+              END.                       
           END.
 /*        END. */
 END.
 
 SESSION:SET-WAIT-STATE("").
+OUTPUT STREAM excel CLOSE.  
 
-MESSAGE trim(c-win:TITLE) + " Process Is Completed." VIEW-AS ALERT-BOX.
+MESSAGE (IF lProcess THEN TRIM(c-win:TITLE) ELSE "Simulation")+ " Process Is Completed."
+        + "~n" + "An Export File is Stored in Location " + cFileName VIEW-AS ALERT-BOX.
 APPLY "close" TO THIS-PROCEDURE.
 
 /* end ---------------------------------- copr. 2002  advanced software, inc. */
