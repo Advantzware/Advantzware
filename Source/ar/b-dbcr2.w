@@ -48,6 +48,10 @@ DEF VAR ll-inquiry AS LOG NO-UNDO.
 DEF VAR ll-new-record AS LOG NO-UNDO.
 DEF VAR ll-is-a-return AS LOG NO-UNDO.
 DEF VAR v-armemo-log AS LOG NO-UNDO.
+DEFINE VARIABLE lInactive AS LOGICAL NO-UNDO.
+DEFINE VARIABLE hGLProcs  AS HANDLE  NO-UNDO.
+
+RUN system/GLProcs.p PERSISTENT SET hGLProcs.
 
 find first sys-ctrl where
      sys-ctrl.company eq cocode and
@@ -359,6 +363,9 @@ ON HELP OF Browser-Table IN FRAME F-Main
 DO:
     DEF VAR char-val AS cha NO-UNDO.
     DEF VAR lk-recid AS RECID NO-UNDO.
+    DEFINE VARIABLE cFieldsValue  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFoundValue   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE recFoundRecID AS RECID     NO-UNDO.
 
     CASE FOCUS:NAME:
         WHEN "inv-no" THEN DO:
@@ -368,10 +375,19 @@ DO:
              END.
              RETURN NO-APPLY.
         END.
-        WHEN "actnum" THEN DO:
-            RUN windows/l-acct3.w (ar-cash.company,"T",FOCUS:SCREEN-VALUE, OUTPUT char-val).
-            IF char-val NE "" AND ENTRY(1,char-val) NE FOCUS:SCREEN-VALUE THEN DO:
-              FOCUS:SCREEN-VALUE = ENTRY(1,char-val).
+        WHEN "actnum" THEN DO:            
+            RUN system/openLookup.p (
+                INPUT  g_company, 
+                INPUT  "",  /* Lookup ID */
+                INPUT  87,  /* Subject ID */
+                INPUT  "",  /* User ID */
+                INPUT  0,   /* Param Value ID */
+                OUTPUT cFieldsValue, 
+                OUTPUT cFoundValue, 
+                OUTPUT recFoundRecID
+                ). 
+            IF cFoundValue NE "" AND cFoundValue NE FOCUS:SCREEN-VALUE THEN DO:
+              FOCUS:SCREEN-VALUE = cFoundValue.
               RUN new-actnum.
             END.
         END.
@@ -583,7 +599,9 @@ DO:
   IF LASTKEY NE -1 THEN DO:
     RUN valid-actnum NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
+    
+    IF lInactive THEN 
+        ar-cashl.actnum:SCREEN-VALUE IN BROWSE {&browse-name} = ar-cashl.actnum:SCREEN-VALUE IN BROWSE {&browse-name} + "Inactive".
     RUN valid-inv-act NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   END.
@@ -1041,6 +1059,12 @@ PROCEDURE local-update-record :
 
   RUN valid-actnum NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  
+  IF lInactive THEN DO:
+      ar-cashl.actnum:SCREEN-VALUE IN BROWSE {&browse-name} = ar-cashl.actnum:SCREEN-VALUE IN BROWSE {&browse-name} + "Inactive".
+      APPLY "ENTRY" TO ar-cashl.actnum IN BROWSE {&browse-name}.
+      RETURN NO-APPLY.
+  END.    
 
   RUN valid-inv-act NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
@@ -1331,6 +1355,7 @@ PROCEDURE valid-actnum :
 ------------------------------------------------------------------------------*/
 
   DO WITH FRAME {&FRAME-NAME}:
+    lInactive = FALSE.
     IF NOT CAN-FIND(FIRST account
                     WHERE account.company EQ g_company
                       AND account.actnum  EQ ar-cashl.actnum:SCREEN-VALUE IN BROWSE {&browse-name}
@@ -1338,7 +1363,12 @@ PROCEDURE valid-actnum :
       MESSAGE "Invalid GL Account Number" VIEW-AS ALERT-BOX ERROR.
       APPLY "entry" TO ar-cashl.actnum.
       RETURN ERROR.
-    END.                      
+    END.  
+    RUN checkInvalidGLAccount IN hGLProcs(
+        INPUT g_company,
+        INPUT ar-cashl.actnum:SCREEN-VALUE IN BROWSE {&browse-name},
+        OUTPUT lInactive
+        ).                     
   END.
 
 END PROCEDURE.

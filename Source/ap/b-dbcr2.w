@@ -52,6 +52,10 @@ DEF VAR lv-inv-displayed AS LOG NO-UNDO.
 DEF VAR ll-inquiry AS LOG NO-UNDO.
 DEF VAR v-vend-act AS cha NO-UNDO.
 DEFINE VARIABLE dInvDate AS DATE NO-UNDO.
+DEFINE VARIABLE lInactive AS LOGICAL NO-UNDO.
+DEFINE VARIABLE hGLProcs  AS HANDLE  NO-UNDO.
+
+RUN system/GLProcs.p PERSISTENT SET hGLProcs.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -345,6 +349,9 @@ ON HELP OF Browser-Table IN FRAME F-Main
 DO:
     DEF VAR char-val AS cha NO-UNDO.
     DEF VAR lk-recid AS RECID NO-UNDO.
+    DEFINE VARIABLE cFieldsValue  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFoundValue   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE recFoundRecID AS RECID     NO-UNDO.
 
     CASE FOCUS:NAME:
         WHEN "inv-no" THEN DO:
@@ -354,10 +361,22 @@ DO:
              END.
              RETURN NO-APPLY.
         END.
-        WHEN "actnum" THEN DO:
-            RUN windows/l-acct3.w (ap-pay.company,"T",FOCUS:SCREEN-VALUE, OUTPUT char-val).
-            IF char-val <> "" THEN ASSIGN FOCUS:SCREEN-VALUE = ENTRY(1,char-val)
-                                          act_dscr:SCREEN-VALUE IN BROWSE {&browse-name} = ENTRY(2,char-val).
+        WHEN "actnum" THEN DO:            
+            RUN system/openLookup.p (
+                INPUT  g_company, 
+                INPUT  "",  /* Lookup ID */
+                INPUT  87,  /* Subject ID */
+                INPUT  "",  /* User ID */
+                INPUT  0,   /* Param Value ID */
+                OUTPUT cFieldsValue, 
+                OUTPUT cFoundValue, 
+                OUTPUT recFoundRecID
+                ). 
+            IF cFoundValue <> "" THEN 
+                ASSIGN 
+                    FOCUS:SCREEN-VALUE = cFoundValue
+                    act_dscr:SCREEN-VALUE IN BROWSE {&browse-name} = DYNAMIC-FUNCTION("sfDynLookupValue", "dscr", cFieldsValue)
+                    .
         END.
     END CASE.
 END.
@@ -460,6 +479,9 @@ DO:
   IF LASTKEY NE -1 THEN DO:
     RUN valid-actnum NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    
+    IF lInactive THEN 
+        ap-payl.actnum:SCREEN-VALUE IN BROWSE {&browse-name} = ap-payl.actnum:SCREEN-VALUE IN BROWSE {&browse-name} + "Inactive".
 
     RUN valid-inv-act NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
@@ -855,6 +877,12 @@ PROCEDURE local-update-record :
 
   RUN valid-actnum NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  
+  IF lInactive THEN DO:
+      ap-payl.actnum:SCREEN-VALUE IN BROWSE {&browse-name} = ap-payl.actnum:SCREEN-VALUE IN BROWSE {&browse-name} + "Inactive".
+      APPLY "ENTRY" TO ap-payl.actnum IN BROWSE {&browse-name}.
+      RETURN NO-APPLY.
+  END.
 
   RUN valid-inv-act NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
@@ -956,7 +984,8 @@ PROCEDURE valid-actnum :
   Notes:       
 ------------------------------------------------------------------------------*/
 
-  DO WITH FRAME {&FRAME-NAME}:    
+  DO WITH FRAME {&FRAME-NAME}:  
+    lInactive = FALSE.    
     FIND FIRST account
         WHERE account.company EQ g_company
           AND account.actnum  EQ ap-payl.actnum:SCREEN-VALUE IN BROWSE {&browse-name}
@@ -967,7 +996,12 @@ PROCEDURE valid-actnum :
       APPLY "entry" TO ap-payl.actnum IN BROWSE {&browse-name}.
       RETURN ERROR.
     END.   
-    act_dscr:SCREEN-VALUE IN BROWSE {&browse-name} = display-actdscr().                      
+    act_dscr:SCREEN-VALUE IN BROWSE {&browse-name} = display-actdscr().  
+    RUN checkInvalidGLAccount IN hGLProcs(
+        INPUT g_company,
+        INPUT ap-payl.actnum:SCREEN-VALUE IN BROWSE {&browse-name},
+        OUTPUT lInactive
+        ).                    
   END.
 
 END PROCEDURE.
