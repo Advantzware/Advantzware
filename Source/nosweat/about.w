@@ -43,6 +43,10 @@ DEFINE VARIABLE cWorkDir     AS CHARACTER NO-UNDO.
 {system/sysconst.i}
 {methods/defines/globdefs.i}
 
+&scoped-define HeightWithEditor 27
+&scoped-define HeightWithoutEditor 12
+
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -62,14 +66,13 @@ DEFINE VARIABLE cWorkDir     AS CHARACTER NO-UNDO.
 userControl.maxSessionsPerUser 
 &Scoped-define ENABLED-TABLES userControl
 &Scoped-define FIRST-ENABLED-TABLE userControl
-&Scoped-Define ENABLED-OBJECTS btnSave btnProperties properties userScreen ~
-screenImage autoMaximize winSize currentUsers 
+&Scoped-Define ENABLED-OBJECTS properties btnProperties currentUsers 
 &Scoped-Define DISPLAYED-FIELDS userControl.maxAllowedUsers ~
 userControl.maxSessionsPerUser 
 &Scoped-define DISPLAYED-TABLES userControl
 &Scoped-define FIRST-DISPLAYED-TABLE userControl
-&Scoped-Define DISPLAYED-OBJECTS autoMaximize winSize physical_file ~
-prgmTitle copyrite asiVersion currentUsers 
+&Scoped-Define DISPLAYED-OBJECTS physical_file prgmTitle copyrite ~
+asiVersion currentUsers 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -98,7 +101,7 @@ DEFINE BUTTON btnProperties
      LABEL "" 
      SIZE 7.6 BY 1.81 TOOLTIP "View System Settings".
 
-DEFINE BUTTON btnSave AUTO-GO 
+DEFINE BUTTON btnSave 
      IMAGE-UP FILE "Graphics/32x32/navigate_check.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 7.6 BY 1.81 TOOLTIP "Save Settings".
@@ -177,8 +180,8 @@ DEFINE VARIABLE autoMaximize AS LOGICAL INITIAL no
 
 DEFINE FRAME Dialog-Frame
      btnSave AT ROW 23.38 COL 68
-     btnProperties AT ROW 1.24 COL 69 WIDGET-ID 42
      properties AT ROW 1 COL 77 NO-LABEL WIDGET-ID 38
+     btnProperties AT ROW 1.24 COL 69 WIDGET-ID 42
      autoMaximize AT ROW 8.86 COL 9 WIDGET-ID 2
      winSize AT ROW 21 COL 9 NO-LABEL WIDGET-ID 8
      physical_file AT ROW 1.24 COL 23 COLON-ALIGNED
@@ -195,19 +198,13 @@ DEFINE FRAME Dialog-Frame
           SIZE 5.6 BY .62
           FGCOLOR 2 
      currentUsers AT ROW 7.43 COL 36 COLON-ALIGNED WIDGET-ID 44
-     "(value change requires a close/reopen)" VIEW-AS TEXT
-          SIZE 38 BY .81 AT ROW 8.86 COL 30 WIDGET-ID 4
-          FONT 4
-     "NOTE: screen scaling applies to all modules" VIEW-AS TEXT
-          SIZE 42 BY .81 AT ROW 23.86 COL 18 WIDGET-ID 18
-          FONT 4
      IMAGE-1 AT ROW 1.24 COL 2
      RECT-1 AT ROW 4.1 COL 9
      RECT-2 AT ROW 9.81 COL 9
      userScreen AT ROW 10.29 COL 9 WIDGET-ID 6
      screenImage AT ROW 10.76 COL 11 WIDGET-ID 14
      RECT-3 AT ROW 8.38 COL 9 WIDGET-ID 20
-     SPACE(140.00) SKIP(18.57)
+     SPACE(139.99) SKIP(18.56)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          FONT 6
@@ -216,7 +213,7 @@ DEFINE FRAME Dialog-Frame
 DEFINE FRAME linkFrame
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 2 ROW 25.29
+         AT COL 2 ROW 8.91
          SIZE 74 BY 1.91
          FONT 6
          TITLE "Links" WIDGET-ID 100.
@@ -251,6 +248,16 @@ ASSIGN
 ASSIGN 
        asiVersion:READ-ONLY IN FRAME Dialog-Frame        = TRUE.
 
+/* SETTINGS FOR TOGGLE-BOX autoMaximize IN FRAME Dialog-Frame
+   NO-DISPLAY NO-ENABLE                                                 */
+ASSIGN 
+       autoMaximize:HIDDEN IN FRAME Dialog-Frame           = TRUE.
+
+/* SETTINGS FOR BUTTON btnSave IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
+ASSIGN 
+       btnSave:HIDDEN IN FRAME Dialog-Frame           = TRUE.
+
 /* SETTINGS FOR FILL-IN copyrite IN FRAME Dialog-Frame
    NO-ENABLE                                                            */
 ASSIGN 
@@ -280,8 +287,26 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR RECTANGLE RECT-2 IN FRAME Dialog-Frame
    NO-ENABLE                                                            */
+ASSIGN 
+       RECT-2:HIDDEN IN FRAME Dialog-Frame           = TRUE.
+
 /* SETTINGS FOR RECTANGLE RECT-3 IN FRAME Dialog-Frame
    NO-ENABLE                                                            */
+/* SETTINGS FOR IMAGE screenImage IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
+ASSIGN 
+       screenImage:HIDDEN IN FRAME Dialog-Frame           = TRUE.
+
+/* SETTINGS FOR RECTANGLE userScreen IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
+ASSIGN 
+       userScreen:HIDDEN IN FRAME Dialog-Frame           = TRUE.
+
+/* SETTINGS FOR SLIDER winSize IN FRAME Dialog-Frame
+   NO-DISPLAY NO-ENABLE                                                 */
+ASSIGN 
+       winSize:HIDDEN IN FRAME Dialog-Frame           = TRUE.
+
 /* SETTINGS FOR FRAME linkFrame
                                                                         */
 /* _RUN-TIME-ATTRIBUTES-END */
@@ -340,8 +365,11 @@ DO:
         FRAME {&FRAME-NAME}:WIDTH = FRAME {&FRAME-NAME}:WIDTH
                                   + IF FRAME {&FRAME-NAME}:WIDTH LT 100 THEN 133
                                     ELSE -133
+        FRAME {&FRAME-NAME}:HEIGHT = IF FRAME {&FRAME-NAME}:WIDTH LT 100 THEN {&HeightWithoutEditor} ELSE {&HeightWithEditor}
+        properties:HEIGHT = IF FRAME {&FRAME-NAME}:WIDTH LT 100 THEN 10 ELSE 25
         properties:HIDDEN = FRAME {&FRAME-NAME}:WIDTH LT 100
         .
+              
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -402,7 +430,12 @@ CREATE WIDGET-POOL "linkPool" PERSISTENT.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
+
+
     RUN enable_UI.
+    ASSIGN 
+        autoMaximize:hidden = TRUE
+        autoMaximize:visible = FALSE.
     DO WITH FRAME {&FRAME-NAME}:
         ASSIGN
             callingprgm = ENTRY(NUM-ENTRIES(callingprgm,' '),callingprgm,' ')
@@ -461,7 +494,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
             physical_file
             copyrite
             asiVersion
-            autoMaximize
+          //  autoMaximize
             .
     END.
     WAIT-FOR GO OF FRAME {&FRAME-NAME}.
@@ -503,15 +536,13 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY autoMaximize winSize physical_file prgmTitle copyrite asiVersion 
-          currentUsers 
+  DISPLAY physical_file prgmTitle copyrite asiVersion currentUsers 
       WITH FRAME Dialog-Frame.
   IF AVAILABLE userControl THEN 
     DISPLAY userControl.maxAllowedUsers userControl.maxSessionsPerUser 
       WITH FRAME Dialog-Frame.
-  ENABLE btnSave btnProperties properties userScreen screenImage autoMaximize 
-         winSize userControl.maxAllowedUsers userControl.maxSessionsPerUser 
-         currentUsers 
+  ENABLE properties btnProperties userControl.maxAllowedUsers 
+         userControl.maxSessionsPerUser currentUsers 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
@@ -572,7 +603,7 @@ PROCEDURE pLinkClick :
     
     IF iphLink:PRIVATE-DATA NE ? THEN
 &IF DEFINED(FWD-VERSION) > 0 &THEN
-    open-mime-resource "text/html" string(iphLink:PRIVATE-DATA) false.
+    open-mime-resource "text/html" STRING(iphLink:PRIVATE-DATA) FALSE.
 &ELSE
     OS-COMMAND NO-WAIT START VALUE(iphLink:PRIVATE-DATA).
 &ENDIF
@@ -615,7 +646,7 @@ PROCEDURE pProperties :
     
 &IF DEFINED(FWD-VERSION) > 0 &THEN
     /* get fwd version instead */
-    assign cVersion = "{&FWD-VERSION}".
+    ASSIGN cVersion = "{&FWD-VERSION}".
 &ELSE
     
     /* get progress installed location */
@@ -623,9 +654,12 @@ PROCEDURE pProperties :
         KEY 'DLC'
         VALUE cDLC.
     /* get progress version */
-    INPUT FROM VALUE(SEARCH(cDLC + "\version")) NO-ECHO.
-    IMPORT UNFORMATTED cVersion.
-    INPUT CLOSE.
+    IF SEARCH(cDLC + "\version") NE ? THEN
+    DO:
+        INPUT FROM VALUE(SEARCH(cDLC + "\version")) NO-ECHO.
+        IMPORT UNFORMATTED cVersion.
+        INPUT CLOSE.
+    END.
 &ENDIF
     
     /* enable use of about.ini */
@@ -643,6 +677,7 @@ PROCEDURE pProperties :
             iLinkFont          = INT(fGetKeyValue("Links","FONT"))
             properties:HIDDEN  = YES
             FRAME {&FRAME-NAME}:WIDTH = FRAME {&FRAME-NAME}:WIDTH - 133
+            FRAME {&FRAME-NAME}:HEIGHT = {&HeightWithoutEditor}
             .
         /* get links and dynamically create clickable widgets */
         DO WHILE TRUE:
@@ -656,10 +691,9 @@ PROCEDURE pProperties :
             /* if more than 1 link, make room by increasing height */
             IF idx GT 1 THEN
             ASSIGN
-                FRAME {&FRAME-NAME}:HEIGHT = FRAME {&FRAME-NAME}:HEIGHT + iGap
                 FRAME linkFrame:HEIGHT = FRAME linkFrame:HEIGHT + iGap
                 properties:HEIGHT = properties:HEIGHT + iGap
-                .
+                no-error.
             /* create clickable link widget */
             CREATE TEXT hLink IN WIDGET-POOL "linkPool"
                 ASSIGN
