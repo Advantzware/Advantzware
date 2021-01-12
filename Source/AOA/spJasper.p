@@ -1677,18 +1677,29 @@ PROCEDURE pLocalCSV:
     DEFINE INPUT PARAMETER iphQuery      AS HANDLE    NO-UNDO.
 
     DEFINE VARIABLE cBufferValue   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCompany       AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cCustListField AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cExcelFile     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cFieldName     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE hDynCalcField  AS HANDLE    NO-UNDO.
     DEFINE VARIABLE hTable         AS HANDLE    NO-UNDO.
     DEFINE VARIABLE iColumn        AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE hOutputProcs   AS HANDLE    NO-UNDO.
     DEFINE VARIABLE hQuery         AS HANDLE    NO-UNDO.
     DEFINE VARIABLE hQueryBuf      AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE lAddTab        AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lProceed       AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lReplaceQuote  AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lUseCustList   AS LOGICAL   NO-UNDO.
 
     RUN AOA/spDynCalcField.p PERSISTENT SET hDynCalcField.
+    RUN system/OutputProcs.p PERSISTENT SET hOutputProcs.
+    RUN spGetSessionParam ("Company", OUTPUT cCompany). 
+    RUN Output_GetValueNK1OutputCSV IN hOutputProcs (
+        cCompany,
+        OUTPUT lReplaceQuote,
+        OUTPUT lAddTab
+        ). 
 
     SESSION:SET-WAIT-STATE("General").
     IF dynParamValue.useCustList OR dynParamValue.CustListID NE "" THEN
@@ -1768,7 +1779,7 @@ PROCEDURE pLocalCSV:
                     hQueryBuf    = iphQuery:GET-BUFFER-HANDLE(ENTRY(1,dynValueColumn.colName,"."))
                     cFieldName   = ENTRY(2,dynValueColumn.colName,".")
                     cBufferValue = fFormatValue(hQueryBuf, cFieldName, dynValueColumn.colFormat)
-                    cBufferValue = DYNAMIC-FUNCTION("sfWebCharacters", cBufferValue, 8, "")
+                    cBufferValue = DYNAMIC-FUNCTION("FormatForCSV" IN hOutputProcs, cBufferValue, lReplaceQuote, lAddTab)
                     .
                 PUT UNFORMATTED REPLACE(cBufferValue,",","") + ",".
             END. /* each dynvaluecolumn */
@@ -1781,6 +1792,7 @@ PROCEDURE pLocalCSV:
     DELETE OBJECT iphQuery.
     OUTPUT CLOSE.
     DELETE PROCEDURE hDynCalcField.
+    DELETE PROCEDURE hOutputProcs.  
     OS-COMMAND NO-WAIT START excel.exe VALUE("~"" + cExcelFile + "~"").
     SESSION:SET-WAIT-STATE("").
 
