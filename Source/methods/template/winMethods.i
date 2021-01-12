@@ -350,7 +350,7 @@ PROCEDURE local-initialize :
       "{&FIRST-EXTERNAL-TABLE}" EQ "oe-ord" &THEN
     {methods/windows/initial/{&FIRST-EXTERNAL-TABLE}.i}
   &ENDIF
-  
+  /*
         /* check if maximized for user */
   IF SEARCH('users/' + USERID('NOSWEAT') + '/' + v-prgmname + 'winReSize') NE ? OR
         /* check if maximized for all users */
@@ -361,7 +361,7 @@ PROCEDURE local-initialize :
     RUN winReSize.
     {methods/winReSizePgChg.i}
   END.
-
+*/
   {methods/template/local/wndwinit.i}
     
 END PROCEDURE.
