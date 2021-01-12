@@ -442,6 +442,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-process C-Win
 ON CHOOSE OF btn-process IN FRAME FRAME-A /* Start Process */
 DO:
+    EMPTY TEMP-TABLE ttPriceMatrix.
+    
     DEF VAR cConfirmPurge AS CHAR NO-UNDO.
     
     DO WITH FRAME {&FRAME-NAME}:
