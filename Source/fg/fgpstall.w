@@ -2869,7 +2869,7 @@ PROCEDURE fg-post :
       INPUT tg-recalc-cost,
       INPUT ip-run-what,
       INPUT gv-fgemail,
-      INPUT YES,   /* No Will not create work-gl since already created by fgPostReport*/
+      INPUT NO,   /* No Will not create work-gl since already created by fgPostReport - Do not double count*/
 	  INPUT lPromptForClose,  /* Executes .w closing orders logic */
       INPUT TABLE w-fg-rctd  BY-REFERENCE,
       INPUT TABLE tt-fgemail BY-REFERENCE,
