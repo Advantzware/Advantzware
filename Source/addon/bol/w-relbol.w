@@ -75,6 +75,7 @@ DEFINE VARIABLE h_exit AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_folder AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-relbol AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_smartmsg AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_p-printbol AS HANDLE NO-UNDO.
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -338,11 +339,22 @@ PROCEDURE adm-create-objects :
                      AddFunction = One-Record':U ,
              OUTPUT h_p-relbol ).
        RUN set-position IN h_p-relbol ( 15.85 , 3.00 ) NO-ERROR.
-       RUN set-size IN h_p-relbol ( 1.76 , 71.00 ) NO-ERROR.
+       RUN set-size IN h_p-relbol ( 1.76 , 61.00 ) NO-ERROR.
+       
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'panels/p-printbol.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'Edge-Pixels = 2,
+                     SmartPanelType = Update,
+                     AddFunction = One-Record':U ,
+             OUTPUT h_p-printbol ).
+       RUN set-position IN h_p-printbol ( 15.85 , 100.00 ) NO-ERROR.
+       RUN set-size IN h_p-printbol ( 1.76 , 15.00 ) NO-ERROR.
 
        /* Links to SmartObject h_b-relbol. */
        RUN add-link IN adm-broker-hdl ( h_p-relbol , 'TableIO':U , h_b-relbol ).
        RUN add-link IN adm-broker-hdl ( h_b-relbol , 'release':U , THIS-PROCEDURE ).
+       RUN add-link IN adm-broker-hdl ( h_b-relbol , 'Record':U , h_p-printbol ).
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_p-relbol ,

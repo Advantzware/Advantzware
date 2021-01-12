@@ -1,7 +1,7 @@
 /*oe/rep/invnstok.i  */
 
      PUT "<FArial>".
-        IF opcFormat EQ "nStockLogo" THEN
+        IF opcFormat EQ "nStockLogo" OR opcFormat EQ "NStockLogo1" OR opcFormat EQ "NStockLogo2" THEN
            PUT "<C1><#1> <R+10><C45><IMAGE#1=" ls-full-img1 SKIP. 
          ELSE
             PUT "<C+25><#1>".

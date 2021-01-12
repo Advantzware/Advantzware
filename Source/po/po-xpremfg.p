@@ -127,7 +127,7 @@ RUN sys/ref/nk1look.p (INPUT cocode,
 IF lRecFound THEN
     iPOLoadtagInt = INTEGER(cRtnChar) NO-ERROR. 
 lPrintPrice =  s-print-prices .
-IF iPOLoadtagInt EQ 3 THEN
+IF iPOLoadtagInt EQ 1 THEN
  lPrintPrice = NO.
 
 v-dash-line = fill ("_",80).

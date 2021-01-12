@@ -63,7 +63,7 @@ CREATE WIDGET-POOL.
 DEFINE BUTTON xferJobData 
      IMAGE-UP FILE "Graphics/32x32/documents_exchange.png":U
 	IMAGE-DOWN FILE "Graphics/32x32/documents_exchange_hover.png":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/documents_exchange_disable.png":U NO-FOCUS FLAT-BUTTON
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/documents_exchange_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Xfer Job Data" 
      SIZE 7.6 BY 1.81 TOOLTIP "Misc Fields"
      FONT 6.

@@ -143,9 +143,9 @@ DEFINE QUERY BROWSE-1 FOR
 DEFINE BROWSE BROWSE-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-1 Dialog-Frame _FREEFORM
   QUERY BROWSE-1 NO-LOCK DISPLAY
-      ttTable.tableName LABEL-BGCOLOR 22
-ttTable.fieldName LABEL-BGCOLOR 22
-ttTable.fieldLabel LABEL-BGCOLOR 22
+      ttTable.tableName LABEL-BGCOLOR 14
+ttTable.fieldName LABEL-BGCOLOR 14
+ttTable.fieldLabel LABEL-BGCOLOR 14
 ttTable.dataType
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -341,7 +341,7 @@ END.
 
 /* ***************************  Main Block  *************************** */
 
-{methods/template/brwcustom.i}
+{methods/template/brwcustom2.i}
 
 /* Parent the dialog-box to the ACTIVE-WINDOW, if there is no parent.   */
 IF VALID-HANDLE(ACTIVE-WINDOW) AND FRAME {&FRAME-NAME}:PARENT eq ?

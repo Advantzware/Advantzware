@@ -126,7 +126,9 @@ PROCEDURE pJasperGroupCalc:
         OUTPUT lSave
         ).
     IF lSave THEN DO:
-        &IF "{&prgmName}" NE "userCols." &THEN
+        &IF "{&prgmName}" EQ "userCols." &THEN
+        RUN pUpdateMode (YES).
+        &ELSE
         fSetSaveButton (YES).
         &ENDIF
         FOR EACH ttGroupCalc

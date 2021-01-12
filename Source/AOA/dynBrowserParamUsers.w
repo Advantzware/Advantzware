@@ -212,8 +212,8 @@ DEFINE QUERY userBrowse FOR
 DEFINE BROWSE paramUserBrowse
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS paramUserBrowse Dialog-Frame _FREEFORM
   QUERY paramUserBrowse DISPLAY
-      ttParamUser.cUserID1 LABEL-BGCOLOR 22 LABEL "User ID"
-ttParamUser.cUserName1 LABEL-BGCOLOR 22
+      ttParamUser.cUserID1 LABEL-BGCOLOR 14 LABEL "User ID"
+ttParamUser.cUserName1 LABEL-BGCOLOR 14
 ttParamUser.lShowParameters VIEW-AS TOGGLE-BOX
 ttParamUser.lDelete VIEW-AS TOGGLE-BOX
 ENABLE
@@ -239,8 +239,8 @@ DEFINE BROWSE userBrowse
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS userBrowse Dialog-Frame _FREEFORM
   QUERY userBrowse DISPLAY
       ttUser.isSelected VIEW-AS TOGGLE-BOX
-ttUser.cUserID2 LABEL-BGCOLOR 22 LABEL "User ID"
-ttUser.cUserName2 LABEL-BGCOLOR 22
+ttUser.cUserID2 LABEL-BGCOLOR 14 LABEL "User ID"
+ttUser.cUserName2 LABEL-BGCOLOR 14
 ttUser.lShowParameters VIEW-AS TOGGLE-BOX
 ENABLE
 ttUser.isSelected
@@ -511,9 +511,9 @@ END.
 /* ***************************  Main Block  *************************** */
 
 &Scoped-define sdBrowseName userBrowse
-{methods/template/brwcustom.i 1}
+{methods/template/brwcustom2.i 1}
 &Scoped-define sdBrowseName paramUserBrowse
-{methods/template/brwcustom.i 2}
+{methods/template/brwcustom2.i 2}
 
 /* Parent the dialog-box to the ACTIVE-WINDOW, if there is no parent.   */
 IF VALID-HANDLE(ACTIVE-WINDOW) AND FRAME {&FRAME-NAME}:PARENT EQ ?

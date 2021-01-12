@@ -736,7 +736,7 @@ PROCEDURE pAddTTVendItemCost PRIVATE:
             "Item length of " + STRING(ttVendItemCost.dimLengthInVendorDimUOM) + 
             " less than minimum length of " + STRING(ttVendItemCost.dimLengthMinimum) + 
             " " + ttVendItemCost.dimUOM + ",".
-    IF ttVendItemCost.dimLengthInVendorDimUOM GT ttVendItemCost.dimLengthMaximum THEN 
+    IF ttVendItemCost.dimLengthMaximum NE 0 AND ttVendItemCost.dimLengthInVendorDimUOM GT ttVendItemCost.dimLengthMaximum THEN 
         ttVendItemCost.reasonNotValid = ttVendItemCost.reasonNotValid + 
             "Item length of " + STRING(ttVendItemCost.dimLengthInVendorDimUOM) + 
             " less than maximum length of " + STRING(ttVendItemCost.dimLengthMaximum) + 
@@ -746,7 +746,7 @@ PROCEDURE pAddTTVendItemCost PRIVATE:
             "Item width of " + STRING(ttVendItemCost.dimWidthInVendorDimUOM) + 
             " less than minimum width of " + STRING(ttVendItemCost.dimWidthMinimum) + 
             " " + ttVendItemCost.dimUOM + ",".
-    IF ttVendItemCost.dimWidthInVendorDimUOM GT ttVendItemCost.dimWidthMaximum THEN 
+    IF ttVendItemCost.dimLengthMaximum NE 0 AND ttVendItemCost.dimWidthInVendorDimUOM GT ttVendItemCost.dimWidthMaximum THEN 
         ttVendItemCost.reasonNotValid = ttVendItemCost.reasonNotValid + 
             "Item width of " + STRING(ttVendItemCost.dimWidthInVendorDimUOM) + 
             " less than maximum width of " + STRING(ttVendItemCost.dimWidthMaximum) + 

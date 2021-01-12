@@ -99,7 +99,7 @@ board-dscr cat-dscr item-name item-dscr rd_show1 len wid dep
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON Btn_Cancel 
-    IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U NO-FOCUS FLAT-BUTTON
+    IMAGE-UP FILE "Graphics/32x32/exit_white.png":U NO-FOCUS FLAT-BUTTON
     LABEL "Cancel" 
     SIZE 8 BY 1.91
     BGCOLOR 8 .
@@ -110,7 +110,7 @@ DEFINE BUTTON Btn_Done AUTO-END-KEY DEFAULT
     BGCOLOR 8 .
 
 DEFINE BUTTON Btn_OK 
-    IMAGE-UP FILE "Graphics/32x32/floppy_disk.ico":U NO-FOCUS FLAT-BUTTON
+    IMAGE-UP FILE "Graphics/32x32/floppy_disk.png":U NO-FOCUS FLAT-BUTTON
     LABEL "&Save" 
     SIZE 8 BY 1.91
     BGCOLOR 8 .
@@ -413,7 +413,10 @@ ON HELP OF board IN FRAME Dialog-Frame /* Board */
         DEFINE VARIABLE char-val   AS cha   NO-UNDO.
         DEFINE VARIABLE look-recid AS RECID NO-UNDO.
         DEF VAR lv-rowid AS ROWID NO-UNDO.
-        DEF VAR lv-ind LIKE style.industry NO-UNDO.        
+        DEF VAR lv-ind LIKE style.industry NO-UNDO.
+        DEFINE VARIABLE returnFields AS CHARACTER NO-UNDO.
+        DEFINE VARIABLE lookupField  AS CHARACTER NO-UNDO.
+        DEFINE VARIABLE recVal       AS RECID     NO-UNDO.
         
            FIND style WHERE style.company = cocode AND
                             style.style = style-cod:SCREEN-VALUE 
@@ -424,6 +427,22 @@ ON HELP OF board IN FRAME Dialog-Frame /* Board */
               RUN AOA/dynLookupSetParam.p (70, ROWID(style), OUTPUT char-val).
               IF char-val NE "" AND ENTRY(1,char-val) NE board:SCREEN-VALUE THEN DO:
                 board:SCREEN-VALUE = DYNAMIC-FUNCTION("sfDynLookupValue", "i-no", char-val).                
+                APPLY "ENTRY":U TO board.
+              END.
+           END.
+           IF AVAIL style AND style.type = "W" THEN  DO: /* foam */    
+              RUN system/openlookup.p (
+                cocode, 
+                "", /* lookup field */
+                155,   /* Subject ID */
+                "",  /* User ID */
+                0,   /* Param value ID */
+                OUTPUT returnFields, 
+                OUTPUT lookupField, 
+                OUTPUT recVal
+                ). 
+              IF lookupField NE "" AND lookupField NE board:SCREEN-VALUE THEN DO:
+                board:SCREEN-VALUE = lookupField.                
                 APPLY "ENTRY":U TO board.
               END.
            END.

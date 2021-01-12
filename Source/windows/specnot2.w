@@ -709,8 +709,8 @@ ELSE DO:
                END.
           end.
           IF ls-item-list = "" THEN DO:
-             MESSAGE "No FG Item entered. " VIEW-AS ALERT-BOX ERROR.
-             RETURN ERROR.
+            // MESSAGE "No FG Item entered. " VIEW-AS ALERT-BOX ERROR.
+            // RETURN ERROR.
           END.
           if avail oe-ordl or avail eb then do:
              find itemfg where itemfg.company = g_company 
@@ -730,8 +730,8 @@ ELSE DO:
 
   ELSE DO:
     /* FIND itemfg WHERE itemfg.rec_key EQ ip-rec_key NO-LOCK NO-ERROR. */
-    MESSAGE "No FG Item entered. " VIEW-AS ALERT-BOX ERROR.
-    RETURN ERROR.        
+   // MESSAGE "No FG Item entered. " VIEW-AS ALERT-BOX ERROR.
+   // RETURN ERROR.        
   END.
 END.
 

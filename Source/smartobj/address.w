@@ -63,7 +63,7 @@ CREATE WIDGET-POOL.
 DEFINE BUTTON Select_Address 
      IMAGE-UP FILE "Graphics/32x32/dictionary.png":U
 	IMAGE-DOWN FILE "Graphics/32x32/dictionary_hover.png":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/dictionary_disable.png":U NO-FOCUS FLAT-BUTTON
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/dictionary_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Address" 
      SIZE 7.8 BY 1.81 TOOLTIP "Addresses".
 

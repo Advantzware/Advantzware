@@ -140,7 +140,7 @@ DEFINE BUTTON btDelete
      SIZE 9.6 BY 2.29 TOOLTIP "Delete".
 
 DEFINE BUTTON btExit AUTO-END-KEY 
-     IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U NO-FOCUS
+     IMAGE-UP FILE "Graphics/32x32/exit_white.png":U NO-FOCUS
      LABEL "" 
      SIZE 9.6 BY 2.29.
 

@@ -914,8 +914,11 @@ DO TRANSACTION ON ERROR UNDO postit:
       HIDE MESSAGE NO-PAUSE.
       UNDO postit, LEAVE postit.
     END.
-
-    ap-inv.period = tran-period.
+ASSIGN
+    ap-inv.period = tran-period
+    ap-inv.postedDate = tran-date
+    ap-inv.runNumber  = v-trnum
+    ap-inv.glYear     = YEAR(tran-date)
     v-upd = YES.
 
     FOR EACH ap-invl WHERE ap-invl.i-no EQ ap-inv.i-no NO-LOCK,

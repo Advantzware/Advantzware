@@ -63,7 +63,7 @@ DEFINE VARIABLE phandle  AS HANDLE    NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btExit 
-     IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U
+     IMAGE-UP FILE "Graphics/32x32/exit_white.png":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U
      LABEL "Exit" 
      SIZE 11 BY 2.62 TOOLTIP "Exit".

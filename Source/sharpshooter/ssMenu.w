@@ -30,6 +30,9 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
+&Scoped-define FGColor ?
+&Scoped-define BGColor 32
+
 &Scoped-define parentMenu ssMenu
 
 ON F1 HELP.
@@ -62,6 +65,9 @@ DEFINE VARIABLE cParent           AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cPositionMnemonic AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cPrgTitle         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cShowMnemonic     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iEditorBGColor    AS INTEGER   NO-UNDO INITIAL {&BGColor}.
+DEFINE VARIABLE iEditorFGColor    AS INTEGER   NO-UNDO INITIAL {&FGColor}.
+
 DEFINE VARIABLE iLevel            AS INTEGER   NO-UNDO.
 
 {methods/defines/globdefs.i}
@@ -117,12 +123,12 @@ DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btnBack 
-     IMAGE-UP FILE "Graphics/32x32/undo_32.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/undo_32.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Back" 
      SIZE 8 BY 1.91.
 
 DEFINE BUTTON btnExit 
-     IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/exit_white.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Exit" 
      SIZE 8 BY 1.91.
 

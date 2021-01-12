@@ -113,7 +113,7 @@ DEFINE VARIABLE searchBar AS CHARACTER FORMAT "X(256)":U
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
-     SIZE 19 BY 2.38.
+     SIZE 18 BY 2.38.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -125,15 +125,15 @@ DEFINE QUERY recipients FOR
 DEFINE BROWSE recipients
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS recipients Dialog-Frame _FREEFORM
   QUERY recipients DISPLAY
-      ttEmail.isActive LABEL-BGCOLOR 22 VIEW-AS TOGGLE-BOX
-ttEmail.user-id LABEL-BGCOLOR 22
-ttEmail.userName LABEL-BGCOLOR 22
-ttEmail.email LABEL-BGCOLOR 22
+      ttEmail.isActive LABEL-BGCOLOR 14 VIEW-AS TOGGLE-BOX
+ttEmail.user-id LABEL-BGCOLOR 14
+ttEmail.userName LABEL-BGCOLOR 14
+ttEmail.email LABEL-BGCOLOR 14
 ENABLE
 ttEmail.isActive
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS NO-SCROLLBAR-VERTICAL SIZE 78 BY 24.76
+    WITH NO-ROW-MARKERS NO-COLUMN-SCROLLING SEPARATORS NO-SCROLLBAR-VERTICAL SIZE 78 BY 24.76
          TITLE "Recipient Emails".
 
 
@@ -145,8 +145,8 @@ DEFINE FRAME Dialog-Frame
      searchBar AT ROW 1 COL 8 COLON-ALIGNED HELP
           "Search" WIDGET-ID 6
      recipients AT ROW 1.95 COL 1 WIDGET-ID 200
-     btnOK AT ROW 27.19 COL 61
-     RECT-1 AT ROW 26.95 COL 60 WIDGET-ID 2
+     btnOK AT ROW 27.19 COL 62
+     RECT-1 AT ROW 26.95 COL 61 WIDGET-ID 2
      SPACE(0.00) SKIP(0.14)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
@@ -265,7 +265,7 @@ DO:
     APPLY "TAB":U.
 END.
 
-{methods/template/brwcustom.i}
+{methods/template/brwcustom2.i}
 
 /* Parent the dialog-box to the ACTIVE-WINDOW, if there is no parent.   */
 IF VALID-HANDLE(ACTIVE-WINDOW) AND FRAME {&FRAME-NAME}:PARENT eq ?

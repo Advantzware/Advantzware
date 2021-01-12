@@ -115,9 +115,9 @@ DEFINE QUERY dynParamSetBrowse FOR
 DEFINE BROWSE dynParamSetBrowse
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS dynParamSetBrowse s-object _FREEFORM
   QUERY dynParamSetBrowse DISPLAY
-      dynParamSet.setName LABEL-BGCOLOR 22
-dynParamSet.paramSetID LABEL-BGCOLOR 22
-dynParamSet.setTitle LABEL-BGCOLOR 22
+      dynParamSet.setName LABEL-BGCOLOR 14
+dynParamSet.paramSetID LABEL-BGCOLOR 14
+dynParamSet.setTitle LABEL-BGCOLOR 14
 dynParamSet.paramSetType
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -333,7 +333,7 @@ END.
 
 /* ***************************  Main Block  *************************** */
 
-{methods/template/brwcustom.i}
+{methods/template/brwcustom2.i}
 
 /* If testing in the UIB, initialize the SmartObject. */  
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          

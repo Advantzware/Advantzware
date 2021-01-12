@@ -82,6 +82,7 @@ DEFINE VARIABLE cStackCode       AS CHARACTER NO-UNDO .
 DEFINE VARIABLE iOldQty          AS INTEGER   NO-UNDO .
 DEFINE VARIABLE lShowMessage     AS LOGICAL   NO-UNDO .
 DEFINE VARIABLE dMachBlankSqFt   AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE cJobQueueURL     AS CHARACTER NO-UNDO.
 
 
 DEFINE BUFFER bf-eb FOR eb.
@@ -131,7 +132,7 @@ DEFINE TEMP-TABLE ttCompareEst NO-UNDO
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS BROWSE-1 cMachCode cBoard iTargetCyl ~
-dtDueDate btnCalendar-1 btn-add btn-copy btn-update btn-delete btn-viewjob ~
+dtDueDate btnCalendar-1 btn-add btn-update btn-delete btn-viewjob ~
 btn-add-multiple btn-imp-bal btn-sel-head tb_auto Btn_OK Btn_Cancel 
 &Scoped-Define DISPLAYED-OBJECTS cMachCode cBoard iTargetCyl cJobNo ~
 cLineDscr cBoardDscr dtDueDate dtCreatedDate cUserID dtStartDate cStatus ~
@@ -143,6 +144,19 @@ dtEstCom cEstNo iItem dTotSqFt iMolds dUtilization tb_auto
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
+
+/* ************************  Function Prototypes ********************** */
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetJobQueueURL D-Dialog
+FUNCTION fGetJobQueueURL RETURNS CHARACTER PRIVATE
+  (ipcCompany AS CHARACTER) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 
 
@@ -158,10 +172,6 @@ DEFINE BUTTON btn-add
 DEFINE BUTTON btn-add-multiple 
      LABEL "Add Multiple" 
      SIZE 27.8 BY 1.14.
-
-DEFINE BUTTON btn-copy 
-     LABEL "Copy " 
-     SIZE 15 BY 1.14.
 
 DEFINE BUTTON btn-delete 
      LABEL "Delete " 
@@ -347,10 +357,9 @@ DEFINE FRAME D-Dialog
      cBoardDscr AT ROW 4.29 COL 43.4 COLON-ALIGNED NO-LABEL
      dtDueDate AT ROW 5.43 COL 130.8 COLON-ALIGNED WIDGET-ID 280
      btnCalendar-1 AT ROW 5.43 COL 147.6
-     btn-add AT ROW 21.19 COL 4.2 WIDGET-ID 16
-     btn-copy AT ROW 21.19 COL 19.8 WIDGET-ID 252
-     btn-update AT ROW 21.19 COL 35.4 WIDGET-ID 256
-     btn-delete AT ROW 21.19 COL 51.4 WIDGET-ID 254
+     btn-add AT ROW 21.19 COL 4 WIDGET-ID 16       
+     btn-update AT ROW 21.19 COL 19.4 WIDGET-ID 256
+     btn-delete AT ROW 21.19 COL 34.80 WIDGET-ID 254
      btn-viewjob AT ROW 3.05 COL 21.8 WIDGET-ID 266
      dtCreatedDate AT ROW 2 COL 130.8 COLON-ALIGNED WIDGET-ID 268
      cUserID AT ROW 3.1 COL 91.2 COLON-ALIGNED WIDGET-ID 270
@@ -562,13 +571,10 @@ DO:
        
        ASSIGN 
            iTargetCyl:SCREEN-VALUE =  STRING(dTotalCyclesRequired) .
-       
+       EMPTY TEMP-TABLE ttInputEst.
        FOR EACH ttFGReorderSelection NO-LOCK
-           WHERE ttFGReorderSelection.isSelect:
-           FIND FIRST bf-ttInputEst NO-LOCK
-                WHERE bf-ttInputEst.cStockNo EQ ttFGReorderSelection.itemID NO-ERROR .
-           IF not AVAIL bf-ttInputEst THEN
-           DO:             
+           WHERE ttFGReorderSelection.isSelect:           
+                        
                CREATE bf-ttInputEst.
                 ASSIGN
                     bf-ttInputEst.cEstType = "MoldTandem"
@@ -591,36 +597,11 @@ DO:
                   bf-ttInputEst.cFgEstNo  = itemfg.est-no
                   bf-ttInputEst.dSqFt = itemfg.t-sqft * bf-ttInputEst.iMolds
                   .               
-               END.  
-           END.     
+               END.               
        END.
             
        RUN repo-query (lv-rowid).               
 
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME btn-copy
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-copy D-Dialog
-ON CHOOSE OF btn-copy IN FRAME D-Dialog /* Copy  */
-DO:
-        DEFINE VARIABLE lv-rowid AS ROWID NO-UNDO.
-            
-        IF AVAILABLE ttInputEst THEN
-        DO:   
-            
-            RUN jc/dAddEditMoldItem.w (RECID(ttInputEst),
-                                   "Copy",
-                                   iTargetCyl:SCREEN-VALUE, 
-                                   dMachBlankSqFt,
-                                   OUTPUT lv-rowid) .            
-            
-            RUN repo-query (lv-rowid).            
-        END.      
-  
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -717,7 +698,9 @@ DO:
 ON CHOOSE OF btn-viewjob IN FRAME D-Dialog /* View Job Queue */
 DO:
                                                
-    END.
+    OS-COMMAND NO-WAIT START VALUE(cJobQueueURL).
+
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -974,8 +957,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     RUN enable_UI.
     {methods/nowait.i}     
     DO WITH FRAME {&frame-name}:  
-        
-        DISABLE btn-viewjob btn-sel-head tb_auto.
+        cJobQueueURL = fGetJobQueueURL(cocode).
+        IF cJobQueueURL EQ "" THEN DISABLE btn-viewjob.
+        DISABLE btn-sel-head tb_auto.
         ASSIGN
          cJobNo:HIDDEN = YES
          dtCreatedDate:HIDDEN = YES 
@@ -1133,7 +1117,7 @@ PROCEDURE enable_UI :
           dTotSqFt iMolds dUtilization tb_auto 
       WITH FRAME D-Dialog.
   ENABLE BROWSE-1 cMachCode cBoard iTargetCyl dtDueDate btnCalendar-1 btn-add 
-         btn-copy btn-update btn-delete btn-viewjob btn-add-multiple 
+         btn-update btn-delete btn-viewjob btn-add-multiple 
          btn-imp-bal btn-sel-head tb_auto Btn_OK Btn_Cancel 
       WITH FRAME D-Dialog.
   VIEW FRAME D-Dialog.
@@ -1207,7 +1191,7 @@ PROCEDURE pNewMachine :
           Parameters:  <none>
           Notes:       
         ------------------------------------------------------------------------------*/
-    
+    DEFINE VARIABLE lv-rowid  AS ROWID NO-UNDO.
     DO WITH FRAME {&FRAME-NAME}:
         FIND FIRST mach
             {sys/look/machW.i}
@@ -1218,7 +1202,7 @@ PROCEDURE pNewMachine :
         DO:
             dMachBlankSqFt = mach.max-len  * mach.max-wid / 144 .
             cLineDscr:SCREEN-VALUE = "L: " + TRIM(STRING(mach.max-len / 12,">>>>>>9.9")) + " ft x W: " + TRIM(STRING(mach.max-wid / 12 , ">>>>>>9.9")) + " ft - " + TRIM(STRING(dMachBlankSqFt, ">>>>>>9.9")) + " Sq Ft" . 
-            
+            RUN repo-query(lv-rowid).
         END.         
     END.
 
@@ -1257,7 +1241,8 @@ PROCEDURE repo-query :
           iItem:SCREEN-VALUE = string(i) 
           iMolds:SCREEN-VALUE = STRING(iMoldsCount)
           dTotSqFt:SCREEN-VALUE = STRING(dTotSqFtCount)
-          dUtilization:SCREEN-VALUE = string((dTotSqFtCount / dMachBlankSqFt) * 100).                  
+          dUtilization:SCREEN-VALUE = string((dTotSqFtCount / dMachBlankSqFt) * 100).
+          IF dUtilization:SCREEN-VALUE EQ ? THEN dUtilization:SCREEN-VALUE = "0".
     END.
     
 END PROCEDURE.
@@ -1425,7 +1410,7 @@ PROCEDURE pImportRemaingBalance :
     FOR EACH job-mch NO-LOCK
          WHERE job-mch.company EQ cocode
          AND job-mch.m-code EQ cMachineCode 
-         BY job-mch.end-date DESC BY job-mch.end-time :
+         BY job-mch.end-date DESC BY job-mch.end-time DESC :
          
         iJob = job-mch.job .
         LEAVE.
@@ -1504,3 +1489,29 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+/* ************************  Function Implementations ***************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetJobQueueURL D-Dialog
+FUNCTION fGetJobQueueURL RETURNS CHARACTER PRIVATE
+  ( ipcCompany AS CHARACTER  ):
+/*------------------------------------------------------------------------------
+ Purpose: Returns NK1 value of the JobQueueURL setting
+ Notes:
+------------------------------------------------------------------------------*/
+	DEFINE VARIABLE cURL AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lFound AS LOGICAL NO-UNDO.
+    
+    RUN sys/ref/nk1look.p (
+        g_company,"JobQueueURL","C",NO,NO,"","",
+        OUTPUT cURL, OUTPUT lFound).
+    
+	RETURN cURL.
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+

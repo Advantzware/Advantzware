@@ -118,7 +118,7 @@ DEFINE VAR W-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON bt-exit AUTO-END-KEY 
-     IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U NO-FOCUS
+     IMAGE-UP FILE "Graphics/32x32/exit_white.png":U NO-FOCUS
      LABEL "" 
      SIZE 9.6 BY 2.29.
 

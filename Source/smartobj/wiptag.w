@@ -65,7 +65,7 @@ DEF VAR char-wp AS HANDLE.
 DEFINE BUTTON wipTag 
      IMAGE-UP FILE "Graphics/32x32/receipt_printer.png":U
 	 IMAGE-DOWN FILE "Graphics/32x32/receipt_printer_hover.png":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/receipt_printer_disable.png":U NO-FOCUS FLAT-BUTTON
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/receipt_printer_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 7.8 BY 1.81 TOOLTIP "Load Tag Creation".
 

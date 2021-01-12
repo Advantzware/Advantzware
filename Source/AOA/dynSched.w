@@ -296,8 +296,8 @@ DEFINE BUTTON btnSort
      SIZE 8 BY 1.91 TOOLTIP "Sort".
 
 DEFINE BUTTON btnView 
-     IMAGE-UP FILE "Graphics/32x32/window_dialog.png":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/window_dialog_disabled.png":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/udf.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/udf_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "View" 
      SIZE 8 BY 1.91 TOOLTIP "Viewer".
 
@@ -485,13 +485,13 @@ DEFINE BROWSE auditBrowse
 DEFINE BROWSE taskBrowse
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS taskBrowse C-Win _FREEFORM
   QUERY taskBrowse DISPLAY
-      Task.scheduled LABEL-BGCOLOR 22 VIEW-AS TOGGLE-BOX
-Task.taskName LABEL-BGCOLOR 22
+      Task.scheduled LABEL-BGCOLOR 14 VIEW-AS TOGGLE-BOX
+Task.taskName LABEL-BGCOLOR 14
 fPrgmTitle(Task.prgmName) FORMAT "x(40)" LABEL "Title"
-Task.frequency LABEL-BGCOLOR 22
-Task.cTaskTime LABEL-BGCOLOR 22
-Task.cFromTime LABEL-BGCOLOR 22
-Task.cToTime LABEL-BGCOLOR 22
+Task.frequency LABEL-BGCOLOR 14
+Task.cTaskTime LABEL-BGCOLOR 14
+Task.cFromTime LABEL-BGCOLOR 14
+Task.cToTime LABEL-BGCOLOR 14
 Task.dayOfWeek1 VIEW-AS TOGGLE-BOX
 Task.dayOfWeek2 VIEW-AS TOGGLE-BOX
 Task.dayOfWeek3 VIEW-AS TOGGLE-BOX
@@ -501,19 +501,19 @@ Task.dayOfWeek6 VIEW-AS TOGGLE-BOX
 Task.dayOfWeek7 VIEW-AS TOGGLE-BOX
 Task.lastOfMonth VIEW-AS TOGGLE-BOX
 Task.runSync
-Task.taskFormat LABEL-BGCOLOR 22
-Task.nextDate LABEL-BGCOLOR 22
-Task.cNextTime LABEL-BGCOLOR 22
-Task.lastDate LABEL-BGCOLOR 22
-Task.cLastTime LABEL-BGCOLOR 22
-Task.startDate LABEL-BGCOLOR 22
-Task.endDate LABEL-BGCOLOR 22
-Task.paramValueID COLUMN-LABEL "Sched ID" LABEL-BGCOLOR 22
-Task.taskID LABEL-BGCOLOR 22
-Task.module LABEL-BGCOLOR 22
-Task.prgmName LABEL-BGCOLOR 22
-Task.user-id LABEL-BGCOLOR 22
-Task.securityLevel LABEL-BGCOLOR 22
+Task.taskFormat LABEL-BGCOLOR 14
+Task.nextDate LABEL-BGCOLOR 14
+Task.cNextTime LABEL-BGCOLOR 14
+Task.lastDate LABEL-BGCOLOR 14
+Task.cLastTime LABEL-BGCOLOR 14
+Task.startDate LABEL-BGCOLOR 14
+Task.endDate LABEL-BGCOLOR 14
+Task.paramValueID COLUMN-LABEL "Sched ID" LABEL-BGCOLOR 14
+Task.taskID LABEL-BGCOLOR 14
+Task.module LABEL-BGCOLOR 14
+Task.prgmName LABEL-BGCOLOR 14
+Task.user-id LABEL-BGCOLOR 14
+Task.securityLevel LABEL-BGCOLOR 14
 Task.recipients
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1852,9 +1852,9 @@ END.
 &Scoped-Define ExcludeAuditHistory
 {methods/menus/stdHelpMenu.i}
 &Scoped-define sdBrowseName taskBrowse
-{methods/template/brwcustom.i 1}
+{methods/template/brwcustom2.i 1}
 &Scoped-define sdBrowseName auditBrowse
-{methods/template/brwcustom.i 2}
+{methods/template/brwcustom2.i 2}
 
 /* Set CURRENT-WINDOW: this will parent dialog-boxes and frames.        */
 ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME} 

@@ -61,7 +61,7 @@ DEFINE INPUT PARAMETER piOldVersion AS INTEGER NO-UNDO.
 
 SESSION:SET-WAIT-STATE("general").
 
-RUN VALUE(SUBSTITUTE('ConvertFrom-&1', piOldVersion)).
+RUN VALUE(SUBSTITUTE('ConvertFrom-&1', piOldVersion)) NO-ERROR.
 RUN flushRegistry.
 
 SESSION:SET-WAIT-STATE("").
@@ -363,9 +363,13 @@ PROCEDURE convertFrom-24 :
     setRegistry('DataDigger:Favourites', btFavGroup.cGroup, btFavGroup.cTables).
   END.
 
+  /* Obsolete files */
+  OS-DELETE VALUE(SEARCH("dEditGroup.wrx")).
+
 END PROCEDURE. /* 24 */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 &ENDIF
+

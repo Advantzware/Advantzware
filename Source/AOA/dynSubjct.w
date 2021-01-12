@@ -576,7 +576,7 @@ DEFINE BUTTON btnStr
      SIZE 10 BY 1.05 TOOLTIP "String".
 
 DEFINE BUTTON btnSubjectParamSet 
-     IMAGE-UP FILE "Graphics/32x32/window_dialog.png":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/udf.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Subject Parameter Set Builder" 
      SIZE 8 BY 1.91 TOOLTIP "Subject Parameter Set Builder".
 
@@ -603,7 +603,7 @@ DEFINE BUTTON btnUndo
      SIZE 8 BY 1.91 TOOLTIP "Undo Changes".
 
 DEFINE BUTTON btnViewSubject 
-     IMAGE-UP FILE "Graphics/32x32/window_dialog.png":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/udf.png":U NO-FOCUS FLAT-BUTTON
      LABEL "View Subject" 
      SIZE 8 BY 1.91 TOOLTIP "View Subject".
 
@@ -837,7 +837,7 @@ DEFINE BUTTON btnPDF
      SIZE 8 BY 1.91 TOOLTIP "PDF".
 
 DEFINE BUTTON btnPrint 
-     IMAGE-UP FILE "Graphics/32x32/printer.png":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/print_new.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 8 BY 1.91 TOOLTIP "Printer".
 
@@ -1015,8 +1015,8 @@ DEFINE QUERY viewFrame FOR
 DEFINE BROWSE fieldBrowse
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS fieldBrowse C-Win _FREEFORM
   QUERY fieldBrowse DISPLAY
-      ttField.fieldName LABEL-BGCOLOR 22
-ttField.fieldLabel LABEL-BGCOLOR 22
+      ttField.fieldName LABEL-BGCOLOR 14
+ttField.fieldLabel LABEL-BGCOLOR 14
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ROW-MARKERS SEPARATORS MULTIPLE SIZE 36 BY 4.19
@@ -1025,8 +1025,8 @@ ttField.fieldLabel LABEL-BGCOLOR 22
 DEFINE BROWSE paramSetBrowse
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS paramSetBrowse C-Win _FREEFORM
   QUERY paramSetBrowse DISPLAY
-      dynParamSet.setName LABEL-BGCOLOR 22
-dynParamSet.paramSetID LABEL-BGCOLOR 22
+      dynParamSet.setName LABEL-BGCOLOR 14
+dynParamSet.paramSetID LABEL-BGCOLOR 14
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ROW-MARKERS SEPARATORS MULTIPLE SIZE 36 BY 4.19
@@ -1035,11 +1035,11 @@ dynParamSet.paramSetID LABEL-BGCOLOR 22
 DEFINE BROWSE subjectBrowse
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS subjectBrowse C-Win _FREEFORM
   QUERY subjectBrowse DISPLAY
-      dynSubject.subjectID LABEL-BGCOLOR 22
-dynSubject.subjectTitle LABEL-BGCOLOR 22
+      dynSubject.subjectID LABEL-BGCOLOR 14
+dynSubject.subjectTitle LABEL-BGCOLOR 14
 dynSubject.isActive VIEW-AS TOGGLE-BOX
-dynSubject.subjectType LABEL-BGCOLOR 22
-dynSubject.module LABEL-BGCOLOR 22
+dynSubject.subjectType LABEL-BGCOLOR 14
+dynSubject.module LABEL-BGCOLOR 14
 dynSubject.isLookup VIEW-AS TOGGLE-BOX
 dynSubject.user-id
 dynSubject.securityLevel
@@ -1154,9 +1154,9 @@ ttSubjectWhere.calcParam
 DEFINE BROWSE tableBrowse
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS tableBrowse C-Win _FREEFORM
   QUERY tableBrowse DISPLAY
-      ttTable.tableName LABEL-BGCOLOR 22
-ttTable.tableDB LABEL-BGCOLOR 22
-ttTable.tableDscr LABEL-BGCOLOR 22
+      ttTable.tableName LABEL-BGCOLOR 14
+ttTable.tableDB LABEL-BGCOLOR 14
+ttTable.tableDscr LABEL-BGCOLOR 14
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ROW-MARKERS SEPARATORS MULTIPLE SIZE 36 BY 4.19
@@ -3678,27 +3678,27 @@ END.
 
 {methods/menus/stdHelpMenu.i}
 &Scoped-define sdBrowseName subjectBrowse
-{methods/template/brwcustom.i 1}
+{methods/template/brwcustom2.i 1}
 &Scoped-define sdBrowseName paramSetBrowse
-{methods/template/brwcustom.i 2}
+{methods/template/brwcustom2.i 2}
 &Scoped-define sdBrowseName subjectParamSetBrowse
-{methods/template/brwcustom.i 3}
+{methods/template/brwcustom2.i 3}
 &Scoped-define sdBrowseName tableBrowse
-{methods/template/brwcustom.i 4}
+{methods/template/brwcustom2.i 4}
 &Scoped-define sdBrowseName subjectTableBrowse
-{methods/template/brwcustom.i 5}
+{methods/template/brwcustom2.i 5}
 &Scoped-define sdBrowseName fieldBrowse
-{methods/template/brwcustom.i 6}
+{methods/template/brwcustom2.i 6}
 &Scoped-define sdBrowseName subjectWhereBrowse
-{methods/template/brwcustom.i 7}
+{methods/template/brwcustom2.i 7}
 &Scoped-define sdBrowseName subjectColumnBrowse
-{methods/template/brwcustom.i 8}
+{methods/template/brwcustom2.i 8}
 
 
 /* Set CURRENT-WINDOW: this will parent dialog-boxes and frames.        */
 ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME} 
        THIS-PROCEDURE:CURRENT-WINDOW = {&WINDOW-NAME}.
-{methods/template/brwcustom.i}
+
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
 ON CLOSE OF THIS-PROCEDURE DO:

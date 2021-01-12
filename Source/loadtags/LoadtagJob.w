@@ -415,7 +415,7 @@ DEFINE BUTTON bt-print
     FONT 37.
 
 DEFINE BUTTON bt-exit AUTO-END-KEY 
-    IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U
+    IMAGE-UP FILE "Graphics/32x32/exit_white.png":U
     LABEL "" 
     SIZE 9.6 BY 2.29 TOOLTIP "Exit".
 

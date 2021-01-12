@@ -46,8 +46,8 @@ CREATE WIDGET-POOL.
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Select_Font_Color Select_Menu_Bar ~
-Select_MF_Design Select_Security 
+&Scoped-Define ENABLED-OBJECTS Select_Font_Color Select_MF_Design ~
+Select_Security 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -63,29 +63,22 @@ Select_MF_Design Select_Security
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON Select_Font_Color 
      IMAGE-UP FILE "Graphics/32x32/window_font.png":U
-	IMAGE-DOWN FILE "Graphics/32x32/window_font_hover.png":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/window_font_disable.png":U NO-FOCUS FLAT-BUTTON
+     IMAGE-DOWN FILE "Graphics/32x32/window_font_hover.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/window_font_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Font_Color" 
      SIZE 7.8 BY 1.81 TOOLTIP "Set Font and Colors".
 
-DEFINE BUTTON Select_Menu_Bar 
-     IMAGE-UP FILE "Graphics/32x32/drop_down_list.png":U
-	IMAGE-DOWN FILE "Graphics/32x32/drop_down_list_hover.png":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/drop_down_list_disable.png":U NO-FOCUS FLAT-BUTTON
-     LABEL "Menu_Bar" 
-     SIZE 7.8 BY 1.81 TOOLTIP "Menu Bar".
-
 DEFINE BUTTON Select_MF_Design 
      IMAGE-UP FILE "Graphics/32x32/compasses.png":U
-	IMAGE-DOWN FILE "Graphics/32x32/compasses_hover.png":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/compasses_disable.png":U NO-FOCUS FLAT-BUTTON
+     IMAGE-DOWN FILE "Graphics/32x32/compasses_hover.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/compasses_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "MF_Design" 
      SIZE 7.8 BY 1.81 TOOLTIP "Misc Fields Design Screen".
 
 DEFINE BUTTON Select_Security 
      IMAGE-UP FILE "Graphics/32x32/spy.png":U
-	IMAGE-DOWN FILE "Graphics/32x32/spy_hover.png":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/spy_disable.png":U NO-FOCUS FLAT-BUTTON
+     IMAGE-DOWN FILE "Graphics/32x32/spy_hover.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/spy_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Security" 
      SIZE 7.8 BY 1.81 TOOLTIP "Security".
 
@@ -94,13 +87,12 @@ DEFINE BUTTON Select_Security
 
 DEFINE FRAME F-Main
      Select_Font_Color AT ROW 1 COL 9
-     Select_Menu_Bar AT ROW 1 COL 17
-     Select_MF_Design AT ROW 1 COL 25
+     Select_MF_Design AT ROW 1 COL 17
      Select_Security AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
-		BGCOLOR 21.
+         BGCOLOR 21 .
 
 
 /* *********************** Procedure Settings ************************ */
@@ -179,17 +171,6 @@ ASSIGN
 &Scoped-define SELF-NAME Select_Font_Color
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Select_Font_Color s-object
 ON CHOOSE OF Select_Font_Color IN FRAME F-Main /* Font_Color */
-DO:
-  {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME Select_Menu_Bar
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Select_Menu_Bar s-object
-ON CHOOSE OF Select_Menu_Bar IN FRAME F-Main /* Menu_Bar */
 DO:
   {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
 END.

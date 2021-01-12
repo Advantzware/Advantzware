@@ -177,10 +177,10 @@ svEndRecKeyHour svEndRecKeyMin svEndRecKeySec
 &Scoped-define recKeyObjects btnCalendar-3 btnCalendar-4 
 &Scoped-define auditDateFields svStartDate svStartDateHour svEndDate ~
 svEndDateHour svEndDateMin 
-&Scoped-define searchObjects btnAuditKeyFilterClear svAuditKeyFilter svType ~
-svUser svField svBeforeValueFilter svAfterValueFilter ~
-btnAfterValueFilterClear btnBeforeValueFilterClear btnFilterAfterValue ~
-btnFilterAuditKey btnFilterBeforeValue btnHistory 
+&Scoped-define searchObjects btnAfterValueFilterClear ~
+btnAuditKeyFilterClear btnBeforeValueFilterClear btnFilterAfterValue ~
+btnFilterAuditKey btnFilterBeforeValue btnHistory svAuditKeyFilter svType ~
+svUser svField svBeforeValueFilter svAfterValueFilter 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -224,90 +224,90 @@ DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btnAfterValueFilterClear 
-     IMAGE-UP FILE "Graphics/16x16/navigate_cross.png":U NO-FOCUS
+     IMAGE-UP FILE "Graphics/16x16/move_cross.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 4.4 BY 1.05 TOOLTIP "Clear After Value Filter".
 
 DEFINE BUTTON btnAuditKeyFilterClear 
-     IMAGE-UP FILE "Graphics/16x16/navigate_cross.png":U NO-FOCUS
+     IMAGE-UP FILE "Graphics/16x16/move_cross.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 4.4 BY 1.05 TOOLTIP "Clear Before Value Filter".
 
 DEFINE BUTTON btnAuditTables 
-     IMAGE-UP FILE "Graphics/32x32/checks.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/document_checks.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 8.4 BY 2 TOOLTIP "Select Tables to Audit"
      FONT 4.
 
 DEFINE BUTTON btnBeforeValueFilterClear 
-     IMAGE-UP FILE "Graphics/16x16/navigate_cross.png":U NO-FOCUS
+     IMAGE-UP FILE "Graphics/16x16/move_cross.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 4.4 BY 1.05 TOOLTIP "Clear Before Value Filter".
 
 DEFINE BUTTON btnCalendar-1 
-     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
+     IMAGE-UP FILE "Graphics/16x16/calendar_clock.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
-     SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
+     SIZE 4 BY 1.05 TOOLTIP "PopUp Calendar".
 
 DEFINE BUTTON btnCalendar-2 
-     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
+     IMAGE-UP FILE "Graphics/16x16/calendar_clock.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
-     SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
+     SIZE 4 BY 1.05 TOOLTIP "PopUp Calendar".
 
 DEFINE BUTTON btnCalendar-3 
-     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
+     IMAGE-UP FILE "Graphics/16x16/calendar_clock.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
-     SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
+     SIZE 4 BY 1.05 TOOLTIP "PopUp Calendar".
 
 DEFINE BUTTON btnCalendar-4 
-     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
+     IMAGE-UP FILE "Graphics/16x16/calendar_clock.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
-     SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
+     SIZE 4 BY 1.05 TOOLTIP "PopUp Calendar".
 
 DEFINE BUTTON btnClear 
-     IMAGE-UP FILE "Graphics/32x32/erase.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/refresh.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Clear" 
      SIZE 8.4 BY 2 TOOLTIP "Clear Filter Values".
 
 DEFINE BUTTON btnFilterAfterValue 
-     IMAGE-UP FILE "Graphics/16x16/filterwindow.bmp":U NO-FOCUS
+     IMAGE-UP FILE "Graphics/16x16/filterWindow.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Filter" 
-     SIZE 4 BY .95 TOOLTIP "Filter By After Value".
+     SIZE 4.4 BY 1.05 TOOLTIP "Filter By After Value".
 
 DEFINE BUTTON btnFilterAuditKey 
-     IMAGE-UP FILE "Graphics/16x16/filterwindow.bmp":U NO-FOCUS
+     IMAGE-UP FILE "Graphics/16x16/filterWindow.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Filter" 
-     SIZE 4 BY .95 TOOLTIP "Filter By Audit Key".
+     SIZE 4.4 BY 1.05 TOOLTIP "Filter By Audit Key".
 
 DEFINE BUTTON btnFilterBeforeValue 
-     IMAGE-UP FILE "Graphics/16x16/filterwindow.bmp":U NO-FOCUS
+     IMAGE-UP FILE "Graphics/16x16/filterWindow.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Filter" 
-     SIZE 4 BY .95 TOOLTIP "Filter By Before Value".
+     SIZE 4.4 BY 1.05 TOOLTIP "Filter By Before Value".
 
 DEFINE BUTTON btnHistory 
-     IMAGE-UP FILE "Graphics/16x16/print.bmp":U NO-FOCUS
+     IMAGE-UP FILE "Graphics/16x16/printer.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "History" 
-     SIZE 4 BY .95 TOOLTIP "View History".
+     SIZE 4 BY 1.05 TOOLTIP "View History".
 
 DEFINE BUTTON btnPrint 
-     IMAGE-UP FILE "Graphics/32x32/printer.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/print_New.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 8.4 BY 2 TOOLTIP "Print"
      FONT 4.
 
 DEFINE BUTTON btnRestore 
-     IMAGE-UP FILE "Graphics/32x32/undo_32.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/undo_32.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 8.4 BY 2 TOOLTIP "Restore"
      FONT 4.
 
 DEFINE BUTTON btnSearch 
-     IMAGE-UP FILE "Graphics/32x32/magnifying_glass.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/search-E.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Search" 
      SIZE 8.4 BY 2 TOOLTIP "Search".
 
 DEFINE BUTTON btnStack 
-     IMAGE-UP FILE "Graphics/32x32/text_tree.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/book_open.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 8.4 BY 2 TOOLTIP "Program Trace"
      FONT 4.
@@ -474,7 +474,7 @@ DEFINE VARIABLE svStartRecKeySec AS INTEGER FORMAT "99":U INITIAL 0
      VIEW-AS FILL-IN 
      SIZE 4 BY 1 NO-UNDO.
 
-DEFINE VARIABLE svUseRecKeySearch AS LOGICAL INITIAL NO 
+DEFINE VARIABLE svUseRecKeySearch AS LOGICAL INITIAL no 
      LABEL "Use Rec Key Search" 
      VIEW-AS TOGGLE-BOX
      SIZE 27 BY 1 NO-UNDO.
@@ -554,113 +554,6 @@ DEFINE FRAME DEFAULT-FRAME
          SIZE 238.2 BY 28.57
          BGCOLOR 15 FGCOLOR 1  WIDGET-ID 100.
 
-DEFINE FRAME AuditSearch
-     btnAuditKeyFilterClear AT ROW 1.24 COL 234 HELP
-          "Click to Clear Before Value Filter" WIDGET-ID 346
-     svAuditKeyFilter AT ROW 1.24 COL 171 COLON-ALIGNED WIDGET-ID 344
-     svType AT ROW 1.24 COL 8 COLON-ALIGNED HELP
-          "Select Audit Type Filter" WIDGET-ID 6
-     svUser AT ROW 2.43 COL 8 COLON-ALIGNED HELP
-          "Select User Filter" WIDGET-ID 12
-     btnRestore AT ROW 5.05 COL 2 HELP
-          "Print" WIDGET-ID 320
-     svStartDate AT ROW 1.24 COL 36 COLON-ALIGNED HELP
-          "Enter From Date" WIDGET-ID 20
-     btnCalendar-1 AT ROW 1.24 COL 54 WIDGET-ID 272
-     svStartDateOption AT ROW 1.24 COL 59 HELP
-          "Select Start Date Option" NO-LABEL WIDGET-ID 74
-     svStartDateHour AT ROW 1.24 COL 89 COLON-ALIGNED HELP
-          "Enter Start Date Hour" WIDGET-ID 338
-     svStartDateMin AT ROW 1.24 COL 94 COLON-ALIGNED HELP
-          "Enter Start Date Minute" NO-LABEL WIDGET-ID 340
-     svEndDate AT ROW 2.43 COL 36 COLON-ALIGNED HELP
-          "Enter To Date" WIDGET-ID 22
-     btnCalendar-2 AT ROW 2.43 COL 54 WIDGET-ID 274
-     svEndDateOption AT ROW 2.43 COL 59 HELP
-          "Select End Date Option" NO-LABEL WIDGET-ID 70
-     svEndDateHour AT ROW 2.43 COL 89 COLON-ALIGNED HELP
-          "Enter End Date Hour" WIDGET-ID 334
-     svEndDateMin AT ROW 2.43 COL 94 COLON-ALIGNED HELP
-          "Enter End Date Minute" NO-LABEL WIDGET-ID 336
-     svDB AT ROW 1.24 COL 106 COLON-ALIGNED HELP
-          "Select Audit DB Filter" WIDGET-ID 14
-     svTable AT ROW 2.43 COL 106 COLON-ALIGNED HELP
-          "Select Audit Table Filter" WIDGET-ID 16
-     svField AT ROW 3.62 COL 106 COLON-ALIGNED HELP
-          "Select Audit Field Filter" WIDGET-ID 18
-     maxRows AT ROW 1.24 COL 144 COLON-ALIGNED WIDGET-ID 290
-     btnPrint AT ROW 5.05 COL 197 HELP
-          "Print" WIDGET-ID 280
-     svBeforeValueFilter AT ROW 2.43 COL 171 COLON-ALIGNED HELP
-          "Enter Before Value to Filter" WIDGET-ID 36
-     svAfterValueFilter AT ROW 3.62 COL 171 COLON-ALIGNED HELP
-          "Enter After Value to Filter" WIDGET-ID 38
-     svUseRecKeySearch AT ROW 3.62 COL 10 WIDGET-ID 342
-     svStartAuditRecKey AT ROW 4.81 COL 36 COLON-ALIGNED HELP
-          "Enter Start Audit Table Rec Key Value" WIDGET-ID 298
-     svEndAuditRecKey AT ROW 6 COL 36 COLON-ALIGNED HELP
-          "Enter End Audit Table Rec Key Value" WIDGET-ID 326
-     svStartRecKeyDate AT ROW 4.81 COL 85 COLON-ALIGNED HELP
-          "Enter From Date" WIDGET-ID 300
-     btnCalendar-3 AT ROW 4.81 COL 103 WIDGET-ID 304
-     svStartRecKeyDateOption AT ROW 4.81 COL 108 HELP
-          "Select Start Date Option" NO-LABEL WIDGET-ID 310
-     svStartRecKeyHour AT ROW 4.81 COL 143 COLON-ALIGNED HELP
-          "Enter Start Rec Key Hour" WIDGET-ID 312
-     svStartRecKeyMin AT ROW 4.81 COL 148 COLON-ALIGNED HELP
-          "Enter Start Rec Key Minute" NO-LABEL WIDGET-ID 314
-     svStartRecKeySec AT ROW 4.81 COL 153 COLON-ALIGNED HELP
-          "Enter Start Rec Key Second" NO-LABEL WIDGET-ID 328
-     svEndRecKeyDate AT ROW 6 COL 85 COLON-ALIGNED HELP
-          "Enter To Date" WIDGET-ID 302
-     btnCalendar-4 AT ROW 6 COL 103 WIDGET-ID 306
-     svEndRecKeyDateOption AT ROW 6 COL 108 HELP
-          "Select End Date Option" NO-LABEL WIDGET-ID 308
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1
-         SIZE 238 BY 7.14
-         BGCOLOR 15 FGCOLOR 1  WIDGET-ID 500.
-
-/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
-DEFINE FRAME AuditSearch
-     svEndRecKeyHour AT ROW 6 COL 143 COLON-ALIGNED HELP
-          "Enter End Rec Key Hour" WIDGET-ID 316
-     svEndRecKeyMin AT ROW 6 COL 148 COLON-ALIGNED HELP
-          "Enter End Rec Key Minute" NO-LABEL WIDGET-ID 318
-     svEndRecKeySec AT ROW 6 COL 153 COLON-ALIGNED HELP
-          "Enter End Rec Key Second" NO-LABEL WIDGET-ID 330
-     searchTime AT ROW 6 COL 158 COLON-ALIGNED NO-LABEL WIDGET-ID 324
-     initTime AT ROW 3.62 COL 85 COLON-ALIGNED WIDGET-ID 322
-     btnStack AT ROW 5.05 COL 209 HELP
-          "Click to View Program Stack Trace" WIDGET-ID 282
-     btnAuditTables AT ROW 5.05 COL 221 HELP
-          "Click to Access Tables to Audit" WIDGET-ID 288
-     btnAfterValueFilterClear AT ROW 3.62 COL 234 HELP
-          "Click to Clear After Value Filter" WIDGET-ID 42
-     btnBeforeValueFilterClear AT ROW 2.43 COL 234 HELP
-          "Click to Clear Before Value Filter" WIDGET-ID 40
-     btnClear AT ROW 5.05 COL 185 HELP
-          "Click to Clear Filters" WIDGET-ID 284
-     btnSearch AT ROW 5.05 COL 173 HELP
-          "Click to Apply Filter Selections" WIDGET-ID 286
-     btnFilterAfterValue AT ROW 3.62 COL 230 HELP
-          "Select to Filter by After Value" WIDGET-ID 34
-     btnFilterAuditKey AT ROW 1.24 COL 230 HELP
-          "Select to Filter by Audit Key" WIDGET-ID 28
-     btnFilterBeforeValue AT ROW 2.43 COL 230 HELP
-          "Select to Filter by Before Value" WIDGET-ID 32
-     btnHistory AT ROW 4.81 COL 234 HELP
-          "Click to View History" WIDGET-ID 30
-     "Search Time" VIEW-AS TEXT
-          SIZE 12 BY .62 AT ROW 5.29 COL 160 WIDGET-ID 332
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1
-         SIZE 238 BY 7.14
-         BGCOLOR 15 FGCOLOR 1 
-         TITLE "Search Filters" WIDGET-ID 500.
-
 DEFINE FRAME AuditView
      AuditHdr.AuditDB AT ROW 1.24 COL 6 COLON-ALIGNED WIDGET-ID 16
           LABEL "DB"
@@ -722,6 +615,113 @@ DEFINE FRAME AuditView
          BGCOLOR 15 FGCOLOR 1 
          TITLE BGCOLOR 15 "Audit Detail View" WIDGET-ID 400.
 
+DEFINE FRAME AuditSearch
+     btnAfterValueFilterClear AT ROW 3.62 COL 234 HELP
+          "Click to Clear After Value Filter" WIDGET-ID 42
+     btnAuditKeyFilterClear AT ROW 1.24 COL 234 HELP
+          "Click to Clear Before Value Filter" WIDGET-ID 346
+     btnBeforeValueFilterClear AT ROW 2.43 COL 234 HELP
+          "Click to Clear Before Value Filter" WIDGET-ID 40
+     btnCalendar-1 AT ROW 1.24 COL 55 WIDGET-ID 272
+     btnCalendar-2 AT ROW 2.43 COL 55 WIDGET-ID 274
+     btnCalendar-3 AT ROW 4.81 COL 104 WIDGET-ID 304
+     btnCalendar-4 AT ROW 6 COL 104 WIDGET-ID 306
+     btnFilterAfterValue AT ROW 3.62 COL 229 HELP
+          "Select to Filter by After Value" WIDGET-ID 34
+     btnFilterAuditKey AT ROW 1.24 COL 229 HELP
+          "Select to Filter by Audit Key" WIDGET-ID 28
+     btnFilterBeforeValue AT ROW 2.43 COL 229 HELP
+          "Select to Filter by Before Value" WIDGET-ID 32
+     btnHistory AT ROW 4.81 COL 234.2 HELP
+          "Click to View History" WIDGET-ID 30
+     svAuditKeyFilter AT ROW 1.24 COL 171 COLON-ALIGNED WIDGET-ID 344
+     svType AT ROW 1.24 COL 8 COLON-ALIGNED HELP
+          "Select Audit Type Filter" WIDGET-ID 6
+     svUser AT ROW 2.43 COL 8 COLON-ALIGNED HELP
+          "Select User Filter" WIDGET-ID 12
+     btnRestore AT ROW 5.05 COL 2 HELP
+          "Print" WIDGET-ID 320
+     svStartDate AT ROW 1.24 COL 36 COLON-ALIGNED HELP
+          "Enter From Date" WIDGET-ID 20
+     svStartDateOption AT ROW 1.24 COL 59 HELP
+          "Select Start Date Option" NO-LABEL WIDGET-ID 74
+     svStartDateHour AT ROW 1.24 COL 89 COLON-ALIGNED HELP
+          "Enter Start Date Hour" WIDGET-ID 338
+     svStartDateMin AT ROW 1.24 COL 94 COLON-ALIGNED HELP
+          "Enter Start Date Minute" NO-LABEL WIDGET-ID 340
+     svEndDate AT ROW 2.43 COL 36 COLON-ALIGNED HELP
+          "Enter To Date" WIDGET-ID 22
+     svEndDateOption AT ROW 2.43 COL 59 HELP
+          "Select End Date Option" NO-LABEL WIDGET-ID 70
+     svEndDateHour AT ROW 2.43 COL 89 COLON-ALIGNED HELP
+          "Enter End Date Hour" WIDGET-ID 334
+     svEndDateMin AT ROW 2.43 COL 94 COLON-ALIGNED HELP
+          "Enter End Date Minute" NO-LABEL WIDGET-ID 336
+     svDB AT ROW 1.24 COL 106 COLON-ALIGNED HELP
+          "Select Audit DB Filter" WIDGET-ID 14
+     svTable AT ROW 2.43 COL 106 COLON-ALIGNED HELP
+          "Select Audit Table Filter" WIDGET-ID 16
+     svField AT ROW 3.62 COL 106 COLON-ALIGNED HELP
+          "Select Audit Field Filter" WIDGET-ID 18
+     maxRows AT ROW 1.24 COL 144 COLON-ALIGNED WIDGET-ID 290
+     btnPrint AT ROW 5.05 COL 197 HELP
+          "Print" WIDGET-ID 280
+     svBeforeValueFilter AT ROW 2.43 COL 171 COLON-ALIGNED HELP
+          "Enter Before Value to Filter" WIDGET-ID 36
+     svAfterValueFilter AT ROW 3.62 COL 171 COLON-ALIGNED HELP
+          "Enter After Value to Filter" WIDGET-ID 38
+     svUseRecKeySearch AT ROW 3.62 COL 10 WIDGET-ID 342
+     svStartAuditRecKey AT ROW 4.81 COL 36 COLON-ALIGNED HELP
+          "Enter Start Audit Table Rec Key Value" WIDGET-ID 298
+     svEndAuditRecKey AT ROW 6 COL 36 COLON-ALIGNED HELP
+          "Enter End Audit Table Rec Key Value" WIDGET-ID 326
+     svStartRecKeyDate AT ROW 4.81 COL 85 COLON-ALIGNED HELP
+          "Enter From Date" WIDGET-ID 300
+     svStartRecKeyDateOption AT ROW 4.81 COL 108 HELP
+          "Select Start Date Option" NO-LABEL WIDGET-ID 310
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1
+         SIZE 238 BY 7.14
+         BGCOLOR 15 FGCOLOR 1  WIDGET-ID 500.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME AuditSearch
+     svStartRecKeyHour AT ROW 4.81 COL 143 COLON-ALIGNED HELP
+          "Enter Start Rec Key Hour" WIDGET-ID 312
+     svStartRecKeyMin AT ROW 4.81 COL 148 COLON-ALIGNED HELP
+          "Enter Start Rec Key Minute" NO-LABEL WIDGET-ID 314
+     svStartRecKeySec AT ROW 4.81 COL 153 COLON-ALIGNED HELP
+          "Enter Start Rec Key Second" NO-LABEL WIDGET-ID 328
+     svEndRecKeyDate AT ROW 6 COL 85 COLON-ALIGNED HELP
+          "Enter To Date" WIDGET-ID 302
+     svEndRecKeyDateOption AT ROW 6 COL 108 HELP
+          "Select End Date Option" NO-LABEL WIDGET-ID 308
+     svEndRecKeyHour AT ROW 6 COL 143 COLON-ALIGNED HELP
+          "Enter End Rec Key Hour" WIDGET-ID 316
+     svEndRecKeyMin AT ROW 6 COL 148 COLON-ALIGNED HELP
+          "Enter End Rec Key Minute" NO-LABEL WIDGET-ID 318
+     svEndRecKeySec AT ROW 6 COL 153 COLON-ALIGNED HELP
+          "Enter End Rec Key Second" NO-LABEL WIDGET-ID 330
+     searchTime AT ROW 6 COL 158 COLON-ALIGNED NO-LABEL WIDGET-ID 324
+     initTime AT ROW 3.62 COL 85 COLON-ALIGNED WIDGET-ID 322
+     btnStack AT ROW 5.05 COL 209 HELP
+          "Click to View Program Stack Trace" WIDGET-ID 282
+     btnAuditTables AT ROW 5.05 COL 221 HELP
+          "Click to Access Tables to Audit" WIDGET-ID 288
+     btnClear AT ROW 5.05 COL 185 HELP
+          "Click to Clear Filters" WIDGET-ID 284
+     btnSearch AT ROW 5.05 COL 173 HELP
+          "Click to Apply Filter Selections" WIDGET-ID 286
+     "Search Time" VIEW-AS TEXT
+          SIZE 12 BY .62 AT ROW 5.29 COL 160 WIDGET-ID 332
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1
+         SIZE 238 BY 7.14
+         BGCOLOR 15 FGCOLOR 1 
+         TITLE "Search Filters" WIDGET-ID 500.
+
 
 /* *********************** Procedure Settings ************************ */
 
@@ -746,15 +746,15 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 238.2
          VIRTUAL-HEIGHT     = 320
          VIRTUAL-WIDTH      = 238.2
-         RESIZE             = YES
-         SCROLL-BARS        = NO
-         STATUS-AREA        = YES
+         RESIZE             = yes
+         SCROLL-BARS        = no
+         STATUS-AREA        = yes
          BGCOLOR            = ?
          FGCOLOR            = ?
-         KEEP-FRAME-Z-ORDER = YES
-         THREE-D            = YES
-         MESSAGE-AREA       = NO
-         SENSITIVE          = YES.
+         KEEP-FRAME-Z-ORDER = yes
+         THREE-D            = yes
+         MESSAGE-AREA       = no
+         SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
@@ -970,7 +970,7 @@ ASSIGN
        svSortByHdr:READ-ONLY IN FRAME DEFAULT-FRAME        = TRUE.
 
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-THEN C-Win:HIDDEN = NO.
+THEN C-Win:HIDDEN = no.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -1121,7 +1121,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL AuditDetail C-Win
 ON START-SEARCH OF AuditDetail IN FRAME DEFAULT-FRAME /* Audit Detail */
 DO:
-	{methods/template/sortindicator.i} 
+        {methods/template/sortindicator.i} 
     IF {&BROWSE-NAME}:CURRENT-COLUMN:NAME NE ? THEN DO:
         cColumnLabel = BROWSE AuditDetail:CURRENT-COLUMN:NAME.
         IF cColumnLabel EQ cSaveLabel THEN
@@ -1135,7 +1135,7 @@ DO:
             .
         RUN pReopenBrowse.
     END.
-	{methods/template/sortindicatorend.i} 
+        {methods/template/sortindicatorend.i} 
     RETURN NO-APPLY.
 END.
 
@@ -1176,7 +1176,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL AuditHeader C-Win
 ON START-SEARCH OF AuditHeader IN FRAME DEFAULT-FRAME /* Audit Header */
 DO:
-	{methods/template/sortindicator.i} 
+        {methods/template/sortindicator.i} 
     IF {&BROWSE-NAME}:CURRENT-COLUMN:NAME NE ? THEN DO:
         cColumnLabel = BROWSE AuditHeader:CURRENT-COLUMN:NAME.
         IF cColumnLabel EQ cSaveLabel THEN
@@ -1190,7 +1190,7 @@ DO:
             .
         RUN pReopenBrowse.
     END.
-	{methods/template/sortindicatorend.i} 
+        {methods/template/sortindicatorend.i} 
     RETURN NO-APPLY.
 END.
 
@@ -2087,17 +2087,18 @@ PROCEDURE enable_UI :
           svEndRecKeyDateOption svEndRecKeyHour svEndRecKeyMin svEndRecKeySec 
           searchTime initTime 
       WITH FRAME AuditSearch IN WINDOW C-Win.
-  ENABLE btnAuditKeyFilterClear svAuditKeyFilter svType svUser svStartDate 
-         btnCalendar-1 svStartDateOption svStartDateHour svStartDateMin 
-         svEndDate btnCalendar-2 svEndDateOption svEndDateHour svEndDateMin 
-         svDB svTable svField maxRows btnPrint svBeforeValueFilter 
-         svAfterValueFilter svUseRecKeySearch svStartAuditRecKey 
-         svEndAuditRecKey svStartRecKeyDate btnCalendar-3 
-         svStartRecKeyDateOption svStartRecKeyHour svStartRecKeyMin 
-         svStartRecKeySec svEndRecKeyDate btnCalendar-4 svEndRecKeyDateOption 
-         svEndRecKeyHour svEndRecKeyMin svEndRecKeySec btnStack btnAuditTables 
-         btnAfterValueFilterClear btnBeforeValueFilterClear btnClear btnSearch 
-         btnFilterAfterValue btnFilterAuditKey btnFilterBeforeValue btnHistory 
+  ENABLE btnAfterValueFilterClear btnAuditKeyFilterClear 
+         btnBeforeValueFilterClear btnCalendar-1 btnCalendar-2 btnCalendar-3 
+         btnCalendar-4 btnFilterAfterValue btnFilterAuditKey 
+         btnFilterBeforeValue btnHistory svAuditKeyFilter svType svUser 
+         svStartDate svStartDateOption svStartDateHour svStartDateMin svEndDate 
+         svEndDateOption svEndDateHour svEndDateMin svDB svTable svField 
+         maxRows btnPrint svBeforeValueFilter svAfterValueFilter 
+         svUseRecKeySearch svStartAuditRecKey svEndAuditRecKey 
+         svStartRecKeyDate svStartRecKeyDateOption svStartRecKeyHour 
+         svStartRecKeyMin svStartRecKeySec svEndRecKeyDate 
+         svEndRecKeyDateOption svEndRecKeyHour svEndRecKeyMin svEndRecKeySec 
+         btnStack btnAuditTables btnClear btnSearch 
       WITH FRAME AuditSearch IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-AuditSearch}
   DISPLAY svSortByHdr svSortByDtl 

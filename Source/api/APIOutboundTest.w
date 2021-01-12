@@ -105,7 +105,7 @@ DEFINE BUTTON btGo
      FONT 6.
 
 DEFINE BUTTON Btn_Cancel AUTO-END-KEY 
-     IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U
+     IMAGE-UP FILE "Graphics/32x32/exit_white.png":U
      LABEL "Cancel" 
      SIZE 20 BY 2.62 TOOLTIP "Exit"
      BGCOLOR 8 .

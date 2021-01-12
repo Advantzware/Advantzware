@@ -83,7 +83,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
              PUT TRIM(lv-est-no) FORM "x(6)" SPACE(1)
                  xqitm.part-no space(1) lv-part-dscr1.
              */
-            PUT TRIM(lv-est-no) FORM "x(5)" AT 2
+            PUT TRIM(lv-est-no) FORM "x(6)" AT 1
                 xqitm.part-no AT 8 FORMAT "x(21)".
 
             /* gdm - 11040801 deducted 2 char from format, used to be 30 - now 28*/
@@ -95,7 +95,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
             DO:  
                 IF ll-prt-dscr2 AND xqitm.part-dscr2 NE "" THEN 
                 do:
-                    PUT xquo.q-no AT 2
+                    PUT xquo.q-no FORMAT ">>>>>9" AT 1
                         "<C20>" xqitm.part-dscr2 FORMAT "x(30)". 
                     lPrintSecDscr = YES .
                 END.
@@ -141,7 +141,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
                         END.
                     END.
                     ELSE 
-                        PUT  xquo.q-no AT 2
+                        PUT  xquo.q-no FORMAT ">>>>>9" AT 1
                             "<C20>" style-dscr  FORM "x(30)" .
                 END.
 

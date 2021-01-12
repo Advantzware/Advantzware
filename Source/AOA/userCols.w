@@ -42,7 +42,7 @@ CREATE WIDGET-POOL.
 DEFINE VARIABLE char-hdl    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hColumn     AS HANDLE    NO-UNDO EXTENT 4.
 DEFINE VARIABLE hContainer  AS HANDLE    NO-UNDO.
-DEFINE VARIABLE lAdvanced    AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lAdvanced   AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lUpdateMode AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE pHandle     AS HANDLE    NO-UNDO.
 DEFINE VARIABLE rRowID      AS ROWID     NO-UNDO.
@@ -127,18 +127,17 @@ DEFINE TEMP-TABLE ttGroup NO-UNDO
     ~{&OPEN-QUERY-sortBrowse}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS searchBar sortBrowse btnColMoveDown ~
-subjectColumnBrowse groupBrowse btnColMoveUp btnAdvanced btnGroupCalc ~
-btnSave btnAddGroup btnAddSort btnRemoveGroup btnRemoveSort btnSortMoveDown ~
+&Scoped-Define ENABLED-OBJECTS searchBar sortBrowse subjectColumnBrowse ~
+btnColMoveDown groupBrowse btnColMoveUp btnAdvanced btnGroupCalc btnSave ~
+btnAddGroup btnAddSort btnRemoveGroup btnRemoveSort btnSortMoveDown ~
 btnSortMoveUp 
 &Scoped-Define DISPLAYED-OBJECTS searchBar 
 
 /* Custom List Definitions                                              */
 /* SortGroupButtons,List-2,List-3,List-4,List-5,List-6                  */
-&Scoped-define SortGroupButtons btnColMoveDown btnColMoveUp btnAdvanced ~
-btnGroupCalc btnAddGroup btnAddSort btnRemoveGroup btnRemoveSort ~
-btnSortMoveDown btnSortMoveUp 
-&Scoped-define List-2 btnGroupCalc 
+&Scoped-define SortGroupButtons btnColMoveDown btnColMoveUp btnGroupCalc ~
+btnAddGroup btnAddSort btnRemoveGroup btnRemoveSort btnSortMoveDown ~
+btnSortMoveUp 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -288,9 +287,9 @@ DEFINE FRAME F-Main
      searchBar AT ROW 1.24 COL 7 COLON-ALIGNED HELP
           "Enter Search" WIDGET-ID 22
      sortBrowse AT ROW 1.24 COL 103 WIDGET-ID 300
+     subjectColumnBrowse AT ROW 2.19 COL 9 WIDGET-ID 200
      btnColMoveDown AT ROW 8.38 COL 1 HELP
           "Move Down Column" WIDGET-ID 14
-     subjectColumnBrowse AT ROW 2.19 COL 9 WIDGET-ID 200
      groupBrowse AT ROW 17.19 COL 103 WIDGET-ID 400
      btnColMoveUp AT ROW 6.48 COL 1 HELP
           "Move Up Column" WIDGET-ID 16
@@ -370,8 +369,8 @@ END.
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 /* BROWSE-TAB sortBrowse searchBar F-Main */
-/* BROWSE-TAB subjectColumnBrowse btnColMoveDown F-Main */
-/* BROWSE-TAB groupBrowse subjectColumnBrowse F-Main */
+/* BROWSE-TAB subjectColumnBrowse sortBrowse F-Main */
+/* BROWSE-TAB groupBrowse btnColMoveDown F-Main */
 ASSIGN 
        FRAME F-Main:HIDDEN           = TRUE
        FRAME F-Main:HEIGHT           = 24.52
@@ -381,14 +380,12 @@ ASSIGN
    1                                                                    */
 /* SETTINGS FOR BUTTON btnAddSort IN FRAME F-Main
    1                                                                    */
-/* SETTINGS FOR BUTTON btnAdvanced IN FRAME F-Main
-   1                                                                    */
 /* SETTINGS FOR BUTTON btnColMoveDown IN FRAME F-Main
    1                                                                    */
 /* SETTINGS FOR BUTTON btnColMoveUp IN FRAME F-Main
    1                                                                    */
 /* SETTINGS FOR BUTTON btnGroupCalc IN FRAME F-Main
-   1 2                                                                  */
+   1                                                                    */
 /* SETTINGS FOR BUTTON btnRemoveGroup IN FRAME F-Main
    1                                                                    */
 /* SETTINGS FOR BUTTON btnRemoveSort IN FRAME F-Main
@@ -558,16 +555,11 @@ ON CHOOSE OF btnSave IN FRAME F-Main /* Update/Save Columns */
 DO:
     IF lUpdateMode THEN
     RUN pSave.
-    ASSIGN
-        lUpdateMode = NOT lUpdateMode
-        btnReset:SENSITIVE = lUpdateMode
-        .
-    btnSave:LOAD-IMAGE("Graphics/32x32/" 
-        + IF lUpdateMode THEN "floppy_disk.png"
-          ELSE "pencil.png").
-    RUN pUpdateMode (lUpdateMode).
-    IF lUpdateMode THEN
-    APPLY "ENTRY":U TO ttSubjectColumn.fieldLabel IN BROWSE subjectColumnBrowse.
+    ELSE DO:
+        RUN pSetSortGroupButtons (NO).
+        RUN pUpdateMode (YES).
+        APPLY "ENTRY":U TO ttSubjectColumn.fieldLabel IN BROWSE subjectColumnBrowse.
+    END. /* else */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -617,11 +609,11 @@ END.
 /* ***************************  Main Block  *************************** */
 
 &Scoped-define sdBrowseName subjectColumnBrowse
-{methods/template/brwcustom.i 1}
+{methods/template/brwcustom2.i 1}
 &Scoped-define sdBrowseName sortBrowse
-{methods/template/brwcustom.i 2}
+{methods/template/brwcustom2.i 2}
 &Scoped-define sdBrowseName groupBrowse
-{methods/template/brwcustom.i 3}
+{methods/template/brwcustom2.i 3}
 
 /* If testing in the UIB, initialize the SmartObject. */  
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
@@ -691,8 +683,10 @@ PROCEDURE local-view :
 
   /* Code placed here will execute AFTER standard behavior.    */
   RUN pUserColumns.
-  RUN pUpdateMode (NO).
   FRAME {&FRAME-NAME}:MOVE-TO-TOP().
+  RUN pSetSortGroupButtons (dynParamValue.user-id NE "_default").
+  btnSave:SENSITIVE = dynParamValue.user-id NE "_default".
+  RUN pUpdateMode (NO).
 
 END PROCEDURE.
 
@@ -721,6 +715,7 @@ PROCEDURE pAddGroup :
         .
     {&OPEN-QUERY-groupBrowse}
     REPOSITION groupBrowse TO ROWID rRowID.
+    RUN pUpdateMode (YES).
     APPLY "ENTRY":U TO ttGroup.groupLabel IN BROWSE groupBrowse.
 
 END PROCEDURE.
@@ -745,15 +740,16 @@ PROCEDURE pAddSort :
     iOrder = IF AVAILABLE ttSort THEN ttSort.sortOrder + 1 ELSE 1.
     CREATE ttSort.
     ASSIGN
-        ttSort.colRowID   = ROWID(ttSubjectColumn)
-        ttSort.subjectID  = ttSubjectColumn.subjectID
-        ttSort.fieldLabel = ttSubjectColumn.fieldLabel
-        ttSort.sortOrder  = iOrder
-        rRowID            = ROWID(ttSort)
-        ttSubjectColumn.sortOrder = iOrder
+        ttSort.colRowID         = ROWID(ttSubjectColumn)
+        ttSort.subjectID        = ttSubjectColumn.subjectID
+        ttSort.fieldLabel       = ttSubjectColumn.fieldLabel
+        ttSort.sortOrder        = iOrder
+        rRowID                  = ROWID(ttSort)
+        ttSubjectColumn.sortCol = iOrder
         .
     {&OPEN-QUERY-sortBrowse}
     REPOSITION sortBrowse TO ROWID rRowID.
+    RUN pUpdateMode (YES).
 
 END PROCEDURE.
 
@@ -824,7 +820,7 @@ PROCEDURE pMoveCol :
     IF NOT AVAILABLE dynSubject THEN RETURN.
     iSubjectID = dynSubject.subjectID.
     {AOA/includes/pMove.i "ttSubjectColumn" "subjectColumnBrowse"}
-    APPLY "CHOOSE":U TO btnSave IN FRAME {&FRAME-NAME}.
+    RUN pUpdateMode (YES).
 
 END PROCEDURE.
 
@@ -849,6 +845,7 @@ PROCEDURE pMoveSort :
     IF NOT AVAILABLE dynSubject THEN RETURN.
     iSubjectID = dynSubject.subjectID.
     {AOA/includes/pMove.i "ttSort" "sortBrowse"}
+    RUN pUpdateMode (YES).
 
 END PROCEDURE.
 
@@ -900,6 +897,7 @@ PROCEDURE pRemoveGroup :
     IF AVAILABLE ttGroup THEN
     BROWSE groupBrowse:REFRESH().
     BROWSE subjectColumnBrowse:REFRESH() NO-ERROR.
+    RUN pUpdateMode (YES).
 
 END PROCEDURE.
 
@@ -936,6 +934,7 @@ PROCEDURE pRemoveSort :
     END. /* each ttsort */
     IF idx GT 0 THEN
     BROWSE sortBrowse:REFRESH().
+    RUN pUpdateMode (YES).
 
 END PROCEDURE.
 
@@ -1039,6 +1038,7 @@ PROCEDURE pSave :
     BROWSE sortBrowse:REFRESH().
     IF CAN-FIND(FIRST ttGroup) THEN
     BROWSE groupBrowse:REFRESH().
+    RUN pUpdateMode (NO).
     RUN pSetSortGroupButtons (YES).
 
 END PROCEDURE.
@@ -1079,11 +1079,14 @@ PROCEDURE pUpdateMode :
         hColumn[2] = BROWSE subjectColumnBrowse:GET-BROWSE-COLUMN(2)
         hColumn[2]:READ-ONLY = NOT lUpdateMode
         hColumn[3] = BROWSE sortBrowse:GET-BROWSE-COLUMN(2)
-        hColumn[3]:READ-ONLY = lUpdateMode
+        hColumn[3]:READ-ONLY = NOT lUpdateMode
         hColumn[4] = BROWSE groupBrowse:GET-BROWSE-COLUMN(2)
-        hColumn[4]:READ-ONLY = lUpdateMode
+        hColumn[4]:READ-ONLY = NOT lUpdateMode
+        btnReset:SENSITIVE IN FRAME {&FRAME-NAME} = lUpdateMode
         .
-    RUN pSetSortGroupButtons (NOT lUpdateMode).
+    btnSave:LOAD-IMAGE("Graphics/32x32/" 
+        + IF lUpdateMode THEN "floppy_disk.png"
+          ELSE "pencil.png").
 
 END PROCEDURE.
 

@@ -902,7 +902,12 @@ PROCEDURE pPostGL:
                 fErrorMsg("Unable to Post due to Invoice Record being Locked").
                 UNDO postit, LEAVE postit.
             END. /* not avail ap-inv */
-            ap-inv.period = iPeriod.
+          ASSIGN
+            ap-inv.period = iPeriod
+            ap-inv.postedDate = dtPostDate
+            ap-inv.runNumber  = iTransNum
+            ap-inv.glYear     = YEAR(dtPostDate)
+            .
             FIND FIRST vend NO-LOCK
                 WHERE vend.company EQ ipcCompany
                   AND vend.vend-no EQ ap-inv.vend-no

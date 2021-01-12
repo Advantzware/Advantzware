@@ -166,9 +166,9 @@ if (xquo.shipto[1] eq xquo.soldto[1] and
      ship[4] = ""
      ship[5] = "SAME".
 
-  IF AVAIL est AND est.est-type NE 5 THEN
-  RUN sys/ref/getFileFullPathName.p ("Template\QuotePrem.xlt", OUTPUT chFile).
-  ELSE  RUN sys/ref/getFileFullPathName.p ("Template\QuotePremWaterMark.xlt", OUTPUT chFile).
+  IF AVAIL est AND est.estimateTypeID NE "Misc" THEN
+  RUN sys/ref/getFileFullPathName.p ("Template\QuotePremWaterMark.xlt", OUTPUT chFile).
+  ELSE RUN sys/ref/getFileFullPathName.p ("Template\QuotePrem.xlt", OUTPUT chFile). 
   IF chFile = ? THEN  
       APPLY 'close' TO THIS-PROCEDURE.
 

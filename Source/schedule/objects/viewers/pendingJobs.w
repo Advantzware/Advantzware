@@ -40,6 +40,7 @@ CREATE WIDGET-POOL.
 &SCOPED-DEFINE useTable ttblJob
 {{&includes}/jobStatusFunc.i}
 {methods/template/brwcustomdef.i}
+{methods/defines/sortByDefs.i}
 
 /* Parameters Definitions ---                                           */
 

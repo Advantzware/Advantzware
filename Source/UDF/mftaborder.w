@@ -76,7 +76,7 @@ DEFINE TEMP-TABLE ttTabOrder NO-UNDO
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btnExit AUTO-END-KEY 
-     IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/exit_white.png":U NO-FOCUS FLAT-BUTTON
      LABEL "E&xit" 
      SIZE 8 BY 1.91 TOOLTIP "Exit"
      FONT 4.
@@ -106,7 +106,7 @@ DEFINE BUTTON btnMoveUp
      SIZE 4.2 BY 1.
 
 DEFINE BUTTON btnSave AUTO-GO 
-     IMAGE-UP FILE "Graphics/32x32/floppy_disk.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/floppy_disk.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Save" 
      SIZE 8 BY 1.91 TOOLTIP "Save"
      FONT 4.

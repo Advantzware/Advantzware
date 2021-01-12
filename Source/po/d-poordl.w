@@ -202,17 +202,16 @@ po-ordl.dscr[1] po-ordl.cost po-ordl.pr-uom po-ordl.cons-cost ~
 po-ordl.cons-uom po-ordl.dscr[2] po-ordl.setup po-ordl.s-wid po-ordl.s-len ~
 po-ordl.disc po-ordl.actnum po-ordl.vend-i-no po-ordl.tax po-ordl.over-pct ~
 po-ordl.under-pct po-ordl.cust-no po-ordl.ord-no po-ordl.t-cost ~
-po-ordl.item-type 
+po-ordl.item-type po-ordl.excludeFromVoucher 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Dialog-Frame po-ordl.i-no ~
 po-ordl.job-no po-ordl.job-no2 po-ordl.s-num po-ordl.b-num po-ordl.due-date ~
 po-ordl.i-name po-ordl.ord-qty po-ordl.pr-qty-uom po-ordl.dscr[1] ~
 po-ordl.cost po-ordl.pr-uom po-ordl.dscr[2] po-ordl.setup po-ordl.s-wid ~
 po-ordl.s-len po-ordl.disc po-ordl.actnum po-ordl.vend-i-no po-ordl.tax ~
 po-ordl.over-pct po-ordl.under-pct po-ordl.cust-no po-ordl.ord-no ~
-po-ordl.item-type 
+po-ordl.item-type po-ordl.excludeFromVoucher 
 &Scoped-define ENABLED-TABLES-IN-QUERY-Dialog-Frame po-ordl
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-Dialog-Frame po-ordl
-&Scoped-Define ENABLED-OBJECTS btnCalendar-1
 &Scoped-define QUERY-STRING-Dialog-Frame FOR EACH po-ordl SHARE-LOCK, ~
       EACH item OF po-ordl SHARE-LOCK
 &Scoped-define OPEN-QUERY-Dialog-Frame OPEN QUERY Dialog-Frame FOR EACH po-ordl SHARE-LOCK, ~
@@ -228,10 +227,12 @@ po-ordl.s-num po-ordl.b-num po-ordl.due-date po-ordl.i-name po-ordl.ord-qty ~
 po-ordl.pr-qty-uom po-ordl.dscr[1] po-ordl.cost po-ordl.pr-uom ~
 po-ordl.dscr[2] po-ordl.setup po-ordl.s-wid po-ordl.s-len po-ordl.disc ~
 po-ordl.actnum po-ordl.vend-i-no po-ordl.tax po-ordl.over-pct ~
-po-ordl.under-pct po-ordl.cust-no po-ordl.ord-no po-ordl.item-type 
+po-ordl.under-pct po-ordl.cust-no po-ordl.ord-no po-ordl.item-type ~
+po-ordl.excludeFromVoucher 
 &Scoped-define ENABLED-TABLES po-ordl
 &Scoped-define FIRST-ENABLED-TABLE po-ordl
-&Scoped-Define ENABLED-OBJECTS btnCalendar-1 Btn_Done Btn_Cancel Btn_OK RECT-21 RECT-38 
+&Scoped-Define ENABLED-OBJECTS btnCalendar-1 Btn_Done Btn_Cancel Btn_OK ~
+RECT-21 RECT-38 
 &Scoped-Define DISPLAYED-FIELDS po-ordl.i-no po-ordl.job-no po-ordl.job-no2 ~
 po-ordl.s-num po-ordl.b-num po-ordl.due-date po-ordl.stat po-ordl.i-name ~
 po-ordl.ord-qty po-ordl.pr-qty-uom po-ordl.cons-qty po-ordl.dscr[1] ~
@@ -239,19 +240,18 @@ po-ordl.cost po-ordl.pr-uom po-ordl.cons-cost po-ordl.cons-uom ~
 po-ordl.dscr[2] po-ordl.setup po-ordl.s-wid po-ordl.s-len po-ordl.disc ~
 po-ordl.actnum po-ordl.vend-i-no po-ordl.tax po-ordl.over-pct ~
 po-ordl.under-pct po-ordl.cust-no po-ordl.ord-no po-ordl.t-cost ~
-po-ordl.item-type 
+po-ordl.item-type po-ordl.excludeFromVoucher 
 &Scoped-define DISPLAYED-TABLES po-ordl
 &Scoped-define FIRST-DISPLAYED-TABLE po-ordl
 &Scoped-Define DISPLAYED-OBJECTS fiCount fi_c-a-hdr fi_uom scr-cons-uom ~
 v-tot-msf v-po-dep v-po-wid-frac v-po-len-frac v-po-dep-frac v-gl-desc ~
 fi_pb-qty fi_pb-cst fi_q-onh fi_q-ono fi_q-comm fi_q-back fi_q-avail ~
-fi_m-onh fi_m-ono fi_m-comm fi_m-back fi_m-avail fi_msf cFirstMach
+fi_m-onh fi_m-ono fi_m-comm fi_m-back fi_m-avail fi_msf cFirstMach 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
 &Scoped-define List-3 fi_q-onh fi_q-ono fi_q-comm fi_q-back fi_q-avail ~
 fi_m-onh fi_m-ono fi_m-comm fi_m-back fi_m-avail 
-&Scoped-define calendarPopup btnCalendar-1
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -264,325 +264,337 @@ fi_m-onh fi_m-ono fi_m-comm fi_m-back fi_m-avail
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btnCalendar-1 
-    IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
-    LABEL "" 
-    SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
+     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
+     LABEL "" 
+     SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
 
 DEFINE BUTTON Btn_Cancel 
-    LABEL "Cancel" 
-    SIZE 15 BY 1.14
-    BGCOLOR 8 .
+     LABEL "Cancel" 
+     SIZE 15 BY 1.14
+     BGCOLOR 8 .
 
 DEFINE BUTTON Btn_Done AUTO-END-KEY DEFAULT 
-    LABEL "&Done" 
-    SIZE 15 BY 1.14
-    BGCOLOR 8 .
+     LABEL "&Done" 
+     SIZE 15 BY 1.14
+     BGCOLOR 8 .
 
 DEFINE BUTTON Btn_OK 
-    LABEL "&Save" 
-    SIZE 15 BY 1.14
-    BGCOLOR 8 .
+     LABEL "&Save" 
+     SIZE 15 BY 1.14
+     BGCOLOR 8 .
 
-DEFINE VARIABLE adders        AS CHARACTER 
-    VIEW-AS EDITOR SCROLLBAR-VERTICAL
-    SIZE 56 BY 6.19
-    BGCOLOR 15 FONT 2 NO-UNDO.
+DEFINE VARIABLE adders AS CHARACTER 
+     VIEW-AS EDITOR SCROLLBAR-VERTICAL
+     SIZE 56 BY 6.19
+     BGCOLOR 15 FONT 2 NO-UNDO.
 
 DEFINE VARIABLE cFirstMach AS CHARACTER FORMAT "X(25)":U 
      LABEL "First Resource" 
      VIEW-AS FILL-IN 
      SIZE 58 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fiCount       AS INTEGER   FORMAT "->,>>>,>>9":U INITIAL 0 
-    LABEL "Count" 
-    VIEW-AS FILL-IN 
-    SIZE 13 BY 1 NO-UNDO.
+DEFINE VARIABLE fiCount AS INTEGER FORMAT "->,>>>,>>9":U INITIAL 0 
+     LABEL "Count" 
+     VIEW-AS FILL-IN 
+     SIZE 13 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fi_c-a-hdr    AS CHARACTER FORMAT "X(256)":U 
-    VIEW-AS FILL-IN 
-    SIZE 18 BY 1 NO-UNDO.
+DEFINE VARIABLE fi_c-a-hdr AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS FILL-IN 
+     SIZE 18 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fi_m-avail    AS DECIMAL   FORMAT "->,>>>,>>9.9<<<<" INITIAL 0 
-    VIEW-AS FILL-IN 
-    SIZE 18 BY 1.
+DEFINE VARIABLE fi_m-avail AS DECIMAL FORMAT "->,>>>,>>9.9<<<<" INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 18 BY 1.
 
-DEFINE VARIABLE fi_m-back     AS DECIMAL   FORMAT "->,>>>,>>9.9<<<<" INITIAL 0 
-    VIEW-AS FILL-IN 
-    SIZE 18 BY 1.
+DEFINE VARIABLE fi_m-back AS DECIMAL FORMAT "->,>>>,>>9.9<<<<" INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 18 BY 1.
 
-DEFINE VARIABLE fi_m-comm     AS DECIMAL   FORMAT "->,>>>,>>9.9<<<<" INITIAL 0 
-    VIEW-AS FILL-IN 
-    SIZE 18 BY 1.
+DEFINE VARIABLE fi_m-comm AS DECIMAL FORMAT "->,>>>,>>9.9<<<<" INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 18 BY 1.
 
-DEFINE VARIABLE fi_m-onh      AS DECIMAL   FORMAT "->,>>>,>>9.9<<<<" INITIAL 0 
-    VIEW-AS FILL-IN 
-    SIZE 18 BY 1 NO-UNDO.
+DEFINE VARIABLE fi_m-onh AS DECIMAL FORMAT "->,>>>,>>9.9<<<<" INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 18 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fi_m-ono      AS DECIMAL   FORMAT "->,>>>,>>9.9<<<<" INITIAL 0 
-    VIEW-AS FILL-IN 
-    SIZE 18 BY 1.
+DEFINE VARIABLE fi_m-ono AS DECIMAL FORMAT "->,>>>,>>9.9<<<<" INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 18 BY 1.
 
-DEFINE VARIABLE fi_msf        AS CHARACTER FORMAT "X(256)":U INITIAL "MSF" 
-    VIEW-AS FILL-IN 
-    SIZE 7 BY 1
-    FGCOLOR 9 NO-UNDO.
+DEFINE VARIABLE fi_msf AS CHARACTER FORMAT "X(256)":U INITIAL "MSF" 
+     VIEW-AS FILL-IN 
+     SIZE 7 BY 1
+     FGCOLOR 9  NO-UNDO.
 
-DEFINE VARIABLE fi_pb-cst     AS DECIMAL   FORMAT "->,>>>,>>9.99<<":U INITIAL 0 
-    LABEL "Next Price Break Cost" 
-    VIEW-AS FILL-IN 
-    SIZE 27 BY 1 NO-UNDO.
+DEFINE VARIABLE fi_pb-cst AS DECIMAL FORMAT "->,>>>,>>9.99<<":U INITIAL 0 
+     LABEL "Next Price Break Cost" 
+     VIEW-AS FILL-IN 
+     SIZE 27 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fi_pb-qty     AS DECIMAL   FORMAT "->>>,>>>,>>9.9<<":U INITIAL 0 
-    LABEL "Next Price Break Qty" 
-    VIEW-AS FILL-IN 
-    SIZE 18.8 BY 1 NO-UNDO.
+DEFINE VARIABLE fi_pb-qty AS DECIMAL FORMAT "->>>,>>>,>>9.9<<":U INITIAL 0 
+     LABEL "Next Price Break Qty" 
+     VIEW-AS FILL-IN 
+     SIZE 18.8 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fi_q-avail    AS DECIMAL   FORMAT "->>>,>>>,>>9.9<<" INITIAL 0 
-    VIEW-AS FILL-IN 
-    SIZE 18 BY 1.
+DEFINE VARIABLE fi_q-avail AS DECIMAL FORMAT "->>>,>>>,>>9.9<<" INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 18 BY 1.
 
-DEFINE VARIABLE fi_q-back     AS DECIMAL   FORMAT "->>>,>>>,>>9.9<<" INITIAL 0 
-    VIEW-AS FILL-IN 
-    SIZE 18 BY 1.
+DEFINE VARIABLE fi_q-back AS DECIMAL FORMAT "->>>,>>>,>>9.9<<" INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 18 BY 1.
 
-DEFINE VARIABLE fi_q-comm     AS DECIMAL   FORMAT "->>>,>>>,>>9.9<<" INITIAL 0 
-    VIEW-AS FILL-IN 
-    SIZE 18 BY 1.
+DEFINE VARIABLE fi_q-comm AS DECIMAL FORMAT "->>>,>>>,>>9.9<<" INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 18 BY 1.
 
-DEFINE VARIABLE fi_q-onh      AS DECIMAL   FORMAT "->>>,>>>,>>9.9<<" INITIAL 0 
-    VIEW-AS FILL-IN 
-    SIZE 18 BY 1 NO-UNDO.
+DEFINE VARIABLE fi_q-onh AS DECIMAL FORMAT "->>>,>>>,>>9.9<<" INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 18 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fi_q-ono      AS DECIMAL   FORMAT "->>>,>>>,>>9.9<<" INITIAL 0 
-    VIEW-AS FILL-IN 
-    SIZE 18 BY 1.
+DEFINE VARIABLE fi_q-ono AS DECIMAL FORMAT "->>>,>>>,>>9.9<<" INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 18 BY 1.
 
-DEFINE VARIABLE fi_uom        AS CHARACTER FORMAT "X(256)":U 
-    VIEW-AS FILL-IN 
-    SIZE 7 BY 1
-    FGCOLOR 9 NO-UNDO.
+DEFINE VARIABLE fi_uom AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS FILL-IN 
+     SIZE 7 BY 1
+     FGCOLOR 9  NO-UNDO.
 
-DEFINE VARIABLE scr-cons-uom  AS CHARACTER FORMAT "X(256)":U 
-    VIEW-AS FILL-IN 
-    SIZE 6.8 BY 1.
+DEFINE VARIABLE scr-cons-uom AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS FILL-IN 
+     SIZE 6.8 BY 1.
 
-DEFINE VARIABLE v-gl-desc     AS CHARACTER FORMAT "X(256)":U 
-    LABEL "GL Desc" 
-    VIEW-AS FILL-IN 
-    SIZE 58 BY 1 NO-UNDO.
+DEFINE VARIABLE v-gl-desc AS CHARACTER FORMAT "X(256)":U 
+     LABEL "GL Desc" 
+     VIEW-AS FILL-IN 
+     SIZE 58 BY 1 NO-UNDO.
 
-DEFINE VARIABLE v-po-dep      AS DECIMAL   FORMAT ">>>9.99<<":U INITIAL 0 
-    VIEW-AS FILL-IN 
-    SIZE 13 BY 1 NO-UNDO.
+DEFINE VARIABLE v-po-dep AS DECIMAL FORMAT ">>>9.99<<":U INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 13 BY 1 NO-UNDO.
 
 DEFINE VARIABLE v-po-dep-frac AS CHARACTER FORMAT "X(10)":U 
-    VIEW-AS FILL-IN 
-    SIZE 13 BY 1 NO-UNDO.
+     VIEW-AS FILL-IN 
+     SIZE 13 BY 1 NO-UNDO.
 
 DEFINE VARIABLE v-po-len-frac AS CHARACTER FORMAT "X(10)":U 
-    VIEW-AS FILL-IN 
-    SIZE 15 BY 1 NO-UNDO.
+     VIEW-AS FILL-IN 
+     SIZE 15 BY 1 NO-UNDO.
 
 DEFINE VARIABLE v-po-wid-frac AS CHARACTER FORMAT "X(10)":U 
-    VIEW-AS FILL-IN 
-    SIZE 13 BY 1 NO-UNDO.
+     VIEW-AS FILL-IN 
+     SIZE 13 BY 1 NO-UNDO.
 
-DEFINE VARIABLE v-tonnage     AS DECIMAL   FORMAT ">>>>,>>9.999":U INITIAL 0 
-    VIEW-AS FILL-IN 
-    SIZE 19 BY 1 NO-UNDO.
+DEFINE VARIABLE v-tonnage AS DECIMAL FORMAT ">>>>,>>9.999":U INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 19 BY 1 NO-UNDO.
 
-DEFINE VARIABLE v-tot-msf     AS DECIMAL   FORMAT ">>>>,>>9.999":U INITIAL 0 
-    VIEW-AS FILL-IN 
-    SIZE 19 BY 1 NO-UNDO.
+DEFINE VARIABLE v-tot-msf AS DECIMAL FORMAT ">>>>,>>9.999":U INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 19 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-21
-    EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-    SIZE 133.8 BY 3.57.
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 133.8 BY 3.57.
 
 DEFINE RECTANGLE RECT-38
-    EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-    SIZE 133.8 BY 15.76.
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 133.8 BY 15.76.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY Dialog-Frame FOR 
-    po-ordl, 
-    item SCROLLING.
+      po-ordl, 
+      item SCROLLING.
 &ANALYZE-RESUME
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Dialog-Frame
-    fiCount AT ROW 7.67 COL 64 COLON-ALIGNED WIDGET-ID 4
-    fi_c-a-hdr AT ROW 17 COL 58 COLON-ALIGNED NO-LABELS
-    fi_uom AT ROW 17.95 COL 11 COLON-ALIGNED NO-LABELS
-    po-ordl.i-no AT ROW 1.24 COL 17 COLON-ALIGNED
-    VIEW-AS FILL-IN 
-    SIZE 24 BY 1
-    po-ordl.job-no AT ROW 1.24 COL 49.8 COLON-ALIGNED
-    LABEL "Job #"
-    VIEW-AS FILL-IN 
-    SIZE 12 BY 1
-    po-ordl.job-no2 AT ROW 1.24 COL 61.8 COLON-ALIGNED NO-LABELS
-    VIEW-AS FILL-IN 
-    SIZE 6 BY 1
-    po-ordl.s-num AT ROW 1.24 COL 71.6 COLON-ALIGNED
-    LABEL "S"
-    VIEW-AS FILL-IN 
-    SIZE 5 BY 1
-    po-ordl.b-num AT ROW 1.24 COL 80.4 COLON-ALIGNED
-    LABEL "B"
-    VIEW-AS FILL-IN 
-    SIZE 5 BY 1
-    po-ordl.due-date AT ROW 1.24 COL 98.6 COLON-ALIGNED
-    VIEW-AS FILL-IN 
-    SIZE 15 BY 1
-    btnCalendar-1 AT ROW 1.24 COL 117
-    po-ordl.stat AT ROW 1.24 COL 128 COLON-ALIGNED
-    LABEL "Stat"
-    VIEW-AS FILL-IN 
-    SIZE 3.2 BY 1
-    po-ordl.i-name AT ROW 2.67 COL 9 COLON-ALIGNED
-    VIEW-AS FILL-IN 
-    SIZE 38 BY 1
-    po-ordl.ord-qty AT ROW 2.91 COL 64 COLON-ALIGNED FORMAT "->>>,>>>,>>9.9<<<<<"
-    VIEW-AS FILL-IN 
-    SIZE 18.8 BY 1
-    po-ordl.pr-qty-uom AT ROW 2.91 COL 84 COLON-ALIGNED NO-LABELS
-    VIEW-AS FILL-IN 
-    SIZE 9 BY 1
-    po-ordl.cons-qty AT ROW 2.91 COL 105 COLON-ALIGNED HELP
-    "Enter Consumption Quantity."
-    LABEL "Qty"
-    VIEW-AS FILL-IN 
-    SIZE 19 BY .95
-    scr-cons-uom AT ROW 2.91 COL 124 COLON-ALIGNED NO-LABELS WIDGET-ID 2
-    po-ordl.dscr[1] AT ROW 3.62 COL 9 COLON-ALIGNED
-    LABEL "Desc"
-    VIEW-AS FILL-IN 
-    SIZE 38 BY 1
-    po-ordl.cost AT ROW 4.1 COL 64 COLON-ALIGNED
-    LABEL "Cost" FORMAT "->,>>>,>>9.99<<<<"
-    VIEW-AS FILL-IN 
-    SIZE 19 BY 1
-    po-ordl.pr-uom AT ROW 4.1 COL 84 COLON-ALIGNED NO-LABELS
-    VIEW-AS FILL-IN 
-    SIZE 9 BY 1
-    po-ordl.cons-cost AT ROW 4.1 COL 105 COLON-ALIGNED NO-LABELS FORMAT "->,>>>,>>9.99<<<<"
-    VIEW-AS FILL-IN 
-    SIZE 19 BY 1
-    po-ordl.cons-uom AT ROW 4.1 COL 124 COLON-ALIGNED NO-LABELS
-    VIEW-AS FILL-IN 
-    SIZE 6.8 BY 1
-    po-ordl.dscr[2] AT ROW 4.57 COL 9 COLON-ALIGNED
-    LABEL "Desc"
-    VIEW-AS FILL-IN 
-    SIZE 38 BY 1
-    po-ordl.setup AT ROW 5.29 COL 64 COLON-ALIGNED
-    LABEL "Setup"
-    VIEW-AS FILL-IN 
-    SIZE 19 BY 1
-    v-tot-msf AT ROW 5.29 COL 105 COLON-ALIGNED NO-LABELS
-    po-ordl.s-wid AT ROW 6.62 COL 3.4 COLON-ALIGNED NO-LABELS FORMAT ">>>9.99<<"
-    VIEW-AS FILL-IN 
-    SIZE 13 BY 1
-    po-ordl.s-len AT ROW 6.62 COL 18 COLON-ALIGNED NO-LABELS FORMAT ">>,>>9.99<<"
-    VIEW-AS FILL-IN 
-    SIZE 15 BY 1
-    v-po-dep AT ROW 6.62 COL 36 COLON-ALIGNED NO-LABELS
-    po-ordl.disc AT ROW 6.48 COL 64 COLON-ALIGNED
-    VIEW-AS FILL-IN 
-    SIZE 19 BY 1
-    v-tonnage AT ROW 6.38 COL 105 COLON-ALIGNED NO-LABELS
-    adders AT ROW 7.60 COL 78 NO-LABELS
-    v-po-wid-frac AT ROW 7.57 COL 3.4 COLON-ALIGNED NO-LABELS
-    v-po-len-frac AT ROW 7.57 COL 18 COLON-ALIGNED NO-LABELS
-    v-po-dep-frac AT ROW 7.57 COL 36 COLON-ALIGNED NO-LABELS
+     fiCount AT ROW 7.67 COL 64 COLON-ALIGNED WIDGET-ID 4
+     fi_c-a-hdr AT ROW 17 COL 58 COLON-ALIGNED NO-LABEL
+     fi_uom AT ROW 17.95 COL 11 COLON-ALIGNED NO-LABEL
+     po-ordl.i-no AT ROW 1.24 COL 17 COLON-ALIGNED
+          VIEW-AS FILL-IN 
+          SIZE 24 BY 1
+     po-ordl.job-no AT ROW 1.24 COL 49.8 COLON-ALIGNED
+          LABEL "Job #"
+          VIEW-AS FILL-IN 
+          SIZE 12 BY 1
+     po-ordl.job-no2 AT ROW 1.24 COL 61.8 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 6 BY 1
+     po-ordl.s-num AT ROW 1.24 COL 71.6 COLON-ALIGNED
+          LABEL "S"
+          VIEW-AS FILL-IN 
+          SIZE 5 BY 1
+     po-ordl.b-num AT ROW 1.24 COL 80.4 COLON-ALIGNED
+          LABEL "B"
+          VIEW-AS FILL-IN 
+          SIZE 5 BY 1
+     po-ordl.due-date AT ROW 1.24 COL 98.6 COLON-ALIGNED
+          VIEW-AS FILL-IN 
+          SIZE 15 BY 1
+     btnCalendar-1 AT ROW 1.24 COL 117
+     po-ordl.stat AT ROW 1.24 COL 128 COLON-ALIGNED
+          LABEL "Stat"
+          VIEW-AS FILL-IN 
+          SIZE 3.2 BY 1
+     po-ordl.i-name AT ROW 2.67 COL 9 COLON-ALIGNED
+          VIEW-AS FILL-IN 
+          SIZE 38 BY 1
+     po-ordl.ord-qty AT ROW 2.91 COL 64 COLON-ALIGNED FORMAT "->>>,>>>,>>9.9<<<<<"
+          VIEW-AS FILL-IN 
+          SIZE 18.8 BY 1
+     po-ordl.pr-qty-uom AT ROW 2.91 COL 84 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 9 BY 1
+     po-ordl.cons-qty AT ROW 2.91 COL 105 COLON-ALIGNED HELP
+          "Enter Consumption Quantity."
+          LABEL "Qty"
+          VIEW-AS FILL-IN 
+          SIZE 19 BY .95
+     scr-cons-uom AT ROW 2.91 COL 124 COLON-ALIGNED NO-LABEL WIDGET-ID 2
+     po-ordl.dscr[1] AT ROW 3.62 COL 9 COLON-ALIGNED
+          LABEL "Desc"
+          VIEW-AS FILL-IN 
+          SIZE 38 BY 1
+     po-ordl.cost AT ROW 4.1 COL 64 COLON-ALIGNED
+          LABEL "Cost" FORMAT "->,>>>,>>9.99<<<<"
+          VIEW-AS FILL-IN 
+          SIZE 19 BY 1
+     po-ordl.pr-uom AT ROW 4.1 COL 84 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 9 BY 1
+     po-ordl.cons-cost AT ROW 4.1 COL 105 COLON-ALIGNED NO-LABEL FORMAT "->,>>>,>>9.99<<<<"
+          VIEW-AS FILL-IN 
+          SIZE 19 BY 1
+     po-ordl.cons-uom AT ROW 4.1 COL 124 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 6.8 BY 1
+     po-ordl.dscr[2] AT ROW 4.57 COL 9 COLON-ALIGNED
+          LABEL "Desc"
+          VIEW-AS FILL-IN 
+          SIZE 38 BY 1
+     po-ordl.setup AT ROW 5.29 COL 64 COLON-ALIGNED
+          LABEL "Setup"
+          VIEW-AS FILL-IN 
+          SIZE 19 BY 1
+     v-tot-msf AT ROW 5.29 COL 105 COLON-ALIGNED NO-LABEL
+     po-ordl.s-wid AT ROW 6.62 COL 3.4 COLON-ALIGNED NO-LABEL FORMAT ">>>9.99<<"
+          VIEW-AS FILL-IN 
+          SIZE 13 BY 1
+     po-ordl.s-len AT ROW 6.62 COL 18 COLON-ALIGNED NO-LABEL FORMAT ">>,>>9.99<<"
+          VIEW-AS FILL-IN 
+          SIZE 15 BY 1
+     v-po-dep AT ROW 6.62 COL 36 COLON-ALIGNED NO-LABEL
+     po-ordl.disc AT ROW 6.48 COL 64 COLON-ALIGNED
+          VIEW-AS FILL-IN 
+          SIZE 19 BY 1
+     v-tonnage AT ROW 6.38 COL 105 COLON-ALIGNED NO-LABEL
+     adders AT ROW 7.62 COL 78 NO-LABEL
+     v-po-wid-frac AT ROW 7.57 COL 3.4 COLON-ALIGNED NO-LABEL
+     v-po-len-frac AT ROW 7.57 COL 18 COLON-ALIGNED NO-LABEL
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
-    SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
-    FONT 6.
+         SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
+         FONT 6.
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME Dialog-Frame
-    po-ordl.actnum AT ROW 8.91 COL 18 COLON-ALIGNED HELP
-    "Enter account number."
-    LABEL "GL#"
-    VIEW-AS FILL-IN 
-    SIZE 38 BY 1
-    v-gl-desc AT ROW 9.86 COL 18 COLON-ALIGNED
-    po-ordl.vend-i-no AT ROW 10.81 COL 18 COLON-ALIGNED
-    VIEW-AS FILL-IN 
-    SIZE 25 BY 1
-    po-ordl.tax AT ROW 11 COL 64 COLON-ALIGNED
-    LABEL "Tax"
-    VIEW-AS FILL-IN 
-    SIZE 3.2 BY 1
-    po-ordl.over-pct AT ROW 11.88 COL 18 COLON-ALIGNED
-    VIEW-AS FILL-IN 
-    SIZE 10.4 BY 1
-    po-ordl.under-pct AT ROW 12.76 COL 18 COLON-ALIGNED
-    VIEW-AS FILL-IN 
-    SIZE 10.4 BY 1
-    fi_pb-qty AT ROW 13.91 COL 104 COLON-ALIGNED
-    po-ordl.cust-no AT ROW 13.71 COL 18 COLON-ALIGNED
-    LABEL "Customer#" FORMAT "x(8)"
-    VIEW-AS FILL-IN 
-    SIZE 16 BY 1
-    po-ordl.ord-no AT ROW 14.62 COL 18 COLON-ALIGNED
-    LABEL "Order Number" FORMAT ">>>>>9"
-    VIEW-AS FILL-IN 
-    SIZE 12 BY 1
-    po-ordl.t-cost AT ROW 14.62 COL 49 COLON-ALIGNED
-    LABEL "Total Cost" FORMAT "->,>>>,>>9.99<<"
-    VIEW-AS FILL-IN 
-    SIZE 27 BY 1
-    fi_pb-cst AT ROW 15.1 COL 104 COLON-ALIGNED
-    Btn_Done AT ROW 21.05 COL 57
-    Btn_Cancel AT ROW 21.05 COL 77.2
-    Btn_OK AT ROW 21.1 COL 37
-    po-ordl.item-type AT ROW 1.24 COL 3 NO-LABELS FORMAT "RM/FG"
-    VIEW-AS FILL-IN 
-    SIZE 5.2 BY 1
-    fi_q-onh AT ROW 17.95 COL 18 COLON-ALIGNED HELP
-    "Qty on Hand Updated by Purchase Receipts & Production Issues" NO-LABELS
-    fi_q-ono AT ROW 17.95 COL 38 COLON-ALIGNED NO-LABELS
-    fi_q-comm AT ROW 17.95 COL 58 COLON-ALIGNED NO-LABELS
-    fi_q-back AT ROW 17.95 COL 78 COLON-ALIGNED NO-LABELS
-    fi_q-avail AT ROW 17.95 COL 98 COLON-ALIGNED NO-LABELS
-    fi_m-onh AT ROW 18.91 COL 18 COLON-ALIGNED HELP
-    "Qty on Hand Updated by Purchase Receipts & Production Issues" NO-LABELS
-    fi_m-ono AT ROW 18.91 COL 38 COLON-ALIGNED NO-LABELS
-    fi_m-comm AT ROW 18.91 COL 58 COLON-ALIGNED NO-LABELS
-    fi_m-back AT ROW 18.91 COL 78 COLON-ALIGNED NO-LABELS
-    fi_m-avail AT ROW 18.91 COL 98 COLON-ALIGNED NO-LABELS
-    fi_msf AT ROW 18.91 COL 11 COLON-ALIGNED NO-LABELS
-    cFirstMach AT ROW 15.57 COL 18 COLON-ALIGNED WIDGET-ID 6
-    "MSF" VIEW-AS TEXT
-    SIZE 6 BY .62 AT ROW 5.52 COL 127
-    "Width" VIEW-AS TEXT
-    SIZE 8 BY .62 AT ROW 5.71 COL 5.8
-    "Length" VIEW-AS TEXT
-    SIZE 8 BY .62 AT ROW 5.71 COL 20.4
-    "Depth" VIEW-AS TEXT
-    SIZE 8 BY .62 AT ROW 5.71 COL 38.2
-    "On Order" VIEW-AS TEXT
-    SIZE 18 BY 1 AT ROW 17 COL 40
-    "On Hand" VIEW-AS TEXT
-    SIZE 18 BY 1 AT ROW 17 COL 20
-    "Backordered" VIEW-AS TEXT
-    SIZE 18 BY 1 AT ROW 17 COL 80
-    "Available" VIEW-AS TEXT
-    SIZE 18 BY 1 AT ROW 17 COL 100
-    "Tons" VIEW-AS TEXT
-    SIZE 6 BY .62 AT ROW 6.57 COL 127
-    RECT-21 AT ROW 16.76 COL 1
-    RECT-38 AT ROW 1 COL 1
-    SPACE(0.00) SKIP(6.18)
+     v-po-dep-frac AT ROW 7.57 COL 36 COLON-ALIGNED NO-LABEL
+     po-ordl.actnum AT ROW 8.91 COL 18 COLON-ALIGNED HELP
+          "Enter account number."
+          LABEL "GL#"
+          VIEW-AS FILL-IN 
+          SIZE 38 BY 1
+     v-gl-desc AT ROW 9.86 COL 18 COLON-ALIGNED
+     po-ordl.vend-i-no AT ROW 10.81 COL 18 COLON-ALIGNED
+          VIEW-AS FILL-IN 
+          SIZE 25 BY 1
+     po-ordl.tax AT ROW 11 COL 64 COLON-ALIGNED
+          LABEL "Tax"
+          VIEW-AS FILL-IN 
+          SIZE 3.2 BY 1
+     po-ordl.over-pct AT ROW 11.86 COL 18 COLON-ALIGNED
+          VIEW-AS FILL-IN 
+          SIZE 10.4 BY 1
+     po-ordl.under-pct AT ROW 12.76 COL 18 COLON-ALIGNED
+          VIEW-AS FILL-IN 
+          SIZE 10.4 BY 1
+     fi_pb-qty AT ROW 13.91 COL 104 COLON-ALIGNED
+     po-ordl.cust-no AT ROW 13.71 COL 18 COLON-ALIGNED
+          LABEL "Customer#" FORMAT "x(8)"
+          VIEW-AS FILL-IN 
+          SIZE 16 BY 1
+     po-ordl.ord-no AT ROW 14.62 COL 18 COLON-ALIGNED
+          LABEL "Order Number" FORMAT ">>>>>9"
+          VIEW-AS FILL-IN 
+          SIZE 12 BY 1
+     po-ordl.t-cost AT ROW 14.62 COL 49 COLON-ALIGNED
+          LABEL "Total Cost" FORMAT "->,>>>,>>9.99<<"
+          VIEW-AS FILL-IN 
+          SIZE 27 BY 1
+     fi_pb-cst AT ROW 15.1 COL 104 COLON-ALIGNED
+     Btn_Done AT ROW 21.05 COL 57
+     Btn_Cancel AT ROW 21.05 COL 77.2
+     Btn_OK AT ROW 21.1 COL 37
+     po-ordl.item-type AT ROW 1.24 COL 3 NO-LABEL FORMAT "RM/FG"
+          VIEW-AS FILL-IN 
+          SIZE 5.2 BY 1
+     fi_q-onh AT ROW 17.95 COL 18 COLON-ALIGNED HELP
+          "Qty on Hand Updated by Purchase Receipts & Production Issues" NO-LABEL
+     fi_q-ono AT ROW 17.95 COL 38 COLON-ALIGNED NO-LABEL
+     fi_q-comm AT ROW 17.95 COL 58 COLON-ALIGNED NO-LABEL
+     fi_q-back AT ROW 17.95 COL 78 COLON-ALIGNED NO-LABEL
+     fi_q-avail AT ROW 17.95 COL 98 COLON-ALIGNED NO-LABEL
+     fi_m-onh AT ROW 18.91 COL 18 COLON-ALIGNED HELP
+          "Qty on Hand Updated by Purchase Receipts & Production Issues" NO-LABEL
+     fi_m-ono AT ROW 18.91 COL 38 COLON-ALIGNED NO-LABEL
+     fi_m-comm AT ROW 18.91 COL 58 COLON-ALIGNED NO-LABEL
+     fi_m-back AT ROW 18.91 COL 78 COLON-ALIGNED NO-LABEL
+     fi_m-avail AT ROW 18.91 COL 98 COLON-ALIGNED NO-LABEL
+     fi_msf AT ROW 18.91 COL 11 COLON-ALIGNED NO-LABEL
+     cFirstMach AT ROW 15.57 COL 18 COLON-ALIGNED WIDGET-ID 6
+     po-ordl.excludeFromVoucher AT ROW 12.19 COL 66.2 WIDGET-ID 12
+          VIEW-AS TOGGLE-BOX
+          SIZE 4.2 BY 1
+     "MSF" VIEW-AS TEXT
+          SIZE 6 BY .62 AT ROW 5.52 COL 127
+     "Vouchered:" VIEW-AS TEXT
+          SIZE 13.2 BY .62 AT ROW 12.33 COL 52.4 WIDGET-ID 10
+     "Width" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 5.71 COL 5.8
+     "Length" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 5.71 COL 20.4
+     "Depth" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 5.71 COL 38.2
+     "On Order" VIEW-AS TEXT
+          SIZE 18 BY 1 AT ROW 17 COL 40
+     "On Hand" VIEW-AS TEXT
+          SIZE 18 BY 1 AT ROW 17 COL 20
+     "Backordered" VIEW-AS TEXT
+          SIZE 18 BY 1 AT ROW 17 COL 80
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
-    SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
-    FONT 6
-    TITLE "Purchase Order Item Update"
-    DEFAULT-BUTTON Btn_OK.
+         SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
+         FONT 6
+         DEFAULT-BUTTON Btn_OK.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME Dialog-Frame
+     "Available" VIEW-AS TEXT
+          SIZE 18 BY 1 AT ROW 17 COL 100
+     "Tons" VIEW-AS TEXT
+          SIZE 6 BY .62 AT ROW 6.57 COL 127
+     RECT-21 AT ROW 16.76 COL 1
+     RECT-38 AT ROW 1 COL 1
+     SPACE(0.00) SKIP(6.18)
+    WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
+         SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
+         FONT 6
+         TITLE "Purchase Order Item Update"
+         DEFAULT-BUTTON Btn_OK.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -594,7 +606,7 @@ DEFINE FRAME Dialog-Frame
  */
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB V-table-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB Dialog-Frame 
 /* ************************* Included-Libraries *********************** */
 
 {src/adm/method/viewer.i}
@@ -603,27 +615,30 @@ DEFINE FRAME Dialog-Frame
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
 /* SETTINGS FOR DIALOG-BOX Dialog-Frame
    FRAME-NAME Custom                                                    */
 ASSIGN 
-       FRAME Dialog-Frame:SCROLLABLE = FALSE
-       FRAME Dialog-Frame:HIDDEN     = TRUE.
+       FRAME Dialog-Frame:SCROLLABLE       = FALSE
+       FRAME Dialog-Frame:HIDDEN           = TRUE.
 
 /* SETTINGS FOR FILL-IN po-ordl.actnum IN FRAME Dialog-Frame
    EXP-LABEL EXP-HELP                                                   */
 /* SETTINGS FOR EDITOR adders IN FRAME Dialog-Frame
    NO-DISPLAY NO-ENABLE                                                 */
 ASSIGN 
-       adders:HIDDEN IN FRAME Dialog-Frame    = TRUE
-       adders:READ-ONLY IN FRAME Dialog-Frame = TRUE.
+       adders:HIDDEN IN FRAME Dialog-Frame           = TRUE
+       adders:READ-ONLY IN FRAME Dialog-Frame        = TRUE.
 
 /* SETTINGS FOR FILL-IN po-ordl.b-num IN FRAME Dialog-Frame
    EXP-LABEL                                                            */
 ASSIGN 
-       Btn_Done:HIDDEN IN FRAME Dialog-Frame = TRUE.
+       Btn_Done:HIDDEN IN FRAME Dialog-Frame           = TRUE.
 
 /* SETTINGS FOR FILL-IN cFirstMach IN FRAME Dialog-Frame
    NO-ENABLE                                                            */
@@ -637,11 +652,11 @@ ASSIGN
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN po-ordl.cust-no IN FRAME Dialog-Frame
    EXP-LABEL EXP-FORMAT                                                 */
-/* SETTINGS FOR BUTTON btnCalendar-1 IN FRAME F-Main
-   3                                                                    */
 /* SETTINGS FOR FILL-IN po-ordl.dscr[1] IN FRAME Dialog-Frame
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN po-ordl.dscr[2] IN FRAME Dialog-Frame
+   EXP-LABEL                                                            */
+/* SETTINGS FOR TOGGLE-BOX po-ordl.excludeFromVoucher IN FRAME Dialog-Frame
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN fiCount IN FRAME Dialog-Frame
    NO-ENABLE                                                            */
@@ -712,7 +727,7 @@ ASSIGN
 /* SETTINGS FOR FILL-IN v-tonnage IN FRAME Dialog-Frame
    NO-DISPLAY NO-ENABLE                                                 */
 ASSIGN 
-       v-tonnage:HIDDEN IN FRAME Dialog-Frame = TRUE.
+       v-tonnage:HIDDEN IN FRAME Dialog-Frame           = TRUE.
 
 /* SETTINGS FOR FILL-IN v-tot-msf IN FRAME Dialog-Frame
    NO-ENABLE                                                            */
@@ -738,7 +753,7 @@ ASSIGN
 
 &Scoped-define SELF-NAME Dialog-Frame
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
-ON CTRL-O OF FRAME Dialog-Frame
+ON CTRL-O OF FRAME Dialog-Frame /* Purchase Order Item Update */
 OR ctrl-o OF btnCalendar-1 ANYWHERE
 DO:
   DEFINE VARIABLE char-hdl AS CHARACTER.
@@ -753,7 +768,7 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&Scoped-define SELF-NAME Dialog-Frame
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
 ON HELP OF FRAME Dialog-Frame /* Purchase Order Item Update */
 DO:
@@ -866,26 +881,6 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&Scoped-define SELF-NAME btnCalendar-1
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalendar-1 Dialog-Frame
-ON CHOOSE OF btnCalendar-1 IN FRAME Dialog-Frame
-DO:
-  {methods/btnCalendar.i po-ordl.due-date}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&Scoped-define SELF-NAME po-ordl.due-date
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL po-ordl.due-date Dialog-Frame
-ON HELP OF po-ordl.due-date IN FRAME Dialog-Frame /* Due Date */
-DO:
-  {methods/calpopup.i}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
 ON RETURN OF FRAME Dialog-Frame /* Purchase Order Item Update */
@@ -974,6 +969,17 @@ DO:
   ASSIGN
    ll-poord-warned = NO
    ll-pojob-warned = NO.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnCalendar-1
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalendar-1 Dialog-Frame
+ON CHOOSE OF btnCalendar-1 IN FRAME Dialog-Frame
+DO:
+  {methods/btnCalendar.i po-ordl.due-date}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1303,7 +1309,7 @@ END.
 &Scoped-define SELF-NAME po-ordl.cost
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL po-ordl.cost Dialog-Frame
 ON VALUE-CHANGED OF po-ordl.cost IN FRAME Dialog-Frame /* Cost */
-    DO:
+DO:
   FIND CURRENT po-ordl EXCLUSIVE-LOCK NO-ERROR.
   {po/podisdet.i} 
 IF NOT ll-new-record THEN
@@ -1318,7 +1324,7 @@ END.
 &Scoped-define SELF-NAME po-ordl.cust-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL po-ordl.cust-no Dialog-Frame
 ON ENTRY OF po-ordl.cust-no IN FRAME Dialog-Frame /* Customer# */
-    DO:
+DO:
         lv-save-cust-no = po-ordl.cust-no:SCREEN-VALUE.
     END.
 
@@ -1328,7 +1334,7 @@ ON ENTRY OF po-ordl.cust-no IN FRAME Dialog-Frame /* Customer# */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL po-ordl.cust-no Dialog-Frame
 ON LEAVE OF po-ordl.cust-no IN FRAME Dialog-Frame /* Customer# */
-    DO:
+DO:
         DEFINE VARIABLE v-import AS LOG NO-UNDO.
 
         IF lv-save-cust-no NE {&self-name}:SCREEN-VALUE OR
@@ -1375,7 +1381,7 @@ END.
 &Scoped-define SELF-NAME po-ordl.disc
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL po-ordl.disc Dialog-Frame
 ON VALUE-CHANGED OF po-ordl.disc IN FRAME Dialog-Frame /* Discount */
-    DO:
+DO:
   FIND CURRENT po-ordl EXCLUSIVE-LOCK NO-ERROR.
   {po/podisdet.i}
   FIND CURRENT po-ordl NO-LOCK NO-ERROR.
@@ -1385,10 +1391,21 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME po-ordl.due-date
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL po-ordl.due-date Dialog-Frame
+ON HELP OF po-ordl.due-date IN FRAME Dialog-Frame /* Due Date */
+DO:
+  {methods/calpopup.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME po-ordl.i-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL po-ordl.i-no Dialog-Frame
 ON LEAVE OF po-ordl.i-no IN FRAME Dialog-Frame /* Item# */
-    DO:
+DO:
        DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO .
         IF LASTKEY NE -1 
         AND SELF:SCREEN-VALUE NE "" THEN 
@@ -1434,7 +1451,7 @@ ON LEAVE OF po-ordl.i-no IN FRAME Dialog-Frame /* Item# */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL po-ordl.i-no Dialog-Frame
 ON VALUE-CHANGED OF po-ordl.i-no IN FRAME Dialog-Frame /* Item# */
-    DO:
+DO:
         ASSIGN
             ll-item-validated = NO
             ll-poord-warned   = NO
@@ -1449,7 +1466,7 @@ ON VALUE-CHANGED OF po-ordl.i-no IN FRAME Dialog-Frame /* Item# */
 &Scoped-define SELF-NAME po-ordl.item-type
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL po-ordl.item-type Dialog-Frame
 ON MOUSE-SELECT-CLICK OF po-ordl.item-type IN FRAME Dialog-Frame /* Item Type */
-    DO:
+DO:
         {&self-name}:SCREEN-VALUE =
       STRING(NOT {&self-name}:SCREEN-VALUE EQ "RM",{&self-name}:FORMAT).
 
@@ -1462,7 +1479,7 @@ ON MOUSE-SELECT-CLICK OF po-ordl.item-type IN FRAME Dialog-Frame /* Item Type */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL po-ordl.item-type Dialog-Frame
 ON VALUE-CHANGED OF po-ordl.item-type IN FRAME Dialog-Frame /* Item Type */
-    DO:
+DO:
         ASSIGN
             ll-item-validated = NO
             ll-poord-warned   = NO
@@ -1481,7 +1498,7 @@ ON VALUE-CHANGED OF po-ordl.item-type IN FRAME Dialog-Frame /* Item Type */
 &Scoped-define SELF-NAME po-ordl.job-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL po-ordl.job-no Dialog-Frame
 ON ENTRY OF po-ordl.job-no IN FRAME Dialog-Frame /* Job # */
-    DO:
+DO:
         IF lv-save-job NE "" THEN lv-save-job = {&self-name}:SCREEN-VALUE.
     END.
 
@@ -1491,7 +1508,7 @@ ON ENTRY OF po-ordl.job-no IN FRAME Dialog-Frame /* Job # */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL po-ordl.job-no Dialog-Frame
 ON LEAVE OF po-ordl.job-no IN FRAME Dialog-Frame /* Job # */
-    DO:
+DO:
         DEFINE BUFFER b-job-mat FOR job-mat.
         DEFINE BUFFER b-job-hdr FOR job-hdr.
         DEFINE BUFFER b-item    FOR ITEM.
@@ -1605,7 +1622,7 @@ ON LEAVE OF po-ordl.job-no IN FRAME Dialog-Frame /* Job # */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL po-ordl.job-no Dialog-Frame
 ON VALUE-CHANGED OF po-ordl.job-no IN FRAME Dialog-Frame /* Job # */
-    DO:
+DO:
         ASSIGN
             ll-poord-warned = NO
             ll-pojob-warned = NO.
@@ -1618,7 +1635,7 @@ ON VALUE-CHANGED OF po-ordl.job-no IN FRAME Dialog-Frame /* Job # */
 &Scoped-define SELF-NAME po-ordl.job-no2
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL po-ordl.job-no2 Dialog-Frame
 ON ENTRY OF po-ordl.job-no2 IN FRAME Dialog-Frame /* Run # */
-    DO:
+DO:
         IF lv-save-job2 NE "" THEN lv-save-job2 = {&self-name}:SCREEN-VALUE.
     END.
 
@@ -1628,7 +1645,7 @@ ON ENTRY OF po-ordl.job-no2 IN FRAME Dialog-Frame /* Run # */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL po-ordl.job-no2 Dialog-Frame
 ON LEAVE OF po-ordl.job-no2 IN FRAME Dialog-Frame /* Run # */
-    DO:
+DO:
         DEFINE BUFFER b-job-hdr FOR job-hdr.
   
         IF LASTKEY NE -1 THEN 
@@ -1691,7 +1708,7 @@ ON LEAVE OF po-ordl.job-no2 IN FRAME Dialog-Frame /* Run # */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL po-ordl.job-no2 Dialog-Frame
 ON VALUE-CHANGED OF po-ordl.job-no2 IN FRAME Dialog-Frame /* Run # */
-    DO:
+DO:
         ASSIGN
             ll-poord-warned = NO
             ll-pojob-warned = NO.
@@ -1706,7 +1723,7 @@ ON VALUE-CHANGED OF po-ordl.job-no2 IN FRAME Dialog-Frame /* Run # */
 &Scoped-define SELF-NAME po-ordl.ord-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL po-ordl.ord-no Dialog-Frame
 ON ENTRY OF po-ordl.ord-no IN FRAME Dialog-Frame /* Order Number */
-    DO:
+DO:
         lv-save-ord-no = INT(po-ordl.ord-no:SCREEN-VALUE).
     END.
 
@@ -1716,7 +1733,7 @@ ON ENTRY OF po-ordl.ord-no IN FRAME Dialog-Frame /* Order Number */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL po-ordl.ord-no Dialog-Frame
 ON LEAVE OF po-ordl.ord-no IN FRAME Dialog-Frame /* Order Number */
-    DO:
+DO:
         DEFINE VARIABLE v-import AS LOG NO-UNDO.
 
         IF LASTKEY NE -1 THEN 
@@ -1770,7 +1787,7 @@ ON LEAVE OF po-ordl.ord-no IN FRAME Dialog-Frame /* Order Number */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL po-ordl.ord-no Dialog-Frame
 ON VALUE-CHANGED OF po-ordl.ord-no IN FRAME Dialog-Frame /* Order Number */
-    DO:
+DO:
         ll-poord-warned = NO.
     END.
 
@@ -1781,7 +1798,7 @@ ON VALUE-CHANGED OF po-ordl.ord-no IN FRAME Dialog-Frame /* Order Number */
 &Scoped-define SELF-NAME po-ordl.ord-qty
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL po-ordl.ord-qty Dialog-Frame
 ON ENTRY OF po-ordl.ord-qty IN FRAME Dialog-Frame /* Quantity */
-    DO:
+DO:
         lv-save-ord-qty = {&self-name}:SCREEN-VALUE.
         lv-ord-qty-entered = TRUE.
     END.
@@ -1792,7 +1809,7 @@ ON ENTRY OF po-ordl.ord-qty IN FRAME Dialog-Frame /* Quantity */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL po-ordl.ord-qty Dialog-Frame
 ON LEAVE OF po-ordl.ord-qty IN FRAME Dialog-Frame /* Quantity */
-    DO:
+DO:
         DEFINE VARIABLE v-import       AS LOG NO-UNDO.
         DEFINE VARIABLE v-was-imported AS LOG NO-UNDO.
 
@@ -1924,7 +1941,7 @@ END.
 &Scoped-define SELF-NAME po-ordl.pr-qty-uom
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL po-ordl.pr-qty-uom Dialog-Frame
 ON ENTRY OF po-ordl.pr-qty-uom IN FRAME Dialog-Frame /* Purchase Quantity Uom */
-    DO:
+DO:
         lv-save-fld = {&self-name}:SCREEN-VALUE.
     END.
 
@@ -1934,7 +1951,7 @@ ON ENTRY OF po-ordl.pr-qty-uom IN FRAME Dialog-Frame /* Purchase Quantity Uom */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL po-ordl.pr-qty-uom Dialog-Frame
 ON LEAVE OF po-ordl.pr-qty-uom IN FRAME Dialog-Frame /* Purchase Quantity Uom */
-    DO:
+DO:
         IF LASTKEY NE -1 THEN 
         DO:
             RUN valid-uom (FOCUS:NAME) NO-ERROR.
@@ -1967,7 +1984,7 @@ END.
 &Scoped-define SELF-NAME po-ordl.pr-uom
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL po-ordl.pr-uom Dialog-Frame
 ON ENTRY OF po-ordl.pr-uom IN FRAME Dialog-Frame /* Purchased UOM */
-    DO:
+DO:
         lv-save-fld = {&self-name}:SCREEN-VALUE.
     END.
 
@@ -1977,7 +1994,7 @@ ON ENTRY OF po-ordl.pr-uom IN FRAME Dialog-Frame /* Purchased UOM */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL po-ordl.pr-uom Dialog-Frame
 ON LEAVE OF po-ordl.pr-uom IN FRAME Dialog-Frame /* Purchased UOM */
-    DO:
+DO:
         IF LASTKEY NE -1 THEN 
         DO:
             RUN valid-uom (FOCUS:NAME) NO-ERROR.
@@ -2003,7 +2020,7 @@ END.
 &Scoped-define SELF-NAME po-ordl.s-len
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL po-ordl.s-len Dialog-Frame
 ON LEAVE OF po-ordl.s-len IN FRAME Dialog-Frame /* Sheet Len */
-    DO:
+DO:
         DO WITH FRAME {&FRAME-NAME}:
   
             RUN sys\inc\decfrac2.p(INPUT DEC(po-ordl.s-len:SCREEN-VALUE), INPUT 32, OUTPUT v-len-frac).
@@ -2018,7 +2035,7 @@ ON LEAVE OF po-ordl.s-len IN FRAME Dialog-Frame /* Sheet Len */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL po-ordl.s-len Dialog-Frame
 ON VALUE-CHANGED OF po-ordl.s-len IN FRAME Dialog-Frame /* Sheet Len */
-    DO:
+DO:
         IF DEC({&self-name}:SCREEN-VALUE) - TRUNC(DEC({&self-name}:SCREEN-VALUE),0) GE factor# THEN DO:
         MESSAGE "Decimal must be less than " + STRING(factor#,">.9<") + "..."
             VIEW-AS ALERT-BOX.
@@ -2036,7 +2053,7 @@ END.
 &Scoped-define SELF-NAME po-ordl.s-num
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL po-ordl.s-num Dialog-Frame
 ON ENTRY OF po-ordl.s-num IN FRAME Dialog-Frame /* S */
-    DO:
+DO:
         IF lv-save-s-num NE "" THEN lv-save-s-num = {&self-name}:SCREEN-VALUE.
     END.
 
@@ -2046,7 +2063,7 @@ ON ENTRY OF po-ordl.s-num IN FRAME Dialog-Frame /* S */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL po-ordl.s-num Dialog-Frame
 ON LEAVE OF po-ordl.s-num IN FRAME Dialog-Frame /* S */
-    DO:
+DO:
         DEFINE BUFFER b-job-mat FOR job-mat.
         DEFINE BUFFER b-job-hdr FOR job-hdr.
   
@@ -2100,7 +2117,7 @@ ON LEAVE OF po-ordl.s-num IN FRAME Dialog-Frame /* S */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL po-ordl.s-num Dialog-Frame
 ON VALUE-CHANGED OF po-ordl.s-num IN FRAME Dialog-Frame /* S */
-    DO:
+DO:
         ASSIGN
             ll-poord-warned = NO
             ll-pojob-warned = NO.
@@ -2113,7 +2130,7 @@ ON VALUE-CHANGED OF po-ordl.s-num IN FRAME Dialog-Frame /* S */
 &Scoped-define SELF-NAME po-ordl.s-wid
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL po-ordl.s-wid Dialog-Frame
 ON LEAVE OF po-ordl.s-wid IN FRAME Dialog-Frame /* Sheet Wid */
-    DO:
+DO:
     
         DO WITH FRAME {&FRAME-NAME}:
   
@@ -2131,7 +2148,7 @@ ON LEAVE OF po-ordl.s-wid IN FRAME Dialog-Frame /* Sheet Wid */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL po-ordl.s-wid Dialog-Frame
 ON VALUE-CHANGED OF po-ordl.s-wid IN FRAME Dialog-Frame /* Sheet Wid */
-    DO:
+DO:
         IF DEC({&self-name}:SCREEN-VALUE) - TRUNC(DEC({&self-name}:SCREEN-VALUE),0) GE factor# THEN DO:
         MESSAGE "Decimal must be less than " + STRING(factor#,">.9<") + "..."
             VIEW-AS ALERT-BOX.
@@ -2149,7 +2166,7 @@ END.
 &Scoped-define SELF-NAME po-ordl.setup
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL po-ordl.setup Dialog-Frame
 ON ENTRY OF po-ordl.setup IN FRAME Dialog-Frame /* Setup */
-    DO:
+DO:
         ld-prev-setup = DEC({&self-name}:SCREEN-VALUE).
     END.
 
@@ -2159,7 +2176,7 @@ ON ENTRY OF po-ordl.setup IN FRAME Dialog-Frame /* Setup */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL po-ordl.setup Dialog-Frame
 ON VALUE-CHANGED OF po-ordl.setup IN FRAME Dialog-Frame /* Setup */
-    DO:
+DO:
         RUN new-setup.
     END.
 
@@ -2170,7 +2187,7 @@ ON VALUE-CHANGED OF po-ordl.setup IN FRAME Dialog-Frame /* Setup */
 &Scoped-define SELF-NAME po-ordl.t-cost
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL po-ordl.t-cost Dialog-Frame
 ON ENTRY OF po-ordl.t-cost IN FRAME Dialog-Frame /* Total Cost */
-    DO:
+DO:
         ASSIGN
             ld-prev-t-cost    = DEC(po-ordl.t-cost:SCREEN-VALUE)
             ld-prev-cost      = DEC(po-ordl.cost:SCREEN-VALUE)
@@ -2183,7 +2200,7 @@ ON ENTRY OF po-ordl.t-cost IN FRAME Dialog-Frame /* Total Cost */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL po-ordl.t-cost Dialog-Frame
 ON VALUE-CHANGED OF po-ordl.t-cost IN FRAME Dialog-Frame /* Total Cost */
-    DO:
+DO:
         DEFINE VARIABLE ld AS DECIMAL NO-UNDO.
 
         ASSIGN
@@ -2199,7 +2216,7 @@ ON VALUE-CHANGED OF po-ordl.t-cost IN FRAME Dialog-Frame /* Total Cost */
 &Scoped-define SELF-NAME v-po-dep
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL v-po-dep Dialog-Frame
 ON LEAVE OF v-po-dep IN FRAME Dialog-Frame
-    DO:
+DO:
         DO WITH FRAME {&FRAME-NAME}:
             IF DEC({&self-name}:SCREEN-VALUE) - TRUNC(DEC({&self-name}:SCREEN-VALUE),0) GE factor# THEN 
             DO:
@@ -2315,7 +2332,7 @@ RUN disable_UI.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE adder-text Dialog-Frame 
 PROCEDURE adder-text :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -2341,7 +2358,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE change-page-logic Dialog-Frame 
 PROCEDURE change-page-logic :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -2356,9 +2373,41 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE check-cust-hold Dialog-Frame 
+PROCEDURE check-cust-hold :
+/*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO .
+    DEFINE VARIABLE lGetOutPutValue AS LOGICAL NO-UNDO.
+    oplReturnError = YES .
+    DO WITH FRAME {&FRAME-NAME}:
+        FIND FIRST bf-itemfg NO-LOCK
+            WHERE bf-itemfg.company EQ cocode
+            AND bf-itemfg.i-no    EQ po-ordl.i-no:SCREEN-VALUE NO-ERROR.
+        
+        IF AVAIL bf-itemfg AND bf-itemfg.cust-no NE "" AND ip-type EQ "add" AND NOT lCheckFGCustHold AND
+            po-ordl.item-type:SCREEN-VALUE EQ "FG"  THEN DO:
+            FIND FIRST cust NO-LOCK 
+                WHERE cust.company EQ cocode 
+                AND cust.cust-no EQ bf-itemfg.cust-no NO-ERROR.
+            IF AVAIL cust AND cust.cr-hold THEN DO:
+                RUN displayMessageQuestionLOG ("12", OUTPUT oplReturnError). 
+                lCheckFGCustHold = YES.
+            END. 
+        END.
+    END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE check-for-multi Dialog-Frame 
 PROCEDURE check-for-multi :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -2403,9 +2452,65 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE check-job-bnum Dialog-Frame 
+PROCEDURE check-job-bnum :
+/*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lv-job-no LIKE po-ordl.job-no NO-UNDO.
+    DO WITH FRAME {&FRAME-NAME}:
+
+        lv-job-no = FILL(" ", 6 - LENGTH(TRIM(po-ordl.job-no:SCREEN-VALUE))) +
+            TRIM(po-ordl.job-no:SCREEN-VALUE).
+
+        RELEASE job-mat.
+
+        FIND FIRST job NO-LOCK 
+            WHERE job.company EQ g_company
+            AND job.job-no  EQ lv-job-no
+            AND job.job-no2 EQ INT(po-ordl.job-no2:SCREEN-VALUE)
+            NO-ERROR.
+
+        IF lv-job-no NE "" AND AVAILABLE job THEN
+            FIND FIRST job-mat NO-LOCK 
+                WHERE job-mat.company  EQ g_company
+                AND job-mat.job      EQ job.job
+                AND job-mat.job-no   EQ job.job-no
+                AND (job-mat.job-no2 EQ INT(po-ordl.job-no2:SCREEN-VALUE) OR FOCUS:NAME EQ "job-no")
+                AND job-mat.rm-i-no  EQ po-ordl.i-no:SCREEN-VALUE
+                NO-ERROR.
+    END.
+
+    IF AVAILABLE job-mat THEN 
+    DO WITH FRAME {&FRAME-NAME}:
+        IF job-mat.rm-i-no  NE po-ordl.i-no:SCREEN-VALUE            OR
+            job-mat.job-no   NE po-ordl.job-no:SCREEN-VALUE          OR
+            job-mat.job-no2  NE INT(po-ordl.job-no2:SCREEN-VALUE)    OR
+            (job-mat.frm     NE INT(po-ordl.s-num:SCREEN-VALUE) AND
+            po-ordl.s-num:SCREEN-VALUE NE "?")                      OR
+            job-mat.blank-no NE INT(po-ordl.b-num:SCREEN-VALUE)      OR
+            ll-new-job-mat                                           THEN 
+        DO:
+     
+            ASSIGN 
+                po-ordl.s-num:SCREEN-VALUE = STRING(job-mat.frm)
+                po-ordl.b-num:SCREEN-VALUE = STRING(job-mat.blank-no)
+                ll-new-job-mat             = NO .
+        END.
+    END.
+
+
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE check-workfile Dialog-Frame 
 PROCEDURE check-workfile :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -2464,7 +2569,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE check-workfile-2 Dialog-Frame 
 PROCEDURE check-workfile-2 :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -2522,7 +2627,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE convertCSCost Dialog-Frame 
 PROCEDURE convertCSCost :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -2562,7 +2667,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE create-item Dialog-Frame 
 PROCEDURE create-item :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       PARAMs:  <none>
       Notes:       
@@ -2633,7 +2738,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE create-multi-line Dialog-Frame 
 PROCEDURE create-multi-line :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -2964,16 +3069,16 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI Dialog-Frame  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
-    /*------------------------------------------------------------------------------
-      Purpose:     DISABLE the User Interface
-      Parameters:  <none>
-      Notes:       Here we clean-up the user-interface by deleting
-                   dynamic widgets we have created and/or hide 
-                   frames.  This procedure is usually called when
-                   we are ready to "clean-up" after running.
-    ------------------------------------------------------------------------------*/
-    /* Hide all frames. */
-    HIDE FRAME Dialog-Frame.
+/*------------------------------------------------------------------------------
+  Purpose:     DISABLE the User Interface
+  Parameters:  <none>
+  Notes:       Here we clean-up the user-interface by deleting
+               dynamic widgets we have created and/or hide 
+               frames.  This procedure is usually called when
+               we are ready to "clean-up" after running.
+------------------------------------------------------------------------------*/
+  /* Hide all frames. */
+  HIDE FRAME Dialog-Frame.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2981,7 +3086,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE display-fgitem Dialog-Frame 
 PROCEDURE display-fgitem :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       PARAMs:  <none>
       Notes:       
@@ -3117,7 +3222,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE display-item Dialog-Frame 
 PROCEDURE display-item :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       PARAMs:  <none>
       Notes:       
@@ -3269,7 +3374,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE display-job-mat Dialog-Frame 
 PROCEDURE display-job-mat :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       PARAMs:  <none>
       Notes:       
@@ -3641,7 +3746,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE display-rmitem Dialog-Frame 
 PROCEDURE display-rmitem :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       PARAMs:  <none>
       Notes:       
@@ -3782,7 +3887,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable-disable-blk Dialog-Frame 
 PROCEDURE enable-disable-blk :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       PARAMs:  <none>
       Notes:       
@@ -3846,7 +3951,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable-disable-frm Dialog-Frame 
 PROCEDURE enable-disable-frm :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       PARAMs:  <none>
       Notes:       
@@ -3894,7 +3999,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable-disable-size Dialog-Frame 
 PROCEDURE enable-disable-size :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -3932,40 +4037,41 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI Dialog-Frame  _DEFAULT-ENABLE
 PROCEDURE enable_UI :
-    /*------------------------------------------------------------------------------
-      Purpose:     ENABLE the User Interface
-      Parameters:  <none>
-      Notes:       Here we display/view/enable the widgets in the
-                   user-interface.  In addition, OPEN all queries
-                   associated with each FRAME and BROWSE.
-                   These statements here are based on the "Other 
-                   Settings" section of the widget Property Sheets.
-    ------------------------------------------------------------------------------*/
-    DISPLAY fiCount fi_c-a-hdr fi_uom scr-cons-uom v-tot-msf v-po-dep 
-        v-po-wid-frac v-po-len-frac v-po-dep-frac v-gl-desc fi_pb-qty 
-        fi_pb-cst fi_q-onh fi_q-ono fi_q-comm fi_q-back fi_q-avail fi_m-onh 
-        fi_m-ono fi_m-comm fi_m-back fi_m-avail fi_msf cFirstMach
-        WITH FRAME Dialog-Frame.
-    IF AVAILABLE po-ordl THEN 
-        DISPLAY po-ordl.i-no po-ordl.job-no po-ordl.job-no2 po-ordl.s-num 
-            po-ordl.b-num po-ordl.due-date po-ordl.stat po-ordl.i-name 
-            po-ordl.ord-qty po-ordl.pr-qty-uom po-ordl.cons-qty po-ordl.dscr[1] 
-            po-ordl.cost po-ordl.pr-uom po-ordl.cons-cost po-ordl.cons-uom 
-            po-ordl.dscr[2] po-ordl.setup po-ordl.s-wid po-ordl.s-len po-ordl.disc 
-            po-ordl.actnum po-ordl.vend-i-no po-ordl.tax po-ordl.over-pct 
-            po-ordl.under-pct po-ordl.cust-no po-ordl.ord-no po-ordl.t-cost 
-            po-ordl.item-type 
-            WITH FRAME Dialog-Frame.
-    ENABLE po-ordl.i-no po-ordl.job-no po-ordl.job-no2 po-ordl.s-num 
-        po-ordl.b-num po-ordl.due-date po-ordl.i-name po-ordl.ord-qty 
-        po-ordl.pr-qty-uom po-ordl.dscr[1] po-ordl.cost po-ordl.pr-uom 
-        po-ordl.dscr[2] po-ordl.setup po-ordl.s-wid po-ordl.s-len po-ordl.disc 
-        po-ordl.actnum po-ordl.vend-i-no po-ordl.tax po-ordl.over-pct 
-        po-ordl.under-pct po-ordl.cust-no po-ordl.ord-no Btn_Done Btn_Cancel 
-        Btn_OK po-ordl.item-type RECT-21 RECT-38 btnCalendar-1
-        WITH FRAME Dialog-Frame.
-    VIEW FRAME Dialog-Frame.
-    {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
+/*------------------------------------------------------------------------------
+  Purpose:     ENABLE the User Interface
+  Parameters:  <none>
+  Notes:       Here we display/view/enable the widgets in the
+               user-interface.  In addition, OPEN all queries
+               associated with each FRAME and BROWSE.
+               These statements here are based on the "Other 
+               Settings" section of the widget Property Sheets.
+------------------------------------------------------------------------------*/
+  DISPLAY fiCount fi_c-a-hdr fi_uom scr-cons-uom v-tot-msf v-po-dep 
+          v-po-wid-frac v-po-len-frac v-po-dep-frac v-gl-desc fi_pb-qty 
+          fi_pb-cst fi_q-onh fi_q-ono fi_q-comm fi_q-back fi_q-avail fi_m-onh 
+          fi_m-ono fi_m-comm fi_m-back fi_m-avail fi_msf cFirstMach 
+      WITH FRAME Dialog-Frame.
+  IF AVAILABLE po-ordl THEN 
+    DISPLAY po-ordl.i-no po-ordl.job-no po-ordl.job-no2 po-ordl.s-num 
+          po-ordl.b-num po-ordl.due-date po-ordl.stat po-ordl.i-name 
+          po-ordl.ord-qty po-ordl.pr-qty-uom po-ordl.cons-qty po-ordl.dscr[1] 
+          po-ordl.cost po-ordl.pr-uom po-ordl.cons-cost po-ordl.cons-uom 
+          po-ordl.dscr[2] po-ordl.setup po-ordl.s-wid po-ordl.s-len po-ordl.disc 
+          po-ordl.actnum po-ordl.vend-i-no po-ordl.tax po-ordl.over-pct 
+          po-ordl.under-pct po-ordl.cust-no po-ordl.ord-no po-ordl.t-cost 
+          po-ordl.item-type po-ordl.excludeFromVoucher 
+      WITH FRAME Dialog-Frame.
+  ENABLE po-ordl.i-no po-ordl.job-no po-ordl.job-no2 po-ordl.s-num 
+         po-ordl.b-num po-ordl.due-date btnCalendar-1 po-ordl.i-name 
+         po-ordl.ord-qty po-ordl.pr-qty-uom po-ordl.dscr[1] po-ordl.cost 
+         po-ordl.pr-uom po-ordl.dscr[2] po-ordl.setup po-ordl.s-wid 
+         po-ordl.s-len po-ordl.disc po-ordl.actnum po-ordl.vend-i-no 
+         po-ordl.tax po-ordl.over-pct po-ordl.under-pct po-ordl.cust-no 
+         po-ordl.ord-no Btn_Done Btn_Cancel Btn_OK po-ordl.item-type RECT-21 
+         RECT-38 po-ordl.excludeFromVoucher 
+      WITH FRAME Dialog-Frame.
+  VIEW FRAME Dialog-Frame.
+  {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3973,7 +4079,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE fg-qtys Dialog-Frame 
 PROCEDURE fg-qtys :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -4018,7 +4124,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE get-itemfg-gl Dialog-Frame 
 PROCEDURE get-itemfg-gl :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -4054,9 +4160,36 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetFirstMach Dialog-Frame 
+PROCEDURE GetFirstMach :
+/*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opMachine AS CHAR NO-UNDO.
+    
+ DO WITH FRAME {&FRAME-NAME}:
+      IF AVAILABLE po-ordl AND po-ordl.job-no:SCREEN-VALUE NE "" THEN
+        FOR EACH job-mch NO-LOCK
+          WHERE job-mch.company EQ cocode
+            AND job-mch.job-no EQ po-ordl.job-no:SCREEN-VALUE
+            AND job-mch.job-no2 EQ integer(po-ordl.job-no2:SCREEN-VALUE)
+            AND job-mch.frm EQ integer(po-ordl.s-num:SCREEN-VALUE) use-index line-idx :
+             ASSIGN opMachine = job-mch.m-code . 
+             LEAVE.
+        END.
+ END.
+
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE getJobFarmInfo Dialog-Frame 
 PROCEDURE getJobFarmInfo :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -4132,7 +4265,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE lookup-job Dialog-Frame 
 PROCEDURE lookup-job :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       PARAMs:  <none>
       Notes:       
@@ -4209,7 +4342,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE new-job Dialog-Frame 
 PROCEDURE new-job :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       PARAMs:  <none>
       Notes:       
@@ -4254,7 +4387,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE new-job-farm Dialog-Frame 
 PROCEDURE new-job-farm :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -4300,7 +4433,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE new-job-line Dialog-Frame 
 PROCEDURE new-job-line :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       PARAMs:  <none>
       Notes:       
@@ -4380,7 +4513,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE new-job-line-farm Dialog-Frame 
 PROCEDURE new-job-line-farm :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     Special case for finished goods farmout
       Parameters:  <none>
       Notes:       
@@ -4467,7 +4600,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE new-job-mat Dialog-Frame 
 PROCEDURE new-job-mat :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       PARAMs:  <none>
       Notes:       
@@ -4512,7 +4645,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE new-job-s-b Dialog-Frame 
 PROCEDURE new-job-s-b :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       PARAMs:  <none>
       Notes:       
@@ -4539,7 +4672,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE new-setup Dialog-Frame 
 PROCEDURE new-setup :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -4571,10 +4704,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCreateAndUpdateAdders Dialog-Frame
-PROCEDURE pCreateAndUpdateAdders PRIVATE:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCreateAndUpdateAdders Dialog-Frame 
+PROCEDURE pCreateAndUpdateAdders PRIVATE :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -4737,15 +4868,13 @@ PROCEDURE pCreateAndUpdateAdders PRIVATE:
         END.
     END.
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetGL Dialog-Frame
-PROCEDURE pGetGL PRIVATE:
-    /*------------------------------------------------------------------------------
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetGL Dialog-Frame 
+PROCEDURE pGetGL PRIVATE :
+/*------------------------------------------------------------------------------
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
@@ -4815,15 +4944,13 @@ PROCEDURE pGetGL PRIVATE:
             iopcAccountDesc = IF AVAILABLE account THEN account.dscr ELSE ''.
     END.
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE po-adder2 Dialog-Frame 
 PROCEDURE po-adder2 :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       PARAMs:  <none>
       Notes:       
@@ -4998,7 +5125,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE replace-job-mat Dialog-Frame 
 PROCEDURE replace-job-mat :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       PARAMs:  <none>
       Notes:       
@@ -5318,7 +5445,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE rm-qtys Dialog-Frame 
 PROCEDURE rm-qtys :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -5406,7 +5533,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE set-dims Dialog-Frame 
 PROCEDURE set-dims :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -5438,7 +5565,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE update-shipto Dialog-Frame 
 PROCEDURE update-shipto :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -5529,7 +5656,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-actnum Dialog-Frame 
 PROCEDURE valid-actnum :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       PARAMs:  <none>
       Notes:       
@@ -5553,11 +5680,13 @@ PROCEDURE valid-actnum :
     END.
   
 END PROCEDURE.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-b-num Dialog-Frame 
 PROCEDURE valid-b-num :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       PARAMs:  <none>
       Notes:       
@@ -5669,11 +5798,13 @@ PROCEDURE valid-b-num :
         lv-save-b-num = po-ordl.b-num:SCREEN-VALUE.
     END.
 END PROCEDURE.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-job-mat Dialog-Frame 
 PROCEDURE valid-job-mat :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       PARAMs:  <none>
       Notes:       
@@ -5764,11 +5895,13 @@ PROCEDURE valid-job-mat :
         END.
     END.
 END PROCEDURE.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-job-no Dialog-Frame 
 PROCEDURE valid-job-no :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       PARAMs:  <none>
       Notes:       
@@ -5815,11 +5948,13 @@ PROCEDURE valid-job-no :
         RUN enable-dISABLE-size.
     END.
 END PROCEDURE.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-job-no2 Dialog-Frame 
 PROCEDURE valid-job-no2 :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       PARAMs:  <none>
       Notes:       
@@ -5870,11 +6005,13 @@ PROCEDURE valid-job-no2 :
         RUN enable-dISABLE-size.
     END.
 END PROCEDURE.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-max-po-cost Dialog-Frame 
 PROCEDURE valid-max-po-cost :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -5915,11 +6052,13 @@ PROCEDURE valid-max-po-cost :
         RELEASE xpo-ord.
     END.
 END PROCEDURE.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-min-len Dialog-Frame 
 PROCEDURE valid-min-len :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       PARAMs:  <none>
       Notes:       
@@ -5954,11 +6093,13 @@ PROCEDURE valid-min-len :
         END.
     END.
 END PROCEDURE.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-min-wid Dialog-Frame 
 PROCEDURE valid-min-wid :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       PARAMs:  <none>
       Notes:       
@@ -5992,11 +6133,13 @@ PROCEDURE valid-min-wid :
         END.
     END.
 END PROCEDURE.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-ord-no Dialog-Frame 
 PROCEDURE valid-ord-no :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       PARAMs:  <none>
       Notes:       
@@ -6086,11 +6229,13 @@ PROCEDURE valid-ord-no :
         END.
     END.
 END PROCEDURE.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-s-num Dialog-Frame 
 PROCEDURE valid-s-num :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       PARAMs:  <none>
       Notes:       
@@ -6156,11 +6301,13 @@ PROCEDURE valid-s-num :
         END.
     END.
 END PROCEDURE.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-sheet-board-proc Dialog-Frame 
 PROCEDURE valid-sheet-board-proc :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -6205,11 +6352,13 @@ PROCEDURE valid-sheet-board-proc :
         END.
     END.
 END PROCEDURE.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-uom Dialog-Frame 
 PROCEDURE valid-uom :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       PARAMs:  <none>
       Notes:       
@@ -6265,11 +6414,13 @@ PROCEDURE valid-uom :
         END.
     END.
 END PROCEDURE.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-vend-cost Dialog-Frame 
 PROCEDURE valid-vend-cost :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       PARAMs:  <none>
       Notes:       
@@ -6340,11 +6491,13 @@ PROCEDURE valid-vend-cost :
         END.              
     END.
 END PROCEDURE.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE validate-all Dialog-Frame 
 PROCEDURE validate-all :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       PARAMs:  <none>
       Notes:       
@@ -6361,11 +6514,13 @@ PROCEDURE validate-all :
     END.
    
 END PROCEDURE.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE validate-i-no Dialog-Frame 
 PROCEDURE validate-i-no :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       PARAMs:  <none>
       Notes:       
@@ -6454,11 +6609,13 @@ PROCEDURE validate-i-no :
         END.
     END.
 END PROCEDURE.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE vend-cost Dialog-Frame 
 PROCEDURE vend-cost :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       PARAMs:  <none>
       Notes:       
@@ -6860,11 +7017,13 @@ PROCEDURE vend-cost :
         END.
     END.  
 END PROCEDURE.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE writeJobFarmInfo Dialog-Frame 
 PROCEDURE writeJobFarmInfo :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -6960,11 +7119,13 @@ PROCEDURE writeJobFarmInfo :
         END. /* avail bfJob-farm */
     END. /* do */
 END PROCEDURE.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE zero-vend-cost-related Dialog-Frame 
 PROCEDURE zero-vend-cost-related :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -6987,118 +7148,7 @@ PROCEDURE zero-vend-cost-related :
         ld-dim-charge      = 0
         v-index            = 0.
 END PROCEDURE.
+
 /* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME             
+&ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE check-job-bnum Dialog-Frame 
-PROCEDURE check-job-bnum :
-    /*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       
-    ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE lv-job-no LIKE po-ordl.job-no NO-UNDO.
-    DO WITH FRAME {&FRAME-NAME}:
-
-        lv-job-no = FILL(" ", 6 - LENGTH(TRIM(po-ordl.job-no:SCREEN-VALUE))) +
-            TRIM(po-ordl.job-no:SCREEN-VALUE).
-
-        RELEASE job-mat.
-
-        FIND FIRST job NO-LOCK 
-            WHERE job.company EQ g_company
-            AND job.job-no  EQ lv-job-no
-            AND job.job-no2 EQ INT(po-ordl.job-no2:SCREEN-VALUE)
-            NO-ERROR.
-
-        IF lv-job-no NE "" AND AVAILABLE job THEN
-            FIND FIRST job-mat NO-LOCK 
-                WHERE job-mat.company  EQ g_company
-                AND job-mat.job      EQ job.job
-                AND job-mat.job-no   EQ job.job-no
-                AND (job-mat.job-no2 EQ INT(po-ordl.job-no2:SCREEN-VALUE) OR FOCUS:NAME EQ "job-no")
-                AND job-mat.rm-i-no  EQ po-ordl.i-no:SCREEN-VALUE
-                NO-ERROR.
-    END.
-
-    IF AVAILABLE job-mat THEN 
-    DO WITH FRAME {&FRAME-NAME}:
-        IF job-mat.rm-i-no  NE po-ordl.i-no:SCREEN-VALUE            OR
-            job-mat.job-no   NE po-ordl.job-no:SCREEN-VALUE          OR
-            job-mat.job-no2  NE INT(po-ordl.job-no2:SCREEN-VALUE)    OR
-            (job-mat.frm     NE INT(po-ordl.s-num:SCREEN-VALUE) AND
-            po-ordl.s-num:SCREEN-VALUE NE "?")                      OR
-            job-mat.blank-no NE INT(po-ordl.b-num:SCREEN-VALUE)      OR
-            ll-new-job-mat                                           THEN 
-        DO:
-     
-            ASSIGN 
-                po-ordl.s-num:SCREEN-VALUE = STRING(job-mat.frm)
-                po-ordl.b-num:SCREEN-VALUE = STRING(job-mat.blank-no)
-                ll-new-job-mat             = NO .
-        END.
-    END.
-
-
-
-END PROCEDURE.
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME    
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetFirstMach Dialog-Frame 
-PROCEDURE GetFirstMach :
-    /*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       
-    ------------------------------------------------------------------------------*/
-    DEFINE OUTPUT PARAMETER opMachine AS CHAR NO-UNDO.
-    
- DO WITH FRAME {&FRAME-NAME}:
-      IF AVAILABLE po-ordl AND po-ordl.job-no:SCREEN-VALUE NE "" THEN
-        FOR EACH job-mch NO-LOCK
-          WHERE job-mch.company EQ cocode
-            AND job-mch.job-no EQ po-ordl.job-no:SCREEN-VALUE
-            AND job-mch.job-no2 EQ integer(po-ordl.job-no2:SCREEN-VALUE)
-            AND job-mch.frm EQ integer(po-ordl.s-num:SCREEN-VALUE) use-index line-idx :
-             ASSIGN opMachine = job-mch.m-code . 
-             LEAVE.
-        END.
- END.
-
-
-END PROCEDURE.
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE check-cust-hold Dialog-Frame 
-PROCEDURE check-cust-hold :
-    /*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       
-    ------------------------------------------------------------------------------*/
-    DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO .
-    DEFINE VARIABLE lGetOutPutValue AS LOGICAL NO-UNDO.
-    oplReturnError = YES .
-    DO WITH FRAME {&FRAME-NAME}:
-        FIND FIRST bf-itemfg NO-LOCK
-            WHERE bf-itemfg.company EQ cocode
-            AND bf-itemfg.i-no    EQ po-ordl.i-no:SCREEN-VALUE NO-ERROR.
-        
-        IF AVAIL bf-itemfg AND bf-itemfg.cust-no NE "" AND ip-type EQ "add" AND NOT lCheckFGCustHold AND
-            po-ordl.item-type:SCREEN-VALUE EQ "FG"  THEN DO:
-            FIND FIRST cust NO-LOCK 
-                WHERE cust.company EQ cocode 
-                AND cust.cust-no EQ bf-itemfg.cust-no NO-ERROR.
-            IF AVAIL cust AND cust.cr-hold THEN DO:
-                RUN displayMessageQuestionLOG ("12", OUTPUT oplReturnError). 
-                lCheckFGCustHold = YES.
-            END. 
-        END.
-    END.
-
-END PROCEDURE.
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME    

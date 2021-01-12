@@ -98,7 +98,7 @@ ASSIGN
 &Scoped-define INTERNAL-TABLES ttBrowseInventory
 
 /* Definitions for BROWSE br-table                                      */
-&Scoped-define FIELDS-IN-QUERY-br-table ttBrowseInventory.quantity ttBrowseInventory.quantityOriginal fGetConcatLocationID() @ ttBrowseInventory.warehouseID ttBrowseInventory.tag fGetConcatJobID() @ ttBrowseInventory.jobID ttBrowseInventory.inventoryStatus   
+&Scoped-define FIELDS-IN-QUERY-br-table ttBrowseInventory.quantity fGetConcatLocationID() @ ttBrowseInventory.warehouseID ttBrowseInventory.tag fGetConcatJobID() @ ttBrowseInventory.jobID ttBrowseInventory.inventoryStatus   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br-table   
 &Scoped-define SELF-NAME br-table
 &Scoped-define QUERY-STRING-br-table FOR EACH ttBrowseInventory     WHERE ttBrowseInventory.inventoryStatus EQ cFilterBy     ~{&SORTBY-PHRASE}
@@ -112,10 +112,10 @@ ASSIGN
     ~{&OPEN-QUERY-br-table}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btExit btKeyboard-1 RECT-27 RECT-28 ~
-rSelected btFirst btChange fiJobNo btLast cbJobNo2 btPost btNext ~
-btJobLookup cbFormNo cbBlankNo cbRMItem btTotal btScanned btPrevious ~
-btConsumed btnNumPad br-table 
+&Scoped-Define ENABLED-OBJECTS btExit fiJobNo btChange btKeyboard-1 ~
+cbJobNo2 btPost btFirst btJobLookup btLast cbFormNo cbBlankNo cbRMItem ~
+RECT-27 RECT-28 rSelected btScanned btNext btConsumed br-table btPrevious ~
+btTotal btnNumPad 
 &Scoped-Define DISPLAYED-OBJECTS fiJobNo cbJobNo2 cbFormNo cbBlankNo ~
 cbRMItem fiUOM fiTag fiMessage fiTotalQty fiScannedQty fiConsumedQty 
 
@@ -160,7 +160,7 @@ DEFINE BUTTON btConsumed
      FONT 36.
 
 DEFINE BUTTON btExit AUTO-END-KEY 
-     IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U NO-FOCUS
+     IMAGE-UP FILE "Graphics/32x32/exit_white.png":U NO-FOCUS
      LABEL "" 
      SIZE 11 BY 2.62.
 
@@ -318,7 +318,7 @@ DEFINE QUERY br-table FOR
 DEFINE BROWSE br-table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br-table W-Win _FREEFORM
   QUERY br-table DISPLAY
-      ttBrowseInventory.quantity WIDTH 25 COLUMN-LABEL "Qty On-hand"
+      ttBrowseInventory.quantity WIDTH 25 COLUMN-LABEL "Qty On-hand" FORMAT "->,>>>,>>9.99<<<<"
       fGetConcatLocationID() @ ttBrowseInventory.warehouseID WIDTH 30 COLUMN-LABEL "Location" FORMAT "X(12)"
       ttBrowseInventory.tag WIDTH 70 COLUMN-LABEL "Tag #" FORMAT "X(30)"
       fGetConcatJobID() @ ttBrowseInventory.jobID WIDTH 25 COLUMN-LABEL "Job #" FORMAT "X(20)"
@@ -333,49 +333,49 @@ DEFINE BROWSE br-table
 
 DEFINE FRAME F-Main
      btExit AT ROW 1.95 COL 189.6 WIDGET-ID 84
-     btKeyboard-1 AT ROW 1.91 COL 75 WIDGET-ID 136
-     btKeyboard-2 AT ROW 8.1 COL 95.8 WIDGET-ID 142
-     btFirst AT ROW 11.67 COL 192 WIDGET-ID 128
-     btChange AT ROW 1.95 COL 2 WIDGET-ID 8
      fiJobNo AT ROW 1.95 COL 40 COLON-ALIGNED NO-LABEL WIDGET-ID 10
-     btLast AT ROW 31.19 COL 192 WIDGET-ID 130
+     btChange AT ROW 1.95 COL 2 WIDGET-ID 8
+     btKeyboard-1 AT ROW 1.91 COL 75 WIDGET-ID 136
      cbJobNo2 AT ROW 1.95 COL 80.8 COLON-ALIGNED NO-LABEL WIDGET-ID 50
+     btKeyboard-2 AT ROW 8.1 COL 95.8 WIDGET-ID 142
      btPost AT ROW 1.95 COL 126.8 WIDGET-ID 38
+     btFirst AT ROW 11.67 COL 192 WIDGET-ID 128
      btJobDetails AT ROW 1.95 COL 172.6 WIDGET-ID 160
-     btNext AT ROW 26.81 COL 192.2 WIDGET-ID 132
      btJobLookup AT ROW 3.43 COL 29.8 WIDGET-ID 156
+     btLast AT ROW 31.19 COL 192 WIDGET-ID 130
      cbFormNo AT ROW 3.52 COL 54.6 COLON-ALIGNED NO-LABEL WIDGET-ID 54
      cbBlankNo AT ROW 3.52 COL 80.8 COLON-ALIGNED NO-LABEL WIDGET-ID 56
      cbRMItem AT ROW 5.29 COL 40 COLON-ALIGNED NO-LABEL WIDGET-ID 152
      fiUOM AT ROW 5.29 COL 94 COLON-ALIGNED NO-LABEL WIDGET-ID 176
-     btTotal AT ROW 8 COL 112.8 WIDGET-ID 162 NO-TAB-STOP 
      btScanned AT ROW 8 COL 141.4 WIDGET-ID 164
-     btPrevious AT ROW 15.71 COL 192.2 WIDGET-ID 134
+     btNext AT ROW 26.81 COL 192.2 WIDGET-ID 132
      btConsumed AT ROW 8 COL 170 WIDGET-ID 166
      fiTag AT ROW 8.19 COL 13.4 COLON-ALIGNED NO-LABEL WIDGET-ID 24
      fiMessage AT ROW 9.95 COL 4.6 COLON-ALIGNED NO-LABEL WIDGET-ID 158
      fiTotalQty AT ROW 10.29 COL 110.8 COLON-ALIGNED NO-LABEL WIDGET-ID 170
-     btnNumPad AT ROW 2.67 COL 98 WIDGET-ID 138
      fiScannedQty AT ROW 10.29 COL 139.4 COLON-ALIGNED NO-LABEL WIDGET-ID 174
      fiConsumedQty AT ROW 10.29 COL 168 COLON-ALIGNED NO-LABEL WIDGET-ID 172
      br-table AT ROW 11.71 COL 2 WIDGET-ID 200
+     btPrevious AT ROW 15.71 COL 192.2 WIDGET-ID 134
+     btTotal AT ROW 8 COL 112.8 WIDGET-ID 162 NO-TAB-STOP 
+     btnNumPad AT ROW 2.67 COL 98 WIDGET-ID 138
      "UOM:" VIEW-AS TEXT
           SIZE 9 BY .95 AT ROW 5.48 COL 86.6 WIDGET-ID 178
           FONT 36
-     "Blank #:" VIEW-AS TEXT
-          SIZE 14 BY .95 AT ROW 3.71 COL 68 WIDGET-ID 58
-          FONT 36
-     "Form #:" VIEW-AS TEXT
-          SIZE 14.6 BY .95 AT ROW 3.71 COL 42 WIDGET-ID 48
-          FONT 36
-     "RM Item:" VIEW-AS TEXT
-          SIZE 14 BY .95 AT ROW 5.43 COL 28 WIDGET-ID 154
+     "Tag:" VIEW-AS TEXT
+          SIZE 8.2 BY 1.19 AT ROW 8.29 COL 6.8 WIDGET-ID 22
           FONT 36
      "Job #:" VIEW-AS TEXT
           SIZE 11 BY .95 AT ROW 2.14 COL 30 WIDGET-ID 12
           FONT 36
-     "Tag:" VIEW-AS TEXT
-          SIZE 8.2 BY 1.19 AT ROW 8.29 COL 6.8 WIDGET-ID 22
+     "RM Item:" VIEW-AS TEXT
+          SIZE 14 BY .95 AT ROW 5.43 COL 28 WIDGET-ID 154
+          FONT 36
+     "Form #:" VIEW-AS TEXT
+          SIZE 14.6 BY .95 AT ROW 3.71 COL 42 WIDGET-ID 48
+          FONT 36
+     "Blank #:" VIEW-AS TEXT
+          SIZE 14 BY .95 AT ROW 3.71 COL 68 WIDGET-ID 58
           FONT 36
      RECT-2 AT ROW 2.43 COL 97 WIDGET-ID 140
      RECT-1 AT ROW 1 COL 1 WIDGET-ID 126
@@ -440,7 +440,7 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* SETTINGS FOR WINDOW W-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-   FRAME-NAME                                                           */
+   FRAME-NAME Custom                                                    */
 /* BROWSE-TAB br-table fiConsumedQty F-Main */
 ASSIGN 
        br-table:ALLOW-COLUMN-SEARCHING IN FRAME F-Main = TRUE.
@@ -550,7 +550,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br-table W-Win
 ON START-SEARCH OF br-table IN FRAME F-Main
 DO:
-	{methods/template/sortindicator.i} 
+        {methods/template/sortindicator.i} 
     IF {&BROWSE-NAME}:CURRENT-COLUMN:NAME NE ? THEN DO:
         cColumnLabel = BROWSE {&BROWSE-NAME}:CURRENT-COLUMN:NAME.
         IF cColumnLabel EQ cSaveLabel THEN
@@ -565,7 +565,7 @@ DO:
             .
         RUN pReopenBrowse.
     END.
-	{methods/template/sortindicatorend.i} 
+        {methods/template/sortindicatorend.i} 
     RETURN NO-APPLY.  
 END.
 
@@ -1290,9 +1290,10 @@ PROCEDURE enable_UI :
   DISPLAY fiJobNo cbJobNo2 cbFormNo cbBlankNo cbRMItem fiUOM fiTag fiMessage 
           fiTotalQty fiScannedQty fiConsumedQty 
       WITH FRAME F-Main IN WINDOW W-Win.
-  ENABLE btExit btKeyboard-1 RECT-27 RECT-28 rSelected btFirst btChange fiJobNo 
-         btLast cbJobNo2 btPost btNext btJobLookup cbFormNo cbBlankNo cbRMItem 
-         btTotal btScanned btPrevious btConsumed btnNumPad br-table 
+  ENABLE btExit fiJobNo btChange btKeyboard-1 cbJobNo2 btPost btFirst 
+         btJobLookup btLast cbFormNo cbBlankNo cbRMItem RECT-27 RECT-28 
+         rSelected btScanned btNext btConsumed br-table btPrevious btTotal 
+         btnNumPad 
       WITH FRAME F-Main IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-F-Main}
   VIEW W-Win.

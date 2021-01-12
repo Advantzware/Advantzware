@@ -77,8 +77,8 @@ RUN jc\JobProcs.p PERSISTENT SET hdJobProcs.
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR job.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-31 RECT-32 rSelected btExit btFGItems ~
-btMaterials btRoutings btnFirst btnPrevious btnNext btnLast 
+&Scoped-Define ENABLED-OBJECTS btFGItems btMaterials btRoutings RECT-31 ~
+RECT-32 rSelected btExit btnFirst btnPrevious btnNext btnLast 
 &Scoped-Define DISPLAYED-OBJECTS fiJobNo cbJobNo2 fiJoblabel fiStatusLabel ~
 fiStatus fiCreatedLabel fiCreated fiDueLabel fiDue fiCSRLabel fiCSR 
 
@@ -102,16 +102,16 @@ DEFINE VARIABLE h_b-job-mch AS HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btExit 
-     IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U
+     IMAGE-UP FILE "Graphics/32x32/exit_white.png":U
      LABEL "" 
      SIZE 11 BY 2.62.
 
-DEFINE BUTTON btFGItems 
+DEFINE BUTTON btFGItems  NO-FOCUS
      LABEL "FG Items" 
      SIZE 30 BY 2.52
      FONT 37.
 
-DEFINE BUTTON btMaterials 
+DEFINE BUTTON btMaterials  NO-FOCUS
      LABEL "Materials" 
      SIZE 30 BY 2.52
      FONT 37.
@@ -136,7 +136,7 @@ DEFINE BUTTON btnPrevious
      LABEL "Prev" 
      SIZE 11 BY 2.62 TOOLTIP "Previous".
 
-DEFINE BUTTON btRoutings 
+DEFINE BUTTON btRoutings  NO-FOCUS
      LABEL "Routings" 
      SIZE 30 BY 2.52
      FONT 37.
@@ -215,6 +215,9 @@ DEFINE RECTANGLE rSelected
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
+     btFGItems AT ROW 7.95 COL 7.6 WIDGET-ID 118
+     btMaterials AT ROW 7.95 COL 39.2 WIDGET-ID 122
+     btRoutings AT ROW 7.95 COL 70.8 WIDGET-ID 120
      btExit AT ROW 1.91 COL 192 WIDGET-ID 126
      fiJobNo AT ROW 2.43 COL 19.2 COLON-ALIGNED NO-LABEL WIDGET-ID 10
      cbJobNo2 AT ROW 2.48 COL 61.6 COLON-ALIGNED NO-LABEL WIDGET-ID 50
@@ -227,9 +230,6 @@ DEFINE FRAME F-Main
      fiDue AT ROW 4.81 COL 58 COLON-ALIGNED NO-LABEL WIDGET-ID 106
      fiCSRLabel AT ROW 4.81 COL 146.4 COLON-ALIGNED NO-LABEL WIDGET-ID 102
      fiCSR AT ROW 4.81 COL 155.4 COLON-ALIGNED NO-LABEL WIDGET-ID 100
-     btFGItems AT ROW 7.95 COL 7.6 WIDGET-ID 118
-     btMaterials AT ROW 7.95 COL 39.2 WIDGET-ID 122
-     btRoutings AT ROW 7.95 COL 70.8 WIDGET-ID 120
      btnFirst AT ROW 11.48 COL 192 WIDGET-ID 44
      btnPrevious AT ROW 14.29 COL 192 WIDGET-ID 40
      btnNext AT ROW 27.95 COL 192 WIDGET-ID 42
@@ -512,7 +512,7 @@ PROCEDURE adm-create-objects :
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_b-job-hdr ,
-             btRoutings:HANDLE IN FRAME F-Main , 'AFTER':U ).
+             fiCSR:HANDLE IN FRAME F-Main , 'AFTER':U ).
     END. /* Page 1 */
     WHEN 2 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
@@ -532,7 +532,7 @@ PROCEDURE adm-create-objects :
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_b-job-mat ,
-             btRoutings:HANDLE IN FRAME F-Main , 'AFTER':U ).
+             fiCSR:HANDLE IN FRAME F-Main , 'AFTER':U ).
     END. /* Page 2 */
     WHEN 3 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
@@ -552,7 +552,7 @@ PROCEDURE adm-create-objects :
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_b-job-mch ,
-             btRoutings:HANDLE IN FRAME F-Main , 'AFTER':U ).
+             fiCSR:HANDLE IN FRAME F-Main , 'AFTER':U ).
     END. /* Page 3 */
 
   END CASE.
@@ -629,7 +629,7 @@ PROCEDURE enable_UI :
   DISPLAY fiJobNo cbJobNo2 fiJoblabel fiStatusLabel fiStatus fiCreatedLabel 
           fiCreated fiDueLabel fiDue fiCSRLabel fiCSR 
       WITH FRAME F-Main IN WINDOW W-Win.
-  ENABLE RECT-31 RECT-32 rSelected btExit btFGItems btMaterials btRoutings 
+  ENABLE btFGItems btMaterials btRoutings RECT-31 RECT-32 rSelected btExit 
          btnFirst btnPrevious btnNext btnLast 
       WITH FRAME F-Main IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-F-Main}

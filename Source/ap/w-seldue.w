@@ -1033,6 +1033,17 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
+/* Include custom  Main Block code for SmartWindows. */
+IF AVAIL company THEN 
+DO:
+    ASSIGN
+        fi_chk-date  = TODAY
+        fi_due-date  = TODAY
+        fi_curr-code = CAPS(company.curr-code).
+
+    {src/adm/template/windowmn.i}
+END.
+
 {methods/template/brwcustom.i}
 {sys/inc/f3helpw.i}
 {custom/yellowColumns.i}

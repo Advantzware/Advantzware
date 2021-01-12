@@ -1,8 +1,8 @@
 /* startSearch.i - rstark - 10.27.2020 */
 
-IF VALID-HANDLE(hColumnLabel) AND hColumnLabel:LABEL-BGCOLOR EQ 27 THEN
+IF VALID-HANDLE(hColumnLabel) AND hColumnLabel:LABEL-BGCOLOR EQ 30 THEN
 ASSIGN
-    hColumnLabel:LABEL-BGCOLOR  = 22
+    hColumnLabel:LABEL-BGCOLOR  = 14
     hColumnLabel:SORT-ASCENDING = ?
     .
 IF SELF:CURRENT-COLUMN:NAME NE ? THEN DO:
@@ -13,7 +13,15 @@ IF SELF:CURRENT-COLUMN:NAME NE ? THEN DO:
     IF cColumnLabel EQ cSaveLabel THEN
     lAscending = NOT lAscending.
     cSaveLabel = cColumnLabel.
+    &IF DEFINED(ScheduleBoard) NE 0 &THEN
+    ascendingSort = lAscending.
+    RUN reopenBrowse.
+    &ELSEIF DEFINED(ScheduleBoardPending) NE 0 &THEN
+    ascendingFlag = lAscending.
+    RUN openQueryJobID.
+    &ELSE
     RUN pReopenBrowse.
+    &ENDIF
     &IF DEFINED(startSearchValueChanged) NE 0 &THEN
     APPLY "VALUE-CHANGED":U TO SELF.
     &ENDIF
@@ -27,7 +35,6 @@ IF SELF:CURRENT-COLUMN:NAME NE ? THEN DO:
           ELSE "sort_az_descending2.png")
         .
     &ENDIF
-
 END.
 RETURN NO-APPLY.
 
@@ -41,4 +48,12 @@ RETURN NO-APPLY.
 
 &IF DEFINED(sortButtonFrame) NE 0 &THEN
 &Undefine sortButtonFrame
+&ENDIF
+
+&IF DEFINED(ScheduleBoard) NE 0 &THEN
+&Undefine ScheduleBoard
+&ENDIF
+
+&IF DEFINED(ScheduleBoardPending) NE 0 &THEN
+&Undefine ScheduleBoardPending
 &ENDIF
