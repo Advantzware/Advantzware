@@ -1,0 +1,50 @@
+{
+	"UserFields" : {
+		"User Field 1" : {
+			"visible" : true,
+			"sensitive" : false,
+			"value" : "Overs"
+		},
+		"User Field 2" : {
+			"visible" : true,
+			"sensitive" : false,
+			"value" : "Lot Number"
+		},		
+		"User Field 3" : {
+			"visible" : false,
+			"sensitive" : false
+		}		
+	},
+	"Quantities" : {
+		"Quantity" : {
+			"label" : "Total Quantity"
+		},
+		"QuantityOfUnits" : {
+			"label" : "Pallet Quantity"
+		},
+		"QuantityInSubUnit" : {
+			"label" : "Case Quantity"
+		},
+		"QuantityOfSubUnits" : {
+			"label" : "Cases"
+		},
+		"SubUnitsPerUnit" : {
+			"label" : "Cases Per Pallet"
+		},
+		"Partial" : {
+			"label" : "Partial Quantity"
+		},
+		"TotalTags" : {
+			"label" : "Pallets"
+		},
+		"FullTags" : {
+			"label" : "Full Tags"
+		},
+		"Partial Tags" : {
+			"label" : "Partial Tags"
+		},
+		"Copies" : {
+			"label" : "Print Copies"
+		}
+	}
+}

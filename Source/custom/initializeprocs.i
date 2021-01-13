@@ -220,6 +220,7 @@ PROCEDURE afterinitialize:
             LOOKUP( "viewer-identifier",     hTempWinmn:INTERNAL-ENTRIES, ",")  > 0 OR
             LOOKUP( "count-buttons",         hTempWinmn:INTERNAL-ENTRIES, ",")  > 0 OR
                INDEX(hTempWinmn:INTERNAL-ENTRIES, "folder")                        > 0 OR
+               INDEX(hTempWinmn:INTERNAL-ENTRIES, "No-Resize")                     > 0 OR
             THIS-PROCEDURE:FILE-NAME =  hTempWinmn:NAME                             OR
             hTempWinmn:NAME = "smartobj/smartmsg.w"
             THEN NEXT.  
