@@ -436,8 +436,21 @@ DO:
           INPUT gl-jrnl.actnum:SCREEN-VALUE IN BROWSE {&browse-name},
           OUTPUT lInactive
           ). 
-      IF lInactive THEN
-          gl-jrnl.actnum:SCREEN-VALUE IN BROWSE {&browse-name} = gl-jrnl.actnum:SCREEN-VALUE IN BROWSE {&browse-name} + "Inactive".
+      IF lInactive THEN DO:    
+          ASSIGN 
+              gl-jrnl.actnum:BGCOLOR IN BROWSE {&browse-name} = 16
+              gl-jrnl.actnum:FGCOLOR IN BROWSE {&browse-name} = 15
+              . 
+          MESSAGE "Inactive Account Number." VIEW-AS ALERT-BOX ERROR.
+          APPLY "ENTRY" TO gl-jrnl.actnum IN BROWSE {&browse-name}.
+          RETURN NO-APPLY.      
+      END. 
+      ELSE 
+          IF gl-jrnl.actnum:BGCOLOR IN BROWSE {&browse-name} EQ 16 THEN 
+              ASSIGN 
+                  gl-jrnl.actnum:BGCOLOR IN BROWSE {&browse-name}  = ?
+                  gl-jrnl.actnum:FGCOLOR IN BROWSE {&browse-name}  = ?
+                  .
 
 /*      RUN valid-actnum NO-ERROR.                   */
 /*     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.   */
@@ -589,6 +602,30 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-cancel-record B-table-Win
+PROCEDURE local-cancel-record:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+  IF gl-jrnl.actnum:BGCOLOR IN BROWSE {&browse-name} EQ 16 THEN 
+      ASSIGN 
+          gl-jrnl.actnum:BGCOLOR IN BROWSE {&browse-name}  = ?
+          gl-jrnl.actnum:FGCOLOR IN BROWSE {&browse-name}  = ?
+          .
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .        
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-create-record B-table-Win 
 PROCEDURE local-create-record :
 /*------------------------------------------------------------------------------
@@ -716,6 +753,30 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-reset-record B-table-Win
+PROCEDURE local-reset-record:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+    IF gl-jrnl.actnum:BGCOLOR IN BROWSE {&browse-name} EQ 16 THEN 
+      ASSIGN 
+          gl-jrnl.actnum:BGCOLOR IN BROWSE {&browse-name}  = ?
+          gl-jrnl.actnum:FGCOLOR IN BROWSE {&browse-name}  = ?
+          .
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'reset-record':U ) .
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record B-table-Win 
 PROCEDURE local-update-record :
 /*------------------------------------------------------------------------------
@@ -735,12 +796,22 @@ PROCEDURE local-update-record :
       INPUT gl-jrnl.actnum:SCREEN-VALUE IN BROWSE {&browse-name},
       OUTPUT lInactive
       ). 
-  IF lInactive THEN DO: 
-      gl-jrnl.actnum:SCREEN-VALUE IN BROWSE {&browse-name} = gl-jrnl.actnum:SCREEN-VALUE IN BROWSE {&browse-name} + "Inactive".
+  IF lInactive THEN DO:    
+      ASSIGN 
+          gl-jrnl.actnum:BGCOLOR IN BROWSE {&browse-name} = 16
+          gl-jrnl.actnum:FGCOLOR IN BROWSE {&browse-name} = 15
+          . 
+      MESSAGE "Inactive Account Number." VIEW-AS ALERT-BOX ERROR.
       APPLY "ENTRY" TO gl-jrnl.actnum IN BROWSE {&browse-name}.
-      RETURN NO-APPLY.
-  END.    
-
+      RETURN NO-APPLY.      
+  END. 
+  ELSE 
+      IF gl-jrnl.actnum:BGCOLOR IN BROWSE {&browse-name} EQ 16 THEN 
+          ASSIGN 
+              gl-jrnl.actnum:BGCOLOR IN BROWSE {&browse-name}  = ?
+              gl-jrnl.actnum:FGCOLOR IN BROWSE {&browse-name}  = ?
+              .
+   
   /* gdm - 09200703 */
   ASSIGN ll-new-record = adm-new-record.
 

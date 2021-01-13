@@ -954,8 +954,22 @@ DO:
          WHERE account.company EQ g_company
            AND account.actnum  EQ SELF:SCREEN-VALUE NO-ERROR.
     v-gl-desc:SCREEN-VALUE = IF AVAILABLE account THEN account.dscr ELSE ''.
-    IF lInactive THEN 
-        SELF:SCREEN-VALUE = SELF:SCREEN-VALUE + "Inactive".
+    
+    IF lInactive THEN DO:    
+        ASSIGN 
+            po-ordl.actnum:BGCOLOR = 16
+            po-ordl.actnum:FGCOLOR = 15
+            . 
+        MESSAGE "Inactive Account Number." VIEW-AS ALERT-BOX ERROR.
+        APPLY "ENTRY" TO po-ordl.actnum.
+        RETURN NO-APPLY.      
+    END. 
+    ELSE 
+        IF po-ordl.actnum:BGCOLOR EQ 16 THEN 
+            ASSIGN 
+                po-ordl.actnum:BGCOLOR = ?
+                po-ordl.actnum:FGCOLOR = ?
+                .
   END.
 END.
 
@@ -1102,11 +1116,21 @@ DO:
   RUN valid-actnum NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   
-  IF lInactive THEN DO :
-      po-ordl.actnum:SCREEN-VALUE = po-ordl.actnum:SCREEN-VALUE + "Inactive".
+  IF lInactive THEN DO:    
+      ASSIGN 
+          po-ordl.actnum:BGCOLOR = 16
+          po-ordl.actnum:FGCOLOR = 15
+          . 
+      MESSAGE "Inactive Account Number." VIEW-AS ALERT-BOX ERROR.
       APPLY "ENTRY" TO po-ordl.actnum.
-      RETURN NO-APPLY.
-  END.    
+      RETURN NO-APPLY.      
+  END. 
+  ELSE 
+      IF po-ordl.actnum:BGCOLOR EQ 16 THEN 
+          ASSIGN 
+              po-ordl.actnum:BGCOLOR = ?
+              po-ordl.actnum:FGCOLOR = ?
+              .  
   
   RUN validate-all NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
@@ -4268,6 +4292,33 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-cancel-record Dialog-Frame
+PROCEDURE local-cancel-record:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    
+    /* Code placed here will execute PRIOR to standard behavior. */
+    IF po-ordl.actnum:BGCOLOR IN FRAME {&FRAME-NAME} EQ 16 THEN 
+        ASSIGN 
+            po-ordl.actnum:BGCOLOR IN FRAME {&FRAME-NAME} = ?
+            po-ordl.actnum:FGCOLOR IN FRAME {&FRAME-NAME} = ?
+            .
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .   
+  
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE lookup-job Dialog-Frame 
 PROCEDURE lookup-job :

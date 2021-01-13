@@ -526,6 +526,12 @@ PROCEDURE local-cancel-record :
 
   /* Code placed here will execute PRIOR to standard behavior. */
   IF AVAIL gl-rpt THEN lv-rowid = ROWID(gl-rpt).
+  
+  IF tt-account.actnum:BGCOLOR IN BROWSE {&browse-name} EQ 16 THEN 
+      ASSIGN 
+          tt-account.actnum:BGCOLOR IN BROWSE {&browse-name}  = ?
+          tt-account.actnum:FGCOLOR IN BROWSE {&browse-name}  = ?
+          .
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
@@ -622,6 +628,30 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-reset-record B-table-Win
+PROCEDURE local-reset-record:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+    /* Code placed here will execute PRIOR to standard behavior. */
+    IF tt-account.actnum:BGCOLOR IN BROWSE {&browse-name} EQ 16 THEN 
+        ASSIGN 
+            tt-account.actnum:BGCOLOR IN BROWSE {&browse-name}  = ?
+            tt-account.actnum:FGCOLOR IN BROWSE {&browse-name}  = ?
+            .
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'reset-record':U ) .
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record B-table-Win 
 PROCEDURE local-update-record :
 /*------------------------------------------------------------------------------
@@ -636,16 +666,27 @@ PROCEDURE local-update-record :
   /* Code placed here will execute PRIOR to standard behavior. */
   RUN valid-actnum NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  
   RUN checkInvalidGLAccount IN hGLProcs(
       INPUT cocode,
       INPUT tt-account.actnum:SCREEN-VALUE IN BROWSE {&BROWSE-NAME},
       OUTPUT lInactive
       ). 
-  IF lInactive THEN DO:
-      tt-account.actnum:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} = tt-account.actnum:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} + "Inactive".
-      APPLY "ENTRY" TO tt-account.actnum IN BROWSE {&BROWSE-NAME}.
-      RETURN NO-APPLY.
-  END.
+  IF lInactive THEN DO:    
+      ASSIGN 
+          tt-account.actnum:BGCOLOR IN BROWSE {&browse-name} = 16
+          tt-account.actnum:FGCOLOR IN BROWSE {&browse-name} = 15
+          . 
+      MESSAGE "Inactive Account Number." VIEW-AS ALERT-BOX ERROR.
+      APPLY "ENTRY" TO tt-account.actnum IN BROWSE {&browse-name}.
+      RETURN NO-APPLY.      
+  END. 
+  ELSE 
+      IF tt-account.actnum:BGCOLOR IN BROWSE {&browse-name} EQ 16 THEN 
+          ASSIGN 
+              tt-account.actnum:BGCOLOR IN BROWSE {&browse-name}  = ?
+              tt-account.actnum:FGCOLOR IN BROWSE {&browse-name}  = ?
+              .
 
   ASSIGN
    ll-new-record = adm-new-record

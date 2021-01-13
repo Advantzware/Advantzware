@@ -389,8 +389,21 @@ DO:
            INPUT ap-disl.actnum:SCREEN-VALUE,
            OUTPUT lInactive
            ).  
-       IF lInactive THEN    
-           ap-disl.actnum:SCREEN-VALUE = ap-disl.actnum:SCREEN-VALUE + "Inactive".      
+       IF lInactive THEN DO:    
+           ASSIGN 
+               ap-disl.actnum:BGCOLOR = 16
+               ap-disl.actnum:FGCOLOR = 15
+               . 
+            MESSAGE "Inactive Account Number." VIEW-AS ALERT-BOX ERROR.
+            APPLY "ENTRY" TO ap-disl.actnum.
+            RETURN NO-APPLY.      
+       END. 
+       ELSE 
+           IF ap-disl.actnum:BGCOLOR EQ 16 THEN 
+                ASSIGN 
+                    ap-disl.actnum:BGCOLOR = ?
+                    ap-disl.actnum:FGCOLOR = ?
+                    .        
    END.
 END.
 
@@ -514,6 +527,31 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-cancel-record B-table-Win
+PROCEDURE local-cancel-record:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+  
+  /* Code placed here will execute PRIOR to standard behavior. */
+  IF ap-disl.actnum:BGCOLOR IN BROWSE {&browse-name} EQ 16 THEN 
+      ASSIGN 
+          ap-disl.actnum:BGCOLOR IN BROWSE {&browse-name} = ?
+          ap-disl.actnum:FGCOLOR IN BROWSE {&browse-name} = ?
+          .  
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-create-record B-table-Win 
 PROCEDURE local-create-record :
 /*------------------------------------------------------------------------------
@@ -617,6 +655,30 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-reset-record B-table-Win
+PROCEDURE local-reset-record:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+    /* Code placed here will execute PRIOR to standard behavior. */
+    IF ap-disl.actnum:BGCOLOR IN BROWSE {&browse-name} EQ 16 THEN 
+        ASSIGN 
+            ap-disl.actnum:BGCOLOR IN BROWSE {&browse-name} = ?
+            ap-disl.actnum:FGCOLOR IN BROWSE {&browse-name} = ?
+            .   
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'reset-record':U ) .
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record B-table-Win 
 PROCEDURE local-update-record :
 /*------------------------------------------------------------------------------
@@ -643,11 +705,21 @@ PROCEDURE local-update-record :
            INPUT ap-disl.actnum:SCREEN-VALUE,
            OUTPUT lInactive
            ).  
-       IF lInactive THEN DO :
-           ap-disl.actnum:SCREEN-VALUE = ap-disl.actnum:SCREEN-VALUE + "Inactive". 
-           APPLY "ENTRY" TO ap-disl.actnum.
-           RETURN NO-APPLY.              
-       END.         
+       IF lInactive THEN DO :             
+           ASSIGN 
+               ap-disl.actnum:BGCOLOR = 16
+               ap-disl.actnum:FGCOLOR = 15
+               . 
+            MESSAGE "Inactive Account Number." VIEW-AS ALERT-BOX ERROR.
+            APPLY "ENTRY" TO ap-disl.actnum.
+            RETURN NO-APPLY.                        
+       END.  
+       ELSE 
+           IF ap-disl.actnum:BGCOLOR EQ 16 THEN 
+                ASSIGN 
+                    ap-disl.actnum:BGCOLOR = ?
+                    ap-disl.actnum:FGCOLOR = ?
+                    .               
    END.
 
   /* Dispatch standard ADM method.                             */

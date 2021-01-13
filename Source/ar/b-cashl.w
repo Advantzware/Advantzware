@@ -673,9 +673,20 @@ DO:
            INPUT ar-cashl.actnum:SCREEN-VALUE IN BROWSE {&browse-name},
            OUTPUT lInactive
            ). 
-       IF lInactive THEN 
-           ar-cashl.actnum:SCREEN-VALUE IN BROWSE {&browse-name} = ar-cashl.actnum:SCREEN-VALUE IN BROWSE {&browse-name} + "inactive".    
-       account_dscr:SCREEN-VALUE = display-account() .
+       IF lInactive THEN DO:    
+           ASSIGN 
+               ar-cashl.actnum:BGCOLOR IN BROWSE {&browse-name} = 16
+               ar-cashl.actnum:FGCOLOR IN BROWSE {&browse-name} = 15
+               . 
+               MESSAGE "Inactive Account Number." VIEW-AS ALERT-BOX ERROR.
+               RETURN NO-APPLY.      
+       END. 
+       ELSE 
+           IF ar-cashl.actnum:BGCOLOR IN BROWSE {&browse-name} EQ 16 THEN 
+               ASSIGN 
+                   ar-cashl.actnum:BGCOLOR IN BROWSE {&browse-name}  = ?
+                   ar-cashl.actnum:FGCOLOR IN BROWSE {&browse-name}  = ?
+                   .    
     END.
 END.
 
@@ -1058,6 +1069,11 @@ PROCEDURE local-cancel-record :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
+  IF ar-cashl.actnum:BGCOLOR IN BROWSE {&browse-name} EQ 16 THEN 
+      ASSIGN 
+          ar-cashl.actnum:BGCOLOR IN BROWSE {&browse-name}  = ?
+          ar-cashl.actnum:FGCOLOR IN BROWSE {&browse-name}  = ?
+          .
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
@@ -1207,6 +1223,30 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-reset-record B-table-Win
+PROCEDURE local-reset-record:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    
+    /* Code placed here will execute PRIOR to standard behavior. */
+    IF ar-cashl.actnum:BGCOLOR IN BROWSE {&browse-name} EQ 16 THEN 
+        ASSIGN 
+            ar-cashl.actnum:BGCOLOR IN BROWSE {&browse-name}  = ?
+            ar-cashl.actnum:FGCOLOR IN BROWSE {&browse-name}  = ?
+            .
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'reset-record':U ) .
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record B-table-Win 
 PROCEDURE local-update-record :
 /*------------------------------------------------------------------------------
@@ -1222,23 +1262,34 @@ PROCEDURE local-update-record :
   /*=-== validateion ==== */
   lv-rowid = ROWID(ar-cashl).
   
+  RUN validate-line /*NO-ERROR*/.
+  
+  IF /*ERROR-STATUS:ERROR*/ RETURN-VALUE = "ValidationError" THEN DO:
+    /*RUN dispatch ("display-fields").      */
+    RETURN /*ERROR*/ .
+  END.
+  
   RUN checkInvalidGLAccount IN hGLProcs(
            INPUT g_company,
            INPUT ar-cashl.actnum:SCREEN-VALUE IN BROWSE {&browse-name},
            OUTPUT lInactive
            ).   
-
-  RUN validate-line /*NO-ERROR*/.
-  IF /*ERROR-STATUS:ERROR*/ RETURN-VALUE = "ValidationError" THEN DO:
-    /*RUN dispatch ("display-fields").      */
-    RETURN /*ERROR*/ .
-  END.
-  ELSE IF lInactive EQ YES THEN DO:
-      ar-cashl.actnum:SCREEN-VALUE IN BROWSE {&browse-name} = ar-cashl.actnum:SCREEN-VALUE IN BROWSE {&browse-name} + "inactive".
-      APPLY "ENTRY" TO ar-cashl.actnum IN BROWSE {&browse-name}.
-      RETURN.
-  END.     
-  ELSE ll-new-record = adm-new-record.
+  
+  IF lInactive THEN DO:    
+      ASSIGN 
+          ar-cashl.actnum:BGCOLOR IN BROWSE {&browse-name} = 16
+          ar-cashl.actnum:FGCOLOR IN BROWSE {&browse-name} = 15
+          . 
+      MESSAGE "Inactive Account Number." VIEW-AS ALERT-BOX ERROR.
+      RETURN NO-APPLY.      
+  END. 
+  ELSE 
+      IF ar-cashl.actnum:BGCOLOR IN BROWSE {&browse-name} EQ 16 THEN 
+          ASSIGN 
+              ar-cashl.actnum:BGCOLOR IN BROWSE {&browse-name}  = ?
+              ar-cashl.actnum:FGCOLOR IN BROWSE {&browse-name}  = ?
+              .
+  ll-new-record = adm-new-record.
 
  
   /* Dispatch standard ADM method.                             */

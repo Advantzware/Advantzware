@@ -600,8 +600,22 @@ DO:
     RUN valid-actnum NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
     
-    IF lInactive THEN 
-        ar-cashl.actnum:SCREEN-VALUE IN BROWSE {&browse-name} = ar-cashl.actnum:SCREEN-VALUE IN BROWSE {&browse-name} + "Inactive".
+    IF lInactive THEN DO:    
+        ASSIGN 
+            ar-cashl.actnum:BGCOLOR IN BROWSE {&browse-name} = 16
+            ar-cashl.actnum:FGCOLOR IN BROWSE {&browse-name} = 15
+            . 
+        MESSAGE "Inactive Account Number." VIEW-AS ALERT-BOX ERROR.
+        APPLY "ENTRY" TO ar-cashl.actnum IN BROWSE {&browse-name}.
+        RETURN NO-APPLY.      
+    END. 
+    ELSE 
+        IF ar-cashl.actnum:BGCOLOR IN BROWSE {&browse-name} EQ 16 THEN 
+            ASSIGN 
+                ar-cashl.actnum:BGCOLOR IN BROWSE {&browse-name} = ?
+                ar-cashl.actnum:FGCOLOR IN BROWSE {&browse-name} = ?
+                .        
+
     RUN valid-inv-act NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   END.
@@ -846,6 +860,11 @@ PROCEDURE local-cancel-record :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
+  IF ar-cashl.actnum:BGCOLOR IN BROWSE {&browse-name} EQ 16 THEN 
+      ASSIGN 
+          ar-cashl.actnum:BGCOLOR IN BROWSE {&browse-name} = ?
+          ar-cashl.actnum:FGCOLOR IN BROWSE {&browse-name} = ?
+          .  
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
@@ -1034,6 +1053,31 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-reset-record B-table-Win
+PROCEDURE local-reset-record:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+    /* Code placed here will execute PRIOR to standard behavior. */
+    IF ar-cashl.actnum:BGCOLOR IN BROWSE {&browse-name} EQ 16 THEN 
+        ASSIGN 
+            ar-cashl.actnum:BGCOLOR IN BROWSE {&browse-name} = ?
+            ar-cashl.actnum:FGCOLOR IN BROWSE {&browse-name} = ?
+            .  
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'reset-record':U ) .
+    
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record B-table-Win 
 PROCEDURE local-update-record :
 /*------------------------------------------------------------------------------
@@ -1060,11 +1104,21 @@ PROCEDURE local-update-record :
   RUN valid-actnum NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   
-  IF lInactive THEN DO:
-      ar-cashl.actnum:SCREEN-VALUE IN BROWSE {&browse-name} = ar-cashl.actnum:SCREEN-VALUE IN BROWSE {&browse-name} + "Inactive".
+  IF lInactive THEN DO:    
+      ASSIGN 
+          ar-cashl.actnum:BGCOLOR IN BROWSE {&browse-name} = 16
+          ar-cashl.actnum:FGCOLOR IN BROWSE {&browse-name} = 15
+          . 
+      MESSAGE "Inactive Account Number." VIEW-AS ALERT-BOX ERROR.
       APPLY "ENTRY" TO ar-cashl.actnum IN BROWSE {&browse-name}.
-      RETURN NO-APPLY.
-  END.    
+      RETURN NO-APPLY.      
+  END. 
+  ELSE 
+      IF ar-cashl.actnum:BGCOLOR IN BROWSE {&browse-name} EQ 16 THEN 
+          ASSIGN 
+              ar-cashl.actnum:BGCOLOR IN BROWSE {&browse-name} = ?
+              ar-cashl.actnum:FGCOLOR IN BROWSE {&browse-name} = ?
+              .           
 
   RUN valid-inv-act NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
