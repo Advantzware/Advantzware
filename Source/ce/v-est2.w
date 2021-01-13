@@ -2681,9 +2681,9 @@ PROCEDURE local-display-fields :
         ELSE
          ASSIGN lh-dscr:FORMAT = "x(30)"
                 lh-dscr:WIDTH = 40
-                lh-len:FORMAT = ">>,>>9.99<<<"
+                //lh-len:FORMAT = ">>,>>9.99<<<"
                 lh-len:WIDTH = 12
-                lh-wid:FORMAT = ">>,>>9.99<<<"
+                //lh-wid:FORMAT = ">>,>>9.99<<<"
                 lh-wid:WIDTH = 12.
 
     END.  /* est-type = 4 */
