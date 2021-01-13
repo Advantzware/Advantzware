@@ -457,10 +457,13 @@ PROCEDURE pAddEstBlank PRIVATE:
 
         /*Refactor - apply area UOM conversion*/
         opbf-estCostBlank.weightPerBlank          = ipbf-estCostForm.basisWeight * opbf-estCostBlank.blankAreaNetWindow / 144000 
+    
+        opbf-estCostBlank.quantityPerSet          = IF opbf-estCostBlank.formNo EQ 0 OR ipbf-eb.quantityPerSet EQ 0 THEN 1 ELSE ipbf-eb.quantityPerSet
+        opbf-estCostBlank.quantityRequired        = (IF ipbf-estCostHeader.estType EQ gcTypeCombo THEN ipbf-eb.bl-qty ELSE ipbf-estCostHeader.quantityMaster) * opbf-estCostBlank.quantityPerSet 
+        opbf-estCostBlank.quantityYielded         = (IF ipbf-estCostHeader.estType EQ gcTypeCombo THEN ipbf-eb.yld-qty ELSE ipbf-estCostHeader.quantityMaster) * opbf-estCostBlank.quantityPerSet
         
-        opbf-estCostBlank.quantityRequired        = IF ipbf-estCostHeader.estType EQ gcTypeCombo THEN ipbf-eb.bl-qty ELSE ipbf-estCostHeader.quantityMaster
-        opbf-estCostBlank.quantityYielded         = IF ipbf-estCostHeader.estType EQ gcTypeCombo THEN ipbf-eb.yld-qty ELSE ipbf-estCostHeader.quantityMaster
         opbf-estCostBlank.priceBasedOnYield       = ipbf-eb.yrprice AND ipbf-estCostHeader.estType EQ gcTypeCombo
+        
         .
         
     
@@ -474,9 +477,6 @@ PROCEDURE pAddEstBlank PRIVATE:
         ASSIGN 
             opbf-estCostBlank.estCostItemID = bf-estCostItem.estCostItemID
             bf-estCostItem.sizeDesc            = TRIM(STRING(opbf-estCostBlank.dimLength,">>>9.99")) + " x " + TRIM(STRING(opbf-estCostBlank.dimWidth,">>>9.99"))
-            opbf-estCostBlank.quantityPerSet   = IF opbf-estCostBlank.formNo EQ 0 OR bf-estCostItem.quantityPerSet EQ 0 THEN 1 ELSE bf-estCostItem.quantityPerSet
-            opbf-estCostBlank.quantityRequired = opbf-estCostBlank.quantityRequired * opbf-estCostBlank.quantityPerSet
-            opbf-estCostBlank.quantityYielded  = opbf-estCostBlank.quantityYielded * opbf-estCostBlank.quantityPerSet
             .
         IF opbf-estCostBlank.dimDepth NE 0 THEN 
             bf-estCostItem.sizeDesc = bf-estCostItem.sizeDesc + " x " + TRIM(STRING(opbf-estCostBlank.dimDepth,">>>9.99")).
@@ -3054,6 +3054,7 @@ PROCEDURE pProcessBoardBOM PRIVATE:
     DEFINE PARAMETER BUFFER ipbf-estCostHeader      FOR estCostHeader.
     DEFINE PARAMETER BUFFER ipbf-estCostForm        FOR estCostForm.
     DEFINE PARAMETER BUFFER ipbf-item-bom           FOR item-bom.
+    DEFINE OUTPUT PARAMETER oplValidBom             AS LOGICAL NO-UNDO.
     
     DEFINE           BUFFER bf-estCostMaterial      FOR estCostMaterial.
     DEFINE           BUFFER bfBoard-estCostMaterial FOR estCostMaterial.
@@ -3070,7 +3071,7 @@ PROCEDURE pProcessBoardBOM PRIVATE:
         RUN pAddError("BOM Component '" + ipbf-item-bom.i-no + "' is not valid", gcErrorWarning, ipbf-estCostForm.estCostHeaderID, ipbf-estCostForm.formNo, 0).
         RETURN.
     END.
-    
+    oplValidBom = YES.
     RUN pAddEstMaterial(BUFFER ipbf-estCostHeader, BUFFER ipbf-estCostForm, ipbf-item-bom.i-no, 0, BUFFER bf-estCostMaterial).
     ASSIGN 
         bf-estCostMaterial.isPrimarySubstrate         = YES
@@ -3693,6 +3694,7 @@ PROCEDURE pProcessBoard PRIVATE:
     DEFINE           BUFFER bf-item-bom        FOR item-bom.
     
     DEFINE VARIABLE lFoundBOM AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lValidBOM AS LOGICAL NO-UNDO.
     
     FIND FIRST bf-item NO-LOCK 
         WHERE bf-item.company EQ ipbf-estCostForm.company
@@ -3711,9 +3713,11 @@ PROCEDURE pProcessBoard PRIVATE:
     FOR EACH bf-item-bom NO-LOCK
         WHERE bf-item-bom.company EQ bf-item.company
         AND bf-item-bom.parent-i EQ bf-item.i-no
-        AND bf-item-bom.line# LT 9:
-        lFoundBOM = YES.    
-        RUN pProcessBoardBOM(BUFFER ipbf-estCostHeader, BUFFER ipbf-estCostForm, BUFFER bf-item-bom).
+        AND bf-item-bom.i-no NE ""
+        AND bf-item-bom.line# LT 9:    
+        RUN pProcessBoardBOM(BUFFER ipbf-estCostHeader, BUFFER ipbf-estCostForm, BUFFER bf-item-bom, OUTPUT lValidBom).
+        IF NOT lFoundBom AND lValidBom THEN 
+            lFoundBom = YES.
     END.
     IF lFoundBom THEN 
     DO:
