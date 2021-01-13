@@ -194,7 +194,7 @@ PROCEDURE pClickMenuTree:
             bttMenuTree.hEditor:FONT    = ?
             &IF DEFINED(mainMenuBGColor) NE 0 &THEN
             bttMenuTree.hEditor:FONT    = iFont
-            bttMenuTree.hEditor:BGCOLOR = iEditorBGColor
+            bttMenuTree.hEditor:BGCOLOR = {&DefaultMenuBGColor}
             bttMenuTree.hEditor:FGCOLOR = ?
             &ENDIF
             .
@@ -209,7 +209,7 @@ PROCEDURE pClickMenuTree:
             bttMenuTree.hEditor:FONT    = ?
             &IF DEFINED(mainMenuBGColor) NE 0 &THEN
             bttMenuTree.hEditor:FONT    = iFont
-            bttMenuTree.hEditor:BGCOLOR = iEditorBGColor
+            bttMenuTree.hEditor:BGCOLOR = {&DefaultMenuBGColor}
             bttMenuTree.hEditor:FGCOLOR = ?
             &ENDIF
             .
@@ -290,8 +290,8 @@ PROCEDURE pCreatettMenuTree:
             WIDTH = dObjectWidth
             HEIGHT = dObjectHeight
             HIDDEN = YES
-            BGCOLOR = iEditorBGColor
-            FGCOLOR = iEditorBGColor
+            BGCOLOR = {&DefaultMenuBGColor}
+            FGCOLOR = {&DefaultMenuBGColor}
             .
         IF VALID-HANDLE(hWidget) THEN 
             ttMenuTree.hRectangle = hWidget.   
@@ -380,7 +380,7 @@ PROCEDURE pCreatettMenuTree:
                 FONT = iFont
                 &ENDIF
                 FGCOLOR = 0
-                BGCOLOR = iEditorBGColor
+                BGCOLOR = {&DefaultMenuBGColor}
                 SCROLLBAR-HORIZONTAL = NO
                 SCROLLBAR-VERTICAL = NO
                 WORD-WRAP = NO
