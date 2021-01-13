@@ -659,9 +659,7 @@ DO:
         cust-markup.markup-on[09] = SUBSTR(cb_markup-on-09:SCREEN-VALUE,2,1)
         cust-markup.markup-on[10] = SUBSTR(cb_markup-on-10:SCREEN-VALUE,2,1)
         .
-    oprRowID = ROWID(cust-markup). 
-    MESSAGE cust-markup.markup-on[01]
-    VIEW-AS ALERT-BOX.   
+    oprRowID = ROWID(cust-markup).  
     APPLY 'GO':U TO FRAME {&FRAME-NAME}.        
 END.
 
