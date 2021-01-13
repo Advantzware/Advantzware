@@ -326,7 +326,7 @@ PROCEDURE adm-create-objects :
              INPUT  'smartobj/fo-cust.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'FOLDER-LABELS = ':U + 'Brws Cust|View Cust|Ship To|Sold To|Totals/Sales|Pricing|Credit Stat|API/EDI' + ',
-                     FOLDER-TAB-TYPE = 1':U ,
+                     FOLDER-TAB-TYPE = 2':U ,
              OUTPUT h_folder ).
        RUN set-position IN h_folder ( 3.48 , 1.80 ) NO-ERROR.
        RUN set-size IN h_folder ( 24.19 , 158.20 ) NO-ERROR.
