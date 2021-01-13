@@ -150,7 +150,7 @@ cust.pallet cust.case-bundle cust.int-field[1] cust.po-mandatory ~
 cust.imported cust.show-set cust.nationalAcct cust.log-field[1] 
 &Scoped-define ENABLED-TABLES cust
 &Scoped-define FIRST-ENABLED-TABLE cust
-&Scoped-Define ENABLED-OBJECTS btn_bank-info 
+&Scoped-Define ENABLED-OBJECTS btn_bank-info RECT-5 
 &Scoped-Define DISPLAYED-FIELDS cust.cust-no cust.active cust.name ~
 cust.addr[1] cust.addr[2] cust.spare-char-3 cust.city cust.state cust.zip ~
 cust.fax-country cust.spare-char-2 cust.type cust.date-field[1] ~
@@ -166,9 +166,10 @@ cust.pallet cust.case-bundle cust.int-field[1] cust.po-mandatory ~
 cust.imported cust.show-set cust.nationalAcct cust.log-field[1] 
 &Scoped-define DISPLAYED-TABLES cust
 &Scoped-define FIRST-DISPLAYED-TABLE cust
-&Scoped-Define DISPLAYED-OBJECTS fl_custemail custype_dscr faxAreaCode ~
-faxNumber sman_sname fi_flat-comm terms_dscr rd_inv-meth loc_dscr ~
-carrier_dscr carr-mtx_del-dscr terr_dscr stax_tax-dscr 
+&Scoped-Define DISPLAYED-OBJECTS cbMatrixPrecision cbMatrixRounding ~
+fl_custemail custype_dscr faxAreaCode faxNumber sman_sname fi_flat-comm ~
+terms_dscr rd_inv-meth loc_dscr carrier_dscr carr-mtx_del-dscr terr_dscr ~
+stax_tax-dscr 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,faxFields,F1 */
@@ -219,6 +220,24 @@ DEFINE BUTTON btn_bank-info
      LABEL "Bank Info" 
      SIZE 16.4 BY 1
      BGCOLOR 15 FONT 4.
+
+DEFINE VARIABLE cbMatrixPrecision AS INTEGER FORMAT "9":U INITIAL 0 
+     LABEL "Matrix Precision" 
+     VIEW-AS COMBO-BOX INNER-LINES 5
+     LIST-ITEMS "         0","         1","         2","         3","         4","         5","         6" 
+     DROP-DOWN-LIST
+     SIZE 16 BY 1
+     FONT 4 NO-UNDO.
+
+DEFINE VARIABLE cbMatrixRounding AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Matrix Rounding" 
+     VIEW-AS COMBO-BOX INNER-LINES 5
+     LIST-ITEM-PAIRS "Nomal Round","N",
+                     "Round Up","U",
+                     "Round Down","D"
+     DROP-DOWN-LIST
+     SIZE 18 BY 1
+     FONT 4 NO-UNDO.
 
 DEFINE VARIABLE carr-mtx_del-dscr AS CHARACTER FORMAT "x(30)" 
      VIEW-AS FILL-IN 
@@ -303,10 +322,16 @@ DEFINE RECTANGLE RECT-4
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
      SIZE 80.4 BY 11.91.
 
+DEFINE RECTANGLE RECT-5
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 71 BY 2.57.
+
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
+     cbMatrixPrecision AT ROW 20.38 COL 20 COLON-ALIGNED WIDGET-ID 38
+     cbMatrixRounding AT ROW 21.48 COL 20 COLON-ALIGNED WIDGET-ID 40
      btnTags AT ROW 11.57 COL 64 WIDGET-ID 26
      cust.cust-no AT ROW 1 COL 12 COLON-ALIGNED
           LABEL "Customer"
@@ -652,9 +677,13 @@ DEFINE FRAME F-Main
           SIZE 6 BY .62 AT ROW 9.57 COL 90.4
      "Taxable:" VIEW-AS TEXT
           SIZE 10 BY .81 AT ROW 16.95 COL 7 WIDGET-ID 24
+     "Price Matrix" VIEW-AS TEXT
+          SIZE 13 BY .62 AT ROW 19.81 COL 5.8 WIDGET-ID 30
+          FGCOLOR 9 FONT 4
      RECT-2 AT ROW 8.14 COL 1
      RECT-3 AT ROW 16.48 COL 1
      RECT-4 AT ROW 8.14 COL 73
+     RECT-5 AT ROW 20.05 COL 1 WIDGET-ID 28
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -688,7 +717,7 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW V-table-Win ASSIGN
-         HEIGHT             = 19.05
+         HEIGHT             = 21.71
          WIDTH              = 152.4.
 /* END WINDOW DEFINITION */
                                                                         */
@@ -734,6 +763,10 @@ ASSIGN
 /* SETTINGS FOR FILL-IN cust.carrier IN FRAME F-Main
    4                                                                    */
 /* SETTINGS FOR FILL-IN carrier_dscr IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR COMBO-BOX cbMatrixPrecision IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR COMBO-BOX cbMatrixRounding IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN cust.city IN FRAME F-Main
    EXP-FORMAT                                                           */
@@ -1088,6 +1121,30 @@ DO:
      end.
      {&methods/lValidateError.i NO}
 
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME cbMatrixPrecision
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cbMatrixPrecision V-table-Win
+ON VALUE-CHANGED OF cbMatrixPrecision IN FRAME F-Main /* Matrix Precision */
+DO:
+    ASSIGN 
+        {&SELF-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME cbMatrixRounding
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cbMatrixRounding V-table-Win
+ON VALUE-CHANGED OF cbMatrixRounding IN FRAME F-Main /* Matrix Rounding */
+DO:
+    ASSIGN 
+        {&SELF-NAME}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2013,9 +2070,16 @@ PROCEDURE disable-fields :
   Notes:       
 ------------------------------------------------------------------------------*/
 
-   DO WITH FRAME {&FRAME-NAME}.
-     DISABLE {&faxFields} rd_inv-meth fi_flat-comm  fl_custemail.
-   END.
+    DO WITH FRAME {&FRAME-NAME}.
+        DISABLE 
+            {&faxFields} 
+            rd_inv-meth 
+            fi_flat-comm  
+            fl_custemail
+            cbMatrixPrecision
+            cbMatrixRounding
+            .
+    END.
 
 END PROCEDURE.
 
@@ -2109,11 +2173,13 @@ PROCEDURE local-assign-record :
   RUN reftable-values (NO).
 
   {methods/viewers/assign/cust.i}
-
   assign
    cust.active   = substr(cust.active,2,1)
    cust.inv-meth = rd_inv-meth
-   cust.email    = TRIM(fl_custemail).  /* gdm - 05180924 */
+   cust.email    = TRIM(fl_custemail)
+   cust.matrixPrecision = cbMatrixPrecision
+   cust.matrixRounding  = cbMatrixRounding
+   .  /* gdm - 05180924 */
 
   /* gdm - 11190903 */
   IF v-zipflg THEN DO:
@@ -2266,10 +2332,14 @@ PROCEDURE local-create-record :
         faxnumber = ""
         rd_inv-meth:SCREEN-VALUE  = STRING(cust.inv-meth)
         fi_flat-comm:SCREEN-VALUE = "" 
-        fl_custemail:SCREEN-VALUE = "".
+        fl_custemail:SCREEN-VALUE = ""
+        cbMatrixPrecision:SCREEN-VALUE = STRING(cust.matrixPrecision)
+        cbMatrixRounding:SCREEN-VALUE  = STRING(cust.matrixRounding)
+        cbMatrixPrecision
+        cbMatrixRounding
+        .
      END.
   END.
-
   RUN display-active.
 
 END PROCEDURE.
@@ -2348,6 +2418,20 @@ PROCEDURE local-display-fields :
         faxNumber   = SUBSTR(cust.fax,4)    when avail cust.
       DISPLAY {&faxFields}.
     END.
+    IF AVAILABLE cust AND NOT adm-new-record THEN DO:
+        
+        IF cust.matrixRounding EQ "" AND cbMatrixRounding:LOOKUP("") EQ 0 THEN
+            cbMatrixRounding:ADD-LAST("","").
+        ASSIGN 
+            cbMatrixPrecision = cust.matrixPrecision
+            cbMatrixRounding  = IF cust.matrixRounding EQ "" THEN " " ELSE cust.matrixRounding
+            .
+        DISPLAY
+            cbMatrixPrecision
+            cbMatrixRounding
+            . 
+                   
+    END.             
   END.
 
   RUN display-active.
