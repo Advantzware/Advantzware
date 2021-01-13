@@ -2751,8 +2751,8 @@ PROCEDURE valid-po-status :
   {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
         po-ord.stat:SCREEN-VALUE = CAPS(po-ord.stat:SCREEN-VALUE).
-        IF LOOKUP(po-ord.stat:SCREEN-VALUE,"C,O,U") EQ 0 THEN DO:        
-               MESSAGE "PO status can be changed to (U)pdated, (C)losed or (O)pen. " VIEW-AS ALERT-BOX INFO.
+        IF LOOKUP(po-ord.stat:SCREEN-VALUE,"C,O,U,N") EQ 0 THEN DO:        
+               MESSAGE "PO status can be changed to (N)ew, (U)pdated, (C)losed or (O)pen. " VIEW-AS ALERT-BOX INFO.
                APPLY "entry" TO po-ord.stat.
                oplReturnError = YES.                 
         END.         
