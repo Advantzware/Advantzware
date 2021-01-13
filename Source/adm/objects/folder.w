@@ -676,7 +676,6 @@ PROCEDURE show-current-page :
           up-image:Y      =     page-label[page#]:Y -  4 
           up-image:HIDDEN =     no
           sts             =     up-image:MOVE-TO-TOP().
-          sts             =     up-image:MOVE-TO-TOP()        
           page-label[page#]:FGCOLOR = 15
           page-label[page#]:BGCOLOR = 29.
   /* If there are no tabs at all leave the up-image viewed for appearance.
