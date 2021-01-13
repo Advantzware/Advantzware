@@ -2447,8 +2447,23 @@ PROCEDURE pBuildLeafForEf PRIVATE:
     DEFINE PARAMETER BUFFER ipbf-estCostHeader FOR estCostHeader.
     DEFINE PARAMETER BUFFER ipbf-estCostForm   FOR estCostForm.
     
+    DEFINE BUFFER bf-est-flm FOR est-flm.
+    
     DEFINE VARIABLE iIndex AS INTEGER NO-UNDO.
-
+    
+    IF CAN-FIND(FIRST est-flm WHERE est-flm.company EQ ef.company AND est-flm.est-no EQ ef.est-no AND est-flm.snum EQ ef.form-no) THEN 
+    DO:
+        iIndex = 0.
+        FOR EACH bf-est-flm NO-LOCK 
+            WHERE bf-est-flm.company EQ ef.company
+            AND bf-est-flm.est-no EQ ef.est-no
+            AND bf-est-flm.snum EQ ef.form-no
+            BY bf-est-flm.bnum:
+            iIndex = iIndex + 1.
+            RUN pAddLeaf(BUFFER ipbf-estCostHeader, BUFFER ipbf-estCostForm, bf-est-flm.i-no, bf-est-flm.dscr, bf-est-flm.bnum, iIndex, bf-est-flm.len, bf-est-flm.wid).
+        END.    
+    END.
+    ELSE 
     DO iIndex = 1 TO 4:
         IF ipbf-ef.leaf[iIndex] NE "" THEN
             RUN pAddLeaf(BUFFER ipbf-estCostHeader, BUFFER ipbf-estCostForm, ipbf-ef.leaf[iIndex], ipbf-ef.leaf-dscr[iIndex], ipbf-ef.leaf-bnum[iIndex], iIndex, ipbf-ef.leaf-l[iIndex], ipbf-ef.leaf-w[iIndex]).
