@@ -518,6 +518,8 @@ PROCEDURE pUpdateQuantities :
     IF ipdOvers EQ ? THEN
         ipdOvers = 0.
 
+    ipiQuantity = TRUNCATE(ipiQuantity + (ipiQuantity * ipdOvers / 100 ), 0).
+
     ASSIGN
         iQuantityofSubUnits = TRUNCATE(ipiQuantity / ipiQuantityInSubUnit, 0)
         iQuantityInUnit     = ipiQuantityInSubUnit * ipiSubUnitsPerUnit
@@ -555,7 +557,7 @@ PROCEDURE SetOvers :
     END.
     
     dOversPct = ipdOversPct.
-
+    
     APPLY "LEAVE" TO fiQuantity.
 END PROCEDURE.
 
