@@ -1363,14 +1363,7 @@ gvcCurrentItem = fg-rctd.i-no.
        /* If current tag was not selected by user, delete it */
        IF fg-rctd.i-no = cSelectionItem THEN DO:
          
-         FIND CURRENT fg-rctd EXCLUSIVE-LOCK.
-         FOR EACH ASI.reftable WHERE reftable.reftable EQ "fg-rctd.user-id" 
-           AND reftable.company  EQ fg-rctd.company 
-           AND reftable.loc      EQ STRING(fg-rctd.r-no,"9999999999") 
-           AND (reftable.dscr    EQ lv-linker AND reftable.dscr BEGINS "fg-rctd: ")
-           EXCLUSIVE-LOCK:
-           DELETE reftable.
-         END.
+         FIND CURRENT fg-rctd EXCLUSIVE-LOCK.         
          DELETE fg-rctd.
        END.
      END.
@@ -1441,15 +1434,7 @@ gvcCurrentItem = fg-rctd.i-no.
      FOR EACH b-fg-rctd NO-LOCK
          WHERE b-fg-rctd.company   EQ g_company
            AND b-fg-rctd.rita-code EQ "R"
-           AND ROWID(b-fg-rctd)    NE ROWID(bfFgRctd)         
-          ,
-         FIRST reftable NO-LOCK
-         WHERE reftable.reftable EQ "fg-rctd.user-id"
-           AND reftable.company  EQ b-fg-rctd.company
-           AND reftable.loc      EQ STRING(b-fg-rctd.r-no,"9999999999")
-           AND NOT reftable.dscr BEGINS "fg-rctd: " /*not a set part receipt*/
- /*           AND ((reftable.dscr   EQ lv-linker AND reftable.dscr BEGINS "fg-rctd: ") OR */
- /*                (NOT ll-set-parts AND NOT reftable.dscr BEGINS "fg-rctd: "))           */
+           AND ROWID(b-fg-rctd)    NE ROWID(bfFgRctd)                   
          BY b-fg-rctd.r-no DESC:  /*Last one added, not necessarily the last date*/
        bfFgRctd.rct-date = b-fg-rctd.rct-date.
        LEAVE.
@@ -1462,22 +1447,7 @@ gvcCurrentItem = fg-rctd.i-no.
       bfFgRctd.rita-code = "R"
       bfFgRctd.trans-time   = TIME
       .   
-      FIND FIRST reftable NO-LOCK
-         WHERE reftable.reftable EQ "fg-rctd.user-id"
-           AND reftable.company  EQ bfFgRctd.company
-           AND reftable.loc      EQ STRING(bfFgRctd.r-no,"9999999999")
-           AND reftable.dscr EQ lv-linker
-           AND reftable.dscr BEGINS "fg-rctd: " 
-          NO-ERROR.
-      IF NOT AVAIL reftable THEN DO:
-        CREATE reftable.
-        ASSIGN
-         reftable.reftable = "fg-rctd.user-id"
-         reftable.company  = bfFgRctd.company
-         reftable.loc      = STRING(bfFgRctd.r-no,"9999999999")
-         reftable.dscr = lv-linker.         
-      END.
-
+            
       /* as in local-assign logic */
       IF ll-set-parts THEN DO:
         FIND FIRST fg-rcpts WHERE fg-rcpts.r-no EQ bfFgRctd.r-no NO-ERROR.
@@ -1555,18 +1525,15 @@ PROCEDURE get-set-full-qty :
 
   lv-out-qty = 0.
   FOR EACH b-fg-rctd WHERE b-fg-rctd.company EQ g_company AND
-           (b-fg-rctd.rita-code EQ "R" OR b-fg-rctd.rita-code EQ "E")
-           AND trim(b-fg-rctd.job-no) = trim(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name})
-           AND b-fg-rctd.job-no2 = INT(fg-rctd.job-no2:SCREEN-VALUE)
-           AND b-fg-rctd.i-no = fg-rctd.i-no:SCREEN-VALUE 
-           AND (RECID(b-fg-rctd) <> recid(fg-rctd) 
-                OR (adm-new-record AND NOT adm-adding-record))
-           NO-LOCK,     
-    FIRST ASI.reftable WHERE reftable.reftable EQ "fg-rctd.user-id" AND
-      reftable.company  EQ fg-rctd.company AND
-      reftable.loc      EQ STRING(fg-rctd.r-no,"9999999999")  AND
-      (reftable.dscr    EQ lv-linker AND reftable.dscr BEGINS "fg-rctd: ")  
-    USE-INDEX loc:
+        (b-fg-rctd.rita-code EQ "R" OR b-fg-rctd.rita-code EQ "E")
+        AND trim(b-fg-rctd.job-no) = trim(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name})
+        AND b-fg-rctd.job-no2 = INT(fg-rctd.job-no2:SCREEN-VALUE)
+        AND b-fg-rctd.i-no = fg-rctd.i-no:SCREEN-VALUE 
+        AND (RECID(b-fg-rctd) <> recid(fg-rctd) 
+        OR (adm-new-record AND NOT adm-adding-record))
+        AND b-fg-rctd.SetHeaderRno EQ INTEGER(SUBSTRING(lv-linker, 10, 10))
+        AND b-fg-rctd.SetHeaderRno GT 0
+        NO-LOCK:     
 
       lv-out-qty = lv-out-qty + b-fg-rctd.t-qty.     
       IF ip-cost-to-set GT 0 THEN DO:
