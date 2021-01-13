@@ -59,6 +59,8 @@ END.
 &Scoped-define mainMenuFGColor 15
 &Scoped-define FGColor ?
 &Scoped-define BGColor 32
+&Scoped-define ENHANCE no
+&Scoped-define DefaultMenuBGColor 32
 
 {methods/defines/globdefs.i}
 {methods/defines/hndldefs.i}
