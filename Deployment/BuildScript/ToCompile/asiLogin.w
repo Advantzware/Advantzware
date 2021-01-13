@@ -152,8 +152,8 @@ PROCEDURE GetCurrentDirectoryA EXTERNAL "KERNEL32.DLL":
 END PROCEDURE.
 
 PROCEDURE SetCurrentDirectoryA EXTERNAL "KERNEL32.DLL":
-   DEFINE INPUT  PARAMETER chrCurDir AS CHARACTER.
-   DEFINE RETURN PARAMETER iResult AS LONG.
+    DEFINE INPUT  PARAMETER chrCurDir AS CHARACTER.
+    DEFINE RETURN PARAMETER iResult AS LONG.
 END PROCEDURE.
 
 PROCEDURE GetLastError EXTERNAL "kernel32.dll":
@@ -161,14 +161,14 @@ PROCEDURE GetLastError EXTERNAL "kernel32.dll":
 END.
 
 PROCEDURE fwdRunProgram.
-   def input param pname as char.
-   def input param runPersistent as log.
-   def output param phandle as handle.
+    def input param pname as char.
+    def input param runPersistent as log.
+    def output param phandle as handle.
    
    // these need to be executed in the context of asiLogin.w, in embedded mode
-   if runPersistent
-      then run value(pname) persistent set phandle.
-      else run value(pname).
+    if runPersistent
+        then run value(pname) persistent set phandle.
+    else run value(pname).
 END.
 
 
@@ -183,43 +183,50 @@ ASSIGN
     g_version = "2.1A-8.2A"
     origPropath = PROPATH.
 
-IF origDirectoryName = "" THEN DO:
+IF origDirectoryName = "" THEN 
+DO:
 
 &IF DEFINED(FWD-VERSION) > 0 &THEN
-    ASSIGN origDirectoryName = get-working-directory().
+    ASSIGN 
+        origDirectoryName = get-working-directory().
 &ELSE
     SET-SIZE(ptrToString) = 256.
     RUN GetCurrentDirectoryA (INPUT        intBufferSize,
-                              INPUT-OUTPUT ptrToString,
-                              OUTPUT       intResult).
-    ASSIGN origDirectoryName = GET-STRING(ptrToString,1).    
+        INPUT-OUTPUT ptrToString,
+        OUTPUT       intResult).
+    ASSIGN 
+        origDirectoryName = GET-STRING(ptrToString,1).    
 &ENDIF
 
 END.
-ELSE DO:
+ELSE 
+DO:
     RUN ipSetCurrentDir (origDirectoryName). 
 END.
         
 /* Find the .ini file containing variables and values */
 RUN ipFindIniFile ("..\advantzware.ini",
-                   OUTPUT cIniLoc).
+    OUTPUT cIniLoc).
 
 ASSIGN 
     FILE-INFO:FILE-NAME = cIniLoc
     cIniLoc = FILE-INFO:FULL-PATHNAME.
 
-IF cIniLoc EQ "" THEN DO:
+IF cIniLoc EQ "" THEN 
+DO:
     MESSAGE
         "Unable to locate an 'advantzware.ini' file." SKIP
         "Please contact Advantzware Support. Exiting..."
         VIEW-AS ALERT-BOX ERROR.
     QUIT.
 END.
-ELSE DO:
+ELSE 
+DO:
     RUN ipReadIniFile.
 END.
 
-IF SEARCH(cMapDir + "\" + cAdminDir + "\advantzware.ini") EQ ? THEN DO:
+IF SEARCH(cMapDir + "\" + cAdminDir + "\advantzware.ini") EQ ? THEN 
+DO:
     MESSAGE
         "There is a problem with your network connections." SKIP
         "Please contact your local System Administrator."
@@ -229,19 +236,21 @@ END.
 
 /* Find the .usr file containing user-level settings */
 RUN ipFindIniFile ("..\advantzware.usr",
-                   OUTPUT cUsrLoc).
+    OUTPUT cUsrLoc).
 ASSIGN 
     FILE-INFO:FILE-NAME = cUsrLoc
     cUsrLoc = FILE-INFO:FULL-PATHNAME.
 
-IF cUsrLoc EQ "" THEN DO:
+IF cUsrLoc EQ "" THEN 
+DO:
     MESSAGE
         "Unable to locate an 'advantzware.usr' file." SKIP
         "Please contact Advantzware Support. Exiting..."
         VIEW-AS ALERT-BOX ERROR.
     QUIT.
 END.
-ELSE DO:
+ELSE 
+DO:
     RUN ipReadUsrFile.
 END.
 
@@ -276,7 +285,7 @@ cbDatabase
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD intVer C-Win 
 FUNCTION intVer RETURNS INTEGER
-  ( INPUT cVerString AS CHAR )  FORWARD.
+    ( INPUT cVerString AS CHAR )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -289,65 +298,65 @@ DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON Btn_Cancel AUTO-END-KEY 
-     LABEL "Cancel" 
-     SIZE 15 BY 1.14
-     BGCOLOR 8 .
+    LABEL "Cancel" 
+    SIZE 15 BY 1.14
+    BGCOLOR 8 .
 
 DEFINE BUTTON Btn_OK AUTO-GO 
-     LABEL "Login" 
-     SIZE 15 BY 1.14
-     BGCOLOR 8 .
+    LABEL "Login" 
+    SIZE 15 BY 1.14
+    BGCOLOR 8 .
 
 DEFINE VARIABLE cbDatabase AS CHARACTER FORMAT "X(256)":U 
-     LABEL "Database" 
-     VIEW-AS COMBO-BOX INNER-LINES 5
-     DROP-DOWN-LIST
-     SIZE 25 BY 1 NO-UNDO.
+    LABEL "Database" 
+    VIEW-AS COMBO-BOX INNER-LINES 5
+    DROP-DOWN-LIST
+    SIZE 25 BY 1 NO-UNDO.
 
 DEFINE VARIABLE cbEnvironment AS CHARACTER FORMAT "X(256)":U 
-     LABEL "Environment" 
-     VIEW-AS COMBO-BOX INNER-LINES 8
-     LIST-ITEMS "Live","Test" 
-     DROP-DOWN-LIST
-     SIZE 25 BY 1 NO-UNDO.
+    LABEL "Environment" 
+    VIEW-AS COMBO-BOX INNER-LINES 8
+    LIST-ITEMS "Live","Test" 
+    DROP-DOWN-LIST
+    SIZE 25 BY 1 NO-UNDO.
 
 DEFINE VARIABLE cbMode AS CHARACTER FORMAT "X(256)":U 
-     LABEL "Mode" 
-     VIEW-AS COMBO-BOX INNER-LINES 8
-     LIST-ITEMS "Standard","Touchscreen","Sharpshooter","Monitor" 
-     DROP-DOWN-LIST
-     SIZE 25 BY 1 NO-UNDO.
+    LABEL "Mode" 
+    VIEW-AS COMBO-BOX INNER-LINES 8
+    LIST-ITEMS "Standard","Touchscreen","Sharpshooter","Monitor" 
+    DROP-DOWN-LIST
+    SIZE 25 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fiPassword AS CHARACTER FORMAT "X(256)":U 
-     LABEL "Password" 
-     VIEW-AS FILL-IN 
-     SIZE 25 BY 1 NO-UNDO.
+    LABEL "Password" 
+    VIEW-AS FILL-IN 
+    SIZE 25 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fiUserID AS CHARACTER FORMAT "X(256)":U 
-     LABEL "User ID" 
-     VIEW-AS FILL-IN 
-     SIZE 25 BY 1 NO-UNDO.
+    LABEL "User ID" 
+    VIEW-AS FILL-IN 
+    SIZE 25 BY 1 NO-UNDO.
 
 DEFINE IMAGE IMAGE-2
-     SIZE 40 BY 6.19.
+    SIZE 40 BY 6.19.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
-     fiUserID AT ROW 8.38 COL 15 COLON-ALIGNED WIDGET-ID 4
-     fiPassword AT ROW 9.81 COL 15 COLON-ALIGNED WIDGET-ID 6 PASSWORD-FIELD 
-     cbMode AT ROW 11.24 COL 15 COLON-ALIGNED WIDGET-ID 10
-     cbEnvironment AT ROW 12.67 COL 15 COLON-ALIGNED WIDGET-ID 8
-     cbDatabase AT ROW 14.1 COL 15 COLON-ALIGNED WIDGET-ID 18
-     Btn_Cancel AT ROW 15.76 COL 6 WIDGET-ID 22
-     Btn_OK AT ROW 15.76 COL 27 WIDGET-ID 26
-     IMAGE-2 AT ROW 1.48 COL 4 WIDGET-ID 28
+    fiUserID AT ROW 8.38 COL 15 COLON-ALIGNED WIDGET-ID 4
+    fiPassword AT ROW 9.81 COL 15 COLON-ALIGNED WIDGET-ID 6 PASSWORD-FIELD 
+    cbMode AT ROW 11.24 COL 15 COLON-ALIGNED WIDGET-ID 10
+    cbEnvironment AT ROW 12.67 COL 15 COLON-ALIGNED WIDGET-ID 8
+    cbDatabase AT ROW 14.1 COL 15 COLON-ALIGNED WIDGET-ID 18
+    Btn_Cancel AT ROW 15.76 COL 6 WIDGET-ID 22
+    Btn_OK AT ROW 15.76 COL 27 WIDGET-ID 26
+    IMAGE-2 AT ROW 1.48 COL 4 WIDGET-ID 28
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1
-         SIZE 46.8 BY 17.19
-         CANCEL-BUTTON Btn_Cancel WIDGET-ID 100.
+    SIDE-LABELS NO-UNDERLINE THREE-D 
+    AT COL 1 ROW 1
+    SIZE 46.8 BY 17.19
+    CANCEL-BUTTON Btn_Cancel WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -364,30 +373,30 @@ DEFINE FRAME DEFAULT-FRAME
 
 &ANALYZE-SUSPEND _CREATE-WINDOW
 IF SESSION:DISPLAY-TYPE = "GUI":U 
-AND cSessionParam EQ "" THEN
-  CREATE WINDOW C-Win ASSIGN
-         HIDDEN             = YES
-         TITLE              = "Login"
-         HEIGHT             = 16.86
-         WIDTH              = 45.6
-         MAX-HEIGHT         = 21.48
-         MAX-WIDTH          = 83.2
-         VIRTUAL-HEIGHT     = 21.48
-         VIRTUAL-WIDTH      = 83.2
-         SMALL-TITLE        = yes
-         SHOW-IN-TASKBAR    = yes
-         CONTROL-BOX        = no
-         MIN-BUTTON         = no
-         MAX-BUTTON         = no
-         RESIZE             = yes
-         SCROLL-BARS        = no
-         STATUS-AREA        = no
-         BGCOLOR            = ?
-         FGCOLOR            = ?
-         KEEP-FRAME-Z-ORDER = yes
-         THREE-D            = yes
-         MESSAGE-AREA       = no
-         SENSITIVE          = yes.
+    AND cSessionParam EQ "" THEN
+    CREATE WINDOW C-Win ASSIGN
+        HIDDEN             = YES
+        TITLE              = "Login"
+        HEIGHT             = 16.86
+        WIDTH              = 45.6
+        MAX-HEIGHT         = 21.48
+        MAX-WIDTH          = 83.2
+        VIRTUAL-HEIGHT     = 21.48
+        VIRTUAL-WIDTH      = 83.2
+        SMALL-TITLE        = yes
+        SHOW-IN-TASKBAR    = yes
+        CONTROL-BOX        = no
+        MIN-BUTTON         = no
+        MAX-BUTTON         = no
+        RESIZE             = yes
+        SCROLL-BARS        = no
+        STATUS-AREA        = no
+        BGCOLOR            = ?
+        FGCOLOR            = ?
+        KEEP-FRAME-Z-ORDER = yes
+        THREE-D            = yes
+        MESSAGE-AREA       = no
+        SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
@@ -402,10 +411,10 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* SETTINGS FOR FRAME DEFAULT-FRAME
    FRAME-NAME                                                           */
 ASSIGN 
-       cbDatabase:HIDDEN IN FRAME DEFAULT-FRAME           = TRUE.
+    cbDatabase:HIDDEN IN FRAME DEFAULT-FRAME           = TRUE.
 
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-THEN C-Win:HIDDEN = no.
+    THEN C-Win:HIDDEN = no.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -419,12 +428,13 @@ THEN C-Win:HIDDEN = no.
 &Scoped-define SELF-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON END-ERROR OF C-Win /* Login */
-OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
-  /* This case occurs when the user presses the "Esc" key.
-     In a persistently run window, just ignore this.  If we did not, the
-     application would exit. */
-  IF THIS-PROCEDURE:PERSISTENT THEN RETURN NO-APPLY.
-END.
+    OR ENDKEY OF {&WINDOW-NAME} ANYWHERE 
+    DO:
+        /* This case occurs when the user presses the "Esc" key.
+           In a persistently run window, just ignore this.  If we did not, the
+           application would exit. */
+        IF THIS-PROCEDURE:PERSISTENT THEN RETURN NO-APPLY.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -432,15 +442,15 @@ END.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON WINDOW-CLOSE OF C-Win /* Login */
-DO:
-  /* This event will close the window and terminate the procedure.  */
-    APPLY "CLOSE":U TO THIS-PROCEDURE.
-    DO ictr = 1 TO NUM-DBS:
-        DISCONNECT VALUE(LDBNAME(iCtr)).
-    END.
-    QUIT.
+    DO:
+        /* This event will close the window and terminate the procedure.  */
+        APPLY "CLOSE":U TO THIS-PROCEDURE.
+        DO ictr = 1 TO NUM-DBS:
+            DISCONNECT VALUE(LDBNAME(iCtr)).
+        END.
+        QUIT.
     /* RETURN NO-APPLY. */
-END.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -449,11 +459,11 @@ END.
 &Scoped-define SELF-NAME Btn_Cancel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Cancel C-Win
 ON CHOOSE OF Btn_Cancel IN FRAME DEFAULT-FRAME /* Cancel */
-DO:
-    IF VALID-HANDLE(hPreRun) THEN 
-        RUN epDisconnectDB IN hPreRun.
-    APPLY 'window-close' TO C-Win.
-END.
+    DO:
+        IF VALID-HANDLE(hPreRun) THEN 
+            RUN epDisconnectDB IN hPreRun.
+        APPLY 'window-close' TO C-Win.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -462,16 +472,16 @@ END.
 &Scoped-define SELF-NAME Btn_OK
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_OK C-Win
 ON CHOOSE OF Btn_OK IN FRAME DEFAULT-FRAME /* Login */
-OR RETURN OF fiPassword
-OR RETURN OF cbEnvironment
-OR RETURN OF cbDatabase
-OR RETURN OF cbMode
-DO:
-    RUN ipAssignSV.
-    RUN ipClickOK.
+    OR RETURN OF fiPassword
+    OR RETURN OF cbEnvironment
+    OR RETURN OF cbDatabase
+    OR RETURN OF cbMode
+    DO:
+        RUN ipAssignSV.
+        RUN ipClickOK.
     
-    RETURN.
-END.
+        RETURN.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -480,22 +490,25 @@ END.
 &Scoped-define SELF-NAME cbDatabase
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cbDatabase C-Win
 ON VALUE-CHANGED OF cbDatabase IN FRAME DEFAULT-FRAME /* Database */
-OR VALUE-CHANGED OF cbEnvironment
-OR VALUE-CHANGED OF cbMode
-DO:
-    RUN ipAssignSV.
-    CASE SELF:NAME:
-        WHEN "cbDatabase" THEN DO:
-            RUN ipChangeDatabase.
-        END.
-        WHEN "cbEnvironment" THEN DO:
-            RUN ipChangeEnvironment.
-        END.
-        WHEN "cbMode" THEN DO:
-            RUN ipChangeMode.
-        END.
-    END CASE.
-END.
+    OR VALUE-CHANGED OF cbEnvironment
+    OR VALUE-CHANGED OF cbMode
+    DO:
+        RUN ipAssignSV.
+        CASE SELF:NAME:
+            WHEN "cbDatabase" THEN 
+                DO:
+                    RUN ipChangeDatabase.
+                END.
+            WHEN "cbEnvironment" THEN 
+                DO:
+                    RUN ipChangeEnvironment.
+                END.
+            WHEN "cbMode" THEN 
+                DO:
+                    RUN ipChangeMode.
+                END.
+        END CASE.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -504,48 +517,52 @@ END.
 &Scoped-define SELF-NAME fiUserID
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiUserID C-Win
 ON LEAVE OF fiUserID IN FRAME DEFAULT-FRAME /* User ID */
-DO:
-    RUN ipAssignSV.
-    RUN ipFindUser IN THIS-PROCEDURE.
-    
-    IF NOT AVAIL ttUsers THEN DO:
-        IF fwd-embedded-mode THEN 
-            RETURN NO-APPLY "Unable to locate this user in the advantzware.usr file." +
-                            "Please contact your system administrator for assistance.".
-        ELSE DO:
-            MESSAGE
-                "Unable to locate this user in the advantzware.usr file." SKIP
-                "Please contact your system administrator for assistance."
-                VIEW-AS ALERT-BOX ERROR.
-            RETURN NO-APPLY.
-        END.
-    END.
-    ELSE DO:
-        IF SELF:SCREEN-VALUE EQ "Monitor" THEN DO:
-            MESSAGE 
-                "The user 'Monitor' cannot be used for interactive" SKIP 
-                "logins. Please choose another user id."
-                VIEW-AS ALERT-BOX ERROR.
-            ASSIGN 
-                SELF:SCREEN-VALUE = "".
-            RETURN NO-APPLY.
-        END.
-        ASSIGN
-            cbEnvironment:LIST-ITEMS = IF cValidEnvs <> "" THEN cValidEnvs ELSE IF ttUsers.ttfEnvList <> "" THEN ttUsers.ttfEnvList ELSE cEnvList
-            cbDatabase:LIST-ITEMS = IF cValidDbs <> "" THEN cValidDbs ELSE IF ttUsers.ttfDbList <> "" THEN ttUsers.ttfDbList ELSE cDbList
-            cbEnvironment:SCREEN-VALUE = ENTRY(1,cbEnvironment:LIST-ITEMS)
-            cbDatabase:SCREEN-VALUE = ENTRY(1,cbDatabase:LIST-ITEMS).
-        APPLY 'value-changed' TO cbEnvironment.
-        APPLY 'value-changed' to cbDatabase.
-
+    DO:
+        RUN ipAssignSV.
         RUN ipFindUser IN THIS-PROCEDURE.
-        ASSIGN
-            cbMode:LIST-ITEMS = IF cValidModes <> "" THEN cValidModes ELSE cModeList
-            cbMode:SCREEN-VALUE = ENTRY(1, cbMode:LIST-ITEMS).
-        APPLY 'value-changed' TO cbMode.
-    END.
+    
+        IF NOT AVAIL ttUsers THEN 
+        DO:
+            IF fwd-embedded-mode THEN 
+                RETURN NO-APPLY "Unable to locate this user in the advantzware.usr file." +
+                    "Please contact your system administrator for assistance.".
+            ELSE 
+            DO:
+                MESSAGE
+                    "Unable to locate this user in the advantzware.usr file." SKIP
+                    "Please contact your system administrator for assistance."
+                    VIEW-AS ALERT-BOX ERROR.
+                RETURN NO-APPLY.
+            END.
+        END.
+        ELSE 
+        DO:
+            IF SELF:SCREEN-VALUE EQ "Monitor" THEN 
+            DO:
+                MESSAGE 
+                    "The user 'Monitor' cannot be used for interactive" SKIP 
+                    "logins. Please choose another user id."
+                    VIEW-AS ALERT-BOX ERROR.
+                ASSIGN 
+                    SELF:SCREEN-VALUE = "".
+                RETURN NO-APPLY.
+            END.
+            ASSIGN
+                cbEnvironment:LIST-ITEMS = IF cValidEnvs <> "" THEN cValidEnvs ELSE IF ttUsers.ttfEnvList <> "" THEN ttUsers.ttfEnvList ELSE cEnvList
+                cbDatabase:LIST-ITEMS = IF cValidDbs <> "" THEN cValidDbs ELSE IF ttUsers.ttfDbList <> "" THEN ttUsers.ttfDbList ELSE cDbList
+                cbEnvironment:SCREEN-VALUE = ENTRY(1,cbEnvironment:LIST-ITEMS)
+                cbDatabase:SCREEN-VALUE = ENTRY(1,cbDatabase:LIST-ITEMS).
+            APPLY 'value-changed' TO cbEnvironment.
+            APPLY 'value-changed' to cbDatabase.
+
+            RUN ipFindUser IN THIS-PROCEDURE.
+            ASSIGN
+                cbMode:LIST-ITEMS = IF cValidModes <> "" THEN cValidModes ELSE cModeList
+                cbMode:SCREEN-VALUE = ENTRY(1, cbMode:LIST-ITEMS).
+            APPLY 'value-changed' TO cbMode.
+        END.
         
-END.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -564,9 +581,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE DO:
-   RUN disable_UI.
-END.
+ON CLOSE OF THIS-PROCEDURE 
+    DO:
+        RUN disable_UI.
+    END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -575,7 +593,7 @@ PAUSE 0 BEFORE-HIDE.
 /* (NOTE: handle ERROR and END-KEY so cleanup code will always fire.    */
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
-   ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
+    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
 
     IMAGE-2:LOAD-IMAGE("asilogosm.jpg").
     ASSIGN
@@ -583,7 +601,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         cbMode:LIST-ITEMS = TRIM(cModeList,",")
         cbDatabase:LIST-ITEMS = TRIM(cdbList,",").
 
-    IF cSessionParam EQ "" THEN DO:
+    IF cSessionParam EQ "" THEN 
+    DO:
         RUN enable_UI.
         
         ASSIGN
@@ -596,7 +615,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     
     END. /* If there is a UI */
     ELSE 
-      RUN ipAutoLogin.
+        RUN ipAutoLogin.
 
     IF NOT THIS-PROCEDURE:PERSISTENT THEN
         WAIT-FOR CLOSE OF THIS-PROCEDURE.
@@ -610,18 +629,18 @@ END.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI C-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
-/*------------------------------------------------------------------------------
-  Purpose:     DISABLE the User Interface
-  Parameters:  <none>
-  Notes:       Here we clean-up the user-interface by deleting
-               dynamic widgets we have created and/or hide 
-               frames.  This procedure is usually called when
-               we are ready to "clean-up" after running.
-------------------------------------------------------------------------------*/
-  /* Delete the WINDOW we created */
-  IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-  THEN DELETE WIDGET C-Win.
-  IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
+    /*------------------------------------------------------------------------------
+      Purpose:     DISABLE the User Interface
+      Parameters:  <none>
+      Notes:       Here we clean-up the user-interface by deleting
+                   dynamic widgets we have created and/or hide 
+                   frames.  This procedure is usually called when
+                   we are ready to "clean-up" after running.
+    ------------------------------------------------------------------------------*/
+    /* Delete the WINDOW we created */
+    IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
+        THEN DELETE WIDGET C-Win.
+    IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -629,22 +648,22 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI C-Win  _DEFAULT-ENABLE
 PROCEDURE enable_UI :
-/*------------------------------------------------------------------------------
-  Purpose:     ENABLE the User Interface
-  Parameters:  <none>
-  Notes:       Here we display/view/enable the widgets in the
-               user-interface.  In addition, OPEN all queries
-               associated with each FRAME and BROWSE.
-               These statements here are based on the "Other 
-               Settings" section of the widget Property Sheets.
-------------------------------------------------------------------------------*/
-  DISPLAY fiUserID fiPassword cbMode cbEnvironment cbDatabase 
-      WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE IMAGE-2 fiUserID fiPassword cbMode cbEnvironment cbDatabase Btn_Cancel 
-         Btn_OK 
-      WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
-  VIEW C-Win.
+    /*------------------------------------------------------------------------------
+      Purpose:     ENABLE the User Interface
+      Parameters:  <none>
+      Notes:       Here we display/view/enable the widgets in the
+                   user-interface.  In addition, OPEN all queries
+                   associated with each FRAME and BROWSE.
+                   These statements here are based on the "Other 
+                   Settings" section of the widget Property Sheets.
+    ------------------------------------------------------------------------------*/
+    DISPLAY fiUserID fiPassword cbMode cbEnvironment cbDatabase 
+        WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
+    ENABLE IMAGE-2 fiUserID fiPassword cbMode cbEnvironment cbDatabase Btn_Cancel 
+        Btn_OK 
+        WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
+    {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
+    VIEW C-Win.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -652,23 +671,23 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipAssignSV C-Win 
 PROCEDURE ipAssignSV :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
- DO WITH FRAME {&FRAME-NAME}:
-    ASSIGN
-      fiUserID 
-      fiPassword 
-      cbEnvironment = cbEnvironment:{&SV}
-      cbMode = cbMode:{&SV}      
-      cbDatabase = cbDatabase:{&SV}  
-      cEnvironmentList = cbEnvironment:LIST-ITEMS
-      cDatabaseList = cbDatabase:LIST-ITEMS
-      cModeScrList = cbMode:LIST-ITEMS
-      .
- END.
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DO WITH FRAME {&FRAME-NAME}:
+        ASSIGN
+            fiUserID 
+            fiPassword 
+            cbEnvironment = cbEnvironment:{&SV}
+            cbMode = cbMode:{&SV}      
+            cbDatabase = cbDatabase:{&SV}  
+            cEnvironmentList = cbEnvironment:LIST-ITEMS
+            cDatabaseList = cbDatabase:LIST-ITEMS
+            cModeScrList = cbMode:LIST-ITEMS
+            .
+    END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -676,11 +695,11 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipAutoLogin C-Win 
 PROCEDURE ipAutoLogin :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
     ASSIGN 
         fiUserID = ENTRY(1, cSessionParam)
         fiPassword = ENTRY(2, cSessionParam)
@@ -692,10 +711,10 @@ PROCEDURE ipAutoLogin :
     RUN ipFindUser.
 
     IF AVAIL ttUsers THEN ASSIGN
-        cEnvironmentList = IF cValidEnvs <> "" THEN cValidEnvs ELSE IF ttUsers.ttfEnvList <> "" THEN ttUsers.ttfEnvList ELSE cEnvList
-        cDatabaseList = IF cValidDbs <> "" THEN cValidDbs ELSE IF ttUsers.ttfDbList <> "" THEN ttUsers.ttfDbList ELSE cDbList
-        cModeScrList = IF ttUsers.ttfModeList <> "" THEN ttUsers.ttfModeList ELSE cModeList
-        .
+            cEnvironmentList = IF cValidEnvs <> "" THEN cValidEnvs ELSE IF ttUsers.ttfEnvList <> "" THEN ttUsers.ttfEnvList ELSE cEnvList
+            cDatabaseList = IF cValidDbs <> "" THEN cValidDbs ELSE IF ttUsers.ttfDbList <> "" THEN ttUsers.ttfDbList ELSE cDbList
+            cModeScrList = IF ttUsers.ttfModeList <> "" THEN ttUsers.ttfModeList ELSE cModeList
+            .
   
     RUN ipChangeEnvironment.
     RUN ipChangeMode. 
@@ -709,17 +728,18 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipChangeDatabase C-Win 
 PROCEDURE ipChangeDatabase :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
     DEF VAR iLookup AS INT NO-UNDO.
     DEF VAR xdbName AS CHAR NO-UNDO.
     DEF VAR xdbPort AS CHAR NO-UNDO.
 
     RUN ipFindUser IN THIS-PROCEDURE.
-    IF NOT AVAIL ttUsers THEN DO:
+    IF NOT AVAIL ttUsers THEN 
+    DO:
         MESSAGE
             "Unable to locate this user in the advantzware.usr file." SKIP
             "Please contact your system administrator for assistance."
@@ -731,13 +751,13 @@ PROCEDURE ipChangeDatabase :
     ASSIGN
         iPos = LOOKUP(cbEnvironment:SCREEN-VALUE IN FRAME {&FRAME-NAME},cEnvironmentList)
         iEnvLevel = intVer(ENTRY(iPos,cEnvVerList))
-        iPos = LOOKUP(cbDatabase:screen-value,cDbList)
+        iPos = LOOKUP(cbDatabase:SCREEN-VALUE IN FRAME {&frame-name},cDbList)
         iDbLevel = intVer(ENTRY(iPos,cDbVerList)).
     IF iDbLevel GT 20010000 
-    AND fiUserID:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "ASI" THEN ASSIGN 
-        fiPassword:BGCOLOR = 14.
+        AND fiUserID:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "ASI" THEN ASSIGN 
+            fiPassword:BGCOLOR = 14.
     ELSE ASSIGN 
-        fiPassword:BGCOLOR = ?.
+            fiPassword:BGCOLOR = ?.
 
     ASSIGN
         connectStatement = ""
@@ -746,12 +766,13 @@ PROCEDURE ipChangeDatabase :
         xDbDir = ENTRY(iLookup,cDbDirList)
         xdbPort = ENTRY(iLookup,cDbPortList).
     IF xdbName <> ""
-    AND xdbPort <> "" THEN ASSIGN
-        connectStatement = "-db " + xdbName + 
+        AND xdbPort <> "" THEN ASSIGN
+            connectStatement = "-db " + xdbName + 
                            " -H " + chostName +
                            " -S " + xdbPort +
                            " -N tcp -ld ASI".
-    ELSE DO:
+    ELSE 
+    DO:
         MESSAGE
             "There is a problem with your database connection list." SKIP
             "Pleasse contact Advantzware support for assistance."
@@ -760,7 +781,7 @@ PROCEDURE ipChangeDatabase :
         RETURN NO-APPLY.
     END.
     
-    /* APPLY 'value-changed' TO cbMode. */
+/* APPLY 'value-changed' TO cbMode. */
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -768,11 +789,11 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipChangeEnvironment C-Win 
 PROCEDURE ipChangeEnvironment :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
     DEF VAR cTop AS CHAR NO-UNDO.
     DEF VAR preProPath AS CHAR NO-UNDO.
     DEF VAR iLookup AS INT NO-UNDO.
@@ -784,14 +805,15 @@ PROCEDURE ipChangeEnvironment :
     ASSIGN
         iPos = LOOKUP(cbEnvironment:SCREEN-VALUE IN FRAME {&FRAME-NAME},cEnvironmentList)
         iEnvLevel = intVer(ENTRY(iPos,cEnvVerList))
-        iPos = LOOKUP(cbDatabase,cDatabaseList)
+        iPos = LOOKUP(cbDatabase:SCREEN-VALUE IN FRAME {&frame-name},cDatabaseList)
         iDbLevel = intVer(ENTRY(iPos,cDbVerList))
         iEnvLevelM = iEnvLevel / 1000
         .
 
-    IF cSessionParam NE "" THEN DO:
+    IF cSessionParam NE "" THEN 
+    DO:
         ASSIGN
-            iLookup = LOOKUP(cbEnvironment,cEnvList)
+            iLookup = LOOKUP(cbEnvironment:SCREEN-VALUE IN FRAME {&frame-name},cEnvList)
             cTop = cMapDir + "\" + cEnvDir + "\" + cbEnvironment + "\"
             preProPath = cMapDir + "\" + cEnvDir + "\" + cbEnvironment + "," +
                      cTop + cEnvCustomerDir + "," +
@@ -807,27 +829,33 @@ PROCEDURE ipChangeEnvironment :
         PROPATH = preProPath + origPropath.      
         RETURN.
     END.
-    ELSE DO:
+    ELSE 
+    DO:
         CASE cbEnvironment:SCREEN-VALUE IN FRAME {&FRAME-NAME}:
-            WHEN "Prod" THEN DO:
-                DO iCtr = 1 TO NUM-ENTRIES(cDatabaseList):
-                    IF INDEX(ENTRY(iCtr,cDatabaseList),"Prod") <> 0 AND cSessionParam EQ "" THEN DO:
-                        ASSIGN
-                            cbDatabase:SCREEN-VALUE = ENTRY(iCtr,cDatabaseList).
-                        LEAVE.
+            WHEN "Prod" THEN 
+                DO:
+                    DO iCtr = 1 TO NUM-ENTRIES(cDatabaseList):
+                        IF INDEX(ENTRY(iCtr,cDatabaseList),"Prod") <> 0 AND cSessionParam EQ "" THEN 
+                        DO:
+                            ASSIGN
+                                cbDatabase:SCREEN-VALUE = ENTRY(iCtr,cDatabaseList).
+                            LEAVE.
+                        END.
                     END.
                 END.
-            END.
-            WHEN "Test" THEN DO:
-                DO iCtr = 1 TO NUM-ENTRIES(cDatabaseList):
-                    IF INDEX(ENTRY(iCtr,cDatabaseList),"Test") <> 0 AND cSessionParam EQ "" THEN DO:
-                        ASSIGN
-                            cbDatabase:SCREEN-VALUE = ENTRY(iCtr,cDatabaseList).
-                        LEAVE.
+            WHEN "Test" THEN 
+                DO:
+                    DO iCtr = 1 TO NUM-ENTRIES(cDatabaseList):
+                        IF INDEX(ENTRY(iCtr,cDatabaseList),"Test") <> 0 AND cSessionParam EQ "" THEN 
+                        DO:
+                            ASSIGN
+                                cbDatabase:SCREEN-VALUE = ENTRY(iCtr,cDatabaseList).
+                            LEAVE.
+                        END.
                     END.
                 END.
-            END.
-            OTHERWISE DO:
+            OTHERWISE 
+            DO:
                 ASSIGN 
                     cTestList = ""
                     cbDatabase:list-items = cDbList.
@@ -836,23 +864,25 @@ PROCEDURE ipChangeEnvironment :
                             cTestList = cTestList + ENTRY(iCtr,cDbList) + ",".
                 END.
                 IF cSessionParam EQ "" THEN ASSIGN 
-                    cTestList = TRIM(cTestList,",")
-                    cbDatabase:LIST-ITEMS = cTestList
-                    cbDatabase:SCREEN-VALUE = ENTRY(1,cTestList)
-                    cbDatabase.
+                        cTestList = TRIM(cTestList,",")
+                        cbDatabase:LIST-ITEMS = cTestList
+                        cbDatabase:SCREEN-VALUE = ENTRY(1,cTestList)
+                        cbDatabase.
                 ELSE ASSIGN 
-                    cTestList = TRIM(cTestList,",")
-                    cbDatabase:LIST-ITEMS = cTestList
-                    cbDatabase.
+                        cTestList = TRIM(cTestList,",")
+                        cbDatabase:LIST-ITEMS = cTestList
+                        cbDatabase.
             END.
         END CASE.
         IF cSessionParam EQ "" THEN 
-          APPLY 'value-changed' to cbDatabase.
+            APPLY 'value-changed' to cbDatabase.
 
         ASSIGN
-            iLookup = LOOKUP(cbEnvironment,cEnvList)
+            iLookup = LOOKUP(cbEnvironment:SCREEN-VALUE IN FRAME {&frame-name},cEnvList)
             cTop = cMapDir + "\" + cEnvDir + "\" + cbEnvironment + "\"
             preProPath = cMapDir + "\" + cEnvDir + "\" + cbEnvironment + "," +
+                         (IF iEnvLevel GE 21000000 THEN cMapDir + "\" + cEnvDir + "\" + cbEnvironment + "\asiObjects.pl," ELSE "") +
+                         (IF iEnvLevel GE 21000000 THEN cMapDir + "\" + cEnvDir + "\" + cbEnvironment + "\asigraphics.pl," ELSE "") +
                          cTop + cEnvCustomerDir + "," +
                          cTop + cEnvOverrideDir + "," +
                          cTop + cEnvProgramsDir + "," +
@@ -873,11 +903,11 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipChangeMode C-Win 
 PROCEDURE ipChangeMode :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
     DEF VAR cModeItem AS CHAR NO-UNDO.
     DEF VAR cPgmItem AS CHAR NO-UNDO.
     DEF VAR iIndex AS INT NO-UNDO.
@@ -896,20 +926,20 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipClickOk C-Win 
 PROCEDURE ipClickOk :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
     DEF VAR lError AS LOG NO-UNDO.
     DEF VAR cMessage AS CHAR NO-UNDO.
     DEF VAR cCmdString AS CHAR NO-UNDO.
     DEF VAR cDbLevel AS CHAR NO-UNDO.
  
     ASSIGN
-        iPos = LOOKUP(cbEnvironment,cEnvironmentList)
+        iPos = LOOKUP(cbEnvironment:SCREEN-VALUE IN FRAME {&frame-name},cEnvironmentList)
         iEnvLevel = intVer(ENTRY(iPos,cEnvVerList))
-        iPos = LOOKUP(cbDatabase,cDbList)
+        iPos = LOOKUP(cbDatabase:SCREEN-VALUE IN FRAME {&frame-name},cDbList)
         iDbLevel = intVer(ENTRY(iPos,cDbVerList))
         cDbLevel = STRING(iDbLevel)
         cDbLevel = SUBSTRING(cDbLevel,1,6)
@@ -917,15 +947,17 @@ PROCEDURE ipClickOk :
         no-error.
 
     IF connectStatement <> "" 
-    AND cbMode NE "Monitor Users" THEN DO:
+        AND cbMode NE "Monitor Users" THEN 
+    DO:
         RUN ipDisconnectDB IN THIS-PROCEDURE.
         RUN ipConnectDB in THIS-PROCEDURE (connectStatement,
-                                           OUTPUT lError).
+            OUTPUT lError).
     END.
 
     /* Advise that code at lower levels will not be able to update user properties correctly */
     IF iEnvLevel LT 16070800 
-    AND fiUserid:{&SV} = "admin" THEN DO:
+        AND fiUserid:{&SV} = "admin" THEN 
+    DO:
         MESSAGE
             "Changes to user aliases, mode, environments and databases will not be saved with this version."
             VIEW-AS ALERT-BOX INFO.
@@ -935,15 +967,17 @@ PROCEDURE ipClickOk :
 
     /* If menu program is/was mainmenu2, reset it here */
     IF INDEX(cRunPgm,"mainmenu") <> 0
-    AND iEnvLevel LT 16080000
-    AND (SEARCH("system/mainmenu2.r") NE ? OR SEARCH("system/mainmenu2.w") NE ?) THEN ASSIGN
-        cRunPgm = "system/mainmenu2.w".
+        AND iEnvLevel LT 16080000
+        AND (SEARCH("system/mainmenu2.r") NE ? OR SEARCH("system/mainmenu2.w") NE ?) THEN ASSIGN
+            cRunPgm = "system/mainmenu2.w".
 
     /* This is the normal operation for Mode choices */
-    IF NOT cbMode = "Monitor Users" THEN DO: 
+    IF NOT cbMode = "Monitor Users" THEN 
+    DO: 
 
         /* 95512 Optimize use of .ini files to set color and fonts */
-        IF iEnvLevel GE 21000000 THEN DO:
+        IF iEnvLevel GE 21000000 THEN 
+        DO:
             LOAD "dbmsNewUI".
             USE "dbmsNewUI".
         END.
@@ -964,14 +998,16 @@ PROCEDURE ipClickOk :
         QUIT.
     END.
     /* This is only used to monitor users */
-    ELSE DO: 
+    ELSE 
+    DO: 
         ASSIGN 
             cCmdString = cDLCDir + "\bin\proshut.bat" + " -db " +
                          cDrive + "\" + cTopDir + "\" + cDbDir + "\" + xDbDir + "\" + PDBNAME(1).
         OS-COMMAND VALUE(cCmdString).
     END.
     
-    IF cSessionParam EQ "" THEN DO:
+    IF cSessionParam EQ "" THEN 
+    DO:
         DO ictr = 1 TO NUM-DBS:
             DISCONNECT VALUE(LDBNAME(iCtr)).
         END.
@@ -985,11 +1021,11 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipConnectDb C-Win 
 PROCEDURE ipConnectDb :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
     DEF INPUT PARAMETER cStatement AS CHAR NO-UNDO.
     DEF OUTPUT PARAMETER lError AS LOG NO-UNDO.
 
@@ -1002,13 +1038,14 @@ PROCEDURE ipConnectDb :
 
     /* Force user id and password from screen values, trap errors in ERROR-STATUS */
     IF fiPassword NE "" THEN ASSIGN
-        cStatement = cStatement + " -U " + cUserID + " -P '" + fiPassword + "'".
+            cStatement = cStatement + " -U " + cUserID + " -P '" + fiPassword + "'".
     ELSE ASSIGN
-        cStatement = cStatement + " -U " + cUserID + " -ct 2".
+            cStatement = cStatement + " -U " + cUserID + " -ct 2".
     
     CONNECT VALUE(cStatement) NO-ERROR.
     
-    IF ERROR-STATUS:ERROR THEN DO:
+    IF ERROR-STATUS:ERROR THEN 
+    DO:
         DO iCtr = 1 TO ERROR-STATUS:NUM-MESSAGES:
             /* Strip off the "Progress-y" elements of the error */
             ASSIGN
@@ -1023,11 +1060,12 @@ PROCEDURE ipConnectDb :
         /* Quit after lockout tries exceeded */
         ASSIGN
             iTries = iTries + 1.
-        IF iLockoutTries > 0 AND iTries > iLockoutTries THEN DO:
+        IF iLockoutTries > 0 AND iTries > iLockoutTries THEN 
+        DO:
             MESSAGE
                 "You have exceeded the maximum allowed login attempts." SKIP
                 "Exiting..."
-                 VIEW-AS ALERT-BOX ERROR.
+                VIEW-AS ALERT-BOX ERROR.
             DO ictr = 1 TO NUM-DBS:
                 DISCONNECT VALUE(LDBNAME(iCtr)).
             END.
@@ -1036,7 +1074,8 @@ PROCEDURE ipConnectDb :
         RETURN ERROR.
     END.
 
-    IF CONNECTED(LDBNAME(1)) THEN DO:
+    IF CONNECTED(LDBNAME(1)) THEN 
+    DO:
         CREATE ALIAS nosweat FOR DATABASE VALUE(LDBNAME(1)).
         CREATE ALIAS emptrack FOR DATABASE VALUE(LDBNAME(1)).
         CREATE ALIAS jobs FOR DATABASE VALUE(LDBNAME(1)).
@@ -1053,19 +1092,21 @@ PROCEDURE ipConnectDb :
     /* Connect AUDIT database */
     ASSIGN
         lConnectAudit = IF INDEX(cConnectAudit,"Y") NE 0 OR INDEX(cConnectAudit,"T") NE 0 THEN TRUE ELSE FALSE
-        iPos = LOOKUP(cbEnvironment,cEnvironmentList)
+        iPos = LOOKUP(cbEnvironment:SCREEN-VALUE IN FRAME {&frame-name},cEnvironmentList)
         iEnvLevel = intVer(ENTRY(iPos,cEnvVerList)).
     IF iEnvLevel LT 16070000 THEN ASSIGN
-        lConnectAudit = FALSE.
+            lConnectAudit = FALSE.
 
-    IF lConnectAudit THEN DO:
+    IF lConnectAudit THEN 
+    DO:
         ASSIGN
             xdbName = cbDatabase
-            iLookup = LOOKUP(cbDatabase,cDbList)
+            iLookup = LOOKUP(cbDatabase:SCREEN-VALUE IN FRAME {&frame-name},cDbList)
             xDbName = ENTRY(iLookup,cAudDbList)
             xdbPort = ENTRY(iLookup,cAudPortList)
             connectStatement = "".
-        IF xDbName NE "" THEN DO:
+        IF xDbName NE "" THEN 
+        DO:
             ASSIGN
                 connectStatement = "-db " + xDbName + 
                                    " -H " + chostName +
@@ -1075,7 +1116,8 @@ PROCEDURE ipConnectDb :
             CONNECT VALUE(connectStatement) NO-ERROR.
 
             IF ERROR-STATUS:ERROR 
-            AND NOT CONNECTED(LDBNAME(2)) THEN DO:
+                AND NOT CONNECTED(LDBNAME(2)) THEN 
+            DO:
                 DO iCtr = 1 TO ERROR-STATUS:NUM-MESSAGES:
                     /* Strip off the "Progress-y" elements of the error */
                     ASSIGN
@@ -1103,11 +1145,11 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDisconnectDB C-Win 
 PROCEDURE ipDisconnectDB :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
     IF CONNECTED(LDBNAME(2)) THEN
         DISCONNECT VALUE(LDBNAME(2)).
 
@@ -1121,11 +1163,11 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipExpandVarNames C-Win 
 PROCEDURE ipExpandVarNames :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
 
     /* Modify variables for ease of use */
     ASSIGN
@@ -1173,37 +1215,40 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipFindUser C-Win 
 PROCEDURE ipFindUser :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
     /* First get the 'generic' part of the user - alias, db list, env list */
     FIND FIRST ttUsers NO-LOCK WHERE
         ttUsers.ttfUserID = fiUserID AND
         ttUsers.ttfPdbName = "*"
         NO-ERROR.
     IF NOT AVAIL ttUsers THEN FIND FIRST ttUsers NO-LOCK WHERE
-        ttUsers.ttfUserAlias = fiUserID AND
-        ttUsers.ttfPdbName = "*"
-        NO-ERROR.
+            ttUsers.ttfUserAlias = fiUserID AND
+            ttUsers.ttfPdbName = "*"
+            NO-ERROR.
          
     /* If this has not yet been built, build off of any DB */
-    IF NOT AVAIL ttUsers THEN DO:
+    IF NOT AVAIL ttUsers THEN 
+    DO:
         FIND FIRST ttUsers NO-LOCK WHERE
             ttUsers.ttfUserID = fiUserID 
             NO-ERROR.
         IF NOT AVAIL ttUsers THEN FIND FIRST ttUsers NO-LOCK WHERE
-            ttUsers.ttfUserAlias = fiUserID
-            NO-ERROR.
-        IF NOT AVAIL ttUsers THEN DO:
+                ttUsers.ttfUserAlias = fiUserID
+                NO-ERROR.
+        IF NOT AVAIL ttUsers THEN 
+        DO:
             MESSAGE
                 "Unable to locate this user in the advantzware.usr file." SKIP
                 "Please contact your system administrator for assistance."
                 VIEW-AS ALERT-BOX ERROR.
             RETURN.
         END.
-        ELSE DO:
+        ELSE 
+        DO:
             CREATE bttUsers.
             BUFFER-COPY ttUsers EXCEPT 
                 ttfPdbname 
@@ -1216,9 +1261,9 @@ PROCEDURE ipFindUser :
         END.
     END.
     IF AVAIL ttUsers THEN ASSIGN
-        cUserID = ttUsers.ttfUserID
-        cValidDbs = ttUsers.ttfDbList
-        cValidEnvs = ttUsers.ttfEnvList.
+            cUserID = ttUsers.ttfUserID
+            cValidDbs = ttUsers.ttfDbList
+            cValidEnvs = ttUsers.ttfEnvList.
     ELSE RETURN.
             
     FIND FIRST ttUsers NO-LOCK WHERE
@@ -1227,17 +1272,19 @@ PROCEDURE ipFindUser :
         NO-ERROR.
        
     /* Can't find by DB, is there a generic one? (db = '*') */
-    IF NOT AVAIL ttUsers THEN DO:
+    IF NOT AVAIL ttUsers THEN 
+    DO:
         FIND FIRST ttUsers NO-LOCK WHERE
             ttUsers.ttfUserID = fiUserID AND
             ttUsers.ttfPdbName = "*"
             NO-ERROR.
         IF NOT AVAIL ttUsers THEN FIND FIRST ttUsers NO-LOCK WHERE
-            ttUsers.ttfUserAlias = fiUserID AND
-            ttUsers.ttfPdbName = "*"
-            NO-ERROR.
+                ttUsers.ttfUserAlias = fiUserID AND
+                ttUsers.ttfPdbName = "*"
+                NO-ERROR.
         /* If so, copy it (the generic one) to by-DB */
-        IF AVAIL ttUsers THEN DO:
+        IF AVAIL ttUsers THEN 
+        DO:
             CREATE bttUsers.
             ASSIGN
                 bttUsers.ttfUserID = ttUsers.ttfUserID
@@ -1247,39 +1294,40 @@ PROCEDURE ipFindUser :
             ROWID(ttUsers) EQ ROWID(bttUsers).
     END.
     /* If we STILL don't have a user, see if there is one for any database */
-    IF NOT AVAIL ttUsers THEN DO:
+    IF NOT AVAIL ttUsers THEN 
+    DO:
         FIND FIRST ttUsers NO-LOCK WHERE
             ttUsers.ttfUserID = fiUserID 
             NO-ERROR.
         IF NOT AVAIL ttUsers THEN FIND FIRST ttUsers NO-LOCK WHERE
-            ttUsers.ttfUserAlias = fiUserID
-            NO-ERROR.
+                ttUsers.ttfUserAlias = fiUserID
+                NO-ERROR.
     END.
     IF AVAIL ttUsers THEN ASSIGN
-        cUserID = IF cUserID EQ "" THEN ttUsers.ttfUserID ELSE cUserID
-        cValidDbs = IF cValidDbs EQ "" THEN ttUsers.ttfDbList ELSE cValidDbs
-        cValidEnvs = IF cValidEnvs EQ "" THEN ttUsers.ttfEnvList ELSE cValidEnvs
-        cValidModes = IF cValidModes EQ "" THEN ttUsers.ttfModeList ELSE cValidModes.
+            cUserID = IF cUserID EQ "" THEN ttUsers.ttfUserID ELSE cUserID
+            cValidDbs = IF cValidDbs EQ "" THEN ttUsers.ttfDbList ELSE cValidDbs
+            cValidEnvs = IF cValidEnvs EQ "" THEN ttUsers.ttfEnvList ELSE cValidEnvs
+            cValidModes = IF cValidModes EQ "" THEN ttUsers.ttfModeList ELSE cValidModes.
 
     ELSE ASSIGN
-        cUserID = fiUserID
-        cValidDbs = cbDatabase
-        cValidEnvs = cbEnvironment
-        cValidModes = cbMode
-        .
+            cUserID = fiUserID
+            cValidDbs = cbDatabase
+            cValidEnvs = cbEnvironment
+            cValidModes = cbMode
+            .
          
- END PROCEDURE.
+END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipPreRun C-Win 
 PROCEDURE ipPreRun :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
     DEFINE VARIABLE lOK AS LOGICAL INITIAL TRUE NO-UNDO.
     DEFINE VARIABLE lExit AS LOGICAL INITIAL TRUE NO-UNDO.
     DEFINE VARIABLE hSession AS HANDLE NO-UNDO.
@@ -1289,19 +1337,22 @@ PROCEDURE ipPreRun :
     DEFINE VARIABLE hPurgeProcs AS HANDLE NO-UNDO.
 
     ASSIGN
-        iPos = LOOKUP(cbEnvironment,cEnvironmentList)
+        iPos = LOOKUP(cbEnvironment:SCREEN-VALUE IN FRAME {&frame-name},cEnvironmentList)
         iEnvLevel = intVer(ENTRY(iPos,cEnvVerList))
-        iPos = LOOKUP(cbDatabase,cDatabaseList)
+        iPos = LOOKUP(cbDatabase:SCREEN-VALUE IN FRAME {&frame-name},cDatabaseList)
         iDbLevel = intVer(ENTRY(iPos,cDbVerList))
         iTruncLevel = iDbLevel
         .
     
     /* Run various procedures and programs DEPENDING ON ENV OR DB LEVEL */
     /* Here the format for both is 16070400 */
-    IF iDbLevel GT 16050000 THEN DO:
-        IF USERID(LDBNAME(1)) NE "asi" THEN DO:
+    IF iDbLevel GT 16050000 THEN 
+    DO:
+        IF USERID(LDBNAME(1)) NE "asi" THEN 
+        DO:
             RUN epCheckPwdExpire IN hPreRun (INPUT-OUTPUT lOK).
-            IF NOT lOK THEN DO:
+            IF NOT lOK THEN 
+            DO:
                 DO ictr = 1 TO NUM-DBS:
                     DISCONNECT VALUE(LDBNAME(iCtr)).
                 END.
@@ -1330,23 +1381,29 @@ PROCEDURE ipPreRun :
     ASSIGN 
         cRunningSupers = TRIM(cRunningSupers,",").
         
-    IF iEnvLevel GE 16080000 THEN DO:
-        IF NOT CAN-DO(cRunningSupers,"system/TagProcs.p") THEN DO: 
+    IF iEnvLevel GE 16080000 THEN 
+    DO:
+        IF NOT CAN-DO(cRunningSupers,"system/TagProcs.p") THEN 
+        DO: 
             RUN system/TagProcs.p PERSISTENT SET hTags.
             SESSION:ADD-SUPER-PROCEDURE (hTags).
         END.
     END.
     
-    IF iEnvLevel GE 16130000 THEN DO:
-        IF NOT CAN-DO(cRunningSupers,"system/TagProcs.p") THEN DO: 
+    IF iEnvLevel GE 16130000 THEN 
+    DO:
+        IF NOT CAN-DO(cRunningSupers,"system/TagProcs.p") THEN 
+        DO: 
             RUN system/commonProcs.p PERSISTENT SET hCommonProcs.
             SESSION:ADD-SUPER-PROCEDURE (hCommonProcs).
         END.
-        IF NOT CAN-DO(cRunningSupers,"system/TagProcs.p") THEN DO: 
+        IF NOT CAN-DO(cRunningSupers,"system/TagProcs.p") THEN 
+        DO: 
             RUN system/creditProcs.p PERSISTENT SET hCreditProcs.
             SESSION:ADD-SUPER-PROCEDURE (hCreditProcs).
         END.
-        IF NOT CAN-DO(cRunningSupers,"system/TagProcs.p") THEN DO: 
+        IF NOT CAN-DO(cRunningSupers,"system/TagProcs.p") THEN 
+        DO: 
             RUN system/purgeProcs.p PERSISTENT SET hPurgeProcs.
             SESSION:ADD-SUPER-PROCEDURE (hPurgeProcs).
         END.
@@ -1361,7 +1418,8 @@ PROCEDURE ipPreRun :
         RUN epTouchLogin in hPreRun (OUTPUT tslogin-log).
 
     RUN epUserRecordCheck IN hPreRun (OUTPUT lOK, OUTPUT g_track_usage).
-    IF NOT lOK THEN DO:
+    IF NOT lOK THEN 
+    DO:
         DO ictr = 1 TO NUM-DBS:
             DISCONNECT VALUE(LDBNAME(iCtr)).
         END.
@@ -1395,12 +1453,13 @@ PROCEDURE ipPreRun :
     IF iDbLevel GT 16061200 THEN 
         RUN epSetUpEDI IN hPreRun.
 
-/*    #41926 Remove deprecated references to asiLoad  */
-/*    IF fiUserID = "ASI" THEN*/
-/*        RUN asiload.p.      */
+    /*    #41926 Remove deprecated references to asiLoad  */
+    /*    IF fiUserID = "ASI" THEN*/
+    /*        RUN asiload.p.      */
 
     RUN epCheckExpiration IN hPreRun (OUTPUT lOK).
-    IF NOT lOK THEN DO:
+    IF NOT lOK THEN 
+    DO:
         DO ictr = 1 TO NUM-DBS:
             DISCONNECT VALUE(LDBNAME(iCtr)).
         END.
@@ -1418,18 +1477,19 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipReadUsrFile C-Win 
 PROCEDURE ipReadUsrFile :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
     ASSIGN 
         lCorrupt = FALSE
         iCtr = 1.
     INPUT FROM VALUE(SEARCH(cUsrLoc)).
     REPEAT:
         IMPORT UNFORMATTED cUsrLine.
-        IF INDEX(cUsrLine,"|") NE 0 THEN DO:
+        IF INDEX(cUsrLine,"|") NE 0 THEN 
+        DO:
             CREATE ttUsers.
             ASSIGN
                 ttUsers.ttfUserID = ENTRY(1,cUsrLine,"|")
@@ -1452,11 +1512,11 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipSetCurrentDir C-Win 
 PROCEDURE ipSetCurrentDir :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
     DEF INPUT PARAMETER ipTgtDir AS CHAR NO-UNDO.
     DEF VAR iResult AS INT NO-UNDO.
     DEF VAR iReturnValue AS INT NO-UNDO.
@@ -1467,7 +1527,8 @@ PROCEDURE ipSetCurrentDir :
     
     RUN SetCurrentDirectoryA (ipTgtDir, OUTPUT iResult).
 
-    IF iResult NE 1 THEN DO:
+    IF iResult NE 1 THEN 
+    DO:
         RUN GetLastError (output iReturnValue).
         MESSAGE 
             "Unable to set working directory." SKIP
@@ -1483,12 +1544,12 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipUpdUsrFile C-Win 
 PROCEDURE ipUpdUsrFile :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       The ONLY reason to run this is if in "healing" mode; i.e there's been
-               a change to the structure of the .usr file or the ttUsers temp-table
-------------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       The ONLY reason to run this is if in "healing" mode; i.e there's been
+                   a change to the structure of the .usr file or the ttUsers temp-table
+    ------------------------------------------------------------------------------*/
     DEF INPUT PARAMETER ipcUserList AS CHAR NO-UNDO.
     DEF VAR iCtr AS INT NO-UNDO.
     DEF VAR cOutString AS CHAR.
@@ -1500,7 +1561,8 @@ PROCEDURE ipUpdUsrFile :
             ttUsers.ttfPdbName = "*" AND
             ttUsers.ttfUserID = ENTRY(iCtr,ipcUserList)
             NO-LOCK NO-ERROR.
-        IF NOT AVAIL ttUsers THEN DO:
+        IF NOT AVAIL ttUsers THEN 
+        DO:
             CREATE ttUsers.
             ASSIGN
                 lUpdUsr = TRUE
@@ -1513,7 +1575,8 @@ PROCEDURE ipUpdUsrFile :
             ttUsers.ttfPdbName = cbDatabase AND
             ttUsers.ttfUserID = ENTRY(iCtr,ipcUserList)
             NO-LOCK NO-ERROR.
-        IF NOT AVAIL ttUsers THEN DO:
+        IF NOT AVAIL ttUsers THEN 
+        DO:
             CREATE ttUsers.
             ASSIGN
                 lUpdUsr = TRUE
@@ -1523,16 +1586,19 @@ PROCEDURE ipUpdUsrFile :
         END.
     END.
     FOR EACH ttUsers WHERE ttUsers.ttfPdbName = cbDatabase:
-        IF LOOKUP(ttUsers.ttfUserID,ipcUserList) = 0 THEN DO:
+        IF LOOKUP(ttUsers.ttfUserID,ipcUserList) = 0 THEN 
+        DO:
             ASSIGN
                 lUpdUsr = TRUE.
             DELETE ttUsers.
         END.
     END.
-    IF lUpdUsr = TRUE THEN DO:
+    IF lUpdUsr = TRUE THEN 
+    DO:
         OUTPUT STREAM usrStream TO VALUE(cUsrLoc).
         FOR EACH ttUsers BY ttUsers.ttfPdbname by ttUsers.ttfUserID:
-            ASSIGN cOutString = 
+            ASSIGN 
+                cOutString = 
                 ttUsers.ttfUserID + "|" + 
                 ttUsers.ttfPdbName + "|" +
                 ttUsers.ttfUserAlias + "|" + 
@@ -1558,11 +1624,11 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION intVer C-Win 
 FUNCTION intVer RETURNS INTEGER
-  ( INPUT cVerString AS CHAR ) :
-/*------------------------------------------------------------------------------
-  Purpose:  
-    Notes:  
-------------------------------------------------------------------------------*/
+    ( INPUT cVerString AS CHAR ) :
+    /*------------------------------------------------------------------------------
+      Purpose:  
+        Notes:  
+    ------------------------------------------------------------------------------*/
     DEF VAR cStrVal AS CHAR EXTENT 4 NO-UNDO.
     DEF VAR iIntVal AS INT EXTENT 4 NO-UNDO.
     DEF VAR iIntVer AS INT NO-UNDO.
@@ -1577,7 +1643,7 @@ FUNCTION intVer RETURNS INTEGER
         iIntVal[4] = INT(cStrVal[4])
         iIntVer = (iIntVal[1] * 1000000) + (iIntVal[2] * 10000) + (iIntVal[3] * 100) + iIntVal[4]
         NO-ERROR.
-  RETURN iIntVer.   /* Function return value. */
+    RETURN iIntVer.   /* Function return value. */
 
 END FUNCTION.
 
