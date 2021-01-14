@@ -34,6 +34,7 @@ CREATE WIDGET-POOL.
 /* ***************************  Definitions  ************************** */
 
 &Scoped-define program-id isRunning.
+&Scoped-define DefaultMenuBGColor 32
 
 /* Parameters Definitions ---                                           */
 
@@ -1927,7 +1928,7 @@ PROCEDURE pBuildttMenuTree :
         "file",
         "Exit",
         "Exit",
-        "navigate_cross.png",
+        "logout.png",
         "Exit",
         "",
         "",
