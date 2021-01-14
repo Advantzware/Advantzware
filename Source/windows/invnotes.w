@@ -120,7 +120,7 @@ DEFINE FRAME message-frame
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 46 ROW 2.91
          SIZE 105 BY 1.43
-         BGCOLOR 4 .
+         BGCOLOR 15 .
 
 DEFINE FRAME OPTIONS-FRAME
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -277,6 +277,7 @@ END.
 
 /* Include custom  Main Block code for SmartWindows. */
 {src/adm/template/windowmn.i}
+{custom/initializeprocs.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
