@@ -100,7 +100,7 @@ oItemFG  = NEW fg.ItemFG().
     ~{&OPEN-QUERY-BROWSE-2}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-33 fiTag btPost btExit fiLocation ~
+&Scoped-Define ENABLED-OBJECTS RECT-33 fiTag btExit fiLocation ~
 btClearRecords BROWSE-2 
 &Scoped-Define DISPLAYED-OBJECTS fiTag fiLocation fiMessage 
 
@@ -262,6 +262,8 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* SETTINGS FOR FRAME F-Main
    FRAME-NAME                                                           */
 /* BROWSE-TAB BROWSE-2 btClearRecords F-Main */
+/* SETTINGS FOR BUTTON btPost IN FRAME F-Main
+   NO-ENABLE                                                            */
 ASSIGN 
        btPost:HIDDEN IN FRAME F-Main           = TRUE.
 
@@ -424,7 +426,7 @@ DO:
     DEFINE VARIABLE lIsTransfer AS LOGICAL   NO-UNDO.
     
     IF SELF:SCREEN-VALUE EQ "" THEN
-        RETURN NO-APPLY.
+        RETURN.
         
     RUN pTagScan (
         INPUT  SELF:SCREEN-VALUE,
@@ -537,7 +539,7 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY fiTag fiLocation fiMessage 
       WITH FRAME F-Main IN WINDOW W-Win.
-  ENABLE RECT-33 fiTag btPost btExit fiLocation btClearRecords BROWSE-2 
+  ENABLE RECT-33 fiTag btExit fiLocation btClearRecords BROWSE-2 
       WITH FRAME F-Main IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-F-Main}
   VIEW W-Win.
