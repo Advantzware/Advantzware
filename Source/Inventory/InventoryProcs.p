@@ -6987,7 +6987,7 @@ PROCEDURE ValidateLoadTag:
                              AND loadtag.tag-no    EQ ipcTag).
 
     IF NOT oplValidTag THEN
-        opcMessage = "Invalid Tag".
+        opcMessage = "Invalid Tag '" + ipcTag + "'".
     ELSE
         opcMessage = "Success".
 END PROCEDURE.
@@ -7344,6 +7344,73 @@ PROCEDURE GetRMLoadTagDetails:
             LEAVE.
         END.
     END.
+END PROCEDURE.
+
+PROCEDURE PostFinishedGoodsForFGRctd:
+    DEFINE INPUT  PARAMETER ipriFGRctd  AS ROWID     NO-UNDO.  
+    DEFINE INPUT  PARAMETER iplCloseJob AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError    AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage  AS CHARACTER NO-UNDO.  
+
+    RUN pPostFinishedGoodsForFGRctd (
+        INPUT  ipriFGRctd,
+        INPUT  iplCloseJob,
+        OUTPUT oplError,
+        OUTPUT opcMessage
+        ).
+END.
+
+PROCEDURE pPostFinishedGoodsForFGRctd:
+    DEFINE INPUT  PARAMETER ipriFGRctd  AS ROWID     NO-UNDO.  
+    DEFINE INPUT  PARAMETER iplCloseJob AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError    AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage  AS CHARACTER NO-UNDO.  
+    
+    DEFINE BUFFER bf-fg-rctd FOR fg-rctd.
+    
+    EMPTY TEMP-TABLE  w-fg-rctd.
+    
+    FIND FIRST bf-fg-rctd NO-LOCK
+         WHERE ROWID(bf-fg-rctd) EQ ipriFGRctd
+         NO-ERROR.
+    IF NOT AVAILABLE bf-fg-rctd THEN DO:
+        ASSIGN
+            oplError   = TRUE
+            opcMessage = "Invalid fg-rctd record"
+            .
+        RETURN.
+    END.
+    
+    CREATE w-fg-rctd.
+    BUFFER-COPY bf-fg-rctd TO w-fg-rctd
+    ASSIGN 
+        w-fg-rctd.row-id  = ROWID(bf-fg-rctd)
+        w-fg-rctd.has-rec = YES
+        .   
+    
+    RELEASE w-fg-rctd.
+    
+    /* Posts FG items */
+    RUN fg/fgpostBatch.p ( 
+        INPUT TODAY,             /* Post date      */
+        INPUT NO,                /* tg-recalc-cost */
+        INPUT bf-fg-rctd.rita-code,  /* Transfer  */
+        INPUT NO,                /* Send fg emails */
+        INPUT YES,               /* creates work GL */
+        INPUT iplCloseJob, /* Executes closing orders logic based input */   
+        INPUT TABLE w-fg-rctd  BY-REFERENCE,
+        INPUT TABLE tt-fgemail BY-REFERENCE,
+        INPUT TABLE tt-email   BY-REFERENCE,
+        INPUT TABLE tt-inv     BY-REFERENCE
+        )NO-ERROR.
+    
+    IF ERROR-STATUS:ERROR THEN DO:
+       ASSIGN
+           opcMessage = ERROR-STATUS:GET-MESSAGE(1)
+           oplError   = TRUE
+           .
+       RETURN.
+    END.  
 END PROCEDURE.
 
 PROCEDURE PostFinishedGoodsForUser :

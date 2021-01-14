@@ -46,6 +46,8 @@ CLASS fg.ItemFG:
                 RETURN STRING(bf-itemfg.case-count).
             WHEN "SubUnitsPerUnit" THEN
                 RETURN STRING(bf-itemfg.case-pall).
+            WHEN "PurchaseUOM" THEN
+                RETURN bf-itemfg.pur-uom.
             OTHERWISE
                 RETURN "".
         END.

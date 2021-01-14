@@ -604,8 +604,8 @@ DO:
     IF VALID-HANDLE(hdJobDetailsWin) THEN
         APPLY "WINDOW-CLOSE" TO hdJobDetailsWin.
 
-    IF VALID-HANDLE(hdJobDetails) THEN
-        DELETE OBJECT hdInventoryProcs.
+    IF VALID-HANDLE(hdInventoryProcs) THEN
+        DELETE PROCEDURE hdInventoryProcs.
     
     APPLY "CLOSE":U TO THIS-PROCEDURE.
     

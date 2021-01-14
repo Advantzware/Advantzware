@@ -21,6 +21,8 @@ DEFINE INPUT  PARAMETER ipcInventoryStockIDTag  AS CHARACTER  NO-UNDO.
 DEFINE INPUT  PARAMETER ipcPrimaryID            AS CHARACTER  NO-UNDO.
 DEFINE INPUT  PARAMETER ipcItemType             AS CHARACTER  NO-UNDO.
 DEFINE INPUT  PARAMETER ipcUsername             AS CHARACTER  NO-UNDO.
+DEFINE INPUT  PARAMETER iplPost                 AS LOGICAL    NO-UNDO.
+DEFINE OUTPUT PARAMETER opriRctd                AS ROWID      NO-UNDO.
 DEFINE OUTPUT PARAMETER oplSuccess              AS LOGICAL    NO-UNDO.
 DEFINE OUTPUT PARAMETER opcMessage              AS CHARACTER  NO-UNDO.
 
@@ -223,22 +225,25 @@ IF ipcItemType EQ "FG" THEN DO:
         fg-rctd.ext-cost     = fg-rctd.t-qty * fg-rctd.std-cost
         fg-rctd.enteredBy    = ipcUsername
         fg-rctd.enteredDT    = DATETIME(TODAY, MTIME)
+        opriRctd             = ROWID(fg-rctd)
         .
     
    /* Posts fg-rctd records */
-    RUN PostFinishedGoodsForUser IN hdInventoryProcs(
-        INPUT        ipcCompany,
-        INPUT        cTransfer,       /* Transfer */
-        INPUT        ipcUsername,
-        INPUT        lPromptForClose, /* Executes API closing orders logic */
-        INPUT-OUTPUT oplSuccess,
-        INPUT-OUTPUT opcMessage
-        ) NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN
-        ASSIGN
-            oplSuccess = FALSE
-            opcMessage = "Error while posting Finished Good"
-            .
+   IF iplPost THEN DO:
+        RUN PostFinishedGoodsForUser IN hdInventoryProcs(
+            INPUT        ipcCompany,
+            INPUT        cTransfer,       /* Transfer */
+            INPUT        ipcUsername,
+            INPUT        lPromptForClose, /* Executes API closing orders logic */
+            INPUT-OUTPUT oplSuccess,
+            INPUT-OUTPUT opcMessage
+            ) NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN
+            ASSIGN
+                oplSuccess = FALSE
+                opcMessage = "Error while posting Finished Good"
+                .
+    END.
 END.
 
 

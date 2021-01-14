@@ -33,6 +33,7 @@ DEFINE VARIABLE cLocationID             AS CHARACTER  NO-UNDO.
 DEFINE VARIABLE cInventoryStockIDTag    AS CHARACTER  NO-UNDO.
 DEFINE VARIABLE cPrimaryID              AS CHARACTER  NO-UNDO.
 DEFINE VARIABLE cItemType               AS CHARACTER  NO-UNDO.
+DEFINE VARIABLE riRctd                  AS ROWID      NO-UNDO.
 
 {api/inbound/ttRequest.i}
 
@@ -181,6 +182,8 @@ PROCEDURE pProcessInputs:
                 INPUT  cPrimaryID,
                 INPUT  cItemType,
                 INPUT  ipcUserName, 
+                INPUT  TRUE, /* Post */
+                OUTPUT riRctd,
                 OUTPUT oplSuccess,
                 OUTPUT opcMessage
                 ) NO-ERROR.
