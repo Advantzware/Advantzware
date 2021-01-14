@@ -23,7 +23,8 @@ DEFINE VARIABLE gcLoadTag                              AS CHARACTER NO-UNDO.
 DEFINE VARIABLE gcLabelMatrixLoadTagOutputFile         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE gcLabelMatrixLoadTagOutputPath         AS CHARACTER NO-UNDO.
 
-DEFINE VARIABLE iTagCounter AS INTEGER NO-UNDO.
+DEFINE VARIABLE iTagCounter  AS INTEGER NO-UNDO.
+DEFINE VARIABLE iPalletCount AS INTEGER NO-UNDO.
 
 {oerep/ttLoadTag.i SHARED}
 {fg/fullset.i NEW}
@@ -75,8 +76,10 @@ PROCEDURE CreateLoadTagFromTT:
 ------------------------------------------------------------------------------*/
     DEFINE VARIABLE lError   AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
-    
-    DEFINE VARIABLE iTagCount AS INTEGER NO-UNDO. 
+
+    DEFINE VARIABLE iEndPalletID   AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iStartPalletID AS INTEGER NO-UNDO.    
+    DEFINE VARIABLE iTagCount      AS INTEGER NO-UNDO. 
       
     MAIN-BLOCK:
     DO ON ERROR UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
@@ -86,6 +89,15 @@ PROCEDURE CreateLoadTagFromTT:
         FOR EACH ttLoadTag
             WHERE ttLoadTag.tagStatus EQ "Created":
             /* v-loadtag - additional code is required to calculate totaltags to print using LOADTAG NK1 */
+            RUN pIncrementCustPalletID(
+                INPUT  ttLoadTag.company,
+                INPUT  ttLoadTag.custID,
+                INPUT  ttLoadTag.totalTags * ttLoadTag.mult,
+                OUTPUT iStartPalletID,
+                OUTPUT iEndPalletID
+                ).
+            
+            iPalletCount = iStartPalletID.
             DO iTagCount = 1 TO ttLoadTag.totalTags:
                 iTagCounter = iTagCounter + 1.
                 RUN pCreateLoadTagFromTT (
@@ -99,7 +111,10 @@ PROCEDURE CreateLoadTagFromTT:
         END.
         
         EMPTY TEMP-TABLE ttLoadTag.
-        iTagCounter = 0.
+        ASSIGN
+            iTagCounter  = 0
+            iPalletCount = 0
+            .
     END.
 END PROCEDURE.
 
@@ -123,6 +138,7 @@ PROCEDURE pCreateLoadTagFromTT:
     DEFINE VARIABLE hdPOProcs             AS HANDLE    NO-UNDO.
     DEFINE VARIABLE hdJobProcs            AS HANDLE    NO-UNDO. 
     DEFINE VARIABLE dMaxQty               AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE iCopies               AS INTEGER   NO-UNDO.
     
     DEFINE BUFFER bf-loadtag  FOR loadtag.
     DEFINE BUFFER bf-po-ordl  FOR po-ordl.
@@ -545,11 +561,15 @@ PROCEDURE pCreateLoadTagFromTT:
                     INPUT ROWID(bf-fg-rctd)
                     ).
         END.
-      
-        RUN pPrintLoadTag (
-            BUFFER ipbf-ttLoadTag,
-            BUFFER bf-loadtag 
-            ).  
+       
+        DO iCopies = 1 TO ipbf-ttLoadTag.mult:
+            RUN pPrintLoadTag (
+                BUFFER ipbf-ttLoadTag,
+                BUFFER bf-loadtag 
+                ).  
+            
+            iPalletCount = iPalletCount  + 1.
+        END.
         /* Update the other tags with this new quantity */
 /*        IF AVAILABLE bf-fg-rctd AND lv-use-full-qty THEN*/
 /*            RUN get-set-full-qty (                        */
@@ -729,6 +749,64 @@ PROCEDURE pGetCostFromPO PRIVATE:
 END PROCEDURE.
 
 
+PROCEDURE pIncrementCustPalletID PRIVATE:
+/*------------------------------------------------------------------------------
+  Purpose:     Increment the pallet number for a given customer and return the
+                new value
+  Parameters:  INPUT: cust buffer OUTPUT: next pallet #
+  Notes:       Defaults value if not set for given cust
+               Returns error code of -1  
+               Copied from r-loadtg.w 
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany       AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcCustID        AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiTags          AS INTEGER   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiStartPalletID AS INTEGER   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiEndPalletID   AS INTEGER   NO-UNDO.
+    
+    DEFINE VARIABLE iPalletID AS INTEGER NO-UNDO.
+    DEFINE VARIABLE lTagCount AS INTEGER NO-UNDO.
+    
+    DEFINE BUFFER bf-cust FOR cust.
+    
+    FIND FIRST bf-cust EXCLUSIVE-LOCK
+         WHERE bf-cust.company EQ ipcCompany
+           AND bf-cust.cust-no EQ ipcCustID
+           NO-ERROR.
+    IF NOT AVAILABLE bf-cust THEN DO:
+        opiEndPalletID = 0.
+        RETURN.
+    END.
+    
+    IF bf-cust.spare-int-1 EQ 0 THEN DO:
+        opiEndPalletID = 0.
+        RETURN.
+    END.
+    
+    iPalletID = bf-cust.spare-int-1.
+    
+    IF iPalletID MOD 1000000 = 999999 THEN DO:
+        opiEndPalletID = -1.
+        RETURN.
+    END.
+    
+    opiStartPalletID = iPalletID + 1.
+    DO lTagCount = 1 TO ipiTags:
+        iPalletID = iPalletID + 1.
+        IF iPalletID MOD 1000000 = 999999 THEN DO:
+            /*protection code*/
+            opiEndPalletID = -1.
+            RETURN.
+        END.
+    END.
+    
+    ASSIGN 
+        opiEndPalletID      = iPalletID
+        bf-cust.spare-int-1 = iPalletID
+        .
+
+END PROCEDURE.
+
 PROCEDURE pPrintLoadTag PRIVATE:
 /*------------------------------------------------------------------------------
  Purpose:
@@ -750,11 +828,6 @@ PROCEDURE pPrintLoadTag PRIVATE:
              WHERE bf-itemfg.company EQ ipbf-loadtag.company
                AND bf-itemfg.i-no    EQ ipbf-loadtag.i-no
              NO-ERROR.
-        
-        FIND FIRST bf-cust NO-LOCK
-             WHERE bf-cust.company EQ ipbf-loadtag.company
-               AND bf-cust.cust-no EQ ipbf-ttLoadtag.custID
-               NO-ERROR.
                
         PUT UNFORMATTED
         '"'  fReplaceQuotes(ipbf-ttLoadTag.custName)  '",'
@@ -846,7 +919,7 @@ PROCEDURE pPrintLoadTag PRIVATE:
         '"' fReplaceQuotes(IF AVAILABLE bf-itemfg THEN bf-itemfg.part-dscr3 ELSE "") '",'
         '"' fReplaceQuotes(ipbf-ttLoadTag.lotID) '",'
         '"' ipbf-ttLoadTag.palletID '",'
-        '"' IF AVAILABLE bf-cust THEN bf-cust.spare-int-1 + 1 ELSE 0 '",'
+        '"' iPalletCount '",'
         '"' iTagCounter '",'
         '"' ipbf-ttLoadTag.totalTags '",'
         '"' REPLACE(ipbf-ttLoadTag.shipNotes[1],'"', '') '",'
@@ -1066,7 +1139,7 @@ PROCEDURE pCreateTTLoadTagFromItem:
         IF bf-ttLoadTag.style NE "" THEN DO:
             FIND FIRST bf-style NO-LOCK
                  WHERE bf-style.company EQ ipcCompany
-                   AND bf-style.style   EQ ttLoadTag.style
+                   AND bf-style.style   EQ bf-ttLoadTag.style
                  NO-ERROR.
             IF AVAILABLE bf-style THEN
                 bf-ttLoadTag.styleDesc = bf-style.dscr.
@@ -1209,8 +1282,8 @@ PROCEDURE pUpdateTTLoadTagCustShipTo:
         END.
             
         ASSIGN
-            bf-ttLoadTag.custID = bf-cust.cust-no
-            bf-ttLoadTag.custName  = bf-cust.name
+            bf-ttLoadTag.custID   = bf-cust.cust-no
+            bf-ttLoadTag.custName = bf-cust.name
             .
             
         FOR EACH bf-cust-part NO-LOCK 
@@ -1443,7 +1516,6 @@ PROCEDURE pBuildLoadTagsFromJob PRIVATE:
             ).
 
         ASSIGN
-            bf-ttLoadTag.jobQuantity = ipiQuantity
             bf-ttLoadTag.pcs         = ipiQuantityInSubUnit
             bf-ttLoadTag.bundle      = ipiSubUnitsPerUnit
             bf-ttLoadTag.partial     = iPartial

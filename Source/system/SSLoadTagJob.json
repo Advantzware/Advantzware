@@ -18,7 +18,7 @@
 	},
 	"CreateRFIDTag" : {
 		"Description" : "NK1 RFIDTag - Create rfIDTag for a lodatag",
-		"Active" : false	
+		"Active" : true	
 	},
 	"CheckClosedStatus" : {
 		"Description" : "Validate Job/PO status before ccreating FG Receipts",
