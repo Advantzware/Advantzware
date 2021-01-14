@@ -319,7 +319,7 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/folder.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'FOLDER-LABELS = ':U + 'Brws Mach|View Mach|Standard|Setup|Run|Spoilage' + ',
+             INPUT  'FOLDER-LABELS = ':U + 'Browse|Detail|Standard|Setup|Run|Spoilage' + ',
                      FOLDER-TAB-TYPE = 2':U ,
              OUTPUT h_folder ).
        RUN set-position IN h_folder ( 3.14 , 2.00 ) NO-ERROR.
