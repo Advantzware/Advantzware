@@ -13,8 +13,12 @@ PROCEDURE beforeinitialize:
 
     IF VALID-HANDLE({&WINDOW-NAME}) THEN 
     DO:
-
-        hTempWinmn  = FRAME {&FRAME-NAME}:handle.
+        ASSIGN 
+            hTempWinmn  = FRAME {&FRAME-NAME}:HANDLE 
+            hTempWinmn:WIDTH                  = {&WINDOW-NAME}:WIDTH 
+            hTempWinmn:HEIGHT                 = {&WINDOW-NAME}:HEIGHT 
+            hTempWinmn:VIRTUAL-HEIGHT-PIXELS = hTempWinmn:HEIGHT-PIXELS
+            hTempWinmn:VIRTUAL-WIDTH-PIXELS  = hTempWinmn:WIDTH-PIXELS.
 
         IF VALID-HANDLE(hTempWinmn) THEN
             hTempWinmn  = hTempWinmn:FIRST-CHILD. 

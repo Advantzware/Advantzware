@@ -316,7 +316,7 @@ END.
 
 /* Include custom  Main Block code for SmartWindows. */
 {src/adm/template/windowmn.i}
-
+{custom/initializeprocs.i}
 /* ON 'VALUE-CHANGED':U OF FRAME {&FRAME-NAME} ANYWHERE */
 /* DO:                                                  */
 /*   MESSAGE 'value-changed'                            */
