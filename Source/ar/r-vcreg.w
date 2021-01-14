@@ -831,38 +831,40 @@ PROCEDURE post-gl :
            IF ar-cashl.inv-no EQ 0 AND ar-cashl.on-account EQ YES THEN
               cust.on-account = cust.on-account - ar-cashl.amt-paid.
 
-           CREATE gltrans.
-           ASSIGN
-             t1 = t1 + ar-cashl.amt-paid + ar-cashl.amt-disc
-             gltrans.company   = cocode
-             gltrans.actnum    = ar-cashl.actnum
-             gltrans.jrnl      = "CASHRVD"
-             gltrans.tr-dscr   = "VOID " + cust.cust-no + " " +
+          RUN spCreateGLHist(cocode,
+                             ar-cashl.actnum,
+                             "CASHRVD",
+                             "VOID " + cust.cust-no + " " +
                                  STRING(ar-cash.check-no,"999999999999") +
-                                 " Inv# " + STRING(ar-cashl.inv-no)
-             gltrans.tr-date   = tran-date
-             gltrans.tr-amt    = -1 * ar-cashl.amt-paid
-             gltrans.period    = tran-period
-             gltrans.trnum     = v-trnum
-             /*ar-cashl.amt-paid = -1 * ar-cashl.amt-paid*/ .
+                                 " Inv# " + STRING(ar-cashl.inv-no),
+                             tran-date,
+                             (-1 * ar-cashl.amt-paid),
+                             v-trnum,
+                             tran-period,
+                             "A",
+                             tran-date,
+                             "",
+                             "AR").
 
-           RELEASE gltrans.
+           ASSIGN
+             t1 = t1 + ar-cashl.amt-paid + ar-cashl.amt-disc.
 
            IF ar-cashl.amt-disc NE 0 THEN DO:
-             CREATE gltrans.
-             ASSIGN
-              gltrans.company = cocode
-              gltrans.actnum  = xdis-acct
-              gltrans.jrnl    = "CRDISVD"
-              gltrans.tr-dscr = "VOID " + cust.cust-no + " " +
-                                STRING(ar-cash.check-no,"999999999999") +
-                                " Inv# " + STRING(ar-cashl.inv-no)
-              gltrans.tr-date = tran-date
-              gltrans.tr-amt  = -1 * ar-cashl.amt-disc
-              gltrans.period  = tran-period
-              gltrans.trnum   = v-trnum.
-
-             RELEASE gltrans.
+               RUN spCreateGLHist(cocode,
+                                  xdis-acct,
+                                  "CRDISVD",
+                                  "VOID " + cust.cust-no + " " +
+                                          STRING(ar-cash.check-no,"999999999999") +
+                                          " Inv# " + STRING(ar-cashl.inv-no),
+                                  tran-date,
+                                  (-1 * ar-cashl.amt-disc),
+                                  v-trnum,
+                                  tran-period,
+                                  "A",
+                                  tran-date,
+                                  "",
+                                  "AR").
+             
 
              CREATE ar-ledger.
              ASSIGN
@@ -890,22 +892,26 @@ PROCEDURE post-gl :
        xar-acct = string(DYNAMIC-FUNCTION("GL_GetAccountAR", cust.company, cust.cust-no)).
 
        IF t1 NE 0 THEN DO:
-          FIND gltrans WHERE ROWID(gltrans) EQ lv-rowid NO-ERROR.
-          IF NOT AVAIL gltrans THEN DO:
-            CREATE gltrans.
+          FIND glhist WHERE ROWID(glhist) EQ lv-rowid NO-ERROR.
+          IF NOT AVAIL glhist THEN DO:
+            CREATE glhist.
             ASSIGN
-             gltrans.company = cocode
-             gltrans.actnum  = xar-acct
-             gltrans.jrnl    = "CASHRVD"
-             gltrans.tr-dscr = "CASH RECEIPTS VOID"
-             gltrans.tr-date = tran-date
-             gltrans.period  = tran-period
-             gltrans.trnum   = v-trnum
-             lv-rowid        = ROWID(gltrans).
+             glhist.company = cocode
+             glhist.actnum  = xar-acct
+             glhist.jrnl    = "CASHRVD"
+             glhist.tr-dscr = "CASH RECEIPTS VOID"
+             glhist.tr-date = tran-date
+             glhist.period  = tran-period
+             glhist.tr-num   = v-trnum   
+             glhist.glYear  = YEAR(tran-date)
+             glhist.module  = "AR"
+             glhist.posted  = NO
+             glhist.entryType = "A"
+             lv-rowid       = ROWID(glhist).
           END.
-          gltrans.tr-amt = gltrans.tr-amt + t1.
+          glhist.tr-amt = glhist.tr-amt + t1.
 
-          RELEASE gltrans.
+          RELEASE glhist.
        END.
 
        create ar-ledger.

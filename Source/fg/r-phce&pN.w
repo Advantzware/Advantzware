@@ -1058,23 +1058,20 @@ postit:
       /* gdm - 11050906 */
 
       for each work-job break by work-job.actnum:
-        create gltrans.
-        assign
-         gltrans.company = cocode
-         gltrans.actnum  = work-job.actnum
-         gltrans.jrnl    = "ADJUST"
-         gltrans.tr-date = udate
-         gltrans.period  = uperiod
-         gltrans.trnum   = v-trnum.
-
-        if work-job.fg then
-          assign
-           gltrans.tr-amt  = - work-job.amt
-           gltrans.tr-dscr = "FG Adjustment entries FG".
-        else
-          assign
-           gltrans.tr-amt  = work-job.amt
-           gltrans.tr-dscr = "FG Adjustment entries COGS".
+          RUN spCreateGLHist(cocode,
+                             work-job.actnum,
+                             "ADJUST",
+                             (IF work-job.fg THEN "FG Adjustment entries FG"
+                                             ELSE "FG Adjustment entries COGS"),
+                             udate,
+                             (IF work-job.fg THEN - work-job.amt
+                                             ELSE work-job.amt),
+                             v-trnum,
+                             uperiod,
+                             "A",
+                             udate,
+                             "",
+                             "FG").
       end. /* each work-job */
     end.
   end. /* postit */

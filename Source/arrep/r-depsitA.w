@@ -58,7 +58,7 @@ DEF VAR lv-amt      LIKE ar-cash.check-amt NO-UNDO.
 DEF VAR lv-cust-no  LIKE cust.cust-no NO-UNDO.
 DEF VAR lv-name     LIKE cust.name NO-UNDO.
 
-DEF TEMP-TABLE tt-gltrans NO-UNDO LIKE gltrans
+DEF TEMP-TABLE tt-gltrans NO-UNDO LIKE glhist
     FIELD VOID AS LOG.
 
 DEF STREAM excel.
@@ -921,9 +921,9 @@ PROCEDURE get-detail-values :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF INPUT PARAM ip-jrnl LIKE gltrans.jrnl    NO-UNDO.
-  DEF INPUT PARAM ip-dscr LIKE gltrans.tr-dscr NO-UNDO.
-  DEF INPUT PARAM ip-amt  LIKE gltrans.tr-amt  NO-UNDO.
+  DEF INPUT PARAM ip-jrnl LIKE glhist.jrnl    NO-UNDO.
+  DEF INPUT PARAM ip-dscr LIKE glhist.tr-dscr NO-UNDO.
+  DEF INPUT PARAM ip-amt  LIKE glhist.tr-amt  NO-UNDO.
   DEF INPUT PARAM ip-void AS LOG               NO-UNDO.
 
   ASSIGN
@@ -1174,7 +1174,7 @@ FOR EACH ar-cash NO-LOCK
                              " Inv# " + STRING(ar-cashl.inv-no)
         tt-gltrans.tr-date = ar-ledger.tr-date
         tt-gltrans.tr-amt  = ar-cashl.amt-paid
-        tt-gltrans.trnum   = ar-ledger.tr-num
+        tt-gltrans.tr-num   = ar-ledger.tr-num
         tt-gltrans.VOID    = v-void
         .
       RELEASE tt-gltrans.
@@ -1206,7 +1206,7 @@ IF TRIM(begin_cust) EQ "" AND
         tt-gltrans.tr-dscr = string(ar-mcash.m-no)
         tt-gltrans.tr-date = ar-ledger.tr-date
         tt-gltrans.tr-amt  = ar-ledger.amt
-        tt-gltrans.trnum   = ar-ledger.tr-num.
+        tt-gltrans.tr-num   = ar-ledger.tr-num.
        RELEASE tt-gltrans.
 END.
 
@@ -1229,7 +1229,7 @@ FOR EACH bank
         no-lock
 
         break by tt-gltrans.tr-date
-              BY tt-gltrans.trnum
+              BY tt-gltrans.tr-num
               BY tt-gltrans.tr-dscr:
 
         {custom/statusMsg.i " 'Processing Bank#  '  + tt-gltrans.actnum "}
@@ -1284,7 +1284,7 @@ FOR EACH bank
          v-frst = NO
          tot-daily[1] = tot-daily[1] + tt-gltrans.tr-amt.
 
-      IF LAST-OF(tt-gltrans.trnum) THEN DO:
+      IF LAST-OF(tt-gltrans.tr-num) THEN DO:
         IF tb_det THEN
         DO:
           UNDERLINE tot-daily[2] WITH FRAME day-log.
@@ -1300,7 +1300,7 @@ FOR EACH bank
         END.
 
         display tt-gltrans.tr-date @ v-date
-                TRIM(STRING(tt-gltrans.trnum,">>>>>>>>>>")) @ v-tr-num
+                TRIM(STRING(tt-gltrans.tr-num,">>>>>>>>>>")) @ v-tr-num
                 tot-daily[1] @ tot-daily[2]
 
             with frame day-log.
@@ -1312,7 +1312,7 @@ FOR EACH bank
               '"' "" '",'
               '"' (IF tt-gltrans.tr-date NE ? THEN STRING(tt-gltrans.tr-date)
                    ELSE "") '",'
-              '"' TRIM(STRING(tt-gltrans.trnum,">>>>>>>>>>")) '",'
+              '"' TRIM(STRING(tt-gltrans.tr-num,">>>>>>>>>>")) '",'
               '"' STRING(tot-daily[1],"->>,>>>,>>9.99") '",'
              SKIP.
 

@@ -433,15 +433,7 @@ PROCEDURE build-inquiry :
                         
                         dPeriodAccBalance = dPeriodAccBalance + glhist.tr-amt.   
                     END.
-
-                    FOR EACH gltrans NO-LOCK
-                        WHERE gltrans.company EQ cCompany
-                        AND gltrans.actnum  EQ account.actnum 
-                        AND gltrans.tr-date GE period.pst
-                        AND gltrans.tr-date LE period.pend :
-                       
-                        dPeriodAccBalance = dPeriodAccBalance + gltrans.tr-amt.
-                    END.                   
+                    
                 END.
                 
                 dTotalAccBalance = dTotalAccBalance + dPeriodAccBalance.

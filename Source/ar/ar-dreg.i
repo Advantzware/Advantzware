@@ -1,8 +1,7 @@
 /* --------------------------------------------------- ar/ar-dreg.i 09/12 JLF */
 /* A/R Credit/Debit Memo Edit Register Program - A/R Module  (post include)   */
 /* -------------------------------------------------------------------------- */
-      DEF BUFFER b-reftable FOR reftable.
-
+      DEF BUFFER b-reftable FOR reftable.      
 
       ASSIGN ar-cash.posted = YES.
       /* if ar-cashl.amt-disc = 0 then ar-cashl.dscr = "debit". */
@@ -62,26 +61,26 @@
         RELEASE ar-inv.
 
         t1 = t1 + ar-cashl.amt-paid - ar-cashl.amt-disc.
+          RUN spCreateGLHist(cocode,
+                             ar-cashl.actnum,
+                             (IF (ar-cashl.amt-disc - ar-cashl.amt-paid) < 0 THEN "DBMEM" ELSE "CRMEM"),
+                             (cust.name  + " " +
+                                          STRING(ar-cash.check-no,"99999999")),
+                             tran-date,
+                             (ar-cashl.amt-disc - ar-cashl.amt-paid),
+                             xtrnum,
+                             tran-period,
+                             "A",
+                             tran-date,
+                             "",
+                             "AR").
+        
 
-        CREATE gltrans.
-        ASSIGN
-          gltrans.company = cocode
-          gltrans.actnum  = ar-cashl.actnum
-          gltrans.jrnl    = "CRMEM"
-          gltrans.tr-dscr = cust.name  + " " +
-          STRING(ar-cash.check-no,"99999999")
-          gltrans.tr-date = tran-date
-          gltrans.tr-amt  = ar-cashl.amt-disc - ar-cashl.amt-paid
-          gltrans.period  = tran-period
-          gltrans.trnum   = xtrnum.
-        IF gltrans.tr-amt < 0 THEN
-          ASSIGN  gltrans.jrnl = "DBMEM".
-               /* gltrans.actnum = xar-acct    DAR */
 
-        find first bank where bank.company = cocode and
+       FIND first bank where bank.company = cocode and
                               bank.actnum = ar-cashl.actnum no-error.
         if avail bank then
-          assign bank.bal = bank.bal + gltrans.tr-amt.
+          assign bank.bal = bank.bal + (ar-cashl.amt-disc - ar-cashl.amt-paid).
         RELEASE bank.
       END.  /* each line */
 

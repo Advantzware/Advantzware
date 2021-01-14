@@ -1453,25 +1453,29 @@ PROCEDURE pCreateGLTrans PRIVATE:
     DEFINE INPUT PARAMETER ipdExRate AS DECIMAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opriGLTrans AS ROWID NO-UNDO.
      
-    DEFINE BUFFER bf-gltrans FOR gltrans.
+    DEFINE BUFFER bf-glhist FOR glhist.
      
     IF ipdTransactionAmount NE 0 THEN 
     DO:
-        CREATE bf-gltrans.
+        CREATE bf-glhist.
         ASSIGN
-            opriGLTrans          = ROWID(bf-gltrans)
-            bf-gltrans.company   = ipbf-ttPostingMaster.company
-            bf-gltrans.actnum    = ipcAccount
-            bf-gltrans.jrnl      = ipbf-ttPostingMaster.journalNote
-            bf-gltrans.tr-dscr   = ipcDescription
-            bf-gltrans.tr-amt    = ipdTransactionAmount
-            bf-gltrans.period    = IF ipiTransactionPeriod EQ 0 THEN ipbf-ttPostingMaster.periodID ELSE ipiTransactionPeriod
-            bf-gltrans.tr-date   = IF ipdtTransactionDate EQ ? THEN ipbf-ttPostingMaster.postDate ELSE ipdtTransactionDate
-            bf-gltrans.trnum     = ipiRun
-            bf-gltrans.curr-code = ipcCurrCode
-            bf-gltrans.ex-rate   = ipdExRate
+            opriGLTrans          = ROWID(bf-glhist)
+            bf-glhist.company   = ipbf-ttPostingMaster.company
+            bf-glhist.actnum    = ipcAccount
+            bf-glhist.jrnl      = ipbf-ttPostingMaster.journalNote
+            bf-glhist.tr-dscr   = ipcDescription
+            bf-glhist.tr-amt    = ipdTransactionAmount
+            bf-glhist.period    = IF ipiTransactionPeriod EQ 0 THEN ipbf-ttPostingMaster.periodID ELSE ipiTransactionPeriod
+            bf-glhist.tr-date   = IF ipdtTransactionDate EQ ? THEN ipbf-ttPostingMaster.postDate ELSE ipdtTransactionDate
+            bf-glhist.tr-num     = ipiRun
+            bf-glhist.curr-code = ipcCurrCode
+            bf-glhist.ex-rate   = ipdExRate
+            bf-glhist.glYear    = IF ipdtTransactionDate EQ ? THEN year(ipbf-ttPostingMaster.postDate) ELSE YEAR(ipdtTransactionDate)
+            bf-glhist.entryType = "A"
+            bf-glhist.module    = "AR"
+            bf-glhist.posted    =  NO
             .
-        RELEASE bf-gltrans.
+        RELEASE bf-glhist.
     END.
     
 END PROCEDURE.

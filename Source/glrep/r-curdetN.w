@@ -1183,10 +1183,10 @@ PROCEDURE run-report :
 
 /*{sys/form/r-topw.f}*/
 
-def buffer xgltrans for gltrans.
+def buffer xglhist for glhist.
 
-def var tacct like gltrans.actnum  label "    To Account Number".
-def var facct like gltrans.actnum  label "  From Account Number".
+def var tacct like glhist.actnum  label "    To Account Number".
+def var facct like glhist.actnum  label "  From Account Number".
 def var op as char format "!" init "S" label "  S)ummary or D)etail?".
 def var inc as log init no label "  Print Accounts with NO Activity?".
 
@@ -1198,8 +1198,8 @@ def var tot-tx   like tot-all.
 def var tot-act  like tot-all.
 def var open-amt like tot-all.
 def var net-inc  as   dec.
-def var tmp-amt  like gltrans.tr-amt FORMAT "(>>>,>>>,>>9.99)".
-def var tmp-dscr like gltrans.tr-dscr.
+def var tmp-amt  like glhist.tr-amt FORMAT "(>>>,>>>,>>9.99)".
+def var tmp-dscr like glhist.tr-dscr.
 def var v-crdit  like tmp-amt extent 3.
 def var v-debit  like v-crdit.
 DEF VAR v-jrnl-no AS CHAR NO-UNDO.
@@ -1325,10 +1325,11 @@ v-jrnl-no = "" .
     run gl/gl-open1.p (recid(account), vyear, tran-date, tran-period,
                        output open-amt).
 
-    find first gltrans no-lock
-        where gltrans.company eq cocode
-          and gltrans.actnum  eq account.actnum
-          and gltrans.period  eq tran-period
+    find first glhist no-lock
+        where glhist.company eq cocode
+          and glhist.actnum  eq account.actnum
+          and glhist.period  eq tran-period
+          AND glhist.posted  EQ NO
         no-error.
 
   /*  if avail gltrans or inc then do:
@@ -1342,27 +1343,28 @@ v-jrnl-no = "" .
     /* gdm - 10010905 */
     ASSIGN v-runbal = open-amt.
 
-    for each gltrans no-lock
-        where gltrans.company eq cocode
-          and gltrans.actnum  eq account.actnum
-          and gltrans.period  eq tran-period
-        break by gltrans.trnum
-              by gltrans.tr-date
-              by gltrans.jrnl:
+    for each glhist no-lock
+        where glhist.company eq cocode
+          and glhist.actnum  eq account.actnum
+          and glhist.period  eq tran-period
+          AND glhist.posted  EQ NO
+        break by glhist.tr-num
+              by glhist.tr-date
+              by glhist.jrnl:
 
-      if gltrans.tr-amt ge 0 then
+      if glhist.tr-amt ge 0 then
         assign
-         v-debit[1] = v-debit[1] + gltrans.tr-amt
+         v-debit[1] = v-debit[1] + glhist.tr-amt
          v-crdit[1] = v-crdit[1] + 0.
       else
         assign
-         v-crdit[1] = v-crdit[1] + gltrans.tr-amt
+         v-crdit[1] = v-crdit[1] + glhist.tr-amt
          v-debit[1] = v-debit[1] + 0.
 
       /* gdm - 10010905 */
       ASSIGN v-runbal = v-runbal + v-crdit[1] + v-debit[1].
 
-      if last-of(gltrans.trnum) /*or op eq "D"*/ then do:
+      if last-of(glhist.tr-num) /*or op eq "D"*/ then do:
         if line-counter gt page-size - 2 then page.
 
      /*   ASSIGN
@@ -1435,7 +1437,7 @@ v-jrnl-no = "" .
         END. */
         /* gdm - 10010905 */
 
-        v-jrnl-no = substring(gltrans.tr-dscr,(length(gltrans.tr-dscr) - 6),length(gltrans.tr-dscr)) .
+        v-jrnl-no = substring(glhist.tr-dscr,(length(glhist.tr-dscr) - 6),length(glhist.tr-dscr)) .
 
         ASSIGN cDisplay = ""
                cTmpField = ""
@@ -1448,10 +1450,10 @@ v-jrnl-no = "" .
                 CASE cTmpField:             
                      WHEN "act"    THEN cVarValue = string(account.actnum,"x(25)") .
                      WHEN "dscr"   THEN cVarValue = STRING(REPLACE(account.dscr, "," ," "),"x(45)") .
-                     WHEN "run"    THEN cVarValue = string(gltrans.trnum) .
-                     WHEN "jrnl"   THEN cVarValue = string(gltrans.jrnl) .
-                     WHEN "ref"    THEN cVarValue = string(substring(gltrans.tr-dscr,1,length(gltrans.tr-dscr) - 11),"x(35)")  .
-                     WHEN "date"   THEN cVarValue = STRING(gltrans.tr-date,"99/99/9999").
+                     WHEN "run"    THEN cVarValue = string(glhist.tr-num) .
+                     WHEN "jrnl"   THEN cVarValue = string(glhist.jrnl) .
+                     WHEN "ref"    THEN cVarValue = string(substring(glhist.tr-dscr,1,length(glhist.tr-dscr) - 11),"x(35)")  .
+                     WHEN "date"   THEN cVarValue = STRING(glhist.tr-date,"99/99/9999").
                      WHEN "dbt"    THEN cVarValue = IF v-debit[1] NE 0 THEN string(v-debit[1],"->>>,>>>,>>>,>>9.99") ELSE "".
                      WHEN "crdt"   THEN cVarValue = IF v-crdit[1] NE 0 THEN STRING(v-crdit[1],"->>>,>>>,>>>,>>9.99") ELSE "".
                      WHEN "bal"    THEN cVarValue = IF v-runbal NE ? THEN string(v-runbal,"->>>,>>>,>>>,>>9.99") ELSE "".
@@ -1519,21 +1521,21 @@ v-jrnl-no = "" .
 
       end.
 
-      if gltrans.tr-amt ge 0 then
+      if glhist.tr-amt ge 0 then
         assign
-          v-debit[2] = v-debit[2] + gltrans.tr-amt
+          v-debit[2] = v-debit[2] + glhist.tr-amt
           v-crdit[2] = v-crdit[2] + 0.
       else
         assign
           v-debit[2] = v-debit[2] + 0
-          v-crdit[2] = v-crdit[2] + gltrans.tr-amt.
+          v-crdit[2] = v-crdit[2] + glhist.tr-amt.
 /*
       assign
        v-debit[2] = v-debit[2] + v-debit[1]
        v-crdit[2] = v-crdit[2] + v-crdit[1].
 */
 
-      if last(gltrans.trnum) then do:
+      if last(glhist.tr-num) then do:
        /* PUT v-debit[2]                                   to 97 format "(>>>,>>>,>>9.99)"
             v-crdit[2]                                   to 114 format "(>>>,>>>,>>9.99)"
             v-debit[2] +

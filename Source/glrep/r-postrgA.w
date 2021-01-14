@@ -823,7 +823,7 @@ def var v-e-dat like v-s-dat init 12/31/9999.
 def var tot-all  as dec format "(>>>,>>>,>>>,>>9.99)".
 def var tot-tot  as dec format "(>>>,>>>,>>>,>>9.99)".
 def var v-print as log init no.
-def var tmp-dscr like gltrans.tr-dscr.
+def var tmp-dscr LIKE glhist.tr-dscr.
 def var str-tit4 as char no-undo.
 def var str-tit5 as char no-undo.
 DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
@@ -872,7 +872,8 @@ FOR EACH glhist WHERE
         AND glhist.tr-num  ge v-s-run
         AND glhist.tr-num  le v-e-run
         AND glhist.tr-date ge v-s-dat
-        AND glhist.tr-date le v-e-dat 
+        AND glhist.tr-date le v-e-dat
+        AND glhist.posted  EQ YES
       NO-LOCK
       BREAK BY glhist.tr-num 
             BY glhist.actnum:
@@ -918,54 +919,55 @@ FOR EACH glhist WHERE
    END.
 END.
 
-FOR EACH gltrans WHERE
-         gltrans.company EQ cocode
-     AND gltrans.trnum   GE v-s-run
-     AND gltrans.trnum   LE v-e-run
-     AND gltrans.tr-date GE v-s-dat
-     AND gltrans.tr-date LE v-e-dat
+FOR EACH glhist WHERE
+         glhist.company EQ cocode
+     AND glhist.tr-num   GE v-s-run
+     AND glhist.tr-num   LE v-e-run
+     AND glhist.tr-date GE v-s-dat
+     AND glhist.tr-date LE v-e-dat
+     AND glhist.posted  EQ NO
      NO-LOCK,
    FIRST account WHERE
          account.company EQ cocode 
-     AND account.actnum  EQ gltrans.actnum
+     AND account.actnum  EQ glhist.actnum
      NO-LOCK
-     BREAK BY gltrans.trnum
-           BY gltrans.actnum:
+     BREAK BY glhist.tr-num
+           BY glhist.actnum:
 
-     {custom/statusMsg.i " 'Processing Run #  '  + string(gltrans.trnum) "}
+     {custom/statusMsg.i " 'Processing Run #  '  + string(glhist.tr-num) "}
 
    ASSIGN
       v-print = YES
-      tot-all = tot-all + gltrans.tr-amt.
+      tot-all = tot-all + glhist.tr-amt.
 
    DISPLAY 
-      gltrans.trnum WHEN FIRST-OF(gltrans.trnum) FORMAT "9999999" SPACE(5) 
-      gltrans.actnum  FORMAT 'x(14)'  SPACE (2)
+      glhist.tr-num WHEN FIRST-OF(glhist.tr-num) FORMAT "9999999" SPACE(5) 
+      glhist.actnum  FORMAT 'x(14)'  SPACE (2)
       account.dscr    FORMAT 'x(28)'  SPACE (2) 
-      gltrans.jrnl                    SPACE (5)
-      gltrans.tr-dscr FORMAT 'x(35)'  SPACE (1)
+      glhist.jrnl                    SPACE (5)
+      glhist.tr-dscr FORMAT 'x(35)'  SPACE (1)
       /* tmp-dscr*/
-      gltrans.tr-date                 
-      gltrans.tr-amt  FORMAT "(>>,>>>,>>9.99)"
+      glhist.tr-date                 
+      glhist.tr-amt  FORMAT "(>>,>>>,>>9.99)"
       WITH FRAME aaa NO-LABELS STREAM-IO WIDTH 200 NO-BOX.
 
-   IF FIRST-OF(gltrans.trnum) THEN
-      v-tr-num = STRING(gltrans.trnum).
+   IF FIRST-OF(glhist.tr-num) THEN
+      v-tr-num = STRING(glhist.tr-num).
    ELSE
       v-tr-num = "". 
 
    IF v-export THEN
       PUT STREAM s-temp UNFORMATTED
          '"' v-tr-num         '",'
-         '"' gltrans.actnum   '",'
+         '"' glhist.actnum   '",'
          '"' account.dscr    '",'
-         '"' gltrans.jrnl     '",'
-         '"' gltrans.tr-dscr  '",'
-         '"' gltrans.tr-date  '",'
-         '"' gltrans.tr-amt FORMAT "(>>,>>>,>>9.99)" '",'
+         '"' glhist.jrnl     '",'
+         '"' glhist.tr-dscr  '",'
+         '"' glhist.tr-date  '",'
+         '"' glhist.tr-amt FORMAT "(>>,>>>,>>9.99)" '",'
          SKIP .   
 
-   IF LAST-OF(gltrans.trnum) THEN DO:
+   IF LAST-OF(glhist.tr-num) THEN DO:
       PUT "-------------"       TO 132 SKIP
           "Total:"              AT 109
           tot-all               TO 132

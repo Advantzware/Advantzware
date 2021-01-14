@@ -347,23 +347,19 @@ END.
     END. /* REPEAT */
 
     for each work-job break by work-job.actnum:
-       create gltrans.
-      assign
-       gltrans.company = cocode
-       gltrans.actnum  = work-job.actnum
-       gltrans.jrnl    = "ADJUST"
-       gltrans.tr-date = TODAY
-       gltrans.period  = period.pnum
-       gltrans.trnum   = v-trnum.
-
-      if work-job.fg then
-        assign
-         gltrans.tr-amt  = - work-job.amt
-         gltrans.tr-dscr = "ADJUSTMENT FG".
-      else
-        assign
-         gltrans.tr-amt  = work-job.amt
-         gltrans.tr-dscr = "ADJUSTMENT COGS".
+      
+      RUN spCreateGLHist(cocode,
+                         work-job.actnum,
+                         "ADJUST",
+                         (if work-job.fg then "ADJUSTMENT FG" else "ADJUSTMENT COGS"),
+                         TODAY,
+                         (if work-job.fg then - work-job.amt else work-job.amt),
+                         v-trnum,
+                         period.pnum,
+                         "A",
+                         TODAY,
+                         "",
+                         "FG").   
     end. /* each work-job */
   end.
   IF v-got-fgemail THEN DO:
@@ -396,17 +392,19 @@ PROCEDURE gl-from-work:
      credits = credits + work-gl.credits.
 
     if last-of(work-gl.actnum) then do:
-      create gltrans.
-      assign
-       gltrans.company = cocode
-       gltrans.actnum  = work-gl.actnum
-       gltrans.jrnl    = "FGPOST"
-       gltrans.period  = period.pnum
-       gltrans.tr-amt  = debits - credits
-       gltrans.tr-date = TODAY
-       gltrans.tr-dscr = if work-gl.job-no ne "" then "FG Receipt from Job"
-                                                 else "FG Receipt from PO"
-       gltrans.trnum   = ip-trnum.
+      
+      RUN spCreateGLHist(cocode,
+                         work-gl.actnum,
+                         "FGPOST",
+                         (if work-gl.job-no ne "" then "FG Receipt from Job" else "FG Receipt from PO"),
+                         TODAY,
+                         debits - credits,
+                         v-trnum,
+                         period.pnum,
+                         "A",
+                         TODAY,
+                         "",
+                         "FG").  
 
       assign
        debits  = 0

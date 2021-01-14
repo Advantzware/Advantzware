@@ -1130,40 +1130,34 @@ RELEASE ar-cashl.
 RELEASE fg-rctd.
 FIND CURRENT fg-bin NO-LOCK NO-ERROR.
 
-CREATE gltrans.
-ASSIGN
-gltrans.company = cocode
-gltrans.actnum  = xar-acct
-gltrans.jrnl    = "DBMEM"
-gltrans.tr-dscr = "CREDIT/DEBIT MEMO"
-gltrans.tr-date = tran-date
-gltrans.tr-amt  = + g2
-gltrans.period  = tran-period
-gltrans.trnum   = xtrnum.
-IF gltrans.tr-amt LT 0 THEN gltrans.jrnl = "CRMEM".
-
-RELEASE gltrans.
+RUN spCreateGLHist(cocode,
+                   xar-acct,
+                   IF (+ g2) LT 0 THEN "CRMEM" ELSE "DBMEM",
+                   "CREDIT/DEBIT MEMO",
+                   tran-date,
+                   + g2,
+                   xtrnum,
+                   tran-period,
+                   "A",
+                   tran-date,
+                   "",
+                   "AR"). 
 
 FOR EACH work-job BREAK BY work-job.actnum:
-  CREATE gltrans.
-  ASSIGN
-  gltrans.company = cocode
-  gltrans.actnum  = work-job.actnum
-  gltrans.jrnl    = "OEINV"
-  gltrans.tr-date = tran-date
-  gltrans.period  = tran-period
-  gltrans.trnum   = xtrnum.
-
-  IF work-job.fg THEN
-    ASSIGN
-    gltrans.tr-amt  = work-job.amt
-    gltrans.tr-dscr = "ORDER ENTRY INVOICE FG".
-  ELSE
-    ASSIGN
-    gltrans.tr-amt  = - work-job.amt
-    gltrans.tr-dscr = "ORDER ENTRY INVOICE COGS".
-
-  RELEASE gltrans.
+  
+  RUN spCreateGLHist(cocode,
+                     work-job.actnum,
+                     "OEINV",
+                     (IF work-job.fg THEN "ORDER ENTRY INVOICE FG" ELSE "ORDER ENTRY INVOICE COGS"),
+                     tran-date,
+                     (IF work-job.fg THEN work-job.amt ELSE - work-job.amt) ,
+                     xtrnum,
+                     tran-period,
+                     "A",
+                     tran-date,
+                     "",
+                     "AR"). 
+  
 END. /* each work-job */
 STATUS DEFAULT "Posting Complete.".
 END PROCEDURE.

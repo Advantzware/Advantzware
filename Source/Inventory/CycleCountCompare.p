@@ -1687,24 +1687,19 @@ PROCEDURE pPostCounts:
             END. /* REPEAT */
             /* gdm - 11050906 */
 
-            FOR EACH work-job BREAK BY work-job.actnum:
-                CREATE gltrans.
-                ASSIGN
-                    gltrans.company = cocode
-                    gltrans.actnum  = work-job.actnum
-                    gltrans.jrnl    = "OEINV"
-                    gltrans.tr-date = udate
-                    gltrans.period  = uperiod
-                    gltrans.trnum   = v-trnum.
-
-                IF work-job.fg THEN
-                    ASSIGN
-                        gltrans.tr-amt  = - work-job.amt
-                        gltrans.tr-dscr = "ORDER ENTRY INVOICE FG".
-                ELSE
-                    ASSIGN
-                        gltrans.tr-amt  = work-job.amt
-                        gltrans.tr-dscr = "ORDER ENTRY INVOICE COGS".
+            FOR EACH work-job BREAK BY work-job.actnum:                 
+                RUN spCreateGLHist(cocode,
+                                   work-job.actnum,
+                                   "OEINV",
+                                   IF work-job.fg THEN "ORDER ENTRY INVOICE FG" else "ORDER ENTRY INVOICE COGS",
+                                   udate,
+                                   IF work-job.fg THEN - work-job.amt else  work-job.amt ,
+                                   v-trnum,
+                                   uperiod,
+                                   "A",
+                                   udate,
+                                   "",
+                                   "FG").        
             END. /* each work-job */
         END.
     END. /* postit */

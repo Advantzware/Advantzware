@@ -1282,15 +1282,16 @@ PROCEDURE local-display-fields :
               and period.pstat   eq yes
             no-lock,
 
-            each gltrans
-            where gltrans.company eq account.company
-              and gltrans.actnum  eq account.actnum
-              and gltrans.period  eq period.pnum
-              and gltrans.tr-date ge period.pst
-              and gltrans.tr-date le period.pend
+            each glhist
+            where glhist.company eq account.company
+              and glhist.actnum  eq account.actnum
+              and glhist.period  eq period.pnum
+              and glhist.tr-date ge period.pst
+              and glhist.tr-date le period.pend
+              AND glhist.posted EQ NO
                 no-lock:
 
-              ld-period$[period.pnum] = ld-period$[period.pnum] + gltrans.tr-amt.
+              ld-period$[period.pnum] = ld-period$[period.pnum] + glhist.tr-amt.
         end.
     END.
 

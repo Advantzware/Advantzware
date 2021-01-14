@@ -2756,25 +2756,21 @@ PROCEDURE fg-post :
     END.
 
     FOR EACH work-job BREAK BY work-job.actnum:
-      CREATE gltrans.
-      ASSIGN
-       gltrans.company = cocode
-       gltrans.actnum  = work-job.actnum
-       gltrans.jrnl    = "ADJUST"
-       /*gltrans.tr-date = v-post-date*/
-       gltrans.period  = period.pnum
-       gltrans.trnum   = v-trnum.
-    
-      IF work-job.fg THEN
-        ASSIGN
-         gltrans.tr-amt  = - work-job.amt
-         gltrans.tr-dscr = "ADJUSTMENT FG".
-      ELSE
-        ASSIGN
-         gltrans.tr-amt  = work-job.amt
-         gltrans.tr-dscr = "ADJUSTMENT COGS".
+          RUN spCreateGLHist(cocode,
+                             work-job.actnum,
+                             "ADJUST",
+                             (IF work-job.fg THEN "ADJUSTMENT FG"
+                                             ELSE "ADJUSTMENT COGS"),
+                             v-post-date,
+                             (IF work-job.fg THEN - work-job.amt
+                                             ELSE work-job.amt),
+                             v-trnum,
+                             period.pnum,
+                             "A",
+                             v-post-date,
+                             "",
+                             "FG").
 
-      RELEASE gltrans.
     END. /* each work-job */
   END.
 
@@ -3156,21 +3152,23 @@ PROCEDURE gl-from-work :
      credits = credits + work-gl.credits.
 
     IF LAST-OF(work-gl.actnum) THEN DO:
-      CREATE gltrans.
-      ASSIGN
-       gltrans.company = cocode
-       gltrans.actnum  = work-gl.actnum
-       gltrans.jrnl    = "FGPOST"
-       gltrans.period  = period.pnum
-       gltrans.tr-amt  = debits - credits
-       /*gltrans.tr-date = v-post-date*/
-       gltrans.tr-dscr = IF work-gl.job-no NE "" THEN "FG Receipt from Job"
-                                                 ELSE "FG Receipt from PO"
-       gltrans.trnum   = ip-trnum
-       debits  = 0
-       credits = 0.
+          RUN spCreateGLHist(cocode,
+                             work-gl.actnum,
+                             "FGPOST",
+                             (IF work-gl.job-no NE "" THEN "FG Receipt from Job"
+                                                      ELSE "FG Receipt from PO"),
+                             v-post-date,
+                             (debits - credits),
+                             ip-trnum,
+                             period.pnum,
+                             "A",
+                             v-post-date,
+                             "",
+                             "FG").
+           ASSIGN
+               debits        = 0
+               credits       = 0.
 
-      RELEASE gltrans.
     END.
   END.
 

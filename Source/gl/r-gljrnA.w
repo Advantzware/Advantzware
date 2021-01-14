@@ -1044,34 +1044,36 @@ DO TRANSACTION:
              and bank.actnum  eq gl-jrnl.actnum
            no-error.
         if not available bank then do:
-         create gltrans.
-         assign
-            gltrans.jrnl    = "GENERAL" /* 9508 CAH was STRING(JRN#,"99999") */
-            gltrans.tr-date = gl-jrn.tr-date
-            gltrans.tr-dscr = gl-jrnl.dscr + "JRN#" + string(gl-jrn.journal,"9999999")
-            gltrans.actnum  = gl-jrnl.actnum
-            gltrans.company = cocode
-            gltrans.tr-amt  = gl-jrnl.tr-amt
-            gltrans.period  = gl-jrn.period
-            gltrans.trnum   = xtrnum.
-/*
-            gltrans.trnum   = gl-jrn.journal. /* 9508 CAH was jrnl.line */
-*/
+         
+         RUN spCreateGLHist(cocode,
+                            gl-jrnl.actnum,
+                            "GENERAL",
+                            gl-jrnl.dscr + "JRN#" + string(gl-jrn.journal,"9999999"),
+                            gl-jrn.tr-date,
+                            gl-jrnl.tr-amt,
+                            xtrnum,
+                            gl-jrn.period,
+                            "A",
+                            gl-jrn.tr-date,
+                            "",
+                            "BR").    
+
         end.
         if available bank then do:
-         create gltrans.
-         assign
-            gltrans.jrnl    = "GENERAL" /* 9508 CAH was STRING(JRN#,"99999") */
-            gltrans.tr-date = gl-jrn.tr-date
-            gltrans.tr-dscr = gl-jrnl.dscr + "JRN#" + string(gl-jrn.journal,"9999999")
-            gltrans.actnum  = gl-jrnl.actnum
-            gltrans.company = cocode
-            gltrans.tr-amt  = gl-jrnl.tr-amt
-            gltrans.period  = gl-jrn.period
-            gltrans.trnum   = xtrnum.
-/*
-            gltrans.trnum   = gl-jrn.journal. /* 9508 CAH was jrnl.line */
-*/
+        
+         RUN spCreateGLHist(cocode,
+                            gl-jrnl.actnum,
+                            "GENERAL",
+                            gl-jrnl.dscr + "JRN#" + string(gl-jrn.journal,"9999999"),
+                            gl-jrn.tr-date,
+                            gl-jrnl.tr-amt,
+                            xtrnum,
+                            gl-jrn.period,
+                            "A",
+                            gl-jrn.tr-date,
+                            "",
+                            "BR").    
+
          assign bank.bal = bank.bal + gl-jrnl.tr-amt.
         end.
       end.

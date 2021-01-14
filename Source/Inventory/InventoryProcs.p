@@ -2456,8 +2456,7 @@ PROCEDURE pPostRawMaterialsGLTrans PRIVATE:
     
     DEFINE BUFFER bf-gl-ctrl FOR gl-ctrl.
     DEFINE BUFFER bf-period  FOR period.
-    DEFINE BUFFER bf-gltrans FOR gltrans.
-    
+        
     RUN sys/ref/nk1look.p (
         INPUT ipcCompany,         /* Company Code */ 
         INPUT "RMPOSTGL",         /* sys-ctrl name */
@@ -2501,24 +2500,19 @@ PROCEDURE pPostRawMaterialsGLTrans PRIVATE:
                         dCreditsTotal = dCreditsTotal + ttRawMaterialsGLTransToPost.creditsAmount
                         .
         
-                    IF LAST-OF(ttRawMaterialsGLTransToPost.accountNo) THEN DO:
-                        CREATE bf-gltrans.
-                        ASSIGN
-                            bf-gltrans.company = ipcCompany
-                            bf-gltrans.actnum  = ttRawMaterialsGLTransToPost.accountNo
-                            bf-gltrans.jrnl    = "RMPOST"
-                            bf-gltrans.period  = IF AVAILABLE bf-period THEN 
-                                                     bf-period.pnum
-                                                 ELSE 
-                                                     1
-                            bf-gltrans.tr-amt  = dDebitsTotal - dCreditsTotal
-                            bf-gltrans.tr-date = ipdtPostingDate
-                            bf-gltrans.tr-dscr = IF ttRawMaterialsGLTransToPost.jobNo NE "" THEN 
-                                                     "RM Issue to Job"
-                                                 ELSE 
-                                                     "RM Receipt"
-                            bf-gltrans.trnum   = bf-gl-ctrl.trnum
-                            .        
+                    IF LAST-OF(ttRawMaterialsGLTransToPost.accountNo) THEN DO:                        
+                        RUN spCreateGLHist(ipcCompany,
+                                           ttRawMaterialsGLTransToPost.accountNo,
+                                           "RMPOST",
+                                           IF ttRawMaterialsGLTransToPost.jobNo NE "" THEN "RM Issue to Job" ELSE "RM Receipt",
+                                           ipdtPostingDate,
+                                           dDebitsTotal - dCreditsTotal,
+                                           bf-gl-ctrl.trnum,
+                                           IF AVAILABLE bf-period THEN bf-period.pnum ELSE 1,
+                                           "A",
+                                           ipdtPostingDate,
+                                           "",
+                                           "RM").     
                     END.
                 END.
             END.      

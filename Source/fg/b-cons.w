@@ -1100,21 +1100,24 @@ PROCEDURE gl-from-work :
      credits = credits + work-gl.credits.
 
     IF LAST-OF(work-gl.actnum) THEN DO:
-      CREATE gltrans.
-      ASSIGN
-       gltrans.company = cocode
-       gltrans.actnum  = work-gl.actnum
-       gltrans.jrnl    = "FGPOST"
-       gltrans.period  = period.pnum
-       gltrans.tr-amt  = debits - credits
-       gltrans.tr-date = v-post-date
-       gltrans.tr-dscr = IF work-gl.job-no NE "" THEN "FG Receipt from Job"
-                                                 ELSE "FG Receipt from PO"
-       gltrans.trnum   = ip-trnum
+     RUN spCreateGLHist(cocode,
+                        work-gl.actnum,
+                        "FGPOST",
+                        (IF work-gl.job-no NE "" THEN "FG Receipt from Job"
+                                                ELSE "FG Receipt from PO"),
+                        v-post-date,
+                        (debits - credits),
+                        ip-trnum,
+                        period.pnum,
+                        "A",
+                        v-post-date,
+                        "",
+                        "FG").
+
+     ASSIGN
        debits  = 0
        credits = 0.
 
-      RELEASE gltrans.
     END.
   END.
 

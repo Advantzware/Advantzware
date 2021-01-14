@@ -979,24 +979,27 @@ PROCEDURE post-gl :
 
 
             bank.bal = bank.bal - ap-disl.amt.
-            create gltrans.
+            RUN spCreateGLHist(cocode,
+                               ap-disl.actnum,
+                               "CDISB",
+                               (if avail vend then vend.name else ap-dis.payee)
+                                + " " + string(ap-dis.check-no),
+                               tran-date,
+                               ap-disl.amt,
+                               xtrnum,
+                               tran-period,
+                               "A",
+                               tran-date,
+                               string(ap-inv.inv-no),
+                               "AP").
             do :
               find first b-bank where b-bank.actnum = ap-disl.actnum
                 exclusive-lock no-error.
               if available b-bank then b-bank.bal = b-bank.bal + ap-disl.amt.
             end.
             assign
-            t1 = t1 + ap-disl.amt
-            gltrans.company = cocode
-            gltrans.actnum  = ap-disl.actnum
-            gltrans.jrnl    = "CDISB"
-            gltrans.tr-dscr = (if avail vend then vend.name else ap-dis.payee)
-                              + " " + string(ap-dis.check-no)
-            gltrans.tr-date = tran-date
-            gltrans.tr-amt  = ap-disl.amt
-            gltrans.period  = tran-period
-            gltrans.trnum   = xtrnum
-            ap-disl.posted  = true.
+                 t1 = t1 + ap-disl.amt
+                 ap-disl.posted  = true.
          end.  /* each line */
 
          /* Commented out per Julie's Request Task #02230003 
@@ -1028,20 +1031,20 @@ PROCEDURE post-gl :
          t1                 = 0
          ap-dis.posted      = true.
 
-         create gltrans.
+         
+            RUN spCreateGLHist(cocode,
+                               bank.actnum,
+                               "CDISB",
+                               "CASH DISBURSEMENTS",
+                               tran-date,
+                               (-(ap-dis.check-amt)),
+                               xtrnum,
+                               tran-period,
+                               "A",
+                               tran-date,
+                               string(ap-inv.inv-no),
+                               "AP").
          assign
-         gltrans.company = cocode
-         /***
-         gltrans.actnum  = xcs-acct
-         ***/
-         gltrans.actnum  = bank.actnum
-         gltrans.jrnl    = "CDISB"
-         gltrans.tr-dscr = "CASH DISBURSEMENTS"
-         gltrans.tr-date = tran-date
-         gltrans.tr-amt  = -(ap-dis.check-amt)
-         gltrans.period  = tran-period
-         gltrans.trnum   = xtrnum.
-
          bank.last-chk = IF lv-chkno-posted >= bank.last-chk THEN lv-chkno-posted
                          ELSE bank.last-chk.
       end.

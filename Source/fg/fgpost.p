@@ -123,21 +123,22 @@ PROCEDURE gl-from-work:
      credits = credits + work-gl.credits.
 
     if last-of(work-gl.actnum) then do:
-      create gltrans.
+     RUN spCreateGLHist(cocode,
+                        work-gl.actnum,
+                        "FGPOST",
+                        (if work-gl.job-no ne "" then "FG Receipt from Job"
+                                                 else "FG Receipt from PO"),
+                        v-post-date,
+                        (debits - credits),
+                        ip-trnum,
+                        period.pnum,
+                        "A",
+                        v-post-date,
+                        "",
+                        "FG").
       assign
-       gltrans.company = cocode
-       gltrans.actnum  = work-gl.actnum
-       gltrans.jrnl    = "FGPOST"
-       gltrans.period  = period.pnum
-       gltrans.tr-amt  = debits - credits
-       gltrans.tr-date = v-post-date
-       gltrans.tr-dscr = if work-gl.job-no ne "" then "FG Receipt from Job"
-                                                 else "FG Receipt from PO"
-       gltrans.trnum   = ip-trnum
        debits  = 0
        credits = 0.
-
-      RELEASE gltrans.
     end.
   end.
 
@@ -423,25 +424,19 @@ PROCEDURE ProcFGPosting:
        gl-ctrl.trnum = v-trnum.
       FIND CURRENT gl-ctrl NO-LOCK.
       FOR EACH work-job BREAK BY work-job.actnum:
-         CREATE gltrans.
-        ASSIGN
-         gltrans.company = cocode
-         gltrans.actnum  = work-job.actnum
-         gltrans.jrnl    = "ADJUST"
-         gltrans.tr-date = v-post-date
-         gltrans.period  = period.pnum
-         gltrans.trnum   = v-trnum.
-
-        IF work-job.fg THEN
-          ASSIGN
-           gltrans.tr-amt  = - work-job.amt
-           gltrans.tr-dscr = "ADJUSTMENT FG".
-        ELSE
-          ASSIGN
-           gltrans.tr-amt  = work-job.amt
-           gltrans.tr-dscr = "ADJUSTMENT COGS".
-
-        RELEASE gltrans.
+     RUN spCreateGLHist(cocode,
+                        work-job.actnum,
+                        "ADJUST",
+                        (IF work-job.fg THEN "ADJUSTMENT FG" ELSE "ADJUSTMENT COGS"),
+                        v-post-date,
+                        (IF work-job.fg THEN - work-job.amt
+                                        ELSE work-job.amt),
+                        v-trnum,
+                        period.pnum,
+                        "A",
+                        v-post-date,
+                        "",
+                        "FG").
       END. /* each work-job */
     END.
     IF v-got-fgemail THEN DO:

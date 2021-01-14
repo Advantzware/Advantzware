@@ -74,7 +74,7 @@ DEFINE TEMP-TABLE ttGLTrans NO-UNDO
     FIELD tr-dscr AS CHARACTER 
     FIELD tr-date AS DATE 
     FIELD period  AS INTEGER 
-    FIELD trnum   AS INTEGER
+    FIELD tr-num   AS INTEGER
     FIELD tr-amt  AS DECIMAL.  
     
 DEFINE TEMP-TABLE ttARLedger NO-UNDO
@@ -1059,17 +1059,19 @@ PROCEDURE pCreateGLTrans PRIVATE :
  Notes:
 ------------------------------------------------------------------------------*/
     FOR EACH ttGLTrans:
-        CREATE gltrans.
-        ASSIGN 
-           gltrans.company = ttGLTrans.company
-           gltrans.actnum  = ttGLTrans.actnum 
-           gltrans.jrnl    = ttGLTrans.jrnl   
-           gltrans.tr-dscr = ttGLTrans.tr-dscr                 
-           gltrans.tr-date = ttGLTrans.tr-date
-           gltrans.tr-amt  = ttGLTrans.tr-amt 
-           gltrans.period  = ttGLTrans.period 
-           gltrans.trnum   = ttGLTrans.trnum
-           .         
+        RUN spCreateGLHist(ttGLTrans.company,
+                   ttGLTrans.actnum,
+                   ttGLTrans.jrnl,
+                   ttGLTrans.tr-dscr,
+                   ttGLTrans.tr-date,
+                   ttGLTrans.tr-amt,
+                   ttGLTrans.tr-num,
+                   ttGLTrans.period,
+                   "A",
+                   ttGLTrans.tr-date,
+                   "",
+                   "AR").
+        
         DELETE ttGLTrans.        
     END.  
     RELEASE gltrans.  
@@ -1196,7 +1198,7 @@ PROCEDURE post-gl :
                          ttGLTrans.tr-date   = tran-date
                          ttGLTrans.tr-amt    = ar-cashl.amt-paid - ar-cashl.amt-disc
                          ttGLTrans.period    = tran-period
-                         ttGLTrans.trnum     = xtrnum
+                         ttGLTrans.tr-num     = xtrnum
                          ar-cashl.amt-paid = ar-cashl.amt-paid - ar-cashl.amt-disc
                          .
     
@@ -1212,7 +1214,7 @@ PROCEDURE post-gl :
                             ttGLTrans.tr-date = tran-date
                             ttGLTrans.tr-amt  = ar-cashl.amt-disc
                             ttGLTrans.period  = tran-period
-                            ttGLTrans.trnum   = xtrnum.
+                            ttGLTrans.tr-num   = xtrnum.
                     
                         CREATE ttArLedger.
                         ASSIGN
@@ -1248,7 +1250,7 @@ PROCEDURE post-gl :
                     AND ttGLTrans.tr-dscr EQ "CASH RECEIPTS"
                     AND ttGLTrans.tr-date EQ tran-date
                     AND ttGLTrans.period  EQ tran-period
-                    AND ttGLTrans.trnum   EQ xtrnum 
+                    AND ttGLTrans.tr-num  EQ xtrnum 
                      NO-ERROR.
                 IF NOT AVAIL ttGLTrans THEN DO:
                     CREATE ttGLTrans.
@@ -1259,7 +1261,7 @@ PROCEDURE post-gl :
                         ttGlTrans.tr-dscr = "CASH RECEIPTS"
                         ttGlTrans.tr-date = tran-date
                         ttGlTrans.period  = tran-period
-                        ttGlTrans.trnum   = xtrnum
+                        ttGlTrans.tr-num  = xtrnum
                         lv-rowid          = ROWID(ttGLTrans)
                         .
                 END.
@@ -1291,7 +1293,7 @@ PROCEDURE post-gl :
                      ttGLTrans.tr-dscr = "CASH RECEIPTS CURRENCY GAIN/LOSS"
                      ttGLTrans.tr-date = tran-date
                      ttGLTrans.period  = tran-period
-                     ttGLTrans.trnum   = xtrnum
+                     ttGLTrans.tr-num  = xtrnum
                      ttGLTrans.tr-amt  = (ACCUM TOTAL BY tt-post.actnum tt-post.curr-amt - ar-cash.check-amt)
                      .
         
@@ -1303,7 +1305,7 @@ PROCEDURE post-gl :
                     ttGLTrans.tr-dscr = "CASH RECEIPTS CURRENCY GAIN/LOSS"
                     ttGLTrans.tr-date = tran-date
                     ttGLTrans.period  = tran-period
-                    ttGLTrans.trnum   = xtrnum
+                    ttGLTrans.tr-num  = xtrnum
                     ttGLTrans.tr-amt  = - (ACCUM TOTAL BY tt-post.actnum tt-post.curr-amt - ar-cash.check-amt).
             END.
 

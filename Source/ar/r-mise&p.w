@@ -911,17 +911,18 @@ DO TRANSACTION:
      END.
      w-bank.bal = w-bank.bal + ar-mcash.check-amt.
 
-     CREATE gltrans.
-     ASSIGN
-      gltrans.company = cocode
-      gltrans.actnum  = ar-mcash.actnum
-      gltrans.jrnl    = "MCSHREC"
-      gltrans.tr-dscr = STRING(ar-mcash.m-no)
-      gltrans.tr-date = tran-date
-      gltrans.period  = tran-period
-      gltrans.trnum   = xtrnum
-      gltrans.tr-amt  = - ar-mcash.check-amt.
-     RELEASE gltrans.
+     RUN spCreateGLHist(cocode,
+                        ar-mcash.actnum,
+                        "MCSHREC",
+                        STRING(ar-mcash.m-no),
+                        tran-date,
+                        - ar-mcash.check-amt,
+                        xtrnum,
+                        tran-period,
+                        "A",
+                        tran-date,
+                        "",
+                        "AR").
 
      CREATE ar-ledger.
      ASSIGN
@@ -937,31 +938,34 @@ DO TRANSACTION:
      ACCUM tt-post.curr-amt - ar-mcash.check-amt (TOTAL BY tt-post.actnum).
 
      IF LAST-OF(tt-post.actnum) AND tt-post.actnum NE "" THEN DO:
-       CREATE gltrans.
-       ASSIGN
-        gltrans.company = cocode
-        gltrans.actnum  = tt-post.actnum
-        gltrans.jrnl    = "MCSHREC"
-        gltrans.tr-dscr = "MISC CASH RECEIPTS CURRENCY GAIN/LOSS " +
-                          STRING(ar-mcash.m-no)
-        gltrans.tr-date = tran-date
-        gltrans.period  = tran-period
-        gltrans.trnum   = xtrnum
-        gltrans.tr-amt  = (ACCUM TOTAL BY tt-post.actnum tt-post.curr-amt - ar-mcash.check-amt).
-       RELEASE gltrans.
+       RUN spCreateGLHist(cocode,
+                          tt-post.actnum,
+                          "MCSHREC",
+                          "MISC CASH RECEIPTS CURRENCY GAIN/LOSS " +
+                                                             STRING(ar-mcash.m-no),
+                          tran-date,
+                          (ACCUM TOTAL BY tt-post.actnum tt-post.curr-amt - ar-mcash.check-amt),
+                          xtrnum,
+                          tran-period,
+                          "A",
+                          tran-date,
+                          "",
+                          "AR").
+       
+       RUN spCreateGLHist(cocode,
+                          tt-post.actnum,
+                          "MCSHREC",
+                          "MISC CASH RECEIPTS CURRENCY GAIN/LOSS " +
+                                                             STRING(ar-mcash.m-no),
+                          tran-date,
+                          - (ACCUM TOTAL BY tt-post.actnum tt-post.curr-amt - ar-mcash.check-amt),
+                          xtrnum,
+                          tran-period,
+                          "A",
+                          tran-date,
+                          "",
+                          "AR").
 
-       CREATE gltrans.
-       ASSIGN
-        gltrans.company = cocode
-        gltrans.actnum  = tt-post.actnum
-        gltrans.jrnl    = "MCSHREC"
-        gltrans.tr-dscr = "MISC CASH RECEIPTS CURRENCY GAIN/LOSS " +
-                          STRING(ar-mcash.m-no)
-        gltrans.tr-date = tran-date
-        gltrans.period  = tran-period
-        gltrans.trnum   = xtrnum
-        gltrans.tr-amt  = - (ACCUM TOTAL BY tt-post.actnum tt-post.curr-amt - ar-mcash.check-amt).
-       RELEASE gltrans.
     END.
 
     DELETE tt-post.
@@ -969,17 +973,19 @@ DO TRANSACTION:
  END.  /* DO WHILE */
 
  FOR EACH w-bank:
-   CREATE gltrans.
-   ASSIGN
-    gltrans.company = cocode
-    gltrans.actnum  = w-bank.actnum
-    gltrans.jrnl    = "MCSHREC"
-    gltrans.tr-dscr = "MISC CASH RECEIPTS"
-    gltrans.tr-date = tran-date
-    gltrans.period  = tran-period
-    gltrans.trnum   = xtrnum
-    gltrans.tr-amt  = w-bank.bal.
-   RELEASE gltrans.
+       RUN spCreateGLHist(cocode,
+                          w-bank.actnum,
+                          "MCSHREC",
+                          "MISC CASH RECEIPTS",
+                          tran-date,
+                          w-bank.bal,
+                          xtrnum,
+                          tran-period,
+                          "A",
+                          tran-date,
+                          "",
+                          "AR").
+
  END.
 END. /* DO TRANS */
 

@@ -914,18 +914,19 @@ PROCEDURE gl-from-work :
             credits = credits + work-gl.credits.
 
         if last-of(work-gl.actnum) then 
-        do:
-            create gltrans.
-            assign
-                gltrans.company = cocode
-                gltrans.actnum  = work-gl.actnum
-                gltrans.jrnl    = "JCOST"
-                gltrans.period  = period.pnum
-                gltrans.tr-amt  = debits - credits
-                gltrans.tr-date = TODAY
-                gltrans.tr-dscr = "Production Job Costing"
-                gltrans.trnum   = ip-trnum.
-
+        do:               
+            RUN spCreateGLHist(cocode,
+                               work-gl.actnum,
+                               "JCOST",
+                               "Production Job Costing",
+                               TODAY,
+                               debits - credits,
+                               ip-trnum,
+                               period.pnum,
+                               "A",
+                               TODAY,
+                               "",
+                               "RM").    
             assign
                 debits  = 0
                 credits = 0.

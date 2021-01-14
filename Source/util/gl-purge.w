@@ -461,12 +461,13 @@ IF NOT tb_del-all THEN
    fr-acct = del_number
    to-acct = del_number.
 
-FOR EACH gltrans
-    WHERE gltrans.company EQ cocode
-      AND gltrans.actnum  GE fr-acct
-      AND gltrans.actnum  LE to-acct
-      AND gltrans.tr-date LE del_date:
-  DELETE gltrans.
+FOR EACH glhist
+    WHERE glhist.company EQ cocode
+      AND glhist.actnum  GE fr-acct
+      AND glhist.actnum  LE to-acct
+      AND glhist.tr-date LE del_date
+      AND glhist.posted EQ NO:
+  DELETE glhist.
 END.
 
 FOR EACH account
@@ -477,7 +478,8 @@ FOR EACH account
     EACH glhist
     WHERE glhist.company EQ account.company
       AND glhist.actnum  EQ account.actnum
-      AND glhist.tr-date LE del_date,
+      AND glhist.tr-date LE del_date
+      AND glhist.posted EQ YES,
 
     FIRST period
     WHERE period.company EQ glhist.company
@@ -540,7 +542,8 @@ FOR EACH glhist
     WHERE glhist.company EQ cocode
       AND glhist.actnum  GE fr-acct
       AND glhist.actnum  LE to-acct
-      AND glhist.tr-date LE del_date:
+      AND glhist.tr-date LE del_date
+      AND glhist.posted EQ YES :
   DELETE glhist.
 END.
 

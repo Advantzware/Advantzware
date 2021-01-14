@@ -991,20 +991,19 @@ postit:
 
     RELEASE ar-ledger.
 
-    CREATE gltrans.
-    ASSIGN
-      gltrans.company = cocode
-      gltrans.actnum  = xar-acct
-      gltrans.jrnl    = "DBMEM"
-      gltrans.tr-dscr = "CREDIT/DEBIT MEMO"
-      gltrans.tr-date = tran-date
-      gltrans.tr-amt  = + g2
-      gltrans.period  = tran-period
-      gltrans.trnum   = xtrnum.
-    IF gltrans.tr-amt < 0 THEN
-    gltrans.jrnl = "CRMEM".
+     RUN spCreateGLHist(cocode,
+                        xar-acct,
+                        (IF (+ g2) < 0 THEN "CRMEM" ELSE "DBMEM"),
+                        "CREDIT/DEBIT MEMO",
+                        tran-date,
+                        (+ g2),
+                        xtrnum,
+                        tran-period,
+                        "A",
+                        tran-date,
+                        "",
+                        "AR").
 
-    RELEASE gltrans.
   END. /* postit: transaction */
 END PROCEDURE.
 
