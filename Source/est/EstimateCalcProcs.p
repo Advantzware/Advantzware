@@ -458,7 +458,7 @@ PROCEDURE pAddEstBlank PRIVATE:
         /*Refactor - apply area UOM conversion*/
         opbf-estCostBlank.weightPerBlank          = ipbf-estCostForm.basisWeight * opbf-estCostBlank.blankAreaNetWindow / 144000 
     
-        opbf-estCostBlank.quantityPerSet          = IF opbf-estCostBlank.formNo EQ 0 OR ipbf-eb.quantityPerSet EQ 0 THEN 1 ELSE ipbf-eb.quantityPerSet
+        opbf-estCostBlank.quantityPerSet          = fGetQuantityPerSet(BUFFER ipbf-eb)
         opbf-estCostBlank.quantityRequired        = (IF ipbf-estCostHeader.estType EQ gcTypeCombo THEN ipbf-eb.bl-qty ELSE ipbf-estCostHeader.quantityMaster) * opbf-estCostBlank.quantityPerSet 
         opbf-estCostBlank.quantityYielded         = (IF ipbf-estCostHeader.estType EQ gcTypeCombo THEN ipbf-eb.yld-qty ELSE ipbf-estCostHeader.quantityMaster) * opbf-estCostBlank.quantityPerSet
         
@@ -4984,6 +4984,8 @@ FUNCTION fGetQuantityPerSet RETURNS DECIMAL PRIVATE
     ------------------------------------------------------------------------------*/	
 
     DEFINE VARIABLE dQuantityPerSet AS DECIMAL NO-UNDO.
+    
+    
 
     IF ipbf-eb.est-type LT 5 THEN
         dQuantityPerSet     = ipbf-eb.cust-%. 
@@ -4992,8 +4994,9 @@ FUNCTION fGetQuantityPerSet RETURNS DECIMAL PRIVATE
         
     IF dQuantityPerSet LT 0 THEN 
         dQuantityPerSet     = ABSOLUTE(1 / dQuantityPerSet). 
-    IF dQuantityPerSet EQ 0 THEN 
-        dQuantityPerSet     = 1 .
+    
+    IF ipbf-eb.form-no EQ 0 OR dQuantityPerSet EQ 0 THEN
+        dQuantityPerSet =  1.
 
     RETURN dQuantityPerSet.
 
