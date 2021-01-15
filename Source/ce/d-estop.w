@@ -1489,11 +1489,21 @@ PROCEDURE valid-mach :
   
 
     DO WITH FRAME {&FRAME-NAME}:
-        FIND FIRST mach
-            {sys/look/machW.i}
-            AND mach.m-code EQ est-op.m-code:SCREEN-VALUE 
-        NO-LOCK NO-ERROR.
-        IF NOT AVAILABLE mach THEN v-msg = "Must enter a valid Machine Code, try help".
+          
+          FIND FIRST mach NO-LOCK
+               WHERE mach.company = cocode AND
+               mach.m-code = est-op.m-code:SCREEN-VALUE NO-ERROR.
+          IF NOT AVAIL mach THEN
+          DO:
+               MESSAGE "Invalid Machine Code. Try Help." VIEW-AS ALERT-BOX ERROR.
+               APPLY "entry" TO est-op.m-code.
+
+          END.
+          IF AVAIL mach AND mach.loc NE locode THEN DO:
+               MESSAGE "Invalid Machine Code as Estimate Location is " +  locode + " and Machine Location is " + mach.loc + "." + "  Machine must be in the same location as estimate." VIEW-AS ALERT-BOX ERROR.
+               APPLY "entry" TO est-op.m-code.
+
+          END.
 
         IF v-msg EQ "" THEN
             IF mach.obsolete THEN 
