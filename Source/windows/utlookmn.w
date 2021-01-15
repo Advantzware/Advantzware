@@ -80,7 +80,7 @@ DEFINE FRAME F-Main
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 89.4 BY 20.86.
+         SIZE 130 BY 20.86.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -101,11 +101,11 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          HIDDEN             = YES
          TITLE              = "Pop-up Menu Maintenance"
          HEIGHT             = 20.86
-         WIDTH              = 89.6
+         WIDTH              = 130
          MAX-HEIGHT         = 20.86
-         MAX-WIDTH          = 93.2
+         MAX-WIDTH          = 134.4
          VIRTUAL-HEIGHT     = 20.86
-         VIRTUAL-WIDTH      = 93.2
+         VIRTUAL-WIDTH      = 134.4
          RESIZE             = no
          SCROLL-BARS        = no
          STATUS-AREA        = no
@@ -211,7 +211,7 @@ PROCEDURE adm-create-objects :
              INPUT  'Layout = ':U ,
              OUTPUT h_mnu-item ).
        RUN set-position IN h_mnu-item ( 1.00 , 1.00 ) NO-ERROR.
-       RUN set-size IN h_mnu-item ( 18.76 , 89.00 ) NO-ERROR.
+       RUN set-size IN h_mnu-item ( 18.76 , 126.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'panels/p-updmnu.w':U ,
@@ -220,7 +220,7 @@ PROCEDURE adm-create-objects :
                      SmartPanelType = Update,
                      AddFunction = One-Record':U ,
              OUTPUT h_p-updmnu ).
-       RUN set-position IN h_p-updmnu ( 20.05 , 1.00 ) NO-ERROR.
+       RUN set-position IN h_p-updmnu ( 19.86 , 24.60 ) NO-ERROR.
        RUN set-size IN h_p-updmnu ( 1.76 , 82.00 ) NO-ERROR.
 
        /* Links to SmartBrowser h_mnu-item. */

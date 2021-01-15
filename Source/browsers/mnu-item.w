@@ -31,6 +31,9 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
+&SCOPED-DEFINE yellowColumnsName mnu-item
+&SCOPED-DEFINE noSortByField
+
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
@@ -50,12 +53,15 @@ def var lv-first-time as log no-undo.
 
 &Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 &Scoped-define BROWSE-NAME br_table
 
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
 &Scoped-define INTERNAL-TABLES mnu-item
+
+/* Define KEY-PHRASE in case it is used by any query. */
+&Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE br_table                                      */
 &Scoped-define FIELDS-IN-QUERY-br_table mnu-item.menu-num mnu-item.descrip ~
@@ -64,10 +70,10 @@ mnu-item.pgm-name
 mnu-item.descrip mnu-item.pgm-name 
 &Scoped-define ENABLED-TABLES-IN-QUERY-br_table mnu-item
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-br_table mnu-item
-&Scoped-define QUERY-STRING-br_table FOR EACH mnu-item NO-LOCK ~
-    BY mnu-item.menu-num
-&Scoped-define OPEN-QUERY-br_table OPEN QUERY br_table FOR EACH mnu-item NO-LOCK ~
-    BY mnu-item.menu-num.
+&Scoped-define QUERY-STRING-br_table FOR EACH mnu-item WHERE ~{&KEY-PHRASE} NO-LOCK ~
+    ~{&SORTBY-PHRASE}
+&Scoped-define OPEN-QUERY-br_table OPEN QUERY br_table FOR EACH mnu-item WHERE ~{&KEY-PHRASE} NO-LOCK ~
+    ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-br_table mnu-item
 &Scoped-define FIRST-TABLE-IN-QUERY-br_table mnu-item
 
@@ -144,7 +150,7 @@ DEFINE VARIABLE lv-search AS CHARACTER FORMAT "X(256)":U
 
 DEFINE RECTANGLE RECT-40
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 82 BY 1.38.
+     SIZE 126 BY 1.38.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -156,16 +162,18 @@ DEFINE QUERY br_table FOR
 DEFINE BROWSE br_table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br_table B-table-Win _STRUCTURED
   QUERY br_table NO-LOCK DISPLAY
-      mnu-item.menu-num FORMAT ">>>>9":U
-      mnu-item.descrip COLUMN-LABEL "Program!Description" FORMAT "x(40)":U
+      mnu-item.menu-num FORMAT ">>>>9":U LABEL-BGCOLOR 14
+      mnu-item.descrip COLUMN-LABEL "Program!Description" FORMAT "x(50)":U
+            WIDTH 70 LABEL-BGCOLOR 14
       mnu-item.pgm-name COLUMN-LABEL "Program" FORMAT "x(30)":U
+            WIDTH 40 LABEL-BGCOLOR 14
   ENABLE
       mnu-item.menu-num
       mnu-item.descrip
       mnu-item.pgm-name
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 85 BY 17.38.
+    WITH NO-ASSIGN SEPARATORS SIZE 126 BY 17.38 FIT-LAST-COLUMN.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -208,7 +216,7 @@ END.
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW B-table-Win ASSIGN
          HEIGHT             = 18.76
-         WIDTH              = 96.
+         WIDTH              = 126.2.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -217,6 +225,7 @@ END.
 /* ************************* Included-Libraries *********************** */
 
 {src/adm/method/browser.i}
+{custom/yellowcolumns.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -230,11 +239,14 @@ END.
 /* SETTINGS FOR WINDOW B-table-Win
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE Size-to-Fit                                              */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 /* BROWSE-TAB br_table 1 F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
+
+ASSIGN 
+       br_table:ALLOW-COLUMN-SEARCHING IN FRAME F-Main = TRUE.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -245,14 +257,14 @@ ASSIGN
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE br_table
 /* Query rebuild information for BROWSE br_table
      _TblList          = "ASI.mnu-item"
-     _Options          = "NO-LOCK"
+     _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _OrdList          = "ASI.mnu-item.menu-num|yes"
      _FldNameList[1]   > ASI.mnu-item.menu-num
-"menu-num" ? ? "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"mnu-item.menu-num" ? ? "integer" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.mnu-item.descrip
-"descrip" "Program!Description" ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"mnu-item.descrip" "Program!Description" "x(50)" "character" ? ? ? 14 ? ? yes ? no no "70" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.mnu-item.pgm-name
-"pgm-name" "Program" "x(30)" "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"mnu-item.pgm-name" "Program" "x(30)" "character" ? ? ? 14 ? ? yes ? no no "40" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE br_table */
 &ANALYZE-RESUME
@@ -324,6 +336,16 @@ DO:
     /* Do not disable this code or no updates will take place except
      by pressing the Save button on an Update SmartPanel. */
    {src/adm/template/brsleave.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
+ON START-SEARCH OF br_table IN FRAME F-Main
+DO:
+    RUN startSearch.  
 END.
 
 /* _UIB-CODE-BLOCK-END */
