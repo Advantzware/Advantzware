@@ -10,7 +10,7 @@ DEF BUFFER new-period FOR period.
 DEF BUFFER b-company FOR company.
 
 
-/*{methods/run_link.i "RECORD-SOURCE" "Get-Values" "(OUTPUT op-company)"}*/
+{methods/run_link.i "RECORD-SOURCE" "Get-Values" "(OUTPUT op-company)"}
 
 FIND FIRST b-company WHERE b-company.company EQ op-company NO-LOCK NO-ERROR.
 
@@ -42,14 +42,6 @@ DO WITH FRAME {&FRAME-NAME}:
       ASSIGN
        new-period.yr    = period_year
        new-period.pstat = YES
-       new-period.SubLedgerAP = "A"
-       new-period.SubLedgerPO = "A"
-       new-period.SubLedgerOP = "A"
-       new-period.SubLedgerWIP = "A"
-       new-period.SubLedgerRM = "A"
-       new-period.SubLedgerFG = "A"
-       new-period.SubLedgerBR = "A"
-       new-period.SubLedgerAR = "A"
        lv-rowid         = ROWID(new-period).
 
       DO i = 1 TO 31:
@@ -78,20 +70,12 @@ DO WITH FRAME {&FRAME-NAME}:
         NO-LOCK NO-ERROR.
 
     IF NOT AVAIL new-period THEN DO:
-      CREATE new-period. 
+      CREATE new-period.
       ASSIGN
        new-period.company = op-company
        new-period.yr      = period_year
        new-period.pnum    = i
        new-period.pstat   = TRUE
-       new-period.SubLedgerAP = "A"
-       new-period.SubLedgerPO = "A"
-       new-period.SubLedgerOP = "A"
-       new-period.SubLedgerWIP = "A"
-       new-period.SubLedgerRM = "A"
-       new-period.SubLedgerFG = "A"
-       new-period.SubLedgerBR = "A"
-       new-period.SubLedgerAR = "A"
        lv-rowid           = ROWID(new-period).
 
       IF (b-company.yend-off + i) GE 13 AND b-company.yend-off NE 12 THEN
@@ -145,19 +129,19 @@ DO WITH FRAME {&FRAME-NAME}:
         AND ROWID(new-period)  NE ROWID(period)
       NO-ERROR.*/
 
-  /*IF AVAIL new-period THEN DO:
+  IF AVAIL new-period THEN DO:
     ASSIGN
      period.pnum:SCREEN-VALUE  = STRING(new-period.pnum)
      period.pnum               = new-period.pnum
-     period.pst                = new-period.pst
-     period.pend               = new-period.pend
-     period.pstat              = YES
-     period.yr                 = new-period.yr.
+     period.pst:SCREEN-VALUE   = STRING(new-period.pst)
+     period.pend:SCREEN-VALUE  = STRING(new-period.pend)
+     period.pstat:SCREEN-VALUE = "YES".
 
     DELETE new-period.
   END.
 
   ELSE DO:
-     delete period.*/    
-  delete period.
+    RUN dispatch ("cancel-record").
+    RETURN "ADM-ERROR".
+  END.
 END.
