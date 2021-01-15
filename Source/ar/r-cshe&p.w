@@ -1059,7 +1059,7 @@ PROCEDURE pCreateGLTrans PRIVATE :
  Notes:
 ------------------------------------------------------------------------------*/
     FOR EACH ttGLTrans:
-        RUN spCreateGLHist(ttGLTrans.company,
+        RUN GL_SpCreateGLHist(ttGLTrans.company,
                    ttGLTrans.actnum,
                    ttGLTrans.jrnl,
                    ttGLTrans.tr-dscr,

@@ -768,7 +768,7 @@ FOR EACH ar-inv
 
       IF LAST-OF(tt-report.key-02) THEN DO:
         
-         RUN spCreateGLHist(cocode,
+         RUN GL_SpCreateGLHist(cocode,
                             tt-report.key-02,
                             "OEINV",
                             "ORDER ENTRY INVOICE LINES",
@@ -793,7 +793,7 @@ FOR EACH ar-inv
 
       IF LAST-OF(tt-report.key-02) THEN DO:
         
-         RUN spCreateGLHist(cocode,
+         RUN GL_SpCreateGLHist(cocode,
                             tt-report.key-02,
                             "OEINV",
                             "ORDER ENTRY INVOICE MISC.",
@@ -818,7 +818,7 @@ FOR EACH ar-inv
 
       IF LAST-OF(tt-report.key-02) THEN DO:
         
-         RUN spCreateGLHist(cocode,
+         RUN GL_SpCreateGLHist(cocode,
                             tt-report.key-02,
                             "OEINV",
                             "ORDER ENTRY INVOICE TAX",
@@ -835,7 +835,7 @@ FOR EACH ar-inv
 
     FOR EACH work-job BREAK BY work-job.actnum:
       
-     RUN spCreateGLHist(cocode,
+     RUN GL_SpCreateGLHist(cocode,
                         work-job.actnum,
                         "OEINV",
                         (IF work-job.fg THEN "ORDER ENTRY INVOICE FG" ELSE "ORDER ENTRY INVOICE COGS"),
@@ -850,7 +850,7 @@ FOR EACH ar-inv
     END. /* each work-job */
 
                                           /** POST FREIGHT TO G/L TRANS **/     
-     RUN spCreateGLHist(cocode,
+     RUN GL_SpCreateGLHist(cocode,
                         v-ar-freight,
                         "OEINV",
                         "ORDER ENTRY INVOICE FREIGHT",
@@ -864,7 +864,7 @@ FOR EACH ar-inv
                         "AR").
 
                                            /** POST DISCOUNT TO G/L TRANS **/     
-     RUN spCreateGLHist(cocode,
+     RUN GL_SpCreateGLHist(cocode,
                         v-ar-disc,
                         "OEINV",
                         "ORDER ENTRY INVOICE DISCOUNT",
@@ -879,7 +879,7 @@ FOR EACH ar-inv
                                            /** POST CASH TO G/L TRANS **/
     IF v-post-cash NE 0 THEN DO:
       
-       RUN spCreateGLHist(cocode,
+       RUN GL_SpCreateGLHist(cocode,
                           ar-ctrl.cash-act,
                           "CASHR",
                           "CASH RECEIPT - INVOICE",
@@ -893,7 +893,7 @@ FOR EACH ar-inv
                           "AR").
     END.
                                                   /** OFFSET ENTRY TO G/L **/     
-     RUN spCreateGLHist(cocode,
+     RUN GL_SpCreateGLHist(cocode,
                         cRecAccount,
                         "OEINV",
                         "ORDER ENTRY INVOICE",

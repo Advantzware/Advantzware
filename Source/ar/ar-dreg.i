@@ -61,7 +61,7 @@
         RELEASE ar-inv.
 
         t1 = t1 + ar-cashl.amt-paid - ar-cashl.amt-disc.
-          RUN spCreateGLHist(cocode,
+          RUN GL_SpCreateGLHist(cocode,
                              ar-cashl.actnum,
                              (IF (ar-cashl.amt-disc - ar-cashl.amt-paid) < 0 THEN "DBMEM" ELSE "CRMEM"),
                              (cust.name  + " " +

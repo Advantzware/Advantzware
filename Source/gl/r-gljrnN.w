@@ -1449,7 +1449,7 @@ DO TRANSACTION:
              and bank.actnum  eq gl-jrnl.actnum
            no-error.
         if not available bank then do:         
-         RUN spCreateGLHist(cocode,
+         RUN GL_SpCreateGLHist(cocode,
                             gl-jrnl.actnum,
                             "GENERAL",
                             gl-jrnl.dscr + "JRN#" + string(gl-jrn.journal,"9999999"),
@@ -1464,7 +1464,7 @@ DO TRANSACTION:
 
         end.
         if available bank then do:           
-         RUN spCreateGLHist(cocode,
+         RUN GL_SpCreateGLHist(cocode,
                             gl-jrnl.actnum,
                             "GENERAL",
                             gl-jrnl.dscr + "JRN#" + string(gl-jrn.journal,"9999999"),

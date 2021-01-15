@@ -753,7 +753,7 @@ postit:
       /* gdm - 11050906 */
 
       for each work-job break by work-job.actnum:
-          RUN spCreateGLHist(cocode,
+          RUN GL_SpCreateGLHist(cocode,
                              work-job.actnum,
                              "ADJUST",
                              (IF work-job.fg THEN "FG Adjustment entries FG"

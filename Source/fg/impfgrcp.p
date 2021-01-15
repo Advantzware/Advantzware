@@ -117,7 +117,7 @@ PROCEDURE gl-from-work:
      credits = credits + work-gl.credits.
 
     if last-of(work-gl.actnum) then do:
-     RUN spCreateGLHist(cocode,
+     RUN GL_SpCreateGLHist(cocode,
                         work-gl.actnum,
                         "FGPOST",
                         (if work-gl.job-no ne "" then "FG Receipt from Job"

@@ -916,7 +916,7 @@ PROCEDURE pPostGL:
                 WHERE ap-invl.i-no EQ ap-inv.i-no,
                 FIRST tt-ap-invl WHERE tt-ap-invl.row-id EQ rowid(ap-invl)
                 :
-                 RUN spCreateGLHist(ipcCompany,
+                 RUN GL_SpCreateGLHist(ipcCompany,
                                     tt-ap-invl.actnum,
                                     "ACPAY",
                                     vend.name  + "  " + string(ap-inv.inv-date),
@@ -1228,7 +1228,7 @@ PROCEDURE pPostGL:
                 tt-report.actnum NE ""   AND
                 (ACCUM TOTAL BY tt-report.actnum tt-report.curr-amt - (ap-inv.net + ap-inv.freight))
                 NE 0    THEN DO:
-                 RUN spCreateGLHist(ipcCompany,
+                 RUN GL_SpCreateGLHist(ipcCompany,
                                     tt-report.actnum,
                                     "ACPAY",
                                     "ACCOUNTS PAYABLE CURRENCY GAIN/LOSS",
@@ -1245,7 +1245,7 @@ PROCEDURE pPostGL:
         END. /* for each ap-inv */
         dAmount = dAmount + dFrtTotal.
         IF dFrtTotal NE 0 THEN DO:
-            RUN spCreateGLHist(ipcCompany,
+         RUN GL_SpCreateGLHist(ipcCompany,
                                cFrtAcct,
                                "ACPAY",
                                "ACCOUNTS PAYABLE FREIGHT",
@@ -1264,7 +1264,7 @@ PROCEDURE pPostGL:
             ACCUM tt-ap-tax.curr-amt (TOTAL BY tt-ap-tax.actnum).
             dAmount = dAmount + tt-ap-tax.amt.
             IF LAST-OF(tt-ap-tax.actnum) THEN DO:
-            RUN spCreateGLHist(ipcCompany,
+            RUN GL_SpCreateGLHist(ipcCompany,
                                tt-ap-tax.actnum,
                                "ACPAY",
                                "ACCOUNTS PAYABLE TAX",
@@ -1279,7 +1279,7 @@ PROCEDURE pPostGL:
 
             END. /* last-of actnum */
         END. /* each tt-ap-tax */
-       RUN spCreateGLHist(ipcCompany,
+       RUN GL_SpCreateGLHist(ipcCompany,
                           cAPAcct,
                           "ACPAY",
                           "ACCOUNTS PAYABLE INVOICE",

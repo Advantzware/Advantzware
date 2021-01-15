@@ -1042,7 +1042,7 @@ PROCEDURE pGLFromWork :
             .
 
         IF LAST-OF(bf-work-gl.actnum) THEN DO:
-          RUN spCreateGLHist(ipcCompany,
+          RUN GL_SpCreateGLHist(ipcCompany,
                              bf-work-gl.actnum,
                              "cRMPost",
                              (IF bf-work-gl.job-no NE "" THEN "RM Issue to Job"

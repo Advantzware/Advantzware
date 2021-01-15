@@ -836,7 +836,7 @@ do transaction on error undo, leave:
            xap-payl.vend-no    = ap-payl.vend-no.
        end.  /* for each xpayl */
    end. /* for each ap-pay record */
-     RUN spCreateGLHist(cocode,
+     RUN GL_SpCreateGLHist(cocode,
                         bank.actnum,
                         "APVOIDCK",
                         "AP VOIDED CHECK REGISTER",
@@ -850,7 +850,7 @@ do transaction on error undo, leave:
                         "AP").
 
    if v-tot-amt-disc ne 0 then do:
-     RUN spCreateGLHist(cocode,
+     RUN GL_SpCreateGLHist(cocode,
                         ap-ctrl.discount,
                         "APVOIDCK",
                         "AP VOIDED CHECK REGISTER",
@@ -874,7 +874,7 @@ do transaction on error undo, leave:
      accumulate w-amt-disc (sub-total by w-actnum).
 
      if last-of(w-actnum) then do:
-     RUN spCreateGLHist(cocode,
+     RUN GL_SpCreateGLHist(cocode,
                         w-actnum,
                         "APVOIDCK",
                         "AP VOIDED CHECK REGISTER",
@@ -891,7 +891,7 @@ do transaction on error undo, leave:
      end.
    end.
      
-     RUN spCreateGLHist(cocode,
+     RUN GL_SpCreateGLHist(cocode,
                         ap-ctrl.payables,
                         "APVOIDCK",
                         "AP VOIDED CHECK REGISTER",

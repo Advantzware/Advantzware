@@ -1688,7 +1688,7 @@ PROCEDURE pPostCounts:
             /* gdm - 11050906 */
 
             FOR EACH work-job BREAK BY work-job.actnum:                 
-                RUN spCreateGLHist(cocode,
+                RUN GL_SpCreateGLHist(cocode,
                                    work-job.actnum,
                                    "OEINV",
                                    IF work-job.fg THEN "ORDER ENTRY INVOICE FG" else "ORDER ENTRY INVOICE COGS",

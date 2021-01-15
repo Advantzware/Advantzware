@@ -1589,7 +1589,7 @@ PROCEDURE fg-post :
      gl-ctrl.trnum = v-trnum.
     FIND CURRENT gl-ctrl NO-LOCK.
     for each work-job break by work-job.actnum:
-      RUN spCreateGLHist(cocode,
+      RUN GL_SpCreateGLHist(cocode,
                          work-job.actnum,
                          "ADJUST",
                          (IF work-job.fg THEN "ADJUSTMENT FG"
@@ -1764,7 +1764,7 @@ PROCEDURE gl-from-work :
      credits = credits + work-gl.credits.
 
     if last-of(work-gl.actnum) then do:
-       RUN spCreateGLHist(cocode,
+     RUN GL_SpCreateGLHist(cocode,
                          work-gl.actnum,
                          "FGPOST",
                          (if work-gl.job-no ne "" then "FG Receipt from Job"

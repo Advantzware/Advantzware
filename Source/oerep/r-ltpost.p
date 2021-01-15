@@ -348,7 +348,7 @@ END.
 
     for each work-job break by work-job.actnum:
       
-      RUN spCreateGLHist(cocode,
+      RUN GL_SpCreateGLHist(cocode,
                          work-job.actnum,
                          "ADJUST",
                          (if work-job.fg then "ADJUSTMENT FG" else "ADJUSTMENT COGS"),
@@ -393,7 +393,7 @@ PROCEDURE gl-from-work:
 
     if last-of(work-gl.actnum) then do:
       
-      RUN spCreateGLHist(cocode,
+      RUN GL_SpCreateGLHist(cocode,
                          work-gl.actnum,
                          "FGPOST",
                          (if work-gl.job-no ne "" then "FG Receipt from Job" else "FG Receipt from PO"),

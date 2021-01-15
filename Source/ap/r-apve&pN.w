@@ -1301,7 +1301,7 @@ DEF VAR ll-rcpth AS LOG.
        total-msf       = total-msf + ap-invl.amt-msf
        ap-invl.posted  = yes.
        
-      RUN spCreateGLHist(cocode,
+      RUN GL_SpCreateGLHist(cocode,
                          tt-ap-invl.actnum,
                          "ACPAY",
                          vend.name  + "  " + string(ap-inv.inv-date),
@@ -1645,7 +1645,7 @@ DEF VAR ll-rcpth AS LOG.
        tt-report.actnum NE ""    AND
        (ACCUM TOTAL BY tt-report.actnum tt-report.curr-amt - (ap-inv.net + ap-inv.freight))
                         NE 0    THEN DO:      
-      RUN spCreateGLHist(cocode,
+      RUN GL_SpCreateGLHist(cocode,
                          tt-report.actnum,
                          "ACPAY",
                          "ACCOUNTS PAYABLE CURRENCY GAIN/LOSS",
@@ -1665,7 +1665,7 @@ DEF VAR ll-rcpth AS LOG.
     DO TRANSACTION:
         IF lv-frt-total NE 0 THEN DO:
             
-            RUN spCreateGLHist(cocode,
+         RUN GL_SpCreateGLHist(cocode,
                                v-frt-acct,
                                "ACPAY",
                                "ACCOUNTS PAYABLE FREIGHT",
@@ -1686,7 +1686,7 @@ DEF VAR ll-rcpth AS LOG.
 
             IF LAST-OF(tt-ap-tax.actnum) THEN DO:
                 
-                RUN spCreateGLHist(cocode,
+             RUN GL_SpCreateGLHist(cocode,
                                    tt-ap-tax.actnum,
                                    "ACPAY",
                                    "ACCOUNTS PAYABLE TAX",
@@ -1701,7 +1701,7 @@ DEF VAR ll-rcpth AS LOG.
             END.
         END. 
         
-        RUN spCreateGLHist(cocode,
+        RUN GL_SpCreateGLHist(cocode,
                            xap-acct,
                            "ACPAY",
                            "ACCOUNTS PAYABLE INVOICE",

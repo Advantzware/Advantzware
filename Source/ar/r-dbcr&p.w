@@ -991,7 +991,7 @@ postit:
 
     RELEASE ar-ledger.
 
-     RUN spCreateGLHist(cocode,
+     RUN GL_SpCreateGLHist(cocode,
                         xar-acct,
                         (IF (+ g2) < 0 THEN "CRMEM" ELSE "DBMEM"),
                         "CREDIT/DEBIT MEMO",

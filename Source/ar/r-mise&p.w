@@ -911,7 +911,7 @@ DO TRANSACTION:
      END.
      w-bank.bal = w-bank.bal + ar-mcash.check-amt.
 
-     RUN spCreateGLHist(cocode,
+     RUN GL_SpCreateGLHist(cocode,
                         ar-mcash.actnum,
                         "MCSHREC",
                         STRING(ar-mcash.m-no),
@@ -938,7 +938,7 @@ DO TRANSACTION:
      ACCUM tt-post.curr-amt - ar-mcash.check-amt (TOTAL BY tt-post.actnum).
 
      IF LAST-OF(tt-post.actnum) AND tt-post.actnum NE "" THEN DO:
-       RUN spCreateGLHist(cocode,
+       RUN GL_SpCreateGLHist(cocode,
                           tt-post.actnum,
                           "MCSHREC",
                           "MISC CASH RECEIPTS CURRENCY GAIN/LOSS " +
@@ -952,7 +952,7 @@ DO TRANSACTION:
                           "",
                           "AR").
        
-       RUN spCreateGLHist(cocode,
+       RUN GL_SpCreateGLHist(cocode,
                           tt-post.actnum,
                           "MCSHREC",
                           "MISC CASH RECEIPTS CURRENCY GAIN/LOSS " +
@@ -973,7 +973,7 @@ DO TRANSACTION:
  END.  /* DO WHILE */
 
  FOR EACH w-bank:
-       RUN spCreateGLHist(cocode,
+    RUN GL_SpCreateGLHist(cocode,
                           w-bank.actnum,
                           "MCSHREC",
                           "MISC CASH RECEIPTS",

@@ -2501,7 +2501,7 @@ PROCEDURE pPostRawMaterialsGLTrans PRIVATE:
                         .
         
                     IF LAST-OF(ttRawMaterialsGLTransToPost.accountNo) THEN DO:                        
-                        RUN spCreateGLHist(ipcCompany,
+                        RUN GL_SpCreateGLHist(ipcCompany,
                                            ttRawMaterialsGLTransToPost.accountNo,
                                            "RMPOST",
                                            IF ttRawMaterialsGLTransToPost.jobNo NE "" THEN "RM Issue to Job" ELSE "RM Receipt",

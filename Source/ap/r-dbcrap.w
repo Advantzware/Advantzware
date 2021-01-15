@@ -870,7 +870,7 @@ PROCEDURE post-gl :
 
          RELEASE ap-inv.
           dAmount = - (ap-payl.amt-paid - ap-payl.amt-disc).
-          RUN spCreateGLHist(cocode,
+          RUN GL_SpCreateGLHist(cocode,
                              ap-payl.actnum,
                              "APMEM",
                              vend.name  + "  " + string(ap-pay.check-date),
@@ -917,7 +917,7 @@ PROCEDURE post-gl :
          end.
          assign ap-pay.posted = true.
       end.
-     RUN spCreateGLHist(cocode,
+     RUN GL_SpCreateGLHist(cocode,
                         xap-acct,
                         "APMEM",
                         "ACCOUNTS PAYABLE MEMO",

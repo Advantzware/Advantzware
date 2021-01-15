@@ -1130,7 +1130,7 @@ RELEASE ar-cashl.
 RELEASE fg-rctd.
 FIND CURRENT fg-bin NO-LOCK NO-ERROR.
 
-RUN spCreateGLHist(cocode,
+RUN GL_SpCreateGLHist(cocode,
                    xar-acct,
                    IF (+ g2) LT 0 THEN "CRMEM" ELSE "DBMEM",
                    "CREDIT/DEBIT MEMO",
@@ -1145,7 +1145,7 @@ RUN spCreateGLHist(cocode,
 
 FOR EACH work-job BREAK BY work-job.actnum:
   
-  RUN spCreateGLHist(cocode,
+  RUN GL_SpCreateGLHist(cocode,
                      work-job.actnum,
                      "OEINV",
                      (IF work-job.fg THEN "ORDER ENTRY INVOICE FG" ELSE "ORDER ENTRY INVOICE COGS"),

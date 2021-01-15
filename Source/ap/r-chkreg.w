@@ -1677,7 +1677,7 @@ DEF VAR lv-check-no LIKE ap-chk.check-no NO-UNDO.
     ACCUM tt-post.curr-paid - ap-sel.amt-paid (TOTAL BY tt-post.actnum). 
 
     IF LAST-OF(tt-post.actnum) THEN DO:
-     RUN spCreateGLHist(cocode,
+     RUN GL_SpCreateGLHist(cocode,
                         tt-post.actnum,
                         "APCKR",
                         "AP CHECK REGISTER CURRENCY GAIN/LOSS",
@@ -1690,7 +1690,7 @@ DEF VAR lv-check-no LIKE ap-chk.check-no NO-UNDO.
                         string(ap-inv.inv-no),
                         "AP").
 
-     RUN spCreateGLHist(cocode,
+     RUN GL_SpCreateGLHist(cocode,
                         tt-post.actnum,
                         "APCKR",
                         "AP CHECK REGISTER CURRENCY GAIN/LOSS",
@@ -1861,7 +1861,7 @@ DEF VAR lv-check-no LIKE ap-chk.check-no NO-UNDO.
 
     /*** Moved gltrans create here so bank's actnum can be used ***/
     IF LAST-OF(ap-sel.bank-code) THEN DO:
-     RUN spCreateGLHist(cocode,
+     RUN GL_SpCreateGLHist(cocode,
                         bank.actnum,
                         "APCKR",
                         "AP CHECK REGISTER",
@@ -1900,7 +1900,7 @@ DEF VAR lv-check-no LIKE ap-chk.check-no NO-UNDO.
 
   FIND FIRST ap-ctrl WHERE ap-ctrl.company EQ cocode NO-LOCK NO-ERROR.
 
-     RUN spCreateGLHist(cocode,
+     RUN GL_SpCreateGLHist(cocode,
                         ap-ctrl.payables,
                         "APCKR",
                         "AP CHECK REGISTER",
@@ -1915,7 +1915,7 @@ DEF VAR lv-check-no LIKE ap-chk.check-no NO-UNDO.
   
 
   IF gtot1 NE 0 THEN DO:
-     RUN spCreateGLHist(cocode,
+    RUN GL_SpCreateGLHist(cocode,
                         ap-ctrl.discount,
                         "APCKR",
                         "AP CHECK REGISTER",

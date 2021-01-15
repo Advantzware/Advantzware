@@ -831,7 +831,7 @@ PROCEDURE post-gl :
            IF ar-cashl.inv-no EQ 0 AND ar-cashl.on-account EQ YES THEN
               cust.on-account = cust.on-account - ar-cashl.amt-paid.
 
-          RUN spCreateGLHist(cocode,
+          RUN GL_SpCreateGLHist(cocode,
                              ar-cashl.actnum,
                              "CASHRVD",
                              "VOID " + cust.cust-no + " " +
@@ -850,7 +850,7 @@ PROCEDURE post-gl :
              t1 = t1 + ar-cashl.amt-paid + ar-cashl.amt-disc.
 
            IF ar-cashl.amt-disc NE 0 THEN DO:
-               RUN spCreateGLHist(cocode,
+               RUN GL_SpCreateGLHist(cocode,
                                   xdis-acct,
                                   "CRDISVD",
                                   "VOID " + cust.cust-no + " " +

@@ -769,7 +769,7 @@ DEF INPUT PARAM ip-run AS INT NO-UNDO.
 
     if last-of(work-gl.actnum) then do:
      
-      RUN spCreateGLHist(cocode,
+      RUN GL_SpCreateGLHist(cocode,
                          work-gl.actnum,
                          "JCOST",
                          "Production Job Costing",

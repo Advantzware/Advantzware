@@ -59,7 +59,7 @@ PROCEDURE pGetAccountAR PRIVATE:
 
 END PROCEDURE.
 
-PROCEDURE spCreateGLHist :
+PROCEDURE GL_SpCreateGLHist :
     /*------------------------------------------------------------------------------
      Purpose: get AR Class GL Account
      Notes:

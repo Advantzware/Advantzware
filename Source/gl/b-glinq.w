@@ -1051,14 +1051,14 @@ PROCEDURE build-inquiry :
         AND glhist.tr-date le dtDateTo 
         AND (glhist.tr-num ge iRunFrom  OR iRunFrom EQ 0)
         AND (glhist.tr-num le iRunTo  OR  iRunTo EQ 0)
-       
-      by glhist.tr-date :
+          
+      by glhist.tr-date :    
       CREATE tt-glinq.
       ASSIGN tt-glinq.tr-date = glhist.tr-date
              tt-glinq.jrnl = glhist.jrnl
              tt-glinq.tr-dscr = glhist.tr-dscr
              tt-glinq.tr-amt = glhist.tr-amt
-             tt-glinq.tr-from = IF glhist.posted EQ YES THEN "GL History " ELSE "GL Transaction " + string(gltran.trnum)
+             tt-glinq.tr-from = IF glhist.posted EQ YES THEN "GL History " ELSE "GL Transaction " + string(glhist.tr-num)
              tt-glinq.actnum = glhist.actnum
              tt-glinq.tr-num = glhist.tr-num               
              tt-glinq.createdBy = glhist.createdBy
@@ -1066,7 +1066,7 @@ PROCEDURE build-inquiry :
              tt-glinq.posted = glhist.posted
              tt-glinq.tr-num = glhist.tr-num
              tt-glinq.tr-period = glhist.period
-             tt-glinq.tr-yr = glhist.yr
+             tt-glinq.tr-yr = glhist.glYear
              tt-glinq.riRowid = ROWID(glhist).
         IF glhist.tr-amt GT 0 THEN
         ASSIGN
@@ -1076,9 +1076,9 @@ PROCEDURE build-inquiry :
         ASSIGN
            tt-glinq.cr-amt = glhist.tr-amt * - 1
            lv-close-bal = lv-close-bal + ( glhist.tr-amt * - 1) .   
-
+                
       IF LENGTH(glhist.tr-dscr) GT v-max-dscr-length THEN
-         v-max-dscr-length = LENGTH(glhist.tr-dscr).
+         v-max-dscr-length = LENGTH(glhist.tr-dscr).  
   end.
               
 END PROCEDURE.

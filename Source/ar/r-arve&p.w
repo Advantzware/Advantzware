@@ -1080,7 +1080,7 @@ PROCEDURE post-gl :
     if not v-post-ok then leave post-2.
 
     for each wkdistrib:
-     RUN spCreateGLHist(cocode,
+     RUN GL_SpCreateGLHist(cocode,
                         wkdistrib.actnum,
                         "ARINV",
                         wkdistrib.tr-dscr,

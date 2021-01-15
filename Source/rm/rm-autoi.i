@@ -1083,7 +1083,7 @@ PROCEDURE gl-from-work:
       credits = credits + work-gl.credits.
   
      IF LAST-OF(work-gl.actnum) THEN DO:       
-       RUN spCreateGLHist(cocode,
+       RUN GL_SpCreateGLHist(cocode,
                          work-gl.actnum,
                          "RMPOST",
                          (if work-gl.job-no NE "" then "RM Issue to Job" else "RM Receipt"),

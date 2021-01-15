@@ -964,7 +964,7 @@ ASSIGN
         USE-INDEX vend NO-LOCK.
 
     FOR EACH ap-invl WHERE ap-invl.i-no EQ ap-inv.i-no:
-     RUN spCreateGLHist(cocode,
+     RUN GL_SpCreateGLHist(cocode,
                         ap-invl.actnum,
                         "ACPAY",
                         vend.name  + "  " + string(ap-inv.inv-date),
@@ -1253,7 +1253,7 @@ ASSIGN
   END. /* for each ap-inv */
 
   IF lv-frt-total NE 0 THEN DO:
-     RUN spCreateGLHist(cocode,
+     RUN GL_SpCreateGLHist(cocode,
                         v-frt-acct,
                         "ACPAY",
                         "ACCOUNTS PAYABLE FREIGHT",
@@ -1270,7 +1270,7 @@ ASSIGN
       g2 = g2 + lv-frt-total.
   END.
 
-     RUN spCreateGLHist(cocode,
+  RUN GL_SpCreateGLHist(cocode,
                         xap-acct,
                         "ACPAY",
                         "ACCOUNTS PAYABLE INVOICE",
@@ -1289,7 +1289,7 @@ ASSIGN
      credits = credits + work-gl.credits.
 
     IF LAST-OF(work-gl.actnum) THEN DO:
-     RUN spCreateGLHist(cocode,
+     RUN GL_SpCreateGLHist(cocode,
                         work-gl.actnum,
                         "ACPAY",
                         "AP for FG Receipts from PO",

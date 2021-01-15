@@ -979,7 +979,7 @@ PROCEDURE post-gl :
 
 
             bank.bal = bank.bal - ap-disl.amt.
-            RUN spCreateGLHist(cocode,
+            RUN GL_SpCreateGLHist(cocode,
                                ap-disl.actnum,
                                "CDISB",
                                (if avail vend then vend.name else ap-dis.payee)
@@ -1032,7 +1032,7 @@ PROCEDURE post-gl :
          ap-dis.posted      = true.
 
          
-            RUN spCreateGLHist(cocode,
+         RUN GL_SpCreateGLHist(cocode,
                                bank.actnum,
                                "CDISB",
                                "CASH DISBURSEMENTS",
