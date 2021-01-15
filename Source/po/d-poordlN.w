@@ -163,8 +163,10 @@ DEFINE BUFFER bf-e-itemfg-vend FOR e-itemfg-vend.
 
 DEFINE VARIABLE ghVendorCost AS HANDLE no-undo.
 DEFINE VARIABLE scInstance AS CLASS system.SharedConfig NO-UNDO.
-DEFINE VARIABLE hGLProcs  AS HANDLE  NO-UNDO.
-DEFINE VARIABLE lInactive AS LOGICAL NO-UNDO.
+DEFINE VARIABLE hGLProcs  AS HANDLE    NO-UNDO.
+DEFINE VARIABLE lSuccess  AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lActive   AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cMessage  AS CHARACTER NO-UNDO.
 
 {windows/l-jobmt1.i}
 
@@ -953,23 +955,7 @@ DO:
     FIND FIRST account NO-LOCK
          WHERE account.company EQ g_company
            AND account.actnum  EQ SELF:SCREEN-VALUE NO-ERROR.
-    v-gl-desc:SCREEN-VALUE = IF AVAILABLE account THEN account.dscr ELSE ''.
-    
-    IF lInactive THEN DO:    
-        ASSIGN 
-            po-ordl.actnum:BGCOLOR = 16
-            po-ordl.actnum:FGCOLOR = 15
-            . 
-        MESSAGE "Inactive Account Number." VIEW-AS ALERT-BOX ERROR.
-        APPLY "ENTRY" TO po-ordl.actnum.
-        RETURN NO-APPLY.      
-    END. 
-    ELSE 
-        IF po-ordl.actnum:BGCOLOR EQ 16 THEN 
-            ASSIGN 
-                po-ordl.actnum:BGCOLOR = ?
-                po-ordl.actnum:FGCOLOR = ?
-                .
+    v-gl-desc:SCREEN-VALUE = IF AVAILABLE account THEN account.dscr ELSE ''.    
   END.
 END.
 
@@ -1115,22 +1101,6 @@ DO:
 
   RUN valid-actnum NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  
-  IF lInactive THEN DO:    
-      ASSIGN 
-          po-ordl.actnum:BGCOLOR = 16
-          po-ordl.actnum:FGCOLOR = 15
-          . 
-      MESSAGE "Inactive Account Number." VIEW-AS ALERT-BOX ERROR.
-      APPLY "ENTRY" TO po-ordl.actnum.
-      RETURN NO-APPLY.      
-  END. 
-  ELSE 
-      IF po-ordl.actnum:BGCOLOR EQ 16 THEN 
-          ASSIGN 
-              po-ordl.actnum:BGCOLOR = ?
-              po-ordl.actnum:FGCOLOR = ?
-              .  
   
   RUN validate-all NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
@@ -5697,27 +5667,48 @@ PROCEDURE valid-actnum :
     ------------------------------------------------------------------------------*/
   
     DO WITH FRAME {&FRAME-NAME}:
-        lInactive = FALSE.
         
-        IF (po-ordl.actnum:SCREEN-VALUE EQ "" OR
-            NOT CAN-FIND(FIRST account
-            WHERE account.company EQ g_company
-            AND account.actnum  EQ po-ordl.actnum:SCREEN-VALUE
-            AND account.TYPE <> "T")) AND
-            v-default-gl-log                                                     THEN 
-        DO:
-            IF po-ordl.actnum:SCREEN-VALUE EQ "" THEN
-                MESSAGE "Account Number may not be spaces, try help..." VIEW-AS ALERT-BOX ERROR.
-            ELSE
-                MESSAGE "Invalid GL#, try help..." VIEW-AS ALERT-BOX ERROR.
-            APPLY "entry" TO po-ordl.actnum.
+        RUN GL_CheckGLAccount IN hGLProcs(
+            INPUT  g_company,
+            INPUT  po-ordl.actnum:SCREEN-VALUE,            
+            OUTPUT cMessage,
+            OUTPUT lSuccess,
+            OUTPUT lActive
+            ).
+        
+        IF po-ordl.actnum:SCREEN-VALUE EQ "" AND lSuccess = NO THEN DO:
+            MESSAGE cMessage VIEW-AS ALERT-BOX ERROR. 
+            IF po-ordl.actnum:BGCOLOR EQ 16 THEN             
+                ASSIGN 
+                    po-ordl.actnum:BGCOLOR = ?
+                    po-ordl.actnum:FGCOLOR = ?
+                   .
+            APPLY "ENTRY" TO po-ordl.actnum.
             RETURN ERROR.
-        END.
-        RUN checkInvalidGLAccount IN hGLProcs(
-            INPUT g_company,
-            INPUT po-ordl.actnum:SCREEN-VALUE,
-            OUTPUT lInactive
-            ). 
+        END.    
+        IF v-default-gl-log AND lSuccess = NO THEN DO:               
+            MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.            
+            IF po-ordl.actnum:BGCOLOR EQ 16 THEN             
+                ASSIGN 
+                    po-ordl.actnum:BGCOLOR = ?
+                    po-ordl.actnum:FGCOLOR = ?
+                   .
+            APPLY "ENTRY" TO po-ordl.actnum.       
+            RETURN ERROR. 
+        END.      
+        IF lSuccess = YES AND lActive = NO THEN DO:  
+                ASSIGN 
+                    po-ordl.actnum:BGCOLOR = 16
+                    po-ordl.actnum:FGCOLOR = 15
+                    .         
+                APPLY "ENTRY" TO po-ordl.actnum.
+                RETURN ERROR.                      
+        END.      
+        IF lActive = YES AND po-ordl.actnum:BGCOLOR EQ 16 THEN             
+            ASSIGN 
+                po-ordl.actnum:BGCOLOR = ?
+                po-ordl.actnum:FGCOLOR = ?
+                .                               
     END.
   
 END PROCEDURE.

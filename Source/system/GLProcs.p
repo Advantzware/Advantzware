@@ -23,27 +23,89 @@ FUNCTION GL_GetAccountAR RETURNS CHARACTER
 
 /* **********************  Internal Procedures  *********************** */ 
 
-PROCEDURE checkInvalidGLAccount:
+PROCEDURE GL_CheckGLAccount:
 /*------------------------------------------------------------------------------
- Purpose: Check GL Account
+ Purpose: Check Invalid and Inactive GL Account
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcCompany  AS CHARACTER NO-UNDO. 
-    DEFINE INPUT PARAMETER ipcAccount  AS CHARACTER NO-UNDO.
-    DEFINE OUTPUT PARAMETER opInactive AS LOGICAL   NO-UNDO.
+    DEFINE INPUT PARAMETER  ipcCompany      AS CHARACTER NO-UNDO. 
+    DEFINE INPUT PARAMETER  ipcAccount      AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage      AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplSuccess      AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplActive       AS LOGICAL   NO-UNDO.  
+        
+    RUN GL_CheckInvalidGLAccount (
+        BUFFER account,
+        INPUT  ipcCompany,
+        INPUT  ipcAccount,       
+        OUTPUT opcMessage,
+        OUTPUT oplSuccess       
+        ).         
     
-    FIND FIRST account NO-LOCK
-         WHERE account.company EQ ipcCompany
-           AND account.type    NE "T" 
-           AND account.actnum  EQ ipcAccount  
-           NO-ERROR.
-    IF AVAILABLE account THEN DO: 
-        IF account.inactive EQ YES THEN 
-            opInactive = YES.
-        ELSE    
-            opInactive = FALSE. 
-    END.                                     
+    IF oplSuccess EQ NO THEN  
+        RETURN.  
+    ELSE 
+        RUN GL_CheckInactiveGLAccount (
+            BUFFER account,
+            OUTPUT opcMessage,            
+            OUTPUT oplActive
+            ).              
+         
+END PROCEDURE.
 
+PROCEDURE GL_CheckInactiveGLAccount:
+/*------------------------------------------------------------------------------
+ Purpose: Check Inactive GL Account.
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER bfAccount FOR Account.
+    DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.    
+    DEFINE OUTPUT PARAMETER oplActive  AS LOGICAL   NO-UNDO.  
+   
+    IF AVAILABLE bfAccount THEN DO:
+        IF bfAccount.inactive EQ YES THEN 
+            ASSIGN 
+                opcMessage = "Inactive Account Number."                
+                oplActive  = NO 
+                .  
+        ELSE                          
+            oplActive  = YES.                               
+    END.                 
+
+END PROCEDURE.
+
+PROCEDURE GL_CheckInvalidGLAccount:
+/*------------------------------------------------------------------------------
+ Purpose: Check Invalid GL Account
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER bfAccount FOR Account.
+    DEFINE INPUT PARAMETER  ipcCompany      AS CHARACTER NO-UNDO. 
+    DEFINE INPUT PARAMETER  ipcAccount      AS CHARACTER NO-UNDO.   
+    DEFINE OUTPUT PARAMETER opcMessage      AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplSuccess      AS LOGICAL   NO-UNDO.               
+     
+    IF ipcAccount EQ "" THEN DO:
+        opcMessage = "Account Number may not be spaces, try help...".
+        oplSuccess = NO. 
+        RETURN.
+    END.    
+    
+    FIND FIRST bfAccount NO-LOCK  
+        WHERE bfAccount.company EQ ipcCompany
+          AND bfAccount.actnum  EQ ipcAccount
+          AND bfAccount.TYPE    NE "T"         
+          NO-ERROR.
+    IF NOT AVAILABLE bfAccount THEN DO:              
+        ASSIGN 
+            opcMessage = "Invalid GL#, try help..."            
+            oplSuccess = NO
+            .
+        RETURN.    
+    END. 
+    
+    oplSuccess = YES.           
+    
 END PROCEDURE.
 
 PROCEDURE pGetAccountAR PRIVATE:
