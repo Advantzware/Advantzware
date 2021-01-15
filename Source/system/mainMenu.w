@@ -2277,7 +2277,7 @@ PROCEDURE pProcessClick :
         IF ttMenuTree.isMenu AND NOT ttMenuTree.isOpen THEN
         ASSIGN
             ttMenuTree.hEditor:FONT    = iFont
-            ttMenuTree.hEditor:BGCOLOR = iEditorBGColor
+            ttMenuTree.hEditor:BGCOLOR = {&DefaultMenuBGColor}
             ttMenuTree.hEditor:FGCOLOR = ?
             .
         ELSE

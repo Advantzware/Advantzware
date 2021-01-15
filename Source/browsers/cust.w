@@ -266,8 +266,6 @@ RUN set-attribute-list (
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btn_go 
-     IMAGE-UP FILE "Graphics/32x32/search_new.png":U
-     IMAGE-DOWN FILE "Graphics/32x32/search_hover_new.png":U
      LABEL "&Go" 
      SIZE 6.4 BY 1.52
      BGCOLOR 21 FGCOLOR 15 FONT 23.
@@ -484,7 +482,8 @@ DEFINE FRAME F-Main
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
-         BGCOLOR 15  WIDGET-ID 100.
+         BGCOLOR 15 
+         DEFAULT-BUTTON btn_go WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -938,6 +937,7 @@ END.
 /* ***************************  Main Block  *************************** */
 {methods/ctrl-a_browser.i}
 {sys/inc/f3help.i}
+btn_go:load-image("Graphics/32x32/search_new.png").
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF

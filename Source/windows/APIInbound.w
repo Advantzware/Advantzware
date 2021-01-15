@@ -106,6 +106,13 @@ DEFINE FRAME F-Main
          SIZE 160 BY 28.57
          BGCOLOR 15  WIDGET-ID 100.
 
+DEFINE FRAME OPTIONS-FRAME
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 14 ROW 1.05
+         SIZE 11 BY 1.91
+         BGCOLOR 15  WIDGET-ID 300.
+
 DEFINE FRAME message-frame
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -168,11 +175,14 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* SETTINGS FOR WINDOW W-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* REPARENT FRAME */
-ASSIGN FRAME message-frame:FRAME = FRAME F-Main:HANDLE.
+ASSIGN FRAME message-frame:FRAME = FRAME F-Main:HANDLE
+       FRAME OPTIONS-FRAME:FRAME = FRAME F-Main:HANDLE.
 
 /* SETTINGS FOR FRAME F-Main
    FRAME-NAME                                                           */
 /* SETTINGS FOR FRAME message-frame
+                                                                        */
+/* SETTINGS FOR FRAME OPTIONS-FRAME
                                                                         */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(W-Win)
 THEN W-Win:HIDDEN = yes.
@@ -480,6 +490,8 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   VIEW FRAME F-Main IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-F-Main}
+  VIEW FRAME OPTIONS-FRAME IN WINDOW W-Win.
+  {&OPEN-BROWSERS-IN-QUERY-OPTIONS-FRAME}
   VIEW FRAME message-frame IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-message-frame}
   VIEW W-Win.
