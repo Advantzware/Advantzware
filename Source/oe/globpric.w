@@ -1045,12 +1045,13 @@ PROCEDURE run-process :
 
 SESSION:SET-WAIT-STATE("General").
 
-DEFINE VARIABLE v-date         AS DATE      NO-UNDO.
-DEFINE VARIABLE v-date-str     AS CHARACTER NO-UNDO.
-DEFINE VARIABLE v-start-i-no   AS CHARACTER FORMAT "X(108)" NO-UNDO.
-DEFINE VARIABLE cRoundingType  AS CHARACTER NO-UNDO.
-DEFINE VARIABLE iRoundingLevel AS INTEGER   NO-UNDO.
-DEFINE VARIABLE cOutputDir     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE v-date                  AS DATE      NO-UNDO.
+DEFINE VARIABLE v-date-str              AS CHARACTER NO-UNDO.
+DEFINE VARIABLE v-start-i-no            AS CHARACTER FORMAT "X(108)" NO-UNDO.
+DEFINE VARIABLE cRoundingType           AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iRoundingLevel          AS INTEGER   NO-UNDO.
+DEFINE VARIABLE cOutputDir              AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lIsTempTableRecordAvail AS LOGICAL   NO-UNDO.
 DEF BUFFER bf-oe-prmtx FOR oe-prmtx.
 
 ASSIGN
@@ -1130,7 +1131,8 @@ REPEAT PRESELECT EACH oe-prmtx EXCLUSIVE-LOCK
 /*        v-date GE beg_eff_date AND                        */
 /*        v-date LE end_eff_date THEN                       */
 /*        DO:                                               */
-
+        
+          lIsTempTableRecordAvail = NO.
           IF cbMatrixPrecision EQ "Customer" THEN DO:
               DO ctr = 1 TO INTEGER(cust.matrixPrecision):
                   li-factor = li-factor * 10.    
@@ -1150,7 +1152,8 @@ REPEAT PRESELECT EACH oe-prmtx EXCLUSIVE-LOCK
                       BUFFER-COPY oe-prmtx EXCEPT oe-prmtx.rec_key TO bf-oe-prmtx.
                   END.
                   CREATE ttPriceMatrix.
-                  BUFFER-COPY bf-oe-prmtx TO ttPriceMatrix.
+                  BUFFER-COPY oe-prmtx TO ttPriceMatrix.
+                  lIsTempTableRecordAvail = YES.
               END.
           END.
           ELSE DO:
@@ -1160,7 +1163,7 @@ REPEAT PRESELECT EACH oe-prmtx EXCLUSIVE-LOCK
                   BUFFER-COPY bf-oe-prmtx TO ttPriceMatrix. 
               END.    
           END.    
-          IF AVAIL bf-oe-prmtx THEN DO:
+          IF AVAIL bf-oe-prmtx OR lIsTempTableRecordAvail THEN DO:
               IF tg_new_eff_date THEN DO:
                   IF lProcess THEN 
                       bf-oe-prmtx.eff-date = new_eff_date.
