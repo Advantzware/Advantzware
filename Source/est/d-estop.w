@@ -1897,19 +1897,21 @@ PROCEDURE valid-mach :
     RUN is-it-foam.
 
     DO WITH FRAME {&frame-name}:
-        FIND FIRST mach
-            {sys/look/machW.i}
-            AND mach.m-code EQ est-op.m-code:screen-value 
-        NO-LOCK NO-ERROR.
+          FIND FIRST mach NO-LOCK
+               WHERE mach.company = cocode AND
+               mach.m-code = est-op.m-code:SCREEN-VALUE NO-ERROR.
+          IF NOT AVAIL mach THEN
+          DO:
+               MESSAGE "Invalid Machine Code. Try Help." VIEW-AS ALERT-BOX ERROR.
+               APPLY "entry" TO est-op.m-code.
 
-        IF NOT AVAILABLE mach THEN 
-        DO:
-            MESSAGE "Must enter a valid Machine Code, try help"
-                VIEW-AS ALERT-BOX ERROR.
-            APPLY "entry" TO est-op.m-code .
-            RETURN ERROR.
-        END.
+          END.
+          IF AVAIL mach AND mach.loc NE locode THEN DO:
+               MESSAGE "Invalid Machine Code as Estimate Location is " +  locode + " and Machine Location is " + mach.loc + "." + "  Machine must be in the same location as estimate." VIEW-AS ALERT-BOX ERROR.
+               APPLY "entry" TO est-op.m-code.
 
+          END.
+       
 
         IF mach.obsolete THEN 
         DO:
