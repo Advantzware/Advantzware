@@ -1514,7 +1514,14 @@ PROCEDURE openQuery:
   IF sortColumn EQ 'Markup07' THEN STRING(cust-mark.markup[7],'->>>9.99<<<') ELSE ~
   IF sortColumn EQ 'Markup08' THEN STRING(cust-mark.markup[8],'->>>9.99<<<') ELSE ~
   IF sortColumn EQ 'Markup09' THEN STRING(cust-mark.markup[9],'->>>9.99<<<') ELSE ~
-  STRING (cust-mark.markup[10],'->>>9.99<<<') ~{&SORTED}        
+  STRING (cust-mark.markup[10],'->>>9.99<<<') ~{&SORTED}   
+  
+&ELSEIF '{&yellowColumnsName}' EQ 'mnu-item' &THEN
+    &SCOPED-DEFINE SORTBY-PHRASE BY ~
+    IF sortColumn EQ 'Menu!Num'            THEN STRING(mnu-item.menu-num,">>>>9") ELSE~
+    IF sortColumn EQ 'Program!Description' THEN STRING(mnu-item.descrip)          ELSE ~
+    STRING(mnu-item.pgm-name) ~{&SORTED}
+      
         
 &ENDIF
 
