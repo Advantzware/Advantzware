@@ -265,7 +265,9 @@ RUN set-attribute-list (
 
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btn_go 
+DEFINE BUTTON btn_go
+     IMAGE-UP FILE "Graphics/32x32/search_new.png":U
+     IMAGE-DOWN FILE "Graphics/32x32/search_hover_new.png":U 
      LABEL "&Go" 
      SIZE 6.4 BY 1.52
      BGCOLOR 21 FGCOLOR 15 FONT 23.
@@ -482,8 +484,7 @@ DEFINE FRAME F-Main
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
-         BGCOLOR 15 
-         DEFAULT-BUTTON btn_go WIDGET-ID 100.
+         BGCOLOR 15  WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -789,6 +790,11 @@ END.
 &Scoped-define SELF-NAME btn_go
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_go B-table-Win
 ON CHOOSE OF btn_go IN FRAME F-Main /* Go */
+OR 'RETURN' OF fi_cust-no OR 'RETURN' OF fi_i-name
+OR 'RETURN' OF fi_city OR 'RETURN' OF fi_stat
+OR 'RETURN' OF fi_zip OR 'RETURN' OF fi_type
+OR 'RETURN' OF fi_sman OR 'RETURN' OF fi_terr
+OR 'RETURN' OF tb_act OR 'RETURN' OF tb_in-act 
 DO:
   DEF BUFFER bf-cust FOR cust .
   DO WITH FRAME {&FRAME-NAME}:
@@ -937,7 +943,7 @@ END.
 /* ***************************  Main Block  *************************** */
 {methods/ctrl-a_browser.i}
 {sys/inc/f3help.i}
-btn_go:load-image("Graphics/32x32/search_new.png").
+
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF
