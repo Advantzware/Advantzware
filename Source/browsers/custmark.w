@@ -27,6 +27,9 @@ CREATE WIDGET-POOL.
 
 &SCOPED-DEFINE cellColumnDat browsers-custmark
 &SCOPED-DEFINE winReSize
+&SCOPED-DEFINE yellowColumnsName custmark
+&SCOPED-DEFINE autoFind
+&SCOPED-DEFINE noSortByField
 {methods/defines/winReSize.i}
 
 /* Parameters Definitions ---                                           */
@@ -45,6 +48,8 @@ ASSIGN
 
 DEF VAR v-called-setCellColumns AS LOG NO-UNDO.
 DEF VAR v-col-move AS LOG INIT YES NO-UNDO.
+
+DEFINE VARIABLE riRowID AS ROWID NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -82,7 +87,9 @@ cust-markup.procat cust-markup.markup[1] cust-markup.markup[2] ~
 cust-markup.markup[3] cust-markup.markup[4] cust-markup.markup[5] ~
 cust-markup.markup[6] cust-markup.markup[7] cust-markup.markup[8] ~
 cust-markup.markup[9] cust-markup.markup[10] 
-&Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
+&Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table cust-markup.markup[10] 
+&Scoped-define ENABLED-TABLES-IN-QUERY-Browser-Table cust-markup
+&Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-Browser-Table cust-markup
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH cust-markup OF cust WHERE ~{&KEY-PHRASE} NO-LOCK ~
     ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY Browser-Table FOR EACH cust-markup OF cust WHERE ~{&KEY-PHRASE} NO-LOCK ~
@@ -101,8 +108,7 @@ cust-markup.markup[9] cust-markup.markup[10]
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS Browser-Table RECT-4 browse-order auto_find ~
 Btn_Clear_Find 
-&Scoped-Define DISPLAYED-OBJECTS browse-order  auto_find 
-//FI_moveCol
+&Scoped-Define DISPLAYED-OBJECTS browse-order auto_find 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -126,20 +132,15 @@ DEFINE VARIABLE auto_find AS CHARACTER FORMAT "X(256)":U
      VIEW-AS FILL-IN 
      SIZE 69 BY 1 NO-UNDO.
 
-/*DEFINE VARIABLE FI_moveCol AS CHARACTER FORMAT "X(4)":U 
-     VIEW-AS FILL-IN 
-     SIZE 13 BY 1
-     BGCOLOR 14 FONT 6 NO-UNDO.
-*/
 DEFINE VARIABLE browse-order AS INTEGER 
      VIEW-AS RADIO-SET HORIZONTAL
      RADIO-BUTTONS 
           "N/A", 1
-     SIZE 37 BY 1 NO-UNDO.
+     SIZE 54 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-4
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 96 BY 2.62.
+     SIZE 155 BY 2.62.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -167,21 +168,34 @@ DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
       cust-markup.style COLUMN-LABEL "Style" FORMAT "x(6)":U WIDTH 12
-      cust-markup.procat FORMAT "x(5)":U WIDTH 12
+            LABEL-BGCOLOR 14
+      cust-markup.procat FORMAT "x(5)":U WIDTH 12 LABEL-BGCOLOR 14
       cust-markup.markup[1] COLUMN-LABEL "Margin01" FORMAT "->>>9.99<<<":U
+            LABEL-BGCOLOR 14
       cust-markup.markup[2] COLUMN-LABEL "Margin02" FORMAT "->>>9.99<<<":U
+            LABEL-BGCOLOR 14
       cust-markup.markup[3] COLUMN-LABEL "Margin03" FORMAT "->>>9.99<<<":U
+            LABEL-BGCOLOR 14
       cust-markup.markup[4] COLUMN-LABEL "Margin04" FORMAT "->>>9.99<<<":U
+            LABEL-BGCOLOR 14
       cust-markup.markup[5] COLUMN-LABEL "Margin05" FORMAT "->>>9.99<<<":U
+            LABEL-BGCOLOR 14
       cust-markup.markup[6] COLUMN-LABEL "Margin06" FORMAT "->>>9.99<<<":U
+            LABEL-BGCOLOR 14
       cust-markup.markup[7] COLUMN-LABEL "Margin07" FORMAT "->>>9.99<<<":U
+            LABEL-BGCOLOR 14
       cust-markup.markup[8] COLUMN-LABEL "Margin08" FORMAT "->>>9.99<<<":U
+            LABEL-BGCOLOR 14
       cust-markup.markup[9] COLUMN-LABEL "Margin09" FORMAT "->>>9.99<<<":U
+            LABEL-BGCOLOR 14
       cust-markup.markup[10] COLUMN-LABEL "Margin10" FORMAT "->>>9.99<<<":U
+            LABEL-BGCOLOR 14
+  ENABLE
+      cust-markup.markup[10]
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 96 BY 15.24
-         FONT 2.
+    WITH NO-ASSIGN NO-COLUMN-SCROLLING SEPARATORS SIZE 155 BY 15.24
+         FONT 2 FIT-LAST-COLUMN.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -191,10 +205,9 @@ DEFINE FRAME F-Main
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
      browse-order AT ROW 16.48 COL 6 HELP
           "Select Browser Sort Order" NO-LABEL
-  //   FI_moveCol AT ROW 16.48 COL 81 COLON-ALIGNED NO-LABEL WIDGET-ID 4
-     auto_find AT ROW 17.67 COL 11 COLON-ALIGNED HELP
+     auto_find AT ROW 16.48 COL 70.4 COLON-ALIGNED HELP
           "Enter Auto Find Value"
-     Btn_Clear_Find AT ROW 17.67 COL 83 HELP
+     Btn_Clear_Find AT ROW 16.48 COL 142.2 HELP
           "CLEAR AUTO FIND Value"
      "By:" VIEW-AS TEXT
           SIZE 4 BY 1 AT ROW 16.48 COL 2
@@ -233,7 +246,7 @@ END.
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW B-table-Win ASSIGN
          HEIGHT             = 17.95
-         WIDTH              = 108.4.
+         WIDTH              = 155.2.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -242,8 +255,8 @@ END.
 /* ************************* Included-Libraries *********************** */
 
 {src/adm/method/browser.i}
-{src/adm/method/query.i}
 {methods/template/browser.i}
+{custom/yellowcolumns.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -258,13 +271,14 @@ END.
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
-/* BROWSE-TAB Browser-Table 1 F-Main */
+/* BROWSE-TAB Browser-Table TEXT-1 F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
-/* SETTINGS FOR FILL-IN FI_moveCol IN FRAME F-Main
-   NO-ENABLE                                                            */
+ASSIGN 
+       Browser-Table:ALLOW-COLUMN-SEARCHING IN FRAME F-Main = TRUE.
+
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -277,29 +291,29 @@ ASSIGN
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = "USED"
      _FldNameList[1]   > asi.cust-markup.style
-"cust-markup.style" "Style" ? "character" ? ? ? ? ? ? no ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"cust-markup.style" "Style" ? "character" ? ? ? 14 ? ? no ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > asi.cust-markup.procat
-"cust-markup.procat" ? ? "character" ? ? ? ? ? ? no ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"cust-markup.procat" ? ? "character" ? ? ? 14 ? ? no ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > asi.cust-markup.markup[1]
-"cust-markup.markup[1]" "Margin01" ? "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"cust-markup.markup[1]" "Margin01" ? "decimal" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > asi.cust-markup.markup[2]
-"cust-markup.markup[2]" "Margin02" ? "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"cust-markup.markup[2]" "Margin02" ? "decimal" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > asi.cust-markup.markup[3]
-"cust-markup.markup[3]" "Margin03" ? "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"cust-markup.markup[3]" "Margin03" ? "decimal" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > asi.cust-markup.markup[4]
-"cust-markup.markup[4]" "Margin04" ? "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"cust-markup.markup[4]" "Margin04" ? "decimal" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   > asi.cust-markup.markup[5]
-"cust-markup.markup[5]" "Margin05" ? "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"cust-markup.markup[5]" "Margin05" ? "decimal" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > asi.cust-markup.markup[6]
-"cust-markup.markup[6]" "Margin06" ? "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"cust-markup.markup[6]" "Margin06" ? "decimal" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[9]   > asi.cust-markup.markup[7]
-"cust-markup.markup[7]" "Margin07" ? "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"cust-markup.markup[7]" "Margin07" ? "decimal" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[10]   > asi.cust-markup.markup[8]
-"cust-markup.markup[8]" "Margin08" ? "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"cust-markup.markup[8]" "Margin08" ? "decimal" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[11]   > asi.cust-markup.markup[9]
-"cust-markup.markup[9]" "Margin09" ? "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"cust-markup.markup[9]" "Margin09" ? "decimal" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[12]   > asi.cust-markup.markup[10]
-"cust-markup.markup[10]" "Margin10" ? "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"cust-markup.markup[10]" "Margin10" ? "decimal" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
@@ -321,6 +335,16 @@ ASSIGN
 &Scoped-define BROWSE-NAME Browser-Table
 &Scoped-define SELF-NAME Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
+ON DEFAULT-ACTION OF Browser-Table IN FRAME F-Main
+DO:
+    RUN pUpdateRecord. 
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON ROW-ENTRY OF Browser-Table IN FRAME F-Main
 DO:
   /* This code displays initial values for newly added or copied rows. */
@@ -337,6 +361,16 @@ DO:
     /* Do not disable this code or no updates will take place except
      by pressing the Save button on an Update SmartPanel. */
    {src/adm/template/brsleave.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
+ON START-SEARCH OF Browser-Table IN FRAME F-Main
+DO:
+    RUN startSearch.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -432,6 +466,28 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-delete-record B-table-Win 
+PROCEDURE local-delete-record :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+  IF NOT adm-new-record THEN 
+    {custom/askdel.i}
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'delete-record':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-display-fields B-table-Win 
 PROCEDURE local-display-fields :
 /*------------------------------------------------------------------------------
@@ -487,6 +543,141 @@ DO WITH FRAME {&FRAME-NAME}:
      Browser-Table:COLUMN-RESIZABLE = v-col-move
      v-col-move = NOT v-col-move.
 END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pAddRecord B-table-Win 
+PROCEDURE pAddRecord :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE BUFFER bf-cust-markup FOR cust-markup.
+    
+    CREATE bf-cust-markup.
+    ASSIGN
+        bf-cust-markup.company   = cust.company
+        bf-cust-markup.cust-no   = cust.cust-no
+        bf-cust-markup.markup-on = "N"
+        .
+        
+    RUN viewers/d-CustMark.w (
+        INPUT ROWID(bf-cust-markup),
+        INPUT "Add",
+        OUTPUT riRowID
+        ). 
+     IF riRowID EQ ? THEN DO:
+        FIND CURRENT bf-cust-markup EXCLUSIVE-LOCK NO-ERROR.
+        DELETE bf-cust-markup.
+     END.   
+     ELSE 
+        RUN pRepositionQuery(
+            INPUT riRowID
+            ).
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCopyRecord B-table-Win 
+PROCEDURE pCopyRecord :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE BUFFER bf-cust-markup FOR cust-markup.
+    
+    IF AVAILABLE cust-markup THEN DO:
+        CREATE bf-cust-markup.
+        
+        BUFFER-COPY cust-markup EXCEPT rec_key TO bf-cust-markup.
+        
+        RUN viewers/d-CustMark.w (
+            INPUT ROWID(bf-cust-markup),
+            INPUT "copy",
+            OUTPUT riRowID
+            ). 
+            
+         IF riRowID EQ ? THEN DO: 
+            FIND CURRENT bf-cust-markup EXCLUSIVE-LOCK NO-ERROR.
+            DELETE bf-cust-markup.
+         END.   
+         ELSE 
+            RUN pRepositionQuery(
+                INPUT riRowID
+                ).
+     END.       
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRepositionQuery B-table-Win 
+PROCEDURE pRepositionQuery PRIVATE :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iprRowID AS ROWID NO-UNDO.
+    
+    DEFINE VARIABLE hButtonPanel AS HANDLE NO-UNDO.
+
+    DO WITH FRAME {&FRAME-NAME}:
+        RUN clear_auto_find.
+        RUN change-order (browse-order:SCREEN-VALUE).
+        REPOSITION {&browse-name} TO ROWID iprRowID NO-ERROR.
+    END.
+
+    RUN dispatch ('row-changed').
+    
+    RUN get-link-handle in adm-broker-hdl (this-procedure,"TableIO", output hButtonPanel).
+    RUN set-Buttons IN hButtonPanel ("Initial").
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateRecord B-table-Win 
+PROCEDURE pUpdateRecord :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+    IF AVAILABLE cust-markup THEN DO:
+        RUN viewers/d-CustMark.w (
+            INPUT ROWID(cust-markup),
+            INPUT "Update",
+            OUTPUT riRowID
+            ). 
+        IF riRowID NE ? THEN 
+            RUN pRepositionQuery(
+                INPUT riRowID
+                ).
+    END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pViewRecord B-table-Win 
+PROCEDURE pViewRecord :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    IF AVAILABLE cust-markup THEN DO:
+        RUN viewers/d-CustMark.w (
+            INPUT ROWID(cust-markup),
+            INPUT "View",
+            OUTPUT riRowID
+            ). 
+    END.
 
 END PROCEDURE.
 

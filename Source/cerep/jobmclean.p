@@ -1156,15 +1156,20 @@ FOR EACH job-hdr NO-LOCK
                                     AND bff-eb.est-no EQ eb.est-no
                                     AND bff-eb.form-no EQ 0
                                     AND bff-eb.est-type EQ 2 :
+                                    
+                                    FIND FIRST bf-ttSoule NO-LOCK
+                                         WHERE bf-ttSoule.frm EQ bff-eb.form-no
+                                         AND bf-ttSoule.blank-no EQ bff-eb.blank-no 
+                                         AND bf-ttSoule.runForm EQ YES NO-ERROR.
 
                                     lAssembled = IF bff-eb.set-is-assembled EQ YES THEN YES ELSE NO .
                                     cSetFGItem = bff-eb.stock-no  .
-
-                                    IF LINE-COUNTER > 70 THEN DO: 
-                                        PUT "<C74><R64>Page: " string(PAGE-NUM - lv-pg-num,">>9") + " of <#PAGES>"  FORM "x(20)" .
-                                        PAGE.
-                                        RUN pPrintHeader .
-                                    END.
+                                    IF AVAIL bf-ttSoule THEN DO:
+                                     IF LINE-COUNTER > 70 THEN DO: 
+                                       PUT "<C74><R64>Page: " string(PAGE-NUM - lv-pg-num,">>9") + " of <#PAGES>"  FORM "x(20)" .
+                                       PAGE.
+                                       RUN pPrintHeader .
+                                     END.
                                     
                                      PUT 
                                          "<BGCOLOR=255,255,0><C1.5><FROM><R+1><C12><FILLRECT><R-1><BGCOLOR=WHITE>"
@@ -1200,6 +1205,7 @@ FOR EACH job-hdr NO-LOCK
                                          RUN pPrintMiscItems(bff-eb.est-no,bff-eb.form-no,bff-eb.blank-no,"5,6,M").
                                         PUT v-fill SKIP .
                                         PUT "<R-1>" .
+                                    END.    
                                 END.
                             END.
 

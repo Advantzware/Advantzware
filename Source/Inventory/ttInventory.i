@@ -73,6 +73,7 @@ DEFINE {1} TEMP-TABLE ttPrintInventoryStock
 
 DEFINE {1} TEMP-TABLE ttBrowseInventory
     LIKE ttInventoryStockLoadtagWIP
+    FIELD transactionType   AS CHARACTER
     FIELD locDscr           AS CHARACTER
     FIELD leadDays          AS INTEGER
     FIELD orderLevel        AS INTEGER

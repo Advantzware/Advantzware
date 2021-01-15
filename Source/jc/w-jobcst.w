@@ -32,6 +32,7 @@ CREATE WIDGET-POOL.
 &SCOPED-DEFINE h_Object05 h_p-updsav-2
 &SCOPED-DEFINE h_Object06 h_p-farmh
 &SCOPED-DEFINE h_Object07 h_vp-tandm
+&SCOPED-DEFINE h_Object08 h_vp-clsjc
 
 
 /* Parameters Definitions ---                                           */
@@ -141,6 +142,7 @@ DEFINE VARIABLE h_optonote AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_attach AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_import AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_vp-tandm AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_vp-clsjc AS HANDLE NO-UNDO.
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -411,7 +413,7 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/folder.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'FOLDER-LABELS = ':U + 'Browse Job|View Job|Materials|Routings|Preps|Estimate|FG Item|Farm' + ',
+             INPUT  'FOLDER-LABELS = ':U + 'Browse|Detail|Materials|Routings|Preps|Estimate|FG Item|Farm' + ',
                      FOLDER-TAB-TYPE = 2':U ,
              OUTPUT h_folder ).
        RUN set-position IN h_folder ( 3.14 , 1.00 ) NO-ERROR.
@@ -582,6 +584,14 @@ PROCEDURE adm-create-objects :
              OUTPUT h_vp-tandm ).
        RUN set-position IN h_vp-tandm ( 22.57 , 20.00 ) NO-ERROR.
        RUN set-size IN h_vp-tandm ( 1.76 , 17.00 ) NO-ERROR.
+       
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'jc/vp-clsjc.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_vp-clsjc ).
+       RUN set-position IN h_vp-clsjc ( 22.57 , 117.00 ) NO-ERROR.
+       RUN set-size IN h_vp-clsjc ( 1.76 , 74.00 ) NO-ERROR.
 
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
@@ -605,6 +615,9 @@ PROCEDURE adm-create-objects :
        
        /* Links to SmartViewer h_vp-tandm. */
        RUN add-link IN adm-broker-hdl ( h_v-job , 'tandem':U , h_vp-tandm ).
+       
+        /* Links to SmartViewer h_vp-clsjc. */
+       RUN add-link IN adm-broker-hdl ( h_v-job , 'Record':U , h_vp-clsjc ).
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_v-job ,

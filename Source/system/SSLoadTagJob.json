@@ -1,0 +1,54 @@
+{
+	"UpdateLoadTagSSCC" : {
+		"Description" : "NK1 LoadTagSSCC - Update Loadtag with SSCC",
+		"Active" : false
+	},
+    "UpdateLocBinFromItemFG" : {
+        "Description" : "Update loadtag's warehouse and location with Item's warehouse and location",
+        "Active" : false
+    },
+	"UpdateLocBinFromFGBin" : {
+        "Description" : "Update loadtag's warehouse and location with FGBin warehouse and location",
+        "Active" : false
+    },
+	"LOADTAG" : {
+		"Description" : "NK1 LOADTAG - Special Load tag print options, e.g. barcode printer",
+		"Active" : false,
+		"Printer" : "ASI"
+	},
+	"CreateRFIDTag" : {
+		"Description" : "NK1 RFIDTag - Create rfIDTag for a lodatag",
+		"Active" : true	
+	},
+	"CheckClosedStatus" : {
+		"Description" : "Validate Job/PO status before ccreating FG Receipts",
+		"Active" : false
+	},
+	"CreateFGReceipts" : {
+		"Description" : "NK1 FGRECPT - Is Job# or PO# mandatory on FG Receipts?",
+		"Active" : false,
+		"Type" : "Manual"
+	},
+	"FGReceiptRules" : {
+		"Description" : "NK1 FGReceiptRules",
+		"Active" : false
+	},
+	"FGSetRec" : {
+		"Description" : "NK1 FGSETREC - Whse/Bin Location for components of Unassembled Sets (Set/Item)",
+		"Active" : false,
+		"Value" : 1
+	},
+	"UpdateSetWithMaxQuantity" : {
+		"Description" : "Create set components quantity with maximum available quantity in case of insufficient inventory",
+		"Active" : false	
+	},
+	"CreateComponenetTagsForSetHeaderItem" : {
+		"Description" : "NK1 RFIDTag",
+		"Active" : false	
+	},
+	"LabelMatrixLoadTagOutputFilePath" : {
+		"Description" : "Path to save the label matrix output file",
+		"Path" : "C:\\BA\\Label\\",
+		"File" : "loadtag1.txt"
+	}
+}

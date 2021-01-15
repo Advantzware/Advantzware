@@ -32,7 +32,7 @@ CREATE WIDGET-POOL.
 
 &Scoped-define FGColor ?
 &Scoped-define BGColor 32
-
+&Scoped-define DefaultMenuBGColor 32
 &Scoped-define parentMenu ssMenu
 
 ON F1 HELP.

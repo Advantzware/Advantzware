@@ -344,7 +344,7 @@ PROCEDURE adm-create-objects :
              INPUT  'adm/objects/folder.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'FOLDER-LABELS = ':U + 'Job|Items|Materials|Machine|Depart. Notes|Jobs/Routings' + ',
-                     FOLDER-TAB-TYPE = 1':U ,
+                     FOLDER-TAB-TYPE = 2':U ,
              OUTPUT h_folder ).
        RUN set-position IN h_folder ( 1.00 , 1.00 ) NO-ERROR.
        RUN set-size IN h_folder ( 9.52 , 180.00 ) NO-ERROR.

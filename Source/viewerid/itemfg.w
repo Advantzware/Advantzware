@@ -127,27 +127,27 @@ DEFINE BUTTON btnPrevious
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 170 BY 1.67.
+     SIZE 152 BY 1.67.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     btnFirst AT ROW 1.48 COL 150
-     btnPrevious AT ROW 1.48 COL 155
-     btnNext AT ROW 1.48 COL 160
-     btnLast AT ROW 1.48 COL 165
+     btnFirst AT ROW 1.48 COL 131.4
+     btnPrevious AT ROW 1.48 COL 136.4
+     btnNext AT ROW 1.48 COL 141.4
+     btnLast AT ROW 1.48 COL 146.4
      itemfg.i-no AT ROW 1.71 COL 11 COLON-ALIGNED
           VIEW-AS FILL-IN 
-          SIZE 30 BY 1
+          SIZE 28 BY 1
           BGCOLOR 15 FGCOLOR 1 
-     itemfg.i-name AT ROW 1.71 COL 51 COLON-ALIGNED
+     itemfg.i-name AT ROW 1.71 COL 47.8 COLON-ALIGNED
           VIEW-AS FILL-IN 
-          SIZE 40 BY 1
+          SIZE 36.2 BY 1
           BGCOLOR 15 FGCOLOR 1 
-     itemfg.i-dscr AT ROW 1.71 COL 100 COLON-ALIGNED
+     itemfg.i-dscr AT ROW 1.71 COL 93.6 COLON-ALIGNED
           VIEW-AS FILL-IN 
-          SIZE 40 BY 1
+          SIZE 34.4 BY 1
           BGCOLOR 15 FGCOLOR 1 
      "Reference Information" VIEW-AS TEXT
           SIZE 22 BY .62 AT ROW 1 COL 3
@@ -186,8 +186,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW V-table-Win ASSIGN
-         HEIGHT             = 1.91
-         WIDTH              = 170.
+         HEIGHT             = 2.05
+         WIDTH              = 152.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME

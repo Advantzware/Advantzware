@@ -35,12 +35,30 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 def var char-hdl as cha no-undo.
+DEFINE VARIABLE lJobCloseButton AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lAccessClose AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cAccessList AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lJobJU1 AS LOGICAL NO-UNDO.
 
 /* === vars for d-poordl.w ====*/
 {custom/globdefs.i}
 {sys/inc/VAR.i "new shared"}
 ASSIGN cocode = g_company
        locode = g_loc.
+       
+RUN methods/prgsecur.p
+	    (INPUT "JobCloseButton.",
+	     INPUT "ALL", /* based on run, create, update, delete or all */
+	     INPUT NO,    /* use the directory in addition to the program */
+	     INPUT NO,    /* Show a message if not authorized */
+	     INPUT NO,    /* Group overrides user security? */
+	     OUTPUT lJobCloseButton, /* Allowed? Yes/NO */
+	     OUTPUT lAccessClose, /* used in template/windows.i  */
+	     OUTPUT cAccessList). /* list 1's and 0's indicating yes or no to run, create, update, delete */
+         
+IF  PROGRAM-NAME(3) MATCHES "*/w-jobcst*" THEN
+    lJobJU1 = YES .         
+       
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -299,6 +317,12 @@ PROCEDURE local-row-available :
     ELSE DO:
       btn-update:LABEL = "Open/Reopen".
       DISABLE btn-update.
+    END.
+             
+    IF  lJobJU1 THEN 
+    DO: 
+        IF NOT lJobCloseButton THEN
+        DISABLE btn-update.
     END.
   END.
 

@@ -423,7 +423,7 @@ DEFINE BROWSE Browser-Table
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-BOX NO-ASSIGN SEPARATORS SIZE 154.6 BY 17.91
+    WITH NO-BOX NO-ASSIGN SEPARATORS SIZE 154.6 BY 20.14
          FONT 22 ROW-HEIGHT-CHARS .84 FIT-LAST-COLUMN.
 
 
@@ -513,7 +513,7 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW B-table-Win ASSIGN
-         HEIGHT             = 21.57
+         HEIGHT             = 23.95
          WIDTH              = 156.
 /* END WINDOW DEFINITION */
                                                                         */

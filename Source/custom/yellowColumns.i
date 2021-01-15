@@ -1500,6 +1500,22 @@ PROCEDURE openQuery:
                                                     STRING(MONTH(module.expire-date),'99')  + ~
                                                     STRING(DAY(module.expire-date),'99')  ELSE ~
         STRING(module.is-used, 'Y/N') ~{&SORTED}
+        
+&ELSEIF '{&yellowColumnsName}' EQ 'custmark' &THEN
+  &SCOPED-DEFINE SORTBY-PHRASE BY ~
+  IF sortColumn EQ 'Style'    THEN STRING(cust-markup.style)                 ELSE ~
+  IF sortColumn EQ 'Category' THEN STRING(cust-mark.procat)                  ELSE ~
+  IF sortColumn EQ 'Markup01' THEN STRING(cust-mark.markup[1],'->>>9.99<<<') ELSE ~
+  IF sortColumn EQ 'Markup02' THEN STRING(cust-mark.markup[2],'->>>9.99<<<') ELSE ~
+  IF sortColumn EQ 'Markup03' THEN STRING(cust-mark.markup[3],'->>>9.99<<<') ELSE ~
+  IF sortColumn EQ 'Markup04' THEN STRING(cust-mark.markup[4],'->>>9.99<<<') ELSE ~
+  IF sortColumn EQ 'Markup05' THEN STRING(cust-mark.markup[5],'->>>9.99<<<') ELSE ~
+  IF sortColumn EQ 'Markup06' THEN STRING(cust-mark.markup[6],'->>>9.99<<<') ELSE ~
+  IF sortColumn EQ 'Markup07' THEN STRING(cust-mark.markup[7],'->>>9.99<<<') ELSE ~
+  IF sortColumn EQ 'Markup08' THEN STRING(cust-mark.markup[8],'->>>9.99<<<') ELSE ~
+  IF sortColumn EQ 'Markup09' THEN STRING(cust-mark.markup[9],'->>>9.99<<<') ELSE ~
+  STRING (cust-mark.markup[10],'->>>9.99<<<') ~{&SORTED}        
+        
 &ENDIF
 
 /* ****************************************************************** */  

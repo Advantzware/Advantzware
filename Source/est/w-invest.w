@@ -122,7 +122,7 @@ DEFINE FRAME F-Main
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 154.2 BY 23.76.
+         SIZE 156.4 BY 23.76.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -145,11 +145,11 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          HIDDEN             = YES
          TITLE              = "Estimate"
          HEIGHT             = 23.76
-         WIDTH              = 151
+         WIDTH              = 156.4
          MAX-HEIGHT         = 24.81
-         MAX-WIDTH          = 154.2
+         MAX-WIDTH          = 162.2
          VIRTUAL-HEIGHT     = 24.81
-         VIRTUAL-WIDTH      = 154.2
+         VIRTUAL-WIDTH      = 162.2
          RESIZE             = no
          SCROLL-BARS        = no
          STATUS-AREA        = yes
@@ -258,11 +258,11 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/folder.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'FOLDER-LABELS = ':U + 'Brws Est|Estimate|Specs|Layout|Inks/Pack|Prep/Route|Misc/Farm|Box Design|Print|Quote' + ',
+             INPUT  'FOLDER-LABELS = ':U + 'Browse|Detail|Specs|Layout|Inks/Pack|Prep/Route|Misc/Farm|Box Design|Print|Quote' + ',
                      FOLDER-TAB-TYPE = 2':U ,
              OUTPUT h_folder ).
        RUN set-position IN h_folder ( 1.00 , 1.00 ) NO-ERROR.
-       RUN set-size IN h_folder ( 23.57 , 151.00 ) NO-ERROR.
+       RUN set-size IN h_folder ( 23.33 , 156.00 ) NO-ERROR.
 
        /* Links to SmartFolder h_folder. */
        RUN add-link IN adm-broker-hdl ( h_folder , 'Page':U , THIS-PROCEDURE ).

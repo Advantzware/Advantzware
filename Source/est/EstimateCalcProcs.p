@@ -457,10 +457,13 @@ PROCEDURE pAddEstBlank PRIVATE:
 
         /*Refactor - apply area UOM conversion*/
         opbf-estCostBlank.weightPerBlank          = ipbf-estCostForm.basisWeight * opbf-estCostBlank.blankAreaNetWindow / 144000 
+    
+        opbf-estCostBlank.quantityPerSet          = fGetQuantityPerSet(BUFFER ipbf-eb)
+        opbf-estCostBlank.quantityRequired        = (IF ipbf-estCostHeader.estType EQ gcTypeCombo THEN ipbf-eb.bl-qty ELSE ipbf-estCostHeader.quantityMaster) * opbf-estCostBlank.quantityPerSet 
+        opbf-estCostBlank.quantityYielded         = (IF ipbf-estCostHeader.estType EQ gcTypeCombo THEN ipbf-eb.yld-qty ELSE ipbf-estCostHeader.quantityMaster) * opbf-estCostBlank.quantityPerSet
         
-        opbf-estCostBlank.quantityRequired        = IF ipbf-estCostHeader.estType EQ gcTypeCombo THEN ipbf-eb.bl-qty ELSE ipbf-estCostHeader.quantityMaster
-        opbf-estCostBlank.quantityYielded         = IF ipbf-estCostHeader.estType EQ gcTypeCombo THEN ipbf-eb.yld-qty ELSE ipbf-estCostHeader.quantityMaster
         opbf-estCostBlank.priceBasedOnYield       = ipbf-eb.yrprice AND ipbf-estCostHeader.estType EQ gcTypeCombo
+        
         .
         
     
@@ -474,9 +477,6 @@ PROCEDURE pAddEstBlank PRIVATE:
         ASSIGN 
             opbf-estCostBlank.estCostItemID = bf-estCostItem.estCostItemID
             bf-estCostItem.sizeDesc            = TRIM(STRING(opbf-estCostBlank.dimLength,">>>9.99")) + " x " + TRIM(STRING(opbf-estCostBlank.dimWidth,">>>9.99"))
-            opbf-estCostBlank.quantityPerSet   = IF opbf-estCostBlank.formNo EQ 0 OR bf-estCostItem.quantityPerSet EQ 0 THEN 1 ELSE bf-estCostItem.quantityPerSet
-            opbf-estCostBlank.quantityRequired = opbf-estCostBlank.quantityRequired * opbf-estCostBlank.quantityPerSet
-            opbf-estCostBlank.quantityYielded  = opbf-estCostBlank.quantityYielded * opbf-estCostBlank.quantityPerSet
             .
         IF opbf-estCostBlank.dimDepth NE 0 THEN 
             bf-estCostItem.sizeDesc = bf-estCostItem.sizeDesc + " x " + TRIM(STRING(opbf-estCostBlank.dimDepth,">>>9.99")).
@@ -2447,8 +2447,23 @@ PROCEDURE pBuildLeafForEf PRIVATE:
     DEFINE PARAMETER BUFFER ipbf-estCostHeader FOR estCostHeader.
     DEFINE PARAMETER BUFFER ipbf-estCostForm   FOR estCostForm.
     
+    DEFINE BUFFER bf-est-flm FOR est-flm.
+    
     DEFINE VARIABLE iIndex AS INTEGER NO-UNDO.
-
+    
+    IF CAN-FIND(FIRST est-flm WHERE est-flm.company EQ ef.company AND est-flm.est-no EQ ef.est-no AND est-flm.snum EQ ef.form-no) THEN 
+    DO:
+        iIndex = 0.
+        FOR EACH bf-est-flm NO-LOCK 
+            WHERE bf-est-flm.company EQ ef.company
+            AND bf-est-flm.est-no EQ ef.est-no
+            AND bf-est-flm.snum EQ ef.form-no
+            BY bf-est-flm.bnum:
+            iIndex = iIndex + 1.
+            RUN pAddLeaf(BUFFER ipbf-estCostHeader, BUFFER ipbf-estCostForm, bf-est-flm.i-no, bf-est-flm.dscr, bf-est-flm.bnum, iIndex, bf-est-flm.len, bf-est-flm.wid).
+        END.    
+    END.
+    ELSE 
     DO iIndex = 1 TO 4:
         IF ipbf-ef.leaf[iIndex] NE "" THEN
             RUN pAddLeaf(BUFFER ipbf-estCostHeader, BUFFER ipbf-estCostForm, ipbf-ef.leaf[iIndex], ipbf-ef.leaf-dscr[iIndex], ipbf-ef.leaf-bnum[iIndex], iIndex, ipbf-ef.leaf-l[iIndex], ipbf-ef.leaf-w[iIndex]).
@@ -3039,6 +3054,7 @@ PROCEDURE pProcessBoardBOM PRIVATE:
     DEFINE PARAMETER BUFFER ipbf-estCostHeader      FOR estCostHeader.
     DEFINE PARAMETER BUFFER ipbf-estCostForm        FOR estCostForm.
     DEFINE PARAMETER BUFFER ipbf-item-bom           FOR item-bom.
+    DEFINE OUTPUT PARAMETER oplValidBom             AS LOGICAL NO-UNDO.
     
     DEFINE           BUFFER bf-estCostMaterial      FOR estCostMaterial.
     DEFINE           BUFFER bfBoard-estCostMaterial FOR estCostMaterial.
@@ -3055,7 +3071,7 @@ PROCEDURE pProcessBoardBOM PRIVATE:
         RUN pAddError("BOM Component '" + ipbf-item-bom.i-no + "' is not valid", gcErrorWarning, ipbf-estCostForm.estCostHeaderID, ipbf-estCostForm.formNo, 0).
         RETURN.
     END.
-    
+    oplValidBom = YES.
     RUN pAddEstMaterial(BUFFER ipbf-estCostHeader, BUFFER ipbf-estCostForm, ipbf-item-bom.i-no, 0, BUFFER bf-estCostMaterial).
     ASSIGN 
         bf-estCostMaterial.isPrimarySubstrate         = YES
@@ -3678,6 +3694,7 @@ PROCEDURE pProcessBoard PRIVATE:
     DEFINE           BUFFER bf-item-bom        FOR item-bom.
     
     DEFINE VARIABLE lFoundBOM AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lValidBOM AS LOGICAL NO-UNDO.
     
     FIND FIRST bf-item NO-LOCK 
         WHERE bf-item.company EQ ipbf-estCostForm.company
@@ -3696,9 +3713,11 @@ PROCEDURE pProcessBoard PRIVATE:
     FOR EACH bf-item-bom NO-LOCK
         WHERE bf-item-bom.company EQ bf-item.company
         AND bf-item-bom.parent-i EQ bf-item.i-no
-        AND bf-item-bom.line# LT 9:
-        lFoundBOM = YES.    
-        RUN pProcessBoardBOM(BUFFER ipbf-estCostHeader, BUFFER ipbf-estCostForm, BUFFER bf-item-bom).
+        AND bf-item-bom.i-no NE ""
+        AND bf-item-bom.line# LT 9:    
+        RUN pProcessBoardBOM(BUFFER ipbf-estCostHeader, BUFFER ipbf-estCostForm, BUFFER bf-item-bom, OUTPUT lValidBom).
+        IF NOT lFoundBom AND lValidBom THEN 
+            lFoundBom = YES.
     END.
     IF lFoundBom THEN 
     DO:
@@ -4965,6 +4984,8 @@ FUNCTION fGetQuantityPerSet RETURNS DECIMAL PRIVATE
     ------------------------------------------------------------------------------*/	
 
     DEFINE VARIABLE dQuantityPerSet AS DECIMAL NO-UNDO.
+    
+    
 
     IF ipbf-eb.est-type LT 5 THEN
         dQuantityPerSet     = ipbf-eb.cust-%. 
@@ -4973,8 +4994,9 @@ FUNCTION fGetQuantityPerSet RETURNS DECIMAL PRIVATE
         
     IF dQuantityPerSet LT 0 THEN 
         dQuantityPerSet     = ABSOLUTE(1 / dQuantityPerSet). 
-    IF dQuantityPerSet EQ 0 THEN 
-        dQuantityPerSet     = 1 .
+    
+    IF ipbf-eb.form-no EQ 0 OR dQuantityPerSet EQ 0 THEN
+        dQuantityPerSet =  1.
 
     RETURN dQuantityPerSet.
 

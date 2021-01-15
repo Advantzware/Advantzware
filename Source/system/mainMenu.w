@@ -59,6 +59,8 @@ END.
 &Scoped-define mainMenuFGColor 15
 &Scoped-define FGColor ?
 &Scoped-define BGColor 32
+&Scoped-define ENHANCE no
+&Scoped-define DefaultMenuBGColor 32
 
 {methods/defines/globdefs.i}
 {methods/defines/hndldefs.i}
@@ -1566,17 +1568,17 @@ PROCEDURE pBuildttMenuTree :
     
     RUN pCreatettMenuTree (
         FRAME menuTreeFrame:HANDLE,
-        9999,                 /* order             */
-        1,                    /* level             */
-        NO,                   /* is menu           */
-        "file",               /* parent            */
-        "exit",               /* child             */
-        "Exit",               /* text              */
-        "logout.ico", /* image             */
-        "X",                  /* mnemonic          */
-        cShowMnemonic,        /* show mnemonic     */
-        cPositionMnemonic,    /* position mnemonic */
-        YES,                  /* active            */
+        9999,              /* order             */
+        1,                 /* level             */
+        NO,                /* is menu           */
+        "file",            /* parent            */
+        "exit",            /* child             */
+        "Exit",            /* text              */
+        "logout.png",      /* image             */
+        "X",               /* mnemonic          */
+        cShowMnemonic,     /* show mnemonic     */
+        cPositionMnemonic, /* position mnemonic */
+        YES,               /* active            */
         "file"
         ).
 

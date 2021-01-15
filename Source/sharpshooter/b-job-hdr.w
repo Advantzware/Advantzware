@@ -91,7 +91,7 @@ DELETE OBJECT hdPgmSecurity.
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE br_table                                      */
-&Scoped-define FIELDS-IN-QUERY-br_table job-hdr.cust-no job-hdr.i-no job-hdr.qty fGetTotalReceived() @ iTotalRcvd itemfg.q-onh   
+&Scoped-define FIELDS-IN-QUERY-br_table job-hdr.cust-no job-hdr.i-no itemfg.i-name job-hdr.qty fGetTotalReceived() @ iTotalRcvd itemfg.q-onh   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br_table   
 &Scoped-define SELF-NAME br_table
 &Scoped-define QUERY-STRING-br_table FOR EACH job-hdr NO-LOCK       WHERE job-hdr.company EQ cCompany         AND job-hdr.job-no  EQ cJobNo         AND job-hdr.job-no2 EQ iJobNo2, ~
@@ -187,10 +187,11 @@ DEFINE BROWSE br_table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br_table B-table-Win _FREEFORM
   QUERY br_table NO-LOCK DISPLAY
       job-hdr.cust-no FORMAT "x(8)":U WIDTH 30
-      job-hdr.i-no FORMAT "x(15)":U WIDTH 40
-      job-hdr.qty COLUMN-LABEL "Job Quantity" FORMAT "->>,>>>,>>9":U WIDTH 36
-      fGetTotalReceived() @ iTotalRcvd COLUMN-LABEL "Job Qty Received" FORMAT "->>,>>>,>>9":U WIDTH 36
-      itemfg.q-onh COLUMN-LABEL "Total On-Hand" FORMAT "->>,>>>,>>9":U WIDTH 40
+      job-hdr.i-no FORMAT "x(15)":U WIDTH 30
+      itemfg.i-name COLUMN-LABEL "Item Description" FORMAT "x(30)":U WIDTH 37 
+      job-hdr.qty COLUMN-LABEL "Job Quantity" FORMAT "->>,>>>,>>9":U WIDTH 25
+      fGetTotalReceived() @ iTotalRcvd COLUMN-LABEL "Job Qty Received" FORMAT "->>,>>>,>>9":U WIDTH 30
+      itemfg.q-onh COLUMN-LABEL "Total On-Hand" FORMAT "->>,>>>,>>9":U WIDTH 30
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 181 BY 18.48
