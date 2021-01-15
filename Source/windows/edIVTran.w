@@ -264,7 +264,7 @@ END.
 
 /* Include custom  Main Block code for SmartWindows. */
 {src/adm/template/windowmn.i}
-        
+{custom/initializeprocs.i}      
         RUN util/CheckModule.p ("ASI", "810", YES, OUTPUT lAccess).
         IF NOT lAccess THEN 
           run local-exit.

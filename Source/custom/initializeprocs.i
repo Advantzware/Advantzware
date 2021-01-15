@@ -14,9 +14,10 @@ PROCEDURE beforeinitialize:
     IF VALID-HANDLE({&WINDOW-NAME}) THEN 
     DO:
         ASSIGN 
-            hTempWinmn  = FRAME {&FRAME-NAME}:HANDLE 
-            hTempWinmn:WIDTH                  = {&WINDOW-NAME}:WIDTH 
-            hTempWinmn:HEIGHT                 = {&WINDOW-NAME}:HEIGHT 
+            hTempWinmn                       = FRAME {&FRAME-NAME}:HANDLE 
+            hTempWinmn:WIDTH                 = {&WINDOW-NAME}:WIDTH 
+            hTempWinmn:HEIGHT                = {&WINDOW-NAME}:HEIGHT 
+            hTempWinmn:BGCOLOR               = 15
             hTempWinmn:VIRTUAL-HEIGHT-PIXELS = hTempWinmn:HEIGHT-PIXELS
             hTempWinmn:VIRTUAL-WIDTH-PIXELS  = hTempWinmn:WIDTH-PIXELS.
 
