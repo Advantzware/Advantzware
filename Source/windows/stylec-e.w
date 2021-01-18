@@ -331,7 +331,7 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/folder.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'FOLDER-LABELS = ':U + 'View Style|Formulas|Routing|Box Design|Box 3D Image' + ',
+             INPUT  'FOLDER-LABELS = ':U + 'Browse|Detail|Routing|Design|3D Image' + ',
                      FOLDER-TAB-TYPE = 2':U ,
              OUTPUT h_folder ).
        RUN set-position IN h_folder ( 3.14 , 2.00 ) NO-ERROR.
