@@ -370,7 +370,6 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
 &ENDIF
 
 {methods/winReSize.i}
-{custom/initializeprocs.i}
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

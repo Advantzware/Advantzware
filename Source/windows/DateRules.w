@@ -94,7 +94,7 @@ DEFINE FRAME F-Main
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 160 BY 28.57
+         SIZE 160 BY 30.19
          BGCOLOR 15 .
 
 DEFINE FRAME message-frame
@@ -131,7 +131,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW W-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Date Rules"
-         HEIGHT             = 28.57
+         HEIGHT             = 30.19
          WIDTH              = 160
          MAX-HEIGHT         = 320
          MAX-WIDTH          = 320
@@ -310,7 +310,7 @@ PROCEDURE adm-create-objects :
              INPUT  'FOLDER-LABELS = ':U + 'Browse|Detail' + ',
                      FOLDER-TAB-TYPE = 2':U ,
              OUTPUT h_folder ).
-       RUN set-position IN h_folder ( 1.71 , 1.00 ) NO-ERROR.
+       RUN set-position IN h_folder ( 2.91 , 1.00 ) NO-ERROR.
        RUN set-size IN h_folder ( 27.86 , 160.00 ) NO-ERROR.
 
        /* Links to SmartFolder h_folder. */
@@ -328,7 +328,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_DateRules ).
-       RUN set-position IN h_DateRules ( 3.14 , 2.00 ) NO-ERROR.
+       RUN set-position IN h_DateRules ( 4.33 , 2.00 ) NO-ERROR.
        RUN set-size IN h_DateRules ( 26.19 , 158.00 ) NO-ERROR.
 
        /* Initialize other pages that this page requires. */
@@ -349,7 +349,7 @@ PROCEDURE adm-create-objects :
              INPUT  'Layout = ':U ,
              OUTPUT h_DateRules-2 ).
        RUN set-position IN h_DateRules-2 ( 6.00 , 3.00 ) NO-ERROR.
-       /* Size in UIB:  ( 18.57 , 156.00 ) */
+       /* Size in UIB:  ( 17.38 , 156.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/p-navico.r':U ,
