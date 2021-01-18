@@ -43,6 +43,10 @@ DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE lFGForceCommission AS LOGICAL NO-UNDO .
 DEFINE VARIABLE dFGForceCommission AS DECIMAL NO-UNDO .
 
+DEFINE VARIABLE hdSalesManProcs AS HANDLE    NO-UNDO.
+
+RUN salrep/SalesManProcs.p PERSISTENT SET hdSalesManProcs.
+
 RUN sys/ref/nk1look.p (INPUT g_company, "FGForceCommission", "L" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
 OUTPUT cRtnChar, OUTPUT lRecFound).
@@ -911,22 +915,25 @@ PROCEDURE valid-sman :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DO WITH FRAME {&FRAME-NAME}:
-    /* Blank is valid */
-    IF cust-part.spare-char-1:SCREEN-VALUE IN BROWSE {&browse-name} EQ "" THEN
-      RETURN.
-    FIND FIRST sman NO-LOCK 
-         WHERE sman.company  EQ cust-part.company
-           AND sman.sman     EQ cust-part.spare-char-1:SCREEN-VALUE IN BROWSE {&browse-name} 
-           AND sman.inactive EQ NO
-         NO-ERROR.
-    IF NOT AVAILABLE sman THEN DO:
-      MESSAGE "Inactive/Invalid Sales Rep, try help..." VIEW-AS ALERT-BOX ERROR.
-      APPLY "entry" TO cust-part.spare-char-1 IN BROWSE {&browse-name}.
-      RETURN ERROR.
+    DEFINE VARIABLE lSuccess        AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage        AS CHARACTER NO-UNDO.
+    DO WITH FRAME {&FRAME-NAME}:
+      /* Blank is valid */
+        IF cust-part.spare-char-1:SCREEN-VALUE IN BROWSE {&browse-name} EQ "" THEN
+          RETURN.
+        RUN SalesMan_ValidateSalesRep IN hdSalesManProcs(  
+            INPUT  cust-part.company,
+            INPUT  cust-part.spare-char-1:SCREEN-VALUE,
+            OUTPUT lSuccess,
+            OUTPUT cMessage
+            ).  
+        IF NOT lSuccess THEN DO:
+            MESSAGE cMessage
+            VIEW-AS ALERT-BOX ERROR.
+            APPLY "ENTRY" TO cust-part.spare-char-1 IN BROWSE {&browse-name}.
+            RETURN ERROR.    
+        END. 
     END.
-
-  END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

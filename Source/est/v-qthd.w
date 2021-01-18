@@ -50,6 +50,11 @@ DEFINE VARIABLE ll-new-file     AS LOGICAL            NO-UNDO.
 DEFINE VARIABLE lv-part-no      LIKE quoteitm.part-no NO-UNDO.
 DEFINE VARIABLE lv-rowid        AS ROWID              NO-UNDO.
 DEFINE VARIABLE hdCustomerProcs AS HANDLE             NO-UNDO.
+DEFINE VARIABLE hdSalesManProcs AS HANDLE             NO-UNDO.
+DEFINE VARIABLE lSuccess        AS LOGICAL            NO-UNDO.
+DEFINE VARIABLE cMessage        AS CHARACTER          NO-UNDO.
+
+RUN salrep/SalesManProcs.p PERSISTENT SET hdSalesManProcs.
 
 RUN system/customerProcs.p PERSISTENT SET hdCustomerProcs.
 
@@ -630,17 +635,19 @@ DO:
   IF LASTKEY NE -1 THEN DO:
   {&methods/lValidateError.i YES}
    sman_desc:SCREEN-VALUE = ''.
-   IF quotehd.sman:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ '' THEN RETURN.
-   FIND FIRST sman NO-LOCK 
-        WHERE sman.company  EQ gCompany
-          AND sman.sman     EQ quotehd.sman:SCREEN-VALUE
-          AND sman.inActive EQ NO
-        NO-ERROR.
-   IF NOT AVAILABLE sman THEN DO:
-     MESSAGE 'Inactive/Invalid SalesGrp. Try Help.' VIEW-AS ALERT-BOX ERROR.
-     RETURN NO-APPLY.
-   END.
-   sman_desc:SCREEN-VALUE = sman.sname.
+     RUN SalesMan_ValidateSalesRep IN hdSalesManProcs(  
+         INPUT  cocode,
+         INPUT  quotehd.sman:SCREEN-VALUE,
+         OUTPUT lSuccess,
+         OUTPUT cMessage
+         ).
+     IF NOT lSuccess THEN DO:
+       MESSAGE cMessage
+            VIEW-AS ALERT-BOX ERROR.
+       APPLY 'ENTRY' TO quotehd.sman.
+       RETURN NO-APPLY.
+     END.
+   sman_desc:SCREEN-VALUE = DYNAMIC-FUNCTION("SalesMan_GetSalesmanName" IN hdSalesManProcs,cocode,quotehd.sman:SCREEN-VALUE).  
   {&methods/lValidateError.i NO}
   END.
 END.
@@ -1248,16 +1255,20 @@ PROCEDURE local-update-record :
    {&methods/lValidateError.i YES}
    DO WITH FRAME {&FRAME-NAME}:
      sman_desc:SCREEN-VALUE = ''.
-     IF quotehd.sman:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE '' THEN DO:
-       FIND FIRST sman NO-LOCK WHERE sman.sman EQ quotehd.sman:SCREEN-VALUE NO-ERROR.
-       IF NOT AVAILABLE sman THEN DO:
-         MESSAGE 'Invalid SalesGrp. Try Help.' VIEW-AS ALERT-BOX ERROR.
-         APPLY 'ENTRY' TO quotehd.sman.
-         RETURN NO-APPLY.
-       END.
-       sman_desc:SCREEN-VALUE = sman.sname.
+     RUN SalesMan_ValidateSalesRep IN hdSalesManProcs(  
+         INPUT  cocode,
+         INPUT  quotehd.sman:SCREEN-VALUE,
+         OUTPUT lSuccess,
+         OUTPUT cMessage
+         ).
+     IF NOT lSuccess THEN DO:
+       MESSAGE cMessage
+            VIEW-AS ALERT-BOX ERROR.
+       APPLY 'ENTRY' TO quotehd.sman.
+       RETURN NO-APPLY.
      END.
-
+     sman_desc:SCREEN-VALUE = DYNAMIC-FUNCTION("SalesMan_GetSalesmanName" IN hdSalesManProcs,cocode,quotehd.sman:SCREEN-VALUE).
+     
      term_desc:SCREEN-VALUE = ''.
      IF quotehd.terms:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE '' THEN DO:
        FIND FIRST terms NO-LOCK WHERE terms.t-code EQ quotehd.terms:SCREEN-VALUE NO-ERROR.
