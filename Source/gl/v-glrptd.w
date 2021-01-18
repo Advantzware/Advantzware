@@ -49,8 +49,10 @@ ASSIGN cocode = g_company
 
 DEF VAR lv-gl-type AS INT NO-UNDO.
 DEF VAR lv-rowid AS ROWID NO-UNDO.
-DEFINE VARIABLE lInactive AS LOGICAL NO-UNDO.
-DEFINE VARIABLE hGLProcs  AS HANDLE  NO-UNDO.
+DEFINE VARIABLE lSuccess AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lActive  AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hGLProcs AS HANDLE    NO-UNDO.
 
 RUN system/GLProcs.p PERSISTENT SET hGLProcs.
 
@@ -552,29 +554,36 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL gl-rpt.acrange1[1] V-table-Win
 ON LEAVE OF gl-rpt.acrange1[1] IN FRAME F-Main /* Fr Acct2 */
 DO:   
-  IF LASTKEY = -1  THEN RETURN.
-  RUN validate-acct (gl-rpt.acrange1[1]:SCREEN-VALUE IN FRAME {&FRAME-NAME}) NO-ERROR.
-  {&methods/lValidateError.i YES}
-  IF ERROR-STATUS:ERROR THEN do:
-     APPLY "entry" TO gl-rpt.acrange1[1]. 
-     RETURN NO-APPLY.
-  END.
-  IF lInactive THEN DO:    
-      ASSIGN 
-          gl-rpt.acrange1[1]:BGCOLOR = 16
-          gl-rpt.acrange1[1]:FGCOLOR = 15
-          . 
-      MESSAGE "Inactive Account Number." VIEW-AS ALERT-BOX ERROR.
-      APPLY "ENTRY" TO gl-rpt.acrange1[1].
-      RETURN NO-APPLY.      
-  END. 
-  ELSE 
-      IF gl-rpt.acrange1[1]:BGCOLOR EQ 16 THEN 
-          ASSIGN 
-              gl-rpt.acrange1[1]:BGCOLOR = ?
-              gl-rpt.acrange1[1]:FGCOLOR = ?
-              .  
-  {&methods/lValidateError.i NO}
+    IF LASTKEY = -1  THEN RETURN.
+    RUN validate-acct (gl-rpt.acrange1[1]:SCREEN-VALUE IN FRAME {&FRAME-NAME}) NO-ERROR.
+    {&methods/lValidateError.i YES}
+  
+    IF gl-rpt.acrange1[1]:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" AND lSuccess = NO THEN DO:               
+        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.            
+        IF gl-rpt.acrange1[1]:BGCOLOR EQ 16 THEN             
+            ASSIGN 
+                gl-rpt.acrange1[1]:BGCOLOR = ?
+                gl-rpt.acrange1[1]:FGCOLOR = ?
+                .
+            APPLY "ENTRY" TO gl-rpt.acrange1[1].       
+            RETURN NO-APPLY. 
+    END.   
+      
+    IF gl-rpt.acrange1[1]:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" AND lSuccess = YES AND lActive = NO THEN DO:  
+        ASSIGN 
+            gl-rpt.acrange1[1]:BGCOLOR = 16
+            gl-rpt.acrange1[1]:FGCOLOR = 15
+            .   
+        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.           
+        APPLY "ENTRY" TO gl-rpt.acrange1[1].
+        RETURN NO-APPLY.                      
+    END.      
+    IF (lActive = YES OR gl-rpt.acrange1[1]:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "" ) AND gl-rpt.acrange1[1]:BGCOLOR EQ 16 THEN             
+        ASSIGN 
+            gl-rpt.acrange1[1]:BGCOLOR = ?
+            gl-rpt.acrange1[1]:FGCOLOR = ?
+            .                    
+    {&methods/lValidateError.i NO}
 END.
 
 
@@ -585,30 +594,37 @@ END.
 &Scoped-define SELF-NAME gl-rpt.acrange1[2]
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL gl-rpt.acrange1[2] V-table-Win
 ON LEAVE OF gl-rpt.acrange1[2] IN FRAME F-Main /* To Acct2 */
-DO:
-  IF LASTKEY = -1  THEN RETURN.
-  RUN validate-acct (gl-rpt.acrange1[2]:SCREEN-VALUE IN FRAME {&FRAME-NAME}) NO-ERROR.
-  {&methods/lValidateError.i YES}
-  IF ERROR-STATUS:ERROR THEN do:
-     APPLY "entry" TO gl-rpt.acrange1[2]. 
-     RETURN NO-APPLY.
-  END.
-  IF lInactive THEN DO:    
-      ASSIGN 
-          gl-rpt.acrange1[2]:BGCOLOR = 16
-          gl-rpt.acrange1[2]:FGCOLOR = 15
-          . 
-      MESSAGE "Inactive Account Number." VIEW-AS ALERT-BOX ERROR.
-      APPLY "ENTRY" TO gl-rpt.acrange1[2].
-      RETURN NO-APPLY.      
-  END. 
-  ELSE 
-      IF gl-rpt.acrange1[2]:BGCOLOR EQ 16 THEN 
-          ASSIGN 
-              gl-rpt.acrange1[2]:BGCOLOR = ?
-              gl-rpt.acrange1[2]:FGCOLOR = ?
-              .  
-  {&methods/lValidateError.i NO}
+DO: 
+    IF LASTKEY = -1  THEN RETURN.
+    RUN validate-acct (gl-rpt.acrange1[2]:SCREEN-VALUE IN FRAME {&FRAME-NAME}) NO-ERROR.
+    {&methods/lValidateError.i YES}
+    
+    IF gl-rpt.acrange1[2]:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" AND lSuccess = NO THEN DO:               
+        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.            
+        IF gl-rpt.acrange1[2]:BGCOLOR EQ 16 THEN             
+            ASSIGN 
+                gl-rpt.acrange1[2]:BGCOLOR = ?
+                gl-rpt.acrange1[2]:FGCOLOR = ?
+                .
+            APPLY "ENTRY" TO gl-rpt.acrange1[2].       
+            RETURN NO-APPLY. 
+    END.   
+      
+    IF gl-rpt.acrange1[2]:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" AND lSuccess = YES AND lActive = NO THEN DO:  
+        ASSIGN 
+            gl-rpt.acrange1[2]:BGCOLOR = 16
+            gl-rpt.acrange1[2]:FGCOLOR = 15
+            .   
+        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.           
+        APPLY "ENTRY" TO gl-rpt.acrange1[2].
+        RETURN NO-APPLY.                      
+    END.      
+    IF (lActive = YES OR gl-rpt.acrange1[2]:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "") AND gl-rpt.acrange1[2]:BGCOLOR EQ 16 THEN             
+        ASSIGN 
+            gl-rpt.acrange1[2]:BGCOLOR = ?
+            gl-rpt.acrange1[2]:FGCOLOR = ?
+            .         
+    {&methods/lValidateError.i NO}
 END.
 
 
@@ -623,25 +639,32 @@ DO:
     IF LASTKEY = -1 THEN RETURN.
     RUN validate-acct (gl-rpt.acrange1[3]:SCREEN-VALUE IN FRAME {&FRAME-NAME}) NO-ERROR.
     {&methods/lValidateError.i YES}
-    IF ERROR-STATUS:ERROR THEN do:
-       APPLY "entry" TO gl-rpt.acrange1[3]. 
-       RETURN NO-APPLY.
-    END.
-    IF lInactive THEN DO:    
-        ASSIGN 
-            gl-rpt.acrange1[3]:BGCOLOR = 16
-            gl-rpt.acrange1[3]:FGCOLOR = 15
-            . 
-        MESSAGE "Inactive Account Number." VIEW-AS ALERT-BOX ERROR.
-        APPLY "ENTRY" TO gl-rpt.acrange1[3].
-        RETURN NO-APPLY.      
-    END. 
-    ELSE 
-        IF gl-rpt.acrange1[3]:BGCOLOR EQ 16 THEN 
+    
+    IF gl-rpt.acrange1[3]:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" AND lSuccess = NO THEN DO:               
+        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.            
+        IF gl-rpt.acrange1[3]:BGCOLOR EQ 16 THEN             
             ASSIGN 
                 gl-rpt.acrange1[3]:BGCOLOR = ?
                 gl-rpt.acrange1[3]:FGCOLOR = ?
-                .  
+                .
+            APPLY "ENTRY" TO gl-rpt.acrange1[3].       
+            RETURN NO-APPLY. 
+    END.   
+      
+    IF gl-rpt.acrange1[3]:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" AND lSuccess = YES AND lActive = NO THEN DO:  
+        ASSIGN 
+            gl-rpt.acrange1[3]:BGCOLOR = 16
+            gl-rpt.acrange1[3]:FGCOLOR = 15
+            .   
+        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.           
+        APPLY "ENTRY" TO gl-rpt.acrange1[3].
+        RETURN NO-APPLY.                      
+    END.      
+    IF (lActive = YES OR gl-rpt.acrange1[3]:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "") AND gl-rpt.acrange1[3]:BGCOLOR EQ 16 THEN             
+        ASSIGN 
+            gl-rpt.acrange1[3]:BGCOLOR = ?
+            gl-rpt.acrange1[3]:FGCOLOR = ?
+            .         
     {&methods/lValidateError.i NO}
 END.
 
@@ -653,29 +676,36 @@ END.
 &Scoped-define SELF-NAME gl-rpt.acrange1[4]
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL gl-rpt.acrange1[4] V-table-Win
 ON LEAVE OF gl-rpt.acrange1[4] IN FRAME F-Main /* To Acct3 */
-DO:
-   IF LASTKEY = -1 THEN RETURN.
+DO: 
+    IF LASTKEY = -1 THEN RETURN.
     RUN validate-acct (gl-rpt.acrange1[4]:SCREEN-VALUE IN FRAME {&FRAME-NAME}) NO-ERROR.
     {&methods/lValidateError.i YES}
-    IF ERROR-STATUS:ERROR THEN do:
-       APPLY "entry" TO gl-rpt.acrange1[4]. 
-       RETURN NO-APPLY.
-    END.
-    IF lInactive THEN DO:    
-        ASSIGN 
-            gl-rpt.acrange1[4]:BGCOLOR = 16
-            gl-rpt.acrange1[4]:FGCOLOR = 15
-            . 
-        MESSAGE "Inactive Account Number." VIEW-AS ALERT-BOX ERROR.
-        APPLY "ENTRY" TO gl-rpt.acrange1[4].
-        RETURN NO-APPLY.      
-    END. 
-    ELSE 
-        IF gl-rpt.acrange1[4]:BGCOLOR EQ 16 THEN 
+    
+    IF gl-rpt.acrange1[4]:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" AND lSuccess = NO THEN DO:               
+        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.            
+        IF gl-rpt.acrange1[4]:BGCOLOR EQ 16 THEN             
             ASSIGN 
                 gl-rpt.acrange1[4]:BGCOLOR = ?
                 gl-rpt.acrange1[4]:FGCOLOR = ?
-                .  
+                .
+            APPLY "ENTRY" TO gl-rpt.acrange1[1].       
+            RETURN NO-APPLY. 
+    END.   
+      
+    IF gl-rpt.acrange1[4]:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" AND lSuccess = YES AND lActive = NO THEN DO:  
+        ASSIGN 
+            gl-rpt.acrange1[4]:BGCOLOR = 16
+            gl-rpt.acrange1[4]:FGCOLOR = 15
+            .   
+        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.           
+        APPLY "ENTRY" TO gl-rpt.acrange1[4].
+        RETURN NO-APPLY.                      
+    END.      
+    IF (lActive = YES OR gl-rpt.acrange1[4]:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "") AND gl-rpt.acrange1[4]:BGCOLOR EQ 16 THEN             
+        ASSIGN 
+            gl-rpt.acrange1[4]:BGCOLOR = ?
+            gl-rpt.acrange1[4]:FGCOLOR = ?
+            .         
     {&methods/lValidateError.i NO}
 END.
 
@@ -687,29 +717,36 @@ END.
 &Scoped-define SELF-NAME gl-rpt.acrange1[5]
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL gl-rpt.acrange1[5] V-table-Win
 ON LEAVE OF gl-rpt.acrange1[5] IN FRAME F-Main /* Fr Acct4 */
-DO:
-   IF LASTKEY = -1 THEN RETURN.
+DO: 
+    IF LASTKEY = -1 THEN RETURN.
     RUN validate-acct (gl-rpt.acrange1[5]:SCREEN-VALUE IN FRAME {&FRAME-NAME}) NO-ERROR.
     {&methods/lValidateError.i YES}
-    IF ERROR-STATUS:ERROR THEN do:
-       APPLY "entry" TO gl-rpt.acrange1[5].
-       RETURN NO-APPLY.
-    END.
-    IF lInactive THEN DO:    
-        ASSIGN 
-            gl-rpt.acrange1[5]:BGCOLOR = 16
-            gl-rpt.acrange1[5]:FGCOLOR = 15
-            . 
-        MESSAGE "Inactive Account Number." VIEW-AS ALERT-BOX ERROR.
-        APPLY "ENTRY" TO gl-rpt.acrange1[5].
-        RETURN NO-APPLY.      
-    END. 
-    ELSE 
-        IF gl-rpt.acrange1[5]:BGCOLOR EQ 16 THEN 
+    
+    IF gl-rpt.acrange1[5]:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" AND lSuccess = NO THEN DO:               
+        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.            
+        IF gl-rpt.acrange1[5]:BGCOLOR EQ 16 THEN             
             ASSIGN 
                 gl-rpt.acrange1[5]:BGCOLOR = ?
                 gl-rpt.acrange1[5]:FGCOLOR = ?
-                .  
+                .
+            APPLY "ENTRY" TO gl-rpt.acrange1[5].       
+            RETURN NO-APPLY. 
+    END.   
+      
+    IF gl-rpt.acrange1[5]:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" AND lSuccess = YES AND lActive = NO THEN DO:  
+        ASSIGN 
+            gl-rpt.acrange1[5]:BGCOLOR = 16
+            gl-rpt.acrange1[5]:FGCOLOR = 15
+            .   
+        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.           
+        APPLY "ENTRY" TO gl-rpt.acrange1[5].
+        RETURN NO-APPLY.                      
+    END.      
+    IF (lActive = YES OR gl-rpt.acrange1[5]:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "") AND gl-rpt.acrange1[5]:BGCOLOR EQ 16 THEN             
+        ASSIGN 
+            gl-rpt.acrange1[5]:BGCOLOR = ?
+            gl-rpt.acrange1[5]:FGCOLOR = ?
+            .         
     {&methods/lValidateError.i NO}
 END.
 
@@ -721,29 +758,36 @@ END.
 &Scoped-define SELF-NAME gl-rpt.acrange1[6]
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL gl-rpt.acrange1[6] V-table-Win
 ON LEAVE OF gl-rpt.acrange1[6] IN FRAME F-Main /* To Acct4 */
-DO:
-   IF LASTKEY = -1 THEN RETURN.
+DO: 
+    IF LASTKEY = -1 THEN RETURN.
     RUN validate-acct (gl-rpt.acrange1[6]:SCREEN-VALUE IN FRAME {&FRAME-NAME}) NO-ERROR.
     {&methods/lValidateError.i YES}
-    IF ERROR-STATUS:ERROR THEN do:
-       APPLY "entry" TO gl-rpt.acrange1[6]. 
-       RETURN NO-APPLY.
-    END.
-    IF lInactive THEN DO:    
-        ASSIGN 
-            gl-rpt.acrange1[6]:BGCOLOR = 16
-            gl-rpt.acrange1[6]:FGCOLOR = 15
-            . 
-        MESSAGE "Inactive Account Number." VIEW-AS ALERT-BOX ERROR.
-        APPLY "ENTRY" TO gl-rpt.acrange1[6].
-        RETURN NO-APPLY.      
-    END. 
-    ELSE 
-        IF gl-rpt.acrange1[6]:BGCOLOR EQ 16 THEN 
+    
+    IF gl-rpt.acrange1[6]:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" AND lSuccess = NO THEN DO:               
+        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.            
+        IF gl-rpt.acrange1[6]:BGCOLOR EQ 16 THEN             
             ASSIGN 
                 gl-rpt.acrange1[6]:BGCOLOR = ?
                 gl-rpt.acrange1[6]:FGCOLOR = ?
-                .  
+                .
+            APPLY "ENTRY" TO gl-rpt.acrange1[6].       
+            RETURN NO-APPLY. 
+    END.   
+      
+    IF gl-rpt.acrange1[6]:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" AND lSuccess = YES AND lActive = NO THEN DO:  
+        ASSIGN 
+            gl-rpt.acrange1[6]:BGCOLOR = 16
+            gl-rpt.acrange1[6]:FGCOLOR = 15
+            .   
+        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.           
+        APPLY "ENTRY" TO gl-rpt.acrange1[6].
+        RETURN NO-APPLY.                      
+    END.      
+    IF (lActive = YES OR gl-rpt.acrange1[6]:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "") AND gl-rpt.acrange1[6]:BGCOLOR EQ 16 THEN             
+        ASSIGN 
+            gl-rpt.acrange1[6]:BGCOLOR = ?
+            gl-rpt.acrange1[6]:FGCOLOR = ?
+            .         
     {&methods/lValidateError.i NO}
 END.
 
@@ -755,29 +799,36 @@ END.
 &Scoped-define SELF-NAME gl-rpt.acrange1[7]
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL gl-rpt.acrange1[7] V-table-Win
 ON LEAVE OF gl-rpt.acrange1[7] IN FRAME F-Main /* Fr Acct5 */
-DO:
-   IF LASTKEY = -1 THEN RETURN.
+DO: 
+    IF LASTKEY = -1 THEN RETURN.
     RUN validate-acct (gl-rpt.acrange1[7]:SCREEN-VALUE IN FRAME {&FRAME-NAME}) NO-ERROR.
     {&methods/lValidateError.i YES}
-    IF ERROR-STATUS:ERROR THEN do:
-       APPLY "entry" TO gl-rpt.acrange1[7]. 
-       RETURN NO-APPLY.
-    END.
-    IF lInactive THEN DO:    
-        ASSIGN 
-            gl-rpt.acrange1[7]:BGCOLOR = 16
-            gl-rpt.acrange1[7]:FGCOLOR = 15
-            . 
-        MESSAGE "Inactive Account Number." VIEW-AS ALERT-BOX ERROR.
-        APPLY "ENTRY" TO gl-rpt.acrange1[7].
-        RETURN NO-APPLY.      
-    END. 
-    ELSE 
-        IF gl-rpt.acrange1[7]:BGCOLOR EQ 16 THEN 
+    
+    IF gl-rpt.acrange1[7]:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" AND lSuccess = NO THEN DO:               
+        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.            
+        IF gl-rpt.acrange1[7]:BGCOLOR EQ 16 THEN             
             ASSIGN 
                 gl-rpt.acrange1[7]:BGCOLOR = ?
                 gl-rpt.acrange1[7]:FGCOLOR = ?
-                .  
+                .
+            APPLY "ENTRY" TO gl-rpt.acrange1[7].       
+            RETURN NO-APPLY. 
+    END.   
+      
+    IF gl-rpt.acrange1[7]:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" AND lSuccess = YES AND lActive = NO THEN DO:  
+        ASSIGN 
+            gl-rpt.acrange1[7]:BGCOLOR = 16
+            gl-rpt.acrange1[7]:FGCOLOR = 15
+            .   
+        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.           
+        APPLY "ENTRY" TO gl-rpt.acrange1[7].
+        RETURN NO-APPLY.                      
+    END.      
+    IF (lActive = YES OR gl-rpt.acrange1[7]:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "") AND gl-rpt.acrange1[7]:BGCOLOR EQ 16 THEN             
+        ASSIGN 
+            gl-rpt.acrange1[7]:BGCOLOR = ?
+            gl-rpt.acrange1[7]:FGCOLOR = ?
+            .         
     {&methods/lValidateError.i NO}
 END.
 
@@ -789,29 +840,36 @@ END.
 &Scoped-define SELF-NAME gl-rpt.acrange1[8]
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL gl-rpt.acrange1[8] V-table-Win
 ON LEAVE OF gl-rpt.acrange1[8] IN FRAME F-Main /* To Acct5 */
-DO:
-   IF LASTKEY = -1 THEN RETURN.
+DO: 
+    IF LASTKEY = -1 THEN RETURN.
     RUN validate-acct (gl-rpt.acrange1[8]:SCREEN-VALUE IN FRAME {&FRAME-NAME}) NO-ERROR.
     {&methods/lValidateError.i YES}
-    IF ERROR-STATUS:ERROR THEN do:
-       APPLY "entry" TO gl-rpt.acrange1[8]. 
-       RETURN NO-APPLY.
-    END.
-    IF lInactive THEN DO:    
-        ASSIGN 
-            gl-rpt.acrange1[8]:BGCOLOR = 16
-            gl-rpt.acrange1[8]:FGCOLOR = 15
-            . 
-        MESSAGE "Inactive Account Number." VIEW-AS ALERT-BOX ERROR.
-        APPLY "ENTRY" TO gl-rpt.acrange1[8].
-        RETURN NO-APPLY.      
-    END. 
-    ELSE 
-        IF gl-rpt.acrange1[8]:BGCOLOR EQ 16 THEN 
+    
+    IF gl-rpt.acrange1[8]:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" AND lSuccess = NO THEN DO:               
+        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.            
+        IF gl-rpt.acrange1[8]:BGCOLOR EQ 16 THEN             
             ASSIGN 
                 gl-rpt.acrange1[8]:BGCOLOR = ?
                 gl-rpt.acrange1[8]:FGCOLOR = ?
-                .  
+                .
+            APPLY "ENTRY" TO gl-rpt.acrange1[8].       
+            RETURN NO-APPLY. 
+    END.   
+      
+    IF gl-rpt.acrange1[8]:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" AND lSuccess = YES AND lActive = NO THEN DO:  
+        ASSIGN 
+            gl-rpt.acrange1[8]:BGCOLOR = 16
+            gl-rpt.acrange1[8]:FGCOLOR = 15
+            .   
+        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.           
+        APPLY "ENTRY" TO gl-rpt.acrange1[8].
+        RETURN NO-APPLY.                      
+    END.      
+    IF (lActive = YES OR gl-rpt.acrange1[8]:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "") AND gl-rpt.acrange1[8]:BGCOLOR EQ 16 THEN             
+        ASSIGN 
+            gl-rpt.acrange1[8]:BGCOLOR = ?
+            gl-rpt.acrange1[8]:FGCOLOR = ?
+            .         
     {&methods/lValidateError.i NO}
 END.
 
@@ -823,30 +881,37 @@ END.
 &Scoped-define SELF-NAME gl-rpt.acrange[1]
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL gl-rpt.acrange[1] V-table-Win
 ON LEAVE OF gl-rpt.acrange[1] IN FRAME F-Main /* Fr Acct1 */
-DO:
-  IF LASTKEY = -1  THEN RETURN.
-  RUN validate-acct (gl-rpt.acrange[1]:SCREEN-VALUE IN FRAME {&FRAME-NAME}) NO-ERROR.
-  {&methods/lValidateError.i YES}
-  IF ERROR-STATUS:ERROR THEN do:
-     APPLY "entry" TO gl-rpt.acrange[1]. 
-     RETURN NO-APPLY.
-  END.
-  IF lInactive THEN DO:    
-      ASSIGN 
-          gl-rpt.acrange[1]:BGCOLOR = 16
-          gl-rpt.acrange[1]:FGCOLOR = 15
-          . 
-      MESSAGE "Inactive Account Number." VIEW-AS ALERT-BOX ERROR.
-      APPLY "ENTRY" TO gl-rpt.acrange[1].
-      RETURN NO-APPLY.      
-  END. 
-  ELSE 
-      IF gl-rpt.acrange[1]:BGCOLOR EQ 16 THEN 
-          ASSIGN 
-              gl-rpt.acrange[1]:BGCOLOR = ?
-              gl-rpt.acrange[1]:FGCOLOR = ?
-              .  
-  {&methods/lValidateError.i NO}
+DO: 
+    IF LASTKEY = -1  THEN RETURN.
+    RUN validate-acct (gl-rpt.acrange[1]:SCREEN-VALUE IN FRAME {&FRAME-NAME}) NO-ERROR.
+    {&methods/lValidateError.i YES}
+  
+    IF gl-rpt.acrange[1]:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" AND lSuccess = NO THEN DO:               
+        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.            
+        IF gl-rpt.acrange[1]:BGCOLOR EQ 16 THEN             
+            ASSIGN 
+                gl-rpt.acrange[1]:BGCOLOR = ?
+                gl-rpt.acrange[1]:FGCOLOR = ?
+                .
+            APPLY "ENTRY" TO gl-rpt.acrange[1].       
+            RETURN NO-APPLY. 
+    END.   
+      
+    IF gl-rpt.acrange[1]:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" AND lSuccess = YES AND lActive = NO THEN DO:  
+        ASSIGN 
+            gl-rpt.acrange[1]:BGCOLOR = 16
+            gl-rpt.acrange[1]:FGCOLOR = 15
+            .   
+        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.           
+        APPLY "ENTRY" TO gl-rpt.acrange[1].
+        RETURN NO-APPLY.                      
+    END.      
+    IF (lActive = YES OR gl-rpt.acrange[1]:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "") AND gl-rpt.acrange[1]:BGCOLOR EQ 16 THEN             
+        ASSIGN 
+            gl-rpt.acrange[1]:BGCOLOR = ?
+            gl-rpt.acrange[1]:FGCOLOR = ?
+            .         
+    {&methods/lValidateError.i NO}
 END.
 
 
@@ -858,29 +923,36 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL gl-rpt.acrange[2] V-table-Win
 ON LEAVE OF gl-rpt.acrange[2] IN FRAME F-Main /* To Acct1 */
 DO:
-  IF LASTKEY = -1  THEN RETURN.
-  RUN validate-acct (gl-rpt.acrange[2]:SCREEN-VALUE IN FRAME {&FRAME-NAME}) NO-ERROR.
-  {&methods/lValidateError.i YES}
-  IF ERROR-STATUS:ERROR THEN do:
-     APPLY "entry" TO gl-rpt.acrange[2]. 
-     RETURN NO-APPLY.
-  END.
-  IF lInactive THEN DO:    
-      ASSIGN 
-          gl-rpt.acrange[2]:BGCOLOR = 16
-          gl-rpt.acrange[2]:FGCOLOR = 15
-          . 
-      MESSAGE "Inactive Account Number." VIEW-AS ALERT-BOX ERROR.
-      APPLY "ENTRY" TO gl-rpt.acrange[2].
-      RETURN NO-APPLY.      
-  END. 
-  ELSE 
-      IF gl-rpt.acrange[2]:BGCOLOR EQ 16 THEN 
-          ASSIGN 
-              gl-rpt.acrange[2]:BGCOLOR = ?
-              gl-rpt.acrange[2]:FGCOLOR = ?
-              .  
-  {&methods/lValidateError.i NO}
+    IF LASTKEY = -1  THEN RETURN.
+    RUN validate-acct (gl-rpt.acrange[2]:SCREEN-VALUE IN FRAME {&FRAME-NAME}) NO-ERROR.
+    {&methods/lValidateError.i YES}
+  
+    IF gl-rpt.acrange[2]:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" AND lSuccess = NO THEN DO:               
+        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.            
+        IF gl-rpt.acrange[2]:BGCOLOR EQ 16 THEN             
+            ASSIGN 
+                gl-rpt.acrange[2]:BGCOLOR = ?
+                gl-rpt.acrange[2]:FGCOLOR = ?
+                .
+            APPLY "ENTRY" TO gl-rpt.acrange[2].       
+            RETURN NO-APPLY. 
+    END.   
+      
+    IF gl-rpt.acrange[2]:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" AND lSuccess = YES AND lActive = NO THEN DO:  
+        ASSIGN 
+            gl-rpt.acrange[2]:BGCOLOR = 16
+            gl-rpt.acrange[2]:FGCOLOR = 15
+            .   
+        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.           
+        APPLY "ENTRY" TO gl-rpt.acrange[2].
+        RETURN NO-APPLY.                      
+    END.      
+    IF (lActive = YES OR gl-rpt.acrange[2]:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "") AND gl-rpt.acrange[2]:BGCOLOR EQ 16 THEN             
+        ASSIGN 
+            gl-rpt.acrange[2]:BGCOLOR = ?
+            gl-rpt.acrange[2]:FGCOLOR = ?
+            .         
+    {&methods/lValidateError.i NO}
 END.
 
 
@@ -1379,204 +1451,274 @@ PROCEDURE local-update-record :
   IF ERROR-STATUS:ERROR THEN RETURN.
 
   RUN validate-acct (gl-rpt.acrange[1]:SCREEN-VALUE IN FRAME {&FRAME-NAME}) NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN do:
-     APPLY "entry" TO gl-rpt.acrange[1]. 
-     RETURN.
-  END.
-  IF lInactive THEN DO:    
-      ASSIGN 
-          gl-rpt.acrange[1]:BGCOLOR = 16
-          gl-rpt.acrange[1]:FGCOLOR = 15
-          . 
-      MESSAGE "Inactive Account Number." VIEW-AS ALERT-BOX ERROR.
-      APPLY "ENTRY" TO gl-rpt.acrange[1].
-      RETURN.      
-  END. 
-  ELSE 
-      IF gl-rpt.acrange[1]:BGCOLOR EQ 16 THEN 
-          ASSIGN 
-              gl-rpt.acrange[1]:BGCOLOR = ?
-              gl-rpt.acrange[1]:FGCOLOR = ?
-              .  
+  IF gl-rpt.acrange[1]:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" AND lSuccess = NO THEN DO:               
+        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.            
+        IF gl-rpt.acrange[1]:BGCOLOR EQ 16 THEN             
+            ASSIGN 
+                gl-rpt.acrange[1]:BGCOLOR = ?
+                gl-rpt.acrange[1]:FGCOLOR = ?
+                .
+            APPLY "ENTRY" TO gl-rpt.acrange[1].       
+            RETURN NO-APPLY. 
+    END.   
+      
+    IF gl-rpt.acrange[1]:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" AND lSuccess = YES AND lActive = NO THEN DO:  
+        ASSIGN 
+            gl-rpt.acrange[1]:BGCOLOR = 16
+            gl-rpt.acrange[1]:FGCOLOR = 15
+            .   
+        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.           
+        APPLY "ENTRY" TO gl-rpt.acrange[1].
+        RETURN NO-APPLY.                      
+    END.      
+    IF (lActive = YES OR gl-rpt.acrange[1]:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "") AND gl-rpt.acrange[1]:BGCOLOR EQ 16 THEN             
+        ASSIGN 
+            gl-rpt.acrange[1]:BGCOLOR = ?
+            gl-rpt.acrange[1]:FGCOLOR = ?
+            .  
+                              
   RUN validate-acct (gl-rpt.acrange[2]:SCREEN-VALUE IN FRAME {&FRAME-NAME}) NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN do:
-     APPLY "entry" TO gl-rpt.acrange[2]. 
-     RETURN.
-  END.
-  IF lInactive THEN DO:    
-      ASSIGN 
-          gl-rpt.acrange[2]:BGCOLOR = 16
-          gl-rpt.acrange[2]:FGCOLOR = 15
-          . 
-      MESSAGE "Inactive Account Number." VIEW-AS ALERT-BOX ERROR.
-      APPLY "ENTRY" TO gl-rpt.acrange[2].
-      RETURN.      
-  END. 
-  ELSE 
-      IF gl-rpt.acrange[2]:BGCOLOR EQ 16 THEN 
-          ASSIGN 
-              gl-rpt.acrange[2]:BGCOLOR = ?
-              gl-rpt.acrange[2]:FGCOLOR = ?
-              .  
+  IF gl-rpt.acrange[2]:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" AND lSuccess = NO THEN DO:               
+        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.            
+        IF gl-rpt.acrange[2]:BGCOLOR EQ 16 THEN             
+            ASSIGN 
+                gl-rpt.acrange[2]:BGCOLOR = ?
+                gl-rpt.acrange[2]:FGCOLOR = ?
+                .
+            APPLY "ENTRY" TO gl-rpt.acrange[2].       
+            RETURN NO-APPLY. 
+    END.   
+      
+    IF gl-rpt.acrange[2]:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" AND lSuccess = YES AND lActive = NO THEN DO:  
+        ASSIGN 
+            gl-rpt.acrange[2]:BGCOLOR = 16
+            gl-rpt.acrange[2]:FGCOLOR = 15
+            .   
+        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.           
+        APPLY "ENTRY" TO gl-rpt.acrange[2].
+        RETURN NO-APPLY.                      
+    END.      
+    IF (lActive = YES OR gl-rpt.acrange[2]:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "") AND gl-rpt.acrange[2]:BGCOLOR EQ 16 THEN             
+        ASSIGN 
+            gl-rpt.acrange[2]:BGCOLOR = ?
+            gl-rpt.acrange[2]:FGCOLOR = ?
+            .  
+                              
   RUN validate-acct (gl-rpt.acrange1[1]:SCREEN-VALUE IN FRAME {&FRAME-NAME}) NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN do:
-     APPLY "entry" TO gl-rpt.acrange1[1]. 
-     RETURN.
-  END.
-  IF lInactive THEN DO:    
-      ASSIGN 
-          gl-rpt.acrange1[1]:BGCOLOR = 16
-          gl-rpt.acrange1[1]:FGCOLOR = 15
-          . 
-      MESSAGE "Inactive Account Number." VIEW-AS ALERT-BOX ERROR.
-      APPLY "ENTRY" TO gl-rpt.acrange1[1].
-      RETURN.      
-  END. 
-  ELSE 
-      IF gl-rpt.acrange1[1]:BGCOLOR EQ 16 THEN 
-          ASSIGN 
-              gl-rpt.acrange1[1]:BGCOLOR = ?
-              gl-rpt.acrange1[1]:FGCOLOR = ?
-              .  
+  IF gl-rpt.acrange1[1]:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" AND lSuccess = NO THEN DO:               
+        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.            
+        IF gl-rpt.acrange1[1]:BGCOLOR EQ 16 THEN             
+            ASSIGN 
+                gl-rpt.acrange1[1]:BGCOLOR = ?
+                gl-rpt.acrange1[1]:FGCOLOR = ?
+                .
+            APPLY "ENTRY" TO gl-rpt.acrange1[1].       
+            RETURN NO-APPLY. 
+    END.   
+      
+    IF gl-rpt.acrange1[1]:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" AND lSuccess = YES AND lActive = NO THEN DO:  
+        ASSIGN 
+            gl-rpt.acrange1[1]:BGCOLOR = 16
+            gl-rpt.acrange1[1]:FGCOLOR = 15
+            .   
+        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.           
+        APPLY "ENTRY" TO gl-rpt.acrange1[1].
+        RETURN NO-APPLY.                      
+    END.      
+    IF (lActive = YES OR gl-rpt.acrange1[1]:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "") AND gl-rpt.acrange1[1]:BGCOLOR EQ 16 THEN             
+        ASSIGN 
+            gl-rpt.acrange1[1]:BGCOLOR = ?
+            gl-rpt.acrange1[1]:FGCOLOR = ?
+            .                    
+            
   RUN validate-acct (gl-rpt.acrange1[2]:SCREEN-VALUE IN FRAME {&FRAME-NAME}) NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN do:
-     APPLY "entry" TO gl-rpt.acrange1[2]. RETURN.
-  END.
-  IF lInactive THEN DO:    
-      ASSIGN 
-          gl-rpt.acrange1[2]:BGCOLOR = 16
-          gl-rpt.acrange1[2]:FGCOLOR = 15
-          . 
-      MESSAGE "Inactive Account Number." VIEW-AS ALERT-BOX ERROR.
-      APPLY "ENTRY" TO gl-rpt.acrange1[2].
-      RETURN.      
-  END. 
-  ELSE 
-      IF gl-rpt.acrange1[2]:BGCOLOR EQ 16 THEN 
-          ASSIGN 
-              gl-rpt.acrange1[2]:BGCOLOR = ?
-              gl-rpt.acrange1[2]:FGCOLOR = ?
-              .  
+  IF gl-rpt.acrange1[2]:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" AND lSuccess = NO THEN DO:               
+        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.            
+        IF gl-rpt.acrange1[2]:BGCOLOR EQ 16 THEN             
+            ASSIGN 
+                gl-rpt.acrange1[2]:BGCOLOR = ?
+                gl-rpt.acrange1[2]:FGCOLOR = ?
+                .
+            APPLY "ENTRY" TO gl-rpt.acrange1[2].       
+            RETURN NO-APPLY. 
+    END.   
+      
+    IF gl-rpt.acrange1[2]:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" AND lSuccess = YES AND lActive = NO THEN DO:  
+        ASSIGN 
+            gl-rpt.acrange1[2]:BGCOLOR = 16
+            gl-rpt.acrange1[2]:FGCOLOR = 15
+            .   
+        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.           
+        APPLY "ENTRY" TO gl-rpt.acrange1[2].
+        RETURN NO-APPLY.                      
+    END.      
+    IF (lActive = YES OR gl-rpt.acrange1[2]:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "") AND gl-rpt.acrange1[2]:BGCOLOR EQ 16 THEN             
+        ASSIGN 
+            gl-rpt.acrange1[2]:BGCOLOR = ?
+            gl-rpt.acrange1[2]:FGCOLOR = ?
+            .                    
+            
   RUN validate-acct (gl-rpt.acrange1[3]:SCREEN-VALUE IN FRAME {&FRAME-NAME}) NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN do:
-     APPLY "entry" TO gl-rpt.acrange1[3]. 
-     RETURN.
-  END.
-  IF lInactive THEN DO:    
-      ASSIGN 
-          gl-rpt.acrange1[3]:BGCOLOR = 16
-          gl-rpt.acrange1[3]:FGCOLOR = 15
-          . 
-      MESSAGE "Inactive Account Number." VIEW-AS ALERT-BOX ERROR.
-      APPLY "ENTRY" TO gl-rpt.acrange1[3].
-      RETURN.      
-  END. 
-  ELSE 
-      IF gl-rpt.acrange1[3]:BGCOLOR EQ 16 THEN 
-          ASSIGN 
-              gl-rpt.acrange1[3]:BGCOLOR = ?
-              gl-rpt.acrange1[3]:FGCOLOR = ?
-              .  
+  IF gl-rpt.acrange1[3]:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" AND lSuccess = NO THEN DO:               
+        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.            
+        IF gl-rpt.acrange1[3]:BGCOLOR EQ 16 THEN             
+            ASSIGN 
+                gl-rpt.acrange1[3]:BGCOLOR = ?
+                gl-rpt.acrange1[3]:FGCOLOR = ?
+                .
+            APPLY "ENTRY" TO gl-rpt.acrange1[3].       
+            RETURN NO-APPLY. 
+    END.   
+      
+    IF gl-rpt.acrange1[3]:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" AND lSuccess = YES AND lActive = NO THEN DO:  
+        ASSIGN 
+            gl-rpt.acrange1[3]:BGCOLOR = 16
+            gl-rpt.acrange1[3]:FGCOLOR = 15
+            .   
+        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.           
+        APPLY "ENTRY" TO gl-rpt.acrange1[3].
+        RETURN NO-APPLY.                      
+    END.      
+    IF (lActive = YES OR gl-rpt.acrange1[3]:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "") AND gl-rpt.acrange1[3]:BGCOLOR EQ 16 THEN             
+        ASSIGN 
+            gl-rpt.acrange1[3]:BGCOLOR = ?
+            gl-rpt.acrange1[3]:FGCOLOR = ?
+            .                    
+            
   RUN validate-acct (gl-rpt.acrange1[4]:SCREEN-VALUE IN FRAME {&FRAME-NAME}) NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN do:
-     APPLY "entry" TO gl-rpt.acrange1[4]. 
-     RETURN.
-  END.
-  IF lInactive THEN DO:    
-      ASSIGN 
-          gl-rpt.acrange1[4]:BGCOLOR = 16
-          gl-rpt.acrange1[4]:FGCOLOR = 15
-          . 
-      MESSAGE "Inactive Account Number." VIEW-AS ALERT-BOX ERROR.
-      APPLY "ENTRY" TO gl-rpt.acrange1[4].
-      RETURN.      
-  END. 
-  ELSE 
-      IF gl-rpt.acrange1[4]:BGCOLOR EQ 16 THEN 
-          ASSIGN 
-              gl-rpt.acrange1[4]:BGCOLOR = ?
-              gl-rpt.acrange1[4]:FGCOLOR = ?
-              .  
+  IF gl-rpt.acrange1[4]:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" AND lSuccess = NO THEN DO:               
+        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.            
+        IF gl-rpt.acrange1[4]:BGCOLOR EQ 16 THEN             
+            ASSIGN 
+                gl-rpt.acrange1[4]:BGCOLOR = ?
+                gl-rpt.acrange1[4]:FGCOLOR = ?
+                .
+            APPLY "ENTRY" TO gl-rpt.acrange1[4].       
+            RETURN NO-APPLY. 
+    END.   
+      
+    IF gl-rpt.acrange1[4]:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" AND lSuccess = YES AND lActive = NO THEN DO:  
+        ASSIGN 
+            gl-rpt.acrange1[4]:BGCOLOR = 16
+            gl-rpt.acrange1[4]:FGCOLOR = 15
+            .   
+        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.           
+        APPLY "ENTRY" TO gl-rpt.acrange1[4].
+        RETURN NO-APPLY.                      
+    END.      
+    IF (lActive = YES OR gl-rpt.acrange1[4]:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "") AND gl-rpt.acrange1[4]:BGCOLOR EQ 16 THEN             
+        ASSIGN 
+            gl-rpt.acrange1[4]:BGCOLOR = ?
+            gl-rpt.acrange1[4]:FGCOLOR = ?
+            .                    
+            
   RUN validate-acct (gl-rpt.acrange1[5]:SCREEN-VALUE IN FRAME {&FRAME-NAME}) NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN do:
-     APPLY "entry" TO gl-rpt.acrange1[5]. 
-     RETURN.
-  END.
-  IF lInactive THEN DO:    
-      ASSIGN 
-          gl-rpt.acrange1[5]:BGCOLOR = 16
-          gl-rpt.acrange1[5]:FGCOLOR = 15
-          . 
-      MESSAGE "Inactive Account Number." VIEW-AS ALERT-BOX ERROR.
-      APPLY "ENTRY" TO gl-rpt.acrange1[5].
-      RETURN.      
-  END. 
-  ELSE 
-      IF gl-rpt.acrange1[5]:BGCOLOR EQ 16 THEN 
-          ASSIGN 
-              gl-rpt.acrange1[5]:BGCOLOR = ?
-              gl-rpt.acrange1[5]:FGCOLOR = ?
-              .  
+  IF gl-rpt.acrange1[5]:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" AND lSuccess = NO THEN DO:               
+        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.            
+        IF gl-rpt.acrange1[5]:BGCOLOR EQ 16 THEN             
+            ASSIGN 
+                gl-rpt.acrange1[5]:BGCOLOR = ?
+                gl-rpt.acrange1[5]:FGCOLOR = ?
+                .
+            APPLY "ENTRY" TO gl-rpt.acrange1[5].       
+            RETURN NO-APPLY. 
+    END.   
+      
+    IF gl-rpt.acrange1[5]:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" AND lSuccess = YES AND lActive = NO THEN DO:  
+        ASSIGN 
+            gl-rpt.acrange1[5]:BGCOLOR = 16
+            gl-rpt.acrange1[5]:FGCOLOR = 15
+            .   
+        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.           
+        APPLY "ENTRY" TO gl-rpt.acrange1[5].
+        RETURN NO-APPLY.                      
+    END.      
+    IF (lActive = YES OR gl-rpt.acrange1[5]:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "") AND gl-rpt.acrange1[5]:BGCOLOR EQ 16 THEN             
+        ASSIGN 
+            gl-rpt.acrange1[5]:BGCOLOR = ?
+            gl-rpt.acrange1[5]:FGCOLOR = ?
+            .                    
+            
   RUN validate-acct (gl-rpt.acrange1[6]:SCREEN-VALUE IN FRAME {&FRAME-NAME}) NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN do:
-     APPLY "entry" TO gl-rpt.acrange1[6]. 
-     RETURN.
-  END.
-  IF lInactive THEN DO:    
-      ASSIGN 
-          gl-rpt.acrange1[6]:BGCOLOR = 16
-          gl-rpt.acrange1[6]:FGCOLOR = 15
-          . 
-      MESSAGE "Inactive Account Number." VIEW-AS ALERT-BOX ERROR.
-      APPLY "ENTRY" TO gl-rpt.acrange1[6].
-      RETURN.      
-  END. 
-  ELSE 
-      IF gl-rpt.acrange1[6]:BGCOLOR EQ 16 THEN 
-          ASSIGN 
-              gl-rpt.acrange1[6]:BGCOLOR = ?
-              gl-rpt.acrange1[6]:FGCOLOR = ?
-              .  
+  IF gl-rpt.acrange1[6]:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" AND lSuccess = NO THEN DO:               
+        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.            
+        IF gl-rpt.acrange1[6]:BGCOLOR EQ 16 THEN             
+            ASSIGN 
+                gl-rpt.acrange1[6]:BGCOLOR = ?
+                gl-rpt.acrange1[6]:FGCOLOR = ?
+                .
+            APPLY "ENTRY" TO gl-rpt.acrange1[6].       
+            RETURN NO-APPLY. 
+    END.   
+      
+    IF gl-rpt.acrange1[6]:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" AND lSuccess = YES AND lActive = NO THEN DO:  
+        ASSIGN 
+            gl-rpt.acrange1[6]:BGCOLOR = 16
+            gl-rpt.acrange1[6]:FGCOLOR = 15
+            .   
+        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.           
+        APPLY "ENTRY" TO gl-rpt.acrange1[6].
+        RETURN NO-APPLY.                      
+    END.      
+    IF (lActive = YES OR gl-rpt.acrange1[6]:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "") AND gl-rpt.acrange1[6]:BGCOLOR EQ 16 THEN             
+        ASSIGN 
+            gl-rpt.acrange1[6]:BGCOLOR = ?
+            gl-rpt.acrange1[6]:FGCOLOR = ?
+            .                    
+            
   RUN validate-acct (gl-rpt.acrange1[7]:SCREEN-VALUE IN FRAME {&FRAME-NAME}) NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN do:
-     APPLY "entry" TO gl-rpt.acrange1[7]. 
-     RETURN.
-  END.
-  IF lInactive THEN DO:    
-      ASSIGN 
-          gl-rpt.acrange1[7]:BGCOLOR = 16
-          gl-rpt.acrange1[7]:FGCOLOR = 15
-          . 
-      MESSAGE "Inactive Account Number." VIEW-AS ALERT-BOX ERROR.
-      APPLY "ENTRY" TO gl-rpt.acrange1[7].
-      RETURN.      
-  END. 
-  ELSE 
-      IF gl-rpt.acrange1[7]:BGCOLOR EQ 16 THEN 
-          ASSIGN 
-              gl-rpt.acrange1[7]:BGCOLOR = ?
-              gl-rpt.acrange1[7]:FGCOLOR = ?
-              .  
+  IF gl-rpt.acrange1[7]:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" AND lSuccess = NO THEN DO:               
+        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.            
+        IF gl-rpt.acrange1[7]:BGCOLOR EQ 16 THEN             
+            ASSIGN 
+                gl-rpt.acrange1[7]:BGCOLOR = ?
+                gl-rpt.acrange1[7]:FGCOLOR = ?
+                .
+            APPLY "ENTRY" TO gl-rpt.acrange1[7].       
+            RETURN NO-APPLY. 
+    END.   
+      
+    IF gl-rpt.acrange1[7]:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" AND lSuccess = YES AND lActive = NO THEN DO:  
+        ASSIGN 
+            gl-rpt.acrange1[7]:BGCOLOR = 16
+            gl-rpt.acrange1[7]:FGCOLOR = 15
+            .   
+        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.           
+        APPLY "ENTRY" TO gl-rpt.acrange1[7].
+        RETURN NO-APPLY.                      
+    END.      
+    IF (lActive = YES OR gl-rpt.acrange1[7]:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "") AND gl-rpt.acrange1[7]:BGCOLOR EQ 16 THEN             
+        ASSIGN 
+            gl-rpt.acrange1[7]:BGCOLOR = ?
+            gl-rpt.acrange1[7]:FGCOLOR = ?
+            .                    
+             
   RUN validate-acct (gl-rpt.acrange1[8]:SCREEN-VALUE IN FRAME {&FRAME-NAME}) NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN do:
-     APPLY "entry" TO gl-rpt.acrange1[8]. 
-     RETURN.
-  END.
-  IF lInactive THEN DO:    
-      ASSIGN 
-          gl-rpt.acrange1[8]:BGCOLOR = 16
-          gl-rpt.acrange1[8]:FGCOLOR = 15
-          . 
-      MESSAGE "Inactive Account Number." VIEW-AS ALERT-BOX ERROR.
-      APPLY "ENTRY" TO gl-rpt.acrange1[8].
-      RETURN.      
-  END. 
-  ELSE 
-      IF gl-rpt.acrange1[8]:BGCOLOR EQ 16 THEN 
-          ASSIGN 
-              gl-rpt.acrange1[8]:BGCOLOR = ?
-              gl-rpt.acrange1[8]:FGCOLOR = ?
-              .  
+  IF gl-rpt.acrange1[8]:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" AND lSuccess = NO THEN DO:               
+        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.            
+        IF gl-rpt.acrange1[8]:BGCOLOR EQ 16 THEN             
+            ASSIGN 
+                gl-rpt.acrange1[8]:BGCOLOR = ?
+                gl-rpt.acrange1[8]:FGCOLOR = ?
+                .
+            APPLY "ENTRY" TO gl-rpt.acrange1[8].       
+            RETURN NO-APPLY. 
+    END.   
+      
+    IF gl-rpt.acrange1[8]:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" AND lSuccess = YES AND lActive = NO THEN DO:  
+        ASSIGN 
+            gl-rpt.acrange1[8]:BGCOLOR = 16
+            gl-rpt.acrange1[8]:FGCOLOR = 15
+            .   
+        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.           
+        APPLY "ENTRY" TO gl-rpt.acrange1[8].
+        RETURN NO-APPLY.                      
+    END.      
+    IF (lActive = YES OR gl-rpt.acrange1[8]:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "") AND gl-rpt.acrange1[8]:BGCOLOR EQ 16 THEN             
+        ASSIGN 
+            gl-rpt.acrange1[8]:BGCOLOR = ?
+            gl-rpt.acrange1[8]:FGCOLOR = ?
+            .                    
   /*RUN validate-acct (gl-rpt.actnum[1]:SCREEN-VALUE IN FRAME {&FRAME-NAME}) NO-ERROR.
   IF ERROR-STATUS:ERROR THEN do:
      APPLY "entry" TO gl-rpt.actnum[1]. 
@@ -1760,24 +1902,23 @@ PROCEDURE validate-acct :
 ------------------------------------------------------------------------------*/
   DEF INPUT PARAMETER ip-account LIKE account.actnum.
   
-  lInactive = FALSE.
+  ASSIGN 
+      lSuccess = NO 
+      lActive  = NO
+      cMessage = ""
+      .
 
   {methods/lValidateError.i YES}
-  FIND FIRST account WHERE account.company = g_company
-                         AND account.type <> "T" AND
-                             account.actnum =     ip-account NO-LOCK NO-ERROR.
-  IF NOT AVAIL account AND ip-account <> "" THEN DO:
-      MESSAGE "Invalid Account Number. Try Help." VIEW-AS ALERT-BOX.      
-      RETURN ERROR.
-  END.
+   RUN GL_CheckGLAccount IN hGLProcs(
+       INPUT  g_company,
+       INPUT  ip-account,            
+       OUTPUT cMessage,
+       OUTPUT lSuccess,
+       OUTPUT lActive
+       ).
 
   {methods/lValidateError.i NO}
-  
-  RUN checkInvalidGLAccount IN hGLProcs(
-      INPUT g_company,
-      INPUT ip-account,
-      OUTPUT lInactive
-      ).           
+        
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

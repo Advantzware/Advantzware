@@ -371,40 +371,13 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ap-disl.actnum Browser-Table _BROWSE-COLUMN B-table-Win
 ON LEAVE OF ap-disl.actnum IN BROWSE Browser-Table /* Account Number */
 DO:
-  DEFINE VARIABLE lInactive AS LOGICAL NO-UNDO.
      
   IF LASTKEY = -1 THEN RETURN.
   IF ap-disl.actnum:MODIFIED IN BROWSE {&browse-name} THEN DO:
-       FIND FIRST account WHERE account.company = g_company AND
-                                account.TYPE <> "T" AND
-                                account.actnum = ap-disl.actnum:SCREEN-VALUE
-                                NO-LOCK NO-ERROR.
-       IF NOT AVAIL account THEN DO:
-          MESSAGE "Invalid Account Number." VIEW-AS ALERT-BOX ERROR.
-          APPLY "entry" TO ap-disl.actnum.
-          RETURN NO-APPLY.
-       END. 
-       RUN checkInvalidGLAccount IN hGLProcs(
-           INPUT g_company,
-           INPUT ap-disl.actnum:SCREEN-VALUE,
-           OUTPUT lInactive
-           ).  
-       IF lInactive THEN DO:    
-           ASSIGN 
-               ap-disl.actnum:BGCOLOR = 16
-               ap-disl.actnum:FGCOLOR = 15
-               . 
-            MESSAGE "Inactive Account Number." VIEW-AS ALERT-BOX ERROR.
-            APPLY "ENTRY" TO ap-disl.actnum.
-            RETURN NO-APPLY.      
-       END. 
-       ELSE 
-           IF ap-disl.actnum:BGCOLOR EQ 16 THEN 
-                ASSIGN 
-                    ap-disl.actnum:BGCOLOR = ?
-                    ap-disl.actnum:FGCOLOR = ?
-                    .        
-   END.
+      RUN valid-actnum NO-ERROR.
+      IF ERROR-STATUS:ERROR THEN 
+          RETURN NO-APPLY.                    
+  END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -687,40 +660,10 @@ PROCEDURE local-update-record :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
-  DEFINE VARIABLE lInactive AS LOGICAL NO-UNDO.
   
-  IF ap-disl.actnum:MODIFIED IN BROWSE {&browse-name} THEN DO:
-       FIND FIRST account WHERE account.company = g_company AND
-                                account.TYPE <> "T" AND
-                                account.actnum = ap-disl.actnum:SCREEN-VALUE
-                                NO-LOCK NO-ERROR.
-       IF NOT AVAIL account THEN DO:
-          MESSAGE "Invalid Account Number." VIEW-AS ALERT-BOX ERROR.
-          APPLY "entry" TO ap-disl.actnum.
-          RETURN NO-APPLY.
-       END.  
-      
-       RUN checkInvalidGLAccount IN hGLProcs(
-           INPUT g_company,
-           INPUT ap-disl.actnum:SCREEN-VALUE,
-           OUTPUT lInactive
-           ).  
-       IF lInactive THEN DO :             
-           ASSIGN 
-               ap-disl.actnum:BGCOLOR = 16
-               ap-disl.actnum:FGCOLOR = 15
-               . 
-            MESSAGE "Inactive Account Number." VIEW-AS ALERT-BOX ERROR.
-            APPLY "ENTRY" TO ap-disl.actnum.
-            RETURN NO-APPLY.                        
-       END.  
-       ELSE 
-           IF ap-disl.actnum:BGCOLOR EQ 16 THEN 
-                ASSIGN 
-                    ap-disl.actnum:BGCOLOR = ?
-                    ap-disl.actnum:FGCOLOR = ?
-                    .               
-   END.
+  RUN valid-actnum NO-ERROR.
+  IF ERROR-STATUS:ERROR THEN 
+      RETURN NO-APPLY.
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
@@ -804,4 +747,57 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-actnum B-table-Win
+PROCEDURE valid-actnum:
+/*------------------------------------------------------------------------------
+ Purpose: To check valid and active GL account.
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lSuccess  AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lActive   AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage  AS CHARACTER NO-UNDO.
+
+    DO WITH FRAME {&FRAME-NAME}:
+      
+        RUN GL_CheckGLAccount IN hGLProcs(
+            INPUT  g_company,
+            INPUT  ap-disl.actnum:SCREEN-VALUE IN BROWSE {&BROWSE-NAME},            
+            OUTPUT cMessage,
+            OUTPUT lSuccess,
+            OUTPUT lActive
+            ).    
+            
+        IF lSuccess = NO THEN DO:               
+            MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.            
+            IF ap-disl.actnum:BGCOLOR IN BROWSE {&BROWSE-NAME} EQ 16 THEN             
+                ASSIGN 
+                    ap-disl.actnum:BGCOLOR IN BROWSE {&BROWSE-NAME} = ?
+                    ap-disl.actnum:FGCOLOR IN BROWSE {&BROWSE-NAME} = ?
+                   .
+            APPLY "ENTRY" TO ap-disl.actnum IN BROWSE {&BROWSE-NAME}.       
+            RETURN ERROR. 
+      END.   
+      
+      IF lSuccess = YES AND lActive = NO THEN DO:  
+          ASSIGN 
+              ap-disl.actnum:BGCOLOR IN BROWSE {&BROWSE-NAME} = 16
+              ap-disl.actnum:FGCOLOR IN BROWSE {&BROWSE-NAME} = 15
+              .   
+          MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.           
+          APPLY "ENTRY" TO ap-disl.actnum IN BROWSE {&BROWSE-NAME}. 
+          RETURN ERROR.                      
+      END.      
+      IF lActive = YES AND ap-disl.actnum:BGCOLOR IN BROWSE {&BROWSE-NAME} EQ 16 THEN             
+          ASSIGN 
+              ap-disl.actnum:BGCOLOR IN BROWSE {&BROWSE-NAME} = ?
+              ap-disl.actnum:FGCOLOR IN BROWSE {&BROWSE-NAME} = ?
+              .                                        
+  END.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 

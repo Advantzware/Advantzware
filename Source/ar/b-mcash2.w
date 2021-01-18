@@ -41,7 +41,6 @@ DEF TEMP-TABLE ar-mcashl NO-UNDO LIKE ar-mcash
     FIELD acct-dscr LIKE account.dscr.
 
 DEF VAR ll-new-record AS LOG NO-UNDO.
-DEFINE VARIABLE lInactive AS LOGICAL NO-UNDO.
 DEFINE VARIABLE hGLProcs  AS HANDLE  NO-UNDO.
 
 RUN system/GLProcs.p PERSISTENT SET hGLProcs.
@@ -342,23 +341,7 @@ ON LEAVE OF ar-mcashl.actnum IN BROWSE Browser-Table /* Reconciled */
 DO:
   IF LASTKEY NE -1 THEN DO:
     RUN valid-actnum (FOCUS) NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-    
-    IF lInactive THEN DO:    
-        ASSIGN 
-            ar-mcashl.actnum:BGCOLOR IN BROWSE {&browse-name} = 16
-            ar-mcashl.actnum:FGCOLOR IN BROWSE {&browse-name} = 15
-            . 
-        MESSAGE "Inactive Account Number." VIEW-AS ALERT-BOX ERROR.
-        APPLY "ENTRY" TO ar-mcashl.actnum IN BROWSE {&browse-name}.
-        RETURN NO-APPLY.      
-    END. 
-    ELSE 
-        IF ar-mcashl.actnum:BGCOLOR IN BROWSE {&browse-name} EQ 16 THEN 
-            ASSIGN 
-                ar-mcashl.actnum:BGCOLOR IN BROWSE {&browse-name} = ?
-                ar-mcashl.actnum:FGCOLOR IN BROWSE {&browse-name} = ?
-                .        
+    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.   
   END.
 END.    
     
@@ -815,22 +798,6 @@ PROCEDURE local-update-record :
   DO WITH FRAME {&FRAME-NAME}:
     RUN valid-actnum (ar-mcashl.actnum:HANDLE IN BROWSE {&browse-name}) NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-    
-    IF lInactive THEN DO:    
-        ASSIGN 
-            ar-mcashl.actnum:BGCOLOR IN BROWSE {&browse-name} = 16
-            ar-mcashl.actnum:FGCOLOR IN BROWSE {&browse-name} = 15
-            . 
-        MESSAGE "Inactive Account Number." VIEW-AS ALERT-BOX ERROR.
-        APPLY "ENTRY" TO ar-mcashl.actnum IN BROWSE {&browse-name}.
-        RETURN NO-APPLY.      
-    END. 
-    ELSE 
-        IF ar-mcashl.actnum:BGCOLOR IN BROWSE {&browse-name} EQ 16 THEN 
-            ASSIGN 
-                ar-mcashl.actnum:BGCOLOR IN BROWSE {&browse-name} = ?
-                ar-mcashl.actnum:FGCOLOR IN BROWSE {&browse-name} = ?
-                .   
   END.
 
   ASSIGN
@@ -921,26 +888,47 @@ PROCEDURE valid-actnum :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF INPUT PARAM ip-focus AS WIDGET-HANDLE NO-UNDO.
-
-  lInactive = FALSE.
+  
+  DEFINE VARIABLE lSuccess  AS LOGICAL   NO-UNDO.
+  DEFINE VARIABLE lActive   AS LOGICAL   NO-UNDO.
+  DEFINE VARIABLE cMessage  AS CHARACTER NO-UNDO.
+  
   DO WITH FRAME {&FRAME-NAME}:
     ip-focus:SCREEN-VALUE = CAPS(ip-focus:SCREEN-VALUE).
-
-    IF NOT CAN-FIND(FIRST account
-                    WHERE account.company EQ cocode 
-                      AND account.actnum  EQ ip-focus:SCREEN-VALUE
-                      AND account.type    NE "T") THEN DO:
-      MESSAGE TRIM(ip-focus:LABEL) + " is invalid, try help..."
-          VIEW-AS ALERT-BOX ERROR.
-      APPLY "entry" TO ip-focus.
-      RETURN ERROR.
-    END.
     
-    RUN checkInvalidGLAccount IN hGLProcs(
-        INPUT cocode,
-        INPUT ip-focus:SCREEN-VALUE,
-        OUTPUT lInactive
-        ). 
+    RUN GL_CheckGLAccount IN hGLProcs(
+        INPUT  cocode,
+        INPUT  ip-focus:SCREEN-VALUE,            
+        OUTPUT cMessage,
+        OUTPUT lSuccess,
+        OUTPUT lActive
+        ).    
+            
+        IF lSuccess = NO THEN DO:               
+            MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.            
+            IF ip-focus:BGCOLOR EQ 16 THEN             
+                ASSIGN 
+                    ip-focus:BGCOLOR = ?
+                    ip-focus:FGCOLOR = ?
+                   .
+            APPLY "ENTRY" TO ip-focus.       
+            RETURN ERROR. 
+        END.   
+      
+        IF lSuccess = YES AND lActive = NO THEN DO:  
+            ASSIGN 
+                ip-focus:BGCOLOR = 16
+                ip-focus:FGCOLOR = 15
+                .   
+            MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.           
+            APPLY "ENTRY" TO ip-focus.
+            RETURN ERROR.                      
+        END.      
+        IF lActive = YES AND ip-focus:BGCOLOR EQ 16 THEN             
+            ASSIGN 
+                ip-focus:BGCOLOR = ?
+                ip-focus:FGCOLOR = ?
+                .                              
   END.
 
 END PROCEDURE.

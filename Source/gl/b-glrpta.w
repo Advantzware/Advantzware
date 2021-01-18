@@ -660,34 +660,11 @@ PROCEDURE local-update-record :
 ------------------------------------------------------------------------------*/
   DEF VAR ll-new-record AS LOG NO-UNDO.
   DEF VAR lv-rowid AS ROWID NO-UNDO.
-  DEFINE VARIABLE lInactive AS LOGICAL NO-UNDO.
-
 
   /* Code placed here will execute PRIOR to standard behavior. */
   RUN valid-actnum NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   
-  RUN checkInvalidGLAccount IN hGLProcs(
-      INPUT cocode,
-      INPUT tt-account.actnum:SCREEN-VALUE IN BROWSE {&BROWSE-NAME},
-      OUTPUT lInactive
-      ). 
-  IF lInactive THEN DO:    
-      ASSIGN 
-          tt-account.actnum:BGCOLOR IN BROWSE {&browse-name} = 16
-          tt-account.actnum:FGCOLOR IN BROWSE {&browse-name} = 15
-          . 
-      MESSAGE "Inactive Account Number." VIEW-AS ALERT-BOX ERROR.
-      APPLY "ENTRY" TO tt-account.actnum IN BROWSE {&browse-name}.
-      RETURN NO-APPLY.      
-  END. 
-  ELSE 
-      IF tt-account.actnum:BGCOLOR IN BROWSE {&browse-name} EQ 16 THEN 
-          ASSIGN 
-              tt-account.actnum:BGCOLOR IN BROWSE {&browse-name}  = ?
-              tt-account.actnum:FGCOLOR IN BROWSE {&browse-name}  = ?
-              .
-
   ASSIGN
    ll-new-record = adm-new-record
    lv-rowid      = ROWID(gl-rpt).
@@ -833,34 +810,58 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-actnum B-table-Win 
 PROCEDURE valid-actnum :
 /*------------------------------------------------------------------------------
-  Purpose:     
+  Purpose: To check valid and active GL account.   
   Parameters:  <none>
   Notes:       
-------------------------------------------------------------------------------*/
-
-  DEF VAR lv-msg AS CHAR NO-UNDO.
-
+------------------------------------------------------------------------------*/  
+  DEFINE VARIABLE lSuccess  AS LOGICAL   NO-UNDO.
+  DEFINE VARIABLE lActive   AS LOGICAL   NO-UNDO.
+  DEFINE VARIABLE cMessage  AS CHARACTER NO-UNDO.
 
   DO WITH FRAME {&FRAME-NAME}:
-    IF lv-msg EQ "" AND
-       NOT CAN-FIND(FIRST account
-                    WHERE account.company EQ cocode
-                      AND account.actnum  MATCHES tt-account.actnum:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
-                      AND account.type    NE "T")
-    THEN lv-msg = "is invalid, try help".
-
-    IF lv-msg EQ "" AND
-       CAN-FIND(FIRST b-tt-acc
-                WHERE b-tt-acc.actnum EQ tt-account.actnum:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
-                  AND (ROWID(b-tt-acc) NE ROWID(tt-account) OR
-                       (adm-new-record AND NOT adm-adding-record)))
-    THEN lv-msg = "already exists".
-
-    IF lv-msg NE "" THEN DO:
-      MESSAGE "GL Account#" + " " + TRIM(lv-msg) + "..." VIEW-AS ALERT-BOX ERROR.
-      APPLY "entry" TO tt-account.actnum IN BROWSE {&BROWSE-NAME}.
-      RETURN ERROR.
-    END.
+      
+      RUN GL_CheckGLAccount IN hGLProcs(
+            INPUT  g_company,
+            INPUT  tt-account.actnum:SCREEN-VALUE IN BROWSE {&BROWSE-NAME},            
+            OUTPUT cMessage,
+            OUTPUT lSuccess,
+            OUTPUT lActive
+            ).    
+            
+      IF lSuccess = NO THEN DO:               
+          MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.            
+          IF tt-account.actnum:BGCOLOR IN BROWSE {&BROWSE-NAME} EQ 16 THEN             
+                ASSIGN 
+                    tt-account.actnum:BGCOLOR IN BROWSE {&BROWSE-NAME} = ?
+                    tt-account.actnum:FGCOLOR IN BROWSE {&BROWSE-NAME} = ?
+                   .
+          APPLY "ENTRY" TO tt-account.actnum IN BROWSE {&BROWSE-NAME}.       
+          RETURN ERROR. 
+      END.   
+      
+      IF lSuccess = YES AND lActive = NO THEN DO:  
+          ASSIGN 
+              tt-account.actnum:BGCOLOR IN BROWSE {&BROWSE-NAME} = 16
+              tt-account.actnum:FGCOLOR IN BROWSE {&BROWSE-NAME} = 15
+              .   
+          MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.           
+          APPLY "ENTRY" TO tt-account.actnum IN BROWSE {&BROWSE-NAME}.
+          RETURN ERROR.                      
+      END.      
+      IF lActive = YES AND tt-account.actnum:BGCOLOR IN BROWSE {&BROWSE-NAME} EQ 16 THEN             
+          ASSIGN 
+              tt-account.actnum:BGCOLOR IN BROWSE {&BROWSE-NAME} = ?
+              tt-account.actnum:FGCOLOR IN BROWSE {&BROWSE-NAME} = ?
+              .                                  
+              
+      IF CAN-FIND(FIRST b-tt-acc
+                  WHERE b-tt-acc.actnum EQ tt-account.actnum:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
+                   AND (ROWID(b-tt-acc) NE ROWID(tt-account) 
+                     OR (adm-new-record AND NOT adm-adding-record))) THEN DO:
+          MESSAGE "GL Account already exists" VIEW-AS ALERT-BOX ERROR.
+          APPLY "ENTRY" TO tt-account.actnum IN BROWSE {&BROWSE-NAME}.
+          RETURN ERROR.
+      END.
   END.
 
 END PROCEDURE.

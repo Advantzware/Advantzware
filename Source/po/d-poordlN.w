@@ -163,10 +163,7 @@ DEFINE BUFFER bf-e-itemfg-vend FOR e-itemfg-vend.
 
 DEFINE VARIABLE ghVendorCost AS HANDLE no-undo.
 DEFINE VARIABLE scInstance AS CLASS system.SharedConfig NO-UNDO.
-DEFINE VARIABLE hGLProcs  AS HANDLE    NO-UNDO.
-DEFINE VARIABLE lSuccess  AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE lActive   AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE cMessage  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hGLProcs  AS HANDLE NO-UNDO.
 
 {windows/l-jobmt1.i}
 
@@ -5661,12 +5658,15 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-actnum Dialog-Frame 
 PROCEDURE valid-actnum :
 /*------------------------------------------------------------------------------
-      Purpose:     
+      Purpose: To check valid and active GL account.     
       PARAMs:  <none>
       Notes:       
     ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lSuccess  AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lActive   AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage  AS CHARACTER NO-UNDO.
   
-    DO WITH FRAME {&FRAME-NAME}:
+    DO WITH FRAME {&FRAME-NAME}:             
         
         RUN GL_CheckGLAccount IN hGLProcs(
             INPUT  g_company,
@@ -5700,7 +5700,8 @@ PROCEDURE valid-actnum :
                 ASSIGN 
                     po-ordl.actnum:BGCOLOR = 16
                     po-ordl.actnum:FGCOLOR = 15
-                    .         
+                    .  
+                MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.            
                 APPLY "ENTRY" TO po-ordl.actnum.
                 RETURN ERROR.                      
         END.      

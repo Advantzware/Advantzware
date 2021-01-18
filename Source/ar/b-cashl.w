@@ -656,37 +656,13 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ar-cashl.actnum Browser-Table _BROWSE-COLUMN B-table-Win
 ON LEAVE OF ar-cashl.actnum IN BROWSE Browser-Table /* Account Number */
 DO:
-    DEFINE VARIABLE lInactive AS LOGICAL NO-UNDO.
     IF LASTKEY = -1 THEN RETURN.
 
     IF ar-cashl.actnum:MODIFIED IN BROWSE {&browse-name} THEN DO:
-       FIND FIRST account WHERE account.company = g_company AND
-                                account.TYPE <> "T" AND
-                                account.actnum = ar-cashl.actnum:SCREEN-VALUE
-                                NO-LOCK NO-ERROR.
-       IF NOT AVAIL account THEN DO:
-          MESSAGE "Invalid GL Account Number." VIEW-AS ALERT-BOX ERROR.
-          RETURN NO-APPLY.
-       END.
-       RUN checkInvalidGLAccount IN hGLProcs(
-           INPUT g_company,
-           INPUT ar-cashl.actnum:SCREEN-VALUE IN BROWSE {&browse-name},
-           OUTPUT lInactive
-           ). 
-       IF lInactive THEN DO:    
-           ASSIGN 
-               ar-cashl.actnum:BGCOLOR IN BROWSE {&browse-name} = 16
-               ar-cashl.actnum:FGCOLOR IN BROWSE {&browse-name} = 15
-               . 
-               MESSAGE "Inactive Account Number." VIEW-AS ALERT-BOX ERROR.
-               RETURN NO-APPLY.      
-       END. 
-       ELSE 
-           IF ar-cashl.actnum:BGCOLOR IN BROWSE {&browse-name} EQ 16 THEN 
-               ASSIGN 
-                   ar-cashl.actnum:BGCOLOR IN BROWSE {&browse-name}  = ?
-                   ar-cashl.actnum:FGCOLOR IN BROWSE {&browse-name}  = ?
-                   .    
+        
+        RUN valid-actnum NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN 
+            RETURN NO-APPLY.          
     END.
 END.
 
@@ -1255,12 +1231,14 @@ PROCEDURE local-update-record :
 ------------------------------------------------------------------------------*/
   DEF VAR ll-new-record AS LOG NO-UNDO.
   DEF VAR lv-rowid AS ROWID NO-UNDO.
-  DEFINE VARIABLE lInactive AS LOGICAL NO-UNDO.
 
-  
   /* Code placed here will execute PRIOR to standard behavior. */
   /*=-== validateion ==== */
   lv-rowid = ROWID(ar-cashl).
+  
+  RUN valid-actnum NO-ERROR.
+  IF ERROR-STATUS:ERROR THEN 
+      RETURN NO-APPLY. 
   
   RUN validate-line /*NO-ERROR*/.
   
@@ -1268,27 +1246,7 @@ PROCEDURE local-update-record :
     /*RUN dispatch ("display-fields").      */
     RETURN /*ERROR*/ .
   END.
-  
-  RUN checkInvalidGLAccount IN hGLProcs(
-           INPUT g_company,
-           INPUT ar-cashl.actnum:SCREEN-VALUE IN BROWSE {&browse-name},
-           OUTPUT lInactive
-           ).   
-  
-  IF lInactive THEN DO:    
-      ASSIGN 
-          ar-cashl.actnum:BGCOLOR IN BROWSE {&browse-name} = 16
-          ar-cashl.actnum:FGCOLOR IN BROWSE {&browse-name} = 15
-          . 
-      MESSAGE "Inactive Account Number." VIEW-AS ALERT-BOX ERROR.
-      RETURN NO-APPLY.      
-  END. 
-  ELSE 
-      IF ar-cashl.actnum:BGCOLOR IN BROWSE {&browse-name} EQ 16 THEN 
-          ASSIGN 
-              ar-cashl.actnum:BGCOLOR IN BROWSE {&browse-name}  = ?
-              ar-cashl.actnum:FGCOLOR IN BROWSE {&browse-name}  = ?
-              .
+ 
   ll-new-record = adm-new-record.
 
  
@@ -1435,6 +1393,61 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-actnum B-table-Win
+PROCEDURE valid-actnum:
+/*------------------------------------------------------------------------------
+ Purpose: To check valid and active GL account. 
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lSuccess  AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lActive   AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage  AS CHARACTER NO-UNDO.
+
+    DO WITH FRAME {&FRAME-NAME}:    
+        
+        RUN GL_CheckGLAccount IN hGLProcs(
+            INPUT  g_company,
+            INPUT  ar-cashl.actnum:SCREEN-VALUE IN BROWSE {&browse-name},            
+            OUTPUT cMessage,
+            OUTPUT lSuccess,
+            OUTPUT lActive
+            ).    
+            
+        IF lSuccess = NO THEN DO:               
+            MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.            
+            IF ar-cashl.actnum:BGCOLOR IN BROWSE {&BROWSE-NAME} EQ 16 THEN             
+                ASSIGN 
+                    ar-cashl.actnum:BGCOLOR IN BROWSE {&BROWSE-NAME} = ?
+                    ar-cashl.actnum:FGCOLOR IN BROWSE {&BROWSE-NAME} = ?
+                   .
+            APPLY "ENTRY" TO ar-cashl.actnum IN BROWSE {&BROWSE-NAME}.       
+            RETURN ERROR. 
+        END.   
+      
+        IF lSuccess = YES AND lActive = NO THEN DO:  
+            ASSIGN 
+                ar-cashl.actnum:BGCOLOR IN BROWSE {&BROWSE-NAME} = 16
+                ar-cashl.actnum:FGCOLOR IN BROWSE {&BROWSE-NAME} = 15
+                .   
+            MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.           
+            APPLY "ENTRY" TO ar-cashl.actnum IN BROWSE {&BROWSE-NAME}.
+            RETURN ERROR.                      
+        END.      
+        IF lActive = YES AND ar-cashl.actnum:BGCOLOR IN BROWSE {&BROWSE-NAME} EQ 16 THEN             
+            ASSIGN 
+                ar-cashl.actnum:BGCOLOR IN BROWSE {&BROWSE-NAME} = ?
+                ar-cashl.actnum:FGCOLOR IN BROWSE {&BROWSE-NAME} = ?
+                .                                                                   
+    END.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE validate-line B-table-Win 
 PROCEDURE validate-line :
 /*------------------------------------------------------------------------------
@@ -1499,15 +1512,6 @@ PROCEDURE validate-line :
         END.
         END.
        
-        FIND FIRST account WHERE account.company = g_company AND
-                                 account.TYPE <> "T" AND
-                                 account.actnum = ar-cashl.actnum:SCREEN-VALUE
-                             NO-LOCK NO-ERROR.
-        IF NOT AVAIL account THEN DO:
-           MESSAGE "Invalid GL Account Number." VIEW-AS ALERT-BOX ERROR.
-           APPLY "entry" TO ar-cashl.actnum IN BROWSE {&browse-name}.
-           RETURN "ValidationERROR".
-        END.
         account_dscr:SCREEN-VALUE = display-account() .                      
        
         IF INPUT ar-cashl.inv-no = 0 AND INPUT ar-cashl.amt-disc <> 0 THEN DO:

@@ -52,8 +52,7 @@ DEF VAR lv-inv-displayed AS LOG NO-UNDO.
 DEF VAR ll-inquiry AS LOG NO-UNDO.
 DEF VAR v-vend-act AS cha NO-UNDO.
 DEFINE VARIABLE dInvDate AS DATE NO-UNDO.
-DEFINE VARIABLE lInactive AS LOGICAL NO-UNDO.
-DEFINE VARIABLE hGLProcs  AS HANDLE  NO-UNDO.
+DEFINE VARIABLE hGLProcs AS HANDLE NO-UNDO.
 
 RUN system/GLProcs.p PERSISTENT SET hGLProcs.
 
@@ -480,22 +479,6 @@ DO:
     RUN valid-actnum NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
     
-    IF lInactive THEN DO:    
-        ASSIGN 
-            ap-payl.actnum:BGCOLOR IN BROWSE {&browse-name} = 16
-            ap-payl.actnum:FGCOLOR IN BROWSE {&browse-name} = 15
-            . 
-        MESSAGE "Inactive Account Number." VIEW-AS ALERT-BOX ERROR.
-        APPLY "ENTRY" TO ap-payl.actnum IN BROWSE {&browse-name}.
-        RETURN NO-APPLY.      
-    END. 
-    ELSE 
-        IF ap-payl.actnum:BGCOLOR IN BROWSE {&browse-name} EQ 16 THEN 
-            ASSIGN 
-                ap-payl.actnum:BGCOLOR IN BROWSE {&browse-name} = ?
-                ap-payl.actnum:FGCOLOR IN BROWSE {&browse-name} = ?
-                .        
-
     RUN valid-inv-act NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   END.
@@ -939,22 +922,6 @@ PROCEDURE local-update-record :
 
   RUN valid-actnum NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  
-  IF lInactive THEN DO:    
-      ASSIGN 
-           ap-payl.actnum:BGCOLOR IN BROWSE {&browse-name} = 16
-           ap-payl.actnum:FGCOLOR IN BROWSE {&browse-name} = 15
-           . 
-      MESSAGE "Inactive Account Number." VIEW-AS ALERT-BOX ERROR.
-      APPLY "ENTRY" TO ap-payl.actnum IN BROWSE {&browse-name}.
-      RETURN NO-APPLY.      
-  END. 
-  ELSE 
-      IF ap-payl.actnum:BGCOLOR IN BROWSE {&browse-name} EQ 16 THEN 
-          ASSIGN 
-              ap-payl.actnum:BGCOLOR IN BROWSE {&browse-name} = ?
-              ap-payl.actnum:FGCOLOR IN BROWSE {&browse-name} = ?
-              .        
 
   RUN valid-inv-act NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
@@ -1051,29 +1018,51 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-actnum B-table-Win 
 PROCEDURE valid-actnum :
 /*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
+  Purpose: To check valid and active GL account. 
+  Parameters: 
   Notes:       
 ------------------------------------------------------------------------------*/
+  DEFINE VARIABLE lSuccess  AS LOGICAL   NO-UNDO.
+  DEFINE VARIABLE lActive   AS LOGICAL   NO-UNDO.
+  DEFINE VARIABLE cMessage  AS CHARACTER NO-UNDO.
 
   DO WITH FRAME {&FRAME-NAME}:  
-    lInactive = FALSE.    
-    FIND FIRST account
-        WHERE account.company EQ g_company
-          AND account.actnum  EQ ap-payl.actnum:SCREEN-VALUE IN BROWSE {&browse-name}
-          AND account.type    NE "T"
-        NO-LOCK NO-ERROR.
-    IF NOT AVAIL account THEN DO:
-      MESSAGE "Invalid GL Account Number" VIEW-AS ALERT-BOX ERROR.
-      APPLY "entry" TO ap-payl.actnum IN BROWSE {&browse-name}.
-      RETURN ERROR.
-    END.   
-    act_dscr:SCREEN-VALUE IN BROWSE {&browse-name} = display-actdscr().  
-    RUN checkInvalidGLAccount IN hGLProcs(
-        INPUT g_company,
-        INPUT ap-payl.actnum:SCREEN-VALUE IN BROWSE {&browse-name},
-        OUTPUT lInactive
-        ).                    
+      
+      RUN GL_CheckGLAccount IN hGLProcs(
+          INPUT  g_company,
+          INPUT  ap-payl.actnum:SCREEN-VALUE IN BROWSE {&browse-name},            
+          OUTPUT cMessage,
+          OUTPUT lSuccess,
+          OUTPUT lActive
+          ).    
+            
+      IF lSuccess = NO THEN DO:               
+          MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.            
+          IF ap-payl.actnum:BGCOLOR IN BROWSE {&BROWSE-NAME} EQ 16 THEN             
+                ASSIGN 
+                    ap-payl.actnum:BGCOLOR IN BROWSE {&BROWSE-NAME} = ?
+                    ap-payl.actnum:FGCOLOR IN BROWSE {&BROWSE-NAME} = ?
+                   .
+          APPLY "ENTRY" TO ap-payl.actnum IN BROWSE {&browse-name}.     
+          RETURN ERROR. 
+      END.   
+      
+      IF lSuccess = YES AND lActive = NO THEN DO:  
+          ASSIGN 
+              ap-payl.actnum:BGCOLOR IN BROWSE {&BROWSE-NAME} = 16
+              ap-payl.actnum:FGCOLOR IN BROWSE {&BROWSE-NAME} = 15
+              .   
+          MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.           
+          APPLY "ENTRY" TO ap-payl.actnum IN BROWSE {&browse-name}.
+          RETURN ERROR.                      
+      END.      
+      IF lActive = YES AND ap-payl.actnum:BGCOLOR IN BROWSE {&BROWSE-NAME} EQ 16 THEN             
+          ASSIGN 
+              ap-payl.actnum:BGCOLOR IN BROWSE {&BROWSE-NAME} = ?
+              ap-payl.actnum:FGCOLOR IN BROWSE {&BROWSE-NAME} = ?
+              .                                  
+                                  
+      act_dscr:SCREEN-VALUE IN BROWSE {&browse-name} = display-actdscr().                      
   END.
 
 END PROCEDURE.

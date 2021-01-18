@@ -28,14 +28,13 @@ PROCEDURE GL_CheckGLAccount:
  Purpose: Check Invalid and Inactive GL Account
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER  ipcCompany      AS CHARACTER NO-UNDO. 
-    DEFINE INPUT PARAMETER  ipcAccount      AS CHARACTER NO-UNDO.
-    DEFINE OUTPUT PARAMETER opcMessage      AS CHARACTER NO-UNDO.
-    DEFINE OUTPUT PARAMETER oplSuccess      AS LOGICAL   NO-UNDO.
-    DEFINE OUTPUT PARAMETER oplActive       AS LOGICAL   NO-UNDO.  
+    DEFINE INPUT  PARAMETER ipcCompany AS CHARACTER NO-UNDO. 
+    DEFINE INPUT  PARAMETER ipcAccount AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplSuccess AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplActive  AS LOGICAL   NO-UNDO.  
         
-    RUN GL_CheckInvalidGLAccount (
-        BUFFER account,
+    RUN GL_CheckInvalidGLAccount (       
         INPUT  ipcCompany,
         INPUT  ipcAccount,       
         OUTPUT opcMessage,
@@ -46,7 +45,8 @@ PROCEDURE GL_CheckGLAccount:
         RETURN.  
     ELSE 
         RUN GL_CheckInactiveGLAccount (
-            BUFFER account,
+            INPUT  ipcCompany,
+            INPUT  ipcAccount,
             OUTPUT opcMessage,            
             OUTPUT oplActive
             ).              
@@ -58,49 +58,47 @@ PROCEDURE GL_CheckInactiveGLAccount:
  Purpose: Check Inactive GL Account.
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE PARAMETER BUFFER bfAccount FOR Account.
+    DEFINE INPUT PARAMETER  ipcCompany AS CHARACTER NO-UNDO. 
+    DEFINE INPUT PARAMETER  ipcAccount AS CHARACTER NO-UNDO. 
     DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.    
-    DEFINE OUTPUT PARAMETER oplActive  AS LOGICAL   NO-UNDO.  
-   
-    IF AVAILABLE bfAccount THEN DO:
-        IF bfAccount.inactive EQ YES THEN 
-            ASSIGN 
-                opcMessage = "Inactive Account Number."                
-                oplActive  = NO 
-                .  
-        ELSE                          
-            oplActive  = YES.                               
-    END.                 
-
+    DEFINE OUTPUT PARAMETER oplActive  AS LOGICAL   NO-UNDO.    
+    
+    IF CAN-FIND(FIRST account
+        WHERE account.company  EQ ipcCompany 
+          AND account.actnum   EQ ipcAccount           
+          AND account.TYPE     NE "T"
+          AND account.inactive EQ YES) THEN DO:                        
+                    
+        opcMessage = "Inactive Account Number.".                                                                       
+                                         
+    END. 
+    ELSE 
+        oplActive  = YES.  
+                    
 END PROCEDURE.
 
 PROCEDURE GL_CheckInvalidGLAccount:
 /*------------------------------------------------------------------------------
  Purpose: Check Invalid GL Account
  Notes:
-------------------------------------------------------------------------------*/
-    DEFINE PARAMETER BUFFER bfAccount FOR Account.
-    DEFINE INPUT PARAMETER  ipcCompany      AS CHARACTER NO-UNDO. 
-    DEFINE INPUT PARAMETER  ipcAccount      AS CHARACTER NO-UNDO.   
-    DEFINE OUTPUT PARAMETER opcMessage      AS CHARACTER NO-UNDO.
-    DEFINE OUTPUT PARAMETER oplSuccess      AS LOGICAL   NO-UNDO.               
+------------------------------------------------------------------------------*/    
+    DEFINE INPUT PARAMETER  ipcCompany AS CHARACTER NO-UNDO. 
+    DEFINE INPUT PARAMETER  ipcAccount AS CHARACTER NO-UNDO.   
+    DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplSuccess AS LOGICAL   NO-UNDO.               
      
     IF ipcAccount EQ "" THEN DO:
         opcMessage = "Account Number may not be spaces, try help...".
         oplSuccess = NO. 
         RETURN.
-    END.    
+    END. 
     
-    FIND FIRST bfAccount NO-LOCK  
-        WHERE bfAccount.company EQ ipcCompany
-          AND bfAccount.actnum  EQ ipcAccount
-          AND bfAccount.TYPE    NE "T"         
-          NO-ERROR.
-    IF NOT AVAILABLE bfAccount THEN DO:              
-        ASSIGN 
-            opcMessage = "Invalid GL#, try help..."            
-            oplSuccess = NO
-            .
+    IF NOT CAN-FIND(FIRST account
+        WHERE account.company EQ ipcCompany 
+          AND account.actnum  EQ ipcAccount           
+          AND account.TYPE    NE "T") THEN DO: 
+    
+        opcMessage = "Invalid GL#, try help...".                        
         RETURN.    
     END. 
     

@@ -37,7 +37,6 @@ assign
  locode = g_loc.
 
 DEF BUFFER bf-jrnl FOR gl-jrnl.
-DEF VAR lv-account-recid AS RECID NO-UNDO.
 DEF VAR v-debit AS DEC NO-UNDO.
 DEF VAR v-credit AS DEC NO-UNDO.
 DEF VAR lv-acct-dscr AS cha FORM "x(30)" LABEL "Account Name " NO-UNDO.
@@ -414,47 +413,12 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL gl-jrnl.actnum Browser-Table _BROWSE-COLUMN B-table-Win
 ON LEAVE OF gl-jrnl.actnum IN BROWSE Browser-Table /* Account Number */
 DO:
-    DEFINE VARIABLE lInactive AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
     IF LASTKEY NE -1 THEN DO:
-       /* gdm - 09200703*/
-      FIND FIRST account
-        WHERE account.company EQ g_company
-          AND account.type    NE "T"
-          AND account.actnum  EQ gl-jrnl.actnum:SCREEN-VALUE IN BROWSE {&browse-name}
-        NO-LOCK NO-ERROR.
-      IF AVAIL account THEN lv-account-recid = RECID(account).
-      ELSE DO:
-          MESSAGE TRIM(gl-jrnl.actnum:LABEL IN BROWSE {&browse-name}) +
-                  " is invalid, try help..."
-              VIEW-AS ALERT-BOX ERROR.
-        APPLY "entry" TO gl-jrnl.actnum IN BROWSE {&browse-name}.
-        RETURN NO-APPLY.    
-      END.
-      
-      RUN checkInvalidGLAccount IN hGLProcs(
-          INPUT g_company,
-          INPUT gl-jrnl.actnum:SCREEN-VALUE IN BROWSE {&browse-name},
-          OUTPUT lInactive
-          ). 
-      IF lInactive THEN DO:    
-          ASSIGN 
-              gl-jrnl.actnum:BGCOLOR IN BROWSE {&browse-name} = 16
-              gl-jrnl.actnum:FGCOLOR IN BROWSE {&browse-name} = 15
-              . 
-          MESSAGE "Inactive Account Number." VIEW-AS ALERT-BOX ERROR.
-          APPLY "ENTRY" TO gl-jrnl.actnum IN BROWSE {&browse-name}.
-          RETURN NO-APPLY.      
-      END. 
-      ELSE 
-          IF gl-jrnl.actnum:BGCOLOR IN BROWSE {&browse-name} EQ 16 THEN 
-              ASSIGN 
-                  gl-jrnl.actnum:BGCOLOR IN BROWSE {&browse-name}  = ?
-                  gl-jrnl.actnum:FGCOLOR IN BROWSE {&browse-name}  = ?
-                  .
-
-/*      RUN valid-actnum NO-ERROR.                   */
-/*     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.   */
-  END.
+        RUN valid-actnum(OUTPUT lReturnError) NO-ERROR.                   
+        IF lReturnError THEN 
+            RETURN NO-APPLY.   
+    END.
   
 END.
 
@@ -788,29 +752,9 @@ PROCEDURE local-update-record :
   DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
   DEFINE VARIABLE lInactive    AS LOGICAL NO-UNDO.
   /* Code placed here will execute PRIOR to standard behavior. */
+  RUN new-actnum (1).
   RUN valid-actnum(OUTPUT lReturnError) NO-ERROR.
   IF lReturnError THEN RETURN NO-APPLY.
-  
-  RUN checkInvalidGLAccount IN hGLProcs(
-      INPUT g_company,
-      INPUT gl-jrnl.actnum:SCREEN-VALUE IN BROWSE {&browse-name},
-      OUTPUT lInactive
-      ). 
-  IF lInactive THEN DO:    
-      ASSIGN 
-          gl-jrnl.actnum:BGCOLOR IN BROWSE {&browse-name} = 16
-          gl-jrnl.actnum:FGCOLOR IN BROWSE {&browse-name} = 15
-          . 
-      MESSAGE "Inactive Account Number." VIEW-AS ALERT-BOX ERROR.
-      APPLY "ENTRY" TO gl-jrnl.actnum IN BROWSE {&browse-name}.
-      RETURN NO-APPLY.      
-  END. 
-  ELSE 
-      IF gl-jrnl.actnum:BGCOLOR IN BROWSE {&browse-name} EQ 16 THEN 
-          ASSIGN 
-              gl-jrnl.actnum:BGCOLOR IN BROWSE {&browse-name}  = ?
-              gl-jrnl.actnum:FGCOLOR IN BROWSE {&browse-name}  = ?
-              .
    
   /* gdm - 09200703 */
   ASSIGN ll-new-record = adm-new-record.
@@ -966,24 +910,45 @@ PROCEDURE valid-actnum :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
+  
+  DEFINE VARIABLE lSuccess  AS LOGICAL   NO-UNDO.
+  DEFINE VARIABLE lActive   AS LOGICAL   NO-UNDO.
+  DEFINE VARIABLE cMessage  AS CHARACTER NO-UNDO.
+  
   DO WITH FRAME {&FRAME-NAME}:
-    RUN new-actnum (1).
-
-    FIND FIRST account
-        WHERE account.company EQ g_company
-          AND account.type    NE "T"
-          AND account.actnum  EQ gl-jrnl.actnum:SCREEN-VALUE IN BROWSE {&browse-name}
-        NO-LOCK NO-ERROR.
-
-    IF AVAIL account THEN lv-account-recid = RECID(account).
-
-    ELSE DO:
-      MESSAGE TRIM(gl-jrnl.actnum:LABEL IN BROWSE {&browse-name}) +
-              " is invalid, try help..."
-          VIEW-AS ALERT-BOX ERROR.
-      APPLY "entry" TO gl-jrnl.actnum IN BROWSE {&browse-name}.
-      oplReturnError = YES .
-    END.
+      RUN GL_CheckGLAccount IN hGLProcs(
+          INPUT  g_company,
+          INPUT  gl-jrnl.actnum:SCREEN-VALUE IN BROWSE {&browse-name},            
+          OUTPUT cMessage,
+          OUTPUT lSuccess,
+          OUTPUT lActive
+          ).    
+            
+      IF lSuccess = NO THEN DO:               
+          MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.            
+          IF gl-jrnl.actnum:BGCOLOR IN BROWSE {&BROWSE-NAME} EQ 16 THEN             
+                ASSIGN 
+                    gl-jrnl.actnum:BGCOLOR IN BROWSE {&BROWSE-NAME} = ?
+                    gl-jrnl.actnum:FGCOLOR IN BROWSE {&BROWSE-NAME} = ?
+                   .
+          APPLY "ENTRY" TO gl-jrnl.actnum IN BROWSE {&BROWSE-NAME}.       
+          oplReturnError = YES.
+      END.   
+      
+      IF lSuccess = YES AND lActive = NO THEN DO:  
+          ASSIGN 
+              gl-jrnl.actnum:BGCOLOR IN BROWSE {&BROWSE-NAME} = 16
+              gl-jrnl.actnum:FGCOLOR IN BROWSE {&BROWSE-NAME} = 15
+              .   
+          MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.           
+          APPLY "ENTRY" TO gl-jrnl.actnum IN BROWSE {&BROWSE-NAME}.
+          oplReturnError = YES.                     
+      END.      
+      IF lActive = YES AND gl-jrnl.actnum:BGCOLOR IN BROWSE {&BROWSE-NAME} EQ 16 THEN             
+          ASSIGN 
+              gl-jrnl.actnum:BGCOLOR IN BROWSE {&BROWSE-NAME} = ?
+              gl-jrnl.actnum:FGCOLOR IN BROWSE {&BROWSE-NAME} = ?
+              .                                          
   END.
 
 END PROCEDURE.
