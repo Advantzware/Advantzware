@@ -268,6 +268,10 @@ RUN system/CustomerProcs.p PERSISTENT SET hdCustomerProcs.
 DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
 DEFINE VARIABLE pHandle  AS HANDLE    NO-UNDO.
 
+DEFINE VARIABLE hdSalesManProcs AS HANDLE NO-UNDO.
+
+RUN salrep/SalesManProcs.p PERSISTENT SET hdSalesManProcs.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -7453,10 +7457,12 @@ PROCEDURE valid-sman :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF INPUT PARAM ip-int AS INT NO-UNDO.
+  DEFINE INPUT PARAMETER ip-int AS INTEGER NO-UNDO.
 
-  DEF VAR li AS INT NO-UNDO.
-  DEF VAR lv-sman LIKE sman.sman NO-UNDO.
+  DEFINE VARIABLE li       AS INTEGER     NO-UNDO.
+  DEFINE VARIABLE lv-sman  LIKE sman.sman NO-UNDO.
+  DEFINE VARIABLE lSuccess AS LOGICAL     NO-UNDO.
+  DEFINE VARIABLE cMessage AS CHARACTER   NO-UNDO.
 
 
   {methods/lValidateError.i YES}
@@ -7474,24 +7480,26 @@ PROCEDURE valid-sman :
                              ELSE oe-ord.sman[1]:SCREEN-VALUE.
 
     IF lv-sman NE "" THEN DO:
-        FIND FIRST sman NO-LOCK 
-             WHERE sman.company EQ cocode
-              AND sman.sman     EQ lv-sman 
-              AND sman.inactive EQ NO 
-              NO-ERROR.
-        IF NOT AVAILABLE sman THEN DO:
-          MESSAGE "Inactive/Invalid Sales Rep, try help..." VIEW-AS ALERT-BOX ERROR.
-          IF ip-int EQ 3 THEN APPLY "entry" TO oe-ord.sman[3].
-          ELSE
-          IF ip-int EQ 2 THEN APPLY "entry" TO oe-ord.sman[2].
-                         ELSE APPLY "entry" TO oe-ord.sman[1].
-          RETURN ERROR.
+        RUN SalesMan_ValidateSalesRep IN hdSalesManProcs(  
+            INPUT  cocode,
+            INPUT  lv-sman,
+            OUTPUT lSuccess,
+            OUTPUT cMessage
+            ). 
+        IF NOT lSuccess THEN DO:
+            MESSAGE cMessage 
+                VIEW-AS ALERT-BOX ERROR.
+            IF ip-int EQ 3 THEN APPLY "entry" TO oe-ord.sman[3].
+            ELSE
+            IF ip-int EQ 2 THEN APPLY "entry" TO oe-ord.sman[2].
+                           ELSE APPLY "entry" TO oe-ord.sman[1].
+            RETURN ERROR.
         END.
         ELSE DO:
-          IF ip-int EQ 3 THEN oe-ord.sname[3]:SCREEN-VALUE = sman.sname.
+          IF ip-int EQ 3 THEN oe-ord.sname[3]:SCREEN-VALUE = DYNAMIC-FUNCTION("SalesMan_GetSalesmanName" IN hdSalesManProcs,cocode,lv-sman).
           ELSE
-          IF ip-int EQ 2 THEN oe-ord.sname[2]:SCREEN-VALUE = sman.sname.
-                         ELSE oe-ord.sname[1]:SCREEN-VALUE = sman.sname.
+          IF ip-int EQ 2 THEN oe-ord.sname[2]:SCREEN-VALUE = DYNAMIC-FUNCTION("SalesMan_GetSalesmanName" IN hdSalesManProcs,cocode,lv-sman).
+                         ELSE oe-ord.sname[1]:SCREEN-VALUE = DYNAMIC-FUNCTION("SalesMan_GetSalesmanName" IN hdSalesManProcs,cocode,lv-sman).
         END.
     END.
     ELSE DO:

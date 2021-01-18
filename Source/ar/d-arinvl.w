@@ -38,8 +38,13 @@ DEF VAR lv-uom-list AS cha INIT "EA,MSF,M" NO-UNDO.
 DEF {&NEW} SHARED VAR g_lookup-var AS cha NO-UNDO.
 {oe/oe-sysct1.i NEW}
 
-DEFINE VARIABLE ll-inquiry AS LOGICAL NO-UNDO.
-DEFINE VARIABLE lTaxable   AS LOGICAL NO-UNDO. 
+DEFINE VARIABLE ll-inquiry      AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lTaxable        AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE hdSalesManProcs AS HANDLE    NO-UNDO.
+DEFINE VARIABLE lSuccess        AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cMessage        AS CHARACTER NO-UNDO.
+
+RUN salrep/SalesManProcs.p PERSISTENT SET hdSalesManProcs.
        
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -518,6 +523,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
 ON WINDOW-CLOSE OF FRAME Dialog-Frame /* Customer Invoice Item Update */
 DO:
+  IF VALID-HANDLE(hdSalesManProcs) THEN 
+      DELETE PROCEDURE hdSalesManProcs.    
   APPLY "END-ERROR":U TO SELF.
 END.
 
@@ -605,6 +612,9 @@ DO:
             WHERE RECID(ar-invl) EQ lv-item-recid  NO-ERROR.
        IF AVAILABLE ar-invl THEN DELETE ar-invl .
     END.
+    IF VALID-HANDLE(hdSalesManProcs) THEN 
+        DELETE PROCEDURE hdSalesManProcs.
+        
     APPLY 'GO':U TO FRAME {&FRAME-NAME}.
 END.
 
@@ -700,7 +710,9 @@ DO:
             INPUT dOldFreight
             ) .
     END.
-
+    IF VALID-HANDLE(hdSalesManProcs) THEN 
+        DELETE PROCEDURE hdSalesManProcs.
+        
     FIND CURRENT ar-invl NO-LOCK NO-ERROR.
     ip-rowid = ROWID(ar-invl).
     
@@ -899,17 +911,18 @@ ON LEAVE OF ar-invl.sman[1] IN FRAME Dialog-Frame /* Salesman Code[1] */
 DO:
    IF LASTKEY = -1 THEN RETURN.
 
-   IF ar-invl.sman[1]:MODIFIED  THEN DO:
-
-      IF ar-invl.sman[1]:SCREEN-VALUE NE "" AND
-         NOT CAN-FIND(FIRST sman 
-                      WHERE sman.company  EQ g_company 
-                        AND sman.sman     EQ ar-invl.sman[1]:SCREEN-VALUE
-                        AND sman.inactive EQ NO) THEN
-         DO:
-            MESSAGE "Inactive/Invalid Sales Rep." VIEW-AS ALERT-BOX ERROR.
-            RETURN NO-APPLY.
-         END.
+   IF ar-invl.sman[1]:MODIFIED AND ar-invl.sman[1]:SCREEN-VALUE NE ""  THEN DO:
+        RUN SalesMan_ValidateSalesRep IN hdSalesManProcs(  
+            INPUT g_company,
+            INPUT ar-invl.sman[1]:SCREEN-VALUE,
+            OUTPUT lSuccess,
+            OUTPUT cMessage
+            ).  
+        IF NOT lSuccess THEN DO:
+            MESSAGE cMessage
+            VIEW-AS ALERT-BOX ERROR.
+            RETURN NO-APPLY.    
+        END.              
    END.
 END.
 
@@ -948,17 +961,18 @@ ON LEAVE OF ar-invl.sman[2] IN FRAME Dialog-Frame /* Salesman Code[2] */
 DO:
    IF LASTKEY = -1 THEN RETURN.
 
-   IF ar-invl.sman[2]:MODIFIED  THEN DO:
-
-      IF ar-invl.sman[2]:SCREEN-VALUE NE "" AND
-         NOT CAN-FIND(FIRST sman 
-                      WHERE sman.company  EQ g_company 
-                        AND sman.sman     EQ ar-invl.sman[2]:SCREEN-VALUE
-                        AND sman.inactive EQ NO ) THEN
-         DO:
-            MESSAGE "Inactive/Invalid Sales Rep." VIEW-AS ALERT-BOX ERROR.
-            RETURN NO-APPLY.
-         END.
+   IF ar-invl.sman[2]:MODIFIED AND ar-invl.sman[2]:SCREEN-VALUE NE ""  THEN DO:
+        RUN SalesMan_ValidateSalesRep IN hdSalesManProcs(  
+            INPUT g_company,
+            INPUT ar-invl.sman[2]:SCREEN-VALUE,
+            OUTPUT lSuccess,
+            OUTPUT cMessage
+            ).  
+        IF NOT lSuccess THEN DO:
+            MESSAGE cMessage
+            VIEW-AS ALERT-BOX ERROR.
+            RETURN NO-APPLY.    
+        END.              
    END.
 END.
 
@@ -997,17 +1011,18 @@ ON LEAVE OF ar-invl.sman[3] IN FRAME Dialog-Frame /* Salesman Code[3] */
 DO:
    IF LASTKEY = -1 THEN RETURN.
 
-   IF ar-invl.sman[3]:MODIFIED  THEN DO:
-
-      IF ar-invl.sman[3]:SCREEN-VALUE NE "" AND
-         NOT CAN-FIND(FIRST sman
-                      WHERE sman.company  EQ g_company 
-                        AND sman.sman     EQ ar-invl.sman[3]:SCREEN-VALUE
-                        AND sman.inactive EQ NO) THEN
-         DO:
-            MESSAGE "Inactive/Invalid Sales Rep." VIEW-AS ALERT-BOX ERROR.
-            RETURN NO-APPLY.
-         END.
+   IF ar-invl.sman[3]:MODIFIED AND ar-invl.sman[3]:SCREEN-VALUE NE ""  THEN DO:
+        RUN SalesMan_ValidateSalesRep IN hdSalesManProcs(  
+            INPUT g_company,
+            INPUT ar-invl.sman[3]:SCREEN-VALUE,
+            OUTPUT lSuccess,
+            OUTPUT cMessage
+            ).  
+        IF NOT lSuccess THEN DO:
+            MESSAGE cMessage
+            VIEW-AS ALERT-BOX ERROR.
+            RETURN NO-APPLY.    
+        END.              
    END.
 END.
 
