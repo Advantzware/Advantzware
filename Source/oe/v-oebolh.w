@@ -665,7 +665,10 @@ DO:
            MESSAGE "Freight cost cannot be zero.  Please update." VIEW-AS ALERT-BOX ERROR.
            APPLY "entry" TO oe-bolh.freight .
            RETURN NO-APPLY.
-       END.
+      END.
+             
+      RUN valid-freight NO-ERROR.
+      IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   END.
 END.
 
@@ -1894,6 +1897,9 @@ PROCEDURE local-update-record :
   RUN valid-bol-date NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   
+  RUN valid-freight NO-ERROR.
+  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  
   lv-newbol = ROWID(oe-bolh).
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -2322,6 +2328,28 @@ PROCEDURE valid-frt-pay :
      APPLY "entry" TO oe-bolh.frt-pay.
      RETURN ERROR.
   END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-freight V-table-Win 
+PROCEDURE valid-freight :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  DO WITH FRAME {&FRAME-NAME}:
+     IF oe-bolh.frt-pay:SCREEN-VALUE EQ "P" AND oe-bolh.freight:SCREEN-VALUE NE "0.00" THEN DO:
+          MESSAGE "Freight is prepaid so the freight charge should not be added or the freight terms should be adjusted." VIEW-AS ALERT-BOX ERROR.
+          APPLY "entry" TO oe-bolh.freight .
+          RETURN ERROR.
+     END.
+  END.
+
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
