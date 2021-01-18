@@ -4310,6 +4310,13 @@ DO:
   /* Make sure all settings are saved */
   RUN flushRegistry.
 
+  /* FOR ADVANTZWARE ONLY */
+    IF SEARCH("DataDigger/dbmsNewUI.ini") NE ? THEN DO:
+        LOAD "dbmsNewUI".
+        USE "dbmsNewUI".
+    END.
+  /* END FOR ADVANTZWARE ONLY */
+
   /* Notify launcher that the window closes */
   PUBLISH 'DataDigger'(-1).
 
