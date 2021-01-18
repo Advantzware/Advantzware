@@ -249,7 +249,7 @@ PROCEDURE change-folder-page :
           ELSE
               ASSIGN
                   page-label[iIndex]:BGCOLOR = 22
-                  page-label[iIndex]:FGCOLOR = 0
+                  page-label[iIndex]:FGCOLOR = IF page-enabled[iIndex] THEN 0 ELSE 7
                   .
       END.
     RETURN. 
@@ -674,8 +674,8 @@ PROCEDURE show-current-page :
   THEN ASSIGN
           up-image:X      =     page-label[page#]:X -  9
           up-image:Y      =     page-label[page#]:Y -  4 
-          up-image:HIDDEN =     no
-          sts             =     up-image:MOVE-TO-TOP().
+          up-image:HIDDEN =     NO
+          sts             =     up-image:MOVE-TO-TOP()
           page-label[page#]:FGCOLOR = 15
           page-label[page#]:BGCOLOR = 29.
   /* If there are no tabs at all leave the up-image viewed for appearance.
