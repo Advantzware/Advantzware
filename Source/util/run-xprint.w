@@ -447,6 +447,7 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-ok C-Win
 ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 DO:
+    DEF VAR lError AS LOG NO-UNDO.
 
         DO WITH FRAME {&FRAME-NAME}:
             ASSIGN {&displayed-objects}.
@@ -467,6 +468,10 @@ DO:
             is-xprint-form = YES .
         THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hOutputProcs).
          
+    /* 95411 Add check for latest versions of 3rd party components to Xprint tester */
+    RUN ipCheck3dPartyVersions (OUTPUT lError).
+    IF lError THEN RETURN.
+             
            RUN run-report("",NO).
         IF rd-dest EQ 3 THEN
         RUN GenerateReport("",YES).
@@ -730,6 +735,95 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipCheck3dPartyVersions C-Win
+PROCEDURE ipCheck3dPartyVersions:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEF OUTPUT PARAMETER oplError AS LOG.
+    
+    DEF VAR cCommand AS CHAR NO-UNDO.
+    DEF VAR cVersionLine AS CHAR NO-UNDO.
+    DEF VAR lInXprint AS LOG NO-UNDO.
+    DEF VAR lInJasper AS LOG NO-UNDO.
+    DEF VAR cXprintTgtVer AS CHAR NO-UNDO INITIAL "10.17".
+    DEF VAR cJasperTgtVer AS CHAR NO-UNDO INITIAL "3.4.1".
+    DEF VAR cXprintActVer AS CHAR NO-UNDO.
+    DEF VAR cJasperActVer AS CHAR NO-UNDO.
+    
+    OS-DELETE VALUE("c:\tmp\3PVersion1.txt").
+    OS-DELETE VALUE("c:\tmp\3PVersion2.txt").
+    OS-DELETE VALUE("c:\tmp\3PVersion.txt").
+
+    ASSIGN 
+        cCommand = "reg export HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall c:\tmp\3PVersion1.txt".
+    OS-COMMAND SILENT VALUE(cCommand).
+    ASSIGN 
+        cCommand = "reg export HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\JasperStarter c:\tmp\3PVersion2.txt".
+    OS-COMMAND SILENT VALUE(cCommand).
+    OS-COMMAND SILENT VALUE("COPY c:\tmp\3PVersion1.txt + c:\tmp\3PVersion2.txt c:\tmp\3PVersion.txt").
+    
+    INPUT FROM VALUE("c:\tmp\3PVersion.txt").
+    REPEAT:
+        IMPORT UNFORMATTED cVersionLine.
+        IF INDEX(cVersionLine,'"DisplayName"="vpxPrint') NE 0 THEN 
+        DO:
+            ASSIGN 
+                lInXprint = TRUE.
+            NEXT.
+        END.
+        ELSE IF INDEX(cVersionLine,'"DisplayName"="JasperStarter') NE 0 THEN 
+            DO: 
+                ASSIGN 
+                    cJasperActVer = ENTRY(2,cVersionLine," ")
+                    cJasperActVer = TRIM(cJasperActVer,'"').
+                NEXT.
+            END.
+            ELSE IF lInXprint AND INDEX(cVersionLine,"DisplayVersion") NE 0 THEN 
+                DO: 
+                    ASSIGN 
+                        cXprintActVer = REPLACE(cVersionLine,'"','')
+                        cXprintActVer = ENTRY(2,cXprintActVer,"=")
+                        lInXprint = FALSE.
+                    NEXT.
+                END.
+    END.
+
+    OS-DELETE VALUE("c:\tmp\3PVersion1.txt").
+    OS-DELETE VALUE("c:\tmp\3PVersion2.txt").
+    OS-DELETE VALUE("c:\tmp\3PVersion.txt").
+
+    IF cXprintActVer EQ "" THEN DO: 
+        MESSAGE 
+            "YOU DO NOT HAVE XPRINT SOFTWARE INSTALLED!" SKIP(1)
+            "You will not be able to run this function" SKIP 
+            "or many Advantzware reports."
+            VIEW-AS ALERT-BOX ERROR.
+        ASSIGN 
+            oplError = TRUE.
+    END.
+    ELSE IF cXprintActVer LT cXprintTgtVer THEN DO: 
+        MESSAGE 
+            "Your xPrint version is out of date." SKIP 
+            "You should update this from the Advantzware" SKIP 
+            "'Install/LocalPrintInstall' folder to version " + cXprintTgtVer
+            VIEW-AS ALERT-BOX.
+        ASSIGN 
+            oplError = TRUE.
+    END.
+    ELSE MESSAGE 
+        "xPrint version check PASSED."
+        VIEW-AS ALERT-BOX INFO.            
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE output-to-printer C-Win 
 PROCEDURE output-to-printer :
