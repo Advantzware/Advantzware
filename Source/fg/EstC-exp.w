@@ -92,11 +92,11 @@ ASSIGN cTextListToSelect = "Estimate#,Est Date,Cust #,Ship To,Cust Part#,Item De
 &Scoped-define FRAME-NAME rd-fgexp
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 RECT-8 begin_est end_est begin_cust-no end_cust-no ~
-sl_avail Btn_Add sl_selected Btn_Remove btn_Up btn_down tb_runExcel fi_file ~
-btn-ok btn-cancel 
-&Scoped-Define DISPLAYED-OBJECTS begin_est end_est begin_cust-no end_cust-no sl_avail sl_selected ~
-tb_excel tb_runExcel fi_file 
+&Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 RECT-8 begin_est end_est ~
+begin_cust-no end_cust-no sl_avail Btn_Add sl_selected Btn_Remove btn_Up ~
+btn_down tb_runExcel fi_file btn-ok btn-cancel 
+&Scoped-Define DISPLAYED-OBJECTS begin_est end_est begin_cust-no ~
+end_cust-no sl_avail sl_selected tb_excel tb_runExcel fi_file 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -165,23 +165,23 @@ DEFINE BUTTON btn_Up
      LABEL "Move Up" 
      SIZE 16 BY 1.
 
-DEFINE VARIABLE begin_est AS INTEGER FORMAT ">>>>>>>>" 
-     LABEL "From Estimate" 
-     VIEW-AS FILL-IN 
-     SIZE 20 BY 1.
-
-DEFINE VARIABLE end_est AS INTEGER FORMAT ">>>>>>>>" INITIAL "99999999" 
-     LABEL "To Estimate" 
-     VIEW-AS FILL-IN 
-     SIZE 21 BY 1.
-
 DEFINE VARIABLE begin_cust-no AS CHARACTER FORMAT "x(15)" 
      LABEL "From Customer#" 
      VIEW-AS FILL-IN 
      SIZE 20 BY 1.
 
+DEFINE VARIABLE begin_est AS INTEGER FORMAT ">>>>>>>>" INITIAL 0 
+     LABEL "From Estimate" 
+     VIEW-AS FILL-IN 
+     SIZE 20 BY 1.
+
 DEFINE VARIABLE end_cust-no AS CHARACTER FORMAT "X(9)" INITIAL "zzzzzzzzz" 
      LABEL "To Customer#" 
+     VIEW-AS FILL-IN 
+     SIZE 21 BY 1.
+
+DEFINE VARIABLE end_est AS INTEGER FORMAT ">>>>>>>>" INITIAL 99999999 
+     LABEL "To Estimate" 
      VIEW-AS FILL-IN 
      SIZE 21 BY 1.
 
@@ -251,13 +251,13 @@ DEFINE FRAME rd-fgexp
      btn-cancel AT ROW 21.71 COL 60.2 WIDGET-ID 12
      "Selected Columns" VIEW-AS TEXT
           SIZE 34 BY .62 AT ROW 11.52 COL 64.4 WIDGET-ID 138
+     "Available Columns" VIEW-AS TEXT
+          SIZE 29 BY .62 AT ROW 11.52 COL 9.4 WIDGET-ID 140
+     "Export Selection" VIEW-AS TEXT
+          SIZE 17 BY .62 AT ROW 10.52 COL 3 WIDGET-ID 86
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.24 COL 5 WIDGET-ID 36
           BGCOLOR 2 
-     "Export Selection" VIEW-AS TEXT
-          SIZE 17 BY .62 AT ROW 10.52 COL 3 WIDGET-ID 86
-     "Available Columns" VIEW-AS TEXT
-          SIZE 29 BY .62 AT ROW 11.52 COL 9.4 WIDGET-ID 140
      RECT-6 AT ROW 10.76 COL 2 WIDGET-ID 30
      RECT-7 AT ROW 1.24 COL 2 WIDGET-ID 38
      RECT-8 AT ROW 18.62 COL 2 WIDGET-ID 84
@@ -289,19 +289,19 @@ ASSIGN
        FRAME rd-fgexp:HIDDEN           = TRUE.
 
 ASSIGN 
-       begin_est:PRIVATE-DATA IN FRAME rd-fgexp     = 
-                "parm".
-
-ASSIGN 
-       end_est:PRIVATE-DATA IN FRAME rd-fgexp     = 
-                "parm".
-
-ASSIGN 
        begin_cust-no:PRIVATE-DATA IN FRAME rd-fgexp     = 
                 "parm".
 
 ASSIGN 
+       begin_est:PRIVATE-DATA IN FRAME rd-fgexp     = 
+                "parm".
+
+ASSIGN 
        end_cust-no:PRIVATE-DATA IN FRAME rd-fgexp     = 
+                "parm".
+
+ASSIGN 
+       end_est:PRIVATE-DATA IN FRAME rd-fgexp     = 
                 "parm".
 
 ASSIGN 
@@ -331,7 +331,7 @@ ASSIGN
 
 &Scoped-define SELF-NAME rd-fgexp
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd-fgexp rd-fgexp
-ON HELP OF FRAME rd-fgexp /* Export Folding Estimate To Excel */
+ON HELP OF FRAME rd-fgexp
 DO:
 DEF VAR lw-focus AS WIDGET-HANDLE NO-UNDO.
 DEF VAR ls-cur-val AS CHAR NO-UNDO.
@@ -393,9 +393,20 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd-fgexp rd-fgexp
-ON WINDOW-CLOSE OF FRAME rd-fgexp /* Export Folding Estimate To Excel */
+ON WINDOW-CLOSE OF FRAME rd-fgexp
 DO:
   APPLY "END-ERROR":U TO SELF.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME begin_cust-no
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_cust-no rd-fgexp
+ON LEAVE OF begin_cust-no IN FRAME rd-fgexp /* From Customer# */
+DO:
+   assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -412,15 +423,6 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&Scoped-define SELF-NAME begin_cust-no
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_cust-no rd-fgexp
-ON LEAVE OF begin_cust-no IN FRAME rd-fgexp /* From Customer */
-DO:
-   assign {&self-name}.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 &Scoped-define SELF-NAME btn-cancel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel rd-fgexp
@@ -513,6 +515,17 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME end_cust-no
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_cust-no rd-fgexp
+ON LEAVE OF end_cust-no IN FRAME rd-fgexp /* To Customer# */
+DO:
+     assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME end_est
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_est rd-fgexp
 ON LEAVE OF end_est IN FRAME rd-fgexp /* To Estimate */
@@ -523,17 +536,29 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&Scoped-define SELF-NAME end_cust-no
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_cust-no rd-fgexp
-ON LEAVE OF end_cust-no IN FRAME rd-fgexp /* To Customer */
+
+&Scoped-define SELF-NAME fi_file
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_file rd-fgexp
+ON HELP OF fi_file IN FRAME rd-fgexp /* If Yes, File Name */
 DO:
-     assign {&self-name}.
+    DEFINE VARIABLE cFileName  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lOk        AS LOGICAL   NO-UNDO.
+    
+    SYSTEM-DIALOG GET-FILE cFileName
+        TITLE   "Select file to insert..."
+        FILTERS "CSV Files (*.csv)"   "*.csv"                  
+        MUST-EXIST
+        USE-FILENAME
+        UPDATE lOk.
+
+        IF lOk THEN
+            fi_file:SCREEN-VALUE = cFileName.           
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&Scoped-define SELF-NAME fi_file
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_file rd-fgexp
 ON LEAVE OF fi_file IN FRAME rd-fgexp /* If Yes, File Name */
 DO:
@@ -778,11 +803,12 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY begin_est end_est sl_avail sl_selected tb_excel tb_runExcel fi_file 
-          begin_cust-no end_cust-no
+  DISPLAY begin_est end_est begin_cust-no end_cust-no sl_avail sl_selected 
+          tb_excel tb_runExcel fi_file 
       WITH FRAME rd-fgexp.
-  ENABLE RECT-6 RECT-7 RECT-8 begin_est end_est begin_cust-no end_cust-no sl_avail
-         Btn_Add sl_selected Btn_Remove btn_Up btn_down tb_runExcel fi_file btn-ok btn-cancel 
+  ENABLE RECT-6 RECT-7 RECT-8 begin_est end_est begin_cust-no end_cust-no 
+         sl_avail Btn_Add sl_selected Btn_Remove btn_Up btn_down tb_runExcel 
+         fi_file btn-ok btn-cancel 
       WITH FRAME rd-fgexp.
   VIEW FRAME rd-fgexp.
   {&OPEN-BROWSERS-IN-QUERY-rd-fgexp}
