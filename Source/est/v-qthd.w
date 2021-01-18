@@ -955,6 +955,29 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-cancel-record V-table-Win
+PROCEDURE local-cancel-record:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    
+    /* Code placed here will execute PRIOR to standard behavior. */
+    DO WITH FRAME {&frame-name}:
+        DISABLE ALL.
+    END.
+    
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE proc-delete V-table-Win 
 PROCEDURE proc-delete :
 /*------------------------------------------------------------------------------
