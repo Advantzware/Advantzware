@@ -346,6 +346,14 @@ PROCEDURE adm-create-objects :
        RUN set-position IN h_exit ( 1.00 , 150.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.80 ) */
 
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'adm/objects/folder.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'FOLDER-LABELS = ':U + 'Browse|Customer|Vendor|Ship To|Employee|Sold To' + ',
+                     FOLDER-TAB-TYPE = 2':U ,
+             OUTPUT h_folder ).
+       RUN set-position IN h_folder ( 3.14 , 1.00 ) NO-ERROR.
+       RUN set-size IN h_folder ( 19.76 , 158.00 ) NO-ERROR.
 
        /* Links to SmartFolder h_folder. */
        RUN add-link IN adm-broker-hdl ( h_folder , 'Page':U , THIS-PROCEDURE ).

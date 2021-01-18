@@ -288,7 +288,7 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'gui/adm/objects/folder.w':U ,
              INPUT  FRAME paramFrame:HANDLE ,
-             INPUT  'FOLDER-LABELS = ':U + 'Parameters|Columns|Tasks' + ',
+             INPUT  'FOLDER-LABELS = ':U + 'Options|Columns|Tasks' + ',
                      FOLDER-TAB-TYPE = 2':U ,
              OUTPUT h_folder ).
        RUN set-position IN h_folder ( 1.00 , 1.00 ) NO-ERROR.
