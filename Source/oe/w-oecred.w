@@ -1271,7 +1271,7 @@ PROCEDURE switch-ord-status :
          /* Size in UIB:  ( 19.52 , 148.00 ) */  
   
          /* Initialize other pages that this page requires. */
-         RUN init-pages IN THIS-PROCEDURE ('2,4':U) NO-ERROR.
+         RUN init-pages IN THIS-PROCEDURE ('2,3,4':U) NO-ERROR.
          RUN adm-view IN h_b-crdinqA.
        
    
