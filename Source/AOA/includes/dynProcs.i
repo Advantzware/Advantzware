@@ -233,7 +233,8 @@ PROCEDURE pResultsBrowser :
         DELETE OBJECT hColumn.
     END. /* do idx */
     ASSIGN
-        hQueryBrowse:TITLE   = dynSubject.subjectTitle
+        hQueryBrowse:TITLE   = dynSubject.subjectTitle + " ("
+                             + STRING(dynSubject.subjectID) + ")" 
         hQueryBrowse:QUERY   = iphQuery
         hQueryBrowse:VISIBLE = TRUE
         iNumColumns          = 0
