@@ -135,8 +135,10 @@ RUN methods/prgsecur.p
              OUTPUT cAccessList). /* list 1's and 0's indicating yes or no to run, create, update, delete */
              
 DEFINE VARIABLE hdSalesManProcs AS HANDLE NO-UNDO.
+DEFINE VARIABLE hdArtiosProcs AS HANDLE.
 
-RUN salrep/SalesManProcs.p PERSISTENT SET hdSalesManProcs.             
+RUN salrep/SalesManProcs.p PERSISTENT SET hdSalesManProcs. 
+RUN est/ArtiosProcs.p PERSISTENT SET hdArtiosProcs.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -3378,8 +3380,19 @@ PROCEDURE local-assign-record :
             ( ((cadfile NE '') AND SEARCH(cadfile) <> ?) OR
               SEARCH(lv-cad-path + eb.cad-no + lv-cad-ext) <> ? ) THEN DO:
            FIND CURRENT bf-box-design-hdr EXCLUSIVE-LOCK NO-ERROR.
-           bf-box-design-hdr.box-image = IF cadfile NE '' THEN cadfile
-                                         ELSE lv-cad-path + eb.cad-no + lv-cad-ext. /*".jpg"*/.
+           
+           IF INDEX(cadfile,".ard") NE 0 THEN
+           DO:             
+            RUN pCreateJpgFromQdf IN hdArtiosProcs (INPUT cocode,
+                                                    INPUT cadfile, 
+                                                    INPUT (lv-cad-path + eb.cad-no + lv-cad-ext)).
+                                                    
+            bf-box-design-hdr.box-image = lv-cad-path + eb.cad-no + lv-cad-ext.                                        
+           END.
+           ELSE do:
+            bf-box-design-hdr.box-image = IF cadfile NE '' THEN cadfile
+                                             ELSE lv-cad-path + eb.cad-no + lv-cad-ext. /*".jpg"*/.
+           END.                              
         END.
      END.
      ELSE DO: /* reset from style */

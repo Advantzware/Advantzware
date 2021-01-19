@@ -199,6 +199,32 @@ PROCEDURE pBuildAttributes:
 
 END PROCEDURE.
 
+PROCEDURE pCreateJpgFromQdf:
+    /*------------------------------------------------------------------------------
+      Purpose: Builds the Attributes temp table for the cadFile passed in    
+      Parameters:  ipcCadFile as character
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany   AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcCadFile   AS CHARACTER   NO-UNDO.
+    DEFINE INPUT PARAMETER ipcImageFile AS CHARACTER   NO-UNDO. 
+    
+    DEFINE VARIABLE cImageFile     AS CHARACTER        NO-UNDO.
+    DEFINE VARIABLE iResult        AS INTEGER          NO-UNDO.     
+    DEFINE VARIABLE hdCadX         AS COMPONENT-HANDLE NO-UNDO.
+    
+    RUN pCADXConnect(OUTPUT hdCadX).
+    ASSIGN /*Open CadFile and Build The Image File*/         
+        iResult    = hdCadX:OpenDesign (ipcCadFile,0)
+        cImageFile = ipcImageFile
+        iResult    = hdCadX:SetOverlayClass(3,1) /*print dimensions*/
+        iResult    = hdCadX:SaveAsBitmap(1,cImageFile, 600, 600, 20, , , 1, 100)
+        .    
+    iResult = hdCadX:CloseDesign().     
+
+END PROCEDURE.  
+
+
 PROCEDURE pCADXConnect PRIVATE:
     /*------------------------------------------------------------------------------
       Purpose:  Instantiates the CadX Handle   
