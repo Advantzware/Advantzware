@@ -132,7 +132,7 @@ RUN sys/ref/nk1look.p (INPUT cocode,
 IF lRecFound THEN
     iPOLoadtagInt = INTEGER(cRtnChar) NO-ERROR. 
 lPrintPrice =  s-print-prices .
-IF iPOLoadtagInt EQ 1 THEN
+IF iPOLoadtagInt EQ 2 THEN
  lPrintPrice = NO.
 
 assign v-hdr = "VEND ITEM".
