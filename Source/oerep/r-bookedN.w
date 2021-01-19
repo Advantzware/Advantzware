@@ -119,7 +119,7 @@ DEFINE BUFFER bf-eb FOR eb.
 ASSIGN cTextListToSelect  = "DUE DATE,ORDER#,CUSTOMER,CUSTOMER NAME,PROD CODE," +
                             "FG ITEM NAME,QTY ORDERED/EA,SQ FT,TOTAL Sq Ft/M," +
                             "$/MSF,PRICE,ORDER AMOUNT,% PROFIT,TOTAL TONS,$/TON," +
-                            "FG ITEM#,ID,CUSTOMER PART#,CUSTOMER PO#,DIE#,ORDER DATE,COMM %,SHIPPED QTY,CSR,ACK. DATE," +
+                            "FG ITEM#,LAST USER ID,CUSTOMER PART#,CUSTOMER PO#,DIE#,ORDER DATE,COMM %,SHIPPED QTY,CSR,ACK. DATE," +
                             "UOM,SHIP FROM,MACHINE,INKS,PRINT SHEET#,COST/$M,TOTAL STD COST,FULL COST,ENTERED BY,STATUS,PO RECEIVED,PREV ORDER#," +
                             "APPROVED DATE"
        cFieldListToSelect = "oe-ord.due-date,w-data.ord-no,cust.cust-no,cust.name,w-data.procat," +
@@ -135,7 +135,7 @@ ASSIGN cTextListToSelect  = "DUE DATE,ORDER#,CUSTOMER,CUSTOMER NAME,PROD CODE," 
 {sys/inc/ttRptSel.i}
  ASSIGN cTextListToDefault  = "DUE DATE,ORDER#,CUST#,CUSTOMER NAME,COMM %,PROD CODE," +
                               "QTY ORDERED/EA,CUSTOMER PART#,FG ITEM NAME,SQ FT,TOTAL Sq Ft/M," +
-                              "$/MSF,PRICE,ORDER AMOUNT,% PROFIT,TOTAL TONS,$/TON,SHIPPED QTY" .
+                              "$/MSF,PRICE,ORDER AMOUNT,% PROFIT,TOTAL TONS,$/TON,SHIPPED QTY,LAST USER ID" .
                               /* "FG ITEM#,ID" */
 
 /* _UIB-CODE-BLOCK-END */

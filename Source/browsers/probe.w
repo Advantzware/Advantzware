@@ -168,6 +168,8 @@ DEFINE VARIABLE hdEstimateCalcProcs AS HANDLE.
 DEFINE VARIABLE iLinePerPage AS INTEGER NO-UNDO .
 DEFINE VARIABLE hdEstimateProcs AS HANDLE NO-UNDO.
 DEFINE VARIABLE lCEVersion AS LOGICAL NO-UNDO.
+             
+DEFINE VARIABLE hdSalesManProcs AS HANDLE NO-UNDO.
 
  RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormModal", "L" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
@@ -198,7 +200,8 @@ END.
   v-cestcalc = sys-ctrl.char-fld.
 
 
-RUN est/EstimateProcs.p PERSISTENT SET hdEstimateProcs.
+RUN est/EstimateProcs.p    PERSISTENT SET hdEstimateProcs.
+RUN salrep/SalesManProcs.p PERSISTENT SET hdSalesManProcs. 
 
 RUN Estimate_GetEstimateDir IN hdEstimateProcs (
     INPUT  cocode,
@@ -1550,6 +1553,8 @@ DEFINE VARIABLE v-tot-lab AS DECIMAL NO-UNDO.
 DEFINE VARIABLE v-nk-found AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lv-cust LIKE eb.cust-no NO-UNDO.
 DEFINE VARIABLE cNotes LIKE quotehd.comment NO-UNDO.
+DEFINE VARIABLE lSuccess AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
 {est/checkuse.i}
 
 SESSION:SET-WAIT-STATE("general").
@@ -1560,6 +1565,20 @@ IF CAN-FIND(FIRST xprobe
             WHERE xprobe.company EQ probe.company
               AND xprobe.est-no  EQ probe.est-no
               AND xprobe.do-quote) THEN DO:
+                  
+ IF AVAILABLE eb THEN DO:
+        RUN SalesMan_ValidateSalesRep IN hdSalesManProcs(  
+            INPUT  cocode,
+            INPUT  eb.sman,
+            OUTPUT lSuccess,
+            OUTPUT cMessage
+            ).
+        IF NOT lSuccess THEN DO:                                         
+            MESSAGE cMessage + " on customer"
+            VIEW-AS ALERT-BOX ERROR.
+            RETURN.
+        END.      
+  END.
     /*
   FIND FIRST sys-ctrl
       WHERE sys-ctrl.company EQ cocode

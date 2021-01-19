@@ -133,6 +133,10 @@ RUN methods/prgsecur.p
              OUTPUT lAccessCreateFG, /* Allowed? Yes/NO */
              OUTPUT lAccessClose, /* used in template/windows.i  */
              OUTPUT cAccessList). /* list 1's and 0's indicating yes or no to run, create, update, delete */
+             
+DEFINE VARIABLE hdSalesManProcs AS HANDLE NO-UNDO.
+
+RUN salrep/SalesManProcs.p PERSISTENT SET hdSalesManProcs.             
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -5067,19 +5071,23 @@ PROCEDURE valid-sman :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lSuccess AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+    
   {methods/lValidateError.i YES}
-   FIND FIRST sman NO-LOCK 
-        WHERE sman.company  EQ cocode
-          AND sman.sman     EQ eb.sman:SCREEN-VALUE IN FRAME {&FRAME-NAME}
-          AND sman.inactive EQ NO 
-        NO-ERROR.
-
-    IF NOT AVAIL sman THEN DO:
-       MESSAGE "Inactive/Invalid SalesGrp. Try help." VIEW-AS ALERT-BOX ERROR.
-       APPLY "entry" TO eb.sman.
-       RETURN ERROR.
+    RUN SalesMan_ValidateSalesRep IN hdSalesManProcs(  
+        INPUT  cocode,
+        INPUT  eb.sman:SCREEN-VALUE IN FRAME {&FRAME-NAME},
+        OUTPUT lSuccess,
+        OUTPUT cMessage
+        ).
+    IF NOT lSuccess THEN DO:
+        MESSAGE cMessage 
+            VIEW-AS ALERT-BOX ERROR.
+        APPLY "ENTRY" TO eb.sman.
+        RETURN ERROR.
     END.
-    sman_sname:SCREEN-VALUE = sman.sNAME.
+    sman_sname:SCREEN-VALUE = DYNAMIC-FUNCTION("SalesMan_GetSalesmanName" IN hdSalesManProcs,cocode,eb.sman:SCREEN-VALUE).
 
   {methods/lValidateError.i NO}
 END PROCEDURE.

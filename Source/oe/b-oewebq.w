@@ -1627,7 +1627,8 @@ PROCEDURE local-initialize :
       oe-ordl.job-no2:READ-ONLY IN BROWSE {&browse-name} = YES
       oe-ordl.qty:READ-ONLY IN BROWSE {&browse-name} = YES
       oe-ordl.i-name:READ-ONLY IN BROWSE {&browse-name} = YES 
-      oe-ordl.ship-qty:READ-ONLY IN BROWSE {&browse-name} = YES.
+      oe-ordl.ship-qty:READ-ONLY IN BROWSE {&browse-name} = YES
+      oe-ordl.inv-qty:READ-ONLY IN BROWSE {&browse-name} = YES.
 
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"inquiry-source",OUTPUT char-hdl).
 
