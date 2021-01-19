@@ -617,12 +617,21 @@ PROCEDURE pLocationScan PRIVATE :
         RETURN.        
     END.
  
+    oFGBin:SetContext (cCompany, cItemID, ipcTag).
+    IF NOT oFGBin:IsAvailable() THEN DO:
+        ASSIGN
+            oplError = TRUE
+            opcMessage = "FG Bin not available for tag '" + ipcTag + "'"
+            .
+        RETURN.
+    END.
+        
     ASSIGN
-        iSubUnits        = INTEGER(oLoadTag:GetValue("QuantityInSubUnit"))
-        iSubUnitsPerUnit = INTEGER(oLoadTag:GetValue("SubUnitsPerUnit"))
-        iPartial         = INTEGER(oLoadTag:GetValue("Partial"))
+        iSubUnits        = INTEGER(oFGBin:GetValue("QuantityInSubUnit"))
+        iSubUnitsPerUnit = INTEGER(oFGBin:GetValue("SubUnitsPerUnit"))
+        iPartial         = INTEGER(oFGBin:GetValue("Partial"))
         iQuantity        = iSubUnits * iSubUnitsPerUnit + iPartial
-        .  
+        .
                                   
     RUN api/inbound/CreateInventoryTransfer.p (
         INPUT  cCompany, 
@@ -764,13 +773,29 @@ PROCEDURE pTagScan PRIVATE :
     
     oplIsTransfer = oFGBin:SetContext (cCompany, cItemID, ipcTag).
 
-    IF gcLocationSource EQ "LoadTag" THEN
-        ASSIGN
-            cWarehouse       = oLoadTag:GetValue("Warehouse")
-            cLocation        = oLoadTag:GetValue("Location")
-            .
+    ASSIGN
+        cWarehouse = oLoadTag:GetValue("Warehouse")
+        cLocation  = oLoadTag:GetValue("Location")
+        .
 
-    fiLocation:SCREEN-VALUE = cWarehouse + " " 
+    IF gcLocationSource EQ "FGItem" THEN
+        ASSIGN
+            cWarehouse = oItemFG:GetValue("Warehouse")
+            cLocation  = oItemFG:GetValue("Location")
+            .
+    ELSE IF gcLocationSource EQ "UserDefault" THEN DO:
+        RUN Inventory_GetDefaultWhse IN hdInventoryProcs (
+            INPUT  cCompany,
+            OUTPUT cWarehouse
+            ).
+
+        RUN Inventory_GetDefaultBin IN hdInventoryProcs (
+            INPUT  cCompany,
+            OUTPUT cLocation
+            ).
+    END.
+    
+    fiLocation:SCREEN-VALUE = cWarehouse 
                             + FILL(" ", 5 - LENGTH(cWarehouse)) 
                             + cLocation.      
 
