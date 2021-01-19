@@ -580,10 +580,13 @@ PROCEDURE pLocationScan PRIVATE :
     DEFINE VARIABLE lSuccess AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cItemID  AS CHARACTER NO-UNDO.
 
-    DEFINE VARIABLE iQuantity        AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE iSubUnits        AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE iSubUnitsPerUnit AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE iPartial         AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iQuantity         AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iSubUnits         AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iSubUnitsPerUnit  AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iPartial          AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cCurrentWarehouse AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCurrentLocation  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lLocationConfirm  AS LOGICAL   NO-UNDO.
     
     DO WITH FRAME {&FRAME-NAME}:
     END.    
@@ -627,25 +630,33 @@ PROCEDURE pLocationScan PRIVATE :
     END.
         
     ASSIGN
-        iSubUnits        = INTEGER(oFGBin:GetValue("QuantityInSubUnit"))
-        iSubUnitsPerUnit = INTEGER(oFGBin:GetValue("SubUnitsPerUnit"))
-        iPartial         = INTEGER(oFGBin:GetValue("Partial"))
-        iQuantity        = iSubUnits * iSubUnitsPerUnit + iPartial
+        iSubUnits         = INTEGER(oFGBin:GetValue("QuantityInSubUnit"))
+        iSubUnitsPerUnit  = INTEGER(oFGBin:GetValue("SubUnitsPerUnit"))
+        iPartial          = INTEGER(oFGBin:GetValue("Partial"))
+        iQuantity         = iSubUnits * iSubUnitsPerUnit + iPartial
+        cCurrentWarehouse = oFGBin:GetValue("Warehouse")
+        cCurrentLocation  = oFGBin:GetValue("Location")
         .
-                                  
-    RUN api/inbound/CreateInventoryTransfer.p (
-        INPUT  cCompany, 
-        INPUT  ipcWarehouse,
-        INPUT  ipcLocation, 
-        INPUT  ipcTag,
-        INPUT  cItemID,
-        INPUT  "FG",  /* Item Type */
-        INPUT  USERID("ASI"), 
-        INPUT  FALSE, /* Post */
-        OUTPUT riFGRctd,
-        OUTPUT lSuccess,
-        OUTPUT opcMessage
-        ) NO-ERROR.
+    
+    IF cCurrentWarehouse EQ ipcWarehouse AND cCurrentLocation EQ ipcLocation THEN
+        ASSIGN
+            lSuccess         = TRUE
+            lLocationConfirm = TRUE
+            .
+    ELSE         
+        RUN api/inbound/CreateInventoryTransfer.p (
+            INPUT  cCompany, 
+            INPUT  ipcWarehouse,
+            INPUT  ipcLocation, 
+            INPUT  ipcTag,
+            INPUT  cItemID,
+            INPUT  "FG",  /* Item Type */
+            INPUT  USERID("ASI"), 
+            INPUT  FALSE, /* Post */
+            OUTPUT riFGRctd,
+            OUTPUT lSuccess,
+            OUTPUT opcMessage
+            ) NO-ERROR.
     
     IF lSuccess THEN DO:
         CREATE ttBrowseInventory.
@@ -660,13 +671,16 @@ PROCEDURE pLocationScan PRIVATE :
             ttBrowseInventory.transactionType  = "Transfer"
             ttBrowseInventory.inventoryStatus  = "Created"
             .
+        
+        IF lLocationConfirm THEN
+            ttBrowseInventory.inventoryStatus = "Confirmed".
     END.
     ELSE DO:
         oplError = TRUE.
         RETURN.
     END.
         
-    IF glAutoPost THEN
+    IF glAutoPost AND NOT lLocationConfirm THEN
         RUN pPost.
     ELSE
         fiMessage:SCREEN-VALUE = "Receipt Transaction created".
