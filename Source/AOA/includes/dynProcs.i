@@ -399,6 +399,14 @@ PROCEDURE pRunQuery:
                     RUN pResultsJasper (ipcType, ipcUserID, ipcTaskRecKey).
                 END. /* otherwise */
             END CASE.
+            &IF "{&program-id}" EQ "dynRun." &THEN
+            IF ipcType NE "Grid" THEN
+            DO WITH FRAME outputFrame:
+                ASSIGN svAutoClose.
+                IF svAutoClose THEN
+                APPLY "CLOSE":U TO THIS-PROCEDURE.
+            END.
+            &ENDIF
         END. /* if run */
         ELSE
         MESSAGE
