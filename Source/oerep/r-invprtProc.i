@@ -766,14 +766,14 @@ lInRange = TRUE.
   RELEASE oe-bolh.
   
   IF  "{&head}" EQ "inv-head" THEN DO:
-       FOR EACH buf-{&line}1 no-lock
-          WHERE buf-{&line}1.{&rno} EQ ipbf-inv-head.{&rno}
+       FOR EACH b-{&head}1 no-lock
+          WHERE b-{&head}1.{&rno} EQ ipbf-inv-head.{&rno}
           :
                
-           IF buf-{&line}1.{&bno} NE 0 THEN DO:
+           IF b-{&head}1.bol-no NE 0 THEN DO:
                 FOR EACH oe-bolh NO-LOCK 
-                    WHERE oe-bolh.b-no EQ buf-{&line}1.b-no:
-                           
+                    WHERE oe-bolh.b-no EQ b-{&head}1.bol-no:
+                                
                   {&bol-check-range}
                 END.
            END.
