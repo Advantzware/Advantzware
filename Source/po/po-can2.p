@@ -235,17 +235,8 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
    
   {po/exportpo.i}
    
-  if po-ord.stat eq "N" then po-ord.stat = "O".
-
-  assign
-   v-sname    = company.name
-   v-saddr[1] = company.addr[1]
-   v-saddr[2] = company.addr[2]
-   v-scity    = company.city
-   v-sstate   = company.state
-   v-szip     = company.zip.
- 
-  if po-ord.type eq "D" then
+  if po-ord.stat eq "N" then po-ord.stat = "O".  
+  
     assign
      v-sname    = po-ord.ship-name
      v-saddr[1] = po-ord.ship-addr[1]
