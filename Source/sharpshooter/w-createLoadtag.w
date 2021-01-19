@@ -95,7 +95,7 @@ DEFINE VAR W-Win AS WIDGET-HANDLE NO-UNDO.
 DEFINE VARIABLE h_b-loadtags-3 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_fgfilter AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_jobfilter AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_printcopies-2 AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_printcopies AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_qtyunits AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_userfields AS HANDLE NO-UNDO.
 
@@ -146,7 +146,7 @@ DEFINE BUTTON btSplit
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
-     SIZE 208 BY 18.62
+     SIZE 208 BY 20.1
      BGCOLOR 1 FGCOLOR 1 .
 
 DEFINE RECTANGLE RECT-34
@@ -171,8 +171,8 @@ DEFINE FRAME F-Main
      btReprint AT ROW 1.19 COL 101.6 WIDGET-ID 52 NO-TAB-STOP 
      btSplit AT ROW 1.19 COL 125.4 WIDGET-ID 54 NO-TAB-STOP 
      btCreate AT ROW 2.95 COL 188.4 WIDGET-ID 58
-     btDelete AT ROW 21.43 COL 185 WIDGET-ID 62
-     btPrint AT ROW 21.43 COL 194.4 WIDGET-ID 30
+     btDelete AT ROW 23.19 COL 185 WIDGET-ID 62
+     btPrint AT ROW 23.19 COL 194.4 WIDGET-ID 30
      RECT-1 AT ROW 2.81 COL 1 WIDGET-ID 4
      RECT-34 AT ROW 1 COL 1 WIDGET-ID 18
      rHighlight AT ROW 1 COL 4.4 WIDGET-ID 20
@@ -430,7 +430,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_b-loadtags-3 ).
-       RUN set-position IN h_b-loadtags-3 ( 21.48 , 4.20 ) NO-ERROR.
+       RUN set-position IN h_b-loadtags-3 ( 23.24 , 4.20 ) NO-ERROR.
        RUN set-size IN h_b-loadtags-3 ( 10.29 , 179.00 ) NO-ERROR.
 
        /* Links to SmartBrowser h_b-loadtags-3. */
@@ -450,20 +450,20 @@ PROCEDURE adm-create-objects :
        /* Size in UIB:  ( 3.33 , 76.40 ) */
 
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'c:/asigui/repository/source/sharpshooter/smartobj/printcopies.w':U ,
-             INPUT  FRAME F-Main:HANDLE ,
-             INPUT  '':U ,
-             OUTPUT h_printcopies-2 ).
-       RUN set-position IN h_printcopies-2 ( 6.86 , 99.20 ) NO-ERROR.
-       /* Size in UIB:  ( 2.19 , 32.60 ) */
-
-       RUN init-object IN THIS-PROCEDURE (
              INPUT  'sharpshooter/smartobj/fgfilter.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_fgfilter ).
        RUN set-position IN h_fgfilter ( 6.91 , 5.20 ) NO-ERROR.
        /* Size in UIB:  ( 3.76 , 85.00 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'sharpshooter/smartobj/printcopies.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_printcopies ).
+       RUN set-position IN h_printcopies ( 7.05 , 98.40 ) NO-ERROR.
+       /* Size in UIB:  ( 2.19 , 32.60 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'sharpshooter/smartobj/qtyunits.w':U ,
@@ -485,12 +485,12 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_jobfilter , 'JOB':U , THIS-PROCEDURE ).
        RUN add-link IN adm-broker-hdl ( h_jobfilter , 'State':U , THIS-PROCEDURE ).
 
-       /* Links to SmartObject h_printcopies-2. */
-       RUN add-link IN adm-broker-hdl ( h_printcopies-2 , 'COPIES':U , THIS-PROCEDURE ).
-
        /* Links to SmartObject h_fgfilter. */
        RUN add-link IN adm-broker-hdl ( h_fgfilter , 'FGITEM':U , THIS-PROCEDURE ).
        RUN add-link IN adm-broker-hdl ( h_fgfilter , 'State':U , THIS-PROCEDURE ).
+
+       /* Links to SmartObject h_printcopies. */
+       RUN add-link IN adm-broker-hdl ( h_printcopies , 'COPIES':U , THIS-PROCEDURE ).
 
        /* Links to SmartObject h_qtyunits. */
        RUN add-link IN adm-broker-hdl ( h_qtyunits , 'QTY':U , THIS-PROCEDURE ).
@@ -500,12 +500,12 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_userfields , 'USERFIELD':U , THIS-PROCEDURE ).
 
        /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_printcopies-2 ,
-             btCreate:HANDLE IN FRAME F-Main , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_fgfilter ,
-             h_printcopies-2 , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_qtyunits ,
+             btCreate:HANDLE IN FRAME F-Main , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_printcopies ,
              h_fgfilter , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_qtyunits ,
+             h_printcopies , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_userfields ,
              h_qtyunits , 'AFTER':U ).
     END. /* Page 1 */
@@ -582,10 +582,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetConfig W-Win
-PROCEDURE GetConfig:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetConfig W-Win 
+PROCEDURE GetConfig :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -607,14 +605,12 @@ PROCEDURE GetConfig:
     END CASE.
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetDesignConfig W-Win
-PROCEDURE GetDesignConfig:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetDesignConfig W-Win 
+PROCEDURE GetDesignConfig :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -635,15 +631,12 @@ PROCEDURE GetDesignConfig:
         
     END CASE.
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable W-Win
-PROCEDURE local-enable:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable W-Win 
+PROCEDURE local-enable :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -658,11 +651,9 @@ PROCEDURE local-enable:
     RUN pInit.
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-exit W-Win 
 PROCEDURE local-exit :
@@ -680,14 +671,13 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pInit W-Win
-PROCEDURE pInit:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pInit W-Win 
+PROCEDURE pInit :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE oSSLoadTagJobConfig AS system.Config      NO-UNDO.
+    DEFINE VARIABLE oSSLoadTagJobConfig AS system.Config NO-UNDO.
 
     DO WITH FRAME {&FRAME-NAME}:
     END.
@@ -711,11 +701,9 @@ PROCEDURE pInit:
     IF giDefaultPrintCopies EQ 0 THEN
         giDefaultPrintCopies = 1.
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records W-Win  _ADM-SEND-RECORDS
 PROCEDURE send-records :

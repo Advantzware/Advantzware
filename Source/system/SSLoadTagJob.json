@@ -57,10 +57,10 @@
 	},
 	"AutoPrintLoadtagOnJobScan" : {
 		"Description" : "Print loadtag on a valid job scan",
-		"Active" : false	
+		"Active" : true	
 	},
 	"AutoCreateLoadtagOnJobScan" : {
 		"Description" : "Create a temporary record for verifying before printing a loadtag on a valid job scan",
-		"Active" : false	
+		"Active" : true	
 	}
 }
