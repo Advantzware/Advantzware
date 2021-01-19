@@ -77,11 +77,11 @@ RUN oerep/LoadTagProcs.p PERSISTENT SET hdLoadTagProcs.
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE br_table                                      */
-&Scoped-define FIELDS-IN-QUERY-br_table ttLoadTag.orderID ttLoadTag.jobID ttLoadTag.jobID2 NO-LABEL ttLoadTag.custID ttLoadTag.itemID ttLoadTag.ordQuantity ttLoadTag.relQuantity ttLoadTag.overPct ttLoadTag.pcs ttLoadTag.bundle ttLoadTag.partial ttLoadTag.totalUnit ttLoadTag.totalTags ttLoadTag.unitWeight ttLoadTag.palletWeight ttLoadTag.lotID ttLoadTag.itemName ttLoadTag.custPONo ttLoadTag.poline   
+&Scoped-define FIELDS-IN-QUERY-br_table ttLoadTag.orderID ttLoadTag.jobID ttLoadTag.jobID2 NO-LABEL ttLoadTag.custID ttLoadTag.itemID ttLoadTag.ordQuantity ttLoadTag.relQuantity ttLoadTag.overPct ttLoadTag.pcs ttLoadTag.bundle ttLoadTag.partial ttLoadTag.totalUnit ttLoadTag.totalTags ttLoadTag.totalUnit * ttLoadTag.totalTags @ iTotalQty ttLoadTag.unitWeight ttLoadTag.palletWeight ttLoadTag.lotID ttLoadTag.itemName ttLoadTag.custPONo ttLoadTag.poline   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br_table   
 &Scoped-define SELF-NAME br_table
-&Scoped-define QUERY-STRING-br_table FOR EACH ttLoadTag
-&Scoped-define OPEN-QUERY-br_table OPEN QUERY {&SELF-NAME} FOR EACH ttLoadTag.
+&Scoped-define QUERY-STRING-br_table FOR EACH ttLoadTag BY ttLoadTag.scannedDateTime DESC
+&Scoped-define OPEN-QUERY-br_table OPEN QUERY {&SELF-NAME} FOR EACH ttLoadTag BY ttLoadTag.scannedDateTime DESC.
 &Scoped-define TABLES-IN-QUERY-br_table ttLoadTag
 &Scoped-define FIRST-TABLE-IN-QUERY-br_table ttLoadTag
 
@@ -253,7 +253,7 @@ ASSIGN
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE br_table
 /* Query rebuild information for BROWSE br_table
      _START_FREEFORM
-OPEN QUERY {&SELF-NAME} FOR EACH ttLoadTag.
+OPEN QUERY {&SELF-NAME} FOR EACH ttLoadTag BY ttLoadTag.scannedDateTime DESC.
      _END_FREEFORM
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _Query            is NOT OPENED
@@ -399,24 +399,49 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE CreateLoadTagFromTT B-table-Win
-PROCEDURE CreateLoadTagFromTT:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE CreateLoadTagFromTT B-table-Win 
+PROCEDURE CreateLoadTagFromTT :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    RUN CreateLoadTagFromTT IN hdLoadTagProcs.
+    RUN CreateLoadTagFromTT IN hdLoadTagProcs (
+        INPUT FALSE /* Empty ttLoadtag temp-table */
+        ).
 
     RUN dispatch (
         INPUT "open-query"
         ).
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE DeleteSelected B-table-Win 
+PROCEDURE DeleteSelected :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lChoice AS LOGICAL NO-UNDO.
+    
+    IF AVAILABLE ttLoadTag THEN DO:
+        MESSAGE "Delete selected record?"
+        VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE lChoice.    
+        
+        IF lChoice THEN DO:
+            DELETE ttLoadTag.
+            
+            RUN dispatch (
+                INPUT "open-query"
+                ).
+        END.
+    END.    
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI B-table-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :

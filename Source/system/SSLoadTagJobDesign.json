@@ -1,50 +1,96 @@
 {
+	"FGFilter" : {
+	   "FGItem" : {
+            "visible" : true,
+            "sensitive" : true	   
+	   }
+	},
 	"UserFields" : {
 		"User Field 1" : {
-			"visible" : true,
-			"sensitive" : false,
-			"value" : "Overs"
+			"visible" : false,
+			"sensitive" : false
 		},
 		"User Field 2" : {
-			"visible" : true,
-			"sensitive" : false,
-			"value" : "Lot Number"
+			"visible" : false,
+			"sensitive" : false
 		},		
 		"User Field 3" : {
 			"visible" : false,
 			"sensitive" : false
-		}		
+		},		
+        "UserFieldsRectangle" : {
+            "visible" : false
+        },
+        "UserFieldsRectangleLabel" : {
+            "visible" : false
+        }
+	},
+	"PrintCopies" : {
+        "Copies" : {
+            "label" : "Print Copies",
+            "visible" : false,
+            "sensitive" : false
+        }
 	},
 	"Quantities" : {
 		"Quantity" : {
-			"label" : "Total Quantity"
+			"label" : "Total Quantity",
+            "visible" : true,
+            "sensitive" : false
 		},
 		"QuantityOfUnits" : {
-			"label" : "Pallet Quantity"
+			"label" : "Pallet Quantity",
+            "visible" : false,
+            "sensitive" : false
 		},
 		"QuantityInSubUnit" : {
-			"label" : "Case Quantity"
+			"label" : "Case Quantity",
+            "visible" : true,
+            "sensitive" : false
 		},
 		"QuantityOfSubUnits" : {
-			"label" : "Cases"
+			"label" : "Cases",
+            "visible" : false,
+            "sensitive" : false
 		},
 		"SubUnitsPerUnit" : {
-			"label" : "Cases Per Pallet"
+			"label" : "Cases Per Pallet",
+            "visible" : true,
+            "sensitive" : false
 		},
 		"Partial" : {
-			"label" : "Partial Quantity"
+			"label" : "Partial Quantity",
+            "visible" : false,
+            "sensitive" : false
 		},
 		"TotalTags" : {
-			"label" : "Pallets"
+			"label" : "Pallets",
+            "visible" : false,
+            "sensitive" : false
 		},
 		"FullTags" : {
-			"label" : "Full Tags"
+			"label" : "Full Tags",
+            "visible" : false,
+            "sensitive" : false
 		},
 		"Partial Tags" : {
-			"label" : "Partial Tags"
+			"label" : "Partial Tags",
+            "visible" : false,
+            "sensitive" : false
 		},
-		"Copies" : {
-			"label" : "Print Copies"
-		}
+		"UnitCountsRectangle" : {
+		    "visible" : false
+		},
+		"QuantitiesRectangle" : {
+		    "visible" : true
+		},
+        "UnitCountsRectangleLabel" : {
+            "visible" : false
+        },
+        "QuantitiesRectangleLabel" : {
+            "visible" : true
+        }		
+	},
+	"LoadtagBrowse" : {
 	}
 }

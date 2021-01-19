@@ -38,6 +38,7 @@ CREATE WIDGET-POOL.
 /* Local Variable Definitions ---                                       */
 DEFINE VARIABLE cCompany  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cLocation AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cJob      AS CHARACTER NO-UNDO.
 
 /* Local Variable Definitions ---                                       */
 DEFINE VARIABLE hdJobDetails            AS HANDLE    NO-UNDO.
@@ -45,6 +46,7 @@ DEFINE VARIABLE hdJobDetailsWin         AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hdJobProcs              AS HANDLE    NO-UNDO.
 DEFINE VARIABLE cFormattedJobno         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE oJobHeader              AS JobHeader NO-UNDO.
+DEFINE VARIABLE lScanNextJob            AS LOGICAL   NO-UNDO.
 
 oJobHeader = NEW JobHeader().
 
@@ -341,6 +343,17 @@ END.
 
 &Scoped-define SELF-NAME fiJobNo
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiJobNo s-object
+ON ENTRY OF fiJobNo IN FRAME F-Main
+DO:
+    cJob = SELF:SCREEN-VALUE.  
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiJobNo s-object
 ON LEAVE OF fiJobNo IN FRAME F-Main
 DO:
     DEFINE VARIABLE cJobNo     AS CHARACTER NO-UNDO.
@@ -358,9 +371,28 @@ DO:
     DEFINE VARIABLE cFormNoListItems  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cBlankNoListItems AS CHARACTER NO-UNDO.
     
+    lScanNextJob = FALSE.
+    
     IF SELF:SCREEN-VALUE EQ "" THEN
         RETURN.
 
+    IF SELF:SCREEN-VALUE EQ cJob THEN DO:
+        MESSAGE "The job '" + cJob + "' is already scanned." SKIP
+            "Do you want scan the same job again?"
+            VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE lChoice AS LOGICAL.   
+        
+        IF NOT lChoice THEN
+            RETURN. 
+        
+        /* If the job with options (job-no2, form and blank) is scanned, all the fields are updated with exact inputs including job-no.
+           If just the job-no is scanned then first job-no2, form and blank is choosen.
+           In the case of job is scanned with options and the next scan is the same job with just job then the other options might get updated 
+           with first job-no2, form and blank no. To fix this issue screen-value of Job field is updated with entire job with options from
+           previous scan */
+        SELF:SCREEN-VALUE = cJob + "-" + cbJobNo2:SCREEN-VALUE 
+                          + "-" + cbFormNo:SCREEN-VALUE + "-" + cbBlankNo:SCREEN-VALUE.
+    END.
+    
     RUN JobParser IN hdJobProcs (
         INPUT  SELF:SCREEN-VALUE,
         OUTPUT cJobNo,
@@ -446,7 +478,7 @@ DO:
     END.
 
     IF cBlankNo NE "" THEN
-        iBlankNo = INTEGER(iBlankNo).
+        iBlankNo = INTEGER(cBlankNo).
     
     RUN pUpdateJobDetails (
         INPUT "BlankNo",
@@ -455,6 +487,21 @@ DO:
         ).
 
     RUN pValidateJob.
+    
+    /* Progress doesn't have an option to apply entry to field once leave event is triggered.
+       If a case is necessary where an entry is required right after leave trigger RETURN with NO-APPLY
+       will solve the issue  */
+    IF lScanNextJob THEN DO:
+        cJob = fiJobNo:SCREEN-VALUE.
+        
+        fiJobNo:SET-SELECTION(1, LENGTH(fiJobNo:SCREEN-VALUE) + 1).
+
+        RUN new-state (
+            INPUT "job-invalid"
+            ).
+        
+        RETURN NO-APPLY.
+    END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -551,9 +598,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetJobHeader s-object
-PROCEDURE GetJobHeader:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetJobHeader s-object 
+PROCEDURE GetJobHeader :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -562,11 +608,9 @@ PROCEDURE GetJobHeader:
 
     opoJobHeader = oJobHeader. 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE No-Resize s-object 
 PROCEDURE No-Resize :
@@ -818,6 +862,18 @@ PROCEDURE pValidateJob PRIVATE :
         ).       
     IF lError THEN
         MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ScanNextJob s-object 
+PROCEDURE ScanNextJob :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    lScanNextJob = TRUE.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

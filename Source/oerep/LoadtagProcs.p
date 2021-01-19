@@ -74,6 +74,8 @@ PROCEDURE CreateLoadTagFromTT:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER iplEmptyTTLoadtag AS LOGICAL NO-UNDO.
+    
     DEFINE VARIABLE lError   AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
 
@@ -87,12 +89,12 @@ PROCEDURE CreateLoadTagFromTT:
         RUN pPrintLoadTagHeader.
         
         FOR EACH ttLoadTag
-            WHERE ttLoadTag.tagStatus EQ "Created":
+            WHERE ttLoadTag.tagStatus EQ "Pending":
             /* v-loadtag - additional code is required to calculate totaltags to print using LOADTAG NK1 */
             RUN pIncrementCustPalletID(
                 INPUT  ttLoadTag.company,
                 INPUT  ttLoadTag.custID,
-                INPUT  ttLoadTag.totalTags * ttLoadTag.mult,
+                INPUT  ttLoadTag.totalTags * ttLoadTag.printCopies,
                 OUTPUT iStartPalletID,
                 OUTPUT iEndPalletID
                 ).
@@ -110,7 +112,9 @@ PROCEDURE CreateLoadTagFromTT:
             ttLoadTag.tagStatus = "Printed".
         END.
         
-        EMPTY TEMP-TABLE ttLoadTag.
+        IF iplEmptyTTLoadtag THEN 
+            EMPTY TEMP-TABLE ttLoadTag.
+        
         ASSIGN
             iTagCounter  = 0
             iPalletCount = 0
@@ -562,7 +566,7 @@ PROCEDURE pCreateLoadTagFromTT:
                     ).
         END.
        
-        DO iCopies = 1 TO ipbf-ttLoadTag.mult:
+        DO iCopies = 1 TO ipbf-ttLoadTag.printCopies:
             RUN pPrintLoadTag (
                 BUFFER ipbf-ttLoadTag,
                 BUFFER bf-loadtag 
@@ -1119,21 +1123,22 @@ PROCEDURE pCreateTTLoadTagFromItem:
         
         CREATE bf-ttLoadTag.
         ASSIGN
-            bf-ttLoadTag.recordID      = fGetNextTTLoadTagRecordID()
-            bf-ttLoadTag.company       = bf-itemfg.company
-            bf-ttLoadTag.itemID        = bf-itemfg.i-no
-            bf-ttLoadTag.custPartNo    = bf-itemfg.part-no
-            bf-ttLoadTag.itemName      = bf-itemfg.i-name
-            bf-ttLoadTag.upcNo         = bf-itemfg.upc-no
-            bf-ttLoadTag.boxLen        = bf-itemfg.l-score[50]
-            bf-ttLoadTag.boxWid        = bf-itemfg.w-score[50]
-            bf-ttLoadTag.boxDep        = bf-itemfg.d-score[50]
-            bf-ttLoadTag.style         = bf-itemfg.style
-            bf-ttLoadTag.vendor        = bf-company.name
-            bf-ttLoadTag.zoneID        = bf-itemfg.spare-char-4
-            bf-ttLoadTag.sheetWeight   = bf-itemfg.weight-100 / 100
-            bf-ttLoadTag.tagStatus     = "Created"
-            bf-ttLoadTag.recordSource  = "FGITEM"
+            bf-ttLoadTag.recordID        = fGetNextTTLoadTagRecordID()
+            bf-ttLoadTag.company         = bf-itemfg.company
+            bf-ttLoadTag.itemID          = bf-itemfg.i-no
+            bf-ttLoadTag.custPartNo      = bf-itemfg.part-no
+            bf-ttLoadTag.itemName        = bf-itemfg.i-name
+            bf-ttLoadTag.upcNo           = bf-itemfg.upc-no
+            bf-ttLoadTag.boxLen          = bf-itemfg.l-score[50]
+            bf-ttLoadTag.boxWid          = bf-itemfg.w-score[50]
+            bf-ttLoadTag.boxDep          = bf-itemfg.d-score[50]
+            bf-ttLoadTag.style           = bf-itemfg.style
+            bf-ttLoadTag.vendor          = bf-company.name
+            bf-ttLoadTag.zoneID          = bf-itemfg.spare-char-4
+            bf-ttLoadTag.sheetWeight     = bf-itemfg.weight-100 / 100
+            bf-ttLoadTag.scannedDateTime = NOW
+            bf-ttLoadTag.tagStatus       = "Pending"
+            bf-ttLoadTag.recordSource    = "FGITEM"
             .
 
         IF bf-ttLoadTag.style NE "" THEN DO:
@@ -1491,12 +1496,12 @@ PROCEDURE pBuildLoadTagsFromJob PRIVATE:
             bf-ttLoadTag.tareWeight    = 10
             bf-ttLoadTag.grossWeight   = bf-ttLoadTag.netWeight + bf-ttLoadTag.tareWeight
             bf-ttLoadTag.uom           = "EA"
-            bf-ttLoadTag.mult          = ipiCopies
+            bf-ttLoadTag.printCopies   = ipiCopies
             bf-ttLoadTag.dueDateJob    = IF bf-job.due-date <> ? THEN STRING(bf-job.due-date, "99/99/9999") ELSE ""
             bf-ttLoadTag.dueDateJobHdr = IF bf-job-hdr.due-date <> ? THEN STRING(bf-job-hdr.due-date, "99/99/9999") ELSE ""
             bf-ttLoadTag.jobQuantity   = bf-job-hdr.qty
             bf-ttLoadTag.ipReturn      = NO
-            bf-ttLoadTag.tagStatus     = "Created"
+            bf-ttLoadTag.tagStatus     = "Pending"
             bf-ttLoadTag.recordSource  = "JOB"
             .
 
