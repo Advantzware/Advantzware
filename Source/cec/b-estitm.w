@@ -241,9 +241,11 @@ RUN methods/prgsecur.p
 	     OUTPUT lAccessClose, /* used in template/windows.i  */
 	     OUTPUT cAccessList). /* list 1's and 0's indicating yes or no to run, create, update, delete */
 
-DEFINE VARIABLE hdCustomerProcs AS HANDLE NO-UNDO.	     
+DEFINE VARIABLE hdCustomerProcs AS HANDLE NO-UNDO.
+DEFINE VARIABLE hdSalesManProcs AS HANDLE NO-UNDO.	     
 
 RUN system/CustomerProcs.p PERSISTENT SET hdCustomerProcs.
+RUN salrep/SalesManProcs.p PERSISTENT SET hdSalesManProcs.
 
 RUN sys/ref/nk1look.p (INPUT cocode, "CEAddCustomerOption", "L" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
@@ -1260,6 +1262,13 @@ DO:
 
             RUN valid-cust-user NO-ERROR.
             IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+            
+            RUN pValidSalesRep(
+                INPUT eb.cust-no:SCREEN-VALUE 
+                ) NO-ERROR.
+                
+            IF ERROR-STATUS:ERROR THEN 
+                RETURN NO-APPLY.    
         END.
     END.
 END.
@@ -6388,6 +6397,13 @@ PROCEDURE local-update-record :
 
   RUN valid-cust-user NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  
+     RUN pValidSalesRep(
+       INPUT eb.cust-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
+       ) NO-ERROR.
+       
+     IF ERROR-STATUS:ERROR THEN 
+        RETURN NO-APPLY.
 
   IF NOT lv-foam THEN
   RUN check-flute-test-change.
@@ -6459,6 +6475,8 @@ PROCEDURE local-update-record :
         APPLY "entry" TO eb.wid.
         RETURN NO-APPLY.
      END.
+     MESSAGE string(lv-copied)
+     VIEW-AS ALERT-BOX.
 
      IF DECIMAL(eb.wid:screen-value) - trunc(DECIMAL(eb.wid:screen-value),0) >= v-16-or-32 
      THEN DO:
@@ -7022,6 +7040,43 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pValidSalesRep B-table-Win
+PROCEDURE pValidSalesRep PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCustNo  AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE lSuccess AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+    
+    FIND FIRST cust NO-LOCK 
+         WHERE cust.company EQ cocode 
+           AND cust.cust-no EQ ipcCustNo
+         NO-ERROR.
+    IF AVAILABLE cust THEN DO:
+        RUN SalesMan_ValidateSalesRep IN hdSalesManProcs(  
+            INPUT  cocode,
+            INPUT  cust.sman,
+            OUTPUT lSuccess,
+            OUTPUT cMessage
+            ). 
+        IF NOT lSuccess THEN DO:                                         
+            MESSAGE cMessage + " on customer"
+            VIEW-AS ALERT-BOX ERROR.
+            APPLY "ENTRY":U TO eb.cust-no IN BROWSE {&BROWSE-NAME}.
+            RETURN ERROR.
+        END.     
+    END.                                         
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE redisplay-blanks B-table-Win 

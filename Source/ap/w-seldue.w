@@ -737,7 +737,13 @@ DO:
              lv-in-update = NO
              lv-in-add = NO.
        END.
-       ELSE DO: 
+       ELSE DO:
+           IF {&browse-name}:NUM-SELECTED-ROWS EQ 0 THEN
+           DO:
+               MESSAGE "No Selected Records to Update."
+                     VIEW-AS ALERT-BOX INFO BUTTONS OK.
+               RETURN.
+           END.
            SELF:LABEL = "Save".
            ASSIGN
              lv-in-update = YES

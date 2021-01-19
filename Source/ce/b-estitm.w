@@ -177,8 +177,10 @@ RUN methods/prgsecur.p
              OUTPUT cAccessList). /* list 1's and 0's indicating yes or no to run, create, update, delete */
              
 DEFINE VARIABLE hdCustomerProcs AS HANDLE NO-UNDO.
+DEFINE VARIABLE hdSalesManProcs AS HANDLE NO-UNDO.
 
 RUN system/CustomerProcs.p PERSISTENT SET hdCustomerProcs. 
+RUN salrep/SalesManProcs.p PERSISTENT SET hdSalesManProcs.
 
 RUN sys/ref/nk1look.p (INPUT cocode, "CEAddCustomerOption", "L" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
@@ -975,6 +977,12 @@ DO:
     RUN valid-cust-user NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
     
+    RUN pValidSalesRep( 
+        INPUT eb.cust-no:SCREEN-VALUE 
+        ) NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN 
+        RETURN NO-APPLY.
+            
     IF SELF:MODIFIED THEN DO:
         RUN pGetDefaultShipID(
             INPUT  eb.cust-no:SCREEN-VALUE IN BROWSE {&browse-name}, 
@@ -4205,6 +4213,12 @@ PROCEDURE local-update-record :
 
     RUN valid-cust-no(OUTPUT lCheckError) NO-ERROR.
      IF lCheckError THEN RETURN NO-APPLY.
+     
+    RUN pValidSalesRep( 
+        INPUT eb.cust-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
+        ) NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN 
+        RETURN ERROR.
 
      /*IF eb.stock-no:SCREEN-VALUE IN BROWSE {&browse-name} <> "" THEN DO:
         RUN fg/GetItemfgActInact.p (INPUT g_company,
@@ -4892,6 +4906,43 @@ PROCEDURE pEstimateCleanUp:
 
     RUN valid-eb-reckey.
 
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE PValidSalesRep B-table-Win
+PROCEDURE pValidSalesRep PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCustNo  AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE lSuccess AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+    
+    FIND FIRST cust NO-LOCK 
+         WHERE cust.company EQ cocode 
+           AND cust.cust-no EQ ipcCustNo
+         NO-ERROR.
+    IF AVAILABLE cust THEN DO:
+        RUN SalesMan_ValidateSalesRep IN hdSalesManProcs(  
+            INPUT  cocode,
+            INPUT  cust.sman,
+            OUTPUT lSuccess,
+            OUTPUT cMessage
+            ). 
+        IF NOT lSuccess THEN DO:                                         
+            MESSAGE cMessage + " on customer"
+            VIEW-AS ALERT-BOX ERROR.
+            APPLY "ENTRY":U TO eb.cust-no IN BROWSE {&BROWSE-NAME}.
+            RETURN ERROR.
+        END.     
+    END.
 END PROCEDURE.
 	
 /* _UIB-CODE-BLOCK-END */

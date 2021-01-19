@@ -770,7 +770,7 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/folder.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'FOLDER-LABELS = ':U + 'Tasks|Parameters|Columns' + ',
+             INPUT  'FOLDER-LABELS = ':U + 'Browse|Options|Columns' + ',
                      FOLDER-TAB-TYPE = 2':U ,
              OUTPUT h_folder ).
        RUN set-position IN h_folder ( 3.52 , 1.00 ) NO-ERROR.

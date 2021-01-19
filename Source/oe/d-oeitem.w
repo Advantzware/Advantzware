@@ -162,6 +162,9 @@ DEFINE VARIABLE oeDateChange-log AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE oeDateChange-chr AS CHARACTER   NO-UNDO.
 DEFINE VARIABLE gcLastDateChange AS CHARACTER   NO-UNDO.
 DEFINE VARIABLE hdPriceProcs AS HANDLE NO-UNDO.
+DEFINE VARIABLE hdSalesManProcs AS HANDLE NO-UNDO.
+
+RUN salrep/SalesManProcs.p PERSISTENT SET hdSalesManProcs.
 
 RUN oe/PriceProcs.p PERSISTENT SET hdPriceProcs.
 
@@ -9252,10 +9255,12 @@ PROCEDURE valid-s-man :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF INPUT PARAM ip-int AS INT NO-UNDO.
+  DEFINE INPUT PARAMETER ip-int AS INTEGER NO-UNDO.
 
-  DEF VAR li AS INT NO-UNDO.
-  DEF VAR lv-sman LIKE sman.sman NO-UNDO.
+  DEFINE VARIABLE li       AS INTEGER     NO-UNDO.
+  DEFINE VARIABLE lv-sman  LIKE sman.sman NO-UNDO.
+  DEFINE VARIABLE lSuccess AS LOGICAL     NO-UNDO.
+  DEFINE VARIABLE cMessage AS CHARACTER   NO-UNDO.
 
 
   li = ip-int.
@@ -9272,17 +9277,21 @@ PROCEDURE valid-s-man :
                              ELSE oe-ordl.s-man[1]:SCREEN-VALUE.
     
     IF lv-sman NE "" THEN DO:
-      IF NOT CAN-FIND(FIRST sman
-                      WHERE sman.company  EQ cocode
-                        AND sman.sman     EQ lv-sman
-                        AND sman.inActive EQ NO) THEN DO:
-        MESSAGE "Inactive/Invalid Sales Rep, try help..." VIEW-AS ALERT-BOX ERROR.
-        IF ip-int EQ 3 THEN APPLY "entry" TO oe-ordl.s-man[3].
-        ELSE
-        IF ip-int EQ 2 THEN APPLY "entry" TO oe-ordl.s-man[2].
-                       ELSE APPLY "entry" TO oe-ordl.s-man[1].
-        RETURN ERROR.
-      END.
+        RUN SalesMan_ValidateSalesRep IN hdSalesManProcs(  
+            INPUT  cocode,
+            INPUT  lv-sman,
+            OUTPUT lSuccess,
+            OUTPUT cMessage
+            ).
+        IF NOT lSuccess THEN DO:    
+            MESSAGE cMessage 
+                VIEW-AS ALERT-BOX ERROR.
+            IF ip-int EQ 3 THEN APPLY "entry" TO oe-ordl.s-man[3].
+            ELSE
+            IF ip-int EQ 2 THEN APPLY "entry" TO oe-ordl.s-man[2].
+                           ELSE APPLY "entry" TO oe-ordl.s-man[1].
+            RETURN ERROR.
+         END.
     END.
 
     ELSE DO:

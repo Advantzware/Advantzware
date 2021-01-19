@@ -55,6 +55,7 @@ DEFINE VARIABLE oeDateAuto-int AS INTEGER NO-UNDO .
 DEFINE VARIABLE oeDateAuto-log AS LOGICAL NO-UNDO .
 DEFINE VARIABLE lIsActiveShipToAvailable AS LOGICAL NO-UNDO.
 DEFINE VARIABLE hdCustomerProcs          AS HANDLE  NO-UNDO.
+DEFINE VARIABLE hdSalesManProcs          AS HANDLE  NO-UNDO.
  
 {sys/inc/var.i NEW SHARED}
 
@@ -124,6 +125,7 @@ OUTPUT cRtnChar, OUTPUT lRecFound).
     
 
 RUN system/CustomerProcs.p PERSISTENT SET hdCustomerProcs.
+RUN salrep/SalesManProcs.p PERSISTENT SET hdSalesManProcs.
 &SCOPED-DEFINE enable-shipto enable-shipto
 
 /* _UIB-CODE-BLOCK-END */
@@ -2412,21 +2414,25 @@ PROCEDURE valid-sman :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  {methods/lValidateError.i YES}
-   IF shipto.spare-char-1:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" THEN do:
-    FIND FIRST sman NO-LOCK 
-        WHERE sman.company  EQ cocode
-          AND sman.sman     EQ shipto.spare-char-1:SCREEN-VALUE IN FRAME {&FRAME-NAME}
-          AND sman.inActive EQ NO
-        NO-ERROR.
+    DEFINE VARIABLE lSuccess AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
 
-    IF NOT AVAIL sman THEN DO:
-       MESSAGE "Inactive/Invalid Sales Rep. Try help." VIEW-AS ALERT-BOX ERROR.
-       APPLY "entry" TO shipto.spare-char-1.
-       RETURN ERROR.
+   {methods/lValidateError.i YES}
+    IF shipto.spare-char-1:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" THEN do:
+        RUN SalesMan_ValidateSalesRep IN hdSalesManProcs(  
+            INPUT  cocode,
+            INPUT  shipto.spare-char-1:SCREEN-VALUE IN FRAME {&FRAME-NAME},
+            OUTPUT lSuccess,
+            OUTPUT cMessage
+            ).
+        IF NOT lSuccess THEN DO:
+            MESSAGE cMessage 
+            VIEW-AS ALERT-BOX ERROR.
+            APPLY "ENTRY" TO shipto.spare-char-1.
+            RETURN ERROR.
+        END.
+        ELSE fi_sname:SCREEN-VALUE IN FRAME {&FRAME-NAME} = DYNAMIC-FUNCTION("SalesMan_GetSalesmanName" IN hdSalesManProcs,cocode,shipto.spare-char-1:SCREEN-VALUE).
     END.
-    ELSE fi_sname:SCREEN-VALUE IN FRAME {&FRAME-NAME} = sman.sname.
-   END.
 
   {methods/lValidateError.i NO}
 END PROCEDURE.

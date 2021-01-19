@@ -131,8 +131,8 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          TITLE              = "Message"
          HEIGHT             = 24
          WIDTH              = 144.2
-         MAX-HEIGHT         = 24
-         MAX-WIDTH          = 144.2
+         MAX-HEIGHT         = 320
+         MAX-WIDTH          = 320
          VIRTUAL-HEIGHT     = 24
          VIRTUAL-WIDTH      = 144.2
          RESIZE             = yes
@@ -256,7 +256,7 @@ DO:
 
 /* Include custom  Main Block code for SmartWindows. */
 {src/adm/template/windowmn.i}
-
+{custom/initializeprocs.i}
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

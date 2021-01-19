@@ -9,9 +9,10 @@ IF CAN-FIND(FIRST glhist
               AND glhist.actnum  EQ {&TABLENAME}.actnum)  OR
    CAN-FIND(FIRST gltrans
             WHERE gltrans.company EQ {&TABLENAME}.company
-              AND gltrans.actnum  EQ {&TABLENAME}.actnum) THEN DO:
-  MESSAGE "Transactions exist for this account, deletion not permitted..."
-      VIEW-AS ALERT-BOX.
+              AND gltrans.actnum  EQ {&TABLENAME}.actnum) OR 
+   CAN-FIND(FIRST gl-jrnl 
+            WHERE gl-jrnl.actnum EQ {&TABLENAME}.actnum)THEN DO:
+  RUN displayMessage ("18").
   RETURN ERROR.
 END.
 

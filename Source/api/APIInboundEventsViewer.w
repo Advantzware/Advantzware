@@ -164,7 +164,7 @@ DEFINE BUTTON btExit
      SIZE 11 BY 2.62.
 
 DEFINE BUTTON btExport 
-     IMAGE-UP FILE "Graphics/32x32/file_excel.ico":U
+     IMAGE-UP FILE "Graphics/32x32/file_excel.png":U
      LABEL "Export" 
      SIZE 11 BY 2.62 TOOLTIP "Export Data".
 

@@ -163,6 +163,7 @@ DEFINE BUFFER bf-e-itemfg-vend FOR e-itemfg-vend.
 
 DEFINE VARIABLE ghVendorCost AS HANDLE no-undo.
 DEFINE VARIABLE scInstance AS CLASS system.SharedConfig NO-UNDO.
+DEFINE VARIABLE hGLProcs  AS HANDLE NO-UNDO.
 
 {windows/l-jobmt1.i}
 
@@ -181,6 +182,8 @@ FIND FIRST uom NO-LOCK WHERE uom.uom EQ "ROLL" NO-ERROR.
 IF AVAILABLE uom THEN ld-roll-len = uom.mult.
 
 RUN Po/POProcs.p PERSISTENT SET hdPOProcs.
+
+RUN system/GLProcs.p PERSISTENT SET hGLProcs.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -779,6 +782,9 @@ DO:
     DEFINE VARIABLE lw-focus     AS WIDGET-HANDLE NO-UNDO.
     DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
     DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFieldsValue  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFoundValue   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE recFoundRecID AS RECID     NO-UNDO.
 
 
     ASSIGN
@@ -835,10 +841,21 @@ DO:
               IF char-val NE "" THEN RUN new-job-s-b (look-recid).
             END.
         END.
-        WHEN "actnum" THEN DO:
-             RUN windows/l-acct3.w(g_company,"T",lw-focus:SCREEN-VALUE, OUTPUT char-val).
-             IF char-val <> "" THEN ASSIGN lw-focus:SCREEN-VALUE  = ENTRY(1,char-val)
-                                           v-gl-desc:SCREEN-VALUE = ENTRY(2,char-val).
+        WHEN "actnum" THEN DO:             
+            RUN system/openLookup.p (
+                INPUT  g_company, 
+                INPUT  "",  /* Lookup ID */
+                INPUT  87,  /* Subject ID */
+                INPUT  "",  /* User ID */
+                INPUT  0,   /* Param Value ID */
+                OUTPUT cFieldsValue, 
+                OUTPUT cFoundValue, 
+                OUTPUT recFoundRecID
+                ).    
+            IF cFoundValue <> "" THEN 
+                ASSIGN 
+                    lw-focus:SCREEN-VALUE  = cFoundValue
+                    v-gl-desc:SCREEN-VALUE = DYNAMIC-FUNCTION("sfDynLookupValue", "dscr", cFieldsValue).
         END.
         WHEN "cust-no" THEN DO:
             RUN windows/l-cust.w (g_company, po-ordl.cust-no:SCREEN-VALUE, OUTPUT char-val).
@@ -935,7 +952,7 @@ DO:
     FIND FIRST account NO-LOCK
          WHERE account.company EQ g_company
            AND account.actnum  EQ SELF:SCREEN-VALUE NO-ERROR.
-    v-gl-desc:SCREEN-VALUE = IF AVAILABLE account THEN account.dscr ELSE ''.
+    v-gl-desc:SCREEN-VALUE = IF AVAILABLE account THEN account.dscr ELSE ''.    
   END.
 END.
 
@@ -4243,6 +4260,33 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-cancel-record Dialog-Frame
+PROCEDURE local-cancel-record:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    
+    /* Code placed here will execute PRIOR to standard behavior. */
+    IF po-ordl.actnum:BGCOLOR IN FRAME {&FRAME-NAME} EQ 16 THEN 
+        ASSIGN 
+            po-ordl.actnum:BGCOLOR IN FRAME {&FRAME-NAME} = ?
+            po-ordl.actnum:FGCOLOR IN FRAME {&FRAME-NAME} = ?
+            .
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .   
+  
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE lookup-job Dialog-Frame 
 PROCEDURE lookup-job :
 /*------------------------------------------------------------------------------
@@ -5614,26 +5658,58 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-actnum Dialog-Frame 
 PROCEDURE valid-actnum :
 /*------------------------------------------------------------------------------
-      Purpose:     
+      Purpose: To check valid and active GL account.     
       PARAMs:  <none>
       Notes:       
     ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lSuccess  AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lActive   AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage  AS CHARACTER NO-UNDO.
   
-    DO WITH FRAME {&FRAME-NAME}:
-        IF (po-ordl.actnum:SCREEN-VALUE EQ "" OR
-            NOT CAN-FIND(FIRST account
-            WHERE account.company EQ g_company
-            AND account.actnum  EQ po-ordl.actnum:SCREEN-VALUE
-            AND account.TYPE <> "T")) AND
-            v-default-gl-log                                                     THEN 
-        DO:
-            IF po-ordl.actnum:SCREEN-VALUE EQ "" THEN
-                MESSAGE "Account Number may not be spaces, try help..." VIEW-AS ALERT-BOX ERROR.
-            ELSE
-                MESSAGE "Invalid GL#, try help..." VIEW-AS ALERT-BOX ERROR.
-            APPLY "entry" TO po-ordl.actnum.
+    DO WITH FRAME {&FRAME-NAME}:             
+        
+        RUN GL_CheckGLAccount IN hGLProcs(
+            INPUT  g_company,
+            INPUT  po-ordl.actnum:SCREEN-VALUE,            
+            OUTPUT cMessage,
+            OUTPUT lSuccess,
+            OUTPUT lActive
+            ).
+        
+        IF po-ordl.actnum:SCREEN-VALUE EQ "" AND lSuccess = NO THEN DO:
+            MESSAGE cMessage VIEW-AS ALERT-BOX ERROR. 
+            IF po-ordl.actnum:BGCOLOR EQ 16 THEN             
+                ASSIGN 
+                    po-ordl.actnum:BGCOLOR = ?
+                    po-ordl.actnum:FGCOLOR = ?
+                   .
+            APPLY "ENTRY" TO po-ordl.actnum.
             RETURN ERROR.
-        END.
+        END.    
+        IF v-default-gl-log AND lSuccess = NO THEN DO:               
+            MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.            
+            IF po-ordl.actnum:BGCOLOR EQ 16 THEN             
+                ASSIGN 
+                    po-ordl.actnum:BGCOLOR = ?
+                    po-ordl.actnum:FGCOLOR = ?
+                   .
+            APPLY "ENTRY" TO po-ordl.actnum.       
+            RETURN ERROR. 
+        END.      
+        IF lSuccess = YES AND lActive = NO THEN DO:  
+                ASSIGN 
+                    po-ordl.actnum:BGCOLOR = 16
+                    po-ordl.actnum:FGCOLOR = 15
+                    .  
+                MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.            
+                APPLY "ENTRY" TO po-ordl.actnum.
+                RETURN ERROR.                      
+        END.      
+        IF lActive = YES AND po-ordl.actnum:BGCOLOR EQ 16 THEN             
+            ASSIGN 
+                po-ordl.actnum:BGCOLOR = ?
+                po-ordl.actnum:FGCOLOR = ?
+                .                               
     END.
   
 END PROCEDURE.

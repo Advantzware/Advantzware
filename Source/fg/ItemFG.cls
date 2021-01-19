@@ -48,6 +48,10 @@ CLASS fg.ItemFG:
                 RETURN STRING(bf-itemfg.case-pall).
             WHEN "PurchaseUOM" THEN
                 RETURN bf-itemfg.pur-uom.
+            WHEN "Warehouse" THEN
+                RETURN bf-itemfg.def-loc.
+            WHEN "Location" THEN
+                RETURN bf-itemfg.def-loc-bin.
             OTHERWISE
                 RETURN "".
         END.
