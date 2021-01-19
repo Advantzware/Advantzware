@@ -3,8 +3,8 @@
 ON 'WINDOW-RESTORED':U OF {&WINDOW-NAME}
 DO:
     ASSIGN 
-        {&WINDOW-NAME}:HEIGHT = deOrigWinWidth
-        {&WINDOW-NAME}:WIDTH  = deOrigWinHeight
+        {&WINDOW-NAME}:HEIGHT = deOrigWinHeight 
+        {&WINDOW-NAME}:WIDTH  = deOrigWinWidth
         .    
 END.    
 
