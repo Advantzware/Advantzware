@@ -2369,80 +2369,103 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetVenderPoInfo C-Win 
 PROCEDURE pGetVenderPoInfo :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEFINE INPUT PARAMETER ipiPoNo AS INTEGER NO-UNDO.
-  DEFINE INPUT PARAMETER ipcJobNo AS CHARACTER NO-UNDO.
-  DEFINE INPUT PARAMETER ipiJobNo2 AS INTEGER NO-UNDO.
-  DEFINE OUTPUT PARAMETER opcVendor AS CHARACTER NO-UNDO.
-  DEFINE OUTPUT PARAMETER opcVendorName AS CHARACTER NO-UNDO.
-  DEFINE OUTPUT PARAMETER opiVendorPo AS INTEGER NO-UNDO.   
-  DEFINE OUTPUT PARAMETER opdtPoDueDate AS DATE NO-UNDO.
-  DEFINE OUTPUT PARAMETER opcRMItem AS CHARACTER NO-UNDO.
-  DEFINE OUTPUT PARAMETER opcRMItemName AS CHARACTER NO-UNDO.
-  DEFINE OUTPUT PARAMETER opcUom AS CHARACTER NO-UNDO.
-  DEFINE OUTPUT PARAMETER opdOrdQty AS DECIMAL NO-UNDO.
-  DEFINE OUTPUT PARAMETER opdRecQty AS DECIMAL NO-UNDO.
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipiPoNo AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcJobNo AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiJobNo2 AS INTEGER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcVendor AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcVendorName AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiVendorPo AS INTEGER NO-UNDO.   
+    DEFINE OUTPUT PARAMETER opdtPoDueDate AS DATE NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcRMItem AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcRMItemName AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcUom AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdOrdQty AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdRecQty AS DECIMAL NO-UNDO.
   
-  DEFINE VARIABLE lError     AS LOGICAL   NO-UNDO.
-  DEFINE VARIABLE cMessage   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lError   AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
 
-  FIND FIRST po-ordl NO-LOCK
-           WHERE po-ordl.company EQ cocode
-           AND po-ordl.po-no EQ ipiPoNo
-           AND po-ordl.job-no EQ ipcJobNo
-           AND po-ordl.job-no2 EQ ipiJobNo2
-           AND po-ordl.item-type EQ YES NO-ERROR .
-      IF AVAIL po-ordl THEN
-      DO:
-         FIND FIRST po-ord NO-LOCK
-              WHERE po-ord.company EQ po-ordl.company
-              AND po-ord.po-no EQ po-ordl.po-no NO-ERROR .
-         IF AVAIL po-ord THEN
-         DO:
-          ASSIGN
-           opcVendor      = po-ord.vend-no           
-           opiVendorPo    = po-ord.po-no
-           opdtPoDueDate  = po-ord.due-date
-           opcRMItem      = po-ordl.i-no 
-           opcRMItemName  = po-ordl.i-name
-           opcUom         = "EA" .
-           
-           find first item
-                where item.company eq job.company
-                and item.i-no    EQ po-ordl.i-no
-                no-lock no-error.
-                
-          ASSIGN
-           opdOrdQty = po-ordl.cons-qty
-           opdRecQty = po-ordl.t-rec-qty.
-           
-          IF po-ordl.cons-uom ne opcUom then do:
-                      
-             if po-ordl.cons-qty ne 0 THEN               
-             RUN Conv_QuantityFromUOMtoUOM(cocode, po-ordl.i-no, "RM",
-                                       po-ordl.cons-qty, po-ordl.cons-uom, opcUom,
-                                       item.basis-w, po-ordl.s-len, po-ordl.s-wid, item.s-dep, 0,
-                                       OUTPUT opdOrdQty, OUTPUT lError, OUTPUT cMessage).       
-                               
-             if po-ordl.t-rec-qty ne 0 THEN             
-             RUN Conv_QuantityFromUOMtoUOM(cocode, po-ordl.i-no, "RM",
-                                       po-ordl.t-rec-qty, po-ordl.cons-uom, opcUom,
-                                       item.basis-w, po-ordl.s-len, po-ordl.s-wid, item.s-dep, 0,
-                                       OUTPUT opdRecQty, OUTPUT lError, OUTPUT cMessage).                  
-          END.            
-                      
-           FIND FIRST vend NO-LOCK
+    FIND FIRST po-ordl NO-LOCK USE-INDEX po-no
+        WHERE po-ordl.company EQ cocode
+        AND po-ordl.po-no     EQ ipiPoNo
+        AND po-ordl.job-no    EQ ipcJobNo
+        AND po-ordl.job-no2   EQ ipiJobNo2
+        AND po-ordl.item-type EQ YES
+        NO-ERROR.
+    IF AVAILABLE po-ordl THEN
+    DO:
+        FIND FIRST po-ord NO-LOCK
+            WHERE po-ord.company EQ po-ordl.company
+            AND po-ord.po-no     EQ po-ordl.po-no
+            NO-ERROR.
+        IF AVAILABLE po-ord THEN
+        DO:
+            ASSIGN
+                opcVendor     = po-ord.vend-no           
+                opiVendorPo   = po-ord.po-no
+                opdtPoDueDate = po-ord.due-date
+                opcRMItem     = po-ordl.i-no 
+                opcRMItemName = po-ordl.i-name
+                opcUom        = "EA"
+                .           
+            FIND FIRST item NO-LOCK
+                WHERE item.company EQ job.company
+                AND item.i-no      EQ po-ordl.i-no
+                NO-ERROR.                
+            ASSIGN
+                opdOrdQty = po-ordl.cons-qty
+                opdRecQty = po-ordl.t-rec-qty
+                .           
+            IF po-ordl.cons-uom NE opcUom THEN 
+            DO:                      
+                IF po-ordl.cons-qty NE 0 THEN               
+                    RUN Conv_QuantityFromUOMtoUOM (
+                        cocode,
+                        po-ordl.i-no,
+                        "RM",
+                        po-ordl.cons-qty,
+                        po-ordl.cons-uom,
+                        opcUom,
+                        item.basis-w,
+                        po-ordl.s-len,
+                        po-ordl.s-wid,
+                        item.s-dep,
+                        0,
+                        OUTPUT opdOrdQty,
+                        OUTPUT lError,
+                        OUTPUT cMessage
+                        ).     
+                IF po-ordl.t-rec-qty NE 0 THEN             
+                    RUN Conv_QuantityFromUOMtoUOM (
+                        cocode,
+                        po-ordl.i-no,
+                        "RM",
+                        po-ordl.t-rec-qty,
+                        po-ordl.cons-uom,
+                        opcUom,
+                        item.basis-w,
+                        po-ordl.s-len,
+                        po-ordl.s-wid,
+                        item.s-dep,
+                        0,
+                        OUTPUT opdRecQty,
+                        OUTPUT lError,
+                        OUTPUT cMessage
+                        ).                  
+            END.
+            FIND FIRST vend NO-LOCK
                 WHERE vend.company EQ cocode
-                AND vend.vend-no EQ po-ord.vend-no NO-ERROR.
-           IF avail vend THEN     
-           opcVendorName = vend.NAME .
-         END. 
-      END.
-  
+                AND vend.vend-no EQ po-ord.vend-no
+                NO-ERROR.
+            IF AVAILABLE vend THEN     
+                opcVendorName = vend.name.
+        END. 
+    END.  
 
 END PROCEDURE.
 
