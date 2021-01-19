@@ -23,7 +23,7 @@ PROCEDURE beforeinitialize:
         deOrigWinHeight = {&WINDOW-NAME}:HEIGHT.
          
         // set window position captured when it was closed 
-        RUN set-captured-window-position.
+        RUN setCapturedWindowPosition.
               
         // set the option frame with equal to window withd and set its color to blue
         hTempWinmn  = FRAME {&FRAME-NAME}:handle.
@@ -226,7 +226,7 @@ PROCEDURE afterinitialize:
         IF LOOKUP( "panel-identifier",      hTempWinmn:INTERNAL-ENTRIES, ",")  > 0 OR
             LOOKUP( "viewer-identifier",     hTempWinmn:INTERNAL-ENTRIES, ",")  > 0 OR
             LOOKUP( "count-buttons",         hTempWinmn:INTERNAL-ENTRIES, ",")  > 0 OR
-               INDEX(hTempWinmn:INTERNAL-ENTRIES, "folder")                        > 0 OR
+            INDEX(hTempWinmn:INTERNAL-ENTRIES, "folder")                        > 0 OR
             THIS-PROCEDURE:FILE-NAME =  hTempWinmn:NAME                             OR
             hTempWinmn:NAME = "smartobj/smartmsg.w"
             THEN NEXT.  
@@ -279,8 +279,7 @@ PROCEDURE afterinitialize:
     END.
     
     // set the window size to last captured size
-    RUN set-captured-window-size.
-    
+    RUN setCapturedWindowSize.
     // if window size have been changed the apply window resize trigger to repositioned or resize objects
     IF  deOrigWinWidth NE  {&WINDOW-NAME}:WIDTH OR
     deOrigWinHeight NE {&WINDOW-NAME}:HEIGHT
@@ -306,60 +305,40 @@ PROCEDURE local-destroy:
 END PROCEDURE.
 &endif
 
-PROCEDURE set-captured-window-size:
+PROCEDURE setCapturedWindowSize:
     /*------------------------------------------------------------------------------
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE VARIABLE cFileName AS CHARACTER NO-UNDO.
     cFileName = ENTRY(1, THIS-PROCEDURE:FILE-NAME, ".").
-                
+    
     FIND FIRST userWindow NO-LOCK 
         WHERE userWindow.usrId       EQ USERID('ASI')
         AND userwindow.programname EQ cFileName 
         NO-ERROR.
     IF AVAILABLE userWindow THEN 
-    DO:   
-        IF  userWindow.sessionWidth  GT SESSION:WIDTH-PIXELS 
-            AND userWindow.sessionHeight GT SESSION:HEIGHT-PIXELS THEN 
-                
-            ASSIGN  
-                {&WINDOW-NAME}:WIDTH         = userWindow.winWidth
-                {&WINDOW-NAME}:HEIGHT        = userWindow.winHeight
-                {&WINDOW-NAME}:WIDTH-PIXELS  = {&WINDOW-NAME}:WIDTH-PIXELS  - (userwindow.sessionwidth - SESSION:WIDTH-PIXELS)
-                {&WINDOW-NAME}:HEIGHT-PIXELS = {&WINDOW-NAME}:HEIGHT-PIXELS - (userwindow.sessionheight - SESSION:HEIGHT-PIXELS)
-                    NO-ERROR 
-                .
-         
-        IF  userWindow.sessionWidth  LT SESSION:WIDTH-PIXELS 
-            AND userWindow.sessionHeight LT SESSION:HEIGHT-PIXELS THEN 
-            
+    DO:                
+        IF  userWindow.sessionWidth   EQ SESSION:WIDTH-PIXELS 
+            AND userWindow.sessionHeight  EQ SESSION:HEIGHT-PIXELS THEN     
+            ASSIGN                 
+                {&WINDOW-NAME}:WIDTH  = userWindow.winWidth
+                {&WINDOW-NAME}:HEIGHT = userwindow.winHeight
+                   NO-ERROR .
+         ELSE 
             ASSIGN 
                 {&WINDOW-NAME}:WIDTH         = userWindow.winWidth
                 {&WINDOW-NAME}:HEIGHT        = userWindow.winHeight
                 {&WINDOW-NAME}:WIDTH-PIXELS  = {&WINDOW-NAME}:WIDTH-PIXELS - (userWindow.sessionWidth - SESSION:WIDTH-PIXELS)
                 {&WINDOW-NAME}:HEIGHT-PIXELS = {&WINDOW-NAME}:HEIGHT-PIXELS - (userWindow.sessionHeight - SESSION:HEIGHT-PIXELS)
-                    NO-ERROR 
-                .
-                 
-        IF  userWindow.sessionWidth   EQ SESSION:WIDTH-PIXELS 
-            AND userWindow.sessionHeight  EQ SESSION:HEIGHT-PIXELS THEN 
-        DO:
-          
-            ASSIGN                 
-                {&WINDOW-NAME}:WIDTH  = userWindow.winWidth
-                {&WINDOW-NAME}:HEIGHT = userwindow.winHeight
-                   NO-ERROR 
-                .
-        END.           
+                    NO-ERROR . 
+           
         IF deOrigWinWidth > {&WINDOW-NAME}:WIDTH THEN
             {&WINDOW-NAME}:WIDTH = deOrigWinWidth.
         IF deOrigWinHeight > {&WINDOW-NAME}:HEIGHT THEN
             {&WINDOW-NAME}:HEIGHT = deOrigWinHeight. 
             
         ASSIGN                 
-           // {&WINDOW-NAME}:X                     = userwindow.winxpos
-          //  {&WINDOW-NAME}:Y                     = userwindow.winypos
             {&WINDOW-NAME}:VIRTUAL-HEIGHT-PIXELS = {&WINDOW-NAME}:HEIGHT-PIXELS
             {&WINDOW-NAME}:VIRTUAL-WIDTH-PIXELS  = {&WINDOW-NAME}:WIDTH-PIXELS 
               NO-ERROR 
@@ -368,7 +347,7 @@ PROCEDURE set-captured-window-size:
 
 END PROCEDURE.
 
-PROCEDURE set-captured-window-position:
+PROCEDURE setCapturedWindowPosition:
     /*------------------------------------------------------------------------------
      Purpose:
      Notes:
