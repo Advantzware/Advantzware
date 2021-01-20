@@ -6475,8 +6475,6 @@ PROCEDURE local-update-record :
         APPLY "entry" TO eb.wid.
         RETURN NO-APPLY.
      END.
-     MESSAGE string(lv-copied)
-     VIEW-AS ALERT-BOX.
 
      IF DECIMAL(eb.wid:screen-value) - trunc(DECIMAL(eb.wid:screen-value),0) >= v-16-or-32 
      THEN DO:
