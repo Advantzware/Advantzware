@@ -65,10 +65,10 @@ oJobHeader = NEW JobHeader().
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-3 imJobLookup fiJobNo cbJobNo2 cbFormNo ~
+&Scoped-Define ENABLED-OBJECTS RECT-3 imJobLookup cbJobNo2 fiJobNo cbFormNo ~
 cbBlankNo 
-&Scoped-Define DISPLAYED-OBJECTS fiJobNoLabel fiJobNo cbJobNo2 ~
-fiFormNoLabel cbFormNo fiBlankNoLabel cbBlankNo 
+&Scoped-Define DISPLAYED-OBJECTS cbJobNo2 fiJobNoLabel fiJobNo cbFormNo ~
+cbBlankNo fiFormNoLabel fiBlankNoLabel 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -92,7 +92,7 @@ DEFINE VARIABLE cbBlankNo AS INTEGER FORMAT "99":U INITIAL 0
      VIEW-AS COMBO-BOX INNER-LINES 5
      LIST-ITEMS "00" 
      DROP-DOWN-LIST
-     SIZE 9 BY 1
+     SIZE 9.8 BY 1.48
      FONT 36 NO-UNDO.
 
 DEFINE VARIABLE cbFormNo AS INTEGER FORMAT "99":U INITIAL 0 
@@ -106,7 +106,7 @@ DEFINE VARIABLE cbJobNo2 AS INTEGER FORMAT "99":U INITIAL 0
      VIEW-AS COMBO-BOX INNER-LINES 5
      LIST-ITEMS "00" 
      DROP-DOWN-LIST
-     SIZE 9 BY 1
+     SIZE 9.8 BY 1.48
      FONT 36 NO-UNDO.
 
 DEFINE VARIABLE fiBlankNoLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Blank #:" 
@@ -138,14 +138,14 @@ DEFINE RECTANGLE RECT-3
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     fiJobNoLabel AT ROW 1.24 COL 4.8 NO-LABEL WIDGET-ID 2
-     fiJobNo AT ROW 1.24 COL 12.8 COLON-ALIGNED NO-LABEL WIDGET-ID 4
      cbJobNo2 AT ROW 1.24 COL 44.2 COLON-ALIGNED NO-LABEL WIDGET-ID 162
+     fiJobNoLabel AT ROW 1.29 COL 4.8 NO-LABEL WIDGET-ID 2
+     fiJobNo AT ROW 1.29 COL 12.8 COLON-ALIGNED NO-LABEL WIDGET-ID 4
      btJobDetails AT ROW 1.33 COL 66.4 WIDGET-ID 160
-     fiFormNoLabel AT ROW 2.71 COL 2.6 NO-LABEL WIDGET-ID 16
      cbFormNo AT ROW 2.71 COL 12.8 COLON-ALIGNED NO-LABEL WIDGET-ID 164
-     fiBlankNoLabel AT ROW 2.71 COL 33.6 NO-LABEL WIDGET-ID 20
      cbBlankNo AT ROW 2.71 COL 44.2 COLON-ALIGNED NO-LABEL WIDGET-ID 166
+     fiFormNoLabel AT ROW 2.76 COL 2.6 NO-LABEL WIDGET-ID 16
+     fiBlankNoLabel AT ROW 2.76 COL 33.6 NO-LABEL WIDGET-ID 20
      RECT-3 AT ROW 1.05 COL 1 WIDGET-ID 24
      imJobLookup AT ROW 1.14 COL 56.2 WIDGET-ID 182
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -180,8 +180,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW s-object ASSIGN
-         HEIGHT             = 3.52
-         WIDTH              = 80.2.
+         HEIGHT             = 3.33
+         WIDTH              = 79.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -346,11 +346,12 @@ END.
 ON ENTRY OF fiJobNo IN FRAME F-Main
 DO:
     cJob = SELF:SCREEN-VALUE.  
+    
+    fiJobNo:SET-SELECTION(1, LENGTH(fiJobNo:SCREEN-VALUE) + 1) NO-ERROR.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiJobNo s-object
