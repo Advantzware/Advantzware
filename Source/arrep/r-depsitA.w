@@ -934,7 +934,7 @@ PROCEDURE get-detail-values :
    lv-name     = "".
 
   IF ip-jrnl EQ "CASHR" THEN DO:
-     lv-check-no = INT64(SUBSTR(ip-dscr,INDEX(ip-dscr," Inv# ") - 10,12)) NO-ERROR.
+     lv-check-no = INT64(SUBSTR(ip-dscr,INDEX(ip-dscr," Inv# ") - 12,12)) NO-ERROR.
      IF ERROR-STATUS:ERROR THEN lv-check-no = 0.
 
      lv-inv-no = INT(SUBSTR(ip-dscr,INDEX(ip-dscr," Inv# ") + 6,10)) NO-ERROR.

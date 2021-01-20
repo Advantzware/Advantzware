@@ -398,7 +398,7 @@ PROCEDURE pCreatettMenuTree:
                 hWidget:TOOLTIP    = IF ipcMnemonic NE "" THEN "HotKey: " + ipcMnemonic
                                      ELSE hWidget:SCREEN-VALUE
                 .
-            hWidget:LOAD-MOUSE-POINTER("GLOVE").
+            hWidget:LOAD-MOUSE-POINTER("ARROW").
         END.
         
         &IF "{&isActive}" EQ "YES" &THEN

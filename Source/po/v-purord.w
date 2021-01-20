@@ -1872,6 +1872,7 @@ PROCEDURE local-create-record :
          po-ord.cust-no:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "".
          ls-ship-choice = "S".
          ls-drop-custno = "".
+         rd_drop-shipment = "S".
          
   DISPLAY lv_vend-name lv_vend-add1 lv_vend-add2 lv_vend-city
           lv_vend-state lv_vend-zip lv_vend-area-code lv_vend-phone          
@@ -2255,6 +2256,12 @@ PROCEDURE new-vend-no :
        po-ord.over-pct:SCREEN-VALUE  = STRING(vend.over-pct)   
        po-ord.under-pct:SCREEN-VALUE = STRING(vend.under-pct)
        po-ord.tax-gr:SCREEN-VALUE    = vend.tax-gr.
+       
+       IF ls-ship-choice EQ "S" AND vend.loc NE "" THEN
+       DO:
+          po-ord.ship-id:SCREEN-VALUE = vend.loc.
+          RUN pAssignAddressFromLocation(vend.loc).
+       END.
 
       RUN display-vend.
     END.
