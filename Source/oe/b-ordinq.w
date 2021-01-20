@@ -1911,35 +1911,37 @@ PROCEDURE one-row-query :
   DEFINE VARIABLE cQuery    AS CHARACTER NO-UNDO.
   DEFINE VARIABLE cResponse AS CHARACTER NO-UNDO.
 
-    cQuery = "FOR EACH oe-ordl NO-LOCK"
-                   + " WHERE oe-ordl.company EQ " + QUOTER(cocode)
-                   + " AND ROWID(oe-ordl)    EQ " + STRING(ip-rowid)
-                   + " AND oe-ordl.opened EQ YES AND oe-ordl.stat NE 'C'"
-                   + (IF custCount  NE "" THEN " AND ((LOOKUP(oe-ordl.cust-no," + QUOTER(custcount) + ") NE 0" + " AND oe-ordl.cust-no NE '') OR " + QUOTER(custcount) + " EQ '')" ELSE "")
-                   + (IF fi_ord-no  NE 0  THEN " AND oe-ordl.ord-no  EQ "     + STRING(fi_ord-no)   ELSE "")
-                   + (IF fi_cust-no NE "" THEN " AND oe-ordl.cust-no BEGINS " + QUOTER(fi_cust-no)  ELSE "")
-                   + (IF fi_est-no  NE "" THEN " AND oe-ordl.est-no BEGINS "  + QUOTER(fi_est-no)   ELSE "")
-                   + (IF fi_job-no  NE "" THEN " AND oe-ordl.job-no BEGINS "  + QUOTER(fi_job-no)   ELSE "")
-                   + (IF fi_i-no    NE "" THEN " AND oe-ordl.i-no   BEGINS "  + QUOTER (fi_i-no)    ELSE "")
-                   + (IF fi_part-no NE "" THEN " AND oe-ordl.part-no BEGINS " + QUOTER(fi_part-no)  ELSE "")
-                   + (IF fi_po-no1  NE "" THEN " AND oe-ordl.po-no BEGINS "   + QUOTER(fi_po-no1)   ELSE "")
-                   + (IF fi_sman    NE "" THEN " AND oe-ord.sman[1] BEGINS "  + QUOTER(fi_sman)     ELSE "")
-                   + (IF fi_i-name  NE "" THEN " AND oe-ordl.i-name BEGINS "  + QUOTER(fi_i-name)   ELSE "")
-                   + ", FIRST oe-ord OF oe-ordl NO-LOCK"
-                   + "  WHERE oe-ord.opened EQ YES"
-                   + (IF tbOpened AND tbWeb THEN " " ELSE IF tbOpened THEN " AND oe-ord.stat NE 'W'" ELSE " AND oe-ord.stat EQ 'W'")
-                   + ", FIRST itemfg " + (IF fi_cad-no EQ "" THEN "OUTER-JOIN" ELSE "") + " NO-LOCK"
-                   + " WHERE itemfg.company EQ oe-ordl.company"
-                   + " AND itemfg.i-no EQ oe-ordl.i-no"
-                   + ( IF fi_cad-no NE "" THEN " AND itemfg.cad-no BEGINS fi_cad-no" ELSE "")
-                   + " BY " + cSortCondition + ( IF ll-sort-asc THEN  "" ELSE " DESC") +  " BY oe-ordl.ord-no BY oe-ordl.i-no"
-                   .
+  cQuery = "FOR EACH oe-ordl NO-LOCK"
+                 + " WHERE oe-ordl.company EQ " + QUOTER(cocode)
+                 + " AND ROWID(oe-ordl)    EQ " + "TO-ROWID(" + "'" + STRING(ip-rowid) + "')"
+                 + " AND oe-ordl.opened EQ YES AND oe-ordl.stat NE 'C'"
+                 + (IF custCount  NE "" THEN " AND ((LOOKUP(oe-ordl.cust-no," + QUOTER(custcount) + ") NE 0" + " AND oe-ordl.cust-no NE '') OR " + QUOTER(custcount) + " EQ '')" ELSE "")
+                 + (IF fi_ord-no  NE 0  THEN " AND oe-ordl.ord-no  EQ "     + STRING(fi_ord-no)   ELSE "")
+                 + (IF fi_cust-no NE "" THEN " AND oe-ordl.cust-no BEGINS " + QUOTER(fi_cust-no)  ELSE "")
+                 + (IF fi_est-no  NE "" THEN " AND oe-ordl.est-no BEGINS "  + QUOTER(fi_est-no)   ELSE "")
+                 + (IF fi_job-no  NE "" THEN " AND oe-ordl.job-no BEGINS "  + QUOTER(fi_job-no)   ELSE "")
+                 + (IF fi_i-no    NE "" THEN " AND oe-ordl.i-no   BEGINS "  + QUOTER (fi_i-no)    ELSE "")
+                 + (IF fi_part-no NE "" THEN " AND oe-ordl.part-no BEGINS " + QUOTER(fi_part-no)  ELSE "")
+                 + (IF fi_po-no1  NE "" THEN " AND oe-ordl.po-no BEGINS "   + QUOTER(fi_po-no1)   ELSE "")
+                 + (IF fi_sman    NE "" THEN " AND oe-ord.sman[1] BEGINS "  + QUOTER(fi_sman)     ELSE "")
+                 + (IF fi_i-name  NE "" THEN " AND oe-ordl.i-name BEGINS "  + QUOTER(fi_i-name)   ELSE "")
+                 + ", FIRST oe-ord OF oe-ordl NO-LOCK"
+                 + "  WHERE oe-ord.opened EQ YES"
+                 + (IF tbOpened AND tbWeb THEN " " ELSE IF tbOpened THEN " AND oe-ord.stat NE 'W'" ELSE " AND oe-ord.stat EQ 'W'")
+                 + ", FIRST itemfg " + (IF fi_cad-no EQ "" THEN "OUTER-JOIN" ELSE "") + " NO-LOCK"
+                 + " WHERE itemfg.company EQ oe-ordl.company"
+                 + " AND itemfg.i-no EQ oe-ordl.i-no"
+                 + ( IF fi_cad-no NE "" THEN " AND itemfg.cad-no BEGINS fi_cad-no" ELSE "")
+                 + " BY " + cSortCondition + ( IF ll-sort-asc THEN  "" ELSE " DESC") +  " BY oe-ordl.ord-no BY oe-ordl.i-no"
+                 .
+                 
     RUN Browse_PrepareAndExecuteBrowseQuery(
-       INPUT  BROWSE {&BROWSE-NAME}:QUERY,
-       INPUT  cQuery,
-       INPUT  NO,
-       INPUT  0,
-       INPUT  0,
+       INPUT  BROWSE {&BROWSE-NAME}:QUERY, /* Browse Query Handle */      
+       INPUT  cQuery,                      /* BRowse Query */             
+       INPUT  NO,                          /* Show limit alert? */        
+       INPUT  0,                           /* Record limit */             
+       INPUT  0,                           /* Time Limit */               
+       INPUT  lEnableShowAll,              /* Enable ShowAll Button */    
        OUTPUT cResponse
        ).               
 END PROCEDURE.
