@@ -342,6 +342,36 @@ PROCEDURE Inventory_FGQuantityAdjust:
         ).
 END PROCEDURE.
 
+PROCEDURE Inventory_GetWarehouseLength:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany         AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiWarehouseLength AS INTEGER   NO-UNDO.
+    
+    DEFINE VARIABLE cReturnValue AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lRecFound    AS LOGICAL   NO-UNDO.
+    
+    /* Default warehouse length */
+    opiWarehouseLength = 5.
+    
+    RUN sys/ref/nk1look.p (
+        INPUT ipcCompany,         /* Company Code */ 
+        INPUT "SSLocationScan",   /* sys-ctrl name */
+        INPUT "I",                /* Output return value */
+        INPUT NO,                 /* Use ship-to */
+        INPUT NO,                 /* ship-to vendor */
+        INPUT "",                 /* ship-to vendor value */
+        INPUT "",                 /* shi-id value */
+        OUTPUT cReturnValue, 
+        OUTPUT lRecFound
+        ).    
+    IF lRecFound THEN
+        opiWarehouseLength = INTEGER(cReturnValue).
+        
+END PROCEDURE.
+
 PROCEDURE pBuildRMHistory PRIVATE:
 /*------------------------------------------------------------------------------
  Purpose: Builds temp-table from rm-rcpth and rm-rdtlh records for given criteria
