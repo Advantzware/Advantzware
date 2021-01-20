@@ -169,8 +169,8 @@ DEFINE BUTTON btnClearPendingEmails
 DEFINE VARIABLE showLogging AS LOGICAL 
      VIEW-AS RADIO-SET HORIZONTAL
      RADIO-BUTTONS 
-          "Show Logging", YES,
-"Hide Logging", NO
+          "Show Logging", yes,
+"Hide Logging", no
      SIZE 34 BY .91 TOOLTIP "Show/Hide Logging Panel" NO-UNDO.
 
 /* Query definitions                                                    */
@@ -269,15 +269,15 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 320
          VIRTUAL-HEIGHT     = 320
          VIRTUAL-WIDTH      = 320
-         RESIZE             = YES
-         SCROLL-BARS        = NO
-         STATUS-AREA        = YES
+         RESIZE             = yes
+         SCROLL-BARS        = no
+         STATUS-AREA        = yes
          BGCOLOR            = ?
          FGCOLOR            = ?
-         KEEP-FRAME-Z-ORDER = YES
-         THREE-D            = YES
-         MESSAGE-AREA       = NO
-         SENSITIVE          = YES.
+         KEEP-FRAME-Z-ORDER = yes
+         THREE-D            = yes
+         MESSAGE-AREA       = no
+         SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
@@ -301,7 +301,7 @@ IF NOT C-Win:LOAD-ICON("Graphics/32x32/jss_icon_32.ico":U) THEN
 /* BROWSE-TAB EmailBrowse btnClearIsRunning DEFAULT-FRAME */
 /* BROWSE-TAB AuditBrowse btnClearPendingEmails DEFAULT-FRAME */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-THEN C-Win:HIDDEN = NO.
+THEN C-Win:HIDDEN = no.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -343,14 +343,14 @@ AuditHdr.AuditDateTime GE dttOpenDateTime"
      _OrdList          = "ASI.Task.runNow|no,ASI.Task.nextDate|yes,ASI.Task.nextTime|yes"
      _Where[1]         = "Task.scheduled EQ YES OR Task.runNow EQ YES"
      _FldNameList[1]   > ASI.Task.runNow
-"runNow" ? ? "logical" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "TOGGLE-BOX" "," ? ? 5 no 0 no no
+"Task.runNow" ? ? "logical" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "TOGGLE-BOX" "," ? ? 5 no 0 no no
      _FldNameList[2]   = ASI.Task.taskName
      _FldNameList[3]   = ASI.Task.nextDate
      _FldNameList[4]   = ASI.Task.cNextTime
      _FldNameList[5]   = ASI.Task.lastDate
      _FldNameList[6]   = ASI.Task.cLastTime
      _FldNameList[7]   > ASI.Task.isRunning
-"isRunning" ? ? "logical" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "TOGGLE-BOX" "," ? ? 5 no 0 no no
+"Task.isRunning" ? ? "logical" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "TOGGLE-BOX" "," ? ? 5 no 0 no no
      _FldNameList[8]   = ASI.Task.taskID
      _FldNameList[9]   = ASI.Task.prgmName
      _FldNameList[10]   = ASI.Task.user-id
@@ -375,8 +375,8 @@ CREATE CONTROL-FRAME CtrlFrame ASSIGN
        HEIGHT          = 4.76
        WIDTH           = 20
        WIDGET-ID       = 2
-       HIDDEN          = YES
-       SENSITIVE       = YES.
+       HIDDEN          = yes
+       SENSITIVE       = yes.
 /* CtrlFrame OCXINFO:CREATE-CONTROL from: {F0B88A90-F5DA-11CF-B545-0020AF6ED35A} type: PSTimer */
       CtrlFrame:MOVE-AFTER(btnClearPendingEmails:HANDLE IN FRAME DEFAULT-FRAME).
 
@@ -459,7 +459,6 @@ PROCEDURE CtrlFrame.PSTimer.Tick .
     DEFINE VARIABLE iConfigID         AS INTEGER   NO-UNDO.
     DEFINE VARIABLE lTaskerNotRunning AS LOGICAL   NO-UNDO.
 
-    DEFINE BUFFER bConfig     FOR config.
     DEFINE BUFFER emailConfig FOR emailConfig.
 
     {&WINDOW-NAME}:TITLE = "AOA Tasker - Scanning Tasks".
@@ -477,9 +476,9 @@ PROCEDURE CtrlFrame.PSTimer.Tick .
         ).
     iConfigID = INTEGER(cTaskerNotRunning).
     DO TRANSACTION:
-        FIND FIRST bConfig EXCLUSIVE-LOCK.
-        bConfig.taskerLastExecuted = NOW.
-        FIND FIRST bConfig NO-LOCK.
+        FIND FIRST config EXCLUSIVE-LOCK.
+        config.taskerLastExecuted = NOW.
+        FIND FIRST config NO-LOCK.
         IF CAN-FIND(FIRST emailConfig
                     WHERE emailConfig.configID EQ iConfigID
                       AND emailConfig.isActive EQ YES
@@ -492,6 +491,7 @@ PROCEDURE CtrlFrame.PSTimer.Tick .
         END. /* if can-find */
         RELEASE emailConfig.
     END. /* do trans */
+    RUN pHTMLTasks.
 
 END PROCEDURE.
 
@@ -544,7 +544,6 @@ PAUSE 0 BEFORE-HIDE.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-  FIND FIRST config NO-LOCK.
   RUN pRunCommand (OUTPUT cRun).
   dttOpenDateTime = NOW.
   RUN enable_UI.
@@ -721,6 +720,259 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pHTMLFooter C-Win 
+PROCEDURE pHTMLFooter :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    PUT UNFORMATTED
+        '  </table>' SKIP
+        '</fieldset>' SKIP
+        '</form>' SKIP
+        '<div align="left"><font face="{&fontFace}"><a href="#Top">Top</a></font>' SKIP
+        '<div align="right"><font face="{&fontFace}">~&copy; Advantzware, Inc., All Rights Reserved</font></div>' SKIP
+        '</html>' SKIP
+        .
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pHTMLHeader C-Win 
+PROCEDURE pHTMLHeader :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcUserID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcFolder AS CHARACTER NO-UNDO.
+
+    PUT UNFORMATTED
+        '<html>' SKIP
+        '<head>' SKIP
+        '<title>Scheduled Tasks for ' ipcUserID '</title>' SKIP
+        '<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">' SKIP
+        '<meta http-equiv="Refresh" content="60">' SKIP
+        '<link rel="shortcut icon" href="' SEARCH("Graphics/32x32/asiicon.png") '">' SKIP
+        '</head>' SKIP
+        '<a name="Top"></a>' SKIP
+        '<form>' SKIP
+        '<fieldset>' SKIP
+        '  <legend><font face="{&fontFace}"><b>Scheduled Tasks for ' ipcUserID '</b> (generated '
+        STRING(TODAY,'99.99.9999') ' @ ' STRING(TIME,'hh:mm:ss am') ')</font>'
+        '~&nbsp;</legend>' SKIP
+        '  <img src="' SEARCH("Graphics/32x32/asiicon.png") '" align="middle">~&nbsp;'
+        '<b><a href="http://www.advantzware.com" target="_blank">'
+        '<font face="{&fontFace}">Advantzware, Inc.</a>~&nbsp;~&copy;</b></font>' SKIP
+        '</font></b>' SKIP 
+        '~&nbsp;~&nbsp;~&nbsp;~&nbsp;~&nbsp;~&nbsp;<b>User:</b>' SKIP  
+        '  <select onchange="window.location=this.options[this.selectedIndex].value">' SKIP
+        '    <option value="' ipcFolder '\tasker-ALL.htm"'
+        (IF ipcUserID EQ "ALL" THEN ' selected' ELSE '')
+        '>ALL</option>' SKIP
+        .
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pHTMLResults C-Win
+PROCEDURE pHTMLResults:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcUserID AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE cBGColor AS CHARACTER NO-UNDO INIT 'bgcolor="#DBDEF2"'.
+    DEFINE VARIABLE cFile    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE idx      AS INTEGER   NO-UNDO.
+
+    PUT UNFORMATTED
+        '  </table>' SKIP
+        '</fieldset>' SKIP
+        '</form>' SKIP
+        '<div align="left"><font face="{&fontFace}"><a href="#Top">Top</a></font>' SKIP
+        '<a name="Results"></a>' SKIP
+        '<form>' SKIP
+        '<fieldset>' SKIP
+        '  <legend><font face="{&fontFace}"><b>Task Results for ' ipcUserID '</b></font>'
+        '~&nbsp;</legend>' SKIP
+        '  <table border="1" cellspacing="2" cellpadding="2" width="100%" style="border-color: white">' SKIP
+        '    <tr>' SKIP
+        '      <td ' cBGColor '><b><u>Date Time</u></b></td>' SKIP
+        '      <td ' cBGColor '><b><u>Type</u></b></td>' SKIP
+        '      <td ' cBGColor '><b><u>User ID</u></b></td>' SKIP
+        '      <td ' cBGColor '><b><u>Viewed</u></b></td>' SKIP
+        '      <td ' cBGColor '><b><u>Archived</u></b></td>' SKIP
+        '      <td ' cBGColor '><b><u>File Name</u></b></td>' SKIP
+        '    </tr>' SKIP
+        .
+    FOR EACH taskResult NO-LOCK
+        WHERE taskResult.user-id EQ ipcUserID
+           OR ipcUserID EQ "ALL"
+        :
+        ASSIGN
+            idx      = idx + 1
+            cBGColor = IF idx MOD 2 EQ 0 THEN 'bgcolor="#DBDEF2"' ELSE 'bgcolor="#F4F4F4"'
+            FILE-INFO:FILE-NAME = SEARCH(taskResult.folderFile)
+            cFile    = FILE-INFO:FULL-PATHNAME
+            .
+        PUT UNFORMATTED
+            '    <tr>' SKIP
+            '      <td ' cBGColor '> ' taskResult.fileDateTime '</td>' SKIP
+            '      <td ' cBGColor '> ' taskResult.fileType '</td>' SKIP
+            '      <td ' cBGColor '> ' taskResult.user-id '</td>' SKIP
+            '      <td ' cBGColor '> ' taskResult.viewed '</td>' SKIP
+            '      <td ' cBGColor '> ' taskResult.archived '</td>' SKIP
+            '      <td ' cBGColor '> ' taskResult.folderFile '</td>' SKIP
+/*            '      <td ' cBGColor '><a href="' cFile '">' taskResult.folderFile '</a></td>' SKIP*/
+            '    </tr>' SKIP
+            .
+    END. /* each taskresult */
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pHTMLTask C-Win
+PROCEDURE pHTMLTask:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcUserID AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE cBGColor AS CHARACTER NO-UNDO INIT 'bgcolor="#DBDEF2"'.
+    DEFINE VARIABLE idx      AS INTEGER   NO-UNDO.
+
+    DEFINE BUFFER bTask FOR Task.
+
+    PUT UNFORMATTED
+        '  </select>' SKIP
+        '  <div align="right"><font face="{&fontFace}"><a href="#Results">Task Results</a></font>' SKIP
+        '  <table border="1" cellspacing="2" cellpadding="2" width="100%" style="border-color: white">' SKIP
+        '    <tr>' SKIP
+        '      <td ' cBGColor '><b><u>Run Now</u></b></td>' SKIP
+        '      <td ' cBGColor '><b><u>Task Name</u></b></td>' SKIP
+        '      <td ' cBGColor '><b><u>Type</u></b></td>' SKIP
+        '      <td ' cBGColor '><b><u>Next Run Date</u></b></td>' SKIP
+        '      <td ' cBGColor '><b><u>Next Run Time</u></b></td>' SKIP
+        '      <td ' cBGColor '><b><u>Last Run Date</u></b></td>' SKIP
+        '      <td ' cBGColor '><b><u>Last Run Time</u></b></td>' SKIP
+        '      <td ' cBGColor '><b><u>Is Running</u></b></td>' SKIP
+        '      <td ' cBGColor '><b><u>Task ID</u></b></td>' SKIP
+        '      <td ' cBGColor '><b><u>Prgm Name</u></b></td>' SKIP
+        '      <td ' cBGColor '><b><u>User ID</u></b></td>' SKIP
+        '      <td ' cBGColor '><b><u>Run Syncronous</u></b></td>' SKIP
+        '    </tr>' SKIP
+        .
+    FOR EACH bTask NO-LOCK
+        WHERE (bTask.scheduled EQ YES
+           OR  bTask.runNow    EQ YES)
+          AND (bTask.user-id   EQ ipcUserID
+           OR  ipcUserID       EQ "ALL")        
+        BY bTask.runNow DESCENDING
+        BY bTask.nextDate 
+        BY bTask.nextTime
+        :
+        ASSIGN
+            idx      = idx + 1
+            cBGColor = IF idx MOD 2 EQ 0 THEN 'bgcolor="#DBDEF2"' ELSE 'bgcolor="#F4F4F4"'
+            .
+        PUT UNFORMATTED
+            '    <tr>' SKIP
+            '      <td ' cBGColor '> ' bTask.runNow '</td>' SKIP
+            '      <td ' cBGColor '> ' bTask.taskName '</td>' SKIP
+            '      <td ' cBGColor '> ' bTask.taskFormat '</td>' SKIP
+            '      <td ' cBGColor '> ' STRING(bTask.nextDate,"99/99/9999") '</td>' SKIP
+            '      <td ' cBGColor '> ' STRING(bTask.nextTime,"hh:mm:ss am") '</td>' SKIP
+            '      <td ' cBGColor '> ' STRING(bTask.lastDate,"99/99/9999") '</td>' SKIP
+            '      <td ' cBGColor '> ' STRING(bTask.lastTime,"hh:mm:ss am") '</td>' SKIP
+            '      <td ' cBGColor '> ' bTask.isRunning '</td>' SKIP
+            '      <td ' cBGColor '> ' bTask.taskID '</td>' SKIP
+            '      <td ' cBGColor '> ' bTask.prgmName '</td>' SKIP
+            '      <td ' cBGColor '> ' bTask.user-id '</td>' SKIP
+            '      <td ' cBGColor '> ' bTask.runSync '</td>' SKIP
+            '    </tr>' SKIP
+            .
+    END. /* each bTask */
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pHTMLTasks C-Win 
+PROCEDURE pHTMLTasks :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE BUFFER bTask   FOR Task.
+
+    FIND FIRST config NO-LOCK.
+    OUTPUT TO VALUE(config.taskerHTMLFolder + "\tasker-ALL.htm").
+    RUN pHTMLHeader  ("ALL", config.taskerHTMLFolder).
+    RUN pHTMLUserID  ("ALL", config.taskerHTMLFolder).
+    RUN pHTMLTask    ("ALL").
+    RUN pHTMLResults ("ALL").
+    RUN pHTMLFooter.
+    OUTPUT CLOSE.
+    FOR EACH bTask NO-LOCK
+        WHERE bTask.scheduled EQ YES
+           OR bTask.runNow    EQ YES
+        BREAK BY bTask.user-id
+        :
+        IF FIRST-OF(bTask.user-id) THEN DO:
+            OUTPUT TO VALUE(config.taskerHTMLFolder + "\tasker-" + bTask.user-id + ".htm").
+            RUN pHTMLHeader  (bTask.user-id, config.taskerHTMLFolder).
+            RUN pHTMLUserID  (bTask.user-id, config.taskerHTMLFolder).
+            RUN pHTMLTask    (bTask.user-id).
+            RUN pHTMLResults (bTask.user-id).
+            RUN pHTMLFooter.
+            OUTPUT CLOSE.
+        END. /* if first-of */
+    END. /* each bTask */
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pHTMLUserID C-Win
+PROCEDURE pHTMLUserID:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcUserID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcFolder AS CHARACTER NO-UNDO.
+
+    DEFINE BUFFER bTask FOR Task.
+
+    FOR EACH bTask NO-LOCK
+        WHERE bTask.scheduled EQ YES
+           OR bTask.runNow    EQ YES
+        BREAK BY bTask.user-id
+        :
+        IF FIRST-OF(bTask.user-id) THEN
+        PUT UNFORMATTED
+            '    <option value="' ipcFolder '\tasker-' bTask.user-id '.htm"'
+            (IF bTask.user-id EQ ipcUserID THEN ' selected' ELSE '')
+            '>' bTask.user-id '</option>' SKIP
+            .
+    END. /* each bTask */
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRunCommand C-Win 
 PROCEDURE pRunCommand :
 /*------------------------------------------------------------------------------
@@ -851,6 +1103,7 @@ PROCEDURE pTaskEmails :
     DEFINE BUFFER bTaskEmail   FOR TaskEmail.
     DEFINE BUFFER bCueCardText FOR cueCardText.
 
+    FIND FIRST config NO-LOCK.
     {&OPEN-QUERY-EmailBrowse}
     FOR EACH bTaskEmail:
         IF bTaskEmail.mustExist EQ NO OR
@@ -990,8 +1243,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pTrackAudit C-Win
-PROCEDURE pTrackAudit:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pTrackAudit C-Win 
+PROCEDURE pTrackAudit :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -1017,7 +1270,7 @@ PROCEDURE pTrackAudit:
         ).
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

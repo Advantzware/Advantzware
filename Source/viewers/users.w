@@ -1865,6 +1865,8 @@ PROCEDURE local-delete-record :
     DISABLE TRIGGERS FOR LOAD OF usr-menu.
     DISABLE TRIGGERS FOR LOAD OF usrx.
     DISABLE TRIGGERS FOR LOAD OF reftable.
+    DISABLE TRIGGERS FOR LOAD OF xUserMenu.
+    DISABLE TRIGGERS FOR LOAD OF cueCardText.
 
     {methods/template/local/delete.i}
 
@@ -1909,8 +1911,16 @@ PROCEDURE local-delete-record :
         DELETE usr-menu.
     END.     
     FOR EACH usrx EXCLUSIVE WHERE 
-        usrx.uid = users.user_id:
+        usrx.uid EQ users.user_id:
         DELETE usrx.
+    END.
+    FOR EACH xUserMenu EXCLUSIVE WHERE 
+        xUserMenu.user_id EQ users.user_id:
+        DELETE xUserMenu.
+    END.
+    FOR EACH cueCardText EXCLUSIVE WHERE 
+        cueCardText.createdFor EQ users.user_id:
+        DELETE cueCardText.
     END.
    
     FIND ttUsers EXCLUSIVE WHERE
@@ -1924,8 +1934,7 @@ PROCEDURE local-delete-record :
         RUN ipReadUsrFile.
     END.
     
-
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'delete-record':U ) .
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'delete-record':U ) .
 
     {methods/template/local/deleteAfter.i}
 
@@ -2362,6 +2371,13 @@ PROCEDURE local-update-record :
             users.menuBGColor[3] = BGColor-3:BGCOLOR
             .
     END.
+    
+/*    /* future development */                     */
+/*    IF users.isActive EQ NO THEN DO:             */
+/*        /* delete dAOA user specific subjects, */*/
+/*        /* and remove email references in dAOA */*/
+/*        {methods/delete.trg/removeUser.i}        */
+/*    END. /* if not active */                     */
     
     IF NOT lCopy THEN
     CASE users.showCueCard:

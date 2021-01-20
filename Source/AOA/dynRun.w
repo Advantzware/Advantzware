@@ -178,6 +178,11 @@ DEFINE RECTANGLE RECT-SHOW
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
      SIZE 158 BY 1.19.
 
+DEFINE VARIABLE svAutoClose AS LOGICAL INITIAL no 
+     LABEL "Auto Close" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 14 BY .81 NO-UNDO.
+
 DEFINE VARIABLE svRunSync AS LOGICAL INITIAL no 
      LABEL "Run Synchronous" 
      VIEW-AS TOGGLE-BOX
@@ -243,16 +248,13 @@ DEFINE FRAME paramFrame
          SIZE 160 BY 28.57
          FGCOLOR 1  WIDGET-ID 100.
 
-DEFINE FRAME resultsFrame
-     btnSaveResults AT ROW 1 COL 2 HELP
-          "Jasper Viewer" WIDGET-ID 254
-     btnCloseResults AT ROW 1 COL 6 HELP
-          "Jasper Viewer" WIDGET-ID 252
+DEFINE FRAME blankFrame
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 6.48
-         SIZE 10 BY 2.38
-         BGCOLOR 15 FGCOLOR 1  WIDGET-ID 1200.
+         AT COL 12 ROW 6.48
+         SIZE 19 BY 2.38
+         BGCOLOR 15 FGCOLOR 1 
+         TITLE "Building Grid ..." WIDGET-ID 1400.
 
 DEFINE FRAME outputFrame
      btnCSV AT ROW 1.48 COL 95 HELP
@@ -260,19 +262,21 @@ DEFINE FRAME outputFrame
      btnLocalCSV AT ROW 1.48 COL 87 HELP
           "Local Excel CSV" WIDGET-ID 656
      svRecipients AT ROW 1.24 COL 8 NO-LABEL WIDGET-ID 600
-     svRunSync AT ROW 2.91 COL 8 HELP
+     svRunSync AT ROW 2.9 COL 8 HELP
           "Toggle to Run Synchronous" WIDGET-ID 654
+     svAutoClose AT ROW 2.9 COL 45 HELP
+          "Toggle to Auto Close" WIDGET-ID 658
      btnPageFormat AT ROW 1.48 COL 143 HELP
           "Page Format" WIDGET-ID 652
      svShowAll AT ROW 4.1 COL 8 WIDGET-ID 18
      svShowReportHeader AT ROW 4.1 COL 24 WIDGET-ID 2
      svShowReportFooter AT ROW 4.1 COL 45 WIDGET-ID 4
-     btnRunResults AT ROW 1.48 COL 79 HELP
-          "Results Grid" WIDGET-ID 254
      svShowPageHeader AT ROW 4.1 COL 66 WIDGET-ID 6
      svShowPageFooter AT ROW 4.1 COL 85 WIDGET-ID 8
      svShowGroupHeader AT ROW 4.1 COL 104 WIDGET-ID 10
      svShowGroupFooter AT ROW 4.1 COL 124 WIDGET-ID 12
+     btnRunResults AT ROW 1.48 COL 79 HELP
+          "Results Grid" WIDGET-ID 254
      svShowParameters AT ROW 4.1 COL 143 WIDGET-ID 16
      btnHTML AT ROW 1.48 COL 127 HELP
           "HTML" WIDGET-ID 144
@@ -299,13 +303,16 @@ DEFINE FRAME outputFrame
          BGCOLOR 21 FGCOLOR 15 
          TITLE BGCOLOR 15 "Parameters" WIDGET-ID 1300.
 
-DEFINE FRAME blankFrame
+DEFINE FRAME resultsFrame
+     btnSaveResults AT ROW 1 COL 2 HELP
+          "Jasper Viewer" WIDGET-ID 254
+     btnCloseResults AT ROW 1 COL 6 HELP
+          "Jasper Viewer" WIDGET-ID 252
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 12 ROW 6.48
-         SIZE 19 BY 2.38
-         BGCOLOR 15 FGCOLOR 1 
-         TITLE "Building Grid ..." WIDGET-ID 1400.
+         AT COL 1 ROW 6.48
+         SIZE 10 BY 2.38
+         BGCOLOR 15 FGCOLOR 1  WIDGET-ID 1200.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -824,14 +831,15 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY svRecipients svRunSync svShowAll svShowReportHeader svShowReportFooter 
-          svShowPageHeader svShowPageFooter svShowGroupHeader svShowGroupFooter 
-          svShowParameters 
+  DISPLAY svRecipients svRunSync svAutoClose svShowAll svShowReportHeader 
+          svShowReportFooter svShowPageHeader svShowPageFooter svShowGroupHeader 
+          svShowGroupFooter svShowParameters 
       WITH FRAME outputFrame IN WINDOW C-Win.
-  ENABLE btnCSV btnLocalCSV svRecipients svRunSync btnPageFormat svShowAll 
-         svShowReportHeader svShowReportFooter btnRunResults svShowPageHeader 
-         svShowPageFooter svShowGroupHeader svShowGroupFooter svShowParameters 
-         btnHTML btnView btnAddEmail btnPrint btnDOCX btnPDF btnXLS 
+  ENABLE btnCSV btnLocalCSV svRecipients svRunSync svAutoClose btnPageFormat 
+         svShowAll svShowReportHeader svShowReportFooter svShowPageHeader 
+         svShowPageFooter svShowGroupHeader svShowGroupFooter btnRunResults 
+         svShowParameters btnHTML btnView btnAddEmail btnPrint btnDOCX btnPDF 
+         btnXLS 
       WITH FRAME outputFrame IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-outputFrame}
   VIEW FRAME paramFrame IN WINDOW C-Win.
