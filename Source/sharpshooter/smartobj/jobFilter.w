@@ -126,7 +126,7 @@ DEFINE VARIABLE fiJobNoLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Job #:"
      SIZE 9.6 BY 1.29 NO-UNDO.
 
 DEFINE IMAGE imJobLookup
-     FILENAME "C:/Asigui/Environments/16.11.02/Resources/Graphics/32x32/magnifying_glass.ico":U
+     FILENAME "Graphics/32x32/magnifying_glass.ico":U
      STRETCH-TO-FIT RETAIN-SHAPE
      SIZE 5.4 BY 1.29.
 

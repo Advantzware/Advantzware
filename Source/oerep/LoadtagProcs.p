@@ -207,7 +207,7 @@ PROCEDURE pCreateLoadTagFromTT:
             bf-loadtag.job-no       = ipbf-ttLoadTag.jobID
             bf-loadtag.job-no2      = ipbf-ttLoadTag.jobID2
             bf-loadtag.ord-no       = IF CAN-FIND(FIRST cust 
-                                                  WHERE cust.company = cocode
+                                                  WHERE cust.company = ipbf-ttLoadTag.company
                                                     AND cust.cust-no = bf-itemfg.cust-no
                                                     AND cust.active = "X") THEN 
                                           0
