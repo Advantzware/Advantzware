@@ -765,21 +765,21 @@ lInRange = TRUE.
   /* Not multi-invoice */                                        
   RELEASE oe-bolh.
   
-  IF  "{&head}" EQ "inv-head" THEN DO:
+  &IF  "{&head}" EQ "inv-head" &THEN 
        FOR EACH b-{&head}1 no-lock
           WHERE b-{&head}1.{&rno} EQ ipbf-inv-head.{&rno}
           :
                
-           IF b-{&head}1.bol-no NE 0 THEN DO:
+           &IF b-{&head}1.bol-no NE 0 &THEN 
                 FOR EACH oe-bolh NO-LOCK 
                     WHERE oe-bolh.b-no EQ b-{&head}1.bol-no:
                                 
                   {&bol-check-range}
                 END.
-           END.
+           &ENDIF.
            
        END. /* each line */
-  END.   
+  &ENDIF.   
 
 END PROCEDURE.
 
