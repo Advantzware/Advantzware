@@ -321,14 +321,6 @@ PROCEDURE adm-create-objects :
        RUN set-position IN h_options ( 1.00 , 86.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 55.80 ) */
 
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'adm/objects/folder.w':U ,
-             INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'FOLDER-LABELS = ':U + 'Browse|Customer|Vendor|Ship To|Employee|Sold To' + ',
-                     FOLDER-TAB-TYPE = 2':U ,
-             OUTPUT h_folder ).
-       RUN set-position IN h_folder ( 2.86 , 1.00 ) NO-ERROR.
-       RUN set-size IN h_folder ( 19.76 , 158.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'smartobj/phone.w':U ,
@@ -352,7 +344,7 @@ PROCEDURE adm-create-objects :
              INPUT  'FOLDER-LABELS = ':U + 'Browse|Customer|Vendor|Ship To|Employee|Sold To' + ',
                      FOLDER-TAB-TYPE = 2':U ,
              OUTPUT h_folder ).
-       RUN set-position IN h_folder ( 3.14 , 1.00 ) NO-ERROR.
+       RUN set-position IN h_folder ( 2.86 , 1.00 ) NO-ERROR.
        RUN set-size IN h_folder ( 19.76 , 158.00 ) NO-ERROR.
 
        /* Links to SmartFolder h_folder. */

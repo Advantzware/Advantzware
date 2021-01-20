@@ -77,8 +77,9 @@ RUN AOA/spDynValidateProc.p    PERSISTENT SET hDynValProc.
 /* Custom List Definitions                                              */
 /* outputObjects,showFields,List-3,List-4,List-5,List-6                 */
 &Scoped-define outputObjects btnAddEmail svRecipients defaultOutputFormat ~
-svRunSync svShowAll svShowReportHeader svShowReportFooter svShowPageHeader ~
-svShowPageFooter svShowGroupHeader svShowGroupFooter svShowParameters 
+svAutoClose svRunSync svShowAll svShowReportHeader svShowReportFooter ~
+svShowPageHeader svShowPageFooter svShowGroupHeader svShowGroupFooter ~
+svShowParameters 
 &Scoped-define showFields svShowAll svShowReportHeader svShowReportFooter ~
 svShowPageHeader svShowPageFooter svShowGroupHeader svShowGroupFooter ~
 svShowParameters 
@@ -130,6 +131,11 @@ DEFINE RECTANGLE RECT-PANEL
 DEFINE RECTANGLE RECT-SHOW
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
      SIZE 156 BY 1.19.
+
+DEFINE VARIABLE svAutoClose AS LOGICAL INITIAL no 
+     LABEL "Auto Close" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 15 BY .81 NO-UNDO.
 
 DEFINE VARIABLE svRunSync AS LOGICAL INITIAL no 
      LABEL "Run Synchronous" 
@@ -191,6 +197,8 @@ DEFINE FRAME outputFrame
           "Add Recipents" WIDGET-ID 636
      svRecipients AT ROW 1.24 COL 8 NO-LABEL WIDGET-ID 600
      defaultOutputFormat AT ROW 2.43 COL 77 NO-LABEL WIDGET-ID 644
+     svAutoClose AT ROW 2.9 COL 44 HELP
+          "Toggle to Auto Close" WIDGET-ID 658
      svRunSync AT ROW 2.91 COL 8 HELP
           "Toggle to Run Synchronous" WIDGET-ID 662
      svShowAll AT ROW 4.1 COL 8 WIDGET-ID 18
@@ -275,6 +283,8 @@ ASSIGN FRAME outputFrame:FRAME = FRAME paramFrame:HANDLE.
    NO-ENABLE                                                            */
 /* SETTINGS FOR RECTANGLE RECT-SHOW IN FRAME outputFrame
    NO-ENABLE                                                            */
+/* SETTINGS FOR TOGGLE-BOX svAutoClose IN FRAME outputFrame
+   1                                                                    */
 /* SETTINGS FOR EDITOR svRecipients IN FRAME outputFrame
    1                                                                    */
 /* SETTINGS FOR TOGGLE-BOX svRunSync IN FRAME outputFrame

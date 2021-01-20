@@ -57,6 +57,17 @@ DEFINE VARIABLE ldummy AS LOG NO-UNDO.
 DEFINE VARIABLE cTextListToSelect AS cha NO-UNDO.
 DEFINE VARIABLE cFieldListToSelect AS cha NO-UNDO.
 DEF VAR cTextListToDefault AS cha NO-UNDO.
+DEFINE VARIABLE lReplaceQuote AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lAddTab       AS LOGICAL NO-UNDO. 
+DEFINE VARIABLE hdOutputProcs AS HANDLE  NO-UNDO.
+
+RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
+
+RUN Output_GetValueNK1OutputCSV IN hdOutputProcs(
+    INPUT  cocode,
+    OUTPUT lReplaceQuote,
+    OUTPUT lAddTab
+    ). 
 
 ASSIGN cTextListToSelect = "Part #,Customer,Quote#,Quantity,Price,Profit %,Price UOM,ShipTo,SoldTo,Quote Date,Delivery Date,Expiration Date," +
                            "Estimate #,Contact,Sales Group,Terms Code,Carrier,Zone,FG Item #,Item Description," +
@@ -501,6 +512,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd-fgexp rd-fgexp
 ON WINDOW-CLOSE OF FRAME rd-fgexp /* Export Quote to Excel */
 DO:
+    IF VALID-HANDLE(hdOutputProcs) THEN  
+        DELETE PROCEDURE hdOutputProcs. 
   APPLY "END-ERROR":U TO SELF.
 END.
 
@@ -1544,17 +1557,17 @@ FUNCTION appendXLLine RETURNS CHARACTER
   Purpose:  Adds a value to a csv line
     Notes:  Protects agains commans and quotes.
 ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE lc-line AS CHARACTER NO-UNDO.
-
+    DEFINE VARIABLE lc-line AS CHARACTER NO-UNDO.   
+    
     /* This prevents null values from corrupting the entire display line */
     IF ipc-append EQ ? THEN ASSIGN 
-        ipc-append = "".
+        ipc-append = "".       
     
-    ipc-append = REPLACE(ipc-append, '"', '').
-    ipc-append = REPLACE(ipc-append, ',', ' ').
+    ipc-append = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, ipc-append,lReplaceQuote,lAddTab).
+    
     lc-line = lc-line + '"' + ipc-append + '",'.
     RETURN lc-line.   /* Function return value. */
-
+    
 END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */

@@ -49,6 +49,9 @@ DEFINE TEMP-TABLE ttUserField NO-UNDO
 DEFINE VARIABLE hdUserFieldValue AS HANDLE    NO-UNDO EXTENT 3.
 DEFINE VARIABLE cUserFieldValue  AS CHARACTER NO-UNDO EXTENT 3.
 
+DEFINE VARIABLE char-hdl  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE pHandle   AS HANDLE    NO-UNDO.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -95,8 +98,9 @@ DEFINE VARIABLE cUserFieldValue  AS CHARACTER NO-UNDO EXTENT 3.
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-38 
-&Scoped-Define DISPLAYED-OBJECTS cbUserField1 cbUserField2 cbUserField3 
+&Scoped-Define ENABLED-OBJECTS rUserFieldsRectangle 
+&Scoped-Define DISPLAYED-OBJECTS fiUserFieldsRectangleLabel cbUserField1 ~
+cbUserField2 cbUserField3 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -125,21 +129,24 @@ DEFINE VARIABLE cbUserField3 AS CHARACTER FORMAT "X(256)":U
      DROP-DOWN-LIST
      SIZE 28 BY 1 NO-UNDO.
 
-DEFINE RECTANGLE RECT-38
+DEFINE VARIABLE fiUserFieldsRectangleLabel AS CHARACTER FORMAT "X(256)":U INITIAL "User Fields" 
+     VIEW-AS FILL-IN 
+     SIZE 14 BY .95
+     FONT 6 NO-UNDO.
+
+DEFINE RECTANGLE rUserFieldsRectangle
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 68 BY 9.29.
+     SIZE 68 BY 8.81.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
+     fiUserFieldsRectangleLabel AT ROW 1 COL 3 COLON-ALIGNED NO-LABEL WIDGET-ID 42
      cbUserField1 AT ROW 2.62 COL 4 COLON-ALIGNED NO-LABEL WIDGET-ID 36
      cbUserField2 AT ROW 4.05 COL 4 COLON-ALIGNED NO-LABEL WIDGET-ID 38
      cbUserField3 AT ROW 5.48 COL 4 COLON-ALIGNED NO-LABEL WIDGET-ID 40
-     "User Fields" VIEW-AS TEXT
-          SIZE 14.2 BY .86 AT ROW 1 COL 3.8 WIDGET-ID 34
-          FONT 6
-     RECT-38 AT ROW 1.38 COL 1 WIDGET-ID 32
+     rUserFieldsRectangle AT ROW 1.38 COL 1 WIDGET-ID 32
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -172,7 +179,7 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW s-object ASSIGN
-         HEIGHT             = 9.67
+         HEIGHT             = 9.19
          WIDTH              = 68.
 /* END WINDOW DEFINITION */
                                                                         */
@@ -217,6 +224,16 @@ ASSIGN
 ASSIGN 
        cbUserField3:PRIVATE-DATA IN FRAME F-Main     = 
                 "User Field 3".
+
+/* SETTINGS FOR FILL-IN fiUserFieldsRectangleLabel IN FRAME F-Main
+   NO-ENABLE                                                            */
+ASSIGN 
+       fiUserFieldsRectangleLabel:PRIVATE-DATA IN FRAME F-Main     = 
+                "UserFieldsRectangleLabel".
+
+ASSIGN 
+       rUserFieldsRectangle:PRIVATE-DATA IN FRAME F-Main     = 
+                "UserFieldsRectangle".
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -294,8 +311,6 @@ END.
   RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF
 
-RUN pInit.
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -357,12 +372,6 @@ PROCEDURE EnableUserFields :
     
     DO WITH FRAME {&FRAME-NAME}:
     END.
-
-/*    ASSIGN                           */
-/*        cbUserField1:SENSITIVE = TRUE*/
-/*        cbUserField2:SENSITIVE = TRUE*/
-/*        cbUserField3:SENSITIVE = TRUE*/
-/*        .                            */
 
     RUN pUpdateUserField (
         INPUT cbUserField1:SCREEN-VALUE,
@@ -447,6 +456,26 @@ PROCEDURE GetUserFields :
                 opcUserFieldValue3 = hdUserFieldValue[iCount]:SCREEN-VALUE.
         END.
     END. 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable s-object 
+PROCEDURE local-enable :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+    /* Code placed here will execute PRIOR to standard behavior. */
+
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable':U ) .
+
+    /* Code placed here will execute AFTER standard behavior.    */
+    RUN pInit.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -563,7 +592,9 @@ PROCEDURE pInit :
         .
         
 
-    oSSLoadTagJobDesignConfig = system.ConfigLoader:Instance:GetConfig("SSLoadTagJobDesign").
+    {methods/run_link.i "CONTAINER-SOURCE" "GetDesignConfig" "(OUTPUT oSSLoadTagJobDesignConfig)"}
+    
+    fiUserFieldsRectangleLabel:SCREEN-VALUE = "User Fields".
     
     IF VALID-OBJECT(oSSLoadTagJobDesignConfig) THEN DO:
         hdWidget = FRAME {&FRAME-NAME}:FIRST-CHILD:FIRST-CHILD.

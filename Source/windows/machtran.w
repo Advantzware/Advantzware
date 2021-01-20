@@ -23,6 +23,8 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
+&SCOPED-DEFINE local-destroy local-destroy
+
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
@@ -141,8 +143,8 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          TITLE              = "Machine Transactions"
          HEIGHT             = 24
          WIDTH              = 150
-         MAX-HEIGHT         = 24
-         MAX-WIDTH          = 150
+         MAX-HEIGHT         = 320
+         MAX-WIDTH          = 320
          VIRTUAL-HEIGHT     = 24
          VIRTUAL-WIDTH      = 150
          RESIZE             = yes
@@ -721,6 +723,8 @@ PROCEDURE local-destroy :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
+  
+  {custom/userWindow.i} 
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .

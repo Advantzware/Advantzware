@@ -47,6 +47,7 @@ DEF VAR li-page-b4VendCost AS INT NO-UNDO.
 
 {methods/defines/hndldefs.i}
 /*{methods/prgsecur.i}*/
+{methods/template/globaldef.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -156,18 +157,18 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          TITLE              = "FG Item"
          HEIGHT             = 26.5
          WIDTH              = 174.6
-         MAX-HEIGHT         = 26.5
-         MAX-WIDTH          = 172
+         MAX-HEIGHT         = 320
+         MAX-WIDTH          = 320
          VIRTUAL-HEIGHT     = 26.5
          VIRTUAL-WIDTH      = 174.6
-         RESIZE             = no
-         SCROLL-BARS        = no
-         STATUS-AREA        = yes
+         RESIZE             = YES
+         SCROLL-BARS        = NO
+         STATUS-AREA        = YES
          BGCOLOR            = ?
          FGCOLOR            = ?
-         THREE-D            = yes
-         MESSAGE-AREA       = no
-         SENSITIVE          = yes.
+         THREE-D            = YES
+         MESSAGE-AREA       = NO
+         SENSITIVE          = YES.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
@@ -242,6 +243,7 @@ END.
 
 /* ***************************  Main Block  *************************** */
 {custom/globdefs.i}
+{custom/resizrs.i}
 {sys/inc/var.i new shared}
 ASSIGN 
     cocode = g_Company
@@ -250,7 +252,8 @@ ASSIGN
 
 /* Include custom  Main Block code for SmartWindows. */
 {src/adm/template/windowmn.i}
-  
+ 
+{custom/initializeprocs.i} 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1086,7 +1089,7 @@ PROCEDURE local-change-page:
 
   /* Code placed here will execute AFTER standard behavior.    */
 
-
+    {methods/winReSizePgChg.i}
 
 END PROCEDURE.
 	

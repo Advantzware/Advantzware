@@ -172,6 +172,10 @@ DEF TEMP-TABLE ttResTemplateFiles
     FIELD cLongName AS CHAR 
     FIELD daModDate AS DATE.    
 
+DEF TEMP-TABLE ttledger 
+    FIELD cType as CHAR 
+    FIELD rRowid as ROWID.
+
 DEF BUFFER bnotes FOR notes.
 DEF BUFFER bf-usercomp FOR usercomp.
 DEF BUFFER bf-module FOR MODULE.
@@ -2615,8 +2619,9 @@ PROCEDURE ipDataFix :
         RUN ipDataFix200202.
     IF fIntVer(cThisEntry) LT 20030300 THEN 
         RUN ipDataFix200303.
-    IF fIntVer(cThisEntry) LE 20030600 THEN 
+    IF fIntVer(cThisEntry) LT 21000000 THEN DO:
         RUN ipDataFix200306.
+    END.
     IF fIntVer(cThisEntry) LT 99999999 THEN
         RUN ipDataFix999999.
 
@@ -3296,33 +3301,43 @@ PROCEDURE ipDataFix200306:
     /* 95500 After Update, A-R-8 report lists only 3 December deposits */
     /* In older records, these values will have 10-digit check numbers, and new program
         versions expect 12 digit check numbers */
+
     FOR EACH ar-ledger NO-LOCK WHERE
         ar-ledger.ref-num BEGINS "CHK#" OR
         ar-ledger.ref-num BEGINS "VOIDED CHK#" OR 
         ar-ledger.ref-num BEGINS "DISC VD":
-            
-        IF ar-ledger.ref-num BEGINS "CHK#" 
-        AND LENGTH(ar-ledger.ref-num) EQ 15 THEN DO:
+        CREATE ttLedger.
+        ASSIGN
+            cType = ar-ledger.ref-num
+            ttLedger.rRowid = ROWID(ar-ledger).
+    END.
+    
+    FOR EACH ttLedger:
+        IF cType BEGINS "CHK#" 
+        AND LENGTH(cType) EQ 15 THEN 
+        DO:
             FIND bar-ledger EXCLUSIVE WHERE 
-                ROWID(bar-ledger) EQ ROWID(ar-ledger).
+                ROWID(bar-ledger) EQ ttLedger.rRowid.
             ASSIGN
                 cNewValue = SUBSTRING(bar-ledger.ref-num,1,5) + "00" + SUBSTRING(bar-ledger.ref-num,6)
                 bar-ledger.ref-num = cNewValue.
             RELEASE bar-ledger.
         END.
-        ELSE IF ar-ledger.ref-num BEGINS "VOIDED CHK#" 
-        AND LENGTH(ar-ledger.ref-num) EQ 22 THEN DO: 
+        ELSE IF cType BEGINS "VOIDED CHK#" 
+        AND LENGTH(cType) EQ 22 THEN 
+        DO: 
             FIND bar-ledger EXCLUSIVE WHERE 
-                ROWID(bar-ledger) EQ ROWID(ar-ledger).
+                ROWID(bar-ledger) EQ ttLedger.rRowid.
             ASSIGN
                 cNewValue = SUBSTRING(bar-ledger.ref-num,1,12) + "00" + SUBSTRING(bar-ledger.ref-num,13)
                 bar-ledger.ref-num = cNewValue.
             RELEASE bar-ledger.
         END.    
-        ELSE IF bar-ledger.ref-num BEGINS "DISC VD" 
-        AND LENGTH(bar-ledger.ref-num) EQ 28 THEN DO: 
+        ELSE IF cType BEGINS "DISC VD" 
+        AND LENGTH(cType) EQ 28 THEN 
+        DO: 
             FIND bar-ledger EXCLUSIVE WHERE 
-                ROWID(bar-ledger) EQ ROWID(ar-ledger).
+                ROWID(bar-ledger) EQ ttLedger.rRowid.
             ASSIGN
                 cNewValue = SUBSTRING(bar-ledger.ref-num,1,7) + "00" + SUBSTRING(bar-ledger.ref-num,8)
                 bar-ledger.ref-num = cNewValue.

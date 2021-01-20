@@ -312,14 +312,14 @@ eb.pur-man est.est-date eb.spare-char-2 eb.spare-char-1
       EACH eb WHERE eb.company = ef.company ~
   AND eb.est-no = ef.est-no ~
   AND eb.form-no = ef.form-no NO-LOCK ~
-    ~{&SORTBY-PHRASE} INDEXED-REPOSITION
+    ~{&SORTBY-PHRASE} 
 &Scoped-define OPEN-QUERY-br-estitm OPEN QUERY br-estitm FOR EACH ef WHERE ef.company = est-qty.company ~
   AND ef.est-no = est-qty.est-no ~
   AND ef.eqty = est-qty.eqty NO-LOCK, ~
       EACH eb WHERE eb.company = ef.company ~
   AND eb.est-no = ef.est-no ~
   AND eb.form-no = ef.form-no NO-LOCK ~
-    ~{&SORTBY-PHRASE} INDEXED-REPOSITION.
+    ~{&SORTBY-PHRASE} .
 &Scoped-define TABLES-IN-QUERY-br-estitm ef eb
 &Scoped-define FIRST-TABLE-IN-QUERY-br-estitm ef
 &Scoped-define SECOND-TABLE-IN-QUERY-br-estitm eb
@@ -582,7 +582,7 @@ ASSIGN
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE br-estitm
 /* Query rebuild information for BROWSE br-estitm
      _TblList          = "ASI.ef WHERE ASI.est-qty ...,ASI.eb WHERE ASI.ef ..."
-     _Options          = "NO-LOCK INDEXED-REPOSITION KEY-PHRASE SORTBY-PHRASE"
+     _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = ","
      _OrdList          = "ASI.eb.form-no|yes,ASI.eb.blank-no|yes"
      _JoinCode[1]      = "ASI.ef.company = ASI.est-qty.company
@@ -6475,8 +6475,6 @@ PROCEDURE local-update-record :
         APPLY "entry" TO eb.wid.
         RETURN NO-APPLY.
      END.
-     MESSAGE string(lv-copied)
-     VIEW-AS ALERT-BOX.
 
      IF DECIMAL(eb.wid:screen-value) - trunc(DECIMAL(eb.wid:screen-value),0) >= v-16-or-32 
      THEN DO:

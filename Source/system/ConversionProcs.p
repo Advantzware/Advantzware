@@ -1,4 +1,3 @@
-
 /*------------------------------------------------------------------------
     File        : ConversionProcs.p
     Purpose     : 
@@ -14,20 +13,20 @@
 
 /* ***************************  Definitions  ************************** */
 
-DEFINE TEMP-TABLE ttUOM 
-    FIELD uom                 AS CHARACTER
-    FIELD uomBase             AS CHARACTER
-    FIELD multiplierToBase    AS DECIMAL
-    FIELD uomDescription      AS CHARACTER 
-    FIELD canUseOrderQuantity AS LOGICAL 
-    FIELD canUsePOQuantity    AS LOGICAL
-    FIELD canUseStockQuantity AS LOGICAL
-    FIELD canUsePricePerUnit  AS LOGICAL
-    FIELD canUseCostPerUnit   AS LOGICAL
-    FIELD isBaseConverter     AS LOGICAL
-    FIELD isOverridden        AS LOGICAL
-    FIELD uomSource           AS CHARACTER 
-    FIELD iSourceLevel        AS INTEGER
+DEFINE TEMP-TABLE ttUOM NO-UNDO
+    FIELD uom                 AS CHARACTER LABEL "UOM"         FORMAT "x(4)"
+    FIELD uomBase             AS CHARACTER LABEL "Base UOM"    FORMAT "x(4)"
+    FIELD multiplierToBase    AS DECIMAL   LABEL "Multiplier"  FORMAT ">>>,>>>,>>9.9999"
+    FIELD uomDescription      AS CHARACTER LABEL "Description" FORMAT "x(30)"
+    FIELD canUseOrderQuantity AS LOGICAL   LABEL "Use Order Qty"
+    FIELD canUsePOQuantity    AS LOGICAL   LABEL "Use PO Qty"
+    FIELD canUseStockQuantity AS LOGICAL   LABEL "Use Stock Qty"
+    FIELD canUsePricePerUnit  AS LOGICAL   LABEL "Use Price Per Unit"
+    FIELD canUseCostPerUnit   AS LOGICAL   LABEL "Use Cost Per Unit"
+    FIELD isBaseConverter     AS LOGICAL   LABEL "Base Converter"
+    FIELD isOverridden        AS LOGICAL   LABEL "Overridden"
+    FIELD uomSource           AS CHARACTER LABEL "UOM Source"
+    FIELD iSourceLevel        AS INTEGER   LABEL "Source Level"
     . 
 
 /* ********************  Preprocessor Definitions  ******************** */
@@ -1146,6 +1145,16 @@ FUNCTION fGetFeet RETURNS DECIMAL PRIVATE
         
 END FUNCTION.
 
+FUNCTION fConv_ttUOMHandle RETURNS HANDLE
+    ( ):
+    /*------------------------------------------------------------------------------
+     Purpose: get temp-table uom handle
+     Notes:
+    ------------------------------------------------------------------------------*/    
+    RETURN TEMP-TABLE ttUOM:HANDLE.
+
+END FUNCTION.
+
 FUNCTION fGetInches RETURNS DECIMAL PRIVATE
     ( ipdDim AS DECIMAL, ipcUOM AS CHARACTER ):
     /*------------------------------------------------------------------------------
@@ -1231,14 +1240,10 @@ FUNCTION fConv_ValidUomForRMItem RETURNS LOGICAL
      Purpose:  Returns setting for FGItemUOM
      Notes:
     ------------------------------------------------------------------------------*/	
-    DEFINE VARIABLE lReturn     AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cUomlist    AS CHARACTER NO-UNDO.
        
-    run sys/ref/uom-rm.p  (ipcType, output cUomlist).
-    IF LOOKUP(ipcUom,cUomlist) EQ 0 THEN
-        lReturn = TRUE.
-    ELSE lReturn = FALSE.    
+    RUN sys/ref/uom-rm.p (ipcType, OUTPUT cUomlist).
         
-    RETURN lReturn.
+    RETURN LOOKUP(ipcUom,cUomlist) EQ 0.
 	
 END FUNCTION.

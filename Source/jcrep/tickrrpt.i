@@ -604,7 +604,7 @@ IF ip-industry EQ "Fold" THEN DO:
    END.
    ELSE IF lv-format-f EQ "Henry" THEN DO:
       PUT UNFORMATTED "<OLANDSCAPE><P10></PROGRESS>".
-      RUN cerep/jobhenry.p (lv-format-f).                
+      RUN cerep/jobhenry.p (lv-format-f,spanish).                
    END.
    ELSE DO:
       PUT UNFORMATTED "<OLANDSCAPE><P10></PROGRESS>".

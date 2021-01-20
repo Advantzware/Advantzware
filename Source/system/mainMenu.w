@@ -920,7 +920,6 @@ PROCEDURE CtrlFrame.PSTimer.Tick .
     
     lSaveErrStat = ERROR-STATUS:ERROR.
     IF lViewTaskResults EQ YES OR lViewTaskResults EQ ? THEN DO:
-        RUN spRunCueCard ("Message", cCuePrgmName, hCueWindow, hCueFrame, lCueActive).
         FIND FIRST taskResult NO-LOCK
              WHERE taskResult.user-id EQ USERID("ASI")
                AND taskResult.viewed  EQ NO
@@ -941,6 +940,8 @@ PROCEDURE CtrlFrame.PSTimer.Tick .
             END. /* if lViewTaskResults eq ? */
         END. /* if avail */
     END.
+    ELSE
+    RUN spRunCueCard ("Message", cCuePrgmName, hCueWindow, hCueFrame, lCueActive).
     FIND FIRST config NO-LOCK.
     cStatusDefault = "Task Monitor Last Executed: " + STRING(config.taskerLastExecuted).
     IF config.taskerLastExecuted LT DATETIME(TODAY,TIME * 1000 - 15000) THEN DO:
