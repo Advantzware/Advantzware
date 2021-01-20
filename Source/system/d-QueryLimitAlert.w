@@ -25,9 +25,10 @@
 /* ***************************  Definitions  ************************** */
 
 /* Parameters Definitions ---                                           */
-    DEFINE INPUT  PARAMETER ipcMessage  AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcTitle    AS CHARACTER NO-UNDO.
-    DEFINE OUTPUT PARAMETER opcResponse AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcMessage       AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTitle         AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER iplEnableShowAll AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcResponse      AS CHARACTER NO-UNDO.
 
 /* Local Variable Definitions ---                                       */
 
@@ -46,7 +47,7 @@
 &Scoped-define FRAME-NAME Dialog-Frame
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS IMAGE-2 edText btShowAll btYes btNo 
+&Scoped-Define ENABLED-OBJECTS IMAGE-2 edText btYes btNo 
 &Scoped-Define DISPLAYED-OBJECTS edText 
 
 /* Custom List Definitions                                              */
@@ -89,9 +90,9 @@ DEFINE IMAGE IMAGE-2
 
 DEFINE FRAME Dialog-Frame
      edText AT ROW 1.95 COL 12 NO-LABEL WIDGET-ID 10
-     btShowAll AT ROW 4.86 COL 19 WIDGET-ID 2
-     btYes AT ROW 4.91 COL 42.4 WIDGET-ID 4
-     btNo AT ROW 5 COL 68 WIDGET-ID 6
+     btShowAll AT ROW 4.86 COL 21.2 WIDGET-ID 2
+     btYes AT ROW 4.86 COL 42.4 WIDGET-ID 4
+     btNo AT ROW 4.86 COL 64.4 WIDGET-ID 6
      IMAGE-2 AT ROW 1.91 COL 2 WIDGET-ID 14
      SPACE(90.99) SKIP(2.41)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
@@ -121,6 +122,8 @@ ASSIGN
        FRAME Dialog-Frame:SCROLLABLE       = FALSE
        FRAME Dialog-Frame:HIDDEN           = TRUE.
 
+/* SETTINGS FOR BUTTON btShowAll IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
 ASSIGN 
        edText:READ-ONLY IN FRAME Dialog-Frame        = TRUE.
 
@@ -205,6 +208,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
   RUN enable_UI.
   RUN pSetTitleAndText.
+  IF iplEnableShowAll THEN 
+    btShowAll:SENSITIVE = iplEnableShowAll.
   WAIT-FOR GO OF FRAME {&FRAME-NAME}.
 END.
 RUN disable_UI.
@@ -245,7 +250,7 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY edText 
       WITH FRAME Dialog-Frame.
-  ENABLE IMAGE-2 edText btShowAll btYes btNo 
+  ENABLE IMAGE-2 edText btYes btNo 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
