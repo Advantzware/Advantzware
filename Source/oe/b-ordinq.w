@@ -2023,7 +2023,7 @@ PROCEDURE pPrepareAndExecuteQuery :
                      + (IF fi_i-name  NE "" THEN " AND oe-ordl.i-name  BEGINS "  + QUOTER(fi_i-name)   ELSE "")
                      + " BY oe-ord.rec_key DESC "
                      .
-     IF fi_ord-no EQ 0 THEN DO:              
+     IF fi_ord-no EQ 0 THEN             
          RUN Browse_PrepareAndExecuteLimitingQuery(
             INPUT  cLimitingQuery,   /* Query */
             INPUT  "oe-ord,oe-ordl", /* Buffers Name */
@@ -2036,8 +2036,7 @@ PROCEDURE pPrepareAndExecuteQuery :
             INPUT  NO ,              /* Is breakby used */
             OUTPUT cResponse           
             ).       
-    END.  
-
+  
     ELSE IF fi_ord-no NE 0 THEN
         cResponse = "OrderNo". 
               
