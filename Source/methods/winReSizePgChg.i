@@ -1,17 +1,15 @@
 /* winReSizePgChg.i */
 // pgchg
 ASSIGN 
-    deResizeVal   = 0.
-    deTempColPos  = 0.
-    cSmartObjList = "".     
-    iCntWidHand   = 0.
-    hTempObjHand  = ?.
-    deRowPos      = 0.
-    deColPos      = 0.
-    deWidth       = 0.
-    deHeight      = 0.
-    pgno          = "".
-    lastBtnPos    = 0.
+    deResizeVal   = 0
+    cSmartObjList = ""    
+    iCntWidHand   = 0
+    hTempObjHand  = ?
+    deRowPos      = 0
+    deColPos      = 0
+    deWidth       = 0
+    deHeight      = 0
+    pgno          = ""
     deTempColPos  = 0.
 
 RUN get-attribute IN THIS-PROCEDURE ('Current-Page':U).

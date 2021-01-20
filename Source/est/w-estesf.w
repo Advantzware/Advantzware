@@ -40,13 +40,23 @@ CREATE WIDGET-POOL.
 DEF INPUT PARAMETER ip-est AS RECID NO-UNDO .
 {methods/defines/hndldefs.i}
 {custom/globdefs.i}
-
+{methods/template/globaldef.i}
 DEFINE VARIABLE rec_key_value AS CHARACTER NO-UNDO.
 DEFINE VARIABLE header_value AS CHARACTER NO-UNDO.
 
 def var li-page as int extent 2 no-undo.
 
 DEFINE VARIABLE efbrowse AS CHARACTER NO-UNDO.
+&SCOPED-DEFINE winReSize
+&SCOPED-DEFINE h_Object02 h_vp-est
+&SCOPED-DEFINE h_Object03 h_p-fest1
+&SCOPED-DEFINE h_Object04 h_p-estprp
+&SCOPED-DEFINE h_Object05 h_p-estop
+&SCOPED-DEFINE h_Object06 h_vi-est-5
+&SCOPED-DEFINE h_Object07 h_p-probe
+&SCOPED-DEFINE moveRight {&h_Object04},{&h_Object05}
+
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -160,18 +170,18 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          TITLE              = "Estimate - Folding"
          HEIGHT             = 23.76
          WIDTH              = 159.4
-         MAX-HEIGHT         = 23.76
-         MAX-WIDTH          = 159.4
+         MAX-HEIGHT         = 320
+         MAX-WIDTH          = 320
          VIRTUAL-HEIGHT     = 23.76
          VIRTUAL-WIDTH      = 159.4
-         RESIZE             = no
-         SCROLL-BARS        = no
-         STATUS-AREA        = yes
+         RESIZE             = YES
+         SCROLL-BARS        = NO
+         STATUS-AREA        = YES
          BGCOLOR            = ?
          FGCOLOR            = ?
-         THREE-D            = yes
-         MESSAGE-AREA       = no
-         SENSITIVE          = yes.
+         THREE-D            = YES
+         MESSAGE-AREA       = NO
+         SENSITIVE          = YES.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
@@ -247,7 +257,9 @@ END.
 /* ***************************  Main Block  *************************** */
 
 /* Include custom  Main Block code for SmartWindows. */
+{custom/resizrs.i}
 {src/adm/template/windowmn.i}
+{custom/initializeprocs.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1111,7 +1123,7 @@ PROCEDURE local-change-page :
    
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'change-page':U ) .
-
+ {methods/winReSizePgChg.i}
   /* Code placed here will execute AFTER standard behavior.    */
   
 END PROCEDURE.
