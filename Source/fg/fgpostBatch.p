@@ -844,45 +844,44 @@ PROCEDURE fg-post:
 
             END. /* If v-cost-from-receipt = TransferCost */
 
-
-            FOR EACH oe-ordl
-                WHERE oe-ordl.company EQ cocode
-                AND oe-ordl.opened  EQ YES
-                AND oe-ordl.i-no    EQ w-fg-rctd.i-no
-                AND oe-ordl.job-no  EQ ""
-                /*  AND oe-ordl.cost    EQ 0*/
-                USE-INDEX opened NO-LOCK
-                BREAK BY oe-ordl.ord-no
-                TRANSACTION:
-
-                v-calc-cost = oe-ordl.cost.
-
-                IF oe-ordl.cost NE 0 AND NOT v-cost-from-receipt = "TransferCost" THEN
-                    NEXT.
-
-                /* Default to standard cost, or accept calculated value from code above */
-                IF NOT (v-cost-from-receipt = "TransferCost" AND itemfg.spare-dec-1 EQ 0) THEN 
-                DO:
-                    IF oe-ordl.cost EQ 0 THEN 
-                    DO:
-
-                        IF itemfg.prod-uom EQ "M" THEN
-                            v-calc-cost = itemfg.total-std-cost.
-                        ELSE
-                            RUN sys/ref/convcuom.p((IF DYNAMIC-FUNCTION("Conv_IsEAUOM",itemfg.company, itemfg.i-no, itemfg.prod-uom)
-                                THEN "EA" ELSE itemfg.prod-uom),
-                                "M", 0, 0, 0, 0,
-                                itemfg.total-std-cost, OUTPUT v-calc-cost).
-                    END. /* If cost EQ 0 */
-
-                END. /* Not TransferCost */
-
-                /* WFK - process is too slow, so only update if its available */
-                FIND b-oe-ordl WHERE ROWID(b-oe-ordl) EQ ROWID(oe-ordl) EXCLUSIVE NO-ERROR NO-WAIT.
-                IF b-oe-ordl.cost NE v-calc-cost THEN
-                    b-oe-ordl.cost = v-calc-cost.
-
-            END. /* each oe-ordl */
+/* Ticket #95951 */
+/*            FOR EACH oe-ordl                                                                                                        */
+/*                WHERE oe-ordl.company EQ cocode                                                                                     */
+/*                AND oe-ordl.opened  EQ YES                                                                                          */
+/*                AND oe-ordl.i-no    EQ w-fg-rctd.i-no                                                                               */
+/*                AND oe-ordl.job-no  EQ ""                                                                                           */
+/*                /*  AND oe-ordl.cost    EQ 0*/                                                                                      */
+/*                BREAK BY oe-ordl.ord-no                                                                                             */
+/*                TRANSACTION:                                                                                                        */
+/*                                                                                                                                    */
+/*                v-calc-cost = oe-ordl.cost.                                                                                         */
+/*                                                                                                                                    */
+/*                IF oe-ordl.cost NE 0 AND NOT v-cost-from-receipt = "TransferCost" THEN                                              */
+/*                    NEXT.                                                                                                           */
+/*                                                                                                                                    */
+/*                /* Default to standard cost, or accept calculated value from code above */                                          */
+/*                IF NOT (v-cost-from-receipt = "TransferCost" AND itemfg.spare-dec-1 EQ 0) THEN                                      */
+/*                DO:                                                                                                                 */
+/*                    IF oe-ordl.cost EQ 0 THEN                                                                                       */
+/*                    DO:                                                                                                             */
+/*                                                                                                                                    */
+/*                        IF itemfg.prod-uom EQ "M" THEN                                                                              */
+/*                            v-calc-cost = itemfg.total-std-cost.                                                                    */
+/*                        ELSE                                                                                                        */
+/*                            RUN sys/ref/convcuom.p((IF DYNAMIC-FUNCTION("Conv_IsEAUOM",itemfg.company, itemfg.i-no, itemfg.prod-uom)*/
+/*                                THEN "EA" ELSE itemfg.prod-uom),                                                                    */
+/*                                "M", 0, 0, 0, 0,                                                                                    */
+/*                                itemfg.total-std-cost, OUTPUT v-calc-cost).                                                         */
+/*                    END. /* If cost EQ 0 */                                                                                         */
+/*                                                                                                                                    */
+/*                END. /* Not TransferCost */                                                                                         */
+/*                                                                                                                                    */
+/*                /* WFK - process is too slow, so only update if its available */                                                    */
+/*                FIND b-oe-ordl WHERE ROWID(b-oe-ordl) EQ ROWID(oe-ordl) EXCLUSIVE NO-ERROR NO-WAIT.                                 */
+/*                IF b-oe-ordl.cost NE v-calc-cost THEN                                                                               */
+/*                    b-oe-ordl.cost = v-calc-cost.                                                                                   */
+/*                                                                                                                                    */
+/*            END. /* each oe-ordl */                                                                                                 */
         END. /* last of i-no */
     END. /* each w-fg-rctd */
 
