@@ -2,7 +2,7 @@
 	"FGFilter" : {
 	   "FGItem" : {
             "visible" : true,
-            "sensitive" : true	   
+            "sensitive" : false	   
 	   }
 	},
 	"UserFields" : {
