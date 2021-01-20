@@ -52,14 +52,11 @@ DEFINE VARIABLE oItemFG          AS fg.ItemFG         NO-UNDO.
 DEFINE VARIABLE hdInventoryProcs AS HANDLE    NO-UNDO.
 DEFINE VARIABLE cTag             AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCompany         AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iWarehouseLength AS INTEGER   NO-UNDO.
 
 DEFINE VARIABLE gcLocationSource AS CHARACTER NO-UNDO INITIAL "LoadTag".
 DEFINE VARIABLE glCloseJob       AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE glAutoPost       AS LOGICAL   NO-UNDO INITIAL TRUE.
-
-RUN inventory/InventoryProcs.p PERSISTENT SET hdInventoryProcs.
-
-RUN spGetSessionParam ("Company", OUTPUT cCompany).
 
 oLoadTag = NEW Inventory.Loadtag().
 oFGBin   = NEW fg.FGBin().
@@ -139,7 +136,7 @@ DEFINE BUTTON btClearRecords
      SIZE 21.6 BY 1.14 TOOLTIP "Clear all the scanned data from grid".
 
 DEFINE BUTTON btExit AUTO-END-KEY 
-     IMAGE-UP FILE "C:/Asigui/Environments/Devel/Resources/Graphics/32x32/door_exit.ico":U
+     IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U
      LABEL "Exit" 
      SIZE 11 BY 2.62 TOOLTIP "Exit".
 
@@ -548,6 +545,29 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable W-Win
+PROCEDURE local-enable:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+ 
+    /* Code placed here will execute PRIOR to standard behavior. */
+
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable':U ) .
+
+    /* Code placed here will execute AFTER standard behavior.    */
+    RUN pInit.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-exit W-Win 
 PROCEDURE local-exit :
 /* -----------------------------------------------------------
@@ -563,6 +583,28 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pInit W-Win
+PROCEDURE pInit PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RUN inventory/InventoryProcs.p PERSISTENT SET hdInventoryProcs.
+    
+    RUN spGetSessionParam ("Company", OUTPUT cCompany).
+    
+    RUN Inventory_GetWarehouseLength IN hdInventoryProcs (
+        INPUT  cCompany,
+        OUTPUT iWarehouseLength
+        ).
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pLocationScan W-Win 
 PROCEDURE pLocationScan PRIVATE :
@@ -810,7 +852,7 @@ PROCEDURE pTagScan PRIVATE :
     END.
     
     fiLocation:SCREEN-VALUE = cWarehouse 
-                            + FILL(" ", 5 - LENGTH(cWarehouse)) 
+                            + FILL(" ", iWarehouseLength - LENGTH(cWarehouse)) 
                             + cLocation.      
 
     IF oplIsTransfer THEN DO:
@@ -931,7 +973,7 @@ FUNCTION fGetConcatLocationID RETURNS CHARACTER PRIVATE
     Notes:  
 ------------------------------------------------------------------------------*/
     RETURN ttBrowseInventory.warehouseID + " " 
-           + FILL(" ", 5 - LENGTH(ttBrowseInventory.warehouseID)) 
+           + FILL(" ", iWarehouseLength - LENGTH(ttBrowseInventory.warehouseID)) 
            + ttBrowseInventory.locationID.
 END FUNCTION.
 
