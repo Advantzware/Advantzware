@@ -4311,9 +4311,9 @@ DO:
   RUN flushRegistry.
 
   /* FOR ADVANTZWARE ONLY */
-    IF SEARCH("DataDigger/dbmsNewUI.ini") NE ? THEN DO:
-        LOAD "dbmsNewUI".
-        USE "dbmsNewUI".
+    IF SEARCH("dbmsNewUI.ini") NE ? THEN DO:
+        LOAD SEARCH("dbmsNewUI.ini").
+        USE SEARCH("dbmsNewUI.ini").
     END.
   /* END FOR ADVANTZWARE ONLY */
 
