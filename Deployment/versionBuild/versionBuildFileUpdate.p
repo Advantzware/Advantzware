@@ -44,6 +44,8 @@ PUT UNFORMATTED "&Global-define awversion " + cNewVer + CHR(10).
 PUT UNFORMATTED "&Global-define EulaFile Eula.txt" + CHR(10).
 OUTPUT CLOSE.
 
+OS-COPY VALUE("c:\asigui\environments\devel\Programs\DataDigger\DataDigger-jayfarr.ini") VALUE("c:\asigui\environments\" + cNewVer + "\DataDigger\DataDigger.ini"
+
 /* Create fsinstaller config files for 'Normal' and 'Override' compiles */
 OUTPUT TO VALUE("c:\asigui\build\fsInstaller\AW" + 
                     SUBSTRING(cNewVer,1,2) + "_" +
