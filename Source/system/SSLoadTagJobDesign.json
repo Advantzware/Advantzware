@@ -73,7 +73,7 @@
             "visible" : false,
             "sensitive" : false
 		},
-		"Partial Tags" : {
+		"PartialTags" : {
 			"label" : "Partial Tags",
             "visible" : false,
             "sensitive" : false
@@ -91,6 +91,98 @@
             "visible" : true
         }		
 	},
-	"LoadtagBrowse" : {
-	}
+    "LoadtagBrowse" : {
+        "OrderID" : {
+            "label" : "Order#",
+            "visible" : false
+        },
+        "JobID" : {
+            "label" : "Job#",
+            "visible" : true
+        },
+        "JobID2" : {
+            "label" : "Run",
+            "visible" : true
+        },
+        "CustomerID" : {
+            "label" : "Customer#",
+            "visible" : false
+        },
+        "ItemID" : {
+            "label" : "Item#",
+            "visible" : true
+        },
+        "OrderQuantity" : {
+            "label" : "Order!Quantity",
+            "visible" : false
+        },
+        "ReleaseQuantity" : {
+            "label" : "Release!Quantity",
+            "visible" : false
+        },
+        "OversPercent" : {
+            "label" : "Overs",
+            "visible" : false
+        },
+        "QuantityInSubUnit" : {
+            "label" : "Case!Quantity",
+            "visible" : true
+        },
+        "SubUnitsPerUnit" : {
+            "label" : "Cases Per!Pallet",
+            "visible" : true
+        },
+        "Partial" : {
+            "label" : "Partial",
+            "visible" : false
+        },
+        "QuantityInUnit" : {
+            "label" : "Pallet!Quantity",
+            "visible" : true
+        },
+        "TotalTags" : {
+            "label" : "Total Tags",
+            "visible" : false
+        },
+        "UnitWeight" : {
+            "label" : "Unit!Weight",
+            "visible" : false
+        },
+        "PalletWeight" : {
+            "label" : "Pallet!Weight",
+            "visible" : false
+        },
+        "LotID" : {
+            "label" : "Lot#",
+            "visible" : false
+        },
+        "ItemName" : {
+            "label" : "Item Name",
+            "visible" : false
+        },
+        "CustomerPO" : {
+            "label" : "PO#",
+            "visible" : false
+        },
+        "POLine" : {
+            "label" : "Ln#",
+            "visible" : false
+        },
+        "PrintCopies" : {
+            "label" : "Print!Copies",
+            "visible" : true
+        },
+        "Status" : {
+            "label" : "Status",
+            "visible" : true
+        },
+        "JobQuantity" : {
+            "label" : "Job!Quantity",
+            "visible" : true
+        },
+        "TotalQuantity" : {
+            "label" : "Total!Quantity",
+            "visible" : false
+        }
+    }
 }

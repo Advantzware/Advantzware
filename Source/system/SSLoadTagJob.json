@@ -21,11 +21,11 @@
         "Copies" : 1
 	},
 	"CreateRFIDTag" : {
-		"Description" : "NK1 RFIDTag - Create rfIDTag for a lodatag",
+		"Description" : "NK1 RFIDTag - Create rfIDTag for a loadtag",
 		"Active" : true	
 	},
 	"CheckClosedStatus" : {
-		"Description" : "Validate Job/PO status before ccreating FG Receipts",
+		"Description" : "Validate Job/PO status before creating FG Receipts",
 		"Active" : false
 	},
 	"CreateFGReceipts" : {

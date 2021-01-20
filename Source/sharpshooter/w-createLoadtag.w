@@ -76,7 +76,7 @@ oCustomer = NEW Inventory.Customer().
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-1 btExit RECT-34 rHighlight btJob btPO ~
-btRelease btReturn btReprint btSplit btDelete btPrint 
+btRelease btReturn btDelete btReprint btPrint btSplit 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -167,12 +167,12 @@ DEFINE FRAME F-Main
      btJob AT ROW 1.19 COL 5.4 WIDGET-ID 2 NO-TAB-STOP 
      btPO AT ROW 1.19 COL 29.8 WIDGET-ID 24 NO-TAB-STOP 
      btRelease AT ROW 1.19 COL 53.8 WIDGET-ID 48 NO-TAB-STOP 
-     btReturn AT ROW 1.19 COL 77.8 WIDGET-ID 50 NO-TAB-STOP 
-     btReprint AT ROW 1.19 COL 101.6 WIDGET-ID 52 NO-TAB-STOP 
-     btSplit AT ROW 1.19 COL 125.4 WIDGET-ID 54 NO-TAB-STOP 
      btCreate AT ROW 2.95 COL 188.4 WIDGET-ID 58
+     btReturn AT ROW 1.19 COL 77.8 WIDGET-ID 50 NO-TAB-STOP 
      btDelete AT ROW 23.19 COL 185 WIDGET-ID 62
+     btReprint AT ROW 1.19 COL 101.6 WIDGET-ID 52 NO-TAB-STOP 
      btPrint AT ROW 23.19 COL 194.4 WIDGET-ID 30
+     btSplit AT ROW 1.19 COL 125.4 WIDGET-ID 54 NO-TAB-STOP 
      RECT-1 AT ROW 2.81 COL 1 WIDGET-ID 4
      RECT-34 AT ROW 1 COL 1 WIDGET-ID 18
      rHighlight AT ROW 1 COL 4.4 WIDGET-ID 20
@@ -234,7 +234,7 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* SETTINGS FOR WINDOW W-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-   FRAME-NAME                                                           */
+   FRAME-NAME Custom                                                    */
 /* SETTINGS FOR BUTTON btCreate IN FRAME F-Main
    NO-ENABLE                                                            */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(W-Win)
@@ -462,8 +462,8 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_printcopies ).
-       RUN set-position IN h_printcopies ( 7.05 , 98.40 ) NO-ERROR.
-       /* Size in UIB:  ( 2.19 , 32.60 ) */
+       RUN set-position IN h_printcopies ( 7.14 , 98.40 ) NO-ERROR.
+       /* Size in UIB:  ( 1.86 , 32.60 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'sharpshooter/smartobj/qtyunits.w':U ,
@@ -501,13 +501,11 @@ PROCEDURE adm-create-objects :
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_fgfilter ,
-             btCreate:HANDLE IN FRAME F-Main , 'AFTER':U ).
+             h_jobfilter , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_printcopies ,
              h_fgfilter , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_qtyunits ,
              h_printcopies , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_userfields ,
-             h_qtyunits , 'AFTER':U ).
     END. /* Page 1 */
 
   END CASE.
@@ -573,7 +571,7 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   ENABLE RECT-1 btExit RECT-34 rHighlight btJob btPO btRelease btReturn 
-         btReprint btSplit btDelete btPrint 
+         btDelete btReprint btPrint btSplit 
       WITH FRAME F-Main IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-F-Main}
   VIEW W-Win.
@@ -689,6 +687,7 @@ PROCEDURE pInit :
             ASSIGN
                 glAutoCreateLoadtagOnJobScan = LOGICAL(oSSLoadTagJobConfig:GetAttributeValue("AutoCreateLoadtagOnJobScan", "Active"))
                 btCreate:HIDDEN              = glAutoCreateLoadtagOnJobScan
+                btDelete:HIDDEN              = glAutoCreateLoadtagOnJobScan
                 .
         
         IF oSSLoadTagJobConfig:IsAttributeAvailable("AutoPrintLoadtagOnJobScan", "Active") THEN
@@ -862,8 +861,11 @@ PROCEDURE state-changed :
             END.
         END. 
         WHEN "print-tags" THEN DO:
+            SESSION:SET-WAIT-STATE ("GENERAL").
+            
             {methods/run_link.i "LOADTAG-SOURCE" "CreateLoadTagFromTT"}
 
+            SESSION:SET-WAIT-STATE ("").
         END.
     END CASE.  
 END PROCEDURE.
