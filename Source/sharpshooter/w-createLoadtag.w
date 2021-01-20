@@ -40,6 +40,10 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+{custom/globdefs.i}
+{sys/inc/var.i "NEW SHARED"}
+{sys/inc/varasgn.i}
+
 DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO.
 
 /* Required for run_link.i */

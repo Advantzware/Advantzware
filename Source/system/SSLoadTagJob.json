@@ -62,5 +62,9 @@
 	"AutoCreateLoadtagOnJobScan" : {
 		"Description" : "Create a temporary record for verifying before printing a loadtag on a valid job scan",
 		"Active" : true	
+	},
+	"LabelMatrixAutoPrint" : { 
+	   "Description" : "Print label matrix",
+	   "Active" : true
 	}
 }

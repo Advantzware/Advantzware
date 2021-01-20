@@ -18,6 +18,7 @@ DEFINE VARIABLE glCreateFGReceipts                     AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE glCheckClosedStatus                    AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE glCreateRFIDTag                        AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE glCreateComponenetTagsForSetHeaderItem AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE glLabelMatrixAutoPrint                 AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE giFGSetRec                             AS INTEGER   NO-UNDO.
 DEFINE VARIABLE gcLoadTag                              AS CHARACTER NO-UNDO.
 DEFINE VARIABLE gcLabelMatrixLoadTagOutputFile         AS CHARACTER NO-UNDO.
@@ -74,7 +75,8 @@ PROCEDURE CreateLoadTagFromTT:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER iplEmptyTTLoadtag AS LOGICAL NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcCompany        AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER iplEmptyTTLoadtag AS LOGICAL   NO-UNDO.
     
     DEFINE VARIABLE lError   AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
@@ -115,6 +117,11 @@ PROCEDURE CreateLoadTagFromTT:
         IF iplEmptyTTLoadtag THEN 
             EMPTY TEMP-TABLE ttLoadTag.
         
+        IF glLabelMatrixAutoPrint THEN
+            RUN pPrintLabelMatrix (
+                INPUT ipcCompany
+                ).
+            
         ASSIGN
             iTagCounter  = 0
             iPalletCount = 0
@@ -200,7 +207,7 @@ PROCEDURE pCreateLoadTagFromTT:
             bf-loadtag.job-no       = ipbf-ttLoadTag.jobID
             bf-loadtag.job-no2      = ipbf-ttLoadTag.jobID2
             bf-loadtag.ord-no       = IF CAN-FIND(FIRST cust 
-                                                  WHERE cust.company = cocode
+                                                  WHERE cust.company = ipbf-ttLoadTag.company
                                                     AND cust.cust-no = bf-itemfg.cust-no
                                                     AND cust.active = "X") THEN 
                                           0
@@ -811,6 +818,33 @@ PROCEDURE pIncrementCustPalletID PRIVATE:
 
 END PROCEDURE.
 
+PROCEDURE pPrintLabelMatrix PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE hdOutputProcs AS HANDLE NO-UNDO.
+    DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lFound AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE cPathTemplate AS CHARACTER NO-UNDO.
+    RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
+
+    RUN sys/ref/nk1look.p (ipcCompany, "BARDIR", "C", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound). 
+    IF lFound THEN 
+        cPathTemplate = cReturn.
+            
+    RUN PrintLabelMatrixFile IN hdOutputProcs (
+        INPUT ipcCompany,
+        INPUT cPathTemplate,
+        INPUT "loadtag"
+        ).
+        
+    DELETE PROCEDURE hdOutputProcs.
+    
+END PROCEDURE.
+
 PROCEDURE pPrintLoadTag PRIVATE:
 /*------------------------------------------------------------------------------
  Purpose:
@@ -1173,6 +1207,7 @@ PROCEDURE pUpdateConfig PRIVATE:
             glUpdateSetWithMaxQuantity             = LOGICAL(oSSLoadTagJobConfig:GetAttributeValue("UpdateSetWithMaxQuantity", "Active"))
             glCreateRFIDTag                        = LOGICAL(oSSLoadTagJobConfig:GetAttributeValue("CreateRFIDTag", "Active"))
             glCreateComponenetTagsForSetHeaderItem = LOGICAL(oSSLoadTagJobConfig:GetAttributeValue("CreateComponenetTagsForSetHeaderItem", "Active"))
+            glLabelMatrixAutoPrint                 = LOGICAL(oSSLoadTagJobConfig:GetAttributeValue("LabelMatrixAutoPrint", "Active"))
             giFGSetRec                             = INTEGER(oSSLoadTagJobConfig:GetAttributeValue("FGSetRec", "Value"))
             gcLoadTag                              = STRING(oSSLoadTagJobConfig:GetAttributeValue("LoadTag", "Printer"))
             gcLabelMatrixLoadTagOutputFile         = STRING(oSSLoadTagJobConfig:GetAttributeValue("LabelMatrixLoadTagOutputFilePath", "File"))
