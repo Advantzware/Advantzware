@@ -365,8 +365,8 @@ DO:
     DEFINE VARIABLE cLocation  AS CHARACTER NO-UNDO.
     
     ASSIGN
-        cWarehouse = TRIM(SUBSTRING(SELF:SCREEN-VALUE, 1, 5))
-        cLocation  = TRIM(SUBSTRING(SELF:SCREEN-VALUE, 6))
+        cWarehouse = TRIM(SUBSTRING(SELF:SCREEN-VALUE, 1, iWarehouseLength))
+        cLocation  = TRIM(SUBSTRING(SELF:SCREEN-VALUE, iWarehouseLength + 1))
         .
     
     IF cWarehouse EQ "" THEN DO:
