@@ -22,7 +22,7 @@ find first period
     where period.company eq company.company
       and period.pst     le udate
       and period.pend    ge udate
-    no-lock.
+    no-lock NO-ERROR.
 
 IF all-per THEN DO:
   DO li = 1 TO v-no-col - 1:
@@ -31,7 +31,7 @@ IF all-per THEN DO:
   END.
 
   ASSIGN
-   fisc-yr     = period.yr
+   fisc-yr     = if avail period THEN period.yr ELSE year(udate)
    hld-period  = uperiod
    hld-date    = udate.
   
@@ -68,15 +68,15 @@ END.
 ELSE DO:
   fisc-yr = current-yr - int(not company.yend-per).
 
-  tot{1}[3] = tot{1}[3] + (if period.yr gt fisc-yr then account.cyr-open   else
-                           if period.yr eq fisc-yr then account.lyr-open   else
+  tot{1}[3] = tot{1}[3] + (if AVAIL period and period.yr gt fisc-yr then account.cyr-open   else
+                           if AVAIL period and period.yr eq fisc-yr then account.lyr-open   else
                            if avail w-account      then w-account.lyr-open else 0).
 
   IF INDEX("ALCT",account.type) GT 0 THEN DO:
     do i = 1 to company.num-per:
       assign
-       tot{1}[3] = tot{1}[3] + (if period.yr gt fisc-yr then account.cyr[i]   else
-                                if period.yr eq fisc-yr then account.lyr[i]   else
+       tot{1}[3] = tot{1}[3] + (if AVAIL period and period.yr gt fisc-yr then account.cyr[i]   else
+                                if AVAIL period and period.yr eq fisc-yr then account.lyr[i]   else
                                 if avail w-account      then w-account.lyr[i] else 0).
     end.
   END.
@@ -109,45 +109,45 @@ ELSE DO:
     tot{1}[6] = tot{1}[6] + account.bud[pp].
   end.
 
-  tot{1}[7] = tot{1}[7] + (if period.yr gt fisc-yr then account.cyr[uperiod]   else
-                           if period.yr eq fisc-yr then account.lyr[uperiod]   else
+  tot{1}[7] = tot{1}[7] + (if AVAIL period and period.yr gt fisc-yr then account.cyr[uperiod]   else
+                           if AVAIL period and period.yr eq fisc-yr then account.lyr[uperiod]   else
                            if avail w-account      then w-account.lyr[uperiod] else 0).
 
   if uperiod ge 1 and uperiod le 3 then
   do i = 1 to uperiod:
-    tot{1}[8] = tot{1}[8] + (if period.yr gt fisc-yr then account.cyr[i]   else
-                             if period.yr eq fisc-yr then account.lyr[i]   else
+    tot{1}[8] = tot{1}[8] + (if AVAIL period and period.yr gt fisc-yr then account.cyr[i]   else
+                             if AVAIL period and period.yr eq fisc-yr then account.lyr[i]   else
                              if avail w-account      then w-account.lyr[i] else 0).
   end.
 
   if uperiod ge 4 and uperiod le 6 then
   do i = 4 to uperiod:
-    tot{1}[8] = tot{1}[8] + (if period.yr gt fisc-yr then account.cyr[i]   else
-                             if period.yr eq fisc-yr then account.lyr[i]   else
+    tot{1}[8] = tot{1}[8] + (if AVAIL period and period.yr gt fisc-yr then account.cyr[i]   else
+                             if AVAIL period and period.yr eq fisc-yr then account.lyr[i]   else
                              if avail w-account      then w-account.lyr[i] else 0).
   end.
 
   if uperiod ge 7 and uperiod le 9 then
   do i = 7 to uperiod:
-    tot{1}[8] = tot{1}[8] + (if period.yr gt fisc-yr then account.cyr[i]   else
-                             if period.yr eq fisc-yr then account.lyr[i]   else
+    tot{1}[8] = tot{1}[8] + (if AVAIL period and period.yr gt fisc-yr then account.cyr[i]   else
+                             if AVAIL period and period.yr eq fisc-yr then account.lyr[i]   else
                              if avail w-account      then w-account.lyr[i] else 0).
   end.
 
   if uperiod ge 10 and uperiod le 13 then
   do i = 10 to uperiod:
-    tot{1}[8] = tot{1}[8] + (if period.yr gt fisc-yr then account.cyr[i]   else
-                             if period.yr eq fisc-yr then account.lyr[i]   else
+    tot{1}[8] = tot{1}[8] + (if AVAIL period and period.yr gt fisc-yr then account.cyr[i]   else
+                             if AVAIL period and period.yr eq fisc-yr then account.lyr[i]   else
                              if avail w-account      then w-account.lyr[i] else 0).
   end.
 
-  tot{1}[9] = tot{1}[9] + (if period.yr gt fisc-yr then account.cyr-open   else
-                           if period.yr eq fisc-yr then account.lyr-open   else
+  tot{1}[9] = tot{1}[9] + (if AVAIL period and period.yr gt fisc-yr then account.cyr-open   else
+                           if AVAIL period and period.yr eq fisc-yr then account.lyr-open   else
                            if avail w-account      then w-account.lyr-open else 0).
 
   do pp = 1 to uperiod:
-    tot{1}[9] = tot{1}[9] + (if period.yr gt fisc-yr then account.cyr[pp]   else
-                             if period.yr eq fisc-yr then account.lyr[pp]   else
+    tot{1}[9] = tot{1}[9] + (if AVAIL period and period.yr gt fisc-yr then account.cyr[pp]   else
+                             if AVAIL period and period.yr eq fisc-yr then account.lyr[pp]   else
                              if avail w-account      then w-account.lyr[pp] else 0).
   end.
 
