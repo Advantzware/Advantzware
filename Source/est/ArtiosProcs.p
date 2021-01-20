@@ -199,13 +199,25 @@ PROCEDURE pBuildAttributes:
 
 END PROCEDURE.
 
-PROCEDURE pCreateJpgFromQdf:
+PROCEDURE Artios_ConvertARDToJPG:
     /*------------------------------------------------------------------------------
-      Purpose: Builds the Attributes temp table for the cadFile passed in    
-      Parameters:  ipcCadFile as character
+      Purpose: convert qdf file into jpg file    
+      Parameters:  ipcCadFile as character, ipcImageFile image path
       Notes:       
-    ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcCompany   AS CHARACTER NO-UNDO.
+    ------------------------------------------------------------------------------*/       
+    DEFINE INPUT PARAMETER ipcCadFile   AS CHARACTER   NO-UNDO.
+    DEFINE INPUT PARAMETER ipcImageFile AS CHARACTER   NO-UNDO. 
+    
+    RUN pConvertARDToJPG(INPUT ipcCadFile, INPUT ipcImageFile).          
+
+END PROCEDURE.  
+
+PROCEDURE pConvertARDToJPG PRIVATE:
+    /*------------------------------------------------------------------------------
+      Purpose: convert qdf file into jpg file    
+      Parameters:  ipcCadFile as character, ipcImageFile image path
+      Notes:       
+    ------------------------------------------------------------------------------*/    
     DEFINE INPUT PARAMETER ipcCadFile   AS CHARACTER   NO-UNDO.
     DEFINE INPUT PARAMETER ipcImageFile AS CHARACTER   NO-UNDO. 
     

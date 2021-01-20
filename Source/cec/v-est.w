@@ -3383,11 +3383,10 @@ PROCEDURE local-assign-record :
            
            IF INDEX(cadfile,".ard") NE 0 THEN
            DO:             
-            RUN pCreateJpgFromQdf IN hdArtiosProcs (INPUT cocode,
-                                                    INPUT cadfile, 
-                                                    INPUT (lv-cad-path + eb.cad-no + lv-cad-ext)).
+            RUN Artios_ConvertARDToJPG IN hdArtiosProcs (INPUT cadfile, 
+                                                         INPUT (lv-cad-path + "\" + eb.cad-no + lv-cad-ext)).
                                                     
-            bf-box-design-hdr.box-image = lv-cad-path + eb.cad-no + lv-cad-ext.                                        
+            bf-box-design-hdr.box-image = lv-cad-path + "\" + eb.cad-no + lv-cad-ext.                                        
            END.
            ELSE do:
             bf-box-design-hdr.box-image = IF cadfile NE '' THEN cadfile
