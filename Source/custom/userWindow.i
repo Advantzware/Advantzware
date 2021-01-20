@@ -20,6 +20,7 @@ DO:
             bf-userWindow.winHeight = {&WINDOW-NAME}:HEIGHT  
             bf-userWindow.winXpos   = {&WINDOW-NAME}:X
             bf-userWindow.winYpos   = {&WINDOW-NAME}:Y
+            bf-userWindow.state     = {&window-name}:window-state
             . 
     ASSIGN 
         bf-userWindow.sessionWidth  = SESSION:WIDTH-PIXELS
@@ -40,6 +41,7 @@ DO:
             bf-userWindow.winWidth  = {&WINDOW-NAME}:WIDTH 
             bf-userWindow.winHeight = {&WINDOW-NAME}:HEIGHT  
             bf-userWindow.winXpos   = {&WINDOW-NAME}:X
-            bf-userWindow.winYpos   = {&WINDOW-NAME}:Y  
+            bf-userWindow.winYpos   = {&WINDOW-NAME}:Y 
+            bf-userWindow.state     = {&window-name}:window-state 
             .
 END.      

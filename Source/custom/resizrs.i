@@ -74,6 +74,10 @@ ON WINDOW-RESIZED OF {&WINDOW-NAME}
         &endif
         
          
+         IF {&window-name}:WINDOW-STATE = 1 THEN 
+         ASSIGN 
+               {&WINDOW-NAME}:WIDTH-pixels = SESSION:WORK-AREA-WIDTH-PIXELS 
+               {&WINDOW-NAME}:HEIGHT-pixels = SESSION:WORK-AREA-HEIGHT-PIXELS .
         deDeltaWidth      =  {&WINDOW-NAME}:WIDTH  - FRAME {&FRAME-NAME}:WIDTH.      
         deDeltaHeight     =  {&WINDOW-NAME}:HEIGHT - FRAME {&FRAME-NAME}:HEIGHT.
         
