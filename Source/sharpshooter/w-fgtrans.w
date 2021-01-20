@@ -139,7 +139,7 @@ DEFINE BUTTON btClearRecords
      SIZE 21.6 BY 1.14 TOOLTIP "Clear all the scanned data from grid".
 
 DEFINE BUTTON btExit AUTO-END-KEY 
-     IMAGE-UP FILE "C:/Asigui/Environments/Devel/Resources/Graphics/32x32/door_exit.ico":U
+     IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U
      LABEL "Exit" 
      SIZE 11 BY 2.62 TOOLTIP "Exit".
 

@@ -321,17 +321,19 @@ PROCEDURE GetFGItemForJob:
             WHERE bf-job-hdr.company EQ bf-job.company
               AND bf-job-hdr.job     EQ bf-job.job
               AND bf-job-hdr.job-no  EQ bf-job.job-no
-              AND bf-job-hdr.job-no2 EQ  bf-job.job-no2
-              AND bf-job-hdr.frm  EQ  ipiFormNo
-              AND (bf-job-hdr.blank-no EQ ipiBlankNo OR ipiBlankNo EQ 0):
-        opcFGItemList = IF opcFGItemList EQ "" THEN 
-                             STRING(bf-job-hdr.i-no)
-                         ELSE IF INDEX(opcFGItemList,STRING(bf-job-hdr.i-no)) GT 0 THEN
-                             opcFGItemList
-                         ELSE
-                             opcFGItemList + "," + STRING(bf-job-hdr.i-no).           
+              AND bf-job-hdr.job-no2 EQ  bf-job.job-no2:
+        /* Put the item first in the list if the job-hdr record's form and blank matching the input form and blank no */
+        IF bf-job-hdr.frm  EQ ipiFormNo AND bf-job-hdr.blank-no EQ ipiBlankNo THEN
+            ASSIGN
+                opcFGItemList = STRING(bf-job-hdr.i-no) + "," + TRIM(opcFGItemList, ",")
+                opcFGItemList = TRIM(opcFGItemList, ",")
+                .
+        ELSE    
+            opcFGItemList = opcFGItemList + "," + STRING(bf-job-hdr.i-no).           
     END.
 
+    opcFGItemList = TRIM(opcFGItemList, ",").
+    
     RELEASE bf-job.
     RELEASE bf-job-hdr.
 END PROCEDURE.

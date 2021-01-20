@@ -10,9 +10,9 @@
 *********************************************************************/
 /*------------------------------------------------------------------------
 
-  File: sharpshooter/smartobj/fgFilter.w.
+  File: sharpshooter/smartobj/printCopies.w
 
-  Description: Finished Good Item Filter
+  Description: 
 
   Author:
   Created:
@@ -20,7 +20,6 @@
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
-USING fg.ItemFG.
 
 /* Create an unnamed pool to store all the widgets created 
      by this procedure. This is a good default which assures
@@ -35,23 +34,11 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO.
-
-DEFINE VARIABLE oItemFG AS ItemFG NO-UNDO.
-
-DEFINE VARIABLE hdJobProcs AS HANDLE NO-UNDO.
-
-DEFINE VARIABLE lIsFGItemVisible   AS LOGICAL NO-UNDO INITIAL TRUE.
-DEFINE VARIABLE lIsFGItemSensitive AS LOGICAL NO-UNDO INITIAL TRUE.
-
-RUN jc/JobProcs.p PERSISTENT SET hdJobProcs.
-
-RUN spGetSessionParam ("Company", OUTPUT cCompany).
-
-oItemFG = NEW ItemFG().
-
 DEFINE VARIABLE char-hdl  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE pHandle   AS HANDLE    NO-UNDO.
+
+DEFINE VARIABLE lIsCopiesVisible   AS LOGICAL NO-UNDO INITIAL TRUE.
+DEFINE VARIABLE lIsCopiesSensitive AS LOGICAL NO-UNDO INITIAL TRUE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -68,8 +55,8 @@ DEFINE VARIABLE pHandle   AS HANDLE    NO-UNDO.
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-33 imItemLookup 
-&Scoped-Define DISPLAYED-OBJECTS cbFGItem fiFGItem fiFGItemName 
+&Scoped-Define ENABLED-OBJECTS fiCopies 
+&Scoped-Define DISPLAYED-OBJECTS fiCopies 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -83,39 +70,16 @@ DEFINE VARIABLE pHandle   AS HANDLE    NO-UNDO.
 
 
 /* Definitions of the field level widgets                               */
-DEFINE VARIABLE cbFGItem AS CHARACTER FORMAT "X(256)":U 
-     LABEL "FG Item #" 
-     VIEW-AS COMBO-BOX INNER-LINES 5
-     DROP-DOWN-LIST
-     SIZE 59.6 BY 1
-     FONT 36 NO-UNDO.
-
-DEFINE VARIABLE fiFGItem AS CHARACTER FORMAT "X(256)":U 
+DEFINE VARIABLE fiCopies AS INTEGER FORMAT ">>9":U INITIAL 0 
+     LABEL "Copies" 
      VIEW-AS FILL-IN 
-     SIZE 59.6 BY 1.29 NO-UNDO.
-
-DEFINE VARIABLE fiFGItemName AS CHARACTER FORMAT "X(256)":U 
-     VIEW-AS FILL-IN 
-     SIZE 75 BY 1.29 NO-UNDO.
-
-DEFINE IMAGE imItemLookup
-     FILENAME "C:/Asigui/Environments/16.11.02/Resources/Graphics/32x32/magnifying_glass.ico":U
-     STRETCH-TO-FIT RETAIN-SHAPE
-     SIZE 5.4 BY 1.29.
-
-DEFINE RECTANGLE RECT-33
-     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 85 BY 3.52.
+     SIZE 14 BY 1.38 TOOLTIP "Copies to print" NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     cbFGItem AT ROW 1.67 COL 16.6 COLON-ALIGNED WIDGET-ID 170
-     fiFGItem AT ROW 1.67 COL 16.6 COLON-ALIGNED NO-LABEL WIDGET-ID 180
-     fiFGItemName AT ROW 3.24 COL 3.2 NO-LABEL WIDGET-ID 176
-     RECT-33 AT ROW 1.24 COL 1 WIDGET-ID 178
-     imItemLookup AT ROW 1.62 COL 78.8 WIDGET-ID 182
+     fiCopies AT ROW 1.48 COL 31.6 COLON-ALIGNED WIDGET-ID 2
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -148,8 +112,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW s-object ASSIGN
-         HEIGHT             = 3.76
-         WIDTH              = 85.
+         HEIGHT             = 6.52
+         WIDTH              = 50.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -174,20 +138,11 @@ END.
    NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
-       FRAME F-Main:HIDDEN           = TRUE
-       FRAME F-Main:RESIZABLE        = TRUE.
+       FRAME F-Main:HIDDEN           = TRUE.
 
-/* SETTINGS FOR COMBO-BOX cbFGItem IN FRAME F-Main
-   NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN fiFGItem IN FRAME F-Main
-   NO-ENABLE                                                            */
 ASSIGN 
-       fiFGItem:HIDDEN IN FRAME F-Main           = TRUE.
-
-/* SETTINGS FOR FILL-IN fiFGItemName IN FRAME F-Main
-   NO-ENABLE ALIGN-L                                                    */
-ASSIGN 
-       imItemLookup:HIDDEN IN FRAME F-Main           = TRUE.
+       fiCopies:PRIVATE-DATA IN FRAME F-Main     = 
+                "Copies".
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -205,51 +160,6 @@ ASSIGN
  
 
 
-
-/* ************************  Control Triggers  ************************ */
-
-&Scoped-define SELF-NAME cbFGItem
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cbFGItem s-object
-ON VALUE-CHANGED OF cbFGItem IN FRAME F-Main /* FG Item # */
-DO:
-    oItemFG:SetContext (INPUT cCompany, INPUT SELF:SCREEN-VALUE).
-    
-    RUN pUpdateFGItemName.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME imItemLookup
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL imItemLookup s-object
-ON MOUSE-SELECT-CLICK OF imItemLookup IN FRAME F-Main
-DO:
-    DEFINE VARIABLE cFieldsValue  AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cFoundValue   AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE recFoundRecID AS RECID     NO-UNDO.
-
-    RUN system/openlookup.p (
-        INPUT  "", 
-        INPUT  "",  /* lookup field */
-        INPUT  25,   /* Subject ID */
-        INPUT  "",  /* User ID */
-        INPUT  0,   /* Param value ID */
-        OUTPUT cFieldsValue, 
-        OUTPUT cFoundValue, 
-        OUTPUT recFoundRecID
-        ).
-    
-    IF cFoundValue NE "" THEN
-        fiFGItem:SCREEN-VALUE = cFoundValue.  
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&UNDEFINE SELF-NAME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK s-object 
 
 
@@ -266,39 +176,17 @@ END.
 
 /* **********************  Internal Procedures  *********************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ComboBoxView s-object 
-PROCEDURE ComboBoxView :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE DisableCopies s-object 
+PROCEDURE DisableCopies :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
     DO WITH FRAME {&FRAME-NAME}:
     END.
-
-    ASSIGN
-        fiFGItem:HIDDEN     = TRUE
-        cbFGItem:HIDDEN     = FALSE
-        imItemLookup:HIDDEN = TRUE
-        .
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE DisableFGItem s-object 
-PROCEDURE DisableFGItem :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    DO WITH FRAME {&FRAME-NAME}:
-    END.
     
-    ASSIGN
-        cbFGItem:SENSITIVE = FALSE
-        fiFGItem:SENSITIVE = FALSE
-        .
+    fiCopies:SENSITIVE = FALSE.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -322,86 +210,49 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE EnableFGItem s-object 
-PROCEDURE EnableFGItem :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE EnableCopies s-object 
+PROCEDURE EnableCopies :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+    
+    ASSIGN
+        fiCopies:HIDDEN    = lIsCopiesVisible
+        fiCopies:SENSITIVE = lIsCopiesSensitive
+        . 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetCopies s-object 
+PROCEDURE GetCopies :
 /*------------------------------------------------------------------------------
   Purpose:     
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DO WITH FRAME {&FRAME-NAME}:
-    END.
-    
-    ASSIGN
-        cbFGItem:SENSITIVE = lIsFGItemSensitive
-        cbFGItem:HIDDEN    = NOT lIsFGItemVisible
-        .
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE FillinView s-object 
-PROCEDURE FillinView :
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-    DO WITH FRAME {&FRAME-NAME}:
-    END.
-
-    ASSIGN
-        fiFGItem:HIDDEN     = FALSE
-        cbFGItem:HIDDEN     = TRUE
-        imItemLookup:HIDDEN = FALSE
-        .
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetFGItem s-object 
-PROCEDURE GetFGItem :
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-    DEFINE OUTPUT PARAMETER opcFGItem AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiCopies AS INTEGER NO-UNDO.
     
     DO WITH FRAME {&FRAME-NAME}:
     END.
     
-    opcFGItem = cbFGItem:SCREEN-VALUE.
-    
-    IF opcFGItem = "" THEN
-        opcFGItem = fiFGItem:SCREEN-VALUE. 
+    opiCopies = INTEGER(fiCopies:SCREEN-VALUE).
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetItemFG s-object 
-PROCEDURE GetItemFG :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable s-object 
+PROCEDURE local-enable :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE OUTPUT PARAMETER opoItemFG AS ItemFG NO-UNDO.
-
-    opoItemFG = oItemFG.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable s-object
-PROCEDURE local-enable:
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-
 
     /* Code placed here will execute PRIOR to standard behavior. */
 
@@ -410,13 +261,11 @@ PROCEDURE local-enable:
 
     /* Code placed here will execute AFTER standard behavior.    */
     RUN pInit.
-
+    
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE No-Resize s-object 
 PROCEDURE No-Resize :
@@ -434,39 +283,66 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pInit s-object 
 PROCEDURE pInit :
 /*------------------------------------------------------------------------------
- Purpose:
- Notes:
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
 ------------------------------------------------------------------------------*/
     DEFINE VARIABLE oSSLoadTagJobDesignConfig AS system.Config NO-UNDO.
-     
+
+    DEFINE VARIABLE hdWidget AS HANDLE NO-UNDO.
+
     DO WITH FRAME {&FRAME-NAME}:
     END.
+    
+    fiCopies:SCREEN-VALUE = "1".
     
     {methods/run_link.i "CONTAINER-SOURCE" "GetDesignConfig" "(OUTPUT oSSLoadTagJobDesignConfig)"}
 
     IF VALID-OBJECT(oSSLoadTagJobDesignConfig) THEN DO:
-        IF oSSLoadTagJobDesignConfig:IsAttributeAvailable("FGFilter", "FGItem", "visible") THEN
-            lIsFGItemVisible = LOGICAL(oSSLoadTagJobDesignConfig:GetAttributeValue("FGFilter", "FGItem", "visible")).
+        hdWidget = FRAME {&FRAME-NAME}:FIRST-CHILD:FIRST-CHILD.
+        DO WHILE VALID-HANDLE(hdWidget):
+            IF hdWidget:PRIVATE-DATA NE "" AND hdWidget:PRIVATE-DATA NE ? THEN DO:
 
-        IF oSSLoadTagJobDesignConfig:IsAttributeAvailable("FGFilter", "FGItem", "sensitive") THEN
-            lIsFGItemSensitive = LOGICAL(oSSLoadTagJobDesignConfig:GetAttributeValue("FGFilter", "FGItem", "sensitive")).
-    END.
+                IF oSSLoadTagJobDesignConfig:IsAttributeAvailable("PrintCopies", hdWidget:PRIVATE-DATA, "visible") THEN
+                    hdWidget:HIDDEN = NOT LOGICAL(oSSLoadTagJobDesignConfig:GetAttributeValue("PrintCopies", hdWidget:PRIVATE-DATA, "visible")).
+
+                IF oSSLoadTagJobDesignConfig:IsAttributeAvailable("PrintCopies", hdWidget:PRIVATE-DATA, "label") THEN
+                    hdWidget:LABEL = oSSLoadTagJobDesignConfig:GetAttributeValue("PrintCopies", hdWidget:PRIVATE-DATA, "label").
+
+                IF oSSLoadTagJobDesignConfig:IsAttributeAvailable("PrintCopies", hdWidget:PRIVATE-DATA, "sensitive") THEN
+                    hdWidget:SENSITIVE = LOGICAL(oSSLoadTagJobDesignConfig:GetAttributeValue("PrintCopies", hdWidget:PRIVATE-DATA, "sensitive")).
+                
+                IF hdWidget:PRIVATE-DATA EQ "Copies" THEN
+                    ASSIGN
+                        lIsCopiesVisible   = hdWidget:HIDDEN
+                        lIsCopiesSensitive = hdWidget:SENSITIVE
+                        .
+            END.
+            
+            hdWidget = hdWidget:NEXT-SIBLING.
+        END.
+    END.    
+    
+    RUN DisableCopies.
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateFGItemName s-object 
-PROCEDURE pUpdateFGItemName PRIVATE :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE SetCopies s-object 
+PROCEDURE SetCopies :
 /*------------------------------------------------------------------------------
- Purpose:
- Notes:
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
 ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipiCopies AS INTEGER NO-UNDO.
+    
     DO WITH FRAME {&FRAME-NAME}:
     END.
     
-    fiFGItemName:SCREEN-VALUE = oItemFG:GetValue("ItemName").
-
+    fiCopies:SCREEN-VALUE = STRING(ipiCopies).
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -488,54 +364,6 @@ PROCEDURE state-changed :
          or add new cases. */
   END CASE.
   
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE UpdateItemForJob s-object 
-PROCEDURE UpdateItemForJob :
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER ipcCompany AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcJobNo   AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipiJobNo2  AS INTEGER   NO-UNDO.
-    DEFINE INPUT  PARAMETER ipiFormNo  AS INTEGER   NO-UNDO.
-    DEFINE INPUT  PARAMETER ipiBlankNo AS INTEGER   NO-UNDO.
-    
-    DEFINE VARIABLE cItemList  AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE lValidItem AS LOGICAL   NO-UNDO.
-    
-    DO WITH FRAME {&FRAME-NAME}:
-    END.
-    
-    RUN GetFGItemForJob IN hdJobProcs (
-        INPUT  ipcCompany,
-        INPUT  ipcJobNo,
-        INPUT  ipiJobNo2,
-        INPUT  ipiFormNo,
-        INPUT  ipiBlankNo,
-        INPUT-OUTPUT cItemList
-        ).
-    
-    ASSIGN
-        cbFGItem:LIST-ITEMS   = cItemList
-        cbFGItem:SCREEN-VALUE = ENTRY(1, cItemList) 
-        NO-ERROR.
-    
-    lValidItem = oItemFG:SetContext (INPUT ipcCompany, INPUT cbFGItem:SCREEN-VALUE).
-
-    IF lValidItem THEN
-        RUN new-state (
-            INPUT "fgitem-valid"
-            ).
-    
-    
-    RUN pUpdateFGItemName.
-    
-    cbFGItem:SENSITIVE = TRUE.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
