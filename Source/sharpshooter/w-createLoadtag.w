@@ -687,11 +687,13 @@ PROCEDURE pInit :
             ASSIGN
                 glAutoCreateLoadtagOnJobScan = LOGICAL(oSSLoadTagJobConfig:GetAttributeValue("AutoCreateLoadtagOnJobScan", "Active"))
                 btCreate:HIDDEN              = glAutoCreateLoadtagOnJobScan
-                btDelete:HIDDEN              = glAutoCreateLoadtagOnJobScan
                 .
         
         IF oSSLoadTagJobConfig:IsAttributeAvailable("AutoPrintLoadtagOnJobScan", "Active") THEN
-            glAutoPrintLoadtagOnJobScan  = LOGICAL(oSSLoadTagJobConfig:GetAttributeValue("AutoPrintLoadtagOnJobScan", "Active")).
+            ASSIGN
+                glAutoPrintLoadtagOnJobScan  = LOGICAL(oSSLoadTagJobConfig:GetAttributeValue("AutoPrintLoadtagOnJobScan", "Active"))
+                btDelete:HIDDEN              = glAutoPrintLoadtagOnJobScan
+                .
         
         IF oSSLoadTagJobConfig:IsAttributeAvailable("DefaultPrintCopies", "Copies") THEN
             giDefaultPrintCopies = INTEGER(oSSLoadTagJobConfig:GetAttributeValue("DefaultPrintCopies", "Copies")).
