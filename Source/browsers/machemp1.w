@@ -38,7 +38,8 @@ DEFINE VARIABLE start-time AS CHARACTER NO-UNDO.
 DEFINE VARIABLE end-time AS CHARACTER NO-UNDO.
 DEFINE VARIABLE total-time AS CHARACTER NO-UNDO.
 DEFINE VARIABLE employee-name AS CHARACTER NO-UNDO.
-
+&SCOPED-DEFINE winReSize
+{methods/defines/winReSize.i}
 {custom/gcompany.i}
 {custom/globdefs.i}
 {sys/inc/var.i new shared}
@@ -407,6 +408,7 @@ END.
 {custom/yellowColumns.i}
 {custom/getcmpny.i}
 {sys/inc/f3help.i}
+{methods/winReSize.i}
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF
