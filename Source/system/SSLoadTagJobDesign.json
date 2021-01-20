@@ -28,8 +28,8 @@
 	"PrintCopies" : {
         "Copies" : {
             "label" : "Print Copies",
-            "visible" : false,
-            "sensitive" : false
+            "visible" : true,
+            "sensitive" : true
         }
 	},
 	"Quantities" : {

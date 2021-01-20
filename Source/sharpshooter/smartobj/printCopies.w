@@ -34,6 +34,11 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+DEFINE VARIABLE char-hdl  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE pHandle   AS HANDLE    NO-UNDO.
+
+DEFINE VARIABLE lIsCopiesVisible   AS LOGICAL NO-UNDO INITIAL TRUE.
+DEFINE VARIABLE lIsCopiesSensitive AS LOGICAL NO-UNDO INITIAL TRUE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -74,7 +79,7 @@ DEFINE VARIABLE fiCopies AS INTEGER FORMAT ">>9":U INITIAL 0
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     fiCopies AT ROW 1.48 COL 17.6 COLON-ALIGNED WIDGET-ID 2
+     fiCopies AT ROW 1.48 COL 31.6 COLON-ALIGNED WIDGET-ID 2
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -135,6 +140,10 @@ ASSIGN
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
+ASSIGN 
+       fiCopies:PRIVATE-DATA IN FRAME F-Main     = 
+                "Copies".
+
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -161,13 +170,27 @@ ASSIGN
   RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF
 
-RUN pInit.
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
 /* **********************  Internal Procedures  *********************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE DisableCopies s-object 
+PROCEDURE DisableCopies :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+    
+    fiCopies:SENSITIVE = FALSE.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI s-object  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
@@ -187,6 +210,25 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE EnableCopies s-object 
+PROCEDURE EnableCopies :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+    
+    ASSIGN
+        fiCopies:HIDDEN    = lIsCopiesVisible
+        fiCopies:SENSITIVE = lIsCopiesSensitive
+        . 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetCopies s-object 
 PROCEDURE GetCopies :
 /*------------------------------------------------------------------------------
@@ -200,6 +242,26 @@ PROCEDURE GetCopies :
     END.
     
     opiCopies = INTEGER(fiCopies:SCREEN-VALUE).
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable s-object 
+PROCEDURE local-enable :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+    /* Code placed here will execute PRIOR to standard behavior. */
+
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable':U ) .
+
+    /* Code placed here will execute AFTER standard behavior.    */
+    RUN pInit.
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -225,10 +287,44 @@ PROCEDURE pInit :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE oSSLoadTagJobDesignConfig AS system.Config NO-UNDO.
+
+    DEFINE VARIABLE hdWidget AS HANDLE NO-UNDO.
+
     DO WITH FRAME {&FRAME-NAME}:
     END.
     
     fiCopies:SCREEN-VALUE = "1".
+    
+    {methods/run_link.i "CONTAINER-SOURCE" "GetDesignConfig" "(OUTPUT oSSLoadTagJobDesignConfig)"}
+
+    IF VALID-OBJECT(oSSLoadTagJobDesignConfig) THEN DO:
+        hdWidget = FRAME {&FRAME-NAME}:FIRST-CHILD:FIRST-CHILD.
+        DO WHILE VALID-HANDLE(hdWidget):
+            IF hdWidget:PRIVATE-DATA NE "" AND hdWidget:PRIVATE-DATA NE ? THEN DO:
+
+                IF oSSLoadTagJobDesignConfig:IsAttributeAvailable("PrintCopies", hdWidget:PRIVATE-DATA, "visible") THEN
+                    hdWidget:HIDDEN = NOT LOGICAL(oSSLoadTagJobDesignConfig:GetAttributeValue("PrintCopies", hdWidget:PRIVATE-DATA, "visible")).
+
+                IF oSSLoadTagJobDesignConfig:IsAttributeAvailable("PrintCopies", hdWidget:PRIVATE-DATA, "label") THEN
+                    hdWidget:LABEL = oSSLoadTagJobDesignConfig:GetAttributeValue("PrintCopies", hdWidget:PRIVATE-DATA, "label").
+
+                IF oSSLoadTagJobDesignConfig:IsAttributeAvailable("PrintCopies", hdWidget:PRIVATE-DATA, "sensitive") THEN
+                    hdWidget:SENSITIVE = LOGICAL(oSSLoadTagJobDesignConfig:GetAttributeValue("PrintCopies", hdWidget:PRIVATE-DATA, "sensitive")).
+                
+                IF hdWidget:PRIVATE-DATA EQ "Copies" THEN
+                    ASSIGN
+                        lIsCopiesVisible   = hdWidget:HIDDEN
+                        lIsCopiesSensitive = hdWidget:SENSITIVE
+                        .
+            END.
+            
+            hdWidget = hdWidget:NEXT-SIBLING.
+        END.
+    END.    
+    
+    RUN DisableCopies.
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

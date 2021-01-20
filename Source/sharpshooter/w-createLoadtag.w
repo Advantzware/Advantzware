@@ -762,6 +762,7 @@ PROCEDURE state-changed :
             {methods/run_link.i "QTY-SOURCE" "DisableQuantities"}
             {methods/run_link.i "FGITEM-SOURCE" "DisableFGItem"}   
             {methods/run_link.i "USERFIELD-SOURCE" "DisableUserFields"}
+            {methods/run_link.i "COPIES-SOURCE" "DisableCopies"}
             
             btCreate:SENSITIVE = FALSE.         
         END.
@@ -793,6 +794,7 @@ PROCEDURE state-changed :
             {methods/run_link.i "FGITEM-SOURCE" "UpdateItemForJob" "(INPUT cCompany, INPUT cJobNo, INPUT iJobNo2, INPUT iFormNo, INPUT iBlankNo)"}
             
             {methods/run_link.i "FGITEM-SOURCE" "EnableFGItem"} 
+            {methods/run_link.i "COPIES-SOURCE" "EnableCopies"}
         END.
         WHEN "fgitem-valid" THEN DO:
             
