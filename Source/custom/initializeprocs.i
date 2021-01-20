@@ -26,7 +26,13 @@ PROCEDURE beforeinitialize:
         RUN setCapturedWindowPosition.
               
         // set the option frame with equal to window withd and set its color to blue
-        hTempWinmn  = FRAME {&FRAME-NAME}:handle.
+        ASSIGN 
+            hTempWinmn                       = FRAME {&FRAME-NAME}:HANDLE 
+            hTempWinmn:WIDTH                 = {&WINDOW-NAME}:WIDTH 
+            hTempWinmn:HEIGHT                = {&WINDOW-NAME}:HEIGHT 
+            hTempWinmn:BGCOLOR               = 15
+            hTempWinmn:VIRTUAL-HEIGHT-PIXELS = hTempWinmn:HEIGHT-PIXELS
+            hTempWinmn:VIRTUAL-WIDTH-PIXELS  = hTempWinmn:WIDTH-PIXELS.
 
         IF VALID-HANDLE(hTempWinmn) THEN
             hTempWinmn  = hTempWinmn:FIRST-CHILD. 
