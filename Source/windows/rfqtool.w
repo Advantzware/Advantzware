@@ -536,9 +536,10 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'p-rfqsiz.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  '':U ,
+             INPUT  'Edge-Pixels = 2,
+                     SmartPanelType = Update':U ,
              OUTPUT h_p-rfqsiz ).
-       /* Position in AB:  ( 19.10 , 39.00 ) */
+       RUN set-position IN h_p-rfqsiz ( 19.10 , 39.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.76 , 52.00 ) */
 
        /* Initialize other pages that this page requires. */
