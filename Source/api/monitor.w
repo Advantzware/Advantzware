@@ -94,23 +94,27 @@ PROCEDURE postMonitor:
         &ENDIF
 
         IF INDEX(cMonitorFile,'.xml') GT 0 THEN DO:
-            COPY-LOB FILE cFile TO lcResponseData.
-            /* Currently cXMLOrder api is hardcoded. Need an identifier either by folder name or file name to get eh api route dynamically */
-            RUN Inbound_CreateAndProcessRequestForAPIRoute IN hdInboundProcs (
-                INPUT  cocode,
-                INPUT  "/api/cXMLOrder",
-                INPUT  lcResponseData,
-                OUTPUT lSuccess,
-                OUTPUT cMessage
-                ).  
-                              
+            COPY-LOB FILE cFile TO lcResponseData NO-ERROR.
+            IF lcResponseData NE "" THEN
+                /* Currently cXMLOrder api is hardcoded. Need an identifier either by folder name or file name to get eh api route dynamically */
+                RUN Inbound_CreateAndProcessRequestForAPIRoute IN hdInboundProcs (
+                    INPUT  cocode,
+                    INPUT  "/api/cXMLOrder",
+                    INPUT  lcResponseData,
+                    OUTPUT lSuccess,
+                    OUTPUT cMessage
+                    ).  
+            ELSE 
+                cMessage = "Not able to extract contents of " + cFile.                  
+            
             &IF DEFINED(monitorActivity) NE 0 &THEN
                 RUN monitorActivity (
                     INPUT cMessage,
                     INPUT TRUE,
                     INPUT ''
                     ).
-            &ENDIF                              
+            &ENDIF
+                  
         END.
         ELSE IF INDEX(cMonitorFile,'.csv') GT 0 THEN DO:
             RUN LoadRequestsFromCSV IN hdInboundProcs (
