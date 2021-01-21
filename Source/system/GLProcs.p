@@ -69,7 +69,7 @@ PROCEDURE GL_CheckInactiveGLAccount:
           AND account.TYPE     NE "T"
           AND account.inactive EQ YES) THEN DO:                        
                     
-        opcMessage = "Inactive Account Number.".                                                                       
+        opcMessage = "GL Account is Inactive.".                                                                       
                                          
     END. 
     ELSE 

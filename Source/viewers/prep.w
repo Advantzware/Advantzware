@@ -1421,6 +1421,11 @@ PROCEDURE local-cancel-record :
   DO WITH FRAME {&FRAME-NAME}:
 
     /* Code placed here will execute PRIOR to standard behavior. */
+    IF prep.actnum:BGCOLOR IN FRAME {&FRAME-NAME} EQ 16 THEN 
+        ASSIGN 
+            prep.actnum:BGCOLOR IN FRAME {&FRAME-NAME} = ?
+            prep.actnum:FGCOLOR IN FRAME {&FRAME-NAME} = ?
+            .
 
     /* Dispatch standard ADM method.                             */
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
@@ -1649,6 +1654,30 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-reset-record V-table-Win
+PROCEDURE local-reset-record:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+    /* Code placed here will execute PRIOR to standard behavior. */
+    IF prep.actnum:BGCOLOR IN FRAME {&FRAME-NAME} EQ 16 THEN 
+        ASSIGN 
+            prep.actnum:BGCOLOR IN FRAME {&FRAME-NAME} = ?
+            prep.actnum:FGCOLOR IN FRAME {&FRAME-NAME} = ?
+            .
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'reset-record':U ) .
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record V-table-Win 
 PROCEDURE local-update-record :
@@ -2087,12 +2116,28 @@ DO WITH FRAME {&FRAME-NAME}:
           AND bf-account.actnum  EQ prep.actnum:SCREEN-VALUE
         NO-LOCK NO-ERROR.
     IF NOT AVAIL bf-account THEN DO:         /*Task# 11051312*/
+        IF  prep.actnum:BGCOLOR EQ 16 THEN 
+            ASSIGN 
+                prep.actnum:BGCOLOR = ?
+                prep.actnum:FGCOLOR = ?
+                .
         MESSAGE TRIM(prep.actnum:LABEL) +
               " is not a valid account.  Try F1 to lookup valid accounts."
             VIEW-AS ALERT-BOX ERROR.
         APPLY "entry" TO prep.actnum.
         RETURN ERROR.
     END.
+    ELSE IF bf-account.inactive EQ TRUE THEN DO: 
+        ASSIGN 
+            prep.actnum:BGCOLOR = 16
+            prep.actnum:FGCOLOR = 15
+            .  
+        MESSAGE TRIM(prep.actnum:LABEL) +
+              " is Inactive Account. Try F1 to lookup valid accounts."
+            VIEW-AS ALERT-BOX ERROR.
+        APPLY "ENTRY" TO prep.actnum.        
+        RETURN ERROR.
+    END.    
     ELSE
         IF bf-account.TYPE NE "R" AND prep.simon:SCREEN-VALUE EQ "S" THEN DO: 
             MESSAGE TRIM(prep.actnum:LABEL) +
@@ -2101,6 +2146,12 @@ DO WITH FRAME {&FRAME-NAME}:
             APPLY "entry" TO prep.actnum.
             RETURN ERROR.
         END.
+        
+    IF  prep.actnum:BGCOLOR EQ 16 THEN 
+        ASSIGN 
+            prep.actnum:BGCOLOR = ?
+            prep.actnum:FGCOLOR = ?
+            .    
 END.
 
   {methods/lValidateError.i NO}

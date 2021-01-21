@@ -43,8 +43,11 @@ DEFINE VARIABLE lTaxable        AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE hdSalesManProcs AS HANDLE    NO-UNDO.
 DEFINE VARIABLE lSuccess        AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage        AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hGLProcs        AS HANDLE NO-UNDO.
 
 RUN salrep/SalesManProcs.p PERSISTENT SET hdSalesManProcs.
+
+RUN system/GLProcs.p PERSISTENT SET hGLProcs.
        
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -524,7 +527,11 @@ END.
 ON WINDOW-CLOSE OF FRAME Dialog-Frame /* Customer Invoice Item Update */
 DO:
   IF VALID-HANDLE(hdSalesManProcs) THEN 
-      DELETE PROCEDURE hdSalesManProcs.    
+      DELETE PROCEDURE hdSalesManProcs. 
+      
+  IF VALID-HANDLE(hGLProcs) THEN 
+      DELETE PROCEDURE hGLProcs.
+                   
   APPLY "END-ERROR":U TO SELF.
 END.
 
@@ -537,18 +544,18 @@ END.
 ON LEAVE OF ar-invl.actnum IN FRAME Dialog-Frame /* Account Number */
 DO:
     IF LASTKEY = -1 THEN RETURN.
-
-    IF ar-invl.actnum:SCREEN-VALUE GT ""  THEN DO:
-       FIND FIRST account WHERE account.company = g_company AND
-                                account.TYPE <> "T" AND
-                                account.actnum = ar-invl.actnum:SCREEN-VALUE
-                                NO-LOCK NO-ERROR.
-       IF NOT AVAIL account THEN DO:
-          MESSAGE "Invalid GL Account Number." VIEW-AS ALERT-BOX ERROR.
-          RETURN NO-APPLY.
-       END.
-       fi_acc-desc:SCREEN-VALUE  = account.dscr.
-    END.
+    
+    RUN valid-actnum NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN 
+        RETURN NO-APPLY.
+    
+    FIND FIRST account NO-LOCK 
+        WHERE account.company EQ g_company 
+          AND account.TYPE    NE "T" 
+          AND account.actnum  EQ ar-invl.actnum:SCREEN-VALUE
+        NO-ERROR.
+    IF AVAILABLE account THEN    
+       fi_acc-desc:SCREEN-VALUE = account.dscr.    
 
 END.
 
@@ -646,15 +653,9 @@ DO:
     DO WITH FRAME {&FRAME-NAME}:
 
      IF ar-invl.actnum:MODIFIED  THEN DO:
-       FIND FIRST account WHERE account.company = g_company AND
-                                account.TYPE <> "T" AND
-                                account.actnum = ar-invl.actnum:SCREEN-VALUE
-                                NO-LOCK NO-ERROR.
-       IF NOT AVAIL account THEN DO:
-          MESSAGE "Invalid GL Account Number." VIEW-AS ALERT-BOX ERROR.
-          APPLY "entry" TO ar-invl.actnum.
-          RETURN NO-APPLY.
-       END.
+         RUN valid-actnum NO-ERROR.
+         IF ERROR-STATUS:ERROR THEN 
+             RETURN NO-APPLY.        
      END.
 
      IF ar-invl.bol-no:MODIFIED 
@@ -1451,6 +1452,58 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-actnum Dialog-Frame
+PROCEDURE valid-actnum:
+/*------------------------------------------------------------------------------
+ Purpose: To check valid and active GL account.
+ Notes:
+------------------------------------------------------------------------------*/
+  DEFINE VARIABLE lSuccess AS LOGICAL   NO-UNDO.
+  DEFINE VARIABLE lActive  AS LOGICAL   NO-UNDO.
+  DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+
+  DO WITH FRAME {&FRAME-NAME}:  
+      
+      RUN GL_CheckGLAccount IN hGLProcs(
+          INPUT  g_company,
+          INPUT  ar-invl.actnum:SCREEN-VALUE,            
+          OUTPUT cMessage,
+          OUTPUT lSuccess,
+          OUTPUT lActive
+          ).    
+            
+      IF lSuccess = NO THEN DO:               
+          MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.            
+          IF ar-invl.actnum:BGCOLOR EQ 16 THEN             
+                ASSIGN 
+                    ar-invl.actnum:BGCOLOR  = ?
+                    ar-invl.actnum:FGCOLOR  = ?
+                   .
+          APPLY "ENTRY" TO ar-invl.actnum.     
+          RETURN ERROR. 
+      END.   
+      
+      IF lSuccess = YES AND lActive = NO THEN DO:  
+          ASSIGN 
+              ar-invl.actnum:BGCOLOR  = 16
+              ar-invl.actnum:FGCOLOR  = 15
+              .   
+          MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.           
+          APPLY "ENTRY" TO ar-invl.actnum .
+          RETURN ERROR.                      
+      END.      
+      IF lActive = YES AND ar-invl.actnum:BGCOLOR EQ 16 THEN             
+          ASSIGN 
+              ar-invl.actnum:BGCOLOR  = ?
+              ar-invl.actnum:FGCOLOR  = ?
+              .
+  END.              
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 /* ************************  Function Implementations ***************** */
 
