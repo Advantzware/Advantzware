@@ -232,7 +232,7 @@ FOR EACH toreposition WHERE toreposition.resizepage = pgno:
     IF NOT VALID-HANDLE(WIDGET-HANDLE(toreposition.widhand)) THEN
         NEXT.
    
-    IF LOOKUP(pgno, cPageVisited, ",") > 0  AND
+    IF LOOKUP(pgno, cPageVisited, ",") > 0        AND
         dePrevDeltaWidth = deDeltaWidthchange     AND 
         dePrevDeltaHeight   = deDeltaHeightchange
         THEN NEXT.    
@@ -240,7 +240,7 @@ FOR EACH toreposition WHERE toreposition.resizepage = pgno:
     IF LOOKUP(toreposition.widhand, widresizedlise, ",") > 0 
         THEN NEXT.
  
-    IF LOOKUP(STRING(toreposition.widhand),cSmartObjList, ",") > 0 THEN NEXT.
+    
     IF toreposition.widtype   = "Browse" AND VALID-HANDLE(WIDGET-HANDLE(toreposition.widhand)) THEN
         RUN winReSize IN  WIDGET-HANDLE(toreposition.widhand) (deDeltaHeightchange,deDeltaWidthchange) NO-ERROR.
     ELSE IF toreposition.widtype   = "moveright" AND VALID-HANDLE(WIDGET-HANDLE(toreposition.widhand)) THEN
@@ -261,6 +261,7 @@ FOR EACH toreposition WHERE toreposition.resizepage = pgno:
     DO:
         deRowPos = 0. 
         deColPos = 0. 
+        IF LOOKUP(STRING(toreposition.widhand),cSmartObjList, ",") > 0 THEN NEXT.
         RUN get-position IN  WIDGET-HANDLE(toreposition.widhand) (OUTPUT deRowPos , OUTPUT deColPos ) NO-ERROR. 
         RUN set-position IN  WIDGET-HANDLE(toreposition.widhand) (INPUT deRowPos ,  INPUT deColPos + deDeltaWidthchange ) NO-ERROR. 
     END.
@@ -283,19 +284,15 @@ ASSIGN
 cSmartObjList = "".  
 RUN get-link-handle IN adm-broker-hdl (INPUT THIS-PROCEDURE,INPUT "PAGE" + "1" + "-TARGET", OUTPUT cSmartObjList) NO-ERROR.
 // get the last position of the icon after shifting
-FOR EACH toreposition WHERE toreposition.resizepage = "1" BY toreposition.colpos DESCENDING :
- 
-    IF toreposition.widtype = "Browse" THEN 
-        NEXT.
-    IF toreposition.widtype = "movedown" THEN 
-        NEXT.
-    IF toreposition.widtype = "moveright" THEN 
-        NEXT.
-    IF toreposition.widtype = "Option-frame" THEN 
-        NEXT.
+FOR EACH toreposition WHERE toreposition.resizepage = "1" 
+                      AND   toreposition.widtype NE "movedown" 
+                      AND   toreposition.widtype NE "moveright" 
+                      AND   toreposition.widtype NE "Browse" 
+                      AND   toreposition.widtype NE "Option-frame" 
+                      BY    toreposition.colpos DESCENDING :
+
     IF LOOKUP(STRING(toreposition.widhand),cSmartObjList, ",") > 0 THEN 
-        NEXT.
-            
+        NEXT.            
     RUN get-position IN WIDGET-HANDLE(toreposition.widhand)( OUTPUT deTempColPos , OUTPUT lastBtnPos ) NO-ERROR.
         
 END.
@@ -304,17 +301,14 @@ deResizeVal = lastBtnPos.
 deTempColPos = 0. 
  
 // shift the icons linked with page starting from last position tracked earlier
-FOR EACH toreposition WHERE toreposition.resizepage = pgno BY toreposition.colpos DESCENDING :
-    IF pgno = "1" THEN NEXT.
-    IF toreposition.widtype = "Browse" THEN 
-        NEXT.
-    IF toreposition.widtype = "movedown" THEN 
-        NEXT.
-    IF toreposition.widtype = "moveright" THEN 
-        NEXT.
-    IF toreposition.widtype = "Option-frame" THEN 
-        NEXT.
-                
+FOR EACH toreposition WHERE toreposition.resizepage = pgno 
+                      AND   toreposition.widtype NE "movedown" 
+                      AND   toreposition.widtype NE "moveright" 
+                      AND   toreposition.widtype NE "Browse" 
+                      AND   toreposition.widtype NE "Option-frame" 
+                      AND   toreposition.resizepage NE "1"
+                      BY    toreposition.colpos DESCENDING :
+                          
     deResizeVal = deResizeVal - (toreposition.widwidth + 2).
                 
     RUN set-position IN WIDGET-HANDLE(toreposition.widhand)( INPUT toreposition.rowpos , INPUT deResizeVal) NO-ERROR.

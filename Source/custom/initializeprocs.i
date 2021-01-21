@@ -266,17 +266,12 @@ PROCEDURE afterinitialize:
     IF VALID-HANDLE({&WINDOW-NAME}) THEN 
         deResizeVal = {&WINDOW-NAME}:WIDTH.
     // shift all the buttons in toolbar towards right   
-    FOR EACH toreposition BY toreposition.colpos DESCENDING :
+    FOR EACH toreposition WHERE toreposition.widtype NE "movedown" 
+                          AND   toreposition.widtype NE "moveright" 
+                          AND   toreposition.widtype NE "Browse" 
+                          AND   toreposition.widtype NE "Option-frame" 
+                          BY toreposition.colpos DESCENDING :
 
-        IF toreposition.widtype = "Browse" THEN 
-            NEXT.
-        IF toreposition.widtype = "movedown" THEN 
-            NEXT.
-        IF toreposition.widtype = "moveright" THEN 
-            NEXT.
-        IF toreposition.widtype = "Option-frame" THEN 
-            NEXT.
-                
         IF deTempColPos NE toreposition.colpos THEN 
             deResizeVal = deResizeVal - (toreposition.widwidth + 2).
                 
