@@ -1,0 +1,192 @@
+
+/*------------------------------------------------------------------------
+    File        : UpdateMoldEstItem.p
+    Purpose     : update packing item on molded job estimate  
+
+    Syntax      :
+
+    Description : Job Builder Procedure.
+
+    Author(s)   : Sewa Singh
+    Created     : Thur Jan 21 2021
+    Notes       :
+  ----------------------------------------------------------------------*/
+
+/* ***************************  Definitions  ************************** */
+DEFINE INPUT PARAMETER ipriRowid AS ROWID NO-UNDO. 
+
+{est/ttInputEst.i}   
+DEFINE VARIABLE lRoutingExist AS LOGICAL NO-UNDO.
+DEFINE BUFFER bf-eb FOR eb.
+DEFINE BUFFER bff-eb FOR eb.
+DEFINE BUFFER bf-ef FOR ef.
+DEFINE BUFFER bf-estPacking FOR estPacking.
+
+/* ********************  Preprocessor Definitions  ******************** */
+
+
+/* ***************************  Main Block  *************************** */
+
+FIND FIRST eb NO-LOCK
+    WHERE ROWID(eb) EQ ipriRowid NO-ERROR.
+FIND FIRST est NO-LOCK
+    WHERE est.company EQ eb.company
+    AND est.est-no EQ eb.est-no NO-ERROR .
+     
+FOR EACH ttInputEst NO-LOCK:
+       IF ttInputEst.cFgEstNo NE "" THEN 
+       DO:
+          FIND FIRST bf-eb NO-LOCK
+               WHERE bf-eb.company EQ eb.company
+               AND bf-eb.est-no EQ ttInputEst.cFgEstNo
+               AND bf-eb.stock-no EQ ttInputEst.cStockNo  NO-ERROR.
+               
+               IF AVAIL bf-eb THEN
+               DO:
+                  FIND FIRST ef NO-LOCK
+                       WHERE ef.company EQ bf-eb.company
+                       AND ef.est-no EQ bf-eb.est-no 
+                       AND ef.form-no EQ bf-eb.form-no NO-ERROR.
+                  FIND FIRST bff-eb EXCLUSIVE-LOCK
+                      WHERE bff-eb.company EQ eb.company
+                      AND bff-eb.est-no EQ eb.est-no
+                      AND bff-eb.stock-no EQ ttInputEst.cStockNo NO-ERROR.
+                  IF avail bff-eb THEN
+                  DO:                  
+                      ASSIGN
+                        bff-eb.cas-no     = bf-eb.cas-no
+                        bff-eb.tr-no      = bf-eb.tr-no
+                        bff-eb.cas-len    = bf-eb.cas-len
+                        bff-eb.cas-wid    = bf-eb.cas-wid
+                        bff-eb.cas-dep    = bf-eb.cas-dep
+                        bff-eb.cas-wt     = bf-eb.cas-wt
+                        bff-eb.tr-len     = bf-eb.tr-len
+                        bff-eb.tr-wid     = bf-eb.tr-wid
+                        bff-eb.tr-dep     = bf-eb.tr-dep
+                        bff-eb.tr-cas     = bf-eb.tr-cas
+                        bff-eb.stacks     = bf-eb.stacks
+                        bff-eb.stack-code = bf-eb.stack-code
+                        bff-eb.cas-pal    = bf-eb.cas-pal
+                        bff-eb.tr-cnt     = bf-eb.tr-cnt  .
+                        
+                      FIND FIRST bf-ef EXCLUSIVE-LOCK
+                           WHERE bf-ef.company EQ bff-eb.company
+                           AND bf-ef.est-no EQ bff-eb.est-no 
+                           AND bf-ef.form-no EQ bff-eb.form-no NO-ERROR.
+                      IF AVAIL bf-ef AND AVAIL ef THEN
+                      DO:
+                         ASSIGN
+                         bf-ef.mis-snum[1] = ef.mis-snum[1]
+                         bf-ef.mis-bnum[1] = ef.mis-bnum[1]
+                         bf-ef.mis-cost[1] = ef.mis-cost[1] 
+                         bf-ef.mis-matf[1] = ef.mis-matf[1]
+                         bf-ef.mis-labf[1] = ef.mis-labf[1]
+                         bf-ef.mis-matm[1] = ef.mis-matm[1]
+                         bf-ef.mis-labm[1] = ef.mis-labm[1]
+                         bf-ef.mis-simon[1] = ef.mis-simon[1]
+                         bf-ef.mis-mkup[1]  = ef.mis-mkup[1]
+                         bf-ef.mis-snum[2]  = ef.mis-snum[2]
+                         bf-ef.mis-bnum[2]  = ef.mis-bnum[2]
+                         bf-ef.mis-cost[2]  = ef.mis-cost[2]
+                         bf-ef.mis-matf[2]  = ef.mis-matf[2]
+                         bf-ef.mis-labf[2]  = ef.mis-labf[2]
+                         bf-ef.mis-matm[2]  = ef.mis-matm[2]
+                         bf-ef.mis-labm[2]  = ef.mis-labm[2]
+                         bf-ef.mis-simon[2] = ef.mis-simon[2]
+                         bf-ef.mis-mkup[2]  = ef.mis-mkup[2]
+                         bf-ef.mis-snum[3]  = ef.mis-snum[3]
+                         bf-ef.mis-bnum[3]  = ef.mis-bnum[3]
+                         bf-ef.mis-cost[3]  = ef.mis-cost[3]
+                         bf-ef.mis-matf[3]  = ef.mis-matf[3]
+                         bf-ef.mis-labf[3]  = ef.mis-labf[3]
+                         bf-ef.mis-matm[3]  = ef.mis-matm[3]
+                         bf-ef.mis-labm[3]  = ef.mis-labm[3]
+                         bf-ef.mis-simon[3] = ef.mis-simon[3]
+                         bf-ef.mis-mkup[3]  = ef.mis-mkup[3]
+                         bf-ef.mis-snum[4]  = ef.mis-snum[4]
+                         bf-ef.mis-bnum[4]  = ef.mis-bnum[4]
+                         bf-ef.mis-cost[4]  = ef.mis-cost[4]
+                         bf-ef.mis-matf[4]  = ef.mis-matf[4]
+                         bf-ef.mis-labf[4]  = ef.mis-labf[4]
+                         bf-ef.mis-matm[4]  = ef.mis-matm[4] 
+                         bf-ef.mis-labm[4]  = ef.mis-labm[4]
+                         bf-ef.mis-simon[4] = ef.mis-simon[4] 
+                         bf-ef.mis-mkup[4]  = ef.mis-mkup[4]
+                         bf-ef.mis-snum[5]  = ef.mis-snum[5]
+                         bf-ef.mis-bnum[5]  = ef.mis-bnum[5]
+                         bf-ef.mis-cost[5]  = ef.mis-cost[5]
+                         bf-ef.mis-matf[5]  = ef.mis-matf[5]
+                         bf-ef.mis-labf[5]  = ef.mis-labf[5]
+                         bf-ef.mis-matm[5]  = ef.mis-matm[5]
+                         bf-ef.mis-labm[5]  = ef.mis-labm[5]
+                         bf-ef.mis-simon[5] = ef.mis-simon[5]
+                         bf-ef.mis-mkup[5]  = ef.mis-mkup[5]
+                         bf-ef.mis-snum[6]  = ef.mis-snum[6]
+                         bf-ef.mis-bnum[6]  = ef.mis-bnum[6]
+                         bf-ef.mis-cost[6]  = ef.mis-cost[6]
+                         bf-ef.mis-matf[6]  = ef.mis-matf[6]
+                         bf-ef.mis-labf[6]  = ef.mis-labf[6]
+                         bf-ef.mis-matm[6]  = ef.mis-matm[6]
+                         bf-ef.mis-labm[6]  = ef.mis-labm[6]
+                         bf-ef.mis-simon[6] = ef.mis-simon[6]
+                         bf-ef.mis-mkup[6]  = ef.mis-mkup[6] 
+                         bf-ef.spec-no[1]   = ef.spec-no[1]
+                         bf-ef.spec-dscr[1] = ef.spec-dscr[1] 
+                         bf-ef.spec-uom[1]  = ef.spec-uom[1]
+                         bf-ef.spec-no[2]   = ef.spec-no[2]
+                         bf-ef.spec-dscr[2] = ef.spec-dscr[2]
+                         bf-ef.spec-uom[2]  = ef.spec-uom[2]
+                         bf-ef.spec-no[3]   = ef.spec-no[3]
+                         bf-ef.spec-dscr[3] = ef.spec-dscr[3]
+                         bf-ef.spec-uom[3]  = ef.spec-uom[3]
+                         bf-ef.spec-no[4]   = ef.spec-no[4]
+                         bf-ef.spec-dscr[4] = ef.spec-dscr[4]
+                         bf-ef.spec-uom[4]  = ef.spec-uom[4]
+                         bf-ef.spec-no[5]   = ef.spec-no[5]
+                         bf-ef.spec-dscr[5] = ef.spec-dscr[5]
+                         bf-ef.spec-uom[5]  = ef.spec-uom[5]
+                         bf-ef.spec-no[6]   = ef.spec-no[6]
+                         bf-ef.spec-dscr[6] = ef.spec-dscr[6]
+                         bf-ef.spec-uom[6]  = ef.spec-uom[6]
+                         bf-ef.spec-no[7]   = ef.spec-no[7]
+                         bf-ef.spec-dscr[7] = ef.spec-dscr[7]
+                         bf-ef.spec-uom[7]  = ef.spec-uom[7] 
+                         bf-ef.spec-no[8]   = ef.spec-no[8]
+                         bf-ef.spec-dscr[8] = ef.spec-dscr[8]
+                         bf-ef.spec-uom[8] = ef.spec-uom[8].                            
+                          
+                      END.                            
+                                              
+                      FOR EACH estPacking NO-LOCK 
+                          WHERE estPacking.company EQ bf-eb.company 
+                          AND estPacking.estimateNo EQ bf-eb.est-no 
+                          AND estPacking.FormNo  EQ bf-eb.form-no 
+                          AND estPacking.BlankNo  EQ bf-eb.blank-No :  
+                          
+                          FIND FIRST bf-estPacking NO-LOCK 
+                              WHERE bf-estPacking.company EQ bff-eb.company 
+                              AND bf-estPacking.estimateNo EQ bff-eb.est-no 
+                              AND bf-estPacking.FormNo  EQ bff-eb.form-no 
+                              AND bf-estPacking.BlankNo  EQ bff-eb.blank-No
+                              AND bf-estPacking.rmItemID EQ estPacking.rmItemID NO-ERROR.
+                          IF NOT AVAIL bf-estPacking THEN
+                          DO:                               
+                              CREATE bf-estPacking .
+                              ASSIGN
+                              bf-estPacking.company      = bff-eb.company 
+                              bf-estPacking.estimateNo   = bff-eb.est-no
+                              bf-estPacking.FormNo       = bff-eb.form-no
+                              bf-estPacking.BlankNo      = bff-eb.blank-No 
+                              bf-estPacking.rmItemID     = estPacking.rmItemID.
+                              
+                              BUFFER-COPY estPacking EXCEPT company estimateNo FormNo  BlankNo estPackingID rmItemID rec_key TO bf-estPacking.
+                          END.
+                      END.
+                      RELEASE bf-estPacking NO-ERROR .                        
+                        
+                  END.  
+                   
+               END.       
+       END.        
+END.     
+     
