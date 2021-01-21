@@ -189,14 +189,14 @@ tb_fgimage tb_SW tb_print-metric spec_codes tb_prt-rev revsn_no tb_prt-dmi ~
 rd_print-Sheet tb_prt-mch rd_print-speed tb_prt-shipto tb_prt-sellprc ~
 tb_prt-label tb_committed tb_prt-set-header tb_prompt-ship dept_codes ~
 TB_sample_req tb_freeze-note tb_dept-note rd-dest lines-per-page lv-ornt ~
-lv-font-no lv-font-name td-show-parm run_format tb_ExportXML tb_spanish 
+lv-font-no lv-font-name td-show-parm run_format tb_ExportXML 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
 &Scoped-define List-1 begin_job1 begin_job2 end_job1 end_job2 tb_reprint ~
 tb_box tb_fgimage tb_approve tb_tray-2 tb_make_hold tb_app-unprinted ~
 tb_print-metric tb_draft tb_prt-rev tb_prt-dmi tb_prt-mch tb_prt-shipto ~
-tb_prt-sellprc tb_prt-label td-show-parm tb_spanish
+tb_prt-sellprc tb_prt-label td-show-parm 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -502,11 +502,6 @@ DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL no
      LABEL "Show Parameters?" 
      VIEW-AS TOGGLE-BOX
      SIZE 24 BY .81 NO-UNDO.
-     
-DEFINE VARIABLE tb_spanish AS LOGICAL INITIAL no 
-     LABEL "Print Spanish" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 27 BY 1 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -532,7 +527,6 @@ DEFINE FRAME FRAME-A
      tb_fgimage AT ROW 7.33 COL 47 RIGHT-ALIGNED
      tb_SW AT ROW 7.33 COL 57
      tb_approve AT ROW 8.33 COL 47 RIGHT-ALIGNED
-     tb_spanish AT ROW 9.20 COL 47 RIGHT-ALIGNED
      tb_tray-2 AT ROW 8.33 COL 91 RIGHT-ALIGNED WIDGET-ID 6
      tb_make_hold AT ROW 9.33 COL 91 RIGHT-ALIGNED WIDGET-ID 12
      tb_app-unprinted AT ROW 9.38 COL 56 RIGHT-ALIGNED WIDGET-ID 10
@@ -694,13 +688,6 @@ ASSIGN
 ASSIGN 
        tb_approve:HIDDEN IN FRAME FRAME-A           = TRUE
        tb_approve:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "parm".
-
-/* SETTINGS FOR TOGGLE-BOX tb_spanish IN FRAME FRAME-A
-   NO-DISPLAY ALIGN-R 1                                                 */
-ASSIGN 
-       tb_spanish:HIDDEN IN FRAME FRAME-A           = TRUE
-       tb_spanish:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 /* SETTINGS FOR TOGGLE-BOX tb_box IN FRAME FRAME-A
@@ -1387,15 +1374,6 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&Scoped-define SELF-NAME tb_spanish
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_spanish C-Win
-ON VALUE-CHANGED OF tb_spanish IN FRAME FRAME-A /* Approve Job(s)? */
-DO:
-  assign {&self-name}.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 &Scoped-define SELF-NAME tb_box
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_box C-Win
@@ -1902,8 +1880,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
        TB_sample_req:HIDDEN = TRUE
        tb_app-unprinted:SCREEN-VALUE = "no"
        tb_app-unprinted:HIDDEN = TRUE
-       tb_prompt-ship:SCREEN-VALUE = "no"
-       tb_spanish:SCREEN-VALUE = "no".
+       tb_prompt-ship:SCREEN-VALUE = "no".
 
     IF v-freezenotes-log = NO THEN ASSIGN
        tb_freeze-note:SENSITIVE = FALSE
@@ -2656,7 +2633,7 @@ PROCEDURE enable_UI :
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 begin_job1 begin_job2 end_job1 end_job2 tb_fold 
          tb_show-rel tb_RS tb_corr tb_PR tb_reprint tb_DC tb_box tb_GL tb_SW 
-         tb_approve tb_spanish tb_print-metric spec_codes revsn_no rd_print-Sheet 
+         tb_approve tb_print-metric spec_codes revsn_no rd_print-Sheet 
          tb_prt-label tb_committed tb_prt-set-header tb_prompt-ship dept_codes 
          TB_sample_req tb_freeze-note tb_dept-note rd-dest lines-per-page 
          lv-ornt lv-font-no td-show-parm run_format tb_ExportXML btn-ok 
@@ -3370,7 +3347,6 @@ PROCEDURE run-report :
     lPrintMetric            = tb_print-metric
     lPrintDMIPage           = tb_prt-dmi 
     cPrintSheetTicket       = rd_print-Sheet
-    spanish                 = tb_spanish 
     . 
 
   IF s-prt-revno THEN
