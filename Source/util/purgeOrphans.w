@@ -393,6 +393,7 @@ DO:
                 bPurge:SENSITIVE = FALSE.
             STATUS INPUT "Test complete.  Press Review to open the results list.".
             STATUS DEFAULT "Test complete.  Press Review to open the results list.".
+            bTest:SENSITIVE = FALSE.
         END.
         WHEN "bReview" THEN DO:
             STATUS INPUT "Opening file for review...".
@@ -402,7 +403,8 @@ DO:
             STATUS INPUT "Review complete. Records can now be purged.".
             STATUS DEFAULT "Review complete. Records can now be purged.".
             ASSIGN 
-                bPurge:SENSITIVE = TRUE.
+                bReview:SENSITIVE = FALSE
+                bPurge:SENSITIVE  = TRUE.                
             END.
         WHEN "bPurge" THEN DO:
             STATUS INPUT "Purging records...".
@@ -423,6 +425,11 @@ DO:
                 STATUS INPUT "Purge complete.  Backup files stored in directory.".
                 STATUS DEFAULT "Purge complete.  Backup files stored in directory.".
                 APPLY 'value-changed' TO fiOutputDir.
+                ASSIGN 
+                    bTest:SENSITIVE   = TRUE 
+                    bReview:SENSITIVE = FALSE
+                    bPurge:SENSITIVE  = FALSE 
+                    .
             END.
         END.
         WHEN "bExit" THEN 
