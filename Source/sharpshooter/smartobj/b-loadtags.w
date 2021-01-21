@@ -39,6 +39,9 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+{custom/globdefs.i}
+{sys/inc/var.i "NEW SHARED"}
+{sys/inc/varasgn.i}
 
 {oerep/ttLoadTag.i "NEW SHARED"}
 {oerep/r-loadtg.i NEW}
@@ -53,7 +56,6 @@ DEFINE VARIABLE pHandle   AS HANDLE    NO-UNDO.
 DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO.
 
 DEFINE VARIABLE hdLoadTagProcs AS HANDLE NO-UNDO.
-RUN oerep/LoadTagProcs.p PERSISTENT SET hdLoadTagProcs.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -520,6 +522,8 @@ PROCEDURE pInit PRIVATE:
     END.
     
     RUN spGetSessionParam ("Company", OUTPUT cCompany).
+    
+    RUN oerep/LoadTagProcs.p PERSISTENT SET hdLoadTagProcs.
     
     {methods/run_link.i "CONTAINER-SOURCE" "GetDesignConfig" "(OUTPUT oSSLoadTagJobDesignConfig)"}
     
