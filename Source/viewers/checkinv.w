@@ -1,12 +1,12 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS s-object 
 /*------------------------------------------------------------------------
 
   File:
 
-  Description: from VIEWER.W - Template for SmartViewer Objects
+  Description: from SMART.W - Template for basic SmartObject
 
   Input Parameters:
       <none>
@@ -32,6 +32,8 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 
+{methods/defines/hndlset.i}
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -40,12 +42,10 @@ CREATE WIDGET-POOL.
 
 /* ********************  Preprocessor Definitions  ******************** */
 
-&Scoped-define PROCEDURE-TYPE SmartViewer
+&Scoped-define PROCEDURE-TYPE SmartObject
 &Scoped-define DB-AWARE no
 
-&Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target
-
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
@@ -58,34 +58,15 @@ CREATE WIDGET-POOL.
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _XFTR "Foreign Keys" V-table-Win _INLINE
-/* Actions: ? adm/support/keyedit.w ? ? ? */
-/* STRUCTURED-DATA
-<KEY-OBJECT>
-THIS-PROCEDURE
-</KEY-OBJECT>
-<FOREIGN-KEYS>
-</FOREIGN-KEYS> 
-<EXECUTING-CODE>
-**************************
-* Set attributes related to FOREIGN KEYS
-*/
-RUN set-attribute-list (
-    'Keys-Accepted = "",
-     Keys-Supplied = ""':U).
-/**************************
-</EXECUTING-CODE> */   
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
 /* ***********************  Control Definitions  ********************** */
 
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btn-check    
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/spec-info.png":U
+	IMAGE-DOWN FILE "Graphics/32x32/spec-info_hover.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/spec-info_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Check" 
      SIZE 7.8 BY 1.81 TOOLTIP "Check".
 
@@ -96,17 +77,18 @@ DEFINE FRAME F-Main
      btn-check AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE .
+         AT COL 1 ROW 1 SCROLLABLE 
+		BGCOLOR 21.
 
 
 /* *********************** Procedure Settings ************************ */
 
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
-   Type: SmartViewer
-   Allow: Basic,DB-Fields
+   Type: SmartObject
+   Allow: Basic
    Frames: 1
-   Add Fields to: EXTERNAL-TABLES
+   Add Fields to: Neither
    Other Settings: PERSISTENT-ONLY COMPILE
  */
 
@@ -124,17 +106,17 @@ END.
 
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
-  CREATE WINDOW V-table-Win ASSIGN
+  CREATE WINDOW s-object ASSIGN
          HEIGHT             = 1.81
-         WIDTH              = 66.
+         WIDTH              = 42.8.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB V-table-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB s-object 
 /* ************************* Included-Libraries *********************** */
 
-{src/adm/method/viewer.i}
+{src/adm/method/smart.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -145,10 +127,10 @@ END.
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
-/* SETTINGS FOR WINDOW V-table-Win
+/* SETTINGS FOR WINDOW s-object
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE Size-to-Fit                                              */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
@@ -173,12 +155,12 @@ ASSIGN
 /* ************************  Control Triggers  ************************ */
 
 &Scoped-define SELF-NAME btn-check
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-check V-table-Win
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-check s-object
 ON CHOOSE OF btn-check IN FRAME F-Main
 DO:
-   def var char-hdl as cha no-undo.   
+   DEF VAR char-hdl AS cha NO-UNDO.   
    RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,'checkinv-source':U,OUTPUT char-hdl).
-   RUN check-inv-file in WIDGET-HANDLE(char-hdl).
+   RUN check-inv-file IN WIDGET-HANDLE(char-hdl).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -187,7 +169,7 @@ END.
 
 &UNDEFINE SELF-NAME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK V-table-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK s-object 
 
 
 /* ***************************  Main Block  *************************** */
@@ -204,29 +186,7 @@ END.
 
 /* **********************  Internal Procedures  *********************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE adm-row-available V-table-Win  _ADM-ROW-AVAILABLE
-PROCEDURE adm-row-available :
-/*------------------------------------------------------------------------------
-  Purpose:     Dispatched to this procedure when the Record-
-               Source has a new row available.  This procedure
-               tries to get the new row (or foriegn keys) from
-               the Record-Source and process it.
-  Parameters:  <none>
-------------------------------------------------------------------------------*/
-
-  /* Define variables needed by this internal procedure.             */
-  {src/adm/template/row-head.i}
-
-  /* Process the newly available records (i.e. display fields,
-     open queries, and/or pass records on to any RECORD-TARGETS).    */
-  {src/adm/template/row-end.i}
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI V-table-Win  _DEFAULT-DISABLE
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI s-object  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
 /*------------------------------------------------------------------------------
   Purpose:     DISABLE the User Interface
@@ -244,24 +204,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records V-table-Win  _ADM-SEND-RECORDS
-PROCEDURE send-records :
-/*------------------------------------------------------------------------------
-  Purpose:     Send record ROWID's for all tables used by
-               this file.
-  Parameters:  see template/snd-head.i
-------------------------------------------------------------------------------*/
-
-  /* SEND-RECORDS does nothing because there are no External
-     Tables specified for this SmartViewer, and there are no
-     tables specified in any contained Browse, Query, or Frame. */
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed V-table-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed s-object 
 PROCEDURE state-changed :
 /* -----------------------------------------------------------
   Purpose:     
@@ -274,7 +217,6 @@ PROCEDURE state-changed :
   CASE p-state:
       /* Object instance CASEs can go here to replace standard behavior
          or add new cases. */
-      {src/adm/template/vstates.i}
   END CASE.
 END PROCEDURE.
 
