@@ -81,7 +81,7 @@ DEFINE VARIABLE edText AS CHARACTER
      SIZE 87 BY 2.62 NO-UNDO.
 
 DEFINE IMAGE IMAGE-2
-     FILENAME "N:/Environments/Devel/Resources/Graphics/32x32/question.ico":U
+     FILENAME "Graphics/32x32/question.ico":U
      STRETCH-TO-FIT
      SIZE 8.8 BY 2.05.
 
