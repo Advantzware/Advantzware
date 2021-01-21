@@ -133,7 +133,7 @@ DEFINE VAR W-Win AS WIDGET-HANDLE NO-UNDO.
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btClearRecords 
      LABEL "Clear Records" 
-     SIZE 21.6 BY 1.14 TOOLTIP "Clear all the scanned data from grid".
+     SIZE 22.6 BY 1.38 TOOLTIP "Clear all the scanned data from grid".
 
 DEFINE BUTTON btExit AUTO-END-KEY 
      IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U
@@ -196,7 +196,7 @@ DEFINE FRAME F-Main
      btTransfer AT ROW 3.29 COL 64.2 WIDGET-ID 8
      fiLocation AT ROW 3.33 COL 19 COLON-ALIGNED WIDGET-ID 6
      fiMessage AT ROW 5 COL 5 COLON-ALIGNED NO-LABEL WIDGET-ID 30
-     btClearRecords AT ROW 5.14 COL 189.6 WIDGET-ID 28 NO-TAB-STOP 
+     btClearRecords AT ROW 5.14 COL 188.4 WIDGET-ID 28 NO-TAB-STOP 
      BROWSE-2 AT ROW 7.05 COL 4 WIDGET-ID 200
      RECT-33 AT ROW 6.57 COL 2.4 WIDGET-ID 24
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -364,6 +364,9 @@ DO:
     DEFINE VARIABLE cWarehouse AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cLocation  AS CHARACTER NO-UNDO.
     
+    IF TRIM(fiTag:SCREEN-VALUE) EQ "" THEN
+        RETURN.
+    
     ASSIGN
         cWarehouse = TRIM(SUBSTRING(SELF:SCREEN-VALUE, 1, iWarehouseLength))
         cLocation  = TRIM(SUBSTRING(SELF:SCREEN-VALUE, iWarehouseLength + 1))
@@ -371,12 +374,14 @@ DO:
     
     IF cWarehouse EQ "" THEN DO:
         MESSAGE "Warehouse cannot be empty"
-        VIEW-AS ALERT-BOX ERROR.    
+        VIEW-AS ALERT-BOX ERROR.  
+        RETURN.  
     END.
 
     IF cLocation EQ "" THEN DO:
         MESSAGE "Location cannot be empty"
-        VIEW-AS ALERT-BOX ERROR.    
+        VIEW-AS ALERT-BOX ERROR.   
+        RETURN. 
     END.
         
     RUN pLocationScan (
