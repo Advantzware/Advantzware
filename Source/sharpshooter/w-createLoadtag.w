@@ -40,10 +40,6 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-{custom/globdefs.i}
-{sys/inc/var.i "NEW SHARED"}
-{sys/inc/varasgn.i}
-
 DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO.
 
 /* Required for run_link.i */
@@ -299,6 +295,19 @@ END.
 ON CHOOSE OF btDelete IN FRAME F-Main /* Delete */
 DO:
     {methods/run_link.i "LOADTAG-SOURCE" "DeleteSelected"}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btExit
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btExit W-Win
+ON CHOOSE OF btExit IN FRAME F-Main /* Exit */
+DO:
+    APPLY "CLOSE" TO THIS-PROCEDURE.
+    
+    RETURN NO-APPLY.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -726,6 +735,21 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Set-Focus W-Win
+PROCEDURE Set-Focus:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    {methods/run_link.i "JOB-SOURCE" "Set-Focus"}
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed W-Win 
 PROCEDURE state-changed :
