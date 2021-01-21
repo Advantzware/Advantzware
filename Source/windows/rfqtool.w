@@ -42,6 +42,7 @@ DEF VAR ll-enable-trx AS LOG NO-UNDO.
 &SCOPED-DEFINE h_Object01 h_v-set
 &SCOPED-DEFINE h_Object02 h_rfqtoest
 &SCOPED-DEFINE h_Object03 h_p-updsav-2
+
 /*&SCOPED-DEFINE setUserPrint*/
 
 /* _UIB-CODE-BLOCK-END */
@@ -536,9 +537,10 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'p-rfqsiz.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  '':U ,
+             INPUT  'Edge-Pixels = 2,
+                     SmartPanelType = Update':U ,
              OUTPUT h_p-rfqsiz ).
-       /* Position in AB:  ( 19.10 , 39.00 ) */
+       RUN set-position IN h_p-rfqsiz ( 19.10 , 39.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.76 , 52.00 ) */
 
        /* Initialize other pages that this page requires. */
@@ -838,7 +840,7 @@ PROCEDURE local-change-page :
   IF INTEGER(RETURN-VALUE) > 3 AND NOT ll-enable-trx THEN DO:
      ll-enable-trx = YES.
     /* RUN enable_UI IN h_rfqtoest NO-ERROR .*/
-     RUN dispatch IN h_rfqtoest ('enable').     
+     RUN dispatch IN h_rfqtoest ('enable').
   END.
     {methods/winReSizePgChg.i}
 END PROCEDURE.

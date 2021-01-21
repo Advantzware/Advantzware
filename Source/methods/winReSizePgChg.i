@@ -10,260 +10,139 @@ ASSIGN
     deWidth       = 0
     deHeight      = 0
     pgno          = ""
-    deTempColPos  = 0.
-
+    deTempColPos  = 0
+    .
 RUN get-attribute IN THIS-PROCEDURE ('Current-Page':U).
-ASSIGN 
-    pgno = STRING(RETURN-VALUE).
+pgno = STRING(RETURN-VALUE).
 
-FIND FIRST pagewinsize WHERE pagewinsize.pageno = pgno NO-ERROR.
+FIND FIRST pagewinsize
+     WHERE pagewinsize.pageno EQ pgno
+     NO-ERROR.
 IF NOT AVAILABLE pagewinsize THEN 
-    DO:
-        FIND FIRST pagewinsize WHERE pagewinsize.pageno = "Default" NO-ERROR.
-        IF  AVAILABLE pagewinsize THEN 
-            ASSIGN  
-                deDeltaWidthchange  = {&WINDOW-NAME}:WIDTH - pagewinsize.WinWidth
-                deDeltaHeightchange = {&WINDOW-NAME}:HEIGHT - pagewinsize.winHeight
-                .
-    END.
- ELSE
-    ASSIGN  
-        deDeltaWidthchange  = {&WINDOW-NAME}:WIDTH - pagewinsize.WinWidth
-        deDeltaHeightchange =  {&WINDOW-NAME}:HEIGHT - pagewinsize.winHeight
-        .
+FIND FIRST pagewinsize
+     WHERE pagewinsize.pageno EQ "Default"
+     NO-ERROR.
+IF AVAILABLE pagewinsize THEN 
+ASSIGN  
+    deDeltaWidthchange  = {&WINDOW-NAME}:WIDTH  - pagewinsize.WinWidth
+    deDeltaHeightchange = {&WINDOW-NAME}:HEIGHT - pagewinsize.winHeight
+    .
   
-&IF DEFINED(h_Object01) NE 0 &THEN
-    FIND FIRST toreposition WHERE toreposition.widhand =  STRING({&h_Object01}) NO-ERROR.
-    IF NOT AVAILABLE toreposition THEN
-        CREATE toreposition.
-    ASSIGN 
-        toreposition.widhand = STRING({&h_Object01})
-        toreposition.resizepage = pgno.
-        toreposition.widtype   = "movedown".
-    &IF DEFINED(moveRight) NE 0 &THEN 
-        IF LOOKUP('{&h_Object01}',"{&moveRight}",",") > 0 THEN
-            toreposition.widtype   = "moveright".
-    &endif  
-&endif
-&IF DEFINED(h_Object02) NE 0 &THEN
-    FIND FIRST toreposition WHERE toreposition.widhand =  STRING({&h_Object02}) NO-ERROR.
-    IF NOT AVAILABLE toreposition THEN
-        CREATE toreposition.
-    ASSIGN 
-        toreposition.widhand = STRING({&h_Object02})
-        toreposition.resizepage = pgno.
-        toreposition.widtype   = "movedown".
-    &IF DEFINED(moveRight) NE 0 &THEN 
-        IF LOOKUP('{&h_Object02}',"{&moveRight}",",") > 0 THEN
-            toreposition.widtype   = "moveright".
-    &endif 
-&endif
-&IF DEFINED(h_Object03) NE 0 &THEN
-    FIND FIRST toreposition WHERE toreposition.widhand =  STRING({&h_Object03}) NO-ERROR.
-    IF NOT AVAILABLE toreposition THEN
-        CREATE toreposition.
-    ASSIGN 
-        toreposition.widhand = STRING({&h_Object03})
-        toreposition.resizepage = pgno.
-        toreposition.widtype   = "movedown".
-    &IF DEFINED(moveRight) NE 0 &THEN 
-        IF LOOKUP('{&h_Object03}',"{&moveRight}",",") > 0 THEN
-            toreposition.widtype   = "moveright".
-    &endif 
-&endif
-&IF DEFINED(h_Object04) NE 0 &THEN
-    FIND FIRST toreposition WHERE toreposition.widhand =  STRING({&h_Object04}) NO-ERROR.
-    IF NOT AVAILABLE toreposition THEN
-        CREATE toreposition.
-    ASSIGN 
-        toreposition.widhand = STRING({&h_Object04})
-        toreposition.resizepage = pgno.
-        toreposition.widtype   = "movedown".
-    &IF DEFINED(moveRight) NE 0 &THEN 
-        IF LOOKUP('{&h_Object04}',"{&moveRight}",",") > 0 THEN
-            toreposition.widtype   = "moveright".
-    &endif 
-&endif
-&IF DEFINED(h_Object05) NE 0 &THEN
-    FIND FIRST toreposition WHERE toreposition.widhand =  STRING({&h_Object05}) NO-ERROR.
-    IF NOT AVAILABLE toreposition THEN
-        CREATE toreposition.
-    ASSIGN 
-        toreposition.widhand    = STRING({&h_Object05})
-        toreposition.resizepage = pgno.
-        toreposition.widtype   = "movedown".
-    &IF DEFINED(moveRight) NE 0 &THEN 
-        IF LOOKUP('{&h_Object05}',"{&moveRight}",",") > 0 THEN
-            toreposition.widtype   = "moveright".
-    &endif  
-&endif
-&IF DEFINED(h_Object06) NE 0 &THEN
-    FIND FIRST toreposition WHERE toreposition.widhand =  STRING({&h_Object06}) NO-ERROR.
-    IF NOT AVAILABLE toreposition THEN
-        CREATE toreposition.
-    ASSIGN 
-        toreposition.widhand    = STRING({&h_Object06})
-        toreposition.resizepage = pgno.
-        toreposition.widtype   = "movedown".
-    &IF DEFINED(moveRight) NE 0 &THEN 
-        IF LOOKUP('{&h_Object06}',"{&moveRight}",",") > 0 THEN
-            toreposition.widtype   = "moveright".
-    &endif
-&endif
-&IF DEFINED(h_Object07) NE 0 &THEN
-FIND FIRST toreposition WHERE toreposition.widhand =  STRING({&h_Object07}) NO-ERROR.
-IF NOT AVAILABLE toreposition THEN
-    CREATE toreposition.
-ASSIGN 
-    toreposition.widhand    = STRING({&h_Object07})
-    toreposition.resizepage = pgno.
-toreposition.widtype   = "movedown".
-    &IF DEFINED(moveRight) NE 0 &THEN 
-IF LOOKUP('{&h_Object07}',"{&moveRight}",",") > 0 THEN
-    toreposition.widtype   = "moveright".
-    &endif 
-&endif
-&IF DEFINED(h_Object08) NE 0 &THEN
-FIND FIRST toreposition WHERE toreposition.widhand =  STRING({&h_Object08}) NO-ERROR.
-IF NOT AVAILABLE toreposition THEN
-    CREATE toreposition.
-ASSIGN 
-    toreposition.widhand    = STRING({&h_Object08})
-    toreposition.resizepage = pgno.
-toreposition.widtype   = "movedown".
-    &IF DEFINED(moveRight) NE 0 &THEN 
-IF LOOKUP('{&h_Object08}',"{&moveRight}",",") > 0 THEN
-    toreposition.widtype   = "moveright".
-    &endif 
-&endif
-&IF DEFINED(h_Object09) NE 0 &THEN
-FIND FIRST toreposition WHERE toreposition.widhand =  STRING({&h_Object09}) NO-ERROR.
-IF NOT AVAILABLE toreposition THEN
-    CREATE toreposition.
-ASSIGN 
-    toreposition.widhand    = STRING({&h_Object09})
-    toreposition.resizepage = pgno.
-toreposition.widtype   = "movedown".
-    &IF DEFINED(moveRight) NE 0 &THEN 
-IF LOOKUP('{&h_Object09}',"{&moveRight}",",") > 0 THEN
-    toreposition.widtype   = "moveright".
-    &endif  
-&endif
-&IF DEFINED(h_Object10) NE 0 &THEN
-FIND FIRST toreposition WHERE toreposition.widhand =  STRING({&h_Object10}) NO-ERROR.
-IF NOT AVAILABLE toreposition THEN
-    CREATE toreposition.
-ASSIGN 
-    toreposition.widhand    = STRING({&h_Object10})
-    toreposition.resizepage = pgno.
-toreposition.widtype   = "movedown".
-    &IF DEFINED(moveRight) NE 0 &THEN 
-IF LOOKUP('{&h_Object10}',"{&moveRight}",",") > 0 THEN
-    toreposition.widtype   = "moveright".
-    &endif
-&endif
-&IF DEFINED(h_Object11) NE 0 &THEN
-FIND FIRST toreposition WHERE toreposition.widhand =  STRING({&h_Object11}) NO-ERROR.
-IF NOT AVAILABLE toreposition THEN
-    CREATE toreposition.
-ASSIGN 
-    toreposition.widhand    = STRING({&h_Object11})
-    toreposition.resizepage = pgno.
-toreposition.widtype   = "movedown".
-    &IF DEFINED(moveRight) NE 0 &THEN 
-IF LOOKUP('{&h_Object11}',"{&moveRight}",",") > 0 THEN
-    toreposition.widtype   = "moveright".
-    &endif
-&endif
+/* scop-def h_ObjectXX in window container */
+{methods/toReposition.i 01}
+{methods/toReposition.i 02}
+{methods/toReposition.i 03}
+{methods/toReposition.i 04}
+{methods/toReposition.i 05}
+{methods/toReposition.i 06}
+{methods/toReposition.i 07}
+{methods/toReposition.i 08}
+{methods/toReposition.i 09}
+{methods/toReposition.i 10}
+{methods/toReposition.i 11}
+{methods/toReposition.i 12}
+{methods/toReposition.i 13}
+{methods/toReposition.i 14}
+{methods/toReposition.i 15}
+{methods/toReposition.i 16}
+{methods/toReposition.i 17}
+{methods/toReposition.i 18}
+{methods/toReposition.i 19}
+{methods/toReposition.i 20}
 
-RUN get-link-handle IN adm-broker-hdl (INPUT THIS-PROCEDURE,INPUT "PAGE" + pgno + "-TARGET", OUTPUT cSmartObjList) NO-ERROR.
+RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, "PAGE" + pgno + "-TARGET", OUTPUT cSmartObjList) NO-ERROR.
 
 DO iCntWidHand = 1 TO NUM-ENTRIES(cSmartObjList,","): 
 
-    IF  LOOKUP(pgno, cPageVisited, ",") > 0 AND
-        dePrevDeltaWidth   = deDeltaWidthchange AND 
-        dePrevDeltaHeight  = deDeltaHeightchange
-        THEN NEXT.
+    IF LOOKUP(pgno, cPageVisited) GT 0 AND
+        dePrevDeltaWidth  EQ deDeltaWidthchange AND 
+        dePrevDeltaHeight EQ deDeltaHeightchange THEN NEXT.
    
-    hTempObjHand = HANDLE(ENTRY(iCntWidHand,cSmartObjList,",")).
+    hTempObjHand = HANDLE(ENTRY(iCntWidHand,cSmartObjList)).
 
     IF VALID-HANDLE(hTempObjHand) AND
-        (
-        LOOKUP( "panel-identifier",      hTempObjHand:INTERNAL-ENTRIES, ",")  > 0 OR
-        LOOKUP( "viewer-identifier",     hTempObjHand:INTERNAL-ENTRIES, ",")  > 0 OR
-        LOOKUP( "count-buttons",         hTempObjHand:INTERNAL-ENTRIES, ",")  > 0 OR
-        THIS-PROCEDURE:FILE-NAME =  hTempObjHand:NAME                             OR
-        hTempObjHand:NAME = "smartobj/smartmsg.w")                                OR
-        INDEX(hTempObjHand:INTERNAL-ENTRIES, "folder")  > 0 
-        THEN NEXT.
+        (LOOKUP("panel-identifier",  hTempObjHand:INTERNAL-ENTRIES) GT 0 OR
+         LOOKUP("viewer-identifier", hTempObjHand:INTERNAL-ENTRIES) GT 0 OR
+         LOOKUP("count-buttons",     hTempObjHand:INTERNAL-ENTRIES) GT 0 OR
+         THIS-PROCEDURE:FILE-NAME EQ hTempObjHand:NAME  OR
+         hTempObjHand:NAME EQ "smartobj/smartmsg.w")    OR
+         INDEX(hTempObjHand:INTERNAL-ENTRIES, "folder") GT 0 THEN NEXT.
            
-    RUN get-position IN hTempObjHand (  OUTPUT deRowPos , OUTPUT deColPos ) NO-ERROR.   
-    RUN get-size IN hTempObjHand (  OUTPUT deHeight ,  OUTPUT deWidth  ) NO-ERROR.
+    RUN get-position IN hTempObjHand (OUTPUT deRowPos, OUTPUT deColPos) NO-ERROR.   
+    RUN get-size IN hTempObjHand (OUTPUT deHeight, OUTPUT deWidth) NO-ERROR.
     
-    FIND FIRST toreposition WHERE toreposition.widhand =  ENTRY(iCntWidHand,cSmartObjList,",") NO-ERROR.
+    FIND FIRST toreposition
+         WHERE toreposition.widhand EQ ENTRY(iCntWidHand,cSmartObjList)
+         NO-ERROR.
     IF NOT AVAILABLE toreposition THEN
         CREATE toreposition.
     ASSIGN 
-        toreposition.widhand    = ENTRY(iCntWidHand,cSmartObjList,",")
+        toreposition.widhand    = ENTRY(iCntWidHand,cSmartObjList)
         toreposition.colpos     = deRowPos
         toreposition.rowpos     = deColPos
         toreposition.widwidth   = deWidth
         toreposition.widheight  = deHeight
         toreposition.resizepage = pgno
         .    
-     
     IF VALID-HANDLE(hTempObjHand) AND
-        (LOOKUP( "nav-browse-identifier", hTempObjHand:INTERNAL-ENTRIES, ",")  > 0 OR
-         LOOKUP( "browse-identifier",     hTempObjHand:INTERNAL-ENTRIES, ",")  > 0 ) THEN 
-        toreposition.widtype   = "Browse". 
+        (LOOKUP("nav-browse-identifier", hTempObjHand:INTERNAL-ENTRIES) GT 0  OR
+         LOOKUP("browse-identifier",     hTempObjHand:INTERNAL-ENTRIES) GT 0) THEN 
+        toreposition.widtype = "Browse". 
     ELSE   
-        toreposition.widtype   = hTempObjHand:NAME.         
+        toreposition.widtype = hTempObjHand:NAME.         
 END.
 
-FOR EACH toreposition WHERE toreposition.resizepage = pgno: 
-
-    IF NOT VALID-HANDLE(WIDGET-HANDLE(toreposition.widhand)) THEN
-        NEXT.
+FOR EACH toreposition
+    WHERE toreposition.resizepage EQ pgno
+    :
+    IF NOT VALID-HANDLE(WIDGET-HANDLE(toreposition.widhand)) THEN NEXT.
    
-    IF LOOKUP(pgno, cPageVisited, ",") > 0  AND
-        dePrevDeltaWidth = deDeltaWidthchange     AND 
-        dePrevDeltaHeight   = deDeltaHeightchange
-        THEN NEXT.    
+    IF LOOKUP(pgno, cPageVisited) GT 0  AND
+        dePrevDeltaWidth  EQ deDeltaWidthchange  AND 
+        dePrevDeltaHeight EQ deDeltaHeightchange THEN NEXT.    
    
-    IF LOOKUP(toreposition.widhand, widresizedlise, ",") > 0 
-        THEN NEXT.
+    IF LOOKUP(toreposition.widhand, widresizedlise) GT 0 THEN NEXT.
  
-    IF toreposition.widtype   = "Browse" AND VALID-HANDLE(WIDGET-HANDLE(toreposition.widhand)) THEN
-        RUN winReSize IN  WIDGET-HANDLE(toreposition.widhand) (deDeltaHeightchange,deDeltaWidthchange) NO-ERROR.
-    ELSE IF toreposition.widtype   = "moveright" AND VALID-HANDLE(WIDGET-HANDLE(toreposition.widhand)) THEN
-    DO:     
-        deRowPos = 0. 
-        deColPos = 0.     
-        RUN get-position IN  WIDGET-HANDLE(toreposition.widhand)(OUTPUT deRowPos ,OUTPUT deColPos) NO-ERROR.
-        RUN set-position IN WIDGET-HANDLE(toreposition.widhand) (INPUT deRowPos  ,INPUT deColPos + deDeltaWidthchange) NO-ERROR .
+    IF toreposition.widtype EQ "Browse" AND VALID-HANDLE(WIDGET-HANDLE(toreposition.widhand)) THEN
+        RUN winReSize IN WIDGET-HANDLE(toreposition.widhand) (deDeltaHeightchange, deDeltaWidthchange) NO-ERROR.
+    ELSE IF toreposition.widtype EQ "moveright" AND VALID-HANDLE(WIDGET-HANDLE(toreposition.widhand)) THEN
+    DO:
+        ASSIGN
+            deRowPos = 0
+            deColPos = 0
+            .     
+        RUN get-position IN WIDGET-HANDLE(toreposition.widhand) (OUTPUT deRowPos, OUTPUT deColPos) NO-ERROR.
+        RUN set-position IN WIDGET-HANDLE(toreposition.widhand) (deRowPos, deColPos + deDeltaWidthchange) NO-ERROR.
     END.  
-    ELSE IF toreposition.widtype   = "movedown" AND VALID-HANDLE(WIDGET-HANDLE(toreposition.widhand)) THEN
+    ELSE IF toreposition.widtype EQ "movedown" AND VALID-HANDLE(WIDGET-HANDLE(toreposition.widhand)) THEN
     DO: 
-        deRowPos = 0. 
-        deColPos = 0.            
-        RUN get-position IN  WIDGET-HANDLE(toreposition.widhand)(OUTPUT deRowPos ,OUTPUT deColPos ) NO-ERROR. 
-        RUN set-position IN WIDGET-HANDLE(toreposition.widhand) (INPUT deRowPos + deDeltaHeightchange ,INPUT deColPos ) NO-ERROR.
+        ASSIGN
+            deRowPos = 0 
+            deColPos = 0
+            .     
+        RUN get-position IN WIDGET-HANDLE(toreposition.widhand)(OUTPUT deRowPos, OUTPUT deColPos) NO-ERROR.
+        RUN set-position IN WIDGET-HANDLE(toreposition.widhand) (deRowPos + deDeltaHeightchange, deColPos) NO-ERROR.
     END.               
     ELSE IF  VALID-HANDLE(WIDGET-HANDLE(toreposition.widhand)) THEN
     DO:
-        deRowPos = 0. 
-        deColPos = 0. 
-        RUN get-position IN  WIDGET-HANDLE(toreposition.widhand) (OUTPUT deRowPos , OUTPUT deColPos ) NO-ERROR. 
-        RUN set-position IN  WIDGET-HANDLE(toreposition.widhand) (INPUT deRowPos ,  INPUT deColPos + deDeltaWidthchange ) NO-ERROR. 
+        ASSIGN
+            deRowPos = 0 
+            deColPos = 0
+            .     
+        RUN get-position IN  WIDGET-HANDLE(toreposition.widhand) (OUTPUT deRowPos, OUTPUT deColPos) NO-ERROR.
+        RUN set-position IN  WIDGET-HANDLE(toreposition.widhand) (deRowPos, deColPos + deDeltaWidthchange) NO-ERROR.
     END.
     widresizedlise = widresizedlise + "," + toreposition.widhand.        
 END. 
 
-cPageVisited      = cPageVisited + pgno + ",".
-dePrevDeltaWidth  = deDeltaWidthchange.
-dePrevDeltaHeight = deDeltaHeightchange.
-
-FIND FIRST pagewinsize WHERE pagewinsize.pageno = pgno NO-ERROR.
+ASSIGN
+    cPageVisited      = cPageVisited + pgno + ","
+    dePrevDeltaWidth  = deDeltaWidthchange
+    dePrevDeltaHeight = deDeltaHeightchange
+    .
+FIND FIRST pagewinsize
+     WHERE pagewinsize.pageno EQ pgno
+     NO-ERROR.
 IF NOT AVAILABLE pagewinsize THEN 
     CREATE pagewinsize.
 ASSIGN 
@@ -271,36 +150,3 @@ ASSIGN
     pagewinsize.WinWidth  = {&WINDOW-NAME}:WIDTH
     pagewinsize.winHeight = {&WINDOW-NAME}:HEIGHT 
     .   
- 
-
-/*
-
-&IF DEFINED(winReSize) NE 0 &THEN
-  &IF '{1}' EQ '' &THEN
-    DEFINE VARIABLE currentWidget AS WIDGET-HANDLE NO-UNDO.
-    DEFINE VARIABLE objectWidget AS WIDGET-HANDLE NO-UNDO.
-  &ENDIF
-  
-  /* scop-def h_ObjectXX in window container */
-  {methods/moveObject.i 01}
-  {methods/moveObject.i 02}
-  {methods/moveObject.i 03}
-  {methods/moveObject.i 04}
-  {methods/moveObject.i 05}
-  {methods/moveObject.i 06}
-  {methods/moveObject.i 07}
-  {methods/moveObject.i 08}
-  {methods/moveObject.i 09}
-  {methods/moveObject.i 10}
-  {methods/moveObject.i 11}
-  {methods/moveObject.i 12}
-  {methods/moveObject.i 13}
-  {methods/moveObject.i 14}
-  {methods/moveObject.i 15}
-  {methods/moveObject.i 16}
-  {methods/moveObject.i 17}
-  {methods/moveObject.i 18}
-  {methods/moveObject.i 19}
-  {methods/moveObject.i 20}
-&ENDIF
- */

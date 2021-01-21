@@ -1,4 +1,6 @@
 PROCEDURE beforeinitialize:
+    DEFINE VARIABLE pgno AS CHARACTER NO-UNDO INIT "1".
+
     ASSIGN
         hTempWinmn    = ?
         deResizeVal   = 0
@@ -71,146 +73,28 @@ PROCEDURE beforeinitialize:
 
     hTempWinmn = ?.
      
- // get all the scoped define objects handle created before initialization to be moved down oe right
-     &IF DEFINED(h_Object01) NE 0 &THEN
-    FIND FIRST toreposition WHERE toreposition.widhand =  STRING({&h_Object01}) NO-ERROR.
-    IF NOT AVAILABLE toreposition THEN
-        CREATE toreposition.
-    ASSIGN 
-        toreposition.widhand    = STRING({&h_Object01})
-        toreposition.resizepage = "1"       
-        toreposition.widtype    = "movedown".
-        &IF DEFINED(moveRight) NE 0 &THEN 
-    IF LOOKUP('{&h_Object01}',"{&moveRight}",",") > 0  THEN
-        toreposition.widtype   = "moveright".         
-        &endif         
-    &endif
-    
-    &IF DEFINED(h_Object02) NE 0 &THEN
-    FIND FIRST toreposition WHERE toreposition.widhand =  STRING({&h_Object02}) NO-ERROR.
-    IF NOT AVAILABLE toreposition THEN
-        CREATE toreposition.
-    ASSIGN 
-        toreposition.widhand    = STRING({&h_Object02})
-        toreposition.resizepage = "1"      
-        toreposition.widtype    = "movedown".
-        &IF DEFINED(moveRight) NE 0 &THEN 
-    IF LOOKUP('{&h_Object02}',"{&moveRight}",",") > 0 THEN
-        toreposition.widtype   = "moveright".
-        &endif
-    &endif
-        
-    &IF DEFINED(h_Object03) NE 0 &THEN
-    FIND FIRST toreposition WHERE toreposition.widhand =  STRING({&h_Object03}) NO-ERROR.
-    IF NOT AVAILABLE toreposition THEN
-        CREATE toreposition.
-    ASSIGN 
-        toreposition.widhand    = STRING({&h_Object03})
-        toreposition.resizepage = "1"      
-        toreposition.widtype    = "movedown".
-        &IF DEFINED(moveRight) NE 0 &THEN 
-    IF LOOKUP('{&h_Object03}',"{&moveRight}",",") > 0  THEN
-        toreposition.widtype   = "moveright".
-        &endif   
-    &endif
-    
-    &IF DEFINED(h_Object04) NE 0 &THEN
-    FIND FIRST toreposition WHERE toreposition.widhand =  STRING({&h_Object04}) NO-ERROR.
-    IF NOT AVAILABLE toreposition THEN
-        CREATE toreposition.
-    ASSIGN 
-        toreposition.widhand    = STRING({&h_Object04})
-        toreposition.resizepage = "1"       
-        toreposition.widtype    = "movedown".
-        &IF DEFINED(moveRight) NE 0 &THEN 
-    IF LOOKUP('{&h_Object04}',"{&moveRight}",",") > 0  THEN
-        toreposition.widtype   = "moveright".
-        &endif
-    &endif 
-    
-    &IF DEFINED(h_Object05) NE 0 &THEN
-    FIND FIRST toreposition WHERE toreposition.widhand =  STRING({&h_Object05}) NO-ERROR.
-    IF NOT AVAILABLE toreposition THEN
-        CREATE toreposition.
-    ASSIGN 
-        toreposition.widhand    = STRING({&h_Object05})
-        toreposition.resizepage = "1"  
-        toreposition.widtype    = "movedown".
-        &IF DEFINED(moveRight) NE 0 &THEN 
-    IF LOOKUP('{&h_Object05}',"{&moveRight}",",") > 0  THEN
-        toreposition.widtype   = "moveright".
-        &endif  
-    &endif
-    
-    &IF DEFINED(h_Object06) NE 0 &THEN
-    FIND FIRST toreposition WHERE toreposition.widhand =  STRING({&h_Object06}) NO-ERROR.
-    IF NOT AVAILABLE toreposition THEN
-        CREATE toreposition.
-    ASSIGN 
-        toreposition.widhand    = STRING({&h_Object06})
-        toreposition.resizepage = "1"    
-        toreposition.widtype    = "movedown".
-        &IF DEFINED(moveRight) NE 0 &THEN 
-    IF LOOKUP('{&h_Object06}',"{&moveRight}",",") > 0  THEN
-        toreposition.widtype   = "moveright".
-        &endif 
-    &endif
-    
-    &IF DEFINED(h_Object07) NE 0 &THEN
-    FIND FIRST toreposition WHERE toreposition.widhand =  STRING({&h_Object07}) NO-ERROR.
-    IF NOT AVAILABLE toreposition THEN
-        CREATE toreposition.
-    ASSIGN 
-        toreposition.widhand    = STRING({&h_Object07})
-        toreposition.resizepage = "1"
-        toreposition.widtype    = "movedown".
-        &IF DEFINED(moveRight) NE 0 &THEN 
-    IF LOOKUP('{&h_Object07}',"{&moveRight}",",") > 0  THEN
-        toreposition.widtype   = "moveright".
-        &endif   
-    &endif
-    
-    &IF DEFINED(h_Object08) NE 0 &THEN
-    FIND FIRST toreposition WHERE toreposition.widhand =  STRING({&h_Object08}) NO-ERROR.
-    IF NOT AVAILABLE toreposition THEN
-        CREATE toreposition.
-    ASSIGN 
-        toreposition.widhand    = STRING({&h_Object08})
-        toreposition.resizepage = "1"      
-        toreposition.widtype    = "movedown".
-        &IF DEFINED(moveRight) NE 0 &THEN 
-    IF LOOKUP('{&h_Object08}',"{&moveRight}",",") > 0  THEN
-        toreposition.widtype   = "moveright".
-        &endif
-    &endif 
-    
-    &IF DEFINED(h_Object09) NE 0 &THEN
-    FIND FIRST toreposition WHERE toreposition.widhand =  STRING({&h_Object09}) NO-ERROR.
-    IF NOT AVAILABLE toreposition THEN
-        CREATE toreposition.
-    ASSIGN 
-        toreposition.widhand    = STRING({&h_Object09})
-        toreposition.resizepage = "1"  
-        toreposition.widtype    = "movedown".
-        &IF DEFINED(moveRight) NE 0 &THEN 
-    IF LOOKUP('{&h_Object09}',"{&moveRight}",",") > 0  THEN
-        toreposition.widtype   = "moveright".
-        &endif  
-    &endif
-    
-    &IF DEFINED(h_Object10) NE 0 &THEN
-    FIND FIRST toreposition WHERE toreposition.widhand =  STRING({&h_Object10}) NO-ERROR.
-    IF NOT AVAILABLE toreposition THEN
-        CREATE toreposition.
-    ASSIGN 
-        toreposition.widhand    = STRING({&h_Object10})
-        toreposition.resizepage = "1"     
-        toreposition.widtype    = "movedown".
-        &IF DEFINED(moveRight) NE 0 &THEN 
-    IF LOOKUP('{&h_Object10}',"{&moveRight}",",") > 0  THEN
-        toreposition.widtype   = "moveright".
-        &endif 
-    &endif
+    // get all the scoped define objects handle created before initialization to be moved down oe right
+    /* scop-def h_ObjectXX in window container */
+    {methods/toReposition.i 01}
+    {methods/toReposition.i 02}
+    {methods/toReposition.i 03}
+    {methods/toReposition.i 04}
+    {methods/toReposition.i 05}
+    {methods/toReposition.i 06}
+    {methods/toReposition.i 07}
+    {methods/toReposition.i 08}
+    {methods/toReposition.i 09}
+    {methods/toReposition.i 10}
+    {methods/toReposition.i 11}
+    {methods/toReposition.i 12}
+    {methods/toReposition.i 13}
+    {methods/toReposition.i 14}
+    {methods/toReposition.i 15}
+    {methods/toReposition.i 16}
+    {methods/toReposition.i 17}
+    {methods/toReposition.i 18}
+    {methods/toReposition.i 19}
+    {methods/toReposition.i 20}
 
 END PROCEDURE.   
 
@@ -221,7 +105,7 @@ PROCEDURE afterinitialize:
         INPUT THIS-PROCEDURE:UNIQUE-ID, 
         OUTPUT cSmartObjList
         ).
-   // get all the object handles that have bbe created after initialization
+    // get all the object handles that have bbe created after initialization
     DO iCntWidHand = 1 TO NUM-ENTRIES(cSmartObjList,","): 
                        
         hTempWinmn = HANDLE(ENTRY(iCntWidHand,cSmartObjList,",")).
