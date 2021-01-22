@@ -129,14 +129,16 @@ DEFINE BUTTON Btn_Clear_Find
      FONT 4.
 
 DEFINE BUTTON printBOL 
-     IMAGE-UP FILE "Graphics/32x32/printer_gearwheel.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/printer_barcode.png":U
+     IMAGE-DOWN FILE "Graphics/32x32/printer_barcode_hover.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/printer_barcode_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 9 BY 2.14 TOOLTIP "Print BOL".
 
 DEFINE BUTTON printSBOL 
-     IMAGE-UP FILE "Graphics/32x32/document_check_edit.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/edit.png":U
+     IMAGE-DOWN FILE "Graphics/32x32/edit_hover.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/edit_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 9 BY 2.14 TOOLTIP "Print Signed BOL".
 
