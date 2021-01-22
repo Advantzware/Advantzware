@@ -871,7 +871,6 @@ PROCEDURE proc-init :
   Notes:       
 ------------------------------------------------------------------------------*/   
 
-    fiBillOwner = USERID(LDBNAME(1)).
 
 END PROCEDURE.
 
