@@ -3326,8 +3326,10 @@ PROCEDURE yellow-open-query :
         ASSIGN lv-last-rowid  = ROWID(oe-ordl)
                lv-last-show-ord-no = oe-ordl.ord-no.
       ELSE
-        ASSIGN lv-frst-rowid = ROWID(oe-ordl)
-               lv-first-show-ord-no = oe-ordl.ord-no.
+          ASSIGN lv-last-rowid       = ROWID(oe-ordl)
+              lv-last-show-ord-no = oe-ordl.ord-no.
+     /*   ASSIGN lv-frst-rowid = ROWID(oe-ordl)
+               lv-first-show-ord-no = oe-ordl.ord-no.*/
     END.
 
     GET FIRST {&browse-name}.
@@ -3338,8 +3340,10 @@ PROCEDURE yellow-open-query :
         ASSIGN lv-frst-rowid  = ROWID(oe-ordl)
                lv-first-show-ord-no = oe-ordl.ord-no.
       ELSE
-        ASSIGN lv-last-rowid  = ROWID(oe-ordl)
-               lv-last-show-ord-no = oe-ordl.ord-no.
+          ASSIGN lv-frst-rowid        = ROWID(oe-ordl)
+              lv-first-show-ord-no = oe-ordl.ord-no.
+      /*  ASSIGN lv-last-rowid  = ROWID(oe-ordl)
+               lv-last-show-ord-no = oe-ordl.ord-no.*/
     END.
     IF lv-sort-by NE "ord-no" THEN DO:
       GET FIRST {&browse-name}.
