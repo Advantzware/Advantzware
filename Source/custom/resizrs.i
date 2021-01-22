@@ -7,8 +7,17 @@ DO:
         {&WINDOW-NAME}:WIDTH  = deOrigWinWidth
         .    
 END.    
+ON 'WINDOW-MAXIMIZED':U OF {&WINDOW-NAME}
+DO:
+    ASSIGN
+        {&WINDOW-NAME}:MAX-HEIGHT   = ?
+        {&WINDOW-NAME}:MAX-WIDTH    = ?
+        {&WINDOW-NAME}:WINDOW-STATE = WINDOW-MAXIMIZED.
+END.
 
 /*
+ON 'WINDOW-RESTORED':U OF {&WINDOW-NAME}
+DO:
 IF winstate = 3 THEN ASSIGN winstate = 0 NO-ERROR.
 ELSE 
 DO:
@@ -73,11 +82,6 @@ ON WINDOW-RESIZED OF {&WINDOW-NAME}
             {&WINDOW-NAME}:HEIGHT = deOrigWinHeight.        
         &endif
         
-         
-         IF {&window-name}:WINDOW-STATE = 1 THEN 
-         ASSIGN 
-               {&WINDOW-NAME}:WIDTH-pixels = SESSION:WORK-AREA-WIDTH-PIXELS 
-               {&WINDOW-NAME}:HEIGHT-pixels = SESSION:WORK-AREA-HEIGHT-PIXELS .
         deDeltaWidth      =  {&WINDOW-NAME}:WIDTH  - FRAME {&FRAME-NAME}:WIDTH.      
         deDeltaHeight     =  {&WINDOW-NAME}:HEIGHT - FRAME {&FRAME-NAME}:HEIGHT.
         
