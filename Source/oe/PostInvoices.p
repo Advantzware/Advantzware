@@ -3271,7 +3271,7 @@ PROCEDURE pValidateInvoicesToPost PRIVATE:
                 INPUT ROWID(bf-inv-head),
                 INPUT "Auto approval is not set for this customer"
                 ).  
-            NEXT.                  
+            lAutoApprove = NO.                  
         END.    
                  
         lValidateRequired = fGetInvoiceApprovalVal(bf-inv-head.company,"InvoiceApprovalTaxCalc",bf-inv-head.cust-no,iplIsValidateOnly).        
