@@ -306,25 +306,7 @@ PROCEDURE Order_CallCreateReleaseTrigger:
                         ) NO-ERROR.
                 END. /*First bf-oe-rell.i-no*/                
             END.
-            DO TRANSACTION:  
-                FIND CURRENT bf-oe-relh EXCLUSIVE-LOCK NO-ERROR.                
-                 
-                IF AVAILABLE bf-oe-relh THEN.
-                     bf-oe-relh.printed = YES.
-                     
-                FIND FIRST oe-rel NO-LOCK
-                  WHERE oe-rel.company EQ bf-oe-rell.company
-                    AND oe-rel.link-no  EQ bf-oe-rell.r-no
-                    AND oe-rel.ord-no   EQ bf-oe-rell.ord-no
-                    AND oe-rel.i-no     EQ bf-oe-rell.i-no
-                    AND oe-rel.line     EQ bf-oe-rell.line
-                    AND oe-rel.rel-no   EQ bf-oe-rell.rel-no
-                    AND oe-rel.b-ord-no EQ bf-oe-rell.b-ord-no
-                    AND oe-rel.po-no    EQ bf-oe-rell.po-no NO-ERROR.     
-                           
-                IF AVAIL oe-rel AND oe-rel.stat EQ "B" THEN
-                    bf-oe-relh.printed = NO.
-            END. 
+           
             RELEASE bf-oe-relh.                                                                         
         END.  
         RUN Outbound_ResetContext IN hdOutboundProcs.  
