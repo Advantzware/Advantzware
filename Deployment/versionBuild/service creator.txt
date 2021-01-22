@@ -1,0 +1,2 @@
+
+sc create ASITaskScheduler type= own start= auto error= normal binpath= c:\asigui\admin\envadmin\asiTaskMonitor.exe displayname= "Advantzware Task Monitor"

@@ -138,12 +138,14 @@ ECHO %time%   Copying zipped backup to developers machines >> %clogfile%
 COPY /Y /B c:\asigui\backups\databases\databases.7z K:\backups\databases\databases.7z >> %clogfile%
 COPY /Y /B c:\asigui\backups\databases\databases.7z R:\backups\databases\databases.7z >> %clogfile%
 COPY /Y /B c:\asigui\backups\databases\databases.7z S:\backups\databases\databases.7z >> %clogfile%
+COPY /Y /B c:\asigui\backups\databases\databases.7z T:\backups\databases\databases.7z >> %clogfile%
 COPY /Y /B c:\asigui\backups\databases\databases.7z X:\backups\databases\databases.7z >> %clogfile%
 COPY /Y /B c:\asigui\backups\databases\databases.7z Y:\backups\databases\databases.7z >> %clogfile%
 COPY /Y /B c:\asigui\backups\databases\databases.7z Z:\backups\databases\databases.7z >> %clogfile%
 COPY /Y /B c:\asigui\backups\databases\*.df K:\backups\databases >> %clogfile%
 COPY /Y /B c:\asigui\backups\databases\*.df R:\backups\databases >> %clogfile%
 COPY /Y /B c:\asigui\backups\databases\*.df S:\backups\databases >> %clogfile%
+COPY /Y /B c:\asigui\backups\databases\*.df T:\backups\databases >> %clogfile%
 COPY /Y /B c:\asigui\backups\databases\*.df X:\backups\databases >> %clogfile%
 COPY /Y /B c:\asigui\backups\databases\*.df Y:\backups\databases >> %clogfile%
 COPY /Y /B c:\asigui\backups\databases\*.df Z:\backups\databases >> %clogfile%
