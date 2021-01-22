@@ -824,6 +824,13 @@ PROCEDURE state-changed :
             {methods/run_link.i "FGITEM-SOURCE" "EnableFGItem"} 
             {methods/run_link.i "COPIES-SOURCE" "EnableCopies"}
         END.
+        WHEN "fgitem-changed" THEN DO:
+            {methods/run_link.i "FGITEM-SOURCE" "GetItemFG" "(OUTPUT oItemFG)"}
+            
+            cItemID = oItemFG:GetValue("ItemID").
+            
+            {methods/run_link.i "JOB-SOURCE" "JobFGItemChanged" "(INPUT cItemID)"}
+        END.
         WHEN "fgitem-valid" THEN DO:
             
             {methods/run_link.i "QTY-SOURCE" "EnableQuantities"}

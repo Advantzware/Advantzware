@@ -613,6 +613,51 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE JobFGItemChanged s-object
+PROCEDURE JobFGItemChanged:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcItemID AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE cFormNoList  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cBlankNoList AS CHARACTER NO-UNDO.
+    
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+    
+    RUN GetFormAndBlankFromJobAndFGItem IN hdJobProcs (
+        INPUT  cCompany,
+        INPUT  fiJobno:SCREEN-VALUE,
+        INPUT  INTEGER(cbJobno2:SCREEN-VALUE),
+        INPUT  ipcItemID,
+        OUTPUT cFormNoList,
+        OUTPUT cBlankNoList
+        ).
+    
+    /* Raise an error if output form and blank are not found on the current form and blank list */
+    IF LOOKUP(STRING(INTEGER(ENTRY (1, cFormNoList)) ,"99") , cbFormNo:LIST-ITEMS) EQ 0 OR LOOKUP(STRING(INTEGER(ENTRY (1, cBlankNoList)), "99") , cbBlankNo:LIST-ITEMS) EQ 0 THEN DO:
+        MESSAGE "Invalid item '" + ipcItemID + "' for Job # '" + fiJobno:SCREEN-VALUE + "-" + cbJobno2:SCREEN-VALUE + "'"
+            VIEW-AS ALERT-BOX ERROR.
+        
+        RETURN.
+    END.
+    
+    ASSIGN
+        cbFormNo:SCREEN-VALUE  = STRING(INTEGER(ENTRY (1, cFormNoList)) ,"99")
+        cbBlankNo:SCREEN-VALUE = STRING(INTEGER(ENTRY (1, cBlankNoList)), "99")
+        .
+    
+    RUN pValidateJob.
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE No-Resize s-object 
 PROCEDURE No-Resize :
 /*------------------------------------------------------------------------------
