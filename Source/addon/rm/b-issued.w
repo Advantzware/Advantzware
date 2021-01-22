@@ -982,7 +982,7 @@ DO:
       RUN validate-jobmat (YES) NO-ERROR.
       IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
       
-      APPLY 'TAB' TO rm-rctd.s-num IN BROWSE {&BROWSE-NAME}.
+      APPLY 'entry':U TO rm-rctd.s-num IN BROWSE {&BROWSE-NAME}.     
       RETURN NO-APPLY.
    END.
 END.
