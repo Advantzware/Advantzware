@@ -118,6 +118,7 @@ RUN Po/POProcs.p PERSISTENT SET hdPOProcs.
 DEFINE VARIABLE lAllowedEditStatus AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lAccessClose AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cAccessList AS CHARACTER NO-UNDO.
+DEFINE VARIABLE llUpdatePrcHld AS LOGICAL NO-UNDO.
 
 RUN methods/prgsecur.p
 	    (INPUT "AllowEditPoStatus.",
@@ -128,6 +129,16 @@ RUN methods/prgsecur.p
 	     OUTPUT lAllowedEditStatus, /* Allowed? Yes/NO */
 	     OUTPUT lAccessClose, /* used in template/windows.i  */
 	     OUTPUT cAccessList). /* list 1's and 0's indicating yes or no to run, create, update, delete */
+         
+RUN methods/prgsecur.p
+    (INPUT "PoPriceHold",
+     INPUT "ALL", /* based on run, create, update, delete or all */
+     INPUT NO,    /* use the directory in addition to the program */
+     INPUT NO,    /* Show a message if not authorized */
+     INPUT NO,    /* Group overrides user security? */
+     OUTPUT llUpdatePrcHld, /* Allowed? Yes/NO */
+     OUTPUT lAccessClose, /* used in template/windows.i  */
+     OUTPUT cAccessList). /* list 1's and 0's indicating yes or no to run, create, update, delete */         
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -157,7 +168,7 @@ DEFINE QUERY external_tables FOR po-ord.
 po-ord.cust-no po-ord.ship-id po-ord.buyer po-ord.contact po-ord.due-date ~
 po-ord.last-ship-date po-ord.under-pct po-ord.over-pct po-ord.carrier ~
 po-ord.excludeFromVoucher po-ord.tax-gr po-ord.terms po-ord.frt-pay ~
-po-ord.fob-code po-ord.t-freight 
+po-ord.fob-code po-ord.t-freight po-ord.priceHold
 &Scoped-define ENABLED-TABLES po-ord
 &Scoped-define FIRST-ENABLED-TABLE po-ord
 &Scoped-Define ENABLED-OBJECTS btnCalendar-1 rd_drop-shipment btnCalendar-2 ~
@@ -169,7 +180,7 @@ po-ord.ship-zip po-ord.buyer po-ord.contact po-ord.due-date ~
 po-ord.last-ship-date po-ord.under-pct po-ord.over-pct po-ord.carrier ~
 po-ord.excludeFromVoucher po-ord.tax-gr po-ord.terms po-ord.frt-pay ~
 po-ord.fob-code po-ord.t-freight po-ord.tax po-ord.t-cost ~
-po-ord.approved-date po-ord.approved-id 
+po-ord.approved-date po-ord.approved-id po-ord.priceHold
 &Scoped-define DISPLAYED-TABLES po-ord
 &Scoped-define FIRST-DISPLAYED-TABLE po-ord
 &Scoped-Define DISPLAYED-OBJECTS fc_app_time rd_drop-shipment lv_vend-name ~
@@ -229,6 +240,11 @@ DEFINE BUTTON btnCalendar-3
      IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
      LABEL "" 
      SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
+     
+DEFINE BUTTON btnTags 
+     IMAGE-UP FILE "Graphics/16x16/question.png":U
+     LABEL "" 
+     SIZE 4.2 BY .95 TOOLTIP "Show Details".     
 
 DEFINE VARIABLE approved_text AS CHARACTER FORMAT "X(8)":U INITIAL "Approved" 
       VIEW-AS TEXT 
@@ -307,6 +323,7 @@ DEFINE RECTANGLE RECT-13
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
+     btnTags AT ROW 15.05 COL 140.6 WIDGET-ID 34
      fc_app_time AT ROW 2.91 COL 133.8 COLON-ALIGNED WIDGET-ID 8
      btnCalendar-1 AT ROW 1.24 COL 68.4
      po-ord.po-no AT ROW 1.24 COL 23 COLON-ALIGNED
@@ -419,6 +436,9 @@ DEFINE FRAME F-Main
                     "Destination", "Dest":U,
 "Origination", "Orig":U
           SIZE 35 BY 1
+     po-ord.priceHold AT ROW 15.05 COL 140 RIGHT-ALIGNED WIDGET-ID 22
+          VIEW-AS TOGGLE-BOX
+          SIZE 16 BY .81     
      po-ord.t-freight AT ROW 9.95 COL 119 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
@@ -517,6 +537,8 @@ ASSIGN
    3                                                                    */
 /* SETTINGS FOR BUTTON btnCalendar-3 IN FRAME F-Main
    3                                                                    */
+/* SETTINGS FOR BUTTON btnTags IN FRAME F-Main
+   NO-ENABLE                                                            */   
 /* SETTINGS FOR FILL-IN po-ord.carrier IN FRAME F-Main
    EXP-FORMAT                                                           */
 /* SETTINGS FOR toggle-box po-ord.excludeFromVoucher IN FRAME F-Main
@@ -583,6 +605,8 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN po-ord.under-pct IN FRAME F-Main
    EXP-LABEL                                                            */
+/* SETTINGS FOR TOGGLE-BOX po-ord.priceHold IN FRAME F-Main
+   ALIGN-R                                                              */   
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -726,6 +750,19 @@ END.
 ON CHOOSE OF btnCalendar-3 IN FRAME F-Main
 DO:
   {methods/btnCalendar.i po-ord.last-ship-date}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME btnTags
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnTags V-table-Win
+ON CHOOSE OF btnTags IN FRAME F-Main
+DO:
+    RUN system/d-TagViewer.w (
+        INPUT po-ord.rec_key,
+        INPUT ""
+        ).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1157,6 +1194,16 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME po-ord.priceHold
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL po-ord.priceHold V-table-Win
+ON VALUE-CHANGED OF po-ord.priceHold IN FRAME F-Main /* Price Hold */
+DO:
+  RUN CheckPriceHold.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &UNDEFINE SELF-NAME
 
@@ -1471,6 +1518,11 @@ PROCEDURE hold-release :
         ERROR.
     RETURN.
  END.
+ IF po-ord.priceHold THEN
+ DO:
+    MESSAGE "PO on price hold. " VIEW-AS ALERT-BOX  INFO.
+    RETURN. 
+ END.
  IF AVAILABLE po-ord THEN DO:
      IF po-ord.stat = "H" AND trim(v-postatus-cha) = "User Limit" THEN DO:
        RUN PO_CheckPurchaseLimit IN hdPOProcs(BUFFER po-ord, OUTPUT lHoldPoStatus, OUTPUT dPurchaseLimit) .
@@ -1546,6 +1598,7 @@ PROCEDURE local-assign-record :
   DEFINE VARIABLE vi           AS INTEGER   NO-UNDO.
   DEFINE VARIABLE cOldLoc      AS CHARACTER NO-UNDO.
   DEFINE VARIABLE cPoStatus    AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE lPriceHold   AS LOGICAL   NO-UNDO.
 
   /* Code placed here will execute PRIOR to standard behavior. */
   EMPTY TEMP-TABLE tt-ord-no.
@@ -1553,8 +1606,9 @@ PROCEDURE local-assign-record :
   iv-copy-from-rec = IF AVAILABLE po-ord THEN RECID(po-ord) ELSE ?
   lv-prev-vend-no  = IF AVAILABLE po-ord THEN po-ord.vend-no ELSE ""
   lv-due-date      = po-ord.due-date
-  cOldLoc          = po-ord.loc .
-  cPoStatus        = po-ord.stat:SCREEN-VALUE IN FRAME {&FRAME-NAME}.
+  cOldLoc          = po-ord.loc 
+  cPoStatus        = po-ord.stat:SCREEN-VALUE IN FRAME {&FRAME-NAME}
+  lPriceHold       = po-ord.PriceHold.
      FIND bx-poord WHERE RECID(bx-poord) = iv-copy-from-rec NO-LOCK NO-ERROR.
      IF AVAILABLE bx-poord THEN DO:
          ASSIGN ip-company    = bx-poord.company
@@ -1588,6 +1642,17 @@ PROCEDURE local-assign-record :
    po-ord.cust-no = ls-drop-custno
    po-ord.stat    = cPoStatus.
   DO WITH FRAME {&FRAME-NAME} :
+     IF lPriceHold NE po-ord.priceHold AND NOT po-ord.priceHold THEN 
+     DO:
+        po-ord.stat    = "O" .
+        RUN ClearTagsHold (po-ord.rec_key). 
+     END.
+     IF po-ord.priceHold THEN
+     DO:
+        po-ord.stat    = "H" . 
+     END.
+     
+  
      IF trim(v-postatus-cha) = "Hold" THEN
          IF po-ord.stat:SCREEN-VALUE NE "C" THEN
              po-ord.stat    = "H" .
@@ -1897,7 +1962,7 @@ PROCEDURE local-display-fields :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-
+  DEFINE VARIABLE lAvailable AS LOGICAL NO-UNDO.
   /* Code placed here will execute PRIOR to standard behavior. */
 
   /* Dispatch standard ADM method.                             */
@@ -1948,6 +2013,23 @@ PROCEDURE local-display-fields :
   END.   
   rd_drop-shipment:SENSITIVE IN FRAME {&FRAME-NAME} = NO .
   po-ord.stat:SENSITIVE IN FRAME {&FRAME-NAME} = NO.
+  
+  IF AVAIL po-ord THEN DO:   
+            
+         RUN Tag_IsTagRecordAvailable(
+             INPUT po-ord.rec_key,
+             INPUT "po-ord",
+             OUTPUT lAvailable
+             ).
+           IF lAvailable THEN  
+               btnTags:SENSITIVE = TRUE
+               .
+           ELSE 
+               btnTags:SENSITIVE = FALSE.     
+               
+    END.
+  
+  
 /* IF po-ord.stat <> "H" THEN ENABLE po-ord.approved-date fc_app_time.
  IF po-ord.stat <> "H" THEN ENABLE po-ord.approved-id.*/
 
@@ -2423,6 +2505,11 @@ PROCEDURE post-enable :
     IF NOT lAllowedEditStatus OR po-ord.stat EQ "H" THEN 
     po-ord.stat:SENSITIVE = NO.
     ELSE po-ord.stat:SENSITIVE = YES.
+    
+    IF llUpdatePrcHld THEN 
+        ENABLE po-ord.priceHold.
+    ELSE
+        DISABLE po-ord.PriceHold.
   END.
 
 END PROCEDURE.
@@ -2658,6 +2745,28 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE CheckPriceHold V-table-Win 
+PROCEDURE CheckPriceHold :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+DEFINE VARIABLE lPriceHold AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cPriceHoldMessage AS CHARACTER NO-UNDO.
+
+IF AVAIL po-ord AND po-ord.priceHold:CHECKED IN FRAME {&FRAME-NAME} THEN DO:
+  RUN Vendor_CheckPriceHoldForPo(ROWID(po-ord),                                  
+                                YES, /*Set po-ord hold fields*/
+                                OUTPUT lPriceHold, 
+                                OUTPUT cPriceHoldMessage).
+END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-cust-no V-table-Win 
 PROCEDURE valid-cust-no :
