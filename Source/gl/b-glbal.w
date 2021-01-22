@@ -373,6 +373,7 @@ PROCEDURE build-inquiry :
     DEFINE VARIABLE dPeriodAccBalance AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE dTotalAccBalance  AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE opiYear           AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE tmp-start         AS DATE      NO-UNDO.
 
 
     RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,'bal-no-source':U,OUTPUT char-hdl).
@@ -393,19 +394,24 @@ PROCEDURE build-inquiry :
         
     IF AVAILABLE account THEN
     DO:
-       
+        FIND FIRST period WHERE period.company = cCompany
+                      AND period.yr = opiYear  NO-LOCK NO-ERROR.
+        tmp-start = IF AVAIL period THEN period.pst ELSE 01/01/01 .
+        
+        RUN gl/gl-opend.p (ROWID(account), tmp-start, OUTPUT opening_Balance).
+                          
         begin_acct:SCREEN-VALUE IN FRAME {&FRAME-NAME} = account.actnum.
-        opening_Balance:SCREEN-VALUE IN FRAME {&FRAME-NAME} = STRING(account.cyr-open).
+        opening_Balance:SCREEN-VALUE IN FRAME {&FRAME-NAME} = string(opening_Balance) /*STRING(account.cyr-open)*/.
         begin_acct = account.actnum.
         .
                      
         IF opiYear EQ YEAR(TODAY) THEN
             ASSIGN
                 dTotalAccBalance = account.cyr-open 
-                opening_Balance  = DECIMAL(account.cyr-open).
+                .
         ELSE ASSIGN
                 dTotalAccBalance = account.lyr-open 
-                opening_Balance  = DECIMAL(account.lyr-open).
+                .
               
         DO iCount = 1 TO 12:
            
