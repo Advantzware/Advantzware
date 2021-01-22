@@ -306,11 +306,7 @@ PROCEDURE Order_CallCreateReleaseTrigger:
                         ) NO-ERROR.
                 END. /*First bf-oe-rell.i-no*/                
             END.
-            DO TRANSACTION:  
-                FIND CURRENT bf-oe-relh EXCLUSIVE-LOCK NO-ERROR.
-                IF AVAILABLE bf-oe-relh THEN.
-                     bf-oe-relh.printed = YES.     
-            END. 
+           
             RELEASE bf-oe-relh.                                                                         
         END.  
         RUN Outbound_ResetContext IN hdOutboundProcs.  
