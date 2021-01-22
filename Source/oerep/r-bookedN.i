@@ -591,7 +591,7 @@ FORMAT wkrecap.procat
 
         ASSIGN  dNetprct = 0.
          IF AVAIL oe-ordl THEN
-         ASSIGN dNetprct = oe-ordl.s-comm[1] .
+         ASSIGN dNetprct = w-data.comm .
         
     ASSIGN 
      v-revenue     = w-data.revenue
