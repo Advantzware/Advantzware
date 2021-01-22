@@ -348,6 +348,7 @@ DO:
         WHERE account.company EQ cocode
           AND account.actnum  BEGINS {&self-name}:SCREEN-VALUE
           AND account.TYPE    EQ "E"
+          AND account.inactive EQ NO 
         NO-LOCK NO-ERROR.
   IF AVAIL account THEN DO:
      {&self-name}:SCREEN-VALUE = account.actnum.
@@ -380,6 +381,7 @@ DO:
         WHERE account.company EQ cocode
           AND account.actnum  BEGINS {&self-name}:SCREEN-VALUE
           AND account.TYPE    EQ "E"
+          AND account.inactive EQ NO 
         NO-LOCK NO-ERROR.
   IF AVAIL account THEN DO:
      {&self-name}:SCREEN-VALUE = account.actnum.
@@ -412,6 +414,7 @@ DO:
         WHERE account.company EQ cocode
           AND account.actnum  BEGINS {&self-name}:SCREEN-VALUE
           AND account.TYPE    EQ "R"
+          AND account.inactive EQ NO 
         NO-LOCK NO-ERROR.
   IF AVAIL account THEN DO:
     {&self-name}:SCREEN-VALUE = account.actnum.
@@ -601,6 +604,24 @@ PROCEDURE local-cancel-record :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
+    DO WITH FRAME {&FRAME-NAME}:
+        IF fgcat.glacc:BGCOLOR EQ 16 THEN                   
+            ASSIGN 
+                fgcat.glacc:BGCOLOR = 15
+                fgcat.glacc:FGCOLOR = ?
+                .                      
+  
+        IF fgcat.brdExpAcct:BGCOLOR EQ 16 THEN 
+            ASSIGN 
+                fgcat.brdExpAcct:BGCOLOR = 15
+                fgcat.brdExpAcct:FGCOLOR = ?
+                . 
+       IF fgcat.cogsExpAcct:BGCOLOR EQ 16 THEN                   
+            ASSIGN 
+                fgcat.cogsExpAcct:BGCOLOR = 15
+                fgcat.cogsExpAcct:FGCOLOR = ?
+                .  
+    END.                          
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
@@ -659,6 +680,44 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-reset-record V-table-Win
+PROCEDURE local-reset-record:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+    /* Code placed here will execute PRIOR to standard behavior. */
+    DO WITH FRAME {&FRAME-NAME}:
+        IF fgcat.glacc:BGCOLOR EQ 16 THEN                   
+            ASSIGN 
+                fgcat.glacc:BGCOLOR = 15
+                fgcat.glacc:FGCOLOR = ?
+                .                      
+  
+        IF fgcat.brdExpAcct:BGCOLOR EQ 16 THEN 
+            ASSIGN 
+                fgcat.brdExpAcct:BGCOLOR = 15
+                fgcat.brdExpAcct:FGCOLOR = ?
+                . 
+       IF fgcat.cogsExpAcct:BGCOLOR EQ 16 THEN                   
+            ASSIGN 
+                fgcat.cogsExpAcct:BGCOLOR = 15
+                fgcat.cogsExpAcct:FGCOLOR = ?
+                .  
+    END.      
+
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'reset-record':U ).
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record V-table-Win 
 PROCEDURE local-update-record :
@@ -790,11 +849,36 @@ PROCEDURE valid-fg-glacc :
                       WHERE account.company EQ cocode
                         AND account.actnum  EQ fgcat.cogsExpAcct:SCREEN-VALUE
                         AND account.TYPE    EQ "E") THEN DO:
+         IF fgcat.cogsExpAcct:BGCOLOR EQ 16 THEN                   
+             ASSIGN 
+                 fgcat.cogsExpAcct:BGCOLOR = 15
+                 fgcat.cogsExpAcct:FGCOLOR = ?
+                 .                    
          MESSAGE "Invalid FG Board Expense GL#, try help..."
                  VIEW-AS ALERT-BOX ERROR.
          APPLY "entry" TO fgcat.cogsExpAcct.
          RETURN ERROR.
       END.
+      IF NOT fgcat.cogsExpAcct:SCREEN-VALUE EQ "" AND
+         NOT CAN-FIND(FIRST account
+                      WHERE account.company  EQ cocode
+                        AND account.actnum   EQ fgcat.cogsExpAcct:SCREEN-VALUE
+                        AND account.TYPE     EQ "E"
+                        AND account.inactive EQ NO) THEN DO:
+         MESSAGE "Inactive FG Board Expense GL#, try help..."
+                 VIEW-AS ALERT-BOX ERROR.
+         ASSIGN 
+             fgcat.cogsExpAcct:BGCOLOR = 16
+             fgcat.cogsExpAcct:FGCOLOR = 15
+             .         
+         APPLY "ENTRY" TO fgcat.cogsExpAcct.
+         RETURN ERROR.
+      END.
+      IF fgcat.cogsExpAcct:BGCOLOR EQ 16 THEN                   
+          ASSIGN 
+              fgcat.cogsExpAcct:BGCOLOR = 15
+              fgcat.cogsExpAcct:FGCOLOR = ?
+              .  
    END.
     
   {methods/lValidateError.i NO}
@@ -817,11 +901,35 @@ PROCEDURE valid-glacc :
                     WHERE account.company EQ cocode
                       AND account.actnum  EQ fgcat.glacc:SCREEN-VALUE
                       AND account.TYPE    EQ "R") THEN DO:
+      IF fgcat.glacc:BGCOLOR EQ 16 THEN                   
+          ASSIGN 
+              fgcat.glacc:BGCOLOR = 15
+              fgcat.glacc:FGCOLOR = ?
+              .                             
       MESSAGE "Invalid Revenue Account#, try help..."
               VIEW-AS ALERT-BOX ERROR.
       APPLY "entry" TO fgcat.glacc.
       RETURN ERROR.
     END.
+    IF NOT CAN-FIND(FIRST account
+                    WHERE account.company  EQ cocode
+                      AND account.actnum   EQ fgcat.glacc:SCREEN-VALUE
+                      AND account.TYPE     EQ "R"
+                      AND account.inactive EQ NO) THEN DO:
+      MESSAGE "Inactive Revenue Account#, try help..."
+              VIEW-AS ALERT-BOX ERROR.
+      ASSIGN 
+          fgcat.glacc:BGCOLOR = 16
+          fgcat.glacc:FGCOLOR = 15
+          .         
+      APPLY "ENTRY" TO fgcat.glacc.
+      RETURN ERROR.
+    END.
+    IF fgcat.glacc:BGCOLOR EQ 16 THEN                   
+          ASSIGN 
+              fgcat.glacc:BGCOLOR = 15
+              fgcat.glacc:FGCOLOR = ?
+              .  
   END.
 
   {methods/lValidateError.i NO}
@@ -844,11 +952,36 @@ PROCEDURE valid-rm-glacc :
                       WHERE account.company EQ cocode
                         AND account.actnum  EQ fgcat.brdExpAcct:SCREEN-VALUE
                         AND account.TYPE    EQ "E") THEN DO:
+         IF fgcat.brdExpAcct:BGCOLOR EQ 16 THEN 
+             ASSIGN 
+                 fgcat.brdExpAcct:BGCOLOR = 15
+                 fgcat.brdExpAcct:FGCOLOR = ?
+                 .                    
          MESSAGE "Invalid RM Board Expense GL#, try help..."
                  VIEW-AS ALERT-BOX ERROR.
          APPLY "entry" TO fgcat.brdExpAcct.
          RETURN ERROR.
       END.
+      IF NOT fgcat.brdExpAcct:SCREEN-VALUE EQ "" AND
+         NOT CAN-FIND(FIRST account
+                      WHERE account.company  EQ cocode
+                        AND account.actnum   EQ fgcat.brdExpAcct:SCREEN-VALUE
+                        AND account.TYPE     EQ "E"
+                        AND account.inactive EQ NO) THEN DO:
+         MESSAGE "Inactive RM Board Expense GL#, try help..."
+                 VIEW-AS ALERT-BOX ERROR.
+         ASSIGN 
+             fgcat.brdExpAcct:BGCOLOR = 16
+             fgcat.brdExpAcct:FGCOLOR = 15
+             .         
+         APPLY "ENTRY" TO fgcat.brdExpAcct.
+         RETURN ERROR.
+      END.
+      IF fgcat.brdExpAcct:BGCOLOR EQ 16 THEN 
+          ASSIGN 
+              fgcat.brdExpAcct:BGCOLOR = 15
+              fgcat.brdExpAcct:FGCOLOR = ?
+              . 
    END.
    
   {methods/lValidateError.i NO}

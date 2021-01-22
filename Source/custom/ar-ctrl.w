@@ -486,6 +486,41 @@ DO:
   APPLY "CLOSE" TO THIS-PROCEDURE.
   ELSE
   DO WITH FRAME {&FRAME-NAME}:
+      IF ar-ctrl.receivables:BGCOLOR EQ 16 THEN             
+          ASSIGN 
+              ar-ctrl.receivables:BGCOLOR = 15
+              ar-ctrl.receivables:FGCOLOR = ?
+             .
+      IF ar-ctrl.sales:BGCOLOR EQ 16 THEN             
+          ASSIGN 
+              ar-ctrl.sales:BGCOLOR = 15
+              ar-ctrl.sales:FGCOLOR = ?
+              .
+      IF ar-ctrl.cash-act:BGCOLOR EQ 16 THEN             
+          ASSIGN 
+              ar-ctrl.cash-act:BGCOLOR = 15
+              ar-ctrl.cash-act:FGCOLOR = ?
+              .
+      IF ar-ctrl.discount:BGCOLOR EQ 16 THEN             
+          ASSIGN 
+              ar-ctrl.discount:BGCOLOR = 15
+              ar-ctrl.discount:FGCOLOR = ?
+              .
+      IF ar-ctrl.onac:BGCOLOR EQ 16 THEN             
+          ASSIGN 
+              ar-ctrl.onac:BGCOLOR = 15
+              ar-ctrl.onac:FGCOLOR = ?
+              .
+      IF ar-ctrl.freight:BGCOLOR EQ 16 THEN             
+          ASSIGN 
+              ar-ctrl.freight:BGCOLOR = 15
+              ar-ctrl.freight:FGCOLOR = ?
+              . 
+      IF ar-ctrl.stax:BGCOLOR EQ 16 THEN             
+          ASSIGN 
+              ar-ctrl.stax:BGCOLOR = 15
+              ar-ctrl.stax:FGCOLOR = ?
+              .                            
     DISABLE {&LIST-1} WITH FRAME {&FRAME-NAME}.
     ASSIGN
       {&SELF-NAME}:LABEL = "&Close"
@@ -515,15 +550,163 @@ DO:
   DO WITH FRAME {&FRAME-NAME}:
     /* VALIDATION */
     DEF VAR v-avail AS LOG NO-UNDO.
-
-    {custom/validate/acct.i ar-ctrl.receivables}
-    {custom/validate/acct.i ar-ctrl.sales}
-    {custom/validate/acct.i ar-ctrl.cash-act}
-    {custom/validate/acct.i ar-ctrl.discount}
-    {custom/validate/acct.i ar-ctrl.onac}
-    {custom/validate/acct.i ar-ctrl.freight}
-    {custom/validate/acct.i ar-ctrl.stax}
-
+    DEFINE VARIABLE lValid   AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+    
+    RUN validGLAccount(ar-ctrl.receivables:SCREEN-VALUE, OUTPUT lValid, OUTPUT cMessage) NO-ERROR.
+    IF NOT lValid THEN DO:
+        IF ar-ctrl.receivables:BGCOLOR EQ 16 THEN             
+            ASSIGN 
+                ar-ctrl.receivables:BGCOLOR = 15
+                ar-ctrl.receivables:FGCOLOR = ?
+               .
+            IF INDEX(cMessage, "Inactive") GT 0 THEN 
+                ASSIGN 
+                    ar-ctrl.receivables:BGCOLOR = 16
+                    ar-ctrl.receivables:FGCOLOR = 15
+                    . 
+            MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.   
+            APPLY "ENTRY" TO ar-ctrl.receivables.
+            RETURN NO-APPLY.                              
+    END.  
+    IF ar-ctrl.receivables:BGCOLOR EQ 16 THEN             
+        ASSIGN 
+            ar-ctrl.receivables:BGCOLOR = 15
+            ar-ctrl.receivables:FGCOLOR = ?
+            .
+            
+    RUN validGLAccount(ar-ctrl.sales:SCREEN-VALUE, OUTPUT lValid, OUTPUT cMessage) NO-ERROR.
+    IF NOT lValid THEN DO:
+        IF ar-ctrl.sales:BGCOLOR EQ 16 THEN             
+            ASSIGN 
+                ar-ctrl.sales:BGCOLOR = 15
+                ar-ctrl.sales:FGCOLOR = ?
+               .
+            IF INDEX(cMessage, "Inactive") GT 0 THEN 
+                ASSIGN 
+                    ar-ctrl.sales:BGCOLOR = 16
+                    ar-ctrl.sales:FGCOLOR = 15
+                    . 
+            MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.   
+            APPLY "ENTRY" TO ar-ctrl.sales.
+            RETURN NO-APPLY.                              
+    END.  
+    IF ar-ctrl.sales:BGCOLOR EQ 16 THEN             
+        ASSIGN 
+            ar-ctrl.sales:BGCOLOR = 15
+            ar-ctrl.sales:FGCOLOR = ?
+            .         
+     
+    RUN validGLAccount(ar-ctrl.cash-act:SCREEN-VALUE, OUTPUT lValid, OUTPUT cMessage) NO-ERROR.
+    IF NOT lValid THEN DO:
+        IF ar-ctrl.cash-act:BGCOLOR EQ 16 THEN             
+            ASSIGN 
+                ar-ctrl.cash-act:BGCOLOR = 15
+                ar-ctrl.cash-act:FGCOLOR = ?
+               .
+            IF INDEX(cMessage, "Inactive") GT 0 THEN 
+                ASSIGN 
+                    ar-ctrl.cash-act:BGCOLOR = 16
+                    ar-ctrl.cash-act:FGCOLOR = 15
+                    . 
+            MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.   
+            APPLY "ENTRY" TO ar-ctrl.cash-act.
+            RETURN NO-APPLY.                              
+    END.  
+    IF ar-ctrl.cash-act:BGCOLOR EQ 16 THEN             
+        ASSIGN 
+            ar-ctrl.cash-act:BGCOLOR = 15
+            ar-ctrl.cash-act:FGCOLOR = ?
+            .  
+            
+    RUN validGLAccount(ar-ctrl.discount:SCREEN-VALUE, OUTPUT lValid, OUTPUT cMessage) NO-ERROR.
+    IF NOT lValid THEN DO:
+        IF ar-ctrl.discount:BGCOLOR EQ 16 THEN             
+            ASSIGN 
+                ar-ctrl.discount:BGCOLOR = 15
+                ar-ctrl.discount:FGCOLOR = ?
+               .
+            IF INDEX(cMessage, "Inactive") GT 0 THEN 
+                ASSIGN 
+                    ar-ctrl.discount:BGCOLOR = 16
+                    ar-ctrl.discount:FGCOLOR = 15
+                    . 
+            MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.   
+            APPLY "ENTRY" TO ar-ctrl.discount.
+            RETURN NO-APPLY.                              
+    END.  
+    IF ar-ctrl.discount:BGCOLOR EQ 16 THEN             
+        ASSIGN 
+            ar-ctrl.discount:BGCOLOR = 15
+            ar-ctrl.discount:FGCOLOR = ?
+            .   
+            
+    RUN validGLAccount(ar-ctrl.onac:SCREEN-VALUE, OUTPUT lValid, OUTPUT cMessage) NO-ERROR.
+    IF NOT lValid THEN DO:
+        IF ar-ctrl.onac:BGCOLOR EQ 16 THEN             
+            ASSIGN 
+                ar-ctrl.onac:BGCOLOR = 15
+                ar-ctrl.onac:FGCOLOR = ?
+               .
+            IF INDEX(cMessage, "Inactive") GT 0 THEN 
+                ASSIGN 
+                    ar-ctrl.onac:BGCOLOR = 16
+                    ar-ctrl.onac:FGCOLOR = 15
+                    . 
+            MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.   
+            APPLY "ENTRY" TO ar-ctrl.onac.
+            RETURN NO-APPLY.                              
+    END.  
+    IF ar-ctrl.onac:BGCOLOR EQ 16 THEN             
+        ASSIGN 
+            ar-ctrl.onac:BGCOLOR = 15
+            ar-ctrl.onac:FGCOLOR = ?
+            .            
+            
+    RUN validGLAccount(ar-ctrl.freight:SCREEN-VALUE, OUTPUT lValid, OUTPUT cMessage) NO-ERROR.
+    IF NOT lValid THEN DO:
+        IF ar-ctrl.freight:BGCOLOR EQ 16 THEN             
+            ASSIGN 
+                ar-ctrl.freight:BGCOLOR = 15
+                ar-ctrl.freight:FGCOLOR = ?
+               .
+            IF INDEX(cMessage, "Inactive") GT 0 THEN 
+                ASSIGN 
+                    ar-ctrl.freight:BGCOLOR = 16
+                    ar-ctrl.freight:FGCOLOR = 15
+                    . 
+            MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.   
+            APPLY "ENTRY" TO ar-ctrl.freight.
+            RETURN NO-APPLY.                              
+    END.  
+    IF ar-ctrl.freight:BGCOLOR EQ 16 THEN             
+        ASSIGN 
+            ar-ctrl.freight:BGCOLOR = 15
+            ar-ctrl.freight:FGCOLOR = ?
+            .            
+            
+    RUN validGLAccount(ar-ctrl.stax:SCREEN-VALUE, OUTPUT lValid, OUTPUT cMessage) NO-ERROR.
+    IF NOT lValid THEN DO:
+        IF ar-ctrl.stax:BGCOLOR EQ 16 THEN             
+            ASSIGN 
+                ar-ctrl.stax:BGCOLOR = 15
+                ar-ctrl.stax:FGCOLOR = ?
+               .
+            IF INDEX(cMessage, "Inactive") GT 0 THEN 
+                ASSIGN 
+                    ar-ctrl.stax:BGCOLOR = 16
+                    ar-ctrl.stax:FGCOLOR = 15
+                    . 
+            MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.   
+            APPLY "ENTRY" TO ar-ctrl.stax.
+            RETURN NO-APPLY.                              
+    END.  
+    IF ar-ctrl.stax:BGCOLOR EQ 16 THEN             
+        ASSIGN 
+            ar-ctrl.stax:BGCOLOR = 15
+            ar-ctrl.stax:FGCOLOR = ?
+            .                                                  
+       
     DISABLE {&LIST-1}.
     HIDE {&F1} NO-PAUSE.
     ASSIGN
@@ -797,6 +980,9 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pDisplayField C-Win 
 PROCEDURE pDisplayField :
 /*------------------------------------------------------------------------------
@@ -820,6 +1006,37 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE validGLAccount C-Win
+PROCEDURE validGLAccount:
+/*------------------------------------------------------------------------------
+ Purpose: Check for valid and Active GL Account
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipAccount LIKE account.actnum NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplValid   AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE hValidate AS HANDLE NO-UNDO.
+  
+    RUN util/Validate.p PERSISTENT SET hValidate.
+    
+    DO WITH FRAME {&FRAME-NAME}:
+        
+        RUN pIsValidGLAccount IN hValidate (
+            INPUT  ipAccount, 
+            INPUT  YES,             
+            INPUT  g_company, 
+            OUTPUT oplValid, 
+            OUTPUT opcMessage
+            ) NO-ERROR.
+    END.     
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 /* ************************  Function Implementations ***************** */
 

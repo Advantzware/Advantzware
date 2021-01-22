@@ -426,6 +426,29 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-cancel-record V-table-Win
+PROCEDURE local-cancel-record:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
+    /* Code placed here will execute PRIOR to standard behavior. */
+    DO iCount = 1 TO 4:
+        RUN presetColor (iCount) NO-ERROR.        
+    END.
+
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ).
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-create-record V-table-Win 
 PROCEDURE local-create-record :
 /*------------------------------------------------------------------------------
@@ -445,6 +468,29 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-reset-record V-table-Win
+PROCEDURE local-reset-record:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
+    /* Code placed here will execute PRIOR to standard behavior. */
+    DO iCount = 1 TO 4:
+        RUN presetColor (iCount) NO-ERROR.        
+    END.
+
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'reset-record':U ).
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record V-table-Win 
 PROCEDURE local-update-record :
@@ -470,6 +516,55 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE presetColor V-table-Win
+PROCEDURE presetColor:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipiCount AS INTEGER NO-UNDO.
+    
+    DO WITH FRAME {&FRAME-NAME}:
+        CASE ipiCount:  
+          WHEN 1 THEN DO: 
+              IF costtype.inv-asset:BGCOLOR EQ 16 THEN 
+                  ASSIGN 
+                      costtype.inv-asset:BGCOLOR = 15
+                      costtype.inv-asset:FGCOLOR = ?
+                      .                       
+          END.
+          WHEN 2 THEN DO:
+              IF costtype.pur-var:BGCOLOR EQ 16 THEN 
+                  ASSIGN 
+                      costtype.pur-var:BGCOLOR = 15
+                      costtype.pur-var:FGCOLOR = ?
+                      .                   
+          END.
+          WHEN 3 THEN DO:
+              IF costtype.cons-exp:BGCOLOR EQ 16 THEN 
+                  ASSIGN 
+                      costtype.cons-exp:BGCOLOR = 15
+                      costtype.cons-exp:FGCOLOR = ?
+                      .                       
+          END.
+          WHEN 4 THEN DO:
+              IF costtype.ap-accrued:BGCOLOR EQ 16 THEN 
+                  ASSIGN 
+                      costtype.ap-accrued:BGCOLOR = 16
+                      costtype.ap-accrued:FGCOLOR = 15
+                      .                       
+          END.
+        END CASE.      
+    END.    
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records V-table-Win  _ADM-SEND-RECORDS
 PROCEDURE send-records :
@@ -529,6 +624,7 @@ PROCEDURE valid-acct :
   DEF VAR ll AS LOG NO-UNDO.
   DEF VAR li AS INT NO-UNDO.
   DEF VAR lv-msg AS CHAR NO-UNDO.
+  DEFINE VARIABLE lInactive AS LOGICAL NO-UNDO.
 
 
   {methods/lValidateError.i YES}
@@ -576,25 +672,100 @@ PROCEDURE valid-acct :
           MESSAGE lv-msg + " but an " + TRIM(ENTRY(li,lv-dscr)) + ", enter anyway?"
               VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
               UPDATE ll.
+          IF ll THEN DO:
+              IF account.inactive THEN
+                  ASSIGN 
+                      lInactive = YES
+                      ll = NO.               
+          END.         
         END.
 
         ELSE MESSAGE lv-msg + ", try help..." VIEW-AS ALERT-BOX ERROR.
       END.
-
+      ELSE IF account.inactive THEN
+          lInactive = YES.             
       ELSE ll = YES.
 
       IF NOT ll THEN DO:
-        CASE ip-int:
-          WHEN 1 THEN APPLY "entry" TO costtype.inv-asset.
-          WHEN 2 THEN APPLY "entry" TO costtype.pur-var.
-          WHEN 3 THEN APPLY "entry" TO costtype.cons-exp.
-          WHEN 4 THEN APPLY "entry" TO costtype.ap-accrued.
-        END CASE.
-        RETURN ERROR.
-      END.
-
-      ELSE ll-acct-warned[ip-int] = YES.
+          IF lInactive THEN DO:
+              MESSAGE "GL Account is Inactive." VIEW-AS ALERT-BOX ERROR. 
+              CASE ip-int:  
+                  WHEN 1 THEN DO: 
+                      ASSIGN 
+                          costtype.inv-asset:BGCOLOR = 16
+                          costtype.inv-asset:FGCOLOR = 15
+                          . 
+                      APPLY "ENTRY" TO costtype.inv-asset.
+                  END.
+                  WHEN 2 THEN DO:
+                      ASSIGN 
+                          costtype.pur-var:BGCOLOR = 16
+                          costtype.pur-var:FGCOLOR = 15
+                          . 
+                      APPLY "ENTRY" TO costtype.pur-var.
+                  END.
+                  WHEN 3 THEN DO:
+                      ASSIGN 
+                          costtype.cons-exp:BGCOLOR = 16
+                          costtype.cons-exp:FGCOLOR = 15
+                          . 
+                      APPLY "ENTRY" TO costtype.cons-exp.
+                  END.
+                  WHEN 4 THEN DO:
+                      ASSIGN 
+                          costtype.ap-accrued:BGCOLOR = 16
+                          costtype.ap-accrued:FGCOLOR = 15
+                          . 
+                      APPLY "ENTRY" TO costtype.ap-accrued.
+                  END.
+              END CASE.
+              RETURN ERROR.         
+          END.  
+          ELSE DO:  
+              CASE ip-int:
+                  WHEN 1 THEN APPLY "entry" TO costtype.inv-asset.
+                  WHEN 2 THEN APPLY "entry" TO costtype.pur-var.
+                  WHEN 3 THEN APPLY "entry" TO costtype.cons-exp.
+                  WHEN 4 THEN APPLY "entry" TO costtype.ap-accrued.
+                  END CASE.
+                  RETURN ERROR.
+          END.
+      END.    
+      ELSE ll-acct-warned[ip-int] = YES.          
     END.
+    
+    IF lv-value EQ "" OR ll THEN DO:
+        CASE ip-int:  
+          WHEN 1 THEN DO: 
+              IF costtype.inv-asset:BGCOLOR EQ 16 THEN 
+                  ASSIGN 
+                      costtype.inv-asset:BGCOLOR = 15
+                      costtype.inv-asset:FGCOLOR = ?
+                      .                       
+          END.
+          WHEN 2 THEN DO:
+              IF costtype.pur-var:BGCOLOR EQ 16 THEN 
+                  ASSIGN 
+                      costtype.pur-var:BGCOLOR = 15
+                      costtype.pur-var:FGCOLOR = ?
+                      .                   
+          END.
+          WHEN 3 THEN DO:
+              IF costtype.cons-exp:BGCOLOR EQ 16 THEN 
+                  ASSIGN 
+                      costtype.cons-exp:BGCOLOR = 15
+                      costtype.cons-exp:FGCOLOR = ?
+                      .                       
+          END.
+          WHEN 4 THEN DO:
+              IF costtype.ap-accrued:BGCOLOR EQ 16 THEN 
+                  ASSIGN 
+                      costtype.ap-accrued:BGCOLOR = 16
+                      costtype.ap-accrued:FGCOLOR = 15
+                      .                       
+          END.
+      END CASE.      
+    END.    
   END.
 
   {methods/lValidateError.i NO}

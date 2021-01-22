@@ -369,6 +369,9 @@ END.
 ON LEAVE OF begin_accnt IN FRAME FRAME-A /* Beginning Acct# */
 DO:
   assign {&self-name}.
+  RUN pcheckGLAccount NO-ERROR.
+  IF ERROR-STATUS:ERROR THEN 
+      RETURN NO-APPLY.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -403,6 +406,10 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 DO:
   RUN check-date.
   IF v-invalid THEN RETURN NO-APPLY.
+  
+  RUN pcheckGLAccount NO-ERROR.
+  IF ERROR-STATUS:ERROR THEN 
+      RETURN NO-APPLY.
 
   ASSIGN {&DISPLAYED-OBJECTS}.
 
@@ -947,6 +954,63 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pcheckGLAccount C-Win
+PROCEDURE pcheckGLAccount:
+/*------------------------------------------------------------------------------
+ Purpose: To check valid and active GL account.
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lValid    AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage  AS CHARACTER NO-UNDO.    
+    DEFINE VARIABLE hValidate AS HANDLE    NO-UNDO.
+    
+    RUN util/Validate.p PERSISTENT SET hValidate.
+
+    DO WITH FRAME {&FRAME-NAME}:        
+        IF begin_accnt:SCREEN-VALUE NE "" THEN DO:
+            RUN pIsValidGLAccount IN hValidate (
+                INPUT  begin_accnt:SCREEN-VALUE, 
+                INPUT  NO, 
+                INPUT  cocode, 
+               OUTPUT lValid, 
+               OUTPUT cMessage
+               ) NO-ERROR.        
+            IF NOT lValid THEN DO:
+                IF begin_accnt:BGCOLOR EQ 16 THEN             
+                   ASSIGN 
+                       begin_accnt:BGCOLOR = ?
+                       begin_accnt:FGCOLOR = ?
+                       .
+                MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.       
+                IF INDEX(cMessage, "Inactive") GT 0 THEN 
+                    ASSIGN 
+                        begin_accnt:BGCOLOR = 16
+                        begin_accnt:FGCOLOR = 15
+                        .                     
+                APPLY "ENTRY" TO begin_accnt.
+                RETURN ERROR.   
+            END.  
+        END.                  
+       
+        IF begin_accnt:SCREEN-VALUE EQ "" OR lValid THEN 
+            IF begin_accnt:BGCOLOR EQ 16 THEN             
+                ASSIGN 
+                    begin_accnt:BGCOLOR = ?
+                    begin_accnt:FGCOLOR = ?
+                    .              
+    END.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE run-report C-Win 
 PROCEDURE run-report :
 /***************************************************************************\
@@ -1036,7 +1100,8 @@ v-distribute = NO.
   FOR EACH account NO-LOCK
       WHERE account.company EQ cocode
         AND account.actnum  GE lo_actnum
-        AND account.actnum  LE hi_actnum:
+        AND account.actnum  LE hi_actnum
+        AND account.inactive EQ NO :
 
     FOR EACH gltrans NO-LOCK
         WHERE gltrans.company EQ cocode

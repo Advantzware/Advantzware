@@ -381,7 +381,10 @@ DO:
     DEFINE VARIABLE lCheckReturnError AS LOGICAL NO-UNDO.
     IF LASTKEY NE -1 THEN DO:
       RUN valid-glAccount(OUTPUT lCheckReturnError) NO-ERROR.
-      IF lCheckReturnError THEN RETURN NO-APPLY.
+      IF lCheckReturnError THEN DO:
+          APPLY "ENTRY" TO arClass.receivablesAcct .
+          RETURN NO-APPLY.
+      END.
     END.     
 END.
 
@@ -536,6 +539,12 @@ PROCEDURE local-cancel-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
+    
+    IF arclass.receivablesAcct:BGCOLOR IN FRAME {&FRAME-NAME} EQ 16 THEN             
+        ASSIGN 
+            arclass.receivablesAcct:BGCOLOR IN FRAME {&FRAME-NAME} = ?
+            arclass.receivablesAcct:FGCOLOR IN FRAME {&FRAME-NAME} = ?
+            .  
 
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ).
 
@@ -687,6 +696,30 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-reset-record V-table-Win
+PROCEDURE local-reset-record:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+    /* Code placed here will execute PRIOR to standard behavior. */
+    IF arclass.receivablesAcct:BGCOLOR IN FRAME {&FRAME-NAME} EQ 16 THEN             
+        ASSIGN 
+            arclass.receivablesAcct:BGCOLOR IN FRAME {&FRAME-NAME} = ?
+            arclass.receivablesAcct:FGCOLOR IN FRAME {&FRAME-NAME} = ?
+            .  
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'reset-record':U ) .        
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record V-table-Win 
 PROCEDURE local-update-record :
 /*------------------------------------------------------------------------------
@@ -699,7 +732,10 @@ PROCEDURE local-update-record :
     IF lCheckReturnError THEN RETURN NO-APPLY.
     
     RUN valid-glAccount(OUTPUT lCheckReturnError) NO-ERROR.
-      IF lCheckReturnError THEN RETURN NO-APPLY.
+    IF lCheckReturnError THEN DO:
+        APPLY "ENTRY" TO arClass.receivablesAcct IN FRAME {&FRAME-NAME} .
+        RETURN NO-APPLY.
+    END.     
     
      RUN valid-currency(OUTPUT lCheckReturnError) NO-ERROR.
       IF lCheckReturnError THEN RETURN NO-APPLY.
@@ -815,10 +851,26 @@ PROCEDURE valid-glAccount :
     IF arclass.receivablesAcct:SCREEN-VALUE NE "" THEN DO:
         RUN pIsValidGLAccount IN hdValidator  (arclass.receivablesAcct:SCREEN-VALUE, NO, g_company, OUTPUT oplValid, OUTPUT cValidNote).        
         IF NOT oplValid THEN do:
-            MESSAGE "Please enter a vaild GL Account " VIEW-AS ALERT-BOX INFO .
+            IF arclass.receivablesAcct:BGCOLOR EQ 16 THEN             
+                ASSIGN 
+                    arclass.receivablesAcct:BGCOLOR = ?
+                    arclass.receivablesAcct:FGCOLOR = ?
+                   .
+            IF INDEX(cValidNote, "Inactive") GT 0 THEN 
+                ASSIGN 
+                    arclass.receivablesAcct:BGCOLOR = 16
+                    arclass.receivablesAcct:FGCOLOR = 15
+                    . 
+            MESSAGE cValidNote VIEW-AS ALERT-BOX INFO .
             opReturnError = YES .   
-        END.
-    END.         
+        END.               
+    END.   
+    IF arclass.receivablesAcct:SCREEN-VALUE EQ "" OR oplValid THEN 
+        IF arclass.receivablesAcct:BGCOLOR EQ 16 THEN             
+            ASSIGN 
+                arclass.receivablesAcct:BGCOLOR = ?
+                arclass.receivablesAcct:FGCOLOR = ?
+                .       
   END.
   {&methods/lValidateError.i NO}
 END PROCEDURE.
