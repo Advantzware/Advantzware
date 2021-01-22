@@ -678,88 +678,136 @@ PROCEDURE Vendor_CheckPriceHoldForPo:
      is met.  Return price hold.  
      Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipriPoOrd AS ROWID NO-UNDO.      
-    DEFINE INPUT PARAMETER iplUpdateDB AS LOGICAL NO-UNDO.
-    DEFINE OUTPUT PARAMETER oplPriceHold AS LOGICAL NO-UNDO.
+    DEFINE INPUT  PARAMETER ipriPoOrd          AS ROWID     NO-UNDO.
+    DEFINE INPUT  PARAMETER iplUpdateDB        AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplPriceHold       AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcPriceHoldReason AS CHARACTER NO-UNDO.
 
-    DEFINE BUFFER bf-po-ord  FOR po-ord.
-    DEFINE BUFFER bf-po-ordl FOR po-ordl. 
-        
+    DEFINE BUFFER bf-po-ord       FOR po-ord.
+    DEFINE BUFFER bf-po-ordl      FOR po-ordl.        
     DEFINE BUFFER bf-vendItemCost FOR vendItemCost.
-    DEFINE VARIABLE dQuantityInVendorUOM AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE dCostPerUOMUpcharge  AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE dCostPerUOMBase      AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE lIsSelected          AS LOGICAL NO-UNDO.
-    DEFINE VARIABLE dCostDeviation       AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE iLeadDays            AS INTEGER NO-UNDO.
     
-    DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
-    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cCostUOM AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE dCostPerUOM AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE dCostSetup AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE dCostTotal AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dQuantityInVendorUOM AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dCostPerUOMUpcharge  AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dCostPerUOMBase      AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE lIsSelected          AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE dCostDeviation       AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE iLeadDays            AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE lError               AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage             AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCostUOM             AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE dCostPerUOM          AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dCostSetup           AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dCostTotal           AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE cPOPriceHold         AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lPOPriceHold         AS LOGICAL   NO-UNDO.
  
     FIND FIRST bf-po-ord NO-LOCK 
         WHERE ROWID(bf-po-ord) EQ ipriPoOrd
-        NO-ERROR.                         
-    
+        NO-ERROR.    
     IF AVAILABLE bf-po-ord THEN 
     DO:                  
+        RUN sys/ref/nk1look.p (
+            bf-po-ord.company,
+            "POPriceHold",
+            "L",
+            YES,
+            NO,
+            bf-po-ord.vend-no,
+            "", 
+            OUTPUT cPOPriceHold,
+            OUTPUT lPOPriceHold
+            ).
+        IF lPOPriceHold EQ NO OR cPOPriceHold EQ "NO" THEN RETURN.
+
         EMPTY TEMP-TABLE ttPriceHold.
         FOR EACH bf-po-ordl NO-LOCK
             WHERE bf-po-ordl.company EQ bf-po-ord.company
-            AND bf-po-ordl.po-no EQ bf-po-ord.po-no :
-                                                    
-            RUN pGetVendItemCostBuffer(bf-po-ord.company, bf-po-ordl.i-no, (IF bf-po-ordl.item-type THEN "RM" ELSE "FG"), bf-po-ord.vend-no, bf-po-ordl.cust-no, "", 0, 0, NO,
-                BUFFER bf-vendItemCost, OUTPUT lError, OUTPUT cMessage).
-                      
+            AND bf-po-ordl.po-no EQ bf-po-ord.po-no
+            :                                                    
+            RUN pGetVendItemCostBuffer (
+                bf-po-ord.company,
+                bf-po-ordl.i-no,
+                (IF bf-po-ordl.item-type THEN "RM" ELSE "FG"),
+                bf-po-ord.vend-no,
+                bf-po-ordl.cust-no,
+                "",
+                0,
+                0,
+                NO,
+                BUFFER bf-vendItemCost,
+                OUTPUT lError,
+                OUTPUT cMessage
+                ).                      
             IF NOT lError AND AVAILABLE bf-vendItemCost THEN 
             DO:    
-                ASSIGN 
-                    cCostUOM = bf-vendItemCost.vendorUOM.
+                cCostUOM = bf-vendItemCost.vendorUOM.
                 IF cCostUOM NE bf-po-ordl.pr-qty-uom THEN 
                 DO: 
-                    RUN pConvertQuantity(bf-po-ord.company, bf-po-ordl.ord-qty, bf-po-ordl.pr-qty-uom, cCostUOM, 
-                        0, "LB/EA", bf-po-ordl.s-len, bf-po-ordl.s-wid, bf-po-ordl.s-dep, "IN",
-                        OUTPUT dQuantityInVendorUOM, OUTPUT lError, INPUT-OUTPUT cMessage).
+                    RUN pConvertQuantity (
+                        bf-po-ord.company,
+                        bf-po-ordl.ord-qty,
+                        bf-po-ordl.pr-qty-uom,
+                        cCostUOM, 
+                        0,
+                        "LB/EA",
+                        bf-po-ordl.s-len,
+                        bf-po-ordl.s-wid,
+                        bf-po-ordl.s-dep,
+                        "IN",
+                        OUTPUT dQuantityInVendorUOM,
+                        OUTPUT lError,
+                        INPUT-OUTPUT cMessage
+                        ).
                 END.
                 ELSE 
                     dQuantityInVendorUOM = bf-po-ordl.ord-qty. 
                 
-                RUN pGetVendorCosts(BUFFER bf-vendItemCost, dQuantityInVendorUOM, bf-po-ordl.s-len, bf-po-ordl.s-wid, "IN", 
-                    OUTPUT dCostPerUOM, OUTPUT dCostSetup, OUTPUT dCostPerUOMUpcharge, OUTPUT dCostPerUOMBase,
-                    OUTPUT dCostTotal, OUTPUT lIsSelected, 
-                    OUTPUT iLeadDays, OUTPUT dCostDeviation,
-                    OUTPUT lError, INPUT-OUTPUT cMessage).
+                RUN pGetVendorCosts (
+                    BUFFER bf-vendItemCost,
+                    dQuantityInVendorUOM,
+                    bf-po-ordl.s-len,
+                    bf-po-ordl.s-wid,
+                    "IN", 
+                    OUTPUT dCostPerUOM,
+                    OUTPUT dCostSetup,
+                    OUTPUT dCostPerUOMUpcharge,
+                    OUTPUT dCostPerUOMBase,
+                    OUTPUT dCostTotal,
+                    OUTPUT lIsSelected, 
+                    OUTPUT iLeadDays,
+                    OUTPUT dCostDeviation,
+                    OUTPUT lError,
+                    INPUT-OUTPUT cMessage
+                    ).
                 dCostPerUOM = dCostPerUOM + dCostPerUOMUpcharge.
                 
                 IF dCostPerUOM NE bf-po-ordl.cost THEN
                 DO:
                     CREATE ttPriceHold.                 
-                   ASSIGN                       
-                     ttPriceHold.cFGItemID = bf-po-ordl.i-no
-                     ttPriceHold.cCustID   = bf-po-ord.cust-no
-                     ttPriceHold.cShipID   = ""
-                     ttPriceHold.dQuantity = bf-po-ordl.ord-qty                
-                     ttPriceHold.lPriceHold       = YES
-                     ttPriceHold.cPriceHoldDetail = ""
-                     ttPriceHold.cPriceHoldReason = "Item cost manually entered".
-                                            
+                    ASSIGN                       
+                        ttPriceHold.cFGItemID        = bf-po-ordl.i-no
+                        ttPriceHold.cCustID          = bf-po-ord.cust-no
+                        ttPriceHold.cShipID          = ""
+                        ttPriceHold.dQuantity        = bf-po-ordl.ord-qty                
+                        ttPriceHold.lPriceHold       = YES
+                        ttPriceHold.cPriceHoldDetail = ""
+                        ttPriceHold.cPriceHoldReason = "Item cost manually entered"
+                        .                                            
                 END.                  
             END.  
-            ELSE DO:             
-               CREATE ttPriceHold.                
-               ASSIGN                  
-                 ttPriceHold.cFGItemID = bf-po-ordl.i-no
-                 ttPriceHold.cCustID   = bf-po-ord.cust-no
-                 ttPriceHold.cShipID   = ""
-                 ttPriceHold.dQuantity = bf-po-ordl.ord-qty                 
-                 ttPriceHold.lPriceHold       = YES
-                 ttPriceHold.cPriceHoldDetail = ""
-                 ttPriceHold.cPriceHoldReason = "No matrix found".
-                             
+            ELSE 
+            DO:             
+                CREATE ttPriceHold.                
+                ASSIGN                  
+                    ttPriceHold.cFGItemID        = bf-po-ordl.i-no
+                    ttPriceHold.cCustID          = bf-po-ord.cust-no
+                    ttPriceHold.cShipID          = ""
+                    ttPriceHold.dQuantity        = bf-po-ordl.ord-qty                 
+                    ttPriceHold.lPriceHold       = YES
+                    ttPriceHold.cPriceHoldDetail = ""
+                    ttPriceHold.cPriceHoldReason = "No matrix found"
+                    .                             
             END.                   
         END.
     END.
@@ -777,7 +825,6 @@ PROCEDURE Vendor_CheckPriceHoldForPo:
             oplPriceHold       = NO
             opcPriceHoldReason = ""
             .
-           
     IF iplUpdateDB AND oplPriceHold THEN 
     DO:
         FIND FIRST bf-po-ord EXCLUSIVE-LOCK 
@@ -785,18 +832,19 @@ PROCEDURE Vendor_CheckPriceHoldForPo:
             NO-ERROR.               
         IF AVAILABLE bf-po-ord THEN 
             ASSIGN          
-                bf-po-ord.priceHold       = oplPriceHold
-                bf-po-ord.stat            = "H"                  
+                bf-po-ord.priceHold = oplPriceHold
+                bf-po-ord.stat      = "H"                  
                 .
         FIND CURRENT bf-po-ord NO-LOCK.
         FOR EACH ttPriceHold NO-LOCK
-        WHERE ttPriceHold.lPriceHold:          
+            WHERE ttPriceHold.lPriceHold
+            :          
             RUN AddTagHold (
-            INPUT bf-po-ord.rec_key,
-            INPUT "po-ord",
-            INPUT ttPriceHold.cPriceHoldReason,
-            INPUT ""
-            ).
+                bf-po-ord.rec_key,
+                "po-ord",
+                ttPriceHold.cPriceHoldReason,
+                ""
+                ).
         END.
     END.
     RELEASE bf-po-ord.
