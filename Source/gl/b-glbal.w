@@ -405,13 +405,7 @@ PROCEDURE build-inquiry :
         begin_acct = account.actnum.
         .
                      
-        IF opiYear EQ YEAR(TODAY) THEN
-            ASSIGN
-                dTotalAccBalance = account.cyr-open 
-                .
-        ELSE ASSIGN
-                dTotalAccBalance = account.lyr-open 
-                .
+        dTotalAccBalance = opening_Balance. 
               
         DO iCount = 1 TO 12:
            
@@ -423,32 +417,23 @@ PROCEDURE build-inquiry :
             IF AVAILABLE period THEN
             DO:
                 dPeriodAccBalance = 0.
-                IF NOT period.pstat THEN 
-                DO:
-                    IF opiYear EQ YEAR(TODAY) THEN
-                        dPeriodAccBalance = account.cyr[iCount] .
-                    ELSE dPeriodAccBalance = account.lyr[iCount] .
-                END.
-                ELSE 
-                DO:                   
-                    FOR EACH glhist NO-LOCK
-                        WHERE glhist.company EQ cCompany
-                        AND glhist.actnum  EQ account.actnum
-                        AND glhist.tr-date GE period.pst
-                        AND glhist.tr-date LE period.pend:
+                FOR EACH glhist NO-LOCK
+                    WHERE glhist.company EQ cCompany
+                    AND glhist.actnum  EQ account.actnum
+                    AND glhist.tr-date GE period.pst
+                    AND glhist.tr-date LE period.pend:
                         
-                        dPeriodAccBalance = dPeriodAccBalance + glhist.tr-amt.   
-                    END.
-
-                    FOR EACH gltrans NO-LOCK
-                        WHERE gltrans.company EQ cCompany
-                        AND gltrans.actnum  EQ account.actnum 
-                        AND gltrans.tr-date GE period.pst
-                        AND gltrans.tr-date LE period.pend :
-                       
-                        dPeriodAccBalance = dPeriodAccBalance + gltrans.tr-amt.
-                    END.                   
+                    dPeriodAccBalance = dPeriodAccBalance + glhist.tr-amt.   
                 END.
+
+                FOR EACH gltrans NO-LOCK
+                    WHERE gltrans.company EQ cCompany
+                    AND gltrans.actnum  EQ account.actnum 
+                    AND gltrans.tr-date GE period.pst
+                    AND gltrans.tr-date LE period.pend :
+                   
+                    dPeriodAccBalance = dPeriodAccBalance + gltrans.tr-amt.
+                END.                   
                 
                 dTotalAccBalance = dTotalAccBalance + dPeriodAccBalance.
                
