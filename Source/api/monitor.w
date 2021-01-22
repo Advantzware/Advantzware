@@ -114,7 +114,10 @@ PROCEDURE postMonitor:
                     INPUT ''
                     ).
             &ENDIF
-                  
+            
+            /* Skips moving file to processed folder */
+            IF lcResponseData EQ "" THEN
+                NEXT.      
         END.
         ELSE IF INDEX(cMonitorFile,'.csv') GT 0 THEN DO:
             RUN LoadRequestsFromCSV IN hdInboundProcs (
