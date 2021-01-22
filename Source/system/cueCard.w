@@ -1728,7 +1728,9 @@ END.
 /* Set CURRENT-WINDOW: this will parent dialog-boxes and frames.        */
 ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME} 
        THIS-PROCEDURE:CURRENT-WINDOW = {&WINDOW-NAME}.
+
 {methods/template/brwcustom.i}
+
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
 ON CLOSE OF THIS-PROCEDURE 
@@ -1872,16 +1874,15 @@ PROCEDURE pBuildttMenuTree :
       Parameters:  <none>
       Notes:       
     ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcparentname AS CHARACTER.
+    DEFINE INPUT PARAMETER ipcParentName AS CHARACTER NO-UNDO.
+
     DEFINE VARIABLE iOrder AS INTEGER NO-UNDO.
     
-    //RUN pInitMenuTree.
-
-    FOR EACH ttIsRunning WHERE ttIsRunning.prgTitle = (IF ipcparentname = "file" THEN  ttIsRunning.prgTitle ELSE ipcparentname)
+    FOR EACH ttIsRunning
+        WHERE ttIsRunning.prgTitle EQ (IF ipcParentName EQ "{&parentName}" THEN ttIsRunning.prgTitle ELSE ipcParentName)
         BREAK BY ttIsRunning.prgTitle
               BY ttIsRunning.prgmName
         :
-
         IF FIRST-OF(ttIsRunning.prgTitle) THEN DO:
             iOrder = iOrder + 1.
             RUN pCreatettMenuTree (
@@ -1889,7 +1890,7 @@ PROCEDURE pBuildttMenuTree :
                 iOrder,
                 1,
                 YES,
-                "file",
+                "{&parentName}",
                 ttIsRunning.prgTitle,
                 ttIsRunning.prgTitle,
                 "tab_pane.png",
@@ -1897,7 +1898,7 @@ PROCEDURE pBuildttMenuTree :
                 "",
                 "",
                 YES,
-                ipcparentname
+                ipcParentName
                 ).
         END. /* if first-of prgTitle */
         IF FIRST-OF(ttIsRunning.prgmName) THEN DO:
@@ -1915,7 +1916,7 @@ PROCEDURE pBuildttMenuTree :
                 "",
                 "",
                 YES,
-                ipcparentname
+                ipcParentName
                 ).
         END. /* if first-of prgTitle */
     END. /* each ttIsRunning */
@@ -1925,7 +1926,7 @@ PROCEDURE pBuildttMenuTree :
         iOrder,
         1,
         NO,
-        "file",
+        "{&parentName}",
         "Exit",
         "Exit",
         "logout.png",
@@ -1933,7 +1934,7 @@ PROCEDURE pBuildttMenuTree :
         "",
         "",
         YES,
-        ipcparentname
+        ipcParentName
         ).
 
 END PROCEDURE.
@@ -2397,7 +2398,7 @@ PROCEDURE pGetSettings :
 ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcUserID AS CHARACTER NO-UNDO.
     
-    DEFINE VARIABLE idx     AS INTEGER NO-UNDO.
+    DEFINE VARIABLE idx AS INTEGER NO-UNDO.
     
     IF NOT CAN-FIND(FIRST user-print
                     WHERE user-print.company    EQ g_company
@@ -2446,11 +2447,11 @@ PROCEDURE pInit :
 ------------------------------------------------------------------------------*/
     RUN pGetIsRunning.
     RUN pInitMenuTree.
-    RUN pBuildttMenuTree("file").
-    RUN pDisplayMenuTree (FRAME filterFrame:HANDLE, "file", YES, 1).
+    RUN pBuildttMenuTree ("{&parentName}").
+    RUN pDisplayMenuTree (FRAME filterFrame:HANDLE, "{&parentName}", YES, 1).
     FIND FIRST ttMenuTree NO-ERROR.
-   IF AVAILABLE ttMenuTree AND VALID-HANDLE(ttMenuTree.hEditor) THEN
-   RUN pClickMenuTree (ttMenuTree.hEditor).
+    IF AVAILABLE ttMenuTree AND VALID-HANDLE(ttMenuTree.hEditor) THEN
+    RUN pClickMenuTree (ttMenuTree.hEditor).
 
     RUN pSetFocus.
 
