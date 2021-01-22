@@ -84,7 +84,11 @@ FUNCTION fGetInvoiceApprovalVal RETURNS LOGICAL PRIVATE
     (ipcCompany AS CHARACTER,
     ipcControl AS CHARACTER,
     ipcCustomer AS CHARACTER,
-    iplIsValidateOnly AS LOGICAL) FORWARD.         
+    iplIsValidateOnly AS LOGICAL) FORWARD. 
+    
+FUNCTION fGetOrderEst RETURNS CHARACTER PRIVATE
+    (ipcCompany AS CHARACTER,
+    ipcOrdNum AS INTEGER) FORWARD.
 
 /* ***************************  Main Block  *************************** */
 /* Shared Vars needed for 810 invoices */
@@ -1194,8 +1198,9 @@ PROCEDURE pCreateARInvHeader PRIVATE:
         
         bf-ar-inv.postedDate     = ipbf-ttInvoiceToPost.postDate
         bf-ar-inv.runNumber      = ipbf-ttInvoiceToPost.runID       
-        bf-ar-inv.invoiceComment = ipbf-inv-head.spare-char-1
+        bf-ar-inv.invoiceComment = ipbf-inv-head.spare-char-5
         bf-ar-inv.glYear         = year(ipbf-ttInvoiceToPost.postDate)
+        bf-ar-inv.est-no         = ipbf-ttInvoiceToPost.estID
         .        
     
     IF ipbf-inv-head.f-bill THEN /*Exclude Freight billed from total true sales*/ 
@@ -2642,6 +2647,7 @@ PROCEDURE pProcessInvoicesToPost PRIVATE:
                 ASSIGN
                     ttInvoiceToPost.orderID   = bf-inv-line.ord-no
                     ttInvoiceToPost.orderDate = bf-inv-line.ord-date
+                    ttInvoiceToPost.estID     = fGetOrderEst(bf-inv-line.company,bf-inv-line.ord-no)
                     .
             
             IF ttInvoiceLineToPost.amountBilledIncDiscount NE 0 THEN  
@@ -3720,6 +3726,30 @@ FUNCTION fGetInvoiceApprovalVal RETURNS LOGICAL PRIVATE
             lReturnValue = TRUE .
         END.                  
    	
+    RETURN lReturnValue.
+		
+END FUNCTION.
+
+
+FUNCTION fGetOrderEst RETURNS CHARACTER PRIVATE
+    (ipcCompany AS CHARACTER,
+    ipcOrdNum AS INTEGER):
+    /*------------------------------------------------------------------------------
+     Purpose:  Returns YES if the FG Item define in view form NK1  
+     Notes:  
+    ------------------------------------------------------------------------------*/	
+    DEFINE VARIABLE lReturnValue AS CHARACTER NO-UNDO.	
+    
+    FIND FIRST oe-ord NO-LOCK 
+                WHERE oe-ord.company EQ ipcCompany
+                AND oe-ord.ord-no EQ ipcOrdNum
+                NO-ERROR.
+        IF AVAILABLE oe-ord THEN 
+        DO:
+          lReturnValue = oe-ord.est-no.
+        END.
+    
+	
     RETURN lReturnValue.
 		
 END FUNCTION.
