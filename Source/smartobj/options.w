@@ -64,7 +64,7 @@ Select_List Select_Notes Select_spec UDF
 DEFINE BUTTON Select_appl 
      IMAGE-UP FILE "Graphics/32x32/window_gear.png":U
      IMAGE-DOWN FILE "Graphics/32x32/window_gear_hover.png":U
-     IMAGE-INSENSITIVE FILE "Resources/Graphics/32x32/window_gear_disabled.png":U NO-FOCUS FLAT-BUTTON
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/window_gear_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Run App" 
      SIZE 7.8 BY 1.81 TOOLTIP "Utility Application".
 
