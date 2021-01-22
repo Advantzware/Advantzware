@@ -172,16 +172,17 @@ PROCEDURE Browse_PrepareAndExecuteLimitingQuery:
             .
             
         DO WHILE (ETIME - iStartTime) LT ipdTimeLimit AND NOT hdQuery:QUERY-OFF-END:
-            opcReturnValue = STRING(hdBuffer:BUFFER-FIELD(ipcFieldName):BUFFER-VALUE).
-            ASSIGN 
-                iTotalCount = iTotalCount + 1
-                iCount      = iCount      + 1
-                .
-            IF iCount GE ipiRecordLimit THEN DO:                   
-                iTimeTaken = iTimeTaken + (ETIME - iStartTime).
-                LEAVE.
-            END.  
-         
+            IF NOT iplIsBreakByUsed OR hdQuery:FIRST-OF(1) THEN DO:
+                opcReturnValue = STRING(hdBuffer:BUFFER-FIELD(ipcFieldName):BUFFER-VALUE).
+                ASSIGN 
+                    iTotalCount = iTotalCount + 1
+                    iCount      = iCount      + 1
+                    .
+                IF iCount GE ipiRecordLimit THEN DO:                   
+                    iTimeTaken = iTimeTaken + (ETIME - iStartTime).
+                    LEAVE.
+                END.  
+            END.
             hdQuery:GET-NEXT().                          
         END.
         

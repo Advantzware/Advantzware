@@ -104,6 +104,9 @@ ll-sort-asc = NO /*oeinq*/.
   Moved the logic to the new private procedures(pPrepareAndExecuteQuery,pPrepareAndExecuteQueryForPrevNext and 
   pPrepareAndExecuteQueryForShowAll) which will internally calls BrowserProcs.p and creates the query at run time.
   
+  IF fiOrderDate is LE 10/01/2018 THen the old query will be use i.e by Order Number ELSE the new query will be used
+  i.e fetch the records by rec_key DESC
+  
   Use of OEBrowse NK1 has been discarded and replaced with the new NK1 SearchLimits for record Limit and time limit
   
   Procedures Removed:
@@ -209,38 +212,18 @@ END.
 
 ll-initial = browser-log. */
 
-DEFINE VARIABLE iRecordLimit    AS INTEGER   NO-UNDO.
-DEFINE VARIABLE dQueryTimeLimit AS DECIMAL   NO-UNDO.
-DEFINE VARIABLE cFirstRecKey    AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cLastRecKey     AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lEnableShowAll  AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE cSortCondition  AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lShowAll        AS LOGICAL   NO-UNDO.
-
-cSortCondition = IF lv-sort-by EQ 'ord-no'    THEN "STRING(oe-ordl.ord-no,'9999999999')" ELSE ~
-                 IF lv-sort-by EQ 'cStatus'   THEN "oe-ord.stat"                         ELSE ~
-                 IF lv-sort-by EQ 'lc-rs'     THEN "getRS()"                             ELSE ~
-                 IF lv-sort-by EQ 'lc-mi'     THEN "getMI()"                             ELSE ~
-                 IF lv-sort-by EQ 'ord-date'  THEN "STRING(YEAR(oe-ord.ord-date),'9999') 
-                                                   + STRING(MONTH(oe-ord.ord-date),'99') 
-                                                   + STRING(DAY(oe-ord.ord-date),'99')"  ELSE ~
-                 IF lv-sort-by EQ 'cust-no'   THEN "oe-ordl.cust-no"                     ELSE ~
-                 IF lv-sort-by EQ 'cust-name' THEN "oe-ord.cust-name"                    ELSE ~
-                 IF lv-sort-by EQ 'i-no'      THEN "oe-ordl.i-no"                        ELSE ~
-                 IF lv-sort-by EQ 'i-name'    THEN "oe-ordl.i-name"                      ELSE ~
-                 IF lv-sort-by EQ 'part-no'   THEN "oe-ordl.part-no"                     ELSE ~
-                 IF lv-sort-by EQ 'po-no'     THEN "oe-ordl.po-no"                       ELSE ~
-                 IF lv-sort-by EQ 'est-no'    THEN "oe-ordl.est-no"                      ELSE ~
-                 IF lv-sort-by EQ 'job-no'    THEN "STRING(oe-ordl.job-no,'x(6)') 
-                                                   + STRING(oe-ordl.job-no2,'99')"       ELSE ~
-                 IF lv-sort-by EQ 'cad-no'    THEN "itemfg.cad-no"                       ELSE ~
-                 IF lv-sort-by EQ 's-man'     THEN "oe-ordl.s-man[1]"                    ELSE ~
-                 IF lv-sort-by EQ 'e-num'     THEN "STRING(oe-ordl.e-num)"               ELSE ~
-                 IF lv-sort-by EQ 'rec_key'   THEN "STRING(oe-ord.rec_key)"              ELSE ~
-                     "STRING(YEAR(oe-ordl.req-date),'9999')
-                     + STRING(MONTH(oe-ordl.req-date),'99')
-                     + STRING(DAY(oe-ordl.req-date),'99')"
-                 .
+DEFINE VARIABLE iRecordLimit       AS INTEGER   NO-UNDO.
+DEFINE VARIABLE dQueryTimeLimit    AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE cFirstRecKey       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cLastRecKey        AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lEnableShowAll     AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lShowAll           AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lUseRecKeyCriteria AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cBrowseWhereClause AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cQueryBuffers      AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cFieldBuffer       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cFieldName         AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lIsBreakByUsed     AS LOGICAL   NO-UNDO.
 
 RUN Browser_GetRecordAndTimeLimit(
     INPUT  cocode,
@@ -457,6 +440,16 @@ FUNCTION get-inv-qty RETURNS INT
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD pGetSortCondition B-table-Win
+FUNCTION pGetSortCondition RETURNS CHARACTER 
+  (ipcSortBy AS CHARACTER) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD pIsValidSearch B-table-Win
 FUNCTION pIsValidSearch RETURNS LOGICAL PRIVATE
@@ -1772,55 +1765,70 @@ PROCEDURE local-open-query :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
+    IF fiOrderDate GT 10/01/2018 THEN 
+        lUseRecKeyCriteria = YES.
+    ELSE 
+        lUseRecKeyCriteria = NO.            
 
-  /* Code placed here will execute PRIOR to standard behavior. */
+    /* Code placed here will execute PRIOR to standard behavior. */
 
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .
 
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .
-
-  /* Code placed here will execute AFTER standard behavior.    */
-  IF lShowAll THEN 
-    RUN pPrepareAndExecuteQueryForShowAll.
+    /* Code placed here will execute AFTER standard behavior.    */
+    IF lShowAll THEN 
+        RUN pPrepareAndExecuteQueryForShowAll(  
+            INPUT lUseRecKeyCriteria
+            ).
    
-  ELSE IF lv-show-prev OR lv-show-next THEN 
-    RUN pPrepareAndExecuteQueryForPrevNext(
-        IF lv-show-prev THEN cLastRecKey ELSE cFirstRecKey,
-        INPUT lv-show-prev
-        ).
-  ELSE DO:
-    RUN pPrepareAndExecuteQuery(
-        INPUT ll-First 
-        ).
-    IF ll-First THEN 
-        ll-First = NO.      
-  END.
-  IF AVAILABLE {&first-table-in-query-{&browse-name}} THEN DO:
-    RUN dispatch ("display-fields").
-    RUN dispatch ("row-changed").
+    ELSE IF lv-show-prev OR lv-show-next THEN DO:
+        IF lUseRecKeyCriteria THEN 
+            RUN pPrepareAndExecuteQueryForPrevNext(
+                IF lv-show-prev THEN cLastRecKey ELSE cFirstRecKey,
+                INPUT lv-show-prev,
+                INPUT lUseRecKeyCriteria
+                ).
+        ELSE            
+            RUN pPrepareAndExecuteQueryForPrevNext(
+                IF lv-show-prev THEN lv-last-show-ord-no ELSE lv-first-show-ord-no,
+                INPUT lv-show-prev,
+                INPUT lUseRecKeyCriteria
+                ).
+    END.        
+    ELSE DO:
+        RUN pPrepareAndExecuteQuery(
+            INPUT ll-First,
+            INPUT lUseRecKeyCriteria 
+            ).
+        IF ll-First THEN 
+            ll-First = NO.      
+    END.
+    IF AVAILABLE {&first-table-in-query-{&browse-name}} THEN 
+    DO:
+        RUN dispatch ("display-fields").
+        RUN dispatch ("row-changed").
 
-    GET LAST {&browse-name}.
-    IF AVAILABLE {&first-table-in-query-{&browse-name}} THEN
-      ASSIGN lv-last-rowid = ROWID({&first-table-in-query-{&browse-name}})
-             lv-last-show-ord-no = oe-ordl.ord-no.    
-     IF AVAILABLE oe-ord THEN 
-        cLastRecKey = oe-ord.rec_key.
+        GET LAST {&browse-name}.
+        IF AVAILABLE {&first-table-in-query-{&browse-name}} THEN
+            ASSIGN lv-last-rowid       = ROWID({&first-table-in-query-{&browse-name}})
+                lv-last-show-ord-no = oe-ordl.ord-no.    
+        IF AVAILABLE oe-ord THEN 
+            cLastRecKey = oe-ord.rec_key.
 
-    GET FIRST {&browse-name}.
-    IF AVAILABLE {&first-table-in-query-{&browse-name}} THEN
-      ASSIGN lv-frst-rowid = ROWID({&first-table-in-query-{&browse-name}})
-             lv-first-show-ord-no = oe-ordl.ord-no.
+        GET FIRST {&browse-name}.
+        IF AVAILABLE {&first-table-in-query-{&browse-name}} THEN
+            ASSIGN lv-frst-rowid        = ROWID({&first-table-in-query-{&browse-name}})
+                lv-first-show-ord-no = oe-ordl.ord-no.
           
-    IF AVAILABLE oe-ord THEN          
-             cFirstRecKey = oe-ord.rec_key
-             .   
-  END.
+        IF AVAILABLE oe-ord THEN          
+            cFirstRecKey = oe-ord.rec_key
+                .   
+    END.
 
-  IF AVAILABLE oe-ord THEN APPLY "value-changed" TO BROWSE {&browse-name}.
-  ASSIGN
-     lv-show-prev = NO
-     lv-show-next = NO.
-
+    IF AVAILABLE oe-ord THEN APPLY "value-changed" TO BROWSE {&browse-name}.
+    ASSIGN
+        lv-show-prev = NO
+        lv-show-next = NO.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1906,44 +1914,47 @@ PROCEDURE one-row-query :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEFINE INPUT PARAMETER ip-rowid AS ROWID NO-UNDO.
+    DEFINE INPUT PARAMETER ip-rowid AS ROWID NO-UNDO.
 
-  DEFINE VARIABLE cQuery    AS CHARACTER NO-UNDO.
-  DEFINE VARIABLE cResponse AS CHARACTER NO-UNDO.
-
-  cQuery = "FOR EACH oe-ordl NO-LOCK"
-                 + " WHERE oe-ordl.company EQ " + QUOTER(cocode)
-                 + " AND ROWID(oe-ordl)    EQ " + "TO-ROWID(" + "'" + STRING(ip-rowid) + "')"
-                 + " AND oe-ordl.opened EQ YES AND oe-ordl.stat NE 'C'"
-                 + (IF custCount  NE "" THEN " AND ((LOOKUP(oe-ordl.cust-no," + QUOTER(custcount) + ") NE 0" + " AND oe-ordl.cust-no NE '') OR " + QUOTER(custcount) + " EQ '')" ELSE "")
-                 + (IF fi_ord-no  NE 0  THEN " AND oe-ordl.ord-no  EQ "     + STRING(fi_ord-no)   ELSE "")
-                 + (IF fi_cust-no NE "" THEN " AND oe-ordl.cust-no BEGINS " + QUOTER(fi_cust-no)  ELSE "")
-                 + (IF fi_est-no  NE "" THEN " AND oe-ordl.est-no BEGINS "  + QUOTER(fi_est-no)   ELSE "")
-                 + (IF fi_job-no  NE "" THEN " AND oe-ordl.job-no BEGINS "  + QUOTER(fi_job-no)   ELSE "")
-                 + (IF fi_i-no    NE "" THEN " AND oe-ordl.i-no   BEGINS "  + QUOTER (fi_i-no)    ELSE "")
-                 + (IF fi_part-no NE "" THEN " AND oe-ordl.part-no BEGINS " + QUOTER(fi_part-no)  ELSE "")
-                 + (IF fi_po-no1  NE "" THEN " AND oe-ordl.po-no BEGINS "   + QUOTER(fi_po-no1)   ELSE "")
-                 + (IF fi_sman    NE "" THEN " AND oe-ord.sman[1] BEGINS "  + QUOTER(fi_sman)     ELSE "")
-                 + (IF fi_i-name  NE "" THEN " AND oe-ordl.i-name BEGINS "  + QUOTER(fi_i-name)   ELSE "")
-                 + ", FIRST oe-ord OF oe-ordl NO-LOCK"
-                 + "  WHERE oe-ord.opened EQ YES"
-                 + (IF tbOpened AND tbWeb THEN " " ELSE IF tbOpened THEN " AND oe-ord.stat NE 'W'" ELSE " AND oe-ord.stat EQ 'W'")
-                 + ", FIRST itemfg " + (IF fi_cad-no EQ "" THEN "OUTER-JOIN" ELSE "") + " NO-LOCK"
-                 + " WHERE itemfg.company EQ oe-ordl.company"
-                 + " AND itemfg.i-no EQ oe-ordl.i-no"
-                 + ( IF fi_cad-no NE "" THEN " AND itemfg.cad-no BEGINS fi_cad-no" ELSE "")
-                 + " BY " + cSortCondition + ( IF ll-sort-asc THEN  "" ELSE " DESC") +  " BY oe-ordl.ord-no BY oe-ordl.i-no"
-                 .
+    DEFINE VARIABLE cQuery    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cResponse AS CHARACTER NO-UNDO.
+    
+    IF fiOrderDate LE  10/01/2018 AND lv-sort-by EQ "rec_key" THEN 
+        lv-sort-by = "ord-no".
+        
+    cQuery = "FOR EACH oe-ordl NO-LOCK"
+             + " WHERE oe-ordl.company EQ " + QUOTER(cocode)
+             + " AND ROWID(oe-ordl)    EQ " + "TO-ROWID(" + "'" + STRING(ip-rowid) + "')"
+             + " AND oe-ordl.opened EQ YES AND oe-ordl.stat NE 'C'"
+             + (IF custCount  NE "" THEN " AND ((LOOKUP(oe-ordl.cust-no," + QUOTER(custcount) + ") NE 0" + " AND oe-ordl.cust-no NE '') OR " + QUOTER(custcount) + " EQ '')" ELSE "")
+             + (IF fi_ord-no  NE 0  THEN " AND oe-ordl.ord-no  EQ "     + STRING(fi_ord-no)   ELSE "")
+             + (IF fi_cust-no NE "" THEN " AND oe-ordl.cust-no BEGINS " + QUOTER(fi_cust-no)  ELSE "")
+             + (IF fi_est-no  NE "" THEN " AND oe-ordl.est-no BEGINS "  + QUOTER(fi_est-no)   ELSE "")
+             + (IF fi_job-no  NE "" THEN " AND oe-ordl.job-no BEGINS "  + QUOTER(fi_job-no)   ELSE "")
+             + (IF fi_i-no    NE "" THEN " AND oe-ordl.i-no   BEGINS "  + QUOTER (fi_i-no)    ELSE "")
+             + (IF fi_part-no NE "" THEN " AND oe-ordl.part-no BEGINS " + QUOTER(fi_part-no)  ELSE "")
+             + (IF fi_po-no1  NE "" THEN " AND oe-ordl.po-no BEGINS "   + QUOTER(fi_po-no1)   ELSE "")
+             + (IF fi_sman    NE "" THEN " AND oe-ord.sman[1] BEGINS "  + QUOTER(fi_sman)     ELSE "")
+             + (IF fi_i-name  NE "" THEN " AND oe-ordl.i-name BEGINS "  + QUOTER(fi_i-name)   ELSE "")
+             + ", FIRST oe-ord OF oe-ordl NO-LOCK"
+             + "  WHERE oe-ord.opened EQ YES"
+             + (IF tbOpened AND tbWeb THEN " " ELSE IF tbOpened THEN " AND oe-ord.stat NE 'W'" ELSE " AND oe-ord.stat EQ 'W'")
+             + ", FIRST itemfg " + (IF fi_cad-no EQ "" THEN "OUTER-JOIN" ELSE "") + " NO-LOCK"
+             + " WHERE itemfg.company EQ oe-ordl.company"
+             + " AND itemfg.i-no EQ oe-ordl.i-no"
+             + ( IF fi_cad-no NE "" THEN " AND itemfg.cad-no BEGINS fi_cad-no" ELSE "")
+             + " BY " + pGetSortCondition(lv-sort-by) + ( IF ll-sort-asc THEN  "" ELSE " DESC") +  " BY oe-ordl.ord-no BY oe-ordl.i-no"
+             .
                  
     RUN Browse_PrepareAndExecuteBrowseQuery(
-       INPUT  BROWSE {&BROWSE-NAME}:QUERY, /* Browse Query Handle */      
-       INPUT  cQuery,                      /* BRowse Query */             
-       INPUT  NO,                          /* Show limit alert? */        
-       INPUT  0,                           /* Record limit */             
-       INPUT  0,                           /* Time Limit */               
-       INPUT  lEnableShowAll,              /* Enable ShowAll Button */    
-       OUTPUT cResponse
-       ).               
+        INPUT  BROWSE {&BROWSE-NAME}:QUERY, /* Browse Query Handle */      
+        INPUT  cQuery,                      /* BRowse Query */             
+        INPUT  NO,                          /* Show limit alert? */        
+        INPUT  0,                           /* Record limit */             
+        INPUT  0,                           /* Time Limit */               
+        INPUT  lEnableShowAll,              /* Enable ShowAll Button */    
+        OUTPUT cResponse
+        ).               
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1993,66 +2004,148 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pAssignCommonRecords B-table-Win
+PROCEDURE pAssignCommonRecords PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: Assign Common Records for the query
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT        PARAMETER iplUseRecKeyCriteria AS LOGICAL   NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER iopcQueryBuffer      AS CHARACTER NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER iopcFieldBuffer      AS CHARACTER NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER iopcFieldName        AS CHARACTER NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER ioplIsBreakByUsed    AS LOGICAL   NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER iopcSortBy           AS CHARACTER NO-UNDO.
+    
+    IF iplUseRecKeyCriteria THEN
+        ASSIGN   
+            iopcQueryBuffer   = "oe-ord,oe-ordl"
+            iopcFieldBuffer   = "oe-ord"
+            iopcFieldName     = "rec_key"
+            ioplIsBreakByUsed = NO  
+            .
+    ELSE 
+        ASSIGN         
+            iopcQueryBuffer   = "oe-ordl,oe-ord"
+            iopcFieldBuffer   = "oe-ordl"
+            iopcFieldName     = "ord-no" 
+            ioplIsBreakByUsed = YES 
+            iopcSortBy        = IF iopcSortBy EQ "rec_key" THEN "ord-no" ELSE iopcSortBy
+            .
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pPrepareAndExecuteQuery B-table-Win 
 PROCEDURE pPrepareAndExecuteQuery :
 /*------------------------------------------------------------------------------
  Purpose: Private procedure to prepare and execute query in browse
  Notes:
 ------------------------------------------------------------------------------*/   
-    DEFINE INPUT PARAMETER iplInitialLoad AS LOGICAL NO-UNDO.
+    DEFINE INPUT PARAMETER iplInitialLoad    AS LOGICAL NO-UNDO.
+    DEFINE INPUT PARAMETER iplRecKeyCriteria AS LOGICAL NO-UNDO.
     
-    DEFINE VARIABLE cLimitingQuery AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cBrowseQuery   AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cResponse      AS CHARACTER NO-UNDO.
-
-    cLimitingQuery = "For EACH oe-ord NO-LOCK"
-                     + " WHERE oe-ord.company EQ " + QUOTER(cocode)
-                     + " AND oe-ord.ord-date  GE " + STRING(fiOrderDate) 
-                     + (IF tbOpened AND tbweb THEN " " ELSE IF tbOpened THEN " AND oe-ord.stat NE 'W'" ELSE " AND oe-ord.stat EQ 'W'")
-                     + " AND oe-ord.opened EQ YES "
-                     + ", FIRST oe-ordl of oe-ord NO-LOCK "
-                     + " WHERE oe-ordl.opened EQ YES AND oe-ordl.stat NE 'C'"
-                     + (IF custCount  NE "" THEN " AND ((LOOKUP(oe-ordl.cust-no," + QUOTER(custcount) + ") NE 0" + " AND oe-ordl.cust-no NE '') OR " + QUOTER(custcount) + " EQ '')" ELSE "")
-                     + (IF fi_ord-no  NE 0  THEN " AND oe-ordl.ord-no  EQ "      + STRING(fi_ord-no)   ELSE "")
-                     + (IF fi_cust-no NE "" THEN " AND oe-ordl.cust-no BEGINS "  + QUOTER(fi_cust-no)  ELSE "")
-                     + (IF fi_est-no  NE "" THEN " AND oe-ordl.est-no  BEGINS "  + QUOTER(fi_est-no)   ELSE "")
-                     + (IF fi_job-no  NE "" THEN " AND oe-ordl.job-no  BEGINS "  + QUOTER(fi_job-no)   ELSE "")
-                     + (IF fi_job-no  NE "" AND fi_job-no2 NE 0 THEN " AND oe-ordl.job-no2 EQ " + STRING(fi_job-no2)  ELSE "")
-                     + (IF fi_i-no    NE "" THEN " AND oe-ordl.i-no    BEGINS "  + QUOTER (fi_i-no)    ELSE "")
-                     + (IF fi_part-no NE "" THEN " AND oe-ordl.part-no BEGINS "  + QUOTER(fi_part-no)  ELSE "")
-                     + (IF fi_po-no1  NE "" THEN " AND oe-ordl.po-no   BEGINS "  + QUOTER(fi_po-no1)   ELSE "")
-                     + (IF fi_sman    NE "" THEN " AND oe-ord.sman[1]  BEGINS "  + QUOTER(fi_sman)     ELSE "")
-                     + (IF fi_i-name  NE "" THEN " AND oe-ordl.i-name  BEGINS "  + QUOTER(fi_i-name)   ELSE "")
-                     + " BY oe-ord.rec_key DESC "
-                     .
-     IF fi_ord-no EQ 0 THEN             
-         RUN Browse_PrepareAndExecuteLimitingQuery(
+    DEFINE VARIABLE cLimitingQuery     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cBrowseQuery       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cResponse          AS CHARACTER NO-UNDO.
+        
+    IF iplRecKeyCriteria THEN DO:
+        RUN pAssignCommonRecords(
+            INPUT YES,
+            INPUT-OUTPUT cQueryBuffers,
+            INPUT-OUTPUT cFieldBuffer,
+            INPUT-OUTPUT cFieldName,
+            INPUT-OUTPUT lIsBreakByUsed,
+            INPUT-OUTPUT lv-Sort-by
+            ).   
+        cLimitingQuery = "For EACH oe-ord NO-LOCK"
+                         + " WHERE oe-ord.company EQ " + QUOTER(cocode)
+                         + " AND oe-ord.ord-date  GE " + STRING(fiOrderDate) 
+                         + (IF tbOpened AND tbweb THEN " " ELSE IF tbOpened THEN " AND oe-ord.stat NE 'W'" ELSE " AND oe-ord.stat EQ 'W'")
+                         + " AND oe-ord.opened EQ YES "
+                         + ", FIRST oe-ordl of oe-ord NO-LOCK "
+                         + " WHERE oe-ordl.opened EQ YES AND oe-ordl.stat NE 'C'"
+                         + (IF custCount  NE "" THEN " AND ((LOOKUP(oe-ordl.cust-no," + QUOTER(custcount) + ") NE 0" + " AND oe-ordl.cust-no NE '') OR " + QUOTER(custcount) + " EQ '')" ELSE "")
+                         + (IF fi_ord-no  NE 0  THEN " AND oe-ordl.ord-no  EQ "      + STRING(fi_ord-no)   ELSE "")
+                         + (IF fi_cust-no NE "" THEN " AND oe-ordl.cust-no BEGINS "  + QUOTER(fi_cust-no)  ELSE "")
+                         + (IF fi_est-no  NE "" THEN " AND oe-ordl.est-no  BEGINS "  + QUOTER(fi_est-no)   ELSE "")
+                         + (IF fi_job-no  NE "" THEN " AND oe-ordl.job-no  BEGINS "  + QUOTER(fi_job-no)   ELSE "")
+                         + (IF fi_job-no  NE "" AND fi_job-no2 NE 0 THEN " AND oe-ordl.job-no2 EQ " + STRING(fi_job-no2)  ELSE "")
+                         + (IF fi_i-no    NE "" THEN " AND oe-ordl.i-no    BEGINS "  + QUOTER (fi_i-no)    ELSE "")
+                         + (IF fi_part-no NE "" THEN " AND oe-ordl.part-no BEGINS "  + QUOTER(fi_part-no)  ELSE "")
+                         + (IF fi_po-no1  NE "" THEN " AND oe-ordl.po-no   BEGINS "  + QUOTER(fi_po-no1)   ELSE "")
+                         + (IF fi_sman    NE "" THEN " AND oe-ord.sman[1]  BEGINS "  + QUOTER(fi_sman)     ELSE "")
+                         + (IF fi_i-name  NE "" THEN " AND oe-ordl.i-name  BEGINS "  + QUOTER(fi_i-name)   ELSE "")
+                         + " BY oe-ord.rec_key DESC "
+                         .
+    END.   
+    ELSE DO:
+        RUN pAssignCommonRecords(
+            INPUT NO,
+            INPUT-OUTPUT cQueryBuffers,
+            INPUT-OUTPUT cFieldBuffer,
+            INPUT-OUTPUT cFieldName,
+            INPUT-OUTPUT lIsBreakByUsed,
+            INPUT-OUTPUT lv-Sort-by
+            ).     
+        cLimitingQuery = "FOR EACH oe-ordl NO-LOCK"
+                         + " WHERE oe-ordl.company EQ " + QUOTER(cocode)
+                         + " AND oe-ordl.opened EQ YES AND oe-ordl.stat NE 'C'"
+                         + (IF custCount  NE "" THEN " AND ((LOOKUP(oe-ordl.cust-no," + QUOTER(custcount) + ") NE 0" + " AND oe-ordl.cust-no NE '') OR " + QUOTER(custcount) + " EQ '')" ELSE "")
+                         + (IF fi_ord-no  NE 0  THEN " AND oe-ordl.ord-no  EQ "     + STRING(fi_ord-no)   ELSE "")
+                         + (IF fi_cust-no NE "" THEN " AND oe-ordl.cust-no BEGINS " + QUOTER(fi_cust-no)  ELSE "")
+                         + (IF fi_est-no  NE "" THEN " AND oe-ordl.est-no BEGINS "  + QUOTER(fi_est-no)   ELSE "")
+                         + (IF fi_job-no  NE "" THEN " AND oe-ordl.job-no BEGINS "  + QUOTER(fi_job-no)   ELSE "")
+                         + (IF fi_job-no  NE "" AND fi_job-no2 NE 0 THEN " AND oe-ordl.job-no2 EQ " + STRING(fi_job-no2)  ELSE "")
+                         + (IF fi_i-no    NE "" THEN " AND oe-ordl.i-no   BEGINS "  + QUOTER (fi_i-no)    ELSE "")
+                         + (IF fi_part-no NE "" THEN " AND oe-ordl.part-no BEGINS " + QUOTER(fi_part-no)  ELSE "")
+                         + (IF fi_po-no1  NE "" THEN " AND oe-ordl.po-no BEGINS "   + QUOTER(fi_po-no1)   ELSE "")
+                         + (IF fi_sman    NE "" THEN " AND oe-ord.sman[1] BEGINS "  + QUOTER(fi_sman)     ELSE "")
+                         + (IF fi_i-name  NE "" THEN " AND oe-ordl.i-name BEGINS "  + QUOTER(fi_i-name)   ELSE "")
+                         + ", FIRST oe-ord OF oe-ordl NO-LOCK"
+                         + "  WHERE oe-ord.opened EQ YES"
+                         + (IF tbOpened AND tbWeb THEN " " ELSE IF tbOpened THEN " AND oe-ord.stat NE 'W'" ELSE " AND oe-ord.stat EQ 'W'")
+                         + "  AND oe-ord.ord-date  GE " + STRING(fiOrderDate) 
+                         + " BREAK BY oe-ordl.ord-no DESC"
+                         .                    
+    END.                         
+    IF fi_ord-no EQ 0 THEN             
+        RUN Browse_PrepareAndExecuteLimitingQuery(
             INPUT  cLimitingQuery,   /* Query */
-            INPUT  "oe-ord,oe-ordl", /* Buffers Name */
+            INPUT  cQueryBuffers,    /* Buffers Name */
             INPUT  iRecordLimit,     /* Record Limit */
             INPUT  dQueryTimeLimit,  /* Time Limit*/
             INPUT  lEnableShowAll,   /* Enable ShowAll Button? */
-            INPUT  "oe-ord",         /* Buffer name to fetch the field's value*/
-            INPUT  "rec_key",        /* Field Name*/
+            INPUT  cFieldBuffer,     /* Buffer name to fetch the field's value*/
+            INPUT  cFieldName,       /* Field Name*/
             INPUT  iplInitialLoad,   /* Initial Query*/
-            INPUT  NO ,              /* Is breakby used */
+            INPUT  lIsBreakByUsed,   /* Is breakby used */
             OUTPUT cResponse           
             ).       
   
     ELSE IF fi_ord-no NE 0 THEN
         cResponse = "OrderNo". 
               
-    IF cResponse EQ "" THEN DO:
+    IF cResponse EQ "" THEN  
         MESSAGE "No Records Found..."
-        VIEW-AS ALERT-BOX ERROR. 
-    END.  
+            VIEW-AS ALERT-BOX ERROR.
+              
     ELSE IF cResponse EQ "ShowALL" THEN
         APPLY "CHOOSE":U TO btSHowAll IN FRAME {&FRAME-NAME}.
     
-    ELSE DO:  
+    ELSE DO:
+        IF iplRecKeyCriteria THEN 
+            cBrowseWhereClause = (IF fi_ord-no EQ 0 THEN " AND oe-ordl.rec_key GE " +  QUOTER(cResponse) ELSE "").  
+        ELSE
+            cBrowseWhereClause = (IF fi_ord-no EQ 0 THEN " AND oe-ordl.ord-no GE " + STRING(INTEGER(cResponse)) ELSE "").        
+                    
         cBrowseQuery = "FOR EACH oe-ordl NO-LOCK"
                        + " WHERE oe-ordl.company EQ " + QUOTER(cocode)
-                       + (IF fi_ord-no EQ 0 THEN " AND oe-ordl.rec_key   GE " + QUOTER(cResponse) ELSE "")
+                       + cBrowseWhereClause
                        + " AND oe-ordl.opened EQ YES AND oe-ordl.stat NE 'C'"
                        + (IF custCount  NE "" THEN " AND ((LOOKUP(oe-ordl.cust-no," + QUOTER(custcount) + ") NE 0" + " AND oe-ordl.cust-no NE '') OR " + QUOTER(custcount) + " EQ '')" ELSE "")
                        + (IF fi_ord-no  NE 0  THEN " AND oe-ordl.ord-no  EQ "     + STRING(fi_ord-no)   ELSE "")
@@ -2073,9 +2166,10 @@ PROCEDURE pPrepareAndExecuteQuery :
                        + "  WHERE itemfg.company EQ oe-ordl.company"
                        + "    AND itemfg.i-no    EQ oe-ordl.i-no"
                        + ( IF fi_cad-no NE "" THEN " AND itemfg.cad-no BEGINS fi_cad-no" ELSE "")
-                       + " BY " + cSortCondition + ( IF ll-sort-asc THEN  "" ELSE " DESC") +  " BY oe-ordl.ord-no BY oe-ordl.i-no"
-                       .                                        
-         RUN Browse_PrepareAndExecuteBrowseQuery(
+                       + " BY " + pGetSortCondition(lv-sort-by) + ( IF ll-sort-asc THEN  "" ELSE " DESC") +  " BY oe-ordl.ord-no BY oe-ordl.i-no"
+                       .    
+                                                        
+        RUN Browse_PrepareAndExecuteBrowseQuery(
             INPUT  BROWSE {&BROWSE-NAME}:QUERY, /* Browse Query Handle */      
             INPUT  cBrowseQuery,                /* BRowse Query */             
             INPUT  NO,                          /* Show limit alert? */        
@@ -2084,7 +2178,7 @@ PROCEDURE pPrepareAndExecuteQuery :
             INPUT  lEnableShowAll,              /* Enable ShowAll Button */    
             OUTPUT cResponse                                                   
             ).
-    END.                                    
+    END.                                     
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2096,90 +2190,137 @@ PROCEDURE pPrepareAndExecuteQueryForPrevNext PRIVATE :
  Purpose: Private procedure to parepare an execute query for prev and next 
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcRecKey AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER iplPrev   AS LOGICAL   NO-UNDO.
+    DEFINE INPUT PARAMETER ipcValue              AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER iplPrevious           AS LOGICAL   NO-UNDO.
+    DEFINE INPUT PARAMETER iplUseRecKeyCriteria  AS LOGICAL   NO-UNDO.
     
     DEFINE VARIABLE cLimitingQuery AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cBrowseQuery   AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cResponse      AS CHARACTER NO-UNDO.    
-
-    cLimitingQuery = "For EACH oe-ord NO-LOCK"
-                     + " WHERE oe-ord.company EQ " + QUOTER(cocode)
-                     + " AND oe-ord.ord-date  GE " + STRING(fiOrderDate) 
-                     + (IF tbOpened AND tbWeb THEN " " ELSE IF tbOpened THEN " AND oe-ord.stat NE 'W'" ELSE " AND oe-ord.stat EQ 'W'")
-                     + " AND oe-ord.opened EQ YES "
-                     + " AND oe-ord.rec_key " + (IF iplPrev THEN "LE " ELSE "GE ") + QUOTER(ipcRecKey)
-                     + ", FIRST oe-ordl of oe-ord NO-LOCK "
-                     + "  WHERE oe-ordl.opened EQ YES AND oe-ordl.stat NE 'C'"
-                     + (IF custCount  NE "" THEN " AND ((LOOKUP(oe-ordl.cust-no," + QUOTER(custcount) + ") NE 0" + " AND oe-ordl.cust-no NE '') OR " + QUOTER(custcount) + " EQ '')" ELSE "")
-                     + (IF fi_ord-no  NE 0  THEN " AND oe-ordl.ord-no  EQ "      + STRING(fi_ord-no)   ELSE "")
-                     + (IF fi_cust-no NE "" THEN " AND oe-ordl.cust-no BEGINS "  + QUOTER(fi_cust-no)  ELSE "")
-                     + (IF fi_est-no  NE "" THEN " AND oe-ordl.est-no  BEGINS "  + QUOTER(fi_est-no)   ELSE "")
-                     + (IF fi_job-no  NE "" THEN " AND oe-ordl.job-no  BEGINS "  + QUOTER(fi_job-no)   ELSE "")
-                     + (IF fi_job-no  NE "" AND fi_job-no2 NE 0 THEN " AND oe-ordl.job-no2 EQ " + STRING(fi_job-no2)  ELSE "")
-                     + (IF fi_i-no    NE "" THEN " AND oe-ordl.i-no    BEGINS "  + QUOTER (fi_i-no)    ELSE "")
-                     + (IF fi_part-no NE "" THEN " AND oe-ordl.part-no BEGINS "  + QUOTER(fi_part-no)  ELSE "")
-                     + (IF fi_po-no1  NE "" THEN " AND oe-ordl.po-no   BEGINS "  + QUOTER(fi_po-no1)   ELSE "")
-                     + (IF fi_sman    NE "" THEN " AND oe-ord.sman[1]  BEGINS "  + QUOTER(fi_sman)     ELSE "")
-                     + (IF fi_i-name  NE "" THEN " AND oe-ordl.i-name  BEGINS "  + QUOTER(fi_i-name)   ELSE "")
-                     + " BY oe-ord.rec_key DESC"
-                     .
-
-     RUN Browse_PrepareAndExecuteLimitingQuery(
+    DEFINE VARIABLE cResponse      AS CHARACTER NO-UNDO. 
+           
+    IF iplUseRecKeyCriteria THEN DO:
+        RUN pAssignCommonRecords(
+            INPUT YES,
+            INPUT-OUTPUT cQueryBuffers,
+            INPUT-OUTPUT cFieldBuffer,
+            INPUT-OUTPUT cFieldName,
+            INPUT-OUTPUT lIsBreakByUsed,
+            INPUT-OUTPUT lv-Sort-by
+            ).      
+        cLimitingQuery = "For EACH oe-ord NO-LOCK"
+                         + " WHERE oe-ord.company EQ " + QUOTER(cocode)
+                         + " AND oe-ord.ord-date  GE " + STRING(fiOrderDate) 
+                         + (IF tbOpened AND tbWeb THEN " " ELSE IF tbOpened THEN " AND oe-ord.stat NE 'W'" ELSE " AND oe-ord.stat EQ 'W'")
+                         + " AND oe-ord.opened EQ YES "
+                         + " AND oe-ord.rec_key " + (IF iplPrevious THEN "LE " ELSE "GE ") + QUOTER(ipcValue)
+                         + ", FIRST oe-ordl of oe-ord NO-LOCK "
+                         + "  WHERE oe-ordl.opened EQ YES AND oe-ordl.stat NE 'C'"
+                         + (IF custCount  NE "" THEN " AND ((LOOKUP(oe-ordl.cust-no," + QUOTER(custcount) + ") NE 0" + " AND oe-ordl.cust-no NE '') OR " + QUOTER(custcount) + " EQ '')" ELSE "")
+                         + (IF fi_ord-no  NE 0  THEN " AND oe-ordl.ord-no  EQ "      + STRING(fi_ord-no)   ELSE "")
+                         + (IF fi_cust-no NE "" THEN " AND oe-ordl.cust-no BEGINS "  + QUOTER(fi_cust-no)  ELSE "")
+                         + (IF fi_est-no  NE "" THEN " AND oe-ordl.est-no  BEGINS "  + QUOTER(fi_est-no)   ELSE "")
+                         + (IF fi_job-no  NE "" THEN " AND oe-ordl.job-no  BEGINS "  + QUOTER(fi_job-no)   ELSE "")
+                         + (IF fi_job-no  NE "" AND fi_job-no2 NE 0 THEN " AND oe-ordl.job-no2 EQ " + STRING(fi_job-no2)  ELSE "")
+                         + (IF fi_i-no    NE "" THEN " AND oe-ordl.i-no    BEGINS "  + QUOTER (fi_i-no)    ELSE "")
+                         + (IF fi_part-no NE "" THEN " AND oe-ordl.part-no BEGINS "  + QUOTER(fi_part-no)  ELSE "")
+                         + (IF fi_po-no1  NE "" THEN " AND oe-ordl.po-no   BEGINS "  + QUOTER(fi_po-no1)   ELSE "")
+                         + (IF fi_sman    NE "" THEN " AND oe-ord.sman[1]  BEGINS "  + QUOTER(fi_sman)     ELSE "")
+                         + (IF fi_i-name  NE "" THEN " AND oe-ordl.i-name  BEGINS "  + QUOTER(fi_i-name)   ELSE "")
+                         + " BY oe-ord.rec_key DESC"
+                         .
+    END.
+    ELSE DO:
+        RUN pAssignCommonRecords(
+            INPUT NO,
+            INPUT-OUTPUT cQueryBuffers,
+            INPUT-OUTPUT cFieldBuffer,
+            INPUT-OUTPUT cFieldName,
+            INPUT-OUTPUT lIsBreakByUsed,
+            INPUT-OUTPUT lv-Sort-by
+            ).  
+        cLimitingQuery = "FOR EACH oe-ordl NO-LOCK"
+                         + " WHERE oe-ordl.company EQ " + QUOTER(cocode)
+                         + " AND oe-ordl.opened EQ YES AND oe-ordl.stat NE 'C'"
+                         + " AND oe-ordl.ord-no " + (IF iplPrevious THEN "LE " ELSE "GE ") + STRING(INTEGER(ipcValue))
+                         + (IF custCount  NE "" THEN " AND ((LOOKUP(oe-ordl.cust-no," + QUOTER(custcount) + ") NE 0" + " AND oe-ordl.cust-no NE '') OR " + QUOTER(custcount) + " EQ '')" ELSE "")
+                         + (IF fi_ord-no  NE 0  THEN " AND oe-ordl.ord-no  EQ "     + STRING(fi_ord-no)   ELSE "")
+                         + (IF fi_cust-no NE "" THEN " AND oe-ordl.cust-no BEGINS " + QUOTER(fi_cust-no)  ELSE "")
+                         + (IF fi_est-no  NE "" THEN " AND oe-ordl.est-no BEGINS "  + QUOTER(fi_est-no)   ELSE "")
+                         + (IF fi_job-no  NE "" THEN " AND oe-ordl.job-no BEGINS "  + QUOTER(fi_job-no)   ELSE "")
+                         + (IF fi_job-no  NE "" AND fi_job-no2 NE 0 THEN " AND oe-ordl.job-no2 EQ " + STRING(fi_job-no2)  ELSE "")
+                         + (IF fi_i-no    NE "" THEN " AND oe-ordl.i-no   BEGINS "  + QUOTER (fi_i-no)    ELSE "")
+                         + (IF fi_part-no NE "" THEN " AND oe-ordl.part-no BEGINS " + QUOTER(fi_part-no)  ELSE "")
+                         + (IF fi_po-no1  NE "" THEN " AND oe-ordl.po-no BEGINS "   + QUOTER(fi_po-no1)   ELSE "")
+                         + (IF fi_sman    NE "" THEN " AND oe-ord.sman[1] BEGINS "  + QUOTER(fi_sman)     ELSE "")
+                         + (IF fi_i-name  NE "" THEN " AND oe-ordl.i-name BEGINS "  + QUOTER(fi_i-name)   ELSE "")
+                         + ", FIRST oe-ord OF oe-ordl NO-LOCK"
+                         + "  WHERE oe-ord.opened EQ YES"
+                         + (IF tbOpened AND tbWeb THEN " " ELSE IF tbOpened THEN " AND oe-ord.stat NE 'W'" ELSE " AND oe-ord.stat EQ 'W'")
+                         + "  AND oe-ord.ord-date  GE " + STRING(fiOrderDate) 
+                         + " BREAK BY oe-ordl.ord-no DESC"
+                         .                    
+    END.
+    RUN Browse_PrepareAndExecuteLimitingQuery(
         INPUT  cLimitingQuery,   /* Query */
-        INPUT  "oe-ord,oe-ordl", /* Buffers Name */
+        INPUT  cQueryBuffers,    /* Buffers Name */
         INPUT  iRecordLimit,     /* Record Limit */
         INPUT  dQueryTimeLimit,  /* Time Limit*/
         INPUT  lEnableShowAll,   /* Enable ShowAll Button? */
-        INPUT  "oe-ord",         /* Buffer name to fetch the field's value*/
-        INPUT  "rec_key",        /* Field Name*/
+        INPUT  cFieldBuffer,     /* Buffer name to fetch the field's value*/
+        INPUT  cFieldName,       /* Field Name*/
         INPUT  NO,               /* Initial Query*/
-        INPUT  NO ,              /* Is breakby used */
+        INPUT  lIsBreakByUsed,   /* Is breakby used */
         OUTPUT cResponse           
         ). 
     
-    IF cResponse EQ "" THEN DO:
+    IF cResponse EQ "" THEN
         MESSAGE "No Records Found..."
-        VIEW-AS ALERT-BOX ERROR. 
-    END.  
+            VIEW-AS ALERT-BOX ERROR. 
+              
     ELSE IF cResponse EQ "ShowAll" THEN
         APPLY "CHOOSE":U TO btSHowAll IN FRAME {&FRAME-NAME}.
     
-    ELSE DO:  
+    ELSE DO:
+        IF iplUseRecKeyCriteria THEN 
+            cBrowseWhereClause = " AND oe-ordl.rec_key "   + (IF iplPrevious THEN "LE " ELSE "GE ") + QUOTER(ipcValue)
+                                 + " AND oe-ordl.rec_key " + (IF iplPrevious THEN "GE " ELSE "LE ") + QUOTER(cResponse).
+        ELSE 
+            cBrowseWhereClause = " AND oe-ordl.ord-no "   + (IF iplPrevious THEN "LE " ELSE "GE ") + STRING(INTEGER(ipcValue))
+                                 + " AND oe-ordl.ord-no " + (IF iplPrevious THEN "GE " ELSE "LE ") + STRING (INTEGER(cResponse)).
+             
         cBrowseQuery = "FOR EACH oe-ordl NO-LOCK"
-                       + " WHERE oe-ordl.company EQ " + QUOTER(cocode)
-                       + " AND oe-ordl.rec_key " + (IF iplPrev THEN "LE " ELSE "GE ") + QUOTER(ipcRecKey)
-                       + " AND oe-ordl.rec_key " + (IF iplPrev THEN "GE " ELSE "LE ") + QUOTER(cResponse)
-                       + " AND oe-ordl.opened EQ YES AND oe-ordl.stat NE 'C'"
-                       + (IF custCount  NE "" THEN " AND ((LOOKUP(oe-ordl.cust-no," + QUOTER(custcount) + ") NE 0" + " AND oe-ordl.cust-no NE '') OR " + QUOTER(custcount) + " EQ '')" ELSE "")
-                       + (IF fi_ord-no  NE 0  THEN " AND oe-ordl.ord-no  EQ "     + STRING(fi_ord-no)   ELSE "")
-                       + (IF fi_cust-no NE "" THEN " AND oe-ordl.cust-no BEGINS " + QUOTER(fi_cust-no)  ELSE "")
-                       + (IF fi_est-no  NE "" THEN " AND oe-ordl.est-no BEGINS "  + QUOTER(fi_est-no)   ELSE "")
-                       + (IF fi_job-no  NE "" THEN " AND oe-ordl.job-no BEGINS "  + QUOTER(fi_job-no)   ELSE "")
-                       + (IF fi_job-no  NE "" AND fi_job-no2 NE 0 THEN " AND oe-ordl.job-no2 EQ " + STRING(fi_job-no2)  ELSE "")
-                       + (IF fi_i-no    NE "" THEN " AND oe-ordl.i-no   BEGINS "  + QUOTER (fi_i-no)    ELSE "")
-                       + (IF fi_part-no NE "" THEN " AND oe-ordl.part-no BEGINS " + QUOTER(fi_part-no)  ELSE "")
-                       + (IF fi_po-no1  NE "" THEN " AND oe-ordl.po-no BEGINS "   + QUOTER(fi_po-no1)   ELSE "")
-                       + (IF fi_sman    NE "" THEN " AND oe-ord.sman[1] BEGINS "  + QUOTER(fi_sman)     ELSE "")
-                       + (IF fi_i-name  NE "" THEN " AND oe-ordl.i-name BEGINS "  + QUOTER(fi_i-name)   ELSE "")
-                       + ", FIRST oe-ord OF oe-ordl NO-LOCK"
-                       + "  WHERE oe-ord.opened EQ YES"
-                       + (IF tbOpened AND tbWeb THEN " " ELSE IF tbOpened THEN " AND oe-ord.stat NE 'W'" ELSE " AND oe-ord.stat EQ 'W'")
-                       + "  AND oe-ord.ord-date  GE " + STRING(fiOrderDate) 
-                       + ", FIRST itemfg " + (IF fi_cad-no EQ "" THEN "OUTER-JOIN" ELSE "") + " NO-LOCK"
-                       + "  WHERE itemfg.company EQ oe-ordl.company"
-                       + "    AND itemfg.i-no    EQ oe-ordl.i-no"
-                       + ( IF fi_cad-no NE "" THEN " AND itemfg.cad-no BEGINS fi_cad-no" ELSE "")
-                       + " BY " + cSortCondition + ( IF ll-sort-asc THEN  "" ELSE " DESC") +  " BY oe-ordl.ord-no BY oe-ordl.i-no"
-                       .   
-                
-         RUN Browse_PrepareAndExecuteBrowseQuery(
+                        + " WHERE oe-ordl.company EQ " + QUOTER(cocode)
+                        +  cBrowseWhereClause
+                        + " AND oe-ordl.opened EQ YES AND oe-ordl.stat NE 'C'"
+                        + (IF custCount  NE "" THEN " AND ((LOOKUP(oe-ordl.cust-no," + QUOTER(custcount) + ") NE 0" + " AND oe-ordl.cust-no NE '') OR " + QUOTER(custcount) + " EQ '')" ELSE "")
+                        + (IF fi_ord-no  NE 0  THEN " AND oe-ordl.ord-no  EQ "     + STRING(fi_ord-no)   ELSE "")
+                        + (IF fi_cust-no NE "" THEN " AND oe-ordl.cust-no BEGINS " + QUOTER(fi_cust-no)  ELSE "")
+                        + (IF fi_est-no  NE "" THEN " AND oe-ordl.est-no BEGINS "  + QUOTER(fi_est-no)   ELSE "")
+                        + (IF fi_job-no  NE "" THEN " AND oe-ordl.job-no BEGINS "  + QUOTER(fi_job-no)   ELSE "")
+                        + (IF fi_job-no  NE "" AND fi_job-no2 NE 0 THEN " AND oe-ordl.job-no2 EQ " + STRING(fi_job-no2)  ELSE "")
+                        + (IF fi_i-no    NE "" THEN " AND oe-ordl.i-no   BEGINS "  + QUOTER (fi_i-no)    ELSE "")
+                        + (IF fi_part-no NE "" THEN " AND oe-ordl.part-no BEGINS " + QUOTER(fi_part-no)  ELSE "")
+                        + (IF fi_po-no1  NE "" THEN " AND oe-ordl.po-no BEGINS "   + QUOTER(fi_po-no1)   ELSE "")
+                        + (IF fi_sman    NE "" THEN " AND oe-ord.sman[1] BEGINS "  + QUOTER(fi_sman)     ELSE "")
+                        + (IF fi_i-name  NE "" THEN " AND oe-ordl.i-name BEGINS "  + QUOTER(fi_i-name)   ELSE "")
+                        + ", FIRST oe-ord OF oe-ordl NO-LOCK"
+                        + "  WHERE oe-ord.opened EQ YES"
+                        + (IF tbOpened AND tbWeb THEN " " ELSE IF tbOpened THEN " AND oe-ord.stat NE 'W'" ELSE " AND oe-ord.stat EQ 'W'")
+                        + "  AND oe-ord.ord-date  GE " + STRING(fiOrderDate) 
+                        + ", FIRST itemfg " + (IF fi_cad-no EQ "" THEN "OUTER-JOIN" ELSE "") + " NO-LOCK"
+                        + "  WHERE itemfg.company EQ oe-ordl.company"
+                        + "    AND itemfg.i-no    EQ oe-ordl.i-no"
+                        + ( IF fi_cad-no NE "" THEN " AND itemfg.cad-no BEGINS fi_cad-no" ELSE "")
+                        + " BY " + pGetSortCondition(lv-sort-by) + ( IF ll-sort-asc THEN  "" ELSE " DESC") +  " BY oe-ordl.ord-no BY oe-ordl.i-no"
+                        .   
+                        
+        RUN Browse_PrepareAndExecuteBrowseQuery(
             INPUT  BROWSE {&BROWSE-NAME}:QUERY, /* Browse Query Handle */
             INPUT  cBrowseQuery,                /* BRowse Query */
             INPUT  NO,                          /* Show limit alert? */
             INPUT  0,                           /* Record limit */
             INPUT  0,                           /* Time Limit */
-            INPUT lEnableShowAll,               /* Enable ShowAll Button */
+            INPUT  lEnableShowAll,              /* Enable ShowAll Button */
             OUTPUT cResponse
             ).
     END. 
@@ -2194,34 +2335,39 @@ PROCEDURE pPrepareAndExecuteQueryForShowAll PRIVATE :
  Purpose: Private procedure to show all records in browse
  Notes:
 ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER iplUseRecKeyCriteria AS LOGICAL NO-UNDO.
+    
     DEFINE VARIABLE cShowAllQuery AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cResponse     AS CHARACTER NO-UNDO.
-       
+    
+    IF NOT iplUseRecKeyCriteria AND lv-sort-by EQ "rec_key" THEN 
+        lv-sort-by = "ord-no".
+           
     cShowAllQuery = "FOR EACH oe-ordl NO-LOCK"
-                   + " WHERE oe-ordl.company EQ " + QUOTER(cocode)
-                   + " AND oe-ordl.opened EQ YES AND oe-ordl.stat NE 'C'"
-                   + (IF custCount  NE "" THEN " AND ((LOOKUP(oe-ordl.cust-no," + QUOTER(custcount) + ") NE 0" + " AND oe-ordl.cust-no NE '') OR " + QUOTER(custcount) + " EQ '')" ELSE "")
-                   + (IF fi_ord-no  NE 0  THEN " AND oe-ordl.ord-no  EQ "     + STRING(fi_ord-no)   ELSE "")
-                   + (IF fi_cust-no NE "" THEN " AND oe-ordl.cust-no BEGINS " + QUOTER(fi_cust-no)  ELSE "")
-                   + (IF fi_est-no  NE "" THEN " AND oe-ordl.est-no BEGINS "  + QUOTER(fi_est-no)   ELSE "")
-                   + (IF fi_job-no  NE "" THEN " AND oe-ordl.job-no BEGINS "  + QUOTER(fi_job-no)   ELSE "")
-                   + (IF fi_job-no  NE "" AND fi_job-no2 NE 0 THEN " AND oe-ordl.job-no2 EQ " + STRING(fi_job-no2)  ELSE "")
-                   + (IF fi_i-no    NE "" THEN " AND oe-ordl.i-no   BEGINS "  + QUOTER(fi_i-no)     ELSE "")
-                   + (IF fi_part-no NE "" THEN " AND oe-ordl.part-no BEGINS " + QUOTER(fi_part-no)  ELSE "")
-                   + (IF fi_po-no1  NE "" THEN " AND oe-ordl.po-no BEGINS "   + QUOTER(fi_po-no1)   ELSE "")
-                   + (IF fi_sman    NE "" THEN " AND oe-ord.sman[1] BEGINS "  + QUOTER(fi_sman)     ELSE "")
-                   + (IF fi_i-name  NE "" THEN " AND oe-ordl.i-name BEGINS "  + QUOTER(fi_i-name)   ELSE "")
-                   + ", FIRST oe-ord OF oe-ordl NO-LOCK"
-                   + "  WHERE oe-ord.opened EQ YES"
-                   + (IF tbOpened AND tbWeb THEN " " ELSE IF tbOpened THEN " AND oe-ord.stat NE 'W'" ELSE " AND oe-ord.stat EQ 'W'")
-                   + "  AND oe-ord.ord-date  GE " + STRING(fiOrderDate) 
-                   + ", FIRST itemfg " + (IF fi_cad-no EQ "" THEN "OUTER-JOIN" ELSE "") + " NO-LOCK"
-                   + "  WHERE itemfg.company EQ oe-ordl.company"
-                   + "    AND itemfg.i-no    EQ oe-ordl.i-no"
-                   + ( IF fi_cad-no NE "" THEN " AND itemfg.cad-no BEGINS fi_cad-no" ELSE "")
-                   + " BY " + cSortCondition + ( IF ll-sort-asc THEN  "" ELSE " DESC") +  " BY oe-ordl.ord-no BY oe-ordl.i-no"
-                   .                
-     RUN Browse_PrepareAndExecuteBrowseQuery(
+                    + " WHERE oe-ordl.company EQ " + QUOTER(cocode)
+                    + " AND oe-ordl.opened EQ YES AND oe-ordl.stat NE 'C'"
+                    + (IF custCount  NE "" THEN " AND ((LOOKUP(oe-ordl.cust-no," + QUOTER(custcount) + ") NE 0" + " AND oe-ordl.cust-no NE '') OR " + QUOTER(custcount) + " EQ '')" ELSE "")
+                    + (IF fi_ord-no  NE 0  THEN " AND oe-ordl.ord-no  EQ "     + STRING(fi_ord-no)   ELSE "")
+                    + (IF fi_cust-no NE "" THEN " AND oe-ordl.cust-no BEGINS " + QUOTER(fi_cust-no)  ELSE "")
+                    + (IF fi_est-no  NE "" THEN " AND oe-ordl.est-no BEGINS "  + QUOTER(fi_est-no)   ELSE "")
+                    + (IF fi_job-no  NE "" THEN " AND oe-ordl.job-no BEGINS "  + QUOTER(fi_job-no)   ELSE "")
+                    + (IF fi_job-no  NE "" AND fi_job-no2 NE 0 THEN " AND oe-ordl.job-no2 EQ " + STRING(fi_job-no2)  ELSE "")
+                    + (IF fi_i-no    NE "" THEN " AND oe-ordl.i-no   BEGINS "  + QUOTER(fi_i-no)     ELSE "")
+                    + (IF fi_part-no NE "" THEN " AND oe-ordl.part-no BEGINS " + QUOTER(fi_part-no)  ELSE "")
+                    + (IF fi_po-no1  NE "" THEN " AND oe-ordl.po-no BEGINS "   + QUOTER(fi_po-no1)   ELSE "")
+                    + (IF fi_sman    NE "" THEN " AND oe-ord.sman[1] BEGINS "  + QUOTER(fi_sman)     ELSE "")
+                    + (IF fi_i-name  NE "" THEN " AND oe-ordl.i-name BEGINS "  + QUOTER(fi_i-name)   ELSE "")
+                    + ", FIRST oe-ord OF oe-ordl NO-LOCK"
+                    + "  WHERE oe-ord.opened EQ YES"
+                    + (IF tbOpened AND tbWeb THEN " " ELSE IF tbOpened THEN " AND oe-ord.stat NE 'W'" ELSE " AND oe-ord.stat EQ 'W'")
+                    + "  AND oe-ord.ord-date  GE " + STRING(fiOrderDate) 
+                    + ", FIRST itemfg " + (IF fi_cad-no EQ "" THEN "OUTER-JOIN" ELSE "") + " NO-LOCK"
+                    + "  WHERE itemfg.company EQ oe-ordl.company"
+                    + "    AND itemfg.i-no    EQ oe-ordl.i-no"
+                    + ( IF fi_cad-no NE "" THEN " AND itemfg.cad-no BEGINS fi_cad-no" ELSE "")
+                    + " BY " + pGetSortCondition(lv-sort-by) + ( IF ll-sort-asc THEN  "" ELSE " DESC") +  " BY oe-ordl.ord-no BY oe-ordl.i-no"
+                    .                
+    RUN Browse_PrepareAndExecuteBrowseQuery(
         INPUT  BROWSE {&BROWSE-NAME}:QUERY, /* Browse Query Handle */      
         INPUT  cShowAllQuery,               /* BRowse Query */             
         INPUT  NO,                          /* Show limit alert? */        
@@ -3209,6 +3355,46 @@ END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION pGetSortCondition B-table-Win
+FUNCTION pGetSortCondition RETURNS CHARACTER 
+  (ipcSortBy AS CHARACTER ):
+/*------------------------------------------------------------------------------
+ Purpose: Retuns the sort condition based on the input 
+ Notes:
+------------------------------------------------------------------------------*/
+    
+    RETURN (IF ipcSortBy EQ 'ord-no'    THEN "STRING(oe-ordl.ord-no,'9999999999')" ELSE ~
+            IF ipcSortBy EQ 'cStatus'   THEN "oe-ord.stat"                         ELSE ~
+            IF ipcSortBy EQ 'lc-rs'     THEN "getRS()"                             ELSE ~
+            IF ipcSortBy EQ 'lc-mi'     THEN "getMI()"                             ELSE ~
+            IF ipcSortBy EQ 'ord-date'  THEN "STRING(YEAR(oe-ord.ord-date),'9999') 
+                                             + STRING(MONTH(oe-ord.ord-date),'99') 
+                                             + STRING(DAY(oe-ord.ord-date),'99')"  ELSE ~
+            IF ipcSortBy EQ 'cust-no'   THEN "oe-ordl.cust-no"                     ELSE ~
+            IF ipcSortBy EQ 'cust-name' THEN "oe-ord.cust-name"                    ELSE ~
+            IF ipcSortBy EQ 'i-no'      THEN "oe-ordl.i-no"                        ELSE ~
+            IF ipcSortBy EQ 'i-name'    THEN "oe-ordl.i-name"                      ELSE ~
+            IF ipcSortBy EQ 'part-no'   THEN "oe-ordl.part-no"                     ELSE ~
+            IF ipcSortBy EQ 'po-no'     THEN "oe-ordl.po-no"                       ELSE ~
+            IF ipcSortBy EQ 'est-no'    THEN "oe-ordl.est-no"                      ELSE ~
+            IF ipcSortBy EQ 'job-no'    THEN "STRING(oe-ordl.job-no,'x(6)') 
+                                                 + STRING(oe-ordl.job-no2,'99')"   ELSE ~
+            IF ipcSortBy EQ 'cad-no'    THEN "itemfg.cad-no"                       ELSE ~
+            IF ipcSortBy EQ 's-man'     THEN "oe-ordl.s-man[1]"                    ELSE ~
+            IF ipcSortBy EQ 'e-num'     THEN "STRING(oe-ordl.e-num)"               ELSE ~
+            IF ipcSortBy EQ 'rec_key'   THEN "STRING(oe-ord.rec_key)"              ELSE ~
+            "STRING(YEAR(oe-ordl.req-date),'9999')
+                             + STRING(MONTH(oe-ordl.req-date),'99')
+                             + STRING(DAY(oe-ordl.req-date),'99')"
+            ).
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION pIsValidSearch B-table-Win
 FUNCTION pIsValidSearch RETURNS LOGICAL PRIVATE
