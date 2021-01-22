@@ -354,7 +354,7 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/folder.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'FOLDER-LABELS = ':U + 'Brws Part#|View RFQ|RFQ Item|Size|Item Spec|Materials|Printing|Shipping' + ',
+             INPUT  'FOLDER-LABELS = ':U + 'Browse|Detail|RFQ Item|Size|Item Spec|Material|Printing|Shipping' + ',
                      FOLDER-TAB-TYPE = 2':U ,
              OUTPUT h_folder ).
        RUN set-position IN h_folder ( 2.91 , 2.00 ) NO-ERROR.
@@ -536,9 +536,10 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'p-rfqsiz.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  '':U ,
+             INPUT  'Edge-Pixels = 2,
+                     SmartPanelType = Update':U ,
              OUTPUT h_p-rfqsiz ).
-       /* Position in AB:  ( 19.10 , 39.00 ) */
+       RUN set-position IN h_p-rfqsiz ( 19.10 , 39.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.76 , 52.00 ) */
 
        /* Initialize other pages that this page requires. */

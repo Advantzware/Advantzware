@@ -18,6 +18,7 @@ DEFINE VARIABLE glCreateFGReceipts                     AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE glCheckClosedStatus                    AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE glCreateRFIDTag                        AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE glCreateComponenetTagsForSetHeaderItem AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE glLabelMatrixAutoPrint                 AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE giFGSetRec                             AS INTEGER   NO-UNDO.
 DEFINE VARIABLE gcLoadTag                              AS CHARACTER NO-UNDO.
 DEFINE VARIABLE gcLabelMatrixLoadTagOutputFile         AS CHARACTER NO-UNDO.
@@ -74,6 +75,9 @@ PROCEDURE CreateLoadTagFromTT:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany        AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER iplEmptyTTLoadtag AS LOGICAL   NO-UNDO.
+    
     DEFINE VARIABLE lError   AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
 
@@ -87,12 +91,12 @@ PROCEDURE CreateLoadTagFromTT:
         RUN pPrintLoadTagHeader.
         
         FOR EACH ttLoadTag
-            WHERE ttLoadTag.tagStatus EQ "Created":
+            WHERE ttLoadTag.tagStatus EQ "Pending":
             /* v-loadtag - additional code is required to calculate totaltags to print using LOADTAG NK1 */
             RUN pIncrementCustPalletID(
                 INPUT  ttLoadTag.company,
                 INPUT  ttLoadTag.custID,
-                INPUT  ttLoadTag.totalTags * ttLoadTag.mult,
+                INPUT  ttLoadTag.totalTags * ttLoadTag.printCopies,
                 OUTPUT iStartPalletID,
                 OUTPUT iEndPalletID
                 ).
@@ -110,7 +114,14 @@ PROCEDURE CreateLoadTagFromTT:
             ttLoadTag.tagStatus = "Printed".
         END.
         
-        EMPTY TEMP-TABLE ttLoadTag.
+        IF iplEmptyTTLoadtag THEN 
+            EMPTY TEMP-TABLE ttLoadTag.
+        
+        IF glLabelMatrixAutoPrint THEN
+            RUN pPrintLabelMatrix (
+                INPUT ipcCompany
+                ).
+            
         ASSIGN
             iTagCounter  = 0
             iPalletCount = 0
@@ -196,7 +207,7 @@ PROCEDURE pCreateLoadTagFromTT:
             bf-loadtag.job-no       = ipbf-ttLoadTag.jobID
             bf-loadtag.job-no2      = ipbf-ttLoadTag.jobID2
             bf-loadtag.ord-no       = IF CAN-FIND(FIRST cust 
-                                                  WHERE cust.company = cocode
+                                                  WHERE cust.company = ipbf-ttLoadTag.company
                                                     AND cust.cust-no = bf-itemfg.cust-no
                                                     AND cust.active = "X") THEN 
                                           0
@@ -562,7 +573,7 @@ PROCEDURE pCreateLoadTagFromTT:
                     ).
         END.
        
-        DO iCopies = 1 TO ipbf-ttLoadTag.mult:
+        DO iCopies = 1 TO ipbf-ttLoadTag.printCopies:
             RUN pPrintLoadTag (
                 BUFFER ipbf-ttLoadTag,
                 BUFFER bf-loadtag 
@@ -805,6 +816,33 @@ PROCEDURE pIncrementCustPalletID PRIVATE:
         bf-cust.spare-int-1 = iPalletID
         .
 
+END PROCEDURE.
+
+PROCEDURE pPrintLabelMatrix PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE hdOutputProcs AS HANDLE NO-UNDO.
+    DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lFound AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE cPathTemplate AS CHARACTER NO-UNDO.
+    RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
+
+    RUN sys/ref/nk1look.p (ipcCompany, "BARDIR", "C", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound). 
+    IF lFound THEN 
+        cPathTemplate = cReturn.
+            
+    RUN PrintLabelMatrixFile IN hdOutputProcs (
+        INPUT ipcCompany,
+        INPUT cPathTemplate,
+        INPUT "loadtag"
+        ).
+        
+    DELETE PROCEDURE hdOutputProcs.
+    
 END PROCEDURE.
 
 PROCEDURE pPrintLoadTag PRIVATE:
@@ -1119,21 +1157,22 @@ PROCEDURE pCreateTTLoadTagFromItem:
         
         CREATE bf-ttLoadTag.
         ASSIGN
-            bf-ttLoadTag.recordID      = fGetNextTTLoadTagRecordID()
-            bf-ttLoadTag.company       = bf-itemfg.company
-            bf-ttLoadTag.itemID        = bf-itemfg.i-no
-            bf-ttLoadTag.custPartNo    = bf-itemfg.part-no
-            bf-ttLoadTag.itemName      = bf-itemfg.i-name
-            bf-ttLoadTag.upcNo         = bf-itemfg.upc-no
-            bf-ttLoadTag.boxLen        = bf-itemfg.l-score[50]
-            bf-ttLoadTag.boxWid        = bf-itemfg.w-score[50]
-            bf-ttLoadTag.boxDep        = bf-itemfg.d-score[50]
-            bf-ttLoadTag.style         = bf-itemfg.style
-            bf-ttLoadTag.vendor        = bf-company.name
-            bf-ttLoadTag.zoneID        = bf-itemfg.spare-char-4
-            bf-ttLoadTag.sheetWeight   = bf-itemfg.weight-100 / 100
-            bf-ttLoadTag.tagStatus     = "Created"
-            bf-ttLoadTag.recordSource  = "FGITEM"
+            bf-ttLoadTag.recordID        = fGetNextTTLoadTagRecordID()
+            bf-ttLoadTag.company         = bf-itemfg.company
+            bf-ttLoadTag.itemID          = bf-itemfg.i-no
+            bf-ttLoadTag.custPartNo      = bf-itemfg.part-no
+            bf-ttLoadTag.itemName        = bf-itemfg.i-name
+            bf-ttLoadTag.upcNo           = bf-itemfg.upc-no
+            bf-ttLoadTag.boxLen          = bf-itemfg.l-score[50]
+            bf-ttLoadTag.boxWid          = bf-itemfg.w-score[50]
+            bf-ttLoadTag.boxDep          = bf-itemfg.d-score[50]
+            bf-ttLoadTag.style           = bf-itemfg.style
+            bf-ttLoadTag.vendor          = bf-company.name
+            bf-ttLoadTag.zoneID          = bf-itemfg.spare-char-4
+            bf-ttLoadTag.sheetWeight     = bf-itemfg.weight-100 / 100
+            bf-ttLoadTag.scannedDateTime = NOW
+            bf-ttLoadTag.tagStatus       = "Pending"
+            bf-ttLoadTag.recordSource    = "FGITEM"
             .
 
         IF bf-ttLoadTag.style NE "" THEN DO:
@@ -1168,6 +1207,7 @@ PROCEDURE pUpdateConfig PRIVATE:
             glUpdateSetWithMaxQuantity             = LOGICAL(oSSLoadTagJobConfig:GetAttributeValue("UpdateSetWithMaxQuantity", "Active"))
             glCreateRFIDTag                        = LOGICAL(oSSLoadTagJobConfig:GetAttributeValue("CreateRFIDTag", "Active"))
             glCreateComponenetTagsForSetHeaderItem = LOGICAL(oSSLoadTagJobConfig:GetAttributeValue("CreateComponenetTagsForSetHeaderItem", "Active"))
+            glLabelMatrixAutoPrint                 = LOGICAL(oSSLoadTagJobConfig:GetAttributeValue("LabelMatrixAutoPrint", "Active"))
             giFGSetRec                             = INTEGER(oSSLoadTagJobConfig:GetAttributeValue("FGSetRec", "Value"))
             gcLoadTag                              = STRING(oSSLoadTagJobConfig:GetAttributeValue("LoadTag", "Printer"))
             gcLabelMatrixLoadTagOutputFile         = STRING(oSSLoadTagJobConfig:GetAttributeValue("LabelMatrixLoadTagOutputFilePath", "File"))
@@ -1491,12 +1531,12 @@ PROCEDURE pBuildLoadTagsFromJob PRIVATE:
             bf-ttLoadTag.tareWeight    = 10
             bf-ttLoadTag.grossWeight   = bf-ttLoadTag.netWeight + bf-ttLoadTag.tareWeight
             bf-ttLoadTag.uom           = "EA"
-            bf-ttLoadTag.mult          = ipiCopies
+            bf-ttLoadTag.printCopies   = ipiCopies
             bf-ttLoadTag.dueDateJob    = IF bf-job.due-date <> ? THEN STRING(bf-job.due-date, "99/99/9999") ELSE ""
             bf-ttLoadTag.dueDateJobHdr = IF bf-job-hdr.due-date <> ? THEN STRING(bf-job-hdr.due-date, "99/99/9999") ELSE ""
             bf-ttLoadTag.jobQuantity   = bf-job-hdr.qty
             bf-ttLoadTag.ipReturn      = NO
-            bf-ttLoadTag.tagStatus     = "Created"
+            bf-ttLoadTag.tagStatus     = "Pending"
             bf-ttLoadTag.recordSource  = "JOB"
             .
 

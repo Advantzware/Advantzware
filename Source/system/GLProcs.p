@@ -23,6 +23,89 @@ FUNCTION GL_GetAccountAR RETURNS CHARACTER
 
 /* **********************  Internal Procedures  *********************** */ 
 
+PROCEDURE GL_CheckGLAccount:
+/*------------------------------------------------------------------------------
+ Purpose: Check Invalid and Inactive GL Account
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany AS CHARACTER NO-UNDO. 
+    DEFINE INPUT  PARAMETER ipcAccount AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplSuccess AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplActive  AS LOGICAL   NO-UNDO.  
+        
+    RUN GL_CheckInvalidGLAccount (       
+        INPUT  ipcCompany,
+        INPUT  ipcAccount,       
+        OUTPUT opcMessage,
+        OUTPUT oplSuccess       
+        ).         
+    
+    IF oplSuccess EQ NO THEN  
+        RETURN.  
+    ELSE 
+        RUN GL_CheckInactiveGLAccount (
+            INPUT  ipcCompany,
+            INPUT  ipcAccount,
+            OUTPUT opcMessage,            
+            OUTPUT oplActive
+            ).              
+         
+END PROCEDURE.
+
+PROCEDURE GL_CheckInactiveGLAccount:
+/*------------------------------------------------------------------------------
+ Purpose: Check Inactive GL Account.
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER  ipcCompany AS CHARACTER NO-UNDO. 
+    DEFINE INPUT PARAMETER  ipcAccount AS CHARACTER NO-UNDO. 
+    DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.    
+    DEFINE OUTPUT PARAMETER oplActive  AS LOGICAL   NO-UNDO.    
+    
+    IF CAN-FIND(FIRST account
+        WHERE account.company  EQ ipcCompany 
+          AND account.actnum   EQ ipcAccount           
+          AND account.TYPE     NE "T"
+          AND account.inactive EQ YES) THEN DO:                        
+                    
+        opcMessage = "GL Account is Inactive.".                                                                       
+                                         
+    END. 
+    ELSE 
+        oplActive  = YES.  
+                    
+END PROCEDURE.
+
+PROCEDURE GL_CheckInvalidGLAccount:
+/*------------------------------------------------------------------------------
+ Purpose: Check Invalid GL Account
+ Notes:
+------------------------------------------------------------------------------*/    
+    DEFINE INPUT PARAMETER  ipcCompany AS CHARACTER NO-UNDO. 
+    DEFINE INPUT PARAMETER  ipcAccount AS CHARACTER NO-UNDO.   
+    DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplSuccess AS LOGICAL   NO-UNDO.               
+     
+    IF ipcAccount EQ "" THEN DO:
+        opcMessage = "Account Number may not be spaces, try help...".
+        oplSuccess = NO. 
+        RETURN.
+    END. 
+    
+    IF NOT CAN-FIND(FIRST account
+        WHERE account.company EQ ipcCompany 
+          AND account.actnum  EQ ipcAccount           
+          AND account.TYPE    NE "T") THEN DO: 
+    
+        opcMessage = "Invalid GL#, try help...".                        
+        RETURN.    
+    END. 
+    
+    oplSuccess = YES.           
+    
+END PROCEDURE.
+
 PROCEDURE pGetAccountAR PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose: get AR Class GL Account

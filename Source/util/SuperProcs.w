@@ -38,7 +38,7 @@ CREATE WIDGET-POOL.
 
 {methods/defines/sortByDefs.i}
 {AOA/tempTable/ttSuperProc.i}
-{methods/template/brwcustomdef.i}
+
 DEFINE TEMP-TABLE ttRunning NO-UNDO
     FIELD procHandle AS CHARACTER 
     FIELD procName   AS CHARACTER 
@@ -496,16 +496,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL superProcsBrowse C-Win
 ON START-SEARCH OF superProcsBrowse IN FRAME DEFAULT-FRAME
 DO:
-	{methods/template/sortindicator.i} 
-    IF SELF:CURRENT-COLUMN:NAME NE ? THEN DO:
-        cColumnLabel = SELF:CURRENT-COLUMN:NAME.
-        IF cColumnLabel EQ cSaveLabel THEN
-        lAscending = NOT lAscending.
-        cSaveLabel = cColumnLabel.
-        RUN pReopenBrowse.
-    END.
-	{methods/template/sortindicatorend.i} 
-    RETURN NO-APPLY.
+	{AOA/includes/startSearch.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -530,6 +521,7 @@ END.
 /* ***************************  Main Block  *************************** */
 
 {system/pSuperProcs.i}
+{methods/template/brwcustom2.i}
 
 /* Set CURRENT-WINDOW: this will parent dialog-boxes and frames.        */
 ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME} 
@@ -716,6 +708,7 @@ PROCEDURE pReopenBrowse :
         WHEN "procType" THEN
         RUN pByProcType.
     END CASE.
+    {AOA/includes/pReopenBrowse.i}
     SESSION:SET-WAIT-STATE("").
 
 END PROCEDURE.

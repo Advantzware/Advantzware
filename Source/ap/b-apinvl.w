@@ -86,6 +86,9 @@ DEF VAR ll-added AS LOG NO-UNDO.
 DEF VAR v-actdscr LIKE account.dscr NO-UNDO.
 def var factor# as decimal no-undo.
 DEF VAR v-basis-w AS DEC NO-UNDO. /* for po/po-adder2.p */
+DEFINE VARIABLE hGLProcs  AS HANDLE  NO-UNDO.
+
+RUN system/GLProcs.p PERSISTENT SET hGLProcs.
 
 DEF TEMP-TABLE tt-ap-invl NO-UNDO LIKE ap-invl
     FIELD tt-rowid AS ROWID.
@@ -482,6 +485,9 @@ DO:
   DEF VAR lk-recid AS RECID NO-UNDO.
   DEF VAR uom-list AS CHAR INIT "" NO-UNDO.
   DEF VAR lw-focus AS WIDGET-HANDLE NO-UNDO.
+  DEFINE VARIABLE cFieldsValue  AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cFoundValue   AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE recFoundRecID AS RECID     NO-UNDO.
 
 
   lw-focus = FOCUS.
@@ -495,9 +501,19 @@ DO:
              RUN windows/l-poven.w (RECID(vend), ap-invl.po-no:SCREEN-VALUE IN BROWSE {&browse-name}, OUTPUT lk-recid).             
              IF lk-recid <> ? THEN RUN display-po (lk-recid).
         END.
-        WHEN "actnum" THEN DO:
-            RUN windows/l-acct3.w (g_company,"T",lw-focus:SCREEN-VALUE, OUTPUT char-val).
-            IF char-val <> "" THEN ASSIGN lw-focus:SCREEN-VALUE = ENTRY(1,char-val).
+        WHEN "actnum" THEN DO:            
+            RUN system/openLookup.p (
+                INPUT  g_company, 
+                INPUT  "",  /* Lookup ID */
+                INPUT  87,  /* Subject ID */
+                INPUT  "",  /* User ID */
+                INPUT  0,   /* Param Value ID */
+                OUTPUT cFieldsValue, 
+                OUTPUT cFoundValue, 
+                OUTPUT recFoundRecID
+                ). 
+            IF cFoundValue <> "" THEN 
+                ASSIGN lw-focus:SCREEN-VALUE = cFoundValue.
                                          
         END.
         when "pr-qty-uom" then do:
@@ -637,7 +653,7 @@ DO:
   DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO. 
   IF LASTKEY NE -1 THEN DO:
     RUN valid-actnum(OUTPUT lReturnError) NO-ERROR.
-    IF lReturnError THEN RETURN NO-APPLY.
+    IF lReturnError THEN RETURN NO-APPLY.             
   END.
 END.
 
@@ -1998,6 +2014,11 @@ PROCEDURE local-cancel-record :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
+  IF ap-invl.actnum:BGCOLOR IN BROWSE {&browse-name} EQ 16 THEN 
+      ASSIGN 
+          ap-invl.actnum:BGCOLOR IN BROWSE {&browse-name}  = ?
+          ap-invl.actnum:FGCOLOR IN BROWSE {&browse-name}  = ?
+          .             
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
@@ -2258,6 +2279,30 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-reset-record B-table-Win
+PROCEDURE local-reset-record:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+    /* Code placed here will execute PRIOR to standard behavior. */
+    IF ap-invl.actnum:BGCOLOR IN BROWSE {&browse-name} EQ 16 THEN 
+        ASSIGN 
+            ap-invl.actnum:BGCOLOR IN BROWSE {&browse-name}  = ?
+            ap-invl.actnum:FGCOLOR IN BROWSE {&browse-name}  = ?
+            .  
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'reset-record':U ) .
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record B-table-Win 
 PROCEDURE local-update-record :
 /*------------------------------------------------------------------------------
@@ -2293,7 +2338,7 @@ PROCEDURE local-update-record :
 
   RUN valid-actnum(OUTPUT lReturnError) NO-ERROR.
   IF lReturnError THEN RETURN NO-APPLY.
-
+ 
   RUN valid-qty(OUTPUT lReturnError) NO-ERROR.
   IF lReturnError THEN RETURN NO-APPLY.
 
@@ -2940,22 +2985,55 @@ PROCEDURE valid-actnum :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
+  
+  DEFINE VARIABLE lSuccess  AS LOGICAL   NO-UNDO.
+  DEFINE VARIABLE lActive   AS LOGICAL   NO-UNDO.
+  DEFINE VARIABLE cMessage  AS CHARACTER NO-UNDO.
+  
   DO WITH FRAME {&FRAME-NAME}:
-    FIND FIRST account
-        WHERE account.company EQ g_company
-          AND account.actnum  EQ ap-invl.actnum:SCREEN-VALUE IN BROWSE {&browse-name}
-          AND account.TYPE    NE "T"          
-        NO-LOCK NO-ERROR.
-    IF NOT AVAIL account THEN DO:
-      MESSAGE "Invalid Account Number..." VIEW-AS ALERT-BOX ERROR.
-      APPLY "entry" TO ap-invl.actnum IN BROWSE {&browse-name}.
-      oplReturnError = YES.
-    END.
-    ELSE
-    v-actdscr:SCREEN-VALUE IN BROWSE {&browse-name} = account.dscr.
+      RUN GL_CheckGLAccount IN hGLProcs(
+          INPUT  g_company,
+          INPUT  ap-invl.actnum:SCREEN-VALUE IN BROWSE {&browse-name},            
+          OUTPUT cMessage,
+          OUTPUT lSuccess,
+          OUTPUT lActive
+          ).    
+            
+      IF lSuccess = NO THEN DO:               
+          MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.            
+          IF ap-invl.actnum:BGCOLOR IN BROWSE {&BROWSE-NAME} EQ 16 THEN             
+                ASSIGN 
+                    ap-invl.actnum:BGCOLOR IN BROWSE {&BROWSE-NAME} = ?
+                    ap-invl.actnum:FGCOLOR IN BROWSE {&BROWSE-NAME} = ?
+                   .
+          APPLY "ENTRY" TO ap-invl.actnum IN BROWSE {&BROWSE-NAME}.       
+          oplReturnError = YES.
+      END.   
+      
+      IF lSuccess = YES AND lActive = NO THEN DO:  
+          ASSIGN 
+              ap-invl.actnum:BGCOLOR IN BROWSE {&BROWSE-NAME} = 16
+              ap-invl.actnum:FGCOLOR IN BROWSE {&BROWSE-NAME} = 15
+              .   
+          MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.           
+          APPLY "ENTRY" TO ap-invl.actnum IN BROWSE {&BROWSE-NAME}.
+          oplReturnError = YES.                      
+      END.      
+      IF lActive = YES AND ap-invl.actnum:BGCOLOR IN BROWSE {&BROWSE-NAME} EQ 16 THEN             
+          ASSIGN 
+              ap-invl.actnum:BGCOLOR IN BROWSE {&BROWSE-NAME} = ?
+              ap-invl.actnum:FGCOLOR IN BROWSE {&BROWSE-NAME} = ?
+              .                                                          
+    
+      FIND FIRST account NO-LOCK
+          WHERE account.company EQ g_company
+            AND account.actnum  EQ ap-invl.actnum:SCREEN-VALUE IN BROWSE {&browse-name}
+            AND account.TYPE    NE "T"          
+          NO-ERROR.
+      IF AVAILABLE account THEN
+          v-actdscr:SCREEN-VALUE IN BROWSE {&browse-name} = account.dscr.   
   END.
-
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

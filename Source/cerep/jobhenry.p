@@ -700,7 +700,7 @@ FOR EACH ef
             .
                
         PUT "<=#5><R+0.5><UNITS=INCHES><C88><FROM><C109><r+2><BARCODE,TYPE=128B,CHECKSUM=NONE,VALUE=" 
-            job-hdr.i-no FORMAT "x(15)" "><R-3>" . 
+        STRING(TRIM(job-hdr.job-no) + "-" + STRING(job-hdr.job-no2,"99") + "-" + STRING(job-hdr.frm,"99") + "-" + STRING(job-hdr.blank-no,"99")) FORMAT "x(15)" "><R-3>" . 
                
         PUT "<=#6> <C3><B>Packing</B>" SKIP
             "<C3>Pallet Count: " TRIM(STRING(( IF AVAILABLE itemfg THEN (itemfg.case-count * itemfg.case-pall + itemfg.quantityPartial) ELSE 0),"->>,>>>,>>9"))    

@@ -34,7 +34,30 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+DEFINE VARIABLE lIsQuantityVisible             AS LOGICAL NO-UNDO INITIAL TRUE.
+DEFINE VARIABLE lIsQuantityOfUnitsVisible      AS LOGICAL NO-UNDO INITIAL TRUE.
+DEFINE VARIABLE lIsQuantityInSubUnitVisible    AS LOGICAL NO-UNDO INITIAL TRUE.
+DEFINE VARIABLE lIsQuantityOfSubUnitsVisible   AS LOGICAL NO-UNDO INITIAL TRUE.
+DEFINE VARIABLE lIsSubUnitsPerUnitVisible      AS LOGICAL NO-UNDO INITIAL TRUE.
+DEFINE VARIABLE lIsPartialVisible              AS LOGICAL NO-UNDO INITIAL TRUE.
+DEFINE VARIABLE lIsTotalTagsVisible            AS LOGICAL NO-UNDO INITIAL TRUE.
+DEFINE VARIABLE lIsFullTagsVisible             AS LOGICAL NO-UNDO INITIAL TRUE.
+DEFINE VARIABLE lIsPartialTagsVisible          AS LOGICAL NO-UNDO INITIAL TRUE.
+
+DEFINE VARIABLE lIsQuantitySensitive           AS LOGICAL NO-UNDO INITIAL TRUE.
+DEFINE VARIABLE lIsQuantityOfUnitsSensitive    AS LOGICAL NO-UNDO INITIAL FALSE.
+DEFINE VARIABLE lIsQuantityInSubUnitSensitive  AS LOGICAL NO-UNDO INITIAL TRUE.
+DEFINE VARIABLE lIsQuantityOfSubUnitsSensitive AS LOGICAL NO-UNDO INITIAL FALSE.
+DEFINE VARIABLE lIsSubUnitsPerUnitSensitive    AS LOGICAL NO-UNDO INITIAL TRUE.
+DEFINE VARIABLE lIsPartialSensitive            AS LOGICAL NO-UNDO INITIAL FALSE.
+DEFINE VARIABLE lIsTotalTagsSensitive          AS LOGICAL NO-UNDO INITIAL FALSE.
+DEFINE VARIABLE lIsFullTagsSensitive           AS LOGICAL NO-UNDO INITIAL FALSE.
+DEFINE VARIABLE lIsPartialTagsSensitive        AS LOGICAL NO-UNDO INITIAL FALSE.
+
 DEFINE VARIABLE dOversPct AS DECIMAL NO-UNDO.
+
+DEFINE VARIABLE char-hdl  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE pHandle   AS HANDLE    NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -51,10 +74,11 @@ DEFINE VARIABLE dOversPct AS DECIMAL NO-UNDO.
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-37 RECT-39 
-&Scoped-Define DISPLAYED-OBJECTS fiQuantity fiQuantityOfSubUnits ~
+&Scoped-Define ENABLED-OBJECTS rQuantitiesRectangle rUnitCountsRectangle 
+&Scoped-Define DISPLAYED-OBJECTS fiUnitCountsRectangleLabel ~
+fiQuantitiesRectangleLabel fiQuantity fiQuantityOfSubUnits ~
 fiQuantityInSubUnit fiTotalTags fiSubUnitsPerUnit fiFullTags fiPartial ~
-fiPartialTags fiQuantityOfUnits fiCopies 
+fiPartialTags fiQuantityOfUnits 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -68,11 +92,6 @@ fiPartialTags fiQuantityOfUnits fiCopies
 
 
 /* Definitions of the field level widgets                               */
-DEFINE VARIABLE fiCopies AS INTEGER FORMAT "->,>>>,>>9":U INITIAL 0 
-     LABEL "Copies" 
-     VIEW-AS FILL-IN 
-     SIZE 32 BY 1.38 NO-UNDO.
-
 DEFINE VARIABLE fiFullTags AS INTEGER FORMAT "->,>>>,>>9":U INITIAL 0 
      LABEL "Full Tags" 
      VIEW-AS FILL-IN 
@@ -87,6 +106,11 @@ DEFINE VARIABLE fiPartialTags AS INTEGER FORMAT "->,>>>,>>9":U INITIAL 0
      LABEL "Partial Tags" 
      VIEW-AS FILL-IN 
      SIZE 32 BY 1.38 TOOLTIP "Total num ber of partial tags" NO-UNDO.
+
+DEFINE VARIABLE fiQuantitiesRectangleLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Quantities" 
+     VIEW-AS FILL-IN 
+     SIZE 13 BY .95
+     FONT 6 NO-UNDO.
 
 DEFINE VARIABLE fiQuantity AS INTEGER FORMAT "->,>>>,>>9":U INITIAL 0 
      LABEL "Total Quantity" 
@@ -118,11 +142,16 @@ DEFINE VARIABLE fiTotalTags AS INTEGER FORMAT "->,>>>,>>9":U INITIAL 0
      VIEW-AS FILL-IN 
      SIZE 32 BY 1.38 TOOLTIP "Total number of tags including partial tags" NO-UNDO.
 
-DEFINE RECTANGLE RECT-37
+DEFINE VARIABLE fiUnitCountsRectangleLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Unit Counts" 
+     VIEW-AS FILL-IN 
+     SIZE 14.4 BY .95
+     FONT 6 NO-UNDO.
+
+DEFINE RECTANGLE rQuantitiesRectangle
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
      SIZE 66 BY 8.81.
 
-DEFINE RECTANGLE RECT-39
+DEFINE RECTANGLE rUnitCountsRectangle
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
      SIZE 63.4 BY 8.81.
 
@@ -130,6 +159,8 @@ DEFINE RECTANGLE RECT-39
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
+     fiUnitCountsRectangleLabel AT ROW 1 COL 69.6 COLON-ALIGNED NO-LABEL WIDGET-ID 86
+     fiQuantitiesRectangleLabel AT ROW 1.05 COL 2 COLON-ALIGNED NO-LABEL WIDGET-ID 84
      fiQuantity AT ROW 1.86 COL 31.2 COLON-ALIGNED WIDGET-ID 26
      fiQuantityOfSubUnits AT ROW 1.86 COL 96.2 COLON-ALIGNED WIDGET-ID 32
      fiQuantityInSubUnit AT ROW 3.33 COL 31.2 COLON-ALIGNED WIDGET-ID 60
@@ -139,15 +170,8 @@ DEFINE FRAME F-Main
      fiPartial AT ROW 6.33 COL 31.2 COLON-ALIGNED WIDGET-ID 48
      fiPartialTags AT ROW 6.38 COL 96.2 COLON-ALIGNED WIDGET-ID 72
      fiQuantityOfUnits AT ROW 7.86 COL 31 COLON-ALIGNED WIDGET-ID 64
-     fiCopies AT ROW 7.91 COL 96 COLON-ALIGNED WIDGET-ID 56
-     "Units Count" VIEW-AS TEXT
-          SIZE 14 BY .91 AT ROW 1 COL 71 WIDGET-ID 82
-          FONT 6
-     "Quantities" VIEW-AS TEXT
-          SIZE 12.4 BY .91 AT ROW 1 COL 3.6 WIDGET-ID 76
-          FONT 6
-     RECT-37 AT ROW 1.48 COL 1.2 WIDGET-ID 74
-     RECT-39 AT ROW 1.48 COL 69 WIDGET-ID 80
+     rQuantitiesRectangle AT ROW 1.48 COL 1.2 WIDGET-ID 74
+     rUnitCountsRectangle AT ROW 1.48 COL 69 WIDGET-ID 80
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -208,26 +232,80 @@ ASSIGN
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
-/* SETTINGS FOR FILL-IN fiCopies IN FRAME F-Main
-   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fiFullTags IN FRAME F-Main
    NO-ENABLE                                                            */
+ASSIGN 
+       fiFullTags:PRIVATE-DATA IN FRAME F-Main     = 
+                "FullTags".
+
 /* SETTINGS FOR FILL-IN fiPartial IN FRAME F-Main
    NO-ENABLE                                                            */
+ASSIGN 
+       fiPartial:PRIVATE-DATA IN FRAME F-Main     = 
+                "Partial".
+
 /* SETTINGS FOR FILL-IN fiPartialTags IN FRAME F-Main
    NO-ENABLE                                                            */
+ASSIGN 
+       fiPartialTags:PRIVATE-DATA IN FRAME F-Main     = 
+                "PartialTags".
+
+/* SETTINGS FOR FILL-IN fiQuantitiesRectangleLabel IN FRAME F-Main
+   NO-ENABLE                                                            */
+ASSIGN 
+       fiQuantitiesRectangleLabel:PRIVATE-DATA IN FRAME F-Main     = 
+                "QuantitiesRectangleLabel".
+
 /* SETTINGS FOR FILL-IN fiQuantity IN FRAME F-Main
    NO-ENABLE                                                            */
+ASSIGN 
+       fiQuantity:PRIVATE-DATA IN FRAME F-Main     = 
+                "Quantity".
+
 /* SETTINGS FOR FILL-IN fiQuantityInSubUnit IN FRAME F-Main
    NO-ENABLE                                                            */
+ASSIGN 
+       fiQuantityInSubUnit:PRIVATE-DATA IN FRAME F-Main     = 
+                "QuantityInSubUnit".
+
 /* SETTINGS FOR FILL-IN fiQuantityOfSubUnits IN FRAME F-Main
    NO-ENABLE                                                            */
+ASSIGN 
+       fiQuantityOfSubUnits:PRIVATE-DATA IN FRAME F-Main     = 
+                "QuantityOfSubUnits".
+
 /* SETTINGS FOR FILL-IN fiQuantityOfUnits IN FRAME F-Main
    NO-ENABLE                                                            */
+ASSIGN 
+       fiQuantityOfUnits:PRIVATE-DATA IN FRAME F-Main     = 
+                "QuantityOfUnits".
+
 /* SETTINGS FOR FILL-IN fiSubUnitsPerUnit IN FRAME F-Main
    NO-ENABLE                                                            */
+ASSIGN 
+       fiSubUnitsPerUnit:PRIVATE-DATA IN FRAME F-Main     = 
+                "SubUnitsPerUnit".
+
 /* SETTINGS FOR FILL-IN fiTotalTags IN FRAME F-Main
    NO-ENABLE                                                            */
+ASSIGN 
+       fiTotalTags:PRIVATE-DATA IN FRAME F-Main     = 
+                "TotalTags".
+
+/* SETTINGS FOR FILL-IN fiUnitCountsRectangleLabel IN FRAME F-Main
+   NO-ENABLE                                                            */
+ASSIGN 
+       fiUnitCountsRectangleLabel:PRIVATE-DATA IN FRAME F-Main     = 
+                "UnitCountsRectangleLabel".
+
+ASSIGN 
+       rQuantitiesRectangle:PRIVATE-DATA IN FRAME F-Main     = 
+                "QuantitiesRectangle".
+
+ASSIGN 
+       rUnitCountsRectangle:PRIVATE-DATA IN FRAME F-Main     = 
+                "UnitCountsRectangle".
+
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -325,8 +403,6 @@ END.
   RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF
 
-RUN pInit.
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -344,11 +420,15 @@ PROCEDURE DisableQuantities :
     END.
     
     ASSIGN
-        fiQuantity:SENSITIVE             = FALSE
-        fiQuantityInSubUnit:SENSITIVE    = FALSE
-        fiSubUnitsPerUnit:SENSITIVE      = FALSE
-        fiCopies:SENSITIVE               = FALSE
-        fiCopies:SCREEN-VALUE            = "1"          
+        fiQuantity:SENSITIVE           = FALSE
+        fiQuantityOfUnits:SENSITIVE    = FALSE
+        fiQuantityInSubUnit:SENSITIVE  = FALSE
+        fiQuantityOfSubUnits:SENSITIVE = FALSE
+        fiSubUnitsPerUnit:SENSITIVE    = FALSE
+        fiPartial:SENSITIVE            = FALSE
+        fiTotalTags:SENSITIVE          = FALSE
+        fiFullTags:SENSITIVE           = FALSE
+        fiPartialTags:SENSITIVE        = FALSE
         .
 END PROCEDURE.
 
@@ -383,13 +463,27 @@ PROCEDURE EnableQuantities :
     
     DO WITH FRAME {&FRAME-NAME}:
     END.
-    
+
     ASSIGN
-        fiQuantity:SENSITIVE          = TRUE
-        fiQuantityInSubUnit:SENSITIVE = TRUE
-        fiSubUnitsPerUnit:SENSITIVE   = TRUE
-        fiCopies:SENSITIVE            = TRUE
-        .
+        fiQuantity:SENSITIVE           = lIsQuantitySensitive
+        fiQuantityOfUnits:SENSITIVE    = lIsQuantityOfUnitsSensitive
+        fiQuantityInSubUnit:SENSITIVE  = lIsQuantityInSubUnitSensitive
+        fiQuantityOfSubUnits:SENSITIVE = lIsQuantityOfSubUnitsSensitive
+        fiSubUnitsPerUnit:SENSITIVE    = lIsSubUnitsPerUnitSensitive
+        fiPartial:SENSITIVE            = lIsPartialSensitive
+        fiTotalTags:SENSITIVE          = lIsTotalTagsSensitive
+        fiFullTags:SENSITIVE           = lIsFullTagsSensitive
+        fiPartialTags:SENSITIVE        = lIsPartialTagsSensitive
+        fiQuantity:HIDDEN              = lIsQuantityVisible
+        fiQuantityOfUnits:HIDDEN       = lIsQuantityOfUnitsVisible
+        fiQuantityInSubUnit:HIDDEN     = lIsQuantityInSubUnitVisible
+        fiQuantityOfSubUnits:HIDDEN    = lIsQuantityOfSubUnitsVisible
+        fiSubUnitsPerUnit:HIDDEN       = lIsSubUnitsPerUnitVisible
+        fiPartial:HIDDEN               = lIsPartialVisible
+        fiTotalTags:HIDDEN             = lIsTotalTagsVisible
+        fiFullTags:HIDDEN              = lIsFullTagsVisible
+        fiPartialTags:HIDDEN           = lIsPartialTagsVisible
+        .  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -405,7 +499,6 @@ PROCEDURE GetQuantities :
     DEFINE OUTPUT PARAMETER opiQuantity          AS INTEGER NO-UNDO.
     DEFINE OUTPUT PARAMETER opiQuantityInSubUnit AS INTEGER NO-UNDO.
     DEFINE OUTPUT PARAMETER opiSubUnitsPerUnit   AS INTEGER NO-UNDO.
-    DEFINE OUTPUT PARAMETER opiCopies            AS INTEGER NO-UNDO.
     
     DO WITH FRAME {&FRAME-NAME}:
     END.
@@ -414,8 +507,27 @@ PROCEDURE GetQuantities :
         opiQuantity          = INTEGER(fiQuantity:SCREEN-VALUE)
         opiQuantityInSubUnit = INTEGER(fiQuantityInSubUnit:SCREEN-VALUE)
         opiSubUnitsPerUnit   = INTEGER(fiSubUnitsPerUnit:SCREEN-VALUE)
-        opiCopies            = INTEGER(fiCopies:SCREEN-VALUE)
         .
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable s-object 
+PROCEDURE local-enable :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+    /* Code placed here will execute PRIOR to standard behavior. */
+
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable':U ) .
+
+    /* Code placed here will execute AFTER standard behavior.    */
+    RUN pInit.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -443,42 +555,91 @@ PROCEDURE pInit :
 ------------------------------------------------------------------------------*/
     DEFINE VARIABLE oSSLoadTagJobDesignConfig AS system.Config NO-UNDO.
      
+    DEFINE VARIABLE hdWidget AS HANDLE NO-UNDO.
+    
     DO WITH FRAME {&FRAME-NAME}:
     END.
     
-    oSSLoadTagJobDesignConfig = system.ConfigLoader:Instance:GetConfig("SSLoadTagJobDesign").
+    {methods/run_link.i "CONTAINER-SOURCE" "GetDesignConfig" "(OUTPUT oSSLoadTagJobDesignConfig)"}
     
+    ASSIGN
+        fiUnitCountsRectangleLabel:SCREEN-VALUE = "Units Count"
+        fiQuantitiesRectangleLabel:SCREEN-VALUE = "Quantities"
+        .
+
     IF VALID-OBJECT(oSSLoadTagJobDesignConfig) THEN DO:
-        IF oSSLoadTagJobDesignConfig:IsAttributeAvailable("Quantities", "Quantity", "label") THEN
-            fiQuantity:LABEL = oSSLoadTagJobDesignConfig:GetAttributeValue("Quantities", "Quantity", "label").
+        hdWidget = FRAME {&FRAME-NAME}:FIRST-CHILD:FIRST-CHILD.
+        DO WHILE VALID-HANDLE(hdWidget):
+            IF hdWidget:PRIVATE-DATA NE "" AND hdWidget:PRIVATE-DATA NE ? THEN DO:
 
-        IF oSSLoadTagJobDesignConfig:IsAttributeAvailable("Quantities", "QuantityOfUnits", "label") THEN
-            fiQuantityOfUnits:LABEL = oSSLoadTagJobDesignConfig:GetAttributeValue("Quantities", "QuantityOfUnits", "label").
-            
-        IF oSSLoadTagJobDesignConfig:IsAttributeAvailable("Quantities", "QuantityInSubUnit", "label") THEN
-            fiQuantityInSubUnit:LABEL = oSSLoadTagJobDesignConfig:GetAttributeValue("Quantities", "QuantityInSubUnit", "label").
+                IF oSSLoadTagJobDesignConfig:IsAttributeAvailable("Quantities", hdWidget:PRIVATE-DATA, "visible") THEN
+                    hdWidget:HIDDEN = NOT LOGICAL(oSSLoadTagJobDesignConfig:GetAttributeValue("Quantities", hdWidget:PRIVATE-DATA, "visible")).
 
-        IF oSSLoadTagJobDesignConfig:IsAttributeAvailable("Quantities", "QuantityOfSubUnits", "label") THEN
-            fiQuantityOfSubUnits:LABEL = oSSLoadTagJobDesignConfig:GetAttributeValue("Quantities", "QuantityOfSubUnits", "label").
+                IF oSSLoadTagJobDesignConfig:IsAttributeAvailable("Quantities", hdWidget:PRIVATE-DATA, "label") THEN
+                    hdWidget:LABEL = oSSLoadTagJobDesignConfig:GetAttributeValue("Quantities", hdWidget:PRIVATE-DATA, "label").
 
-        IF oSSLoadTagJobDesignConfig:IsAttributeAvailable("Quantities", "SubUnitsPerUnit", "label") THEN
-            fiSubUnitsPerUnit:LABEL = oSSLoadTagJobDesignConfig:GetAttributeValue("Quantities", "SubUnitsPerUnit", "label").
+                IF oSSLoadTagJobDesignConfig:IsAttributeAvailable("Quantities", hdWidget:PRIVATE-DATA, "sensitive") THEN
+                    hdWidget:SENSITIVE = LOGICAL(oSSLoadTagJobDesignConfig:GetAttributeValue("Quantities", hdWidget:PRIVATE-DATA, "sensitive")).
+                
+                CASE hdWidget:PRIVATE-DATA:
+                    WHEN "Quantity" THEN 
+                        ASSIGN 
+                            lIsQuantityVisible   = hdWidget:HIDDEN
+                            lIsQuantitySensitive = hdWidget:SENSITIVE
+                            .
+                    WHEN "QuantityOfUnits" THEN 
+                        ASSIGN 
+                            lIsQuantityOfUnitsVisible   = hdWidget:HIDDEN
+                            lIsQuantityOfUnitsSensitive = hdWidget:SENSITIVE
+                            .
+                    WHEN "QuantityInSubUnit" THEN 
+                        ASSIGN 
+                            lIsQuantityInSubUnitVisible   = hdWidget:HIDDEN
+                            lIsQuantityInSubUnitSensitive = hdWidget:SENSITIVE
+                            .
+                    WHEN "QuantityOfSubUnits" THEN 
+                        ASSIGN 
+                            lIsQuantityOfSubUnitsVisible   = hdWidget:HIDDEN
+                            lIsQuantityOfSubUnitsSensitive = hdWidget:SENSITIVE
+                            .
+                    WHEN "SubUnitsPerUnit" THEN 
+                        ASSIGN 
+                            lIsSubUnitsPerUnitVisible   = hdWidget:HIDDEN
+                            lIsSubUnitsPerUnitSensitive = hdWidget:SENSITIVE
+                            .
+                    WHEN "Partial" THEN 
+                        ASSIGN 
+                            lIsPartialVisible   = hdWidget:HIDDEN
+                            lIsPartialSensitive = hdWidget:SENSITIVE
+                            .
+                    WHEN "TotalTags" THEN 
+                        ASSIGN 
+                            lIsTotalTagsVisible   = hdWidget:HIDDEN
+                            lIsTotalTagsSensitive = hdWidget:SENSITIVE
+                            .
+                    WHEN "FullTags" THEN 
+                        ASSIGN 
+                            lIsFullTagsVisible   = hdWidget:HIDDEN
+                            lIsFullTagsSensitive = hdWidget:SENSITIVE
+                            .
+                    WHEN "PartialTags" THEN 
+                        ASSIGN 
+                            lIsPartialTagsVisible   = hdWidget:HIDDEN
+                            lIsPartialTagsSensitive = hdWidget:SENSITIVE
+                            .
+                END CASE.
+            END.
 
-        IF oSSLoadTagJobDesignConfig:IsAttributeAvailable("Quantities", "Partial", "label") THEN
-            fiPartial:LABEL = oSSLoadTagJobDesignConfig:GetAttributeValue("Quantities", "Partial", "label").
-
-        IF oSSLoadTagJobDesignConfig:IsAttributeAvailable("Quantities", "TotalTags", "label") THEN
-            fiTotalTags:LABEL = oSSLoadTagJobDesignConfig:GetAttributeValue("Quantities", "TotalTags", "label").
-
-        IF oSSLoadTagJobDesignConfig:IsAttributeAvailable("Quantities", "FullTags", "label") THEN
-            fiFullTags:LABEL = oSSLoadTagJobDesignConfig:GetAttributeValue("Quantities", "FullTags", "label").
-
-        IF oSSLoadTagJobDesignConfig:IsAttributeAvailable("Quantities", "PartialTags", "label") THEN
-            fiPartialTags:LABEL = oSSLoadTagJobDesignConfig:GetAttributeValue("Quantities", "PartialTags", "label").
-
-        IF oSSLoadTagJobDesignConfig:IsAttributeAvailable("Quantities", "Copies", "label") THEN
-            fiCopies:LABEL = oSSLoadTagJobDesignConfig:GetAttributeValue("Quantities", "Copies", "label").            
+            hdWidget = hdWidget:NEXT-SIBLING.
+        END.
     END.
+            
+    /* Sets the visiblilty */
+    RUN EnableQuantities.
+    
+    /* Sets the sensitivity to default */
+    RUN DisableQuantities.
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

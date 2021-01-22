@@ -23,6 +23,8 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
+&SCOPED-DEFINE local-destroy local-destroy
+
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
@@ -141,8 +143,8 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          TITLE              = "Machine Transactions"
          HEIGHT             = 24
          WIDTH              = 150
-         MAX-HEIGHT         = 24
-         MAX-WIDTH          = 150
+         MAX-HEIGHT         = 320
+         MAX-WIDTH          = 320
          VIRTUAL-HEIGHT     = 24
          VIRTUAL-WIDTH      = 150
          RESIZE             = yes
@@ -316,7 +318,7 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/folder.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'FOLDER-LABELS = ':U + 'Browse|Detail|Employees|Posted Trans' + ',
+             INPUT  'FOLDER-LABELS = ':U + 'Browse|Detail|Employee|Posted' + ',
                      FOLDER-TAB-TYPE = 2':U ,
              OUTPUT h_folder ).
        RUN set-position IN h_folder ( 3.14 , 2.00 ) NO-ERROR.
@@ -721,6 +723,8 @@ PROCEDURE local-destroy :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
+  
+  {custom/userWindow.i} 
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .

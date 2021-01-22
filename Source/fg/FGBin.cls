@@ -41,7 +41,13 @@ CLASS fg.FGBin:
             WHEN "ItemID" THEN 
                 RETURN STRING(bf-fg-bin.i-no).         
             WHEN "Quantity" THEN 
-                RETURN STRING(bf-fg-bin.qty).            
+                RETURN STRING(bf-fg-bin.qty). 
+            WHEN "QuantityInSubUnit" THEN 
+                RETURN STRING(bf-fg-bin.case-count).
+            WHEN "SubUnitsPerUnit" THEN
+                RETURN STRING(TRUNC((bf-fg-bin.qty - bf-fg-bin.partial-count) / bf-fg-bin.case-count,0)).
+            WHEN "Partial" THEN
+                RETURN STRING(bf-fg-bin.partial-count).                           
             OTHERWISE
                 RETURN "".
         END.

@@ -77,6 +77,8 @@ CLASS jc.JobHeader:
 	            RETURN STRING(bf-job-hdr.qty).	
 	        WHEN "FGItem" THEN
 	            RETURN bf-job-hdr.i-no.           
+	        WHEN "Customer" THEN
+	            RETURN bf-job-hdr.cust-no.
 	        OTHERWISE
 	            RETURN "".
 	    END.

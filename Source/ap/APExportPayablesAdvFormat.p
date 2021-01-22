@@ -40,6 +40,10 @@ DEFINE VARIABLE iTrailerTotalPaymentRecords       AS INTEGER   NO-UNDO.
 DEFINE VARIABLE dTrailerTotalFileDollarAmounts    AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE iTrailerTotalFileRecords          AS INTEGER   NO-UNDO.
 
+DEFINE VARIABLE cRecValue    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound    AS LOGICAL   NO-UNDO. 
+DEFINE VARIABLE iAPCheckFile AS INTEGER   NO-UNDO.
+
 DEFINE TEMP-TABLE ttPaymentData NO-UNDO
     FIELD paymentID   AS INTEGER
     FIELD company     AS CHARACTER
@@ -64,11 +68,25 @@ FUNCTION formatString RETURNS CHARACTER PRIVATE
     (ipcString   AS CHARACTER,
      ipcDataType AS CHARACTER,
      ipiLength   AS INTEGER) FORWARD.
-
+     
+    RUN sys/ref/nk1look.p (
+        INPUT  ipcCompany,               /* Company Code */
+        INPUT  "APCheckFile",            /* sys-ctrl name */
+        INPUT  "I",                      /* Output return value I - int-fld, L - log-flf, C - char-fld, D - dec-fld, DT - date-fld */
+        INPUT  NO,                       /* Use ship-to */
+        INPUT  NO,                       /* ship-to vendor */
+        INPUT  "",                       /* ship-to vendor value */
+        INPUT  "",                       /* shi-id value */
+        OUTPUT cRecValue,
+        OUTPUT lRecFound
+        ).
+   IF lRecFound THEN
+     iAPCheckFile = INTEGER(cRecValue) NO-ERROR.
+     
 ASSIGN
     cHeaderRecordIdentifier           = "010"                  /* File Header Record Identifier */
     cHeaderBusinessApplicationFormat  = "AP0"                  /* Business Application format number */
-    cHeaderTransmissionDate           = STRING(TODAY)
+    cHeaderTransmissionDate           = STRING(TODAY + iAPCheckFile)
     cHeaderTransmissionTime           = STRING(TIME, "HH:MM")
     cTrailerRecordIdentifier          = "090"                  /* File Trailer record identifier */
     .

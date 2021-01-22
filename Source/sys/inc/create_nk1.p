@@ -48,7 +48,9 @@ v-std-list = "LoadTagSSCC,IR12,OEDateChange,FGRecptPassWord,InvStatus,BOLQtyPopu
            + "InvoiceApprovalTaxableCheck,CalcJobDueDate,FGBOLTransferPost,FGMasterLoc,FGOversDefault,InvoiceApprovalTaxCalc,SSTagStatus,CEWindow,"            
            + "ZohoRefreshToken,ZohoClientID,ZohoClientSecret,cXMLCustomerPartSource,CEAddCustomerOption,TruckPlan,SSJobInquiryAdjust,SSJobInquiryIssue,"
            + "InvoiceApprovalExpectZero,CEFormatConfig,JobType,ApplyInvoiceApprovals,APIOrderSurchargeSameDay,APIOrderSurchargeWeekendDelivery,APIOrderSurchargeWeekendOrder,APIOrderSurchargeNextDay,"
-           + "OutputCSV,JobQueueURL,SearchLimits".
+           + "OutputCSV,JobQueueURL,SSLocationScan,EstimateLocDefault,SearchLimits"
+           .
+
 
 IF CAN-DO(v-std-list,ip-nk1-value) THEN
 CASE ip-nk1-value:
@@ -1411,21 +1413,43 @@ CASE ip-nk1-value:
             INPUT 0                                     /* Dec value*/
             ).   
     WHEN "JobQueueURL" THEN 
-    RUN sys/inc/addnk1.p (
-        INPUT cocode, 
-        INPUT ip-nk1-value, 
-        INPUT NO,                                   /* Prompt? */
-        INPUT "URL to Launch for Job Queue button in JU1", /* Description */
-        INPUT "",                                   /* Char Value */
-        INPUT 0,                                    /* Int value */
-        INPUT NO,                                   /* Logical value */ 
-        INPUT 0                                     /* Dec value*/
-        ). 
-    WHEN "SearchLimits" THEN 
         RUN sys/inc/addnk1.p (
             INPUT cocode, 
             INPUT ip-nk1-value, 
             INPUT NO,                                   /* Prompt? */
+            INPUT "URL to Launch for Job Queue button in JU1", /* Description */
+            INPUT "",                                   /* Char Value */
+            INPUT 0,                                    /* Int value */
+            INPUT NO,                                   /* Logical value */ 
+            INPUT 0                                     /* Dec value*/
+            ).     
+    WHEN "SSLocationScan" THEN 
+        RUN sys/inc/addnk1.p (
+            INPUT cocode, 
+            INPUT ip-nk1-value, 
+            INPUT NO,                                   /* Prompt? */
+            INPUT "Sharpshooter Location Scan",         /* Description */
+            INPUT "",                                   /* Char Value */
+            INPUT 5,                                    /* Int value */
+            INPUT NO,                                   /* Logical value */ 
+            INPUT 0                                     /* Dec value*/
+        ). 
+    WHEN "EstimateLocDefault" THEN 
+        RUN sys/inc/addnk1.p (
+            INPUT cocode, 
+            INPUT ip-nk1-value, 
+            INPUT NO,                                   /* Prompt? */
+            INPUT "Default estimate location",          /* Description */
+            INPUT "",                                   /* Char Value */
+            INPUT 0,                                    /* Int value */
+            INPUT NO,                                   /* Logical value */ 
+            INPUT 0                                     /* Dec value*/
+            ).  
+    WHEN "SearchLimits" THEN    
+        RUN sys/inc/addnk1.p (
+            INPUT cocode, 
+            INPUT ip-nk1-value, 
+            INPUT NO,           
             INPUT "Search limitation definition",       /* Description */
             INPUT "",                                   /* Char Value */
             INPUT 100,                                  /* Int value */

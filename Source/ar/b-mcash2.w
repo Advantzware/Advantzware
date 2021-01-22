@@ -41,6 +41,9 @@ DEF TEMP-TABLE ar-mcashl NO-UNDO LIKE ar-mcash
     FIELD acct-dscr LIKE account.dscr.
 
 DEF VAR ll-new-record AS LOG NO-UNDO.
+DEFINE VARIABLE hGLProcs  AS HANDLE  NO-UNDO.
+
+RUN system/GLProcs.p PERSISTENT SET hGLProcs.
     
 &SCOPED-DEFINE BRWSDEFS ar-mcashl
 
@@ -309,16 +312,27 @@ END.
 
 /* ***************************  Main Block  *************************** */
 DEF VAR lw-focus AS HANDLE NO-UNDO.
-DEF VAR lv-char AS CHAR NO-UNDO.
-
 
 ON HELP OF ar-mcashl.actnum IN BROWSE Browser-Table /* Reconciled */
 DO:
+  DEFINE VARIABLE cFieldsValue  AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cFoundValue   AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE recFoundRecID AS RECID     NO-UNDO.
+    
   lw-focus = FOCUS.
-
-  RUN windows/l-acct3.w (cocode, "T", lw-focus:SCREEN-VALUE, OUTPUT lv-char) NO-ERROR.
-  IF lv-char NE "" AND ENTRY(1,lv-char) NE lw-focus:SCREEN-VALUE THEN DO:
-    lw-focus:SCREEN-VALUE = ENTRY(1,lv-char).
+  
+  RUN system/openLookup.p (
+      INPUT  g_company, 
+      INPUT  "",  /* Lookup ID */
+      INPUT  87,  /* Subject ID */
+      INPUT  "",  /* User ID */
+      INPUT  0,   /* Param Value ID */
+      OUTPUT cFieldsValue, 
+      OUTPUT cFoundValue, 
+      OUTPUT recFoundRecID
+      ).    
+  IF cFoundValue NE "" AND cFoundValue NE lw-focus:SCREEN-VALUE THEN DO:
+    lw-focus:SCREEN-VALUE = cFoundValue.
     RUN new-actnum (lw-focus).
   END.
 END.
@@ -327,7 +341,7 @@ ON LEAVE OF ar-mcashl.actnum IN BROWSE Browser-Table /* Reconciled */
 DO:
   IF LASTKEY NE -1 THEN DO:
     RUN valid-actnum (FOCUS) NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.   
   END.
 END.    
     
@@ -519,6 +533,11 @@ PROCEDURE local-cancel-record :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
+  IF ar-mcashl.actnum:BGCOLOR IN BROWSE {&browse-name} EQ 16 THEN 
+      ASSIGN 
+          ar-mcashl.actnum:BGCOLOR IN BROWSE {&browse-name} = ?
+          ar-mcashl.actnum:FGCOLOR IN BROWSE {&browse-name} = ?
+          .   
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
@@ -742,6 +761,30 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-reset-record B-table-Win
+PROCEDURE local-reset-record:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+    /* Code placed here will execute PRIOR to standard behavior. */
+    IF ar-mcashl.actnum:BGCOLOR IN BROWSE {&browse-name} EQ 16 THEN 
+        ASSIGN 
+            ar-mcashl.actnum:BGCOLOR IN BROWSE {&browse-name} = ?
+            ar-mcashl.actnum:FGCOLOR IN BROWSE {&browse-name} = ?
+            .  
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'reset-record':U ) .
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record B-table-Win 
 PROCEDURE local-update-record :
 /*------------------------------------------------------------------------------
@@ -845,20 +888,47 @@ PROCEDURE valid-actnum :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF INPUT PARAM ip-focus AS WIDGET-HANDLE NO-UNDO.
-
-
+  
+  DEFINE VARIABLE lSuccess  AS LOGICAL   NO-UNDO.
+  DEFINE VARIABLE lActive   AS LOGICAL   NO-UNDO.
+  DEFINE VARIABLE cMessage  AS CHARACTER NO-UNDO.
+  
   DO WITH FRAME {&FRAME-NAME}:
     ip-focus:SCREEN-VALUE = CAPS(ip-focus:SCREEN-VALUE).
-
-    IF NOT CAN-FIND(FIRST account
-                    WHERE account.company EQ cocode 
-                      AND account.actnum  EQ ip-focus:SCREEN-VALUE
-                      AND account.type    NE "T") THEN DO:
-      MESSAGE TRIM(ip-focus:LABEL) + " is invalid, try help..."
-          VIEW-AS ALERT-BOX ERROR.
-      APPLY "entry" TO ip-focus.
-      RETURN ERROR.
-    END.
+    
+    RUN GL_CheckGLAccount IN hGLProcs(
+        INPUT  cocode,
+        INPUT  ip-focus:SCREEN-VALUE,            
+        OUTPUT cMessage,
+        OUTPUT lSuccess,
+        OUTPUT lActive
+        ).    
+            
+        IF lSuccess = NO THEN DO:               
+            MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.            
+            IF ip-focus:BGCOLOR EQ 16 THEN             
+                ASSIGN 
+                    ip-focus:BGCOLOR = ?
+                    ip-focus:FGCOLOR = ?
+                   .
+            APPLY "ENTRY" TO ip-focus.       
+            RETURN ERROR. 
+        END.   
+      
+        IF lSuccess = YES AND lActive = NO THEN DO:  
+            ASSIGN 
+                ip-focus:BGCOLOR = 16
+                ip-focus:FGCOLOR = 15
+                .   
+            MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.           
+            APPLY "ENTRY" TO ip-focus.
+            RETURN ERROR.                      
+        END.      
+        IF lActive = YES AND ip-focus:BGCOLOR EQ 16 THEN             
+            ASSIGN 
+                ip-focus:BGCOLOR = ?
+                ip-focus:FGCOLOR = ?
+                .                              
   END.
 
 END PROCEDURE.

@@ -15,6 +15,7 @@ DEFINE VARIABLE cPackCodeOverride AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lFound AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cPriceBasedOnYield AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lPriceBasedOnYield AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cEstimateLocDefault AS CHARACTER NO-UNDO.
 
 FIND FIRST ce-ctrl {sys/look/ce-ctrlW.i} NO-LOCK NO-ERROR.
 
@@ -22,6 +23,8 @@ FIND ef WHERE ROWID(ef) EQ ip-rowid NO-LOCK NO-ERROR.
 
 IF NOT AVAILABLE ef THEN RETURN.
 RUN sys/ref/nk1look.p (ef.company, "CERequestYield", "C", NO, NO, "", "", OUTPUT cPriceBasedOnYield, OUTPUT lFound).
+
+RUN sys/ref/nk1look.p (ef.company, "EstimateLocDefault", "C", NO, NO, "", "", OUTPUT cEstimateLocDefault, OUTPUT lFound).
 
 CASE cPriceBasedOnYield:
     WHEN "RequestAlways" OR WHEN "RequestNewOnly" THEN 
@@ -93,6 +96,9 @@ ASSIGN
  eb.flute     = ef.flute
  eb.test      = ef.test
  eb.yrprice   = lPriceBasedOnYield .
+ 
+ IF cEstimateLocDefault NE "" AND cEstimateLocDefault NE "User Loc" THEN
+    eb.loc = cEstimateLocDefault.
 
 RUN est/packCodeOverride.p (INPUT eb.company, eb.cust-no, eb.style, OUTPUT cPackCodeOverride).
 IF cPackCodeOverride GT "" THEN 

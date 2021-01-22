@@ -1712,19 +1712,18 @@ PROCEDURE pGetParamValue:
         IF lFound THEN
             iParamValueID = INTEGER(cNK1Value).
         FIND FIRST dynParamValue NO-LOCK
-            WHERE dynParamValue.subjectID    EQ iSubjectID
-            AND dynParamValue.user-id      EQ cUserID
+            WHERE dynParamValue.subjectID  EQ iSubjectID
             AND dynParamValue.paramValueID EQ iParamValueID
             NO-ERROR.
         IF AVAILABLE dynParamValue THEN 
         DO:
             cOutputFormat = dynParamValue.outputFormat.
             IF cOutputFormat EQ ?  OR
-                cOutputFormat EQ "" OR
-                cOutputFormat EQ "Grid" THEN
-                cOutputFormat = "PDF".
+               cOutputFormat EQ "" OR
+               cOutputFormat EQ "Grid" THEN
+            cOutputFormat = "PDF".
             FIND FIRST dynValueParam NO-LOCK
-                WHERE dynValueParam.subjectID    EQ dynParamValue.subjectID
+                WHERE dynValueParam.subjectID  EQ dynParamValue.subjectID
                 AND dynValueParam.user-id      EQ dynParamValue.user-id
                 AND dynValueParam.prgmName     EQ dynParamValue.prgmName
                 AND dynValueParam.paramValueID EQ dynParamValue.paramValueID
@@ -1732,14 +1731,6 @@ PROCEDURE pGetParamValue:
                 NO-ERROR.
             IF AVAILABLE dynValueParam THEN
                 cRecipients = dynValueParam.paramValue.
-        /*            /* rstark - remove when depricated */                         */
-        /*            DO idx = 1 TO EXTENT(dynParamValue.paramName):                */
-        /*                IF dynParamValue.paramName[idx] EQ "" THEN LEAVE.         */
-        /*                IF dynParamValue.paramName[idx] EQ "svRecipients" THEN DO:*/
-        /*                    cRecipients = dynParamValue.paramValue[idx].          */
-        /*                    LEAVE.                                                */
-        /*                END. /* if svrecipients */                                */
-        /*            END. /* do idx */                                             */
         END. /* if avail */
     END. /* if found */
 END PROCEDURE.
@@ -2199,19 +2190,18 @@ END PROCEDURE.
 PROCEDURE pSetParamValueAuditID:
     DEFINE INPUT PARAMETER ipiAuditID AS INTEGER NO-UNDO.
     
-    DEFINE VARIABLE idx AS INTEGER NO-UNDO.
-    
     IF AVAILABLE dynParamValue THEN 
     DO TRANSACTION:
-        FIND CURRENT dynParamValue EXCLUSIVE-LOCK.
-        DO idx = 1 TO EXTENT(dynParamValue.paramName):
-            IF dynParamValue.paramName[idx] EQ "" THEN LEAVE.
-            IF dynParamValue.paramName[idx] EQ "auditID" THEN 
-            DO:
-                dynParamValue.paramValue[idx] = STRING(ipiAuditID).
-                LEAVE.
-            END. /* if auditid */
-        END. /* do idx */
-        FIND CURRENT dynParamValue NO-LOCK.
-    END. /* if avail */
+        FIND FIRST dynValueParam EXCLUSIVE-LOCK
+            WHERE dynValueParam.subjectID  EQ dynParamValue.subjectID
+            AND dynValueParam.user-id      EQ dynParamValue.user-id
+            AND dynValueParam.prgmName     EQ dynParamValue.prgmName
+            AND dynValueParam.paramValueID EQ dynParamValue.paramValueID
+            AND dynValueParam.paramName    EQ "auditID"
+            NO-ERROR.
+        IF AVAILABLE dynValueParam THEN
+            dynValueParam.paramValue = STRING(ipiAuditID).
+        RELEASE dynValueParam.
+    END. /* do trans */
+
 END PROCEDURE.

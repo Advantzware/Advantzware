@@ -18,11 +18,7 @@ FOR EACH uservend EXCLUSIVE-LOCK
     DELETE uservend.
 END.
 
-FOR EACH dynParamValue EXCLUSIVE-LOCK
-    WHERE dynParamValue.user-id EQ {&TABLENAME}.user_id
-    :
-    DELETE dynParamValue.
-END. /* each dynParamValue */
+{methods/delete.trg/removeUser.i}
 
 FIND FIRST ASI._user EXCLUSIVE-LOCK
      WHERE ASI._user._userid EQ users.user_id

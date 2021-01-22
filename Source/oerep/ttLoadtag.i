@@ -44,7 +44,7 @@ DEFINE {1} TEMP-TABLE ttLoadTag
     FIELD   dueDate         LIKE    oe-ord.due-date     
     FIELD   relDate         LIKE    oe-rel.rel-date     
     FIELD   upcNo           LIKE    eb.upc-no       
-    FIELD   mult            AS      INTEGER     
+    FIELD   printCopies     AS      INTEGER     
     FIELD   estID           LIKE    oe-ordl.est-no      
     FIELD   formNo          LIKE    oe-ordl.form-no    
     FIELD   blankNo         LIKE    job-hdr.blank-no 
@@ -96,5 +96,6 @@ DEFINE {1} TEMP-TABLE ttLoadTag
     FIELD   tagStatus       AS      CHARACTER
     FIELD   recordSource    AS      CHARACTER
     FIELD   recordID        AS      INTEGER
+    FIELD   scannedDateTime AS      DATETIME
     INDEX   recordID IS PRIMARY UNIQUE recordID
     .                   
