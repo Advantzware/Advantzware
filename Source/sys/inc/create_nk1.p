@@ -1432,7 +1432,7 @@ CASE ip-nk1-value:
             INPUT NO,                                   /* Logical value */ 
             INPUT 0                                     /* Dec value*/
         ). 
-    WHEN "EstimateLocDefault" THEN 
+    WHEN "EstimateLocDefault" THEN
     RUN sys/inc/addnk1.p (
         INPUT cocode, 
         INPUT ip-nk1-value, 

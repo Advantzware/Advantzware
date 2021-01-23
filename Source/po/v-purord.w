@@ -2410,10 +2410,16 @@ PROCEDURE new-vend-no :
        po-ord.under-pct:SCREEN-VALUE = STRING(vend.under-pct)
        po-ord.tax-gr:SCREEN-VALUE    = vend.tax-gr.
        
-       IF ls-ship-choice EQ "S" AND vend.loc NE "" THEN
+       IF ls-ship-choice EQ "S" THEN
        DO:
-          po-ord.ship-id:SCREEN-VALUE = vend.loc.
-          RUN pAssignAddressFromLocation(vend.loc).
+          IF vend.loc NE "" THEN
+          DO:          
+              po-ord.ship-id:SCREEN-VALUE = vend.loc.
+              RUN pAssignAddressFromLocation(vend.loc).
+          END.
+          ELSE DO:
+               RUN pAssignAddressFromCompany(NO).          
+          END.
        END.
 
       RUN display-vend.
