@@ -89,29 +89,29 @@ DEFINE BUTTON Btn-First
      IMAGE-UP FILE "adeicon/first-au":U
      IMAGE-INSENSITIVE FILE "adeicon/first-ai":U
      LABEL "&First":L 
-     SIZE 8 BY 1.67 TOOLTIP "First".
+     SIZE 8 BY 1 TOOLTIP "First".
 
 DEFINE BUTTON Btn-Last 
      IMAGE-UP FILE "adeicon/last-au":U
      IMAGE-INSENSITIVE FILE "adeicon/last-ai":U
      LABEL "&Last":L 
-     SIZE 8 BY 1.67 TOOLTIP "Last".
+     SIZE 8 BY 1 TOOLTIP "Last".
 
 DEFINE BUTTON Btn-Next 
      IMAGE-UP FILE "adeicon/next-au":U
      IMAGE-INSENSITIVE FILE "adeicon/next-ai":U
      LABEL "&Next":L 
-     SIZE 8 BY 1.67 TOOLTIP "Next".
+     SIZE 8 BY 1 TOOLTIP "Next".
 
 DEFINE BUTTON Btn-Prev 
      IMAGE-UP FILE "adeicon/prev-au":U
      IMAGE-INSENSITIVE FILE "adeicon/prev-ai":U
      LABEL "&Prev":L 
-     SIZE 8 BY 1.67 TOOLTIP "Previous".
+     SIZE 8 BY 1 TOOLTIP "Previous".
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 34 BY 2.14.
+     SIZE 34 BY 1.43.
 
 
 /* ************************  Frame Definitions  *********************** */
