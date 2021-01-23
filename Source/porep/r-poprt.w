@@ -712,6 +712,12 @@ DO:
            WHERE bff-po-ord.company EQ cocode
            AND bff-po-ord.po-no   EQ v-start-po
            NO-ERROR .
+           
+           IF bff-po-ord.priceHold THEN
+           DO:
+               MESSAGE "This PO on price Hold."  VIEW-AS ALERT-BOX INFO.
+               RETURN.
+           END.
 
            IF AVAIL bff-po-ord AND bff-po-ord.printed AND NOT v-reprint-po THEN do:
                MESSAGE "This PO has been printed - Do you want to reprint?"
@@ -733,25 +739,27 @@ DO:
         IF CAN-FIND(FIRST b1-po-ord WHERE  
                 b1-po-ord.company EQ cocode AND 
                     (b1-po-ord.stat    EQ "N" OR 
-                   b1-po-ord.stat    EQ "O" OR 
-                   b1-po-ord.stat    EQ "U" OR
+                   b1-po-ord.stat      EQ "O" OR 
+                   b1-po-ord.stat      EQ "U" OR
                   (tb_reprint-closed AND b1-po-ord.stat EQ "C"))
-              AND  b1-po-ord.printed EQ v-reprint-po
-              AND  b1-po-ord.po-no   GE v-start-po
-              AND  b1-po-ord.po-no   LE v-end-po
-              AND  b1-po-ord.vend-no GE begin_vend-no
-              AND  b1-po-ord.vend-no LE end_vend-no) THEN
+              AND  b1-po-ord.priceHold EQ NO    
+              AND  b1-po-ord.printed   EQ v-reprint-po
+              AND  b1-po-ord.po-no     GE v-start-po
+              AND  b1-po-ord.po-no     LE v-end-po
+              AND  b1-po-ord.vend-no   GE begin_vend-no
+              AND  b1-po-ord.vend-no   LE end_vend-no) THEN
         FOR EACH  b1-po-ord /* FIELDS(vend-no company) */
-                WHERE  b1-po-ord.company EQ cocode
-                  AND (b1-po-ord.stat    EQ "N" OR 
-                       b1-po-ord.stat    EQ "O" OR 
-                       b1-po-ord.stat    EQ "U" OR
+                WHERE  b1-po-ord.company   EQ cocode
+                  AND (b1-po-ord.stat      EQ "N" OR 
+                       b1-po-ord.stat      EQ "O" OR 
+                       b1-po-ord.stat      EQ "U" OR
                       (tb_reprint-closed AND b1-po-ord.stat EQ "C"))
-                  AND  b1-po-ord.printed EQ v-reprint-po
-                  AND  b1-po-ord.po-no   GE v-start-po
-                  AND  b1-po-ord.po-no   LE v-end-po
-                  AND  b1-po-ord.vend-no GE begin_vend-no
-                  AND  b1-po-ord.vend-no LE end_vend-no
+                  AND  b1-po-ord.priceHold EQ NO    
+                  AND  b1-po-ord.printed   EQ v-reprint-po
+                  AND  b1-po-ord.po-no     GE v-start-po
+                  AND  b1-po-ord.po-no     LE v-end-po
+                  AND  b1-po-ord.vend-no   GE begin_vend-no
+                  AND  b1-po-ord.vend-no   LE end_vend-no
               NO-LOCK
              BREAK BY b1-po-ord.company
                    BY b1-po-ord.vend-no
@@ -805,25 +813,27 @@ DO:
         IF CAN-FIND(FIRST b1-po-ord WHERE  
                 b1-po-ord.company EQ cocode AND 
                     (b1-po-ord.stat    EQ "N" OR 
-                   b1-po-ord.stat    EQ "O" OR 
-                   b1-po-ord.stat    EQ "U" OR
+                   b1-po-ord.stat      EQ "O" OR 
+                   b1-po-ord.stat      EQ "U" OR
                   (tb_reprint-closed AND b1-po-ord.stat EQ "C"))
-              AND  b1-po-ord.printed EQ v-reprint-po
-              AND  b1-po-ord.po-no   GE v-start-po
-              AND  b1-po-ord.po-no   LE v-end-po
-              AND  b1-po-ord.vend-no GE begin_vend-no
-              AND  b1-po-ord.vend-no LE end_vend-no) THEN
-        FOR EACH  b1-po-ord /* FIELDS(vend-no company) */
-                WHERE  b1-po-ord.company EQ cocode
-                  AND (b1-po-ord.stat    EQ "N" OR 
-                       b1-po-ord.stat    EQ "O" OR 
-                       b1-po-ord.stat    EQ "U" OR
+              AND  b1-po-ord.priceHold EQ NO
+              AND  b1-po-ord.printed   EQ v-reprint-po
+              AND  b1-po-ord.po-no     GE v-start-po
+              AND  b1-po-ord.po-no     LE v-end-po
+              AND  b1-po-ord.vend-no   GE begin_vend-no
+              AND  b1-po-ord.vend-no   LE end_vend-no) THEN
+        FOR EACH b1-po-ord /* FIELDS(vend-no company) */
+                WHERE  b1-po-ord.company   EQ cocode
+                  AND (b1-po-ord.stat      EQ "N" OR 
+                       b1-po-ord.stat      EQ "O" OR 
+                       b1-po-ord.stat      EQ "U" OR
                       (tb_reprint-closed AND b1-po-ord.stat EQ "C"))
-                  AND  b1-po-ord.printed EQ v-reprint-po
-                  AND  b1-po-ord.po-no   GE v-start-po
-                  AND  b1-po-ord.po-no   LE v-end-po
-                  AND  b1-po-ord.vend-no GE begin_vend-no
-                  AND  b1-po-ord.vend-no LE end_vend-no
+                  AND  b1-po-ord.priceHold EQ NO    
+                  AND  b1-po-ord.printed   EQ v-reprint-po
+                  AND  b1-po-ord.po-no     GE v-start-po
+                  AND  b1-po-ord.po-no     LE v-end-po
+                  AND  b1-po-ord.vend-no   GE begin_vend-no
+                  AND  b1-po-ord.vend-no   LE end_vend-no
               NO-LOCK
              BREAK BY b1-po-ord.company
                    BY b1-po-ord.vend-no
