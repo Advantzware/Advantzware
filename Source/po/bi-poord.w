@@ -781,6 +781,10 @@ PROCEDURE reopen-query :
      REPOSITION {&browse-name} TO ROWID ip-rowid NO-ERROR.
      RUN dispatch ('row-changed').
   END.
+  
+  RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source",OUTPUT char-hdl).
+  IF valid-handle(widget-handle(char-hdl)) THEN
+  RUN local-display-fields IN WIDGET-HANDLE(char-hdl).
   /* === reopen browser  later
   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"record-source", OUTPUT char-hdl). /* viewer */
   RUN get-link-handle IN adm-broker-hdl (widget-handle(char-hdl),"record-source", OUTPUT char-hdl). /* browser */
