@@ -797,7 +797,7 @@ DO:
                     END. /* first-of(po-no) */
                     IF LAST-OF (b1-po-ord.vend-no) THEN
                     DO:
-                       IF tb_print-loadtag AND iPOLoadtagInt EQ 2 THEN
+                       IF tb_print-loadtag AND (iPOLoadtagInt EQ 2 OR iPOLoadtagInt EQ 1) THEN
                        lCheckEmailPo = NO .
                        IF lCheckEmailPo THEN
                        RUN GenerateMail(NO,"") .
@@ -860,7 +860,7 @@ DO:
                 END. /* first-of(po-no) */
                 IF LAST-OF (b1-po-ord.vend-no)  THEN
                 DO:
-                   IF tb_print-loadtag AND iPOLoadtagInt EQ 2 THEN
+                   IF tb_print-loadtag AND (iPOLoadtagInt EQ 2 OR iPOLoadtagInt EQ 1) THEN
                        lCheckEmailPo = NO .
                    IF lCheckEmailPo THEN
                    RUN GenerateMail(NO,"") .               
@@ -883,7 +883,7 @@ DO:
              RUN run-report-loadtag(tt-report.key-02,tt-report.key-01) . 
              RUN GenerateReportTag(tt-report.key-01, tt-report.key-01) .
           END. /* first-of(po-no) */
-          IF LAST-OF (tt-report.key-01) AND (iPOLoadtagInt EQ 2 AND rd-dest EQ 5 ) THEN
+          IF LAST-OF (tt-report.key-01) AND ((iPOLoadtagInt EQ 2 OR iPOLoadtagInt EQ 1) AND rd-dest EQ 5 ) THEN
              RUN GenerateMail(YES,tt-report.key-03) .
            
           DELETE tt-report .
@@ -1484,7 +1484,7 @@ PROCEDURE GenerateMail :
       END.
     END.
 
-    IF is-xprint-form OR v-print-fmt = "southpak-xl" OR (iPOLoadtagInt EQ 2 OR tb_print-loadtag) THEN DO:
+    IF is-xprint-form OR v-print-fmt = "southpak-xl" OR ((iPOLoadtagInt EQ 2 OR iPOLoadtagInt EQ 1) AND tb_print-loadtag) THEN DO:
       
       /* gdm - 11190804 */
       IF (LOOKUP(v-print-fmt,"Xprint,poprint 1,poprint 10,Altex,McLean,LancoYork,StClair,Boss,Hughes,PeachTree,FibreX,Lovepac,POPrint10-CAN,POPrint-CAN2,Protagon") > 0 
@@ -1502,7 +1502,7 @@ PROCEDURE GenerateMail :
               . 
        cMailId = "Vendor" .       
        IF iplLoadtagMail THEN DO:
-          IF iPOLoadtagInt EQ 2 AND rd-dest = 5 then               
+          IF (iPOLoadtagInt EQ 2 OR iPOLoadtagInt EQ 1) AND rd-dest = 5 then               
              ASSIGN                 
               lcSubject = "Purchase Orders: " + STRING(cPoMailList)  + ", PO Load Tag(s) Attached"
               cMailId = "Loc" .
@@ -2348,7 +2348,7 @@ PROCEDURE run-report-loadtag :
               PUT UNFORMATTED "<PRINTER?><EXPORT=" Ls-fax-file ",BW></PROGRESS>".
           END.
           WHEN 5 OR WHEN 6 THEN DO:
-              IF iPOLoadtagInt EQ 2 THEN
+              IF (iPOLoadtagInt EQ 2 OR iPOLoadtagInt EQ 1) THEN
               PUT "<PREVIEW><FORMAT=LETTER></PROGRESS><PDF-LEFT=5mm><PDF-TOP=10mm><PDF-OUTPUT=" + lv-pdf-file  + ".pdf>" FORM "x(180)".
               ELSE PUT "<PREVIEW></PROGRESS>".
           END.
@@ -2419,7 +2419,7 @@ PROCEDURE GenerateReportTag :
            END.
        END. 
        WHEN 5 THEN do:
-          IF iPOLoadtagInt EQ 2 THEN 
+          IF (iPOLoadtagInt EQ 2 OR iPOLoadtagInt EQ 1 ) THEN 
           RUN pRunxPrint.
           ELSE RUN output-to-screen.           
        END.
