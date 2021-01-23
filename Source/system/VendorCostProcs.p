@@ -792,7 +792,7 @@ PROCEDURE Vendor_CheckPriceHoldForPo:
                         ttPriceHold.dQuantity        = bf-po-ordl.ord-qty                
                         ttPriceHold.lPriceHold       = YES
                         ttPriceHold.cPriceHoldDetail = ""
-                        ttPriceHold.cPriceHoldReason = "Item cost manually entered"
+                        ttPriceHold.cPriceHoldReason = "Item Cost for " + ttPriceHold.cFGItemID + " not matched in Vendor Cost table"
                         .                                            
                 END.                  
             END.  
@@ -836,6 +836,7 @@ PROCEDURE Vendor_CheckPriceHoldForPo:
                 bf-po-ord.stat      = "H"                  
                 .
         FIND CURRENT bf-po-ord NO-LOCK.
+        RUN ClearTagsByRecKey (bf-po-ord.rec_key).
         FOR EACH ttPriceHold NO-LOCK
             WHERE ttPriceHold.lPriceHold
             :          

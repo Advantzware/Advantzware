@@ -715,7 +715,7 @@ DO:
         WHEN "ship-id" THEN DO:
             IF ls-ship-choice = "C" THEN DO:
                RUN windows/l-shipt2.w (g_company,g_loc, ls-drop-custno, lw-focus:SCREEN-VALUE, OUTPUT char-val, OUTPUT rec-val).
-               IF char-val NE "" THEN RUN pAssignAddressFromShipto(entry(1,char-val)).
+               IF char-val NE "" THEN RUN pAssignAddressFromShipto(ENTRY(1,char-val)).
             END.
             ELSE IF ls-ship-choice = "V" THEN DO:
                  RUN windows/l-vendno.w (g_company, "A", lw-focus:SCREEN-VALUE, OUTPUT char-val).
@@ -941,7 +941,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd_drop-shipment V-table-Win
 ON VALUE-CHANGED OF rd_drop-shipment IN FRAME F-Main
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
   ls-ship-choice =  rd_drop-shipment:SCREEN-VALUE IN FRAME {&FRAME-NAME}.
   IF rd_drop-shipment:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "S"  THEN DO:       
        po-ord.ship-id:SENSITIVE = YES .
@@ -1462,7 +1462,7 @@ PROCEDURE display-loc-to :
     DO:         
         RUN pAssignAddressFromCompany(NO).
     END.    
-    ELSE IF avail vend THEN
+    ELSE IF AVAIL vend THEN
     DO:
        IF ipiShipType EQ 0 THEN
        DO:       
@@ -1582,19 +1582,19 @@ PROCEDURE hold-release :
  DEFINE VARIABLE dPurchaseLimit AS DECIMAL NO-UNDO.
  
  IF po-ord.po-date:SENSITIVE IN FRAME {&FRAME-NAME} THEN DO:
-    MESSAGE "You can not change status middle of modification. " VIEW-AS ALERT-BOX
+    MESSAGE "You can not change PO status while in edit mode. " VIEW-AS ALERT-BOX
         ERROR.
     RETURN.
  END.
- IF po-ord.priceHold THEN
+ IF po-ord.priceHold AND NOT llUpdatePrcHld THEN  /*User not able to manually release price hold*/
  DO:
     MESSAGE "PO on price hold. " VIEW-AS ALERT-BOX  INFO.
-    RETURN. 
+     RETURN. 
  END.
  IF AVAILABLE po-ord THEN DO:
      IF po-ord.stat = "H" AND trim(v-postatus-cha) = "User Limit" THEN DO:
        RUN PO_CheckPurchaseLimit IN hdPOProcs(BUFFER po-ord, OUTPUT lHoldPoStatus, OUTPUT dPurchaseLimit) .
-       IF lHoldPoStatus THEN do:         
+       IF lHoldPoStatus THEN DO:         
           scInstance = SharedConfig:instance.
           scInstance:SetValue("PurchaseLimit",TRIM(STRING(dPurchaseLimit))).
           RUN displayMessage ( INPUT 57). 
@@ -1612,10 +1612,13 @@ PROCEDURE hold-release :
                 BUFFER po-ord,
                 INPUT "ReleasePurchaseOrder"
                 ).
-            ASSIGN bf-po-ord.approved-date = today
-                   bf-po-ord.approved-id = userid('nosweat')
+            ASSIGN bf-po-ord.approved-date = TODAY
+                   bf-po-ord.approved-id = USERID('nosweat')
                    bf-po-ord.approved-time = TIME
+                   bf-po-ord.priceHold = NO
                    . 
+            RUN pClearPriceHoldManually(bf-po-ord.rec_key).
+            
         END.
         ELSE DO:
             RUN pRunAPIOutboundTrigger (
@@ -1633,14 +1636,14 @@ PROCEDURE hold-release :
      FIND CURRENT bf-po-ord NO-LOCK NO-ERROR.
      FIND CURRENT po-ord NO-LOCK NO-ERROR.
      IF AVAILABLE po-ord THEN DO: 
-        DISPLAY po-ord.stat po-ord.approved-date po-ord.approved-id RECT-13 approved_text
+        DISPLAY po-ord.stat po-ord.approved-date po-ord.approved-id RECT-13 approved_text po-ord.priceHold
              WITH FRAME {&FRAME-NAME}.
-        fc_app_time:SCREEN-VALUE = IF AVAILABLE po-ord THEN string(po-ord.approved-time,"HH:MM") ELSE "".
-        fc_app_time:HIDDEN = IF AVAILABLE po-ord and po-ord.stat EQ "H" THEN TRUE ELSE FALSE .
-        po-ord.approved-date:HIDDEN = IF AVAILABLE po-ord and po-ord.stat EQ "H" THEN TRUE ELSE FALSE .
-        po-ord.approved-id:HIDDEN = IF AVAILABLE po-ord and po-ord.stat EQ "H" THEN TRUE ELSE FALSE  .
-        RECT-13:HIDDEN = IF AVAILABLE po-ord and po-ord.stat EQ "H" THEN TRUE ELSE FALSE .
-        approved_text:HIDDEN = IF AVAILABLE po-ord and po-ord.stat EQ "H" THEN TRUE ELSE FALSE .
+        fc_app_time:SCREEN-VALUE = IF AVAILABLE po-ord THEN STRING(po-ord.approved-time,"HH:MM") ELSE "".
+        fc_app_time:HIDDEN = IF AVAILABLE po-ord AND po-ord.stat EQ "H" THEN TRUE ELSE FALSE .
+        po-ord.approved-date:HIDDEN = IF AVAILABLE po-ord AND po-ord.stat EQ "H" THEN TRUE ELSE FALSE .
+        po-ord.approved-id:HIDDEN = IF AVAILABLE po-ord AND po-ord.stat EQ "H" THEN TRUE ELSE FALSE  .
+        RECT-13:HIDDEN = IF AVAILABLE po-ord AND po-ord.stat EQ "H" THEN TRUE ELSE FALSE .
+        approved_text:HIDDEN = IF AVAILABLE po-ord AND po-ord.stat EQ "H" THEN TRUE ELSE FALSE .
      END.        
  END.
 
@@ -1713,13 +1716,7 @@ PROCEDURE local-assign-record :
      IF lPriceHold NE po-ord.priceHold AND NOT po-ord.priceHold THEN 
      DO:
         po-ord.stat    = "O" .
-        RUN ClearTagsHold (po-ord.rec_key).
-        RUN AddTagHold (
-            po-ord.rec_key,
-            "po-ord",
-            "Price Hold Cleared Manually",
-            ""
-            ).
+        RUN pClearPriceHoldManually(po-ord.rec_key).
      END.
      IF po-ord.priceHold THEN
      DO:
@@ -1727,13 +1724,13 @@ PROCEDURE local-assign-record :
      END.
      
   
-     IF trim(v-postatus-cha) = "Hold" THEN
+     IF TRIM(v-postatus-cha) = "Hold" THEN
          IF po-ord.stat:SCREEN-VALUE NE "C" THEN
              po-ord.stat    = "H" .
   END.
 
   /* 10021210 */
-  IF rd_drop-shipment EQ "S" THEN do:
+  IF rd_drop-shipment EQ "S" THEN DO:
       FIND FIRST cust NO-LOCK
            WHERE cust.company EQ cocode
              AND cust.active = "X" NO-ERROR.
@@ -1741,15 +1738,15 @@ PROCEDURE local-assign-record :
           ASSIGN po-ord.loc = cust.loc .
       ELSE  ASSIGN po-ord.loc = po-ord.ship-id .   
   END.
-  ELSE do:
-      IF ls-drop-custno NE "" THEN do:
+  ELSE DO:
+      IF ls-drop-custno NE "" THEN DO:
           FIND FIRST shipto WHERE shipto.company EQ cocode
               AND shipto.cust-no EQ ls-drop-custno
               AND shipto.ship-id EQ po-ord.ship-id
               NO-LOCK NO-ERROR.
           IF AVAILABLE shipto AND shipto.loc GT "" THEN
               po-ord.loc = shipto.loc.
-          ELSE do:
+          ELSE DO:
               FIND FIRST cust NO-LOCK
                   WHERE cust.company EQ cocode
                     AND cust.cust-no = ls-drop-custno NO-ERROR.
@@ -1757,7 +1754,7 @@ PROCEDURE local-assign-record :
                   po-ord.loc = cust.loc.
           END.     
       END.
-      ELSE do:
+      ELSE DO:
           FIND FIRST vend NO-LOCK WHERE vend.company EQ cocode
               AND vend.vend-no EQ INPUT po-ord.ship-id
               NO-ERROR.
@@ -1973,20 +1970,20 @@ PROCEDURE local-create-record :
   
   DISPLAY po-ord.po-no WITH FRAME {&FRAME-NAME}.
 
-  IF trim(v-postatus-cha) = "Hold" THEN DO:
+  IF TRIM(v-postatus-cha) = "Hold" THEN DO:
      po-ord.stat = "H" .
   END.
-  ELSE IF trim(v-postatus-cha) = "User Limit"  THEN
+  ELSE IF TRIM(v-postatus-cha) = "User Limit"  THEN
   DO:
       po-ord.stat = "O" . 
   END.
   DISPLAY po-ord.stat fc_app_time RECT-13 approved_text po-ord.approved-date
           po-ord.approved-id WITH FRAME {&frame-name}.
-          fc_app_time:HIDDEN = IF AVAILABLE po-ord and po-ord.stat EQ "H" THEN TRUE ELSE FALSE .
-          po-ord.approved-date:HIDDEN = IF AVAILABLE po-ord and po-ord.stat EQ "H" THEN TRUE ELSE FALSE .
-          po-ord.approved-id:HIDDEN = IF AVAILABLE po-ord and po-ord.stat EQ "H" THEN TRUE ELSE FALSE  .
-          RECT-13:HIDDEN = IF AVAILABLE po-ord and po-ord.stat EQ "H" THEN TRUE ELSE FALSE .
-          approved_text:HIDDEN = IF AVAILABLE po-ord and po-ord.stat EQ "H" THEN TRUE ELSE FALSE .
+          fc_app_time:HIDDEN = IF AVAILABLE po-ord AND po-ord.stat EQ "H" THEN TRUE ELSE FALSE .
+          po-ord.approved-date:HIDDEN = IF AVAILABLE po-ord AND po-ord.stat EQ "H" THEN TRUE ELSE FALSE .
+          po-ord.approved-id:HIDDEN = IF AVAILABLE po-ord AND po-ord.stat EQ "H" THEN TRUE ELSE FALSE  .
+          RECT-13:HIDDEN = IF AVAILABLE po-ord AND po-ord.stat EQ "H" THEN TRUE ELSE FALSE .
+          approved_text:HIDDEN = IF AVAILABLE po-ord AND po-ord.stat EQ "H" THEN TRUE ELSE FALSE .
 
   IF NOT copy-record THEN ls-drop-custno = "".
 
@@ -2046,13 +2043,13 @@ PROCEDURE local-display-fields :
   RUN setTypeDescr.
   IF AVAILABLE po-ord THEN RUN display-vend.
   v-copied-from = INTEGER(po-ord.po-no:SCREEN-VALUE IN FRAME {&FRAME-NAME}).
-  fc_app_time:SCREEN-VALUE = IF AVAILABLE po-ord THEN string(po-ord.approved-time,"HH:MM") ELSE "".
+  fc_app_time:SCREEN-VALUE = IF AVAILABLE po-ord THEN STRING(po-ord.approved-time,"HH:MM") ELSE "".
 
-  fc_app_time:HIDDEN = IF AVAILABLE po-ord and po-ord.stat EQ "H" THEN TRUE ELSE FALSE .
-  po-ord.approved-date:HIDDEN = IF AVAILABLE po-ord and po-ord.stat EQ "H" THEN TRUE ELSE FALSE .
-  po-ord.approved-id:HIDDEN = IF AVAILABLE po-ord and po-ord.stat EQ "H" THEN TRUE ELSE FALSE  .
-  RECT-13:HIDDEN = IF AVAILABLE po-ord and po-ord.stat EQ "H" THEN TRUE ELSE FALSE .
-  approved_text:HIDDEN = IF AVAILABLE po-ord and po-ord.stat EQ "H" THEN TRUE ELSE FALSE .
+  fc_app_time:HIDDEN = IF AVAILABLE po-ord AND po-ord.stat EQ "H" THEN TRUE ELSE FALSE .
+  po-ord.approved-date:HIDDEN = IF AVAILABLE po-ord AND po-ord.stat EQ "H" THEN TRUE ELSE FALSE .
+  po-ord.approved-id:HIDDEN = IF AVAILABLE po-ord AND po-ord.stat EQ "H" THEN TRUE ELSE FALSE  .
+  RECT-13:HIDDEN = IF AVAILABLE po-ord AND po-ord.stat EQ "H" THEN TRUE ELSE FALSE .
+  approved_text:HIDDEN = IF AVAILABLE po-ord AND po-ord.stat EQ "H" THEN TRUE ELSE FALSE .
 
   IF AVAILABLE po-ord THEN DO:
    FIND FIRST company WHERE company.company = cocode NO-LOCK NO-ERROR. 
@@ -2143,7 +2140,7 @@ PROCEDURE local-update-record :
     RUN valid-po-date(OUTPUT lReturnError) NO-ERROR.
     IF lReturnError THEN RETURN NO-APPLY.
     
-    IF po-ord.stat:MODIFIED THEN do:
+    IF po-ord.stat:MODIFIED THEN DO:
       RUN valid-po-status(OUTPUT lReturnError) NO-ERROR.
       IF lReturnError THEN RETURN NO-APPLY.
     END.
@@ -2548,6 +2545,30 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pClearPriceHoldManually V-table-Win
+PROCEDURE pClearPriceHoldManually PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcRecKey AS CHARACTER NO-UNDO.
+    
+    RUN ClearTagsByRecKey (ipcRecKey).
+    RUN AddTagInfo (
+        ipcRecKey,
+        "po-ord",
+        "Price Hold Cleared Manually",
+        ""
+        ).
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE post-enable V-table-Win 
 PROCEDURE post-enable :
 /*------------------------------------------------------------------------------
@@ -2807,13 +2828,13 @@ PROCEDURE testAvail :
   Notes:       
 ------------------------------------------------------------------------------*/
 DEFINE OUTPUT PARAMETER oplAvail AS LOG NO-UNDO.
-FIND first po-ord WHERE 
-    po-ord.company = cocode and
+FIND FIRST po-ord WHERE 
+    po-ord.company = cocode AND
     po-ord.po-no =  int(po-ord.po-no:SCREEN-VALUE IN FRAME {&FRAME-NAME}) 
     NO-LOCK NO-ERROR.
 ASSIGN oplAvail = AVAIL po-ord.
 IF po-ord.vend-no:SCREEN-VALUE EQ "" THEN ASSIGN
-    oplAvail = false.
+    oplAvail = FALSE.
 
 END PROCEDURE.
 
@@ -2888,13 +2909,13 @@ PROCEDURE valid-po-date :
   DEFINE VARIABLE lCheckError AS LOGICAL NO-UNDO.
   {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
-        IF date(po-ord.po-date:SCREEN-VALUE) EQ ? THEN DO:        
+        IF DATE(po-ord.po-date:SCREEN-VALUE) EQ ? THEN DO:        
                MESSAGE "Please enter PO Date. " VIEW-AS ALERT-BOX INFO.
                APPLY "entry" TO po-ord.po-date.
                oplReturnError = YES.
                lCheckError = YES .
         END.
-        IF date(po-ord.po-date:SCREEN-VALUE) LT (TODAY - 90) AND NOT lCheckError THEN DO:        
+        IF DATE(po-ord.po-date:SCREEN-VALUE) LT (TODAY - 90) AND NOT lCheckError THEN DO:        
                MESSAGE "PO Date cannot be more then 90 days earlier than today" VIEW-AS ALERT-BOX INFO.
                APPLY "entry" TO po-ord.po-date.
                oplReturnError = YES.
