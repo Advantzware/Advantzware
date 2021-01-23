@@ -5,7 +5,7 @@
 -D 1000             # Directory Size (nbr compiled proc entries)
 -fc 10000           # Schema field cache size (0,128,mem)
 -l 40000            # Local buffer size
--Mm 1024            # Message buffer size (3,1K,32K) (must be same in database startup)
+-Mm 8192            # Message buffer size (3,1K,32K) (must be same in database startup)
 -mmax 65534         # Maximum memory (1,512,65K)
 -q                  # Quick Request
 -rereadnolock

@@ -376,6 +376,7 @@ MKDIR C:\asigui\upgrades\PATCH%cNewVer%\ProgramFiles\Override
 COPY /Y C:\asigui\Environments\%cNewVer%\Programs\*.* C:\asigui\upgrades\PATCH%cNewVer%\ProgramFiles\Programs >> %vlog%
 COPY /Y C:\asigui\Environments\%cNewVer%\Resources\*.* C:\asigui\upgrades\PATCH%cNewVer%\ProgramFiles\Resources >> %vlog%
 COPY /Y C:\asigui\Environments\%cNewVer%\Override\*.* C:\asigui\upgrades\PATCH%cNewVer%\ProgramFiles\Override >> %vlog%
+COPY /Y C:\asigui\Environments\Devel\*.pl C:\asigui\upgrades\PATCH%cNewVer%\ProgramFiles >> %vlog%
 ECHO   Copy complete
 ECHO   Copy complete >> %blog%
 ECHO   Copy complete >> %vlog%

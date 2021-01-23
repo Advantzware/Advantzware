@@ -3712,6 +3712,8 @@ PROCEDURE ipExpandFiles :
     OS-COMMAND SILENT VALUE("XCOPY /S /Y " + cUpdProgramDir + "\Override\*.* " +  cTgtEnv + "\Override > NUL").
     OS-COMMAND SILENT VALUE("XCOPY /S /Y " + cUpdProgramDir + "\Resources\*.* " +  cTgtEnv + "\Resources > NUL").
     OS-COMMAND SILENT VALUE("XCOPY /S /Y " + cUpdProgramDir + "\Programs\*.* " +  cTgtEnv + "\Programs > NUL").
+    /* This copies the new .PL files to the updated environment */
+    OS-COMMAND SILENT VALUE("XCOPY /S /Y " + cUpdProgramDir + "\*.pl " +  cTgtEnv + " > NUL").
     
     /* Now restore DD files from backed up copies and remove Backup dirs */
     OS-COPY VALUE(cTgtEnv + "\CustFiles\DDBackups\*.*") VALUE(cTgtEnv + "\Programs\DataDigger").
