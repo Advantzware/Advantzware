@@ -1998,7 +1998,7 @@ PROCEDURE pPrintHeader :
         "<C68>Job #: " v-job-no SPACE(0) "-" SPACE(0) v-job-no2 FORMAT "99" SKIP
         "  " cLabelSetPart FORMAT "x(18)" cSetPartNo FORMAT "x(15)" SKIP
         v-fill SKIP
-        "<R4><C40><P20>" cNewOrderValue FORMAT "x(12)" "</B><P10><R6.5>" SKIP .
+        "<R4><C40><P20>" cNewOrderValue FORMAT "x(13)" "</B><P10><R6.5>" SKIP .
 
 END PROCEDURE.
 
