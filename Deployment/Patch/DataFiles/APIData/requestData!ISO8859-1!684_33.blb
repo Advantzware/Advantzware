@@ -1,0 +1,14 @@
+{
+    "Requester": "[STRING-OPT]",
+    "RequesterNotes": "[STRING-OPT]",
+    "Company": "[STRING-REQ]",
+    "data": [
+        {
+          "ItemID": "[STRING-REQ]",
+          "CustomerID": "[STRING-OPT]",
+          "ShipToID": "[STRING-OPT]",
+          "Quantity": [DECIMAL-REQ],
+          "QuantityUOM": "[STRING-OPT]",
+          "TargetUOM": "[STRING-REQ]"
+        }]
+}

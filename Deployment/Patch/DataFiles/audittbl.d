@@ -407,6 +407,7 @@
 "uom" no no no no no no no no 0 0
 "user-batch" no no no no no no no no 0 0
 "user-print" no no no no no no no no 0 0
+"userColumn" no no no no no no no no 0 0
 "usercomp" no no no no no no no no 0 0
 "userControl" no no no no no no no no 0 0
 "usercust" no no no no no no no no 0 0
@@ -418,6 +419,7 @@
 "users" no no no no no no no no 0 0
 "usersman" no no no no no no no no 0 0
 "uservend" no no no no no no no no 0 0
+"userWindow" no no no no no no no no 0 0
 "usr" no no no no no no no no 0 0
 "usr-grp" no no no no no no no no 0 0
 "usr-menu" no no no no no no no no 0 0
