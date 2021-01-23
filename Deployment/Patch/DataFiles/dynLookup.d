@@ -82,4 +82,7 @@
 "" "ASI" "stax" "tax-acc1" 107 "_default" 0 "202006308632005423131"
 "" "ASI" "Task" "taskID" 57 "_default" 0 "201911223998504359371"
 "" "ASI" "vendItemCost" "vendorID" 32 "_default" 0 "201910025907304351069"
+"nosweat/persist." "ASI" "cust-markup" "procat" 157 "_default" 0 "202101133710505985002"
+"nosweat/persist." "ASI" "cust-markup" "style" 156 "asi" 0 "202101133708105985001"
 "sharpShooter/w-jobInquiry." "" "" "fiJobNo" 3 "_default" 0 "202012010450105888690"
+"viewers/cust." "ASI" "cust" "sman" 29 "_default" 0 "202101063344705945838"

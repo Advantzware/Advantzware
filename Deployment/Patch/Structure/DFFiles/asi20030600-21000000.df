@@ -1,0 +1,826 @@
+ADD TABLE "userColumn"
+  AREA "Data"
+  LABEL "User Column"
+  DESCRIPTION "User Column"
+  DUMP-NAME "usercolumn"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg\userColumn.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg\userColumn.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg\userColumn.p" CRC "?" 
+
+ADD FIELD "colName" OF "userColumn" AS character 
+  FORMAT "x(25)"
+  INITIAL ""
+  LABEL "Column Name"
+  POSITION 2
+  MAX-WIDTH 50
+  ORDER 10
+
+ADD FIELD "colWidth" OF "userColumn" AS decimal 
+  FORMAT ">>,>>9.99"
+  INITIAL "0"
+  LABEL "Column Width"
+  POSITION 3
+  MAX-WIDTH 17
+  DECIMALS 2
+  ORDER 20
+
+ADD FIELD "colPosition" OF "userColumn" AS integer 
+  FORMAT ">>>>>9"
+  INITIAL "0"
+  LABEL "Column Position"
+  POSITION 4
+  MAX-WIDTH 4
+  ORDER 30
+
+ADD FIELD "usrId" OF "userColumn" AS character 
+  FORMAT "x(10)"
+  INITIAL ""
+  LABEL "User ID"
+  POSITION 5
+  MAX-WIDTH 20
+  ORDER 40
+
+ADD FIELD "programName" OF "userColumn" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Program Name"
+  POSITION 6
+  MAX-WIDTH 40
+  ORDER 50
+
+ADD FIELD "rec_key" OF "userColumn" AS character 
+  FORMAT "x(21)"
+  INITIAL ""
+  LABEL "Rec Key"
+  POSITION 7
+  MAX-WIDTH 42
+  ORDER 60
+
+ADD INDEX "userProgram" ON "userColumn" 
+  AREA "Index"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "usrId" ASCENDING 
+  INDEX-FIELD "programName" ASCENDING 
+  INDEX-FIELD "colPosition" ASCENDING 
+
+ADD INDEX "rec_key" ON "userColumn" 
+  AREA "Index"
+  INDEX-FIELD "rec_key" ASCENDING 
+
+ADD TABLE "userWindow"
+  AREA "Data"
+  LABEL "User Window"
+  DUMP-NAME "userwindow"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg\userWindow.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg\userWindow.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg\userWindow.p" CRC "?" 
+
+ADD FIELD "usrId" OF "userWindow" AS character 
+  FORMAT "x(10)"
+  INITIAL ""
+  LABEL "User ID"
+  POSITION 2
+  MAX-WIDTH 20
+  ORDER 10
+
+ADD FIELD "programName" OF "userWindow" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Program Name"
+  POSITION 3
+  MAX-WIDTH 40
+  ORDER 20
+
+ADD FIELD "rec_key" OF "userWindow" AS character 
+  FORMAT "x(21)"
+  INITIAL ""
+  LABEL "Rec Key"
+  POSITION 4
+  MAX-WIDTH 42
+  ORDER 30
+
+ADD FIELD "winXpos" OF "userWindow" AS decimal 
+  FORMAT "->>,>>9.99"
+  INITIAL "0"
+  LABEL "Win X Position"
+  POSITION 7
+  MAX-WIDTH 17
+  DECIMALS 2
+  ORDER 60
+
+ADD FIELD "winYpos" OF "userWindow" AS decimal 
+  FORMAT "->>,>>9.99"
+  INITIAL "0"
+  LABEL "Win Y Position"
+  POSITION 8
+  MAX-WIDTH 17
+  DECIMALS 2
+  ORDER 70
+
+ADD FIELD "winHeight" OF "userWindow" AS decimal 
+  FORMAT ">>,>>9.99"
+  INITIAL "0"
+  LABEL "Win Height"
+  POSITION 9
+  MAX-WIDTH 17
+  DECIMALS 2
+  ORDER 80
+
+ADD FIELD "winWidth" OF "userWindow" AS decimal 
+  FORMAT ">>,>>9.99"
+  INITIAL "0"
+  LABEL "Win Width"
+  POSITION 10
+  MAX-WIDTH 17
+  DECIMALS 2
+  ORDER 90
+
+ADD FIELD "state" OF "userWindow" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  POSITION 11
+  MAX-WIDTH 4
+  ORDER 120
+
+ADD FIELD "sessionWidth" OF "userWindow" AS decimal 
+  FORMAT ">>,>>9.99"
+  INITIAL "0"
+  LABEL "Session Width"
+  POSITION 12
+  MAX-WIDTH 17
+  DECIMALS 2
+  ORDER 100
+
+ADD FIELD "sessionHeight" OF "userWindow" AS decimal 
+  FORMAT ">>,>>9.99"
+  INITIAL "0"
+  LABEL "Session Height"
+  POSITION 13
+  MAX-WIDTH 17
+  DECIMALS 2
+  ORDER 110
+
+ADD INDEX "userProgram" ON "userWindow" 
+  AREA "Index"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "usrId" ASCENDING 
+  INDEX-FIELD "programName" ASCENDING 
+
+ADD INDEX "rec_key" ON "userWindow" 
+  AREA "Index"
+  INDEX-FIELD "rec_key" ASCENDING 
+
+ADD FIELD "runNumber" OF "ap-inv" AS integer
+  FORMAT ">>>>>>>>9"
+  POSITION 59
+  INITIAL "0"
+  HELP "Run number of GL posting"
+  LABEL "GL Run Number"
+  ORDER 580
+  MAX-WIDTH 4
+
+ADD FIELD "glYear" OF "ap-inv" AS integer
+  FORMAT "9999"
+  POSITION 60
+  INITIAL "0"
+  HELP "Posted Year from GL posting"
+  LABEL "Posted GL Year"
+  ORDER 590
+  MAX-WIDTH 4
+
+ADD FIELD "postedDate" OF "ap-inv" AS date
+  FORMAT "99/99/99"
+  POSITION 61
+  INITIAL ?
+  HELP "Date A/P Invoice Posted"
+  LABEL "Posted Date"
+  ORDER 570
+  MAX-WIDTH 4
+
+ADD INDEX "iPosted" ON "ap-inv"
+  AREA "Index"
+  INDEX-FIELD "company" ASCENDING
+  INDEX-FIELD "glYear" DESCENDING
+  INDEX-FIELD "postedDate" DESCENDING
+
+UPDATE FIELD "est-no" OF "ar-inv"
+  FORMAT "x(8)"
+
+UPDATE FIELD "inv-no" OF "ar-inv"
+  FORMAT ">>>>>>9"
+
+ADD FIELD "postedDate" OF "ar-inv" AS date
+  FORMAT "99/99/99"
+  POSITION 120
+  INITIAL ?
+  HELP "Date A/R Invoice Posted"
+  LABEL "Posted Date"
+  ORDER 1190
+  MAX-WIDTH 4
+
+ADD FIELD "runNumber" OF "ar-inv" AS integer
+  FORMAT ">>>>>>>>9"
+  POSITION 121
+  INITIAL "0"
+  HELP "Run number of GL posting"
+  LABEL "GL Run Number"
+  ORDER 1200
+  MAX-WIDTH 4
+
+ADD FIELD "glYear" OF "ar-inv" AS integer
+  FORMAT "9999"
+  POSITION 122
+  INITIAL "0"
+  HELP "Posted Year from GL posting"
+  LABEL "Posted GL Year"
+  ORDER 1210
+  MAX-WIDTH 4
+
+ADD FIELD "invoiceComment" OF "ar-inv" AS character
+  FORMAT "x(60)"
+  POSITION 123
+  INITIAL ""
+  HELP "Invoice comment from invoicing"
+  LABEL "Invoice Comment"
+  ORDER 1220
+  MAX-WIDTH 120
+
+ADD INDEX "iPosted" ON "ar-inv"
+  AREA "Index"
+  INDEX-FIELD "company" ASCENDING
+  INDEX-FIELD "glYear" DESCENDING
+  INDEX-FIELD "postedDate" DESCENDING
+
+ADD FIELD "subLedgerAP" OF "company" AS logical
+  FORMAT "yes/no"
+  POSITION 33
+  INITIAL "no"
+  LABEL "AP Sub Ledger"
+  ORDER 390
+  MAX-WIDTH 1
+
+ADD FIELD "subLedgerPO" OF "company" AS logical
+  FORMAT "yes/no"
+  POSITION 34
+  INITIAL "no"
+  LABEL "PO Sub Ledger"
+  ORDER 400
+  MAX-WIDTH 1
+
+ADD FIELD "subLedgerOP" OF "company" AS logical
+  FORMAT "yes/no"
+  POSITION 35
+  INITIAL "no"
+  LABEL "OP Sub Ledger"
+  ORDER 410
+  MAX-WIDTH 1
+
+ADD FIELD "subLedgerWIP" OF "company" AS logical
+  FORMAT "yes/no"
+  POSITION 36
+  INITIAL "no"
+  LABEL "WIP Sub Ledger"
+  ORDER 420
+  MAX-WIDTH 1
+
+ADD FIELD "subLedgerRM" OF "company" AS logical
+  FORMAT "yes/no"
+  POSITION 37
+  INITIAL "no"
+  LABEL "RM Sub Ledger"
+  ORDER 430
+  MAX-WIDTH 1
+
+ADD FIELD "subLedgerFG" OF "company" AS logical
+  FORMAT "yes/no"
+  POSITION 38
+  INITIAL "no"
+  LABEL "FG Sub Ledger"
+  ORDER 440
+  MAX-WIDTH 1
+
+ADD FIELD "subLedgerBR" OF "company" AS logical
+  FORMAT "yes/no"
+  POSITION 39
+  INITIAL "no"
+  LABEL "BR Sub Ledger"
+  ORDER 450
+  MAX-WIDTH 1
+
+ADD FIELD "subLedgerAR" OF "company" AS logical
+  FORMAT "yes/no"
+  POSITION 40
+  INITIAL "no"
+  LABEL "AR Sub Ledger"
+  ORDER 460
+  MAX-WIDTH 1
+
+ADD FIELD "subLedgerGL" OF "company" AS logical
+  FORMAT "yes/no"
+  POSITION 41
+  INITIAL "no"
+  LABEL "GL Sub Ledger"
+  ORDER 470
+  MAX-WIDTH 1
+
+ADD FIELD "taskerHTMLFolder" OF "config" AS character
+  FORMAT "x(50)"
+  POSITION 21
+  INITIAL ""
+  HELP "Enter Tasker HTML Folder"
+  LABEL "Tasker HTML Folder"
+  ORDER 200
+  MAX-WIDTH 100
+
+ADD FIELD "matrixRounding" OF "cust" AS character
+  FORMAT "X"
+  POSITION 174
+  INITIAL ""
+  HELP "Price matrix rounding method"
+  LABEL "Price Matrix Rounding"
+  ORDER 1720
+  MAX-WIDTH 2
+
+ADD FIELD "matrixPrecision" OF "cust" AS integer
+  FORMAT "9"
+  POSITION 175
+  INITIAL "0"
+  HELP "Price Matrix Precision"
+  LABEL "Price Matrix Precision"
+  ORDER 1730
+  MAX-WIDTH 4
+
+ADD FIELD "autoClose" OF "dynParamValue" AS logical
+  FORMAT "yes/no"
+  POSITION 61
+  INITIAL "no"
+  HELP "Toggle to Auto Close"
+  LABEL "Auto Close"
+  ORDER 530
+  MAX-WIDTH 1
+
+DROP FIELD "paramName" OF "dynParamValue"
+DROP FIELD "paramLabel" OF "dynParamValue"
+DROP FIELD "paramValue" OF "dynParamValue"
+DROP FIELD "paramDataType" OF "dynParamValue"
+DROP FIELD "paramFormat" OF "dynParamValue"
+DROP FIELD "colName" OF "dynParamValue"
+DROP FIELD "colFormat" OF "dynParamValue"
+DROP FIELD "colLabel" OF "dynParamValue"
+DROP FIELD "columnSize" OF "dynParamValue"
+DROP FIELD "dataType" OF "dynParamValue"
+DROP FIELD "sortCol" OF "dynParamValue"
+DROP FIELD "isGroup" OF "dynParamValue"
+DROP FIELD "groupLabel" OF "dynParamValue"
+DROP FIELD "groupCalc" OF "dynParamValue"
+DROP FIELD "isCalcField" OF "dynParamValue"
+DROP FIELD "calcProc" OF "dynParamValue"
+DROP FIELD "calcParam" OF "dynParamValue"
+DROP FIELD "isActive" OF "dynParamValue"
+DROP FIELD "sortDescending" OF "dynParamValue"
+DROP FIELD "isSearchable" OF "dynParamValue"
+DROP FIELD "isReturnValue" OF "dynParamValue"
+DROP FIELD "paramSetID" OF "dynParamValue"
+DROP FIELD "isVisible" OF "dynParamValue"
+DROP FIELD "isSortable" OF "dynParamValue"
+DROP FIELD "calcFormula" OF "dynParamValue"
+
+ADD FIELD "autoClose" OF "dynSubject" AS logical
+  FORMAT "yes/no"
+  POSITION 32
+  INITIAL "no"
+  HELP "Toggle to Auto Close"
+  LABEL "Auto Close"
+  ORDER 280
+  MAX-WIDTH 1
+
+ADD FIELD "filterInitValue" OF "dynSubjectColumn" AS character
+  FORMAT "x(20)"
+  POSITION 33
+  INITIAL ""
+  HELP "Enter Filter Init Value"
+  LABEL "Filter Init Value"
+  ORDER 320
+  MAX-WIDTH 40
+
+ADD FIELD "isFilterInitField" OF "dynSubjectColumn" AS logical
+  FORMAT "yes/no"
+  POSITION 34
+  INITIAL "no"
+  HELP "Toggle Filter Init Field"
+  LABEL "Filter Init Field"
+  ORDER 310
+  MAX-WIDTH 1
+
+ADD FIELD "isFilterInitField" OF "dynValueColumn" AS logical
+  FORMAT "yes/no"
+  POSITION 33
+  INITIAL "no"
+  HELP "Toggle Filter Init Field"
+  LABEL "Filter Init Field"
+  ORDER 320
+  MAX-WIDTH 1
+
+ADD FIELD "filterInitValue" OF "dynValueColumn" AS character
+  FORMAT "x(20)"
+  POSITION 34
+  INITIAL ""
+  HELP "Enter Filter Init Value"
+  LABEL "Filter Init Value"
+  ORDER 330
+  MAX-WIDTH 40
+
+ADD FIELD "entryType" OF "glhist" AS character
+  FORMAT "x(1)"
+  POSITION 32
+  INITIAL ""
+  HELP "B = Budget, A = Actual, F = Balance Forward, T = Total"
+  LABEL "Entry Type"
+  ORDER 300
+  MAX-WIDTH 2
+
+ADD FIELD "sourceDate" OF "glhist" AS date
+  FORMAT "99/99/9999"
+  POSITION 33
+  INITIAL ?
+  HELP "Source document date if posted separately, tr-date if posted in"
+  LABEL "Source Date"
+  ORDER 310
+  MAX-WIDTH 4
+
+ADD FIELD "postedBy" OF "glhist" AS character
+  FORMAT "x(12)"
+  POSITION 34
+  INITIAL ""
+  HELP "User that posted entry - posted when period is closed"
+  LABEL "Posted by User"
+  ORDER 320
+  MAX-WIDTH 24
+
+ADD FIELD "documentID" OF "glhist" AS character
+  FORMAT "x(32)"
+  POSITION 35
+  INITIAL ""
+  HELP "Source document (ar-inv-no, ap-inv-no, item-no, blank if not ap"
+  LABEL "Document Identification"
+  ORDER 330
+  MAX-WIDTH 64
+
+ADD FIELD "module" OF "glhist" AS character
+  FORMAT "x(3)"
+  POSITION 36
+  INITIAL ""
+  HELP "Module (AP - Accounts Payable, AR - Accounts Receivable, OE - O"
+  LABEL "Source Module"
+  ORDER 340
+  MAX-WIDTH 6
+
+ADD FIELD "glYear" OF "glhist" AS integer
+  FORMAT "9999"
+  POSITION 37
+  INITIAL "0"
+  HELP "Posted Year from GL posting"
+  LABEL "Posted GL Year"
+  ORDER 350
+  MAX-WIDTH 4
+
+ADD FIELD "entryType" OF "gltrans" AS character
+  FORMAT "x(1)"
+  POSITION 32
+  INITIAL ""
+  HELP "B = Budget, A = Actual, F = Balance Forward, T = Total"
+  LABEL "Entry Type"
+  ORDER 300
+  MAX-WIDTH 2
+
+ADD FIELD "sourceDate" OF "gltrans" AS date
+  FORMAT "99/99/9999"
+  POSITION 33
+  INITIAL ?
+  HELP "Source document date if posted separately, tr-date if posted in"
+  LABEL "Source Date"
+  ORDER 310
+  MAX-WIDTH 4
+
+ADD FIELD "postedBy" OF "gltrans" AS character
+  FORMAT "x(12)"
+  POSITION 34
+  INITIAL ""
+  HELP "User that posted entry - posted when period is closed"
+  LABEL "Posted by User"
+  ORDER 320
+  MAX-WIDTH 24
+
+ADD FIELD "documentID" OF "gltrans" AS character
+  FORMAT "x(32)"
+  POSITION 35
+  INITIAL ""
+  HELP "Source document (ar-inv-no, ap-inv-no, item-no, blank if not ap"
+  LABEL "Document Identification"
+  ORDER 330
+  MAX-WIDTH 64
+
+ADD FIELD "module" OF "gltrans" AS character
+  FORMAT "x(3)"
+  POSITION 36
+  INITIAL ""
+  HELP "Module (AP - Accounts Payable, AR - Accounts Receivable, OE - O"
+  LABEL "Source Module"
+  ORDER 340
+  MAX-WIDTH 6
+
+ADD FIELD "glYear" OF "gltrans" AS integer
+  FORMAT "9999"
+  POSITION 37
+  INITIAL "0"
+  HELP "Posted Year from GL posting"
+  LABEL "Posted GL Year"
+  ORDER 350
+  MAX-WIDTH 4
+
+UPDATE FIELD "tag" OF "inventoryStock"
+  FORMAT "x(30)"
+
+UPDATE FIELD "tag" OF "inventoryStockSnapshot"
+  FORMAT "x(30)"
+
+UPDATE FIELD "tag" OF "inventoryTransaction"
+  FORMAT "x(30)"
+
+ADD FIELD "subLedgerAP" OF "period" AS character
+  FORMAT "x(1)"
+  POSITION 10
+  INITIAL ""
+  HELP "Options = O-Open, C-Closed, A-Auto Close, X - NA"
+  LABEL "AP Sub Ledger"
+  ORDER 80
+  MAX-WIDTH 2
+
+ADD FIELD "subLedgerPO" OF "period" AS character
+  FORMAT "x(1)"
+  POSITION 11
+  INITIAL ""
+  HELP "Options = O-Open, C-Closed, A-Auto Close, X - NA"
+  LABEL "PO Sub Ledger"
+  ORDER 90
+  MAX-WIDTH 2
+
+ADD FIELD "subLedgerOP" OF "period" AS character
+  FORMAT "x(1)"
+  POSITION 12
+  INITIAL ""
+  HELP "Options = O-Open, C-Closed, A-Auto Close, X - NA"
+  LABEL "OP Sub Ledger"
+  ORDER 100
+  MAX-WIDTH 6
+
+ADD FIELD "subLedgerWIP" OF "period" AS character
+  FORMAT "x(1)"
+  POSITION 13
+  INITIAL ""
+  HELP "Options = O-Open, C-Closed, A-Auto Close, X - NA"
+  LABEL "WIP Sub Ledger"
+  ORDER 110
+  MAX-WIDTH 2
+
+ADD FIELD "subLedgerRM" OF "period" AS character
+  FORMAT "x(1)"
+  POSITION 14
+  INITIAL ""
+  HELP "Options = O-Open, C-Closed, A-Auto Close, X - NA"
+  LABEL "RM Sub Ledger"
+  ORDER 120
+  MAX-WIDTH 2
+
+ADD FIELD "subLedgerFG" OF "period" AS character
+  FORMAT "x(1)"
+  POSITION 15
+  INITIAL ""
+  HELP "Options = O-Open, C-Closed, A-Auto Close, X - NA"
+  LABEL "FG Sub Ledger"
+  ORDER 130
+  MAX-WIDTH 2
+
+ADD FIELD "subLedgerBR" OF "period" AS character
+  FORMAT "x(1)"
+  POSITION 16
+  INITIAL ""
+  HELP "Options = O-Open, C-Closed, A-Auto Close, X - NA"
+  LABEL "BR Sub Ledger"
+  ORDER 140
+  MAX-WIDTH 2
+
+ADD FIELD "subLedgerAR" OF "period" AS character
+  FORMAT "x(1)"
+  POSITION 17
+  INITIAL ""
+  HELP "Options = O-Open, C-Closed, A-Auto Close, X - NA"
+  LABEL "AR Sub Ledger"
+  ORDER 150
+  MAX-WIDTH 2
+
+ADD FIELD "subLedgerGL" OF "period" AS character
+  FORMAT "x(1)"
+  POSITION 18
+  INITIAL ""
+  HELP "Options = O-Open, C-Closed, A-Auto Close, X - NA"
+  LABEL "GL Sub Ledger"
+  ORDER 160
+  MAX-WIDTH 2
+
+ADD FIELD "apClosedBy" OF "period" AS character
+  FORMAT "x(12)"
+  POSITION 19
+  INITIAL ""
+  HELP "UserID that closed Period"
+  LABEL "AP Period Closed By"
+  ORDER 170
+  MAX-WIDTH 24
+
+ADD FIELD "poClosedBy" OF "period" AS character
+  FORMAT "x(12)"
+  POSITION 20
+  INITIAL ""
+  HELP "UserID that closed Period"
+  LABEL "PO Period Closed By"
+  ORDER 180
+  MAX-WIDTH 24
+
+ADD FIELD "opClosedBy" OF "period" AS character
+  FORMAT "x(12)"
+  POSITION 21
+  INITIAL ""
+  HELP "UserID that closed Period"
+  LABEL "OP Period Closed By"
+  ORDER 190
+  MAX-WIDTH 24
+
+ADD FIELD "wipClosedBy" OF "period" AS character
+  FORMAT "x(12)"
+  POSITION 22
+  INITIAL ""
+  HELP "UserID that closed Period"
+  LABEL "WIP Period Closed By"
+  ORDER 200
+  MAX-WIDTH 24
+
+ADD FIELD "rmClosedBy" OF "period" AS character
+  FORMAT "x(12)"
+  POSITION 23
+  INITIAL ""
+  HELP "UserID that closed Period"
+  LABEL "RM Period Closed By"
+  ORDER 210
+  MAX-WIDTH 24
+
+ADD FIELD "fgClosedBy" OF "period" AS character
+  FORMAT "x(12)"
+  POSITION 24
+  INITIAL ""
+  HELP "UserID that closed Period"
+  LABEL "FG Period Closed By"
+  ORDER 220
+  MAX-WIDTH 24
+
+ADD FIELD "brClosedBy" OF "period" AS character
+  FORMAT "x(12)"
+  POSITION 25
+  INITIAL ""
+  HELP "UserID that closed Period"
+  LABEL "BR Period Closed By"
+  ORDER 230
+  MAX-WIDTH 24
+
+ADD FIELD "arClosedBy" OF "period" AS character
+  FORMAT "x(12)"
+  POSITION 26
+  INITIAL ""
+  HELP "UserID that closed Period"
+  LABEL "AR Period Closed By"
+  ORDER 240
+  MAX-WIDTH 24
+
+ADD FIELD "glClosedBy" OF "period" AS character
+  FORMAT "x(12)"
+  POSITION 27
+  INITIAL ""
+  HELP "UserID that closed Period"
+  LABEL "GL Period Closed By"
+  ORDER 250
+  MAX-WIDTH 24
+
+ADD FIELD "apClosed" OF "period" AS datetime
+  FORMAT "99/99/9999 HH:MM:SS.SSS"
+  POSITION 28
+  INITIAL ?
+  HELP "Last Period Closed Date/Time"
+  LABEL "AP Period Closed"
+  ORDER 260
+  MAX-WIDTH 8
+
+ADD FIELD "poClosed" OF "period" AS datetime
+  FORMAT "99/99/9999 HH:MM:SS.SSS"
+  POSITION 29
+  INITIAL ?
+  HELP "Last Period Closed Date/Time"
+  LABEL "PO Period Closed"
+  ORDER 270
+  MAX-WIDTH 8
+
+ADD FIELD "opClosed" OF "period" AS datetime
+  FORMAT "99/99/9999 HH:MM:SS.SSS"
+  POSITION 30
+  INITIAL ?
+  HELP "Last Period Closed Date/Time"
+  LABEL "OP Period Closed"
+  ORDER 280
+  MAX-WIDTH 8
+
+ADD FIELD "wipClosed" OF "period" AS datetime
+  FORMAT "99/99/9999 HH:MM:SS.SSS"
+  POSITION 31
+  INITIAL ?
+  HELP "Last Period Closed Date/Time"
+  LABEL "WIP Period Closed"
+  ORDER 290
+  MAX-WIDTH 8
+
+ADD FIELD "rmClosed" OF "period" AS datetime
+  FORMAT "99/99/9999 HH:MM:SS.SSS"
+  POSITION 32
+  INITIAL ?
+  HELP "Last Period Closed Date/Time"
+  LABEL "RM Period Closed"
+  ORDER 300
+  MAX-WIDTH 8
+
+ADD FIELD "fgClosed" OF "period" AS datetime
+  FORMAT "99/99/9999 HH:MM:SS.SSS"
+  POSITION 33
+  INITIAL ?
+  HELP "Last Period Closed Date/Time"
+  LABEL "FG Period Closed"
+  ORDER 310
+  MAX-WIDTH 8
+
+ADD FIELD "brClosed" OF "period" AS datetime
+  FORMAT "99/99/9999 HH:MM:SS.SSS"
+  POSITION 34
+  INITIAL ?
+  HELP "Last Period Closed Date/Time"
+  LABEL "BR Period Clsoed"
+  ORDER 320
+  MAX-WIDTH 8
+
+ADD FIELD "arClosed" OF "period" AS datetime
+  FORMAT "99/99/9999 HH:MM:SS.SSS"
+  POSITION 35
+  INITIAL ?
+  HELP "Last Period Closed Date/Time"
+  LABEL "AR Period Closed"
+  ORDER 330
+  MAX-WIDTH 8
+
+ADD FIELD "glClosed" OF "period" AS datetime
+  FORMAT "99/99/9999 HH:MM:SS.SSS"
+  POSITION 36
+  INITIAL ?
+  HELP "Last Period Closed Date/Time"
+  LABEL "GL Period Closed"
+  ORDER 340
+  MAX-WIDTH 8
+
+ADD FIELD "excludeFromVoucher" OF "po-ord" AS logical
+  FORMAT "yes/no"
+  POSITION 77
+  INITIAL "no"
+  LABEL "Exclude From Voucher Report"
+  ORDER 760
+  MAX-WIDTH 1
+
+ADD FIELD "priceHold" OF "po-ord" AS logical
+  FORMAT "yes/no"
+  POSITION 78
+  INITIAL "no"
+  LABEL "Price Hold"
+  ORDER 770
+  MAX-WIDTH 1
+
+ADD FIELD "excludeFromVoucher" OF "po-ordl" AS logical
+  FORMAT "yes/no"
+  POSITION 81
+  INITIAL "no"
+  LABEL "Exclude From Voucher Report"
+  ORDER 800
+  MAX-WIDTH 1
+
+UPDATE FIELD "archived" OF "taskResult"
+  LABEL "Ardhived"
+
+.
+PSC
+cpstream=ISO8859-1
+.
+0000018595

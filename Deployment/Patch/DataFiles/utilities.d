@@ -2,6 +2,7 @@
 "AmazonInvoice.r" "OE" "" "Resend Amazon Invoices" "Enter CSV file of invoices to resend" 900
 "arch-est.r" "CE" "" "Archive Estimates" "Archive and remove old estimates from the system.  This utility can be used to remove old estimates from the system, with the option to output these estimates to and archive file to allow for retoration if desired at a later time." 900
 "arinvpay.r" "AR" "NQ4" "Fix AR invoice/due dates" "Update invoices as paid to clear old invoices." 900
+"ArtiosTester.r" "" "" "Artios Tester" "To test the loading of an ARD file to validate the data in the file and generate a JPEG file for attaching to an estimate." 900
 "AuditPurge.r" "AH" "NS5" "Purge Audit History" "Prompts for date range to purge audit history records through this date.  Will delete data used for Auditing and increase performance of audit history inquiries." 999
 "AutoCloseJobs.r" "JC" "" "Close Older Jobs Left Open" "Close old jobs with a range of job numbers and a aged date.  Use to clear old open jobs that should have been closed." 900
 "autoCloseOrder.r" "OE" "" "Auto Close Order" "Close orders automatically based on a parameter settings used." 800
@@ -34,7 +35,6 @@
 "delAllFgRctd.r" "FG" "IU1" "Delete Unposted FG transactions" "Utility is used to delete FG transactions before they are posted.  Asks type and clears all transactions within the date range specified." 900
 "delapchk.r" "AP" "" "Purge AP Checks" "Purge AP checks and related payment details.  User enters bank number, then range of check numbers to purge." 900
 "delDupOrds.r" "OE" "OW" "Delete Duplicate Web Orders" "Searches orders for duplicate orders with matching PO numbers based on a customer and order date.  Can search to find or delete duplicates." 900
-"DeleteOF4Prices.r" "OP" "OF3" "Purge Obsolete Price Matrixes from OF3" "Allows for purging of Price Matrix entries for a customer with ranges for customer, type, item # and category." 900
 "delnotes.r" "FG" "IF" "Delete Finished Goods Spec Notes  (Drop Down)" "Allows for mass delete of spec codes from a range of FG item numbers." 900
 "delordln.r" "OP" "OU1" "Delete Duplicate Line Item with Qty 0" "Utility to delete duplicate order lines with zero quantity from an order." 900
 "dev/ImpPo.p" "PU1" "" "" "" 900
@@ -162,7 +162,7 @@ Another utility will update the FG Item from the job - Same program but in fg di
 Destructive delete." 1000
 "PurgeMU2.r" "RM" "MU2" "Delete UnPosted RM Issues by Date Range" "Deletes unposted RM issues to a job that have not been posted in date range." 900
 "purgeorders.r" "OP" "OU1" "Purge Orders with no Customer or Order Lines" "* Warning No Prompt! * - Deletes all orders with no customer and no line items." 900
-"purgeOrphans.r" "UTIL" "" "Utility to Purge Orphan Records" "" 900
+"purgeOrphans.r" "UTIL" "" "Utility to Purge Orphan Records" "This utility is designed to find and remove from the system orphan records.  Orphan records can occur for several reasons but the most common is where a user enters a header, like a PO, then never adds a PO line or deletes the line item." 900
 "PurgeOrphanSetParts.r" "FG" "IU1" "Count or Delete Unposted Components Receipts" "Count and/or Delete orphaned set component receipts that were not posted.  Fixes an old defect to clear old data.
 
 Can count the number of records as well as option to delete them.  They can also just be posted." 900
