@@ -84,21 +84,21 @@ DEFINE VARIABLE cTextListToDefault AS CHARACTER NO-UNDO.
 
 ASSIGN cTextListToSelect  = "Invoice#,Bol#,Customer,Cust Name,Inv Date,GL Account#,Acc Desc,FG Item#,Item Name," +
                             "Item Desccription,Cust Part#,Order#,Cust Po#,Est#,Shipto,Tax Code,Term Code,Term Desc," +
-                            "Due Date,Discount%,Discount,Disc Days,Carrier,Invoice Amt,Freight,Tax,Amount Paid," +
+                            "Due Date,Discount%,Discount,Disc Days,Carrier,Invoice Amt,Freight Cost,Freight Billable,Tax,Amount Paid," +
                             "Balance Due,Line,Customer Lot#,Invoice Qty,Ship Qty,Cons Uom,Sqft,Price,Uom," +
                             "Dsct%,Amount,Amount MSF,Cost,Cost UOM,Sls Rep,% of Sales,Comm,Sls Rep2,% of Sales2,Comm2,Sls Rep3,% of Sales3,Comm3," + 
                             "Line Amount,Line Cost,Total Amount,Total Cost,Line Discount,Total Discount"
 
        cFieldListToSelect = "ar-invl.inv-no,ar-invl.bol-no,ar-invl.cust-no,ar-inv.cust-name,ar-inv.inv-date,ar-invl.actnum,actdscr,ar-invl.i-no,ar-invl.i-name," +
                             "ar-invl.i-dscr,ar-invl.part-no,ar-invl.ord-no,ar-invl.po-no,ar-invl.est-no,ar-inv.ship-id,ar-inv.tax-code,ar-inv.terms,ar-inv.terms-d," +
-                            "ar-inv.due-date,ar-inv.disc-%,ar-inv.disc-taken,ar-inv.disc-days,ar-inv.carrier,ar-inv.gross,ar-inv.freight,ar-inv.tax-amt,ar-inv.paid," +
+                            "ar-inv.due-date,ar-inv.disc-%,ar-inv.disc-taken,ar-inv.disc-days,ar-inv.carrier,ar-inv.gross,ar-inv.freight,ar-inv.f-bill,ar-inv.tax-amt,ar-inv.paid," +
                             "ar-inv.due,ar-invl.LINE,ar-invl.lot-no,ar-invl.inv-qty,ar-invl.ship-qty,ar-invl.cons-uom,ar-invl.sf-sht,ar-invl.unit-pr,ar-invl.pr-qty-uom," +
                             "ar-invl.disc,amount,ar-invl.amt-msf,ar-invl.cost,dscr[1],sman[1],s-pct[1],s-comm[1],sman[2],s-pct[2],s-comm[2],sman[3],s-pct[3],s-comm[3]," + 
                             "line-amt,line-cst,total-amt,total-cst,line-dis,total-dis"
                             
-        cFieldLength = "15,15,15,20,15,30,15,15,20," + "15,15,15,20,15,30,15,15,20," + "15,15,15,20,15,30,15,15,20," + "15,15,15,20,15,30,15,15,20," + 
+        cFieldLength = "15,15,15,20,15,30,15,15,20," + "15,15,15,20,15,30,15,15,20," + "15,15,15,20,15,30,15,15,15,20," + "15,15,15,20,15,30,15,15,20," + 
                         "15,15,15,20,15,15,15,20,15,30,15,15,15,15," + "15,15,15,15,15,15"
-           cFieldType = "i,i,c,c,c,i,c,c,c," + "c,i,c,c,c,c,c,c,c," + "c,i,i,i,c,i,i,i,i," + "c,i,c,c,c,c,c,c,c," +
+           cFieldType = "i,i,c,c,c,i,c,c,c," + "c,i,c,c,c,c,c,c,c," + "c,i,i,i,c,i,i,i,i,i," + "c,i,c,c,c,c,c,c,c," +
                          "i,i,i,c,c,i,i,c,i,i,c,i,i,i," + "i,i,i,i,i,i"
        .
 
@@ -106,7 +106,7 @@ ASSIGN cTextListToSelect  = "Invoice#,Bol#,Customer,Cust Name,Inv Date,GL Accoun
 {sys/inc/ttRptSel.i}
 
     ASSIGN cTextListToDefault  = "Customer,Shipto,Invoice#,Cust Po#,Inv Date,Due Date,Tax Code,Term Code,Discount,Disc Days," +
-                                 "Carrier,Freight,Line,GL Account#,FG Item#,Item Name,Item Desccription,Customer Lot#,Invoice Qty," +
+                                 "Carrier,Freight Cost, Freight Billable,Line,GL Account#,FG Item#,Item Name,Item Desccription,Customer Lot#,Invoice Qty," +
                                  "Cons Uom,Price,Uom,Amount,Line Discount,Cost,Cost UOM,Sls Rep,% of Sales,Comm,Sls Rep2,% of Sales2," + 
                                  "Comm2,Sls Rep3,% of Sales3,Comm3,Tax" .
 
@@ -1304,6 +1304,7 @@ IF tb_excel THEN
                   WHEN "ar-inv.carrier" THEN cVarValue    = STRING(ar-inv.carrier). 
                   WHEN "ar-inv.gross" THEN cVarValue      = STRING(ar-inv.gross). 
                   WHEN "ar-inv.freight" THEN cVarValue    = STRING(ar-inv.freight). 
+                  WHEN "ar-inv.f-bill"  THEN cVarValue    = IF ar-inv.f-bill THEN STRING(ar-inv.freight) ELSE STRING(0). 
                   WHEN "ar-inv.tax-amt" THEN cVarValue    = STRING(ar-inv.tax-amt).
                   WHEN "ar-inv.paid" THEN cVarValue       = STRING(ar-inv.paid).
                   WHEN "ar-inv.due" THEN cVarValue        = STRING(ar-inv.due) .
