@@ -497,13 +497,15 @@ FOR EACH ef
                     AND itemfg.i-no    EQ bf-jobhdr.i-no
                     NO-ERROR .  
             
-                FIND FIRST b-ef NO-LOCK
-                    WHERE b-ef.company EQ cocode
-                    AND b-ef.est-no EQ job-hdr.est-no
-                    AND b-ef.form-no EQ job-hdr.frm NO-ERROR .
+                FIND FIRST b-eb NO-LOCK
+                     WHERE b-eb.company EQ cocode
+                     AND b-eb.est-no    EQ bf-jobhdr.est-no
+                     AND b-eb.form-no   EQ bf-jobhdr.frm
+                     AND b-eb.blank-no  EQ bf-jobhdr.blank-no  
+                     NO-ERROR.
                 i = i + 1.
                 PUT "<=#3><C31.9><R-" + STRING(j - i) + ">" FORMAT "x(18)" i FORMAT "9"  "<C33>  " bf-jobhdr.i-no  FORMAT "x(15)" 
-                    "<C45>" (IF AVAILABLE itemfg THEN itemfg.i-name ELSE "" ) FORMAT "x(27)" "<C69.5>" (IF AVAILABLE b-ef THEN b-ef.n-out ELSE 0)  SKIP   .
+                    "<C45>" (IF AVAILABLE itemfg THEN itemfg.i-name ELSE "" ) FORMAT "x(27)" "<C69.5>"  (IF AVAILABLE b-eb THEN b-eb.num-up ELSE 0)  SKIP   .
                
             END. 
             PUT SKIP(j - i) .
@@ -694,7 +696,7 @@ FOR EACH ef
             AND itemfg.i-no    EQ job-hdr.i-no
             NO-ERROR .           
             
-        PUT "<=#5> <C3>Item: " job-hdr.i-no FORMAT "x(15)"  (IF AVAILABLE itemfg THEN itemfg.i-name ELSE "") FORMAT "x(30)"  "<C55>Molds: " ef.n-out   "<C75>Wet Weight: "  SKIP
+        PUT "<=#5> <C3>Item: " job-hdr.i-no FORMAT "x(15)"  (IF AVAILABLE itemfg THEN itemfg.i-name ELSE "") FORMAT "x(30)"  "<C55>Molds: " eb.num-up   "<C75>Wet Weight: "  SKIP
             "<C3>Dscr: " ( IF AVAILABLE itemfg THEN itemfg.i-dscr ELSE "") FORMAT "x(30)" "<C35>Estimate: " (IF AVAILABLE itemfg THEN itemfg.est-no ELSE "") FORMAT "x(8)"   "<C55>Mold IDs:"  "<C75>Bone Dry:"   SKIP
             "<C3>Size: "  eb.len " x " eb.wid " x " eb.dep  "<C35>Style: " eb.style FORMAT "x(10)" "<C55>Jig Available:"  "<C75>Min Weight:"  SKIP
             .
