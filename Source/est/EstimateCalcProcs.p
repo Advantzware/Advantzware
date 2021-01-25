@@ -1082,19 +1082,15 @@ PROCEDURE pAddEstOperationFromEstOp PRIVATE:
                     .
         END.
         
-        
+        opbf-estCostOperation.numOutForOperation = 1.
         IF opbf-estCostOperation.isNetSheetMaker THEN 
             ASSIGN 
                 opbf-estCostOperation.numOutForOperation = fGetNetSheetOut(opbf-estCostOperation.estCostOperationID,ipbf-estCostForm.numOutNet)
                 .
-        ELSE IF opbf-estCostOperation.isBlankMaker THEN 
-                ASSIGN 
-                    opbf-estCostOperation.numOutForOperation = ipbf-estCostForm.numOutBlanksOnNet
-                    .
-            ELSE 
-                ASSIGN 
-                    opbf-estCostOperation.numOutForOperation = 1
-                    .
+        IF opbf-estCostOperation.isBlankMaker THEN 
+            ASSIGN 
+                opbf-estCostOperation.numOutForOperation = opbf-estCostOperation.numOutForOperation * ipbf-estCostForm.numOutBlanksOnNet.
+                
         IF opbf-estCostOperation.blankNo NE 0 THEN 
         DO:
             FIND FIRST estCostBlank NO-LOCK 
