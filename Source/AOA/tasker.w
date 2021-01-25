@@ -913,7 +913,8 @@ PROCEDURE pHTMLTasks :
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE BUFFER bTask   FOR Task.
+    DEFINE BUFFER bTask       FOR Task.
+    DEFINE BUFFER bTaskResult FOR TaskResult.
 
     FIND FIRST config NO-LOCK.
     OUTPUT TO VALUE(config.taskerHTMLFolder + "\tasker-ALL.htm").
@@ -938,6 +939,24 @@ PROCEDURE pHTMLTasks :
             OUTPUT CLOSE.
         END. /* if first-of */
     END. /* each bTask */
+    FOR EACH bTaskResult NO-LOCK
+        BREAK BY bTaskResult.user-id
+        :
+        IF FIRST-OF(bTaskResult.user-id) THEN DO:
+            IF CAN-FIND(FIRST bTask
+                        WHERE bTask.user-id EQ bTaskResult.user-id
+                          AND (bTask.scheduled EQ YES
+                           OR  bTask.runNow    EQ YES)) THEN
+            NEXT.
+            OUTPUT TO VALUE(config.taskerHTMLFolder + "\tasker-" + bTaskResult.user-id + ".htm").
+            RUN pHTMLHeader  (bTaskResult.user-id, config.taskerHTMLFolder).
+            RUN pHTMLUserID  (bTaskResult.user-id, config.taskerHTMLFolder).
+            RUN pHTMLTask    (bTaskResult.user-id).
+            RUN pHTMLResults (bTaskResult.user-id).
+            RUN pHTMLFooter.
+            OUTPUT CLOSE.
+        END. /* if first-of */
+    END. /* each taskresult */
 
 END PROCEDURE.
 
@@ -953,20 +972,23 @@ PROCEDURE pHTMLUserID:
     DEFINE INPUT PARAMETER ipcUserID AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcFolder AS CHARACTER NO-UNDO.
 
-    DEFINE BUFFER bTask FOR Task.
+    DEFINE BUFFER bTask       FOR Task.
+    DEFINE BUFFER bTaskResult FOR TaskResult.
 
-    FOR EACH bTask NO-LOCK
-        WHERE bTask.scheduled EQ YES
-           OR bTask.runNow    EQ YES
-        BREAK BY bTask.user-id
+    FOR EACH users NO-LOCK
         :
-        IF FIRST-OF(bTask.user-id) THEN
+        IF CAN-FIND(FIRST bTask
+                    WHERE bTask.user-id EQ users.user_id
+                      AND (bTask.scheduled EQ YES
+                       OR  bTask.runNow    EQ YES)) OR
+           CAN-FIND(FIRST bTaskResult
+                    WHERE bTaskResult.user-id EQ users.user_id) THEN
         PUT UNFORMATTED
-            '    <option value="' ipcFolder '\tasker-' bTask.user-id '.htm"'
-            (IF bTask.user-id EQ ipcUserID THEN ' selected' ELSE '')
-            '>' bTask.user-id '</option>' SKIP
+            '    <option value="' ipcFolder '\tasker-' users.user_id '.htm"'
+            (IF users.user_id EQ ipcUserID THEN ' selected' ELSE '')
+            '>' users.user_id '</option>' SKIP
             .
-    END. /* each bTask */
+    END. /* each users */
 
 END PROCEDURE.
 	

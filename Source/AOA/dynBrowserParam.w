@@ -107,7 +107,7 @@ DEFINE BUTTON btnOK
      BGCOLOR 8 .
 
 DEFINE BUTTON btnUsers 
-     IMAGE-UP FILE "Graphics/32x32/users3.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/user-alert.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Users" 
      SIZE 8 BY 1.91 TOOLTIP "Link Dynamic Parameters to User(s)"
      BGCOLOR 8 .
