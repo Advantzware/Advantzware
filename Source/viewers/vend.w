@@ -51,8 +51,10 @@ DEFINE VARIABLE l-valid AS LOGICAL NO-UNDO.
 DEF VAR ll-secure AS LOG NO-UNDO.
 DEF VAR hPgmSecurity AS HANDLE NO-UNDO.
 DEF VAR lResult AS LOG NO-UNDO.
+DEFINE VARIABLE hGLProcs AS HANDLE NO-UNDO.
 {sys/ref/sys-ctrl.i}
 
+RUN system/GLProcs.p PERSISTENT SET hGLProcs.
 
 &SCOPED-DEFINE vend-maint enable-vend-fields
 
@@ -1371,6 +1373,13 @@ PROCEDURE local-cancel-record :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
+  DO WITH FRAME {&FRAME-NAME}:
+      IF vend.actnum:BGCOLOR EQ 16 THEN             
+          ASSIGN 
+              vend.actnum:BGCOLOR = 15
+              vend.actnum:FGCOLOR = ?
+              .  
+  END.           
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
@@ -1465,6 +1474,32 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-reset-record V-table-Win
+PROCEDURE local-reset-record:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+    /* Code placed here will execute PRIOR to standard behavior. */
+    DO WITH FRAME {&FRAME-NAME}:
+        IF vend.actnum:BGCOLOR EQ 16 THEN             
+            ASSIGN 
+                vend.actnum:BGCOLOR = 15
+                vend.actnum:FGCOLOR = ?
+                .  
+    END.
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'reset-record':U ) .
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record V-table-Win 
 PROCEDURE local-update-record :
@@ -1621,6 +1656,9 @@ PROCEDURE valid-actnum :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lSuccess AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lActive  AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
 
   {methods/lValidateError.i YES}
 &Scoped-define SELF-NAME vend.actnum
@@ -1636,9 +1674,38 @@ find first sys-ctrl
 if not avail sys-ctrl                                     or
    not sys-ctrl.log-fld                                   or
    {&self-name}:screen-value in frame {&frame-name} ne "" then do:
-  {custom/validate/account.i &where = sys/look/faccnumW.i}
-  IF NOT v-avail THEN RETURN ERROR.
+   RUN GL_CheckGLAccount IN hGLProcs(
+       INPUT  g_company,
+       INPUT  vend.actnum:SCREEN-VALUE,            
+       OUTPUT cMessage,
+       OUTPUT lSuccess,
+       OUTPUT lActive
+       ). 
+   IF lSuccess = NO THEN DO:
+       MESSAGE cMessage VIEW-AS ALERT-BOX ERROR. 
+       IF vend.actnum:BGCOLOR EQ 16 THEN             
+           ASSIGN 
+               vend.actnum:BGCOLOR = 15
+               vend.actnum:FGCOLOR = ?
+               .
+       APPLY "ENTRY" TO vend.actnum.
+       RETURN ERROR.
+   END. 
+   IF lSuccess = YES AND lActive = NO THEN DO:
+       MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.   
+       ASSIGN 
+           vend.actnum:BGCOLOR = 16
+           vend.actnum:FGCOLOR = 15
+           .                        
+       APPLY "ENTRY" TO vend.actnum.
+       RETURN ERROR.                      
+   END.          
 end.
+ IF vend.actnum:BGCOLOR EQ 16 THEN             
+     ASSIGN 
+         vend.actnum:BGCOLOR = 15
+         vend.actnum:FGCOLOR = ?
+         .   
 
   {methods/lValidateError.i NO}
 END PROCEDURE.

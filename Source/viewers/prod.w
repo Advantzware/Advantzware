@@ -35,6 +35,10 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 
+DEFINE VARIABLE hGLProcs AS HANDLE NO-UNDO.
+
+RUN system/GLProcs.p PERSISTENT SET hGLProcs.
+
 {custom/gcompany.i}
 {custom/format.i}
 
@@ -1205,6 +1209,26 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-cancel-record V-table-Win
+PROCEDURE local-cancel-record:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+    /* Code placed here will execute PRIOR to standard behavior. */
+    RUN presetColor NO-ERROR.
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .   
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-create-record V-table-Win 
 PROCEDURE local-create-record :
 /*------------------------------------------------------------------------------
@@ -1224,6 +1248,27 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-reset-record V-table-Win
+PROCEDURE local-reset-record:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+    /* Code placed here will execute PRIOR to standard behavior. */
+    RUN presetColor NO-ERROR.
+    
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'reset-record':U ) .
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record V-table-Win 
 PROCEDURE local-update-record :
@@ -1246,6 +1291,124 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE presetColor V-table-Win
+PROCEDURE presetColor:
+/*------------------------------------------------------------------------------
+ Purpose:    
+ Notes:
+------------------------------------------------------------------------------*/
+
+    DO WITH FRAME {&FRAME-NAME}:
+        IF prod.aa-fo:BGCOLOR EQ 16 THEN             
+            ASSIGN 
+                prod.aa-fo:BGCOLOR = 15
+                prod.aa-fo:FGCOLOR = ?
+                .
+        IF prod.aa-lab:BGCOLOR EQ 16 THEN             
+            ASSIGN 
+                prod.aa-lab:BGCOLOR = 15
+                prod.aa-lab:FGCOLOR = ?
+                . 
+        IF prod.aa-mat:BGCOLOR EQ 16 THEN             
+            ASSIGN 
+                prod.aa-mat:BGCOLOR = 15
+                prod.aa-mat:FGCOLOR = ?
+                . 
+        IF prod.aa-vo:BGCOLOR EQ 16 THEN             
+            ASSIGN 
+                prod.aa-vo:BGCOLOR = 15
+                prod.aa-vo:FGCOLOR = ?
+                . 
+        IF prod.cgs-dl:BGCOLOR EQ 16 THEN             
+            ASSIGN 
+                prod.cgs-dl:BGCOLOR = 15
+                prod.cgs-dl:FGCOLOR = ?
+                .
+        IF prod.cgs-dlv:BGCOLOR EQ 16 THEN             
+            ASSIGN 
+                prod.cgs-dlv:BGCOLOR = 15
+                prod.cgs-dlv:FGCOLOR = ?
+                . 
+        IF prod.cgs-fo:BGCOLOR EQ 16 THEN             
+            ASSIGN 
+                prod.cgs-fo:BGCOLOR = 15
+                prod.cgs-fo:FGCOLOR = ?
+                . 
+        IF prod.cgs-fov:BGCOLOR EQ 16 THEN             
+            ASSIGN 
+                prod.cgs-fov:BGCOLOR = 15
+                prod.cgs-fov:FGCOLOR = ?
+                .
+        IF prod.cgs-mat:BGCOLOR EQ 16 THEN             
+            ASSIGN 
+                prod.cgs-mat:BGCOLOR = 15
+                prod.cgs-mat:FGCOLOR = ?
+                . 
+        IF prod.cgs-mu:BGCOLOR EQ 16 THEN             
+            ASSIGN 
+                prod.cgs-mu:BGCOLOR = 15
+                prod.cgs-mu:FGCOLOR = ?
+                . 
+        IF prod.cgs-vo:BGCOLOR EQ 16 THEN             
+            ASSIGN 
+                prod.cgs-vo:BGCOLOR = 15
+                prod.cgs-vo:FGCOLOR = ?
+                . 
+        IF prod.cgs-vov:BGCOLOR EQ 16 THEN             
+            ASSIGN 
+                prod.cgs-vov:BGCOLOR = 15
+                prod.cgs-vov:FGCOLOR = ?
+                . 
+        IF prod.fg-fo:BGCOLOR EQ 16 THEN             
+            ASSIGN 
+                prod.fg-fo:BGCOLOR = 15
+                prod.fg-fo:FGCOLOR = ?
+                . 
+        IF prod.fg-lab:BGCOLOR EQ 16 THEN             
+            ASSIGN 
+                prod.fg-lab:BGCOLOR = 15
+                prod.fg-lab:FGCOLOR = ?
+                . 
+        IF  prod.fg-mat:BGCOLOR EQ 16 THEN             
+            ASSIGN 
+                prod.fg-mat:BGCOLOR = 15
+                prod.fg-mat:FGCOLOR = ?
+                .
+        IF prod.fg-vo:BGCOLOR EQ 16 THEN             
+            ASSIGN 
+                prod.fg-vo:BGCOLOR = 15
+                prod.fg-vo:FGCOLOR = ?
+                . 
+        IF prod.wip-fo:BGCOLOR EQ 16 THEN             
+            ASSIGN 
+                prod.wip-fo:BGCOLOR = 15
+                prod.wip-fo:FGCOLOR = ?
+                . 
+        IF prod.wip-lab:BGCOLOR EQ 16 THEN             
+            ASSIGN 
+                prod.wip-lab:BGCOLOR = 15
+                prod.wip-lab:FGCOLOR = ?
+                . 
+         IF  prod.wip-mat:BGCOLOR EQ 16 THEN             
+            ASSIGN 
+                prod.wip-mat:BGCOLOR = 15
+                prod.wip-mat:FGCOLOR = ?
+                . 
+         IF prod.wip-lab:BGCOLOR EQ 16 THEN             
+            ASSIGN 
+                prod.wip-vo:BGCOLOR = 15
+                prod.wip-vo:FGCOLOR = ?
+                . 
+    END.                                                                                                                                                                                                                                               
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records V-table-Win  _ADM-SEND-RECORDS
 PROCEDURE send-records :
@@ -1296,10 +1459,12 @@ PROCEDURE validate-actall :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
- DEF VAR ii AS INT NO-UNDO.
  DEF VAR hd1 AS WIDGET-HANDLE NO-UNDO.
  DEF VAR hd2 AS WIDGET-HANDLE NO-UNDO.
  DEF VAR lv-fld AS cha NO-UNDO.
+ DEFINE VARIABLE lSuccess AS LOGICAL   NO-UNDO.
+ DEFINE VARIABLE lActive  AS LOGICAL   NO-UNDO.
+ DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
 
   {methods/lValidateError.i YES}
   /* ==== Corrugated item validation ======== */
@@ -1316,15 +1481,38 @@ PROCEDURE validate-actall :
            lookup(lv-fld,"{&list-5}"," ") > 0
            AND hd2:SCREEN-VALUE <> ""
         then do:
-            FIND FIRST account WHERE account.company = gcompany
-                        AND account.actnum = hd2:SCREEN-VALUE NO-LOCK NO-ERROR.
-            IF NOT AVAIL account OR
-               (AVAIL account AND account.TYPE = "T") THEN DO:
-               MESSAGE "Invalid GL Account. Try Help... " VIEW-AS ALERT-BOX ERROR.               
-               apply "entry" to hd2.
-               return error.
-            end.
+            RUN GL_CheckGLAccount IN hGLProcs(
+                 INPUT  gcompany,
+                 INPUT  hd2:SCREEN-VALUE,            
+                 OUTPUT cMessage,
+                 OUTPUT lSuccess,
+                 OUTPUT lActive
+                 ). 
+            IF lSuccess = NO THEN DO:
+                MESSAGE cMessage VIEW-AS ALERT-BOX ERROR. 
+                IF hd2:BGCOLOR EQ 16 THEN             
+                    ASSIGN 
+                        hd2:BGCOLOR = 15
+                        hd2:FGCOLOR = ?
+                        .
+                APPLY "ENTRY" TO hd2.
+                RETURN ERROR.
+            END.  
+            IF lSuccess = YES AND lActive = NO THEN DO:
+                MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.   
+                ASSIGN 
+                    hd2:BGCOLOR = 16
+                    hd2:FGCOLOR = 15
+                    .                        
+                APPLY "ENTRY" TO hd2.
+                RETURN ERROR.                      
+            END.                         
         END.
+        IF hd2:BGCOLOR EQ 16 THEN             
+            ASSIGN 
+                hd2:BGCOLOR = 15
+                hd2:FGCOLOR = ?
+                . 
         hd2 = hd2:next-sibling.
      end.       
 
@@ -1341,21 +1529,51 @@ PROCEDURE validate-actnum :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  {methods/lValidateError.i YES}
-    FIND FIRST account WHERE account.company = gcompany
-                         AND account.actnum = FOCUS:SCREEN-VALUE NO-LOCK NO-ERROR.
-    IF (NOT AVAIL account AND focus:SCREEN-VALUE <> "") or
-       (AVAIL account AND account.TYPE = "T") 
-    THEN DO:
-       MESSAGE "Invalid GL Account#. Try Help..." 
-             VIEW-AS ALERT-BOX ERROR.
-       APPLY "entry" TO SELF.
-       RETURN ERROR.
-    END.
+    DEFINE VARIABLE lSuccess AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lActive  AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+  
+    {methods/lValidateError.i YES}     
+     DO WITH FRAME {&FRAME-NAME}: 
+         IF FOCUS:SCREEN-VALUE NE "" THEN DO:
+             RUN GL_CheckGLAccount IN hGLProcs(
+                 INPUT  gcompany,
+                 INPUT  FOCUS:SCREEN-VALUE,            
+                 OUTPUT cMessage,
+                 OUTPUT lSuccess,
+                 OUTPUT lActive
+                 ).        
+        
+             IF lSuccess = NO THEN DO:
+                 MESSAGE cMessage VIEW-AS ALERT-BOX ERROR. 
+                 IF FOCUS:BGCOLOR EQ 16 THEN             
+                     ASSIGN 
+                         FOCUS:BGCOLOR = 15
+                         FOCUS:FGCOLOR = ?
+                         .
+                 APPLY "ENTRY" TO SELF.
+                 RETURN ERROR.
+             END.  
+             IF lSuccess = YES AND lActive = NO THEN DO:
+                 MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.   
+                 ASSIGN 
+                     FOCUS:BGCOLOR = 16
+                     FOCUS:FGCOLOR = 15
+                     .                        
+                 APPLY "ENTRY" TO SELF.
+                 RETURN ERROR.                      
+             END.               
+         END.
+         IF FOCUS:BGCOLOR EQ 16 THEN             
+             ASSIGN 
+                 FOCUS:BGCOLOR = 15
+                 FOCUS:FGCOLOR = ?
+                 .   
+     END.  
 
   {methods/lValidateError.i NO}
 END PROCEDURE.
-
+    
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
