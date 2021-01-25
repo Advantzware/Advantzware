@@ -50,6 +50,48 @@ PROCEDURE CheckJobStatus:
 
 END PROCEDURE.
 
+PROCEDURE GetFormAndBlankFromJobAndFGItem:
+/*------------------------------------------------------------------------------
+ Purpose: Returns the list of form and blank no list for a given job and item
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcJobno       AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiJobno2      AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcItemID      AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcFormNoList  AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcBlankNoList AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-job     FOR job.
+    DEFINE BUFFER bf-job-hdr FOR job-hdr.
+
+    FOR EACH bf-job NO-LOCK
+        WHERE bf-job.company EQ ipcCompany
+          AND bf-job.job-no  EQ ipcJobno
+          AND bf-job.job-no2 EQ ipiJobno2,
+            EACH bf-job-hdr NO-LOCK
+            WHERE bf-job-hdr.company EQ bf-job.company
+              AND bf-job-hdr.job     EQ bf-job.job
+              AND bf-job-hdr.job-no  EQ bf-job.job-no
+              AND bf-job-hdr.job-no2 EQ bf-job.job-no2
+              AND bf-job-hdr.i-no    EQ ipcItemID
+              AND bf-job-hdr.opened  EQ TRUE:
+        ASSIGN
+            opcFormNoList  = STRING(bf-job-hdr.frm) + ","
+            opcBlankNoList = STRING(bf-job-hdr.blank-no) + ","
+            .
+    END.
+
+    ASSIGN
+        opcFormNoList  = TRIM(opcFormNoList, ",")
+        opcBlankNoList = TRIM(opcBlankNoList, ",")
+        .
+    
+    RELEASE bf-job.
+    RELEASE bf-job-hdr.
+
+END PROCEDURE.
+
 PROCEDURE Job_GetNextOperation:
     /*------------------------------------------------------------------------------
      Purpose: Returns machine code list for a given jobID

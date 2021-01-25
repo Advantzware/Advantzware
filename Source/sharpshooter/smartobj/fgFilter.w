@@ -212,8 +212,15 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cbFGItem s-object
 ON VALUE-CHANGED OF cbFGItem IN FRAME F-Main /* FG Item # */
 DO:
-    oItemFG:SetContext (INPUT cCompany, INPUT SELF:SCREEN-VALUE).
-    
+    DEFINE VARIABLE lValidItem AS LOGICAL NO-UNDO.
+
+    lValidItem = oItemFG:SetContext (INPUT cCompany, INPUT cbFGItem:SCREEN-VALUE).
+
+    IF lValidItem THEN
+        RUN new-state (
+            INPUT "fgitem-changed"
+            ).
+                
     RUN pUpdateFGItemName.
 END.
 
@@ -532,10 +539,7 @@ PROCEDURE UpdateItemForJob :
             INPUT "fgitem-valid"
             ).
     
-    
     RUN pUpdateFGItemName.
-    
-    cbFGItem:SENSITIVE = TRUE.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
