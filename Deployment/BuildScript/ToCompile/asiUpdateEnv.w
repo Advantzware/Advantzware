@@ -6253,8 +6253,7 @@ PROCEDURE ipSetDepartmentRequired:
     
     FOR EACH bDept EXCLUSIVE:
         IF CAN-DO("PR,GL,QS,WN,WS,FB,FS,RC,RS,CR,PR,CT",bDept.code) THEN ASSIGN 
-            bDept.isRequired = TRUE
-            bDept.isInactive = FALSE. 
+            bDept.isRequired = TRUE.
     END.
 
 END PROCEDURE.
