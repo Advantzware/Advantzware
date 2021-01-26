@@ -344,6 +344,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   RUN enable_UI.
   
     GET-KEY-VALUE SECTION 'Startup' KEY 'DLC' VALUE cDLC.
+    IF cDLC EQ ? THEN ASSIGN 
+        cDLC = REPLACE(SEARCH("progress.cfg"),"\progress.cfg","").
     ASSIGN 
         cDevCfg = cDLC + "\progress.dev"
         cRunCfg = cDLC + "\progress.run"
