@@ -82,7 +82,7 @@ DEFINE QUERY external_tables FOR box-design-hdr.
 box-design-hdr.box-image box-design-hdr.lscore 
 &Scoped-define ENABLED-TABLES box-design-hdr
 &Scoped-define FIRST-ENABLED-TABLE box-design-hdr
-&Scoped-Define ENABLED-OBJECTS box-image-2 RECT-40 btn_right btn_left ~
+&Scoped-Define ENABLED-OBJECTS box-image-2 btn_right btn_left ~
 editor_wcum-score editor_wscore 
 &Scoped-Define DISPLAYED-FIELDS box-design-hdr.design-no ~
 box-design-hdr.description box-design-hdr.box-image box-design-hdr.lscore ~
@@ -140,19 +140,19 @@ DEFINE BUTTON btn_right
 DEFINE VARIABLE editor_wcum-score AS CHARACTER 
      VIEW-AS EDITOR NO-WORD-WRAP SCROLLBAR-VERTICAL
      SIZE 14 BY 12.38
-     FONT 0 NO-UNDO.
+     FONT 2 NO-UNDO.
 
 DEFINE VARIABLE editor_wscore AS CHARACTER 
      VIEW-AS EDITOR NO-WORD-WRAP SCROLLBAR-VERTICAL
      SIZE 15 BY 12.38
-     FONT 0.
+     FONT 2.
 
 DEFINE IMAGE box-image-2
      SIZE 165 BY 21.76.
 
 DEFINE RECTANGLE RECT-40
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 200 BY 25.45.
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 200 BY 25.43.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -164,42 +164,42 @@ DEFINE FRAME F-Main
      box-design-hdr.description AT ROW 1.24 COL 22 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 38 BY 1
-     box-design-hdr.box-image AT ROW 1.24 COL 75 COLON-ALIGNED FORMAT "x(200)"
-          VIEW-AS FILL-IN 
-          SIZE 63 BY 1
-     box-design-hdr.box-3d-image AT ROW 1.24 COL 75 COLON-ALIGNED FORMAT "x(200)"
+     box-design-hdr.box-3d-image AT ROW 1.24 COL 75 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 62 BY 1
           BGCOLOR 14 
+     box-design-hdr.box-image AT ROW 1.24 COL 75 COLON-ALIGNED
+          VIEW-AS FILL-IN 
+          SIZE 63 BY 1
      box-design-hdr.lscore AT ROW 2.43 COL 2 NO-LABEL FORMAT "x(210)"
           VIEW-AS FILL-IN 
           SIZE 116 BY 1
-          FONT 0
+          FONT 2
      btn_right AT ROW 2.43 COL 118
      box-design-hdr.lcum-score AT ROW 3.38 COL 2 NO-LABEL FORMAT "x(210)"
           VIEW-AS FILL-IN 
           SIZE 116 BY 1
-          FONT 0
+          FONT 2
      btn_left AT ROW 3.38 COL 118
      box-design-hdr.box-text AT ROW 4.57 COL 2 NO-LABEL
           VIEW-AS EDITOR NO-WORD-WRAP SCROLLBAR-HORIZONTAL SCROLLBAR-VERTICAL
           SIZE 116 BY 12.62
-          FONT 0
+          FONT 2
      editor_wcum-score AT ROW 4.81 COL 170 HELP
           "Enter the cumulative width score." NO-LABEL
      editor_wscore AT ROW 4.81 COL 184 NO-LABEL
      "Score:" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 2.43 COL 122
-     "W Totals   W Score" VIEW-AS TEXT
-          SIZE 23 BY .62 AT ROW 4.1 COL 170
      "Total" VIEW-AS TEXT
           SIZE 7 BY .62 AT ROW 3.33 COL 122
+     "W Totals   W Score" VIEW-AS TEXT
+          SIZE 23 BY .62 AT ROW 4.1 COL 170
      box-image-2 AT ROW 4.57 COL 2
      RECT-40 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
-         FONT 6.
+         FGCOLOR 1 FONT 6.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -229,8 +229,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW V-table-Win ASSIGN
-         HEIGHT             = 19.86
-         WIDTH              = 149.
+         HEIGHT             = 25.43
+         WIDTH              = 200.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -294,6 +294,8 @@ ASSIGN
 ASSIGN 
        box-design-hdr.lscore:AUTO-RESIZE IN FRAME F-Main      = TRUE.
 
+/* SETTINGS FOR RECTANGLE RECT-40 IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -307,7 +309,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -558,7 +560,6 @@ DO:
    {&methods/lValidateError.i NO} 
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -672,7 +673,7 @@ find first style where style.company eq xeb.company
                  no-lock no-error.
 if avail style then
   find first xbox-design-hdr where xbox-design-hdr.design-no eq style.design-no
-  			                   and xbox-design-hdr.company   eq style.company 	
+                                           and xbox-design-hdr.company   eq style.company       
                                and xbox-design-hdr.est-no    eq ""
              no-lock no-error.
 

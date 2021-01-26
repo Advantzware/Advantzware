@@ -173,7 +173,7 @@ DEFINE FRAME F-Main
      box-design-hdr.box-text AT ROW 4.57 COL 3 NO-LABEL
           VIEW-AS EDITOR NO-WORD-WRAP SCROLLBAR-HORIZONTAL SCROLLBAR-VERTICAL
           SIZE 115 BY 12.62
-          FONT 0
+          FONT 2
      box-design-hdr.wcum-score AT ROW 5.05 COL 119 NO-LABEL
           VIEW-AS EDITOR NO-WORD-WRAP SCROLLBAR-VERTICAL
           SIZE 13 BY 12.14
@@ -184,12 +184,12 @@ DEFINE FRAME F-Main
           FONT 2
      "W Score" VIEW-AS TEXT
           SIZE 11 BY .86 AT ROW 4.1 COL 134
-     "Total" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 3.38 COL 120
-     "Score:" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 2.43 COL 120
      "W Totals" VIEW-AS TEXT
           SIZE 11 BY .86 AT ROW 4.1 COL 121
+     "Score:" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 2.43 COL 120
+     "Total" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 3.38 COL 120
      box-image-2 AT ROW 4.57 COL 3
      RECT-29 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 

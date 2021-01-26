@@ -86,7 +86,7 @@ DEFINE QUERY external_tables FOR box-design-hdr.
 box-design-hdr.box-image box-design-hdr.lscore 
 &Scoped-define ENABLED-TABLES box-design-hdr
 &Scoped-define FIRST-ENABLED-TABLE box-design-hdr
-&Scoped-Define ENABLED-OBJECTS box-image-2 RECT-40 btn_right btn_left ~
+&Scoped-Define ENABLED-OBJECTS box-image-2 btn_right btn_left ~
 editor_wcum-score editor_wscore 
 &Scoped-Define DISPLAYED-FIELDS box-design-hdr.design-no ~
 box-design-hdr.description box-design-hdr.box-image box-design-hdr.lscore ~
@@ -144,18 +144,18 @@ DEFINE BUTTON btn_right
 DEFINE VARIABLE editor_wcum-score AS CHARACTER 
     VIEW-AS EDITOR NO-WORD-WRAP SCROLLBAR-VERTICAL
     SIZE 14 BY 12.38
-    FONT 0 NO-UNDO.
+    FONT 2 NO-UNDO.
 
 DEFINE VARIABLE editor_wscore     AS CHARACTER 
     VIEW-AS EDITOR NO-WORD-WRAP SCROLLBAR-VERTICAL
     SIZE 15 BY 12.38
-    FONT 0.
+    FONT 2.
 
 DEFINE IMAGE box-image-2
     SIZE 117 BY 12.86.
 
 DEFINE RECTANGLE RECT-40
-    EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+    EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED
     SIZE 149 BY 16.67.
 
 
@@ -178,17 +178,17 @@ DEFINE FRAME F-Main
     box-design-hdr.lscore AT ROW 2.43 COL 2 NO-LABELS FORMAT "x(210)"
     VIEW-AS FILL-IN 
     SIZE 116 BY 1
-    FONT 0
+    FONT 2
     btn_right AT ROW 2.43 COL 118
     box-design-hdr.lcum-score AT ROW 3.38 COL 2 NO-LABELS FORMAT "x(210)"
     VIEW-AS FILL-IN 
     SIZE 116 BY 1
-    FONT 0
+    FONT 2
     btn_left AT ROW 3.38 COL 118
     box-design-hdr.box-text AT ROW 4.57 COL 2 NO-LABELS
     VIEW-AS EDITOR NO-WORD-WRAP SCROLLBAR-HORIZONTAL SCROLLBAR-VERTICAL
     SIZE 116 BY 12.62
-    FONT 0
+    FONT 2
     editor_wcum-score AT ROW 4.81 COL 119 HELP
     "Enter the cumulative width score." NO-LABELS
     editor_wscore AT ROW 4.81 COL 133 NO-LABELS
@@ -203,8 +203,11 @@ DEFINE FRAME F-Main
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
     SIDE-LABELS NO-UNDERLINE THREE-D 
     AT COL 1 ROW 1 SCROLLABLE 
-    FONT 6.
+    FGCOLOR 1 FONT 6.
 
+MESSAGE 
+box-design-hdr.lscore:FONT
+VIEW-AS ALERT-BOX.
 
 /* *********************** Procedure Settings ************************ */
 
