@@ -27,7 +27,7 @@ DEFINE VARIABLE gcLabelMatrixLoadTagOutputPath         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE iTagCounter  AS INTEGER NO-UNDO.
 DEFINE VARIABLE iPalletCount AS INTEGER NO-UNDO.
 
-{oerep/ttLoadTag.i SHARED}
+{oerep/ttLoadTag.i NEW SHARED}
 {fg/fullset.i NEW}
 {oerep/r-loadtg.i }
 {custom/xprint.i}
