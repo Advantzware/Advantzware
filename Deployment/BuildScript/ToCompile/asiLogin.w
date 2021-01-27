@@ -1012,7 +1012,8 @@ PROCEDURE ipClickOk :
                 PUT-KEY-VALUE SECTION "Colors" KEY "Color" + STRING(iCtr - 1) VALUE ENTRY(iCtr,cOldColors,"|").
             END.
         END.
-
+        PUT-KEY-VALUE COLOR ALL.
+        PUT-KEY-VALUE FONT ALL.
         /* Set current dir */
         RUN ipSetCurrentDir (cMapDir + "\" + cEnvDir + "\" + cbEnvironment). 
         
