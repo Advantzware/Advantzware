@@ -3261,6 +3261,7 @@ PROCEDURE ipDataFix999999 :
     RUN ipCleanTemplates.
     RUN ipLoadEstCostData.
     RUN ipChangeCostMethod.
+    RUN ipSetDepartmentRequired.
     
 END PROCEDURE.
 
@@ -5171,7 +5172,7 @@ PROCEDURE ipLoadPrograms :
                 prgrms.itemParent = ttPrgrms.itemParent
                 prgrms.mnemonic = ttPrgrms.mnemonic
                 prgrms.systemType = ttPrgrms.systemType
-                prgrms.menuImage = ttPrgrms.menuImage
+                prgrms.menuImage[1] = ttPrgrms.menuImage[1]
                 prgrms.translation = ttPrgrms.translation.
         END.
         DELETE ttPrgrms.
@@ -6227,6 +6228,32 @@ PROCEDURE ipSetCurrencyAccounts:
             ar-ctrl.company = bcurrency.company.
         IF AVAIL ar-ctrl THEN ASSIGN 
             bcurrency.ar-ast-acct = ar-ctrl.sales.
+    END.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipSetDepartmentRequired C-Win
+PROCEDURE ipSetDepartmentRequired:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RUN ipStatus ("    Setting Dapartment isRequired Flags").
+
+    DEF BUFFER bdept FOR dept.
+
+    DISABLE TRIGGERS FOR LOAD OF dept.
+    DISABLE TRIGGERS FOR LOAD OF bdept.
+    
+    FOR EACH bDept EXCLUSIVE:
+        IF CAN-DO("PR,GL,QS,WN,WS,FB,FS,RC,RS,CR,PR,CT",bDept.code) THEN ASSIGN 
+            bDept.isRequired = TRUE.
     END.
 
 END PROCEDURE.
