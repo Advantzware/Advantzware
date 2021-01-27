@@ -322,7 +322,9 @@ PROCEDURE Init-Options-Panel :
 &ENDIF
 
 END PROCEDURE.
-
+PROCEDUR winmethods-identifier:
+/* Purpose: To make external programs identify this is a winmethods using current procedure handle. */
+END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
