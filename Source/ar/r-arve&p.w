@@ -1104,8 +1104,6 @@ PROCEDURE post-gl :
       RELEASE gltrans.
     end.    /* each wkdistrib */
 
-    if export_opt = "SONOCO" then  /* 9812 CAH */
-      run ar/sonoinv.p ("total", t-rec-written, output v-rec-written).
   end. /* post-2 */
 
 END PROCEDURE.
@@ -1147,12 +1145,7 @@ do transaction on error undo with width 255:
      ar-inv.glYear     = year(tran-date)
      .
 
-     run oe/sonofile.p (1,recid(ar-inv)).
 
-     if export_opt = "SONOCO" then do:  /* 9812 CAH */
-       run ar/sonoinv.p ("ar-inv", recid(ar-inv), output v-rec-written).
-       assign t-rec-written = t-rec-written + v-rec-written.
-     end.
      IF ar-inv.EdiInvoice THEN DO: 
     
           RUN pRunAPIOutboundTrigger(BUFFER ar-inv).
@@ -1222,10 +1215,7 @@ do transaction on error undo with width 255:
          ELSE /*EA*/
             ar-invl.t-cost = ar-invl.cost * ar-invl.inv-qty.
       END.
-
-      if export_opt eq "Sonoco" then run oe/sonofile.p (2,recid(ar-invl)).
-      else
-      if export_opt eq "Inland" then run ar/jdedward.p (recid(ar-invl)).
+  
     end. /* for each ar-invl */
 
     assign
