@@ -3093,7 +3093,7 @@ PROCEDURE valid-bill-owner :
   DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
   {methods/lValidateError.i YES}
 
-   IF cust.csrUser_id:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" THEN DO:
+   IF cust.accountant:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" THEN DO:
        IF NOT CAN-FIND(FIRST users WHERE users.USER_ID EQ cust.accountant:SCREEN-VALUE IN FRAME {&FRAME-NAME})
        THEN DO:
            MESSAGE "Invalid customer Accountant. Try help." VIEW-AS ALERT-BOX ERROR.
