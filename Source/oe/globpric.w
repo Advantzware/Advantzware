@@ -1160,9 +1160,7 @@ REPEAT PRESELECT EACH oe-prmtx EXCLUSIVE-LOCK
               
           IF cRoundingType EQ "C" THEN DO:
               IF cust.matrixRounding EQ "" THEN
-                  ASSIGN 
-                      cRoundingType = "U"
-                      .
+                  cRoundingType = "U".
               ELSE
                   cRoundingType = cust.matrixRounding.               
           END.              
