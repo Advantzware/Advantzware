@@ -14,6 +14,7 @@
 
 /* ***************************  Definitions  ************************** */
 DEFINE INPUT PARAMETER ipriRowid AS ROWID NO-UNDO. 
+DEFINE INPUT PARAMETER lUpdateEstQty AS LOGICAL NO-UNDO.
 
 {est/ttInputEst.i}   
 DEFINE VARIABLE lRoutingExist AS LOGICAL NO-UNDO.
@@ -32,6 +33,11 @@ FIND FIRST eb NO-LOCK
 FIND FIRST est NO-LOCK
     WHERE est.company EQ eb.company
     AND est.est-no EQ eb.est-no NO-ERROR .
+    
+IF lUpdateEstQty THEN
+DO:
+  RUN pUpdateEstimateQty(ROWID(est)). 
+END.    
      
 FOR EACH ttInputEst NO-LOCK:
        IF ttInputEst.cFgEstNo NE "" THEN 
@@ -188,5 +194,83 @@ FOR EACH ttInputEst NO-LOCK:
                    
                END.       
        END.        
-END.     
+END.  
+
+
+PROCEDURE pUpdateEstimateQty:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iprwRowid AS ROWID NO-UNDO.
+    DEFINE BUFFER bf-est FOR est.
+    
+    FIND FIRST bf-est NO-LOCK
+    WHERE ROWID(bf-est) EQ iprwRowid
+    NO-ERROR.
+    
+    FOR EACH ttInputEst NO-LOCK:
+    
+     FIND FIRST bf-eb EXCLUSIVE-LOCK
+          WHERE bf-eb.company EQ bf-est.company
+          AND bf-eb.est-no EQ bf-est.est-no
+          AND bf-eb.stock-no EQ ttInputEst.cStockNo NO-ERROR.
+          
+     IF AVAIL bf-eb THEN
+     DO:
+         bf-eb.bl-qty = ttInputEst.iQuantityYield.
+         bf-eb.eqty   = ttInputEst.iQuantityYield.
+                  
+         FIND FIRST est-qty
+              WHERE est-qty.company EQ bf-est.company
+              AND est-qty.est-no  EQ bf-est.est-no
+              AND est-qty.eqty    EQ bf-eb.bl-qty
+              NO-ERROR.
+          
+          IF NOT AVAIL est-qty THEN
+          FIND FIRST est-qty
+              WHERE est-qty.company EQ bf-est.company
+                AND est-qty.est-no  EQ bf-est.est-no
+              NO-ERROR.
+
+          IF AVAIL est-qty THEN DO:
+              FOR EACH est-op
+                  WHERE est-op.company EQ bf-est.company
+                    AND est-op.est-no  EQ bf-est.est-no
+                    AND est-op.qty     EQ est-qty.eqty:
+                est-op.qty = bf-eb.bl-qty.
+              END.
+
+              est-qty.eqty = bf-eb.bl-qty.
+                   
+              FIND CURRENT est-qty NO-LOCK.
+               
+              /*== update all eb,ef eqty field ==*/
+              FOR EACH bff-eb WHERE bff-eb.company = est-qty.company AND
+                                   bff-eb.est-no = est-qty.est-no:
+                  ASSIGN bff-eb.eqty = est-qty.eqty.
+              END.  
+              FOR EACH bf-ef WHERE bf-ef.company = est-qty.company AND
+                                   bf-ef.est-no = est-qty.est-no:
+                     bf-ef.eqty = est-qty.eqty.
+              END.
+              FOR EACH est-flm WHERE est-flm.company = est-qty.company AND
+                                   est-flm.est-no = est-qty.est-no:
+                     est-flm.eqty = est-qty.eqty.
+              END.
+
+              FIND bf-est WHERE bf-est.company = est-qty.company AND
+                                bf-est.est-no = est-qty.est-no.
+              bf-est.est-qty[1] = est-qty.eqty.
+          END.                   
+     END.
+    END.
+    RELEASE bff-eb.
+    RELEASE bf-eb.
+    RELEASE bf-ef.
+    RELEASE est-flm.
+    RELEASE bf-est.
+    RELEASE est-qty.
+    
+END PROCEDURE.   
      
