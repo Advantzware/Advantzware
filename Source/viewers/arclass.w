@@ -540,11 +540,7 @@ PROCEDURE local-cancel-record :
   Notes:       
 ------------------------------------------------------------------------------*/
     
-    IF arclass.receivablesAcct:BGCOLOR IN FRAME {&FRAME-NAME} EQ 16 THEN             
-        ASSIGN 
-            arclass.receivablesAcct:BGCOLOR IN FRAME {&FRAME-NAME} = ?
-            arclass.receivablesAcct:FGCOLOR IN FRAME {&FRAME-NAME} = ?
-            .  
+    RUN presetColor NO-ERROR.
 
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ).
 
@@ -705,11 +701,8 @@ PROCEDURE local-reset-record:
 ------------------------------------------------------------------------------*/
 
     /* Code placed here will execute PRIOR to standard behavior. */
-    IF arclass.receivablesAcct:BGCOLOR IN FRAME {&FRAME-NAME} EQ 16 THEN             
-        ASSIGN 
-            arclass.receivablesAcct:BGCOLOR IN FRAME {&FRAME-NAME} = ?
-            arclass.receivablesAcct:FGCOLOR IN FRAME {&FRAME-NAME} = ?
-            .  
+    RUN presetColor NO-ERROR.
+     
     /* Dispatch standard ADM method.                             */
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'reset-record':U ) .        
 
@@ -754,6 +747,29 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE presetColor V-table-Win
+PROCEDURE presetColor:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    
+    DO WITH FRAME {&FRAME-NAME}:
+        IF arclass.receivablesAcct:BGCOLOR EQ 16 THEN             
+            ASSIGN 
+                arclass.receivablesAcct:BGCOLOR = ?
+                arclass.receivablesAcct:FGCOLOR = ?
+                .                             
+    END. 
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records V-table-Win  _ADM-SEND-RECORDS
 PROCEDURE send-records :
@@ -851,26 +867,18 @@ PROCEDURE valid-glAccount :
     IF arclass.receivablesAcct:SCREEN-VALUE NE "" THEN DO:
         RUN pIsValidGLAccount IN hdValidator  (arclass.receivablesAcct:SCREEN-VALUE, NO, g_company, OUTPUT oplValid, OUTPUT cValidNote).        
         IF NOT oplValid THEN do:
-            IF arclass.receivablesAcct:BGCOLOR EQ 16 THEN             
-                ASSIGN 
-                    arclass.receivablesAcct:BGCOLOR = ?
-                    arclass.receivablesAcct:FGCOLOR = ?
-                   .
+            MESSAGE cValidNote VIEW-AS ALERT-BOX INFO .   
+            RUN presetColor NO-ERROR.                    
             IF INDEX(cValidNote, "Inactive") GT 0 THEN 
                 ASSIGN 
                     arclass.receivablesAcct:BGCOLOR = 16
                     arclass.receivablesAcct:FGCOLOR = 15
-                    . 
-            MESSAGE cValidNote VIEW-AS ALERT-BOX INFO .
+                    .             
             opReturnError = YES .   
         END.               
     END.   
     IF arclass.receivablesAcct:SCREEN-VALUE EQ "" OR oplValid THEN 
-        IF arclass.receivablesAcct:BGCOLOR EQ 16 THEN             
-            ASSIGN 
-                arclass.receivablesAcct:BGCOLOR = ?
-                arclass.receivablesAcct:FGCOLOR = ?
-                .       
+        RUN presetColor NO-ERROR.   
   END.
   {&methods/lValidateError.i NO}
 END PROCEDURE.

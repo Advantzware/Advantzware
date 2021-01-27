@@ -1681,6 +1681,29 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE presetColor Dialog-Frame
+PROCEDURE presetColor:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DO WITH FRAME {&FRAME-NAME}:
+        IF oe-ordm.actnum:BGCOLOR EQ 16 THEN             
+            ASSIGN 
+                oe-ordm.actnum:BGCOLOR = ?
+                oe-ordm.actnum:FGCOLOR = ?
+                .                             
+    END. 
+
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE show-comm Dialog-Frame 
 PROCEDURE show-comm :
     /*------------------------------------------------------------------------------
@@ -1729,27 +1752,19 @@ PROCEDURE valid-actnum :
             OUTPUT cMessage
             ) NO-ERROR.        
         IF NOT lValid THEN DO:
-            IF oe-ordm.actnum:BGCOLOR EQ 16 THEN             
-                ASSIGN 
-                    oe-ordm.actnum:BGCOLOR = ?
-                    oe-ordm.actnum:FGCOLOR = ?
-                   .
+            MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
+            RUN presetColor NO-ERROR.
             IF INDEX(cMessage, "Inactive") GT 0 THEN 
                 ASSIGN 
                     oe-ordm.actnum:BGCOLOR = 16
                     oe-ordm.actnum:FGCOLOR = 15
-                    . 
-            MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.        
+                    .                    
             APPLY "ENTRY" TO oe-ordm.actnum.
             RETURN ERROR.   
         END.               
        
         IF lValid THEN 
-            IF oe-ordm.actnum:BGCOLOR EQ 16 THEN             
-                ASSIGN 
-                    oe-ordm.actnum:BGCOLOR = ?
-                    oe-ordm.actnum:FGCOLOR = ?
-                    .              
+            RUN presetColor NO-ERROR.           
     END.
 
 END PROCEDURE.

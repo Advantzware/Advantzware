@@ -480,16 +480,9 @@ DO:
         RUN pvalidGLAccount(INPUT stax.tax-acc1[10]:SCREEN-VALUE, OUTPUT lError, OUTPUT lInactive).
         
         IF lError THEN DO:            
-            IF stax.tax-acc1[10]:BGCOLOR EQ 16 THEN 
-                ASSIGN 
-                    stax.tax-acc1[10]:BGCOLOR = 15 
-                    stax.tax-acc1[10]:FGCOLOR = ?
-                    .
+            RUN presetColor(INPUT stax.tax-acc1[10]:HANDLE).
             IF lInactive EQ YES THEN 
-                ASSIGN 
-                    stax.tax-acc1[10]:BGCOLOR = 16 
-                    stax.tax-acc1[10]:FGCOLOR = 15
-                    .
+                RUN pchangeColor(INPUT INPUT stax.tax-acc1[10]:HANDLE) NO-ERROR.
             APPLY "ENTRY" TO stax.tax-acc1[10].
             RETURN NO-APPLY.
         END.    
@@ -502,11 +495,7 @@ DO:
           RETURN NO-APPLY.         
       END.    
     END. 
-    IF stax.tax-acc1[10]:BGCOLOR EQ 16 THEN 
-        ASSIGN 
-            stax.tax-acc1[10]:BGCOLOR = 15 
-            stax.tax-acc1[10]:FGCOLOR = ?
-            .   
+    RUN presetColor(INPUT stax.tax-acc1[10]:HANDLE).
    {&methods/lValidateError.i NO}
     
 END.
@@ -529,16 +518,9 @@ DO:
         RUN pvalidGLAccount(INPUT stax.tax-acc1[1]:SCREEN-VALUE, OUTPUT lError, OUTPUT lInactive).
       
         IF lError THEN DO:            
-            IF stax.tax-acc1[1]:BGCOLOR EQ 16 THEN 
-                ASSIGN 
-                    stax.tax-acc1[1]:BGCOLOR = 15 
-                    stax.tax-acc1[1]:FGCOLOR = ?
-                    .
+            RUN presetColor(INPUT stax.tax-acc1[1]:HANDLE).
             IF lInactive EQ YES THEN 
-                ASSIGN 
-                    stax.tax-acc1[1]:BGCOLOR = 16 
-                    stax.tax-acc1[1]:FGCOLOR = 15
-                    .
+                RUN pchangeColor(INPUT stax.tax-acc1[1]:HANDLE) NO-ERROR.
             APPLY "ENTRY" TO stax.tax-acc1[1].
             RETURN NO-APPLY.
         END.    
@@ -551,11 +533,7 @@ DO:
           RETURN NO-APPLY.         
       END.    
     END. 
-    IF stax.tax-acc1[1]:BGCOLOR EQ 16 THEN 
-        ASSIGN 
-            stax.tax-acc1[1]:BGCOLOR = 15 
-            stax.tax-acc1[1]:FGCOLOR = ?
-            .   
+    RUN presetColor(INPUT stax.tax-acc1[1]:HANDLE). 
    {&methods/lValidateError.i NO}
 END.
 
@@ -577,16 +555,9 @@ DO:
         RUN pvalidGLAccount(INPUT stax.tax-acc1[2]:SCREEN-VALUE, OUTPUT lError, OUTPUT lInactive).
        
         IF lError THEN DO:            
-            IF stax.tax-acc1[2]:BGCOLOR EQ 16 THEN 
-                ASSIGN 
-                    stax.tax-acc1[2]:BGCOLOR = 15 
-                    stax.tax-acc1[2]:FGCOLOR = ?
-                    .
+            RUN presetColor(INPUT stax.tax-acc1[2]:HANDLE).
             IF lInactive EQ YES THEN 
-                ASSIGN 
-                    stax.tax-acc1[2]:BGCOLOR = 16 
-                    stax.tax-acc1[2]:FGCOLOR = 15
-                    .
+                RUN pchangeColor(INPUT stax.tax-acc1[2]:HANDLE) NO-ERROR.
             APPLY "ENTRY" TO stax.tax-acc1[2].
             RETURN NO-APPLY.
         END.    
@@ -599,11 +570,7 @@ DO:
           RETURN NO-APPLY.         
       END.    
     END. 
-    IF stax.tax-acc1[2]:BGCOLOR EQ 16 THEN 
-        ASSIGN 
-            stax.tax-acc1[2]:BGCOLOR = 15 
-            stax.tax-acc1[2]:FGCOLOR = ?
-            .   
+    RUN presetColor(INPUT stax.tax-acc1[2]:HANDLE).
    {&methods/lValidateError.i NO}
   
 END.
@@ -626,16 +593,9 @@ DO:
         RUN pvalidGLAccount(INPUT stax.tax-acc1[3]:SCREEN-VALUE, OUTPUT lError, OUTPUT lInactive) NO-ERROR.
         
         IF lError THEN DO:            
-            IF stax.tax-acc1[3]:BGCOLOR EQ 16 THEN 
-                ASSIGN 
-                    stax.tax-acc1[3]:BGCOLOR = 15 
-                    stax.tax-acc1[3]:FGCOLOR = ?
-                    .
+            RUN presetColor(INPUT stax.tax-acc1[3]:HANDLE) NO-ERROR.
             IF lInactive EQ YES THEN 
-                ASSIGN 
-                    stax.tax-acc1[3]:BGCOLOR = 16 
-                    stax.tax-acc1[3]:FGCOLOR = 15
-                    .
+                RUN pchangeColor(INPUT stax.tax-acc1[3]:HANDLE) NO-ERROR.
             APPLY "ENTRY" TO stax.tax-acc1[3].
             RETURN NO-APPLY.
         END.    
@@ -648,11 +608,7 @@ DO:
           RETURN NO-APPLY.         
       END.    
     END. 
-    IF stax.tax-acc1[3]:BGCOLOR EQ 16 THEN 
-        ASSIGN 
-            stax.tax-acc1[3]:BGCOLOR = 15 
-            stax.tax-acc1[3]:FGCOLOR = ?
-            .   
+    RUN presetColor(INPUT stax.tax-acc1[3]:HANDLE) NO-ERROR.
    {&methods/lValidateError.i NO}
     
 END.
@@ -675,20 +631,13 @@ DO:
         RUN pvalidGLAccount(INPUT stax.tax-acc1[4]:SCREEN-VALUE, OUTPUT lError, OUTPUT lInactive).
         
         IF lError THEN DO:            
-            IF stax.tax-acc1[4]:BGCOLOR EQ 16 THEN 
-                ASSIGN 
-                    stax.tax-acc1[4]:BGCOLOR = 15 
-                    stax.tax-acc1[4]:FGCOLOR = ?
-                    .
+            RUN presetColor(INPUT stax.tax-acc1[4]:HANDLE) NO-ERROR.
             IF lInactive EQ YES THEN 
-                ASSIGN 
-                    stax.tax-acc1[4]:BGCOLOR = 16 
-                    stax.tax-acc1[4]:FGCOLOR = 15
-                    .
+                RUN pchangeColor(INPUT stax.tax-acc1[4]:HANDLE) NO-ERROR.
             APPLY "ENTRY" TO stax.tax-acc1[4].
             RETURN NO-APPLY.
         END.    
-    END.           
+    END.            
     ELSE DO:
       IF stax.tax-acc1[4]:SCREEN-VALUE NE "" THEN DO: 
           MESSAGE "First enter corresponding tax-code." VIEW-AS ALERT-BOX INFORMATION.
@@ -697,11 +646,7 @@ DO:
           RETURN NO-APPLY.         
       END.    
     END. 
-    IF stax.tax-acc1[4]:BGCOLOR EQ 16 THEN 
-        ASSIGN 
-            stax.tax-acc1[4]:BGCOLOR = 15 
-            stax.tax-acc1[4]:FGCOLOR = ?
-            .   
+    RUN presetColor(INPUT stax.tax-acc1[4]:HANDLE) NO-ERROR.
    {&methods/lValidateError.i NO}
     
 END.
@@ -724,16 +669,9 @@ DO:
         RUN pvalidGLAccount(INPUT stax.tax-acc1[5]:SCREEN-VALUE, OUTPUT lError, OUTPUT lInactive).
        
         IF lError THEN DO:            
-            IF stax.tax-acc1[5]:BGCOLOR EQ 16 THEN 
-                ASSIGN 
-                    stax.tax-acc1[5]:BGCOLOR = 15 
-                    stax.tax-acc1[5]:FGCOLOR = ?
-                    .
+            RUN presetColor(INPUT stax.tax-acc1[5]:HANDLE) NO-ERROR.
             IF lInactive EQ YES THEN 
-                ASSIGN 
-                    stax.tax-acc1[5]:BGCOLOR = 16 
-                    stax.tax-acc1[5]:FGCOLOR = 15
-                    .
+                RUN pchangeColor(INPUT stax.tax-acc1[5]:HANDLE) NO-ERROR.
             APPLY "ENTRY" TO stax.tax-acc1[5].
             RETURN NO-APPLY.
         END.    
@@ -746,11 +684,7 @@ DO:
           RETURN NO-APPLY.         
       END.    
     END. 
-    IF stax.tax-acc1[5]:BGCOLOR EQ 16 THEN 
-        ASSIGN 
-            stax.tax-acc1[5]:BGCOLOR = 15 
-            stax.tax-acc1[5]:FGCOLOR = ?
-            .   
+    RUN presetColor(INPUT stax.tax-acc1[5]:HANDLE) NO-ERROR. 
    {&methods/lValidateError.i NO}
     
 END.
@@ -773,16 +707,9 @@ DO:
         RUN pvalidGLAccount(INPUT stax.tax-acc1[6]:SCREEN-VALUE, OUTPUT lError, OUTPUT lInactive).
         
         IF lError THEN DO:            
-            IF stax.tax-acc1[6]:BGCOLOR EQ 16 THEN 
-                ASSIGN 
-                    stax.tax-acc1[6]:BGCOLOR = 15 
-                    stax.tax-acc1[6]:FGCOLOR = ?
-                    .
+            RUN presetColor(INPUT stax.tax-acc1[6]:HANDLE) NO-ERROR.
             IF lInactive EQ YES THEN 
-                ASSIGN 
-                    stax.tax-acc1[6]:BGCOLOR = 16 
-                    stax.tax-acc1[6]:FGCOLOR = 15
-                    .
+                RUN pchangeColor(INPUT stax.tax-acc1[6]:HANDLE) NO-ERROR.
             APPLY "ENTRY" TO stax.tax-acc1[6].
             RETURN NO-APPLY.
         END.    
@@ -795,11 +722,7 @@ DO:
           RETURN NO-APPLY.         
       END.    
     END. 
-    IF stax.tax-acc1[6]:BGCOLOR EQ 16 THEN 
-        ASSIGN 
-            stax.tax-acc1[6]:BGCOLOR = 15 
-            stax.tax-acc1[6]:FGCOLOR = ?
-            .   
+    RUN presetColor(INPUT stax.tax-acc1[6]:HANDLE) NO-ERROR. 
    {&methods/lValidateError.i NO}
 END.
 
@@ -821,16 +744,9 @@ DO:
         RUN pvalidGLAccount(INPUT stax.tax-acc1[7]:SCREEN-VALUE, OUTPUT lError, OUTPUT lInactive).
         
         IF lError THEN DO:            
-            IF stax.tax-acc1[7]:BGCOLOR EQ 16 THEN 
-                ASSIGN 
-                    stax.tax-acc1[7]:BGCOLOR = 15 
-                    stax.tax-acc1[7]:FGCOLOR = ?
-                    .
+            RUN presetColor(INPUT stax.tax-acc1[7]:HANDLE) NO-ERROR.
             IF lInactive EQ YES THEN 
-                ASSIGN 
-                    stax.tax-acc1[7]:BGCOLOR = 16 
-                    stax.tax-acc1[7]:FGCOLOR = 15
-                    .
+                RUN pchangeColor(INPUT stax.tax-acc1[7]:HANDLE) NO-ERROR.
             APPLY "ENTRY" TO stax.tax-acc1[7].
             RETURN NO-APPLY.
         END.    
@@ -843,11 +759,7 @@ DO:
           RETURN NO-APPLY.         
       END.    
     END. 
-    IF stax.tax-acc1[7]:BGCOLOR EQ 16 THEN 
-        ASSIGN 
-            stax.tax-acc1[7]:BGCOLOR = 15 
-            stax.tax-acc1[7]:FGCOLOR = ?
-            .   
+    RUN presetColor(INPUT stax.tax-acc1[7]:HANDLE) NO-ERROR.
    {&methods/lValidateError.i NO}
     
 END.
@@ -870,16 +782,9 @@ DO:
         RUN pvalidGLAccount(INPUT stax.tax-acc1[8]:SCREEN-VALUE, OUTPUT lError, OUTPUT lInactive).
         
         IF lError THEN DO:            
-            IF stax.tax-acc1[8]:BGCOLOR EQ 16 THEN 
-                ASSIGN 
-                    stax.tax-acc1[8]:BGCOLOR = 15 
-                    stax.tax-acc1[8]:FGCOLOR = ?
-                    .
+            RUN presetColor(INPUT stax.tax-acc1[8]:HANDLE) NO-ERROR.
             IF lInactive EQ YES THEN 
-                ASSIGN 
-                    stax.tax-acc1[8]:BGCOLOR = 16 
-                    stax.tax-acc1[8]:FGCOLOR = 15
-                    .
+                RUN pchangeColor(INPUT stax.tax-acc1[8]:HANDLE) NO-ERROR.
             APPLY "ENTRY" TO stax.tax-acc1[8].
             RETURN NO-APPLY.
         END.    
@@ -892,11 +797,7 @@ DO:
           RETURN NO-APPLY.         
       END.    
     END. 
-    IF stax.tax-acc1[8]:BGCOLOR EQ 16 THEN 
-        ASSIGN 
-            stax.tax-acc1[8]:BGCOLOR = 15 
-            stax.tax-acc1[8]:FGCOLOR = ?
-            .   
+    RUN presetColor(INPUT stax.tax-acc1[8]:HANDLE) NO-ERROR.
    {&methods/lValidateError.i NO}
     
 END.
@@ -919,16 +820,9 @@ DO:
         RUN pvalidGLAccount(INPUT stax.tax-acc1[9]:SCREEN-VALUE, OUTPUT lError, OUTPUT lInactive).
         
         IF lError THEN DO:            
-            IF stax.tax-acc1[9]:BGCOLOR EQ 16 THEN 
-                ASSIGN 
-                    stax.tax-acc1[9]:BGCOLOR = 15 
-                    stax.tax-acc1[9]:FGCOLOR = ?
-                    .
+            RUN presetColor(INPUT stax.tax-acc1[9]:HANDLE) NO-ERROR.
             IF lInactive EQ YES THEN 
-                ASSIGN 
-                    stax.tax-acc1[9]:BGCOLOR = 16 
-                    stax.tax-acc1[9]:FGCOLOR = 15
-                    .
+                RUN pchangeColor(INPUT stax.tax-acc1[9]:HANDLE) NO-ERROR.
             APPLY "ENTRY" TO stax.tax-acc1[9].
             RETURN NO-APPLY.
         END.    
@@ -941,11 +835,7 @@ DO:
           RETURN NO-APPLY.         
       END.    
     END. 
-    IF stax.tax-acc1[9]:BGCOLOR EQ 16 THEN 
-        ASSIGN 
-            stax.tax-acc1[9]:BGCOLOR = 15 
-            stax.tax-acc1[9]:FGCOLOR = ?
-            .   
+   RUN presetColor(INPUT stax.tax-acc1[9]:HANDLE) NO-ERROR.
    {&methods/lValidateError.i NO}
     
 END.
@@ -1437,7 +1327,7 @@ PROCEDURE local-cancel-record:
 ------------------------------------------------------------------------------*/
 
     /* Code placed here will execute PRIOR to standard behavior. */
-    RUN presetColor NO-ERROR.
+    RUN presetColor(INPUT "") NO-ERROR.
     
     /* Dispatch standard ADM method.                             */
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .   
@@ -1479,7 +1369,7 @@ PROCEDURE local-reset-record:
 ------------------------------------------------------------------------------*/
 
     /* Code placed here will execute PRIOR to standard behavior. */
-    RUN presetColor NO-ERROR.
+    RUN presetColor(INPUT "") NO-ERROR.
     
     /* Dispatch standard ADM method.                             */
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .   
@@ -1540,16 +1430,9 @@ PROCEDURE local-update-record :
           RUN pvalidGLAccount(INPUT tt-accounts.c-acct, OUTPUT lError, OUTPUT lInactive).
           IF lError THEN 
           DO:
-              IF tt-accounts.h-acct:BGCOLOR EQ 16 THEN 
-                  ASSIGN 
-                      tt-accounts.h-acct:BGCOLOR = 15 
-                      tt-accounts.h-acct:FGCOLOR = ?
-                      .
+              RUN presetColor(INPUT h-acct) NO-ERROR.
               IF lInactive EQ YES THEN 
-                  ASSIGN 
-                      tt-accounts.h-acct:BGCOLOR = 16 
-                      tt-accounts.h-acct:FGCOLOR = 15
-                      .
+                  RUN pchangeColor(INPUT h-acct) NO-ERROR.
               APPLY "ENTRY" TO tt-accounts.h-acct.
               RETURN NO-APPLY.
           END. 
@@ -1563,11 +1446,7 @@ PROCEDURE local-update-record :
           END. 
       END.       
              
-      IF tt-accounts.h-acct:BGCOLOR EQ 16 THEN 
-          ASSIGN 
-              tt-accounts.h-acct:BGCOLOR = 15 
-              tt-accounts.h-acct:FGCOLOR = ?
-              .                        
+      RUN presetColor(INPUT h-acct) NO-ERROR.                     
   END.
   {&methods/lValidateError.i NO}
   /* Dispatch standard ADM method.                             */
@@ -1582,66 +1461,73 @@ END PROCEDURE.
 
 
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pchangeColor V-table-Win
+PROCEDURE pchangeColor:
+/*------------------------------------------------------------------------------
+ Purpose: If GL Account is inactive then change the background color of fill-in.
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iphfieldHandle AS HANDLE NO-UNDO.
+    
+    IF VALID-HANDLE(iphfieldHandle) THEN DO:
+        IF iphfieldHandle:TYPE      EQ "fill-in"   AND 
+           iphfieldHandle:DATA-TYPE EQ "CHARACTER" AND 
+           iphfieldHandle:NAME MATCHES "*tax-acc1*" THEN 
+            ASSIGN 
+                iphfieldHandle:BGCOLOR = 16
+                iphfieldHandle:FGCOLOR = 15
+                .                                            
+    END.    
+    
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE presetColor V-table-Win
 PROCEDURE presetColor:
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iphfieldHandle AS HANDLE NO-UNDO.
 
-    DO WITH FRAME {&FRAME-NAME}:
-        IF stax.tax-acc1[1]:BGCOLOR EQ 16 THEN             
-            ASSIGN 
-                stax.tax-acc1[1]:BGCOLOR = 15
-                stax.tax-acc1[1]:FGCOLOR = ?
-                .
-        IF stax.tax-acc1[2]:BGCOLOR EQ 16 THEN             
-            ASSIGN 
-                stax.tax-acc1[2]:BGCOLOR = 15
-                stax.tax-acc1[2]:FGCOLOR = ?
-                . 
-        IF stax.tax-acc1[3]:BGCOLOR EQ 16 THEN             
-            ASSIGN 
-                stax.tax-acc1[3]:BGCOLOR = 15
-                stax.tax-acc1[3]:FGCOLOR = ?
-                . 
-        IF stax.tax-acc1[4]:BGCOLOR EQ 16 THEN             
-            ASSIGN 
-                stax.tax-acc1[4]:BGCOLOR = 15
-                stax.tax-acc1[4]:FGCOLOR = ?
-                . 
-        IF stax.tax-acc1[5]:BGCOLOR EQ 16 THEN             
-            ASSIGN 
-                stax.tax-acc1[5]:BGCOLOR = 15
-                stax.tax-acc1[5]:FGCOLOR = ?
-                .
-        IF stax.tax-acc1[6]:BGCOLOR EQ 16 THEN             
-            ASSIGN 
-                stax.tax-acc1[6]:BGCOLOR = 15
-                stax.tax-acc1[6]:FGCOLOR = ?
-                . 
-        IF stax.tax-acc1[7]:BGCOLOR EQ 16 THEN             
-            ASSIGN 
-                stax.tax-acc1[7]:BGCOLOR = 15
-                stax.tax-acc1[7]:FGCOLOR = ?
-                . 
-        IF stax.tax-acc1[8]:BGCOLOR EQ 16 THEN             
-            ASSIGN 
-                stax.tax-acc1[8]:BGCOLOR = 15
-                stax.tax-acc1[8]:FGCOLOR = ?
-                . 
-        IF stax.tax-acc1[9]:BGCOLOR EQ 16 THEN             
-            ASSIGN 
-                stax.tax-acc1[9]:BGCOLOR = 15
-                stax.tax-acc1[9]:FGCOLOR = ?
-                .  
-        IF stax.tax-acc1[10]:BGCOLOR EQ 16 THEN             
-            ASSIGN 
-                stax.tax-acc1[10]:BGCOLOR = 15
-                stax.tax-acc1[10]:FGCOLOR = ?
-                .  
-    END.                          
+    DEFINE VARIABLE hframeHandle AS HANDLE NO-UNDO.
+    DEFINE VARIABLE hgroupHandle AS HANDLE NO-UNDO.
+    DEFINE VARIABLE hfieldHandle AS HANDLE NO-UNDO.    
 
+    ASSIGN 
+        hframeHandle = FRAME {&FRAME-NAME}:HANDLE
+        hgroupHandle = hframeHandle:FIRST-CHILD
+        hfieldHandle = hgroupHandle:FIRST-CHILD
+        .       
+    IF VALID-HANDLE(iphfieldHandle) THEN DO:
+        IF iphfieldHandle:TYPE      EQ "fill-in"   AND 
+           iphfieldHandle:DATA-TYPE EQ "CHARACTER" AND 
+           iphfieldHandle:NAME MATCHES "*tax-acc1*" THEN  
+            IF iphfieldHandle:BGCOLOR EQ 16 THEN          
+                ASSIGN 
+                    iphfieldHandle:BGCOLOR = 15
+                    iphfieldHandle:FGCOLOR = ?
+                    .                                
+    END. 
+    ELSE DO:                
+        DO WHILE VALID-HANDLE(hfieldHandle):                           
+            IF hfieldHandle:TYPE      EQ "fill-in"   AND 
+               hfieldHandle:DATA-TYPE EQ "CHARACTER" AND 
+               hfieldHandle:NAME MATCHES "*tax-acc1*" THEN               
+               IF hfieldHandle:BGCOLOR EQ 16 THEN             
+                   ASSIGN 
+                       hfieldHandle:BGCOLOR = 15
+                       hfieldHandle:FGCOLOR = ?
+                       .                                        
+            hfieldHandle = hfieldHandle:NEXT-SIBLING.
+        END. 
+    END.                                     
+   
 END PROCEDURE.
 	
 /* _UIB-CODE-BLOCK-END */

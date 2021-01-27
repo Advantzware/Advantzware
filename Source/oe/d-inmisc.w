@@ -1540,6 +1540,28 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE presetColor Dialog-Frame
+PROCEDURE presetColor:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DO WITH FRAME {&FRAME-NAME}:
+        IF inv-misc.actnum:BGCOLOR EQ 16 THEN             
+            ASSIGN 
+                inv-misc.actnum:BGCOLOR = ?
+                inv-misc.actnum:FGCOLOR = ?
+                .                             
+    END. 
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE show-comm Dialog-Frame 
 PROCEDURE show-comm :
     /*------------------------------------------------------------------------------
@@ -1589,27 +1611,19 @@ PROCEDURE valid-actnum :
             OUTPUT cMessage
             ) NO-ERROR.        
         IF NOT lValid THEN DO:
-            IF inv-misc.actnum:BGCOLOR EQ 16 THEN             
-                ASSIGN 
-                    inv-misc.actnum:BGCOLOR = ?
-                    inv-misc.actnum:FGCOLOR = ?
-                   .
+            MESSAGE cMessage VIEW-AS ALERT-BOX ERROR. 
+            RUN presetColor NO-ERROR.
             IF INDEX(cMessage, "Inactive") GT 0 THEN 
                 ASSIGN 
                     inv-misc.actnum:BGCOLOR = 16
                     inv-misc.actnum:FGCOLOR = 15
-                    . 
-            MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.        
+                    .                   
             APPLY "ENTRY" TO inv-misc.actnum.
             opReturnError = YES.   
         END.               
        
         IF lValid THEN 
-            IF inv-misc.actnum:BGCOLOR EQ 16 THEN             
-                ASSIGN 
-                    inv-misc.actnum:BGCOLOR = ?
-                    inv-misc.actnum:FGCOLOR = ?
-                    .                      
+            RUN presetColor NO-ERROR.                   
     END.
 
 END PROCEDURE.
