@@ -1,4 +1,4 @@
-DEFINE {1} TEMP-TABLE ttLoadTag
+DEFINE {1} {2} TEMP-TABLE ttLoadTag
     FIELD   company         AS      CHARACTER     
     FIELD   warehouseID     AS      CHARACTER 
     FIELD   locationID      AS      CHARACTER  
