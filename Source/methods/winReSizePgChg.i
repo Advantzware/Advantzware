@@ -198,6 +198,8 @@ DO iCntWidHand = 1 TO NUM-ENTRIES(cSmartObjList,","):
         LOOKUP( "panel-identifier",      hTempObjHand:INTERNAL-ENTRIES, ",")  > 0 OR
         LOOKUP( "viewer-identifier",     hTempObjHand:INTERNAL-ENTRIES, ",")  > 0 OR
         LOOKUP( "count-buttons",         hTempObjHand:INTERNAL-ENTRIES, ",")  > 0 OR
+        LOOKUP( "containr-identifier",      hTempObjHand:INTERNAL-ENTRIES, ",") > 0 OR 
+        LOOKUP( "winmethods-identifier",      hTempObjHand:INTERNAL-ENTRIES, ",") > 0 OR 
         THIS-PROCEDURE:FILE-NAME =  hTempObjHand:NAME                             OR
         hTempObjHand:NAME = "smartobj/smartmsg.w")                                OR
         INDEX(hTempObjHand:INTERNAL-ENTRIES, "folder")  > 0 
