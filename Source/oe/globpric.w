@@ -85,10 +85,11 @@ DEF STREAM excel.
 
 DEFINE TEMP-TABLE ttPriceMatrix NO-UNDO
     LIKE oe-prmtx
-    .
-cExcelHeader = "Eff. Date,Customer,Type,Category,Item Code,Price Basis,Qty1,Price1,Dsc1,UOM1,Qty2,Price2,Dsc2,UOM2,"+
-                "Qty3,Price3,Dsc3,UOM3,Qty4,Price4,Dsc4,UOM4,Qty5,Price5,Dsc5,UOM5,Qty6,Price6,Dsc6,UOM6," + 
-                "Qty7,Price7,Dsc7,UOM7,Qty8,Price8,Dsc8,UOM8,Qty9,Price9,Dsc9,UOM9,Qty10,Price10,Dsc10,UOM10," +
+    FIELD oldPrice AS DECIMAL EXTENT 10 FORMAT "->>,>>>,>>9.99<<<<"
+   .
+cExcelHeader = "Eff. Date,Customer,Type,Category,Item Code,Price Basis,Minimum Order Qty.,Qty1,Old Price1,New Price 1,Dsc1,UOM1,Qty2,Old Price2,New Price 2,Dsc2,UOM2,"+
+                "Qty3,Old Price3,New Price3,Dsc3,UOM3,Qty4,Old Price4,New Price4,Dsc4,UOM4,Qty5,Old Price5,New Price5,Dsc5,UOM5,Qty6,Old Price6,New Price6,Dsc6,UOM6," + 
+                "Qty7,Old Price7,New Price7,Dsc7,UOM7,Qty8,Old Price8,New Price8,Dsc8,UOM8,Qty9,Old Price9,New Price9,Dsc9,UOM9,Qty10,Old Price10,New Price10,Dsc10,UOM10," +
                 "Exp Date,ShipTo,Online,Customer Part #,Item Name,Item Description 1".
 
 /* _UIB-CODE-BLOCK-END */
@@ -159,7 +160,7 @@ DEFINE BUTTON btSimulate
      LABEL "Simulate" 
      SIZE 16.6 BY 1.14.
 
-DEFINE VARIABLE cbMatrixPrecision AS CHARACTER FORMAT "X(256)":U INITIAL "0" 
+DEFINE VARIABLE cbMatrixPrecision AS CHARACTER FORMAT "X(256)":U INITIAL "2" 
      LABEL "Matrix Precision" 
      VIEW-AS COMBO-BOX INNER-LINES 5
      LIST-ITEMS "0","1","2","3","4","5","6","Customer" 
@@ -183,7 +184,7 @@ DEFINE VARIABLE cbPriceBasis AS CHARACTER FORMAT "X(256)":U INITIAL "Price"
      DROP-DOWN-LIST
      SIZE 16 BY 1 NO-UNDO.
 
-DEFINE VARIABLE cbUse AS CHARACTER FORMAT "X(256)":U INITIAL "D" 
+DEFINE VARIABLE cbUse AS CHARACTER FORMAT "X(256)":U INITIAL "M" 
      LABEL "Use" 
      VIEW-AS COMBO-BOX INNER-LINES 5
      LIST-ITEM-PAIRS "% Profit","D",
@@ -811,43 +812,54 @@ PROCEDURE pCreateCSVRecords PRIVATE :
             cConcatRecords = cConcatRecords + appendXLLine(STRING(ipbfttPriceMatrix.procat))
             cConcatRecords = cConcatRecords + appendXLLine(SUBSTRING(ipbfttPriceMatrix.i-no,1,15))                      
             cConcatRecords = cConcatRecords + appendXLLine(STRING(IF ipbfttPriceMatrix.meth THEN "Price" ELSE "Discount"))
+            cConcatRecords = cConcatRecords + appendXLLine(STRING(ipbfttPriceMatrix.minOrderQty ))
             cConcatRecords = cConcatRecords + appendXLLine(STRING(ipbfttPriceMatrix.qty[1]      ))
+            cConcatRecords = cConcatRecords + appendXLLine(STRING(ipbfttPriceMatrix.oldPrice[1] ))
             cConcatRecords = cConcatRecords + appendXLLine(STRING(ipbfttPriceMatrix.price[1]    ))
             cConcatRecords = cConcatRecords + appendXLLine(STRING(ipbfttPriceMatrix.discount[1] ))
             cConcatRecords = cConcatRecords + appendXLLine(STRING(ipbfttPriceMatrix.uom[1]      ))
             cConcatRecords = cConcatRecords + appendXLLine(STRING(ipbfttPriceMatrix.qty[2]      ))
+            cConcatRecords = cConcatRecords + appendXLLine(STRING(ipbfttPriceMatrix.oldPrice[2] ))
             cConcatRecords = cConcatRecords + appendXLLine(STRING(ipbfttPriceMatrix.price[2]    ))
             cConcatRecords = cConcatRecords + appendXLLine(STRING(ipbfttPriceMatrix.discount[2] ))
             cConcatRecords = cConcatRecords + appendXLLine(STRING(ipbfttPriceMatrix.uom[2]      ))
             cConcatRecords = cConcatRecords + appendXLLine(STRING(ipbfttPriceMatrix.qty[3]      ))
+            cConcatRecords = cConcatRecords + appendXLLine(STRING(ipbfttPriceMatrix.oldPrice[3] ))
             cConcatRecords = cConcatRecords + appendXLLine(STRING(ipbfttPriceMatrix.price[3]    )) 
             cConcatRecords = cConcatRecords + appendXLLine(STRING(ipbfttPriceMatrix.discount[3] ))
             cConcatRecords = cConcatRecords + appendXLLine(STRING(ipbfttPriceMatrix.uom[3]      ))
             cConcatRecords = cConcatRecords + appendXLLine(STRING(ipbfttPriceMatrix.qty[4]      ))
+            cConcatRecords = cConcatRecords + appendXLLine(STRING(ipbfttPriceMatrix.oldPrice[4] ))
             cConcatRecords = cConcatRecords + appendXLLine(STRING(ipbfttPriceMatrix.price[4]    ))
             cConcatRecords = cConcatRecords + appendXLLine(STRING(ipbfttPriceMatrix.discount[4] ))
             cConcatRecords = cConcatRecords + appendXLLine(STRING(ipbfttPriceMatrix.uom[4]      ))
             cConcatRecords = cConcatRecords + appendXLLine(STRING(ipbfttPriceMatrix.qty[5]      ))
+            cConcatRecords = cConcatRecords + appendXLLine(STRING(ipbfttPriceMatrix.oldPrice[5] ))
             cConcatRecords = cConcatRecords + appendXLLine(STRING(ipbfttPriceMatrix.price[5]    ))
             cConcatRecords = cConcatRecords + appendXLLine(STRING(ipbfttPriceMatrix.discount[5] ))
             cConcatRecords = cConcatRecords + appendXLLine(STRING(ipbfttPriceMatrix.uom[5]      ))
             cConcatRecords = cConcatRecords + appendXLLine(STRING(ipbfttPriceMatrix.qty[6]      ))
+            cConcatRecords = cConcatRecords + appendXLLine(STRING(ipbfttPriceMatrix.oldPrice[6] ))
             cConcatRecords = cConcatRecords + appendXLLine(STRING(ipbfttPriceMatrix.price[6]    ))
             cConcatRecords = cConcatRecords + appendXLLine(STRING(ipbfttPriceMatrix.discount[6] ))
             cConcatRecords = cConcatRecords + appendXLLine(STRING(ipbfttPriceMatrix.uom[6]      ))
             cConcatRecords = cConcatRecords + appendXLLine(STRING(ipbfttPriceMatrix.qty[7]      ))
+            cConcatRecords = cConcatRecords + appendXLLine(STRING(ipbfttPriceMatrix.oldPrice[7] ))
             cConcatRecords = cConcatRecords + appendXLLine(STRING(ipbfttPriceMatrix.price[7]    ))
             cConcatRecords = cConcatRecords + appendXLLine(STRING(ipbfttPriceMatrix.discount[7] ))
             cConcatRecords = cConcatRecords + appendXLLine(STRING(ipbfttPriceMatrix.uom[7]      ))
             cConcatRecords = cConcatRecords + appendXLLine(STRING(ipbfttPriceMatrix.qty[8]      ))
+            cConcatRecords = cConcatRecords + appendXLLine(STRING(ipbfttPriceMatrix.oldPrice[8] ))
             cConcatRecords = cConcatRecords + appendXLLine(STRING(ipbfttPriceMatrix.price[8]    ))
             cConcatRecords = cConcatRecords + appendXLLine(STRING(ipbfttPriceMatrix.discount[8] ))
             cConcatRecords = cConcatRecords + appendXLLine(STRING(ipbfttPriceMatrix.uom[8]      ))
             cConcatRecords = cConcatRecords + appendXLLine(STRING(ipbfttPriceMatrix.qty[9]      ))
+            cConcatRecords = cConcatRecords + appendXLLine(STRING(ipbfttPriceMatrix.oldPrice[9] ))
             cConcatRecords = cConcatRecords + appendXLLine(STRING(ipbfttPriceMatrix.price[9]    ))
             cConcatRecords = cConcatRecords + appendXLLine(STRING(ipbfttPriceMatrix.discount[9] ))
             cConcatRecords = cConcatRecords + appendXLLine(STRING(ipbfttPriceMatrix.uom[9]      ))
             cConcatRecords = cConcatRecords + appendXLLine(STRING(ipbfttPriceMatrix.qty[10]     ))
+            cConcatRecords = cConcatRecords + appendXLLine(STRING(ipbfttPriceMatrix.oldPrice[10]))
             cConcatRecords = cConcatRecords + appendXLLine(STRING(ipbfttPriceMatrix.price[10]   ))
             cConcatRecords = cConcatRecords + appendXLLine(STRING(ipbfttPriceMatrix.discount[10]))
             cConcatRecords = cConcatRecords + appendXLLine(STRING(ipbfttPriceMatrix.uom[10]     )) 
@@ -1133,18 +1145,27 @@ REPEAT PRESELECT EACH oe-prmtx EXCLUSIVE-LOCK
 /*        DO:                                               */
         
           lIsTempTableRecordAvail = NO.
+          /* Set Rounding level to 2 if cust.matrixRounding is blank */
           IF cbMatrixPrecision EQ "Customer" THEN DO:
-              DO ctr = 1 TO INTEGER(cust.matrixPrecision):
+              li-factor = 1.  /* Reset to 1 */ 
+              IF cust.matrixRounding EQ "" THEN 
+                  iRoundingLevel = 2.  
+              ELSE 
+                  iRoundingLevel = cust.matrixPrecision.
+              
+              DO ctr = 1 TO INTEGER(iRoundingLevel):
                   li-factor = li-factor * 10.    
-              END.
-              iRoundingLevel = INTEGER(cust.matrixPrecision).
-          END.
+              END.        
+          END.              
+              
           IF cRoundingType EQ "C" THEN DO:
               IF cust.matrixRounding EQ "" THEN
-                  cRoundingType = "U".
+                  ASSIGN 
+                      cRoundingType = "U"
+                      .
               ELSE
                   cRoundingType = cust.matrixRounding.               
-          END.               
+          END.              
           IF tg_newmatrix THEN DO:
               IF isLatestEffDate(BUFFER oe-prmtx) THEN DO:  
                   IF lProcess THEN DO:     
@@ -1153,6 +1174,7 @@ REPEAT PRESELECT EACH oe-prmtx EXCLUSIVE-LOCK
                   END.
                   CREATE ttPriceMatrix.
                   BUFFER-COPY oe-prmtx TO ttPriceMatrix.
+                  ttPriceMatrix.oldPrice = oe-prmtx.price. /* Store old price into temp table */
                   lIsTempTableRecordAvail = YES.
               END.
           END.
@@ -1161,6 +1183,7 @@ REPEAT PRESELECT EACH oe-prmtx EXCLUSIVE-LOCK
               IF AVAILABLE bf-oe-prmtx THEN DO:
                   CREATE ttPriceMatrix.
                   BUFFER-COPY bf-oe-prmtx TO ttPriceMatrix. 
+                  ttPriceMatrix.oldPrice = bf-oe-prmtx.price.  /* Store old price into temp table */
               END.    
           END.    
           IF AVAIL bf-oe-prmtx OR lIsTempTableRecordAvail THEN DO:
