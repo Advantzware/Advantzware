@@ -958,6 +958,28 @@ END PROCEDURE.
 
 
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE presetColor C-Win
+PROCEDURE presetColor:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DO WITH FRAME {&FRAME-NAME}:
+        IF begin_accnt:BGCOLOR EQ 16 THEN             
+            ASSIGN 
+                begin_accnt:BGCOLOR = ?
+                begin_accnt:FGCOLOR = ?
+                .                          
+    END. 
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pcheckGLAccount C-Win
 PROCEDURE pcheckGLAccount:
 /*------------------------------------------------------------------------------
@@ -979,13 +1001,9 @@ PROCEDURE pcheckGLAccount:
                OUTPUT lValid, 
                OUTPUT cMessage
                ) NO-ERROR.        
-            IF NOT lValid THEN DO:
-                IF begin_accnt:BGCOLOR EQ 16 THEN             
-                   ASSIGN 
-                       begin_accnt:BGCOLOR = ?
-                       begin_accnt:FGCOLOR = ?
-                       .
-                MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.       
+            IF NOT lValid THEN DO:                
+                MESSAGE cMessage VIEW-AS ALERT-BOX ERROR. 
+                RUN presetColor NO-ERROR.      
                 IF INDEX(cMessage, "Inactive") GT 0 THEN 
                     ASSIGN 
                         begin_accnt:BGCOLOR = 16
@@ -997,11 +1015,7 @@ PROCEDURE pcheckGLAccount:
         END.                  
        
         IF begin_accnt:SCREEN-VALUE EQ "" OR lValid THEN 
-            IF begin_accnt:BGCOLOR EQ 16 THEN             
-                ASSIGN 
-                    begin_accnt:BGCOLOR = ?
-                    begin_accnt:FGCOLOR = ?
-                    .              
+            RUN presetColor NO-ERROR.         
     END.
 
 END PROCEDURE.

@@ -85,6 +85,7 @@ costtype.inv-asset costtype.pur-var costtype.cons-exp costtype.ap-accrued
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,List-5,F1 */
 &Scoped-define ADM-CREATE-FIELDS costtype.cost-type 
+&Scoped-define GL-FIELDS costtype.inv-asset costtype.pur-var costtype.cons-exp costtype.ap-accrued
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -434,10 +435,8 @@ PROCEDURE local-cancel-record:
  Notes:
 ------------------------------------------------------------------------------*/
     DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
-    /* Code placed here will execute PRIOR to standard behavior. */
-    DO iCount = 1 TO 4:
-        RUN presetColor (iCount) NO-ERROR.        
-    END.
+    /* Code placed here will execute PRIOR to standard behavior. */    
+    RUN presetColor(INPUT "") NO-ERROR.        
 
     /* Dispatch standard ADM method.                             */
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ).
@@ -478,10 +477,8 @@ PROCEDURE local-reset-record:
 ------------------------------------------------------------------------------*/
     DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
     /* Code placed here will execute PRIOR to standard behavior. */
-    DO iCount = 1 TO 4:
-        RUN presetColor (iCount) NO-ERROR.        
-    END.
-
+    RUN presetColor(INPUT "") NO-ERROR.
+    
     /* Dispatch standard ADM method.                             */
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'reset-record':U ).
 
@@ -518,47 +515,80 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pchangeColor V-table-Win
+PROCEDURE pchangeColor:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iphfieldHandle AS HANDLE NO-UNDO.
+    
+    DEFINE VARIABLE cfieldName AS CHARACTER NO-UNDO.
+    
+    IF VALID-HANDLE(iphfieldHandle) THEN DO:
+        cfieldName = "costtype." + iphfieldHandle:NAME.
+        IF iphfieldHandle:TYPE                   EQ "fill-in"   AND 
+           iphfieldHandle:DATA-TYPE              EQ "CHARACTER" AND 
+           LOOKUP(cfieldName,"{&GL-FIELDS}"," ") GT 0 THEN DO:
+            ASSIGN 
+                iphfieldHandle:BGCOLOR = 16
+                iphfieldHandle:FGCOLOR = 15
+                .                                    
+            APPLY "ENTRY" TO iphfieldHandle.
+        END.     
+    END.    
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE presetColor V-table-Win
 PROCEDURE presetColor:
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipiCount AS INTEGER NO-UNDO.
-    
-    DO WITH FRAME {&FRAME-NAME}:
-        CASE ipiCount:  
-          WHEN 1 THEN DO: 
-              IF costtype.inv-asset:BGCOLOR EQ 16 THEN 
-                  ASSIGN 
-                      costtype.inv-asset:BGCOLOR = 15
-                      costtype.inv-asset:FGCOLOR = ?
-                      .                       
-          END.
-          WHEN 2 THEN DO:
-              IF costtype.pur-var:BGCOLOR EQ 16 THEN 
-                  ASSIGN 
-                      costtype.pur-var:BGCOLOR = 15
-                      costtype.pur-var:FGCOLOR = ?
-                      .                   
-          END.
-          WHEN 3 THEN DO:
-              IF costtype.cons-exp:BGCOLOR EQ 16 THEN 
-                  ASSIGN 
-                      costtype.cons-exp:BGCOLOR = 15
-                      costtype.cons-exp:FGCOLOR = ?
-                      .                       
-          END.
-          WHEN 4 THEN DO:
-              IF costtype.ap-accrued:BGCOLOR EQ 16 THEN 
-                  ASSIGN 
-                      costtype.ap-accrued:BGCOLOR = 16
-                      costtype.ap-accrued:FGCOLOR = 15
-                      .                       
-          END.
-        END CASE.      
-    END.    
+    DEFINE INPUT PARAMETER iphfieldHandle AS HANDLE NO-UNDO.
 
+    DEFINE VARIABLE hframeHandle AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE hgroupHandle AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE hfieldHandle AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE cfieldName   AS CHARACTER NO-UNDO.
+
+    ASSIGN 
+        hframeHandle = FRAME {&FRAME-NAME}:HANDLE
+        hgroupHandle = hframeHandle:FIRST-CHILD
+        hfieldHandle = hgroupHandle:FIRST-CHILD
+        .
+    IF VALID-HANDLE(iphfieldHandle) THEN DO:
+        cfieldName = "costtype." + iphfieldHandle:NAME.
+        IF iphfieldHandle:TYPE                   EQ "fill-in"   AND 
+           iphfieldHandle:DATA-TYPE              EQ "CHARACTER" AND 
+           LOOKUP(cfieldName,"{&GL-FIELDS}"," ") GT 0 THEN            
+            IF iphfieldHandle:BGCOLOR EQ 16 THEN             
+               ASSIGN 
+                   iphfieldHandle:BGCOLOR = 15
+                   iphfieldHandle:FGCOLOR = ?
+                   .                               
+    END. 
+    ELSE DO:                
+        DO WHILE VALID-HANDLE(hfieldHandle):
+            cfieldName = "costtype." + hfieldHandle:NAME.
+            IF hfieldHandle:TYPE      EQ "fill-in"   AND 
+                hfieldHandle:DATA-TYPE EQ "CHARACTER" AND 
+                LOOKUP(cfieldName,"{&GL-FIELDS}"," ") GT 0 THEN           
+                IF hfieldHandle:BGCOLOR EQ 16 THEN             
+                    ASSIGN 
+                        hfieldHandle:BGCOLOR = 15
+                        hfieldHandle:FGCOLOR = ?
+                        .                     
+            hfieldHandle = hfieldHandle:NEXT-SIBLING.
+        END. 
+    END.                                                 
 END PROCEDURE.
 	
 /* _UIB-CODE-BLOCK-END */
@@ -691,32 +721,16 @@ PROCEDURE valid-acct :
               MESSAGE "GL Account is Inactive." VIEW-AS ALERT-BOX ERROR. 
               CASE ip-int:  
                   WHEN 1 THEN DO: 
-                      ASSIGN 
-                          costtype.inv-asset:BGCOLOR = 16
-                          costtype.inv-asset:FGCOLOR = 15
-                          . 
-                      APPLY "ENTRY" TO costtype.inv-asset.
+                      RUN pchangeColor(INPUT costtype.inv-asset:HANDLE) NO-ERROR.                      
                   END.
                   WHEN 2 THEN DO:
-                      ASSIGN 
-                          costtype.pur-var:BGCOLOR = 16
-                          costtype.pur-var:FGCOLOR = 15
-                          . 
-                      APPLY "ENTRY" TO costtype.pur-var.
+                      RUN pchangeColor(INPUT costtype.pur-var:HANDLE) NO-ERROR.                      
                   END.
                   WHEN 3 THEN DO:
-                      ASSIGN 
-                          costtype.cons-exp:BGCOLOR = 16
-                          costtype.cons-exp:FGCOLOR = 15
-                          . 
-                      APPLY "ENTRY" TO costtype.cons-exp.
+                      RUN pchangeColor(INPUT costtype.cons-exp:HANDLE) NO-ERROR.                      
                   END.
                   WHEN 4 THEN DO:
-                      ASSIGN 
-                          costtype.ap-accrued:BGCOLOR = 16
-                          costtype.ap-accrued:FGCOLOR = 15
-                          . 
-                      APPLY "ENTRY" TO costtype.ap-accrued.
+                      RUN pchangeColor(INPUT costtype.ap-accrued:HANDLE) NO-ERROR.                      
                   END.
               END CASE.
               RETURN ERROR.         
@@ -737,32 +751,16 @@ PROCEDURE valid-acct :
     IF lv-value EQ "" OR ll THEN DO:
         CASE ip-int:  
           WHEN 1 THEN DO: 
-              IF costtype.inv-asset:BGCOLOR EQ 16 THEN 
-                  ASSIGN 
-                      costtype.inv-asset:BGCOLOR = 15
-                      costtype.inv-asset:FGCOLOR = ?
-                      .                       
+              RUN presetColor(INPUT costtype.inv-asset:HANDLE) NO-ERROR.                     
           END.
           WHEN 2 THEN DO:
-              IF costtype.pur-var:BGCOLOR EQ 16 THEN 
-                  ASSIGN 
-                      costtype.pur-var:BGCOLOR = 15
-                      costtype.pur-var:FGCOLOR = ?
-                      .                   
+              RUN presetColor(INPUT costtype.pur-var:HANDLE) NO-ERROR.                              
           END.
           WHEN 3 THEN DO:
-              IF costtype.cons-exp:BGCOLOR EQ 16 THEN 
-                  ASSIGN 
-                      costtype.cons-exp:BGCOLOR = 15
-                      costtype.cons-exp:FGCOLOR = ?
-                      .                       
+              RUN presetColor(INPUT costtype.cons-exp:HANDLE) NO-ERROR.                                   
           END.
           WHEN 4 THEN DO:
-              IF costtype.ap-accrued:BGCOLOR EQ 16 THEN 
-                  ASSIGN 
-                      costtype.ap-accrued:BGCOLOR = 16
-                      costtype.ap-accrued:FGCOLOR = 15
-                      .                       
+              RUN presetColor(INPUT costtype.ap-accrued:HANDLE) NO-ERROR.                                  
           END.
       END CASE.      
     END.    
