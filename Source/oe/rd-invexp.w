@@ -83,18 +83,18 @@ ASSIGN cTextListToSelect  = "Invoice#,Customer#,Customer Name,Invoice Date,Bol#,
                                                 "Name,Cust Part#,Qty Order,Item Dscr1,Item Dscr2," +
                                                 "Qty Ship,Qty Invoice,UOM,Rep1,Rep Name1,Rep2,Rep Name2,Rep3,Rep Name3," +
                                                 "Comm1,Comm2,Comm3,Cost,Case,Discount,Taxable,Ext. Price," +
-                                                "CSR,Line Item Tax,OrderHeader ShipTo State,Order Line No,Billing Note,Auto Approval,Tag"
+                                                "CSR,Line Item Tax,OrderHeader ShipTo State,Order Line No,Billing Note,Auto Approval,Tag,Accountant"
        cFieldListToSelect = "inv-head.inv-no,inv-head.cust-no,inv-head.cust-name,inv-head.inv-date,inv-head.bol-no,ord-no,inv-head.printed,inv-head.t-inv-rev," +
                                         "stat,inv-head.sold-no,inv-head.sold-name,inv-head.contact,inv-head.tax-gr,inv-head.terms,inv-head.frt-pay," +
                                         "po-no,inv-head.carrier,inv-head.fob-code,job-no,job-no2,est-no,i-no," +
                                         "i-name,part-no,qty,part-dscr1,part-dscr2," +
                                         "ship-qty,inv-qty,pr-uom,sman1,sname1,sman2,sname2,sman3,sname3," +
                                         "comm1,comm2,comm3,cost,cas-cnt,disc,tax,t-price," +
-                                        "csr,line-sales-tax,ord-head-ship-stat,ord-line,bill-note,Auto,reason"
+                                        "csr,line-sales-tax,ord-head-ship-stat,ord-line,bill-note,Auto,reason,cAccountant"
         cFieldLength = "15,15,15,20,15,30,15,15," + "15,15,15,20,15,30,15," + "15,15,15,8,2,6,15," +
-                       "30,15,10,30,30," + "15,15,5,4,25,4,25,4,25," + "7,7,7,10,10,10,10,10," + "15,15,15,15,15,10,100"
+                       "30,15,10,30,30," + "15,15,5,4,25,4,25,4,25," + "7,7,7,10,10,10,10,10," + "15,15,15,15,15,10,100,12"
            cFieldType = "c,c,c,c,c,c,c,c," + "c,c,c,c,c,c,c," + "c,c,c,c,i,c,c," +
-                        "c,c,i,c,c," + "i,i,c,c,c,c,c,c,c," + "i,i,i,i,i,i,c,i," + "c,c,c,i,c,c,c"     
+                        "c,c,i,c,c," + "i,i,c,c,c,c,c,c,c," + "i,i,i,i,i,i,c,i," + "c,c,c,i,c,c,c,c"     
        .
 
 {sys/inc/ttRptSel.i}
@@ -118,11 +118,11 @@ ASSIGN cTextListToSelect  = "Invoice#,Customer#,Customer Name,Invoice Date,Bol#,
 end_cust-no begin_item end_item begin_part end_part begin_order end_order ~
 end_date begin_date begin_bol-no end_bol-no tb_print-del sl_avail ~
 sl_selected Btn_Add Btn_Remove btn_Up btn_down tb_excel tb_runExcel fi_file ~
-btn-ok btn-cancel 
+btn-ok btn-cancel fi_accountant
 &Scoped-Define DISPLAYED-OBJECTS begin_cust-no end_cust-no begin_item ~
 end_item begin_part end_part begin_order end_order end_date begin_date ~
 begin_bol-no end_bol-no tb_print-del sl_avail sl_selected tb_excel ~
-tb_runExcel fi_file 
+tb_runExcel fi_file fi_accountant
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -273,6 +273,10 @@ DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL yes
      SIZE 21 BY .81
      BGCOLOR 3  NO-UNDO.
 
+DEFINE VARIABLE fi_accountant AS CHARACTER FORMAT "X(12)" 
+     LABEL "Accountant" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1.
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -301,7 +305,9 @@ DEFINE FRAME Dialog-Frame
           "Enter Beginning BOL Number" WIDGET-ID 126
      end_bol-no AT ROW 8.81 COL 71 COLON-ALIGNED HELP
           "Enter Beginning BOL Number" WIDGET-ID 128
-     tb_print-del AT ROW 10.24 COL 39.8
+     fi_accountant AT ROW 9.91 COL 28 COLON-ALIGNED HELP
+          "Enter Customer Accountant Name" WIDGET-ID 6
+     tb_print-del AT ROW 10.24 COL 62.6
      sl_avail AT ROW 12.91 COL 6.6 NO-LABEL WIDGET-ID 26
      sl_selected AT ROW 12.91 COL 62.6 NO-LABEL WIDGET-ID 28
      Btn_Add AT ROW 13.38 COL 43.6 HELP
@@ -407,6 +413,10 @@ ASSIGN
        tb_excel:PRIVATE-DATA IN FRAME Dialog-Frame     = 
                 "parm".
 
+ASSIGN 
+       fi_accountant:PRIVATE-DATA IN FRAME Dialog-Frame     = 
+                "parm".
+
 /* SETTINGS FOR TOGGLE-BOX tb_runExcel IN FRAME Dialog-Frame
    ALIGN-R                                                              */
 ASSIGN 
@@ -449,7 +459,15 @@ DEF VAR char-val AS CHAR NO-UNDO.
               lw-focus:screen-value =  ENTRY(1,char-val).
            end.
            return no-apply.
-       end.  /* cust-no*/  
+       end.  /* cust-no*/
+       WHEN "fi_accountant" THEN DO:
+         ls-cur-val = lw-focus:SCREEN-VALUE.
+         RUN windows/l-users.w (ls-cur-val, output char-val).
+           IF char-val <> "" THEN DO: 
+              lw-focus:SCREEN-VALUE = ENTRY(1,char-val).
+           END.
+           RETURN NO-APPLY.
+       END.  /* accountant*/
    END CASE.
 END.
 
@@ -548,13 +566,15 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-ok Dialog-Frame
 ON CHOOSE OF btn-ok IN FRAME Dialog-Frame /* OK */
 DO:
+  DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN {&displayed-objects}.
   END.
 
   RUN GetSelectionList. 
   run run-report.
-
+  RUN valid-bill-owner(OUTPUT lReturnError) NO-ERROR.
+     IF lReturnError THEN RETURN NO-APPLY.
  END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -701,6 +721,21 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&Scoped-define SELF-NAME fi_accountant
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_accountant Dialog-Frame
+ON LEAVE OF fi_accountant IN FRAME Dialog-Frame /* Billing Owner */
+DO:
+   DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
+  IF LASTKEY <> -1 THEN DO:
+     RUN valid-bill-owner(OUTPUT lReturnError) NO-ERROR.
+     IF lReturnError THEN RETURN NO-APPLY.
+  END.
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &Scoped-define SELF-NAME sl_avail
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sl_avail Dialog-Frame
@@ -945,13 +980,13 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY begin_cust-no end_cust-no begin_item end_item begin_part end_part 
           begin_order end_order end_date begin_date begin_bol-no end_bol-no 
-          tb_print-del sl_avail sl_selected tb_excel tb_runExcel fi_file 
+          tb_print-del sl_avail sl_selected tb_excel tb_runExcel fi_file fi_accountant 
       WITH FRAME Dialog-Frame.
   ENABLE RECT-6 RECT-7 RECT-8 begin_cust-no end_cust-no begin_item end_item 
          begin_part end_part begin_order end_order end_date begin_date 
          begin_bol-no end_bol-no tb_print-del sl_avail sl_selected Btn_Add 
-         Btn_Remove btn_Up btn_down tb_excel tb_runExcel fi_file btn-ok 
-         btn-cancel 
+         Btn_Remove btn_Up btn_down tb_excel tb_runExcel fi_file fi_accountant
+         btn-ok btn-cancel 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
@@ -1135,11 +1170,15 @@ IF tb_print-del  THEN do:
             inv-head.multi-invoice = NO AND 
            (inv-head.cust-no >= begin_cust-no AND inv-head.cust-no <= end_cust-no) AND
            (inv-head.bol-no >= begin_bol-no AND inv-head.bol-no <= end_bol-no) AND
-           (inv-head.inv-date >= date(begin_date) AND inv-head.inv-date <= date(end_date)) /*AND
+           (inv-head.inv-date >= date(begin_date) AND inv-head.inv-date <= date(end_date))/*AND
            inv-head.stat NE "W"*/ ,
        EACH inv-line OF inv-head WHERE (inv-line.ord-no >= int(begin_order) AND inv-line.ord-no <= int(end_order)) AND
          (inv-line.i-no >= begin_item AND inv-line.i-no <= END_item) AND
-         (inv-line.part-no >= begin_part AND inv-line.part-no <= end_part) BY inv-head.inv-no:
+         (inv-line.part-no >= begin_part AND inv-line.part-no <= end_part),
+       FIRST cust NO-LOCK
+          WHERE cust.company EQ cocode
+          AND cust.cust-no EQ inv-head.cust-no 
+          AND (cust.accountant BEGINS fi_accountant or fi_accountant eq "") BY inv-head.inv-no:
    
        IF inv-head.stat EQ "H" THEN
            v-stat = "On Hold".
@@ -1302,7 +1341,7 @@ IF tb_print-del  THEN do:
                       IF avail tag AND NOT inv-head.autoApproved THEN cVarValue = STRING(tag.description) .
                       ELSE  cVarValue = "".                      
                   END.
-                  
+                  WHEN "cAccountant"            THEN cVarValue = STRING(cust.accountant).
              END CASE.
 
              cExcelVarValue = cVarValue.
@@ -1326,8 +1365,12 @@ ELSE DO:
             inv-head.multi-invoice = NO AND 
            (inv-head.cust-no >= begin_cust-no AND inv-head.cust-no <= end_cust-no) AND
            (inv-head.bol-no >= begin_bol-no AND inv-head.bol-no <= end_bol-no) AND
-           (inv-head.inv-date >= date(begin_date) AND inv-head.inv-date <= date(end_date)) /*AND
-           inv-head.stat NE "W"*/ BY inv-head.inv-no : 
+           (inv-head.inv-date >= date(begin_date) AND inv-head.inv-date <= date(end_date)), /*AND
+           inv-head.stat NE "W"*/ 
+          FIRST cust NO-LOCK
+          WHERE cust.company EQ cocode
+          AND cust.cust-no EQ inv-head.cust-no 
+          AND (cust.accountant BEGINS fi_accountant or fi_accountant eq "") BY inv-head.inv-no:
    
        IF inv-head.stat EQ "H" THEN
            v-stat = "On Hold".
@@ -1463,6 +1506,7 @@ ELSE DO:
                       IF avail tag AND NOT inv-head.autoApproved THEN cVarValue = STRING(tag.description) .
                       ELSE  cVarValue = "".                      
                   END.
+                  WHEN "cAccountant"            THEN cVarValue = STRING(cust.accountant).
              END CASE.
 
              cExcelVarValue = cVarValue.
@@ -1524,6 +1568,31 @@ PROCEDURE Set-Sort-Data :
 
   RETURN.
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-bill-owner Dialog-Frame 
+PROCEDURE valid-bill-owner :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
+  {methods/lValidateError.i YES}
+
+   IF fi_accountant:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" THEN DO:
+       IF NOT CAN-FIND(FIRST users WHERE users.USER_ID EQ fi_accountant:SCREEN-VALUE IN FRAME {&FRAME-NAME})
+       THEN DO:
+           MESSAGE "Invalid customer Accountant. Try help." VIEW-AS ALERT-BOX ERROR.
+           APPLY "entry" TO fi_accountant.
+           oplReturnError = YES.
+       END.
+   END.
+
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
