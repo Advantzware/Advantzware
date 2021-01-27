@@ -17,10 +17,13 @@ DEFINE INPUT PARAMETER ipriRowid AS ROWID NO-UNDO.
 
 {est/ttInputEst.i}   
 DEFINE VARIABLE lRoutingExist AS LOGICAL NO-UNDO.
+DEFINE VARIABLE iLine AS INTEGER NO-UNDO.
 DEFINE BUFFER bf-eb FOR eb.
 DEFINE BUFFER bff-eb FOR eb.
 DEFINE BUFFER bf-ef FOR ef.
 DEFINE BUFFER bf-estPacking FOR estPacking.
+DEFINE BUFFER bf-est-op FOR est-op.
+DEFINE BUFFER xop FOR est-op.
 
 /* ********************  Preprocessor Definitions  ******************** */
 
@@ -153,7 +156,8 @@ FOR EACH ttInputEst NO-LOCK:
                          bf-ef.spec-uom[7]  = ef.spec-uom[7] 
                          bf-ef.spec-no[8]   = ef.spec-no[8]
                          bf-ef.spec-dscr[8] = ef.spec-dscr[8]
-                         bf-ef.spec-uom[8] = ef.spec-uom[8].                            
+                         bf-ef.spec-uom[8] = ef.spec-uom[8]
+                         bf-ef.spec-qty    = ef.spec-qty.                            
                           
                       END.                            
                                               
@@ -182,9 +186,48 @@ FOR EACH ttInputEst NO-LOCK:
                               BUFFER-COPY estPacking EXCEPT company estimateNo FormNo  BlankNo estPackingID rmItemID rec_key TO bf-estPacking.
                           END.
                       END.
-                      RELEASE bf-estPacking NO-ERROR .                        
-                        
-                  END.  
+                      RELEASE bf-estPacking NO-ERROR .
+                      FOR EACH est-op  NO-LOCK
+                          WHERE est-op.company EQ bf-eb.company
+                          AND est-op.est-no  EQ bf-eb.est-no
+                          AND est-op.s-num   EQ bf-eb.form-no
+                          AND est-op.b-num  EQ  0
+                          AND est-op.line    LT 500:
+                                      
+                          FIND FIRST bf-est-op NO-LOCK
+                               WHERE bf-est-op.company EQ bff-eb.company
+                               AND bf-est-op.est-no  EQ bff-eb.est-no
+                               AND bf-est-op.s-num   EQ bff-eb.form-no
+                               AND bf-est-op.b-num  EQ 0
+                               AND bf-est-op.line    LT 500
+                               AND bf-est-op.m-code  EQ est-op.m-code NO-ERROR.
+                          IF NOT AVAIL bf-est-op THEN
+                          DO:          
+                              iLine = 1.                              
+                              FOR EACH xop
+                                  WHERE xop.company EQ est.company
+                                  AND xop.est-no  EQ est.est-no
+                                  AND xop.line    LT 500
+                                  NO-LOCK
+                                  BY xop.line DESCENDING:
+                                  iLine = xop.line + 1.
+                                  LEAVE.
+                              END.
+                              
+                              CREATE bf-est-op .
+                              ASSIGN
+                              bf-est-op.company  = bff-eb.company 
+                              bf-est-op.est-no   = bff-eb.est-no
+                              bf-est-op.s-num    = bff-eb.form-no
+                              bf-est-op.b-num    = 0
+                              bf-est-op.qty      = est.est-qty[1] 
+                              bf-est-op.LINE     = iLine
+                              .                 
+                              BUFFER-COPY est-op EXCEPT company est-no s-num  b-num qty rec_key LINE TO bf-est-op.
+                              
+                          END.                        
+                      END. 
+                  END.
                    
                END.       
        END.        
