@@ -421,7 +421,7 @@ PROCEDURE adm-create-objects :
                      Disable-on-Init = no,
                      Key-Name = ,
                      Layout = ,
-                     Create-On-Add = Yes':U ,
+                     Create-On-Add = NO':U ,
              OUTPUT h_venditemcost-2 ).
        RUN set-position IN h_venditemcost-2 ( 5.00 , 3.00 ) NO-ERROR.
        /* Size in UIB:  ( 16.19 , 142.00 ) */
@@ -482,6 +482,7 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_venditemcost-2 , 'reopen':U , h_b-vendcostvalue ).
        RUN add-link IN adm-broker-hdl (  h_p-updsav2  , 'TableIO':U , h_b-vendcostvalue) .
        RUN add-link IN adm-broker-hdl ( h_b-vendcostvalue , 'bottom':U , h_venditemcost-2 ).
+       RUN add-link IN adm-broker-hdl ( h_p-updsav2 , 'getPanel':U , h_venditemcost-2 ).
        
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_venditemcost-2 ,
