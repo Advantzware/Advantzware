@@ -1045,12 +1045,7 @@ PROCEDURE local-cancel-record :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
-  IF ar-cashl.actnum:BGCOLOR IN BROWSE {&browse-name} EQ 16 THEN 
-      ASSIGN 
-          ar-cashl.actnum:BGCOLOR IN BROWSE {&browse-name}  = ?
-          ar-cashl.actnum:FGCOLOR IN BROWSE {&browse-name}  = ?
-          .
-
+  RUN presetColor NO-ERROR.
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
 
@@ -1208,11 +1203,7 @@ PROCEDURE local-reset-record:
 ------------------------------------------------------------------------------*/
     
     /* Code placed here will execute PRIOR to standard behavior. */
-    IF ar-cashl.actnum:BGCOLOR IN BROWSE {&browse-name} EQ 16 THEN 
-        ASSIGN 
-            ar-cashl.actnum:BGCOLOR IN BROWSE {&browse-name}  = ?
-            ar-cashl.actnum:FGCOLOR IN BROWSE {&browse-name}  = ?
-            .
+    RUN presetColor NO-ERROR.
     /* Dispatch standard ADM method.                             */
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'reset-record':U ) .
 
@@ -1265,6 +1256,27 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE presetColor B-table-Win
+PROCEDURE presetColor:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+    IF ar-cashl.actnum:BGCOLOR IN BROWSE {&BROWSE-NAME} EQ 16 THEN             
+        ASSIGN 
+            ar-cashl.actnum:BGCOLOR IN BROWSE {&BROWSE-NAME} = ?
+            ar-cashl.actnum:FGCOLOR IN BROWSE {&BROWSE-NAME} = ?
+            .
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE printInv B-table-Win 
 PROCEDURE printInv :
@@ -1416,11 +1428,7 @@ PROCEDURE valid-actnum:
             
         IF lSuccess = NO THEN DO:               
             MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.            
-            IF ar-cashl.actnum:BGCOLOR IN BROWSE {&BROWSE-NAME} EQ 16 THEN             
-                ASSIGN 
-                    ar-cashl.actnum:BGCOLOR IN BROWSE {&BROWSE-NAME} = ?
-                    ar-cashl.actnum:FGCOLOR IN BROWSE {&BROWSE-NAME} = ?
-                   .
+            RUN presetColor NO-ERROR.
             APPLY "ENTRY" TO ar-cashl.actnum IN BROWSE {&BROWSE-NAME}.       
             RETURN ERROR. 
         END.   
@@ -1434,11 +1442,7 @@ PROCEDURE valid-actnum:
             APPLY "ENTRY" TO ar-cashl.actnum IN BROWSE {&BROWSE-NAME}.
             RETURN ERROR.                      
         END.      
-        IF lActive = YES AND ar-cashl.actnum:BGCOLOR IN BROWSE {&BROWSE-NAME} EQ 16 THEN             
-            ASSIGN 
-                ar-cashl.actnum:BGCOLOR IN BROWSE {&BROWSE-NAME} = ?
-                ar-cashl.actnum:FGCOLOR IN BROWSE {&BROWSE-NAME} = ?
-                .                                                                   
+        RUN presetColor NO-ERROR.                                                                
     END.
 
 END PROCEDURE.

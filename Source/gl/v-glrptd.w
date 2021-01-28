@@ -555,35 +555,9 @@ END.
 ON LEAVE OF gl-rpt.acrange1[1] IN FRAME F-Main /* Fr Acct2 */
 DO:   
     IF LASTKEY = -1  THEN RETURN.
-    RUN validate-acct (gl-rpt.acrange1[1]:SCREEN-VALUE IN FRAME {&FRAME-NAME}) NO-ERROR.
-    {&methods/lValidateError.i YES}
-  
-    IF gl-rpt.acrange1[1]:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" AND lSuccess = NO THEN DO:               
-        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.            
-        IF gl-rpt.acrange1[1]:BGCOLOR EQ 16 THEN             
-            ASSIGN 
-                gl-rpt.acrange1[1]:BGCOLOR = ?
-                gl-rpt.acrange1[1]:FGCOLOR = ?
-                .
-            APPLY "ENTRY" TO gl-rpt.acrange1[1].       
-            RETURN NO-APPLY. 
-    END.   
-      
-    IF gl-rpt.acrange1[1]:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" AND lSuccess = YES AND lActive = NO THEN DO:  
-        ASSIGN 
-            gl-rpt.acrange1[1]:BGCOLOR = 16
-            gl-rpt.acrange1[1]:FGCOLOR = 15
-            .   
-        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.           
-        APPLY "ENTRY" TO gl-rpt.acrange1[1].
-        RETURN NO-APPLY.                      
-    END.      
-    IF (lActive = YES OR gl-rpt.acrange1[1]:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "" ) AND gl-rpt.acrange1[1]:BGCOLOR EQ 16 THEN             
-        ASSIGN 
-            gl-rpt.acrange1[1]:BGCOLOR = ?
-            gl-rpt.acrange1[1]:FGCOLOR = ?
-            .                    
-    {&methods/lValidateError.i NO}
+    RUN validate-acct (FOCUS) NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN 
+        RETURN NO-APPLY.
 END.
 
 
@@ -596,35 +570,10 @@ END.
 ON LEAVE OF gl-rpt.acrange1[2] IN FRAME F-Main /* To Acct2 */
 DO: 
     IF LASTKEY = -1  THEN RETURN.
-    RUN validate-acct (gl-rpt.acrange1[2]:SCREEN-VALUE IN FRAME {&FRAME-NAME}) NO-ERROR.
-    {&methods/lValidateError.i YES}
+    RUN validate-acct (FOCUS) NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN 
+        RETURN NO-APPLY.
     
-    IF gl-rpt.acrange1[2]:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" AND lSuccess = NO THEN DO:               
-        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.            
-        IF gl-rpt.acrange1[2]:BGCOLOR EQ 16 THEN             
-            ASSIGN 
-                gl-rpt.acrange1[2]:BGCOLOR = ?
-                gl-rpt.acrange1[2]:FGCOLOR = ?
-                .
-            APPLY "ENTRY" TO gl-rpt.acrange1[2].       
-            RETURN NO-APPLY. 
-    END.   
-      
-    IF gl-rpt.acrange1[2]:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" AND lSuccess = YES AND lActive = NO THEN DO:  
-        ASSIGN 
-            gl-rpt.acrange1[2]:BGCOLOR = 16
-            gl-rpt.acrange1[2]:FGCOLOR = 15
-            .   
-        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.           
-        APPLY "ENTRY" TO gl-rpt.acrange1[2].
-        RETURN NO-APPLY.                      
-    END.      
-    IF (lActive = YES OR gl-rpt.acrange1[2]:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "") AND gl-rpt.acrange1[2]:BGCOLOR EQ 16 THEN             
-        ASSIGN 
-            gl-rpt.acrange1[2]:BGCOLOR = ?
-            gl-rpt.acrange1[2]:FGCOLOR = ?
-            .         
-    {&methods/lValidateError.i NO}
 END.
 
 
@@ -637,35 +586,9 @@ END.
 ON LEAVE OF gl-rpt.acrange1[3] IN FRAME F-Main /* Fr Acct3 */
 DO:
     IF LASTKEY = -1 THEN RETURN.
-    RUN validate-acct (gl-rpt.acrange1[3]:SCREEN-VALUE IN FRAME {&FRAME-NAME}) NO-ERROR.
-    {&methods/lValidateError.i YES}
-    
-    IF gl-rpt.acrange1[3]:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" AND lSuccess = NO THEN DO:               
-        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.            
-        IF gl-rpt.acrange1[3]:BGCOLOR EQ 16 THEN             
-            ASSIGN 
-                gl-rpt.acrange1[3]:BGCOLOR = ?
-                gl-rpt.acrange1[3]:FGCOLOR = ?
-                .
-            APPLY "ENTRY" TO gl-rpt.acrange1[3].       
-            RETURN NO-APPLY. 
-    END.   
-      
-    IF gl-rpt.acrange1[3]:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" AND lSuccess = YES AND lActive = NO THEN DO:  
-        ASSIGN 
-            gl-rpt.acrange1[3]:BGCOLOR = 16
-            gl-rpt.acrange1[3]:FGCOLOR = 15
-            .   
-        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.           
-        APPLY "ENTRY" TO gl-rpt.acrange1[3].
-        RETURN NO-APPLY.                      
-    END.      
-    IF (lActive = YES OR gl-rpt.acrange1[3]:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "") AND gl-rpt.acrange1[3]:BGCOLOR EQ 16 THEN             
-        ASSIGN 
-            gl-rpt.acrange1[3]:BGCOLOR = ?
-            gl-rpt.acrange1[3]:FGCOLOR = ?
-            .         
-    {&methods/lValidateError.i NO}
+    RUN validate-acct (FOCUS) NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN 
+        RETURN NO-APPLY.
 END.
 
 
@@ -678,35 +601,9 @@ END.
 ON LEAVE OF gl-rpt.acrange1[4] IN FRAME F-Main /* To Acct3 */
 DO: 
     IF LASTKEY = -1 THEN RETURN.
-    RUN validate-acct (gl-rpt.acrange1[4]:SCREEN-VALUE IN FRAME {&FRAME-NAME}) NO-ERROR.
-    {&methods/lValidateError.i YES}
-    
-    IF gl-rpt.acrange1[4]:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" AND lSuccess = NO THEN DO:               
-        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.            
-        IF gl-rpt.acrange1[4]:BGCOLOR EQ 16 THEN             
-            ASSIGN 
-                gl-rpt.acrange1[4]:BGCOLOR = ?
-                gl-rpt.acrange1[4]:FGCOLOR = ?
-                .
-            APPLY "ENTRY" TO gl-rpt.acrange1[1].       
-            RETURN NO-APPLY. 
-    END.   
-      
-    IF gl-rpt.acrange1[4]:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" AND lSuccess = YES AND lActive = NO THEN DO:  
-        ASSIGN 
-            gl-rpt.acrange1[4]:BGCOLOR = 16
-            gl-rpt.acrange1[4]:FGCOLOR = 15
-            .   
-        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.           
-        APPLY "ENTRY" TO gl-rpt.acrange1[4].
-        RETURN NO-APPLY.                      
-    END.      
-    IF (lActive = YES OR gl-rpt.acrange1[4]:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "") AND gl-rpt.acrange1[4]:BGCOLOR EQ 16 THEN             
-        ASSIGN 
-            gl-rpt.acrange1[4]:BGCOLOR = ?
-            gl-rpt.acrange1[4]:FGCOLOR = ?
-            .         
-    {&methods/lValidateError.i NO}
+    RUN validate-acct (FOCUS) NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN 
+        RETURN NO-APPLY.
 END.
 
 
@@ -719,35 +616,9 @@ END.
 ON LEAVE OF gl-rpt.acrange1[5] IN FRAME F-Main /* Fr Acct4 */
 DO: 
     IF LASTKEY = -1 THEN RETURN.
-    RUN validate-acct (gl-rpt.acrange1[5]:SCREEN-VALUE IN FRAME {&FRAME-NAME}) NO-ERROR.
-    {&methods/lValidateError.i YES}
-    
-    IF gl-rpt.acrange1[5]:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" AND lSuccess = NO THEN DO:               
-        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.            
-        IF gl-rpt.acrange1[5]:BGCOLOR EQ 16 THEN             
-            ASSIGN 
-                gl-rpt.acrange1[5]:BGCOLOR = ?
-                gl-rpt.acrange1[5]:FGCOLOR = ?
-                .
-            APPLY "ENTRY" TO gl-rpt.acrange1[5].       
-            RETURN NO-APPLY. 
-    END.   
-      
-    IF gl-rpt.acrange1[5]:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" AND lSuccess = YES AND lActive = NO THEN DO:  
-        ASSIGN 
-            gl-rpt.acrange1[5]:BGCOLOR = 16
-            gl-rpt.acrange1[5]:FGCOLOR = 15
-            .   
-        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.           
-        APPLY "ENTRY" TO gl-rpt.acrange1[5].
-        RETURN NO-APPLY.                      
-    END.      
-    IF (lActive = YES OR gl-rpt.acrange1[5]:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "") AND gl-rpt.acrange1[5]:BGCOLOR EQ 16 THEN             
-        ASSIGN 
-            gl-rpt.acrange1[5]:BGCOLOR = ?
-            gl-rpt.acrange1[5]:FGCOLOR = ?
-            .         
-    {&methods/lValidateError.i NO}
+    RUN validate-acct (FOCUS) NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN 
+        RETURN NO-APPLY.
 END.
 
 
@@ -760,35 +631,9 @@ END.
 ON LEAVE OF gl-rpt.acrange1[6] IN FRAME F-Main /* To Acct4 */
 DO: 
     IF LASTKEY = -1 THEN RETURN.
-    RUN validate-acct (gl-rpt.acrange1[6]:SCREEN-VALUE IN FRAME {&FRAME-NAME}) NO-ERROR.
-    {&methods/lValidateError.i YES}
-    
-    IF gl-rpt.acrange1[6]:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" AND lSuccess = NO THEN DO:               
-        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.            
-        IF gl-rpt.acrange1[6]:BGCOLOR EQ 16 THEN             
-            ASSIGN 
-                gl-rpt.acrange1[6]:BGCOLOR = ?
-                gl-rpt.acrange1[6]:FGCOLOR = ?
-                .
-            APPLY "ENTRY" TO gl-rpt.acrange1[6].       
-            RETURN NO-APPLY. 
-    END.   
-      
-    IF gl-rpt.acrange1[6]:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" AND lSuccess = YES AND lActive = NO THEN DO:  
-        ASSIGN 
-            gl-rpt.acrange1[6]:BGCOLOR = 16
-            gl-rpt.acrange1[6]:FGCOLOR = 15
-            .   
-        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.           
-        APPLY "ENTRY" TO gl-rpt.acrange1[6].
-        RETURN NO-APPLY.                      
-    END.      
-    IF (lActive = YES OR gl-rpt.acrange1[6]:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "") AND gl-rpt.acrange1[6]:BGCOLOR EQ 16 THEN             
-        ASSIGN 
-            gl-rpt.acrange1[6]:BGCOLOR = ?
-            gl-rpt.acrange1[6]:FGCOLOR = ?
-            .         
-    {&methods/lValidateError.i NO}
+    RUN validate-acct (FOCUS) NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN 
+        RETURN NO-APPLY.    
 END.
 
 
@@ -801,35 +646,9 @@ END.
 ON LEAVE OF gl-rpt.acrange1[7] IN FRAME F-Main /* Fr Acct5 */
 DO: 
     IF LASTKEY = -1 THEN RETURN.
-    RUN validate-acct (gl-rpt.acrange1[7]:SCREEN-VALUE IN FRAME {&FRAME-NAME}) NO-ERROR.
-    {&methods/lValidateError.i YES}
-    
-    IF gl-rpt.acrange1[7]:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" AND lSuccess = NO THEN DO:               
-        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.            
-        IF gl-rpt.acrange1[7]:BGCOLOR EQ 16 THEN             
-            ASSIGN 
-                gl-rpt.acrange1[7]:BGCOLOR = ?
-                gl-rpt.acrange1[7]:FGCOLOR = ?
-                .
-            APPLY "ENTRY" TO gl-rpt.acrange1[7].       
-            RETURN NO-APPLY. 
-    END.   
-      
-    IF gl-rpt.acrange1[7]:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" AND lSuccess = YES AND lActive = NO THEN DO:  
-        ASSIGN 
-            gl-rpt.acrange1[7]:BGCOLOR = 16
-            gl-rpt.acrange1[7]:FGCOLOR = 15
-            .   
-        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.           
-        APPLY "ENTRY" TO gl-rpt.acrange1[7].
-        RETURN NO-APPLY.                      
-    END.      
-    IF (lActive = YES OR gl-rpt.acrange1[7]:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "") AND gl-rpt.acrange1[7]:BGCOLOR EQ 16 THEN             
-        ASSIGN 
-            gl-rpt.acrange1[7]:BGCOLOR = ?
-            gl-rpt.acrange1[7]:FGCOLOR = ?
-            .         
-    {&methods/lValidateError.i NO}
+    RUN validate-acct (FOCUS) NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN 
+        RETURN NO-APPLY.
 END.
 
 
@@ -842,35 +661,7 @@ END.
 ON LEAVE OF gl-rpt.acrange1[8] IN FRAME F-Main /* To Acct5 */
 DO: 
     IF LASTKEY = -1 THEN RETURN.
-    RUN validate-acct (gl-rpt.acrange1[8]:SCREEN-VALUE IN FRAME {&FRAME-NAME}) NO-ERROR.
-    {&methods/lValidateError.i YES}
-    
-    IF gl-rpt.acrange1[8]:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" AND lSuccess = NO THEN DO:               
-        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.            
-        IF gl-rpt.acrange1[8]:BGCOLOR EQ 16 THEN             
-            ASSIGN 
-                gl-rpt.acrange1[8]:BGCOLOR = ?
-                gl-rpt.acrange1[8]:FGCOLOR = ?
-                .
-            APPLY "ENTRY" TO gl-rpt.acrange1[8].       
-            RETURN NO-APPLY. 
-    END.   
-      
-    IF gl-rpt.acrange1[8]:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" AND lSuccess = YES AND lActive = NO THEN DO:  
-        ASSIGN 
-            gl-rpt.acrange1[8]:BGCOLOR = 16
-            gl-rpt.acrange1[8]:FGCOLOR = 15
-            .   
-        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.           
-        APPLY "ENTRY" TO gl-rpt.acrange1[8].
-        RETURN NO-APPLY.                      
-    END.      
-    IF (lActive = YES OR gl-rpt.acrange1[8]:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "") AND gl-rpt.acrange1[8]:BGCOLOR EQ 16 THEN             
-        ASSIGN 
-            gl-rpt.acrange1[8]:BGCOLOR = ?
-            gl-rpt.acrange1[8]:FGCOLOR = ?
-            .         
-    {&methods/lValidateError.i NO}
+    RUN validate-acct (FOCUS) NO-ERROR.    
 END.
 
 
@@ -883,35 +674,9 @@ END.
 ON LEAVE OF gl-rpt.acrange[1] IN FRAME F-Main /* Fr Acct1 */
 DO: 
     IF LASTKEY = -1  THEN RETURN.
-    RUN validate-acct (gl-rpt.acrange[1]:SCREEN-VALUE IN FRAME {&FRAME-NAME}) NO-ERROR.
-    {&methods/lValidateError.i YES}
-  
-    IF gl-rpt.acrange[1]:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" AND lSuccess = NO THEN DO:               
-        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.            
-        IF gl-rpt.acrange[1]:BGCOLOR EQ 16 THEN             
-            ASSIGN 
-                gl-rpt.acrange[1]:BGCOLOR = ?
-                gl-rpt.acrange[1]:FGCOLOR = ?
-                .
-            APPLY "ENTRY" TO gl-rpt.acrange[1].       
-            RETURN NO-APPLY. 
-    END.   
-      
-    IF gl-rpt.acrange[1]:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" AND lSuccess = YES AND lActive = NO THEN DO:  
-        ASSIGN 
-            gl-rpt.acrange[1]:BGCOLOR = 16
-            gl-rpt.acrange[1]:FGCOLOR = 15
-            .   
-        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.           
-        APPLY "ENTRY" TO gl-rpt.acrange[1].
-        RETURN NO-APPLY.                      
-    END.      
-    IF (lActive = YES OR gl-rpt.acrange[1]:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "") AND gl-rpt.acrange[1]:BGCOLOR EQ 16 THEN             
-        ASSIGN 
-            gl-rpt.acrange[1]:BGCOLOR = ?
-            gl-rpt.acrange[1]:FGCOLOR = ?
-            .         
-    {&methods/lValidateError.i NO}
+    RUN validate-acct (FOCUS) NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN 
+        RETURN NO-APPLY.
 END.
 
 
@@ -924,35 +689,9 @@ END.
 ON LEAVE OF gl-rpt.acrange[2] IN FRAME F-Main /* To Acct1 */
 DO:
     IF LASTKEY = -1  THEN RETURN.
-    RUN validate-acct (gl-rpt.acrange[2]:SCREEN-VALUE IN FRAME {&FRAME-NAME}) NO-ERROR.
-    {&methods/lValidateError.i YES}
-  
-    IF gl-rpt.acrange[2]:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" AND lSuccess = NO THEN DO:               
-        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.            
-        IF gl-rpt.acrange[2]:BGCOLOR EQ 16 THEN             
-            ASSIGN 
-                gl-rpt.acrange[2]:BGCOLOR = ?
-                gl-rpt.acrange[2]:FGCOLOR = ?
-                .
-            APPLY "ENTRY" TO gl-rpt.acrange[2].       
-            RETURN NO-APPLY. 
-    END.   
-      
-    IF gl-rpt.acrange[2]:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" AND lSuccess = YES AND lActive = NO THEN DO:  
-        ASSIGN 
-            gl-rpt.acrange[2]:BGCOLOR = 16
-            gl-rpt.acrange[2]:FGCOLOR = 15
-            .   
-        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.           
-        APPLY "ENTRY" TO gl-rpt.acrange[2].
-        RETURN NO-APPLY.                      
-    END.      
-    IF (lActive = YES OR gl-rpt.acrange[2]:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "") AND gl-rpt.acrange[2]:BGCOLOR EQ 16 THEN             
-        ASSIGN 
-            gl-rpt.acrange[2]:BGCOLOR = ?
-            gl-rpt.acrange[2]:FGCOLOR = ?
-            .         
-    {&methods/lValidateError.i NO}
+    RUN validate-acct (FOCUS) NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN 
+        RETURN NO-APPLY.
 END.
 
 
@@ -1151,66 +890,7 @@ PROCEDURE local-cancel-record :
 
   /* Code placed here will execute PRIOR to standard behavior. */
   
-  IF gl-rpt.acrange[1]:BGCOLOR IN FRAME {&FRAME-NAME} = 16 THEN 
-      ASSIGN 
-          gl-rpt.acrange[1]:BGCOLOR IN FRAME {&FRAME-NAME} = ?
-          gl-rpt.acrange[1]:FGCOLOR IN FRAME {&FRAME-NAME} = ?
-          .
-          
-  IF gl-rpt.acrange[2]:BGCOLOR IN FRAME {&FRAME-NAME} = 16 THEN 
-      ASSIGN 
-          gl-rpt.acrange[2]:BGCOLOR IN FRAME {&FRAME-NAME} = ?
-          gl-rpt.acrange[2]:FGCOLOR IN FRAME {&FRAME-NAME} = ?
-          .
-  
-  IF gl-rpt.acrange1[1]:BGCOLOR IN FRAME {&FRAME-NAME} = 16 THEN 
-      ASSIGN 
-          gl-rpt.acrange1[1]:BGCOLOR IN FRAME {&FRAME-NAME} = ?
-          gl-rpt.acrange1[1]:FGCOLOR IN FRAME {&FRAME-NAME} = ?
-          .
-   
-  IF gl-rpt.acrange1[2]:BGCOLOR IN FRAME {&FRAME-NAME} = 16 THEN 
-      ASSIGN 
-          gl-rpt.acrange1[2]:BGCOLOR IN FRAME {&FRAME-NAME} = ?
-          gl-rpt.acrange1[2]:FGCOLOR IN FRAME {&FRAME-NAME} = ?
-          .
-          
-  IF gl-rpt.acrange1[3]:BGCOLOR IN FRAME {&FRAME-NAME} = 16 THEN 
-      ASSIGN 
-          gl-rpt.acrange1[3]:BGCOLOR IN FRAME {&FRAME-NAME} = ?
-          gl-rpt.acrange1[3]:FGCOLOR IN FRAME {&FRAME-NAME} = ?
-          .   
-          
-  IF gl-rpt.acrange1[4]:BGCOLOR IN FRAME {&FRAME-NAME} = 16 THEN 
-      ASSIGN 
-          gl-rpt.acrange1[4]:BGCOLOR IN FRAME {&FRAME-NAME} = ?
-          gl-rpt.acrange1[4]:FGCOLOR IN FRAME {&FRAME-NAME} = ?
-          .   
-          
-  IF gl-rpt.acrange1[5]:BGCOLOR IN FRAME {&FRAME-NAME} = 16 THEN 
-      ASSIGN 
-          gl-rpt.acrange1[5]:BGCOLOR IN FRAME {&FRAME-NAME} = ?
-          gl-rpt.acrange1[5]:FGCOLOR IN FRAME {&FRAME-NAME} = ?
-          .  
-          
-  IF gl-rpt.acrange1[6]:BGCOLOR IN FRAME {&FRAME-NAME} = 16 THEN 
-      ASSIGN 
-          gl-rpt.acrange1[6]:BGCOLOR IN FRAME {&FRAME-NAME} = ?
-          gl-rpt.acrange1[6]:FGCOLOR IN FRAME {&FRAME-NAME} = ?
-          .                
-          
-  IF gl-rpt.acrange1[7]:BGCOLOR IN FRAME {&FRAME-NAME} = 16 THEN 
-      ASSIGN 
-          gl-rpt.acrange1[7]:BGCOLOR IN FRAME {&FRAME-NAME} = ?
-          gl-rpt.acrange1[7]:FGCOLOR IN FRAME {&FRAME-NAME} = ?
-          . 
-          
-  IF gl-rpt.acrange1[8]:BGCOLOR IN FRAME {&FRAME-NAME} = 16 THEN 
-      ASSIGN 
-          gl-rpt.acrange1[8]:BGCOLOR IN FRAME {&FRAME-NAME} = ?
-          gl-rpt.acrange1[8]:FGCOLOR IN FRAME {&FRAME-NAME} = ?
-          .                       
-                          
+  RUN presetColor(INPUT "") NO-ERROR.  
           
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .   
@@ -1358,66 +1038,8 @@ PROCEDURE local-reset-record:
 ------------------------------------------------------------------------------*/
  
     /* Code placed here will execute PRIOR to standard behavior. */
-    IF gl-rpt.acrange[1]:BGCOLOR IN FRAME {&FRAME-NAME} = 16 THEN 
-        ASSIGN 
-            gl-rpt.acrange[1]:BGCOLOR IN FRAME {&FRAME-NAME} = ?
-            gl-rpt.acrange[1]:FGCOLOR IN FRAME {&FRAME-NAME} = ?
-            .
-          
-    IF gl-rpt.acrange[2]:BGCOLOR IN FRAME {&FRAME-NAME} = 16 THEN 
-        ASSIGN 
-            gl-rpt.acrange[2]:BGCOLOR IN FRAME {&FRAME-NAME} = ?
-            gl-rpt.acrange[2]:FGCOLOR IN FRAME {&FRAME-NAME} = ?
-            .
-  
-    IF gl-rpt.acrange1[1]:BGCOLOR IN FRAME {&FRAME-NAME} = 16 THEN 
-        ASSIGN 
-            gl-rpt.acrange1[1]:BGCOLOR IN FRAME {&FRAME-NAME} = ?
-            gl-rpt.acrange1[1]:FGCOLOR IN FRAME {&FRAME-NAME} = ?
-            .
-   
-    IF gl-rpt.acrange1[2]:BGCOLOR IN FRAME {&FRAME-NAME} = 16 THEN 
-        ASSIGN 
-            gl-rpt.acrange1[2]:BGCOLOR IN FRAME {&FRAME-NAME} = ?
-            gl-rpt.acrange1[2]:FGCOLOR IN FRAME {&FRAME-NAME} = ?
-            .
-          
-    IF gl-rpt.acrange1[3]:BGCOLOR IN FRAME {&FRAME-NAME} = 16 THEN 
-        ASSIGN 
-            gl-rpt.acrange1[3]:BGCOLOR IN FRAME {&FRAME-NAME} = ?
-            gl-rpt.acrange1[3]:FGCOLOR IN FRAME {&FRAME-NAME} = ?
-            .   
-          
-    IF gl-rpt.acrange1[4]:BGCOLOR IN FRAME {&FRAME-NAME} = 16 THEN 
-        ASSIGN 
-            gl-rpt.acrange1[4]:BGCOLOR IN FRAME {&FRAME-NAME} = ?
-            gl-rpt.acrange1[4]:FGCOLOR IN FRAME {&FRAME-NAME} = ?
-            .   
-          
-    IF gl-rpt.acrange1[5]:BGCOLOR IN FRAME {&FRAME-NAME} = 16 THEN 
-        ASSIGN 
-            gl-rpt.acrange1[5]:BGCOLOR IN FRAME {&FRAME-NAME} = ?
-            gl-rpt.acrange1[5]:FGCOLOR IN FRAME {&FRAME-NAME} = ?
-            .  
-          
-    IF gl-rpt.acrange1[6]:BGCOLOR IN FRAME {&FRAME-NAME} = 16 THEN 
-        ASSIGN 
-            gl-rpt.acrange1[6]:BGCOLOR IN FRAME {&FRAME-NAME} = ?
-            gl-rpt.acrange1[6]:FGCOLOR IN FRAME {&FRAME-NAME} = ?
-            .                
-          
-    IF gl-rpt.acrange1[7]:BGCOLOR IN FRAME {&FRAME-NAME} = 16 THEN 
-        ASSIGN 
-            gl-rpt.acrange1[7]:BGCOLOR IN FRAME {&FRAME-NAME} = ?
-            gl-rpt.acrange1[7]:FGCOLOR IN FRAME {&FRAME-NAME} = ?
-            . 
-          
-    IF gl-rpt.acrange1[8]:BGCOLOR IN FRAME {&FRAME-NAME} = 16 THEN 
-        ASSIGN 
-            gl-rpt.acrange1[8]:BGCOLOR IN FRAME {&FRAME-NAME} = ?
-            gl-rpt.acrange1[8]:FGCOLOR IN FRAME {&FRAME-NAME} = ?
-            .                       
     
+    RUN presetColor(INPUT "") NO-ERROR.
     /* Dispatch standard ADM method.                             */
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'reset-record':U ) .
 
@@ -1450,275 +1072,46 @@ PROCEDURE local-update-record :
   RUN validate-record NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN.
 
-  RUN validate-acct (gl-rpt.acrange[1]:SCREEN-VALUE IN FRAME {&FRAME-NAME}) NO-ERROR.
-  IF gl-rpt.acrange[1]:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" AND lSuccess = NO THEN DO:               
-        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.            
-        IF gl-rpt.acrange[1]:BGCOLOR EQ 16 THEN             
-            ASSIGN 
-                gl-rpt.acrange[1]:BGCOLOR = ?
-                gl-rpt.acrange[1]:FGCOLOR = ?
-                .
-            APPLY "ENTRY" TO gl-rpt.acrange[1].       
-            RETURN NO-APPLY. 
-    END.   
-      
-    IF gl-rpt.acrange[1]:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" AND lSuccess = YES AND lActive = NO THEN DO:  
-        ASSIGN 
-            gl-rpt.acrange[1]:BGCOLOR = 16
-            gl-rpt.acrange[1]:FGCOLOR = 15
-            .   
-        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.           
-        APPLY "ENTRY" TO gl-rpt.acrange[1].
-        RETURN NO-APPLY.                      
-    END.      
-    IF (lActive = YES OR gl-rpt.acrange[1]:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "") AND gl-rpt.acrange[1]:BGCOLOR EQ 16 THEN             
-        ASSIGN 
-            gl-rpt.acrange[1]:BGCOLOR = ?
-            gl-rpt.acrange[1]:FGCOLOR = ?
-            .  
+  RUN validate-acct (gl-rpt.acrange[1]:HANDLE IN FRAME {&FRAME-NAME}) NO-ERROR.
+  IF ERROR-STATUS:ERROR THEN 
+      RETURN NO-APPLY.
                               
-  RUN validate-acct (gl-rpt.acrange[2]:SCREEN-VALUE IN FRAME {&FRAME-NAME}) NO-ERROR.
-  IF gl-rpt.acrange[2]:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" AND lSuccess = NO THEN DO:               
-        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.            
-        IF gl-rpt.acrange[2]:BGCOLOR EQ 16 THEN             
-            ASSIGN 
-                gl-rpt.acrange[2]:BGCOLOR = ?
-                gl-rpt.acrange[2]:FGCOLOR = ?
-                .
-            APPLY "ENTRY" TO gl-rpt.acrange[2].       
-            RETURN NO-APPLY. 
-    END.   
-      
-    IF gl-rpt.acrange[2]:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" AND lSuccess = YES AND lActive = NO THEN DO:  
-        ASSIGN 
-            gl-rpt.acrange[2]:BGCOLOR = 16
-            gl-rpt.acrange[2]:FGCOLOR = 15
-            .   
-        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.           
-        APPLY "ENTRY" TO gl-rpt.acrange[2].
-        RETURN NO-APPLY.                      
-    END.      
-    IF (lActive = YES OR gl-rpt.acrange[2]:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "") AND gl-rpt.acrange[2]:BGCOLOR EQ 16 THEN             
-        ASSIGN 
-            gl-rpt.acrange[2]:BGCOLOR = ?
-            gl-rpt.acrange[2]:FGCOLOR = ?
-            .  
+  RUN validate-acct (gl-rpt.acrange[2]:HANDLE IN FRAME {&FRAME-NAME}) NO-ERROR.
+  IF ERROR-STATUS:ERROR THEN 
+      RETURN NO-APPLY.
                               
-  RUN validate-acct (gl-rpt.acrange1[1]:SCREEN-VALUE IN FRAME {&FRAME-NAME}) NO-ERROR.
-  IF gl-rpt.acrange1[1]:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" AND lSuccess = NO THEN DO:               
-        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.            
-        IF gl-rpt.acrange1[1]:BGCOLOR EQ 16 THEN             
-            ASSIGN 
-                gl-rpt.acrange1[1]:BGCOLOR = ?
-                gl-rpt.acrange1[1]:FGCOLOR = ?
-                .
-            APPLY "ENTRY" TO gl-rpt.acrange1[1].       
-            RETURN NO-APPLY. 
-    END.   
+  RUN validate-acct (gl-rpt.acrange1[1]:HANDLE IN FRAME {&FRAME-NAME}) NO-ERROR.
+  IF ERROR-STATUS:ERROR THEN 
+      RETURN NO-APPLY.
+              
+  RUN validate-acct (gl-rpt.acrange1[2]:HANDLE IN FRAME {&FRAME-NAME}) NO-ERROR.
+  IF ERROR-STATUS:ERROR THEN 
+      RETURN NO-APPLY.
       
-    IF gl-rpt.acrange1[1]:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" AND lSuccess = YES AND lActive = NO THEN DO:  
-        ASSIGN 
-            gl-rpt.acrange1[1]:BGCOLOR = 16
-            gl-rpt.acrange1[1]:FGCOLOR = 15
-            .   
-        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.           
-        APPLY "ENTRY" TO gl-rpt.acrange1[1].
-        RETURN NO-APPLY.                      
-    END.      
-    IF (lActive = YES OR gl-rpt.acrange1[1]:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "") AND gl-rpt.acrange1[1]:BGCOLOR EQ 16 THEN             
-        ASSIGN 
-            gl-rpt.acrange1[1]:BGCOLOR = ?
-            gl-rpt.acrange1[1]:FGCOLOR = ?
-            .                    
+  RUN validate-acct (gl-rpt.acrange1[3]:HANDLE IN FRAME {&FRAME-NAME}) NO-ERROR.
+  IF ERROR-STATUS:ERROR THEN 
+      RETURN NO-APPLY.                 
             
-  RUN validate-acct (gl-rpt.acrange1[2]:SCREEN-VALUE IN FRAME {&FRAME-NAME}) NO-ERROR.
-  IF gl-rpt.acrange1[2]:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" AND lSuccess = NO THEN DO:               
-        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.            
-        IF gl-rpt.acrange1[2]:BGCOLOR EQ 16 THEN             
-            ASSIGN 
-                gl-rpt.acrange1[2]:BGCOLOR = ?
-                gl-rpt.acrange1[2]:FGCOLOR = ?
-                .
-            APPLY "ENTRY" TO gl-rpt.acrange1[2].       
-            RETURN NO-APPLY. 
-    END.   
+  RUN validate-acct (gl-rpt.acrange1[4]:HANDLE IN FRAME {&FRAME-NAME}) NO-ERROR.
+  IF ERROR-STATUS:ERROR THEN 
+      RETURN NO-APPLY.
       
-    IF gl-rpt.acrange1[2]:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" AND lSuccess = YES AND lActive = NO THEN DO:  
-        ASSIGN 
-            gl-rpt.acrange1[2]:BGCOLOR = 16
-            gl-rpt.acrange1[2]:FGCOLOR = 15
-            .   
-        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.           
-        APPLY "ENTRY" TO gl-rpt.acrange1[2].
-        RETURN NO-APPLY.                      
-    END.      
-    IF (lActive = YES OR gl-rpt.acrange1[2]:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "") AND gl-rpt.acrange1[2]:BGCOLOR EQ 16 THEN             
-        ASSIGN 
-            gl-rpt.acrange1[2]:BGCOLOR = ?
-            gl-rpt.acrange1[2]:FGCOLOR = ?
-            .                    
+  RUN validate-acct (gl-rpt.acrange1[5]:HANDLE IN FRAME {&FRAME-NAME}) NO-ERROR.
+  IF ERROR-STATUS:ERROR THEN 
+      RETURN NO-APPLY.   
             
-  RUN validate-acct (gl-rpt.acrange1[3]:SCREEN-VALUE IN FRAME {&FRAME-NAME}) NO-ERROR.
-  IF gl-rpt.acrange1[3]:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" AND lSuccess = NO THEN DO:               
-        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.            
-        IF gl-rpt.acrange1[3]:BGCOLOR EQ 16 THEN             
-            ASSIGN 
-                gl-rpt.acrange1[3]:BGCOLOR = ?
-                gl-rpt.acrange1[3]:FGCOLOR = ?
-                .
-            APPLY "ENTRY" TO gl-rpt.acrange1[3].       
-            RETURN NO-APPLY. 
-    END.   
+  RUN validate-acct (gl-rpt.acrange1[6]:HANDLE IN FRAME {&FRAME-NAME}) NO-ERROR.
+  IF ERROR-STATUS:ERROR THEN 
+      RETURN NO-APPLY.
+   
+  RUN validate-acct (gl-rpt.acrange1[7]:HANDLE IN FRAME {&FRAME-NAME}) NO-ERROR.
+  IF ERROR-STATUS:ERROR THEN 
+      RETURN NO-APPLY.
+   
+  RUN validate-acct (gl-rpt.acrange1[8]:HANDLE IN FRAME {&FRAME-NAME}) NO-ERROR.
+  IF ERROR-STATUS:ERROR THEN 
+      RETURN NO-APPLY.
       
-    IF gl-rpt.acrange1[3]:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" AND lSuccess = YES AND lActive = NO THEN DO:  
-        ASSIGN 
-            gl-rpt.acrange1[3]:BGCOLOR = 16
-            gl-rpt.acrange1[3]:FGCOLOR = 15
-            .   
-        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.           
-        APPLY "ENTRY" TO gl-rpt.acrange1[3].
-        RETURN NO-APPLY.                      
-    END.      
-    IF (lActive = YES OR gl-rpt.acrange1[3]:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "") AND gl-rpt.acrange1[3]:BGCOLOR EQ 16 THEN             
-        ASSIGN 
-            gl-rpt.acrange1[3]:BGCOLOR = ?
-            gl-rpt.acrange1[3]:FGCOLOR = ?
-            .                    
-            
-  RUN validate-acct (gl-rpt.acrange1[4]:SCREEN-VALUE IN FRAME {&FRAME-NAME}) NO-ERROR.
-  IF gl-rpt.acrange1[4]:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" AND lSuccess = NO THEN DO:               
-        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.            
-        IF gl-rpt.acrange1[4]:BGCOLOR EQ 16 THEN             
-            ASSIGN 
-                gl-rpt.acrange1[4]:BGCOLOR = ?
-                gl-rpt.acrange1[4]:FGCOLOR = ?
-                .
-            APPLY "ENTRY" TO gl-rpt.acrange1[4].       
-            RETURN NO-APPLY. 
-    END.   
-      
-    IF gl-rpt.acrange1[4]:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" AND lSuccess = YES AND lActive = NO THEN DO:  
-        ASSIGN 
-            gl-rpt.acrange1[4]:BGCOLOR = 16
-            gl-rpt.acrange1[4]:FGCOLOR = 15
-            .   
-        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.           
-        APPLY "ENTRY" TO gl-rpt.acrange1[4].
-        RETURN NO-APPLY.                      
-    END.      
-    IF (lActive = YES OR gl-rpt.acrange1[4]:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "") AND gl-rpt.acrange1[4]:BGCOLOR EQ 16 THEN             
-        ASSIGN 
-            gl-rpt.acrange1[4]:BGCOLOR = ?
-            gl-rpt.acrange1[4]:FGCOLOR = ?
-            .                    
-            
-  RUN validate-acct (gl-rpt.acrange1[5]:SCREEN-VALUE IN FRAME {&FRAME-NAME}) NO-ERROR.
-  IF gl-rpt.acrange1[5]:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" AND lSuccess = NO THEN DO:               
-        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.            
-        IF gl-rpt.acrange1[5]:BGCOLOR EQ 16 THEN             
-            ASSIGN 
-                gl-rpt.acrange1[5]:BGCOLOR = ?
-                gl-rpt.acrange1[5]:FGCOLOR = ?
-                .
-            APPLY "ENTRY" TO gl-rpt.acrange1[5].       
-            RETURN NO-APPLY. 
-    END.   
-      
-    IF gl-rpt.acrange1[5]:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" AND lSuccess = YES AND lActive = NO THEN DO:  
-        ASSIGN 
-            gl-rpt.acrange1[5]:BGCOLOR = 16
-            gl-rpt.acrange1[5]:FGCOLOR = 15
-            .   
-        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.           
-        APPLY "ENTRY" TO gl-rpt.acrange1[5].
-        RETURN NO-APPLY.                      
-    END.      
-    IF (lActive = YES OR gl-rpt.acrange1[5]:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "") AND gl-rpt.acrange1[5]:BGCOLOR EQ 16 THEN             
-        ASSIGN 
-            gl-rpt.acrange1[5]:BGCOLOR = ?
-            gl-rpt.acrange1[5]:FGCOLOR = ?
-            .                    
-            
-  RUN validate-acct (gl-rpt.acrange1[6]:SCREEN-VALUE IN FRAME {&FRAME-NAME}) NO-ERROR.
-  IF gl-rpt.acrange1[6]:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" AND lSuccess = NO THEN DO:               
-        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.            
-        IF gl-rpt.acrange1[6]:BGCOLOR EQ 16 THEN             
-            ASSIGN 
-                gl-rpt.acrange1[6]:BGCOLOR = ?
-                gl-rpt.acrange1[6]:FGCOLOR = ?
-                .
-            APPLY "ENTRY" TO gl-rpt.acrange1[6].       
-            RETURN NO-APPLY. 
-    END.   
-      
-    IF gl-rpt.acrange1[6]:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" AND lSuccess = YES AND lActive = NO THEN DO:  
-        ASSIGN 
-            gl-rpt.acrange1[6]:BGCOLOR = 16
-            gl-rpt.acrange1[6]:FGCOLOR = 15
-            .   
-        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.           
-        APPLY "ENTRY" TO gl-rpt.acrange1[6].
-        RETURN NO-APPLY.                      
-    END.      
-    IF (lActive = YES OR gl-rpt.acrange1[6]:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "") AND gl-rpt.acrange1[6]:BGCOLOR EQ 16 THEN             
-        ASSIGN 
-            gl-rpt.acrange1[6]:BGCOLOR = ?
-            gl-rpt.acrange1[6]:FGCOLOR = ?
-            .                    
-            
-  RUN validate-acct (gl-rpt.acrange1[7]:SCREEN-VALUE IN FRAME {&FRAME-NAME}) NO-ERROR.
-  IF gl-rpt.acrange1[7]:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" AND lSuccess = NO THEN DO:               
-        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.            
-        IF gl-rpt.acrange1[7]:BGCOLOR EQ 16 THEN             
-            ASSIGN 
-                gl-rpt.acrange1[7]:BGCOLOR = ?
-                gl-rpt.acrange1[7]:FGCOLOR = ?
-                .
-            APPLY "ENTRY" TO gl-rpt.acrange1[7].       
-            RETURN NO-APPLY. 
-    END.   
-      
-    IF gl-rpt.acrange1[7]:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" AND lSuccess = YES AND lActive = NO THEN DO:  
-        ASSIGN 
-            gl-rpt.acrange1[7]:BGCOLOR = 16
-            gl-rpt.acrange1[7]:FGCOLOR = 15
-            .   
-        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.           
-        APPLY "ENTRY" TO gl-rpt.acrange1[7].
-        RETURN NO-APPLY.                      
-    END.      
-    IF (lActive = YES OR gl-rpt.acrange1[7]:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "") AND gl-rpt.acrange1[7]:BGCOLOR EQ 16 THEN             
-        ASSIGN 
-            gl-rpt.acrange1[7]:BGCOLOR = ?
-            gl-rpt.acrange1[7]:FGCOLOR = ?
-            .                    
-             
-  RUN validate-acct (gl-rpt.acrange1[8]:SCREEN-VALUE IN FRAME {&FRAME-NAME}) NO-ERROR.
-  IF gl-rpt.acrange1[8]:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" AND lSuccess = NO THEN DO:               
-        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.            
-        IF gl-rpt.acrange1[8]:BGCOLOR EQ 16 THEN             
-            ASSIGN 
-                gl-rpt.acrange1[8]:BGCOLOR = ?
-                gl-rpt.acrange1[8]:FGCOLOR = ?
-                .
-            APPLY "ENTRY" TO gl-rpt.acrange1[8].       
-            RETURN NO-APPLY. 
-    END.   
-      
-    IF gl-rpt.acrange1[8]:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" AND lSuccess = YES AND lActive = NO THEN DO:  
-        ASSIGN 
-            gl-rpt.acrange1[8]:BGCOLOR = 16
-            gl-rpt.acrange1[8]:FGCOLOR = 15
-            .   
-        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.           
-        APPLY "ENTRY" TO gl-rpt.acrange1[8].
-        RETURN NO-APPLY.                      
-    END.      
-    IF (lActive = YES OR gl-rpt.acrange1[8]:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "") AND gl-rpt.acrange1[8]:BGCOLOR EQ 16 THEN             
-        ASSIGN 
-            gl-rpt.acrange1[8]:BGCOLOR = ?
-            gl-rpt.acrange1[8]:FGCOLOR = ?
-            .                    
   /*RUN validate-acct (gl-rpt.actnum[1]:SCREEN-VALUE IN FRAME {&FRAME-NAME}) NO-ERROR.
   IF ERROR-STATUS:ERROR THEN do:
      APPLY "entry" TO gl-rpt.actnum[1]. 
@@ -1812,6 +1205,56 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE presetColor V-table-Win
+PROCEDURE presetColor:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iphfieldHandle AS HANDLE NO-UNDO.
+    
+    DEFINE VARIABLE hframeHandle AS HANDLE NO-UNDO.
+    DEFINE VARIABLE hgroupHandle AS HANDLE NO-UNDO.
+    DEFINE VARIABLE hfieldHandle AS HANDLE NO-UNDO. 
+    
+    ASSIGN 
+        hframeHandle = FRAME {&FRAME-NAME}:HANDLE
+        hgroupHandle = hframeHandle:FIRST-CHILD
+        hfieldHandle = hgroupHandle:FIRST-CHILD
+        .         
+    
+    IF VALID-HANDLE(iphfieldHandle) THEN DO:                
+        IF iphfieldHandle:TYPE                   EQ "FILL-IN"   AND  
+           iphfieldHandle:DATA-TYPE              EQ "CHARACTER" AND 
+           iphfieldHandle:NAME MATCHES "*acrange*" THEN         
+            IF iphfieldHandle:BGCOLOR EQ 16 THEN             
+                ASSIGN 
+                    iphfieldHandle:BGCOLOR = ?
+                    iphfieldHandle:FGCOLOR = ?
+                    .                         
+    END. 
+    ELSE DO:                
+        DO WHILE VALID-HANDLE(hfieldHandle):                                   
+            IF hfieldHandle:TYPE      EQ "fill-in"   AND 
+               hfieldHandle:DATA-TYPE EQ "CHARACTER" AND 
+               hfieldHandle:NAME MATCHES "*acrange*" THEN               
+               IF hfieldHandle:BGCOLOR EQ 16 THEN             
+                   ASSIGN 
+                       hfieldHandle:BGCOLOR = ?
+                       hfieldHandle:FGCOLOR = ?
+                       .                                        
+            hfieldHandle = hfieldHandle:NEXT-SIBLING.
+        END. 
+    END.   
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE proc-enable V-table-Win 
 PROCEDURE proc-enable :
 /*------------------------------------------------------------------------------
@@ -1900,23 +1343,39 @@ PROCEDURE validate-acct :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF INPUT PARAMETER ip-account LIKE account.actnum.
+    DEFINE INPUT PARAMETER iphfieldHandle AS HANDLE NO-UNDO.
   
-  ASSIGN 
-      lSuccess = NO 
-      lActive  = NO
-      cMessage = ""
-      .
+    DEFINE VARIABLE lSuccess  AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lActive   AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage  AS CHARACTER NO-UNDO.
 
-  {methods/lValidateError.i YES}
-   RUN GL_CheckGLAccount IN hGLProcs(
-       INPUT  g_company,
-       INPUT  ip-account,            
-       OUTPUT cMessage,
-       OUTPUT lSuccess,
-       OUTPUT lActive
-       ).
-
+    {methods/lValidateError.i YES}
+    IF iphfieldHandle:SCREEN-VALUE NE "" THEN DO:
+        RUN GL_CheckGLAccount IN hGLProcs(
+            INPUT  g_company,
+            INPUT  iphfieldHandle:SCREEN-VALUE,            
+            OUTPUT cMessage,
+            OUTPUT lSuccess,
+            OUTPUT lActive
+            ).
+        IF lSuccess = NO THEN DO:
+            MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.  
+            RUN presetColor(iphfieldHandle) NO-ERROR.
+            APPLY "ENTRY" TO iphfieldHandle.
+            RETURN ERROR.
+        END. 
+        IF lSuccess = YES AND lActive = NO THEN 
+        DO:
+            MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.   
+            ASSIGN 
+                iphfieldHandle:BGCOLOR = 16
+                iphfieldHandle:FGCOLOR = 15
+                .                        
+            APPLY "ENTRY" TO iphfieldHandle.
+            RETURN ERROR.                      
+        END.                   
+    END.
+    RUN presetColor(iphfieldHandle) NO-ERROR.
   {methods/lValidateError.i NO}
         
 END PROCEDURE.

@@ -575,11 +575,8 @@ PROCEDURE local-cancel-record:
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
-  IF gl-jrnl.actnum:BGCOLOR IN BROWSE {&browse-name} EQ 16 THEN 
-      ASSIGN 
-          gl-jrnl.actnum:BGCOLOR IN BROWSE {&browse-name}  = ?
-          gl-jrnl.actnum:FGCOLOR IN BROWSE {&browse-name}  = ?
-          .
+  RUN presetColor NO-ERROR.
+  
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .        
 
@@ -726,11 +723,8 @@ PROCEDURE local-reset-record:
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
-    IF gl-jrnl.actnum:BGCOLOR IN BROWSE {&browse-name} EQ 16 THEN 
-      ASSIGN 
-          gl-jrnl.actnum:BGCOLOR IN BROWSE {&browse-name}  = ?
-          gl-jrnl.actnum:FGCOLOR IN BROWSE {&browse-name}  = ?
-          .
+    RUN presetColor NO-ERROR.
+    
     /* Dispatch standard ADM method.                             */
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'reset-record':U ) .
 
@@ -807,6 +801,27 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE presetColor B-table-Win
+PROCEDURE presetColor:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+    IF gl-jrnl.actnum:BGCOLOR IN BROWSE {&BROWSE-NAME} EQ 16 THEN             
+        ASSIGN 
+            gl-jrnl.actnum:BGCOLOR IN BROWSE {&BROWSE-NAME} = ?
+            gl-jrnl.actnum:FGCOLOR IN BROWSE {&BROWSE-NAME} = ?
+            .
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE redisplay-header B-table-Win 
 PROCEDURE redisplay-header :
@@ -926,29 +941,22 @@ PROCEDURE valid-actnum :
             
       IF lSuccess = NO THEN DO:               
           MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.            
-          IF gl-jrnl.actnum:BGCOLOR IN BROWSE {&BROWSE-NAME} EQ 16 THEN             
-                ASSIGN 
-                    gl-jrnl.actnum:BGCOLOR IN BROWSE {&BROWSE-NAME} = ?
-                    gl-jrnl.actnum:FGCOLOR IN BROWSE {&BROWSE-NAME} = ?
-                   .
+          RUN presetColor NO-ERROR.
           APPLY "ENTRY" TO gl-jrnl.actnum IN BROWSE {&BROWSE-NAME}.       
           oplReturnError = YES.
       END.   
       
       IF lSuccess = YES AND lActive = NO THEN DO:  
+          MESSAGE cMessage VIEW-AS ALERT-BOX ERROR. 
           ASSIGN 
               gl-jrnl.actnum:BGCOLOR IN BROWSE {&BROWSE-NAME} = 16
               gl-jrnl.actnum:FGCOLOR IN BROWSE {&BROWSE-NAME} = 15
-              .   
-          MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.           
+              .                      
           APPLY "ENTRY" TO gl-jrnl.actnum IN BROWSE {&BROWSE-NAME}.
           oplReturnError = YES.                     
       END.      
-      IF lActive = YES AND gl-jrnl.actnum:BGCOLOR IN BROWSE {&BROWSE-NAME} EQ 16 THEN             
-          ASSIGN 
-              gl-jrnl.actnum:BGCOLOR IN BROWSE {&BROWSE-NAME} = ?
-              gl-jrnl.actnum:FGCOLOR IN BROWSE {&BROWSE-NAME} = ?
-              .                                          
+      IF lActive EQ YES THEN 
+          RUN presetColor NO-ERROR.                                        
   END.
 
 END PROCEDURE.
