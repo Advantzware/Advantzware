@@ -222,7 +222,7 @@ FOR EACH ttInv:
                 lcTaxData = bf-tax-APIOutboundDetail.data.
 
                 RUN updateRequestData(INPUT-OUTPUT lcTaxData, "TaxType", "ST").
-                RUN updateRequestData(INPUT-OUTPUT lcTaxData, "TaxPercent", STRING(ttInv.frtTaxRate)).
+                RUN updateRequestData(INPUT-OUTPUT lcTaxData, "TaxPercent", TRIM(STRING(ROUND((ttInv.amountTotalTaxFreight / ttInv.amountTotalTaxableFreight) * 100, 2), ">>9.99<<"))).
                 RUN updateRequestData(INPUT-OUTPUT lcTaxData, "TotalTaxDollars", STRING(ttInv.amountTotalTaxFreight)).
             END.
             
@@ -246,7 +246,7 @@ FOR EACH ttInv:
                 lcTaxData = bf-tax-APIOutboundDetail.data.
 
                 RUN updateRequestData(INPUT-OUTPUT lcTaxData, "TaxType", "ST").
-                RUN updateRequestData(INPUT-OUTPUT lcTaxData, "TaxPercent", STRING(ttInv.frtTaxRate)).
+                RUN updateRequestData(INPUT-OUTPUT lcTaxData, "TaxPercent", TRIM(STRING(ROUND((ttInv.amountTotalTaxFreight / ttInv.amountTotalTaxableFreight) * 100, 2), ">>9.99<<"))).
                 RUN updateRequestData(INPUT-OUTPUT lcTaxData, "TotalTaxDollars", STRING(ttInv.amountTotalTaxFreight)).
             END.
             
@@ -263,7 +263,7 @@ FOR EACH ttInv:
             lcTaxData = bf-tax-APIOutboundDetail.data.
             
             RUN updateRequestData(INPUT-OUTPUT lcTaxData, "TaxType", "ST").
-            RUN updateRequestData(INPUT-OUTPUT lcTaxData, "TaxPercent", STRING(ROUND((ttInv.amountTotalTaxExFreight / ttInv.amountTotalTaxableExFreight) * 100, 2))).
+            RUN updateRequestData(INPUT-OUTPUT lcTaxData, "TaxPercent", TRIM(STRING(ROUND((ttInv.amountTotalTaxExFreight / ttInv.amountTotalTaxableExFreight) * 100, 2), ">>9.99<<"))).
             RUN updateRequestData(INPUT-OUTPUT lcTaxData, "TotalTaxDollars", STRING(ttInv.amountTotalTaxExFreight)).
         END.
     END.
