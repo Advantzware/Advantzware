@@ -163,6 +163,9 @@ FOR EACH ttInv:
         IF ttInvLine.quantity EQ 0 OR ttInvLine.priceTotal EQ 0 THEN
             NEXT.
         
+        IF NOT ttInvLine.billable THEN
+            NEXT.
+            
         IF AVAILABLE bf-line-APIOutboundDetail AND NOT ttInvLine.isMisc THEN
             lcLineItemsData = bf-line-APIOutboundDetail.data.
         ELSE IF AVAILABLE bf-misc-APIOutboundDetail AND ttInvLine.isMisc THEN
@@ -184,7 +187,7 @@ FOR EACH ttInv:
         RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "ItemLineID", STRING(ttInvLine.lineNo)).
         RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "ItemQuantity", STRING(ttInvLine.quantity)).
         RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "ItemUOM", STRING(ttInvLine.quantityUOM)).
-        RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "ItemPrice", STRING(ttInvLine.pricePerUOM)).
+        RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "ItemPrice", STRING(ttInvLine.pricePerEach)).
         RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "BuyerPart", STRING(ttInvLine.customerPartID)).
         RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "PONum", STRING(ttInvLine.customerPONo)).
         

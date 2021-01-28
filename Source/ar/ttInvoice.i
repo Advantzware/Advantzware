@@ -73,6 +73,7 @@ DEFINE TEMP-TABLE ttInvLine NO-UNDO
     FIELD quantityOrderOriginal    AS INTEGER
     FIELD quantityOrderOriginalUOM AS CHARACTER
     FIELD pricePerUOM              AS DECIMAL
+    FIELD pricePerEach             AS DECIMAL
     FIELD priceUOM                 AS CHARACTER 
     FIELD priceTotal               AS DECIMAL 
     FIELD customerPartID           AS CHARACTER
@@ -87,6 +88,7 @@ DEFINE TEMP-TABLE ttInvLine NO-UNDO
     FIELD taxRate                  AS DECIMAL
     FIELD amountFreight            AS DECIMAL 
     FIELD taxable                  AS LOGICAL
+    FIELD billable                 AS LOGICAL
     FIELD taxGroup                 AS CHARACTER 
     FIELD orderID                  AS INTEGER 
     FIELD orderLine                AS INTEGER 

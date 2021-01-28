@@ -295,6 +295,7 @@ PROCEDURE pBuildDataForPosted PRIVATE:
                 ttInvLine.itemName               = bf-ar-invl.i-name
                 ttInvLine.priceTotal             = bf-ar-invl.amt
                 ttInvLine.taxable                = bf-ar-invl.tax
+                ttInvLine.billable               = TRUE
                 ttInvLine.amountTaxableExFreight = ttInvLine.priceTotal
                 ttInvLine.amountFreight          = bf-ar-invl.t-freight
                 ttInvLine.customerPONo           = bf-ar-invl.po-no
@@ -302,6 +303,20 @@ PROCEDURE pBuildDataForPosted PRIVATE:
                 ttInvLine.isMisc                 = bf-ar-invl.misc
                 .
             
+            IF ttInvLine.isMisc THEN
+                ttInvLine.pricePerEach = IF bf-ar-invl.inv-qty EQ 0 THEN 
+                                             bf-ar-invl.amt
+                                         ELSE
+                                             (bf-ar-invl.amt / bf-ar-invl.inv-qty).
+            ELSE
+                ttInvLine.pricePerEach = (bf-ar-invl.amt / bf-ar-invl.inv-qty).
+            
+            IF ttInvLine.isMisc THEN
+                ttInvLine.billable = bf-ar-invl.billable.
+                           
+            IF NOT ttInvLine.billable THEN 
+                NEXT.
+                            
             lFirst = TRUE.
             
             FOR EACH ttTaxDetail
@@ -450,12 +465,14 @@ PROCEDURE pBuildDataForUnposted PRIVATE:
                 ttInvLine.quantityInvoiced       = bf-inv-line.inv-qty
                 ttInvLine.quantityInvoicedUOM    = bf-inv-line.pr-qty-uom
                 ttInvLine.pricePerUOM            = bf-inv-line.price * (1 - (bf-inv-line.disc / 100))
+                ttInvLine.pricePerEach           = bf-inv-line.t-price / bf-inv-line.inv-qty
                 ttInvLine.priceUOM               = bf-inv-line.pr-uom
                 ttInvLine.customerPartID         = bf-inv-line.part-no
                 ttInvLine.itemID                 = bf-inv-line.i-no
                 ttInvLine.itemName               = bf-inv-line.i-name
                 ttInvLine.priceTotal             = bf-inv-line.t-price
                 ttInvLine.taxable                = bf-inv-line.tax
+                ttInvLine.billable               = TRUE
                 ttInvLine.customerPONo           = bf-inv-line.po-no
                 ttInvLine.taxGroup               = ttInv.taxGroup
                 ttInvLine.isMisc                 = FALSE
@@ -512,16 +529,21 @@ PROCEDURE pBuildDataForUnposted PRIVATE:
                 ttInvLine.quantityInvoicedUOM    = "EA"
                 ttInvLine.pricePerUOM            = bf-inv-misc.amt
                 ttInvLine.priceUOM               = "EA"
+                ttInvLine.pricePerEach           = bf-inv-misc.amt
                 ttInvLine.itemID                 = bf-inv-misc.inv-i-no
                 ttInvLine.charge                 = bf-inv-misc.charge
                 ttInvLine.chargeDescription      = bf-inv-misc.dscr
                 ttInvLine.priceTotal             = bf-inv-misc.amt
                 ttInvLine.taxable                = bf-inv-misc.tax
+                ttInvLine.billable               = bf-inv-misc.bill EQ "Y"
                 ttInvLine.customerPONo           = bf-inv-misc.po-no
                 ttInvLine.taxGroup               = ttInv.taxGroup
                 ttInvLine.isMisc                 = TRUE
                 .
             
+            IF NOT ttInvLine.billable THEN
+                NEXT.
+                
             lFirst = TRUE.
              
             FOR EACH ttTaxDetail
