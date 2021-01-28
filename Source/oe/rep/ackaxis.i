@@ -1,7 +1,7 @@
 /* oe/rep/ackxprnt.i */
 
 PUT "<FMS Mincho>"   /*<R+8>*/
-    "<C3><R1><#1><R+18><C+55><IMAGE#1=" ls-full-img1 SKIP. 
+    "<C3><R1><#1><R+13><C+55><IMAGE#1=" ls-full-img1 SKIP. 
     /*"<C3><R2><#1><R+8><C+45><IMAGE#1=" ls-full-img1 SKIP.  regular */
            
 PUT "<=1><R+10><P10>"  /*bigger address */
