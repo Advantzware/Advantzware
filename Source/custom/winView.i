@@ -2,6 +2,6 @@ carrier ~
 company ~
 est ~
 fg-rctd ~
-//itemfg ~
+itemfg ~
 oe-ord ~
 rm-rctd 
