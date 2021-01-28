@@ -796,10 +796,7 @@ DO:
                            RUN GenerateReport(b1-po-ord.vend-no, b1-po-ord.vend-no) .                                                        
                     END. /* first-of(po-no) */
                     IF LAST-OF (b1-po-ord.vend-no) THEN
-                    DO:
-                       IF tb_print-loadtag AND (iPOLoadtagInt EQ 2 OR iPOLoadtagInt EQ 1) THEN
-                       lCheckEmailPo = NO .
-                       IF lCheckEmailPo THEN
+                    DO:                      
                        RUN GenerateMail(NO,"") .
                     END.   
                 END.  /* rd-dest EQ 5 */
@@ -859,10 +856,7 @@ DO:
                                         
                 END. /* first-of(po-no) */
                 IF LAST-OF (b1-po-ord.vend-no)  THEN
-                DO:
-                   IF tb_print-loadtag AND (iPOLoadtagInt EQ 2 OR iPOLoadtagInt EQ 1) THEN
-                       lCheckEmailPo = NO .
-                   IF lCheckEmailPo THEN
+                DO:                   
                    RUN GenerateMail(NO,"") .               
                 END.
             END.  /* rd-dest EQ 5 */
@@ -876,7 +870,8 @@ DO:
     
     IF tb_print-loadtag AND (iPOLoadtagInt EQ 1 OR iPOLoadtagInt EQ 2) THEN
     DO:
-        PAUSE 1.           
+        PAUSE 1. 
+        cPdfFilesAttach = "".
         FOR EACH tt-report BREAK BY tt-report.key-01 BY  tt-report.key-02:
           
           IF FIRST-OF (tt-report.key-02) THEN DO:                      
@@ -1504,10 +1499,10 @@ PROCEDURE GenerateMail :
        IF iplLoadtagMail THEN DO:
           IF (iPOLoadtagInt EQ 2 OR iPOLoadtagInt EQ 1) AND rd-dest = 5 then               
              ASSIGN                 
-              lcSubject = "Purchase Orders: " + STRING(cPoMailList)  + ", PO Load Tag(s) Attached"
+              lcSubject = " PO Load Tag(s) Attached"
               cMailId = "Loc" .
        END.
-              
+             
       RUN custom/xpmail2.p   (INPUT   cMailId,
                               INPUT   'R-POPRT.',
                               INPUT   cPdfFilesAttach,
