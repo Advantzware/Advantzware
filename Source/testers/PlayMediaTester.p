@@ -20,5 +20,3 @@
         DEFINE OUTPUT PARAMETER osh AS LONG.
     END PROCEDURE.
 
-/*You can select any .wav file from the below given directory:
-C:\Windows\Media*/
