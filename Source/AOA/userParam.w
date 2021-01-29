@@ -533,7 +533,7 @@ PROCEDURE local-view :
 
   /* Code placed here will execute AFTER standard behavior.    */
   RUN pShowParameterSets.
-  IF AVAILABLE dynParamValue AND dynParamValue.user-id NE "_default" THEN
+  IF AVAILABLE dynParamValue AND dynParamValue.user-id EQ USERID("ASI") THEN
   ENABLE {&outputObjects} WITH FRAME outputFrame.
 
 END PROCEDURE.
@@ -606,7 +606,7 @@ PROCEDURE pShowParameterSets :
 
     RUN pCreateDynParameters (FRAME {&FRAME-NAME}:HANDLE, YES).
     FRAME {&FRAME-NAME}:MOVE-TO-TOP().
-    IF AVAILABLE dynParamValue AND dynParamValue.user-id NE "_default" THEN
+    IF AVAILABLE dynParamValue AND dynParamValue.user-id EQ USERID("ASI") THEN
     RETURN.
     ASSIGN
         hWidget = FRAME {&FRAME-NAME}:HANDLE

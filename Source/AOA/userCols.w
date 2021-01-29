@@ -684,8 +684,8 @@ PROCEDURE local-view :
   /* Code placed here will execute AFTER standard behavior.    */
   RUN pUserColumns.
   FRAME {&FRAME-NAME}:MOVE-TO-TOP().
-  RUN pSetSortGroupButtons (dynParamValue.user-id NE "_default").
-  btnSave:SENSITIVE = dynParamValue.user-id NE "_default".
+  RUN pSetSortGroupButtons (dynParamValue.user-id EQ USERID("ASI")).
+  btnSave:SENSITIVE = dynParamValue.user-id EQ USERID("ASI").
   RUN pUpdateMode (NO).
 
 END PROCEDURE.
