@@ -457,6 +457,11 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
+
+// Ticket #96577: To fix the icon issue need to increase the height of window do that all icon fit on the window.
+//seting the width in main block as window resize trigger will resize all objects wrt. window width 
+{&WINDOW-NAME}:WIDTH = 185.
+
 {sys/inc/f3helpw.i}
 /* Include custom  Main Block code for SmartWindows. */
 {src/adm/template/windowmn.i}

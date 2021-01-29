@@ -674,11 +674,27 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME fiBillOwner
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiBillOwner B-table-Win
+ON LEAVE OF fiBillOwner IN FRAME  F-Main /* Billing Owner */
+DO:
+   DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
+  IF LASTKEY <> -1 THEN DO:
+     RUN valid-bill-owner(OUTPUT lReturnError) NO-ERROR.
+     IF lReturnError THEN RETURN NO-APPLY.
+  END.
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME btGo
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btGo B-table-Win
 ON CHOOSE OF btGo IN FRAME F-Main /* Go */
 DO: 
+DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
     DO WITH FRAME {&FRAME-NAME}:
         ASSIGN
             fiinvoice
@@ -701,6 +717,8 @@ DO:
     APPLY "VALUE-CHANGED" TO BROWSE {&BROWSE-NAME}.
     
     END.
+    RUN valid-bill-owner(OUTPUT lReturnError) NO-ERROR.
+    IF lReturnError THEN RETURN NO-APPLY.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -871,7 +889,6 @@ PROCEDURE proc-init :
   Notes:       
 ------------------------------------------------------------------------------*/   
 
-    fiBillOwner = USERID(LDBNAME(1)).
 
 END PROCEDURE.
 
@@ -1268,6 +1285,31 @@ FUNCTION pGetMargin RETURNS DECIMAL PRIVATE
     ELSE
         RETURN 0.            
 END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME      
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-bill-owner B-table-Win 
+PROCEDURE valid-bill-owner :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
+  {methods/lValidateError.i YES}
+
+   IF fiBillOwner:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" THEN DO:
+       IF NOT CAN-FIND(FIRST users WHERE users.USER_ID EQ fiBillOwner:SCREEN-VALUE IN FRAME {&FRAME-NAME})
+       THEN DO:
+           MESSAGE "Invalid customer Accountant. Try help." VIEW-AS ALERT-BOX ERROR.
+           APPLY "entry" TO fiBillOwner.
+           oplReturnError = YES.
+       END.
+   END.
+
+  {methods/lValidateError.i NO}
+END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

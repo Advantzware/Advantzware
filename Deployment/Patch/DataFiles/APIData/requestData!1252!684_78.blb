@@ -1,0 +1,16 @@
+ISA*00*          *00*          *[Sender Interchange Qualifier]*[Sender Interchange Receiver ID]*[Receiver Interchange Qualifier]*[Receiver Interchange Receiver ID]*$CurrentDate|YYMMDD|Date|$*$CurrentTime|hhmm|TIME|$*U*00401*$APITransCounter|999999999|Int|$*0*[Test Indicator]*>~
+GS*IN*[Application Sender ID]*[Application Receiver Code]*$currentDate|YYYYMMDD|DATE|$*$currentTime|hhmm|TIME|$*$ClientTransCounter$*X*004010~
+ST*810*0001~
+BIG*$InvoiceDate|YYYYMMDD|Date|$*$InvoiceNum$*****$InvoiceType$~
+REF*IA*[Reference Identification]~
+N1*RI*[Remit to Company Name]~
+N1*ST*$ShiptoName$
+N3$ShipToStreetData$~
+N4*$ShiptoCity$*$ShiptoState$*$ShiptoPostalCode$*US~
+ITD******$InvoiceDueDate|YYYYMMDD|DATE|$~
+DTM*011*$InvoiceDueDate|YYYYMMDD|DATE|$~$Detail$
+TDS*$TotalAmount$~$Tax$
+CTT*$LineCount$~
+SE*$SECount$*$0001~
+GE*1*$ClientTransCounter$~
+IEA*1*$APITransCounter|999999999|Int|$~

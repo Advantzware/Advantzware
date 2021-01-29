@@ -101,12 +101,12 @@ DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btnClose 
-     IMAGE-UP FILE "Graphics/32x32/navigate_cross.ico":U
+     IMAGE-UP FILE "Graphics/32x32/navigate_cross.png":U
      LABEL "&Close" 
      SIZE 8 BY 1.91.
 
 DEFINE BUTTON btnUpdate 
-     IMAGE-UP FILE "Graphics/32x32/navigate_check.ico":U
+     IMAGE-UP FILE "Graphics/32x32/navigate_check.png":U
      LABEL "&Update" 
      SIZE 8 BY 1.91.
 

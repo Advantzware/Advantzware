@@ -45,3 +45,4 @@
 46 "RecentTrendDays" "System" "Recent Trend Days" "Integer" ">>9" "Fill-In" "" "" 1 6 0 "" "" "" ? "" "202007230097305465168"
 47 "PeriodDays" "System" "Period Days" "Integer" ">,>>9" "Fill-In" "" "" 1 9 0 "" "" "" ? "" "202007230103805465169"
 48 "sbID" "System" "Schedule Board" "Character" "x(40)" "Selection-List" "" "" 2.95 30 0 "" "" "" ? "" "202008157947805472999"
+50 "HowToUse" "System" "Uses?" "Character" "" "Fill-In" "" "" 1 12 0 "" "" "" ? "" "202101265903006058375"

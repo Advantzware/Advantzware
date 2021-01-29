@@ -69,7 +69,7 @@ END PROCEDURE.
 
 &Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 
 /* External Tables                                                      */
@@ -84,7 +84,7 @@ DEFINE QUERY external_tables FOR box-design-hdr.
 box-design-hdr.box-image 
 &Scoped-define ENABLED-TABLES box-design-hdr
 &Scoped-define FIRST-ENABLED-TABLE box-design-hdr
-&Scoped-Define ENABLED-OBJECTS box-image-2 RECT-40 
+&Scoped-Define ENABLED-OBJECTS box-image-2 
 &Scoped-Define DISPLAYED-FIELDS box-design-hdr.design-no ~
 box-design-hdr.description box-design-hdr.box-image 
 &Scoped-define DISPLAYED-TABLES box-design-hdr
@@ -131,7 +131,7 @@ DEFINE IMAGE box-image-2
      SIZE 111 BY 12.38.
 
 DEFINE RECTANGLE RECT-40
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
      SIZE 146 BY 16.43.
 
 
@@ -144,39 +144,39 @@ DEFINE FRAME F-Main
      box-design-hdr.description AT ROW 1.24 COL 22 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 38 BY 1
-     box-design-hdr.box-image AT ROW 1.24 COL 75 COLON-ALIGNED FORMAT "x(200)"
+     box-design-hdr.box-image AT ROW 1.24 COL 75 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 68 BY 1
-     box-design-hdr.box-3d-image AT ROW 1.24 COL 75 COLON-ALIGNED  FORMAT "x(200)"
+     box-design-hdr.box-3d-image AT ROW 1.24 COL 75 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 62 BY 1
           BGCOLOR 14 
      box-design-hdr.lscore AT ROW 2.43 COL 2 NO-LABEL FORMAT "x(80)"
           VIEW-AS FILL-IN 
           SIZE 113 BY 1
-          FONT 0
+          FONT 2
      box-design-hdr.lcum-score AT ROW 3.38 COL 2 NO-LABEL FORMAT "x(80)"
           VIEW-AS FILL-IN 
           SIZE 113 BY 1
-          FONT 0
+          FONT 2
      box-design-hdr.box-text AT ROW 4.57 COL 2 NO-LABEL
           VIEW-AS EDITOR NO-WORD-WRAP SCROLLBAR-HORIZONTAL SCROLLBAR-VERTICAL
           SIZE 96 BY 12.62
-          FONT 0
+          FONT 2
      box-design-hdr.wcum-score AT ROW 4.81 COL 122 NO-LABEL
           VIEW-AS EDITOR NO-WORD-WRAP
           SIZE 11 BY 11.67
-          FONT 0
+          FONT 2
      box-design-hdr.wscore AT ROW 4.81 COL 134 NO-LABEL
           VIEW-AS EDITOR NO-WORD-WRAP
           SIZE 11 BY 11.67
-          FONT 0
+          FONT 2
      box-image-2 AT ROW 4.57 COL 2
      RECT-40 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
-         FONT 6.
+         FGCOLOR 1 FONT 6.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -206,8 +206,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW V-table-Win ASSIGN
-         HEIGHT             = 17.67
-         WIDTH              = 148.4.
+         HEIGHT             = 16.43
+         WIDTH              = 146.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -229,7 +229,7 @@ END.
 /* SETTINGS FOR WINDOW V-table-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE Size-to-Fit                                              */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
@@ -256,6 +256,8 @@ ASSIGN
 ASSIGN 
        box-design-hdr.lscore:HIDDEN IN FRAME F-Main           = TRUE.
 
+/* SETTINGS FOR RECTANGLE RECT-40 IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* SETTINGS FOR EDITOR box-design-hdr.wcum-score IN FRAME F-Main
    NO-DISPLAY NO-ENABLE 2                                               */
 ASSIGN 
@@ -501,7 +503,7 @@ find first style where style.company eq xeb.company
                  no-lock no-error.
 if avail style then
   find first xbox-design-hdr where xbox-design-hdr.design-no eq style.design-no
-  	                           and xbox-design-hdr.company   eq style.company 				
+                                   and xbox-design-hdr.company   eq style.company                               
                                and xbox-design-hdr.est-no    eq ""
              no-lock no-error.
 

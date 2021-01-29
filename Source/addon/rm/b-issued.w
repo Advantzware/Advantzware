@@ -2011,17 +2011,17 @@ PROCEDURE local-assign-statement :
   /* Code placed here will execute AFTER standard behavior.    */
   ASSIGN
     rm-rctd.loc = rm-rctd.loc:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
-    rm-rctd.loc-bin = rm-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
-    rm-rctd.rct-date = DATE(rm-rctd.rct-date:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})
-    rm-rctd.po-no = rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
-    rm-rctd.job-no = rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
-    rm-rctd.job-no2 = INT(rm-rctd.job-no2:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})
-    rm-rctd.i-no = rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
-    rm-rctd.i-name = rm-rctd.i-name:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
-    rm-rctd.qty = DECIMAL(rm-rctd.qty:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})
-    rm-rctd.s-num = INT(rm-rctd.s-num:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})
-    rm-rctd.b-num = INT(rm-rctd.b-num:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})
-    rm-rctd.pur-uom = rm-rctd.pur-uom:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}.
+    rm-rctd.loc-bin = rm-rctd.loc-bin:SCREEN-VALUE
+    rm-rctd.rct-date = DATE(rm-rctd.rct-date:SCREEN-VALUE)
+    rm-rctd.po-no = rm-rctd.po-no:SCREEN-VALUE
+    rm-rctd.job-no = rm-rctd.job-no:SCREEN-VALUE
+    rm-rctd.job-no2 = INT(rm-rctd.job-no2:SCREEN-VALUE)
+    rm-rctd.i-no = rm-rctd.i-no:SCREEN-VALUE
+    rm-rctd.i-name = rm-rctd.i-name:SCREEN-VALUE
+    rm-rctd.qty = DECIMAL(rm-rctd.qty:SCREEN-VALUE)
+    rm-rctd.s-num = INT(rm-rctd.s-num:SCREEN-VALUE)
+    rm-rctd.b-num = INT(rm-rctd.b-num:SCREEN-VALUE)
+    rm-rctd.pur-uom = rm-rctd.pur-uom:SCREEN-VALUE.
 
 
 END PROCEDURE.
@@ -3743,9 +3743,6 @@ FUNCTION onlyOneForm RETURNS LOGICAL
 ------------------------------------------------------------------------------*/
   DEFINE VARIABLE firstForm AS INTEGER NO-UNDO.
   DEFINE VARIABLE lastForm AS INTEGER NO-UNDO.
-  DEFINE VARIABLE iFirstBlank AS INTEGER NO-UNDO.
-  DEFINE VARIABLE iLastBlank AS INTEGER NO-UNDO.
-  DEFINE VARIABLE lReturnValue AS LOGICAL NO-UNDO.
 
   DEFINE BUFFER bJob FOR job.
   DEFINE BUFFER bJobMat FOR job-mat.
@@ -3763,9 +3760,7 @@ FUNCTION onlyOneForm RETURNS LOGICAL
            AND bJobMat.i-no EQ rm-rctd.i-no:SCREEN-VALUE
          USE-INDEX seq-idx NO-ERROR.
     IF AVAILABLE bJobMat THEN DO:
-     ASSIGN
-      firstForm = bJobMat.frm
-      iFirstBlank = bJobMat.blank-no.
+      firstForm = bJobMat.frm.
       FIND LAST bJobMat NO-LOCK
            WHERE bJobMat.company EQ bJob.company
              AND bJobMat.job EQ bJob.job
@@ -3773,13 +3768,11 @@ FUNCTION onlyOneForm RETURNS LOGICAL
              AND bJobMat.job-no2 EQ bJob.job-no2
              AND bJobMat.i-no EQ rm-rctd.i-no:SCREEN-VALUE
            USE-INDEX seq-idx NO-ERROR.
-      ASSIGN
-        lastForm   = bJobMat.frm
-        iLastBlank = bJobMat.blank-no.
+      lastForm = bJobMat.frm.
     END. /* avail bjobmat */
   END. /* avail job */
-  lReturnValue = IF firstForm EQ lastForm AND iFirstBlank EQ iLastBlank THEN TRUE ELSE FALSE.
-  RETURN lReturnValue.
+  
+  RETURN firstForm EQ lastForm.
 
 END FUNCTION.
 

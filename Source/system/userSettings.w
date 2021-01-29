@@ -1525,7 +1525,7 @@ PROCEDURE pProcessClick :
     IF AVAILABLE ttMenuTree AND ttMenuTree.isMenu AND NOT ttMenuTree.isOpen THEN
     ASSIGN
         ttMenuTree.hEditor:FONT    = iFont
-        ttMenuTree.hEditor:BGCOLOR = iEditorBGColor
+        ttMenuTree.hEditor:BGCOLOR = {&DefaultMenuBGColor}
         ttMenuTree.hEditor:FGCOLOR = ?
         .
 
@@ -1554,7 +1554,7 @@ PROCEDURE pReset :
         ASSIGN
             ttMenuTree.baseText             = fTranslate(ENTRY(1,ttMenuTree.hEditor:PRIVATE-DATA),NO)
             ttMenuTree.hEditor:FONT         = iFont
-            ttMenuTree.hEditor:BGCOLOR      = iEditorBGColor
+            ttMenuTree.hEditor:BGCOLOR      = {&DefaultMenuBGColor}
             ttMenuTree.hEditor:FGCOLOR      = ?
             ttMenuTree.hEditor:TOOLTIP      = "HotKey: " + ttMenuTree.mnemonic
             ttMenuTree.hEditor:SCREEN-VALUE = fTreeText(

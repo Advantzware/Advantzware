@@ -14,6 +14,9 @@ DEFINE STREAM s1.
 DEFINE STREAM s2.
 DEFINE STREAM s3.
 DEFINE STREAM s4.
+DEFINE STREAM s5.
+DEFINE STREAM s6.
+DEFINE STREAM s7.
 
 DEF VAR cOutDir AS CHAR INIT "{&cDir}\Deployment\Patch\DataFiles" NO-UNDO.
 
@@ -123,6 +126,9 @@ OUTPUT STREAM s1 TO VALUE(cOutDir + "\dynSubjectTable.d").
 OUTPUT STREAM s2 TO VALUE(cOutDir + "\dynSubjectWhere.d").
 OUTPUT STREAM s3 TO VALUE(cOutDir + "\dynSubjectColumn.d").
 OUTPUT STREAM s4 TO VALUE(cOutDir + "\dynSubjectParamSet.d").
+OUTPUT STREAM s5 TO VALUE(cOutDir + "\dynValueParam.d").
+OUTPUT STREAM s6 TO VALUE(cOutDir + "\dynValueColumn.d").
+OUTPUT STREAM s7 TO VALUE(cOutDir + "\dynValueParamSet.d").
 FOR EACH dynSubject NO-LOCK WHERE 
     dynSubject.subjectID LT 5000
     BY dynSubject.subjectid:
@@ -139,12 +145,43 @@ FOR EACH dynSubject NO-LOCK WHERE
     FOR EACH dynSubjectParamSet OF dynSubject NO-LOCK:
         EXPORT STREAM s4 dynSubjectParamSet.
     END. /* each dynSubjectParamSet */
+
+    &SCOPED-DEFINE dynTable Param
+    FOR EACH dynValue{&dynTable} NO-LOCK WHERE
+        dynValue{&dynTable}.subjectID EQ synSubject.subjectID AND
+        dynValue{&dynTable}.user-id EQ dynSubject.user-id AND
+        dynValue{&dynTable}.prgmName EQ dynSubject.prgmName AND
+        dynValue{&dynTable}.paramValueID EQ dynSubject.paramValueID:
+        EXPORT STREAM s5 dynValue{&dynTable}.
+    END.
+    &SCOPED-DEFINE dynTable Column
+    FOR EACH dynValue{&dynTable} NO-LOCK WHERE
+        dynValue{&dynTable}.subjectID EQ synSubject.subjectID AND
+        dynValue{&dynTable}.user-id EQ dynSubject.user-id AND
+        dynValue{&dynTable}.prgmName EQ dynSubject.prgmName AND
+        dynValue{&dynTable}.paramValueID EQ dynSubject.paramValueID:
+        EXPORT STREAM s5 dynValue{&dynTable}.
+    END.
+    &SCOPED-DEFINE dynTable ParamSet
+    FOR EACH dynValue{&dynTable} NO-LOCK WHERE
+        dynValue{&dynTable}.subjectID EQ synSubject.subjectID AND
+        dynValue{&dynTable}.user-id EQ dynSubject.user-id AND
+        dynValue{&dynTable}.prgmName EQ dynSubject.prgmName AND
+        dynValue{&dynTable}.paramValueID EQ dynSubject.paramValueID:
+        EXPORT STREAM s5 dynValue{&dynTable}.
+    END.
+
+
 END. /* each dynSubject */
 OUTPUT STREAM s0 CLOSE.
 OUTPUT STREAM s1 CLOSE.
 OUTPUT STREAM s2 CLOSE.
 OUTPUT STREAM s3 CLOSE.
 OUTPUT STREAM s4 CLOSE.
+OUTPUT STREAM s5 CLOSE.
+OUTPUT STREAM s6 CLOSE.
+OUTPUT STREAM s7 CLOSE.
+
 
 OUTPUT TO VALUE(cOutDir + "\dynParam.d").
 FOR EACH dynParam NO-LOCK WHERE 

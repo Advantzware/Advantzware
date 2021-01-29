@@ -1,0 +1,10 @@
+{
+    "Company": "$company$",
+    "ItemID": "$itemID$",
+    "JobID": "$jobID$",
+    "JobID2": $jobID2$,
+    "WarehouseID": "$warehouseID$",
+    "LocationID": "$locationID$",
+    "InventoryStockID": "$inventoryStockID$",
+    "Status": "$status$"
+}

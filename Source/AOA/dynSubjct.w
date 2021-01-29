@@ -4578,12 +4578,6 @@ PROCEDURE pCRUD :
                     SESSION:SET-WAIT-STATE ("General").
                     IF lContinue THEN DO TRANSACTION:
                         cMode = iphMode:LABEL.
-                        {AOA/includes/dynSubjctDelete.i "Task"}
-                        {AOA/includes/dynSubjctDelete.i "dynParamValue"}
-                        {AOA/includes/dynSubjctDelete.i "dynSubjectTable"}
-                        {AOA/includes/dynSubjctDelete.i "dynSubjectWhere"}
-                        {AOA/includes/dynSubjctDelete.i "dynSubjectColumn"}
-                        {AOA/includes/dynSubjctDelete.i "dynSubjectParamSet"}
                         FIND CURRENT dynSubject EXCLUSIVE-LOCK.
                         DELETE dynSubject.
                         BROWSE subjectBrowse:DELETE-CURRENT-ROW().

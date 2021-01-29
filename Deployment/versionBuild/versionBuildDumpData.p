@@ -152,9 +152,10 @@ OUTPUT STREAM s1 TO VALUE(cOutDir + "\dynSubjectTable.d").
 OUTPUT STREAM s2 TO VALUE(cOutDir + "\dynSubjectWhere.d").
 OUTPUT STREAM s3 TO VALUE(cOutDir + "\dynSubjectColumn.d").
 OUTPUT STREAM s4 TO VALUE(cOutDir + "\dynSubjectParamSet.d").
+
 FOR EACH dynSubject NO-LOCK WHERE 
-    dynSubject.subjectID LT 5000 AND 
-    dynSubject.isActive EQ TRUE 
+    dynSubject.subjectID LT 5000 AND
+    dynSubject.isActive EQ TRUE
     BY dynSubject.subjectid:
     EXPORT STREAM s0 dynSubject.
     FOR EACH dynSubjectTable OF dynSubject NO-LOCK:
@@ -278,35 +279,35 @@ OUTPUT CLOSE.
 
 &SCOPED-DEFINE cFile apiInbound
 OUTPUT TO VALUE(cOutDir + "\APIData\{&cFile}.d").
-FOR EACH {&cFile}:
+FOR EACH {&cFile} WHERE {&cFile}.{&cFile}ID LT 5000:
     EXPORT {&cFile}.
 END.
 OUTPUT CLOSE.
 
 &SCOPED-DEFINE cFile apiInboundDetail
 OUTPUT TO VALUE(cOutDir + "\APIData\{&cFile}.d").
-FOR EACH {&cFile}:
+FOR EACH {&cFile} WHERE {&cFile}.{&cFile}ID LT 5000:
     EXPORT {&cFile}.
 END.
 OUTPUT CLOSE.
 
 &SCOPED-DEFINE cFile apiOutbound
 OUTPUT TO VALUE(cOutDir + "\APIData\{&cFile}.d").
-FOR EACH {&cFile}:
+FOR EACH {&cFile} WHERE {&cFile}.{&cFile}ID LT 5000:
     EXPORT {&cFile}.
 END.
 OUTPUT CLOSE.
 
 &SCOPED-DEFINE cFile apiOutboundDetail
 OUTPUT TO VALUE(cOutDir + "\APIData\{&cFile}.d").
-FOR EACH {&cFile}:
+FOR EACH {&cFile} WHERE {&cFile}.{&cFile}ID LT 5000:
     EXPORT {&cFile}.
 END.
 OUTPUT CLOSE.
 
 &SCOPED-DEFINE cFile apiOutboundTrigger
 OUTPUT TO VALUE(cOutDir + "\APIData\{&cFile}.d").
-FOR EACH {&cFile}:
+FOR EACH {&cFile} WHERE {&cFile}.{&cFile}ID LT 5000:
     EXPORT {&cFile}.
 END.
 OUTPUT CLOSE.
