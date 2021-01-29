@@ -58,6 +58,7 @@ DEF VAR hInoField AS HANDLE NO-UNDO.
 DEF VAR hInvNoField AS HANDLE NO-UNDO.
 DEF VAR hLocField AS HANDLE NO-UNDO.
 DEF VAR hOrdNoField AS HANDLE NO-UNDO.
+DEF VAR hPoNoField AS HANDLE NO-UNDO.
 DEF VAR hQuery AS HANDLE NO-UNDO.
 DEF VAR hRecKey AS HANDLE NO-UNDO.
 DEF VAR hRnoField AS HANDLE NO-UNDO.
@@ -427,6 +428,7 @@ PROCEDURE pTestOneFile:
         hInvNoField = ?
         hLocField = ?
         hOrdNoField = ?
+        hPoNoField = ?
         hRnoField = ?
         hTestField = ?
         hXnoField = ?.
@@ -459,6 +461,8 @@ PROCEDURE pTestOneFile:
             hLocField = hBuffer:BUFFER-FIELD(iCtr).
         ELSE IF hTestField:NAME EQ "ord-no" THEN ASSIGN 
             hOrdNoField = hBuffer:BUFFER-FIELD(iCtr).
+        ELSE IF hTestField:NAME EQ "po-no" THEN ASSIGN 
+            hPoNoField = hBuffer:BUFFER-FIELD(iCtr).
         ELSE IF hTestField:NAME EQ "r-no" THEN ASSIGN 
             hRNoField = hBuffer:BUFFER-FIELD(iCtr).
         ELSE IF hTestField:NAME EQ "x-no" THEN ASSIGN
@@ -654,6 +658,23 @@ PROCEDURE pTestOneFile:
                 cMessage = cMessage + ",Ord-no=" + hOrdNoField:BUFFER-VALUE.  
         END.
         
+        /* Po-no tests */
+        IF hPoNoField NE ? THEN 
+        DO:
+            IF hPoNoField:BUFFER-VALUE EQ "" THEN ASSIGN 
+                    lError = TRUE 
+                    cRule = cRule + ",Blank PO No"
+                    cMessage = cMessage + ",<blank>".
+            ELSE IF NOT CAN-FIND(FIRST po-ord WHERE 
+                    po-ord.company EQ hCompanyField:BUFFER-VALUE AND 
+                    po-ord.po-no EQ hPoNoField:BUFFER-VALUE) 
+                    AND CAN-DO("po-ordl,po-ordl-add",ipcFileName) 
+                    THEN ASSIGN 
+                        lError = TRUE  
+                        cRule = cRule + ",Invalid PO No"
+                        cMessage = cMessage + ",Po-no=" + hPoNoField:BUFFER-VALUE.  
+        END.
+
         /* R-no tests */
         IF hRNoField NE ? THEN DO:
             IF hRNoField:BUFFER-VALUE EQ "" 
@@ -706,6 +727,7 @@ PROCEDURE pTestOneFile:
                                           (IF hCustNoField NE ? THEN hCustNoField:BUFFER-VALUE ELSE "") + "," +
                                           (IF hLocField NE ? THEN hLocField:BUFFER-VALUE ELSE "") + "," +
                                           (IF hOrdNoField NE ? THEN hOrdNoField:BUFFER-VALUE ELSE "") + "," +
+                                          (IF hPoNoField NE ? THEN hPoNoField:BUFFER-VALUE ELSE "") + "," +
                                           (IF hRNoField NE ? THEN hRNoField:BUFFER-VALUE ELSE "") + "," +
                                           (IF hBolNoField NE ? THEN hBolNoField:BUFFER-VALUE ELSE "") + "," +
                                           (IF hBNoField NE ? THEN hBNoField:BUFFER-VALUE ELSE "") + "," +
@@ -746,7 +768,7 @@ PROCEDURE outputOrphanFile:
     OUTPUT STREAM sReport TO VALUE (cOutputDir + "\" + "_PurgeReport.csv").
     
     PUT STREAM sReport UNFORMATTED 
-        "Purge (Y/N)?,ErrLevel,Table Name,Reckey,Rowid,Company,Cust-no,Loc,Ord-no,R-no,Bol-no,B-no,Inv-no,I-no,X-no,Acctnum" + CHR(10).
+        "Purge (Y/N)?,ErrLevel,Table Name,Reckey,Rowid,Company,Cust-no,Loc,Ord-no,Po-no,R-no,Bol-no,B-no,Inv-no,I-no,X-no,Acctnum" + CHR(10).
     FOR EACH ttFileList
         BY ttFileList.cError
         BY ttFileList.cFileName 
