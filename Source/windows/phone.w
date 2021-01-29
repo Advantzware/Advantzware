@@ -140,7 +140,7 @@ DEFINE VARIABLE h_smartmsg AS HANDLE NO-UNDO.
 /* Definitions of the field level widgets                               */
 DEFINE VARIABLE headervalue AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
-     SIZE 120 BY 1
+     SIZE 120 BY 0.80
      FONT 33 NO-UNDO.
 
 
@@ -194,7 +194,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 132.8
          VIRTUAL-HEIGHT     = 20.91
          VIRTUAL-WIDTH      = 132.8
-         RESIZE             = no
+         RESIZE             = yes
          SCROLL-BARS        = no
          STATUS-AREA        = yes
          BGCOLOR            = ?
@@ -383,7 +383,7 @@ PROCEDURE adm-create-objects :
              INPUT  'FOLDER-LABELS = ':U + 'Browse|Detail' + ',
                      FOLDER-TAB-TYPE = 2':U ,
              OUTPUT h_folder ).
-       RUN set-position IN h_folder ( 4.10 , 2.00 ) NO-ERROR.
+       RUN set-position IN h_folder ( 3.60 , 2.00 ) NO-ERROR.
        RUN set-size IN h_folder ( 17.14 , 125.00 ) NO-ERROR.
 
        /* Initialize other pages that this page requires. */
@@ -431,7 +431,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_emailcod ).
-       RUN set-position IN h_emailcod ( 6.11 , 67.00 ) NO-ERROR.
+       RUN set-position IN h_emailcod ( 6 , 67.00 ) NO-ERROR.
        RUN set-size IN h_emailcod ( 14.76 , 57.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
