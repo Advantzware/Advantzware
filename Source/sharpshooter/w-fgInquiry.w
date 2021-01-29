@@ -436,6 +436,18 @@ END.
 
 &Scoped-define SELF-NAME fiCustItem
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiCustItem W-Win
+ON ANY-KEY OF fiCustItem IN FRAME F-Main /* Customer Part # */
+DO:
+    /* Apply fg item scan on press enter key */
+    IF KEY-LABEL(LASTKEY) EQ "ENTER" THEN
+        APPLY "LEAVE" TO SELF.  
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiCustItem W-Win
 ON ENTRY OF fiCustItem IN FRAME F-Main /* Customer Part # */
 DO:
     hFocusField = SELF.
@@ -512,6 +524,18 @@ END.
 
 &Scoped-define SELF-NAME fiFGItem
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiFGItem W-Win
+ON ANY-KEY OF fiFGItem IN FRAME F-Main /* FG Item# */
+DO:
+    /* Apply fg item scan on press enter key */
+    IF KEY-LABEL(LASTKEY) EQ "ENTER" THEN
+        APPLY "LEAVE" TO SELF.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiFGItem W-Win
 ON ENTRY OF fiFGItem IN FRAME F-Main /* FG Item# */
 DO:
     hFocusField = SELF.
@@ -582,6 +606,18 @@ END.
 
 
 &Scoped-define SELF-NAME fiLocation
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiLocation W-Win
+ON ANY-KEY OF fiLocation IN FRAME F-Main /* Location */
+DO:
+    /* Apply location scan on press enter key */
+    IF KEY-LABEL(LASTKEY) EQ "ENTER" THEN
+        APPLY "LEAVE" TO SELF.  
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiLocation W-Win
 ON ENTRY OF fiLocation IN FRAME F-Main /* Location */
 DO:
