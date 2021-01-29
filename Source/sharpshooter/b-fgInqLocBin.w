@@ -414,19 +414,22 @@ PROCEDURE ScanItem :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER ipcCompany  AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcItemID   AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcCustItem AS CHARACTER NO-UNDO.
-    DEFINE OUTPUT PARAMETER oplError    AS LOGICAL   NO-UNDO.
-    DEFINE OUTPUT PARAMETER opcMessage  AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcCompany   AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcItemID    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcCustItem  AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcWarehouse AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcLocation  AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError     AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage   AS CHARACTER NO-UNDO.
     
     DEFINE VARIABLE cConsUOM AS CHARACTER NO-UNDO.
     
     EMPTY TEMP-TABLE ttBrowseInventory.
-
+    EMPTY TEMP-TABLE ttInventoryLoc.
+    
     RUN Inventory_BuildFGBinForItem IN hdInventoryProcs (
         INPUT        ipcCompany,
-        INPUT        "",
+        INPUT        ipcWarehouse,
         INPUT        "",
         INPUT-OUTPUT ipcItemID,
         INPUT-OUTPUT ipcCustItem,
