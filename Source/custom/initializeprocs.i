@@ -358,6 +358,8 @@ PROCEDURE setCapturedWindowPosition:
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE VARIABLE cFileName AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE ix AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iy AS INTEGER NO-UNDO.
     cFileName = ENTRY(1, THIS-PROCEDURE:FILE-NAME, ".").
                 
     FIND FIRST userWindow NO-LOCK 
@@ -368,7 +370,31 @@ PROCEDURE setCapturedWindowPosition:
         ASSIGN                 
             {&WINDOW-NAME}:X                     = userwindow.winxpos
             {&WINDOW-NAME}:Y                     = userwindow.winypos
+            {&WINDOW-NAME}:WIDTH         = userWindow.winWidth
+            {&WINDOW-NAME}:HEIGHT        = userWindow.winHeight
               NO-ERROR 
-            .                 
+            . 
+/*-------------------For Debuging-----------------------------------------              
+MESSAGE {&WINDOW-NAME}:X "&WINDOW-NAME}:X" SKIP
+        {&WINDOW-NAME}:y "&WINDOW-NAME}:y" SKIP
+        SESSION:WORK-AREA-WIDTH-PIXELS "SESSION:WORK-AREA-WIDTH-PIXELS" SKIP
+        SESSION:WORK-AREA-HEIGHT-PIXELS "SESSION:WORK-AREA-HEIGHT-PIXELS" SKIP
+        SESSION:WIDTH-PIXELS "SESSION:WIDTH-PIXELS" SKIP
+        SESSION:HEIGHT-PIXELS "SESSION:HEIGHT-PIXELS" SKIP
+        {&WINDOW-NAME}:WIDTH-PIXELS "{&WINDOW-NAME}:WIDTH-PIXELS" SKIP
+        {&WINDOW-NAME}:HEIGHT-PIXELS "{&WINDOW-NAME}:HEIGHT-PIXELS" SKIP
+        SESSION:WORK-AREA-WIDTH-PIXELS - {&WINDOW-NAME}:WIDTH-PIXELS "SESSION:WORK-AREA-WIDTH-PIXELS - {&WINDOW-NAME}:width-PIXELS" SKIP
+        SESSION:WORK-AREA-HEIGHT-PIXELS - {&WINDOW-NAME}:HEIGHT-PIXELS "(SESSION:WORK-AREA-HEIGHT-PIXELS - {&WINDOW-NAME}:HEIGHT-PIXELS)"
+VIEW-AS ALERT-BOX.
+----------------------------------------------------------------------------*/
 
+// If the window is off scrren then place the window at the center of screen
+    IF {&WINDOW-NAME}:X > (SESSION:WORK-AREA-WIDTH-PIXELS - {&WINDOW-NAME}:width-PIXELS) OR  
+       {&WINDOW-NAME}:Y > (SESSION:WORK-AREA-HEIGHT-PIXELS - {&WINDOW-NAME}:HEIGHT-PIXELS)
+        THEN
+        ASSIGN  {&WINDOW-NAME}:X = (SESSION:WORK-AREA-WIDTH-PIXELS - {&WINDOW-NAME}:WIDTH-PIXELS) / 2
+                {&WINDOW-NAME}:Y = (SESSION:WORK-AREA-HEIGHT-PIXELS - {&WINDOW-NAME}:HEIGHT-PIXELS) / 2.
+    
+    {&WINDOW-NAME}:WIDTH         = deOrigWinWidth.
+    {&WINDOW-NAME}:HEIGHT        = deOrigWinHeight.
 END PROCEDURE.
