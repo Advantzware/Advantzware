@@ -44,7 +44,7 @@ CREATE WIDGET-POOL.
 {methods/prgsecur.i}
 {sys/ref/sys-ctrl.i}
 {methods/defines/sortByDefs.i "EXTENT 2"}
-{methods/template/brwcustomdef.i}
+
 DEFINE VARIABLE hCurrentFilter   AS HANDLE    NO-UNDO.
 DEFINE VARIABLE cFilter          AS CHARACTER NO-UNDO INITIAL "ALL".
 DEFINE VARIABLE cSubFilter       AS CHARACTER NO-UNDO INITIAL "ALL".
@@ -96,6 +96,8 @@ DEFINE BUFFER bttSysCtrl FOR ttSysCtrl.
 
 DEFINE TEMP-TABLE tempSysCtrl NO-UNDO LIKE ttSysCtrl.
 CREATE tempSysCtrl.
+
+&Global-define parentName 
 
 {system/menuTree.i}
 {methods/lockWindowUpdate.i}
@@ -180,8 +182,8 @@ sys-ctrl-shipto.dec-fld sys-ctrl-shipto.int-fld sys-ctrl-shipto.log-fld
 
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS svFocus searchBar btnRestoreDefaults ~
-sysCtrlBrowse btnSortMove 
+&Scoped-Define ENABLED-OBJECTS svFocus searchBar sysCtrlBrowse ~
+btnRestoreDefaults btnSortMove 
 &Scoped-Define DISPLAYED-OBJECTS svFocus searchBar 
 
 /* Custom List Definitions                                              */
@@ -214,13 +216,13 @@ DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btnExport 
-     IMAGE-UP FILE "Graphics/32x32/export.ico":U
+     IMAGE-UP FILE "Graphics/32x32/export.png":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/export_disabled.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "Export" 
      SIZE 8 BY 1.91 TOOLTIP "Export".
 
 DEFINE BUTTON btnImport 
-     IMAGE-UP FILE "Graphics/32x32/import.ico":U
+     IMAGE-UP FILE "Graphics/32x32/import.png":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/import_disabled.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "Import" 
      SIZE 8 BY 1.91 TOOLTIP "Import".
@@ -282,9 +284,9 @@ DEFINE BUTTON btnClear  NO-FOCUS
      FONT 1.
 
 DEFINE BUTTON btnSearch 
-     IMAGE-UP FILE "Graphics/16x16/filterwindow.bmp":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/16x16/filterwindow.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
-     SIZE 4 BY .95 TOOLTIP "Advanced Search".
+     SIZE 4.8 BY 1.14 TOOLTIP "Advanced Search".
 
 DEFINE VARIABLE cCategoryFilter AS CHARACTER FORMAT "X(256)":U 
      LABEL "Category" 
@@ -726,18 +728,18 @@ DEFINE BROWSE sysCtrlShipToBrowse
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
+     btnExport AT ROW 27.43 COL 11 HELP
+          "Export" WIDGET-ID 36
      svFocus AT ROW 1 COL 1 NO-LABEL WIDGET-ID 4
      searchBar AT ROW 1 COL 54 COLON-ALIGNED HELP
           "Search" WIDGET-ID 6
-     btnRestoreDefaults AT ROW 1 COL 39 HELP
-          "Restore Defaults" WIDGET-ID 42
      sysCtrlBrowse AT ROW 2 COL 39 WIDGET-ID 300
-     btnSortMove AT ROW 1 COL 43 HELP
-          "Toggle Sort/Move Columns" WIDGET-ID 44
-     btnExport AT ROW 27.43 COL 11 HELP
-          "Export" WIDGET-ID 36
      btnImport AT ROW 27.43 COL 20 HELP
           "Import" WIDGET-ID 38
+     btnRestoreDefaults AT ROW 1 COL 39 HELP
+          "Restore Defaults" WIDGET-ID 42
+     btnSortMove AT ROW 1 COL 43 HELP
+          "Toggle Sort/Move Columns" WIDGET-ID 44
      RECT-1 AT ROW 27.19 COL 10 WIDGET-ID 40
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -757,14 +759,14 @@ DEFINE FRAME viewFrame
      cModule AT ROW 2.43 COL 99 COLON-ALIGNED WIDGET-ID 6
      cDescrip AT ROW 3.62 COL 18 COLON-ALIGNED WIDGET-ID 4
      cFieldDescrip AT ROW 4.81 COL 18 COLON-ALIGNED WIDGET-ID 40
+     hLogical AT ROW 6 COL 20 NO-LABEL WIDGET-ID 64
      hInteger AT ROW 6 COL 18 COLON-ALIGNED HELP
           "Enter Integer Value" NO-LABEL WIDGET-ID 62
-     hDate AT ROW 6 COL 18 COLON-ALIGNED HELP
-          "Enter Date Value" NO-LABEL WIDGET-ID 58
      hDecimal AT ROW 6 COL 18 COLON-ALIGNED HELP
           "Enter Decimal Value" NO-LABEL WIDGET-ID 60
      cFieldValue AT ROW 6 COL 18 COLON-ALIGNED WIDGET-ID 30
-     hLogical AT ROW 6 COL 20 NO-LABEL WIDGET-ID 64
+     hDate AT ROW 6 COL 18 COLON-ALIGNED HELP
+          "Enter Date Value" NO-LABEL WIDGET-ID 58
      cFieldDefault AT ROW 7.19 COL 18 COLON-ALIGNED WIDGET-ID 42
      ctableSource AT ROW 8.38 COL 18 COLON-ALIGNED WIDGET-ID 46
      cfieldSource AT ROW 8.38 COL 54 COLON-ALIGNED WIDGET-ID 48
@@ -839,7 +841,15 @@ DEFINE FRAME searchFrame
          SIDE-LABELS TOP-ONLY NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
          SIZE 64 BY 12.14
-         FGCOLOR 1 FONT 6 WIDGET-ID 600.
+         BGCOLOR 21 FGCOLOR 15 FONT 6 WIDGET-ID 600.
+
+DEFINE FRAME filterFrame
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1
+         SIZE 38 BY 26
+         BGCOLOR 15 FGCOLOR 1 
+         TITLE BGCOLOR 8 "Category / SubCategory" WIDGET-ID 200.
 
 DEFINE FRAME formsFrame
      cSysCtrlName AT ROW 1.24 COL 11 COLON-ALIGNED WIDGET-ID 4
@@ -940,14 +950,6 @@ DEFINE FRAME viewFormFrame
          FGCOLOR 1 
          TITLE "View" WIDGET-ID 900.
 
-DEFINE FRAME filterFrame
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1
-         SIZE 38 BY 26
-         BGCOLOR 15 FGCOLOR 1 
-         TITLE BGCOLOR 8 "Category / SubCategory" WIDGET-ID 200.
-
 
 /* *********************** Procedure Settings ************************ */
 
@@ -1004,11 +1006,11 @@ ASSIGN FRAME filterFrame:FRAME = FRAME DEFAULT-FRAME:HANDLE
 
 DEFINE VARIABLE XXTABVALXX AS LOGICAL NO-UNDO.
 
-ASSIGN XXTABVALXX = FRAME filterFrame:MOVE-AFTER-TAB-ITEM (svFocus:HANDLE IN FRAME DEFAULT-FRAME)
-       XXTABVALXX = FRAME filterFrame:MOVE-BEFORE-TAB-ITEM (FRAME searchFrame:HANDLE)
-    /* END-ASSIGN-TABS */.
+ASSIGN XXTABVALXX = FRAME searchFrame:MOVE-BEFORE-TAB-ITEM (svFocus:HANDLE IN FRAME DEFAULT-FRAME)
+       XXTABVALXX = FRAME filterFrame:MOVE-AFTER-TAB-ITEM (svFocus:HANDLE IN FRAME DEFAULT-FRAME)
+/* END-ASSIGN-TABS */.
 
-/* BROWSE-TAB sysCtrlBrowse btnRestoreDefaults DEFAULT-FRAME */
+/* BROWSE-TAB sysCtrlBrowse searchBar DEFAULT-FRAME */
 /* SETTINGS FOR BUTTON btnExport IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
 /* SETTINGS FOR BUTTON btnImport IN FRAME DEFAULT-FRAME
@@ -2665,16 +2667,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sysCtrlBrowse C-Win
 ON START-SEARCH OF sysCtrlBrowse IN FRAME DEFAULT-FRAME
 DO:
-	{methods/template/sortindicator.i} 
-    IF SELF:CURRENT-COLUMN:NAME NE ? THEN DO:
-        cColumnLabel[1] = BROWSE sysCtrlBrowse:CURRENT-COLUMN:NAME.
-        IF cColumnLabel[1] EQ cSaveLabel[1] THEN
-        lAscending = NOT lAscending.
-        cSaveLabel[1] = cColumnLabel[1].
-        RUN pReopenBrowse.
-    END.
-	{methods/template/sortindicatorend.i} 
-    RETURN NO-APPLY.
+        {AOA/includes/startSearch.i [1]}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2732,16 +2725,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sysCtrlShipToBrowse C-Win
 ON START-SEARCH OF sysCtrlShipToBrowse IN FRAME formsFrame
 DO:
-	{methods/template/sortindicator.i} 
-    IF SELF:CURRENT-COLUMN:NAME NE ? THEN DO:
-        cColumnLabel[2] = BROWSE sysCtrlShipToBrowse:CURRENT-COLUMN:NAME.
-        IF cColumnLabel[2] EQ cSaveLabel[2] THEN
-        lAscending = NOT lAscending.
-        cSaveLabel[2] = cColumnLabel[2].
-        RUN pReopenShipToBrowse.
-    END.
-	{methods/template/sortindicatorend.i} 
-    RETURN NO-APPLY.
+        {AOA/includes/startSearch.i [2]}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2773,6 +2757,8 @@ END.
 /* Set CURRENT-WINDOW: this will parent dialog-boxes and frames.        */
 ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME} 
        THIS-PROCEDURE:CURRENT-WINDOW = {&WINDOW-NAME}.
+
+{methods/template/brwcustom2.i}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
@@ -2928,7 +2914,7 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY svFocus searchBar 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE svFocus searchBar btnRestoreDefaults sysCtrlBrowse btnSortMove 
+  ENABLE svFocus searchBar sysCtrlBrowse btnRestoreDefaults btnSortMove 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW FRAME filterFrame IN WINDOW C-Win.
@@ -3013,16 +2999,18 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pBuildMenuTree C-Win 
-PROCEDURE pBuildMenuTree :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pBuildttMenuTree C-Win 
+PROCEDURE pBuildttMenuTree :
 /*------------------------------------------------------------------------------
   Purpose:     
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcParentName AS CHARACTER NO-UNDO.
+
     DEFINE VARIABLE iOrder AS INTEGER NO-UNDO.
     
-    RUN pInitMenuTree.
+    // RUN pInitMenuTree.
 
     iOrder = iOrder + 1.
     RUN pCreatettMenuTree (
@@ -3034,10 +3022,11 @@ PROCEDURE pBuildMenuTree :
         "ALL",
         "ALL",
         "tab_pane.png",
+        "ALL",
         "",
         "",
-        "",
-        YES
+        YES,
+        ipcParentName
         ).
     FOR EACH ttSysCtrl
         BREAK BY ttSysCtrl.subCategory
@@ -3049,14 +3038,15 @@ PROCEDURE pBuildMenuTree :
                 iOrder,
                 2,
                 NO,
-                "ALL",
+                ttSysCtrl.category,
                 ttSysCtrl.subCategory,
                 ttSysCtrl.subCategory,
                 "hand_point_right2.png",
+                STRING(iOrder),
                 "",
                 "",
-                "",
-                YES
+                YES,
+                ttSysCtrl.category
                 ).
         END. /* if first-of */
     END. /* each ttsysctrl */
@@ -3075,10 +3065,11 @@ PROCEDURE pBuildMenuTree :
                 ttSysCtrl.category,
                 ttSysCtrl.category,
                 "tab_pane.png",
+                STRING(iOrder),
                 "",
                 "",
-                "",
-                YES
+                YES,
+                ipcParentName
                 ).
         END. /* if first-of category */
         IF FIRST-OF(ttSysCtrl.subCategory) THEN DO:
@@ -3092,10 +3083,11 @@ PROCEDURE pBuildMenuTree :
                 ttSysCtrl.subCategory,
                 ttSysCtrl.subCategory,
                 "hand_point_right2.png",
+                STRING(iOrder),
                 "",
                 "",
-                "",
-                YES
+                YES,
+                ipcParentName
                 ).
         END. /* if first-of category */
     END. /* each ttsysctrl */
@@ -3108,11 +3100,12 @@ PROCEDURE pBuildMenuTree :
         "",
         "Exit",
         "Exit",
-        "navigate_cross.png",
+        "logout.png",
+        "Exit",
         "",
         "",
-        "",
-        YES
+        YES,
+        ipcParentName
         ).
 
 END PROCEDURE.
@@ -4157,7 +4150,7 @@ PROCEDURE pInit :
 ------------------------------------------------------------------------------*/
     RUN pParseTables.  
     RUN pDisplayMenuTree (FRAME filterFrame:HANDLE, "", YES, 1).
-    FIND FIRST ttMenuTree.
+    FIND FIRST ttMenuTree NO-ERROR.
     IF AVAILABLE ttMenuTree AND VALID-HANDLE(ttMenuTree.hEditor) THEN
     RUN pClickMenuTree (ttMenuTree.hEditor).
     RUN pSetFocus.
@@ -4292,7 +4285,7 @@ PROCEDURE pParseTables :
             RUN pCreatettSysCtrlTable (hTable:HANDLE, cFieldList[idx]).
         END. /* do idx */
     END. /* if lsuperadmin */
-    RUN pBuildMenuTree.
+    RUN pBuildttMenuTree ("{&parentName}").
     ASSIGN
         cFilter    = ""
         cSubFilter = ""
@@ -4395,6 +4388,8 @@ PROCEDURE pReopenBrowse :
         &SCOPED-DEFINE SORTBY-PHRASE
         {&OPEN-QUERY-sysCtrlBrowse}
     END CASE.
+    {AOA/includes/pReopenBrowse.i [1]}
+    {AOA/includes/pReopenBrowse.i [2]}
     SESSION:SET-WAIT-STATE("").
     IF AVAILABLE ttSysCtrl THEN
     APPLY "VALUE-CHANGED":U TO BROWSE sysCtrlBrowse.
