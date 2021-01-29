@@ -454,4 +454,6 @@ grant select on pub."apiClientXref" to public ;
 grant select on pub."apiClient" to public ;
 grant select on pub."arClass" to public ;
 grant select on pub."dateRules" to public ;
+grant select on pub."userColumn" to public ;
+grant select on pub."userWindow" to public ;
 COMMIT;

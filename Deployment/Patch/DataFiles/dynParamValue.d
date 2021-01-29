@@ -9,15 +9,15 @@
 67 "_default" "dynSubjct." 0 "OE" "System Default" "BOL" "Grid" 0 "Custom" "" "202101064551005948117" 0 2021-01-22T08:40:26.108 no 1 "Landscape" 792 612 yes no "" no "" "" yes no no
 1 "_default" "dynSubjct." 0 "TS" "System Default" "Machine Transaction" "Grid" 0 "Custom" "" "202101135581705990093" 0 ? no 1 "Landscape" 792 612 yes no "" no "" "" yes no no
 83 "_default" "dynSubjct." 0 "NS" "System Default" "API Inbound Event" "Grid" 0 "Custom" "" "202012072643905903635" 0 2020-12-07T07:20:48.275 no 1 "Landscape" 792 612 yes no "" no "" "" yes no no
-95 "_default" "dynSubjct." 0 "FG" "System Default" "FG Executive Summary" "Grid" 0 "Custom" "" "202011057787505822958" 0 ? no 1 "Landscape" 792 612 yes no "" no "" "" yes no no
-62 "_default" "dynSubjct." 0 "AR" "System Default" "Carrier" "Grid" 0 "Custom" "" "202011165201205856536" 0 2020-11-16T14:26:55.145 no 1 "Landscape" 792 612 yes no "" no "" "" yes no no
+95 "_default" "dynSubjct." 0 "FG" "System Default" "FG Executive Summary" "Grid" 0 "Custom" "" "202011057787505822958" 0 2021-01-28T16:44:33.234 no 1 "Landscape" 792 612 yes no "" no "" "" yes no no
+62 "_default" "dynSubjct." 0 "AR" "System Default" "Carrier" "HTML" 0 "Custom" "" "202011165201205856536" 0 2021-01-26T18:43:08.422 no 1 "Landscape" 792 612 yes no "" no "" "" yes no no
 40 "_default" "dynSubjct." 0 "OE" "System Default" "Web Order Hold" "Grid" 0 "Custom" "" "201906266266203528796" 0 2020-06-10T00:31:47.430 no 1 "Landscape" 792 612 yes no "" no "" "" yes no no
 7 "_default" "dynSubjct." 0 "AR" "System Default" "EDI 810 Exception" "Grid" 0 "Custom" "" "201906244819303527840" 0 2019-10-03T21:12:24.048 no 1 "Landscape" 792 612 yes no "" no "" "" yes no no
 109 "_default" "dynSubjct." 0 "AR" "System Default" "Post Invoices" "Grid" 0 "Custom" "" "202008191938805594430" 0 2020-09-20T12:27:49.175 no 1 "Landscape" 792 612 yes no "" no "" "" yes no no
 17 "_default" "dynSubjct." 0 "OE" "System Default" "Invoice Post Update GL" "Grid" 0 "Custom" "" "202005202307605284841" 0 2020-06-09T23:08:46.651 no 1 "Landscape" 792 612 yes no "" no "" "" yes no no
 18 "_default" "dynSubjct." 0 "OE" "System Default" "Orders Booked by Order Number" "LocalCSV" 0 "Custom" "" "202005200024605277033" 0 2020-06-09T23:23:59.336 no 1 "Landscape" 792 612 yes no "" no "" "" yes no no
 39 "_default" "dynSubjct." 0 "OE" "System Default" "Invoice Lookup" "Grid" 0 "Custom" "" "201906246452203528448" 0 2019-10-03T21:12:24.334 yes 1 "Landscape" 792 612 yes no "" no "" "" yes no no
-46 "_default" "dynSubjct." 0 "FG" "System Default" "Inventory Stock" "Grid" 0 "Custom" "" "201910246974804353334" 0 2021-01-20T22:19:45.564 no 1 "Landscape" 792 612 yes no "" no "" "" yes no no
+46 "_default" "dynSubjct." 0 "FG" "System Default" "Inventory Stock" "PDF" 0 "Custom" "" "201910246974804353334" 0 2021-01-26T07:59:24.633 no 1 "Landscape" 792 612 yes no "" no "" "" yes no no
 63 "_default" "dynSubjct." 0 "RM" "System Default" "Prep and Die" "Grid" 0 "Custom" "" "201912184836304536502" 0 2020-06-09T23:50:55.145 no 1 "Landscape" 792 612 yes no "" no "" "" yes no no
 66 "_default" "dynSubjct." 0 "AP" "System Default" "Routing" "Grid" 0 "Custom" "" "201912128268504503613" 0 2020-06-10T00:17:05.284 no 1 "Landscape" 792 612 yes no "" no "" "" yes no no
 65 "_default" "dynSubjct." 0 "EQ" "System Default" "Estimate" "Grid" 0 "Custom" "" "202008210234405601625" 0 2021-01-22T08:46:44.840 no 1 "Landscape" 792 612 yes no "" no "" "" yes no no
@@ -51,8 +51,8 @@
 130 "_default" "dynSubjct." 0 "JC" "System Default" "Job Costing" "Grid" 0 "Custom" "" "202007137375205463281" 0 ? no 1 "Landscape" 792 612 yes no "" no "" "" yes no no
 58 "_default" "dynSubjct." 0 "EQ" "System Default" "Quote" "Grid" 0 "Custom" "" "202006125811205357478" 0 2020-06-17T22:24:00.026 no 1 "Landscape" 792 612 yes no "" no "" "" yes no no
 50 "_default" "dynSubjct." 0 "AR" "System Default" "Estimate Lookup" "Grid" 0 "Custom" "" "202011110424805839322" 0 ? yes 1 "Landscape" 792 612 yes no "" no "" "" yes no no
-82 "_default" "dynSubjct." 0 "EQ" "System Default" "Comm Cost By Item" "Grid" 0 "Custom" "" "202006125528905355678" 0 2020-06-17T22:05:07.631 no 1 "Landscape" 792 612 yes no "" no "" "" yes no no
-45 "_default" "dynSubjct." 0 "NS" "System Default" "Dynamic Subject Purge" "Grid" 0 "Custom" "" "202101167164605949336" 0 2021-01-16T19:54:08.627 no 1 "Landscape" 792 612 yes no "" no "" "" yes no no
+82 "_default" "dynSubjct." 0 "EQ" "System Default" "Comm Cost By Item" "Grid" 0 "Custom" "" "202006125528905355678" 0 2021-01-27T07:56:36.777 no 1 "Landscape" 792 612 yes no "" no "" "" yes no no
+45 "_default" "dynSubjct." 0 "NS" "System Default" "Dynamic Subject Purge" "Grid" 0 "Custom" "" "202101167164605949336" 0 2021-01-25T12:16:38.242 no 1 "Landscape" 792 612 yes no "" no "" "" yes no no
 64 "_default" "dynSubjct." 0 "NS" "System Default" "Super Procedures Functions" "Grid" 0 "Custom" "" "201911297583204498117" 0 2020-06-29T20:22:52.024 no 1 "Landscape" 792 612 yes no "" no "" "" yes no no
 13 "_default" "dynSubjct." 0 "FG" "System Default" "IF1 Bin View Allocated" "Grid" 0 "Custom" "" "202008144873305575641" 0 ? no 1 "Landscape" 792 612 yes no "" no "" "" yes no no
 54 "_default" "dynSubjct." 0 "NS" "System Default" "Dynamic Parameter Lookup" "Grid" 0 "Custom" "" "201911214285404359109" 0 2019-11-21T11:54:15.955 yes 1 "Landscape" 792 612 yes no "" no "" "" yes no no
@@ -64,7 +64,7 @@
 144 "_default" "dynSubjct." 0 "NS" "System Default" "DB Field Lookup" "Grid" 0 "Custom" "" "202009096923505640968" 0 2020-09-09T19:14:01.938 yes 1 "Landscape" 792 612 yes no "" no "" "" yes no no
 23 "_default" "dynSubjct." 0 "AR" "System Default" "Customer Lookup" "Grid" 0 "Custom" "" "202007296650605466253" 0 2020-07-29T18:28:27.387 yes 1 "Landscape" 792 612 yes no "" no "" "" yes no no
 24 "_default" "dynSubjct." 0 "OE" "System Default" "Warehouse Lookup" "Grid" 0 "Custom" "" "201906244768403527818" 0 2019-10-03T21:12:24.250 yes 1 "Landscape" 792 612 yes no "" no "" "" yes no no
-35 "_default" "dynSubjct." 0 "AR" "System Default" "Export AR Invoices" "Grid" 0 "Custom" "" "202005200040005277367" 0 2020-06-09T22:46:29.316 no 1 "Landscape" 792 612 yes no "" no "" "" yes no no
+35 "_default" "dynSubjct." 0 "AR" "System Default" "Export AR Invoices" "View" 0 "Custom" "" "202005200040005277367" 0 2021-01-28T16:48:13.425 no 1 "Landscape" 792 612 yes no "" no "" "" yes no no
 69 "_default" "dynSubjct." 0 "FG" "System Default" "FG Transaction History" "Grid" 0 "Custom" "" "202005222572305308811" 0 2020-06-09T22:49:44.590 no 1 "Landscape" 792 612 yes no "" no "" "" yes no no
 41 "_default" "dynSubjct." 0 "GL" "System Default" "Company Lookup" "Grid" 0 "Custom" "" "202003105510804705844" 0 2020-03-10T15:18:30.412 yes 1 "Landscape" 792 612 yes no "" no "" "" yes no no
 70 "_default" "dynSubjct." 0 "RM" "System Default" "Board (Foam) Lookup" "Grid" 0 "Custom" "" "202007156678805463819" 0 2021-01-05T02:51:08.429 yes 1 "Landscape" 792 612 yes no "" no "" "" yes no no
@@ -97,7 +97,7 @@
 155 "_default" "dynSubjct." 0 "RM" "System Default" "Board (Wood) Lookup" "Grid" 0 "Custom" "" "202101054987105943024" 0 2021-01-05T13:51:13.416 yes 1 "Landscape" 792 612 yes no "" no "" "" yes no no
 84 "_default" "dynSubjct." 0 "FG" "System Default" "FG Item Inventory" "LocalCSV" 0 "Custom" "" "202007138193505463547" 0 2021-01-18T10:22:19.010 no 1 "Landscape" 792 612 yes no "" no "" "" yes no no
 88 "_default" "dynSubjct." 0 "EQ" "System Default" "Employee" "CSV" 0 "Custom" "" "202002134539804678316" 0 2020-12-21T20:40:39.284 no 1 "Landscape" 792 612 yes no "" no "" "" yes no no
-94 "_default" "dynSubjct." 0 "FG" "System Default" "FG Executive Detail" "XLS" 0 "Custom" "CustFiles\JasperReports\FGExecutiveDetail.jrxml" "202011065247305829078" 0 2020-12-10T22:46:59.615 no 1 "Landscape" 792 612 yes no "" no "" "" yes no no
+94 "_default" "dynSubjct." 0 "FG" "System Default" "FG Executive Detail" "Grid" 0 "Custom" "CustFiles\JasperReports\FGExecutiveDetail.jrxml" "202011065247305829078" 0 2021-01-28T17:50:45.380 no 1 "Landscape" 792 612 yes no "" no "" "" yes no no
 73 "_default" "dynSubjct." 0 "EQ" "System Default" "Score Type" "Grid" 0 "Custom" "" "202001205900204601503" 0 2020-06-10T00:28:19.912 no 1 "Landscape" 792 612 yes no "" no "" "" yes no no
 156 "_default" "dynSubjct." 0 "OE" "System Default" "Style Lookup" "Grid" 0 "Custom" "" "202101177080906009627" 0 ? yes 1 "Landscape" 792 612 yes no "" no "" "" no no no
 99 "_default" "dynSubjct." 0 "EQ" "System Default" "Estimate Type Filter" "Grid" 0 "Custom" "" "202007158304905463833" 0 ? no 1 "Landscape" 792 612 yes no "" no "" "" yes no no
@@ -132,7 +132,7 @@
 118 "_default" "dynSubjct." 0 "FG" "System Default" "Currency Lookup" "Grid" 0 "Custom" "" "202005271423905318966" 0 2020-05-27T03:57:21.284 yes 1 "Landscape" 792 612 yes no "" no "" "" yes no no
 120 "_default" "dynSubjct." 0 "RM" "System Default" "Raw Materials Corrugated" "Grid" 0 "Custom" "" "202006246410905384269" 0 2020-06-27T11:01:44.794 no 1 "Landscape" 792 612 yes no "" no "" "" yes no no
 105 "_default" "dynSubjct." 0 "AR" "System Default" "Sales Group Lookup" "Grid" 0 "Custom" "" "202004287761305172210" 0 2020-12-06T17:29:53.080 yes 1 "Landscape" 792 612 yes no "" no "" "" yes no no
-111 "_default" "dynSubjct." 0 "OE" "System Default" "Order Release" "Grid" 0 "Custom" "" "202008210105405599925" 0 2021-01-22T08:31:00.863 no 1 "Landscape" 792 612 yes no "" no "" "" yes no no
+111 "_default" "dynSubjct." 0 "OE" "System Default" "Order Release" "LocalCSV" 0 "Custom" "" "202008210105405599925" 0 2021-01-25T07:40:58.144 no 1 "Landscape" 792 612 yes no "" no "" "" yes no no
 145 "_default" "dynSubjct." 0 "NS" "System Default" "Machine Efficiency II" "Grid" 0 "Custom" "" "202010227917405784589" 0 2020-10-29T19:15:17.549 no 1 "Landscape" 792 612 yes no "" no "" "" yes no no
 112 "_default" "dynSubjct." 0 "OE" "System Default" "Invoice Maintenance" "Grid" 0 "Custom" "" "202005212617405300303" 0 2020-06-09T23:08:22.134 no 1 "Landscape" 792 612 yes no "" no "" "" yes no no
 133 "_default" "dynSubjct." 0 "NS" "System Default" "Date Rules Lookup" "Grid" 0 "Custom" "" "202008147306005579171" 0 ? yes 1 "Landscape" 792 612 yes no "" no "" "" yes no no
@@ -140,7 +140,7 @@
 146 "_default" "dynSubjct." 0 "FG" "System Default" "Terms Lookup" "Grid" 0 "Custom" "" "202010172756005764224" 0 ? yes 1 "Landscape" 792 612 yes no "" no "" "" yes no no
 148 "_default" "dynSubjct." 0 "EQ" "System Default" "Department Code Lookup" "Grid" 0 "Custom" "" "202010172754805764215" 0 ? yes 1 "Landscape" 792 612 yes no "" no "" "" yes no no
 157 "_default" "dynSubjct." 0 "OE" "System Default" "FG Product Category Lookup" "Grid" 0 "Custom" "" "202101133700605984971" 0 2021-01-13T10:16:49.092 yes 1 "Landscape" 792 612 yes no "" no "" "" no no no
-140 "_default" "dynSubjct." 0 "HS" "System Default" "Sales Report" "Grid" 0 "Custom" "" "202009092380405636830" 0 2020-09-12T11:05:32.000 no 1 "Landscape" 792 612 yes no "" no "" "" yes no no
+140 "_default" "dynSubjct." 0 "HS" "System Default" "Sales Report" "LocalCSV" 0 "Custom" "" "202009092380405636830" 0 2021-01-28T12:43:24.856 no 1 "Landscape" 792 612 yes no "" no "" "" yes no no
 147 "_default" "dynSubjct." 0 "EQ" "System Default" "Charge Code Lookup" "Grid" 0 "Custom" "" "202010172755405764219" 0 ? yes 1 "Landscape" 792 612 yes no "" no "" "" yes no no
 127 "_default" "dynSubjct." 0 "AR" "System Default" "Customer Lookup (Active)" "Grid" 0 "Custom" "" "202008185786905591414" 0 2020-08-18T16:04:31.037 yes 1 "Landscape" 792 612 yes no "" no "" "" yes no no
 134 "_default" "dynSubjct." 0 "AR" "System Default" "Aged Receivables" "Grid" 0 "Custom" "" "202008176313005589485" 0 2020-08-25T17:03:59.446 no 1 "Landscape" 792 612 yes no "" no "" "" yes no no

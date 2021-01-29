@@ -173,3 +173,4 @@
 "001" "202011062110905822551" "SendInvoice" "PrintInvoice" "Send EDI invoice on print of invoice" yes 2020-11-06T05:51:49.920 "asi" "_default2" 174 32
 "001" "202011062110905822552" "SendInvoice" "RePrintInvoice" "Send EDI invoice on re-print of invoice" yes 2020-11-06T05:51:49.940 "asi" "_default2" 175 32
 "001" "202011062110905822553" "SendInvoice" "PostInvoice" "Send EDI invoice on post of invoice" yes 2020-11-06T05:51:49.953 "asi" "_default2" 176 32
+"001" "202101264080506026227" "SendInvoice" "PrintInvoice" "Print invoice" no 2021-01-26T11:20:05.053 "user1" "_default3" 177 33
