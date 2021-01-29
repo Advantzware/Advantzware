@@ -3609,7 +3609,7 @@ PROCEDURE pReCalculateRecQty :
                              STRING(ap-inv.i-no,"9999999999")          
          po-ordl.t-rec-qty    = po-ordl.t-rec-qty + ( IF lCheckRec THEN DEC(SUBSTR(fg-rdtlh.receiver-no,11,17))
                                               ELSE fg-rdtlh.qty ).
-         FIND CURRENT po-ordl EXCLUSIVE-LOCK NO-ERROR .                                     
+         FIND CURRENT po-ordl NO-LOCK NO-ERROR .                                     
     END.
   END.
   
