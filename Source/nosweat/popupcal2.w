@@ -1186,6 +1186,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     DO i = 1900 TO 3000:
       years:ADD-LAST(STRING(i)).
     END.
+      IF LOOKUP(STRING(YEAR(dateValue)),years:LIST-ITEMS, ",") LE 0 THEN       
+          years:ADD-LAST(STRING(YEAR(dateValue))).
     ASSIGN
       months:SCREEN-VALUE = months:ENTRY(MONTH(dateValue))
       years:SCREEN-VALUE = STRING(YEAR(dateValue))
