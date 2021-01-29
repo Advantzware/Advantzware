@@ -46,7 +46,8 @@ DEFINE VARIABLE ip-rec_key AS CHARACTER NO-UNDO.
 &ELSE
   {methods\defines\phone.i &new="new"}
 &ENDIF
-
+&SCOPED-DEFINE winReSize
+{methods/defines/winReSize.i}
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -330,7 +331,7 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
-
+{methods/winReSize.i}
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF

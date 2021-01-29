@@ -6,6 +6,7 @@ DO:
         {&WINDOW-NAME}:HEIGHT = deOrigWinHeight 
         {&WINDOW-NAME}:WIDTH  = deOrigWinWidth
         .    
+        APPLY "WINDOW-RESIZED" TO {&WINDOW-NAME}.
 END.    
 ON 'WINDOW-MAXIMIZED':U OF {&WINDOW-NAME}
 DO:
