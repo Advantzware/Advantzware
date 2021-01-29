@@ -958,17 +958,6 @@ PROCEDURE local-create-record :
   
   IF adm-adding-record THEN
   DO WITH FRAME {&FRAME-NAME}:
-    /*eff-date:SCREEN-VALUE = STRING(TODAY,"99/99/9999").*/
-    vendItemCost.effectiveDate:SCREEN-VALUE =  string(today) /*"12/31/2099" */ .
-    vendItemCost.effectiveDate = TODAY /*12/31/2099 */ .
-    vendItemCost.dimWidthMaximum = 99999.99.
-    vendItemCost.dimLengthMaximum = 99999.99.
-    vendItemCost.dimWidthOver = 99999.99.
-    vendItemCost.dimLengthOver = 99999.99.
-    vendItemCost.quantityMaximumOrder = 99999.99.
-    vendItemCost.itemType = IF cVendItemCostSourceFrom NE "" THEN cVendItemCostItemType ELSE "FG" .
-    vendItemCost.vendorUOM = "EA" .
-
     CREATE bf-vendItemCostLevel .
         ASSIGN bf-vendItemCostLevel.vendItemCostID = vendItemCost.vendItemCostID 
                bf-vendItemCostLevel.quantityBase    = 99999999 .
@@ -1122,6 +1111,8 @@ PROCEDURE proc-enable :
                     /*vendItemCost.effectiveDate vendItemCost.ExpirationDate*/ .
      END.  
      lCheckEditMode = YES.
+     {methods/run_link.i "getPanel-SOURCE" "DisablePanel"}.
+     Btn_multi:SENSITIVE = NO.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1163,11 +1154,42 @@ PROCEDURE procCreateAfter :
             vendItemCost.BlankNo:SCREEN-VALUE = STRING(cVendItemCostBlank#)
             .         
     END.  
-
+    IF adm-adding-record THEN DO:
+        RUN pSetDefaultValues.
+          RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"reopen-target",OUTPUT char-hdl).
+        IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+        RUN reopen-query IN WIDGET-HANDLE(char-hdl) (ROWID(vendItemCost), ?).
+    END. 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetDefaultValues V-table-Win
+PROCEDURE pSetDefaultValues PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: Set the default in the screen display
+ Notes:
+------------------------------------------------------------------------------*/
+    DO WITH FRAME {&FRAME-NAME}: 
+        ASSIGN 
+            vendItemCost.effectiveDate:SCREEN-VALUE  = STRING(TODAY) /*"12/31/2099" */ 
+            vendItemCost.expirationDate:SCREEN-VALUE = STRING(12/31/2099) 
+            vendItemCost.itemType:SCREEN-VALUE       = IF cVendItemCostSourceFrom NE "" THEN cVendItemCostItemType ELSE "FG" 
+            vendItemCost.vendorUOM:SCREEN-VALUE      = "EA" 
+            VendItemCost.createdID:SCREEN-VALUE      = USERID('ASI')
+            vendItemCost.createdDate:SCREEN-VALUE    = STRING(TODAY)
+            vendItemCost.updatedID:SCREEN-VALUE      = USERID('ASI')
+            vendItemCost.updatedDate:SCREEN-VALUE    = STRING(TODAY)
+            .   
+    END.                 
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetUomList V-table-Win 
 PROCEDURE pSetUomList PRIVATE :

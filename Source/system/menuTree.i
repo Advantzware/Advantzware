@@ -28,6 +28,11 @@ Usage:
         a. in the Main Block section add
            hFocus = svFocus:HANDLE
 */
+
+&IF DEFINED(parentName) EQ 0 &THEN
+&Global-define parentName File
+&ENDIF
+
 DEFINE VARIABLE hFocus        AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hWindow       AS HANDLE    NO-UNDO.
 DEFINE VARIABLE lToggle       AS LOGICAL   NO-UNDO.
@@ -256,7 +261,7 @@ PROCEDURE pCreatettMenuTree:
     
     DEFINE VARIABLE cImage AS CHARACTER NO-UNDO.
     
-    IF ipcCreateWidgetOfParent EQ "file" THEN DO:       
+    IF ipcCreateWidgetOfParent EQ "{&parentName}" THEN DO:
         FIND FIRST ttMenuTree
              WHERE ttMenuTree.mnemonic EQ ipcMnemonic
              NO-ERROR.
@@ -275,7 +280,7 @@ PROCEDURE pCreatettMenuTree:
                 ttMenuTree.isActive   = iplActive        
                 .    
         END. /* if not avail */
-    END. /* if file */
+    END. /* if parentName */
     FOR EACH ttMenuTree
         WHERE ttMenuTree.treeParent   EQ ipcCreateWidgetOfParent 
           AND ttMenuTree.lWidgetExist EQ NO
@@ -304,7 +309,7 @@ PROCEDURE pCreatettMenuTree:
                     ROW = 1
                     SENSITIVE = YES
                     WIDTH = dObjectWidth
-                   HEIGHT = dObjectHeight
+                    HEIGHT = dObjectHeight
                     TRANSPARENT = YES
                     PRIVATE-DATA = "," + STRING(ROWID(ttMenuTree))                
               TRIGGERS:
@@ -315,7 +320,7 @@ PROCEDURE pCreatettMenuTree:
                 ASSIGN
                     ttMenuTree.hLevel = hWidget. 
                     cImage = SEARCH(cImageFolder
-                        + IF ipcCreateWidgetOfParent EQ "file" THEN "plus.ico"
+                        + IF ipcCreateWidgetOfParent EQ "{&parentName}" THEN "plus.ico"
                           ELSE "minus.ico")
                         .
                 hWidget:LOAD-IMAGE(cImage).
@@ -335,7 +340,7 @@ PROCEDURE pCreatettMenuTree:
                     ROW = 1
                     SENSITIVE = YES
                     HIDDEN = YES
-                  WIDTH = dObjectWidth
+                    WIDTH = dObjectWidth
                     HEIGHT = dObjectHeight
                     TRANSPARENT = YES
                 RETAIN-SHAPE = TRUE
@@ -422,8 +427,7 @@ PROCEDURE pCreatettMenuTree:
           END TRIGGERS.
         IF VALID-HANDLE(hWidget) THEN
         ttMenuTRee.hToggle = hWidget.
-        &ENDIF
-    
+        &ENDIF    
     END.
     
     IF NOT VALID-HANDLE(hWindow) THEN 
@@ -447,11 +451,11 @@ PROCEDURE pDisplayMenuTree:
     IF INDEX(THIS-PROCEDURE:INTERNAL-ENTRIES,"LockWindowUpdate") NE 0 THEN
     RUN LockWindowUpdate (ACTIVE-WINDOW:HWND,OUTPUT i).
 
-    IF ipcParent NE "file" AND
-       LOOKUP(ipcParent, cMenuCreated,"," ) LE 0 THEN DO:       
-        RUN pBuildttMenuTree(ipcParent).
+    IF ipcParent NE "{&parentName}" AND
+       LOOKUP(ipcParent, cMenuCreated) EQ 0 THEN DO:
+        RUN pBuildttMenuTree (ipcParent).
         RUN pMenuSize IN THIS-PROCEDURE NO-ERROR.
-    END. /* if ne file */
+    END. /* if ne parentName */
         
     ASSIGN
         cMenuCreated = cMenuCreated + "," + ipcParent        

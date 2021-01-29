@@ -1,7 +1,7 @@
  /* oe/rep/bolcapcin2.i  */  
  
  put "<FArial>"  SKIP
-     "<C3><R2><#1><R+12><C50><IMAGE#1=" ls-full-img1 
+     "<C3><R2><#1><R+15><C50><IMAGE#1=" ls-full-img1 
      "<P15><R2><C47><B>Bill Of Lading</B><FCourier New><P10>" SKIP
      "<R12><C1>"
      "Sold To:" SPACE(46) "Ship To:"  SKIP

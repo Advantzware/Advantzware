@@ -3,4 +3,5 @@ contact ~
 dateRules ~
 loadtag ~
 prgrms ~
-rm-rdtl
+rm-rdtl ~
+vendItemCost

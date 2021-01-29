@@ -209,15 +209,15 @@ po-ordl.i-name po-ordl.ord-qty po-ordl.pr-qty-uom po-ordl.cons-qty ~
 po-ordl.dscr[1] po-ordl.cost po-ordl.pr-uom po-ordl.cons-cost ~
 po-ordl.cons-uom po-ordl.dscr[2] po-ordl.setup po-ordl.s-wid po-ordl.s-len ~
 po-ordl.disc po-ordl.actnum po-ordl.vend-i-no po-ordl.tax po-ordl.over-pct ~
-po-ordl.under-pct po-ordl.cust-no po-ordl.ord-no po-ordl.t-cost ~
-po-ordl.item-type po-ordl.excludeFromVoucher 
+po-ordl.under-pct po-ordl.excludeFromVoucher po-ordl.cust-no po-ordl.ord-no ~
+po-ordl.t-cost po-ordl.item-type 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Dialog-Frame po-ordl.i-no ~
 po-ordl.job-no po-ordl.job-no2 po-ordl.s-num po-ordl.b-num po-ordl.due-date ~
 po-ordl.i-name po-ordl.ord-qty po-ordl.pr-qty-uom po-ordl.dscr[1] ~
 po-ordl.cost po-ordl.pr-uom po-ordl.dscr[2] po-ordl.setup po-ordl.s-wid ~
 po-ordl.s-len po-ordl.disc po-ordl.actnum po-ordl.vend-i-no po-ordl.tax ~
-po-ordl.over-pct po-ordl.under-pct po-ordl.cust-no po-ordl.ord-no ~
-po-ordl.item-type po-ordl.excludeFromVoucher
+po-ordl.over-pct po-ordl.under-pct po-ordl.excludeFromVoucher ~
+po-ordl.cust-no po-ordl.ord-no po-ordl.item-type 
 &Scoped-define ENABLED-TABLES-IN-QUERY-Dialog-Frame po-ordl
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-Dialog-Frame po-ordl
 &Scoped-define QUERY-STRING-Dialog-Frame FOR EACH po-ordl SHARE-LOCK, ~
@@ -235,8 +235,8 @@ po-ordl.s-num po-ordl.b-num po-ordl.due-date po-ordl.i-name po-ordl.ord-qty ~
 po-ordl.pr-qty-uom po-ordl.dscr[1] po-ordl.cost po-ordl.pr-uom ~
 po-ordl.dscr[2] po-ordl.setup po-ordl.s-wid po-ordl.s-len po-ordl.disc ~
 po-ordl.actnum po-ordl.vend-i-no po-ordl.tax po-ordl.over-pct ~
-po-ordl.under-pct po-ordl.cust-no po-ordl.ord-no po-ordl.item-type ~
-po-ordl.excludeFromVoucher
+po-ordl.under-pct po-ordl.excludeFromVoucher po-ordl.cust-no po-ordl.ord-no ~
+po-ordl.item-type 
 &Scoped-define ENABLED-TABLES po-ordl
 &Scoped-define FIRST-ENABLED-TABLE po-ordl
 &Scoped-Define ENABLED-OBJECTS btnCalendar-1 Btn_Done Btn_Cancel Btn_OK ~
@@ -247,8 +247,8 @@ po-ordl.ord-qty po-ordl.pr-qty-uom po-ordl.cons-qty po-ordl.dscr[1] ~
 po-ordl.cost po-ordl.pr-uom po-ordl.cons-cost po-ordl.cons-uom ~
 po-ordl.dscr[2] po-ordl.setup po-ordl.s-wid po-ordl.s-len po-ordl.disc ~
 po-ordl.actnum po-ordl.vend-i-no po-ordl.tax po-ordl.over-pct ~
-po-ordl.under-pct po-ordl.cust-no po-ordl.ord-no po-ordl.t-cost ~
-po-ordl.item-type po-ordl.excludeFromVoucher 
+po-ordl.under-pct po-ordl.excludeFromVoucher po-ordl.cust-no po-ordl.ord-no ~
+po-ordl.t-cost po-ordl.item-type 
 &Scoped-define DISPLAYED-TABLES po-ordl
 &Scoped-define FIRST-DISPLAYED-TABLE po-ordl
 &Scoped-Define DISPLAYED-OBJECTS fiCount fi_c-a-hdr fi_uom scr-cons-uom ~
@@ -531,9 +531,10 @@ DEFINE FRAME Dialog-Frame
      po-ordl.under-pct AT ROW 12.76 COL 18 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
-     po-ordl.excludeFromVoucher AT ROW 12.19 COL 64.2 COLON-ALIGNED
+     po-ordl.excludeFromVoucher AT ROW 12.19 COL 66.2
+          LABEL ""
           VIEW-AS TOGGLE-BOX
-          SIZE 4.2 BY 1     
+          SIZE 3.8 BY 1
      fi_pb-qty AT ROW 13.91 COL 104 COLON-ALIGNED
      po-ordl.cust-no AT ROW 13.71 COL 18 COLON-ALIGNED
           LABEL "Customer#" FORMAT "x(8)"
@@ -570,6 +571,8 @@ DEFINE FRAME Dialog-Frame
      cFirstMach AT ROW 15.57 COL 18 COLON-ALIGNED WIDGET-ID 6
      "MSF" VIEW-AS TEXT
           SIZE 6 BY .62 AT ROW 5.52 COL 127
+     "Vouchered:" VIEW-AS TEXT
+          SIZE 13.2 BY .62 AT ROW 12.33 COL 52.4 WIDGET-ID 10
      "Width" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 5.71 COL 5.8
      "Length" VIEW-AS TEXT
@@ -582,12 +585,17 @@ DEFINE FRAME Dialog-Frame
           SIZE 18 BY 1 AT ROW 17 COL 20
      "Backordered" VIEW-AS TEXT
           SIZE 18 BY 1 AT ROW 17 COL 80
+    WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
+         SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
+         FONT 6
+         DEFAULT-BUTTON Btn_OK.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME Dialog-Frame
      "Available" VIEW-AS TEXT
           SIZE 18 BY 1 AT ROW 17 COL 100
      "Tons" VIEW-AS TEXT
           SIZE 6 BY .62 AT ROW 6.57 COL 127
-     "Vouchered:" VIEW-AS TEXT
-          SIZE 13.2 BY .62 AT ROW 12.33 COL 52.4 WIDGET-ID 10     
      RECT-21 AT ROW 16.76 COL 1
      RECT-38 AT ROW 1 COL 1
      SPACE(0.00) SKIP(6.18)
@@ -658,7 +666,7 @@ ASSIGN
 /* SETTINGS FOR FILL-IN po-ordl.dscr[2] IN FRAME Dialog-Frame
    EXP-LABEL                                                            */
 /* SETTINGS FOR TOGGLE-BOX po-ordl.excludeFromVoucher IN FRAME Dialog-Frame
-   EXP-LABEL                                                            */   
+   EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN fiCount IN FRAME Dialog-Frame
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fi_c-a-hdr IN FRAME Dialog-Frame
@@ -1059,6 +1067,8 @@ DO:
   DEFINE VARIABLE op-error AS LOG     NO-UNDO.
   DEFINE VARIABLE lHoldPoStatus  AS LOGICAL NO-UNDO.
   DEFINE VARIABLE dPurchaseLimit AS DECIMAL NO-UNDO.
+  DEFINE VARIABLE lPriceHold AS LOGICAL NO-UNDO.
+  DEFINE VARIABLE cPriceHoldMessage AS CHARACTER NO-UNDO.
 
   DEFINE BUFFER b-po-ordl FOR po-ordl.
 
@@ -1307,6 +1317,13 @@ DO:
             TRIM(STRING(v-po-msf,">>>>>>>>>>")) + " MSF"
             VIEW-AS ALERT-BOX WARNING.
 END.
+
+RUN Vendor_CheckPriceHoldForPo (
+    ROWID(po-ord),                                  
+    YES, /*Set po-ord hold fields*/
+    OUTPUT lPriceHold, 
+    OUTPUT cPriceHoldMessage
+    ).
   
 IF po-ordl.item-type = NO THEN 
 DO:
@@ -2341,6 +2358,38 @@ PROCEDURE change-page-logic :
     /* This procedure called from change-page in w-order */
     
     APPLY 'entry' TO btnCalendar-1 IN FRAME Dialog-Frame.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE check-cust-hold Dialog-Frame 
+PROCEDURE check-cust-hold :
+/*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO .
+    DEFINE VARIABLE lGetOutPutValue AS LOGICAL NO-UNDO.
+    oplReturnError = YES .
+    DO WITH FRAME {&FRAME-NAME}:
+        FIND FIRST bf-itemfg NO-LOCK
+            WHERE bf-itemfg.company EQ cocode
+            AND bf-itemfg.i-no    EQ po-ordl.i-no:SCREEN-VALUE NO-ERROR.
+        
+        IF AVAIL bf-itemfg AND bf-itemfg.cust-no NE "" AND ip-type EQ "add" AND NOT lCheckFGCustHold AND
+            po-ordl.item-type:SCREEN-VALUE EQ "FG"  THEN DO:
+            FIND FIRST cust NO-LOCK 
+                WHERE cust.company EQ cocode 
+                AND cust.cust-no EQ bf-itemfg.cust-no NO-ERROR.
+            IF AVAIL cust AND cust.cr-hold THEN DO:
+                RUN displayMessageQuestionLOG ("12", OUTPUT oplReturnError).
+                lCheckFGCustHold = YES.
+            END. 
+        END.
+    END.
 
 END PROCEDURE.
 
@@ -4014,17 +4063,17 @@ PROCEDURE enable_UI :
           po-ordl.cost po-ordl.pr-uom po-ordl.cons-cost po-ordl.cons-uom 
           po-ordl.dscr[2] po-ordl.setup po-ordl.s-wid po-ordl.s-len po-ordl.disc 
           po-ordl.actnum po-ordl.vend-i-no po-ordl.tax po-ordl.over-pct 
-          po-ordl.under-pct po-ordl.cust-no po-ordl.ord-no po-ordl.t-cost 
-          po-ordl.item-type po-ordl.excludeFromVoucher 
+          po-ordl.under-pct po-ordl.excludeFromVoucher po-ordl.cust-no 
+          po-ordl.ord-no po-ordl.t-cost po-ordl.item-type 
       WITH FRAME Dialog-Frame.
   ENABLE po-ordl.i-no po-ordl.job-no po-ordl.job-no2 po-ordl.s-num 
          po-ordl.b-num po-ordl.due-date btnCalendar-1 po-ordl.i-name 
          po-ordl.ord-qty po-ordl.pr-qty-uom po-ordl.dscr[1] po-ordl.cost 
          po-ordl.pr-uom po-ordl.dscr[2] po-ordl.setup po-ordl.s-wid 
          po-ordl.s-len po-ordl.disc po-ordl.actnum po-ordl.vend-i-no 
-         po-ordl.tax po-ordl.over-pct po-ordl.under-pct po-ordl.cust-no 
-         po-ordl.ord-no Btn_Done Btn_Cancel Btn_OK po-ordl.item-type RECT-21 
-         RECT-38 po-ordl.excludeFromVoucher
+         po-ordl.tax po-ordl.over-pct po-ordl.under-pct 
+         po-ordl.excludeFromVoucher po-ordl.cust-no po-ordl.ord-no Btn_Done 
+         Btn_Cancel Btn_OK po-ordl.item-type RECT-21 RECT-38 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
@@ -4260,9 +4309,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-cancel-record Dialog-Frame
-PROCEDURE local-cancel-record:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-cancel-record Dialog-Frame 
+PROCEDURE local-cancel-record :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -4274,14 +4322,9 @@ PROCEDURE local-cancel-record:
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .   
   
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
-
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE lookup-job Dialog-Frame 
 PROCEDURE lookup-job :
@@ -4724,9 +4767,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCreateAndUpdateAdders Dialog-Frame
-PROCEDURE pCreateAndUpdateAdders PRIVATE:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCreateAndUpdateAdders Dialog-Frame 
+PROCEDURE pCreateAndUpdateAdders PRIVATE :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -4867,11 +4909,9 @@ PROCEDURE pCreateAndUpdateAdders PRIVATE:
     END.
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetGL Dialog-Frame 
 PROCEDURE pGetGL PRIVATE :
@@ -5116,9 +5156,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
-
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE presetColor Dialog-Frame
@@ -6472,7 +6509,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-vst Dialog-Frame 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-vend-cost Dialog-Frame 
 PROCEDURE valid-vend-cost :
 /*------------------------------------------------------------------------------
       Purpose:     
@@ -6669,7 +6706,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE vend-cost Dialog-Frame 
 PROCEDURE vend-cost :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
           Purpose:     
           PARAMs:  <none>
           Notes:       
@@ -6957,35 +6994,5 @@ PROCEDURE zero-vend-cost-related :
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME   
+&ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE check-cust-hold Dialog-Frame 
-PROCEDURE check-cust-hold :
-    /*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       
-    ------------------------------------------------------------------------------*/
-    DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO .
-    DEFINE VARIABLE lGetOutPutValue AS LOGICAL NO-UNDO.
-    oplReturnError = YES .
-    DO WITH FRAME {&FRAME-NAME}:
-        FIND FIRST bf-itemfg NO-LOCK
-            WHERE bf-itemfg.company EQ cocode
-            AND bf-itemfg.i-no    EQ po-ordl.i-no:SCREEN-VALUE NO-ERROR.
-        
-        IF AVAIL bf-itemfg AND bf-itemfg.cust-no NE "" AND ip-type EQ "add" AND NOT lCheckFGCustHold AND
-            po-ordl.item-type:SCREEN-VALUE EQ "FG"  THEN DO:
-            FIND FIRST cust NO-LOCK 
-                WHERE cust.company EQ cocode 
-                AND cust.cust-no EQ bf-itemfg.cust-no NO-ERROR.
-            IF AVAIL cust AND cust.cr-hold THEN DO:
-                RUN displayMessageQuestionLOG ("12", OUTPUT oplReturnError).
-                lCheckFGCustHold = YES.
-            END. 
-        END.
-    END.
-
-END PROCEDURE.
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME   

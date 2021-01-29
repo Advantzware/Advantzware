@@ -87,7 +87,7 @@ DEFINE OUTPUT PARAMETER oplResult AS LOGICAL     NO-UNDO.
             WHERE loc.company EQ ipcCompany             
               AND loc.loc    EQ ipcSVCharFld              
             NO-LOCK NO-ERROR.
-        IF NOT AVAIL loc AND ipcSVCharFld EQ "User Loc" THEN lv-msg = "".
+        IF NOT AVAIL loc AND ipcSVCharFld EQ "" THEN lv-msg = "".
         ELSE IF NOT AVAIL loc THEN lv-msg = "loc does not exist".
       END.
     

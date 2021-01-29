@@ -1,6 +1,6 @@
 /* itemfg.i - window local-view - rstark 9.30.2018 */
 
-{methods/winReSizeMax.i}
+//{methods/winReSizeMax.i}
 
 DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lFound  AS LOGICAL   NO-UNDO.

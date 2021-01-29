@@ -97,7 +97,7 @@ ASSIGN
  eb.test      = ef.test
  eb.yrprice   = lPriceBasedOnYield .
  
- IF cEstimateLocDefault NE "" AND cEstimateLocDefault NE "User Loc" THEN
+ IF cEstimateLocDefault NE "" THEN
     eb.loc = cEstimateLocDefault.
 
 RUN est/packCodeOverride.p (INPUT eb.company, eb.cust-no, eb.style, OUTPUT cPackCodeOverride).

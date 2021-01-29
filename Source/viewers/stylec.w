@@ -60,6 +60,7 @@ ASSIGN cocode = g_company
 
 /* The below variables are used in run_link.i */
 DEFINE VARIABLE pHandle  AS HANDLE    NO-UNDO.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -87,9 +88,9 @@ DEFINE QUERY external_tables FOR style, flute.
 &Scoped-Define ENABLED-FIELDS style.dscr style.type style.design-no ~
 style.royalty style.dim-tk style.dim-pan5 style.dim-fit style.material[1] ~
 style.material[2] style.material[3] style.material[4] style.material[5] ~
-style.material[6] style.material[7] style.qty-per-set style.dim-df ~
-style.m-code[1] style.m-code[2] style.m-code[3] style.m-code[4] ~
-style.m-code[5] style.m-code[6] style.m-code[7] style.spare-char-5 
+style.material[6] style.material[7] style.qty-per-set style.spare-char-5 ~
+style.dim-df style.m-code[1] style.m-code[2] style.m-code[3] ~
+style.m-code[4] style.m-code[5] style.m-code[6] style.m-code[7] 
 &Scoped-define ENABLED-TABLES style
 &Scoped-define FIRST-ENABLED-TABLE style
 &Scoped-Define ENABLED-OBJECTS RECT-19 RECT-7 RECT-8 RECT-9 
@@ -97,11 +98,11 @@ style.m-code[5] style.m-code[6] style.m-code[7] style.spare-char-5
 style.design-no style.royalty flute.code style.dim-tk style.dim-pan5 ~
 style.dim-fit style.material[1] style.material[2] style.material[3] ~
 style.material[4] style.material[5] style.material[6] style.material[7] ~
-style.qty-per-set style.dim-df style.m-code[1] style.m-code[2] ~
-style.m-code[3] style.m-code[4] style.m-code[5] style.m-code[6] ~
-style.m-code[7] style.m-dscr[1] style.m-dscr[2] style.m-dscr[3] ~
-style.m-dscr[4] style.m-dscr[5] style.m-dscr[6] style.m-dscr[7] ~
-style.spare-char-5 
+style.qty-per-set style.spare-char-5 style.dim-df style.m-code[1] ~
+style.m-code[2] style.m-code[3] style.m-code[4] style.m-code[5] ~
+style.m-code[6] style.m-code[7] style.m-dscr[1] style.m-dscr[2] ~
+style.m-dscr[3] style.m-dscr[4] style.m-dscr[5] style.m-dscr[6] ~
+style.m-dscr[7] 
 &Scoped-define DISPLAYED-TABLES style flute
 &Scoped-define FIRST-DISPLAYED-TABLE style
 &Scoped-define SECOND-DISPLAYED-TABLE flute
@@ -291,16 +292,17 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
           BGCOLOR 15 FONT 4
+     style.spare-char-5 AT ROW 11.24 COL 62 COLON-ALIGNED WIDGET-ID 6
+          LABEL "Packing Code"
+          FORMAT "X(10)"
+          VIEW-AS FILL-IN 
+          SIZE 14 BY 1
+          BGCOLOR 15 
      style.dim-df AT ROW 12.43 COL 62 COLON-ALIGNED HELP
           "" WIDGET-ID 4
           LABEL "# Slots" FORMAT ">9"
           VIEW-AS FILL-IN 
           SIZE 6 BY 1
-          BGCOLOR 15 FONT 4
-     style.m-code[1] AT ROW 3.62 COL 91 COLON-ALIGNED
-          LABEL "1"
-          VIEW-AS FILL-IN 
-          SIZE 17 BY 1
           BGCOLOR 15 FONT 4
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -309,6 +311,11 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
+     style.m-code[1] AT ROW 3.62 COL 91 COLON-ALIGNED
+          LABEL "1"
+          VIEW-AS FILL-IN 
+          SIZE 17 BY 1
+          BGCOLOR 15 FONT 4
      style.m-code[2] AT ROW 4.57 COL 91 COLON-ALIGNED
           LABEL "2"
           VIEW-AS FILL-IN 
@@ -367,11 +374,6 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 30 BY 1
           BGCOLOR 15 FONT 4
-     style.spare-char-5 AT ROW 11.24 COL 62 COLON-ALIGNED WIDGET-ID 6
-          LABEL "Packing Code"
-          VIEW-AS FILL-IN 
-          SIZE 14 BY 1
-          BGCOLOR 15 
      "  Default Material Codes" VIEW-AS TEXT
           SIZE 28 BY .62 AT ROW 2.91 COL 51
           FGCOLOR 9 
@@ -1686,9 +1688,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-disable-fields V-table-Win
-PROCEDURE local-disable-fields:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-disable-fields V-table-Win 
+PROCEDURE local-disable-fields :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -1701,11 +1702,9 @@ PROCEDURE local-disable-fields:
   /* Code placed here will execute AFTER standard behavior.    */
   {methods/run_link.i "CONTAINER-SOURCE" "SetUpdateEnd"}
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-display-fields V-table-Win 
 PROCEDURE local-display-fields :
@@ -1962,8 +1961,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pValidStyle V-table-Win
-PROCEDURE pValidStyle PRIVATE:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pValidStyle V-table-Win 
+PROCEDURE pValidStyle PRIVATE :
 /*------------------------------------------------------------------------------
  Purpose: To check whether a style is blank or not
  Notes:
@@ -1975,9 +1974,10 @@ PROCEDURE pValidStyle PRIVATE:
     END.  
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE reset-browse V-table-Win 
 PROCEDURE reset-browse :
 /*------------------------------------------------------------------------------

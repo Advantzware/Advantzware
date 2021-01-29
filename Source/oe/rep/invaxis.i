@@ -9,7 +9,7 @@ PUT "<FTimes New Roman></B>".
              "<P10>" space(65) v-comp-add2 FORM "x(60)" SKIP
              space(75) v-comp-add3 FORM "x(60)" SKIP
              space(62) v-comp-add4 FORM "x(60)" "<P10>" SKIP  */  
-             "<R+10><C+45><IMAGE#1=" ls-full-img1 SKIP(2). /* image */ .
+             "<R+15><C+45><IMAGE#1=" ls-full-img1 SKIP(2). /* image */ .
 /*PUT "<P10><R3><C66>PAGE " lv-page FORMAT ">9" " of <#PAGES>".*/
         PUT "<=1>". 
         PUT "<C1><#2>" /*<R+10><C+35><IMAGE#2=" ls-full-img2 SKIP  /* company image */ */

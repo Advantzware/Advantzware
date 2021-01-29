@@ -920,7 +920,8 @@ PROCEDURE Outbound_UpdateGlobalFieldValues:
         
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "APITransCounter", cAPITransactionCounter).
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ClientTransCounter", cClientTransactionCounter).
-
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CurrentDate", TODAY).
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CurrentTime", TIME).
 END PROCEDURE.
 
 PROCEDURE Outbound_ValidateClientID:

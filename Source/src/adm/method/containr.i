@@ -262,3 +262,7 @@ PROCEDURE view-page :
 
 &ENDIF
 
+
+PROCEDURE containr-identifier:
+/* Purpose: To make external programs identify this is a containr using current procedure handle. */
+END PROCEDURE.

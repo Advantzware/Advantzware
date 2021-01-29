@@ -1,4 +1,4 @@
-"smtp.office365.com" "noreply@advantzware.com" "" "This report was sent to you by the Advantzware DAOA application.  Please see the attached report." "" "" "" "You have received  report from ASI's DAOA application." "" "202006100045805349329" "" ? yes 1 "" 587 "DAOA Report Config" no
+"smtp.office365.com" "noreply2@advantzware.com" "ILoveASI!" "This report was sent to you by the Advantzware dAOA application.  Please see the attached report." "" "" "" "You have received  report from ASI's dAOA application." "" "202006100045805349329" "" ? yes 1 "" 587 "DAOA Report Config" no
 "smtp.office365.com" "ron.stark@advantzware.com" "Chester1!" "(Ignore this email, testing in process)
 
 At this time API transactions are not being processed.

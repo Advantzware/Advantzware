@@ -1,3 +1,16 @@
+0 "Message" yes 0 0 "Enter Cue Card Text Here" 9 1 5.33 116.2 32 7 15 1 2 1.24 2.2 2.71 2.57 98.4 11.8 1.29 ? ? 6 41.8 4.14 75.8 4.14 47.6 4.19 6 47.6 5.33 6 "NoSweat" 01/14/21 82960 "" "202101148296005948833"
+0 "Message" yes 1 0 "Submitted Run Now Request is Available
+
+File: TaskResults/Carrier.20210126.66155.html" 9 1 5.33 116.2 32 7 15 1 2 1.24 2.2 2.71 2.57 98.4 11.8 1.29 ? ? 6 41.8 4.14 75.8 4.14 47.6 4.19 6 47.6 5.33 6 "NoSweat" 01/26/21 66165 "_default" "202101266616506058525"
+0 "Message" yes 2 0 "Submitted Run Now Request is Available
+
+File: TaskResults/Carrier.20210126.66305.html" 9 1 5.33 116.2 32 7 15 1 2 1.24 2.2 2.71 2.57 98.4 11.8 1.29 ? ? 6 41.8 4.14 75.8 4.14 47.6 4.19 6 47.6 5.33 6 "NoSweat" 01/26/21 66309 "_default" "202101266630906058530"
+0 "Message" yes 3 0 "Submitted Run Now Request is Available
+
+File: TaskResults/Carrier.20210126.66463.html" 9 1 5.33 116.2 32 7 15 1 2 1.24 2.2 2.71 2.57 98.4 11.8 1.29 ? ? 6 41.8 4.14 75.8 4.14 47.6 4.19 6 47.6 5.33 6 "NoSweat" 01/26/21 66469 "_default" "202101266646906058539"
+0 "Message" yes 4 0 "Submitted Run Now Request is Available
+
+File: TaskResults/Carrier.20210126.67386.html" 9 1 5.33 116.2 32 7 15 1 2 1.24 2.2 2.71 2.57 98.4 11.8 1.29 ? ? 6 41.8 4.14 75.8 4.14 47.6 4.19 6 47.6 5.33 6 "NoSweat" 01/26/21 67394 "_default" "202101266739406058551"
 1 "System" yes 1 1 "Welcome to Version 16.8.0 of Advantzware!
 
 This is our new Cue Card feature.  Cue Cards appear to guide and explain new features and functionality added to Advantzware.
