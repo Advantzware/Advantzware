@@ -71,6 +71,7 @@ ASSIGN
                     + "system/TagProcs.p,"
                     + "system/TaxProcs.p,"
                     + "system/VendorCostProcs.p,"
+                    + "browsers/BrowserProcs.p,"
     cSuperProcedure = TRIM(cSuperProcedure,",")
     .
 /* ^^ alphabetical list of super-procedures comma delimited ^^ */
