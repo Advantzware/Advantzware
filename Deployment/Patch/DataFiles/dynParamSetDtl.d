@@ -384,3 +384,7 @@
 139 3 "EndTime" "To" "" "dynValTime" "" "" "2400" 1 8 29 2.19 yes "NO:DISABLE,YES:ENABLE" "" "202009216683005646406"
 141 2 "StartDate" "Start Date" "" "" "" "" "01/01/1950" 1 16 15 1.71 yes "CALENDAR,DATEPICKLIST" "" "202010292931105813768"
 141 2 "EndDate" "To" "" "" "" "" "12/31/2049" 1 16 15 2.91 yes "CALENDAR,DATEPICKLIST" "" "202010292933405813769"
+143 4 "Description" "Description" "" "" "" "" "<Start Range Value>" 1 40 23 6.95 yes ? "" "202101265924106058444"
+143 26 "EstimateNo" "Estimate Number" "" "" "" "" "" 1 11 23 2.67 yes ? "" "202101266080106058494"
+143 41 "ImportFile" "Import File" "" "dynValFileName" "" "" "" 1 50 23 4.1 yes ? "" "202101266064806058491"
+143 50 "HowToUse" "Uses?" "" "dynValFileName" "" "" "" 1 12 23 5.52 yes ? "" "202101266077106058493"
