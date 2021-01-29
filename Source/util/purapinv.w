@@ -118,7 +118,7 @@ DEFINE BUTTON btn-process
      SIZE 18 BY 1.14.
 
 DEFINE BUTTON btSimulate 
-     LABEL "Smulate Purge" 
+     LABEL "Simulate Purge" 
      SIZE 18 BY 1.14.
 
 DEFINE VARIABLE begin_date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001 
@@ -319,7 +319,7 @@ END.
 
 &Scoped-define SELF-NAME btSimulate
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btSimulate C-Win
-ON CHOOSE OF btSimulate IN FRAME FRAME-A /* Smulate Purge */
+ON CHOOSE OF btSimulate IN FRAME FRAME-A /* Simulate Purge */
 DO:
     v-process = NO.
     MESSAGE "Are you sure you want to simulate the purge of Paid AP Invoices within the " +
