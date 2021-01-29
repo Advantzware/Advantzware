@@ -88,7 +88,8 @@ FUNCTION fGetNetSheetOut RETURNS INTEGER PRIVATE
     ipiDefaultOut AS INTEGER) FORWARD.
 
 FUNCTION fGetPartCount RETURNS DECIMAL PRIVATE
-    (ipiEstCostHeaderID AS INT64) FORWARD.
+    (ipcCompany AS CHARACTER,
+     ipcEstimateID AS CHARACTER) FORWARD.
 
 FUNCTION fGetProfit RETURNS DECIMAL PRIVATE
     (ipdCost AS DECIMAL,
@@ -4607,26 +4608,25 @@ PROCEDURE pProcessOperation PRIVATE:
     END.
     
     //Apply feed types A and P after base in-out calculation performed.  These will only affect the run hrs
-    IF ipbf-estCostOperation.feedType EQ "A" AND IsSetType(ipbf-estCostHeader.estType) THEN 
+    IF IsSetType(ipbf-estCostHeader.estType) AND (ipbf-estCostOperation.feedType EQ "A" OR  ipbf-estCostOperation.feedType EQ "P") THEN 
+    DO: 
+        IF ipbf-estCostOperation.feedType EQ "P" THEN 
+            dPartCount = fGetPartCount(ipbf-estCostHeader.company, ipbf-estCostHeader.estimateNo).
+        ELSE 
+            dPartCount = 1.
         ASSIGN 
-            ipbf-estCostOperation.quantityIn                = ipbf-estCostHeader.quantityMaster
-            ipbf-estCostOperation.quantityInAfterSetupWaste = ipbf-estCostHeader.quantityMaster
+            ipbf-estCostOperation.quantityInNoWaste         = ipbf-estCostHeader.quantityMaster * dPartCount
             ipbf-estCostOperation.quantityOut               = ipbf-estCostHeader.quantityMaster
-            ipbf-estCostOperation.quantityInNoWaste         = ipbf-estCostHeader.quantityMaster
-            ipbf-estCostOperation.quantityInRunWaste        = 0
-            ipbf-estCostOperation.quantityInSetupWaste      = 0
+            ipbf-estCostOperation.quantityInRunWaste        = (ipbf-estCostOperation.quantityInNoWaste / 
+                                                    (1 - (ipbf-estCostOperation.quantityInRunWastePercent / 100))) 
+                                                    - ipbf-estCostOperation.quantityInNoWaste
+            ipbf-estCostOperation.quantityInRunWaste        = fRoundUp(ipbf-estCostOperation.quantityInRunWaste)
+            ipbf-estCostOperation.quantityInAfterSetupWaste = ipbf-estCostOperation.quantityInNoWaste + ipbf-estCostOperation.quantityInRunWaste
+            ipbf-estCostOperation.quantityIn                = ipbf-estCostOperation.quantityInAfterSetupWaste + ipbf-estCostOperation.quantityInSetupWaste
+            ipbf-estCostOperation.quantityIn                = fRoundUp(ipbf-estCostOperation.quantityIn)            
             .
-    ELSE IF ipbf-estCostOperation.feedType EQ "P" AND IsSetType(ipbf-estCostHeader.estType) THEN 
-        DO:
-            dPartCount = fGetPartCount(ipbf-estCostHeader.estCostHeaderID).
-            ASSIGN
-                ipbf-estCostOperation.quantityIn                = ipbf-estCostOperation.quantityIn * dPartCount
-                ipbf-estCostOperation.quantityInAfterSetupWaste = ipbf-estCostOperation.quantityInAfterSetupWaste * dPartCount
-                ipbf-estCostOperation.quantityInNoWaste         = ipbf-estCostOperation.quantityInNoWaste * dPartCount
-                ipbf-estCostOperation.quantityInRunWaste        = ipbf-estCostOperation.quantityInRunWaste * dPartCount
-                ipbf-estCostOperation.quantityInSetupWaste      = ipbf-estCostOperation.quantityInSetupWaste * dPartCount
-                .
-        END.
+    END.
+    
 END PROCEDURE.
 
 PROCEDURE pPurgeCalculation PRIVATE:
@@ -4939,18 +4939,21 @@ FUNCTION fGetNetSheetOut RETURNS INTEGER PRIVATE
 END FUNCTION.
 
 FUNCTION fGetPartCount RETURNS DECIMAL PRIVATE
-    (ipiEstCostHeaderID AS INT64 ):
+    (ipcCompany AS CHARACTER, ipcEstimateID AS CHARACTER):
     /*------------------------------------------------------------------------------
      Purpose:  Gets the part count for a set for partition feed type calculation
      Notes:
     ------------------------------------------------------------------------------*/	
+    DEFINE BUFFER bf-eb FOR eb.
     
     DEFINE VARIABLE dParts AS DECIMAL NO-UNDO.
     
-    FOR EACH estCostBlank NO-LOCK 
-        WHERE estCostBlank.estCostHeaderID EQ ipiEstCostHeaderID
-        AND estCostBlank.formNo NE 0:
-        dParts = dParts + estCostBlank.quantityPerSet.
+    FOR EACH bf-eb NO-LOCK 
+        WHERE bf-eb.company EQ ipcCompany
+        AND bf-eb.est-no EQ ipcEstimateID
+        AND bf-eb.form-no NE 0:
+        
+        dParts = dParts + fGetQuantityPerSet(BUFFER bf-eb).
     END.
     
     RETURN dParts.

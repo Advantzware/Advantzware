@@ -34,6 +34,7 @@ CREATE WIDGET-POOL.
 &SCOPED-DEFINE h_Object07 h_p-locw
 &SCOPED-DEFINE moveRight {&h_Object02},{&h_Object03},{&h_Object04}
 &SCOPED-DEFINE h_folderUom h_folderUom
+&SCOPED-DEFINE local-destroy local-destroy
 
 /* Parameters Definitions ---                                           */
 
@@ -310,7 +311,7 @@ END.
 ON WINDOW-CLOSE OF W-Win /* Finished Goods Item Inventory */
 DO:
   /* This ADM code must be left here in order for the SmartWindow
-     and its descendents to terminate properly on exit. */
+     and its descendents to terminate properly on exit. */  
     
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
@@ -369,7 +370,7 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/folder.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'FOLDER-LABELS = ':U + 'Browse|Detail|Inventory|Totals/CP#|Bin/Jobs|Set parts|Colors|Vend Cost|History|Image|POs|UOM' + ',
+             INPUT  'FOLDER-LABELS = ':U + 'Browse|Detail|Inventory|YTD/CP#|Bin/Jobs|Set parts|Colors|Vend Cost|History|Image|POs|UOM' + ',
                      FOLDER-TAB-TYPE = 2':U ,
              OUTPUT h_folder ).
        RUN set-position IN h_folder ( 2.91 , 1.00 ) NO-ERROR.
@@ -1535,6 +1536,8 @@ PROCEDURE local-destroy :
   /* Code placed here will execute PRIOR to standard behavior. */
       
   /* Dispatch standard ADM method.                             */
+  {custom/userWindow.i} 
+  
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */

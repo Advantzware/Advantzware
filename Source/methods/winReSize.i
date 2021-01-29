@@ -16,7 +16,7 @@ PROCEDURE winReSize:
       FRAME {&FRAME-NAME}:HEIGHT = FRAME {&FRAME-NAME}:HEIGHT + ipRowDiff
       FRAME {&FRAME-NAME}:WIDTH = FRAME {&FRAME-NAME}:WIDTH + ipColDiff
     &ENDIF
-    .
+    NO-ERROR.
   ELSE IF (ipRowDiff > 0 OR ipRowDiff = 0) AND (ipColDiff < 0 OR ipColDiff = 0) THEN
   ASSIGN
     &IF '{&sizeOption}' EQ 'HEIGHT' &THEN
@@ -24,7 +24,7 @@ PROCEDURE winReSize:
     &ELSE
             FRAME {&FRAME-NAME}:HEIGHT = FRAME {&FRAME-NAME}:HEIGHT + ipRowDiff
     &ENDIF
-    .
+    NO-ERROR.
   ELSE IF (ipRowDiff < 0 OR ipRowDiff = 0) AND (ipColDiff > 0 OR ipColDiff = 0) THEN
   ASSIGN
     &IF '{&sizeOption}' EQ 'WIDTH' &THEN
@@ -32,12 +32,13 @@ PROCEDURE winReSize:
     &ELSE
             FRAME {&FRAME-NAME}:WIDTH  = FRAME {&FRAME-NAME}:WIDTH + ipColDiff
     &ENDIF
-    .
+    NO-ERROR.
             
     ASSIGN
     currentWidget = FRAME {&FRAME-NAME}:HANDLE
     currentWidget = currentWidget:FIRST-CHILD
-    currentWidget = currentWidget:FIRST-CHILD.
+    currentWidget = currentWidget:FIRST-CHILD
+    NO-ERROR.
     
   DO WHILE currentWidget NE ?:
     IF currentWidget:TYPE EQ 'BROWSE' THEN DO:
@@ -50,7 +51,7 @@ PROCEDURE winReSize:
         currentWidget:HEIGHT = currentWidget:HEIGHT + ipRowDiff
         currentWidget:WIDTH = currentWidget:WIDTH + ipColDiff
       &ENDIF
-        .
+        NO-ERROR.
       &IF DEFINED(repositionBrowse) NE 0 &THEN
       APPLY 'HOME':U TO currentWidget.
       &ENDIF
@@ -72,7 +73,7 @@ PROCEDURE winReSize:
             FRAME {&FRAME-NAME}:HEIGHT = FRAME {&FRAME-NAME}:HEIGHT + ipRowDiff
             FRAME {&FRAME-NAME}:WIDTH  = FRAME {&FRAME-NAME}:WIDTH + ipColDiff
     &ENDIF
-    .
+    NO-ERROR.
   ELSE IF (ipRowDiff > 0 OR ipRowDiff = 0) AND (ipColDiff < 0 OR ipColDiff = 0) THEN
   ASSIGN
     &IF '{&sizeOption}' EQ 'WIDTH' &THEN
@@ -80,7 +81,7 @@ PROCEDURE winReSize:
     &ELSE           
             FRAME {&FRAME-NAME}:WIDTH  = FRAME {&FRAME-NAME}:WIDTH + ipColDiff
     &ENDIF
-    .
+    NO-ERROR.
   ELSE IF (ipRowDiff < 0 OR ipRowDiff = 0)  AND (ipColDiff > 0 OR ipColDiff = 0) THEN
   ASSIGN
     &IF '{&sizeOption}' EQ 'HEIGHT' &THEN
@@ -88,6 +89,6 @@ PROCEDURE winReSize:
     &ELSE
             FRAME {&FRAME-NAME}:HEIGHT = FRAME {&FRAME-NAME}:HEIGHT + ipRowDiff
     &ENDIF
-    .
+    NO-ERROR.
 END PROCEDURE.
 &ENDIF

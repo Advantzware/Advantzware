@@ -38,6 +38,7 @@ CREATE WIDGET-POOL.
 &SCOPED-DEFINE h_Object01 h_p-qtmisc
 &SCOPED-DEFINE h_Object02 h_p-qtqty
 &SCOPED-DEFINE h_Object03 h_vp-qtrpc
+&SCOPED-DEFINE local-destroy local-destroy
 
 /* Parameters Definitions ---                                           */
 
@@ -350,7 +351,7 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/folder.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'FOLDER-LABELS = ':U + 'Browse|Detail|Quantities|Prep/Misc Chg|Notes' + ',
+             INPUT  'FOLDER-LABELS = ':U + 'Browse|Detail|Quantity|Prep/Misc|Notes' + ',
                      FOLDER-TAB-TYPE = 2':U ,
              OUTPUT h_folder ).
        RUN set-position IN h_folder ( 3.14 , 2.00 ) NO-ERROR.
@@ -794,6 +795,7 @@ PROCEDURE local-destroy :
         VIEW-AS ALERT-BOX INFO BUTTONS OK.
      
     END.
+    {custom/userWindow.i} 
   END.
 
   /* Code placed here will execute PRIOR to standard behavior. */

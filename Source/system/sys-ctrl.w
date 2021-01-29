@@ -34,6 +34,7 @@ CREATE WIDGET-POOL.
 /* ***************************  Definitions  ************************** */
 
 &Scoped-define program-id sys-ctrl.
+&Scoped-define DefaultMenuBGColor 32
 
 /* Parameters Definitions ---                                           */
 
@@ -1005,7 +1006,7 @@ DEFINE VARIABLE XXTABVALXX AS LOGICAL NO-UNDO.
 
 ASSIGN XXTABVALXX = FRAME filterFrame:MOVE-AFTER-TAB-ITEM (svFocus:HANDLE IN FRAME DEFAULT-FRAME)
        XXTABVALXX = FRAME filterFrame:MOVE-BEFORE-TAB-ITEM (FRAME searchFrame:HANDLE)
-/* END-ASSIGN-TABS */.
+    /* END-ASSIGN-TABS */.
 
 /* BROWSE-TAB sysCtrlBrowse btnRestoreDefaults DEFAULT-FRAME */
 /* SETTINGS FOR BUTTON btnExport IN FRAME DEFAULT-FRAME

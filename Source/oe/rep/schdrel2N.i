@@ -531,10 +531,21 @@ form header
 
       IF NOT FIRST-OF(tt-report.key-02) AND v-sort EQ "C" THEN w-ord.cust-name = "".
       
-      RUN pGetVenderPoInfo( INPUT oe-ordl.po-no-po, INPUT oe-ordl.job-no, INPUT oe-ordl.job-no2,
-                         OUTPUT w-ord.vend-id, OUTPUT w-ord.vend-name, OUTPUT w-ord.vend-po,
-                         OUTPUT w-ord.po-due-date, OUTPUT w-ord.po-rm-item, OUTPUT w-ord.po-rm-item-name,
-                         OUTPUT w-ord.po-uom, OUTPUT w-ord.po-ord-qty, OUTPUT w-ord.po-rec-qty).        
+      IF lGetVendorPOInfo THEN
+      RUN pGetVendorPOInfo (
+        oe-ordl.po-no-po,
+        oe-ordl.job-no,
+        oe-ordl.job-no2,
+        OUTPUT w-ord.vend-id,
+        OUTPUT w-ord.vend-name,
+        OUTPUT w-ord.vend-po,
+        OUTPUT w-ord.po-due-date,
+        OUTPUT w-ord.po-rm-item,
+        OUTPUT w-ord.po-rm-item-name,
+        OUTPUT w-ord.po-uom,
+        OUTPUT w-ord.po-ord-qty,
+        OUTPUT w-ord.po-rec-qty
+        ).
 
       IF v-comps AND itemfg.isaset THEN DO:
         RUN fg/fullset.p (ROWID(itemfg)).

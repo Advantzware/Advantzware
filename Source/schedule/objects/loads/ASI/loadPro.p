@@ -277,6 +277,7 @@ DEFINE VARIABLE jobToolTip AS CHARACTER NO-UNDO.
 DEFINE VARIABLE timeSpan AS INTEGER NO-UNDO.
 DEFINE VARIABLE unitFound AS LOGICAL NO-UNDO.
 DEFINE VARIABLE useDeptSort AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lUseForm AS LOGICAL NO-UNDO.
 
 DEFINE BUFFER bMach FOR mach.
 
@@ -819,7 +820,9 @@ FOR EACH job-hdr NO-LOCK
         END. /* avail po-ord */
       END. /* ufpoordl */
     END. /* avail oe-ordl */
+    lUseForm = NO.
     IF ufPOOrdl AND NOT AVAILABLE po-ordl THEN DO:
+      lUseForm = YES.
       FIND FIRST po-ordl NO-LOCK
            WHERE po-ordl.company EQ job-mch.company
              AND po-ordl.job-no  EQ job-mch.job-no
@@ -1059,7 +1062,8 @@ FOR EACH job-hdr NO-LOCK
       userField[2]   = setUserField(2,custName)
       userField[5]   = setUserField(5,IF AVAILABLE eb THEN eb.die-no ELSE '')
       userField[6]   = setUserField(6,IF AVAILABLE eb THEN eb.plate-no ELSE '')
-      userField[7]   = setUserField(7,IF AVAILABLE po-ordl THEN STRING(po-ordl.po-no,'>>>>>9') ELSE '')
+      userField[7]   = setUserField(7,IF AVAILABLE po-ordl AND (lUseForm EQ NO OR
+                       po-ordl.s-num EQ job-mch.frm) THEN STRING(po-ordl.po-no,'>>>>>9') ELSE '')
       userField[8]   = setUserField(8,IF AVAIL eb AND eb.est-type EQ 6 THEN eb.stock-no /* set */
                                  ELSE IF job-mch.i-no NE '' THEN job-mch.i-no
                                  ELSE IF AVAILABLE itemfg AND itemfg.i-no EQ '' THEN itemfg.i-no
@@ -1073,7 +1077,8 @@ FOR EACH job-hdr NO-LOCK
       userField[11]  = setUserField(11,IF AVAILABLE eb THEN STRING(convBase16(eb.wid),dimFormat) ELSE '')
       userField[12]  = setUserField(12,IF AVAILABLE eb THEN STRING(convBase16(eb.dep),dimFormat) ELSE '')
       userField[13]  = setUserField(13,IF AVAILABLE eb THEN eb.style ELSE '')
-      userField[16]  = setUserField(16,IF AVAILABLE po-ordl THEN STRING(po-ordl.due-date,'99/99/9999') ELSE '')
+      userField[16]  = setUserField(16,IF AVAILABLE po-ordl AND (lUseForm EQ NO OR
+                       po-ordl.s-num EQ job-mch.frm) THEN STRING(po-ordl.due-date,'99/99/9999') ELSE '')
       userField[17]  = setUserField(17,IF AVAILABLE po-ord THEN po-ord.vend-no ELSE '')
       userField[18]  = setUserField(18,STRING(job-mch.frm,'zz9'))
       userField[19]  = setUserField(19,STRING(job-mch.blank-no,'>>>'))
@@ -1089,7 +1094,8 @@ FOR EACH job-hdr NO-LOCK
       userField[34]  = setUserField(34,IF AVAILABLE itemfg THEN itemfg.cad-no ELSE '')
       userField[35]  = setUserField(35,IF AVAILABLE eb AND eb.est-type EQ 6 AND eb.form-no NE 0 THEN
                                        getSetPOQtyRec(job-mch.company,job-mch.job-no,job-mch.job-no2,eb.form-no,eb.stock-no)
-                                  ELSE IF AVAILABLE po-ordl THEN STRING(po-ordl.t-rec-qty,'->,>>>,>>>,>>9.99<<<')
+                                  ELSE IF AVAILABLE po-ordl AND (lUseForm EQ NO OR po-ordl.s-num EQ job-mch.frm) THEN
+                                       STRING(po-ordl.t-rec-qty,'->,>>>,>>>,>>9.99<<<')
                                   ELSE '')
       userField[51]  = setUserField(51,IF AVAILABLE eb THEN eb.tr-no ELSE '')
       iNumUp         = IF INTEGER(userField[31]) LT 1 THEN 1 ELSE INTEGER(userField[31])
@@ -1110,7 +1116,7 @@ FOR EACH job-hdr NO-LOCK
       userField[96]  = setUserField(96,STRING(job-mch.mr-hr,'>,>>9.99'))
       userField[97]  = setUserField(97,STRING(job-mch.run-hr,'>,>>9.99'))
       userField[98]  = setUserField(98,IF dMSF LT 1000000 THEN STRING(dMSF,'->>>,>>9.99999') ELSE '')
-      userField[99]  = setUserField(99,IF AVAILABLE itemfg THEN STRING(itemfg.t-sqft,'>>>9.999<<') ELSE '')
+      userField[99]  = setUserField(99,IF AVAILABLE itemfg THEN STRING(itemfg.t-sqft,'>>>,>>9.999<<') ELSE '')
       userField[100] = setUserField(100,STRING(iMRWaste,'>>>9'))
       userField[101] = setUserField(101,STRING(iRunWaste,'>>>,>>9'))
       userField[102] = setUserField(102,specialTime(INTEGER(TRUNCATE(job-mch.mr-hr,0) * 3600 + (job-mch.mr-hr - TRUNCATE(job-mch.mr-hr,0)) * 3600)))
@@ -1938,7 +1944,7 @@ PROCEDURE loadUserFieldLabelWidth:
     userLabel[96] = 'MR Std Hrs'         userWidth[96] = 8
     userLabel[97] = 'Run Std Hrs'        userWidth[97] = 8
     userLabel[98] = 'MSF'                userWidth[98] = 9
-    userLabel[99] = 'SqFt'               userWidth[99] = 10
+    userLabel[99] = 'SqFt'               userWidth[99] = 12
     userLabel[100] = 'MR Waste'          userWidth[100] = 9
     userLabel[101] = 'Run Waste'         userWidth[101] = 9
     userLabel[102] = 'MR Time'           userWidth[102] = 15

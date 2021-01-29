@@ -796,6 +796,7 @@ DO:
              AND ROWID(bff-eb) EQ riEb NO-ERROR .             
         IF AVAIL bff-eb THEN
         DO:
+          RUN jc/UpdateMoldEstItem.p(ROWID(bff-eb)).
           RUN jc/CrtEstopForMold.p(ROWID(bff-eb), cMachCode).
           cEstNo:SCREEN-VALUE IN FRAME {&FRAME-NAME} = bff-eb.est-no.  
           ipType = "created".

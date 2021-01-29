@@ -133,6 +133,12 @@ RUN methods/prgsecur.p
              OUTPUT lAccessCreateFG, /* Allowed? Yes/NO */
              OUTPUT lAccessClose, /* used in template/windows.i  */
              OUTPUT cAccessList). /* list 1's and 0's indicating yes or no to run, create, update, delete */
+             
+DEFINE VARIABLE hdSalesManProcs AS HANDLE NO-UNDO.
+DEFINE VARIABLE hdArtiosProcs AS HANDLE.
+
+RUN salrep/SalesManProcs.p PERSISTENT SET hdSalesManProcs. 
+RUN est/ArtiosProcs.p PERSISTENT SET hdArtiosProcs.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -3374,8 +3380,18 @@ PROCEDURE local-assign-record :
             ( ((cadfile NE '') AND SEARCH(cadfile) <> ?) OR
               SEARCH(lv-cad-path + eb.cad-no + lv-cad-ext) <> ? ) THEN DO:
            FIND CURRENT bf-box-design-hdr EXCLUSIVE-LOCK NO-ERROR.
-           bf-box-design-hdr.box-image = IF cadfile NE '' THEN cadfile
-                                         ELSE lv-cad-path + eb.cad-no + lv-cad-ext. /*".jpg"*/.
+           
+           IF INDEX(cadfile,".ard") NE 0 THEN
+           DO:             
+            RUN Artios_ConvertARDToJPG IN hdArtiosProcs (INPUT cadfile, 
+                                                         INPUT (lv-cad-path + "\" + eb.cad-no + lv-cad-ext)).
+                                                    
+            bf-box-design-hdr.box-image = lv-cad-path + "\" + eb.cad-no + lv-cad-ext.                                        
+           END.
+           ELSE do:
+            bf-box-design-hdr.box-image = IF cadfile NE '' THEN cadfile
+                                             ELSE lv-cad-path + eb.cad-no + lv-cad-ext. /*".jpg"*/.
+           END.                              
         END.
      END.
      ELSE DO: /* reset from style */
@@ -5067,19 +5083,23 @@ PROCEDURE valid-sman :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lSuccess AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+    
   {methods/lValidateError.i YES}
-   FIND FIRST sman NO-LOCK 
-        WHERE sman.company  EQ cocode
-          AND sman.sman     EQ eb.sman:SCREEN-VALUE IN FRAME {&FRAME-NAME}
-          AND sman.inactive EQ NO 
-        NO-ERROR.
-
-    IF NOT AVAIL sman THEN DO:
-       MESSAGE "Inactive/Invalid SalesGrp. Try help." VIEW-AS ALERT-BOX ERROR.
-       APPLY "entry" TO eb.sman.
-       RETURN ERROR.
+    RUN SalesMan_ValidateSalesRep IN hdSalesManProcs(  
+        INPUT  cocode,
+        INPUT  eb.sman:SCREEN-VALUE IN FRAME {&FRAME-NAME},
+        OUTPUT lSuccess,
+        OUTPUT cMessage
+        ).
+    IF NOT lSuccess THEN DO:
+        MESSAGE cMessage 
+            VIEW-AS ALERT-BOX ERROR.
+        APPLY "ENTRY" TO eb.sman.
+        RETURN ERROR.
     END.
-    sman_sname:SCREEN-VALUE = sman.sNAME.
+    sman_sname:SCREEN-VALUE = DYNAMIC-FUNCTION("SalesMan_GetSalesmanName" IN hdSalesManProcs,cocode,eb.sman:SCREEN-VALUE).
 
   {methods/lValidateError.i NO}
 END PROCEDURE.

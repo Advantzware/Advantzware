@@ -368,7 +368,7 @@ DO:
         BUFFER-COPY taskResult EXCEPT rec_key TO bTaskResult.
         ASSIGN
             bTaskResult.folderFile = cFolderFile
-            bTaskResult.archived   = DATETIME(TODAY,TIME)
+            bTaskResult.archived   = NOW
             bTaskResult.viewed     = NO
             taskResult.viewed      = YES
             rRowID                 = ROWID(bTaskResult)

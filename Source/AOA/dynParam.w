@@ -633,7 +633,7 @@ PROCEDURE adm-create-objects :
              INPUT  'adm/objects/folder.r':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'FOLDER-LABELS = ':U + 'Sets|Set Details|Parameters' + ',
-                     FOLDER-TAB-TYPE = 2':U ,
+                     FOLDER-TAB-TYPE = 1':U ,
              OUTPUT h_folder ).
        RUN set-position IN h_folder ( 3.38 , 1.00 ) NO-ERROR.
        RUN set-size IN h_folder ( 26.19 , 160.00 ) NO-ERROR.
@@ -839,6 +839,31 @@ PROCEDURE pAddParam:
 ------------------------------------------------------------------------------*/
     hTarget = h_param.
     APPLY "CHOOSE":U TO BtnAdd IN FRAME {&FRAME-NAME}. 
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCallAudit W-Win
+PROCEDURE pCallAudit:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE hTable AS HANDLE NO-UNDO.
+
+    CASE iPage:
+        WHEN 1 THEN
+        hTarget = h_paramSet.
+        WHEN 2 THEN
+        hTarget = h_paramSetDtl.
+        WHEN 3 THEN
+        hTarget = h_param.
+    END CASE.
+    RUN pTableHandle IN hTarget (OUTPUT hTable).
+    IF VALID-HANDLE(hTable) THEN
+    RUN system/CallAudit.p (hTable:NAME, hTable, "Window", PROGRAM-NAME(1)).
 
 END PROCEDURE.
 	

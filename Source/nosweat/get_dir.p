@@ -46,13 +46,13 @@ ELSE
 DO:
   FolderName = FILL(" ",MAX_PATH).
   RUN SHGetPathFromIDList (lpItemIDList,OUTPUT FolderName,OUTPUT ReturnValue).
-  FolderName = trim(FolderName).
+  FolderName = TRIM(FolderName).
 END.   
 
 /* free memory: */
-SET-SIZE(lpbi)=0.
-SET-SIZE(pszDisplayName)=0.
-SET-SIZE(lpszTitle)=0.
+SET-SIZE(lpbi) = 0.
+SET-SIZE(pszDisplayName) = 0.
+SET-SIZE(lpszTitle) = 0.
 
 /* memory leak:
    lpItemIDList still points to something 

@@ -383,7 +383,7 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/folder.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'FOLDER-LABELS = ':U + 'Browse|Detail|Items|Misc. Chgs|Release|Estimate|Order Total|FG Item|Matrix|Ship Notes|Bill Notes' + ',
+             INPUT  'FOLDER-LABELS = ':U + 'Browse|Detail|Items|Misc|Release|Estimate|Totals|FG Item|Matrix|ShipNote|BillNote' + ',
                      FOLDER-TAB-TYPE = 2':U ,
              OUTPUT h_folder ).
        RUN set-position IN h_folder ( 3.14 , 1.00 ) NO-ERROR.
@@ -1271,7 +1271,7 @@ PROCEDURE switch-ord-status :
          /* Size in UIB:  ( 19.52 , 148.00 ) */  
   
          /* Initialize other pages that this page requires. */
-         RUN init-pages IN THIS-PROCEDURE ('2,4':U) NO-ERROR.
+         RUN init-pages IN THIS-PROCEDURE ('2,3,4':U) NO-ERROR.
          RUN adm-view IN h_b-crdinqA.
        
    

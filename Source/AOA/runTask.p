@@ -150,6 +150,11 @@ IF AVAILABLE dynParamValue THEN DO:
             NO
             ).
     END. /* else dynsubject */
+    DO TRANSACTION:
+        FIND CURRENT dynParamValue EXCLUSIVE-LOCK.
+        dynParamValue.lastRunDateTime = NOW.
+        RELEASE dynParamValue.
+    END. /* do trans */
 END. /* if avail dynParamValue */
 ELSE DO:
     RUN pCreateAuditHdr.

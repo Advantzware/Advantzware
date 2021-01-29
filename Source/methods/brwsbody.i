@@ -76,13 +76,14 @@ DEFINE BUTTON Btn_Cancel
      FONT 4.
 
 DEFINE BUTTON Btn_Clear_Find 
-     IMAGE-UP FILE "Graphics/32x32/close.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/navigate_cross.png":U 
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_cross_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Clear &Find" 
      SIZE 8 BY 1.91
      FONT 4.
 
 DEFINE BUTTON Btn_OK 
-     IMAGE-UP FILE "Graphics/32x32/checkbox.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/navigate_check.png":U NO-FOCUS FLAT-BUTTON
      LABEL "&OK" 
      SIZE 8 BY 1.91
      FONT 4.

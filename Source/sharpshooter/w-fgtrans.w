@@ -52,14 +52,11 @@ DEFINE VARIABLE oItemFG          AS fg.ItemFG         NO-UNDO.
 DEFINE VARIABLE hdInventoryProcs AS HANDLE    NO-UNDO.
 DEFINE VARIABLE cTag             AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCompany         AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iWarehouseLength AS INTEGER   NO-UNDO.
 
 DEFINE VARIABLE gcLocationSource AS CHARACTER NO-UNDO INITIAL "LoadTag".
 DEFINE VARIABLE glCloseJob       AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE glAutoPost       AS LOGICAL   NO-UNDO INITIAL TRUE.
-
-RUN inventory/InventoryProcs.p PERSISTENT SET hdInventoryProcs.
-
-RUN spGetSessionParam ("Company", OUTPUT cCompany).
 
 oLoadTag = NEW Inventory.Loadtag().
 oFGBin   = NEW fg.FGBin().
@@ -136,10 +133,10 @@ DEFINE VAR W-Win AS WIDGET-HANDLE NO-UNDO.
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btClearRecords 
      LABEL "Clear Records" 
-     SIZE 21.6 BY 1.14 TOOLTIP "Clear all the scanned data from grid".
+     SIZE 22.6 BY 1.38 TOOLTIP "Clear all the scanned data from grid".
 
 DEFINE BUTTON btExit AUTO-END-KEY 
-     IMAGE-UP FILE "C:/Asigui/Environments/Devel/Resources/Graphics/32x32/door_exit.ico":U
+     IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U
      LABEL "Exit" 
      SIZE 11 BY 2.62 TOOLTIP "Exit".
 
@@ -199,7 +196,7 @@ DEFINE FRAME F-Main
      btTransfer AT ROW 3.29 COL 64.2 WIDGET-ID 8
      fiLocation AT ROW 3.33 COL 19 COLON-ALIGNED WIDGET-ID 6
      fiMessage AT ROW 5 COL 5 COLON-ALIGNED NO-LABEL WIDGET-ID 30
-     btClearRecords AT ROW 5.14 COL 189.6 WIDGET-ID 28 NO-TAB-STOP 
+     btClearRecords AT ROW 5.14 COL 188.4 WIDGET-ID 28 NO-TAB-STOP 
      BROWSE-2 AT ROW 7.05 COL 4 WIDGET-ID 200
      RECT-33 AT ROW 6.57 COL 2.4 WIDGET-ID 24
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -367,19 +364,24 @@ DO:
     DEFINE VARIABLE cWarehouse AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cLocation  AS CHARACTER NO-UNDO.
     
+    IF TRIM(fiTag:SCREEN-VALUE) EQ "" THEN
+        RETURN.
+    
     ASSIGN
-        cWarehouse = TRIM(SUBSTRING(SELF:SCREEN-VALUE, 1, 5))
-        cLocation  = TRIM(SUBSTRING(SELF:SCREEN-VALUE, 6))
+        cWarehouse = TRIM(SUBSTRING(SELF:SCREEN-VALUE, 1, iWarehouseLength))
+        cLocation  = TRIM(SUBSTRING(SELF:SCREEN-VALUE, iWarehouseLength + 1))
         .
     
     IF cWarehouse EQ "" THEN DO:
         MESSAGE "Warehouse cannot be empty"
-        VIEW-AS ALERT-BOX ERROR.    
+        VIEW-AS ALERT-BOX ERROR.  
+        RETURN.  
     END.
 
     IF cLocation EQ "" THEN DO:
         MESSAGE "Location cannot be empty"
-        VIEW-AS ALERT-BOX ERROR.    
+        VIEW-AS ALERT-BOX ERROR.   
+        RETURN. 
     END.
         
     RUN pLocationScan (
@@ -548,6 +550,29 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable W-Win
+PROCEDURE local-enable:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+ 
+    /* Code placed here will execute PRIOR to standard behavior. */
+
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable':U ) .
+
+    /* Code placed here will execute AFTER standard behavior.    */
+    RUN pInit.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-exit W-Win 
 PROCEDURE local-exit :
 /* -----------------------------------------------------------
@@ -563,6 +588,28 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pInit W-Win
+PROCEDURE pInit PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RUN inventory/InventoryProcs.p PERSISTENT SET hdInventoryProcs.
+    
+    RUN spGetSessionParam ("Company", OUTPUT cCompany).
+    
+    RUN Inventory_GetWarehouseLength IN hdInventoryProcs (
+        INPUT  cCompany,
+        OUTPUT iWarehouseLength
+        ).
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pLocationScan W-Win 
 PROCEDURE pLocationScan PRIVATE :
@@ -580,10 +627,13 @@ PROCEDURE pLocationScan PRIVATE :
     DEFINE VARIABLE lSuccess AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cItemID  AS CHARACTER NO-UNDO.
 
-    DEFINE VARIABLE iQuantity        AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE iSubUnits        AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE iSubUnitsPerUnit AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE iPartial         AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iQuantity         AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iSubUnits         AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iSubUnitsPerUnit  AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iPartial          AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cCurrentWarehouse AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCurrentLocation  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lLocationConfirm  AS LOGICAL   NO-UNDO.
     
     DO WITH FRAME {&FRAME-NAME}:
     END.    
@@ -617,26 +667,43 @@ PROCEDURE pLocationScan PRIVATE :
         RETURN.        
     END.
  
+    oFGBin:SetContext (cCompany, cItemID, ipcTag).
+    IF NOT oFGBin:IsAvailable() THEN DO:
+        ASSIGN
+            oplError = TRUE
+            opcMessage = "FG Bin not available for tag '" + ipcTag + "'"
+            .
+        RETURN.
+    END.
+        
     ASSIGN
-        iSubUnits        = INTEGER(oLoadTag:GetValue("QuantityInSubUnit"))
-        iSubUnitsPerUnit = INTEGER(oLoadTag:GetValue("SubUnitsPerUnit"))
-        iPartial         = INTEGER(oLoadTag:GetValue("Partial"))
-        iQuantity        = iSubUnits * iSubUnitsPerUnit + iPartial
-        .  
-                                  
-    RUN api/inbound/CreateInventoryTransfer.p (
-        INPUT  cCompany, 
-        INPUT  ipcWarehouse,
-        INPUT  ipcLocation, 
-        INPUT  ipcTag,
-        INPUT  cItemID,
-        INPUT  "FG",  /* Item Type */
-        INPUT  USERID("ASI"), 
-        INPUT  FALSE, /* Post */
-        OUTPUT riFGRctd,
-        OUTPUT lSuccess,
-        OUTPUT opcMessage
-        ) NO-ERROR.
+        iSubUnits         = INTEGER(oFGBin:GetValue("QuantityInSubUnit"))
+        iSubUnitsPerUnit  = INTEGER(oFGBin:GetValue("SubUnitsPerUnit"))
+        iPartial          = INTEGER(oFGBin:GetValue("Partial"))
+        iQuantity         = iSubUnits * iSubUnitsPerUnit + iPartial
+        cCurrentWarehouse = oFGBin:GetValue("Warehouse")
+        cCurrentLocation  = oFGBin:GetValue("Location")
+        .
+    
+    IF cCurrentWarehouse EQ ipcWarehouse AND cCurrentLocation EQ ipcLocation THEN
+        ASSIGN
+            lSuccess         = TRUE
+            lLocationConfirm = TRUE
+            .
+    ELSE         
+        RUN api/inbound/CreateInventoryTransfer.p (
+            INPUT  cCompany, 
+            INPUT  ipcWarehouse,
+            INPUT  ipcLocation, 
+            INPUT  ipcTag,
+            INPUT  cItemID,
+            INPUT  "FG",  /* Item Type */
+            INPUT  USERID("ASI"), 
+            INPUT  FALSE, /* Post */
+            OUTPUT riFGRctd,
+            OUTPUT lSuccess,
+            OUTPUT opcMessage
+            ) NO-ERROR.
     
     IF lSuccess THEN DO:
         CREATE ttBrowseInventory.
@@ -651,13 +718,16 @@ PROCEDURE pLocationScan PRIVATE :
             ttBrowseInventory.transactionType  = "Transfer"
             ttBrowseInventory.inventoryStatus  = "Created"
             .
+        
+        IF lLocationConfirm THEN
+            ttBrowseInventory.inventoryStatus = "Confirmed".
     END.
     ELSE DO:
         oplError = TRUE.
         RETURN.
     END.
         
-    IF glAutoPost THEN
+    IF glAutoPost AND NOT lLocationConfirm THEN
         RUN pPost.
     ELSE
         fiMessage:SCREEN-VALUE = "Receipt Transaction created".
@@ -764,14 +834,30 @@ PROCEDURE pTagScan PRIVATE :
     
     oplIsTransfer = oFGBin:SetContext (cCompany, cItemID, ipcTag).
 
-    IF gcLocationSource EQ "LoadTag" THEN
-        ASSIGN
-            cWarehouse       = oLoadTag:GetValue("Warehouse")
-            cLocation        = oLoadTag:GetValue("Location")
-            .
+    ASSIGN
+        cWarehouse = oLoadTag:GetValue("Warehouse")
+        cLocation  = oLoadTag:GetValue("Location")
+        .
 
-    fiLocation:SCREEN-VALUE = cWarehouse + " " 
-                            + FILL(" ", 5 - LENGTH(cWarehouse)) 
+    IF gcLocationSource EQ "FGItem" THEN
+        ASSIGN
+            cWarehouse = oItemFG:GetValue("Warehouse")
+            cLocation  = oItemFG:GetValue("Location")
+            .
+    ELSE IF gcLocationSource EQ "UserDefault" THEN DO:
+        RUN Inventory_GetDefaultWhse IN hdInventoryProcs (
+            INPUT  cCompany,
+            OUTPUT cWarehouse
+            ).
+
+        RUN Inventory_GetDefaultBin IN hdInventoryProcs (
+            INPUT  cCompany,
+            OUTPUT cLocation
+            ).
+    END.
+    
+    fiLocation:SCREEN-VALUE = cWarehouse 
+                            + FILL(" ", iWarehouseLength - LENGTH(cWarehouse)) 
                             + cLocation.      
 
     IF oplIsTransfer THEN DO:
@@ -868,6 +954,24 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Set-Focus W-Win
+PROCEDURE Set-Focus:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+    
+    APPLY "ENTRY" TO fiTag.
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed W-Win 
 PROCEDURE state-changed :
 /* -----------------------------------------------------------
@@ -892,7 +996,7 @@ FUNCTION fGetConcatLocationID RETURNS CHARACTER PRIVATE
     Notes:  
 ------------------------------------------------------------------------------*/
     RETURN ttBrowseInventory.warehouseID + " " 
-           + FILL(" ", 5 - LENGTH(ttBrowseInventory.warehouseID)) 
+           + FILL(" ", iWarehouseLength - LENGTH(ttBrowseInventory.warehouseID)) 
            + ttBrowseInventory.locationID.
 END FUNCTION.
 

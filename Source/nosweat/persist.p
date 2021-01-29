@@ -67,7 +67,7 @@ PROCEDURE Enhance :
     DEFINE VARIABLE widget-list    AS CHARACTER INITIAL
         "BROWSE,BUTTON,COMBO-BOX,DIALOG-BOX,EDITOR,FILL-IN,FRAME,~
 LITERAL,RADIO-SET,SELECTION-LIST,RECTANGLE,TEXT,TOGGLE-BOX" NO-UNDO.
-
+IF TRUE THEN RETURN.
     FIND users WHERE users.user_id = USERID("NOSWEAT") NO-LOCK NO-ERROR.
     IF AVAILABLE users THEN
         ASSIGN
@@ -362,11 +362,11 @@ PROCEDURE Set_Primary_Fields :
                     RUN VALUE(run-proc) (current-widget:TABLE,OUTPUT indx-fields).
                 END.
             END.
-            IF CAN-DO(indx-fields,current-widget:NAME) THEN
+           /* IF CAN-DO(indx-fields,current-widget:NAME) THEN
                 ASSIGN
                     current-widget:BGCOLOR = 3
                     current-widget:FGCOLOR = 15
-                    .
+                    .*/
         END.
         current-widget = current-widget:NEXT-SIBLING.
     END.

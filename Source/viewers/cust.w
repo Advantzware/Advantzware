@@ -111,6 +111,10 @@ END.
 /* gdm - 11190903 */
 DEF VAR v-zipflg AS LOG NO-UNDO.
 
+DEFINE VARIABLE hdSalesManProcs AS HANDLE    NO-UNDO.
+
+RUN salrep/SalesManProcs.p PERSISTENT SET hdSalesManProcs.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -3311,20 +3315,24 @@ PROCEDURE valid-sman :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+   DEFINE VARIABLE lSuccess AS LOGICAL   NO-UNDO.
+   DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+   
   {methods/lValidateError.i YES}
-  FIND FIRST sman
-        WHERE sman.company  EQ cocode
-          AND sman.sman     EQ cust.sman:SCREEN-VALUE IN FRAME {&FRAME-NAME}
-          AND sman.inActive EQ NO
-        NO-LOCK NO-ERROR.
-
-    IF NOT AVAIL sman THEN DO:
-       MESSAGE "Inactive/Invalid Sales Rep. Try help." VIEW-AS ALERT-BOX ERROR.
-       APPLY "entry" TO cust.sman.
-       RETURN ERROR.
-    END.
-    sman_sname:SCREEN-VALUE = sman.sNAME.
-
+    RUN SalesMan_ValidateSalesRep IN hdSalesManProcs(  
+        INPUT  cocode,
+        INPUT  cust.sman:SCREEN-VALUE IN FRAME {&FRAME-NAME},
+        OUTPUT lSuccess,
+        OUTPUT cMessage
+        ).  
+    IF NOT lSuccess THEN DO:
+       MESSAGE cMessage
+       VIEW-AS ALERT-BOX ERROR.
+       APPLY "ENTRY" TO cust.sman.
+       RETURN ERROR.  
+    END. 
+    sman_sname:SCREEN-VALUE = DYNAMIC-FUNCTION("SalesMan_GetSalesmanName" IN hdSalesManProcs,cocode,cust.sman:SCREEN-VALUE).
+   
   {methods/lValidateError.i NO}
 END PROCEDURE.
 
