@@ -1927,22 +1927,22 @@ PROCEDURE one-row-query :
              + " AND ROWID(oe-ordl)    EQ " + "TO-ROWID(" + "'" + STRING(ip-rowid) + "')"
              + " AND oe-ordl.opened EQ YES AND oe-ordl.stat NE 'C'"
              + (IF custCount  NE "" THEN " AND ((LOOKUP(oe-ordl.cust-no," + QUOTER(custcount) + ") NE 0" + " AND oe-ordl.cust-no NE '') OR " + QUOTER(custcount) + " EQ '')" ELSE "")
-             + (IF fi_ord-no  NE 0  THEN " AND oe-ordl.ord-no  EQ "     + STRING(fi_ord-no)   ELSE "")
-             + (IF fi_cust-no NE "" THEN " AND oe-ordl.cust-no BEGINS " + QUOTER(fi_cust-no)  ELSE "")
-             + (IF fi_est-no  NE "" THEN " AND oe-ordl.est-no BEGINS "  + QUOTER(fi_est-no)   ELSE "")
-             + (IF fi_job-no  NE "" THEN " AND oe-ordl.job-no BEGINS "  + QUOTER(fi_job-no)   ELSE "")
-             + (IF fi_i-no    NE "" THEN " AND oe-ordl.i-no   BEGINS "  + QUOTER (fi_i-no)    ELSE "")
-             + (IF fi_part-no NE "" THEN " AND oe-ordl.part-no BEGINS " + QUOTER(fi_part-no)  ELSE "")
-             + (IF fi_po-no1  NE "" THEN " AND oe-ordl.po-no BEGINS "   + QUOTER(fi_po-no1)   ELSE "")
-             + (IF fi_sman    NE "" THEN " AND oe-ord.sman[1] BEGINS "  + QUOTER(fi_sman)     ELSE "")
-             + (IF fi_i-name  NE "" THEN " AND oe-ordl.i-name BEGINS "  + QUOTER(fi_i-name)   ELSE "")
+             + (IF fi_ord-no  NE 0  THEN " AND oe-ordl.ord-no   EQ "     + STRING(fi_ord-no)  ELSE "")
+             + (IF fi_cust-no NE "" THEN " AND oe-ordl.cust-no  BEGINS " + QUOTER(fi_cust-no) ELSE "")
+             + (IF fi_est-no  NE "" THEN " AND oe-ordl.est-no   BEGINS " + QUOTER(fi_est-no)  ELSE "")
+             + (IF fi_job-no  NE "" THEN " AND oe-ordl.job-no   BEGINS " + QUOTER(fi_job-no)  ELSE "")
+             + (IF fi_i-no    NE "" THEN " AND oe-ordl.i-no     BEGINS " + QUOTER (fi_i-no)   ELSE "")
+             + (IF fi_part-no NE "" THEN " AND oe-ordl.part-no  BEGINS " + QUOTER(fi_part-no) ELSE "")
+             + (IF fi_po-no1  NE "" THEN " AND oe-ordl.po-no    BEGINS " + QUOTER(fi_po-no1)  ELSE "")
+             + (IF fi_sman    NE "" THEN " AND oe-ordl.s-man[1] BEGINS " + QUOTER(fi_sman)    ELSE "")
+             + (IF fi_i-name  NE "" THEN " AND oe-ordl.i-name   BEGINS " + QUOTER(fi_i-name)  ELSE "")
              + ", FIRST oe-ord OF oe-ordl NO-LOCK"
              + "  WHERE oe-ord.opened EQ YES"
              + (IF tbOpened AND tbWeb THEN " " ELSE IF tbOpened THEN " AND oe-ord.stat NE 'W'" ELSE " AND oe-ord.stat EQ 'W'")
              + ", FIRST itemfg " + (IF fi_cad-no EQ "" THEN "OUTER-JOIN" ELSE "") + " NO-LOCK"
              + " WHERE itemfg.company EQ oe-ordl.company"
-             + " AND itemfg.i-no EQ oe-ordl.i-no"
-             + ( IF fi_cad-no NE "" THEN " AND itemfg.cad-no BEGINS fi_cad-no" ELSE "")
+             + "   AND itemfg.i-no    EQ oe-ordl.i-no"
+             + ( IF fi_cad-no NE "" THEN " AND itemfg.cad-no BEGINS " + QUOTER(fi_cad-no) ELSE "")
              + " BY " + pGetSortCondition(lv-sort-by) + ( IF ll-sort-asc THEN  "" ELSE " DESC") +  " BY oe-ordl.ord-no BY oe-ordl.i-no"
              .
                  
@@ -2078,7 +2078,7 @@ PROCEDURE pPrepareAndExecuteQuery :
                          + (IF fi_i-no    NE "" THEN " AND oe-ordl.i-no    BEGINS "  + QUOTER (fi_i-no)    ELSE "")
                          + (IF fi_part-no NE "" THEN " AND oe-ordl.part-no BEGINS "  + QUOTER(fi_part-no)  ELSE "")
                          + (IF fi_po-no1  NE "" THEN " AND oe-ordl.po-no   BEGINS "  + QUOTER(fi_po-no1)   ELSE "")
-                         + (IF fi_sman    NE "" THEN " AND oe-ord.sman[1]  BEGINS "  + QUOTER(fi_sman)     ELSE "")
+                         + (IF fi_sman    NE "" THEN " AND oe-ordl.s-man[1]  BEGINS "  + QUOTER(fi_sman)     ELSE "")
                          + (IF fi_i-name  NE "" THEN " AND oe-ordl.i-name  BEGINS "  + QUOTER(fi_i-name)   ELSE "")
                          + " BY oe-ord.rec_key DESC "
                          .
@@ -2104,7 +2104,7 @@ PROCEDURE pPrepareAndExecuteQuery :
                          + (IF fi_i-no    NE "" THEN " AND oe-ordl.i-no   BEGINS "  + QUOTER (fi_i-no)    ELSE "")
                          + (IF fi_part-no NE "" THEN " AND oe-ordl.part-no BEGINS " + QUOTER(fi_part-no)  ELSE "")
                          + (IF fi_po-no1  NE "" THEN " AND oe-ordl.po-no BEGINS "   + QUOTER(fi_po-no1)   ELSE "")
-                         + (IF fi_sman    NE "" THEN " AND oe-ord.sman[1] BEGINS "  + QUOTER(fi_sman)     ELSE "")
+                         + (IF fi_sman    NE "" THEN " AND oe-ordl.s-man[1] BEGINS " + QUOTER(fi_sman)     ELSE "")
                          + (IF fi_i-name  NE "" THEN " AND oe-ordl.i-name BEGINS "  + QUOTER(fi_i-name)   ELSE "")
                          + ", FIRST oe-ord OF oe-ordl NO-LOCK"
                          + "  WHERE oe-ord.opened EQ YES"
@@ -2112,8 +2112,9 @@ PROCEDURE pPrepareAndExecuteQuery :
                          + "  AND oe-ord.ord-date  GE " + STRING(fiOrderDate) 
                          + " BREAK BY oe-ordl.ord-no DESC"
                          .                    
-    END.                         
-    IF fi_ord-no EQ 0 THEN             
+    END.   
+    /* Limit the query if order no is 0 or cadd No is Blank */                    
+    IF fi_ord-no EQ 0 AND fi_cad-no EQ "" THEN             
         RUN Browse_PrepareAndExecuteLimitingQuery(
             INPUT  cLimitingQuery,   /* Query */
             INPUT  cQueryBuffers,    /* Buffers Name */
@@ -2127,7 +2128,7 @@ PROCEDURE pPrepareAndExecuteQuery :
             OUTPUT cResponse           
             ).       
   
-    ELSE IF fi_ord-no NE 0 THEN
+    ELSE 
         cResponse = "OrderNo". 
               
     IF cResponse EQ "" THEN  
@@ -2139,9 +2140,9 @@ PROCEDURE pPrepareAndExecuteQuery :
     
     ELSE DO:
         IF iplRecKeyCriteria THEN 
-            cBrowseWhereClause = (IF fi_ord-no EQ 0 THEN " AND oe-ordl.rec_key GE " +  QUOTER(cResponse) ELSE "").  
+            cBrowseWhereClause = (IF fi_ord-no EQ 0 AND fi_cad-no EQ "" THEN " AND oe-ordl.rec_key GE " +  QUOTER(cResponse) ELSE "").  
         ELSE
-            cBrowseWhereClause = (IF fi_ord-no EQ 0 THEN " AND oe-ordl.ord-no GE " + STRING(INTEGER(cResponse)) ELSE "").        
+            cBrowseWhereClause = (IF fi_ord-no EQ 0 AND fi_cad-no EQ "" THEN " AND oe-ordl.ord-no  GE " + STRING(INTEGER(cResponse)) ELSE "").        
                     
         cBrowseQuery = "FOR EACH oe-ordl NO-LOCK"
                        + " WHERE oe-ordl.company EQ " + QUOTER(cocode)
@@ -2156,7 +2157,7 @@ PROCEDURE pPrepareAndExecuteQuery :
                        + (IF fi_i-no    NE "" THEN " AND oe-ordl.i-no   BEGINS "  + QUOTER (fi_i-no)    ELSE "")
                        + (IF fi_part-no NE "" THEN " AND oe-ordl.part-no BEGINS " + QUOTER(fi_part-no)  ELSE "")
                        + (IF fi_po-no1  NE "" THEN " AND oe-ordl.po-no BEGINS "   + QUOTER(fi_po-no1)   ELSE "")
-                       + (IF fi_sman    NE "" THEN " AND oe-ord.sman[1] BEGINS "  + QUOTER(fi_sman)     ELSE "")
+                       + (IF fi_sman    NE "" THEN " AND oe-ordl.s-man[1] BEGINS "  + QUOTER(fi_sman)     ELSE "")
                        + (IF fi_i-name  NE "" THEN " AND oe-ordl.i-name BEGINS "  + QUOTER(fi_i-name)   ELSE "")
                        + ", FIRST oe-ord OF oe-ordl NO-LOCK"
                        + "  WHERE oe-ord.opened EQ YES"
@@ -2165,7 +2166,7 @@ PROCEDURE pPrepareAndExecuteQuery :
                        + ", FIRST itemfg " + (IF fi_cad-no EQ "" THEN "OUTER-JOIN" ELSE "") + " NO-LOCK"
                        + "  WHERE itemfg.company EQ oe-ordl.company"
                        + "    AND itemfg.i-no    EQ oe-ordl.i-no"
-                       + ( IF fi_cad-no NE "" THEN " AND itemfg.cad-no BEGINS fi_cad-no" ELSE "")
+                       + ( IF fi_cad-no NE "" THEN " AND itemfg.cad-no BEGINS " + QUOTER(fi_cad-no) ELSE "")
                        + " BY " + pGetSortCondition(lv-sort-by) + ( IF ll-sort-asc THEN  "" ELSE " DESC") +  " BY oe-ordl.ord-no BY oe-ordl.i-no"
                        .    
                                                         
@@ -2216,16 +2217,16 @@ PROCEDURE pPrepareAndExecuteQueryForPrevNext PRIVATE :
                          + ", FIRST oe-ordl of oe-ord NO-LOCK "
                          + "  WHERE oe-ordl.opened EQ YES AND oe-ordl.stat NE 'C'"
                          + (IF custCount  NE "" THEN " AND ((LOOKUP(oe-ordl.cust-no," + QUOTER(custcount) + ") NE 0" + " AND oe-ordl.cust-no NE '') OR " + QUOTER(custcount) + " EQ '')" ELSE "")
-                         + (IF fi_ord-no  NE 0  THEN " AND oe-ordl.ord-no  EQ "      + STRING(fi_ord-no)   ELSE "")
-                         + (IF fi_cust-no NE "" THEN " AND oe-ordl.cust-no BEGINS "  + QUOTER(fi_cust-no)  ELSE "")
-                         + (IF fi_est-no  NE "" THEN " AND oe-ordl.est-no  BEGINS "  + QUOTER(fi_est-no)   ELSE "")
-                         + (IF fi_job-no  NE "" THEN " AND oe-ordl.job-no  BEGINS "  + QUOTER(fi_job-no)   ELSE "")
-                         + (IF fi_job-no  NE "" AND fi_job-no2 NE 0 THEN " AND oe-ordl.job-no2 EQ " + STRING(fi_job-no2)  ELSE "")
-                         + (IF fi_i-no    NE "" THEN " AND oe-ordl.i-no    BEGINS "  + QUOTER (fi_i-no)    ELSE "")
-                         + (IF fi_part-no NE "" THEN " AND oe-ordl.part-no BEGINS "  + QUOTER(fi_part-no)  ELSE "")
-                         + (IF fi_po-no1  NE "" THEN " AND oe-ordl.po-no   BEGINS "  + QUOTER(fi_po-no1)   ELSE "")
-                         + (IF fi_sman    NE "" THEN " AND oe-ord.sman[1]  BEGINS "  + QUOTER(fi_sman)     ELSE "")
-                         + (IF fi_i-name  NE "" THEN " AND oe-ordl.i-name  BEGINS "  + QUOTER(fi_i-name)   ELSE "")
+                         + (IF fi_ord-no  NE 0  THEN " AND oe-ordl.ord-no   EQ "      + STRING(fi_ord-no)   ELSE "")
+                         + (IF fi_cust-no NE "" THEN " AND oe-ordl.cust-no  BEGINS "  + QUOTER(fi_cust-no)  ELSE "")
+                         + (IF fi_est-no  NE "" THEN " AND oe-ordl.est-no   BEGINS "  + QUOTER(fi_est-no)   ELSE "")
+                         + (IF fi_job-no  NE "" THEN " AND oe-ordl.job-no   BEGINS "  + QUOTER(fi_job-no)   ELSE "")
+                         + (IF fi_job-no  NE "" AND fi_job-no2 NE 0 THEN "  AND oe-ordl.job-no2 EQ " + STRING(fi_job-no2)  ELSE "")
+                         + (IF fi_i-no    NE "" THEN " AND oe-ordl.i-no     BEGINS "  + QUOTER (fi_i-no)    ELSE "")
+                         + (IF fi_part-no NE "" THEN " AND oe-ordl.part-no  BEGINS "  + QUOTER(fi_part-no)  ELSE "")
+                         + (IF fi_po-no1  NE "" THEN " AND oe-ordl.po-no    BEGINS "  + QUOTER(fi_po-no1)   ELSE "")
+                         + (IF fi_sman    NE "" THEN " AND oe-ordl.s-man[1] BEGINS "  + QUOTER(fi_sman)     ELSE "")
+                         + (IF fi_i-name  NE "" THEN " AND oe-ordl.i-name   BEGINS "  + QUOTER(fi_i-name)   ELSE "")
                          + " BY oe-ord.rec_key DESC"
                          .
     END.
@@ -2243,16 +2244,16 @@ PROCEDURE pPrepareAndExecuteQueryForPrevNext PRIVATE :
                          + " AND oe-ordl.opened EQ YES AND oe-ordl.stat NE 'C'"
                          + " AND oe-ordl.ord-no " + (IF iplPrevious THEN "LE " ELSE "GE ") + STRING(INTEGER(ipcValue))
                          + (IF custCount  NE "" THEN " AND ((LOOKUP(oe-ordl.cust-no," + QUOTER(custcount) + ") NE 0" + " AND oe-ordl.cust-no NE '') OR " + QUOTER(custcount) + " EQ '')" ELSE "")
-                         + (IF fi_ord-no  NE 0  THEN " AND oe-ordl.ord-no  EQ "     + STRING(fi_ord-no)   ELSE "")
-                         + (IF fi_cust-no NE "" THEN " AND oe-ordl.cust-no BEGINS " + QUOTER(fi_cust-no)  ELSE "")
-                         + (IF fi_est-no  NE "" THEN " AND oe-ordl.est-no BEGINS "  + QUOTER(fi_est-no)   ELSE "")
-                         + (IF fi_job-no  NE "" THEN " AND oe-ordl.job-no BEGINS "  + QUOTER(fi_job-no)   ELSE "")
-                         + (IF fi_job-no  NE "" AND fi_job-no2 NE 0 THEN " AND oe-ordl.job-no2 EQ " + STRING(fi_job-no2)  ELSE "")
-                         + (IF fi_i-no    NE "" THEN " AND oe-ordl.i-no   BEGINS "  + QUOTER (fi_i-no)    ELSE "")
-                         + (IF fi_part-no NE "" THEN " AND oe-ordl.part-no BEGINS " + QUOTER(fi_part-no)  ELSE "")
-                         + (IF fi_po-no1  NE "" THEN " AND oe-ordl.po-no BEGINS "   + QUOTER(fi_po-no1)   ELSE "")
-                         + (IF fi_sman    NE "" THEN " AND oe-ord.sman[1] BEGINS "  + QUOTER(fi_sman)     ELSE "")
-                         + (IF fi_i-name  NE "" THEN " AND oe-ordl.i-name BEGINS "  + QUOTER(fi_i-name)   ELSE "")
+                         + (IF fi_ord-no  NE 0  THEN " AND oe-ordl.ord-no   EQ "      + STRING(fi_ord-no)   ELSE "")
+                         + (IF fi_cust-no NE "" THEN " AND oe-ordl.cust-no  BEGINS "  + QUOTER(fi_cust-no)  ELSE "")
+                         + (IF fi_est-no  NE "" THEN " AND oe-ordl.est-no   BEGINS "  + QUOTER(fi_est-no)   ELSE "")
+                         + (IF fi_job-no  NE "" THEN " AND oe-ordl.job-no   BEGINS "  + QUOTER(fi_job-no)   ELSE "")
+                         + (IF fi_job-no  NE "" AND fi_job-no2 NE 0 THEN "  AND oe-ordl.job-no2 EQ " + STRING(fi_job-no2)  ELSE "")
+                         + (IF fi_i-no    NE "" THEN " AND oe-ordl.i-no     BEGINS "  + QUOTER (fi_i-no)    ELSE "")
+                         + (IF fi_part-no NE "" THEN " AND oe-ordl.part-no  BEGINS "  + QUOTER(fi_part-no)  ELSE "")
+                         + (IF fi_po-no1  NE "" THEN " AND oe-ordl.po-no    BEGINS "  + QUOTER(fi_po-no1)   ELSE "")
+                         + (IF fi_sman    NE "" THEN " AND oe-ordl.s-man[1] BEGINS "  + QUOTER(fi_sman)     ELSE "")
+                         + (IF fi_i-name  NE "" THEN " AND oe-ordl.i-name   BEGINS "  + QUOTER(fi_i-name)   ELSE "")
                          + ", FIRST oe-ord OF oe-ordl NO-LOCK"
                          + "  WHERE oe-ord.opened EQ YES"
                          + (IF tbOpened AND tbWeb THEN " " ELSE IF tbOpened THEN " AND oe-ord.stat NE 'W'" ELSE " AND oe-ord.stat EQ 'W'")
@@ -2293,16 +2294,16 @@ PROCEDURE pPrepareAndExecuteQueryForPrevNext PRIVATE :
                         +  cBrowseWhereClause
                         + " AND oe-ordl.opened EQ YES AND oe-ordl.stat NE 'C'"
                         + (IF custCount  NE "" THEN " AND ((LOOKUP(oe-ordl.cust-no," + QUOTER(custcount) + ") NE 0" + " AND oe-ordl.cust-no NE '') OR " + QUOTER(custcount) + " EQ '')" ELSE "")
-                        + (IF fi_ord-no  NE 0  THEN " AND oe-ordl.ord-no  EQ "     + STRING(fi_ord-no)   ELSE "")
-                        + (IF fi_cust-no NE "" THEN " AND oe-ordl.cust-no BEGINS " + QUOTER(fi_cust-no)  ELSE "")
-                        + (IF fi_est-no  NE "" THEN " AND oe-ordl.est-no BEGINS "  + QUOTER(fi_est-no)   ELSE "")
-                        + (IF fi_job-no  NE "" THEN " AND oe-ordl.job-no BEGINS "  + QUOTER(fi_job-no)   ELSE "")
-                        + (IF fi_job-no  NE "" AND fi_job-no2 NE 0 THEN " AND oe-ordl.job-no2 EQ " + STRING(fi_job-no2)  ELSE "")
-                        + (IF fi_i-no    NE "" THEN " AND oe-ordl.i-no   BEGINS "  + QUOTER (fi_i-no)    ELSE "")
-                        + (IF fi_part-no NE "" THEN " AND oe-ordl.part-no BEGINS " + QUOTER(fi_part-no)  ELSE "")
-                        + (IF fi_po-no1  NE "" THEN " AND oe-ordl.po-no BEGINS "   + QUOTER(fi_po-no1)   ELSE "")
-                        + (IF fi_sman    NE "" THEN " AND oe-ord.sman[1] BEGINS "  + QUOTER(fi_sman)     ELSE "")
-                        + (IF fi_i-name  NE "" THEN " AND oe-ordl.i-name BEGINS "  + QUOTER(fi_i-name)   ELSE "")
+                        + (IF fi_ord-no  NE 0  THEN " AND oe-ordl.ord-no   EQ "      + STRING(fi_ord-no)   ELSE "")
+                        + (IF fi_cust-no NE "" THEN " AND oe-ordl.cust-no  BEGINS "  + QUOTER(fi_cust-no)  ELSE "")
+                        + (IF fi_est-no  NE "" THEN " AND oe-ordl.est-no   BEGINS "  + QUOTER(fi_est-no)   ELSE "")
+                        + (IF fi_job-no  NE "" THEN " AND oe-ordl.job-no   BEGINS "  + QUOTER(fi_job-no)   ELSE "")
+                        + (IF fi_job-no  NE "" AND fi_job-no2 NE 0 THEN "  AND oe-ordl.job-no2 EQ " + STRING(fi_job-no2)  ELSE "")
+                        + (IF fi_i-no    NE "" THEN " AND oe-ordl.i-no     BEGINS "  + QUOTER (fi_i-no)    ELSE "")
+                        + (IF fi_part-no NE "" THEN " AND oe-ordl.part-no  BEGINS "  + QUOTER(fi_part-no)  ELSE "")
+                        + (IF fi_po-no1  NE "" THEN " AND oe-ordl.po-no    BEGINS "  + QUOTER(fi_po-no1)   ELSE "")
+                        + (IF fi_sman    NE "" THEN " AND oe-ordl.s-man[1] BEGINS "  + QUOTER(fi_sman)     ELSE "")
+                        + (IF fi_i-name  NE "" THEN " AND oe-ordl.i-name   BEGINS "  + QUOTER(fi_i-name)   ELSE "")
                         + ", FIRST oe-ord OF oe-ordl NO-LOCK"
                         + "  WHERE oe-ord.opened EQ YES"
                         + (IF tbOpened AND tbWeb THEN " " ELSE IF tbOpened THEN " AND oe-ord.stat NE 'W'" ELSE " AND oe-ord.stat EQ 'W'")
@@ -2310,7 +2311,7 @@ PROCEDURE pPrepareAndExecuteQueryForPrevNext PRIVATE :
                         + ", FIRST itemfg " + (IF fi_cad-no EQ "" THEN "OUTER-JOIN" ELSE "") + " NO-LOCK"
                         + "  WHERE itemfg.company EQ oe-ordl.company"
                         + "    AND itemfg.i-no    EQ oe-ordl.i-no"
-                        + ( IF fi_cad-no NE "" THEN " AND itemfg.cad-no BEGINS fi_cad-no" ELSE "")
+                        + ( IF fi_cad-no NE "" THEN " AND itemfg.cad-no BEGINS " + QUOTER(fi_cad-no) ELSE "")
                         + " BY " + pGetSortCondition(lv-sort-by) + ( IF ll-sort-asc THEN  "" ELSE " DESC") +  " BY oe-ordl.ord-no BY oe-ordl.i-no"
                         .   
                         
@@ -2347,16 +2348,16 @@ PROCEDURE pPrepareAndExecuteQueryForShowAll PRIVATE :
                     + " WHERE oe-ordl.company EQ " + QUOTER(cocode)
                     + " AND oe-ordl.opened EQ YES AND oe-ordl.stat NE 'C'"
                     + (IF custCount  NE "" THEN " AND ((LOOKUP(oe-ordl.cust-no," + QUOTER(custcount) + ") NE 0" + " AND oe-ordl.cust-no NE '') OR " + QUOTER(custcount) + " EQ '')" ELSE "")
-                    + (IF fi_ord-no  NE 0  THEN " AND oe-ordl.ord-no  EQ "     + STRING(fi_ord-no)   ELSE "")
-                    + (IF fi_cust-no NE "" THEN " AND oe-ordl.cust-no BEGINS " + QUOTER(fi_cust-no)  ELSE "")
-                    + (IF fi_est-no  NE "" THEN " AND oe-ordl.est-no BEGINS "  + QUOTER(fi_est-no)   ELSE "")
-                    + (IF fi_job-no  NE "" THEN " AND oe-ordl.job-no BEGINS "  + QUOTER(fi_job-no)   ELSE "")
-                    + (IF fi_job-no  NE "" AND fi_job-no2 NE 0 THEN " AND oe-ordl.job-no2 EQ " + STRING(fi_job-no2)  ELSE "")
-                    + (IF fi_i-no    NE "" THEN " AND oe-ordl.i-no   BEGINS "  + QUOTER(fi_i-no)     ELSE "")
-                    + (IF fi_part-no NE "" THEN " AND oe-ordl.part-no BEGINS " + QUOTER(fi_part-no)  ELSE "")
-                    + (IF fi_po-no1  NE "" THEN " AND oe-ordl.po-no BEGINS "   + QUOTER(fi_po-no1)   ELSE "")
-                    + (IF fi_sman    NE "" THEN " AND oe-ord.sman[1] BEGINS "  + QUOTER(fi_sman)     ELSE "")
-                    + (IF fi_i-name  NE "" THEN " AND oe-ordl.i-name BEGINS "  + QUOTER(fi_i-name)   ELSE "")
+                    + (IF fi_ord-no  NE 0  THEN " AND oe-ordl.ord-no   EQ "      + STRING(fi_ord-no)   ELSE "")
+                    + (IF fi_cust-no NE "" THEN " AND oe-ordl.cust-no  BEGINS "  + QUOTER(fi_cust-no)  ELSE "")
+                    + (IF fi_est-no  NE "" THEN " AND oe-ordl.est-no   BEGINS "  + QUOTER(fi_est-no)   ELSE "")
+                    + (IF fi_job-no  NE "" THEN " AND oe-ordl.job-no   BEGINS "  + QUOTER(fi_job-no)   ELSE "")
+                    + (IF fi_job-no  NE "" AND fi_job-no2 NE 0 THEN "  AND oe-ordl.job-no2 EQ " + STRING(fi_job-no2)  ELSE "")
+                    + (IF fi_i-no    NE "" THEN " AND oe-ordl.i-no     BEGINS "  + QUOTER(fi_i-no)     ELSE "")
+                    + (IF fi_part-no NE "" THEN " AND oe-ordl.part-no  BEGINS "  + QUOTER(fi_part-no)  ELSE "")
+                    + (IF fi_po-no1  NE "" THEN " AND oe-ordl.po-no    BEGINS "   + QUOTER(fi_po-no1)  ELSE "")
+                    + (IF fi_sman    NE "" THEN " AND oe-ordl.s-man[1] BEGINS "  + QUOTER(fi_sman)     ELSE "")
+                    + (IF fi_i-name  NE "" THEN " AND oe-ordl.i-name   BEGINS "  + QUOTER(fi_i-name)   ELSE "")
                     + ", FIRST oe-ord OF oe-ordl NO-LOCK"
                     + "  WHERE oe-ord.opened EQ YES"
                     + (IF tbOpened AND tbWeb THEN " " ELSE IF tbOpened THEN " AND oe-ord.stat NE 'W'" ELSE " AND oe-ord.stat EQ 'W'")
@@ -2364,7 +2365,7 @@ PROCEDURE pPrepareAndExecuteQueryForShowAll PRIVATE :
                     + ", FIRST itemfg " + (IF fi_cad-no EQ "" THEN "OUTER-JOIN" ELSE "") + " NO-LOCK"
                     + "  WHERE itemfg.company EQ oe-ordl.company"
                     + "    AND itemfg.i-no    EQ oe-ordl.i-no"
-                    + ( IF fi_cad-no NE "" THEN " AND itemfg.cad-no BEGINS fi_cad-no" ELSE "")
+                    + ( IF fi_cad-no NE "" THEN " AND itemfg.cad-no BEGINS " + QUOTER(fi_cad-no) ELSE "")
                     + " BY " + pGetSortCondition(lv-sort-by) + ( IF ll-sort-asc THEN  "" ELSE " DESC") +  " BY oe-ordl.ord-no BY oe-ordl.i-no"
                     .                
     RUN Browse_PrepareAndExecuteBrowseQuery(
