@@ -1180,14 +1180,17 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
   RUN enable_UI.
   dateValue = DATE(FRAME-VALUE) NO-ERROR.
+    IF INTEGER(YEAR(dateValue)) LT 1900 OR INTEGER(YEAR(dateValue)) GT 3000 THEN 
+    DO:
+        MESSAGE "Calendar year should be between 1900 to 3000 years. " VIEW-AS ALERT-BOX INFO .
+        RETURN .
+    END.
   IF dateValue EQ ? THEN
   dateValue = TODAY.
   DO WITH FRAME {&FRAME-NAME}:
     DO i = 1900 TO 3000:
       years:ADD-LAST(STRING(i)).
     END.
-      IF LOOKUP(STRING(YEAR(dateValue)),years:LIST-ITEMS, ",") LE 0 THEN       
-          years:ADD-LAST(STRING(YEAR(dateValue))).
     ASSIGN
       months:SCREEN-VALUE = months:ENTRY(MONTH(dateValue))
       years:SCREEN-VALUE = STRING(YEAR(dateValue))
