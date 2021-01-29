@@ -533,6 +533,7 @@ PROCEDURE local-view :
 
   /* Code placed here will execute AFTER standard behavior.    */
   RUN pShowParameterSets.
+  IF AVAILABLE dynParamValue AND dynParamValue.user-id NE "_default" THEN
   ENABLE {&outputObjects} WITH FRAME outputFrame.
 
 END PROCEDURE.
@@ -601,8 +602,22 @@ PROCEDURE pShowParameterSets :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  RUN pCreateDynParameters (FRAME {&FRAME-NAME}:HANDLE, YES).
-  FRAME {&FRAME-NAME}:MOVE-TO-TOP().
+    DEFINE VARIABLE hWidget AS HANDLE NO-UNDO.
+
+    RUN pCreateDynParameters (FRAME {&FRAME-NAME}:HANDLE, YES).
+    FRAME {&FRAME-NAME}:MOVE-TO-TOP().
+    IF AVAILABLE dynParamValue AND dynParamValue.user-id NE "_default" THEN
+    RETURN.
+    ASSIGN
+        hWidget = FRAME {&FRAME-NAME}:HANDLE
+        hWidget = hWidget:FIRST-CHILD
+        hWidget = hWidget:FIRST-CHILD
+        .
+    DO WHILE VALID-HANDLE(hWidget):
+        IF hWidget:SENSITIVE THEN
+        hWidget:SENSITIVE = NO.
+        hWidget = hWidget:NEXT-SIBLING.
+    END. /* do while */
 
 END PROCEDURE.
 
