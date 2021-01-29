@@ -724,8 +724,7 @@ RUN FileSys_CreateDirectory(
      OUTPUT lSuccess,
      OUTPUT cMessage
      ).  
-     MESSAGE cMessage
-     VIEW-AS ALERT-BOX.  
+ 
 RUN Output_TempTableToCSV IN hdOutputProcs (
     INPUT  TEMP-TABLE ttAPInv:HANDLE,
     INPUT  cFileLocation + "\Csv\ap-inv.csv",
