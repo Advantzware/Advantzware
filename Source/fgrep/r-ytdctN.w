@@ -352,7 +352,7 @@ DEFINE FRAME FRAME-A
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
-         TITLE              = "Finished Goods Sales Value By Customer By Tag"
+         TITLE              = "YTD Cost/Sales by Customer"
          HEIGHT             = 24.76
          WIDTH              = 95
          MAX-HEIGHT         = 33.29
@@ -463,7 +463,7 @@ THEN C-Win:HIDDEN = no.
 
 &Scoped-define SELF-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON END-ERROR OF C-Win /* Finished Goods Sales Value By Customer By Tag */
+ON END-ERROR OF C-Win /* YTD Cost/Sales by Customer */
 OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
   /* This case occurs when the user presses the "Esc" key.
      In a persistently run window, just ignore this.  If we did not, the
@@ -476,7 +476,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON WINDOW-CLOSE OF C-Win /* Finished Goods Sales Value By Customer By Tag */
+ON WINDOW-CLOSE OF C-Win /* YTD Cost/Sales by Customer */
 DO:
   /* This event will close the window and terminate the procedure.  */
   APPLY "CLOSE":U TO THIS-PROCEDURE.
