@@ -2014,11 +2014,7 @@ PROCEDURE local-cancel-record :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
-  IF ap-invl.actnum:BGCOLOR IN BROWSE {&browse-name} EQ 16 THEN 
-      ASSIGN 
-          ap-invl.actnum:BGCOLOR IN BROWSE {&browse-name}  = ?
-          ap-invl.actnum:FGCOLOR IN BROWSE {&browse-name}  = ?
-          .             
+  RUN presetColor NO-ERROR.            
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
@@ -2288,11 +2284,7 @@ PROCEDURE local-reset-record:
 ------------------------------------------------------------------------------*/
 
     /* Code placed here will execute PRIOR to standard behavior. */
-    IF ap-invl.actnum:BGCOLOR IN BROWSE {&browse-name} EQ 16 THEN 
-        ASSIGN 
-            ap-invl.actnum:BGCOLOR IN BROWSE {&browse-name}  = ?
-            ap-invl.actnum:FGCOLOR IN BROWSE {&browse-name}  = ?
-            .  
+    RUN presetColor NO-ERROR.  
     /* Dispatch standard ADM method.                             */
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'reset-record':U ) .
 
@@ -2537,6 +2529,27 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE presetColor B-table-Win
+PROCEDURE presetColor:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+    IF ap-invl.actnum:BGCOLOR IN BROWSE {&BROWSE-NAME} EQ 16 THEN             
+        ASSIGN 
+            ap-invl.actnum:BGCOLOR IN BROWSE {&BROWSE-NAME} = ?
+            ap-invl.actnum:FGCOLOR IN BROWSE {&BROWSE-NAME} = ?
+            .
+            
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE proc-control B-table-Win 
 PROCEDURE proc-control :
@@ -3001,11 +3014,7 @@ PROCEDURE valid-actnum :
             
       IF lSuccess = NO THEN DO:               
           MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.            
-          IF ap-invl.actnum:BGCOLOR IN BROWSE {&BROWSE-NAME} EQ 16 THEN             
-                ASSIGN 
-                    ap-invl.actnum:BGCOLOR IN BROWSE {&BROWSE-NAME} = ?
-                    ap-invl.actnum:FGCOLOR IN BROWSE {&BROWSE-NAME} = ?
-                   .
+          RUN presetColor NO-ERROR.
           APPLY "ENTRY" TO ap-invl.actnum IN BROWSE {&BROWSE-NAME}.       
           oplReturnError = YES.
       END.   
@@ -3019,12 +3028,8 @@ PROCEDURE valid-actnum :
           APPLY "ENTRY" TO ap-invl.actnum IN BROWSE {&BROWSE-NAME}.
           oplReturnError = YES.                      
       END.      
-      IF lActive = YES AND ap-invl.actnum:BGCOLOR IN BROWSE {&BROWSE-NAME} EQ 16 THEN             
-          ASSIGN 
-              ap-invl.actnum:BGCOLOR IN BROWSE {&BROWSE-NAME} = ?
-              ap-invl.actnum:FGCOLOR IN BROWSE {&BROWSE-NAME} = ?
-              .                                                          
-    
+      IF lActive = YES THEN 
+          RUN presetColor NO-ERROR.
       FIND FIRST account NO-LOCK
           WHERE account.company EQ g_company
             AND account.actnum  EQ ap-invl.actnum:SCREEN-VALUE IN BROWSE {&browse-name}

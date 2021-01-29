@@ -1681,6 +1681,29 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE presetColor Dialog-Frame
+PROCEDURE presetColor:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DO WITH FRAME {&FRAME-NAME}:
+        IF oe-ordm.actnum:BGCOLOR EQ 16 THEN             
+            ASSIGN 
+                oe-ordm.actnum:BGCOLOR = ?
+                oe-ordm.actnum:FGCOLOR = ?
+                .                             
+    END. 
+
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE show-comm Dialog-Frame 
 PROCEDURE show-comm :
     /*------------------------------------------------------------------------------
@@ -1713,19 +1736,35 @@ PROCEDURE valid-actnum :
       Parameters:  <none>
       Notes:       
     ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lValid    AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage  AS CHARACTER NO-UNDO.    
+    DEFINE VARIABLE hValidate AS HANDLE    NO-UNDO.
+    
+    RUN util/Validate.p PERSISTENT SET hValidate.
 
-    DO WITH FRAME {&FRAME-NAME}:
-        IF oe-ordm.actnum:SCREEN-VALUE EQ "" OR
-            NOT CAN-FIND(FIRST account
-            WHERE account.company EQ oe-ord.company 
-            AND account.actnum  EQ oe-ordm.actnum:SCREEN-VALUE
-            /*AND account.type    EQ "R"*/)
-            THEN 
-        DO:
-            MESSAGE "Invalid entry, try help..." VIEW-AS ALERT-BOX ERROR.
-            APPLY "entry" TO oe-ordm.actnum IN FRAME {&FRAME-NAME}.
-            RETURN ERROR.
-        END.
+    DO WITH FRAME {&FRAME-NAME}:        
+        
+        RUN pIsValidGLAccount IN hValidate (
+            INPUT  oe-ordm.actnum:SCREEN-VALUE, 
+            INPUT  YES, 
+            INPUT  oe-ord.company, 
+            OUTPUT lValid, 
+            OUTPUT cMessage
+            ) NO-ERROR.        
+        IF NOT lValid THEN DO:
+            MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
+            RUN presetColor NO-ERROR.
+            IF INDEX(cMessage, "Inactive") GT 0 THEN 
+                ASSIGN 
+                    oe-ordm.actnum:BGCOLOR = 16
+                    oe-ordm.actnum:FGCOLOR = 15
+                    .                    
+            APPLY "ENTRY" TO oe-ordm.actnum.
+            RETURN ERROR.   
+        END.               
+       
+        IF lValid THEN 
+            RUN presetColor NO-ERROR.           
     END.
 
 END PROCEDURE.

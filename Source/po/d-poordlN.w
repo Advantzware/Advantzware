@@ -4317,11 +4317,7 @@ PROCEDURE local-cancel-record :
 ------------------------------------------------------------------------------*/
     
     /* Code placed here will execute PRIOR to standard behavior. */
-    IF po-ordl.actnum:BGCOLOR IN FRAME {&FRAME-NAME} EQ 16 THEN 
-        ASSIGN 
-            po-ordl.actnum:BGCOLOR IN FRAME {&FRAME-NAME} = ?
-            po-ordl.actnum:FGCOLOR IN FRAME {&FRAME-NAME} = ?
-            .
+    RUN presetColor NO-ERROR.
     /* Dispatch standard ADM method.                             */
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .   
   
@@ -5161,6 +5157,28 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE presetColor Dialog-Frame
+PROCEDURE presetColor:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DO WITH FRAME {&FRAME-NAME}:
+        IF po-ordl.actnum:BGCOLOR EQ 16 THEN             
+            ASSIGN 
+                po-ordl.actnum:BGCOLOR = ?
+                po-ordl.actnum:FGCOLOR = ?
+                .
+    END.        
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE replace-job-mat Dialog-Frame 
 PROCEDURE replace-job-mat :
 /*------------------------------------------------------------------------------
@@ -5715,38 +5733,26 @@ PROCEDURE valid-actnum :
         
         IF po-ordl.actnum:SCREEN-VALUE EQ "" AND lSuccess = NO THEN DO:
             MESSAGE cMessage VIEW-AS ALERT-BOX ERROR. 
-            IF po-ordl.actnum:BGCOLOR EQ 16 THEN             
-                ASSIGN 
-                    po-ordl.actnum:BGCOLOR = ?
-                    po-ordl.actnum:FGCOLOR = ?
-                   .
+            RUN presetColor NO-ERROR.
             APPLY "ENTRY" TO po-ordl.actnum.
             RETURN ERROR.
         END.    
         IF v-default-gl-log AND lSuccess = NO THEN DO:               
             MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.            
-            IF po-ordl.actnum:BGCOLOR EQ 16 THEN             
-                ASSIGN 
-                    po-ordl.actnum:BGCOLOR = ?
-                    po-ordl.actnum:FGCOLOR = ?
-                   .
+            RUN presetColor NO-ERROR.
             APPLY "ENTRY" TO po-ordl.actnum.       
             RETURN ERROR. 
         END.      
-        IF lSuccess = YES AND lActive = NO THEN DO:  
+        IF lSuccess = YES AND lActive = NO THEN DO: 
+                MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.  
                 ASSIGN 
                     po-ordl.actnum:BGCOLOR = 16
                     po-ordl.actnum:FGCOLOR = 15
-                    .  
-                MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.            
+                    .                            
                 APPLY "ENTRY" TO po-ordl.actnum.
                 RETURN ERROR.                      
         END.      
-        IF lActive = YES AND po-ordl.actnum:BGCOLOR EQ 16 THEN             
-            ASSIGN 
-                po-ordl.actnum:BGCOLOR = ?
-                po-ordl.actnum:FGCOLOR = ?
-                .                               
+        RUN presetColor NO-ERROR.                             
     END.
   
 END PROCEDURE.
