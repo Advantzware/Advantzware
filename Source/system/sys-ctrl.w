@@ -217,13 +217,13 @@ DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btnExport 
      IMAGE-UP FILE "Graphics/32x32/export.png":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/export_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/export_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Export" 
      SIZE 8 BY 1.91 TOOLTIP "Export".
 
 DEFINE BUTTON btnImport 
      IMAGE-UP FILE "Graphics/32x32/import.png":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/import_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/import_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Import" 
      SIZE 8 BY 1.91 TOOLTIP "Import".
 
@@ -363,8 +363,8 @@ DEFINE VARIABLE lExactMatch AS LOGICAL
      SIZE 45 BY 1 TOOLTIP "Select How to Apply Filter Value(s)" NO-UNDO.
 
 DEFINE BUTTON btnAdd-2 
-     IMAGE-UP FILE "Graphics/32x32/navigate_plus.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_plus_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/navigate_plus.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_plus_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Add" 
      SIZE 8 BY 1.91 TOOLTIP "Add".
 
@@ -374,26 +374,26 @@ DEFINE BUTTON btnCalendar-2
      SIZE 4.2 BY 1 TOOLTIP "PopUp Calendar".
 
 DEFINE BUTTON btnCancel-2 
-     IMAGE-UP FILE "Graphics/32x32/navigate_cross.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_cross_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/navigate_cross.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_cross_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Cancel" 
      SIZE 8 BY 1.91 TOOLTIP "Cancel".
 
 DEFINE BUTTON btnCopy-2 
-     IMAGE-UP FILE "Graphics/32x32/element_copy.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/element_copy_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/element_copy.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/element_copy_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Copy" 
      SIZE 8 BY 1.91 TOOLTIP "Copy".
 
 DEFINE BUTTON btnDelete-2 
-     IMAGE-UP FILE "Graphics/32x32/navigate_minus.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_minus_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/garbage_can.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/garbage_can_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Delete" 
      SIZE 8 BY 1.91 TOOLTIP "Delete".
 
 DEFINE BUTTON btnFirst-2 
-     IMAGE-UP FILE "Graphics/32x32/navigate_beginning.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_beginning_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/navigate_beginning.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_beginning_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "First" 
      SIZE 8 BY 1.91 TOOLTIP "First".
 
@@ -403,32 +403,32 @@ DEFINE BUTTON btnForms-2
      SIZE 4.4 BY 1.05 TOOLTIP "Close".
 
 DEFINE BUTTON btnLast-2 
-     IMAGE-UP FILE "Graphics/32x32/navigate_end.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_end_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/navigate_end.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_end_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Last" 
      SIZE 8 BY 1.91 TOOLTIP "Last".
 
 DEFINE BUTTON btnNext-2 
-     IMAGE-UP FILE "Graphics/32x32/navigate_right.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_right_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/navigate_right.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_right_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Next" 
      SIZE 8 BY 1.91 TOOLTIP "Next".
 
 DEFINE BUTTON btnPrev-2 
-     IMAGE-UP FILE "Graphics/32x32/navigate_left.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_left_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/navigate_left.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_left_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Previous" 
      SIZE 8 BY 1.91 TOOLTIP "Previous".
 
 DEFINE BUTTON btnReset-2 
-     IMAGE-UP FILE "Graphics/32x32/undo_32.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/undo_32_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/undo_32.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/undo_32_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Reset" 
      SIZE 8 BY 1.91 TOOLTIP "Reset".
 
 DEFINE BUTTON btnUpdate-2 
-     IMAGE-UP FILE "Graphics/32x32/pencil.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/pencil_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/pencil.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/pencil_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Update" 
      SIZE 8 BY 1.91 TOOLTIP "Update/Save".
 
@@ -458,8 +458,8 @@ DEFINE RECTANGLE transPanel-4
      BGCOLOR 15 .
 
 DEFINE BUTTON btnAdd 
-     IMAGE-UP FILE "Graphics/32x32/navigate_plus.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_plus_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/navigate_plus.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_plus_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Add" 
      SIZE 8 BY 1.91 TOOLTIP "Add".
 
@@ -469,8 +469,8 @@ DEFINE BUTTON btnCalendar-1
      SIZE 4.2 BY 1 TOOLTIP "PopUp Calendar".
 
 DEFINE BUTTON btnCancel 
-     IMAGE-UP FILE "Graphics/32x32/navigate_cross.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_cross_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/navigate_cross.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_cross_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Cancel" 
      SIZE 8 BY 1.91 TOOLTIP "Cancel".
 
@@ -480,62 +480,62 @@ DEFINE BUTTON btnClose
      SIZE 4.2 BY 1 TOOLTIP "Close".
 
 DEFINE BUTTON btnCopy 
-     IMAGE-UP FILE "Graphics/32x32/element_copy.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics\32x32\form_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/element_copy.png":U
+     IMAGE-INSENSITIVE FILE "Graphics\32x32\element_copy_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Copy" 
      SIZE 8 BY 1.91 TOOLTIP "Copy".
 
 DEFINE BUTTON btnDefaults 
-     IMAGE-UP FILE "Graphics/32x32/refresh.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/refresh_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/refresh.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/refresh_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Defaults" 
      SIZE 8 BY 1.91 TOOLTIP "Restore Defaults".
 
 DEFINE BUTTON btnDelete 
-     IMAGE-UP FILE "Graphics/32x32/navigate_minus.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_minus_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/garbage_can.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/garbage_can_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Delete" 
      SIZE 8 BY 1.91 TOOLTIP "Delete".
 
 DEFINE BUTTON btnFirst-1 
-     IMAGE-UP FILE "Graphics/32x32/navigate_beginning.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_beginning_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/navigate_beginning.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_beginning_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "First" 
      SIZE 8 BY 1.91 TOOLTIP "First".
 
 DEFINE BUTTON btnForms 
-     IMAGE-UP FILE "Graphics/32x32/form.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/form_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/documents_exchange.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/documents_exchange_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Forms" 
      SIZE 8 BY 1.91 TOOLTIP "Forms".
 
 DEFINE BUTTON btnLast-1 
-     IMAGE-UP FILE "Graphics/32x32/navigate_end.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_end_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/navigate_end.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_end_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Last" 
      SIZE 8 BY 1.91 TOOLTIP "Last".
 
 DEFINE BUTTON btnNext-1 
-     IMAGE-UP FILE "Graphics/32x32/navigate_right.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_right_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/navigate_right.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_right_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Next" 
      SIZE 8 BY 1.91 TOOLTIP "Next".
 
 DEFINE BUTTON btnPrev-1 
-     IMAGE-UP FILE "Graphics/32x32/navigate_left.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_left_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/navigate_left.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_left_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Previous" 
      SIZE 8 BY 1.91 TOOLTIP "Previous".
 
 DEFINE BUTTON btnReset 
-     IMAGE-UP FILE "Graphics/32x32/undo_32.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/undo_32_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/undo_32.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/undo_32_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Reset" 
      SIZE 8 BY 1.91 TOOLTIP "Reset".
 
 DEFINE BUTTON btnUpdate 
-     IMAGE-UP FILE "Graphics/32x32/pencil.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/pencil_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/pencil.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/pencil_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Update" 
      SIZE 8 BY 1.91 TOOLTIP "Update/Save".
 
@@ -728,9 +728,9 @@ DEFINE BROWSE sysCtrlShipToBrowse
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
+     svFocus AT ROW 1 COL 1 NO-LABEL WIDGET-ID 4
      btnExport AT ROW 27.43 COL 11 HELP
           "Export" WIDGET-ID 36
-     svFocus AT ROW 1 COL 1 NO-LABEL WIDGET-ID 4
      searchBar AT ROW 1 COL 54 COLON-ALIGNED HELP
           "Search" WIDGET-ID 6
      sysCtrlBrowse AT ROW 2 COL 39 WIDGET-ID 300
@@ -748,9 +748,9 @@ DEFINE FRAME DEFAULT-FRAME
          FGCOLOR 1  WIDGET-ID 100.
 
 DEFINE FRAME viewFrame
-     cCategory AT ROW 1.24 COL 18 COLON-ALIGNED WIDGET-ID 2
      btnFirst-1 AT ROW 9.81 COL 69 HELP
           "First" WIDGET-ID 274
+     cCategory AT ROW 1.24 COL 18 COLON-ALIGNED WIDGET-ID 2
      cSubcategory AT ROW 1.24 COL 58 COLON-ALIGNED WIDGET-ID 12
      iSecurityLevelUser AT ROW 1.24 COL 92 COLON-ALIGNED WIDGET-ID 10
      iSecurityLevelDefault AT ROW 1.24 COL 102 COLON-ALIGNED WIDGET-ID 44
@@ -758,24 +758,24 @@ DEFINE FRAME viewFrame
      cTypeCode AT ROW 2.43 COL 58 COLON-ALIGNED WIDGET-ID 14
      cModule AT ROW 2.43 COL 99 COLON-ALIGNED WIDGET-ID 6
      cDescrip AT ROW 3.62 COL 18 COLON-ALIGNED WIDGET-ID 4
+     btnLast-1 AT ROW 9.81 COL 93 HELP
+          "Last" WIDGET-ID 68
      cFieldDescrip AT ROW 4.81 COL 18 COLON-ALIGNED WIDGET-ID 40
-     hLogical AT ROW 6 COL 20 NO-LABEL WIDGET-ID 64
-     hInteger AT ROW 6 COL 18 COLON-ALIGNED HELP
-          "Enter Integer Value" NO-LABEL WIDGET-ID 62
-     hDecimal AT ROW 6 COL 18 COLON-ALIGNED HELP
-          "Enter Decimal Value" NO-LABEL WIDGET-ID 60
      cFieldValue AT ROW 6 COL 18 COLON-ALIGNED WIDGET-ID 30
      hDate AT ROW 6 COL 18 COLON-ALIGNED HELP
           "Enter Date Value" NO-LABEL WIDGET-ID 58
+     hInteger AT ROW 6 COL 18 COLON-ALIGNED HELP
+          "Enter Integer Value" NO-LABEL WIDGET-ID 62
+     hLogical AT ROW 6 COL 20 NO-LABEL WIDGET-ID 64
+     btnNext-1 AT ROW 9.81 COL 85 HELP
+          "Next" WIDGET-ID 276
+     hDecimal AT ROW 6 COL 18 COLON-ALIGNED HELP
+          "Enter Decimal Value" NO-LABEL WIDGET-ID 60
      cFieldDefault AT ROW 7.19 COL 18 COLON-ALIGNED WIDGET-ID 42
      ctableSource AT ROW 8.38 COL 18 COLON-ALIGNED WIDGET-ID 46
      cfieldSource AT ROW 8.38 COL 54 COLON-ALIGNED WIDGET-ID 48
      cDataType AT ROW 8.38 COL 94 COLON-ALIGNED HELP
           "Select Data Type" WIDGET-ID 52
-     btnLast-1 AT ROW 9.81 COL 93 HELP
-          "Last" WIDGET-ID 68
-     btnNext-1 AT ROW 9.81 COL 85 HELP
-          "Next" WIDGET-ID 276
      btnPrev-1 AT ROW 9.81 COL 77 HELP
           "Previous" WIDGET-ID 278
      btnClose AT ROW 1.24 COL 113 HELP
@@ -885,6 +885,8 @@ DEFINE FRAME viewFormFrame
           VIEW-AS FILL-IN 
           SIZE 14.2 BY 1
           BGCOLOR 15 
+     btnForms-2 AT ROW 1 COL 138 HELP
+          "Close" WIDGET-ID 72
      ship_name AT ROW 3.62 COL 36 COLON-ALIGNED NO-LABEL WIDGET-ID 74
      sys-ctrl-shipto.descrip AT ROW 4.81 COL 21 COLON-ALIGNED WIDGET-ID 46 FORMAT "x(256)"
           VIEW-AS FILL-IN 
@@ -918,8 +920,6 @@ DEFINE FRAME viewFormFrame
 "No", no,
 "Unknown", ?
           SIZE 28 BY 1
-     btnForms-2 AT ROW 1 COL 138 HELP
-          "Close" WIDGET-ID 72
      btnLast-2 AT ROW 9.57 COL 133 HELP
           "Last" WIDGET-ID 68
      btnNext-2 AT ROW 9.57 COL 125 HELP
@@ -1006,11 +1006,13 @@ ASSIGN FRAME filterFrame:FRAME = FRAME DEFAULT-FRAME:HANDLE
 
 DEFINE VARIABLE XXTABVALXX AS LOGICAL NO-UNDO.
 
-ASSIGN XXTABVALXX = FRAME searchFrame:MOVE-BEFORE-TAB-ITEM (svFocus:HANDLE IN FRAME DEFAULT-FRAME)
-       XXTABVALXX = FRAME filterFrame:MOVE-AFTER-TAB-ITEM (svFocus:HANDLE IN FRAME DEFAULT-FRAME)
+ASSIGN XXTABVALXX = FRAME filterFrame:MOVE-AFTER-TAB-ITEM (svFocus:HANDLE IN FRAME DEFAULT-FRAME)
+       XXTABVALXX = FRAME formsFrame:MOVE-BEFORE-TAB-ITEM (searchBar:HANDLE IN FRAME DEFAULT-FRAME)
+       XXTABVALXX = FRAME searchFrame:MOVE-BEFORE-TAB-ITEM (FRAME formsFrame:HANDLE)
+       XXTABVALXX = FRAME filterFrame:MOVE-BEFORE-TAB-ITEM (FRAME searchFrame:HANDLE)
 /* END-ASSIGN-TABS */.
 
-/* BROWSE-TAB sysCtrlBrowse searchBar DEFAULT-FRAME */
+/* BROWSE-TAB sysCtrlBrowse RECT-1 DEFAULT-FRAME */
 /* SETTINGS FOR BUTTON btnExport IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
 /* SETTINGS FOR BUTTON btnImport IN FRAME DEFAULT-FRAME
@@ -3368,7 +3370,7 @@ PROCEDURE pCRUD :
                     cFieldValue:SENSITIVE    = NO
                     .
                 hFieldValue:MOVE-TO-TOP().
-                btnUpdate:LOAD-IMAGE("Graphics\32x32\Save_As.ico").
+                btnUpdate:LOAD-IMAGE("Graphics\32x32\floppy_disk.png").
                 IF iphMode:LABEL EQ "Add" THEN DO:
                     ASSIGN
                         hWidget = FRAME viewFrame:HANDLE
@@ -3548,7 +3550,7 @@ PROCEDURE pCRUD :
                 END. /* save */
                 DISABLE {&transPanel} {&enabledFields} cDataType.
                 ENABLE {&transInit}.
-                btnUpdate:LOAD-IMAGE("Graphics\32x32\Pencil.ico").
+                btnUpdate:LOAD-IMAGE("Graphics\32x32\pencil.png").
                 ASSIGN
                     FRAME viewFrame:TITLE          = "View"
                     btnUpdate:LABEL                = "Update"
@@ -3670,7 +3672,7 @@ btnCancel-2 btnForms-2 btnFirst-2 btnPrev-2 btnNext-2 btnLast-2 btnCalendar-2
                 BROWSE sysCtrlShipToBrowse:SENSITIVE = NO.
                 ENABLE {&transUpdate-2}.
                 ENABLE {&FIELDS-IN-QUERY-viewFormFrame}.
-                btnUpdate-2:LOAD-IMAGE("Graphics\32x32\Save_As.ico").
+                btnUpdate-2:LOAD-IMAGE("Graphics\32x32\floppy_disk.png").
                 IF iphMode:LABEL EQ "Add" THEN DO:
                     ASSIGN
                         hWidget = FRAME viewFormFrame:HANDLE
@@ -3754,7 +3756,7 @@ btnCancel-2 btnForms-2 btnFirst-2 btnPrev-2 btnNext-2 btnLast-2 btnCalendar-2
                 END. /* save */
                 DISABLE {&transPanel-2} {&FIELDS-IN-QUERY-viewFormFrame}.
                 ENABLE {&transInit-2}.
-                btnUpdate-2:LOAD-IMAGE("Graphics\32x32\Pencil.ico").
+                btnUpdate-2:LOAD-IMAGE("Graphics\32x32\Pencil.png").
                 ASSIGN
                     cMode = iphMode:LABEL
                     FRAME viewFormFrame:TITLE = "View"

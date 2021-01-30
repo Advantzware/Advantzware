@@ -181,12 +181,6 @@ DEFINE BUTTON btnRunResults
      LABEL "Results Grid" 
      SIZE 8 BY 1.91 TOOLTIP "Results Grid".
 
-DEFINE BUTTON btnSave 
-     IMAGE-UP FILE "Graphics/32x32/floppy_disk.png":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/floppy_disk_disabled.png":U NO-FOCUS FLAT-BUTTON
-     LABEL "Save" 
-     SIZE 8 BY 1.91 TOOLTIP "Save".
-
 DEFINE BUTTON btnSaveAs 
      IMAGE-UP FILE "Graphics/32x32/floppy_disks.png":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/floppy_disks_disabled.png":U NO-FOCUS FLAT-BUTTON
@@ -246,7 +240,7 @@ DEFINE RECTANGLE RECT-OPTIONS
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     btnTaskerHTML AT ROW 1.24 COL 53 HELP
+     btnTaskerHTML AT ROW 1.24 COL 49 HELP
           "Tasker HTML Page" WIDGET-ID 680
      btnCSV AT ROW 1.24 COL 93 HELP
           "Excel CSV" WIDGET-ID 140
@@ -270,19 +264,17 @@ DEFINE FRAME F-Main
           "Exit" WIDGET-ID 288
      btnPageFormat AT ROW 1.24 COL 65 HELP
           "Page Format" WIDGET-ID 652
-     btnSave AT ROW 1.24 COL 2 HELP
-          "Save" WIDGET-ID 248
-     btnSaveAs AT ROW 1.24 COL 10 HELP
+     btnSaveAs AT ROW 1.24 COL 2 HELP
           "Save As" WIDGET-ID 674
-     btnScheduleTask AT ROW 1.24 COL 18 HELP
+     btnScheduleTask AT ROW 1.24 COL 10 HELP
           "Schedule Task" WIDGET-ID 252
-     btnFavorite AT ROW 1.24 COL 42 HELP
+     btnFavorite AT ROW 1.24 COL 34 HELP
           "Favorite" WIDGET-ID 672
-     btnDeleteTask AT ROW 1.24 COL 34 HELP
+     btnDeleteTask AT ROW 1.24 COL 26 HELP
           "Delete Task" WIDGET-ID 260
-     btnSubjctAttr AT ROW 1.24 COL 26 HELP
+     btnSubjctAttr AT ROW 1.24 COL 18 HELP
           "Set Subject Attributes" WIDGET-ID 286
-     RECT-1 AT ROW 1.24 COL 51
+     RECT-1 AT ROW 1.24 COL 43
      RECT-OPTIONS AT ROW 1.24 COL 151
      RECT-2 AT ROW 1.24 COL 63 WIDGET-ID 676
      RECT-3 AT ROW 1.24 COL 75 WIDGET-ID 678
@@ -401,8 +393,6 @@ ASSIGN
        btnRunResults:PRIVATE-DATA IN FRAME F-Main     = 
                 "Grid".
 
-/* SETTINGS FOR BUTTON btnSave IN FRAME F-Main
-   NO-ENABLE                                                            */
 /* SETTINGS FOR BUTTON btnSaveAs IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR BUTTON btnScheduleTask IN FRAME F-Main
@@ -594,18 +584,6 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btnSave
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnSave W-Win
-ON CHOOSE OF btnSave IN FRAME F-Main /* Save */
-DO:
-    RUN pSave IN h_userparam.
-    RUN pSave IN h_usercols.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &Scoped-define SELF-NAME btnSaveAs
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnSaveAs W-Win
 ON CHOOSE OF btnSaveAs IN FRAME F-Main /* Save As */
@@ -707,10 +685,6 @@ DEFINE SUB-MENU m_Options ~
     .
 
 &Scoped-define mOptionsTriggers ~
-ON CHOOSE OF MENU-ITEM m_Save ~
-DO: ~
-    APPLY "CHOOSE":U TO btnSave IN FRAME {&FRAME-NAME}. ~
-END. ~
 ON CHOOSE OF MENU-ITEM m_SaveAs ~
 DO: ~
     APPLY "CHOOSE":U TO btnSaveAs IN FRAME {&FRAME-NAME}. ~
@@ -1190,7 +1164,6 @@ PROCEDURE pSetButtons :
             iplAvailable              = iplAvailable AND ipcUserID EQ USERID("ASI")
             btnDeleteTask:SENSITIVE   = iplAvailable
             btnFavorite:SENSITIVE     = iplAvailable
-            btnSave:SENSITIVE         = iplAvailable
             btnSubjctAttr:SENSITIVE   = iplAvailable
             MENU-ITEM m_SubjctAttr:SENSITIVE   IN MENU MENU-BAR-{&WINDOW-NAME} = btnSubjctAttr:SENSITIVE
             MENU-ITEM m_CSV:SENSITIVE          IN MENU MENU-BAR-{&WINDOW-NAME} = btnCSV:SENSITIVE
@@ -1203,7 +1176,6 @@ PROCEDURE pSetButtons :
             MENU-ITEM m_PDF:SENSITIVE          IN MENU MENU-BAR-{&WINDOW-NAME} = btnPDF:SENSITIVE
             MENU-ITEM m_Print:SENSITIVE        IN MENU MENU-BAR-{&WINDOW-NAME} = btnPrint:SENSITIVE
             MENU-ITEM m_RunResults:SENSITIVE   IN MENU MENU-BAR-{&WINDOW-NAME} = btnRunResults:SENSITIVE
-            MENU-ITEM m_Save:SENSITIVE         IN MENU MENU-BAR-{&WINDOW-NAME} = btnSave:SENSITIVE
             MENU-ITEM m_SaveAs:SENSITIVE       IN MENU MENU-BAR-{&WINDOW-NAME} = btnSaveAs:SENSITIVE
             MENU-ITEM m_ScheduleTask:SENSITIVE IN MENU MENU-BAR-{&WINDOW-NAME} = btnScheduleTask:SENSITIVE
             MENU-ITEM m_View:SENSITIVE         IN MENU MENU-BAR-{&WINDOW-NAME} = btnView:SENSITIVE
