@@ -659,12 +659,13 @@ END.
 /* ***************************  Main Block  *************************** */
 
 &Scoped-define mFileItems ~
-MENU-ITEM m_Save LABEL "Save" ~
 MENU-ITEM m_SaveAs LABEL "Save As" ~
 MENU-ITEM m_ScheduleTask LABEL "Schedule" ~
 MENU-ITEM m_SubjctAttr LABEL "Attributes" ~
 MENU-ITEM m_DeleteTask LABEL "Delete" ~
 MENU-ITEM m_Favorite LABEL "Favorite" ~
+RULE ~
+MENU-ITEM m_TaskerHTML LABEL "User Tasks Page" ~
 RULE
 
 &Scoped-define mOptionsItems ~
@@ -704,6 +705,10 @@ END. ~
 ON CHOOSE OF MENU-ITEM m_Favorite ~
 DO: ~
     APPLY "CHOOSE":U TO btnFavorite IN FRAME {&FRAME-NAME}. ~
+END. ~
+ON CHOOSE OF MENU-ITEM m_TaskerHTML ~
+DO: ~
+    APPLY "CHOOSE":U TO btnTaskerHTML IN FRAME {&FRAME-NAME}. ~
 END. ~
 ON CHOOSE OF MENU-ITEM m_RunResults ~
 DO: ~
@@ -1134,9 +1139,9 @@ PROCEDURE pSetButtons :
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER iplAvailable    AS LOGICAL   NO-UNDO.
-    DEFINE INPUT PARAMETER ipcUserID       AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER iplFavorite     AS LOGICAL   NO-UNDO.
+    DEFINE INPUT PARAMETER iplAvailable AS LOGICAL   NO-UNDO.
+    DEFINE INPUT PARAMETER ipcUserID    AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER iplFavorite  AS LOGICAL   NO-UNDO.
 
     IF iplAvailable THEN DO:
         RUN enable-folder-page IN h_folder (2).
@@ -1215,12 +1220,14 @@ PROCEDURE pTaskerHTML:
     DEFINE VARIABLE cFile AS CHARACTER NO-UNDO.
 
     FIND FIRST config NO-LOCK.
+    IF config.taskerHTMLFolder EQ "" THEN RETURN.
     ASSIGN
         cFile = config.taskerHTMLFolder + "\tasker-" + USERID("ASI") + ".htm"
         cFile = IF SEARCH(cFile) NE ? THEN cFile ELSE REPLACE(cFile,USERID("ASI"),"ALL")
         FILE-INFO:FILE-NAME = SEARCH(cFile)
         cFile = FILE-INFO:FULL-PATHNAME
         .
+    IF SEARCH(cFile) NE ? THEN
     OS-COMMAND NO-WAIT start VALUE(cFile).
 
 END PROCEDURE.
