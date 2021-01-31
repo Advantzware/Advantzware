@@ -917,6 +917,7 @@ PROCEDURE pHTMLTasks :
     DEFINE BUFFER bTaskResult FOR TaskResult.
 
     FIND FIRST config NO-LOCK.
+    IF config.taskerHTMLFolder EQ "" THEN RETURN.
     OUTPUT TO VALUE(config.taskerHTMLFolder + "\tasker-ALL.htm").
     RUN pHTMLHeader  ("ALL", config.taskerHTMLFolder).
     RUN pHTMLUserID  ("ALL", config.taskerHTMLFolder).
