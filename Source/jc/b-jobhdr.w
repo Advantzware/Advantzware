@@ -857,6 +857,15 @@ PROCEDURE local-delete-record :
       EXCLUSIVE:
     DELETE job-farm-rctd.
   END.
+  
+  IF AVAIL job-hdr AND job-hdr.ord-no EQ 0 THEN
+  DO:
+      RUN util/upditmfg.p (
+                   INPUT ROWID(job-hdr),
+                   INPUT -1
+                   ).   
+  END.
+  
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'delete-record':U ) .
 
