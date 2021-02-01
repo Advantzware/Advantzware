@@ -62,6 +62,7 @@ DEFINE VARIABLE iCount                  AS INTEGER   NO-UNDO.
 DEFINE VARIABLE cValidateJobno          AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFilterBy               AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lAutoPost               AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cDefaultRMItem          AS CHARACTER NO-UNDO.
 
 {system/sysconst.i}
 {Inventory/ttInventory.i "NEW SHARED"}
@@ -1427,11 +1428,24 @@ PROCEDURE pInit :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE lSuccess AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lSuccess  AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
     
     DO WITH FRAME {&FRAME-NAME}:
     END.
-    
+ 
+    RUN sys/ref/nk1look.p (
+        INPUT cCompany,           /* Company Code */ 
+        INPUT "DefaultRMItem",    /* sys-ctrl name */
+        INPUT "C",                /* Output return value */
+        INPUT NO,                 /* Use ship-to */
+        INPUT NO,                 /* ship-to vendor */
+        INPUT "",                 /* ship-to vendor value */
+        INPUT "",                 /* shi-id value */
+        OUTPUT cDefaultRMItem, 
+        OUTPUT lRecFound
+        ).
+            
     RUN inventory/InventoryProcs.p PERSISTENT SET hdInventoryProcs.
     RUN jc/JobProcs.p PERSISTENT SET hdJobProcs.
     
@@ -1922,6 +1936,9 @@ PROCEDURE pUpdateRMItemList :
     
     cbRMItem:LIST-ITEMS IN FRAME {&FRAME-NAME} = cRMListitems.
 
+    IF cDefaultRMItem NE "User Select" THEN
+        cbRMItem:SCREEN-VALUE = ENTRY(1, cRMListitems) NO-ERROR.
+        
     APPLY "VALUE-CHANGED" TO cbRMItem IN FRAME {&FRAME-NAME}.    
 END PROCEDURE.
 

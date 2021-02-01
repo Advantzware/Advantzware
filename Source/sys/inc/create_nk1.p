@@ -48,7 +48,7 @@ v-std-list = "LoadTagSSCC,IR12,OEDateChange,FGRecptPassWord,InvStatus,BOLQtyPopu
            + "InvoiceApprovalTaxableCheck,CalcJobDueDate,FGBOLTransferPost,FGMasterLoc,FGOversDefault,InvoiceApprovalTaxCalc,SSTagStatus,CEWindow,"            
            + "ZohoRefreshToken,ZohoClientID,ZohoClientSecret,cXMLCustomerPartSource,CEAddCustomerOption,TruckPlan,SSJobInquiryAdjust,SSJobInquiryIssue,"
            + "InvoiceApprovalExpectZero,CEFormatConfig,JobType,ApplyInvoiceApprovals,APIOrderSurchargeSameDay,APIOrderSurchargeWeekendDelivery,APIOrderSurchargeWeekendOrder,APIOrderSurchargeNextDay,"
-           + "OutputCSV,JobQueueURL,SSLocationScan,EstimateLocDefault,POPriceHold,SearchLimits"
+           + "OutputCSV,JobQueueURL,SSLocationScan,EstimateLocDefault,POPriceHold,SearchLimits,DefaultRMItem"
            .
 IF CAN-DO(v-std-list,ip-nk1-value) THEN
 CASE ip-nk1-value:
@@ -1475,6 +1475,17 @@ CASE ip-nk1-value:
             INPUT 100,                                  /* Int value */
             INPUT NO,                                   /* Logical value */ 
             INPUT 10                                    /* Dec value*/
+            ).           
+    WHEN "DefaultRMItem" THEN    
+        RUN sys/inc/addnk1.p (
+            INPUT cocode, 
+            INPUT ip-nk1-value, 
+            INPUT NO,           
+            INPUT "Default RM Item to select",          /* Description */
+            INPUT "User Select",                        /* Char Value */
+            INPUT 0,                                    /* Int value */
+            INPUT NO,                                   /* Logical value */ 
+            INPUT 0                                     /* Dec value*/
             ).           
 END CASE.
 ELSE

@@ -392,8 +392,25 @@ PROCEDURE GetRMItemsForJob:
     DEFINE INPUT  PARAMETER ipiBlankno      AS INTEGER   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcRMListItems  AS CHARACTER NO-UNDO.
 
+    DEFINE VARIABLE cDefaultRMItem AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lRecFound      AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lFirstSelected AS LOGICAL   NO-UNDO.
+    
     DEFINE BUFFER bf-job     FOR job.
     DEFINE BUFFER bf-job-mat FOR job-mat.
+    DEFINE BUFFER bf-item    FOR item.
+    
+    RUN sys/ref/nk1look.p (
+        INPUT ipcCompany,         /* Company Code */ 
+        INPUT "DefaultRMItem",    /* sys-ctrl name */
+        INPUT "C",                /* Output return value */
+        INPUT NO,                 /* Use ship-to */
+        INPUT NO,                 /* ship-to vendor */
+        INPUT "",                 /* ship-to vendor value */
+        INPUT "",                 /* shi-id value */
+        OUTPUT cDefaultRMItem, 
+        OUTPUT lRecFound
+        ).
     
     FOR EACH bf-job NO-LOCK
         WHERE bf-job.company EQ ipcCompany
@@ -407,12 +424,29 @@ PROCEDURE GetRMItemsForJob:
               AND bf-job-mat.frm      EQ ipiFormno
               AND bf-job-mat.blank-no EQ ipiBlankno
               USE-INDEX seq-idx:
+        IF (cDefaultRMItem EQ "First Board" OR cDefaultRMItem EQ "First Item") AND NOT lFirstSelected THEN DO:
+            FIND FIRST bf-item NO-LOCK
+                 WHERE bf-item.company EQ ipcCompany
+                   AND bf-item.i-no    EQ bf-job-mat.rm-i-no
+                 NO-ERROR.
+            IF AVAILABLE bf-item AND bf-item.mat-type EQ "B" AND cDefaultRMItem EQ "First Board" THEN
+                ASSIGN
+                    opcRMListItems = bf-job-mat.rm-i-no + "," + opcRMListItems
+                    lFirstSelected = TRUE
+                    .
+            ELSE IF AVAILABLE bf-item AND bf-item.mat-type NE "B" AND cDefaultRMItem EQ "First Item" THEN
+                ASSIGN
+                    opcRMListItems = bf-job-mat.rm-i-no + "," + opcRMListItems
+                    lFirstSelected = TRUE
+                    .
+        END.
+
         opcRMListItems = IF opcRMListItems EQ "" THEN 
-                             STRING(bf-job-mat.rm-i-no)
-                         ELSE IF INDEX(opcRMListItems,STRING(bf-job-mat.rm-i-no)) GT 0 THEN
+                             bf-job-mat.rm-i-no
+                         ELSE IF INDEX(opcRMListItems, bf-job-mat.rm-i-no) GT 0 THEN
                              opcRMListItems
                          ELSE 
-                             opcRMListItems + "," + STRING(bf-job-mat.rm-i-no).           
+                             opcRMListItems + "," + bf-job-mat.rm-i-no.           
     END.
 
     RELEASE bf-job.
