@@ -67,6 +67,16 @@ DEFINE VARIABLE cVendItemCostForm# AS CHAR NO-UNDO.
 DEFINE VARIABLE cVendItemCostBlank# AS CHAR NO-UNDO.
 DEFINE VARIABLE lCheckEditMode AS LOGICAL NO-UNDO.
 &Scoped-define VendItemCostCreateAfter procCreateAfter
+DEFINE VARIABLE lFGItemUOM AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cReturn AS LOGICAL NO-UNDO.
+
+RUN sys/ref/nk1look.p (INPUT cocode, "FGItemUOM", "L" /* Logical */, NO /* check by cust */, 
+                       INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+                       OUTPUT cReturn, OUTPUT lRecFound).
+IF lRecFound THEN
+lFGItemUOM = LOGICAL(cReturn) NO-ERROR.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -411,7 +421,14 @@ DO:
   CASE FOCUS:NAME :
     WHEN "vendorUOM" THEN DO:
         RUN pSetUomList(cocode,vendItemCost.itemID:SCREEN-VALUE,vendItemCost.itemType:SCREEN-VALUE).
-        RUN windows/l-stduom.w (cocode, uom-list, FOCUS:SCREEN-VALUE, OUTPUT char-val).
+        IF lFGItemUOM AND vendItemCost.itemType:SCREEN-VALUE EQ "FG" THEN
+        DO:
+           RUN windows/l-itemuom.w (cocode, vendItemCost.itemID:SCREEN-VALUE,"FG", uom-list, FOCUS:SCREEN-VALUE, OUTPUT char-val). 
+        END.
+        ELSE DO:
+           RUN windows/l-stduom.w (cocode, uom-list, FOCUS:SCREEN-VALUE, OUTPUT char-val).
+        END.
+        
         IF char-val NE "" THEN 
             FOCUS:SCREEN-VALUE IN FRAME {&frame-name} = ENTRY(1,char-val).
     END.
