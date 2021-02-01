@@ -6886,6 +6886,13 @@ PROCEDURE ipUpdateTTIniFile :
     AND INDEX(ttIniFile.cVarValue,"sharpshooter/ssMenu") = 0 THEN ASSIGN 
         ttIniFile.cVarValue = ttIniFile.cVarValue + ",sharpshooter/ssMenu.w". 
         
+    FIND ttIniFile WHERE 
+        ttIniFile.cVarName = "pgmList"
+        NO-ERROR.
+    IF AVAIL ttIniFile 
+    AND INDEX(ttIniFile.cVarValue,"oerep/r-loadtg.w") = 0 THEN ASSIGN 
+        ttIniFile.cVarValue = REPLACE(ttIniFile.cVarValue,"oerep/r-loadtg.w","sharpshooter/w-createloadtag.w").        
+        
     ASSIGN
         lSuccess = TRUE.
     
