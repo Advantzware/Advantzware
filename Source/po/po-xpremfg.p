@@ -110,6 +110,25 @@ DEF VAR lv-add-line AS LOG NO-UNDO.
 DEFINE SHARED VARIABLE s-print-prices AS LOGICAL NO-UNDO.
 
 DEF VAR v-lstloc AS CHAR FORM "x(20)" NO-UNDO.
+DEFINE VARIABLE iPOLoadtagInt AS INTEGER NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lPrintPrice AS LOGICAL NO-UNDO.
+
+RUN sys/ref/nk1look.p (INPUT cocode,
+                       INPUT "POLoadtag",
+                       INPUT "I" ,
+                       INPUT NO /* check by cust */,
+                       INPUT YES /* use cust not vendor */,
+                       INPUT "" /* cust */,
+                       INPUT "" /* ship-to*/,
+                       OUTPUT cRtnChar,
+                       OUTPUT lRecFound).
+IF lRecFound THEN
+    iPOLoadtagInt = INTEGER(cRtnChar) NO-ERROR. 
+lPrintPrice =  s-print-prices .
+IF iPOLoadtagInt EQ 2 THEN
+ lPrintPrice = NO.
 
 v-dash-line = fill ("_",80).
 
@@ -409,7 +428,7 @@ v-printline = 0.
             "<C16>" po-ordl.pr-qty-uom 
             "<C21>" po-ordl.i-no FORM "x(30)"
             "<C52.5>" po-ordl.due-date.
-        IF s-print-prices THEN DO:
+        IF lPrintPrice THEN DO:
             IF po-ordl.cost LE 99999.99 THEN
                 PUT "<C60.5>" po-ordl.cost FORM "->>>>9.99"
                 "<C68.5>" po-ordl.pr-uom.
@@ -508,7 +527,7 @@ v-printline = 0.
 
         PUT "<C21>" lv-cust-part FORM "x(30)" 
             "<C63>" v-change-dscr .
-        IF s-print-prices THEN
+        IF lPrintPrice THEN
             PUT "<C70>" v-tot-msf.
         PUT SKIP.
         v-printline = v-printline + 1.
@@ -877,7 +896,7 @@ FOR EACH notes WHERE notes.rec_key = po-ord.rec_key NO-LOCK:
           "<R54><C1>" v-inst[2]
           "<R55><C1>" v-inst[3]
           "<R56><C1>" v-inst[4].
-      IF s-print-prices THEN
+      IF lPrintPrice THEN
         PUT  "<R58><C59><#8><FROM><R+5><C+21><RECT> " 
     "<=8><R+1> Sub Total  :" po-ord.t-cost - po-ord.tax FORM ">,>>>,>>9.99"
     "<=8><R+2> "  v-bot-lab[1] 

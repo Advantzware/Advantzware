@@ -31,6 +31,7 @@ DEFINE VARIABLE hQuery          AS HANDLE    NO-UNDO.
 DEFINE VARIABLE idx             AS INTEGER   NO-UNDO.
 DEFINE VARIABLE iFGColor        AS INTEGER   NO-UNDO.
 DEFINE VARIABLE iNumColumns     AS INTEGER   NO-UNDO.
+DEFINE VARIABLE iRow            AS INTEGER   NO-UNDO.
 
 {sys/ref/CustList.i NEW}
 
@@ -131,6 +132,11 @@ ON ROW-DISPLAY OF hQueryBrowse DO:
             hBrowseColumn[dynValueColumn.sortOrder]:FORMAT  = dynValueColumn.colFormat
             hBrowseColumn[dynValueColumn.sortOrder]:FGCOLOR = iFGColor
             .
+        iRow = iRow + 1.
+        DO idx = 1 TO iNumColumns:
+            IF VALID-HANDLE(hBrowseColumn[idx]) THEN
+            hBrowseColumn[idx]:BGCOLOR = IF hBrowseQuery:CURRENT-RESULT-ROW MOD 2 EQ 0 THEN 25 ELSE 26.
+        END. /* else */
         IF dynValueColumn.isStatusField AND
            dynValueColumn.textColor NE dynValueColumn.cellColor AND
            DYNAMIC-FUNCTION("fDynStatusField" IN hDynCalcField,
@@ -227,7 +233,8 @@ PROCEDURE pResultsBrowser :
         DELETE OBJECT hColumn.
     END. /* do idx */
     ASSIGN
-        hQueryBrowse:TITLE   = dynSubject.subjectTitle
+        hQueryBrowse:TITLE   = dynSubject.subjectTitle + " ("
+                             + STRING(dynSubject.subjectID) + ")" 
         hQueryBrowse:QUERY   = iphQuery
         hQueryBrowse:VISIBLE = TRUE
         iNumColumns          = 0
@@ -274,7 +281,6 @@ PROCEDURE pResultsBrowser :
             hBrowseColumn[dynValueColumn.sortOrder] = hColumn
             .
         IF NOT VALID-HANDLE(hColumn) THEN NEXT.
-/*        IF idx MOD 2 EQ 0 THEN hColumn:COLUMN-BGCOLOR = 11.*/
         IF dynValueColumn.columnSize NE 0 THEN
         hColumn:WIDTH-CHARS = dynValueColumn.columnSize.
         iNumColumns = iNumColumns + 1.
@@ -394,6 +400,14 @@ PROCEDURE pRunQuery:
                     RUN pResultsJasper (ipcType, ipcUserID, ipcTaskRecKey).
                 END. /* otherwise */
             END CASE.
+            &IF "{&program-id}" EQ "dynRun." &THEN
+            IF ipcType NE "Grid" THEN
+            DO WITH FRAME outputFrame:
+                ASSIGN svAutoClose.
+                IF svAutoClose THEN
+                APPLY "CLOSE":U TO THIS-PROCEDURE.
+            END.
+            &ENDIF
         END. /* if run */
         ELSE
         MESSAGE
@@ -438,7 +452,12 @@ PROCEDURE pRunSubject :
         FIND CURRENT dynParamValue NO-LOCK.
         FIND CURRENT dynSubject NO-LOCK.
     END. /* do trans */
-    RUN pSetDynParamValue (dynSubject.subjectID, ipcUserID, ipcPrgmName, 0).
+    RUN pSetDynParamValue (
+        dynSubject.subjectID,
+        ipcUserID,
+        ipcPrgmName,
+        dynParamValue.paramValueID
+        ).
     IF iplRun THEN
     RUN pSaveDynParamValues (ipcType).
     cTaskRecKey = IF AVAILABLE Task THEN Task.rec_key ELSE "NoTask".
@@ -479,14 +498,6 @@ PROCEDURE pSetParamValueDefault:
              EXCEPT paramValueID paramDescription
                  TO bDynParamValue.
 
-/*        FOR EACH dynValueColumn EXCLUSIVE-LOCK                          */
-/*            WHERE dynValueColumn.subjectID    EQ dynParamValue.subjectID*/
-/*              AND dynValueColumn.user-id      EQ dynParamValue.user-id  */
-/*              AND dynValueColumn.prgmName     EQ dynParamValue.prgmName */
-/*              AND dynValueColumn.paramValueID EQ 0                      */
-/*            :                                                           */
-/*            DELETE dynValueColumn.                                      */
-/*        END. /* each dynvaluecolumn */                                  */
         FOR EACH dynValueColumn NO-LOCK
             WHERE dynValueColumn.subjectID    EQ dynParamValue.subjectID
               AND dynValueColumn.user-id      EQ dynParamValue.user-id
@@ -507,14 +518,6 @@ PROCEDURE pSetParamValueDefault:
                  EXCEPT paramValueID
                      TO bDynValueColumn.
         END. /* each dynvaluecolumn */
-/*        FOR EACH dynValueParam EXCLUSIVE-LOCK                          */
-/*            WHERE dynValueParam.subjectID    EQ dynParamValue.subjectID*/
-/*              AND dynValueParam.user-id      EQ dynParamValue.user-id  */
-/*              AND dynValueParam.prgmName     EQ dynParamValue.prgmName */
-/*              AND dynValueParam.paramValueID EQ 0                      */
-/*            :                                                          */
-/*            DELETE dynValueParam.                                      */
-/*        END. /* each dynValueParam */                                  */
         FOR EACH dynValueParam NO-LOCK
             WHERE dynValueParam.subjectID    EQ dynParamValue.subjectID
               AND dynValueParam.user-id      EQ dynParamValue.user-id
@@ -535,14 +538,6 @@ PROCEDURE pSetParamValueDefault:
                  EXCEPT paramValueID
                      TO bDynValueParam.
         END. /* each dynValueParam */
-/*        FOR EACH dynValueParamSet EXCLUSIVE-LOCK                          */
-/*            WHERE dynValueParamSet.subjectID    EQ dynParamValue.subjectID*/
-/*              AND dynValueParamSet.user-id      EQ dynParamValue.user-id  */
-/*              AND dynValueParamSet.prgmName     EQ dynParamValue.prgmName */
-/*              AND dynValueParamSet.paramValueID EQ 0                      */
-/*            :                                                             */
-/*            DELETE dynValueParamSet.                                      */
-/*        END. /* each dynValueParamSet */                                  */
         FOR EACH dynValueParamSet NO-LOCK
             WHERE dynValueParamSet.subjectID    EQ dynParamValue.subjectID
               AND dynValueParamSet.user-id      EQ dynParamValue.user-id

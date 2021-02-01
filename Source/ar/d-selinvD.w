@@ -54,7 +54,7 @@ DEF TEMP-TABLE tt-invl LIKE ar-invl.
 DEF VAR lv-sort-by AS CHAR INIT "inv-no" NO-UNDO.
 DEF VAR lv-sort-by-lab AS CHAR INIT "Inv# " NO-UNDO.
 DEF VAR ll-sort-asc AS LOG INIT YES NO-UNDO.
-
+{methods/template/brwcustomdef.i}
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -260,7 +260,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-2 D-Dialog
 ON START-SEARCH OF BROWSE-2 IN FRAME D-Dialog
 DO:
-  
+  {methods/template/sortindicator.i} 
   DEF VAR lh-column AS HANDLE NO-UNDO.
   DEF VAR lv-column-nam AS CHAR NO-UNDO.
   DEF VAR lv-column-lab AS CHAR NO-UNDO.
@@ -325,7 +325,7 @@ DO:
   END CASE.
     
   APPLY 'END-SEARCH' TO {&BROWSE-NAME}.
-
+  {methods/template/sortindicatorend.i}
   
 
 END.
@@ -462,7 +462,7 @@ DO:
                   ar-cashl.c-no = ar-cash.c-no
                   ar-cashl.LINE = li-next-line + 1
                   ar-cashl.cust-no = ar-cash.cust-no
-                  ar-cashl.check-no = STRING(ar-cash.check-no,"9999999999")
+                  ar-cashl.check-no = STRING(ar-cash.check-no,"999999999999")
                   li-next-line = li-next-line + 1
                   ar-cashl.memo = ar-cash.memo.
 

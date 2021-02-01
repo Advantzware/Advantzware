@@ -41,6 +41,16 @@ DEFINE TEMP-TABLE ttFGReorder NO-UNDO
     FIELD compatibilityGroup AS INTEGER
     FIELD multiplier AS INTEGER
     FIELD isSelected AS LOGICAL
+    FIELD itemStyle AS CHARACTER
+    FIELD itemWhse AS CHARACTER
+    FIELD itemEstNO AS CHARACTER
+    FIELD itemCust AS CHARACTER 
+    FIELD itemCustPart AS CHARACTER
+    FIELD KeyItem AS LOGICAL 
+    FIELD itemCustName AS CHARACTE
+    FIELD availOnHand AS INTEGER  
+    FIELD board AS CHARACTER 
+    FIELD orderQtyEarliest AS INTEGER
     .  
     
 DEFINE TEMP-TABLE ttFGReorderSelection NO-UNDO 

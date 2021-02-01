@@ -31,10 +31,10 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
-&SCOPED-DEFINE winReSize
+/*&SCOPED-DEFINE winReSize
 &SCOPED-DEFINE sizeOption HEIGHT
 &SCOPED-DEFINE browseOnly
-{methods/defines/winReSize.i}
+{methods/defines/winReSize.i}*/
 
 /* Parameters Definitions ---                                           */
 
@@ -119,6 +119,13 @@ DEFINE QUERY external_tables FOR vendItemCost.
 /* ************************  Function Prototypes ********************** */
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fIsBestCost B-table-Win
+FUNCTION fIsBestCost RETURNS CHARACTER PRIVATE
+  (  ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -144,7 +151,8 @@ DEFINE BROWSE Browser-Table
       vendItemCostLevel.quantityFrom COLUMN-LABEL "From"     FORMAT "->>>>>>>>>9.999999":U WIDTH 20
       vendItemCostLevel.quantityTo   COLUMN-LABEL "Up To"   FORMAT "->>>>>>>>>9.999999":U WIDTH 20
       vendItemCostLevel.costPerUom                        COLUMN-LABEL "Cost Per" FORMAT "->>>>>>9.99":U WIDTH 15
-      vendItemCostLevel.costSetup                         COLUMN-LABEL "Setup"    FORMAT "->>>>>>9.9<":U WIDTH 15
+      fIsBestCost()                                       COLUMN-LABEL "B"        FORMAT "X(1)":U        WIDTH 2 
+      vendItemCostLevel.costSetup                         COLUMN-LABEL "Setup"    FORMAT "->>>>>>9.9<":U WIDTH 15      
       vendItemCostLevel.costDeviation                     COLUMN-LABEL "Devi"     FORMAT "->>>>>>9.9<":U WIDTH 15
       vendItemCostLevel.leadTimeDays                      COLUMN-LABEL "Lead"     FORMAT "->>>>>>9.9<":U WIDTH 15
       vendItemCostLevel.useForBestCost                    COLUMN-LABEL "Sel"      FORMAT "Y/N":U         WIDTH 5
@@ -345,7 +353,7 @@ END.
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF
 
-{methods/winReSize.i}
+//{methods/winReSize.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -735,5 +743,20 @@ END PROCEDURE.
 /* ************************  Function Implementations ***************** */
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fIsBestCost B-table-Win
+FUNCTION fIsBestCost RETURNS CHARACTER PRIVATE
+  (  ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    IF vendItemCostLevel.useForBestCost THEN 
+        RETURN "*".
+    ELSE 
+        RETURN "".  
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 

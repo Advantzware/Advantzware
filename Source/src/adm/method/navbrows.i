@@ -98,6 +98,7 @@ Layout,Create-On-Add,SortBy-Case
 
   /* Initialize attributes for update processing objects. */
   RUN set-attribute-list ('FIELDS-ENABLED=no,ADM-NEW-RECORD=no':U).
+{methods/template/brwcustom.i}
 
 &ENDIF
 
@@ -105,3 +106,6 @@ Layout,Create-On-Add,SortBy-Case
 &ANALYZE-RESUME
 
 
+PROCEDURE nav-browse-identifier:
+/* Purpose: To make external programs identify this is a navigation brower using current procedure handle. */
+END PROCEDURE.

@@ -11,26 +11,33 @@ PROCEDURE postMonitor:
   Parameters: <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE cMonitorFile    AS CHARACTER FORMAT 'X(50)' NO-UNDO.
-    DEFINE VARIABLE cAttrList       AS CHARACTER FORMAT 'X(4)'  NO-UNDO.
-    DEFINE VARIABLE cCSVFile        AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cRenamedCSVFile AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cMonitorFile   AS CHARACTER FORMAT 'X(50)' NO-UNDO.
+    DEFINE VARIABLE cAttrList      AS CHARACTER FORMAT 'X(4)'  NO-UNDO.
+    DEFINE VARIABLE cFile          AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cRenamedFile   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lSuccess       AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lcResponseData AS LONGCHAR  NO-UNDO.
     
     DEFINE BUFFER bf-APIInboundEvent FOR APIInboundEvent.
     DEFINE BUFFER bf-APIInbound      FOR APIInbound.
     
+    SESSION:SET-WAIT-STATE ("GENERAL").
+    
     FOR EACH bf-APIInboundEvent NO-LOCK
         WHERE bf-APIInboundEvent.delayedProcessingStatus EQ "queued"
            BY bf-APIInboundEvent.apiInboundEventID:
-        FIND FIRST bf-APIInbound NO-LOCK
-             WHERE bf-APIInbound.apiRoute    EQ bf-APIInboundEvent.apiRoute
-               AND bf-APIInbound.inActive    EQ FALSE
-               AND bf-APIInbound.canBeQueued EQ TRUE
-             NO-ERROR.
-        IF NOT AVAILABLE bf-APIInbound THEN DO:
+
+        RUN Inbound_GetAPIRouteStatus IN hdInboundProcs (
+            INPUT  cocode,
+            INPUT  bf-APIInboundEvent.apiRoute,
+            OUTPUT lSuccess,
+            OUTPUT cMessage
+            ).            
+        IF NOT lSuccess THEN DO:
             &IF DEFINED(monitorActivity) NE 0 &THEN
                 RUN monitorActivity (
-                    INPUT 'Inbound configuration for ' + bf-APIInboundEvent.apiRoute + ' is not available or inactive or not enabled for queueing',
+                    INPUT cMessage,
                     INPUT TRUE,
                     INPUT ''
                     ).
@@ -72,41 +79,69 @@ PROCEDURE postMonitor:
     REPEAT:
         SET cMonitorFile ^ cAttrList.
     
-        /* skips directories and files which are not csv */
-        IF cAttrList NE 'F' OR cMonitorFile BEGINS '.' OR INDEX(cMonitorFile,'.csv') EQ 0 THEN
+        /* skips directories and files which are not csv and xml */
+        IF cAttrList NE 'F' OR cMonitorFile BEGINS '.' OR (INDEX(cMonitorFile,'.csv') EQ 0 AND INDEX(cMonitorFile,'.xml') EQ 0) THEN
             NEXT.
         
-        cCSVFile = monitorImportDir + "\" + cMonitorFile.
-
+        cFile = monitorImportDir + "\" + cMonitorFile.
+        
         &IF DEFINED(monitorActivity) NE 0 &THEN
             RUN monitorActivity (
-                INPUT 'Processing file ' + cCSVFile,
+                INPUT 'Processing file ' + cFile,
                 INPUT TRUE,
                 INPUT ''
                 ).
         &ENDIF
 
-        RUN LoadRequestsFomCSV IN hdInboundProcs (
-            INPUT  cCSVFile,
-            OUTPUT TABLE ttInboundRequest
-            ) NO-ERROR.
-    
-        RUN ProcessRequests IN hdInboundProcs (
-            INPUT-OUTPUT TABLE ttInboundRequest,
-            INPUT cUser,
-            INPUT cPassword
-            ).
-        
-        FOR EACH ttInboundRequest:
+        IF INDEX(cMonitorFile,'.xml') GT 0 THEN DO:
+            COPY-LOB FILE cFile TO lcResponseData NO-ERROR.
+            IF lcResponseData NE "" THEN
+                /* Currently cXMLOrder api is hardcoded. Need an identifier either by folder name or file name to get eh api route dynamically */
+                RUN Inbound_CreateAndProcessRequestForAPIRoute IN hdInboundProcs (
+                    INPUT  cocode,
+                    INPUT  "/api/cXMLOrder",
+                    INPUT  lcResponseData,
+                    OUTPUT lSuccess,
+                    OUTPUT cMessage
+                    ).  
+            ELSE 
+                cMessage = "Not able to extract contents of " + cFile.                  
+            
             &IF DEFINED(monitorActivity) NE 0 &THEN
                 RUN monitorActivity (
-                    INPUT 'Inbound Event: ' + STRING(ttInboundRequest.eventID) + ", Status: " + STRING(ttInboundRequest.success, "Success/Failed") + ", Message: " + ttInboundRequest.exception,
+                    INPUT cMessage,
                     INPUT TRUE,
                     INPUT ''
                     ).
-            &ENDIF        
+            &ENDIF
+            
+            /* Skips moving file to processed folder */
+            IF lcResponseData EQ "" THEN
+                NEXT.      
         END.
+        ELSE IF INDEX(cMonitorFile,'.csv') GT 0 THEN DO:
+            RUN LoadRequestsFromCSV IN hdInboundProcs (
+                INPUT  cFile,
+                OUTPUT TABLE ttInboundRequest
+                ) NO-ERROR.
         
+            RUN ProcessRequests IN hdInboundProcs (
+                INPUT-OUTPUT TABLE ttInboundRequest,
+                INPUT cUser,
+                INPUT cPassword
+                ).
+        
+            FOR EACH ttInboundRequest:
+                &IF DEFINED(monitorActivity) NE 0 &THEN
+                    RUN monitorActivity (
+                        INPUT 'Inbound Event: ' + STRING(ttInboundRequest.eventID) + ", Status: " + STRING(ttInboundRequest.success, "Success/Failed") + ", Message: " + ttInboundRequest.exception,
+                        INPUT TRUE,
+                        INPUT ''
+                        ).
+                &ENDIF        
+            END.
+        END.
+                
         RUN FileSys_CreateDirectory (
             INPUT  monitorImportDir + "\" + "processed",
             OUTPUT lSuccess,
@@ -117,16 +152,16 @@ PROCEDURE postMonitor:
             RUN FileSys_GetUniqueFileName (
                 INPUT  monitorImportDir + "\" + "processed" + "\" + cMonitorFile,
                 INPUT  TRUE, /* Auto increment file count */
-                OUTPUT cRenamedCSVFile,
+                OUTPUT cRenamedFile,
                 OUTPUT lSuccess,
                 OUTPUT cMessage
                 ).
 
-            OS-RENAME VALUE(cCSVFile) VALUE(cRenamedCSVFile).
+            OS-RENAME VALUE(cFile) VALUE(cRenamedFile).
 
             &IF DEFINED(monitorActivity) NE 0 &THEN
                 RUN monitorActivity (
-                    INPUT 'File moved from ' + cCSVFile + ' to ' + cRenamedCSVFile,
+                    INPUT 'File moved from ' + cFile + ' to ' + cRenamedFile,
                     INPUT TRUE,
                     INPUT ''
                     ).
@@ -135,6 +170,7 @@ PROCEDURE postMonitor:
     END.
     INPUT CLOSE. 
     
+    SESSION:SET-WAIT-STATE ("").
 END PROCEDURE.
 
 PROCEDURE pGetUserDetails:

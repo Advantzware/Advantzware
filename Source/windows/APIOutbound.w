@@ -41,10 +41,6 @@ CREATE WIDGET-POOL.
 
 &SCOPED-DEFINE winReSize
 &SCOPED-DEFINE h_Browse01 h_APIOutBound
-&SCOPED-DEFINE EXCLUDE-select-page
-/* Do not edit/remove the below line. This is required to override the standard
-   select-page procudure */ 
-
 
 /* Parameters Definitions ---                                           */
 
@@ -129,6 +125,13 @@ DEFINE FRAME F-Main
          SIZE 160 BY 28.57
          BGCOLOR 15 FGCOLOR 1  WIDGET-ID 100.
 
+DEFINE FRAME OPTIONS-FRAME
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 14.6 ROW 1.1
+         SIZE 11 BY 1.9
+         BGCOLOR 15  WIDGET-ID 300.
+
 DEFINE FRAME message-frame
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -161,7 +164,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 320
          VIRTUAL-HEIGHT     = 320
          VIRTUAL-WIDTH      = 320
-         RESIZE             = no
+         RESIZE             = yes
          SCROLL-BARS        = no
          STATUS-AREA        = yes
          BGCOLOR            = ?
@@ -178,7 +181,6 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 {src/adm/method/containr.i}
 {methods/template/windows.i}
-{methods/template/selectpage.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -192,11 +194,14 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* SETTINGS FOR WINDOW W-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* REPARENT FRAME */
-ASSIGN FRAME message-frame:FRAME = FRAME F-Main:HANDLE.
+ASSIGN FRAME message-frame:FRAME = FRAME F-Main:HANDLE
+       FRAME OPTIONS-FRAME:FRAME = FRAME F-Main:HANDLE.
 
 /* SETTINGS FOR FRAME F-Main
    FRAME-NAME                                                           */
 /* SETTINGS FOR FRAME message-frame
+                                                                        */
+/* SETTINGS FOR FRAME OPTIONS-FRAME
                                                                         */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(W-Win)
 THEN W-Win:HIDDEN = yes.
@@ -255,7 +260,7 @@ END.
 
 /* Include custom  Main Block code for SmartWindows. */
 {src/adm/template/windowmn.i}
-
+{custom/initializeprocs.i}
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -296,8 +301,8 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/folder.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'FOLDER-LABELS = ':U + 'Outbound|View Outbound|Detail|Triggers|ClientXref' + ',
-                     FOLDER-TAB-TYPE = 1':U ,
+             INPUT  'FOLDER-LABELS = ':U + 'Browse|Detail|Segments|Triggers|Scope' + ',
+                     FOLDER-TAB-TYPE = 2':U ,
              OUTPUT h_folder ).
        RUN set-position IN h_folder ( 3.14 , 1.00 ) NO-ERROR.
        RUN set-size IN h_folder ( 26.43 , 160.00 ) NO-ERROR.
@@ -310,7 +315,7 @@ PROCEDURE adm-create-objects :
 
        /* Links to SmartFolder h_folder. */
        RUN add-link IN adm-broker-hdl ( h_folder , 'Page':U , THIS-PROCEDURE ).
-
+	   RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'udficon':U , h_options3 ).
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_options3 ,
              FRAME message-frame:HANDLE , 'BEFORE':U ).
@@ -651,6 +656,8 @@ PROCEDURE enable_UI :
   ENABLE RECT-5 
       WITH FRAME F-Main IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-F-Main}
+  VIEW FRAME OPTIONS-FRAME IN WINDOW W-Win.
+  {&OPEN-BROWSERS-IN-QUERY-OPTIONS-FRAME}
   VIEW FRAME message-frame IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-message-frame}
   VIEW W-Win.

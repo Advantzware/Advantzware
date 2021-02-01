@@ -36,6 +36,7 @@ CREATE WIDGET-POOL.
 &SCOPED-DEFINE winReSize
 &SCOPED-DEFINE h_Browse01 h_invStatusType
 &SCOPED-DEFINE SetUserExit SetUserExit
+&SCOPED-DEFINE local-destroy local-destroy
 
 /* Parameters Definitions ---                                           */
 
@@ -266,6 +267,7 @@ END.
 
 /* Include custom  Main Block code for SmartWindows. */
 {src/adm/template/windowmn.i}
+{custom/initializeprocs.i}
 {sys/inc/var.i new shared}
 ASSIGN
     cocode = g_company
@@ -328,8 +330,8 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/folder.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'FOLDER-LABELS = ':U + 'Browse|View' + ',
-                     FOLDER-TAB-TYPE = 1':U ,
+             INPUT  'FOLDER-LABELS = ':U + 'Browse|Detail' + ',
+                     FOLDER-TAB-TYPE = 2':U ,
              OUTPUT h_folder ).
        RUN set-position IN h_folder ( 3.14 , 1.00 ) NO-ERROR.
        RUN set-size IN h_folder ( 21.67 , 148.00 ) NO-ERROR.
@@ -342,7 +344,7 @@ PROCEDURE adm-create-objects :
 
        /* Links to SmartFolder h_folder. */
        RUN add-link IN adm-broker-hdl ( h_folder , 'Page':U , THIS-PROCEDURE ).
-
+	   RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'udficon':U , h_options ).
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_options ,
              h_f-add , 'AFTER':U ).
@@ -536,6 +538,8 @@ PROCEDURE local-destroy :
   Notes:       
 ------------------------------------------------------------------------------*/
   /* Code placed here will execute PRIOR to standard behavior. */
+
+  {custom/userWindow.i} 
  
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .

@@ -349,7 +349,7 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/folder.w':U ,
              INPUT  FRAME est:HANDLE ,
-             INPUT  'FOLDER-LABELS = ':U + 'Brws Est|Estimate|Specs|Layout|Inks/Pack|Prep/Rout|Misc/Farm|Quote|Print' + ',
+             INPUT  'FOLDER-LABELS = ':U + 'Browse|Detail|Specs|Layout|Inks/Pack|Prep/Rout|Misc/Farm|Quote|Print' + ',
                      FOLDER-TAB-TYPE = 2':U ,
              OUTPUT h_folder ).
        RUN set-position IN h_folder ( 3.14 , 1.00 ) NO-ERROR.
@@ -357,7 +357,7 @@ PROCEDURE adm-create-objects :
 
        /* Links to SmartFolder h_folder. */
        RUN add-link IN adm-broker-hdl ( h_folder , 'Page':U , THIS-PROCEDURE ).
-
+	   RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'udficon':U , h_optionse ).
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_exit ,
              h_optionse , 'AFTER':U ).

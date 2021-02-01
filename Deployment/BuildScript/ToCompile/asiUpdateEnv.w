@@ -103,7 +103,7 @@ DEF TEMP-TABLE ttLookups LIKE lookups.
 DEF TEMP-TABLE ttReftable LIKE reftable.
 DEF TEMP-TABLE ttSysCtrl LIKE sys-ctrl.
 DEF TEMP-TABLE ttSys-Ctrl LIKE sys-ctrl.
-DEF TEMP-TABLE ttSysCtrlShipto LIKE sys-ctrl-shipto.
+DEF TEMP-TABLE ttSys-Ctrl-Shipto LIKE sys-ctrl-shipto.
 DEF TEMP-TABLE ttTranslation LIKE translation.
 DEF TEMP-TABLE ttUserLanguage LIKE userlanguage.
 DEF TEMP-TABLE ttXuserMenu LIKE xuserMenu.
@@ -111,6 +111,7 @@ DEF TEMP-TABLE ttUtilities LIKE utilities.
 DEF TEMP-TABLE ttZmessage LIKE zMessage.
 DEF TEMP-TABLE ttEmailConfig LIKE emailConfig.
 DEF TEMP-TABLE ttServerResource LIKE serverResource.
+DEF TEMP-TABLE ttInventoryStatusType LIKE inventoryStatusType.
 
 DEF TEMP-TABLE ttAPIOutbound 
     FIELD apiOutboundID AS INT64 
@@ -170,6 +171,10 @@ DEF TEMP-TABLE ttResTemplateFiles
     FIELD cFileName AS CHAR 
     FIELD cLongName AS CHAR 
     FIELD daModDate AS DATE.    
+
+DEF TEMP-TABLE ttledger 
+    FIELD cType as CHAR 
+    FIELD rRowid as ROWID.
 
 DEF BUFFER bnotes FOR notes.
 DEF BUFFER bf-usercomp FOR usercomp.
@@ -1045,118 +1050,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipArchiveFiles C-Win 
-PROCEDURE ipArchiveFiles :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    RUN ipStatus ("Archiving ASI System Files").
-
-    DEF VAR cCmdZip AS CHAR NO-UNDO.
-    DEF VAR lProdExists AS LOG NO-UNDO.
-    DEF VAR lProdOverExists AS LOG NO-UNDO.
-    
-    FILE-INFO:FILE-NAME = cEnvProdDir.
-    ASSIGN
-        lSuccess = FALSE 
-        lProdExists = FILE-INFO:FULL-PATHNAME NE ?.
-        
-    IF SEARCH(cUpdProgramDir + "\programs.7z") NE ? THEN DO:
-        RUN ipStatus ("Archiving old program files").
-
-        /* Default is to pull from Env\Prod, but if not found, will also search root drive and Rcode */
-        IF SEARCH(cEnvProdDir + "\Programs\nosweat.r") NE ? THEN DO:
-            ASSIGN
-                cCmdZip = cUpdProgramDir + "\7z.exe a " + 
-                          cPgmBackup + "\Programs" + 
-                          STRING(YEAR(TODAY)) +
-                          STRING(MONTH(TODAY),"99") +
-                          STRING(DAY(TODAY),"99") + ".7z " +
-                          cEnvProdDir + "\Programs\*".
-            OS-COMMAND SILENT VALUE(cCmdZip).
-        END.    
-        ELSE IF SEARCH(cMapDir + "\Programs\nosweat.r") NE ? THEN DO:
-            ASSIGN
-                cCmdZip = cUpdProgramDir + "\7z.exe a " + 
-                          cPgmBackup + "\Programs" + 
-                          STRING(YEAR(TODAY)) +
-                          STRING(MONTH(TODAY),"99") +
-                          STRING(DAY(TODAY),"99") + ".7z " +
-                          cMapDir + "\Programs\*".
-            OS-COMMAND SILENT VALUE(cCmdZip).
-        END.
-        ELSE IF SEARCH(cMapDir + "\Rcode\Programs\nosweat.r") NE ? THEN DO:
-            ASSIGN
-                cCmdZip = cUpdProgramDir + "\7z.exe a " + 
-                          cPgmBackup + "\Programs" + 
-                          STRING(YEAR(TODAY),"99") +
-                          STRING(MONTH(TODAY),"99") +
-                          STRING(DAY(TODAY)) + ".7z " +
-                          cMapDir + "\Rcode\Programs\*".
-            OS-COMMAND SILENT VALUE(cCmdZip).
-        END.
-    END.
-
-    IF SEARCH(cUpdProgramDir + "\resources.7z") NE ? THEN DO:
-        RUN ipStatus ("Archiving old resource files").
-
-        IF SEARCH(cEnvProdDir + "\Resources\quoter.exe") NE ? THEN DO:
-            ASSIGN
-                cCmdZip = cUpdProgramDir + "\7z.exe a " + 
-                          cResBackup + "\Resources" + 
-                          STRING(YEAR(TODAY)) +
-                          STRING(MONTH(TODAY),"99") +
-                          STRING(DAY(TODAY),"99") + ".7z " +
-                          cEnvProdDir + "\Resources\*".
-            OS-COMMAND SILENT VALUE(cCmdZip).
-        END.
-        ELSE IF SEARCH(cMapDir + "\Resources\quoter.exe") NE ? THEN DO:
-            ASSIGN
-                cCmdZip = cUpdProgramDir + "\7z.exe a " + 
-                          cResBackup + "\Resources" + 
-                          STRING(YEAR(TODAY)) +
-                          STRING(MONTH(TODAY),"99") +
-                          STRING(DAY(TODAY),"99") + ".7z " +
-                          cMapDir + "\Resources\*".
-            OS-COMMAND SILENT VALUE(cCmdZip).
-        END.
-        ELSE IF SEARCH(cMapDir + "\Rcode\Resources\quoter.exe") NE ? THEN DO:
-            ASSIGN
-                cCmdZip = cUpdProgramDir + "\7z.exe a " + 
-                          cResBackup + "\Resources" + 
-                          STRING(YEAR(TODAY)) +
-                          STRING(MONTH(TODAY),"99") +
-                          STRING(DAY(TODAY),"99") + ".7z " +
-                          cMapDir + "\Rcode\Resources\*".
-            OS-COMMAND SILENT VALUE(cCmdZip).
-        END.
-    END.
-
-    FILE-INFO:FILE-NAME = cEnvProdDir + "\Override".
-    ASSIGN
-        lProdOverExists = FILE-INFO:FULL-PATHNAME NE ?.
-    IF lProdOverExists THEN DO:
-        RUN ipStatus ("Archiving old hotfix files").
-        ASSIGN
-            cCmdZip = cUpdProgramDir + "\7z.exe a " + 
-                      cPgmBackup + "\Override" + 
-                      STRING(YEAR(TODAY)) +
-                      STRING(MONTH(TODAY),"99") +
-                      STRING(DAY(TODAY),"99") + ".7z " +
-                      cEnvProdDir + "\Override\*".
-        OS-COMMAND SILENT VALUE(cCmdZip).
-    END.
-
-    ASSIGN 
-        lSuccess = TRUE.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipAuditSysCtrl C-Win 
 PROCEDURE ipAuditSysCtrl :
 /*------------------------------------------------------------------------------
@@ -1527,62 +1420,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipBuildCustFilesTree C-Win 
-PROCEDURE ipBuildCustFilesTree :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    RUN ipStatus ("Creating CustFiles Structure").
-
-    DEF VAR cCmdLine1 AS CHAR NO-UNDO.
-    DEF VAR cCmdLine2 AS CHAR NO-UNDO.
-    DEF VAR cCmdLine3 AS CHAR NO-UNDO.
-    DEF VAR cFileType AS CHAR NO-UNDO.
-    DEF VAR lProdExists AS LOG NO-UNDO.
-    DEF VAR lTestExists AS LOG NO-UNDO.
-    DEF VAR lProdFilesExist AS LOG NO-UNDO.
-    DEF VAR lTestFilesExist AS LOG NO-UNDO.
-    DEF VAR cTestDir AS CHAR NO-UNDO.
-    DEF VAR cBaseDir AS CHAR NO-UNDO.
-    DEF VAR iNumPasses AS INT NO-UNDO.
-    DEF VAR cCmdLine AS CHAR NO-UNDO.
-    
-    FILE-INFO:FILE-NAME = cEnvProdDir.
-    ASSIGN
-        lProdExists = FILE-INFO:FULL-PATHNAME NE ?.
-    FILE-INFO:FILE-NAME = cEnvTestDir.
-    ASSIGN
-        lTestExists = FILE-INFO:FULL-PATHNAME NE ?
-        cCmdLine1 = cUpdProgramDir + "\7z.exe x ".
-    FILE-INFO:FILE-NAME = cEnvProdDir + "\CustFiles\Logs".
-    ASSIGN
-        lProdFilesExist = FILE-INFO:FULL-PATHNAME NE ?.
-    FILE-INFO:FILE-NAME = cEnvTestDir + "\CustFiles\Logs".
-    ASSIGN
-        lTestFilesExist = FILE-INFO:FULL-PATHNAME NE ?.
-    
-    IF lProdFilesExist
-    AND lTestFilesExist THEN RETURN.
-    
-    IF NOT lProdFilesExist
-    AND SEARCH(cUpdatesDir + "\" + "Patch" + cPatchNo + "\Deployment\CustFiles.7z") NE ? THEN DO:
-        ASSIGN
-            cCmdLine2 = cCmdLine1 + cUpdatesDir + "\" + "Patch" + cPatchNo + "\Deployment\CustFiles..7z -y -o".
-        IF lProdExists THEN DO:
-            OS-CREATE-DIR VALUE(cEnvProdDir + "\CustFiles").
-            ASSIGN
-                cCmdLine3 = cCmdLine2 + cEnvProdDir + "\CustFiles".
-            OS-COMMAND SILENT VALUE(cCmdLine3).
-        END.
-    END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipBuildDirs C-Win 
 PROCEDURE ipBuildDirs :
 /*------------------------------------------------------------------------------
@@ -1603,12 +1440,38 @@ PROCEDURE ipBuildDirs :
         OS-CREATE-DIR VALUE(cBadDir).
     END.
     
-    RUN ipBuildCustFilesTree.
-        
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipChangeCostMethod C-Win
+PROCEDURE ipChangeCostMethod:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RUN ipStatus ("    Change cost method in IF2").
+
+    
+    DEF BUFFER bFg-ctrl FOR fg-ctrl.
+    
+    DISABLE TRIGGERS FOR LOAD OF fg-ctrl.
+    DISABLE TRIGGERS FOR LOAD OF bfg-ctrl.
+
+    FOR EACH bFg-ctrl EXCLUSIVE
+        WHERE bFg-ctrl.inv-meth EQ "S":
+        ASSIGN 
+            bFg-ctrl.inv-meth = "L".
+    END.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipCheckPayMaster C-Win 
 PROCEDURE ipCheckPayMaster :
@@ -2005,7 +1868,7 @@ PROCEDURE ipConfirmMonitorUser :
         users.isLocked = false
         users.phone = "2153697800"
         users.phone-cnty = "1"
-        users.securityLevel = 1000
+        users.securityLevel = 100
         users.showOnAck = false
         users.showOnBol = false
         users.showOnInv = false
@@ -2036,112 +1899,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipConvertDynParam C-Win 
-PROCEDURE ipConvertDynParam :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    RUN ipStatus ("    Converting dynValue tables...").
-
-    DISABLE TRIGGERS FOR LOAD OF dynValueParam.
-    DISABLE TRIGGERS FOR LOAD OF dynValueParamSet.
-    DISABLE TRIGGERS FOR LOAD OF dynValueColumn.
-
-    DEFINE VARIABLE hSession AS HANDLE  NO-UNDO.
-    DEFINE VARIABLE idx      AS INTEGER NO-UNDO.
-
-    FOR EACH dynValueParam EXCLUSIVE-LOCK:
-        DELETE dynValueParam.
-    END. /* each dynValueParam */
-
-    FOR EACH dynValueParamSet EXCLUSIVE-LOCK:
-        DELETE dynValueParamSet.
-    END. /* each dynValueParam */
-
-    FOR EACH dynValueColumn EXCLUSIVE-LOCK:
-        DELETE dynValueColumn.
-    END. /* each dynValueParam */
-
-    FOR EACH dynParamValue NO-LOCK:
-        DO idx = 1 TO EXTENT(dynParamValue.paramSetID):
-            IF dynParamValue.paramSetID[idx] EQ 0 THEN LEAVE.
-            CREATE dynValueParamSet.
-            ASSIGN
-                dynValueParamSet.subjectID    = dynParamValue.subjectID
-                dynValueParamSet.user-id      = dynParamValue.user-id
-                dynValueParamSet.prgmName     = dynParamValue.prgmName
-                dynValueParamSet.paramValueID = dynParamValue.paramValueID
-                dynValueParamSet.sortOrder    = idx
-                dynValueParamSet.paramSetID   = dynParamValue.paramSetID[idx]
-                dynValueParamSet.isVisible    = dynParamValue.isVisible[idx]
-                .
-        END. /* do idx */
-        DO idx = 1 TO EXTENT(dynParamValue.paramName):
-            IF dynParamValue.paramName[idx] EQ "" THEN LEAVE.
-            CREATE dynValueParam.
-            ASSIGN
-                dynValueParam.subjectID    = dynParamValue.subjectID
-                dynValueParam.user-id      = dynParamValue.user-id
-                dynValueParam.prgmName     = dynParamValue.prgmName
-                dynValueParam.paramValueID = dynParamValue.paramValueID
-                dynValueParam.sortOrder    = idx
-                dynValueParam.paramName    = dynParamValue.paramName[idx]
-                dynValueParam.paramLabel   = dynParamValue.paramLabel[idx]
-                dynValueParam.paramValue   = dynParamValue.paramValue[idx]
-                dynValueParam.dataType     = dynParamValue.paramDataType[idx]
-                dynValueParam.paramFormat  = dynParamValue.paramFormat[idx]
-                .
-        END. /* do idx */
-        DO idx = 1 TO EXTENT(dynParamValue.colName):
-            IF dynParamValue.colName[idx] EQ "" THEN LEAVE.
-            CREATE dynValueColumn.
-            ASSIGN
-                dynValueColumn.subjectID      = dynParamValue.subjectID
-                dynValueColumn.user-id        = dynParamValue.user-id
-                dynValueColumn.prgmName       = dynParamValue.prgmName
-                dynValueColumn.paramValueID   = dynParamValue.paramValueID
-                dynValueColumn.sortOrder      = idx
-                dynValueColumn.isActive       = dynParamValue.isActive[idx]
-                dynValueColumn.colName        = dynParamValue.colName[idx]
-                dynValueColumn.colLabel       = dynParamValue.colLabel[idx]
-                dynValueColumn.colFormat      = dynParamValue.colFormat[idx]
-                dynValueColumn.columnSize     = dynParamValue.columnSize[idx]
-                dynValueColumn.dataType       = dynParamValue.dataType[idx]
-                dynValueColumn.sortCol        = dynParamValue.sortCol[idx]
-                dynValueColumn.sortDescending = dynParamValue.sortDescending[idx]
-                dynValueColumn.isGroup        = dynParamValue.isGroup[idx]
-                dynValueColumn.isReturnValue  = dynParamValue.isReturnValue[idx]
-                dynValueColumn.isSearchable   = dynParamValue.isSearchable[idx]
-                dynValueColumn.isSortable     = dynParamValue.isSortable[idx]
-                dynValueColumn.groupLabel     = dynParamValue.groupLabel[idx]
-                dynValueColumn.groupCalc      = dynParamValue.groupCalc[idx]
-                dynValueColumn.isCalcField    = dynParamValue.isCalcField[idx]
-                dynValueColumn.calcProc       = dynParamValue.calcProc[idx]
-                dynValueColumn.calcParam      = dynParamValue.calcParam[idx]
-                dynValueColumn.calcFormula    = dynParamValue.calcFormula[idx]
-                .
-        END. /* do idx */
-    END. /* each dynParamValue */
-
-    OUTPUT TO c:\tmp\dynParamValue.save.d.
-    FOR EACH dynParamValue NO-LOCK:
-        EXPORT dynParamValue.
-    END. /* each dynparamvalue */
-    OUTPUT CLOSE.
-    
-    RELEASE dynValueParamSet.
-    RELEASE dynValueParam.
-    RELEASE dynValueColumn.
-    RELEASE dynParamValue.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipConvertModule C-Win 
 PROCEDURE ipConvertModule :
@@ -2756,6 +2513,9 @@ PROCEDURE ipDataFix :
         RUN ipDataFix200202.
     IF fIntVer(cThisEntry) LT 20030300 THEN 
         RUN ipDataFix200303.
+    IF fIntVer(cThisEntry) LT 21000000 THEN DO:
+        RUN ipDataFix200306.
+    END.
     IF fIntVer(cThisEntry) LT 99999999 THEN
         RUN ipDataFix999999.
 
@@ -3239,11 +2999,18 @@ PROCEDURE ipDataFix200100:
     /* 64885 - Load inventoryStatusType data */
     INPUT FROM VALUE(cUpdDataDir + "\inventoryStatusType.d") NO-ECHO.
     REPEAT:
-        CREATE inventoryStatusType.
-        IMPORT inventoryStatusType.
+        CREATE ttInventoryStatusType.
+        IMPORT ttInventoryStatusType.
+    END.
+    FOR EACH ttInventoryStatusType:
+        FIND FIRST inventoryStatusType NO-LOCK WHERE
+            inventoryStatusType.statusID EQ ttInventoryStatusType.statusID.
+        IF NOT AVAIL inventoryStatusType THEN DO:
+            CREATE inventoryStatusType.
+            BUFFER-COPY ttInventoryStatusType TO inventoryStatusType.
+        END.
     END.
     
-            
 END PROCEDURE.
 	
 /* _UIB-CODE-BLOCK-END */
@@ -3313,8 +3080,6 @@ PROCEDURE ipDataFix200110:
     ELSE ASSIGN 
         CURRENT-VALUE({&cTable}ID_seq) = 5000.
             
-    RUN ipConvertDynParam.
-            
 END PROCEDURE.
     
 /* _UIB-CODE-BLOCK-END */
@@ -3382,14 +3147,14 @@ PROCEDURE ipDataFix200303:
     ------------------------------------------------------------------------------*/
     RUN ipStatus ("  Data Fix 200303...").
 
-  /* from Jay's known issues list */
+    /* from Jay's known issues list */
     /* Deactivate estimate type filter in DAOA */
     DISABLE TRIGGERS FOR LOAD OF dynSubject.
     FIND FIRST dynSubject EXCLUSIVE WHERE
         dynSubject.subjectID EQ 99
         NO-ERROR.
     IF AVAIL dynSubject THEN ASSIGN 
-        dynSubject.isActive = FALSE. 
+            dynSubject.isActive = FALSE. 
         
     /* Remove new SharpShooter menu */
     DISABLE TRIGGERS FOR LOAD OF prgrms.
@@ -3413,6 +3178,71 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix200306 C-Win
+PROCEDURE ipDataFix200306:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEF BUFFER bar-ledger FOR ar-ledger.
+    DISABLE TRIGGERS FOR LOAD OF ar-ledger.
+    DEF VAR cNewValue AS CHAR FORMAT "x(17)".
+
+    RUN ipStatus ("  Data Fix 200306...").
+
+    /* 95500 After Update, A-R-8 report lists only 3 December deposits */
+    /* In older records, these values will have 10-digit check numbers, and new program
+        versions expect 12 digit check numbers */
+
+    FOR EACH ar-ledger NO-LOCK WHERE
+        ar-ledger.ref-num BEGINS "CHK#" OR
+        ar-ledger.ref-num BEGINS "VOIDED CHK#" OR 
+        ar-ledger.ref-num BEGINS "DISC VD":
+        CREATE ttLedger.
+        ASSIGN
+            cType = ar-ledger.ref-num
+            ttLedger.rRowid = ROWID(ar-ledger).
+    END.
+    
+    FOR EACH ttLedger:
+        IF cType BEGINS "CHK#" 
+        AND LENGTH(cType) EQ 15 THEN 
+        DO:
+            FIND bar-ledger EXCLUSIVE WHERE 
+                ROWID(bar-ledger) EQ ttLedger.rRowid.
+            ASSIGN
+                cNewValue = SUBSTRING(bar-ledger.ref-num,1,5) + "00" + SUBSTRING(bar-ledger.ref-num,6)
+                bar-ledger.ref-num = cNewValue.
+            RELEASE bar-ledger.
+        END.
+        ELSE IF cType BEGINS "VOIDED CHK#" 
+        AND LENGTH(cType) EQ 22 THEN 
+        DO: 
+            FIND bar-ledger EXCLUSIVE WHERE 
+                ROWID(bar-ledger) EQ ttLedger.rRowid.
+            ASSIGN
+                cNewValue = SUBSTRING(bar-ledger.ref-num,1,12) + "00" + SUBSTRING(bar-ledger.ref-num,13)
+                bar-ledger.ref-num = cNewValue.
+            RELEASE bar-ledger.
+        END.    
+        ELSE IF cType BEGINS "DISC VD" 
+        AND LENGTH(cType) EQ 28 THEN 
+        DO: 
+            FIND bar-ledger EXCLUSIVE WHERE 
+                ROWID(bar-ledger) EQ ttLedger.rRowid.
+            ASSIGN
+                cNewValue = SUBSTRING(bar-ledger.ref-num,1,7) + "00" + SUBSTRING(bar-ledger.ref-num,8)
+                bar-ledger.ref-num = cNewValue.
+            RELEASE bar-ledger.
+        END.
+    END.    
+         
+END PROCEDURE.
+    
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix999999 C-Win 
 PROCEDURE ipDataFix999999 :
     /*------------------------------------------------------------------------------
@@ -3427,9 +3257,11 @@ PROCEDURE ipDataFix999999 :
     RUN ipLoadAPIConfigData.
     RUN ipLoadAPIData.
     RUN ipSetCueCards.
-    RUN ipDeleteAudit.
+/*    RUN ipDeleteAudit.*/
     RUN ipCleanTemplates.
     RUN ipLoadEstCostData.
+    RUN ipChangeCostMethod.
+    RUN ipSetDepartmentRequired.
     
 END PROCEDURE.
 
@@ -3755,41 +3587,32 @@ PROCEDURE ipExpandFiles :
 
     RUN ipStatus ("  Expanding files...").
 
-    ASSIGN
-        cCmdLine1 = cUpdProgramDir + "\7z.exe x " + cUpdProgramDir + "\Override.7z -y -o" + cUpdProgramDir + "\Override"
-        cCmdLine2 = cUpdProgramDir + "\7z.exe x " + cUpdProgramDir + "\Programs.7z -y -o" + cUpdProgramDir + "\Programs"
-        cCmdLine3 = cUpdProgramDir + "\7z.exe x " + cUpdProgramDir + "\Resources.7z -y -o" + cUpdProgramDir + "\Resources".
+    /* Copy DataDigger saved files to CustFiles\DDBackups */
+    OS-CREATE-DIR VALUE(cTgtEnv + "\CustFiles\DDBackups").
+    OS-CREATE-DIR VALUE(cTgtEnv + "\CustFiles\DDBackups\Cache").
+    OS-COPY VALUE(cTgtEnv + "\Programs\DataDigger\Datadigger-*.ini") VALUE(cTgtEnv + "\CustFiles\DDBackups").
+    OS-COPY VALUE(cTgtEnv + "\Programs\DataDigger\Cache\*.*") VALUE(cTgtEnv + "\CustFiles\DDBackups\Cache").
     
-    IF SEARCH(cUpdProgramDir + "\Override.7z") NE ? THEN DO:
-        OS-COMMAND SILENT VALUE(cCmdLine1).
-    END.
-    OS-COMMAND SILENT VALUE(cCmdLine2).
-    OS-COMMAND SILENT VALUE(cCmdLine3).
-
-    /* Skip the copy part, just MOVE the files  */
-    RUN ipStatus ("  Moving expanded files from ").
+    /* Delete old overrides */
+    OS-DELETE VALUE(cUpdProgramDir + "\Override") RECURSIVE.
+    OS-CREATE-DIR VALUE(cUpdProgramDir + "\Override").
+    
+    /* Unzip/move breaks for any number of security reasons; just copy  */
+    RUN ipStatus ("  Copying system files from ").
     RUN ipStatus ("    " + cUpdProgramDir + " to").
     RUN ipStatus ("    " + cTgtEnv).
-    OS-RENAME VALUE(cUpdProgramDir + "\Override") VALUE(cTgtEnv + "\OverrideN").
-    OS-RENAME VALUE(cUpdProgramDir + "\Programs") VALUE(cTgtEnv + "\ProgramsN").
-    OS-RENAME VALUE(cUpdProgramDir + "\Resources") VALUE(cTgtEnv + "\ResourcesN").
 
-    /* Rename the old files to "O", then new files from "N", then delete "O" */
-    RUN ipStatus ("  Renaming old " + cThisEntry + " directories").
-    OS-RENAME VALUE(cTgtEnv + "\Override") VALUE(cTgtEnv + "\OverrideO").
-    OS-RENAME VALUE(cTgtEnv + "\Programs") VALUE(cTgtEnv + "\ProgramsO").
-    OS-RENAME VALUE(cTgtEnv + "\Resources") VALUE(cTgtEnv + "\ResourcesO").
-
-    RUN ipStatus ("  Moving temp directories in " + cThisEntry + " to permanents").
-    OS-RENAME VALUE(cTgtEnv + "\OverrideN") VALUE(cTgtEnv + "\Override").
-    OS-RENAME VALUE(cTgtEnv + "\ProgramsN") VALUE(cTgtEnv + "\Programs").
-    OS-RENAME VALUE(cTgtEnv + "\ResourcesN") VALUE(cTgtEnv + "\Resources").
-
-    RUN ipStatus ("  Deleting old files from " + cThisEntry + " directories").
-    OS-DELETE VALUE(cTgtEnv + "\OverrideO") RECURSIVE.
-    OS-DELETE VALUE(cTgtEnv + "\ProgramsO") RECURSIVE.
-    OS-DELETE VALUE(cTgtEnv + "\ResourcesO") RECURSIVE.
-
+    OS-COMMAND SILENT VALUE("XCOPY /S /Y " + cUpdProgramDir + "\Override\*.* " +  cTgtEnv + "\Override > NUL").
+    OS-COMMAND SILENT VALUE("XCOPY /S /Y " + cUpdProgramDir + "\Resources\*.* " +  cTgtEnv + "\Resources > NUL").
+    OS-COMMAND SILENT VALUE("XCOPY /S /Y " + cUpdProgramDir + "\Programs\*.* " +  cTgtEnv + "\Programs > NUL").
+    /* This copies the new .PL files to the updated environment */
+    OS-COMMAND SILENT VALUE("XCOPY /S /Y " + cUpdProgramDir + "\*.pl " +  cTgtEnv + " > NUL").
+    
+    /* Now restore DD files from backed up copies and remove Backup dirs */
+    OS-COPY VALUE(cTgtEnv + "\CustFiles\DDBackups\*.*") VALUE(cTgtEnv + "\Programs\DataDigger").
+    OS-COPY VALUE(cTgtEnv + "\CustFiles\DDBackups\Cache\*.*") VALUE(cTgtEnv + "\\Programs\DataDigger\Cache").
+    OS-DELETE VALUE(cTgtEnv + "\CustFiles\DDBackups") RECURSIVE.
+    
     RUN ipStatus ("Installation of new system files complete").
     
     ASSIGN 
@@ -5349,7 +5172,7 @@ PROCEDURE ipLoadPrograms :
                 prgrms.itemParent = ttPrgrms.itemParent
                 prgrms.mnemonic = ttPrgrms.mnemonic
                 prgrms.systemType = ttPrgrms.systemType
-                prgrms.menuImage = ttPrgrms.menuImage
+                prgrms.menuImage[1] = ttPrgrms.menuImage[1]
                 prgrms.translation = ttPrgrms.translation.
         END.
         DELETE ttPrgrms.
@@ -5775,17 +5598,6 @@ PROCEDURE ipProcessAll :
         iopiStatus = iopiStatus + 4
         rStatusBar:WIDTH = MIN(75,(iopiStatus / 100) * 75).
 
-    IF tbBackupFiles:CHECKED IN FRAME {&FRAME-NAME} THEN DO:
-        RUN ipArchiveFiles.
-        IF lSuccess EQ TRUE THEN ASSIGN 
-            iopiStatus = iopiStatus + 10
-            rStatusBar:WIDTH = MIN(75,(iopiStatus / 100) * 75).
-        ELSE RETURN.
-    END.
-    ELSE ASSIGN 
-        iopiStatus = iopiStatus + 10
-        rStatusBar:WIDTH = MIN(75,(iopiStatus / 100) * 75).
-    
     IF tbInstallFiles:CHECKED IN FRAME {&FRAME-NAME} THEN DO:
         RUN ipExpandFiles.
         IF lSuccess EQ TRUE THEN ASSIGN 
@@ -5859,6 +5671,7 @@ PROCEDURE ipProcessAll :
         iopiStatus = iopiStatus + 5
         rStatusBar:WIDTH = MIN(75,(iopiStatus / 100) * 75).
     
+    RUN ipUpdateSQLSettings IN THIS-PROCEDURE.
     RUN ipBackupDataFiles IN THIS-PROCEDURE ("NEW").
     RUN ipSetNewDbVersion IN THIS-PROCEDURE.
     
@@ -6405,6 +6218,9 @@ PROCEDURE ipSetCurrencyAccounts:
     RUN ipStatus ("    Setting Currency Accounts").
 
     DEF BUFFER bcurrency FOR currency.
+
+    DISABLE TRIGGERS FOR LOAD OF currency.
+    DISABLE TRIGGERS FOR LOAD OF bcurrency.
     
     FOR EACH bcurrency EXCLUSIVE WHERE 
         bcurrency.ar-ast-acct EQ "":
@@ -6412,6 +6228,32 @@ PROCEDURE ipSetCurrencyAccounts:
             ar-ctrl.company = bcurrency.company.
         IF AVAIL ar-ctrl THEN ASSIGN 
             bcurrency.ar-ast-acct = ar-ctrl.sales.
+    END.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipSetDepartmentRequired C-Win
+PROCEDURE ipSetDepartmentRequired:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RUN ipStatus ("    Setting Dapartment isRequired Flags").
+
+    DEF BUFFER bdept FOR dept.
+
+    DISABLE TRIGGERS FOR LOAD OF dept.
+    DISABLE TRIGGERS FOR LOAD OF bdept.
+    
+    FOR EACH bDept EXCLUSIVE:
+        IF CAN-DO("PR,GL,QS,WN,WS,FB,FS,RC,RS,CR,PR,CT",bDept.code) THEN ASSIGN 
+            bDept.isRequired = TRUE.
     END.
 
 END PROCEDURE.
@@ -6832,6 +6674,37 @@ PROCEDURE ipUpdateNK1s :
         DELETE sys-ctrl.
     END.
     
+    /* 94653 Passwords Displayed in Plain Text */
+    RUN ipStatus ("  NK1 password field").
+    INPUT FROM VALUE(cUpdDataDir + "\sys-ctrl.d") NO-ECHO.
+    REPEAT:
+        CREATE ttsys-ctrl.
+        IMPORT ttsys-ctrl.
+    END.
+    INPUT CLOSE.
+    INPUT FROM VALUE(cUpdDataDir + "\sys-ctrl-shipto.d") NO-ECHO.
+    REPEAT:
+        CREATE ttsys-ctrl-shipto.
+        IMPORT ttsys-ctrl-shipto.
+    END.
+    INPUT CLOSE.
+    FOR EACH sys-ctrl EXCLUSIVE:
+        FIND FIRST ttsys-ctrl WHERE
+            ttsys-ctrl.company EQ "001" AND 
+            ttsys-ctrl.name EQ sys-ctrl.name
+            NO-ERROR.
+        IF AVAIL ttsys-ctrl THEN ASSIGN 
+                sys-ctrl.isPassword = ttsys-ctrl.isPassword.
+    END.
+    FOR EACH sys-ctrl-shipto EXCLUSIVE:
+        FIND FIRST ttsys-ctrl-shipto WHERE
+            ttsys-ctrl-shipto.company EQ "001" AND 
+            ttsys-ctrl-shipto.name EQ sys-ctrl-shipto.name 
+            NO-ERROR.
+        IF AVAIL ttsys-ctrl-shipto THEN ASSIGN 
+            sys-ctrl-shipto.isPassword = ttsys-ctrl-shipto.isPassword.
+    END.
+    
     ASSIGN 
         lSuccess = TRUE.
        
@@ -6839,6 +6712,58 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipUpdateSQLSettings C-Win
+PROCEDURE ipUpdateSQLSettings:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes: Just an overview:
+            Read the conmgr.properties file to see if there is a "special" port for SQL server
+            If not, use the "regular" DB port
+            Output some values to a file /Admin/SQLParms.txt. This contains
+                dbname=<dbname>
+                dbport=<port>
+                cusername=asi
+                cpassword=Boxco2020
+            This file will be used later by the batch file to ensure SQL permissions are given to all files
+            It will then be deleted as part of the normal upgrade
+            
+            DB name is from input variable ipcName, normal port is from ipcPort
+------------------------------------------------------------------------------*/
+    DEF VAR cRaw AS CHAR NO-UNDO.
+    DEF VAR cTestString AS CHAR NO-UNDO.
+    DEF VAR cSQLDbPort AS CHAR NO-UNDO.
+    DEF VAR lInSection AS LOG.
+    INPUT FROM VALUE(cDLCDir + "\properties\conmgr.properties").
+    REPEAT:
+        IMPORT UNFORMATTED cRaw.
+        IF INDEX(cRaw,"servergroup." + ipcName + ".defaultConfiguration") NE 0 
+        AND INDEX(cRaw,"sql") NE 0 THEN ASSIGN
+            lInSection = TRUE.
+        IF lInSection
+        AND INDEX(TRIM(cRaw),"port=") NE 0 THEN ASSIGN
+            cTestString = TRIM(cRaw)
+            cSQLDbPort = ENTRY(2,cTestString,"=")
+            cSQLDbPort = TRIM(cSQLDbPort).
+        IF cSQLDbPort NE "" THEN LEAVE.
+    END. 
+    INPUT CLOSE.
+    IF cSQLDbPort EQ "" THEN ASSIGN 
+        cSQLDbPort = ipcPort.
+    OUTPUT TO VALUE(cAdminDir + "\SQLParms.txt").
+    PUT UNFORMATTED "dbname=" + ipcName + CHR(10).         
+    PUT UNFORMATTED "dbport=" + cSQLDbPort + CHR(10).         
+    PUT UNFORMATTED "cusername=asi" + CHR(10).         
+    PUT UNFORMATTED "cpassword=Boxco2020" + CHR(10).         
+    OUTPUT CLOSE.    
+    
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipUpdateTTIniFile C-Win 
 PROCEDURE ipUpdateTTIniFile :

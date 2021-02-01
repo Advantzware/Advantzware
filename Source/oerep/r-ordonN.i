@@ -357,7 +357,7 @@
                    WHEN "fg-itm"   THEN cVarValue = IF AVAIL oe-ordl THEN string(oe-ordl.i-no) ELSE "" .
                    WHEN "ord"      THEN cVarValue = IF AVAIL oe-ordl THEN STRING(oe-ordl.ord-no) ELSE "" .
                    WHEN "cad"      THEN cVarValue = STRING(tt-report.cad-no,"x(13)") .
-                   WHEN "po"       THEN cVarValue = STRING(tt-report.po-no,"x(10)") .
+                   WHEN "po"       THEN cVarValue = STRING(tt-report.po-no,"x(15)") .
                    WHEN "ord-qty"  THEN cVarValue = IF AVAIL oe-ordl THEN STRING(oe-ordl.qty,"->,>>>,>>9") ELSE "" .
                    WHEN "qty-oh "  THEN cVarValue = STRING(tt-report.q-onh,"->,>>>,>>9") .
                    WHEN "qty-shp"  THEN cVarValue = STRING(tt-report.q-shp,"->,>>>,>>9") .

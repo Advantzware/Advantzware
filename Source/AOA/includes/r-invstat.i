@@ -229,7 +229,8 @@ PROCEDURE pAddJobItem PRIVATE:
     END CASE.
     
     CREATE opbf-ttJobItem.
-    ASSIGN 
+    ASSIGN
+        ipcJobID                               = LEFT-TRIM(ipcJobID)
         opbf-ttJobItem.cCompany                = ipcCompany
         opbf-ttJobItem.cCustomerID             = CAPS(ipcCustomerID)
         opbf-ttJobItem.cItemID                 = CAPS(ipcItemID)
@@ -486,10 +487,11 @@ PROCEDURE pBuildJobItem PRIVATE:
         END.
         
         cSource = "Job Header - "
-            + IF itemfg.isaset AND NOT CAN-DO(cProductCategoryList,itemfg.procat) THEN "Set"
-            ELSE "Single".
+                + IF itemfg.isaset AND NOT CAN-DO(cProductCategoryList,itemfg.procat) THEN "Set"
+                ELSE "Single".
               
-        IF dQtyInv GE dQtyOrd THEN NEXT. /* No Backlog at time of "as of" */
+        /* No Backlog at time of "as of" */
+        IF (dQtyInv GE dQtyOrd) OR (job.close-date LT ipdtAsOf AND dQtyOnHand EQ 0) THEN NEXT.
         
         RUN pAddJobItem (
             job-hdr.company,

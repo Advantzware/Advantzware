@@ -61,10 +61,12 @@ CREATE WIDGET-POOL.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON Select_att 
-     IMAGE-UP FILE "Graphics/32x32/pin2.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/pin2.png":U
+     IMAGE-DOWN FILE "Graphics/32x32/pin2_hover.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/pin2_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Attachment" 
-     SIZE 7.8 BY 1.81 TOOLTIP "Attachments".
+     SIZE 7.8 BY 1.81 TOOLTIP "Attachments"
+     BGCOLOR 21 .
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -73,7 +75,8 @@ DEFINE FRAME F-Main
      Select_att AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE .
+         AT COL 1 ROW 1 SCROLLABLE 
+         BGCOLOR 21 .
 
 
 /* *********************** Procedure Settings ************************ */
@@ -103,7 +106,7 @@ END.
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW s-object ASSIGN
          HEIGHT             = 1.81
-         WIDTH              = 41.
+         WIDTH              = 66.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -178,7 +181,7 @@ END.
 &ENDIF
 
 IF INDEX(PROGRAM-NAME(3),"windows/cust") > 0 OR PROGRAM-NAME(3) MATCHES "*touch/w-mchtrn*" THEN
-   SELECT_att:LOAD-IMAGE("Graphics/32x32/paperclip.ico").
+   SELECT_att:LOAD-IMAGE("Graphics/32x32/pin2.png").
 
 
 RUN Tool_Tips IN Persistent-Handle (FRAME {&FRAME-NAME}:HANDLE).
@@ -218,9 +221,9 @@ PROCEDURE Paper-Clip-Image :
 
    DO WITH FRAME {&FRAME-NAME}:
       IF NOT ip-attach THEN
-         SELECT_att:LOAD-IMAGE("Graphics/32x32/paperclip.ico").
+         SELECT_att:LOAD-IMAGE("Graphics/32x32/pin2.png").
       ELSE
-         SELECT_att:LOAD-IMAGE("Graphics/32x32/paperclip_star.ico").
+         SELECT_att:LOAD-IMAGE("Graphics/32x32/pin2_star.png").
    END.
 END PROCEDURE.
 
@@ -238,9 +241,9 @@ PROCEDURE pushpin-image :
 
    DO WITH FRAME {&FRAME-NAME}:
       IF NOT ip-attach THEN
-         SELECT_att:LOAD-IMAGE("Graphics/32x32/pin2.ico").
+         SELECT_att:LOAD-IMAGE("Graphics/32x32/pin2_star.png").
       ELSE
-         SELECT_att:LOAD-IMAGE("Graphics/32x32/pin2_star.ico").
+         SELECT_att:LOAD-IMAGE("Graphics/32x32/pin2.png").
    END.
 END PROCEDURE.
 

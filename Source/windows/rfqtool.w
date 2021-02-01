@@ -35,9 +35,13 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-def var ll-enable-trx as log no-undo.
+DEF VAR ll-enable-trx AS LOG NO-UNDO.
 {custom/gcompany.i}
-
+&SCOPED-DEFINE winReSize
+&SCOPED-DEFINE h_Browse01 h_b-rfqlst
+&SCOPED-DEFINE h_Object01 h_v-set
+&SCOPED-DEFINE h_Object02 h_rfqtoest
+&SCOPED-DEFINE h_Object03 h_p-updsav-2
 /*&SCOPED-DEFINE setUserPrint*/
 
 /* _UIB-CODE-BLOCK-END */
@@ -164,7 +168,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 204.8
          VIRTUAL-HEIGHT     = 33.29
          VIRTUAL-WIDTH      = 204.8
-         RESIZE             = no
+         RESIZE             = yes
          SCROLL-BARS        = no
          STATUS-AREA        = yes
          BGCOLOR            = ?
@@ -293,6 +297,7 @@ END.
 {custom/getcmpny.i}
 /* Include custom  Main Block code for SmartWindows. */
 {src/adm/template/windowmn.i}
+{custom/initializeprocs.i}
 
  run valid-license no-error.
  if error-status:error then do:
@@ -349,7 +354,7 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/folder.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'FOLDER-LABELS = ':U + 'Brws Part#|View RFQ|RFQ Item|Size|Item Spec|Materials|Printing|Shipping' + ',
+             INPUT  'FOLDER-LABELS = ':U + 'Browse|Detail|RFQ Item|Size|Item Spec|Material|Printing|Shipping' + ',
                      FOLDER-TAB-TYPE = 2':U ,
              OUTPUT h_folder ).
        RUN set-position IN h_folder ( 2.91 , 2.00 ) NO-ERROR.
@@ -357,7 +362,7 @@ PROCEDURE adm-create-objects :
 
        /* Links to SmartFolder h_folder. */
        RUN add-link IN adm-broker-hdl ( h_folder , 'Page':U , THIS-PROCEDURE ).
-
+	   RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'udficon':U , h_optionse2 ).
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_exit ,
              h_optionse2 , 'AFTER':U ).
@@ -531,9 +536,10 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'p-rfqsiz.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  '':U ,
+             INPUT  'Edge-Pixels = 2,
+                     SmartPanelType = Update':U ,
              OUTPUT h_p-rfqsiz ).
-       /* Position in AB:  ( 19.10 , 39.00 ) */
+       RUN set-position IN h_p-rfqsiz ( 19.10 , 39.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.76 , 52.00 ) */
 
        /* Initialize other pages that this page requires. */
@@ -830,12 +836,12 @@ PROCEDURE local-change-page :
 
   /* Code placed here will execute AFTER standard behavior.    */
   RUN get-attribute IN THIS-PROCEDURE ('Current-Page':U).
-  if integer(return-value) > 3 and not ll-enable-trx then do:
-     ll-enable-trx = yes.
+  IF INTEGER(RETURN-VALUE) > 3 AND NOT ll-enable-trx THEN DO:
+     ll-enable-trx = YES.
     /* RUN enable_UI IN h_rfqtoest NO-ERROR .*/
-     run dispatch in h_rfqtoest ('enable').     
-  end.
-
+     RUN dispatch IN h_rfqtoest ('enable').     
+  END.
+    {methods/winReSizePgChg.i}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

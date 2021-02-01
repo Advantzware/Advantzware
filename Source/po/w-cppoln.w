@@ -303,8 +303,8 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/folder.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'FOLDER-LABELS = ':U + 'Browse PO' + ',
-                     FOLDER-TAB-TYPE = 1':U ,
+             INPUT  'FOLDER-LABELS = ':U + 'Browse' + ',
+                     FOLDER-TAB-TYPE = 2':U ,
              OUTPUT h_folder ).
        RUN set-position IN h_folder ( 9.81 , 24.00 ) NO-ERROR.
        RUN set-size IN h_folder ( 10.24 , 87.00 ) NO-ERROR.
@@ -316,7 +316,7 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_p-navico-2 , 'Navigation':U , h_b-cppoln-3 ).
        RUN add-link IN adm-broker-hdl ( h_p-updonly-2 , 'TableIO':U , h_b-cppoln-3 ).
        RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'consource':U , h_b-cppoln-3 ).
-
+	   RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'udficon':U , h_options ).
        /* Links to SmartFolder h_folder. */
        RUN add-link IN adm-broker-hdl ( h_folder , 'Page':U , THIS-PROCEDURE ).
 

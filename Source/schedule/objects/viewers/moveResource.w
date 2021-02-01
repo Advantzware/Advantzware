@@ -36,6 +36,8 @@ CREATE WIDGET-POOL.
 {{&includes}/filterVars.i}
 {{&includes}/ttblJob.i}
 {{&viewers}/includes/sharedVars.i NEW}
+{methods/template/brwcustomdef.i}
+{methods/defines/sortByDefs.i}
 
 /* Parameters Definitions ---                                           */
 
@@ -355,6 +357,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL browseJob sObject
 ON ROW-DISPLAY OF browseJob IN FRAME F-Main
 DO:
+    &scoped-define exclude-row-display true 
+    {methods/template/brwrowdisplay.i}    
   {{&viewers}/includes/rowDisplay.i}
 END.
 
@@ -365,11 +369,13 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL browseJob sObject
 ON START-SEARCH OF browseJob IN FRAME F-Main
 DO:
+{methods/template/sortindicator.i} 
   IF {&BROWSE-NAME}:CURRENT-COLUMN:NAME NE ? THEN
   DO:
     columnLabel = {&BROWSE-NAME}:CURRENT-COLUMN:NAME.
     RUN reopenBrowse.
   END.
+  {methods/template/sortindicatorend.i} 
   RETURN NO-APPLY.
 END.
 
@@ -499,7 +505,7 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
-
+{methods/template/brwcustom.i}
 {{&viewers}/includes/winTitle.i}
 {{&viewers}/includes/viewersInclude.i}
 

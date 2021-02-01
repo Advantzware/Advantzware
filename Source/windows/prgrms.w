@@ -94,14 +94,14 @@ DEFINE FRAME F-Main
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 160 BY 28.57
+         SIZE 162 BY 29.67
          BGCOLOR 15 .
 
 DEFINE FRAME OPTIONS-FRAME
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 45 ROW 1
-         SIZE 116 BY 2.86
+         SIZE 116 BY 2
          BGCOLOR 15 .
 
 DEFINE FRAME message-frame
@@ -131,13 +131,13 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW W-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Program Master"
-         HEIGHT             = 28.57
-         WIDTH              = 160
+         HEIGHT             = 29.33
+         WIDTH              = 161.8
          MAX-HEIGHT         = 320
          MAX-WIDTH          = 320
          VIRTUAL-HEIGHT     = 320
          VIRTUAL-WIDTH      = 320
-         RESIZE             = no
+         RESIZE             = yes
          SCROLL-BARS        = no
          STATUS-AREA        = no
          BGCOLOR            = ?
@@ -257,7 +257,7 @@ END.
 
 /* Include custom  Main Block code for SmartWindows. */
 {src/adm/template/windowmn.i}
-
+{custom/initializeprocs.i}
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -301,7 +301,7 @@ PROCEDURE adm-create-objects :
              INPUT  '':U ,
              OUTPUT h_prgrms-3 ).
        RUN set-position IN h_prgrms-3 ( 1.00 , 77.00 ) NO-ERROR.
-       /* Size in UIB:  ( 1.81 , 31.80 ) */
+       /* Size in UIB:  ( 1.81 , 23.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'smartobj/exit.w':U ,
@@ -314,15 +314,15 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/folder.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'FOLDER-LABELS = ':U + 'Browse Prgms|View Programs' + ',
-                     FOLDER-TAB-TYPE = 1':U ,
+             INPUT  'FOLDER-LABELS = ':U + 'Browse|Detail' + ',
+                     FOLDER-TAB-TYPE = 2':U ,
              OUTPUT h_folder ).
-       RUN set-position IN h_folder ( 2.67 , 1.00 ) NO-ERROR.
-       RUN set-size IN h_folder ( 26.91 , 160.00 ) NO-ERROR.
+       RUN set-position IN h_folder ( 3.14 , 1.00 ) NO-ERROR.
+       RUN set-size IN h_folder ( 27.38 , 161.00 ) NO-ERROR.
 
        /* Links to SmartFolder h_folder. */
        RUN add-link IN adm-broker-hdl ( h_folder , 'Page':U , THIS-PROCEDURE ).
-
+	   RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'udficon':U , h_options ).
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_prgrms-3 ,
              h_options , 'AFTER':U ).
@@ -337,7 +337,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_prgrms ).
-       RUN set-position IN h_prgrms ( 4.10 , 2.00 ) NO-ERROR.
+       RUN set-position IN h_prgrms ( 4.62 , 2.00 ) NO-ERROR.
        RUN set-size IN h_prgrms ( 25.24 , 158.00 ) NO-ERROR.
 
        /* Initialize other pages that this page requires. */
@@ -357,7 +357,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_prgrms-2 ).
-       RUN set-position IN h_prgrms-2 ( 4.10 , 2.00 ) NO-ERROR.
+       RUN set-position IN h_prgrms-2 ( 4.62 , 2.00 ) NO-ERROR.
        /* Size in UIB:  ( 22.62 , 158.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -367,7 +367,7 @@ PROCEDURE adm-create-objects :
                      SmartPanelType = NAV-ICON,
                      Right-to-Left = First-On-Left':U ,
              OUTPUT h_p-navico ).
-       RUN set-position IN h_p-navico ( 26.95 , 3.00 ) NO-ERROR.
+       RUN set-position IN h_p-navico ( 27.43 , 3.00 ) NO-ERROR.
        RUN set-size IN h_p-navico ( 2.14 , 38.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
@@ -377,7 +377,7 @@ PROCEDURE adm-create-objects :
                      SmartPanelType = Update,
                      AddFunction = One-Record':U ,
              OUTPUT h_p-updsav ).
-       RUN set-position IN h_p-updsav ( 26.95 , 103.00 ) NO-ERROR.
+       RUN set-position IN h_p-updsav ( 27.43 , 103.00 ) NO-ERROR.
        RUN set-size IN h_p-updsav ( 2.14 , 56.00 ) NO-ERROR.
 
        /* Initialize other pages that this page requires. */

@@ -110,7 +110,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 189.6
          VIRTUAL-HEIGHT     = 31.1
          VIRTUAL-WIDTH      = 189.6
-         RESIZE             = no
+         RESIZE             = yes
          SCROLL-BARS        = no
          STATUS-AREA        = no
          BGCOLOR            = ?
@@ -189,7 +189,7 @@ END.
 
 /* Include custom  Main Block code for SmartWindows. */
 {src/adm/template/windowmn.i}
-
+{custom/initializeprocs.i}
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

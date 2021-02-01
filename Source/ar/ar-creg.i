@@ -52,7 +52,7 @@
          tt-post.ex-rate  = currency.ex-rate
          tt-post.curr-amt = tt-post.curr-amt * tt-post.ex-rate.
 
-      PUT ar-cash.check-no      AT 38 FORMAT ">>>>>>>>>>"
+      PUT ar-cash.check-no      AT 36 FORMAT ">>>>>>>>>>>>"
           ar-cash.check-date    AT 49
           tt-post.curr-amt      AT 57 FORMAT "->>>,>>9.99".
       v2 = v2 + tt-post.curr-amt.

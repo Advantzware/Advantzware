@@ -11,7 +11,7 @@ DataDigger version 25
 - Solved: Error when deleting record while in edit mode (Johan Geerts)
 - Solved: User defined color '?' was reset to default value after restart
 - Solved: Fixed SonarCube issues marked as 'bug' (Gilles Querret)
-- Solved: Timer frozen when computer wakes up from hibernate (Richard Kelters)
+- Solved: Timer frozen when computer wakes up from hibernate #40 (Richard Kelters)
 - Solved: Character field with format '99999' could not be updated (Damir Pem)
 - Solved: UI errors in query tester (Alan Copeland)
 - Solved: Compile error on 64bit when prowin32 is not available (Sergejus Kornejevas)
@@ -21,13 +21,14 @@ DataDigger version 25
 - Solved: Setting ? in a mandatory field will back out the update (Johan Geerts)
 - Solved: Trying to edit records in -RO mode leads to crash (Johan Geerts)
 - Solved: Items in context menu on databrowse not disabled in read-only mode
-- Solved: Changing format in field browse will reset query and column filters (kingOttmar)
+- Solved: Changing format in field browse will reset query and column filters #46 (kingOttmar)
 - Solved: Strange behaviour when DataDiggerHelp.ini is missing (Albert Flikkema)
 - Solved: Syntax error in generated code for active record class (Steven Peeters)
 - Solved: Max 65535 records were exported to Excel (Damir Pen)
 - Solved: Error in generated code for temp-tables with index definition
 - Solved: Conflict with definitions of getCursorPos in RTB (Jean-Christophe Cardot)
-- Solved: Error on table browse context menu when no db connected (Sil Boydens)
+- Solved: Syntax for resulting code not correct #47 (kingOttmar)
+- Solved: Error on table browse context menu when no db connected #49 (Sil Boydens)
 - Solved: Table browse context menu not updated after connection maintenance
 - Solved: Generate Assign statement does not show extent fields (Dirk Vreken)
 - Solved: Quick Data View does not show extent fields (Dirk Vreken)
@@ -39,17 +40,40 @@ DataDigger version 25
 - Solved: Filters of field browse were not aligned after double-click (Dirk Vreken)
 - Solved: Warnings when exporting to Excel (Dirk Vreken)
 - Solved: ADM errors when running DD during session
+- Solved: DICTDB alias not set while running DD #51 (Dubravko Labas)
+- Solved: Codepage errors on exporting to Excel #52 (Dubravko Labas)
+- Solved: Error when changing field format when query was not yet opened (Didier Dujardin)
+- Solved: List of tables is refreshed after change in dictionary
+- Solved: Drawing error in easter egg
+- Solved: Missing level in easter egg
+- Solved: HTML dumpfile not properly escaped (Gilles Querret)
+- Solved: Username sometimes not retrieved properly #54 (Movedoa)
+- Solved: Deprecated option RCODE-INFORMATION on TT definitions removed #53 (Movedoa)
+- Solved: Conversion procedure not found
+- Solved: Pingback restriction not always respected
+- Solved: Connections not synchronized among multiple windows in one session
+- Solved: Cache not invalidated when removing connections
 
 - Change: File description now shows both label and description (Johan Geerts)
 - Change: File label shown in title and description as tooltip on file browse (Dirk Vreken)
 - Change: Better naming for connecting db with a name that already is connected
 - Change: Save-as Excel file now uses .xlsx format instead of .xls
+- Change: Removed unused tracking of DD functions
+- Change: Minimum window size much smaller now
+- Change: Favourites are now stored db-independent
+- Change: No hardcoded limit for maximum window width #55 (Tipe)
+- Change: When editing, fields with long data are now not selected for saving
 
 - New   : Option to change window title via myDataDigger.p (Johan Geerts)
 - New   : Generate dump/load: toggle for selected fields only (Dirk Vreken)
 - New   : Generate dump/load: set delimiter (Dirk Vreken)
 - New   : Set main BGCOLOR to x via -param "color=x" or "color=r,g,b" (Dirk Vreken)
 - New   : Extra levels for the easter egg
+- New   : Option to generate bulk delete routine
+- New   : Logical fields can be filtered on non-standard format values (Hans Kaman)
+- New   : More help options
+- New   : Option to set frame color via myDataDigger.p
+- New   : Option to turn off filter-as-you-type on tables and fields (Jay Farr)
 
 =====================================================================================
 

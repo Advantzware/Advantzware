@@ -26,10 +26,13 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+&SCOPED-DEFINE winReSize
+{methods/defines/winReSize.i}
 {custom/globdefs.i}
 {custom/gcompany.i}
 
 {sys/inc/var.i NEW SHARED}
+{methods/template/brwCustomDef.i}
 
 ASSIGN
  cocode = g_company
@@ -571,6 +574,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
 ON ROW-DISPLAY OF br_table IN FRAME F-Main
 DO:
+    &SCOPED-DEFINE exclude-row-display true
+    {methods/template/brwRowDisplay.i}    
     find style where style.company = rfq.company and
                       style.style = rfqitem.style
                       no-lock no-error.
@@ -1239,6 +1244,7 @@ END.
 /* ***************************  Main Block  *************************** */
 {methods/ctrl-a_browser.i}
 {sys/inc/f3help.i}
+{methods/winReSize.i}
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF

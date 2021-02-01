@@ -22,11 +22,11 @@ PROCEDURE Inbound_CreateAndProcessRequestForAPIRoute:
      Purpose: Creates an inbound request for processing
      Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER ipcCompany      AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcAPIRoute     AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcResponseData AS CHARACTER NO-UNDO.
-    DEFINE OUTPUT PARAMETER oplSuccess      AS LOGICAL   NO-UNDO.
-    DEFINE OUTPUT PARAMETER opcMessage      AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcCompany       AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcAPIRoute      AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER iplcRequestData  AS LONGCHAR  NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplSuccess       AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage       AS CHARACTER NO-UNDO.
     
     DEFINE VARIABLE rittInboundRequest AS ROWID NO-UNDO.
     
@@ -51,7 +51,7 @@ PROCEDURE Inbound_CreateAndProcessRequestForAPIRoute:
     RUN pCreateRequest (
         INPUT  bf-APIInbound.apiRoute,
         INPUT  bf-APIInbound.requestVerb,
-        INPUT  ipcResponseData,
+        INPUT  iplcRequestData,
         INPUT  bf-APIInbound.requestDataType,
         OUTPUT rittInboundRequest
         ).
@@ -73,7 +73,7 @@ PROCEDURE Inbound_CreateAndProcessRequestForAPIRoute:
     IF AVAILABLE ttInboundRequest AND ttInboundRequest.processed THEN
         ASSIGN
             oplSuccess = ttInboundRequest.success
-            opcMessage = ttInboundRequest.exception
+            opcMessage = 'Inbound Event: ' + STRING(ttInboundRequest.eventID) + ", Status: " + STRING(ttInboundRequest.success, "Success/Failed") + ", Message: " + ttInboundRequest.exceptio
             .
     ELSE
         ASSIGN
@@ -89,7 +89,7 @@ PROCEDURE pCreateRequest PRIVATE:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ipcAPIRoute        AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcRequestVerb     AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcRequestData     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER iplcRequestData    AS LONGCHAR  NO-UNDO.
     DEFINE INPUT  PARAMETER ipcRequestDataType AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER iprittRequest      AS ROWID     NO-UNDO.
     
@@ -97,7 +97,7 @@ PROCEDURE pCreateRequest PRIVATE:
     ASSIGN 
         ttInboundRequest.APIRoute        = ipcAPIRoute
         ttInboundRequest.RequestVerb     = ipcRequestVerb
-        ttInboundRequest.RequestData     = ipcRequestData
+        ttInboundRequest.RequestData     = iplcRequestData
         ttInboundRequest.RequestDataType = ipcRequestDataType
         .
     
@@ -236,7 +236,7 @@ PROCEDURE Inbound_UpdateEventRequestData:
         .        
 END PROCEDURE.
 
-PROCEDURE LoadRequestsFomCSV:
+PROCEDURE LoadRequestsFromCSV:
     DEFINE INPUT  PARAMETER ipcCSVFile AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER TABLE FOR ttInboundRequest. 
 
@@ -295,7 +295,8 @@ PROCEDURE ProcessRequests:
     DEFINE INPUT PARAMETER ipcUserName AS CHARACTER  NO-UNDO.
     DEFINE INPUT PARAMETER ipcPassword AS CHARACTER  NO-UNDO.
 
-    DEFINE VARIABLE cResponse         AS CHARACTER  NO-UNDO.
+    DEFINE VARIABLE lcResponseData    AS LONGCHAR   NO-UNDO.
+    DEFINE VARIABLE lcRequestData     AS LONGCHAR   NO-UNDO.
     DEFINE VARIABLE iInboundEventID   AS INTEGER    NO-UNDO.
     DEFINE VARIABLE cAPIInboundEvent  AS CHARACTER  NO-UNDO.
     DEFINE VARIABLE cRecordSource     AS CHARACTER  NO-UNDO.
@@ -306,15 +307,17 @@ PROCEDURE ProcessRequests:
             
     FOR EACH ttInboundRequest
         WHERE NOT ttInboundRequest.processed:
+        lcRequestData = ttInboundRequest.RequestData.
+        
         RUN api\inbound\APIRequestRouterAS.p (
             INPUT  ttInboundRequest.APIRoute,
             INPUT  ttInboundRequest.RequestVerb,
             INPUT  ipcUserName,
             INPUT  ipcPassword,
             INPUT  ttInboundRequest.RequestDataType,
-            INPUT  ttInboundRequest.RequestData,
+            INPUT  lcRequestData,
             INPUT  cRecordSource,     
-            OUTPUT cResponse,
+            OUTPUT lcResponseData,
             OUTPUT cAPIInboundEvent
             ) NO-ERROR.
        
@@ -333,7 +336,7 @@ PROCEDURE ProcessRequests:
             ttInboundRequest.exception    = cMessage
             ttInboundRequest.success      = lSuccess
             ttInboundRequest.processed    = YES
-            ttInboundRequest.responsedata = cResponse
+            ttInboundRequest.responsedata = lcResponseData
             ttInboundRequest.eventID      = iInboundEventID
             .
     END.

@@ -204,8 +204,8 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/folder.w':U ,
              INPUT  FRAME D-Dialog:HANDLE ,
-             INPUT  'FOLDER-LABELS = ':U + 'View BOL|Ship Notes' + ',
-                     FOLDER-TAB-TYPE = 1':U ,
+             INPUT  'FOLDER-LABELS = ':U + 'View BOL|ShipNote' + ',
+                     FOLDER-TAB-TYPE = 2':U ,
              OUTPUT h_folder ).
        RUN set-position IN h_folder ( 1.00 , 1.00 ) NO-ERROR.
        RUN set-size IN h_folder ( 22.62 , 149.00 ) NO-ERROR.

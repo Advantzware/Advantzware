@@ -403,7 +403,9 @@ def var vzer        as   log                init no.
 def var vneg        as   log                init no.
 
 def var x           as   int                no-undo.
-
+DEFINE VARIABLE dCost AS DECIMAL NO-UNDO.
+DEFINE VARIABLE dQty  AS DECIMAL NO-UNDO.
+DEFINE BUFFER b-rm-bin FOR rm-bin.
 
 session:set-wait-state("General").
 

@@ -168,6 +168,8 @@ DEFINE VARIABLE hdEstimateCalcProcs AS HANDLE.
 DEFINE VARIABLE iLinePerPage AS INTEGER NO-UNDO .
 DEFINE VARIABLE hdEstimateProcs AS HANDLE NO-UNDO.
 DEFINE VARIABLE lCEVersion AS LOGICAL NO-UNDO.
+             
+DEFINE VARIABLE hdSalesManProcs AS HANDLE NO-UNDO.
 
  RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormModal", "L" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
@@ -198,7 +200,8 @@ END.
   v-cestcalc = sys-ctrl.char-fld.
 
 
-RUN est/EstimateProcs.p PERSISTENT SET hdEstimateProcs.
+RUN est/EstimateProcs.p    PERSISTENT SET hdEstimateProcs.
+RUN salrep/SalesManProcs.p PERSISTENT SET hdSalesManProcs. 
 
 RUN Estimate_GetEstimateDir IN hdEstimateProcs (
     INPUT  cocode,
@@ -348,7 +351,8 @@ ASI.probe.est-no = eb.est-no ~
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS  br_table 
-&Scoped-Define DISPLAYED-OBJECTS fi_sort-by FI_moveCol
+&Scoped-Define DISPLAYED-OBJECTS fi_sort-by
+// FI_moveCol
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -455,10 +459,10 @@ FUNCTION vtot-msf RETURNS DECIMAL
 
 /* ***********************  Control Definitions  ********************** */
 
-DEFINE VARIABLE FI_moveCol AS CHARACTER FORMAT "X(4)":U 
+/*DEFINE VARIABLE FI_moveCol AS CHARACTER FORMAT "X(4)":U 
      VIEW-AS FILL-IN 
      SIZE 13 BY 1
-     BGCOLOR 14 FONT 6 NO-UNDO.
+     BGCOLOR 14 FONT 6 NO-UNDO.*/
 
 DEFINE VARIABLE fi_sort-by AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
@@ -534,13 +538,13 @@ DEFINE FRAME F-Main
      
      br_table AT ROW 1 COL 1
      fi_sort-by AT ROW 14.20 COL 73 COLON-ALIGNED NO-LABEL
-     "Browser Col. Mode:" VIEW-AS TEXT
+   /*  "Browser Col. Mode:" VIEW-AS TEXT
           SIZE 22.6 BY .62 AT ROW 14.40 COL 107 WIDGET-ID 6
-          FONT 6
-     "Sort By:" VIEW-AS TEXT
+          FONT 6*/
+    /* "Sort By:" VIEW-AS TEXT
           SIZE 9.4 BY 1 AT ROW 14.20 COL 65
-          FONT 6
-     FI_moveCol AT ROW 14.20 COL 128 COLON-ALIGNED NO-LABEL WIDGET-ID 4
+          FONT 6 */
+    // FI_moveCol AT ROW 14.20 COL 128 COLON-ALIGNED NO-LABEL WIDGET-ID 4
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -767,6 +771,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
 ON START-SEARCH OF br_table IN FRAME F-Main
 DO:
+  {methods/template/sortindicator.i} 
   DEF VAR lh-column AS HANDLE NO-UNDO.
   DEF VAR lv-column-nam AS CHAR NO-UNDO.
   DEF VAR lv-column-lab AS CHAR NO-UNDO.
@@ -788,6 +793,7 @@ DO:
 
   /*APPLY "choose" TO btn_go.*/
   RUN resort-query .
+  {methods/template/sortindicatorend.i} 
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1088,10 +1094,10 @@ END.
 &SCOPED-DEFINE cellColumnDat probe
 
 {methods/browsers/setCellColumns.i}
-
+/*
   FI_moveCol = "Sort".
   DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}.
-
+*/
 &IF DEFINED(UIB_IS_RUNNING) NE 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF
@@ -1115,7 +1121,10 @@ IF v-ceSellPrice NE "F" THEN DO lv-int = 1 TO {&BROWSE-NAME}:NUM-COLUMNS IN FRAM
   END.
     
 END.
-
+/* Ticket# : 92946
+   Hiding this widget for now, as browser's column label should be indicating the column which is sorted by */
+fi_sort-by:HIDDEN IN FRAME {&frame-name} = TRUE.
+fi_sort-by:VISIBLE IN FRAME {&frame-name} = FALSE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1544,6 +1553,8 @@ DEFINE VARIABLE v-tot-lab AS DECIMAL NO-UNDO.
 DEFINE VARIABLE v-nk-found AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lv-cust LIKE eb.cust-no NO-UNDO.
 DEFINE VARIABLE cNotes LIKE quotehd.comment NO-UNDO.
+DEFINE VARIABLE lSuccess AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
 {est/checkuse.i}
 
 SESSION:SET-WAIT-STATE("general").
@@ -1554,6 +1565,20 @@ IF CAN-FIND(FIRST xprobe
             WHERE xprobe.company EQ probe.company
               AND xprobe.est-no  EQ probe.est-no
               AND xprobe.do-quote) THEN DO:
+                  
+ IF AVAILABLE eb THEN DO:
+        RUN SalesMan_ValidateSalesRep IN hdSalesManProcs(  
+            INPUT  cocode,
+            INPUT  eb.sman,
+            OUTPUT lSuccess,
+            OUTPUT cMessage
+            ).
+        IF NOT lSuccess THEN DO:                                         
+            MESSAGE cMessage + " on customer"
+            VIEW-AS ALERT-BOX ERROR.
+            RETURN.
+        END.      
+  END.
     /*
   FIND FIRST sys-ctrl
       WHERE sys-ctrl.company EQ cocode
@@ -2712,8 +2737,8 @@ PROCEDURE move-columns :
          br_table:COLUMN-MOVABLE = v-col-move
          br_table:COLUMN-RESIZABLE = v-col-move
          v-col-move = NOT v-col-move.
-      FI_moveCol = IF v-col-move = NO THEN "Move" ELSE "Sort".
-      DISPLAY FI_moveCol.
+  /*    FI_moveCol = IF v-col-move = NO THEN "Move" ELSE "Sort".
+      DISPLAY FI_moveCol.*/
    END.
 END PROCEDURE.
 

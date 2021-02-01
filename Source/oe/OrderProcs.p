@@ -306,11 +306,7 @@ PROCEDURE Order_CallCreateReleaseTrigger:
                         ) NO-ERROR.
                 END. /*First bf-oe-rell.i-no*/                
             END.
-            DO TRANSACTION:  
-                FIND CURRENT bf-oe-relh EXCLUSIVE-LOCK NO-ERROR.
-                IF AVAILABLE bf-oe-relh THEN.
-                     bf-oe-relh.printed = YES.     
-            END. 
+           
             RELEASE bf-oe-relh.                                                                         
         END.  
         RUN Outbound_ResetContext IN hdOutboundProcs.  
@@ -356,6 +352,248 @@ PROCEDURE pConsolidateImportedOrderLines PRIVATE:
             END.
         END.        
     END.
+END PROCEDURE.
+
+PROCEDURE Order_CreateMiscChargeByDeliveryDate:
+/*------------------------------------------------------------------------------
+ Purpose: Creates a misc charge record for the order
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany             AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiOrderID             AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdtOrderDate          AS DATETIME  NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdtOrderDeliveryDate  AS DATETIME  NO-UNDO.
+
+    DEFINE VARIABLE lError   AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+    
+    RUN pCreateMiscChargeByDeliveryDate(
+        INPUT  ipcCompany,
+        INPUT  ipiOrderID,
+        INPUT  ipdtOrderDate,
+        INPUT  ipdtOrderDeliveryDate,
+        OUTPUT lError,
+        OUTPUT cMessage        
+        ).
+END.
+
+PROCEDURE pCreateMiscChargeByDeliveryDate PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: Creates a misc charge record for the order
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany             AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiOrderID             AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdtOrderDate          AS DATETIME  NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdtOrderDeliveryDate  AS DATETIME  NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError               AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage             AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE cSurchargeConfigList AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cSurchargeConfig     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cPrepCode            AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lFound               AS LOGICAL   NO-UNDO.
+    
+    DEFINE BUFFER bf-oe-ord FOR oe-ord.
+    
+    RUN pGetSurchargeConfig (
+        INPUT  ipdtOrderDate,
+        INPUT  ipdtOrderDeliveryDate, 
+        OUTPUT cSurchargeConfigList
+        ).
+    
+    cSurchargeConfig = ENTRY(1, cSurchargeConfigList).
+    
+    IF cSurchargeConfig EQ "" THEN
+        RETURN.
+    
+    FIND FIRST bf-oe-ord NO-LOCK
+         WHERE bf-oe-ord.company EQ ipcCompany
+           AND bf-oe-ord.ord-no  EQ ipiOrderID
+         NO-ERROR.
+    IF NOT AVAILABLE bf-oe-ord THEN DO:
+        ASSIGN
+            oplError   = TRUE 
+            opcMessage = "Invalid Order #" + STRING(ipiOrderID)
+            .     
+        RETURN.
+    END.
+
+    RUN sys/ref/nk1look.p (
+        INPUT  ipcCompany,
+        INPUT  cSurchargeConfig,
+        INPUT  "C",
+        INPUT  YES,
+        INPUT  YES,
+        INPUT  bf-oe-ord.cust-no,
+        INPUT  bf-oe-ord.ship-id,
+        OUTPUT cPrepCode,
+        OUTPUT lFound
+        ).
+    IF NOT lFound OR cPrepCode EQ "" THEN
+        RETURN.
+
+    RUN pCreateMiscSurcharge (
+        INPUT  ipcCompany,
+        INPUT  ipiOrderID,
+        INPUT  cPrepCode,
+        OUTPUT oplError,
+        OUTPUT opcMessage
+        ).
+        
+END PROCEDURE.
+
+PROCEDURE pCreateMiscSurcharge PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: Creates a oe-ordm record for a given order
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany  AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiOrderID  AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcPrepCode AS CHARACTER NO-UNDO.    
+    DEFINE OUTPUT PARAMETER oplError    AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage  AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE iLineCount AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE dMarkUp    AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE lFound     AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cPrepPrice AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-oe-ord   FOR oe-ord.
+    DEFINE BUFFER bf-oe-ordl  FOR oe-ordl.
+    DEFINE BUFFER bf-oe-ordm  FOR oe-ordm.
+    DEFINE BUFFER bf-ar-ctrl  FOR ar-ctrl.
+    DEFINE BUFFER bf-prep     FOR prep.
+    DEFINE BUFFER bf-est-prep FOR est-prep.
+    DEFINE BUFFER bf-account  FOR account. 
+
+    MAIN-BLOCK:
+    DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
+        ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
+    
+        FIND FIRST bf-oe-ord NO-LOCK
+             WHERE bf-oe-ord.company EQ ipcCompany
+               AND bf-oe-ord.ord-no  EQ ipiOrderID
+             NO-ERROR.
+        IF NOT AVAILABLE bf-oe-ord THEN DO:
+            ASSIGN
+                oplError   = TRUE 
+                opcMessage = "Invalid Order #" + STRING(ipiOrderID)
+                .     
+            RETURN.
+        END.
+        
+        FIND FIRST bf-prep NO-LOCK
+             WHERE bf-prep.company EQ bf-oe-ord.company
+               AND bf-prep.code    EQ ipcPrepCode
+             NO-ERROR.
+        IF NOT AVAILABLE bf-prep THEN DO:
+            ASSIGN
+                oplError   = TRUE 
+                opcMessage = "Invalid Prep code " + STRING(ipcPrepCode)
+                .     
+            RETURN.
+        END.
+
+        FIND FIRST bf-account
+             WHERE bf-account.company EQ bf-oe-ord.company 
+               AND bf-account.actnum  EQ bf-prep.actnum
+             NO-ERROR.
+        IF NOT AVAILABLE bf-account THEN DO:
+            ASSIGN
+                oplError   = TRUE 
+                opcMessage = "Invalid Account Number " + bf-prep.actnum + " on Prep code " + STRING(ipcPrepCode)
+                .     
+            RETURN.        
+        END.
+        
+        FIND LAST bf-oe-ordm NO-LOCK
+            WHERE bf-oe-ordm.company EQ bf-oe-ord.company
+              AND bf-oe-ordm.ord-no  EQ bf-oe-ord.ord-no
+            USE-INDEX oe-misc NO-ERROR.
+        IF AVAILABLE bf-oe-ordm THEN 
+            iLineCount = bf-oe-ordm.line.
+
+        RUN sys/ref/nk1look.p (
+            INPUT  ipcCompany,
+            INPUT  "CEPREPPRICE",
+            INPUT  "C",
+            INPUT  NO,
+            INPUT  NO,
+            INPUT  NO,
+            INPUT  "",
+            OUTPUT cPrepPrice,
+            OUTPUT lFound
+            ).
+
+        IF cPrepPrice EQ "Profit" THEN
+            dMarkUp = bf-prep.cost / (1 - (bf-prep.mkup / 100)).
+        ELSE
+            dMarkUp = bf-prep.cost * (1 + (bf-prep.mkup / 100)).
+    
+        IF dMarkUp EQ ? THEN
+            dMarkUp = 0.
+
+        CREATE bf-oe-ordm.
+        ASSIGN
+            bf-oe-ordm.company      = bf-oe-ord.company
+            bf-oe-ordm.ord-no       = bf-oe-ord.ord-no
+            bf-oe-ordm.charge       = bf-prep.code
+            bf-oe-ordm.line         = iLineCount + 1
+            bf-oe-ordm.dscr         = bf-prep.dscr
+            bf-oe-ordm.cost         = bf-prep.cost
+            bf-oe-ordm.actnum       = bf-prep.actnum
+            bf-oe-ordm.amt          = dMarkUp
+            bf-oe-ordm.est-no       = bf-oe-ord.est-no
+            bf-oe-ordm.bill         = "Y"
+            bf-oe-ordm.s-man[1]     = bf-oe-ord.sman[1]
+            bf-oe-ordm.s-pct[1]     = bf-oe-ord.s-pct[1]
+            bf-oe-ordm.s-comm[1]    = bf-oe-ord.s-comm[1]
+            bf-oe-ordm.s-man[2]     = bf-oe-ord.sman[2]
+            bf-oe-ordm.s-pct[2]     = bf-oe-ord.s-pct[2]
+            bf-oe-ordm.s-comm[2]    = bf-oe-ord.s-comm[2]
+            bf-oe-ordm.s-man[3]     = bf-oe-ord.sman[3]
+            bf-oe-ordm.s-pct[3]     = bf-oe-ord.s-pct[3]
+            bf-oe-ordm.s-comm[3]    = bf-oe-ord.s-comm[3]
+            bf-oe-ordm.spare-char-1 = bf-oe-ord.tax-gr
+            .    
+    
+        IF NOT bf-prep.commissionable THEN
+            ASSIGN 
+                bf-oe-ordm.s-comm[1] = 0 
+                bf-oe-ordm.s-comm[2] = 0
+                bf-oe-ordm.s-comm[3] = 0
+                .
+    
+        RUN Tax_GetTaxableMisc (
+            INPUT  ipcCompany, 
+            INPUT  bf-oe-ord.cust-no, 
+            INPUT  bf-oe-ord.ship-id, 
+            INPUT  ipcPrepCode, 
+            OUTPUT bf-oe-ordm.tax
+            ).
+        IF bf-oe-ordm.tax AND bf-oe-ord.tax-gr EQ "" THEN
+            bf-oe-ordm.tax = FALSE.
+
+        FIND FIRST bf-oe-ordl NO-LOCK
+             WHERE bf-oe-ordl.company EQ bf-oe-ord.company
+               AND bf-oe-ordl.ord-no  EQ bf-oe-ord.ord-no
+             NO-ERROR.
+        IF AVAILABLE bf-oe-ordl THEN
+            ASSIGN
+                bf-oe-ordm.spare-char-2 = bf-oe-ordl.i-no 
+                bf-oe-ordm.ord-i-no     = bf-oe-ordl.job-no
+                bf-oe-ordm.ord-line     = bf-oe-ordl.job-no2
+                bf-oe-ordm.spare-int-1  = bf-oe-ordl.line
+                .
+
+        FIND CURRENT bf-prep EXCLUSIVE-LOCK NO-ERROR.
+        IF AVAILABLE bf-prep THEN 
+            ASSIGN 
+                bf-prep.last-order  = bf-oe-ordm.ord-no
+                bf-prep.last-est-no = bf-oe-ordm.est-no
+                .
+    END.    
 END PROCEDURE.
 
 PROCEDURE pCreateOrderHeader PRIVATE:
@@ -666,6 +904,8 @@ PROCEDURE ProcessOrdersFromImport:
     DEFINE VARIABLE lOEAutoApproval    AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lValidationError   AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cValidationMessage AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lError             AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage           AS CHARACTER NO-UNDO.
     
     DEFINE BUFFER bf-oe-ord FOR oe-ord.
     
@@ -713,6 +953,13 @@ PROCEDURE ProcessOrdersFromImport:
         END.
          
         lOEAutoApproval = fGetOEAutoApprovalLog(INPUT ttOrder.company, INPUT ttOrder.customerID, INPUT ttOrder.shipToID).        
+
+       RUN Order_CreateMiscChargeByDeliveryDate (
+           INPUT bf-oe-ord.company,
+           INPUT bf-oe-ord.ord-no,
+           INPUT NOW,  /* Order Date and time */
+           INPUT bf-oe-ord.promiseDate
+           ).      
         
         IF lOeAutoApproval THEN 
             RUN ProcessImportedOrder (
@@ -720,6 +967,13 @@ PROCEDURE ProcessOrdersFromImport:
                 OUTPUT lValidationError, 
                 OUTPUT cValidationMessage
                 ).
+        ELSE
+            RUN CalcOrderCommission (
+                INPUT  ROWID(bf-oe-ord), 
+                OUTPUT lError, 
+                OUTPUT cMessage
+                ).
+        
         /* Force re-calculate tax. oe/calcordt.p is not being triggered from write.trg/oe-ord.p
            on addition of each order line */
         RUN oe/calcordt.p (
@@ -3680,19 +3934,19 @@ PROCEDURE pGetSurchargeConfig:
         OUTPUT lIsNextDayDelivery,
         OUTPUT lIsHolidayDelivery
         ).
-    
-    IF lIsWeekendOrder AND lIsWeekendDelivery THEN
-        opcSurchargeConfigList = opcSurchargeConfigList + "," + "APIOrderSurchargeWeekendOrder".
 
-    IF lIsWeekendDelivery THEN
-        opcSurchargeConfigList = opcSurchargeConfigList + "," + "APIOrderSurchargeWeekendDelivery".
-        
     IF lIsSameDayDelivery THEN
         opcSurchargeConfigList = opcSurchargeConfigList + "," + "APIOrderSurchargeSameDay".
+    
+    IF lIsWeekendDelivery THEN
+        opcSurchargeConfigList = opcSurchargeConfigList + "," + "APIOrderSurchargeWeekendDelivery".
 
     IF lIsNextDayDelivery THEN
         opcSurchargeConfigList = opcSurchargeConfigList + "," + "APIOrderSurchargeNextDay".
-        
+    
+    IF lIsWeekendOrder AND lIsWeekendDelivery THEN
+        opcSurchargeConfigList = opcSurchargeConfigList + "," + "APIOrderSurchargeWeekendOrder".
+                
     opcSurchargeConfigList = TRIM(opcSurchargeConfigList,",").    
 END PROCEDURE.
 

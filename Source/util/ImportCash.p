@@ -19,7 +19,7 @@ DEFINE TEMP-TABLE ttImportCash
     FIELD Company         AS CHARACTER FORMAT "x(3)"
     FIELD Location        AS CHARACTER FORMAT "x(5)"
     FIELD CustomerID      AS CHARACTER FORMAT "x(10)" COLUMN-LABEL "Customer ID" HELP "Required - Must be valid - Size:10"
-    FIELD CheckNo         AS INTEGER   FORMAT "9999999999" COLUMN-LABEL "Check #" HELP "Required - Integer"
+    FIELD CheckNo         AS INT64     FORMAT "999999999999" COLUMN-LABEL "Check #" HELP "Required - Int64"
     FIELD BankCode        AS CHARACTER FORMAT "x(3)" COLUMN-LABEL "Bank" HELP "Defaults based on AR Control File Account - Size:3"
     FIELD CheckDate       AS DATE      FORMAT "99/99/9999" COLUMN-LABEL "Check Date" HELP "Defaults to Today - Date"
     FIELD CheckAmount     AS DECIMAL   FORMAT ">>,>>>,>>9.99" COLUMN-LABEL "Check Amount" HELP "Required non 0 - Decimal"
@@ -201,7 +201,7 @@ PROCEDURE pCreateNewCashHeader:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcCompany AS CHARACTER.
     DEFINE INPUT PARAMETER ipcCustomer AS CHARACTER.
-    DEFINE INPUT PARAMETER ipiCheck AS INTEGER.
+    DEFINE INPUT PARAMETER ipiCheck AS INT64.
     DEFINE OUTPUT PARAMETER opriCash AS ROWID.
     
     DEFINE VARIABLE iNextCNo AS INTEGER NO-UNDO.
@@ -278,7 +278,7 @@ PROCEDURE pCreateNewCashLine:
         ar-cashl.c-no     = ar-cash.c-no
         ar-cashl.line     = iNextLine
         ar-cashl.cust-no  = ar-cash.cust-no
-        ar-cashl.check-no = STRING(ar-cash.check-no,"9999999999")
+        ar-cashl.check-no = STRING(ar-cash.check-no,"999999999999")
         ar-cashl.inv-date = TODAY
         .
     

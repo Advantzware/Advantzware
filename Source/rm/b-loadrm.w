@@ -39,6 +39,7 @@ CREATE WIDGET-POOL.
 {custom/globdefs.i}
 {sys/inc/var.i NEW SHARED}
 {sys/inc/varasgn.i}
+{methods/template/brwcustomdef.i}
 
 def var char-val as cha no-undo.
 def var ext-cost as decimal no-undo.
@@ -399,7 +400,10 @@ END.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON ROW-DISPLAY OF Browser-Table IN FRAME F-Main
-DO:  /* display calculated field */
+DO: 
+    &scoped-define exclude-row-display true 
+    {methods/template/brwrowdisplay.i}   
+     /* display calculated field */
   /* def var ii as int.
    ii = if avail rm-rctd then integer(rm-rctd.po-no) else 0.
    

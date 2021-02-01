@@ -18,5 +18,5 @@ FOR EACH loadtag
    loadtag.qty          = {&TABLENAME}.qty
    loadtag.qty-case     = {&TABLENAME}.qty
    loadtag.pallet-count = {&TABLENAME}.qty
-   loadtag.tot-cases    = {&TABLENAME}.qty.
+   loadtag.tot-cases    = {&TABLENAME}.qty. 
 END.

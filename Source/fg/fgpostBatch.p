@@ -631,6 +631,8 @@ PROCEDURE fg-post:
                 fg-rctd.rita-code   = "A"
                 b-w-fg-rctd.reject-code = cFGSetAdjust
                 fg-rctd.reject-code   = cFGSetAdjust
+                b-w-fg-rctd.SetHeaderRno = 0
+                fg-rctd.SetHeaderRno     = 0
                 .
         END.
         RELEASE fg-rctd.

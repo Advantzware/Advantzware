@@ -31,6 +31,7 @@ CREATE WIDGET-POOL.
 &ENDIF
 DEFINE {&NEW} SHARED VARIABLE g_lookup-var AS CHARACTER NO-UNDO.
 &scoped-define proc-enable  ENABLE-detail
+&scoped-define proc-delete  proc-delete
 
 {custom/gcompany.i}
 {custom/gloc.i}
@@ -49,6 +50,11 @@ DEFINE VARIABLE ll-new-file     AS LOGICAL            NO-UNDO.
 DEFINE VARIABLE lv-part-no      LIKE quoteitm.part-no NO-UNDO.
 DEFINE VARIABLE lv-rowid        AS ROWID              NO-UNDO.
 DEFINE VARIABLE hdCustomerProcs AS HANDLE             NO-UNDO.
+DEFINE VARIABLE hdSalesManProcs AS HANDLE             NO-UNDO.
+DEFINE VARIABLE lSuccess        AS LOGICAL            NO-UNDO.
+DEFINE VARIABLE cMessage        AS CHARACTER          NO-UNDO.
+
+RUN salrep/SalesManProcs.p PERSISTENT SET hdSalesManProcs.
 
 RUN system/customerProcs.p PERSISTENT SET hdCustomerProcs.
 
@@ -418,9 +424,12 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL F-Main V-table-Win
 ON HELP OF FRAME F-Main
 DO:
-   def var char-val as cha no-undo.
-   def var lv-handle as handle no-undo.   
-   DEF VAR rec-val AS RECID NO-UNDO.
+   DEFINE VARIABLE char-val      AS CHARACTER NO-UNDO.
+   DEFINE VARIABLE lv-handle     AS HANDLE    NO-UNDO.   
+   DEFINE VARIABLE rec-val       AS RECID     NO-UNDO.
+   DEFINE VARIABLE cFieldsValue  AS CHARACTER NO-UNDO.
+   DEFINE VARIABLE cFoundValue   AS CHARACTER NO-UNDO.
+   DEFINE VARIABLE recFoundRecID AS RECID     NO-UNDO.    
 
    case focus:name :
         when "cust-no" then do:
@@ -449,9 +458,20 @@ DO:
               return no-apply.
         END.
        WHEN "sman" THEN DO:
-           RUN windows/l-sman.w (gcompany,OUTPUT char-val).
-           IF char-val <> "" THEN ASSIGN quotehd.sman:SCREEN-VALUE = ENTRY(1,char-val)
-                                         sman_desc:SCREEN-VALUE = ENTRY(2,char-val).
+            RUN system/openLookup.p (
+                INPUT  gcompany, 
+                INPUT  "", /* Lookup ID */
+                INPUT  29, /* Subject ID */
+                INPUT  "", /* User ID */
+                INPUT  0,  /* Param Value ID */
+                OUTPUT cFieldsValue, 
+                OUTPUT cFoundValue, 
+                OUTPUT recFoundRecID
+                ). 
+           IF cFoundValue NE "" THEN 
+               ASSIGN 
+                   quotehd.sman:SCREEN-VALUE = cFoundValue
+                   sman_desc:SCREEN-VALUE    =  DYNAMIC-FUNCTION("sfDynLookupValue", "sname", cFieldsValue).
        END.
        when "del-zone" then do:
            run windows/l-delzon.w 
@@ -615,13 +635,19 @@ DO:
   IF LASTKEY NE -1 THEN DO:
   {&methods/lValidateError.i YES}
    sman_desc:SCREEN-VALUE = ''.
-   IF quotehd.sman:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ '' THEN RETURN.
-   FIND FIRST sman NO-LOCK WHERE sman.sman EQ quotehd.sman:SCREEN-VALUE NO-ERROR.
-   IF NOT AVAILABLE sman THEN DO:
-     MESSAGE 'Invalid SalesGrp. Try Help.' VIEW-AS ALERT-BOX ERROR.
-     RETURN NO-APPLY.
-   END.
-   sman_desc:SCREEN-VALUE = sman.sname.
+     RUN SalesMan_ValidateSalesRep IN hdSalesManProcs(  
+         INPUT  cocode,
+         INPUT  quotehd.sman:SCREEN-VALUE,
+         OUTPUT lSuccess,
+         OUTPUT cMessage
+         ).
+     IF NOT lSuccess THEN DO:
+       MESSAGE cMessage
+            VIEW-AS ALERT-BOX ERROR.
+       APPLY 'ENTRY' TO quotehd.sman.
+       RETURN NO-APPLY.
+     END.
+   sman_desc:SCREEN-VALUE = DYNAMIC-FUNCTION("SalesMan_GetSalesmanName" IN hdSalesManProcs,cocode,quotehd.sman:SCREEN-VALUE).  
   {&methods/lValidateError.i NO}
   END.
 END.
@@ -936,6 +962,47 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-cancel-record V-table-Win
+PROCEDURE local-cancel-record:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    
+    /* Code placed here will execute PRIOR to standard behavior. */
+    DO WITH FRAME {&frame-name}:
+        DISABLE ALL.
+    END.
+    
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE proc-delete V-table-Win 
+PROCEDURE proc-delete :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   
+   IF NOT AVAIL quotehd THEN
+   DO:      
+     {methods/run_link.i "RECORD-SOURCE" "resetQueryForDelete" }      
+   END.                                                        
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-assign-record V-table-Win 
 PROCEDURE local-assign-record :
 /*------------------------------------------------------------------------------
@@ -1211,16 +1278,20 @@ PROCEDURE local-update-record :
    {&methods/lValidateError.i YES}
    DO WITH FRAME {&FRAME-NAME}:
      sman_desc:SCREEN-VALUE = ''.
-     IF quotehd.sman:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE '' THEN DO:
-       FIND FIRST sman NO-LOCK WHERE sman.sman EQ quotehd.sman:SCREEN-VALUE NO-ERROR.
-       IF NOT AVAILABLE sman THEN DO:
-         MESSAGE 'Invalid SalesGrp. Try Help.' VIEW-AS ALERT-BOX ERROR.
-         APPLY 'ENTRY' TO quotehd.sman.
-         RETURN NO-APPLY.
-       END.
-       sman_desc:SCREEN-VALUE = sman.sname.
+     RUN SalesMan_ValidateSalesRep IN hdSalesManProcs(  
+         INPUT  cocode,
+         INPUT  quotehd.sman:SCREEN-VALUE,
+         OUTPUT lSuccess,
+         OUTPUT cMessage
+         ).
+     IF NOT lSuccess THEN DO:
+       MESSAGE cMessage
+            VIEW-AS ALERT-BOX ERROR.
+       APPLY 'ENTRY' TO quotehd.sman.
+       RETURN NO-APPLY.
      END.
-
+     sman_desc:SCREEN-VALUE = DYNAMIC-FUNCTION("SalesMan_GetSalesmanName" IN hdSalesManProcs,cocode,quotehd.sman:SCREEN-VALUE).
+     
      term_desc:SCREEN-VALUE = ''.
      IF quotehd.terms:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE '' THEN DO:
        FIND FIRST terms NO-LOCK WHERE terms.t-code EQ quotehd.terms:SCREEN-VALUE NO-ERROR.

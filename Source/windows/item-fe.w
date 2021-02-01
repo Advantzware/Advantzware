@@ -55,7 +55,7 @@ DEF INPUT PARAMETER ip-board AS RECID NO-UNDO .
 DEFINE VARIABLE winObjects AS CHARACTER NO-UNDO.
 /*  if item-spec notes window need un-comment preprocedure */
 &scoped-define item_spec RMItem
-
+{methods/template/globaldef.i}
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -176,18 +176,18 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          TITLE              = "Raw Materials Inventory"
          HEIGHT             = 23.95
          WIDTH              = 150
-         MAX-HEIGHT         = 24
-         MAX-WIDTH          = 160
+         MAX-HEIGHT         = 320
+         MAX-WIDTH          = 320
          VIRTUAL-HEIGHT     = 320
          VIRTUAL-WIDTH      = 320
-         RESIZE             = no
-         SCROLL-BARS        = no
-         STATUS-AREA        = yes
+         RESIZE             = YES
+         SCROLL-BARS        = NO
+         STATUS-AREA        = YES
          BGCOLOR            = ?
          FGCOLOR            = ?
-         THREE-D            = yes
-         MESSAGE-AREA       = no
-         SENSITIVE          = yes.
+         THREE-D            = YES
+         MESSAGE-AREA       = NO
+         SENSITIVE          = YES.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
@@ -311,8 +311,9 @@ END.
 /* ***************************  Main Block  *************************** */
 
 /* Include custom  Main Block code for SmartWindows. */
+{custom/resizrs.i}
 {src/adm/template/windowmn.i}
-
+{custom/initializeprocs.i}
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -377,7 +378,7 @@ PROCEDURE adm-create-objects :
 
        /* Links to SmartFolder h_folder. */
        RUN add-link IN adm-broker-hdl ( h_folder , 'Page':U , THIS-PROCEDURE ).
-
+	   RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'udficon':U , h_options ).
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_folder ,
              FRAME message-frame:HANDLE , 'AFTER':U ).
@@ -913,10 +914,16 @@ PROCEDURE local-change-page :
          
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'change-page':U ) .
-
+    {methods/winReSizePgChg.i}
   /* Code placed here will execute AFTER standard behavior.    */
   /*{methods/winReSizePgChg.i}*/
-
+  IF VALID-HANDLE(h_vp-rmov) THEN 
+    DO:
+        IF li-current-page EQ 3 THEN 
+            RUN ipShowBtn IN h_vp-rmov (TRUE).
+        ELSE
+            RUN ipShowBtn IN h_vp-rmov (FALSE).
+    END. 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

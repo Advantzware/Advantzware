@@ -78,8 +78,7 @@ DEFINE VARIABLE h_vwrupdatehst AS HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON BUTTON-1 AUTO-END-KEY 
-     IMAGE-UP FILE "Graphics/32x32/door_exit.png":U
-     IMAGE-DOWN FILE "Graphics/32x32/door_exit.png":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/exit_white.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Button 1" 
      SIZE 10 BY 1.91.
 
@@ -232,7 +231,7 @@ PROCEDURE adm-create-objects :
              INPUT  'EnabledObjFldsToDisable?ModifyFields(All)DataSourceNamesUpdateTargetNamesLogicalObjectNameLogicalObjectNamePhysicalObjectNameDynamicObjectnoRunAttributeHideOnInitnoDisableOnInitnoObjectLayout':U ,
              OUTPUT h_vwrupdatehst ).
        RUN repositionObject IN h_vwrupdatehst ( 1.24 , 100.00 ) NO-ERROR.
-       /* Size in AB:  ( 16.67 , 70.00 ) */
+       /* Size in AB:  ( 18.10 , 71.00 ) */
 
        RUN constructObject (
              INPUT  'system/brwupdatehst.w':U ,

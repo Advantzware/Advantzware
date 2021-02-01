@@ -72,7 +72,7 @@ PUT "<FArial><=4><R+1> Date Req.             FOB                     Ship Via   
 "<FCourier New><=4><R+3> " lv-due-date FORM "99/99/9999" space(2)
 oe-ord.fob-code FORM "x(11)" SPACE(2) /* gdm 01060906 */
 v-shipvia /*carrier.carrier*/ FORM "x(20)" SPACE(1)
-oe-ord.terms-d /*terms.dscr*/ FORM "x(15)" space(5) v-salesman space(8) oe-ord.ord-no space(2) v-q-no SKIP.
+oe-ord.terms-d /*terms.dscr*/ FORM "x(15)" space(5) v-salesman space(8) oe-ord.ord-no space(2) v-q-no FORMAT ">>>>>9" SKIP.
 
 
 PUT "<|10><R24><C1><#5><FROM><R26><C80><RECT>" SKIP    

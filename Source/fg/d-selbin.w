@@ -61,7 +61,7 @@ DEF VAR lvcPStack AS CHAR NO-UNDO.
 DEF BUFFER xoe-rell FOR oe-rell.
 DEF BUFFER xoe-boll FOR oe-boll.
 DEF BUFFER b-reftable FOR reftable.
-
+{methods/template/brwcustomdef.i}
 ASSIGN
  cocode = g_company
  locode = g_loc.
@@ -380,6 +380,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br-bin Dialog-Frame
 ON START-SEARCH OF br-bin IN FRAME Dialog-Frame
 DO:
+  {methods/template/sortindicator.i} 
   DEF VAR lh-column AS HANDLE NO-UNDO.
   DEF VAR lv-column-nam AS CHAR NO-UNDO.
   DEF VAR lv-column-lab AS CHAR NO-UNDO.
@@ -407,6 +408,7 @@ DO:
 
   IF ll-sort-asc THEN OPEN QUERY br-bin {&QUERY-STRING-br-bin} {&sortby-phrase-asc}.
                  ELSE OPEN QUERY br-bin {&QUERY-STRING-br-bin} {&sortby-phrase-desc}.
+  {methods/template/sortindicatorend.i} 
 END.
 
 /* _UIB-CODE-BLOCK-END */

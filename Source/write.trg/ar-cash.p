@@ -29,7 +29,7 @@ IF {&TABLENAME}.c-no NE 0 THEN DO:
           WHERE ar-ledger.company  EQ {&TABLENAME}.company
             AND ar-ledger.cust-no  EQ {&TABLENAME}.cust-no
             AND ar-ledger.ref-date EQ old-{&TABLENAME}.check-date
-            AND ar-ledger.ref-num  EQ "CHK# " + STRING({&TABLENAME}.check-no,"9999999999"):
+            AND ar-ledger.ref-num  EQ "CHK# " + STRING({&TABLENAME}.check-no,"999999999999"):
         ar-ledger.ref-date = {&TABLENAME}.check-date.
       END.
 
@@ -42,7 +42,7 @@ IF {&TABLENAME}.c-no NE 0 THEN DO:
               AND ar-ledger.cust-no  EQ {&TABLENAME}.cust-no
               AND ar-ledger.ref-date EQ old-{&TABLENAME}.check-date
               AND ar-ledger.ref-num  EQ "DISC " +
-                                        STRING({&TABLENAME}.check-no,"9999999999") +
+                                        STRING({&TABLENAME}.check-no,"999999999999") +
                                         "-" + STRING(ar-cashl.line,"999"):
           ar-ledger.ref-date = {&TABLENAME}.check-date.
         END.

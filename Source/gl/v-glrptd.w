@@ -49,6 +49,12 @@ ASSIGN cocode = g_company
 
 DEF VAR lv-gl-type AS INT NO-UNDO.
 DEF VAR lv-rowid AS ROWID NO-UNDO.
+DEFINE VARIABLE lSuccess AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lActive  AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hGLProcs AS HANDLE    NO-UNDO.
+
+RUN system/GLProcs.p PERSISTENT SET hGLProcs.
 
 
 /* _UIB-CODE-BLOCK-END */
@@ -506,18 +512,30 @@ ASSIGN
 ON HELP OF FRAME F-Main
 DO:
     DEF VAR char-val AS cha NO-UNDO.
+    DEFINE VARIABLE cFieldsValue  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFoundValue   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE recFoundRecID AS RECID     NO-UNDO.
 
 
     CASE FOCUS:NAME :
         WHEN "acrange" OR WHEN "acrange1" OR WHEN "actnum" THEN DO:
-             RUN windows/l-acct3.w (g_company,"T",focus:screen-value,OUTPUT char-val).
-             IF char-val <> "" THEN DO:
-                ASSIGN FOCUS:SCREEN-VALUE = ENTRY(1,char-val).
+            RUN system/openLookup.p (
+            INPUT  g_company, 
+            INPUT  "",  /* Lookup ID */
+            INPUT  87,  /* Subject ID */
+            INPUT  "",  /* User ID */
+            INPUT  0,   /* Param Value ID */
+            OUTPUT cFieldsValue, 
+            OUTPUT cFoundValue, 
+            OUTPUT recFoundRecID
+            ).   
+            IF cFoundValue <> "" THEN DO:
+                ASSIGN FOCUS:SCREEN-VALUE = cFoundValue.
                 /*CASE FOCUS:INDEX:
                     WHEN 1 THEN 
                 END CASE.
                 */
-             END.
+             END.            
         END.
         WHEN "lv-d-type" THEN DO:
             RUN gl/l-dtypes.w (OUTPUT char-val).
@@ -535,15 +553,11 @@ END.
 &Scoped-define SELF-NAME gl-rpt.acrange1[1]
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL gl-rpt.acrange1[1] V-table-Win
 ON LEAVE OF gl-rpt.acrange1[1] IN FRAME F-Main /* Fr Acct2 */
-DO:
-  IF LASTKEY = -1  THEN RETURN.
-  RUN validate-acct (gl-rpt.acrange1[1]:SCREEN-VALUE IN FRAME {&FRAME-NAME}) NO-ERROR.
-  {&methods/lValidateError.i YES}
-  IF ERROR-STATUS:ERROR THEN do:
-     APPLY "entry" TO gl-rpt.acrange1[1]. 
-     RETURN NO-APPLY.
-  END.
-  {&methods/lValidateError.i NO}
+DO:   
+    IF LASTKEY = -1  THEN RETURN.
+    RUN validate-acct (FOCUS) NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN 
+        RETURN NO-APPLY.
 END.
 
 
@@ -554,15 +568,12 @@ END.
 &Scoped-define SELF-NAME gl-rpt.acrange1[2]
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL gl-rpt.acrange1[2] V-table-Win
 ON LEAVE OF gl-rpt.acrange1[2] IN FRAME F-Main /* To Acct2 */
-DO:
-  IF LASTKEY = -1  THEN RETURN.
-  RUN validate-acct (gl-rpt.acrange1[2]:SCREEN-VALUE IN FRAME {&FRAME-NAME}) NO-ERROR.
-  {&methods/lValidateError.i YES}
-  IF ERROR-STATUS:ERROR THEN do:
-     APPLY "entry" TO gl-rpt.acrange1[2]. 
-     RETURN NO-APPLY.
-  END.
-  {&methods/lValidateError.i NO}
+DO: 
+    IF LASTKEY = -1  THEN RETURN.
+    RUN validate-acct (FOCUS) NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN 
+        RETURN NO-APPLY.
+    
 END.
 
 
@@ -575,13 +586,9 @@ END.
 ON LEAVE OF gl-rpt.acrange1[3] IN FRAME F-Main /* Fr Acct3 */
 DO:
     IF LASTKEY = -1 THEN RETURN.
-    RUN validate-acct (gl-rpt.acrange1[3]:SCREEN-VALUE IN FRAME {&FRAME-NAME}) NO-ERROR.
-    {&methods/lValidateError.i YES}
-    IF ERROR-STATUS:ERROR THEN do:
-       APPLY "entry" TO gl-rpt.acrange1[3]. 
-       RETURN NO-APPLY.
-    END.
-    {&methods/lValidateError.i NO}
+    RUN validate-acct (FOCUS) NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN 
+        RETURN NO-APPLY.
 END.
 
 
@@ -592,15 +599,11 @@ END.
 &Scoped-define SELF-NAME gl-rpt.acrange1[4]
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL gl-rpt.acrange1[4] V-table-Win
 ON LEAVE OF gl-rpt.acrange1[4] IN FRAME F-Main /* To Acct3 */
-DO:
-   IF LASTKEY = -1 THEN RETURN.
-    RUN validate-acct (gl-rpt.acrange1[4]:SCREEN-VALUE IN FRAME {&FRAME-NAME}) NO-ERROR.
-    {&methods/lValidateError.i YES}
-    IF ERROR-STATUS:ERROR THEN do:
-       APPLY "entry" TO gl-rpt.acrange1[4]. 
-       RETURN NO-APPLY.
-    END.
-    {&methods/lValidateError.i NO}
+DO: 
+    IF LASTKEY = -1 THEN RETURN.
+    RUN validate-acct (FOCUS) NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN 
+        RETURN NO-APPLY.
 END.
 
 
@@ -611,15 +614,11 @@ END.
 &Scoped-define SELF-NAME gl-rpt.acrange1[5]
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL gl-rpt.acrange1[5] V-table-Win
 ON LEAVE OF gl-rpt.acrange1[5] IN FRAME F-Main /* Fr Acct4 */
-DO:
-   IF LASTKEY = -1 THEN RETURN.
-    RUN validate-acct (gl-rpt.acrange1[5]:SCREEN-VALUE IN FRAME {&FRAME-NAME}) NO-ERROR.
-    {&methods/lValidateError.i YES}
-    IF ERROR-STATUS:ERROR THEN do:
-       APPLY "entry" TO gl-rpt.acrange1[5].
-       RETURN NO-APPLY.
-    END.
-    {&methods/lValidateError.i NO}
+DO: 
+    IF LASTKEY = -1 THEN RETURN.
+    RUN validate-acct (FOCUS) NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN 
+        RETURN NO-APPLY.
 END.
 
 
@@ -630,15 +629,11 @@ END.
 &Scoped-define SELF-NAME gl-rpt.acrange1[6]
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL gl-rpt.acrange1[6] V-table-Win
 ON LEAVE OF gl-rpt.acrange1[6] IN FRAME F-Main /* To Acct4 */
-DO:
-   IF LASTKEY = -1 THEN RETURN.
-    RUN validate-acct (gl-rpt.acrange1[6]:SCREEN-VALUE IN FRAME {&FRAME-NAME}) NO-ERROR.
-    {&methods/lValidateError.i YES}
-    IF ERROR-STATUS:ERROR THEN do:
-       APPLY "entry" TO gl-rpt.acrange1[6]. 
-       RETURN NO-APPLY.
-    END.
-    {&methods/lValidateError.i NO}
+DO: 
+    IF LASTKEY = -1 THEN RETURN.
+    RUN validate-acct (FOCUS) NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN 
+        RETURN NO-APPLY.    
 END.
 
 
@@ -649,15 +644,11 @@ END.
 &Scoped-define SELF-NAME gl-rpt.acrange1[7]
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL gl-rpt.acrange1[7] V-table-Win
 ON LEAVE OF gl-rpt.acrange1[7] IN FRAME F-Main /* Fr Acct5 */
-DO:
-   IF LASTKEY = -1 THEN RETURN.
-    RUN validate-acct (gl-rpt.acrange1[7]:SCREEN-VALUE IN FRAME {&FRAME-NAME}) NO-ERROR.
-    {&methods/lValidateError.i YES}
-    IF ERROR-STATUS:ERROR THEN do:
-       APPLY "entry" TO gl-rpt.acrange1[7]. 
-       RETURN NO-APPLY.
-    END.
-    {&methods/lValidateError.i NO}
+DO: 
+    IF LASTKEY = -1 THEN RETURN.
+    RUN validate-acct (FOCUS) NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN 
+        RETURN NO-APPLY.
 END.
 
 
@@ -668,15 +659,9 @@ END.
 &Scoped-define SELF-NAME gl-rpt.acrange1[8]
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL gl-rpt.acrange1[8] V-table-Win
 ON LEAVE OF gl-rpt.acrange1[8] IN FRAME F-Main /* To Acct5 */
-DO:
-   IF LASTKEY = -1 THEN RETURN.
-    RUN validate-acct (gl-rpt.acrange1[8]:SCREEN-VALUE IN FRAME {&FRAME-NAME}) NO-ERROR.
-    {&methods/lValidateError.i YES}
-    IF ERROR-STATUS:ERROR THEN do:
-       APPLY "entry" TO gl-rpt.acrange1[8]. 
-       RETURN NO-APPLY.
-    END.
-    {&methods/lValidateError.i NO}
+DO: 
+    IF LASTKEY = -1 THEN RETURN.
+    RUN validate-acct (FOCUS) NO-ERROR.    
 END.
 
 
@@ -687,15 +672,11 @@ END.
 &Scoped-define SELF-NAME gl-rpt.acrange[1]
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL gl-rpt.acrange[1] V-table-Win
 ON LEAVE OF gl-rpt.acrange[1] IN FRAME F-Main /* Fr Acct1 */
-DO:
-  IF LASTKEY = -1  THEN RETURN.
-  RUN validate-acct (gl-rpt.acrange[1]:SCREEN-VALUE IN FRAME {&FRAME-NAME}) NO-ERROR.
-  {&methods/lValidateError.i YES}
-  IF ERROR-STATUS:ERROR THEN do:
-     APPLY "entry" TO gl-rpt.acrange[1]. 
-     RETURN NO-APPLY.
-  END.
-  {&methods/lValidateError.i NO}
+DO: 
+    IF LASTKEY = -1  THEN RETURN.
+    RUN validate-acct (FOCUS) NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN 
+        RETURN NO-APPLY.
 END.
 
 
@@ -707,14 +688,10 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL gl-rpt.acrange[2] V-table-Win
 ON LEAVE OF gl-rpt.acrange[2] IN FRAME F-Main /* To Acct1 */
 DO:
-  IF LASTKEY = -1  THEN RETURN.
-  RUN validate-acct (gl-rpt.acrange[2]:SCREEN-VALUE IN FRAME {&FRAME-NAME}) NO-ERROR.
-  {&methods/lValidateError.i YES}
-  IF ERROR-STATUS:ERROR THEN do:
-     APPLY "entry" TO gl-rpt.acrange[2]. 
-     RETURN NO-APPLY.
-  END.
-  {&methods/lValidateError.i NO}
+    IF LASTKEY = -1  THEN RETURN.
+    RUN validate-acct (FOCUS) NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN 
+        RETURN NO-APPLY.
 END.
 
 
@@ -912,9 +889,11 @@ PROCEDURE local-cancel-record :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
-
+  
+  RUN presetColor(INPUT "") NO-ERROR.  
+          
   /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .   
 
   /* Code placed here will execute AFTER standard behavior.    */
   RUN get-correct-gl-rpt (lv-rowid).
@@ -1050,6 +1029,27 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-reset-record V-table-Win
+PROCEDURE local-reset-record:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+ 
+    /* Code placed here will execute PRIOR to standard behavior. */
+    
+    RUN presetColor(INPUT "") NO-ERROR.
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'reset-record':U ) .
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record V-table-Win 
 PROCEDURE local-update-record :
 /*------------------------------------------------------------------------------
@@ -1072,55 +1072,46 @@ PROCEDURE local-update-record :
   RUN validate-record NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN.
 
-  RUN validate-acct (gl-rpt.acrange[1]:SCREEN-VALUE IN FRAME {&FRAME-NAME}) NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN do:
-     APPLY "entry" TO gl-rpt.acrange[1]. 
-     RETURN.
-  END.
-  RUN validate-acct (gl-rpt.acrange[2]:SCREEN-VALUE IN FRAME {&FRAME-NAME}) NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN do:
-     APPLY "entry" TO gl-rpt.acrange[2]. 
-     RETURN.
-  END.
-  RUN validate-acct (gl-rpt.acrange1[1]:SCREEN-VALUE IN FRAME {&FRAME-NAME}) NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN do:
-     APPLY "entry" TO gl-rpt.acrange1[1]. 
-     RETURN.
-  END.
-  RUN validate-acct (gl-rpt.acrange1[2]:SCREEN-VALUE IN FRAME {&FRAME-NAME}) NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN do:
-     APPLY "entry" TO gl-rpt.acrange1[2]. RETURN.
-  END.
-  RUN validate-acct (gl-rpt.acrange1[3]:SCREEN-VALUE IN FRAME {&FRAME-NAME}) NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN do:
-     APPLY "entry" TO gl-rpt.acrange1[3]. 
-     RETURN.
-  END.
-  RUN validate-acct (gl-rpt.acrange1[4]:SCREEN-VALUE IN FRAME {&FRAME-NAME}) NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN do:
-     APPLY "entry" TO gl-rpt.acrange1[4]. 
-     RETURN.
-  END.
-  RUN validate-acct (gl-rpt.acrange1[5]:SCREEN-VALUE IN FRAME {&FRAME-NAME}) NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN do:
-     APPLY "entry" TO gl-rpt.acrange1[5]. 
-     RETURN.
-  END.
-  RUN validate-acct (gl-rpt.acrange1[6]:SCREEN-VALUE IN FRAME {&FRAME-NAME}) NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN do:
-     APPLY "entry" TO gl-rpt.acrange1[6]. 
-     RETURN.
-  END.
-  RUN validate-acct (gl-rpt.acrange1[7]:SCREEN-VALUE IN FRAME {&FRAME-NAME}) NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN do:
-     APPLY "entry" TO gl-rpt.acrange1[7]. 
-     RETURN.
-  END.
-  RUN validate-acct (gl-rpt.acrange1[8]:SCREEN-VALUE IN FRAME {&FRAME-NAME}) NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN do:
-     APPLY "entry" TO gl-rpt.acrange1[8]. 
-     RETURN.
-  END.
+  RUN validate-acct (gl-rpt.acrange[1]:HANDLE IN FRAME {&FRAME-NAME}) NO-ERROR.
+  IF ERROR-STATUS:ERROR THEN 
+      RETURN NO-APPLY.
+                              
+  RUN validate-acct (gl-rpt.acrange[2]:HANDLE IN FRAME {&FRAME-NAME}) NO-ERROR.
+  IF ERROR-STATUS:ERROR THEN 
+      RETURN NO-APPLY.
+                              
+  RUN validate-acct (gl-rpt.acrange1[1]:HANDLE IN FRAME {&FRAME-NAME}) NO-ERROR.
+  IF ERROR-STATUS:ERROR THEN 
+      RETURN NO-APPLY.
+              
+  RUN validate-acct (gl-rpt.acrange1[2]:HANDLE IN FRAME {&FRAME-NAME}) NO-ERROR.
+  IF ERROR-STATUS:ERROR THEN 
+      RETURN NO-APPLY.
+      
+  RUN validate-acct (gl-rpt.acrange1[3]:HANDLE IN FRAME {&FRAME-NAME}) NO-ERROR.
+  IF ERROR-STATUS:ERROR THEN 
+      RETURN NO-APPLY.                 
+            
+  RUN validate-acct (gl-rpt.acrange1[4]:HANDLE IN FRAME {&FRAME-NAME}) NO-ERROR.
+  IF ERROR-STATUS:ERROR THEN 
+      RETURN NO-APPLY.
+      
+  RUN validate-acct (gl-rpt.acrange1[5]:HANDLE IN FRAME {&FRAME-NAME}) NO-ERROR.
+  IF ERROR-STATUS:ERROR THEN 
+      RETURN NO-APPLY.   
+            
+  RUN validate-acct (gl-rpt.acrange1[6]:HANDLE IN FRAME {&FRAME-NAME}) NO-ERROR.
+  IF ERROR-STATUS:ERROR THEN 
+      RETURN NO-APPLY.
+   
+  RUN validate-acct (gl-rpt.acrange1[7]:HANDLE IN FRAME {&FRAME-NAME}) NO-ERROR.
+  IF ERROR-STATUS:ERROR THEN 
+      RETURN NO-APPLY.
+   
+  RUN validate-acct (gl-rpt.acrange1[8]:HANDLE IN FRAME {&FRAME-NAME}) NO-ERROR.
+  IF ERROR-STATUS:ERROR THEN 
+      RETURN NO-APPLY.
+      
   /*RUN validate-acct (gl-rpt.actnum[1]:SCREEN-VALUE IN FRAME {&FRAME-NAME}) NO-ERROR.
   IF ERROR-STATUS:ERROR THEN do:
      APPLY "entry" TO gl-rpt.actnum[1]. 
@@ -1214,6 +1205,56 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE presetColor V-table-Win
+PROCEDURE presetColor:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iphfieldHandle AS HANDLE NO-UNDO.
+    
+    DEFINE VARIABLE hframeHandle AS HANDLE NO-UNDO.
+    DEFINE VARIABLE hgroupHandle AS HANDLE NO-UNDO.
+    DEFINE VARIABLE hfieldHandle AS HANDLE NO-UNDO. 
+    
+    ASSIGN 
+        hframeHandle = FRAME {&FRAME-NAME}:HANDLE
+        hgroupHandle = hframeHandle:FIRST-CHILD
+        hfieldHandle = hgroupHandle:FIRST-CHILD
+        .         
+    
+    IF VALID-HANDLE(iphfieldHandle) THEN DO:                
+        IF iphfieldHandle:TYPE                   EQ "FILL-IN"   AND  
+           iphfieldHandle:DATA-TYPE              EQ "CHARACTER" AND 
+           iphfieldHandle:NAME MATCHES "*acrange*" THEN         
+            IF iphfieldHandle:BGCOLOR EQ 16 THEN             
+                ASSIGN 
+                    iphfieldHandle:BGCOLOR = ?
+                    iphfieldHandle:FGCOLOR = ?
+                    .                         
+    END. 
+    ELSE DO:                
+        DO WHILE VALID-HANDLE(hfieldHandle):                                   
+            IF hfieldHandle:TYPE      EQ "fill-in"   AND 
+               hfieldHandle:DATA-TYPE EQ "CHARACTER" AND 
+               hfieldHandle:NAME MATCHES "*acrange*" THEN               
+               IF hfieldHandle:BGCOLOR EQ 16 THEN             
+                   ASSIGN 
+                       hfieldHandle:BGCOLOR = ?
+                       hfieldHandle:FGCOLOR = ?
+                       .                                        
+            hfieldHandle = hfieldHandle:NEXT-SIBLING.
+        END. 
+    END.   
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE proc-enable V-table-Win 
 PROCEDURE proc-enable :
 /*------------------------------------------------------------------------------
@@ -1302,18 +1343,41 @@ PROCEDURE validate-acct :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF INPUT PARAMETER ip-account LIKE account.actnum.
+    DEFINE INPUT PARAMETER iphfieldHandle AS HANDLE NO-UNDO.
+  
+    DEFINE VARIABLE lSuccess  AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lActive   AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage  AS CHARACTER NO-UNDO.
 
-  {methods/lValidateError.i YES}
-  FIND FIRST account WHERE account.company = g_company
-                         AND account.type <> "T" AND
-                             account.actnum =     ip-account NO-LOCK NO-ERROR.
-  IF NOT AVAIL account AND ip-account <> "" THEN DO:
-      MESSAGE "Invalid Account Number. Try Help." VIEW-AS ALERT-BOX.      
-      RETURN ERROR.
-  END.
-
+    {methods/lValidateError.i YES}
+    IF iphfieldHandle:SCREEN-VALUE NE "" THEN DO:
+        RUN GL_CheckGLAccount IN hGLProcs(
+            INPUT  g_company,
+            INPUT  iphfieldHandle:SCREEN-VALUE,            
+            OUTPUT cMessage,
+            OUTPUT lSuccess,
+            OUTPUT lActive
+            ).
+        IF lSuccess = NO THEN DO:
+            MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.  
+            RUN presetColor(iphfieldHandle) NO-ERROR.
+            APPLY "ENTRY" TO iphfieldHandle.
+            RETURN ERROR.
+        END. 
+        IF lSuccess = YES AND lActive = NO THEN 
+        DO:
+            MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.   
+            ASSIGN 
+                iphfieldHandle:BGCOLOR = 16
+                iphfieldHandle:FGCOLOR = 15
+                .                        
+            APPLY "ENTRY" TO iphfieldHandle.
+            RETURN ERROR.                      
+        END.                   
+    END.
+    RUN presetColor(iphfieldHandle) NO-ERROR.
   {methods/lValidateError.i NO}
+        
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

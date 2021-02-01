@@ -319,6 +319,7 @@ PROCEDURE pBuildMachines PRIVATE:
             bf-job-mch.wst-prct     = estCostOperation.quantityInRunWastePercent
             bf-job-mch.mr-waste     = estCostOperation.quantityInSetupWaste
             bf-job-mch.run-qty      = estCostOperation.quantityIn
+            bf-job-mch.n-on         = estCostOperation.numOutForOperation
             . 
         RELEASE bf-job-mch.
     END.
@@ -409,15 +410,15 @@ PROCEDURE pBuildMisc PRIVATE:
     DEFINE           BUFFER bf-job-prep FOR job-prep.
     DEFINE           BUFFER bf-job-mat  FOR job-mat.
     
+    DEFINE VARIABLE cMiscCode AS CHARACTER NO-UNDO.
+        
     FOR EACH estCostMisc NO-LOCK
         WHERE estCostMisc.estCostHeaderID EQ ipiEstCostHeaderID
         AND LOOKUP(estCostMisc.simon,"S,N,O") EQ 0:
-        IF estCostMisc.prepID NE "" AND estCostMisc.costType EQ "Mat" AND estCostMisc.itemID NE "" THEN 
-            FIND FIRST item NO-LOCK 
+        IF estCostMisc.prepID NE "" AND estCostMisc.costType EQ "Mat" AND estCostMisc.itemID NE "" 
+            AND CAN-FIND(FIRST item
                 WHERE item.company EQ estCostMisc.company
-                AND item.i-no EQ estCostMisc.itemID
-                NO-ERROR.
-        IF AVAILABLE ITEM THEN 
+                AND item.i-no EQ estCostMisc.itemID) THEN 
         DO: 
             FIND FIRST bf-job-mat EXCLUSIVE-LOCK 
                 WHERE bf-job-mat.company EQ ipbf-job.company
@@ -455,6 +456,7 @@ PROCEDURE pBuildMisc PRIVATE:
         END.
         ELSE 
         DO:
+            cMiscCode = IF estCostMisc.prepID NE "" THEN estCostMisc.prepID ELSE estCostMisc.costDescription.
             FIND FIRST bf-job-prep EXCLUSIVE-LOCK 
                 WHERE bf-job-prep.company EQ ipbf-job.company
                 AND bf-job-prep.job EQ ipbf-job.job
@@ -462,7 +464,7 @@ PROCEDURE pBuildMisc PRIVATE:
                 AND bf-job-prep.job-no2 EQ ipbf-job.job-no2
                 AND bf-job-prep.frm EQ estCostMisc.formNo
                 AND bf-job-prep.blank-no EQ estCostMisc.blankNo
-                AND bf-job-prep.code EQ estCostMisc.prepID
+                AND bf-job-prep.code EQ cMiscCode
                 NO-ERROR.
             IF NOT AVAILABLE bf-job-prep THEN 
             DO:
@@ -474,7 +476,7 @@ PROCEDURE pBuildMisc PRIVATE:
                     bf-job-prep.job-no2  = ipbf-job.job-no2
                     bf-job-prep.frm      = estCostMisc.formNo
                     bf-job-prep.blank-no = estCostMisc.blankNo
-                    bf-job-prep.code     = estCostMisc.prepID
+                    bf-job-prep.code     = cMiscCode
                     bf-job-prep.simon    = estCostMisc.simon
                     .
             END.
@@ -489,6 +491,7 @@ PROCEDURE pBuildMisc PRIVATE:
                 . 
         END.
         RELEASE bf-job-prep.    
+        RELEASE ITEM.
     END.
 
     

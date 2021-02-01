@@ -362,7 +362,7 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/folder.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'FOLDER-LABELS = ':U + 'Brws Jobs|View Jobs|Material|MachHrs|MachQtys|Waste|MachCosts|D.L.|Var OH|Fixed OH' + ',
+             INPUT  'FOLDER-LABELS = ':U + 'Browse|Detail|Material|MachHrs|MachQty|Waste|MachCosts|Labor|Var OH|Fixed OH' + ',
                      FOLDER-TAB-TYPE = 2':U ,
              OUTPUT h_folder ).
        RUN set-position IN h_folder ( 3.14 , 1.00 ) NO-ERROR.
@@ -370,7 +370,7 @@ PROCEDURE adm-create-objects :
 
        /* Links to SmartFolder h_folder. */
        RUN add-link IN adm-broker-hdl ( h_folder , 'Page':U , THIS-PROCEDURE ).
-
+	   RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'udficon':U , h_options ).
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_exit ,
              h_options , 'AFTER':U ).

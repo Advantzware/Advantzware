@@ -208,7 +208,7 @@ DEFINE VARIABLE C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btn-ok 
-    IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U NO-FOCUS FLAT-BUTTON
+    IMAGE-UP FILE "Graphics/32x32/exit_white.png":U NO-FOCUS FLAT-BUTTON
     LABEL "OK" 
     SIZE 8 BY 1.91
     BGCOLOR 8 .
@@ -527,7 +527,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     {custom/yellowColumns.i}
     RUN enable_UI.
     {methods/nowait.i}
-
+    /* Ticket# : 92946
+       Hiding this widget for now, as browser's column label should be indicating the column which is sorted by */
+    fi_sortby:HIDDEN  = TRUE.
+    fi_sortby:VISIBLE = FALSE.
     CLOSE QUERY BROWSE-1.
     DO WITH FRAME {&FRAME-NAME}:
         IF AVAILABLE itemfg THEN 

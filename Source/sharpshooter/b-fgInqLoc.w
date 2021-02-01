@@ -362,55 +362,55 @@ PROCEDURE AdjustQuantity :
     /* Business logic is pending to adjust a tag from the available tags */
     RETURN.
     
-    IF AVAILABLE ttBrowseInventory THEN DO:
-        RUN inventory/adjustQuantity.w (
-            INPUT  ttBrowseInventory.quantity,
-            INPUT  ttBrowseInventory.quantityOfSubUnits,
-            INPUT  ttBrowseInventory.quantityPerSubUnit,
-            INPUT  TRUE, /* Required Adj Reason  */
-            INPUT  TRUE, /* Display all units */
-            INPUT  FALSE,  /* Allow decimal units */
-            OUTPUT dTotalQuantity,
-            OUTPUT dSubUnitCount,
-            OUTPUT dSubUnitsPerUnit,
-            OUTPUT dPartialQuantity,
-            OUTPUT cAdjReasonCode,
-            OUTPUT lValueReturned,
-            OUTPUT dValue
-            ).
-  
-        IF lValueReturned THEN DO:
-            IF ttBrowseInventory.quantity EQ dTotalQuantity THEN DO:
-                MESSAGE "Adjusted quantity for tag " + ttBrowseInventory.tag +
-                        " is same as existing quantity" VIEW-AS ALERT-BOX ERROR.
-                RETURN.
-            END.
-  
-            MESSAGE "Adjust quantity of tag " + ttBrowseInventory.tag +
-                    " to " + STRING(dTotalQuantity) "?" VIEW-AS ALERT-BOX QUESTION
-                    BUTTON OK-CANCEL
-                    TITLE "Adjust Quantity" UPDATE lContinue AS LOGICAL.
-            IF lContinue THEN DO:
-                RUN Inventory_AdjustFinishedGoodBinQty IN hdInventoryProcs (
-                    INPUT  TO-ROWID(ttBrowseInventory.inventoryStockID),
-                    INPUT  dTotalQuantity - ttBrowseInventory.quantity,
-                    INPUT  dPartialQuantity - ttBrowseInventory.quantityPartial,
-                    INPUT  cAdjReasonCode,
-                    OUTPUT lSuccess,
-                    OUTPUT cMessage
-                    ).
-  
-                IF NOT lSuccess THEN
-                    MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
-                ELSE
-                    ttBrowseInventory.quantity = dTotalQuantity.
-  
-                {&OPEN-QUERY-{&BROWSE-NAME}}
-  
-                APPLY "VALUE-CHANGED" TO BROWSE {&BROWSE-NAME}.
-            END.
-        END.
-    END.
+/*    IF AVAILABLE ttBrowseInventory THEN DO:                                       */
+/*        RUN inventory/adjustQuantity.w (                                          */
+/*            INPUT  ttBrowseInventory.quantity,                                    */
+/*            INPUT  ttBrowseInventory.quantityOfSubUnits,                          */
+/*            INPUT  ttBrowseInventory.quantityPerSubUnit,                          */
+/*            INPUT  TRUE, /* Required Adj Reason  */                               */
+/*            INPUT  TRUE, /* Display all units */                                  */
+/*            INPUT  FALSE,  /* Allow decimal units */                              */
+/*            OUTPUT dTotalQuantity,                                                */
+/*            OUTPUT dSubUnitCount,                                                 */
+/*            OUTPUT dSubUnitsPerUnit,                                              */
+/*            OUTPUT dPartialQuantity,                                              */
+/*            OUTPUT cAdjReasonCode,                                                */
+/*            OUTPUT lValueReturned,                                                */
+/*            OUTPUT dValue                                                         */
+/*            ).                                                                    */
+/*                                                                                  */
+/*        IF lValueReturned THEN DO:                                                */
+/*            IF ttBrowseInventory.quantity EQ dTotalQuantity THEN DO:              */
+/*                MESSAGE "Adjusted quantity for tag " + ttBrowseInventory.tag +    */
+/*                        " is same as existing quantity" VIEW-AS ALERT-BOX ERROR.  */
+/*                RETURN.                                                           */
+/*            END.                                                                  */
+/*                                                                                  */
+/*            MESSAGE "Adjust quantity of tag " + ttBrowseInventory.tag +           */
+/*                    " to " + STRING(dTotalQuantity) "?" VIEW-AS ALERT-BOX QUESTION*/
+/*                    BUTTON OK-CANCEL                                              */
+/*                    TITLE "Adjust Quantity" UPDATE lContinue AS LOGICAL.          */
+/*            IF lContinue THEN DO:                                                 */
+/*                RUN Inventory_AdjustFinishedGoodBinQty IN hdInventoryProcs (      */
+/*                    INPUT  TO-ROWID(ttBrowseInventory.inventoryStockID),          */
+/*                    INPUT  dTotalQuantity - ttBrowseInventory.quantity,           */
+/*                    INPUT  dPartialQuantity - ttBrowseInventory.quantityPartial,  */
+/*                    INPUT  cAdjReasonCode,                                        */
+/*                    OUTPUT lSuccess,                                              */
+/*                    OUTPUT cMessage                                               */
+/*                    ).                                                            */
+/*                                                                                  */
+/*                IF NOT lSuccess THEN                                              */
+/*                    MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.                     */
+/*                ELSE                                                              */
+/*                    ttBrowseInventory.quantity = dTotalQuantity.                  */
+/*                                                                                  */
+/*                {&OPEN-QUERY-{&BROWSE-NAME}}                                      */
+/*                                                                                  */
+/*                APPLY "VALUE-CHANGED" TO BROWSE {&BROWSE-NAME}.                   */
+/*            END.                                                                  */
+/*        END.                                                                      */
+/*    END.                                                                          */
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

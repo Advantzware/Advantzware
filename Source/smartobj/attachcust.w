@@ -61,8 +61,8 @@ CREATE WIDGET-POOL.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON Select_attcust 
-     IMAGE-UP FILE "Graphics/32x32/pin2.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/pin2.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/pin2_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Attachment" 
      SIZE 7.8 BY 1.81 TOOLTIP "Customer Attachments".
 
@@ -73,7 +73,8 @@ DEFINE FRAME F-Main
      Select_attcust AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE .
+         AT COL 1 ROW 1 SCROLLABLE 
+         BGCOLOR 21.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -240,9 +241,9 @@ PROCEDURE PushPin-Image :
 
    DO WITH FRAME {&FRAME-NAME}:
       IF NOT ip-attach THEN
-         SELECT_attcust:LOAD-IMAGE("Graphics/32x32/pin2.ico").
+         SELECT_attcust:LOAD-IMAGE("Graphics/32x32/pin2.png").
       ELSE
-         SELECT_attcust:LOAD-IMAGE("Graphics/32x32/pin2_star.ico").
+         SELECT_attcust:LOAD-IMAGE("Graphics/32x32/pin2_star.png").
    END.
 END PROCEDURE.
 

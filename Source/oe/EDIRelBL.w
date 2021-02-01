@@ -729,6 +729,11 @@ END.
 ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME} 
        THIS-PROCEDURE:CURRENT-WINDOW = {&WINDOW-NAME}.
 
+&Scoped-define sdBrowseName EDIRelease
+{methods/template/brwcustom2.i 1}
+&Scoped-define sdBrowseName EDIBOLPost
+{methods/template/brwcustom2.i 2}
+
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
 ON CLOSE OF THIS-PROCEDURE 

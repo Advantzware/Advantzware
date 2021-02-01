@@ -269,22 +269,22 @@ DEFINE RECTANGLE colorChoice-15
 DEFINE RECTANGLE colorChoice-16
      EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 7.2 BY 1
-     BGCOLOR 16 .
+     BGCOLOR 51 .
 
 DEFINE RECTANGLE colorChoice-17
      EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 7.2 BY 1
-     BGCOLOR 17 .
+     BGCOLOR 52 .
 
 DEFINE RECTANGLE colorChoice-18
      EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 7.2 BY 1
-     BGCOLOR 18 .
+     BGCOLOR 53 .
 
 DEFINE RECTANGLE colorChoice-19
      EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 7.2 BY 1
-     BGCOLOR 19 .
+     BGCOLOR 54 .
 
 DEFINE RECTANGLE colorChoice-2
      EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
@@ -294,52 +294,52 @@ DEFINE RECTANGLE colorChoice-2
 DEFINE RECTANGLE colorChoice-20
      EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 7.2 BY 1
-     BGCOLOR 20 .
+     BGCOLOR 55 .
 
 DEFINE RECTANGLE colorChoice-21
      EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 7.2 BY 1
-     BGCOLOR 21 .
+     BGCOLOR 56 .
 
 DEFINE RECTANGLE colorChoice-22
      EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 7.2 BY 1
-     BGCOLOR 22 .
+     BGCOLOR 57 .
 
 DEFINE RECTANGLE colorChoice-23
      EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 7.2 BY 1
-     BGCOLOR 23 .
+     BGCOLOR 58 .
 
 DEFINE RECTANGLE colorChoice-24
      EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 7.2 BY 1
-     BGCOLOR 24 .
+     BGCOLOR 59 .
 
 DEFINE RECTANGLE colorChoice-25
      EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 7.2 BY 1
-     BGCOLOR 25 .
+     BGCOLOR 60 .
 
 DEFINE RECTANGLE colorChoice-26
      EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 7.2 BY 1
-     BGCOLOR 26 .
+     BGCOLOR 61 .
 
 DEFINE RECTANGLE colorChoice-27
      EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 7.2 BY 1
-     BGCOLOR 27 .
+     BGCOLOR 62 .
 
 DEFINE RECTANGLE colorChoice-28
      EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 7.2 BY 1
-     BGCOLOR 28 .
+     BGCOLOR 63 .
 
 DEFINE RECTANGLE colorChoice-29
      EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 7.2 BY 1
-     BGCOLOR 29 .
+     BGCOLOR 64 .
 
 DEFINE RECTANGLE colorChoice-3
      EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
@@ -2284,145 +2284,6 @@ DEFINE FRAME configurationFrame
          AT COL 1 ROW 1 SCROLLABLE 
          TITLE "Scheduler Configuration".
 
-DEFINE FRAME fieldsFrame
-     userField71 AT ROW 1.24 COL 2
-     userField72 AT ROW 2.19 COL 2
-     userField73 AT ROW 3.14 COL 2
-     userField74 AT ROW 4.1 COL 2
-     userField75 AT ROW 5.05 COL 2
-     userField76 AT ROW 6 COL 2
-     userField77 AT ROW 6.95 COL 2
-     userField24 AT ROW 7.91 COL 2
-     userField19 AT ROW 8.86 COL 2
-     userField03 AT ROW 9.81 COL 2
-     userField26 AT ROW 10.76 COL 2
-     userField04 AT ROW 11.71 COL 2
-     userField27 AT ROW 12.67 COL 2
-     userField34 AT ROW 13.62 COL 2
-     userField22 AT ROW 14.57 COL 2
-     userField79 AT ROW 15.52 COL 2
-     userField21 AT ROW 16.48 COL 2
-     userField25 AT ROW 17.43 COL 2
-     userField14 AT ROW 18.38 COL 2
-     userField28 AT ROW 19.33 COL 2
-     userField89 AT ROW 20.29 COL 2
-     userField69 AT ROW 21.24 COL 2
-     userField64 AT ROW 22.19 COL 2
-     userField63 AT ROW 23.14 COL 2
-     userField01 AT ROW 24.1 COL 2
-     userField02 AT ROW 1.24 COL 27
-     userField90 AT ROW 2.19 COL 27
-     userField12 AT ROW 3.14 COL 27
-     userField05 AT ROW 4.1 COL 27
-     userField80 AT ROW 5.05 COL 27
-     userField85 AT ROW 6 COL 27
-     userField92 AT ROW 6.95 COL 27
-     userField66 AT ROW 7.91 COL 27
-     userField68 AT ROW 8.86 COL 27
-     userField08 AT ROW 9.81 COL 27
-     userField81 AT ROW 10.76 COL 27
-     userField91 AT ROW 11.71 COL 27
-     userField18 AT ROW 12.67 COL 27
-     userField58 AT ROW 13.62 COL 27
-     userField59 AT ROW 14.57 COL 27
-     userField41 AT ROW 15.52 COL 27
-     userField42 AT ROW 16.48 COL 27
-     userField43 AT ROW 17.43 COL 27
-     userField44 AT ROW 18.38 COL 27
-     userField45 AT ROW 19.33 COL 27
-     userField46 AT ROW 20.29 COL 27
-     userField47 AT ROW 21.24 COL 27
-     userField48 AT ROW 22.19 COL 27
-     userField49 AT ROW 23.14 COL 27
-     userField50 AT ROW 24.1 COL 27
-     userField106 AT ROW 1.24 COL 52 WIDGET-ID 16
-     userField65 AT ROW 2.19 COL 52
-     userField67 AT ROW 3.14 COL 52
-     userField09 AT ROW 4.1 COL 52
-     userField107 AT ROW 5.05 COL 52 WIDGET-ID 18
-     userField104 AT ROW 6 COL 52 WIDGET-ID 12
-     userField83 AT ROW 6.95 COL 52
-     userField10 AT ROW 7.91 COL 52
-     userField32 AT ROW 8.86 COL 52
-     userField82 AT ROW 9.81 COL 52
-     userField30 AT ROW 10.76 COL 52
-     userField61 AT ROW 11.71 COL 52
-     userField93 AT ROW 12.67 COL 52
-     userField62 AT ROW 13.62 COL 52
-     userField94 AT ROW 14.57 COL 52
-     userField96 AT ROW 15.52 COL 52
-     userField102 AT ROW 16.48 COL 52 WIDGET-ID 8
-     userField100 AT ROW 17.43 COL 52 WIDGET-ID 4
-     userField98 AT ROW 18.38 COL 52
-     userField78 AT ROW 19.33 COL 52
-     userField111 AT ROW 20.29 COL 52 WIDGET-ID 26
-     userField87 AT ROW 21.24 COL 52
-     userField60 AT ROW 22.19 COL 52
-     userField56 AT ROW 23.14 COL 52
-     userField55 AT ROW 24.1 COL 52
-     userField51 AT ROW 1.24 COL 77
-     userField20 AT ROW 2.19 COL 77
-     userField06 AT ROW 3.14 COL 77
-     userField07 AT ROW 4.1 COL 77
-     userField16 AT ROW 5.05 COL 77
-     userField35 AT ROW 6 COL 77
-     userField57 AT ROW 6.95 COL 77
-     userField110 AT ROW 7.91 COL 77 WIDGET-ID 24
-     userField52 AT ROW 8.86 COL 77
-     userField38 AT ROW 9.81 COL 77
-     userField37 AT ROW 10.76 COL 77
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 24 ROW 1.24
-         SIZE 129 BY 25.
-
-/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
-DEFINE FRAME fieldsFrame
-     userField95 AT ROW 11.71 COL 77
-     userField54 AT ROW 12.67 COL 77
-     userField15 AT ROW 13.62 COL 77
-     userField97 AT ROW 14.57 COL 77
-     userField103 AT ROW 15.52 COL 77 WIDGET-ID 10
-     userField101 AT ROW 16.48 COL 77 WIDGET-ID 6
-     userField36 AT ROW 17.43 COL 77
-     useNotes AT ROW 18.38 COL 77
-     userField109 AT ROW 19.33 COL 77 WIDGET-ID 22
-     userField108 AT ROW 20.29 COL 77 WIDGET-ID 20
-     userField23 AT ROW 21.24 COL 77
-     userField39 AT ROW 22.19 COL 77
-     userField40 AT ROW 23.14 COL 77
-     userField99 AT ROW 24.1 COL 77 WIDGET-ID 2
-     userField88 AT ROW 1.24 COL 103
-     useStatus AT ROW 2.19 COL 103
-     userField13 AT ROW 3.14 COL 103
-     userField53 AT ROW 4.1 COL 103
-     userField105 AT ROW 5.05 COL 103 WIDGET-ID 14
-     userField29 AT ROW 6 COL 103
-     userField33 AT ROW 6.95 COL 103
-     userField86 AT ROW 7.91 COL 103
-     userField84 AT ROW 8.86 COL 103
-     userField31 AT ROW 9.81 COL 103
-     userField70 AT ROW 10.76 COL 103
-     userField17 AT ROW 11.71 COL 103
-     userField11 AT ROW 12.67 COL 103
-     userField112 AT ROW 13.62 COL 103 WIDGET-ID 28
-     userField113 AT ROW 14.57 COL 103 WIDGET-ID 30
-     userField114 AT ROW 15.52 COL 103 WIDGET-ID 32
-     userField115 AT ROW 16.48 COL 103 WIDGET-ID 34
-     userField116 AT ROW 17.43 COL 103 WIDGET-ID 36
-     userField117 AT ROW 18.38 COL 103 WIDGET-ID 38
-     userField118 AT ROW 19.33 COL 103 WIDGET-ID 40
-     userField119 AT ROW 20.29 COL 103 WIDGET-ID 42
-     userField120 AT ROW 21.24 COL 103 WIDGET-ID 44
-     userField121 AT ROW 22.19 COL 103 WIDGET-ID 46
-     userField122 AT ROW 23.14 COL 103 WIDGET-ID 48
-     userField123 AT ROW 24.1 COL 103 WIDGET-ID 50
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 24 ROW 1.24
-         SIZE 129 BY 25
-         TITLE "Fields".
-
 DEFINE FRAME colorsFrame
      jobLabel-1 AT ROW 1.95 COL 3 COLON-ALIGNED
      customLabel-1 AT ROW 1.95 COL 73 COLON-ALIGNED
@@ -2507,13 +2368,24 @@ DEFINE FRAME colorsFrame
      completedCheckoffValue AT ROW 21.95 COL 83 HELP
           "Select to Apply Completed Checkoff to Whole Job vs. Each Resour"
      reloadStatusValue AT ROW 22.19 COL 21 NO-LABEL
-     statusCheckoffTypeValue AT ROW 22.67 COL 93 NO-LABEL WIDGET-ID 4
+     statusCheckoffTypeValue AT ROW 22.67 COL 93 NO-LABEL
      btnHTMLPageLocation AT ROW 24.1 COL 82 HELP
-          "Click to Set HTML Page Location" WIDGET-ID 2
+          "Click to Set HTML Page Location"
      dueDateUsedValue AT ROW 24.33 COL 32 HELP
           "Select Due Date/Production Date" NO-LABEL
+     "Status Checkoffs:" VIEW-AS TEXT
+          SIZE 17 BY .81 AT ROW 22.19 COL 3
+     "<Due><Now><Start--End>" VIEW-AS TEXT
+          SIZE 25 BY 1 AT ROW 17.43 COL 44
+          FONT 1
+     "[External Program Load Setting]" VIEW-AS TEXT
+          SIZE 30 BY .62 AT ROW 20.29 COL 3
+          BGCOLOR 8 
+     "<Job Completed>" VIEW-AS TEXT
+          SIZE 17 BY 1 AT ROW 3.14 COL 44
+          FONT 1
      "Done By:" VIEW-AS TEXT
-          SIZE 10 BY 1 AT ROW 22.67 COL 83 WIDGET-ID 8
+          SIZE 10 BY 1 AT ROW 22.67 COL 83
      "Downtime Conflict Color" VIEW-AS TEXT
           SIZE 23 BY .62 AT ROW 19.1 COL 86
      "<Due><Start--Now--End>" VIEW-AS TEXT
@@ -2539,6 +2411,13 @@ DEFINE FRAME colorsFrame
           FONT 1
      "Job Conflict Color" VIEW-AS TEXT
           SIZE 17 BY .62 AT ROW 19.1 COL 7
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 24 ROW 1
+         SIZE 129 BY 25.48.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME colorsFrame
      "<Now><Start--End><Due>" VIEW-AS TEXT
           SIZE 25 BY 1 AT ROW 4.33 COL 44
           FONT 1
@@ -2550,33 +2429,9 @@ DEFINE FRAME colorsFrame
      "<Now><Start--Due--End>" VIEW-AS TEXT
           SIZE 25 BY 1 AT ROW 5.52 COL 44
           FONT 1
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 24 ROW 1
-         SIZE 129 BY 25.48.
-
-/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
-DEFINE FRAME colorsFrame
-     "<Start--Now--End><Due>" VIEW-AS TEXT
-          SIZE 25 BY 1 AT ROW 7.91 COL 44
-          FONT 1
      "<Due><Start--End><Now>" VIEW-AS TEXT
           SIZE 25 BY 1 AT ROW 15.05 COL 44
           FONT 1
-     "<Job Completed>" VIEW-AS TEXT
-          SIZE 17 BY 1 AT ROW 3.14 COL 44
-          FONT 1
-     "[External Program Load Setting]" VIEW-AS TEXT
-          SIZE 30 BY .62 AT ROW 20.29 COL 3
-          BGCOLOR 8 
-     "<Due><Now><Start--End>" VIEW-AS TEXT
-          SIZE 25 BY 1 AT ROW 17.43 COL 44
-          FONT 1
-     "BG   FG" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 1.24 COL 112
-          FONT 1
-     "Status Checkoffs:" VIEW-AS TEXT
-          SIZE 17 BY .81 AT ROW 22.19 COL 3
      "<Start--End><Due><Now>" VIEW-AS TEXT
           SIZE 25 BY 1 AT ROW 12.67 COL 44
           FONT 1
@@ -2597,6 +2452,12 @@ DEFINE FRAME colorsFrame
           BGCOLOR 8 
      "<Start--End><Now><Due>" VIEW-AS TEXT
           SIZE 25 BY 1 AT ROW 11.48 COL 44
+          FONT 1
+     "<Start--Now--End><Due>" VIEW-AS TEXT
+          SIZE 25 BY 1 AT ROW 7.91 COL 44
+          FONT 1
+     "BG   FG" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 1.24 COL 112
           FONT 1
      RECT-7 AT ROW 18.62 COL 2
      customBGColor-1 AT ROW 1.95 COL 110
@@ -2637,6 +2498,7 @@ DEFINE FRAME colorsFrame
      jobFGColor-6 AT ROW 7.91 COL 32
      jobFGColor-7 AT ROW 9.1 COL 32
      jobFGColor-8 AT ROW 10.29 COL 32
+     jobFGColor-9 AT ROW 11.48 COL 32
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 24 ROW 1
@@ -2644,7 +2506,6 @@ DEFINE FRAME colorsFrame
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME colorsFrame
-     jobFGColor-9 AT ROW 11.48 COL 32
      jobFGColor-10 AT ROW 12.67 COL 32
      jobFGColor-11 AT ROW 13.86 COL 32
      jobFGColor-12 AT ROW 15.05 COL 32
@@ -2715,6 +2576,145 @@ DEFINE FRAME colorDisplayFrame
          SIZE 17 BY 20.24
          TITLE "Colors".
 
+DEFINE FRAME fieldsFrame
+     userField71 AT ROW 1.24 COL 2
+     userField72 AT ROW 2.19 COL 2
+     userField73 AT ROW 3.14 COL 2
+     userField74 AT ROW 4.1 COL 2
+     userField75 AT ROW 5.05 COL 2
+     userField76 AT ROW 6 COL 2
+     userField77 AT ROW 6.95 COL 2
+     userField24 AT ROW 7.91 COL 2
+     userField19 AT ROW 8.86 COL 2
+     userField03 AT ROW 9.81 COL 2
+     userField26 AT ROW 10.76 COL 2
+     userField04 AT ROW 11.71 COL 2
+     userField27 AT ROW 12.67 COL 2
+     userField34 AT ROW 13.62 COL 2
+     userField22 AT ROW 14.57 COL 2
+     userField79 AT ROW 15.52 COL 2
+     userField21 AT ROW 16.48 COL 2
+     userField25 AT ROW 17.43 COL 2
+     userField14 AT ROW 18.38 COL 2
+     userField28 AT ROW 19.33 COL 2
+     userField89 AT ROW 20.29 COL 2
+     userField69 AT ROW 21.24 COL 2
+     userField64 AT ROW 22.19 COL 2
+     userField63 AT ROW 23.14 COL 2
+     userField01 AT ROW 24.1 COL 2
+     userField02 AT ROW 1.24 COL 27
+     userField90 AT ROW 2.19 COL 27
+     userField12 AT ROW 3.14 COL 27
+     userField05 AT ROW 4.1 COL 27
+     userField80 AT ROW 5.05 COL 27
+     userField85 AT ROW 6 COL 27
+     userField92 AT ROW 6.95 COL 27
+     userField66 AT ROW 7.91 COL 27
+     userField68 AT ROW 8.86 COL 27
+     userField08 AT ROW 9.81 COL 27
+     userField81 AT ROW 10.76 COL 27
+     userField91 AT ROW 11.71 COL 27
+     userField18 AT ROW 12.67 COL 27
+     userField58 AT ROW 13.62 COL 27
+     userField59 AT ROW 14.57 COL 27
+     userField41 AT ROW 15.52 COL 27
+     userField42 AT ROW 16.48 COL 27
+     userField43 AT ROW 17.43 COL 27
+     userField44 AT ROW 18.38 COL 27
+     userField45 AT ROW 19.33 COL 27
+     userField46 AT ROW 20.29 COL 27
+     userField47 AT ROW 21.24 COL 27
+     userField48 AT ROW 22.19 COL 27
+     userField49 AT ROW 23.14 COL 27
+     userField50 AT ROW 24.1 COL 27
+     userField106 AT ROW 1.24 COL 52
+     userField65 AT ROW 2.19 COL 52
+     userField67 AT ROW 3.14 COL 52
+     userField09 AT ROW 4.1 COL 52
+     userField107 AT ROW 5.05 COL 52
+     userField104 AT ROW 6 COL 52
+     userField83 AT ROW 6.95 COL 52
+     userField10 AT ROW 7.91 COL 52
+     userField32 AT ROW 8.86 COL 52
+     userField82 AT ROW 9.81 COL 52
+     userField30 AT ROW 10.76 COL 52
+     userField61 AT ROW 11.71 COL 52
+     userField93 AT ROW 12.67 COL 52
+     userField62 AT ROW 13.62 COL 52
+     userField94 AT ROW 14.57 COL 52
+     userField96 AT ROW 15.52 COL 52
+     userField102 AT ROW 16.48 COL 52
+     userField100 AT ROW 17.43 COL 52
+     userField98 AT ROW 18.38 COL 52
+     userField78 AT ROW 19.33 COL 52
+     userField111 AT ROW 20.29 COL 52
+     userField87 AT ROW 21.24 COL 52
+     userField60 AT ROW 22.19 COL 52
+     userField56 AT ROW 23.14 COL 52
+     userField55 AT ROW 24.1 COL 52
+     userField51 AT ROW 1.24 COL 77
+     userField20 AT ROW 2.19 COL 77
+     userField06 AT ROW 3.14 COL 77
+     userField07 AT ROW 4.1 COL 77
+     userField16 AT ROW 5.05 COL 77
+     userField35 AT ROW 6 COL 77
+     userField57 AT ROW 6.95 COL 77
+     userField110 AT ROW 7.91 COL 77
+     userField52 AT ROW 8.86 COL 77
+     userField38 AT ROW 9.81 COL 77
+     userField37 AT ROW 10.76 COL 77
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 24 ROW 1.24
+         SIZE 129 BY 25.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME fieldsFrame
+     userField95 AT ROW 11.71 COL 77
+     userField54 AT ROW 12.67 COL 77
+     userField15 AT ROW 13.62 COL 77
+     userField97 AT ROW 14.57 COL 77
+     userField103 AT ROW 15.52 COL 77
+     userField101 AT ROW 16.48 COL 77
+     userField36 AT ROW 17.43 COL 77
+     useNotes AT ROW 18.38 COL 77
+     userField109 AT ROW 19.33 COL 77
+     userField108 AT ROW 20.29 COL 77
+     userField23 AT ROW 21.24 COL 77
+     userField39 AT ROW 22.19 COL 77
+     userField40 AT ROW 23.14 COL 77
+     userField99 AT ROW 24.1 COL 77
+     userField88 AT ROW 1.24 COL 103
+     useStatus AT ROW 2.19 COL 103
+     userField13 AT ROW 3.14 COL 103
+     userField53 AT ROW 4.1 COL 103
+     userField105 AT ROW 5.05 COL 103
+     userField29 AT ROW 6 COL 103
+     userField33 AT ROW 6.95 COL 103
+     userField86 AT ROW 7.91 COL 103
+     userField84 AT ROW 8.86 COL 103
+     userField31 AT ROW 9.81 COL 103
+     userField70 AT ROW 10.76 COL 103
+     userField17 AT ROW 11.71 COL 103
+     userField11 AT ROW 12.67 COL 103
+     userField112 AT ROW 13.62 COL 103
+     userField113 AT ROW 14.57 COL 103
+     userField114 AT ROW 15.52 COL 103
+     userField115 AT ROW 16.48 COL 103
+     userField116 AT ROW 17.43 COL 103
+     userField117 AT ROW 18.38 COL 103
+     userField118 AT ROW 19.33 COL 103
+     userField119 AT ROW 20.29 COL 103
+     userField120 AT ROW 21.24 COL 103
+     userField121 AT ROW 22.19 COL 103
+     userField122 AT ROW 23.14 COL 103
+     userField123 AT ROW 24.1 COL 103
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 24 ROW 1.24
+         SIZE 129 BY 25
+         TITLE "Fields".
+
 DEFINE FRAME defaultsFrame
      intervals AT ROW 1.95 COL 10 COLON-ALIGNED HELP
           "Select Startup Interval Value"
@@ -2759,7 +2759,7 @@ DEFINE FRAME defaultsFrame
      viewRefreshValue AT ROW 12.43 COL 14 COLON-ALIGNED HELP
           "Enter Auto View Refresh Interval Minutes" NO-LABEL
      monitorIntervalValue AT ROW 12.43 COL 23 COLON-ALIGNED HELP
-          "Enter Auto Monitor Interval Minutes" NO-LABEL WIDGET-ID 2
+          "Enter Auto Monitor Interval Minutes" NO-LABEL
      priority2Value AT ROW 12.43 COL 103 NO-LABEL
      priority3Value AT ROW 13.38 COL 103 NO-LABEL
      btnDetailBoard AT ROW 13.86 COL 3 HELP
@@ -2820,12 +2820,6 @@ DEFINE FRAME defaultsFrame
      rectDTOver AT ROW 4.81 COL 99 COLON-ALIGNED NO-LABEL
      "Resource:" VIEW-AS TEXT
           SIZE 10 BY .62 AT ROW 11.48 COL 91
-     "[Scheduler Re-Start Required to take effect]" VIEW-AS TEXT
-          SIZE 42 BY .62 AT ROW 21.95 COL 54
-          BGCOLOR 8 
-     "[Valid Schedule Board ID's]" VIEW-AS TEXT
-          SIZE 26 BY .62 AT ROW 14.57 COL 50
-          BGCOLOR 8 
      "Resource Grid Background Color" VIEW-AS TEXT
           SIZE 32 BY .62 AT ROW 5.76 COL 10
      "Grid Line Color" VIEW-AS TEXT
@@ -2835,9 +2829,9 @@ DEFINE FRAME defaultsFrame
      "Job Selection Highlight Color" VIEW-AS TEXT
           SIZE 27.6 BY .62 AT ROW 10.52 COL 10
      "Interval Minutes" VIEW-AS TEXT
-          SIZE 16 BY .62 AT ROW 12.19 COL 32 WIDGET-ID 4
+          SIZE 16 BY .62 AT ROW 12.19 COL 32
      "(Zero=Off)" VIEW-AS TEXT
-          SIZE 12 BY .62 AT ROW 12.91 COL 34 WIDGET-ID 6
+          SIZE 12 BY .62 AT ROW 12.91 COL 34
      "Time Line Color" VIEW-AS TEXT
           SIZE 15.4 BY .62 AT ROW 8.14 COL 10
      "[Resource Popup Settings]" VIEW-AS TEXT
@@ -2855,13 +2849,6 @@ DEFINE FRAME defaultsFrame
      "[Conflict Settings]" VIEW-AS TEXT
           SIZE 16.8 BY .62 AT ROW 14.33 COL 91
           BGCOLOR 8 
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 24 ROW 1.24
-         SIZE 129 BY 25.24.
-
-/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
-DEFINE FRAME defaultsFrame
      "[Job Appearance]" VIEW-AS TEXT
           SIZE 17 BY .62 AT ROW 1.24 COL 91
           BGCOLOR 8 
@@ -2870,6 +2857,13 @@ DEFINE FRAME defaultsFrame
      "[Board Settings]" VIEW-AS TEXT
           SIZE 15 BY .62 AT ROW 1.24 COL 3
           BGCOLOR 8 
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 24 ROW 1.24
+         SIZE 129 BY 25.24.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME defaultsFrame
      "[Pending Jobs]" VIEW-AS TEXT
           SIZE 15 BY .62 AT ROW 18.86 COL 54
           BGCOLOR 8 
@@ -2880,6 +2874,12 @@ DEFINE FRAME defaultsFrame
           SIZE 31 BY .62 AT ROW 9.33 COL 10
      "Job Seq.:" VIEW-AS TEXT
           SIZE 9 BY .62 AT ROW 12.43 COL 92
+     "[Scheduler Re-Start Required to take effect]" VIEW-AS TEXT
+          SIZE 42 BY .62 AT ROW 21.95 COL 54
+          BGCOLOR 8 
+     "[Valid Schedule Board ID's]" VIEW-AS TEXT
+          SIZE 26 BY .62 AT ROW 14.57 COL 50
+          BGCOLOR 8 
      RECT-3 AT ROW 21 COL 2
      RECT-1 AT ROW 1.48 COL 2
      rectGrid AT ROW 4.81 COL 91
@@ -3078,25 +3078,25 @@ ASSIGN
    1 6                                                                  */
 ASSIGN 
        colorPriorityValue-16:PRIVATE-DATA IN FRAME colorsFrame     = 
-                "16".
+                "30".
 
 /* SETTINGS FOR COMBO-BOX colorPriorityValue-17 IN FRAME colorsFrame
    1 6                                                                  */
 ASSIGN 
        colorPriorityValue-17:PRIVATE-DATA IN FRAME colorsFrame     = 
-                "17".
+                "31".
 
 /* SETTINGS FOR COMBO-BOX colorPriorityValue-18 IN FRAME colorsFrame
    1 6                                                                  */
 ASSIGN 
        colorPriorityValue-18:PRIVATE-DATA IN FRAME colorsFrame     = 
-                "18".
+                "32".
 
 /* SETTINGS FOR COMBO-BOX colorPriorityValue-19 IN FRAME colorsFrame
    1 6                                                                  */
 ASSIGN 
        colorPriorityValue-19:PRIVATE-DATA IN FRAME colorsFrame     = 
-                "19".
+                "33".
 
 /* SETTINGS FOR COMBO-BOX colorPriorityValue-2 IN FRAME colorsFrame
    1 5                                                                  */
@@ -3108,55 +3108,55 @@ ASSIGN
    1 6                                                                  */
 ASSIGN 
        colorPriorityValue-20:PRIVATE-DATA IN FRAME colorsFrame     = 
-                "20".
+                "34".
 
 /* SETTINGS FOR COMBO-BOX colorPriorityValue-21 IN FRAME colorsFrame
    1 6                                                                  */
 ASSIGN 
        colorPriorityValue-21:PRIVATE-DATA IN FRAME colorsFrame     = 
-                "21".
+                "35".
 
 /* SETTINGS FOR COMBO-BOX colorPriorityValue-22 IN FRAME colorsFrame
    1 6                                                                  */
 ASSIGN 
        colorPriorityValue-22:PRIVATE-DATA IN FRAME colorsFrame     = 
-                "22".
+                "36".
 
 /* SETTINGS FOR COMBO-BOX colorPriorityValue-23 IN FRAME colorsFrame
    1 6                                                                  */
 ASSIGN 
        colorPriorityValue-23:PRIVATE-DATA IN FRAME colorsFrame     = 
-                "23".
+                "37".
 
 /* SETTINGS FOR COMBO-BOX colorPriorityValue-24 IN FRAME colorsFrame
    1 6                                                                  */
 ASSIGN 
        colorPriorityValue-24:PRIVATE-DATA IN FRAME colorsFrame     = 
-                "24".
+                "38".
 
 /* SETTINGS FOR COMBO-BOX colorPriorityValue-25 IN FRAME colorsFrame
    1 6                                                                  */
 ASSIGN 
        colorPriorityValue-25:PRIVATE-DATA IN FRAME colorsFrame     = 
-                "25".
+                "39".
 
 /* SETTINGS FOR COMBO-BOX colorPriorityValue-26 IN FRAME colorsFrame
    1 6                                                                  */
 ASSIGN 
        colorPriorityValue-26:PRIVATE-DATA IN FRAME colorsFrame     = 
-                "26".
+                "40".
 
 /* SETTINGS FOR COMBO-BOX colorPriorityValue-27 IN FRAME colorsFrame
    1 5                                                                  */
 ASSIGN 
        colorPriorityValue-27:PRIVATE-DATA IN FRAME colorsFrame     = 
-                "27".
+                "41".
 
 /* SETTINGS FOR COMBO-BOX colorPriorityValue-28 IN FRAME colorsFrame
    1 5                                                                  */
 ASSIGN 
        colorPriorityValue-28:PRIVATE-DATA IN FRAME colorsFrame     = 
-                "28".
+                "42".
 
 /* SETTINGS FOR COMBO-BOX colorPriorityValue-3 IN FRAME colorsFrame
    1 5                                                                  */
@@ -3612,59 +3612,59 @@ ASSIGN
 
 ASSIGN 
        btnChangeColor-16:PRIVATE-DATA IN FRAME configurationFrame     = 
-                "16".
+                "30".
 
 ASSIGN 
        btnChangeColor-17:PRIVATE-DATA IN FRAME configurationFrame     = 
-                "17".
+                "31".
 
 ASSIGN 
        btnChangeColor-18:PRIVATE-DATA IN FRAME configurationFrame     = 
-                "18".
+                "32".
 
 ASSIGN 
        btnChangeColor-19:PRIVATE-DATA IN FRAME configurationFrame     = 
-                "19".
+                "33".
 
 ASSIGN 
        btnChangeColor-20:PRIVATE-DATA IN FRAME configurationFrame     = 
-                "20".
+                "34".
 
 ASSIGN 
        btnChangeColor-21:PRIVATE-DATA IN FRAME configurationFrame     = 
-                "21".
+                "35".
 
 ASSIGN 
        btnChangeColor-22:PRIVATE-DATA IN FRAME configurationFrame     = 
-                "22".
+                "36".
 
 ASSIGN 
        btnChangeColor-23:PRIVATE-DATA IN FRAME configurationFrame     = 
-                "23".
+                "37".
 
 ASSIGN 
        btnChangeColor-24:PRIVATE-DATA IN FRAME configurationFrame     = 
-                "24".
+                "38".
 
 ASSIGN 
        btnChangeColor-25:PRIVATE-DATA IN FRAME configurationFrame     = 
-                "25".
+                "39".
 
 ASSIGN 
        btnChangeColor-26:PRIVATE-DATA IN FRAME configurationFrame     = 
-                "26".
+                "40".
 
 ASSIGN 
        btnChangeColor-27:PRIVATE-DATA IN FRAME configurationFrame     = 
-                "27".
+                "41".
 
 ASSIGN 
        btnChangeColor-28:PRIVATE-DATA IN FRAME configurationFrame     = 
-                "28".
+                "42".
 
 ASSIGN 
        btnChangeColor-29:PRIVATE-DATA IN FRAME configurationFrame     = 
-                "29".
+                "43".
 
 /* SETTINGS FOR RECTANGLE RECT-6 IN FRAME configurationFrame
    NO-ENABLE                                                            */
@@ -4666,7 +4666,7 @@ ON MOUSE-SELECT-CLICK OF jobBGColor-1 IN FRAME colorsFrame
 ,customBGColor-13,customBGColor-14
 ,downtimeConflictBGColorValue,jobConflictBGColorValue
 DO:
-  SELF:BGCOLOR = IF SELF:BGCOLOR EQ 29 THEN 0 ELSE SELF:BGCOLOR + 1.
+  SELF:BGCOLOR = IF SELF:BGCOLOR EQ 43 THEN 0 ELSE SELF:BGCOLOR + 1.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -5469,7 +5469,7 @@ PROCEDURE saveColors :
   DEFINE VARIABLE i AS INTEGER NO-UNDO.
 
   OUTPUT TO VALUE(SEARCH('{&data}/sbColors.dat')).
-  DO i = 16 TO 29:
+  DO i = 51 TO 64:
     ASSIGN
       redValue = COLOR-TABLE:GET-RED-VALUE(i)
       greenValue = COLOR-TABLE:GET-GREEN-VALUE(i)

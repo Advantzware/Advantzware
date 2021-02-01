@@ -107,22 +107,22 @@ IF lRecFound THEN
 DEFINE QUERY external_tables FOR oe-bolh.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-FIELDS oe-bolh.bol-no oe-bolh.bol-date ~
-oe-bolh.carrier oe-bolh.ship-id oe-bolh.trailer oe-bolh.frt-pay ~
-oe-bolh.airway-bill oe-bolh.freight oe-bolh.cwt oe-bolh.tot-wt ~
-oe-bolh.tot-pallets oe-bolh.quotedFreight oe-bolh.quoteNote
+oe-bolh.quotedFreight oe-bolh.quoteNote oe-bolh.carrier oe-bolh.ship-id ~
+oe-bolh.trailer oe-bolh.frt-pay oe-bolh.airway-bill oe-bolh.freight ~
+oe-bolh.cwt oe-bolh.tot-wt oe-bolh.tot-pallets 
 &Scoped-define ENABLED-TABLES oe-bolh
 &Scoped-define FIRST-ENABLED-TABLE oe-bolh
 &Scoped-Define ENABLED-OBJECTS btnCalendar-1 RECT-2 
 &Scoped-Define DISPLAYED-FIELDS oe-bolh.bol-no oe-bolh.bol-date ~
-oe-bolh.stat oe-bolh.release# oe-bolh.cust-no oe-bolh.carrier ~
-oe-bolh.ship-id oe-bolh.trailer oe-bolh.frt-pay oe-bolh.airway-bill ~
-oe-bolh.freight oe-bolh.cwt oe-bolh.tot-wt oe-bolh.tot-pallets ~
-oe-bolh.user-id oe-bolh.upd-date oe-bolh.quotedFreight oe-bolh.quoteNote
+oe-bolh.quotedFreight oe-bolh.quoteNote oe-bolh.stat oe-bolh.release# ~
+oe-bolh.cust-no oe-bolh.carrier oe-bolh.ship-id oe-bolh.trailer ~
+oe-bolh.frt-pay oe-bolh.airway-bill oe-bolh.freight oe-bolh.cwt ~
+oe-bolh.tot-wt oe-bolh.tot-pallets oe-bolh.user-id oe-bolh.upd-date 
 &Scoped-define DISPLAYED-TABLES oe-bolh
 &Scoped-define FIRST-DISPLAYED-TABLE oe-bolh
 &Scoped-Define DISPLAYED-OBJECTS tgSigned cust_name ship_name cust_addr1 ~
 ship_addr1 cust_addr2 ship_addr2 cust_city cust_state cust_zip ship_city ~
-ship_state ship_zip fi_upd-time 
+ship_state ship_zip fi_upd-time cOrderBy 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,List-3,List-4,List-5,List-6      */
@@ -165,6 +165,11 @@ DEFINE BUTTON btnCalendar-1
      LABEL "" 
      SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
 
+DEFINE VARIABLE cOrderBy AS CHARACTER FORMAT "x(8)" 
+     LABEL "Ordered By" 
+     VIEW-AS FILL-IN 
+     SIZE 11 BY 1.
+
 DEFINE VARIABLE cust_addr1 AS CHARACTER FORMAT "x(30)" 
      VIEW-AS FILL-IN 
      SIZE 42 BY 1.
@@ -190,9 +195,8 @@ DEFINE VARIABLE cust_zip AS CHARACTER FORMAT "x(10)"
      SIZE 16 BY 1.
 
 DEFINE VARIABLE fi_upd-time AS CHARACTER FORMAT "x(8)" 
-     LABEL "At" 
      VIEW-AS FILL-IN 
-     SIZE 15 BY 1.
+     SIZE 7.5 BY 1.
 
 DEFINE VARIABLE ship_addr1 AS CHARACTER FORMAT "x(30)" 
      VIEW-AS FILL-IN 
@@ -239,14 +243,14 @@ DEFINE FRAME F-Main
      oe-bolh.bol-date AT ROW 1.24 COL 37 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 15 BY 1
-     oe-bolh.quotedFreight AT ROW 2.30 COL 40 COLON-ALIGNED
-          LABEL "Quoted Freight" FORMAT "->>,>>>,>>9.99"
+     oe-bolh.quotedFreight AT ROW 2.29 COL 40 COLON-ALIGNED
+          LABEL "Quoted Freight"
           VIEW-AS FILL-IN 
-          SIZE 15 BY 1 
-     oe-bolh.quoteNote AT ROW 2.30 COL 72 COLON-ALIGNED
+          SIZE 15 BY 1
+     oe-bolh.quoteNote AT ROW 2.29 COL 72 COLON-ALIGNED
           LABEL "Quoted Note" FORMAT "x(32)"
           VIEW-AS FILL-IN 
-          SIZE 33 BY 1    
+          SIZE 33 BY 1
      oe-bolh.stat AT ROW 2.33 COL 121 COLON-ALIGNED HELP
           "Order Status (R)eleased or (H)old"
           LABEL "BOL Status" FORMAT "x(20)"
@@ -273,8 +277,7 @@ DEFINE FRAME F-Main
           LABEL "Trailer#"
           VIEW-AS FILL-IN 
           SIZE 33 BY 1
-     oe-bolh.frt-pay AT ROW 4.33 COL 105.4 COLON-ALIGNED HELP
-          "B=Bill, C=Collect, P=Prepaid, T=Third Party"
+     oe-bolh.frt-pay AT ROW 4.33 COL 105.4 COLON-ALIGNED
           LABEL "Freight Terms"
           VIEW-AS FILL-IN 
           SIZE 3.2 BY 1
@@ -283,7 +286,7 @@ DEFINE FRAME F-Main
           LABEL "Seal#" FORMAT "X(12)"
           VIEW-AS FILL-IN 
           SIZE 20 BY 1
-     oe-bolh.freight AT ROW 5.29 COL 121 COLON-ALIGNED 
+     oe-bolh.freight AT ROW 5.29 COL 121 COLON-ALIGNED
           LABEL "Freight Cost" FORMAT "->,>>,>>9.99"
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
@@ -311,15 +314,10 @@ DEFINE FRAME F-Main
           LABEL "Total Pallets" FORMAT "->,>>>,>>9"
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
-     oe-bolh.user-id AT ROW 1.24 COL 81 COLON-ALIGNED
-          LABEL "Added/Updated By"
+     oe-bolh.user-id AT ROW 1.24 COL 103.2 COLON-ALIGNED
+          LABEL "Last Updated By"
           VIEW-AS FILL-IN 
-          SIZE 15 BY 1
-     oe-bolh.upd-date AT ROW 1.24 COL 103 COLON-ALIGNED
-          LABEL "On"
-          VIEW-AS FILL-IN 
-          SIZE 15 BY 1
-     fi_upd-time AT ROW 1.24 COL 125 COLON-ALIGNED
+          SIZE 11 BY 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -327,8 +325,16 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
+     oe-bolh.upd-date AT ROW 1.24 COL 119.4 COLON-ALIGNED
+          LABEL "On" FORMAT "99/99/99"
+          VIEW-AS FILL-IN 
+          SIZE 13 BY 1
+     fi_upd-time AT ROW 1.24 COL 134.4 COLON-ALIGNED NO-LABEL
+     cOrderBy AT ROW 1.24 COL 71.4 COLON-ALIGNED
      btnCalendar-1 AT ROW 1.24 COL 54
      RECT-2 AT ROW 1 COL 1
+     "@" VIEW-AS TEXT
+          SIZE 1.8 BY .62 AT ROW 1.35 COL 134.2 WIDGET-ID 298
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -398,6 +404,8 @@ ASSIGN
    3                                                                    */
 /* SETTINGS FOR FILL-IN oe-bolh.carrier IN FRAME F-Main
    EXP-FORMAT                                                           */
+/* SETTINGS FOR FILL-IN cOrderBy IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN oe-bolh.cust-no IN FRAME F-Main
    NO-ENABLE 1 EXP-LABEL EXP-FORMAT EXP-HELP                            */
 /* SETTINGS FOR FILL-IN cust_addr1 IN FRAME F-Main
@@ -420,6 +428,10 @@ ASSIGN
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN oe-bolh.frt-pay IN FRAME F-Main
    EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN oe-bolh.quotedFreight IN FRAME F-Main
+   EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN oe-bolh.quoteNote IN FRAME F-Main
+   EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN oe-bolh.release# IN FRAME F-Main
    NO-ENABLE 1 EXP-FORMAT                                               */
 /* SETTINGS FOR FILL-IN oe-bolh.ship-id IN FRAME F-Main
@@ -447,13 +459,9 @@ ASSIGN
 /* SETTINGS FOR FILL-IN oe-bolh.trailer IN FRAME F-Main
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN oe-bolh.upd-date IN FRAME F-Main
-   NO-ENABLE EXP-LABEL                                                  */
+   NO-ENABLE EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN oe-bolh.user-id IN FRAME F-Main
-   NO-ENABLE EXP-LABEL                                                  */      
-/* SETTINGS FOR FILL-IN oe-bolh.quotedFreight IN FRAME F-Main
-   EXP-LABEL EXP-LABEL                                                  */
-/* SETTINGS FOR FILL-IN oe-bolh.quoteNote IN FRAME F-Main
-   EXP-LABEL EXP-FORMAT                                                 */   
+   NO-ENABLE EXP-LABEL                                                  */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -1025,6 +1033,24 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE check-release-update V-table-Win 
+PROCEDURE check-release-update :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER cCheck-rel AS CHARACTER NO-UNDO .
+    
+    IF AVAIL oe-bolh THEN
+        ASSIGN
+        cCheck-rel = oe-bolh.stat .
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE clear-header V-table-Win 
 PROCEDURE clear-header :
 /*------------------------------------------------------------------------------
@@ -1273,40 +1299,6 @@ PROCEDURE display-shipto-detail :
         .
             
   END.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE relpost-values  V-table-Win 
-PROCEDURE relpost-values :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEF INPUT PARAMETER ip-custno AS CHAR NO-UNDO.
-  DEF INPUT PARAMETER ip-shipto AS CHAR NO-UNDO.
-  DEFINE OUTPUT PARAMETER op-relpost-chr LIKE sys-ctrl.char-fld NO-UNDO.
-  DEFINE OUTPUT PARAMETER op-relpost-log LIKE sys-ctrl.log-fld  NO-UNDO.
-  DEF VAR cRtnChar AS CHAR NO-UNDO.
-  DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
-
-
-   RUN sys/ref/nk1look.p (INPUT cocode, "RELPOST", "L" /* Logical */, YES /* check by cust */, 
-       INPUT YES /* use cust not vendor */, ip-custno /* cust */, ip-shipto /* ship-to*/,
-       OUTPUT cRtnChar, OUTPUT lRecFound).
-       IF lRecFound THEN
-       op-relpost-log = LOGICAL(cRtnChar) NO-ERROR.
-
-     RUN sys/ref/nk1look.p (INPUT cocode, "RELPOST", "C" /* Logical */, YES /* check by cust */, 
-     INPUT YES /* use cust not vendor */, ip-custno  /* cust */, ip-shipto /* ship-to*/,
-     OUTPUT cRtnChar, OUTPUT lRecFound).
-     IF lRecFound THEN
-      op-relpost-chr = cRtnChar NO-ERROR. 
- 
-
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1684,7 +1676,7 @@ PROCEDURE local-disable-fields :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'disable-fields':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-
+  {methods/run_link.i "CONTAINER-SOURCE" "SetUpdateEnd"} 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1743,10 +1735,18 @@ PROCEDURE local-display-fields :
      li-mm       = li-mm - (li-hh * 60)
      li-ss       = oe-bolh.upd-time - (li-hh * 3600) - (li-mm * 60) 
      fi_upd-time = STRING(li-hh,"99") + ":" +
-                   STRING(li-mm,"99") + ":" +
-                   STRING(li-ss,"99")
+                   STRING(li-mm,"99") 
      tgSigned    = (IF oe-bolh.spare-int-1 EQ 1 THEN TRUE ELSE FALSE)
-     cShipFromLoc = IF AVAIL shipto THEN shipto.loc ELSE oe-bolh.loc.
+     cShipFromLoc = IF AVAIL shipto THEN shipto.loc ELSE oe-bolh.loc .
+     FIND FIRST oe-boll NO-LOCK 
+          WHERE oe-boll.company EQ cocode 
+          AND oe-boll.b-no = oe-bolh.b-no NO-ERROR.
+     IF AVAIL oe-boll THEN     
+     FIND FIRST oe-ord NO-LOCK
+          WHERE oe-ord.company EQ cocode 
+          AND oe-ord.ord-no EQ oe-boll.ord-no NO-ERROR.
+     IF AVAIL oe-ord AND AVAIL oe-boll THEN
+     ASSIGN cOrderBy = oe-ord.entered-id.
 
   END.
                                                                  
@@ -1788,8 +1788,7 @@ PROCEDURE local-enable-fields :
     
     RUN enable-bol-fields.     
   END.
-  
-
+  {methods/run_link.i "CONTAINER-SOURCE" "SetUpdateBegin"} 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2076,19 +2075,33 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE check-release-update V-table-Win 
-PROCEDURE check-release-update :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE relpost-values V-table-Win 
+PROCEDURE relpost-values :
 /*------------------------------------------------------------------------------
   Purpose:     
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEFINE OUTPUT PARAMETER cCheck-rel AS CHARACTER NO-UNDO .
-    
-    IF AVAIL oe-bolh THEN
-        ASSIGN
-        cCheck-rel = oe-bolh.stat .
+  DEF INPUT PARAMETER ip-custno AS CHAR NO-UNDO.
+  DEF INPUT PARAMETER ip-shipto AS CHAR NO-UNDO.
+  DEFINE OUTPUT PARAMETER op-relpost-chr LIKE sys-ctrl.char-fld NO-UNDO.
+  DEFINE OUTPUT PARAMETER op-relpost-log LIKE sys-ctrl.log-fld  NO-UNDO.
+  DEF VAR cRtnChar AS CHAR NO-UNDO.
+  DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
+
+
+   RUN sys/ref/nk1look.p (INPUT cocode, "RELPOST", "L" /* Logical */, YES /* check by cust */, 
+       INPUT YES /* use cust not vendor */, ip-custno /* cust */, ip-shipto /* ship-to*/,
+       OUTPUT cRtnChar, OUTPUT lRecFound).
+       IF lRecFound THEN
+       op-relpost-log = LOGICAL(cRtnChar) NO-ERROR.
+
+     RUN sys/ref/nk1look.p (INPUT cocode, "RELPOST", "C" /* Logical */, YES /* check by cust */, 
+     INPUT YES /* use cust not vendor */, ip-custno  /* cust */, ip-shipto /* ship-to*/,
+     OUTPUT cRtnChar, OUTPUT lRecFound).
+     IF lRecFound THEN
+      op-relpost-chr = cRtnChar NO-ERROR. 
+ 
 
 END PROCEDURE.
 
@@ -2229,7 +2242,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-carrier V-table-Win 
 PROCEDURE valid-carrier :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       

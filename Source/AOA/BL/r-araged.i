@@ -42,7 +42,7 @@ FOR EACH ar-cash ~
         dtInvoiceDate = ar-cashl.voidDate. ~
         ELSE DO: ~
             cGltransDesc = "VOID " + cust.cust-no + " " ~
-                         + STRING(ar-cash.check-no,"9999999999") ~
+                         + STRING(ar-cash.check-no,"999999999999") ~
                          + " Inv# " + STRING(ar-cashl.inv-no). ~
             FIND FIRST gltrans NO-LOCK ~
                  WHERE gltrans.company EQ cust.company ~
@@ -273,7 +273,7 @@ PROCEDURE pBusinessLogic:
                        dtInvoiceDate = ar-cashl.voidDate.
                     ELSE DO:
                         cGltransDesc = "VOID " + cust.cust-no + " "
-                                     + STRING(ar-cash.check-no,"9999999999")
+                                     + STRING(ar-cash.check-no,"999999999999")
                                      + " Inv# " + STRING(ar-cashl.inv-no).
                         FIND FIRST gltrans NO-LOCK
                              WHERE gltrans.company EQ cust.company
@@ -410,7 +410,7 @@ PROCEDURE pBusinessLogic:
                            dtInvoiceDate = ar-cashl.voidDate.
                         ELSE DO:
                             cGltransDesc = "VOID " + cust.cust-no + " "
-                                         + STRING(ar-cash.check-no,"9999999999")
+                                         + STRING(ar-cash.check-no,"999999999999")
                                          + " Inv# " + STRING(ar-cashl.inv-no).
                             FIND FIRST gltrans NO-LOCK
                                  WHERE gltrans.company EQ cust.company
@@ -439,7 +439,7 @@ PROCEDURE pBusinessLogic:
                             .
                     ELSE DO:
                         cTrDscr = "VOID " + cust.cust-no + " "
-                                + STRING(ar-cash.check-no,"9999999999")
+                                + STRING(ar-cash.check-no,"999999999999")
                                 + " Inv# " + STRING(ar-cashl.inv-no).
                         IF ar-cashl.amt-paid GT 0 AND
                           (ar-cashl.voided  EQ YES OR
@@ -560,7 +560,7 @@ PROCEDURE pBusinessLogic:
                                dtInvoiceDate = ar-cashl.voidDate.
                             ELSE DO:
                                 cGltransDesc = "VOID " + cust.cust-no + " "
-                                             + STRING(ar-cash.check-no,"9999999999")
+                                             + STRING(ar-cash.check-no,"999999999999")
                                              + " Inv# " + STRING(ar-cashl.inv-no).
                                 FIND FIRST gltrans NO-LOCK
                                      WHERE gltrans.company EQ cust.company
@@ -696,7 +696,7 @@ PROCEDURE pBusinessLogic:
             END. /* IF ar-cashl.memo EQ TRUE */
             ELSE DO:
                 cTrDscr = "VOID " + cust.cust-no + " "
-                    + STRING(ar-cash.check-no,"9999999999")
+                    + STRING(ar-cash.check-no,"999999999999")
                     + " Inv# " + STRING(ar-cashl.inv-no).
                 IF ar-cashl.voided EQ YES OR   
                    CAN-FIND(FIRST gltrans
@@ -724,7 +724,7 @@ PROCEDURE pBusinessLogic:
                        dtInvoiceDate = ar-cashl.voidDate.
                     ELSE DO:
                         cGltransDesc = "VOID " + cust.cust-no + " "
-                                     + STRING(ar-cash.check-no,"9999999999")
+                                     + STRING(ar-cash.check-no,"999999999999")
                                      + " Inv# " + STRING(ar-cashl.inv-no).
                         FIND FIRST gltrans NO-LOCK
                              WHERE gltrans.company EQ cust.company
@@ -801,7 +801,7 @@ PROCEDURE pBusinessLogic:
                        dtInvoiceDate = ar-cashl.voidDate.
                     ELSE DO:
                         cGltransDesc = "VOID " + cust.cust-no + " "
-                                     + STRING(ar-cash.check-no,"9999999999")
+                                     + STRING(ar-cash.check-no,"999999999999")
                                      + " Inv# " + STRING(ar-cashl.inv-no).
                         FIND FIRST gltrans NO-LOCK
                              WHERE gltrans.company EQ cust.company

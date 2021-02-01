@@ -493,6 +493,7 @@ ON ROW-LEAVE OF br_table IN FRAME F-Main /* Bin Details */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
 ON START-SEARCH OF br_table IN FRAME F-Main /* Bin Details */
     DO:
+		{methods/template/sortindicator.i}
         DEF VAR lh-column AS HANDLE NO-UNDO.
         DEF VAR lv-column-nam AS CHAR NO-UNDO.
         DEF VAR lv-column-lab AS CHAR NO-UNDO.
@@ -520,7 +521,7 @@ ON START-SEARCH OF br_table IN FRAME F-Main /* Bin Details */
         APPLY 'END-SEARCH' TO {&BROWSE-NAME}.
 
         RUN resort-query.
- 
+		{methods/template/sortindicatorend.i}
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -608,7 +609,11 @@ PROCEDURE adm-row-available :
                the Record-Source and process it.
   Parameters:  <none>
 ------------------------------------------------------------------------------*/
-
+    /* Set Onhold and showZeroBins flags to NO once user changes the item */
+    ASSIGN 
+        lv-show-zero-bins = NO
+        lIncludeOnHold    = NO
+        .
   /* Define variables needed by this internal procedure.             */
     {src/adm/template/row-head.i}
 

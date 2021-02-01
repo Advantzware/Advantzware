@@ -120,13 +120,13 @@ fiStatusID ld-tag-status-desc lbl_sort-3 tb_onhold
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btnCancel AUTO-END-KEY 
-     IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/exit_white.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Cancel" 
      SIZE 8 BY 1.91
      BGCOLOR 8 .
 
 DEFINE BUTTON btnOK AUTO-GO 
-     IMAGE-UP FILE "Graphics/32x32/floppy_disk.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/floppy_disk.png":U NO-FOCUS FLAT-BUTTON
      LABEL "OK" 
      SIZE 8 BY 1.91
      BGCOLOR 8 .
@@ -499,7 +499,9 @@ DO:
     DEFINE VARIABLE cReasonCode AS CHARACTER NO-UNDO .
     DEFINE VARIABLE lCheckError AS LOGICAL NO-UNDO.
     DEFINE VARIABLE lOldValueOnHold AS LOGICAL NO-UNDO.
-
+    DEFINE VARIABLE lUpdateAllJobTags AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lUpdateJobPO AS LOGICAL NO-UNDO.
+    
     DEFINE BUFFER b-fg-bin FOR fg-bin.
 
     DISABLE TRIGGERS FOR LOAD OF loadtag.
@@ -670,93 +672,102 @@ DO:
             RUN fg/d-reqtys.w (ROWID(itemfg), NO).
         END.    
     END.
+    
+    
   
-    IF w-job.job-no NE "" THEN DO:
-        FOR EACH fg-bin
-            WHERE fg-bin.company  EQ cocode
-              AND fg-bin.i-no     EQ w-job.i-no
-              AND fg-bin.job-no   EQ w-job.job-no
-              AND fg-bin.job-no2  EQ w-job.job-no2
-            :
-            ASSIGN
-                fg-bin.std-mat-cost = w-job.std-mat-cost
-                fg-bin.std-lab-cost = w-job.std-lab-cost
-                fg-bin.std-fix-cost = w-job.std-fix-cost
-                fg-bin.std-var-cost = w-job.std-var-cost
-                fg-bin.std-tot-cost = w-job.std-tot-cost
-                fg-bin.avg-cost     = w-job.std-tot-cost
-                fg-bin.last-cost    = w-job.std-tot-cost
-                .
-        END.
-
+    IF w-job.job-no NE "" AND NOT w-job.ship-default THEN DO:
         ASSIGN 
             w-job-rec = RECID(w-job).
-
-        CREATE tmp-w-job.
-        ASSIGN
-            tmp-w-job.job-no       = w-job.job-no
-            tmp-w-job.job-no2      = w-job.job-no2
-            tmp-w-job.i-no         = w-job.i-no
-            tmp-w-job.j-no         = w-job.j-no
-            tmp-w-job.loc          = w-job.loc
-            tmp-w-job.loc-bin      = w-job.loc-bin
-            tmp-w-job.tag          = w-job.tag
-            tmp-w-job.case-count   = w-job.case-count
-            tmp-w-job.cases-unit   = w-job.cases-unit
-            tmp-w-job.qty          = w-job.qty
-            tmp-w-job.std-tot-cost = w-job.std-tot-cost
-            tmp-w-job.std-mat-cost = w-job.std-mat-cost
-            tmp-w-job.std-lab-cost = w-job.std-lab-cost
-            tmp-w-job.std-var-cost = w-job.std-var-cost
-            tmp-w-job.std-fix-cost = w-job.std-fix-cost
-            tmp-w-job.last-cost    = w-job.last-cost
-            tmp-w-job.sell-uom     = w-job.sell-uom
-            .
-
-        FOR EACH w-job
-            WHERE w-job.i-no     EQ tmp-w-job.i-no
-              AND w-job.job-no   EQ tmp-w-job.job-no
-              AND w-job.job-no2  EQ tmp-w-job.job-no2
-            :
+    
+        RUN fg/dCostOverride.w(OUTPUT lUpdateAllJobTags,OUTPUT lUpdateJobPO).
+        
+        IF lUpdateAllJobTags THEN
+        DO:        
+            FOR EACH fg-bin
+                WHERE fg-bin.company  EQ cocode
+                  AND fg-bin.i-no     EQ w-job.i-no
+                  AND fg-bin.job-no   EQ w-job.job-no
+                  AND fg-bin.job-no2  EQ w-job.job-no2
+                :
+                ASSIGN
+                    fg-bin.std-mat-cost = w-job.std-mat-cost
+                    fg-bin.std-lab-cost = w-job.std-lab-cost
+                    fg-bin.std-fix-cost = w-job.std-fix-cost
+                    fg-bin.std-var-cost = w-job.std-var-cost
+                    fg-bin.std-tot-cost = w-job.std-tot-cost
+                    fg-bin.avg-cost     = w-job.std-tot-cost
+                    fg-bin.last-cost    = w-job.std-tot-cost
+                    .
+            END.
+                    
+            CREATE tmp-w-job.
             ASSIGN
-                w-job.std-mat-cost = tmp-w-job.std-mat-cost
-                w-job.std-lab-cost = tmp-w-job.std-lab-cost
-                w-job.std-fix-cost = tmp-w-job.std-fix-cost
-                w-job.std-var-cost = tmp-w-job.std-var-cost
-                w-job.std-tot-cost = w-job.std-lab-cost
-                                   + w-job.std-mat-cost
-                                   + w-job.std-fix-cost
-                                   + w-job.std-var-cost
-                                   .
-        END.
+                tmp-w-job.job-no       = w-job.job-no
+                tmp-w-job.job-no2      = w-job.job-no2
+                tmp-w-job.i-no         = w-job.i-no
+                tmp-w-job.j-no         = w-job.j-no
+                tmp-w-job.loc          = w-job.loc
+                tmp-w-job.loc-bin      = w-job.loc-bin
+                tmp-w-job.tag          = w-job.tag
+                tmp-w-job.case-count   = w-job.case-count
+                tmp-w-job.cases-unit   = w-job.cases-unit
+                tmp-w-job.qty          = w-job.qty
+                tmp-w-job.std-tot-cost = w-job.std-tot-cost
+                tmp-w-job.std-mat-cost = w-job.std-mat-cost
+                tmp-w-job.std-lab-cost = w-job.std-lab-cost
+                tmp-w-job.std-var-cost = w-job.std-var-cost
+                tmp-w-job.std-fix-cost = w-job.std-fix-cost
+                tmp-w-job.last-cost    = w-job.last-cost
+                tmp-w-job.sell-uom     = w-job.sell-uom
+                .
 
-        DELETE tmp-w-job.    
+            FOR EACH w-job
+                WHERE w-job.i-no     EQ tmp-w-job.i-no
+                  AND w-job.job-no   EQ tmp-w-job.job-no
+                  AND w-job.job-no2  EQ tmp-w-job.job-no2
+                :
+                ASSIGN
+                    w-job.std-mat-cost = tmp-w-job.std-mat-cost
+                    w-job.std-lab-cost = tmp-w-job.std-lab-cost
+                    w-job.std-fix-cost = tmp-w-job.std-fix-cost
+                    w-job.std-var-cost = tmp-w-job.std-var-cost
+                    w-job.std-tot-cost = w-job.std-lab-cost
+                                       + w-job.std-mat-cost
+                                       + w-job.std-fix-cost
+                                       + w-job.std-var-cost
+                                       .
+            END.
+
+            DELETE tmp-w-job. 
+        END.  /* lUpdateAllJobTags*/
+    END.
+    
+    IF lUpdateJobPO THEN DO:
         FIND FIRST w-job WHERE RECID(w-job) EQ w-job-rec.
-    END.
-
-    FIND FIRST job-hdr WHERE job-hdr.j-no EQ w-job.j-no NO-ERROR.
-    IF AVAILABLE job-hdr THEN DO:
-        ASSIGN
-            job-hdr.std-mat-cost = w-job.std-mat-cost
-            job-hdr.std-lab-cost = w-job.std-lab-cost
-            job-hdr.std-fix-cost = w-job.std-fix-cost
-            job-hdr.std-var-cost = w-job.std-var-cost
-            job-hdr.std-tot-cost = job-hdr.std-lab-cost
-                                 + job-hdr.std-mat-cost
-                                 + job-hdr.std-fix-cost
-                                 + job-hdr.std-var-cost
-                                 .                          
-        RELEASE oe-ordl.
-        IF NOT v-full-cost THEN
-            FIND FIRST oe-ordl
-                WHERE oe-ordl.company EQ cocode
-                  AND oe-ordl.job-no  EQ job-hdr.job-no
-                  AND oe-ordl.job-no2 EQ job-hdr.job-no2
-                  AND oe-ordl.ord-no  EQ job-hdr.ord-no
-                  AND oe-ordl.i-no    EQ job-hdr.i-no
-                NO-ERROR.
-        IF AVAILABLE oe-ordl THEN oe-ordl.cost = job-hdr.std-tot-cost.
-    END.
+        FIND FIRST job-hdr WHERE job-hdr.j-no EQ w-job.j-no NO-ERROR.
+        IF AVAILABLE job-hdr THEN DO:
+            ASSIGN
+                job-hdr.std-mat-cost = w-job.std-mat-cost
+                job-hdr.std-lab-cost = w-job.std-lab-cost
+                job-hdr.std-fix-cost = w-job.std-fix-cost
+                job-hdr.std-var-cost = w-job.std-var-cost
+                job-hdr.std-tot-cost = job-hdr.std-lab-cost
+                                     + job-hdr.std-mat-cost
+                                     + job-hdr.std-fix-cost
+                                     + job-hdr.std-var-cost
+                                     .                          
+            RELEASE oe-ordl.
+            IF NOT v-full-cost THEN
+                FIND FIRST oe-ordl
+                    WHERE oe-ordl.company EQ cocode
+                      AND oe-ordl.job-no  EQ job-hdr.job-no
+                      AND oe-ordl.job-no2 EQ job-hdr.job-no2
+                      AND oe-ordl.ord-no  EQ job-hdr.ord-no
+                      AND oe-ordl.i-no    EQ job-hdr.i-no
+                    NO-ERROR.
+            IF AVAILABLE oe-ordl THEN oe-ordl.cost = job-hdr.std-tot-cost.
+        END.
+    END.  /* lUpdateJobPO */
   
     RUN fg/updfgcs1.p (RECID(itemfg), NO, NO).
 END.

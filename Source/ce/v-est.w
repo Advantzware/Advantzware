@@ -79,6 +79,10 @@ DEFINE VARIABLE cadFile AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lAccessCreateFG AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lAccessClose AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cAccessList AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cRecValue   AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound   AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cArtiosCAD   AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lArtiosCAD   AS LOGICAL NO-UNDO.
 
 {custom/framechk.i NEW}
 
@@ -104,6 +108,9 @@ RUN methods/prgsecur.p
              OUTPUT lAccessClose, /* used in template/windows.i  */
              OUTPUT cAccessList). /* list 1's and 0's indicating yes or no to run, create, update, delete */
 
+DEFINE VARIABLE hdSalesManProcs AS HANDLE    NO-UNDO.
+
+RUN salrep/SalesManProcs.p PERSISTENT SET hdSalesManProcs.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -543,7 +550,7 @@ END.
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW V-table-Win ASSIGN
          HEIGHT             = 17.24
-         WIDTH              = 157.2.
+         WIDTH              = 156.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -702,22 +709,33 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fold V-table-Win
 ON HELP OF FRAME fold
 DO:
-   def var lv-handle as widget-handle no-undo.
-   def var ls-cur-val as cha no-undo.
-   def var lv-eb-tmpid as recid no-undo.
-   DEF VAR lv-prep-type AS cha NO-UNDO.
-   def var lv-rowid as rowid no-undo.
-   DEF VAR lw-focus AS WIDGET-HANDLE NO-UNDO.
-
+   DEFINE VARIABLE lv-handle     AS WIDGET-HANDLE NO-UNDO.
+   DEFINE VARIABLE ls-cur-val    AS CHARACTER     NO-UNDO.
+   DEFINE VARIABLE lv-eb-tmpid   AS RECID         NO-UNDO.
+   DEFINE VARIABLE lv-prep-type  AS CHARACTER     NO-UNDO.
+   DEFINE VARIABLE lv-rowid      AS ROWID         NO-UNDO.
+   DEFINE VARIABLE lw-focus      AS WIDGET-HANDLE NO-UNDO.
+   DEFINE VARIABLE cFieldsValue  AS CHARACTER     NO-UNDO.
+   DEFINE VARIABLE cFoundValue   AS CHARACTER     NO-UNDO.
+   DEFINE VARIABLE recFoundRecID AS RECID         NO-UNDO.
 
    lw-focus = FOCUS.
 
    case lw-focus:name :
         when "sman" then do:
-             run windows/l-sman.w (cocode, output char-val).
-             if char-val <> "" and entry(1,char-val) ne lw-focus:screen-value then do:
-                lw-focus:screen-value = entry(1,char-val).
-                run new-sman.
+            RUN system/openLookup.p (
+                INPUT  cocode, 
+                INPUT  "",  /* Lookup ID */
+                INPUT  29,  /* Subject ID */
+                INPUT  "",  /* User ID */
+                INPUT  0,   /* Param Value ID */
+                OUTPUT cFieldsValue, 
+                OUTPUT cFoundValue, 
+                OUTPUT recFoundRecID
+                ).
+             IF cFoundValue <> "" and cFoundValue NE lw-focus:SCREEN-VALUE THEN DO:
+                lw-focus:SCREEN-VALUE = cFoundValue.
+                RUN new-sman.
              end.          
         end.
         when "req-date" or when "due-date" then do:
@@ -916,30 +934,53 @@ ON CHOOSE OF btnCadLookup IN FRAME fold
 DO:
   DEFINE VARIABLE initDir AS CHARACTER NO-UNDO.
   DEFINE VARIABLE okClicked AS LOGICAL NO-UNDO.
-
-  FIND FIRST sys-ctrl NO-LOCK WHERE sys-ctrl.company EQ cocode
-                                AND sys-ctrl.name EQ 'CADFILE' NO-ERROR.
-  IF NOT AVAILABLE sys-ctrl THEN DO:
-    CREATE sys-ctrl.
-    ASSIGN sys-ctrl.company = cocode
-           sys-ctrl.name    = 'CADFILE'
-           sys-ctrl.descrip = 'Dictate the location of the cad image to search.'
-           sys-ctrl.char-fld = '.\'.
-    FIND CURRENT sys-ctrl NO-LOCK.
-  END.
+  DEFINE VARIABLE iInitialFilter AS INTEGER NO-UNDO.
+  
+  RUN sys/ref/nk1look.p (INPUT cocode, "ArtiosCAD", "L" /* Logical */, YES /* check by cust */, 
+                         INPUT YES /* use cust not vendor */, eb.cust-no:SCREEN-VALUE /* cust */, eb.ship-id:SCREEN-VALUE /* ship-to*/,
+                         OUTPUT cRecValue, OUTPUT lRecFound).
+  IF lRecFound THEN
+     lArtiosCAD = logical(cRecValue) NO-ERROR. 
+    
+  RUN sys/ref/nk1look.p (INPUT cocode, "ArtiosCAD", "C" /* Logical */, YES /* check by cust */, 
+                         INPUT YES /* use cust not vendor */, eb.cust-no:SCREEN-VALUE /* cust */, eb.ship-id:SCREEN-VALUE /* ship-to*/,
+                         OUTPUT cRecValue, OUTPUT lRecFound).    
+  IF lRecFound THEN
+    cArtiosCAD = cRecValue NO-ERROR.
+    
   ASSIGN
-    initDir = sys-ctrl.char-fld
+    initDir = cArtiosCAD
     cadfile = ''.
+  IF lArtiosCAD THEN
+     iInitialFilter = 2.
+  ELSE iInitialFilter = 1.  
 
-  SYSTEM-DIALOG GET-FILE cadfile 
+  IF lArtiosCAD THEN
+  DO:
+     SYSTEM-DIALOG GET-FILE cadfile 
                 TITLE 'Select Image File to insert'
                 FILTERS 'JPG Files    (*.jpg)' '*.jpg',
+                        'ARD Files    (*.ARD)' '*.ARD',
+                        'Bitmap files (*.bmp)' '*.bmp',
+                        'JPEG Files   (*.jpeg)' '*.jpeg',
+                        'TIF Files    (*.tif)' '*.tif',
+                        'All Files    (*.*) ' '*.*'  
+                        INITIAL-FILTER iInitialFilter
+                INITIAL-DIR initDir                      
+                MUST-EXIST USE-FILENAME UPDATE okClicked.      
+  END.
+  ELSE DO:
+      SYSTEM-DIALOG GET-FILE cadfile 
+                TITLE 'Select Image File to insert'
+                FILTERS 'JPG Files    (*.jpg)' '*.jpg',                         
                         'Bitmap files (*.bmp)' '*.bmp',
                         'JPEG Files   (*.jpeg)' '*.jpeg',
                         'TIF Files    (*.tif)' '*.tif',
                         'All Files    (*.*) ' '*.*'
-                INITIAL-DIR initDir
-                MUST-EXIST USE-FILENAME UPDATE okClicked.
+                        INITIAL-FILTER iInitialFilter
+                INITIAL-DIR initDir                      
+                MUST-EXIST USE-FILENAME UPDATE okClicked.  
+  END.           
   IF okClicked THEN
       ASSIGN eb.cad-no:SCREEN-VALUE = imageName(cadfile).
 END.
@@ -3316,18 +3357,23 @@ PROCEDURE valid-sman :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lSuccess AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+    
   {methods/lValidateError.i YES}
-  FIND FIRST sman
-        WHERE sman.company EQ cocode
-          AND sman.sman    EQ eb.sman:SCREEN-VALUE IN FRAME {&FRAME-NAME}
-        NO-LOCK NO-ERROR.
-
-    IF NOT AVAIL sman THEN DO:
-       MESSAGE "Invalid SalesGrp. Try help." VIEW-AS ALERT-BOX ERROR.
-       APPLY "entry" TO eb.sman.
-       RETURN ERROR.
+    RUN SalesMan_ValidateSalesRep IN hdSalesManProcs(  
+        INPUT  cocode,
+        INPUT  eb.sman:SCREEN-VALUE IN FRAME {&FRAME-NAME},
+        OUTPUT lSuccess,
+        OUTPUT cMessage
+        ).
+    IF NOT lSuccess THEN DO:
+        MESSAGE cMessage 
+            VIEW-AS ALERT-BOX ERROR.
+        APPLY "ENTRY" TO eb.sman.
+        RETURN ERROR.
     END.
-    sman_sname:SCREEN-VALUE = sman.sNAME.
+    sman_sname:SCREEN-VALUE = DYNAMIC-FUNCTION("SalesMan_GetSalesmanName" IN hdSalesManProcs,cocode,eb.sman:SCREEN-VALUE).
 
   {methods/lValidateError.i NO}
 END PROCEDURE.

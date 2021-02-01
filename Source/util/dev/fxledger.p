@@ -42,7 +42,7 @@ FOR EACH ar-ledger
   FOR EACH ar-cash
       WHERE ar-cash.company  EQ ar-ledger.company
         AND ar-cash.memo     EQ NO
-        AND ar-cash.check-no EQ INT(SUBSTR(ar-ledger.ref-num,6,10))
+        AND ar-cash.check-no EQ INT64(SUBSTR(ar-ledger.ref-num,6,12))
       NO-LOCK:
     ar-ledger.ref-date = ar-cash.check-date.
   END.

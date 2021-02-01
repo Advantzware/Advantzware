@@ -97,7 +97,7 @@ DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btexit 
-     IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U
+     IMAGE-UP FILE "Graphics/32x32/exit_white.png":U
      LABEL "" 
      SIZE 9 BY 2.14 TOOLTIP "Exit Window".
 
@@ -351,7 +351,7 @@ ON CHOOSE OF btLoad IN FRAME DEFAULT-FRAME /* Load */
 DO:
     cCSVFile = fiFileSelector:SCREEN-VALUE.
     
-    RUN LoadRequestsFomCSV IN hdInboundProcs (
+    RUN LoadRequestsFromCSV IN hdInboundProcs (
         INPUT cCSVFile,
         OUTPUT TABLE ttInboundRequest
         ) NO-ERROR.
@@ -462,7 +462,7 @@ END.
 /* Set CURRENT-WINDOW: this will parent dialog-boxes and frames.        */
 ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME} 
        THIS-PROCEDURE:CURRENT-WINDOW = {&WINDOW-NAME}.
-
+{methods/template/brwcustom.i}
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
 ON CLOSE OF THIS-PROCEDURE 

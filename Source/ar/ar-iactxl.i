@@ -17,7 +17,7 @@ IF ll-valid AND (begin_chk NE 0 OR end_chk NE 2147483647) THEN DO:
       NO-LOCK,      
       FIRST ar-cash
       WHERE ar-cash.c-no     EQ ar-cashl.c-no 
-        AND ar-cash.check-no GE INT(begin_chk)
+        AND ar-cash.check-no GE INT64(begin_chk)
         AND ar-cash.check-no LE end_chk
       NO-LOCK:
     ll-valid = YES.
@@ -135,7 +135,7 @@ IF ll-valid THEN DO:
          ASSIGN t-credits = ar-cashl.amt-paid
                 t-check-no = "Payment"
                 v-gltrans-desc = "VOID " + cust.cust-no + " " +
-                               STRING(ar-cash.check-no,"9999999999") +
+                               STRING(ar-cash.check-no,"999999999999") +
                                " Inv# " + STRING(ar-cashl.inv-no).
          IF t-credits LT 0 AND
             ar-cashl.voided EQ YES OR

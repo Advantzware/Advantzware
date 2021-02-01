@@ -78,7 +78,7 @@ DEF VAR lv-last-rowid2 AS ROWID NO-UNDO.
 
 &SCOPED-DEFINE sortby-log                                                                                                                                           ~
     IF lv-sort-by EQ "cust-no"    THEN ar-cashl.cust-no                                                                                                        ELSE ~
-    IF lv-sort-by EQ "check-no"   THEN STRING(ar-cash.check-no,"9999999999")                                                                                   ELSE ~
+    IF lv-sort-by EQ "check-no"   THEN STRING(ar-cash.check-no,"999999999999")                                                                                   ELSE ~
     IF lv-sort-by EQ "check-date" THEN STRING(YEAR(ar-cash.check-date),"9999") + STRING(MONTH(ar-cash.check-date),"99") + STRING(DAY(ar-cash.check-date),"99") ELSE ~
     IF lv-sort-by EQ "inv-no"     THEN STRING(ar-cashl.inv-no,"9999999999")                                                                                    ELSE ~
     IF lv-sort-by EQ "amt-due"    THEN STRING(ar-cashl.amt-due,"-9999999999.999999")                                                                           ELSE ~
@@ -172,9 +172,9 @@ DEFINE BUTTON btn_show
      SIZE 12 BY 1
      FONT 6.
 
-DEFINE VARIABLE fi_check-no AS INTEGER FORMAT ">>>>>>>>>>":U INITIAL 0 
+DEFINE VARIABLE fi_check-no AS INT64 FORMAT ">>>>>>>>>>>>":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 18 BY 1
+     SIZE 20 BY 1
      BGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE fi_cust-no AS CHARACTER FORMAT "X(8)":U 
@@ -227,7 +227,7 @@ DEFINE BROWSE Browser-Table
   QUERY Browser-Table NO-LOCK DISPLAY
       ar-cashl.cust-no COLUMN-LABEL "Customer#" FORMAT "x(8)":U
             WIDTH 18.2 LABEL-BGCOLOR 14
-      ar-cash.check-no COLUMN-LABEL "Check#" FORMAT ">>>>>>>>>>":U
+      ar-cash.check-no COLUMN-LABEL "Check#" FORMAT ">>>>>>>>>>>>":U
             WIDTH 18.2 LABEL-BGCOLOR 14
       ar-cash.check-date COLUMN-LABEL "Date" FORMAT "99/99/9999":U
             WIDTH 14.2 LABEL-BGCOLOR 14
@@ -258,7 +258,7 @@ DEFINE BROWSE Browser-Table
 DEFINE FRAME F-Main
      fi_cust-no AT ROW 2.19 COL 3 COLON-ALIGNED NO-LABEL
      fi_check-no AT ROW 2.19 COL 20 COLON-ALIGNED NO-LABEL
-     fi_inv-no AT ROW 2.19 COL 41 COLON-ALIGNED NO-LABEL
+     fi_inv-no AT ROW 2.19 COL 43 COLON-ALIGNED NO-LABEL
      tb_posted AT ROW 2.43 COL 64
      tb_unposted AT ROW 1.48 COL 64
      btn_go AT ROW 3.62 COL 8
@@ -267,19 +267,19 @@ DEFINE FRAME F-Main
      Browser-Table AT ROW 5.05 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
      "Invoice#" VIEW-AS TEXT
-          SIZE 13 BY .71 AT ROW 1.24 COL 44
+          SIZE 13 BY .71 AT ROW 1.24 COL 46
           FGCOLOR 9 FONT 6
      "Check#" VIEW-AS TEXT
           SIZE 13 BY .71 AT ROW 1.24 COL 24
           FGCOLOR 9 FONT 6
-     "Sorted By:" VIEW-AS TEXT
+    /* "Sorted By:" VIEW-AS TEXT
           SIZE 12 BY 1 AT ROW 3.62 COL 44
-          FONT 6
+          FONT 6 */
      "Customer#" VIEW-AS TEXT
           SIZE 13 BY .71 AT ROW 1.24 COL 6
           FGCOLOR 9 FONT 6
-     "Click on Yellow Field, Sorts From 1st to Last" VIEW-AS TEXT
-          SIZE 42 BY .95 AT ROW 3.62 COL 89
+    /* "Click on Yellow Field, Sorts From 1st to Last" VIEW-AS TEXT
+          SIZE 42 BY .95 AT ROW 3.62 COL 89 */
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -360,7 +360,7 @@ ASSIGN
      _FldNameList[1]   > asi.ar-cashl.cust-no
 "ar-cashl.cust-no" "Customer#" ? "character" ? ? ? 14 ? ? yes ? no no "18.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > asi.ar-cash.check-no
-"ar-cash.check-no" "Check#" ">>>>>>>>>>" "integer" ? ? ? 14 ? ? yes ? no no "18.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"ar-cash.check-no" "Check#" ">>>>>>>>>>>>" "integer" ? ? ? 14 ? ? yes ? no no "18.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > asi.ar-cash.check-date
 "ar-cash.check-date" "Date" ? "date" ? ? ? 14 ? ? yes ? no no "14.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > asi.ar-cashl.inv-no
@@ -484,6 +484,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON START-SEARCH OF Browser-Table IN FRAME F-Main
 DO:
+  {methods/template/sortindicator.i} 
   DEF VAR lh-column AS HANDLE NO-UNDO.
   DEF VAR lv-column-nam AS CHAR NO-UNDO.
   DEF VAR lv-column-lab AS CHAR NO-UNDO.
@@ -509,6 +510,7 @@ DO:
   APPLY 'END-SEARCH' TO {&BROWSE-NAME}.
 
   RUN dispatch ("open-query").
+  {methods/template/sortindicatorend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -589,7 +591,10 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
 &ENDIF
 
 {methods/winReSize.i}
-
+/* Ticket# : 92946
+   Hiding this widget for now, as browser's column label should be indicating the column which is sorted by */
+fi_sort-by:HIDDEN  = TRUE.
+fi_sort-by:VISIBLE = FALSE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

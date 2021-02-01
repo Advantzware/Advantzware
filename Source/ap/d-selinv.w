@@ -41,6 +41,7 @@ DEF INPUT PARAM ip-due AS LOG NO-UNDO.
 
 /* Local Variable Definitions ---                                       */
 {ap/d-selinv.i}
+{methods/template/brwCustomDef.i}
 
 DEF VAR lv-num-rec AS INT NO-UNDO.
 
@@ -262,6 +263,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-2 D-Dialog
 ON ROW-DISPLAY OF BROWSE-2 IN FRAME D-Dialog
 DO:
+    &SCOPED-DEFINE exclude-row-display true
+    {methods/template/brwRowDisplay.i} 
   DEF VAR li AS INT NO-UNDO.
   
   IF AVAIL ap-inv AND ap-inv.stat EQ "H" THEN
@@ -373,7 +376,7 @@ DO:
     ASSIGN tt-inv.selekt = tt-inv.selekt:SCREEN-VALUE IN BROWSE {&browse-name} = "Yes".
     RETURN.
 END.*/
-
+{methods/template/brwcustom.i}
 RUN build-table.
 
 IF lv-num-rec GT 0 THEN DO: 

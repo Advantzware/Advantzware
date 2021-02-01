@@ -57,49 +57,57 @@ Select_frac Select_appl Select_help
 
 
 
+
 /* ***********************  Control Definitions  ********************** */
 
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON Select_appl 
-     IMAGE-UP FILE "Graphics/32x32/window_gear.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/window_gear.png":U
+     IMAGE-DOWN FILE "Graphics/32x32/window_gear_hover.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/window_gear_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Run App" 
      SIZE 7.8 BY 1.81 TOOLTIP "Utility Application".
 
 DEFINE BUTTON Select_dept 
-     IMAGE-UP FILE "Graphics/32x32/edit.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/edit_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/edit.png":U
+     IMAGE-DOWN FILE "Graphics/32x32/edit_hover.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/edit_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Notes" 
      SIZE 7.8 BY 1.81 TOOLTIP "Notes".
 
 DEFINE BUTTON Select_frac 
-     IMAGE-UP FILE "Graphics/32x32/calculator.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/calculator.png":U
+     IMAGE-DOWN FILE "Graphics/32x32/calculator_hover.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/calculator_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Calculate" 
      SIZE 7.8 BY 1.81 TOOLTIP "Conversions".
 
 DEFINE BUTTON Select_help 
-     IMAGE-UP FILE "Graphics/32x32/question.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/question.png":U
+     IMAGE-DOWN FILE "Graphics/32x32/question_hover.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/question_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Help" 
      SIZE 7.8 BY 1.81 TOOLTIP "Help".
 
-DEFINE BUTTON Select_list 
-     IMAGE-UP FILE "Graphics/32x32/printer.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/printer_disabled.ico":U NO-FOCUS FLAT-BUTTON
+DEFINE BUTTON Select_List 
+     IMAGE-UP FILE "Graphics/32x32/printerbtn.png":U
+     IMAGE-DOWN FILE "Graphics/32x32/printer_hover.png":U
+     IMAGE-INSENSITIVE FILE "Graphics\32x32\printer_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "List" 
      SIZE 7.8 BY 1.81 TOOLTIP "Job Ticket".
 
 DEFINE BUTTON Select_spec 
-     IMAGE-UP FILE "Graphics/32x32/book_open.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/book_open_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/book_open.png":U
+     IMAGE-DOWN FILE "Graphics/32x32/book_open_hover.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/book_open_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Spec Note" 
-     SIZE 7.8 BY 1.81 TOOLTIP "Spec Notes".
+     SIZE 6.4 BY 1.52 TOOLTIP "Spec Notes".
 
 DEFINE BUTTON UDF 
-     IMAGE-UP FILE "Graphics/32x32/window_dialog.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/window_dialog_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/udf.png":U
+     IMAGE-DOWN FILE "Graphics/32x32/udf_hover.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/udf_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "UDF" 
      SIZE 7.8 BY 1.81 TOOLTIP "UDF Viewer".
 
@@ -117,7 +125,8 @@ DEFINE FRAME F-Main
      Select_help AT ROW 1 COL 33
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE .
+         AT COL 1 ROW 1 SCROLLABLE 
+         BGCOLOR 21 .
 
 
 /* *********************** Procedure Settings ************************ */
@@ -284,7 +293,7 @@ END.
 &ENDIF
 
 RUN Tool_Tips IN Persistent-Handle (FRAME {&FRAME-NAME}:HANDLE).
-
+{custom\udfimgoptionframe.i}
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -302,9 +311,9 @@ PROCEDURE dept-pen-image :
 
    DO WITH FRAME {&FRAME-NAME}:
       IF NOT ip-log THEN
-         SELECT_dept:LOAD-IMAGE("Graphics/32x32/edit.ico").
+         SELECT_dept:LOAD-IMAGE("Graphics/32x32/edit.png").
       ELSE
-         SELECT_dept:LOAD-IMAGE("Graphics/32x32/edit_star.ico").
+         SELECT_dept:LOAD-IMAGE("Graphics/32x32/edit_star.png").
    END.
 END PROCEDURE.
 
@@ -395,9 +404,9 @@ PROCEDURE Spec-Book-Image :
 
    DO WITH FRAME {&FRAME-NAME}:
       IF NOT ip-log THEN
-         SELECT_spec:LOAD-IMAGE("Graphics/32x32/book_open.ico").
+         SELECT_spec:LOAD-IMAGE("Graphics/32x32/book_open.png").
       ELSE
-         SELECT_spec:LOAD-IMAGE("Graphics/32x32/book_open_star.ico").
+         SELECT_spec:LOAD-IMAGE("Graphics/32x32/book_open_star.png").
    END.
 END PROCEDURE.
 

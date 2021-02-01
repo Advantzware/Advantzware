@@ -89,6 +89,7 @@ DEFINE VARIABLE h_options AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-updbar AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_smartmsg AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_v-post AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_viewfginquiry AS HANDLE NO-UNDO.
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -99,18 +100,18 @@ DEFINE FRAME F-Main
          SIZE 150 BY 24
          BGCOLOR 4 .
 
-DEFINE FRAME message-frame
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 24 ROW 2.91
-         SIZE 127 BY 1.43
-         BGCOLOR 4 .
-
 DEFINE FRAME OPTIONS-FRAME
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 2 ROW 1
          SIZE 148 BY 1.91
+         BGCOLOR 4 .
+
+DEFINE FRAME message-frame
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 24 ROW 2.91
+         SIZE 127 BY 1.43
          BGCOLOR 4 .
 
 
@@ -320,14 +321,14 @@ PROCEDURE adm-create-objects :
              INPUT  'adm/objects/folder.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'FOLDER-LABELS = ':U + 'Transfer' + ',
-                     FOLDER-TAB-TYPE = 1':U ,
+                     FOLDER-TAB-TYPE = 2':U ,
              OUTPUT h_folder ).
        RUN set-position IN h_folder ( 3.14 , 2.00 ) NO-ERROR.
        RUN set-size IN h_folder ( 21.67 , 148.00 ) NO-ERROR.
 
        /* Links to SmartFolder h_folder. */
        RUN add-link IN adm-broker-hdl ( h_folder , 'Page':U , THIS-PROCEDURE ).
-
+	   RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'udficon':U , h_options ).
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_exit ,
              h_options , 'AFTER':U ).
@@ -348,16 +349,6 @@ PROCEDURE adm-create-objects :
        RUN set-size IN h_b-trans ( 17.14 , 146.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'p-updbar.w':U ,
-             INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Edge-Pixels = 2,
-                     SmartPanelType = Update,
-                     AddFunction = One-Record':U ,
-             OUTPUT h_p-updbar ).
-       RUN set-position IN h_p-updbar ( 22.67 , 37.00 ) NO-ERROR.
-       RUN set-size IN h_p-updbar ( 1.76 , 82.00 ) NO-ERROR.
-
-       RUN init-object IN THIS-PROCEDURE (
              INPUT  'fg/v-post.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
@@ -365,18 +356,39 @@ PROCEDURE adm-create-objects :
        RUN set-position IN h_v-post ( 22.67 , 129.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.91 , 17.00 ) */
 
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'p-updbar.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'Edge-Pixels = 2,
+                     SmartPanelType = Update,
+                     AddFunction = One-Record':U ,
+             OUTPUT h_p-updbar ).
+       RUN set-position IN h_p-updbar ( 22.76 , 26.00 ) NO-ERROR.
+       RUN set-size IN h_p-updbar ( 1.76 , 82.00 ) NO-ERROR.
+
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'sharpshooter/smartobj/viewfginquiry.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_viewfginquiry ).
+       RUN set-position IN h_viewfginquiry ( 22.76 , 110.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.67 , 17.00 ) */
+
        /* Links to SmartNavBrowser h_b-trans. */
        RUN add-link IN adm-broker-hdl ( h_p-updbar , 'TableIO':U , h_b-trans ).
        RUN add-link IN adm-broker-hdl ( h_v-post , 'state':U , h_b-trans ).
+       RUN add-link IN adm-broker-hdl ( h_viewfginquiry , 'FGInq':U , h_b-trans ).
        RUN add-link IN adm-broker-hdl ( h_b-trans , 'can-exit':U , THIS-PROCEDURE ).
        RUN add-link IN adm-broker-hdl ( h_b-trans , 'Record':U , THIS-PROCEDURE ).
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_b-trans ,
              h_folder , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_p-updbar ,
-             h_b-trans , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_v-post ,
+             h_b-trans , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_p-updbar ,
+             h_v-post , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_viewfginquiry ,
              h_p-updbar , 'AFTER':U ).
     END. /* Page 1 */
 

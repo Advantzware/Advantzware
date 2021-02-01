@@ -1044,12 +1044,13 @@ PROCEDURE CreateOrder :
         lOEAutoApproval = LOGICAL(cResult) NO-ERROR.
       
       /* 52995 DSG Automated Ship To Creation */
-      IF lOeAutoApproval AND AVAIL(oe-ord) THEN DO:
-        RUN oe/OrderProcs.p PERSISTENT SET hOrderProcs.
+      IF lOeAutoApproval AND AVAIL(oe-ord) THEN
+/*      DO:                                              */
+/*        RUN oe/OrderProcs.p PERSISTENT SET hOrderProcs.*/
         RUN ProcessImportedOrder IN hOrderProcs (ROWID(oe-ord), OUTPUT lError, OUTPUT cMessage).
-        IF VALID-HANDLE(hOrderProcs) THEN 
-            DELETE OBJECT hOrderProcs.
-      END.
+/*        IF VALID-HANDLE(hOrderProcs) THEN*/
+/*            DELETE OBJECT hOrderProcs.   */
+/*      END.                               */
         
   END. /* Each tt-header */
   DELETE OBJECT hdCostProcs.

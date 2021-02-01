@@ -67,6 +67,7 @@ DEF VAR setFromHistory AS LOGICAL NO-UNDO.
 {custom/globdefs.i}
 {sys/inc/var.i NEW SHARED}
 {sys/inc/varasgn.i}
+{methods/template/brwcustomdef.i}
 
 DEF VAR cellColumn AS HANDLE NO-UNDO EXTENT 20.
 DEF VAR columnCount AS INTEGER NO-UNDO.
@@ -563,7 +564,8 @@ END.
 ON ROW-DISPLAY OF br_table IN FRAME F-Main
 DO:
 
-
+&scoped-define exclude-row-display true 
+{methods/template/brwrowdisplay.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -597,6 +599,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
 ON START-SEARCH OF br_table IN FRAME F-Main
 DO:
+{methods/template/sortindicator.i} 
   DEF VAR sortDisplay AS CHAR.
   RUN setChecked.
   /* User clicked on column heading so don't change selection */
@@ -619,7 +622,7 @@ DO:
   fi_sortBy:SCREEN-VALUE IN FRAME {&FRAME-NAME} = sortDisplay.
 
   /* ll-sort-asc = sortby. */
-
+{methods/template/sortindicatorend.i} 
 
 END.
 
@@ -749,7 +752,10 @@ IF columnCount EQ 0 THEN RUN getCellColumns.
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF
-
+/* Ticket# : 92946
+   Hiding this widget for now, as browser's column label should be indicating the column which is sorted by */
+fi_sortby:HIDDEN  = TRUE.
+fi_sortby:VISIBLE = FALSE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

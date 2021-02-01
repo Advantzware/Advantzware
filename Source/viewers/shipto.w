@@ -55,6 +55,7 @@ DEFINE VARIABLE oeDateAuto-int AS INTEGER NO-UNDO .
 DEFINE VARIABLE oeDateAuto-log AS LOGICAL NO-UNDO .
 DEFINE VARIABLE lIsActiveShipToAvailable AS LOGICAL NO-UNDO.
 DEFINE VARIABLE hdCustomerProcs          AS HANDLE  NO-UNDO.
+DEFINE VARIABLE hdSalesManProcs          AS HANDLE  NO-UNDO.
  
 {sys/inc/var.i NEW SHARED}
 
@@ -124,6 +125,7 @@ OUTPUT cRtnChar, OUTPUT lRecFound).
     
 
 RUN system/CustomerProcs.p PERSISTENT SET hdCustomerProcs.
+RUN salrep/SalesManProcs.p PERSISTENT SET hdSalesManProcs.
 &SCOPED-DEFINE enable-shipto enable-shipto
 
 /* _UIB-CODE-BLOCK-END */
@@ -661,8 +663,11 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL F-Main V-table-Win
 ON HELP OF FRAME F-Main
 DO:
-    DEF VAR char-val AS cha NO-UNDO.
-    DEF VAR lv-handle AS HANDLE NO-UNDO.
+    DEFINE VARIABLE char-val      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lv-handle     AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE cFieldsValue  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFoundValue   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE recFoundRecID AS RECID     NO-UNDO.   
 
 
     CASE FOCUS:NAME :
@@ -698,11 +703,20 @@ DO:
             if char-val <> "" then 
               focus:screen-value in frame {&frame-name} = entry(1,char-val).
           end.
-          when "spare-char-1" then do:
-            run windows/l-sman.w  (gcompany, output char-val). 
-            if char-val <> "" then 
-              focus:screen-value in frame {&frame-name} = entry(1,char-val).
-          end.
+          WHEN "spare-char-1" THEN DO:
+            RUN system/openLookup.p (
+                INPUT  gcompany, 
+                INPUT  "", /* Lookup ID */
+                INPUT  29, /* Subject ID */
+                INPUT  "", /* User ID */
+                INPUT  0,  /* Param Value ID */
+                OUTPUT cFieldsValue, 
+                OUTPUT cFoundValue, 
+                OUTPUT recFoundRecID
+                ). 
+            IF cFoundValue <> "" THEN 
+              FOCUS:SCREEN-VALUE IN FRAME {&frame-name} = cFoundValue.
+          END.
           when "pallet" then do:
            run windows/l-itemp.w 
               (gcompany,"",focus:screen-value in frame {&frame-name}, output char-val).
@@ -2400,20 +2414,25 @@ PROCEDURE valid-sman :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  {methods/lValidateError.i YES}
-   IF shipto.spare-char-1:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" THEN do:
-    FIND FIRST sman
-        WHERE sman.company EQ cocode
-          AND sman.sman    EQ shipto.spare-char-1:SCREEN-VALUE IN FRAME {&FRAME-NAME}
-        NO-LOCK NO-ERROR.
+    DEFINE VARIABLE lSuccess AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
 
-    IF NOT AVAIL sman THEN DO:
-       MESSAGE "Invalid Sales Rep. Try help." VIEW-AS ALERT-BOX ERROR.
-       APPLY "entry" TO shipto.spare-char-1.
-       RETURN ERROR.
+   {methods/lValidateError.i YES}
+    IF shipto.spare-char-1:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" THEN do:
+        RUN SalesMan_ValidateSalesRep IN hdSalesManProcs(  
+            INPUT  cocode,
+            INPUT  shipto.spare-char-1:SCREEN-VALUE IN FRAME {&FRAME-NAME},
+            OUTPUT lSuccess,
+            OUTPUT cMessage
+            ).
+        IF NOT lSuccess THEN DO:
+            MESSAGE cMessage 
+            VIEW-AS ALERT-BOX ERROR.
+            APPLY "ENTRY" TO shipto.spare-char-1.
+            RETURN ERROR.
+        END.
+        ELSE fi_sname:SCREEN-VALUE IN FRAME {&FRAME-NAME} = DYNAMIC-FUNCTION("SalesMan_GetSalesmanName" IN hdSalesManProcs,cocode,shipto.spare-char-1:SCREEN-VALUE).
     END.
-    ELSE fi_sname:SCREEN-VALUE IN FRAME {&FRAME-NAME} = sman.sname.
-   END.
 
   {methods/lValidateError.i NO}
 END PROCEDURE.

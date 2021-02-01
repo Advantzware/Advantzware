@@ -172,7 +172,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 320
          VIRTUAL-HEIGHT     = 320
          VIRTUAL-WIDTH      = 320
-         RESIZE             = no
+         RESIZE             = yes
          SCROLL-BARS        = no
          STATUS-AREA        = yes
          BGCOLOR            = ?
@@ -307,7 +307,7 @@ ASSIGN
 
 /* Include custom  Main Block code for SmartWindows. */
 {src/adm/template/windowmn.i}
-
+{custom/initializeprocs.i}
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -340,7 +340,7 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/folder.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'FOLDER-LABELS = ':U + 'Brws Items|View Item|Bom|Inventory|Vend Cost|POs|Jobs|Bins|History|New VendC' + ',
+             INPUT  'FOLDER-LABELS = ':U + 'Browse|Detail|Bom|Inventory|Vend Cost|POs|Jobs|Bins|History|New VendC' + ',
                      FOLDER-TAB-TYPE = 2':U ,
              OUTPUT h_folder ).
        RUN set-position IN h_folder ( 3.14 , 2.00 ) NO-ERROR.
@@ -378,7 +378,7 @@ PROCEDURE adm-create-objects :
 
        /* Links to SmartObject h_options. */
        RUN add-link IN adm-broker-hdl ( h_item , 'spechk':U , h_options ).
-
+	   RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'udficon':U , h_options ).
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_folder ,
              FRAME message-frame:HANDLE , 'AFTER':U ).
@@ -856,6 +856,24 @@ PROCEDURE hideVendorCost:
 ------------------------------------------------------------------------------*/
 
   RUN select-page (li-pageb4VendCost).
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE import-file W-Win
+PROCEDURE import-file:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+ RUN util/dev/impItem.p .
+ IF VALID-HANDLE(h_item) THEN
+     RUN local-open-query IN h_item .
 
 END PROCEDURE.
 	

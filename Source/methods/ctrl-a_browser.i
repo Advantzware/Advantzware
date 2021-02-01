@@ -1,5 +1,7 @@
 /* ctrl-a_browser.i - rstark - 7.9.2019 */
 
+{methods/template/brwcustom.i}
+
 ON CTRL-A OF {&BROWSE-NAME} IN FRAME {&FRAME-NAME}
 DO:
     RUN pCallAudit ("Browser").

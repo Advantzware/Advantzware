@@ -68,11 +68,11 @@ ASSIGN
 &Scoped-define FRAME-NAME fMain
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS bExit RECT-1 eInstructions bTest fiEndDate ~
-fiOutputDir tbInventory slCompleted tbOrders tbInvoices 
-&Scoped-Define DISPLAYED-OBJECTS eInstructions fiEndDate fiOutputDir ~
-tbInventory slCompleted tbOrders tbInvoices tbPurchasing tbEstimating ~
-tbAccounting fiGroups fiCompleted 
+&Scoped-Define ENABLED-OBJECTS bExit RECT-1 bTest eInstructions fiEndDate ~
+fiOutputDir tbInventory slCompleted tbOrders tbInvoices tbPurchasing 
+&Scoped-Define DISPLAYED-OBJECTS fiInstructionsLabel eInstructions ~
+fiEndDate fiOutputDir tbInventory slCompleted tbOrders tbInvoices ~
+tbPurchasing tbEstimating tbAccounting fiGroups fiCompleted 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -89,7 +89,7 @@ DEFINE VAR wWin AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON bExit AUTO-END-KEY 
-     IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/exit_white.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 8.4 BY 2 TOOLTIP "Exit"
      BGCOLOR 8 .
@@ -111,7 +111,7 @@ DEFINE BUTTON bTest
 
 DEFINE VARIABLE eInstructions AS CHARACTER 
      VIEW-AS EDITOR SCROLLBAR-VERTICAL
-     SIZE 99 BY 5.24 NO-UNDO.
+     SIZE 99 BY 8.57 NO-UNDO.
 
 DEFINE VARIABLE fiCompleted AS CHARACTER FORMAT "X(256)":U INITIAL "Completed (Errors/Warnings):" 
       VIEW-AS TEXT 
@@ -125,6 +125,10 @@ DEFINE VARIABLE fiEndDate AS DATE FORMAT "99/99/9999":U
 DEFINE VARIABLE fiGroups AS CHARACTER FORMAT "X(256)":U INITIAL " File Groups to be Purged:" 
       VIEW-AS TEXT 
      SIZE 26 BY .62 NO-UNDO.
+
+DEFINE VARIABLE fiInstructionsLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Instructions:" 
+     VIEW-AS FILL-IN 
+     SIZE 14 BY .81 NO-UNDO.
 
 DEFINE VARIABLE fiOutputDir AS CHARACTER FORMAT "X(256)":U 
      LABEL "Purge data directory" 
@@ -165,7 +169,7 @@ DEFINE VARIABLE tbOrders AS LOGICAL INITIAL no
      SIZE 71 BY .81 NO-UNDO.
 
 DEFINE VARIABLE tbPurchasing AS LOGICAL INITIAL no 
-     LABEL "Purchasing Files (PO Lines, Vendor Invoice Lines)" 
+     LABEL "Purchasing Files (PO Lines)" 
      VIEW-AS TOGGLE-BOX
      SIZE 83 BY .81 NO-UNDO.
 
@@ -174,26 +178,27 @@ DEFINE VARIABLE tbPurchasing AS LOGICAL INITIAL no
 
 DEFINE FRAME fMain
      bExit AT ROW 1.48 COL 137
-     eInstructions AT ROW 1.48 COL 5 NO-LABEL NO-TAB-STOP 
+     fiInstructionsLabel AT ROW 1 COL 3 COLON-ALIGNED NO-LABEL NO-TAB-STOP 
      bTest AT ROW 1.48 COL 111
+     eInstructions AT ROW 1.95 COL 5 NO-LABEL NO-TAB-STOP 
      bReview AT ROW 3.38 COL 111
      bPurge AT ROW 5.29 COL 111
-     fiEndDate AT ROW 7.19 COL 43 COLON-ALIGNED
-     fiOutputDir AT ROW 7.19 COL 82 COLON-ALIGNED
-     tbInventory AT ROW 9.57 COL 16
-     slCompleted AT ROW 10.05 COL 108 NO-LABEL
-     tbOrders AT ROW 10.76 COL 16
-     tbInvoices AT ROW 11.95 COL 16
-     tbPurchasing AT ROW 13.14 COL 16
-     tbEstimating AT ROW 14.33 COL 16
-     tbAccounting AT ROW 15.52 COL 16
-     fiGroups AT ROW 8.62 COL 6 COLON-ALIGNED NO-LABEL NO-TAB-STOP 
-     fiCompleted AT ROW 9.33 COL 106 COLON-ALIGNED NO-LABEL NO-TAB-STOP 
-     RECT-1 AT ROW 8.86 COL 5
+     fiEndDate AT ROW 11 COL 44 COLON-ALIGNED
+     fiOutputDir AT ROW 11 COL 83 COLON-ALIGNED
+     tbInventory AT ROW 13.38 COL 17
+     slCompleted AT ROW 13.86 COL 109 NO-LABEL
+     tbOrders AT ROW 14.57 COL 17
+     tbInvoices AT ROW 15.76 COL 17
+     tbPurchasing AT ROW 16.95 COL 17
+     tbEstimating AT ROW 18.14 COL 17
+     tbAccounting AT ROW 19.33 COL 17
+     fiGroups AT ROW 12.43 COL 7 COLON-ALIGNED NO-LABEL NO-TAB-STOP 
+     fiCompleted AT ROW 13.14 COL 107 COLON-ALIGNED NO-LABEL NO-TAB-STOP 
+     RECT-1 AT ROW 12.67 COL 6
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 148 BY 16.67.
+         SIZE 148 BY 21.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -214,7 +219,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW wWin ASSIGN
          HIDDEN             = YES
          TITLE              = "Purge Orphan Records"
-         HEIGHT             = 16.67
+         HEIGHT             = 21
          WIDTH              = 148
          MAX-HEIGHT         = 28.81
          MAX-WIDTH          = 148
@@ -264,11 +269,14 @@ ASSIGN
 
 /* SETTINGS FOR FILL-IN fiGroups IN FRAME fMain
    NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiInstructionsLabel IN FRAME fMain
+   NO-ENABLE                                                            */
+ASSIGN 
+       fiInstructionsLabel:READ-ONLY IN FRAME fMain        = TRUE.
+
 /* SETTINGS FOR TOGGLE-BOX tbAccounting IN FRAME fMain
    NO-ENABLE                                                            */
 /* SETTINGS FOR TOGGLE-BOX tbEstimating IN FRAME fMain
-   NO-ENABLE                                                            */
-/* SETTINGS FOR TOGGLE-BOX tbPurchasing IN FRAME fMain
    NO-ENABLE                                                            */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(wWin)
 THEN wWin:HIDDEN = yes.
@@ -347,7 +355,8 @@ DO:
                                 "ar-inv,ar-invl,ar-invm," +
                                 "inv-head,inv-line,inv-misc,"
                                 ELSE "") +
-                            (IF tbPurchasing:CHECKED THEN "" ELSE "")
+                            (IF tbPurchasing:CHECKED THEN 
+                                "po-ord,po-ordl,po-ordl-add" ELSE "")
                 cFileList = REPLACE(cFileList,",,",",")
                 cFileList = TRIM(cFileList,","). 
         
@@ -383,6 +392,7 @@ DO:
                 bPurge:SENSITIVE = FALSE.
             STATUS INPUT "Test complete.  Press Review to open the results list.".
             STATUS DEFAULT "Test complete.  Press Review to open the results list.".
+            bTest:SENSITIVE = FALSE.
         END.
         WHEN "bReview" THEN DO:
             STATUS INPUT "Opening file for review...".
@@ -392,7 +402,8 @@ DO:
             STATUS INPUT "Review complete. Records can now be purged.".
             STATUS DEFAULT "Review complete. Records can now be purged.".
             ASSIGN 
-                bPurge:SENSITIVE = TRUE.
+                bReview:SENSITIVE = FALSE
+                bPurge:SENSITIVE  = TRUE.                
             END.
         WHEN "bPurge" THEN DO:
             STATUS INPUT "Purging records...".
@@ -413,6 +424,11 @@ DO:
                 STATUS INPUT "Purge complete.  Backup files stored in directory.".
                 STATUS DEFAULT "Purge complete.  Backup files stored in directory.".
                 APPLY 'value-changed' TO fiOutputDir.
+                ASSIGN 
+                    bTest:SENSITIVE   = TRUE 
+                    bReview:SENSITIVE = FALSE
+                    bPurge:SENSITIVE  = FALSE 
+                    .
             END.
         END.
         WHEN "bExit" THEN 
@@ -576,11 +592,12 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY eInstructions fiEndDate fiOutputDir tbInventory slCompleted tbOrders 
-          tbInvoices tbPurchasing tbEstimating tbAccounting fiGroups fiCompleted 
+  DISPLAY fiInstructionsLabel eInstructions fiEndDate fiOutputDir tbInventory 
+          slCompleted tbOrders tbInvoices tbPurchasing tbEstimating tbAccounting 
+          fiGroups fiCompleted 
       WITH FRAME fMain IN WINDOW wWin.
-  ENABLE bExit RECT-1 eInstructions bTest fiEndDate fiOutputDir tbInventory 
-         slCompleted tbOrders tbInvoices 
+  ENABLE bExit RECT-1 bTest eInstructions fiEndDate fiOutputDir tbInventory 
+         slCompleted tbOrders tbInvoices tbPurchasing 
       WITH FRAME fMain IN WINDOW wWin.
   {&OPEN-BROWSERS-IN-QUERY-fMain}
   VIEW wWin.

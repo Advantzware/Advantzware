@@ -1,0 +1,27 @@
+<JobMaterial>
+	<Allocated>$Allocated$</Allocated>
+	<BasisWeight>$BasisWeight$</BasisWeight>
+	<Blank>$Blank$</Blank>
+	<CostPerM>$CostPerM$</CostPerM>
+	<Depth>$Depth$</Depth>
+	<Form>$Form$</Form>
+	<Item>$Item$</Item>
+	<Length>$Length$</Length>
+	<Line>$Line$</Line>
+	<PONumber>$PONumber$</PONumber>
+	<TotMRP>$TotMRP$</TotMRP>
+	<QuantitytyAllocated>$QuantityAllocated$</QuantitytyAllocated>
+	<QuantitytyIssued>$QuantityIssued$</QuantitytyIssued>
+	<MRQuantity>$MRQuantity$</MRQuantity>
+	<QuantityUOM>$QuantityUOM$</QuantityUOM>
+	<WasteQuantity>$WasteQuantity$</WasteQuantity>
+	<RawMaterialItem>$RawMaterialItem$</RawMaterialItem>
+	<StandardCostUOM>$StandardCostUOM$</StandardCostUOM>
+	<ItemStandardCost>$ItemStandardCost$</ItemStandardCost>
+	<Width>$Width$</Width>
+	<Crossgrain>$Crossgrain$</Crossgrain>
+	<BoardCode>$BoardCode$</BoardCode>
+	<Grain>$Grain$</Grain>
+	<Cylinder>$Cylinder$</Cylinder>
+	<Tray>$Tray$</Tray>
+</JobMaterial>

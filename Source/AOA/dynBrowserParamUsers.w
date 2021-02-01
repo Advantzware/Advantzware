@@ -152,12 +152,12 @@ lShowParamAll2 lShowParamAll1 lDeleteAll
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btnClose AUTO-END-KEY 
-     IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/exit_white.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Close" 
      SIZE 8 BY 1.91 TOOLTIP "Close".
 
 DEFINE BUTTON btnSave 
-     IMAGE-UP FILE "Graphics/32x32/floppy_disk.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/floppy_disk.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Save" 
      SIZE 8 BY 1.91 TOOLTIP "Save"
      BGCOLOR 8 .
@@ -449,14 +449,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL paramUserBrowse Dialog-Frame
 ON START-SEARCH OF paramUserBrowse IN FRAME Dialog-Frame /* Users with Parameters */
 DO:
-    IF SELF:CURRENT-COLUMN:NAME NE ? THEN DO:
-        cColumnLabel = BROWSE paramUserBrowse:CURRENT-COLUMN:NAME.
-        IF cColumnLabel EQ cSaveLabel THEN
-        lAscending = NOT lAscending.
-        cSaveLabel = cColumnLabel.
-        RUN pReopenBrowse.
-    END.
-    RETURN NO-APPLY.
+    {AOA/includes/startSearch.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -502,14 +495,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL userBrowse Dialog-Frame
 ON START-SEARCH OF userBrowse IN FRAME Dialog-Frame /* Users */
 DO:
-    IF SELF:CURRENT-COLUMN:NAME NE ? THEN DO:
-        cColumnLabel = BROWSE userBrowse:CURRENT-COLUMN:NAME.
-        IF cColumnLabel EQ cSaveLabel THEN
-        lAscending = NOT lAscending.
-        cSaveLabel = cColumnLabel.
-        RUN pReopenBrowse.
-    END.
-    RETURN NO-APPLY.
+    {AOA/includes/startSearch.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -524,10 +510,14 @@ END.
 
 /* ***************************  Main Block  *************************** */
 
+&Scoped-define sdBrowseName userBrowse
+{methods/template/brwcustom2.i 1}
+&Scoped-define sdBrowseName paramUserBrowse
+{methods/template/brwcustom2.i 2}
+
 /* Parent the dialog-box to the ACTIVE-WINDOW, if there is no parent.   */
 IF VALID-HANDLE(ACTIVE-WINDOW) AND FRAME {&FRAME-NAME}:PARENT EQ ?
 THEN FRAME {&FRAME-NAME}:PARENT = ACTIVE-WINDOW.
-
 
 /* Now enable the interface and wait for the exit condition.            */
 /* (NOTE: handle ERROR and END-KEY so cleanup code will always fire.    */
@@ -720,6 +710,7 @@ PROCEDURE pReopenBrowse :
         WHEN "cUserName2" THEN
         RUN pByUserName2.
     END CASE.
+    {AOA/includes/pReopenBrowse.i}
     APPLY "VALUE-CHANGED":U TO BROWSE paramUserBrowse.
     SESSION:SET-WAIT-STATE("").
 

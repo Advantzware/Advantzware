@@ -96,12 +96,12 @@ DEFINE TEMP-TABLE ttEmail NO-UNDO
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btnCancel AUTO-END-KEY 
-     IMAGE-UP FILE "Graphics/32x32/navigate_cross.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/navigate_cross.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Cancel" 
      SIZE 8 BY 1.91 TOOLTIP "Cancel".
 
 DEFINE BUTTON btnOK AUTO-GO 
-     IMAGE-UP FILE "Graphics/32x32/navigate_check.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/navigate_check.png":U NO-FOCUS FLAT-BUTTON
      LABEL "OK" 
      SIZE 8 BY 1.91 TOOLTIP "OK"
      BGCOLOR 8 .
@@ -113,7 +113,7 @@ DEFINE VARIABLE searchBar AS CHARACTER FORMAT "X(256)":U
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
-     SIZE 19 BY 2.38.
+     SIZE 18 BY 2.38.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -133,7 +133,7 @@ ENABLE
 ttEmail.isActive
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS NO-SCROLLBAR-VERTICAL SIZE 78 BY 24.76
+    WITH NO-ROW-MARKERS NO-COLUMN-SCROLLING SEPARATORS NO-SCROLLBAR-VERTICAL SIZE 78 BY 24.76
          TITLE "Recipient Emails".
 
 
@@ -145,8 +145,8 @@ DEFINE FRAME Dialog-Frame
      searchBar AT ROW 1 COL 8 COLON-ALIGNED HELP
           "Search" WIDGET-ID 6
      recipients AT ROW 1.95 COL 1 WIDGET-ID 200
-     btnOK AT ROW 27.19 COL 61
-     RECT-1 AT ROW 26.95 COL 60 WIDGET-ID 2
+     btnOK AT ROW 27.19 COL 62
+     RECT-1 AT ROW 26.95 COL 61 WIDGET-ID 2
      SPACE(0.00) SKIP(0.14)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
@@ -233,14 +233,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL recipients Dialog-Frame
 ON START-SEARCH OF recipients IN FRAME Dialog-Frame /* Recipient Emails */
 DO:
-    IF SELF:CURRENT-COLUMN:NAME NE ? THEN DO:
-        cColumnLabel = BROWSE {&BROWSE-NAME}:CURRENT-COLUMN:NAME.
-        IF cColumnLabel EQ cSaveLabel THEN
-        lAscending = NOT lAscending.
-        cSaveLabel = cColumnLabel.
-        RUN pReopenBrowse.
-    END.
-    RETURN NO-APPLY.
+    {AOA/includes/startSearch.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -272,10 +265,11 @@ DO:
     APPLY "TAB":U.
 END.
 
+{methods/template/brwcustom2.i}
+
 /* Parent the dialog-box to the ACTIVE-WINDOW, if there is no parent.   */
 IF VALID-HANDLE(ACTIVE-WINDOW) AND FRAME {&FRAME-NAME}:PARENT eq ?
 THEN FRAME {&FRAME-NAME}:PARENT = ACTIVE-WINDOW.
-
 
 /* Now enable the interface and wait for the exit condition.            */
 /* (NOTE: handle ERROR and END-KEY so cleanup code will always fire.    */
@@ -400,6 +394,7 @@ PROCEDURE pReopenBrowse :
         &SCOPED-DEFINE SORTBY-PHRASE
         {&OPEN-QUERY-{&BROWSE-NAME}}
     END CASE.
+    {AOA/includes/pReopenBrowse.i}
     SESSION:SET-WAIT-STATE("").
 
 END PROCEDURE.

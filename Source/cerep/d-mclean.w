@@ -1,7 +1,6 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v9r12 GUI
 &ANALYZE-RESUME
 /* Connected Databases 
-          asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 &Scoped-define FRAME-NAME Dialog-Frame
@@ -58,6 +57,9 @@ DEF BUFFER bf-job-hdr FOR job-hdr.
 DEF BUFFER bf-itemfg FOR itemfg.
 DEFINE SHARED VARIABLE lIncludeLastPage AS LOGICAL NO-UNDO .
 DEFINE SHARED VARIABLE cRdOptionMclean AS CHARACTER NO-UNDO .
+DEFINE SHARED VARIABLE cJobType AS CHARACTER NO-UNDO .
+DEFINE SHARED VARIABLE lFSC     AS LOGICAL   NO-UNDO .
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -74,30 +76,29 @@ DEFINE SHARED VARIABLE cRdOptionMclean AS CHARACTER NO-UNDO .
 &Scoped-define BROWSE-NAME BROWSE-4
 
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
-&Scoped-define INTERNAL-TABLES ttItemList job-mat job-mch job-hdr
+&Scoped-define INTERNAL-TABLES ttItemList
 
 /* Definitions for BROWSE BROWSE-4                                      */
-&Scoped-define FIELDS-IN-QUERY-BROWSE-4 ttItemList.IS-SELECTED ttItemList.frm ttItemList.combo ttItemList.i-no ttItemList.part-no ttItemList.itemName  
-&Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-4 ttItemList.IS-SELECTED
-&Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-4   
+&Scoped-define FIELDS-IN-QUERY-BROWSE-4 ttItemList.IS-SELECTED ttItemList.frm ttItemList.combo ttItemList.i-no ttItemList.part-no ttItemList.itemName   
+&Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-4 ttItemList.IS-SELECTED   
+&Scoped-define ENABLED-TABLES-IN-QUERY-BROWSE-4 ttItemList
+&Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-BROWSE-4 ttItemList
 &Scoped-define SELF-NAME BROWSE-4
 &Scoped-define QUERY-STRING-BROWSE-4 FOR EACH ttItemList
 &Scoped-define OPEN-QUERY-BROWSE-4 OPEN QUERY {&SELF-NAME} FOR EACH ttItemList.
 &Scoped-define TABLES-IN-QUERY-BROWSE-4 ttItemList
 &Scoped-define FIRST-TABLE-IN-QUERY-BROWSE-4 ttItemList
 
-/* Definitions for DIALOG-BOX Dialog-Frame                              */
 
+/* Definitions for DIALOG-BOX Dialog-Frame                              */
 &Scoped-define OPEN-BROWSERS-IN-QUERY-Dialog-Frame ~
     ~{&OPEN-QUERY-BROWSE-4}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS BROWSE-4 Btn_OK Btn_Cancel  ~
-RECT-42 rd_active tb_include-page
-/*&Scoped-Define DISPLAYED-FIELDS job-hdr.frm job-hdr.rm-i-no */
-&Scoped-define DISPLAYED-TABLES job-hdr
-&Scoped-define FIRST-DISPLAYED-TABLE job-hdr
-&Scoped-Define DISPLAYED-OBJECTS fi_job-no  rd_active tb_include-page
+&Scoped-Define ENABLED-OBJECTS BROWSE-4 cbJobType rd_active tb_include-page ~
+Btn_OK Btn_Cancel tb_fsc RECT-42 
+&Scoped-Define DISPLAYED-OBJECTS cbJobType fi_job-no rd_active ~
+tb_include-page tb_fsc 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -122,14 +123,17 @@ DEFINE BUTTON Btn_OK AUTO-GO
      SIZE 15 BY 1.14
      BGCOLOR 8 .
 
+DEFINE VARIABLE cbJobType AS CHARACTER FORMAT "X(256)":U INITIAL "--" 
+     LABEL "Job Type" 
+     VIEW-AS COMBO-BOX INNER-LINES 5
+     LIST-ITEMS "--","New Order","Revised Order","Repeat Order" 
+     DROP-DOWN-LIST
+     SIZE 25.6 BY 1 NO-UNDO.
+
 DEFINE VARIABLE fi_job-no AS CHARACTER FORMAT "x(9)" 
      LABEL "Job#" 
      VIEW-AS FILL-IN 
      SIZE 20 BY 1 NO-UNDO.
-
-DEFINE RECTANGLE RECT-42
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 46 BY 9.29.
 
 DEFINE VARIABLE rd_active AS CHARACTER INITIAL "M" 
      VIEW-AS RADIO-SET HORIZONTAL
@@ -138,8 +142,16 @@ DEFINE VARIABLE rd_active AS CHARACTER INITIAL "M"
 "Nazareth", "N"
      SIZE 35.4 BY .95 NO-UNDO.
 
+DEFINE RECTANGLE RECT-42
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 46 BY 9.29.
 
-DEFINE VARIABLE tb_include-page AS LOGICAL INITIAL YES 
+DEFINE VARIABLE tb_fsc AS LOGICAL INITIAL no 
+     LABEL "FSC" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 30 BY 1 NO-UNDO.
+
+DEFINE VARIABLE tb_include-page AS LOGICAL INITIAL no 
      LABEL "Include Item List Page" 
      VIEW-AS TOGGLE-BOX
      SIZE 30 BY 1 NO-UNDO.
@@ -171,15 +183,16 @@ DEFINE BROWSE BROWSE-4
 
 DEFINE FRAME Dialog-Frame
      BROWSE-4 AT ROW 1.24 COL 52 WIDGET-ID 100
-     fi_job-no AT ROW 1.88 COL 24.6 COLON-ALIGNED HELP
+     cbJobType AT ROW 7.62 COL 18.4 COLON-ALIGNED WIDGET-ID 24
+     fi_job-no AT ROW 1.95 COL 13 COLON-ALIGNED HELP
           "Enter Job Number."
-    rd_active AT ROW 3.67 COL 13.6 NO-LABEL WIDGET-ID 16
-    tb_include-page AT ROW 4.88 COL 16.6 WIDGET-ID 22
-    Btn_OK AT ROW 11 COL 36
-    Btn_Cancel AT ROW 11 COL 64
-     
+     rd_active AT ROW 3.67 COL 13.6 NO-LABEL WIDGET-ID 16
+     tb_include-page AT ROW 5.14 COL 13.6 WIDGET-ID 22
+     Btn_OK AT ROW 11 COL 36
+     Btn_Cancel AT ROW 11 COL 64
+     tb_fsc AT ROW 6.29 COL 13.6 WIDGET-ID 26
      RECT-42 AT ROW 1.24 COL 5
-     SPACE(57.79) SKIP(1.94)
+     SPACE(60.00) SKIP(6.71)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          FONT 6
@@ -209,14 +222,11 @@ ASSIGN
        FRAME Dialog-Frame:SCROLLABLE       = FALSE
        FRAME Dialog-Frame:HIDDEN           = TRUE.
 
+ASSIGN 
+       BROWSE-4:NUM-LOCKED-COLUMNS IN FRAME Dialog-Frame     = 1.
+
 /* SETTINGS FOR FILL-IN fi_job-no IN FRAME Dialog-Frame
    NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN rd_active IN FRAME Dialog-Frame
-                                                                */
-/* SETTINGS FOR FILL-IN tb_include-page IN FRAME Dialog-Frame
-                                                                 */
-   BROWSE-4:NUM-LOCKED-COLUMNS IN FRAME Dialog-Frame     = 1. 
-   
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -231,14 +241,6 @@ OPEN QUERY {&SELF-NAME} FOR EACH ttItemList.
      _Query            is OPENED
 */  /* BROWSE BROWSE-4 */
 &ANALYZE-RESUME
-
-/*&ANALYZE-SUSPEND _QUERY-BLOCK DIALOG-BOX Dialog-Frame
-/* Query rebuild information for DIALOG-BOX Dialog-Frame
-     _TblList          = "asi.job-mat,asi.job-mch WHERE asi.job-mat ...,asi.job-hdr OF asi.job-mat"
-     _Options          = "SHARE-LOCK"
-     _Query            is NOT OPENED
-*/  /* DIALOG-BOX Dialog-Frame */
-&ANALYZE-RESUME*/
 
  
 
@@ -265,8 +267,13 @@ DO:
 
 
   DO WITH FRAME {&FRAME-NAME}:
-      lIncludeLastPage = logical(tb_include-page:SCREEN-VALUE) .
-      cRdOptionMclean = rd_active:SCREEN-VALUE .
+      ASSIGN 
+        lIncludeLastPage = logical(tb_include-page:SCREEN-VALUE) 
+        lFSC = LOGICAL(tb_FSC:SCREEN-VALUE)
+        cJobType = cbJobType:SCREEN-VALUE
+        cRdOptionMclean = rd_active:SCREEN-VALUE 
+        .
+      IF cJobType EQ "--" THEN cJobType = "".
       FOR EACH ttItemList NO-LOCK:
           FIND FIRST ttSoule EXCLUSIVE-LOCK
               WHERE ttSoule.frm EQ ttItemList.frm 
@@ -293,9 +300,21 @@ DO:
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&Scoped-define SELF-NAME tb_fsc
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_fsc Dialog-Frame
+ON VALUE-CHANGED OF tb_fsc IN FRAME Dialog-Frame /* FSC */
+DO:
+  assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME tb_include-page
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_include-page Dialog-Frame
-ON VALUE-CHANGED OF tb_include-page IN FRAME Dialog-Frame /* Include item list page */
+ON VALUE-CHANGED OF tb_include-page IN FRAME Dialog-Frame /* Include Item List Page */
 DO:
   assign {&self-name}.
 END.
@@ -381,12 +400,10 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY fi_job-no rd_active tb_include-page
+  DISPLAY cbJobType fi_job-no rd_active tb_include-page tb_fsc 
       WITH FRAME Dialog-Frame.
-  /*IF AVAILABLE job-hdr THEN 
-    DISPLAY job-hdr.frm job-hdr.i-no 
-      WITH FRAME Dialog-Frame.*/
-  ENABLE BROWSE-4 Btn_OK Btn_Cancel RECT-42 rd_active tb_include-page
+  ENABLE BROWSE-4 cbJobType rd_active tb_include-page Btn_OK Btn_Cancel tb_fsc 
+         RECT-42 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
@@ -395,8 +412,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-  &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCreateTempTable Dialog-Frame 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCreateTempTable Dialog-Frame 
 PROCEDURE pCreateTempTable :
 /*------------------------------------------------------------------------------
   Purpose:     
@@ -437,3 +453,4 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+

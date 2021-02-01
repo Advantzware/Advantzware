@@ -325,17 +325,36 @@ DO:
     DEFINE VARIABLE op-company AS CHARACTER NO-UNDO.
     DEFINE VARIABLE op-machine AS CHARACTER NO-UNDO.
 
- IF LASTKEY NE -1 THEN DO:
-   {methods/run_link.i "RECORD-SOURCE" "Get-Values"
-        "(OUTPUT op-company,OUTPUT op-machine)"}
-   IF CAN-FIND(FIRST b-machshft
-               WHERE b-machshft.company EQ op-company
-                 AND b-machshft.machine EQ op-machine
-                 AND b-machshft.shift   EQ SELF:SCREEN-VALUE) THEN DO:
-       MESSAGE "Shift already exists!" VIEW-AS ALERT-BOX ERROR.
-       RETURN NO-APPLY.
-   END.
- END.
+    IF LASTKEY NE -1 THEN DO:
+        {methods/run_link.i "RECORD-SOURCE" "Get-Values" "(OUTPUT op-company,OUTPUT op-machine)"}
+        IF CAN-FIND(FIRST b-machshft
+                    WHERE b-machshft.company EQ op-company
+                      AND b-machshft.machine EQ op-machine
+                      AND b-machshft.shift   EQ SELF:SCREEN-VALUE) THEN DO:
+            MESSAGE "Shift already exists!" VIEW-AS ALERT-BOX ERROR.
+            RETURN NO-APPLY.
+        END.
+        FIND FIRST shifts NO-LOCK
+             WHERE shifts.company EQ op-company
+               AND shifts.shift   EQ SELF:SCREEN-VALUE
+             NO-ERROR.
+        IF AVAILABLE shifts THEN DO:
+            {custom/get_time2.i
+                &field=shifts.start_time
+                &hour=start_hour
+                &minute=start_minute
+                &second=start_second
+                &ampm=start_ampm
+                }
+            {custom/get_time2.i
+                &field=shifts.end_time
+                &hour=end_hour
+                &minute=end_minute
+                &second=end_second
+                &ampm=end_ampm
+                }
+        END. /* if avail */
+    END. /* if lastkey */
 END.
 
 

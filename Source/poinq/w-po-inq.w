@@ -35,7 +35,6 @@ CREATE WIDGET-POOL.
 
 &SCOPED-DEFINE winReSize
 &SCOPED-DEFINE h_Browse01 h_b-po-inq
-&SCOPED-DEFINE h_Object01 h_p-navico-3
 
 /* Parameters Definitions ---                                           */
 
@@ -85,8 +84,6 @@ DEFINE VARIABLE h_f-porec AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_folder AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_movecol AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_options AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_p-navico AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_p-navico-3 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_smartmsg AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_v-polinq AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_v-polinq-2 AS HANDLE NO-UNDO.
@@ -143,7 +140,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 320
          VIRTUAL-HEIGHT     = 320
          VIRTUAL-WIDTH      = 320
-         RESIZE             = no
+         RESIZE             = yes
          SCROLL-BARS        = no
          STATUS-AREA        = yes
          BGCOLOR            = ?
@@ -264,7 +261,7 @@ END.
 
 /* Include custom  Main Block code for SmartWindows. */
 {src/adm/template/windowmn.i}
-
+{custom/initializeprocs.i}
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -305,7 +302,7 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/folder.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'FOLDER-LABELS = ':U + 'Browse PO|View PO|Invoices|Receipts' + ',
+             INPUT  'FOLDER-LABELS = ':U + 'Browse|Detail|Invoices|Receipts' + ',
                      FOLDER-TAB-TYPE = 2':U ,
              OUTPUT h_folder ).
        RUN set-position IN h_folder ( 3.14 , 1.00 ) NO-ERROR.
@@ -313,7 +310,7 @@ PROCEDURE adm-create-objects :
 
        /* Links to SmartFolder h_folder. */
        RUN add-link IN adm-broker-hdl ( h_folder , 'Page':U , THIS-PROCEDURE ).
-
+	   RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'udficon':U , h_options ).
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_exit ,
              h_options , 'AFTER':U ).
@@ -361,10 +358,6 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_b-po-inq , 'move-columns':U , h_movecol ).
        RUN add-link IN adm-broker-hdl ( h_b-po-inq , 'export-xl':U , h_export ).
 
-       /* Links to SmartNavBrowser h_b-po-inq. */
-       RUN add-link IN adm-broker-hdl ( h_p-navico , 'Navigation':U , h_b-po-inq ).
-       RUN add-link IN adm-broker-hdl ( h_p-navico-3 , 'Navigation':U , h_b-po-inq ).
-
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_b-po-inq ,
              h_folder , 'AFTER':U ).
@@ -386,16 +379,6 @@ PROCEDURE adm-create-objects :
        RUN set-position IN h_v-polinq-2 ( 20.05 , 2.00 ) NO-ERROR.
        /* Size in UIB:  ( 2.62 , 146.00 ) */
 
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'adm/objects/p-navico.r':U ,
-             INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Edge-Pixels = 2,
-                     SmartPanelType = NAV-ICON,
-                     Right-to-Left = First-On-Left':U ,
-             OUTPUT h_p-navico ).
-       RUN set-position IN h_p-navico ( 22.67 , 2.00 ) NO-ERROR.
-       RUN set-size IN h_p-navico ( 2.00 , 146.00 ) NO-ERROR.
-
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
 
@@ -409,9 +392,7 @@ PROCEDURE adm-create-objects :
        RUN adjust-tab-order IN adm-broker-hdl ( h_v-purord ,
              h_folder , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_v-polinq-2 ,
-             h_v-purord , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_p-navico ,
-             h_v-polinq-2 , 'AFTER':U ).
+             h_v-purord , 'AFTER':U ).       
     END. /* Page 2 */
     WHEN 3 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
@@ -438,16 +419,6 @@ PROCEDURE adm-create-objects :
        RUN set-position IN h_b-poliin ( 10.29 , 3.00 ) NO-ERROR.
        RUN set-size IN h_b-poliin ( 12.38 , 146.00 ) NO-ERROR.
 
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'adm/objects/p-navico.r':U ,
-             INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Edge-Pixels = 2,
-                     SmartPanelType = NAV-ICON,
-                     Right-to-Left = First-On-Left':U ,
-             OUTPUT h_p-navico-3 ).
-       RUN set-position IN h_p-navico-3 ( 22.91 , 3.00 ) NO-ERROR.
-       RUN set-size IN h_p-navico-3 ( 1.43 , 146.00 ) NO-ERROR.
-
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
 
@@ -467,9 +438,7 @@ PROCEDURE adm-create-objects :
        RUN adjust-tab-order IN adm-broker-hdl ( h_v-polinq ,
              h_vi-poord-2 , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_b-poliin ,
-             h_v-polinq , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_p-navico-3 ,
-             h_b-poliin , 'AFTER':U ).
+             h_v-polinq , 'AFTER':U ).       
     END. /* Page 3 */
     WHEN 4 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
@@ -601,7 +570,7 @@ PROCEDURE local-change-page :
   DEF VAR viCurrentPage AS INT NO-UNDO.
 
   /* Code placed here will execute PRIOR to standard behavior. */
-  {methods/winReSizePgChg.i}
+
 
   RUN GET-ATTRIBUTE('current-page').
 
@@ -613,7 +582,7 @@ PROCEDURE local-change-page :
   /* Code placed here will execute AFTER standard behavior.    */
   IF viCurrentPage  = 4 THEN
      RUN get-po-recs.
-  
+    {methods/winReSizePgChg.i}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

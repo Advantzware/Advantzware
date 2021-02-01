@@ -97,6 +97,11 @@ ECHO audDbVer=%cNewVer% >> C:%patchDir%\patch.mft
 IF NOT EXIST C:%patchDir%\Admin\EnvAdmin\prerun%iCurVer%.r (
     COPY /Y C:%patchDir%\prerun.r C:%patchDir%\Admin\EnvAdmin\prerun%iCurVer%.r
     )
+:: Get the file containing SQL statements from /Build into the DFFiles dir 
+IF EXIST C:\Asigui\Build\allFiles.SQL (
+    COPY /Y C:\Asigui\Build\allFiles.SQL C:%patchDir%\Structure\allFiles.SQL
+    )
+
 ECHO   Directory build complete
 ECHO   Directory build complete >> %blog%
 ECHO   Directory build complete >> %vlog%
@@ -361,16 +366,21 @@ ECHO . >> %vlog%
 
 :FinalizePatch
 :ZipEnv
-ECHO Compressing distribution files (programs, resources, override)
-ECHO Compressing distribution files (programs, resources, override) >> %blog%
-ECHO Compressing distribution files (programs, resources, override) >> %vlog%
+ECHO Copying distribution files (programs, resources, override)
+ECHO Copying distribution files (programs, resources, override) >> %blog%
+ECHO Copying distribution files (programs, resources, override) >> %vlog%
 CD %buildDir%
-CALL C:\asigui\Admin\EnvAdmin\7z.exe a -r C:\asigui\upgrades\PATCH%cNewVer%\ProgramFiles\programs.7z C:\asigui\Environments\%cNewVer%\Programs\*.* >> %vlog%
-CALL C:\asigui\Admin\EnvAdmin\7z.exe a -r C:\asigui\upgrades\PATCH%cNewVer%\ProgramFiles\resources.7z C:\asigui\Environments\%cNewVer%\Resources\*.* >> %vlog%
-CALL C:\asigui\Admin\EnvAdmin\7z.exe a -r C:\asigui\upgrades\PATCH%cNewVer%\ProgramFiles\override.7z C:\asigui\Environments\%cNewVer%\Override\*.* >> %vlog%
-ECHO   Compression complete
-ECHO   Compression complete >> %blog%
-ECHO   Compression complete >> %vlog%
+MKDIR C:\asigui\upgrades\PATCH%cNewVer%\ProgramFiles\Programs
+MKDIR C:\asigui\upgrades\PATCH%cNewVer%\ProgramFiles\Resources
+MKDIR C:\asigui\upgrades\PATCH%cNewVer%\ProgramFiles\Override
+XCOPY C:\asigui\Environments\%cNewVer%\Programs\*.* C:\asigui\upgrades\PATCH%cNewVer%\ProgramFiles\Programs /E /S /H /C /I >> %vlog%
+XCOPY C:\asigui\Environments\%cNewVer%\Resources\*.* C:\asigui\upgrades\PATCH%cNewVer%\ProgramFiles\Resources /E /S /H /C /I >> %vlog%
+XCOPY C:\asigui\Environments\%cNewVer%\Override\*.* C:\asigui\upgrades\PATCH%cNewVer%\ProgramFiles\Override /E /S /H /C /I >> %vlog%
+COPY /Y C:\asigui\Environments\Devel\*.pl C:\asigui\upgrades\PATCH%cNewVer%\ProgramFiles >> %vlog%
+COPY /Y C:\asigui\Environments\Devel\*.pl C:\asigui\Environments\%cNewVer% >> %vlog%
+ECHO   Copy complete
+ECHO   Copy complete >> %blog%
+ECHO   Copy complete >> %vlog%
 ECHO .
 ECHO . >> %blog%
 ECHO . >> %vlog%

@@ -46,7 +46,7 @@ CREATE WIDGET-POOL.
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Select_Add 
+&Scoped-Define ENABLED-OBJECTS Select_add 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -61,19 +61,22 @@ CREATE WIDGET-POOL.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON Select_add 
-     IMAGE-UP FILE "Graphics/32x32/plus.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/add.png":U
+     IMAGE-DOWN FILE "Graphics/32x32/add_hover.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/add_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Add" 
-     SIZE 7.8 BY 1.81 TOOLTIP "Add".
+     SIZE 7.8 BY 1.81 TOOLTIP "Add"
+     BGCOLOR 21 .
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     Select_Add AT ROW 1 COL 1
+     Select_add AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE .
+         AT COL 1 ROW 1 SCROLLABLE 
+         BGCOLOR 21 .
 
 
 /* *********************** Procedure Settings ************************ */
@@ -103,7 +106,7 @@ END.
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW s-object ASSIGN
          HEIGHT             = 1.81
-         WIDTH              = 39.
+         WIDTH              = 66.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -149,9 +152,9 @@ ASSIGN
 
 /* ************************  Control Triggers  ************************ */
 
-&Scoped-define SELF-NAME Select_Add
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Select_Add s-object
-ON CHOOSE OF Select_Add IN FRAME F-Main /* Add */
+&Scoped-define SELF-NAME Select_add
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Select_add s-object
+ON CHOOSE OF Select_add IN FRAME F-Main /* Add */
 DO:
   {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
 END.
@@ -180,6 +183,22 @@ RUN Tool_Tips IN Persistent-Handle (FRAME {&FRAME-NAME}:HANDLE).
 
 /* **********************  Internal Procedures  *********************** */
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable-add-button s-object 
+PROCEDURE disable-add-button :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   /*DEFINE INPUT PARAMETER ip-log AS LOG NO-UNDO.*/
+   DO WITH FRAME {&FRAME-NAME}:
+     Select_Add:SENSITIVE  = NO .
+   END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI s-object  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
 /*------------------------------------------------------------------------------
@@ -193,6 +212,19 @@ PROCEDURE disable_UI :
   /* Hide all frames. */
   HIDE FRAME F-Main.
   IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE make-sensitive s-object 
+PROCEDURE make-sensitive :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+Select_Add:SENSITIVE IN FRAME F-Main = TRUE.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -214,36 +246,6 @@ PROCEDURE state-changed :
          or add new cases. */
   END CASE.
   
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable-add-button s-object 
-PROCEDURE disable-add-button :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-   /*DEFINE INPUT PARAMETER ip-log AS LOG NO-UNDO.*/
-   DO WITH FRAME {&FRAME-NAME}:
-     Select_Add:SENSITIVE  = NO .
-   END.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE make-sensitive V-table-Win 
-PROCEDURE make-sensitive :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-Select_Add:SENSITIVE IN FRAME F-Main = TRUE.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

@@ -76,7 +76,9 @@ IF {&TABLENAME}.qty-all NE old-{&TABLENAME}.qty-all THEN DO:
         END.
         
         ASSIGN 
-            ITEM.q-comm = ITEM.q-comm + v-comm.
+            ITEM.q-comm = ITEM.q-comm + v-comm
+            ITEM.q-comm = MAX(0, item.q-comm)
+            .
         
     END.
 END.

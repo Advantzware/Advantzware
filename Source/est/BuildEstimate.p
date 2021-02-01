@@ -19,7 +19,7 @@ DEFINE OUTPUT PARAMETER opriEB AS ROWID NO-UNDO.
 {est\ttInputEst.i}
 
 DEFINE VARIABLE riEb AS ROWID NO-UNDO.
-
+DEFINE VARIABLE lCalcLayoutDim AS LOGICAL NO-UNDO INITIAL YES.
 
 /*Refactor - From B-estitm.w*/
 DEF SHARED BUFFER xest           FOR est.
@@ -27,6 +27,8 @@ DEF SHARED BUFFER xef            FOR ef.
 DEF SHARED BUFFER xeb            FOR eb.
 DEF SHARED BUFFER xqty           FOR est-qty.
 DEFINE     BUFFER bf-existing-eb FOR eb.
+
+
 
 
 /* ********************  Preprocessor Definitions  ******************** */
@@ -73,7 +75,31 @@ FOR EACH ttInputEst NO-LOCK BREAK BY ttInputEst.iFormNo
                     
             END.
         END.        
-    END.  /* cSetType EQ "Set"*/    
+    END.  /* cSetType EQ "Set"*/ 
+    ELSE IF ttInputEst.cSetType EQ "MoldEstTandem" THEN
+    DO:  
+        IF FIRST(ttInputEst.iFormNo) THEN DO:
+        RUN est/NewEstimate.p ('F', 4,OUTPUT opriEb).                                
+        END.
+        ELSE DO:                
+            IF FIRST-OF(ttInputEst.iFormNo) THEN DO:
+              FIND eb WHERE ROWID(eb) EQ opriEb NO-LOCK NO-ERROR.
+              FIND FIRST ef OF eb NO-LOCK NO-ERROR.
+              FIND FIRST est OF ef NO-LOCK NO-ERROR.
+                          
+               RUN est/NewEstimateForm.p ('F', ROWID(est), OUTPUT opriEb).
+                    
+            END.
+            ELSE IF FIRST-OF(ttInputEst.iBlankNo) THEN DO:
+              FIND eb WHERE ROWID(eb) EQ opriEb NO-LOCK NO-ERROR.
+              FIND FIRST ef OF eb NO-LOCK NO-ERROR.
+         
+                RUN cec/newblank.p (ROWID(ef), OUTPUT opriEb).
+                    
+            END.
+        END.        
+        lCalcLayoutDim = NO.
+    END.  /* cSetType EQ "MoldEstSingle"*/   
        
     FIND eb 
         WHERE ROWID(eb) EQ opriEb  
@@ -245,7 +271,7 @@ FOR EACH ttInputEst NO-LOCK BREAK BY ttInputEst.iFormNo
     IF ttInputEst.iQuantityYield GT 0 THEN 
         eb.yld-qty      = ttInputEst.iQuantityYield.
     ELSE 
-        eb.yld-qty      = eb.eqty.
+        eb.yld-qty      = eb.eqty.      
         
     IF ttInputEst.cCustomer NE "" THEN 
         FIND FIRST cust NO-LOCK 
@@ -342,7 +368,7 @@ FOR EACH ttInputEst NO-LOCK BREAK BY ttInputEst.iFormNo
         ROWID(eb),
         YES,  /*New Layout vs. Recalculation*/
         NO, /*Prompt to Reset*/
-        YES /*Recalc dimensions - Refactor - should be no if Style is foam*/).       
+        lCalcLayoutDim /*Recalc dimensions - Refactor - should be no if Style is foam*/).       
     
     RUN pCalcPacking(ROWID(eb)).
     IF ttInputEst.cEstType EQ "MiscEstimate" THEN DO:
@@ -363,11 +389,27 @@ FOR EACH ttInputEst NO-LOCK BREAK BY ttInputEst.iFormNo
              
       FIND FIRST xeb WHERE ROWID(xeb) EQ ROWID(eb) NO-LOCK NO-ERROR.
       FIND FIRST xest WHERE ROWID(xest) EQ ROWID(est) NO-LOCK NO-ERROR.
+      
+      IF eb.sourceEstimate NE "" THEN
+      DO:
+           FIND FIRST xeb EXCLUSIVE-LOCK
+                WHERE xeb.company EQ eb.company          
+                AND xeb.est-no EQ eb.sourceEstimate
+                AND xeb.form-no NE 0 NO-ERROR.
+           FIND FIRST xest NO-LOCK
+                WHERE xest.company EQ eb.company          
+                AND xest.est-no EQ eb.sourceEstimate NO-ERROR.
+           ASSIGN 
+               xeb.stock-no = eb.stock-no
+               xeb.part-no = eb.part-no
+               xeb.part-dscr1 = eb.part-dscr1.
+           FIND CURRENT xeb NO-LOCK NO-ERROR.    
+      END.       
 
       IF NOT CAN-FIND(FIRST itemfg
                   WHERE itemfg.company EQ eb.company
-                    AND itemfg.i-no    EQ eb.stock-no) THEN DO:
-          RUN fg/ce-addfg.p (xeb.stock-no).
+                    AND itemfg.i-no    EQ eb.stock-no) THEN DO:                   
+        RUN fg/ce-addfg.p (eb.stock-no).
       END.
       RUN cec/mach-seq.p (eb.form-no, eb.eqty, NO).
     END.
@@ -377,13 +419,22 @@ FOR EACH ttInputEst NO-LOCK BREAK BY ttInputEst.iFormNo
          est.estimateTypeID = "WOOD" .
          
     END. 
+    IF ttInputEst.cEstType EQ "MoldTandem" THEN
+    DO: 
+       IF ttInputEst.iQuantityYield GT 0 THEN 
+         eb.bl-qty      = ttInputEst.iQuantityYield.
+        ASSIGN 
+            eb.num-len     = ttInputEst.iMolds
+            eb.num-up      = ttInputEst.iMolds
+            .   
+    END.
        
     RUN est/BuildDefaultPreps.p (BUFFER est,
         BUFFER ef,
         INPUT eb.form-no,
         INPUT 0).
 
-                  
+       
 /*    REFACTOR ALL /* create set header record */                                                        */
 /*    IF iArtiosCount > 1 THEN                                                              */
 /*    DO:                                                                                   */

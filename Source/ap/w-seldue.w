@@ -41,6 +41,7 @@ CREATE WIDGET-POOL.
 {methods/prgsecur.i}               
 {methods/defines/hndldefs.i}               
 {sys/inc/VAR.i NEW SHARED}
+{methods/template/brwCustomDef.i}
 
 DEF TEMP-TABLE tt-sel NO-UNDO LIKE ap-sel
     FIELD amt-due    AS DECIMAL FORM "->>,>>>,>>9.99" 
@@ -305,7 +306,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 384
          VIRTUAL-HEIGHT     = 53.71
          VIRTUAL-WIDTH      = 384
-         RESIZE             = no
+         RESIZE             = yes
          SCROLL-BARS        = no
          STATUS-AREA        = yes
          BGCOLOR            = ?
@@ -469,6 +470,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-1 W-Win
 ON ROW-DISPLAY OF BROWSE-1 IN FRAME F-Main
 DO:
+    &SCOPED-DEFINE exclude-row-display true
+    {methods/template/brwRowDisplay.i}    
   DEF VAR li AS INT NO-UNDO.
   FIND FIRST ap-inv WHERE ap-inv.company = g_company 
                         AND ap-inv.vend-no = tt-sel.vend-no
@@ -734,7 +737,13 @@ DO:
              lv-in-update = NO
              lv-in-add = NO.
        END.
-       ELSE DO: 
+       ELSE DO:
+           IF {&browse-name}:NUM-SELECTED-ROWS EQ 0 THEN
+           DO:
+               MESSAGE "No Selected Records to Update."
+                     VIEW-AS ALERT-BOX INFO BUTTONS OK.
+               RETURN.
+           END.
            SELF:LABEL = "Save".
            ASSIGN
              lv-in-update = YES
@@ -1030,10 +1039,26 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
+/* Include custom  Main Block code for SmartWindows. */
+IF AVAIL company THEN 
+DO:
+    ASSIGN
+        fi_chk-date  = TODAY
+        fi_due-date  = TODAY
+        fi_curr-code = CAPS(company.curr-code).
+
+    {src/adm/template/windowmn.i}
+END.
+
+{methods/template/brwcustom.i}
 {sys/inc/f3helpw.i}
 {custom/yellowColumns.i}
+{custom/initializeprocs.i}
 SESSION:DATA-ENTRY-RETURN = YES.
-
+/* Ticket# : 92946
+   Hiding this widget for now, as browser's column label should be indicating the column which is sorted by */
+fi_sortby:HIDDEN  = TRUE.
+fi_sortby:VISIBLE = FALSE.
 /* DO WITH FRAME {&FRAME-NAME}:       */
 /*       fi_disc-date:SENSITIVE = NO. */
 /*       fi_discdays:SENSITIVE = NO.  */

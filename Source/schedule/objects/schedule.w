@@ -1238,7 +1238,7 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/folder.w':U ,
              INPUT  FRAME schedulerFrame:HANDLE ,
-             INPUT  'FOLDER-LABELS = ':U + 'Board|Config Opts|Downtime|Resources' + ',
+             INPUT  'FOLDER-LABELS = ':U + 'Board|Config|Downtime|Resources' + ',
                      FOLDER-TAB-TYPE = 2':U ,
              OUTPUT h_folder ).
        RUN set-position IN h_folder ( 1.00 , 1.00 ) NO-ERROR.

@@ -241,10 +241,10 @@ DO:
                 IF AVAIL bf-fg-rcpth THEN
                         llFound = NO.
                     v-cost[2] = b-fg-rdtlh.cost.
-                    FIND b-fg-bin WHERE b-fg-bin.company = b-fg-rdtlh.company
+                    FIND LAST b-fg-bin WHERE b-fg-bin.company = b-fg-rdtlh.company
                         AND b-fg-bin.i-no    = b-fg-rdtlh.i-no
-                        AND b-fg-bin.loc     = b-fg-rdtlh.loc
-                        AND b-fg-bin.loc-bin = b-fg-rdtlh.loc-bin
+/*                        AND b-fg-bin.loc     = b-fg-rdtlh.loc    */
+/*                        AND b-fg-bin.loc-bin = b-fg-rdtlh.loc-bin*/
                         AND b-fg-bin.tag     = b-fg-rdtlh.tag
                         NO-LOCK NO-ERROR.
                 

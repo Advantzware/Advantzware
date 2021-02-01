@@ -111,6 +111,10 @@ END.
 /* gdm - 11190903 */
 DEF VAR v-zipflg AS LOG NO-UNDO.
 
+DEFINE VARIABLE hdSalesManProcs AS HANDLE    NO-UNDO.
+
+RUN salrep/SalesManProcs.p PERSISTENT SET hdSalesManProcs.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -139,7 +143,7 @@ DEFINE QUERY external_tables FOR cust.
 cust.addr[2] cust.spare-char-3 cust.city cust.state cust.zip ~
 cust.fax-country cust.spare-char-2 cust.type cust.date-field[1] ~
 cust.contact cust.sman cust.area-code cust.phone cust.fax-prefix ~
-cust.ASNClientID cust.csrUser_id cust.scomm cust.terms cust.cr-use ~
+cust.accountant cust.csrUser_id cust.scomm cust.terms cust.cr-use ~
 cust.cr-hold-invdays cust.cr-hold-invdue cust.cr-rating cust.cust-level ~
 cust.cr-lim cust.ord-lim cust.disc cust.curr-code cust.cr-hold cust.fin-chg ~
 cust.auto-reprice cust.an-edi-cust cust.factored cust.sort cust.tax-gr ~
@@ -150,12 +154,12 @@ cust.pallet cust.case-bundle cust.int-field[1] cust.po-mandatory ~
 cust.imported cust.show-set cust.nationalAcct cust.log-field[1] 
 &Scoped-define ENABLED-TABLES cust
 &Scoped-define FIRST-ENABLED-TABLE cust
-&Scoped-Define ENABLED-OBJECTS btn_bank-info 
+&Scoped-Define ENABLED-OBJECTS btn_bank-info RECT-5 
 &Scoped-Define DISPLAYED-FIELDS cust.cust-no cust.active cust.name ~
 cust.addr[1] cust.addr[2] cust.spare-char-3 cust.city cust.state cust.zip ~
 cust.fax-country cust.spare-char-2 cust.type cust.date-field[1] ~
 cust.contact cust.sman cust.area-code cust.phone cust.fax-prefix ~
-cust.ASNClientID cust.csrUser_id cust.scomm cust.terms cust.cr-use ~
+cust.accountant cust.csrUser_id cust.scomm cust.terms cust.cr-use ~
 cust.cr-hold-invdays cust.cr-hold-invdue cust.cr-rating cust.cust-level ~
 cust.cr-lim cust.ord-lim cust.disc cust.curr-code cust.cr-hold cust.fin-chg ~
 cust.auto-reprice cust.an-edi-cust cust.factored cust.sort cust.tax-gr ~
@@ -166,9 +170,10 @@ cust.pallet cust.case-bundle cust.int-field[1] cust.po-mandatory ~
 cust.imported cust.show-set cust.nationalAcct cust.log-field[1] 
 &Scoped-define DISPLAYED-TABLES cust
 &Scoped-define FIRST-DISPLAYED-TABLE cust
-&Scoped-Define DISPLAYED-OBJECTS fl_custemail custype_dscr faxAreaCode ~
-faxNumber sman_sname fi_flat-comm terms_dscr rd_inv-meth loc_dscr ~
-carrier_dscr carr-mtx_del-dscr terr_dscr stax_tax-dscr 
+&Scoped-Define DISPLAYED-OBJECTS cbMatrixPrecision cbMatrixRounding ~
+fl_custemail custype_dscr faxAreaCode faxNumber sman_sname fi_flat-comm ~
+terms_dscr rd_inv-meth loc_dscr carrier_dscr carr-mtx_del-dscr terr_dscr ~
+stax_tax-dscr 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,faxFields,F1 */
@@ -219,6 +224,24 @@ DEFINE BUTTON btn_bank-info
      LABEL "Bank Info" 
      SIZE 16.4 BY 1
      BGCOLOR 15 FONT 4.
+
+DEFINE VARIABLE cbMatrixPrecision AS INTEGER FORMAT "9":U INITIAL 0 
+     LABEL "Matrix Precision" 
+     VIEW-AS COMBO-BOX INNER-LINES 5
+     LIST-ITEMS "         0","         1","         2","         3","         4","         5","         6" 
+     DROP-DOWN-LIST
+     SIZE 16 BY 1
+     FONT 4 NO-UNDO.
+
+DEFINE VARIABLE cbMatrixRounding AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Matrix Rounding" 
+     VIEW-AS COMBO-BOX INNER-LINES 5
+     LIST-ITEM-PAIRS "Nomal Round","N",
+                     "Round Up","U",
+                     "Round Down","D"
+     DROP-DOWN-LIST
+     SIZE 18 BY 1
+     FONT 4 NO-UNDO.
 
 DEFINE VARIABLE carr-mtx_del-dscr AS CHARACTER FORMAT "x(30)" 
      VIEW-AS FILL-IN 
@@ -303,10 +326,16 @@ DEFINE RECTANGLE RECT-4
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
      SIZE 80.4 BY 11.91.
 
+DEFINE RECTANGLE RECT-5
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 71 BY 2.57.
+
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
+     cbMatrixPrecision AT ROW 20.38 COL 20 COLON-ALIGNED WIDGET-ID 38
+     cbMatrixRounding AT ROW 21.48 COL 20 COLON-ALIGNED WIDGET-ID 40
      btnTags AT ROW 11.57 COL 64 WIDGET-ID 26
      cust.cust-no AT ROW 1 COL 12 COLON-ALIGNED
           LABEL "Customer"
@@ -404,7 +433,8 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
-     cust.ASNClientID AT ROW 6.71 COL 136.8 COLON-ALIGNED WIDGET-ID 18
+     cust.accountant AT ROW 6.71 COL 136.8 COLON-ALIGNED WIDGET-ID 18
+          LABEL "Accountant"
           VIEW-AS FILL-IN 
           SIZE 13.6 BY 1
           BGCOLOR 15 
@@ -651,9 +681,13 @@ DEFINE FRAME F-Main
           SIZE 6 BY .62 AT ROW 9.57 COL 90.4
      "Taxable:" VIEW-AS TEXT
           SIZE 10 BY .81 AT ROW 16.95 COL 7 WIDGET-ID 24
+     "Price Matrix" VIEW-AS TEXT
+          SIZE 13 BY .62 AT ROW 19.81 COL 5.8 WIDGET-ID 30
+          FGCOLOR 9 FONT 4
      RECT-2 AT ROW 8.14 COL 1
      RECT-3 AT ROW 16.48 COL 1
      RECT-4 AT ROW 8.14 COL 73
+     RECT-5 AT ROW 20.05 COL 1 WIDGET-ID 28
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -687,7 +721,7 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW V-table-Win ASSIGN
-         HEIGHT             = 19.05
+         HEIGHT             = 21.71
          WIDTH              = 152.4.
 /* END WINDOW DEFINITION */
                                                                         */
@@ -734,6 +768,10 @@ ASSIGN
    4                                                                    */
 /* SETTINGS FOR FILL-IN carrier_dscr IN FRAME F-Main
    NO-ENABLE                                                            */
+/* SETTINGS FOR COMBO-BOX cbMatrixPrecision IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR COMBO-BOX cbMatrixRounding IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN cust.city IN FRAME F-Main
    EXP-FORMAT                                                           */
 /* SETTINGS FOR FILL-IN cust.classID IN FRAME F-Main
@@ -750,6 +788,8 @@ ASSIGN
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN cust.csrUser_id IN FRAME F-Main
    4 EXP-LABEL                                                          */
+/* SETTINGS FOR FILL-IN cust.accountant IN FRAME F-Main
+   EXP-LABEL                                                          */   
 /* SETTINGS FOR FILL-IN cust.curr-code IN FRAME F-Main
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN cust.cust-level IN FRAME F-Main
@@ -923,6 +963,12 @@ DO:
               assign cust.csrUser_id:screen-value in frame {&frame-name} = entry(1,char-val).
            return no-apply.
      end.
+     when "accountant" then do:
+         run windows/l-users.w (cust.accountant:SCREEN-VALUE in frame {&frame-name}, output char-val).
+           if char-val <> "" then 
+              assign cust.accountant:screen-value in frame {&frame-name} = entry(1,char-val).
+           return no-apply.
+     end.
      when "classId" then do:
          RUN system/openLookup.p (
             INPUT  gcompany, 
@@ -1085,6 +1131,30 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME cbMatrixPrecision
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cbMatrixPrecision V-table-Win
+ON VALUE-CHANGED OF cbMatrixPrecision IN FRAME F-Main /* Matrix Precision */
+DO:
+    ASSIGN 
+        {&SELF-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME cbMatrixRounding
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cbMatrixRounding V-table-Win
+ON VALUE-CHANGED OF cbMatrixRounding IN FRAME F-Main /* Matrix Rounding */
+DO:
+    ASSIGN 
+        {&SELF-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME cust.city
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cust.city V-table-Win
 ON HELP OF cust.city IN FRAME F-Main /* City */
@@ -1203,6 +1273,21 @@ DO:
   IF LASTKEY <> -1 THEN DO:
      RUN valid-custcsr NO-ERROR.
      IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  END.
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME cust.accountant
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cust.accountant V-table-Win
+ON LEAVE OF cust.accountant IN FRAME F-Main /* Billing Owner */
+DO:
+   DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
+  IF LASTKEY <> -1 THEN DO:
+     RUN valid-bill-owner(OUTPUT lReturnError) NO-ERROR.
+     IF lReturnError THEN RETURN NO-APPLY.
   END.
 
 END.
@@ -1989,9 +2074,16 @@ PROCEDURE disable-fields :
   Notes:       
 ------------------------------------------------------------------------------*/
 
-   DO WITH FRAME {&FRAME-NAME}.
-     DISABLE {&faxFields} rd_inv-meth fi_flat-comm  fl_custemail.
-   END.
+    DO WITH FRAME {&FRAME-NAME}.
+        DISABLE 
+            {&faxFields} 
+            rd_inv-meth 
+            fi_flat-comm  
+            fl_custemail
+            cbMatrixPrecision
+            cbMatrixRounding
+            .
+    END.
 
 END PROCEDURE.
 
@@ -2085,11 +2177,13 @@ PROCEDURE local-assign-record :
   RUN reftable-values (NO).
 
   {methods/viewers/assign/cust.i}
-
   assign
    cust.active   = substr(cust.active,2,1)
    cust.inv-meth = rd_inv-meth
-   cust.email    = TRIM(fl_custemail).  /* gdm - 05180924 */
+   cust.email    = TRIM(fl_custemail)
+   cust.matrixPrecision = cbMatrixPrecision
+   cust.matrixRounding  = cbMatrixRounding
+   .  /* gdm - 05180924 */
 
   /* gdm - 11190903 */
   IF v-zipflg THEN DO:
@@ -2242,10 +2336,14 @@ PROCEDURE local-create-record :
         faxnumber = ""
         rd_inv-meth:SCREEN-VALUE  = STRING(cust.inv-meth)
         fi_flat-comm:SCREEN-VALUE = "" 
-        fl_custemail:SCREEN-VALUE = "".
+        fl_custemail:SCREEN-VALUE = ""
+        cbMatrixPrecision:SCREEN-VALUE = STRING(cust.matrixPrecision)
+        cbMatrixRounding:SCREEN-VALUE  = STRING(cust.matrixRounding)
+        cbMatrixPrecision
+        cbMatrixRounding
+        .
      END.
   END.
-
   RUN display-active.
 
 END PROCEDURE.
@@ -2324,6 +2422,20 @@ PROCEDURE local-display-fields :
         faxNumber   = SUBSTR(cust.fax,4)    when avail cust.
       DISPLAY {&faxFields}.
     END.
+    IF AVAILABLE cust AND NOT adm-new-record THEN DO:
+        
+        IF cust.matrixRounding EQ "" AND cbMatrixRounding:LOOKUP("") EQ 0 THEN
+            cbMatrixRounding:ADD-LAST("","").
+        ASSIGN 
+            cbMatrixPrecision = cust.matrixPrecision
+            cbMatrixRounding  = IF cust.matrixRounding EQ "" THEN " " ELSE cust.matrixRounding
+            .
+        DISPLAY
+            cbMatrixPrecision
+            cbMatrixRounding
+            . 
+                   
+    END.             
   END.
 
   RUN display-active.
@@ -2363,6 +2475,7 @@ PROCEDURE local-update-record :
   DEF VAR ll-new-record AS LOG NO-UNDO.
   DEFINE VARIABLE cOld-fob    AS CHARACTER NO-UNDO.
   DEFINE VARIABLE cOld-freight AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
 
   def buffer bf-cust for cust.
   /*def buffer bf-shipto for shipto.
@@ -2429,7 +2542,10 @@ PROCEDURE local-update-record :
      IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
      RUN valid-custcsr NO-ERROR.
-     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY. 
+     
+     RUN valid-bill-owner(OUTPUT lReturnError) NO-ERROR.
+     IF lReturnError THEN RETURN NO-APPLY.
 
      RUN valid-sman NO-ERROR. 
      IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
@@ -2967,6 +3083,31 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-bill-owner V-table-Win 
+PROCEDURE valid-bill-owner :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
+  {methods/lValidateError.i YES}
+
+   IF cust.accountant:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" THEN DO:
+       IF NOT CAN-FIND(FIRST users WHERE users.USER_ID EQ cust.accountant:SCREEN-VALUE IN FRAME {&FRAME-NAME})
+       THEN DO:
+           MESSAGE "Invalid customer Accountant. Try help." VIEW-AS ALERT-BOX ERROR.
+           APPLY "entry" TO cust.accountant.
+           oplReturnError = YES.
+       END.
+   END.
+
+  {methods/lValidateError.i NO}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-custtype V-table-Win 
 PROCEDURE valid-custtype :
 /*------------------------------------------------------------------------------
@@ -3174,19 +3315,24 @@ PROCEDURE valid-sman :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+   DEFINE VARIABLE lSuccess AS LOGICAL   NO-UNDO.
+   DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+   
   {methods/lValidateError.i YES}
-  FIND FIRST sman
-        WHERE sman.company EQ cocode
-          AND sman.sman    EQ cust.sman:SCREEN-VALUE IN FRAME {&FRAME-NAME}
-        NO-LOCK NO-ERROR.
-
-    IF NOT AVAIL sman THEN DO:
-       MESSAGE "Invalid Sales Rep. Try help." VIEW-AS ALERT-BOX ERROR.
-       APPLY "entry" TO cust.sman.
-       RETURN ERROR.
-    END.
-    sman_sname:SCREEN-VALUE = sman.sNAME.
-
+    RUN SalesMan_ValidateSalesRep IN hdSalesManProcs(  
+        INPUT  cocode,
+        INPUT  cust.sman:SCREEN-VALUE IN FRAME {&FRAME-NAME},
+        OUTPUT lSuccess,
+        OUTPUT cMessage
+        ).  
+    IF NOT lSuccess THEN DO:
+       MESSAGE cMessage
+       VIEW-AS ALERT-BOX ERROR.
+       APPLY "ENTRY" TO cust.sman.
+       RETURN ERROR.  
+    END. 
+    sman_sname:SCREEN-VALUE = DYNAMIC-FUNCTION("SalesMan_GetSalesmanName" IN hdSalesManProcs,cocode,cust.sman:SCREEN-VALUE).
+   
   {methods/lValidateError.i NO}
 END PROCEDURE.
 

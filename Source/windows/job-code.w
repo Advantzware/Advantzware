@@ -80,6 +80,7 @@ DEFINE VAR W-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of handles for SmartObjects                              */
 DEFINE VARIABLE h_exit AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_export AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_folder AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_job-code AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_job-code-2 AS HANDLE NO-UNDO.
@@ -87,7 +88,6 @@ DEFINE VARIABLE h_options AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-navico AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-updsav AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_smartmsg AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_export AS HANDLE NO-UNDO.
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -95,14 +95,7 @@ DEFINE FRAME F-Main
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 94.2 BY 24
-         BGCOLOR 15 .
-
-DEFINE FRAME message-frame
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 46 ROW 2.91
-         SIZE 49 BY 1.43
+         SIZE 100 BY 28.57
          BGCOLOR 15 .
 
 DEFINE FRAME OPTIONS-FRAME
@@ -110,6 +103,13 @@ DEFINE FRAME OPTIONS-FRAME
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 2 ROW 1
          SIZE 93 BY 1.91
+         BGCOLOR 15 .
+
+DEFINE FRAME message-frame
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 46 ROW 2.91
+         SIZE 49 BY 1.43
          BGCOLOR 15 .
 
 
@@ -133,13 +133,13 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW W-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Machine Charge Codes"
-         HEIGHT             = 24
-         WIDTH              = 94.2
+         HEIGHT             = 28.57
+         WIDTH              = 100
          MAX-HEIGHT         = 320
          MAX-WIDTH          = 320
          VIRTUAL-HEIGHT     = 320
          VIRTUAL-WIDTH      = 320
-         RESIZE             = no
+         RESIZE             = yes
          SCROLL-BARS        = no
          STATUS-AREA        = yes
          BGCOLOR            = ?
@@ -259,7 +259,7 @@ END.
 
 /* Include custom  Main Block code for SmartWindows. */
 {src/adm/template/windowmn.i}
-
+{custom/initializeprocs.i}
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -282,20 +282,20 @@ PROCEDURE adm-create-objects :
 
     WHEN 0 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'smartobj/options.w':U ,
-             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
-             INPUT  '':U ,
-             OUTPUT h_options ).
-       RUN set-position IN h_options ( 1.00 , 29.00 ) NO-ERROR.
-       /* Size in UIB:  ( 1.81 , 55.80 ) */
-
-       RUN init-object IN THIS-PROCEDURE (
              INPUT  'smartobj/smartmsg.w':U ,
              INPUT  FRAME message-frame:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_smartmsg ).
        RUN set-position IN h_smartmsg ( 1.00 , 9.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.14 , 32.00 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'smartobj/options.w':U ,
+             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_options ).
+       RUN set-position IN h_options ( 1.00 , 29.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 55.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'smartobj/exit.w':U ,
@@ -308,15 +308,15 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/folder.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'FOLDER-LABELS = ':U + 'Browse Codes|View Code' + ',
-                     FOLDER-TAB-TYPE = 1':U ,
+             INPUT  'FOLDER-LABELS = ':U + 'Browse|Detail' + ',
+                     FOLDER-TAB-TYPE = 2':U ,
              OUTPUT h_folder ).
        RUN set-position IN h_folder ( 3.14 , 2.00 ) NO-ERROR.
-       RUN set-size IN h_folder ( 21.67 , 92.00 ) NO-ERROR.
+       RUN set-size IN h_folder ( 26.43 , 98.00 ) NO-ERROR.
 
        /* Links to SmartFolder h_folder. */
        RUN add-link IN adm-broker-hdl ( h_folder , 'Page':U , THIS-PROCEDURE ).
-
+       RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'udficon':U , h_options ).
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_exit ,
              h_options , 'AFTER':U ).
@@ -325,28 +325,30 @@ PROCEDURE adm-create-objects :
     END. /* Page 0 */
     WHEN 1 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'browsers/job-code.w':U ,
-             INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Layout = ':U ,
-             OUTPUT h_job-code ).
-       RUN set-position IN h_job-code ( 4.81 , 4.00 ) NO-ERROR.
-       RUN set-size IN h_job-code ( 19.52 , 88.00 ) NO-ERROR.
-
-       /* Initialize other pages that this page requires. */
-       RUN init-pages IN THIS-PROCEDURE ('2':U) NO-ERROR.
-
-       RUN init-object IN THIS-PROCEDURE (
              INPUT  'viewers/export.w':U ,
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
-             INPUT  'Layout = ':U ,
+             INPUT  '':U ,
              OUTPUT h_export ).
        RUN set-position IN h_export ( 1.00 , 21.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.80 ) */
 
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'browsers/job-code.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_job-code ).
+       RUN set-position IN h_job-code ( 4.81 , 3.00 ) NO-ERROR.
+       RUN set-size IN h_job-code ( 19.52 , 95.00 ) NO-ERROR.
+
+       /* Initialize other pages that this page requires. */
+       RUN init-pages IN THIS-PROCEDURE ('2':U) NO-ERROR.
+
+       /* Links to SmartObject h_export. */
+       RUN add-link IN adm-broker-hdl ( h_job-code , 'export-xl':U , h_export ).
+
        /* Links to SmartNavBrowser h_job-code. */
        RUN add-link IN adm-broker-hdl ( h_p-navico , 'Navigation':U , h_job-code ).
        RUN add-link IN adm-broker-hdl ( h_job-code , 'Record':U , THIS-PROCEDURE ).
-       RUN add-link IN adm-broker-hdl ( h_job-code , 'export-xl':U , h_export ).
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_job-code ,

@@ -50,6 +50,7 @@ DEFINE VARIABLE updateMode AS LOGICAL NO-UNDO.
 DEFINE VARIABLE updateEnabled AS LOGICAL NO-UNDO.
 
 {{&viewers}/includes/browseDef.i}
+{methods/defines/sortByDefs.i}
 
 /* configuration vars */
 {{&includes}/configVars.i}
@@ -102,10 +103,9 @@ END.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS btnFilter btnPrint btnDataCollection ~
 btnLiveUpdate btnPendingReturn btnRefresh btnUnlock btnLock btnDetail ~
-btnDatePrompt btnRelatedJobs RECT-1 jobPhrase btnSort btnGoTo btnUpdate ~
-btnSetSeq browseJob btnJobNotes btnComplete btnUp btnDown btnPackJob ~
-btnSave 
-&Scoped-Define DISPLAYED-OBJECTS jobPhrase sortableColumns 
+btnDatePrompt btnRelatedJobs RECT-1 jobPhrase btnGoTo btnUpdate btnSetSeq ~
+browseJob btnJobNotes btnComplete btnUp btnDown btnPackJob btnSave 
+&Scoped-Define DISPLAYED-OBJECTS jobPhrase 
 
 /* Custom List Definitions                                              */
 /* ttblResourceFields,phraseFields,List-3,List-4,List-5,List-6          */
@@ -247,10 +247,6 @@ DEFINE BUTTON btnSetSeq
      LABEL "" 
      SIZE 5.2 BY 1.1 TOOLTIP "Auto Sequence".
 
-DEFINE BUTTON btnSort 
-     LABEL "&Ascending" 
-     SIZE 13 BY 1 TOOLTIP "Toggle Ascending/Descending Sort".
-
 DEFINE BUTTON btnUnlock 
      IMAGE-UP FILE "schedule/images/unlocked.gif":U
      LABEL "" 
@@ -269,11 +265,6 @@ DEFINE VARIABLE jobPhrase AS CHARACTER FORMAT "X(256)":U
      LABEL "&Job" 
      VIEW-AS FILL-IN 
      SIZE 24 BY 1 NO-UNDO.
-
-DEFINE VARIABLE sortableColumns AS CHARACTER FORMAT "X(256)":U INITIAL " Sortable Columns" 
-      VIEW-AS TEXT 
-     SIZE 18 BY 1
-     BGCOLOR 14  NO-UNDO.
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
@@ -329,7 +320,6 @@ DEFINE FRAME F-Main
      btnRelatedJobs AT ROW 1.05 COL 145 HELP
           "Click to Lock/Unlock Related Jobs"
      jobPhrase AT ROW 1.1 COL 5 COLON-ALIGNED
-     btnSort AT ROW 1.1 COL 55
      btnGoTo AT ROW 1.1 COL 75
      btnUpdate AT ROW 1.1 COL 86
      btnSetSeq AT ROW 2.19 COL 1.2 HELP
@@ -347,7 +337,6 @@ DEFINE FRAME F-Main
           "Click to Pack Selected Job"
      btnSave AT ROW 9.33 COL 1.2 HELP
           "Click to Save (Pack Resource)"
-     sortableColumns AT ROW 1.1 COL 35 COLON-ALIGNED NO-LABEL
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -442,8 +431,6 @@ ASSIGN
 
 /* SETTINGS FOR FILL-IN jobPhrase IN FRAME F-Main
    2                                                                    */
-/* SETTINGS FOR FILL-IN sortableColumns IN FRAME F-Main
-   NO-ENABLE                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -540,6 +527,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL browseJob sObject
 ON ROW-DISPLAY OF browseJob IN FRAME F-Main /* Jobs by Resource */
 DO:
+/*    &scoped-define exclude-row-display true*/
+/*    {methods/template/brwrowdisplay.i}     */
   {{&viewers}/includes/rowDisplay.i}
 END.
 
@@ -578,12 +567,10 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL browseJob sObject
 ON START-SEARCH OF browseJob IN FRAME F-Main /* Jobs by Resource */
 DO:
-  IF {&BROWSE-NAME}:CURRENT-COLUMN:NAME NE ? THEN
-  DO:
-    columnLabel = {&BROWSE-NAME}:CURRENT-COLUMN:NAME.
-    RUN reopenBrowse.
-  END.
-  RETURN NO-APPLY.
+  IF SELF:CURRENT-COLUMN:NAME NE ? THEN
+  columnLabel = SELF:CURRENT-COLUMN:NAME.
+  &Scoped-define ScheduleBoard
+  {AOA/includes/startSearch.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -837,20 +824,6 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btnSort
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnSort sObject
-ON CHOOSE OF btnSort IN FRAME F-Main /* Ascending */
-DO:
-  ASSIGN
-    ascendingSort = NOT ascendingSort
-    SELF:LABEL = IF ascendingSort THEN '&Ascending' ELSE '&Descending'.
-  RUN reopenBrowse.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &Scoped-define SELF-NAME btnUnlock
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnUnlock sObject
 ON CHOOSE OF btnUnlock IN FRAME F-Main
@@ -937,6 +910,8 @@ END.
   RUN initializeObject.
 &ENDIF
 
+{methods/template/brwcustom2.i}
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1005,7 +980,6 @@ PROCEDURE displayFields :
                    ELSE ' - ' + ipResourceDescription.
   RUN getCellColumns.
   DO WITH FRAME {&FRAME-NAME}:
-    DISPLAY sortableColumns.
     {&BROWSE-NAME}:TITLE = browserTitle + (IF lockRelatedJobs THEN ' (' + btnRelatedJobs:PRIVATE-DATA + ')' ELSE '').
     {&OPEN-QUERY-{&BROWSE-NAME}}
   END.

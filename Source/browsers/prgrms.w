@@ -34,7 +34,8 @@ CREATE WIDGET-POOL.
 &SCOPED-DEFINE winReSize
 &SCOPED-DEFINE useMatches  /* task 10251306  */
 {methods/defines/winReSize.i}
-
+&SCOPED-DEFINE yellowColumnsName prgrms
+&scoped-define noSortByField 1
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
@@ -150,15 +151,15 @@ DEFINE QUERY Browser-Table FOR
 DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
-      prgrms.prgmname FORMAT "X(32)":U WIDTH 37.2
+      prgrms.prgmname FORMAT "x(32)":U WIDTH 37.2
       prgrms.prgtitle FORMAT "X(30)":U WIDTH 35.2
       prgrms.dir_group FORMAT "X(20)":U WIDTH 12.4
-      prgrms.menu_item FORMAT "yes/no":U WIDTH 6.2
-      prgrms.menuOrder FORMAT ">>>9":U WIDTH 8.2
-      prgrms.menuLevel FORMAT "->,>>>,>>9":U
-      prgrms.mnemonic COLUMN-LABEL "Hotkey" FORMAT "x(6)":U WIDTH 9.2
-      prgrms.itemParent FORMAT "x(10)":U WIDTH 12.2
-      prgrms.systemType FORMAT "x(8)":U WIDTH 9.2
+      prgrms.menu_item FORMAT "yes/no":U WIDTH 6.2 LABEL-BGCOLOR 14
+      prgrms.menuOrder FORMAT ">>>9":U WIDTH 8.2 LABEL-BGCOLOR 14
+      prgrms.menuLevel FORMAT "->,>>>,>>9":U LABEL-BGCOLOR 14
+      prgrms.mnemonic COLUMN-LABEL "Hotkey" FORMAT "x(6)":U WIDTH 9.2 LABEL-BGCOLOR 14
+      prgrms.itemParent FORMAT "x(10)":U WIDTH 12.2 LABEL-BGCOLOR 14
+      prgrms.systemType FORMAT "x(8)":U WIDTH 9.2 LABEL-BGCOLOR 14
       prgrms.can_run COLUMN-LABEL "View ID's" FORMAT "X(30)":U
       prgrms.can_create COLUMN-LABEL "Add ID's" FORMAT "X(30)":U
       prgrms.can_update FORMAT "X(30)":U
@@ -232,6 +233,7 @@ END.
 {src/adm/method/browser.i}
 {src/adm/method/query.i}
 {methods/template/browser.i}
+{custom/yellowColumns.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -255,8 +257,7 @@ ASSIGN
        Browser-Table:NUM-LOCKED-COLUMNS IN FRAME F-Main     = 2
        Browser-Table:PRIVATE-DATA IN FRAME F-Main           = 
                 "2"
-       Browser-Table:COLUMN-RESIZABLE IN FRAME F-Main       = TRUE
-       Browser-Table:COLUMN-MOVABLE IN FRAME F-Main         = TRUE
+       Browser-Table:ALLOW-COLUMN-SEARCHING IN FRAME F-Main = TRUE
        Browser-Table:SEPARATOR-FGCOLOR IN FRAME F-Main      = 1.
 
 /* SETTINGS FOR BUTTON Btn_Clear_Find IN FRAME F-Main
@@ -346,6 +347,13 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
+ON START-SEARCH OF Browser-Table IN FRAME F-Main
+DO:
+  RUN startSearch.
+END.
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON VALUE-CHANGED OF Browser-Table IN FRAME F-Main
 DO:
   /* This ADM trigger code must be preserved in order to notify other
@@ -386,6 +394,7 @@ END.
 
 /* ***************************  Main Block  *************************** */
 {sys/inc/f3help.i}
+{methods/template/brwcustom.i}
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF

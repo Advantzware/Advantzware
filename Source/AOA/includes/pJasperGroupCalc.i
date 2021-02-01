@@ -13,7 +13,7 @@ FUNCTION fJasperFields RETURNS CHARACTER
     FOR EACH bttSubjectColumn
         WHERE bttSubjectColumn.subjectID EQ dynSubject.subjectID
         :
-        cFields = cFields + "$F~{" + bttSubjectColumn.fieldName + "},".
+        cFields = cFields + "$F~{" + REPLACE(bttSubjectColumn.fieldName,".","__") + "},".
     END. /* each ttSubjectColumn*/
     RETURN TRIM(cFields,",").
 
@@ -83,7 +83,7 @@ FUNCTION fJasperVariables RETURNS CHARACTER
         :
         ASSIGN
             cResetGroup = REPLACE(REPLACE(ttGroupCalc.groupName,"[Group] ","")," ","_") + "_Group"
-            cName       = ttGroupCalc.fieldName + "_"
+            cName       = REPLACE(ttGroupCalc.fieldName,".","__") + "_"
                         + IF ttGroupCalc.groupName BEGINS "[Group] " THEN cResetGroup
                           ELSE ttGroupCalc.groupName + "Footer" 
             cVariables  = cVariables + "$V~{" + cName + "},".
@@ -104,6 +104,8 @@ PROCEDURE pJasperGroupCalc:
     
     DEFINE BUFFER bttSubjectColumn FOR ttSubjectColumn.
     
+    IF NOT AVAILABLE ttSubjectColumn THEN RETURN.
+
     FOR EACH ttGroupCalc
         WHERE ttGroupCalc.subjectID EQ ttSubjectColumn.subjectID
           AND ttGroupCalc.fieldName EQ ttSubjectColumn.fieldName
@@ -124,7 +126,11 @@ PROCEDURE pJasperGroupCalc:
         OUTPUT lSave
         ).
     IF lSave THEN DO:
+        &IF "{&prgmName}" EQ "userCols." &THEN
+        RUN pUpdateMode (YES).
+        &ELSE
         fSetSaveButton (YES).
+        &ENDIF
         FOR EACH ttGroupCalc
             WHERE ttGroupCalc.subjectID EQ ttSubjectColumn.subjectID
               AND ttGroupCalc.fieldName EQ ttSubjectColumn.fieldName

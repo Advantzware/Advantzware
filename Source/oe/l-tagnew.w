@@ -31,16 +31,16 @@ DEF INPUT  PARAM ip-i-no AS cha NO-UNDO.
 DEF INPUT  PARAM ip-job-no AS cha NO-UNDO.
 DEF INPUT  PARAM ip-job2 AS INT NO-UNDO.
 DEF INPUT  PARAM ip-lv-linker AS CHAR NO-UNDO.
-def output parameter op-char-val as cha no-undo. /* string i-code + i-name */
+DEF OUTPUT PARAMETER op-char-val AS cha NO-UNDO. /* string i-code + i-name */
 
 {oe/d-selbin.i}
-
-def var v-i-no    like oe-ordl.i-no NO-UNDO.
-def var v-ord     like oe-ordl.ord-no NO-UNDO.
-def var v-line    like oe-ordl.line NO-UNDO.
-def var v-job-no  like oe-ordl.job-no NO-UNDO.
-def var v-job-no2 like oe-ordl.job-no2 NO-UNDO.
-def var v-qty     like oe-rell.qty NO-UNDO.
+{methods/template/brwcustomdef.i}
+DEF VAR v-i-no    LIKE oe-ordl.i-no NO-UNDO.
+DEF VAR v-ord     LIKE oe-ordl.ord-no NO-UNDO.
+DEF VAR v-line    LIKE oe-ordl.line NO-UNDO.
+DEF VAR v-job-no  LIKE oe-ordl.job-no NO-UNDO.
+DEF VAR v-job-no2 LIKE oe-ordl.job-no2 NO-UNDO.
+DEF VAR v-qty     LIKE oe-rell.qty NO-UNDO.
 
 DEF VAR nufile AS LOG NO-UNDO.
 DEF VAR fil_id AS RECID NO-UNDO.
@@ -386,6 +386,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br-bin Dialog-Frame
 ON START-SEARCH OF br-bin IN FRAME Dialog-Frame
 DO:
+{methods/template/sortindicator.i} 
   DEF VAR lh-column AS HANDLE NO-UNDO.
   DEF VAR lv-column-nam AS CHAR NO-UNDO.
   DEF VAR lv-column-lab AS CHAR NO-UNDO.
@@ -413,6 +414,7 @@ DO:
 
   IF ll-sort-asc THEN OPEN QUERY br-bin {&QUERY-STRING-br-bin} {&sortby-phrase-asc}.
                  ELSE OPEN QUERY br-bin {&QUERY-STRING-br-bin} {&sortby-phrase-desc}.
+  {methods/template/sortindicatorend.i} 
 END.
 
 /* _UIB-CODE-BLOCK-END */

@@ -114,12 +114,12 @@ DEFINE VARIABLE C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btExit 
-    IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U
+    IMAGE-UP FILE "Graphics/32x32/exit_white.png":U
     LABEL "Exit" 
     SIZE 11 BY 2.62 TOOLTIP "Exit".
 
 DEFINE BUTTON btSave 
-    IMAGE-UP FILE "Graphics/32x32/floppy_disk.ico":U
+    IMAGE-UP FILE "Graphics/32x32/floppy_disk.png":U
     LABEL "Export" 
     SIZE 11 BY 2.62 TOOLTIP "Save Data".
 
@@ -454,7 +454,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     {custom/yellowColumns.i}
     RUN enable_UI.
 
-    
+    /* Ticket# : 92946
+   Hiding this widget for now, as browser's column label should be indicating the column which is sorted by */
+    fi_sortby:HIDDEN  = TRUE.
+    fi_sortby:VISIBLE = FALSE.
     /*APPLY "CHOOSE" TO btFilter.    */
     APPLY "entry" TO begin_cust-no IN FRAME {&FRAME-NAME}. 
    

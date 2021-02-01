@@ -353,7 +353,7 @@ DO:
                   ar-cashl.c-no = ar-cash.c-no
                   ar-cashl.LINE = li-next-line + 1
                   ar-cashl.cust-no = ar-cash.cust-no
-                  ar-cashl.check-no = STRING(ar-cash.check-no,"9999999999")
+                  ar-cashl.check-no = STRING(ar-cash.check-no,"999999999999")
                   li-next-line = li-next-line + 1
                   ar-cashl.memo = ar-cash.memo.
 

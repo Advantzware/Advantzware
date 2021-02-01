@@ -85,7 +85,18 @@ def temp-table w-ord
   FIELD ord-due-date AS CHARACTER
   FIELD rel-due-date AS CHARACTER
   FIELD Printed AS LOGICAL
-  FIELD promiseDate AS CHARACTER.
+  FIELD promiseDate AS CHARACTER
+  FIELD priority AS INTEGER
+  FIELD vend-id AS CHARACTER
+  FIELD vend-name AS CHARACTER
+  FIELD vend-po AS INTEGER 
+  FIELD po-due-date AS DATE
+  FIELD po-rm-item AS CHARACTER
+  FIELD po-rm-item-name AS CHARACTER
+  FIELD po-uom AS CHARACTER
+  FIELD po-ord-qty AS DECIMAL
+  FIELD po-rec-qty AS DECIMAL
+  .
 
 def buffer b-w-ord for w-ord.
 

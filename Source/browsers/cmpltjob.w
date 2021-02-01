@@ -38,7 +38,8 @@ CREATE WIDGET-POOL.
 {sys/inc/VAR.i NEW SHARED}
 {sys/inc/varasgn.i}
 {custom/gcompany.i}
-
+&SCOPED-DEFINE winReSize
+{methods/defines/winReSize.i}
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -336,10 +337,10 @@ DO:
                  TRIM(auto_find:SCREEN-VALUE)  .*/
    ASSIGN  
     auto_find
-    find-auto = yes.
+    find-auto = YES.
 
   APPLY "ANY-PRINTABLE" TO {&BROWSE-NAME}.
-  find-auto = no.
+  find-auto = NO.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -356,10 +357,14 @@ END.
 {custom/getcmpny.i}
 {sys/inc/f3help.i}
 {custom/yellowColumns.i}
+{methods/winReSize.i}
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF
-
+/* Ticket# : 92946
+   Hiding this widget for now, as browser's column label should be indicating the column which is sorted by */
+fi_sortby:HIDDEN  = TRUE.
+fi_sortby:VISIBLE = FALSE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

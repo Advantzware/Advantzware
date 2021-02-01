@@ -17,7 +17,7 @@
 
   Created: 11.13.2019
 ------------------------------------------------------------------------*/
-/*          This .W file was created with the Progress AppBuilder.       */
+/*          This .W file was created with the Progress AppBuilder.      */
 /*----------------------------------------------------------------------*/
 
 /* ***************************  Definitions  ************************** */
@@ -35,7 +35,8 @@ DEFINE VARIABLE oplRebuildMenu AS LOGICAL NO-UNDO.
 &Scoped-define mainMenuBGColor 1
 &Scoped-define mainMenuFGColor 15
 &Scoped-define FGColor ?
-&Scoped-define BGColor 8
+&Scoped-define BGColor 32
+&Scoped-define DefaultMenuBGColor 32
 
 {methods/defines/globdefs.i}
 {methods/defines/hndldefs.i}
@@ -75,13 +76,13 @@ DEFINE VARIABLE iBGColor           AS INTEGER   NO-UNDO EXTENT 3.
 &Scoped-define FRAME-NAME Dialog-Frame
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnExit btnLanguage-1 btnReset btnSave ~
-colorChoice-0 colorChoice-1 colorChoice-2 colorChoice-3 colorChoice-4 ~
-colorChoice-5 colorChoice-6 colorChoice-7 colorChoice-8 colorChoice-9 ~
-colorChoice-10 colorChoice-11 colorChoice-12 colorChoice-13 colorChoice-14 ~
-colorChoice-15 colorChoice-default FGColor-1 FGColor-2 FGColor-3 BGColor-1 ~
-BGColor-2 BGColor-3 cUser svLanguageList svMenuSize svMenuImage ~
-cShowMnemonic cPositionMnemonic btnLanguage-2 lShowCueCards btnLanguage-3 
+&Scoped-Define ENABLED-OBJECTS btnExit btnSave btnLanguage-1 btnReset ~
+btnLanguage-2 btnLanguage-3 colorChoice-0 colorChoice-1 colorChoice-2 ~
+colorChoice-3 colorChoice-4 colorChoice-5 colorChoice-6 colorChoice-7 ~
+colorChoice-8 colorChoice-9 colorChoice-10 colorChoice-11 colorChoice-12 ~
+colorChoice-13 colorChoice-14 colorChoice-15 colorChoice-default FGColor-1 ~
+FGColor-2 FGColor-3 BGColor-1 BGColor-2 BGColor-3 cUser svLanguageList ~
+svMenuSize svMenuImage cShowMnemonic cPositionMnemonic lShowCueCards 
 &Scoped-Define DISPLAYED-OBJECTS cUser copyFromUser copyToUser ~
 svLanguageList svMenuSize svMenuImage cShowMnemonic cPositionMnemonic ~
 lShowCueCards 
@@ -107,10 +108,10 @@ FGColor-2 FGColor-3 BGColor-1 BGColor-2 BGColor-3
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btnCopyToUser 
      LABEL "Copy From User to Selected User(s)" 
-     SIZE 40 BY 1.9 TOOLTIP "Copy From User to Selected User(s)".
+     SIZE 40 BY 1.91 TOOLTIP "Copy From User to Selected User(s)".
 
 DEFINE BUTTON btnExit AUTO-END-KEY 
-     IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/exit_white.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Exit" 
      SIZE 9 BY 1.91 TOOLTIP "Exit"
      BGCOLOR 8 .
@@ -128,13 +129,13 @@ DEFINE BUTTON btnLanguage-3  NO-FOCUS FLAT-BUTTON
      SIZE 9 BY 1.67.
 
 DEFINE BUTTON btnReset 
-     IMAGE-UP FILE "Graphics/32x32/undo_32.ico":U NO-FOCUS FLAT-BUTTON NO-CONVERT-3D-COLORS
+     IMAGE-UP FILE "Graphics/32x32/undo_32.png":U NO-FOCUS FLAT-BUTTON NO-CONVERT-3D-COLORS
      LABEL "Reset" 
      SIZE 9 BY 1.91 TOOLTIP "Reset"
      BGCOLOR 8 .
 
 DEFINE BUTTON btnSave 
-     IMAGE-UP FILE "Graphics/32x32/floppy_disk.ico":U NO-FOCUS FLAT-BUTTON NO-CONVERT-3D-COLORS
+     IMAGE-UP FILE "Graphics/32x32/floppy_disk.png":U NO-FOCUS FLAT-BUTTON NO-CONVERT-3D-COLORS
      LABEL "Save" 
      SIZE 9 BY 1.91 TOOLTIP "Save"
      BGCOLOR 8 .
@@ -157,27 +158,27 @@ DEFINE VARIABLE cUser AS CHARACTER FORMAT "X(256)":U
      SIZE 38 BY 1 TOOLTIP "Selected User" NO-UNDO.
 
 DEFINE IMAGE IMAGE-1
-     FILENAME "Graphics/16x16/navigate_right.png":U TRANSPARENT
+     FILENAME "Graphics/16x16/plus.png":U TRANSPARENT
      SIZE 3.2 BY .76.
 
 DEFINE IMAGE IMAGE-2
-     FILENAME "Graphics/24x24/navigate_right.png":U TRANSPARENT
+     FILENAME "Graphics/24x24/plus.png":U TRANSPARENT
      SIZE 4.8 BY 1.14.
 
 DEFINE IMAGE IMAGE-3
-     FILENAME "Graphics/32x32/navigate_right.png":U TRANSPARENT
+     FILENAME "Graphics/32x32/plus.png":U TRANSPARENT
      SIZE 6.4 BY 1.52.
 
 DEFINE IMAGE IMAGE-4
-     FILENAME "Graphics/16x16/calendar_clock.png":U TRANSPARENT
+     FILENAME "Graphics/16x16/Scheduling.png":U TRANSPARENT
      SIZE 3.2 BY .76.
 
 DEFINE IMAGE IMAGE-5
-     FILENAME "Graphics/24x24/calendar_clock.png":U TRANSPARENT
+     FILENAME "Graphics/24x24/Scheduling.png":U TRANSPARENT
      SIZE 4.8 BY 1.14.
 
 DEFINE IMAGE IMAGE-6
-     FILENAME "Graphics/32x32/calendar_clock.ico":U TRANSPARENT
+     FILENAME "Graphics/32x32/Scheduling.png":U TRANSPARENT
      SIZE 6.4 BY 1.52.
 
 DEFINE VARIABLE cPositionMnemonic AS CHARACTER INITIAL "Begin" 
@@ -381,12 +382,16 @@ DEFINE VARIABLE svFocus AS CHARACTER FORMAT "X(256)":U
 DEFINE FRAME Dialog-Frame
      btnExit AT ROW 27.43 COL 151 HELP
           "Cancel" WIDGET-ID 2
+     btnSave AT ROW 27.43 COL 133 HELP
+          "Save Changes" WIDGET-ID 4
      btnLanguage-1 AT ROW 4.33 COL 63 HELP
           "Select this Language" WIDGET-ID 24
      btnReset AT ROW 27.43 COL 142 HELP
           "Save Changes" WIDGET-ID 474
-     btnSave AT ROW 27.43 COL 133 HELP
-          "Save Changes" WIDGET-ID 4
+     btnLanguage-2 AT ROW 6 COL 63 HELP
+          "Select this Language" WIDGET-ID 26
+     btnLanguage-3 AT ROW 7.67 COL 63 HELP
+          "Select this Language" WIDGET-ID 28
      cUser AT ROW 1.95 COL 76 COLON-ALIGNED WIDGET-ID 476
      copyFromUser AT ROW 1.95 COL 117 COLON-ALIGNED HELP
           "Select User Account ID" NO-LABEL WIDGET-ID 52
@@ -403,14 +408,34 @@ DEFINE FRAME Dialog-Frame
           "Place Mnemonic at Begin or End of Text" NO-LABEL WIDGET-ID 108
      btnCopyToUser AT ROW 22.19 COL 119 HELP
           "Copy From User to Selected User(s)" WIDGET-ID 94
-     btnLanguage-2 AT ROW 6 COL 63 HELP
-          "Select this Language" WIDGET-ID 26
      lShowCueCards AT ROW 25.05 COL 133 HELP
           "Toggle to Show/Not Show Cue Cards" WIDGET-ID 470
      btnToggle AT ROW 27.43 COL 102 HELP
           "Customize User's Menu" WIDGET-ID 80
-     btnLanguage-3 AT ROW 7.67 COL 63 HELP
-          "Select this Language" WIDGET-ID 28
+     "[S] Scheduling" VIEW-AS TEXT
+          SIZE 28 BY 1.43 AT ROW 13.86 COL 88 WIDGET-ID 54
+          FONT 37
+     "FG Color:" VIEW-AS TEXT
+          SIZE 9 BY 1 AT ROW 21.71 COL 73 WIDGET-ID 454
+     " Copy to Selected Users" VIEW-AS TEXT
+          SIZE 23 BY .62 AT ROW 3.14 COL 121 WIDGET-ID 90
+     " Menu Size" VIEW-AS TEXT
+          SIZE 11 BY .62 AT ROW 9.81 COL 65 WIDGET-ID 62
+     " Language" VIEW-AS TEXT
+          SIZE 11 BY .62 AT ROW 3.62 COL 65 WIDGET-ID 86
+     " HotKey (Mnemonic)" VIEW-AS TEXT
+          SIZE 20 BY .62 AT ROW 17.19 COL 65 WIDGET-ID 106
+     "BG Color:" VIEW-AS TEXT
+          SIZE 9 BY 1 AT ROW 22.91 COL 73 WIDGET-ID 460
+     "Menu Level  1" VIEW-AS TEXT
+          SIZE 15 BY .67 AT ROW 21 COL 73 WIDGET-ID 458
+     "Position:" VIEW-AS TEXT
+          SIZE 9 BY 1 AT ROW 19.1 COL 69 WIDGET-ID 114
+     "[S] Scheduling" VIEW-AS TEXT
+          SIZE 34 BY .81 AT ROW 10.76 COL 82 WIDGET-ID 42
+          FONT 33
+     " Copy From User" VIEW-AS TEXT
+          SIZE 17 BY .62 AT ROW 1.24 COL 121 WIDGET-ID 98
      "?" VIEW-AS TEXT
           SIZE 2 BY .76 AT ROW 25.29 COL 120 WIDGET-ID 354
           FGCOLOR 0 FONT 6
@@ -418,35 +443,11 @@ DEFINE FRAME Dialog-Frame
           SIZE 7 BY 1 AT ROW 17.91 COL 71 WIDGET-ID 112
      "3" VIEW-AS TEXT
           SIZE 2 BY .62 AT ROW 21 COL 99 WIDGET-ID 464
-     " Copy From User" VIEW-AS TEXT
-          SIZE 17 BY .62 AT ROW 1.24 COL 121 WIDGET-ID 98
-     "[S] Scheduling" VIEW-AS TEXT
-          SIZE 34 BY .81 AT ROW 10.76 COL 82 WIDGET-ID 42
-          FONT 33
-     "Position:" VIEW-AS TEXT
-          SIZE 9 BY 1 AT ROW 19.1 COL 69 WIDGET-ID 114
-     "Menu Level  1" VIEW-AS TEXT
-          SIZE 15 BY .67 AT ROW 21 COL 73 WIDGET-ID 458
-     "BG Color:" VIEW-AS TEXT
-          SIZE 9 BY 1 AT ROW 22.91 COL 73 WIDGET-ID 460
-     " HotKey (Mnemonic)" VIEW-AS TEXT
-          SIZE 20 BY .62 AT ROW 17.19 COL 65 WIDGET-ID 106
-     " Language" VIEW-AS TEXT
-          SIZE 11 BY .62 AT ROW 3.62 COL 65 WIDGET-ID 86
      "[S] Scheduling" VIEW-AS TEXT
           SIZE 31 BY .95 AT ROW 12.19 COL 85 WIDGET-ID 48
           FONT 35
      "2" VIEW-AS TEXT
           SIZE 2 BY .62 AT ROW 21 COL 92 WIDGET-ID 462
-     "FG Color:" VIEW-AS TEXT
-          SIZE 9 BY 1 AT ROW 21.71 COL 73 WIDGET-ID 454
-     "[S] Scheduling" VIEW-AS TEXT
-          SIZE 28 BY 1.43 AT ROW 13.86 COL 88 WIDGET-ID 54
-          FONT 37
-     " Copy to Selected Users" VIEW-AS TEXT
-          SIZE 23 BY .62 AT ROW 3.14 COL 121 WIDGET-ID 90
-     " Menu Size" VIEW-AS TEXT
-          SIZE 11 BY .62 AT ROW 9.81 COL 65 WIDGET-ID 62
      IMAGE-1 AT ROW 10.76 COL 74 WIDGET-ID 40
      IMAGE-2 AT ROW 12.19 COL 74 WIDGET-ID 44
      IMAGE-3 AT ROW 13.86 COL 74 WIDGET-ID 50
@@ -490,7 +491,7 @@ DEFINE FRAME Dialog-Frame
      BGColor-2 AT ROW 22.91 COL 90 WIDGET-ID 450
      BGColor-3 AT ROW 22.91 COL 97 WIDGET-ID 452
      RECT-1 AT ROW 1 COL 61 WIDGET-ID 472
-     SPACE(0.00) SKIP(2.61)
+     SPACE(0.00) SKIP(2.62)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          BGCOLOR 15 FGCOLOR 1 
@@ -921,7 +922,7 @@ DO:
         .
     RUN pGetUserSettings.
     RUN pInitMenuTree.
-    RUN pBuildttMenuTree.
+    RUN pBuildttMenuTree("file").
     RUN pMenuSize.
     RUN pDisplayMenuTree (FRAME menuTreeFrame:HANDLE, "file", YES, 1).
 END.
@@ -1027,8 +1028,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   RUN pInit.
   RUN pGetUserSettings.
   RUN pGetUsers.
-  RUN pBuildttMenuTree.
+  RUN pBuildttMenuTree("file").
   menuTreeMsg:HIDDEN = YES.
+  RUN pMenuSize.
   RUN pDisplayMenuTree (FRAME menuTreeFrame:HANDLE, "file", YES, 1).
   WAIT-FOR GO OF FRAME {&FRAME-NAME}.
 END.
@@ -1072,14 +1074,13 @@ PROCEDURE enable_UI :
   DISPLAY cUser copyFromUser copyToUser svLanguageList svMenuSize svMenuImage 
           cShowMnemonic cPositionMnemonic lShowCueCards 
       WITH FRAME Dialog-Frame.
-  ENABLE btnExit btnLanguage-1 btnReset btnSave colorChoice-0 colorChoice-1 
-         colorChoice-2 colorChoice-3 colorChoice-4 colorChoice-5 colorChoice-6 
-         colorChoice-7 colorChoice-8 colorChoice-9 colorChoice-10 
-         colorChoice-11 colorChoice-12 colorChoice-13 colorChoice-14 
-         colorChoice-15 colorChoice-default FGColor-1 FGColor-2 FGColor-3 
-         BGColor-1 BGColor-2 BGColor-3 cUser svLanguageList svMenuSize 
-         svMenuImage cShowMnemonic cPositionMnemonic btnLanguage-2 
-         lShowCueCards btnLanguage-3 
+  ENABLE btnExit btnSave btnLanguage-1 btnReset btnLanguage-2 btnLanguage-3 
+         colorChoice-0 colorChoice-1 colorChoice-2 colorChoice-3 colorChoice-4 
+         colorChoice-5 colorChoice-6 colorChoice-7 colorChoice-8 colorChoice-9 
+         colorChoice-10 colorChoice-11 colorChoice-12 colorChoice-13 
+         colorChoice-14 colorChoice-15 colorChoice-default FGColor-1 FGColor-2 
+         FGColor-3 BGColor-1 BGColor-2 BGColor-3 cUser svLanguageList 
+         svMenuSize svMenuImage cShowMnemonic cPositionMnemonic lShowCueCards 
       WITH FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
   DISPLAY svFocus menuTreeMsg 
@@ -1099,9 +1100,10 @@ PROCEDURE pBuildttMenuTree :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcparentname AS CHARACTER.
     DEFINE VARIABLE lActive AS LOGICAL NO-UNDO.
     
-    EMPTY TEMP-TABLE ttMenuTree.
+   // EMPTY TEMP-TABLE ttMenuTree.
     
     FOR EACH prgrms NO-LOCK
         WHERE prgrms.menu_item EQ YES
@@ -1130,7 +1132,8 @@ PROCEDURE pBuildttMenuTree :
                 prgrms.mnemonic,
                 cShowMnemonic,
                 cPositionMnemonic,
-                lActive
+                lActive,
+                ipcparentname
                 ).
         END. /* if ccemenu */
     END. /* each prgrms */
@@ -1436,7 +1439,7 @@ PROCEDURE pMenuSize :
         WHEN 1 THEN
         ASSIGN
             cImageFolder  = "Graphics/16X16/"
-            dObjectHeight = .95
+            dObjectHeight = 1.11
             dObjectWidth  = 4
             iFont         = 32
             .
@@ -1460,6 +1463,7 @@ PROCEDURE pMenuSize :
     RUN LockWindowUpdate (ACTIVE-WINDOW:HWND,OUTPUT i).
     
     FOR EACH ttMenuTree:
+        IF NOT ttMenuTree.lWidgetExist THEN NEXT.
         IF VALID-HANDLE(ttMenuTree.hLevel) THEN DO:
             ASSIGN
                 ttMenuTree.hLevel:HIDDEN = YES
@@ -1467,7 +1471,7 @@ PROCEDURE pMenuSize :
                 ttMenuTree.hLevel:WIDTH  = dObjectWidth
                 ttMenuTree.hLevel:HEIGHT = dObjectHeight
                 .
-            ttMenuTree.hLevel:LOAD-IMAGE(SEARCH(cImageFolder + "navigate_right.png")).
+            ttMenuTree.hLevel:LOAD-IMAGE(SEARCH(cImageFolder + "plus.png")).
         END. /* if hlevel */
         IF VALID-HANDLE(ttMenuTree.hImage) THEN DO:
             ASSIGN
@@ -1484,6 +1488,13 @@ PROCEDURE pMenuSize :
             ttMenuTree.hEditor:ROW    = 1
             ttMenuTree.hEditor:HEIGHT = dObjectHeight
             ttMenuTree.hEditor:FONT   = iFont
+            .
+        IF VALID-HANDLE(ttMenuTree.hRectangle) THEN
+        ASSIGN
+            ttMenuTree.hRectangle:HIDDEN = YES
+            ttMenuTree.hRectangle:ROW    = 1
+            ttMenuTree.hRectangle:HEIGHT = dObjectHeight
+            ttMenuTree.hRectangle:WIDTH  = dObjectWidth
             .
         IF VALID-HANDLE(ttMenuTree.hToggle) THEN
         ASSIGN
@@ -1514,7 +1525,7 @@ PROCEDURE pProcessClick :
     IF AVAILABLE ttMenuTree AND ttMenuTree.isMenu AND NOT ttMenuTree.isOpen THEN
     ASSIGN
         ttMenuTree.hEditor:FONT    = iFont
-        ttMenuTree.hEditor:BGCOLOR = ?
+        ttMenuTree.hEditor:BGCOLOR = {&DefaultMenuBGColor}
         ttMenuTree.hEditor:FGCOLOR = ?
         .
 
@@ -1539,10 +1550,11 @@ PROCEDURE pReset :
     RUN LockWindowUpdate (ACTIVE-WINDOW:HWND,OUTPUT i).
 
     FOR EACH ttMenuTree:
+    IF NOT ttMenuTree.lWidgetExist THEN NEXT. 
         ASSIGN
             ttMenuTree.baseText             = fTranslate(ENTRY(1,ttMenuTree.hEditor:PRIVATE-DATA),NO)
             ttMenuTree.hEditor:FONT         = iFont
-            ttMenuTree.hEditor:BGCOLOR      = ?
+            ttMenuTree.hEditor:BGCOLOR      = {&DefaultMenuBGColor}
             ttMenuTree.hEditor:FGCOLOR      = ?
             ttMenuTree.hEditor:TOOLTIP      = "HotKey: " + ttMenuTree.mnemonic
             ttMenuTree.hEditor:SCREEN-VALUE = fTreeText(

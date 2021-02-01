@@ -22,9 +22,11 @@
 CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
-
+&SCOPED-DEFINE yellowColumnsName b-estitm
 &SCOPED-DEFINE winReSize
+&SCOPED-DEFINE noSortByField 1
 {methods/defines/winReSize.i}
+{methods/template/brwcustomdef.i}
 
 /* Parameters Definitions ---                                           */
 
@@ -239,9 +241,11 @@ RUN methods/prgsecur.p
 	     OUTPUT lAccessClose, /* used in template/windows.i  */
 	     OUTPUT cAccessList). /* list 1's and 0's indicating yes or no to run, create, update, delete */
 
-DEFINE VARIABLE hdCustomerProcs AS HANDLE NO-UNDO.	     
+DEFINE VARIABLE hdCustomerProcs AS HANDLE NO-UNDO.
+DEFINE VARIABLE hdSalesManProcs AS HANDLE NO-UNDO.	     
 
 RUN system/CustomerProcs.p PERSISTENT SET hdCustomerProcs.
+RUN salrep/SalesManProcs.p PERSISTENT SET hdSalesManProcs.
 
 RUN sys/ref/nk1look.p (INPUT cocode, "CEAddCustomerOption", "L" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
@@ -308,16 +312,14 @@ eb.pur-man est.est-date eb.spare-char-2 eb.spare-char-1
       EACH eb WHERE eb.company = ef.company ~
   AND eb.est-no = ef.est-no ~
   AND eb.form-no = ef.form-no NO-LOCK ~
-    BY eb.form-no ~
-       BY eb.blank-no INDEXED-REPOSITION
+    ~{&SORTBY-PHRASE} 
 &Scoped-define OPEN-QUERY-br-estitm OPEN QUERY br-estitm FOR EACH ef WHERE ef.company = est-qty.company ~
   AND ef.est-no = est-qty.est-no ~
   AND ef.eqty = est-qty.eqty NO-LOCK, ~
       EACH eb WHERE eb.company = ef.company ~
   AND eb.est-no = ef.est-no ~
   AND eb.form-no = ef.form-no NO-LOCK ~
-    BY eb.form-no ~
-       BY eb.blank-no INDEXED-REPOSITION.
+    ~{&SORTBY-PHRASE} .
 &Scoped-define TABLES-IN-QUERY-br-estitm ef eb
 &Scoped-define FIRST-TABLE-IN-QUERY-br-estitm ef
 &Scoped-define SECOND-TABLE-IN-QUERY-br-estitm eb
@@ -423,32 +425,32 @@ DEFINE QUERY br-estitm FOR
 DEFINE BROWSE br-estitm
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br-estitm B-table-Win _STRUCTURED
   QUERY br-estitm NO-LOCK DISPLAY
-      est.est-no FORMAT "x(8)":U WIDTH 12 COLUMN-FONT 2
-      eb.cust-no FORMAT "x(8)":U COLUMN-FONT 2
-      eb.part-no FORMAT "x(15)":U COLUMN-FONT 2
+      est.est-no FORMAT "x(8)":U WIDTH 12 COLUMN-FONT 22
+      eb.cust-no FORMAT "x(8)":U COLUMN-FONT 22 LABEL-BGCOLOR 14
+      eb.part-no FORMAT "x(15)":U COLUMN-FONT 22 
       eb.ship-id COLUMN-LABEL "Ship To" FORMAT "x(8)":U WIDTH 12
-            COLUMN-FONT 2
-      eb.part-dscr1 COLUMN-LABEL "Item Name" FORMAT "x(30)":U COLUMN-FONT 2
+            COLUMN-FONT 22 
+      eb.part-dscr1 COLUMN-LABEL "Item Name" FORMAT "x(30)":U COLUMN-FONT 22
       eb.stock-no COLUMN-LABEL "FG Item#" FORMAT "x(15)":U WIDTH 21
-            COLUMN-FONT 2
+            COLUMN-FONT 22 LABEL-BGCOLOR 14
       display-combo-qty () @ est-qty.eqty WIDTH 10.2
-      eb.style COLUMN-LABEL "Style" FORMAT "x(6)":U WIDTH 9 COLUMN-FONT 2
+      eb.style COLUMN-LABEL "Style" FORMAT "x(6)":U WIDTH 9 COLUMN-FONT 22
       display-combo-qty () @ est-qty.eqty
       est-qty.eqty COLUMN-LABEL "Est Qty" FORMAT ">>>>>>>9":U
-      eb.flute FORMAT "XXX":U COLUMN-FONT 2
-      eb.test FORMAT "x(6)":U COLUMN-FONT 2
+      eb.flute FORMAT "XXX":U COLUMN-FONT 22
+      eb.test FORMAT "x(6)":U COLUMN-FONT 22
       eb.tab-in FORMAT "In/Out":U
-      ef.board FORMAT "x(12)":U COLUMN-FONT 2
-      ef.cal FORMAT ">9.99999<":U COLUMN-FONT 2
-      eb.procat FORMAT "x(5)":U COLUMN-FONT 2
+      ef.board FORMAT "x(12)":U COLUMN-FONT 22
+      ef.cal FORMAT ">9.99999<":U COLUMN-FONT 22
+      eb.procat FORMAT "x(5)":U COLUMN-FONT 22
       display-cw-dim(yes,eb.len) @ eb.len
-      eb.len FORMAT ">>>>9.99":U COLUMN-FONT 2
+      eb.len FORMAT ">>>>9.99":U COLUMN-FONT 22
       display-cw-dim(yes,eb.len) @ eb.len
       display-cw-dim(yes,eb.wid) @ eb.wid
-      eb.wid FORMAT ">>>>9.99":U COLUMN-FONT 2
+      eb.wid FORMAT ">>>>9.99":U COLUMN-FONT 22
       display-cw-dim(yes,eb.wid) @ eb.wid
       display-cw-dim(yes,eb.dep) @ eb.dep
-      eb.dep FORMAT ">>>>9.99":U COLUMN-FONT 2
+      eb.dep FORMAT ">>>>9.99":U COLUMN-FONT 22
       display-cw-dim(yes,eb.dep) @ eb.dep
       eb.form-no FORMAT ">9":U
       eb.blank-no FORMAT ">9":U
@@ -549,7 +551,7 @@ END.
 /* ************************* Included-Libraries *********************** */
 
 {src/adm/method/navbrows.i}
-
+{custom/yellowColumns.i}
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -580,7 +582,7 @@ ASSIGN
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE br-estitm
 /* Query rebuild information for BROWSE br-estitm
      _TblList          = "ASI.ef WHERE ASI.est-qty ...,ASI.eb WHERE ASI.ef ..."
-     _Options          = "NO-LOCK INDEXED-REPOSITION KEY-PHRASE"
+     _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = ","
      _OrdList          = "ASI.eb.form-no|yes,ASI.eb.blank-no|yes"
      _JoinCode[1]      = "ASI.ef.company = ASI.est-qty.company
@@ -1010,6 +1012,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br-estitm B-table-Win
 ON ROW-DISPLAY OF br-estitm IN FRAME Corr
 DO:
+    &scoped-define exclude-row-display true 
+    {methods/template/brwrowdisplay.i}    
+    
     DEF VAR lActive AS LOG NO-UNDO.
    IF v-cefgitem-log AND AVAIL eb THEN
    DO:
@@ -1095,6 +1100,15 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br-estitm B-table-Win
+ON START-SEARCH OF br-estitm IN FRAME Corr
+DO:
+  RUN startSearch.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br-estitm B-table-Win
 ON VALUE-CHANGED OF br-estitm IN FRAME Corr
@@ -1248,6 +1262,13 @@ DO:
 
             RUN valid-cust-user NO-ERROR.
             IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+            
+            RUN pValidSalesRep(
+                INPUT eb.cust-no:SCREEN-VALUE 
+                ) NO-ERROR.
+                
+            IF ERROR-STATUS:ERROR THEN 
+                RETURN NO-APPLY.    
         END.
     END.
 END.
@@ -6376,6 +6397,13 @@ PROCEDURE local-update-record :
 
   RUN valid-cust-user NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  
+     RUN pValidSalesRep(
+       INPUT eb.cust-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
+       ) NO-ERROR.
+       
+     IF ERROR-STATUS:ERROR THEN 
+        RETURN NO-APPLY.
 
   IF NOT lv-foam THEN
   RUN check-flute-test-change.
@@ -7010,6 +7038,43 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pValidSalesRep B-table-Win
+PROCEDURE pValidSalesRep PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCustNo  AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE lSuccess AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+    
+    FIND FIRST cust NO-LOCK 
+         WHERE cust.company EQ cocode 
+           AND cust.cust-no EQ ipcCustNo
+         NO-ERROR.
+    IF AVAILABLE cust THEN DO:
+        RUN SalesMan_ValidateSalesRep IN hdSalesManProcs(  
+            INPUT  cocode,
+            INPUT  cust.sman,
+            OUTPUT lSuccess,
+            OUTPUT cMessage
+            ). 
+        IF NOT lSuccess THEN DO:                                         
+            MESSAGE cMessage + " on customer"
+            VIEW-AS ALERT-BOX ERROR.
+            APPLY "ENTRY":U TO eb.cust-no IN BROWSE {&BROWSE-NAME}.
+            RETURN ERROR.
+        END.     
+    END.                                         
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE redisplay-blanks B-table-Win 

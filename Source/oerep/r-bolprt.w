@@ -252,7 +252,6 @@ invstatus-log = LOGICAL(v-rtn-char).
 RUN sys/ref/nk1look.p (cocode, "INVSTATUS", "C", no, no, "", "", 
                       Output invstatus-char, output v-rec-found).
 
-
 DEF TEMP-TABLE tt-email NO-UNDO
       FIELD tt-recid AS RECID
       FIELD bol-no LIKE oe-boll.bol-no
@@ -1708,16 +1707,6 @@ END.
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiPostdate C-Win
-ON VALUE-CHANGED OF fiPostdate IN FRAME FRAME-A /* Post Date */
-DO:
-    ASSIGN {&SELF-NAME}.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &Scoped-define SELF-NAME fi_depts
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_depts C-Win
 ON LEAVE OF fi_depts IN FRAME FRAME-A
@@ -3137,6 +3126,7 @@ PROCEDURE CommercialInvoice :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  DEFINE VARIABLE cCInvoice AS CHARACTER NO-UNDO.
   SESSION:SET-WAIT-STATE ("general").
 
   EMPTY TEMP-TABLE tt-ci-form.
@@ -3151,23 +3141,19 @@ PROCEDURE CommercialInvoice :
            can-find (FIRST b1-oe-boll WHERE
                            b1-oe-boll.company EQ b1-oe-bolh.company AND
                            b1-oe-boll.b-no    EQ b1-oe-bolh.b-no)
-           NO-LOCK,
-      FIRST sys-ctrl-shipto WHERE
-            sys-ctrl-shipto.company      EQ cocode AND
-            sys-ctrl-shipto.name         EQ "CINVOICE" AND
-            sys-ctrl-shipto.cust-vend    EQ YES AND
-            sys-ctrl-shipto.cust-vend-no EQ b1-oe-bolh.cust-no AND
-            sys-ctrl-shipto.ship-id      EQ b1-oe-bolh.ship-id
-            NO-LOCK:
-
+           NO-LOCK:
+      
+       RUN sys/ref/nk1look.p (cocode, "CINVOICE", "C", YES, YES, b1-oe-bolh.cust-no, b1-oe-bolh.ship-id, 
+                      Output cCInvoice, output lRecFound).                        
+      
       FIND FIRST tt-ci-form WHERE
-           tt-ci-form.form-name = sys-ctrl-shipto.char-fld
+           tt-ci-form.form-name EQ cCInvoice
            NO-ERROR.
 
       IF NOT AVAIL tt-ci-form THEN
       DO:
          CREATE tt-ci-form.
-         ASSIGN tt-ci-form.form-name = sys-ctrl-shipto.char-fld.
+         ASSIGN tt-ci-form.form-name = cCInvoice.
       END.
       tt-ci-form.form-bol      = b1-oe-bolh.bol-no .
       tt-ci-form.total-pallets = tt-ci-form.total-pallets

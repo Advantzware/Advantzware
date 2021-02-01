@@ -65,6 +65,8 @@ DEFINE VARIABLE /* OUTPUT PARAMETER */ op-fb-changed AS LOG   NO-UNDO.
 
 {custom/globdefs.i}
 {sys/inc/var.i NEW SHARED}
+{methods/template/brwCustomDef.i}
+
 ASSIGN
     cocode = g_company
     locode = g_loc.
@@ -440,6 +442,9 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
 ON ROW-DISPLAY OF br_table IN FRAME F-Main
 DO:   
+   &SCOPED-DEFINE exclude-row-display true
+   {methods/template/brwRowDisplay.i}
+   
         DEFINE VARIABLE bl-qty  AS INTEGER NO-UNDO .
         DEFINE VARIABLE yld-qty AS INTEGER NO-UNDO .
 

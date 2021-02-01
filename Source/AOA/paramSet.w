@@ -43,8 +43,10 @@ CREATE WIDGET-POOL.
 DEFINE VARIABLE cCompany    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cMode       AS CHARACTER NO-UNDO.
 DEFINE VARIABLE char-hdl    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE searchBar   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hParamBldr  AS HANDLE    NO-UNDO.
 DEFINE VARIABLE iParamSetID AS INTEGER   NO-UNDO.
+DEFINE VARIABLE lMoveColumn AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lSortMove   AS LOGICAL   NO-UNDO INITIAL YES.
 DEFINE VARIABLE pHandle     AS HANDLE    NO-UNDO.
 
@@ -69,7 +71,7 @@ DEFINE VARIABLE pHandle     AS HANDLE    NO-UNDO.
 &Scoped-define INTERNAL-TABLES dynParamSet
 
 /* Definitions for BROWSE dynParamSetBrowse                             */
-&Scoped-define FIELDS-IN-QUERY-dynParamSetBrowse dynParamSet.paramSetID dynParamSet.setName dynParamSet.setTitle dynParamSet.paramSetType   
+&Scoped-define FIELDS-IN-QUERY-dynParamSetBrowse dynParamSet.setName dynParamSet.paramSetID dynParamSet.setTitle dynParamSet.paramSetType   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-dynParamSetBrowse   
 &Scoped-define SELF-NAME dynParamSetBrowse
 &Scoped-define QUERY-STRING-dynParamSetBrowse FOR EACH dynParamSet WHERE STRING(dynParamSet.paramSetID) + "|" + dynParamSet.setName + "|" + dynParamSet.setTitle MATCHES "*" + searchBar + "*"  ~{&SORTBY-PHRASE}
@@ -83,20 +85,13 @@ DEFINE VARIABLE pHandle     AS HANDLE    NO-UNDO.
     ~{&OPEN-QUERY-dynParamSetBrowse}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS searchBar dynParamSetBrowse ~
-btnRestoreDefaults btnSortMove 
-&Scoped-Define DISPLAYED-OBJECTS searchBar 
+&Scoped-Define ENABLED-OBJECTS dynParamSetBrowse 
 
 /* Custom List Definitions                                              */
-/* transPanel,transInit,transUpdate,displayFields,enabledFields,List-6  */
-&Scoped-define transPanel RECT-SETBUILDER btnSetBuilder btnUpdate btnCancel ~
-btnAdd btnCopy btnDelete btnReset 
-&Scoped-define transInit btnSetBuilder btnUpdate btnAdd btnCopy btnDelete 
-&Scoped-define transUpdate btnUpdate btnCancel btnReset 
-&Scoped-define displayFields RECT-SETBUILDER dynParamSet.paramSetID ~
-dynParamSet.setName dynParamSet.paramSetType dynParamSet.setWidth ~
-dynParamSet.setHeight dynParamSet.setRectangle dynParamSet.setTitle ~
-dynParamSet.paramPrompt 
+/* List-1,List-2,List3,displayFields,enabledFields,List-6               */
+&Scoped-define displayFields dynParamSet.paramSetID dynParamSet.setName ~
+dynParamSet.paramSetType dynParamSet.setWidth dynParamSet.setHeight ~
+dynParamSet.setRectangle dynParamSet.setTitle dynParamSet.paramPrompt 
 &Scoped-define enabledFields dynParamSet.setName dynParamSet.paramSetType ~
 dynParamSet.setWidth dynParamSet.setHeight dynParamSet.setRectangle ~
 dynParamSet.setTitle dynParamSet.paramPrompt 
@@ -110,72 +105,6 @@ dynParamSet.setTitle dynParamSet.paramPrompt
 
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btnRestoreDefaults 
-     IMAGE-UP FILE "Graphics/16x16/rename.jpg":U NO-FOCUS FLAT-BUTTON
-     LABEL "Defaults" 
-     SIZE 4 BY .95 TOOLTIP "Restore Defaults".
-
-DEFINE BUTTON btnSortMove 
-     IMAGE-UP FILE "Graphics/16x16/sort_up_down2.gif":U NO-FOCUS FLAT-BUTTON
-     LABEL "Sort/Move" 
-     SIZE 4 BY .95 TOOLTIP "Toggle Sort/Move Columns".
-
-DEFINE VARIABLE searchBar AS CHARACTER FORMAT "X(256)":U 
-     LABEL "Search" 
-     VIEW-AS FILL-IN 
-     SIZE 58 BY 1 TOOLTIP "Search Bar" NO-UNDO.
-
-DEFINE BUTTON btnAdd 
-     IMAGE-UP FILE "Graphics/32x32/navigate_plus.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_plus_disabled.ico":U NO-FOCUS FLAT-BUTTON
-     LABEL "Add" 
-     SIZE 8 BY 1.91 TOOLTIP "Add".
-
-DEFINE BUTTON btnCancel 
-     IMAGE-UP FILE "Graphics/32x32/navigate_cross.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_cross_disabled.ico":U NO-FOCUS FLAT-BUTTON
-     LABEL "Cancel" 
-     SIZE 8 BY 1.91 TOOLTIP "Cancel".
-
-DEFINE BUTTON btnCopy 
-     IMAGE-UP FILE "Graphics/32x32/element_copy.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics\32x32\form_disabled.ico":U NO-FOCUS FLAT-BUTTON
-     LABEL "Copy" 
-     SIZE 8 BY 1.91 TOOLTIP "Copy".
-
-DEFINE BUTTON btnDelete 
-     IMAGE-UP FILE "Graphics/32x32/navigate_minus.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_minus_disabled.ico":U NO-FOCUS FLAT-BUTTON
-     LABEL "Delete" 
-     SIZE 8 BY 1.91 TOOLTIP "Delete".
-
-DEFINE BUTTON btnReset 
-     IMAGE-UP FILE "Graphics/32x32/undo_32.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/undo_32_disabled.ico":U NO-FOCUS FLAT-BUTTON
-     LABEL "Reset" 
-     SIZE 8 BY 1.91 TOOLTIP "Reset".
-
-DEFINE BUTTON btnSetBuilder 
-     IMAGE-UP FILE "Graphics/32x32/window_dialog.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/window_dialog_disabled.ico":U
-     LABEL "Parameter Set Builder" 
-     SIZE 8 BY 1.91 TOOLTIP "Parameter Set Builder".
-
-DEFINE BUTTON btnUpdate 
-     IMAGE-UP FILE "Graphics/32x32/pencil.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/pencil_disabled.ico":U NO-FOCUS FLAT-BUTTON
-     LABEL "Update" 
-     SIZE 8 BY 1.91 TOOLTIP "Update/Save".
-
-DEFINE RECTANGLE RECT-PANEL
-     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
-     SIZE 49.6 BY 2.38
-     BGCOLOR 15 .
-
-DEFINE RECTANGLE RECT-SETBUILDER
-     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 9.8 BY 2.38.
-
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY dynParamSetBrowse FOR 
@@ -186,37 +115,27 @@ DEFINE QUERY dynParamSetBrowse FOR
 DEFINE BROWSE dynParamSetBrowse
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS dynParamSetBrowse s-object _FREEFORM
   QUERY dynParamSetBrowse DISPLAY
-dynParamSet.setName LABEL-BGCOLOR 14
+      dynParamSet.setName LABEL-BGCOLOR 14
 dynParamSet.paramSetID LABEL-BGCOLOR 14
 dynParamSet.setTitle LABEL-BGCOLOR 14
 dynParamSet.paramSetType
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 75 BY 25.95
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 75 BY 24.57
          TITLE "Dynamic Parameter Sets".
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     searchBar AT ROW 1 COL 16 COLON-ALIGNED HELP
-          "Search" WIDGET-ID 6
-     dynParamSetBrowse AT ROW 1.95 COL 1 WIDGET-ID 200
-     btnRestoreDefaults AT ROW 1 COL 1 HELP
-          "Restore Defaults" WIDGET-ID 42
-     btnSortMove AT ROW 1 COL 5 HELP
-          "Toggle Sort/Move Columns" WIDGET-ID 48
-     SPACE(150.00) SKIP(26.00)
+     dynParamSetBrowse AT ROW 1 COL 1 WIDGET-ID 200
+     SPACE(83.00) SKIP(0.00)
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
          BGCOLOR 15 FGCOLOR 1  WIDGET-ID 100.
 
 DEFINE FRAME viewFrame
-     btnSetBuilder AT ROW 1.48 COL 74 HELP
-          "Parameter Set Builder" WIDGET-ID 286
-     btnUpdate AT ROW 11.71 COL 20 HELP
-          "Update/Save" WIDGET-ID 128
      dynParamSet.paramSetID AT ROW 1.71 COL 33 COLON-ALIGNED WIDGET-ID 132
           VIEW-AS FILL-IN 
           SIZE 14.6 BY 1
@@ -248,22 +167,10 @@ DEFINE FRAME viewFrame
      dynParamSet.paramPrompt AT ROW 10.05 COL 35 WIDGET-ID 146
           VIEW-AS TOGGLE-BOX
           SIZE 13.2 BY 1
-     btnCancel AT ROW 11.71 COL 60 HELP
-          "Cancel" WIDGET-ID 120
-     btnAdd AT ROW 11.71 COL 28 HELP
-          "Add" WIDGET-ID 118
-     btnCopy AT ROW 11.71 COL 36 HELP
-          "Copy" WIDGET-ID 122
-     btnDelete AT ROW 11.71 COL 44 HELP
-          "Delete" WIDGET-ID 124
-     btnReset AT ROW 11.71 COL 52 HELP
-          "Reset" WIDGET-ID 126
-     RECT-PANEL AT ROW 11.48 COL 19 WIDGET-ID 130
-     RECT-SETBUILDER AT ROW 1.24 COL 73 WIDGET-ID 284
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 76 ROW 1.95
-         SIZE 83 BY 26
+         AT COL 76 ROW 1
+         SIZE 83 BY 24.57
          FGCOLOR 1 
          TITLE "View" WIDGET-ID 1500.
 
@@ -293,7 +200,7 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW s-object ASSIGN
-         HEIGHT             = 26.95
+         HEIGHT             = 24.71
          WIDTH              = 158.
 /* END WINDOW DEFINITION */
                                                                         */
@@ -326,10 +233,10 @@ DEFINE VARIABLE XXTABVALXX AS LOGICAL NO-UNDO.
 ASSIGN XXTABVALXX = FRAME viewFrame:MOVE-AFTER-TAB-ITEM (dynParamSetBrowse:HANDLE IN FRAME F-Main)
 /* END-ASSIGN-TABS */.
 
-/* BROWSE-TAB dynParamSetBrowse searchBar F-Main */
+/* BROWSE-TAB dynParamSetBrowse 1 F-Main */
 ASSIGN 
        FRAME F-Main:HIDDEN           = TRUE
-       FRAME F-Main:HEIGHT           = 26.95
+       FRAME F-Main:HEIGHT           = 24.57
        FRAME F-Main:WIDTH            = 158.
 
 ASSIGN 
@@ -340,30 +247,12 @@ ASSIGN
 ASSIGN 
        FRAME viewFrame:MOVABLE          = TRUE.
 
-/* SETTINGS FOR BUTTON btnAdd IN FRAME viewFrame
-   1 2                                                                  */
-/* SETTINGS FOR BUTTON btnCancel IN FRAME viewFrame
-   NO-ENABLE 1 3                                                        */
-/* SETTINGS FOR BUTTON btnCopy IN FRAME viewFrame
-   1 2                                                                  */
-/* SETTINGS FOR BUTTON btnDelete IN FRAME viewFrame
-   1 2                                                                  */
-/* SETTINGS FOR BUTTON btnReset IN FRAME viewFrame
-   NO-ENABLE 1 3                                                        */
-/* SETTINGS FOR BUTTON btnSetBuilder IN FRAME viewFrame
-   1 2                                                                  */
-/* SETTINGS FOR BUTTON btnUpdate IN FRAME viewFrame
-   1 2 3                                                                */
 /* SETTINGS FOR TOGGLE-BOX dynParamSet.paramPrompt IN FRAME viewFrame
    4 5                                                                  */
 /* SETTINGS FOR FILL-IN dynParamSet.paramSetID IN FRAME viewFrame
    4                                                                    */
 /* SETTINGS FOR COMBO-BOX dynParamSet.paramSetType IN FRAME viewFrame
    4 5                                                                  */
-/* SETTINGS FOR RECTANGLE RECT-PANEL IN FRAME viewFrame
-   NO-ENABLE                                                            */
-/* SETTINGS FOR RECTANGLE RECT-SETBUILDER IN FRAME viewFrame
-   NO-ENABLE 1 4                                                        */
 /* SETTINGS FOR FILL-IN dynParamSet.setHeight IN FRAME viewFrame
    4 5                                                                  */
 /* SETTINGS FOR FILL-IN dynParamSet.setName IN FRAME viewFrame
@@ -412,139 +301,13 @@ dynParamSet.setTitle MATCHES "*" + searchBar + "*"
 
 /* ************************  Control Triggers  ************************ */
 
-&Scoped-define FRAME-NAME viewFrame
-&Scoped-define SELF-NAME btnAdd
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnAdd s-object
-ON CHOOSE OF btnAdd IN FRAME viewFrame /* Add */
-DO:
-    RUN pCRUD (SELF).
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME btnCancel
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCancel s-object
-ON CHOOSE OF btnCancel IN FRAME viewFrame /* Cancel */
-DO:
-    RUN pCRUD (SELF).
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME btnCopy
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCopy s-object
-ON CHOOSE OF btnCopy IN FRAME viewFrame /* Copy */
-DO:
-    RUN pCRUD (SELF).
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME btnDelete
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnDelete s-object
-ON CHOOSE OF btnDelete IN FRAME viewFrame /* Delete */
-DO:
-    RUN pCRUD (SELF).
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME btnReset
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnReset s-object
-ON CHOOSE OF btnReset IN FRAME viewFrame /* Reset */
-DO:
-    RUN pCRUD (SELF).
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define FRAME-NAME F-Main
-&Scoped-define SELF-NAME btnRestoreDefaults
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnRestoreDefaults s-object
-ON CHOOSE OF btnRestoreDefaults IN FRAME F-Main /* Defaults */
-DO:
-    RUN pGetSettings ("_default").
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define FRAME-NAME viewFrame
-&Scoped-define SELF-NAME btnSetBuilder
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnSetBuilder s-object
-ON CHOOSE OF btnSetBuilder IN FRAME viewFrame /* Parameter Set Builder */
-DO:
-    IF NOT VALID-HANDLE(hParamBldr) THEN
-    RUN AOA/paramSetBldr.w PERSISTENT SET hParamBldr (
-        THIS-PROCEDURE,
-        "Set",
-        dynParamSet.paramSetID
-        ).
-    ELSE
-    RUN pReset IN hParamBldr (dynParamSet.paramSetID).
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define FRAME-NAME F-Main
-&Scoped-define SELF-NAME btnSortMove
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnSortMove s-object
-ON CHOOSE OF btnSortMove IN FRAME F-Main /* Sort/Move */
-DO:
-    ASSIGN
-        BROWSE {&BROWSE-NAME}:COLUMN-MOVABLE = lSortMove
-        lSortMove = NOT lSortMove
-        .
-    SELF:LOAD-IMAGE("Graphics/16x16/"
-        + IF lSortMove THEN "sort_up_down2.gif"
-          ELSE "left_right_arrows.gif")
-        .
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define FRAME-NAME viewFrame
-&Scoped-define SELF-NAME btnUpdate
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnUpdate s-object
-ON CHOOSE OF btnUpdate IN FRAME viewFrame /* Update */
-DO:
-    RUN pCRUD (SELF).
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &Scoped-define BROWSE-NAME dynParamSetBrowse
-&Scoped-define FRAME-NAME F-Main
 &Scoped-define SELF-NAME dynParamSetBrowse
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL dynParamSetBrowse s-object
 ON START-SEARCH OF dynParamSetBrowse IN FRAME F-Main /* Dynamic Parameter Sets */
 DO:
-    IF {&BROWSE-NAME}:CURRENT-COLUMN:NAME NE ? THEN DO:
-        cColumnLabel = BROWSE {&BROWSE-NAME}:CURRENT-COLUMN:NAME.
-        IF cColumnLabel EQ cSaveLabel THEN
-        lAscending = NOT lAscending.
-        cSaveLabel = cColumnLabel.
-        RUN pReopenBrowse.
-        APPLY "VALUE-CHANGED":U TO {&BROWSE-NAME}.
-    END.
-    RETURN NO-APPLY.
+    &Scoped-define startSearchValueChanged
+    {AOA/includes/startSearch.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -563,25 +326,14 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME searchBar
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL searchBar s-object
-ON VALUE-CHANGED OF searchBar IN FRAME F-Main /* Search */
-DO:
-    ASSIGN {&SELF-NAME}.
-    {&OPEN-QUERY-{&BROWSE-NAME}}
-    APPLY "VALUE-CHANGED":U TO BROWSE {&BROWSE-NAME}.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK s-object 
 
 
 /* ***************************  Main Block  *************************** */
+
+{methods/template/brwcustom2.i}
 
 /* If testing in the UIB, initialize the SmartObject. */  
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
@@ -591,6 +343,8 @@ END.
 {methods/sortByProc.i "pByParamSetID" "dynParamSet.paramSetID"}
 {methods/sortByProc.i "pBySetName" "dynParamSet.setName"}
 {methods/sortByProc.i "pBySetTitle" "dynParamSet.setTitle"}
+
+{AOA/includes/dynParamProcs.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -636,9 +390,8 @@ PROCEDURE local-initialize :
   RUN pReopenBrowse.
   IF AVAILABLE dynParamSet THEN
   {methods/run_link.i "CONTAINER" "pSetParamSetID" "(dynParamSet.paramSetID)"}
-  ENABLE {&transInit} WITH FRAME viewFrame.
+  {methods/run_link.i "CONTAINER" "pTransInit"}
   RUN pDisplay.
-
 
 END PROCEDURE.
 
@@ -660,6 +413,26 @@ PROCEDURE pAssign :
             .
         FIND CURRENT dynParamSet NO-LOCK.
     END. /* with frame */
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pBuilder s-object 
+PROCEDURE pBuilder :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    IF NOT VALID-HANDLE(hParamBldr) THEN
+    RUN AOA/paramSetBldr.w PERSISTENT SET hParamBldr (
+        THIS-PROCEDURE,
+        "Set",
+        dynParamSet.paramSetID
+        ).
+    ELSE
+    RUN pReset IN hParamBldr (dynParamSet.paramSetID).
 
 END PROCEDURE.
 
@@ -712,9 +485,9 @@ PROCEDURE pCRUD :
     DO WITH FRAME viewFrame:
         CASE iphMode:LABEL:
             WHEN "Add" OR WHEN "Copy" OR WHEN "Update" THEN DO:
-                DISABLE {&transPanel}.
-                ENABLE {&transUpdate} {&enabledFields}.
-                btnUpdate:LOAD-IMAGE("Graphics\32x32\Save_As.ico").
+                {methods/run_link.i "CONTAINER" "pTransPanel"}
+                {methods/run_link.i "CONTAINER" "pTransUpdate"}
+                ENABLE {&enabledFields}.
                 IF AVAILABLE dynParamSet THEN
                 iParamSetID = dynParamSet.paramSetID.
                 IF iphMode:LABEL EQ "Add" THEN DO:
@@ -727,12 +500,9 @@ PROCEDURE pCRUD :
                         dynParamSet.setWidth:SCREEN-VALUE     = "119"
                         dynParamSet.setHeight:SCREEN-VALUE    = "21.43"
                         .
-                    DISABLE btnReset.
+                    {methods/run_link.i "CONTAINER" "pSetButton" "('btnReset', NO)"}
                 END. /* add */
-                ASSIGN
-                    FRAME viewFrame:TITLE = iphMode:LABEL
-                    btnUpdate:LABEL = "Save"
-                    .
+                FRAME viewFrame:TITLE = iphMode:LABEL.
             END. /* add copy update */
             WHEN "Cancel" OR WHEN "Save" THEN DO:
                 IF iphMode:LABEL EQ "Save" THEN DO:
@@ -768,13 +538,10 @@ PROCEDURE pCRUD :
                     ELSE
                     BROWSE {&BROWSE-NAME}:REFRESH().
                 END. /* save */
-                DISABLE {&transPanel} {&enabledFields}.
-                ENABLE {&transInit}.
-                btnUpdate:LOAD-IMAGE("Graphics\32x32\Pencil.ico").
-                ASSIGN
-                    FRAME viewFrame:TITLE = "View"
-                    btnUpdate:LABEL = "Update"
-                    .
+                {methods/run_link.i "CONTAINER" "pTransPanel"}
+                DISABLE {&enabledFields}.
+                {methods/run_link.i "CONTAINER" "pTransInit"}
+                FRAME viewFrame:TITLE = "View".
                 APPLY "VALUE-CHANGED":U TO BROWSE {&BROWSE-NAME}.
             END. /* cancel save */
             WHEN "Delete" THEN DO:
@@ -810,8 +577,8 @@ PROCEDURE pCRUD :
             END. /* delete */
             WHEN "Reset" THEN DO:
                 RUN pDisplay.
-                DISABLE {&transPanel}.
-                ENABLE {&transUpdate}.
+                {methods/run_link.i "CONTAINER" "pTransPanel"}
+                {methods/run_link.i "CONTAINER" "pTransUpdate"}
             END. /* reset */
         END CASE. /* ipcmode:label */
         IF dynParamSet.setName:SENSITIVE THEN
@@ -837,12 +604,12 @@ PROCEDURE pDisplay :
     DO WITH FRAME viewFrame:
         IF AVAILABLE dynParamSet THEN DO:
             DISPLAY {&displayFields}.
-            ENABLE {&transInit}.
+            {methods/run_link.i "CONTAINER" "pTransInit"}
         END. /* if avail */
         ELSE DO:
             RUN pClearView.
-            DISABLE {&transPanel}.
-            ENABLE btnAdd.
+            {methods/run_link.i "CONTAINER" "pTransPanel"}
+            {methods/run_link.i "CONTAINER" "pSetButton" "('btnAdd', YES)"}
         END. /* else */
     END. /* with frame */
 
@@ -968,6 +735,8 @@ PROCEDURE pReopenBrowse :
         OTHERWISE
         {&OPEN-QUERY-{&BROWSE-NAME}}
     END CASE.
+    {AOA/includes/pReopenBrowse.i}
+    {methods/run_link.i "CONTAINER" "pColumnLabel" "(hColumnLabel, lAscending)"}
 
 END PROCEDURE.
 
@@ -1023,6 +792,21 @@ PROCEDURE pSaveSettings :
 
 END PROCEDURE.
 
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pTableHandle s-object
+PROCEDURE pTableHandle:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER ophTable AS HANDLE NO-UNDO.
+
+    ophTable = BUFFER dynParamSet:HANDLE.
+
+END PROCEDURE.
+	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

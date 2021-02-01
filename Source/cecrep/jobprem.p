@@ -197,12 +197,14 @@ do v-local-loop = 1 to v-local-copies:
         assign
          v-loc     = ""
          v-loc-bin = "".
+
          
-         FIND FIRST bf-eb NO-LOCK
-          WHERE bf-eb.company EQ xeb.company             
-          AND bf-eb.sourceEstimate EQ xeb.est-no NO-ERROR .
-          IF AVAIL bf-eb THEN           
-          cDisEstimate = "Dist Est:" + bf-eb.est-no .
+        FIND FIRST bf-eb NO-LOCK
+                WHERE bf-eb.company EQ xeb.company             
+                AND bf-eb.sourceEstimate EQ xeb.est-no NO-ERROR .
+           IF AVAIL bf-eb THEN           
+                cDisEstimate = " Dist Est:" + bf-eb.est-no .
+        ASSIGN  cMfgEstimate = xeb.est-no .
          
         if v-format eq "Brick" or v-format eq "Corrugat" OR  v-format eq "ASI"
         then do: 

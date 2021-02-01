@@ -354,7 +354,7 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
-
+{methods/template/brwcustom.i}
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN initializeObject.        
 &ENDIF

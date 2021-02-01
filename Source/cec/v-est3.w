@@ -2993,7 +2993,7 @@ PROCEDURE update-pack :
           eb.i-%[1 for 10]
           eb.inkNoCharge
           with frame {&frame-name}.
-
+  {methods/run_link.i "CONTAINER-SOURCE" "SetUpdateBegin"}
   apply "entry" to eb.cas-no in frame {&frame-name}.
 
 END PROCEDURE.

@@ -134,11 +134,11 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          TITLE              = "Shifts"
          HEIGHT             = 22.24
          WIDTH              = 121
-         MAX-HEIGHT         = 22.24
-         MAX-WIDTH          = 121
+         MAX-HEIGHT         = 320
+         MAX-WIDTH          = 320
          VIRTUAL-HEIGHT     = 22.24
          VIRTUAL-WIDTH      = 121
-         RESIZE             = no
+         RESIZE             = yes
          SCROLL-BARS        = no
          STATUS-AREA        = yes
          BGCOLOR            = ?
@@ -259,7 +259,7 @@ END.
 /* Include custom  Main Block code for SmartWindows. */
 {sys/inc/f3helpd.i} 
 {src/adm/template/windowmn.i}
-
+{custom/initializeprocs.i}
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -308,15 +308,15 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/folder.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'FOLDER-LABELS = ':U + 'Browse Shifts|View Shift|Breaks' + ',
-                     FOLDER-TAB-TYPE = 1':U ,
+             INPUT  'FOLDER-LABELS = ':U + 'Browse|Detail|Breaks' + ',
+                     FOLDER-TAB-TYPE = 2':U ,
              OUTPUT h_folder ).
        RUN set-position IN h_folder ( 3.14 , 2.00 ) NO-ERROR.
        RUN set-size IN h_folder ( 20.00 , 118.00 ) NO-ERROR.
 
        /* Links to SmartFolder h_folder. */
        RUN add-link IN adm-broker-hdl ( h_folder , 'Page':U , THIS-PROCEDURE ).
-
+	   RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'udficon':U , h_options ).
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_exit ,
              h_options , 'AFTER':U ).

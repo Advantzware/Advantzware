@@ -38,6 +38,7 @@ ASSIGN
 DEFINE VARIABLE hdEstimateCalcProcs AS HANDLE.
 DEFINE VARIABLE hFreightProcs       AS HANDLE    NO-UNDO.
 DEFINE VARIABLE tmp-dir             AS CHARACTER NO-UNDO .
+DEFINE VARIABLE hdOutputProcs       AS HANDLE    NO-UNDO.
 
 DEFINE NEW SHARED BUFFER xest FOR est.
 DEFINE NEW SHARED BUFFER xef  FOR ef.
@@ -46,6 +47,20 @@ DEFINE NEW SHARED BUFFER xqty FOR est-qty.
 DEFINE NEW SHARED VARIABLE xcal   AS DECIMAL       NO-UNDO.
 DEFINE NEW SHARED VARIABLE sh-wid AS DECIMAL       NO-UNDO.
 DEFINE NEW SHARED VARIABLE sh-len AS DECIMAL       NO-UNDO.
+
+DEFINE TEMP-TABLE ttEstimate 
+      FIELD cEstimateNo AS CHARACTER LABEL "Estimate Number"
+      FIELD dtEstimateDate AS DATE LABEL "Estimate Date" 
+      FIELD cCustomer AS CHARACTER LABEL "Estimate Customer"
+      FIELD dtOrderDate AS  DATE LABEL "Order Date"
+      FIELD iQuoteNumber AS INTEGER LABEL "Quote Number"
+      FIELD dtQuoteDate AS DATE LABEL "Quote Date" 
+      FIELD lCreateRelease AS LOGICAL LABEL "Create Release"
+      FIELD lCalculateEst AS LOGICAL LABEL "Calculate Estimate"
+      FIELD cNewEstimate AS CHARACTER LABEL "New Estimate Number" 
+      FIELD iNewQuote AS INTEGER LABEL "New Quote Number"
+      FIELD cCreated AS CHARACTER LABEL "Created/Skip"
+      FIELD cReason AS CHARACTER LABEL "Skip Reason" .
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -68,7 +83,7 @@ end_cust-no tb_create-release tb_cal-est tb_create-quote btnCalendar-1 ~
 btnCalendar-2 btnCalendar-3 btnCalendar-4  btn-process btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_est-no end_est-no begin_quo-date ~
 end_quo-date begin_ord-date end_ord-date begin_cust-no end_cust-no ~
-tb_create-release tb_cal-est tb_create-quote
+tb_create-release tb_cal-est tb_create-quote csv_file-path
 
 &Scoped-define calendarPopup btnCalendar-1 btnCalendar-2  ~
 btnCalendar-3 btnCalendar-4
@@ -173,6 +188,11 @@ DEFINE VARIABLE tb_create-release AS LOGICAL INITIAL NO
     LABEL "Create Release for each quantity" 
     VIEW-AS TOGGLE-BOX
     SIZE 43.2 BY .81 NO-UNDO.
+    
+DEFINE VARIABLE csv_file-path   AS CHARACTER FORMAT "X(250)" 
+    LABEL "CSV File Path" 
+    VIEW-AS FILL-IN 
+    SIZE 50 BY 1.    
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -201,6 +221,7 @@ DEFINE FRAME FRAME-A
     tb_create-release AT ROW 8.19 COL 33.8 WIDGET-ID 60
     tb_cal-est AT ROW 9.52 COL 33.8 WIDGET-ID 62
     tb_create-quote AT ROW 10.81 COL 33.8 WIDGET-ID 64
+    csv_file-path AT ROW 10.81 COL 33.8 
     btn-process AT ROW 12.91 COL 33.4
     btn-cancel AT ROW 12.91 COL 64.4
     "Selection Parameters" VIEW-AS TEXT
@@ -673,6 +694,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     END.
     
     tb_create-quote:HIDDEN IN FRAME {&FRAME-NAME} = YES .
+    csv_file-path:HIDDEN IN FRAME {&FRAME-NAME} = YES .
     IF end_ord-date EQ ? THEN
     ASSIGN
         begin_ord-date = 01/01/2019
@@ -720,7 +742,7 @@ PROCEDURE enable_UI :
     ------------------------------------------------------------------------------*/
     DISPLAY begin_est-no end_est-no begin_quo-date end_quo-date begin_ord-date 
         end_ord-date begin_cust-no end_cust-no tb_create-release tb_cal-est 
-        tb_create-quote 
+        tb_create-quote csv_file-path
         WITH FRAME FRAME-A IN WINDOW C-Win.
     ENABLE RECT-18 begin_est-no end_est-no begin_quo-date end_quo-date 
         begin_ord-date end_ord-date begin_cust-no end_cust-no 
@@ -877,11 +899,14 @@ PROCEDURE run-process :
     DEFINE VARIABLE iCount        AS INTEGER   NO-UNDO.
   
     DEFINE VARIABLE lPurge        AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lSuccess      AS LOGICAL   NO-UNDO.
   
     DEFINE BUFFER bf-est FOR est.
     DEFINE BUFFER bf-ef  FOR ef.
     DEFINE BUFFER bf-eb  FOR eb.
     DEFINE BUFFER bff-eb FOR eb.
+    
+    EMPTY TEMP-TABLE ttEstimate.
   
     {sys/inc/print1.i}         
   
@@ -889,9 +914,13 @@ PROCEDURE run-process :
     THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hdEstimateCalcProcs).
   
     RUN system/FreightProcs.p PERSISTENT SET hFreightProcs.
-    THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hFreightProcs).      
+    THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hFreightProcs).
+    
+    RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.    
   
     cFileName =  init-dir + "\" + "CreateMiscEstimate.log" .
+    csv_file-path:SCREEN-VALUE IN FRAME {&FRAME-NAME} = init-dir + "\" + "CreateMiscEstimate.csv" .
+    csv_file-path = init-dir + "\" + "CreateMiscEstimate.csv" .
  
     OUTPUT TO value(cFileName) .  
     iCount = 0. 
@@ -907,7 +936,7 @@ PROCEDURE run-process :
         AND bf-eb.form-no NE 0
         AND bf-eb.est-no EQ bf-est.est-no 
         AND bf-eb.cust-no GE begin_cust-no
-        AND bf-eb.cust-no LE end_cust-no,
+        AND bf-eb.cust-no LE end_cust-no,        
         FIRST quotehd NO-LOCK
         WHERE quotehd.company  EQ bf-est.company          
         AND quotehd.loc EQ bf-est.loc
@@ -917,6 +946,15 @@ PROCEDURE run-process :
         AND (quotehd.expireDate GE TODAY OR quotehd.expireDate EQ ?)
         AND quotehd.quo-date LE TODAY
         :
+        CREATE ttEstimate.
+        ASSIGN
+         ttEstimate.cEstimateNo    = bf-est.est-no  
+         ttEstimate.dtEstimateDate = bf-est.est-date
+         ttEstimate.cCustomer      = bf-eb.cust-no
+         ttEstimate.dtOrderDate    = bf-est.ord-date
+         ttEstimate.iQuoteNumber   = quotehd.q-no
+         ttEstimate.dtQuoteDate    = quotehd.quo-date.           
+           
         PUT UNFORMATTED  
             'Processing estimate ' STRING(bf-est.est-no)   SKIP. 
         EMPTY TEMP-TABLE ttInputEst .
@@ -934,6 +972,9 @@ PROCEDURE run-process :
                 'Creating Misc estimate ' STRING(bff-eb.est-no)   SKIP.
             iCount = iCount + 1.
             {custom/statusMsg.i "'Creating Misc estimate# ' + string(bff-eb.est-no)"}
+            
+            ttEstimate.cNewEstimate = bff-eb.est-no .         
+            ttEstimate.cCreated     = "Created" .           
         END.
         IF AVAILABLE bff-eb THEN 
         DO:
@@ -941,7 +982,7 @@ PROCEDURE run-process :
             RUN est/BuildFarmForLogistics.p (INPUT riEb,INPUT NO).
       
             PUT UNFORMATTED  
-                'Vendor Item Cost Created ' STRING(bff-eb.est-no)   SKIP.
+                'Vendor Item Cost Created ' STRING(bff-eb.est-no)   SKIP.                 
         END.
      
         IF AVAILABLE bff-eb THEN 
@@ -954,13 +995,15 @@ PROCEDURE run-process :
                     OUTPUT lError,OUTPUT cMessage) .
             IF iEstReleaseID NE 0 THEN
                 PUT UNFORMATTED  'Release created for ' STRING(bff-eb.est-no)   SKIP.
+            ttEstimate.lCreateRelease = YES.             
         END.
      
         IF tb_cal-est EQ TRUE AND AVAILABLE bff-eb THEN 
         DO:
             RUN CalculateEstimate IN hdEstimateCalcProcs (bff-eb.company, bff-eb.est-no, lPurge).   
             PUT UNFORMATTED  
-                'Calculate Estimate ' STRING(bff-eb.est-no)   SKIP.  
+                'Calculate Estimate ' STRING(bff-eb.est-no)   SKIP.
+            ttEstimate.lCalculateEst = YES.              
         END.         
      
      
@@ -978,6 +1021,74 @@ PROCEDURE run-process :
     THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE(hFreightProcs).
     
     STATUS DEFAULT "Processing Complete".
+    
+    csv_file-path:HIDDEN IN FRAME {&FRAME-NAME} = NO .
+    
+    FOR EACH bf-est NO-LOCK
+        WHERE bf-est.company EQ cocode
+        AND bf-est.est-type GE 5         
+        AND bf-est.est-no GE begin_est-no
+        AND bf-est.est-no LE end_est-no,
+        FIRST bf-eb NO-LOCK
+        WHERE bf-eb.company EQ cocode
+        AND bf-eb.form-no NE 0
+        AND bf-eb.est-no EQ bf-est.est-no 
+        AND bf-eb.cust-no GE begin_cust-no
+        AND bf-eb.cust-no LE end_cust-no: 
+        
+        FIND FIRST quotehd NO-LOCK
+        WHERE quotehd.company  EQ bf-est.company          
+        AND quotehd.loc EQ bf-est.loc
+        AND quotehd.est-no    EQ bf-est.est-no       
+        NO-ERROR .
+        
+        FIND FIRST ttEstimate NO-LOCK
+             WHERE ttEstimate.cEstimateNo EQ bf-est.est-no NO-ERROR.
+        IF AVAIL ttEstimate THEN NEXT.
+        
+        CREATE ttEstimate.
+        ASSIGN
+         ttEstimate.cEstimateNo    = bf-est.est-no  
+         ttEstimate.dtEstimateDate = bf-est.est-date
+         ttEstimate.cCustomer      = bf-eb.cust-no
+         ttEstimate.dtOrderDate    = bf-est.ord-date
+         ttEstimate.cCreated       = "Skip".
+         
+         IF NOT(bf-est.ord-date GE begin_ord-date
+         AND bf-est.ord-date LE end_ord-date) OR bf-est.ord-date EQ ? THEN
+         ASSIGN
+           ttEstimate.cReason  = "Order Date outside range,".
+         
+         IF avail quotehd THEN
+         DO:          
+             ASSIGN
+             ttEstimate.iQuoteNumber   = quotehd.q-no
+             ttEstimate.dtQuoteDate    = quotehd.quo-date.
+             
+             IF not(quotehd.quo-date GE begin_quo-date
+             AND quotehd.quo-date LE end_quo-date) THEN
+             ASSIGN 
+              ttEstimate.cReason  = ttEstimate.cReason  + "Quote Date outside range,".
+              
+             IF quotehd.expireDate LT TODAY THEN
+              ttEstimate.cReason  = ttEstimate.cReason  + "Quote expire date LT today,".
+              
+             IF quotehd.quo-date GT TODAY THEN
+              ttEstimate.cReason  = ttEstimate.cReason  + "Quote date gt today,".               
+         END.
+         ELSE ASSIGN 
+         ttEstimate.cCreated = "Skip"
+         ttEstimate.cReason  = ttEstimate.cReason  + "No Quote on Estimate,".            
+    END.    
+        
+    RUN Output_TempTableToCSV IN hdOutputProcs ( 
+            INPUT TEMP-TABLE ttEstimate:HANDLE,
+            INPUT csv_file-path,
+            INPUT TRUE,
+            INPUT TRUE /* Auto increment File name */,
+            OUTPUT lSuccess,
+            OUTPUT cMessage
+            ).               
   
 END PROCEDURE.
 

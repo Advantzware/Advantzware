@@ -94,7 +94,7 @@ DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btnCancel AUTO-END-KEY DEFAULT 
-     IMAGE-UP FILE "Graphics/32x32/navigate_cross.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/exit_white.png":U NO-FOCUS FLAT-BUTTON
      LABEL "&Cancel" 
      SIZE 7.6 BY 1.81
      BGCOLOR 8 FONT 4.
@@ -105,7 +105,7 @@ DEFINE BUTTON btnDefault
      FONT 4.
 
 DEFINE BUTTON btnOK DEFAULT 
-     IMAGE-UP FILE "Graphics/32x32/navigate_check.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/navigate_check.png":U NO-FOCUS FLAT-BUTTON
      LABEL "&Save" 
      SIZE 7.6 BY 1.81
      BGCOLOR 8 FONT 4.
@@ -183,20 +183,20 @@ DEFINE FRAME DEFAULT-FRAME
      "Can Run" VIEW-AS TEXT
           SIZE 10.6 BY 1.24 AT ROW 2.48 COL 88
           FONT 6
-     "Menu Structure" VIEW-AS TEXT
-          SIZE 18.6 BY .81 AT ROW 1.24 COL 2
-          FONT 6
-     "Default Selected:" VIEW-AS TEXT
-          SIZE 20.4 BY 1 AT ROW 1.24 COL 100
-          FONT 6
-     "Can Update" VIEW-AS TEXT
-          SIZE 13.8 BY 1.24 AT ROW 7.71 COL 85
+     "Can Create" VIEW-AS TEXT
+          SIZE 12.8 BY 1.24 AT ROW 13.19 COL 86
           FONT 6
      "Can Delete" VIEW-AS TEXT
           SIZE 12.8 BY 1.24 AT ROW 18.33 COL 86
           FONT 6
-     "Can Create" VIEW-AS TEXT
-          SIZE 12.8 BY 1.24 AT ROW 13.19 COL 86
+     "Can Update" VIEW-AS TEXT
+          SIZE 13.8 BY 1.24 AT ROW 7.71 COL 85
+          FONT 6
+     "Default Selected:" VIEW-AS TEXT
+          SIZE 20.4 BY 1 AT ROW 1.24 COL 100
+          FONT 6
+     "Menu Structure" VIEW-AS TEXT
+          SIZE 18.6 BY .81 AT ROW 1.24 COL 2
           FONT 6
      RECT-3 AT ROW 23.38 COL 100
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 

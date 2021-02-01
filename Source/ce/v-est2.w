@@ -29,6 +29,9 @@ CREATE WIDGET-POOL.
 {custom/gcompany.i}
 {custom/gloc.i}
 {sys/inc/var.i new shared}
+DEFINE VARIABLE colHand     AS WIDGET-HANDLE NO-UNDO.
+DEFINE VARIABLE colHandList AS CHARACTER     NO-UNDO.
+DEFINE VARIABLE icnt        AS INTEGER       NO-UNDO.
 DEF VAR ll-auto-calc-selected AS LOG NO-UNDO.
 DEF VAR k_frac AS DEC INIT 6.25 NO-UNDO.
 &IF DEFINED(UIB_is_Running) NE 0 &THEN
@@ -1446,7 +1449,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ef.m-code V-table-Win
 ON LEAVE OF ef.m-code IN FRAME fold /* Machine */
 DO:
-
+    DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
     IF LASTKEY = -1 THEN RETURN.
 
     IF ll-is-sheet-calc THEN DO:
@@ -1462,15 +1465,10 @@ DO:
               ef.lsh-len:screen-value = "0".
     END.
 
-    IF LASTKEY <> -1 AND ef.m-code:screen-value <> "" AND
-       NOT CAN-FIND (FIRST mach WHERE mach.company = gcompany AND
-                                      mach.loc = eb.loc AND
-                                      mach.m-code = ef.m-code:screen-value)
-    THEN DO:
-    {&methods/lValidateError.i YES}
-         MESSAGE "Invalid Machine Code. Try Help." VIEW-AS ALERT-BOX ERROR.
-         RETURN NO-APPLY.
-    {&methods/lValidateError.i NO}
+    IF LASTKEY <> -1 AND ef.m-code:screen-value <> "" THEN DO:
+         RUN valid-mach(OUTPUT lReturnError) NO-ERROR.
+         IF lReturnError THEN RETURN NO-APPLY.
+       
     END.
 
     IF ll-auto-calc-selected THEN RUN auto-calc2.  /* from ce/uest2.p */
@@ -2634,8 +2632,28 @@ PROCEDURE local-display-fields :
                VISIBLE = YES 
                SENSITIVE = TRUE  
                BGCOLOR = 8
-               SEPARATORS = YES.
+               SEPARATORS = YES
+               bgcolor = 25
+               separator-fgcolor = 15
+               row-height-chars = 0.84
+               font = 22.
 
+       on row-display of br-flm
+       DO:
+              IF CURRENT-RESULT-ROW(br-flm:name) mod 2 = 0 then 
+              DO iCnt = 1 TO num-entries(colHandList, ","): 
+                  colHand = handle(entry(iCnt,colHandList,",")).
+                  if VALID-HANDLE(colHand) then
+                  colHand:BGCOLOR = 25. 
+              END. 
+              else
+              DO iCnt = 1 TO num-entries(colHandList, ","):
+                  colHand = handle(entry(iCnt,colHandList,",")).
+                  if VALID-HANDLE(colHand) then
+                  colHand:BGCOLOR = 26.
+              END.
+       END.
+        
         OPEN QUERY q-flm FOR EACH est-flm WHERE est-flm.company = eb.company
                                              AND est-flm.est-no = eb.est-no
                                             NO-LOCK
@@ -2649,7 +2667,12 @@ PROCEDURE local-display-fields :
                 lh-bnum = br-flm:ADD-LIKE-COLUMN("est-flm.bnum")
                 lh-len = br-flm:ADD-LIKE-COLUMN("est-flm.len")
                 lh-wid = br-flm:ADD-LIKE-COLUMN("est-flm.wid").
-
+                
+        REPEAT icnt = 1 TO br-flm:NUM-COLUMNS:
+            colHandList =  colHandList + ","  + string(br-flm:GET-BROWSE-COLUMN(icnt)).
+        END.
+        colHandList = trim(colHandList, ",").
+        
          br-flm:REFRESH() NO-ERROR.
 
         IF NUM-RESULTS("q-flm":U) = ? OR  /* query not opened */
@@ -2658,9 +2681,9 @@ PROCEDURE local-display-fields :
         ELSE
          ASSIGN lh-dscr:FORMAT = "x(30)"
                 lh-dscr:WIDTH = 40
-                lh-len:FORMAT = ">>,>>9.99<<<"
+                //lh-len:FORMAT = ">>,>>9.99<<<"
                 lh-len:WIDTH = 12
-                lh-wid:FORMAT = ">>,>>9.99<<<"
+                //lh-wid:FORMAT = ">>,>>9.99<<<"
                 lh-wid:WIDTH = 12.
 
     END.  /* est-type = 4 */
@@ -2697,23 +2720,17 @@ PROCEDURE local-update-record :
   DEF VAR hd1 AS HANDLE NO-UNDO.
   DEF VAR hd2 AS HANDLE NO-UNDO.
   DEF VAR li AS INT NO-UNDO.
-
+  DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
   DEF BUFFER bf-eb FOR eb.
 
 {&methods/lValidateError.i YES}
   /* Code placed here will execute PRIOR to standard behavior. */
   /* ==== Folding  item validation ======== */
   DO WITH FRAME {&frame-name} :  /* validation */
-    IF ef.m-code:screen-value <> "" AND
-       NOT CAN-FIND (FIRST mach WHERE mach.company = gcompany AND
-                                      mach.loc = eb.loc AND
-                                      mach.m-code = ef.m-code:screen-value)
-    THEN DO:
-         MESSAGE "Invalid Machine Code. Try Help." VIEW-AS ALERT-BOX ERROR.
-         APPLY "Entry" TO ef.m-code.
-         RETURN NO-APPLY.
-    END.
-    ELSE IF ef.m-code:screen-value = "" THEN ef.m-dscr:screen-value = "". 
+  
+     RUN valid-mach(OUTPUT lReturnError) NO-ERROR.
+     IF lReturnError THEN RETURN NO-APPLY.    
+    
 
     RUN new-m-code.
 
@@ -4002,7 +4019,44 @@ PROCEDURE pShowHideCostFiled :
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME 
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-mach V-table-Win 
+PROCEDURE valid-mach :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
+  {methods/lValidateError.i YES}
+  DO WITH FRAME {&FRAME-NAME}:
+     IF ef.m-code:SCREEN-VALUE NE "" THEN
+        DO:
+          FIND FIRST mach NO-LOCK
+                    WHERE mach.company = gcompany and
+                    mach.m-code = ef.m-code:SCREEN-VALUE NO-ERROR.
+               IF NOT AVAIL mach THEN
+               DO:
+                    MESSAGE "Invalid Machine Code. Try Help." VIEW-AS ALERT-BOX ERROR.
+                    APPLY "entry" TO ef.m-code.
+                    ef.m-dscr:screen-value = "".
+                    oplReturnError = YES.
+               END.
+               IF AVAIL mach AND mach.loc NE eb.loc THEN DO:
+                    MESSAGE "Invalid Machine Code as Estimate Location is " +  eb.loc + " and Machine Location is " + mach.loc + "." + "  Machine must be in the same location as estimate." VIEW-AS ALERT-BOX ERROR.
+                    APPLY "entry" TO ef.m-code.
+                    ef.m-dscr:screen-value = "".
+                    oplReturnError = YES.
+          END.
+        END.
+     END.
+
+  {methods/lValidateError.i NO}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 /* ************************  Function Implementations ***************** */
 

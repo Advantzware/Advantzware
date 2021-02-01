@@ -29,7 +29,7 @@ CREATE WIDGET-POOL.
 
 &SCOPED-DEFINE yellowColumnsName b-cusinq
 &SCOPED-DEFINE winReSize
-&SCOPED-DEFINE sizeOption HEIGHT
+//&SCOPED-DEFINE sizeOption HEIGHT
 &SCOPED-DEFINE browseOnly
 {methods/defines/winReSize.i}
 
@@ -202,7 +202,7 @@ DEFINE VARIABLE fi_days AS INTEGER FORMAT ">,>>9":U INITIAL 9999
      SIZE 9 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE fi_fchk AS INTEGER FORMAT ">>>>>>>>>>":U INITIAL 0 
+DEFINE VARIABLE fi_fchk AS INT64 FORMAT ">>>>>>>>>>>>":U INITIAL 0 
      LABEL "Beginning Check#" 
      VIEW-AS FILL-IN 
      SIZE 16 BY 1
@@ -668,7 +668,10 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
 &ENDIF
 
 {methods/winReSize.i}
-
+/* Ticket# : 92946
+   Hiding this widget for now, as browser's column label should be indicating the column which is sorted by */
+fi_sortby:HIDDEN  = TRUE.
+fi_sortby:VISIBLE = FALSE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

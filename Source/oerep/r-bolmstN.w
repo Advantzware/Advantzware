@@ -506,7 +506,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     fi_ship-id = cocode.
 
   RUN enable_UI.
-  
+  {methods/template/brwcustom.i}
   {methods/nowait.i}
   {custom/usrprint.i}
 

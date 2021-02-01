@@ -30,7 +30,9 @@ FUNCTION GetCurrentPage RETURNS INTEGER
     (  ) FORWARD.
 
 FUNCTION FormatForCSV RETURNS CHARACTER 
-    (ipcValue AS CHARACTER) FORWARD.
+    (ipcValue AS CHARACTER,
+     iplReplaceQuote AS LOGICAL,
+     iplAddTab       AS LOGICAL) FORWARD.
     
 FUNCTION FormatNumber RETURNS CHARACTER
     (ipdNumber AS DECIMAL,
@@ -167,6 +169,42 @@ PROCEDURE Output_GetTempFilePath:
     opcTempFile = cFilePath + "\" + cFileName.
 END PROCEDURE.
 
+PROCEDURE Output_GetValueNK1OutputCSV:
+/*------------------------------------------------------------------------------
+ Purpose: To get the character value of NK1 "OutputCSV"
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER  ipcCompany      AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplReplaceQuote AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplAddTab       AS LOGICAL   NO-UNDO.
+    
+    DEFINE VARIABLE cOutputCSV AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lRecFound  AS LOGICAL   NO-UNDO. 
+    
+    IF ipcCompany EQ "" THEN
+        RUN spGetSessionParam ("Company", OUTPUT ipcCompany).
+    
+    RUN sys/ref/nk1look.p(
+        INPUT ipcCompany,
+        INPUT "OutputCSV",
+        INPUT "C",
+        INPUT NO,
+        INPUT NO,
+        INPUT "",
+        INPUT "",
+        OUTPUT cOutputCSV,
+        OUTPUT lRecFound
+        ).         
+  
+    IF lRecFound AND cOutputCSV NE "" THEN DO: 
+        ASSIGN            
+            oplReplaceQuote = LOOKUP("Replace double quotes with symbol", cOutputCSV) GT 0
+            oplAddTab       = LOOKUP("Add leading tab", cOutputCSV) GT 0                    
+            .
+    END.      
+
+END PROCEDURE.
+
 PROCEDURE Output_InitializeXprint:
     /*------------------------------------------------------------------------------
      Purpose: Initialize XPrintOutput with default Font and FontSize
@@ -286,7 +324,9 @@ PROCEDURE Output_TempTableToCSV:
     DEFINE VARIABLE eIndex  AS INTEGER   NO-UNDO. 
     DEFINE VARIABLE cTTName AS CHARACTER NO-UNDO. 
     
-    DEFINE VARIABLE cFullFilePath AS CHARACTER NO-UNDO.         
+    DEFINE VARIABLE cFullFilePath AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lReplaceQuote AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lAddTab       AS LOGICAL   NO-UNDO.         
         
     ASSIGN
         cTTName = iphTT:NAME
@@ -303,19 +343,34 @@ PROCEDURE Output_TempTableToCSV:
         
     IF NOT oplSuccess THEN              
         RETURN.    
-            
+    
+    RUN Output_GetValueNK1OutputCSV (
+        INPUT  "",
+        OUTPUT lReplaceQuote,
+        OUTPUT lAddTab
+        ).
+                
     IF iplHeader THEN 
     DO:                     
         OUTPUT STREAM sOutput to VALUE(cFullFilePath). 
         DO iIndex = 1 TO hBuffer:NUM-FIELDS: 
             IF hBuffer:BUFFER-FIELD(iIndex):EXTENT GT 0 THEN DO:
                 DO eIndex = 1 to hBuffer:BUFFER-FIELD(iIndex):EXTENT:
-                    PUT STREAM sOutput UNFORMATTED hBuffer:BUFFER-FIELD(iIndex):COLUMN-LABEL + STRING(eIndex) + 
+                    PUT STREAM sOutput UNFORMATTED 
+                    (IF hBuffer:BUFFER-FIELD(iIndex):LABEL NE "" AND hBuffer:BUFFER-FIELD(iIndex):LABEL NE ? THEN
+                        hBuffer:BUFFER-FIELD(iIndex):LABEL 
+                    ELSE 
+                        hBuffer:BUFFER-FIELD(iIndex):NAME) +
+                    "[" + STRING(eIndex) + "]" + 
                     (IF iIndex EQ hBuffer:NUM-FIELDS AND eIndex EQ hBuffer:BUFFER-FIELD(iIndex):EXTENT THEN '' ELSE ',').
                 END.
             END.
             ELSE
-                PUT STREAM sOutput UNFORMATTED hBuffer:BUFFER-FIELD(iIndex):COLUMN-LABEL + 
+                PUT STREAM sOutput UNFORMATTED 
+                (IF hBuffer:BUFFER-FIELD(iIndex):LABEL NE "" AND hBuffer:BUFFER-FIELD(iIndex):LABEL NE ? THEN
+                    hBuffer:BUFFER-FIELD(iIndex):LABEL 
+                 ELSE 
+                    hBuffer:BUFFER-FIELD(iIndex):NAME) + 
                 (IF iIndex NE hBuffer:NUM-FIELDS THEN "," ELSE ""). 
         END. 
         PUT STREAM sOutput UNFORMATTED SKIP. 
@@ -341,13 +396,13 @@ PROCEDURE Output_TempTableToCSV:
             IF hBuffer:BUFFER-FIELD(iIndex):EXTENT GT 0 THEN DO:
                 DO eIndex = 1 to hBuffer:BUFFER-FIELD(iIndex):EXTENT:
                     PUT STREAM sOutput UNFORMATTED  
-                        '"' FormatForCSV(hBuffer:BUFFER-FIELD(iIndex):BUFFER-VALUE(eIndex)) 
+                        '"' FormatForCSV(hBuffer:BUFFER-FIELD(iIndex):BUFFER-VALUE(eIndex),lReplaceQuote,lAddTab) 
                         (IF iIndex EQ hBuffer:NUM-FIELDS AND eIndex EQ hBuffer:BUFFER-FIELD(iIndex):EXTENT THEN '"' ELSE '",').
                 END.
             END.
             ELSE
                 PUT STREAM sOutput UNFORMATTED  
-                    '"' FormatForCSV(hBuffer:BUFFER-FIELD(iIndex):BUFFER-VALUE) 
+                    '"' FormatForCSV(hBuffer:BUFFER-FIELD(iIndex):BUFFER-VALUE,lReplaceQuote,lAddTab) 
                     (IF iIndex NE hBuffer:NUM-FIELDS THEN '",' ELSE '"'). 
         END. 
         PUT STREAM sOutput UNFORMATTED SKIP. 
@@ -662,18 +717,27 @@ FUNCTION GetCurrentPage RETURNS INTEGER
 END FUNCTION.
 
 FUNCTION FormatForCSV RETURNS CHARACTER 
-    ( ipcValue AS CHARACTER ):
+    ( ipcValue AS CHARACTER, iplReplaceQuote AS LOGICAL, iplAddTab AS LOGICAL):
     /*------------------------------------------------------------------------------
      Purpose: Fixes the input character value and returns a CSV friendly text
      Notes:
     ------------------------------------------------------------------------------*/	
-    DEFINE VARIABLE cInvalidChars AS CHARACTER NO-UNDO INITIAL "~",#".
-    DEFINE VARIABLE cReplaceChars AS CHARACTER NO-UNDO INITIAL "'',". 
-    DEFINE VARIABLE iCount        AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iZeroCode AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iNineCode AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE chChar    AS CHARACTER NO-UNDO.                    
     
- 
-    DO iCount = 1 TO NUM-ENTRIES(cInvalidChars):
-        ipcValue = REPLACE(ipcValue,ENTRY(iCount,cInvalidChars),ENTRY(iCount,cReplaceChars)).
+    IF iplReplaceQuote THEN
+        ipcValue = REPLACE(ipcValue,'~"',CHR(27)). 
+    
+    ASSIGN 
+        iZeroCode = ASC("0")
+        iNineCode = ASC("9")
+        chChar    = SUBSTRING(ipcValue,1,1)
+        .
+        
+    IF iplAddTab THEN DO:
+        IF (ASC(chChar) GE iZeroCode AND ASC(chChar) LE iNineCode) THEN 
+            ipcValue = CHR(9) + ipcValue.
     END.
     RETURN ipcValue.   
 		

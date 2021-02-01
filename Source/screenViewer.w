@@ -71,8 +71,8 @@ END.
 &Scoped-define FRAME-NAME DEFAULT-FRAME
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btn-close ed-scr-view btn-font btn-print ~
-btn-save 
+&Scoped-Define ENABLED-OBJECTS btn-close btn-print btn-save ed-scr-view ~
+btn-font 
 &Scoped-Define DISPLAYED-OBJECTS ed-scr-view 
 
 /* Custom List Definitions                                              */
@@ -90,22 +90,22 @@ DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btn-close AUTO-GO 
-     IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/exit_white.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 8 BY 1.91 TOOLTIP "Exit".
 
 DEFINE BUTTON btn-font 
-     IMAGE-UP FILE "Graphics/32x32/font.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/window_font.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 8 BY 1.91 TOOLTIP "Font".
 
 DEFINE BUTTON btn-print 
-     IMAGE-UP FILE "Graphics/32x32/printer.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/print_new.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 8 BY 1.91 TOOLTIP "Print".
 
 DEFINE BUTTON btn-save 
-     IMAGE-UP FILE "Graphics/32x32/floppy_disk.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/floppy_disk.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 8 BY 1.91 TOOLTIP "Save As".
 
@@ -123,10 +123,10 @@ DEFINE RECTANGLE RECT-1
 
 DEFINE FRAME DEFAULT-FRAME
      btn-close AT ROW 27.43 COL 152 WIDGET-ID 4
-     ed-scr-view AT ROW 1 COL 1 NO-LABEL WIDGET-ID 2
-     btn-font AT ROW 27.43 COL 144 WIDGET-ID 6
      btn-print AT ROW 27.43 COL 128 WIDGET-ID 8
      btn-save AT ROW 27.43 COL 136 WIDGET-ID 10
+     ed-scr-view AT ROW 1 COL 1 NO-LABEL WIDGET-ID 2
+     btn-font AT ROW 27.43 COL 144 WIDGET-ID 6
      RECT-1 AT ROW 27.19 COL 127 WIDGET-ID 12
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -157,15 +157,15 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 320
          VIRTUAL-HEIGHT     = 320
          VIRTUAL-WIDTH      = 320
-         RESIZE             = YES
-         SCROLL-BARS        = NO
-         STATUS-AREA        = YES
+         RESIZE             = yes
+         SCROLL-BARS        = no
+         STATUS-AREA        = yes
          BGCOLOR            = ?
          FGCOLOR            = ?
-         KEEP-FRAME-Z-ORDER = YES
-         THREE-D            = YES
-         MESSAGE-AREA       = NO
-         SENSITIVE          = YES.
+         KEEP-FRAME-Z-ORDER = yes
+         THREE-D            = yes
+         MESSAGE-AREA       = no
+         SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
@@ -182,7 +182,7 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* SETTINGS FOR RECTANGLE RECT-1 IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-THEN C-Win:HIDDEN = NO.
+THEN C-Win:HIDDEN = no.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -323,18 +323,20 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 &ELSE
           OS-COMMAND NO-WAIT notepad VALUE(ipcListName).
 &ENDIF
+          APPLY "CLOSE":U TO THIS-PROCEDURE.
           RETURN.
       END.
       ELSE DO:
           FIND FIRST usergrps NO-LOCK
                WHERE usergrps.usergrps EQ "Notepad" 
                NO-ERROR.
-          IF AVAILABLE usergrps AND LOOKUP(STRING(USERID(LDBNAME(1))),usergrps.users) <> 0 THEN DO:
+          IF AVAILABLE usergrps AND CAN-DO(usergrps.users,USERID("ASI")) THEN DO:
 &IF DEFINED(FWD-VERSION) > 0 &THEN
               open-mime-resource "text/plain" STRING("file:///" + ipcListName) FALSE.
 &ELSE
               OS-COMMAND NO-WAIT notepad VALUE(ipcListName).
 &ENDIF
+              APPLY "CLOSE":U TO THIS-PROCEDURE.
               RETURN.
           END.
           ELSE DO:
@@ -393,7 +395,7 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY ed-scr-view 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE btn-close ed-scr-view btn-font btn-print btn-save 
+  ENABLE btn-close btn-print btn-save ed-scr-view btn-font 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
@@ -495,48 +497,48 @@ PROCEDURE pWinReSize :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-/*    SESSION:SET-WAIT-STATE("General").                                */
-/*    DO WITH FRAME {&FRAME-NAME}:                                      */
-/*        HIDE FRAME {&FRAME-NAME}.                                     */
-/*        IF {&WINDOW-NAME}:HEIGHT LT 28.57 THEN                        */
-/*        {&WINDOW-NAME}:HEIGHT = 28.57.                                */
-/*        IF {&WINDOW-NAME}:WIDTH  LT 160   THEN                        */
-/*        {&WINDOW-NAME}:WIDTH  = 160.                                  */
-/*        ASSIGN                                                        */
-/*            {&WINDOW-NAME}:COL = 1                                    */
-/*            {&WINDOW-NAME}:ROW = 1                                    */
-/*            RECT-1:HIDDEN      = YES                                  */
-/*            btn-print:HIDDEN   = YES                                  */
-/*            btn-save:HIDDEN    = YES                                  */
-/*            btn-font:HIDDEN    = YES                                  */
-/*            btn-close:HIDDEN   = YES                                  */
-/*            FRAME {&FRAME-NAME}:VIRTUAL-HEIGHT = {&WINDOW-NAME}:HEIGHT*/
-/*            FRAME {&FRAME-NAME}:VIRTUAL-WIDTH  = {&WINDOW-NAME}:WIDTH */
-/*            FRAME {&FRAME-NAME}:HEIGHT = {&WINDOW-NAME}:HEIGHT        */
-/*            FRAME {&FRAME-NAME}:WIDTH  = {&WINDOW-NAME}:WIDTH         */
-/*            ed-scr-view:HEIGHT = FRAME {&FRAME-NAME}:HEIGHT - 2.38    */
-/*            ed-scr-view:WIDTH  = FRAME {&FRAME-NAME}:WIDTH            */
-/*            RECT-1:ROW         = FRAME {&FRAME-NAME}:HEIGHT - 1.4     */
-/*            btn-print:ROW      = RECT-1:ROW    + .24                  */
-/*            btn-save:ROW       = btn-print:ROW                        */
-/*            btn-font:ROW       = btn-save:ROW                         */
-/*            btn-close:ROW      = btn-font:ROW                         */
-/*            RECT-1:COL         = FRAME {&FRAME-NAME}:WIDTH  - 33      */
-/*            btn-print:COL      = RECT-1:COL    + 1                    */
-/*            btn-save:COL       = btn-print:COL + btn-print:WIDTH      */
-/*            btn-font:COL       = btn-save:COL  + btn-save:WIDTH       */
-/*            btn-close:COL      = btn-font:COL  + btn-font:WIDTH       */
-/*            .                                                         */
-/*        VIEW FRAME {&FRAME-NAME}.                                     */
-/*        ASSIGN                                                        */
-/*            RECT-1:HIDDEN    = NO                                     */
-/*            btn-print:HIDDEN = NO                                     */
-/*            btn-save:HIDDEN  = NO                                     */
-/*            btn-font:HIDDEN  = NO                                     */
-/*            btn-close:HIDDEN = NO                                     */
-/*            .                                                         */
-/*    END. /* do with */                                                */
-/*    SESSION:SET-WAIT-STATE("").                                       */
+    SESSION:SET-WAIT-STATE("General").
+    DO WITH FRAME {&FRAME-NAME}:
+        HIDE FRAME {&FRAME-NAME}.
+        IF {&WINDOW-NAME}:HEIGHT LT 28.57 THEN
+        {&WINDOW-NAME}:HEIGHT = 28.57.
+        IF {&WINDOW-NAME}:WIDTH  LT 160   THEN
+        {&WINDOW-NAME}:WIDTH  = 160.
+        ASSIGN
+            {&WINDOW-NAME}:COL = 1
+            {&WINDOW-NAME}:ROW = 1
+            RECT-1:HIDDEN      = YES
+            btn-print:HIDDEN   = YES
+            btn-save:HIDDEN    = YES
+            btn-font:HIDDEN    = YES
+            btn-close:HIDDEN   = YES
+            FRAME {&FRAME-NAME}:VIRTUAL-HEIGHT = {&WINDOW-NAME}:HEIGHT
+            FRAME {&FRAME-NAME}:VIRTUAL-WIDTH  = {&WINDOW-NAME}:WIDTH
+            FRAME {&FRAME-NAME}:HEIGHT = {&WINDOW-NAME}:HEIGHT
+            FRAME {&FRAME-NAME}:WIDTH  = {&WINDOW-NAME}:WIDTH
+            ed-scr-view:HEIGHT = FRAME {&FRAME-NAME}:HEIGHT - 2.38
+            ed-scr-view:WIDTH  = FRAME {&FRAME-NAME}:WIDTH
+            RECT-1:ROW         = FRAME {&FRAME-NAME}:HEIGHT - 1.4
+            btn-print:ROW      = RECT-1:ROW    + .24
+            btn-save:ROW       = btn-print:ROW
+            btn-font:ROW       = btn-save:ROW
+            btn-close:ROW      = btn-font:ROW
+            RECT-1:COL         = FRAME {&FRAME-NAME}:WIDTH  - 33
+            btn-print:COL      = RECT-1:COL    + 1
+            btn-save:COL       = btn-print:COL + btn-print:WIDTH
+            btn-font:COL       = btn-save:COL  + btn-save:WIDTH
+            btn-close:COL      = btn-font:COL  + btn-font:WIDTH
+            .
+        VIEW FRAME {&FRAME-NAME}.
+        ASSIGN
+            RECT-1:HIDDEN    = NO
+            btn-print:HIDDEN = NO
+            btn-save:HIDDEN  = NO
+            btn-font:HIDDEN  = NO
+            btn-close:HIDDEN = NO
+            .
+    END. /* do with */
+    SESSION:SET-WAIT-STATE("").
 
 END PROCEDURE.
 

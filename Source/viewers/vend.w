@@ -51,8 +51,10 @@ DEFINE VARIABLE l-valid AS LOGICAL NO-UNDO.
 DEF VAR ll-secure AS LOG NO-UNDO.
 DEF VAR hPgmSecurity AS HANDLE NO-UNDO.
 DEF VAR lResult AS LOG NO-UNDO.
+DEFINE VARIABLE hGLProcs AS HANDLE NO-UNDO.
 {sys/ref/sys-ctrl.i}
 
+RUN system/GLProcs.p PERSISTENT SET hGLProcs.
 
 &SCOPED-DEFINE vend-maint enable-vend-fields
 
@@ -132,7 +134,7 @@ vend.code-1099 vend.terms vend.disc-% vend.rebate-% vend.frt-pay ~
 vend.disc-days vend.carrier vend.fob-code vend.loc 
 &Scoped-define ENABLED-TABLES vend
 &Scoped-define FIRST-ENABLED-TABLE vend
-&Scoped-Define ENABLED-OBJECTS RECT-1 RECT-29 ~
+&Scoped-Define ENABLED-OBJECTS cb_codetype cb_paytype RECT-1 RECT-29 ~
 RECT-30 RECT-31 
 &Scoped-Define DISPLAYED-FIELDS vend.vend-no vend.active vend.name ~
 vend.add1 vend.add2 vend.city vend.state vend.zip vend.country vend.Postal ~
@@ -651,7 +653,7 @@ ASSIGN
 ON LEAVE OF vend.actnum IN FRAME F-Main /* Account Number */
 DO:
   if lastkey ne -1 then do:    
-    run valid-actnum NO-ERROR.
+    run valid-actnum(FOCUS) NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
     IF SELF:MODIFIED THEN DO:
        FIND FIRST account WHERE account.company = gcompany
@@ -685,6 +687,19 @@ ON LEAVE OF vend.add2 IN FRAME F-Main /* address line 2 */
 DO:
   if adm-new-record and vend.r-add2:screen-value eq "" then
     vend.r-add2:screen-value = {&self-name}:screen-value.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME vend.Bank-Acct
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL vend.Bank-Acct V-table-Win
+ON LEAVE OF vend.Bank-Acct IN FRAME F-Main /* Account# */
+DO:
+    IF LASTKEY = -1 THEN RETURN.
+    RUN valid-actnum(FOCUS) NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1371,6 +1386,10 @@ PROCEDURE local-cancel-record :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
+  DO WITH FRAME {&FRAME-NAME}:
+      RUN presetColor(INPUT vend.Bank-Acct:HANDLE).
+      RUN presetColor(INPUT vend.actnum:HANDLE).
+  END.           
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
@@ -1466,6 +1485,26 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-reset-record V-table-Win 
+PROCEDURE local-reset-record :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+    /* Code placed here will execute PRIOR to standard behavior. */
+    DO WITH FRAME {&FRAME-NAME}:
+        RUN presetColor(INPUT vend.Bank-Acct:HANDLE).
+        RUN presetColor(INPUT vend.actnum:HANDLE).
+    END.
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'reset-record':U ) .
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record V-table-Win 
 PROCEDURE local-update-record :
 /*------------------------------------------------------------------------------
@@ -1497,7 +1536,10 @@ DEFINE VARIABLE container-hdl AS CHARACTER     NO-UNDO.
   run valid-state NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
-  run valid-actnum NO-ERROR.
+  run valid-actnum(vend.Bank-Acct:HANDLE) NO-ERROR.
+  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  
+  run valid-actnum(vend.actnum:HANDLE) NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
   run valid-stax NO-ERROR.
@@ -1535,6 +1577,33 @@ DEFINE VARIABLE container-hdl AS CHARACTER     NO-UNDO.
       run get-link-handle in adm-broker-hdl(this-procedure,"container-source", output container-hdl).
       run passNewVend IN widget-handle(container-hdl) (vend.vend-no:SCREEN-VALUE).
   END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE presetColor V-table-Win 
+PROCEDURE presetColor :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iphfieldHandle AS HANDLE NO-UNDO.
+    
+    DEFINE VARIABLE cGLField AS CHARACTER NO-UNDO.
+    
+    IF VALID-HANDLE(iphfieldHandle) THEN DO:        
+        cGLField = "vend." + iphfieldHandle:NAME.
+        IF iphfieldHandle:TYPE                   EQ "FILL-IN"   AND  
+           iphfieldHandle:DATA-TYPE              EQ "CHARACTER" AND 
+           (cGLField EQ "vend.Bank-Acct" OR cGLField EQ "vend.actnum" ) THEN         
+            IF iphfieldHandle:BGCOLOR EQ 16 THEN             
+                ASSIGN 
+                    iphfieldHandle:BGCOLOR = 15
+                    iphfieldHandle:FGCOLOR = ?
+                    .                         
+    END. 
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1621,9 +1690,13 @@ PROCEDURE valid-actnum :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+    DEF INPUT PARAMETER iphfieldHandle AS HANDLE NO-UNDO.
+    
+    DEFINE VARIABLE lSuccess AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lActive  AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
 
   {methods/lValidateError.i YES}
-&Scoped-define SELF-NAME vend.actnum
 
 DEF VAR v-avail AS LOG INIT YES NO-UNDO.
 
@@ -1635,11 +1708,31 @@ find first sys-ctrl
 
 if not avail sys-ctrl                                     or
    not sys-ctrl.log-fld                                   or
-   {&self-name}:screen-value in frame {&frame-name} ne "" then do:
-  {custom/validate/account.i &where = sys/look/faccnumW.i}
-  IF NOT v-avail THEN RETURN ERROR.
+   iphfieldHandle:screen-value  ne "" then do:
+   RUN GL_CheckGLAccount IN hGLProcs(
+       INPUT  g_company,
+       INPUT  iphfieldHandle:SCREEN-VALUE,            
+       OUTPUT cMessage,
+       OUTPUT lSuccess,
+       OUTPUT lActive
+       ). 
+   IF lSuccess = NO THEN DO:
+       MESSAGE cMessage VIEW-AS ALERT-BOX ERROR. 
+       RUN presetColor(iphfieldHandle) NO-ERROR.
+       APPLY "ENTRY" TO iphfieldHandle.
+       RETURN ERROR.
+   END. 
+   IF lSuccess = YES AND lActive = NO THEN DO:
+       MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.   
+       ASSIGN 
+           iphfieldHandle:BGCOLOR = 16
+           iphfieldHandle:FGCOLOR = 15
+           .                        
+       APPLY "ENTRY" TO iphfieldHandle.
+       RETURN ERROR.                      
+   END.          
 end.
-
+ RUN presetColor(iphfieldHandle) NO-ERROR.
   {methods/lValidateError.i NO}
 END PROCEDURE.
 

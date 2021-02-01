@@ -591,6 +591,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON START-SEARCH OF Browser-Table IN FRAME F-Main
 DO:
+{methods/template/sortindicator.i} 
   /*RUN startSearch.*/
   DEF VAR lh-column AS HANDLE NO-UNDO.
   DEF VAR lv-column-nam AS CHAR NO-UNDO.
@@ -618,7 +619,7 @@ DO:
   APPLY 'END-SEARCH' TO {&BROWSE-NAME}.
 
   APPLY "choose" TO btn_go.
-
+{methods/template/sortindicator.i} 
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -725,7 +726,10 @@ END.
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF
-
+/* Ticket# : 92946
+   Hiding this widget for now, as browser's column label should be indicating the column which is sorted by */
+fi_sort-by:HIDDEN  = TRUE.
+fi_sort-by:VISIBLE = FALSE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

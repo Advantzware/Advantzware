@@ -93,6 +93,7 @@ DEFINE VARIABLE h_options AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-updsav AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_smartmsg AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_import AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_viewfginquiry AS HANDLE NO-UNDO.
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -144,7 +145,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          VIRTUAL-HEIGHT     = 320
          VIRTUAL-WIDTH      = 320
          MAX-BUTTON         = no
-         RESIZE             = no
+         RESIZE             = yes
          SCROLL-BARS        = no
          STATUS-AREA        = yes
          BGCOLOR            = ?
@@ -269,7 +270,7 @@ END.
 
 /* Include custom  Main Block code for SmartWindows. */
 {src/adm/template/windowmn.i}
-
+{custom/initializeprocs.i}
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -303,7 +304,7 @@ PROCEDURE adm-create-objects :
              INPUT  'adm/objects/folder.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'FOLDER-LABELS = ':U + 'Transfer' + ',
-                     FOLDER-TAB-TYPE = 1':U ,
+                     FOLDER-TAB-TYPE = 2':U ,
              OUTPUT h_folder ).
        RUN set-position IN h_folder ( 3.14 , 2.00 ) NO-ERROR.
        RUN set-size IN h_folder ( 21.67 , 148.00 ) NO-ERROR.
@@ -326,7 +327,7 @@ PROCEDURE adm-create-objects :
 
        /* Links to SmartFolder h_folder. */
        RUN add-link IN adm-broker-hdl ( h_folder , 'Page':U , THIS-PROCEDURE ).
-
+	   RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'udficon':U , h_options ).
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_folder ,
              FRAME message-frame:HANDLE , 'AFTER':U ).
@@ -383,11 +384,21 @@ PROCEDURE adm-create-objects :
         /* Links to SmartViewer h_import. */
        RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'import':U , h_import ). 
 
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'sharpshooter/smartobj/viewfginquiry.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_viewfginquiry ).
+       RUN set-position IN h_viewfginquiry ( 22.91 , 123.20 ) NO-ERROR.
+       /* Size in UIB:  ( 1.67 , 17.00 ) */
+
+
        /* Links to SmartObject h_loadtag. */
        RUN add-link IN adm-broker-hdl ( h_b-trans , 'loadtag':U , h_loadtag ).
 
        /* Links to SmartNavBrowser h_b-trans. */
        RUN add-link IN adm-broker-hdl ( h_p-updsav , 'TableIO':U , h_b-trans ).
+       RUN add-link IN adm-broker-hdl ( h_viewfginquiry , 'FGInq':U , h_b-trans ).
        RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'cancel-item':U , h_b-trans ).
        RUN add-link IN adm-broker-hdl ( h_b-trans , 'Record':U , THIS-PROCEDURE ).
 
@@ -401,6 +412,8 @@ PROCEDURE adm-create-objects :
              h_folder , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_p-updsav ,
              h_b-trans , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_viewfginquiry ,
+             h_p-updsav , 'AFTER':U ).
     END. /* Page 1 */
 
   END CASE.

@@ -190,7 +190,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 320
          VIRTUAL-HEIGHT     = 320
          VIRTUAL-WIDTH      = 320
-         RESIZE             = no
+         RESIZE             = yes
          SCROLL-BARS        = no
          STATUS-AREA        = yes
          BGCOLOR            = ?
@@ -323,6 +323,128 @@ DO:
    IF li-cur-page = 3 OR li-cur-page = 5  THEN do:
       {methods/winReSizePgChg.i}
    END.
+    DEFINE VARIABLE cSmartObjList AS CHARACTER NO-UNDO.
+        DEFINE VARIABLE iCnt          AS INTEGER   NO-UNDO.
+        DEFINE VARIABLE hTempHand     AS HANDLE    NO-UNDO.
+        DEFINE VARIABLE deRowPos      AS DECIMAL   NO-UNDO.
+        DEFINE VARIABLE deColPos      AS DECIMAL   NO-UNDO.
+        DEFINE VARIABLE deWidth       AS DECIMAL   NO-UNDO.
+        DEFINE VARIABLE deHeight      AS DECIMAL   NO-UNDO.   
+        
+        &if defined(exclude-globaldef) <> 0 &then
+        IF deOrigWinWidth > {&WINDOW-NAME}:WIDTH THEN
+            {&WINDOW-NAME}:WIDTH = deOrigWinWidth.
+        IF deOrigWinHeight > {&WINDOW-NAME}:HEIGHT THEN
+            {&WINDOW-NAME}:HEIGHT = deOrigWinHeight.        
+        &endif
+        
+         
+        deDeltaWidth      =  {&WINDOW-NAME}:WIDTH  - FRAME {&FRAME-NAME}:WIDTH.      
+        deDeltaHeight     =  {&WINDOW-NAME}:HEIGHT - FRAME {&FRAME-NAME}:HEIGHT.
+        
+        widresizedlise = "".
+        
+        /* if window height and width increased then first increase the size of frame and then containing widgets */
+        IF (deDeltaHeight > 0 OR deDeltaHeight = 0) AND (deDeltaWidth> 0 OR deDeltaWidth= 0) THEN
+        DO:          
+            FRAME {&FRAME-NAME}:WIDTH                 = {&WINDOW-NAME}:WIDTH.
+            FRAME {&FRAME-NAME}:HEIGHT                = {&WINDOW-NAME}:HEIGHT.
+            FRAME {&FRAME-NAME}:VIRTUAL-HEIGHT-PIXELS = FRAME {&FRAME-NAME}:HEIGHT-PIXELS.
+            FRAME {&FRAME-NAME}:VIRTUAL-WIDTH-PIXELS  = FRAME {&FRAME-NAME}:WIDTH-PIXELS.  
+            RUN get-size IN h_folder ( OUTPUT deHeight , OUTPUT deWidth ) NO-ERROR. 
+            RUN set-size IN h_folder ( INPUT {&WINDOW-NAME}:HEIGHT , INPUT {&WINDOW-NAME}:WIDTH  ) NO-ERROR.
+        END.
+        /* if window height increased then first increase the height of frame and then containing widgets */
+        IF (deDeltaHeight > 0 OR deDeltaHeight = 0) AND (deDeltaWidth< 0 OR deDeltaWidth= 0) THEN
+        DO:  
+            FRAME {&FRAME-NAME}:HEIGHT                = {&WINDOW-NAME}:HEIGHT.
+            FRAME {&FRAME-NAME}:VIRTUAL-HEIGHT-PIXELS = FRAME {&FRAME-NAME}:HEIGHT-PIXELS. 
+            RUN get-size IN h_folder ( OUTPUT deHeight , OUTPUT deWidth ) . 
+            RUN set-size IN h_folder ( INPUT {&WINDOW-NAME}:HEIGHT , INPUT deWidth  ) .
+        END.
+        /* if window width increased then first increase the width of frame and then containing widgets */
+        IF (deDeltaHeight < 0 OR deDeltaHeight = 0) AND (deDeltaWidth> 0 OR deDeltaWidth= 0) THEN
+        DO:          
+            FRAME {&FRAME-NAME}:WIDTH                 = {&WINDOW-NAME}:WIDTH.
+            FRAME {&FRAME-NAME}:VIRTUAL-WIDTH-PIXELS  = FRAME {&FRAME-NAME}:WIDTH-PIXELS.  
+            RUN get-size IN h_folder ( OUTPUT deHeight , OUTPUT deWidth ) . 
+            RUN set-size IN h_folder ( INPUT deHeight , INPUT {&WINDOW-NAME}:WIDTH  ) .
+        END.
+        
+        FOR EACH toreposition BY toreposition.resizepage:
+            
+            IF NOT VALID-HANDLE(WIDGET-HANDLE(toreposition.widhand)) THEN
+                NEXT.
+                
+            cPageVisited   = cPageVisited + toreposition.resizepage + ",".            
+            widresizedlise = widresizedlise + toreposition.widhand + ",".
+            
+            IF toreposition.widtype = "Browse" AND VALID-HANDLE(WIDGET-HANDLE(toreposition.widhand)) THEN
+                RUN winReSize IN  WIDGET-HANDLE(toreposition.widhand)(INPUT deDeltaHeight,INPUT deDeltaWidth) NO-ERROR.
+            ELSE IF toreposition.widtype = "Option-frame" AND VALID-HANDLE(WIDGET-HANDLE(toreposition.widhand))THEN 
+            DO:
+                hTempHand = WIDGET-HANDLE(toreposition.widhand).
+                ASSIGN
+                    hTempHand:WIDTH                 = {&WINDOW-NAME}:WIDTH
+                    hTempHand:VIRTUAL-HEIGHT-PIXELS = hTempHand:HEIGHT-PIXELS
+                    hTempHand:VIRTUAL-WIDTH-PIXELS  = hTempHand:WIDTH-PIXELS 
+                no-error.
+            END.
+            ELSE IF toreposition.widtype = "moveright" AND VALID-HANDLE(WIDGET-HANDLE(toreposition.widhand)) THEN
+            DO:
+                 deRowPos = 0.
+                deColPos = 0.  
+                RUN get-position IN  WIDGET-HANDLE(toreposition.widhand)(OUTPUT deRowPos ,OUTPUT deColPos           ) . 
+                RUN set-position IN  WIDGET-HANDLE(toreposition.widhand)(INPUT  deRowPos ,INPUT  deColPos + deDeltaWidth)  .
+            END.  
+            ELSE IF toreposition.widtype = "movedown" AND VALID-HANDLE(WIDGET-HANDLE(toreposition.widhand)) THEN
+                DO:          
+                    deRowPos = 0.
+                    deColPos = 0. 
+                    RUN get-position IN  WIDGET-HANDLE(toreposition.widhand)(OUTPUT deRowPos                ,OUTPUT deColPos ) . 
+                    RUN set-position IN  WIDGET-HANDLE(toreposition.widhand)(INPUT deRowPos + deDeltaHeight ,INPUT  deColPos ) .
+                END.               
+            ELSE IF  VALID-HANDLE(WIDGET-HANDLE(toreposition.widhand)) THEN
+            DO:
+                deRowPos = 0.
+                deColPos = 0.
+                RUN get-position IN  WIDGET-HANDLE(toreposition.widhand)(OUTPUT deRowPos , OUTPUT deColPos            ) NO-ERROR. 
+                RUN set-position IN  WIDGET-HANDLE(toreposition.widhand)(INPUT  deRowPos  ,INPUT  deColPos + deDeltaWidth ) NO-ERROR. 
+            END.
+ 
+        END.   
+        /* if window height and width decreased then first set the size of containing widgets and then decrease the size of frame */
+        IF (deDeltaHeight < 0 OR deDeltaHeight = 0) AND (deDeltaWidth< 0 OR deDeltaWidth= 0) THEN
+        DO:
+            
+            FRAME {&FRAME-NAME}:WIDTH                 = {&WINDOW-NAME}:WIDTH.
+            FRAME {&FRAME-NAME}:HEIGHT                = {&WINDOW-NAME}:height.
+            FRAME {&FRAME-NAME}:VIRTUAL-HEIGHT-PIXELS = FRAME {&FRAME-NAME}:HEIGHT-PIXELS.
+            FRAME {&FRAME-NAME}:VIRTUAL-WIDTH-PIXELS  = FRAME {&FRAME-NAME}:WIDTH-PIXELS.
+            deHeight = 0.
+            deWidth = 0.
+            RUN get-size IN h_folder (OUTPUT deHeight , OUTPUT deWidth ) NO-ERROR. 
+            RUN set-size IN h_folder (INPUT {&WINDOW-NAME}:HEIGHT , INPUT {&WINDOW-NAME}:WIDTH  ) NO-ERROR.
+        END.
+        /* if window  width decreased then first set the size of containing widgets and then decrease the width of frame */
+        IF (deDeltaHeight > 0 OR deDeltaHeight = 0) AND (deDeltaWidth< 0 OR deDeltaWidth= 0) THEN 
+        DO:          
+            FRAME {&FRAME-NAME}:WIDTH                 = {&WINDOW-NAME}:WIDTH.
+          FRAME {&FRAME-NAME}:VIRTUAL-WIDTH-PIXELS  = FRAME {&FRAME-NAME}:WIDTH-PIXELS.  
+            RUN get-size IN h_folder (OUTPUT deHeight , OUTPUT deWidth ) . 
+            RUN set-size IN h_folder (INPUT {&WINDOW-NAME}:HEIGHT , INPUT {&WINDOW-NAME}:WIDTH  ) .
+        END. 
+        /* if window height  decreased then first set the size of containing widgets and then decrease the height of frame */
+        IF (deDeltaHeight < 0 OR deDeltaHeight = 0) AND (deDeltaWidth< 0 OR deDeltaWidth= 0) THEN
+        DO:  
+            FRAME {&FRAME-NAME}:HEIGHT                = {&WINDOW-NAME}:HEIGHT.
+            FRAME {&FRAME-NAME}:VIRTUAL-HEIGHT-PIXELS = FRAME {&FRAME-NAME}:HEIGHT-PIXELS. 
+            RUN get-size IN h_folder (OUTPUT deHeight , OUTPUT deWidth ) . 
+            RUN set-size IN h_folder (INPUT {&WINDOW-NAME}:HEIGHT , INPUT {&WINDOW-NAME}:WIDTH  ) .
+        END. 
+        
+            
+   
   
 END.
 
@@ -335,10 +457,15 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
+
+// Ticket #96577: To fix the icon issue need to increase the height of window do that all icon fit on the window.
+//seting the width in main block as window resize trigger will resize all objects wrt. window width 
+{&WINDOW-NAME}:WIDTH = 185.
+
 {sys/inc/f3helpw.i}
 /* Include custom  Main Block code for SmartWindows. */
 {src/adm/template/windowmn.i}
-
+{custom/initializeprocs.i}
 &SCOPED-DEFINE sysCtrlCompany g_company
 &SCOPED-DEFINE sysCtrlName MiscJobCL
 &SCOPED-DEFINE mfRecKey misc_rec_key_value
@@ -411,7 +538,7 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/folder.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'FOLDER-LABELS = ':U + 'Brws Order|View Order|Items|Misc. Chgs|Release|Estimate|Order Total|FG Item|Matrix|Ship Notes|Bill Notes' + ',
+             INPUT  'FOLDER-LABELS = ':U + 'Browse|Detail|Items|Misc|Release|Estimate|Totals|FG Item|Matrix|ShipNote|BillNote' + ',
                      FOLDER-TAB-TYPE = 2':U ,
              OUTPUT h_folder ).
        RUN set-position IN h_folder ( 3.14 , 1.00 ) NO-ERROR.
@@ -460,7 +587,7 @@ PROCEDURE adm-create-objects :
 
        /* Links to SmartObject h_options3. */
        RUN add-link IN adm-broker-hdl ( h_b-ordinq , 'attach':U , h_options3 ).
-
+	   RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'udficon':U , h_options3 ).
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_attcust ,
              h_optonote , 'AFTER':U ).

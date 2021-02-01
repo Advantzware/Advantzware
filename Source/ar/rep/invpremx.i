@@ -7,20 +7,19 @@ PUT "<FTimes New Roman>".
         PUT "<=1>" SKIP.
 
 
-IF company.company EQ '004' THEN
-        PUT "<C1><#2>" /*<R+10><C+35><IMAGE#2=" ls-full-img2 SKIP  /* company image */ */
+IF company.company = '004' THEN
+        PUT "<C1><#2>" 
             "<P10><=2><R+6>"
-            "<FCourier New>" SKIP(1)
-            SPACE(4) "<P11><B>" cCompanyID FORMAT "x(30)" "</B><P10>" 
-            SKIP(3)
+            "<FCourier New>" 
+            SPACE(4) "<P11><B>" cCompanyID FORMAT "x(30)" "</B><P10>"  SKIP(1)
+            SPACE(12) "REMIT TO: Premier Packaging Canada, LLC" SKIP
+            SPACE(12) "          Dept 400175" SKIP
+            SPACE(12) "          PO Box 4375 STN A" SKIP 
+            SPACE(12) "          Tronto ON M5W OJ3" SKIP 
             space(12) "BILL TO:" SPACE(43) "SHIP TO:" SKIP
             SPACE(12) ar-inv.cust-name v-shipto-name AT 64 skip
             SPACE(12) ar-inv.addr[1]   v-shipto-addr[1] AT 64 SKIP
             SPACE(12) ar-inv.addr[2]  v-shipto-addr[2] AT 64 SKIP
-            SKIP
-            SKIP
-            SKIP
-            SKIP
             SPACE(12) v-addr3   v-sold-addr3 AT 64  SKIP
             SPACE(12) v-email    "</B>" SKIP    .
 ELSE IF company.company = '005' THEN
@@ -37,19 +36,20 @@ ELSE IF company.company = '005' THEN
             SPACE(12) ar-inv.addr[2]  v-shipto-addr[2] AT 64 SKIP
             SPACE(12) v-addr3   v-sold-addr3 AT 64  SKIP
             SPACE(12) v-email    "</B>" SKIP    .
-ELSE IF company.company = '006' THEN
-        PUT "<C1><#2>" 
+ELSE IF company.company EQ '006' THEN
+        PUT "<C1><#2>" /*<R+10><C+35><IMAGE#2=" ls-full-img2 SKIP  /* company image */ */
             "<P10><=2><R+6>"
-            "<FCourier New>" 
-            SPACE(4) "<P11><B>" cCompanyID FORMAT "x(30)" "</B><P10>"  SKIP(1)
-            SPACE(12) "REMIT TO: Premier Packaging Canada, LLC" SKIP
-            SPACE(12) "          Dept 400175" SKIP
-            SPACE(12) "          PO Box 4375 STN A" SKIP 
-            SPACE(12) "          Tronto ON M5W OJ3" SKIP 
+            "<FCourier New>" SKIP(1)
+            SPACE(4) "<P11><B>" cCompanyID FORMAT "x(30)" "</B><P10>" 
+            SKIP(3)
             space(12) "BILL TO:" SPACE(43) "SHIP TO:" SKIP
             SPACE(12) ar-inv.cust-name v-shipto-name AT 64 skip
             SPACE(12) ar-inv.addr[1]   v-shipto-addr[1] AT 64 SKIP
             SPACE(12) ar-inv.addr[2]  v-shipto-addr[2] AT 64 SKIP
+            SKIP
+            SKIP
+            SKIP
+            SKIP
             SPACE(12) v-addr3   v-sold-addr3 AT 64  SKIP
             SPACE(12) v-email    "</B>" SKIP    .
 ELSE           
@@ -85,7 +85,7 @@ PUT "<|10><R21><C1><#4><FROM><R24><C81><RECT>" SKIP
     "<R21><C22><FROM><R24><C22><LINE>" SKIP
     "<R21><C38><FROM><R24><C38><LINE>" SKIP
     "<R21><C52><FROM><R24><C52><LINE>" SKIP
- /* "<R21><C59><FROM><R24><C59><LINE>" */ SKIP 
+    /* "<R21><C59><FROM><R24><C59><LINE>" */ SKIP 
     "<R21><C72><FROM><R24><C72><LINE>" SKIP
     .
 

@@ -48,6 +48,9 @@ DEF VAR ll-inquiry AS LOG NO-UNDO.
 DEF VAR ll-new-record AS LOG NO-UNDO.
 DEF VAR ll-is-a-return AS LOG NO-UNDO.
 DEF VAR v-armemo-log AS LOG NO-UNDO.
+DEFINE VARIABLE hGLProcs  AS HANDLE  NO-UNDO.
+
+RUN system/GLProcs.p PERSISTENT SET hGLProcs.
 
 find first sys-ctrl where
      sys-ctrl.company eq cocode and
@@ -359,6 +362,9 @@ ON HELP OF Browser-Table IN FRAME F-Main
 DO:
     DEF VAR char-val AS cha NO-UNDO.
     DEF VAR lk-recid AS RECID NO-UNDO.
+    DEFINE VARIABLE cFieldsValue  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFoundValue   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE recFoundRecID AS RECID     NO-UNDO.
 
     CASE FOCUS:NAME:
         WHEN "inv-no" THEN DO:
@@ -368,10 +374,19 @@ DO:
              END.
              RETURN NO-APPLY.
         END.
-        WHEN "actnum" THEN DO:
-            RUN windows/l-acct3.w (ar-cash.company,"T",FOCUS:SCREEN-VALUE, OUTPUT char-val).
-            IF char-val NE "" AND ENTRY(1,char-val) NE FOCUS:SCREEN-VALUE THEN DO:
-              FOCUS:SCREEN-VALUE = ENTRY(1,char-val).
+        WHEN "actnum" THEN DO:            
+            RUN system/openLookup.p (
+                INPUT  g_company, 
+                INPUT  "",  /* Lookup ID */
+                INPUT  87,  /* Subject ID */
+                INPUT  "",  /* User ID */
+                INPUT  0,   /* Param Value ID */
+                OUTPUT cFieldsValue, 
+                OUTPUT cFoundValue, 
+                OUTPUT recFoundRecID
+                ). 
+            IF cFoundValue NE "" AND cFoundValue NE FOCUS:SCREEN-VALUE THEN DO:
+              FOCUS:SCREEN-VALUE = cFoundValue.
               RUN new-actnum.
             END.
         END.
@@ -582,7 +597,7 @@ ON LEAVE OF ar-cashl.actnum IN BROWSE Browser-Table /* Account Number */
 DO:
   IF LASTKEY NE -1 THEN DO:
     RUN valid-actnum NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.        
 
     RUN valid-inv-act NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
@@ -828,7 +843,7 @@ PROCEDURE local-cancel-record :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
-
+  RUN presetColor NO-ERROR.
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
 
@@ -1016,6 +1031,27 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-reset-record B-table-Win
+PROCEDURE local-reset-record:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+    /* Code placed here will execute PRIOR to standard behavior. */
+    RUN presetColor NO-ERROR. 
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'reset-record':U ) .
+    
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record B-table-Win 
 PROCEDURE local-update-record :
 /*------------------------------------------------------------------------------
@@ -1040,7 +1076,7 @@ PROCEDURE local-update-record :
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
   RUN valid-actnum NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.    
 
   RUN valid-inv-act NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
@@ -1126,6 +1162,27 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE presetColor B-table-Win
+PROCEDURE presetColor:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+    IF ar-cashl.actnum:BGCOLOR IN BROWSE {&BROWSE-NAME} EQ 16 THEN             
+        ASSIGN 
+            ar-cashl.actnum:BGCOLOR IN BROWSE {&BROWSE-NAME} = ?
+            ar-cashl.actnum:FGCOLOR IN BROWSE {&BROWSE-NAME} = ?
+            .
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE printInv B-table-Win 
 PROCEDURE printInv :
@@ -1325,20 +1382,41 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-actnum B-table-Win 
 PROCEDURE valid-actnum :
 /*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
+  Purpose: To check valid and active GL account.   
+  Parameters: 
   Notes:       
 ------------------------------------------------------------------------------*/
+  DEFINE VARIABLE lSuccess AS LOGICAL   NO-UNDO.
+  DEFINE VARIABLE lActive  AS LOGICAL   NO-UNDO.
+  DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
 
-  DO WITH FRAME {&FRAME-NAME}:
-    IF NOT CAN-FIND(FIRST account
-                    WHERE account.company EQ g_company
-                      AND account.actnum  EQ ar-cashl.actnum:SCREEN-VALUE IN BROWSE {&browse-name}
-                      AND account.TYPE    NE "T") THEN DO:
-      MESSAGE "Invalid GL Account Number" VIEW-AS ALERT-BOX ERROR.
-      APPLY "entry" TO ar-cashl.actnum.
-      RETURN ERROR.
-    END.                      
+  DO WITH FRAME {&FRAME-NAME}:   
+        
+      RUN GL_CheckGLAccount IN hGLProcs(
+          INPUT  g_company,
+          INPUT  ar-cashl.actnum:SCREEN-VALUE IN BROWSE {&browse-name},            
+          OUTPUT cMessage,
+          OUTPUT lSuccess,
+          OUTPUT lActive
+          ).    
+            
+      IF lSuccess = NO THEN DO:               
+          MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.            
+          RUN presetColor NO-ERROR.
+          APPLY "ENTRY" TO ar-cashl.actnum IN BROWSE {&BROWSE-NAME}.       
+          RETURN ERROR. 
+      END.   
+      
+      IF lSuccess = YES AND lActive = NO THEN DO:  
+          ASSIGN 
+              ar-cashl.actnum:BGCOLOR IN BROWSE {&BROWSE-NAME} = 16
+              ar-cashl.actnum:FGCOLOR IN BROWSE {&BROWSE-NAME} = 15
+              .   
+          MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.           
+          APPLY "ENTRY" TO ar-cashl.actnum IN BROWSE {&BROWSE-NAME}.
+          RETURN ERROR.                      
+      END.      
+      RUN presetColor NO-ERROR.                                                                
   END.
 
 END PROCEDURE.

@@ -40,6 +40,7 @@ CREATE WIDGET-POOL.
 {custom/gcompany.i}
 {custom/gloc.i}
 {sys/inc/var.i NEW SHARED}
+{methods/template/brwCustomDef.i}
 
 ASSIGN
  cocode = g_company
@@ -346,7 +347,8 @@ tb_tancom btn_go btn_prev Browser-Table RECT-1
 &Scoped-Define DISPLAYED-OBJECTS vi_est-no begin_cust-no begin_ship ~
 vi_part-no vi_stock-no vi_part-dscr1 vi_style vi_len vi_len-2 vi_wid ~
 vi_wid-2 vi_dep vi_dep-2 vi_die-no TG_exact-match vi_cad-no vi_plate-no ~
-tb_single tb_set tb_tancom fi_sort-by FI_moveCol 
+tb_single tb_set tb_tancom fi_sort-by 
+//FI_moveCol 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -393,17 +395,17 @@ FUNCTION get-type RETURNS CHARACTER
 DEFINE BUTTON btn_go 
      LABEL "&Go" 
      SIZE 14 BY 1
-     FONT 6.
+     FONT 22.
 
 DEFINE BUTTON btn_next 
      LABEL "Show &Next" 
      SIZE 16 BY 1
-     FONT 6.
+     FONT 22.
 
 DEFINE BUTTON btn_prev 
      LABEL "Show &Previous" 
      SIZE 20 BY 1
-     FONT 6.
+     FONT 22.
 
 DEFINE VARIABLE begin_cust-no AS CHARACTER FORMAT "X(8)":U 
      VIEW-AS FILL-IN 
@@ -415,15 +417,15 @@ DEFINE VARIABLE begin_ship AS CHARACTER FORMAT "X(8)":U
      SIZE 14 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE FI_moveCol AS CHARACTER FORMAT "X(4)":U 
+/*DEFINE VARIABLE FI_moveCol AS CHARACTER FORMAT "X(4)":U 
      VIEW-AS FILL-IN 
      SIZE 9 BY 1
-     BGCOLOR 14 FONT 6 NO-UNDO.
+     BGCOLOR 14 FONT 6 NO-UNDO.*/
 
 DEFINE VARIABLE fi_sort-by AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
      SIZE 31 BY 1
-     BGCOLOR 14 FONT 6 NO-UNDO.
+     BGCOLOR 14 FONT 22 NO-UNDO.
 
 DEFINE VARIABLE vi_cad-no AS CHARACTER FORMAT "x(15)":U 
      VIEW-AS FILL-IN 
@@ -452,7 +454,7 @@ DEFINE VARIABLE vi_est-date AS DATE FORMAT "99/99/9999":U
 DEFINE VARIABLE vi_est-no AS CHARACTER FORMAT "x(8)":U 
      VIEW-AS FILL-IN 
      SIZE 15 BY 1
-     BGCOLOR 15 FONT 2 NO-UNDO.
+     BGCOLOR 15 FONT 22 NO-UNDO.
 
 DEFINE VARIABLE vi_len AS DECIMAL FORMAT "->>,>>9.99":U INITIAL 0 
      VIEW-AS FILL-IN 
@@ -614,7 +616,7 @@ DEFINE BROWSE Browser-Table
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 151 BY 14.76
-         FONT 2.
+         FONT 22.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -645,47 +647,47 @@ DEFINE FRAME F-Main
      btn_next AT ROW 5.05 COL 39
      vi_est-date AT ROW 5.05 COL 54 COLON-ALIGNED NO-LABEL
      fi_sort-by AT ROW 5.05 COL 81 COLON-ALIGNED NO-LABEL
-     FI_moveCol AT ROW 5.05 COL 136.2 COLON-ALIGNED NO-LABEL WIDGET-ID 8
+   //  FI_moveCol AT ROW 5.05 COL 136.2 COLON-ALIGNED NO-LABEL WIDGET-ID 8
      Browser-Table AT ROW 6.24 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
      "to" VIEW-AS TEXT
           SIZE 3 BY 1 AT ROW 2.91 COL 101
      "Estimate" VIEW-AS TEXT
           SIZE 11 BY .67 AT ROW 1.24 COL 3
-          FGCOLOR 9 FONT 6
+          FGCOLOR 9 FONT 22
      "Customer" VIEW-AS TEXT
           SIZE 13 BY .62 AT ROW 1.24 COL 17
-          FGCOLOR 9 FONT 6
+          FGCOLOR 9 FONT 22
      "FG Item# / Name" VIEW-AS TEXT
           SIZE 20 BY .62 AT ROW 1.24 COL 51
-          FGCOLOR 9 FONT 6
+          FGCOLOR 9 FONT 22
      "Style" VIEW-AS TEXT
           SIZE 9 BY .62 AT ROW 1.24 COL 73
-          FGCOLOR 9 FONT 6
+          FGCOLOR 9 FONT 22
      "to" VIEW-AS TEXT
           SIZE 3 BY 1 AT ROW 1.95 COL 101
      "Customer Part#" VIEW-AS TEXT
           SIZE 19 BY .62 AT ROW 1.24 COL 31
-          FGCOLOR 9 FONT 6
+          FGCOLOR 9 FONT 22
      "Ship To" VIEW-AS TEXT
           SIZE 10 BY .62 AT ROW 3.14 COL 6
-          FGCOLOR 9 FONT 6
+          FGCOLOR 9 FONT 22
      "Match" VIEW-AS TEXT
           SIZE 6.8 BY .62 AT ROW 2.76 COL 144 WIDGET-ID 6
-     "Sort By:" VIEW-AS TEXT
+/*"Sort By:" VIEW-AS TEXT
           SIZE 9.4 BY 1 AT ROW 5.05 COL 72.8
-          FONT 6
+          FONT 6 */
      "to" VIEW-AS TEXT
           SIZE 3 BY 1 AT ROW 3.86 COL 101
      "Die # / Cad # / Plate #" VIEW-AS TEXT
           SIZE 28 BY .62 AT ROW 1.24 COL 118
-          FGCOLOR 9 FONT 6
+          FGCOLOR 9 FONT 22
      "L x W x D" VIEW-AS TEXT
           SIZE 13 BY .62 AT ROW 1.24 COL 96
-          FGCOLOR 9 FONT 6
-     "Browser Col. Mode:" VIEW-AS TEXT
+          FGCOLOR 9 FONT 22
+   /*  "Browser Col. Mode:" VIEW-AS TEXT
           SIZE 22.6 BY .62 AT ROW 5.29 COL 115.2 WIDGET-ID 10
-          FONT 6
+          FONT 6*/
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -964,6 +966,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON ROW-DISPLAY OF Browser-Table IN FRAME F-Main
 DO:
+    &SCOPED-DEFINE exclude-row-display true
+    {methods/template/brwRowDisplay.i}
+        
    DEFINE VARIABLE lActive AS LOGICAL     NO-UNDO.
    IF AVAIL est AND est.highlight THEN
       est.est-no:BGCOLOR IN BROWSE {&browse-name} = 14.
@@ -1035,6 +1040,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON START-SEARCH OF Browser-Table IN FRAME F-Main
 DO:
+  {methods/template/sortindicator.i} 
   DEF VAR lh-column AS HANDLE NO-UNDO.
   DEF VAR lv-column-nam AS CHAR NO-UNDO.
   DEF VAR lv-column-lab AS CHAR NO-UNDO.
@@ -1056,6 +1062,7 @@ DO:
     
       APPLY "choose" TO btn_go.
   END. /* if sortable column */
+  {methods/template/sortindicatorend.i} 
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1087,7 +1094,7 @@ DO:
      RUN paper-clip-image-proc(INPUT est.rec_key).
 
      RUN dept-image-proc.
-
+    // RUN udf-image-proc.
     IF eb.stock-no NE "" THEN
     DO:
        FIND FIRST itemfg WHERE
@@ -1577,6 +1584,7 @@ END.
 /* ***************************  Main Block  *************************** */
 {methods/ctrl-a_browser.i}
 {sys/inc/f3help.i}
+//{custom\udfimgchange.i &table-name=est}
  RUN sys/ref/CustList.p (INPUT cocode,
                             INPUT 'EC',
                             INPUT YES,
@@ -1597,7 +1605,10 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
 
 {AOA/includes/pDynBrowserParam.i}
 {methods/winReSize.i}
-
+/* Ticket# : 92946
+   Hiding this widget for now, as browser's column label should be indicating the column which is sorted by */
+fi_sort-by:HIDDEN  = TRUE.
+fi_sort-by:VISIBLE = FALSE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -2153,10 +2164,10 @@ PROCEDURE local-initialize :
    eb.cad-no:READ-ONLY IN BROWSE {&browse-name} = YES
    eb.plate-no:READ-ONLY IN BROWSE {&browse-name} = YES
    eb.quantityPerSet:READ-ONLY IN BROWSE {&browse-name} = YES 
-   vi_die-no:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "*"
-   FI_moveCol = "Sort".
+   vi_die-no:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "*".
+  /* FI_moveCol = "Sort".
 
-  DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}.
+  DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}.*/
 
   /*RUN set-focus.*/
   ENABLE {&browse-name} WITH FRAME {&FRAME-NAME}. 
@@ -2268,9 +2279,9 @@ PROCEDURE move-columns :
       ASSIGN
          Browser-Table:COLUMN-MOVABLE = v-col-move
          Browser-Table:COLUMN-RESIZABLE = v-col-move
-         v-col-move = NOT v-col-move
-         FI_moveCol = IF v-col-move = NO THEN "Move" ELSE "Sort".
-      DISPLAY FI_moveCol.
+         v-col-move = NOT v-col-move.
+    /*     FI_moveCol = IF v-col-move = NO THEN "Move" ELSE "Sort".
+      DISPLAY FI_moveCol.*/
    END.
 END PROCEDURE.
 

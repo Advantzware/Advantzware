@@ -296,9 +296,12 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
 ON HELP OF FRAME Dialog-Frame /* Commission Cost By Item Excel Export */
 DO:
-DEF VAR lw-focus AS WIDGET-HANDLE NO-UNDO.
-DEF VAR ls-cur-val AS CHAR NO-UNDO.
-DEF VAR char-val AS CHAR NO-UNDO.
+DEFINE VARIABLE lw-focus      AS WIDGET-HANDLE NO-UNDO.
+DEFINE VARIABLE ls-cur-val    AS CHARACTER     NO-UNDO.
+DEFINE VARIABLE char-val      AS CHARACTER     NO-UNDO.
+DEFINE VARIABLE cFieldsValue  AS CHARACTER     NO-UNDO.
+DEFINE VARIABLE cFoundValue   AS CHARACTER     NO-UNDO.
+DEFINE VARIABLE recFoundRecID AS RECID         NO-UNDO.
 
    lw-focus = FOCUS.
 
@@ -320,19 +323,37 @@ DEF VAR char-val AS CHAR NO-UNDO.
            end.
            return no-apply.
        end.  /* cust-no*/  
-       when "begin_salrep" then do:
-           ls-cur-val = lw-focus:screen-value.
-           run windows/l-sman.w (cocode, output char-val).
-           if char-val <> "" then do:
-              lw-focus:screen-value =  ENTRY(1,char-val).
-           end.
-           return no-apply.
-       end.  /* salrep*/  
+       WHEN "begin_salrep" THEN DO:
+           ls-cur-val = lw-focus:SCREEN-VALUE.
+              RUN system/openLookup.p (
+                  INPUT  cocode, 
+                  INPUT  "",  /* Lookup ID */
+                  INPUT  29,  /* Subject ID */
+                  INPUT  "",  /* User ID */
+                  INPUT  0,   /* Param Value ID */
+                  OUTPUT cFieldsValue, 
+                  OUTPUT cFoundValue, 
+                  OUTPUT recFoundRecID
+                  ).
+           IF cFoundValue <> "" THEN DO:
+              lw-focus:SCREEN-VALUE =  cFoundValue.
+           END.
+           RETURN NO-APPLY.
+       END.  /* salrep*/  
        when "end_salrep" then do:
            ls-cur-val = lw-focus:screen-value.
-           run windows/l-sman.w (cocode, output char-val).
-           if char-val <> "" then do:
-              lw-focus:screen-value =  ENTRY(1,char-val).
+            RUN system/openLookup.p (
+                INPUT  cocode, 
+                INPUT  "", /* Lookup ID */
+                INPUT  29, /* Subject ID */
+                INPUT  "", /* User ID */
+                INPUT  0,  /* Param Value ID */
+                OUTPUT cFieldsValue, 
+                OUTPUT cFoundValue, 
+                OUTPUT recFoundRecID
+                ).
+           if cFoundValue <> "" then do:
+              lw-focus:screen-value =  cFoundValue.
            end.
            return no-apply.
        end.  /* salrep*/

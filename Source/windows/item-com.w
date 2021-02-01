@@ -90,18 +90,18 @@ DEFINE FRAME F-Main
          SIZE 150 BY 24
          BGCOLOR 15 .
 
+DEFINE FRAME OPTIONS-FRAME
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1
+         SIZE 150 BY 1.91
+         BGCOLOR 15 .
+
 DEFINE FRAME message-frame
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 46 ROW 2.91
          SIZE 105 BY 1.43
-         BGCOLOR 15 .
-
-DEFINE FRAME OPTIONS-FRAME
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 2 ROW 1
-         SIZE 148 BY 1.91
          BGCOLOR 15 .
 
 
@@ -130,7 +130,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 320
          VIRTUAL-HEIGHT     = 320
          VIRTUAL-WIDTH      = 320
-         RESIZE             = no
+         RESIZE             = yes
          SCROLL-BARS        = no
          STATUS-AREA        = yes
          BGCOLOR            = ?
@@ -250,6 +250,7 @@ END.
 
 /* Include custom  Main Block code for SmartWindows. */
 {src/adm/template/windowmn.i}
+{custom/initializeprocs.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -281,28 +282,11 @@ PROCEDURE adm-create-objects :
        /* Size in UIB:  ( 1.14 , 32.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'smartobj/f-add.w':U ,
-             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
-             INPUT  '':U ,
-             OUTPUT h_f-add ).
-       RUN set-position IN h_f-add ( 1.00 , 91.20 ) NO-ERROR.
-       /* Size in UIB:  ( 1.81 , 7.80 ) */
-
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'adm/objects/folder.w':U ,
-             INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'FOLDER-LABELS = ':U + 'Browse Costs|View Costs' + ',
-                     FOLDER-TAB-TYPE = 1':U ,
-             OUTPUT h_folder ).
-       RUN set-position IN h_folder ( 3.14 , 2.00 ) NO-ERROR.
-       RUN set-size IN h_folder ( 21.43 , 148.00 ) NO-ERROR.
-
-       RUN init-object IN THIS-PROCEDURE (
              INPUT  'viewers/v-itmbct.w':U ,
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_v-itmbct ).
-       RUN set-position IN h_v-itmbct ( 1.00 , 99.00 ) NO-ERROR.
+       RUN set-position IN h_v-itmbct ( 1.00 , 2.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 23.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -310,22 +294,36 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_v-impcom ).
-       RUN set-position IN h_v-impcom ( 1.00 , 122.00 ) NO-ERROR.
+       RUN set-position IN h_v-impcom ( 1.00 , 26.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 19.00 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'adm/objects/folder.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'FOLDER-LABELS = ':U + 'Browse|Detail' + ',
+                     FOLDER-TAB-TYPE = 2':U ,
+             OUTPUT h_folder ).
+       RUN set-position IN h_folder ( 3.14 , 2.00 ) NO-ERROR.
+       RUN set-size IN h_folder ( 21.43 , 148.00 ) NO-ERROR.
+
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'smartobj/f-add.w':U ,
+             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_f-add ).
+       RUN set-position IN h_f-add ( 1.00 , 135.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 7.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'smartobj/exit.w':U ,
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_exit ).
-       RUN set-position IN h_exit ( 1.00 , 141.00 ) NO-ERROR.
+       RUN set-position IN h_exit ( 1.00 , 143.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.80 ) */
 
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
-
-       /* Links to SmartFolder h_folder. */
-       RUN add-link IN adm-broker-hdl ( h_folder , 'Page':U , THIS-PROCEDURE ).
 
        /* Links to SmartViewer h_v-itmbct. */
        RUN add-link IN adm-broker-hdl ( h_b-itm-com , 'upd-base-cost':U , h_v-itmbct ).
@@ -333,15 +331,18 @@ PROCEDURE adm-create-objects :
        /* Links to SmartViewer h_v-impcom. */
        RUN add-link IN adm-broker-hdl ( h_b-itm-com , 'excel':U , h_v-impcom ).
 
+       /* Links to SmartFolder h_folder. */
+       RUN add-link IN adm-broker-hdl ( h_folder , 'Page':U , THIS-PROCEDURE ).
+
        /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_folder ,
-             FRAME message-frame:HANDLE , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_v-itmbct ,
-             h_f-add , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_v-impcom ,
              h_v-itmbct , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_exit ,
+       RUN adjust-tab-order IN adm-broker-hdl ( h_folder ,
+             FRAME message-frame:HANDLE , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_f-add ,
              h_v-impcom , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_exit ,
+             h_f-add , 'AFTER':U ).
     END. /* Page 0 */
     WHEN 1 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
@@ -349,7 +350,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_export ).
-       RUN set-position IN h_export ( 1.00 , 83.40 ) NO-ERROR.
+       RUN set-position IN h_export ( 1.00 , 127.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -371,6 +372,8 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_b-itm-com , 'Record':U , THIS-PROCEDURE ).
 
        /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_export ,
+             h_v-impcom , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_b-itm-com ,
              h_folder , 'AFTER':U ).
     END. /* Page 1 */

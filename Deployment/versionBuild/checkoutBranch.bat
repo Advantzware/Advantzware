@@ -1,8 +1,9 @@
 @ECHO OFF
-SET ghToken=5c5b4ee9facd6495549ae1a5e6c4184ec492807c
+SET ghToken=8a8ee226d2420dab562e5482a466d1649303f00c
 SET gitCredentials=-u https://%ghToken%@github.com/mark-advantzware/advantzware.git
 c:
-cd /asigui/repositories/advantzware
-git checkout %1  > NUL
-git pull origin %1 > NUL
+cd /asigui/repositories/advantzware > NUL
+git checkout %1 > NUL
+::git pull origin %1
+::pause
 exit

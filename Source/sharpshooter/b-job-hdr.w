@@ -41,6 +41,7 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 {inventory/ttInventory.i "NEW SHARED"}
+{jc/jcgl-sh.i  NEW}
 
 DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cJobNo   AS CHARACTER NO-UNDO.
@@ -90,7 +91,7 @@ DELETE OBJECT hdPgmSecurity.
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE br_table                                      */
-&Scoped-define FIELDS-IN-QUERY-br_table job-hdr.cust-no job-hdr.i-no job-hdr.qty fGetTotalReceived() @ iTotalRcvd itemfg.q-onh   
+&Scoped-define FIELDS-IN-QUERY-br_table job-hdr.cust-no job-hdr.i-no itemfg.i-name job-hdr.qty fGetTotalReceived() @ iTotalRcvd itemfg.q-onh   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br_table   
 &Scoped-define SELF-NAME br_table
 &Scoped-define QUERY-STRING-br_table FOR EACH job-hdr NO-LOCK       WHERE job-hdr.company EQ cCompany         AND job-hdr.job-no  EQ cJobNo         AND job-hdr.job-no2 EQ iJobNo2, ~
@@ -186,10 +187,11 @@ DEFINE BROWSE br_table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br_table B-table-Win _FREEFORM
   QUERY br_table NO-LOCK DISPLAY
       job-hdr.cust-no FORMAT "x(8)":U WIDTH 30
-      job-hdr.i-no FORMAT "x(15)":U WIDTH 40
-      job-hdr.qty COLUMN-LABEL "Job Quantity" FORMAT "->>,>>>,>>9":U WIDTH 36
-      fGetTotalReceived() @ iTotalRcvd COLUMN-LABEL "Job Qty Received" FORMAT "->>,>>>,>>9":U WIDTH 36
-      itemfg.q-onh COLUMN-LABEL "Total On-Hand" FORMAT "->>,>>>,>>9":U WIDTH 40
+      job-hdr.i-no FORMAT "x(15)":U WIDTH 30
+      itemfg.i-name COLUMN-LABEL "Item Description" FORMAT "x(30)":U WIDTH 37 
+      job-hdr.qty COLUMN-LABEL "Job Quantity" FORMAT "->>,>>>,>>9":U WIDTH 25
+      fGetTotalReceived() @ iTotalRcvd COLUMN-LABEL "Job Qty Received" FORMAT "->>,>>>,>>9":U WIDTH 30
+      itemfg.q-onh COLUMN-LABEL "Total On-Hand" FORMAT "->>,>>>,>>9":U WIDTH 30
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 181 BY 18.48
@@ -371,30 +373,31 @@ PROCEDURE AdjustQuantity :
     DEFINE VARIABLE lValueReturned   AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cAdjustType      AS CHARACTER NO-UNDO.
     DEFINE VARIABLE dValue           AS DECIMAL   NO-UNDO.
-    DEFINE VARIABLE lSuccess         AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lError           AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cMessage         AS CHARACTER NO-UNDO.
     DEFINE VARIABLE iProdQty         AS INTEGER   NO-UNDO.
-    
-    /* If not automatically cleared by security level, ask for password */
-    IF NOT lHasAccess THEN DO:
-        RUN sys/ref/d-passwd.w (
-            INPUT  10, 
-            OUTPUT lHasAccess
-            ). 
-    END.
-
-    IF NOT lHasAccess THEN
-        RETURN.
+    DEFINE VARIABLE dQtyToAdjust     AS DECIMAL   NO-UNDO.
 
     IF AVAILABLE job-hdr AND AVAILABLE itemfg THEN DO:
+        /* If not automatically cleared by security level, ask for password */
+        IF NOT lHasAccess THEN DO:
+            RUN sys/ref/d-passwd.w (
+                INPUT  10, 
+                OUTPUT lHasAccess
+                ). 
+        END.
+    
+        IF NOT lHasAccess THEN
+            RETURN.
+
         iProdQty = fGetTotalReceived().
         
         RUN inventory/adjustQuantityWithType.w (
             INPUT  itemfg.i-no,
             INPUT  itemfg.i-name,
-            INPUT  job-hdr.qty,
+            INPUT  IF job-hdr.qty LT 0 THEN 0 ELSE job-hdr.qty,
             INPUT  iProdQty,
-            INPUT  itemfg.q-onh,
+            INPUT  IF itemfg.q-onh LT 0 THEN 0 ELSE itemfg.q-onh,
             INPUT  1,
             INPUT  1,
             INPUT  TRUE, /* Required Adj Reason  */
@@ -409,30 +412,54 @@ PROCEDURE AdjustQuantity :
             OUTPUT dValue
             ).
   
-        IF lValueReturned THEN DO:  
-            MESSAGE cAdjustType + " quantity to " + STRING(dTotalQuantity) "?" 
+        IF lValueReturned THEN DO: 
+            IF cAdjustType EQ "Reduce" THEN
+                ASSIGN
+                    dQtyToAdjust = -1 * dTotalQuantity 
+                    cMessage     = "Reduce " + STRING(dTotalQuantity) + " quantity from total on-hand " + STRING(itemfg.q-onh) + "?"
+                    .
+            ELSE IF cAdjustType EQ "Add" THEN
+                ASSIGN
+                    dQtyToAdjust = dTotalQuantity 
+                    cMessage     = "Add " + STRING(dTotalQuantity) + " quantity to total on-hand " + STRING(itemfg.q-onh) + "?"
+                    .
+            IF cAdjustType EQ "Count" THEN
+                ASSIGN
+                    dQtyToAdjust = dTotalQuantity - itemfg.q-onh 
+                    cMessage     = "Adjust total on-hand to " + STRING(dTotalQuantity) + "?"
+                    .
+            
+            IF dQtyToAdjust EQ 0 THEN DO:
+                MESSAGE "Cannot adjust zero quantity value"
+                    VIEW-AS ALERT-BOX ERROR.
+                RETURN.    
+            END.
+            
+            MESSAGE cMessage 
                     VIEW-AS ALERT-BOX QUESTION
                     BUTTON OK-CANCEL
                     TITLE "Adjust Quantity" UPDATE lContinue AS LOGICAL.
-/*            IF lContinue THEN DO:                                               */
-/*                RUN Inventory_AdjustFinishedGoodBinQty IN hdInventoryProcs (    */
-/*                    INPUT  TO-ROWID(ttBrowseInventory.inventoryStockID),        */
-/*                    INPUT  dTotalQuantity - ttBrowseInventory.quantity,         */
-/*                    INPUT  dPartialQuantity - ttBrowseInventory.quantityPartial,*/
-/*                    INPUT  cAdjReasonCode,                                      */
-/*                    OUTPUT lSuccess,                                            */
-/*                    OUTPUT cMessage                                             */
-/*                    ).                                                          */
-/*                                                                                */
-/*                IF NOT lSuccess THEN                                            */
-/*                    MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.                   */
-/*                ELSE                                                            */
-/*                    ttBrowseInventory.quantity = dTotalQuantity.                */
-/*                                                                                */
-/*                {&OPEN-QUERY-{&BROWSE-NAME}}                                    */
-/*                                                                                */
-/*                APPLY "VALUE-CHANGED" TO BROWSE {&BROWSE-NAME}.                 */
-/*            END.                                                                */
+            IF lContinue THEN DO:
+                RUN Inventory_FGQuantityAdjust IN hdInventoryProcs (
+                    INPUT  job-hdr.company,
+                    INPUT  job-hdr.i-no,
+                    INPUT  job-hdr.loc,
+                    INPUT  "",
+                    INPUT  job-hdr.job-no,
+                    INPUT  job-hdr.job-no2,
+                    INPUT  dQtyToAdjust,
+                    INPUT  cAdjReasonCode,
+                    OUTPUT lError,
+                    OUTPUT cMessage
+                    ).
+
+                IF lError THEN
+                    MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
+
+                {&OPEN-QUERY-{&BROWSE-NAME}}
+
+                APPLY "VALUE-CHANGED" TO BROWSE {&BROWSE-NAME}.
+            END.
         END.
     END.
 END PROCEDURE.

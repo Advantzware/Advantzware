@@ -64,14 +64,14 @@ CREATE WIDGET-POOL.
 DEFINE QUERY external_tables FOR sman.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-FIELDS sman.sname sman.salesManager sman.commbasis ~
-sman.salesManager2 sman.scomm sman.netpct sman.salesManager3 sman.territory ~
-sman.hasMembers 
+sman.inActive sman.salesManager2 sman.scomm sman.netpct sman.salesManager3 ~
+sman.territory sman.hasMembers 
 &Scoped-define ENABLED-TABLES sman
 &Scoped-define FIRST-ENABLED-TABLE sman
 &Scoped-Define ENABLED-OBJECTS RECT-1 RECT-2 btnGroupLookup 
 &Scoped-Define DISPLAYED-FIELDS sman.sman sman.sname sman.salesManager ~
-sman.commbasis sman.salesManager2 sman.scomm sman.netpct sman.salesManager3 ~
-sman.territory sman.hasMembers 
+sman.commbasis sman.inActive sman.salesManager2 sman.scomm sman.netpct ~
+sman.salesManager3 sman.territory sman.hasMembers 
 &Scoped-define DISPLAYED-TABLES sman
 &Scoped-define FIRST-DISPLAYED-TABLE sman
 &Scoped-Define DISPLAYED-OBJECTS terr_dscr F1 
@@ -156,7 +156,10 @@ DEFINE FRAME F-Main
                      "Margin","M"
           DROP-DOWN-LIST
           SIZE 22 BY 1
-          FONT 4     
+          FONT 4
+     sman.inActive AT ROW 2.52 COL 44.4 WIDGET-ID 4
+          VIEW-AS TOGGLE-BOX
+          SIZE 13.2 BY .81
      sman.scomm AT ROW 3.62 COL 17.6 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 9.2 BY 1
@@ -304,8 +307,17 @@ DO:
 
    CASE Focus:name :
      when "salesManager" OR when "salesManager2" OR when "salesManager3" then do:
-           RUN windows/l-sman.w (sman.company, OUTPUT char-val).
-          IF char-val <> "" THEN focus:SCREEN-VALUE in frame {&frame-name} = ENTRY(1,char-val).               
+          RUN system/openLookup.p (
+              INPUT  gcompany, 
+              INPUT  "", /* Lookup ID */
+              INPUT  155,  /* Subject ID */
+              INPUT  "", /* User ID */
+              INPUT  0,  /* Param Value ID */
+              OUTPUT cAllFields, 
+              OUTPUT cMainField, 
+              OUTPUT recRecordID
+              ). 
+          IF cMainField <> "" THEN focus:SCREEN-VALUE in frame {&frame-name} = cMainField.               
            return no-apply.  
      end.          
   end case.  
@@ -738,3 +750,4 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+

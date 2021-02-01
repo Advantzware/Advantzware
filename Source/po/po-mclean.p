@@ -77,6 +77,7 @@ def var v-t-tax      as   dec extent 3 NO-UNDO.
 def var v-bot-lab    as   char format "x(63)" extent 3 NO-UNDO.
 DEF VAR v-q-no LIKE oe-ord.q-no NO-UNDO.
 DEF VAR v-printline AS INT NO-UNDO.
+DEFINE VARIABLE iLinePerPage AS INTEGER INIT 44 NO-UNDO.
 
 DEF VAR v-qty LIKE po-ordl.ord-qty NO-UNDO.
 DEF VAR v-tot-sqft AS DEC NO-UNDO.
@@ -459,12 +460,7 @@ v-printline = 0.
               v-adder[i] = FILL(" ", 15 - LENGTH(v-adder[i])) + v-adder[i].
         END.
 
-        IF v-printline + 4 > 46 THEN DO:         
-           PAGE.
-           v-printline = 0.
-           {po/po-mclean.i}
-        END.
-
+        RUN pPageBreak(0,4).
 
         ASSIGN
         lv-ord-qty = po-ordl.ord-qty
@@ -522,22 +518,18 @@ v-printline = 0.
                lv-pr-uom
                po-ordl.t-cost FORM "->>>,>>9.99"
                SKIP.
-
-           v-printline = v-printline + 1.
+                      
+           RUN pPageBreak(1,0).
         END.
-
-        v-printline = v-printline + 1.
-
+                
+        RUN pPageBreak(1,0).
         PUT int(po-ordl.over-pct) FORM ">>9" AT 7 " / "
             int(po-ordl.under-pct) FORM ">>9" 
             po-ordl.i-name AT 25 FORM "x(30)" SPACE(1)
             v-adder[2] SPACE(12)
-            v-change-dscr SKIP.
-        
-        ASSIGN
-           v-printline = v-printline + 1
-           v-line-number = v-line-number + 3.
-
+            v-change-dscr SKIP.         
+      
+        RUN pPageBreak(1,0).
 
          ASSIGN v-basis-w = 0
                v-dep     = 0.
@@ -573,9 +565,8 @@ v-printline = 0.
                   PUT "MSF: " trim(string(v-tot-sqft,">>>>>9.99<<")) .
               PUT skip.
               lPrintMsf = FALSE .
-           ASSIGN
-              v-line-number = v-line-number + 1
-              v-printline = v-printline + 1.
+           
+           RUN pPageBreak(1,0).   
         end.
     
         if po-ordl.dscr[2] ne "" OR v-adder[4] <> "" then do:
@@ -585,9 +576,8 @@ v-printline = 0.
                   PUT "MSF: " trim(string(v-tot-sqft,">>>>>9.99<<")) .
                   lPrintMsf = FALSE.
               PUT SKIP .
-          ASSIGN
-          v-line-number = v-line-number + 1
-          v-printline = v-printline + 1.
+          
+          RUN pPageBreak(1,0).
         end.
         
         IF v-adder[5] <> "" OR v-vend-item <> "" THEN DO:
@@ -596,10 +586,8 @@ v-printline = 0.
             IF lPrintMsf  THEN
                 PUT "MSF: " trim(string(v-tot-sqft,">>>>>9.99<<")) .
                   lPrintMsf = FALSE.
-              PUT SKIP .
-            ASSIGN
-            v-line-number = v-line-number + 1
-            v-printline = v-printline + 1.
+              PUT SKIP .           
+            RUN pPageBreak(1,0).
         END.
         /* calc total sq feet */
     
@@ -610,9 +598,8 @@ v-printline = 0.
           IF AVAILABLE itemfg THEN DO:
             IF itemfg.part-dscr3 NE '' THEN DO:
               PUT itemfg.part-dscr3 AT 25.
-              ASSIGN
-                v-line-number = v-line-number + 1
-                v-printline = v-printline + 1.
+              
+              RUN pPageBreak(1,0).  
             END. /* if part-dscr3 */
           END. /* avail itemfg */
         END. /* if v-itemdescription */
@@ -622,9 +609,8 @@ v-printline = 0.
            IF lPrintMsf  THEN
                PUT SPACE(5) "MSF: " trim(string(v-tot-sqft,">>>>>9.99<<")) .
                lPrintMsf = FALSE.
-              ASSIGN
-                v-line-number = v-line-number + 1
-                v-printline = v-printline + 1.
+              
+               RUN pPageBreak(1,0).
            END.
 
        END.
@@ -633,10 +619,8 @@ v-printline = 0.
            PUT po-ordl.vend-i-no AT 25.
            IF lPrintMsf  THEN
                PUT SPACE(5) "MSF: " trim(string(v-tot-sqft,">>>>>9.99<<")) .
-               lPrintMsf = FALSE.
-              ASSIGN
-                v-line-number = v-line-number + 1
-                v-printline = v-printline + 1.
+               lPrintMsf = FALSE.              
+               RUN pPageBreak(1,0).
            END.
        END.
 
@@ -693,25 +677,21 @@ v-printline = 0.
            PUT SKIP.
          /*dCoreDia = 0.*/
         IF dCoreDia GT 0 AND ITEM.mat-type EQ "P" THEN DO:
-            put "Core Dia: " AT 25 dCoreDia FORMAT ">,>>9.99<<" SKIP.
-            ASSIGN
-                v-line-number = v-line-number + 1
-                v-printline = v-printline + 1.
+            put "Core Dia: " AT 25 dCoreDia FORMAT ">,>>9.99<<" SKIP.            
+           RUN pPageBreak(1,0).     
         END.
         ELSE
            PUT SKIP.
 
         IF lPrintMsf  THEN do:
             PUT  "MSF: " AT 30 trim(string(v-tot-sqft,">>>>>9.99<<")) SKIP .
-            lPrintMsf = FALSE.
-            ASSIGN
-                v-line-number = v-line-number + 1
-                v-printline = v-printline + 1.
+            lPrintMsf = FALSE.            
+            RUN pPageBreak(1,0).    
         END.
 
-        assign v-line-number = v-line-number + 1
-               v-printline = v-printline + 1
+        ASSIGN 
                len-score = "".
+        RUN pPageBreak(1,0).       
 
         run po/po-ordls.p (recid(po-ordl)).
 
@@ -721,10 +701,8 @@ v-printline = 0.
                 put 
                     "Score: " AT 3
                     len-score format "x(80)" SKIP .
-                
-                ASSIGN
-                    v-line-number = v-line-number + 1
-                    v-printline = v-printline + 1.
+                              
+               RUN pPageBreak(1,0).     
             END.
 
             IF AVAIL ITEM AND lookup("1,2,3,4",ITEM.mat-type) > 0 THEN DO: 
@@ -734,20 +712,16 @@ v-printline = 0.
                   put 
                       "Score: " AT 3
                       len-score format "x(80)" SKIP .
-                      
-                  ASSIGN
-                  v-line-number = v-line-number + 1
-                  v-printline = v-printline + 1.
+                                    
+                  RUN pPageBreak(1,0).
                end.
           
                else
                if v-test-scr AND AVAIL ITEM AND ITEM.mat-type = "B" AND dec(trim(len-score)) ne v-wid then do:
                   put "Score: " AT 3
                       len-score format "x(80)"  SKIP.
-                      
-                  ASSIGN
-                  v-line-number = v-line-number + 1
-                  v-printline = v-printline + 1.
+                                    
+                  RUN pPageBreak(1,0).
                END.
             END.
            end.
@@ -781,33 +755,19 @@ v-printline = 0.
            li = i.
            IF v-dept-note[i] <> "" THEN LEAVE.
          END.
-         IF s-group-notes AND v-printline + li > 46 THEN DO:
-           PAGE.
-           v-printline = 0.
-           {po/po-mclean.i}
-         END.
-
+         RUN pPageBreak(0,li).
+         
          DO i = 1 TO li: 
          IF v-dept-note[i] NE "" THEN DO:
             PUT v-dept-note[i] SKIP.
-            v-printline = v-printline + 1.
+            
+            RUN pPageBreak(1,0).
          END.
-            IF v-printline > 46 THEN DO:                  
-               PAGE.
-               v-printline = 0.
-               {po/po-mclean.i}
-            END.
+            
          END.
          PUT skip(1).
-        assign
-        v-line-number = v-line-number + 1
-        v-printline = v-printline + 1.
-  
-     IF v-printline > 46 THEN DO:
-          PAGE.
-          v-printline = 0.
-          {po/po-mclean.i}
-     END.
+         RUN pPageBreak(1,0).  
+     
      IF v-print-sn THEN DO:
         IF po-ordl.item-type THEN
            FIND FIRST ITEM WHERE ITEM.company EQ po-ord.company
@@ -848,31 +808,23 @@ v-printline = 0.
            END.
         END.
         FOR EACH tt-text WHERE tt-text.TYPE = "specnote" AND tt-text.tt-recid = recid(po-ordl) BREAK BY tt-text.tt-line:
-            IF v-printline > 46 THEN DO:         
-              PAGE.
-              v-printline = 0.
-              {po/po-mclean.i}
-            END. 
+            
               IF FIRST(tt-text.tt-line) THEN DO:
                   PUT skip(1).
-                  assign
-                      v-line-number = v-line-number + 1
-                      v-printline = v-printline + 1.
+                  RUN pPageBreak(1,0).
+                  
               END.
               
-            PUT tt-text.tt-text FORM "x(80)"  SKIP.
-                v-printline = v-printline + 1.
+            PUT tt-text.tt-text FORM "x(80)"  SKIP.                
+                RUN pPageBreak(1,0).
         END.
      END.  /* v-print-sn */
 
      IF lCustCode THEN DO:
          PUT po-ordl.cust-no FORM "x(8)"  SKIP.
-         v-printline = v-printline + 1.
-         IF v-printline > 46 THEN DO:         
-              PAGE.
-              v-printline = 0.
-              {po/po-mclean.i}
-         END.
+         
+         RUN pPageBreak(1,0).
+         
      END.
 
      IF lPrintMach THEN DO:
@@ -887,7 +839,8 @@ v-printline = 0.
          END.
          IF cMachCode NE "" THEN do:
              PUT "First Resource: " cMachCode FORM "x(8)"  SKIP.
-             v-printline = v-printline + 1.
+             
+             RUN pPageBreak(1,0).
          END.
      END.
     
@@ -921,12 +874,6 @@ FOR EACH notes WHERE notes.rec_key = po-ord.rec_key NO-LOCK:
               j = i.
      END.
   end.
-
-  IF v-printline > 46 THEN DO:                  
-     PAGE.
-     v-printline = 0.
-     {po/po-mclean.i}
-  END.
 
   IF lPrintGrandTotMsf THEN
       IF AVAIL ITEM AND ITEM.industry EQ "2" OR AVAIL itemfg THEN DO:
@@ -973,6 +920,19 @@ v-printline = v-printline + 6.
 IF v-printline < 60 THEN PUT SKIP(80 - v-printline).
 
     end. /* for each po-ord record */.
+    
+    
+    
+PROCEDURE pPageBreak.
+  DEFINE INPUT PARAM ipiLine AS INTEGER NO-UNDO.
+  DEFINE INPUT PARAM ipCheck AS INTEGER NO-UNDO.
+   v-printline = v-printline + ipiLine. 
+   IF (v-printline + ipCheck) > iLinePerPage THEN DO:                  
+     PAGE.
+     v-printline = 0.
+     {po/po-mclean.i}
+   END.
+END PROCEDURE.    
    
 /* END ---------------------------- Copr. 1992 - 1994  Advanced Software Inc. */
 

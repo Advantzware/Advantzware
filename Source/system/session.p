@@ -19,6 +19,9 @@
 
 /* ***************************  Definitions  ************************** */
 USING system.SharedConfig.
+USING system.SessionConfig.
+
+{methods/auditfunc.i}
 
 DEFINE VARIABLE cCompany            AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cLocation           AS CHARACTER NO-UNDO.
@@ -52,6 +55,7 @@ DEFINE VARIABLE datMsgRtn           AS DATE      NO-UNDO.
 DEFINE VARIABLE dtmMsgRtn           AS DATETIME  NO-UNDO.
 
 DEFINE VARIABLE scInstance          AS CLASS System.SharedConfig NO-UNDO.
+DEFINE VARIABLE sessionInstance     AS CLASS system.SessionConfig NO-UNDO. 
 
 /* vv alphabetical list of super-procedures comma delimited vv */
 ASSIGN 
@@ -67,6 +71,7 @@ ASSIGN
                     + "system/TagProcs.p,"
                     + "system/TaxProcs.p,"
                     + "system/VendorCostProcs.p,"
+                    + "browsers/BrowserProcs.p,"
     cSuperProcedure = TRIM(cSuperProcedure,",")
     .
 /* ^^ alphabetical list of super-procedures comma delimited ^^ */
@@ -181,6 +186,19 @@ FUNCTION sfGetBeginSearch RETURNS CHARACTER
 
 
 &ENDIF
+
+&IF DEFINED(EXCLUDE-sfGetRecKeyPrefix) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfGetRecKeyPrefix Procedure
+FUNCTION sfGetRecKeyPrefix RETURNS CHARACTER 
+  (INPUT ipcRecKey AS CHARACTER) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
 
 &IF DEFINED(EXCLUDE-sfGetTtPermissionsHandle) = 0 &THEN
 
@@ -648,6 +666,232 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 &ENDIF
+
+&IF DEFINED(EXCLUDE-pSetCompanyContexts) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetCompanyContexts Procedure
+PROCEDURE pSetCompanyContexts PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-company FOR company.
+    
+    FIND FIRST bf-company NO-LOCK 
+         WHERE bf-company.company EQ ipcCompany
+         NO-ERROR.
+    IF NOT AVAILABLE bf-company THEN 
+        RETURN.
+         
+    IF sessionInstance EQ ? THEN 
+        sessionInstance = SessionConfig:instance.
+    
+    sessionInstance:SetValue("CompanyID",bf-company.company).
+    sessionInstance:SetValue("CompanyName",bf-company.name).
+    sessionInstance:SetValue("CompanyStreet1",bf-company.addr[1]).
+    sessionInstance:SetValue("CompanyStreet2",bf-company.addr[2]).
+    sessionInstance:SetValue("CompanyCity",bf-company.city).
+    sessionInstance:SetValue("CompanyState",bf-company.state).
+    sessionInstance:SetValue("CompanyPostalCode",bf-company.zip). 
+           
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
+&IF DEFINED(EXCLUDE-Session_CreateAuditDtlFromBuffer) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Session_CreateAuditDtlFromBuffer Procedure
+PROCEDURE Session_CreateAuditDtlFromBuffer:
+/*------------------------------------------------------------------------------
+ Purpose: Create Audit detail records from buffer handle
+ Notes:   Only supports "Create" and "Delete" audit history
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipiAuditID   AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER iphdBuffer   AS HANDLE    NO-UNDO.
+    DEFINE INPUT PARAMETER ipcType      AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE iAuditIdx    AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iExtent      AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iExtentBase  AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cIdxFields   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cBeforeValue AS CHARACTER NO-UNDO.
+    
+    /* get primary index fields */
+    RUN nosweat/primflds.p(
+        INPUT  iphdBuffer:NAME,
+        OUTPUT cIdxFields
+        ).
+    
+    DO iAuditIdx = 1 TO iphdBuffer:NUM-FIELDS:    
+        iExtentBase = IF iphdBuffer:BUFFER-FIELD(iAuditIdx):EXTENT GT 0 THEN 1 ELSE 0.
+        IF iphdBuffer:BUFFER-FIELD(iAuditIdx):DATA-TYPE EQ "CLOB" OR
+           iphdBuffer:BUFFER-FIELD(iAuditIdx):DATA-TYPE EQ "BLOB" THEN
+            NEXT.
+        DO iExtent = iExtentBase TO iphdBuffer:BUFFER-FIELD(iAuditIdx):EXTENT:
+            CASE ipcType:
+                WHEN "CREATE" THEN
+                IF CAN-DO(cIdxFields,iphdBuffer:BUFFER-FIELD(iAuditIdx):NAME) THEN DO:
+                    cBeforeValue = fFormatValue(iphdBuffer,iphdBuffer:BUFFER-FIELD(iAuditIdx):NAME, iExtent).
+                    RUN spCreateAuditDtl(
+                        INPUT ipiAuditID,
+                        INPUT iphdBuffer:BUFFER-FIELD(iAuditIdx):NAME,
+                        INPUT iExtent,
+                        INPUT cBeforeValue,
+                        INPUT "",
+                        INPUT CAN-DO(cIdxFields,iphdBuffer:BUFFER-FIELD(iAuditIdx):NAME)
+                        ).                    
+                END.    
+                WHEN "DELETE" THEN DO:
+                    cBeforeValue = fFormatValue(iphdBuffer,iphdBuffer:BUFFER-FIELD(iAuditIdx):NAME, iExtent).
+                    RUN spCreateAuditDtl(
+                        INPUT ipiAuditID,
+                        INPUT iphdBuffer:BUFFER-FIELD(iAuditIdx):NAME,
+                        INPUT iExtent,
+                        INPUT cBeforeValue,
+                        INPUT "",
+                        INPUT CAN-DO(cIdxFields,iphdBuffer:BUFFER-FIELD(iAuditIdx):NAME)
+                        ).                   
+                END.             
+            END CASE.
+
+        END. /* do iextent */
+    END. /* do */
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
+&IF DEFINED(EXCLUDE-Session_CreateAuditHistory) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Session_CreateAuditHistory Procedure
+PROCEDURE Session_CreateAuditHistory:
+/*------------------------------------------------------------------------------
+ Purpose: Creates Audit History records
+ Notes: Only supports "Create" and "Delete" audit history
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcAuditType   AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcAuditDB     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER iphdBuffer     AS HANDLE    NO-UNDO.  
+    
+    DEFINE VARIABLE cStack          AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lIsAuditEnabled AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE iIndex          AS INTEGER   NO-UNDO INIT 2.
+    DEFINE VARIABLE iStackID        AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iAuditId        AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cIdxFields      AS CHARACTER NO-UNDO.
+      
+    DEFINE BUFFER bf-AuditTbl   FOR AuditTbl.
+    DEFINE BUFFER bf-AuditStack FOR AuditStack.
+    DEFINE BUFFER bf-AuditHdr   FOR AuditHdr.
+    
+    IF NOT (ipcAuditType EQ "Create" OR ipcAuditType EQ "Delete") THEN 
+        RETURN.
+    FIND FIRST bf-AuditTbl NO-LOCK 
+         WHERE bf-AuditTbl.AuditTable EQ iphdBuffer:NAME
+         NO-ERROR.  
+           
+    IF AVAILABLE bf-AuditTbl THEN
+        lIsAuditEnabled = bf-AuditTbl.AuditStack.
+        
+    /* get primary index fields */
+    RUN nosweat/primflds.p (
+        INPUT  iphdBuffer:NAME,
+        OUTPUT cIdxFields
+        ).             
+    /*Ceate Header Record */
+    RUN spCreateAuditHdr(
+        INPUT  ipcAuditType,
+        INPUT  ipcAuditDB,
+        INPUT  iphdBuffer:NAME,
+        INPUT  fAuditKey(iphdBuffer,cIdxFields),
+        OUTPUT iAuditID
+        ). 
+           
+    RUN Session_CreateAuditDtlFromBuffer(   
+        INPUT iAuditID,
+        INPUT iphdBuffer,
+        INPUT ipcAuditType
+        ). 
+    IF lIsAuditEnabled THEN DO:
+        DO WHILE TRUE:
+            ASSIGN 
+                cStack = cStack + PROGRAM-NAME(iIndex) + ","
+                iIndex = iIndex + 1
+                .
+            IF PROGRAM-NAME(iIndex) EQ ? THEN
+                LEAVE. 
+        END. /* do while true */
+        cStack = TRIM(cStack,",").
+
+        FIND FIRST bf-AuditStack NO-LOCK
+             WHERE bf-AuditStack.AuditStack EQ cStack
+             NO-ERROR.
+        IF NOT AVAILABLE bf-AuditStack  THEN DO: 
+            RUN Session_CreateAuditStack(
+                INPUT  cStack,
+                OUTPUT iStackID
+                ).         
+        END. /* not avail */                
+    END. 
+    FIND FIRST bf-AuditHdr EXCLUSIVE-LOCK 
+         WHERE bf-AuditHdr.AuditID EQ iAuditID
+         NO-ERROR.
+    IF AVAILABLE bf-AuditHdr THEN
+        ASSIGN
+            bf-AuditHdr.AuditRecKey  = iphdBuffer:BUFFER-FIELD("rec_key"):BUFFER-VALUE
+            bf-AuditHdr.AuditStackID = iStackID
+            .   
+                       
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
+&IF DEFINED(EXCLUDE-Session_CreateAuditStack) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Session_CreateAuditStack Procedure
+PROCEDURE Session_CreateAuditStack:
+/*------------------------------------------------------------------------------
+ Purpose: Public procedure to create audit stack record
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcStack   AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER ipiStackID AS INTEGER   NO-UNDO.
+    
+    DEFINE BUFFER bf-AuditStack FOR AuditStack.
+    
+    CREATE bf-AuditStack.    
+    ASSIGN 
+        bf-AuditStack.AuditStackID = NEXT-VALUE(stack_trace)
+        bf-AuditStack.AuditStack   = ipcStack
+        ipiStackID                 = bf-AuditStack.AuditStackID
+        .
+        
+    RELEASE bf-AuditStack.
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
 
 &IF DEFINED(EXCLUDE-spActivateCueCards) = 0 &THEN
 
@@ -1945,6 +2189,10 @@ PROCEDURE spSetSessionParam:
         CREATE ttSessionParam.
         ttSessionParam.sessionParam = ipcSessionParam.
     END. /* if not avail */
+    IF ttSessionParam.sessionParam EQ "Company" AND ttSessionParam.sessionValue NE ipcSessionValue THEN
+        RUN pSetCompanyContexts(
+            ipcSessionValue
+            ).
     ttSessionParam.sessionValue = ipcSessionValue.
 
 END PROCEDURE.
@@ -2198,6 +2446,28 @@ END FUNCTION.
 &ANALYZE-RESUME
 
 &ENDIF
+
+&IF DEFINED(EXCLUDE-sfGetRecKeyPrefix) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION sfGetRecKeyPrefix Procedure
+FUNCTION sfGetRecKeyPrefix RETURNS CHARACTER 
+  (INPUT ipcRecKey AS CHARACTER ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes: Converts given rec_key into YYYMMDD format
+------------------------------------------------------------------------------*/
+    IF SUBSTRING(ipcRecKey,1,1) EQ "2" THEN
+        RETURN SUBSTRING(ipcRecKey,1,8).      
+    ELSE 
+        RETURN SUBSTRING(ipcRecKey,5,4) + SUBSTRING(ipcRecKey,1,2) + SUBSTRING(ipcRecKey,3,2).   
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
 
 &IF DEFINED(EXCLUDE-sfGetTtPermissionsHandle) = 0 &THEN
 

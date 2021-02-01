@@ -73,6 +73,7 @@ DEFINE {1} TEMP-TABLE ttPrintInventoryStock
 
 DEFINE {1} TEMP-TABLE ttBrowseInventory
     LIKE ttInventoryStockLoadtagWIP
+    FIELD transactionType   AS CHARACTER
     FIELD locDscr           AS CHARACTER
     FIELD leadDays          AS INTEGER
     FIELD orderLevel        AS INTEGER
@@ -288,6 +289,15 @@ DEFINE VARIABLE gcStatusStockInitial       AS CHARACTER NO-UNDO INITIAL "Created
 DEFINE VARIABLE gcStatusStockReceived      AS CHARACTER NO-UNDO INITIAL "On-Hand".
 DEFINE VARIABLE gcStatusStockConsumed      AS CHARACTER NO-UNDO INITIAL "Consumed".
 DEFINE VARIABLE gcStatusStockScanned       AS CHARACTER NO-UNDO INITIAL "Scanned".
+
+DEFINE TEMP-TABLE ttFGBin NO-UNDO
+    FIELD fgBinRowID AS ROWID
+    FIELD qty        AS DECIMAL
+    FIELD qty-case   AS INTEGER
+    FIELD partial    AS INTEGER
+    FIELD cases      AS INTEGER
+    INDEX fgBinRowID fgBinRowID
+    .
 
 DEFINE TEMP-TABLE ttRawMaterialsToPost NO-UNDO 
     FIELD parentRowID AS ROWID

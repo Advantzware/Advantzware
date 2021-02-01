@@ -90,7 +90,6 @@ END.
 
 /* Custom List Definitions                                              */
 /* Box-Rectangle,List-2,List-3,List-4,List-5,List-6                     */
-&Scoped-define Box-Rectangle RECT-1 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -102,24 +101,21 @@ END.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btn-resend 
-     IMAGE-UP FILE "Graphics/32x32/documents_exchange.ico":U
+     IMAGE-UP FILE "Graphics/32x32/documents_exchange.png":U
+     IMAGE-DOWN FILE "Graphics/32x32/documents_exchange_hover.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/documents_exchange_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
-     SIZE 9 BY 1.91.
-
-DEFINE RECTANGLE RECT-1
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 11 BY 2.14.
+     SIZE 7.8 BY 1.81.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Panel-Frame
      btn-resend AT ROW 1.24 COL 2
-     RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY NO-HELP 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
-         BGCOLOR 8 FGCOLOR 0 .
+         BGCOLOR 21 FGCOLOR 0 .
 
 
 /* *********************** Procedure Settings ************************ */
@@ -148,8 +144,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW C-WIn ASSIGN
-         HEIGHT             = 2.57
-         WIDTH              = 30.2.
+         HEIGHT             = 1.81
+         WIDTH              = 66.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -180,8 +176,6 @@ ASSIGN
        btn-resend:PRIVATE-DATA IN FRAME Panel-Frame     = 
                 "panel-image".
 
-/* SETTINGS FOR RECTANGLE RECT-1 IN FRAME Panel-Frame
-   NO-ENABLE 1                                                          */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 

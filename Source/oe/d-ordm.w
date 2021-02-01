@@ -44,6 +44,7 @@ DEFINE VARIABLE lv-new-recid    AS RECID     NO-UNDO.
 DEFINE VARIABLE lv-valid-charge AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE char-hdl        AS CHARACTER NO-UNDO.
 DEFINE VARIABLE ilogic          AS LOGICAL   NO-UNDO .
+DEFINE VARIABLE hdSalesManProcs AS HANDLE    NO-UNDO.
 
 DEFINE NEW SHARED VARIABLE v-misc          AS LOGICAL   INIT NO NO-UNDO.
 DEFINE NEW SHARED VARIABLE v-fr-tax        LIKE oe-ctrl.f-tax NO-UNDO.
@@ -52,6 +53,9 @@ DEFINE NEW SHARED BUFFER xoe-ord FOR oe-ord.
 DEFINE NEW SHARED BUFFER xest    FOR est.
 DEFINE NEW SHARED BUFFER xef     FOR ef.
 DEFINE NEW SHARED BUFFER xeb     FOR eb.
+
+RUN salrep/SalesManProcs.p PERSISTENT SET hdSalesManProcs.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -149,7 +153,7 @@ FUNCTION fGetTaxableMisc RETURNS LOGICAL
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON Btn_Cancel 
-    IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U NO-FOCUS FLAT-BUTTON
+    IMAGE-UP FILE "Graphics/32x32/exit_white.png":U NO-FOCUS FLAT-BUTTON
     LABEL "Cancel" 
     SIZE 10 BY 1.91
     BGCOLOR 8 .
@@ -160,7 +164,7 @@ DEFINE BUTTON Btn_Done AUTO-END-KEY DEFAULT
     BGCOLOR 8 .
 
 DEFINE BUTTON Btn_OK 
-    IMAGE-UP FILE "Graphics/32x32/floppy_disk.ico":U NO-FOCUS FLAT-BUTTON
+    IMAGE-UP FILE "Graphics/32x32/floppy_disk.png":U NO-FOCUS FLAT-BUTTON
     LABEL "&Save" 
     SIZE 10 BY 1.91
     BGCOLOR 8 .
@@ -453,11 +457,14 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
 ON HELP OF FRAME Dialog-Frame /* Misc. Charge Item Update */
     DO:
-        DEFINE VARIABLE char-val   AS CHARACTER     NO-UNDO.
-        DEFINE VARIABLE look-recid AS RECID         NO-UNDO.
-        DEFINE VARIABLE v-li       AS INTEGER       NO-UNDO.
-        DEFINE VARIABLE lw-focus   AS WIDGET-HANDLE NO-UNDO.
-        DEFINE VARIABLE lv-handle  AS HANDLE        NO-UNDO.
+        DEFINE VARIABLE char-val      AS CHARACTER     NO-UNDO.
+        DEFINE VARIABLE look-recid    AS RECID         NO-UNDO.
+        DEFINE VARIABLE v-li          AS INTEGER       NO-UNDO.
+        DEFINE VARIABLE lw-focus      AS WIDGET-HANDLE NO-UNDO.
+        DEFINE VARIABLE lv-handle     AS HANDLE        NO-UNDO.
+        DEFINE VARIABLE cFieldsValue  AS CHARACTER     NO-UNDO.
+        DEFINE VARIABLE cFoundValue   AS CHARACTER     NO-UNDO.
+        DEFINE VARIABLE recFoundRecID AS RECID         NO-UNDO.        
 
         lw-focus = FOCUS.
 
@@ -481,17 +488,26 @@ ON HELP OF FRAME Dialog-Frame /* Misc. Charge Item Update */
             WHEN "s-man" THEN 
                 DO:
                     v-li = FRAME-INDEX.
-                    RUN windows/l-sman.w (oe-ord.company, OUTPUT char-val).
-                    IF char-val NE "" THEN 
+                    RUN system/openLookup.p (
+                        INPUT  oe-ord.company, 
+                        INPUT  "",  /* Lookup ID */
+                        INPUT  29,  /* Subject ID */
+                        INPUT  "",  /* User ID */
+                        INPUT  0,   /* Param Value ID */
+                        OUTPUT cFieldsValue, 
+                        OUTPUT cFoundValue, 
+                        OUTPUT recFoundRecID
+                        ).
+                    IF cFoundValue NE "" THEN 
                     DO:
-                        IF v-li EQ 1 AND oe-ordm.s-man[1]:SCREEN-VALUE NE ENTRY(1,char-val) THEN 
-                            oe-ordm.s-man[1]:SCREEN-VALUE = ENTRY(1,char-val).
+                        IF v-li EQ 1 AND oe-ordm.s-man[1]:SCREEN-VALUE NE cFoundValue THEN 
+                            oe-ordm.s-man[1]:SCREEN-VALUE = cFoundValue.
                         ELSE
-                            IF v-li EQ 2 AND oe-ordm.s-man[2]:SCREEN-VALUE NE ENTRY(1,char-val) THEN 
-                                oe-ordm.s-man[2]:SCREEN-VALUE = ENTRY(1,char-val).
+                            IF v-li EQ 2 AND oe-ordm.s-man[2]:SCREEN-VALUE NE cFoundValue THEN 
+                                oe-ordm.s-man[2]:SCREEN-VALUE = cFoundValue.
                             ELSE
-                                IF v-li EQ 3 AND oe-ordm.s-man[3]:SCREEN-VALUE NE ENTRY(1,char-val) THEN 
-                                    oe-ordm.s-man[3]:SCREEN-VALUE = ENTRY(1,char-val).
+                                IF v-li EQ 3 AND oe-ordm.s-man[3]:SCREEN-VALUE NE cFoundValue THEN 
+                                    oe-ordm.s-man[3]:SCREEN-VALUE = cFoundValue.
                                 ELSE v-li = 0.
                         IF v-li NE 0 THEN RUN new-s-man (v-li).
                     END.
@@ -1665,6 +1681,29 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE presetColor Dialog-Frame
+PROCEDURE presetColor:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DO WITH FRAME {&FRAME-NAME}:
+        IF oe-ordm.actnum:BGCOLOR EQ 16 THEN             
+            ASSIGN 
+                oe-ordm.actnum:BGCOLOR = ?
+                oe-ordm.actnum:FGCOLOR = ?
+                .                             
+    END. 
+
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE show-comm Dialog-Frame 
 PROCEDURE show-comm :
     /*------------------------------------------------------------------------------
@@ -1697,19 +1736,35 @@ PROCEDURE valid-actnum :
       Parameters:  <none>
       Notes:       
     ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lValid    AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage  AS CHARACTER NO-UNDO.    
+    DEFINE VARIABLE hValidate AS HANDLE    NO-UNDO.
+    
+    RUN util/Validate.p PERSISTENT SET hValidate.
 
-    DO WITH FRAME {&FRAME-NAME}:
-        IF oe-ordm.actnum:SCREEN-VALUE EQ "" OR
-            NOT CAN-FIND(FIRST account
-            WHERE account.company EQ oe-ord.company 
-            AND account.actnum  EQ oe-ordm.actnum:SCREEN-VALUE
-            /*AND account.type    EQ "R"*/)
-            THEN 
-        DO:
-            MESSAGE "Invalid entry, try help..." VIEW-AS ALERT-BOX ERROR.
-            APPLY "entry" TO oe-ordm.actnum IN FRAME {&FRAME-NAME}.
-            RETURN ERROR.
-        END.
+    DO WITH FRAME {&FRAME-NAME}:        
+        
+        RUN pIsValidGLAccount IN hValidate (
+            INPUT  oe-ordm.actnum:SCREEN-VALUE, 
+            INPUT  YES, 
+            INPUT  oe-ord.company, 
+            OUTPUT lValid, 
+            OUTPUT cMessage
+            ) NO-ERROR.        
+        IF NOT lValid THEN DO:
+            MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
+            RUN presetColor NO-ERROR.
+            IF INDEX(cMessage, "Inactive") GT 0 THEN 
+                ASSIGN 
+                    oe-ordm.actnum:BGCOLOR = 16
+                    oe-ordm.actnum:FGCOLOR = 15
+                    .                    
+            APPLY "ENTRY" TO oe-ordm.actnum.
+            RETURN ERROR.   
+        END.               
+       
+        IF lValid THEN 
+            RUN presetColor NO-ERROR.           
     END.
 
 END PROCEDURE.
@@ -1960,8 +2015,10 @@ PROCEDURE valid-s-man :
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ip-int AS INTEGER NO-UNDO.
 
-    DEFINE VARIABLE v-li    AS INTEGER NO-UNDO.
-    DEFINE VARIABLE lv-sman LIKE sman.sman NO-UNDO.
+    DEFINE VARIABLE v-li     AS INTEGER     NO-UNDO.
+    DEFINE VARIABLE lv-sman  LIKE sman.sman NO-UNDO.
+    DEFINE VARIABLE lSuccess AS LOGICAL     NO-UNDO.
+    DEFINE VARIABLE cMessage AS CHARACTER   NO-UNDO.
 
     v-li = ip-int.
 
@@ -1978,11 +2035,15 @@ PROCEDURE valid-s-man :
     
         IF lv-sman NE "" THEN 
         DO:
-            IF NOT CAN-FIND(FIRST sman
-                WHERE sman.company EQ cocode
-                AND sman.sman    EQ lv-sman) THEN 
-            DO:
-                MESSAGE "Invalid Sales Rep, try help..." VIEW-AS ALERT-BOX ERROR.
+            RUN SalesMan_ValidateSalesRep IN hdSalesManProcs(  
+                INPUT  cocode,
+                INPUT  lv-sman,
+                OUTPUT lSuccess,
+                OUTPUT cMessage
+                ).
+            IF NOT lsuccess THEN DO:
+                MESSAGE cMessage 
+                    VIEW-AS ALERT-BOX ERROR.
                 IF ip-int EQ 3 THEN APPLY "entry" TO oe-ordm.s-man[3] IN FRAME {&FRAME-NAME}.
                 ELSE
                     IF ip-int EQ 2 THEN APPLY "entry" TO oe-ordm.s-man[2] IN FRAME {&FRAME-NAME}.

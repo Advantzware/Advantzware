@@ -34,6 +34,7 @@ CREATE WIDGET-POOL.
 &SCOPED-DEFINE h_Object07 h_p-locw
 &SCOPED-DEFINE moveRight {&h_Object02},{&h_Object03},{&h_Object04}
 &SCOPED-DEFINE h_folderUom h_folderUom
+&SCOPED-DEFINE local-destroy local-destroy
 
 /* Parameters Definitions ---                                           */
 
@@ -56,8 +57,8 @@ RUN methods/prgsecur.p
              OUTPUT lAccessClose, /* used in template/windows.i  */
              OUTPUT cAccessList). /* list 1's and 0's indicating yes or no to run, create, update, delete */
 
-def var li-current-page as int INIT 1 no-undo.
-def var li-prev-page as int INIT 1 no-undo.
+DEF VAR li-current-page AS INT INIT 1 NO-UNDO.
+DEF VAR li-prev-page AS INT INIT 1 NO-UNDO.
 DEF VAR li-page-b4VendCost AS INT NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
@@ -156,6 +157,8 @@ DEFINE VARIABLE h_v-itemsp AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_v-navest AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_v-navest-2 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_v-spcard AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_export4 AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_import2 AS HANDLE NO-UNDO.
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -206,14 +209,14 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 320
          VIRTUAL-HEIGHT     = 320
          VIRTUAL-WIDTH      = 320
-         RESIZE             = no
-         SCROLL-BARS        = no
-         STATUS-AREA        = yes
+         RESIZE             = YES
+         SCROLL-BARS        = NO
+         STATUS-AREA        = YES
          BGCOLOR            = ?
          FGCOLOR            = ?
-         THREE-D            = yes
-         MESSAGE-AREA       = no
-         SENSITIVE          = yes.
+         THREE-D            = YES
+         MESSAGE-AREA       = NO
+         SENSITIVE          = YES.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
@@ -258,7 +261,7 @@ ASSIGN XXTABVALXX = FRAME message-frame:MOVE-BEFORE-TAB-ITEM (FRAME OPTIONS-FRAM
 /* SETTINGS FOR FRAME OPTIONS-FRAME
                                                                         */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(W-Win)
-THEN W-Win:HIDDEN = yes.
+THEN W-Win:HIDDEN = YES.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -308,7 +311,7 @@ END.
 ON WINDOW-CLOSE OF W-Win /* Finished Goods Item Inventory */
 DO:
   /* This ADM code must be left here in order for the SmartWindow
-     and its descendents to terminate properly on exit. */
+     and its descendents to terminate properly on exit. */  
     
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
@@ -334,7 +337,7 @@ SESSION:SET-WAIT-STATE('').
 
 /* Include custom  Main Block code for SmartWindows. */
 {src/adm/template/windowmn.i}
-
+{custom/initializeprocs.i}
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -367,7 +370,7 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/folder.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'FOLDER-LABELS = ':U + 'Brws Items|View Item|Inventory|Totals/CP#|Bin/Jobs|Set parts|Colors|Vend Cost|History|Image|POs|UOM' + ',
+             INPUT  'FOLDER-LABELS = ':U + 'Browse|Detail|Inventory|YTD/CP#|Bin/Jobs|Set parts|Colors|Vend Cost|History|Image|POs|UOM' + ',
                      FOLDER-TAB-TYPE = 2':U ,
              OUTPUT h_folder ).
        RUN set-position IN h_folder ( 2.91 , 1.00 ) NO-ERROR.
@@ -413,7 +416,8 @@ PROCEDURE adm-create-objects :
 
        /* Links to SmartObject h_options. */
        RUN add-link IN adm-broker-hdl ( h_b-itemfg , 'spec':U , h_options ).
-
+   //    RUN add-link IN adm-broker-hdl ( h_b-itemfg , 'udfmsg':U , h_options ).
+	   RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'udficon':U , h_options ).
        /* Links to SmartObject h_attach. */
        RUN add-link IN adm-broker-hdl ( h_b-itemfg , 'attach':U , h_attach ).
 
@@ -1014,6 +1018,22 @@ PROCEDURE adm-create-objects :
     END. /* Page 11 */
     WHEN 12 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
+             INPUT  'viewers/export.w':U ,
+             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_export4 ).
+       RUN set-position IN h_export4 ( 1.00 , 85.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 7.80 ) */
+       
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'viewers/import.w':U ,
+             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_import2 ).
+       RUN set-position IN h_import2 ( 1.00 , 76.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 7.80 ) */
+    
+       RUN init-object IN THIS-PROCEDURE (
              INPUT  'viewerid/itemfg.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
@@ -1058,6 +1078,13 @@ PROCEDURE adm-create-objects :
        /* Links to SmartViewer h_itemUOM-2. */
        RUN add-link IN adm-broker-hdl ( h_itemUOM , 'Record':U , h_itemUOM-2 ).
        RUN add-link IN adm-broker-hdl ( h_p-updsav , 'TableIO':U , h_itemUOM-2 ).
+       
+       /* Links to SmartViewer h_import2. */
+       RUN add-link IN adm-broker-hdl ( h_itemUOM , 'import':U , h_import2 ).
+       
+       /* Links to SmartObject h_export4. */
+       RUN add-link IN adm-broker-hdl ( h_itemUOM , 'export-xl':U , h_export4 ).
+       
     END. /* Page 12 */
     WHEN 13 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
@@ -1509,6 +1536,8 @@ PROCEDURE local-destroy :
   /* Code placed here will execute PRIOR to standard behavior. */
       
   /* Dispatch standard ADM method.                             */
+  {custom/userWindow.i} 
+  
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
@@ -1560,11 +1589,11 @@ PROCEDURE select_add :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  def var char-hdl as cha no-undo.
-  IF lAccessCreateFG THEN do:
-      run select-page(2).
-      run get-link-handle in adm-broker-hdl(this-procedure,"add-item-target", output char-hdl).
-      run add-item in widget-handle(char-hdl).
+  DEF VAR char-hdl AS cha NO-UNDO.
+  IF lAccessCreateFG THEN DO:
+      RUN select-page(2).
+      RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"add-item-target", OUTPUT char-hdl).
+      RUN add-item IN WIDGET-HANDLE(char-hdl).
   END.
 
 END PROCEDURE.

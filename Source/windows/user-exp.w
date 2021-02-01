@@ -68,13 +68,13 @@ DEF VAR cTextListToDefault AS cha NO-UNDO.
 
 ASSIGN cTextListToSelect = "User ID,User Name,Phone,Email,Temp File Path,Box Image Path,Label File Path," +
                            "Fax,Track Usage,Use Def Colors,Use Def Fonts,Use Ctrl Accel,Developer,Internal/External," +
-                           "IsManager,Dept,Manager,Mobile"
+                           "IsManager,Dept,Manager,Mobile,PO Limit"
       cFieldListToSelect = "user_id,user_name,phone-no,image_filename,temp-file,image-path,label-path," +
                            "fax-no,track_usage,use_colors,use_fonts,use_ctrl_keys,developer,internal-user," +
-                           "isManager,department,manager,mobile" 
+                           "isManager,department,manager,mobile,purchaseLimit" 
                            .
 {sys/inc/ttRptSel.i}
-    ASSIGN cTextListToDefault  = "User ID,User Name,Phone,Email,Temp File Path,Box Image Path,Label File Path" .
+    ASSIGN cTextListToDefault  = "User ID,User Name,Phone,Email,Temp File Path,Box Image Path,Label File Path,PO Limit" .
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1029,6 +1029,9 @@ FUNCTION getValue-estf RETURNS CHARACTER
         WHEN "developer"  THEN DO:
             lc-return = STRING(ipb-users.developer) .
         END.
+        WHEN "purchaseLimit"  THEN DO:
+            lc-return = STRING(ipb-users.purchaseLimit) .
+        END.        
         WHEN "isManager"  THEN DO:
                 lc-return = STRING(ipb-users.isManager) .
         END.

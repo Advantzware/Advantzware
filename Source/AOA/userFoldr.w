@@ -98,11 +98,11 @@ AND TaskResult.user-id LE cEndUser NO-LOCK ~
     ~{&OPEN-QUERY-taskResultBrowse}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS taskResultBrowse btnArchive btnView ~
-btnDelete btnRefresh 
+&Scoped-Define ENABLED-OBJECTS taskResultBrowse 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
+&Scoped-define List-1 btnExit 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -116,24 +116,40 @@ DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btnArchive 
-     IMAGE-UP FILE "AOA/images/element_copy.gif":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/element_copy.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Archive" 
-     SIZE 5 BY .95 TOOLTIP "Archive to User Folder".
+     SIZE 8 BY 1.91 TOOLTIP "Archive to User Folder".
 
 DEFINE BUTTON btnDelete 
-     IMAGE-UP FILE "AOA/images/navigate_cross.gif":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/garbage_can.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Delete" 
-     SIZE 5 BY .95 TOOLTIP "Delete Folder File".
+     SIZE 8 BY 1.91 TOOLTIP "Delete Folder File".
+
+DEFINE BUTTON btnExit 
+     IMAGE-UP FILE "Graphics/32x32/exit_white.png":U NO-FOCUS FLAT-BUTTON
+     LABEL "Exit" 
+     SIZE 8 BY 1.91 TOOLTIP "Exit".
 
 DEFINE BUTTON btnRefresh 
-     IMAGE-UP FILE "AOA/images/aoaapply.jpg":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/refresh.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Refresh" 
-     SIZE 5 BY .95 TOOLTIP "Refresh Folder Files".
+     SIZE 8 BY 1.91 TOOLTIP "Refresh Folder Files".
+
+DEFINE BUTTON btnSort 
+     IMAGE-UP FILE "Graphics/32x32/sort_az_descending.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/sort_az_descending_disabled.png":U NO-FOCUS FLAT-BUTTON
+     LABEL "Sort" 
+     SIZE 8 BY 1.91 TOOLTIP "Sort".
 
 DEFINE BUTTON btnView 
-     IMAGE-UP FILE "AOA/images/media_play.gif":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/media_play.png":U NO-FOCUS FLAT-BUTTON
      LABEL "View" 
-     SIZE 5 BY .95 TOOLTIP "View Folder File".
+     SIZE 8 BY 1.91 TOOLTIP "View Folder File".
+
+DEFINE RECTANGLE RECT-OPTIONS
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
+     SIZE .2 BY 2.1
+     BGCOLOR 15 FGCOLOR 15 .
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -154,27 +170,39 @@ DEFINE BROWSE taskResultBrowse
       taskResult.folderFile FORMAT "x(256)":U LABEL-BGCOLOR 14
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 160 BY 28.57
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 160 BY 26.19
          TITLE "Task Results".
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
-     taskResultBrowse AT ROW 1 COL 1 WIDGET-ID 200
-     btnArchive AT ROW 1 COL 20 HELP
-          "Click to Delete Folder File" WIDGET-ID 8
-     btnView AT ROW 1 COL 14 HELP
-          "Click to View Selected Folder File" WIDGET-ID 6
-     btnDelete AT ROW 1 COL 8 HELP
-          "Click to Delete Folder File" WIDGET-ID 4
-     btnRefresh AT ROW 1 COL 2 HELP
-          "Click to Refresh Folder Files" WIDGET-ID 2
+     taskResultBrowse AT ROW 3.38 COL 1 WIDGET-ID 200
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
          SIZE 160 BY 28.57
          BGCOLOR 15 FGCOLOR 1  WIDGET-ID 100.
+
+DEFINE FRAME optionsFrame
+     btnExit AT ROW 1.24 COL 152 HELP
+          "Exit" WIDGET-ID 288
+     btnSort AT ROW 1.24 COL 34 HELP
+          "Sort" WIDGET-ID 48
+     btnView AT ROW 1.24 COL 2 HELP
+          "Click to View Selected Folder File" WIDGET-ID 16
+     btnArchive AT ROW 1.24 COL 10 HELP
+          "Click to Delete Folder File" WIDGET-ID 10
+     btnDelete AT ROW 1.24 COL 18 HELP
+          "Click to Delete Folder File" WIDGET-ID 12
+     btnRefresh AT ROW 1.24 COL 26 HELP
+          "Click to Refresh Folder Files" WIDGET-ID 14
+     RECT-OPTIONS AT ROW 1.19 COL 150 WIDGET-ID 290
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1
+         SIZE 160 BY 2.38
+         BGCOLOR 21 FGCOLOR 15  WIDGET-ID 300.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -226,12 +254,27 @@ IF NOT C-Win:LOAD-ICON("Graphics/32x32/jss_icon_32.ico":U) THEN
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
 /* SETTINGS FOR WINDOW C-Win
   VISIBLE,,RUN-PERSISTENT                                               */
+/* REPARENT FRAME */
+ASSIGN FRAME optionsFrame:FRAME = FRAME DEFAULT-FRAME:HANDLE.
+
 /* SETTINGS FOR FRAME DEFAULT-FRAME
    FRAME-NAME                                                           */
-/* BROWSE-TAB taskResultBrowse 1 DEFAULT-FRAME */
+
+DEFINE VARIABLE XXTABVALXX AS LOGICAL NO-UNDO.
+
+ASSIGN XXTABVALXX = FRAME optionsFrame:MOVE-BEFORE-TAB-ITEM (taskResultBrowse:HANDLE IN FRAME DEFAULT-FRAME)
+/* END-ASSIGN-TABS */.
+
+/* BROWSE-TAB taskResultBrowse optionsFrame DEFAULT-FRAME */
 ASSIGN 
        taskResultBrowse:ALLOW-COLUMN-SEARCHING IN FRAME DEFAULT-FRAME = TRUE.
 
+/* SETTINGS FOR FRAME optionsFrame
+                                                                        */
+/* SETTINGS FOR BUTTON btnExit IN FRAME optionsFrame
+   1                                                                    */
+/* SETTINGS FOR BUTTON btnSort IN FRAME optionsFrame
+   NO-ENABLE                                                            */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = no.
 
@@ -248,17 +291,17 @@ THEN C-Win:HIDDEN = no.
      _Where[1]         = "TaskResult.user-id GE cStartUser
 AND TaskResult.user-id LE cEndUser"
      _FldNameList[1]   > ASI.taskResult.fileDateTime
-"taskResult.fileDateTime" ? ? "datetime" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"taskResult.fileDateTime" ? ? "datetime" ? ? ? 22 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.taskResult.fileType
-"taskResult.fileType" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"taskResult.fileType" ? ? "character" ? ? ? 22 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.taskResult.user-id
-"taskResult.user-id" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"taskResult.user-id" ? ? "character" ? ? ? 22 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > ASI.taskResult.viewed
-"taskResult.viewed" ? ? "logical" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "TOGGLE-BOX" "?" ? ? 5 no 0 no no
+"taskResult.viewed" ? ? "logical" ? ? ? 22 ? ? no ? no no ? yes no no "U" "" "" "TOGGLE-BOX" "?" ? ? 5 no 0 no no
      _FldNameList[5]   > ASI.taskResult.archived
-"taskResult.archived" ? ? "datetime" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"taskResult.archived" ? ? "datetime" ? ? ? 22 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > ASI.taskResult.folderFile
-"taskResult.folderFile" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"taskResult.folderFile" ? ? "character" ? ? ? 22 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is OPENED
 */  /* BROWSE taskResultBrowse */
 &ANALYZE-RESUME
@@ -306,9 +349,10 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define FRAME-NAME optionsFrame
 &Scoped-define SELF-NAME btnArchive
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnArchive C-Win
-ON CHOOSE OF btnArchive IN FRAME DEFAULT-FRAME /* Archive */
+ON CHOOSE OF btnArchive IN FRAME optionsFrame /* Archive */
 DO:
     IF NOT AVAILABLE taskResult THEN
     RETURN NO-APPLY.
@@ -324,7 +368,7 @@ DO:
         BUFFER-COPY taskResult EXCEPT rec_key TO bTaskResult.
         ASSIGN
             bTaskResult.folderFile = cFolderFile
-            bTaskResult.archived   = DATETIME(TODAY,TIME)
+            bTaskResult.archived   = NOW
             bTaskResult.viewed     = NO
             taskResult.viewed      = YES
             rRowID                 = ROWID(bTaskResult)
@@ -343,7 +387,7 @@ END.
 
 &Scoped-define SELF-NAME btnDelete
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnDelete C-Win
-ON CHOOSE OF btnDelete IN FRAME DEFAULT-FRAME /* Delete */
+ON CHOOSE OF btnDelete IN FRAME optionsFrame /* Delete */
 DO:
     IF NOT AVAILABLE taskResult THEN
     RETURN NO-APPLY.
@@ -363,9 +407,20 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME btnExit
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnExit C-Win
+ON CHOOSE OF btnExit IN FRAME optionsFrame /* Exit */
+DO:
+    APPLY "WINDOW-CLOSE":U TO {&WINDOW-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME btnRefresh
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnRefresh C-Win
-ON CHOOSE OF btnRefresh IN FRAME DEFAULT-FRAME /* Refresh */
+ON CHOOSE OF btnRefresh IN FRAME optionsFrame /* Refresh */
 DO:
     RUN pSync.
     {&OPEN-QUERY-{&BROWSE-NAME}}
@@ -375,9 +430,25 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME btnSort
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnSort C-Win
+ON CHOOSE OF btnSort IN FRAME optionsFrame /* Sort */
+DO:
+    lAscending = NOT lAscending.
+    RUN pReopenBrowse.
+    btnSort:LOAD-IMAGE("Graphics/32x32/"
+        + IF lAscending THEN "sort_az_descending.png"
+          ELSE "sort_az_descending2.png")
+        .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME btnView
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnView C-Win
-ON CHOOSE OF btnView IN FRAME DEFAULT-FRAME /* View */
+ON CHOOSE OF btnView IN FRAME optionsFrame /* View */
 DO:
     IF AVAILABLE TaskResult THEN DO:
         IF SEARCH(taskResult.folderFile) NE ? THEN DO TRANSACTION:
@@ -400,11 +471,12 @@ END.
 
 
 &Scoped-define BROWSE-NAME taskResultBrowse
+&Scoped-define FRAME-NAME DEFAULT-FRAME
 &Scoped-define SELF-NAME taskResultBrowse
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL taskResultBrowse C-Win
 ON DEFAULT-ACTION OF taskResultBrowse IN FRAME DEFAULT-FRAME /* Task Results */
 DO:
-    APPLY "CHOOSE":U TO btnView.
+    APPLY "CHOOSE":U TO btnView IN FRAME optionsFrame.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -414,14 +486,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL taskResultBrowse C-Win
 ON START-SEARCH OF taskResultBrowse IN FRAME DEFAULT-FRAME /* Task Results */
 DO:
-    IF {&BROWSE-NAME}:CURRENT-COLUMN:NAME NE ? THEN DO:
-        cColumnLabel = BROWSE {&BROWSE-NAME}:CURRENT-COLUMN:NAME.
-        IF cColumnLabel EQ cSaveLabel THEN
-        lAscending = NOT lAscending.
-        cSaveLabel = cColumnLabel.
-        RUN pReopenBrowse.
-    END.
-    RETURN NO-APPLY.
+    &Scoped-define sortButton
+    &Scoped-define sortButtonFrame optionsFrame
+    {AOA/includes/startSearch.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -434,6 +501,10 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
+
+&Scoped-Define ExcludeAuditHistory
+{methods/menus/stdHelpMenu.i}
+{methods/template/brwcustom2.i}
 
 /* Set CURRENT-WINDOW: this will parent dialog-boxes and frames.        */
 ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME} 
@@ -506,9 +577,12 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  ENABLE taskResultBrowse btnArchive btnView btnDelete btnRefresh 
+  ENABLE taskResultBrowse 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
+  ENABLE btnExit RECT-OPTIONS btnView btnArchive btnDelete btnRefresh 
+      WITH FRAME optionsFrame IN WINDOW C-Win.
+  {&OPEN-BROWSERS-IN-QUERY-optionsFrame}
   VIEW C-Win.
 END PROCEDURE.
 
@@ -575,6 +649,7 @@ PROCEDURE pReopenBrowse :
         WHEN "user-id" THEN
         RUN pByUserID.
     END CASE.
+    {AOA/includes/pReopenBrowse.i}
 
 END PROCEDURE.
 
@@ -659,8 +734,9 @@ PROCEDURE pWinReSize :
 ------------------------------------------------------------------------------*/
     SESSION:SET-WAIT-STATE("General").
     DO WITH FRAME {&FRAME-NAME}:
-        HIDE BROWSE {&BROWSE-NAME}.
+        HIDE FRAME optionsFrame.
         HIDE FRAME {&FRAME-NAME}.
+        HIDE BROWSE {&BROWSE-NAME}.
         IF {&WINDOW-NAME}:HEIGHT LT 28.57 THEN
         {&WINDOW-NAME}:HEIGHT = 28.57.
         IF {&WINDOW-NAME}:WIDTH  LT 160   THEN
@@ -673,8 +749,13 @@ PROCEDURE pWinReSize :
             BROWSE {&BROWSE-NAME}:HEIGHT       = FRAME {&FRAME-NAME}:HEIGHT
                                                - BROWSE {&BROWSE-NAME}:ROW + 1
             BROWSE {&BROWSE-NAME}:WIDTH        = FRAME {&FRAME-NAME}:WIDTH
+            FRAME optionsFrame:VIRTUAL-WIDTH   = FRAME {&FRAME-NAME}:WIDTH
+            FRAME optionsFrame:WIDTH           = FRAME {&FRAME-NAME}:WIDTH
+            btnExit:COL                        = FRAME optionsFrame:WIDTH - btnExit:WIDTH
+            RECT-OPTIONS:COL                   = btnExit:COL - 2
             .
         VIEW FRAME {&FRAME-NAME}.
+        VIEW FRAME optionsFrame.
         VIEW BROWSE {&BROWSE-NAME}.
     END. /* do with */
     SESSION:SET-WAIT-STATE("").

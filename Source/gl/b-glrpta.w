@@ -47,6 +47,10 @@ DEF TEMP-TABLE tt-account FIELD actnum LIKE account.actnum
 
 DEF BUFFER b-tt-acc FOR tt-account.
 
+DEFINE VARIABLE hGLProcs AS HANDLE  NO-UNDO.
+
+RUN system/GLProcs.p PERSISTENT SET hGLProcs.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -269,15 +273,26 @@ OPEN QUERY {&SELF-NAME} FOR EACH tt-account.
 &Scoped-define SELF-NAME br_table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
 ON HELP OF br_table IN FRAME F-Main
-DO:
-  DEF VAR char-val AS cha NO-UNDO.
-  DEF VAR help-recid AS RECID NO-UNDO.
+DO:  
+  DEFINE VARIABLE cFieldsValue  AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cFoundValue   AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE recFoundRecID AS RECID     NO-UNDO.
 
 
   CASE FOCUS:NAME :
-    WHEN "actnum" THEN DO:
-      RUN windows/l-acct3.w (g_company,"T",FOCUS:SCREEN-VALUE,OUTPUT char-val).
-      IF char-val NE "" THEN FOCUS:SCREEN-VALUE = ENTRY(1,char-val).
+    WHEN "actnum" THEN DO:      
+      RUN system/openLookup.p (
+          INPUT  g_company, 
+          INPUT  "",  /* Lookup ID */
+          INPUT  87,  /* Subject ID */
+          INPUT  "",  /* User ID */
+          INPUT  0,   /* Param Value ID */
+          OUTPUT cFieldsValue, 
+          OUTPUT cFoundValue, 
+          OUTPUT recFoundRecID
+          ).    
+      IF cFoundValue NE "" THEN 
+          FOCUS:SCREEN-VALUE = cFoundValue.
     END.
   END CASE.
 
@@ -511,6 +526,8 @@ PROCEDURE local-cancel-record :
 
   /* Code placed here will execute PRIOR to standard behavior. */
   IF AVAIL gl-rpt THEN lv-rowid = ROWID(gl-rpt).
+  
+  RUN presetColor NO-ERROR.
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
@@ -607,6 +624,26 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-reset-record B-table-Win
+PROCEDURE local-reset-record:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+    /* Code placed here will execute PRIOR to standard behavior. */
+    RUN presetColor NO-ERROR.
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'reset-record':U ) .
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record B-table-Win 
 PROCEDURE local-update-record :
 /*------------------------------------------------------------------------------
@@ -616,11 +653,10 @@ PROCEDURE local-update-record :
   DEF VAR ll-new-record AS LOG NO-UNDO.
   DEF VAR lv-rowid AS ROWID NO-UNDO.
 
-
   /* Code placed here will execute PRIOR to standard behavior. */
   RUN valid-actnum NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
+  
   ASSIGN
    ll-new-record = adm-new-record
    lv-rowid      = ROWID(gl-rpt).
@@ -637,6 +673,27 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE presetColor B-table-Win
+PROCEDURE presetColor:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+    IF tt-account.actnum:BGCOLOR IN BROWSE {&BROWSE-NAME} EQ 16 THEN             
+        ASSIGN 
+            tt-account.actnum:BGCOLOR IN BROWSE {&BROWSE-NAME} = ?
+            tt-account.actnum:FGCOLOR IN BROWSE {&BROWSE-NAME} = ?
+            .
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE repo-query B-table-Win 
 PROCEDURE repo-query :
@@ -766,34 +823,50 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-actnum B-table-Win 
 PROCEDURE valid-actnum :
 /*------------------------------------------------------------------------------
-  Purpose:     
+  Purpose: To check valid and active GL account.   
   Parameters:  <none>
   Notes:       
-------------------------------------------------------------------------------*/
-
-  DEF VAR lv-msg AS CHAR NO-UNDO.
-
+------------------------------------------------------------------------------*/  
+  DEFINE VARIABLE lSuccess AS LOGICAL   NO-UNDO.
+  DEFINE VARIABLE lActive  AS LOGICAL   NO-UNDO.
+  DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
 
   DO WITH FRAME {&FRAME-NAME}:
-    IF lv-msg EQ "" AND
-       NOT CAN-FIND(FIRST account
-                    WHERE account.company EQ cocode
-                      AND account.actnum  MATCHES tt-account.actnum:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
-                      AND account.type    NE "T")
-    THEN lv-msg = "is invalid, try help".
-
-    IF lv-msg EQ "" AND
-       CAN-FIND(FIRST b-tt-acc
-                WHERE b-tt-acc.actnum EQ tt-account.actnum:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
-                  AND (ROWID(b-tt-acc) NE ROWID(tt-account) OR
-                       (adm-new-record AND NOT adm-adding-record)))
-    THEN lv-msg = "already exists".
-
-    IF lv-msg NE "" THEN DO:
-      MESSAGE "GL Account#" + " " + TRIM(lv-msg) + "..." VIEW-AS ALERT-BOX ERROR.
-      APPLY "entry" TO tt-account.actnum IN BROWSE {&BROWSE-NAME}.
-      RETURN ERROR.
-    END.
+      
+      RUN GL_CheckGLAccount IN hGLProcs(
+            INPUT  g_company,
+            INPUT  tt-account.actnum:SCREEN-VALUE IN BROWSE {&BROWSE-NAME},            
+            OUTPUT cMessage,
+            OUTPUT lSuccess,
+            OUTPUT lActive
+            ).    
+            
+      IF lSuccess = NO THEN DO:               
+          MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.            
+          RUN presetColor NO-ERROR.
+          APPLY "ENTRY" TO tt-account.actnum IN BROWSE {&BROWSE-NAME}.       
+          RETURN ERROR. 
+      END.   
+      
+      IF lSuccess = YES AND lActive = NO THEN DO:  
+          MESSAGE cMessage VIEW-AS ALERT-BOX ERROR. 
+          ASSIGN 
+              tt-account.actnum:BGCOLOR IN BROWSE {&BROWSE-NAME} = 16
+              tt-account.actnum:FGCOLOR IN BROWSE {&BROWSE-NAME} = 15
+              .                       
+          APPLY "ENTRY" TO tt-account.actnum IN BROWSE {&BROWSE-NAME}.
+          RETURN ERROR.                      
+      END.      
+      RUN presetColor NO-ERROR.                               
+              
+      IF CAN-FIND(FIRST b-tt-acc
+                  WHERE b-tt-acc.actnum EQ tt-account.actnum:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
+                   AND (ROWID(b-tt-acc) NE ROWID(tt-account) 
+                     OR (adm-new-record AND NOT adm-adding-record))) THEN DO:
+          MESSAGE "GL Account already exists" VIEW-AS ALERT-BOX ERROR.
+          APPLY "ENTRY" TO tt-account.actnum IN BROWSE {&BROWSE-NAME}.
+          RETURN ERROR.
+      END.
   END.
 
 END PROCEDURE.

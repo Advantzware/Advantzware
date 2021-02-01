@@ -25,6 +25,7 @@ CREATE WIDGET-POOL.
 
 &SCOPED-DEFINE winReSize
 {methods/defines/winReSize.i}
+{methods/template/brwcustomdef.i}
 
 /* Parameters Definitions ---                                           */
 
@@ -176,8 +177,10 @@ RUN methods/prgsecur.p
              OUTPUT cAccessList). /* list 1's and 0's indicating yes or no to run, create, update, delete */
              
 DEFINE VARIABLE hdCustomerProcs AS HANDLE NO-UNDO.
+DEFINE VARIABLE hdSalesManProcs AS HANDLE NO-UNDO.
 
 RUN system/CustomerProcs.p PERSISTENT SET hdCustomerProcs. 
+RUN salrep/SalesManProcs.p PERSISTENT SET hdSalesManProcs.
 
 RUN sys/ref/nk1look.p (INPUT cocode, "CEAddCustomerOption", "L" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
@@ -329,21 +332,20 @@ DEFINE QUERY br-estitm FOR
 DEFINE BROWSE br-estitm
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br-estitm B-table-Win _STRUCTURED
   QUERY br-estitm NO-LOCK DISPLAY
-      est.est-no FORMAT "99999999":U WIDTH 12 COLUMN-FONT 2
-      eb.cust-no FORMAT "x(8)":U COLUMN-FONT 2
-      eb.part-no FORMAT "x(15)":U COLUMN-FONT 2
+      est.est-no FORMAT "99999999":U WIDTH 12 
+      eb.cust-no FORMAT "x(8)":U 
+      eb.part-no FORMAT "x(15)":U 
       eb.ship-id COLUMN-LABEL "Ship To" FORMAT "x(8)":U WIDTH 12
-            COLUMN-FONT 2
-      eb.part-dscr1 FORMAT "x(30)":U COLUMN-FONT 2
-      eb.stock-no COLUMN-LABEL "FG Item#" FORMAT "x(15)":U COLUMN-FONT 2
+      eb.part-dscr1 COLUMN-LABEL "Item Name" FORMAT "x(30)":U 
+      eb.stock-no COLUMN-LABEL "FG Item#" FORMAT "x(15)":U 
       eb.bl-qty COLUMN-LABEL "Qty" FORMAT ">>>,>>>,>>>":U WIDTH 15
-      eb.style COLUMN-LABEL "Style" FORMAT "x(6)":U WIDTH 9 COLUMN-FONT 2
-      ef.board FORMAT "x(12)":U COLUMN-FONT 2
-      ef.cal FORMAT ">9.99999<":U COLUMN-FONT 2
-      eb.procat FORMAT "x(5)":U COLUMN-FONT 2
-      eb.len FORMAT ">9.99999":U COLUMN-FONT 2
-      eb.wid FORMAT ">9.99999":U COLUMN-FONT 2
-      eb.dep FORMAT ">9.99999":U COLUMN-FONT 2
+      eb.style COLUMN-LABEL "Style" FORMAT "x(6)":U WIDTH 9 
+      ef.board FORMAT "x(12)":U 
+      ef.cal FORMAT ">9.99999<":U 
+      eb.procat FORMAT "x(5)":U 
+      eb.len FORMAT ">9.99999":U 
+      eb.wid FORMAT ">9.99999":U 
+      eb.dep FORMAT ">9.99999":U 
       eb.cust-% COLUMN-LABEL "Qty/Set" FORMAT "->>,>>>":U WIDTH 10
       eb.i-col FORMAT ">9":U
       eb.i-coat FORMAT ">9":U
@@ -358,7 +360,7 @@ DEFINE BROWSE br-estitm
       ef.f-coat COLUMN-LABEL "Coatings/Form" FORMAT ">>":U
       ef.f-coat-p COLUMN-LABEL "Coat Passes/Form" FORMAT ">>":U
       eb.pur-man COLUMN-LABEL "Purch/Manuf" FORMAT "P/M":U
-      est.est-date FORMAT "99/99/9999":U COLUMN-FONT 2
+      est.est-date FORMAT "99/99/9999":U 
   ENABLE
       eb.cust-no
       eb.part-no
@@ -804,6 +806,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br-estitm B-table-Win
 ON ROW-DISPLAY OF br-estitm IN FRAME Corr
 DO:
+    &scoped-define exclude-row-display true 
+    {methods/template/brwrowdisplay.i}
+    
    DEF VAR lActive AS LOG NO-UNDO.
    IF v-cefgitem-log THEN
    DO:
@@ -972,6 +977,12 @@ DO:
     RUN valid-cust-user NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
     
+    RUN pValidSalesRep( 
+        INPUT eb.cust-no:SCREEN-VALUE 
+        ) NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN 
+        RETURN NO-APPLY.
+            
     IF SELF:MODIFIED THEN DO:
         RUN pGetDefaultShipID(
             INPUT  eb.cust-no:SCREEN-VALUE IN BROWSE {&browse-name}, 
@@ -4202,6 +4213,12 @@ PROCEDURE local-update-record :
 
     RUN valid-cust-no(OUTPUT lCheckError) NO-ERROR.
      IF lCheckError THEN RETURN NO-APPLY.
+     
+    RUN pValidSalesRep( 
+        INPUT eb.cust-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
+        ) NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN 
+        RETURN ERROR.
 
      /*IF eb.stock-no:SCREEN-VALUE IN BROWSE {&browse-name} <> "" THEN DO:
         RUN fg/GetItemfgActInact.p (INPUT g_company,
@@ -4889,6 +4906,43 @@ PROCEDURE pEstimateCleanUp:
 
     RUN valid-eb-reckey.
 
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE PValidSalesRep B-table-Win
+PROCEDURE pValidSalesRep PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCustNo  AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE lSuccess AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+    
+    FIND FIRST cust NO-LOCK 
+         WHERE cust.company EQ cocode 
+           AND cust.cust-no EQ ipcCustNo
+         NO-ERROR.
+    IF AVAILABLE cust THEN DO:
+        RUN SalesMan_ValidateSalesRep IN hdSalesManProcs(  
+            INPUT  cocode,
+            INPUT  cust.sman,
+            OUTPUT lSuccess,
+            OUTPUT cMessage
+            ). 
+        IF NOT lSuccess THEN DO:                                         
+            MESSAGE cMessage + " on customer"
+            VIEW-AS ALERT-BOX ERROR.
+            APPLY "ENTRY":U TO eb.cust-no IN BROWSE {&BROWSE-NAME}.
+            RETURN ERROR.
+        END.     
+    END.
 END PROCEDURE.
 	
 /* _UIB-CODE-BLOCK-END */

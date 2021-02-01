@@ -41,6 +41,7 @@ CREATE WIDGET-POOL.
 {{&includes}/sharedVars.i}
 {{&viewers}/includes/sharedVars.i}
 {{&includes}/ttblJob.i}
+{methods/template/brwcustomdef.i}
 
 DEFINE VARIABLE boardHandle AS HANDLE NO-UNDO.
 DEFINE VARIABLE boardType AS CHARACTER NO-UNDO.
@@ -426,6 +427,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-1 wWin
 ON ROW-DISPLAY OF BROWSE-1 IN FRAME fMain
 DO:
+    &scoped-define exclude-row-display true 
+    {methods/template/brwrowdisplay.i}  
+      
   ASSIGN
     ttblSeq.rowNo:BGCOLOR IN BROWSE {&BROWSE-NAME} = 7
     ttblSeq.rowNo:FGCOLOR = 15.
@@ -448,6 +452,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-1 wWin
 ON START-SEARCH OF BROWSE-1 IN FRAME fMain
 DO:
+{methods/template/sortindicator.i} 
   IF NOT AVAILABLE ttblSeq THEN RETURN NO-APPLY.
   IF {&BROWSE-NAME}:CURRENT-COLUMN:PRIVATE-DATA EQ ? THEN RETURN NO-APPLY.
   IF saveSeq THEN
@@ -468,6 +473,7 @@ DO:
   {&BROWSE-NAME}:GET-BROWSE-COLUMN(idx):LABEL-BGCOLOR = 10.
   idx = INTEGER(ENTRY(1,{&BROWSE-NAME}:CURRENT-COLUMN:PRIVATE-DATA)).
   RUN selectRow.
+  {methods/template/sortindicatorend.i} 
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -618,6 +624,7 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
+{methods/template/brwcustom.i}
 
 {{&viewers}/includes/winTitle.i}
 

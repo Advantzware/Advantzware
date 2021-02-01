@@ -162,22 +162,22 @@ fi_est-no fi_part-no fi_item-decr rd_status
 DEFINE BUTTON btnGO 
      LABEL "&Go" 
      SIZE 11 BY 1
-     FONT 6.
+     FONT 22.
 
 DEFINE BUTTON btnShowNext 
      LABEL "Show &Next" 
      SIZE 20 BY 1
-     FONT 6.
+     FONT 22.
 
 DEFINE BUTTON btnShowPrevious 
      LABEL "Show &Previous" 
      SIZE 20 BY 1
-     FONT 6.
+     FONT 22.
 
 DEFINE BUTTON Btn_Clear_Find 
      LABEL "&Clear Find" 
      SIZE 13 BY 1
-     FONT 4.
+     FONT 22.
 
 DEFINE VARIABLE auto_find AS CHARACTER FORMAT "X(256)":U 
      LABEL "Auto Find" 
@@ -232,7 +232,7 @@ DEFINE VARIABLE fi_sortby AS CHARACTER FORMAT "X(256)":U
      LABEL "Sorted By" 
      VIEW-AS FILL-IN 
      SIZE 44 BY 1
-     BGCOLOR 14 FONT 6 NO-UNDO.
+     BGCOLOR 14 FONT 22 NO-UNDO.
 
 DEFINE VARIABLE browse-order AS INTEGER 
      VIEW-AS RADIO-SET HORIZONTAL
@@ -310,28 +310,28 @@ DEFINE FRAME F-Main
           "CLEAR AUTO FIND Value"
      "Estimate" VIEW-AS TEXT
           SIZE 10 BY .62 AT ROW 1 COL 61.8
-          FGCOLOR 9 FONT 6
+          FGCOLOR 9 FONT 22
      "Date" VIEW-AS TEXT
           SIZE 6 BY .62 AT ROW 1 COL 12.2
-          FGCOLOR 9 FONT 6
+          FGCOLOR 9 FONT 22
      "Contact" VIEW-AS TEXT
           SIZE 10 BY .62 AT ROW 1 COL 36.4
-          FGCOLOR 9 FONT 6
+          FGCOLOR 9 FONT 22
      "Customer Part No" VIEW-AS TEXT
           SIZE 20 BY .62 AT ROW 1 COL 72.1
-          FGCOLOR 9 FONT 6
+          FGCOLOR 9 FONT 22
      "Customer" VIEW-AS TEXT
           SIZE 11 BY .62 AT ROW 1 COL 24.4
-          FGCOLOR 9 FONT 6
+          FGCOLOR 9 FONT 22
      "Item Description" VIEW-AS TEXT
           SIZE 20 BY .62 AT ROW 1 COL 93.8
-          FGCOLOR 9 FONT 6
+          FGCOLOR 9 FONT 22
      "Quote" VIEW-AS TEXT
           SIZE 7.6 BY .62 AT ROW 1 COL 1.4
-          FGCOLOR 9 FONT 6
+          FGCOLOR 9 FONT 22
      "Status" VIEW-AS TEXT
           SIZE 9 BY 1 AT ROW 2.91 COL 117
-          FGCOLOR 9 FONT 6
+          FGCOLOR 9 FONT 22
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -681,7 +681,10 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
 &ENDIF
 
 {methods/winReSize.i}
-
+/* Ticket# : 92946
+   Hiding this widget for now, as browser's column label should be indicating the column which is sorted by */
+fi_sortby:HIDDEN  = TRUE.
+fi_sortby:VISIBLE = FALSE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1038,6 +1041,34 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE resetQueryForDelete B-table-Win 
+PROCEDURE resetQueryForDelete :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    
+  ASSIGN
+    q-noValue[1] = 0
+    q-noValue[2] = 999999
+    fi_q-no      = 0
+    fi_quo-date  = ?
+    fi_cust-no   = ''
+    fi_contact   = ''
+    fi_est-no    = ''
+    rd_status    = 2
+    fi_part-no   = ''
+    fi_item-decr = ''.  
+  DISPLAY {&filterFields} WITH FRAME {&FRAME-NAME}.
+  RUN openQuery.
+  APPLY 'VALUE-CHANGED':U TO BROWSE {&BROWSE-NAME}.
+  
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME  
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records B-table-Win  _ADM-SEND-RECORDS
 PROCEDURE send-records :

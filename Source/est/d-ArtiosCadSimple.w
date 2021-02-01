@@ -347,6 +347,7 @@ END.
 ON CHOOSE OF btnCancel IN FRAME Dialog-Frame /* Cancel */
 DO:
     opCADCAM = ''.
+    APPLY "END-ERROR":U TO SELF.
 END.
 
 /* _UIB-CODE-BLOCK-END */

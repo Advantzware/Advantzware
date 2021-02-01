@@ -105,7 +105,7 @@ DEFINE VARIABLE begin_check-date AS DATE FORMAT "99/99/9999":U
      VIEW-AS FILL-IN 
      SIZE 17 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_check-no AS INTEGER FORMAT ">>>>>>>>>9":U INITIAL 0 
+DEFINE VARIABLE begin_check-no AS INT64 FORMAT ">>>>>>>>>>>9":U INITIAL 0 
      LABEL "Beginning Check#" 
      VIEW-AS FILL-IN 
      SIZE 17 BY 1 NO-UNDO.
@@ -120,7 +120,7 @@ DEFINE VARIABLE end_check-date AS DATE FORMAT "99/99/9999":U
      VIEW-AS FILL-IN 
      SIZE 16 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_check-no AS INTEGER FORMAT ">>>>>>>>>9":U INITIAL 9999999 
+DEFINE VARIABLE end_check-no AS INT64 FORMAT ">>>>>>>>>>>9":U INITIAL 9999999 
      LABEL "Ending Check#" 
      VIEW-AS FILL-IN 
      SIZE 16 BY 1 NO-UNDO.

@@ -100,8 +100,8 @@ oe-boll.s-code get-cost() @ li-cost
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS printBOL printSBOL Browser-Table RECT-4 ~
 browse-order auto_find Btn_Clear_Find 
-&Scoped-Define DISPLAYED-OBJECTS browse-order FI_moveCol auto_find 
-
+&Scoped-Define DISPLAYED-OBJECTS browse-order  auto_find 
+//FI_moveCol
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
 
@@ -129,14 +129,16 @@ DEFINE BUTTON Btn_Clear_Find
      FONT 4.
 
 DEFINE BUTTON printBOL 
-     IMAGE-UP FILE "Graphics/32x32/printer_gearwheel.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/printer_barcode.png":U
+     IMAGE-DOWN FILE "Graphics/32x32/printer_barcode_hover.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/printer_barcode_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 9 BY 2.14 TOOLTIP "Print BOL".
 
 DEFINE BUTTON printSBOL 
-     IMAGE-UP FILE "Graphics/32x32/document_check_edit.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/edit.png":U
+     IMAGE-DOWN FILE "Graphics/32x32/edit_hover.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/edit_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 9 BY 2.14 TOOLTIP "Print Signed BOL".
 
@@ -145,10 +147,10 @@ DEFINE VARIABLE auto_find AS CHARACTER FORMAT "X(256)":U
      VIEW-AS FILL-IN 
      SIZE 40 BY 1 NO-UNDO.
 
-DEFINE VARIABLE FI_moveCol AS CHARACTER FORMAT "X(4)":U 
+/*DEFINE VARIABLE FI_moveCol AS CHARACTER FORMAT "X(4)":U 
      VIEW-AS FILL-IN 
      SIZE 19 BY 1
-     BGCOLOR 14 FONT 6 NO-UNDO.
+     BGCOLOR 14 FONT 6 NO-UNDO.*/
 
 DEFINE VARIABLE browse-order AS INTEGER 
      VIEW-AS RADIO-SET HORIZONTAL
@@ -210,7 +212,7 @@ DEFINE FRAME F-Main
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
      browse-order AT ROW 17.43 COL 6 HELP
           "Select Browser Sort Order" NO-LABEL
-     FI_moveCol AT ROW 17.43 COL 62 COLON-ALIGNED NO-LABEL WIDGET-ID 4
+   //  FI_moveCol AT ROW 17.43 COL 62 COLON-ALIGNED NO-LABEL WIDGET-ID 4
      auto_find AT ROW 17.43 COL 93 COLON-ALIGNED HELP
           "Enter Auto Find Value"
      Btn_Clear_Find AT ROW 17.43 COL 136 HELP
@@ -287,8 +289,8 @@ ASSIGN
 
 /* SETTINGS FOR FILL-IN FI_moveCol IN FRAME F-Main
    NO-ENABLE                                                            */
-ASSIGN 
-       FI_moveCol:HIDDEN IN FRAME F-Main           = TRUE.
+/*ASSIGN 
+       FI_moveCol:HIDDEN IN FRAME F-Main           = TRUE.*/
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME

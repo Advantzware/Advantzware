@@ -36,6 +36,7 @@ def input-output param op-ship-id as cha no-undo.
 def input-output param op-ship-from as cha no-undo.
 
 {custom/globdefs.i}
+{methods/template/brwcustomdef.i}
 
 DEFINE TEMP-TABLE tt-oe-shipto 
     FIELD ship-from    AS CHARACTER
@@ -217,6 +218,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL browse-shipto Dialog-Frame
 ON ROW-DISPLAY OF browse-shipto IN FRAME Dialog-Frame
 DO:   
+    &scoped-define exclude-row-display true 
+    {methods/template/brwrowdisplay.i}    
     IF AVAIL tt-oe-shipto THEN DO:
         IF tt-oe-shipto.q-status = "1" THEN DO:
             ASSIGN tt-oe-shipto.q-status:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}   = "".
@@ -317,6 +320,8 @@ THEN FRAME {&FRAME-NAME}:PARENT = ACTIVE-WINDOW.
 DEF VAR v-return AS LOG NO-UNDO.
 DEF VAR lcLastValue AS CHAR NO-UNDO.
 DEF VAR liNumUsrx AS INT NO-UNDO.
+
+{methods/template/brwcustom.i}
 
 /* Now enable the interface and wait for the exit condition.            */
 /* (NOTE: handle ERROR and END-KEY so cleanup code will always fire.    */

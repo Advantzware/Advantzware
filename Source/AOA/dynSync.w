@@ -98,7 +98,7 @@ DEFINE TEMP-TABLE ttDefaultValue NO-UNDO
 &Scoped-define INTERNAL-TABLES ttDynSync
 
 /* Definitions for BROWSE dynSync                                       */
-&Scoped-define FIELDS-IN-QUERY-dynSync ttDynSync.subjectID ttDynSync.subjectTitle ttDynSync.paramDescription ttDynSync.colName ttDynSync.sync ttDynSync.valueAction ttDynSync.valueType ttDynSync.defaultValue ttDynSync.currentValue ttDynSync.user-id ttDynSync.paramValueID   
+&Scoped-define FIELDS-IN-QUERY-dynSync ttDynSync.subjectID ttDynSync.subjectTitle ttDynSync.paramDescription ttDynSync.colName ttDynSync.sync ttDynSync.valueAction ttDynSync.valueType ttDynSync.defaultValue ttDynSync.currentValue ttDynSync.user-id ttDynSync.paramValueID ttDynSync.sortOrder   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-dynSync ttDynSync.sync   
 &Scoped-define ENABLED-TABLES-IN-QUERY-dynSync ttDynSync
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-dynSync ttDynSync
@@ -141,7 +141,7 @@ DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btnSave 
-     IMAGE-UP FILE "Graphics/32x32/floppy_disk.ico":U NO-FOCUS
+     IMAGE-UP FILE "Graphics/32x32/floppy_disk.png":U NO-FOCUS
      LABEL "Save" 
      SIZE 8 BY 1.91 TOOLTIP "Save".
 
@@ -225,6 +225,12 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MESSAGE-AREA       = no
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
+
+&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
+IF NOT C-Win:LOAD-ICON("Graphics/32x32/jss_icon_32.ico":U) THEN
+    MESSAGE "Unable to load icon: Graphics/32x32/jss_icon_32.ico"
+            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
+&ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
@@ -340,15 +346,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL dynSync C-Win
 ON START-SEARCH OF dynSync IN FRAME DEFAULT-FRAME
 DO:
-    IF SELF:CURRENT-COLUMN:NAME NE ? THEN DO:
-        cColumnLabel = SELF:CURRENT-COLUMN:NAME.
-        IF cColumnLabel EQ cSaveLabel THEN
-        lAscending = NOT lAscending.
-        cSaveLabel = cColumnLabel.
-        RUN pReopenBrowse.
-    END.
-    APPLY "VALUE-CHANGED":U TO SELF.
-    RETURN NO-APPLY.
+    &Scoped-define startSearchValueChanged
+    {AOA/includes/startSearch.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -374,10 +373,15 @@ END.
 
 /* ***************************  Main Block  *************************** */
 
+&Scoped-Define ExcludeAuditHistory
+{methods/menus/stdHelpMenu.i}
+{methods/template/brwcustom2.i}
+
+
 /* Set CURRENT-WINDOW: this will parent dialog-boxes and frames.        */
 ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME} 
        THIS-PROCEDURE:CURRENT-WINDOW = {&WINDOW-NAME}.
-
+{methods/template/brwcustom2.i}
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
 ON CLOSE OF THIS-PROCEDURE 
@@ -734,6 +738,7 @@ PROCEDURE pReopenBrowse :
         OTHERWISE
         {&OPEN-QUERY-{&BROWSE-NAME}}
     END CASE.
+    {AOA/includes/pReopenBrowse.i}
     SESSION:SET-WAIT-STATE("").
 
 END PROCEDURE.

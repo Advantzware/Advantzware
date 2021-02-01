@@ -43,6 +43,10 @@ def var lv-wscore like box-design-hdr.wscore no-undo.
 def var lv-wcum-score like box-design-hdr.wcum-score no-undo.
 DEFINE VARIABLE cDesignNo AS CHARACTER NO-UNDO.
 
+/* The below variables are used in run_link.i */
+DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
+DEFINE VARIABLE pHandle  AS HANDLE    NO-UNDO.
+
 PROCEDURE ShellExecuteA EXTERNAL "shell32":u :
       define input parameter hwnd as long.
       define input parameter lpOperation as char.
@@ -82,7 +86,7 @@ box-design-hdr.description box-design-hdr.box-image box-design-hdr.lscore ~
 box-design-hdr.wscore 
 &Scoped-define ENABLED-TABLES box-design-hdr
 &Scoped-define FIRST-ENABLED-TABLE box-design-hdr
-&Scoped-Define ENABLED-OBJECTS box-image-2 RECT-29 btn_right btn_left 
+&Scoped-Define ENABLED-OBJECTS box-image-2 btn_right btn_left 
 &Scoped-Define DISPLAYED-FIELDS box-design-hdr.design-no ~
 box-design-hdr.description box-design-hdr.box-image box-design-hdr.lscore ~
 box-design-hdr.lcum-score box-design-hdr.wcum-score box-design-hdr.wscore 
@@ -140,7 +144,7 @@ DEFINE IMAGE box-image-2
      SIZE 115 BY 12.86.
 
 DEFINE RECTANGLE RECT-29
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
      SIZE 147 BY 16.67.
 
 
@@ -153,31 +157,31 @@ DEFINE FRAME F-Main
      box-design-hdr.description AT ROW 1.24 COL 21 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 38 BY 1
-     box-design-hdr.box-image AT ROW 1.24 COL 77 COLON-ALIGNED FORMAT "x(200)"
+     box-design-hdr.box-image AT ROW 1.24 COL 77 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 63 BY 1
      box-design-hdr.lscore AT ROW 2.43 COL 1 COLON-ALIGNED NO-LABEL FORMAT "x(135)"
           VIEW-AS FILL-IN 
           SIZE 113 BY 1
-          FONT 0
+          FONT 2
      btn_right AT ROW 2.43 COL 116
      box-design-hdr.lcum-score AT ROW 3.38 COL 1 COLON-ALIGNED NO-LABEL FORMAT "x(135)"
           VIEW-AS FILL-IN 
           SIZE 113 BY 1
-          FONT 0
+          FONT 2
      btn_left AT ROW 3.38 COL 116
      box-design-hdr.box-text AT ROW 4.57 COL 3 NO-LABEL
           VIEW-AS EDITOR NO-WORD-WRAP SCROLLBAR-HORIZONTAL SCROLLBAR-VERTICAL
           SIZE 115 BY 12.62
-          FONT 0
+          FONT 2
      box-design-hdr.wcum-score AT ROW 5.05 COL 119 NO-LABEL
           VIEW-AS EDITOR NO-WORD-WRAP SCROLLBAR-VERTICAL
           SIZE 13 BY 12.14
-          FONT 0
+          FONT 2
      box-design-hdr.wscore AT ROW 5.05 COL 132 NO-LABEL
           VIEW-AS EDITOR NO-WORD-WRAP SCROLLBAR-VERTICAL
           SIZE 15 BY 12.14
-          FONT 0
+          FONT 2
      "W Score" VIEW-AS TEXT
           SIZE 11 BY .86 AT ROW 4.1 COL 134
      "W Totals" VIEW-AS TEXT
@@ -191,7 +195,7 @@ DEFINE FRAME F-Main
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
-         FONT 6.
+         FGCOLOR 1 FONT 6.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -221,8 +225,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW V-table-Win ASSIGN
-         HEIGHT             = 24.29
-         WIDTH              = 175.
+         HEIGHT             = 16.67
+         WIDTH              = 147.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -261,6 +265,8 @@ ASSIGN
    NO-ENABLE 2 EXP-LABEL EXP-FORMAT                                     */
 /* SETTINGS FOR FILL-IN box-design-hdr.lscore IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
+/* SETTINGS FOR RECTANGLE RECT-29 IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* SETTINGS FOR EDITOR box-design-hdr.wcum-score IN FRAME F-Main
    NO-ENABLE 2                                                          */
 ASSIGN 
@@ -375,6 +381,30 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME box-design-hdr.design-no
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL box-design-hdr.design-no V-table-Win
+ON ENTRY OF box-design-hdr.design-no IN FRAME F-Main /* Design # */
+DO:
+  cDesignNo = SELF:SCREEN-VALUE.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL box-design-hdr.design-no V-table-Win
+ON LEAVE OF box-design-hdr.design-no IN FRAME F-Main /* Design # */
+DO:
+  IF LASTKEY <> -1 THEN DO:
+     RUN valid-design-no NO-ERROR.
+     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME box-design-hdr.lscore
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL box-design-hdr.lscore V-table-Win
 ON CURSOR-LEFT OF box-design-hdr.lscore IN FRAME F-Main /* Length!Score */
@@ -447,31 +477,9 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME box-design-hdr.design-no
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL box-design-hdr.design-no V-table-Win
-ON ENTRY OF box-design-hdr.design-no IN FRAME F-Main /* Design # */
-DO:
-  cDesignNo = SELF:SCREEN-VALUE.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL box-design-hdr.design-no V-table-Win
-ON LEAVE OF box-design-hdr.design-no IN FRAME F-Main /* Design # */
-DO:
-  IF LASTKEY <> -1 THEN DO:
-     RUN valid-design-no NO-ERROR.
-     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
+&Scoped-define SELF-NAME box-design-hdr.wscore
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL box-design-hdr.wscore V-table-Win
-ON LEAVE OF box-design-hdr.wscore IN FRAME F-Main /* Design # */
+ON LEAVE OF box-design-hdr.wscore IN FRAME F-Main /* Width!Score */
 DO:
   IF LASTKEY <> -1 THEN DO:
      RUN valid-wscore NO-ERROR.
@@ -595,7 +603,7 @@ find first style where style.company eq xeb.company
                  no-lock no-error.
 if avail style then
   find first xbox-design-hdr where xbox-design-hdr.design-no eq style.design-no
-  			       and xbox-design-hdr.company   eq style.company 	
+                               and xbox-design-hdr.company   eq style.company   
                                and xbox-design-hdr.est-no    eq ""
              no-lock no-error.
 
@@ -997,6 +1005,7 @@ PROCEDURE local-disable-fields :
 
   /* Code placed here will execute AFTER standard behavior.    */
 /*  disable lv-wscore lv-wcum-score with frame {&frame-name}. */
+  {methods/run_link.i "CONTAINER-SOURCE" "SetUpdateEnd"}
 
 END PROCEDURE.
 
@@ -1076,6 +1085,7 @@ PROCEDURE local-enable-fields :
 
   /* Code placed here will execute AFTER standard behavior.    */
 /*  enable lv-wscore lv-wcum-score with frame {&frame-name}. */
+  {methods/run_link.i "CONTAINER-SOURCE" "SetUpdateBegin"}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1254,8 +1264,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-design-no V-table-Win
-PROCEDURE valid-design-no:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-design-no V-table-Win 
+PROCEDURE valid-design-no :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -1276,13 +1286,12 @@ PROCEDURE valid-design-no:
   {methods/lValidateError.i NO}
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-wscore V-table-Win
-PROCEDURE valid-wscore:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-wscore V-table-Win 
+PROCEDURE valid-wscore :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -1299,7 +1308,7 @@ PROCEDURE valid-wscore:
   {methods/lValidateError.i NO}
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

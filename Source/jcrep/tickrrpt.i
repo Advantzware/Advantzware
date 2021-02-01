@@ -33,6 +33,8 @@ ELSE IF tb_fold AND CAN-DO("Ruffino",lv-format-f) THEN
   lines-per-page = 85 /* 58 lines-per-page*/.
 ELSE IF NOT tb_fold AND (lv-format-c = "Adapt" OR lv-format-c = "PFS" OR lv-format-c = "CSC") THEN
     lines-per-page = 0.  /*Xprint controls paging*/
+ELSE IF tb_fold AND CAN-DO("Henry",lv-format-f) THEN 
+  lines-per-page = 101 /* 101 lines-per-page*/.
 ELSE
   lines-per-page = 99.
 
@@ -246,9 +248,8 @@ IF ip-industry EQ "Fold" AND tb_fold AND CAN-DO("Frankstn,Keystone,Ruffino,Fibre
       AND CAN-DO("FibreFC",lv-format-f) THEN
     RUN cerep/d-fibr1.w (ROWID(job-hdr), job-mat.frm).
 
-  IF FIRST(job-hdr.job) AND CAN-DO("McLean",lv-format-f) 
-           AND est.est-type NE 1 THEN DO:
-            RUN cerep/d-mclean.w (ROWID(job-hdr)).
+  IF FIRST(job-hdr.job) AND CAN-DO("McLean",lv-format-f) THEN DO:
+    RUN cerep/d-mclean.w (ROWID(job-hdr)).
   END.
 
 END.
@@ -361,7 +362,7 @@ SESSION:SET-WAIT-STATE ("general").
 
 /*Change similar lines in jcrep\r-tickt2.w can-do ... in multiple places*/
 is-xprint-form = (ip-industry EQ "Corr") OR 
-                  CAN-DO("Interpac,FibreFC,Metro,HPB,Dayton,Livngstn,CentBox,Wingate,Keystone,Ruffino,Frankstn,Colonial,CCC-Hybrid,Unipak,OTTPkg,MWFibre,Shelby,CCC,Indiana-XL,PPI,PackRite,Rosmar,Accord,Knight,MidYork,Dee,Badger,Carded,McLean,Carded2,Coburn,Knight***,jobcardf 1,jobcardf 2",lv-format-f).
+                  CAN-DO("Interpac,FibreFC,Metro,HPB,Dayton,Livngstn,CentBox,Wingate,Keystone,Ruffino,Frankstn,Colonial,CCC-Hybrid,Unipak,OTTPkg,MWFibre,Shelby,CCC,Indiana-XL,PPI,PackRite,Rosmar,Accord,Knight,MidYork,Dee,Badger,Carded,McLean,Carded2,Coburn,Knight***,jobcardf 1,jobcardf 2,Henry",lv-format-f).
 
 IF is-xprint-form THEN DO:
 
@@ -413,7 +414,7 @@ END.
 /* FOLDING */
 IF ip-industry EQ "Fold" THEN DO:
     /* Colonial */
-   IF NOT CAN-DO('ASI,CentBox,Wingate,UniPak,HPB,METRO,FibreFC,Indiana-XL,Accord,Dee,Colonial,CCC-Hybrid,xml,Carded,McLean,Carded2,Coburn,Knight***,ruffino',lv-format-f) THEN spec-list = "".
+   IF NOT CAN-DO('ASI,CentBox,Henry,Wingate,UniPak,HPB,METRO,FibreFC,Indiana-XL,Accord,Dee,Colonial,CCC-Hybrid,xml,Carded,McLean,Carded2,Coburn,Knight***,ruffino',lv-format-f) THEN spec-list = "".
    
    if  lv-format-f = 'Indiana-XL'      and 
        (logical (tb_RS:screen-value in frame {&frame-name}) = true or
@@ -600,6 +601,10 @@ IF ip-industry EQ "Fold" THEN DO:
    /* gdm - 08270909 end */
    ELSE IF lv-format-f EQ "Prystup" THEN DO:
       RUN cerep/jobpryst.p (list-name).                
+   END.
+   ELSE IF lv-format-f EQ "Henry" THEN DO:
+      PUT UNFORMATTED "<OLANDSCAPE><P10></PROGRESS>".
+      RUN cerep/jobhenry.p (lv-format-f).                
    END.
    ELSE DO:
       PUT UNFORMATTED "<OLANDSCAPE><P10></PROGRESS>".

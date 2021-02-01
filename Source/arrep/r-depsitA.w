@@ -934,7 +934,7 @@ PROCEDURE get-detail-values :
    lv-name     = "".
 
   IF ip-jrnl EQ "CASHR" THEN DO:
-     lv-check-no = INT(SUBSTR(ip-dscr,INDEX(ip-dscr," Inv# ") - 10,10)) NO-ERROR.
+     lv-check-no = INT64(SUBSTR(ip-dscr,INDEX(ip-dscr," Inv# ") - 12,12)) NO-ERROR.
      IF ERROR-STATUS:ERROR THEN lv-check-no = 0.
 
      lv-inv-no = INT(SUBSTR(ip-dscr,INDEX(ip-dscr," Inv# ") + 6,10)) NO-ERROR.
@@ -1149,7 +1149,7 @@ FOR EACH ar-cash NO-LOCK
         FIND FIRST ar-ledger NO-LOCK
              WHERE ar-ledger.company EQ ar-cash.company
                AND ar-ledger.cust-no EQ ar-cash.cust-no
-               AND ar-ledger.ref-num EQ "CHK# " + STRING(ar-cash.check-no,"9999999999")
+               AND ar-ledger.ref-num EQ "CHK# " + STRING(ar-cash.check-no,"999999999999")
                AND ar-ledger.tr-date GE v-s-date
                AND ar-ledger.tr-date LE v-e-date
              NO-ERROR.
@@ -1157,7 +1157,7 @@ FOR EACH ar-cash NO-LOCK
         FIND FIRST ar-ledger NO-LOCK
              WHERE ar-ledger.company EQ ar-cash.company
                AND ar-ledger.cust-no EQ ar-cash.cust-no
-               AND ar-ledger.ref-num EQ "VOIDED CHK# " + STRING(ar-cash.check-no,"9999999999")
+               AND ar-ledger.ref-num EQ "VOIDED CHK# " + STRING(ar-cash.check-no,"999999999999")
                AND ar-ledger.tr-date GE v-s-date
                AND ar-ledger.tr-date LE v-e-date
              NO-ERROR.
@@ -1170,7 +1170,7 @@ FOR EACH ar-cash NO-LOCK
         tt-gltrans.actnum  = ar-cash.bank-code
         tt-gltrans.jrnl    = "CASHR"
         tt-gltrans.tr-dscr = ar-cash.cust-no + " " +
-                             STRING(ar-cash.check-no,"9999999999") +
+                             STRING(ar-cash.check-no,"999999999999") +
                              " Inv# " + STRING(ar-cashl.inv-no)
         tt-gltrans.tr-date = ar-ledger.tr-date
         tt-gltrans.tr-amt  = ar-cashl.amt-paid
@@ -1258,7 +1258,7 @@ FOR EACH bank
 
          IF lv-check-no NE 0 THEN DO:
            DISPLAY lv-name     @ bank.actnum
-                   "Chk " + TRIM(STRING(lv-check-no,">>>>>>>>>>")) + " " +
+                   "Chk " + TRIM(STRING(lv-check-no,">>>>>>>>>>>>")) + " " +
                    (IF lv-inv-no NE 0 THEN
                       "Inv " + TRIM(STRING(lv-inv-no,">>>>>>>")) ELSE "")
                                @ v-tr-num
@@ -1272,7 +1272,7 @@ FOR EACH bank
                  '"' ""      '",'
                  '"' lv-name '",'
                  '"' ""      '",'
-                 '"' "Chk " + TRIM(STRING(lv-check-no,">>>>>>>>>>")) + " " +
+                 '"' "Chk " + TRIM(STRING(lv-check-no,">>>>>>>>>>>>")) + " " +
                      (IF lv-inv-no NE 0 THEN
                      "Inv " + TRIM(STRING(lv-inv-no,">>>>>>>")) ELSE "")  '",'
                  '"' STRING(lv-amt,"->>,>>>,>>9.99") '",'

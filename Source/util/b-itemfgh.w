@@ -32,6 +32,7 @@ CREATE WIDGET-POOL.
 &SCOPED-DEFINE winReSize
 &SCOPED-DEFINE browseOnly
 {methods/defines/winReSize.i}
+{methods/template/brwcustomdef.i}
 
 /* Parameters Definitions ---                                           */
 
@@ -854,6 +855,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL r_table B-table-Win
 ON ROW-DISPLAY OF r_table IN FRAME F-Main
 DO:
+&scoped-define exclude-row-display true 
+{methods/template/brwrowdisplay.i}
+    
 li-qty-pal = fg-rdtlh.qty-case * fg-rdtlh.cases.
 /* li-qty-pal = fg-rdtlh.qty-case * /* fg-rdtlh.stacks-unit */ fg-rdtlh.cases. */
 
@@ -905,6 +909,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL r_table B-table-Win
 ON START-SEARCH OF r_table IN FRAME F-Main
 DO:
+  {methods/template/sortindicator.i} 
   DEF VAR lh-column AS HANDLE NO-UNDO.
   DEF VAR lv-column-nam AS CHAR NO-UNDO.
   DEF VAR lv-column-lab AS CHAR NO-UNDO.
@@ -922,6 +927,7 @@ DO:
 
   APPLY 'END-SEARCH' TO {&BROWSE-NAME}.
   RUN dispatch ("open-query").
+  {methods/template/sortindicatorend.i} 
 
 END.
 
@@ -1060,13 +1066,16 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
-
+{methods/template/brwcustom.i}
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF
 
 {methods/winReSize.i}
-
+/* Ticket# : 92946
+   Hiding this widget for now, as browser's column label should be indicating the column which is sorted by */
+fi_sort-by:HIDDEN  = TRUE.
+fi_sort-by:VISIBLE = FALSE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

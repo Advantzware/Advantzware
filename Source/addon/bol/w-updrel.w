@@ -67,7 +67,7 @@ DEFINE VARIABLE h_exit AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_folder AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-relbol AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_smartmsg AS HANDLE NO-UNDO.
-
+DEFINE VARIABLE h_p-printbol AS HANDLE NO-UNDO.
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
@@ -280,8 +280,8 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/folder.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'FOLDER-LABELS = ':U + 'Release Scan' + ',
-                     FOLDER-TAB-TYPE = 1':U ,
+             INPUT  'FOLDER-LABELS = ':U + 'Scan' + ',
+                     FOLDER-TAB-TYPE = 2':U ,
              OUTPUT h_folder ).
        RUN set-position IN h_folder ( 3.14 , 1.00 ) NO-ERROR.
        RUN set-size IN h_folder ( 14.05 , 117.00 ) NO-ERROR.
@@ -310,11 +310,22 @@ PROCEDURE adm-create-objects :
                      AddFunction = One-Record':U ,
              OUTPUT h_p-relbol ).
        RUN set-position IN h_p-relbol ( 15.05 , 3.00 ) NO-ERROR.
-       RUN set-size IN h_p-relbol ( 1.76 , 71.00 ) NO-ERROR.
+       RUN set-size IN h_p-relbol ( 1.76 , 61.00 ) NO-ERROR.
+       
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'panels/p-printbol.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'Edge-Pixels = 2,
+                     SmartPanelType = Update,
+                     AddFunction = One-Record':U ,
+             OUTPUT h_p-printbol ).
+       RUN set-position IN h_p-printbol ( 15.05 , 100.00 ) NO-ERROR.
+       RUN set-size IN h_p-printbol ( 1.76 , 15.00 ) NO-ERROR.
 
        /* Links to SmartBrowser h_b-updrel. */
        RUN add-link IN adm-broker-hdl ( h_p-relbol , 'TableIO':U , h_b-updrel ).
        RUN add-link IN adm-broker-hdl ( h_b-updrel , 'release':U , THIS-PROCEDURE ).
+       RUN add-link IN adm-broker-hdl ( h_b-updrel , 'Record':U , h_p-printbol ).
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_b-updrel ,

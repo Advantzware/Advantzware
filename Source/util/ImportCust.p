@@ -92,12 +92,15 @@ DEFINE TEMP-TABLE ttImportCust
     FIELD SwiftBIC      AS CHARACTER FORMAT "x(11)" COLUMN-LABEL "Swift Code" HELP "Optional - Validated - Size:11"
     FIELD BankRTN       AS INTEGER FORMAT "999999999" COLUMN-LABEL "Routing" HELP "Optional - Integer"
     
-    FIELD accountType   AS CHARACTER FORMAT "X(12)" COLUMN-LABEL "Account Type" HELP "Account type is used for sales reporting optional - Size:12 Split,Originated,Handed"
+    FIELD accountType   AS CHARACTER FORMAT "X(12)" COLUMN-LABEL "Account Type" HELP "Account type is used for sales reporting optional - Size:12 Split,Originated,Handed,None, None for no change"
     FIELD splitType     AS INTEGER FORMAT "9" COLUMN-LABEL "Split Type" HELP "Split type used for sales reporting Optional - default 0"
     FIELD parentCust    AS CHARACTER FORMAT "x(12)" COLUMN-LABEL "Parent Customer" HELP "Master customer account Optional - Size:12"
     FIELD marketSegment AS CHARACTER FORMAT "x(16)" COLUMN-LABEL "Market Segment" HELP "Market segment for sales reporting Optional - Size:16"
     FIELD naicsCode     AS CHARACTER FORMAT "999999" COLUMN-LABEL "NAICS" HELP "NAICS Code, link to NaicsTable, Default = 999999"
     FIELD classId       AS INTEGER   FORMAT ">>" COLUMN-LABEL "AR ClassID" HELP "Optional - Integer  Default = blank or 0 "    
+    FIELD accountant    AS CHARACTER FORMAT "x(10)" COLUMN-LABEL "Accountant" HELP "Optional - Size:10 "    
+    FIELD matrixPrecision AS INTEGER FORMAT "9"   COLUMN-LABEL "Matrix Precision" HELP "Optional - default 0"
+    FIELD matrixRounding  AS CHARACTER FORMAT "X" COLUMN-LABEL "Matrix Rounding"  HELP "Optional - N,U,D (Default 'U' if 'write blank and zero' flag is selected)"
     .
 
 DEFINE VARIABLE giIndexOffset AS INTEGER NO-UNDO INIT 2. /*Set to 1 if there is a Company field in temp-table since this will not be part of the mport data*/
@@ -144,7 +147,14 @@ PROCEDURE pValidate PRIVATE:
                 oplValid = NO
                 opcNote  = "Key Field Blank: Customer".
     END.
-    
+    IF oplValid THEN 
+    DO:
+        IF ipbf-ttImportCust.accountType EQ '' THEN 
+            ASSIGN 
+                oplValid = NO
+                opcNote  = "Key Field Blank: Account Type, Use None for no change".
+    END.
+            
     IF oplValid THEN 
     DO:
         IF ipbf-ttImportCust.CustType EQ '' THEN 
@@ -250,7 +260,20 @@ PROCEDURE pValidate PRIVATE:
                 oplValid = NO
                 opcNote  = "Pallet Id can not be Negative.".
     END.
-    
+    IF oplValid THEN DO:
+        IF ipbf-ttImportCust.matrixPrecision GT 6 THEN
+            ASSIGN 
+                oplValid = NO
+                opcNote  = "Precision cannot be greater than 6"
+                .     
+    END.
+    IF oplValid THEN DO:
+        IF LOOKUP(ipbf-ttImportCust.matrixRounding,",N,U,D") EQ 0 THEN
+            ASSIGN
+                oplValid = NO
+                opcNote  = "Invalid Rounding method"
+                .
+    END.
     IF oplValid THEN 
     DO:
         FIND FIRST cust NO-LOCK 
@@ -299,7 +322,10 @@ PROCEDURE pValidate PRIVATE:
 
         IF oplValid AND ipbf-ttImportCust.CSRUser NE "" THEN 
             RUN pIsValidUserId IN hdValidator (ipbf-ttImportCust.CSRUser, NO, OUTPUT oplValid, OUTPUT cValidNote).
-
+            
+         IF oplValid AND ipbf-ttImportCust.accountant NE "" THEN 
+            RUN pIsValidUserId IN hdValidator (ipbf-ttImportCust.accountant, NO, OUTPUT oplValid, OUTPUT cValidNote).    
+        
         IF oplValid AND ipbf-ttImportCust.cCurrency NE "" THEN 
             RUN pIsValidCurrency IN hdValidator (ipbf-ttImportCust.cCurrency, NO, ipbf-ttImportCust.Company, OUTPUT oplValid, OUTPUT cValidNote).
 
@@ -339,8 +365,8 @@ PROCEDURE pValidate PRIVATE:
         IF oplValid AND ipbf-ttImportCust.cTaxGr NE "" THEN 
             RUN pIsValidTaxGroup IN hdValidator (ipbf-ttImportCust.cTaxGr, NO, ipbf-ttImportCust.Company, OUTPUT oplValid, OUTPUT cValidNote).
             
-        IF oplValid AND ipbf-ttImportCust.accountType NE "" THEN 
-            RUN pIsValidFromList IN hdValidator ("Account Type", ipbf-ttImportCust.accountType, ",Split,Originated,Handed", OUTPUT oplValid, OUTPUT cValidNote).                
+        IF oplValid THEN 
+            RUN pIsValidFromList IN hdValidator ("Account Type", ipbf-ttImportCust.accountType, "None,Split,Originated,Handed", OUTPUT oplValid, OUTPUT cValidNote).                
             
         IF oplValid AND ipbf-ttImportCust.splitType NE 0 THEN 
             RUN pIsValidFromList IN hdValidator ("Split Type", ipbf-ttImportCust.splitType, "0,1,2,3,4,5,6,7,8,9", OUTPUT oplValid, OUTPUT cValidNote).                     
@@ -480,12 +506,21 @@ PROCEDURE pProcessRecord PRIVATE:
     RUN pAssignValueC (ipbf-ttImportCust.BankAcct, YES, INPUT-OUTPUT bf-cust.Bank-Acct).
     RUN pAssignValueC (ipbf-ttImportCust.SwiftBIC, YES, INPUT-OUTPUT bf-cust.SwiftBIC).
     RUN pAssignValueC (ipbf-ttImportCust.BankRTN, iplIgnoreBlanks, INPUT-OUTPUT bf-cust.Bank-RTN).
+    IF ipbf-ttImportCust.accountType NE "None" THEN
     RUN pAssignValueC (ipbf-ttImportCust.accountType, iplIgnoreBlanks, INPUT-OUTPUT bf-cust.accountType).
     RUN pAssignValueI (ipbf-ttImportCust.splitType, iplIgnoreBlanks, INPUT-OUTPUT bf-cust.splitType).
     RUN pAssignValueC (ipbf-ttImportCust.parentCust, iplIgnoreBlanks, INPUT-OUTPUT bf-cust.parentCust).
     RUN pAssignValueC (ipbf-ttImportCust.marketSegment, iplIgnoreBlanks, INPUT-OUTPUT bf-cust.marketSegment).
     RUN pAssignValueC (ipbf-ttImportCust.naicsCode, iplIgnoreBlanks, INPUT-OUTPUT bf-cust.naicsCode).
     RUN pAssignValueC (ipbf-ttImportCust.classId, iplIgnoreBlanks, INPUT-OUTPUT bf-cust.classId).
+    RUN pAssignValueC (ipbf-ttImportCust.accountant, iplIgnoreBlanks, INPUT-OUTPUT bf-cust.accountant).
+    RUN pAssignValueI (ipbf-ttImportCust.matrixPrecision, iplIgnoreBlanks, INPUT-OUTPUT bf-cust.matrixPrecision).
+    
+    /* Set to round up if write blank and zero is selected */
+    IF NOT iplIgnoreBlanks AND ipbf-ttImportCust.matrixRounding EQ "" THEN
+        bf-cust.matrixRounding = "U".
+    ELSE     
+        RUN pAssignValueC (ipbf-ttImportCust.matrixRounding, iplIgnoreBlanks, INPUT-OUTPUT bf-cust.matrixRounding).    
 
     FIND FIRST bf-shipto EXCLUSIVE-LOCK 
         WHERE bf-shipto.company EQ bf-cust.company

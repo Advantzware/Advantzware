@@ -76,10 +76,10 @@ RUN AOA/spDynValidateProc.p    PERSISTENT SET hDynValProc.
 
 /* Custom List Definitions                                              */
 /* outputObjects,showFields,List-3,List-4,List-5,List-6                 */
-&Scoped-define outputObjects btnSave btnVisibleSets btnAddEmail ~
-svRecipients svSetAlignment defaultOutputFormat svRunSync svShowAll ~
-svShowReportHeader svShowReportFooter svShowPageHeader svShowPageFooter ~
-svShowGroupHeader svShowGroupFooter svShowParameters 
+&Scoped-define outputObjects btnReset btnSave btnAddEmail svRecipients ~
+defaultOutputFormat svRunSync svAutoClose svShowAll svShowReportHeader ~
+svShowReportFooter svShowPageHeader svShowPageFooter svShowGroupHeader ~
+svShowGroupFooter svShowParameters 
 &Scoped-define showFields svShowAll svShowReportHeader svShowReportFooter ~
 svShowPageHeader svShowPageFooter svShowGroupHeader svShowGroupFooter ~
 svShowParameters 
@@ -107,19 +107,21 @@ DEFINE BUTTON btnAddEmail
      LABEL "Email" 
      SIZE 4.4 BY 1.05 TOOLTIP "Add Recipents".
 
-DEFINE BUTTON btnSave 
-     IMAGE-UP FILE "Graphics/32x32/floppy_disk.ico":U NO-FOCUS FLAT-BUTTON
-     LABEL "Save" 
-     SIZE 8 BY 1.91 TOOLTIP "Save".
+DEFINE BUTTON btnReset 
+     IMAGE-UP FILE "Graphics/32x32/undo_32.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/undo_32_disabled.png":U NO-FOCUS FLAT-BUTTON
+     LABEL "Update/Save Columns" 
+     SIZE 8 BY 1.91 TOOLTIP "Update/Save Columns".
 
-DEFINE BUTTON btnVisibleSets 
-     IMAGE-UP FILE "Graphics/32x32/window_dialog.ico":U NO-FOCUS FLAT-BUTTON
-     LABEL "" 
-     SIZE 8 BY 1.91 TOOLTIP "Show/Hide Parameter Sets".
+DEFINE BUTTON btnSave 
+     IMAGE-UP FILE "Graphics/32x32/floppy_disk.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/floppy_disk_disabled.png":U NO-FOCUS FLAT-BUTTON
+     LABEL "Update/Save Columns" 
+     SIZE 8 BY 1.91 TOOLTIP "Update/Save Columns".
 
 DEFINE VARIABLE svRecipients AS CHARACTER 
      VIEW-AS EDITOR SCROLLBAR-VERTICAL
-     SIZE 53 BY 1.67
+     SIZE 67 BY 1.67
      BGCOLOR 15 .
 
 DEFINE VARIABLE defaultOutputFormat AS CHARACTER 
@@ -132,15 +134,7 @@ DEFINE VARIABLE defaultOutputFormat AS CHARACTER
 "DocX", "DOCX":U,
 "PDF", "PDF":U,
 "HTML", "HTML":U
-     SIZE 64 BY 1 NO-UNDO.
-
-DEFINE VARIABLE svSetAlignment AS CHARACTER INITIAL "Custom" 
-     VIEW-AS RADIO-SET VERTICAL
-     RADIO-BUTTONS 
-          "Columns", "Columns",
-"Rows", "Rows",
-"Custom", "Custom"
-     SIZE 13 BY 1.91 NO-UNDO.
+     SIZE 65 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-PANEL
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
@@ -149,6 +143,11 @@ DEFINE RECTANGLE RECT-PANEL
 DEFINE RECTANGLE RECT-SHOW
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
      SIZE 156 BY 1.19.
+
+DEFINE VARIABLE svAutoClose AS LOGICAL INITIAL no 
+     LABEL "Auto Close" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 15 BY .81 NO-UNDO.
 
 DEFINE VARIABLE svRunSync AS LOGICAL INITIAL no 
      LABEL "Run Synchronous" 
@@ -206,17 +205,18 @@ DEFINE FRAME paramFrame
          FGCOLOR 1  WIDGET-ID 100.
 
 DEFINE FRAME outputFrame
-     btnSave AT ROW 1.48 COL 149 HELP
-          "Update/Save" WIDGET-ID 248
-     btnVisibleSets AT ROW 1.48 COL 141 HELP
-          "Show/Hide Parameter Sets" WIDGET-ID 660
+     btnReset AT ROW 1.48 COL 149 HELP
+          "Update/Save Columns" WIDGET-ID 664
+     btnSave AT ROW 1.48 COL 142 HELP
+          "Update/Save Columns" WIDGET-ID 24
      btnAddEmail AT ROW 1.95 COL 3 HELP
           "Add Recipents" WIDGET-ID 636
      svRecipients AT ROW 1.24 COL 8 NO-LABEL WIDGET-ID 600
-     svSetAlignment AT ROW 1.71 COL 62 NO-LABEL WIDGET-ID 654
      defaultOutputFormat AT ROW 2.43 COL 77 NO-LABEL WIDGET-ID 644
      svRunSync AT ROW 2.91 COL 8 HELP
           "Toggle to Run Synchronous" WIDGET-ID 662
+     svAutoClose AT ROW 2.91 COL 44 HELP
+          "Toggle to Auto Close" WIDGET-ID 658
      svShowAll AT ROW 4.1 COL 8 WIDGET-ID 18
      svShowReportHeader AT ROW 4.1 COL 23 WIDGET-ID 2
      svShowReportFooter AT ROW 4.1 COL 44 WIDGET-ID 4
@@ -225,8 +225,6 @@ DEFINE FRAME outputFrame
      svShowGroupHeader AT ROW 4.1 COL 103 WIDGET-ID 10
      svShowGroupFooter AT ROW 4.1 COL 123 WIDGET-ID 12
      svShowParameters AT ROW 4.1 COL 142 WIDGET-ID 16
-     "Set Alignment" VIEW-AS TEXT
-          SIZE 13.6 BY .62 AT ROW 1 COL 62 WIDGET-ID 658
      "Default Output Format:" VIEW-AS TEXT
           SIZE 23 BY 1 AT ROW 1.48 COL 77 WIDGET-ID 652
      "Email:" VIEW-AS TEXT
@@ -237,7 +235,7 @@ DEFINE FRAME outputFrame
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
          SIZE 158 BY 5.24
-         BGCOLOR 15 
+         BGCOLOR 22 FGCOLOR 1 
          TITLE BGCOLOR 15 "Parameters" WIDGET-ID 1300.
 
 
@@ -266,8 +264,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW s-object ASSIGN
-         HEIGHT             = 27
-         WIDTH              = 158.2.
+         HEIGHT             = 24.14
+         WIDTH              = 158.8.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -295,9 +293,9 @@ ASSIGN FRAME outputFrame:FRAME = FRAME paramFrame:HANDLE.
                                                                         */
 /* SETTINGS FOR BUTTON btnAddEmail IN FRAME outputFrame
    1                                                                    */
-/* SETTINGS FOR BUTTON btnSave IN FRAME outputFrame
+/* SETTINGS FOR BUTTON btnReset IN FRAME outputFrame
    1                                                                    */
-/* SETTINGS FOR BUTTON btnVisibleSets IN FRAME outputFrame
+/* SETTINGS FOR BUTTON btnSave IN FRAME outputFrame
    1                                                                    */
 /* SETTINGS FOR RADIO-SET defaultOutputFormat IN FRAME outputFrame
    1                                                                    */
@@ -305,11 +303,11 @@ ASSIGN FRAME outputFrame:FRAME = FRAME paramFrame:HANDLE.
    NO-ENABLE                                                            */
 /* SETTINGS FOR RECTANGLE RECT-SHOW IN FRAME outputFrame
    NO-ENABLE                                                            */
+/* SETTINGS FOR TOGGLE-BOX svAutoClose IN FRAME outputFrame
+   1                                                                    */
 /* SETTINGS FOR EDITOR svRecipients IN FRAME outputFrame
    1                                                                    */
 /* SETTINGS FOR TOGGLE-BOX svRunSync IN FRAME outputFrame
-   1                                                                    */
-/* SETTINGS FOR RADIO-SET svSetAlignment IN FRAME outputFrame
    1                                                                    */
 /* SETTINGS FOR TOGGLE-BOX svShowAll IN FRAME outputFrame
    1 2                                                                  */
@@ -330,7 +328,7 @@ ASSIGN FRAME outputFrame:FRAME = FRAME paramFrame:HANDLE.
 /* SETTINGS FOR FRAME paramFrame
    NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 ASSIGN 
-       FRAME paramFrame:HEIGHT           = 26.95
+       FRAME paramFrame:HEIGHT           = 24
        FRAME paramFrame:WIDTH            = 158.
 
 /* _RUN-TIME-ATTRIBUTES-END */
@@ -364,29 +362,22 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btnSave
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnSave s-object
-ON CHOOSE OF btnSave IN FRAME outputFrame /* Save */
+&Scoped-define SELF-NAME btnReset
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnReset s-object
+ON CHOOSE OF btnReset IN FRAME outputFrame /* Update/Save Columns */
 DO:
-    RUN pSaveDynParamValues (defaultOutputFormat).
-    MESSAGE
-        "Parameter Values Saved!"
-    VIEW-AS ALERT-BOX TITLE "Save".
+    RUN pReset.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btnVisibleSets
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnVisibleSets s-object
-ON CHOOSE OF btnVisibleSets IN FRAME outputFrame
+&Scoped-define SELF-NAME btnSave
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnSave s-object
+ON CHOOSE OF btnSave IN FRAME outputFrame /* Update/Save Columns */
 DO:
-    RUN AOA/dynVisibleSets.w (ROWID(dynParamValue), OUTPUT lSave).
-    IF lSave THEN DO:
-        FIND CURRENT dynParamValue NO-LOCK.
-        RUN pShowParameterSets.
-    END. /* if lsave */
+    RUN pSave.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -396,17 +387,6 @@ END.
 &Scoped-define SELF-NAME defaultOutputFormat
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL defaultOutputFormat s-object
 ON VALUE-CHANGED OF defaultOutputFormat IN FRAME outputFrame
-DO:
-    ASSIGN {&SELF-NAME}.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME svSetAlignment
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svSetAlignment s-object
-ON VALUE-CHANGED OF svSetAlignment IN FRAME outputFrame
 DO:
     ASSIGN {&SELF-NAME}.
 END.
@@ -595,14 +575,8 @@ PROCEDURE local-view :
 
   /* Code placed here will execute AFTER standard behavior.    */
   RUN pShowParameterSets.
+  IF AVAILABLE dynParamValue AND dynParamValue.user-id EQ USERID("ASI") THEN
   ENABLE {&outputObjects} WITH FRAME outputFrame.
-  ASSIGN
-      btnSave:HIDDEN = NOT AVAILABLE dynParamValue OR
-                       dynParamValue.user-id EQ "_default" OR
-                      (DYNAMIC-FUNCTION("sfIsUserSuperAdmin") EQ NO AND
-                       dynParamValue.user-id NE USERID("ASI"))
-      btnVisibleSets:HIDDEN = btnSave:HIDDEN
-      .
 
 END PROCEDURE.
 
@@ -648,6 +622,34 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pReset s-object 
+PROCEDURE pReset :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RUN pShowParameterSets.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSave s-object 
+PROCEDURE pSave :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    IF NOT AVAILABLE dynParamValue THEN RETURN.
+    RUN spSetSessionParam ("DefaultOutputFormat", defaultOutputFormat).
+    RUN pSaveDynParamValues (defaultOutputFormat).
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pShowParameterSets s-object 
 PROCEDURE pShowParameterSets :
 /*------------------------------------------------------------------------------
@@ -655,8 +657,41 @@ PROCEDURE pShowParameterSets :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  RUN pCreateDynParameters (FRAME {&FRAME-NAME}:HANDLE, YES).
-  FRAME {&FRAME-NAME}:MOVE-TO-TOP().
+    DEFINE VARIABLE hWidget AS HANDLE NO-UNDO.
+
+    RUN pCreateDynParameters (FRAME {&FRAME-NAME}:HANDLE, YES).
+    FRAME {&FRAME-NAME}:MOVE-TO-TOP().
+    IF AVAILABLE dynParamValue AND dynParamValue.user-id EQ USERID("ASI") THEN
+    RETURN.
+    ASSIGN
+        hWidget = FRAME {&FRAME-NAME}:HANDLE
+        hWidget = hWidget:FIRST-CHILD
+        hWidget = hWidget:FIRST-CHILD
+        .
+    DO WHILE VALID-HANDLE(hWidget):
+        IF hWidget:SENSITIVE THEN
+        hWidget:SENSITIVE = NO.
+        hWidget = hWidget:NEXT-SIBLING.
+    END. /* do while */
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pVisibleSets s-object 
+PROCEDURE pVisibleSets :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lSave AS LOGICAL NO-UNDO.
+
+    RUN AOA/dynVisibleSets.w (ROWID(dynParamValue), OUTPUT lSave).
+    IF lSave THEN DO:
+        FIND CURRENT dynParamValue NO-LOCK.
+        RUN pShowParameterSets.
+    END. /* if lsave */
 
 END PROCEDURE.
 

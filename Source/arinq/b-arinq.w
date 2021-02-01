@@ -177,7 +177,8 @@ fi_cust-no fi_bdate btnCalendar-1 fi_edate btnCalendar-2 fi_actnum fi_i-no ~
 fi_part-no fi_ord-no fi_po-no fi_bol-no fi_est-no btn_go btn_show RECT-1 
 &Scoped-Define DISPLAYED-OBJECTS fi_sortBy tb_open tb_paid fi_inv-no ~
 fi_cust-no fi_bdate fi_edate fi_actnum fi_i-no fi_part-no fi_ord-no ~
-fi_po-no fi_bol-no fi_est-no FI_moveCol 
+fi_po-no fi_bol-no fi_est-no
+// FI_moveCol 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -257,10 +258,10 @@ DEFINE VARIABLE fi_inv-no AS INTEGER FORMAT ">>>>>>>>":U INITIAL 0
      SIZE 14 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE FI_moveCol AS CHARACTER FORMAT "X(4)":U 
+/*DEFINE VARIABLE FI_moveCol AS CHARACTER FORMAT "X(4)":U 
      VIEW-AS FILL-IN 
      SIZE 9 BY 1
-     BGCOLOR 14 FONT 6 NO-UNDO.
+     BGCOLOR 14 FONT 6 NO-UNDO. */
 
 DEFINE VARIABLE fi_ord-no AS INTEGER FORMAT ">>>>>>>>":U INITIAL 0 
      LABEL "Order#" 
@@ -290,12 +291,12 @@ DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 148 BY 5.
 
-DEFINE VARIABLE tb_open AS LOGICAL INITIAL yes 
+DEFINE VARIABLE tb_open AS LOGICAL INITIAL YES 
      LABEL "Open Invoices" 
      VIEW-AS TOGGLE-BOX
      SIZE 18 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_paid AS LOGICAL INITIAL yes 
+DEFINE VARIABLE tb_paid AS LOGICAL INITIAL YES 
      LABEL "Paid Invoices" 
      VIEW-AS TOGGLE-BOX
      SIZE 18 BY 1 NO-UNDO.
@@ -382,10 +383,10 @@ DEFINE FRAME F-Main
      fi_est-no AT ROW 3.62 COL 132 COLON-ALIGNED
      btn_go AT ROW 4.81 COL 17
      btn_show AT ROW 4.81 COL 32
-     FI_moveCol AT ROW 4.76 COL 135.8 COLON-ALIGNED NO-LABEL WIDGET-ID 4
+   /*  FI_moveCol AT ROW 4.76 COL 135.8 COLON-ALIGNED NO-LABEL WIDGET-ID 4
      "Browser Col. Mode:" VIEW-AS TEXT
           SIZE 22.6 BY .62 AT ROW 5 COL 114.6 WIDGET-ID 6
-          FONT 6
+          FONT 6 */
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -541,6 +542,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON START-SEARCH OF Browser-Table IN FRAME F-Main
 DO:
+  {methods/template/sortindicator.i}
   DEF VAR lh-column AS HANDLE NO-UNDO.
   DEF VAR lv-column-nam AS CHAR NO-UNDO.
   DEF VAR lv-column-lab AS CHAR NO-UNDO.
@@ -566,6 +568,7 @@ DO:
   APPLY 'END-SEARCH' TO {&BROWSE-NAME}.
 
   APPLY "choose" TO btn_go.
+  {methods/template/sortindicatorend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -661,11 +664,11 @@ DO:
     RUN dispatch ('open-query').
 
     GET FIRST Browser-Table .
-     IF NOT AVAIL ar-invl THEN do:
+     IF NOT AVAIL ar-invl THEN DO:
          IF fi_cust-no <> "" THEN DO:
              v-cust-no = fi_cust-no .
          END.
-         ELSE do:
+         ELSE DO:
              
              FIND FIRST bf-ar-invl WHERE bf-ar-invl.company = cocode
                  AND (bf-ar-invl.cust-no BEGINS fi_cust-no OR fi_cust-no = "")
@@ -976,7 +979,10 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
 &ENDIF
 
 {methods/winReSize.i}
-
+/* Ticket# : 92946
+   Hiding this widget for now, as browser's column label should be indicating the column which is sorted by */
+fi_sortby:HIDDEN  = TRUE.
+fi_sortby:VISIBLE = FALSE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1218,8 +1224,8 @@ PROCEDURE local-initialize :
    ar-invl.po-no:READ-ONLY IN BROWSE {&browse-name} = YES
    .
 
-  FI_moveCol = "Sort".
-  DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}.  
+ /* FI_moveCol = "Sort".
+  DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}. */ 
 
   /*RUN set-focus.*/
   APPLY 'VALUE-CHANGED':U TO BROWSE {&BROWSE-NAME}.
@@ -1307,9 +1313,9 @@ PROCEDURE move-columns :
      ASSIGN
         Browser-Table:COLUMN-MOVABLE = v-col-move
         Browser-Table:COLUMN-RESIZABLE = v-col-move
-        v-col-move = NOT v-col-move
-        FI_moveCol = IF v-col-move = NO THEN "Move" ELSE "Sort".
-     DISPLAY FI_moveCol.
+        v-col-move = NOT v-col-move.
+    /*    FI_moveCol = IF v-col-move = NO THEN "Move" ELSE "Sort".
+     DISPLAY FI_moveCol.*/
   END.
 END PROCEDURE.
 

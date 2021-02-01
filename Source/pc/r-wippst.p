@@ -1459,10 +1459,16 @@ PROCEDURE post-wip :
         END.  /* run */
         /* end of mods task 11170511*/
         */
+        /* check if job exists for pc-prdd */
+        IF CAN-FIND(FIRST job
+                    WHERE job.company EQ pc-prdd.company
+                      AND job.job     EQ pc-prdd.job
+                      AND job.job-no  EQ pc-prdd.job-no
+                      AND job.job-no2 EQ pc-prdd.job-no2) THEN
+        RUN pTransferNotes (BUFFER pc-prdd).
 
         DELETE pc-prdd.
-    end. /* for each pc-prdd */
-
+    END. /* for each pc-prdd */
 
     IF dcpostgl-log THEN 
     DO TRANSACTION:
@@ -2318,6 +2324,64 @@ PROCEDURE proc-set-cmplt :
 
 END PROCEDURE.
 
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pTransferNotes C-Win
+PROCEDURE pTransferNotes:
+/*------------------------------------------------------------------------------
+ Purpose: if notes exist in pc-prdh and/or pc-prdd then transfer
+ Notes:   them to the associated job.
+------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER bPCPrdd FOR pc-prdd.
+
+    DEFINE BUFFER bJob FOR job.
+
+    FIND FIRST bJob NO-LOCK
+         WHERE bJob.company EQ bPCPrdd.company
+           AND bJob.job     EQ bPCPrdd.job
+           AND bJob.job-no  EQ bPCPrdd.job-no
+           AND bJob.job-no2 EQ bPCPrdd.job-no2
+         NO-ERROR.
+    IF AVAILABLE bJob THEN DO:
+        FIND FIRST pc-prdh NO-LOCK
+             WHERE pc-prdh.company    EQ bPCPrdd.company
+               AND pc-prdh.m-code     EQ bPCPrdd.m-code
+               AND pc-prdh.trans-date EQ bPCPrdd.op-date
+               AND pc-prdh.shift      EQ bPCPrdd.shift
+             NO-ERROR.
+        IF AVAILABLE pc-prdh THEN
+        RUN pUpdateNotesRecKey (pc-prdh.rec_key, bJob.rec_key).
+        RUN pUpdateNotesRecKey (bPCPrdd.rec_key, bJob.rec_key).
+    END. /* avail job */
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateNotesRecKey C-Win
+PROCEDURE pUpdateNotesRecKey:
+/*------------------------------------------------------------------------------
+ Purpose: set the notes rec_key value from pc-prdh and/or pc-prdd rec_key
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcPCPrdRecKey AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcJobRecKey   AS CHARACTER NO-UNDO.
+
+    IF CAN-FIND(FIRST notes
+                WHERE notes.rec_key EQ ipcPCPrdRecKey) THEN
+    DO TRANSACTION:
+        FIND FIRST notes EXCLUSIVE-LOCK
+             WHERE notes.rec_key EQ ipcPCPrdRecKey
+             NO-ERROR.
+        IF AVAILABLE notes THEN
+        notes.rec_key = ipcJobRecKey.
+        RELEASE notes.
+    END. /* do trans */
+
+END PROCEDURE.
+	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

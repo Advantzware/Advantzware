@@ -15,7 +15,7 @@ USING system.SessionInterface.
 
 CLASS system.SharedConfig IMPLEMENTS SessionInterface: 
         
-    DEFINE TEMP-TABLE ttKeyValue
+    DEFINE TEMP-TABLE ttKeyValue NO-UNDO
        FIELD cKey   AS CHARACTER 
        FIELD cValue AS CHARACTER
        INDEX cKey   IS  PRIMARY UNIQUE cKey.
@@ -36,11 +36,15 @@ CLASS system.SharedConfig IMPLEMENTS SessionInterface:
      Notes:
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC VOID SetValue(INPUT ipcKey AS CHARACTER, INPUT ipcValue AS CHARACTER):
-       CREATE ttKeyValue.
-            ASSIGN 
-                ttKeyValue.cKey   = ipcKey
-                ttKeyValue.cValue = ipcValue
-                .                             
+        FIND FIRST ttKeyValue 
+             WHERE ttKeyValue.cKey EQ ipcKey
+             NO-ERROR.
+        IF NOT AVAILABLE ttKeyValue THEN DO: 
+            CREATE ttKeyValue.
+            ttKeyValue.cKey = ipcKey.
+        END.
+
+        ttKeyValue.cValue = ipcValue.
     END.     
 
     /*------------------------------------------------------------------------------

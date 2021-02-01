@@ -34,6 +34,7 @@ CREATE WIDGET-POOL.
 /* ***************************  Definitions  ************************** */
 
 &Scoped-define program-id sys-ctrl.
+&Scoped-define DefaultMenuBGColor 32
 
 /* Parameters Definitions ---                                           */
 
@@ -59,6 +60,7 @@ DEFINE VARIABLE lValid           AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE hFieldValue      AS HANDLE    NO-UNDO.
 DEFINE VARIABLE iUserPrintOffSet AS INTEGER   NO-UNDO INITIAL 5.
 DEFINE VARIABLE lSortMove        AS LOGICAL   NO-UNDO INITIAL YES.
+DEFINE VARIABLE iEditorBGColor   AS INTEGER   NO-UNDO.
 
 cValidateList = "QUOPRINT,BOLFMT,ACKHEAD,RELPRINT,POPRINT,"
               + "INVPRINT,BOLCERT,JOBCARDF,JOBCARDC,QUOPRICE"
@@ -94,6 +96,8 @@ DEFINE BUFFER bttSysCtrl FOR ttSysCtrl.
 
 DEFINE TEMP-TABLE tempSysCtrl NO-UNDO LIKE ttSysCtrl.
 CREATE tempSysCtrl.
+
+&Global-define parentName 
 
 {system/menuTree.i}
 {methods/lockWindowUpdate.i}
@@ -178,8 +182,8 @@ sys-ctrl-shipto.dec-fld sys-ctrl-shipto.int-fld sys-ctrl-shipto.log-fld
 
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS svFocus searchBar btnRestoreDefaults ~
-sysCtrlBrowse btnSortMove 
+&Scoped-Define ENABLED-OBJECTS svFocus searchBar sysCtrlBrowse ~
+btnRestoreDefaults btnSortMove 
 &Scoped-Define DISPLAYED-OBJECTS svFocus searchBar 
 
 /* Custom List Definitions                                              */
@@ -212,14 +216,14 @@ DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btnExport 
-     IMAGE-UP FILE "Graphics/32x32/export.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/export_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/export.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/export_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Export" 
      SIZE 8 BY 1.91 TOOLTIP "Export".
 
 DEFINE BUTTON btnImport 
-     IMAGE-UP FILE "Graphics/32x32/import.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/import_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/import.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/import_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Import" 
      SIZE 8 BY 1.91 TOOLTIP "Import".
 
@@ -280,9 +284,9 @@ DEFINE BUTTON btnClear  NO-FOCUS
      FONT 1.
 
 DEFINE BUTTON btnSearch 
-     IMAGE-UP FILE "Graphics/16x16/filterwindow.bmp":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/16x16/filterwindow.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
-     SIZE 4 BY .95 TOOLTIP "Advanced Search".
+     SIZE 4.8 BY 1.14 TOOLTIP "Advanced Search".
 
 DEFINE VARIABLE cCategoryFilter AS CHARACTER FORMAT "X(256)":U 
      LABEL "Category" 
@@ -359,8 +363,8 @@ DEFINE VARIABLE lExactMatch AS LOGICAL
      SIZE 45 BY 1 TOOLTIP "Select How to Apply Filter Value(s)" NO-UNDO.
 
 DEFINE BUTTON btnAdd-2 
-     IMAGE-UP FILE "Graphics/32x32/navigate_plus.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_plus_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/navigate_plus.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_plus_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Add" 
      SIZE 8 BY 1.91 TOOLTIP "Add".
 
@@ -370,26 +374,26 @@ DEFINE BUTTON btnCalendar-2
      SIZE 4.2 BY 1 TOOLTIP "PopUp Calendar".
 
 DEFINE BUTTON btnCancel-2 
-     IMAGE-UP FILE "Graphics/32x32/navigate_cross.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_cross_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/navigate_cross.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_cross_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Cancel" 
      SIZE 8 BY 1.91 TOOLTIP "Cancel".
 
 DEFINE BUTTON btnCopy-2 
-     IMAGE-UP FILE "Graphics/32x32/element_copy.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/element_copy_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/element_copy.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/element_copy_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Copy" 
      SIZE 8 BY 1.91 TOOLTIP "Copy".
 
 DEFINE BUTTON btnDelete-2 
-     IMAGE-UP FILE "Graphics/32x32/navigate_minus.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_minus_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/garbage_can.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/garbage_can_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Delete" 
      SIZE 8 BY 1.91 TOOLTIP "Delete".
 
 DEFINE BUTTON btnFirst-2 
-     IMAGE-UP FILE "Graphics/32x32/navigate_beginning.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_beginning_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/navigate_beginning.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_beginning_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "First" 
      SIZE 8 BY 1.91 TOOLTIP "First".
 
@@ -399,32 +403,32 @@ DEFINE BUTTON btnForms-2
      SIZE 4.4 BY 1.05 TOOLTIP "Close".
 
 DEFINE BUTTON btnLast-2 
-     IMAGE-UP FILE "Graphics/32x32/navigate_end.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_end_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/navigate_end.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_end_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Last" 
      SIZE 8 BY 1.91 TOOLTIP "Last".
 
 DEFINE BUTTON btnNext-2 
-     IMAGE-UP FILE "Graphics/32x32/navigate_right.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_right_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/navigate_right.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_right_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Next" 
      SIZE 8 BY 1.91 TOOLTIP "Next".
 
 DEFINE BUTTON btnPrev-2 
-     IMAGE-UP FILE "Graphics/32x32/navigate_left.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_left_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/navigate_left.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_left_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Previous" 
      SIZE 8 BY 1.91 TOOLTIP "Previous".
 
 DEFINE BUTTON btnReset-2 
-     IMAGE-UP FILE "Graphics/32x32/undo_32.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/undo_32_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/undo_32.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/undo_32_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Reset" 
      SIZE 8 BY 1.91 TOOLTIP "Reset".
 
 DEFINE BUTTON btnUpdate-2 
-     IMAGE-UP FILE "Graphics/32x32/pencil.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/pencil_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/pencil.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/pencil_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Update" 
      SIZE 8 BY 1.91 TOOLTIP "Update/Save".
 
@@ -454,8 +458,8 @@ DEFINE RECTANGLE transPanel-4
      BGCOLOR 15 .
 
 DEFINE BUTTON btnAdd 
-     IMAGE-UP FILE "Graphics/32x32/navigate_plus.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_plus_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/navigate_plus.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_plus_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Add" 
      SIZE 8 BY 1.91 TOOLTIP "Add".
 
@@ -465,8 +469,8 @@ DEFINE BUTTON btnCalendar-1
      SIZE 4.2 BY 1 TOOLTIP "PopUp Calendar".
 
 DEFINE BUTTON btnCancel 
-     IMAGE-UP FILE "Graphics/32x32/navigate_cross.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_cross_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/navigate_cross.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_cross_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Cancel" 
      SIZE 8 BY 1.91 TOOLTIP "Cancel".
 
@@ -476,62 +480,62 @@ DEFINE BUTTON btnClose
      SIZE 4.2 BY 1 TOOLTIP "Close".
 
 DEFINE BUTTON btnCopy 
-     IMAGE-UP FILE "Graphics/32x32/element_copy.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics\32x32\form_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/element_copy.png":U
+     IMAGE-INSENSITIVE FILE "Graphics\32x32\element_copy_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Copy" 
      SIZE 8 BY 1.91 TOOLTIP "Copy".
 
 DEFINE BUTTON btnDefaults 
-     IMAGE-UP FILE "Graphics/32x32/refresh.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/refresh_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/refresh.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/refresh_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Defaults" 
      SIZE 8 BY 1.91 TOOLTIP "Restore Defaults".
 
 DEFINE BUTTON btnDelete 
-     IMAGE-UP FILE "Graphics/32x32/navigate_minus.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_minus_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/garbage_can.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/garbage_can_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Delete" 
      SIZE 8 BY 1.91 TOOLTIP "Delete".
 
 DEFINE BUTTON btnFirst-1 
-     IMAGE-UP FILE "Graphics/32x32/navigate_beginning.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_beginning_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/navigate_beginning.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_beginning_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "First" 
      SIZE 8 BY 1.91 TOOLTIP "First".
 
 DEFINE BUTTON btnForms 
-     IMAGE-UP FILE "Graphics/32x32/form.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/form_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/documents_exchange.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/documents_exchange_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Forms" 
      SIZE 8 BY 1.91 TOOLTIP "Forms".
 
 DEFINE BUTTON btnLast-1 
-     IMAGE-UP FILE "Graphics/32x32/navigate_end.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_end_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/navigate_end.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_end_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Last" 
      SIZE 8 BY 1.91 TOOLTIP "Last".
 
 DEFINE BUTTON btnNext-1 
-     IMAGE-UP FILE "Graphics/32x32/navigate_right.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_right_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/navigate_right.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_right_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Next" 
      SIZE 8 BY 1.91 TOOLTIP "Next".
 
 DEFINE BUTTON btnPrev-1 
-     IMAGE-UP FILE "Graphics/32x32/navigate_left.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_left_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/navigate_left.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_left_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Previous" 
      SIZE 8 BY 1.91 TOOLTIP "Previous".
 
 DEFINE BUTTON btnReset 
-     IMAGE-UP FILE "Graphics/32x32/undo_32.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/undo_32_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/undo_32.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/undo_32_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Reset" 
      SIZE 8 BY 1.91 TOOLTIP "Reset".
 
 DEFINE BUTTON btnUpdate 
-     IMAGE-UP FILE "Graphics/32x32/pencil.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/pencil_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/pencil.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/pencil_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Update" 
      SIZE 8 BY 1.91 TOOLTIP "Update/Save".
 
@@ -725,17 +729,17 @@ DEFINE BROWSE sysCtrlShipToBrowse
 
 DEFINE FRAME DEFAULT-FRAME
      svFocus AT ROW 1 COL 1 NO-LABEL WIDGET-ID 4
-     searchBar AT ROW 1 COL 54 COLON-ALIGNED HELP
-          "Search" WIDGET-ID 6
-     btnRestoreDefaults AT ROW 1 COL 39 HELP
-          "Restore Defaults" WIDGET-ID 42
-     sysCtrlBrowse AT ROW 2 COL 39 WIDGET-ID 300
-     btnSortMove AT ROW 1 COL 43 HELP
-          "Toggle Sort/Move Columns" WIDGET-ID 44
      btnExport AT ROW 27.43 COL 11 HELP
           "Export" WIDGET-ID 36
+     searchBar AT ROW 1 COL 54 COLON-ALIGNED HELP
+          "Search" WIDGET-ID 6
+     sysCtrlBrowse AT ROW 2 COL 39 WIDGET-ID 300
      btnImport AT ROW 27.43 COL 20 HELP
           "Import" WIDGET-ID 38
+     btnRestoreDefaults AT ROW 1 COL 39 HELP
+          "Restore Defaults" WIDGET-ID 42
+     btnSortMove AT ROW 1 COL 43 HELP
+          "Toggle Sort/Move Columns" WIDGET-ID 44
      RECT-1 AT ROW 27.19 COL 10 WIDGET-ID 40
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -744,9 +748,9 @@ DEFINE FRAME DEFAULT-FRAME
          FGCOLOR 1  WIDGET-ID 100.
 
 DEFINE FRAME viewFrame
-     cCategory AT ROW 1.24 COL 18 COLON-ALIGNED WIDGET-ID 2
      btnFirst-1 AT ROW 9.81 COL 69 HELP
           "First" WIDGET-ID 274
+     cCategory AT ROW 1.24 COL 18 COLON-ALIGNED WIDGET-ID 2
      cSubcategory AT ROW 1.24 COL 58 COLON-ALIGNED WIDGET-ID 12
      iSecurityLevelUser AT ROW 1.24 COL 92 COLON-ALIGNED WIDGET-ID 10
      iSecurityLevelDefault AT ROW 1.24 COL 102 COLON-ALIGNED WIDGET-ID 44
@@ -754,24 +758,24 @@ DEFINE FRAME viewFrame
      cTypeCode AT ROW 2.43 COL 58 COLON-ALIGNED WIDGET-ID 14
      cModule AT ROW 2.43 COL 99 COLON-ALIGNED WIDGET-ID 6
      cDescrip AT ROW 3.62 COL 18 COLON-ALIGNED WIDGET-ID 4
+     btnLast-1 AT ROW 9.81 COL 93 HELP
+          "Last" WIDGET-ID 68
      cFieldDescrip AT ROW 4.81 COL 18 COLON-ALIGNED WIDGET-ID 40
-     hInteger AT ROW 6 COL 18 COLON-ALIGNED HELP
-          "Enter Integer Value" NO-LABEL WIDGET-ID 62
+     cFieldValue AT ROW 6 COL 18 COLON-ALIGNED WIDGET-ID 30
      hDate AT ROW 6 COL 18 COLON-ALIGNED HELP
           "Enter Date Value" NO-LABEL WIDGET-ID 58
+     hInteger AT ROW 6 COL 18 COLON-ALIGNED HELP
+          "Enter Integer Value" NO-LABEL WIDGET-ID 62
+     hLogical AT ROW 6 COL 20 NO-LABEL WIDGET-ID 64
+     btnNext-1 AT ROW 9.81 COL 85 HELP
+          "Next" WIDGET-ID 276
      hDecimal AT ROW 6 COL 18 COLON-ALIGNED HELP
           "Enter Decimal Value" NO-LABEL WIDGET-ID 60
-     cFieldValue AT ROW 6 COL 18 COLON-ALIGNED WIDGET-ID 30
-     hLogical AT ROW 6 COL 20 NO-LABEL WIDGET-ID 64
      cFieldDefault AT ROW 7.19 COL 18 COLON-ALIGNED WIDGET-ID 42
      ctableSource AT ROW 8.38 COL 18 COLON-ALIGNED WIDGET-ID 46
      cfieldSource AT ROW 8.38 COL 54 COLON-ALIGNED WIDGET-ID 48
      cDataType AT ROW 8.38 COL 94 COLON-ALIGNED HELP
           "Select Data Type" WIDGET-ID 52
-     btnLast-1 AT ROW 9.81 COL 93 HELP
-          "Last" WIDGET-ID 68
-     btnNext-1 AT ROW 9.81 COL 85 HELP
-          "Next" WIDGET-ID 276
      btnPrev-1 AT ROW 9.81 COL 77 HELP
           "Previous" WIDGET-ID 278
      btnClose AT ROW 1.24 COL 113 HELP
@@ -837,7 +841,15 @@ DEFINE FRAME searchFrame
          SIDE-LABELS TOP-ONLY NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
          SIZE 64 BY 12.14
-         FGCOLOR 1 FONT 6 WIDGET-ID 600.
+         BGCOLOR 21 FGCOLOR 15 FONT 6 WIDGET-ID 600.
+
+DEFINE FRAME filterFrame
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1
+         SIZE 38 BY 26
+         BGCOLOR 15 FGCOLOR 1 
+         TITLE BGCOLOR 8 "Category / SubCategory" WIDGET-ID 200.
 
 DEFINE FRAME formsFrame
      cSysCtrlName AT ROW 1.24 COL 11 COLON-ALIGNED WIDGET-ID 4
@@ -873,6 +885,8 @@ DEFINE FRAME viewFormFrame
           VIEW-AS FILL-IN 
           SIZE 14.2 BY 1
           BGCOLOR 15 
+     btnForms-2 AT ROW 1 COL 138 HELP
+          "Close" WIDGET-ID 72
      ship_name AT ROW 3.62 COL 36 COLON-ALIGNED NO-LABEL WIDGET-ID 74
      sys-ctrl-shipto.descrip AT ROW 4.81 COL 21 COLON-ALIGNED WIDGET-ID 46 FORMAT "x(256)"
           VIEW-AS FILL-IN 
@@ -906,8 +920,6 @@ DEFINE FRAME viewFormFrame
 "No", no,
 "Unknown", ?
           SIZE 28 BY 1
-     btnForms-2 AT ROW 1 COL 138 HELP
-          "Close" WIDGET-ID 72
      btnLast-2 AT ROW 9.57 COL 133 HELP
           "Last" WIDGET-ID 68
      btnNext-2 AT ROW 9.57 COL 125 HELP
@@ -937,14 +949,6 @@ DEFINE FRAME viewFormFrame
          SIZE 142 BY 11.86
          FGCOLOR 1 
          TITLE "View" WIDGET-ID 900.
-
-DEFINE FRAME filterFrame
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1
-         SIZE 38 BY 26
-         BGCOLOR 15 FGCOLOR 1 
-         TITLE BGCOLOR 8 "Category / SubCategory" WIDGET-ID 200.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -1003,10 +1007,12 @@ ASSIGN FRAME filterFrame:FRAME = FRAME DEFAULT-FRAME:HANDLE
 DEFINE VARIABLE XXTABVALXX AS LOGICAL NO-UNDO.
 
 ASSIGN XXTABVALXX = FRAME filterFrame:MOVE-AFTER-TAB-ITEM (svFocus:HANDLE IN FRAME DEFAULT-FRAME)
+       XXTABVALXX = FRAME formsFrame:MOVE-BEFORE-TAB-ITEM (searchBar:HANDLE IN FRAME DEFAULT-FRAME)
+       XXTABVALXX = FRAME searchFrame:MOVE-BEFORE-TAB-ITEM (FRAME formsFrame:HANDLE)
        XXTABVALXX = FRAME filterFrame:MOVE-BEFORE-TAB-ITEM (FRAME searchFrame:HANDLE)
 /* END-ASSIGN-TABS */.
 
-/* BROWSE-TAB sysCtrlBrowse btnRestoreDefaults DEFAULT-FRAME */
+/* BROWSE-TAB sysCtrlBrowse RECT-1 DEFAULT-FRAME */
 /* SETTINGS FOR BUTTON btnExport IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
 /* SETTINGS FOR BUTTON btnImport IN FRAME DEFAULT-FRAME
@@ -1945,12 +1951,16 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cFieldValue C-Win
 ON HELP OF cFieldValue IN FRAME viewFrame /* Value */
 DO:
-    DEFINE VARIABLE cNameValue AS CHARACTER      NO-UNDO.
-    DEFINE VARIABLE cCharValue AS CHARACTER      NO-UNDO.
-    DEFINE VARIABLE cLoc     LIKE fg-bin.loc     NO-UNDO.
-    DEFINE VARIABLE cLocBin  LIKE fg-bin.loc-bin NO-UNDO.
-    DEFINE VARIABLE cCharFld   AS CHARACTER      NO-UNDO.
-    DEFINE VARIABLE cRtnValue  AS CHARACTER      NO-UNDO.
+    DEFINE VARIABLE cNameValue    AS CHARACTER        NO-UNDO.
+    DEFINE VARIABLE cCharValue    AS CHARACTER        NO-UNDO.
+    DEFINE VARIABLE cLoc          LIKE fg-bin.loc     NO-UNDO.
+    DEFINE VARIABLE cLocBin       LIKE fg-bin.loc-bin NO-UNDO.
+    DEFINE VARIABLE cCharFld      AS CHARACTER        NO-UNDO.
+    DEFINE VARIABLE cRtnValue     AS CHARACTER        NO-UNDO.
+    DEFINE VARIABLE cFieldsValue  AS CHARACTER        NO-UNDO.
+    DEFINE VARIABLE cFoundValue   AS CHARACTER        NO-UNDO.
+    DEFINE VARIABLE recFoundRecID AS RECID            NO-UNDO.
+     
 
     IF cDataType:SCREEN-VALUE EQ "Character" THEN DO:
         cNameValue = ttSysCtrl.name.
@@ -2044,9 +2054,18 @@ DO:
                 END. /* else */
             END. /* bardir */
             WHEN "SALESREP" THEN DO:
-                RUN windows/l-sman.w (gcompany,OUTPUT cCharValue).
-                IF cCharValue NE "" THEN
-                cFieldValue:SCREEN-VALUE = ENTRY(1,cCharValue).
+                  RUN system/openLookup.p (
+                      INPUT  gcompany, 
+                      INPUT  "", /* Lookup ID */
+                      INPUT  29, /* Subject ID */
+                      INPUT  "", /* User ID */
+                      INPUT  0,  /* Param Value ID */
+                      OUTPUT cFieldsValue, 
+                      OUTPUT cFoundValue, 
+                      OUTPUT recFoundRecID
+                      ).
+                IF cFoundValue NE "" THEN
+                cFieldValue:SCREEN-VALUE = cFoundValue.
                 RETURN NO-APPLY.
             END. /* salesrep */
             WHEN "BolPrint" THEN DO:
@@ -2650,14 +2669,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sysCtrlBrowse C-Win
 ON START-SEARCH OF sysCtrlBrowse IN FRAME DEFAULT-FRAME
 DO:
-    IF SELF:CURRENT-COLUMN:NAME NE ? THEN DO:
-        cColumnLabel[1] = BROWSE sysCtrlBrowse:CURRENT-COLUMN:NAME.
-        IF cColumnLabel[1] EQ cSaveLabel[1] THEN
-        lAscending = NOT lAscending.
-        cSaveLabel[1] = cColumnLabel[1].
-        RUN pReopenBrowse.
-    END.
-    RETURN NO-APPLY.
+        {AOA/includes/startSearch.i [1]}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2715,14 +2727,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sysCtrlShipToBrowse C-Win
 ON START-SEARCH OF sysCtrlShipToBrowse IN FRAME formsFrame
 DO:
-    IF SELF:CURRENT-COLUMN:NAME NE ? THEN DO:
-        cColumnLabel[2] = BROWSE sysCtrlShipToBrowse:CURRENT-COLUMN:NAME.
-        IF cColumnLabel[2] EQ cSaveLabel[2] THEN
-        lAscending = NOT lAscending.
-        cSaveLabel[2] = cColumnLabel[2].
-        RUN pReopenShipToBrowse.
-    END.
-    RETURN NO-APPLY.
+        {AOA/includes/startSearch.i [2]}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2754,6 +2759,8 @@ END.
 /* Set CURRENT-WINDOW: this will parent dialog-boxes and frames.        */
 ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME} 
        THIS-PROCEDURE:CURRENT-WINDOW = {&WINDOW-NAME}.
+
+{methods/template/brwcustom2.i}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
@@ -2909,7 +2916,7 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY svFocus searchBar 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE svFocus searchBar btnRestoreDefaults sysCtrlBrowse btnSortMove 
+  ENABLE svFocus searchBar sysCtrlBrowse btnRestoreDefaults btnSortMove 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW FRAME filterFrame IN WINDOW C-Win.
@@ -2994,16 +3001,18 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pBuildMenuTree C-Win 
-PROCEDURE pBuildMenuTree :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pBuildttMenuTree C-Win 
+PROCEDURE pBuildttMenuTree :
 /*------------------------------------------------------------------------------
   Purpose:     
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcParentName AS CHARACTER NO-UNDO.
+
     DEFINE VARIABLE iOrder AS INTEGER NO-UNDO.
     
-    RUN pInitMenuTree.
+    // RUN pInitMenuTree.
 
     iOrder = iOrder + 1.
     RUN pCreatettMenuTree (
@@ -3015,10 +3024,11 @@ PROCEDURE pBuildMenuTree :
         "ALL",
         "ALL",
         "tab_pane.png",
+        "ALL",
         "",
         "",
-        "",
-        YES
+        YES,
+        ipcParentName
         ).
     FOR EACH ttSysCtrl
         BREAK BY ttSysCtrl.subCategory
@@ -3030,14 +3040,15 @@ PROCEDURE pBuildMenuTree :
                 iOrder,
                 2,
                 NO,
-                "ALL",
+                ttSysCtrl.category,
                 ttSysCtrl.subCategory,
                 ttSysCtrl.subCategory,
                 "hand_point_right2.png",
+                STRING(iOrder),
                 "",
                 "",
-                "",
-                YES
+                YES,
+                ttSysCtrl.category
                 ).
         END. /* if first-of */
     END. /* each ttsysctrl */
@@ -3056,10 +3067,11 @@ PROCEDURE pBuildMenuTree :
                 ttSysCtrl.category,
                 ttSysCtrl.category,
                 "tab_pane.png",
+                STRING(iOrder),
                 "",
                 "",
-                "",
-                YES
+                YES,
+                ipcParentName
                 ).
         END. /* if first-of category */
         IF FIRST-OF(ttSysCtrl.subCategory) THEN DO:
@@ -3073,10 +3085,11 @@ PROCEDURE pBuildMenuTree :
                 ttSysCtrl.subCategory,
                 ttSysCtrl.subCategory,
                 "hand_point_right2.png",
+                STRING(iOrder),
                 "",
                 "",
-                "",
-                YES
+                YES,
+                ipcParentName
                 ).
         END. /* if first-of category */
     END. /* each ttsysctrl */
@@ -3089,11 +3102,12 @@ PROCEDURE pBuildMenuTree :
         "",
         "Exit",
         "Exit",
-        "navigate_cross.png",
+        "logout.png",
+        "Exit",
         "",
         "",
-        "",
-        YES
+        YES,
+        ipcParentName
         ).
 
 END PROCEDURE.
@@ -3356,7 +3370,7 @@ PROCEDURE pCRUD :
                     cFieldValue:SENSITIVE    = NO
                     .
                 hFieldValue:MOVE-TO-TOP().
-                btnUpdate:LOAD-IMAGE("Graphics\32x32\Save_As.ico").
+                btnUpdate:LOAD-IMAGE("Graphics\32x32\floppy_disk.png").
                 IF iphMode:LABEL EQ "Add" THEN DO:
                     ASSIGN
                         hWidget = FRAME viewFrame:HANDLE
@@ -3536,7 +3550,7 @@ PROCEDURE pCRUD :
                 END. /* save */
                 DISABLE {&transPanel} {&enabledFields} cDataType.
                 ENABLE {&transInit}.
-                btnUpdate:LOAD-IMAGE("Graphics\32x32\Pencil.ico").
+                btnUpdate:LOAD-IMAGE("Graphics\32x32\pencil.png").
                 ASSIGN
                     FRAME viewFrame:TITLE          = "View"
                     btnUpdate:LABEL                = "Update"
@@ -3658,7 +3672,7 @@ btnCancel-2 btnForms-2 btnFirst-2 btnPrev-2 btnNext-2 btnLast-2 btnCalendar-2
                 BROWSE sysCtrlShipToBrowse:SENSITIVE = NO.
                 ENABLE {&transUpdate-2}.
                 ENABLE {&FIELDS-IN-QUERY-viewFormFrame}.
-                btnUpdate-2:LOAD-IMAGE("Graphics\32x32\Save_As.ico").
+                btnUpdate-2:LOAD-IMAGE("Graphics\32x32\floppy_disk.png").
                 IF iphMode:LABEL EQ "Add" THEN DO:
                     ASSIGN
                         hWidget = FRAME viewFormFrame:HANDLE
@@ -3742,7 +3756,7 @@ btnCancel-2 btnForms-2 btnFirst-2 btnPrev-2 btnNext-2 btnLast-2 btnCalendar-2
                 END. /* save */
                 DISABLE {&transPanel-2} {&FIELDS-IN-QUERY-viewFormFrame}.
                 ENABLE {&transInit-2}.
-                btnUpdate-2:LOAD-IMAGE("Graphics\32x32\Pencil.ico").
+                btnUpdate-2:LOAD-IMAGE("Graphics\32x32\Pencil.png").
                 ASSIGN
                     cMode = iphMode:LABEL
                     FRAME viewFormFrame:TITLE = "View"
@@ -4138,7 +4152,7 @@ PROCEDURE pInit :
 ------------------------------------------------------------------------------*/
     RUN pParseTables.  
     RUN pDisplayMenuTree (FRAME filterFrame:HANDLE, "", YES, 1).
-    FIND FIRST ttMenuTree.
+    FIND FIRST ttMenuTree NO-ERROR.
     IF AVAILABLE ttMenuTree AND VALID-HANDLE(ttMenuTree.hEditor) THEN
     RUN pClickMenuTree (ttMenuTree.hEditor).
     RUN pSetFocus.
@@ -4273,7 +4287,7 @@ PROCEDURE pParseTables :
             RUN pCreatettSysCtrlTable (hTable:HANDLE, cFieldList[idx]).
         END. /* do idx */
     END. /* if lsuperadmin */
-    RUN pBuildMenuTree.
+    RUN pBuildttMenuTree ("{&parentName}").
     ASSIGN
         cFilter    = ""
         cSubFilter = ""
@@ -4376,6 +4390,8 @@ PROCEDURE pReopenBrowse :
         &SCOPED-DEFINE SORTBY-PHRASE
         {&OPEN-QUERY-sysCtrlBrowse}
     END CASE.
+    {AOA/includes/pReopenBrowse.i [1]}
+    {AOA/includes/pReopenBrowse.i [2]}
     SESSION:SET-WAIT-STATE("").
     IF AVAILABLE ttSysCtrl THEN
     APPLY "VALUE-CHANGED":U TO BROWSE sysCtrlBrowse.

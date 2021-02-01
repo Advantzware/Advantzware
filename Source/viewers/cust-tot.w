@@ -188,7 +188,7 @@ DEFINE FRAME F-Main
           BGCOLOR 15 FONT 4
      cust.accountType AT ROW 2.86 COL 126 COLON-ALIGNED
           VIEW-AS COMBO-BOX INNER-LINES 4
-          LIST-ITEMS "","Split","Originated","Handed" 
+          LIST-ITEMS "<None>","Split","Originated","Handed" 
           DROP-DOWN-LIST
           SIZE 19 BY 1
           BGCOLOR 15 FONT 4
@@ -670,6 +670,12 @@ PROCEDURE local-display-fields :
   {methods/viewers/rowavail.i}
 
   RUN Display-Field ("ptd-sales").
+    
+  IF cust.AccountType EQ "" THEN DO:
+      ASSIGN 
+          cust.accountType:SCREEN-VALUE = "<None>"
+          cust.accountType:MODIFIED = FALSE.
+  END.     
 
 END PROCEDURE.
 
@@ -683,8 +689,11 @@ PROCEDURE local-update-record :
   Notes:       
 ------------------------------------------------------------------------------*/ 
    DEFINE VARIABLE lCheckError AS LOGICAL NO-UNDO .
-
-  /* Code placed here will execute PRIOR to standard behavior. */
+    
+    /* Code placed here will execute PRIOR to standard behavior. */
+    IF cust.AccountType:SCREEN-VALUE IN FRAME {&frame-name} = "<None>" THEN ASSIGN 
+        cust.accountType = "".
+  
      
   RUN valid-cust(OUTPUT lCheckError) NO-ERROR.
   IF lCheckError THEN RETURN NO-APPLY.

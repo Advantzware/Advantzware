@@ -260,7 +260,10 @@ ON VALUE-CHANGED OF tg_includehold IN FRAME F-Main /* Include On Hold */
 DO:
   DEF VAR char-hdl AS CHAR NO-UNDO.
   DEF VAR hContainer AS HANDLE NO-UNDO.
-  ASSIGN tg_includehold.    
+  ASSIGN 
+     tg_includehold
+     tg_showzerobins
+     .    
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE, "container-source", 
                                         OUTPUT char-hdl).
   hContainer = HANDLE(char-hdl).
@@ -278,7 +281,10 @@ ON VALUE-CHANGED OF tg_showzerobins IN FRAME F-Main /* Show Bins with Qty = 0 */
 DO:
   DEF VAR char-hdl AS CHAR NO-UNDO.
   DEF VAR hContainer AS HANDLE NO-UNDO.
-  ASSIGN tg_showZeroBins.
+  ASSIGN 
+    tg_showZeroBins
+    tg_includehold
+    .
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE, "container-source", 
                                         OUTPUT char-hdl).
   hContainer = HANDLE(char-hdl).
@@ -313,6 +319,13 @@ PROCEDURE adm-row-available :
                the Record-Source and process it.
   Parameters:  <none>
 ------------------------------------------------------------------------------*/
+    /* Uncheck the checkbox once user changes the item */
+    DO WITH FRAME {&FRAME-NAME}:
+        ASSIGN 
+            tg_showzerobins:CHECKED = NO
+            tg_includehold:CHECKED  = NO
+            .
+    END.    
 
   /* Define variables needed by this internal procedure.             */
   {src/adm/template/row-head.i}

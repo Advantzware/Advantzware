@@ -40,6 +40,7 @@ CREATE WIDGET-POOL.
 {custom/globdefs.i}
 {sys/inc/VAR.i NEW SHARED}
 {sys/inc/varasgn.i}
+{methods/template/brwCustomDef.i}
 
 DEFINE VARIABLE cellColumn AS HANDLE NO-UNDO EXTENT 20.
 DEFINE VARIABLE columnCount AS INTEGER NO-UNDO.
@@ -323,6 +324,8 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON ROW-DISPLAY OF Browser-Table IN FRAME F-Main
 DO:
+    &SCOPED-DEFINE exclude-row-display true
+    {methods/template/brwRowDisplay.i}
   IF useColors NE '' THEN
   DO idx = 1 TO columnCount:
     CASE useColors:

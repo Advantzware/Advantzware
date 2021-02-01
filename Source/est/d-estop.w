@@ -167,19 +167,19 @@ est-op.n_out_div
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON Btn_Cancel 
-     IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/exit_white.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Cancel" 
      SIZE 8 BY 1.91
      BGCOLOR 8 .
 
 DEFINE BUTTON Btn_Done AUTO-END-KEY DEFAULT
-     IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/exit_white.png":U NO-FOCUS FLAT-BUTTON
      LABEL "&Done" 
      SIZE 8 BY 1.91
      BGCOLOR 8 .
 
 DEFINE BUTTON Btn_OK 
-     IMAGE-UP FILE "Graphics/32x32/floppy_disk.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/floppy_disk.png":U NO-FOCUS FLAT-BUTTON
      LABEL "&Save" 
      SIZE 8 BY 1.91
      BGCOLOR 8 .
@@ -1897,19 +1897,21 @@ PROCEDURE valid-mach :
     RUN is-it-foam.
 
     DO WITH FRAME {&frame-name}:
-        FIND FIRST mach
-            {sys/look/machW.i}
-            AND mach.m-code EQ est-op.m-code:screen-value 
-        NO-LOCK NO-ERROR.
+          FIND FIRST mach NO-LOCK
+               WHERE mach.company = cocode AND
+               mach.m-code = est-op.m-code:SCREEN-VALUE NO-ERROR.
+          IF NOT AVAIL mach THEN
+          DO:
+               MESSAGE "Invalid Machine Code. Try Help." VIEW-AS ALERT-BOX ERROR.
+               APPLY "entry" TO est-op.m-code.
 
-        IF NOT AVAILABLE mach THEN 
-        DO:
-            MESSAGE "Must enter a valid Machine Code, try help"
-                VIEW-AS ALERT-BOX ERROR.
-            APPLY "entry" TO est-op.m-code .
-            RETURN ERROR.
-        END.
+          END.
+          IF AVAIL mach AND mach.loc NE locode THEN DO:
+               MESSAGE "Invalid Machine Code as Estimate Location is " +  locode + " and Machine Location is " + mach.loc + "." + "  Machine must be in the same location as estimate." VIEW-AS ALERT-BOX ERROR.
+               APPLY "entry" TO est-op.m-code.
 
+          END.
+       
 
         IF mach.obsolete THEN 
         DO:

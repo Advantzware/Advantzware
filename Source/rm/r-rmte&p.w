@@ -1906,7 +1906,8 @@ EMPTY TEMP-TABLE ttBoardToWIP.
          rm-bin.loc     = rm-rctd.loc
          rm-bin.loc-bin = rm-rctd.loc-bin
          rm-bin.tag     = rm-rctd.tag
-         rm-bin.i-no    = rm-rctd.i-no.
+         rm-bin.i-no    = rm-rctd.i-no
+         rm-bin.cost    = rm-rctd.cost.
       END. /* not avail rm-bin */
 
       ld-cvt-qty = rm-rctd.qty.

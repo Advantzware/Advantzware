@@ -27,6 +27,7 @@ CREATE WIDGET-POOL.
 &SCOPED-DEFINE winReSize
 &SCOPED-DEFINE sizeOption HEIGHT
 {methods/defines/winReSize.i}
+{methods/template/brwcustomdef.i}
 
 /* Parameters Definitions ---                                           */
 
@@ -518,7 +519,11 @@ END.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON ROW-DISPLAY OF Browser-Table IN FRAME F-Main
-DO:  /* display calculated field */
+DO:
+    &scoped-define exclude-row-display true 
+    {methods/template/brwrowdisplay.i}
+        
+      /* display calculated field */
   IF AVAIL(wiptag-mch) THEN
   ASSIGN
     v-dept:SCREEN-VALUE in browse {&BROWSE-NAME} = getDept()
@@ -778,11 +783,14 @@ END.
 
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
-  v-dept:SCREEN-VALUE in browse {&BROWSE-NAME} = getDept().
+  v-dept:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} = getDept().
 &ENDIF
 
 {methods/winReSize.i}
-
+/* Ticket# : 92946
+   Hiding this widget for now, as browser's column label should be indicating the column which is sorted by */
+fi_sortby:HIDDEN  = TRUE.
+fi_sortby:VISIBLE = FALSE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

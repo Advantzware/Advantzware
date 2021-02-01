@@ -296,6 +296,7 @@ END.
 
 /* Include custom  Main Block code for SmartWindows. */
 {src/adm/template/windowmn.i}
+{custom/initializeprocs.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -337,7 +338,7 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/folder.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'FOLDER-LABELS = ':U + 'Brws Jobs|View Jobs|Material|MachHrs|MachQtys|Waste|MachCosts|D.L.|Var OH|Fixed OH' + ',
+             INPUT  'FOLDER-LABELS = ':U + 'Browse|Detail|Material|MachHrs|MachQty|Waste|MachCosts|Labor|Var OH|Fixed OH' + ',
                      FOLDER-TAB-TYPE = 2':U ,
              OUTPUT h_folder ).
        RUN set-position IN h_folder ( 3.14 , 1.00 ) NO-ERROR.
@@ -345,7 +346,7 @@ PROCEDURE adm-create-objects :
 
        /* Links to SmartFolder h_folder. */
        RUN add-link IN adm-broker-hdl ( h_folder , 'Page':U , THIS-PROCEDURE ).
-
+	   RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'udficon':U , h_options ).
     END. /* Page 0 */
 
     WHEN 1 THEN DO:
@@ -376,7 +377,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_v-job ).
-       RUN set-position IN h_v-job ( 4.57 , 4.00 ) NO-ERROR.
+       RUN set-position IN h_v-job ( 4.57 , 2.00 ) NO-ERROR.
        /* Size in UIB:  ( 4.29 , 144.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -384,7 +385,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_v-nav2 ).
-       RUN set-position IN h_v-nav2 ( 8.86 , 56.00 ) NO-ERROR.
+       RUN set-position IN h_v-nav2 ( 9.43 , 56.00 ) NO-ERROR.
        /* Size in UIB:  ( 2.38 , 42.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -392,7 +393,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_b-jhdrin ).
-       RUN set-position IN h_b-jhdrin ( 11.48 , 2.00 ) NO-ERROR.
+       RUN set-position IN h_b-jhdrin ( 11.81 , 2.00 ) NO-ERROR.
        RUN set-size IN h_b-jhdrin ( 13.10 , 148.00 ) NO-ERROR.
 
        /* Initialize other pages that this page requires. */
@@ -415,7 +416,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_v-job-2 ).
-       RUN set-position IN h_v-job-2 ( 4.57 , 3.00 ) NO-ERROR.
+       RUN set-position IN h_v-job-2 ( 4.57 , 2.00 ) NO-ERROR.
        /* Size in UIB:  ( 4.29 , 144.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -423,7 +424,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_v-nav2-2 ).
-       RUN set-position IN h_v-nav2-2 ( 8.86 , 56.00 ) NO-ERROR.
+       RUN set-position IN h_v-nav2-2 ( 9.43 , 56.00 ) NO-ERROR.
        /* Size in UIB:  ( 2.38 , 42.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -431,7 +432,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_b-jmatin ).
-       RUN set-position IN h_b-jmatin ( 11.48 , 2.00 ) NO-ERROR.
+       RUN set-position IN h_b-jmatin ( 11.81 , 2.00 ) NO-ERROR.
        RUN set-size IN h_b-jmatin ( 13.10 , 148.00 ) NO-ERROR.
 
        /* Initialize other pages that this page requires. */
@@ -454,7 +455,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_v-job-4 ).
-       RUN set-position IN h_v-job-4 ( 4.57 , 4.00 ) NO-ERROR.
+       RUN set-position IN h_v-job-4 ( 4.57 , 2.00 ) NO-ERROR.
        /* Size in UIB:  ( 4.29 , 144.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -462,7 +463,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_v-nav2-3 ).
-       RUN set-position IN h_v-nav2-3 ( 8.86 , 56.00 ) NO-ERROR.
+       RUN set-position IN h_v-nav2-3 ( 9.43 , 56.00 ) NO-ERROR.
        /* Size in UIB:  ( 2.38 , 42.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -470,7 +471,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_b-jmchin ).
-       RUN set-position IN h_b-jmchin ( 11.48 , 2.00 ) NO-ERROR.
+       RUN set-position IN h_b-jmchin ( 11.81 , 2.00 ) NO-ERROR.
        RUN set-size IN h_b-jmchin ( 13.10 , 148.00 ) NO-ERROR.
 
        /* Initialize other pages that this page requires. */
@@ -493,7 +494,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_v-job-5 ).
-       RUN set-position IN h_v-job-5 ( 4.57 , 4.00 ) NO-ERROR.
+       RUN set-position IN h_v-job-5 ( 4.57 , 2.00 ) NO-ERROR.
        /* Size in UIB:  ( 4.29 , 144.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -501,7 +502,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_v-nav2-4 ).
-       RUN set-position IN h_v-nav2-4 ( 8.86 , 56.00 ) NO-ERROR.
+       RUN set-position IN h_v-nav2-4 ( 9.43 , 56.00 ) NO-ERROR.
        /* Size in UIB:  ( 2.38 , 42.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -509,7 +510,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_b-jmchqi ).
-       RUN set-position IN h_b-jmchqi ( 11.43 , 2.00 ) NO-ERROR.
+       RUN set-position IN h_b-jmchqi ( 11.81 , 2.00 ) NO-ERROR.
        RUN set-size IN h_b-jmchqi ( 13.14 , 148.00 ) NO-ERROR.
 
        /* Initialize other pages that this page requires. */
@@ -532,7 +533,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_v-job-6 ).
-       RUN set-position IN h_v-job-6 ( 4.57 , 4.00 ) NO-ERROR.
+       RUN set-position IN h_v-job-6 ( 4.57 , 2.00 ) NO-ERROR.
        /* Size in UIB:  ( 4.29 , 144.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -540,7 +541,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_v-nav2-5 ).
-       RUN set-position IN h_v-nav2-5 ( 8.86 , 56.00 ) NO-ERROR.
+       RUN set-position IN h_v-nav2-5 ( 9.43 , 56.00 ) NO-ERROR.
        /* Size in UIB:  ( 2.38 , 42.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -548,7 +549,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_b-jmchwi ).
-       RUN set-position IN h_b-jmchwi ( 11.48 , 2.00 ) NO-ERROR.
+       RUN set-position IN h_b-jmchwi ( 11.81 , 2.00 ) NO-ERROR.
        RUN set-size IN h_b-jmchwi ( 13.10 , 148.00 ) NO-ERROR.
 
        /* Initialize other pages that this page requires. */
@@ -571,7 +572,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_v-job-7 ).
-       RUN set-position IN h_v-job-7 ( 4.57 , 4.00 ) NO-ERROR.
+       RUN set-position IN h_v-job-7 ( 4.57 , 2.00 ) NO-ERROR.
        /* Size in UIB:  ( 4.29 , 144.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -579,7 +580,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_v-nav2-6 ).
-       RUN set-position IN h_v-nav2-6 ( 8.86 , 56.00 ) NO-ERROR.
+       RUN set-position IN h_v-nav2-6 ( 9.43 , 56.00 ) NO-ERROR.
        /* Size in UIB:  ( 2.38 , 42.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -587,7 +588,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_b-jmchci ).
-       RUN set-position IN h_b-jmchci ( 11.48 , 2.00 ) NO-ERROR.
+       RUN set-position IN h_b-jmchci ( 11.81 , 2.00 ) NO-ERROR.
        RUN set-size IN h_b-jmchci ( 13.10 , 148.00 ) NO-ERROR.
 
        /* Initialize other pages that this page requires. */
@@ -610,7 +611,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_v-job-8 ).
-       RUN set-position IN h_v-job-8 ( 4.57 , 4.00 ) NO-ERROR.
+       RUN set-position IN h_v-job-8 ( 4.57 , 2.00 ) NO-ERROR.
        /* Size in UIB:  ( 4.29 , 144.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -618,7 +619,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_v-nav2-7 ).
-       RUN set-position IN h_v-nav2-7 ( 8.86 , 56.00 ) NO-ERROR.
+       RUN set-position IN h_v-nav2-7 ( 9.43 , 56.00 ) NO-ERROR.
        /* Size in UIB:  ( 2.38 , 42.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -626,7 +627,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_b-jmchli ).
-       RUN set-position IN h_b-jmchli ( 11.48 , 2.00 ) NO-ERROR.
+       RUN set-position IN h_b-jmchli ( 11.81 , 2.00 ) NO-ERROR.
        RUN set-size IN h_b-jmchli ( 13.10 , 148.00 ) NO-ERROR.
 
        /* Initialize other pages that this page requires. */
@@ -649,15 +650,15 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_v-job-9 ).
-       RUN set-position IN h_v-job-9 ( 4.57 , 5.00 ) NO-ERROR.
-       /* Size in UIB:  ( 4.29 , 144.00 ) */
+       RUN set-position IN h_v-job-9 ( 4.57 , 2.00 ) NO-ERROR.
+       /* Size in UIB:  ( 4.81 , 148.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'custom/v-nav2.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_v-nav2-8 ).
-       RUN set-position IN h_v-nav2-8 ( 8.86 , 56.00 ) NO-ERROR.
+       RUN set-position IN h_v-nav2-8 ( 9.43 , 56.00 ) NO-ERROR.
        /* Size in UIB:  ( 2.38 , 42.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -665,7 +666,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_b-jmchvi ).
-       RUN set-position IN h_b-jmchvi ( 11.48 , 2.00 ) NO-ERROR.
+       RUN set-position IN h_b-jmchvi ( 11.81 , 2.00 ) NO-ERROR.
        RUN set-size IN h_b-jmchvi ( 13.10 , 148.00 ) NO-ERROR.
 
        /* Initialize other pages that this page requires. */
@@ -688,7 +689,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_v-job-10 ).
-       RUN set-position IN h_v-job-10 ( 4.57 , 4.00 ) NO-ERROR.
+       RUN set-position IN h_v-job-10 ( 4.57 , 2.00 ) NO-ERROR.
        /* Size in UIB:  ( 4.29 , 144.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -696,7 +697,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_v-nav2-9 ).
-       RUN set-position IN h_v-nav2-9 ( 8.86 , 56.00 ) NO-ERROR.
+       RUN set-position IN h_v-nav2-9 ( 9.43 , 56.00 ) NO-ERROR.
        /* Size in UIB:  ( 2.38 , 42.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -704,7 +705,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_b-jmchfi ).
-       RUN set-position IN h_b-jmchfi ( 11.48 , 2.00 ) NO-ERROR.
+       RUN set-position IN h_b-jmchfi ( 11.81 , 2.00 ) NO-ERROR.
        RUN set-size IN h_b-jmchfi ( 13.10 , 148.00 ) NO-ERROR.
 
        /* Initialize other pages that this page requires. */

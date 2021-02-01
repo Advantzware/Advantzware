@@ -217,7 +217,7 @@ DEFINE BUTTON btn_Up
      LABEL "Move Up" 
      SIZE 16 BY 1.
 
-DEFINE VARIABLE begin_chk AS INTEGER FORMAT ">>>>>>>>>>":U INITIAL 0 
+DEFINE VARIABLE begin_chk AS INT64 FORMAT ">>>>>>>>>>>>":U INITIAL 0 
      LABEL "From Check#" 
      VIEW-AS FILL-IN 
      SIZE 20 BY 1.
@@ -232,7 +232,7 @@ DEFINE VARIABLE begin_inv AS INTEGER FORMAT ">>>>>>>>" INITIAL 0
      VIEW-AS FILL-IN 
      SIZE 20 BY 1.
 
-DEFINE VARIABLE end_chk AS INTEGER FORMAT ">>>>>>>>>>":U INITIAL 2147483647
+DEFINE VARIABLE end_chk AS INT64 FORMAT ">>>>>>>>>>>>":U INITIAL 2147483647
      LABEL "To Check#" 
      VIEW-AS FILL-IN 
      SIZE 21 BY 1.
@@ -807,8 +807,8 @@ PROCEDURE create-tempfile :
 
   def var num-day-old  as dec format ">>>9" init 9999.
   DEF VAR vp-custno AS CHAR INIT "" NO-UNDO.
-  DEFINE VARIABLE fi_fchk AS INTEGER FORMAT ">>>>>>>>>>":U INITIAL 0  NO-UNDO.
-  DEFINE VARIABLE fi_tchk AS INTEGER FORMAT ">>>>>>>>>>":U INITIAL 2147483647  NO-UNDO .
+  DEFINE VARIABLE fi_fchk AS INT64 FORMAT ">>>>>>>>>>>>":U INITIAL 0  NO-UNDO.
+  DEFINE VARIABLE fi_tchk AS INT64 FORMAT ">>>>>>>>>>>>":U INITIAL 2147483647  NO-UNDO .
 
   SESSION:SET-WAIT-STATE ("general").
 
@@ -820,8 +820,8 @@ PROCEDURE create-tempfile :
    v-open  = tb_open
    li-seq  = 0
    xsum    = 0
-   li-fchk = int(begin_chk)
-   li-tchk = INT(begin_chk)
+   li-fchk = begin_chk
+   li-tchk = begin_chk
    fi_fchk = li-fchk 
    fi_tchk = li-tchk    .
 
@@ -880,7 +880,7 @@ PROCEDURE create-tempfile :
           AND ar-cashl.inv-no  EQ 0,      
         FIRST ar-cash NO-LOCK
         WHERE ar-cash.c-no     EQ ar-cashl.c-no
-          AND ar-cash.check-no GE int(begin_chk)
+          AND ar-cash.check-no GE INT64(begin_chk)
           AND ar-cash.check-no LE end_chk
         BY ar-cash.check-date
         BY ar-cash.c-no:

@@ -41,6 +41,11 @@ DEF VAR iBaseLevel AS INT NO-UNDO.
 {custom/globdefs.i}
 {system/fSuperRunning.i}
 
+/* The below variables are used in run_link.i */
+DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
+DEFINE VARIABLE pHandle  AS HANDLE    NO-UNDO.
+
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -376,7 +381,10 @@ DO:
     DEFINE VARIABLE lCheckReturnError AS LOGICAL NO-UNDO.
     IF LASTKEY NE -1 THEN DO:
       RUN valid-glAccount(OUTPUT lCheckReturnError) NO-ERROR.
-      IF lCheckReturnError THEN RETURN NO-APPLY.
+      IF lCheckReturnError THEN DO:
+          APPLY "ENTRY" TO arClass.receivablesAcct .
+          RETURN NO-APPLY.
+      END.
     END.     
 END.
 
@@ -531,6 +539,8 @@ PROCEDURE local-cancel-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
+    
+    RUN presetColor NO-ERROR.
 
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ).
 
@@ -617,6 +627,27 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-disable-fields V-table-Win
+PROCEDURE local-disable-fields:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+  /* Code placed here will execute PRIOR to standard behavior. */
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'disable-fields':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+  {methods/run_link.i "CONTAINER-SOURCE" "SetUpdateEnd"}
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-display-fields V-table-Win 
 PROCEDURE local-display-fields :
 /*------------------------------------------------------------------------------
@@ -654,11 +685,33 @@ PROCEDURE local-enable-fields :
 
     IF NOT lAddRecord THEN ASSIGN 
         arclass.classID:SENSITIVE IN FRAME f-main = FALSE.
-
+        
+  {methods/run_link.i "CONTAINER-SOURCE" "SetUpdateBegin"}       
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-reset-record V-table-Win
+PROCEDURE local-reset-record:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+    /* Code placed here will execute PRIOR to standard behavior. */
+    RUN presetColor NO-ERROR.
+     
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'reset-record':U ) .        
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record V-table-Win 
 PROCEDURE local-update-record :
@@ -672,7 +725,10 @@ PROCEDURE local-update-record :
     IF lCheckReturnError THEN RETURN NO-APPLY.
     
     RUN valid-glAccount(OUTPUT lCheckReturnError) NO-ERROR.
-      IF lCheckReturnError THEN RETURN NO-APPLY.
+    IF lCheckReturnError THEN DO:
+        APPLY "ENTRY" TO arClass.receivablesAcct IN FRAME {&FRAME-NAME} .
+        RETURN NO-APPLY.
+    END.     
     
      RUN valid-currency(OUTPUT lCheckReturnError) NO-ERROR.
       IF lCheckReturnError THEN RETURN NO-APPLY.
@@ -691,6 +747,29 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE presetColor V-table-Win
+PROCEDURE presetColor:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    
+    DO WITH FRAME {&FRAME-NAME}:
+        IF arclass.receivablesAcct:BGCOLOR EQ 16 THEN             
+            ASSIGN 
+                arclass.receivablesAcct:BGCOLOR = ?
+                arclass.receivablesAcct:FGCOLOR = ?
+                .                             
+    END. 
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records V-table-Win  _ADM-SEND-RECORDS
 PROCEDURE send-records :
@@ -788,10 +867,18 @@ PROCEDURE valid-glAccount :
     IF arclass.receivablesAcct:SCREEN-VALUE NE "" THEN DO:
         RUN pIsValidGLAccount IN hdValidator  (arclass.receivablesAcct:SCREEN-VALUE, NO, g_company, OUTPUT oplValid, OUTPUT cValidNote).        
         IF NOT oplValid THEN do:
-            MESSAGE "Please enter a vaild GL Account " VIEW-AS ALERT-BOX INFO .
+            MESSAGE cValidNote VIEW-AS ALERT-BOX INFO .   
+            RUN presetColor NO-ERROR.                    
+            IF INDEX(cValidNote, "Inactive") GT 0 THEN 
+                ASSIGN 
+                    arclass.receivablesAcct:BGCOLOR = 16
+                    arclass.receivablesAcct:FGCOLOR = 15
+                    .             
             opReturnError = YES .   
-        END.
-    END.         
+        END.               
+    END.   
+    IF arclass.receivablesAcct:SCREEN-VALUE EQ "" OR oplValid THEN 
+        RUN presetColor NO-ERROR.   
   END.
   {&methods/lValidateError.i NO}
 END PROCEDURE.

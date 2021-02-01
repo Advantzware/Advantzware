@@ -36,11 +36,10 @@ CREATE WIDGET-POOL.
 &SCOPED-DEFINE winReSize
 &SCOPED-DEFINE h_Browse01 h_b-glinvl
 &SCOPED-DEFINE h_Object01 h_v-nav2
-&SCOPED-DEFINE h_Object02 h_printinv
 &SCOPED-DEFINE h_Object03 h_p-disabl
 
 {methods/defines/winReSize.i}
-
+{methods/template/globaldef.i}
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
@@ -93,7 +92,6 @@ DEFINE VARIABLE h_b-glinvl AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_b-oeboll AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_folder AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-disabl AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_printinv AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_v-arcusi AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_v-arinq AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_v-nav2 AS HANDLE NO-UNDO.
@@ -132,14 +130,14 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 320
          VIRTUAL-HEIGHT     = 320
          VIRTUAL-WIDTH      = 320
-         RESIZE             = no
-         SCROLL-BARS        = no
-         STATUS-AREA        = no
+         RESIZE             = YES
+         SCROLL-BARS        = NO
+         STATUS-AREA        = NO
          BGCOLOR            = ?
          FGCOLOR            = ?
-         THREE-D            = yes
-         MESSAGE-AREA       = no
-         SENSITIVE          = yes.
+         THREE-D            = YES
+         MESSAGE-AREA       = NO
+         SENSITIVE          = YES.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
@@ -163,7 +161,7 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* SETTINGS FOR FRAME F-Main
                                                                         */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(W-Win)
-THEN W-Win:HIDDEN = yes.
+THEN W-Win:HIDDEN = YES.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -193,10 +191,10 @@ ON WINDOW-CLOSE OF W-Win /* Invoices for GL Transaction */
 DO:
   /* This ADM code must be left here in order for the SmartWindow
      and its descendents to terminate properly on exit. */
-  def var char-hdl as cha no-undo.
-  run get-link-handle in adm-broker-hdl(this-procedure,"quote-source", output char-hdl).
-  IF VALID-HANDLE(widget-handle(char-hdl)) THEN
-    run hide-estimate in widget-handle(char-hdl).
+  DEF VAR char-hdl AS cha NO-UNDO.
+  RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"quote-source", OUTPUT char-hdl).
+  IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+    RUN hide-estimate IN WIDGET-HANDLE(char-hdl).
 
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
@@ -214,7 +212,12 @@ END.
 /* ***************************  Main Block  *************************** */
 
 /* Include custom  Main Block code for SmartWindows. */
+{custom/resizrs.i}
+
 {src/adm/template/windowmn.i}
+
+{custom/initializeprocs.i}
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -240,8 +243,8 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/folder.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'FOLDER-LABELS = ':U + 'Brws Invoices|View Invoice|Credit Status|BOL' + ',
-                     FOLDER-TAB-TYPE = 1':U ,
+             INPUT  'FOLDER-LABELS = ':U + 'Browse|Detail|Credit|BOL' + ',
+                     FOLDER-TAB-TYPE = 2':U ,
              OUTPUT h_folder ).
        RUN set-position IN h_folder ( 1.00 , 1.00 ) NO-ERROR.
        RUN set-size IN h_folder ( 21.43 , 150.00 ) NO-ERROR.
@@ -292,21 +295,13 @@ PROCEDURE adm-create-objects :
        /* Size in UIB:  ( 2.38 , 42.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'smartobj/printinv.w':U ,
-             INPUT  FRAME F-Main:HANDLE ,
-             INPUT  '':U ,
-             OUTPUT h_printinv ).
-       RUN set-position IN h_printinv ( 19.10 , 103.00 ) NO-ERROR.
-       /* Size in UIB:  ( 1.81 , 7.80 ) */
-
-       RUN init-object IN THIS-PROCEDURE (
              INPUT  'p-disabl.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Edge-Pixels = 2,
                      SmartPanelType = Update,
                      AddFunction = One-Record':U ,
              OUTPUT h_p-disabl ).
-       RUN set-position IN h_p-disabl ( 19.10 , 123.00 ) NO-ERROR.
+       RUN set-position IN h_p-disabl ( 19.33 , 109.00 ) NO-ERROR.
        RUN set-size IN h_p-disabl ( 1.43 , 25.00 ) NO-ERROR.
 
        /* Initialize other pages that this page requires. */
@@ -329,10 +324,8 @@ PROCEDURE adm-create-objects :
              h_v-arinq , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_v-nav2 ,
              h_b-arinvl , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_printinv ,
-             h_v-nav2 , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_p-disabl ,
-             h_printinv , 'AFTER':U ).
+             h_v-nav2 , 'AFTER':U ).
     END. /* Page 2 */
     WHEN 3 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
@@ -388,7 +381,7 @@ PROCEDURE adm-create-objects :
 
   END CASE.
   /* Select a Startup page. */
-  IF adm-current-page eq 0 
+  IF adm-current-page EQ 0 
   THEN RUN select-page IN THIS-PROCEDURE ( 1 ).
 
 END PROCEDURE.
@@ -517,20 +510,25 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-initialize W-Win 
 PROCEDURE local-initialize :
 /*------------------------------------------------------------------------------
-  Purpose:     Override standard ADM method
-  Notes:       
-------------------------------------------------------------------------------*/
+      Purpose:     Override standard ADM method
+      Notes:       
+    ------------------------------------------------------------------------------*/
 
-  /* Code placed here will execute PRIOR to standard behavior. */
+    /* Code placed here will execute PRIOR to standard behavior. */
 
+  /* Set the option frame size and colour to give blue background to icons and 
+      add the handle of scope define object to temptable for resizizng */
+  RUN beforeinitialize IN THIS-PROCEDURE NO-ERROR.  
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
-
+  /* Add the handle of all smart object to be resized/shifted on resize to the temptable and 
+      Shift all the icons towards right */
+  RUN afterinitialize IN THIS-PROCEDURE NO-ERROR.
   /* Code placed here will execute AFTER standard behavior.    */
-  IF SEARCH('users/' + USERID('NOSWEAT') + '/w-glinvl.winReSize') EQ ? THEN DO:
+ /* IF SEARCH('users/' + USERID('NOSWEAT') + '/w-glinvl.winReSize') EQ ? THEN DO:
     {&WINDOW-NAME}:WINDOW-STATE = 1.
     RUN winReSize.
-  END.
+  END.*/
 
 END PROCEDURE.
 

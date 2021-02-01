@@ -61,8 +61,9 @@ CREATE WIDGET-POOL.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON Select_Address 
-     IMAGE-UP FILE "Graphics/32x32/dictionary.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/dictionary.png":U
+	IMAGE-DOWN FILE "Graphics/32x32/dictionary_hover.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/dictionary_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Address" 
      SIZE 7.8 BY 1.81 TOOLTIP "Addresses".
 
@@ -73,7 +74,8 @@ DEFINE FRAME F-Main
      Select_Address AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE .
+         AT COL 1 ROW 1 SCROLLABLE 
+		BGCOLOR 21.
 
 
 /* *********************** Procedure Settings ************************ */

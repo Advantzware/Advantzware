@@ -135,7 +135,7 @@ IF ll-valid THEN DO:
          ASSIGN t-credits = ar-cashl.amt-paid
                 t-check-no = "Payment"
                 v-gltrans-desc = "VOID " + cust.cust-no + " " +
-                               STRING(ar-cash.check-no,"9999999999") +
+                               STRING(ar-cash.check-no,"999999999999") +
                                " Inv# " + STRING(ar-cashl.inv-no).
          IF t-credits LT 0 AND
             ar-cashl.voided EQ YES OR

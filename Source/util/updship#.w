@@ -45,6 +45,7 @@ CREATE WIDGET-POOL.
 {custom/gloc.i}
 {custom/getcmpny.i}
 {custom/getloc.i}
+{methods/template/brwcustomdef.i}
 
 {sys/inc/var.i new shared}
 
@@ -385,7 +386,10 @@ ON START-SEARCH OF browse-machine IN FRAME F-Main
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL browse-machine C-Win
 ON ROW-DISPLAY OF browse-machine IN FRAME F-Main
-DO:   
+DO:
+    &scoped-define exclude-row-display true 
+    {methods/template/brwrowdisplay.i}   
+        
   IF AVAIL tt-oe-shipto AND tt-oe-shipto.ship-stat EQ YES THEN DO:
       ASSIGN 
           tt-oe-shipto.ship-id:BGCOLOR IN BROWSE {&BROWSE-NAME}      = 3 
@@ -569,6 +573,8 @@ ON CLOSE OF THIS-PROCEDURE
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
 
+{methods/template/brwcustom.i}
+
 /* Now enable the interface and wait for the exit condition.            */
 /* (NOTE: handle ERROR and END-KEY so cleanup code will always fire.    */
 MAIN-BLOCK:
@@ -584,8 +590,11 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     {custom/yellowColumns.i}
     RUN enable_UI.
     {methods/nowait.i}
-
-    IF INDEX(PROGRAM-NAME(2),"viewers/shipto.") NE 0 THEN do:
+    /* Ticket# : 92946
+       Hiding this widget for now, as browser's column label should be indicating the column which is sorted by */
+    fi_sortby:HIDDEN  = TRUE.
+    fi_sortby:VISIBLE = FALSE.
+    IF INDEX(PROGRAM-NAME(2),"viewers/shipto.") NE 0 THEN DO:
         {custom/usrprint.i}
     END.
 

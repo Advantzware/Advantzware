@@ -10,6 +10,8 @@
     Created     : Tue Jun 23 07:33:22 EDT 2020
     Notes       :
   ----------------------------------------------------------------------*/
+USING system.SharedConfig.
+
 {api/ttArgs.i}
 {api/CommonAPIProcs.i}
 
@@ -287,7 +289,7 @@ ELSE DO:
                     lcLineItemsData          = bf-APIOutboundDetail1.data
                     cItemID                  = inv-line.i-no
                     cItemQuantity            = STRING(inv-line.inv-qty, "->>>>>>>9.9<<")
-                    cItemPrice               = STRING(inv-line.t-price / inv-line.inv-qty, ">>>>>>>9.99<<<<<") 
+                    cItemPrice               = STRING(inv-line.t-price / inv-line.inv-qty, ">>>>>>>9.99<<<<<<<") 
                     cLineID                  = STRING(inv-line.line)
                     lcConcatFlexiCodeData    = ""
                     lcConcatFlexiNumericData = ""
@@ -344,6 +346,8 @@ ELSE DO:
                     RUN updateRequestData(INPUT-OUTPUT lcFlexiCodeData, "FlexibleFieldID", "1").
                     RUN updateRequestData(INPUT-OUTPUT lcFlexiCodeData, "FlexibleCode", cBOLID).
                     
+                    SharedConfig:Instance:SetValue("APIOutboundEvent_UserField1", cBOLID).
+                    
                     lcConcatFlexiCodeData = lcConcatFlexiCodeData + lcFlexiCodeData.
                     
                     /* Send Order No in flexible field 2 */
@@ -351,6 +355,8 @@ ELSE DO:
                     
                     RUN updateRequestData(INPUT-OUTPUT lcFlexiCodeData, "FlexibleFieldID", "2").
                     RUN updateRequestData(INPUT-OUTPUT lcFlexiCodeData, "FlexibleCode", STRING(inv-line.ord-no)).
+                    
+                    SharedConfig:Instance:SetValue("APIOutboundEvent_UserField2", STRING(inv-line.ord-no)).
                     
                     lcConcatFlexiCodeData = lcConcatFlexiCodeData + lcFlexiCodeData.
 
@@ -821,12 +827,12 @@ ELSE DO:
                         cItemPrice      = IF ar-invl.inv-qty EQ 0 THEN 
                                               STRING(ar-invl.amt, ">>>>>>>9.99<<<<")
                                           ELSE
-                                              STRING(ar-invl.amt / ar-invl.inv-qty, ">>>>>>>9.99<<<<<")
+                                              STRING(ar-invl.amt / ar-invl.inv-qty, ">>>>>>>9.99<<<<<<<")
                         .
                 ELSE
                     ASSIGN
                         cItemQuantity   = STRING(ar-invl.inv-qty, "->>>>>>>9.9<<")
-                        cItemPrice      = STRING(ar-invl.amt / ar-invl.inv-qty, ">>>>>>>9.99<<<<<")
+                        cItemPrice      = STRING(ar-invl.amt / ar-invl.inv-qty, ">>>>>>>9.99<<<<<<<")
                         . 
 
                 RUN pGetProductClassForItem (

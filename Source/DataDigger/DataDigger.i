@@ -11,10 +11,13 @@
 /*----------------------------------------------------------------------*/
 
 &GLOBAL-DEFINE version {version.i}
-&GLOBAL-DEFINE edition Pure Gold
+&GLOBAL-DEFINE edition Rudolf
 &GLOBAL-DEFINE build {build.i}
 
 &GLOBAL-DEFINE QUERYSEP CHR(1, SESSION:CPINTERNAL, "UTF-8")
+
+/* Maximum field length for editing char fields */
+&GLOBAL-DEFINE field-maxLength 200
 
 /* FINALLY statement was introduced in 10.1C */
 &IF PROVERSION >= "10.1C" AND DEFINED(UIB_IS_RUNNING) = 0 &THEN
@@ -31,9 +34,15 @@
  * changed from https://goo.gl/24deK3 to is.gd because google has ended the service
  * get analytics for the is.gd link by adding a - (minus) to it
 */
-&GLOBAL-DEFINE PINGBACKURL https://is.gd/DataDigger
+&GLOBAL-DEFINE PINGBACKURL   https://is.gd/DataDigger
 &GLOBAL-DEFINE PINGBACKSTATS https://is.gd/stats.php?url=DataDigger
-/* https://is.gd/DataDigger- */
+&GLOBAL-DEFINE LATESTVERSION https://is.gd/DataDigger25
+&GLOBAL-DEFINE EASTEREGG     https://is.gd/EasterEgg
+&GLOBAL-DEFINE FEELINGLUCKY  https://is.gd/FeelingLucky
+
+/* DataDigger 24: https://is.gd/stats.php?url=DataDigger
+   DataDigger 25: https://is.gd/stats.php?url=DataDigger25
+*/
 
 /* Table scan is not available for pre-v11 */
 &IF PROVERSION >= '11' &THEN
@@ -43,14 +52,14 @@
 DEFINE VARIABLE gcThisProcedure AS CHARACTER   NO-UNDO.
 
 /* TT for field data to link DataDiggers to each other */
-DEFINE TEMP-TABLE ttLinkInfo NO-UNDO RCODE-INFORMATION
+DEFINE TEMP-TABLE ttLinkInfo NO-UNDO
   FIELD cField AS CHARACTER
   FIELD cValue AS CHARACTER
   INDEX idxPrim IS PRIMARY cField
   .
 
 /* TT for the tables of a db */
-DEFINE TEMP-TABLE ttTable NO-UNDO RCODE-INFORMATION
+DEFINE TEMP-TABLE ttTable NO-UNDO
   FIELD cSchemaHolder AS CHARACTER LABEL "SH"        FORMAT "X(12)"   
   FIELD cDatabase     AS CHARACTER LABEL "DB"        FORMAT "X(12)"
   FIELD cTableName    AS CHARACTER LABEL "Table"     FORMAT "X(32)"
@@ -67,15 +76,14 @@ DEFINE TEMP-TABLE ttTable NO-UNDO RCODE-INFORMATION
   FIELD lCached       AS LOGICAL   LABEL "" /* for preCaching */
   FIELD iFileNumber   AS INTEGER   LABEL "_File-Number"
   FIELD cCategory     AS CHARACTER LABEL "Category"
-  FIELD lFavourite    AS LOGICAL   LABEL "" /* favourite table */
-  FIELD cFavourites   AS CHARACTER LABEL "" /* favourite groups */
+  FIELD lFavourite    AS LOGICAL   LABEL "" /* for editing favourites */
   INDEX idxPrim IS PRIMARY cDatabase cTableName
   INDEX idxSec cTableName
   .
-DEFINE TEMP-TABLE ttTableXml NO-UNDO XML-NODE-NAME "ttTable" LIKE ttTable RCODE-INFORMATION .
+DEFINE TEMP-TABLE ttTableXml NO-UNDO XML-NODE-NAME "ttTable" LIKE ttTable.
 
 /* TT for the saved queries of a table */
-DEFINE TEMP-TABLE ttQuery NO-UNDO RCODE-INFORMATION
+DEFINE TEMP-TABLE ttQuery NO-UNDO
   FIELD cDatabase AS CHARACTER
   FIELD cTable    AS CHARACTER
   FIELD iQueryNr  AS INTEGER
@@ -85,7 +93,7 @@ DEFINE TEMP-TABLE ttQuery NO-UNDO RCODE-INFORMATION
   .
 
 /* TT for the fields of a table */
-DEFINE TEMP-TABLE ttField NO-UNDO RCODE-INFORMATION
+DEFINE TEMP-TABLE ttField NO-UNDO
   FIELD cTableCacheId AS CHARACTER /* unique name for db / table / table-crc */
   FIELD cDatabase     AS CHARACTER
   FIELD cTableName    AS CHARACTER
@@ -133,7 +141,7 @@ DEFINE TEMP-TABLE ttField NO-UNDO RCODE-INFORMATION
  * For non-extents the relation between ttField and ttColumn
  * will be 1:1. For extent fields it will be 1:n
  */
-DEFINE TEMP-TABLE ttColumn NO-UNDO RCODE-INFORMATION
+DEFINE TEMP-TABLE ttColumn NO-UNDO
   FIELD cTableCacheId AS CHARACTER /* unique name for db / table / table-crc */
   FIELD cDatabase     AS CHARACTER
   FIELD cTableName    AS CHARACTER
@@ -159,17 +167,17 @@ DEFINE TEMP-TABLE ttColumn NO-UNDO RCODE-INFORMATION
   .
 
 /* TTs Used for preCaching */
-DEFINE TEMP-TABLE ttFieldCache NO-UNDO LIKE ttField RCODE-INFORMATION
+DEFINE TEMP-TABLE ttFieldCache NO-UNDO LIKE ttField
   INDEX idxTable IS PRIMARY cTableName
   .
-DEFINE TEMP-TABLE ttColumnCache NO-UNDO LIKE ttColumn RCODE-INFORMATION
+DEFINE TEMP-TABLE ttColumnCache NO-UNDO LIKE ttColumn
   .
 
 DEFINE DATASET dsFields FOR ttField, ttColumn.
 DEFINE DATASET dsFieldCache FOR ttFieldCache, ttColumnCache.
 
 /* TT for the indexfields of a table */
-DEFINE TEMP-TABLE ttIndex NO-UNDO RCODE-INFORMATION
+DEFINE TEMP-TABLE ttIndex NO-UNDO
   FIELD cIndexName   AS CHARACTER          LABEL "Name"        FORMAT "x(20)"
   FIELD cIndexFlags  AS CHARACTER          LABEL "Flags"       FORMAT "x(14)"
   FIELD cIndexFields AS CHARACTER          LABEL "Fields"      FORMAT "x(160)"
@@ -178,14 +186,14 @@ DEFINE TEMP-TABLE ttIndex NO-UNDO RCODE-INFORMATION
   .
 
 /* TT for counting windowLocks  (WindowsUpdateLock) */
-DEFINE TEMP-TABLE ttWindowLock NO-UNDO RCODE-INFORMATION
+DEFINE TEMP-TABLE ttWindowLock NO-UNDO
   FIELD hWindow      AS HANDLE
   FIELD iLockCounter AS INTEGER
   INDEX idxPrim IS PRIMARY hWindow
   .
 
 /* TT for filters on top of data browse */
-DEFINE TEMP-TABLE ttFilter NO-UNDO RCODE-INFORMATION
+DEFINE TEMP-TABLE ttFilter NO-UNDO
   FIELD cFieldName AS CHARACTER
   FIELD hFilter    AS HANDLE
   FIELD hColumn    AS HANDLE
@@ -198,12 +206,12 @@ DEFINE TEMP-TABLE ttFilter NO-UNDO RCODE-INFORMATION
   .
 
 /* TT to save filter values */
-DEFINE TEMP-TABLE ttOldFilter NO-UNDO RCODE-INFORMATION
+DEFINE TEMP-TABLE ttOldFilter NO-UNDO
   FIELD cFieldName AS CHARACTER
   FIELD cValue     AS CHARACTER.
 
 /* TT for filter on database tables */
-DEFINE TEMP-TABLE ttTableFilter NO-UNDO RCODE-INFORMATION
+DEFINE TEMP-TABLE ttTableFilter NO-UNDO
   FIELD lModified       AS LOGICAL
   FIELD cTableNameShow  AS CHARACTER
   FIELD cTableNameHide  AS CHARACTER
@@ -219,7 +227,7 @@ DEFINE TEMP-TABLE ttTableFilter NO-UNDO RCODE-INFORMATION
   .
 
 /* TT For currently connected databases */
-DEFINE TEMP-TABLE ttDatabase NO-UNDO RCODE-INFORMATION
+DEFINE TEMP-TABLE ttDatabase NO-UNDO
   FIELD cLogicalName  AS CHARACTER COLUMN-LABEL "Logical Name" FORMAT "x(20)"
   FIELD cSection      AS CHARACTER COLUMN-LABEL "Section"      FORMAT "x(20)"
   FIELD cCacheStamp   AS CHARACTER COLUMN-LABEL "CacheStamp"   FORMAT "x(24)"
@@ -227,7 +235,7 @@ DEFINE TEMP-TABLE ttDatabase NO-UNDO RCODE-INFORMATION
   .
 
 /* TT for favourites */
-DEFINE TEMP-TABLE ttConnection NO-UNDO RCODE-INFORMATION
+DEFINE TEMP-TABLE ttConnection NO-UNDO
   FIELD iConnectionNr AS INTEGER
   FIELD cLogicalName  AS CHARACTER COLUMN-LABEL "Logical Name" FORMAT "x(20)"
   FIELD cDescription  AS CHARACTER COLUMN-LABEL "Description"  FORMAT "x(28)"
@@ -239,7 +247,7 @@ DEFINE TEMP-TABLE ttConnection NO-UNDO RCODE-INFORMATION
   .
 
 /* TT for Query Tester */
-DEFINE TEMP-TABLE ttTestQuery NO-UNDO RCODE-INFORMATION
+DEFINE TEMP-TABLE ttTestQuery NO-UNDO
   FIELD iId        AS INTEGER LABEL "Seq" COLUMN-LABEL "Seq" FORMAT ">,>>9"
   FIELD cProgName  AS CHARACTER
   FIELD cQueryTxt  AS CHARACTER
@@ -248,20 +256,18 @@ DEFINE TEMP-TABLE ttTestQuery NO-UNDO RCODE-INFORMATION
   .
 
 /* TT for ini-file settings */
-DEFINE TEMP-TABLE ttConfig NO-UNDO RCODE-INFORMATION
+DEFINE TEMP-TABLE ttConfig NO-UNDO
   FIELD cSection AS CHARACTER
   FIELD cSetting AS CHARACTER
   FIELD cValue   AS CHARACTER
   FIELD lUser    AS LOGICAL
-  FIELD lDirty   AS LOGICAL
   INDEX idxPrim IS PRIMARY cSection cSetting
-  INDEX idxDirty lDirty
   INDEX idxUser  lUser
   .
 
 
 /* TT for sorting options in user query */
-DEFINE TEMP-TABLE ttQuerySort NO-UNDO RCODE-INFORMATION
+DEFINE TEMP-TABLE ttQuerySort NO-UNDO
   FIELD iGroup     AS INTEGER /* 1:query, 2:browse */
   FIELD iSortNr    AS INTEGER
   FIELD cSortField AS CHARACTER
@@ -271,13 +277,14 @@ DEFINE TEMP-TABLE ttQuerySort NO-UNDO RCODE-INFORMATION
   .
 
 /* TT for favourite groups */
-DEFINE TEMP-TABLE ttFavGroup NO-UNDO RCODE-INFORMATION
-  FIELD cGroup AS CHARACTER
+DEFINE TEMP-TABLE ttFavGroup NO-UNDO
+  FIELD cGroup  AS CHARACTER
+  FIELD cTables AS CHARACTER
   INDEX iPrim IS PRIMARY cGroup
   .
 
 /* TT For support dataservers */
-DEFINE TEMP-TABLE ttDataserver NO-UNDO RCODE-INFORMATION
+DEFINE TEMP-TABLE ttDataserver NO-UNDO
   FIELD iServerNr           AS INTEGER    FORMAT ">>9"
   FIELD cLDbNameSchema      AS CHARACTER  FORMAT "x(12)"
   FIELD cLDbNameDataserver  AS CHARACTER  FORMAT "x(12)"
@@ -463,17 +470,11 @@ FUNCTION isDefaultFontsChanged RETURNS LOGICAL IN SUPER.
 FUNCTION isFileLocked RETURNS LOGICAL
   ( pcFileName AS CHARACTER ) IN SUPER.
 
-FUNCTION isBrowseChanged RETURNS LOGICAL
-  ( INPUT phWidget AS HANDLE ) IN SUPER.
-
 FUNCTION isMouseOver RETURNS LOGICAL
   ( INPUT phWidget AS HANDLE ) IN SUPER.
 
 FUNCTION isTableFilterUsed RETURNS LOGICAL
   ( INPUT TABLE ttTableFilter )  IN SUPER.
-
-FUNCTION isWidgetChanged RETURNS LOGICAL
-  ( INPUT phWidget AS HANDLE ) IN SUPER.
 
 FUNCTION readFile RETURNS LONGCHAR
   ( INPUT pcFilename AS CHARACTER) IN SUPER.
@@ -528,4 +529,3 @@ END PROCEDURE. /* getProcHandle */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-

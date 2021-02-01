@@ -4121,9 +4121,9 @@ PROCEDURE update-pack :
   END.
 
   RUN disable-inks.
-
+  {methods/run_link.i "CONTAINER-SOURCE" "SetUpdateBegin"}
   apply "entry" to eb.cas-no in frame {&frame-name}.
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

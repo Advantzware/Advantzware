@@ -582,6 +582,14 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
          ASSIGN v-program = "aprep/fibremsc.p"
                 lines-per-page = 50
                 is-xprint-form = YES.
+      WHEN "1Up1099" THEN
+         ASSIGN v-program = "aprep/fibremsc.p"
+                lines-per-page = 50
+                is-xprint-form = YES. 
+      WHEN "2Up1099" THEN
+         ASSIGN v-program = "aprep/MscTwoUp.p"
+                lines-per-page = 50
+                is-xprint-form = YES.          
   END.
 
   RUN enable_UI.

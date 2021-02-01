@@ -141,7 +141,7 @@ FUNCTION fGetTaxableMisc RETURNS LOGICAL
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON Btn_Cancel 
-    IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U NO-FOCUS FLAT-BUTTON
+    IMAGE-UP FILE "Graphics/32x32/exit_white.png":U NO-FOCUS FLAT-BUTTON
     LABEL "Cancel" 
     SIZE 10 BY 1.91
     BGCOLOR 8 .
@@ -152,7 +152,7 @@ DEFINE BUTTON Btn_Done AUTO-END-KEY DEFAULT
     BGCOLOR 8 .
 
 DEFINE BUTTON Btn_OK 
-    IMAGE-UP FILE "Graphics/32x32/floppy_disk.ico":U NO-FOCUS FLAT-BUTTON
+    IMAGE-UP FILE "Graphics/32x32/floppy_disk.png":U NO-FOCUS FLAT-BUTTON
     LABEL "&Save" 
     SIZE 10 BY 1.91
     BGCOLOR 8 .
@@ -441,11 +441,14 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
 ON HELP OF FRAME Dialog-Frame /* Misc. Charge Item Update */
     DO:
-        DEFINE VARIABLE char-val   AS CHARACTER     NO-UNDO.
-        DEFINE VARIABLE look-recid AS RECID         NO-UNDO.
-        DEFINE VARIABLE v-li       AS INTEGER       NO-UNDO.
-        DEFINE VARIABLE lw-focus   AS WIDGET-HANDLE NO-UNDO.
-        DEFINE VARIABLE lv-handle  AS HANDLE        NO-UNDO.
+        DEFINE VARIABLE char-val      AS CHARACTER     NO-UNDO.
+        DEFINE VARIABLE look-recid    AS RECID         NO-UNDO.
+        DEFINE VARIABLE v-li          AS INTEGER       NO-UNDO.
+        DEFINE VARIABLE lw-focus      AS WIDGET-HANDLE NO-UNDO.
+        DEFINE VARIABLE lv-handle     AS HANDLE        NO-UNDO.
+        DEFINE VARIABLE cFieldsValue  AS CHARACTER     NO-UNDO.
+        DEFINE VARIABLE cFoundValue   AS CHARACTER     NO-UNDO.
+        DEFINE VARIABLE recFoundRecID AS RECID         NO-UNDO.        
 
         lw-focus = FOCUS.
 
@@ -469,17 +472,26 @@ ON HELP OF FRAME Dialog-Frame /* Misc. Charge Item Update */
             WHEN "s-man" THEN 
                 DO:
                     v-li = FRAME-INDEX.
-                    RUN windows/l-sman.w (inv-head.company, OUTPUT char-val).
-                    IF char-val NE "" THEN 
+                    RUN system/openLookup.p (
+                        INPUT  inv-head.company, 
+                        INPUT  "",  /* Lookup ID */
+                        INPUT  29,  /* Subject ID */
+                        INPUT  "",  /* User ID */
+                        INPUT  0,   /* Param Value ID */
+                        OUTPUT cFieldsValue, 
+                        OUTPUT cFoundValue, 
+                        OUTPUT recFoundRecID
+                        ).
+                    IF cFoundValue NE "" THEN 
                     DO:
-                        IF v-li EQ 1 AND inv-misc.s-man[1]:SCREEN-VALUE NE ENTRY(1,char-val) THEN 
-                            inv-misc.s-man[1]:SCREEN-VALUE = ENTRY(1,char-val).
+                        IF v-li EQ 1 AND inv-misc.s-man[1]:SCREEN-VALUE NE cFoundValue THEN 
+                            inv-misc.s-man[1]:SCREEN-VALUE = cFoundValue.
                         ELSE
-                            IF v-li EQ 2 AND inv-misc.s-man[2]:SCREEN-VALUE NE ENTRY(1,char-val) THEN 
-                                inv-misc.s-man[2]:SCREEN-VALUE = ENTRY(1,char-val).
+                            IF v-li EQ 2 AND inv-misc.s-man[2]:SCREEN-VALUE NE cFoundValue THEN 
+                                inv-misc.s-man[2]:SCREEN-VALUE = cFoundValue.
                             ELSE
-                                IF v-li EQ 3 AND inv-misc.s-man[3]:SCREEN-VALUE NE ENTRY(1,char-val) THEN 
-                                    inv-misc.s-man[3]:SCREEN-VALUE = ENTRY(1,char-val).
+                                IF v-li EQ 3 AND inv-misc.s-man[3]:SCREEN-VALUE NE cFoundValue THEN 
+                                    inv-misc.s-man[3]:SCREEN-VALUE = cFoundValue.
                                 ELSE v-li = 0.
                         IF v-li NE 0 THEN RUN new-s-man (v-li).
                     END.
@@ -1528,6 +1540,28 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE presetColor Dialog-Frame
+PROCEDURE presetColor:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DO WITH FRAME {&FRAME-NAME}:
+        IF inv-misc.actnum:BGCOLOR EQ 16 THEN             
+            ASSIGN 
+                inv-misc.actnum:BGCOLOR = ?
+                inv-misc.actnum:FGCOLOR = ?
+                .                             
+    END. 
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE show-comm Dialog-Frame 
 PROCEDURE show-comm :
     /*------------------------------------------------------------------------------
@@ -1561,15 +1595,35 @@ PROCEDURE valid-actnum :
           Notes:       
         ------------------------------------------------------------------------------*/
     DEFINE OUTPUT PARAMETER opReturnError AS LOGICAL NO-UNDO .
+    
+    DEFINE VARIABLE lValid    AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage  AS CHARACTER NO-UNDO.    
+    DEFINE VARIABLE hValidate AS HANDLE    NO-UNDO.
+    
+    RUN util/Validate.p PERSISTENT SET hValidate.
+    
     DO WITH FRAME {&FRAME-NAME}:
-        IF NOT CAN-FIND(FIRST account WHERE account.company EQ cocode
-            AND account.actnum  EQ inv-misc.actnum:SCREEN-VALUE 
-            /*AND account.type    EQ "R"*/) THEN 
-        DO:
-            MESSAGE "Invalid entry, try help..." VIEW-AS ALERT-BOX INFORMATION.
-            APPLY "entry" TO inv-misc.actnum .
-            opReturnError = YES .
-        END.
+        RUN pIsValidGLAccount IN hValidate (
+            INPUT  inv-misc.actnum:SCREEN-VALUE, 
+            INPUT  YES, 
+            INPUT  cocode, 
+            OUTPUT lValid, 
+            OUTPUT cMessage
+            ) NO-ERROR.        
+        IF NOT lValid THEN DO:
+            MESSAGE cMessage VIEW-AS ALERT-BOX ERROR. 
+            RUN presetColor NO-ERROR.
+            IF INDEX(cMessage, "Inactive") GT 0 THEN 
+                ASSIGN 
+                    inv-misc.actnum:BGCOLOR = 16
+                    inv-misc.actnum:FGCOLOR = 15
+                    .                   
+            APPLY "ENTRY" TO inv-misc.actnum.
+            opReturnError = YES.   
+        END.               
+       
+        IF lValid THEN 
+            RUN presetColor NO-ERROR.                   
     END.
 
 END PROCEDURE.
@@ -1852,10 +1906,11 @@ PROCEDURE valid-s-man :
         IF lv-sman NE "" THEN 
         DO:
             IF NOT CAN-FIND(FIRST sman
-                WHERE sman.company EQ cocode
-                AND sman.sman    EQ lv-sman) THEN 
+                            WHERE sman.company  EQ cocode
+                              AND sman.sman     EQ lv-sman
+                              AND sman.inactive EQ  NO) THEN 
             DO:
-                MESSAGE "Invalid Sales Rep, try help..." VIEW-AS ALERT-BOX ERROR.
+                MESSAGE "Inactive/Invalid Sales Rep, try help..." VIEW-AS ALERT-BOX ERROR.
                 IF ip-int EQ 3 THEN APPLY "entry" TO inv-misc.s-man[3] IN FRAME {&FRAME-NAME}.
                 ELSE
                     IF ip-int EQ 2 THEN APPLY "entry" TO inv-misc.s-man[2] IN FRAME {&FRAME-NAME}.

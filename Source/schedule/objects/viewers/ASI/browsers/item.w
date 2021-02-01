@@ -39,6 +39,7 @@ CREATE WIDGET-POOL.
 {UDF/ttUDF.i}
 {UDF/fUDFGroup.i "sbPro."}
 {UDF/pGetMFData.i}
+{methods/template/brwcustomdef.i}
 
 DEFINE VARIABLE cellColumn AS HANDLE  NO-UNDO EXTENT 100.
 DEFINE VARIABLE idx        AS INTEGER NO-UNDO.
@@ -306,6 +307,10 @@ AND itemfg.i-no EQ eb.stock-no"
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
 ON ROW-DISPLAY OF br_table IN FRAME F-Main
 DO:
+
+    &scoped-define exclude-row-display true 
+    {methods/template/brwrowdisplay.i}
+        
     FOR EACH ttAttrb
         WHERE ttAttrb.attr_sbField GT 0
            BY ttAttrb.attr_sbField

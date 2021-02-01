@@ -126,7 +126,7 @@ DEFINE FRAME F-Main
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 154.2 BY 23.76.
+         SIZE 156.4 BY 23.76.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -149,11 +149,11 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          HIDDEN             = YES
          TITLE              = "Estimate - Folding"
          HEIGHT             = 23.76
-         WIDTH              = 151
+         WIDTH              = 156.4
          MAX-HEIGHT         = 24.81
-         MAX-WIDTH          = 154.2
+         MAX-WIDTH          = 162.2
          VIRTUAL-HEIGHT     = 24.81
-         VIRTUAL-WIDTH      = 154.2
+         VIRTUAL-WIDTH      = 162.2
          RESIZE             = no
          SCROLL-BARS        = no
          STATUS-AREA        = yes
@@ -262,11 +262,11 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/folder.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'FOLDER-LABELS = ':U + 'Brws Est|Estimate|Specs|Layout|Inks/Pack|Prep/Route|Misc/Farm|Box Design|Print|Quote' + ',
+             INPUT  'FOLDER-LABELS = ':U + 'Browse|Detail|Specs|Layout|Inks/Pack|Prep/Rout|Misc/Farm|Design|Print|Quote' + ',
                      FOLDER-TAB-TYPE = 2':U ,
              OUTPUT h_folder ).
        RUN set-position IN h_folder ( 1.00 , 1.00 ) NO-ERROR.
-       RUN set-size IN h_folder ( 23.57 , 151.00 ) NO-ERROR.
+       RUN set-size IN h_folder ( 23.57 , 156.00 ) NO-ERROR.
 
        /* Links to SmartFolder h_folder. */
        RUN add-link IN adm-broker-hdl ( h_folder , 'Page':U , THIS-PROCEDURE ).
@@ -288,7 +288,7 @@ PROCEDURE adm-create-objects :
                      SmartPanelType = Update,
                      AddFunction = One-Record':U ,
              OUTPUT h_p-fest1 ).
-       RUN set-position IN h_p-fest1 ( 20.52 , 49.00 ) NO-ERROR.
+       RUN set-position IN h_p-fest1 ( 21.24 , 32.00 ) NO-ERROR.
        RUN set-size IN h_p-fest1 ( 1.91 , 52.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
@@ -296,7 +296,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_vp-est ).
-       RUN set-position IN h_vp-est ( 20.52 , 102.00 ) NO-ERROR.
+       RUN set-position IN h_vp-est ( 21.24 , 114.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.91 , 35.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -331,8 +331,8 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_v-est ).
-       RUN set-position IN h_v-est ( 2.91 , 4.00 ) NO-ERROR.
-       /* Size in UIB:  ( 16.91 , 150.00 ) */
+       RUN set-position IN h_v-est ( 2.91 , 1.00 ) NO-ERROR.
+       /* Size in UIB:  ( 16.91 , 156.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'p-rfqsiz.w':U ,

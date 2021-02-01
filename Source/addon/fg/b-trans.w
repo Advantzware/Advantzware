@@ -40,6 +40,7 @@ CREATE WIDGET-POOL.
 {custom/gloc.i}
 {custom/globdefs.i}
 {sys/inc/VAR.i NEW SHARED}
+{methods/template/brwCustomDef.i}
 
 def var char-val as cha no-undo.
 def var ext-cost as decimal no-undo.
@@ -568,7 +569,10 @@ END.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON ROW-DISPLAY OF Browser-Table IN FRAME F-Main
-DO:  /* display calculated field */
+DO: 
+    &SCOPED-DEFINE exclude-row-display true
+    {methods/template/brwRowDisplay.i}  
+   /* display calculated field */
   /* def var ii as int.
    ii = if avail fg-rctd then integer(fg-rctd.po-no) else 0.
    
@@ -966,7 +970,10 @@ ASSIGN sstransf-log = sys-ctrl.log-fld
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF
-
+/* Ticket# : 92946
+   Hiding this widget for now, as browser's column label should be indicating the column which is sorted by */
+fi_sortby:HIDDEN  = TRUE.
+fi_sortby:VISIBLE = FALSE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1150,6 +1157,33 @@ DO WITH FRAME {&FRAME-NAME}:
       
     END.
   END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetItem B-table-Win 
+PROCEDURE GetItem :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opcCompany AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcItemID  AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplAvail   AS LOGICAL   NO-UNDO.
+    
+    IF AVAILABLE fg-rctd THEN DO:
+        opcCompany = cocode.
+        
+        IF fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} NE "" THEN            
+            opcItemID = fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}.
+        ELSE
+            opcItemID = SUBSTRING(fg-rctd.tag:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}, 1, 15).
+        
+        IF TRIM(opcItemID) NE "" THEN
+            oplAvail = TRUE.
+    END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

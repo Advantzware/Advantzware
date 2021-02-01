@@ -101,13 +101,13 @@ dynParamSetDtl.paramLabel NE "" NO-LOCK ~
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btnCancel AUTO-END-KEY 
-     IMAGE-UP FILE "Graphics/32x32/navigate_cross.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/navigate_cross.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Cancel" 
      SIZE 8 BY 1.91
      BGCOLOR 8 .
 
 DEFINE BUTTON btnOK AUTO-GO 
-     IMAGE-UP FILE "Graphics/32x32/navigate_check.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/navigate_check.png":U NO-FOCUS FLAT-BUTTON
      LABEL "OK" 
      SIZE 8 BY 1.91
      BGCOLOR 8 .
@@ -190,9 +190,9 @@ ASSIGN
      _Where[2]         = "dynParamSetDtl.paramSetID EQ dynSubjectParamSet.paramSetID AND
 dynParamSetDtl.paramLabel NE """""
      _FldNameList[1]   > ASI.dynParamSetDtl.paramLabel
-"dynParamSetDtl.paramLabel" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"dynParamSetDtl.paramLabel" ? ? "character" ? ? ? 22 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.dynParamSetDtl.paramName
-"dynParamSetDtl.paramName" ? ? "character" ? ? ? 14 ? ? no ? no no "41.6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"dynParamSetDtl.paramName" ? ? "character" ? ? ? 22 ? ? no ? no no "41.6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is OPENED
 */  /* BROWSE BROWSE-1 */
 &ANALYZE-RESUME
@@ -236,14 +236,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-1 Dialog-Frame
 ON START-SEARCH OF BROWSE-1 IN FRAME Dialog-Frame
 DO:
-    IF SELF:CURRENT-COLUMN:NAME NE ? THEN DO:
-        cColumnLabel = SELF:CURRENT-COLUMN:NAME.
-        IF cColumnLabel EQ cSaveLabel THEN
-        lAscending = NOT lAscending.
-        cSaveLabel = cColumnLabel.
-        RUN pReopenBrowse.
-    END.
-    RETURN NO-APPLY.
+    {AOA/includes/startSearch.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -279,13 +272,11 @@ END.
 
 /* ***************************  Main Block  *************************** */
 
+{methods/template/brwcustom2.i}
+
 /* Parent the dialog-box to the ACTIVE-WINDOW, if there is no parent.   */
 IF VALID-HANDLE(ACTIVE-WINDOW) AND FRAME {&FRAME-NAME}:PARENT eq ?
 THEN FRAME {&FRAME-NAME}:PARENT = ACTIVE-WINDOW.
-
-ON DELETE-CHARACTER ANYWHERE
-DO:
-END.
 
 /* Now enable the interface and wait for the exit condition.            */
 /* (NOTE: handle ERROR and END-KEY so cleanup code will always fire.    */
@@ -375,6 +366,7 @@ PROCEDURE pReopenBrowse :
         OTHERWISE
         {&OPEN-QUERY-{&BROWSE-NAME}}
     END CASE.
+    {AOA/includes/pReopenBrowse.i}
     SESSION:SET-WAIT-STATE("").
 
 END PROCEDURE.

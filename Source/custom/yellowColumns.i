@@ -2,6 +2,7 @@
 
 DEFINE VARIABLE sortBy AS LOGICAL NO-UNDO.
 DEFINE VARIABLE sortColumn AS CHARACTER NO-UNDO.
+DEFINE VARIABLE sortColumnhand AS HANDLE NO-UNDO.
 DEFINE VARIABLE colLabels AS CHARACTER NO-UNDO.
 DEFINE VARIABLE browserTitle AS CHARACTER NO-UNDO.
 
@@ -467,8 +468,29 @@ PROCEDURE openQuery:
   IF sortColumn EQ 'Due Date' THEN STRING(YEAR(po-ordl.due-date),'9999') + ~
   STRING(MONTH(po-ordl.due-date),'99') + ~
   STRING(DAY(po-ordl.due-date),'99') ELSE ~
+  IF sortColumn EQ 'Vendor' THEN STRING(po-ordl.vend-no) ELSE ~
   IF sortColumn EQ 'Ship To' THEN po-ord.ship-id ELSE ~
   STRING(po-ordl.po-no,'>>>>>9') ~{&SORTED}
+
+&ELSEIF '{&yellowColumnsName}' EQ 'b-estitm' &THEN
+  &SCOPED-DEFINE SORTBY-PHRASE BY ~
+  IF sortColumn EQ 'Cust. #' THEN STRING(eb.cust-no) ELSE ~
+  IF sortColumn EQ 'FG Item#' THEN string(eb.stock-no) ELSE ~
+  STRING(eb.stock-no) ~{&SORTED}
+  
+ 
+        
+  &ELSEIF '{&yellowColumnsName}' EQ 'prgrms' &THEN
+  &SCOPED-DEFINE SORTBY-PHRASE BY ~
+  IF sortColumn EQ 'Menu' THEN  string(prgrms.menu_item) ELSE ~
+  IF sortColumn EQ 'Order' THEN  string(prgrms.menuOrder) ELSE ~
+  IF sortColumn EQ 'Menu Level' THEN string(prgrms.menuLevel) ELSE ~
+  IF sortColumn EQ 'Hotkey' THEN string(prgrms.mnemonic) ELSE ~
+  IF sortColumn EQ 'Parent' THEN string(prgrms.itemParent) ELSE ~
+  IF sortColumn EQ 'Type' THEN string(prgrms.systemType) ELSE ~
+  string(prgrms.systemType) ~{&SORTED}
+
+
 
 &ELSEIF '{&yellowColumnsName}' EQ 'l-jobno' &THEN
   &SCOPED-DEFINE SORTBY-PHRASE BY ~
@@ -1098,7 +1120,7 @@ PROCEDURE openQuery:
     IF sortColumn EQ 'Memo Date' THEN STRING(YEAR(ar-cash.check-date),'9999') + ~
                                        STRING(MONTH(ar-cash.check-date),'99') + ~
                                        STRING(DAY(ar-cash.check-date),'99') ELSE ~
-       STRING(ar-cash.check-no, '9999999999') 
+       STRING(ar-cash.check-no, '999999999999') 
 
 &ELSEIF '{&yellowColumnsName}' EQ 'ar-cashl' &THEN
    &SCOPED-DEFINE SORTBY-PHRASE BY ~
@@ -1435,6 +1457,33 @@ PROCEDURE openQuery:
   IF sortColumn EQ 'OnLine' THEN string(ttOePrmtx.online) ELSE ~
      string(ttOePrmtx.procat) ~{&SORTED}
 
+&ELSEIF '{&yellowColumnsName}' EQ 'dMultiSelectItem' &THEN
+  &SCOPED-DEFINE SORTBY-PHRASE BY ~
+  IF sortColumn EQ 'Molds' THEN string(ttMultiSelectItem.multiplier,"999999999") ELSE ~
+  IF sortColumn EQ 'Quantity To Order' THEN string(ttMultiSelectItem.quantityToOrder,"-999999999")  ELSE ~
+  IF sortColumn EQ 'Earliest Due Date' THEN STRING(YEAR(ttMultiSelectItem.dateDueDateEarliest),'9999') + ~
+                                   STRING(MONTH(ttMultiSelectItem.dateDueDateEarliest),'99') + ~
+                                   STRING(DAY(ttMultiSelectItem.dateDueDateEarliest),'99') ELSE ~
+  IF sortColumn EQ 'Suggested Reorder' THEN string(ttMultiSelectItem.quantityToOrderSuggested,"-999999999") ELSE ~
+  IF sortColumn EQ 'FG Name' THEN string(ttMultiSelectItem.itemName)  ELSE ~
+  IF sortColumn EQ 'Min Level' THEN string(ttMultiSelectItem.quantityReorderLevel,"-999999999")  ELSE ~
+  IF sortColumn EQ 'On Hand' THEN string(ttMultiSelectItem.quantityOnHand,"-999999999")  ELSE ~
+  IF sortColumn EQ 'Scheduled for Jobs' THEN string(ttMultiSelectItem.quantityOnOrder,"-999999999")  ELSE ~
+  IF sortColumn EQ 'Allocated' THEN string(ttMultiSelectItem.quantityAllocated,"-999999999")  ELSE ~
+  IF sortColumn EQ 'Available' THEN string(ttMultiSelectItem.quantityAvailable,"-999999999")  ELSE ~
+  IF sortColumn EQ 'Available On-Hand' THEN string(ttMultiSelectItem.availOnHand,"-999999999")  ELSE ~
+  IF sortColumn EQ 'Minimum Order' THEN string(ttMultiSelectItem.quantityMinOrder,"-999999999")  ELSE ~
+  IF sortColumn EQ 'Maximum Order' THEN string(ttMultiSelectItem.quantityMaxOrder,"-999999999")  ELSE ~
+  IF sortColumn EQ 'Earliest Order Qty' THEN string(ttMultiSelectItem.dateDueDateEarliest,"-999999999")  ELSE ~
+  IF sortColumn EQ 'Customer Part' THEN string(ttMultiSelectItem.itemCustPart)  ELSE ~
+  IF sortColumn EQ 'Customer' THEN string(ttMultiSelectItem.itemCust)  ELSE ~
+  IF sortColumn EQ 'Cust Name' THEN string(ttMultiSelectItem.itemCustName)  ELSE ~
+  IF sortColumn EQ 'Estimate' THEN string(ttMultiSelectItem.itemEstNO)  ELSE ~
+  IF sortColumn EQ 'Style' THEN string(ttMultiSelectItem.itemStyle)  ELSE ~
+  IF sortColumn EQ 'Warehouse' THEN string(ttMultiSelectItem.itemWhse)  ELSE ~
+  IF sortColumn EQ 'Furnish' THEN string(ttMultiSelectItem.board)  ELSE ~
+     string(ttMultiSelectItem.itemID) ~{&SORTED}
+
 
 /* btr - 02/15/2011  */
 &ELSEIF '{&yellowColumnsName}' EQ 'b-wipmach' &THEN
@@ -1451,6 +1500,29 @@ PROCEDURE openQuery:
                                                     STRING(MONTH(module.expire-date),'99')  + ~
                                                     STRING(DAY(module.expire-date),'99')  ELSE ~
         STRING(module.is-used, 'Y/N') ~{&SORTED}
+        
+&ELSEIF '{&yellowColumnsName}' EQ 'custmark' &THEN
+  &SCOPED-DEFINE SORTBY-PHRASE BY ~
+  IF sortColumn EQ 'Style'    THEN STRING(cust-markup.style)                 ELSE ~
+  IF sortColumn EQ 'Category' THEN STRING(cust-mark.procat)                  ELSE ~
+  IF sortColumn EQ 'Markup01' THEN STRING(cust-mark.markup[1],'->>>9.99<<<') ELSE ~
+  IF sortColumn EQ 'Markup02' THEN STRING(cust-mark.markup[2],'->>>9.99<<<') ELSE ~
+  IF sortColumn EQ 'Markup03' THEN STRING(cust-mark.markup[3],'->>>9.99<<<') ELSE ~
+  IF sortColumn EQ 'Markup04' THEN STRING(cust-mark.markup[4],'->>>9.99<<<') ELSE ~
+  IF sortColumn EQ 'Markup05' THEN STRING(cust-mark.markup[5],'->>>9.99<<<') ELSE ~
+  IF sortColumn EQ 'Markup06' THEN STRING(cust-mark.markup[6],'->>>9.99<<<') ELSE ~
+  IF sortColumn EQ 'Markup07' THEN STRING(cust-mark.markup[7],'->>>9.99<<<') ELSE ~
+  IF sortColumn EQ 'Markup08' THEN STRING(cust-mark.markup[8],'->>>9.99<<<') ELSE ~
+  IF sortColumn EQ 'Markup09' THEN STRING(cust-mark.markup[9],'->>>9.99<<<') ELSE ~
+  STRING (cust-mark.markup[10],'->>>9.99<<<') ~{&SORTED}   
+  
+&ELSEIF '{&yellowColumnsName}' EQ 'mnu-item' &THEN
+    &SCOPED-DEFINE SORTBY-PHRASE BY ~
+    IF sortColumn EQ 'Menu!Num'            THEN STRING(mnu-item.menu-num,">>>>9") ELSE~
+    IF sortColumn EQ 'Program!Description' THEN STRING(mnu-item.descrip)          ELSE ~
+    STRING(mnu-item.pgm-name) ~{&SORTED}
+      
+        
 &ENDIF
 
 /* ****************************************************************** */  
@@ -1520,17 +1592,29 @@ END PROCEDURE.
 
 PROCEDURE startSearch:
   DEFINE VARIABLE sortDisplay AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE brwCurrentColumn AS HANDLE NO-UNDO.
+  brwCurrentColumn = BROWSE {&BROWSE-NAME}:CURRENT-COLUMN.
+  IF brwCurrentColumn:LABEL-BGCOLOR = 30 THEN
+      brwCurrentColumn:LABEL-BGCOLOR = 14.
+  IF VALID-HANDLE(sortcolumnhand) AND sortcolumnhand:LABEL-BGCOLOR = 30 THEN
+  sortcolumnhand:LABEL-BGCOLOR        = 14.
 
   IF colLabels EQ '' THEN RUN getColLabels.
 
-  IF NOT CAN-DO(colLabels,BROWSE {&BROWSE-NAME}:CURRENT-COLUMN:LABEL) THEN
+  IF NOT CAN-DO(colLabels,brwCurrentColumn:LABEL) THEN
   RETURN NO-APPLY.
+  
+    BROWSE {&BROWSE-NAME}:CLEAR-SORT-ARROWS( ) NO-ERROR.
 
-  IF sortColumn EQ BROWSE {&BROWSE-NAME}:CURRENT-COLUMN:LABEL THEN
-     sortBy = NOT sortBy.
+  IF sortColumn EQ brwCurrentColumn:LABEL THEN
+	ASSIGN
+     sortBy = NOT sortBy
+	 brwCurrentColumn:SORT-ASCENDING = sortBy.
+
 
   ASSIGN
-    sortColumn = BROWSE {&BROWSE-NAME}:CURRENT-COLUMN:LABEL
+    sortColumn = brwCurrentColumn:LABEL
+    brwCurrentColumn:SORT-ASCENDING = sortBy
     sortDisplay = TRIM(sortColumn + ' - ' + STRING(sortBy,'Ascending/Descending'))
     &IF DEFINED(noSortByField) EQ 0 &THEN
     fi_sortBy:SCREEN-VALUE IN FRAME {&FRAME-NAME} = sortDisplay
@@ -1544,9 +1628,18 @@ PROCEDURE startSearch:
     lv-search
     &ENDIF
     .
-  IF browserTitle NE '' THEN
-  BROWSE {&BROWSE-NAME}:TITLE = browserTitle + ' (sorted by: ' + sortDisplay + ')'.
+
+ // IF browserTitle NE '' THEN
+  //BROWSE {&BROWSE-NAME}:TITLE = browserTitle + ' (sorted by: ' + sortDisplay + ')'.
+
   RUN openQuery.
+
+    brwCurrentColumn:LABEL-BGCOLOR = 30.
+
+ASSIGN
+    sortColumn = brwCurrentColumn:LABEL
+	sortcolumnhand = brwCurrentColumn.
+
 END PROCEDURE.
 
 /* Sort removed from b-cusinq 'Date' */
@@ -1555,3 +1648,8 @@ END PROCEDURE.
            DAY(tt-arinq.tr-date) + ~
            (IF tt-arinq.inv-no EQ 0 THEN 99999999 ELSE 0),'99999999') ~
   ELSE ~*/
+ 
+&IF DEFINED(noSortByField) EQ 0 &THEN  
+fi_sortBy:HIDDEN IN FRAME {&frame-name}= TRUE.
+fi_sortBy:VISIBLE IN FRAME {&frame-name} = FALSE.
+ &ENDIf

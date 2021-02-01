@@ -70,19 +70,20 @@ DEFINE VAR {&WINDOW-NAME} AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON Btn_Cancel 
-     IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/exit_white.png":U NO-FOCUS FLAT-BUTTON
      LABEL "&Cancel" 
      SIZE 8 BY 1.91
      FONT 4.
 
 DEFINE BUTTON Btn_Clear_Find 
-     IMAGE-UP FILE "Graphics/32x32/close.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/navigate_cross.png":U 
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_cross_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Clear &Find" 
      SIZE 8 BY 1.91
      FONT 4.
 
 DEFINE BUTTON Btn_OK 
-     IMAGE-UP FILE "Graphics/32x32/checkbox.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/navigate_check.png":U NO-FOCUS FLAT-BUTTON
      LABEL "&OK" 
      SIZE 8 BY 1.91
      FONT 4.
@@ -186,7 +187,7 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 &IF "{&IAMWHAT}" = "SEARCH" &THEN
 &Scoped-define LOADIMAGE document_view
 &ELSEIF "{&IAMWHAT}" = "LOOKUP" &THEN
-&Scoped-define LOADIMAGE question
+&Scoped-define LOADIMAGE magnifying_glass
 &ENDIF
 
 IF NOT {&WINDOW-NAME}:LOAD-ICON("Graphics\32x32\{&LOADIMAGE}":U) THEN

@@ -32,7 +32,7 @@ CREATE WIDGET-POOL.
 /* ***************************  Definitions  ************************** */
 
 &SCOPED-DEFINE winReSize
-&SCOPED-DEFINE sizeOption HEIGHT
+//&SCOPED-DEFINE sizeOption HEIGHT
 &SCOPED-DEFINE browseOnly
 {methods/defines/winReSize.i}
 
@@ -177,7 +177,7 @@ DEFINE VARIABLE fi_cust AS CHARACTER FORMAT "X(8)":U
      SIZE 19 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE fi_fchk AS INTEGER FORMAT ">>>>>>>>>" INITIAL 0 
+DEFINE VARIABLE fi_fchk AS INT64 FORMAT ">>>>>>>>>>>>" INITIAL 0 
      LABEL "Check#" 
      VIEW-AS FILL-IN 
      SIZE 22 BY 1
@@ -220,8 +220,8 @@ DEFINE BROWSE Browser-Table
             WIDTH 13 LABEL-BGCOLOR 14
       cust.name COLUMN-LABEL "Name" FORMAT "x(30)":U WIDTH 40 LABEL-BGCOLOR 14
       ar-cashl.inv-no FORMAT ">>>>>>>":U WIDTH 13.2 LABEL-BGCOLOR 14
-      ar-cash.check-no COLUMN-LABEL "Check#" FORMAT ">>>>>>>>>>":U
-            WIDTH 15 LABEL-BGCOLOR 14
+      ar-cash.check-no COLUMN-LABEL "Check#" FORMAT ">>>>>>>>>>>>":U
+            WIDTH 22 LABEL-BGCOLOR 14
       ar-cash.check-date FORMAT "99/99/9999":U WIDTH 15 LABEL-BGCOLOR 14
       ar-cash.check-amt COLUMN-LABEL "Check Amount" FORMAT "->>,>>>,>>9.99":U
             LABEL-BGCOLOR 14
@@ -342,7 +342,7 @@ ASSIGN
      _FldNameList[3]   > asi.ar-cashl.inv-no
 "ar-cashl.inv-no" ? ">>>>>>>" "integer" ? ? ? 14 ? ? yes ? no no "13.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > ASI.ar-cash.check-no
-"ar-cash.check-no" "Check#" ">>>>>>>>>>" "integer" ? ? ? 14 ? ? yes ? no no "15" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"ar-cash.check-no" "Check#" ">>>>>>>>>>>>" "integer" ? ? ? 14 ? ? yes ? no no "22" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > ASI.ar-cash.check-date
 "ar-cash.check-date" ? ? "date" ? ? ? 14 ? ? yes ? no no "15" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > asi.ar-cash.check-amt
@@ -392,6 +392,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON START-SEARCH OF Browser-Table IN FRAME F-Main
 DO:
+  {methods/template/sortindicator.i}
   DEF VAR lh-column AS HANDLE NO-UNDO.
   DEF VAR lv-column-nam AS CHAR NO-UNDO.
   DEF VAR lv-column-lab AS CHAR NO-UNDO.
@@ -417,6 +418,7 @@ DO:
   APPLY 'END-SEARCH' TO {&BROWSE-NAME}.
 
   APPLY "choose" TO btn_go.
+  {methods/template/sortindicatorend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -529,7 +531,10 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
 &ENDIF
 
 {methods/winReSize.i}
-
+/* Ticket# : 92946
+   Hiding this widget for now, as browser's column label should be indicating the column which is sorted by */
+fi_sort-by:HIDDEN  = TRUE.
+fi_sort-by:VISIBLE = FALSE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

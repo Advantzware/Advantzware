@@ -469,7 +469,10 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
 &ENDIF
 
 {methods/winReSize.i}
-
+/* Ticket# : 92946
+   Hiding this widget for now, as browser's column label should be indicating the column which is sorted by */
+fi_sortby:HIDDEN  = TRUE.
+fi_sortby:VISIBLE = FALSE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -530,7 +533,32 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetItem B-table-Win 
+PROCEDURE GetItem :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opcCompany AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcItemID  AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplAvail   AS LOGICAL   NO-UNDO.
+    
+    IF AVAILABLE fg-rctd THEN DO:
+        opcCompany = cocode.
+        
+        IF fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} NE "" THEN            
+            opcItemID = fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}.
+        ELSE
+            opcItemID = SUBSTRING(fg-rctd.tag:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}, 1, 15).
+        
+        IF TRIM(opcItemID) NE "" THEN
+            oplAvail = TRUE.
+    END.
+END PROCEDURE.
 
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE loadtag B-table-Win 
 PROCEDURE loadtag :

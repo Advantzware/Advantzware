@@ -43,11 +43,13 @@ CREATE WIDGET-POOL.
 DEFINE VARIABLE cCompany        AS CHARACTER NO-UNDO.
 DEFINE VARIABLE char-hdl        AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cMode           AS CHARACTER NO-UNDO.
+DEFINE VARIABLE searchBar       AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hDynDescripProc AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hDynInitProc    AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hDynValProc     AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hParamBldr      AS HANDLE    NO-UNDO.
 DEFINE VARIABLE iParamID        AS INTEGER   NO-UNDO.
+DEFINE VARIABLE lMoveColumn     AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lSortMove       AS LOGICAL   NO-UNDO INITIAL YES.
 DEFINE VARIABLE pHandle         AS HANDLE    NO-UNDO.
 
@@ -90,21 +92,16 @@ RUN AOA/spDynValidateProc.p    PERSISTENT SET hDynValProc.
     ~{&OPEN-QUERY-dynParamBrowse}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS searchBar dynParamBrowse btnRestoreDefaults ~
-btnSortMove 
-&Scoped-Define DISPLAYED-OBJECTS searchBar 
+&Scoped-Define ENABLED-OBJECTS dynParamBrowse 
 
 /* Custom List Definitions                                              */
-/* transPanel,transInit,transUpdate,displayFields,enabledFields,List-6  */
-&Scoped-define transPanel btnCombo-Box RECT-PARAMBUILDER btnParamBuilder ~
-btnEditor btnFill-In btnRadio-Set btnSelection-List btnToggle-Box btnUpdate ~
-btnCancel btnAdd btnCopy btnDelete btnReset 
-&Scoped-define transInit btnCombo-Box btnParamBuilder btnEditor btnFill-In ~
-btnRadio-Set btnSelection-List btnToggle-Box btnUpdate btnAdd btnCopy ~
-btnDelete 
-&Scoped-define transUpdate btnUpdate btnCancel btnReset 
-&Scoped-define displayFields RECT-PARAMBUILDER dynParam.paramID ~
-dynParam.paramName dynParam.paramLabel dynParam.paramType dynParam.action ~
+/* widgetPanel,List-2,List3,displayFields,enabledFields,List-6          */
+&Scoped-define widgetPanel btnCombo-Box btnEditor btnFill-In btnRadio-Set ~
+btnSelection-List btnToggle-Box 
+&Scoped-define List-2 btnCombo-Box btnEditor btnFill-In btnRadio-Set ~
+btnSelection-List btnToggle-Box 
+&Scoped-define displayFields dynParam.paramID dynParam.paramName ~
+dynParam.paramLabel dynParam.paramType dynParam.action ~
 dynParam.actionParamName dynParam.dataType dynParam.paramFormat ~
 dynParam.viewAs dynParam.innerLines dynParam.paramWidth ~
 dynParam.paramHeight dynParam.initialValue dynParam.initialItems ~
@@ -125,49 +122,10 @@ dynParam.descriptionProc
 
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btnRestoreDefaults 
-     IMAGE-UP FILE "Graphics/16x16/rename.jpg":U NO-FOCUS FLAT-BUTTON
-     LABEL "Defaults" 
-     SIZE 4 BY .95 TOOLTIP "Restore Defaults".
-
-DEFINE BUTTON btnSortMove 
-     IMAGE-UP FILE "Graphics/16x16/sort_up_down2.gif":U NO-FOCUS FLAT-BUTTON
-     LABEL "Sort/Move" 
-     SIZE 4 BY .95 TOOLTIP "Toggle Sort/Move Columns".
-
-DEFINE VARIABLE searchBar AS CHARACTER FORMAT "X(256)":U 
-     LABEL "Search" 
-     VIEW-AS FILL-IN 
-     SIZE 141 BY 1 TOOLTIP "Search Bar" NO-UNDO.
-
-DEFINE BUTTON btnAdd 
-     IMAGE-UP FILE "Graphics/32x32/navigate_plus.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_plus_disabled.ico":U NO-FOCUS FLAT-BUTTON
-     LABEL "Add" 
-     SIZE 8 BY 1.91 TOOLTIP "Add".
-
-DEFINE BUTTON btnCancel 
-     IMAGE-UP FILE "Graphics/32x32/navigate_cross.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_cross_disabled.ico":U NO-FOCUS FLAT-BUTTON
-     LABEL "Cancel" 
-     SIZE 8 BY 1.91 TOOLTIP "Cancel".
-
 DEFINE BUTTON btnCombo-Box  NO-FOCUS FLAT-BUTTON
      LABEL "Combo-Box" 
      SIZE 6.4 BY 1.52 TOOLTIP "Create Combo Box"
      FONT 4.
-
-DEFINE BUTTON btnCopy 
-     IMAGE-UP FILE "Graphics/32x32/element_copy.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics\32x32\form_disabled.ico":U NO-FOCUS FLAT-BUTTON
-     LABEL "Copy" 
-     SIZE 8 BY 1.91 TOOLTIP "Copy".
-
-DEFINE BUTTON btnDelete 
-     IMAGE-UP FILE "Graphics/32x32/navigate_minus.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_minus_disabled.ico":U NO-FOCUS FLAT-BUTTON
-     LABEL "Delete" 
-     SIZE 8 BY 1.91 TOOLTIP "Delete".
 
 DEFINE BUTTON btnEditor  NO-FOCUS FLAT-BUTTON
      LABEL "Editor" 
@@ -179,22 +137,10 @@ DEFINE BUTTON btnFill-In  NO-FOCUS FLAT-BUTTON
      SIZE 6.4 BY 1.52 TOOLTIP "Create Fill In"
      FONT 4.
 
-DEFINE BUTTON btnParamBuilder 
-     IMAGE-UP FILE "Graphics/32x32/window_dialog.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/window_dialog_disabled.ico":U
-     LABEL "Parameter Builder" 
-     SIZE 8 BY 1.91 TOOLTIP "Parameter Builder".
-
 DEFINE BUTTON btnRadio-Set  NO-FOCUS FLAT-BUTTON
      LABEL "Radio-Set" 
      SIZE 6.4 BY 1.52 TOOLTIP "Create Radio Set"
      FONT 4.
-
-DEFINE BUTTON btnReset 
-     IMAGE-UP FILE "Graphics/32x32/undo_32.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/undo_32_disabled.ico":U NO-FOCUS FLAT-BUTTON
-     LABEL "Reset" 
-     SIZE 8 BY 1.91 TOOLTIP "Reset".
 
 DEFINE BUTTON btnSelection-List  NO-FOCUS FLAT-BUTTON
      LABEL "Selection-List" 
@@ -206,24 +152,9 @@ DEFINE BUTTON btnToggle-Box  NO-FOCUS FLAT-BUTTON
      SIZE 6.4 BY 1.52 TOOLTIP "Create Toggle Box"
      FONT 4.
 
-DEFINE BUTTON btnUpdate 
-     IMAGE-UP FILE "Graphics/32x32/pencil.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/pencil_disabled.ico":U NO-FOCUS FLAT-BUTTON
-     LABEL "Update" 
-     SIZE 8 BY 1.91 TOOLTIP "Update/Save".
-
 DEFINE RECTANGLE RECT-9
      EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
-     SIZE 50 BY 1.91.
-
-DEFINE RECTANGLE RECT-PANEL
-     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
-     SIZE 49.6 BY 2.38
-     BGCOLOR 15 .
-
-DEFINE RECTANGLE RECT-PARAMBUILDER
-     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 9.8 BY 2.38.
+     SIZE 44 BY 1.91.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -244,35 +175,29 @@ dynParam.paramFormat
 dynParam.paramType LABEL-BGCOLOR 14
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 75 BY 25.95
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 75 BY 24.57
          TITLE "Dynamic Parameters".
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     searchBar AT ROW 1 COL 16 COLON-ALIGNED HELP
-          "Search" WIDGET-ID 6
-     dynParamBrowse AT ROW 1.95 COL 1 WIDGET-ID 200
-     btnRestoreDefaults AT ROW 1 COL 1 HELP
-          "Restore Defaults" WIDGET-ID 42
-     btnSortMove AT ROW 1 COL 5 HELP
-          "Toggle Sort/Move Columns" WIDGET-ID 48
-     SPACE(150.00) SKIP(26.00)
+     dynParamBrowse AT ROW 1 COL 1 WIDGET-ID 200
+     SPACE(83.00) SKIP(0.00)
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
          BGCOLOR 15 FGCOLOR 1  WIDGET-ID 100.
 
 DEFINE FRAME viewFrame
-     btnCombo-Box AT ROW 24.1 COL 24 HELP
+     btnCombo-Box AT ROW 22.19 COL 26 HELP
           "Create New COMBO-BOX" WIDGET-ID 190
      dynParam.paramID AT ROW 1.24 COL 20 COLON-ALIGNED WIDGET-ID 166
           VIEW-AS FILL-IN 
           SIZE 14.6 BY 1
           BGCOLOR 15 
-     btnParamBuilder AT ROW 1.48 COL 74 HELP
-          "Parameter Builder" WIDGET-ID 286
+     btnEditor AT ROW 22.19 COL 33 HELP
+          "Create New EDITOR" WIDGET-ID 192
      dynParam.paramName AT ROW 2.43 COL 20 COLON-ALIGNED WIDGET-ID 170 FORMAT "x(40)"
           VIEW-AS FILL-IN 
           SIZE 50 BY 1
@@ -317,8 +242,6 @@ DEFINE FRAME viewFrame
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
           BGCOLOR 15 
-     btnEditor AT ROW 24.1 COL 32 HELP
-          "Create New EDITOR" WIDGET-ID 192
      dynParam.paramHeight AT ROW 14.1 COL 20 COLON-ALIGNED WIDGET-ID 164
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
@@ -341,49 +264,35 @@ DEFINE FRAME viewFrame
           LIST-ITEMS "Item 1" 
           DROP-DOWN-LIST
           SIZE 50 BY 1
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 76 ROW 1.95
-         SIZE 83 BY 26
-         FGCOLOR 1  WIDGET-ID 1500.
-
-/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
-DEFINE FRAME viewFrame
      dynParam.descriptionProc AT ROW 20.05 COL 20 COLON-ALIGNED WIDGET-ID 300
           LABEL "Descript Procedure"
           VIEW-AS COMBO-BOX SORT INNER-LINES 100
           LIST-ITEMS "Item 1" 
           DROP-DOWN-LIST
           SIZE 50 BY 1
-     btnFill-In AT ROW 24.1 COL 40 HELP
-          "Create New FILL-IN" WIDGET-ID 194
-     btnRadio-Set AT ROW 24.1 COL 48 HELP
-          "Create New RADIO-SET" WIDGET-ID 196
-     btnSelection-List AT ROW 24.1 COL 56 HELP
-          "Create New SELECTION-LIST" WIDGET-ID 198
-     btnToggle-Box AT ROW 24.1 COL 64 HELP
-          "Create New TOGGLE-BOX" WIDGET-ID 200
-     btnUpdate AT ROW 21.48 COL 23 HELP
-          "Update/Save" WIDGET-ID 128
-     btnCancel AT ROW 21.48 COL 63 HELP
-          "Cancel" WIDGET-ID 120
-     btnAdd AT ROW 21.48 COL 31 HELP
-          "Add" WIDGET-ID 118
-     btnCopy AT ROW 21.48 COL 39 HELP
-          "Copy" WIDGET-ID 122
-     btnDelete AT ROW 21.48 COL 47 HELP
-          "Delete" WIDGET-ID 124
-     btnReset AT ROW 21.48 COL 55 HELP
-          "Reset" WIDGET-ID 126
-     "Action:" VIEW-AS TEXT
-          SIZE 7 BY .81 AT ROW 4.81 COL 45 WIDGET-ID 188
-     RECT-PANEL AT ROW 21.24 COL 22 WIDGET-ID 130
-     RECT-PARAMBUILDER AT ROW 1.24 COL 73 WIDGET-ID 284
-     RECT-9 AT ROW 23.86 COL 22 WIDGET-ID 288
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 76 ROW 1.95
-         SIZE 83 BY 26
+         AT COL 76 ROW 1
+         SIZE 83 BY 24.57
+         FGCOLOR 1  WIDGET-ID 1500.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME viewFrame
+     btnFill-In AT ROW 22.19 COL 40 HELP
+          "Create New FILL-IN" WIDGET-ID 194
+     btnRadio-Set AT ROW 22.19 COL 47 HELP
+          "Create New RADIO-SET" WIDGET-ID 196
+     btnSelection-List AT ROW 22.19 COL 54 HELP
+          "Create New SELECTION-LIST" WIDGET-ID 198
+     btnToggle-Box AT ROW 22.19 COL 61 HELP
+          "Create New TOGGLE-BOX" WIDGET-ID 200
+     "Action:" VIEW-AS TEXT
+          SIZE 7 BY .81 AT ROW 4.81 COL 45 WIDGET-ID 188
+     RECT-9 AT ROW 21.95 COL 25 WIDGET-ID 288
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 76 ROW 1
+         SIZE 83 BY 24.57
          FGCOLOR 1 
          TITLE "View" WIDGET-ID 1500.
 
@@ -413,7 +322,7 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW s-object ASSIGN
-         HEIGHT             = 27.24
+         HEIGHT             = 24.62
          WIDTH              = 158.6.
 /* END WINDOW DEFINITION */
                                                                         */
@@ -446,10 +355,10 @@ DEFINE VARIABLE XXTABVALXX AS LOGICAL NO-UNDO.
 ASSIGN XXTABVALXX = FRAME viewFrame:MOVE-AFTER-TAB-ITEM (dynParamBrowse:HANDLE IN FRAME F-Main)
 /* END-ASSIGN-TABS */.
 
-/* BROWSE-TAB dynParamBrowse searchBar F-Main */
+/* BROWSE-TAB dynParamBrowse 1 F-Main */
 ASSIGN 
        FRAME F-Main:HIDDEN           = TRUE
-       FRAME F-Main:HEIGHT           = 26.95
+       FRAME F-Main:HEIGHT           = 24.57
        FRAME F-Main:WIDTH            = 158.
 
 ASSIGN 
@@ -464,32 +373,18 @@ ASSIGN
    4 5                                                                  */
 /* SETTINGS FOR FILL-IN dynParam.actionParamName IN FRAME viewFrame
    4 5 EXP-LABEL                                                        */
-/* SETTINGS FOR BUTTON btnAdd IN FRAME viewFrame
-   1 2                                                                  */
-/* SETTINGS FOR BUTTON btnCancel IN FRAME viewFrame
-   NO-ENABLE 1 3                                                        */
 /* SETTINGS FOR BUTTON btnCombo-Box IN FRAME viewFrame
-   1 2                                                                  */
-/* SETTINGS FOR BUTTON btnCopy IN FRAME viewFrame
-   1 2                                                                  */
-/* SETTINGS FOR BUTTON btnDelete IN FRAME viewFrame
    1 2                                                                  */
 /* SETTINGS FOR BUTTON btnEditor IN FRAME viewFrame
    1 2                                                                  */
 /* SETTINGS FOR BUTTON btnFill-In IN FRAME viewFrame
    1 2                                                                  */
-/* SETTINGS FOR BUTTON btnParamBuilder IN FRAME viewFrame
-   1 2                                                                  */
 /* SETTINGS FOR BUTTON btnRadio-Set IN FRAME viewFrame
    1 2                                                                  */
-/* SETTINGS FOR BUTTON btnReset IN FRAME viewFrame
-   NO-ENABLE 1 3                                                        */
 /* SETTINGS FOR BUTTON btnSelection-List IN FRAME viewFrame
    1 2                                                                  */
 /* SETTINGS FOR BUTTON btnToggle-Box IN FRAME viewFrame
    1 2                                                                  */
-/* SETTINGS FOR BUTTON btnUpdate IN FRAME viewFrame
-   1 2 3                                                                */
 /* SETTINGS FOR COMBO-BOX dynParam.dataType IN FRAME viewFrame
    4 5                                                                  */
 /* SETTINGS FOR COMBO-BOX dynParam.descriptionProc IN FRAME viewFrame
@@ -518,10 +413,6 @@ ASSIGN
    4 5                                                                  */
 /* SETTINGS FOR RECTANGLE RECT-9 IN FRAME viewFrame
    NO-ENABLE                                                            */
-/* SETTINGS FOR RECTANGLE RECT-PANEL IN FRAME viewFrame
-   NO-ENABLE                                                            */
-/* SETTINGS FOR RECTANGLE RECT-PARAMBUILDER IN FRAME viewFrame
-   NO-ENABLE 1 4                                                        */
 /* SETTINGS FOR COMBO-BOX dynParam.validateProc IN FRAME viewFrame
    4 5                                                                  */
 /* SETTINGS FOR COMBO-BOX dynParam.viewAs IN FRAME viewFrame
@@ -568,55 +459,11 @@ dynParam.viewAs MATCHES "*" + searchBar + "*"
 /* ************************  Control Triggers  ************************ */
 
 &Scoped-define FRAME-NAME viewFrame
-&Scoped-define SELF-NAME btnAdd
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnAdd s-object
-ON CHOOSE OF btnAdd IN FRAME viewFrame /* Add */
-DO:
-    RUN pCRUD (SELF).
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME btnCancel
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCancel s-object
-ON CHOOSE OF btnCancel IN FRAME viewFrame /* Cancel */
-DO:
-    RUN pCRUD (SELF).
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &Scoped-define SELF-NAME btnCombo-Box
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCombo-Box s-object
 ON CHOOSE OF btnCombo-Box IN FRAME viewFrame /* Combo-Box */
 DO:
     RUN pCreateDynParam (SELF:LABEL).
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME btnCopy
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCopy s-object
-ON CHOOSE OF btnCopy IN FRAME viewFrame /* Copy */
-DO:
-    RUN pCRUD (SELF).
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME btnDelete
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnDelete s-object
-ON CHOOSE OF btnDelete IN FRAME viewFrame /* Delete */
-DO:
-    RUN pCRUD (SELF).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -647,24 +494,6 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btnParamBuilder
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnParamBuilder s-object
-ON CHOOSE OF btnParamBuilder IN FRAME viewFrame /* Parameter Builder */
-DO:
-    IF NOT VALID-HANDLE(hParamBldr) THEN
-    RUN AOA/paramSetBldr.w PERSISTENT SET hParamBldr (
-        THIS-PROCEDURE,
-        "Param",
-        dynParam.paramID
-        ).
-    ELSE
-    RUN pReset IN hParamBldr (dynParam.paramID).
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &Scoped-define SELF-NAME btnRadio-Set
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnRadio-Set s-object
 ON CHOOSE OF btnRadio-Set IN FRAME viewFrame /* Radio-Set */
@@ -677,30 +506,6 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btnReset
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnReset s-object
-ON CHOOSE OF btnReset IN FRAME viewFrame /* Reset */
-DO:
-    RUN pCRUD (SELF).
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define FRAME-NAME F-Main
-&Scoped-define SELF-NAME btnRestoreDefaults
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnRestoreDefaults s-object
-ON CHOOSE OF btnRestoreDefaults IN FRAME F-Main /* Defaults */
-DO:
-    RUN pGetSettings ("_default").
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define FRAME-NAME viewFrame
 &Scoped-define SELF-NAME btnSelection-List
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnSelection-List s-object
 ON CHOOSE OF btnSelection-List IN FRAME viewFrame /* Selection-List */
@@ -713,42 +518,11 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define FRAME-NAME F-Main
-&Scoped-define SELF-NAME btnSortMove
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnSortMove s-object
-ON CHOOSE OF btnSortMove IN FRAME F-Main /* Sort/Move */
-DO:
-    ASSIGN
-        BROWSE {&BROWSE-NAME}:COLUMN-MOVABLE = lSortMove
-        lSortMove = NOT lSortMove
-        .
-    SELF:LOAD-IMAGE("Graphics/16x16/"
-        + IF lSortMove THEN "sort_up_down2.gif"
-          ELSE "left_right_arrows.gif")
-        .
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define FRAME-NAME viewFrame
 &Scoped-define SELF-NAME btnToggle-Box
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnToggle-Box s-object
 ON CHOOSE OF btnToggle-Box IN FRAME viewFrame /* Toggle-Box */
 DO:
     RUN pCreateDynParam (SELF:LABEL).
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME btnUpdate
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnUpdate s-object
-ON CHOOSE OF btnUpdate IN FRAME viewFrame /* Update */
-DO:
-    RUN pCRUD (SELF).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -785,7 +559,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL dynParamBrowse s-object
 ON DEFAULT-ACTION OF dynParamBrowse IN FRAME F-Main /* Dynamic Parameters */
 DO:
-    APPLY "CHOOSE":U TO btnParamBuilder IN FRAME viewFrame.
+    RUN pBuilder.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -795,15 +569,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL dynParamBrowse s-object
 ON START-SEARCH OF dynParamBrowse IN FRAME F-Main /* Dynamic Parameters */
 DO:
-    IF {&BROWSE-NAME}:CURRENT-COLUMN:NAME NE ? THEN DO:
-        cColumnLabel = BROWSE {&BROWSE-NAME}:CURRENT-COLUMN:NAME.
-        IF cColumnLabel EQ cSaveLabel THEN
-        lAscending = NOT lAscending.
-        cSaveLabel = cColumnLabel.
-        RUN pReopenBrowse.
-        APPLY "VALUE-CHANGED":U TO {&BROWSE-NAME}.
-    END.
-    RETURN NO-APPLY.
+    &Scoped-define startSearchValueChanged
+    {AOA/includes/startSearch.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -820,25 +587,14 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME searchBar
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL searchBar s-object
-ON VALUE-CHANGED OF searchBar IN FRAME F-Main /* Search */
-DO:
-    ASSIGN {&SELF-NAME}.
-    {&OPEN-QUERY-{&BROWSE-NAME}}
-    APPLY "VALUE-CHANGED":U TO BROWSE {&BROWSE-NAME}.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK s-object 
 
 
 /* ***************************  Main Block  *************************** */
+
+{methods/template/brwcustom2.i}
 
 /* If testing in the UIB, initialize the SmartObject. */  
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
@@ -851,6 +607,8 @@ END.
 {methods/sortByProc.i "pByParamLabel" "dynParam.paramLabel"}
 {methods/sortByProc.i "pByDataType" "dynParam.dataType"}
 {methods/sortByProc.i "pByViewAs" "dynParam.viewAs"}
+
+{AOA/includes/dynParamProcs.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -963,6 +721,26 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pBuilder s-object 
+PROCEDURE pBuilder :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    IF NOT VALID-HANDLE(hParamBldr) THEN
+    RUN AOA/paramSetBldr.w PERSISTENT SET hParamBldr (
+        THIS-PROCEDURE,
+        "Param",
+        dynParam.paramID
+        ).
+    ELSE
+    RUN pReset IN hParamBldr (dynParam.paramID).
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pClearView s-object 
 PROCEDURE pClearView :
 /*------------------------------------------------------------------------------
@@ -981,7 +759,7 @@ PROCEDURE pClearView :
         IF hWidget:TYPE NE "BUTTON" AND
            hWidget:SELECTABLE EQ NO AND 
            hWidget:SENSITIVE THEN
-        hWidget:SCREEN-VALUE = if hWidget:TYPE EQ "TOGGLE-BOX" THEN "YES" ELSE "".
+        hWidget:SCREEN-VALUE = IF hWidget:TYPE EQ "TOGGLE-BOX" THEN "YES" ELSE "".
         hWidget = hWidget:NEXT-SIBLING.
     END. /* do while */
 
@@ -999,56 +777,59 @@ PROCEDURE pCreateDynParam :
 ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcWidgetType AS CHARACTER NO-UNDO.
     
-    APPLY "CHOOSE":U TO btnAdd IN FRAME viewFrame.
-    ASSIGN
-        dynParam.paramName:SCREEN-VALUE    = ipcWidgetType
-        dynParam.paramLabel:SCREEN-VALUE   = ipcWidgetType
-        dynParam.paramType:SCREEN-VALUE    = "System"
-        dynParam.dataType:SCREEN-VALUE     = "Character"
-        dynParam.viewAs:SCREEN-VALUE       = ipcWidgetType
-        dynParam.initialValue:SCREEN-VALUE = "Item 1"
-        dynParam.paramWidth:SCREEN-VALUE   = "16"
-        dynParam.paramHeight:SCREEN-VALUE  = "1"
-        .
-    CASE ipcWidgetType:
-        WHEN "COMBO-BOX" THEN
+/*    APPLY "CHOOSE":U TO btnAdd IN FRAME viewFrame.*/
+    {methods/run_link.i "CONTAINER" "pAddParam"}
+    DO WITH FRAME viewFrame:
         ASSIGN
-            dynParam.paramFormat:SCREEN-VALUE  = "x(256)"
-            dynParam.initialItems:SCREEN-VALUE = "Item 1,Item 2,Item 3"
-            dynParam.innerLines:SCREEN-VALUE   = "5"
+            dynParam.paramName:SCREEN-VALUE    = ipcWidgetType
+            dynParam.paramLabel:SCREEN-VALUE   = ipcWidgetType
+            dynParam.paramType:SCREEN-VALUE    = "System"
+            dynParam.dataType:SCREEN-VALUE     = "Character"
+            dynParam.viewAs:SCREEN-VALUE       = ipcWidgetType
+            dynParam.initialValue:SCREEN-VALUE = "Item 1"
+            dynParam.paramWidth:SCREEN-VALUE   = "16"
+            dynParam.paramHeight:SCREEN-VALUE  = "1"
             .
-        WHEN "EDITOR" THEN
-        ASSIGN
-            dynParam.initialValue:SCREEN-VALUE = ""
-            dynParam.paramWidth:SCREEN-VALUE   = "30"
-            dynParam.paramHeight:SCREEN-VALUE  = "4"
-            dynParam.action:SCREEN-VALUE       = "HORIZONTAL,VERTICAL"
-            .
-        WHEN "FILL-IN" THEN
-        ASSIGN
-            dynParam.paramFormat:SCREEN-VALUE = "x(256)"
-            .
-        WHEN "RADIO-SET" THEN
-        ASSIGN
-            dynParam.initialValue:SCREEN-VALUE = "1"
-            dynParam.initialItems:SCREEN-VALUE = "Item 1,1,Item 2,2,Item 3,3"
-            dynParam.paramWidth:SCREEN-VALUE   = "30"
-            dynParam.action:SCREEN-VALUE       = "HORIZONTAL"
-            .
-        WHEN "SELECTION-LIST" THEN DO:
-        ASSIGN
-            dynParam.initialItems:SCREEN-VALUE = "Item 1,Item 2,Item 3"
-            dynParam.innerLines:SCREEN-VALUE   = "3"
-            dynParam.action:SCREEN-VALUE       = "VERTICAL"
-            .
-        END. /* selection-list */
-        WHEN "TOGGLE-BOX" THEN
-        ASSIGN
-            dynParam.dataType:SCREEN-VALUE     = "Logical"
-            dynParam.paramFormat:SCREEN-VALUE  = "yes/no"
-            dynParam.initialValue:SCREEN-VALUE = "yes"
-            .
-    END CASE.
+        CASE ipcWidgetType:
+            WHEN "COMBO-BOX" THEN
+            ASSIGN
+                dynParam.paramFormat:SCREEN-VALUE  = "x(256)"
+                dynParam.initialItems:SCREEN-VALUE = "Item 1,Item 2,Item 3"
+                dynParam.innerLines:SCREEN-VALUE   = "5"
+                .
+            WHEN "EDITOR" THEN
+            ASSIGN
+                dynParam.initialValue:SCREEN-VALUE = ""
+                dynParam.paramWidth:SCREEN-VALUE   = "30"
+                dynParam.paramHeight:SCREEN-VALUE  = "4"
+                dynParam.action:SCREEN-VALUE       = "HORIZONTAL,VERTICAL"
+                .
+            WHEN "FILL-IN" THEN
+            ASSIGN
+                dynParam.paramFormat:SCREEN-VALUE = "x(256)"
+                .
+            WHEN "RADIO-SET" THEN
+            ASSIGN
+                dynParam.initialValue:SCREEN-VALUE = "1"
+                dynParam.initialItems:SCREEN-VALUE = "Item 1,1,Item 2,2,Item 3,3"
+                dynParam.paramWidth:SCREEN-VALUE   = "30"
+                dynParam.action:SCREEN-VALUE       = "HORIZONTAL"
+                .
+            WHEN "SELECTION-LIST" THEN DO:
+            ASSIGN
+                dynParam.initialItems:SCREEN-VALUE = "Item 1,Item 2,Item 3"
+                dynParam.innerLines:SCREEN-VALUE   = "3"
+                dynParam.action:SCREEN-VALUE       = "VERTICAL"
+                .
+            END. /* selection-list */
+            WHEN "TOGGLE-BOX" THEN
+            ASSIGN
+                dynParam.dataType:SCREEN-VALUE     = "Logical"
+                dynParam.paramFormat:SCREEN-VALUE  = "yes/no"
+                dynParam.initialValue:SCREEN-VALUE = "yes"
+                .
+        END CASE.
+    END. /* do with frame */
 
 END PROCEDURE.
 
@@ -1074,9 +855,10 @@ PROCEDURE pCRUD :
     DO WITH FRAME viewFrame:
         CASE iphMode:LABEL:
             WHEN "Add" OR WHEN "Copy" OR WHEN "Update" THEN DO:
-                DISABLE {&transPanel}.
-                ENABLE {&transUpdate} {&enabledFields}.
-                btnUpdate:LOAD-IMAGE("Graphics\32x32\Save_As.ico").
+                {methods/run_link.i "CONTAINER" "pTransPanel"}
+                {methods/run_link.i "CONTAINER" "pTransUpdate"}
+                DISABLE {&widgetPanel}.
+                ENABLE {&enabledFields}.
                 IF AVAILABLE dynParam THEN
                 iparamID = dynParam.paramID.
                 IF iphMode:LABEL EQ "Add" THEN DO:
@@ -1088,12 +870,9 @@ PROCEDURE pCRUD :
                         dynParam.validateProc:SCREEN-VALUE    = ""
                         dynParam.descriptionProc:SCREEN-VALUE = ""
                         .
-                    DISABLE btnReset.
+                    {methods/run_link.i "CONTAINER" "pSetButton" "('btnReset', NO)"}
                 END. /* add */
-                ASSIGN
-                    FRAME viewFrame:TITLE = iphMode:LABEL
-                    btnUpdate:LABEL = "Save"
-                    .
+                FRAME viewFrame:TITLE = iphMode:LABEL.
             END. /* add copy update */
             WHEN "Cancel" OR WHEN "Save" THEN DO:
                 IF iphMode:LABEL EQ "Save" THEN DO:
@@ -1116,18 +895,16 @@ PROCEDURE pCRUD :
                     IF cMode EQ "Add" OR cMode EQ "Copy" THEN DO:
                         RUN pReopenBrowse.
                         REPOSITION {&BROWSE-NAME} TO ROWID rRowID.
-                        APPLY "CHOOSE":U TO btnParamBuilder.
+                        RUN pBuilder.
                     END. /* if add/copy */
                     ELSE
                     BROWSE {&BROWSE-NAME}:REFRESH().
                 END. /* save */
-                DISABLE {&transPanel} {&enabledFields}.
-                ENABLE {&transInit}.
-                btnUpdate:LOAD-IMAGE("Graphics\32x32\Pencil.ico").
-                ASSIGN
-                    FRAME viewFrame:TITLE = "View"
-                    btnUpdate:LABEL = "Update"
-                    .
+                {methods/run_link.i "CONTAINER" "pTransPanel"}
+                DISABLE {&widgetPanel} {&enabledFields}.
+                {methods/run_link.i "CONTAINER" "pTransInit"}
+                ENABLE {&widgetPanel}.
+                FRAME viewFrame:TITLE = "View".
                 APPLY "VALUE-CHANGED":U TO BROWSE {&BROWSE-NAME}.
             END. /* cancel save */
             WHEN "Delete" THEN DO:
@@ -1158,8 +935,9 @@ PROCEDURE pCRUD :
             END. /* delete */
             WHEN "Reset" THEN DO:
                 RUN pDisplay.
-                DISABLE {&transPanel}.
-                ENABLE {&transUpdate}.
+                {methods/run_link.i "CONTAINER" "pTransPanel"}
+                {methods/run_link.i "CONTAINER" "pTransUpdate"}
+                DISABLE {&widgetPanel}.
             END. /* reset */
         END CASE. /* ipcmode:label */
         IF dynParam.paramName:SENSITIVE THEN
@@ -1191,12 +969,14 @@ PROCEDURE pDisplay :
                 dynParam.descriptionProc:SCREEN-VALUE = " "
                 .
             DISPLAY {&displayFields}.
-            ENABLE {&transInit}.
+            {methods/run_link.i "CONTAINER" "pTransInit"}
+            ENABLE {&widgetPanel}.
         END. /* if avail */
         ELSE DO:
             RUN pClearView.
-            DISABLE {&transPanel}.
-            ENABLE btnAdd.
+            {methods/run_link.i "CONTAINER" "pTransPanel"}
+            {methods/run_link.i "CONTAINER" "pSetButton" "('btnAdd', YES)"}
+            DISABLE {&widgetPanel}.
         END. /* else */
     END. /* with frame */
 
@@ -1331,6 +1111,8 @@ PROCEDURE pReopenBrowse :
         OTHERWISE
         {&OPEN-QUERY-{&BROWSE-NAME}}
     END CASE.
+    {AOA/includes/pReopenBrowse.i}
+    {methods/run_link.i "CONTAINER" "pColumnLabel" "(hColumnLabel, lAscending)"}
 
 END PROCEDURE.
 
@@ -1389,6 +1171,21 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pTableHandle s-object
+PROCEDURE pTableHandle:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER ophTable AS HANDLE NO-UNDO.
+
+    ophTable = BUFFER dynParam:HANDLE.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pWinReSize s-object 
 PROCEDURE pWinReSize :
 /*------------------------------------------------------------------------------
@@ -1412,8 +1209,6 @@ PROCEDURE pWinReSize :
         FRAME viewFrame:VIRTUAL-WIDTH  = FRAME viewFrame:WIDTH
         .
     VIEW FRAME {&FRAME-NAME}.
-    btnParamBuilder:MOVE-TO-TOP() IN FRAME viewFrame.
-    RECT-PARAMBUILDER:MOVE-TO-TOP().
 
 END PROCEDURE.
 

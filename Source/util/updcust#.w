@@ -447,7 +447,7 @@ for each ar-cash
 
     transaction:
 
-  DISPLAY ar-cash.check-no FORMAT "9999999999" WITH DOWN.
+  DISPLAY ar-cash.check-no FORMAT "999999999999" WITH DOWN.
 
   for each ar-cashl where ar-cashl.c-no eq ar-cash.c-no use-index c-no:
 

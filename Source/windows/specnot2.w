@@ -314,7 +314,7 @@ END.
 
 /* Include custom  Main Block code for SmartWindows. */
 {src/adm/template/windowmn.i}
-
+{custom/initializeprocs.i}
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -355,8 +355,8 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/folder.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'FOLDER-LABELS = ':U + 'Browse Notes|View Notes' + ',
-                     FOLDER-TAB-TYPE = 1':U ,
+             INPUT  'FOLDER-LABELS = ':U + 'Browse|Detail' + ',
+                     FOLDER-TAB-TYPE = 2':U ,
              OUTPUT h_folder ).
        RUN set-position IN h_folder ( 3.14 , 2.00 ) NO-ERROR.
        RUN set-size IN h_folder ( 20.24 , 148.00 ) NO-ERROR.
@@ -709,8 +709,8 @@ ELSE DO:
                END.
           end.
           IF ls-item-list = "" THEN DO:
-             MESSAGE "No FG Item entered. " VIEW-AS ALERT-BOX ERROR.
-             RETURN ERROR.
+            // MESSAGE "No FG Item entered. " VIEW-AS ALERT-BOX ERROR.
+            // RETURN ERROR.
           END.
           if avail oe-ordl or avail eb then do:
              find itemfg where itemfg.company = g_company 
@@ -730,8 +730,8 @@ ELSE DO:
 
   ELSE DO:
     /* FIND itemfg WHERE itemfg.rec_key EQ ip-rec_key NO-LOCK NO-ERROR. */
-    MESSAGE "No FG Item entered. " VIEW-AS ALERT-BOX ERROR.
-    RETURN ERROR.        
+   // MESSAGE "No FG Item entered. " VIEW-AS ALERT-BOX ERROR.
+   // RETURN ERROR.        
   END.
 END.
 

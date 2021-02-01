@@ -1072,7 +1072,7 @@ PROCEDURE pJasperLastPageFooter :
                        AND bDynValueParam.user-id      EQ dynValueParam.user-id
                        AND bDynValueParam.prgmName     EQ dynValueParam.prgmName
                        AND bDynValueParam.paramValueID EQ dynValueParam.paramValueID
-                       AND bDynValueParam.sortOrder    EQ dynValueParam.sortOrder + 1 
+                       AND bDynValueParam.sortOrder    EQ dynValueParam.sortOrder + 1
                      NO-ERROR.
                 IF AVAILABLE bDynValueParam AND
                    bDynValueParam.paramLabel EQ ? AND
@@ -1084,7 +1084,7 @@ PROCEDURE pJasperLastPageFooter :
                         cParameter[iParameterRow] = cParameter[iParameterRow] + " (" + bDynValueParam.paramValue + ")"
                         cValue = STRING(DYNAMIC-FUNCTION("fDateOptionDate" IN hAppSrvBin, bDynValueParam.paramValue, dtDate),"99/99/9999")
                         .
-                END.
+                END. /* if avail */
                 IF cValue EQ ? THEN
                 cValue = "".
                 ASSIGN
@@ -1576,8 +1576,11 @@ PROCEDURE pJasterTitleBand :
     
     DEFINE VARIABLE cSubTitle   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cParamValue AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE dtDate      AS DATE      NO-UNDO.
     DEFINE VARIABLE idx         AS INTEGER   NO-UNDO.
     DEFINE VARIABLE lParamFound AS LOGICAL   NO-UNDO.
+
+    DEFINE BUFFER bDynValueParam FOR dynValueParam.
 
     /* title band */
     FOR EACH dynSubjectParamSet NO-LOCK
@@ -1600,11 +1603,27 @@ PROCEDURE pJasterTitleBand :
                AND dynValueParam.paramValueID EQ dynParamValue.paramValueID
                AND dynValueParam.paramName    EQ dynParamSetDtl.paramName
              NO-ERROR.
-        IF AVAILABLE dynValueParam THEN
-        ASSIGN
-            cParamValue = dynValueParam.paramValue
-            lParamFound = YES
-            .
+        IF AVAILABLE dynValueParam THEN DO:
+            ASSIGN
+                cParamValue = dynValueParam.paramValue
+                lParamFound = YES
+                .
+            FIND FIRST bDynValueParam NO-LOCK
+                 WHERE bDynValueParam.subjectID    EQ dynValueParam.subjectID
+                   AND bDynValueParam.user-id      EQ dynValueParam.user-id
+                   AND bDynValueParam.prgmName     EQ dynValueParam.prgmName
+                   AND bDynValueParam.paramValueID EQ dynValueParam.paramValueID
+                   AND bDynValueParam.sortOrder    EQ dynValueParam.sortOrder + 1
+                 NO-ERROR.
+            IF AVAILABLE bDynValueParam AND
+               bDynValueParam.paramLabel EQ ? AND
+               INDEX(bDynValueParam.paramName,"DatePickList") NE 0 THEN DO:
+                dtDate = DATE(dynValueParam.paramValue) NO-ERROR.
+                IF ERROR-STATUS:ERROR THEN
+                dtDate = ?.
+                cParamValue = STRING(DYNAMIC-FUNCTION("fDateOptionDate" IN hAppSrvBin, bDynValueParam.paramValue, dtDate),"99/99/9999").
+            END. /* if avail */
+        END. /* if avail */
         IF cParamValue EQ CHR(254) THEN
         cParamValue = "".
         IF lParamFound THEN
@@ -1658,18 +1677,29 @@ PROCEDURE pLocalCSV:
     DEFINE INPUT PARAMETER iphQuery      AS HANDLE    NO-UNDO.
 
     DEFINE VARIABLE cBufferValue   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCompany       AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cCustListField AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cExcelFile     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cFieldName     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE hDynCalcField  AS HANDLE    NO-UNDO.
     DEFINE VARIABLE hTable         AS HANDLE    NO-UNDO.
     DEFINE VARIABLE iColumn        AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE hOutputProcs   AS HANDLE    NO-UNDO.
     DEFINE VARIABLE hQuery         AS HANDLE    NO-UNDO.
     DEFINE VARIABLE hQueryBuf      AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE lAddTab        AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lProceed       AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lReplaceQuote  AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lUseCustList   AS LOGICAL   NO-UNDO.
 
     RUN AOA/spDynCalcField.p PERSISTENT SET hDynCalcField.
+    RUN system/OutputProcs.p PERSISTENT SET hOutputProcs.
+    RUN spGetSessionParam ("Company", OUTPUT cCompany). 
+    RUN Output_GetValueNK1OutputCSV IN hOutputProcs (
+        cCompany,
+        OUTPUT lReplaceQuote,
+        OUTPUT lAddTab
+        ). 
 
     SESSION:SET-WAIT-STATE("General").
     IF dynParamValue.useCustList OR dynParamValue.CustListID NE "" THEN
@@ -1749,7 +1779,7 @@ PROCEDURE pLocalCSV:
                     hQueryBuf    = iphQuery:GET-BUFFER-HANDLE(ENTRY(1,dynValueColumn.colName,"."))
                     cFieldName   = ENTRY(2,dynValueColumn.colName,".")
                     cBufferValue = fFormatValue(hQueryBuf, cFieldName, dynValueColumn.colFormat)
-                    cBufferValue = DYNAMIC-FUNCTION("sfWebCharacters", cBufferValue, 8, "")
+                    cBufferValue = DYNAMIC-FUNCTION("FormatForCSV" IN hOutputProcs, cBufferValue, lReplaceQuote, lAddTab)
                     .
                 PUT UNFORMATTED REPLACE(cBufferValue,",","") + ",".
             END. /* each dynvaluecolumn */
@@ -1762,6 +1792,7 @@ PROCEDURE pLocalCSV:
     DELETE OBJECT iphQuery.
     OUTPUT CLOSE.
     DELETE PROCEDURE hDynCalcField.
+    DELETE PROCEDURE hOutputProcs.  
     OS-COMMAND NO-WAIT START excel.exe VALUE("~"" + cExcelFile + "~"").
     SESSION:SET-WAIT-STATE("").
 

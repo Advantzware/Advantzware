@@ -496,14 +496,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL superProcsBrowse C-Win
 ON START-SEARCH OF superProcsBrowse IN FRAME DEFAULT-FRAME
 DO:
-    IF SELF:CURRENT-COLUMN:NAME NE ? THEN DO:
-        cColumnLabel = SELF:CURRENT-COLUMN:NAME.
-        IF cColumnLabel EQ cSaveLabel THEN
-        lAscending = NOT lAscending.
-        cSaveLabel = cColumnLabel.
-        RUN pReopenBrowse.
-    END.
-    RETURN NO-APPLY.
+	{AOA/includes/startSearch.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -528,6 +521,7 @@ END.
 /* ***************************  Main Block  *************************** */
 
 {system/pSuperProcs.i}
+{methods/template/brwcustom2.i}
 
 /* Set CURRENT-WINDOW: this will parent dialog-boxes and frames.        */
 ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME} 
@@ -714,6 +708,7 @@ PROCEDURE pReopenBrowse :
         WHEN "procType" THEN
         RUN pByProcType.
     END CASE.
+    {AOA/includes/pReopenBrowse.i}
     SESSION:SET-WAIT-STATE("").
 
 END PROCEDURE.

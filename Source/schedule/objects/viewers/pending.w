@@ -38,6 +38,8 @@ CREATE WIDGET-POOL.
 &SCOPED-DEFINE useTable ttblJob
 {{&includes}/jobStatusFunc.i}
 
+{methods/defines/sortByDefs.i}
+
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
@@ -897,13 +899,10 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL jobID sObject
 ON START-SEARCH OF jobID IN FRAME F-Main
 DO:
-  IF {&BROWSE-NAME}:CURRENT-COLUMN:LABEL-BGCOLOR EQ 14 THEN DO:
-    ASSIGN
-      columnLabel = {&BROWSE-NAME}:CURRENT-COLUMN:NAME
-      ascendingFlag = NOT ascendingFlag.
-    RUN openQueryJobID.
-  END.
-  RETURN NO-APPLY.
+  IF SELF:CURRENT-COLUMN:NAME NE ? THEN
+  columnLabel = SELF:CURRENT-COLUMN:NAME.
+  &Scoped-define ScheduleBoardPending
+  {AOA/includes/startSearch.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1102,6 +1101,11 @@ END.
   RUN initializeObject.
 &ENDIF
 
+&Scoped-define sdBrowseName jobID
+{methods/template/brwcustom2.i 1}
+&Scoped-define sdBrowseName pendingJob
+{methods/template/brwcustom2.i 2}
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1176,6 +1180,7 @@ PROCEDURE openQueryJobID :
         WHERE jobID.job BEGINS jobPhrase OR jobPhrase EQ ''
         BY jobID.customer DESCENDING BY jobID.jobSort DESCENDING.
   END CASE.
+  {AOA/includes/pReopenBrowse.i}
 
 END PROCEDURE.
 
@@ -1227,7 +1232,6 @@ PROCEDURE reopenBrowse :
 ------------------------------------------------------------------------------*/
   RUN setPendingJob.
   RUN openQueryJobID.
-  /*{&OPEN-QUERY-jobID}*/
   {&OPEN-QUERY-pendingJob}
 
 END PROCEDURE.

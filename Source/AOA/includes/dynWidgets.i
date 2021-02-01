@@ -163,6 +163,8 @@ PROCEDURE pCreateDynParameters :
     DEFINE VARIABLE hLabel      AS HANDLE    NO-UNDO.
     DEFINE VARIABLE hPickList   AS HANDLE    NO-UNDO.
     DEFINE VARIABLE hWidget     AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE lAutoClose  AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lRunSync    AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lSensitive  AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE idx         AS INTEGER   NO-UNDO.
     DEFINE VARIABLE jdx         AS INTEGER   NO-UNDO.
@@ -185,7 +187,7 @@ PROCEDURE pCreateDynParameters :
            NOT AVAILABLE dynSubject THEN RETURN.    
         hFrame  = iphFrame.
     END. /* if live */
-    
+
     EMPTY TEMP-TABLE ttDynAction.
     FOR EACH {1}SubjectParamSet NO-LOCK
         WHERE {1}SubjectParamSet.subjectID EQ dynSubject.subjectID,
@@ -241,18 +243,9 @@ PROCEDURE pCreateDynParameters :
             cParamLabel = dynParamSetDtl.paramLabel
             cParamValue = dynParamSetDtl.initialValue
             cInitItems  = dynParamSetDtl.initialItems
+            dCol = dynParamSetDtl.paramCol + dSetCol - 1
+            dRow = dynParamSetDtl.paramRow + dSetRow - 1
             .
-&IF "{&program-id}" NE "dynBrowserParam." &THEN
-        CASE svSetAlignment:
-            WHEN "Custom" THEN
-&ENDIF
-            ASSIGN
-                dCol = dynParamSetDtl.paramCol + dSetCol - 1
-                dRow = dynParamSetDtl.paramRow + dSetRow - 1
-                .
-&IF "{&program-id}" NE "dynBrowserParam." &THEN
-        END CASE.
-&ENDIF
         /* set screen-value for parameters from dynvalueparam */
         IF iplLive AND lSensitive THEN
         FIND FIRST dynValueParam NO-LOCK
@@ -496,8 +489,10 @@ PROCEDURE pCreateDynParameters :
             hWidget = hWidget:FIRST-CHILD
             .
         DO WHILE VALID-HANDLE(hWidget):
+            IF hWidget:NAME EQ "svAutoClose" THEN
+            hWidget:SCREEN-VALUE = STRING(dynSubject.autoClose).
             IF hWidget:NAME EQ "svRunSync" THEN
-            hWidget:SCREEN-VALUE = "NO".
+            hWidget:SCREEN-VALUE = STRING(dynSubject.runSync).
             FIND FIRST dynValueParam NO-LOCK
                  WHERE dynValueParam.subjectID    EQ dynParamValue.subjectID
                    AND dynValueParam.user-id      EQ dynParamValue.user-id

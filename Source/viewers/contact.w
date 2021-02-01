@@ -434,8 +434,12 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL F-Main V-table-Win
 ON HELP OF FRAME F-Main
 DO:
-   def var lv-handle as widget-handle no-undo.
-   def var char-val as cha no-undo.
+   DEFINE VARIABLE lv-handle     AS WIDGET-HANDLE NO-UNDO.
+   DEFINE VARIABLE char-val      AS CHARACTER     NO-UNDO.
+   DEFINE VARIABLE cFieldsValue  AS CHARACTER     NO-UNDO.
+   DEFINE VARIABLE cFoundValue   AS CHARACTER     NO-UNDO.
+   DEFINE VARIABLE recFoundRecID AS RECID         NO-UNDO.
+   
 
    case focus:name :
         when "contact-title" then do:
@@ -445,13 +449,22 @@ DO:
                        .
              return no-apply.          
         end.
-        when "contact_sman" then do:
-             run windows/l-sman.w (gcompany, output char-val).
-             if char-val <> "" then 
-                assign focus:screen-value = entry(1,char-val)
+        WHEN "contact_sman" THEN DO:
+            RUN system/openLookup.p (
+                INPUT  gcompany, 
+                INPUT  "", /* Lookup ID */
+                INPUT  29, /* Subject ID */
+                INPUT  "", /* User ID */
+                INPUT  0,  /* Param Value ID */
+                OUTPUT cFieldsValue, 
+                OUTPUT cFoundValue, 
+                OUTPUT recFoundRecID
+                ).
+             IF cFoundValue <> "" THEN 
+                ASSIGN FOCUS:SCREEN-VALUE = cFoundValue
                        .
-             return no-apply.          
-        end.
+             RETURN NO-APPLY.          
+        END.
 
         otherwise do:
            lv-handle = focus:handle.

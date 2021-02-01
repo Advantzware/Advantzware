@@ -65,8 +65,8 @@ DEFINE VARIABLE selected-name AS CHARACTER NO-UNDO.
 /* Definitions for FRAME DEFAULT-FRAME                                  */
 &Scoped-define FIELDS-IN-QUERY-DEFAULT-FRAME config.logs_dir ~
 config.spool_dir config.taskName config.taskType config.taskDate ~
-config.taskTime config.cueCard config.taskerLastExecuted ~
-config.start_page_no 
+config.taskTime config.cueCard config.taskerHTMLFolder ~
+config.taskerLastExecuted config.start_page_no 
 &Scoped-define QUERY-STRING-DEFAULT-FRAME FOR EACH config SHARE-LOCK
 &Scoped-define OPEN-QUERY-DEFAULT-FRAME OPEN QUERY DEFAULT-FRAME FOR EACH config SHARE-LOCK.
 &Scoped-define TABLES-IN-QUERY-DEFAULT-FRAME config
@@ -77,7 +77,8 @@ config.start_page_no
 &Scoped-Define ENABLED-OBJECTS btnUpdate btnClose 
 &Scoped-Define DISPLAYED-FIELDS config.logs_dir config.spool_dir ~
 config.taskName config.taskType config.taskDate config.taskTime ~
-config.cueCard config.taskerLastExecuted config.start_page_no 
+config.cueCard config.taskerHTMLFolder config.taskerLastExecuted ~
+config.start_page_no 
 &Scoped-define DISPLAYED-TABLES config
 &Scoped-define FIRST-DISPLAYED-TABLE config
 
@@ -86,7 +87,7 @@ config.cueCard config.taskerLastExecuted config.start_page_no
 /* configFields,List-2,List-3,List-4,List-5,F1                          */
 &Scoped-define configFields config.logs_dir config.spool_dir ~
 config.taskName config.taskType config.taskDate config.taskTime ~
-config.cueCard config.start_page_no 
+config.cueCard config.taskerHTMLFolder config.start_page_no 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -100,12 +101,12 @@ DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btnClose 
-     IMAGE-UP FILE "Graphics/32x32/navigate_cross.ico":U
+     IMAGE-UP FILE "Graphics/32x32/navigate_cross.png":U
      LABEL "&Close" 
      SIZE 8 BY 1.91.
 
 DEFINE BUTTON btnUpdate 
-     IMAGE-UP FILE "Graphics/32x32/navigate_check.ico":U
+     IMAGE-UP FILE "Graphics/32x32/navigate_check.png":U
      LABEL "&Update" 
      SIZE 8 BY 1.91.
 
@@ -145,25 +146,29 @@ DEFINE FRAME DEFAULT-FRAME
      config.cueCard AT ROW 4.81 COL 24 WIDGET-ID 30
           VIEW-AS TOGGLE-BOX
           SIZE 24 BY 1
-     btnUpdate AT ROW 5.05 COL 88 HELP
+     config.taskerHTMLFolder AT ROW 6 COL 22 COLON-ALIGNED WIDGET-ID 36
+          VIEW-AS FILL-IN 
+          SIZE 62 BY 1
+          BGCOLOR 15 
+     btnUpdate AT ROW 6.24 COL 88 HELP
           "Update/Save System Configurations"
-     btnClose AT ROW 5.05 COL 97 HELP
+     btnClose AT ROW 6.24 COL 97 HELP
           "Cancel Update or Close Window"
-     config.taskerLastExecuted AT ROW 6 COL 22 COLON-ALIGNED WIDGET-ID 34
+     config.taskerLastExecuted AT ROW 7.19 COL 22 COLON-ALIGNED WIDGET-ID 34
           VIEW-AS FILL-IN 
           SIZE 34 BY 1
           BGCOLOR 15 
-     config.start_page_no AT ROW 6 COL 79 COLON-ALIGNED
+     config.start_page_no AT ROW 7.19 COL 79 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 4.8 BY 1
           BGCOLOR 15 
      "Email Subject:" VIEW-AS TEXT
           SIZE 14 BY 1 AT ROW 3.62 COL 10 WIDGET-ID 32
-     RECT-1 AT ROW 4.81 COL 87
+     RECT-1 AT ROW 6 COL 87
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 106 BY 6.48
+         SIZE 106 BY 7.62
          FGCOLOR 1 .
 
 
@@ -184,11 +189,11 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "System Configurations"
-         HEIGHT             = 6.48
+         HEIGHT             = 7.62
          WIDTH              = 106
-         MAX-HEIGHT         = 6.48
+         MAX-HEIGHT         = 7.62
          MAX-WIDTH          = 106
-         VIRTUAL-HEIGHT     = 6.48
+         VIRTUAL-HEIGHT     = 7.62
          VIRTUAL-WIDTH      = 106
          RESIZE             = yes
          SCROLL-BARS        = no
@@ -237,6 +242,8 @@ ASSIGN
 /* SETTINGS FOR FILL-IN config.start_page_no IN FRAME DEFAULT-FRAME
    NO-ENABLE 1                                                          */
 /* SETTINGS FOR TOGGLE-BOX config.taskDate IN FRAME DEFAULT-FRAME
+   NO-ENABLE 1                                                          */
+/* SETTINGS FOR FILL-IN config.taskerHTMLFolder IN FRAME DEFAULT-FRAME
    NO-ENABLE 1                                                          */
 /* SETTINGS FOR FILL-IN config.taskerLastExecuted IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
@@ -333,7 +340,42 @@ DO:
             btnClose:LABEL     = "&Close"
             .
         ASSIGN {&configFields}.
-    END.
+        IF config.cueCard THEN DO TRANSACTION:
+            FIND FIRST cueCardText EXCLUSIVE-LOCK
+                 WHERE cueCardText.cueID     EQ 0
+                   AND cueCardText.cueTextID EQ 0
+                   AND cueCardText.cueType   EQ "Message"
+                 NO-ERROR.
+            IF AVAILABLE cueCardText THEN
+            cueCardText.isActive = YES.
+            ELSE DO:
+                CREATE cueCardText.
+                ASSIGN
+                    cueCardText.cueID     = 0
+                    cueCardText.cueTextID = 0
+                    cueCardText.cueType   = "Message"
+                    .
+            END. /* else */
+            RELEASE cueCardText.
+        END. /* if cuecard */
+        ELSE DO TRANSACTION:
+            FOR EACH cueCardText EXCLUSIVE-LOCK
+                WHERE cueCardText.cueID     EQ 0
+                  AND cueCardText.cueTextID EQ 0
+                  AND cueCardText.cueType   EQ "Message"
+                :
+                IF cueCardText.cueOrder EQ 0 THEN
+                cueCardText.isActive = NO.
+                ELSE
+                DELETE cueCardText.
+            END. /* each cuecardtext */
+            FOR EACH xCueCard EXCLUSIVE-LOCK
+                WHERE xCueCard.cueType EQ "Message"
+                :
+                DELETE xCueCard.
+            END. /* each xcuecard */
+        END. /* do trans */
+    END. /* else do */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -344,13 +386,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL config.logs_dir C-Win
 ON HELP OF config.logs_dir IN FRAME DEFAULT-FRAME /* Logs Directory */
 DO:
-  selected-name = {&SELF-NAME}:SCREEN-VALUE.
-  RUN Get_Procedure IN Persistent-Handle ("get_dir.",OUTPUT run-proc,no).
-  IF run-proc NE "" THEN
-  RUN VALUE(run-proc) (INPUT-OUTPUT selected-name).
-  IF selected-name = "" THEN
-  RETURN NO-APPLY.
-  {&SELF-NAME}:SCREEN-VALUE = selected-name.
+    {methods/folderLookup.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -361,13 +397,18 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL config.spool_dir C-Win
 ON HELP OF config.spool_dir IN FRAME DEFAULT-FRAME /* Spool Directory */
 DO:
-  selected-name = {&SELF-NAME}:SCREEN-VALUE.
-  RUN Get_Procedure IN Persistent-Handle ("get_dir.",OUTPUT run-proc,no).
-  IF run-proc NE "" THEN
-  RUN VALUE(run-proc) (INPUT-OUTPUT selected-name).
-  IF selected-name = "" THEN
-  RETURN NO-APPLY.
-  {&SELF-NAME}:SCREEN-VALUE = selected-name.
+    {methods/folderLookup.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME config.taskerHTMLFolder
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL config.taskerHTMLFolder C-Win
+ON HELP OF config.taskerHTMLFolder IN FRAME DEFAULT-FRAME /* Tasker HTML Folder */
+DO:
+    {methods/folderLookup.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -445,7 +486,7 @@ PROCEDURE enable_UI :
   GET FIRST DEFAULT-FRAME.
   IF AVAILABLE config THEN 
     DISPLAY config.logs_dir config.spool_dir config.taskName config.taskType 
-          config.taskDate config.taskTime config.cueCard 
+          config.taskDate config.taskTime config.cueCard config.taskerHTMLFolder 
           config.taskerLastExecuted config.start_page_no 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   ENABLE btnUpdate btnClose 

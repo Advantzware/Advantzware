@@ -264,6 +264,14 @@ DEFINE VARIABLE hdCustomerProcs AS HANDLE NO-UNDO.
 
 RUN system/CustomerProcs.p PERSISTENT SET hdCustomerProcs.
 
+/* The below variables are used in run_link.i */
+DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
+DEFINE VARIABLE pHandle  AS HANDLE    NO-UNDO.
+
+DEFINE VARIABLE hdSalesManProcs AS HANDLE NO-UNDO.
+
+RUN salrep/SalesManProcs.p PERSISTENT SET hdSalesManProcs.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1002,12 +1010,14 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL F-Main V-table-Win
 ON HELP OF FRAME F-Main
 DO:
-  DEF VAR char-val AS cha NO-UNDO.
-  DEF VAR look-recid AS RECID NO-UNDO.
-  DEF VAR li AS INT NO-UNDO.
-  DEF VAR lw-focus AS WIDGET-HANDLE NO-UNDO.
-  DEF VAR fields-val AS CHARACTER NO-UNDO .
-
+  DEFINE VARIABLE char-val      AS CHARACTER     NO-UNDO.
+  DEFINE VARIABLE look-recid    AS RECID         NO-UNDO.
+  DEFINE VARIABLE li            AS INTEGER       NO-UNDO.
+  DEFINE VARIABLE lw-focus      AS WIDGET-HANDLE NO-UNDO.
+  DEFINE VARIABLE fields-val    AS CHARACTER     NO-UNDO.
+  DEFINE VARIABLE cFieldsValue  AS CHARACTER     NO-UNDO.
+  DEFINE VARIABLE cFoundValue   AS CHARACTER     NO-UNDO.
+  DEFINE VARIABLE recFoundRecID AS RECID         NO-UNDO.
 
   lw-focus = FOCUS.
 
@@ -1084,17 +1094,26 @@ DO:
               END.
          END.  
          WHEN "sman" THEN DO:
-              li = FRAME-INDEX.
-              RUN windows/l-sman.w (g_company, OUTPUT char-val).
-              IF char-val NE "" THEN DO:
-                IF li EQ 1 AND oe-ord.sman[1]:screen-value NE entry(1,char-val) THEN 
-                  oe-ord.sman[1]:screen-value = ENTRY(1,char-val).
+              li = FRAME-INDEX.            
+              RUN system/openLookup.p (
+                  INPUT  oe-ord.company, 
+                  INPUT  "",  /* Lookup ID */
+                  INPUT  29,  /* Subject ID */
+                  INPUT  "",  /* User ID */
+                  INPUT  0,   /* Param Value ID */
+                  OUTPUT cFieldsValue, 
+                  OUTPUT cFoundValue, 
+                  OUTPUT recFoundRecID
+                  ).         
+              IF cFieldsValue NE "" THEN DO:
+                IF li EQ 1 AND oe-ord.sman[1]:screen-value NE cFoundValue THEN 
+                  oe-ord.sman[1]:screen-value = cFoundValue.
                 ELSE
-                IF li EQ 2 AND oe-ord.sman[2]:screen-value NE entry(1,char-val) THEN 
-                  oe-ord.sman[2]:screen-value = ENTRY(1,char-val).
+                IF li EQ 2 AND oe-ord.sman[2]:screen-value NE cFoundValue THEN 
+                  oe-ord.sman[2]:screen-value = cFoundValue.
                 ELSE
-                IF li EQ 3 AND oe-ord.sman[3]:screen-value NE entry(1,char-val) THEN 
-                  oe-ord.sman[3]:screen-value = ENTRY(1,char-val).
+                IF li EQ 3 AND oe-ord.sman[3]:screen-value NE cFoundValue THEN 
+                  oe-ord.sman[3]:screen-value = cFoundValue.
                 ELSE li = 0.
                 IF li NE 0 THEN RUN new-sman (li).
               END.
@@ -5373,7 +5392,7 @@ PROCEDURE local-disable-fields :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'disable-fields':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-
+  {methods/run_link.i "CONTAINER-SOURCE" "SetUpdateEnd"}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -5505,7 +5524,7 @@ PROCEDURE local-enable-fields :
   RUN release-shared-buffers.
   
 /*  ENABLE oe-ord.priority WITH FRAME {&FRAME-NAME}.*/
-
+  {methods/run_link.i "CONTAINER-SOURCE" "SetUpdateBegin"}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -7438,10 +7457,12 @@ PROCEDURE valid-sman :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF INPUT PARAM ip-int AS INT NO-UNDO.
+  DEFINE INPUT PARAMETER ip-int AS INTEGER NO-UNDO.
 
-  DEF VAR li AS INT NO-UNDO.
-  DEF VAR lv-sman LIKE sman.sman NO-UNDO.
+  DEFINE VARIABLE li       AS INTEGER     NO-UNDO.
+  DEFINE VARIABLE lv-sman  LIKE sman.sman NO-UNDO.
+  DEFINE VARIABLE lSuccess AS LOGICAL     NO-UNDO.
+  DEFINE VARIABLE cMessage AS CHARACTER   NO-UNDO.
 
 
   {methods/lValidateError.i YES}
@@ -7459,21 +7480,26 @@ PROCEDURE valid-sman :
                              ELSE oe-ord.sman[1]:SCREEN-VALUE.
 
     IF lv-sman NE "" THEN DO:
-        FIND FIRST sman NO-LOCK WHERE sman.company EQ cocode
-                                  AND sman.sman    EQ lv-sman NO-ERROR.
-        IF NOT AVAILABLE sman THEN DO:
-          MESSAGE "Invalid Sales Rep, try help..." VIEW-AS ALERT-BOX ERROR.
-          IF ip-int EQ 3 THEN APPLY "entry" TO oe-ord.sman[3].
-          ELSE
-          IF ip-int EQ 2 THEN APPLY "entry" TO oe-ord.sman[2].
-                         ELSE APPLY "entry" TO oe-ord.sman[1].
-          RETURN ERROR.
+        RUN SalesMan_ValidateSalesRep IN hdSalesManProcs(  
+            INPUT  cocode,
+            INPUT  lv-sman,
+            OUTPUT lSuccess,
+            OUTPUT cMessage
+            ). 
+        IF NOT lSuccess THEN DO:
+            MESSAGE cMessage 
+                VIEW-AS ALERT-BOX ERROR.
+            IF ip-int EQ 3 THEN APPLY "entry" TO oe-ord.sman[3].
+            ELSE
+            IF ip-int EQ 2 THEN APPLY "entry" TO oe-ord.sman[2].
+                           ELSE APPLY "entry" TO oe-ord.sman[1].
+            RETURN ERROR.
         END.
         ELSE DO:
-          IF ip-int EQ 3 THEN oe-ord.sname[3]:SCREEN-VALUE = sman.sname.
+          IF ip-int EQ 3 THEN oe-ord.sname[3]:SCREEN-VALUE = DYNAMIC-FUNCTION("SalesMan_GetSalesmanName" IN hdSalesManProcs,cocode,lv-sman).
           ELSE
-          IF ip-int EQ 2 THEN oe-ord.sname[2]:SCREEN-VALUE = sman.sname.
-                         ELSE oe-ord.sname[1]:SCREEN-VALUE = sman.sname.
+          IF ip-int EQ 2 THEN oe-ord.sname[2]:SCREEN-VALUE = DYNAMIC-FUNCTION("SalesMan_GetSalesmanName" IN hdSalesManProcs,cocode,lv-sman).
+                         ELSE oe-ord.sname[1]:SCREEN-VALUE = DYNAMIC-FUNCTION("SalesMan_GetSalesmanName" IN hdSalesManProcs,cocode,lv-sman).
         END.
     END.
     ELSE DO:

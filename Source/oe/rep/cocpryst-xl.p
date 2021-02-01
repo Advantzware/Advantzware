@@ -363,38 +363,10 @@ PROCEDURE FillData:
                 iQtyCases = 0
                 .  
         END.
- 
-    END. /* for each report */   
-     
+         
+    END. /* for each report */       
       
-    chWorkbook:WorkSheets(1):Activate NO-ERROR.
-
-    OS-DELETE VALUE(cDirPath + "cofc.xls").     
-    OS-DELETE VALUE(cDirPath + "asi.pdf").
-    OS-DELETE VALUE(cDirPath + "cofc.pdf").
-
-    IF LvOutputSelection = "PRINTER" THEN
-    DO:
-   NO-RETURN-VALUE chWorkbook:PrintOut(,,,,,FALSE,).
-        chWorkbook:CLOSE(NO) NO-ERROR.
-    END.
-    ELSE IF LvOutputSelection = "Email" THEN
-        DO:
-            /*WshNetwork:SetDefaultPrinter(AdobePrinter).*/
-            chExcelApplication:ActiveSheet:SaveAs(cDirPath + "cofc.xls") NO-ERROR. 	   
-   NO-RETURN-VALUE chWorkbook:PrintOut(,,,,,FALSE,). 
-            chWorkbook:CLOSE(NO) NO-ERROR.   
-            chExcelApplication:QUIT() NO-ERROR.
-            PAUSE 3.
-            OS-DELETE VALUE(cDirPath + "cofc.xls").
-            OS-RENAME VALUE(cDirPath + "asi.pdf") VALUE(cDirPath + "cofc.pdf").
-            iLvCtr = iLvCtr + 1.
-            CREATE tt-filelist.
-            ASSIGN 
-                tt-FileCtr  = iLvCtr
-                tt-FileName = cDirPath + "cofc.pdf".
-        END.
-
+   
 END PROCEDURE. /* FillData*/
 
 PROCEDURE InitializeExcel:
@@ -403,7 +375,7 @@ PROCEDURE InitializeExcel:
     IF LvOutputSelection = "email" THEN
         ASSIGN 
             CurActivePrinter = SESSION:PRINTER-NAME
-            AdobePrinter     = "PDFcamp Printer".
+            /*AdobePrinter     = "PDFcamp Printer"*/.
   
     RUN sys/ref/getFileFullPathName.p ("Template\PrystupXLT.xlt", OUTPUT chFile).
     IF chFile = ? THEN  
@@ -412,14 +384,7 @@ PROCEDURE InitializeExcel:
     /* Connect to the running Excel session. */
     CREATE "Excel.Application" chExcelApplication CONNECT NO-ERROR.
 
-    /* If Excel is running close it. */
-    IF VALID-HANDLE (chExcelApplication) THEN
-    DO:
-        chExcelApplication:QUIT()         NO-ERROR.
-        RUN CleanUp.
-    END.
-
-
+   
     /* Network connection checks. */
     CREATE "WScript.Network" WshNetwork NO-ERROR.
     IF NOT(VALID-HANDLE(WshNetwork)) THEN
@@ -432,6 +397,8 @@ PROCEDURE InitializeExcel:
     IF LvOutputSelection = "Email" THEN
         WshNetwork:SetDefaultPrinter(AdobePrinter).
 
+    /* If Excel is running close it. */
+    IF NOT VALID-HANDLE (chExcelApplication) THEN    
     /* Start a new session of Excel. */
     /*if not (valid-handle (chExcelApplication)) THEN*/
     CREATE "Excel.Application" chExcelApplication NO-ERROR.
@@ -474,9 +441,47 @@ PROCEDURE MainLoop:
 
     /*Fill in Data*/
     RUN FillData.
-
+    RUN OutputFiles.
     /* enable screen updating */
     chExcelApplication:ScreenUpdating = TRUE.
+END PROCEDURE.
+
+PROCEDURE OutputFiles :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+DEFINE VARIABLE iFileCtr AS INTEGER NO-UNDO. 
+
+chWorkbook:WorkSheets(1):Activate NO-ERROR.
+
+OS-DELETE VALUE(cDirPath + "cofc.xls").     
+OS-DELETE VALUE(cDirPath + "asi.pdf").
+OS-DELETE VALUE(cDirPath + "cofc.pdf").
+
+IF LvOutputSelection = "PRINTER" THEN DO:
+   NO-RETURN-VALUE chWorkbook:PrintOut(,,,,,FALSE,).
+    chWorkbook:CLOSE(NO) NO-ERROR.
+END.
+ELSE IF LvOutputSelection = "Email" THEN DO:
+/*     gchWshNetwork:SetDefaultPrinter(gcAdobePrinter). */
+    chExcelApplication:ActiveSheet:SaveAs(cDirPath + "cofc.xls") /*NO-ERROR*/.
+
+    NO-RETURN-VALUE chWorkbook:ExportAsFixedFormat(0, cDirPath + "cofc.pdf").
+/*     NO-RETURN-VALUE gchWorkbook:PrintOut(,,,,,TRUE,,cDirPath + "asi.pdf"). */
+ 
+    chWorkbook:CLOSE(NO) NO-ERROR.
+/*     gchExcelApplication:QUIT() NO-ERROR. */
+    PAUSE 3.
+    OS-DELETE VALUE(cDirPath + "cofc.xls").
+    OS-RENAME VALUE(cDirPath + "asi.pdf") VALUE(cDirPath + "cofc.pdf").
+    iFileCtr = iFileCtr + 1.
+    CREATE tt-filelist.
+    ASSIGN 
+        tt-FileCtr  = iFileCtr
+        tt-FileName = cDirPath + "cofc.pdf".
+END.
 END PROCEDURE.
 
 PROCEDURE CleanUp:

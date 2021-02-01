@@ -61,10 +61,12 @@ CREATE WIDGET-POOL.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btnCRM 
-     IMAGE-UP FILE "Graphics/32x32/handshake.ico":U
+     IMAGE-UP FILE "Graphics/32x32/crm_new.png":U
+     IMAGE-DOWN FILE "Graphics/32x32/crm_hover_new.png":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
      LABEL "CRM" 
-     SIZE 7.8 BY 1.81 TOOLTIP "Phone Info.".
+     SIZE 7.8 BY 1.81 TOOLTIP "Phone Info."
+     BGCOLOR 21 .
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -73,7 +75,8 @@ DEFINE FRAME F-Main
      btnCRM AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE .
+         AT COL 1 ROW 1 SCROLLABLE 
+         BGCOLOR 21 .
 
 
 /* *********************** Procedure Settings ************************ */

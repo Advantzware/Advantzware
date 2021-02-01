@@ -112,7 +112,7 @@ DEFINE FRAME F-Main
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 152 BY 24
+         SIZE 158.8 BY 24.1
          BGCOLOR 15 .
 
 DEFINE FRAME OPTIONS-FRAME
@@ -156,8 +156,8 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW W-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Order Inquiry"
-         HEIGHT             = 24.05
-         WIDTH              = 150.4
+         HEIGHT             = 24.1
+         WIDTH              = 158.8
          MAX-HEIGHT         = 26.62
          MAX-WIDTH          = 160
          VIRTUAL-HEIGHT     = 26.62
@@ -292,6 +292,7 @@ FIND itemfg WHERE ROWID(itemfg) EQ ip-rowid NO-LOCK NO-ERROR.
 
 /* Include custom  Main Block code for SmartWindows. */
 {src/adm/template/windowmn.i}
+{custom/initializeprocs.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -333,11 +334,11 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/folder.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'FOLDER-LABELS = ':U + 'Brws Order|View Order|View Item|Job Prod|Release|Estimate|Order Total|FG Item|Invoices|Ship Notes' + ',
+             INPUT  'FOLDER-LABELS = ':U + 'Browse|Detail|View Item|Job Prod|Release|Estimate|Totals|FG Item|Invoices|ShipNote' + ',
                      FOLDER-TAB-TYPE = 2':U ,
              OUTPUT h_folder ).
        RUN set-position IN h_folder ( 3.14 , 1.00 ) NO-ERROR.
-       RUN set-size IN h_folder ( 21.88 , 151.00 ) NO-ERROR.
+       RUN set-size IN h_folder ( 21.91 , 158.00 ) NO-ERROR.
 
        /* Links to SmartFolder h_folder. */
        RUN add-link IN adm-broker-hdl ( h_folder , 'Page':U , THIS-PROCEDURE ).
@@ -368,7 +369,7 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_p-navico , 'Navigation':U , h_b-ordinq ).
        RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'inquiry':U , h_b-ordinq ).
        RUN add-link IN adm-broker-hdl ( h_b-ordinq , 'Record':U , THIS-PROCEDURE ).
-
+	   RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'udficon':U , h_optionse ).	
     END. /* Page 1 */
 
     WHEN 2 THEN DO:
@@ -381,8 +382,8 @@ PROCEDURE adm-create-objects :
                      Layout = ,
                      Create-On-Add = Yes':U ,
              OUTPUT h_v-ord ).
-       RUN set-position IN h_v-ord ( 4.81 , 2.00 ) NO-ERROR.
-       /* Size in UIB:  ( 17.62 , 143.00 ) */
+       RUN set-position IN h_v-ord ( 4.81 , 3.20 ) NO-ERROR.
+       /* Size in UIB:  ( 17.48 , 152.40 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/p-navico.r':U ,
@@ -391,7 +392,7 @@ PROCEDURE adm-create-objects :
                      SmartPanelType = NAV-ICON,
                      Right-to-Left = First-On-Left':U ,
              OUTPUT h_p-navico ).
-       RUN set-position IN h_p-navico ( 22.15 , 54.00 ) NO-ERROR.
+       RUN set-position IN h_p-navico ( 22.57 , 54.00 ) NO-ERROR.
        RUN set-size IN h_p-navico ( 2.24 , 38.00 ) NO-ERROR.
 
        /* Initialize other pages that this page requires. */
@@ -436,7 +437,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_vp-ordli ).
-       RUN set-position IN h_vp-ordli ( 22.43 , 67.00 ) NO-ERROR.
+       RUN set-position IN h_vp-ordli ( 23.10 , 67.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.67 , 17.00 ) */
 
        /* Initialize other pages that this page requires. */

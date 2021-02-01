@@ -328,10 +328,10 @@ DEFINE FRAME F-Main
      item.q-ono AT ROW 16 COL 38 COLON-ALIGNED NO-LABEL FORMAT "->>>,>>>,>>9.99"
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
-     item.q-comm AT ROW 16 COL 58 COLON-ALIGNED NO-LABEL FORMAT ">>>,>>>,>>9.99"
+     item.q-comm AT ROW 16 COL 58 COLON-ALIGNED NO-LABEL FORMAT "->>>,>>>,>>9.99"
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
-     item.q-back AT ROW 16 COL 78 COLON-ALIGNED NO-LABEL FORMAT ">>>,>>>,>>9.99"
+     item.q-back AT ROW 16 COL 78 COLON-ALIGNED NO-LABEL FORMAT "->>>,>>>,>>9.99"
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
      item.q-avail AT ROW 16 COL 98 COLON-ALIGNED NO-LABEL FORMAT "->>>,>>>,>>9.99"
@@ -852,6 +852,27 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-disable-fields V-table-Win
+PROCEDURE local-disable-fields:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+  /* Code placed here will execute PRIOR to standard behavior. */
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'disable-fields':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+  {methods/run_link.i "CONTAINER-SOURCE" "SetUpdateEnd"}
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-display-fields V-table-Win 
 PROCEDURE local-display-fields :
 /*------------------------------------------------------------------------------
@@ -1073,7 +1094,7 @@ PROCEDURE local-enable-fields :
      then do: end. 
      else disable item.cons-uom.
   end.
-
+  {methods/run_link.i "CONTAINER-SOURCE" "SetUpdateBegin"}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

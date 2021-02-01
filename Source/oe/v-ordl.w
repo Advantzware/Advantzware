@@ -512,9 +512,12 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL F-Main V-table-Win
 ON HELP OF FRAME F-Main
 DO:
-    def var char-val as cha no-undo.
-    def var look-recid as recid no-undo. 
-
+    DEFINE VARIABLE char-val      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE look-recid    AS RECID     NO-UNDO.
+    DEFINE VARIABLE cFieldsValue  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFoundValue   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE recFoundRecID AS RECID     NO-UNDO.        
+     
     find oe-ord where oe-ord.company = gcompany and oe-ord.ord-no = oe-ordl.ord-no
                    no-lock no-error.
     case focus:name :
@@ -543,25 +546,34 @@ DO:
                  apply "entry" to oe-ordl.price.
               end.             
          end.
-         when "sman" then do:
-              run windows/l-sman.w (gcompany, output char-val).
-              if char-val <> "" then do:
-                 case focus:index:
-                      when 1 then assign oe-ordl.s-man[1]:screen-value = entry(1,char-val)
+         WHEN "sman" THEN DO:
+              RUN system/openLookup.p (
+                  INPUT  gcompany, 
+                  INPUT  "",  /* Lookup ID */
+                  INPUT  29,  /* Subject ID */
+                  INPUT  "",  /* User ID */
+                  INPUT  0,   /* Param Value ID */
+                  OUTPUT cFieldsValue, 
+                  OUTPUT cFoundValue, 
+                  OUTPUT recFoundRecID
+                  ).
+              IF cFoundValue <> "" THEN DO:
+                 CASE FOCUS:INDEX:
+                      WHEN 1 THEN ASSIGN oe-ordl.s-man[1]:screen-value = cFoundValue
                                          /*oe-ordl.sname[1]:screen-value = entry(2,char-val) */
-                                         oe-ordl.s-comm[1]:screen-value = entry(3,char-val)
+                                         oe-ordl.s-comm[1]:screen-value = DYNAMIC-FUNCTION("sfDynLookupValue", "scomm", cFieldsValue)
                                          v-margin = 0.
-                      when 2 then assign oe-ordl.s-man[2]:screen-value = entry(1,char-val)
+                      WHEN 2 THEN ASSIGN oe-ordl.s-man[2]:screen-value = cFoundValue
                                          /*oe-ordl.sname[2]:screen-value = entry(2,char-val)*/
-                                         oe-ordl.s-comm[2]:screen-value = entry(3,char-val)
+                                         oe-ordl.s-comm[2]:screen-value = DYNAMIC-FUNCTION("sfDynLookupValue", "scomm", cFieldsValue)
                                          .
-                      when 3 then assign oe-ordl.s-man[3]:screen-value = entry(1,char-val)
+                      WHEN 3 THEN ASSIGN oe-ordl.s-man[3]:screen-value = cFoundValue
                                         /* oe-ordl.sname[3]:screen-value = entry(2,char-val) */
-                                         oe-ordl.s-comm[3]:screen-value = entry(3,char-val)
+                                         oe-ordl.s-comm[3]:screen-value = DYNAMIC-FUNCTION("sfDynLookupValue", "scomm", cFieldsValue)
                                          .
-                 end.
-              end.
-         end.  
+                 END.
+              END.
+         END.  
          when "price" then do:       /* oe/history2.p */              
               run windows/l-report.w (gcompany,oe-ord.cust-no,oe-ordl.i-no:screen-value,oe-ordl.pr-uom:screen-value,output char-val).
               if char-val <> "" then do:

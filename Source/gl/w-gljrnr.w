@@ -149,7 +149,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 320
          VIRTUAL-HEIGHT     = 320
          VIRTUAL-WIDTH      = 320
-         RESIZE             = no
+         RESIZE             = yes
          SCROLL-BARS        = no
          STATUS-AREA        = yes
          BGCOLOR            = ?
@@ -274,7 +274,7 @@ END.
 
 /* Include custom  Main Block code for SmartWindows. */
 {src/adm/template/windowmn.i}
-
+{custom/initializeprocs.i}
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -331,15 +331,15 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/folder.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'FOLDER-LABELS = ':U + 'Brws Journals|View Journals|Load Journals' + ',
-                     FOLDER-TAB-TYPE = 1':U ,
+             INPUT  'FOLDER-LABELS = ':U + 'Browse|Detail|Load' + ',
+                     FOLDER-TAB-TYPE = 2':U ,
              OUTPUT h_folder ).
        RUN set-position IN h_folder ( 3.14 , 2.00 ) NO-ERROR.
        RUN set-size IN h_folder ( 21.67 , 148.00 ) NO-ERROR.
 
        /* Links to SmartFolder h_folder. */
        RUN add-link IN adm-broker-hdl ( h_folder , 'Page':U , THIS-PROCEDURE ).
-
+	   RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'udficon':U , h_options ).
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_options ,
              h_f-add , 'AFTER':U ).
@@ -619,11 +619,11 @@ PROCEDURE local-change-page :
   DEF VAR lv-balanced AS LOG NO-UNDO.
 
   /* Code placed here will execute PRIOR to standard behavior. */
-  {methods/winReSizePgChg.i}
+ // {methods/winReSizePgChg.i}
   
   RUN GET-ATTRIBUTE ("current-page").
   ASSIGN lv-prev-page = lv-curr-page
-         lv-curr-page = int(return-value).
+         lv-curr-page = int(RETURN-VALUE).
   
   IF lv-prev-page = 2  THEN DO:
      RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"is-balanced-source",OUTPUT char-hdl).
@@ -647,7 +647,7 @@ PROCEDURE local-change-page :
   END.
     /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'change-page':U ) .
-
+  {methods/winReSizePgChg.i}  
   /* Code placed here will execute AFTER standard behavior.    */
   {methods/winReSizePgChg.i NO}
   

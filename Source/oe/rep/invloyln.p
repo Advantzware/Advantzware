@@ -626,52 +626,46 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
             {oe/rep/invloyln.i}
             v-printline = 29.
           END.
+          IF v-ship-qty NE 0 OR  v-inv-qty NE 0 THEN
+          DO:          
+              PUT             
+                SPACE(1)
+                v-po-no           FORMAT "x(15)" SPACE(1)
+                inv-line.part-no  FORMAT "x(30)"
+                SPACE(2)
+                v-ship-qty        FORMAT "->>>>>9"              
+                SPACE(1)
+                v-inv-qty         FORMAT "->>>>>9" 
+                SPACE(1)            
+                SPACE(6)
+                v-price           FORMAT "->>>,>>9.9999" 
+                SPACE(0)               
+                inv-line.t-price  FORMAT "->>>,>>9.99"                
+                SKIP
+                SPACE(1)  v-ord-no 
+                SPACE(10) v-i-dscr FORMAT "x(30)"
+                SPACE(2) inv-line.qty FORMAT "->>>>>9"
+                SPACE(13) v-pc  
+                SPACE(1)  v-price-head 
+                SPACE(1) 
+                SKIP
+                SPACE(1)
+                inv-line.lot-no FORMAT "x(15)" 
+                SPACE(1)
+                inv-line.part-dscr1 FORMAT "x(30)" 
+                SPACE(1)
+                SKIP
+                SPACE(17) inv-line.part-dscr2 FORMAT "x(30)" 
+                SKIP .
+              v-printline = v-printline + 5.
 
-          PUT             
-            SPACE(1)
-             v-po-no           FORMAT "x(15)" SPACE(1)
-             inv-line.part-no  FORMAT "x(30)"
-            SPACE(2)
-             v-ship-qty        FORMAT "->>>>>9"              
-            SPACE(1)
-             v-inv-qty         FORMAT "->>>>>9" 
-            SPACE(1)            
-            SPACE(6)
-             v-price           FORMAT "->>>,>>9.9999" 
-            SPACE(0)               
-             inv-line.t-price  FORMAT "->>>,>>9.99"                
-           SKIP
-            SPACE(1)  v-ord-no 
-            SPACE(10) v-i-dscr FORMAT "x(30)"
-            SPACE(2) inv-line.qty FORMAT "->>>>>9"
-            SPACE(13) v-pc  
-            SPACE(1)  v-price-head 
-            SPACE(1) 
-           SKIP
-            SPACE(1)
-             inv-line.lot-no FORMAT "x(15)" 
-            SPACE(1)
-             inv-line.part-dscr1 FORMAT "x(30)" 
-            SPACE(1)
-           SKIP
-            SPACE(17) inv-line.part-dscr2 FORMAT "x(30)" 
-           SKIP .
-          v-printline = v-printline + 5.
+              IF AVAIL oe-ordl AND oe-ordl.part-dscr3 NE "" THEN do:
+                  PUT SPACE(17)  oe-ordl.part-dscr3 FORMAT "x(30)" SKIP .           /*Task# 02191403*/     
+                  v-printline = v-printline + 1.
+              END.         
 
-          IF AVAIL oe-ordl AND oe-ordl.part-dscr3 NE "" THEN do:
-              PUT SPACE(17)  oe-ordl.part-dscr3 FORMAT "x(30)" SKIP .           /*Task# 02191403*/     
               v-printline = v-printline + 1.
-          END.
-
-
-      /*   IF v-printline GT 68 THEN DO:             
-             PAGE.
-             {oe/rep/invloyln.i}
-             v-printline = 29.
-          END.*/
-
-          v-printline = v-printline + 1.
-
+          END.  /* v-ship-qty NE 0 OR  v-inv-qty NE 0*/
         END.  /* each inv-line */
 
         PUT SKIP(1). 

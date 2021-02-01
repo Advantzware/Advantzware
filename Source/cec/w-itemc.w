@@ -320,7 +320,7 @@ END.
 /* Include custom  Main Block code for SmartWindows. */
 
 {src/adm/template/windowmn.i}
-
+{custom/initializeprocs.i}
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -353,7 +353,7 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/folder.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'FOLDER-LABELS = ':U + 'View Item|Bom|Inventory|Vend Cost|POs|Jobs|Bin|Spec|History' + ',
+             INPUT  'FOLDER-LABELS = ':U + 'Detail|Bom|Inventory|Vend Cost|POs|Jobs|Bin|Spec|History' + ',
                      FOLDER-TAB-TYPE = 2':U ,
              OUTPUT h_folder ).
        RUN set-position IN h_folder ( 3.14 , 1.00 ) NO-ERROR.
@@ -385,7 +385,7 @@ PROCEDURE adm-create-objects :
 
        /* Links to SmartFolder h_folder. */
        RUN add-link IN adm-broker-hdl ( h_folder , 'Page':U , THIS-PROCEDURE ).
-
+	   RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'udficon':U , h_options ).
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_folder ,
              FRAME OPTIONS-FRAME:HANDLE , 'AFTER':U ).
@@ -465,7 +465,7 @@ PROCEDURE adm-create-objects :
                      SmartPanelType = Update,
                      AddFunction = One-Record':U ,
              OUTPUT h_p-rmbom ).
-       RUN set-position IN h_p-rmbom ( 19.81 , 50.00 ) NO-ERROR.
+       RUN set-position IN h_p-rmbom ( 19.81 , 37.40 ) NO-ERROR.
        RUN set-size IN h_p-rmbom ( 2.24 , 31.00 ) NO-ERROR.
 
        /* Initialize other pages that this page requires. */
@@ -998,6 +998,13 @@ PROCEDURE local-change-page :
     /*{methods/winReSizePgChg.i}*/
 
    
+    IF VALID-HANDLE(h_vp-rmov) THEN 
+    DO:
+        IF li-current-page EQ 3 THEN 
+            RUN ipShowBtn IN h_vp-rmov (TRUE).
+        ELSE
+            RUN ipShowBtn IN h_vp-rmov (FALSE).
+    END.   
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

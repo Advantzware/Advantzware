@@ -52,8 +52,12 @@ PROCEDURE pSetDynParamValue:
             dynParamValue.recordLimit      = dynSubject.recordLimit
             dynParamValue.isLookup         = dynSubject.isLookup
             dynParamValue.runSync          = dynSubject.runSync
+            dynParamValue.autoClose        = dynSubject.autoClose
             dynParamValue.custListID       = dynSubject.custListID
             dynParamValue.useCustList      = dynSubject.useCustList
+            dynParamValue.mnemonic         = dynSubject.mnemonic
+            dynParamValue.saveLastRun      = dynSubject.saveLastRun
+            dynParamValue.subjectGroup     = dynSubject.subjectGroup
             .
         FOR EACH dynValueColumn EXCLUSIVE-LOCK
             WHERE dynValueColumn.subjectID    EQ ipiSubjectID
@@ -69,36 +73,38 @@ PROCEDURE pSetDynParamValue:
             :
             CREATE dynValueColumn.
             ASSIGN
-                dynValueColumn.subjectID      = ipiSubjectID
-                dynValueColumn.user-id        = ipcUserID
-                dynValueColumn.prgmName       = ipcPrgmName
-                dynValueColumn.paramValueID   = ipiParamValueID
-                dynValueColumn.sortOrder      = {1}SubjectColumn.sortOrder
-                dynValueColumn.calcFormula    = {1}SubjectColumn.calcFormula
-                dynValueColumn.calcParam      = {1}SubjectColumn.calcParam
-                dynValueColumn.calcProc       = {1}SubjectColumn.calcProc
-                dynValueColumn.cellColor      = {1}SubjectColumn.cellColor
-                dynValueColumn.colName        = {1}SubjectColumn.fieldName
-                dynValueColumn.colLabel       = {1}SubjectColumn.fieldLabel
-                dynValueColumn.colFormat      = {1}SubjectColumn.fieldFormat
-                dynValueColumn.columnSize     = {1}SubjectColumn.columnSize
-                dynValueColumn.compareValue   = {1}SubjectColumn.compareValue
-                dynValueColumn.dataType       = {1}SubjectColumn.dataType
-                dynValueColumn.groupCalc      = {1}SubjectColumn.groupCalc
-                dynValueColumn.groupLabel     = {1}SubjectColumn.groupLabel
-                dynValueColumn.isActive       = {1}SubjectColumn.isActive
-                dynValueColumn.isCalcField    = {1}SubjectColumn.isCalcField
-                dynValueColumn.isGroup        = {1}SubjectColumn.isGroup
-                dynValueColumn.isReturnValue  = {1}SubjectColumn.isReturnValue
-                dynValueColumn.isSearchable   = {1}SubjectColumn.isSearchable
-                dynValueColumn.isSortable     = {1}SubjectColumn.isSortable
-                dynValueColumn.isStatusField  = {1}SubjectColumn.isStatusField
-                dynValueColumn.statusAction   = {1}SubjectColumn.statusAction
-                dynValueColumn.statusCompare  = {1}SubjectColumn.statusCompare
-                dynValueColumn.sortCol        = {1}SubjectColumn.sortCol
-                dynValueColumn.sortDescending = {1}SubjectColumn.sortDescending
-                dynValueColumn.textColor      = {1}SubjectColumn.textColor
-                dynValueColumn.custListField  = {1}SubjectColumn.custListField
+                dynValueColumn.subjectID         = ipiSubjectID
+                dynValueColumn.user-id           = ipcUserID
+                dynValueColumn.prgmName          = ipcPrgmName
+                dynValueColumn.paramValueID      = ipiParamValueID
+                dynValueColumn.sortOrder         = {1}SubjectColumn.sortOrder
+                dynValueColumn.calcFormula       = {1}SubjectColumn.calcFormula
+                dynValueColumn.calcParam         = {1}SubjectColumn.calcParam
+                dynValueColumn.calcProc          = {1}SubjectColumn.calcProc
+                dynValueColumn.cellColor         = {1}SubjectColumn.cellColor
+                dynValueColumn.colName           = {1}SubjectColumn.fieldName
+                dynValueColumn.colLabel          = {1}SubjectColumn.fieldLabel
+                dynValueColumn.colFormat         = {1}SubjectColumn.fieldFormat
+                dynValueColumn.columnSize        = {1}SubjectColumn.columnSize
+                dynValueColumn.compareValue      = {1}SubjectColumn.compareValue
+                dynValueColumn.custListField     = {1}SubjectColumn.custListField
+                dynValueColumn.dataType          = {1}SubjectColumn.dataType
+                dynValueColumn.filterInitValue   = {1}SubjectColumn.filterInitValue
+                dynValueColumn.groupCalc         = {1}SubjectColumn.groupCalc
+                dynValueColumn.groupLabel        = {1}SubjectColumn.groupLabel
+                dynValueColumn.isActive          = {1}SubjectColumn.isActive
+                dynValueColumn.isCalcField       = {1}SubjectColumn.isCalcField
+                dynValueColumn.isFilterInitField = {1}SubjectColumn.isFilterInitField
+                dynValueColumn.isGroup           = {1}SubjectColumn.isGroup
+                dynValueColumn.isReturnValue     = {1}SubjectColumn.isReturnValue
+                dynValueColumn.isSearchable      = {1}SubjectColumn.isSearchable
+                dynValueColumn.isSortable        = {1}SubjectColumn.isSortable
+                dynValueColumn.isStatusField     = {1}SubjectColumn.isStatusField
+                dynValueColumn.statusAction      = {1}SubjectColumn.statusAction
+                dynValueColumn.statusCompare     = {1}SubjectColumn.statusCompare
+                dynValueColumn.sortCol           = {1}SubjectColumn.sortCol
+                dynValueColumn.sortDescending    = {1}SubjectColumn.sortDescending
+                dynValueColumn.textColor         = {1}SubjectColumn.textColor
                 .
         END. /* each {1}SubjectColumn */
         RELEASE dynValueColumn.

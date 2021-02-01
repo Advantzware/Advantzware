@@ -73,6 +73,7 @@ ASSIGN
 {custom/globdefs.i}
 {sys/inc/var.i NEW SHARED}
 {sys/inc/varasgn.i}
+{methods/template/brwcustomdef.i}
 
 DEF VAR cellColumncolor AS HANDLE NO-UNDO EXTENT 20.
 DEF VAR columnCount AS INTEGER NO-UNDO.
@@ -576,7 +577,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
 ON ROW-DISPLAY OF br_table IN FRAME F-Main
 DO:
-
+    &scoped-define exclude-row-display true 
+    {methods/template/brwrowdisplay.i}
   IF useColors NE '' THEN
   DO idx = 1 TO columnCount:
     CASE useColors:
@@ -629,6 +631,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
 ON START-SEARCH OF br_table IN FRAME F-Main
 DO:
+  {methods/template/sortindicator.i} 
   DEF VAR sortDisplay AS CHAR.
   /* User clicked on column heading so don't change selection */
   ASSIGN fi_sortby.
@@ -651,7 +654,7 @@ DO:
 
   /* ll-sort-asc = sortby. */
 
-
+{methods/template/sortindicatorend.i} 
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -875,7 +878,10 @@ DO WITH FRAME f-main:
       sortby = YES.
       
 END.
-
+/* Ticket# : 92946
+   Hiding this widget for now, as browser's column label should be indicating the column which is sorted by */
+fi_sortby:HIDDEN IN FRAME {&frame-name} = TRUE.
+fi_sortby:VISIBLE IN FRAME {&frame-name} = FALSE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

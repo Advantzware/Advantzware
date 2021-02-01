@@ -8,6 +8,8 @@ IF EXIST c:\asigui\build\buildON.txt (
 TASKKILL /F /IM ASIbranchTest.exe > NUL
 
 :INITIALIZE
+SET DLC=C:\Progress\OE116_64
+SET DLCBIN=%DLC%\bin
 SET buildDir=\asigui\build
 SET clogfile=c:\asigui\build\mergelog.txt
 SET cViewFile=c:\asigui\build\mergecomp.txt
@@ -21,11 +23,10 @@ ECHO %date% %time% Merge/Compile Started > %cViewFile%
 ECHO ---------------------------------------------------- >> %cViewFile%
 ECHO %date% Merge/Compile >> %clogfile%
 ECHO ---------------------------------------------------- >> %clogFile%
-
 :: Update auditTbl/auditFld records
 C:
 CD %buildDir%
-CALL %DLCBIN%\prowin.exe -basekey "INI" -ininame versionBuild.ini -pf versionBuildBOTHDB.pf -p updateAuditTbl.p
+CALL %DLCBIN%\prowin.exe -basekey "INI" -ininame versionBuild.ini -pf versionBuildNODB.pf -p updateAuditTbl1.p
 
 :GITHUB
 ECHO %time% Pulling latest merges from GitHub
@@ -37,11 +38,11 @@ git checkout -q develop >> %clogfile%
 git pull -q origin develop >> %clogfile%
 :: git push origin develop >> %clogfile%
 :: Stash any local changes to files
-:: git stash >> %clogfile%
+git stash >> %clogfile%
 :: Fetch all from origin
-:: git fetch --all >> %clogfile%
+git fetch --all >> %clogfile%
 :: Perform hard reset (removing any unpushed files) to develop head
-:: git reset --hard origin/develop >> %clogfile%
+git reset --hard origin/develop >> %clogfile%
 ECHO %time% Git Pull Complete >> %cViewFile%
 ECHO %time% Git Pull Complete
 ECHO .
@@ -92,7 +93,7 @@ for /F "tokens=1-3 delims=:." %%a in ("%time%") do (
    set timeMinute=%%b
    set timeSeconds=%%c
 )
-SET /A newTime=timeHour*60 + timeMinute + 17
+SET /A newTime=timeHour*60 + timeMinute + 20
 SET /A timeHour=newTime/60, timeMinute=newTime%%60
 IF %timeHour% gtr 23 SET timeHour=0
 IF %timeHour% lss 10 SET timeHour=0%timeHour%
@@ -137,12 +138,14 @@ ECHO %time%   Copying zipped backup to developers machines >> %clogfile%
 COPY /Y /B c:\asigui\backups\databases\databases.7z K:\backups\databases\databases.7z >> %clogfile%
 COPY /Y /B c:\asigui\backups\databases\databases.7z R:\backups\databases\databases.7z >> %clogfile%
 COPY /Y /B c:\asigui\backups\databases\databases.7z S:\backups\databases\databases.7z >> %clogfile%
+COPY /Y /B c:\asigui\backups\databases\databases.7z T:\backups\databases\databases.7z >> %clogfile%
 COPY /Y /B c:\asigui\backups\databases\databases.7z X:\backups\databases\databases.7z >> %clogfile%
 COPY /Y /B c:\asigui\backups\databases\databases.7z Y:\backups\databases\databases.7z >> %clogfile%
 COPY /Y /B c:\asigui\backups\databases\databases.7z Z:\backups\databases\databases.7z >> %clogfile%
 COPY /Y /B c:\asigui\backups\databases\*.df K:\backups\databases >> %clogfile%
 COPY /Y /B c:\asigui\backups\databases\*.df R:\backups\databases >> %clogfile%
 COPY /Y /B c:\asigui\backups\databases\*.df S:\backups\databases >> %clogfile%
+COPY /Y /B c:\asigui\backups\databases\*.df T:\backups\databases >> %clogfile%
 COPY /Y /B c:\asigui\backups\databases\*.df X:\backups\databases >> %clogfile%
 COPY /Y /B c:\asigui\backups\databases\*.df Y:\backups\databases >> %clogfile%
 COPY /Y /B c:\asigui\backups\databases\*.df Z:\backups\databases >> %clogfile%
@@ -153,4 +156,4 @@ DEL /Q c:\asigui\build\mergetemp.txt > NUL
 MOVE /Y c:\asigui\build\Combined.txt c:\asigui\build\mergelog.txt > NUL
 
 :END
-exit
+::exit

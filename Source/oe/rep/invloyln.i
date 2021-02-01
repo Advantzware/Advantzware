@@ -68,7 +68,7 @@ PUT
         
 PUT "<FArial><P12><=#3><R-2> <P10>" SKIP
     "<=#3><B>                      INVOICE#                    " SKIP
-    "<=#3><R+1><P14>                 "inv-head.inv-no "</B><P10>"
+    "<=#3><R+1><P14>                 " inv-head.inv-no format ">>>>>>9" "</B><P10>"
     "<=#3><R+3>                 DATE           " v-inv-date SKIP 
     "<=#3><R+4>       Customer Id:          " v-custno "<FCourier New>"    
     SKIP(1)

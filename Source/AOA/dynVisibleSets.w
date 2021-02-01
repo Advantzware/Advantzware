@@ -96,14 +96,14 @@ IF NOT AVAILABLE dynParamValue THEN RETURN.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btnCancel AUTO-END-KEY 
-     IMAGE-UP FILE "Graphics/32x32/navigate_cross.ico":U
+     IMAGE-UP FILE "Graphics/32x32/navigate_cross.png":U
      LABEL "Cancel" 
      SIZE 8 BY 1.91 TOOLTIP "Cancel"
      BGCOLOR 8 .
 
 DEFINE BUTTON btnOK AUTO-GO 
-     IMAGE-UP FILE "Graphics/32x32/navigate_check.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_check_disabled.ico":U
+     IMAGE-UP FILE "Graphics/32x32/navigate_check.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_check_disabled.png":U
      LABEL "OK" 
      SIZE 8 BY 1.91 TOOLTIP "Save"
      BGCOLOR 8 .
@@ -247,6 +247,8 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
+
+{methods/template/brwcustom2.i}
 
 /* Parent the dialog-box to the ACTIVE-WINDOW, if there is no parent.   */
 IF VALID-HANDLE(ACTIVE-WINDOW) AND FRAME {&FRAME-NAME}:PARENT eq ?

@@ -288,8 +288,8 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/folder.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'FOLDER-LABELS = ':U + 'Job Schedule' + ',
-                     FOLDER-TAB-TYPE = 1':U ,
+             INPUT  'FOLDER-LABELS = ':U + 'Schedule' + ',
+                     FOLDER-TAB-TYPE = 2':U ,
              OUTPUT h_folder ).
        RUN set-position IN h_folder ( 3.24 , 1.60 ) NO-ERROR.
        RUN set-size IN h_folder ( 21.43 , 149.40 ) NO-ERROR.
@@ -350,7 +350,7 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_b-mach , 'Record':U , h_b-jobsch ).
        RUN add-link IN adm-broker-hdl ( h_pv-jobsch , 'TableIO':U , h_b-jobsch ).
        RUN add-link IN adm-broker-hdl ( h_b-jobsch , 'Record':U , THIS-PROCEDURE ).
-
+	   RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'udficon':U , h_options2 ).
        /* Adjust the tab order of the smart objects. */
     END. /* Page 1 */
 

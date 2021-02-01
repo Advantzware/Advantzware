@@ -712,6 +712,14 @@ END.
 
 /* ***************************  Main Block  *************************** */
 {sys/inc/f3helpw.i}
+
+&Scoped-define sdBrowseName browse-machine
+{methods/template/brwcustom2.i 1}
+&Scoped-define sdBrowseName browse-sales-forecast
+{methods/template/brwcustom2.i 2}
+&Scoped-define sdBrowseName browse-ar
+{methods/template/brwcustom2.i 3}
+
 /* Set CURRENT-WINDOW: this will parent dialog-boxes and frames.        */
 ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME} 
        THIS-PROCEDURE:CURRENT-WINDOW = {&WINDOW-NAME}.

@@ -136,7 +136,7 @@ DEFINE FRAME F-Main
           SIZE 20 BY 1
      cust-name AT ROW 2.19 COL 43 COLON-ALIGNED NO-LABEL
      ar-cash.check-no AT ROW 3.19 COL 23 COLON-ALIGNED
-          LABEL "Check/Memo#" FORMAT "9999999999"
+          LABEL "Check/Memo#" FORMAT "999999999999"
           VIEW-AS FILL-IN 
           SIZE 20 BY 1
      ar-cash.check-amt AT ROW 3.38 COL 69 COLON-ALIGNED
@@ -336,7 +336,7 @@ PROCEDURE check-applied-amt :
      RUN create-onaccount IN WIDGET-HANDLE(char-hdl) /*(OUTPUT op-all-applied)*/.
      /*MESSAGE "Apply all check amount before exit please. " VIEW-AS ALERT-BOX ERROR.
      op-all-applied = NO.*/
-  END.
+  END.    
 
   RUN dispatch ("display-fields").
 

@@ -61,8 +61,9 @@ CREATE WIDGET-POOL.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btnExcel 
-     IMAGE-UP FILE "Graphics/32x32/file_excel.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/excel.png":U
+     IMAGE-DOWN FILE "Graphics/32x32/excel_hover.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/excel_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Excel" 
      SIZE 7.8 BY 1.81 TOOLTIP "Excel Export".
 
@@ -73,7 +74,8 @@ DEFINE FRAME F-Main
      btnExcel AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE .
+         AT COL 1 ROW 1 SCROLLABLE 
+         BGCOLOR 21 .
 
 
 /* *********************** Procedure Settings ************************ */
@@ -183,6 +185,23 @@ RUN Tool_Tips IN Persistent-Handle (FRAME {&FRAME-NAME}:HANDLE).
 
 /* **********************  Internal Procedures  *********************** */
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable-button s-object 
+PROCEDURE disable-button :
+/* -----------------------------------------------------------
+  Purpose:     Receive and process 'state-changed' methods
+               (issued by 'new-state' event).
+  Parameters:  <none>
+  Notes:       
+-------------------------------------------------------------*/
+ DO WITH FRAME {&FRAME-NAME}:
+  btnExcel:SENSITIVE = NO.
+ END.
+  
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI s-object  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
 /*------------------------------------------------------------------------------
@@ -216,23 +235,6 @@ PROCEDURE state-changed :
       /* Object instance CASEs can go here to replace standard behavior
          or add new cases. */
   END CASE.
-  
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable-button s-object 
-PROCEDURE disable-button :
-/* -----------------------------------------------------------
-  Purpose:     Receive and process 'state-changed' methods
-               (issued by 'new-state' event).
-  Parameters:  <none>
-  Notes:       
--------------------------------------------------------------*/
- DO WITH FRAME {&FRAME-NAME}:
-  btnExcel:SENSITIVE = NO.
- END.
   
 END PROCEDURE.
 

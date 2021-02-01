@@ -154,7 +154,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 320
          VIRTUAL-HEIGHT     = 320
          VIRTUAL-WIDTH      = 320
-         RESIZE             = NO
+         RESIZE             = yes
          SCROLL-BARS        = NO
          STATUS-AREA        = YES
          BGCOLOR            = ?
@@ -274,7 +274,7 @@ END.
 SESSION:SET-WAIT-STATE('').
 /* Include custom  Main Block code for SmartWindows. */
 {src/adm/template/windowmn.i}
-
+{custom/initializeprocs.i}
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -315,8 +315,8 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/folder.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'FOLDER-LABELS = ':U + 'Browse PO|View PO|Items|Box Design' + ',
-                     FOLDER-TAB-TYPE = 1':U ,
+             INPUT  'FOLDER-LABELS = ':U + 'Browse|Detail|Items|Design' + ',
+                     FOLDER-TAB-TYPE = 2':U ,
              OUTPUT h_folder ).
        RUN set-position IN h_folder ( 3.14 , 2.00 ) NO-ERROR.
        RUN set-size IN h_folder ( 21.67 , 151.00 ) NO-ERROR.
@@ -364,7 +364,7 @@ PROCEDURE adm-create-objects :
        
         /* Links to SmartObject h_options. */
        RUN add-link IN adm-broker-hdl ( h_b-po-inq , 'spec':U , h_options ).
-
+	   RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'udficon':U , h_options ).
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_folder ,
              FRAME message-frame:HANDLE , 'AFTER':U ).
@@ -469,7 +469,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_v-navest ).
-       RUN set-position IN h_v-navest ( 21.48 , 8.00 ) NO-ERROR.
+       RUN set-position IN h_v-navest ( 21.24 , 8.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.43 , 34.00 ) */
 
        /* Initialize other pages that this page requires. */

@@ -517,6 +517,7 @@ END.
 
 /* ***************************  Main Block  *************************** */
 {sys/inc/f3help.i}
+{methods/template/brwcustom.i}
 /* Set CURRENT-WINDOW: this will parent dialog-boxes and frames.        */
 ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME} 
        THIS-PROCEDURE:CURRENT-WINDOW = {&WINDOW-NAME}.
@@ -558,6 +559,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   FIND FIRST ar-ctrl WHERE ar-ctrl.company EQ gcompany NO-LOCK NO-ERROR.
  
   RUN enable_UI.
+ 
   DO WITH FRAME {&FRAME-NAME}:
   ASSIGN fNextRFIDNum:SCREEN-VALUE = IF oe-ctrl.spare-char-1 = "" THEN "111110000000000000000000"
                                      ELSE oe-ctrl.spare-char-1

@@ -35,6 +35,7 @@ CREATE WIDGET-POOL.
 
 &SCOPED-DEFINE winReSize
 &SCOPED-DEFINE h_Browse01 h_oe-prmtx
+&SCOPED-DEFINE local-destroy local-destroy
 
 /* Parameters Definitions ---                                           */
 
@@ -146,10 +147,10 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 320
          VIRTUAL-HEIGHT     = 320
          VIRTUAL-WIDTH      = 320
-         MAX-BUTTON         = no
-         RESIZE             = no
-         SCROLL-BARS        = no
-         STATUS-AREA        = yes
+         MAX-BUTTON         = YES
+         RESIZE             = YES
+         SCROLL-BARS        = NO
+         STATUS-AREA        = YES
          BGCOLOR            = ?
          FGCOLOR            = ?
          THREE-D            = yes
@@ -269,6 +270,13 @@ END.
 SUBSCRIBE TO "SetCurrentCustomer" ANYWHERE.
 /* Include custom  Main Block code for SmartWindows. */
 {src/adm/template/windowmn.i}
+{custom/initializeprocs.i}
+/* Set the option frame size and colour to give blue background to icons and 
+add the handle of scope define object to temptable for resizizng */
+RUN beforeinitialize.        
+/* Add the handle of all smart object to be resized/shifted on resize to the temptable and 
+Shift all the icons towards right */
+RUN afterinitialize.
     {sys/inc/var.i new shared}
     ASSIGN
      cocode = g_company
@@ -339,8 +347,8 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/folder.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'FOLDER-LABELS = ':U + 'Browse|View' + ',
-                     FOLDER-TAB-TYPE = 1':U ,
+             INPUT  'FOLDER-LABELS = ':U + 'Browse|Detail' + ',
+                     FOLDER-TAB-TYPE = 2':U ,
              OUTPUT h_folder ).
        RUN set-position IN h_folder ( 3.14 , 2.00 ) NO-ERROR.
        RUN set-size IN h_folder ( 21.67 , 148.00 ) NO-ERROR.
@@ -350,7 +358,7 @@ PROCEDURE adm-create-objects :
 
        /* Links to SmartFolder h_folder. */
        RUN add-link IN adm-broker-hdl ( h_folder , 'Page':U , THIS-PROCEDURE ).
-
+	   RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'udficon':U , h_options ).
        RUN add-link IN adm-broker-hdl ( h_oe-prmtx , 'excel':U , h_v-impcom ).
 
        /* Adjust the tab order of the smart objects. */
@@ -565,6 +573,8 @@ PROCEDURE local-destroy :
   /* Code placed here will execute PRIOR to standard behavior. */
   IF v-calling-program  NE ? THEN
       RUN hide-estimate IN v-calling-program.
+      
+    {custom/userWindow.i}
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
 
