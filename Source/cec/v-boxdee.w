@@ -1436,7 +1436,8 @@ PROCEDURE rebuild-box :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEFINE VARIABLE v-rebuild AS cha NO-UNDO.
-
+  DEFINE VARIABLE ip-parms     AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE op-values    AS CHARACTER NO-UNDO.
 
     FIND FIRST est NO-LOCK 
         WHERE est.company EQ box-design-hdr.company
@@ -1445,13 +1446,36 @@ PROCEDURE rebuild-box :
     {est/checkuse.i}
 
     v-rebuild = "B".  
-
+      DEFINE VARIABLE v-price-lev AS CHARACTER NO-UNDO.
+    ip-parms =   
+    "|type=literal,name=label6,row=3.2,col=20,enable=false,width=57,scrval=" + "Rebuild 'S'cores Only or 'I'mages Only or 'B'oth or 'N'either?:" + ",FORMAT=x(69)"
+    + "|type=fill-in,name=perprice,row=3,col=79,enable=true,width=8,data-type=string,initial=" + STRING(v-rebuild) + ",FORMAT=X(1)"
+    + "|type=image,image=webspeed\images\question.gif,name=im1,row=3,col=4,enable=true,width=12,height=3 " 
+    /* Box Title */
+    + "|type=win,name=fi3,enable=true,label=  Rebuild Design?,FORMAT=X(30),height=9".    
+       
+    v-rebuild = "".    
     REPEAT:
-       MESSAGE "Rebuild 'S'cores Only, 'I'mages Only, 'B'oth, or 'N'either?"   /* Box 'D'esign, */
-           UPDATE v-rebuild .
-       IF INDEX("SBIN",v-rebuild) EQ 0 THEN UNDO, RETRY.    
+       
+       RUN custom/d-prompt.w (INPUT "", ip-parms, "", OUTPUT op-values).
+       
+       IF op-values NE "" THEN
+        v-rebuild = STRING(ENTRY(2, op-values)) .
+                                  
+       IF op-values NE "" THEN
+       IF ENTRY(4, op-values) EQ "Cancel" THEN
+       DO: 
+          v-rebuild = "".
+          LEAVE .
+       END.
+
+      IF INDEX("SBIN",v-rebuild) EQ 0 THEN DO:
+         MESSAGE "Rebuild 'S'cores Only, 'I'mages Only, 'B'oth, or 'N'either?" VIEW-AS ALERT-BOX ERROR.
+         NEXT.
+       END.
        LEAVE.
-    END.
+    END.    
+    IF v-rebuild EQ "" THEN RETURN NO-APPLY.
 
     IF v-rebuild NE "N" THEN
     DO:
@@ -1460,7 +1484,8 @@ PROCEDURE rebuild-box :
                 (" to the " + IF v-rebuild EQ "I" THEN "box image,"
                                                   ELSE "scores,")) +
                " are you sure?"
-            UPDATE choice AS LOG.
+            VIEW-AS ALERT-BOX QUESTION 
+            BUTTONS YES-NO UPDATE choice as LOGICAL.
        IF choice THEN DO:
           DEFINE VARIABLE char-hdl AS cha NO-UNDO.
           RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"record-source", OUTPUT char-hdl).
