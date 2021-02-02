@@ -11,7 +11,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
   END.
   IF numfit LT 4 THEN numfit = 4.
 
-  RUN printHeader (6,OUTPUT v-printline).
+  
   /*IF AVAIL est AND est.est-type GE 3 AND est.est-type LE 4 THEN numfit = 4.*/
          
   RELEASE eb.
@@ -189,7 +189,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
 
 /*  IF i NE 3 THEN DOWN. */
     PUT  SKIP.      
-    RUN printHeader (8,OUTPUT v-printline).
+    RUN printHeader (1,OUTPUT v-printline).
     FIND NEXT xqqty OF xqitm NO-LOCK NO-ERROR.
   END. /* do numfit */
 
@@ -204,11 +204,9 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
         EACH eb OF ef NO-LOCK BREAK BY ef.form-no :
         
       RUN printHeader (1,OUTPUT idummy).
-      IF FIRST(ef.form-no) THEN DO:
-        IF LINE-COUNTER GT PAGE-SIZE - 2 THEN PAGE.
+      IF FIRST(ef.form-no) THEN DO:        
         PUT "Components" AT 5 SKIP.
-      END.
-      ELSE IF LINE-COUNTER GT PAGE-SIZE - 2 THEN PAGE.
+      END.         
 
       FIND FIRST style WHERE style.company = eb.company
                          AND style.style = eb.style NO-LOCK NO-ERROR.
@@ -274,6 +272,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
           v-board  FORM "x(50)"   SKIP .
     
       put eb.i-coldscr   AT 30 SKIP.
+      RUN printHeader (2,OUTPUT idummy).
     END.
   END.    /* disp components */
 
@@ -296,8 +295,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
     numfit = numfit + 1.
   END.
 
-  RUN printHeader (5,OUTPUT idummy).
-
+  
   FOR EACH xqqty OF xqitm NO-LOCK,
       EACH xqchg WHERE xqchg.company = xqqty.company
                    AND xqchg.loc = xqqty.loc
@@ -315,7 +313,10 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
             BY xqchg.charge:
   
     IF FIRST-OF(xqchg.qty) THEN DO:
-      IF FIRST(xqchg.qty) THEN PUT SKIP(1).
+      IF FIRST(xqchg.qty) THEN do:
+       PUT SKIP(1).
+       RUN printHeader (2,OUTPUT idummy).
+      END.
       PUT "For QTY: " AT 5
           TRIM(STRING(xqchg.qty,">>>>>>>")).
     END.
@@ -365,7 +366,6 @@ FOR EACH xqchg OF xquo NO-LOCK
   numfit = numfit + 1.
 END.
 
-RUN printHeader (2,OUTPUT idummy).
 
 FOR EACH xqchg OF xquo NO-LOCK
     WHERE (xqchg.qty EQ 0 AND xqchg.line EQ 0)
@@ -386,7 +386,10 @@ FOR EACH xqchg OF xquo NO-LOCK
           BY xqchg.s-num
           BY xqchg.b-num:
 
-  IF FIRST(xqchg.charge) THEN PUT SKIP(1).
+  IF FIRST(xqchg.charge) THEN do:
+    PUT SKIP(1).
+    RUN printHeader (2,OUTPUT v-printline).
+  END.  
 
   /*IF xqchg.qty EQ 0 OR FIRST-OF(xqchg.b-num) THEN DO:*/
     lv-chg-amt = xqchg.amt .
@@ -407,7 +410,7 @@ FOR EACH xqchg OF xquo NO-LOCK
         /*"Will Advise "  TO 45 */ SKIP.
   /*END.*/
 
-  RUN printHeader (2,OUTPUT v-printline).
+  RUN printHeader (1,OUTPUT v-printline).
 
   IF LAST-OF(xqchg.qty) THEN        /*Task# 11011301*/
     LEAVE.
@@ -428,15 +431,20 @@ END.
          ELSE RUN printHeader (idx,OUTPUT idummy).
          
          PUT "Department Notes: " SKIP.
+         RUN printHeader (1,OUTPUT v-printline).
+         
          DO idx = 1 TO EXTENT(v-dept-inst):
-           IF v-dept-inst[idx] NE "" THEN PUT v-dept-inst[idx] AT 3.
-           IF idx NE EXTENT(v-dept-inst) THEN PUT SKIP.
-           IF v-notesPageSpan THEN
-           RUN printHeader (1,OUTPUT idummy).
+           IF v-dept-inst[idx] NE "" THEN do:
+             PUT v-dept-inst[idx] AT 3 SKIP. 
+             RUN printHeader (1,OUTPUT v-printline).
+           END.  
+           
          END. /* do idx */
       END. /* if idx */
   end.
   put skip(1).
+  RUN printHeader (1,OUTPUT idummy).
 end.
 put skip(1).
+RUN printHeader (1,OUTPUT idummy).
 /* end ---------------------------------- copr. 2000  Advanced Software, Inc. */
