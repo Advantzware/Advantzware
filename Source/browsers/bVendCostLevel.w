@@ -597,7 +597,7 @@ PROCEDURE price-change :
        IF ENTRY(4, op-values) EQ "Cancel" THEN RETURN NO-APPLY .
     IF dPercentage EQ 0 THEN RETURN NO-APPLY. 
    
-   RUN Vendor_UpdatePricePercentage(INPUT ROWID(vendItemCost), INPUT dPercentage, OUTPUT lError, OUTPUT cMessage).
+   RUN Vendor_VendItemCostWithPercentage(INPUT ROWID(vendItemCost), INPUT dPercentage, OUTPUT lError, OUTPUT cMessage).
      
    RUN reopen-query (ROWID(vendItemCost),rwRowid).
   

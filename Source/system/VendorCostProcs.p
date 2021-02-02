@@ -852,7 +852,7 @@ PROCEDURE Vendor_CheckPriceHoldForPo:
     
 END PROCEDURE.
 
-PROCEDURE Vendor_UpdatePricePercentage:
+PROCEDURE Vendor_VendItemCostWithPercentage:
     /*------------------------------------------------------------------------------
      Purpose: update vendcostprice with percentage  
      Parameters:  <none>
