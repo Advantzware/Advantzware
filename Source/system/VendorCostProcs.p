@@ -852,6 +852,42 @@ PROCEDURE Vendor_CheckPriceHoldForPo:
     
 END PROCEDURE.
 
+PROCEDURE Vendor_UpdatePricePercentage:
+    /*------------------------------------------------------------------------------
+     Purpose: update vendcostprice with percentage  
+     Parameters:  <none>
+     Notes:       
+     ------------------------------------------------------------------------------*/
+
+    DEFINE INPUT        PARAMETER ipriID                 AS ROWID     NO-UNDO.
+    DEFINE INPUT        PARAMETER ipdPercentage          AS DECIMAL   NO-UNDO.     
+    DEFINE OUTPUT       PARAMETER oplError               AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT       PARAMETER opcMessage             AS CHARACTER NO-UNDO.
+        
+    DEFINE BUFFER bf-vendItemCost FOR VendItemCost.
+    
+    FIND FIRST bf-vendItemCost NO-LOCK 
+        WHERE ROWID(bf-vendItemCost) EQ ipriID
+        NO-ERROR.
+         
+    IF NOT AVAILABLE bf-vendItemCost THEN 
+    DO:
+        ASSIGN 
+            oplError   = TRUE
+            opcMessage = "Invalid vendItemCost record"
+            .
+        RETURN.
+    END.
+    
+    RUN pUpdateVendCostPriceWithPercentage(
+        BUFFER bf-vendItemCost, 
+        INPUT  ipdPercentage              
+        ).
+        
+    RELEASE bf-vendItemCost.    
+    
+END PROCEDURE.
+
 
 PROCEDURE pAddTTVendItemCost PRIVATE:
     /*------------------------------------------------------------------------------
@@ -2399,6 +2435,28 @@ PROCEDURE Vendor_GetVendItemNumber:
                 opcVendItemNo = e-item-vend.vend-item.            
         END.                                
     END.    
+
+END PROCEDURE.
+
+PROCEDURE pUpdateVendCostPriceWithPercentage PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Given a VendItemCostBuffer, and a quantity, get appropriate costs
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-vendItemCost FOR vendItemCost.
+    DEFINE INPUT PARAMETER ipdPercentage AS DECIMAL NO-UNDO.
+         
+    DEFINE BUFFER bf-vendItemCostLevel FOR vendItemCostLevel.
+    
+    FOR EACH bf-vendItemCostLevel EXCLUSIVE-LOCK
+       WHERE bf-vendItemCostLevel.vendItemCostID EQ ipbf-vendItemCost.vendItemCostID 
+       BY bf-vendItemCostLevel.quantityBase:
+   
+      bf-vendItemCostLevel.costPerUom = bf-vendItemCostLevel.costPerUom + 
+                                (bf-vendItemCostLevel.costPerUom * ipdPercentage / 100).                                
+    END.
+    RELEASE bf-vendItemCostLevel.
+      
 
 END PROCEDURE.
 

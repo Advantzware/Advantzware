@@ -569,9 +569,15 @@ PROCEDURE price-change :
    DEFINE VARIABLE rwRowid AS ROWID NO-UNDO.
    DEFINE VARIABLE ip-parms     AS CHARACTER NO-UNDO.
    DEFINE VARIABLE op-values    AS CHARACTER NO-UNDO.
+   DEFINE VARIABLE lError       AS LOGICAL   NO-UNDO.
+   DEFINE VARIABLE cMessage     AS CHARACTER NO-UNDO.
+   
    DEFINE BUFFER bf-vendItemCostLevel for vendItemCostLevel. 
    
    status default "Processing Vendor Cost Matrix: " + string(vendItemCost.itemID).
+   
+   if AVAIL vendItemCostLevel then
+   rwRowid = rowid(vendItemCostLevel).
 
    dPercentage = 0.
    
@@ -591,16 +597,8 @@ PROCEDURE price-change :
        IF ENTRY(4, op-values) EQ "Cancel" THEN RETURN NO-APPLY .
     IF dPercentage EQ 0 THEN RETURN NO-APPLY. 
    
-   FOR EACH bf-vendItemCostLevel EXCLUSIVE-LOCK
-       WHERE bf-vendItemCostLevel.vendItemCostID EQ vendItemCost.vendItemCostID 
-       BY bf-vendItemCostLevel.quantityBase:
-   
-      bf-vendItemCostLevel.costPerUom = bf-vendItemCostLevel.costPerUom + 
-                                (bf-vendItemCostLevel.costPerUom * dPercentage / 100).
-      rwRowid = ROWID(bf-vendItemCostLevel).                          
-   END.
-   RELEASE bf-vendItemCostLevel.
-  
+   RUN Vendor_UpdatePricePercentage(INPUT ROWID(vendItemCost), INPUT dPercentage, OUTPUT lError, OUTPUT cMessage).
+     
    RUN reopen-query (ROWID(vendItemCost),rwRowid).
   
    
