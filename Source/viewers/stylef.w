@@ -211,51 +211,51 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 11.6 BY 1
           BGCOLOR 15 FONT 4
-     style.material[1] AT ROW 3.14 COL 66 COLON-ALIGNED
+     style.material[1] AT ROW 3.14 COL 65 COLON-ALIGNED
           LABEL "Board"
           VIEW-AS FILL-IN 
-          SIZE 14 BY 1
+          SIZE 16 BY 1
           BGCOLOR 15 FONT 4
-     style.material[2] AT ROW 4.14 COL 66 COLON-ALIGNED
+     style.material[2] AT ROW 4.14 COL 65 COLON-ALIGNED
           LABEL "Ink"
           VIEW-AS FILL-IN 
-          SIZE 14 BY 1
+          SIZE 16 BY 1
           BGCOLOR 15 FONT 4
-     style.material[3] AT ROW 5.14 COL 66 COLON-ALIGNED
+     style.material[3] AT ROW 5.14 COL 65 COLON-ALIGNED
           LABEL "Ink Cov %"
           VIEW-AS FILL-IN 
-          SIZE 14 BY 1
+          SIZE 16 BY 1
           BGCOLOR 15 FONT 4
-     style.material[4] AT ROW 6.14 COL 66 COLON-ALIGNED
+     style.material[4] AT ROW 6.14 COL 65 COLON-ALIGNED
           LABEL "Film"
           VIEW-AS FILL-IN 
-          SIZE 14 BY 1
+          SIZE 16 BY 1
           BGCOLOR 15 FONT 4
-     style.material[5] AT ROW 7.14 COL 66 COLON-ALIGNED
+     style.material[5] AT ROW 7.14 COL 65 COLON-ALIGNED
           LABEL "Leaf"
           VIEW-AS FILL-IN 
-          SIZE 14 BY 1
+          SIZE 16 BY 1
           BGCOLOR 15 FONT 4
-     style.material[6] AT ROW 8.14 COL 66 COLON-ALIGNED
+     style.material[6] AT ROW 8.14 COL 65 COLON-ALIGNED
           LABEL "Coating"
           VIEW-AS FILL-IN 
-          SIZE 14 BY 1
+          SIZE 16 BY 1
           BGCOLOR 15 FONT 4
-     style.material[7] AT ROW 9.1 COL 66 COLON-ALIGNED
+     style.material[7] AT ROW 9.1 COL 65 COLON-ALIGNED
           LABEL "Adhesive"
           VIEW-AS FILL-IN 
-          SIZE 14 BY 1
+          SIZE 16 BY 1
           BGCOLOR 15 FONT 4
-     style.qty-per-set AT ROW 10.05 COL 66 COLON-ALIGNED
+     style.qty-per-set AT ROW 10.05 COL 65 COLON-ALIGNED
           LABEL "Qty/Set"
           VIEW-AS FILL-IN 
-          SIZE 14 BY 1
+          SIZE 16 BY 1
           BGCOLOR 15 
-     style.spare-char-5 AT ROW 11 COL 66 COLON-ALIGNED WIDGET-ID 2
+     style.spare-char-5 AT ROW 11 COL 65 COLON-ALIGNED WIDGET-ID 2
           LABEL "Pack Code"
           FORMAT "X(10)"
           VIEW-AS FILL-IN 			
-          SIZE 14 BY 1
+          SIZE 16 BY 1
           BGCOLOR 15 
      style.m-code[1] AT ROW 10.62 COL 5.2 COLON-ALIGNED
           LABEL "1"
