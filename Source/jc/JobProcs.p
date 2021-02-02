@@ -392,9 +392,9 @@ PROCEDURE GetRMItemsForJob:
     DEFINE INPUT  PARAMETER ipiBlankno      AS INTEGER   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcRMListItems  AS CHARACTER NO-UNDO.
 
-    DEFINE VARIABLE cDefaultRMItem AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE lRecFound      AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE lFirstSelected AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cSSIssueDefaultRM AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lRecFound         AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lFirstSelected    AS LOGICAL   NO-UNDO.
     
     DEFINE BUFFER bf-job     FOR job.
     DEFINE BUFFER bf-job-mat FOR job-mat.
@@ -402,13 +402,13 @@ PROCEDURE GetRMItemsForJob:
     
     RUN sys/ref/nk1look.p (
         INPUT ipcCompany,         /* Company Code */ 
-        INPUT "DefaultRMItem",    /* sys-ctrl name */
+        INPUT "SSIssueDefaultRM", /* sys-ctrl name */
         INPUT "C",                /* Output return value */
         INPUT NO,                 /* Use ship-to */
         INPUT NO,                 /* ship-to vendor */
         INPUT "",                 /* ship-to vendor value */
         INPUT "",                 /* shi-id value */
-        OUTPUT cDefaultRMItem, 
+        OUTPUT cSSIssueDefaultRM, 
         OUTPUT lRecFound
         ).
     
@@ -424,17 +424,17 @@ PROCEDURE GetRMItemsForJob:
               AND bf-job-mat.frm      EQ ipiFormno
               AND bf-job-mat.blank-no EQ ipiBlankno
               USE-INDEX seq-idx:
-        IF (cDefaultRMItem EQ "First Board" OR cDefaultRMItem EQ "First Item") AND NOT lFirstSelected THEN DO:
+        IF (cSSIssueDefaultRM EQ "First Board" OR cSSIssueDefaultRM EQ "First Item") AND NOT lFirstSelected THEN DO:
             FIND FIRST bf-item NO-LOCK
                  WHERE bf-item.company EQ ipcCompany
                    AND bf-item.i-no    EQ bf-job-mat.rm-i-no
                  NO-ERROR.
-            IF AVAILABLE bf-item AND bf-item.mat-type EQ "B" AND cDefaultRMItem EQ "First Board" THEN
+            IF AVAILABLE bf-item AND bf-item.mat-type EQ "B" AND cSSIssueDefaultRM EQ "First Board" THEN
                 ASSIGN
                     opcRMListItems = bf-job-mat.rm-i-no + "," + opcRMListItems
                     lFirstSelected = TRUE
                     .
-            ELSE IF AVAILABLE bf-item AND bf-item.mat-type NE "B" AND cDefaultRMItem EQ "First Item" THEN
+            ELSE IF AVAILABLE bf-item AND bf-item.mat-type NE "B" AND cSSIssueDefaultRM EQ "First Item" THEN
                 ASSIGN
                     opcRMListItems = bf-job-mat.rm-i-no + "," + opcRMListItems
                     lFirstSelected = TRUE

@@ -62,7 +62,7 @@ DEFINE VARIABLE iCount                  AS INTEGER   NO-UNDO.
 DEFINE VARIABLE cValidateJobno          AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFilterBy               AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lAutoPost               AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE cDefaultRMItem          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cSSIssueDefaultRM       AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hdQuantityColumnLabel   AS HANDLE    NO-UNDO.
 
 {system/sysconst.i}
@@ -1449,13 +1449,13 @@ PROCEDURE pInit :
  
     RUN sys/ref/nk1look.p (
         INPUT cCompany,           /* Company Code */ 
-        INPUT "DefaultRMItem",    /* sys-ctrl name */
+        INPUT "SSIssueDefaultRM", /* sys-ctrl name */
         INPUT "C",                /* Output return value */
         INPUT NO,                 /* Use ship-to */
         INPUT NO,                 /* ship-to vendor */
         INPUT "",                 /* ship-to vendor value */
         INPUT "",                 /* shi-id value */
-        OUTPUT cDefaultRMItem, 
+        OUTPUT cSSIssueDefaultRM, 
         OUTPUT lRecFound
         ).
 
@@ -1960,7 +1960,7 @@ PROCEDURE pUpdateRMItemList :
     
     cbRMItem:LIST-ITEMS IN FRAME {&FRAME-NAME} = cRMListitems.
 
-    IF cDefaultRMItem NE "User Select" THEN
+    IF cSSIssueDefaultRM NE "User Select" THEN
         cbRMItem:SCREEN-VALUE = ENTRY(1, cRMListitems) NO-ERROR.
         
     APPLY "VALUE-CHANGED" TO cbRMItem IN FRAME {&FRAME-NAME}.    
