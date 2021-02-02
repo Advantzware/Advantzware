@@ -13,15 +13,24 @@ FIND FIRST bf-userWindow EXCLUSIVE-LOCK
     AND bf-userWindow.programName EQ cFileName 
     NO-ERROR.      
 IF AVAILABLE bf-userWindow THEN 
-DO: 
-    IF VALID-HANDLE({&WINDOW-NAME}) THEN           
+DO:
+   MESSAGE {&window-name}:window-state
+   VIEW-AS ALERT-BOX. 
+    IF VALID-HANDLE({&WINDOW-NAME}) THEN    
+    DO:
+       IF (deOrigWinWidth  NE {&WINDOW-NAME}:WIDTH OR
+          deOrigWinHeight NE {&WINDOW-NAME}:HEIGHT)  AND
+       {&window-name}:WINDOW-STATE NE 1       THEN 
+           bf-userWindow.state     = 2.
+       ELSE
+            bf-userWindow.state     = {&window-name}:window-state.    
         ASSIGN 
             bf-userWindow.winWidth  = {&WINDOW-NAME}:WIDTH 
             bf-userWindow.winHeight = {&WINDOW-NAME}:HEIGHT  
             bf-userWindow.winXpos   = {&WINDOW-NAME}:X
-            bf-userWindow.winYpos   = {&WINDOW-NAME}:Y
-            bf-userWindow.state     = {&window-name}:window-state
+            bf-userWindow.winYpos   = {&WINDOW-NAME}:Y           
             . 
+      END.
     ASSIGN 
         bf-userWindow.sessionWidth  = SESSION:WIDTH-PIXELS
         bf-userWindow.sessionHeight = SESSION:HEIGHT-PIXELS
@@ -36,7 +45,14 @@ DO:
         bf-userWindow.sessionWidth  = SESSION:WIDTH-PIXELS
         bf-userWindow.sessionHeight = SESSION:HEIGHT-PIXELS
         .
-    IF VALID-HANDLE({&WINDOW-NAME}) THEN   
+    IF VALID-HANDLE({&WINDOW-NAME}) THEN  
+    DO:
+        IF (deOrigWinWidth  NE {&WINDOW-NAME}:WIDTH OR
+            deOrigWinHeight NE {&WINDOW-NAME}:HEIGHT)  AND
+        {&window-name}:WINDOW-STATE NE 1  THEN 
+           bf-userWindow.state     = 2.
+       ELSE
+            bf-userWindow.state     = {&window-name}:window-state.   
         ASSIGN 
             bf-userWindow.winWidth  = {&WINDOW-NAME}:WIDTH 
             bf-userWindow.winHeight = {&WINDOW-NAME}:HEIGHT  
@@ -44,4 +60,5 @@ DO:
             bf-userWindow.winYpos   = {&WINDOW-NAME}:Y 
             bf-userWindow.state     = {&window-name}:window-state 
             .
+      END.
 END.      
