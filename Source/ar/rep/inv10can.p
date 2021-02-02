@@ -119,6 +119,7 @@ DEF BUFFER bf-cust FOR cust .
 DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
 DEFINE VARIABLE iOrdQty       AS INTEGER   NO-UNDO.
+DEFINE SHARED VARIABLE nsv_setcomp AS LOGICAL NO-UNDO.
 
 RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
@@ -370,7 +371,7 @@ ELSE lv-comp-color = "BLACK".
         ASSIGN
            v-subtot-lines = 0
            v-t-tax = 0.
-
+        MAIN-ARINV-LOOP:
         for each ar-invl no-lock
              where ar-invl.x-no  eq ar-inv.x-no  
                and (ar-invl.misc eq no or ar-invl.billable) 
@@ -388,6 +389,9 @@ ELSE lv-comp-color = "BLACK".
                                      oe-ordl.ord-no = ar-invl.ord-no and
                                      oe-ordl.i-no = ar-invl.i-no
                                      no-lock no-error.
+             IF AVAIL oe-ordl AND oe-ordl.is-a-component AND NOT nsv_setcomp THEN 
+             NEXT MAIN-ARINV-LOOP.
+             
             if avail oe-ordl THEN DO:
               assign v-bo-qty = if (ar-invl.qty - v-ship-qty -
                                     oe-ordl.t-ship-qty) < 0 then 0 else
