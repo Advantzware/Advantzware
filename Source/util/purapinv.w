@@ -436,8 +436,6 @@ PROCEDURE pPurgeOrphanRecords PRIVATE :
  Notes:
 ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcCompany      AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipdtBeginigDate AS DATE      NO-UNDO.
-    DEFINE INPUT PARAMETER ipdtEndingDate  AS DATE      NO-UNDO.
     DEFINE INPUT PARAMETER iplPurge        AS LOGICAL   NO-UNDO.
     
     /*Delete records with blank company or blank vendor*/
@@ -494,10 +492,10 @@ PROCEDURE pPurgeOrphanRecords PRIVATE :
         END.                             
     END. 
          
-    /*Delete records with blank company or blank vendor */
+    /*Delete records with blank company */
     FOR EACH ap-dis EXCLUSIVE-LOCK
-        WHERE (ap-dis.company   EQ "" OR (ap-dis.company EQ ipcCompany AND ap-dis.vend-no EQ ""))
-          AND ap-dis.posted     EQ YES
+        WHERE ap-dis.company EQ "" 
+          AND ap-dis.posted  EQ YES
           AND NOT CAN-FIND(FIRST ttAPDis
                            WHERE ttAPDis.company EQ ap-dis.company
                              AND ttAPDis.d-no    EQ ap-dis.d-no
@@ -706,8 +704,6 @@ FOR EACH ap-dis EXCLUSIVE-LOCK
 END.          
 RUN pPurgeOrphanRecords(
     INPUT cocode,
-    INPUT fdate,
-    INPUT tDate,
     INPUT v-Process
     ).
     
