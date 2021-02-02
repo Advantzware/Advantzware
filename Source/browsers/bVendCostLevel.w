@@ -558,6 +558,57 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE price-change V-table-Win 
+PROCEDURE price-change :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DEFINE VARIABLE dPercentage as DECIMAL no-undo.   
+   DEFINE VARIABLE rwRowid AS ROWID NO-UNDO.
+   DEFINE VARIABLE ip-parms     AS CHARACTER NO-UNDO.
+   DEFINE VARIABLE op-values    AS CHARACTER NO-UNDO.
+   DEFINE VARIABLE lError       AS LOGICAL   NO-UNDO.
+   DEFINE VARIABLE cMessage     AS CHARACTER NO-UNDO.
+   
+   DEFINE BUFFER bf-vendItemCostLevel for vendItemCostLevel. 
+   
+   status default "Processing Vendor Cost Matrix: " + string(vendItemCost.itemID).
+   
+   if AVAIL vendItemCostLevel then
+   rwRowid = rowid(vendItemCostLevel).
+
+   dPercentage = 0.
+   
+   ip-parms = 
+    /* price percentage */
+    "|type=literal,name=label6,row=3.2,col=20,enable=false,width=44,scrval=" + "By what percentage:" + ",FORMAT=x(60)"
+    + "|type=fill-in,name=perprice,row=3,col=42,enable=true,width=14,data-type=decimal,initial=" + STRING(dPercentage)
+    + "|type=image,image=webspeed\images\question.gif,name=im1,row=3,col=4,enable=true,width=12,height=3 " 
+    /* Box Title */
+    + "|type=win,name=fi3,enable=true,label=  Update Price?,FORMAT=X(30),height=9".
+
+    RUN custom/d-prompt.w (INPUT "", ip-parms, "", OUTPUT op-values).
+    IF op-values NE "" THEN
+        dPercentage = INTEGER(ENTRY(2, op-values)) . 
+    
+    IF op-values NE "" THEN
+       IF ENTRY(4, op-values) EQ "Cancel" THEN RETURN NO-APPLY .
+    IF dPercentage EQ 0 THEN RETURN NO-APPLY. 
+   
+   RUN Vendor_VendItemCostWithPercentage(INPUT ROWID(vendItemCost), INPUT dPercentage, OUTPUT lError, OUTPUT cMessage).
+     
+   RUN reopen-query (ROWID(vendItemCost),rwRowid).
+  
+   
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records B-table-Win  _ADM-SEND-RECORDS
 PROCEDURE send-records :
 /*------------------------------------------------------------------------------

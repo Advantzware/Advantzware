@@ -1483,22 +1483,37 @@ PROCEDURE price-change :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-   def var v-pct as dec no-undo.
    def var i as int no-undo.
    def var char-hdl as cha no-undo.
+   DEFINE VARIABLE dPercentage as DECIMAL no-undo.   
+   DEFINE VARIABLE ip-parms     AS CHARACTER NO-UNDO.
+   DEFINE VARIABLE op-values    AS CHARACTER NO-UNDO.
    def buffer bf-e-item-vend for e-item-vend.
 
-
-   v-pct = 0.
-   message "By what percentage:" update v-pct .
-
    status default "Processing Raw Material: " + string(e-item.i-no).
+   
+   dPercentage = 0.
+   ip-parms = 
+    /* price percentage */
+    "|type=literal,name=label6,row=3.2,col=20,enable=false,width=44,scrval=" + "By what percentage:" + ",FORMAT=x(60)"
+    + "|type=fill-in,name=perprice,row=3,col=42,enable=true,width=14,data-type=decimal,initial=" + STRING(dPercentage)
+    + "|type=image,image=webspeed\images\question.gif,name=im1,row=3,col=4,enable=true,width=12,height=3 " 
+    /* Box Title */
+    + "|type=win,name=fi3,enable=true,label=  Update Price?,FORMAT=X(30),height=9".
+
+   RUN custom/d-prompt.w (INPUT "", ip-parms, "", OUTPUT op-values).
+   IF op-values NE "" THEN
+       dPercentage = INTEGER(ENTRY(2, op-values)) . 
+    
+   IF op-values NE "" THEN
+      IF ENTRY(4, op-values) EQ "Cancel" THEN RETURN NO-APPLY .
+   IF dPercentage EQ 0 THEN RETURN NO-APPLY.
 
    find bf-e-item-vend where recid(bf-e-item-vend) = recid(e-item-vend).
 
    do i = 1 to 10:
       bf-e-item-vend.run-cost[i] = e-item-vend.run-cost[i] + 
-                                (e-item-vend.run-cost[i] * v-pct / 100).
+                                (e-item-vend.run-cost[i] * dPercentage / 100).
    end.
 
    run get-link-handle in adm-broker-hdl (this-procedure, "record-source", output char-hdl).
