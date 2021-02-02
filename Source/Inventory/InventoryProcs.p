@@ -391,7 +391,7 @@ PROCEDURE pBuildRMHistory PRIVATE:
     FOR EACH bf-rm-rcpth NO-LOCK
         WHERE bf-rm-rcpth.company    EQ ipcCompany
           AND bf-rm-rcpth.i-no       EQ ipcItemID
-          AND (bf-rm-rcpth.rita-code EQ ipcTransactionType OR ipcTransactionType EQ "")
+          AND (bf-rm-rcpth.rita-code EQ ipcTransactionType OR ipcTransactionType EQ "" OR (ipcTransactionType EQ "R" AND bf-rm-rcpth.rita-code = "A"))
           AND (bf-rm-rcpth.job-no    EQ ipcJobNo OR ipcJobNo EQ "")
           AND (bf-rm-rcpth.job-no2   EQ ipiJobNo2 OR ipiJobNo2 EQ 0 OR ipcJobNo EQ ""),
         EACH bf-rm-rdtlh NO-LOCK
@@ -399,9 +399,10 @@ PROCEDURE pBuildRMHistory PRIVATE:
           AND bf-rm-rdtlh.rita-code EQ bf-rm-rcpth.rita-code
         USE-INDEX rm-rdtl:
         FIND FIRST ttBrowseInventory
-             WHERE ttBrowseInventory.company  EQ bf-rm-rcpth.company
-               AND ttBrowseInventory.rmItemID EQ bf-rm-rcpth.i-no
-               AND ttBrowseInventory.tag      EQ bf-rm-rdtlh.tag
+             WHERE ttBrowseInventory.company    EQ bf-rm-rcpth.company
+               AND ttBrowseInventory.rmItemID   EQ bf-rm-rcpth.i-no
+               AND ttBrowseInventory.tag        EQ bf-rm-rdtlh.tag
+               AND ttBrowseInventory.sourceType EQ gcInventorySourceTypeRMHISTORY
              NO-ERROR.
         IF NOT AVAILABLE ttbrowseInventory THEN DO:
             CREATE ttBrowseInventory.
@@ -410,7 +411,6 @@ PROCEDURE pBuildRMHistory PRIVATE:
                 ttBrowseInventory.rmItemID            = bf-rm-rcpth.i-no
                 ttBrowseInventory.primaryID           = bf-rm-rcpth.i-no
                 ttBrowseInventory.itemType            = gcItemTypeRM
-                ttBrowseInventory.quantity            = bf-rm-rdtlh.qty
                 ttBrowseInventory.jobID               = bf-rm-rcpth.job-no
                 ttBrowseInventory.jobID2              = bf-rm-rcpth.job-no2
                 ttBrowseInventory.formNo              = bf-rm-rdtlh.s-num
@@ -419,15 +419,19 @@ PROCEDURE pBuildRMHistory PRIVATE:
                 ttBrowseInventory.warehouseID         = bf-rm-rdtlh.loc
                 ttBrowseInventory.locationID          = bf-rm-rdtlh.loc-bin
                 ttBrowseInventory.quantityOriginal    = bf-rm-rdtlh.qty
-                .    
-                
+                ttBrowseInventory.sourceType          = gcInventorySourceTypeRMHISTORY
+                .
         END.
         
         ASSIGN
+            ttBrowseInventory.quantity            = ttBrowseInventory.quantity + bf-rm-rdtlh.qty
             ttBrowseInventory.inventoryStatus     = gcStatusStockConsumed
             ttBrowseInventory.rec_key             = bf-rm-rcpth.rec_key
             ttBrowseInventory.inventoryStockID    = STRING(ROWID(bf-rm-rcpth))
             .
+        
+        IF ttBrowseInventory.quantity EQ 0 THEN
+            DELETE ttBrowseInventory.
     END.  
 END PROCEDURE.
 
@@ -1349,6 +1353,7 @@ PROCEDURE pBuildRMBinForItem PRIVATE:
             ttBrowseInventory.jobID2             = iJobID2
             ttBrowseInventory.formNo             = iFormNo
             ttBrowseInventory.blankNo            = iBlankNo
+            ttBrowseInventory.sourceType         = gcInventorySourceTypeRMBIN
             .             
     END.
     
@@ -6347,8 +6352,10 @@ PROCEDURE pBuildRMTransactions PRIVATE:
                 ttBrowseInventory.warehouseID         = bf-rm-rctd.loc
                 ttBrowseInventory.locationID          = bf-rm-rctd.loc-bin
                 ttBrowseInventory.quantityOriginal    = bf-rm-rctd.qty
+                ttBrowseInventory.quantity            = bf-rm-rctd.qty
                 ttBrowseInventory.inventoryStatus     = gcStatusStockScanned
                 ttBrowseInventory.rec_key             = bf-rm-rctd.rec_key
+                ttBrowseInventory.sourceType          = gcInventorySourceTypeRMRCTD
                 ttBrowseInventory.inventoryStockID    = STRING(ROWID(bf-rm-rctd))
                 .
         END.        
