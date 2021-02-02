@@ -109,7 +109,7 @@ PROCEDURE FillData:
                     chWorkSheet:Range("A" + STRING(iRowCount)):value = ITEM.i-name .
                 
                 IF AVAILABLE ITEM THEN     
-                    chWorkSheet:Range("B" + STRING(iRowCount)):value = STRING(ITEM.s-len) + "x" + STRING(ITEM.s-wid).
+                    chWorkSheet:Range("B" + STRING(iRowCount)):value = STRING(ITEM.r-wid) .
                 
                /*IF ITEM.mat-type EQ "B" THEN*/
                chWorkSheet:Range("C" + STRING(iRowCount)):value = ITEM.i-name . 
@@ -139,9 +139,11 @@ PROCEDURE FillData:
                  
                 ASSIGN 
                     chWorkSheet:Range("A" + STRING(iRowCount)):value = ITEM.i-name .
-                
-                IF AVAILABLE ITEM THEN     
-                    chWorkSheet:Range("B" + STRING(iRowCount)):value = STRING(ITEM.s-len) + "x" + STRING(ITEM.s-wid).                 
+                                     
+                 IF AVAILABLE ITEM AND (ITEM.mat-type EQ "C" OR  ITEM.mat-type EQ "D") THEN     
+                    chWorkSheet:Range("B" + STRING(iRowCount)):value = STRING(ITEM.case-l) + "x" + STRING(ITEM.case-w).  
+                 ELSE IF AVAILABLE ITEM THEN
+                 chWorkSheet:Range("B" + STRING(iRowCount)):value = STRING(ITEM.s-len) + "x" + STRING(ITEM.s-wid).   
                 
                 iQtyOnHand = 0.
                 FOR EACH rm-bin FIELDS(qty )
