@@ -440,12 +440,10 @@ PROCEDURE pPurgeOrphanRecords PRIVATE :
     DEFINE INPUT PARAMETER ipdtEndingDate  AS DATE      NO-UNDO.
     DEFINE INPUT PARAMETER iplPurge        AS LOGICAL   NO-UNDO.
     
-    /*Delete records with blank company*/
+    /*Delete records with blank company or blank vendor*/
     FOR EACH ap-inv EXCLUSIVE-LOCK
-        WHERE ap-inv.company  EQ ""
+        WHERE (ap-inv.company EQ "" OR (ap-inv.company EQ ipcCompany AND ap-inv.vend-no EQ ""))
           AND ap-inv.posted   EQ YES
-          AND ap-inv.inv-date GE ipdtBeginigDate
-          AND ap-inv.inv-date LE ipdtEndingDate
           AND NOT CAN-FIND(FIRST ttAPInv 
                            WHERE ttAPInv.company EQ ap-inv.company
                              AND ttAPInv.i-no    EQ ap-inv.i-no
@@ -481,8 +479,6 @@ PROCEDURE pPurgeOrphanRecords PRIVATE :
           AND NOT CAN-FIND(FIRST ap-inv
                            WHERE ap-inv.company  EQ ap-invl.company
                              AND ap-inv.posted   EQ YES
-                             AND ap-inv.inv-date GE ipdtBeginigDate
-                             AND ap-inv.inv-date LE ipdtEndingDate
                              AND ap-inv.i-no     EQ ap-invl.i-no
                            )
           AND NOT CAN-FIND(FIRST ttAPInvl
@@ -498,12 +494,10 @@ PROCEDURE pPurgeOrphanRecords PRIVATE :
         END.                             
     END. 
          
-    /*Delete records with blank company */
+    /*Delete records with blank company or blank vendor */
     FOR EACH ap-dis EXCLUSIVE-LOCK
-        WHERE ap-dis.company    EQ "" 
+        WHERE (ap-dis.company   EQ "" OR (ap-dis.company EQ ipcCompany AND ap-dis.vend-no EQ ""))
           AND ap-dis.posted     EQ YES
-          AND ap-dis.check-date GE ipdtBeginigDate
-          AND ap-dis.check-date LE ipdtEndingDate
           AND NOT CAN-FIND(FIRST ttAPDis
                            WHERE ttAPDis.company EQ ap-dis.company
                              AND ttAPDis.d-no    EQ ap-dis.d-no
@@ -538,8 +532,6 @@ PROCEDURE pPurgeOrphanRecords PRIVATE :
           AND NOT CAN-FIND(FIRST ap-dis
                            WHERE ap-dis.company    EQ ap-disl.company
                              AND ap-dis.posted     EQ YES
-                             AND ap-dis.check-date GE ipdtBeginigDate
-                             AND ap-dis.check-date LE ipdtEndingDate
                              AND ap-dis.d-no       EQ ap-disl.d-no
                            )
           AND NOT CAN-FIND(FIRST ttAPDisl
