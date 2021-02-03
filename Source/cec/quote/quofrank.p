@@ -88,6 +88,9 @@ DEF VAR ld-wid AS DEC NO-UNDO.
 DEF VAR ld-len AS DEC NO-UNDO.
 DEF VAR ld-dep AS DEC NO-UNDO.
 DEF VAR boxprint AS LOG INIT NO NO-UNDO.
+DEFINE VARIABLE iLinePerPage AS INTEGER INIT 66 NO-UNDO.
+DEFINE VARIABLE iLineCount AS INTEGER INIT 27 NO-UNDO.
+
 {cecrep/jobtick2.i "new shared"}
 
 ASSIGN tmpstore = fill("-",130).
@@ -191,7 +194,7 @@ find first est where est.company = xquo.company
   v-printline = 0.
 
 PUT "<Farial>". 
-
+          
 ln-cnt = 0.
 if (not ch-multi) then do:
 
@@ -238,7 +241,7 @@ if (not ch-multi) then do:
   END.
   lv-tot-pg = lv-tot-pg + TRUNC( ln-cnt / 39,0) .
    /* get total page number */
-  
+   PUT "[@startPage" + trim(STRING(xquo.q-no,">>>>>9")) + "]" FORMAT "x(20)".
   {cec/quote/quofran2.i}
   {cec/quote/quofrank.i 1}
   v-quo-total = v-line-total + v-t-tax[1] + v-t-tax[2] + v-t-tax[3].
@@ -253,7 +256,7 @@ if (not ch-multi) then do:
           li-cline = li-cline + 1.
        END.
     end.
-
+    PUT "[@endPage" + trim(STRING(xquo.q-no,">>>>>9")) + "]" FORMAT "x(20)".  
     v-printline = v-printline + 6.
     IF v-printline < 50 THEN PAGE . /*PUT SKIP(60 - v-printline).*/
 
@@ -449,7 +452,7 @@ else do:
          END.
       END.
       lv-tot-pg = lv-tot-pg + TRUNC( ln-cnt / 39,0) .  /*25-63*/
-
+       PUT "[@startPage" + trim(STRING(xquo.q-no,">>>>>9")) + "]" FORMAT "x(20)".
       /* get total page number */
       {cec/quote/quofran2.i}
     end.
@@ -549,6 +552,7 @@ else do:
         lv-pg-num = PAGE-NUM - 1.
      
    END.  /*ch-multi and v-last */
+   PUT "[@endPage" + trim(STRING(xquo.q-no,">>>>>9")) + "]" FORMAT "x(20)".  
    
   end. /* for each report */
   
@@ -557,11 +561,12 @@ end.  /* multi */
 PROCEDURE printHeader:
   DEFINE INPUT PARAMETER ipPageOffSet AS INTEGER NO-UNDO.
   DEFINE OUTPUT PARAMETER opInitVar AS INTEGER NO-UNDO.
-
-  IF LINE-COUNTER > PAGE-SIZE - ipPageOffSet THEN DO:
+  iLineCount = iLineCount + ipPageOffSet.
+                   
+  IF iLineCount > iLinePerPage THEN DO:
     PAGE.
     {cec/quote/quofran2.i}
-    opInitVar = 0.
+    iLineCount = 27.
   END.
 END PROCEDURE.
 /* end ---------------------------------- copr. 2000  advanced software, inc. */
