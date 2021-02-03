@@ -40,6 +40,7 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 DEFINE VARIABLE lHasAccess AS LOGICAL NO-UNDO.
+DEFINE VARIABLE iWarehouseLength AS INTEGER   NO-UNDO.
 
 {Inventory/ttInventory.i "NEW SHARED"}
 {methods/defines/sortByDefs.i}
@@ -521,10 +522,18 @@ FUNCTION fGetConcatLocation RETURNS CHARACTER PRIVATE
     Notes:  
 ------------------------------------------------------------------------------*/
     DEFINE VARIABLE cConcatLocation AS CHARACTER NO-UNDO.
-       
+    DEFINE VARIABLE cCompany         AS CHARACTER NO-UNDO.
+    
+    RUN spGetSessionParam ("Company", OUTPUT cCompany).
+
+    RUN Inventory_GetWarehouseLength IN hdInventoryProcs (
+        INPUT  cCompany,
+        OUTPUT iWarehouseLength
+        ).   
+    
     IF AVAILABLE ttBrowseInventory THEN
         cConcatLocation = ttBrowseInventory.warehouseID 
-                        + FILL(" ", 5 - LENGTH(ttBrowseInventory.warehouseID)) 
+                        + FILL(" ", iWarehouseLength - LENGTH(ttBrowseInventory.warehouseID)) 
                         + ttBrowseInventory.locationID.
 
     RETURN cConcatLocation.

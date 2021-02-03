@@ -50,6 +50,7 @@ DEFINE VARIABLE cWarehouseListItems AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cLocationID         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cWarehouseID        AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lCreated            AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE iWarehouseLength    AS INTEGER   NO-UNDO.
 
 {system/sysconst.i}
 {Inventory/ttInventory.i "NEW SHARED"}
@@ -657,12 +658,10 @@ DO:
 
     IF SELF:SCREEN-VALUE EQ "" THEN
         RETURN.
-    
-    RUN LocationParser IN hdInventoryProcs (
-        INPUT  fiLocation:SCREEN-VALUE,    
-        OUTPUT cWarehouseID,
-        OUTPUT cLocationID
-        ).
+
+    ASSIGN
+        cWarehouseID = TRIM(SUBSTRING(SELF:SCREEN-VALUE, 1, iWarehouseLength))
+        cLocationID  = TRIM(SUBSTRING(SELF:SCREEN-VALUE, iWarehouseLength + 1)).
         
     RUN pLocationScan (
         INPUT ipcCompany,
@@ -862,6 +861,10 @@ PROCEDURE pInit :
         TRUE, /* Active location only */
         OUTPUT cWarehouseListItems
         ).
+    RUN Inventory_GetWarehouseLength IN hdInventoryProcs (
+        INPUT  ipcCompany,
+        OUTPUT iWarehouseLength
+        ).
         
     cbWarehouse:LIST-ITEMS IN FRAME {&FRAME-NAME} = cWarehouseListItems.
 
@@ -1033,7 +1036,7 @@ PROCEDURE pSubmitScan :
             
             ASSIGN
                 ttBrowseinventory.locationID = ipcWarehouseID +
-                                               FILL(" ", 5 - LENGTH(ipcWarehouseID)) +
+                                               FILL(" ", iWarehouseLength - LENGTH(ipcWarehouseID)) +
                                                ipcLocationID
                 fiLocation:SCREEN-VALUE      = ttBrowseinventory.locationID
                 cbWarehouse:SCREEN-VALUE     = ipcWarehouseID
