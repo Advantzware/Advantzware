@@ -64,6 +64,7 @@ DEFINE VARIABLE cFilterBy               AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lAutoPost               AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cSSIssueDefaultRM       AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hdQuantityColumnLabel   AS HANDLE    NO-UNDO.
+DEFINE VARIABLE iWarehouseLength        AS INTEGER   NO-UNDO.
 
 {system/sysconst.i}
 {Inventory/ttInventory.i "NEW SHARED"}
@@ -1479,6 +1480,10 @@ PROCEDURE pInit :
         {&WINDOW-NAME}:TITLE = {&WINDOW-NAME}:TITLE + " - {&awversion}" + " - " 
                              + STRING(company.name) + " - " + cLocation  .
     
+    RUN Inventory_GetWarehouseLength IN hdInventoryProcs (
+        INPUT  cCompany,
+        OUTPUT iWarehouseLength
+        ).
     IF lAutoPost THEN
         btPost:HIDDEN = TRUE.
         
@@ -2034,7 +2039,7 @@ FUNCTION fGetConcatLocationID RETURNS CHARACTER PRIVATE
 ------------------------------------------------------------------------------*/
 
     RETURN ttBrowseInventory.warehouseID + " " 
-           + FILL(" ", 5 - LENGTH(ttBrowseInventory.warehouseID)) 
+           + FILL(" ", iWarehouseLength - LENGTH(ttBrowseInventory.warehouseID)) 
            + ttBrowseInventory.locationID.
 
 END FUNCTION.
