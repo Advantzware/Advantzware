@@ -1764,25 +1764,25 @@ PROCEDURE local-display-fields :
 
    DEF VAR ld-total AS DEC DECIMALS 6 NO-UNDO.
    RUN get-dim-values (style.style,flute.code, "1", OUTPUT ld-total).  
-   {sys/inc/k16dd.i ld-total} .
+   /*{sys/inc/k16dd.i ld-total} .*/ ld-total = DYNAMIC-FUNCTION("sfCommon_ConvDecimalTo1632",cocode, ld-total).
    ld-joint-tab = ld-total.
    RUN get-dim-values (    style.style,flute.code, "2", OUTPUT ld-total).  
-   {sys/inc/k16dd.i ld-total} .
+   ld-total = DYNAMIC-FUNCTION("sfCommon_ConvDecimalTo1632",cocode, ld-total).
    ld-blank-width = (ld-total).
    RUN get-dim-values (    style.style,flute.code, "3", OUTPUT ld-total).
-   {sys/inc/k16dd.i ld-total} .
+   ld-total = DYNAMIC-FUNCTION("sfCommon_ConvDecimalTo1632",cocode, ld-total).
    ld-glue-in = (ld-total).
    RUN get-dim-values (    style.style,flute.code, "4", OUTPUT ld-total). 
-   {sys/inc/k16dd.i ld-total}.
+   ld-total = DYNAMIC-FUNCTION("sfCommon_ConvDecimalTo1632",cocode, ld-total).
    ld-glue-out = (ld-total).
    RUN get-dim-values (    style.style,flute.code, "5", OUTPUT ld-total). 
-   {sys/inc/k16dd.i ld-total}.
+   ld-total = DYNAMIC-FUNCTION("sfCommon_ConvDecimalTo1632",cocode, ld-total).
    ld-stitch-in = (ld-total).
    RUN get-dim-values (    style.style,flute.code, "6", OUTPUT ld-total). 
-   {sys/inc/k16dd.i ld-total} .
+   ld-total = DYNAMIC-FUNCTION("sfCommon_ConvDecimalTo1632",cocode, ld-total).
    ld-stitch-out = (ld-total).
    RUN get-dim-values (    style.style,flute.code, "7", OUTPUT ld-total). 
-   {sys/inc/k16dd.i ld-total}.
+   ld-total = DYNAMIC-FUNCTION("sfCommon_ConvDecimalTo1632",cocode, ld-total).
    ld-tape-score = (ld-total).
 
   DISPLAY ld-joint-tab ld-blank-width ld-glue-in ld-glue-out ld-stitch-in ld-stitch-out
