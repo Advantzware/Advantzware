@@ -24,6 +24,100 @@
 
 /* **********************  Internal Procedures  *********************** */
 
+PROCEDURE Customer_CalculateOrderBalance:
+/*------------------------------------------------------------------------------
+ Purpose: Calculates the customer order balance based on given rowid
+ Notes:   Orignal Source: ar/updcust1.p, Deprecates ar/updcust1.p
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipriCustomer   AS ROWID     NO-UNDO.
+    DEFINE INPUT  PARAMETER iplUpdateOrder AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdOrdBalance  AS DECIMAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError       AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage     AS CHARACTER NO-UNDO.
+       
+    DEFINE VARIABLE dOrderRevenue     AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dTaxAmount        AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dOrderLinesTotal  AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dTotalRevenue     AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dLinesTotalAmt    AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dMiscAmount       AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE hdOrderProcs      AS HANDLE  NO-UNDO.
+    
+    RUN oe/OrderProcs.p PERSISTENT SET hdOrderProcs.
+    
+    FIND FIRST cust NO-LOCK 
+         WHERE ROWID(cust) EQ ipriCustomer
+         NO-ERROR.
+         
+    IF NOT AVAILABLE cust THEN 
+        ASSIGN 
+            opcMessage = "Invalid customer rowid passed in "
+            oplError   = YES
+            .     
+    ELSE DO:
+        FOR EACH oe-ord NO-LOCK
+            WHERE oe-ord.company EQ cust.company
+              AND oe-ord.cust-no EQ cust.cust-no
+              AND oe-ord.opened  EQ YES   
+            USE-INDEX opened:
+            IF iplUpdateOrder THEN DO:
+                RUN Order_CalculateOrderTotal IN hdOrderProcs(  
+                    INPUT ROWID(oe-ord),
+                    INPUT NO
+                    ). 
+                /* To read the updated record */    
+                FIND CURRENT oe-ord NO-LOCK NO-ERROR.             
+            END.          
+            dOrderRevenue = oe-ord.t-revenue + oe-ord.tax.   
+            
+            ASSIGN 
+                dOrderLinesTotal = 0
+                dMiscAmount      = 0
+                dTaxAmount       = 0
+                .
+                
+            RUN Order_GetMiscAmountAndTax IN hdOrderProcs(
+                INPUT  oe-ord.company,       
+                INPUT  oe-ord.ord-no,
+                INPUT  oe-ord.tax-gr,
+                OUTPUT dMiscAmount,
+                OUTPUT dTaxAmount
+                ).
+                
+            dOrderRevenue = dOrderRevenue - dMiscAmount - dTaxAmount.  
+            
+            RUN Order_GetLinesTotal IN hdOrderProcs(
+                INPUT  oe-ord.company,
+                INPUT  oe-ord.ord-no,
+                INPUT  oe-ord.tax-gr,
+                OUTPUT dOrderLinesTotal
+                ).
+                
+            IF dOrderLinesTotal GT dOrderRevenue THEN 
+                dOrderLinesTotal = dOrderRevenue.
+             
+            ASSIGN
+                dLinesTotalAmt = dLinesTotalAmt + dOrderLinesTotal
+                dTotalRevenue  = dTotalRevenue  + dOrderRevenue
+                .                 
+        END. 
+        FOR EACH inv-head NO-LOCK
+            WHERE inv-head.company EQ cust.company
+              AND inv-head.cust-no EQ cust.cust-no
+              AND inv-head.bol-no  EQ 0
+              AND inv-head.terms   NE "CASH":
+          ACCUMULATE inv-head.t-inv-rev (TOTAL).
+        END.
+        
+        opdOrdBalance = dTotalRevenue - dLinesTotalAmt + (ACCUM TOTAL inv-head.t-inv-rev).
+        
+        IF opdOrdBalance LT 0 
+            THEN opdOrdBalance = 0. 
+        IF VALID-HANDLE(hdOrderProcs) THEN 
+            DELETE PROCEDURE hdOrderProcs.                  
+    END.                     
+END PROCEDURE.
+
 PROCEDURE Customer_GetDefaultShipTo:
 /*------------------------------------------------------------------------------
  Purpose:
