@@ -14,8 +14,7 @@ FIND FIRST bf-userWindow EXCLUSIVE-LOCK
     NO-ERROR.      
 IF AVAILABLE bf-userWindow THEN 
 DO:
-   MESSAGE {&window-name}:window-state
-   VIEW-AS ALERT-BOX. 
+
     IF VALID-HANDLE({&WINDOW-NAME}) THEN    
     DO:
        IF (deOrigWinWidth  NE {&WINDOW-NAME}:WIDTH OR
