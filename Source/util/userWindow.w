@@ -38,19 +38,17 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 {methods/defines/hndldefs.i}
-//{methods/prgsecur.i}
+{methods/prgsecur.i}
 {methods/defines/sortByDefs.i}
 
 DEFINE VARIABLE lReTrigger      AS LOGICAL   NO-UNDO INITIAL FALSE.
 DEFINE VARIABLE hdOutputProcs   AS HANDLE    NO-UNDO.
-DEFINE VARIABLE hdUserWindow   AS HANDLE    NO-UNDO.
-DEFINE VARIABLE hdQuery         AS HANDLE  NO-UNDO.
+DEFINE VARIABLE hdUserWindow    AS HANDLE    NO-UNDO.
 DEFINE VARIABLE cCompany        AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cLocation       AS CHARACTER NO-UNDO.
-
-DEFINE VARIABLE hdUserField1Column AS HANDLE  NO-UNDO.
-DEFINE VARIABLE hdUserField2Column AS HANDLE  NO-UNDO.
-DEFINE VARIABLE hdPrimaryIDColumn  AS HANDLE  NO-UNDO.
+DEFINE VARIABLE selectedProgram AS CHARACTER NO-UNDO.
+DEFINE VARIABLE selectedUser    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE selectedRowId   AS ROWID     NO-UNDO.
+DEFINE VARIABLE SelectedRow     AS INTEGER   NO-UNDO.
     
 DEFINE TEMP-TABLE ttUserWindow 
     FIELDS cselect             AS LOGICAL  
@@ -60,7 +58,8 @@ DEFINE TEMP-TABLE ttUserWindow
     FIELDS winheight           AS DECIMAL
     FIELDS cstate              AS CHARACTER 
     FIELDS prgtitle            AS CHARACTER 
-    FIELDS mnemonic            AS CHARACTER   
+    FIELDS mnemonic            AS CHARACTER 
+    INDEX userprogram IS PRIMARY UNIQUE usrID programname 
 .
 
 /* _UIB-CODE-BLOCK-END */
@@ -82,7 +81,7 @@ DEFINE TEMP-TABLE ttUserWindow
 &Scoped-define INTERNAL-TABLES ttUserWindow
 
 /* Definitions for BROWSE ttUserWindow                                  */
-&Scoped-define FIELDS-IN-QUERY-ttUserWindow ttUserWindow.cselect ttUserWindow.usrID ttUserWindow.programname ttUserWindow.winwidth ttUserWindow.winheight ttUserWindow.cstate ttUserWindow.prgtitle ttUserWindow.mnemonic   
+&Scoped-define FIELDS-IN-QUERY-ttUserWindow ttUserWindow.cselect ttUserWindow.usrID ttUserWindow.mnemonic ttUserWindow.prgtitle ttUserWindow.programname ttUserWindow.winwidth ttUserWindow.winheight ttUserWindow.cstate   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-ttUserWindow ttUserWindow.cselect   
 &Scoped-define ENABLED-TABLES-IN-QUERY-ttUserWindow ttUserWindow
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-ttUserWindow ttUserWindow
@@ -98,8 +97,8 @@ DEFINE TEMP-TABLE ttUserWindow
     ~{&OPEN-QUERY-ttUserWindow}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-13 RECT-15 btFilter btDelete fiUserID ~
-fiHotKey fiTitle cbSuccess fiProgramName ttUserWindow btExit 
+&Scoped-Define ENABLED-OBJECTS btDelete RECT-13 RECT-15 btFilter fiUserID ~
+fiHotKey fiTitle cbSuccess btExit fiProgramName ttUserWindow 
 &Scoped-Define DISPLAYED-OBJECTS fiUserID fiHotKey fiTitle cbSuccess ~
 fiProgramName fiPrimaryIDLabel fiHotKeyLabel fiTitleLabel fiSuccessLabel ~
 fiClientIDLabel 
@@ -119,7 +118,8 @@ DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btDelete 
-     IMAGE-UP FILE "Graphics/32x32/navigate_cross.png":U NO-FOCUS FLAT-BUTTON NO-CONVERT-3D-COLORS
+     IMAGE-UP FILE "Graphics/32x32/garbage_can.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/garbage_can_disabled.png":U NO-FOCUS FLAT-BUTTON NO-CONVERT-3D-COLORS
      LABEL "Delete" 
      SIZE 7.2 BY 1.71 TOOLTIP "Delete selected records"
      BGCOLOR 21 FGCOLOR 21 .
@@ -223,15 +223,15 @@ DEFINE BROWSE ttUserWindow
       ttUserWindow.mnemonic COLUMN-LABEL "Hot Key" FORMAT "x(32)":U
             WIDTH 10 LABEL-BGCOLOR 14  
       ttUserWindow.prgtitle    COLUMN-LABEL "Programe Title"  FORMAT "x(50)":U
-            WIDTH 50 LABEL-BGCOLOR 14
-      ttUserWindow.programname COLUMN-LABEL "Program Name" FORMAT "x(32)":U
-            WIDTH 24 LABEL-BGCOLOR 14
+            WIDTH 50 LABEL-BGCOLOR 14   
       ttUserWindow.winwidth    COLUMN-LABEL "Width" 
             WIDTH 14 LABEL-BGCOLOR 14
       ttUserWindow.winheight   COLUMN-LABEL "Height" 
             WIDTH 14 LABEL-BGCOLOR 14
       ttUserWindow.cstate      COLUMN-LABEL "State" FORMAT "x(32)":U
             WIDTH 20 LABEL-BGCOLOR 14
+      ttUserWindow.programname COLUMN-LABEL "Program Name" FORMAT "x(32)":U
+            WIDTH 24 LABEL-BGCOLOR 14
      
           
       ENABLE ttUserWindow.cselect
@@ -244,15 +244,15 @@ DEFINE BROWSE ttUserWindow
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
-     btFilter AT ROW 3.76 COL 173 WIDGET-ID 18
      btDelete AT ROW 1.14 COL 165.6 WIDGET-ID 324
+     btFilter AT ROW 3.76 COL 173 WIDGET-ID 18
      fiUserID AT ROW 4.33 COL 4.2 NO-LABEL WIDGET-ID 66
      fiHotKey AT ROW 4.33 COL 31.6 COLON-ALIGNED NO-LABEL WIDGET-ID 330
      fiTitle AT ROW 4.33 COL 44 COLON-ALIGNED NO-LABEL WIDGET-ID 332
      cbSuccess AT ROW 4.33 COL 104.8 COLON-ALIGNED NO-LABEL WIDGET-ID 14
+     btExit AT ROW 1.14 COL 174.2 WIDGET-ID 320
      fiProgramName AT ROW 4.33 COL 127.6 COLON-ALIGNED NO-LABEL WIDGET-ID 54
      ttUserWindow AT ROW 6.1 COL 183 RIGHT-ALIGNED WIDGET-ID 200
-     btExit AT ROW 1.14 COL 174.2 WIDGET-ID 320
      fiPrimaryIDLabel AT ROW 3.57 COL 12.2 NO-LABEL WIDGET-ID 64
      fiHotKeyLabel AT ROW 3.57 COL 32 COLON-ALIGNED NO-LABEL WIDGET-ID 326
      fiTitleLabel AT ROW 3.57 COL 64.8 NO-LABEL WIDGET-ID 328
@@ -393,19 +393,19 @@ DO:
   MESSAGE "Please select any record."
   VIEW-AS ALERT-BOX.
   ELSE 
-  MESSAGE "are you sure?"
+  MESSAGE "Are you sure?"
             VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO-CANCEL
             TITLE "" UPDATE lChoice AS LOGICAL.
     IF lChoice THEN  
-            DO:
-                FOR EACH ttuserwindow WHERE cselect:
-                    FOR FIRST userwindow EXCLUSIVE-LOCK WHERE userwindow.usrID = ttuserwindow.usrID 
-                                                         AND  userwindow.programname = ttuserwindow.programname:
-                        DELETE userwindow.
-                    END.
-                 END.
-                APPLY "CHOOSE" TO btFilter.    
-            END.
+        DO:
+           FOR EACH ttuserwindow WHERE cselect:
+              FOR FIRST userwindow EXCLUSIVE-LOCK WHERE userwindow.usrID EQ ttuserwindow.usrID 
+                                                    AND userwindow.programname EQ ttuserwindow.programname:
+                  DELETE userwindow.
+              END.
+           END.
+           APPLY "CHOOSE" TO btFilter.    
+        END.
             
 END.
 
@@ -439,35 +439,36 @@ DO:
 
     EMPTY TEMP-TABLE ttUserWindow.
     Filter-Data:
-    FOR EACH UserWindow NO-LOCK WHERE UserWindow.usrID EQ (IF fiUserID:SCREEN-VALUE EQ "" THEN UserWindow.usrID ELSE fiUserID:SCREEN-VALUE) 
-    AND UserWindow.programName EQ (IF fiProgramName:SCREEN-VALUE EQ "" THEN UserWindow.programName ELSE fiProgramName:SCREEN-VALUE)
-    AND UserWindow.state EQ (IF cbsuccess:SCREEN-VALUE EQ "0" THEN UserWindow.state ELSE INTEGER(cbsuccess:SCREEN-VALUE))
+    FOR EACH UserWindow NO-LOCK 
+       WHERE UserWindow.usrID EQ (IF fiUserID:SCREEN-VALUE EQ "" THEN UserWindow.usrID ELSE fiUserID:SCREEN-VALUE) 
+         AND UserWindow.programName EQ (IF fiProgramName:SCREEN-VALUE EQ "" THEN UserWindow.programName ELSE fiProgramName:SCREEN-VALUE)
+         AND UserWindow.state EQ (IF cbsuccess:SCREEN-VALUE EQ "0" THEN UserWindow.state ELSE INTEGER(cbsuccess:SCREEN-VALUE))
         :     
-        FOR FIRST prgrms NO-LOCK WHERE ENTRY(1,prgrms.prgmname,".") = ENTRY(2,UserWindow.programName,"/") 
-            AND  prgrms.dir_group = ENTRY(1,UserWindow.programName,"/")
+        FOR FIRST prgrms NO-LOCK 
+            WHERE ENTRY(1,prgrms.prgmname,".") EQ ENTRY(2,UserWindow.programName,"/") 
+            AND  prgrms.dir_group EQ ENTRY(1,UserWindow.programName,"/")
             :
-        IF fiTitle:SCREEN-VALUE NE "" AND INDEX(prgrms.prgtitle,fiTitle:SCREEN-VALUE) = 0 THEN NEXT Filter-Data.
-        IF fiHotKey:SCREEN-VALUE NE "" AND fiHotKey:SCREEN-VALUE NE prgrms.mnemonic THEN NEXT Filter-Data.
+            IF fiTitle:SCREEN-VALUE NE "" AND INDEX(prgrms.prgtitle,fiTitle:SCREEN-VALUE) = 0 THEN 
+                NEXT Filter-Data.
+            IF fiHotKey:SCREEN-VALUE NE "" AND fiHotKey:SCREEN-VALUE NE prgrms.mnemonic THEN 
+                NEXT Filter-Data.
         
-        CREATE ttUserWindow.
-        BUFFER-COPY UserWindow TO ttUserWindow. 
-        CASE  UserWindow.state:
-            WHEN 1 THEN
-                ttUserWindow.cstate = "Maximized".
-            WHEN 2 THEN
-                ttUserWindow.cstate = "Custom".
-            WHEN 3 THEN
-                ttUserWindow.cstate = "Normal". 
-            OTHERWISE
-            ttUserWindow.cstate = "". 
-        END.
-       
+            CREATE ttUserWindow.
+            BUFFER-COPY UserWindow TO ttUserWindow. 
+            CASE  UserWindow.state:
+                WHEN 1 THEN
+                    ttUserWindow.cstate = "Maximized".
+                WHEN 2 THEN
+                    ttUserWindow.cstate = "Custom".
+                WHEN 3 THEN
+                    ttUserWindow.cstate = "Normal". 
+                OTHERWISE
+                    ttUserWindow.cstate = "". 
+            END.     
             ASSIGN 
                 ttUserWindow.prgtitle = prgrms.prgtitle
                 ttUserWindow.mnemonic = prgrms.mnemonic.
-
-        END.
-    
+        END.  
     END.
     {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME} 
 END.
@@ -506,38 +507,6 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&Scoped-define SELF-NAME fiProgramName
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiProgramName C-Win
-ON HELP OF fiProgramName IN FRAME DEFAULT-FRAME
-DO:
-    DEFINE VARIABLE returnFields AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE lookupField  AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE recVal       AS RECID     NO-UNDO.
-  
-    RUN system/openlookup.p (
-        cCompany, 
-        "apiID", /* lookup field */
-        0,   /* Subject ID */
-        "",  /* User ID */
-        0,   /* Param value ID */
-        OUTPUT returnFields, 
-        OUTPUT lookupField, 
-        OUTPUT recVal
-        ). 
-
-    IF lookupField NE "" THEN DO:
-        fiProgramName:SCREEN-VALUE = IF NUM-ENTRIES(returnFields, "|") GE 4 THEN
-                                      ENTRY(4, returnFields, "|")
-                                  ELSE
-                                      "".
-    END.  
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &Scoped-define BROWSE-NAME ttUserWindow
 &Scoped-define SELF-NAME ttUserWindow
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ttUserWindow C-Win
@@ -555,7 +524,8 @@ DO:
                                     ELSE
                                         "[ ] All".
                                         
-        {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}    
+        {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}  
+         btDelete:sensitive IN FRAME {&frame-name} = CAN-FIND(FIRST ttUserWindow WHERE ttUserWindow.cSelect).  
     END.
     ELSE IF {&BROWSE-NAME}:CURRENT-COLUMN:NAME NE ? THEN DO:
         cColumnLabel = BROWSE {&BROWSE-NAME}:CURRENT-COLUMN:NAME.
@@ -575,6 +545,28 @@ DO:
     END.
     
        
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ttUserWindow C-Win
+ON U1 OF ttUserWindow IN FRAME DEFAULT-FRAME
+DO: 
+  FOR FIRST ttUserWindow WHERE ttUserWindow.programname = selectedprogram AND 
+                              ttUserWindow.usrid EQ selecteduser:
+    ttUserWindow.cSelect = ttUserWindow.cSelect:CHECKED IN BROWSE {&browse-name}.
+    selectedRowId = ROWID(ttUserWindow).
+  END.
+  
+  DO SelectedRow = 1 TO ttUserWindow:num-iterations: 
+    IF ttUserWindow:is-row-selected(SelectedRow) THEN LEAVE. 
+  END.
+  
+ // {&OPEN-BROWSERS-IN-QUERY-fOpen}
+  ttUserWindow:set-repositioned-row(SelectedRow).
+  REPOSITION ttUserWindow TO ROWID selectedRowId. 
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -607,7 +599,18 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:    
 
     RUN enable_UI.
-   
+  btDelete:sensitive IN FRAME {&frame-name} = FALSE.
+  ON 'value-changed' OF ttUserWindow.cSelect IN BROWSE ttUserWindow
+  DO:
+    FIND CURRENT ttUserWindow NO-ERROR.
+    IF AVAILABLE ttUserWindow  THEN
+    ASSIGN
+      selectedprogram = ttUserWindow.programname
+      SELECTEDuser = ttUserWindow.usrid. 
+
+    APPLY 'U1' TO BROWSE ttUserWindow.
+      btDelete:sensitive IN FRAME {&frame-name} = CAN-FIND(FIRST ttUserWindow WHERE ttUserWindow.cSelect).
+  END. 
     IF NOT THIS-PROCEDURE:PERSISTENT THEN
       WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -661,27 +664,11 @@ PROCEDURE enable_UI :
   DISPLAY fiUserID fiHotKey fiTitle cbSuccess fiProgramName fiPrimaryIDLabel 
           fiHotKeyLabel fiTitleLabel fiSuccessLabel fiClientIDLabel 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE RECT-13 RECT-15 btFilter btDelete fiUserID fiHotKey fiTitle cbSuccess 
-         fiProgramName ttUserWindow btExit 
+  ENABLE btDelete RECT-13 RECT-15 btFilter fiUserID fiHotKey fiTitle cbSuccess 
+         btExit fiProgramName ttUserWindow 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pChooseDate C-Win 
-PROCEDURE pChooseDate :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    DEFINE OUTPUT PARAMETER opcCalendarDate AS CHARACTER NO-UNDO.
-
-    RUN nosweat/popupcal2.w (OUTPUT opcCalendarDate).
-
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -717,44 +704,4 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateUserFieldLabels C-Win 
-PROCEDURE pUpdateUserFieldLabels PRIVATE :
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER ipcAPIID AS CHARACTER NO-UNDO.    
-    
-    DEFINE VARIABLE cUserField1Label AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cUserField2Label AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cUserField3Label AS CHARACTER NO-UNDO.
-
-    ASSIGN
-        cUserField1Label = "User Field 1"
-        cUserField2Label = "User Field 2"
-        cUserField3Label = "Primary ID"
-        .
-    
-    CASE ipcAPIID:
-        WHEN "CalculateTax" THEN
-            ASSIGN
-                cUserField1Label = "BOL #"
-                cUserField2Label = "Order #"
-                cUserField3Label = "Invoice #"
-                .
-    END.
-    
-    IF VALID-HANDLE(hdUserField1Column) THEN
-        hdUserField1Column:LABEL = cUserField1Label.
-
-    IF VALID-HANDLE(hdUserField2Column) THEN
-        hdUserField2Column:LABEL = cUserField2Label.
- 
-    IF VALID-HANDLE(hdPrimaryIDColumn) THEN
-        hdPrimaryIDColumn:LABEL = cUserField3Label.
-     
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
