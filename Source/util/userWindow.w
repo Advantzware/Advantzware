@@ -98,9 +98,9 @@ DEFINE TEMP-TABLE ttUserWindow
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS btDelete RECT-13 RECT-15 btFilter fiUserID ~
-fiHotKey fiTitle cbSuccess btExit fiProgramName ttUserWindow 
-&Scoped-Define DISPLAYED-OBJECTS fiUserID fiHotKey fiTitle cbSuccess ~
-fiProgramName fiPrimaryIDLabel fiHotKeyLabel fiTitleLabel fiSuccessLabel ~
+fiHotKey fiTitle cbState btExit fiProgramName ttUserWindow 
+&Scoped-Define DISPLAYED-OBJECTS fiUserID fiHotKey fiTitle cbState ~
+fiProgramName fiPrimaryIDLabel fiHotKeyLabel fiTitleLabel fiStateLabel ~
 fiClientIDLabel 
 
 /* Custom List Definitions                                              */
@@ -136,7 +136,7 @@ DEFINE BUTTON btFilter
      LABEL "Filter" 
      SIZE 7.2 BY 1.71 TOOLTIP "Filter".
 
-DEFINE VARIABLE cbSuccess AS CHARACTER FORMAT "X(256)":U INITIAL "0" 
+DEFINE VARIABLE cbState AS CHARACTER FORMAT "X(256)":U INITIAL "0" 
      VIEW-AS COMBO-BOX INNER-LINES 5
      LIST-ITEM-PAIRS "ALL","0",
                      "Normal","3",
@@ -171,7 +171,7 @@ DEFINE VARIABLE fiProgramName AS CHARACTER FORMAT "X(256)":U
      SIZE 38.4 BY 1.1
      FGCOLOR 0 FONT 22 NO-UNDO.
 
-DEFINE VARIABLE fiSuccessLabel AS CHARACTER FORMAT "X(256)":U INITIAL "State:" 
+DEFINE VARIABLE fiStateLabel AS CHARACTER FORMAT "X(256)":U INITIAL "State:" 
       VIEW-AS TEXT 
      SIZE 7.2 BY .62
      BGCOLOR 23 FGCOLOR 24 FONT 6 NO-UNDO.
@@ -222,7 +222,7 @@ DEFINE BROWSE ttUserWindow
             WIDTH 16 LABEL-BGCOLOR 14
       ttUserWindow.mnemonic COLUMN-LABEL "Hot Key" FORMAT "x(32)":U
             WIDTH 10 LABEL-BGCOLOR 14  
-      ttUserWindow.prgtitle    COLUMN-LABEL "Programe Title"  FORMAT "x(50)":U
+      ttUserWindow.prgtitle    COLUMN-LABEL "Program Title"  FORMAT "x(50)":U
             WIDTH 50 LABEL-BGCOLOR 14   
       ttUserWindow.winwidth    COLUMN-LABEL "Width" 
             WIDTH 14 LABEL-BGCOLOR 14
@@ -249,14 +249,14 @@ DEFINE FRAME DEFAULT-FRAME
      fiUserID AT ROW 4.33 COL 4.2 NO-LABEL WIDGET-ID 66
      fiHotKey AT ROW 4.33 COL 31.6 COLON-ALIGNED NO-LABEL WIDGET-ID 330
      fiTitle AT ROW 4.33 COL 44 COLON-ALIGNED NO-LABEL WIDGET-ID 332
-     cbSuccess AT ROW 4.33 COL 104.8 COLON-ALIGNED NO-LABEL WIDGET-ID 14
+     cbState AT ROW 4.33 COL 104.8 COLON-ALIGNED NO-LABEL WIDGET-ID 14
      btExit AT ROW 1.14 COL 174.2 WIDGET-ID 320
      fiProgramName AT ROW 4.33 COL 127.6 COLON-ALIGNED NO-LABEL WIDGET-ID 54
      ttUserWindow AT ROW 6.1 COL 183 RIGHT-ALIGNED WIDGET-ID 200
      fiPrimaryIDLabel AT ROW 3.57 COL 12.2 NO-LABEL WIDGET-ID 64
      fiHotKeyLabel AT ROW 3.57 COL 32 COLON-ALIGNED NO-LABEL WIDGET-ID 326
      fiTitleLabel AT ROW 3.57 COL 64.8 NO-LABEL WIDGET-ID 328
-     fiSuccessLabel AT ROW 3.57 COL 111.4 COLON-ALIGNED NO-LABEL WIDGET-ID 12
+     fiStateLabel AT ROW 3.57 COL 111.4 COLON-ALIGNED NO-LABEL WIDGET-ID 12
      fiClientIDLabel AT ROW 3.57 COL 135.4 COLON-ALIGNED NO-LABEL WIDGET-ID 52
      RECT-13 AT ROW 3.38 COL 2 WIDGET-ID 22
      RECT-14 AT ROW 1 COL 1 WIDGET-ID 322
@@ -320,7 +320,7 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fiPrimaryIDLabel IN FRAME DEFAULT-FRAME
    NO-ENABLE ALIGN-L                                                    */
-/* SETTINGS FOR FILL-IN fiSuccessLabel IN FRAME DEFAULT-FRAME
+/* SETTINGS FOR FILL-IN fiStateLabel IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fiTitleLabel IN FRAME DEFAULT-FRAME
    NO-ENABLE ALIGN-L                                                    */
@@ -442,16 +442,14 @@ DO:
     FOR EACH UserWindow NO-LOCK 
        WHERE UserWindow.usrID EQ (IF fiUserID:SCREEN-VALUE EQ "" THEN UserWindow.usrID ELSE fiUserID:SCREEN-VALUE) 
          AND UserWindow.programName EQ (IF fiProgramName:SCREEN-VALUE EQ "" THEN UserWindow.programName ELSE fiProgramName:SCREEN-VALUE)
-         AND UserWindow.state EQ (IF cbsuccess:SCREEN-VALUE EQ "0" THEN UserWindow.state ELSE INTEGER(cbsuccess:SCREEN-VALUE))
+         AND UserWindow.state EQ (IF cbState:SCREEN-VALUE EQ "0" THEN UserWindow.state ELSE INTEGER(cbState:SCREEN-VALUE))
         :     
         FOR FIRST prgrms NO-LOCK 
             WHERE ENTRY(1,prgrms.prgmname,".") EQ ENTRY(2,UserWindow.programName,"/") 
             AND  prgrms.dir_group EQ ENTRY(1,UserWindow.programName,"/")
+            AND  prgrms.prgtitle MATCHES("*" + fiTitle:SCREEN-VALUE + "*") 
+            AND  prgrms.mnemonic EQ (IF fiHotKey:SCREEN-VALUE EQ "" THEN prgrms.mnemonic ELSE fiHotKey:SCREEN-VALUE) 
             :
-            IF fiTitle:SCREEN-VALUE NE "" AND INDEX(prgrms.prgtitle,fiTitle:SCREEN-VALUE) = 0 THEN 
-                NEXT Filter-Data.
-            IF fiHotKey:SCREEN-VALUE NE "" AND fiHotKey:SCREEN-VALUE NE prgrms.mnemonic THEN 
-                NEXT Filter-Data.
         
             CREATE ttUserWindow.
             BUFFER-COPY UserWindow TO ttUserWindow. 
@@ -464,7 +462,7 @@ DO:
                     ttUserWindow.cstate = "Normal". 
                 OTHERWISE
                     ttUserWindow.cstate = "". 
-            END.     
+            END CASE.     
             ASSIGN 
                 ttUserWindow.prgtitle = prgrms.prgtitle
                 ttUserWindow.mnemonic = prgrms.mnemonic.
@@ -661,10 +659,10 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY fiUserID fiHotKey fiTitle cbSuccess fiProgramName fiPrimaryIDLabel 
-          fiHotKeyLabel fiTitleLabel fiSuccessLabel fiClientIDLabel 
+  DISPLAY fiUserID fiHotKey fiTitle cbState fiProgramName fiPrimaryIDLabel 
+          fiHotKeyLabel fiTitleLabel fiStateLabel fiClientIDLabel 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE btDelete RECT-13 RECT-15 btFilter fiUserID fiHotKey fiTitle cbSuccess 
+  ENABLE btDelete RECT-13 RECT-15 btFilter fiUserID fiHotKey fiTitle cbState 
          btExit fiProgramName ttUserWindow 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
