@@ -571,16 +571,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   DO:
     FIND CURRENT ttUserWindow NO-ERROR.
     IF AVAILABLE ttUserWindow  THEN
-    ASSIGN
-      selectedprogram = ttUserWindow.programname
-      SELECTEDuser = ttUserWindow.usrid. 
-
-      FOR FIRST ttUserWindow WHERE ttUserWindow.programname = selectedprogram AND 
-          ttUserWindow.usrid EQ selecteduser:
-          ttUserWindow.cSelect = ttUserWindow.cSelect:CHECKED IN BROWSE {&browse-name}.
-          selectedRowId = ROWID(ttUserWindow).
-      END.
-  
+        selectedRowId = ROWID(ttUserWindow).
       REPOSITION ttUserWindow TO ROWID selectedRowId. 
       btDelete:sensitive IN FRAME {&frame-name} = CAN-FIND(FIRST ttUserWindow WHERE ttUserWindow.cSelect).
   END.
