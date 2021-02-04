@@ -216,11 +216,11 @@ DEFINE QUERY ttUserWindow FOR
 DEFINE BROWSE ttUserWindow
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS ttUserWindow C-Win _FREEFORM
   QUERY ttUserWindow NO-LOCK DISPLAY
-      ttUserWindow.cselect LABEL-BGCOLOR 14    COLUMN-LABEL "[ ] ALL"
-            WIDTH 8 VIEW-AS TOGGLE-BOX
-      ttUserWindow.usrID       COLUMN-LABEL "User ID" FORMAT "x(32)":U
+      ttUserWindow.cselect     COLUMN-LABEL "[ ] ALL"
+            WIDTH 8  LABEL-BGCOLOR 14 VIEW-AS TOGGLE-BOX
+      ttUserWindow.usrID       COLUMN-LABEL "User ID"        FORMAT "x(32)":U
             WIDTH 16 LABEL-BGCOLOR 14
-      ttUserWindow.mnemonic COLUMN-LABEL "Hot Key" FORMAT "x(32)":U
+      ttUserWindow.mnemonic    COLUMN-LABEL "Hot Key"        FORMAT "x(32)":U
             WIDTH 10 LABEL-BGCOLOR 14  
       ttUserWindow.prgtitle    COLUMN-LABEL "Program Title"  FORMAT "x(50)":U
             WIDTH 50 LABEL-BGCOLOR 14   
@@ -228,13 +228,12 @@ DEFINE BROWSE ttUserWindow
             WIDTH 14 LABEL-BGCOLOR 14
       ttUserWindow.winheight   COLUMN-LABEL "Height" 
             WIDTH 14 LABEL-BGCOLOR 14
-      ttUserWindow.cstate      COLUMN-LABEL "State" FORMAT "x(32)":U
+      ttUserWindow.cstate      COLUMN-LABEL "State"          FORMAT "x(32)":U
             WIDTH 20 LABEL-BGCOLOR 14
-      ttUserWindow.programname COLUMN-LABEL "Program Name" FORMAT "x(32)":U
-            WIDTH 24 LABEL-BGCOLOR 14
-     
-          
+      ttUserWindow.programname COLUMN-LABEL "Program Name"   FORMAT "x(32)":U
+            WIDTH 24 LABEL-BGCOLOR 14        
       ENABLE ttUserWindow.cselect
+      
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ROW-MARKERS SEPARATORS SIZE 182.4 BY 18.43
@@ -428,6 +427,7 @@ DO:
     DEFINE VARIABLE iCount AS INTEGER   NO-UNDO.
 
     EMPTY TEMP-TABLE ttUserWindow.
+    
     Filter-Data:
     FOR EACH UserWindow NO-LOCK 
        WHERE UserWindow.usrID EQ (IF fiUserID:SCREEN-VALUE EQ "" THEN UserWindow.usrID ELSE fiUserID:SCREEN-VALUE) 
@@ -436,11 +436,10 @@ DO:
         :     
         FOR FIRST prgrms NO-LOCK 
             WHERE ENTRY(1,prgrms.prgmname,".") EQ ENTRY(2,UserWindow.programName,"/") 
-            AND  prgrms.dir_group EQ ENTRY(1,UserWindow.programName,"/")
-            AND  prgrms.prgtitle MATCHES("*" + fiTitle:SCREEN-VALUE + "*") 
-            AND  prgrms.mnemonic EQ (IF fiHotKey:SCREEN-VALUE EQ "" THEN prgrms.mnemonic ELSE fiHotKey:SCREEN-VALUE) 
-            :
-        
+              AND prgrms.dir_group EQ ENTRY(1,UserWindow.programName,"/")
+              AND prgrms.prgtitle MATCHES("*" + fiTitle:SCREEN-VALUE + "*") 
+              AND prgrms.mnemonic EQ (IF fiHotKey:SCREEN-VALUE EQ "" THEN prgrms.mnemonic ELSE fiHotKey:SCREEN-VALUE) 
+            :      
             CREATE ttUserWindow.
             BUFFER-COPY UserWindow TO ttUserWindow. 
             CASE  UserWindow.state:
@@ -495,6 +494,37 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME F-Main
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL F-Main c-win
+ON HELP OF FRAME DEFAULT-FRAME
+DO:
+    DEFINE VARIABLE cFieldsValue  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFoundValue   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE recFoundRecID AS RECID     NO-UNDO.
+
+    CASE FOCUS:NAME :
+        WHEN "fiUserID"  THEN DO:
+            RUN system/openLookup.p (
+            INPUT  g_company, 
+            INPUT  "",  /* Lookup ID */
+            INPUT  28,  /* Subject ID */
+            INPUT  "",  /* User ID */
+            INPUT  0,   /* Param Value ID */
+            OUTPUT cFieldsValue, 
+            OUTPUT cFoundValue, 
+            OUTPUT recFoundRecID
+            ).   
+            IF cFoundValue <> "" THEN 
+                ASSIGN FOCUS:SCREEN-VALUE = cFoundValue.         
+        END.
+
+    END CASE.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define BROWSE-NAME ttUserWindow
 &Scoped-define SELF-NAME ttUserWindow
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ttUserWindow C-Win
@@ -530,9 +560,7 @@ DO:
             cSaveLabel                 = cColumnLabel
             .
         RUN pReopenBrowse.
-    END.
-    
-       
+    END.       
 END.
 
 /* _UIB-CODE-BLOCK-END */

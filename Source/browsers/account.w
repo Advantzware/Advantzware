@@ -477,6 +477,37 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME F-Main
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL F-Main B-table-Win
+ON HELP OF FRAME F-Main
+DO:
+    DEFINE VARIABLE cFieldsValue  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFoundValue   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE recFoundRecID AS RECID     NO-UNDO.
+    
+    CASE FOCUS:NAME :
+        WHEN "cAccount"  THEN DO:
+            RUN system/openLookup.p (
+            INPUT  g_company, 
+            INPUT  "",  /* Lookup ID */
+            INPUT  107,  /* Subject ID */
+            INPUT  "",  /* User ID */
+            INPUT  0,   /* Param Value ID */
+            OUTPUT cFieldsValue, 
+            OUTPUT cFoundValue, 
+            OUTPUT recFoundRecID
+            ).   
+            IF cFoundValue <> "" THEN
+                ASSIGN FOCUS:SCREEN-VALUE = cFoundValue.           
+        END.
+    END CASE.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &Scoped-define SELF-NAME cAccount
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cAccount B-table-Win
 ON RETURN OF cAccount IN FRAME F-Main /* Account */
