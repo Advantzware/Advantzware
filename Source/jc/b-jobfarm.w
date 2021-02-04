@@ -232,7 +232,7 @@ DEFINE BROWSE br_table
       itemfg.i-name FORMAT "x(30)":U LABEL-BGCOLOR 14
       job-farm.std-cost FORMAT ">>>,>>9.99<<":U
       job-farm.sc-uom COLUMN-LABEL "Cost!UOM" FORMAT "x(4)":U WIDTH 7
-      job-farm.cost-m COLUMN-LABEL "Set Cost/M" FORMAT "->,>>9.9999":U
+      job-farm.cost-m COLUMN-LABEL "FG Cost/M" FORMAT "->,>>9.9999":U
       job-farm.qty FORMAT "->>>,>>>,>>9.9<<<<<":U
       job-farm.qty-uom COLUMN-LABEL "Qty!UOM" FORMAT "x(4)":U WIDTH 7
       job-farm.est-cost COLUMN-LABEL "Estimate Cost" FORMAT "->>>,>>9.99<<":U
@@ -380,7 +380,7 @@ itemfg.i-no EQ job-farm.i-no"
      _FldNameList[6]   > ASI.job-farm.sc-uom
 "job-farm.sc-uom" "Cost!UOM" "x(4)" "character" ? ? ? ? ? ? yes ? no no "7" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   > ASI.job-farm.cost-m
-"job-farm.cost-m" "Set Cost/M" ? "decimal" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"job-farm.cost-m" "FG Cost/M" ? "decimal" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > ASI.job-farm.qty
 "job-farm.qty" ? "->>>,>>>,>>9.9<<<<<" "decimal" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[9]   > ASI.job-farm.qty-uom

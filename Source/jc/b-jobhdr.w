@@ -810,9 +810,9 @@ PROCEDURE local-assign-record :
      RUN rebuild-stds.
      lv-qty-changed = FALSE.
   END.
-  IF adm-new-record THEN DO:
-    RUN jc/addJobFarm.p (INPUT job.job).
-  END.
+/*  IF adm-new-record THEN DO:            */
+/*    RUN jc/addJobFarm.p (INPUT job.job).*/
+/*  END.                                  */
 
 END PROCEDURE.
 

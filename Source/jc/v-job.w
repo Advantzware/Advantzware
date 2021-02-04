@@ -1661,7 +1661,7 @@ PROCEDURE local-update-record :
 
       fil_id = RECID(job).
       RUN po/doPo.p (YES) /* Yes Indicates to prompt for RM */.
-      RUN jc/addJobFarm.p (INPUT job.job).
+      //RUN jc/addJobFarm.p (INPUT job.job).
       nufile = NO.
       SESSION:SET-WAIT-STATE("").
     END.

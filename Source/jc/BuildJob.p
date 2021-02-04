@@ -96,6 +96,11 @@ PROCEDURE pBuildFarm PRIVATE:
             bf-job-farm.std-cost      = estCostMaterial.costPerUOM
             bf-job-farm.sc-uom        = estCostMaterial.costUOM
             bf-job-farm.cost-m        = estCostMaterial.costTotalPerMFinished
+            bf-job-farm.est-cost      = estCostMaterial.costPerUOM
+            bf-job-farm.est-uom       = estCostMaterial.costUOM
+            bf-job-farm.est-setup     = estCostMaterial.costSetup
+            bf-job-farm.std-tot-cost  = estCostMaterial.costTotal
+            bf-job-farm.qty-mr        = estCostMaterial.quantityRequiredSetupWaste
             .
             
     END.
