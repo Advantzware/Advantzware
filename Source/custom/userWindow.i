@@ -56,8 +56,7 @@ DO:
             bf-userWindow.winWidth  = {&WINDOW-NAME}:WIDTH 
             bf-userWindow.winHeight = {&WINDOW-NAME}:HEIGHT  
             bf-userWindow.winXpos   = {&WINDOW-NAME}:X
-            bf-userWindow.winYpos   = {&WINDOW-NAME}:Y 
-            bf-userWindow.state     = {&window-name}:window-state 
+            bf-userWindow.winYpos   = {&WINDOW-NAME}:Y  
             .
       END.
 END.      
