@@ -395,6 +395,7 @@ DO:
             DELETE userwindow.
         END.
     END.
+    btDelete:sensitive IN FRAME {&frame-name} = FALSE.
     APPLY "CHOOSE" TO btFilter.                
 END.
 
@@ -567,6 +568,23 @@ END.
 &ANALYZE-RESUME
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ttUserWindow C-Win
+ON U1 OF ttUserWindow IN FRAME DEFAULT-FRAME
+DO: 
+  FOR FIRST ttUserWindow WHERE ttUserWindow.programname = selectedprogram AND 
+                              ttUserWindow.usrid EQ selecteduser:
+    ttUserWindow.cSelect = ttUserWindow.cSelect:CHECKED IN BROWSE {&browse-name}.
+    selectedRowId = ROWID(ttUserWindow).
+  END.
+
+  REPOSITION ttUserWindow TO ROWID selectedRowId. 
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK C-Win 
@@ -599,8 +617,12 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   DO:
     FIND CURRENT ttUserWindow NO-ERROR.
     IF AVAILABLE ttUserWindow  THEN
-        selectedRowId = ROWID(ttUserWindow).
-      REPOSITION ttUserWindow TO ROWID selectedRowId. 
+    ASSIGN
+        selectedprogram = ttUserWindow.programname
+      selecteduser = ttUserWindow.usrid.
+       
+      APPLY 'U1' TO BROWSE ttUserWindow. 
+      
       btDelete:sensitive IN FRAME {&frame-name} = CAN-FIND(FIRST ttUserWindow WHERE ttUserWindow.cSelect).
   END.
     IF NOT THIS-PROCEDURE:PERSISTENT THEN
