@@ -85,7 +85,10 @@ FUNCTION fGetOperationsPartPerSet RETURNS INTEGER PRIVATE
      ipcSetCount AS CHARACTER) FORWARD.  
      
 FUNCTION fGetOperationsInkCoverage RETURNS DECIMAL PRIVATE
-    (BUFFER ipbf-eb FOR eb) FORWARD.     
+    (BUFFER ipbf-eb FOR eb) FORWARD.   
+    
+FUNCTION fGetJobMachRunQty RETURNS DECIMAL PRIVATE
+    (ipcCompany AS CHARACTER, ipiJob AS INTEGER, ipiFormNo AS INTEGER) FORWARD.      
 /* ***************************  Main Block  *************************** */
 
 
@@ -152,6 +155,8 @@ PROCEDURE GetOperationStandards:
     DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcLocationID AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcOperationID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiPass AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipriRowid AS ROWID NO-UNDO.
     DEFINE OUTPUT PARAMETER opdOpMRWaste AS DECIMAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opdOpMRHours AS DECIMAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opdOpRunSpeed AS DECIMAL NO-UNDO.
@@ -160,11 +165,11 @@ PROCEDURE GetOperationStandards:
     DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
     
     DEFINE BUFFER bf-mach FOR mach.
-    
+            
     RUN pGetMachineBuffer(ipcCompany, ipcLocationID, ipcOperationID, BUFFER bf-mach, OUTPUT oplError, OUTPUT opcMessage).
 
-    IF AVAILABLE bf-mach THEN DO:
-        opdOpMRWaste = bf-mach.mr-waste.
+    IF AVAILABLE bf-mach THEN DO:           
+        RUN pGetMRWaste(INPUT ipriRowid, INPUT ipiPass, BUFFER bf-mach, OUTPUT opdOpMRWaste, OUTPUT oplError, OUTPUT opcMessage).
         RUN pGetRunSpeed(BUFFER bf-mach, OUTPUT opdOpRunSpeed, OUTPUT oplError, OUTPUT opcMessage).
         RUN pGetMRHours(BUFFER bf-mach, OUTPUT opdOpMRHours, OUTPUT oplError, OUTPUT opcMessage).
         RUN pGetRunSpoil(BUFFER bf-mach, OUTPUT opdOpRunSpoil, OUTPUT oplError, OUTPUT opcMessage).
@@ -214,12 +219,13 @@ PROCEDURE GetOperationStandardsForJobMch:
                               OUTPUT bf-job-mch.run-fixoh,
                               OUTPUT bf-job-mch.run-varoh,
                               OUTPUT lError, OUTPUT cMessage).
-            RUN GetOperationStandards(bf-job-mch.company, bf-job.loc, bf-job-mch.m-code,
+            RUN GetOperationStandards(bf-job-mch.company, bf-job.loc, bf-job-mch.m-code, bf-job-mch.pass, ROWID(bf-eb),
                                       OUTPUT bf-job-mch.mr-waste, 
                                       OUTPUT bf-job-mch.mr-hr, 
                                       OUTPUT bf-job-mch.speed, 
                                       OUTPUT bf-job-mch.wst-prct, 
                                       OUTPUT lError, OUTPUT cMessage).
+            bf-job-mch.run-qty =  fGetJobMachRunQty(bf-job-mch.company, bf-job-mch.job, bf-job-mch.frm).
         END.
     END.
 
@@ -630,6 +636,66 @@ PROCEDURE pGetRunSpoil PRIVATE:
     END.
     
 END PROCEDURE.
+
+PROCEDURE pGetMRWaste PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Given company and machine code, return the Run Spoil % based on the 
+        current attribute context.
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipriRowID AS ROWID NO-UNDO.
+    DEFINE INPUT PARAMETER ipiPass AS INTEGER NO-UNDO.
+    DEFINE PARAMETER BUFFER ipbf-mach FOR mach.
+    DEFINE OUTPUT PARAMETER opdOpMRWaste AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE iMaxco AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
+    DEFINE BUFFER bf-mstd FOR mstd.
+    DEFINE BUFFER bf-eb FOR eb. 
+                
+    FIND FIRST bf-eb NO-LOCK 
+        WHERE ROWID(bf-eb) EQ ipriRowID
+        NO-ERROR.
+        
+    IF ipbf-mach.dept[1] EQ "PR" OR ipbf-mach.dept[2] EQ "PR" AND ipbf-mach.dept[3] EQ "PR" OR ipbf-mach.dept[4] EQ "PR" THEN
+    DO:      
+      IF bf-eb.est-type GE 5 THEN
+      DO:    
+         DO iCount = 1 TO 10:
+          IF bf-eb.i-ps[iCount] NE ipiPass THEN NEXT.
+          FIND FIRST item NO-LOCK
+               where (item.company = ipbf-mach.company)
+               AND item.i-no EQ bf-eb.i-code[iCount]
+               AND INDEX("IV",item.mat-type) GT 0
+               AND item.ink-type NE "A"
+             NO-ERROR.
+          IF AVAIL item THEN iMaxco = iMaxco + 1. /* maxco now = # colors/coating this machine/this pass */  
+         END.
+      END.  
+      ELSE IF bf-eb.est-type LE 4 THEN
+      DO:  
+          DO iCount = 1 TO 17:
+          IF bf-eb.i-ps2[iCount] NE ipiPass THEN NEXT.
+          FIND FIRST item NO-LOCK
+               where (item.company = ipbf-mach.company)
+               AND item.i-no EQ bf-eb.i-code2[iCount]
+               AND INDEX("IV",item.mat-type) GT 0
+               AND item.ink-type NE "A"
+             NO-ERROR.
+          IF AVAIL item THEN iMaxco = iMaxco + 1. /* maxco now = # colors/coating this machine/this pass */
+          END.
+      END.    
+    END.          
+        
+    opdOpMRWaste = ipbf-mach.mr-waste.
+    
+    IF LOOKUP(ipbf-mach.dept[1],"PR,CT") GT 0 OR LOOKUP(ipbf-mach.dept[2],"PR,CT") GT 0 OR LOOKUP(ipbf-mach.dept[3],"PR,CT") GT 0
+     OR LOOKUP(ipbf-mach.dept[4],"PR,CT") GT 0 THEN
+     opdOpMRWaste = opdOpMRWaste + (ipbf-mach.col-wastesh * iMaxco).       
+        
+END PROCEDURE.        
 
 PROCEDURE pGetStandardBuffer PRIVATE:
     /*------------------------------------------------------------------------------
@@ -1428,3 +1494,48 @@ FUNCTION fGetOperationsInkCoverage RETURNS DECIMAL PRIVATE
     RETURN iReturnValue.
 		
 END FUNCTION.
+
+FUNCTION fGetJobMachRunQty RETURNS DECIMAL PRIVATE
+    (ipcCompany AS CHARACTER, ipiJob AS INTEGER, ipiFormNo AS INTEGER):
+    /*------------------------------------------------------------------------------
+    Purpose: 
+    Notes:
+    ------------------------------------------------------------------------------*/	
+    DEFINE VARIABLE dReturnValue AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dQtyEach AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE cErrorMessage AS CHARACTER NO-UNDO.
+           
+    FOR EACH job-mat NO-LOCK
+        WHERE job-mat.company EQ ipcCompany
+        AND job-mat.job       EQ ipiJob
+        AND job-mat.frm       EQ ipiFormNo,        
+        FIRST ITEM FIELDS(s-dep s-len basis-w r-wid)
+              WHERE item.company  EQ ipcCompany
+              AND item.i-no     EQ job-mat.i-no
+              AND item.mat-type EQ "B"
+              NO-LOCK:
+                              
+              IF job-mat.qty-uom NE "EA" THEN
+              RUN Conv_QuantityFromUOMtoUOM( INPUT ipcCompany,
+                                             INPUT job-mat.i-no, 
+                                             INPUT "RM",
+                                             INPUT job-mat.qty,
+                                             INPUT job-mat.qty-uom,
+                                             INPUT "EA",
+                                             INPUT item.basis-w,
+                                             INPUT IF item.r-wid EQ 0 THEN item.s-len ELSE 12,
+                                             INPUT IF item.r-wid EQ 0 THEN item.s-wid ELSE item.r-wid, 
+                                             INPUT item.s-dep,
+                                             INPUT 0, 
+                                             OUTPUT dQtyEach,
+                                             OUTPUT lError,
+                                             OUTPUT cErrorMessage).
+                    
+        dReturnValue = dReturnValue + ( IF job-mat.qty-uom EQ "EA" THEN job-mat.qty ELSE dQtyEach) .
+    END.
+    
+    RETURN dReturnValue.
+		
+END FUNCTION.
+
