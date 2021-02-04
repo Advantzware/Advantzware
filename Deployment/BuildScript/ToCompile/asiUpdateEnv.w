@@ -175,7 +175,7 @@ DEF TEMP-TABLE ttResTemplateFiles
 DEF TEMP-TABLE ttledger 
     FIELD cType as CHAR 
     FIELD rRowid as ROWID.
-
+    
 DEF BUFFER bnotes FOR notes.
 DEF BUFFER bf-usercomp FOR usercomp.
 DEF BUFFER bf-module FOR MODULE.
@@ -812,6 +812,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipAddDbmsFonts C-Win 
 PROCEDURE ipAddDbmsFonts :
 /*------------------------------------------------------------------------------
@@ -857,46 +858,128 @@ PROCEDURE ipAddDbmsFonts :
             END.
             INPUT STREAM s1 CLOSE.
             
-            FIND FIRST ttDbms NO-LOCK WHERE 
-                ttDbms.cLine BEGINS "font32"
-                NO-ERROR.
-            IF NOT AVAIL ttDbms THEN DO:
-                FIND FIRST ttDbms NO-LOCK WHERE 
-                    ttDbms.cLine BEGINS "font31"
-                    NO-ERROR.
-                ASSIGN 
-                    iNextLine = ttDbms.iLineNo.
-                CREATE ttDbms.
-                ASSIGN 
-                    ttDbms.iLineNo = iNextLine + 1
-                    ttDbms.cLine = "font32=Tahoma, size=8".
-                CREATE ttDbms.
-                ASSIGN 
-                    ttDbms.iLineNo = iNextLine + 2
-                    ttDbms.cLine = "font33=Tahoma, size=8, bold".
-                CREATE ttDbms.
-                ASSIGN 
-                    ttDbms.iLineNo = iNextLine + 3
-                    ttDbms.cLine = "font34=Tahoma, size=10".
-                CREATE ttDbms.
-                ASSIGN 
-                    ttDbms.iLineNo = iNextLine + 4
-                    ttDbms.cLine = "font35=Tahoma, size=10, bold".
-                CREATE ttDbms.
-                ASSIGN 
-                    ttDbms.iLineNo = iNextLine + 5
-                    ttDbms.cLine = "font36=Tahoma, size=12".
-                CREATE ttDbms.
-                ASSIGN 
-                    ttDbms.iLineNo = iNextLine + 6
-                    ttDbms.cLine = "font37=Tahoma, size=12, bold".
-
-                OUTPUT STREAM s2 TO VALUE(FILE-INFO:FULL-PATHNAME).
-                FOR EACH ttDbms BY ttDbms.iLineNo:
-                    PUT STREAM s2 UNFORMATTED ttDbms.cLine + CHR(10).
-                END.
-
+            FOR EACH ttDbms WHERE 
+                ttDbms.cLine BEGINS "font" OR 
+                ttDbms.cLine BEGINS "color" OR 
+                ttDbms.cLine BEGINS "NORMAL=" OR 
+                ttDbms.cLine BEGINS "INPUT=" OR 
+                ttDbms.cLine BEGINS "MESSAGES=" OR 
+                ttDbms.cline BEGINS "[fonts]" or
+                ttDbms.cline BEGINS "[colors]":
+                DELETE ttDbms.
             END.
+            FIND LAST ttDbms.
+            ASSIGN 
+                iNextLine = ttDbms.iLineNo + 1.
+            DO iCtr = 1 TO 96:
+                CREATE ttDbms.
+                ASSIGN
+                    ttDbms.iLineNo = iNextLine + iCtr.
+                CASE iCtr:
+                    WHEN 01 THEN ASSIGN ttDbms.cLine = "[Fonts]".
+                    WHEN 02 THEN ASSIGN ttDbms.cLine = "Font0=Calibri, size=10".
+                    WHEN 03 THEN ASSIGN ttDbms.cLine = "Font1=Tahoma, size=8".
+                    WHEN 04 THEN ASSIGN ttDbms.cLine = "Font2=Courier New, size=8".
+                    WHEN 05 THEN ASSIGN ttDbms.cLine = "Font3=Courier New, size=8".
+                    WHEN 06 THEN ASSIGN ttDbms.cLine = "Font4=Tahoma, size=8".
+                    WHEN 07 THEN ASSIGN ttDbms.cLine = "Font5=Tahoma, size=10".
+                    WHEN 08 THEN ASSIGN ttDbms.cLine = "Font6=Tahoma, size=8, bold".
+                    WHEN 09 THEN ASSIGN ttDbms.cLine = "Font7=Tahoma, size=8".
+                    WHEN 10 THEN ASSIGN ttDbms.cLine = "Font8=Tahoma, size=8".
+                    WHEN 11 THEN ASSIGN ttDbms.cLine = "Font9=Courier, size=10".
+                    WHEN 12 THEN ASSIGN ttDbms.cLine = "Font10=Courier New, size=6".
+                    WHEN 13 THEN ASSIGN ttDbms.cLine = "Font11=Courier New, size=7".
+                    WHEN 14 THEN ASSIGN ttDbms.cLine = "Font12=Courier New, size=8".
+                    WHEN 15 THEN ASSIGN ttDbms.cLine = "Font13=Courier New, size=9".
+                    WHEN 16 THEN ASSIGN ttDbms.cLine = "Font14=Courier New, size=10".
+                    WHEN 17 THEN ASSIGN ttDbms.cLine = "Font15=Courier New, size=12".
+                    WHEN 18 THEN ASSIGN ttDbms.cLine = "Font16=Webdings, size=10 Script=symbol".
+                    WHEN 19 THEN ASSIGN ttDbms.cLine = "Font17=MS Sans Serif size=8".
+                    WHEN 20 THEN ASSIGN ttDbms.cLine = "Font18=MS Sans Serif size=8".
+                    WHEN 21 THEN ASSIGN ttDbms.cLine = "Font19=MS Sans Serif size=8".
+                    WHEN 22 THEN ASSIGN ttDbms.cLine = "Font20=MS Sans Serif size=8".
+                    WHEN 23 THEN ASSIGN ttDbms.cLine = "Font21=Corbel, size=10".
+                    WHEN 24 THEN ASSIGN ttDbms.cLine = "Font22=Calibri, size=10".
+                    WHEN 25 THEN ASSIGN ttDbms.cLine = "Font23=Calibri, size=10 bold".
+                    WHEN 26 THEN ASSIGN ttDbms.cLine = "Font24=Calibri, size=12".
+                    WHEN 27 THEN ASSIGN ttDbms.cLine = "Font25=MS Sans Serif size=8".
+                    WHEN 28 THEN ASSIGN ttDbms.cLine = "Font26=MS Sans Serif size=8".
+                    WHEN 29 THEN ASSIGN ttDbms.cLine = "Font27=MS Sans Serif size=8".
+                    WHEN 30 THEN ASSIGN ttDbms.cLine = "Font28=MS Sans Serif size=8".
+                    WHEN 31 THEN ASSIGN ttDbms.cLine = "Font29=MS Sans Serif size=8".
+                    WHEN 32 THEN ASSIGN ttDbms.cLine = "Font30=MS Sans Serif size=8".
+                    WHEN 33 THEN ASSIGN ttDbms.cLine = "Font31=Arial, size=14 italic bold".
+                    WHEN 34 THEN ASSIGN ttDbms.cLine = "Font32=Calibri, size=10".
+                    WHEN 35 THEN ASSIGN ttDbms.cLine = "Font33=Calibri, size=10, bold".
+                    WHEN 36 THEN ASSIGN ttDbms.cLine = "Font34=Calibri, size=12".
+                    WHEN 37 THEN ASSIGN ttDbms.cLine = "Font35=Calibri, size=12, bold".
+                    WHEN 38 THEN ASSIGN ttDbms.cLine = "Font36=Calibri, size=14".
+                    WHEN 39 THEN ASSIGN ttDbms.cLine = "Font37=Calibri, size=14, bold".
+                    WHEN 40 THEN ASSIGN ttDbms.cLine = "Font38=Trebuchet MS, size=14 bold".
+                    WHEN 41 THEN ASSIGN ttDbms.cLine = "Font39=Tahoma, size=8".
+                    WHEN 42 THEN ASSIGN ttDbms.cLine = "Font40=Tahoma, size=10 bold".
+                    WHEN 43 THEN ASSIGN ttDbms.cLine = "Font41=Tahoma, size=12".
+                    WHEN 44 THEN ASSIGN ttDbms.cLine = "Font42=Tahoma, size=12 bold".
+                    WHEN 45 THEN ASSIGN ttDbms.cLine = "[Colors]".
+                    WHEN 46 THEN ASSIGN ttDbms.cLine = "Color0=0,0,0".
+                    WHEN 47 THEN ASSIGN ttDbms.cLine = "Color1=0,0,128".
+                    WHEN 48 THEN ASSIGN ttDbms.cLine = "Color2=0,128,0".
+                    WHEN 49 THEN ASSIGN ttDbms.cLine = "Color3=0,128,128".
+                    WHEN 50 THEN ASSIGN ttDbms.cLine = "Color4=128,0,0".
+                    WHEN 51 THEN ASSIGN ttDbms.cLine = "Color5=128,0,128".
+                    WHEN 52 THEN ASSIGN ttDbms.cLine = "Color6=128,128,0".
+                    WHEN 53 THEN ASSIGN ttDbms.cLine = "Color7=128,128,128".
+                    WHEN 54 THEN ASSIGN ttDbms.cLine = "Color8=192,192,192".
+                    WHEN 55 THEN ASSIGN ttDbms.cLine = "Color9=0,0,155".
+                    WHEN 56 THEN ASSIGN ttDbms.cLine = "Color10=0,255,0".
+                    WHEN 57 THEN ASSIGN ttDbms.cLine = "Color11=0,255,255".
+                    WHEN 58 THEN ASSIGN ttDbms.cLine = "Color12=255,0,0".
+                    WHEN 59 THEN ASSIGN ttDbms.cLine = "Color13=255,0,255".
+                    WHEN 60 THEN ASSIGN ttDbms.cLine = "Color14=163,188,249".
+                    WHEN 61 THEN ASSIGN ttDbms.cLine = "Color15=255,255,255".
+                    WHEN 62 THEN ASSIGN ttDbms.cLine = "Color16=0,0,0".
+                    WHEN 63 THEN ASSIGN ttDbms.cLine = "Color17=0,0,0".
+                    WHEN 64 THEN ASSIGN ttDbms.cLine = "Color18=0,0,0".
+                    WHEN 65 THEN ASSIGN ttDbms.cLine = "Color19=0,0,0".
+                    WHEN 66 THEN ASSIGN ttDbms.cLine = "Color20=120,50,255".
+                    WHEN 67 THEN ASSIGN ttDbms.cLine = "Color21=119,150,203".
+                    WHEN 68 THEN ASSIGN ttDbms.cLine = "Color22=163,188,249".
+                    WHEN 69 THEN ASSIGN ttDbms.cLine = "Color23=251,251,251".
+                    WHEN 70 THEN ASSIGN ttDbms.cLine = "Color24=139,139,139".
+                    WHEN 71 THEN ASSIGN ttDbms.cLine = "Color25=245,246,246".
+                    WHEN 72 THEN ASSIGN ttDbms.cLine = "Color26=236,242,249".
+                    WHEN 73 THEN ASSIGN ttDbms.cLine = "Color27=0,0,0".
+                    WHEN 74 THEN ASSIGN ttDbms.cLine = "Color28=239,255,232".
+                    WHEN 75 THEN ASSIGN ttDbms.cLine = "Color29=87,100,144".
+                    WHEN 76 THEN ASSIGN ttDbms.cLine = "Color30=219,254,202".
+                    WHEN 77 THEN ASSIGN ttDbms.cLine = "Color31=246,242,242".
+                    WHEN 78 THEN ASSIGN ttDbms.cLine = "Color32=251,251,251".
+                    WHEN 79 THEN ASSIGN ttDbms.cLine = "Color33=87,100,144".
+                    WHEN 80 THEN ASSIGN ttDbms.cLine = "Color34=209,210,249".
+                    WHEN 81 THEN ASSIGN ttDbms.cLine = "Color35=200,217,246".
+                    WHEN 82 THEN ASSIGN ttDbms.cLine = "Color36=0,0,0".
+                    WHEN 83 THEN ASSIGN ttDbms.cLine = "Color37=0,0,0".
+                    WHEN 84 THEN ASSIGN ttDbms.cLine = "Color38=0,0,0".
+                    WHEN 85 THEN ASSIGN ttDbms.cLine = "Color39=0,0,0".
+                    WHEN 86 THEN ASSIGN ttDbms.cLine = "Color40=0,0,0".
+                    WHEN 87 THEN ASSIGN ttDbms.cLine = "Color41=0,0,0".
+                    WHEN 88 THEN ASSIGN ttDbms.cLine = "Color42=0,0,0".
+                    WHEN 89 THEN ASSIGN ttDbms.cLine = "Color43=0,0,0".
+                    WHEN 90 THEN ASSIGN ttDbms.cLine = "Color44=0,0,0".
+                    WHEN 91 THEN ASSIGN ttDbms.cLine = "Color45=0,0,0".
+                    WHEN 92 THEN ASSIGN ttDbms.cLine = "Color46=0,0,0".
+                    WHEN 93 THEN ASSIGN ttDbms.cLine = "Color47=0,0,0".
+                    WHEN 94 THEN ASSIGN ttDbms.cLine = "NORMAL=1,0".
+                    WHEN 95 THEN ASSIGN ttDbms.cLine = "INPUT=1,0".
+                    WHEN 96 THEN ASSIGN ttDbms.cLine = "MESSAGES=1,0".
+                END CASE.     
+            END.
+
+            OUTPUT STREAM s2 TO VALUE(FILE-INFO:FULL-PATHNAME).
+            FOR EACH ttDbms BY ttDbms.iLineNo:
+                PUT STREAM s2 UNFORMATTED ttDbms.cLine + CHR(10).
+            END.
+            OUTPUT STREAM s2 CLOSE.
         END.
     END.
 
@@ -2513,9 +2596,8 @@ PROCEDURE ipDataFix :
         RUN ipDataFix200202.
     IF fIntVer(cThisEntry) LT 20030300 THEN 
         RUN ipDataFix200303.
-    IF fIntVer(cThisEntry) LT 21000000 THEN DO:
+    IF fIntVer(cThisEntry) LT 21000000 THEN
         RUN ipDataFix200306.
-    END.
     IF fIntVer(cThisEntry) LT 99999999 THEN
         RUN ipDataFix999999.
 
@@ -2794,7 +2876,6 @@ PROCEDURE ipDataFix160850 :
 
     RUN ipRemoveUserMenu.
     RUN ipFixUserPrint.
-    RUN ipAddDbmsFonts.
 
 END PROCEDURE.
 
@@ -3243,6 +3324,7 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix999999 C-Win 
 PROCEDURE ipDataFix999999 :
     /*------------------------------------------------------------------------------
@@ -3262,6 +3344,7 @@ PROCEDURE ipDataFix999999 :
     RUN ipLoadEstCostData.
     RUN ipChangeCostMethod.
     RUN ipSetDepartmentRequired.
+    RUN ipAddDbmsFonts.
     
 END PROCEDURE.
 
@@ -3807,7 +3890,6 @@ END PROCEDURE.
 	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipFixPoEdiDirs C-Win 
@@ -6768,10 +6850,10 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipUpdateTTIniFile C-Win 
 PROCEDURE ipUpdateTTIniFile :
 /*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       
-    ------------------------------------------------------------------------------*/
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
 
     ASSIGN 
         lSuccess = FALSE 
@@ -6788,6 +6870,28 @@ PROCEDURE ipUpdateTTIniFile :
     IF AVAIL ttIniFile 
     AND INDEX(ttIniFile.cVarValue,"api/Monitor.w") = 0 THEN ASSIGN 
         ttIniFile.cVarValue = ttIniFile.cVarValue + ",api/Monitor.w".
+        
+    /* 96424 NU3 user Mode - Sharp Shooter to use new SS Menu */
+    FIND ttIniFile WHERE 
+        ttIniFile.cVarName = "modeList"
+        NO-ERROR.
+    IF AVAIL ttIniFile 
+    AND INDEX(ttIniFile.cVarValue,"Shop Floor") = 0 THEN ASSIGN 
+        ttIniFile.cVarValue = ttIniFile.cVarValue + ",Shop Floor". 
+        
+    FIND ttIniFile WHERE 
+        ttIniFile.cVarName = "pgmList"
+        NO-ERROR.
+    IF AVAIL ttIniFile 
+    AND INDEX(ttIniFile.cVarValue,"sharpshooter/ssMenu") = 0 THEN ASSIGN 
+        ttIniFile.cVarValue = ttIniFile.cVarValue + ",sharpshooter/ssMenu.w". 
+        
+    FIND ttIniFile WHERE 
+        ttIniFile.cVarName = "pgmList"
+        NO-ERROR.
+    IF AVAIL ttIniFile 
+    AND INDEX(ttIniFile.cVarValue,"oerep/r-loadtg.w") = 0 THEN ASSIGN 
+        ttIniFile.cVarValue = REPLACE(ttIniFile.cVarValue,"oerep/r-loadtg.w","sharpshooter/w-createloadtag.w").        
         
     ASSIGN
         lSuccess = TRUE.
@@ -6854,7 +6958,7 @@ PROCEDURE ipUseOldNK1 :
   Notes:       
 ------------------------------------------------------------------------------*/
         
-    RUN ipStatus ("  Setting NK1 to old view").
+    RUN ipStatus ("    Setting NK1 to old view").
     
     DISABLE TRIGGERS FOR LOAD OF prgrms.
     

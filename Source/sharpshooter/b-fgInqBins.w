@@ -46,6 +46,8 @@ DEFINE VARIABLE lHasAccess AS LOGICAL NO-UNDO.
 {methods/defines/sortByDefs.i}
 
 DEFINE VARIABLE hdInventoryProcs AS HANDLE NO-UNDO.
+DEFINE VARIABLE iWarehouseLength  AS INTEGER   NO-UNDO.
+
 RUN Inventory/InventoryProcs.p PERSISTENT SET hdInventoryProcs.
 
 DEFINE VARIABLE hdPgmSecurity AS HANDLE  NO-UNDO.
@@ -590,11 +592,17 @@ FUNCTION fGetConcatLocation RETURNS CHARACTER PRIVATE
   Purpose:  
     Notes:  
 ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE cConcatLocation AS CHARACTER NO-UNDO.
-       
+    DEFINE VARIABLE cConcatLocation   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCompany          AS CHARACTER NO-UNDO. 
+    RUN spGetSessionParam ("Company", OUTPUT cCompany).
+    
+    RUN Inventory_GetWarehouseLength IN hdInventoryProcs (
+        INPUT  cCompany,
+        OUTPUT iWarehouseLength
+        ).
     IF AVAILABLE ttBrowseInventory THEN
         cConcatLocation = ttBrowseInventory.warehouseID 
-                        + FILL(" ", 5 - LENGTH(ttBrowseInventory.warehouseID)) 
+                        + FILL(" ", iWarehouseLength - LENGTH(ttBrowseInventory.warehouseID)) 
                         + ttBrowseInventory.locationID.
 
     RETURN cConcatLocation.

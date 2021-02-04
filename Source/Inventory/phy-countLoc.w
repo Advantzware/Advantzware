@@ -50,6 +50,7 @@ DEFINE VARIABLE hdInventoryProcs      AS HANDLE    NO-UNDO.
 DEFINE VARIABLE cLocationID           AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cWarehouseID          AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cColumnHandles        AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iWarehouseLength      AS INTEGER   NO-UNDO.
 
 DEFINE VARIABLE scFilterOnlyScanned      AS CHARACTER NO-UNDO INITIAL "1".
 DEFINE VARIABLE scFilterOnlyNotScanned   AS CHARACTER NO-UNDO INITIAL "2".
@@ -874,12 +875,10 @@ ON LEAVE OF fiLocation IN FRAME F-Main
 DO:
     IF SELF:SCREEN-VALUE EQ "" THEN
         RETURN.
-    
-    RUN LocationParser IN hdInventoryProcs (
-        INPUT  fiLocation:SCREEN-VALUE,    
-        OUTPUT cWarehouseID,
-        OUTPUT cLocationID
-        ).
+
+    ASSIGN
+        cWarehouseID = TRIM(SUBSTRING(SELF:SCREEN-VALUE, 1, iWarehouseLength))
+        cLocationID  = TRIM(SUBSTRING(SELF:SCREEN-VALUE, iWarehouseLength + 1)).
         
     RUN pLocationScan (
         INPUT  ipcCompany,
@@ -1070,6 +1069,10 @@ PROCEDURE init :
         "", /* Company. Pass empty if needed list of all warehouses across all companies are required */
         TRUE, /* Active location only */        
         OUTPUT cWarehouseListItems
+        ).
+    RUN Inventory_GetWarehouseLength IN hdInventoryProcs (
+        INPUT  ipcCompany,
+        OUTPUT iWarehouseLength
         ).
     
     RUN pAddLegend.
@@ -1376,7 +1379,7 @@ PROCEDURE pLocationScan :
 
     ASSIGN
         fiLocation:SCREEN-VALUE      = ipcWarehouseID +
-                                       FILL(" ", 5 - LENGTH(ipcWarehouseID)) +
+                                       FILL(" ", iWarehouseLength - LENGTH(ipcWarehouseID)) +
                                        ipcLocationID
         cbWarehouse:SCREEN-VALUE     = ipcWarehouseID
         fiBin:SCREEN-VALUE           = ipcLocationID

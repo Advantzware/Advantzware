@@ -47,6 +47,7 @@ CREATE WIDGET-POOL.
 
 {system/sysconst.i}
 {wip/keyboardDefs.i}
+{Inventory/ttInventory.i "NEW SHARED"}
 
 DEFINE VARIABLE cCompany   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cItemID    AS CHARACTER NO-UNDO.
@@ -65,6 +66,9 @@ DEFINE VARIABLE hdItemSumm  AS HANDLE    NO-UNDO.
 
 DEFINE VARIABLE lSummQueryRan AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lBinsQueryRan AS LOGICAL NO-UNDO.
+
+DEFINE VARIABLE hdInventoryProcs AS HANDLE    NO-UNDO.
+DEFINE VARIABLE iWarehouseLength AS INTEGER   NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -459,12 +463,12 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiLocation W-Win
 ON LEAVE OF fiLocation IN FRAME F-Main /* Location */
 DO:        
-    IF cWarehouse EQ SUBSTRING(fiLocation:SCREEN-VALUE, 1, 5) AND cLocation EQ SUBSTRING(fiLocation:SCREEN-VALUE, 6) THEN
+    IF cWarehouse EQ SUBSTRING(fiLocation:SCREEN-VALUE, 1, iWarehouseLength) AND cLocation EQ SUBSTRING(fiLocation:SCREEN-VALUE, iWarehouseLength + 1) THEN
         RETURN.
         
     ASSIGN
-        cWarehouse = SUBSTRING(fiLocation:SCREEN-VALUE, 1, 5)
-        cLocation  = SUBSTRING(fiLocation:SCREEN-VALUE, 6)
+        cWarehouse = SUBSTRING(fiLocation:SCREEN-VALUE, 1, iWarehouseLength)
+        cLocation  = SUBSTRING(fiLocation:SCREEN-VALUE, iWarehouseLength + 1)
         .        
 
     RUN pScanItem.
@@ -899,6 +903,7 @@ PROCEDURE pInit :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+    RUN inventory/InventoryProcs.p PERSISTENT SET hdInventoryProcs.
     FIND FIRST company NO-LOCK 
          WHERE company.company EQ cocode
          NO-ERROR .
@@ -908,6 +913,10 @@ PROCEDURE pInit :
                          + STRING(company.name) + " - " + locode.
 
     cCompany = cocode.
+    RUN Inventory_GetWarehouseLength IN hdInventoryProcs (
+        INPUT  cCompany,
+        OUTPUT iWarehouseLength
+        ).
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
