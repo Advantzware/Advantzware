@@ -2079,11 +2079,13 @@ PROCEDURE pCalculateHeader PRIVATE:
             RUN pProcessOperations(BUFFER bf-estCostHeader, BUFFER bf-estCostForm).
             IF AVAILABLE bf-estCostBlank AND bf-estCostBlank.isPurchased THEN 
                 RUN pProcessFarm(BUFFER bf-estCostHeader, BUFFER bf-estCostForm, BUFFER bf-estCostBlank ).
-            RUN pProcessLeafs(BUFFER ef, BUFFER bf-estCostHeader, BUFFER bf-estCostForm).
-            RUN pProcessBoard(BUFFER bf-estCostHeader, BUFFER bf-estCostForm, BUFFER ef).      
-            RUN pProcessAdders(BUFFER bf-estCostHeader, BUFFER bf-estCostForm, ef.adder).   
-            RUN pProcessInks(BUFFER bf-estCostHeader, BUFFER bf-estCostForm).
-            RUN pProcessGlues(BUFFER bf-estCostHeader, BUFFER bf-estCostForm).
+            ELSE DO: 
+                RUN pProcessLeafs(BUFFER ef, BUFFER bf-estCostHeader, BUFFER bf-estCostForm).
+                RUN pProcessBoard(BUFFER bf-estCostHeader, BUFFER bf-estCostForm, BUFFER ef).      
+                RUN pProcessAdders(BUFFER bf-estCostHeader, BUFFER bf-estCostForm, ef.adder).   
+                RUN pProcessInks(BUFFER bf-estCostHeader, BUFFER bf-estCostForm).
+                RUN pProcessGlues(BUFFER bf-estCostHeader, BUFFER bf-estCostForm).
+            END.
             RUN pProcessSpecialMaterials(BUFFER ef, BUFFER bf-estCostHeader, BUFFER bf-estCostForm).  
             RUN pProcessMiscPrep(BUFFER ef, BUFFER bf-estCostForm).
             RUN pProcessMiscNonPrep(BUFFER ef, BUFFER bf-estCostForm).
@@ -3883,14 +3885,7 @@ PROCEDURE pBuildHeader PRIVATE:
         ipbf-estCostHeader.handlingChargePct           = bf-ce-ctrl.hand-pct / 100 /*ctrl[2]*/
         ipbf-estCostHeader.handlingRatePerCWTRMPct     = bf-ce-ctrl.rm-rate / 100 /*ctrl[3]*/ /*NOTE CHANGED to be /100 */
         
-        ipbf-estCostHeader.special1MarkupPct           = bf-ce-ctrl.spec-%[1] /*ctrl[4] - already a fraction?*/ 
-        ipbf-estCostHeader.special1FlatValue           = 0 /*REFACTOR - treatment of Special Costs*/
         
-        ipbf-estCostHeader.special2MarkupPct           = bf-ce-ctrl.spec-%[2] /*ctrl[4]*/
-        ipbf-estCostHeader.special2FlatValue           = 0
-        
-        ipbf-estCostHeader.special3MarkupPct           = bf-ce-ctrl.spec-%[3] /*ctrl[4]*/ 
-        ipbf-estCostHeader.special3FlatValue           = 0
         
         ipbf-estCostHeader.showCommissions             = bf-ce-ctrl.comm-add /*ctrl[5]*/
         ipbf-estCostHeader.showLaborRates              = bf-ce-ctrl.sho-labor /*ctrl[7]*/
@@ -3908,6 +3903,13 @@ PROCEDURE pBuildHeader PRIVATE:
         ipbf-estCostHeader.handlingChargeFarmPct       = bf-ce-ctrl.hand-pct-farm / 100
         ipbf-estCostHeader.directMaterialPct           = gdMaterialMarkup / 100           
         ipbf-estCostHeader.weightUOM                   = gcDefaultWeightUOM     
+        
+        ipbf-estCostHeader.special1MarkupPct           = IF bf-ce-ctrl.spec-%[1] < 1 THEN bf-ce-ctrl.spec-%[1] ELSE 0 /*ctrl[4] - already a fraction?*/ 
+        ipbf-estCostHeader.special1FlatValue           = IF bf-ce-ctrl.spec-%[1] < 1 THEN 0 ELSE bf-ce-ctrl.spec-%[1] /*REFACTOR - treatment of Special Costs*/            
+        ipbf-estCostHeader.special2MarkupPct           = IF bf-ce-ctrl.spec-%[2] < 1 THEN bf-ce-ctrl.spec-%[2] ELSE 0 /*ctrl[4] - already a fraction?*/     
+        ipbf-estCostHeader.special2FlatValue           = IF bf-ce-ctrl.spec-%[2] < 1 THEN 0 ELSE bf-ce-ctrl.spec-%[2] /*REFACTOR - treatment of Special Costs*/
+        ipbf-estCostHeader.special3MarkupPct           = IF bf-ce-ctrl.spec-%[3] < 1 THEN bf-ce-ctrl.spec-%[3] ELSE 0 /*ctrl[4] - already a fraction?*/ 
+        ipbf-estCostHeader.special3FlatValue           = IF bf-ce-ctrl.spec-%[3] < 1 THEN 0 ELSE bf-ce-ctrl.spec-%[3] /*REFACTOR - treatment of Special Costs*/
         .
     CASE bf-est.estimateTypeID:
         WHEN "Misc" THEN 
