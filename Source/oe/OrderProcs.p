@@ -483,18 +483,18 @@ PROCEDURE Order_GetLinesTotal:
  Purpose: Returns Order lines total including freight and tax
  Notes:   Orignal Source - ar/updCust1.p
 ------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER ipcCompany       AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipiOrderNo       AS INTEGER   NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcTaxGroup      AS CHARACTER NO-UNDO.
-    DEFINE OUTPUT PARAMETER opdOrderLinesTotal AS DECIMAL NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcCompany         AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiOrderNo         AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTaxGroup        AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdOrderLinesTotal AS DECIMAL   NO-UNDO.
         
     DEFINE VARIABLE dLineQuantity AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dLinePrice    AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dTaxAmount    AS DECIMAL NO-UNDO.
     
     FOR EACH oe-ordl NO-LOCK
-        WHERE oe-ordl.company EQ oe-ord.company
-          AND oe-ordl.ord-no  EQ oe-ord.ord-no:
+        WHERE oe-ordl.company EQ ipcCompany
+          AND oe-ordl.ord-no  EQ ipiOrderNo:
     
         dLineQuantity = 0.
     
@@ -521,8 +521,8 @@ PROCEDURE Order_GetLinesTotal:
                            
             IF oe-ordl.tax THEN DO:
                 RUN Tax_Calculate(
-                    INPUT  oe-ord.company, 
-                    INPUT  oe-ord.tax-gr,
+                    INPUT  ipcCompany, 
+                    INPUT  ipcTaxGroup,
                     INPUT  FALSE,
                     INPUT  dLinePrice,
                     INPUT  oe-ordl.i-no, 
