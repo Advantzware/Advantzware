@@ -885,7 +885,7 @@ FOR EACH job-hdr NO-LOCK
                             NO-LOCK,
                             FIRST ttSoule WHERE ttSoule.frm EQ eb.form-no 
                                 AND ttSoule.blank-no EQ eb.blank-no 
-                                AND ttSoule.runForm EQ YES NO-LOCK
+                                AND ttSoule.runForm EQ YES NO-LOCK                            
                             BREAK BY eb.form-no BY eb.blank-no.
                             
                             CREATE w-lo.
@@ -1212,34 +1212,32 @@ FOR EACH job-hdr NO-LOCK
 
                             IF FIRST-OF(eb.form-no) THEN 
                             DO:
-                                ASSIGN iEbTotalYldQty = 0
-                                       iEbTotalblQty  = 0
-                                       iEbTotalUpQty  = 0 .
-
-                                FOR EACH bff-eb NO-LOCK
-                                    WHERE bff-eb.company EQ eb.company
-                                      AND bff-eb.est-no EQ eb.est-no
-                                      AND bff-eb.form-no EQ eb.form-no ,
-                                    FIRST bf-ttSoule WHERE  bf-ttSoule.frm EQ bff-eb.form-no
-                                     AND  bf-ttSoule.blank-no EQ bff-eb.blank-no 
-                                    AND  bf-ttSoule.runForm EQ YES NO-LOCK :
-                                    dPerSetQty = 1 .
-                                    IF cSetFGItem NE "" THEN do:
-                                         FIND FIRST fg-set WHERE fg-set.company = eb.company
-                                             AND fg-set.set-no = cSetFGItem
-                                             AND fg-set.part-no = bff-eb.stock-no NO-ERROR.
-                                         IF AVAIL fg-set THEN
-                                            dPerSetQty = fg-set.qtyPerSet .
-                                     END.
-
-                                    ASSIGN
-                                        iEbTotalYldQty = iEbTotalYldQty + ((IF bff-eb.yld-qty EQ 0 THEN bff-eb.bl-qty ELSE bff-eb.yld-qty) * dPerSetQty )
-                                        iEbTotalblQty  = iEbTotalblQty + ( bff-eb.bl-qty * dPerSetQty )
-                                        iEbTotalUpQty  = iEbTotalUpQty + bff-eb.num-up  .
-                                END.
-
-                                
-
+                                RUN pGetFormQtys(eb.company, bf-jobhdr.job-no, bf-jobhdr.job-no2, eb.form-no, OUTPUT iEbTotalYldQty, OUTPUT iEBTotalBlQty, OUTPUT iEbTotalUpQty).
+/*                                ASSIGN iEbTotalYldQty = 0                                                                                                */
+/*                                       iEbTotalblQty  = 0                                                                                                */
+/*                                       iEbTotalUpQty  = 0 .                                                                                              */
+/*                                                                                                                                                         */
+/*                                FOR EACH bff-eb NO-LOCK                                                                                                  */
+/*                                    WHERE bff-eb.company EQ eb.company                                                                                   */
+/*                                      AND bff-eb.est-no EQ eb.est-no                                                                                     */
+/*                                      AND bff-eb.form-no EQ eb.form-no ,                                                                                 */
+/*                                    FIRST bf-ttSoule WHERE  bf-ttSoule.frm EQ bff-eb.form-no                                                             */
+/*                                     AND  bf-ttSoule.blank-no EQ bff-eb.blank-no                                                                         */
+/*                                    AND  bf-ttSoule.runForm EQ YES NO-LOCK :                                                                             */
+/*                                    dPerSetQty = 1 .                                                                                                     */
+/*                                    IF cSetFGItem NE "" THEN do:                                                                                         */
+/*                                         FIND FIRST fg-set WHERE fg-set.company = eb.company                                                             */
+/*                                             AND fg-set.set-no = cSetFGItem                                                                              */
+/*                                             AND fg-set.part-no = bff-eb.stock-no NO-ERROR.                                                              */
+/*                                         IF AVAIL fg-set THEN                                                                                            */
+/*                                            dPerSetQty = fg-set.qtyPerSet .                                                                              */
+/*                                     END.                                                                                                                */
+/*                                                                                                                                                         */
+/*                                    ASSIGN                                                                                                               */
+/*                                        iEbTotalYldQty = iEbTotalYldQty + ((IF bff-eb.yld-qty EQ 0 THEN bff-eb.bl-qty ELSE bff-eb.yld-qty) * dPerSetQty )*/
+/*                                        iEbTotalblQty  = iEbTotalblQty + ( bff-eb.bl-qty * dPerSetQty )                                                  */
+/*                                        iEbTotalUpQty  = iEbTotalUpQty + bff-eb.num-up  .                                                                */
+/*                                END.                                                                                                                     */
 
                                 k = 1 .
                                 PUT 
@@ -1256,138 +1254,13 @@ FOR EACH job-hdr NO-LOCK
                                      "<C65>   <b>Die#: </b>" eb.die-no FORMAT "x(20)" SKIP(1) .
                                 
                                 RUN pPrintOperationsForForm(ef.company, job-hdr.job-no, job-hdr.job-no2,ef.form-no).
-/*                                PUT "<b><C2>Operation             <c20>R Crw.  <c27>R Hrs.    <c33>MR Crw.   <c40>MR Hrs.   <c48>Speed    <c53.5>Mr Wst.   <c61.5>R Wst.  <c68>Beginning   <c77>Yield </b>" SKIP*/
-/*                                    v-fill SKIP .                                                                                                                                                               */
-/*                                                                                                                                                                                                                */
-/*                                IF LINE-COUNTER > 70 THEN                                                                                                                                                       */
-/*                                    DO:                                                                                                                                                                         */
-/*                                        PUT "<C74><R64>Page: " string(PAGE-NUM - lv-pg-num,">>9") + " of <#PAGES>"  FORM "x(20)" .                                                                              */
-/*                                        PAGE.                                                                                                                                                                   */
-/*                                        RUN pPrintHeader .                                                                                                                                                      */
-/*                                    END.                                                                                                                                                                        */
-/*                                                                                                                                                                                                                */
-/*                                i = 0.                                                                                                                                                                          */
-/*                                FOR EACH wrk-op WHERE wrk-op.s-num = tt-reftable.val[12] BREAK BY wrk-op.i-line BY wrk-op.b-num:                                                                                */
-/*                                    v-mat-for-mach = "".                                                                                                                                                        */
-/*                                    IF LOOKUP(wrk-op.dept,lv-mat-dept-list) > 0 THEN                                                                                                                            */
-/*                                    DO:                                                                                                                                                                         */
-/*                                                                                                                                                                                                                */
-/*                                        FOR EACH xjob-mat WHERE xjob-mat.company EQ cocode                                                                                                                      */
-/*                                            AND xjob-mat.job     EQ job-hdr.job                                                                                                                                 */
-/*                                            AND xjob-mat.job-no  EQ job-hdr.job-no                                                                                                                              */
-/*                                            AND xjob-mat.job-no2 EQ job-hdr.job-no2                                                                                                                             */
-/*                                            AND xjob-mat.frm = wrk-op.s-num                                                                                                                                     */
-/*                                                    /*AND (xjob-mat.blank-no = job-hdr.blank-no                                                                                                                 */
-/*                                                         OR xjob-mat.blank-no = 0)*/  NO-LOCK,                                                                                                                  */
-/*                                            FIRST bf-item WHERE bf-item.company = cocode AND                                                                                                                    */
-/*                                            bf-item.i-no = xjob-mat.rm-i-no AND                                                                                                                                 */
-/*                                            bf-item.mat-type = SUBSTRING(wrk-op.dept,1,1) NO-LOCK :                                                                                                             */
-/*                                            v-mat-for-mach = bf-item.i-name + fill(" ", 30 - LENGTH(bf-item.i-name))  /*"       " */ +                                                                          */
-/*                                                string(STRING(xjob-mat.wid) + "x" + STRING(xjob-mat.len),"x(13)") +                                                                                             */
-/*                                                " " + string(xjob-mat.qty).                                                                                                                                     */
-/*                                            LEAVE.                                                                                                                                                              */
-/*                                        END.                                                                                                                                                                    */
-/*                                    END.                                                                                                                                                                        */
-/*                                                                                                                                                                                                                */
-/*                                    IF FIRST(wrk-op.i-line) THEN                                                                                                                                                */
-/*                                        PUT "<R-1>" .                                                                                                                                                           */
-/*                                                                                                                                                                                                                */
-/*                                    dMRWaste = 0.                                                                                                                                                               */
-/*                                    dRunWaste = 0 .                                                                                                                                                             */
-/*                                    dMRCrew = 0.                                                                                                                                                                */
-/*                                    dRunCrew = 0.                                                                                                                                                               */
-/*                                    iDisYieldQty = 0 .                                                                                                                                                          */
-/*                                                                                                                                                                                                                */
-/*                                    FIND FIRST mach NO-LOCK                                                                                                                                                     */
-/*                                         WHERE mach.company EQ cocode                                                                                                                                           */
-/*                                           AND mach.m-code EQ wrk-op.m-code NO-ERROR .                                                                                                                          */
-/*                                                                                                                                                                                                                */
-/*                                    FOR EACH est-op WHERE est-op.company = cocode                                                                                                                               */
-/*                                        AND est-op.est-no = eb.est-no                                                                                                                                           */
-/*                                        AND est-op.s-num eq eb.form-no                                                                                                                                          */
-/*                                        AND est-op.m-code EQ mach.m-code                                                                                                                                        */
-/*                                        AND est-op.line < 500                                                                                                                                                   */
-/*                                        NO-LOCK:                                                                                                                                                                */
-/*                                                                                                                                                                                                                */
-/*                                        ASSIGN                                                                                                                                                                  */
-/*                                            dMRCrew = est-op.op-crew[1]                                                                                                                                         */
-/*                                            dRunCrew = est-op.op-crew[2]                                                                                                                                        */
-/*                                            dRunWaste = est-op.op-spoil .                                                                                                                                       */
-/*                                    END.                                                                                                                                                                        */
-/*                                                                                                                                                                                                                */
-/*                                    IF s-prt-mstandard THEN                                                                                                                                                     */
-/*                                    DO:                                                                                                                                                                         */
-/*                                        dBeginQty = (wrk-op.speed[wrk-op.s-num] * wrk-op.run-hr[wrk-op.s-num]) + (wrk-op.mr-waste[wrk-op.s-num]) .                                                              */
-/*                                        dBeginQty = dBeginQty + (dBeginQty * wrk-op.waste-per[wrk-op.s-num] / 100) .                                                                                            */
-/*                                        iYieldQty = (wrk-op.speed[wrk-op.s-num] * wrk-op.run-hr[wrk-op.s-num]) .                                                                                                */
-/*                                                                                                                                                                                                                */
-/*                                        /*IF mach.p-type EQ "R" OR mach.p-type EQ "S" THEN do:                                              */                                                                  */
-/*                                        /*    FIND FIRST bf-wrk-op NO-LOCK                                                                  */                                                                  */
-/*                                        /*        WHERE bf-wrk-op.s-num = tt-reftable.val[12]                                               */                                                                  */
-/*                                        /*          AND bf-wrk-op.iRecSeq EQ (wrk-op.iRecSeq + 1) NO-ERROR.                                 */                                                                  */
-/*                                        /*    IF AVAIL bf-wrk-op AND (bf-wrk-op.cMachType EQ "R" OR  bf-wrk-op.cMachType EQ "S" ) THEN      */                                                                  */
-/*                                        /*    iDisYieldQty = bf-wrk-op.num-sh[bf-wrk-op.s-num] .                                            */                                                                  */
-/*                                        /*    ELSE IF AVAIL bf-wrk-op AND bf-wrk-op.cMachType EQ "B"  THEN DO:                              */                                                                  */
-/*                                        /*        FOR EACH bf-wrk-op NO-LOCK                                                                */                                                                  */
-/*                                        /*           WHERE bf-wrk-op.s-num = tt-reftable.val[12]                                            */                                                                  */
-/*                                        /*             AND bf-wrk-op.cMachType EQ "B"                                                       */                                                                  */
-/*                                        /*             AND bf-wrk-op.iRecSeq GT wrk-op.iRecSeq BREAK BY bf-wrk-op.d-seq BY bf-wrk-op.b-num: */                                                                  */
-/*                                        /*              iDisYieldQty = iDisYieldQty + bf-wrk-op.num-sh[bf-wrk-op.s-num] .                   */                                                                  */
-/*                                        /*        END.                                                                                      */                                                                  */
-/*                                        /*    END.                                                                                          */                                                                  */
-/*                                        /*END.                                                                                              */                                                                  */
-/*                                        /*ELSE IF mach.p-type EQ "B" THEN DO:                                                               */                                                                  */
-/*                                        /*  iYieldQty =   wrk-op.num-sh[wrk-op.s-num]  * wrk-op.waste-per[wrk-op.s-num] / 100 .             */                                                                  */
-/*                                        /*  iDisYieldQty = wrk-op.num-sh[wrk-op.s-num] - wrk-op.mr-waste[wrk-op.s-num] - iYieldQty .        */                                                                  */
-/*                                        /*END.                                                                                              */                                                                  */
-/*                                        dRunWaste = (wrk-op.num-sh[wrk-op.s-num] - wrk-op.mr-waste[wrk-op.s-num]) * wrk-op.waste-per[wrk-op.s-num] / 100 .                                                      */
-/*                                        IF LAST-OF (wrk-op.b-num) AND wrk-op.b-num NE 0  THEN do:                                                                                                               */
-/*                                            FIND FIRST bff-eb NO-LOCK                                                                                                                                           */
-/*                                                WHERE bff-eb.est-no EQ eb.est-no                                                                                                                                */
-/*                                                AND bff-eb.form-no EQ wrk-op.s-num                                                                                                                              */
-/*                                                AND (bff-eb.blank-no EQ wrk-op.b-num OR wrk-op.b-num EQ 0) NO-ERROR .                                                                                           */
-/*                                            IF AVAIL bff-eb THEN                                                                                                                                                */
-/*                                                iDisYieldQty = IF AVAILABLE oe-ordl then INTEGER(bff-eb.bl-qty * (1 + oe-ordl.over-pct / 100 )) ELSE job-hdr.qty .                                              */
-/*                                             ELSE iDisYieldQty = IF AVAILABLE oe-ordl THEN INTEGER(eb.bl-qty * ( 1 + oe-ordl.over-pct / 100 )) ELSE job-hdr.qty .                                               */
-/*                                             IF cSetFGItem NE "" THEN do:                                                                                                                                       */
-/*                                                 FIND FIRST fg-set WHERE fg-set.company = eb.company                                                                                                            */
-/*                                                     AND fg-set.set-no = cSetFGItem                                                                                                                             */
-/*                                                     AND fg-set.part-no = eb.stock-no NO-ERROR.                                                                                                                 */
-/*                                                 IF AVAIL fg-set THEN                                                                                                                                           */
-/*                                                     ASSIGN                                                                                                                                                     */
-/*                                                     iDisYieldQty = iDisYieldQty * fg-set.qtyPerSet.                                                                                                            */
-/*                                             END.                                                                                                                                                               */
-/*                                        END.                                                                                                                                                                    */
-/*                                        ELSE iDisYieldQty = INTEGER(wrk-op.num-sh[wrk-op.s-num] - dRunWaste - wrk-op.mr-waste[wrk-op.s-num]) .                                                                  */
-/*                                        {sys/inc/roundup.i dRunWaste}                                                                                                                                           */
-/*                                        PUT "<C2>" wrk-op.m-dscr   SPACE(1)                                                                                                                                     */
-/*                                            "<C20>" dRunCrew FORMAT ">>>9.99"                                                                                                                                   */
-/*                                            "<C27>" wrk-op.run-hr[wrk-op.s-num]                                                                                                                                 */
-/*                                            "<C34>" dMRCrew FORMAT ">>>9.99"                                                                                                                                    */
-/*                                            "<C41>" wrk-op.mr[wrk-op.s-num]                                                                                                                                     */
-/*                                            "<C48>" wrk-op.speed[wrk-op.s-num]                                                                                                                                  */
-/*                                            "<C55>" wrk-op.mr-waste[wrk-op.s-num]                                                                                                                               */
-/*                                            "<C62>" dRunWaste FORMAT ">>>>>>9"                                                                                                                                  */
-/*                                            "<C69>" wrk-op.num-sh[wrk-op.s-num] FORMAT ">>>>>>>9"                                                                                                               */
-/*                                            "<C76>" iDisYieldQty FORMAT ">>>>>>>9" SKIP.                                                                                                                        */
-/*                                    END.                                                                                                                                                                        */
-/*                                    ELSE PUT "<C2>" wrk-op.m-dscr   SPACE(3) SKIP .                                                                                                                             */
-/*                                    i = i + 1.                                                                                                                                                                  */
-/*                                                                                                                                                                                                                */
-/*                                    IF LINE-COUNTER > 70 THEN                                                                                                                                                   */
-/*                                    DO:                                                                                                                                                                         */
-/*                                        PUT "<C74><R64>Page: " string(PAGE-NUM - lv-pg-num,">>9") + " of <#PAGES>"  FORM "x(20)" .                                                                              */
-/*                                        PAGE.                                                                                                                                                                   */
-/*                                        RUN pPrintHeader .                                                                                                                                                      */
-/*                                    END.                                                                                                                                                                        */
-/*                                    FIND NEXT tt-size USE-INDEX tt-size WHERE tt-size.frm = int(tt-reftable.val[12]) NO-LOCK NO-ERROR.                                                                          */
-/*                                END. /* each wrk-op*/                                                                                                                                                           */
+                                RUN pGetBlankQtys(ef.company, job-hdr.job-no, job-hdr.job-no2, eb.form-no, eb.blank-no, OUTPUT iEbTotalYldQty, OUTPUT iEbTotalBlQty).
                                 
                               PUT v-fill SKIP  .
-                              iEbTotalYldQty = IF eb.yld-qty EQ 0 THEN eb.bl-qty ELSE eb.yld-qty .
-                              iEbTotalblQty  = eb.bl-qty  .                                  
+/*                              iEbTotalYldQty = IF eb.yld-qty EQ 0 THEN eb.bl-qty ELSE eb.yld-qty .*/
+/*                              iEbTotalblQty  = eb.bl-qty  .                                       */
                               RUN pGetJobQty(bf-jobhdr.job-no,bf-jobhdr.job-no2,bf-jobhdr.frm,eb.blank-no, OUTPUT iJobQty ) .        
-                              iEbTotalOverQty = IF AVAIL oe-ordl THEN( eb.bl-qty * ( 1 + oe-ordl.over-pct / 100 )) ELSE IF iJobQty NE 0 THEN iJobQty ELSE bf-jobhdr.qty .
+                              iEbTotalOverQty = IF AVAIL oe-ordl THEN( iEbTotalBlQty * ( 1 + oe-ordl.over-pct / 100 )) ELSE IF iJobQty NE 0 THEN iJobQty ELSE bf-jobhdr.qty .
                               IF cSetFGItem NE "" THEN do:
                                   FIND FIRST fg-set WHERE fg-set.company = eb.company
                                       AND fg-set.set-no = cSetFGItem
@@ -1457,11 +1330,13 @@ FOR EACH job-hdr NO-LOCK
                                          RUN pPrintHeader .
                                      END.
                                      k = K + 1 .
-                                     iEbTotalYldQty = IF bff-eb.yld-qty EQ 0 THEN bff-eb.bl-qty ELSE bff-eb.yld-qty .
-                                     iEbTotalblQty  = bff-eb.bl-qty  .
+                                     RUN pGetBlankQtys(ef.company, job-hdr.job-no, job-hdr.job-no2, bff-eb.form-no, bff-eb.blank-no, OUTPUT iEbTotalYldQty, OUTPUT iEbTotalBlQty).
+/*                                     iEbTotalYldQty = IF bff-eb.yld-qty EQ 0 THEN bff-eb.bl-qty ELSE bff-eb.yld-qty .*/
+/*                                     iEbTotalblQty  = bff-eb.bl-qty  .                                               */
                                      RUN pGetJobQty(bf-jobhdr.job-no,bf-jobhdr.job-no2,bf-jobhdr.frm,bff-eb.blank-no, OUTPUT iJobQty ) .
-                                     iEbTotalOverQty = IF AVAIL oe-ordl THEN (bff-eb.bl-qty * (1 + oe-ordl.over-pct / 100 )) ELSE IF iJobQty NE 0 THEN iJobQty ELSE bf-jobhdr.qty .
-                                     IF cSetFGItem NE "" THEN do:
+                                     iEbTotalOverQty = IF AVAIL oe-ordl THEN (iEbTotalBlQty * (1 + oe-ordl.over-pct / 100 )) ELSE IF iJobQty NE 0 THEN iJobQty ELSE bf-jobhdr.qty .
+                                     IF cSetFGItem NE "" THEN 
+                                     do:
                                          FIND FIRST fg-set WHERE fg-set.company = eb.company
                                              AND fg-set.set-no = cSetFGItem
                                              AND fg-set.part-no = bff-eb.stock-no NO-ERROR.
@@ -1505,7 +1380,7 @@ FOR EACH job-hdr NO-LOCK
                                          "<C45><b>Ctn/Bdl.Per: </b>" cCasePerPallet SKIP
 
                                          "<P10><C20><b>Count: </B>" cCaseCount  
-                                                    /*"<C45><b>Label: </b>" (IF bff-eb.layer-pad NE "" OR bff-eb.divider NE "" THEN "Y" ELSE "N" )*/ SKIP  .
+                                         /*"<C45><b>Label: </b>" (IF bff-eb.layer-pad NE "" OR bff-eb.divider NE "" THEN "Y" ELSE "N" )*/ SKIP  .
                                          RUN pPrintMiscItems(bff-eb.est-no,bff-eb.form-no,bff-eb.blank-no,"5,6,M").
                                       END.
                                       ELSE 
@@ -1931,6 +1806,35 @@ RELEASE xjob-hdr NO-ERROR.
 /* **********************  Internal Procedures  *********************** */
 
 
+PROCEDURE pGetBlankQtys PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Given a form and blank, return the yield and request quantity
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcJobID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiJobID2 AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiFormNo AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiBlankNo AS INTEGER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiQtyYield AS INTEGER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiQtyRequest AS INTEGER NO-UNDO.
+    
+    FOR FIRST estCostHeader NO-LOCK
+        WHERE estCostHeader.company EQ ipcCompany
+        AND estCostHeader.jobID EQ ipcJobID
+        AND estCostHeader.jobID2 EQ ipiJobID2,
+        FIRST estCostBlank NO-LOCK
+        WHERE estCostBlank.estCostHeaderID EQ estCostHeader.estCostHeaderID
+        AND estCostBlank.formNo EQ ipiFormNo
+        AND estCostBlank.blankNO EQ ipiBlankNo:
+        ASSIGN 
+            opiQtyYield   = estCostBlank.quantityYielded
+            opiQtyRequest = estCostBlank.quantityRequired
+            .
+    END.
+
+END PROCEDURE.
+
 PROCEDURE pGetCaseItem PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose:
@@ -1980,6 +1884,35 @@ PROCEDURE pGetCaseItem PRIVATE:
     END.
 
     
+END PROCEDURE.
+
+PROCEDURE pGetFormQtys PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Given a form, return the total yield and request quantity for the job
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcJobID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiJobID2 AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiFormNo AS INTEGER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiQtyTotalYield AS INTEGER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiQtyTotalRequest AS INTEGER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiOut AS INTEGER NO-UNDO.
+     
+    FOR FIRST estCostHeader NO-LOCK
+        WHERE estCostHeader.company EQ ipcCompany
+        AND estCostHeader.jobID EQ ipcJobID
+        AND estCostHeader.jobID2 EQ ipiJobID2,
+        EACH estCostBlank NO-LOCK
+        WHERE estCostBlank.estCostHeaderID EQ estCostHeader.estCostHeaderID
+        AND estCostBlank.formNo EQ ipiFormNo:
+            ASSIGN 
+            opiQtyTotalYield = opiQtyTotalYield + estCostBlank.quantityYielded
+            opiQtyTotalRequest = opiQtyTotalRequest + estCostBlank.quantityRequired
+            opiOut = opiOut + estCostBlank.numOut
+            .
+    END.
+
 END PROCEDURE.
 
 PROCEDURE pPrintHeader :
