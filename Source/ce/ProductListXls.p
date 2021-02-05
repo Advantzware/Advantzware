@@ -23,7 +23,8 @@ DEFINE VARIABLE iQtyOnHand         AS INTEGER          NO-UNDO.
 DEFINE VARIABLE cPrintItem         AS CHARACTER        NO-UNDO.
 
 DEFINE TEMP-TABLE tt-temp-table LIKE eb
-    FIELD board LIKE ef.board. 
+    FIELD board LIKE ef.board
+    FIELD rwRowid AS ROWID . 
 
 DEFINE BUFFER bf-eb FOR eb.
 FIND FIRST users WHERE
@@ -44,6 +45,8 @@ PROCEDURE FillData:
     DEFINE VARIABLE iSheetQty AS INTEGER NO-UNDO.
     DEFINE VARIABLE dWastePer AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dQtyPerMaterial AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dLayerPad AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE rwRowid AS ROWID NO-UNDO.
 
     FIND FIRST eb NO-LOCK
         WHERE ROWID(eb) EQ iprwRowidEb NO-ERROR .   
@@ -62,7 +65,8 @@ PROCEDURE FillData:
         CREATE tt-temp-table.
         BUFFER-COPY bf-eb TO tt-temp-table.
         ASSIGN         
-            tt-temp-table.board = IF AVAILABLE ef THEN ef.board ELSE "" .         
+            tt-temp-table.board = IF AVAILABLE ef THEN ef.board ELSE "" 
+            tt-temp-table.rwRowid = ROWID(eb).         
     END.
      
     FIND FIRST cust NO-LOCK
@@ -138,12 +142,9 @@ PROCEDURE FillData:
                     AND ITEM.i-no EQ tt-temp-table.cas-no NO-ERROR .
                  
                 ASSIGN 
-                    chWorkSheet:Range("A" + STRING(iRowCount)):value = ITEM.i-name .
-                                     
-                 IF AVAILABLE ITEM AND (ITEM.mat-type EQ "C" OR  ITEM.mat-type EQ "D") THEN     
-                    chWorkSheet:Range("B" + STRING(iRowCount)):value = STRING(ITEM.case-l) + "x" + STRING(ITEM.case-w).  
-                 ELSE IF AVAILABLE ITEM THEN
-                 chWorkSheet:Range("B" + STRING(iRowCount)):value = STRING(ITEM.s-len) + "x" + STRING(ITEM.s-wid).   
+                    chWorkSheet:Range("A" + STRING(iRowCount)):value = ITEM.i-name .                                         
+                  
+                chWorkSheet:Range("B" + STRING(iRowCount)):value = STRING(tt-temp-table.cas-len) + "x" + STRING(tt-temp-table.cas-wid) + "x" + STRING(tt-temp-table.cas-dep).
                 
                 iQtyOnHand = 0.
                 FOR EACH rm-bin FIELDS(qty )
@@ -165,11 +166,18 @@ PROCEDURE FillData:
                     WHERE ITEM.company EQ tt-temp-table.company
                     AND ITEM.i-no EQ tt-temp-table.layer-pad NO-ERROR .                 
                 
-                IF AVAILABLE ITEM THEN 
+                IF AVAILABLE ITEM THEN
+                DO:
+                    dLayerPad = 0.
+                    RUN find-depth-reftable(tt-temp-table.rwRowid, OUTPUT rwRowid).
+                    FIND reftable WHERE ROWID(reftable) EQ rwRowid NO-ERROR.
+                    IF AVAIL reftable THEN
+                    ASSIGN
+                     dLayerPad  = decimal(reftable.val[1]).
                     ASSIGN 
-                    chWorkSheet:Range("A" + STRING(iRowCount)):value = ITEM.i-name
-                    chWorkSheet:Range("B" + STRING(iRowCount)):value = STRING(ITEM.s-len) + "x" + STRING(ITEM.s-wid) .
-                
+                    chWorkSheet:Range("A" + STRING(iRowCount)):value = ITEM.i-name                     
+                    chWorkSheet:Range("B" + STRING(iRowCount)):value = STRING(tt-temp-table.lp-len) + "x" + STRING(tt-temp-table.lp-wid) + "x" + string(dLayerPad).
+                END.
                 iQtyOnHand = 0.
                 FOR EACH rm-bin FIELDS(qty )
                     WHERE rm-bin.company EQ tt-temp-table.company
@@ -344,5 +352,60 @@ PROCEDURE pGetWastePer:
        NO-LOCK :
        opdWasterPer = opdWasterPer + est-op.op-spoil.
     END.
+END PROCEDURE.
+
+PROCEDURE find-depth-reftable :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE INPUT PARAMETER ip-rowid AS ROWID NO-UNDO.
+  DEFINE OUTPUT PARAMETER op-rowid AS ROWID NO-UNDO.
+
+  DEFINE BUFFER b-eb FOR eb.
+  DEFINE BUFFER b-rt FOR reftable.
+  DEFINE BUFFER b-item FOR ITEM.
+
+  FIND b-eb WHERE ROWID(b-eb) EQ ip-rowid NO-LOCK NO-ERROR.
+
+  IF AVAIL b-eb THEN DO TRANSACTION:
+     FIND FIRST b-rt
+          WHERE b-rt.reftable EQ "cedepth"
+            AND b-rt.company  EQ b-eb.company
+            AND b-rt.loc      EQ b-eb.est-no
+            AND b-rt.code     EQ STRING(b-eb.form-no,"9999999999")
+            AND b-rt.code2    EQ STRING(b-eb.blank-no,"9999999999")
+          NO-LOCK NO-ERROR.
+     IF NOT AVAIL b-rt THEN DO:
+        CREATE b-rt.
+        ASSIGN
+           b-rt.reftable = "cedepth"
+           b-rt.company  = b-eb.company
+           b-rt.loc      = b-eb.est-no
+           b-rt.code     = STRING(b-eb.form-no,"9999999999")
+           b-rt.code2    = STRING(b-eb.blank-no,"9999999999").
+
+        IF eb.layer-pad NE "" THEN
+        DO:
+           find FIRST b-item where
+                b-item.company = b-eb.company and
+                b-item.i-no = b-eb.layer-pad and
+                b-item.mat-type = "5"
+                no-lock no-error.
+
+           IF AVAIL b-item THEN
+           DO:
+              ASSIGN
+                 b-rt.val[1] = b-item.case-d
+                 b-rt.val[2] = b-item.case-d.
+              RELEASE b-item.
+           END.
+        END.
+    END.
+
+    op-rowid = ROWID(b-rt).
+    RELEASE b-rt.
+  END.
 END PROCEDURE.
 
