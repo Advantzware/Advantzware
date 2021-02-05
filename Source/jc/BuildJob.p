@@ -20,6 +20,13 @@ DEFINE OUTPUT PARAMETER opcErrorMessage AS CHARACTER NO-UNDO.
 
 DEFINE VARIABLE gcAutoIssueTypes AS CHARACTER  NO-UNDO INITIAL "C,D,F,G,I,L,M,P,R,T,V,W,B,1,2,3,4,5,6,7,8,9,X,Y,@".
 
+DEFINE TEMP-TABLE ttQtyRestore NO-UNDO
+    FIELD qtyYld AS DECIMAL 
+    FIELD qtyReq AS DECIMAL 
+    FIELD formNo AS INTEGER 
+    FIELD blankNo AS INTEGER 
+    .
+
 /* ********************  Preprocessor Definitions  ******************** */
 
 /* ************************  Function Prototypes ********************** */
@@ -514,6 +521,7 @@ PROCEDURE pCalcEstimateForJob PRIVATE:
     
     DEFINE BUFFER bf-job-hdr FOR job-hdr.
     DEFINE BUFFER bf-est     FOR est.
+    DEFINE BUFFER bf-eb      FOR eb.
     
     DEFINE VARIABLE hdEstCalc         AS HANDLE  NO-UNDO.
     DEFINE VARIABLE dQuantityOverride AS DECIMAL NO-UNDO.
@@ -534,12 +542,52 @@ PROCEDURE pCalcEstimateForJob PRIVATE:
             IF AVAILABLE bf-job-hdr THEN 
                 dQuantityOverride = bf-job-hdr.qty.
         END. 
+        ELSE IF AVAILABLE bf-est AND LOOKUP(STRING(bf-est.est-type),"3,4,7,8") GT 0 THEN 
+        DO:
+            FOR EACH bf-job-hdr NO-LOCK
+                WHERE bf-job-hdr.company EQ ipbf-job.company
+                AND bf-job-hdr.job-no EQ ipbf-job.job-no
+                AND bf-job-hdr.job-no2 EQ ipbf-job.job-no2
+                ,
+                FIRST bf-eb EXCLUSIVE-LOCK
+                WHERE bf-eb.company EQ bf-job-hdr.company
+                AND bf-eb.est-no EQ bf-job-hdr.est-no
+                AND bf-eb.form-no EQ bf-job-hdr.frm
+                AND bf-eb.blank-no EQ bf-job-hdr.blank-no:
+                IF bf-eb.bl-qty NE bf-job-hdr.qty THEN DO: 
+                    CREATE ttQtyRestore.
+                    ASSIGN 
+                        ttQtyRestore.blankNo = bf-eb.blank-no
+                        ttQtyRestore.formNo = bf-eb.form-no
+                        ttQtyRestore.qtyReq = bf-eb.bl-qty
+                        ttQtyRestore.qtyYld = bf-eb.yld-qty 
+                        bf-eb.bl-qty = bf-job-hdr.qty
+                        bf-eb.yld-qty = bf-job-hdr.qty
+                        .
+                END.                
+            END.
+        END.
     END.         
     ELSE 
         dQuantityOverride = ipdQuantityOverride.
     
     RUN est\EstimateCalcProcs.p PERSISTENT SET hdEstCalc.
     RUN CalculateJob IN hdEstCalc (ipbf-job.company, ipbf-job.est-no, ipbf-job.job-no, ipbf-job.job-no2, dQuantityOverride, YES, OUTPUT opiEstCostHeader).
+    
+    FOR EACH ttQtyRestore,
+        FIRST bf-eb EXCLUSIVE-LOCK
+        WHERE bf-eb.company EQ ipbf-job.company
+        AND bf-eb.est-no EQ ipbf-job.est-no
+        AND bf-eb.form-no EQ ttQtyRestore.formNo
+        AND bf-eb.blank-no EQ ttQtyRestore.blankNo:
+            ASSIGN 
+                bf-eb.bl-qty = ttQtyRestore.qtyReq
+                bf-eb.yld-qty = ttQtyRestore.qtyYld
+                .
+    END. 
+    
+    RELEASE bf-eb.
+    EMPTY TEMP-TABLE ttQtyRestore.
     DELETE OBJECT hdEstCalc.
 
 END PROCEDURE.
