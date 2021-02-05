@@ -874,10 +874,10 @@ DO:
      def var char-val2 as cha no-undo.        
      def var date-val as cha no-undo.
      def var date-val2 as cha no-undo.
-
+     DEFINE VARIABLE cLogicalVal AS cha NO-UNDO.
          /*  IF est.est-type LE 6 THEN DO: */
            /*  lv-estqty-recid = if avail est-qty then recid(est-qty) else ?.*/
-             run est/estqtyfr.w (len:screen-value,wid:SCREEN-VALUE, quantity:SCREEN-VALUE,rRowid, output char-val, output char-val2, output date-val, output date-val2) .
+             run est/estqtyfr.w (len:screen-value,wid:SCREEN-VALUE, quantity:SCREEN-VALUE,rRowid, output char-val, output char-val2, output date-val, output date-val2, OUTPUT cLogicalVal) .
              if char-val <> "?" 
                 then assign quantity:screen-value = entry(1,char-val)
                             lv-copy-qty[1] = integer(entry(1,char-val))
