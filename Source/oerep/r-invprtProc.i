@@ -772,7 +772,7 @@ lInRange = TRUE.
                
            IF b-{&head}1.bol-no NE 0 THEN DO: 
                 FOR EACH oe-bolh NO-LOCK 
-                    WHERE oe-bolh.b-no EQ b-{&head}1.bol-no:
+                    WHERE oe-bolh.bol-no EQ b-{&head}1.bol-no:
                                 
                   {&bol-check-range}
                 END.
