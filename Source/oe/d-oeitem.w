@@ -286,7 +286,6 @@ END.
 {sys/inc/f16to32.i}
 {sys/inc/funcToWorkDay.i}
 {sys/inc/vendItemCost.i}
-{fg/ttUOMEffective.i}
 
 DEF BUFFER b-vendItemCost FOR vendItemCost.
 
@@ -1136,10 +1135,10 @@ DO:
               END.
          END.
          WHEN "fi_qty-uom" THEN DO:
-            RUN get-valid-uom (lw-focus, oe-ordl.i-no:SCREEN-VALUE). 
+            RUN get-valid-uom (lw-focus, oe-ordl.i-no:SCREEN-VALUE).   
             IF lFGItemUOM THEN
             DO:
-               RUN windows/l-itemuom.w (g_company,oe-ordl.i-no:SCREEN-VALUE,"FG",lv-valid-uom, oe-ordl.pr-uom:screen-value, OUTPUT char-val).
+               RUN windows/l-itemuom.w (g_company,oe-ordl.i-no:SCREEN-VALUE,"FG", oe-ordl.pr-uom:screen-value,"Price,OrderQty", OUTPUT char-val).
               IF char-val <> "" THEN lw-focus:SCREEN-VALUE = ENTRY(1,char-val).                
             END.
             ELSE do:               
@@ -1151,7 +1150,7 @@ DO:
             RUN get-valid-uom (lw-focus, oe-ordl.i-no:SCREEN-VALUE). 
             IF lFGItemUOM THEN
             DO:
-               RUN windows/l-itemuom.w (g_company,oe-ordl.i-no:SCREEN-VALUE,"FG", lv-valid-uom, oe-ordl.pr-uom:screen-value, OUTPUT char-val).
+               RUN windows/l-itemuom.w (g_company,oe-ordl.i-no:SCREEN-VALUE,"FG",  oe-ordl.pr-uom:screen-value,"Price,OrderQty", OUTPUT char-val).
               IF char-val <> "" THEN lw-focus:SCREEN-VALUE = ENTRY(1,char-val).                
             END.
             ELSE do:               

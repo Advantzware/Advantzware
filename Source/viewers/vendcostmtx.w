@@ -423,7 +423,7 @@ DO:
         RUN pSetUomList(cocode,vendItemCost.itemID:SCREEN-VALUE,vendItemCost.itemType:SCREEN-VALUE).
         IF lFGItemUOM AND vendItemCost.itemType:SCREEN-VALUE EQ "FG" THEN
         DO:
-           RUN windows/l-itemuom.w (cocode, vendItemCost.itemID:SCREEN-VALUE,"FG", uom-list, FOCUS:SCREEN-VALUE, OUTPUT char-val). 
+           RUN windows/l-itemuom.w (cocode, vendItemCost.itemID:SCREEN-VALUE,"FG", FOCUS:SCREEN-VALUE, "Cost", OUTPUT char-val). 
         END.
         ELSE DO:
            RUN windows/l-stduom.w (cocode, uom-list, FOCUS:SCREEN-VALUE, OUTPUT char-val).

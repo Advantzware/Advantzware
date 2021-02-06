@@ -21,28 +21,39 @@
 DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER ipcItem AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER ipcItemType AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER ipcUomList AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER ip-cur-val as CHARACTER no-undo.
+DEFINE INPUT PARAMETER ip-cur-val AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipcUomSource AS CHARACTER NO-UNDO.
 
 def output param op-char-val as cha no-undo.
 
 &scoped-define fld-name-1 ttUOMEffective.uom
-&scoped-define fld-name-2 ttUOMEffective.descr
+&scoped-define fld-name-2 ttUOMEffective.uomDescription
 &scoped-define SORTBY-1 BY ttUOMEffective.uom
-&scoped-define SORTBY-2 BY ttUOMEffective.descr
+&scoped-define SORTBY-2 BY ttUOMEffective.uomDescription
 &scoped-define IAMWHAT LOOKUP
 
 DEFINE VARIABLE lv-first-time as log init yes no-undo.
-
-DEFINE TEMP-TABLE ttUOMEffective NO-UNDO
-    FIELD uom                 AS CHARACTER LABEL "UOM"             FORMAT "x(4)"
-    FIELD uomBase             AS CHARACTER LABEL "Base UOM"        FORMAT "x(4)"
-    FIELD descr               AS CHARACTER LABEL "Uom Description" FORMAT "x(30)"
-    FIELD convFactor          AS DECIMAL   LABEL "Conv. Factor"    FORMAT ">>>,>>>,>>9.9999"
-    FIELD canPurchase         AS LOGICAL   LABEL "Purch"           FORMAT "Yes/No"
-    FIELD canSell             AS LOGICAL   LABEL "Order"           FORMAT "Yes/No"
-    .     
-
+     
+ DEFINE TEMP-TABLE ttUOM NO-UNDO
+    FIELD uom                 AS CHARACTER LABEL "UOM"         FORMAT "x(4)"
+    FIELD uomBase             AS CHARACTER LABEL "Base UOM"    FORMAT "x(4)"
+    FIELD multiplierToBase    AS DECIMAL   LABEL "Conv. Factor"  FORMAT ">>>,>>>,>>9.9999"
+    FIELD uomDescription      AS CHARACTER LABEL "Description" FORMAT "x(30)"
+    FIELD canUseOrderQuantity AS LOGICAL   LABEL "Use Order Qty"
+    FIELD canUsePOQuantity    AS LOGICAL   LABEL "Use PO Qty"
+    FIELD canUseStockQuantity AS LOGICAL   LABEL "Use Stock Qty"
+    FIELD canUsePricePerUnit  AS LOGICAL   LABEL "Use Price Per Unit"
+    FIELD canUseCostPerUnit   AS LOGICAL   LABEL "Use Cost Per Unit"
+    FIELD isBaseConverter     AS LOGICAL   LABEL "Base Converter"
+    FIELD isOverridden        AS LOGICAL   LABEL "Overridden"
+    FIELD uomSource           AS CHARACTER LABEL "UOM Source"
+    FIELD iSourceLevel        AS INTEGER   LABEL "Source Level"     
+    .  
+    
+  DEFINE TEMP-TABLE ttUOMEffective LIKE ttUOM
+          FIELD canPurchase         AS LOGICAL   LABEL "Purch"           FORMAT "Yes/No"
+          FIELD canSell             AS LOGICAL   LABEL "Order"           FORMAT "Yes/No" .     
+       
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -65,7 +76,7 @@ DEFINE TEMP-TABLE ttUOMEffective NO-UNDO
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE BROWSE-1                                      */
-&Scoped-define FIELDS-IN-QUERY-BROWSE-1 ttUOMEffective.uom ttUOMEffective.descr ttUOMEffective.convFactor ttUOMEffective.canPurchase ttUOMEffective.canSell  
+&Scoped-define FIELDS-IN-QUERY-BROWSE-1 ttUOMEffective.uom ttUOMEffective.descr ttUOMEffective.multiplierToBase ttUOMEffective.canPurchase ttUOMEffective.canSell  
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-1   
 &Scoped-define SELF-NAME BROWSE-1
 &Scoped-define QUERY-STRING-BROWSE-1 FOR EACH ttUOMEffective WHERE ~{&KEY-PHRASE} NO-LOCK
@@ -135,8 +146,8 @@ DEFINE BROWSE BROWSE-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-1 Dialog-Frame _FREEFORM
   QUERY BROWSE-1 NO-LOCK DISPLAY
       ttUOMEffective.uom
-      ttUOMEffective.descr 
-      ttUOMEffective.convFactor
+      ttUOMEffective.uomDescription 
+      ttUOMEffective.multiplierToBase
       ttUOMEffective.canPurchase 
       ttUOMEffective.canSell
 /* _UIB-CODE-BLOCK-END */
@@ -239,7 +250,7 @@ END.
 ON DEFAULT-ACTION OF BROWSE-1 IN FRAME Dialog-Frame
 DO:
    op-char-val = ttUOMEffective.uom:SCREEN-VALUE IN BROWSE {&browse-name} + "," +
-                 ttUOMEffective.descr:screen-value in browse {&browse-name}.
+                 ttUOMEffective.uomDescription:screen-value in browse {&browse-name}.
    apply "window-close" to frame {&frame-name}. 
       
 END.
@@ -268,7 +279,7 @@ END.
 ON CHOOSE OF bt-ok IN FRAME Dialog-Frame /* OK */
 DO:
    op-char-val = ttUOMEffective.uom:SCREEN-VALUE IN BROWSE {&browse-name} + "," +
-                 ttUOMEffective.descr:screen-value in browse {&browse-name}
+                 ttUOMEffective.uomDescription:screen-value in browse {&browse-name}
                  .
    apply "window-close" to frame {&frame-name}. 
       
@@ -355,43 +366,50 @@ PROCEDURE build-form :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
+  DEFINE BUFFER bf-ttUOM FOR ttUOM.
+  EMPTY TEMP-TABLE ttUOM.
   EMPTY TEMP-TABLE ttUOMEffective.
   
-   DO iCount = 1 TO NUM-ENTRIES(ipcUomList):   
+  DEFINE VARIABLE httSource AS HANDLE NO-UNDO.
+  DEFINE VARIABLE httTarget AS HANDLE NO-UNDO.      
+    
+  ASSIGN          
+      httTarget = TEMP-TABLE ttUOM:HANDLE.
+      httSource = DYNAMIC-FUNCTION("fConv_ttUOMHandle").       
+      httTarget:COPY-TEMP-TABLE( httSource,?,?,?,?).         
+           
+  FOR EACH ttUOM 
+      WHERE ((LOOKUP("Price",ipcUomSource) NE 0 AND ttUOM.canUsePricePerUnit) 
+        OR (LOOKUP("OrderQty",ipcUomSource) NE 0 AND ttUOM.canUseOrderQuantity)
+        OR (LOOKUP("POQty",ipcUomSource) NE 0 AND ttUOM.canUsePOQuantity)
+        OR (LOOKUP("Cost",ipcUomSource) NE 0 AND ttUOM.canUseCostPerUnit)
+        OR (ipcUomSource EQ "All"))
+        AND NOT ttUOM.isOverridden:
+                    
+     ttUOM.multiplierToBase = 0.
      
-       IF ENTRY(iCount,ipcUomList) NE "" THEN
-       DO:
-           FIND FIRST uom NO-LOCK 
-                 WHERE uom.uom EQ ENTRY(iCount,ipcUomList)
-                 AND uom.uom NE "" NO-ERROR.
-                 
-            IF AVAIL uom THEN
-            DO:
-                CREATE ttUOMEffective.
-                ASSIGN
-                   ttUOMEffective.uom  = ENTRY(iCount,ipcUomList)       .
-                                        
-               IF AVAIL uom THEN 
-                ASSIGN ttUOMEffective.descr = uom.dscr.
-               
-                FIND FIRST itemuom NO-LOCK
-                     WHERE itemUoM.company EQ ipcCompany
-                     AND itemUoM.itemID EQ ipcItem
-                     AND itemUoM.itemType EQ ipcItemType 
-                     AND itemUoM.uom EQ ttUOMEffective.uom NO-ERROR.
-                IF AVAIL itemuom THEN
-                DO:
-                   ASSIGN
-                   ttUOMEffective.uomBase     = itemUoM.UOMBase
-                   ttUOMEffective.descr       = ItemUOM.descr
-                   ttUOMEffective.convFactor  = itemUoM.convFactor
-                   ttUOMEffective.canPurchase = itemUoM.canPurchase
-                   ttUOMEffective.canSell     = itemUoM.canSell .             
-                END.                     
-            END.                              
-       END.                       
-   END.
-   
+     CREATE ttUOMEffective .
+     BUFFER-COPY ttUOM TO ttUOMEffective.
+     
+     FIND FIRST itemuom NO-LOCK
+          WHERE itemUoM.company EQ ipcCompany
+          AND itemUoM.itemID EQ ipcItem
+          AND itemUoM.itemType EQ ipcItemType 
+          AND itemUoM.uom EQ ttUOM.uom NO-ERROR.
+          IF AVAIL itemuom THEN
+          DO:
+               ASSIGN                
+               ttUOMEffective.multiplierToBase = itemUoM.convFactor
+               ttUOMEffective.canPurchase      = itemUoM.canPurchase
+               ttUOMEffective.canSell          = itemUoM.canSell .             
+           END. 
+           
+      FIND FIRST bf-ttUOM NO-LOCK 
+           WHERE bf-ttUOM.uom EQ ttUOM.uom 
+           AND ROWID(bf-ttUOM) NE ROWID(ttUOM) NO-ERROR.
+      IF AVAIL bf-ttUOM THEN DELETE bf-ttUOM.     
+  END.     
+      
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
