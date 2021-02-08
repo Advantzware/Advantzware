@@ -524,8 +524,12 @@ FOR EACH job-hdr NO-LOCK
                 FIND FIRST oe-relh WHERE oe-relh.r-no EQ oe-rell.r-no NO-LOCK NO-ERROR.
            /* dtRelDate = IF AVAILABLE oe-relh THEN oe-relh.rel-date ELSE oe-rel.rel-date. */
                dtRelDate = oe-ord.due-date .
-        END.
 
+        END.
+        ELSE DO: 
+               dtRelDate = job-hdr.due-date.
+        END.
+        
         ASSIGN
             cLabelSetItem = "Ident:" 
             cLabelSetPart = "Cust Style:" 
