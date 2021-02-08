@@ -30,20 +30,23 @@ DEFINE VARIABLE lcConcatLineItemsData AS LONGCHAR  NO-UNDO.
 DEFINE VARIABLE lcSurchargeData       AS LONGCHAR NO-UNDO.
 DEFINE VARIABLE lcConcatSurchargeData AS LONGCHAR NO-UNDO.
 
-DEFINE VARIABLE lcTaxData AS LONGCHAR NO-UNDO.
-
+DEFINE VARIABLE lcTaxData        AS LONGCHAR  NO-UNDO.
+DEFINE VARIABLE lcTaxLineData    AS LONGCHAR  NO-UNDO.
 DEFINE VARIABLE cRequestDataType AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCompany         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE iInvoiceID       AS INTEGER   NO-UNDO.
 DEFINE VARIABLE riInvoice        AS ROWID     NO-UNDO.
 DEFINE VARIABLE iSECount         AS INTEGER   NO-UNDO.
 DEFINE VARIABLE hdInvoiceProcs   AS HANDLE    NO-UNDO.
+DEFINE VARIABLE cCalcMethod      AS CHARACTER NO-UNDO.
+DEFINE VARIABLE dFreightTaxPct   AS DECIMAL   NO-UNDO.
 
-DEFINE BUFFER bf-APIOutbound              FOR APIOutbound.
-DEFINE BUFFER bf-line-APIOutboundDetail   FOR APIOutboundDetail.
-DEFINE BUFFER bf-misc-APIOutboundDetail   FOR APIOutboundDetail.
-DEFINE BUFFER bf-tax-APIOutboundDetail    FOR APIOutboundDetail.
-DEFINE BUFFER bf-charge-APIOutboundDetail FOR APIOutboundDetail.
+DEFINE BUFFER bf-APIOutbound                FOR APIOutbound.
+DEFINE BUFFER bf-line-APIOutboundDetail     FOR APIOutboundDetail.
+DEFINE BUFFER bf-misc-APIOutboundDetail     FOR APIOutboundDetail.
+DEFINE BUFFER bf-tax-APIOutboundDetail      FOR APIOutboundDetail.
+DEFINE BUFFER bf-charge-APIOutboundDetail   FOR APIOutboundDetail.
+DEFINE BUFFER bf-tax-line-APIOutboundDetail FOR APIOutboundDetail.
 
 RUN ar/InvoiceProcs.p PERSISTENT SET hdInvoiceProcs.
 
@@ -124,7 +127,12 @@ ELSE
         iInvoiceID = ar-inv.inv-no
         riInvoice  = ROWID(ar-inv)
         .
-                   
+
+RUN Tax_GetCalcMethod (
+    INPUT  cCompany,
+    OUTPUT cCalcMethod
+    ).
+         
 FIND FIRST bf-line-APIOutboundDetail NO-LOCK
      WHERE bf-line-APIOutboundDetail.apiOutboundID EQ ipiAPIOutboundID
        AND bf-line-APIOutboundDetail.detailID      EQ "ItemDetail"
@@ -134,12 +142,12 @@ FIND FIRST bf-line-APIOutboundDetail NO-LOCK
 FIND FIRST bf-misc-APIOutboundDetail NO-LOCK
      WHERE bf-misc-APIOutboundDetail.apiOutboundID EQ ipiAPIOutboundID
        AND bf-misc-APIOutboundDetail.detailID      EQ "MiscDetail"
-           AND bf-misc-APIOutboundDetail.parentID      EQ bf-APIOutbound.apiID
-         NO-ERROR.
+       AND bf-misc-APIOutboundDetail.parentID      EQ bf-APIOutbound.apiID
+     NO-ERROR.
    
-    FIND FIRST bf-charge-APIOutboundDetail NO-LOCK
-         WHERE bf-charge-APIOutboundDetail.apiOutboundID EQ ipiAPIOutboundID
-           AND bf-charge-APIOutboundDetail.detailID      EQ "SurchargeDetail"
+FIND FIRST bf-charge-APIOutboundDetail NO-LOCK
+     WHERE bf-charge-APIOutboundDetail.apiOutboundID EQ ipiAPIOutboundID
+       AND bf-charge-APIOutboundDetail.detailID      EQ "SurchargeDetail"
        AND bf-charge-APIOutboundDetail.parentID      EQ bf-APIOutbound.apiID
      NO-ERROR.
                  
@@ -147,6 +155,12 @@ FIND FIRST bf-tax-APIOutboundDetail NO-LOCK
      WHERE bf-tax-APIOutboundDetail.apiOutboundID EQ ipiAPIOutboundID
        AND bf-tax-APIOutboundDetail.detailID      EQ "TaxDetail"
        AND bf-tax-APIOutboundDetail.parentID      EQ bf-APIOutbound.apiID
+     NO-ERROR.
+
+FIND FIRST bf-tax-line-APIOutboundDetail NO-LOCK
+     WHERE bf-tax-line-APIOutboundDetail.apiOutboundID EQ ipiAPIOutboundID
+       AND bf-tax-line-APIOutboundDetail.detailID      EQ "TaxDetailLineItem"
+       AND bf-tax-line-APIOutboundDetail.parentID      EQ bf-APIOutbound.apiID
      NO-ERROR.
     
 cRequestDataType = bf-APIOutbound.requestDataType. 
@@ -174,15 +188,10 @@ FOR EACH ttInv:
         ELSE
             LEAVE.
         
-        lcTaxData = "".
+        lcTaxLineData = "".
         
-        IF AVAILABLE bf-tax-APIOutboundDetail AND NOT ttInvLine.taxable THEN DO:
-            lcTaxData = bf-tax-APIOutboundDetail.data.
-
-            RUN updateRequestData(INPUT-OUTPUT lcTaxData, "TaxType", "ZZ").
-            RUN updateRequestData(INPUT-OUTPUT lcTaxData, "TaxPercent", "").
-            RUN updateRequestData(INPUT-OUTPUT lcTaxData, "TotalTaxDollars", "").
-        END.
+        IF AVAILABLE bf-tax-APIOutboundDetail AND NOT ttInvLine.taxable THEN
+            lcTaxLineData = bf-tax-line-APIOutboundDetail.data.
         
         RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "ItemLineID", STRING(ttInvLine.lineNo)).
         RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "ItemQuantity", STRING(ttInvLine.quantity)).
@@ -196,7 +205,7 @@ FOR EACH ttInv:
         ELSE
             RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "ItemDescription", STRING(ttInvLine.itemName)).
         
-        lcLineItemsData = REPLACE(lcLineItemsData, "$TaxDetail$", lcTaxData).
+        lcLineItemsData = REPLACE(lcLineItemsData, "$TaxDetailLineItem$", lcTaxLineData).
                    
         lcConcatLineItemsData = lcConcatLineItemsData + lcLineItemsData.
     END.
@@ -217,13 +226,18 @@ FOR EACH ttInv:
             ELSE
                 RUN updateRequestData(INPUT-OUTPUT lcSurchargeData, "SurchargeAmount", STRING(ttInv.amountTotalFreight - ttInv.amountTotalTaxableFreight)).
             
-            /* Do not write a tax line is freight amount freight taxable amount is different. Handling in a different section */
+            /* Do not write a tax line if freight amount and freight taxable amount is different. Handling in a different section */
             IF AVAILABLE bf-tax-APIOutboundDetail AND ttInv.amountTotalFreight EQ ttInv.amountTotalTaxableFreight THEN DO:
                 lcTaxData = bf-tax-APIOutboundDetail.data.
-
+                
+                dFreightTaxPct = ttInv.frtTaxRate.
+                
+                IF cCalcMethod EQ "API" THEN
+                    dFreightTaxPct = dFreightTaxPct * 100.
+                    
                 RUN updateRequestData(INPUT-OUTPUT lcTaxData, "TaxType", "ST").
-                RUN updateRequestData(INPUT-OUTPUT lcTaxData, "TaxPercent", TRIM(STRING(ROUND((ttInv.amountTotalTaxFreight / ttInv.amountTotalTaxableFreight) * 100, 2), ">>9.99<<"))).
-                RUN updateRequestData(INPUT-OUTPUT lcTaxData, "TotalTaxDollars", STRING(ttInv.amountTotalTaxFreight)).
+                RUN updateRequestData(INPUT-OUTPUT lcTaxData, "TaxPercent", TRIM(STRING(dFreightTaxPct, ">>9.99<<"))).
+                RUN updateRequestData(INPUT-OUTPUT lcTaxData, "TotalTaxDollars", TRIM(STRING(ttInv.amountTotalTaxFreight, "->>>>>>>>9.99"))).
             END.
             
             lcSurchargeData = REPLACE(lcSurchargeData, "$TaxDetail$", lcTaxData).
@@ -232,7 +246,7 @@ FOR EACH ttInv:
         END.
     END.
 
-    /* Add another segment if freight taxable amount is different than total freigt */
+    /* Add another segment if freight taxable amount is different than total freight */
     IF ttInv.billFreight AND ttInv.amountTotalFreight NE ttInv.amountTotalTaxableFreight AND ttInv.amountTotalTaxableFreight NE 0 THEN DO:
         IF AVAILABLE bf-charge-APIOutboundDetail THEN DO:
             ASSIGN
@@ -240,14 +254,19 @@ FOR EACH ttInv:
             
             RUN updateRequestData(INPUT-OUTPUT lcSurchargeData, "SurchargeID", "C").   /* "A" - Allowance, "C" - Charge */
             RUN updateRequestData(INPUT-OUTPUT lcSurchargeData, "SurchargeCode", "D240").  /* "D240" - Freight */
-            RUN updateRequestData(INPUT-OUTPUT lcSurchargeData, "SurchargeAmount", STRING(ttInv.amountTotalTaxableFreight)).
+            RUN updateRequestData(INPUT-OUTPUT lcSurchargeData, "SurchargeAmount", TRIM(STRING(ttInv.amountTotalTaxableFreight, "->>>>>>>>9.99"))).
 
             IF AVAILABLE bf-tax-APIOutboundDetail AND ttInv.amountTotalTaxableFreight NE 0 THEN DO:
                 lcTaxData = bf-tax-APIOutboundDetail.data.
 
+                dFreightTaxPct = ttInv.frtTaxRate.
+                
+                IF cCalcMethod EQ "API" THEN
+                    dFreightTaxPct = dFreightTaxPct * 100.
+
                 RUN updateRequestData(INPUT-OUTPUT lcTaxData, "TaxType", "ST").
-                RUN updateRequestData(INPUT-OUTPUT lcTaxData, "TaxPercent", TRIM(STRING(ROUND((ttInv.amountTotalTaxFreight / ttInv.amountTotalTaxableFreight) * 100, 2), ">>9.99<<"))).
-                RUN updateRequestData(INPUT-OUTPUT lcTaxData, "TotalTaxDollars", STRING(ttInv.amountTotalTaxFreight)).
+                RUN updateRequestData(INPUT-OUTPUT lcTaxData, "TaxPercent", TRIM(STRING(dFreightTaxPct, ">>9.99<<"))).
+                RUN updateRequestData(INPUT-OUTPUT lcTaxData, "TotalTaxDollars", TRIM(STRING(ttInv.amountTotalTaxFreight, "->>>>>>>>9.99"))).
             END.
             
             lcSurchargeData = REPLACE(lcSurchargeData, "$TaxDetail$", lcTaxData).
@@ -264,7 +283,7 @@ FOR EACH ttInv:
             
             RUN updateRequestData(INPUT-OUTPUT lcTaxData, "TaxType", "ST").
             RUN updateRequestData(INPUT-OUTPUT lcTaxData, "TaxPercent", TRIM(STRING(ROUND((ttInv.amountTotalTaxExFreight / ttInv.amountTotalTaxableExFreight) * 100, 2), ">>9.99<<"))).
-            RUN updateRequestData(INPUT-OUTPUT lcTaxData, "TotalTaxDollars", STRING(ttInv.amountTotalTaxExFreight)).
+            RUN updateRequestData(INPUT-OUTPUT lcTaxData, "TotalTaxDollars", TRIM(STRING(ttInv.amountTotalTaxExFreight, "->>>>>>>>9.99"))).
         END.
     END.
     
@@ -276,21 +295,24 @@ FOR EACH ttInv:
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "InvoiceNum", STRING(ttInv.invoiceID)).
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "Currency", "USD").
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CustomerName", ttInv.customerName).
-    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "BillToStreetData", ttInv.customerAddress1 + " " + ttInv.customerAddress2).
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "BillToStreetAddress1", ttInv.customerAddress1).
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "BillToStreetAddress2", ttInv.customerAddress2).
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CustomerCity", ttInv.customerCity).
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CustomerState", ttInv.customerState).
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CustomerPostalCode", ttInv.customerPostalCode).
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CompanyName", ttInv.companyName).
-    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CompanyStreetData", ttInv.companyAddress1 + " " + ttInv.companyAddress2).
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CompanyStreetAddress1", ttInv.companyAddress1).
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CompanyStreetAddress2", ttInv.companyAddress2).
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CompanyCity", ttInv.companyCity).
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CompanyState", ttInv.companyState).
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CompanyPostalCode", ttInv.companyPostalCode).
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ShiptoName", ttInv.shiptoName).
-    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ShipToStreetData", ttInv.shiptoAddress1 + " " + ttInv.shiptoAddress2).
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ShipToStreetAddress1", ttInv.shiptoAddress1).
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ShipToStreetAddress2", ttInv.shiptoAddress2).
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ShiptoCity", ttInv.shiptoCity).
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ShiptoState", ttInv.shiptoState).
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ShiptoPostalCode", ttInv.shiptoPostalCode).        
-    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "TotalAmount", REPLACE(TRIM(STRING(ttInv.amountTotal, "->>>>>>>>>.99")), ".", "")).
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "TotalAmount", REPLACE(TRIM(STRING(ttInv.amountTotal, "->>>>>>>>9.99")), ".", "")).
     
     ASSIGN 
         iSECount = NUM-ENTRIES(ioplcRequestData, "~~") - 1   
