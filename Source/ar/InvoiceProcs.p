@@ -380,7 +380,9 @@ PROCEDURE pBuildDataForPosted PRIVATE:
                 BUFFER ttInvLine
                 ).            
             
-            lFirstLine = FALSE.
+            /* Set this to false only if a line found that is not misc, taxable and invoice's freight is billable  */
+            IF ttInv.billFreight AND NOT ttInvLine.isMisc AND ttInvLine.taxable AND ttInvLine.amountFreight GT 0 THEN
+                lFirstLine = FALSE.
         END.
         
         ttInv.amountTotal = ttInv.amountTotalLines + ttInv.amountTotalTax.
