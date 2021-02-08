@@ -52,6 +52,8 @@ DEFINE VARIABLE hInventoryProcs      AS HANDLE NO-UNDO.
 DEFINE VARIABLE lActiveBin AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lFgEmails AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lPromptForClose AS LOGICAL NO-UNDO INITIAL YES.
+DEFINE VARIABLE iWarehouseLength AS INTEGER NO-UNDO.
+DEFINE VARIABLE hdInventoryProcs AS HANDLE  NO-UNDO.
 
 ASSIGN cocode = g_company
        locode = g_loc.
@@ -692,12 +694,19 @@ DO:
     IF LASTKEY = -1 THEN RETURN.
 
     DEF VAR v-locbin AS cha NO-UNDO.
+    RUN inventory/InventoryProcs.p PERSISTENT SET hdInventoryProcs.
+    
+    RUN Inventory_GetWarehouseLength IN hdInventoryProcs (
+        INPUT  cocode,
+        OUTPUT iWarehouseLength
+        ).
+    
     IF SELF:MODIFIED THEN DO:
        IF LENGTH(SELF:SCREEN-VALUE) > 5 THEN DO:
           
           v-locbin = SELF:SCREEN-VALUE.
-          ASSIGN fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name} = SUBSTRING(v-locbin,1,5)
-                 fg-rctd.loc-bin:SCREEN-VALUE = SUBSTRING(v-locbin,6,8).
+          ASSIGN fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name} = SUBSTRING(v-locbin,1,iWarehouseLength)
+                 fg-rctd.loc-bin:SCREEN-VALUE = SUBSTRING(v-locbin,iWarehouseLength + 1,8).
 
           RUN ValidateLoc IN hInventoryProcs (cocode, fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}, OUTPUT lActiveBin).
           IF NOT lActiveBin THEN DO:

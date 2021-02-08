@@ -37,6 +37,7 @@ CREATE WIDGET-POOL.
 
 {custom/globdefs.i}
 {sys/inc/VAR.i NEW SHARED}
+{Inventory/ttInventory.i "NEW SHARED"}
 &scoped-define fld-name-1 rm-rctd.tag
 &scoped-define SORTBY-1 BY {&fld-name-1}
 &global-define IAMWHAT LOOKUP
@@ -45,6 +46,10 @@ DEF VAR ll-help-run AS LOG NO-UNDO.
 
 DEF VAR lv-prev-job2 AS cha NO-UNDO.
 DEF VAR lv-new-job-ran AS LOG NO-UNDO.
+DEFINE VARIABLE hdInventoryProcs AS HANDLE NO-UNDO.
+DEFINE VARIABLE iWarehouseLength  AS INTEGER   NO-UNDO.
+
+RUN Inventory/InventoryProcs.p PERSISTENT SET hdInventoryProcs.
 
 ASSIGN cocode = g_company
        locode = g_loc.
@@ -641,14 +646,18 @@ END.
 ON LEAVE OF rm-rctd.loc IN BROWSE br_table /* Whs */
 DO:
     IF LASTKEY = -1 THEN RETURN.
-
+    RUN Inventory_GetWarehouseLength IN hdInventoryProcs (
+         INPUT  cocode,
+         OUTPUT iWarehouseLength
+         ).
+    
     DEF VAR v-locbin AS cha NO-UNDO.
     IF SELF:MODIFIED THEN DO:
        IF LENGTH(SELF:SCREEN-VALUE) > 5 THEN DO:
 
           v-locbin = SELF:SCREEN-VALUE.
-          ASSIGN rm-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name} = SUBSTRING(v-locbin,1,5)
-                 rm-rctd.loc-bin:SCREEN-VALUE = SUBSTRING(v-locbin,6,8).
+          ASSIGN rm-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name} = SUBSTRING(v-locbin,1,iWarehouseLength)
+                 rm-rctd.loc-bin:SCREEN-VALUE = SUBSTRING(v-locbin,iWarehouseLength + 1,8).
 
           FIND FIRST loc WHERE loc.company = g_company
                         AND loc.loc = rm-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}

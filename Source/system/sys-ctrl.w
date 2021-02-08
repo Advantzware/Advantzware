@@ -44,6 +44,7 @@ CREATE WIDGET-POOL.
 {methods/prgsecur.i}
 {sys/ref/sys-ctrl.i}
 {methods/defines/sortByDefs.i "EXTENT 2"}
+{Inventory/ttInventory.i "NEW SHARED"}
 
 DEFINE VARIABLE hCurrentFilter   AS HANDLE    NO-UNDO.
 DEFINE VARIABLE cFilter          AS CHARACTER NO-UNDO INITIAL "ALL".
@@ -61,6 +62,10 @@ DEFINE VARIABLE hFieldValue      AS HANDLE    NO-UNDO.
 DEFINE VARIABLE iUserPrintOffSet AS INTEGER   NO-UNDO INITIAL 5.
 DEFINE VARIABLE lSortMove        AS LOGICAL   NO-UNDO INITIAL YES.
 DEFINE VARIABLE iEditorBGColor   AS INTEGER   NO-UNDO.
+DEFINE VARIABLE hdInventoryProcs AS HANDLE    NO-UNDO.
+DEFINE VARIABLE iWarehouseLength AS INTEGER   NO-UNDO.
+
+RUN Inventory/InventoryProcs.p PERSISTENT SET hdInventoryProcs.
 
 cValidateList = "QUOPRINT,BOLFMT,ACKHEAD,RELPRINT,POPRINT,"
               + "INVPRINT,BOLCERT,JOBCARDF,JOBCARDC,QUOPRICE"
@@ -1960,8 +1965,12 @@ DO:
     DEFINE VARIABLE cFieldsValue  AS CHARACTER        NO-UNDO.
     DEFINE VARIABLE cFoundValue   AS CHARACTER        NO-UNDO.
     DEFINE VARIABLE recFoundRecID AS RECID            NO-UNDO.
-     
-
+        
+    RUN Inventory_GetWarehouseLength IN hdInventoryProcs (
+         INPUT  gcompany,
+         OUTPUT iWarehouseLength
+         ). 
+    
     IF cDataType:SCREEN-VALUE EQ "Character" THEN DO:
         cNameValue = ttSysCtrl.name.
         IF LOOKUP(cNameValue, gvcMultiSelect) GT 0 AND
@@ -1985,8 +1994,8 @@ DO:
                     .
                 ELSE
                 ASSIGN
-                    cLoc    = SUBSTR(cFieldValue:SCREEN-VALUE,1,5)
-                    cLocBin = SUBSTR(cFieldValue:SCREEN-VALUE,6,8)
+                    cLoc    = SUBSTR(cFieldValue:SCREEN-VALUE,1,iWarehouseLength)
+                    cLocBin = SUBSTR(cFieldValue:SCREEN-VALUE,iWarehouseLength + 1,8)
                     .
                 RUN windows/l-fgbin.w (gcompany, cLoc, cLocBin, OUTPUT cCharValue).
                 IF cCharValue NE "" THEN
@@ -2006,8 +2015,8 @@ DO:
                     .
                 ELSE
                 ASSIGN
-                    cLoc    = SUBSTR(cFieldValue:SCREEN-VALUE,1,5)
-                    cLocBin = SUBSTR(cFieldValue:SCREEN-VALUE,6,8)
+                    cLoc    = SUBSTR(cFieldValue:SCREEN-VALUE,1,iWarehouseLength)
+                    cLocBin = SUBSTR(cFieldValue:SCREEN-VALUE,iWarehouseLength + 1,8)
                     .
                 RUN windows/l-rmbin.w (gcompany,cLoc,cLocBin,OUTPUT cCharValue).
                 IF cCharValue NE "" THEN

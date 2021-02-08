@@ -44,7 +44,8 @@ DEF VAR lv-job-no AS CHAR NO-UNDO.
 DEF VAR lv-job-no2 AS CHAR NO-UNDO.
 DEF VAR lv-prev-job2 AS cha NO-UNDO.
 DEF VAR lv-new-job-ran AS LOG NO-UNDO.
-
+DEFINE VARIABLE iWarehouseLength AS INTEGER   NO-UNDO.
+   
 DEF BUFFER bf-tmp FOR fg-rctd.  /* for tag validation */
 DEF BUFFER xfg-rdtlh FOR fg-rdtlh. /* for tag validation */
 DEFINE BUFFER bf-po-ordl FOR po-ordl .
@@ -651,11 +652,17 @@ ON LEAVE OF fg-rctd.loc IN BROWSE Browser-Table /* Whse */
 DO:
     DEF VAR llSkipBin AS LOG INIT NO NO-UNDO.
   IF LASTKEY NE -1 THEN DO:
+  
+   RUN Inventory_GetWarehouseLength IN hInventoryProcs (
+       INPUT  cocode,
+       OUTPUT iWarehouseLength
+        ).
+  
     IF LENGTH(SELF:SCREEN-VALUE) > 5 THEN DO:
           DEF VAR v-locbin AS cha NO-UNDO.
           v-locbin = SELF:SCREEN-VALUE.
-          ASSIGN fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name} = SUBSTRING(v-locbin,1,5)
-                 fg-rctd.loc-bin:SCREEN-VALUE = SUBSTRING(v-locbin,6,8).
+          ASSIGN fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name} = SUBSTRING(v-locbin,1,iWarehouseLength)
+                 fg-rctd.loc-bin:SCREEN-VALUE = SUBSTRING(v-locbin,iWarehouseLength + 1,8).
 
         RUN ValidateBin IN hInventoryProcs (cocode, fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}, 
             fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}, 

@@ -32,6 +32,7 @@ CREATE WIDGET-POOL.
 {sys/inc/var.i NEW SHARED}
 {sys/inc/varasgn.i}
 {methods/template/brwCustomDef.i}
+{Inventory/ttInventory.i "NEW SHARED"}
 
 def var char-val as cha no-undo.
 def var ext-cost as decimal no-undo.
@@ -40,6 +41,10 @@ def var ls-prev-po as cha no-undo.
 def var hd-post as widget-handle no-undo.
 def var hd-post-child as widget-handle no-undo.
 def var ll-help-run as log no-undo.  /* set on browse help, reset row-entry */
+DEFINE VARIABLE hdInventoryProcs AS HANDLE NO-UNDO.
+DEFINE VARIABLE iWarehouseLength AS INTEGER NO-UNDO.
+
+RUN inventory/InventoryProcs.p PERSISTENT SET hdInventoryProcs.
 
 DEF NEW SHARED TEMP-TABLE tt-selected FIELD tt-rowid AS ROWID.
 
@@ -553,13 +558,18 @@ END.
 ON LEAVE OF rm-rctd.loc IN BROWSE Browser-Table /* Whse */
 DO:
   IF LASTKEY NE -1 THEN DO:
-     DEFINE VARIABLE cLocBin AS CHARACTER NO-UNDO.
+    RUN Inventory_GetWarehouseLength IN hdInventoryProcs (
+        INPUT  cocode,
+        OUTPUT iWarehouseLength
+        ).
+    
+    DEFINE VARIABLE cLocBin AS CHARACTER NO-UNDO.
     IF SELF:MODIFIED THEN DO:
        IF LENGTH(SELF:SCREEN-VALUE) > 5 THEN DO:
 
           cLocBin = SELF:SCREEN-VALUE.
-          ASSIGN rm-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name} = SUBSTRING(cLocBin,1,5)
-                 rm-rctd.loc-bin:SCREEN-VALUE = SUBSTRING(cLocBin,6,8).
+          ASSIGN rm-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name} = SUBSTRING(cLocBin,1,iWarehouseLength)
+                 rm-rctd.loc-bin:SCREEN-VALUE = SUBSTRING(cLocBin,iWarehouseLength + 1,8).
        END.
     END.
     RUN valid-loc-bin-tag (1) NO-ERROR.
@@ -900,10 +910,14 @@ PROCEDURE local-create-record :
       message "Sys-ctrl record NOT found. " sys-ctrl.descrip
                  update sys-ctrl.char-fld.
     end.
+    RUN Inventory_GetWarehouseLength IN hdInventoryProcs (
+        INPUT  cocode,
+        OUTPUT iWarehouseLength
+        ).
     IF sys-ctrl.char-fld NE 'RMITEM' THEN
     ASSIGN
-      rm-rctd.loc = SUBSTR(sys-ctrl.char-fld,1,5)
-      rm-rctd.loc-bin = SUBSTR(sys-ctrl.char-fld,6).
+      rm-rctd.loc = SUBSTR(sys-ctrl.char-fld,1,iWarehouseLength)
+      rm-rctd.loc-bin = SUBSTR(sys-ctrl.char-fld,iWarehouseLength + 1).
   disp rm-rctd.loc rm-rctd.loc-bin rm-rctd.rct-date with browse {&browse-name}. 
   lv-recid = recid(rm-rctd).  
 

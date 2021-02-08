@@ -39,6 +39,7 @@ CREATE WIDGET-POOL.
 {custom/globdefs.i}
 {sys/inc/VAR.i NEW SHARED}
 {methods/template/brwCustomDef.i}
+{Inventory/ttInventory.i "NEW SHARED"}
 &SCOPED-DEFINE winReSize
 {methods/defines/winReSize.i}
 DO TRANSACTION:
@@ -59,6 +60,11 @@ DEF VAR hd-post-child AS WIDGET-HANDLE NO-UNDO.
 DEF VAR ll-help-run AS LOG NO-UNDO.  /* set on browse help, reset row-entry */
 DEFINE VARIABLE lCheckConf AS LOGICAL NO-UNDO .
 DEFINE VARIABLE unitsOH LIKE fg-rctd.t-qty NO-UNDO.
+DEFINE VARIABLE iWarehouseLength AS INTEGER   NO-UNDO.
+DEFINE VARIABLE hInventoryProcs AS HANDLE NO-UNDO.
+
+RUN Inventory/InventoryProcs.p PERSISTENT SET hInventoryProcs.
+
 cocode = g_company.
 locode = g_loc.
 DO TRANSACTION:
@@ -653,11 +659,17 @@ END.
 ON LEAVE OF fg-rctd.loc IN BROWSE Browser-Table /* From!Whse */
 DO:
   IF LASTKEY NE -1 THEN DO:
+  
+   RUN Inventory_GetWarehouseLength IN hInventoryProcs (
+       INPUT  cocode,
+       OUTPUT iWarehouseLength
+        ).
+        
      IF LENGTH(SELF:SCREEN-VALUE) > 5 THEN DO:
           DEF VAR v-locbin AS cha NO-UNDO.
           v-locbin = SELF:SCREEN-VALUE.
-          ASSIGN fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name} = SUBSTRING(v-locbin,1,5)
-                 fg-rctd.loc-bin:SCREEN-VALUE = SUBSTRING(v-locbin,6,8).
+          ASSIGN fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name} = SUBSTRING(v-locbin,1,iWarehouseLength)
+                 fg-rctd.loc-bin:SCREEN-VALUE = SUBSTRING(v-locbin,iWarehouseLength + 1,8).
      END.
 
      RUN valid-job-loc-bin-tag NO-ERROR.

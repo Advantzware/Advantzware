@@ -32,6 +32,7 @@ CREATE WIDGET-POOL.
 
 {sys/inc/var.i NEW SHARED}
 {methods/template/brwcustomdef.i}
+{Inventory/ttInventory.i "NEW SHARED"}
 
 ASSIGN
  cocode = g_company
@@ -65,6 +66,10 @@ DEF VAR lv-i-no LIKE po-ordl.i-no NO-UNDO.
 DEF VAR lv-line LIKE po-ordl.line NO-UNDO.
 DEF VAR lv-new-record AS LOG NO-UNDO.
 DEF VAR ll-casetag AS LOG NO-UNDO.
+DEFINE VARIABLE hdInventoryProcs AS HANDLE NO-UNDO.
+DEFINE VARIABLE iWarehouseLength  AS INTEGER   NO-UNDO.
+
+RUN Inventory/InventoryProcs.p PERSISTENT SET hdInventoryProcs.
 
 DEF BUFFER br-tmp FOR rm-rctd.  /* for tag validation */
 DEF BUFFER xrm-rdtlh FOR rm-rdtlh. /* for tag validation */
@@ -659,13 +664,18 @@ END.
 ON LEAVE OF rm-rctd.loc IN BROWSE Browser-Table /* Whse */
 DO:
   IF LASTKEY NE -1 THEN DO:
+    RUN Inventory_GetWarehouseLength IN hdInventoryProcs (
+         INPUT  cocode,
+         OUTPUT iWarehouseLength
+         ).
+    
     DEFINE VARIABLE cLocBin AS CHARACTER NO-UNDO.
     IF SELF:MODIFIED THEN DO:
        IF LENGTH(SELF:SCREEN-VALUE) > 5 THEN DO:
 
           cLocBin = SELF:SCREEN-VALUE.
-          ASSIGN rm-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name} = SUBSTRING(cLocBin,1,5)
-                 rm-rctd.loc-bin:SCREEN-VALUE = SUBSTRING(cLocBin,6,8).
+          ASSIGN rm-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name} = SUBSTRING(cLocBin,1,iWarehouseLength)
+                 rm-rctd.loc-bin:SCREEN-VALUE = SUBSTRING(cLocBin,iWarehouseLength + 1,8).
        END.
     END.
 
