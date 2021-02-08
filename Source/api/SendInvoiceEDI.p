@@ -236,8 +236,8 @@ FOR EACH ttInv:
                     dFreightTaxPct = dFreightTaxPct * 100.
                     
                 RUN updateRequestData(INPUT-OUTPUT lcTaxData, "TaxType", "ST").
-                RUN updateRequestData(INPUT-OUTPUT lcTaxData, "TaxPercent", TRIM(STRING(dFreightTaxPct, ">>9.99<<"))).
-                RUN updateRequestData(INPUT-OUTPUT lcTaxData, "TotalTaxDollars", TRIM(STRING(ttInv.amountTotalTaxFreight, "->>>>>>>>9.99"))).
+                RUN updateRequestData(INPUT-OUTPUT lcTaxData, "TaxPercent", STRING(dFreightTaxPct)).
+                RUN updateRequestData(INPUT-OUTPUT lcTaxData, "TotalTaxDollars", STRING(ttInv.amountTotalTaxFreight)).
             END.
             
             lcSurchargeData = REPLACE(lcSurchargeData, "$TaxDetail$", lcTaxData).
@@ -254,7 +254,7 @@ FOR EACH ttInv:
             
             RUN updateRequestData(INPUT-OUTPUT lcSurchargeData, "SurchargeID", "C").   /* "A" - Allowance, "C" - Charge */
             RUN updateRequestData(INPUT-OUTPUT lcSurchargeData, "SurchargeCode", "D240").  /* "D240" - Freight */
-            RUN updateRequestData(INPUT-OUTPUT lcSurchargeData, "SurchargeAmount", TRIM(STRING(ttInv.amountTotalTaxableFreight, "->>>>>>>>9.99"))).
+            RUN updateRequestData(INPUT-OUTPUT lcSurchargeData, "SurchargeAmount", STRING(ttInv.amountTotalTaxableFreight)).
 
             IF AVAILABLE bf-tax-APIOutboundDetail AND ttInv.amountTotalTaxableFreight NE 0 THEN DO:
                 lcTaxData = bf-tax-APIOutboundDetail.data.
@@ -265,8 +265,8 @@ FOR EACH ttInv:
                     dFreightTaxPct = dFreightTaxPct * 100.
 
                 RUN updateRequestData(INPUT-OUTPUT lcTaxData, "TaxType", "ST").
-                RUN updateRequestData(INPUT-OUTPUT lcTaxData, "TaxPercent", TRIM(STRING(dFreightTaxPct, ">>9.99<<"))).
-                RUN updateRequestData(INPUT-OUTPUT lcTaxData, "TotalTaxDollars", TRIM(STRING(ttInv.amountTotalTaxFreight, "->>>>>>>>9.99"))).
+                RUN updateRequestData(INPUT-OUTPUT lcTaxData, "TaxPercent", STRING(dFreightTaxPct)).
+                RUN updateRequestData(INPUT-OUTPUT lcTaxData, "TotalTaxDollars", STRING(ttInv.amountTotalTaxFreight)).
             END.
             
             lcSurchargeData = REPLACE(lcSurchargeData, "$TaxDetail$", lcTaxData).
@@ -282,8 +282,8 @@ FOR EACH ttInv:
             lcTaxData = bf-tax-APIOutboundDetail.data.
             
             RUN updateRequestData(INPUT-OUTPUT lcTaxData, "TaxType", "ST").
-            RUN updateRequestData(INPUT-OUTPUT lcTaxData, "TaxPercent", TRIM(STRING(ROUND((ttInv.amountTotalTaxExFreight / ttInv.amountTotalTaxableExFreight) * 100, 2), ">>9.99<<"))).
-            RUN updateRequestData(INPUT-OUTPUT lcTaxData, "TotalTaxDollars", TRIM(STRING(ttInv.amountTotalTaxExFreight, "->>>>>>>>9.99"))).
+            RUN updateRequestData(INPUT-OUTPUT lcTaxData, "TaxPercent", STRING(ROUND((ttInv.amountTotalTaxExFreight / ttInv.amountTotalTaxableExFreight) * 100, 2))).
+            RUN updateRequestData(INPUT-OUTPUT lcTaxData, "TotalTaxDollars", STRING(ttInv.amountTotalTaxExFreight)).
         END.
     END.
     
@@ -312,7 +312,7 @@ FOR EACH ttInv:
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ShiptoCity", ttInv.shiptoCity).
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ShiptoState", ttInv.shiptoState).
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ShiptoPostalCode", ttInv.shiptoPostalCode).        
-    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "TotalAmount", REPLACE(TRIM(STRING(ttInv.amountTotal, "->>>>>>>>9.99")), ".", "")).
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "TotalAmount", REPLACE(TRIM(STRING(ttInv.amountTotal, "->>>>>>>>>.99")), ".", "")).
     
     ASSIGN 
         iSECount = NUM-ENTRIES(ioplcRequestData, "~~") - 1   
