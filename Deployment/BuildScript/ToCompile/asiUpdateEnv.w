@@ -3677,8 +3677,8 @@ PROCEDURE ipExpandFiles :
     OS-COPY VALUE(cTgtEnv + "\Programs\DataDigger\Cache\*.*") VALUE(cTgtEnv + "\CustFiles\DDBackups\Cache").
     
     /* Delete old overrides */
-    OS-DELETE VALUE(cUpdProgramDir + "\Override") RECURSIVE.
-    OS-CREATE-DIR VALUE(cUpdProgramDir + "\Override").
+    OS-DELETE VALUE(cTgtEnv + "\Override") RECURSIVE.
+    OS-CREATE-DIR VALUE(cTgtEnv + "\Override").
     
     /* Unzip/move breaks for any number of security reasons; just copy  */
     RUN ipStatus ("  Copying system files from ").
