@@ -199,15 +199,13 @@ FOR EACH ttInputEst NO-LOCK:
                           WHERE est-op.company EQ bf-eb.company
                           AND est-op.est-no  EQ bf-eb.est-no                          
                           AND est-op.b-num   NE 0
-                          AND est-op.line    LT 500:
-                          
-                          FOR EACH bf-ttInputEst NO-LOCK:
+                          AND est-op.line    LT 500:                             
                                       
                               FIND FIRST bf-est-op NO-LOCK
                                    WHERE bf-est-op.company EQ bff-eb.company
                                    AND bf-est-op.est-no  EQ bff-eb.est-no
-                                   AND bf-est-op.s-num   EQ bf-ttInputEst.iFormNo
-                                   AND bf-est-op.b-num  EQ bf-ttInputEst.iBlankNo
+                                   AND bf-est-op.s-num   EQ bff-eb.form-no
+                                   AND bf-est-op.b-num   EQ bff-eb.blank-no
                                    AND bf-est-op.line    LT 500
                                    AND bf-est-op.m-code  EQ est-op.m-code NO-ERROR.
                               IF NOT AVAIL bf-est-op THEN
@@ -227,15 +225,15 @@ FOR EACH ttInputEst NO-LOCK:
                                   ASSIGN
                                   bf-est-op.company  = bff-eb.company 
                                   bf-est-op.est-no   = bff-eb.est-no
-                                  bf-est-op.s-num    = bf-ttInputEst.iFormNo
-                                  bf-est-op.b-num    = bf-ttInputEst.iBlankNo
+                                  bf-est-op.s-num    = bff-eb.form-no
+                                  bf-est-op.b-num    = bff-eb.blank-no
                                   bf-est-op.qty      = est.est-qty[1] 
                                   bf-est-op.LINE     = iLine
                                   .                 
                                   BUFFER-COPY est-op EXCEPT company est-no s-num  b-num qty rec_key LINE TO bf-est-op.
                                   
-                              END.  /* NOT AVAIL bf-est-op*/                       
-                          END.   /* FOR EACH bf-ttInputEst*/
+                              END.  /* NOT AVAIL bf-est-op*/                      
+                         
                       END. 
                   END.
                    
