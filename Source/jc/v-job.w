@@ -1339,6 +1339,8 @@ PROCEDURE local-delete-record :
   RUN set-attribute-list IN WIDGET-HANDLE(char-hdl) ("REC-DELETED=yes").
 
   RUN pUpdateFGItemQty(BUFFER job).
+  
+  RUN pUpdateCommittedQty(recid(job)).
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'delete-record':U ) .
@@ -2938,6 +2940,22 @@ PROCEDURE pUpdateFGItemQty :
                    ).               
    END.   
             
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateCommittedQty V-table-Win 
+PROCEDURE pUpdateCommittedQty :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DEFINE INPUT PARAMETER iprcRecid AS RECID NO-UNDO.           
+     
+   RUN jc/jc-dall.p(iprcRecid).     
+             
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
