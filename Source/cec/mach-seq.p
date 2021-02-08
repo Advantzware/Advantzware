@@ -263,13 +263,13 @@ FOR EACH xef
                         m-lst.n-out = IF i EQ 2 THEN xef.n-out-l ELSE xef.n-out.
 
                         IF cercrout                                           AND
-                            xef.n-out LE 1 AND xef.gsh-wid LE xef.nsh-wid      AND
-                            xef.n-out-l LE 1 AND xef.gsh-len LE xef.nsh-len    THEN
+                            xef.n-out LE 1 AND xef.gsh-wid LT xef.nsh-wid      AND
+                            xef.n-out-l LE 1 AND xef.gsh-len LT xef.nsh-len    THEN
                             LEAVE.
 
                         ELSE
-                            IF (xef.n-out LE 1 AND xef.gsh-wid LE xef.nsh-wid AND i EQ 1)   OR
-                                (xef.n-out-l LE 1 AND xef.gsh-len LE xef.nsh-len AND i EQ 2) THEN
+                            IF (xef.n-out LE 1 AND xef.gsh-wid LT xef.nsh-wid AND i EQ 1)   OR
+                                (xef.n-out-l LE 1 AND xef.gsh-len LT xef.nsh-len AND i EQ 2) THEN
                             DO:
                                 IF ceroute1-log EQ YES AND
                                     CAN-FIND(FIRST tt-mach-route WHERE
@@ -292,10 +292,10 @@ FOR EACH xef
                                          IF AVAILABLE xeb AND mach.p-type EQ "B" THEN xeb.blank-no ELSE 0
                                         tt-mach-exc.m-code   = mach.m-code
                                         tt-mach-exc.dept     = mach.dept[1]
-                                        tt-mach-exc.reason   = IF (xef.n-out LE 1 AND xef.gsh-wid LE xef.nsh-wid AND i EQ 1) THEN
-                                             "Net Sheet Width(" + STRING(xef.nsh-wid) + ") Larger Than Or Equal To Gross Sheet Width(" + STRING(xef.gsh-wid) + ")"
+                                        tt-mach-exc.reason   = IF (xef.n-out LE 1 AND xef.gsh-wid LT xef.nsh-wid AND i EQ 1) THEN
+                                             "Net Sheet Width(" + STRING(xef.nsh-wid) + ") Larger Than To Gross Sheet Width(" + STRING(xef.gsh-wid) + ")"
                                           ELSE
-                                             "Net Sheet Length(" + STRING(xef.nsh-len) + ") Larger Than Or Equal To Gross Sheet Length(" + STRING(xef.gsh-len) + ")".
+                                             "Net Sheet Length(" + STRING(xef.nsh-len) + ") Larger Than To Gross Sheet Length(" + STRING(xef.gsh-len) + ")".
                                     RELEASE tt-mach-exc.
                                 END.
 
@@ -303,7 +303,7 @@ FOR EACH xef
                             END.
                             /*if i eq 1 condition is yes and i eq 2 condition is no, delete error reason*/
                             ELSE IF ceroute1-log EQ YES AND i EQ 2 AND
-                                    (xef.n-out LE 1 AND xef.gsh-wid LE xef.nsh-wid AND i EQ 1) THEN
+                                    (xef.n-out LE 1 AND xef.gsh-wid LT xef.nsh-wid AND i EQ 1) THEN
                                 DO:
                                     FIND FIRST tt-mach-exc WHERE
                                         tt-mach-exc.m-code   = mach.m-code AND
