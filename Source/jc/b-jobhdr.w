@@ -866,6 +866,8 @@ PROCEDURE local-delete-record :
                    ).   
   END.
   
+  RUN jc/jc-dall.p(RECID(job)). /* update item Committed qty */
+  
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'delete-record':U ) .
 
