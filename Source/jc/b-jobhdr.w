@@ -826,6 +826,9 @@ PROCEDURE local-delete-record :
   Notes:       
 ------------------------------------------------------------------------------*/
   /* Code placed here will execute PRIOR to standard behavior. */
+  DEFINE VARIABLE cFGItem AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE dJobQty AS DECIMAL NO-UNDO.
+  DEFINE BUFFER bf-itemfg FOR itemfg.
   {&methods/lValidateError.i YES}
    FIND FIRST po-ordl NO-LOCK
              WHERE po-ordl.company EQ job.company
@@ -860,6 +863,8 @@ PROCEDURE local-delete-record :
   
   IF AVAIL job-hdr AND job-hdr.ord-no EQ 0 THEN
   DO:
+      cFGItem = job-hdr.i-no.
+      dJobQty = job-hdr.qty.
       RUN util/upditmfg.p (
                    INPUT ROWID(job-hdr),
                    INPUT -1
@@ -870,6 +875,15 @@ PROCEDURE local-delete-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'delete-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
+  /* for recalc itemfg.q-ono in write.trg */
+  IF cFGItem NE "" THEN
+  DO:
+     FIND FIRST bf-itemfg EXCLUSIVE-LOCK
+          WHERE bf-itemfg.company EQ job.company
+          AND bf-itemfg.i-no EQ cFGItem NO-ERROR .
+     IF AVAIL bf-itemfg AND NOT bf-itemfg.pur-man THEN
+      bf-itemfg.q-ono = bf-itemfg.q-ono - dJobQty.      
+  END.
 
 END PROCEDURE.
 
