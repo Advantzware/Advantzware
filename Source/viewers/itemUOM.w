@@ -297,6 +297,21 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME itemUoM.UOM
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL itemUoM.UOM V-table-Win
+ON HELP OF itemUoM.UOM IN FRAME F-Main /* UOM */
+DO:
+    DEF VAR char-val AS cha NO-UNDO.
+
+    RUN WINDOWS/l-uom.w (itemUoM.UOM:SCREEN-VALUE, OUTPUT char-val).
+    IF char-val <> "" THEN ASSIGN itemUoM.UOM:SCREEN-VALUE = ENTRY(1,char-val)
+                                  itemUoM.descr:SCREEN-VALUE = ENTRY(2,char-val).
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &UNDEFINE SELF-NAME
 
