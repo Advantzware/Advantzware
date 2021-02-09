@@ -71,6 +71,7 @@ DEFINE VARIABLE lLocQueryRan     AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lBinsQueryRan    AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lLocBinsQueryRan AS LOGICAL NO-UNDO.
 
+DEFINE VARIABLE hdFGProcs AS HANDLE NO-UNDO.
 &SCOPED-DEFINE SORTBY-PHRASE BY ttBrowseInventory.tag
 
 /* _UIB-CODE-BLOCK-END */
@@ -330,10 +331,14 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL W-Win W-Win
 ON WINDOW-CLOSE OF W-Win /* FG Inquiry */
 DO:
-  /* This ADM code must be left here in order for the SmartWindow
-     and its descendents to terminate properly on exit. */
-  APPLY "CLOSE":U TO THIS-PROCEDURE.
-  RETURN NO-APPLY.
+    /* This ADM code must be left here in order for the SmartWindow
+       and its descendents to terminate properly on exit. */
+    
+    IF VALID-HANDLE(hdFGProcs) THEN
+        DELETE PROCEDURE hdFGProcs.
+        
+    APPLY "CLOSE":U TO THIS-PROCEDURE.
+    RETURN NO-APPLY.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -503,9 +508,11 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiCustItem W-Win
 ON LEAVE OF fiCustItem IN FRAME F-Main /* Customer Part # */
 DO:
-    IF cCustItem EQ SELF:SCREEN-VALUE AND cCustItem NE "" THEN
-        RETURN.
+    DEFINE VARIABLE lHasMutlipleItems AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cItemSelected     AS CHARACTER NO-UNDO.
 
+    RUN pClearRecords.
+    
     IF SELF:SCREEN-VALUE EQ "" THEN
         RETURN.
         
@@ -515,6 +522,30 @@ DO:
         cItemID               = ""
         .
 
+    RUN FG_HasMultipleFGItemsForCustPart IN hdFGProcs (
+        INPUT  cCompany,
+        INPUT  cCustItem,
+        OUTPUT lHasMutlipleItems
+        ).
+    IF lHasMutlipleItems THEN DO:
+        RUN fg/d-fgItemPrompt.w (
+            INPUT  cCompany,
+            INPUT  cCustItem,
+            OUTPUT cItemSelected
+            ).
+        
+        IF cItemSelected EQ "" THEN DO:
+            MESSAGE "Please select a valid item for cust part # " + cCustItem
+            VIEW-AS ALERT-BOX ERROR. 
+            
+            cCustItem = "".
+            
+            RETURN.
+        END.
+        
+        cItemID = cItemSelected.
+    END.
+    
     RUN pScanItem.
 END.
 
@@ -588,7 +619,9 @@ ON LEAVE OF fiFGItem IN FRAME F-Main /* FG Item# */
 DO:
     IF cItemID EQ SELF:SCREEN-VALUE AND cItemID NE "" THEN
         RETURN.
-
+        
+    RUN pClearRecords.
+    
     IF SELF:SCREEN-VALUE EQ "" THEN
         RETURN.
         
@@ -1062,6 +1095,30 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy W-Win
+PROCEDURE local-destroy:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+    /* Code placed here will execute PRIOR to standard behavior. */
+    IF VALID-HANDLE(hdFGProcs) THEN
+        DELETE PROCEDURE hdFGProcs.
+        
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
+
+    /* Code placed here will execute AFTER standard behavior.    */
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable W-Win 
 PROCEDURE local-enable :
 /*------------------------------------------------------------------------------
@@ -1096,6 +1153,28 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pClearRecords W-Win
+PROCEDURE pClearRecords:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    IF VALID-HANDLE(hdItemBins) THEN 
+        RUN ClearRecords IN hdItemBins.
+
+    IF VALID-HANDLE(hdItemLoc) THEN
+        RUN ClearRecords IN hdItemLoc.
+
+    IF VALID-HANDLE(hdItemLocBin) THEN
+        RUN ClearRecords IN hdItemLocBin.
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pInit W-Win 
 PROCEDURE pInit :
@@ -1137,6 +1216,8 @@ PROCEDURE pInit :
         ).
         
     DELETE OBJECT hdPgmSecurity.    
+    
+    RUN fg/FGProcs.p PERSISTENT SET hdFGProcs.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
