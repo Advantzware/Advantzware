@@ -41,7 +41,8 @@ IF NOT AVAILABLE APIOutboundEvent THEN DO:
         APIOutboundEvent.sourceTriggerID  = ipcTriggerID
         APIOutboundEvent.primaryID        = ipcPrimaryID
         APIOutboundEvent.eventDescription = ipcEventDescription
-        APIOutboundEvent.requestData      = iplcRequestData        
+        APIOutboundEvent.requestData      = iplcRequestData
+        APIOutboundEvent.requestedBy      = USERID("ASI")        
         .    
 END.
     
