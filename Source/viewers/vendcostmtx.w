@@ -76,7 +76,7 @@ RUN sys/ref/nk1look.p (INPUT cocode, "FGItemUOM", "L" /* Logical */, NO /* check
                        OUTPUT cReturn, OUTPUT lRecFound).
 IF lRecFound THEN
 lFGItemUOM = LOGICAL(cReturn) NO-ERROR.
-
+{system/ttConversionProcs.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -419,13 +419,14 @@ DO:
 
   {&methods/lValidateError.i YES}
   CASE FOCUS:NAME :
-    WHEN "vendorUOM" THEN DO:
-        RUN pSetUomList(cocode,vendItemCost.itemID:SCREEN-VALUE,vendItemCost.itemType:SCREEN-VALUE).
+    WHEN "vendorUOM" THEN DO:         
         IF lFGItemUOM AND vendItemCost.itemType:SCREEN-VALUE EQ "FG" THEN
         DO:
-           RUN windows/l-itemuom.w (cocode, vendItemCost.itemID:SCREEN-VALUE,"FG", FOCUS:SCREEN-VALUE, "Cost", OUTPUT char-val). 
+           RUN pSetUomTT(cocode,vendItemCost.itemID:SCREEN-VALUE).
+           RUN windows/l-itemuom.w (cocode, FOCUS:SCREEN-VALUE, INPUT TABLE ttUOMEffective, OUTPUT char-val). 
         END.
         ELSE DO:
+           RUN pSetUomList(cocode,vendItemCost.itemID:SCREEN-VALUE,vendItemCost.itemType:SCREEN-VALUE). 
            RUN windows/l-stduom.w (cocode, uom-list, FOCUS:SCREEN-VALUE, OUTPUT char-val).
         END.
         
@@ -1242,6 +1243,37 @@ PROCEDURE pSetUomList PRIVATE :
                 OUTPUT uom-list
                 ).
     END.
+    
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetUomTT V-table-Win 
+PROCEDURE pSetUomTT PRIVATE :
+/*------------------------------------------------------------------------------
+     Purpose:  
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO. 
+    DEFINE INPUT PARAMETER ipcItemID AS CHARACTER NO-UNDO.
+        
+    DEFINE VARIABLE lError   AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+
+    EMPTY TEMP-TABLE ttUOMEffective.
+    FIND FIRST itemfg NO-LOCK 
+        WHERE itemfg.company EQ ipcCompany
+        AND itemfg.i-no EQ  ipcItemID
+        NO-ERROR.
+    lError = YES.
+    IF AVAILABLE itemfg THEN
+        RUN Conv_GetValidCostUOMTTForItem(ROWID(itemfg), OUTPUT lError, OUTPUT cMessage, OUTPUT TABLE ttUOMEffective).
+    IF lError THEN  
+        RUN Conv_GetValidCostUOMTT(
+            OUTPUT TABLE ttUOMEffective
+            ).
+
     
 END PROCEDURE.
 

@@ -18,11 +18,11 @@
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+{system/ttConversionProcs.i} 
+
 DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER ipcItem AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER ipcItemType AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER ip-cur-val AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER ipcUomSource AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER TABLE FOR ttUOMEffective.
 
 def output param op-char-val as cha no-undo.
 
@@ -33,26 +33,6 @@ def output param op-char-val as cha no-undo.
 &scoped-define IAMWHAT LOOKUP
 
 DEFINE VARIABLE lv-first-time as log init yes no-undo.
-     
- DEFINE TEMP-TABLE ttUOM NO-UNDO
-    FIELD uom                 AS CHARACTER LABEL "UOM"         FORMAT "x(4)"
-    FIELD uomBase             AS CHARACTER LABEL "Base UOM"    FORMAT "x(4)"
-    FIELD multiplierToBase    AS DECIMAL   LABEL "Conv. Factor"  FORMAT ">>>,>>>,>>9.9999"
-    FIELD uomDescription      AS CHARACTER LABEL "Description" FORMAT "x(30)"
-    FIELD canUseOrderQuantity AS LOGICAL   LABEL "Use Order Qty"
-    FIELD canUsePOQuantity    AS LOGICAL   LABEL "Use PO Qty"
-    FIELD canUseStockQuantity AS LOGICAL   LABEL "Use Stock Qty"
-    FIELD canUsePricePerUnit  AS LOGICAL   LABEL "Use Price Per Unit"
-    FIELD canUseCostPerUnit   AS LOGICAL   LABEL "Use Cost Per Unit"
-    FIELD isBaseConverter     AS LOGICAL   LABEL "Base Converter"
-    FIELD isOverridden        AS LOGICAL   LABEL "Overridden"
-    FIELD uomSource           AS CHARACTER LABEL "UOM Source"
-    FIELD iSourceLevel        AS INTEGER   LABEL "Source Level"     
-    .  
-    
-  DEFINE TEMP-TABLE ttUOMEffective LIKE ttUOM
-          FIELD canPurchase         AS LOGICAL   LABEL "Purch"           FORMAT "Yes/No"
-          FIELD canSell             AS LOGICAL   LABEL "Order"           FORMAT "Yes/No" .     
        
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -344,7 +324,6 @@ MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
     
-  run build-form.
   RUN enable_UI.
   {custom/lookpos.i &lookup-file = "ttUOMEffective" &lookup-field = "uom"}
   
@@ -357,63 +336,6 @@ RUN disable_UI.
 
 
 /* **********************  Internal Procedures  *********************** */
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE build-form Dialog-Frame 
-PROCEDURE build-form :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
-  DEFINE BUFFER bf-ttUOM FOR ttUOM.
-  EMPTY TEMP-TABLE ttUOM.
-  EMPTY TEMP-TABLE ttUOMEffective.
-  
-  DEFINE VARIABLE httSource AS HANDLE NO-UNDO.
-  DEFINE VARIABLE httTarget AS HANDLE NO-UNDO.      
-    
-  ASSIGN          
-      httTarget = TEMP-TABLE ttUOM:HANDLE.
-      httSource = DYNAMIC-FUNCTION("fConv_ttUOMHandle").       
-      httTarget:COPY-TEMP-TABLE( httSource,?,?,?,?).         
-           
-  FOR EACH ttUOM 
-      WHERE ((LOOKUP("Price",ipcUomSource) NE 0 AND ttUOM.canUsePricePerUnit) 
-        OR (LOOKUP("OrderQty",ipcUomSource) NE 0 AND ttUOM.canUseOrderQuantity)
-        OR (LOOKUP("POQty",ipcUomSource) NE 0 AND ttUOM.canUsePOQuantity)
-        OR (LOOKUP("Cost",ipcUomSource) NE 0 AND ttUOM.canUseCostPerUnit)
-        OR (ipcUomSource EQ "All"))
-        AND NOT ttUOM.isOverridden:
-                    
-     ttUOM.multiplierToBase = 0.
-     
-     CREATE ttUOMEffective .
-     BUFFER-COPY ttUOM TO ttUOMEffective.
-     
-     FIND FIRST itemuom NO-LOCK
-          WHERE itemUoM.company EQ ipcCompany
-          AND itemUoM.itemID EQ ipcItem
-          AND itemUoM.itemType EQ ipcItemType 
-          AND itemUoM.uom EQ ttUOM.uom NO-ERROR.
-          IF AVAIL itemuom THEN
-          DO:
-               ASSIGN                
-               ttUOMEffective.multiplierToBase = itemUoM.convFactor
-               ttUOMEffective.canPurchase      = itemUoM.canPurchase
-               ttUOMEffective.canSell          = itemUoM.canSell .             
-           END. 
-           
-      FIND FIRST bf-ttUOM NO-LOCK 
-           WHERE bf-ttUOM.uom EQ ttUOM.uom 
-           AND ROWID(bf-ttUOM) NE ROWID(ttUOM) NO-ERROR.
-      IF AVAIL bf-ttUOM THEN DELETE bf-ttUOM.     
-  END.     
-      
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI Dialog-Frame  _DEFAULT-DISABLE
 PROCEDURE disable_UI :

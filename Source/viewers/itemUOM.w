@@ -43,6 +43,8 @@ ASSIGN
     cocode = g_company
     locode = g_loc
     .
+    
+{system/ttConversionProcs.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -297,6 +299,23 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME itemUoM.UOM
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL itemUoM.UOM V-table-Win
+ON HELP OF itemUoM.UOM IN FRAME F-Main /* UOM */
+DO:
+    DEF VAR char-val AS cha NO-UNDO.
+
+    RUN pSetUomTT.
+    RUN windows/l-itemuom.w (cocode, FOCUS:SCREEN-VALUE, INPUT TABLE ttUOMEffective, OUTPUT char-val). 
+    IF char-val <> "" THEN ASSIGN itemUoM.UOM:SCREEN-VALUE = ENTRY(1,char-val)
+                                  itemUoM.descr:SCREEN-VALUE = ENTRY(2,char-val).
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &UNDEFINE SELF-NAME
 
@@ -454,6 +473,24 @@ PROCEDURE state-changed :
          or add new cases. */
       {src/adm/template/vstates.i}
   END CASE.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetUomTT V-table-Win 
+PROCEDURE pSetUomTT PRIVATE :
+/*------------------------------------------------------------------------------
+     Purpose:  
+     Notes:
+    ------------------------------------------------------------------------------*/    
+
+    EMPTY TEMP-TABLE ttUOMEffective.
+    
+    RUN Conv_GetValidAllUOMTT(
+            OUTPUT TABLE ttUOMEffective
+            ).   
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

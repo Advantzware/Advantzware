@@ -286,7 +286,7 @@ END.
 {sys/inc/f16to32.i}
 {sys/inc/funcToWorkDay.i}
 {sys/inc/vendItemCost.i}
-
+{system/ttConversionProcs.i}
 DEF BUFFER b-vendItemCost FOR vendItemCost.
 
 DO TRANSACTION:
@@ -365,7 +365,6 @@ DEF VAR llRecFound AS LOG NO-UNDO.
 DEF VAR llOeShipFromLog AS LOG NO-UNDO.
 DEFINE VARIABLE lFGForcedCommission AS LOGICAL NO-UNDO .
 DEFINE VARIABLE dFGForcedCommission AS DECIMAL NO-UNDO.
-DEFINE VARIABLE lFGItemUOM AS LOGICAL NO-UNDO.
 RUN sys/ref/nk1look.p (cocode, "OESHIPFROM", "L", NO, NO, "", "", 
                           OUTPUT lcReturn, OUTPUT llRecFound).
 IF llRecFound THEN
@@ -382,12 +381,6 @@ RUN sys/ref/nk1look.p (INPUT cocode, "FGForceCommission", "D" /* Logical */, NO 
                        OUTPUT v-rtn-char, OUTPUT llRecFound).
 IF llRecFound THEN
 dFGForcedCommission = DECIMAL(v-rtn-char) NO-ERROR.
-
-RUN sys/ref/nk1look.p (INPUT cocode, "FGItemUOM", "L" /* Logical */, NO /* check by cust */, 
-                       INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-                       OUTPUT v-rtn-char, OUTPUT llRecFound).
-IF llRecFound THEN
-lFGItemUOM = LOGICAL(v-rtn-char) NO-ERROR.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1135,28 +1128,14 @@ DO:
               END.
          END.
          WHEN "fi_qty-uom" THEN DO:
-            RUN get-valid-uom (lw-focus, oe-ordl.i-no:SCREEN-VALUE).   
-            IF lFGItemUOM THEN
-            DO:
-               RUN windows/l-itemuom.w (g_company,oe-ordl.i-no:SCREEN-VALUE,"FG", oe-ordl.pr-uom:screen-value,"Price,OrderQty", OUTPUT char-val).
-              IF char-val <> "" THEN lw-focus:SCREEN-VALUE = ENTRY(1,char-val).                
-            END.
-            ELSE do:               
-              RUN windows/l-stduom.w (g_company,lv-valid-uom,oe-ordl.pr-uom:screen-value, OUTPUT char-val).
+              RUN get-valid-uom-tt (lw-focus, oe-ordl.i-no:SCREEN-VALUE).
+              RUN windows/l-itemuom.w (g_company,oe-ordl.pr-uom:screen-value,INPUT TABLE ttUOMEffective, OUTPUT char-val).
               IF char-val <> "" THEN lw-focus:SCREEN-VALUE = ENTRY(1,char-val).
-            END.  
          END.
          WHEN "pr-uom" THEN DO:
-            RUN get-valid-uom (lw-focus, oe-ordl.i-no:SCREEN-VALUE). 
-            IF lFGItemUOM THEN
-            DO:
-               RUN windows/l-itemuom.w (g_company,oe-ordl.i-no:SCREEN-VALUE,"FG",  oe-ordl.pr-uom:screen-value,"Price,OrderQty", OUTPUT char-val).
-              IF char-val <> "" THEN lw-focus:SCREEN-VALUE = ENTRY(1,char-val).                
-            END.
-            ELSE do:               
-              RUN windows/l-stduom.w (g_company,lv-valid-uom,oe-ordl.pr-uom:screen-value, OUTPUT char-val).
+              RUN get-valid-uom-tt (lw-focus, oe-ordl.i-no:SCREEN-VALUE).
+              RUN windows/l-itemuom.w (g_company,oe-ordl.pr-uom:screen-value, INPUT TABLE ttUOMEffective, OUTPUT char-val).
               IF char-val <> "" THEN lw-focus:SCREEN-VALUE = ENTRY(1,char-val).
-            END. 
               IF oe-ordl.est-no:SCREEN-VALUE NE "" AND
                  oeestcom-log = YES THEN
                  RUN get-est-comm (INPUT ROWID(oe-ordl), INPUT YES).
@@ -6233,6 +6212,25 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE get-valid-uom-tt d-oeitem 
+PROCEDURE get-valid-uom-tt :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEF INPUT PARAM ip-focus AS HANDLE NO-UNDO.
+  DEFINE INPUT PARAMETER ipcFGItem AS CHARACTER NO-UNDO.
+  
+  EMPTY TEMP-TABLE ttUOM.
+  
+  RUN pSetValidUOMTT(g_company, ipcFGITem).  
+  
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE getQtyPrice d-oeitem 
 PROCEDURE getQtyPrice :
 /*------------------------------------------------------------------------------
@@ -7786,6 +7784,41 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetValidUOMTT d-oeitem
+PROCEDURE pSetValidUOMTT PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:  Given company and get, set the global UOM list variable
+ Notes:
+------------------------------------------------------------------------------*/
+DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipcItemID AS CHARACTER NO-UNDO.
+
+DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+ 
+DEFINE BUFFER bf-itemfg FOR itemfg.
+
+    IF ipcItemID NE "" THEN DO:
+        FIND FIRST bf-itemfg NO-LOCK
+            WHERE bf-itemfg.company EQ ipcCompany
+            AND bf-itemfg.i-no EQ ipcItemID
+            NO-ERROR.
+
+    END.
+    IF AVAILABLE bf-itemfg THEN DO: 
+        RUN Conv_GetValidOrderQtyUOMTTForItem(ROWID(bf-itemfg), OUTPUT lError, OUTPUT cMessage, OUTPUT TABLE ttUOMEffective).
+        RUN Conv_GetValidPriceUOMTTForItem(ROWID(bf-itemfg), OUTPUT lError, OUTPUT cMessage, OUTPUT TABLE ttUOMEffective).
+    END.
+    ELSE DO: 
+        RUN Conv_GetValidOrderQtyUOMTT(OUTPUT TABLE ttUOMEffective).
+        RUN Conv_GetValidPriceUOMTT(OUTPUT TABLE ttUOMEffective).
+    END.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE setQtyPrice d-oeitem 
