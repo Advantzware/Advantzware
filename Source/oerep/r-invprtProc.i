@@ -756,7 +756,8 @@ define buffer b-{&head}1 for {&head}.
 lInRange = TRUE. 
 
  &SCOPED-DEFINE bol-check-range                      ~
-                IF oe-bolh.bol-no   LT fbol  OR              ~
+                IF oe-bolh.company ne cocode OR ~
+                   oe-bolh.bol-no   LT fbol  OR              ~
                    oe-bolh.bol-no   GT tbol  OR              ~
                    oe-bolh.bol-date LT fdate  OR             ~
                    oe-bolh.bol-date GT tdate THEN            ~
@@ -767,12 +768,14 @@ lInRange = TRUE.
   
   &IF  "{&head}" EQ "inv-head" &THEN 
        FOR EACH b-{&head}1 no-lock
-          WHERE b-{&head}1.{&rno} EQ ipbf-inv-head.{&rno}
+          WHERE b-{&head}1.company EQ cocode AND
+            b-{&head}1.{&rno} EQ ipbf-inv-head.{&rno}
           :
                
            IF b-{&head}1.bol-no NE 0 THEN DO: 
                 FOR EACH oe-bolh NO-LOCK 
-                    WHERE oe-bolh.bol-no EQ b-{&head}1.bol-no:
+                    WHERE oe-bolh.company EQ cocode AND
+                    oe-bolh.bol-no EQ b-{&head}1.bol-no:
                                 
                   {&bol-check-range}
                 END.
