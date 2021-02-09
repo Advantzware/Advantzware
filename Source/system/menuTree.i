@@ -671,10 +671,9 @@ PROCEDURE pSetisActive:
     FOR EACH bttMenuTree
         WHERE bttMenuTree.treeParent EQ ipcTreeChild
         :
-        ASSIGN
-            bttMenuTree.isActive = iplActive
-            bttMenuTree.hToggle:SCREEN-VALUE = STRING(iplActive)
-            .
+        bttMenuTree.isActive = iplActive.
+        IF VALID-HANDLE(bttMenuTree.hToggle) THEN
+        bttMenuTree.hToggle:SCREEN-VALUE = STRING(iplActive).
         IF bttMenuTree.isMenu THEN
         RUN pSetisActive (bttMenuTree.treeChild, iplActive).
     END. /* each bttmenutree */   
