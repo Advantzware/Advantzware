@@ -293,9 +293,9 @@ FOR EACH xef
                                         tt-mach-exc.m-code   = mach.m-code
                                         tt-mach-exc.dept     = mach.dept[1]
                                         tt-mach-exc.reason   = IF (xef.n-out LE 1 AND xef.gsh-wid LT xef.nsh-wid AND i EQ 1) THEN
-                                             "Net Sheet Width(" + STRING(xef.nsh-wid) + ") Larger Than To Gross Sheet Width(" + STRING(xef.gsh-wid) + ")"
+                                             "Net Sheet Width(" + STRING(xef.nsh-wid) + ") Larger Than Gross Sheet Width(" + STRING(xef.gsh-wid) + ")"
                                           ELSE
-                                             "Net Sheet Length(" + STRING(xef.nsh-len) + ") Larger Than To Gross Sheet Length(" + STRING(xef.gsh-len) + ")".
+                                             "Net Sheet Length(" + STRING(xef.nsh-len) + ") Larger Than Gross Sheet Length(" + STRING(xef.gsh-len) + ")".
                                     RELEASE tt-mach-exc.
                                 END.
 
