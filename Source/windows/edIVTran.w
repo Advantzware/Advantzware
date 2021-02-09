@@ -264,7 +264,7 @@ END.
 
 /* Include custom  Main Block code for SmartWindows. */
 {src/adm/template/windowmn.i}
-        
+{custom/initializeprocs.i}      
         RUN util/CheckModule.p ("ASI", "810", YES, OUTPUT lAccess).
         IF NOT lAccess THEN 
           run local-exit.
@@ -325,7 +325,7 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/folder.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'FOLDER-LABELS = ':U + 'Brws Invoices|View Invoices|Brws Inv line|view Inv Line|Invoice Addon' + ',
+             INPUT  'FOLDER-LABELS = ':U + 'Browse|Detail|Brws Inv line|view Inv Line|Invoice Addon' + ',
                      FOLDER-TAB-TYPE = 2':U ,
              OUTPUT h_folder ).
        RUN set-position IN h_folder ( 2.91 , 1.00 ) NO-ERROR.

@@ -43,6 +43,10 @@ CREATE WIDGET-POOL.
 
 DEF BUFFER bf-disl FOR ap-disl.
 
+DEFINE VARIABLE hGLProcs AS HANDLE  NO-UNDO.
+
+RUN system/GLProcs.p PERSISTENT SET hGLProcs.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -285,14 +289,25 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON HELP OF Browser-Table IN FRAME F-Main
 DO:
-    DEF VAR char-val AS cha NO-UNDO.
-    DEF VAR lk-recid AS RECID NO-UNDO.
+    DEFINE VARIABLE cFieldsValue  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFoundValue   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE recFoundRecID AS RECID     NO-UNDO.
+    
 
     CASE FOCUS:NAME:    
-        WHEN "actnum" THEN DO:
-            RUN windows/l-acct3.w (g_company,"T",FOCUS:SCREEN-VALUE, OUTPUT char-val).
-            IF char-val <> "" THEN ASSIGN FOCUS:SCREEN-VALUE = ENTRY(1,char-val).
-                                         
+        WHEN "actnum" THEN DO:            
+            RUN system/openLookup.p (
+                INPUT  g_company, 
+                INPUT  "",  /* Lookup ID */  
+                INPUT  87,  /* Subject ID */
+                INPUT  "",  /* User ID */
+                INPUT  0,   /* Param Value ID */
+                OUTPUT cFieldsValue, 
+                OUTPUT cFoundValue, 
+                OUTPUT recFoundRecID
+            ).   
+            IF cFoundValue <> "" THEN 
+                ASSIGN FOCUS:SCREEN-VALUE = cFoundValue.                                        
         END.
     END CASE.
 
@@ -356,18 +371,13 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ap-disl.actnum Browser-Table _BROWSE-COLUMN B-table-Win
 ON LEAVE OF ap-disl.actnum IN BROWSE Browser-Table /* Account Number */
 DO:
+     
   IF LASTKEY = -1 THEN RETURN.
   IF ap-disl.actnum:MODIFIED IN BROWSE {&browse-name} THEN DO:
-       FIND FIRST account WHERE account.company = g_company AND
-                                account.TYPE <> "T" AND
-                                account.actnum = ap-disl.actnum:SCREEN-VALUE
-                                NO-LOCK NO-ERROR.
-       IF NOT AVAIL account THEN DO:
-          MESSAGE "Invalid Account Number." VIEW-AS ALERT-BOX ERROR.
-          APPLY "entry" TO ap-disl.actnum.
-          RETURN NO-APPLY.
-       END.       
-   END.
+      RUN valid-actnum NO-ERROR.
+      IF ERROR-STATUS:ERROR THEN 
+          RETURN NO-APPLY.                    
+  END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -490,6 +500,27 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-cancel-record B-table-Win
+PROCEDURE local-cancel-record:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+  
+  /* Code placed here will execute PRIOR to standard behavior. */
+  RUN presetColor NO-ERROR. 
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-create-record B-table-Win 
 PROCEDURE local-create-record :
 /*------------------------------------------------------------------------------
@@ -593,6 +624,26 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-reset-record B-table-Win
+PROCEDURE local-reset-record:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+    /* Code placed here will execute PRIOR to standard behavior. */
+    RUN presetColor NO-ERROR. 
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'reset-record':U ) .
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record B-table-Win 
 PROCEDURE local-update-record :
 /*------------------------------------------------------------------------------
@@ -601,17 +652,10 @@ PROCEDURE local-update-record :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
-  IF ap-disl.actnum:MODIFIED IN BROWSE {&browse-name} THEN DO:
-       FIND FIRST account WHERE account.company = g_company AND
-                                account.TYPE <> "T" AND
-                                account.actnum = ap-disl.actnum:SCREEN-VALUE
-                                NO-LOCK NO-ERROR.
-       IF NOT AVAIL account THEN DO:
-          MESSAGE "Invalid Account Number." VIEW-AS ALERT-BOX ERROR.
-          APPLY "entry" TO ap-disl.actnum.
-          RETURN NO-APPLY.
-       END.       
-   END.
+  
+  RUN valid-actnum NO-ERROR.
+  IF ERROR-STATUS:ERROR THEN 
+      RETURN NO-APPLY.
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
@@ -623,6 +667,27 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE presetColor B-table-Win
+PROCEDURE presetColor:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+  
+    IF ap-disl.actnum:BGCOLOR IN BROWSE {&browse-name} EQ 16 THEN 
+        ASSIGN 
+            ap-disl.actnum:BGCOLOR IN BROWSE {&browse-name} = ?
+            ap-disl.actnum:FGCOLOR IN BROWSE {&browse-name} = ?
+            . 
+       
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE redisplay-header B-table-Win 
 PROCEDURE redisplay-header :
@@ -695,4 +760,49 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-actnum B-table-Win
+PROCEDURE valid-actnum:
+/*------------------------------------------------------------------------------
+ Purpose: To check valid and active GL account.
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lSuccess  AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lActive   AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage  AS CHARACTER NO-UNDO.
+
+    DO WITH FRAME {&FRAME-NAME}:
+      
+        RUN GL_CheckGLAccount IN hGLProcs(
+            INPUT  g_company,
+            INPUT  ap-disl.actnum:SCREEN-VALUE IN BROWSE {&BROWSE-NAME},            
+            OUTPUT cMessage,
+            OUTPUT lSuccess,
+            OUTPUT lActive
+            ).    
+            
+        IF lSuccess = NO THEN DO:               
+            MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.            
+            RUN presetColor NO-ERROR.
+            APPLY "ENTRY" TO ap-disl.actnum IN BROWSE {&BROWSE-NAME}.       
+            RETURN ERROR. 
+      END.   
+      
+      IF lSuccess = YES AND lActive = NO THEN DO:  
+          ASSIGN 
+              ap-disl.actnum:BGCOLOR IN BROWSE {&BROWSE-NAME} = 16
+              ap-disl.actnum:FGCOLOR IN BROWSE {&BROWSE-NAME} = 15
+              .   
+          MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.           
+          APPLY "ENTRY" TO ap-disl.actnum IN BROWSE {&BROWSE-NAME}. 
+          RETURN ERROR.                      
+      END.            
+      RUN presetColor NO-ERROR.
+  END.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 

@@ -15,6 +15,7 @@
 /* ***************************  Definitions  ************************** */
 {system/VendorCostProcs.i}
 {po/ttVendCostReport.i}
+{oe/ttPriceHold.i} 
 
 /*Constants*/
 DEFINE VARIABLE gcItemTypeFG        AS CHARACTER NO-UNDO INITIAL "FG".
@@ -670,6 +671,223 @@ PROCEDURE GetDimCharge:
     RELEASE bf-vendItemCost.    
     
 END PROCEDURE.
+
+PROCEDURE Vendor_CheckPriceHoldForPo:
+    /*------------------------------------------------------------------------------
+     Purpose: Given an oe-ord rowid, check all order lines to see if Price Hold criteria
+     is met.  Return price hold.  
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipriPoOrd          AS ROWID     NO-UNDO.
+    DEFINE INPUT  PARAMETER iplUpdateDB        AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplPriceHold       AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcPriceHoldReason AS CHARACTER NO-UNDO.
+
+    DEFINE BUFFER bf-po-ord       FOR po-ord.
+    DEFINE BUFFER bf-po-ordl      FOR po-ordl.        
+    DEFINE BUFFER bf-vendItemCost FOR vendItemCost.
+    
+    DEFINE VARIABLE dQuantityInVendorUOM AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dCostPerUOMUpcharge  AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dCostPerUOMBase      AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE lIsSelected          AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE dCostDeviation       AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE iLeadDays            AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE lError               AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage             AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCostUOM             AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE dCostPerUOM          AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dCostSetup           AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dCostTotal           AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE cPOPriceHold         AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lPOPriceHold         AS LOGICAL   NO-UNDO.
+ 
+    FIND FIRST bf-po-ord NO-LOCK 
+        WHERE ROWID(bf-po-ord) EQ ipriPoOrd
+        NO-ERROR.    
+    IF AVAILABLE bf-po-ord THEN 
+    DO:                  
+        RUN sys/ref/nk1look.p (
+            bf-po-ord.company,
+            "POPriceHold",
+            "L",
+            YES,
+            NO,
+            bf-po-ord.vend-no,
+            "", 
+            OUTPUT cPOPriceHold,
+            OUTPUT lPOPriceHold
+            ).
+        IF lPOPriceHold EQ NO OR cPOPriceHold EQ "NO" THEN RETURN.
+
+        EMPTY TEMP-TABLE ttPriceHold.
+        FOR EACH bf-po-ordl NO-LOCK
+            WHERE bf-po-ordl.company EQ bf-po-ord.company
+            AND bf-po-ordl.po-no EQ bf-po-ord.po-no
+            :                                                    
+            RUN pGetVendItemCostBuffer (
+                bf-po-ord.company,
+                bf-po-ordl.i-no,
+                (IF bf-po-ordl.item-type THEN "RM" ELSE "FG"),
+                bf-po-ord.vend-no,
+                bf-po-ordl.cust-no,
+                "",
+                0,
+                0,
+                NO,
+                BUFFER bf-vendItemCost,
+                OUTPUT lError,
+                OUTPUT cMessage
+                ).                      
+            IF NOT lError AND AVAILABLE bf-vendItemCost THEN 
+            DO:    
+                cCostUOM = bf-vendItemCost.vendorUOM.
+                IF cCostUOM NE bf-po-ordl.pr-qty-uom THEN 
+                DO: 
+                    RUN pConvertQuantity (
+                        bf-po-ord.company,
+                        bf-po-ordl.ord-qty,
+                        bf-po-ordl.pr-qty-uom,
+                        cCostUOM, 
+                        0,
+                        "LB/EA",
+                        bf-po-ordl.s-len,
+                        bf-po-ordl.s-wid,
+                        bf-po-ordl.s-dep,
+                        "IN",
+                        OUTPUT dQuantityInVendorUOM,
+                        OUTPUT lError,
+                        INPUT-OUTPUT cMessage
+                        ).
+                END.
+                ELSE 
+                    dQuantityInVendorUOM = bf-po-ordl.ord-qty. 
+                
+                RUN pGetVendorCosts (
+                    BUFFER bf-vendItemCost,
+                    dQuantityInVendorUOM,
+                    bf-po-ordl.s-len,
+                    bf-po-ordl.s-wid,
+                    "IN", 
+                    OUTPUT dCostPerUOM,
+                    OUTPUT dCostSetup,
+                    OUTPUT dCostPerUOMUpcharge,
+                    OUTPUT dCostPerUOMBase,
+                    OUTPUT dCostTotal,
+                    OUTPUT lIsSelected, 
+                    OUTPUT iLeadDays,
+                    OUTPUT dCostDeviation,
+                    OUTPUT lError,
+                    INPUT-OUTPUT cMessage
+                    ).
+                dCostPerUOM = dCostPerUOM + dCostPerUOMUpcharge.
+                
+                IF dCostPerUOM NE bf-po-ordl.cost THEN
+                DO:
+                    CREATE ttPriceHold.                 
+                    ASSIGN                       
+                        ttPriceHold.cFGItemID        = bf-po-ordl.i-no
+                        ttPriceHold.cCustID          = bf-po-ord.cust-no
+                        ttPriceHold.cShipID          = ""
+                        ttPriceHold.dQuantity        = bf-po-ordl.ord-qty                
+                        ttPriceHold.lPriceHold       = YES
+                        ttPriceHold.cPriceHoldDetail = ""
+                        ttPriceHold.cPriceHoldReason = "Item Cost for " + ttPriceHold.cFGItemID + " not matched in Vendor Cost table"
+                        .                                            
+                END.                  
+            END.  
+            ELSE 
+            DO:             
+                CREATE ttPriceHold.                
+                ASSIGN                  
+                    ttPriceHold.cFGItemID        = bf-po-ordl.i-no
+                    ttPriceHold.cCustID          = bf-po-ord.cust-no
+                    ttPriceHold.cShipID          = ""
+                    ttPriceHold.dQuantity        = bf-po-ordl.ord-qty                 
+                    ttPriceHold.lPriceHold       = YES
+                    ttPriceHold.cPriceHoldDetail = ""
+                    ttPriceHold.cPriceHoldReason = "No matrix found"
+                    .                             
+            END.                   
+        END.
+    END.
+    
+    FIND FIRST ttPriceHold NO-LOCK
+        WHERE ttPriceHold.lPriceHold
+        NO-ERROR.
+    IF AVAILABLE ttPriceHold THEN
+        ASSIGN 
+            oplPriceHold       = YES
+            opcPriceHoldReason = ttPriceHold.cPriceHoldReason
+            .
+    ELSE 
+        ASSIGN 
+            oplPriceHold       = NO
+            opcPriceHoldReason = ""
+            .
+    IF iplUpdateDB AND oplPriceHold THEN 
+    DO:
+        FIND FIRST bf-po-ord EXCLUSIVE-LOCK 
+            WHERE ROWID(bf-po-ord) EQ ipriPoOrd
+            NO-ERROR.               
+        IF AVAILABLE bf-po-ord THEN 
+            ASSIGN          
+                bf-po-ord.priceHold = oplPriceHold
+                bf-po-ord.stat      = "H"                  
+                .
+        FIND CURRENT bf-po-ord NO-LOCK.
+        RUN ClearTagsByRecKey (bf-po-ord.rec_key).
+        FOR EACH ttPriceHold NO-LOCK
+            WHERE ttPriceHold.lPriceHold
+            :          
+            RUN AddTagHold (
+                bf-po-ord.rec_key,
+                "po-ord",
+                ttPriceHold.cPriceHoldReason,
+                ""
+                ).
+        END.
+    END.
+    RELEASE bf-po-ord.
+    
+END PROCEDURE.
+
+PROCEDURE Vendor_VendItemCostWithPercentage:
+    /*------------------------------------------------------------------------------
+     Purpose: update vendcostprice with percentage  
+     Parameters:  <none>
+     Notes:       
+     ------------------------------------------------------------------------------*/
+
+    DEFINE INPUT        PARAMETER ipriID                 AS ROWID     NO-UNDO.
+    DEFINE INPUT        PARAMETER ipdPercentage          AS DECIMAL   NO-UNDO.     
+    DEFINE OUTPUT       PARAMETER oplError               AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT       PARAMETER opcMessage             AS CHARACTER NO-UNDO.
+        
+    DEFINE BUFFER bf-vendItemCost FOR VendItemCost.
+    
+    FIND FIRST bf-vendItemCost NO-LOCK 
+        WHERE ROWID(bf-vendItemCost) EQ ipriID
+        NO-ERROR.
+         
+    IF NOT AVAILABLE bf-vendItemCost THEN 
+    DO:
+        ASSIGN 
+            oplError   = TRUE
+            opcMessage = "Invalid vendItemCost record"
+            .
+        RETURN.
+    END.
+    
+    RUN pUpdateVendCostPriceWithPercentage(
+        BUFFER bf-vendItemCost, 
+        INPUT  ipdPercentage              
+        ).
+        
+    RELEASE bf-vendItemCost.    
+    
+END PROCEDURE.
+
 
 PROCEDURE pAddTTVendItemCost PRIVATE:
     /*------------------------------------------------------------------------------
@@ -2217,6 +2435,28 @@ PROCEDURE Vendor_GetVendItemNumber:
                 opcVendItemNo = e-item-vend.vend-item.            
         END.                                
     END.    
+
+END PROCEDURE.
+
+PROCEDURE pUpdateVendCostPriceWithPercentage PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Given a VendItemCostBuffer, and a quantity, get appropriate costs
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-vendItemCost FOR vendItemCost.
+    DEFINE INPUT PARAMETER ipdPercentage AS DECIMAL NO-UNDO.
+         
+    DEFINE BUFFER bf-vendItemCostLevel FOR vendItemCostLevel.
+    
+    FOR EACH bf-vendItemCostLevel EXCLUSIVE-LOCK
+       WHERE bf-vendItemCostLevel.vendItemCostID EQ ipbf-vendItemCost.vendItemCostID 
+       BY bf-vendItemCostLevel.quantityBase:
+   
+      bf-vendItemCostLevel.costPerUom = bf-vendItemCostLevel.costPerUom + 
+                                (bf-vendItemCostLevel.costPerUom * ipdPercentage / 100).                                
+    END.
+    RELEASE bf-vendItemCostLevel.
+      
 
 END PROCEDURE.
 

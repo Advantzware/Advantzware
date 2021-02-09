@@ -35,6 +35,7 @@ CREATE WIDGET-POOL.
 
 &SCOPED-DEFINE winReSize
 &SCOPED-DEFINE h_Browse01 h_oe-prmtx
+&SCOPED-DEFINE local-destroy local-destroy
 
 /* Parameters Definitions ---                                           */
 
@@ -146,7 +147,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 320
          VIRTUAL-HEIGHT     = 320
          VIRTUAL-WIDTH      = 320
-         MAX-BUTTON         = NO
+         MAX-BUTTON         = YES
          RESIZE             = YES
          SCROLL-BARS        = NO
          STATUS-AREA        = YES
@@ -346,7 +347,7 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/folder.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'FOLDER-LABELS = ':U + 'Browse|View' + ',
+             INPUT  'FOLDER-LABELS = ':U + 'Browse|Detail' + ',
                      FOLDER-TAB-TYPE = 2':U ,
              OUTPUT h_folder ).
        RUN set-position IN h_folder ( 3.14 , 2.00 ) NO-ERROR.
@@ -572,6 +573,8 @@ PROCEDURE local-destroy :
   /* Code placed here will execute PRIOR to standard behavior. */
   IF v-calling-program  NE ? THEN
       RUN hide-estimate IN v-calling-program.
+      
+    {custom/userWindow.i}
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
 

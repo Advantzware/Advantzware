@@ -36,6 +36,7 @@ CREATE WIDGET-POOL.
 &SCOPED-DEFINE winReSize
 &SCOPED-DEFINE h_Browse01 h_venditemcost
 &SCOPED-DEFINE SetUserExit SetUserExit
+&SCOPED-DEFINE local-destroy local-destroy
 
 /* Parameters Definitions ---                                           */
 
@@ -98,6 +99,7 @@ DEFINE VARIABLE h_VendItemCostRes AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-updsavRes AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-navicoRes AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_import AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_vp-price AS HANDLE NO-UNDO.
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
@@ -282,12 +284,14 @@ ASSIGN
     cocode = g_company
     locode = g_loc
     .
+    
 /* Set the option frame size and colour to give blue background to icons and 
       add the handle of scope define object to temptable for resizizng */
-RUN beforeinitialize IN THIS-PROCEDURE NO-ERROR.
+    RUN beforeinitialize IN THIS-PROCEDURE NO-ERROR.
 /* Add the handle of all smart object to be resized/shifted on resize to the temptable and 
           Shift all the icons towards right */
-RUN afterinitialize IN THIS-PROCEDURE NO-ERROR.    
+    RUN afterinitialize IN THIS-PROCEDURE NO-ERROR.  
+ 
 {custom/initializeprocs.i}
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -418,7 +422,7 @@ PROCEDURE adm-create-objects :
                      Disable-on-Init = no,
                      Key-Name = ,
                      Layout = ,
-                     Create-On-Add = Yes':U ,
+                     Create-On-Add = NO':U ,
              OUTPUT h_venditemcost-2 ).
        RUN set-position IN h_venditemcost-2 ( 5.00 , 3.00 ) NO-ERROR.
        /* Size in UIB:  ( 16.19 , 142.00 ) */
@@ -466,6 +470,14 @@ PROCEDURE adm-create-objects :
              OUTPUT h_p-updsav2 ).
        RUN set-position IN h_p-updsav2 ( 18.91 , 56.00 ) NO-ERROR.
        RUN set-size IN h_p-updsav2 ( 1.56 , 50.00 ) NO-ERROR.
+       
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'rm/vp-price.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_vp-price ).
+       RUN set-position IN h_vp-price ( 22.20 , 70.00 ) NO-ERROR.
+       /* Size in UIB:  ( 2.05 , 17.20 ) */
 
       
        /* Initialize other pages that this page requires. */
@@ -479,6 +491,10 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_venditemcost-2 , 'reopen':U , h_b-vendcostvalue ).
        RUN add-link IN adm-broker-hdl (  h_p-updsav2  , 'TableIO':U , h_b-vendcostvalue) .
        RUN add-link IN adm-broker-hdl ( h_b-vendcostvalue , 'bottom':U , h_venditemcost-2 ).
+       RUN add-link IN adm-broker-hdl ( h_p-updsav2 , 'getPanel':U , h_venditemcost-2 ).
+       
+       /* Links to SmartViewer h_vp-price. */
+       RUN add-link IN adm-broker-hdl ( h_b-vendcostvalue , 'price-change':U , h_vp-price ).
        
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_venditemcost-2 ,
@@ -665,7 +681,9 @@ PROCEDURE local-destroy :
   Notes:       
 ------------------------------------------------------------------------------*/
   /* Code placed here will execute PRIOR to standard behavior. */
- 
+  
+      {custom/userWindow.i} 
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
 

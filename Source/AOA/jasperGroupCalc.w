@@ -67,7 +67,7 @@ CREATE WIDGET-POOL "GroupPool".
 &Scoped-define FRAME-NAME Dialog-Frame
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnSave cField cVariable btnCancel btnReset 
+&Scoped-Define ENABLED-OBJECTS btnSave btnCancel btnReset cField cVariable 
 &Scoped-Define DISPLAYED-OBJECTS cField cVariable 
 
 /* Custom List Definitions                                              */
@@ -115,11 +115,13 @@ DEFINE RECTANGLE RECTCALC
      SIZE 75 BY 30.24.
 
 DEFINE VARIABLE cField AS CHARACTER 
-     VIEW-AS SELECTION-LIST SINGLE SORT SCROLLBAR-VERTICAL 
+     VIEW-AS SELECTION-LIST SINGLE SORT 
+     SCROLLBAR-HORIZONTAL SCROLLBAR-VERTICAL 
      SIZE 30 BY 29.05 NO-UNDO.
 
 DEFINE VARIABLE cVariable AS CHARACTER 
-     VIEW-AS SELECTION-LIST SINGLE SORT SCROLLBAR-VERTICAL 
+     VIEW-AS SELECTION-LIST SINGLE SORT 
+     SCROLLBAR-HORIZONTAL SCROLLBAR-VERTICAL 
      SIZE 42 BY 29.05 NO-UNDO.
 
 DEFINE VARIABLE cFocus AS CHARACTER FORMAT "X(256)":U 
@@ -132,12 +134,12 @@ DEFINE VARIABLE cFocus AS CHARACTER FORMAT "X(256)":U
 DEFINE FRAME Dialog-Frame
      btnSave AT ROW 29.33 COL 55 HELP
           "Click to Save"
-     cField AT ROW 2.19 COL 87 NO-LABEL WIDGET-ID 10
-     cVariable AT ROW 2.19 COL 118 NO-LABEL WIDGET-ID 12
      btnCancel AT ROW 29.33 COL 71 HELP
           "Click to Cancel"
      btnReset AT ROW 29.33 COL 63 HELP
           "Click to Reset" WIDGET-ID 2
+     cField AT ROW 2.19 COL 87 NO-LABEL WIDGET-ID 10
+     cVariable AT ROW 2.19 COL 118 NO-LABEL WIDGET-ID 12
      "Variables" VIEW-AS TEXT
           SIZE 9 BY .62 AT ROW 1.48 COL 122 WIDGET-ID 14
      "Fields" VIEW-AS TEXT
@@ -145,7 +147,7 @@ DEFINE FRAME Dialog-Frame
      RECT-0 AT ROW 29.1 COL 54 WIDGET-ID 4
      RECTCALC AT ROW 1.24 COL 86 WIDGET-ID 6
      IMAGE-1 AT ROW 1.48 COL 118 WIDGET-ID 16
-     SPACE(38.99) SKIP(29.28)
+     SPACE(39.00) SKIP(29.29)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          FGCOLOR 1 
@@ -338,7 +340,7 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY cField cVariable 
       WITH FRAME Dialog-Frame.
-  ENABLE btnSave cField cVariable btnCancel btnReset 
+  ENABLE btnSave btnCancel btnReset cField cVariable 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}

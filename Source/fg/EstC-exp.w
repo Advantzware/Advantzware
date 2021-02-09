@@ -523,17 +523,29 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&Scoped-define SELF-NAME end_cust-no
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_cust-no rd-fgexp
-ON LEAVE OF end_cust-no IN FRAME rd-fgexp /* To Customer */
+
+&Scoped-define SELF-NAME fi_file
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_file rd-fgexp
+ON HELP OF fi_file IN FRAME rd-fgexp /* If Yes, File Name */
 DO:
-     assign {&self-name}.
+    DEFINE VARIABLE cFileName  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lOk        AS LOGICAL   NO-UNDO.
+
+    SYSTEM-DIALOG GET-FILE cFileName
+    TITLE   "Select file to insert..."
+    FILTERS "CSV Files (*.csv)"   "*.csv"                  
+    MUST-EXIST
+    USE-FILENAME
+    UPDATE lOk.
+
+    IF lOk THEN
+        fi_file:SCREEN-VALUE = cFileName.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&Scoped-define SELF-NAME fi_file
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_file rd-fgexp
 ON LEAVE OF fi_file IN FRAME rd-fgexp /* If Yes, File Name */
 DO:

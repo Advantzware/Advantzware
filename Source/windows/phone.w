@@ -140,14 +140,14 @@ DEFINE VARIABLE h_smartmsg AS HANDLE NO-UNDO.
 /* Definitions of the field level widgets                               */
 DEFINE VARIABLE headervalue AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
-     SIZE 125 BY 1
-     BGCOLOR 15  NO-UNDO.
+     SIZE 120 BY 0.80
+     FONT 33 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     headervalue AT ROW 20.43 COL 2 NO-LABEL
+     headervalue AT ROW 2.95 COL 1.8 NO-LABEL
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -194,7 +194,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 132.8
          VIRTUAL-HEIGHT     = 20.91
          VIRTUAL-WIDTH      = 132.8
-         RESIZE             = no
+         RESIZE             = yes
          SCROLL-BARS        = no
          STATUS-AREA        = yes
          BGCOLOR            = ?
@@ -316,7 +316,7 @@ END.
 
 /* Include custom  Main Block code for SmartWindows. */
 {src/adm/template/windowmn.i}
-
+{custom/initializeprocs.i}
 /* ON 'VALUE-CHANGED':U OF FRAME {&FRAME-NAME} ANYWHERE */
 /* DO:                                                  */
 /*   MESSAGE 'value-changed'                            */
@@ -380,10 +380,10 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/folder.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'FOLDER-LABELS = ':U + 'Browse Phones|View Phone' + ',
+             INPUT  'FOLDER-LABELS = ':U + 'Browse|Detail' + ',
                      FOLDER-TAB-TYPE = 2':U ,
              OUTPUT h_folder ).
-       RUN set-position IN h_folder ( 3.14 , 2.00 ) NO-ERROR.
+       RUN set-position IN h_folder ( 3.60 , 2.00 ) NO-ERROR.
        RUN set-size IN h_folder ( 17.14 , 125.00 ) NO-ERROR.
 
        /* Initialize other pages that this page requires. */
@@ -403,8 +403,8 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_phone ).
-       RUN set-position IN h_phone ( 4.80 , 4.10 ) NO-ERROR.
-       RUN set-size IN h_phone ( 13.76 , 117.00 ) NO-ERROR.
+       RUN set-position IN h_phone ( 5.67 , 4.20 ) NO-ERROR.
+       RUN set-size IN h_phone ( 15.00 , 118.00 ) NO-ERROR.
 
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('2') NO-ERROR.
@@ -423,7 +423,7 @@ PROCEDURE adm-create-objects :
                      SmartPanelType = NAV-ICON,
                      Right-to-Left = First-On-Left':U ,
              OUTPUT h_p-navico ).
-       RUN set-position IN h_p-navico ( 5.00 , 3.60 ) NO-ERROR.
+       RUN set-position IN h_p-navico ( 6.06 , 3.60 ) NO-ERROR.
        RUN set-size IN h_p-navico ( 1.33 , 62.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
@@ -431,7 +431,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_emailcod ).
-       RUN set-position IN h_emailcod ( 5.05 , 67.00 ) NO-ERROR.
+       RUN set-position IN h_emailcod ( 6 , 67.00 ) NO-ERROR.
        RUN set-size IN h_emailcod ( 14.76 , 57.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
@@ -441,7 +441,7 @@ PROCEDURE adm-create-objects :
                      SmartPanelType = Update,
                      AddFunction = One-Record':U ,
              OUTPUT h_p-updsav ).
-       RUN set-position IN h_p-updsav ( 18.14 , 3.60 ) NO-ERROR.
+       RUN set-position IN h_p-updsav ( 19.20 , 3.60 ) NO-ERROR.
        RUN set-size IN h_p-updsav ( 1.67 , 62.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
@@ -449,7 +449,7 @@ PROCEDURE adm-create-objects :
              INPUT  {&WINDOW-NAME} ,
              INPUT  'Layout = ':U ,
              OUTPUT h_phone-2 ).
-       RUN set-position IN h_phone-2 ( 6.62 , 3.60 ) NO-ERROR.
+       RUN set-position IN h_phone-2 ( 7.68 , 3.60 ) NO-ERROR.
        /* Size in UIB:  ( 11.43 , 62.00 ) */
 
        /* Initialize other pages that this page requires. */

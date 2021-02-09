@@ -102,6 +102,7 @@ PROCEDURE pGetEstRouting PRIVATE :
                  
               CREATE ttRouting.
               BUFFER-COPY est-op TO ttRouting.
+              ttRouting.op-mr = ttInputEst.iMolds * est-op.op-mr.  
           END.    
        END.        
    END.
@@ -119,8 +120,7 @@ PROCEDURE pGetEstRouting PRIVATE :
    END.
    FOR EACH ttRouting BREAK 
                       BY ttRouting.op-mr DESC:     
-      opdMRHours = ttRouting.op-mr .
-      LEAVE.
+      opdMRHours = opdMRHours + ttRouting.op-mr .       
    END.
    FOR EACH ttRouting BREAK 
                       BY ttRouting.op-speed:      

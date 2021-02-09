@@ -685,9 +685,9 @@ PROCEDURE do-copy :
       where est-prep.company eq eb.company
         and est-prep.est-no  EQ eb.est-no
         AND est-prep.s-num    EQ eb.form-no
-        AND est-prep.b-num    EQ eb.blank-no
+        AND (est-prep.b-num    EQ eb.blank-no OR est-prep.b-num EQ 0)
       NO-LOCK:
-      
+                    
        FOR EACH bf-prep
         WHERE bf-prep.company EQ eb.company 
         AND bf-prep.est-no  EQ eb.est-no                      
@@ -704,7 +704,7 @@ PROCEDURE do-copy :
         kprep.LINE  = li-next
         kprep.est-no  = io-eb.est-no
         kprep.s-num   = io-eb.form-no 
-        kprep.b-num   = io-eb.blank-no
+        kprep.b-num   = IF est-prep.b-num EQ 0 THEN 0 ELSE io-eb.blank-no
         kprep.orderID = ""   .
      end.
     END.   

@@ -37,10 +37,12 @@ assign
  locode = g_loc.
 
 DEF BUFFER bf-jrnl FOR gl-jrnl.
-DEF VAR lv-account-recid AS RECID NO-UNDO.
 DEF VAR v-debit AS DEC NO-UNDO.
 DEF VAR v-credit AS DEC NO-UNDO.
 DEF VAR lv-acct-dscr AS cha FORM "x(30)" LABEL "Account Name " NO-UNDO.
+DEFINE VARIABLE hGLProcs AS HANDLE  NO-UNDO.
+
+RUN system/GLProcs.p PERSISTENT SET hGLProcs.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -315,16 +317,26 @@ END.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON HELP OF Browser-Table IN FRAME F-Main
-DO:
-  DEF VAR char-val AS cha NO-UNDO.
-  DEF VAR lk-recid AS RECID NO-UNDO.
+DO:  
+  DEFINE VARIABLE cFieldsValue  AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cFoundValue   AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE recFoundRecID AS RECID     NO-UNDO.
 
   
   CASE FOCUS:NAME:   
     WHEN "actnum" THEN DO:
-      RUN windows/l-acct3.w (gl-jrn.company,"T",FOCUS:SCREEN-VALUE, OUTPUT char-val).
-      IF char-val NE "" AND ENTRY(1,char-val) NE FOCUS:SCREEN-VALUE THEN DO:
-        FOCUS:SCREEN-VALUE = ENTRY(1,char-val).
+        RUN system/openLookup.p (
+            INPUT  g_company, 
+            INPUT  "",  /* Lookup ID */
+            INPUT  107,  /* Subject ID */
+            INPUT  "",  /* User ID */
+            INPUT  0,   /* Param Value ID */
+            OUTPUT cFieldsValue, 
+            OUTPUT cFoundValue, 
+            OUTPUT recFoundRecID
+          ).    
+      IF cFoundValue NE "" AND cFoundValue NE FOCUS:SCREEN-VALUE THEN DO:
+        FOCUS:SCREEN-VALUE = cFoundValue.
         RUN new-actnum (0).
       END.
     END.
@@ -401,25 +413,12 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL gl-jrnl.actnum Browser-Table _BROWSE-COLUMN B-table-Win
 ON LEAVE OF gl-jrnl.actnum IN BROWSE Browser-Table /* Account Number */
 DO:
+    DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
     IF LASTKEY NE -1 THEN DO:
-       /* gdm - 09200703*/
-      FIND FIRST account
-        WHERE account.company EQ g_company
-          AND account.type    NE "T"
-          AND account.actnum  EQ gl-jrnl.actnum:SCREEN-VALUE IN BROWSE {&browse-name}
-        NO-LOCK NO-ERROR.
-      IF AVAIL account THEN lv-account-recid = RECID(account).
-      ELSE DO:
-          MESSAGE TRIM(gl-jrnl.actnum:LABEL IN BROWSE {&browse-name}) +
-                  " is invalid, try help..."
-              VIEW-AS ALERT-BOX ERROR.
-        APPLY "entry" TO gl-jrnl.actnum IN BROWSE {&browse-name}.
-        RETURN NO-APPLY.    
-      END.
-
-/*      RUN valid-actnum NO-ERROR.                   */
-/*     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.   */
-  END.
+        RUN valid-actnum(OUTPUT lReturnError) NO-ERROR.                   
+        IF lReturnError THEN 
+            RETURN NO-APPLY.   
+    END.
   
 END.
 
@@ -567,6 +566,27 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-cancel-record B-table-Win
+PROCEDURE local-cancel-record:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+  RUN presetColor NO-ERROR.
+  
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .        
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-create-record B-table-Win 
 PROCEDURE local-create-record :
 /*------------------------------------------------------------------------------
@@ -694,6 +714,27 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-reset-record B-table-Win
+PROCEDURE local-reset-record:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+    RUN presetColor NO-ERROR.
+    
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'reset-record':U ) .
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record B-table-Win 
 PROCEDURE local-update-record :
 /*------------------------------------------------------------------------------
@@ -703,10 +744,12 @@ PROCEDURE local-update-record :
   /* gdm - 09200703 */
   DEF VAR ll-new-record AS LOG NO-UNDO.
   DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
+  DEFINE VARIABLE lInactive    AS LOGICAL NO-UNDO.
   /* Code placed here will execute PRIOR to standard behavior. */
+  RUN new-actnum (1).
   RUN valid-actnum(OUTPUT lReturnError) NO-ERROR.
   IF lReturnError THEN RETURN NO-APPLY.
-
+   
   /* gdm - 09200703 */
   ASSIGN ll-new-record = adm-new-record.
 
@@ -758,6 +801,27 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE presetColor B-table-Win
+PROCEDURE presetColor:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+    IF gl-jrnl.actnum:BGCOLOR IN BROWSE {&BROWSE-NAME} EQ 16 THEN             
+        ASSIGN 
+            gl-jrnl.actnum:BGCOLOR IN BROWSE {&BROWSE-NAME} = ?
+            gl-jrnl.actnum:FGCOLOR IN BROWSE {&BROWSE-NAME} = ?
+            .
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE redisplay-header B-table-Win 
 PROCEDURE redisplay-header :
@@ -861,24 +925,38 @@ PROCEDURE valid-actnum :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
+  
+  DEFINE VARIABLE lSuccess  AS LOGICAL   NO-UNDO.
+  DEFINE VARIABLE lActive   AS LOGICAL   NO-UNDO.
+  DEFINE VARIABLE cMessage  AS CHARACTER NO-UNDO.
+  
   DO WITH FRAME {&FRAME-NAME}:
-    RUN new-actnum (1).
-
-    FIND FIRST account
-        WHERE account.company EQ g_company
-          AND account.type    NE "T"
-          AND account.actnum  EQ gl-jrnl.actnum:SCREEN-VALUE IN BROWSE {&browse-name}
-        NO-LOCK NO-ERROR.
-
-    IF AVAIL account THEN lv-account-recid = RECID(account).
-
-    ELSE DO:
-      MESSAGE TRIM(gl-jrnl.actnum:LABEL IN BROWSE {&browse-name}) +
-              " is invalid, try help..."
-          VIEW-AS ALERT-BOX ERROR.
-      APPLY "entry" TO gl-jrnl.actnum IN BROWSE {&browse-name}.
-      oplReturnError = YES .
-    END.
+      RUN GL_CheckGLAccount IN hGLProcs(
+          INPUT  g_company,
+          INPUT  gl-jrnl.actnum:SCREEN-VALUE IN BROWSE {&browse-name},            
+          OUTPUT cMessage,
+          OUTPUT lSuccess,
+          OUTPUT lActive
+          ).    
+            
+      IF lSuccess = NO THEN DO:               
+          MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.            
+          RUN presetColor NO-ERROR.
+          APPLY "ENTRY" TO gl-jrnl.actnum IN BROWSE {&BROWSE-NAME}.       
+          oplReturnError = YES.
+      END.   
+      
+      IF lSuccess = YES AND lActive = NO THEN DO:  
+          MESSAGE cMessage VIEW-AS ALERT-BOX ERROR. 
+          ASSIGN 
+              gl-jrnl.actnum:BGCOLOR IN BROWSE {&BROWSE-NAME} = 16
+              gl-jrnl.actnum:FGCOLOR IN BROWSE {&BROWSE-NAME} = 15
+              .                      
+          APPLY "ENTRY" TO gl-jrnl.actnum IN BROWSE {&BROWSE-NAME}.
+          oplReturnError = YES.                     
+      END.      
+      IF lActive EQ YES THEN 
+          RUN presetColor NO-ERROR.                                        
   END.
 
 END PROCEDURE.

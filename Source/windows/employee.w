@@ -148,8 +148,8 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          TITLE              = "Employee Tracking and Data Collection"
          HEIGHT             = 24
          WIDTH              = 150
-         MAX-HEIGHT         = 24
-         MAX-WIDTH          = 150
+         MAX-HEIGHT         = 320
+         MAX-WIDTH          = 320
          VIRTUAL-HEIGHT     = 24
          VIRTUAL-WIDTH      = 150
          RESIZE             = yes
@@ -321,7 +321,7 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/folder.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'FOLDER-LABELS = ':U + 'Brws Emp|View Emp|Pay Rates|Log In/Out|Machines|View Notes' + ',
+             INPUT  'FOLDER-LABELS = ':U + 'Browse|Detail|Rates|In/Out|Machines|Notes' + ',
                      FOLDER-TAB-TYPE = 2':U ,
              OUTPUT h_folder ).
        RUN set-position IN h_folder ( 3.14 , 2.00 ) NO-ERROR.

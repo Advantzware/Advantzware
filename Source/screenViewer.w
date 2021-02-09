@@ -330,7 +330,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
           FIND FIRST usergrps NO-LOCK
                WHERE usergrps.usergrps EQ "Notepad" 
                NO-ERROR.
-          IF AVAILABLE usergrps AND LOOKUP(STRING(USERID(LDBNAME(1))),usergrps.users) <> 0 THEN DO:
+          IF AVAILABLE usergrps AND CAN-DO(usergrps.users,USERID("ASI")) THEN DO:
 &IF DEFINED(FWD-VERSION) > 0 &THEN
               open-mime-resource "text/plain" STRING("file:///" + ipcListName) FALSE.
 &ELSE

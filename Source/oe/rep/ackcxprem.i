@@ -17,11 +17,11 @@ PUT /*"<C1><#2>" /*<R+10><C+35><IMAGE#2=" ls-full-img2 SKIP  /* company image */
    "<FCourier New>"
    "Bill To:" SPACE(30) "Ship To:"  SKIP
    SPACE(5) oe-ord.cust-name 
-    ( IF avail bf-shipto and bf-shipto.ship-name = "" THEN oe-ord.cust-name ELSE bf-shipto.ship-name) AT 45 FORM "x(30)" skip
+    ( IF avail bf-shipto THEN bf-shipto.ship-name ELSE oe-ord.cust-name) AT 45 FORM "x(30)" skip
    SPACE(5) oe-ord.addr[1] 
-    (IF avail bf-shipto and bf-shipto.ship-addr[1] = "" THEN oe-ord.addr[1] ELSE bf-shipto.ship-addr[1]) AT 45 FORM "x(30)" SKIP
+    (IF avail bf-shipto THEN bf-shipto.ship-addr[1] ELSE  oe-ord.addr[1]) AT 45 FORM "x(30)" SKIP
    SPACE(5) oe-ord.addr[2] 
-    (IF avail bf-shipto and bf-shipto.ship-addr[2] = "" THEN oe-ord.addr[2] ELSE bf-shipto.ship-addr[2]) AT 45 FORM "x(30)" SKIP
+    (IF avail bf-shipto THEN bf-shipto.ship-addr[2] ELSE oe-ord.addr[2]) AT 45 FORM "x(30)" SKIP
    SPACE(5) v-addr3  cShipAdd3 AT 45 SKIP.
 /*
  IF lv-display-comp THEN

@@ -10,9 +10,9 @@
 *********************************************************************/
 /*------------------------------------------------------------------------
 
-  File:
+  File: sharpshooter/smartobj/fgFilter.w.
 
-  Description: from SMART.W - Template for basic SmartObject
+  Description: Finished Good Item Filter
 
   Author:
   Created:
@@ -41,11 +41,17 @@ DEFINE VARIABLE oItemFG AS ItemFG NO-UNDO.
 
 DEFINE VARIABLE hdJobProcs AS HANDLE NO-UNDO.
 
+DEFINE VARIABLE lIsFGItemVisible   AS LOGICAL NO-UNDO INITIAL TRUE.
+DEFINE VARIABLE lIsFGItemSensitive AS LOGICAL NO-UNDO INITIAL TRUE.
+
 RUN jc/JobProcs.p PERSISTENT SET hdJobProcs.
 
 RUN spGetSessionParam ("Company", OUTPUT cCompany).
 
 oItemFG = NEW ItemFG().
+
+DEFINE VARIABLE char-hdl  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE pHandle   AS HANDLE    NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -93,7 +99,7 @@ DEFINE VARIABLE fiFGItemName AS CHARACTER FORMAT "X(256)":U
      SIZE 75 BY 1.29 NO-UNDO.
 
 DEFINE IMAGE imItemLookup
-     FILENAME "C:/Asigui/Environments/16.11.02/Resources/Graphics/32x32/magnifying_glass.ico":U
+     FILENAME "Graphics/32x32/magnifying_glass.ico":U
      STRETCH-TO-FIT RETAIN-SHAPE
      SIZE 5.4 BY 1.29.
 
@@ -107,7 +113,7 @@ DEFINE RECTANGLE RECT-33
 DEFINE FRAME F-Main
      cbFGItem AT ROW 1.67 COL 16.6 COLON-ALIGNED WIDGET-ID 170
      fiFGItem AT ROW 1.67 COL 16.6 COLON-ALIGNED NO-LABEL WIDGET-ID 180
-     fiFGItemName AT ROW 3 COL 3.2 NO-LABEL WIDGET-ID 176
+     fiFGItemName AT ROW 3.24 COL 3.2 NO-LABEL WIDGET-ID 176
      RECT-33 AT ROW 1.24 COL 1 WIDGET-ID 178
      imItemLookup AT ROW 1.62 COL 78.8 WIDGET-ID 182
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -206,8 +212,15 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cbFGItem s-object
 ON VALUE-CHANGED OF cbFGItem IN FRAME F-Main /* FG Item # */
 DO:
-    oItemFG:SetContext (INPUT cCompany, INPUT SELF:SCREEN-VALUE).
-    
+    DEFINE VARIABLE lValidItem AS LOGICAL NO-UNDO.
+
+    lValidItem = oItemFG:SetContext (INPUT cCompany, INPUT cbFGItem:SCREEN-VALUE).
+
+    IF lValidItem THEN
+        RUN new-state (
+            INPUT "fgitem-changed"
+            ).
+                
     RUN pUpdateFGItemName.
 END.
 
@@ -290,11 +303,8 @@ PROCEDURE DisableFGItem :
     END.
     
     ASSIGN
-        cbFGItem:LIST-ITEMS   = ""
-        cbFGItem:SCREEN-VALUE = ""
-        cbFGItem:SENSITIVE    = FALSE
-        fiFGItem:SCREEN-VALUE = ""
-        fiFGItem:SENSITIVE    = FALSE
+        cbFGItem:SENSITIVE = FALSE
+        fiFGItem:SENSITIVE = FALSE
         .
 END PROCEDURE.
 
@@ -330,9 +340,8 @@ PROCEDURE EnableFGItem :
     END.
     
     ASSIGN
-        cbFGItem:SENSITIVE    = TRUE
-        fiFGItem:SCREEN-VALUE = ""
-        fiFGItem:SENSITIVE    = TRUE
+        cbFGItem:SENSITIVE = lIsFGItemSensitive
+        cbFGItem:HIDDEN    = NOT lIsFGItemVisible
         .
 END PROCEDURE.
 
@@ -378,9 +387,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetItemFG s-object
-PROCEDURE GetItemFG:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetItemFG s-object 
+PROCEDURE GetItemFG :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -388,6 +396,28 @@ PROCEDURE GetItemFG:
     DEFINE OUTPUT PARAMETER opoItemFG AS ItemFG NO-UNDO.
 
     opoItemFG = oItemFG.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable s-object
+PROCEDURE local-enable:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+
+    /* Code placed here will execute PRIOR to standard behavior. */
+
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable':U ) .
+
+    /* Code placed here will execute AFTER standard behavior.    */
+    RUN pInit.
+
 END PROCEDURE.
 	
 /* _UIB-CODE-BLOCK-END */
@@ -403,6 +433,31 @@ PROCEDURE No-Resize :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pInit s-object 
+PROCEDURE pInit :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE oSSLoadTagJobDesignConfig AS system.Config NO-UNDO.
+     
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+    
+    {methods/run_link.i "CONTAINER-SOURCE" "GetDesignConfig" "(OUTPUT oSSLoadTagJobDesignConfig)"}
+
+    IF VALID-OBJECT(oSSLoadTagJobDesignConfig) THEN DO:
+        IF oSSLoadTagJobDesignConfig:IsAttributeAvailable("FGFilter", "FGItem", "visible") THEN
+            lIsFGItemVisible = LOGICAL(oSSLoadTagJobDesignConfig:GetAttributeValue("FGFilter", "FGItem", "visible")).
+
+        IF oSSLoadTagJobDesignConfig:IsAttributeAvailable("FGFilter", "FGItem", "sensitive") THEN
+            lIsFGItemSensitive = LOGICAL(oSSLoadTagJobDesignConfig:GetAttributeValue("FGFilter", "FGItem", "sensitive")).
+    END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -484,10 +539,7 @@ PROCEDURE UpdateItemForJob :
             INPUT "fgitem-valid"
             ).
     
-    
     RUN pUpdateFGItemName.
-    
-    cbFGItem:SENSITIVE = TRUE.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

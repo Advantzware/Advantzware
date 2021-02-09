@@ -38,7 +38,9 @@ DEFINE SHARED VAR   vrPhone         AS CHAR    NO-UNDO.
 DEF BUFFER b-phone FOR phone.
 /* DEFINE VARIABLE     vrPhone         AS RECID    NO-UNDO. */
 define var vHeaderValue as cha no-undo.
+&SCOPED-DEFINE winReSize
 
+{methods/defines/winReSize.i}
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -147,10 +149,8 @@ DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
       emailcod.emailcod COLUMN-LABEL "Code":C5 FORMAT "X(10)":U
-            COLUMN-FGCOLOR 15 COLUMN-BGCOLOR 3 LABEL-FGCOLOR 15 LABEL-BGCOLOR 3
       emailcod.description FORMAT "X(30)":U WIDTH 29.8
       CheckNotice() @ vlShipNotice COLUMN-LABEL "Send":C4 FORMAT "x(4)":C4
-            WIDTH 7 COLUMN-FGCOLOR 15 COLUMN-BGCOLOR 3 LABEL-FGCOLOR 15 LABEL-BGCOLOR 3
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 57 BY 10.48
@@ -382,7 +382,7 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
-
+{methods/winReSize.i}
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF

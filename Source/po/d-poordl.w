@@ -1027,6 +1027,8 @@ DO:
   DEFINE VARIABLE op-error AS LOG     NO-UNDO.
   DEFINE VARIABLE lHoldPoStatus  AS LOGICAL NO-UNDO.
   DEFINE VARIABLE dPurchaseLimit AS DECIMAL NO-UNDO.
+  DEFINE VARIABLE lPriceHold AS LOGICAL NO-UNDO.
+  DEFINE VARIABLE cPriceHoldMessage AS CHARACTER NO-UNDO.
 
   DEFINE BUFFER b-po-ordl FOR po-ordl.
 
@@ -1280,6 +1282,11 @@ DO:
             TRIM(STRING(v-po-msf,">>>>>>>>>>")) + " MSF"
             VIEW-AS ALERT-BOX WARNING.
 END.
+
+RUN Vendor_CheckPriceHoldForPo(ROWID(po-ord),                                  
+                                YES, /*Set po-ord hold fields*/
+                                OUTPUT lPriceHold, 
+                                OUTPUT cPriceHoldMessage).
   
 IF po-ordl.item-type = NO THEN 
 DO:

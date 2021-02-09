@@ -134,8 +134,8 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          TITLE              = "Shifts"
          HEIGHT             = 22.24
          WIDTH              = 121
-         MAX-HEIGHT         = 22.24
-         MAX-WIDTH          = 121
+         MAX-HEIGHT         = 320
+         MAX-WIDTH          = 320
          VIRTUAL-HEIGHT     = 22.24
          VIRTUAL-WIDTH      = 121
          RESIZE             = yes
@@ -308,7 +308,7 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/folder.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'FOLDER-LABELS = ':U + 'Browse Shifts|View Shift|Breaks' + ',
+             INPUT  'FOLDER-LABELS = ':U + 'Browse|Detail|Breaks' + ',
                      FOLDER-TAB-TYPE = 2':U ,
              OUTPUT h_folder ).
        RUN set-position IN h_folder ( 3.14 , 2.00 ) NO-ERROR.

@@ -1489,11 +1489,21 @@ PROCEDURE valid-mach :
   
 
     DO WITH FRAME {&FRAME-NAME}:
-        FIND FIRST mach
-            {sys/look/machW.i}
-            AND mach.m-code EQ est-op.m-code:SCREEN-VALUE 
-        NO-LOCK NO-ERROR.
-        IF NOT AVAILABLE mach THEN v-msg = "Must enter a valid Machine Code, try help".
+          
+          FIND FIRST mach NO-LOCK
+               WHERE mach.company = cocode AND
+               mach.m-code = est-op.m-code:SCREEN-VALUE NO-ERROR.
+          IF NOT AVAIL mach THEN
+          DO:
+               MESSAGE "Invalid Machine Code. Try Help." VIEW-AS ALERT-BOX ERROR.
+               APPLY "entry" TO est-op.m-code.
+
+          END.
+          IF AVAIL mach AND mach.loc NE locode THEN DO:
+               MESSAGE "Invalid Machine Code as Estimate Location is " +  locode + " and Machine Location is " + mach.loc + "." + "  Machine must be in the same location as estimate." VIEW-AS ALERT-BOX ERROR.
+               APPLY "entry" TO est-op.m-code.
+
+          END.
 
         IF v-msg EQ "" THEN
             IF mach.obsolete THEN 
@@ -1552,8 +1562,9 @@ PROCEDURE valid-mach :
                 i = INT(adm-new-record).
                 FOR EACH xop NO-LOCK
                     WHERE xop.company EQ est-op.company
-                    AND xop.est-no  EQ est-op.est-no
-                    AND (xop.qty    EQ est-op.qty OR est.est-type GE 2)
+                    AND xop.est-no  EQ est-op.est-no                      
+                    AND ((xop.qty eq est-qty.eqty and est.est-type ne 4) OR 
+                    (xop.qty eq est-op.qty and est.est-type ge 3))
                     AND xop.s-num   EQ b-ef.form-no
                     AND xop.line    LT 500
                     AND (ROWID(xop) NE ROWID(est-op) OR NOT adm-new-record)

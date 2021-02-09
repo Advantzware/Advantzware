@@ -73,6 +73,7 @@ DEFINE {1} TEMP-TABLE ttPrintInventoryStock
 
 DEFINE {1} TEMP-TABLE ttBrowseInventory
     LIKE ttInventoryStockLoadtagWIP
+    FIELD transactionType   AS CHARACTER
     FIELD locDscr           AS CHARACTER
     FIELD leadDays          AS INTEGER
     FIELD orderLevel        AS INTEGER
@@ -362,6 +363,11 @@ DEFINE VARIABLE gcUOMWeight                AS CHARACTER NO-UNDO INITIAL "LB".
 DEFINE VARIABLE gcInventorySourceTypeJob   AS CHARACTER NO-UNDO INITIAL "Job".
 DEFINE VARIABLE gcInventorySourceTypePO    AS CHARACTER NO-UNDO INITIAL "PO".
 DEFINE VARIABLE gcInventorySourceTypeFG    AS CHARACTER NO-UNDO INITIAL "FG".
+
+DEFINE VARIABLE gcInventorySourceTypeRMBIN     AS CHARACTER NO-UNDO INITIAL "RMBIN".
+DEFINE VARIABLE gcInventorySourceTypeRMHISTORY AS CHARACTER NO-UNDO INITIAL "RMHISTORY".
+DEFINE VARIABLE gcInventorySourceTypeRMRCTD    AS CHARACTER NO-UNDO INITIAL "RMRCTD".
+
 
 /* ********************  Preprocessor Definitions  ******************** */
 

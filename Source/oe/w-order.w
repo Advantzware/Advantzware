@@ -457,6 +457,11 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
+
+// Ticket #96577: To fix the icon issue need to increase the height of window do that all icon fit on the window.
+//seting the width in main block as window resize trigger will resize all objects wrt. window width 
+{&WINDOW-NAME}:WIDTH = 185.
+
 {sys/inc/f3helpw.i}
 /* Include custom  Main Block code for SmartWindows. */
 {src/adm/template/windowmn.i}
@@ -533,7 +538,7 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/folder.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'FOLDER-LABELS = ':U + 'Browse|Detail|Items|Misc. Chgs|Release|Estimate|Order Total|FG Item|Matrix|Ship Notes|Bill Notes' + ',
+             INPUT  'FOLDER-LABELS = ':U + 'Browse|Detail|Items|Misc|Release|Estimate|Totals|FG Item|Matrix|ShipNote|BillNote' + ',
                      FOLDER-TAB-TYPE = 2':U ,
              OUTPUT h_folder ).
        RUN set-position IN h_folder ( 3.14 , 1.00 ) NO-ERROR.

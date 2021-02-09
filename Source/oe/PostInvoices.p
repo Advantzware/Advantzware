@@ -3249,12 +3249,16 @@ PROCEDURE pValidateInvoicesToPost PRIVATE:
     DEFINE VARIABLE lError                         AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cMessage                       AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lValidateRequiredInvoiceStatus AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lAutoInvoiceApproval           AS LOGICAL   NO-UNDO.
     
     FOR EACH bf-ttInvoiceToPost,
         FIRST bf-inv-head NO-LOCK 
         WHERE ROWID(bf-inv-head) EQ bf-ttInvoiceToPost.riInvHead:
-        lAutoApprove = YES.   
-        opiCountProcessed = opiCountProcessed + 1.
+        ASSIGN 
+            lAutoInvoiceApproval = YES
+            lAutoApprove         = YES  
+            opiCountProcessed    = opiCountProcessed + 1
+            .
          
         RUN pGetSalesTaxForInvHead  (
             INPUT  bf-ttInvoiceToPost.riInvHead, 
@@ -3275,80 +3279,85 @@ PROCEDURE pValidateInvoicesToPost PRIVATE:
                 INPUT ROWID(bf-inv-head),
                 INPUT "Auto approval is not set for this customer"
                 ).  
-            NEXT.                  
+            ASSIGN  
+                lAutoApprove         = NO    
+                lAutoInvoiceApproval = NO
+                .                  
         END.    
-                 
-        lValidateRequired = fGetInvoiceApprovalVal(bf-inv-head.company,"InvoiceApprovalTaxCalc",bf-inv-head.cust-no,iplIsValidateOnly).        
-        IF lValidateRequired AND lError THEN 
-        DO:
-            RUN pAddValidationError(BUFFER bf-ttInvoiceToPost, "Tax Calculation Error").
-            lAutoApprove = NO.
-        END.
-        
-        IF lValidateRequired AND dTotalTax NE bf-inv-head.t-inv-tax THEN 
-        DO:
-            RUN pAddValidationError(BUFFER bf-ttInvoiceToPost,"Tax on invoice does not match with calculated tax").
-            lAutoApprove = NO.
-        END.
-         
-
-        lValidateRequired = fGetInvoiceApprovalVal(bf-inv-head.company,"InvoiceApprovalInvoiceStatus",bf-inv-head.cust-no,iplIsValidateOnly).
-        lValidateRequiredInvoiceStatus = lValidateRequired.
-        IF lValidateRequired AND bf-inv-head.stat EQ "H" THEN
-        DO:
-            RUN pAddValidationError(BUFFER bf-ttInvoiceToPost, "Invoice on Hold").
-            lAutoApprove = NO.
-        END.
-         
-        lValidateRequired = fGetInvoiceApprovalVal(bf-inv-head.company,"InvoiceApprovalFreightAmount",bf-inv-head.cust-no,iplIsValidateOnly).
-        IF lValidateRequired AND bf-ttInvoiceToPost.isFreightBillable AND  bf-ttInvoiceToPost.amountBilledFreight LE 0 THEN
-        DO:
-            RUN pAddValidationError(BUFFER bf-ttInvoiceToPost,"Billable freight without freight charge").
-            lAutoApprove = NO.
-        END.
-         
-        lValidateRequired = fGetInvoiceApprovalVal(bf-inv-head.company, "InvoiceApprovalBillNotes",bf-inv-head.cust-no,iplIsValidateOnly).           
-        IF lValidateRequired AND (bf-inv-head.bill-i[1] NE "" OR bf-inv-head.bill-i[2] NE "" OR bf-inv-head.bill-i[3] NE "" OR bf-inv-head.bill-i[4] NE "") THEN
-        DO:
-            RUN pAddValidationError(BUFFER bf-ttInvoiceToPost,"Billing notes exist").
-            lAutoApprove = NO.
-        END.    
-         
-        lValidateRequired = fGetInvoiceApprovalVal(bf-inv-head.company, "InvoiceApprovalFreightTerms",bf-inv-head.cust-no,iplIsValidateOnly).           
-        IF lValidateRequired AND bf-inv-head.frt-pay NE "" AND LOOKUP(bf-inv-head.frt-pay,"P,C,B") EQ 0 THEN
-        DO:
-            RUN pAddValidationError(BUFFER bf-ttInvoiceToPost,"Invalid freight terms code").
-            lAutoApprove = NO.
-        END.
-         
-        IF bf-ttInvoiceToPost.amountBilledTax EQ 0 THEN
-        DO:
-            RUN Tax_GetTaxableAR(bf-inv-head.company,bf-inv-head.cust-no,bf-inv-head.sold-no,"", OUTPUT lShiptoTaxAble).
-            lValidateRequired = fGetInvoiceApprovalVal(bf-inv-head.company, "InvoiceApprovalTaxableCheck", bf-inv-head.cust-no,iplIsValidateOnly).
-            IF lShiptoTaxAble AND lValidateRequired THEN
-            DO:            
-                RUN pAddValidationError(BUFFER bf-ttInvoiceToPost,"Taxable ship to with no tax").
+       
+        IF lAutoInvoiceApproval THEN DO:        
+            lValidateRequired = fGetInvoiceApprovalVal(bf-inv-head.company,"InvoiceApprovalTaxCalc",bf-inv-head.cust-no,iplIsValidateOnly).        
+            IF lValidateRequired AND lError THEN 
+            DO:
+                RUN pAddValidationError(BUFFER bf-ttInvoiceToPost, "Tax Calculation Error").
                 lAutoApprove = NO.
             END.
-        END.  
-         
-        IF bf-ttInvoiceToPost.amountBilled NE 0 AND fGetInvoiceApprovalVal(bf-inv-head.company, "InvoiceApprovalExpectZero", bf-inv-head.cust-no,iplIsValidateOnly)THEN 
-        DO:
-            RUN pAddValidationError(BUFFER bf-ttInvoiceToPost,"Expected zero value in the invoice").
-            lAutoApprove = NO.   
             
-        END. 
-       
+            IF lValidateRequired AND dTotalTax NE bf-inv-head.t-inv-tax THEN 
+            DO:
+                RUN pAddValidationError(BUFFER bf-ttInvoiceToPost,"Tax on invoice does not match with calculated tax").
+                lAutoApprove = NO.
+            END.
+             
+    
+            lValidateRequired = fGetInvoiceApprovalVal(bf-inv-head.company,"InvoiceApprovalInvoiceStatus",bf-inv-head.cust-no,iplIsValidateOnly).
+            lValidateRequiredInvoiceStatus = lValidateRequired.
+            IF lValidateRequired AND bf-inv-head.stat EQ "H" THEN
+            DO:
+                RUN pAddValidationError(BUFFER bf-ttInvoiceToPost, "Invoice on Hold").
+                lAutoApprove = NO.
+            END.
+             
+            lValidateRequired = fGetInvoiceApprovalVal(bf-inv-head.company,"InvoiceApprovalFreightAmount",bf-inv-head.cust-no,iplIsValidateOnly).
+            IF lValidateRequired AND bf-ttInvoiceToPost.isFreightBillable AND  bf-ttInvoiceToPost.amountBilledFreight LE 0 THEN
+            DO:
+                RUN pAddValidationError(BUFFER bf-ttInvoiceToPost,"Billable freight without freight charge").
+                lAutoApprove = NO.
+            END.
+             
+            lValidateRequired = fGetInvoiceApprovalVal(bf-inv-head.company, "InvoiceApprovalBillNotes",bf-inv-head.cust-no,iplIsValidateOnly).           
+            IF lValidateRequired AND (bf-inv-head.bill-i[1] NE "" OR bf-inv-head.bill-i[2] NE "" OR bf-inv-head.bill-i[3] NE "" OR bf-inv-head.bill-i[4] NE "") THEN
+            DO:
+                RUN pAddValidationError(BUFFER bf-ttInvoiceToPost,"Billing notes exist").
+                lAutoApprove = NO.
+            END.    
+             
+            lValidateRequired = fGetInvoiceApprovalVal(bf-inv-head.company, "InvoiceApprovalFreightTerms",bf-inv-head.cust-no,iplIsValidateOnly).           
+            IF lValidateRequired AND bf-inv-head.frt-pay NE "" AND LOOKUP(bf-inv-head.frt-pay,"P,C,B") EQ 0 THEN
+            DO:
+                RUN pAddValidationError(BUFFER bf-ttInvoiceToPost,"Invalid freight terms code").
+                lAutoApprove = NO.
+            END.
+             
+            IF bf-ttInvoiceToPost.amountBilledTax EQ 0 THEN
+            DO:
+                RUN Tax_GetTaxableAR(bf-inv-head.company,bf-inv-head.cust-no,bf-inv-head.sold-no,"", OUTPUT lShiptoTaxAble).
+                lValidateRequired = fGetInvoiceApprovalVal(bf-inv-head.company, "InvoiceApprovalTaxableCheck", bf-inv-head.cust-no,iplIsValidateOnly).
+                IF lShiptoTaxAble AND lValidateRequired THEN
+                DO:            
+                    RUN pAddValidationError(BUFFER bf-ttInvoiceToPost,"Taxable ship to with no tax").
+                    lAutoApprove = NO.
+                END.
+            END.  
+             
+            IF bf-ttInvoiceToPost.amountBilled NE 0 AND fGetInvoiceApprovalVal(bf-inv-head.company, "InvoiceApprovalExpectZero", bf-inv-head.cust-no,iplIsValidateOnly)THEN 
+            DO:
+                RUN pAddValidationError(BUFFER bf-ttInvoiceToPost,"Expected zero value in the invoice").
+                lAutoApprove = NO.   
+                
+            END. 
+        END.
         dTotalLineRev = 0 .
         FOR EACH bf-ttInvoiceLineToPost WHERE
             bf-ttInvoiceLineToPost.rNo EQ bf-inv-head.r-no:          
-
-            lValidateRequired = fGetInvoiceApprovalVal(bf-inv-head.company, "InvoiceApprovalPriceGTCost", bf-inv-head.cust-no,iplIsValidateOnly).        
-            IF lValidateRequired AND bf-ttInvoiceLineToPost.amountBilled LT bf-ttInvoiceLineToPost.costTotal THEN
-            DO:                             
-                RUN pAddValidationError(BUFFER bf-ttInvoiceToPost,"Item price is less than the cost of the item").
-                lAutoApprove = NO.
-            END.  
+            IF lAutoInvoiceApproval THEN DO:
+                lValidateRequired = fGetInvoiceApprovalVal(bf-inv-head.company, "InvoiceApprovalPriceGTCost", bf-inv-head.cust-no,iplIsValidateOnly).        
+                IF lValidateRequired AND bf-ttInvoiceLineToPost.amountBilled LT bf-ttInvoiceLineToPost.costTotal THEN
+                DO:                             
+                    RUN pAddValidationError(BUFFER bf-ttInvoiceToPost,"Item price is less than the cost of the item").
+                    lAutoApprove = NO.
+                END. 
+            END. 
             dTotalLineRev = dTotalLineRev + bf-ttInvoiceLineToPost.amountBilled .
         END. 
 

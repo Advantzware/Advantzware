@@ -38,6 +38,7 @@ CREATE WIDGET-POOL.
 /* Local Variable Definitions ---                                       */
 DEFINE VARIABLE cCompany  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cLocation AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cJob      AS CHARACTER NO-UNDO.
 
 /* Local Variable Definitions ---                                       */
 DEFINE VARIABLE hdJobDetails            AS HANDLE    NO-UNDO.
@@ -45,6 +46,7 @@ DEFINE VARIABLE hdJobDetailsWin         AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hdJobProcs              AS HANDLE    NO-UNDO.
 DEFINE VARIABLE cFormattedJobno         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE oJobHeader              AS JobHeader NO-UNDO.
+DEFINE VARIABLE lScanNextJob            AS LOGICAL   NO-UNDO.
 
 oJobHeader = NEW JobHeader().
 
@@ -63,10 +65,10 @@ oJobHeader = NEW JobHeader().
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-3 imJobLookup fiJobNo cbJobNo2 cbFormNo ~
+&Scoped-Define ENABLED-OBJECTS RECT-3 imJobLookup cbJobNo2 fiJobNo cbFormNo ~
 cbBlankNo 
-&Scoped-Define DISPLAYED-OBJECTS fiJobNoLabel fiJobNo cbJobNo2 ~
-fiFormNoLabel cbFormNo fiBlankNoLabel cbBlankNo 
+&Scoped-Define DISPLAYED-OBJECTS cbJobNo2 fiJobNoLabel fiJobNo cbFormNo ~
+cbBlankNo fiFormNoLabel fiBlankNoLabel 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -90,7 +92,7 @@ DEFINE VARIABLE cbBlankNo AS INTEGER FORMAT "99":U INITIAL 0
      VIEW-AS COMBO-BOX INNER-LINES 5
      LIST-ITEMS "00" 
      DROP-DOWN-LIST
-     SIZE 9 BY 1
+     SIZE 9.8 BY 1.48
      FONT 36 NO-UNDO.
 
 DEFINE VARIABLE cbFormNo AS INTEGER FORMAT "99":U INITIAL 0 
@@ -104,7 +106,7 @@ DEFINE VARIABLE cbJobNo2 AS INTEGER FORMAT "99":U INITIAL 0
      VIEW-AS COMBO-BOX INNER-LINES 5
      LIST-ITEMS "00" 
      DROP-DOWN-LIST
-     SIZE 9 BY 1
+     SIZE 9.8 BY 1.48
      FONT 36 NO-UNDO.
 
 DEFINE VARIABLE fiBlankNoLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Blank #:" 
@@ -124,7 +126,7 @@ DEFINE VARIABLE fiJobNoLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Job #:"
      SIZE 9.6 BY 1.29 NO-UNDO.
 
 DEFINE IMAGE imJobLookup
-     FILENAME "C:/Asigui/Environments/16.11.02/Resources/Graphics/32x32/magnifying_glass.ico":U
+     FILENAME "Graphics/32x32/magnifying_glass.ico":U
      STRETCH-TO-FIT RETAIN-SHAPE
      SIZE 5.4 BY 1.29.
 
@@ -136,14 +138,14 @@ DEFINE RECTANGLE RECT-3
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     fiJobNoLabel AT ROW 1.24 COL 4.8 NO-LABEL WIDGET-ID 2
-     fiJobNo AT ROW 1.24 COL 12.8 COLON-ALIGNED NO-LABEL WIDGET-ID 4
      cbJobNo2 AT ROW 1.24 COL 44.2 COLON-ALIGNED NO-LABEL WIDGET-ID 162
+     fiJobNoLabel AT ROW 1.29 COL 4.8 NO-LABEL WIDGET-ID 2
+     fiJobNo AT ROW 1.29 COL 12.8 COLON-ALIGNED NO-LABEL WIDGET-ID 4
      btJobDetails AT ROW 1.33 COL 66.4 WIDGET-ID 160
-     fiFormNoLabel AT ROW 2.71 COL 2.6 NO-LABEL WIDGET-ID 16
      cbFormNo AT ROW 2.71 COL 12.8 COLON-ALIGNED NO-LABEL WIDGET-ID 164
-     fiBlankNoLabel AT ROW 2.71 COL 33.6 NO-LABEL WIDGET-ID 20
      cbBlankNo AT ROW 2.71 COL 44.2 COLON-ALIGNED NO-LABEL WIDGET-ID 166
+     fiFormNoLabel AT ROW 2.76 COL 2.6 NO-LABEL WIDGET-ID 16
+     fiBlankNoLabel AT ROW 2.76 COL 33.6 NO-LABEL WIDGET-ID 20
      RECT-3 AT ROW 1.05 COL 1 WIDGET-ID 24
      imJobLookup AT ROW 1.14 COL 56.2 WIDGET-ID 182
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -178,8 +180,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW s-object ASSIGN
-         HEIGHT             = 3.52
-         WIDTH              = 80.2.
+         HEIGHT             = 3.33
+         WIDTH              = 79.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -341,6 +343,18 @@ END.
 
 &Scoped-define SELF-NAME fiJobNo
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiJobNo s-object
+ON ENTRY OF fiJobNo IN FRAME F-Main
+DO:
+    cJob = SELF:SCREEN-VALUE.  
+    
+    fiJobNo:SET-SELECTION(1, LENGTH(fiJobNo:SCREEN-VALUE) + 1) NO-ERROR.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiJobNo s-object
 ON LEAVE OF fiJobNo IN FRAME F-Main
 DO:
     DEFINE VARIABLE cJobNo     AS CHARACTER NO-UNDO.
@@ -358,9 +372,28 @@ DO:
     DEFINE VARIABLE cFormNoListItems  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cBlankNoListItems AS CHARACTER NO-UNDO.
     
+    lScanNextJob = FALSE.
+    
     IF SELF:SCREEN-VALUE EQ "" THEN
         RETURN.
 
+    IF SELF:SCREEN-VALUE EQ cJob THEN DO:
+        MESSAGE "The job '" + cJob + "' is already scanned." SKIP
+            "Do you want scan the same job again?"
+            VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE lChoice AS LOGICAL.   
+        
+        IF NOT lChoice THEN
+            RETURN. 
+        
+        /* If the job with options (job-no2, form and blank) is scanned, all the fields are updated with exact inputs including job-no.
+           If just the job-no is scanned then first job-no2, form and blank is choosen.
+           In the case of job is scanned with options and the next scan is the same job with just job then the other options might get updated 
+           with first job-no2, form and blank no. To fix this issue screen-value of Job field is updated with entire job with options from
+           previous scan */
+        SELF:SCREEN-VALUE = cJob + "-" + cbJobNo2:SCREEN-VALUE 
+                          + "-" + cbFormNo:SCREEN-VALUE + "-" + cbBlankNo:SCREEN-VALUE.
+    END.
+    
     RUN JobParser IN hdJobProcs (
         INPUT  SELF:SCREEN-VALUE,
         OUTPUT cJobNo,
@@ -446,7 +479,7 @@ DO:
     END.
 
     IF cBlankNo NE "" THEN
-        iBlankNo = INTEGER(iBlankNo).
+        iBlankNo = INTEGER(cBlankNo).
     
     RUN pUpdateJobDetails (
         INPUT "BlankNo",
@@ -455,6 +488,21 @@ DO:
         ).
 
     RUN pValidateJob.
+    
+    /* Progress doesn't have an option to apply entry to field once leave event is triggered.
+       If a case is necessary where an entry is required right after leave trigger RETURN with NO-APPLY
+       will solve the issue  */
+    IF lScanNextJob THEN DO:
+        cJob = fiJobNo:SCREEN-VALUE.
+        
+        fiJobNo:SET-SELECTION(1, LENGTH(fiJobNo:SCREEN-VALUE) + 1).
+
+        RUN new-state (
+            INPUT "job-invalid"
+            ).
+        
+        RETURN NO-APPLY.
+    END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -551,9 +599,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetJobHeader s-object
-PROCEDURE GetJobHeader:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetJobHeader s-object 
+PROCEDURE GetJobHeader :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -561,6 +608,49 @@ PROCEDURE GetJobHeader:
     DEFINE OUTPUT PARAMETER opoJobHeader AS JobHeader NO-UNDO.
 
     opoJobHeader = oJobHeader. 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE JobFGItemChanged s-object
+PROCEDURE JobFGItemChanged:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcItemID AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE cFormNoList  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cBlankNoList AS CHARACTER NO-UNDO.
+    
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+    
+    RUN GetFormAndBlankFromJobAndFGItem IN hdJobProcs (
+        INPUT  cCompany,
+        INPUT  fiJobno:SCREEN-VALUE,
+        INPUT  INTEGER(cbJobno2:SCREEN-VALUE),
+        INPUT  ipcItemID,
+        OUTPUT cFormNoList,
+        OUTPUT cBlankNoList
+        ).
+    
+    /* Raise an error if output form and blank are not found on the current form and blank list */
+    IF LOOKUP(STRING(INTEGER(ENTRY (1, cFormNoList)) ,"99") , cbFormNo:LIST-ITEMS) EQ 0 OR LOOKUP(STRING(INTEGER(ENTRY (1, cBlankNoList)), "99") , cbBlankNo:LIST-ITEMS) EQ 0 THEN DO:
+        MESSAGE "Invalid item '" + ipcItemID + "' for Job # '" + fiJobno:SCREEN-VALUE + "-" + cbJobno2:SCREEN-VALUE + "'"
+            VIEW-AS ALERT-BOX ERROR.
+        
+        RETURN.
+    END.
+    
+    ASSIGN
+        cbFormNo:SCREEN-VALUE  = STRING(INTEGER(ENTRY (1, cFormNoList)) ,"99")
+        cbBlankNo:SCREEN-VALUE = STRING(INTEGER(ENTRY (1, cBlankNoList)), "99")
+        .
+    
+    RUN pValidateJob.
 END PROCEDURE.
 	
 /* _UIB-CODE-BLOCK-END */
@@ -822,6 +912,37 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ScanNextJob s-object 
+PROCEDURE ScanNextJob :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    lScanNextJob = TRUE.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Set-Focus s-object
+PROCEDURE Set-Focus:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+
+    APPLY "ENTRY" TO fiJobNo.    
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed s-object 
 PROCEDURE state-changed :

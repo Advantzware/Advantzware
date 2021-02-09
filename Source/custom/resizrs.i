@@ -1,8 +1,24 @@
 /* custom/resizrs.i*/
-/*
-ON 'window-restored':U OF {&WINDOW-NAME}
-DO:
 
+ON 'WINDOW-RESTORED':U OF {&WINDOW-NAME}
+DO:
+    ASSIGN 
+        {&WINDOW-NAME}:HEIGHT = deOrigWinHeight 
+        {&WINDOW-NAME}:WIDTH  = deOrigWinWidth
+        .    
+        APPLY "WINDOW-RESIZED" TO {&WINDOW-NAME}.
+END.    
+ON 'WINDOW-MAXIMIZED':U OF {&WINDOW-NAME}
+DO:
+    ASSIGN
+        {&WINDOW-NAME}:MAX-HEIGHT   = ?
+        {&WINDOW-NAME}:MAX-WIDTH    = ?
+        {&WINDOW-NAME}:WINDOW-STATE = WINDOW-MAXIMIZED.
+END.
+
+/*
+ON 'WINDOW-RESTORED':U OF {&WINDOW-NAME}
+DO:
 IF winstate = 3 THEN ASSIGN winstate = 0 NO-ERROR.
 ELSE 
 DO:
@@ -67,7 +83,6 @@ ON WINDOW-RESIZED OF {&WINDOW-NAME}
             {&WINDOW-NAME}:HEIGHT = deOrigWinHeight.        
         &endif
         
-         
         deDeltaWidth      =  {&WINDOW-NAME}:WIDTH  - FRAME {&FRAME-NAME}:WIDTH.      
         deDeltaHeight     =  {&WINDOW-NAME}:HEIGHT - FRAME {&FRAME-NAME}:HEIGHT.
         
@@ -76,28 +91,34 @@ ON WINDOW-RESIZED OF {&WINDOW-NAME}
         /* if window height and width increased then first increase the size of frame and then containing widgets */
         IF (deDeltaHeight > 0 OR deDeltaHeight = 0) AND (deDeltaWidth> 0 OR deDeltaWidth= 0) THEN
         DO:          
-            FRAME {&FRAME-NAME}:WIDTH                 = {&WINDOW-NAME}:WIDTH.
-            FRAME {&FRAME-NAME}:HEIGHT                = {&WINDOW-NAME}:HEIGHT.
-            FRAME {&FRAME-NAME}:VIRTUAL-HEIGHT-PIXELS = FRAME {&FRAME-NAME}:HEIGHT-PIXELS.
-            FRAME {&FRAME-NAME}:VIRTUAL-WIDTH-PIXELS  = FRAME {&FRAME-NAME}:WIDTH-PIXELS.  
+            ASSIGN 
+                FRAME {&FRAME-NAME}:WIDTH                 = {&WINDOW-NAME}:WIDTH
+                FRAME {&FRAME-NAME}:HEIGHT                = {&WINDOW-NAME}:HEIGHT
+                FRAME {&FRAME-NAME}:VIRTUAL-HEIGHT-PIXELS = FRAME {&FRAME-NAME}:HEIGHT-PIXELS
+                FRAME {&FRAME-NAME}:VIRTUAL-WIDTH-PIXELS  = FRAME {&FRAME-NAME}:WIDTH-PIXELS
+                NO-ERROR.  
             RUN get-size IN h_folder ( OUTPUT deHeight , OUTPUT deWidth ) NO-ERROR. 
             RUN set-size IN h_folder ( INPUT {&WINDOW-NAME}:HEIGHT , INPUT {&WINDOW-NAME}:WIDTH  ) NO-ERROR.
         END.
         /* if window height increased then first increase the height of frame and then containing widgets */
         IF (deDeltaHeight > 0 OR deDeltaHeight = 0) AND (deDeltaWidth< 0 OR deDeltaWidth= 0) THEN
         DO:  
-            FRAME {&FRAME-NAME}:HEIGHT                = {&WINDOW-NAME}:HEIGHT.
-            FRAME {&FRAME-NAME}:VIRTUAL-HEIGHT-PIXELS = FRAME {&FRAME-NAME}:HEIGHT-PIXELS. 
-            RUN get-size IN h_folder ( OUTPUT deHeight , OUTPUT deWidth ) . 
-            RUN set-size IN h_folder ( INPUT {&WINDOW-NAME}:HEIGHT , INPUT deWidth  ) .
+            ASSIGN 
+                FRAME {&FRAME-NAME}:HEIGHT                = {&WINDOW-NAME}:HEIGHT
+                FRAME {&FRAME-NAME}:VIRTUAL-HEIGHT-PIXELS = FRAME {&FRAME-NAME}:HEIGHT-PIXELS
+                NO-ERROR. 
+            RUN get-size IN h_folder ( OUTPUT deHeight , OUTPUT deWidth ) NO-ERROR. 
+            RUN set-size IN h_folder ( INPUT {&WINDOW-NAME}:HEIGHT , INPUT deWidth  ) NO-ERROR.
         END.
         /* if window width increased then first increase the width of frame and then containing widgets */
         IF (deDeltaHeight < 0 OR deDeltaHeight = 0) AND (deDeltaWidth> 0 OR deDeltaWidth= 0) THEN
         DO:          
-            FRAME {&FRAME-NAME}:WIDTH                 = {&WINDOW-NAME}:WIDTH.
-            FRAME {&FRAME-NAME}:VIRTUAL-WIDTH-PIXELS  = FRAME {&FRAME-NAME}:WIDTH-PIXELS.  
-            RUN get-size IN h_folder ( OUTPUT deHeight , OUTPUT deWidth ) . 
-            RUN set-size IN h_folder ( INPUT deHeight , INPUT {&WINDOW-NAME}:WIDTH  ) .
+            ASSIGN 
+                FRAME {&FRAME-NAME}:WIDTH                 = {&WINDOW-NAME}:WIDTH
+                FRAME {&FRAME-NAME}:VIRTUAL-WIDTH-PIXELS  = FRAME {&FRAME-NAME}:WIDTH-PIXELS
+                NO-ERROR.  
+            RUN get-size IN h_folder ( OUTPUT deHeight , OUTPUT deWidth ) NO-ERROR. 
+            RUN set-size IN h_folder ( INPUT deHeight , INPUT {&WINDOW-NAME}:WIDTH  ) NO-ERROR.
         END.
         
         FOR EACH toreposition BY toreposition.resizepage:
@@ -121,17 +142,17 @@ ON WINDOW-RESIZED OF {&WINDOW-NAME}
             END.
             ELSE IF toreposition.widtype = "moveright" AND VALID-HANDLE(WIDGET-HANDLE(toreposition.widhand)) THEN
             DO:
-                 deRowPos = 0.
+                deRowPos = 0.
                 deColPos = 0.  
-                RUN get-position IN  WIDGET-HANDLE(toreposition.widhand)(OUTPUT deRowPos ,OUTPUT deColPos           ) . 
-                RUN set-position IN  WIDGET-HANDLE(toreposition.widhand)(INPUT  deRowPos ,INPUT  deColPos + deDeltaWidth)  .
+                RUN get-position IN  WIDGET-HANDLE(toreposition.widhand)(OUTPUT deRowPos ,OUTPUT deColPos           ) NO-ERROR. 
+                RUN set-position IN  WIDGET-HANDLE(toreposition.widhand)(INPUT  deRowPos ,INPUT  deColPos + deDeltaWidth)  NO-ERROR.
             END.  
             ELSE IF toreposition.widtype = "movedown" AND VALID-HANDLE(WIDGET-HANDLE(toreposition.widhand)) THEN
                 DO:          
                     deRowPos = 0.
                     deColPos = 0. 
-                    RUN get-position IN  WIDGET-HANDLE(toreposition.widhand)(OUTPUT deRowPos                ,OUTPUT deColPos ) . 
-                    RUN set-position IN  WIDGET-HANDLE(toreposition.widhand)(INPUT deRowPos + deDeltaHeight ,INPUT  deColPos ) .
+                    RUN get-position IN  WIDGET-HANDLE(toreposition.widhand)(OUTPUT deRowPos                ,OUTPUT deColPos ) NO-ERROR. 
+                    RUN set-position IN  WIDGET-HANDLE(toreposition.widhand)(INPUT deRowPos + deDeltaHeight ,INPUT  deColPos ) NO-ERROR.
                 END.               
             ELSE IF  VALID-HANDLE(WIDGET-HANDLE(toreposition.widhand)) THEN
             DO:
@@ -145,31 +166,36 @@ ON WINDOW-RESIZED OF {&WINDOW-NAME}
         /* if window height and width decreased then first set the size of containing widgets and then decrease the size of frame */
         IF (deDeltaHeight < 0 OR deDeltaHeight = 0) AND (deDeltaWidth< 0 OR deDeltaWidth= 0) THEN
         DO:
-            
-            FRAME {&FRAME-NAME}:WIDTH                 = {&WINDOW-NAME}:WIDTH.
-            FRAME {&FRAME-NAME}:HEIGHT                = {&WINDOW-NAME}:height.
-            FRAME {&FRAME-NAME}:VIRTUAL-HEIGHT-PIXELS = FRAME {&FRAME-NAME}:HEIGHT-PIXELS.
-            FRAME {&FRAME-NAME}:VIRTUAL-WIDTH-PIXELS  = FRAME {&FRAME-NAME}:WIDTH-PIXELS.
-            deHeight = 0.
-            deWidth = 0.
+            ASSIGN 
+                FRAME {&FRAME-NAME}:WIDTH                 = {&WINDOW-NAME}:WIDTH
+                FRAME {&FRAME-NAME}:HEIGHT                = {&WINDOW-NAME}:HEIGHT 
+                FRAME {&FRAME-NAME}:VIRTUAL-HEIGHT-PIXELS = FRAME {&FRAME-NAME}:HEIGHT-PIXELS
+                FRAME {&FRAME-NAME}:VIRTUAL-WIDTH-PIXELS  = FRAME {&FRAME-NAME}:WIDTH-PIXELS
+                deHeight = 0
+                deWidth = 0
+                NO-ERROR .
             RUN get-size IN h_folder (OUTPUT deHeight , OUTPUT deWidth ) NO-ERROR. 
             RUN set-size IN h_folder (INPUT {&WINDOW-NAME}:HEIGHT , INPUT {&WINDOW-NAME}:WIDTH  ) NO-ERROR.
         END.
         /* if window  width decreased then first set the size of containing widgets and then decrease the width of frame */
         IF (deDeltaHeight > 0 OR deDeltaHeight = 0) AND (deDeltaWidth< 0 OR deDeltaWidth= 0) THEN 
         DO:          
-            FRAME {&FRAME-NAME}:WIDTH                 = {&WINDOW-NAME}:WIDTH.
-          FRAME {&FRAME-NAME}:VIRTUAL-WIDTH-PIXELS  = FRAME {&FRAME-NAME}:WIDTH-PIXELS.  
-            RUN get-size IN h_folder (OUTPUT deHeight , OUTPUT deWidth ) . 
-            RUN set-size IN h_folder (INPUT {&WINDOW-NAME}:HEIGHT , INPUT {&WINDOW-NAME}:WIDTH  ) .
+            ASSIGN 
+                FRAME {&FRAME-NAME}:WIDTH                 = {&WINDOW-NAME}:WIDTH
+                FRAME {&FRAME-NAME}:VIRTUAL-WIDTH-PIXELS  = FRAME {&FRAME-NAME}:WIDTH-PIXELS
+                NO-ERROR.  
+            RUN get-size IN h_folder (OUTPUT deHeight , OUTPUT deWidth ) NO-ERROR. 
+            RUN set-size IN h_folder (INPUT {&WINDOW-NAME}:HEIGHT , INPUT {&WINDOW-NAME}:WIDTH  ) NO-ERROR.
         END. 
         /* if window height  decreased then first set the size of containing widgets and then decrease the height of frame */
         IF (deDeltaHeight < 0 OR deDeltaHeight = 0) AND (deDeltaWidth< 0 OR deDeltaWidth= 0) THEN
         DO:  
-            FRAME {&FRAME-NAME}:HEIGHT                = {&WINDOW-NAME}:HEIGHT.
-            FRAME {&FRAME-NAME}:VIRTUAL-HEIGHT-PIXELS = FRAME {&FRAME-NAME}:HEIGHT-PIXELS. 
-            RUN get-size IN h_folder (OUTPUT deHeight , OUTPUT deWidth ) . 
-            RUN set-size IN h_folder (INPUT {&WINDOW-NAME}:HEIGHT , INPUT {&WINDOW-NAME}:WIDTH  ) .
+            ASSIGN 
+                FRAME {&FRAME-NAME}:HEIGHT                = {&WINDOW-NAME}:HEIGHT
+                FRAME {&FRAME-NAME}:VIRTUAL-HEIGHT-PIXELS = FRAME {&FRAME-NAME}:HEIGHT-PIXELS
+                NO-ERROR. 
+            RUN get-size IN h_folder (OUTPUT deHeight , OUTPUT deWidth ) NO-ERROR. 
+            RUN set-size IN h_folder (INPUT {&WINDOW-NAME}:HEIGHT , INPUT {&WINDOW-NAME}:WIDTH  ) NO-ERROR.
         END. 
         
             

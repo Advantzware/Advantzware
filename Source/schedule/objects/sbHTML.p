@@ -293,6 +293,7 @@ PROCEDURE pHTMLPageVertical:
             '<title>Schedule Capacity</title>' SKIP
             '<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">' SKIP
             '<meta http-equiv="Refresh" content="120">' SKIP
+            '<link rel="shortcut icon" href="' SEARCH("Graphics/32x32/asiicon.png") '">' SKIP
             '</head>' SKIP
             '<a name="Top"></a>' SKIP
             '<form>' SKIP

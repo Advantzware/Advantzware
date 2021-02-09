@@ -295,7 +295,7 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/folder.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'FOLDER-LABELS = ':U + 'Brws Order|View Order|Items|Misc. Chgs|Release|Estimate|Order Total' + ',
+             INPUT  'FOLDER-LABELS = ':U + 'Browse|Detail|Items|Prep/Misc|Release|Estimate|Totals' + ',
                      FOLDER-TAB-TYPE = 2':U ,
              OUTPUT h_folder ).
        RUN set-position IN h_folder ( 3.14 , 1.00 ) NO-ERROR.

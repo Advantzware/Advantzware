@@ -325,7 +325,7 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'smartobj/fo-cust.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'FOLDER-LABELS = ':U + 'Brws Cust|View Cust|Ship To|Sold To|Totals/Sales|Pricing|Credit Stat|API/EDI' + ',
+             INPUT  'FOLDER-LABELS = ':U + 'Browse|Detail|Ship To|Sold To|Totals|Pricing|Credit|API/EDI' + ',
                      FOLDER-TAB-TYPE = 2':U ,
              OUTPUT h_folder ).
        RUN set-position IN h_folder ( 3.48 , 1.80 ) NO-ERROR.

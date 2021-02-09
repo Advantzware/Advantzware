@@ -280,7 +280,7 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/folder.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'FOLDER-LABELS = ':U + 'Brws Est|Estimate|Specs|Layout|Inks/Pack|Prep/Route|Misc/Sub|Box Design|Print|Quote|Farm' + ',
+             INPUT  'FOLDER-LABELS = ':U + 'Browse|Detail|Specs|Layout|Inks/Pack|Prep/Rout|Misc/Sub|Design|Print|Quote|Farm' + ',
                      FOLDER-TAB-TYPE = 2':U ,
              OUTPUT h_folder ).
        RUN set-position IN h_folder ( 1.00 , 1.00 ) NO-ERROR.

@@ -2728,11 +2728,11 @@ FOR EACH report WHERE report.term-id EQ v-term,
     IF ssbolprint-log EQ YES THEN
     DO:
        RUN custom/setUserPrint.p (oe-bolh.company,'oe-boll_.',
-                                  'begin_cust,end_cust,begin_bol#,end_bol#,begin_ord#,end_ord#,tb_reprint,tb_posted,rd_bolcert',
+                                  'begin_cust,end_cust,begin_bol#,end_bol#,begin_ord#,end_ord#,tb_reprint,tb_posted,rd_bolcert,begin_date,end_date',
                                   oe-bolh.cust-no + ',' + oe-bolh.cust-no + ',' +
                                   STRING(oe-boll.bol-no) + ',' + STRING(oe-boll.bol-no) +
                                   ',,99999999,' + STRING(oe-bolh.printed) + ',' +
-                                  STRING(oe-bolh.posted) + ',BOL').
+                                  STRING(oe-bolh.posted) + ',BOL' + ',' + string(oe-bolh.bol-date) + ',' + string(oe-bolh.bol-date)).
       
        RUN listobjs/oe-boll_.w.
     END.

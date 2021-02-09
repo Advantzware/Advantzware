@@ -54,6 +54,17 @@ DEF VAR ldummy AS LOG NO-UNDO.
 DEF VAR cTextListToSelect AS cha NO-UNDO.
 DEF VAR cFieldListToSelect AS cha NO-UNDO.
 DEF VAR cTextListToDefault AS cha NO-UNDO.
+DEFINE VARIABLE lReplaceQuote AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lAddTab       AS LOGICAL NO-UNDO.
+DEFINE VARIABLE hdOutputProcs AS HANDLE  NO-UNDO.
+
+RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
+
+RUN Output_GetValueNK1OutputCSV IN hdOutputProcs(
+    INPUT  cocode,
+    OUTPUT lReplaceQuote,
+    OUTPUT lAddTab
+    ). 
 
 IF ipcIndustry EQ "2" THEN
   v-prgmname = v-prgmname + "C" .
@@ -375,6 +386,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd-fgexp rd-fgexp
 ON WINDOW-CLOSE OF FRAME rd-fgexp /* Export Raw Materials Inventory to Excel */
 DO:
+    IF VALID-HANDLE(hdOutputProcs) THEN  
+        DELETE PROCEDURE hdOutputProcs. 
   APPLY "END-ERROR":U TO SELF.
 END.
 
@@ -888,10 +901,15 @@ FOR EACH b-item WHERE b-item.company = cocode
         NO-LOCK:
 
     v-excel-detail-lines = "".
+    
+  
 
     FOR EACH ttRptSelected:
         cExcelVarValue = getValue-itemfg(BUFFER b-item,ttRptSelected.FieldList) .
-        v-excel-detail-lines = v-excel-detail-lines + quoter(cExcelVarValue) + ",".
+        
+        
+        
+        v-excel-detail-lines = v-excel-detail-lines + appendXLLine(cExcelVarValue).
 /*         CASE ttRptSelected.FieldList:                                                               */
 /*             WHEN "itemfg.i-no" THEN                                                                 */
 /*                 v-excel-detail-lines = v-excel-detail-lines + appendXLLine(itemfg.i-no).            */
@@ -1051,9 +1069,8 @@ FUNCTION appendXLLine RETURNS CHARACTER
     Notes:  Protects agains commans and quotes.
 ------------------------------------------------------------------------------*/
     DEF VAR lc-line AS CHAR NO-UNDO.
-
-    ipc-append = REPLACE(ipc-append, '"', '').
-    ipc-append = REPLACE(ipc-append, ',', ' ').
+    
+    ipc-append = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, ipc-append,lReplaceQuote,lAddTab).        
     lc-line = lc-line + '"' + ipc-append + '",'.
     RETURN lc-line.   /* Function return value. */
 

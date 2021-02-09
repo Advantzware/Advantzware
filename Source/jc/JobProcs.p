@@ -50,6 +50,48 @@ PROCEDURE CheckJobStatus:
 
 END PROCEDURE.
 
+PROCEDURE GetFormAndBlankFromJobAndFGItem:
+/*------------------------------------------------------------------------------
+ Purpose: Returns the list of form and blank no list for a given job and item
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcJobno       AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiJobno2      AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcItemID      AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcFormNoList  AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcBlankNoList AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-job     FOR job.
+    DEFINE BUFFER bf-job-hdr FOR job-hdr.
+
+    FOR EACH bf-job NO-LOCK
+        WHERE bf-job.company EQ ipcCompany
+          AND bf-job.job-no  EQ ipcJobno
+          AND bf-job.job-no2 EQ ipiJobno2,
+            EACH bf-job-hdr NO-LOCK
+            WHERE bf-job-hdr.company EQ bf-job.company
+              AND bf-job-hdr.job     EQ bf-job.job
+              AND bf-job-hdr.job-no  EQ bf-job.job-no
+              AND bf-job-hdr.job-no2 EQ bf-job.job-no2
+              AND bf-job-hdr.i-no    EQ ipcItemID
+              AND bf-job-hdr.opened  EQ TRUE:
+        ASSIGN
+            opcFormNoList  = STRING(bf-job-hdr.frm) + ","
+            opcBlankNoList = STRING(bf-job-hdr.blank-no) + ","
+            .
+    END.
+
+    ASSIGN
+        opcFormNoList  = TRIM(opcFormNoList, ",")
+        opcBlankNoList = TRIM(opcBlankNoList, ",")
+        .
+    
+    RELEASE bf-job.
+    RELEASE bf-job-hdr.
+
+END PROCEDURE.
+
 PROCEDURE Job_GetNextOperation:
     /*------------------------------------------------------------------------------
      Purpose: Returns machine code list for a given jobID
@@ -321,17 +363,19 @@ PROCEDURE GetFGItemForJob:
             WHERE bf-job-hdr.company EQ bf-job.company
               AND bf-job-hdr.job     EQ bf-job.job
               AND bf-job-hdr.job-no  EQ bf-job.job-no
-              AND bf-job-hdr.job-no2 EQ  bf-job.job-no2
-              AND bf-job-hdr.frm  EQ  ipiFormNo
-              AND (bf-job-hdr.blank-no EQ ipiBlankNo OR ipiBlankNo EQ 0):
-        opcFGItemList = IF opcFGItemList EQ "" THEN 
-                             STRING(bf-job-hdr.i-no)
-                         ELSE IF INDEX(opcFGItemList,STRING(bf-job-hdr.i-no)) GT 0 THEN
-                             opcFGItemList
-                         ELSE
-                             opcFGItemList + "," + STRING(bf-job-hdr.i-no).           
+              AND bf-job-hdr.job-no2 EQ  bf-job.job-no2:
+        /* Put the item first in the list if the job-hdr record's form and blank matching the input form and blank no */
+        IF bf-job-hdr.frm  EQ ipiFormNo AND bf-job-hdr.blank-no EQ ipiBlankNo THEN
+            ASSIGN
+                opcFGItemList = STRING(bf-job-hdr.i-no) + "," + TRIM(opcFGItemList, ",")
+                opcFGItemList = TRIM(opcFGItemList, ",")
+                .
+        ELSE    
+            opcFGItemList = opcFGItemList + "," + STRING(bf-job-hdr.i-no).           
     END.
 
+    opcFGItemList = TRIM(opcFGItemList, ",").
+    
     RELEASE bf-job.
     RELEASE bf-job-hdr.
 END PROCEDURE.
@@ -348,8 +392,25 @@ PROCEDURE GetRMItemsForJob:
     DEFINE INPUT  PARAMETER ipiBlankno      AS INTEGER   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcRMListItems  AS CHARACTER NO-UNDO.
 
+    DEFINE VARIABLE cSSIssueDefaultRM AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lRecFound         AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lFirstSelected    AS LOGICAL   NO-UNDO.
+    
     DEFINE BUFFER bf-job     FOR job.
     DEFINE BUFFER bf-job-mat FOR job-mat.
+    DEFINE BUFFER bf-item    FOR item.
+    
+    RUN sys/ref/nk1look.p (
+        INPUT ipcCompany,         /* Company Code */ 
+        INPUT "SSIssueDefaultRM", /* sys-ctrl name */
+        INPUT "C",                /* Output return value */
+        INPUT NO,                 /* Use ship-to */
+        INPUT NO,                 /* ship-to vendor */
+        INPUT "",                 /* ship-to vendor value */
+        INPUT "",                 /* shi-id value */
+        OUTPUT cSSIssueDefaultRM, 
+        OUTPUT lRecFound
+        ).
     
     FOR EACH bf-job NO-LOCK
         WHERE bf-job.company EQ ipcCompany
@@ -363,12 +424,29 @@ PROCEDURE GetRMItemsForJob:
               AND bf-job-mat.frm      EQ ipiFormno
               AND bf-job-mat.blank-no EQ ipiBlankno
               USE-INDEX seq-idx:
+        IF (cSSIssueDefaultRM EQ "First Board" OR cSSIssueDefaultRM EQ "First Item") AND NOT lFirstSelected THEN DO:
+            FIND FIRST bf-item NO-LOCK
+                 WHERE bf-item.company EQ ipcCompany
+                   AND bf-item.i-no    EQ bf-job-mat.rm-i-no
+                 NO-ERROR.
+            IF AVAILABLE bf-item AND bf-item.mat-type EQ "B" AND cSSIssueDefaultRM EQ "First Board" THEN
+                ASSIGN
+                    opcRMListItems = bf-job-mat.rm-i-no + "," + opcRMListItems
+                    lFirstSelected = TRUE
+                    .
+            ELSE IF AVAILABLE bf-item AND bf-item.mat-type NE "B" AND cSSIssueDefaultRM EQ "First Item" THEN
+                ASSIGN
+                    opcRMListItems = bf-job-mat.rm-i-no + "," + opcRMListItems
+                    lFirstSelected = TRUE
+                    .
+        END.
+
         opcRMListItems = IF opcRMListItems EQ "" THEN 
-                             STRING(bf-job-mat.rm-i-no)
-                         ELSE IF INDEX(opcRMListItems,STRING(bf-job-mat.rm-i-no)) GT 0 THEN
+                             bf-job-mat.rm-i-no
+                         ELSE IF INDEX(opcRMListItems, bf-job-mat.rm-i-no) GT 0 THEN
                              opcRMListItems
                          ELSE 
-                             opcRMListItems + "," + STRING(bf-job-mat.rm-i-no).           
+                             opcRMListItems + "," + bf-job-mat.rm-i-no.           
     END.
 
     RELEASE bf-job.

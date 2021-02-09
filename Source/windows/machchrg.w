@@ -135,8 +135,8 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          TITLE              = "Machine Assigned Charged Codes"
          HEIGHT             = 24.48
          WIDTH              = 125
-         MAX-HEIGHT         = 24.52
-         MAX-WIDTH          = 147
+         MAX-HEIGHT         = 320
+         MAX-WIDTH          = 320
          VIRTUAL-HEIGHT     = 24.52
          VIRTUAL-WIDTH      = 147
          RESIZE             = yes
@@ -308,7 +308,7 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/folder.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'FOLDER-LABELS = ':U + 'BrowseMachine|View Machine|Mach Sequence' + ',
+             INPUT  'FOLDER-LABELS = ':U + 'Browse|Detail|Sequence' + ',
                      FOLDER-TAB-TYPE = 2':U ,
              OUTPUT h_folder ).
        RUN set-position IN h_folder ( 3.14 , 2.00 ) NO-ERROR.

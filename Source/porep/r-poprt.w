@@ -712,6 +712,12 @@ DO:
            WHERE bff-po-ord.company EQ cocode
            AND bff-po-ord.po-no   EQ v-start-po
            NO-ERROR .
+           
+           IF bff-po-ord.priceHold THEN
+           DO:
+               MESSAGE "This PO on price Hold."  VIEW-AS ALERT-BOX INFO.
+               RETURN.
+           END.
 
            IF AVAIL bff-po-ord AND bff-po-ord.printed AND NOT v-reprint-po THEN do:
                MESSAGE "This PO has been printed - Do you want to reprint?"
@@ -733,25 +739,27 @@ DO:
         IF CAN-FIND(FIRST b1-po-ord WHERE  
                 b1-po-ord.company EQ cocode AND 
                     (b1-po-ord.stat    EQ "N" OR 
-                   b1-po-ord.stat    EQ "O" OR 
-                   b1-po-ord.stat    EQ "U" OR
+                   b1-po-ord.stat      EQ "O" OR 
+                   b1-po-ord.stat      EQ "U" OR
                   (tb_reprint-closed AND b1-po-ord.stat EQ "C"))
-              AND  b1-po-ord.printed EQ v-reprint-po
-              AND  b1-po-ord.po-no   GE v-start-po
-              AND  b1-po-ord.po-no   LE v-end-po
-              AND  b1-po-ord.vend-no GE begin_vend-no
-              AND  b1-po-ord.vend-no LE end_vend-no) THEN
+              AND  b1-po-ord.priceHold EQ NO    
+              AND  b1-po-ord.printed   EQ v-reprint-po
+              AND  b1-po-ord.po-no     GE v-start-po
+              AND  b1-po-ord.po-no     LE v-end-po
+              AND  b1-po-ord.vend-no   GE begin_vend-no
+              AND  b1-po-ord.vend-no   LE end_vend-no) THEN
         FOR EACH  b1-po-ord /* FIELDS(vend-no company) */
-                WHERE  b1-po-ord.company EQ cocode
-                  AND (b1-po-ord.stat    EQ "N" OR 
-                       b1-po-ord.stat    EQ "O" OR 
-                       b1-po-ord.stat    EQ "U" OR
+                WHERE  b1-po-ord.company   EQ cocode
+                  AND (b1-po-ord.stat      EQ "N" OR 
+                       b1-po-ord.stat      EQ "O" OR 
+                       b1-po-ord.stat      EQ "U" OR
                       (tb_reprint-closed AND b1-po-ord.stat EQ "C"))
-                  AND  b1-po-ord.printed EQ v-reprint-po
-                  AND  b1-po-ord.po-no   GE v-start-po
-                  AND  b1-po-ord.po-no   LE v-end-po
-                  AND  b1-po-ord.vend-no GE begin_vend-no
-                  AND  b1-po-ord.vend-no LE end_vend-no
+                  AND  b1-po-ord.priceHold EQ NO    
+                  AND  b1-po-ord.printed   EQ v-reprint-po
+                  AND  b1-po-ord.po-no     GE v-start-po
+                  AND  b1-po-ord.po-no     LE v-end-po
+                  AND  b1-po-ord.vend-no   GE begin_vend-no
+                  AND  b1-po-ord.vend-no   LE end_vend-no
               NO-LOCK
              BREAK BY b1-po-ord.company
                    BY b1-po-ord.vend-no
@@ -788,10 +796,7 @@ DO:
                            RUN GenerateReport(b1-po-ord.vend-no, b1-po-ord.vend-no) .                                                        
                     END. /* first-of(po-no) */
                     IF LAST-OF (b1-po-ord.vend-no) THEN
-                    DO:
-                       IF tb_print-loadtag AND iPOLoadtagInt EQ 1 THEN
-                       lCheckEmailPo = NO .
-                       IF lCheckEmailPo THEN
+                    DO:                      
                        RUN GenerateMail(NO,"") .
                     END.   
                 END.  /* rd-dest EQ 5 */
@@ -805,25 +810,27 @@ DO:
         IF CAN-FIND(FIRST b1-po-ord WHERE  
                 b1-po-ord.company EQ cocode AND 
                     (b1-po-ord.stat    EQ "N" OR 
-                   b1-po-ord.stat    EQ "O" OR 
-                   b1-po-ord.stat    EQ "U" OR
+                   b1-po-ord.stat      EQ "O" OR 
+                   b1-po-ord.stat      EQ "U" OR
                   (tb_reprint-closed AND b1-po-ord.stat EQ "C"))
-              AND  b1-po-ord.printed EQ v-reprint-po
-              AND  b1-po-ord.po-no   GE v-start-po
-              AND  b1-po-ord.po-no   LE v-end-po
-              AND  b1-po-ord.vend-no GE begin_vend-no
-              AND  b1-po-ord.vend-no LE end_vend-no) THEN
-        FOR EACH  b1-po-ord /* FIELDS(vend-no company) */
-                WHERE  b1-po-ord.company EQ cocode
-                  AND (b1-po-ord.stat    EQ "N" OR 
-                       b1-po-ord.stat    EQ "O" OR 
-                       b1-po-ord.stat    EQ "U" OR
+              AND  b1-po-ord.priceHold EQ NO
+              AND  b1-po-ord.printed   EQ v-reprint-po
+              AND  b1-po-ord.po-no     GE v-start-po
+              AND  b1-po-ord.po-no     LE v-end-po
+              AND  b1-po-ord.vend-no   GE begin_vend-no
+              AND  b1-po-ord.vend-no   LE end_vend-no) THEN
+        FOR EACH b1-po-ord /* FIELDS(vend-no company) */
+                WHERE  b1-po-ord.company   EQ cocode
+                  AND (b1-po-ord.stat      EQ "N" OR 
+                       b1-po-ord.stat      EQ "O" OR 
+                       b1-po-ord.stat      EQ "U" OR
                       (tb_reprint-closed AND b1-po-ord.stat EQ "C"))
-                  AND  b1-po-ord.printed EQ v-reprint-po
-                  AND  b1-po-ord.po-no   GE v-start-po
-                  AND  b1-po-ord.po-no   LE v-end-po
-                  AND  b1-po-ord.vend-no GE begin_vend-no
-                  AND  b1-po-ord.vend-no LE end_vend-no
+                  AND  b1-po-ord.priceHold EQ NO    
+                  AND  b1-po-ord.printed   EQ v-reprint-po
+                  AND  b1-po-ord.po-no     GE v-start-po
+                  AND  b1-po-ord.po-no     LE v-end-po
+                  AND  b1-po-ord.vend-no   GE begin_vend-no
+                  AND  b1-po-ord.vend-no   LE end_vend-no
               NO-LOCK
              BREAK BY b1-po-ord.company
                    BY b1-po-ord.vend-no
@@ -849,10 +856,7 @@ DO:
                                         
                 END. /* first-of(po-no) */
                 IF LAST-OF (b1-po-ord.vend-no)  THEN
-                DO:
-                   IF tb_print-loadtag AND iPOLoadtagInt EQ 1 THEN
-                       lCheckEmailPo = NO .
-                   IF lCheckEmailPo THEN
+                DO:                   
                    RUN GenerateMail(NO,"") .               
                 END.
             END.  /* rd-dest EQ 5 */
@@ -864,17 +868,17 @@ DO:
  
     END.  /* NOT vendor-specific formst */
     
-    IF tb_print-loadtag AND (iPOLoadtagInt EQ 1 OR iPOLoadtagInt EQ 2 ) THEN
+    IF tb_print-loadtag AND (iPOLoadtagInt EQ 1 OR iPOLoadtagInt EQ 2) THEN
     DO:
-        PAUSE 1.           
+        PAUSE 1. 
+        cPdfFilesAttach = "".
         FOR EACH tt-report BREAK BY tt-report.key-01 BY  tt-report.key-02:
-          IF iPOLoadtagInt NE 1 THEN
-          cPdfFilesAttach = "" .
+          
           IF FIRST-OF (tt-report.key-02) THEN DO:                      
              RUN run-report-loadtag(tt-report.key-02,tt-report.key-01) . 
              RUN GenerateReportTag(tt-report.key-01, tt-report.key-01) .
           END. /* first-of(po-no) */
-          IF LAST-OF (tt-report.key-01) AND (iPOLoadtagInt EQ 1 OR (iPOLoadtagInt EQ 2 AND rd-dest EQ 5 )) THEN
+          IF LAST-OF (tt-report.key-01) AND ((iPOLoadtagInt EQ 2 OR iPOLoadtagInt EQ 1) AND rd-dest EQ 5 ) THEN
              RUN GenerateMail(YES,tt-report.key-03) .
            
           DELETE tt-report .
@@ -1475,7 +1479,7 @@ PROCEDURE GenerateMail :
       END.
     END.
 
-    IF is-xprint-form OR v-print-fmt = "southpak-xl" OR (iPOLoadtagInt EQ 2 OR tb_print-loadtag) THEN DO:
+    IF is-xprint-form OR v-print-fmt = "southpak-xl" OR ((iPOLoadtagInt EQ 2 OR iPOLoadtagInt EQ 1) AND tb_print-loadtag) THEN DO:
       
       /* gdm - 11190804 */
       IF (LOOKUP(v-print-fmt,"Xprint,poprint 1,poprint 10,Altex,McLean,LancoYork,StClair,Boss,Hughes,PeachTree,FibreX,Lovepac,POPrint10-CAN,POPrint-CAN2,Protagon") > 0 
@@ -1493,16 +1497,12 @@ PROCEDURE GenerateMail :
               . 
        cMailId = "Vendor" .       
        IF iplLoadtagMail THEN DO:
-          IF iPOLoadtagInt EQ 2 AND rd-dest = 5 then
+          IF (iPOLoadtagInt EQ 2 OR iPOLoadtagInt EQ 1) AND rd-dest = 5 then               
              ASSIGN                 
-              lcSubject = "PO Load Tag(s) Attached"
-              cMailId = "Loc" .
-          ELSE
-             ASSIGN                 
-              lcSubject = "Purchase Orders: " + STRING(cPoMailList)  + ", PO Load Tag(s) Attached"
+              lcSubject = " PO Load Tag(s) Attached"
               cMailId = "Loc" .
        END.
-              
+             
       RUN custom/xpmail2.p   (INPUT   cMailId,
                               INPUT   'R-POPRT.',
                               INPUT   cPdfFilesAttach,
@@ -1917,6 +1917,12 @@ PROCEDURE pRunFormatValueChanged :
         ASSIGN
             lines-per-page              = li-lineperpage
             lines-per-page:SCREEN-VALUE = STRING(li-lineperpage).
+        IF iPOLoadtagInt EQ 0 THEN
+        DO:
+          ASSIGN
+            tb_print-loadtag:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "No"
+            tb_print-loadtag:SENSITIVE IN FRAME {&FRAME-NAME} = NO. 
+        END.
             
     END.
 END PROCEDURE.
@@ -2322,21 +2328,14 @@ PROCEDURE run-report-loadtag :
   lv-pdf-file = init-dir + "\POLoadtag_" + string(icPoNo) + "_1" NO-ERROR.     
       
       CASE rd-dest:
-          WHEN 1 THEN do:
-            IF iPOLoadtagInt EQ 1 THEN
-               PUT "<PREVIEW><FORMAT=LETTER></PROGRESS><PDF-LEFT=5mm><PDF-TOP=10mm><PDF-OUTPUT=" + lv-pdf-file  + ".pdf>" FORM "x(180)".
-            ELSE IF iPOLoadtagInt EQ 2 THEN  
+          WHEN 1 THEN do:              
             PUT  "<PRINTER?></PROGRESS>".
           END.
-          WHEN 2 THEN do:
-            IF iPOLoadtagInt EQ 1 THEN
-               PUT "<PREVIEW><FORMAT=LETTER></PROGRESS><PDF-LEFT=5mm><PDF-TOP=10mm><PDF-OUTPUT=" + lv-pdf-file  + ".pdf>" FORM "x(180)".
-            ELSE IF iPOLoadtagInt EQ 2 THEN do:
-              IF NOT lBussFormModle THEN
-                PUT "<PREVIEW><MODAL=NO></PROGRESS>".     
-              ELSE
-                PUT "<PREVIEW></PROGRESS>".
-            END.    
+          WHEN 2 THEN do:             
+            IF NOT lBussFormModle THEN
+               PUT "<PREVIEW><MODAL=NO></PROGRESS>".     
+            ELSE
+               PUT "<PREVIEW></PROGRESS>".               
           END.          
           WHEN 4 THEN DO:
               ls-fax-file = "c:\tmp\fax" + STRING(TIME) + ".tif".
@@ -2344,8 +2343,9 @@ PROCEDURE run-report-loadtag :
               PUT UNFORMATTED "<PRINTER?><EXPORT=" Ls-fax-file ",BW></PROGRESS>".
           END.
           WHEN 5 OR WHEN 6 THEN DO:
-              IF iPOLoadtagInt EQ 1 OR iPOLoadtagInt EQ 2 THEN
+              IF (iPOLoadtagInt EQ 2 OR iPOLoadtagInt EQ 1) THEN
               PUT "<PREVIEW><FORMAT=LETTER></PROGRESS><PDF-LEFT=5mm><PDF-TOP=10mm><PDF-OUTPUT=" + lv-pdf-file  + ".pdf>" FORM "x(180)".
+              ELSE PUT "<PREVIEW></PROGRESS>".
           END.
       END CASE.
       
@@ -2383,25 +2383,13 @@ PROCEDURE GenerateReportTag :
   IF v-print-fmt <> "southpak-xl" THEN
   DO WITH FRAME {&FRAME-NAME}: 
      CASE rd-dest:
-       WHEN 1 THEN do:
-         IF iPOLoadtagInt EQ 1 THEN DO:
-           RUN pRunxPrint.         
-         END.
-         ELSE IF iPOLoadtagInt EQ 2 THEN
+       WHEN 1 THEN do:          
          RUN output-to-printer.
        END.
-       WHEN 2 THEN do:
-          IF iPOLoadtagInt EQ 1  THEN DO:
-            RUN pRunxPrint. 
-          END.
-          ELSE IF iPOLoadtagInt EQ 2 THEN
+       WHEN 2 THEN do:           
           RUN output-to-screen.
        END.
-       WHEN 3 THEN do:
-          IF iPOLoadtagInt EQ 1 THEN DO:
-            RUN pRunxPrint. 
-          END.
-          ELSE IF iPOLoadtagInt EQ 2 THEN
+       WHEN 3 THEN do:          
           RUN output-to-file.
        END.
        WHEN 4 THEN DO:
@@ -2425,15 +2413,13 @@ PROCEDURE GenerateReportTag :
                                 &fax-file     = list-name}
            END.
        END. 
-       WHEN 5 THEN do:           
-          RUN pRunxPrint.           
+       WHEN 5 THEN do:
+          IF (iPOLoadtagInt EQ 2 OR iPOLoadtagInt EQ 1 ) THEN 
+          RUN pRunxPrint.
+          ELSE RUN output-to-screen.           
        END.
 
-       WHEN 6 THEN do:
-          IF iPOLoadtagInt EQ 1 THEN DO:
-            RUN pRunxPrint. 
-          END.
-          ELSE IF iPOLoadtagInt EQ 2 THEN
+       WHEN 6 THEN do:            
           RUN output-to-port.
        END.
     END CASE.     

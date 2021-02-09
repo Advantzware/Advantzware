@@ -81,7 +81,8 @@ iUserSecurityLevel = DYNAMIC-FUNCTION("sfUserSecurityLevel").
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnExit RECT-1 RECT-OPTIONS 
+&Scoped-Define ENABLED-OBJECTS btnTaskerHTML RECT-1 RECT-OPTIONS RECT-2 ~
+RECT-3 btnExit 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -119,7 +120,7 @@ DEFINE BUTTON btnCSV
      IMAGE-UP FILE "Graphics/32x32/spreadsheet_sum.png":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/spreadsheet_sum_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
-     SIZE 8 BY 1.9 TOOLTIP "Excel CSV".
+     SIZE 8 BY 1.91 TOOLTIP "Excel CSV".
 
 DEFINE BUTTON btnDeleteTask 
      IMAGE-UP FILE "Graphics/32x32/garbage_can.png":U
@@ -131,7 +132,7 @@ DEFINE BUTTON btnDOCX
      IMAGE-UP FILE "Graphics/32x32/docx.png":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/docx_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
-     SIZE 8 BY 1.9 TOOLTIP "Word DOCX".
+     SIZE 8 BY 1.91 TOOLTIP "Word DOCX".
 
 DEFINE BUTTON btnExit 
      IMAGE-UP FILE "Graphics/32x32/exit_white.png":U NO-FOCUS FLAT-BUTTON
@@ -148,13 +149,13 @@ DEFINE BUTTON btnHTML
      IMAGE-UP FILE "Graphics/32x32/html_tag.png":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/html_tag_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
-     SIZE 8 BY 1.9 TOOLTIP "HTML".
+     SIZE 8 BY 1.91 TOOLTIP "HTML".
 
 DEFINE BUTTON btnLocalCSV 
      IMAGE-UP FILE "Graphics/32x32/csv.png":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/csv_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "csv" 
-     SIZE 8 BY 1.9 TOOLTIP "Local Excel CSV".
+     SIZE 8 BY 1.91 TOOLTIP "Local Excel CSV".
 
 DEFINE BUTTON btnPageFormat 
      IMAGE-UP FILE "Graphics/32x32/document_gear.png":U
@@ -166,25 +167,19 @@ DEFINE BUTTON btnPDF
      IMAGE-UP FILE "Graphics/32x32/pdf.png":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/pdf_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
-     SIZE 8 BY 1.9 TOOLTIP "PDF".
+     SIZE 8 BY 1.91 TOOLTIP "PDF".
 
 DEFINE BUTTON btnPrint 
      IMAGE-UP FILE "Graphics/32x32/print_new.png":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/printer_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
-     SIZE 8 BY 1.9 TOOLTIP "Printer".
+     SIZE 8 BY 1.91 TOOLTIP "Printer".
 
 DEFINE BUTTON btnRunResults 
      IMAGE-UP FILE "Graphics/32x32/table.png":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/table_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Results Grid" 
-     SIZE 8 BY 1.9 TOOLTIP "Results Grid".
-
-DEFINE BUTTON btnSave 
-     IMAGE-UP FILE "Graphics/32x32/floppy_disk.png":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/floppy_disk_disabled.png":U NO-FOCUS FLAT-BUTTON
-     LABEL "Save" 
-     SIZE 8 BY 1.91 TOOLTIP "Save".
+     SIZE 8 BY 1.91 TOOLTIP "Results Grid".
 
 DEFINE BUTTON btnSaveAs 
      IMAGE-UP FILE "Graphics/32x32/floppy_disks.png":U
@@ -204,19 +199,34 @@ DEFINE BUTTON btnSubjctAttr
      LABEL "Subject Attributes" 
      SIZE 8 BY 1.91 TOOLTIP "Set External Form".
 
+DEFINE BUTTON btnTaskerHTML 
+     IMAGE-UP FILE "Graphics/32x32/folder.png":U NO-FOCUS FLAT-BUTTON
+     LABEL "" 
+     SIZE 8 BY 1.91 TOOLTIP "Tasker HTML Page".
+
 DEFINE BUTTON btnView 
      IMAGE-UP FILE "Graphics/32x32/jss_icon.png":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/jss_icon_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
-     SIZE 8 BY 1.9 TOOLTIP "Jasper Viewer".
+     SIZE 8 BY 1.91 TOOLTIP "Jasper Viewer".
 
 DEFINE BUTTON btnXLS 
      IMAGE-UP FILE "Graphics/32x32/xls.png":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/xls_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
-     SIZE 8 BY 1.9 TOOLTIP "Excel XLS".
+     SIZE 8 BY 1.91 TOOLTIP "Excel XLS".
 
 DEFINE RECTANGLE RECT-1
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
+     SIZE .2 BY 2.1
+     BGCOLOR 15 FGCOLOR 15 .
+
+DEFINE RECTANGLE RECT-2
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
+     SIZE .2 BY 2.1
+     BGCOLOR 15 FGCOLOR 15 .
+
+DEFINE RECTANGLE RECT-3
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
      SIZE .2 BY 2.1
      BGCOLOR 15 FGCOLOR 15 .
@@ -230,42 +240,44 @@ DEFINE RECTANGLE RECT-OPTIONS
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     btnCSV AT ROW 1.24 COL 86 HELP
+     btnTaskerHTML AT ROW 1.24 COL 49 HELP
+          "Tasker HTML Page" WIDGET-ID 680
+     btnCSV AT ROW 1.24 COL 93 HELP
           "Excel CSV" WIDGET-ID 140
-     btnDOCX AT ROW 1.24 COL 102 HELP
+     btnDOCX AT ROW 1.24 COL 109 HELP
           "Word DOCX" WIDGET-ID 142
-     btnHTML AT ROW 1.24 COL 118 HELP
+     btnHTML AT ROW 1.24 COL 125 HELP
           "HTML" WIDGET-ID 144
-     btnLocalCSV AT ROW 1.24 COL 78 HELP
+     btnLocalCSV AT ROW 1.24 COL 85 HELP
           "Local Excel CSV" WIDGET-ID 656
-     btnPDF AT ROW 1.24 COL 110 HELP
+     btnPDF AT ROW 1.24 COL 117 HELP
           "PDF" WIDGET-ID 146
-     btnPrint AT ROW 1.24 COL 126 HELP
+     btnPrint AT ROW 1.24 COL 133 HELP
           "Printer" WIDGET-ID 644
-     btnRunResults AT ROW 1.24 COL 70 HELP
+     btnRunResults AT ROW 1.24 COL 77 HELP
           "Results Grid" WIDGET-ID 254
-     btnView AT ROW 1.24 COL 134 HELP
+     btnView AT ROW 1.24 COL 141 HELP
           "Jasper Viewer" WIDGET-ID 148
-     btnXLS AT ROW 1.24 COL 94 HELP
+     btnXLS AT ROW 1.24 COL 101 HELP
           "Excel XLS" WIDGET-ID 150
      btnExit AT ROW 1.24 COL 152 HELP
           "Exit" WIDGET-ID 288
-     btnPageFormat AT ROW 1.24 COL 58 HELP
+     btnPageFormat AT ROW 1.24 COL 65 HELP
           "Page Format" WIDGET-ID 652
-     btnSave AT ROW 1.24 COL 2 HELP
-          "Save" WIDGET-ID 248
-     btnSaveAs AT ROW 1.24 COL 10 HELP
+     btnSaveAs AT ROW 1.24 COL 2 HELP
           "Save As" WIDGET-ID 674
-     btnScheduleTask AT ROW 1.24 COL 18 HELP
+     btnScheduleTask AT ROW 1.24 COL 10 HELP
           "Schedule Task" WIDGET-ID 252
-     btnFavorite AT ROW 1.24 COL 42 HELP
+     btnFavorite AT ROW 1.24 COL 34 HELP
           "Favorite" WIDGET-ID 672
-     btnDeleteTask AT ROW 1.24 COL 34 HELP
+     btnDeleteTask AT ROW 1.24 COL 26 HELP
           "Delete Task" WIDGET-ID 260
-     btnSubjctAttr AT ROW 1.24 COL 26 HELP
+     btnSubjctAttr AT ROW 1.24 COL 18 HELP
           "Set Subject Attributes" WIDGET-ID 286
-     RECT-1 AT ROW 1.24 COL 51
+     RECT-1 AT ROW 1.24 COL 43
      RECT-OPTIONS AT ROW 1.24 COL 151
+     RECT-2 AT ROW 1.24 COL 63 WIDGET-ID 676
+     RECT-3 AT ROW 1.24 COL 75 WIDGET-ID 678
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -279,7 +291,7 @@ DEFINE FRAME F-Main
 /* Settings for THIS-PROCEDURE
    Type: SmartWindow
    Allow: Basic,Browse,DB-Fields,Query,Smart,Window
-   Design Page: 3
+   Design Page: 1
    Other Settings: COMPILE
  */
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS
@@ -381,8 +393,6 @@ ASSIGN
        btnRunResults:PRIVATE-DATA IN FRAME F-Main     = 
                 "Grid".
 
-/* SETTINGS FOR BUTTON btnSave IN FRAME F-Main
-   NO-ENABLE                                                            */
 /* SETTINGS FOR BUTTON btnSaveAs IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR BUTTON btnScheduleTask IN FRAME F-Main
@@ -574,18 +584,6 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btnSave
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnSave W-Win
-ON CHOOSE OF btnSave IN FRAME F-Main /* Save */
-DO:
-    RUN pSave IN h_userparam.
-    RUN pSave IN h_usercols.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &Scoped-define SELF-NAME btnSaveAs
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnSaveAs W-Win
 ON CHOOSE OF btnSaveAs IN FRAME F-Main /* Save As */
@@ -614,6 +612,17 @@ END.
 ON CHOOSE OF btnSubjctAttr IN FRAME F-Main /* Subject Attributes */
 DO:
     RUN pAttribute IN h_usertasks.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnTaskerHTML
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnTaskerHTML W-Win
+ON CHOOSE OF btnTaskerHTML IN FRAME F-Main
+DO:
+    RUN pTaskerHTML.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -650,12 +659,13 @@ END.
 /* ***************************  Main Block  *************************** */
 
 &Scoped-define mFileItems ~
-MENU-ITEM m_Save LABEL "Save" ~
 MENU-ITEM m_SaveAs LABEL "Save As" ~
 MENU-ITEM m_ScheduleTask LABEL "Schedule" ~
 MENU-ITEM m_SubjctAttr LABEL "Attributes" ~
 MENU-ITEM m_DeleteTask LABEL "Delete" ~
 MENU-ITEM m_Favorite LABEL "Favorite" ~
+RULE ~
+MENU-ITEM m_TaskerHTML LABEL "User Tasks Page" ~
 RULE
 
 &Scoped-define mOptionsItems ~
@@ -676,10 +686,6 @@ DEFINE SUB-MENU m_Options ~
     .
 
 &Scoped-define mOptionsTriggers ~
-ON CHOOSE OF MENU-ITEM m_Save ~
-DO: ~
-    APPLY "CHOOSE":U TO btnSave IN FRAME {&FRAME-NAME}. ~
-END. ~
 ON CHOOSE OF MENU-ITEM m_SaveAs ~
 DO: ~
     APPLY "CHOOSE":U TO btnSaveAs IN FRAME {&FRAME-NAME}. ~
@@ -699,6 +705,10 @@ END. ~
 ON CHOOSE OF MENU-ITEM m_Favorite ~
 DO: ~
     APPLY "CHOOSE":U TO btnFavorite IN FRAME {&FRAME-NAME}. ~
+END. ~
+ON CHOOSE OF MENU-ITEM m_TaskerHTML ~
+DO: ~
+    APPLY "CHOOSE":U TO btnTaskerHTML IN FRAME {&FRAME-NAME}. ~
 END. ~
 ON CHOOSE OF MENU-ITEM m_RunResults ~
 DO: ~
@@ -770,7 +780,7 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/folder.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'FOLDER-LABELS = ':U + 'Tasks|Parameters|Columns' + ',
+             INPUT  'FOLDER-LABELS = ':U + 'Browse|Params|Columns' + ',
                      FOLDER-TAB-TYPE = 2':U ,
              OUTPUT h_folder ).
        RUN set-position IN h_folder ( 3.52 , 1.00 ) NO-ERROR.
@@ -879,7 +889,7 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  ENABLE btnExit RECT-1 RECT-OPTIONS 
+  ENABLE btnTaskerHTML RECT-1 RECT-OPTIONS RECT-2 RECT-3 btnExit 
       WITH FRAME F-Main IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-F-Main}
   VIEW W-Win.
@@ -887,9 +897,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable W-Win 
 PROCEDURE local-enable :
@@ -1132,9 +1139,9 @@ PROCEDURE pSetButtons :
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER iplAvailable    AS LOGICAL   NO-UNDO.
-    DEFINE INPUT PARAMETER ipcUserID       AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER iplFavorite     AS LOGICAL   NO-UNDO.
+    DEFINE INPUT PARAMETER iplAvailable AS LOGICAL   NO-UNDO.
+    DEFINE INPUT PARAMETER ipcUserID    AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER iplFavorite  AS LOGICAL   NO-UNDO.
 
     IF iplAvailable THEN DO:
         RUN enable-folder-page IN h_folder (2).
@@ -1162,7 +1169,6 @@ PROCEDURE pSetButtons :
             iplAvailable              = iplAvailable AND ipcUserID EQ USERID("ASI")
             btnDeleteTask:SENSITIVE   = iplAvailable
             btnFavorite:SENSITIVE     = iplAvailable
-            btnSave:SENSITIVE         = iplAvailable
             btnSubjctAttr:SENSITIVE   = iplAvailable
             MENU-ITEM m_SubjctAttr:SENSITIVE   IN MENU MENU-BAR-{&WINDOW-NAME} = btnSubjctAttr:SENSITIVE
             MENU-ITEM m_CSV:SENSITIVE          IN MENU MENU-BAR-{&WINDOW-NAME} = btnCSV:SENSITIVE
@@ -1175,7 +1181,6 @@ PROCEDURE pSetButtons :
             MENU-ITEM m_PDF:SENSITIVE          IN MENU MENU-BAR-{&WINDOW-NAME} = btnPDF:SENSITIVE
             MENU-ITEM m_Print:SENSITIVE        IN MENU MENU-BAR-{&WINDOW-NAME} = btnPrint:SENSITIVE
             MENU-ITEM m_RunResults:SENSITIVE   IN MENU MENU-BAR-{&WINDOW-NAME} = btnRunResults:SENSITIVE
-            MENU-ITEM m_Save:SENSITIVE         IN MENU MENU-BAR-{&WINDOW-NAME} = btnSave:SENSITIVE
             MENU-ITEM m_SaveAs:SENSITIVE       IN MENU MENU-BAR-{&WINDOW-NAME} = btnSaveAs:SENSITIVE
             MENU-ITEM m_ScheduleTask:SENSITIVE IN MENU MENU-BAR-{&WINDOW-NAME} = btnScheduleTask:SENSITIVE
             MENU-ITEM m_View:SENSITIVE         IN MENU MENU-BAR-{&WINDOW-NAME} = btnView:SENSITIVE
@@ -1203,6 +1208,30 @@ PROCEDURE pSetFavorite :
 
 END PROCEDURE.
 
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pTaskerHTML W-Win
+PROCEDURE pTaskerHTML:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cFile AS CHARACTER NO-UNDO.
+
+    FIND FIRST config NO-LOCK.
+    IF config.taskerHTMLFolder EQ "" THEN RETURN.
+    ASSIGN
+        cFile = config.taskerHTMLFolder + "\tasker-" + USERID("ASI") + ".htm"
+        cFile = IF SEARCH(cFile) NE ? THEN cFile ELSE REPLACE(cFile,USERID("ASI"),"ALL")
+        FILE-INFO:FILE-NAME = SEARCH(cFile)
+        cFile = FILE-INFO:FULL-PATHNAME
+        .
+    IF SEARCH(cFile) NE ? THEN
+    OS-COMMAND NO-WAIT start VALUE(cFile).
+
+END PROCEDURE.
+	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

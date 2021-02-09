@@ -920,7 +920,6 @@ PROCEDURE CtrlFrame.PSTimer.Tick .
     
     lSaveErrStat = ERROR-STATUS:ERROR.
     IF lViewTaskResults EQ YES OR lViewTaskResults EQ ? THEN DO:
-        RUN spRunCueCard ("Message", cCuePrgmName, hCueWindow, hCueFrame, lCueActive).
         FIND FIRST taskResult NO-LOCK
              WHERE taskResult.user-id EQ USERID("ASI")
                AND taskResult.viewed  EQ NO
@@ -941,6 +940,8 @@ PROCEDURE CtrlFrame.PSTimer.Tick .
             END. /* if lViewTaskResults eq ? */
         END. /* if avail */
     END.
+    ELSE
+    RUN spRunCueCard ("Message", cCuePrgmName, hCueWindow, hCueFrame, lCueActive).
     FIND FIRST config NO-LOCK.
     cStatusDefault = "Task Monitor Last Executed: " + STRING(config.taskerLastExecuted).
     IF config.taskerLastExecuted LT DATETIME(TODAY,TIME * 1000 - 15000) THEN DO:
@@ -1392,12 +1393,12 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       hFocus = svFocus:HANDLE
       .
     DISPLAY menuTreeMsg WITH FRAME menuTreeFrame.
-    RUN pBuildttMenuTree("file").
+    RUN pBuildttMenuTree ("{&parentName}").
     RUN pGetFavorites.
     RUN pLoadFavorites.
     menuTreeMsg:HIDDEN = YES.
     RUN pMenuSize.
-    RUN pDisplayMenuTree (FRAME menuTreeFrame:HANDLE, "file", YES, 1).
+    RUN pDisplayMenuTree (FRAME menuTreeFrame:HANDLE, "{&parentName}", YES, 1).
     {system/runCueCard.i}
     RUN sys/ref/nk1look.p (
         g_company,"DynTaskTicker","L",NO,NO,"","",
@@ -1526,17 +1527,17 @@ PROCEDURE pBuildttMenuTree :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcParentName AS CHARACTER NO-UNDO.
+
     DEFINE VARIABLE lActive AS LOGICAL NO-UNDO.
-    DEFINE INPUT PARAMETER ipcparentname AS CHARACTER.
-   // EMPTY TEMP-TABLE ttMenuTree.
 
     FOR EACH prgrms NO-LOCK
-        WHERE prgrms.menu_item EQ YES
-          AND prgrms.menuOrder GT 0
-          AND prgrms.menuLevel GT 0
-          AND prgrms.mnemonic  NE ""
+        WHERE prgrms.menu_item  EQ YES
+          AND prgrms.menuOrder  GT 0
+          AND prgrms.menuLevel  GT 0
+          AND prgrms.mnemonic   NE ""
           AND prgrms.securityLevelUser LE users.securityLevel
-          AND prgrms.itemParent = (IF ipcparentname = "file" THEN prgrms.itemParent ELSE ipcparentname) 
+          AND prgrms.itemParent EQ (IF ipcParentName EQ "{&parentName}" THEN prgrms.itemParent ELSE ipcParentName) 
         BY prgrms.menuOrder
         :
         IF cCEMenu EQ "Both" OR 
@@ -1559,19 +1560,18 @@ PROCEDURE pBuildttMenuTree :
                 cShowMnemonic,
                 cPositionMnemonic,
                 lActive,
-                ipcparentname 
+                ipcParentName 
                 ).
         END. /* if ccemenu */
     END. /* each prgrms */
     /* create an Exit option */
-    IF ipcparentname = "FILE" THEN
-    
+    IF ipcParentName EQ "{&parentName}" THEN    
     RUN pCreatettMenuTree (
         FRAME menuTreeFrame:HANDLE,
         9999,              /* order             */
         1,                 /* level             */
         NO,                /* is menu           */
-        "file",            /* parent            */
+        "{&parentName}",   /* parent            */
         "exit",            /* child             */
         "Exit",            /* text              */
         "logout.png",      /* image             */
@@ -1579,7 +1579,7 @@ PROCEDURE pBuildttMenuTree :
         cShowMnemonic,     /* show mnemonic     */
         cPositionMnemonic, /* position mnemonic */
         YES,               /* active            */
-        "file"
+        "{&parentName}"
         ).
 
 END PROCEDURE.
@@ -2277,7 +2277,7 @@ PROCEDURE pProcessClick :
         IF ttMenuTree.isMenu AND NOT ttMenuTree.isOpen THEN
         ASSIGN
             ttMenuTree.hEditor:FONT    = iFont
-            ttMenuTree.hEditor:BGCOLOR = iEditorBGColor
+            ttMenuTree.hEditor:BGCOLOR = {&DefaultMenuBGColor}
             ttMenuTree.hEditor:FGCOLOR = ?
             .
         ELSE
@@ -2329,9 +2329,9 @@ PROCEDURE pRebuildMenuTree :
     RUN LockWindowUpdate (ACTIVE-WINDOW:HWND,OUTPUT i).
     
     RUN pInitMenuTree.
-    RUN pBuildttMenuTree("file").
+    RUN pBuildttMenuTree ("{&parentName}").
     RUN pMenuSize.
-    RUN pDisplayMenuTree (FRAME menuTreeFrame:HANDLE, "file", YES, 1).
+    RUN pDisplayMenuTree (FRAME menuTreeFrame:HANDLE, "{&parentName}", YES, 1).
     RUN pGetFavorites.
     RUN pLoadFavorites.
     
@@ -2379,7 +2379,7 @@ PROCEDURE pReset :
     END. /* each ttmenutree */
     RUN pMenuSize.
     RUN pKeyPress (FRAME menuTreeFrame:HANDLE, 32).
-    RUN pDisplayMenuTree (FRAME menuTreeFrame:HANDLE, "file", YES, 1).
+    RUN pDisplayMenuTree (FRAME menuTreeFrame:HANDLE, "{&parentName}", YES, 1).
     RUN pLoadFavorites.
     APPLY "VALUE-CHANGED":U TO menuTreeFilter IN FRAME searchFrame.
 
@@ -2638,7 +2638,7 @@ PROCEDURE pWinReSize :
         VIEW FRAME menuTreeFrame.
     END. /* do with */
     RUN pKeyPress (FRAME menuTreeFrame:HANDLE, 32).
-    RUN pDisplayMenuTree (FRAME menuTreeFrame:HANDLE, "file", YES, 1).
+    RUN pDisplayMenuTree (FRAME menuTreeFrame:HANDLE, "{&parentName}", YES, 1).
     VIEW FRAME searchFrame.
 
     RUN LockWindowUpdate (0,OUTPUT i).

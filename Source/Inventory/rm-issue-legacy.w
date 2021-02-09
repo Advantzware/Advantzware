@@ -62,6 +62,9 @@ DEFINE VARIABLE iCount                  AS INTEGER   NO-UNDO.
 DEFINE VARIABLE cValidateJobno          AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFilterBy               AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lAutoPost               AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cSSIssueDefaultRM       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hdQuantityColumnLabel   AS HANDLE    NO-UNDO.
+DEFINE VARIABLE iWarehouseLength        AS INTEGER   NO-UNDO.
 
 {system/sysconst.i}
 {Inventory/ttInventory.i "NEW SHARED"}
@@ -604,8 +607,8 @@ DO:
     IF VALID-HANDLE(hdJobDetailsWin) THEN
         APPLY "WINDOW-CLOSE" TO hdJobDetailsWin.
 
-    IF VALID-HANDLE(hdJobDetails) THEN
-        DELETE OBJECT hdInventoryProcs.
+    IF VALID-HANDLE(hdInventoryProcs) THEN
+        DELETE PROCEDURE hdInventoryProcs.
     
     APPLY "CLOSE":U TO THIS-PROCEDURE.
     
@@ -1405,11 +1408,20 @@ PROCEDURE pHighlightSelection :
     
     CASE ipcFilterType:
         WHEN gcStatusStockReceived THEN
-            rSelected:COL = btTotal:COL - 1.
+            ASSIGN
+                rSelected:COL               = btTotal:COL - 1
+                hdQuantityColumnLabel:LABEL = "Qty On-Hand"
+                .
         WHEN gcStatusStockConsumed THEN
-            rSelected:COL = btConsumed:COL - 1.
+            ASSIGN
+                rSelected:COL               = btConsumed:COL - 1
+                hdQuantityColumnLabel:LABEL = "Qty Issued"
+                .
         WHEN gcStatusStockScanned THEN
-            rSelected:COL = btScanned:COL - 1.    
+            ASSIGN
+                rSelected:COL               = btScanned:COL - 1
+                hdQuantityColumnLabel:LABEL = "Qty Scanned"
+                .    
     END.
     
     {&OPEN-BROWSERS-IN-QUERY-F-Main}
@@ -1427,11 +1439,38 @@ PROCEDURE pInit :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE lSuccess AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lSuccess  AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE hdBrowse  AS HANDLE  NO-UNDO.
+    DEFINE VARIABLE iColumn   AS INTEGER NO-UNDO.
+    DEFINE VARIABLE hdColumn  AS HANDLE  NO-UNDO.
     
     DO WITH FRAME {&FRAME-NAME}:
     END.
-    
+ 
+    RUN sys/ref/nk1look.p (
+        INPUT cCompany,           /* Company Code */ 
+        INPUT "SSIssueDefaultRM", /* sys-ctrl name */
+        INPUT "C",                /* Output return value */
+        INPUT NO,                 /* Use ship-to */
+        INPUT NO,                 /* ship-to vendor */
+        INPUT "",                 /* ship-to vendor value */
+        INPUT "",                 /* shi-id value */
+        OUTPUT cSSIssueDefaultRM, 
+        OUTPUT lRecFound
+        ).
+
+    hdBrowse = BROWSE {&BROWSE-NAME}:HANDLE.
+
+    DO iColumn = 1 TO hdBrowse:NUM-COLUMNS :
+        hdColumn = hdBrowse:GET-BROWSE-COLUMN (iColumn).
+        
+        IF hdColumn:NAME EQ "quantity" THEN DO:
+            hdQuantityColumnLabel = hdColumn.
+            LEAVE.
+        END.
+    END.
+                    
     RUN inventory/InventoryProcs.p PERSISTENT SET hdInventoryProcs.
     RUN jc/JobProcs.p PERSISTENT SET hdJobProcs.
     
@@ -1441,6 +1480,10 @@ PROCEDURE pInit :
         {&WINDOW-NAME}:TITLE = {&WINDOW-NAME}:TITLE + " - {&awversion}" + " - " 
                              + STRING(company.name) + " - " + cLocation  .
     
+    RUN Inventory_GetWarehouseLength IN hdInventoryProcs (
+        INPUT  cCompany,
+        OUTPUT iWarehouseLength
+        ).
     IF lAutoPost THEN
         btPost:HIDDEN = TRUE.
         
@@ -1922,6 +1965,9 @@ PROCEDURE pUpdateRMItemList :
     
     cbRMItem:LIST-ITEMS IN FRAME {&FRAME-NAME} = cRMListitems.
 
+    IF cSSIssueDefaultRM NE "User Select" THEN
+        cbRMItem:SCREEN-VALUE = ENTRY(1, cRMListitems) NO-ERROR.
+        
     APPLY "VALUE-CHANGED" TO cbRMItem IN FRAME {&FRAME-NAME}.    
 END PROCEDURE.
 
@@ -1993,7 +2039,7 @@ FUNCTION fGetConcatLocationID RETURNS CHARACTER PRIVATE
 ------------------------------------------------------------------------------*/
 
     RETURN ttBrowseInventory.warehouseID + " " 
-           + FILL(" ", 5 - LENGTH(ttBrowseInventory.warehouseID)) 
+           + FILL(" ", iWarehouseLength - LENGTH(ttBrowseInventory.warehouseID)) 
            + ttBrowseInventory.locationID.
 
 END FUNCTION.

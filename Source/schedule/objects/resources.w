@@ -35,6 +35,7 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 
+DEFINE VARIABLE asiCompany AS CHARACTER NO-UNDO.
 DEFINE VARIABLE ID AS CHARACTER NO-UNDO {{&includes}/initID.i}.
 DEFINE VARIABLE boardType AS CHARACTER NO-UNDO.
 DEFINE VARIABLE containerHandle AS HANDLE NO-UNDO.
@@ -803,7 +804,8 @@ PROCEDURE getResources :
     IMPORT ^ resourceName.
     IF CAN-FIND(ttblAvail WHERE ttblAvail.resource EQ resourceName) OR  
         CAN-FIND(FIRST mach
-                 WHERE mach.m-code   EQ resourceName 
+                 WHERE mach.company  EQ asiCompany
+                   AND mach.m-code   EQ resourceName 
                    AND mach.obsolete EQ YES) THEN 
         NEXT.
     CREATE ttblAvail.
@@ -815,7 +817,8 @@ PROCEDURE getResources :
   REPEAT WITH FRAME {&FRAME-NAME}:
     IMPORT resourceName.
     IF CAN-FIND(FIRST mach
-                WHERE mach.m-code   EQ resourceName 
+                WHERE mach.company  EQ asiCompany
+                  AND mach.m-code   EQ resourceName 
                   AND mach.obsolete EQ YES) THEN 
         NEXT.
     CREATE ttblList.
@@ -832,7 +835,8 @@ PROCEDURE getResources :
   REPEAT WITH FRAME {&FRAME-NAME}:
     IMPORT resourceName priorityValue.
     IF CAN-FIND(FIRST mach
-                WHERE mach.m-code   EQ resourceName 
+                WHERE mach.company  EQ asiCompany
+                  AND mach.m-code   EQ resourceName 
                   AND mach.obsolete EQ YES) THEN 
         NEXT.
     CREATE priorityList.
@@ -873,6 +877,7 @@ PROCEDURE initResources :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  RUN spGetSessionParam ("Company", OUTPUT asiCompany).
   RUN ID.
   RUN getResources.
   IF boardType NE '{&Board}' THEN

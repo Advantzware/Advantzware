@@ -459,8 +459,6 @@ END.
   RUN initializeObject.
 &ENDIF
 
-{methods/template/brwcustom2.i}
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

@@ -35,6 +35,10 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 
+DEFINE VARIABLE hGLProcs AS HANDLE NO-UNDO.
+
+RUN system/GLProcs.p PERSISTENT SET hGLProcs.
+
 {custom/gcompany.i}
 {custom/format.i}
 
@@ -1205,6 +1209,26 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-cancel-record V-table-Win
+PROCEDURE local-cancel-record:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+    /* Code placed here will execute PRIOR to standard behavior. */
+    RUN presetColor(INPUT "") NO-ERROR.
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .   
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-create-record V-table-Win 
 PROCEDURE local-create-record :
 /*------------------------------------------------------------------------------
@@ -1224,6 +1248,27 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-reset-record V-table-Win
+PROCEDURE local-reset-record:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+    /* Code placed here will execute PRIOR to standard behavior. */
+    RUN presetColor(INPUT "") NO-ERROR.
+    
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'reset-record':U ) .
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record V-table-Win 
 PROCEDURE local-update-record :
@@ -1246,6 +1291,90 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pchangeColor V-table-Win
+PROCEDURE pchangeColor:
+/*------------------------------------------------------------------------------
+ Purpose: If GL Account is inactive then change the background color of fill-in.
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iphfieldHandle AS HANDLE NO-UNDO.
+    
+    DEFINE VARIABLE cfieldName AS CHARACTER NO-UNDO.
+    
+    IF VALID-HANDLE(iphfieldHandle) THEN DO:
+        cfieldName = "prod." + iphfieldHandle:NAME.
+        IF iphfieldHandle:TYPE      EQ "fill-in"   AND 
+           iphfieldHandle:DATA-TYPE EQ "CHARACTER" AND 
+           LOOKUP(cfieldName,"{&list-5}"," ") GT 0 THEN DO:
+            ASSIGN 
+                iphfieldHandle:BGCOLOR = 16
+                iphfieldHandle:FGCOLOR = 15
+                .                                    
+            APPLY "ENTRY" TO iphfieldHandle.
+        END.     
+    END.    
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE presetColor V-table-Win
+PROCEDURE presetColor:
+/*------------------------------------------------------------------------------
+ Purpose:    
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iphfieldHandle AS HANDLE NO-UNDO.
+
+    DEFINE VARIABLE hframeHandle AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE hgroupHandle AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE hfieldHandle AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE cfieldName   AS CHARACTER NO-UNDO.
+
+    ASSIGN 
+        hframeHandle = FRAME {&FRAME-NAME}:HANDLE
+        hgroupHandle = hframeHandle:FIRST-CHILD
+        hfieldHandle = hgroupHandle:FIRST-CHILD
+        .
+    IF VALID-HANDLE(iphfieldHandle) THEN DO:
+        cfieldName = "prod." + iphfieldHandle:NAME.
+        IF iphfieldHandle:TYPE      EQ "fill-in"   AND 
+           iphfieldHandle:DATA-TYPE EQ "CHARACTER" AND 
+           LOOKUP(cfieldName,"{&list-5}"," ") GT 0 THEN DO:            
+            IF iphfieldHandle:BGCOLOR EQ 16 THEN             
+               ASSIGN 
+                   iphfieldHandle:BGCOLOR = 15
+                   iphfieldHandle:FGCOLOR = ?
+                   .                 
+        END.       
+    END. 
+    ELSE DO:                
+        DO WHILE VALID-HANDLE(hfieldHandle):
+            cfieldName = "prod." + hfieldHandle:NAME.
+            IF hfieldHandle:TYPE      EQ "fill-in"   AND 
+                hfieldHandle:DATA-TYPE EQ "CHARACTER" AND 
+                LOOKUP(cfieldName,"{&list-5}"," ") GT 0 THEN           
+                IF hfieldHandle:BGCOLOR EQ 16 THEN             
+                    ASSIGN 
+                        hfieldHandle:BGCOLOR = 15
+                        hfieldHandle:FGCOLOR = ?
+                        .                     
+            hfieldHandle = hfieldHandle:NEXT-SIBLING.
+        END. 
+    END.                                                                                                                                                                                                                                               
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records V-table-Win  _ADM-SEND-RECORDS
 PROCEDURE send-records :
@@ -1296,10 +1425,12 @@ PROCEDURE validate-actall :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
- DEF VAR ii AS INT NO-UNDO.
  DEF VAR hd1 AS WIDGET-HANDLE NO-UNDO.
  DEF VAR hd2 AS WIDGET-HANDLE NO-UNDO.
  DEF VAR lv-fld AS cha NO-UNDO.
+ DEFINE VARIABLE lSuccess AS LOGICAL   NO-UNDO.
+ DEFINE VARIABLE lActive  AS LOGICAL   NO-UNDO.
+ DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
 
   {methods/lValidateError.i YES}
   /* ==== Corrugated item validation ======== */
@@ -1316,17 +1447,27 @@ PROCEDURE validate-actall :
            lookup(lv-fld,"{&list-5}"," ") > 0
            AND hd2:SCREEN-VALUE <> ""
         then do:
-            FIND FIRST account WHERE account.company = gcompany
-                        AND account.actnum = hd2:SCREEN-VALUE NO-LOCK NO-ERROR.
-            IF NOT AVAIL account OR
-               (AVAIL account AND account.TYPE = "T") THEN DO:
-               MESSAGE "Invalid GL Account. Try Help... " VIEW-AS ALERT-BOX ERROR.               
-               apply "entry" to hd2.
-               return error.
-            end.
-        END.
+            RUN GL_CheckGLAccount IN hGLProcs(
+                 INPUT  gcompany,
+                 INPUT  hd2:SCREEN-VALUE,            
+                 OUTPUT cMessage,
+                 OUTPUT lSuccess,
+                 OUTPUT lActive
+                 ). 
+            IF lSuccess = NO THEN DO:
+                MESSAGE cMessage VIEW-AS ALERT-BOX ERROR. 
+                RUN presetColor(INPUT hd2) NO-ERROR. 
+                RETURN ERROR.
+            END.  
+            IF lSuccess = YES AND lActive = NO THEN DO:
+                MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.   
+                RUN pchangeColor(INPUT hd2) NO-ERROR.
+                RETURN ERROR.                      
+            END.                         
+        END.  
+        RUN presetColor(INPUT hd2) NO-ERROR.       
         hd2 = hd2:next-sibling.
-     end.       
+     end.          
 
   {methods/lValidateError.i NO}
 END PROCEDURE.
@@ -1341,21 +1482,38 @@ PROCEDURE validate-actnum :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  {methods/lValidateError.i YES}
-    FIND FIRST account WHERE account.company = gcompany
-                         AND account.actnum = FOCUS:SCREEN-VALUE NO-LOCK NO-ERROR.
-    IF (NOT AVAIL account AND focus:SCREEN-VALUE <> "") or
-       (AVAIL account AND account.TYPE = "T") 
-    THEN DO:
-       MESSAGE "Invalid GL Account#. Try Help..." 
-             VIEW-AS ALERT-BOX ERROR.
-       APPLY "entry" TO SELF.
-       RETURN ERROR.
-    END.
+    DEFINE VARIABLE lSuccess AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lActive  AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+  
+    {methods/lValidateError.i YES}     
+     DO WITH FRAME {&FRAME-NAME}: 
+         IF FOCUS:SCREEN-VALUE NE "" THEN DO:
+             RUN GL_CheckGLAccount IN hGLProcs(
+                 INPUT  gcompany,
+                 INPUT  FOCUS:SCREEN-VALUE,            
+                 OUTPUT cMessage,
+                 OUTPUT lSuccess,
+                 OUTPUT lActive
+                 ).        
+        
+             IF lSuccess = NO THEN DO:
+                 MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.                                   
+                 RUN presetColor(INPUT FOCUS:HANDLE) NO-ERROR.
+                 RETURN ERROR.
+             END.  
+             IF lSuccess = YES AND lActive = NO THEN DO:
+                 MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.   
+                 RUN pchangeColor(INPUT FOCUS:HANDLE) NO-ERROR.
+                 RETURN ERROR.                      
+             END.               
+         END.
+         RUN presetColor(INPUT FOCUS:HANDLE) NO-ERROR .
+     END.  
 
   {methods/lValidateError.i NO}
 END PROCEDURE.
-
+    
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

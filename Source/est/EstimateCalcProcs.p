@@ -88,7 +88,8 @@ FUNCTION fGetNetSheetOut RETURNS INTEGER PRIVATE
     ipiDefaultOut AS INTEGER) FORWARD.
 
 FUNCTION fGetPartCount RETURNS DECIMAL PRIVATE
-    (ipiEstCostHeaderID AS INT64) FORWARD.
+    (ipcCompany AS CHARACTER,
+     ipcEstimateID AS CHARACTER) FORWARD.
 
 FUNCTION fGetProfit RETURNS DECIMAL PRIVATE
     (ipdCost AS DECIMAL,
@@ -457,10 +458,13 @@ PROCEDURE pAddEstBlank PRIVATE:
 
         /*Refactor - apply area UOM conversion*/
         opbf-estCostBlank.weightPerBlank          = ipbf-estCostForm.basisWeight * opbf-estCostBlank.blankAreaNetWindow / 144000 
+    
+        opbf-estCostBlank.quantityPerSet          = fGetQuantityPerSet(BUFFER ipbf-eb)
+        opbf-estCostBlank.quantityRequired        = (IF ipbf-estCostHeader.estType EQ gcTypeCombo THEN ipbf-eb.bl-qty ELSE ipbf-estCostHeader.quantityMaster) * opbf-estCostBlank.quantityPerSet 
+        opbf-estCostBlank.quantityYielded         = (IF ipbf-estCostHeader.estType EQ gcTypeCombo THEN ipbf-eb.yld-qty ELSE ipbf-estCostHeader.quantityMaster) * opbf-estCostBlank.quantityPerSet
         
-        opbf-estCostBlank.quantityRequired        = IF ipbf-estCostHeader.estType EQ gcTypeCombo THEN ipbf-eb.bl-qty ELSE ipbf-estCostHeader.quantityMaster
-        opbf-estCostBlank.quantityYielded         = IF ipbf-estCostHeader.estType EQ gcTypeCombo THEN ipbf-eb.yld-qty ELSE ipbf-estCostHeader.quantityMaster
         opbf-estCostBlank.priceBasedOnYield       = ipbf-eb.yrprice AND ipbf-estCostHeader.estType EQ gcTypeCombo
+        
         .
         
     
@@ -474,9 +478,6 @@ PROCEDURE pAddEstBlank PRIVATE:
         ASSIGN 
             opbf-estCostBlank.estCostItemID = bf-estCostItem.estCostItemID
             bf-estCostItem.sizeDesc            = TRIM(STRING(opbf-estCostBlank.dimLength,">>>9.99")) + " x " + TRIM(STRING(opbf-estCostBlank.dimWidth,">>>9.99"))
-            opbf-estCostBlank.quantityPerSet   = IF opbf-estCostBlank.formNo EQ 0 OR bf-estCostItem.quantityPerSet EQ 0 THEN 1 ELSE bf-estCostItem.quantityPerSet
-            opbf-estCostBlank.quantityRequired = opbf-estCostBlank.quantityRequired * opbf-estCostBlank.quantityPerSet
-            opbf-estCostBlank.quantityYielded  = opbf-estCostBlank.quantityYielded * opbf-estCostBlank.quantityPerSet
             .
         IF opbf-estCostBlank.dimDepth NE 0 THEN 
             bf-estCostItem.sizeDesc = bf-estCostItem.sizeDesc + " x " + TRIM(STRING(opbf-estCostBlank.dimDepth,">>>9.99")).
@@ -1081,19 +1082,15 @@ PROCEDURE pAddEstOperationFromEstOp PRIVATE:
                     .
         END.
         
-        
+        opbf-estCostOperation.numOutForOperation = 1.
         IF opbf-estCostOperation.isNetSheetMaker THEN 
             ASSIGN 
                 opbf-estCostOperation.numOutForOperation = fGetNetSheetOut(opbf-estCostOperation.estCostOperationID,ipbf-estCostForm.numOutNet)
                 .
-        ELSE IF opbf-estCostOperation.isBlankMaker THEN 
-                ASSIGN 
-                    opbf-estCostOperation.numOutForOperation = ipbf-estCostForm.numOutBlanksOnNet
-                    .
-            ELSE 
-                ASSIGN 
-                    opbf-estCostOperation.numOutForOperation = 1
-                    .
+        IF opbf-estCostOperation.isBlankMaker THEN 
+            ASSIGN 
+                opbf-estCostOperation.numOutForOperation = opbf-estCostOperation.numOutForOperation * ipbf-estCostForm.numOutBlanksOnNet.
+                
         IF opbf-estCostOperation.blankNo NE 0 THEN 
         DO:
             FIND FIRST estCostBlank NO-LOCK 
@@ -2082,11 +2079,13 @@ PROCEDURE pCalculateHeader PRIVATE:
             RUN pProcessOperations(BUFFER bf-estCostHeader, BUFFER bf-estCostForm).
             IF AVAILABLE bf-estCostBlank AND bf-estCostBlank.isPurchased THEN 
                 RUN pProcessFarm(BUFFER bf-estCostHeader, BUFFER bf-estCostForm, BUFFER bf-estCostBlank ).
-            RUN pProcessLeafs(BUFFER ef, BUFFER bf-estCostHeader, BUFFER bf-estCostForm).
-            RUN pProcessBoard(BUFFER bf-estCostHeader, BUFFER bf-estCostForm, BUFFER ef).      
-            RUN pProcessAdders(BUFFER bf-estCostHeader, BUFFER bf-estCostForm, ef.adder).   
-            RUN pProcessInks(BUFFER bf-estCostHeader, BUFFER bf-estCostForm).
-            RUN pProcessGlues(BUFFER bf-estCostHeader, BUFFER bf-estCostForm).
+            ELSE DO: 
+                RUN pProcessLeafs(BUFFER ef, BUFFER bf-estCostHeader, BUFFER bf-estCostForm).
+                RUN pProcessBoard(BUFFER bf-estCostHeader, BUFFER bf-estCostForm, BUFFER ef).      
+                RUN pProcessAdders(BUFFER bf-estCostHeader, BUFFER bf-estCostForm, ef.adder).   
+                RUN pProcessInks(BUFFER bf-estCostHeader, BUFFER bf-estCostForm).
+                RUN pProcessGlues(BUFFER bf-estCostHeader, BUFFER bf-estCostForm).
+            END.
             RUN pProcessSpecialMaterials(BUFFER ef, BUFFER bf-estCostHeader, BUFFER bf-estCostForm).  
             RUN pProcessMiscPrep(BUFFER ef, BUFFER bf-estCostForm).
             RUN pProcessMiscNonPrep(BUFFER ef, BUFFER bf-estCostForm).
@@ -3054,6 +3053,7 @@ PROCEDURE pProcessBoardBOM PRIVATE:
     DEFINE PARAMETER BUFFER ipbf-estCostHeader      FOR estCostHeader.
     DEFINE PARAMETER BUFFER ipbf-estCostForm        FOR estCostForm.
     DEFINE PARAMETER BUFFER ipbf-item-bom           FOR item-bom.
+    DEFINE OUTPUT PARAMETER oplValidBom             AS LOGICAL NO-UNDO.
     
     DEFINE           BUFFER bf-estCostMaterial      FOR estCostMaterial.
     DEFINE           BUFFER bfBoard-estCostMaterial FOR estCostMaterial.
@@ -3070,7 +3070,7 @@ PROCEDURE pProcessBoardBOM PRIVATE:
         RUN pAddError("BOM Component '" + ipbf-item-bom.i-no + "' is not valid", gcErrorWarning, ipbf-estCostForm.estCostHeaderID, ipbf-estCostForm.formNo, 0).
         RETURN.
     END.
-    
+    oplValidBom = YES.
     RUN pAddEstMaterial(BUFFER ipbf-estCostHeader, BUFFER ipbf-estCostForm, ipbf-item-bom.i-no, 0, BUFFER bf-estCostMaterial).
     ASSIGN 
         bf-estCostMaterial.isPrimarySubstrate         = YES
@@ -3693,6 +3693,7 @@ PROCEDURE pProcessBoard PRIVATE:
     DEFINE           BUFFER bf-item-bom        FOR item-bom.
     
     DEFINE VARIABLE lFoundBOM AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lValidBOM AS LOGICAL NO-UNDO.
     
     FIND FIRST bf-item NO-LOCK 
         WHERE bf-item.company EQ ipbf-estCostForm.company
@@ -3711,9 +3712,11 @@ PROCEDURE pProcessBoard PRIVATE:
     FOR EACH bf-item-bom NO-LOCK
         WHERE bf-item-bom.company EQ bf-item.company
         AND bf-item-bom.parent-i EQ bf-item.i-no
-        AND bf-item-bom.line# LT 9:
-        lFoundBOM = YES.    
-        RUN pProcessBoardBOM(BUFFER ipbf-estCostHeader, BUFFER ipbf-estCostForm, BUFFER bf-item-bom).
+        AND bf-item-bom.i-no NE ""
+        AND bf-item-bom.line# LT 9:    
+        RUN pProcessBoardBOM(BUFFER ipbf-estCostHeader, BUFFER ipbf-estCostForm, BUFFER bf-item-bom, OUTPUT lValidBom).
+        IF NOT lFoundBom AND lValidBom THEN 
+            lFoundBom = YES.
     END.
     IF lFoundBom THEN 
     DO:
@@ -3882,14 +3885,7 @@ PROCEDURE pBuildHeader PRIVATE:
         ipbf-estCostHeader.handlingChargePct           = bf-ce-ctrl.hand-pct / 100 /*ctrl[2]*/
         ipbf-estCostHeader.handlingRatePerCWTRMPct     = bf-ce-ctrl.rm-rate / 100 /*ctrl[3]*/ /*NOTE CHANGED to be /100 */
         
-        ipbf-estCostHeader.special1MarkupPct           = bf-ce-ctrl.spec-%[1] /*ctrl[4] - already a fraction?*/ 
-        ipbf-estCostHeader.special1FlatValue           = 0 /*REFACTOR - treatment of Special Costs*/
         
-        ipbf-estCostHeader.special2MarkupPct           = bf-ce-ctrl.spec-%[2] /*ctrl[4]*/
-        ipbf-estCostHeader.special2FlatValue           = 0
-        
-        ipbf-estCostHeader.special3MarkupPct           = bf-ce-ctrl.spec-%[3] /*ctrl[4]*/ 
-        ipbf-estCostHeader.special3FlatValue           = 0
         
         ipbf-estCostHeader.showCommissions             = bf-ce-ctrl.comm-add /*ctrl[5]*/
         ipbf-estCostHeader.showLaborRates              = bf-ce-ctrl.sho-labor /*ctrl[7]*/
@@ -3907,6 +3903,13 @@ PROCEDURE pBuildHeader PRIVATE:
         ipbf-estCostHeader.handlingChargeFarmPct       = bf-ce-ctrl.hand-pct-farm / 100
         ipbf-estCostHeader.directMaterialPct           = gdMaterialMarkup / 100           
         ipbf-estCostHeader.weightUOM                   = gcDefaultWeightUOM     
+        
+        ipbf-estCostHeader.special1MarkupPct           = IF bf-ce-ctrl.spec-%[1] < 1 THEN bf-ce-ctrl.spec-%[1] ELSE 0 /*ctrl[4] - already a fraction?*/ 
+        ipbf-estCostHeader.special1FlatValue           = IF bf-ce-ctrl.spec-%[1] < 1 THEN 0 ELSE bf-ce-ctrl.spec-%[1] /*REFACTOR - treatment of Special Costs*/            
+        ipbf-estCostHeader.special2MarkupPct           = IF bf-ce-ctrl.spec-%[2] < 1 THEN bf-ce-ctrl.spec-%[2] ELSE 0 /*ctrl[4] - already a fraction?*/     
+        ipbf-estCostHeader.special2FlatValue           = IF bf-ce-ctrl.spec-%[2] < 1 THEN 0 ELSE bf-ce-ctrl.spec-%[2] /*REFACTOR - treatment of Special Costs*/
+        ipbf-estCostHeader.special3MarkupPct           = IF bf-ce-ctrl.spec-%[3] < 1 THEN bf-ce-ctrl.spec-%[3] ELSE 0 /*ctrl[4] - already a fraction?*/ 
+        ipbf-estCostHeader.special3FlatValue           = IF bf-ce-ctrl.spec-%[3] < 1 THEN 0 ELSE bf-ce-ctrl.spec-%[3] /*REFACTOR - treatment of Special Costs*/
         .
     CASE bf-est.estimateTypeID:
         WHEN "Misc" THEN 
@@ -4603,26 +4606,25 @@ PROCEDURE pProcessOperation PRIVATE:
     END.
     
     //Apply feed types A and P after base in-out calculation performed.  These will only affect the run hrs
-    IF ipbf-estCostOperation.feedType EQ "A" AND IsSetType(ipbf-estCostHeader.estType) THEN 
+    IF IsSetType(ipbf-estCostHeader.estType) AND (ipbf-estCostOperation.feedType EQ "A" OR  ipbf-estCostOperation.feedType EQ "P") THEN 
+    DO: 
+        IF ipbf-estCostOperation.feedType EQ "P" THEN 
+            dPartCount = fGetPartCount(ipbf-estCostHeader.company, ipbf-estCostHeader.estimateNo).
+        ELSE 
+            dPartCount = 1.
         ASSIGN 
-            ipbf-estCostOperation.quantityIn                = ipbf-estCostHeader.quantityMaster
-            ipbf-estCostOperation.quantityInAfterSetupWaste = ipbf-estCostHeader.quantityMaster
+            ipbf-estCostOperation.quantityInNoWaste         = ipbf-estCostHeader.quantityMaster * dPartCount
             ipbf-estCostOperation.quantityOut               = ipbf-estCostHeader.quantityMaster
-            ipbf-estCostOperation.quantityInNoWaste         = ipbf-estCostHeader.quantityMaster
-            ipbf-estCostOperation.quantityInRunWaste        = 0
-            ipbf-estCostOperation.quantityInSetupWaste      = 0
+            ipbf-estCostOperation.quantityInRunWaste        = (ipbf-estCostOperation.quantityInNoWaste / 
+                                                    (1 - (ipbf-estCostOperation.quantityInRunWastePercent / 100))) 
+                                                    - ipbf-estCostOperation.quantityInNoWaste
+            ipbf-estCostOperation.quantityInRunWaste        = fRoundUp(ipbf-estCostOperation.quantityInRunWaste)
+            ipbf-estCostOperation.quantityInAfterSetupWaste = ipbf-estCostOperation.quantityInNoWaste + ipbf-estCostOperation.quantityInRunWaste
+            ipbf-estCostOperation.quantityIn                = ipbf-estCostOperation.quantityInAfterSetupWaste + ipbf-estCostOperation.quantityInSetupWaste
+            ipbf-estCostOperation.quantityIn                = fRoundUp(ipbf-estCostOperation.quantityIn)            
             .
-    ELSE IF ipbf-estCostOperation.feedType EQ "P" AND IsSetType(ipbf-estCostHeader.estType) THEN 
-        DO:
-            dPartCount = fGetPartCount(ipbf-estCostHeader.estCostHeaderID).
-            ASSIGN
-                ipbf-estCostOperation.quantityIn                = ipbf-estCostOperation.quantityIn * dPartCount
-                ipbf-estCostOperation.quantityInAfterSetupWaste = ipbf-estCostOperation.quantityInAfterSetupWaste * dPartCount
-                ipbf-estCostOperation.quantityInNoWaste         = ipbf-estCostOperation.quantityInNoWaste * dPartCount
-                ipbf-estCostOperation.quantityInRunWaste        = ipbf-estCostOperation.quantityInRunWaste * dPartCount
-                ipbf-estCostOperation.quantityInSetupWaste      = ipbf-estCostOperation.quantityInSetupWaste * dPartCount
-                .
-        END.
+    END.
+    
 END PROCEDURE.
 
 PROCEDURE pPurgeCalculation PRIVATE:
@@ -4935,18 +4937,21 @@ FUNCTION fGetNetSheetOut RETURNS INTEGER PRIVATE
 END FUNCTION.
 
 FUNCTION fGetPartCount RETURNS DECIMAL PRIVATE
-    (ipiEstCostHeaderID AS INT64 ):
+    (ipcCompany AS CHARACTER, ipcEstimateID AS CHARACTER):
     /*------------------------------------------------------------------------------
      Purpose:  Gets the part count for a set for partition feed type calculation
      Notes:
     ------------------------------------------------------------------------------*/	
+    DEFINE BUFFER bf-eb FOR eb.
     
     DEFINE VARIABLE dParts AS DECIMAL NO-UNDO.
     
-    FOR EACH estCostBlank NO-LOCK 
-        WHERE estCostBlank.estCostHeaderID EQ ipiEstCostHeaderID
-        AND estCostBlank.formNo NE 0:
-        dParts = dParts + estCostBlank.quantityPerSet.
+    FOR EACH bf-eb NO-LOCK 
+        WHERE bf-eb.company EQ ipcCompany
+        AND bf-eb.est-no EQ ipcEstimateID
+        AND bf-eb.form-no NE 0:
+        
+        dParts = dParts + fGetQuantityPerSet(BUFFER bf-eb).
     END.
     
     RETURN dParts.
@@ -4980,6 +4985,8 @@ FUNCTION fGetQuantityPerSet RETURNS DECIMAL PRIVATE
     ------------------------------------------------------------------------------*/	
 
     DEFINE VARIABLE dQuantityPerSet AS DECIMAL NO-UNDO.
+    
+    
 
     IF ipbf-eb.est-type LT 5 THEN
         dQuantityPerSet     = ipbf-eb.cust-%. 
@@ -4988,8 +4995,9 @@ FUNCTION fGetQuantityPerSet RETURNS DECIMAL PRIVATE
         
     IF dQuantityPerSet LT 0 THEN 
         dQuantityPerSet     = ABSOLUTE(1 / dQuantityPerSet). 
-    IF dQuantityPerSet EQ 0 THEN 
-        dQuantityPerSet     = 1 .
+    
+    IF ipbf-eb.form-no EQ 0 OR dQuantityPerSet EQ 0 THEN
+        dQuantityPerSet =  1.
 
     RETURN dQuantityPerSet.
 

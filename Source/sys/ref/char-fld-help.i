@@ -40,6 +40,12 @@ ELSE IF ls-cur-val = 'TSPOSTFG' THEN DO:
   {&tableName}.char-fld:SCREEN-VALUE = char-val.
   RETURN NO-APPLY.
 END.
+ELSE IF ls-cur-val = 'EstimateLocDefault' THEN DO:
+  RUN windows/l-loc.w (gcompany,'',OUTPUT char-val).
+  IF char-val NE '' THEN
+  {&tableName}.char-fld:SCREEN-VALUE = ENTRY(1,char-val).
+  RETURN NO-APPLY.
+END.
 ELSE IF ls-cur-val EQ 'RMWHSBIN' THEN DO:
   IF {&tableName}.char-fld:SCREEN-VALUE EQ 'RMITEM' THEN
   ASSIGN

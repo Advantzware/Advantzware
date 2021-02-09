@@ -1,50 +1,188 @@
 {
+	"FGFilter" : {
+	   "FGItem" : {
+            "visible" : true,
+            "sensitive" : false	   
+	   }
+	},
 	"UserFields" : {
 		"User Field 1" : {
-			"visible" : true,
-			"sensitive" : false,
-			"value" : "Overs"
+			"visible" : false,
+			"sensitive" : false
 		},
 		"User Field 2" : {
-			"visible" : true,
-			"sensitive" : false,
-			"value" : "Lot Number"
+			"visible" : false,
+			"sensitive" : false
 		},		
 		"User Field 3" : {
 			"visible" : false,
 			"sensitive" : false
-		}		
+		},		
+        "UserFieldsRectangle" : {
+            "visible" : false
+        },
+        "UserFieldsRectangleLabel" : {
+            "visible" : false
+        }
+	},
+	"PrintCopies" : {
+        "Copies" : {
+            "label" : "Print Copies",
+            "visible" : true,
+            "sensitive" : true
+        }
 	},
 	"Quantities" : {
 		"Quantity" : {
-			"label" : "Total Quantity"
+			"label" : "Total Quantity",
+            "visible" : true,
+            "sensitive" : false
 		},
 		"QuantityOfUnits" : {
-			"label" : "Pallet Quantity"
+			"label" : "Pallet Quantity",
+            "visible" : false,
+            "sensitive" : false
 		},
 		"QuantityInSubUnit" : {
-			"label" : "Case Quantity"
+			"label" : "Case Quantity",
+            "visible" : true,
+            "sensitive" : false
 		},
 		"QuantityOfSubUnits" : {
-			"label" : "Cases"
+			"label" : "Cases",
+            "visible" : false,
+            "sensitive" : false
 		},
 		"SubUnitsPerUnit" : {
-			"label" : "Cases Per Pallet"
+			"label" : "Cases Per Pallet",
+            "visible" : true,
+            "sensitive" : false
 		},
 		"Partial" : {
-			"label" : "Partial Quantity"
+			"label" : "Partial Quantity",
+            "visible" : false,
+            "sensitive" : false
 		},
 		"TotalTags" : {
-			"label" : "Pallets"
+			"label" : "Pallets",
+            "visible" : false,
+            "sensitive" : false
 		},
 		"FullTags" : {
-			"label" : "Full Tags"
+			"label" : "Full Tags",
+            "visible" : false,
+            "sensitive" : false
 		},
-		"Partial Tags" : {
-			"label" : "Partial Tags"
+		"PartialTags" : {
+			"label" : "Partial Tags",
+            "visible" : false,
+            "sensitive" : false
 		},
-		"Copies" : {
-			"label" : "Print Copies"
-		}
-	}
+		"UnitCountsRectangle" : {
+		    "visible" : false
+		},
+		"QuantitiesRectangle" : {
+		    "visible" : true
+		},
+        "UnitCountsRectangleLabel" : {
+            "visible" : false
+        },
+        "QuantitiesRectangleLabel" : {
+            "visible" : true
+        }		
+	},
+    "LoadtagBrowse" : {
+        "OrderID" : {
+            "label" : "Order#",
+            "visible" : false
+        },
+        "JobID" : {
+            "label" : "Job#",
+            "visible" : true
+        },
+        "JobID2" : {
+            "label" : "Run",
+            "visible" : true
+        },
+        "CustomerID" : {
+            "label" : "Customer#",
+            "visible" : false
+        },
+        "ItemID" : {
+            "label" : "Item#",
+            "visible" : true
+        },
+        "OrderQuantity" : {
+            "label" : "Order!Quantity",
+            "visible" : false
+        },
+        "ReleaseQuantity" : {
+            "label" : "Release!Quantity",
+            "visible" : false
+        },
+        "OversPercent" : {
+            "label" : "Overs",
+            "visible" : false
+        },
+        "QuantityInSubUnit" : {
+            "label" : "Case!Quantity",
+            "visible" : true
+        },
+        "SubUnitsPerUnit" : {
+            "label" : "Cases Per!Pallet",
+            "visible" : true
+        },
+        "Partial" : {
+            "label" : "Partial",
+            "visible" : false
+        },
+        "QuantityInUnit" : {
+            "label" : "Pallet!Quantity",
+            "visible" : true
+        },
+        "TotalTags" : {
+            "label" : "Total Tags",
+            "visible" : false
+        },
+        "UnitWeight" : {
+            "label" : "Unit!Weight",
+            "visible" : false
+        },
+        "PalletWeight" : {
+            "label" : "Pallet!Weight",
+            "visible" : false
+        },
+        "LotID" : {
+            "label" : "Lot#",
+            "visible" : false
+        },
+        "ItemName" : {
+            "label" : "Item Name",
+            "visible" : false
+        },
+        "CustomerPO" : {
+            "label" : "PO#",
+            "visible" : false
+        },
+        "POLine" : {
+            "label" : "Ln#",
+            "visible" : false
+        },
+        "PrintCopies" : {
+            "label" : "Print!Copies",
+            "visible" : true
+        },
+        "Status" : {
+            "label" : "Status",
+            "visible" : true
+        },
+        "JobQuantity" : {
+            "label" : "Job!Quantity",
+            "visible" : true
+        },
+        "TotalQuantity" : {
+            "label" : "Total!Quantity",
+            "visible" : false
+        }
+    }
 }

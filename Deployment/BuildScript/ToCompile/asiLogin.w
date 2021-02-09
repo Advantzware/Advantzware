@@ -132,6 +132,11 @@ DEF VAR iDbLevel AS INT NO-UNDO.
 DEF VAR iTruncLevel AS INT NO-UNDO.
 DEF VAR cSessionParam AS CHAR NO-UNDO.
 
+DEF VAR cOldColors AS CHAR NO-UNDO.
+DEF VAR cNewColors AS CHAR NO-UNDO.
+DEF VAR cOldFonts AS CHAR NO-UNDO.
+DEF VAR cNewFonts AS CHAR NO-UNDO.
+
 {iniFileVars.i}
 
 DEF TEMP-TABLE ttUsers
@@ -204,6 +209,17 @@ DO:
     RUN ipSetCurrentDir (origDirectoryName). 
 END.
         
+ASSIGN         /*   0      1       2       3         4       5         6          7           8          9      10        11       12       13        14          15        16    17     18   19      20       21    22    23    24    25    26    27    28    29    30    31    32    33    34    35    36    37    38    39    40    41    42    43    44    45    46    47 */
+    cOldColors = "0,0,0|0,0,128|0,128,0|0,128,128|128,0,0|128,0,128|128,128,0|128,128,128|192,192,192|0,0,255|0,255,0|0,255,255|255,0,0|255,0,255|255,255,187|255,255,255|0,0,0|0,0,0|0,0,0|0,0,0|120,50,255|0,0,0|0,0,0|0,0,0|0,0,0|0,0,0|0,0,0|0,0,0|0,0,0|0,0,0|0,0,0|0,0,0|0,0,0|0,0,0|0,0,0|0,0,0|0,0,0|0,0,0|0,0,0|0,0,0|0,0,0|0,0,0|0,0,0|0,0,0|0,0,0|0,0,0|0,0,0|0,0,0"
+               /*   0      1       2       3         4       5         6          7           8          9      10        11       12       13        14          15        16    17     18   19      20       21            22          23          24          25          26        27      28         29          30          31          32         33          34          35        36    37    38    39    40    41    42    43    44    45    46    47 */
+    cNewColors = "0,0,0|0,0,128|0,128,0|0,128,128|128,0,0|128,0,128|128,128,0|128,128,128|192,192,192|0,0,155|0,255,0|0,255,255|255,0,0|255,0,255|163,188,249|255,255,255|0,0,0|0,0,0|0,0,0|0,0,0|120,50,255|119,150,203|163,188,249|251,251,251|139,139,139|245,246,246|236,242,249|0,0,0|239,255,232|87,100,144|219,254,202|246,242,242|251,251,251|87,100,144|209,210,249|200,217,246|0,0,0|0,0,0|0,0,0|0,0,0|0,0,0|0,0,0|0,0,0|0,0,0|0,0,0|0,0,0|0,0,0|0,0,0"
+    .
+ASSIGN        /*       0                    1                2                   3                   4             5                 6                    7            8             9                 10                    11                   12                  13                  14                   15                 16                                 17                     18                19                  20                       21                22                23                      24                25                    26                  27                   28                   29                   30                     31                       32            33                     34               35                36                37                 38              39      */
+    cOldFonts = "Courier New, size=8|Tahoma, size=8|Courier New, size=8|Courier New, size=8|Tahoma, size=8|Tahoma, size=10|Tahoma, size=8, bold|Tahoma, size=8|Tahoma, size=8|Courier, size=10|Courier New, size=6|Courier New, size=7|Courier New, size=8|Courier New, size=9|Courier New, size=10|Courier New, size=12|Webdings, size=10 Script=symbol|MS Sans Serif size=8|MS Sans Serif size=8|MS Sans Serif size=8|MS Sans Serif size=8|MS Sans Serif size=8|MS Sans Serif size=8|MS Sans Serif size=8|MS Sans Serif size=8|MS Sans Serif size=8|MS Sans Serif size=8|MS Sans Serif size=8|MS Sans Serif size=8|MS Sans Serif size=8|MS Sans Serif size=8|Arial, size=14 italic bold|Tahoma, size=8|Tahoma, size=8, bold|Tahoma, size=10|Tahoma, size=10, bold|Tahoma, size=12|Tahoma, size=12, bold|Tahoma, size=8|Tahoma, size=8" 
+              /*       0                    1                2                   3               4              5               6                    7              8               9                 10                  11                   12                  13                  14                   15                 16                               17                  18                  19                   20                   21               22                23                   24              25                   26                   27                   28                   29                   30                   31                          32              33                      34               35                     36               37                     38                        39      */
+    cNewFonts = "Calibri, size=10|Tahoma, size=8|Courier New, size=8|Courier New, size=8|Tahoma, size=8|Tahoma, size=10|Tahoma, size=8, bold|Tahoma, size=8|Tahoma, size=8|Courier, size=10|Courier New, size=6|Courier New, size=7|Courier New, size=8|Courier New, size=9|Courier New, size=10|Courier New, size=12|Webdings, size=10 Script=symbol|MS Sans Serif size=8|MS Sans Serif size=8|MS Sans Serif size=8|MS Sans Serif size=8|Corbel, size=10|Calibri, size=10|Calibri, size=10 bold|Calibri, size=12|MS Sans Serif size=8|MS Sans Serif size=8|MS Sans Serif size=8|MS Sans Serif size=8|MS Sans Serif size=8|MS Sans Serif size=8|Arial, size=14 italic bold|Calibri, size=10|Calibri, size=10, bold|Calibri, size=12|Calibri, size=12, bold|Calibri, size=14|Calibri, size=14, bold|Trebuchet MS, size=14 bold|Tahoma, size=8"
+    .
+       
 /* Find the .ini file containing variables and values */
 RUN ipFindIniFile ("..\advantzware.ini",
     OUTPUT cIniLoc).
@@ -978,10 +994,26 @@ PROCEDURE ipClickOk :
         /* 95512 Optimize use of .ini files to set color and fonts */
         IF iEnvLevel GE 21000000 THEN 
         DO:
-            LOAD "dbmsNewUI".
-            USE "dbmsNewUI".
+            PUT-KEY-VALUE SECTION "Colors" KEY "Normal" VALUE "".
+            PUT-KEY-VALUE SECTION "Colors" KEY "Input" VALUE "".
+            PUT-KEY-VALUE SECTION "Colors" KEY "Messages" VALUE "".
+            DO iCtr = 1 TO NUM-ENTRIES(cNewFonts,"|"):
+                PUT-KEY-VALUE SECTION "Fonts" KEY "Font" + STRING(iCtr - 1) VALUE ENTRY(iCtr,cNewFonts,"|").
+            END.
+            DO iCtr = 1 TO NUM-ENTRIES(cNewColors,"|"):
+                PUT-KEY-VALUE SECTION "Colors" KEY "Color" + STRING(iCtr - 1) VALUE ENTRY(iCtr,cNewColors,"|").
+            END.
         END.
-
+        ELSE DO:
+            DO iCtr = 1 TO NUM-ENTRIES(cOldFonts,"|"):
+                PUT-KEY-VALUE SECTION "Fonts" KEY "Font" + STRING(iCtr - 1) VALUE ENTRY(iCtr,cOldFonts,"|").
+            END.
+            DO iCtr = 1 TO NUM-ENTRIES(cOldColors,"|"):
+                PUT-KEY-VALUE SECTION "Colors" KEY "Color" + STRING(iCtr - 1) VALUE ENTRY(iCtr,cOldColors,"|").
+            END.
+        END.
+        PUT-KEY-VALUE COLOR ALL.
+        PUT-KEY-VALUE FONT ALL.
         /* Set current dir */
         RUN ipSetCurrentDir (cMapDir + "\" + cEnvDir + "\" + cbEnvironment). 
         

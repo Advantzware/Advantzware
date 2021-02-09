@@ -40,6 +40,8 @@ DEFINE VARIABLE cLocationID              AS CHARACTER  NO-UNDO.
 DEFINE VARIABLE cSSPostFG                AS CHARACTER  NO-UNDO.
 DEFINE VARIABLE dNewQuantity             AS DECIMAL    NO-UNDO.
 DEFINE VARIABLE lcNewQuantity            AS LONGCHAR   NO-UNDO.
+DEFINE VARIABLE riRctd                   AS ROWID      NO-UNDO.
+
 {api/inbound/ttRequest.i}
 
 RUN api/JSONProcs.p PERSISTENT SET hdJSONProcs. 
@@ -254,6 +256,7 @@ PROCEDURE pProcessInputs:
                 INPUT        cLocationID, 
                 INPUT        cSSPostFG,            
                 INPUT        ipcUsername,
+                OUTPUT       riRctd,
                 OUTPUT       dNewQuantity,
                 OUTPUT       oplSuccess,
                 OUTPUT       opcMessage

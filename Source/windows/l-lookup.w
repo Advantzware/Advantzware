@@ -74,41 +74,41 @@ DEFINE OUTPUT PARAMETER op-returnFields AS CHARACTER NO-UNDO.
 DEFINE OUTPUT PARAMETER op-lookupField  AS CHARACTER NO-UNDO.
 DEFINE OUTPUT PARAMETER op-recVal       AS RECID     NO-UNDO.
  
-DEFINE VARIABLE h_query         AS HANDLE    NO-UNDO.
-DEFINE VARIABLE h_ttquery       AS HANDLE    NO-UNDO.
-DEFINE VARIABLE h_brquery       AS HANDLE    NO-UNDO.
-DEFINE VARIABLE h_buffer        AS HANDLE    NO-UNDO.
-DEFINE VARIABLE h_ttbuffer      AS HANDLE    NO-UNDO.
+DEFINE VARIABLE cCustListQuery  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cFocusValue     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE h_brbuffer      AS HANDLE    NO-UNDO.
-DEFINE VARIABLE h_tt            AS HANDLE    NO-UNDO.
-DEFINE VARIABLE h_brtt          AS HANDLE    NO-UNDO.
 DEFINE VARIABLE h_browser       AS HANDLE    NO-UNDO.
+DEFINE VARIABLE h_brquery       AS HANDLE    NO-UNDO.
+DEFINE VARIABLE h_brtt          AS HANDLE    NO-UNDO.
+DEFINE VARIABLE h_btnOK         AS HANDLE    NO-UNDO.
+DEFINE VARIABLE h_buffer        AS HANDLE    NO-UNDO.
 DEFINE VARIABLE h_dialogFrame   AS HANDLE    NO-UNDO.
 DEFINE VARIABLE h_filterFrame   AS HANDLE    NO-UNDO.
-DEFINE VARIABLE li-count        AS INTEGER   NO-UNDO.
-DEFINE VARIABLE li-maxBrRows    AS INTEGER   NO-UNDO INITIAL 30.
-DEFINE VARIABLE li-pageCount    AS INTEGER   NO-UNDO INITIAL 0.
-DEFINE VARIABLE li-pageRecCount AS INTEGER   NO-UNDO INITIAL 30.
-DEFINE VARIABLE ls-sortBy       AS CHARACTER NO-UNDO.
-DEFINE VARIABLE ls-sortType     AS CHARACTER NO-UNDO.
-DEFINE VARIABLE ls-queryString  AS CHARACTER NO-UNDO.
-DEFINE VARIABLE ll-filterOpen   AS LOGICAL   NO-UNDO INITIAL FALSE.
-DEFINE VARIABLE ll-filterFirst  AS LOGICAL   NO-UNDO INITIAL FALSE.
-DEFINE VARIABLE ll-filterFlag   AS LOGICAL   NO-UNDO INITIAL FALSE.
-DEFINE VARIABLE ll-ttLoaded     AS LOGICAL   NO-UNDO INITIAL FALSE.
-DEFINE VARIABLE ll-useMatches   AS LOGICAL   NO-UNDO INITIAL FALSE.
-DEFINE VARIABLE ll-continue     AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE lRowSelectable  AS LOGICAL   NO-UNDO EXTENT 1000 INITIAL YES.
-DEFINE VARIABLE rDynValueColumn AS ROWID     NO-UNDO EXTENT 1000.
+DEFINE VARIABLE h_query         AS HANDLE    NO-UNDO.
+DEFINE VARIABLE h_tt            AS HANDLE    NO-UNDO.
+DEFINE VARIABLE h_ttbuffer      AS HANDLE    NO-UNDO.
+DEFINE VARIABLE h_ttquery       AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hCalcColumn     AS HANDLE    NO-UNDO EXTENT 1000.
 DEFINE VARIABLE hColumn         AS HANDLE    NO-UNDO EXTENT 1000.
 DEFINE VARIABLE hDynCalcField   AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hStatusField    AS HANDLE    NO-UNDO EXTENT 1000.
 DEFINE VARIABLE iRowCount       AS INTEGER   NO-UNDO.
-DEFINE VARIABLE cFocusValue     AS CHARACTER NO-UNDO.
-DEFINE VARIABLE h_btnOK         AS HANDLE    NO-UNDO.
-DEFINE VARIABLE cCustListQuery  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE li-count        AS INTEGER   NO-UNDO.
+DEFINE VARIABLE li-maxBrRows    AS INTEGER   NO-UNDO INITIAL 30.
+DEFINE VARIABLE li-pageCount    AS INTEGER   NO-UNDO INITIAL 0.
+DEFINE VARIABLE li-pageRecCount AS INTEGER   NO-UNDO INITIAL 30.
+DEFINE VARIABLE ls-queryString  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE ls-sortBy       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE ls-sortType     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE ll-continue     AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE ll-filterFirst  AS LOGICAL   NO-UNDO INITIAL FALSE.
+DEFINE VARIABLE ll-filterFlag   AS LOGICAL   NO-UNDO INITIAL FALSE.
+DEFINE VARIABLE ll-filterOpen   AS LOGICAL   NO-UNDO INITIAL FALSE.
+DEFINE VARIABLE ll-ttLoaded     AS LOGICAL   NO-UNDO INITIAL FALSE.
+DEFINE VARIABLE ll-useMatches   AS LOGICAL   NO-UNDO INITIAL FALSE.
+DEFINE VARIABLE lRowSelectable  AS LOGICAL   NO-UNDO EXTENT 1000 INITIAL YES.
 DEFINE VARIABLE lUseCustList    AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE rDynValueColumn AS ROWID     NO-UNDO EXTENT 1000.
 
 RUN AOA/spDynCalcField.p PERSISTENT SET hDynCalcField.
 
@@ -116,6 +116,7 @@ RUN AOA/spDynCalcField.p PERSISTENT SET hDynCalcField.
 {AOA/BL/pBuildCustList.i}
 {AOA/includes/pGetDynParamValue.i}
 {methods/template/brwcustomdef.i}
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -175,32 +176,32 @@ FUNCTION getSearchValue RETURNS CHARACTER
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON bt-cancel AUTO-END-KEY 
-     IMAGE-UP FILE "Graphics/32x32/navigate_cross.ico":U NO-FOCUS
+     IMAGE-UP FILE "Graphics/32x32/exit_white.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Cancel" 
      SIZE 8 BY 1.91 TOOLTIP "Cancel"
      BGCOLOR 8 .
 
 DEFINE BUTTON bt-clear 
-     IMAGE-UP FILE "Graphics/32x32/undo_32.ico":U
+     IMAGE-UP FILE "Graphics/32x32/undo_32.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Reset" 
      SIZE 8 BY 1.91 TOOLTIP "Reset".
 
 DEFINE BUTTON bt-next 
-     IMAGE-UP FILE "Graphics/32x32/navigate_down2.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_down2_disabled.ico":U NO-FOCUS
+     IMAGE-UP FILE "Graphics/32x32/navigate_close.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_close_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "&Next" 
      SIZE 8 BY 1.91 TOOLTIP "Page Down"
      BGCOLOR 8 .
 
 DEFINE BUTTON bt-ok AUTO-GO 
-     IMAGE-UP FILE "Graphics/32x32/navigate_check.ico":U NO-FOCUS
+     IMAGE-UP FILE "Graphics/32x32/navigate_check.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 8 BY 1.91 TOOLTIP "OK"
      BGCOLOR 8 .
 
 DEFINE BUTTON bt-prev 
-     IMAGE-UP FILE "Graphics/32x32/navigate_up2.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_up2_disabled.ico":U NO-FOCUS
+     IMAGE-UP FILE "Graphics/32x32/navigate_open.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_open_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "&Prev" 
      SIZE 8 BY 1.91 TOOLTIP "Page Up"
      BGCOLOR 8 .
@@ -215,7 +216,7 @@ DEFINE RECTANGLE RECT-1
      SIZE 56 BY 1.91.
 
 DEFINE BUTTON bt-filter 
-     IMAGE-UP FILE "Graphics/32x32/filter_and_sort.ico":U
+     IMAGE-UP FILE "Graphics/32x32/filter_and_sort.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 8 BY 1.91 TOOLTIP "Toggle Column Filters".
 
@@ -232,19 +233,19 @@ DEFINE BROWSE br-table
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Dialog-Frame
-     bt-cancel AT ROW 1.24 COL 104 WIDGET-ID 22
+     bt-cancel AT ROW 1.24 COL 105 WIDGET-ID 22
      bt-clear AT ROW 1.24 COL 11 WIDGET-ID 24
      ls-search AT ROW 1.62 COL 27 COLON-ALIGNED WIDGET-ID 32
      br-table AT ROW 4.52 COL 1 WIDGET-ID 200
-     bt-next AT ROW 1.24 COL 86 WIDGET-ID 26
-     bt-ok AT ROW 1.24 COL 95 WIDGET-ID 28
+     bt-next AT ROW 1.24 COL 85 WIDGET-ID 26
+     bt-ok AT ROW 1.24 COL 97 WIDGET-ID 28
      bt-prev AT ROW 1.24 COL 77 WIDGET-ID 30
      RECT-1 AT ROW 1.24 COL 20 WIDGET-ID 20
      SPACE(37.00) SKIP(26.66)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
-         BGCOLOR 15 FGCOLOR 1 
-         TITLE BGCOLOR 15 FGCOLOR 1 "Help Information" WIDGET-ID 100.
+         FGCOLOR 1 
+         TITLE BGCOLOR 22 FGCOLOR 1 "Help Information" WIDGET-ID 100.
 
 DEFINE FRAME filter-frame
      bt-filter AT ROW 1.24 COL 2 WIDGET-ID 2
@@ -252,7 +253,6 @@ DEFINE FRAME filter-frame
          SIDE-LABELS THREE-D 
          AT COL 1 ROW 1
          SIZE 10 BY 2.38 WIDGET-ID 300.
-
 
 /* *********************** Procedure Settings ************************ */
 
@@ -263,8 +263,6 @@ DEFINE FRAME filter-frame
    Other Settings: COMPILE
  */
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS
-
-
 
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
@@ -291,10 +289,6 @@ ASSIGN
    UNDERLINE                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
-
- 
-
-
 
 /* ************************  Control Triggers  ************************ */
 
@@ -425,7 +419,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br-table Dialog-Frame
 ON START-SEARCH OF br-table IN FRAME Dialog-Frame
 DO:
-	{methods/template/sortindicator.i} 
+        {methods/template/sortindicator.i} 
    IF INDEX(ip-sortList, h_browser:CURRENT-COLUMN:NAME) > 0 THEN DO:
        IF ls-sortBy = h_browser:CURRENT-COLUMN:NAME THEN
             ls-sortType = IF ls-sortType = "DESCENDING" THEN "" ELSE "DESCENDING".
@@ -692,6 +686,7 @@ PROCEDURE addFilterObjects :
     DEFINE VARIABLE h_btnClear  AS HANDLE  NO-UNDO.
     DEFINE VARIABLE h_colNum    AS INTEGER NO-UNDO.
     DEFINE VARIABLE h_focus     AS HANDLE  NO-UNDO.
+    DEFINE VARIABLE hWidget     AS HANDLE  NO-UNDO EXTENT 1000.
     
     IF ip-filterList NE "" THEN DO:
         DO li-count = 1 TO NUM-ENTRIES(ip-filterList):
@@ -701,11 +696,7 @@ PROCEDURE addFilterObjects :
                 h_browseCol = h_browser:GET-BROWSE-COL(h_colNum):HANDLE
                 .                
             IF VALID-HANDLE(h_field) THEN DO:
-                IF h_field:DATA-TYPE = "CHARACTER" OR
-                   h_field:DATA-TYPE = "INTEGER"   OR
-                   h_field:DATA-TYPE = "DECIMAL"   OR
-                   h_field:DATA-TYPE = "DATE" THEN DO:
-
+                IF CAN-DO("CHARACTER,DATE,DECIMAL,INTEGER",h_field:DATA-TYPE) THEN DO:
                    CREATE FILL-IN h_fillin
                    ASSIGN FRAME     = h_filterFrame
                        ROW          = h_browser:ROW - 1.26
@@ -720,15 +711,14 @@ PROCEDURE addFilterObjects :
                        TRIGGERS:
                            ON RETURN PERSISTENT RUN applyFilter.
                        END TRIGGERS.
-
+                   hWidget[li-count] = h_fillin:HANDLE.
                    IF li-count EQ 1 THEN
                    h_focus = h_fillin.
 
                    IF h_field:DATA-TYPE = "DATE" THEN DO:
-                       h_fillin:WIDTH-CHARS = 16.
-                      
+                       h_fillin:WIDTH-CHARS = 16.                      
                        CREATE BUTTON h_calendar
-                       ASSIGN FRAME    = h_filterFrame                          
+                       ASSIGN FRAME     = h_filterFrame
                            ROW          = h_browser:ROW - 1.28
                            COLUMN       = h_fillin:COLUMN + h_fillin:WIDTH
                            WIDTH        = 4.6
@@ -739,27 +729,28 @@ PROCEDURE addFilterObjects :
                            TRIGGERS:
                                ON CHOOSE PERSISTENT RUN chooseDate (h_calendar:PRIVATE-DATA).
                            END TRIGGERS.            
-                           
+                       hWidget[li-count] = h_calendar:HANDLE.
                        h_calendar:LOAD-IMAGE-UP("Graphics/16x16/calendar.bmp").          
                    END.
                 END.
                 ELSE IF h_field:DATA-TYPE = "LOGICAL" THEN DO:
                    CREATE COMBO-BOX h_combobox
-                   ASSIGN FRAME       = h_filterFrame
+                   ASSIGN FRAME        = h_filterFrame                       
                        ROW             = h_browser:ROW - 1.26
                        X               = h_browseCol:X
                        WIDTH-PIXELS    = h_browseCol:WIDTH-PIXELS + 4
                        SENSITIVE       = TRUE
                        VISIBLE         = TRUE
                        INNER-LINES     = 3
-                       LIST-ITEM-PAIRS = "All,1" + "," + 
-                                         ENTRY(1,h_field:FORMAT,"/") + "," + "2" + "," +
-                                         ENTRY(2,h_field:FORMAT,"/") + "," + "3"
+                       LIST-ITEM-PAIRS = "All,1,"
+                                       + ENTRY(1,h_field:FORMAT,"/") + ",2,"
+                                       + ENTRY(2,h_field:FORMAT,"/") + ",3"
                        PRIVATE-DATA    = h_field:NAME
                        SCREEN-VALUE    = "1"
                        TRIGGERS:
                            ON VALUE-CHANGED PERSISTENT RUN openFilterQuery.
-                       END TRIGGERS.                      
+                       END TRIGGERS.
+                   hWidget[li-count] = h_combobox:HANDLE.
                 END.
             END.
         END.
@@ -776,32 +767,34 @@ PROCEDURE addFilterObjects :
             END TRIGGERS.
            
         CREATE BUTTON h_btnClear
-        ASSIGN FRAME = h_filterFrame
-            LABEL     = "Reset"
-            ROW       = bt-filter:ROW IN FRAME filter-frame
-            COLUMN    = 24
-            WIDTH     = bt-cancel:WIDTH IN FRAME {&FRAME-NAME}
-            HEIGHT    = bt-cancel:HEIGHT IN FRAME {&FRAME-NAME}
-            SENSITIVE = TRUE
-            VISIBLE   = TRUE
+        ASSIGN FRAME    = h_filterFrame
+            LABEL       = "Reset"
+            ROW         = bt-filter:ROW IN FRAME filter-frame
+            COLUMN      = 24
+            WIDTH       = bt-cancel:WIDTH IN FRAME {&FRAME-NAME}
+            HEIGHT      = bt-cancel:HEIGHT IN FRAME {&FRAME-NAME}
+            FLAT-BUTTON = YES
+            SENSITIVE   = TRUE
+            VISIBLE     = TRUE
             TRIGGERS:
                ON CHOOSE PERSISTENT RUN resetFilterObjects IN THIS-PROCEDURE.
             END TRIGGERS.
-        h_btnClear:LOAD-IMAGE("Graphics/32x32/undo_32.ico").
+        h_btnClear:LOAD-IMAGE("Graphics/32x32/undo_32.png").
 
         CREATE BUTTON h_btnOK
-        ASSIGN FRAME = h_filterFrame
-           LABEL     = "Find"
-           ROW       = bt-filter:ROW IN FRAME filter-frame
-           COLUMN    = 11
-           WIDTH     = bt-ok:WIDTH IN FRAME {&FRAME-NAME}
-           HEIGHT    = bt-ok:HEIGHT IN FRAME {&FRAME-NAME}
-           SENSITIVE = TRUE
-           VISIBLE   = TRUE
+        ASSIGN FRAME   = h_filterFrame
+           LABEL       = "Find"
+           ROW         = bt-filter:ROW IN FRAME filter-frame
+           COLUMN      = 11
+           WIDTH       = bt-ok:WIDTH IN FRAME {&FRAME-NAME}
+           HEIGHT      = bt-ok:HEIGHT IN FRAME {&FRAME-NAME}
+           FLAT-BUTTON = YES
+           SENSITIVE   = TRUE
+           VISIBLE     = TRUE
            TRIGGERS:
               ON CHOOSE PERSISTENT RUN openFilterQuery IN THIS-PROCEDURE.
            END TRIGGERS.
-        h_btnOK:LOAD-IMAGE("Graphics/32x32/magnifying_glass.ico").
+        h_btnOK:LOAD-IMAGE("Graphics/32x32/search_New.png").
 
         bt-ok:HANDLE:MOVE-TO-TOP().
         bt-cancel:HANDLE:MOVE-TO-TOP().
@@ -810,6 +803,18 @@ PROCEDURE addFilterObjects :
  
     END.
     CLEAR FRAME filter-frame NO-PAUSE.
+    /* set any filter init values */
+    DO li-count = 1 TO NUM-ENTRIES(ip-filterList):
+        FIND FIRST dynValueColumn NO-LOCK
+             WHERE dynValueColumn.subjectID         EQ ip-subjectID
+               AND dynValueColumn.user-id           EQ ip-userID
+               AND dynValueColumn.paramValueID      EQ ip-paramValueID
+               AND dynValueColumn.isFilterInitField EQ YES
+               AND LOOKUP(ENTRY(li-count,ip-filterList),dynValueColumn.colName,".") EQ 2
+             NO-ERROR.
+        IF AVAILABLE dynValueColumn THEN
+        hWidget[li-count]:SCREEN-VALUE = dynValueColumn.filterInitValue.
+    END. /* do li-count */
     h_focus:SCREEN-VALUE = cFocusValue.
 
 END PROCEDURE.
@@ -817,8 +822,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE applyFilter Dialog-Frame
-PROCEDURE applyFilter:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE applyFilter Dialog-Frame 
+PROCEDURE applyFilter :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -826,7 +831,7 @@ PROCEDURE applyFilter:
     APPLY "CHOOSE":U TO h_btnOK.
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

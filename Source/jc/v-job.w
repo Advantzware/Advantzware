@@ -740,16 +740,18 @@ PROCEDURE add-job :
 ------------------------------------------------------------------------------*/
   DEFINE VARIABLE lCreateJob AS LOGICAL NO-UNDO.
   DEFINE VARIABLE cJobNo AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE iJobNo2 AS INTEGER NO-UNDO.
   DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
   DEFINE BUFFER bf-job-hdr FOR job-hdr.
   IF cJobType EQ "Molded" THEN
   DO:                          
-    RUN jc/dAddJobWithEst.w("",ROWID(job), OUTPUT lCreateJob, OUTPUT cJobNo).
+    RUN jc/dAddJobWithEst.w("",ROWID(job), OUTPUT lCreateJob, OUTPUT cJobNo, OUTPUT iJobNo2).
     IF lCreateJob THEN
     DO:
          FIND FIRST bf-job-hdr NO-LOCK
               WHERE bf-job-hdr.company EQ cocode
-              AND bf-job-hdr.job-no EQ cJobNo NO-ERROR .
+              AND bf-job-hdr.job-no EQ cJobNo
+              AND bf-job-hdr.job-no2 EQ iJobNo2 NO-ERROR .
            
          RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"record-source", OUTPUT char-hdl). 
          IF AVAILABLE bf-job-hdr THEN
@@ -1336,6 +1338,9 @@ PROCEDURE local-delete-record :
   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
   RUN set-attribute-list IN WIDGET-HANDLE(char-hdl) ("REC-DELETED=yes").
 
+  RUN pUpdateFGItemQty(BUFFER job).
+  
+  RUN pUpdateCommittedQty(recid(job)).
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'delete-record':U ) .
@@ -1658,7 +1663,7 @@ PROCEDURE local-update-record :
 
       fil_id = RECID(job).
       RUN po/doPo.p (YES) /* Yes Indicates to prompt for RM */.
-      RUN jc/addJobFarm.p (INPUT job.job).
+      //RUN jc/addJobFarm.p (INPUT job.job).
       nufile = NO.
       SESSION:SET-WAIT-STATE("").
     END.
@@ -2901,6 +2906,56 @@ PROCEDURE check-tandem-button :
 
   RUN custom/frame-en.p (FRAME {&FRAME-NAME}:HANDLE, "{&ENABLED-FIELDS}", OUTPUT op-enabled).
             
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateFGItemQty V-table-Win 
+PROCEDURE pUpdateFGItemQty :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DEFINE PARAMETER BUFFER ipbf-job FOR job.
+   DEFINE VARIABLE lRecalcOnHand AS LOGICAL INIT NO NO-UNDO.
+   DEFINE VARIABLE lRecalcOnOrder AS LOGICAL INIT YES NO-UNDO.
+   DEFINE VARIABLE lRecalcAllocated AS LOGICAL INIT NO NO-UNDO.
+   DEFINE VARIABLE lRecalcBackOrder AS LOGICAL INIT NO NO-UNDO.
+        
+   DEFINE BUFFER bf-job-hdr FOR job-hdr.
+    
+   FOR EACH bf-job-hdr NO-LOCK
+        WHERE bf-job-hdr.company EQ ipbf-job.company
+        AND bf-job-hdr.job EQ ipbf-job.job
+        AND bf-job-hdr.job-no EQ ipbf-job.job-no
+        AND bf-job-hdr.job-no2 EQ ipbf-job.job-no2
+        AND bf-job-hdr.ord-no EQ 0:
+             
+        RUN util/upditmfg.p (
+                   INPUT ROWID(bf-job-hdr),
+                   INPUT -1
+                   ).               
+   END.   
+            
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateCommittedQty V-table-Win 
+PROCEDURE pUpdateCommittedQty :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DEFINE INPUT PARAMETER iprcRecid AS RECID NO-UNDO.           
+     
+   RUN jc/jc-dall.p(iprcRecid).     
+             
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

@@ -342,6 +342,36 @@ PROCEDURE Inventory_FGQuantityAdjust:
         ).
 END PROCEDURE.
 
+PROCEDURE Inventory_GetWarehouseLength:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany         AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiWarehouseLength AS INTEGER   NO-UNDO.
+    
+    DEFINE VARIABLE cReturnValue AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lRecFound    AS LOGICAL   NO-UNDO.
+    
+    /* Default warehouse length */
+    opiWarehouseLength = 5.
+    
+    RUN sys/ref/nk1look.p (
+        INPUT ipcCompany,         /* Company Code */ 
+        INPUT "SSLocationScan",   /* sys-ctrl name */
+        INPUT "I",                /* Output return value */
+        INPUT NO,                 /* Use ship-to */
+        INPUT NO,                 /* ship-to vendor */
+        INPUT "",                 /* ship-to vendor value */
+        INPUT "",                 /* shi-id value */
+        OUTPUT cReturnValue, 
+        OUTPUT lRecFound
+        ).    
+    IF lRecFound THEN
+        opiWarehouseLength = INTEGER(cReturnValue).
+        
+END PROCEDURE.
+
 PROCEDURE pBuildRMHistory PRIVATE:
 /*------------------------------------------------------------------------------
  Purpose: Builds temp-table from rm-rcpth and rm-rdtlh records for given criteria
@@ -361,7 +391,7 @@ PROCEDURE pBuildRMHistory PRIVATE:
     FOR EACH bf-rm-rcpth NO-LOCK
         WHERE bf-rm-rcpth.company    EQ ipcCompany
           AND bf-rm-rcpth.i-no       EQ ipcItemID
-          AND (bf-rm-rcpth.rita-code EQ ipcTransactionType OR ipcTransactionType EQ "")
+          AND (bf-rm-rcpth.rita-code EQ ipcTransactionType OR ipcTransactionType EQ "" OR (ipcTransactionType EQ "R" AND bf-rm-rcpth.rita-code = "A"))
           AND (bf-rm-rcpth.job-no    EQ ipcJobNo OR ipcJobNo EQ "")
           AND (bf-rm-rcpth.job-no2   EQ ipiJobNo2 OR ipiJobNo2 EQ 0 OR ipcJobNo EQ ""),
         EACH bf-rm-rdtlh NO-LOCK
@@ -369,9 +399,10 @@ PROCEDURE pBuildRMHistory PRIVATE:
           AND bf-rm-rdtlh.rita-code EQ bf-rm-rcpth.rita-code
         USE-INDEX rm-rdtl:
         FIND FIRST ttBrowseInventory
-             WHERE ttBrowseInventory.company  EQ bf-rm-rcpth.company
-               AND ttBrowseInventory.rmItemID EQ bf-rm-rcpth.i-no
-               AND ttBrowseInventory.tag      EQ bf-rm-rdtlh.tag
+             WHERE ttBrowseInventory.company    EQ bf-rm-rcpth.company
+               AND ttBrowseInventory.rmItemID   EQ bf-rm-rcpth.i-no
+               AND ttBrowseInventory.tag        EQ bf-rm-rdtlh.tag
+               AND ttBrowseInventory.sourceType EQ gcInventorySourceTypeRMHISTORY
              NO-ERROR.
         IF NOT AVAILABLE ttbrowseInventory THEN DO:
             CREATE ttBrowseInventory.
@@ -380,7 +411,6 @@ PROCEDURE pBuildRMHistory PRIVATE:
                 ttBrowseInventory.rmItemID            = bf-rm-rcpth.i-no
                 ttBrowseInventory.primaryID           = bf-rm-rcpth.i-no
                 ttBrowseInventory.itemType            = gcItemTypeRM
-                ttBrowseInventory.quantity            = bf-rm-rdtlh.qty
                 ttBrowseInventory.jobID               = bf-rm-rcpth.job-no
                 ttBrowseInventory.jobID2              = bf-rm-rcpth.job-no2
                 ttBrowseInventory.formNo              = bf-rm-rdtlh.s-num
@@ -389,15 +419,19 @@ PROCEDURE pBuildRMHistory PRIVATE:
                 ttBrowseInventory.warehouseID         = bf-rm-rdtlh.loc
                 ttBrowseInventory.locationID          = bf-rm-rdtlh.loc-bin
                 ttBrowseInventory.quantityOriginal    = bf-rm-rdtlh.qty
-                .    
-                
+                ttBrowseInventory.sourceType          = gcInventorySourceTypeRMHISTORY
+                .
         END.
         
         ASSIGN
+            ttBrowseInventory.quantity            = ttBrowseInventory.quantity + bf-rm-rdtlh.qty
             ttBrowseInventory.inventoryStatus     = gcStatusStockConsumed
             ttBrowseInventory.rec_key             = bf-rm-rcpth.rec_key
             ttBrowseInventory.inventoryStockID    = STRING(ROWID(bf-rm-rcpth))
             .
+        
+        IF ttBrowseInventory.quantity EQ 0 THEN
+            DELETE ttBrowseInventory.
     END.  
 END PROCEDURE.
 
@@ -1319,6 +1353,7 @@ PROCEDURE pBuildRMBinForItem PRIVATE:
             ttBrowseInventory.jobID2             = iJobID2
             ttBrowseInventory.formNo             = iFormNo
             ttBrowseInventory.blankNo            = iBlankNo
+            ttBrowseInventory.sourceType         = gcInventorySourceTypeRMBIN
             .             
     END.
     
@@ -6311,8 +6346,10 @@ PROCEDURE pBuildRMTransactions PRIVATE:
                 ttBrowseInventory.warehouseID         = bf-rm-rctd.loc
                 ttBrowseInventory.locationID          = bf-rm-rctd.loc-bin
                 ttBrowseInventory.quantityOriginal    = bf-rm-rctd.qty
+                ttBrowseInventory.quantity            = bf-rm-rctd.qty
                 ttBrowseInventory.inventoryStatus     = gcStatusStockScanned
                 ttBrowseInventory.rec_key             = bf-rm-rctd.rec_key
+                ttBrowseInventory.sourceType          = gcInventorySourceTypeRMRCTD
                 ttBrowseInventory.inventoryStockID    = STRING(ROWID(bf-rm-rctd))
                 .
         END.        
@@ -6981,7 +7018,7 @@ PROCEDURE ValidateLoadTag:
                              AND loadtag.tag-no    EQ ipcTag).
 
     IF NOT oplValidTag THEN
-        opcMessage = "Invalid Tag".
+        opcMessage = "Invalid Tag '" + ipcTag + "'".
     ELSE
         opcMessage = "Success".
 END PROCEDURE.
@@ -7338,6 +7375,73 @@ PROCEDURE GetRMLoadTagDetails:
             LEAVE.
         END.
     END.
+END PROCEDURE.
+
+PROCEDURE PostFinishedGoodsForFGRctd:
+    DEFINE INPUT  PARAMETER ipriFGRctd  AS ROWID     NO-UNDO.  
+    DEFINE INPUT  PARAMETER iplCloseJob AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError    AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage  AS CHARACTER NO-UNDO.  
+
+    RUN pPostFinishedGoodsForFGRctd (
+        INPUT  ipriFGRctd,
+        INPUT  iplCloseJob,
+        OUTPUT oplError,
+        OUTPUT opcMessage
+        ).
+END.
+
+PROCEDURE pPostFinishedGoodsForFGRctd:
+    DEFINE INPUT  PARAMETER ipriFGRctd  AS ROWID     NO-UNDO.  
+    DEFINE INPUT  PARAMETER iplCloseJob AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError    AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage  AS CHARACTER NO-UNDO.  
+    
+    DEFINE BUFFER bf-fg-rctd FOR fg-rctd.
+    
+    EMPTY TEMP-TABLE  w-fg-rctd.
+    
+    FIND FIRST bf-fg-rctd NO-LOCK
+         WHERE ROWID(bf-fg-rctd) EQ ipriFGRctd
+         NO-ERROR.
+    IF NOT AVAILABLE bf-fg-rctd THEN DO:
+        ASSIGN
+            oplError   = TRUE
+            opcMessage = "Invalid fg-rctd record"
+            .
+        RETURN.
+    END.
+    
+    CREATE w-fg-rctd.
+    BUFFER-COPY bf-fg-rctd TO w-fg-rctd
+    ASSIGN 
+        w-fg-rctd.row-id  = ROWID(bf-fg-rctd)
+        w-fg-rctd.has-rec = YES
+        .   
+    
+    RELEASE w-fg-rctd.
+    
+    /* Posts FG items */
+    RUN fg/fgpostBatch.p ( 
+        INPUT TODAY,             /* Post date      */
+        INPUT NO,                /* tg-recalc-cost */
+        INPUT bf-fg-rctd.rita-code,  /* Transfer  */
+        INPUT NO,                /* Send fg emails */
+        INPUT YES,               /* creates work GL */
+        INPUT iplCloseJob, /* Executes closing orders logic based input */   
+        INPUT TABLE w-fg-rctd  BY-REFERENCE,
+        INPUT TABLE tt-fgemail BY-REFERENCE,
+        INPUT TABLE tt-email   BY-REFERENCE,
+        INPUT TABLE tt-inv     BY-REFERENCE
+        )NO-ERROR.
+    
+    IF ERROR-STATUS:ERROR THEN DO:
+       ASSIGN
+           opcMessage = ERROR-STATUS:GET-MESSAGE(1)
+           oplError   = TRUE
+           .
+       RETURN.
+    END.  
 END PROCEDURE.
 
 PROCEDURE PostFinishedGoodsForUser :

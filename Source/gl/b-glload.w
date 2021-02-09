@@ -408,6 +408,8 @@ PROCEDURE load-recurring :
   DEF VAR li AS INT NO-UNDO.
   DEF VAR ll AS LOG NO-UNDO.
   DEF VAR post-date AS DATE NO-UNDO INIT TODAY.
+  DEFINE VARIABLE ip-parms     AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE op-values    AS CHARACTER NO-UNDO.
 
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -417,15 +419,33 @@ PROCEDURE load-recurring :
             BUTTON YES-NO UPDATE ll.
 
     IF ll THEN DO:
-      MESSAGE  "Enter Posting Date" UPDATE post-date FORM "99/99/9999".
-      FIND FIRST period NO-LOCK WHERE period.company = cocode 
-                                  AND period.pst     LE post-date
-                                  AND period.pend    GE post-date
-                                  AND period.pstat   = YES NO-ERROR.
-      IF NOT AVAIL period THEN DO:
-          MESSAGE "Posting Date must be within an open period" VIEW-AS ALERT-BOX ERROR.
-          RETURN ERROR.
+      ip-parms = 
+        /* posting date */
+        "|type=literal,name=label6,row=3.2,col=20,enable=false,width=28,scrval=" + "Enter Posting Date:" + ",FORMAT=x(60)"
+        + "|type=fill-in,name=perprice,row=3,col=41,enable=true,width=16,data-type=Date,initial=" + STRING(TODAY)
+        + "|type=image,image=webspeed\images\question.gif,name=im1,row=3,col=4,enable=true,width=12,height=3 " 
+        /* Box Title */
+        + "|type=win,name=fi3,enable=true,label=  Update Posting Date,FORMAT=X(30),height=9".
+      REPEAT:   
+          RUN custom/d-prompt.w (INPUT "", ip-parms, "", OUTPUT op-values).
+            
+          IF op-values NE "" THEN
+          post-date = DATE(ENTRY(2, op-values)) .
+           
+          IF op-values NE "" THEN
+          IF ENTRY(4, op-values) EQ "Cancel" THEN LEAVE .        
+          
+          FIND FIRST period NO-LOCK WHERE period.company = cocode 
+                                      AND period.pst     LE post-date
+                                      AND period.pend    GE post-date
+                                      AND period.pstat   = YES NO-ERROR.
+          IF NOT AVAIL period THEN DO:
+              MESSAGE "Posting Date must be within an open period" VIEW-AS ALERT-BOX ERROR.
+              NEXT.
+          END.
+          LEAVE.
       END.
+      IF ENTRY(4, op-values) EQ "Cancel" THEN RETURN . 
 
       DO li = 1 TO {&browse-name}:NUM-SELECTED-ROWS:
         {&browse-name}:FETCH-SELECTED-ROW (li) NO-ERROR.

@@ -41,12 +41,9 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-{custom/globdefs.i}
-{sys/inc/var.i "NEW SHARED"}
-{sys/inc/varasgn.i}
-
 {system/sysconst.i}
 {wip/keyboardDefs.i}
+{inventory/ttInventory.i "NEW SHARED"}
 
 DEFINE VARIABLE cCompany   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cItemID    AS CHARACTER NO-UNDO.
@@ -65,6 +62,11 @@ DEFINE VARIABLE hdItemBins   AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hdItemLoc    AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hdItemLocBin AS HANDLE    NO-UNDO.
 
+DEFINE VARIABLE iWarehouseLength AS INTEGER   NO-UNDO.
+
+/* As smart browsers are not instantiated until the page it contains is selected,
+   the below variables will track if a page containing the browser is already selected
+   and decides if queries on smart browsers should be run or not */
 DEFINE VARIABLE lLocQueryRan     AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lBinsQueryRan    AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lLocBinsQueryRan AS LOGICAL NO-UNDO.
@@ -434,6 +436,18 @@ END.
 
 &Scoped-define SELF-NAME fiCustItem
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiCustItem W-Win
+ON ANY-KEY OF fiCustItem IN FRAME F-Main /* Customer Part # */
+DO:
+    /* Apply fg item scan on press enter key */
+    IF KEY-LABEL(LASTKEY) EQ "ENTER" THEN
+        APPLY "LEAVE" TO SELF.  
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiCustItem W-Win
 ON ENTRY OF fiCustItem IN FRAME F-Main /* Customer Part # */
 DO:
     hFocusField = SELF.
@@ -510,6 +524,18 @@ END.
 
 &Scoped-define SELF-NAME fiFGItem
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiFGItem W-Win
+ON ANY-KEY OF fiFGItem IN FRAME F-Main /* FG Item# */
+DO:
+    /* Apply fg item scan on press enter key */
+    IF KEY-LABEL(LASTKEY) EQ "ENTER" THEN
+        APPLY "LEAVE" TO SELF.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiFGItem W-Win
 ON ENTRY OF fiFGItem IN FRAME F-Main /* FG Item# */
 DO:
     hFocusField = SELF.
@@ -581,6 +607,18 @@ END.
 
 &Scoped-define SELF-NAME fiLocation
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiLocation W-Win
+ON ANY-KEY OF fiLocation IN FRAME F-Main /* Location */
+DO:
+    /* Apply location scan on press enter key */
+    IF KEY-LABEL(LASTKEY) EQ "ENTER" THEN
+        APPLY "LEAVE" TO SELF.  
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiLocation W-Win
 ON ENTRY OF fiLocation IN FRAME F-Main /* Location */
 DO:
     hFocusField = SELF.
@@ -631,12 +669,12 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiLocation W-Win
 ON LEAVE OF fiLocation IN FRAME F-Main /* Location */
 DO:    
-    IF cWarehouse EQ SUBSTRING(fiLocation:SCREEN-VALUE, 1, 5) AND cLocation EQ SUBSTRING(fiLocation:SCREEN-VALUE, 6) THEN
+    IF cWarehouse EQ TRIM(SUBSTRING(fiLocation:SCREEN-VALUE, 1, iWarehouseLength)) AND cLocation EQ TRIM(SUBSTRING(fiLocation:SCREEN-VALUE, iWarehouseLength + 1)) THEN
         RETURN.
         
     ASSIGN
-        cWarehouse = SUBSTRING(fiLocation:SCREEN-VALUE, 1, 5)
-        cLocation  = SUBSTRING(fiLocation:SCREEN-VALUE, 6)
+        cWarehouse = TRIM(SUBSTRING(fiLocation:SCREEN-VALUE, 1, iWarehouseLength))
+        cLocation  = TRIM(SUBSTRING(fiLocation:SCREEN-VALUE, iWarehouseLength + 1))
         .        
 
     RUN pScanItem.
@@ -1066,18 +1104,30 @@ PROCEDURE pInit :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE hdPgmSecurity AS HANDLE  NO-UNDO.
-
+    DEFINE VARIABLE hdPgmSecurity    AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE cLoc             AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE hdInventoryProcs AS HANDLE    NO-UNDO.
+    
+    RUN spGetSessionParam ("Company", OUTPUT cCompany).
+    RUN spGetSessionParam ("Location", OUTPUT cLoc).
+    
     FIND FIRST company NO-LOCK 
-         WHERE company.company EQ cocode
+         WHERE company.company EQ cCompany
          NO-ERROR .
     IF AVAILABLE company THEN
     {&WINDOW-NAME}:TITLE = {&WINDOW-NAME}:TITLE
                          + " - {&awversion}" + " - " 
-                         + STRING(company.name) + " - " + locode.
+                         + STRING(company.name) + " - " + cLoc.
 
-    cCompany = cocode.
-
+    RUN inventory/InventoryProcs.p PERSISTENT SET hdInventoryProcs.
+    
+    RUN Inventory_GetWarehouseLength IN hdInventoryProcs (
+        INPUT  cCompany,
+        OUTPUT iWarehouseLength
+        ).
+            
+    DELETE PROCEDURE hdInventoryProcs.
+    
     RUN "system/PgmMstrSecur.p" PERSISTENT SET hdPgmSecurity.
 
     RUN epCanAccess IN hdPgmSecurity (
@@ -1170,6 +1220,8 @@ PROCEDURE pScanItem :
             INPUT  cCompany,
             INPUT  cItemID,
             INPUT  cCustItem,
+            INPUT  cWarehouse,
+            INPUT  cLocation,
             OUTPUT lError,
             OUTPUT cMessage
             ).

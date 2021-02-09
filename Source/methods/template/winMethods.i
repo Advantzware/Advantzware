@@ -322,9 +322,33 @@ PROCEDURE Init-Options-Panel :
 &ENDIF
 
 END PROCEDURE.
-
+PROCEDUR winmethods-identifier:
+/* Purpose: To make external programs identify this is a winmethods using current procedure handle. */
+END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+/*
+&IF DEFINED(local-destroy) EQ 0 &THEN 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy Include
+PROCEDURE local-destroy:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+{custom/userWindow.i}
+
+/* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+&ENDIF.
+
+*/
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-initialize Include 
 PROCEDURE local-initialize :

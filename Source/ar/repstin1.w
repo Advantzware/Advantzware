@@ -181,10 +181,10 @@ RUN set-attribute-list (
 /************************
 </SORTBY-RUN-CODE>
 <FILTER-ATTRIBUTES>
-</FILTER-ATTRIBUTES> */     */
+</FILTER-ATTRIBUTES> */     
 
 /* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
+&ANALYZE-RESUME   */
 
 /* ************************  Function Prototypes ********************** */
 

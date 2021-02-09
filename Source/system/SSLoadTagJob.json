@@ -16,12 +16,16 @@
 		"Active" : false,
 		"Printer" : "ASI"
 	},
+	"DefaultPrintCopies" : {
+        "Description" : "NK1 LOADTAG - Integer field. The default print copies",
+        "Copies" : 1
+	},
 	"CreateRFIDTag" : {
-		"Description" : "NK1 RFIDTag - Create rfIDTag for a lodatag",
-		"Active" : false	
+		"Description" : "NK1 RFIDTag - Create rfIDTag for a loadtag",
+		"Active" : true	
 	},
 	"CheckClosedStatus" : {
-		"Description" : "Validate Job/PO status before ccreating FG Receipts",
+		"Description" : "Validate Job/PO status before creating FG Receipts",
 		"Active" : false
 	},
 	"CreateFGReceipts" : {
@@ -50,5 +54,17 @@
 		"Description" : "Path to save the label matrix output file",
 		"Path" : "C:\\BA\\Label\\",
 		"File" : "loadtag1.txt"
+	},
+	"AutoPrintLoadtagOnJobScan" : {
+		"Description" : "Print loadtag on a valid job scan",
+		"Active" : true	
+	},
+	"AutoCreateLoadtagOnJobScan" : {
+		"Description" : "Create a temporary record for verifying before printing a loadtag on a valid job scan",
+		"Active" : true	
+	},
+	"LabelMatrixAutoPrint" : { 
+	   "Description" : "Print label matrix",
+	   "Active" : true
 	}
 }

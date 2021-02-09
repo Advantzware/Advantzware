@@ -52,6 +52,7 @@ DEFINE VARIABLE cParamValueID  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cPrgmName      AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cScheduled     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cSubjectID     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cSubjectTitle  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cTaskDescrip   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cUserGroups    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cUserID        AS CHARACTER NO-UNDO.
@@ -81,6 +82,7 @@ DEFINE TEMP-TABLE ttDynParamValue NO-UNDO
     FIELD prgmName         LIKE dynParamValue.prgmName
     FIELD recordLimit      LIKE dynParamValue.recordLimit
     FIELD runSync          LIKE dynParamValue.runSync
+    FIELD autoClose        LIKE dynParamValue.autoClose
     FIELD saveLastRun      LIKE dynParamValue.saveLastRun
     FIELD scheduled          AS LOGICAL LABEL "Sched"
     FIELD securityLevel    LIKE dynParamValue.securityLevel
@@ -117,7 +119,7 @@ iSecurityLevel = DYNAMIC-FUNCTION("sfUserSecurityLevel").
 &Scoped-define INTERNAL-TABLES ttDynParamValue
 
 /* Definitions for BROWSE browseTasks                                   */
-&Scoped-define FIELDS-IN-QUERY-browseTasks ttDynParamValue.favorite ttDynParamValue.titleDescription ttDynParamValue.module fUserID(ttDynParamValue.user-id) @ ttDynParamValue.user-id ttDynParamValue.mnemonic ttDynParamValue.subjectGroup ttDynParamValue.scheduled fParamValueID(ttDynParamValue.paramValueID) @ cParamValueID fSubjectID(ttDynParamValue.subjectID) @ cSubjectID ttDynParamValue.email ttDynParamValue.outputFormat ttDynParamValue.lastRunDateTime ttDynParamValue.securityLevel ttDynParamValue.runSync ttDynParamValue.subjectType ttDynParamValue.externalForm   
+&Scoped-define FIELDS-IN-QUERY-browseTasks ttDynParamValue.favorite ttDynParamValue.titleDescription ttDynParamValue.module fUserID(ttDynParamValue.user-id) @ ttDynParamValue.user-id ttDynParamValue.mnemonic ttDynParamValue.subjectGroup ttDynParamValue.scheduled fParamValueID(ttDynParamValue.paramValueID) @ cParamValueID fSubjectID(ttDynParamValue.subjectID) @ cSubjectID ttDynParamValue.email ttDynParamValue.outputFormat ttDynParamValue.lastRunDateTime ttDynParamValue.securityLevel ttDynParamValue.runSync ttDynParamValue.autoClose ttDynParamValue.subjectType ttDynParamValue.externalForm   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-browseTasks   
 &Scoped-define SELF-NAME browseTasks
 &Scoped-define QUERY-STRING-browseTasks FOR EACH ttDynParamValue WHERE ttDynParamValue.securityLevel LE iSecurityLevel   AND ttDynParamValue.paramDescription BEGINS cDescrip   AND ttDynParamValue.module BEGINS cModule   AND ttDynParamValue.user-id BEGINS cUserID   AND ttDynParamValue.mnemonic BEGINS cHotkey   AND ttDynParamValue.subjectGroup BEGINS cGroup   AND (ttDynParamValue.scheduled EQ (cScheduled EQ "Yes")    OR cScheduled EQ "<All>")   AND ttDynParamValue.allData MATCHES "*" + searchBar + "*"  ~{&SORTBY-PHRASE}
@@ -131,8 +133,8 @@ iSecurityLevel = DYNAMIC-FUNCTION("sfUserSecurityLevel").
     ~{&OPEN-QUERY-browseTasks}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnMoveColumn searchBar filterTasks ~
-btnSearch filterDescrip filterModule filterUser filterHotkey filterGroup ~
+&Scoped-Define ENABLED-OBJECTS btnMoveColumn btnSearch searchBar ~
+filterTasks filterDescrip filterModule filterUser filterHotkey filterGroup ~
 filterScheduled browseTasks 
 &Scoped-Define DISPLAYED-OBJECTS searchBar filterTasks filterDescrip ~
 filterModule filterUser filterHotkey filterGroup filterScheduled 
@@ -192,7 +194,7 @@ DEFINE BUTTON btnMoveColumn
      SIZE 8 BY 1.91 TOOLTIP "Move Column".
 
 DEFINE BUTTON btnSearch 
-     IMAGE-UP FILE "Graphics/16x16/magnifying_glass.gif":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/16x16/search.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Search" 
      SIZE 5 BY 1.19 TOOLTIP "Search".
 
@@ -287,6 +289,7 @@ ttDynParamValue.outputFormat LABEL-BGCOLOR 14
 ttDynParamValue.lastRunDateTime LABEL-BGCOLOR 14
 ttDynParamValue.securityLevel
 ttDynParamValue.runSync VIEW-AS TOGGLE-BOX
+ttDynParamValue.autoClose VIEW-AS TOGGLE-BOX
 ttDynParamValue.subjectType
 ttDynParamValue.externalForm
 /* _UIB-CODE-BLOCK-END */
@@ -302,11 +305,11 @@ DEFINE FRAME F-Main
           "Sort" WIDGET-ID 48
      btnMoveColumn AT ROW 1.71 COL 151 HELP
           "Move Column" WIDGET-ID 42
+     btnSearch AT ROW 1.62 COL 61 HELP
+          "Search" WIDGET-ID 288
      searchBar AT ROW 1.71 COL 10.4 COLON-ALIGNED HELP
           "Search" WIDGET-ID 6
      filterTasks AT ROW 1.71 COL 67 NO-LABEL WIDGET-ID 66
-     btnSearch AT ROW 1.71 COL 61 HELP
-          "Search" WIDGET-ID 288
      filterDescrip AT ROW 4.33 COL 3 HELP
           "Select Report" NO-LABEL WIDGET-ID 50
      filterModule AT ROW 4.33 COL 66 HELP
@@ -322,16 +325,16 @@ DEFINE FRAME F-Main
      browseTasks AT ROW 6.24 COL 2 WIDGET-ID 500
      "User:" VIEW-AS TEXT
           SIZE 7 BY .62 AT ROW 3.62 COL 77 WIDGET-ID 60
-     "Scheduled:" VIEW-AS TEXT
-          SIZE 12 BY .62 AT ROW 3.62 COL 138 WIDGET-ID 300
-     "Group:" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 3.62 COL 104 WIDGET-ID 296
-     "Description:" VIEW-AS TEXT
-          SIZE 14 BY .62 AT ROW 3.62 COL 3 WIDGET-ID 52
-     "Module:" VIEW-AS TEXT
-          SIZE 9 BY .62 AT ROW 3.62 COL 66 WIDGET-ID 56
      "Hotkey:" VIEW-AS TEXT
           SIZE 9 BY .62 AT ROW 3.62 COL 93 WIDGET-ID 292
+     "Module:" VIEW-AS TEXT
+          SIZE 9 BY .62 AT ROW 3.62 COL 66 WIDGET-ID 56
+     "Description:" VIEW-AS TEXT
+          SIZE 14 BY .62 AT ROW 3.62 COL 3 WIDGET-ID 52
+     "Group:" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 3.62 COL 104 WIDGET-ID 296
+     "Scheduled:" VIEW-AS TEXT
+          SIZE 12 BY .62 AT ROW 3.62 COL 138 WIDGET-ID 300
      RECT-1 AT ROW 1.24 COL 2 WIDGET-ID 302
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -656,6 +659,19 @@ END.
 
 
 &Scoped-define SELF-NAME searchBar
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL searchBar s-object
+ON HELP OF searchBar IN FRAME F-Main /* Search */
+DO:
+    RUN AOA/dynSubTableField.w (OUTPUT cSubjectTitle).
+    IF cSubjectTitle NE "" THEN
+    SELF:SCREEN-VALUE = cSubjectTitle.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL searchBar s-object
 ON RETURN OF searchBar IN FRAME F-Main /* Search */
 DO:
@@ -1063,6 +1079,7 @@ PROCEDURE pGetParamValue :
             END CASE.
             CREATE ttDynParamValue.
             ASSIGN
+                ttDynParamValue.autoClose        = dynParamValue.autoClose
                 ttDynParamValue.email            = fEmail()
                 ttDynParamValue.externalForm     = dynParamValue.externalForm
                 ttDynParamValue.favorite         = dynParamValue.favorite
@@ -1374,8 +1391,10 @@ PROCEDURE pRunTask :
              NO-ERROR.
         IF NOT AVAILABLE dynParamValue THEN RETURN.
         ASSIGN
-            ttDynParamValue.outputFormat = ipcOutputFormat
-            dynParamValue.outputFormat   = ipcOutputFormat
+            ttDynParamValue.outputFormat    = ipcOutputFormat
+            ttDynParamValue.lastRunDateTime = NOW
+            dynParamValue.outputFormat      = ipcOutputFormat
+            dynParamValue.lastRunDateTime   = NOW
             .
         RELEASE dynParamValue.
     END. /* do trans */

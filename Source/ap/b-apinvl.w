@@ -86,6 +86,11 @@ DEF VAR ll-added AS LOG NO-UNDO.
 DEF VAR v-actdscr LIKE account.dscr NO-UNDO.
 def var factor# as decimal no-undo.
 DEF VAR v-basis-w AS DEC NO-UNDO. /* for po/po-adder2.p */
+DEFINE VARIABLE hGLProcs  AS HANDLE  NO-UNDO.
+DEFINE VARIABLE cMatExceptionList AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lFound AS LOGICAL NO-UNDO.
+
+RUN system/GLProcs.p PERSISTENT SET hGLProcs.
 
 DEF TEMP-TABLE tt-ap-invl NO-UNDO LIKE ap-invl
     FIELD tt-rowid AS ROWID.
@@ -106,6 +111,18 @@ DO TRANSACTION:
   {sys/inc/rmpostgl.i}
 END.
 v-rmpostgl-char = sys-ctrl.char-fld.
+
+RUN sys/ref/nk1Look.p(INPUT cocode,
+                          INPUT "APMatTypeExceptions",
+                          INPUT "C",
+                          INPUT NO,
+                          INPUT NO,
+                          INPUT "",
+                          INPUT "",
+                          OUTPUT cMatExceptionList,
+                          OUTPUT lFound).
+IF NOT lFound OR cMatExceptionList EQ '' THEN
+        cMatExceptionList = 'MOXY789@'.                          
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -482,6 +499,9 @@ DO:
   DEF VAR lk-recid AS RECID NO-UNDO.
   DEF VAR uom-list AS CHAR INIT "" NO-UNDO.
   DEF VAR lw-focus AS WIDGET-HANDLE NO-UNDO.
+  DEFINE VARIABLE cFieldsValue  AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cFoundValue   AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE recFoundRecID AS RECID     NO-UNDO.
 
 
   lw-focus = FOCUS.
@@ -495,9 +515,19 @@ DO:
              RUN windows/l-poven.w (RECID(vend), ap-invl.po-no:SCREEN-VALUE IN BROWSE {&browse-name}, OUTPUT lk-recid).             
              IF lk-recid <> ? THEN RUN display-po (lk-recid).
         END.
-        WHEN "actnum" THEN DO:
-            RUN windows/l-acct3.w (g_company,"T",lw-focus:SCREEN-VALUE, OUTPUT char-val).
-            IF char-val <> "" THEN ASSIGN lw-focus:SCREEN-VALUE = ENTRY(1,char-val).
+        WHEN "actnum" THEN DO:            
+            RUN system/openLookup.p (
+                INPUT  g_company, 
+                INPUT  "",  /* Lookup ID */
+                INPUT  87,  /* Subject ID */
+                INPUT  "",  /* User ID */
+                INPUT  0,   /* Param Value ID */
+                OUTPUT cFieldsValue, 
+                OUTPUT cFoundValue, 
+                OUTPUT recFoundRecID
+                ). 
+            IF cFoundValue <> "" THEN 
+                ASSIGN lw-focus:SCREEN-VALUE = cFoundValue.
                                          
         END.
         when "pr-qty-uom" then do:
@@ -637,7 +667,7 @@ DO:
   DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO. 
   IF LASTKEY NE -1 THEN DO:
     RUN valid-actnum(OUTPUT lReturnError) NO-ERROR.
-    IF lReturnError THEN RETURN NO-APPLY.
+    IF lReturnError THEN RETURN NO-APPLY.             
   END.
 END.
 
@@ -896,9 +926,7 @@ DEFINE VARIABLE dQtyInvoiced AS DECIMAL NO-UNDO.
 DEFINE VARIABLE dAmountReceived AS DECIMAL NO-UNDO.
 DEFINE VARIABLE dAmountInvoiced AS DECIMAL NO-UNDO.
 DEFINE VARIABLE lNegativeReceipt AS LOGICAL NO-UNDO.
-DEFINE VARIABLE cPoNo AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cMatExceptionList AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lFound AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cPoNo AS CHARACTER NO-UNDO. 
 
 FIND po-ord WHERE RECID(po-ord) = ipriPO NO-LOCK NO-ERROR.
 
@@ -909,18 +937,7 @@ END.
 lv-num-rec = 0.
 
 IF AVAILABLE po-ord THEN 
-DO:
-    RUN sys/ref/nk1Look.p(INPUT po-ord.company,
-                          INPUT "APMatTypeExceptions",
-                          INPUT "C",
-                          INPUT NO,
-                          INPUT NO,
-                          INPUT "",
-                          INPUT "",
-                          OUTPUT cMatExceptionList,
-                          OUTPUT lFound).
-    IF NOT lFound OR cMatExceptionList EQ '' THEN
-        cMatExceptionList = 'MOXY789@'.
+DO:     
     FOR EACH po-ordl 
         WHERE po-ordl.company EQ po-ord.company 
           AND po-ordl.po-no EQ po-ord.po-no 
@@ -1998,6 +2015,7 @@ PROCEDURE local-cancel-record :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
+  RUN presetColor NO-ERROR.            
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
@@ -2258,6 +2276,26 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-reset-record B-table-Win
+PROCEDURE local-reset-record:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+    /* Code placed here will execute PRIOR to standard behavior. */
+    RUN presetColor NO-ERROR.  
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'reset-record':U ) .
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record B-table-Win 
 PROCEDURE local-update-record :
 /*------------------------------------------------------------------------------
@@ -2293,7 +2331,7 @@ PROCEDURE local-update-record :
 
   RUN valid-actnum(OUTPUT lReturnError) NO-ERROR.
   IF lReturnError THEN RETURN NO-APPLY.
-
+ 
   RUN valid-qty(OUTPUT lReturnError) NO-ERROR.
   IF lReturnError THEN RETURN NO-APPLY.
 
@@ -2492,6 +2530,27 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE presetColor B-table-Win
+PROCEDURE presetColor:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+    IF ap-invl.actnum:BGCOLOR IN BROWSE {&BROWSE-NAME} EQ 16 THEN             
+        ASSIGN 
+            ap-invl.actnum:BGCOLOR IN BROWSE {&BROWSE-NAME} = ?
+            ap-invl.actnum:FGCOLOR IN BROWSE {&BROWSE-NAME} = ?
+            .
+            
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE proc-control B-table-Win 
 PROCEDURE proc-control :
@@ -2940,22 +2999,47 @@ PROCEDURE valid-actnum :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
+  
+  DEFINE VARIABLE lSuccess  AS LOGICAL   NO-UNDO.
+  DEFINE VARIABLE lActive   AS LOGICAL   NO-UNDO.
+  DEFINE VARIABLE cMessage  AS CHARACTER NO-UNDO.
+  
   DO WITH FRAME {&FRAME-NAME}:
-    FIND FIRST account
-        WHERE account.company EQ g_company
-          AND account.actnum  EQ ap-invl.actnum:SCREEN-VALUE IN BROWSE {&browse-name}
-          AND account.TYPE    NE "T"          
-        NO-LOCK NO-ERROR.
-    IF NOT AVAIL account THEN DO:
-      MESSAGE "Invalid Account Number..." VIEW-AS ALERT-BOX ERROR.
-      APPLY "entry" TO ap-invl.actnum IN BROWSE {&browse-name}.
-      oplReturnError = YES.
-    END.
-    ELSE
-    v-actdscr:SCREEN-VALUE IN BROWSE {&browse-name} = account.dscr.
+      RUN GL_CheckGLAccount IN hGLProcs(
+          INPUT  g_company,
+          INPUT  ap-invl.actnum:SCREEN-VALUE IN BROWSE {&browse-name},            
+          OUTPUT cMessage,
+          OUTPUT lSuccess,
+          OUTPUT lActive
+          ).    
+            
+      IF lSuccess = NO THEN DO:               
+          MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.            
+          RUN presetColor NO-ERROR.
+          APPLY "ENTRY" TO ap-invl.actnum IN BROWSE {&BROWSE-NAME}.       
+          oplReturnError = YES.
+      END.   
+      
+      IF lSuccess = YES AND lActive = NO THEN DO:  
+          ASSIGN 
+              ap-invl.actnum:BGCOLOR IN BROWSE {&BROWSE-NAME} = 16
+              ap-invl.actnum:FGCOLOR IN BROWSE {&BROWSE-NAME} = 15
+              .   
+          MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.           
+          APPLY "ENTRY" TO ap-invl.actnum IN BROWSE {&BROWSE-NAME}.
+          oplReturnError = YES.                      
+      END.      
+      IF lActive = YES THEN 
+          RUN presetColor NO-ERROR.
+      FIND FIRST account NO-LOCK
+          WHERE account.company EQ g_company
+            AND account.actnum  EQ ap-invl.actnum:SCREEN-VALUE IN BROWSE {&browse-name}
+            AND account.TYPE    NE "T"          
+          NO-ERROR.
+      IF AVAILABLE account THEN
+          v-actdscr:SCREEN-VALUE IN BROWSE {&browse-name} = account.dscr.   
   END.
-
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2995,7 +3079,18 @@ PROCEDURE valid-po-no :
         FOR EACH po-ordl NO-LOCK WHERE 
             po-ordl.company EQ po-ord.company AND 
             po-ordl.po-no   EQ po-ord.po-no:
+            
             IF po-ordl.t-rec-qty EQ 0 THEN DO:
+                FIND FIRST ITEM NO-LOCK
+                     WHERE item.company EQ cocode
+                     AND item.i-no    EQ po-ordl.i-no
+                     AND po-ordl.item-type
+                     NO-ERROR.    
+                lMessage = YES. 
+                IF AVAIL ITEM AND INDEX(cMatExceptionList,ITEM.mat-type) GT 0 THEN
+                 lMessage = NO. 
+                 
+                IF lMessage EQ YES THEN     
                 MESSAGE  "Do you want to verify receipt .. "
                           VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO                  
                 UPDATE lMessage.
@@ -3525,11 +3620,13 @@ PROCEDURE pReCalculateRecQty :
       WHERE fg-rdtlh.r-no      EQ fg-rcpth.r-no
         AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code        
       NO-LOCK:    
+         FIND CURRENT po-ordl EXCLUSIVE-LOCK NO-ERROR .
          ASSIGN
          lCheckRec     = SUBSTR(fg-rdtlh.receiver-no,1,10) EQ
                              STRING(ap-inv.i-no,"9999999999")          
          po-ordl.t-rec-qty    = po-ordl.t-rec-qty + ( IF lCheckRec THEN DEC(SUBSTR(fg-rdtlh.receiver-no,11,17))
-                                              ELSE fg-rdtlh.qty ).    
+                                              ELSE fg-rdtlh.qty ).
+         FIND CURRENT po-ordl NO-LOCK NO-ERROR .                                     
     END.
   END.
   

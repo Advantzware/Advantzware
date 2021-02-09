@@ -76,9 +76,10 @@ RUN AOA/spDynValidateProc.p    PERSISTENT SET hDynValProc.
 
 /* Custom List Definitions                                              */
 /* outputObjects,showFields,List-3,List-4,List-5,List-6                 */
-&Scoped-define outputObjects btnAddEmail svRecipients defaultOutputFormat ~
-svRunSync svShowAll svShowReportHeader svShowReportFooter svShowPageHeader ~
-svShowPageFooter svShowGroupHeader svShowGroupFooter svShowParameters 
+&Scoped-define outputObjects btnReset btnSave btnAddEmail svRecipients ~
+defaultOutputFormat svRunSync svAutoClose svShowAll svShowReportHeader ~
+svShowReportFooter svShowPageHeader svShowPageFooter svShowGroupHeader ~
+svShowGroupFooter svShowParameters 
 &Scoped-define showFields svShowAll svShowReportHeader svShowReportFooter ~
 svShowPageHeader svShowPageFooter svShowGroupHeader svShowGroupFooter ~
 svShowParameters 
@@ -106,6 +107,18 @@ DEFINE BUTTON btnAddEmail
      LABEL "Email" 
      SIZE 4.4 BY 1.05 TOOLTIP "Add Recipents".
 
+DEFINE BUTTON btnReset 
+     IMAGE-UP FILE "Graphics/32x32/undo_32.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/undo_32_disabled.png":U NO-FOCUS FLAT-BUTTON
+     LABEL "Update/Save Columns" 
+     SIZE 8 BY 1.91 TOOLTIP "Update/Save Columns".
+
+DEFINE BUTTON btnSave 
+     IMAGE-UP FILE "Graphics/32x32/floppy_disk.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/floppy_disk_disabled.png":U NO-FOCUS FLAT-BUTTON
+     LABEL "Update/Save Columns" 
+     SIZE 8 BY 1.91 TOOLTIP "Update/Save Columns".
+
 DEFINE VARIABLE svRecipients AS CHARACTER 
      VIEW-AS EDITOR SCROLLBAR-VERTICAL
      SIZE 67 BY 1.67
@@ -121,7 +134,7 @@ DEFINE VARIABLE defaultOutputFormat AS CHARACTER
 "DocX", "DOCX":U,
 "PDF", "PDF":U,
 "HTML", "HTML":U
-     SIZE 80 BY 1 NO-UNDO.
+     SIZE 65 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-PANEL
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
@@ -130,6 +143,11 @@ DEFINE RECTANGLE RECT-PANEL
 DEFINE RECTANGLE RECT-SHOW
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
      SIZE 156 BY 1.19.
+
+DEFINE VARIABLE svAutoClose AS LOGICAL INITIAL no 
+     LABEL "Auto Close" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 15 BY .81 NO-UNDO.
 
 DEFINE VARIABLE svRunSync AS LOGICAL INITIAL no 
      LABEL "Run Synchronous" 
@@ -187,12 +205,18 @@ DEFINE FRAME paramFrame
          FGCOLOR 1  WIDGET-ID 100.
 
 DEFINE FRAME outputFrame
+     btnReset AT ROW 1.48 COL 149 HELP
+          "Update/Save Columns" WIDGET-ID 664
+     btnSave AT ROW 1.48 COL 142 HELP
+          "Update/Save Columns" WIDGET-ID 24
      btnAddEmail AT ROW 1.95 COL 3 HELP
           "Add Recipents" WIDGET-ID 636
      svRecipients AT ROW 1.24 COL 8 NO-LABEL WIDGET-ID 600
      defaultOutputFormat AT ROW 2.43 COL 77 NO-LABEL WIDGET-ID 644
      svRunSync AT ROW 2.91 COL 8 HELP
           "Toggle to Run Synchronous" WIDGET-ID 662
+     svAutoClose AT ROW 2.91 COL 44 HELP
+          "Toggle to Auto Close" WIDGET-ID 658
      svShowAll AT ROW 4.1 COL 8 WIDGET-ID 18
      svShowReportHeader AT ROW 4.1 COL 23 WIDGET-ID 2
      svShowReportFooter AT ROW 4.1 COL 44 WIDGET-ID 4
@@ -201,10 +225,10 @@ DEFINE FRAME outputFrame
      svShowGroupHeader AT ROW 4.1 COL 103 WIDGET-ID 10
      svShowGroupFooter AT ROW 4.1 COL 123 WIDGET-ID 12
      svShowParameters AT ROW 4.1 COL 142 WIDGET-ID 16
-     "Email:" VIEW-AS TEXT
-          SIZE 6 BY .62 AT ROW 1.24 COL 2 WIDGET-ID 640
      "Default Output Format:" VIEW-AS TEXT
           SIZE 23 BY 1 AT ROW 1.48 COL 77 WIDGET-ID 652
+     "Email:" VIEW-AS TEXT
+          SIZE 6 BY .62 AT ROW 1.24 COL 2 WIDGET-ID 640
      RECT-PANEL AT ROW 1.24 COL 76 WIDGET-ID 256
      RECT-SHOW AT ROW 3.86 COL 2 WIDGET-ID 642
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
@@ -269,12 +293,18 @@ ASSIGN FRAME outputFrame:FRAME = FRAME paramFrame:HANDLE.
                                                                         */
 /* SETTINGS FOR BUTTON btnAddEmail IN FRAME outputFrame
    1                                                                    */
+/* SETTINGS FOR BUTTON btnReset IN FRAME outputFrame
+   1                                                                    */
+/* SETTINGS FOR BUTTON btnSave IN FRAME outputFrame
+   1                                                                    */
 /* SETTINGS FOR RADIO-SET defaultOutputFormat IN FRAME outputFrame
    1                                                                    */
 /* SETTINGS FOR RECTANGLE RECT-PANEL IN FRAME outputFrame
    NO-ENABLE                                                            */
 /* SETTINGS FOR RECTANGLE RECT-SHOW IN FRAME outputFrame
    NO-ENABLE                                                            */
+/* SETTINGS FOR TOGGLE-BOX svAutoClose IN FRAME outputFrame
+   1                                                                    */
 /* SETTINGS FOR EDITOR svRecipients IN FRAME outputFrame
    1                                                                    */
 /* SETTINGS FOR TOGGLE-BOX svRunSync IN FRAME outputFrame
@@ -326,6 +356,28 @@ ASSIGN
 ON CHOOSE OF btnAddEmail IN FRAME outputFrame /* Email */
 DO:
     RUN pRecipients (svRecipients:HANDLE).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnReset
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnReset s-object
+ON CHOOSE OF btnReset IN FRAME outputFrame /* Update/Save Columns */
+DO:
+    RUN pReset.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnSave
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnSave s-object
+ON CHOOSE OF btnSave IN FRAME outputFrame /* Update/Save Columns */
+DO:
+    RUN pSave.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -523,6 +575,7 @@ PROCEDURE local-view :
 
   /* Code placed here will execute AFTER standard behavior.    */
   RUN pShowParameterSets.
+  IF AVAILABLE dynParamValue AND dynParamValue.user-id EQ USERID("ASI") THEN
   ENABLE {&outputObjects} WITH FRAME outputFrame.
 
 END PROCEDURE.
@@ -569,6 +622,19 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pReset s-object 
+PROCEDURE pReset :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RUN pShowParameterSets.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSave s-object 
 PROCEDURE pSave :
 /*------------------------------------------------------------------------------
@@ -591,8 +657,22 @@ PROCEDURE pShowParameterSets :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  RUN pCreateDynParameters (FRAME {&FRAME-NAME}:HANDLE, YES).
-  FRAME {&FRAME-NAME}:MOVE-TO-TOP().
+    DEFINE VARIABLE hWidget AS HANDLE NO-UNDO.
+
+    RUN pCreateDynParameters (FRAME {&FRAME-NAME}:HANDLE, YES).
+    FRAME {&FRAME-NAME}:MOVE-TO-TOP().
+    IF AVAILABLE dynParamValue AND dynParamValue.user-id EQ USERID("ASI") THEN
+    RETURN.
+    ASSIGN
+        hWidget = FRAME {&FRAME-NAME}:HANDLE
+        hWidget = hWidget:FIRST-CHILD
+        hWidget = hWidget:FIRST-CHILD
+        .
+    DO WHILE VALID-HANDLE(hWidget):
+        IF hWidget:SENSITIVE THEN
+        hWidget:SENSITIVE = NO.
+        hWidget = hWidget:NEXT-SIBLING.
+    END. /* do while */
 
 END PROCEDURE.
 

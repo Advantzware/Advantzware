@@ -94,7 +94,7 @@ DEFINE FRAME F-Main
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 160 BY 28.57
+         SIZE 160 BY 29.76
          BGCOLOR 15 .
 
 DEFINE FRAME OPTIONS-FRAME
@@ -131,7 +131,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW W-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Email Configuration"
-         HEIGHT             = 28.57
+         HEIGHT             = 29.76
          WIDTH              = 160
          MAX-HEIGHT         = 320
          MAX-WIDTH          = 320
@@ -257,6 +257,7 @@ END.
 
 /* Include custom  Main Block code for SmartWindows. */
 {src/adm/template/windowmn.i}
+{custom/initializeprocs.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -306,10 +307,10 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/folder.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'FOLDER-LABELS = ':U + 'Browse|View' + ',
+             INPUT  'FOLDER-LABELS = ':U + 'Browse|Detail' + ',
                      FOLDER-TAB-TYPE = 2':U ,
              OUTPUT h_folder ).
-       RUN set-position IN h_folder ( 1.71 , 1.00 ) NO-ERROR.
+       RUN set-position IN h_folder ( 2.86 , 1.00 ) NO-ERROR.
        RUN set-size IN h_folder ( 27.86 , 160.00 ) NO-ERROR.
 
        /* Links to SmartFolder h_folder. */
@@ -327,7 +328,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_emailconfig ).
-       RUN set-position IN h_emailconfig ( 3.14 , 2.00 ) NO-ERROR.
+       RUN set-position IN h_emailconfig ( 4.33 , 2.00 ) NO-ERROR.
        RUN set-size IN h_emailconfig ( 26.19 , 158.00 ) NO-ERROR.
 
        /* Initialize other pages that this page requires. */

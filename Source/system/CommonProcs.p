@@ -40,6 +40,18 @@ DEFINE VARIABLE lUserAMPM           AS LOGICAL   NO-UNDO.
 
 /* ************************  Function Prototypes ********************** */
 
+&IF DEFINED(EXCLUDE-fGetNK1Cecscrn) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetNK1Cecscrn Procedure 
+FUNCTION fGetNK1Cecscrn RETURNS CHARACTER PRIVATE
+  ( ipcCompany AS CHARACTER ) FORWARD.
+  
+  /* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+  
+
 &IF DEFINED(EXCLUDE-sfCommon_CheckIntDecValue) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfCommon_CheckIntDecValue Procedure 
@@ -50,6 +62,17 @@ FUNCTION sfCommon_CheckIntDecValue RETURNS CHARACTER
 &ANALYZE-RESUME
 
 &ENDIF
+
+&IF DEFINED(EXCLUDE-sfCommon_ConvDecimalTo1632) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfCommon_ConvDecimalTo1632 Procedure 
+FUNCTION sfCommon_ConvDecimalTo1632 RETURNS DECIMAL
+  (ipcCompany AS CHARACTER, ipdValue AS DECIMAL ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF  
 
 &IF DEFINED(EXCLUDE-sfCommon_DateOptionDate) = 0 &THEN
 
@@ -755,6 +778,38 @@ END PROCEDURE.
 
 /* ************************  Function Implementations ***************** */
 
+&IF DEFINED(EXCLUDE-fGetNK1Cecscrn) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetNK1Cecscrn Procedure 
+FUNCTION fGetNK1Cecscrn RETURNS CHARACTER PRIVATE
+  ( ipcCompany AS CHARACTER ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cReturnValue AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lRecFound    AS LOGICAL   NO-UNDO.
+            
+    RUN sys/ref/nk1look.p (
+        INPUT ipcCompany,         /* Company Code */ 
+        INPUT "CECSCRN",          /* sys-ctrl name */
+        INPUT "C",                /* Output return value */
+        INPUT NO,                 /* Use ship-to */
+        INPUT NO,                 /* ship-to vendor */
+        INPUT "",                 /* ship-to vendor value */
+        INPUT "",                 /* shi-id value */
+        OUTPUT cReturnValue, 
+        OUTPUT lRecFound
+        ).    
+    RETURN cReturnValue.
+    
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
 &IF DEFINED(EXCLUDE-sfCommon_CheckIntDecValue) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION sfCommon_CheckIntDecValue Procedure 
@@ -783,6 +838,50 @@ FUNCTION sfCommon_CheckIntDecValue RETURNS CHARACTER
         RETURN cTemp.
     ELSE
         RETURN ?. /* If no integers in the string return the unknown value. */
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
+&IF DEFINED(EXCLUDE-sfCommon_ConvDecimalTo1632) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION sfCommon_ConvDecimalTo1632 Procedure 
+FUNCTION sfCommon_ConvDecimalTo1632 RETURNS DECIMAL
+  ( ipcCompany AS CHARACTER, ipdValue AS DECIMAL ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE dReturnValue AS DECIMAL NO-UNDO.    
+    DEF VAR dli-16-32 AS DECIMAL INIT 16 NO-UNDO.
+    DEFINE VARIABLE dTotal AS DECIMAL EXTENT 2 NO-UNDO.
+    DEFINE VARIABLE cCecscrn AS CHARACTER NO-UNDO.
+    
+    cCecscrn = fGetNK1Cecscrn(ipcCompany).
+    
+    IF cCecscrn EQ "16th's" THEN.
+    ELSE IF cCecscrn EQ "32nd's" THEN
+     ASSIGN         
+        dli-16-32   = 32.
+    ELSE
+    IF cCecscrn EQ "Decimal" THEN
+      ASSIGN        
+         dli-16-32   = 1.
+         
+     dTotal[1]        = (IF cCecscrn NE "Decimal" THEN TRUNC(ipdValue,0)
+                                           ELSE ipdValue) .
+     IF cCecscrn NE "Decimal" THEN
+       ASSIGN
+       dTotal[2] = ((ipdValue - TRUNC(ipdValue,0)) * 100)
+       dTotal[1] = dTotal[1] + TRUNC(dTotal[2] / dli-16-32,0)
+       dTotal[2] = (dTotal[2] MODULO dli-16-32) / 100.
+       
+     dReturnValue = dTotal[1] + dTotal[2].        
+        
+     RETURN dReturnValue .        
 
 END FUNCTION.
 

@@ -27,6 +27,7 @@ DEFINE INPUT        PARAMETER ipcWarehouseID             AS CHARACTER NO-UNDO.
 DEFINE INPUT        PARAMETER ipcLocationID              AS CHARACTER NO-UNDO.
 DEFINE INPUT        PARAMETER ipcSSPostFG                AS CHARACTER NO-UNDO.
 DEFINE INPUT        PARAMETER ipcUsername                AS CHARACTER NO-UNDO.
+DEFINE OUTPUT       PARAMETER opriRctd                   AS ROWID     NO-UNDO.
 DEFINE OUTPUT       PARAMETER opdFinalQuantity           AS DECIMAL   NO-UNDO.
 DEFINE OUTPUT       PARAMETER oplSuccess                 AS LOGICAL   NO-UNDO.
 DEFINE OUTPUT       PARAMETER opcMessage                 AS CHARACTER NO-UNDO.
@@ -477,7 +478,8 @@ IF NOT lItemType THEN DO:
         INPUT        ipiQuantityPerSubUnit,
         INPUT        ipiQuantitySubUnitsPerUnit,
         INPUT        ipcWarehouseID,
-        INPUT        ipcLocationID
+        INPUT        ipcLocationID,
+        OUTPUT       opriRctd
         ) NO-ERROR.
     IF ERROR-STATUS:ERROR THEN DO:
         ASSIGN
@@ -571,7 +573,8 @@ ELSE DO:
         INPUT        ipiQuantityPerSubUnit,
         INPUT        ipiQuantitySubUnitsPerUnit,
         INPUT        ipcWarehouseID,
-        INPUT        ipcLocationID
+        INPUT        ipcLocationID,
+        OUTPUT       opriRctd
         ) NO-ERROR.
         
     IF ERROR-STATUS:ERROR THEN DO:
@@ -655,6 +658,7 @@ PROCEDURE pFGRecordCreation PRIVATE :
     DEFINE INPUT        PARAMETER ipiQuantitySubUnitsPerUnit AS INTEGER   NO-UNDO.
     DEFINE INPUT        PARAMETER ipcWarehouseID             AS CHARACTER NO-UNDO.
     DEFINE INPUT        PARAMETER ipcLocationID              AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT       PARAMETER opriFGRctd                 AS ROWID     NO-UNDO.
     
     DEFINE VARIABLE lAverageCost AS LOGICAL NO-UNDO.
     
@@ -707,7 +711,9 @@ PROCEDURE pFGRecordCreation PRIVATE :
         bf-fg-rctd.cost-uom  = cCostUOM
         bf-fg-rctd.ext-cost  = dExtCost
         bf-fg-rctd.frt-cost  = dFrtCost
-        bf-fg-rctd.i-no      = cPrimaryID       
+        bf-fg-rctd.i-no      = cPrimaryID   
+        bf-fg-rctd.enteredBy = ipcUserName
+        bf-fg-rctd.enteredDT = NOW    
         NO-ERROR.
         
     IF ERROR-STATUS:ERROR THEN DO:
@@ -782,6 +788,7 @@ PROCEDURE pFGRecordCreation PRIVATE :
         bf-fg-rctd.job-no2 = INT(ipcJobID2)
         bf-fg-rctd.po-no   = STRING(iopiPONo)
         bf-fg-rctd.po-line = ipiPOLine
+        opriFGRctd         = ROWID(bf-fg-rctd)
         .
         
     RELEASE bf-fg-rctd.
@@ -804,6 +811,7 @@ PROCEDURE pRMRecordCreation PRIVATE :
     DEFINE INPUT        PARAMETER ipiQuantitySubUnitsPerUnit AS INTEGER   NO-UNDO.
     DEFINE INPUT        PARAMETER ipcWarehouseID             AS CHARACTER NO-UNDO.
     DEFINE INPUT        PARAMETER ipcLocationID              AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT       PARAMETER opriRMRctd                 AS ROWID     NO-UNDO.
     
     DEFINE VARIABLE dCost AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dQty  AS DECIMAL NO-UNDO.
@@ -964,6 +972,7 @@ PROCEDURE pRMRecordCreation PRIVATE :
                                    INT(ipcJobID2)
                                ELSE
                                    loadtag.job-no2
+        opriRMRctd           = ROWID(bf-rm-rctd)
         .
 
     RELEASE bf-rm-rctd.

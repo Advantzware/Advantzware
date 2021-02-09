@@ -44,15 +44,17 @@ end.
 
 find first {2}account
     where {2}account.company eq {1}
-      and {2}account.actnum  eq gl-ctrl.contra.
+      and {2}account.actnum  eq gl-ctrl.contra no-error.
       
-if "{2}" eq "" then
+if "{2}" eq "" and avail {2}account then
   status default "Processing account: " + trim({2}account.actnum).
   
+if avail {2}account THEN
 assign
  {2}account.cyr = 0
  {2}account.lyr = 0.
-       
+
+if avail {2}account THEN       
 for each b-{2}acc
     where b-{2}acc.company eq {1}
       and b-{2}acc.actnum  ne gl-ctrl.contra
@@ -68,13 +70,15 @@ end.
   
 find first b-{2}acc
     where b-{2}acc.company eq {1}
-      and b-{2}acc.actnum  eq gl-ctrl.ret.
-        
-b-{2}acc.lyr-open = b-{2}acc.cyr-open.
+      and b-{2}acc.actnum  eq gl-ctrl.ret NO-ERROR.
+IF AVAIL b-{2}acc THEN
+DO:        
+ b-{2}acc.lyr-open = b-{2}acc.cyr-open.
  
-do i = 1 to company.num-per:
-  assign
-   b-{2}acc.lyr[i]   = b-{2}acc.lyr[i] - {2}account.lyr[i]
-   b-{2}acc.lyr-open = b-{2}acc.lyr-open - b-{2}acc.lyr[i].
-end.
+ do i = 1 to company.num-per:
+   assign
+    b-{2}acc.lyr[i]   = b-{2}acc.lyr[i] - {2}account.lyr[i]
+    b-{2}acc.lyr-open = b-{2}acc.lyr-open - b-{2}acc.lyr[i].
+ end.
+END.
 
