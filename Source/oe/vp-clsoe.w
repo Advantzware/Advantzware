@@ -103,12 +103,12 @@ RUN set-attribute-list (
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON Btn-Update 
      LABEL "&Close" 
-     SIZE 15 BY 1.67
+     SIZE 11 BY 1.43
      FONT 4.
 
 DEFINE RECTANGLE RECT-4
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 17 BY 2.14.
+     SIZE 13 BY 1.91.
 
 
 /* ************************  Frame Definitions  *********************** */

@@ -525,15 +525,6 @@ DEFINE INPUT PARAMETER panel-state AS CHARACTER NO-UNDO.
 DEF VAR char-hdl AS cha NO-UNDO.
 DEF VAR ll-avail AS LOG NO-UNDO.
 
-
-IF panel-state EQ "add-only" THEN DO:
-  ll-avail = NO.
-  RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"tableio-target",OUTPUT char-hdl).
-  IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
-    RUN check-for-record IN WIDGET-HANDLE(char-hdl) (INPUT-OUTPUT ll-avail).
-  IF ll-avail THEN panel-state = "initial".
-END.
-
 DO WITH FRAME Panel-Frame:
 
   IF panel-state = 'disable-all':U THEN DO:

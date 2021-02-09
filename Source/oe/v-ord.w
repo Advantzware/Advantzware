@@ -4200,6 +4200,26 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetOrderStatus V-table-Win 
+PROCEDURE GetOrderStatus :
+/*------------------------------------------------------------------------------
+ Purpose: Checks whether an order is available or not
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER oplAvailable AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplClosed    AS LOGICAL NO-UNDO.
+    
+    IF AVAILABLE oe-ord THEN 
+        ASSIGN  
+            oplAvailable = YES
+            oplClosed    = IF oe-ord.stat EQ "C" THEN YES ELSE NO
+            .
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE hide-comm V-table-Win 
 PROCEDURE hide-comm :
 /*------------------------------------------------------------------------------
