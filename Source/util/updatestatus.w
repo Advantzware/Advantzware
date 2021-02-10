@@ -43,31 +43,31 @@ DEFINE VARIABLE hdOutputProcs AS HANDLE    NO-UNDO.
 DEFINE TEMP-TABLE ttOe-ord NO-UNDO 
     FIELDS ord-no      AS INTEGER   LABEL "Order Number"
     FIELDS stat        AS CHARACTER LABEL "Previous Status"
-    FIELDS statDesc    AS CHARACTER LABEL "Description"
+    FIELDS statDesc    AS CHARACTER LABEL "Previous Status Description"
     FIELDS newStat     AS CHARACTER LABEL "Current Status"  
-    FIELDS newStatDesc AS CHARACTER LABEL "Description"
+    FIELDS newStatDesc AS CHARACTER LABEL "Current Status Description"
     .
 DEFINE TEMP-TABLE ttPo-ord NO-UNDO 
     FIELDS po-no       AS INTEGER   LABEL "Purchase Order Number"
     FIELDS stat        AS CHARACTER LABEL "Previous Status"   
-    FIELDS statDesc    AS CHARACTER LABEL "Description"
+    FIELDS statDesc    AS CHARACTER LABEL "Previous Status Description"
     FIELDS newStat     AS CHARACTER LABEL "Current Status"
-    FIELDS newStatDesc AS CHARACTER LABEL "Description"
+    FIELDS newStatDesc AS CHARACTER LABEL "Current Status Description"
     .
 DEFINE TEMP-TABLE ttJob NO-UNDO 
     FIELDS job-no      AS CHARACTER LABEL "Job Number"
     FIELDS stat        AS CHARACTER LABEL "Previous Status"   
-    FIELDS statDesc    AS CHARACTER LABEL "Description"
+    FIELDS statDesc    AS CHARACTER LABEL "Previous Status Description"
     FIELDS newStat     AS CHARACTER LABEL "Current Status"
-    FIELDS newStatDesc AS CHARACTER LABEL "Description"
+    FIELDS newStatDesc AS CHARACTER LABEL "Current Status Description"
     .
 DEFINE TEMP-TABLE ttOe-rel NO-UNDO 
     FIELDS ord-no      AS INTEGER   LABEL "Order Number"
     FIELDS rel-no      AS INTEGER   LABEL "Release Number"
-    FIELDS stat        AS CHARACTER LABEL "Description"   
-    FIELDS statDesc    AS CHARACTER LABEL "Inventory Value"
+    FIELDS stat        AS CHARACTER LABEL "Previous Status"  
+    FIELDS statDesc    AS CHARACTER LABEL "Previous Status Description" 
     FIELDS newStat     AS CHARACTER LABEL "Current Status"
-    FIELDS newStatDesc AS CHARACTER LABEL "Description"
+    FIELDS newStatDesc AS CHARACTER LABEL "Current Status Description"
     .
 
 RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
@@ -491,26 +491,30 @@ DO:
     DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cResult  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cNewStat AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cocode   AS CHARACTER NO-UNDO.
     
     EMPTY TEMP-TABLE  ttOe-rel.
     EMPTY TEMP-TABLE  ttOe-ord.
     EMPTY TEMP-TABLE  ttPo-ord.
     EMPTY TEMP-TABLE  ttJob.
     
-    IF tbUpdateReleases:CHECKED  THEN 
+    RUN spGetSessionParam ("Company", OUTPUT cocode).
+    
+    IF tbUpdateReleases:CHECKED THEN 
     DO:        
-        FOR EACH oe-rel NO-LOCK WHERE oe-rel.ord-no GE fiBeginOrder:INPUT-VALUE   
-                                  AND oe-rel.ord-no LE fiEndingOrder:INPUT-VALUE:
+        FOR EACH oe-rel NO-LOCK 
+           WHERE oe-rel.company EQ cocode
+             AND oe-rel.ord-no  GE fiBeginOrder:INPUT-VALUE   
+             AND oe-rel.ord-no  LE fiEndingOrder:INPUT-VALUE:
             CREATE ttOe-rel.
             ASSIGN 
                 ttOe-rel.ord-no = oe-rel.ord-no
                 ttOe-rel.rel-no = oe-rel.rel-no
                 ttOe-rel.stat   = oe-rel.stat
-                .
-                
+                .               
             FIND FIRST oe-ord NO-LOCK
                 WHERE oe-ord.company EQ oe-rel.company
-                AND oe-ord.ord-no  EQ oe-rel.ord-no
+                  AND oe-ord.ord-no  EQ oe-rel.ord-no
                 NO-ERROR.
             IF AVAIL oe-ord THEN 
             DO:
@@ -536,13 +540,15 @@ DO:
     END.          
     IF tbupdatePurchaseOrders:CHECKED  THEN 
     DO:
-       FOR EACH po-ord NO-LOCK WHERE po-ord.po-no GE  fiBeginPO:INPUT-VALUE
-                                 AND po-ord.po-no LE fiEndingPO:INPUT-VALUE:
+       FOR EACH po-ord NO-LOCK 
+          WHERE po-ord.company EQ cocode
+            AND po-ord.po-no   GE fiBeginPO:INPUT-VALUE
+            AND po-ord.po-no   LE fiEndingPO:INPUT-VALUE:
            CREATE ttPo-ord.
            ASSIGN 
            ttPo-ord.po-no = po-ord.po-no
            ttPo-ord.stat   = po-ord.stat.
-           IF po-ord.opened NE (po-ord.stat NE "c") THEN 
+           IF po-ord.opened NE (po-ord.stat NE "C") THEN 
                ttPo-ord.newstat = po-ord.stat.
            RUN oe/getStatusDesc.p( INPUT po-ord.stat, OUTPUT cResult) .
            ttPo-ord.statDesc = cResult.
@@ -562,8 +568,9 @@ DO:
     IF tbUpdateOrderStatus:CHECKED THEN 
     DO:
         FOR EACH oe-ord NO-LOCK
-           WHERE oe-ord.ord-no GE fiBeginOrder:INPUT-VALUE 
-             AND oe-ord.ord-no LE fiEndingOrder:INPUT-VALUE:
+           WHERE oe-ord.company EQ cocode
+             AND oe-ord.ord-no  GE fiBeginOrder:INPUT-VALUE 
+             AND oe-ord.ord-no  LE fiEndingOrder:INPUT-VALUE:
             CREATE ttOe-ord.
             ASSIGN 
             ttOe-ord.ord-no = oe-ord.ord-no
@@ -587,8 +594,10 @@ DO:
     END.
     IF tbUpdateJobStatus:CHECKED  THEN  
     DO:
-        FOR EACH job NO-LOCK WHERE job.job-no GE fiBeginOrder:INPUT-VALUE
-                                  AND job.job-no LE fiEndingOrder:INPUT-VALUE :
+        FOR EACH job NO-LOCK 
+            WHERE job.company EQ cocode
+              AND job.job-no  GE fiBeginOrder:INPUT-VALUE
+              AND job.job-no  LE fiEndingOrder:INPUT-VALUE :
             CREATE ttJob.
             ASSIGN 
             ttJob.job-no = job.job-no
