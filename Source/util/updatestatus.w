@@ -45,33 +45,33 @@ DEFINE VARIABLE hdOutputProcs AS HANDLE NO-UNDO.
 
 
 DEFINE TEMP-TABLE ttOe-ord NO-UNDO 
-    FIELDS ord-no AS INTEGER 
-    FIELDS stat AS CHARACTER
-    FIELDS newStat AS CHARACTER
-    FIELDS statDesc AS CHARACTER
-    FIELDS newStatDesc AS CHARACTER
+    FIELDS ord-no AS INTEGER  LABEL "Order Number"
+    FIELDS stat AS CHARACTER LABEL "Previous Status"
+    FIELDS statDesc AS CHARACTER LABEL "Description"
+    FIELDS newStat AS CHARACTER LABEL "Current Status"  
+    FIELDS newStatDesc AS CHARACTER LABEL "Description"
     .
 DEFINE TEMP-TABLE ttPo-ord NO-UNDO 
-    FIELDS po-no  AS INTEGER
-    FIELDS stat    AS CHARACTER
-    FIELDS newStat AS CHARACTER
-    FIELDS statDesc AS CHARACTER
-    FIELDS newStatDesc AS CHARACTER
+    FIELDS po-no  AS INTEGER LABEL "Purchase Order Number"
+    FIELDS stat    AS CHARACTER LABEL "Previous Status"   
+    FIELDS statDesc AS CHARACTER LABEL "Description"
+    FIELDS newStat AS CHARACTER LABEL "Current Status"
+    FIELDS newStatDesc AS CHARACTER LABEL "Description"
     .
 DEFINE TEMP-TABLE ttJob NO-UNDO 
-    FIELDS job-no  AS CHARACTER
-    FIELDS stat    AS CHARACTER
-    FIELDS newStat AS CHARACTER
-    FIELDS statDesc AS CHARACTER
-    FIELDS newStatDesc AS CHARACTER
+    FIELDS job-no  AS CHARACTER LABEL "Job Number"
+    FIELDS stat    AS CHARACTER LABEL "Previous Status"   
+    FIELDS statDesc AS CHARACTER LABEL "Description"
+    FIELDS newStat AS CHARACTER LABEL "Current Status"
+    FIELDS newStatDesc AS CHARACTER LABEL "Description"
     .
 DEFINE TEMP-TABLE ttOe-rel NO-UNDO 
-    FIELDS ord-no  AS INTEGER
-    FIELDS rel-no  AS INTEGER
-    FIELDS stat    AS CHARACTER
-    FIELDS newStat AS CHARACTER
-    FIELDS statDesc AS CHARACTER
-    FIELDS newStatDesc AS CHARACTER
+    FIELDS ord-no  AS INTEGER LABEL "Order Number"
+    FIELDS rel-no  AS INTEGER LABEL "Release Number"
+    FIELDS stat    AS CHARACTER LABEL "Description"   
+    FIELDS statDesc AS CHARACTER LABEL "Inventory Value"
+    FIELDS newStat AS CHARACTER LABEL "Current Status"
+    FIELDS newStatDesc AS CHARACTER LABEL "Description"
     .
 
 RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
@@ -135,7 +135,7 @@ DEFINE VARIABLE fiBeginJob AS CHARACTER FORMAT "X(256)":U INITIAL "210355"
      SIZE 14 BY 1
      FONT 22 NO-UNDO.
 
-DEFINE VARIABLE fiBeginOrder AS INTEGER FORMAT ">>>>>>9":U INITIAL 208221 
+DEFINE VARIABLE fiBeginOrder AS CHARACTER FORMAT "X(256)":U INITIAL "208221" 
      LABEL "Begin Order" 
      VIEW-AS FILL-IN 
      SIZE 14 BY 1
@@ -368,6 +368,8 @@ DO:
     DEFINE VARIABLE cFoundValue   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE recFoundRecID AS RECID     NO-UNDO.
     DEFINE VARIABLE g_company AS CHARACTER.
+    
+    g_company = "001".
     CASE FOCUS:NAME :
         WHEN "fiBeginPo" OR 
         WHEN "fiEndingPo"  THEN DO:
@@ -486,28 +488,11 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btSimulate C-Win
 ON CHOOSE OF btSimulate IN FRAME DEFAULT-FRAME /* Simulate */
 DO:   
-  /*  ASSIGN
-        fiBeginPo:hidden        = TRUE
-        fiEndingPo:hidden       = TRUE
-        fiBeginPo:visible       = FALSE
-        fiEndingPo:visible      = FALSE
-        fiBeginJob:hidden       = TRUE
-        fiEndingJob:hidden      = TRUE
-        fiBeginJob:visible      = FALSE
-        fiEndingJob:visible     = FALSE
-        fiBeginOrder:hidden     = TRUE
-        fiEndingOrder:hidden    = TRUE
-        fiBeginOrder:visible    = FALSE
-        fiEndingOrder:visible   = FALSE
-        fiBeginRelease:hidden   = TRUE
-        fiEndingRelease:hidden  = TRUE
-        fiBeginRelease:visible  = FALSE
-        fiEndingRelease:visible = FALSE
-        .*/
+
     DEFINE VARIABLE lSuccess AS LOGICAL.
     DEFINE VARIABLE cMessage AS CHARACTER.
     DEFINE VARIABLE cResult AS CHARACTER.
-    cLocation = "C:\bakup". 
+   // cLocation = "C:\bakup". 
     IF tbUpdateReleases:CHECKED  THEN 
     DO:        
         FOR EACH oe-rel NO-LOCK WHERE oe-rel.ord-no GE fiBeginOrder:INPUT-VALUE   
@@ -516,7 +501,7 @@ DO:
             ASSIGN 
                 ttOe-rel.ord-no = oe-rel.ord-no
                 ttOe-rel.rel-no = oe-rel.rel-no
-                ttOe-rel.stat   = job.stat
+                ttOe-rel.stat   = oe-rel.stat
                 .
                 
             FIND FIRST oe-ord NO-LOCK
@@ -529,6 +514,10 @@ DO:
             END.
             ELSE newStat = "S".
             ttOe-rel.newstat = newStat.
+            RUN oe/getReleaseStatusDesc.p( INPUT oe-rel.stat, OUTPUT cResult) .
+            ttOe-rel.statDesc = cResult.
+            RUN oe/getReleaseStatusDesc.p( INPUT ttOe-rel.newstat, OUTPUT cResult) .
+            ttOe-rel.newstatDesc = cResult.
         END.
           
         RUN Output_TempTableToCSV IN hdOutputProcs (
@@ -549,11 +538,11 @@ DO:
                ASSIGN 
                ttPo-ord.po-no = po-ord.po-no
                ttPo-ord.stat   = po-ord.stat.
-               IF job.opened NE (po-ord.stat NE "c") THEN 
+               IF po-ord.opened NE (po-ord.stat NE "c") THEN 
                    ttPo-ord.newstat = po-ord.stat.
-               RUN oe/getStatusDesc.p( INPUT oe-ord.stat, OUTPUT cResult) .
+               RUN oe/getStatusDesc.p( INPUT po-ord.stat, OUTPUT cResult) .
                ttPo-ord.statDesc = cResult.
-               RUN oe/getStatusDesc.p( INPUT ttOe-ord.newstat, OUTPUT cResult) .
+               RUN oe/getStatusDesc.p( INPUT ttPo-ord.newstat, OUTPUT cResult) .
                ttPo-ord.newstatDesc = cResult.
             END. 
               
@@ -602,6 +591,10 @@ DO:
             ttJob.stat = job.stat.
             IF job.opened NE (INDEX("CZ",job.stat) LE 0) THEN 
                 ttJob.newstat = job.stat.
+            RUN oe/getJobStatusDesc.p( INPUT job.stat, OUTPUT cResult) .
+            ttJob.statDesc = cResult.
+            RUN oe/getJobStatusDesc.p( INPUT ttJob.newstat, OUTPUT cResult) .
+            ttJob.newstatDesc = cResult.
         END. 
           
         RUN Output_TempTableToCSV IN hdOutputProcs (
