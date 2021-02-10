@@ -574,7 +574,7 @@ FUNCTION fGetConcatJob RETURNS CHARACTER
        
     IF AVAILABLE ttBrowseInventory AND ttBrowseInventory.jobID NE "" THEN DO:
         cConcatJob = ttBrowseInventory.jobID 
-                   + FILL(" ", (iWarehouseLength + 1 )- LENGTH(ttBrowseInventory.jobID)) 
+                   + FILL(" ", 6 - LENGTH(ttBrowseInventory.jobID)) 
                    + "-"
                    + STRING(ttBrowseInventory.jobID2,"99").
     END.

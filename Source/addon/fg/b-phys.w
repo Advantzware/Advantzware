@@ -662,7 +662,7 @@ DO:
           DEF VAR v-locbin AS cha NO-UNDO.
           v-locbin = SELF:SCREEN-VALUE.
           ASSIGN fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name} = SUBSTRING(v-locbin,1,iWarehouseLength)
-                 fg-rctd.loc-bin:SCREEN-VALUE = SUBSTRING(v-locbin,iWarehouseLength + 1,8).
+                 fg-rctd.loc-bin:SCREEN-VALUE = SUBSTRING(v-locbin,iWarehouseLength + 1).
 
         RUN ValidateBin IN hInventoryProcs (cocode, fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}, 
             fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}, 

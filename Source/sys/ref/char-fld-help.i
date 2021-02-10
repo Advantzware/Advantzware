@@ -38,7 +38,7 @@ IF ls-cur-val EQ 'FGWHSBIN' THEN DO:
   ELSE
   ASSIGN
     lv-loc     = SUBSTR({&tableName}.char-fld:SCREEN-VALUE,1,iWarehouseLength)
-    lv-loc-bin = SUBSTR({&tableName}.char-fld:SCREEN-VALUE,iWarehouseLength + 1,8).
+    lv-loc-bin = SUBSTR({&tableName}.char-fld:SCREEN-VALUE,iWarehouseLength + 1).
   RUN windows/l-fgbin.w (gcompany, lv-loc, lv-loc-bin, OUTPUT char-val).
   IF char-val NE '' THEN
   {&tableName}.char-fld:SCREEN-VALUE = STRING(ENTRY(2,char-val),'x(5)') + TRIM(ENTRY(1,char-val)).
@@ -63,7 +63,7 @@ ELSE IF ls-cur-val EQ 'RMWHSBIN' THEN DO:
   ELSE
   ASSIGN
     lv-loc     = SUBSTR({&tableName}.char-fld:SCREEN-VALUE,1,iWarehouseLength)
-    lv-loc-bin = SUBSTR({&tableName}.char-fld:SCREEN-VALUE,iWarehouseLength + 1,8).
+    lv-loc-bin = SUBSTR({&tableName}.char-fld:SCREEN-VALUE,iWarehouseLength + 1).
   RUN windows/l-rmbin.w (gcompany,lv-loc,lv-loc-bin,OUTPUT char-val).
   IF char-val NE '' THEN
   {&tableName}.char-fld:SCREEN-VALUE = STRING(ENTRY(2,char-val),'x(5)') + TRIM(ENTRY(1,char-val)).

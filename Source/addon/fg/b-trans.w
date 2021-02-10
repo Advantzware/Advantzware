@@ -705,7 +705,7 @@ DO:
           DEF VAR v-locbin AS cha NO-UNDO.
           v-locbin = SELF:SCREEN-VALUE.
           ASSIGN fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name} = SUBSTRING(v-locbin,1,iWarehouseLength)
-                 fg-rctd.loc-bin:SCREEN-VALUE = SUBSTRING(v-locbin,iWarehouseLength + 1,8).
+                 fg-rctd.loc-bin:SCREEN-VALUE = SUBSTRING(v-locbin,iWarehouseLength + 1).
      END.
 
      RUN valid-job-loc-bin-tag NO-ERROR.
@@ -830,7 +830,7 @@ DO:
           DEF VAR v-locbin AS cha NO-UNDO.
           v-locbin = FOCUS:SCREEN-VALUE.
           ASSIGN fg-rctd.loc2:SCREEN-VALUE IN BROWSE {&browse-name} = SUBSTRING(v-locbin,1,iWarehouseLength)
-                 fg-rctd.loc-bin2:SCREEN-VALUE = SUBSTRING(v-locbin,iWarehouseLength + 1,8).
+                 fg-rctd.loc-bin2:SCREEN-VALUE = SUBSTRING(v-locbin,iWarehouseLength + 1).
        END.
 
     RUN valid-loc2 NO-ERROR.

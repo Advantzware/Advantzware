@@ -1995,7 +1995,7 @@ DO:
                 ELSE
                 ASSIGN
                     cLoc    = SUBSTR(cFieldValue:SCREEN-VALUE,1,iWarehouseLength)
-                    cLocBin = SUBSTR(cFieldValue:SCREEN-VALUE,iWarehouseLength + 1,8)
+                    cLocBin = SUBSTR(cFieldValue:SCREEN-VALUE,iWarehouseLength + 1)
                     .
                 RUN windows/l-fgbin.w (gcompany, cLoc, cLocBin, OUTPUT cCharValue).
                 IF cCharValue NE "" THEN
@@ -2016,7 +2016,7 @@ DO:
                 ELSE
                 ASSIGN
                     cLoc    = SUBSTR(cFieldValue:SCREEN-VALUE,1,iWarehouseLength)
-                    cLocBin = SUBSTR(cFieldValue:SCREEN-VALUE,iWarehouseLength + 1,8)
+                    cLocBin = SUBSTR(cFieldValue:SCREEN-VALUE,iWarehouseLength + 1)
                     .
                 RUN windows/l-rmbin.w (gcompany,cLoc,cLocBin,OUTPUT cCharValue).
                 IF cCharValue NE "" THEN

@@ -677,7 +677,7 @@ DO:
 
           cLocBin = SELF:SCREEN-VALUE.
           ASSIGN rm-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name} = SUBSTRING(cLocBin,1,iWarehouseLength)
-                 rm-rctd.loc-bin:SCREEN-VALUE = SUBSTRING(cLocBin,iWarehouseLength + 1,8).
+                 rm-rctd.loc-bin:SCREEN-VALUE = SUBSTRING(cLocBin,iWarehouseLength + 1).
        END.
     END.
 

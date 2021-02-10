@@ -100,7 +100,7 @@ IF AVAIL itemfg THEN DO:
   ELSE
     ASSIGN
      op-loc     = SUBSTR(fgwhsbin-cha,1,iWarehouseLength)
-     op-loc-bin = SUBSTR(fgwhsbin-cha,iWarehouseLength + 1,8).
+     op-loc-bin = SUBSTR(fgwhsbin-cha,iWarehouseLength + 1).
 
   IF fgwhsbin-cha NE "FGITEM" THEN DO:
     IF NOT AVAIL fg-bin THEN
