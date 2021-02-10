@@ -34,47 +34,44 @@ CREATE WIDGET-POOL.
 
 /* Parameters Definitions ---                                           */
 
-DEFINE  TEMP-TABLE printcsv
-FIELDS num AS CHARACTER
-FIELDS oldstat AS CHARACTER 
-FIELDS NEWstat AS CHARACTER.
+{methods/prgsecur.i}
 
-DEFINE VARIABLE cStatUpd  AS CHARACTER.
-DEFINE VARIABLE cLocation AS CHARACTER NO-UNDO.
-DEFINE VARIABLE hdOutputProcs AS HANDLE NO-UNDO.
-
+DEFINE VARIABLE cStatUpd      AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cLocation     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hdOutputProcs AS HANDLE    NO-UNDO.
 
 DEFINE TEMP-TABLE ttOe-ord NO-UNDO 
-    FIELDS ord-no AS INTEGER  LABEL "Order Number"
-    FIELDS stat AS CHARACTER LABEL "Previous Status"
-    FIELDS statDesc AS CHARACTER LABEL "Description"
-    FIELDS newStat AS CHARACTER LABEL "Current Status"  
+    FIELDS ord-no      AS INTEGER   LABEL "Order Number"
+    FIELDS stat        AS CHARACTER LABEL "Previous Status"
+    FIELDS statDesc    AS CHARACTER LABEL "Description"
+    FIELDS newStat     AS CHARACTER LABEL "Current Status"  
     FIELDS newStatDesc AS CHARACTER LABEL "Description"
     .
 DEFINE TEMP-TABLE ttPo-ord NO-UNDO 
-    FIELDS po-no  AS INTEGER LABEL "Purchase Order Number"
-    FIELDS stat    AS CHARACTER LABEL "Previous Status"   
-    FIELDS statDesc AS CHARACTER LABEL "Description"
-    FIELDS newStat AS CHARACTER LABEL "Current Status"
+    FIELDS po-no       AS INTEGER   LABEL "Purchase Order Number"
+    FIELDS stat        AS CHARACTER LABEL "Previous Status"   
+    FIELDS statDesc    AS CHARACTER LABEL "Description"
+    FIELDS newStat     AS CHARACTER LABEL "Current Status"
     FIELDS newStatDesc AS CHARACTER LABEL "Description"
     .
 DEFINE TEMP-TABLE ttJob NO-UNDO 
-    FIELDS job-no  AS CHARACTER LABEL "Job Number"
-    FIELDS stat    AS CHARACTER LABEL "Previous Status"   
-    FIELDS statDesc AS CHARACTER LABEL "Description"
-    FIELDS newStat AS CHARACTER LABEL "Current Status"
+    FIELDS job-no      AS CHARACTER LABEL "Job Number"
+    FIELDS stat        AS CHARACTER LABEL "Previous Status"   
+    FIELDS statDesc    AS CHARACTER LABEL "Description"
+    FIELDS newStat     AS CHARACTER LABEL "Current Status"
     FIELDS newStatDesc AS CHARACTER LABEL "Description"
     .
 DEFINE TEMP-TABLE ttOe-rel NO-UNDO 
-    FIELDS ord-no  AS INTEGER LABEL "Order Number"
-    FIELDS rel-no  AS INTEGER LABEL "Release Number"
-    FIELDS stat    AS CHARACTER LABEL "Description"   
-    FIELDS statDesc AS CHARACTER LABEL "Inventory Value"
-    FIELDS newStat AS CHARACTER LABEL "Current Status"
+    FIELDS ord-no      AS INTEGER   LABEL "Order Number"
+    FIELDS rel-no      AS INTEGER   LABEL "Release Number"
+    FIELDS stat        AS CHARACTER LABEL "Description"   
+    FIELDS statDesc    AS CHARACTER LABEL "Inventory Value"
+    FIELDS newStat     AS CHARACTER LABEL "Current Status"
     FIELDS newStatDesc AS CHARACTER LABEL "Description"
     .
 
 RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
+
 /* Local Variable Definitions ---                                       */
 
 /* _UIB-CODE-BLOCK-END */
@@ -129,25 +126,25 @@ DEFINE BUTTON btSimulate
      LABEL "Simulate" 
      SIZE 16 BY 1.43.
 
-DEFINE VARIABLE fiBeginJob AS CHARACTER FORMAT "X(256)":U INITIAL "210355" 
+DEFINE VARIABLE fiBeginJob AS CHARACTER FORMAT "X(256)":U 
      LABEL "Begin Job" 
      VIEW-AS FILL-IN 
      SIZE 14 BY 1
      FONT 22 NO-UNDO.
 
-DEFINE VARIABLE fiBeginOrder AS CHARACTER FORMAT "X(256)":U INITIAL "208221" 
+DEFINE VARIABLE fiBeginOrder AS INTEGER FORMAT ">>>>>>>":U INITIAL 0 
      LABEL "Begin Order" 
      VIEW-AS FILL-IN 
      SIZE 14 BY 1
      FONT 22 NO-UNDO.
 
-DEFINE VARIABLE fiBeginPO AS INTEGER FORMAT ">>>>>>9":U INITIAL 210565 
+DEFINE VARIABLE fiBeginPO AS INTEGER FORMAT ">>>>>>>":U INITIAL 0 
      LABEL "Begin PO" 
      VIEW-AS FILL-IN 
      SIZE 14 BY 1
      FONT 22 NO-UNDO.
 
-DEFINE VARIABLE fiBeginRelease AS INTEGER FORMAT ">>>>>>9":U INITIAL 208221 
+DEFINE VARIABLE fiBeginRelease AS INTEGER FORMAT ">>>>>>>":U INITIAL 0 
      LABEL "Begin Release" 
      VIEW-AS FILL-IN 
      SIZE 14 BY 1
@@ -158,25 +155,25 @@ DEFINE VARIABLE fiDirectory AS CHARACTER FORMAT "X(256)":U
      SIZE 56 BY 1
      FONT 22 NO-UNDO.
 
-DEFINE VARIABLE fiEndingJob AS CHARACTER FORMAT "X(256)":U INITIAL "210722" 
+DEFINE VARIABLE fiEndingJob AS CHARACTER FORMAT "X(256)":U 
      LABEL "Ending Job" 
      VIEW-AS FILL-IN 
      SIZE 14 BY 1
      FONT 22 NO-UNDO.
 
-DEFINE VARIABLE fiEndingOrder AS INTEGER FORMAT ">>>>>>9":U INITIAL 208230 
+DEFINE VARIABLE fiEndingOrder AS INTEGER FORMAT ">>>>>>>":U INITIAL 0 
      LABEL "Ending Order" 
      VIEW-AS FILL-IN 
      SIZE 14 BY 1
      FONT 22 NO-UNDO.
 
-DEFINE VARIABLE fiEndingPO AS INTEGER FORMAT ">>>>>>9":U INITIAL 213576 
+DEFINE VARIABLE fiEndingPO AS INTEGER FORMAT ">>>>>>>":U INITIAL 0 
      LABEL "Ending PO" 
      VIEW-AS FILL-IN 
      SIZE 14 BY 1
      FONT 22 NO-UNDO.
 
-DEFINE VARIABLE fiEndingRelease AS INTEGER FORMAT ">>>>>>9":U INITIAL 208223 
+DEFINE VARIABLE fiEndingRelease AS INTEGER FORMAT ">>>>>>>":U INITIAL 0 
      LABEL "Ending Release" 
      VIEW-AS FILL-IN 
      SIZE 14 BY 1 NO-UNDO.
@@ -231,11 +228,11 @@ DEFINE FRAME DEFAULT-FRAME
      fiBeginPO AT ROW 9.19 COL 47.4 COLON-ALIGNED WIDGET-ID 30
      fiEndingPO AT ROW 9.19 COL 78.4 COLON-ALIGNED WIDGET-ID 32
      tbupdatePurchaseOrders AT ROW 9.38 COL 5.6 WIDGET-ID 4
-     fiDirectory AT ROW 11.91 COL 16 COLON-ALIGNED NO-LABEL WIDGET-ID 12
-     btSimulate AT ROW 13.76 COL 28 WIDGET-ID 34
-     btExecute AT ROW 13.76 COL 49.6 WIDGET-ID 38
+     fiDirectory AT ROW 11.91 COL 18.4 COLON-ALIGNED NO-LABEL WIDGET-ID 12
+     btSimulate AT ROW 13.76 COL 31.6 WIDGET-ID 34
+     btExecute AT ROW 13.76 COL 53.2 WIDGET-ID 38
      "Records to view or recover purged information will be stored in directory:" VIEW-AS TEXT
-          SIZE 81.8 BY .62 AT ROW 11.05 COL 10 WIDGET-ID 10
+          SIZE 81.8 BY .62 AT ROW 11.05 COL 9.6 WIDGET-ID 10
           FONT 22
      RECT-1 AT ROW 3.91 COL 4 WIDGET-ID 40
      RECT-14 AT ROW 1 COL 1 WIDGET-ID 322
@@ -367,9 +364,7 @@ DO:
     DEFINE VARIABLE cFieldsValue  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cFoundValue   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE recFoundRecID AS RECID     NO-UNDO.
-    DEFINE VARIABLE g_company AS CHARACTER.
     
-    g_company = "001".
     CASE FOCUS:NAME :
         WHEN "fiBeginPo" OR 
         WHEN "fiEndingPo"  THEN DO:
@@ -432,13 +427,12 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btExecute C-Win
 ON CHOOSE OF btExecute IN FRAME DEFAULT-FRAME /* Execute */
 DO:   
-    FOR EACH ttOe-rel:  
-                     
+    FOR EACH ttOe-rel:                      
         FOR FIRST  oe-rel EXCLUSIVE-LOCK 
             WHERE oe-rel.ord-no EQ ttOe-rel.ord-no
               AND  oe-rel.rel-no EQ ttOe-rel.rel-no:
             ASSIGN 
-                oe-rel.stat = ttOe-ord.newstat.
+                oe-rel.stat = ttOe-rel.newstat.
         END.
     END.
     FOR EACH ttPo-ord:
@@ -448,13 +442,9 @@ DO:
                 po-ord.stat = ttPo-ord.newstat.
         END.
      END.
-     FOR EACH ttOe-ord:
-         MESSAGE  ttoe-ord.ord-no "ttoe-ord.ord-no"
-             VIEW-AS ALERT-BOX.   
+     FOR EACH ttOe-ord:   
         FOR FIRST  oe-ord EXCLUSIVE-LOCK 
             WHERE oe-ord.ord-no EQ ttOe-ord.ord-no:
-            MESSAGE  oe-ord.ord-no "oe-ord.ord-no"
-                VIEW-AS ALERT-BOX. 
             ASSIGN 
                 oe-ord.stat = ttOe-ord.newstat.
         END.                    
@@ -466,6 +456,15 @@ DO:
                 job.stat = ttJob.newstat.
         END.
     END.
+    
+    EMPTY TEMP-TABLE  ttOe-rel.
+    EMPTY TEMP-TABLE  ttOe-ord.
+    EMPTY TEMP-TABLE  ttPo-ord.
+    EMPTY TEMP-TABLE  ttJob.
+    
+    MESSAGE "Status have been updated."
+    VIEW-AS ALERT-BOX.
+    
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -475,8 +474,7 @@ END.
 &Scoped-define SELF-NAME btExit
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btExit C-Win
 ON CHOOSE OF btExit IN FRAME DEFAULT-FRAME /* Exit */
-DO:
-           
+DO:          
     APPLY "CLOSE":U TO THIS-PROCEDURE.
 END.
 
@@ -489,10 +487,16 @@ END.
 ON CHOOSE OF btSimulate IN FRAME DEFAULT-FRAME /* Simulate */
 DO:   
 
-    DEFINE VARIABLE lSuccess AS LOGICAL.
-    DEFINE VARIABLE cMessage AS CHARACTER.
-    DEFINE VARIABLE cResult AS CHARACTER.
-   // cLocation = "C:\bakup". 
+    DEFINE VARIABLE lSuccess AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cResult  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cNewStat AS CHARACTER NO-UNDO.
+    
+    EMPTY TEMP-TABLE  ttOe-rel.
+    EMPTY TEMP-TABLE  ttOe-ord.
+    EMPTY TEMP-TABLE  ttPo-ord.
+    EMPTY TEMP-TABLE  ttJob.
+    
     IF tbUpdateReleases:CHECKED  THEN 
     DO:        
         FOR EACH oe-rel NO-LOCK WHERE oe-rel.ord-no GE fiBeginOrder:INPUT-VALUE   
@@ -510,10 +514,11 @@ DO:
                 NO-ERROR.
             IF AVAIL oe-ord THEN 
             DO:
-            {oe/rel-stat.i newStat}
+                {oe/rel-stat.i cNewStat}
             END.
-            ELSE newStat = "S".
-            ttOe-rel.newstat = newStat.
+            ELSE 
+                cNewStat = "S".
+            ttOe-rel.newstat = cNewStat.
             RUN oe/getReleaseStatusDesc.p( INPUT oe-rel.stat, OUTPUT cResult) .
             ttOe-rel.statDesc = cResult.
             RUN oe/getReleaseStatusDesc.p( INPUT ttOe-rel.newstat, OUTPUT cResult) .
@@ -528,58 +533,57 @@ DO:
             OUTPUT lSuccess,
             OUTPUT cMessage
             ).
-     END.
-            
+    END.          
     IF tbupdatePurchaseOrders:CHECKED  THEN 
-        DO:
-           FOR EACH po-ord NO-LOCK WHERE po-ord.po-no GE  fiBeginPO:INPUT-VALUE
-                                     AND po-ord.po-no LE fiEndingPO:INPUT-VALUE:
-               CREATE ttPo-ord.
-               ASSIGN 
-               ttPo-ord.po-no = po-ord.po-no
-               ttPo-ord.stat   = po-ord.stat.
-               IF po-ord.opened NE (po-ord.stat NE "c") THEN 
-                   ttPo-ord.newstat = po-ord.stat.
-               RUN oe/getStatusDesc.p( INPUT po-ord.stat, OUTPUT cResult) .
-               ttPo-ord.statDesc = cResult.
-               RUN oe/getStatusDesc.p( INPUT ttPo-ord.newstat, OUTPUT cResult) .
-               ttPo-ord.newstatDesc = cResult.
-            END. 
-              
-            RUN Output_TempTableToCSV IN hdOutputProcs (
-                INPUT TEMP-TABLE ttPo-ord:HANDLE,
-                INPUT cLocation + "\PurchaseOrder.csv",
-                INPUT TRUE,  /* Export Header */
-                INPUT FALSE, /* Auto increment File name */
-                OUTPUT lSuccess,
-                OUTPUT cMessage
-                ).
+    DO:
+       FOR EACH po-ord NO-LOCK WHERE po-ord.po-no GE  fiBeginPO:INPUT-VALUE
+                                 AND po-ord.po-no LE fiEndingPO:INPUT-VALUE:
+           CREATE ttPo-ord.
+           ASSIGN 
+           ttPo-ord.po-no = po-ord.po-no
+           ttPo-ord.stat   = po-ord.stat.
+           IF po-ord.opened NE (po-ord.stat NE "c") THEN 
+               ttPo-ord.newstat = po-ord.stat.
+           RUN oe/getStatusDesc.p( INPUT po-ord.stat, OUTPUT cResult) .
+           ttPo-ord.statDesc = cResult.
+           RUN oe/getStatusDesc.p( INPUT ttPo-ord.newstat, OUTPUT cResult) .
+           ttPo-ord.newstatDesc = cResult.
+        END. 
+          
+        RUN Output_TempTableToCSV IN hdOutputProcs (
+            INPUT TEMP-TABLE ttPo-ord:HANDLE,
+            INPUT cLocation + "\PurchaseOrder.csv",
+            INPUT TRUE,  /* Export Header */
+            INPUT FALSE, /* Auto increment File name */
+            OUTPUT lSuccess,
+            OUTPUT cMessage
+            ).
+    END.
+    IF tbUpdateOrderStatus:CHECKED THEN 
+    DO:
+        FOR EACH oe-ord NO-LOCK
+           WHERE oe-ord.ord-no GE fiBeginOrder:INPUT-VALUE 
+             AND oe-ord.ord-no LE fiEndingOrder:INPUT-VALUE:
+            CREATE ttOe-ord.
+            ASSIGN 
+            ttOe-ord.ord-no = oe-ord.ord-no
+            ttOe-ord.stat   = oe-ord.stat.
+            RUN oe/getStatusDesc.p( INPUT oe-ord.stat, OUTPUT cResult) .
+            ttOe-ord.statDesc = cResult.
+            IF oe-ord.opened NE (INDEX("CDZ",oe-ord.stat) LE 0) THEN 
+                ttOe-ord.newstat = oe-ord.stat.
+            RUN oe/getStatusDesc.p( INPUT ttOe-ord.newstat, OUTPUT cResult) .
+            ttOe-ord.newstatDesc = cResult.
         END.
-    IF tbUpdateOrderStatus:CHECKED   THEN 
-        DO:
-            FOR EACH oe-ord NO-LOCK WHERE oe-ord.ord-no GE fiBeginOrder:INPUT-VALUE 
-                                      AND oe-ord.ord-no LE fiEndingOrder:INPUT-VALUE:
-
-                CREATE ttOe-ord.
-                ASSIGN 
-                ttOe-ord.ord-no = oe-ord.ord-no
-                ttOe-ord.stat   = oe-ord.stat.
-                RUN oe/getStatusDesc.p( INPUT oe-ord.stat, OUTPUT cResult) .
-                ttOe-ord.statDesc = cResult.
-                IF oe-ord.opened NE (INDEX("CDZ",oe-ord.stat) LE 0) THEN 
-                    ttOe-ord.newstat = oe-ord.stat.
-                RUN oe/getStatusDesc.p( INPUT ttOe-ord.newstat, OUTPUT cResult) .
-                ttOe-ord.newstatDesc = cResult.
-            END.
-                      
-            RUN Output_TempTableToCSV IN hdOutputProcs (
-                INPUT TEMP-TABLE ttOe-ord:HANDLE,
-                INPUT cLocation + "\Order.csv",
-                INPUT TRUE,  /* Export Header */
-                INPUT FALSE, /* Auto increment File name */
-                OUTPUT lSuccess,
-                OUTPUT cMessage
-                ).
+                  
+        RUN Output_TempTableToCSV IN hdOutputProcs (
+            INPUT TEMP-TABLE ttOe-ord:HANDLE,
+            INPUT cLocation + "\Order.csv",
+            INPUT TRUE,  /* Export Header */
+            INPUT FALSE, /* Auto increment File name */
+            OUTPUT lSuccess,
+            OUTPUT cMessage
+            ).
     END.
     IF tbUpdateJobStatus:CHECKED  THEN  
     DO:
@@ -607,7 +611,8 @@ DO:
             ).
     END.           
 
-    
+    MESSAGE "CSV with updated status have been created in " + cLocation + " folder."
+    VIEW-AS ALERT-BOX.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -619,10 +624,12 @@ END.
 ON VALUE-CHANGED OF tbUpdateJobStatus IN FRAME DEFAULT-FRAME /* Update Job Status */
 DO:
    ASSIGN
-        fiBeginJob:hidden = NOT tbUpdateJobStatus:checked
-        fiEndingJob:hidden = NOT tbUpdateJobStatus:checked
-        fiBeginJob:visible = tbUpdateJobStatus:checked
-        fiEndingJob:visible = tbUpdateJobStatus:checked
+        fiBeginJob:hidden        = NOT tbUpdateJobStatus:checked
+        fiEndingJob:hidden       = NOT tbUpdateJobStatus:checked
+        fiBeginJob:visible       = tbUpdateJobStatus:checked
+        fiEndingJob:visible      = tbUpdateJobStatus:checked
+        fiEndingJob:SCREEN-VALUE =  ""
+        fiEndingJob:SCREEN-VALUE =  "" 
         .
 END.
 
@@ -635,10 +642,12 @@ END.
 ON VALUE-CHANGED OF tbUpdateOrderStatus IN FRAME DEFAULT-FRAME /* Update Order Status */
 DO:  
  ASSIGN
-        fiBeginOrder:hidden = NOT tbUpdateOrderStatus:checked
-        fiEndingOrder:hidden = NOT tbUpdateOrderStatus:checked
-        fiBeginOrder:visible = tbUpdateOrderStatus:checked
-        fiEndingOrder:visible = tbUpdateOrderStatus:checked
+        fiBeginOrder:hidden        = NOT tbUpdateOrderStatus:checked
+        fiEndingOrder:hidden       = NOT tbUpdateOrderStatus:checked
+        fiBeginOrder:visible       = tbUpdateOrderStatus:checked
+        fiEndingOrder:visible      = tbUpdateOrderStatus:checked
+        fiEndingOrder:SCREEN-VALUE = ""
+        fiBeginOrder:SCREEN-VALUE  = ""
         .
 END.
 
@@ -651,10 +660,12 @@ END.
 ON VALUE-CHANGED OF tbupdatePurchaseOrders IN FRAME DEFAULT-FRAME /* Update Purchase Orders */
 DO:
    ASSIGN
-        fiBeginPO:hidden = NOT tbupdatePurchaseOrders:checked
-        fiEndingPO:hidden = NOT tbupdatePurchaseOrders:checked
-        fiBeginPO:visible = tbupdatePurchaseOrders:checked
-        fiEndingPO:visible = tbupdatePurchaseOrders:checked
+        fiBeginPO:hidden        = NOT tbupdatePurchaseOrders:checked
+        fiEndingPO:hidden       = NOT tbupdatePurchaseOrders:checked
+        fiBeginPO:visible       = tbupdatePurchaseOrders:checked
+        fiEndingPO:visible      = tbupdatePurchaseOrders:checked
+        fiBeginPO:SCREEN-VALUE  = ""
+        fiEndingPO:SCREEN-VALUE = ""       
         .
 END.
 
@@ -667,10 +678,12 @@ END.
 ON VALUE-CHANGED OF tbUpdateReleases IN FRAME DEFAULT-FRAME /* Update Releases */
 DO:
   ASSIGN
-        fiBeginRelease:hidden = NOT tbUpdateReleases:checked
-        fiEndingRelease:hidden = NOT tbUpdateReleases:checked
-        fiBeginRelease:visible = tbUpdateReleases:checked
-        fiEndingRelease:visible = tbUpdateReleases:checked
+        fiBeginRelease:hidden        = NOT tbUpdateReleases:checked
+        fiEndingRelease:hidden       = NOT tbUpdateReleases:checked
+        fiBeginRelease:visible       = tbUpdateReleases:checked
+        fiEndingRelease:visible      = tbUpdateReleases:checked
+        fiBeginRelease:SCREEN-VALUE  = "" 
+        fiEndingRelease:SCREEN-VALUE = "" 
         .
 END.
 
@@ -702,27 +715,27 @@ PAUSE 0 BEFORE-HIDE.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-   
-   btSimulate:load-image("Graphics/32x32/Simulate.png").
-   btExecute:load-image("Graphics/32x32/Execute.png").
+   {sys/inc/f3helpw.i}
+    btSimulate:load-image("Graphics/32x32/Simulate.png").
+    btExecute:load-image("Graphics/32x32/Execute.png").
     RUN enable_UI.
      ASSIGN
-        fiBeginPo:hidden = TRUE
-        fiEndingPo:hidden = TRUE
-        fiBeginPo:visible = FALSE
-        fiEndingPo:visible = FALSE
-        fiBeginJob:hidden = TRUE
-        fiEndingJob:hidden = TRUE
-        fiBeginJob:visible = FALSE
-        fiEndingJob:visible = FALSE
-        fiBeginOrder:hidden = TRUE
-        fiEndingOrder:hidden = TRUE
-        fiBeginOrder:visible = FALSE
-        fiEndingOrder:visible = FALSE
-        fiBeginRelease:hidden = TRUE
-        fiEndingRelease:hidden = TRUE
-        fiBeginRelease:visible = FALSE
-        fiEndingRelease:visible = FALSE
+        fiBeginPo:HIDDEN         = TRUE
+        fiEndingPo:HIDDEN        = TRUE
+        fiBeginPo:VISIBLE        = FALSE
+        fiEndingPo:VISIBLE       = FALSE
+        fiBeginJob:HIDDEN        = TRUE
+        fiEndingJob:HIDDEN       = TRUE
+        fiBeginJob:VISIBLE       = FALSE
+        fiEndingJob:VISIBLE      = FALSE
+        fiBeginOrder:HIDDEN      = TRUE
+        fiEndingOrder:HIDDEN     = TRUE
+        fiBeginOrder:VISIBLE     = FALSE
+        fiEndingOrder:VISIBLE    = FALSE
+        fiBeginRelease:HIDDEN    = TRUE
+        fiEndingRelease:HIDDEN   = TRUE
+        fiBeginRelease:VISIBLE   = FALSE
+        fiEndingRelease:VISIBLE  = FALSE
         .
     RUN FileSys_GetTempDirectory(
         OUTPUT cLocation
