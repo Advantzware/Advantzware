@@ -3779,10 +3779,51 @@ END.
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
 
+ON VALUE-CHANGED OF ttSubjectColumn.isFilterInitField
+DO:
+    APPLY "ROW-LEAVE":U TO BROWSE subjectColumnBrowse.
+END.
+
 ON VALUE-CHANGED OF ttSubjectColumn.isGroup
 DO:
     ttSubjectColumn.isGroup = NOT ttSubjectColumn.isGroup.
     RUN pSetGroupListItems.
+    APPLY "ROW-LEAVE":U TO BROWSE subjectColumnBrowse.
+END.
+
+ON VALUE-CHANGED OF ttSubjectColumn.isReturnValue
+DO:
+    APPLY "ROW-LEAVE":U TO BROWSE subjectColumnBrowse.
+END.
+
+ON VALUE-CHANGED OF ttSubjectColumn.isSearchable
+DO:
+    APPLY "ROW-LEAVE":U TO BROWSE subjectColumnBrowse.
+END.
+
+ON VALUE-CHANGED OF ttSubjectColumn.isSortable
+DO:
+    APPLY "ROW-LEAVE":U TO BROWSE subjectColumnBrowse.
+END.
+
+ON VALUE-CHANGED OF ttSubjectColumn.isStatusField
+DO:
+    APPLY "ROW-LEAVE":U TO BROWSE subjectColumnBrowse.
+END.
+
+ON VALUE-CHANGED OF ttSubjectColumn.sortDescending
+DO:
+    APPLY "ROW-LEAVE":U TO BROWSE subjectColumnBrowse.
+END.
+
+ON VALUE-CHANGED OF ttSubjectParamSet.isVisible
+DO:
+    APPLY "ROW-LEAVE":U TO BROWSE subjectParamSetBrowse.
+END.
+
+ON VALUE-CHANGED OF ttSubjectParamSet.useInTitle
+DO:
+    APPLY "ROW-LEAVE":U TO BROWSE subjectParamSetBrowse.
 END.
 
 &IF DEFINED(UIB_is_Running) EQ 0 &THEN
@@ -5599,6 +5640,10 @@ PROCEDURE pSaveSubject :
     IF subjectSection EQ "Parameters" AND
        VALID-HANDLE(hParamBldr) THEN
     RUN pReset IN hParamBldr.
+/*    IF AVAILABLE ttSubjectParamSet THEN*/
+    BROWSE subjectParamSetBrowse:REFRESH() NO-ERROR.
+/*    IF AVAILABLE ttSubjectColumn THEN*/
+    BROWSE subjectColumnBrowse:REFRESH() NO-ERROR.
 
 END PROCEDURE.
 
