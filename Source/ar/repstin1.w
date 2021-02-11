@@ -1177,31 +1177,33 @@ PROCEDURE local-assign-record :
     
      IF ld-diff NE 0 THEN
      DO:
-        FIND FIRST gltrans
-            WHERE gltrans.company EQ ar-ledger.company
-              AND gltrans.actnum  EQ (IF AVAIL fgcat AND fgcat.glacc NE ""
+        FIND FIRST glhist
+            WHERE glhist.company EQ ar-ledger.company
+              AND glhist.actnum  EQ (IF AVAIL fgcat AND fgcat.glacc NE ""
                                       THEN fgcat.glacc ELSE v-ar-sales)    
-              AND gltrans.jrnl    EQ "OEINV"
-              AND gltrans.tr-date EQ ar-ledger.tr-date
-              AND gltrans.period  EQ ar-inv.period
-              AND gltrans.trnum   EQ ar-ledger.tr-num
-              AND gltrans.tr-dscr EQ v-dscr
-              AND gltrans.tr-amt  EQ v-old-ar-invl-amount
+              AND glhist.jrnl    EQ "OEINV"
+              AND glhist.tr-date EQ ar-ledger.tr-date
+              AND glhist.period  EQ ar-inv.period
+              AND glhist.tr-num  EQ ar-ledger.tr-num
+              AND glhist.tr-dscr EQ v-dscr
+              AND glhist.tr-amt  EQ v-old-ar-invl-amount
+              AND glhist.posted  EQ NO
             NO-ERROR.
         
-        IF NOT AVAIL gltrans THEN
-           FIND FIRST gltrans
-            WHERE gltrans.company EQ ar-ledger.company
-              AND gltrans.actnum  EQ (IF AVAIL fgcat AND fgcat.glacc NE ""
+        IF NOT AVAIL glhist THEN
+           FIND FIRST glhist
+            WHERE glhist.company EQ ar-ledger.company
+              AND glhist.actnum  EQ (IF AVAIL fgcat AND fgcat.glacc NE ""
                                       THEN fgcat.glacc ELSE v-ar-sales)    
-              AND gltrans.jrnl    EQ "OEINV"
-              AND gltrans.tr-date EQ ar-ledger.tr-date
-              AND gltrans.period  EQ ar-inv.period
-              AND gltrans.trnum   EQ ar-ledger.tr-num
-              AND gltrans.tr-dscr EQ v-dscr
+              AND glhist.jrnl    EQ "OEINV"
+              AND glhist.tr-date EQ ar-ledger.tr-date
+              AND glhist.period  EQ ar-inv.period
+              AND glhist.tr-num  EQ ar-ledger.tr-num
+              AND glhist.tr-dscr EQ v-dscr
+              AND glhist.posted  EQ NO
             NO-ERROR.
        
-        IF AVAIL gltrans THEN
+        IF AVAIL glhist THEN
         DO:
            ASSIGN
               ld-inv-qty-2 = IF b-ar-invl.misc AND b-ar-invl.inv-qty EQ 0 THEN 1
@@ -1224,7 +1226,7 @@ PROCEDURE local-assign-record :
                                ld-inv-qty-2
               v-new-amt-wo-disc = v-tmp-price * b-ar-invl.unit-pr
               ld-new-diff = ld-new-diff + (v-old-ar-invl-amount - (v-new-amt-wo-disc * -1) )
-              gltrans.tr-amt = gltrans.tr-amt + (ld-new-diff * -1).
+              glhist.tr-amt = glhist.tr-amt + (ld-new-diff * -1).
           
            IF AVAIL ar-ledger AND b-ar-invl.disc NE 0 THEN
                
@@ -1238,40 +1240,42 @@ PROCEDURE local-assign-record :
        
            IF ld-disc NE 0 THEN DO:
        
-             FIND FIRST gltrans
-                 WHERE gltrans.company EQ ar-ledger.company
-                   AND gltrans.actnum  EQ v-ar-disc   
-                   AND gltrans.jrnl    EQ "OEINV"
-                   AND gltrans.tr-date EQ ar-ledger.tr-date
-                   AND gltrans.period  EQ ar-inv.period
-                   AND gltrans.trnum   EQ ar-ledger.tr-num
-                   AND gltrans.tr-dscr EQ "ORDER ENTRY INVOICE DISCOUNT"
+             FIND FIRST glhist
+                 WHERE glhist.company EQ ar-ledger.company
+                   AND glhist.actnum  EQ v-ar-disc   
+                   AND glhist.jrnl    EQ "OEINV"
+                   AND glhist.tr-date EQ ar-ledger.tr-date
+                   AND glhist.period  EQ ar-inv.period
+                   AND glhist.tr-num  EQ ar-ledger.tr-num
+                   AND glhist.tr-dscr EQ "ORDER ENTRY INVOICE DISCOUNT"
+                   AND glhist.posted  EQ NO
                  NO-ERROR.
        
-             IF AVAIL gltrans THEN
-                gltrans.tr-amt = gltrans.tr-amt + ld-disc.
+             IF AVAIL glhist THEN
+                glhist.tr-amt = glhist.tr-amt + ld-disc.
            END.
           
            RUN update-gl-tot (ld-new-diff).
-        END. /*if avail gltrans*/
+        END. /*if avail glhist*/
         ELSE /*arinv*/
         DO:
-           FIND FIRST gltrans
-            WHERE gltrans.company EQ ar-ledger.company
-              AND gltrans.actnum  EQ ar-invl.actnum    
-              AND gltrans.jrnl    EQ "ARINV"
-              AND gltrans.tr-date EQ ar-ledger.tr-date
-              AND gltrans.period  EQ ar-inv.period
-              AND gltrans.trnum   EQ ar-ledger.tr-num
-              AND gltrans.tr-amt  EQ v-old-ar-invl-amount
-              AND gltrans.tr-dscr EQ v-dscr
+           FIND FIRST glhist
+            WHERE glhist.company EQ ar-ledger.company
+              AND glhist.actnum  EQ ar-invl.actnum    
+              AND glhist.jrnl    EQ "ARINV"
+              AND glhist.tr-date EQ ar-ledger.tr-date
+              AND glhist.period  EQ ar-inv.period
+              AND glhist.tr-num  EQ ar-ledger.tr-num
+              AND glhist.tr-amt  EQ v-old-ar-invl-amount
+              AND glhist.tr-dscr EQ v-dscr
+              AND glhist.posted  EQ NO
             NO-ERROR.
            
-           IF AVAIL gltrans THEN
+           IF AVAIL glhist THEN
            DO:
               ASSIGN
                  ld-new-diff = ld-new-diff + (v-old-ar-invl-amount - (ar-invl.amt * -1))
-                 gltrans.tr-amt = gltrans.tr-amt + (ld-new-diff * -1).
+                 glhist.tr-amt = glhist.tr-amt + (ld-new-diff * -1).
            
               IF ld-tax <> 0 THEN RUN update-gl-tax (b-ar-inv.tax-amt,v-old-tax-amt).
               RUN update-gl-tot (ld-new-diff).
@@ -1619,20 +1623,21 @@ PROCEDURE update-gl-tax :
   v-dscr = TRIM(IF AVAIL b-cust THEN b-cust.name ELSE "Cust not on file") +
          " Inv# " + STRING(ar-inv.inv-no,"99999999") + " LINE".
 
-  FIND FIRST gltrans
-      WHERE gltrans.company EQ ar-ledger.company
-        AND gltrans.actnum  EQ v-ar-stax   
-        AND gltrans.jrnl    EQ "OEINV"
-        AND gltrans.tr-date EQ ar-ledger.tr-date
-        AND gltrans.period  EQ ar-inv.period
-        AND gltrans.trnum   EQ ar-ledger.tr-num
-        AND gltrans.tr-dscr EQ v-dscr
+  FIND FIRST glhist
+      WHERE glhist.company EQ ar-ledger.company
+        AND glhist.actnum  EQ v-ar-stax   
+        AND glhist.jrnl    EQ "OEINV"
+        AND glhist.tr-date EQ ar-ledger.tr-date
+        AND glhist.period  EQ ar-inv.period
+        AND glhist.tr-num  EQ ar-ledger.tr-num
+        AND glhist.tr-dscr EQ v-dscr
+        AND glhist.posted  EQ NO
       NO-ERROR.
 
-  IF AVAIL gltrans THEN
+  IF AVAIL glhist THEN
      ASSIGN
-       ld-new-diff = ld-new-diff + (gltrans.tr-amt + ip-tax-amt)
-       gltrans.tr-amt = ip-tax-amt * -1.
+       ld-new-diff = ld-new-diff + (glhist.tr-amt + ip-tax-amt)
+       glhist.tr-amt = ip-tax-amt * -1.
   ELSE
   DO:
      FIND FIRST stax
@@ -1681,40 +1686,43 @@ PROCEDURE update-gl-tax :
              
               /*no currency conversion being done*/
 
-              FIND FIRST gltrans WHERE
-                   gltrans.company EQ ar-ledger.company AND
-                   gltrans.actnum  EQ ws_taxacct AND
-                   gltrans.jrnl    EQ "ARINV" AND
-                   gltrans.tr-date EQ ar-ledger.tr-date AND
-                   gltrans.period  EQ ar-inv.period AND
-                   gltrans.trnum   EQ ar-ledger.tr-num AND
-                   gltrans.tr-amt  EQ v-old-jd-taxamt * -1 AND
-                   gltrans.tr-dscr EQ v-dscr
+              FIND FIRST glhist WHERE
+                   glhist.company EQ ar-ledger.company AND
+                   glhist.actnum  EQ ws_taxacct AND
+                   glhist.jrnl    EQ "ARINV" AND
+                   glhist.tr-date EQ ar-ledger.tr-date AND
+                   glhist.period  EQ ar-inv.period AND
+                   glhist.tr-num  EQ ar-ledger.tr-num AND
+                   glhist.tr-amt  EQ v-old-jd-taxamt * -1 AND
+                   glhist.tr-dscr EQ v-dscr AND
+                   glhist.posted  EQ NO
+                   
                    NO-ERROR.
 
-              IF AVAIL gltrans THEN
+              IF AVAIL glhist THEN
                  ASSIGN
-                    ld-new-diff = ld-new-diff + gltrans.tr-amt + v-jd-taxamt
-                    gltrans.tr-amt = v-jd-taxamt * -1.
+                    ld-new-diff = ld-new-diff + glhist.tr-amt + v-jd-taxamt
+                    glhist.tr-amt = v-jd-taxamt * -1.
            END.
         END.
      END.
      ELSE
      DO:
-        FIND FIRST gltrans WHERE
-             gltrans.company EQ ar-ledger.company AND
-             gltrans.actnum  EQ v-ar-stax AND
-             gltrans.jrnl    EQ "ARINV" AND
-             gltrans.tr-date EQ ar-ledger.tr-date AND
-             gltrans.period  EQ ar-inv.period AND
-             gltrans.trnum   EQ ar-ledger.tr-num AND
-             gltrans.tr-dscr EQ v-dscr
+        FIND FIRST glhist WHERE
+             glhist.company EQ ar-ledger.company AND
+             glhist.actnum  EQ v-ar-stax AND
+             glhist.jrnl    EQ "ARINV" AND
+             glhist.tr-date EQ ar-ledger.tr-date AND
+             glhist.period  EQ ar-inv.period AND
+             glhist.tr-num  EQ ar-ledger.tr-num AND
+             glhist.tr-dscr EQ v-dscr AND 
+             glhist.posted  EQ NO
              NO-ERROR.
         
-        IF AVAIL gltrans THEN
+        IF AVAIL glhist THEN
            ASSIGN                                      
-              ld-new-diff = ld-new-diff + gltrans.tr-amt + ip-tax-amt
-              gltrans.tr-amt = ip-tax-amt * -1.
+              ld-new-diff = ld-new-diff + glhist.tr-amt + ip-tax-amt
+              glhist.tr-amt = ip-tax-amt * -1.
      END.
   END.
   
@@ -1752,30 +1760,32 @@ PROCEDURE update-gl-tot :
 ------------------------------------------------------------------------------*/
   DEF INPUT PARAM ld AS DEC NO-UNDO.
 
-  FIND FIRST gltrans
-      WHERE gltrans.company EQ ar-ledger.company
-        AND gltrans.actnum  EQ v-ar-acct   
-        AND gltrans.jrnl    EQ "OEINV"
-        AND gltrans.tr-date EQ ar-ledger.tr-date
-        AND gltrans.period  EQ ar-inv.period
-        AND gltrans.trnum   EQ ar-ledger.tr-num
+  FIND FIRST glhist
+      WHERE glhist.company EQ ar-ledger.company
+        AND glhist.actnum  EQ v-ar-acct   
+        AND glhist.jrnl    EQ "OEINV"
+        AND glhist.tr-date EQ ar-ledger.tr-date
+        AND glhist.period  EQ ar-inv.period
+        AND glhist.tr-num  EQ ar-ledger.tr-num
+        AND glhist.posted  EQ NO
       NO-ERROR.
 
-  IF AVAIL gltrans THEN
-     gltrans.tr-amt = gltrans.tr-amt + ld.
+  IF AVAIL glhist THEN
+     glhist.tr-amt = glhist.tr-amt + ld.
   ELSE /*invoice entered from au1*/
   DO:
-     FIND FIRST gltrans WHERE
-          gltrans.company EQ ar-ledger.company AND
-          gltrans.actnum  EQ v-ar-acct AND
-          gltrans.jrnl    EQ "ARINV" AND
-          gltrans.tr-date EQ ar-ledger.tr-date AND
-          gltrans.period  EQ ar-inv.period AND
-          gltrans.trnum   EQ ar-ledger.tr-num
+     FIND FIRST glhist WHERE
+          glhist.company EQ ar-ledger.company AND
+          glhist.actnum  EQ v-ar-acct AND
+          glhist.jrnl    EQ "ARINV" AND
+          glhist.tr-date EQ ar-ledger.tr-date AND
+          glhist.period  EQ ar-inv.period AND
+          glhist.tr-num  EQ ar-ledger.tr-num AND 
+          glhist.posted  EQ NO
           NO-ERROR.
 
-     IF AVAIL gltrans THEN
-        gltrans.tr-amt = gltrans.tr-amt + ld.
+     IF AVAIL glhist THEN
+        glhist.tr-amt = glhist.tr-amt + ld.
   END.
 
 END PROCEDURE.
@@ -1957,9 +1967,10 @@ PROCEDURE valid-inv-no :
 
     IF lv-msg EQ "" AND op-enable-price EQ YES THEN
       IF period.pstat EQ NO OR
-         NOT CAN-FIND(FIRST gltrans
-                      WHERE gltrans.company EQ ar-ledger.company
-                        AND gltrans.trnum   EQ ar-ledger.tr-num) THEN
+         NOT CAN-FIND(FIRST glhist
+                      WHERE glhist.company EQ ar-ledger.company
+                        AND glhist.tr-num  EQ ar-ledger.tr-num
+                        AND glhist.posted  EQ NO) THEN
                     l-enable-price = NO . 
        /*lv-msg = "Sorry, you must reopen year/period "                     +
                 STRING(period.yr,"9999") + "/" + STRING(period.pnum,"99") +

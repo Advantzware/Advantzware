@@ -47,7 +47,7 @@ DEF VAR xx-cost1 AS DEC                      NO-UNDO.
 DEF VAR xx-cost2 AS DEC                      NO-UNDO.
 DEF VAR v-tot-inv-rev AS DEC                 NO-UNDO.
 DEF VAR v-last-inv LIKE ar-inv.inv-no        NO-UNDO.
-DEF VAR v-tr-date LIKE gltrans.tr-date       NO-UNDO.
+DEF VAR v-tr-date LIKE glhist.tr-date       NO-UNDO.
 DEF VAR v-ord-lines AS INT                   NO-UNDO.
 DEF VAR v-ar-lines  AS INT                   NO-UNDO.
 DEF VAR v-ar-sales LIKE ar-invl.actnum       NO-UNDO.
@@ -1910,15 +1910,15 @@ PROCEDURE get-gltrans-record :
 -------------------------------------------------------------------------------*/
 DEF VAR v-error AS LOG.
 
-FOR EACH gltrans WHERE
-         gltrans.jrnl = "OEINV" NO-LOCK:
+FOR EACH glhist WHERE
+         glhist.jrnl = "OEINV" AND glhist.posted EQ NO NO-LOCK:
 
-   v-pos = R-INDEX(gltrans.tr-dscr,"Inv#").
+   v-pos = R-INDEX(glhist.tr-dscr,"Inv#").
 
    IF v-pos = 0 THEN NEXT.
 
     v-pos = v-pos + 4.
-    v-invno = INT(SUBSTRING(gltrans.tr-dscr,v-pos,10)).
+    v-invno = INT(SUBSTRING(glhist.tr-dscr,v-pos,10)).
 
 
     IF v-invno NE begin_inv THEN  NEXT .
@@ -1976,21 +1976,21 @@ v-ref-inv = next-value(inv_r_no_seq).
 FIND LAST ar-invl NO-LOCK USE-INDEX x-no.
 v-ref-arl = ar-invl.x-no + 1.
 
-GLTRANS-LOOP:
-FOR EACH gltrans WHERE
-         gltrans.jrnl = "OEINV" 
+GLHIST-LOOP:
+FOR EACH glhist WHERE
+         glhist.jrnl = "OEINV" AND glhist.posted EQ NO
          NO-LOCK:
 
-   v-pos = R-INDEX(gltrans.tr-dscr,"Inv#").
+   v-pos = R-INDEX(glhist.tr-dscr,"Inv#").
 
    IF v-pos = 0 THEN NEXT.
 
     v-pos = v-pos + 4.
    
-   IF INT(SUBSTRING(gltrans.tr-dscr,v-pos,10)) = begin_inv THEN
+   IF INT(SUBSTRING(glhist.tr-dscr,v-pos,10)) = begin_inv THEN
    DO:
-       ASSIGN v-tr-date = gltrans.tr-date.
-       LEAVE GLTRANS-LOOP.
+       ASSIGN v-tr-date = glhist.tr-date.
+       LEAVE GLHIST-LOOP.
    END.
 
 END.

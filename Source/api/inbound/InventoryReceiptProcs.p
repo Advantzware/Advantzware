@@ -1022,7 +1022,6 @@ PROCEDURE pGLFromWork :
     DEFINE VARIABLE cRMPost    AS CHARACTER NO-UNDO INITIAL "RMPOST".
     
     DEFINE BUFFER bf-work-gl FOR work-gl.
-    DEFINE BUFFER bf-gltrans FOR gltrans.
     
     daPostDate = TODAY.
     
@@ -1043,30 +1042,27 @@ PROCEDURE pGLFromWork :
             .
 
         IF LAST-OF(bf-work-gl.actnum) THEN DO:
-            CREATE bf-gltrans.
+          RUN GL_SpCreateGLHist(ipcCompany,
+                             bf-work-gl.actnum,
+                             "cRMPost",
+                             (IF bf-work-gl.job-no NE "" THEN "RM Issue to Job"
+                                                         ELSE "RM Receipt"),
+                             daPostDate,
+                             (dDebits - dCredits),
+                             ipiTRNum,
+                             (IF AVAILABLE period THEN period.pnum
+                                                  ELSE 0),
+                             "A",
+                             daPostDate,
+                             "",
+                             "RM").
             ASSIGN
-                bf-gltrans.company = ipcCompany
-                bf-gltrans.actnum  = bf-work-gl.actnum
-                bf-gltrans.jrnl    = cRMPost
-                bf-gltrans.period  = IF AVAILABLE period THEN
-                                        period.pnum
-                                     ELSE
-                                        0 
-                bf-gltrans.tr-amt  = dDebits - dCredits
-                bf-gltrans.tr-date = daPostDate
-                bf-gltrans.tr-dscr = IF bf-work-gl.job-no NE "" THEN 
-                                        "RM Issue to Job"
-                                     ELSE 
-                                        "RM Receipt"
-                bf-gltrans.trnum   = ipiTRNum
                 dDebits            = 0
                 dCredits           = 0
                 .
         END.
     END.
-    
-    RELEASE bf-gltrans.
-    RELEASE bf-gltrans.
+
 END PROCEDURE.
 
 PROCEDURE pCreateWIPInventoryStock :

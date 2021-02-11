@@ -280,16 +280,20 @@ FOR EACH ar-ledger
       accumulate dec(tt-report.key-05) (total by tt-report.key-02).
 
       if last-of(tt-report.key-02) then do:
-        create gltrans.
-        assign
-         gltrans.company = cocode
-         gltrans.actnum  = tt-report.key-02
-         gltrans.jrnl    = "OEINV"
-         gltrans.tr-dscr = "ORDER ENTRY INVOICE LINES"
-         gltrans.tr-date = ar-ledger.tr-date
-         gltrans.tr-amt  = - (accumulate total by tt-report.key-02 dec(tt-report.key-05))
-         gltrans.period  = period.pnum
-         gltrans.trnum   = ar-ledger.tr-num.
+        
+        RUN GL_SpCreateGLHist(cocode,
+                          tt-report.key-02,
+                          "OEINV",
+                          "ORDER ENTRY INVOICE LINES",
+                          ar-ledger.tr-date,
+                          - (accumulate total by tt-report.key-02 dec(tt-report.key-05)),
+                          ar-ledger.tr-num,
+                          period.pnum,
+                          "A",
+                          ar-ledger.tr-date,
+                          string(ar-inv.inv-no),
+                          "AR"). 
+         
       end. /* last actnum */
     end. /* each work-line */
                                               /** POST MISC. TO G/L TRANS **/
@@ -302,16 +306,19 @@ FOR EACH ar-ledger
       accumulate dec(tt-report.key-05) (total by tt-report.key-02).
 
       if last-of(tt-report.key-02) then do:
-        create gltrans.
-        assign
-         gltrans.company = cocode
-         gltrans.jrnl    = "OEINV"
-         gltrans.tr-dscr = "ORDER ENTRY INVOICE MISC."
-         gltrans.tr-date = ar-ledger.tr-date
-         gltrans.actnum  = tt-report.key-02
-         gltrans.tr-amt  = - (accumulate total by tt-report.key-02 dec(tt-report.key-05))
-         gltrans.period  = period.pnum
-         gltrans.trnum   = ar-ledger.tr-num.
+        
+         RUN GL_SpCreateGLHist(cocode,
+                          tt-report.key-02,
+                          "OEINV",
+                          "ORDER ENTRY INVOICE LINES",
+                          ar-ledger.tr-date,
+                          - (accumulate total by tt-report.key-02 dec(tt-report.key-05)),
+                          ar-ledger.tr-num,
+                          period.pnum,
+                          "A",
+                          ar-ledger.tr-date,
+                          "",
+                          "AR"). 
       end. /* last actnum */
     end. /* each work-misc */
                                            /** POST SALES TAX TO G/L TRANS **/
@@ -324,86 +331,93 @@ FOR EACH ar-ledger
       accumulate dec(tt-report.key-05) (total by tt-report.key-02).
 
       if last-of(tt-report.key-02) then do:
-        create gltrans.
-        assign
-         gltrans.company = cocode
-         gltrans.actnum  = tt-report.key-02
-         gltrans.jrnl    = "OEINV"
-         gltrans.tr-dscr = "ORDER ENTRY INVOICE TAX"
-         gltrans.tr-date = ar-ledger.tr-date
-         gltrans.tr-amt  = - (accumulate total by tt-report.key-02 dec(tt-report.key-05))
-         gltrans.period  = period.pnum
-         gltrans.trnum   = ar-ledger.tr-num.
+        
+        RUN GL_SpCreateGLHist(cocode,
+                          tt-report.key-02,
+                          "OEINV",
+                          "ORDER ENTRY INVOICE TAX",
+                          ar-ledger.tr-date,
+                          - (accumulate total by tt-report.key-02 dec(tt-report.key-05)),
+                          ar-ledger.tr-num,
+                          period.pnum,
+                          "A",
+                          ar-ledger.tr-date,
+                          "",
+                          "AR"). 
       end. /* last actnum */
     end. /* each work-tax */
 
     for each work-job break by work-job.actnum:
-      create gltrans.
-      assign
-       gltrans.company = cocode
-       gltrans.actnum  = work-job.actnum
-       gltrans.jrnl    = "OEINV"
-       gltrans.tr-date = ar-ledger.tr-date
-       gltrans.period  = period.pnum
-       gltrans.trnum   = ar-ledger.tr-num.
-
-      if work-job.fg then
-        assign
-         gltrans.tr-amt  = - work-job.amt
-         gltrans.tr-dscr = "ORDER ENTRY INVOICE FG".
-      else
-        assign
-         gltrans.tr-amt  = work-job.amt
-         gltrans.tr-dscr = "ORDER ENTRY INVOICE COGS".
+      
+      RUN GL_SpCreateGLHist(cocode,
+                         work-job.actnum,
+                         "OEINV",
+                         ( if work-job.fg THEN "ORDER ENTRY INVOICE FG" ELSE "ORDER ENTRY INVOICE COGS"),
+                         ar-ledger.tr-date,
+                         ( if work-job.fg THEN - work-job.amt ELSE work-job.amt),
+                         ar-ledger.tr-num,
+                         period.pnum,
+                         "A",
+                         ar-ledger.tr-date,
+                         "",
+                         "AR").    
     end. /* each work-job */
 
-                                          /** POST FREIGHT TO G/L TRANS **/
-    create gltrans.
-    assign
-     gltrans.company = cocode
-     gltrans.actnum  = v-ar-freight
-     gltrans.jrnl    = "OEINV"
-     gltrans.tr-dscr = "ORDER ENTRY INVOICE FREIGHT"
-     gltrans.tr-date = ar-ledger.tr-date
-     gltrans.tr-amt  = v-post-freight
-     gltrans.period  = period.pnum
-     gltrans.trnum   = ar-ledger.tr-num.
-     
-                                           /** POST DISCOUNT TO G/L TRANS **/
-    create gltrans.
-    assign
-     gltrans.company = cocode
-     gltrans.actnum  = v-ar-disc
-     gltrans.jrnl    = "OEINV"
-     gltrans.tr-dscr = "ORDER ENTRY INVOICE DISCOUNT"
-     gltrans.tr-date = ar-ledger.tr-date
-     gltrans.tr-amt  = v-post-disc
-     gltrans.period  = period.pnum
-     gltrans.trnum   = ar-ledger.tr-num.
+                                          /** POST FREIGHT TO G/L TRANS **/    
+     RUN GL_SpCreateGLHist(cocode,
+                        v-ar-freight,
+                        "OEINV",
+                        "ORDER ENTRY INVOICE FREIGHT",
+                        ar-ledger.tr-date,
+                        v-post-freight,
+                        ar-ledger.tr-num,
+                        period.pnum,
+                        "A",
+                        ar-ledger.tr-date,
+                        "",
+                        "AR").  
+                                           /** POST DISCOUNT TO G/L TRANS **/    
+     RUN GL_SpCreateGLHist(cocode,
+                        v-ar-disc,
+                        "OEINV",
+                        "ORDER ENTRY INVOICE DISCOUNT",
+                        ar-ledger.tr-date,
+                        v-post-disc,
+                        ar-ledger.tr-num,
+                        period.pnum,
+                        "A",
+                        ar-ledger.tr-date,
+                        "",
+                        "AR").
                                            /** POST CASH TO G/L TRANS **/
     if v-post-cash ne 0 then do:
-      create gltrans.
-      assign
-       gltrans.company = cocode
-       gltrans.actnum  = ar-ctrl.cash-act
-       gltrans.jrnl    = "CASHR"
-       gltrans.tr-dscr = "CASH RECEIPT - INVOICE"
-       gltrans.tr-date = ar-ledger.tr-date
-       gltrans.tr-amt  = v-post-cash
-       gltrans.period  = period.pnum
-       gltrans.trnum   = ar-ledger.tr-num.
+      
+       RUN GL_SpCreateGLHist(cocode,
+                          ar-ctrl.cash-act,
+                          "CASHR",
+                          "CASH RECEIPT - INVOICE",
+                          ar-ledger.tr-date,
+                          v-post-cash,
+                          ar-ledger.tr-num,
+                          period.pnum,
+                          "A",
+                          ar-ledger.tr-date,
+                          "",
+                          "AR").
     end.
-                                                  /** OFFSET ENTRY TO G/L **/
-    create gltrans.
-    assign
-     gltrans.company = cocode
-     gltrans.actnum  = v-ar-acct
-     gltrans.jrnl    = "OEINV"
-     gltrans.tr-dscr = "ORDER ENTRY INVOICE"
-     gltrans.tr-date = ar-ledger.tr-date
-     gltrans.tr-amt  = v-post-total
-     gltrans.period  = period.pnum
-     gltrans.trnum   = ar-ledger.tr-num.
+                                                  /** OFFSET ENTRY TO G/L **/   
+     RUN GL_SpCreateGLHist(cocode,
+                        v-ar-acct,
+                        "OEINV",
+                        "ORDER ENTRY INVOICE",
+                        ar-ledger.tr-date,
+                        v-post-total,
+                        ar-ledger.tr-num,
+                        period.pnum,
+                        "A",
+                        ar-ledger.tr-date,
+                        "",
+                        "AR").
   END.
 END.
 

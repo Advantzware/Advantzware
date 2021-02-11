@@ -896,15 +896,16 @@ FOR EACH b-account WHERE b-account.company = cocode
           and period.pstat   eq yes
           no-lock,
 
-          each gltrans
-          where gltrans.company eq b-account.company
-          and gltrans.actnum  eq b-account.actnum
-          and gltrans.period  eq period.pnum
-          and gltrans.tr-date ge period.pst
-          and gltrans.tr-date le period.pend
+          each glhist
+          where glhist.company eq b-account.company
+          and glhist.actnum  eq b-account.actnum
+          and glhist.period  eq period.pnum
+          and glhist.tr-date ge period.pst
+          and glhist.tr-date le period.pend
+          and glhist.posted  eq NO
           no-lock:
 
-          d-period$[period.pnum] = d-period$[period.pnum] + gltrans.tr-amt.
+          d-period$[period.pnum] = d-period$[period.pnum] + glhist.tr-amt.
     end.
 
 

@@ -924,22 +924,25 @@ PROCEDURE pPostGL:
                 WHERE ap-invl.i-no EQ ap-inv.i-no,
                 FIRST tt-ap-invl WHERE tt-ap-invl.row-id EQ rowid(ap-invl)
                 :
-                CREATE gltrans.
+                 RUN GL_SpCreateGLHist(cCompany,
+                                    tt-ap-invl.actnum,
+                                    "ACPAY",
+                                    (vend.name  + "  " + string(ap-inv.inv-date)),
+                                    dtPostDate,
+                                    tt-ap-invl.amt,
+                                    iTransNum,
+                                    iPeriod,
+                                    "A",
+                                    dtPostDate,
+                                    string(ap-inv.inv-no),
+                                    "AP").
+
                 ASSIGN
                     dAmt            = dAmt + ap-invl.amt
                     dAmount         = dAmount + ap-invl.amt
                     dTotalMSF       = dTotalMSF + ap-invl.amt-msf
-                    gltrans.company = cCompany
-                    gltrans.actnum  = tt-ap-invl.actnum
-                    gltrans.jrnl    = "ACPAY"
-                    gltrans.tr-dscr = vend.name  + "  " + string(ap-inv.inv-date)
-                    gltrans.tr-date = dtPostDate
-                    gltrans.tr-amt  = tt-ap-invl.amt
-                    gltrans.trnum   = iTransNum
-                    gltrans.period  = iPeriod
                     ap-invl.posted  = YES
                     .    
-                RELEASE gltrans.
                 FIND FIRST po-ordl
                      WHERE po-ordl.company EQ cCompany
                        AND po-ordl.po-no   EQ (IF ap-invl.po-no EQ 0 THEN ap-inv.po-no
@@ -1134,66 +1137,66 @@ PROCEDURE pPostGL:
                 tt-report.actnum NE ""   AND
                 (ACCUM TOTAL BY tt-report.actnum tt-report.curr-amt - (ap-inv.net + ap-inv.freight))
                 NE 0    THEN DO:
-                CREATE gltrans.
-                ASSIGN
-                    gltrans.company = cCompany
-                    gltrans.actnum  = tt-report.actnum
-                    gltrans.jrnl    = "ACPAY"
-                    gltrans.tr-dscr = "ACCOUNTS PAYABLE CURRENCY GAIN/LOSS"
-                    gltrans.tr-date = dtPostDate
-                    gltrans.tr-amt  = (ACCUM TOTAL BY tt-report.actnum tt-report.curr-amt - (ap-inv.net + ap-inv.freight)) * -1
-                    gltrans.period  = iPeriod
-                    gltrans.trnum   = iTransNum
-                    .
-                RELEASE gltrans.
+                 RUN GL_SpCreateGLHist(cCompany,
+                                    tt-report.actnum,
+                                    "ACPAY",
+                                    "ACCOUNTS PAYABLE CURRENCY GAIN/LOSS",
+                                    dtPostDate,
+                                    ((ACCUM TOTAL BY tt-report.actnum tt-report.curr-amt - (ap-inv.net + ap-inv.freight)) * -1),
+                                    iTransNum,
+                                    iPeriod,
+                                    "A",
+                                    dtPostDate,
+                                    string(ap-inv.inv-no),
+                                    "AP").
             END. /* last-of actnum */
         END. /* for each ap-inv */
         dAmount = dAmount + dFrtTotal.
         IF dFrtTotal NE 0 THEN DO:
-            CREATE gltrans.
-            ASSIGN
-                gltrans.company = cCompany
-                gltrans.actnum  = cFrtAcct
-                gltrans.jrnl    = "ACPAY"
-                gltrans.tr-dscr = "ACCOUNTS PAYABLE FREIGHT"
-                gltrans.tr-date = dtPostDate
-                gltrans.tr-amt  = (ACCUM TOTAL ap-inv.freight * tt-report.ex-rate)
-                gltrans.period  = iPeriod
-                gltrans.trnum   = iTransNum
-                .
-            RELEASE gltrans.
+         RUN GL_SpCreateGLHist(cCompany,
+                               cFrtAcct,
+                               "ACPAY",
+                               "ACCOUNTS PAYABLE FREIGHT",
+                               dtPostDate,
+                               (ACCUM TOTAL ap-inv.freight * tt-report.ex-rate),
+                               iTransNum,
+                               iPeriod,
+                               "A",
+                               dtPostDate,
+                               string(ap-inv.inv-no),
+                               "AP").
         END. /* dfrttotal ne 0 */
         FOR EACH tt-ap-tax
             BREAK BY tt-ap-tax.actnum:
             ACCUM tt-ap-tax.curr-amt (TOTAL BY tt-ap-tax.actnum).
             dAmount = dAmount + tt-ap-tax.amt.
             IF LAST-OF(tt-ap-tax.actnum) THEN DO:
-                CREATE gltrans.
-                ASSIGN
-                    gltrans.company = cCompany
-                    gltrans.actnum  = tt-ap-tax.actnum
-                    gltrans.jrnl    = "ACPAY"
-                    gltrans.tr-dscr = "ACCOUNTS PAYABLE TAX"
-                    gltrans.tr-date = dtPostDate
-                    gltrans.tr-amt  = (ACCUM TOTAL BY tt-ap-tax.actnum tt-ap-tax.curr-amt)
-                    gltrans.period  = iPeriod
-                    gltrans.trnum   = iTransNum
-                    .
-                RELEASE gltrans.
+              RUN GL_SpCreateGLHist(cCompany,
+                               tt-ap-tax.actnum,
+                               "ACPAY",
+                               "ACCOUNTS PAYABLE TAX",
+                               dtPostDate,
+                               (ACCUM TOTAL BY tt-ap-tax.actnum tt-ap-tax.curr-amt),
+                               iTransNum,
+                               iPeriod,
+                               "A",
+                               dtPostDate,
+                               string(ap-inv.inv-no),
+                               "AP").
             END. /* last-of actnum */
         END. /* each tt-ap-tax */
-        CREATE gltrans.
-        ASSIGN
-            gltrans.company = cCompany
-            gltrans.actnum  = cAPAcct
-            gltrans.jrnl    = "ACPAY"
-            gltrans.tr-dscr = "ACCOUNTS PAYABLE INVOICE"
-            gltrans.tr-date = dtPostDate
-            gltrans.tr-amt  = - dAmount
-            gltrans.period  = iPeriod
-            gltrans.trnum   = iTransNum
-            .
-        RELEASE gltrans.
+        RUN GL_SpCreateGLHist(cCompany,
+                          cAPAcct,
+                          "ACPAY",
+                          "ACCOUNTS PAYABLE INVOICE",
+                          dtPostDate,
+                          (- dAmount),
+                          iTransNum,
+                          iPeriod,
+                          "A",
+                          dtPostDate,
+                          string(ap-inv.inv-no),
+                          "AP").
     END. /* postit: transaction */
 END PROCEDURE.
 

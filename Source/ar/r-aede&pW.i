@@ -57,7 +57,7 @@ assign
  locode = gloc.
 def shared workfile wkdistrib no-undo
   field actnum like account.actnum column-label "Account"
-  field tr-dscr like gltrans.tr-dscr
+  field tr-dscr like glhist.tr-dscr
   field amount as dec format "->>>,>>>,>>>.99"
   field recs   as int column-label "Records" format ">>,>>>"
   field ar-type-credit as log.
