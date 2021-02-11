@@ -36,11 +36,11 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 
-      DEF VAR inImagegood AS CHAR.
-DEF VAR OKpressedgood AS LOGICAL.
-DEF VAR inPy AS CHAR.
-DEF VAR inNo AS CHAR.
-DEF VAR OKpressedbad AS LOGICAL.
+DEFINE  VARIABLE  inWinSoundPath AS CHARACTER NO-UNDO.
+DEFINE  VARIABLE  OKpressedgood AS LOGICAL NO-UNDO.
+DEFINE  VARIABLE  inPySoundPath AS CHARACTER NO-UNDO.
+DEFINE  VARIABLE  inNoSoundPath AS CHARACTER NO-UNDO.
+DEFINE  VARIABLE  OKpressedbad AS LOGICAL NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -291,12 +291,19 @@ DO:
       RETURN NO-APPLY.
   END.
   
-  DEFINE  VARIABLE  cRunNodeScript AS CHARACTER .   
-  DEFINE  VARIABLE  cNodeFile AS CHARACTER .
+  DEFINE VARIABLE cRunNodeScript AS CHARACTER NO-UNDO.   
+  DEFINE VARIABLE cNodeFile      AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE lSuccess       AS CHARACTER NO-UNDO.   
+  DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
 
   cNodeFile = SEARCH("util\playsoundnode.js").
   cRunNodeScript  = "node " + cNodeFile + " " + fiNode:screen-value.
-  OS-COMMAND SILENT VALUE(cRunNodeScript)  .
+  RUN OS_RunCommand(INPUT  cRunNodeScript,
+                    INPUT  "",  // Output File
+                    INPUT  YES, // Silent
+                    INPUT  NO,  // No wait
+                    OUTPUT lSuccess ,
+                    OUTPUT cMessage).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -307,19 +314,27 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL bPlayPython C-Win
 ON CHOOSE OF bPlayPython IN FRAME DEFAULT-FRAME /* Play with Python */
 DO:
-  IF fiPython:screen-value = "" THEN
-  DO:
-    MESSAGE "Please select any file to play."
-      VIEW-AS ALERT-BOX INFORMATION BUTTONS OK.
-      RETURN NO-APPLY.
-  END.
+    IF fiPython:SCREEN-VALUE = "" THEN
+    DO:
+        MESSAGE "Please select any file to play."
+            VIEW-AS ALERT-BOX INFORMATION BUTTONS OK.
+        RETURN NO-APPLY.
+    END.
   
-  DEFINE  VARIABLE  cRunPyScript AS CHARACTER .   
-  DEFINE  VARIABLE  cPyFile AS CHARACTER .
-
- cPyFile = SEARCH("util\sound.py") .
- cRunPyScript  = "python " + cPyFile + " " + fiPython:screen-value.
-  OS-COMMAND SILENT VALUE(cRunPyScript)  .
+    DEFINE VARIABLE cRunPyScript AS CHARACTER NO-UNDO.   
+    DEFINE VARIABLE cPyFile      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lSuccess     AS CHARACTER NO-UNDO.   
+    DEFINE VARIABLE cMessage     AS CHARACTER NO-UNDO.
+ 
+    cPyFile = SEARCH("util\sound.py") .
+    cRunPyScript  = "python " + cPyFile + " " + fiPython:screen-value.
+ 
+    RUN OS_RunCommand(INPUT  cRunPyScript,
+                      INPUT  "",  // Output File
+                      INPUT  YES, // Silent
+                      INPUT  NO,  // No wait
+                      OUTPUT lSuccess,
+                      OUTPUT cMessage).
     
 END.
 
@@ -331,13 +346,13 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL bselNo C-Win
 ON CHOOSE OF bselNo IN FRAME DEFAULT-FRAME /* Select */
 DO:
-    SYSTEM-DIALOG GET-FILE inNo
+    SYSTEM-DIALOG GET-FILE inNoSoundPath
     TITLE   "Choose File to Play ..."
     FILTERS "Source Files (*)"   "*"
     MUST-EXIST
     USE-FILENAME
     UPDATE OKpressedbad.
-    fiNode:screen-value =   inNo.
+    fiNode:screen-value = inNoSoundPath.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -348,13 +363,13 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL bselPy C-Win
 ON CHOOSE OF bselPy IN FRAME DEFAULT-FRAME /* Select */
 DO:
-    SYSTEM-DIALOG GET-FILE inPy
+    SYSTEM-DIALOG GET-FILE inPySoundPath
     TITLE   "Choose File to Play ..."
     FILTERS "Source Files (*)"   "*"
     MUST-EXIST
     USE-FILENAME
     UPDATE OKpressedbad.
-    fiPython:screen-value =   inPy.
+    fiPython:screen-value =   inPySoundPath.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -366,14 +381,14 @@ END.
 ON CHOOSE OF bselWin IN FRAME DEFAULT-FRAME /* Select */
 DO:
       
-  SYSTEM-DIALOG GET-FILE inImagegood
+  SYSTEM-DIALOG GET-FILE inWinSoundPath
     TITLE   "Choose File to Play ..."
     FILTERS "Source Files (*)"   "*"
     MUST-EXIST
     USE-FILENAME
     UPDATE OKpressedgood.
     
-    fiWindows:screen-value =   inImagegood.
+    fiWindows:screen-value =   inWinSoundPath.
 END.
 
 /* _UIB-CODE-BLOCK-END */
