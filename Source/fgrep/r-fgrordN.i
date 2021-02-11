@@ -102,6 +102,20 @@ for each itemfg
     ASSIGN 
        cGroup        = itemfg.spare-char-1
        cItemLocation = itemfg.def-loc.
+  IF v-custown = NO THEN
+    FOR EACH fg-bin FIELDS(qty loc)
+      WHERE fg-bin.company EQ itemfg.company
+        AND fg-bin.i-no    EQ itemfg.i-no
+        AND fg-bin.loc     GE begin_whse
+        AND fg-bin.loc     LE end_whse
+        AND fg-bin.cust-no EQ ""        
+        NO-LOCK:
+      ASSIGN
+        v-qty-onh = v-qty-onh + fg-bin.qty
+        v-whse-bin-found = YES
+        cItemLoc         = fg-bin.loc.
+    END.    
+  ELSE
     FOR EACH fg-bin FIELDS(qty loc)
       WHERE fg-bin.company EQ itemfg.company
         AND fg-bin.i-no    EQ itemfg.i-no

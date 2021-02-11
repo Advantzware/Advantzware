@@ -88,6 +88,18 @@ for each itemfg
   END.
   ELSE v-sales-rep = "" .
   
+IF v-custown = NO THEN  
+  FOR EACH fg-bin FIELDS(qty)
+    WHERE fg-bin.company EQ itemfg.company
+    AND fg-bin.i-no    EQ itemfg-loc.i-no
+    AND fg-bin.loc     EQ itemfg-loc.loc
+    AND fg-bin.cust-no EQ ""
+    NO-LOCK:
+    ASSIGN
+    v-qty-onh = v-qty-onh + fg-bin.qty
+    v-whse-bin-found = YES.
+  END.
+ELSE
   FOR EACH fg-bin FIELDS(qty)
     WHERE fg-bin.company EQ itemfg.company
     AND fg-bin.i-no    EQ itemfg-loc.i-no

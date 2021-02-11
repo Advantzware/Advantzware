@@ -84,7 +84,7 @@ ASSIGN cTextListToSelect = "ITEM #,CUST PART #,DESC,PROD CAT,UOM,REORD LVL,QTY O
                            "VENDOR ITEM#,HISTORY,WHS DAYS,LAST SHIP,PO DUE DATE,JOB DUE DATE,CUSTOMER#,SALES REP,COST,COST UOM," +
                            "MO AVG,SUGT - AVG,SUGT REORDER MSF,STATUS,ESTIMATE ROUTING,OPTIMAL ORDER QTY,CSR NAME," +
                            "EST STYLE,EST BOARD,EST LENGTH,EST WIDTH,EST DEPTH,EST PLATE#,ITEM COUNT," +
-                           "Item Location,Group"
+                           "ITEM LOCATION,GROUP"
        cFieldListToSelect = "itemfg.i-no,itemfg.part-no,itemfg.i-name,itemfg.procat,itemfg.sell-uom,itemfg.ord-level,v-qty-onh,whse," +
                             "v-alloc-qty,itemfg.q-ono,itemfg.ord-min,itemfg.ord-max,v-qty-avail,itemfg.sell-price,v-reord-qty," +
                             "itemfg.vend-item,li-hist,whs-day,last-ship,po-due-dt,job-due-dt,itemfg.cust-no,v-rep,itemfg.total-std-cost,itemfg.prod-uom," +
