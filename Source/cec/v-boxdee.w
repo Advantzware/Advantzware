@@ -205,10 +205,6 @@ DEFINE FRAME F-Main
     AT COL 1 ROW 1 SCROLLABLE 
     FGCOLOR 1 FONT 6.
 
-MESSAGE 
-box-design-hdr.lscore:FONT
-VIEW-AS ALERT-BOX.
-
 /* *********************** Procedure Settings ************************ */
 
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
