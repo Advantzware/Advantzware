@@ -1805,7 +1805,8 @@ PROCEDURE local-open-query :
     IF fiOrderDate GT 10/01/2018 THEN 
         lUseRecKeyCriteria = YES.
     ELSE 
-        lUseRecKeyCriteria = NO.            
+        lUseRecKeyCriteria = NO.   
+                 
 
     /* Code placed here will execute PRIOR to standard behavior. */
 
