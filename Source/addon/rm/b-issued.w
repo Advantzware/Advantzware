@@ -844,7 +844,7 @@ DO:
              ).
     
     IF SELF:MODIFIED THEN DO:
-       IF LENGTH(SELF:SCREEN-VALUE) > 5 THEN DO:
+       IF LENGTH(SELF:SCREEN-VALUE) > iWarehouseLength THEN DO:
 
           cLocBin = SELF:SCREEN-VALUE.
           ASSIGN rm-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name} = SUBSTRING(cLocBin,1,iWarehouseLength)

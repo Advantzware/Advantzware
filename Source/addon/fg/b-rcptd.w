@@ -964,7 +964,7 @@ DO:
         ).
 
     IF SELF:MODIFIED THEN DO:
-       IF LENGTH(SELF:SCREEN-VALUE) > 5 THEN DO:
+       IF LENGTH(SELF:SCREEN-VALUE) > iWarehouseLength THEN DO:
           DEFINE VARIABLE v-locbin AS CHARACTER NO-UNDO.
           
           v-locbin = SELF:SCREEN-VALUE.

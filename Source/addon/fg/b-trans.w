@@ -701,7 +701,7 @@ DO:
         OUTPUT iWarehouseLength
         ).
         
-     IF LENGTH(SELF:SCREEN-VALUE) > 5 THEN DO:
+     IF LENGTH(SELF:SCREEN-VALUE) > iWarehouseLength THEN DO:
           DEF VAR v-locbin AS cha NO-UNDO.
           v-locbin = SELF:SCREEN-VALUE.
           ASSIGN fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name} = SUBSTRING(v-locbin,1,iWarehouseLength)
@@ -826,7 +826,7 @@ DO:
         ).
         
     lv-scanned-loc = focus:SCREEN-VALUE.
-    IF LENGTH(SELF:SCREEN-VALUE) > 5 THEN DO:
+    IF LENGTH(SELF:SCREEN-VALUE) > iWarehouseLength THEN DO:
           DEF VAR v-locbin AS cha NO-UNDO.
           v-locbin = FOCUS:SCREEN-VALUE.
           ASSIGN fg-rctd.loc2:SCREEN-VALUE IN BROWSE {&browse-name} = SUBSTRING(v-locbin,1,iWarehouseLength)
@@ -836,7 +836,7 @@ DO:
     RUN valid-loc2 NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
-    IF length(lv-scanned-loc) > 5 THEN do:
+    IF length(lv-scanned-loc) > iWarehouseLength THEN do:
        RUN valid-loc-bin2 NO-ERROR.    
        IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
        APPLY "tab" TO fg-rctd.loc-bin2 IN BROWSE {&browse-name} .       

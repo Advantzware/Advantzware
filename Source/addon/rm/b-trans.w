@@ -522,7 +522,7 @@ DO:
         INPUT  cocode,
         OUTPUT iWarehouseLength
         ).
-     IF LENGTH(SELF:SCREEN-VALUE) > 5 THEN DO:
+     IF LENGTH(SELF:SCREEN-VALUE) > iWarehouseLength THEN DO:
           DEF VAR v-locbin AS cha NO-UNDO.
           v-locbin = SELF:SCREEN-VALUE.
           ASSIGN rm-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name} = SUBSTRING(v-locbin,1,iWarehouseLength)
@@ -638,7 +638,7 @@ DO:
         INPUT  cocode,
         OUTPUT iWarehouseLength
         ).
-    IF LENGTH(SELF:SCREEN-VALUE) > 5 THEN DO:
+    IF LENGTH(SELF:SCREEN-VALUE) > iWarehouseLength THEN DO:
           DEF VAR v-locbin AS cha NO-UNDO.
           v-locbin = SELF:SCREEN-VALUE.
           ASSIGN rm-rctd.loc2:SCREEN-VALUE IN BROWSE {&browse-name} = SUBSTRING(v-locbin,1,iWarehouseLength)
