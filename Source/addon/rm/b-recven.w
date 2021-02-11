@@ -34,6 +34,7 @@ CREATE WIDGET-POOL.
 {custom/globdefs.i}
 
 {sys/inc/var.i NEW SHARED} 
+{Inventory/ttInventory.i "NEW SHARED"}
 
 ASSIGN
  cocode = g_company
@@ -71,6 +72,10 @@ DEF VAR lv-entry-qty-uom AS CHAR NO-UNDO.
 DEF VAR v-post-date AS DATE INIT TODAY NO-UNDO.
 DEFINE VARIABLE cSSScanVendor AS CHARACTER NO-UNDO .
 DEFINE VARIABLE lFound AS LOGICAL NO-UNDO .
+DEFINE VARIABLE hdInventoryProcs AS HANDLE NO-UNDO.
+DEFINE VARIABLE iWarehouseLength AS INTEGER NO-UNDO.
+
+RUN inventory/InventoryProcs.p PERSISTENT SET hdInventoryProcs.
 
 &scoped-define fld-name-1 loadtag.misc-char[1]
 &scoped-define SORTBY-PHRASE BY {&fld-name-1}
@@ -908,14 +913,13 @@ DO:
     END.
 
     IF LASTKEY = -1 AND v-auto-rec-log = NO THEN RETURN.
-
     DEF VAR v-locbin AS cha NO-UNDO.
     IF SELF:MODIFIED THEN DO:
-       IF LENGTH(SELF:SCREEN-VALUE) > 5 THEN DO:
+       IF LENGTH(SELF:SCREEN-VALUE) > iWarehouseLength THEN DO:
 
           v-locbin = SELF:SCREEN-VALUE.
-          ASSIGN rm-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name} = SUBSTRING(v-locbin,1,5)
-                 rm-rctd.loc-bin:SCREEN-VALUE = SUBSTRING(v-locbin,6,8).
+          ASSIGN rm-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name} = SUBSTRING(v-locbin,1,iWarehouseLength)
+                 rm-rctd.loc-bin:SCREEN-VALUE = SUBSTRING(v-locbin,iWarehouseLength + 1).
 
           FIND FIRST loc WHERE loc.company = g_company
                         AND loc.loc = rm-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}
@@ -1972,8 +1976,8 @@ DO WITH FRAME {&FRAME-NAME}:
   DO:
     IF v-bin NE 'RMITEM' THEN
     ASSIGN
-      rm-rctd.loc = SUBSTR(v-bin,1,5)
-      rm-rctd.loc-bin= SUBSTR(v-bin,6).
+      rm-rctd.loc = SUBSTR(v-bin,1,iWarehouseLength)
+      rm-rctd.loc-bin= SUBSTR(v-bin,iWarehouseLength + 1).
     IF NOT checkWhsBin(cocode,rm-rctd.loc,rm-rctd.loc-bin) THEN
     DO:
       FIND FIRST loc NO-LOCK WHERE loc.company EQ cocode NO-ERROR.
@@ -2875,8 +2879,8 @@ PROCEDURE local-create-record :
     end.
     IF sys-ctrl.char-fld NE 'RMITEM' THEN
        ASSIGN
-          rm-rctd.loc = SUBSTR(sys-ctrl.char-fld,1,5)
-          rm-rctd.loc-bin = SUBSTR(sys-ctrl.char-fld,6).
+          rm-rctd.loc = SUBSTR(sys-ctrl.char-fld,1,iWarehouseLength)
+          rm-rctd.loc-bin = SUBSTR(sys-ctrl.char-fld,iWarehouseLength + 1).
 
     disp rm-rctd.rct-date rm-rctd.loc rm-rctd.loc-bin with browse {&BROWSE-NAME}.
   END.
@@ -2938,6 +2942,8 @@ PROCEDURE local-enable:
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable':U ) .
 
     /* Code placed here will execute AFTER standard behavior.    */
+  RUN pInit.
+
 END PROCEDURE.
 	
 /* _UIB-CODE-BLOCK-END */
@@ -4320,3 +4326,18 @@ END FUNCTION.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pInit W-Win
+PROCEDURE pInit PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    
+    RUN Inventory_GetWarehouseLength IN hdInventoryProcs (
+        INPUT  cocode,
+        OUTPUT iWarehouseLength
+        ).
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME

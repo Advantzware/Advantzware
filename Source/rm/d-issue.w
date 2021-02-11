@@ -141,8 +141,13 @@ DEFINE VARIABLE lv-job-no              LIKE rm-rctd.job-no NO-UNDO.
 DEFINE VARIABLE look-recid             AS RECID   NO-UNDO.
 
 DEFINE VARIABLE v-number-rows-selected AS INTEGER NO-UNDO.
+DEFINE VARIABLE hdInventoryProcs       AS HANDLE  NO-UNDO.
+DEFINE VARIABLE iWarehouseLength       AS INTEGER NO-UNDO.
+
+RUN Inventory/InventoryProcs.p PERSISTENT SET hdInventoryProcs.
 
 {windows/l-jobmt3.i NEW}
+{Inventory/ttInventory.i "NEW SHARED"}
 
 DEFINE TEMP-TABLE tt-frm NO-UNDO 
     FIELD frm    LIKE job-mat.frm
@@ -1196,6 +1201,10 @@ PROCEDURE create-item :
             MESSAGE "Could not obtain next sequence #, please contact ASI: " RETURN-VALUE
                 VIEW-AS ALERT-BOX INFORMATION BUTTONS OK.
 
+        RUN Inventory_GetWarehouseLength IN hdInventoryProcs (
+             INPUT  cocode,
+             OUTPUT iWarehouseLength
+             ). 
 
        
         CREATE rm-rctd.
@@ -1209,7 +1218,7 @@ PROCEDURE create-item :
             rm-rctd.rita-code = "I".
         
         IF v-bin NE "user entered" THEN
-            ASSIGN rm-rctd.loc = SUBSTR(v-bin,1,5).
+            ASSIGN rm-rctd.loc = SUBSTR(v-bin,1,iWarehouseLength).
         ASSIGN
             rm-rctd.s-num    = 1
             rm-rctd.b-num    = 0
