@@ -146,7 +146,7 @@ eb.t-sqin eb.bl-qty
 &Scoped-define SECOND-ENABLED-TABLE est
 &Scoped-define THIRD-ENABLED-TABLE ef
 &Scoped-Define ENABLED-OBJECTS btn_fgitem btn_from btn_style btn_board ~
-btn_cust RECT-18 RECT-19 RECT-23 RECT-24 btn_spclist 
+btn_cust btn_spclist RECT-18 RECT-19 RECT-23 RECT-24 
 &Scoped-Define DISPLAYED-FIELDS est.est-no eb.form-no est.form-qty ~
 eb.blank-no est.mod-date est.ord-date eb.cust-no eb.ship-id eb.ship-name ~
 eb.ship-addr[1] eb.ship-addr[2] eb.ship-city eb.ship-state eb.ship-zip ~
@@ -214,6 +214,11 @@ DEFINE BUTTON btnCadLookup
 
 DEFINE BUTTON btnDieLookup 
      IMAGE-UP FILE "Graphics/16x16/find.bmp":U NO-FOCUS FLAT-BUTTON
+     LABEL "" 
+     SIZE 4.4 BY 1.05.
+
+DEFINE BUTTON btnPlateLookup 
+     IMAGE-UP FILE "Graphics/16x16/find.bmp":U
      LABEL "" 
      SIZE 4.4 BY 1.05.
 
@@ -507,7 +512,8 @@ DEFINE FRAME fold
      btn_style AT ROW 10.52 COL 11 WIDGET-ID 16
      btn_board AT ROW 11.71 COL 16 WIDGET-ID 16
      btn_cust AT ROW 2.67 COL 12 WIDGET-ID 16
-     btn_spclist AT ROW 8.9 COL 74 WIDGET-ID 18
+     btn_spclist AT ROW 8.91 COL 74 WIDGET-ID 18
+     btnPlateLookup AT ROW 7.95 COL 115.4 WIDGET-ID 20
      "of" VIEW-AS TEXT
           SIZE 3 BY .95 AT ROW 1.24 COL 72.6
      "of" VIEW-AS TEXT
@@ -589,6 +595,8 @@ ASSIGN
 /* SETTINGS FOR BUTTON btnCadLookup IN FRAME fold
    NO-ENABLE                                                            */
 /* SETTINGS FOR BUTTON btnDieLookup IN FRAME fold
+   NO-ENABLE                                                            */
+/* SETTINGS FOR BUTTON btnPlateLookup IN FRAME fold
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN ef.cad-image IN FRAME fold
    EXP-LABEL EXP-FORMAT                                                 */
@@ -1055,6 +1063,47 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME btnPlateLookup
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnPlateLookup V-table-Win
+ON CHOOSE OF btnPlateLookup IN FRAME fold
+DO:
+  DEFINE VARIABLE initDir AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE okClicked AS LOGICAL NO-UNDO.
+  DEFINE VARIABLE iInitialFilter AS INTEGER NO-UNDO.
+  
+  RUN sys/ref/nk1look.p (INPUT cocode, "PLATEFILE", "I" /* Logical */, YES /* check by cust */, 
+                         INPUT YES /* use cust not vendor */, eb.cust-no:SCREEN-VALUE /* cust */, eb.ship-id:SCREEN-VALUE /* ship-to*/,
+                         OUTPUT cRecValue, OUTPUT lRecFound).
+  IF lRecFound THEN
+     iInitialFilter = INTEGER(cRecValue) NO-ERROR. 
+    
+  RUN sys/ref/nk1look.p (INPUT cocode, "PLATEFILE", "C" /* Logical */, YES /* check by cust */, 
+                         INPUT YES /* use cust not vendor */, eb.cust-no:SCREEN-VALUE /* cust */, eb.ship-id:SCREEN-VALUE /* ship-to*/,
+                         OUTPUT cRecValue, OUTPUT lRecFound).    
+  IF lRecFound THEN
+    initDir = cRecValue NO-ERROR.
+    
+  iInitialFilter = iInitialFilter + 1.  
+
+   SYSTEM-DIALOG GET-FILE cadfile 
+                TITLE 'Select Image File to insert'
+                FILTERS 'JPG Files    (*.jpg)' '*.jpg',
+                        'JPEG Files   (*.bmp)' '*.bmp',
+                        'Bitmap files (*.pdf)' '*.pdf',                         
+                        'TIF Files    (*.ard)' '*.ard',
+                        'All Files    (*.*) ' '*.*'
+                        INITIAL-FILTER iInitialFilter
+                INITIAL-DIR initDir                      
+                MUST-EXIST USE-FILENAME UPDATE okClicked.  
+     
+  IF okClicked THEN
+      ASSIGN eb.plate-no:SCREEN-VALUE = imageName(cadfile).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME btn_board
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_board V-table-Win
 ON CHOOSE OF btn_board IN FRAME fold
@@ -1415,7 +1464,7 @@ END.
 
 &Scoped-define SELF-NAME eb.sman
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL eb.sman V-table-Win
-ON LEAVE OF eb.sman IN FRAME fold /* Sales Rep */
+ON LEAVE OF eb.sman IN FRAME fold /* SalesGrp */
 DO:
   IF LASTKEY NE -1  THEN DO:
     RUN valid-sman NO-ERROR.
@@ -1428,7 +1477,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL eb.sman V-table-Win
-ON VALUE-CHANGED OF eb.sman IN FRAME fold /* Sales Rep */
+ON VALUE-CHANGED OF eb.sman IN FRAME fold /* SalesGrp */
 DO:
   RUN new-sman.
 END.
@@ -1965,7 +2014,7 @@ PROCEDURE local-assign-record :
   IF AVAIL(ef) THEN
     lv-hld-board = ef.board.
 
-  DISABLE btnDieLookup btncadLookup WITH FRAME {&FRAME-NAME}.
+  DISABLE btnDieLookup btncadLookup btnPlateLookup WITH FRAME {&FRAME-NAME}.
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
@@ -2199,7 +2248,7 @@ PROCEDURE local-cancel-record :
 
   /* Code placed here will execute PRIOR to standard behavior. */
 
-  DISABLE btnDieLookup btncadLookup WITH FRAME {&FRAME-NAME}.
+  DISABLE btnDieLookup btncadLookup btnPlateLookup WITH FRAME {&FRAME-NAME}.
   dieFile = ''.
 
   /* Dispatch standard ADM method.                             */
@@ -2852,6 +2901,21 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pExportXls V-table-Win 
+PROCEDURE pExportXls :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+ RUN ce/ProductListXls.p(INPUT ROWID(eb)).
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE proc-enable V-table-Win 
 PROCEDURE proc-enable :
 /*------------------------------------------------------------------------------
@@ -2915,7 +2979,7 @@ PROCEDURE proc-enable :
 
     RUN shipto-enable.
 
-    ENABLE btnDieLookup btnCadLookup.
+    ENABLE btnDieLookup btnCadLookup btnPlateLookup.
 
     ef.cad-image:SCREEN-VALUE = ef.cad-image.
   END.
@@ -3463,21 +3527,6 @@ PROCEDURE valid-wid-len :
   END.
 
   {methods/lValidateError.i NO}
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pExportXls V-table-Win 
-PROCEDURE pExportXls :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-
- RUN ce/ProductListXls.p(INPUT ROWID(eb)).
-
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

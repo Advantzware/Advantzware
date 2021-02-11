@@ -51,7 +51,11 @@ DEF TEMP-TABLE ttItemList
     FIELD combo AS LOGICAL
     FIELD itemName AS CHARACTER 
     FIELD blank-no AS INTEGER 
-    FIELD IS-SELECTED AS LOGICAL  COLUMN-LABEL "" VIEW-AS TOGGLE-BOX.
+    FIELD IS-SELECTED AS LOGICAL  COLUMN-LABEL "" VIEW-AS TOGGLE-BOX
+    FIELD lDie AS LOGICAL  COLUMN-LABEL "Die" VIEW-AS TOGGLE-BOX
+    FIELD lCad AS LOGICAL  COLUMN-LABEL "Cad" VIEW-AS TOGGLE-BOX
+    FIELD lPlate AS LOGICAL  COLUMN-LABEL "Plate" VIEW-AS TOGGLE-BOX
+    FIELD lImage AS LOGICAL  COLUMN-LABEL "Image" VIEW-AS TOGGLE-BOX.
 
 DEF BUFFER bf-job-hdr FOR job-hdr.
 DEF BUFFER bf-itemfg FOR itemfg.
@@ -79,8 +83,8 @@ DEFINE SHARED VARIABLE lFSC     AS LOGICAL   NO-UNDO .
 &Scoped-define INTERNAL-TABLES ttItemList
 
 /* Definitions for BROWSE BROWSE-4                                      */
-&Scoped-define FIELDS-IN-QUERY-BROWSE-4 ttItemList.IS-SELECTED ttItemList.frm ttItemList.combo ttItemList.i-no ttItemList.part-no ttItemList.itemName   
-&Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-4 ttItemList.IS-SELECTED   
+&Scoped-define FIELDS-IN-QUERY-BROWSE-4 ttItemList.IS-SELECTED ttItemList.frm ttItemList.combo ttItemList.i-no ttItemList.part-no ttItemList.itemName ttItemList.lDie ttItemList.lCad ttItemList.lPlate ttItemList.lImage 
+&Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-4 ttItemList.IS-SELECTED ttItemList.lDie ttItemList.lCad ttItemList.lPlate ttItemList.lImage 
 &Scoped-define ENABLED-TABLES-IN-QUERY-BROWSE-4 ttItemList
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-BROWSE-4 ttItemList
 &Scoped-define SELF-NAME BROWSE-4
@@ -172,7 +176,15 @@ DEFINE BROWSE BROWSE-4
       ttItemList.i-no FORMAT "X(15)" LABEL "FG Item #" WIDTH 19
       ttItemList.part-no FORMAT "X(15)" LABEL "Customer Part #" WIDTH 19
       ttItemList.itemName FORMAT "X(30)" LABEL "Item Name"
+      ttItemList.lDie COLUMN-LABEL 'Die'  VIEW-AS TOGGLE-BOX
+      ttItemList.lCad COLUMN-LABEL 'Cad'  VIEW-AS TOGGLE-BOX
+      ttItemList.lPlate COLUMN-LABEL 'Plate'  VIEW-AS TOGGLE-BOX
+      ttItemList.lImage COLUMN-LABEL 'Image'  VIEW-AS TOGGLE-BOX
     ENABLE ttItemList.IS-SELECTED
+           ttItemList.lDie
+           ttItemList.lCad
+           ttItemList.lPlate
+           ttItemList.lImage
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ROW-MARKERS SEPARATORS SIZE 59 BY 9.29
@@ -279,9 +291,14 @@ DO:
               WHERE ttSoule.frm EQ ttItemList.frm 
                 AND ttSoule.blank-no EQ ttItemList.blank-no NO-ERROR.
           IF AVAIL ttSoule AND ttItemList.IS-SELECTED THEN
-              ttSoule.RunForm = YES.
+              ASSIGN
+              ttSoule.RunForm = YES              
+              ttSoule.lPrintDieImage = ttItemList.lDie
+              ttSoule.lPrintCadImage = ttItemList.lCad
+              ttSoule.lPrintPlateImage = ttItemList.lPlate
+              ttSoule.lPrintFGImage = ttItemList.lImage.
           ELSE IF AVAIL ttSoule THEN ttSoule.RunForm = NO.
-          
+                     
       END.
   END.
 END.
@@ -436,7 +453,11 @@ PROCEDURE pCreateTempTable :
             ttItemList.frm = ipiFormNo
             ttItemList.blank-no = ipciBlankNo 
             ttItemList.combo = (IF AVAIL est AND est.est-type GE 2 THEN YES ELSE NO )
-            ttItemList.itemName = IF AVAIL bf-itemfg THEN bf-itemfg.i-name ELSE "". 
+            ttItemList.itemName = IF AVAIL bf-itemfg THEN bf-itemfg.i-name ELSE ""
+            ttItemList.lDie = YES
+            ttItemList.lCad = YES 
+            ttItemList.lPlate = YES
+            ttItemList.lImage = YES. 
 
 
      CREATE ttSoule.
