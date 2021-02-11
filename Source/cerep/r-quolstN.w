@@ -23,7 +23,7 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-def var list-name as cha no-undo.
+DEF VAR list-name AS cha NO-UNDO.
 DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
 
 {methods/defines/hndldefs.i}
@@ -36,7 +36,7 @@ DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
 
 {sys/inc/var.i new shared}
 
-assign
+ASSIGN
  cocode = gcompany
  locode = gloc.
 
@@ -84,18 +84,19 @@ ASSIGN cTextListToDefault  = "Company Name,Address1,Address2,City,State,Zip,Rep,
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 begin_cust-no end_cust-no ~
-begin_slsmn end_slsmn begin_date end_date rd-dest lv-ornt lines-per-page ~
-lv-font-no td-show-parm tb_excel tb_runExcel fi_file btn-ok btn-cancel ~
-sl_avail Btn_Def sl_selected Btn_Add Btn_Remove btn_Up btn_down
+begin_slsmn end_slsmn begin_date end_date sl_avail Btn_Def sl_selected ~
+Btn_Add Btn_Remove btn_Up btn_down rd-dest tb_runExcel fi_file btn-ok ~
+btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_cust-no end_cust-no begin_slsmn ~
-end_slsmn begin_date end_date rd-dest lv-ornt lines-per-page lv-font-no ~
-lv-font-name td-show-parm tb_excel tb_runExcel fi_file sl_avail sl_selected
+end_slsmn begin_date end_date sl_avail sl_selected rd-dest tb_runExcel ~
+fi_file 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
+
 
 /* ************************  Function Prototypes ********************** */
 
@@ -106,6 +107,7 @@ FUNCTION GEtFieldValue RETURNS CHARACTER
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
 /* ***********************  Control Definitions  ********************** */
 
 /* Define the widget handle for the window                              */
@@ -114,11 +116,11 @@ DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btn-cancel AUTO-END-KEY 
      LABEL "&Cancel" 
-     SIZE 15 BY 1.14.
+     SIZE 16 BY 1.29.
 
 DEFINE BUTTON btn-ok 
      LABEL "&OK" 
-     SIZE 15 BY 1.14.
+     SIZE 16 BY 1.29.
 
 DEFINE BUTTON Btn_Add 
      LABEL "&Add >>" 
@@ -175,45 +177,22 @@ DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\r-quolst.c
      VIEW-AS FILL-IN 
      SIZE 45 BY 1.
 
-DEFINE VARIABLE lines-per-page AS INTEGER FORMAT ">>":U INITIAL 99 
-     LABEL "Lines Per Page" 
-     VIEW-AS FILL-IN 
-     SIZE 4 BY 1 NO-UNDO.
-
-DEFINE VARIABLE lv-font-name AS CHARACTER FORMAT "X(256)":U INITIAL "Courier New Size=7 (17 cpi for 132 column Report)" 
-     VIEW-AS FILL-IN 
-     SIZE 62 BY 1 NO-UNDO.
-
-DEFINE VARIABLE lv-font-no AS CHARACTER FORMAT "X(256)":U INITIAL "11" 
-     LABEL "Font" 
-     VIEW-AS FILL-IN 
-     SIZE 7 BY 1 NO-UNDO.
-
-DEFINE VARIABLE lv-ornt AS CHARACTER INITIAL "P" 
-     VIEW-AS RADIO-SET HORIZONTAL
-     RADIO-BUTTONS 
-          "Portrait", "P",
-"Landscape", "L"
-     SIZE 30 BY .95 NO-UNDO.
-
 DEFINE VARIABLE rd-dest AS INTEGER INITIAL 1 
      VIEW-AS RADIO-SET VERTICAL
      RADIO-BUTTONS 
           "To Printer", 1,
 "To Screen", 2,
-"To File", 3,
-"To Fax", 4,
-"To Email", 5,
-"To Port Directly", 6
-     SIZE 20 BY 6.67 NO-UNDO.
+"To CSV", 3,
+"To Email", 5
+     SIZE 20 BY 3.81 NO-UNDO.
 
 DEFINE RECTANGLE RECT-6
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 92 BY 10.48.
+     SIZE 92 BY 6.91.
 
 DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 92 BY 5.48.
+     SIZE 92 BY 4.76.
 
 DEFINE VARIABLE sl_avail AS CHARACTER 
      VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
@@ -223,38 +202,27 @@ DEFINE VARIABLE sl_selected AS CHARACTER
      VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
      SIZE 33 BY 5.19 NO-UNDO.
 
-DEFINE VARIABLE tb_excel AS LOGICAL INITIAL yes 
-     LABEL "Export To Excel?" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 21 BY .81
-     BGCOLOR 3 FGCOLOR 15  NO-UNDO.
-
-DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL no 
+DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL NO 
      LABEL "Auto Run Excel?" 
      VIEW-AS TOGGLE-BOX
      SIZE 21 BY .81
-     BGCOLOR 3 FGCOLOR 15  NO-UNDO.
-
-DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL yes 
-     LABEL "Show Parameters?" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 24 BY .81 NO-UNDO.
+     BGCOLOR 15 FGCOLOR 15  NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
-     begin_cust-no AT ROW 3.14 COL 28 COLON-ALIGNED HELP
+     begin_cust-no AT ROW 2.38 COL 28 COLON-ALIGNED HELP
           "Enter Beginning Customer Number"
-     end_cust-no AT ROW 3.14 COL 70 COLON-ALIGNED HELP
+     end_cust-no AT ROW 2.38 COL 70 COLON-ALIGNED HELP
           "Enter Ending Customer Number"
-     begin_slsmn AT ROW 4.1 COL 28 COLON-ALIGNED HELP
+     begin_slsmn AT ROW 3.52 COL 28 COLON-ALIGNED HELP
           "Enter Beginning Sales Rep Number"
-     end_slsmn AT ROW 4.1 COL 70 COLON-ALIGNED HELP
+     end_slsmn AT ROW 3.52 COL 70 COLON-ALIGNED HELP
           "Enter Ending Sales Rep Number"
-     begin_date AT ROW 5.05 COL 28 COLON-ALIGNED HELP
+     begin_date AT ROW 4.71 COL 28 COLON-ALIGNED HELP
           "Enter Beginning Date"
-     end_date AT ROW 5.05 COL 70 COLON-ALIGNED HELP
+     end_date AT ROW 4.71 COL 70 COLON-ALIGNED HELP
           "Enter Ending Date"
      sl_avail AT ROW 7.43 COL 4.2 NO-LABEL WIDGET-ID 26
      Btn_Def AT ROW 7.43 COL 40.2 HELP
@@ -266,33 +234,28 @@ DEFINE FRAME FRAME-A
           "Remove Selected Table from Tables to Audit" WIDGET-ID 34
      btn_Up AT ROW 10.48 COL 40.2 WIDGET-ID 40
      btn_down AT ROW 11.48 COL 40.2 WIDGET-ID 42
-     rd-dest AT ROW 14.1 COL 5 NO-LABEL
-     lv-ornt AT ROW 14.57 COL 32 NO-LABEL
-     lines-per-page AT ROW 14.57 COL 85 COLON-ALIGNED
-     lv-font-no AT ROW 16 COL 35 COLON-ALIGNED
-     lv-font-name AT ROW 16.95 COL 29 COLON-ALIGNED NO-LABEL
-     td-show-parm AT ROW 18.48 COL 31
-     tb_excel AT ROW 20.05 COL 51 RIGHT-ALIGNED WIDGET-ID 10
-     tb_runExcel AT ROW 20.05 COL 75 RIGHT-ALIGNED WIDGET-ID 12
-     fi_file AT ROW 21.29 COL 29 COLON-ALIGNED HELP
+     rd-dest AT ROW 14.1 COL 7 NO-LABEL
+     tb_runExcel AT ROW 17.05 COL 75 RIGHT-ALIGNED WIDGET-ID 12
+     fi_file AT ROW 18.14 COL 29 COLON-ALIGNED HELP
           "Enter File Name" WIDGET-ID 8
-     btn-ok AT ROW 24 COL 18
-     btn-cancel AT ROW 24 COL 56
+     btn-ok AT ROW 20.24 COL 25.8
+     btn-cancel AT ROW 20.24 COL 48.4
      "Available Columns" VIEW-AS TEXT
           SIZE 29 BY .62 AT ROW 6.71 COL 5 WIDGET-ID 38
-     "Selection Parameters" VIEW-AS TEXT
-          SIZE 21 BY .71 AT ROW 1.24 COL 5
-          BGCOLOR 2 
-     "Output Destination" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 13.14 COL 3
      "Selected Columns(In Display Order)" VIEW-AS TEXT
           SIZE 34 BY .62 AT ROW 6.71 COL 59.6 WIDGET-ID 44
+     "Output Destination" VIEW-AS TEXT
+          SIZE 18 BY .62 AT ROW 13.14 COL 5.4
+     "Selection Parameters" VIEW-AS TEXT
+          SIZE 21 BY .71 AT ROW 1.24 COL 5
+          BGCOLOR 15 
      RECT-6 AT ROW 12.91 COL 2
-     RECT-7 AT ROW 1 COL 3
+     RECT-7 AT ROW 1.67 COL 3
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1.6 ROW 1.24
-         SIZE 95.2 BY 24.57.
+         SIZE 95.2 BY 24.57
+         BGCOLOR 15 .
 
 
 /* *********************** Procedure Settings ************************ */
@@ -312,21 +275,21 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Quoted Price List"
-         HEIGHT             = 24.81
+         HEIGHT             = 21.1
          WIDTH              = 95.8
          MAX-HEIGHT         = 46.48
          MAX-WIDTH          = 256
          VIRTUAL-HEIGHT     = 46.48
          VIRTUAL-WIDTH      = 256
-         RESIZE             = yes
-         SCROLL-BARS        = no
-         STATUS-AREA        = yes
+         RESIZE             = YES
+         SCROLL-BARS        = NO
+         STATUS-AREA        = YES
          BGCOLOR            = ?
          FGCOLOR            = ?
-         KEEP-FRAME-Z-ORDER = yes
-         THREE-D            = yes
-         MESSAGE-AREA       = no
-         SENSITIVE          = yes.
+         KEEP-FRAME-Z-ORDER = YES
+         THREE-D            = YES
+         MESSAGE-AREA       = NO
+         SENSITIVE          = YES.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
@@ -346,16 +309,6 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
-ASSIGN
-       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
-ASSIGN
-       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
 ASSIGN 
        begin_cust-no:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -367,6 +320,14 @@ ASSIGN
 ASSIGN 
        begin_slsmn:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
+
+ASSIGN 
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+ASSIGN 
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
 
 ASSIGN 
        end_cust-no:PRIVATE-DATA IN FRAME FRAME-A     = 
@@ -384,14 +345,6 @@ ASSIGN
        fi_file:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
-/* SETTINGS FOR FILL-IN lv-font-name IN FRAME FRAME-A
-   NO-ENABLE                                                            */
-/* SETTINGS FOR TOGGLE-BOX tb_excel IN FRAME FRAME-A
-   ALIGN-R                                                              */
-ASSIGN 
-       tb_excel:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "parm".
-
 /* SETTINGS FOR TOGGLE-BOX tb_runExcel IN FRAME FRAME-A
    ALIGN-R                                                              */
 ASSIGN 
@@ -399,12 +352,12 @@ ASSIGN
                 "parm".
 
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-THEN C-Win:HIDDEN = no.
+THEN C-Win:HIDDEN = NO.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -440,7 +393,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_cust-no C-Win
 ON LEAVE OF begin_cust-no IN FRAME FRAME-A /* Beginning Customer# */
 DO:
-   assign {&self-name}.
+   ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -451,7 +404,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_date C-Win
 ON LEAVE OF begin_date IN FRAME FRAME-A /* Beginning Date */
 DO:
-     assign {&self-name}.
+     ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -460,9 +413,9 @@ END.
 
 &Scoped-define SELF-NAME begin_slsmn
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_slsmn C-Win
-ON LEAVE OF begin_slsmn IN FRAME FRAME-A /* Beginning SalesRep# */
+ON LEAVE OF begin_slsmn IN FRAME FRAME-A /* Beginning Sales Rep# */
 DO:
-     assign {&self-name}.
+     ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -473,7 +426,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
-   apply "close" to this-procedure.
+   APPLY "close" TO THIS-PROCEDURE.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -489,11 +442,11 @@ DO:
         ASSIGN {&displayed-objects}.
     END.
 
-  assign rd-dest
-         lines-per-page .
+//  ASSIGN rd-dest
+  //       lines-per-page .
 
   RUN GetSelectionList.
-  run run-report. 
+  RUN run-report. 
   STATUS DEFAULT "Processing Complete".
 
   CASE rd-dest:
@@ -535,6 +488,7 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME Btn_Add
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Add C-Win
@@ -614,11 +568,12 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
 &Scoped-define SELF-NAME end_cust-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_cust-no C-Win
 ON LEAVE OF end_cust-no IN FRAME FRAME-A /* Ending Customer# */
 DO:
-     assign {&self-name}.
+     ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -629,7 +584,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_date C-Win
 ON LEAVE OF end_date IN FRAME FRAME-A /* Ending Date */
 DO:
-     assign {&self-name}.
+     ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -638,9 +593,9 @@ END.
 
 &Scoped-define SELF-NAME end_slsmn
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_slsmn C-Win
-ON LEAVE OF end_slsmn IN FRAME FRAME-A /* Ending SalesRep# */
+ON LEAVE OF end_slsmn IN FRAME FRAME-A /* Ending Sales Rep# */
 DO:
-     assign {&self-name}.
+     ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -651,65 +606,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_file C-Win
 ON LEAVE OF fi_file IN FRAME FRAME-A /* If Yes, File Name */
 DO:
-     assign {&self-name}.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME lines-per-page
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lines-per-page C-Win
-ON LEAVE OF lines-per-page IN FRAME FRAME-A /* Lines Per Page */
-DO:
-  assign {&self-name}.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME lv-font-no
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-font-no C-Win
-ON HELP OF lv-font-no IN FRAME FRAME-A /* Font */
-DO:
-    DEF VAR char-val AS cha NO-UNDO.
-
-    RUN WINDOWS/l-fonts.w (FOCUS:SCREEN-VALUE, OUTPUT char-val).
-    IF char-val <> "" THEN ASSIGN FOCUS:SCREEN-VALUE = ENTRY(1,char-val)
-                                  LV-FONT-NAME:SCREEN-VALUE = ENTRY(2,char-val).
-
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-font-no C-Win
-ON LEAVE OF lv-font-no IN FRAME FRAME-A /* Font */
-DO:
-   ASSIGN lv-font-no.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME lv-ornt
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-ornt C-Win
-ON LEAVE OF lv-ornt IN FRAME FRAME-A
-DO:
-  ASSIGN lv-ornt.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-ornt C-Win
-ON VALUE-CHANGED OF lv-ornt IN FRAME FRAME-A
-DO:
-  {custom/chgfont.i}
+     ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -720,11 +617,12 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd-dest C-Win
 ON VALUE-CHANGED OF rd-dest IN FRAME FRAME-A
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME sl_avail
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sl_avail C-Win
@@ -788,33 +686,12 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&Scoped-define SELF-NAME tb_excel
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_excel C-Win
-ON VALUE-CHANGED OF tb_excel IN FRAME FRAME-A /* Export To Excel? */
-DO:
-  assign {&self-name}.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
 &Scoped-define SELF-NAME tb_runExcel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_runExcel C-Win
 ON VALUE-CHANGED OF tb_runExcel IN FRAME FRAME-A /* Auto Run Excel? */
 DO:
-  assign {&self-name}.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME td-show-parm
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL td-show-parm C-Win
-ON VALUE-CHANGED OF td-show-parm IN FRAME FRAME-A /* Show Parameters? */
-DO:
-    assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -852,10 +729,17 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      RETURN .
   END.
 
- ASSIGN   begin_date  = DATE(1,1,year(TODAY))
+ ASSIGN   begin_date  = DATE(1,1,YEAR(TODAY))
           END_date    = TODAY.
 
   RUN DisplaySelectionList.
+    btn-ok:load-image("Graphics/32x32/Ok.png").
+    btn-cancel:load-image("Graphics/32x32/cancel.png").
+    Btn_Def:load-image("Graphics/32x32/default.png").
+    Btn_Add:load-image("Graphics/32x32/additem.png").
+    Btn_Remove:load-image("Graphics/32x32/remove.png").
+    btn_Up:load-image("Graphics/32x32/moveup.png").
+    btn_down:load-image("Graphics/32x32/movedown.png").
   RUN enable_UI.
 
   {methods/nowait.i}
@@ -1020,13 +904,11 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY begin_cust-no end_cust-no begin_slsmn end_slsmn begin_date end_date 
-          rd-dest lv-ornt lines-per-page lv-font-no lv-font-name td-show-parm 
-          tb_excel tb_runExcel fi_file sl_avail sl_selected
+          sl_avail sl_selected rd-dest tb_runExcel fi_file 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 begin_cust-no end_cust-no begin_slsmn end_slsmn 
-         begin_date end_date rd-dest lv-ornt lines-per-page lv-font-no 
-         td-show-parm tb_excel tb_runExcel fi_file btn-ok btn-cancel 
-         sl_avail Btn_Def sl_selected Btn_Add Btn_Remove btn_Up btn_down
+         begin_date end_date sl_avail Btn_Def sl_selected Btn_Add Btn_Remove 
+         btn_Up btn_down rd-dest tb_runExcel fi_file btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -1054,9 +936,9 @@ PROCEDURE GetSelectionList :
     CREATE ttRptSelected.
     ASSIGN ttRptSelected.TextList =  ENTRY(i,cTmpList)
            ttRptSelected.FieldList = ttRptList.FieldList
-           ttRptSelected.FieldLength = int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cTmpList)), cFieldLength))
+           ttRptSelected.FieldLength = int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cTmpList)), cFieldLength))
            ttRptSelected.DisplayOrder = i
-           ttRptSelected.HeadingFromLeft = IF entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cTmpList)), cFieldType) = "C" THEN YES ELSE NO
+           ttRptSelected.HeadingFromLeft = IF ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cTmpList)), cFieldType) = "C" THEN YES ELSE NO
            iColumnLength = iColumnLength + ttRptSelected.FieldLength + 1.
            .        
 
@@ -1151,7 +1033,7 @@ PROCEDURE output-to-printer :
                             INPUT 3, INPUT 1, INPUT 0, INPUT 0, OUTPUT result).
                           /* font #*/ /* use-dialog(1) and landscape(2) */
   */
-  RUN custom/prntproc.p (list-name,INT(lv-font-no),lv-ornt).
+//  RUN custom/prntproc.p (list-name,INT(lv-font-no),lv-ornt).
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1164,7 +1046,7 @@ PROCEDURE output-to-screen :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  run scr-rpt.w (list-name,c-win:title,int(lv-font-no),lv-ornt). /* open file-name, title */ 
+//  RUN scr-rpt.w (list-name,c-win:TITLE,int(lv-font-no),lv-ornt). /* open file-name, title */ 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1179,24 +1061,24 @@ PROCEDURE run-report :
 
 /*{sys/form/r-top3w.f}*/
 
-def var fcust like quote.cust-no NO-UNDO.
-def var tcust like fcust init "zzzzzzzz" NO-UNDO.
-def var fsman like quote.sman NO-UNDO.
-def var tsman like fsman init "zzz" NO-UNDO.
-def var fdate as date format "99/99/9999" init 01/01/01 NO-UNDO.
-def var tdate like fdate init TODAY NO-UNDO.
+DEF VAR fcust LIKE quote.cust-no NO-UNDO.
+DEF VAR tcust LIKE fcust INIT "zzzzzzzz" NO-UNDO.
+DEF VAR fsman LIKE quote.sman NO-UNDO.
+DEF VAR tsman LIKE fsman INIT "zzz" NO-UNDO.
+DEF VAR fdate AS DATE FORMAT "99/99/9999" INIT 01/01/01 NO-UNDO.
+DEF VAR tdate LIKE fdate INIT TODAY NO-UNDO.
 
-def var v-cst as log format "yes/no" init NO NO-UNDO.
+DEF VAR v-cst AS LOG FORMAT "yes/no" INIT NO NO-UNDO.
 
-def var v-cst-hdr as char format "x(60)" NO-UNDO.
-def var v-lines as INT NO-UNDO.
-def var v-price as DEC NO-UNDO.
-def var v-rels as int format ">>>" no-undo.
-def var v-sname like sman.sname no-undo.
+DEF VAR v-cst-hdr AS CHAR FORMAT "x(60)" NO-UNDO.
+DEF VAR v-lines AS INT NO-UNDO.
+DEF VAR v-price AS DEC NO-UNDO.
+DEF VAR v-rels AS INT FORMAT ">>>" NO-UNDO.
+DEF VAR v-sname LIKE sman.sname NO-UNDO.
 
-find first quote no-lock no-error.
-find first cust no-lock no-error.
-find first sman no-lock no-error.
+FIND FIRST quote NO-LOCK NO-ERROR.
+FIND FIRST cust NO-LOCK NO-ERROR.
+FIND FIRST sman NO-LOCK NO-ERROR.
 
 /* gdm - 10130808 */
 DEF VAR v_exclhdr1 AS CHAR NO-UNDO.
@@ -1235,8 +1117,8 @@ RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 str-tit = coname + " - " + loname.
 {sys/inc/ctrtext.i str-tit 112}. 
 
-assign
- str-tit2 = trim(c-win:title) 
+ASSIGN
+ str-tit2 = TRIM(c-win:TITLE) 
  {sys/inc/ctrtext.i str-tit2 112}
 
  fcust    = begin_cust-no
@@ -1270,13 +1152,13 @@ assign
      skip(1)     
    with frame r-top STREAM-IO. */
 
-assign
+ASSIGN
      str-tit2 = "Quoted Price List - by Customer by Quote#"
      {sys/inc/ctrtext.i str-tit2 112}
      str-tit3 = "FROM  " +
                 string(fdate,"99/99/99") + "  TO  " +
                 string(tdate,"99/99/99")
-     str-tit3 = trim(str-tit3)
+     str-tit3 = TRIM(str-tit3)
      {sys/inc/ctrtext.i str-tit3 130}.
 
 
@@ -1308,7 +1190,7 @@ DEF VAR cslist AS cha NO-UNDO.
 
 {sys/inc/outprint.i  value(lines-per-page) }
 
-if td-show-parm then run show-param.
+//IF td-show-parm THEN RUN show-param.
 /*
 display str-tit with frame r-top.
 */
@@ -1323,55 +1205,55 @@ display str-tit with frame r-top.
 
 END.*/
 
-IF tb_excel THEN do:
+//IF tb_excel THEN DO:
   OUTPUT STREAM excel TO VALUE(cFileName).
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
-END.
+//END.
 SESSION:SET-WAIT-STATE("general").
 
 
-   for each quotehd
-        where quotehd.company  eq cocode
-          and quotehd.loc      eq locode
-          and quotehd.cust-no  ge fcust
-          and quotehd.cust-no  le tcust
-          and quotehd.sman     ge fsman
-          and quotehd.sman     le tsman
-          and quotehd.quo-date ge fdate
-          and quotehd.quo-date le tdate
-        no-lock:
+   FOR EACH quotehd
+        WHERE quotehd.company  EQ cocode
+          AND quotehd.loc      EQ locode
+          AND quotehd.cust-no  GE fcust
+          AND quotehd.cust-no  LE tcust
+          AND quotehd.sman     GE fsman
+          AND quotehd.sman     LE tsman
+          AND quotehd.quo-date GE fdate
+          AND quotehd.quo-date LE tdate
+        NO-LOCK:
 
       {custom/statusMsg.i " 'Processing Estimate#:  '  + quotehd.est-no  "}
 
-      create report.
-      assign
+      CREATE report.
+      ASSIGN
        report.term-id = v-term
        report.key-01  = quotehd.cust-no
-       report.key-02  = string(quotehd.q-no,"9999999999")
-       report.rec-id  = recid(quotehd).
-    end.
+       report.key-02  = STRING(quotehd.q-no,"9999999999")
+       report.rec-id  = RECID(quotehd).
+    END.
 
-    for each report where report.term-id eq v-term,
-        first quotehd where recid(quotehd)    EQ report.rec-id no-lock,
+    FOR EACH report WHERE report.term-id EQ v-term,
+        FIRST quotehd WHERE RECID(quotehd)    EQ report.rec-id NO-LOCK,
         FIRST est   WHERE est.company    EQ quotehd.company                     
                       AND est.est-no     EQ quotehd.est-no NO-LOCK
-        break by report.key-01: 
+        BREAK BY report.key-01: 
 
         {custom/statusMsg.i " 'Processing Estimate#:  '  + quotehd.est-no  "}
 
-      find first cust
-          where cust.company eq quotehd.company
-            and cust.cust-no eq quotehd.cust-no
-          no-lock no-error.     
+      FIND FIRST cust
+          WHERE cust.company EQ quotehd.company
+            AND cust.cust-no EQ quotehd.cust-no
+          NO-LOCK NO-ERROR.     
 
-      find first sman
-          where sman.company eq quotehd.company
-            and sman.sman    eq quotehd.sman
-         no-lock no-error.
+      FIND FIRST sman
+          WHERE sman.company EQ quotehd.company
+            AND sman.sman    EQ quotehd.sman
+         NO-LOCK NO-ERROR.
 
-      if first-of(report.key-01) then do:
-        v-sname = if avail sman then sman.sname else quotehd.sman.
-        if first(report.key-01) then VIEW frame r-top. 
+      IF FIRST-OF(report.key-01) THEN DO:
+        v-sname = IF AVAIL sman THEN sman.sname ELSE quotehd.sman.
+        IF FIRST(report.key-01) THEN VIEW FRAME r-top. 
 
         ASSIGN
             v_billto = quotehd.billto[1]
@@ -1381,27 +1263,27 @@ SESSION:SET-WAIT-STATE("general").
             v_st     = cust.state    
             v_zip    = cust.zip.
 
-        page.
-      end.
+        PAGE.
+      END.
 
-      for each quoteitm OF quotehd no-lock:
+      FOR EACH quoteitm OF quotehd NO-LOCK:
 
-        find first eb where eb.company = quoteitm.company
+        FIND FIRST eb WHERE eb.company = quoteitm.company
                         AND eb.est-no = est.est-no                     
-                        and eb.part-no eq quoteitm.part-no
-                        and eb.form-no ne 0
-                        no-lock no-error.
-        if not avail eb then
-           find first eb where eb.company = quoteitm.company
+                        AND eb.part-no EQ quoteitm.part-no
+                        AND eb.form-no NE 0
+                        NO-LOCK NO-ERROR.
+        IF NOT AVAIL eb THEN
+           FIND FIRST eb WHERE eb.company = quoteitm.company
                         AND eb.est-no = est.est-no                     
-                        and eb.form-no ne 0
-                        no-lock no-error.
+                        AND eb.form-no NE 0
+                        NO-LOCK NO-ERROR.
 
-        if avail eb then
-           find first ef where ef.company = quoteitm.company
-                           AND ef.est-no   eq est.est-no
-                           and ef.form-no eq eb.form-no
-                           no-lock no-error.
+        IF AVAIL eb THEN
+           FIND FIRST ef WHERE ef.company = quoteitm.company
+                           AND ef.est-no   EQ est.est-no
+                           AND ef.form-no EQ eb.form-no
+                           NO-LOCK NO-ERROR.
 
         v-rels = 1.
 
@@ -1491,10 +1373,10 @@ SESSION:SET-WAIT-STATE("general").
                    cExcelVarValue = "".
 
             DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
-               cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
+               cTmpField = ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
                     CASE cTmpField:             
-                         WHEN "comp-name"           THEN cVarValue = string(v_billto) .
-                         WHEN "add1"           THEN cVarValue = string(v_addr1).
+                         WHEN "comp-name"           THEN cVarValue = STRING(v_billto) .
+                         WHEN "add1"           THEN cVarValue = STRING(v_addr1).
                          WHEN "add2"               THEN cVarValue = STRING(v_addr2).
                          WHEN "city"                 THEN cVarValue = STRING(v_city) .
                          WHEN "state"              THEN cVarValue = STRING(v_st) .
@@ -1517,30 +1399,30 @@ SESSION:SET-WAIT-STATE("general").
 
                     cExcelVarValue = cVarValue.
                     cDisplay = cDisplay + cVarValue +
-                               FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
+                               FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
             END.
 
             PUT UNFORMATTED cDisplay SKIP.
-            IF tb_excel THEN DO:
+//            IF tb_excel THEN DO:
                  PUT STREAM excel UNFORMATTED  
                        cExcelDisplay SKIP.
-             END.   
+        //     END.   
 
-      end.     
+      END.     
 
       END.
-      put skip(1).
+      PUT SKIP(1).
 
-      delete report.
-    end.
+      DELETE report.
+    END.
 
 /* gdm - 10130808 */
-    IF tb_excel THEN DO:
+   // IF tb_excel THEN DO:
         OUTPUT STREAM excel CLOSE.
         IF tb_runExcel THEN
             OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
-    END.
+   // END.
 
 /* gdm - 10130807 */
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
@@ -1549,7 +1431,7 @@ SESSION:SET-WAIT-STATE("").
 
 /* END ---------------------------------- copr. 1992  Advanced Software, Inc. */
 
-end procedure.
+END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1561,68 +1443,67 @@ PROCEDURE show-param :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  def var lv-frame-hdl as handle no-undo.
-  def var lv-group-hdl as handle no-undo.
-  def var lv-field-hdl as handle no-undo.
-  def var lv-field2-hdl as handle no-undo.
-  def var parm-fld-list as cha no-undo.
-  def var parm-lbl-list as cha no-undo.
-  def var i as int no-undo.
-  def var lv-label as cha.
+  DEF VAR lv-frame-hdl AS HANDLE NO-UNDO.
+  DEF VAR lv-group-hdl AS HANDLE NO-UNDO.
+  DEF VAR lv-field-hdl AS HANDLE NO-UNDO.
+  DEF VAR lv-field2-hdl AS HANDLE NO-UNDO.
+  DEF VAR parm-fld-list AS cha NO-UNDO.
+  DEF VAR parm-lbl-list AS cha NO-UNDO.
+  DEF VAR i AS INT NO-UNDO.
+  DEF VAR lv-label AS cha.
 
-  lv-frame-hdl = frame {&frame-name}:handle.
-  lv-group-hdl = lv-frame-hdl:first-child.
-  lv-field-hdl = lv-group-hdl:first-child .
+  lv-frame-hdl = FRAME {&frame-name}:handle.
+  lv-group-hdl = lv-frame-hdl:FIRST-CHILD.
+  lv-field-hdl = lv-group-hdl:FIRST-CHILD .
 
-  do while true:
-     if not valid-handle(lv-field-hdl) then leave.
-     if lookup(lv-field-hdl:private-data,"parm") > 0
-        then do:
-           if lv-field-hdl:label <> ? then 
-              assign parm-fld-list = parm-fld-list + lv-field-hdl:screen-value + ","
-                     parm-lbl-list = parm-lbl-list + lv-field-hdl:label + "," 
+  DO WHILE TRUE:
+     IF NOT VALID-HANDLE(lv-field-hdl) THEN LEAVE.
+     IF LOOKUP(lv-field-hdl:PRIVATE-DATA,"parm") > 0
+        THEN DO:
+           IF lv-field-hdl:LABEL <> ? THEN 
+              ASSIGN parm-fld-list = parm-fld-list + lv-field-hdl:SCREEN-VALUE + ","
+                     parm-lbl-list = parm-lbl-list + lv-field-hdl:LABEL + "," 
                      .
-           else do:  /* radio set */
-              assign parm-fld-list = parm-fld-list + lv-field-hdl:screen-value + ","
+           ELSE DO:  /* radio set */
+              ASSIGN parm-fld-list = parm-fld-list + lv-field-hdl:SCREEN-VALUE + ","
                      .
-              lv-field2-hdl = lv-group-hdl:first-child.
-              repeat:
-                  if not valid-handle(lv-field2-hdl) then leave. 
-                  if lv-field2-hdl:private-data = lv-field-hdl:name then do:
-                     parm-lbl-list = parm-lbl-list + lv-field2-hdl:screen-value + ",".
-                  end.
-                  lv-field2-hdl = lv-field2-hdl:next-sibling.                 
-              end.       
-           end.                 
-        end.            
-     lv-field-hdl = lv-field-hdl:next-sibling.   
-  end.
+              lv-field2-hdl = lv-group-hdl:FIRST-CHILD.
+              REPEAT:
+                  IF NOT VALID-HANDLE(lv-field2-hdl) THEN LEAVE. 
+                  IF lv-field2-hdl:PRIVATE-DATA = lv-field-hdl:NAME THEN DO:
+                     parm-lbl-list = parm-lbl-list + lv-field2-hdl:SCREEN-VALUE + ",".
+                  END.
+                  lv-field2-hdl = lv-field2-hdl:NEXT-SIBLING.                 
+              END.       
+           END.                 
+        END.            
+     lv-field-hdl = lv-field-hdl:NEXT-SIBLING.   
+  END.
 
-  put space(28)
+  PUT SPACE(28)
       "< Selection Parameters >"
-      skip(1).
+      SKIP(1).
 
-  do i = 1 to num-entries(parm-fld-list,","):
-    if entry(i,parm-fld-list) ne "" or
-       entry(i,parm-lbl-list) ne "" then do:
+  DO i = 1 TO NUM-ENTRIES(parm-fld-list,","):
+    IF ENTRY(i,parm-fld-list) NE "" OR
+       entry(i,parm-lbl-list) NE "" THEN DO:
 
-      lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
-                 trim(entry(i,parm-lbl-list)) + ":".
+      lv-label = FILL(" ",34 - length(TRIM(ENTRY(i,parm-lbl-list)))) +
+                 trim(ENTRY(i,parm-lbl-list)) + ":".
 
-      put lv-label format "x(35)" at 5
-          space(1)
-          trim(entry(i,parm-fld-list)) format "x(40)"
-          skip.              
-    end.
-  end.
+      PUT lv-label FORMAT "x(35)" AT 5
+          SPACE(1)
+          TRIM(ENTRY(i,parm-fld-list)) FORMAT "x(40)"
+          SKIP.              
+    END.
+  END.
 
-  put fill("-",80) format "x(80)" skip.
+  PUT FILL("-",80) FORMAT "x(80)" SKIP.
 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 /* ************************  Function Implementations ***************** */
 
@@ -1634,12 +1515,10 @@ FUNCTION GEtFieldValue RETURNS CHARACTER
     Notes:  
 ------------------------------------------------------------------------------*/
   /*RETURN string(hField:BUFFER-VALUE, hField:FORMAT) */
-  RETURN string(hipField:BUFFER-VALUE).
+  RETURN STRING(hipField:BUFFER-VALUE).
 
 END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
