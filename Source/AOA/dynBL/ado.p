@@ -52,10 +52,20 @@ PROCEDURE pBusinessLogic:
     CREATE "ADODB.Connection.6.0" hConnection.
     hConnection:ConnectionString = "{AOA/dynBL/IndepedentII.i}".
     /* open ADO connection */
-    hConnection:Open (,,,).
+    hConnection:Open (,,,) NO-ERROR.
+    IF ERROR-STATUS:NUM-MESSAGES GT 0 THEN DO:
+        CREATE ttCompare.
+        ASSIGN
+            ttCompare.cType     = "ERROR"
+            ttCompare.cTable    = "ADO Open Failed"
+            ttCompare.cField    = "Contact System Administrator"
+            ttCompare.cKeyValue = "for Assistance"
+            .
+        RETURN.
+    END. /* if error */
     /* create record set connection */
     CREATE "ADODB.Recordset.6.0" hRecordSet.
-    hRecordSet:LockType = 1. /* read only */    
+    hRecordSet:LockType = 1. /* read only */
     IF lTerms     THEN RUN pADO ("Terms").
     IF lCustomers THEN RUN pADO ("Cust").
     IF lFGItems   THEN RUN pADO ("ItemFG").    
