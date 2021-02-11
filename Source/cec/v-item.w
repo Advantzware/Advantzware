@@ -2224,20 +2224,9 @@ PROCEDURE local-display-fields :
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
-  DO WITH FRAME {&FRAME-NAME}:
-      IF lDisplayWood AND INDEX("1234",fi_mat-type) GT 0 THEN DO:
-       ASSIGN
-          item.flute:LABEL       = "Lumber"              
-          item.s-dep:LABEL       = "Thickness"
-          fi_ect:LABEL           = "Board Grade"           
-            .        
-      END.
-      IF AVAIL ITEM AND ITEM.stat EQ "" THEN
-      DO:
-         ITEM.stat:SCREEN-VALUE = "A" . 
-      END.
-  END.
-
+  
+  RUN pLabelValueChange.
+  
   /* Code placed here will execute AFTER standard behavior.    */
   /* &Scoped-define mat-types-enable yes
   
@@ -2553,6 +2542,41 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pLabelValueChange V-table-Win 
+PROCEDURE pLabelValueChange :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+DO WITH FRAME {&FRAME-NAME}:
+      IF lDisplayWood AND INDEX("1234",fi_mat-type:SCREEN-VALUE) GT 0 THEN DO:
+       ASSIGN
+          item.flute:LABEL       = "Lumber"              
+          item.s-dep:LABEL       = "Thickness"
+          fi_ect:LABEL           = "Board Grade"           
+            .        
+      END.
+      ELSE DO:
+        ASSIGN
+          item.flute:LABEL       = "Flute"              
+          item.s-dep:LABEL       = "Depth"
+          fi_ect:LABEL           = ect-label .
+          IF fi_mat-type:SCREEN-VALUE EQ "P" THEN fi_ect:LABEL = "Core Dia." .
+      END.
+      IF AVAIL ITEM AND ITEM.stat EQ "" THEN
+      DO:
+         ITEM.stat:SCREEN-VALUE = "A" . 
+      END.
+  END.
+  
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE repo-query V-table-Win 
 PROCEDURE repo-query :
