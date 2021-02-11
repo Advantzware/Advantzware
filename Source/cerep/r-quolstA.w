@@ -62,10 +62,10 @@ DEF STREAM excel.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 begin_cust-no end_cust-no ~
-begin_slsmn end_slsmn begin_date end_date rd-dest tb_runExcel fi_file ~
-btn-ok btn-cancel 
+begin_slsmn end_slsmn begin_date end_date rd-dest tbAutoClose tb_runExcel ~
+fi_file btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_cust-no end_cust-no begin_slsmn ~
-end_slsmn begin_date end_date rd-dest tb_runExcel fi_file 
+end_slsmn begin_date end_date rd-dest tbAutoClose tb_runExcel fi_file 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -141,8 +141,13 @@ DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 92 BY 4.52.
 
-DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL NO 
-     LABEL "Auto Run Excel?" 
+DEFINE VARIABLE tbAutoClose AS LOGICAL INITIAL no 
+     LABEL "Auto Close" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 16 BY .81 NO-UNDO.
+
+DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL no 
+     LABEL "Auto Run CSV?" 
      VIEW-AS TOGGLE-BOX
      SIZE 21 BY .81
      BGCOLOR 15 FGCOLOR 15  NO-UNDO.
@@ -164,6 +169,7 @@ DEFINE FRAME FRAME-A
      end_date AT ROW 4.57 COL 70 COLON-ALIGNED HELP
           "Enter Ending Date"
      rd-dest AT ROW 7.62 COL 5 NO-LABEL
+     tbAutoClose AT ROW 9.1 COL 55 WIDGET-ID 16
      tb_runExcel AT ROW 10.1 COL 75 RIGHT-ALIGNED WIDGET-ID 12
      fi_file AT ROW 11.33 COL 29 COLON-ALIGNED HELP
           "Enter File Name" WIDGET-ID 8
@@ -206,15 +212,15 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 256
          VIRTUAL-HEIGHT     = 46.48
          VIRTUAL-WIDTH      = 256
-         RESIZE             = YES
-         SCROLL-BARS        = NO
-         STATUS-AREA        = YES
+         RESIZE             = yes
+         SCROLL-BARS        = no
+         STATUS-AREA        = yes
          BGCOLOR            = ?
          FGCOLOR            = ?
-         KEEP-FRAME-Z-ORDER = YES
-         THREE-D            = YES
-         MESSAGE-AREA       = NO
-         SENSITIVE          = YES.
+         KEEP-FRAME-Z-ORDER = yes
+         THREE-D            = yes
+         MESSAGE-AREA       = no
+         SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
@@ -273,7 +279,7 @@ ASSIGN
                 "parm".
 
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-THEN C-Win:HIDDEN = NO.
+THEN C-Win:HIDDEN = no.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -403,7 +409,8 @@ DO:
        END. 
        WHEN 6 THEN RUN OUTPUT-to-port.
   END CASE. 
-
+    IF tbAutoClose:CHECKED THEN 
+        APPLY 'close' TO THIS-PROCEDURE.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -467,7 +474,7 @@ END.
 
 &Scoped-define SELF-NAME tb_runExcel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_runExcel C-Win
-ON VALUE-CHANGED OF tb_runExcel IN FRAME FRAME-A /* Auto Run Excel? */
+ON VALUE-CHANGED OF tb_runExcel IN FRAME FRAME-A /* Auto Run CSV? */
 DO:
   ASSIGN {&self-name}.
 END.
@@ -562,10 +569,11 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY begin_cust-no end_cust-no begin_slsmn end_slsmn begin_date end_date 
-          rd-dest tb_runExcel fi_file 
+          rd-dest tbAutoClose tb_runExcel fi_file 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 begin_cust-no end_cust-no begin_slsmn end_slsmn 
-         begin_date end_date rd-dest tb_runExcel fi_file btn-ok btn-cancel 
+         begin_date end_date rd-dest tbAutoClose tb_runExcel fi_file btn-ok 
+         btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.

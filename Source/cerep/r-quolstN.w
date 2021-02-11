@@ -85,11 +85,11 @@ ASSIGN cTextListToDefault  = "Company Name,Address1,Address2,City,State,Zip,Rep,
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 begin_cust-no end_cust-no ~
 begin_slsmn end_slsmn begin_date end_date sl_avail Btn_Def sl_selected ~
-Btn_Add Btn_Remove btn_Up btn_down rd-dest tb_runExcel fi_file btn-ok ~
-btn-cancel 
+Btn_Add Btn_Remove btn_Up btn_down rd-dest tbAutoClose tb_runExcel fi_file ~
+btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_cust-no end_cust-no begin_slsmn ~
-end_slsmn begin_date end_date sl_avail sl_selected rd-dest tb_runExcel ~
-fi_file 
+end_slsmn begin_date end_date sl_avail sl_selected rd-dest tbAutoClose ~
+tb_runExcel fi_file 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -202,8 +202,13 @@ DEFINE VARIABLE sl_selected AS CHARACTER
      VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
      SIZE 33 BY 5.19 NO-UNDO.
 
+DEFINE VARIABLE tbAutoClose AS LOGICAL INITIAL NO 
+     LABEL "Auto Close" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 16 BY .81 NO-UNDO.
+
 DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL NO 
-     LABEL "Auto Run Excel?" 
+     LABEL "Auto Run CSVl?" 
      VIEW-AS TOGGLE-BOX
      SIZE 21 BY .81
      BGCOLOR 15 FGCOLOR 15  NO-UNDO.
@@ -235,6 +240,7 @@ DEFINE FRAME FRAME-A
      btn_Up AT ROW 10.48 COL 40.2 WIDGET-ID 40
      btn_down AT ROW 11.48 COL 40.2 WIDGET-ID 42
      rd-dest AT ROW 14.1 COL 7 NO-LABEL
+     tbAutoClose AT ROW 16.19 COL 55 WIDGET-ID 16
      tb_runExcel AT ROW 17.05 COL 75 RIGHT-ALIGNED WIDGET-ID 12
      fi_file AT ROW 18.14 COL 29 COLON-ALIGNED HELP
           "Enter File Name" WIDGET-ID 8
@@ -242,13 +248,13 @@ DEFINE FRAME FRAME-A
      btn-cancel AT ROW 20.24 COL 48.4
      "Available Columns" VIEW-AS TEXT
           SIZE 29 BY .62 AT ROW 6.71 COL 5 WIDGET-ID 38
-     "Selected Columns(In Display Order)" VIEW-AS TEXT
-          SIZE 34 BY .62 AT ROW 6.71 COL 59.6 WIDGET-ID 44
-     "Output Destination" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 13.14 COL 5.4
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.24 COL 5
           BGCOLOR 15 
+     "Output Destination" VIEW-AS TEXT
+          SIZE 18 BY .62 AT ROW 13.14 COL 5.4
+     "Selected Columns(In Display Order)" VIEW-AS TEXT
+          SIZE 34 BY .62 AT ROW 6.71 COL 59.6 WIDGET-ID 44
      RECT-6 AT ROW 12.91 COL 2
      RECT-7 AT ROW 1.67 COL 3
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
@@ -483,6 +489,10 @@ DO:
        END. 
        WHEN 6 THEN RUN OUTPUT-to-port.
   END CASE. 
+  
+  IF tbAutoClose:CHECKED THEN 
+     APPLY 'close' TO THIS-PROCEDURE.
+
 
 END.
 
@@ -689,7 +699,7 @@ END.
 
 &Scoped-define SELF-NAME tb_runExcel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_runExcel C-Win
-ON VALUE-CHANGED OF tb_runExcel IN FRAME FRAME-A /* Auto Run Excel? */
+ON VALUE-CHANGED OF tb_runExcel IN FRAME FRAME-A /* Auto Run CSVl? */
 DO:
   ASSIGN {&self-name}.
 END.
@@ -904,11 +914,12 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY begin_cust-no end_cust-no begin_slsmn end_slsmn begin_date end_date 
-          sl_avail sl_selected rd-dest tb_runExcel fi_file 
+          sl_avail sl_selected rd-dest tbAutoClose tb_runExcel fi_file 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 begin_cust-no end_cust-no begin_slsmn end_slsmn 
          begin_date end_date sl_avail Btn_Def sl_selected Btn_Add Btn_Remove 
-         btn_Up btn_down rd-dest tb_runExcel fi_file btn-ok btn-cancel 
+         btn_Up btn_down rd-dest tbAutoClose tb_runExcel fi_file btn-ok 
+         btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
