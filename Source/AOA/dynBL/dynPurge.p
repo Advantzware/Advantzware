@@ -7,6 +7,8 @@
 
 /* ***************************  Definitions  ************************** */
 
+DEFINE VARIABLE iNumResults AS INTEGER NO-UNDO.
+
 /* Temp-Table Definitions ---                                           */
 
 &Scoped-define ttTempTable ttPurge
@@ -39,6 +41,7 @@ END FUNCTION.
 
 PROCEDURE pBusinessLogic:
     DEFINE VARIABLE dtRunDateTime AS DATETIME NO-UNDO EXTENT 2.
+    DEFINE VARIABLE iCount        AS INTEGER  NO-UNDO.
 
     ASSIGN
         dtRunDateTime[1] = DATETIME(TODAY - 90, 0)
@@ -48,6 +51,8 @@ PROCEDURE pBusinessLogic:
         WHERE Task.scheduled EQ NO
           AND Task.lastDate  LT TODAY - 90
         :
+        IF lProgressBar THEN
+        RUN spProgressBar (cProgressBar, iNumResults, ?).
         RUN pCreatettPurge (
             "Unscheduled Task",
             Task.taskName,
@@ -64,6 +69,8 @@ PROCEDURE pBusinessLogic:
     FOR EACH Task NO-LOCK
         WHERE Task.endDate LT TODAY - 90
         :
+        IF lProgressBar THEN
+        RUN spProgressBar (cProgressBar, iNumResults, ?).
         RUN pCreatettPurge (
             "Expired Task",
             Task.taskName,
@@ -82,6 +89,8 @@ PROCEDURE pBusinessLogic:
           AND dynParamvalue.paramValueID    GT 0
           AND dynParamValue.lastRunDateTime LT dtRunDateTime[1]
         :
+        IF lProgressBar THEN
+        RUN spProgressBar (cProgressBar, iNumResults, ?).
         RUN pCreatettPurge (
             "User Task",
             dynParamValue.paramDescription,
@@ -98,6 +107,8 @@ PROCEDURE pBusinessLogic:
     FOR EACH taskResult NO-LOCK
         WHERE taskResult.fileDateTime LT dtRunDateTime[1]
         :
+        IF lProgressBar THEN
+        RUN spProgressBar (cProgressBar, iNumResults, ?).
         RUN pCreatettPurge (
             "Task Result",
             taskResult.folderFile,
@@ -115,6 +126,9 @@ PROCEDURE pBusinessLogic:
     FOR EACH ttPurge
         WHERE ttPurge.purgeStatus BEGINS "Deleted"
         :
+        iCount = iCount + 1.
+        IF lProgressBar THEN
+        RUN spProgressBar (cProgressBar, iCount, iNumResults).
         CASE ttPurge.purgeType:
             WHEN "Expired Task" OR WHEN "Unscheduled Task" THEN
             DO TRANSACTION:
@@ -161,5 +175,6 @@ PROCEDURE pCreatettPurge:
         ttPurge.taskID          = ipiTaskID
         ttPurge.purgeStatus     = ipcPurgeStatus
         ttPurge.purgeRowID      = iprRowID
+        iNumResults             = iNumResults + 1
         .
 END PROCEDURE.

@@ -1,6 +1,10 @@
 /* ado.i - rstark - 11.15.2020 */
 
 PROCEDURE p{&Table}:
+    DEFINE INPUT PARAMETER ipiTotal AS INTEGER NO-UNDO.
+
+    DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
+
     DISABLE TRIGGERS FOR LOAD OF {&Table}.
 
     ASSIGN
@@ -8,6 +12,9 @@ PROCEDURE p{&Table}:
         hTable[2] = BUFFER tt{&Table}:HANDLE
         .
     FOR EACH tt{&Table} NO-LOCK:
+        iCount = iCount + 1.
+        IF lProgressBar THEN
+        RUN spProgressBar (cProgressBar + " {&Table}", iCount, ipiTotal).
         FIND FIRST {&Table} NO-LOCK
              WHERE {&Table}.company     EQ tt{&Table}.company
                AND {&Table}.{&keyField} EQ tt{&Table}.{&keyField}

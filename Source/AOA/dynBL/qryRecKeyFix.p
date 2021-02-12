@@ -33,6 +33,7 @@ PROCEDURE pBusinessLogic:
     DEFINE VARIABLE hBuffer      AS HANDLE    NO-UNDO.
     DEFINE VARIABLE hTable       AS HANDLE    NO-UNDO.
     DEFINE VARIABLE hQuery       AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE iCount       AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iRecKeyCount AS INTEGER   NO-UNDO.
     
     cLockType = IF lCorrectData THEN "EXCLUSIVE" ELSE "NO".
@@ -41,6 +42,9 @@ PROCEDURE pBusinessLogic:
         FIRST ASI._field OF ASI._file NO-LOCK
         WHERE ASI._field._field-name EQ "rec_key"
         :
+        iCount = iCount + 1.
+        IF lProgressBar THEN
+        RUN spProgressBar (cProgressBar, iCount, ?).
         IF CAN-DO("{&excludeTables}",ASI._file._file-name) THEN
         NEXT.
         CREATE QUERY hQuery.
