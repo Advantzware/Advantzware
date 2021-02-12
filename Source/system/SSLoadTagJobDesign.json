@@ -2,7 +2,7 @@
 	"FGFilter" : {
 	   "FGItem" : {
             "visible" : true,
-            "sensitive" : true	   
+            "sensitive" : false	   
 	   }
 	},
 	"UserFields" : {
@@ -36,7 +36,7 @@
 		"Quantity" : {
 			"label" : "Total Quantity",
             "visible" : true,
-            "sensitive" : true
+            "sensitive" : false
 		},
 		"QuantityOfUnits" : {
 			"label" : "Pallet Quantity",
