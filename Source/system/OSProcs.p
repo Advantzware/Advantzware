@@ -234,15 +234,15 @@ PROCEDURE OS_PlaySound:
         ) NO-ERROR.
         
     IF NOT oplSuccess THEN
-        RETURN.
-        
-    opcStatus = STRING(loStatus).
+        RETURN.   
     
     RUN sndPlaySoundA (
         INPUT ipcFile, 
         INPUT 2,
         OUTPUT loStatus
         ) NO-ERROR.
+        
+    opcStatus = STRING(loStatus).
 
 END PROCEDURE.
 
