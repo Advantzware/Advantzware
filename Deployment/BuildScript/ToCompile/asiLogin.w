@@ -68,7 +68,7 @@ DEFINE NEW SHARED VARIABLE g_sysdate AS DATE NO-UNDO.
 DEFINE NEW SHARED VARIABLE g_period AS INTEGER NO-UNDO.
 DEFINE NEW SHARED VARIABLE g_init AS LOGICAL NO-UNDO.
 DEFINE NEW SHARED VARIABLE g_batch AS LOGICAL NO-UNDO.
-DEFINE NEW SHARED VARIABLE g_batch-rowid AS rowid NO-UNDO.
+DEFINE NEW SHARED VARIABLE g_batch-rowid AS ROWID NO-UNDO.
 DEFINE NEW SHARED VARIABLE miscflds_reckey AS CHARACTER.
 DEFINE NEW SHARED VARIABLE table_reckey AS CHARACTER.
 DEFINE NEW SHARED VARIABLE ListLogic-Handle AS HANDLE.
@@ -371,9 +371,9 @@ DEFINE IMAGE IMAGE-2
 DEFINE FRAME DEFAULT-FRAME
      fiUserID AT ROW 1.71 COL 18 COLON-ALIGNED WIDGET-ID 4
      fiPassword AT ROW 3.14 COL 18 COLON-ALIGNED WIDGET-ID 6 PASSWORD-FIELD 
-     cbMode AT ROW 5.76 COL 18 COLON-ALIGNED WIDGET-ID 10
-     cbEnvironment AT ROW 7.19 COL 18 COLON-ALIGNED WIDGET-ID 8
-     cbDatabase AT ROW 8.62 COL 18 COLON-ALIGNED WIDGET-ID 18
+     cbEnvironment AT ROW 5.76 COL 18 COLON-ALIGNED WIDGET-ID 8
+     cbDatabase AT ROW 7.19 COL 18 COLON-ALIGNED WIDGET-ID 18
+     cbMode AT ROW 8.62 COL 18 COLON-ALIGNED WIDGET-ID 10
      Btn_OK AT ROW 8.62 COL 53 WIDGET-ID 26
      Btn_Cancel AT ROW 8.62 COL 77 WIDGET-ID 22
      IMAGE-2 AT ROW 1.71 COL 53 WIDGET-ID 28
@@ -381,7 +381,7 @@ DEFINE FRAME DEFAULT-FRAME
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
          SIZE 97.2 BY 9.67
-         BGCOLOR 35 FONT 21
+         BGCOLOR 35 FONT 22
          DEFAULT-BUTTON Btn_OK CANCEL-BUTTON Btn_Cancel WIDGET-ID 100.
 
 
@@ -590,7 +590,6 @@ DO:
                 cbMode:VISIBLE = TRUE 
                 cbMode:SENSITIVE = TRUE   
                 cbMode:LIST-ITEMS = cAvailModeList
-                cbEnvironment:LIST-ITEMS = cAvailEnvList 
                 cbMode:{&SV} = ENTRY(1, cbMode:LIST-ITEMS)
                 .
             APPLY 'value-changed' TO cbEnvironment.
@@ -822,6 +821,8 @@ PROCEDURE ipChangeEnvironment :
         RETURN.
     END.
     ELSE DO:
+        ASSIGN
+            cAvailDbList = "".
         CASE cbEnvironment:{&SV}:
             WHEN "Prod" THEN DO:
                 DO iCtr = 1 TO NUM-ENTRIES(cDbList):
@@ -863,6 +864,10 @@ PROCEDURE ipChangeEnvironment :
         END CASE.
         IF cSessionParam EQ "" THEN 
             APPLY 'value-changed' TO cbDatabase.
+        IF NUM-ENTRIES(cAvailDbList) EQ 1 THEN ASSIGN 
+            cbDatabase:visible = FALSE.
+        ELSE ASSIGN 
+            cbDatabase:visible = TRUE.
 
         ASSIGN
             iLookup = LOOKUP(cSelectedEnvironment,cEnvList)
@@ -1215,6 +1220,21 @@ PROCEDURE ipFindUser :
         cAvailEnvList = IF cAvailEnvList NE "" THEN cAvailEnvList ELSE cEnvList
         cAvailModeList = IF cAvailModeList NE "" THEN cAvailModeList ELSE cModeList
         .
+
+    ASSIGN 
+        cbMode:list-items = cAvailModeList
+        cbMode:screen-value = ENTRY(1,cAvailModeList)
+        cSelectedMode = ENTRY(1,cAvailModeList).
+    ASSIGN 
+        cbEnvironment:list-items = cAvailEnvList
+        cbEnvironment:screen-value = ENTRY(1,cAvailEnvList)
+        cSelectedEnvironment = ENTRY(1,cAvailEnvList).
+    ASSIGN 
+        cbDatabase:list-items = cAvailDbList
+        cbDatabase:screen-value = ENTRY(1,cAvailDbList)
+        cSelectedDatabase = ENTRY(1,cAvailDbList).
+
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1462,7 +1482,7 @@ PROCEDURE ipUpdUsrFile :
     END.
     IF lUpdUsr = TRUE THEN DO:
         OUTPUT STREAM usrStream TO VALUE(cUsrLoc).
-        FOR EACH ttUsers BY ttUsers.ttfPdbname by ttUsers.ttfUserID:
+        FOR EACH ttUsers BY ttUsers.ttfPdbname BY ttUsers.ttfUserID:
             ASSIGN 
                 cOutString = 
                 ttUsers.ttfUserID + "|" + 
