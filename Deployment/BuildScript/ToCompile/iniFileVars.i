@@ -22,24 +22,19 @@ DEF VAR wAudPortList AS CHAR NO-UNDO.
 DEF VAR wAudDirList AS CHAR NO-UNDO.
 DEF VAR wAudVerList AS CHAR NO-UNDO.
 
-ASSIGN cIniVarList = 
+ASSIGN cIniVarList =  
     "# Setup Variables,siteName,hostname,drive,dbDrive,topDir,mapDir,DLCDir,currVer,verDate,connectAudit,makeBackup,lockoutTries," +
-    "# Filestructure Variables,adminDir,backupDir,dbDir,deskDir,docDir,envDir,installDir,updatesDir," +
+    "# ASI Login Elements,envList,envVerList,modeList,pgmList,dbList,dbVerList,dbDirList,dbPortList,audDbList,audVerList,audDirList,audPortList," +
+    "# API Elements,apiIPAddress,apiPort,adminPort,nameServerName,nameServerPort,appServerName,appServerPort," +
+    "# Directory structure Variables,adminDir,backupDir,dbDir,deskDir,docDir,envDir,installDir,updatesDir," +
     "# Admin subdirs,dbAdmin,envAdmin," +
     "# Backup subdirs,dbBackup,pgmBackup,resBackup," +
     "# Database subdirs,dbAuditDir,dbDataDir,dbProdDir,dbShipDir,dbStructDir,dbTestDir," +
     "# Documentation subdirs,docMiscDocuments,docReleaseNotes,docUserManual," +
     "# Environment subdirs,envProdDir,envTestDir," +
     "# Environment inner structure,envAddonDir,envCustFiles,envCustomerDir,envOverrideDir,envPoDir,envProgramsDir,envResourceDir,envScheduleDir,envTemplateDir,envUserMenuDir,envUsersDir," + 
-    "# Install subdirs,instAOA,instBackup,instDBMS,instEsko,instFileUtils,instLocalPrint,instRemAccess," +
-    "# Updates subdirs,updAdminDir,updCompressDir,updDataDir,updDataUpdateDir,updDeskDir,updMenuDir,updProgramDir,updRelNotesDir,updSqlDir,updStructureDir," +
-    "# ASI Login Items,modeList,pgmList," +
-    "# Environment List,envList,envVerList," +
-    "# Database List,dbList,dbVerList,dbDirList,dbPortList," +
-    "# Audit DB List,audDbList,audVerList,audDirList,audPortList," +
-    "# Basic DB Elements,audDbName,audDbPort,audDbStFile,prodDbName,prodDbPort,prodDbStFile,shipDbName,shipDbPort,shipDbStFile,testDbName,testDbPort,testDbStFile," +
-    "# API Elements,apiIPAddress,apiPort,adminPort,nameServerName,nameServerPort,appServerName,appServerPort," +
-    "# Misc Elements,dfFileName,deltaFileName".
+    "# Install subdirs,instAOA,instBackup,instDBMS,instEsko,instFileUtils,instLocalPrint,instRemAccess"
+    .
 
 /* # Setup Variables */
 DEF VAR cSitename AS CHAR INITIAL "ASI" NO-UNDO.
@@ -49,11 +44,29 @@ DEF VAR cDbDrive AS CHAR INITIAL "C:" NO-UNDO.
 DEF VAR cTopDir AS CHAR INITIAL "asigui" NO-UNDO.
 DEF VAR cMapDir AS CHAR INITIAL "N:" NO-UNDO.
 DEF VAR cDLCDir AS CHAR INITIAL "C:\Progress\OE116" NO-UNDO.
-DEF VAR cCurrVer AS CHAR INITIAL "10.6.0" NO-UNDO.
-DEF VAR cVerDate AS CHAR INITIAL "10/1/17" NO-UNDO.
-DEF VAR cConnectAudit AS CHAR INITIAL "NO" NO-UNDO.
-DEF VAR cMakeBackup AS CHAR INITIAL "NO" NO-UNDO.
+DEF VAR cConnectAudit AS CHAR INITIAL "YES" NO-UNDO.
 DEF VAR cLockoutTries AS CHAR INITIAL "4" NO-UNDO.
+/* #ASI Login Items */
+DEF VAR cModeList AS CHAR INITIAL "Advantzware,API Monitor,AutoLogout,CaseLabel,ClockIn,cXML Monitor,Esko Monitor,FG XML Monitor,Loadtags,Rel XML Monitor,RFID Monitor,RM ASN Tag,RMLoadtag,Schedule Board,ScheduleMonitor,Sharpshooter,Shop Floor,TaskMonitor,Touchscreen" NO-UNDO.
+DEF VAR cPgmList AS CHAR INITIAL "system/mainmenu.w,api/Monitor.w,usercontrol/monitor.w,oerep/r-casetg.w,touch/clockio.p,cXML\monitor.r,jobxml\monitor.w,fgXml\monitor.w,sharpshooter/w-createloadtag.w,relxml\monitor.w,rfid\monitor.w,tagmon/monitor.w,rmrep/rmloadtg.w,schedule/sbPro.p,custom/asiSchW.w,sshoot/sshoot.w,sharpshooter/ssMenu.r,AOA/Tasker.w,touch/touchscr.w" NO-UNDO.
+DEF VAR cEnvList AS CHAR INITIAL "Prod,Test" NO-UNDO.
+DEF VAR cEnvVerList AS CHAR INITIAL "00.00.00,00.00.00" NO-UNDO.
+DEF VAR cDbList AS CHAR INITIAL "asiProd,asiTest" NO-UNDO.
+DEF VAR cDbVerList AS CHAR INITIAL "00.00.00,00.00" NO-UNDO.
+DEF VAR cDbDirList AS CHAR INITIAL "Prod,Test" NO-UNDO.
+DEF VAR cDbPortList AS CHAR INITIAL "2826,2827" NO-UNDO.
+DEF VAR cAudDbList AS CHAR INITIAL "audProd,audTest" NO-UNDO.
+DEF VAR cAudVerList AS CHAR INITIAL "00.00.00,00.00.00" NO-UNDO.
+DEF VAR cAudDirList AS CHAR INITIAL "Audit,Audit" NO-UNDO.
+DEF VAR cAudPortList AS CHAR INITIAL "2836,2837" NO-UNDO.
+/* API Elements */
+DEF VAR cAPIIPAddress AS CHAR INITIAL "0.0.0.0" NO-UNDO.
+DEF VAR cAPIPort AS CHAR INITIAL "8443" NO-UNDO.
+DEF VAR cAdminPort AS CHAR INITIAL "20931" NO-UNDO.
+DEF VAR cNameServerName AS CHAR INITIAL "NS1" NO-UNDO.
+DEF VAR cNameServerPort AS CHAR INITIAL "5162" NO-UNDO.
+DEF VAR cAppServerName AS CHAR INITIAL "Advantzware_API" NO-UNDO.
+DEF VAR cAppServerPort AS CHAR INITIAL "3092" NO-UNDO.
 /* # Filestructure Variables */
 DEF VAR cAdminDir AS CHAR INITIAL "Admin" NO-UNDO.
 DEF VAR cBackupDir AS CHAR INITIAL "Backups" NO-UNDO.
@@ -93,8 +106,6 @@ DEF VAR cEnvPODir AS CHAR INITIAL "PO" NO-UNDO.
 DEF VAR cEnvProgramsDir AS CHAR INITIAL "Programs" NO-UNDO.
 DEF VAR cEnvResourceDir AS CHAR INITIAL "Resources" NO-UNDO.
 DEF VAR cEnvScheduleDir AS CHAR INITIAL "Schedule" NO-UNDO.
-DEF VAR cEnvTemplateDir AS CHAR INITIAL "Schedule" NO-UNDO.
-DEF VAR cEnvUserMenuDir AS CHAR INITIAL "Usermenu" NO-UNDO.
 DEF VAR cEnvUsersDir AS CHAR INITIAL "Users" NO-UNDO.
 /* # Install subdirs */
 DEF VAR cInstAOA AS CHAR INITIAL "AOAInstall" NO-UNDO.
@@ -104,63 +115,15 @@ DEF VAR cInstEsko AS CHAR INITIAL "EskoInstall" NO-UNDO.
 DEF VAR cInstFileUtils AS CHAR INITIAL "FileUtilities" NO-UNDO.
 DEF VAR cInstLocalPrint AS CHAR INITIAL "LocalPrintInstall" NO-UNDO.
 DEF VAR cInstRemAccess AS CHAR INITIAL "RemoteAccessInstall" NO-UNDO.
-/* # Updates subdirs */
-DEF VAR cUpdAdminDir AS CHAR INITIAL "Admin" NO-UNDO.
-DEF VAR cUpdCompressDir AS CHAR INITIAL "Compress" NO-UNDO.
-DEF VAR cUpdDataDir AS CHAR INITIAL "DataFiles" NO-UNDO.
-DEF VAR cUpdDataUpdateDir AS CHAR INITIAL "DataFiles" NO-UNDO.
-DEF VAR cUpdDeskDir AS CHAR INITIAL "Desktop" NO-UNDO.
-DEF VAR cUpdMenuDir AS CHAR INITIAL "MenuFiles" NO-UNDO.
-DEF VAR cUpdProgramDir AS CHAR INITIAL "ProgramFiles" NO-UNDO.
-DEF VAR cUpdRelNotesDir AS CHAR INITIAL "ReleaseNotes" NO-UNDO.
-DEF VAR cUpdSQLDir AS CHAR INITIAL "SQLAccess" NO-UNDO.
-DEF VAR cUpdStructureDir AS CHAR INITIAL "StructureUpdate" NO-UNDO.
-/* #ASI Login Items */
-DEF VAR cModeList AS CHAR INITIAL "Advantzware,Addon,CaseLabel,Schedule Monitor,Editor,Esko Monitor,FG XML Monitor,Loadtags,Monitor Users,Rel XML Monitor,RFID Monitor,RM Loadtag,Sharpshooter,Touchscreen" NO-UNDO.
-DEF VAR cPgmList AS CHAR INITIAL "system/mainmenu.w,system/addmain.w,oerep/r-casetg.w,custom/asiSchW.w,_edit.p,jobxml\monitor.w,fgXml\monitor.w,oerep/r-loadtg.w,proshut.bat,relxml\monitor.w,rfid\monitor.w,rmrep/rmloadtg.w,sshoot/sshoot.w,touch/touchscr.w" NO-UNDO.
-/* # Environment List Items */
-DEF VAR cEnvList AS CHAR INITIAL "Prod" NO-UNDO.
-DEF VAR cEnvVerList AS CHAR INITIAL "16.00.00" NO-UNDO.
-/* # Database List Items */
-DEF VAR cDbList AS CHAR INITIAL "asiProd" NO-UNDO.
-DEF VAR cDbVerList AS CHAR INITIAL "16.00.00" NO-UNDO.
-DEF VAR cDbDirList AS CHAR INITIAL "Prod" NO-UNDO.
-DEF VAR cDbPortList AS CHAR INITIAL "2826" NO-UNDO.
-/* AuditDB List Items */
-DEF VAR cAudDbList AS CHAR INITIAL "audProd" NO-UNDO.
-DEF VAR cAudVerList AS CHAR INITIAL "16.00.00" NO-UNDO.
-DEF VAR cAudDirList AS CHAR INITIAL "Audit" NO-UNDO.
-DEF VAR cAudPortList AS CHAR INITIAL "2836" NO-UNDO.
-/* # Basic DB Elements */
-DEF VAR cAudDbName AS CHAR INITIAL "audProd" NO-UNDO.
-DEF VAR cAudDbPort AS CHAR INITIAL "2836" NO-UNDO.
-DEF VAR cAudDbStFile AS CHAR INITIAL "audit.st" NO-UNDO.
-DEF VAR cProdDbName AS CHAR INITIAL "asiProd" NO-UNDO.
-DEF VAR cProdDbPort AS CHAR INITIAL "2826" NO-UNDO.
-DEF VAR cProdDbStFile AS CHAR INITIAL "asiProd.st" NO-UNDO.
-DEF VAR cShipDbName AS CHAR INITIAL "asiShip" NO-UNDO.
-DEF VAR cShipDbPort AS CHAR INITIAL "2825" NO-UNDO.
-DEF VAR cShipDbStFile AS CHAR INITIAL "asiShip.st" NO-UNDO.
-DEF VAR cTestDbName AS CHAR INITIAL "asiTest" NO-UNDO.
-DEF VAR cTestDbPort AS CHAR INITIAL "2827" NO-UNDO.
-DEF VAR cTestDbStFile AS CHAR INITIAL "asiTest.st" NO-UNDO.
-/* API Elements */
-DEF VAR cAPIIPAddress AS CHAR INITIAL "0.0.0.0" NO-UNDO.
-DEF VAR cAPIPort AS CHAR INITIAL "8443" NO-UNDO.
-DEF VAR cAdminPort AS CHAR INITIAL "20931" NO-UNDO.
-DEF VAR cNameServerName AS CHAR INITIAL "NS1" NO-UNDO.
-DEF VAR cNameServerPort AS CHAR INITIAL "5162" NO-UNDO.
-DEF VAR cAppServerName AS CHAR INITIAL "Advantzware_API" NO-UNDO.
-DEF VAR cAppServerPort AS CHAR INITIAL "3092" NO-UNDO.
-/* # Misc Elements */
-DEF VAR cDfFileName AS CHAR INITIAL "asi167.df" NO-UNDO.
-DEF VAR cDeltaFileName AS CHAR INITIAL "asi166167.df" NO-UNDO.
+/* End of advantzware.ini variables */
 
 DEF VAR cOutAdminPort AS CHAR NO-UNDO.
 DEF VAR cOutAppServerName AS CHAR INITIAL "Advantzware_API" NO-UNDO.
 DEF VAR cOutAppServerPort AS CHAR NO-UNDO.
 DEF VAR cOutNameServerName AS CHAR NO-UNDO.
 DEF VAR cOutNameServerPort AS CHAR NO-UNDO.
+DEF VAR cDefaultModeList AS CHAR INITIAL "Advantzware,API Monitor,AutoLogout,CaseLabel,ClockIn,cXML Monitor,Esko Monitor,FG XML Monitor,Loadtags,Rel XML Monitor,RFID Monitor,RM ASN Tag,RMLoadtag,Schedule Board,ScheduleMonitor,Sharpshooter,Shop Floor,TaskMonitor,Touchscreen" NO-UNDO.
+DEF VAR cDefaultPgmList AS CHAR INITIAL "system/mainmenu.w,api/Monitor.w,usercontrol/monitor.w,oerep/r-casetg.w,touch/clockio.p,cXML\monitor.r,jobxml\monitor.w,fgXml\monitor.w,sharpshooter/w-createloadtag.w,relxml\monitor.w,rfid\monitor.w,tagmon/monitor.w,rmrep/rmloadtg.w,schedule/sbPro.p,custom/asiSchW.w,sshoot/sshoot.w,sharpshooter/ssMenu.r,AOA/Tasker.w,touch/touchscr.w" NO-UNDO.
 
 /* END advantzware.ini Variables */
 
@@ -390,120 +353,9 @@ PROCEDURE ipReadIniFile:
     END.
     INPUT CLOSE.
     
-    /* This lets the advantzware.ini file "heal" itself when changes made to program but not local */
-    FOR EACH ttIniFile WHERE
-        NOT ttIniFile.cVarName BEGINS "#" AND
-        NOT ttIniFile.cVarName EQ "" AND
-        NOT ttIniFile.cVarName EQ "audVerList" AND 
-        ttIniFile.cVarValue = "":
-    
-        /* We'll test for these after we set the local variables, and check for running on server */
-        IF CAN-DO(cAPIList,ttIniFile.cVarName) THEN NEXT.
-        
-        IF ttIniFile.cVarValue EQ "" THEN DO:
-            ASSIGN 
-                lValueChanged = TRUE.
-            CASE ttIniFile.cVarName:
-                WHEN "siteName" THEN ASSIGN          ttIniFile.cVarValue = cSiteName.
-                WHEN "hostname" THEN ASSIGN          ttIniFile.cVarValue = cHostname.
-                WHEN "drive" THEN ASSIGN             ttIniFile.cVarValue = cDrive.
-                WHEN "dbDrive" THEN ASSIGN           ttIniFile.cVarValue = cDbDrive.
-                WHEN "topDir" THEN ASSIGN            ttIniFile.cVarValue = cTopDir.
-                WHEN "mapDir" THEN ASSIGN            ttIniFile.cVarValue = cMapDir.
-                WHEN "DLCDir" THEN ASSIGN            ttIniFile.cVarValue = cDLCDir.
-                WHEN "currVer" THEN ASSIGN           ttIniFile.cVarValue = cCurrVer.
-                WHEN "verDate" THEN ASSIGN           ttIniFile.cVarValue = cVerDate.
-                WHEN "connectAudit" THEN ASSIGN      ttIniFile.cVarValue = cConnectAudit.
-                WHEN "makeBackup" THEN ASSIGN        ttIniFile.cVarValue = cMakeBackup.
-                WHEN "lockoutTries" THEN ASSIGN      ttIniFile.cVarValue = cLockoutTries.
-                WHEN "adminDir" THEN ASSIGN          ttIniFile.cVarValue = cAdminDir.
-                WHEN "backupDir" THEN ASSIGN         ttIniFile.cVarValue = cBackupDir.
-                WHEN "dbDir" THEN ASSIGN             ttIniFile.cVarValue = cDbDir.
-                WHEN "deskDir" THEN ASSIGN           ttIniFile.cVarValue = cDeskDir.
-                WHEN "docDir" THEN ASSIGN            ttIniFile.cVarValue = cDocDir.
-                WHEN "envDir" THEN ASSIGN            ttIniFile.cVarValue = cEnvDir.
-                WHEN "installDir" THEN ASSIGN        ttIniFile.cVarValue = cInstallDir.
-                WHEN "updatesDir" THEN ASSIGN        ttIniFile.cVarValue = cUpdatesDir.
-                WHEN "dbAdmin" THEN ASSIGN           ttIniFile.cVarValue = cDbAdmin.
-                WHEN "envAdmin" THEN ASSIGN          ttIniFile.cVarValue = cEnvAdmin.
-                WHEN "dbBackup" THEN ASSIGN          ttIniFile.cVarValue = cDbBackup.
-                WHEN "pgmBackup" THEN ASSIGN         ttIniFile.cVarValue = cPgmBackup.
-                WHEN "resBackup" THEN ASSIGN         ttIniFile.cVarValue = cResBackup.
-                WHEN "dbAuditDir" THEN ASSIGN        ttIniFile.cVarValue = cDbAuditDir.
-                WHEN "dbDataDir" THEN ASSIGN         ttIniFile.cVarValue = cDbDataDir.
-                WHEN "dbProdDir" THEN ASSIGN         ttIniFile.cVarValue = cDbProdDir.
-                WHEN "dbShipDir" THEN ASSIGN         ttIniFile.cVarValue = cDbShipDir.
-                WHEN "dbStructDir" THEN ASSIGN       ttIniFile.cVarValue = cDbStructDir.
-                WHEN "dbTestDir" THEN ASSIGN         ttIniFile.cVarValue = cDbTestDir.
-                WHEN "docMiscDocuments" THEN ASSIGN  ttIniFile.cVarValue = cDocMiscDocuments.
-                WHEN "docReleaseNotes" THEN ASSIGN   ttIniFile.cVarValue = cDocReleaseNotes.
-                WHEN "docUserManual" THEN ASSIGN     ttIniFile.cVarValue = cDocUserManual.
-                WHEN "envProdDir" THEN ASSIGN        ttIniFile.cVarValue = cEnvProdDir.
-                WHEN "envTestDir" THEN ASSIGN        ttIniFile.cVarValue = cEnvTestDir.
-                WHEN "envAddonDir" THEN ASSIGN       ttIniFile.cVarValue = cEnvAddonDir.
-                WHEN "envCustFiles" THEN ASSIGN      ttIniFile.cVarValue = cEnvCustFiles.
-                WHEN "envCustomerDir" THEN ASSIGN    ttIniFile.cVarValue = cEnvCustomerDir.
-                WHEN "envOverrideDir" THEN ASSIGN    ttIniFile.cVarValue = cEnvOverrideDir.
-                WHEN "envPoDir" THEN ASSIGN          ttIniFile.cVarValue = cEnvPoDir.
-                WHEN "envProgramsDir" THEN ASSIGN    ttIniFile.cVarValue = cEnvProgramsDir.
-                WHEN "envResourceDir" THEN ASSIGN    ttIniFile.cVarValue = cEnvResourceDir.
-                WHEN "envScheduleDir" THEN ASSIGN    ttIniFile.cVarValue = cEnvScheduleDir.
-                WHEN "envTemplateDir" THEN ASSIGN    ttIniFile.cVarValue = cEnvTemplateDir.
-                WHEN "envUserMenuDir" THEN ASSIGN    ttIniFile.cVarValue = cEnvUserMenuDir.
-                WHEN "envUsersDir" THEN ASSIGN       ttIniFile.cVarValue = cEnvUsersDir.
-                WHEN "instAOA" THEN ASSIGN           ttIniFile.cVarValue = cInstAOA.
-                WHEN "instBackup" THEN ASSIGN        ttIniFile.cVarValue = cInstBackup.
-                WHEN "instDBMS" THEN ASSIGN          ttIniFile.cVarValue = cInstDBMS.
-                WHEN "instEsko" THEN ASSIGN          ttIniFile.cVarValue = cInstEsko.
-                WHEN "instFileUtils" THEN ASSIGN     ttIniFile.cVarValue = cInstFileUtils.
-                WHEN "instLocalPrint" THEN ASSIGN    ttIniFile.cVarValue = cInstLocalPrint.
-                WHEN "instRemAccess" THEN ASSIGN     ttIniFile.cVarValue = cInstRemAccess.
-                WHEN "updAdminDir" THEN ASSIGN       ttIniFile.cVarValue = cUpdAdminDir.
-                WHEN "updCompressDir" THEN ASSIGN    ttIniFile.cVarValue = cUpdCompressDir.
-                WHEN "updDataDir" THEN ASSIGN        ttIniFile.cVarValue = cUpdDataDir.
-                WHEN "updDataUpdateDir" THEN ASSIGN  ttIniFile.cVarValue = cUpdDataUpdateDir.
-                WHEN "updDeskDir" THEN ASSIGN        ttIniFile.cVarValue = cUpdDeskDir.
-                WHEN "updMenuDir" THEN ASSIGN        ttIniFile.cVarValue = cUpdMenuDir.
-                WHEN "updProgramDir" THEN ASSIGN     ttIniFile.cVarValue = cUpdProgramDir.
-                WHEN "updRelNotesDir" THEN ASSIGN    ttIniFile.cVarValue = cUpdRelNotesDir.
-                WHEN "updSqlDir" THEN ASSIGN         ttIniFile.cVarValue = cUpdSqlDir.
-                WHEN "updStructureDir" THEN ASSIGN   ttIniFile.cVarValue = cUpdStructureDir.
-                WHEN "modeList" THEN ASSIGN          ttIniFile.cVarValue = cModeList.
-                WHEN "envList" THEN ASSIGN           ttIniFile.cVarValue = cEnvList.
-                WHEN "dbList" THEN ASSIGN            ttIniFile.cVarValue = cDbList.
-                WHEN "pgmList" THEN ASSIGN           ttIniFile.cVarValue = cPgmList.
-                WHEN "dbDirList" THEN ASSIGN         ttIniFile.cVarValue = cDbDirList.
-                WHEN "dbPortList" THEN ASSIGN        ttIniFile.cVarValue = cDbPortList.
-                WHEN "audDirList" THEN ASSIGN        ttIniFile.cVarValue = cAudDirList.
-                WHEN "audDbList" THEN ASSIGN         ttIniFile.cVarValue = cAudDbList.
-                WHEN "audPortList" THEN ASSIGN       ttIniFile.cVarValue = cAudPortList.
-                WHEN "envVerList" THEN ASSIGN        ttIniFile.cVarValue = cEnvVerList.
-                WHEN "dbVerList" THEN ASSIGN         ttIniFile.cVarValue = cDbVerList.
-                WHEN "audVerList" THEN ASSIGN        ttIniFile.cVarValue = cAudVerList.
-                WHEN "prodDbName" THEN ASSIGN        ttIniFile.cVarValue = cProdDbName.
-                WHEN "prodDbPort" THEN ASSIGN        ttIniFile.cVarValue = cProdDbPort.
-                WHEN "prodDbStFile" THEN ASSIGN      ttIniFile.cVarValue = cProdDbStFile.
-                WHEN "shipDbName" THEN ASSIGN        ttIniFile.cVarValue = cShipDbName.
-                WHEN "shipDbPort" THEN ASSIGN        ttIniFile.cVarValue = cShipDbPort.
-                WHEN "shipDbStFile" THEN ASSIGN      ttIniFile.cVarValue = cShipDbStFile.
-                WHEN "testDbName" THEN ASSIGN        ttIniFile.cVarValue = cTestDbName.
-                WHEN "testDbPort" THEN ASSIGN        ttIniFile.cVarValue = cTestDbPort.
-                WHEN "testDbStFile" THEN ASSIGN      ttIniFile.cVarValue = cTestDbStFile.
-                WHEN "dfFileName" THEN ASSIGN        ttIniFile.cVarValue = cDfFileName.
-                WHEN "deltaFileName" THEN ASSIGN     ttIniFile.cVarValue = cDeltaFileName.
-                WHEN "apiIPAddress" THEN ASSIGN      ttIniFile.cVarValue = cAPIIpAddress.
-                WHEN "apiPort" THEN ASSIGN           ttIniFile.cVarValue = cAPIPort.
-                WHEN "adminPort" THEN ASSIGN         ttIniFile.cVarValue = cAdminPort.
-                WHEN "nameServerName" THEN ASSIGN    ttIniFile.cVarValue = cNameServerName.
-                WHEN "nameServerPort" THEN ASSIGN    ttIniFile.cVarValue = cNameServerPort.
-                WHEN "appServerName" THEN ASSIGN     ttIniFile.cVarValue = cAppServerName.
-                WHEN "appServerPort" THEN ASSIGN     ttIniFile.cVarValue = cAppServerPort.
-            END CASE.                                                      
-        END.
-    END. 
-    
     FOR EACH ttIniFile:
         CASE ttIniFile.cVarName:
+            /* Setup Variables */
             WHEN "siteName" THEN ASSIGN         cSiteName           = ttIniFile.cVarValue.
             WHEN "hostname" THEN ASSIGN         cHostname           = ttIniFile.cVarValue.
             WHEN "drive" THEN ASSIGN            cDrive              = ttIniFile.cVarValue.
@@ -511,11 +363,9 @@ PROCEDURE ipReadIniFile:
             WHEN "topDir" THEN ASSIGN           cTopDir             = ttIniFile.cVarValue.
             WHEN "mapDir" THEN ASSIGN           cMapDir             = ttIniFile.cVarValue.
             WHEN "DLCDir" THEN ASSIGN           cDLCDir             = ttIniFile.cVarValue.
-            WHEN "currVer" THEN ASSIGN          cCurrVer            = ttIniFile.cVarValue.
-            WHEN "verDate" THEN ASSIGN          cVerDate            = ttIniFile.cVarValue.
             WHEN "connectAudit" THEN ASSIGN     cConnectAudit       = ttIniFile.cVarValue.
-            WHEN "makeBackup" THEN ASSIGN       cMakeBackup         = ttIniFile.cVarValue.
             WHEN "lockoutTries" THEN ASSIGN     cLockoutTries       = ttIniFile.cVarValue.
+            /* Directory structure variables */
             WHEN "adminDir" THEN ASSIGN         cAdminDir           = ttIniFile.cVarValue.
             WHEN "backupDir" THEN ASSIGN        cBackupDir          = ttIniFile.cVarValue.
             WHEN "dbDir" THEN ASSIGN            cDbDir              = ttIniFile.cVarValue.
@@ -524,22 +374,28 @@ PROCEDURE ipReadIniFile:
             WHEN "envDir" THEN ASSIGN           cEnvDir             = ttIniFile.cVarValue.
             WHEN "installDir" THEN ASSIGN       cInstallDir         = ttIniFile.cVarValue.
             WHEN "updatesDir" THEN ASSIGN       cUpdatesDir         = ttIniFile.cVarValue.
+            /* Admin subdirs */
             WHEN "dbAdmin" THEN ASSIGN          cDbAdmin            = ttIniFile.cVarValue.
             WHEN "envAdmin" THEN ASSIGN         cEnvAdmin           = ttIniFile.cVarValue.
+            /* Backup subdirs */
             WHEN "dbBackup" THEN ASSIGN         cDbBackup           = ttIniFile.cVarValue.
             WHEN "pgmBackup" THEN ASSIGN        cPgmBackup          = ttIniFile.cVarValue.
             WHEN "resBackup" THEN ASSIGN        cResBackup          = ttIniFile.cVarValue.
+            /* Database subdirs */
             WHEN "dbAuditDir" THEN ASSIGN       cDbAuditDir         = ttIniFile.cVarValue.
             WHEN "dbDataDir" THEN ASSIGN        cDbDataDir          = ttIniFile.cVarValue.
             WHEN "dbProdDir" THEN ASSIGN        cDbProdDir          = ttIniFile.cVarValue.
             WHEN "dbShipDir" THEN ASSIGN        cDbShipDir          = ttIniFile.cVarValue.
             WHEN "dbStructDir" THEN ASSIGN      cDbStructDir        = ttIniFile.cVarValue.
             WHEN "dbTestDir" THEN ASSIGN        cDbTestDir          = ttIniFile.cVarValue.
+            /* Documentation subdirs */
             WHEN "docMiscDocuments" THEN ASSIGN cDocMiscDocuments   = ttIniFile.cVarValue.
             WHEN "docReleaseNotes" THEN ASSIGN  cDocReleaseNotes    = ttIniFile.cVarValue.
             WHEN "docUserManual" THEN ASSIGN    cDocUserManual      = ttIniFile.cVarValue.
+            /* Basic environment subdirs */
             WHEN "envProdDir" THEN ASSIGN       cEnvProdDir         = ttIniFile.cVarValue.
             WHEN "envTestDir" THEN ASSIGN       cEnvTestDir         = ttIniFile.cVarValue.
+            /* Per-environment subdirs */
             WHEN "envAddonDir" THEN ASSIGN      cEnvAddonDir        = ttIniFile.cVarValue.
             WHEN "envCustFiles" THEN ASSIGN     cEnvCustFiles       = ttIniFile.cVarValue.
             WHEN "envCustomerDir" THEN ASSIGN   cEnvCustomerDir     = ttIniFile.cVarValue.
@@ -548,9 +404,8 @@ PROCEDURE ipReadIniFile:
             WHEN "envProgramsDir" THEN ASSIGN   cEnvProgramsDir     = ttIniFile.cVarValue.
             WHEN "envResourceDir" THEN ASSIGN   cEnvResourceDir     = ttIniFile.cVarValue.
             WHEN "envScheduleDir" THEN ASSIGN   cEnvScheduleDir     = ttIniFile.cVarValue.
-            WHEN "envTemplateDir" THEN ASSIGN   cEnvTemplateDir     = ttIniFile.cVarValue.
-            WHEN "envUserMenuDir" THEN ASSIGN   cEnvUserMenuDir     = ttIniFile.cVarValue.
             WHEN "envUsersDir" THEN ASSIGN      cEnvUsersDir        = ttIniFile.cVarValue.
+            /* Install subdirs */
             WHEN "instAOA" THEN ASSIGN          cInstAOA            = ttIniFile.cVarValue.
             WHEN "instBackup" THEN ASSIGN       cInstBackup         = ttIniFile.cVarValue.
             WHEN "instDBMS" THEN ASSIGN         cInstDBMS           = ttIniFile.cVarValue.
@@ -558,39 +413,20 @@ PROCEDURE ipReadIniFile:
             WHEN "instFileUtils" THEN ASSIGN    cInstFileUtils      = ttIniFile.cVarValue.
             WHEN "instLocalPrint" THEN ASSIGN   cInstLocalPrint     = ttIniFile.cVarValue.
             WHEN "instRemAccess" THEN ASSIGN    cInstRemAccess      = ttIniFile.cVarValue.
-            WHEN "updAdminDir" THEN ASSIGN      cUpdAdminDir        = ttIniFile.cVarValue.
-            WHEN "updCompressDir" THEN ASSIGN   cUpdCompressDir     = ttIniFile.cVarValue.
-            WHEN "updDataDir" THEN ASSIGN       cUpdDataDir         = ttIniFile.cVarValue.
-            WHEN "updDataUpdateDir" THEN ASSIGN cUpdDataUpdateDir   = ttIniFile.cVarValue.
-            WHEN "updDeskDir" THEN ASSIGN       cUpdDeskDir         = ttIniFile.cVarValue.
-            WHEN "updMenuDir" THEN ASSIGN       cUpdMenuDir         = ttIniFile.cVarValue.
-            WHEN "updProgramDir" THEN ASSIGN    cUpdProgramDir      = ttIniFile.cVarValue.
-            WHEN "updRelNotesDir" THEN ASSIGN   cUpdRelNotesDir     = ttIniFile.cVarValue.
-            WHEN "updSqlDir" THEN ASSIGN        cUpdSqlDir          = ttIniFile.cVarValue.
-            WHEN "updStructureDir" THEN ASSIGN  cUpdStructureDir    = ttIniFile.cVarValue.
-            WHEN "modeList" THEN ASSIGN         cModeList           = ttIniFile.cVarValue.
+            /* ASI Login elements */
             WHEN "envList" THEN ASSIGN          cEnvList            = ttIniFile.cVarValue.
-            WHEN "dbList" THEN ASSIGN           cDbList             = ttIniFile.cVarValue.
+            WHEN "envVerList" THEN ASSIGN       cEnvVerList         = ttIniFile.cVarValue.
+            WHEN "modeList" THEN ASSIGN         cModeList           = ttIniFile.cVarValue.
             WHEN "pgmList" THEN ASSIGN          cPgmList            = ttIniFile.cVarValue.
+            WHEN "dbList" THEN ASSIGN           cDbList             = ttIniFile.cVarValue.
+            WHEN "dbVerList" THEN ASSIGN        cDbVerList          = ttIniFile.cVarValue.
             WHEN "dbDirList" THEN ASSIGN        cDbDirList          = ttIniFile.cVarValue.
             WHEN "dbPortList" THEN ASSIGN       cDbPortList         = ttIniFile.cVarValue.
-            WHEN "audDirList" THEN ASSIGN       cAudDirList         = ttIniFile.cVarValue.
             WHEN "audDbList" THEN ASSIGN        cAudDbList          = ttIniFile.cVarValue.
-            WHEN "audPortList" THEN ASSIGN      cAudPortList        = ttIniFile.cVarValue.
-            WHEN "envVerList" THEN ASSIGN       cEnvVerList         = ttIniFile.cVarValue.
-            WHEN "dbVerList" THEN ASSIGN        cDbVerList          = ttIniFile.cVarValue.
             WHEN "audVerList" THEN ASSIGN       cAudVerList         = ttIniFile.cVarValue.
-            WHEN "prodDbName" THEN ASSIGN       cProdDbName         = ttIniFile.cVarValue.
-            WHEN "prodDbPort" THEN ASSIGN       cProdDbPort         = ttIniFile.cVarValue.
-            WHEN "prodDbStFile" THEN ASSIGN     cProdDbStFile       = ttIniFile.cVarValue.
-            WHEN "shipDbName" THEN ASSIGN       cShipDbName         = ttIniFile.cVarValue.
-            WHEN "shipDbPort" THEN ASSIGN       cShipDbPort         = ttIniFile.cVarValue.
-            WHEN "shipDbStFile" THEN ASSIGN     cShipDbStFile       = ttIniFile.cVarValue.
-            WHEN "testDbName" THEN ASSIGN       cTestDbName         = ttIniFile.cVarValue.
-            WHEN "testDbPort" THEN ASSIGN       cTestDbPort         = ttIniFile.cVarValue.
-            WHEN "testDbStFile" THEN ASSIGN     cTestDbStFile       = ttIniFile.cVarValue.
-            WHEN "dfFileName" THEN ASSIGN       cDfFileName         = ttIniFile.cVarValue.
-            WHEN "deltaFileName" THEN ASSIGN    cDeltaFileName      = ttIniFile.cVarValue.
+            WHEN "audDirList" THEN ASSIGN       cAudDirList         = ttIniFile.cVarValue.
+            WHEN "audPortList" THEN ASSIGN      cAudPortList        = ttIniFile.cVarValue.
+            /* API Elements */
             WHEN "apiIPAddress" THEN ASSIGN     cAPIIpAddress       = ttIniFile.cVarValue.
             WHEN "apiPort" THEN ASSIGN          cAPIPort            = ttIniFile.cVarValue.
             WHEN "adminPort" THEN ASSIGN        cAdminPort          = ttIniFile.cVarValue.
@@ -601,70 +437,97 @@ PROCEDURE ipReadIniFile:
         END CASE.
     END.
     
-    /* Are we on the server? If not, this isn't helpful */
-    ASSIGN 
-        FILE-INFO:FILE-NAME = cDbDrive + "\" + cTopDir + "\" + cDbDir + "\Structure\STFiles\progress.dev".
-    IF FILE-INFO:FULL-PATHNAME NE ? THEN DO:  
+    /* Are we on the server? If we are, validate the API elements */
+    IF SEARCH(cDlcDir + "\bin\prowin.exe") NE ? THEN DO:  
         /* Reset API values from DLC properties pages */
-        RUN ipGetPropertyValues (OUTPUT cOutAdminPort,
+        RUN ipGetPropertyValues (
+            OUTPUT cOutAdminPort,
             OUTPUT cOutAppServerName,
             OUTPUT cOutAppServerPort,
             OUTPUT cOutNameServerName,
-            OUTPUT cOutNameServerPort).
+            OUTPUT cOutNameServerPort
+            ).
         DO iCtr = 1 TO NUM-ENTRIES(cAPIList):
             FIND ttIniFile WHERE 
                 ttIniFile.cVarName EQ ENTRY(iCtr,cAPIList)
                 NO-ERROR.
             CASE ttIniFile.cVarName:
-                WHEN "adminPort" THEN 
-                    ASSIGN 
-                        ttIniFile.cVarValue = IF ttIniFile.cVarValue EQ "" THEN cOutAdminPort ELSE ttIniFile.cVarValue.
-                WHEN "nameServerName" THEN 
-                    ASSIGN 
-                        ttIniFile.cVarValue = IF ttIniFile.cVarValue EQ "" THEN cOutNameServerName ELSE ttIniFile.cVarValue.
-                WHEN "nameServerPort" THEN 
-                    ASSIGN 
-                        ttIniFile.cVarValue = IF ttIniFile.cVarValue EQ "" THEN cOutNameServerPort ELSE ttIniFile.cVarValue.
-                WHEN "appServerName" THEN 
-                    ASSIGN 
-                        ttIniFile.cVarValue = IF ttIniFile.cVarValue EQ "" THEN cOutAppServerName ELSE ttIniFile.cVarValue.
-                WHEN "appServerPort" THEN 
-                    ASSIGN 
-                        ttIniFile.cVarValue = IF ttIniFile.cVarValue EQ "" THEN cOutAppServerPort ELSE ttIniFile.cVarValue.
+                WHEN "adminPort" THEN DO:
+                    IF ttIniFile.cVarValue NE cOutAdminPort THEN ASSIGN 
+                        ttIniFile.cVarValue = cOutAdminPort 
+                        lValueChanged = TRUE.
+                END.
+                WHEN "nameServerName" THEN DO: 
+                    IF ttIniFile.cVarValue NE cOutNameServerName THEN ASSIGN 
+                        ttIniFile.cVarValue = cOutNameServerName 
+                        lValueChanged = TRUE.
+                END.
+                WHEN "nameServerPort" THEN DO: 
+                    IF ttIniFile.cVarValue NE cOutNameServerPort THEN ASSIGN 
+                        ttIniFile.cVarValue = cOutNameServerPort
+                        lValueChanged = TRUE.
+                END.
+                WHEN "appServerName" THEN DO: 
+                    IF ttIniFile.cVarValue NE cOutAppServerName THEN ASSIGN 
+                        ttIniFile.cVarValue = cOutAppServerName
+                        lValueChanged = TRUE.
+                END.
+                WHEN "appServerPort" THEN DO: 
+                    IF ttIniFile.cVarValue NE cOutAppServerPort THEN ASSIGN 
+                        ttIniFile.cVarValue = cOutAppServerPort
+                        lValueChanged = TRUE.
+                END.
             END.
         END.
     END.             
 
-    /* Handle initialization of newly added variables here */
-    FIND ttIniFile WHERE 
-        ttIniFile.cVarName = "audVerList"
+    /* At v21.00.02, made changes to advantzware.ini structure.  If current file is at previous level, write it back out */
+    /* This group is new or renamed lines, in particular, line group names (#) */
+    FOR EACH ttIniFile WHERE 
+        ttIniFile.cRaw EQ "":
+        ASSIGN 
+            ttIniFile.cRaw = ttIniFile.cVarName
+            lValueChanged = TRUE.
+    END.
+    FIND FIRST ttIniFile WHERE 
+        ttIniFile.cVarName EQ "modeList"
         NO-ERROR.
-    IF AVAILABLE ttIniFile 
-    AND ttIniFile.cVarValue EQ "" THEN ASSIGN 
-        ttIniFile.cVarValue = cDbVerList
-        cAudVerList = cDbVerList.
-        
+    IF AVAIL ttIniFile 
+    AND ttIniFile.cVarValue NE cDefaultModeList THEN ASSIGN 
+        ttIniFile.cVarValue = cDefaultModeList
+        lValueChanged = TRUE.
+    FIND FIRST ttIniFile WHERE 
+        ttIniFile.cVarName EQ "pgmList"
+        NO-ERROR.
+    IF AVAIL ttIniFile 
+    AND ttIniFile.cVarValue NE cDefaultPgmList THEN ASSIGN 
+        ttIniFile.cVarValue = cDefaultPgmList
+        lValueChanged = TRUE.
+    
+    /* Finally, if we made any changes to the ttIniFile, write it back out */
     IF lValueChanged THEN 
         RUN ipWriteIniFile.
-        
 
 END PROCEDURE.
 
 PROCEDURE ipWriteIniFile :
-    /*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       
-    ------------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
     DEF VAR cThisElement AS CHAR NO-UNDO.
 
     IF LOOKUP("ipStatus",THIS-PROCEDURE:INTERNAL-ENTRIES) NE 0 THEN
         RUN ipStatus ("Writing advantzware.ini file..."). 
 
+    /* This can happen during an update when the environment version changes */
     IF wDbVerList NE "" THEN DO:
         FIND ttIniFile WHERE ttIniFile.cVarName = "dbVerList" NO-ERROR.
         ASSIGN 
             ttIniFile.cVarValue = wDbVerList.
+    END.    
+    IF wAudVerList NE "" THEN DO:
         FIND ttIniFile WHERE ttIniFile.cVarName = "audVerList" NO-ERROR.
         ASSIGN 
             ttIniFile.cVarValue = wAudVerList.
@@ -675,8 +538,8 @@ PROCEDURE ipWriteIniFile :
         IF ttIniFile.cVarName BEGINS "#" THEN
             PUT UNFORMATTED ttIniFile.cVarName + CHR(10).
         ELSE IF ttIniFile.cVarName NE "" THEN
-                PUT UNFORMATTED ttIniFile.cVarName + "=" + ttIniFile.cVarValue + CHR(10).
-            ELSE NEXT.
+            PUT UNFORMATTED ttIniFile.cVarName + "=" + ttIniFile.cVarValue + CHR(10).
+        ELSE NEXT.
     END.
     OUTPUT CLOSE.
 
