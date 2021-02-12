@@ -56,6 +56,22 @@ DEF BUFFER b-itemfg FOR itemfg .
 DEF VAR cTextListToDefault AS cha NO-UNDO.
 
 
+DEFINE TEMP-TABLE outputTable 
+
+FIELDS  qty INTEGER FORMAT ">>,>>>,>>9" LABEL "Qty"
+FIELDS  v-price DECIMAL FORMAT ">>,>>9.99" LABEL "Price/M"
+FIELDS  rels INTEGER FORMAT ">>>" LABEL "Rel"
+FIELDS  part-no CHARACTER FORMAT "x(15)" LABEL "Cust Part#"
+FIELDS  part-dscr1 CHARACTER FORMAT "x(20)" LABEL "Item Name"
+FIELDS  size CHARACTER FORMAT "x(10)" LABEL "Size"
+FIELDS  style CHARACTER FORMAT "x(5)" LABEL "EB Style"
+FIELDS  ebstyle CHARACTER FORMAT "x(10)" LABEL "Board"
+FIELDS  i-dscr CHARACTER FORMAT "x(10)" LABEL "Board"
+FIELDS  qty CHARACTER FORMAT "x(20)" LABEL "Colors"
+FIELDS  q-no CHARACTER FORMAT "x(10)" LABEL "Quote#"
+FIELDS  est-no CHARACTER FORMAT "x(8)" LABEL "    Est#"
+FIELDS  quo-date Date FORMAT "99/99/99" LABEL "Date"
+
 ASSIGN cTextListToSelect = "Company Name,Address1,Address2,City,State,Zip,Rep," +
     "Qty,Price/M,Rel,Cust Part#,Item Name,Size,Style,Board,Colors,Quote#,Est#,Date"
        cFieldListToSelect = "comp-name,add1,add2,city,state,zip,rep," +
@@ -183,7 +199,7 @@ DEFINE VARIABLE rd-dest AS INTEGER INITIAL 1
           "To Printer", 1,
 "To Screen", 2,
 "To CSV", 3,
-"To Email", 5
+"To Email", 4
      SIZE 20 BY 3.81 NO-UNDO.
 
 DEFINE RECTANGLE RECT-6
@@ -448,46 +464,28 @@ DO:
         ASSIGN {&displayed-objects}.
     END.
 
-//  ASSIGN rd-dest
-  //       lines-per-page .
-
   RUN GetSelectionList.
   RUN run-report. 
   STATUS DEFAULT "Processing Complete".
 
   CASE rd-dest:
-       WHEN 1 THEN RUN output-to-printer.
-       WHEN 2 THEN RUN output-to-screen.
-       WHEN 3 THEN RUN output-to-file.
-       WHEN 4 THEN DO:
-           /*run output-to-fax.*/
-           {custom/asifax.i &type=" "
-                            &begin_cust="begin_cust-no"
-                            &end_cust="begin_cust-no" 
-                            &fax-subject=c-win:title
-                            &fax-body=c-win:title
-                            &fax-file=list-name }
-       END. 
-       WHEN 5 THEN DO:
-           IF is-xprint-form THEN DO:
-              {custom/asimail.i &TYPE=" "
-                             &begin_cust="begin_cust-no"
-                             &end_cust="begin_cust-no"
-                             &mail-subject=c-win:title
-                             &mail-body=c-win:title
-                             &mail-file=list-name }
-           END.
-           ELSE DO:
-               {custom/asimailr.i &TYPE=" "
-                                  &begin_cust="begin_cust-no"
-                                  &end_cust="begin_cust-no"
-                                  &mail-subject=c-win:title
-                                  &mail-body=c-win:title
-                                  &mail-file=list-name }
+       WHEN 1 THEN RUN Output_TempTableToPrinter (list-name,"","").
+       WHEN 2 THEN RUN  Output_ListToScreen(list-name,c-win:TITLE,'','').
+       WHEN 3 THEN RUN Output_TempTableToCSV(INPUT   iphTT  
+                                             INPUT  ipcFileName      
+                                             INPUT   iplHeader                
+                                             INPUT   iplAutoIncrementFilename    
+                                             OUTPUT  oplSuccess              
+                                             OUTPUT  opcMessage).
+       WHEN 4 THEN RUN Output_TempTableToEmail(
+           INPUT is-xprint-form,
+           INPUT "",
+           INPUT "begin_cust-no",
+           INPUT "begin_cust-no",
+           INPUT c-win:TITLE,
+           INPUT c-win:TITLE,
+           INPUT list-name).
 
-           END.
-       END. 
-       WHEN 6 THEN RUN OUTPUT-to-port.
   END CASE. 
   
   IF tbAutoClose:CHECKED THEN 
@@ -995,73 +993,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE output-to-file C-Win 
-PROCEDURE output-to-file :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-{custom/out2file.i}
 
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE output-to-port C-Win 
-PROCEDURE output-to-port :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-RUN custom/d-print.w (list-name).
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE output-to-printer C-Win 
-PROCEDURE output-to-printer :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-/*     DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
-     DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
-     DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-
-/*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
-     IF NOT printok THEN
-     RETURN NO-APPLY.
-*/
-
-  /* Use Progress Print. Always use Font#9 in Registry (set above) */
-     RUN 'adecomm/_osprint.p' (INPUT ?, INPUT list-name,
-                            INPUT 3, INPUT 1, INPUT 0, INPUT 0, OUTPUT result).
-                          /* font #*/ /* use-dialog(1) and landscape(2) */
-  */
-//  RUN custom/prntproc.p (list-name,INT(lv-font-no),lv-ornt).
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE output-to-screen C-Win 
-PROCEDURE output-to-screen :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-//  RUN scr-rpt.w (list-name,c-win:TITLE,int(lv-font-no),lv-ornt). /* open file-name, title */ 
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE run-report C-Win 
 PROCEDURE run-report :
@@ -1441,75 +1373,6 @@ RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 SESSION:SET-WAIT-STATE("").
 
 /* END ---------------------------------- copr. 1992  Advanced Software, Inc. */
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE show-param C-Win 
-PROCEDURE show-param :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEF VAR lv-frame-hdl AS HANDLE NO-UNDO.
-  DEF VAR lv-group-hdl AS HANDLE NO-UNDO.
-  DEF VAR lv-field-hdl AS HANDLE NO-UNDO.
-  DEF VAR lv-field2-hdl AS HANDLE NO-UNDO.
-  DEF VAR parm-fld-list AS cha NO-UNDO.
-  DEF VAR parm-lbl-list AS cha NO-UNDO.
-  DEF VAR i AS INT NO-UNDO.
-  DEF VAR lv-label AS cha.
-
-  lv-frame-hdl = FRAME {&frame-name}:handle.
-  lv-group-hdl = lv-frame-hdl:FIRST-CHILD.
-  lv-field-hdl = lv-group-hdl:FIRST-CHILD .
-
-  DO WHILE TRUE:
-     IF NOT VALID-HANDLE(lv-field-hdl) THEN LEAVE.
-     IF LOOKUP(lv-field-hdl:PRIVATE-DATA,"parm") > 0
-        THEN DO:
-           IF lv-field-hdl:LABEL <> ? THEN 
-              ASSIGN parm-fld-list = parm-fld-list + lv-field-hdl:SCREEN-VALUE + ","
-                     parm-lbl-list = parm-lbl-list + lv-field-hdl:LABEL + "," 
-                     .
-           ELSE DO:  /* radio set */
-              ASSIGN parm-fld-list = parm-fld-list + lv-field-hdl:SCREEN-VALUE + ","
-                     .
-              lv-field2-hdl = lv-group-hdl:FIRST-CHILD.
-              REPEAT:
-                  IF NOT VALID-HANDLE(lv-field2-hdl) THEN LEAVE. 
-                  IF lv-field2-hdl:PRIVATE-DATA = lv-field-hdl:NAME THEN DO:
-                     parm-lbl-list = parm-lbl-list + lv-field2-hdl:SCREEN-VALUE + ",".
-                  END.
-                  lv-field2-hdl = lv-field2-hdl:NEXT-SIBLING.                 
-              END.       
-           END.                 
-        END.            
-     lv-field-hdl = lv-field-hdl:NEXT-SIBLING.   
-  END.
-
-  PUT SPACE(28)
-      "< Selection Parameters >"
-      SKIP(1).
-
-  DO i = 1 TO NUM-ENTRIES(parm-fld-list,","):
-    IF ENTRY(i,parm-fld-list) NE "" OR
-       entry(i,parm-lbl-list) NE "" THEN DO:
-
-      lv-label = FILL(" ",34 - length(TRIM(ENTRY(i,parm-lbl-list)))) +
-                 trim(ENTRY(i,parm-lbl-list)) + ":".
-
-      PUT lv-label FORMAT "x(35)" AT 5
-          SPACE(1)
-          TRIM(ENTRY(i,parm-fld-list)) FORMAT "x(40)"
-          SKIP.              
-    END.
-  END.
-
-  PUT FILL("-",80) FORMAT "x(80)" SKIP.
 
 END PROCEDURE.
 
