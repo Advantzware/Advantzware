@@ -733,7 +733,9 @@ PROCEDURE repo-query :
              AND (ttFGReorder.quantityToOrderSuggested GT 0 OR NOT tb_sugg-qty) :
                         
              CREATE ttMultiSelectItem.
-             BUFFER-COPY ttFGReorder TO ttMultiSelectItem. 
+             BUFFER-COPY ttFGReorder TO ttMultiSelectItem.
+             
+             ttMultiSelectItem.dateDueDateEarliest = TODAY.
 
                 FIND FIRST cust NO-LOCK
                      WHERE cust.company EQ cocode 
@@ -753,7 +755,7 @@ PROCEDURE repo-query :
                     ttMultiSelectItem.orderQtyEarliest = oe-ordl.qty - oe-ordl.ship-qty.
                     LEAVE.
                  END. 
-                 IF ttMultiSelectItem.dateDueDateEarliest EQ ? THEN ttMultiSelectItem.dateDueDateEarliest = 01/01/0001.
+                 IF ttMultiSelectItem.dateDueDateEarliest EQ ? THEN ttMultiSelectItem.dateDueDateEarliest = TODAY.
                   
                    FIND FIRST ttInputEst NO-LOCK 
                         WHERE ttInputEst.cStockNo EQ ttMultiSelectItem.itemID NO-ERROR.
