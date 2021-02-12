@@ -12,9 +12,9 @@
 *********************************************************************/
 /*------------------------------------------------------------------------
 
-  File:  
+  File: sharpshooter/smartobj/b-loadtags.w
 
-  Description: from BROWSER.W - Basic SmartBrowser Object Template
+  Description:
 
   Input Parameters:
       <none>
@@ -43,17 +43,16 @@ CREATE WIDGET-POOL.
 {sys/inc/var.i "NEW SHARED"}
 {sys/inc/varasgn.i}
 
-{oerep/ttLoadTag.i "NEW SHARED"}
+{oerep/ttLoadTag.i}
 {oerep/r-loadtg.i NEW}
 DEFINE NEW SHARED TEMP-TABLE tt-word-print LIKE w-ord 
        FIELD tag-no AS CHARACTER.
 
-DEFINE VARIABLE iTotalQty AS INTEGER NO-UNDO.
-
 DEFINE VARIABLE char-hdl  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE pHandle   AS HANDLE    NO-UNDO.
 
-DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCompany  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cLocation AS CHARACTER NO-UNDO.
 
 DEFINE VARIABLE hdLoadTagProcs AS HANDLE NO-UNDO.
 
@@ -81,8 +80,10 @@ DEFINE VARIABLE hdLoadTagProcs AS HANDLE NO-UNDO.
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE br_table                                      */
-&Scoped-define FIELDS-IN-QUERY-br_table ttLoadTag.orderID ttLoadTag.jobID ttLoadTag.jobID2 NO-LABEL ttLoadTag.custID ttLoadTag.itemID ttLoadTag.ordQuantity ttLoadTag.relQuantity ttLoadTag.overPct ttLoadTag.pcs ttLoadTag.bundle ttLoadTag.partial ttLoadTag.totalUnit ttLoadTag.totalTags ttLoadTag.totalUnit * ttLoadTag.totalTags @ iTotalQty ttLoadTag.unitWeight ttLoadTag.palletWeight ttLoadTag.lotID ttLoadTag.itemName ttLoadTag.custPONo ttLoadTag.poline   
-&Scoped-define ENABLED-FIELDS-IN-QUERY-br_table   
+&Scoped-define FIELDS-IN-QUERY-br_table ttLoadTag.isSelected ttLoadTag.tagStatus ttLoadTag.tag ttLoadTag.quantityInUnit ttLoadTag.subUnitsPerUnit ttLoadTag.quantityInSubUnit ttLoadTag.quantityOfSubUnits ttLoadTag.itemID ttLoadTag.jobID ttLoadTag.jobID2 NO-LABEL ttLoadTag.jobQuantity ttLoadTag.printCopies ttLoadTag.orderID ttLoadTag.custID ttLoadTag.ordQuantity ttLoadTag.relQuantity ttLoadTag.overPct ttLoadTag.partial ttLoadTag.totalTags ttLoadTag.quantityTotal ttLoadTag.unitWeight ttLoadTag.palletWeight ttLoadTag.lotID ttLoadTag.itemName ttLoadTag.custPONo ttLoadTag.poline   
+&Scoped-define ENABLED-FIELDS-IN-QUERY-br_table ttLoadTag.isSelected   
+&Scoped-define ENABLED-TABLES-IN-QUERY-br_table ttLoadTag
+&Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-br_table ttLoadTag
 &Scoped-define SELF-NAME br_table
 &Scoped-define QUERY-STRING-br_table FOR EACH ttLoadTag BY ttLoadTag.scannedDateTime DESC
 &Scoped-define OPEN-QUERY-br_table OPEN QUERY {&SELF-NAME} FOR EACH ttLoadTag BY ttLoadTag.scannedDateTime DESC.
@@ -159,10 +160,13 @@ DEFINE QUERY br_table FOR
 DEFINE BROWSE br_table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br_table B-table-Win _FREEFORM
   QUERY br_table NO-LOCK DISPLAY
+      ttLoadTag.isSelected COLUMN-LABEL "" VIEW-AS TOGGLE-BOX
       ttLoadTag.tagStatus COLUMN-LABEL "Status" WIDTH 15
-      ttLoadTag.totalUnit FORMAT ">,>>>,>>9" COLUMN-LABEL "Total Qty!Per Pallet" WIDTH 15
-      ttLoadTag.bundle FORMAT ">>>,>>9" COLUMN-LABEL "Units/!Pallet" WIDTH 12
-      ttLoadTag.pcs FORMAT ">>>,>>9" COLUMN-LABEL "Unit!Count" WIDTH 12
+      ttLoadTag.tag COLUMN-LABEL "Tag#" WIDTH 32
+      ttLoadTag.quantityInUnit FORMAT ">,>>>,>>9" COLUMN-LABEL "Total Qty!Per Pallet" WIDTH 15
+      ttLoadTag.subUnitsPerUnit FORMAT ">>>,>>9" COLUMN-LABEL "Units/!Pallet" WIDTH 12
+      ttLoadTag.quantityInSubUnit FORMAT ">>>,>>9" COLUMN-LABEL "Unit!Count" WIDTH 12
+      ttLoadTag.quantityOfSubUnits FORMAT ">>>,>>9" COLUMN-LABEL "Total!Units" WIDTH 12
       ttLoadTag.itemID COLUMN-LABEL "Item #" WIDTH 30
       ttLoadTag.jobID COLUMN-LABEL "  Job#" WIDTH 15
       ttLoadTag.jobID2 NO-LABEL FORMAT "99" WIDTH 4
@@ -175,16 +179,17 @@ DEFINE BROWSE br_table
       ttLoadTag.overPct FORMAT ">>9.99" COLUMN-LABEL "Overrun%" WIDTH 15
       ttLoadTag.partial COLUMN-LABEL "Partial" WIDTH 12
       ttLoadTag.totalTags COLUMN-LABEL "No. of!Tags" WIDTH 12
-      ttLoadTag.totalUnit * ttLoadTag.totalTags @ iTotalQty FORMAT ">,>>>,>>9" COLUMN-LABEL "Total Qty"
+      ttLoadTag.quantityTotal FORMAT ">,>>>,>>9" COLUMN-LABEL "Total Qty"
       ttLoadTag.unitWeight COLUMN-LABEL "Unit!Wt" WIDTH 12
       ttLoadTag.palletWeight COLUMN-LABEL "Pallet!Wt" WIDTH 12
       ttLoadTag.lotID FORMAT "X(20)" COLUMN-LABEL "FG Lot#" WIDTH 30
       ttLoadTag.itemName COLUMN-LABEL "Item!Name" WIDTH 40
       ttLoadTag.custPONo COLUMN-LABEL "Customer!PO#" WIDTH 15
       ttLoadTag.poline COLUMN-LABEL "Ln" WIDTH 10
+      ENABLE ttLoadTag.isSelected
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 150 BY 6.71.
+    WITH SEPARATORS SIZE 150 BY 6.71.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -356,6 +361,37 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE BuildLoadTagsFromBOL B-table-Win 
+PROCEDURE BuildLoadTagsFromBOL :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiBOLID   AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiCopies  AS INTEGER   NO-UNDO.
+    
+    EMPTY TEMP-TABLE ttLoadTag.
+    
+    SESSION:SET-WAIT-STATE("GENERAL").
+    
+    RUN BuildLoadTagsFromBOL IN hdLoadTagProcs (
+        INPUT  ipcCompany,
+        INPUT  ipiBOLID,
+        INPUT  ipiCopies,
+        INPUT-OUTPUT TABLE ttLoadTag BY-REFERENCE
+        ).
+    
+    RUN dispatch (
+        INPUT "open-query"
+        ).
+    
+    SESSION:SET-WAIT-STATE("").
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE BuildLoadTagsFromJob B-table-Win 
 PROCEDURE BuildLoadTagsFromJob :
 /*------------------------------------------------------------------------------
@@ -379,28 +415,33 @@ PROCEDURE BuildLoadTagsFromJob :
     DEFINE INPUT  PARAMETER ipcUserFieldValue2   AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcUserFieldValue3   AS CHARACTER NO-UNDO.
     
+    SESSION:SET-WAIT-STATE("GENERAL").
+    
     RUN BuildLoadTagsFromJob IN hdLoadTagProcs (
-        INPUT ipcCompany,
-        INPUT ipcJobno,
-        INPUT ipiJobno2,
-        INPUT ipiFormNo,
-        INPUT ipiBlankNo,
-        INPUT ipcItemID,
-        INPUT ipiQuantity,
-        INPUT ipiQuantityInSubUnit,
-        INPUT ipiSubUnitsPerUnit,
-        INPUT ipiCopies,
-        INPUT ipcUserField1,
-        INPUT ipcUserField2,
-        INPUT ipcUserField3,
-        INPUT ipcUserFieldValue1,
-        INPUT ipcUserFieldValue2,
-        INPUT ipcUserFieldValue3
+        INPUT  ipcCompany,
+        INPUT  ipcJobno,
+        INPUT  ipiJobno2,
+        INPUT  ipiFormNo,
+        INPUT  ipiBlankNo,
+        INPUT  ipcItemID,
+        INPUT  ipiQuantity,
+        INPUT  ipiQuantityInSubUnit,
+        INPUT  ipiSubUnitsPerUnit,
+        INPUT  ipiCopies,
+        INPUT  ipcUserField1,
+        INPUT  ipcUserField2,
+        INPUT  ipcUserField3,
+        INPUT  ipcUserFieldValue1,
+        INPUT  ipcUserFieldValue2,
+        INPUT  ipcUserFieldValue3,
+        INPUT-OUTPUT TABLE ttLoadTag BY-REFERENCE
         ).    
     
     RUN dispatch (
         INPUT "open-query"
         ).
+    
+    SESSION:SET-WAIT-STATE("").
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -414,7 +455,10 @@ PROCEDURE CreateLoadTagFromTT :
 ------------------------------------------------------------------------------*/
     RUN CreateLoadTagFromTT IN hdLoadTagProcs (
         INPUT cCompany,
-        INPUT FALSE /* Empty ttLoadtag temp-table */
+        INPUT cLocation,
+        INPUT TRUE, /* Print loadtag */
+        INPUT FALSE, /* Empty ttLoadtag temp-table */
+        INPUT-OUTPUT TABLE ttLoadTag BY-REFERENCE 
         ).
 
     RUN dispatch (
@@ -469,9 +513,44 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE EmptyTTLoadTag B-table-Win 
+PROCEDURE EmptyTTLoadTag :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    EMPTY TEMP-TABLE ttLoadTag.
+    
+    RUN dispatch (
+        INPUT "open-query"
+        ).
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable B-table-Win
-PROCEDURE local-enable:
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy B-table-Win 
+PROCEDURE local-destroy :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    /* Code placed here will execute PRIOR to standard behavior. */
+    IF VALID-HANDLE(hdLoadTagProcs) THEN
+        DELETE PROCEDURE hdLoadTagProcs.
+        
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
+
+    /* Code placed here will execute AFTER standard behavior.    */
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable B-table-Win 
+PROCEDURE local-enable :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -486,11 +565,9 @@ PROCEDURE local-enable:
     RUN pInit.
     
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE No-Resize B-table-Win 
 PROCEDURE No-Resize :
@@ -505,9 +582,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pInit B-table-Win
-PROCEDURE pInit PRIVATE:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pInit B-table-Win 
+PROCEDURE pInit PRIVATE :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -522,6 +598,7 @@ PROCEDURE pInit PRIVATE:
     END.
     
     RUN spGetSessionParam ("Company", OUTPUT cCompany).
+    RUN spGetSessionParam ("Location", OUTPUT cLocation).
     
     RUN oerep/LoadTagProcs.p PERSISTENT SET hdLoadTagProcs.
     
@@ -590,14 +667,14 @@ PROCEDURE pInit PRIVATE:
                     IF oSSLoadTagJobDesignConfig:IsAttributeAvailable("LoadtagBrowse", "OversPercent", "visible") THEN
                         hdColumn:VISIBLE = LOGICAL(oSSLoadTagJobDesignConfig:GetAttributeValue("LoadtagBrowse", "OversPercent", "visible")).
                 END.
-                WHEN 'pcs' THEN DO:
+                WHEN 'quantityInSubUnit' THEN DO:
                     IF oSSLoadTagJobDesignConfig:IsAttributeAvailable("LoadtagBrowse", "QuantityInSubUnit", "label") THEN
                         hdColumn:LABEL = oSSLoadTagJobDesignConfig:GetAttributeValue("LoadtagBrowse", "QuantityInSubUnit", "label").
 
                     IF oSSLoadTagJobDesignConfig:IsAttributeAvailable("LoadtagBrowse", "QuantityInSubUnit", "visible") THEN
                         hdColumn:VISIBLE = LOGICAL(oSSLoadTagJobDesignConfig:GetAttributeValue("LoadtagBrowse", "QuantityInSubUnit", "visible")).
                 END.
-                WHEN 'bundle' THEN DO:
+                WHEN 'subUnitsPerUnit' THEN DO:
                     IF oSSLoadTagJobDesignConfig:IsAttributeAvailable("LoadtagBrowse", "SubUnitsPerUnit", "label") THEN
                         hdColumn:LABEL = oSSLoadTagJobDesignConfig:GetAttributeValue("LoadtagBrowse", "SubUnitsPerUnit", "label").
 
@@ -611,7 +688,7 @@ PROCEDURE pInit PRIVATE:
                     IF oSSLoadTagJobDesignConfig:IsAttributeAvailable("LoadtagBrowse", "Partial", "visible") THEN
                         hdColumn:VISIBLE = LOGICAL(oSSLoadTagJobDesignConfig:GetAttributeValue("LoadtagBrowse", "Partial", "visible")).
                 END.
-                WHEN 'totalUnit' THEN DO:
+                WHEN 'quantityInUnit' THEN DO:
                     IF oSSLoadTagJobDesignConfig:IsAttributeAvailable("LoadtagBrowse", "QuantityInUnit", "label") THEN
                         hdColumn:LABEL = oSSLoadTagJobDesignConfig:GetAttributeValue("LoadtagBrowse", "QuantityInUnit", "label").
 
@@ -688,22 +765,68 @@ PROCEDURE pInit PRIVATE:
                     IF oSSLoadTagJobDesignConfig:IsAttributeAvailable("LoadtagBrowse", "JobQuantity", "visible") THEN
                         hdColumn:VISIBLE = LOGICAL(oSSLoadTagJobDesignConfig:GetAttributeValue("LoadtagBrowse", "JobQuantity", "visible")).
                 END.
-                WHEN 'iTotalQty' THEN DO:
+                WHEN 'quantityTotal' THEN DO:
                     IF oSSLoadTagJobDesignConfig:IsAttributeAvailable("LoadtagBrowse", "TotalQuantity", "label") THEN
                         hdColumn:LABEL = oSSLoadTagJobDesignConfig:GetAttributeValue("LoadtagBrowse", "TotalQuantity", "label").
 
                     IF oSSLoadTagJobDesignConfig:IsAttributeAvailable("LoadtagBrowse", "TotalQuantity", "visible") THEN
                         hdColumn:VISIBLE = LOGICAL(oSSLoadTagJobDesignConfig:GetAttributeValue("LoadtagBrowse", "TotalQuantity", "visible")).
                 END.
+                WHEN 'isSelected' THEN DO:
+                    IF oSSLoadTagJobDesignConfig:IsAttributeAvailable("LoadtagBrowse", "Select", "label") THEN
+                        hdColumn:LABEL = oSSLoadTagJobDesignConfig:GetAttributeValue("LoadtagBrowse", "Select", "label").
+
+                    IF oSSLoadTagJobDesignConfig:IsAttributeAvailable("LoadtagBrowse", "Select", "visible") THEN
+                        hdColumn:VISIBLE = LOGICAL(oSSLoadTagJobDesignConfig:GetAttributeValue("LoadtagBrowse", "Select", "visible")).
+                END.                
+                WHEN 'tag' THEN DO:
+                    IF oSSLoadTagJobDesignConfig:IsAttributeAvailable("LoadtagBrowse", "Tag", "label") THEN
+                        hdColumn:LABEL = oSSLoadTagJobDesignConfig:GetAttributeValue("LoadtagBrowse", "Tag", "label").
+
+                    IF oSSLoadTagJobDesignConfig:IsAttributeAvailable("LoadtagBrowse", "Tag", "visible") THEN
+                        hdColumn:VISIBLE = LOGICAL(oSSLoadTagJobDesignConfig:GetAttributeValue("LoadtagBrowse", "Tag", "visible")).
+                END.   
+                WHEN 'quantityOfSubUnit' THEN DO:
+                    IF oSSLoadTagJobDesignConfig:IsAttributeAvailable("LoadtagBrowse", "QuantityOfSubUnit", "label") THEN
+                        hdColumn:LABEL = oSSLoadTagJobDesignConfig:GetAttributeValue("LoadtagBrowse", "QuantityOfSubUnit", "label").
+
+                    IF oSSLoadTagJobDesignConfig:IsAttributeAvailable("LoadtagBrowse", "QuantityOfSubUnit", "visible") THEN
+                        hdColumn:VISIBLE = LOGICAL(oSSLoadTagJobDesignConfig:GetAttributeValue("LoadtagBrowse", "QuantityOfSubUnit", "visible")).
+                END.             
             END CASE.
         END.
     END.
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE PrintTTLoadTags B-table-Win 
+PROCEDURE PrintTTLoadTags :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    SESSION:SET-WAIT-STATE("GENERAL").
+    
+    RUN PrintTTLoadTags IN hdLoadTagProcs (
+        INPUT cCompany,
+        INPUT cLocation,
+        INPUT-OUTPUT TABLE ttLoadTag BY-REFERENCE
+        ).
 
+    RUN dispatch (
+        INPUT "open-query"
+        ).
+    
+    SESSION:SET-WAIT-STATE("").
+    
+    MESSAGE "Printing complete!"
+        VIEW-AS ALERT-BOX INFORMATION.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records B-table-Win  _ADM-SEND-RECORDS
 PROCEDURE send-records :

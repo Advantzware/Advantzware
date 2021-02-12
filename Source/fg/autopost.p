@@ -5,6 +5,8 @@ DEF INPUT  PARAM ip-job-no2 LIKE fg-bin.job-no2 NO-UNDO.
 DEF OUTPUT PARAM op-loc     LIKE fg-bin.loc     NO-UNDO.
 DEF OUTPUT PARAM op-loc-bin LIKE fg-bin.loc-bin NO-UNDO.
 
+{Inventory/ttInventory.i "NEW SHARED"}
+
 DEF VAR ll-shipto                AS LOG NO-UNDO.
 DEFINE VARIABLE iWarehouseLength AS INTEGER   NO-UNDO.
 DEFINE VARIABLE ipcCompany AS INTEGER   NO-UNDO.

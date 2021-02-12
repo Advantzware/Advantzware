@@ -2,7 +2,7 @@
 	"FGFilter" : {
 	   "FGItem" : {
             "visible" : true,
-            "sensitive" : false	   
+            "sensitive" : true	   
 	   }
 	},
 	"UserFields" : {
@@ -36,7 +36,7 @@
 		"Quantity" : {
 			"label" : "Total Quantity",
             "visible" : true,
-            "sensitive" : false
+            "sensitive" : true
 		},
 		"QuantityOfUnits" : {
 			"label" : "Pallet Quantity",
@@ -92,6 +92,14 @@
         }		
 	},
     "LoadtagBrowse" : {
+        "Select" : {
+            "label" : "",
+            "visible" : false
+        },
+        "Tag" : {
+            "label" : "Tag#",
+            "visible" : true
+        },
         "OrderID" : {
             "label" : "Order#",
             "visible" : false
@@ -127,6 +135,10 @@
         "QuantityInSubUnit" : {
             "label" : "Case!Quantity",
             "visible" : true
+        },
+        "QuantityOfSubUnit" : {
+            "label" : "Total!Case",
+            "visible" : false
         },
         "SubUnitsPerUnit" : {
             "label" : "Cases Per!Pallet",

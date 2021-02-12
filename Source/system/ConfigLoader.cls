@@ -73,8 +73,8 @@ CLASS system.ConfigLoader:
     
     METHOD PRIVATE CHARACTER pGetJSONConfigFile (ipcConfig AS CHARACTER):
         CASE ipcConfig:
-            WHEN "SSLoadTagJob" THEN
-                RETURN SEARCH("system/SSLoadTagJob.json").
+            WHEN "SSLoadTag" THEN
+                RETURN SEARCH("system/SSLoadTag.json").
             WHEN "SSLoadTagJobDesign" THEN
                 RETURN SEARCH("system/SSLoadTagJobDesign.json").
         END CASE.
@@ -82,7 +82,7 @@ CLASS system.ConfigLoader:
 
     METHOD PRIVATE CHARACTER pGetConfigType (ipcConfig AS CHARACTER):
         CASE ipcConfig:
-            WHEN "SSLoadTagJob" THEN
+            WHEN "SSLoadTag" THEN
                 RETURN cCONFIG_TYPE_JSON.
             WHEN "SSLoadTagJobDesign" THEN
                 RETURN cCONFIG_TYPE_JSON.

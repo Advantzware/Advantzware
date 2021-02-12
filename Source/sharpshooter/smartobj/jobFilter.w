@@ -374,7 +374,7 @@ DO:
     
     lScanNextJob = FALSE.
     
-    IF SELF:SCREEN-VALUE EQ "" THEN
+    IF SELF:SCREEN-VALUE EQ "" OR LASTKEY EQ -1 THEN
         RETURN.
 
     IF SELF:SCREEN-VALUE EQ cJob THEN DO:

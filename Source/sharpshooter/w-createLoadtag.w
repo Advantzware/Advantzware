@@ -75,8 +75,8 @@ oCustomer = NEW Inventory.Customer().
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-1 btExit RECT-34 rHighlight btJob btPO ~
-btRelease btReturn btDelete btReprint btPrint btSplit 
+&Scoped-Define ENABLED-OBJECTS btJob btPO btRelease btReturn btDelete ~
+btReprint btPrint btSplit RECT-1 RECT-34 rHighlight 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -93,6 +93,7 @@ DEFINE VAR W-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of handles for SmartObjects                              */
 DEFINE VARIABLE h_b-loadtags-3 AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_exit AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_fgfilter AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_jobfilter AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_printcopies AS HANDLE NO-UNDO.
@@ -108,12 +109,6 @@ DEFINE BUTTON btDelete
      IMAGE-UP FILE "Graphics/32x32/navigate_cross.png":U
      LABEL "Delete" 
      SIZE 7.6 BY 1.81 TOOLTIP "Delete currently selected record".
-
-DEFINE BUTTON btExit AUTO-END-KEY 
-     IMAGE-UP FILE "Graphics/32x32/exit_white.png":U NO-FOCUS FLAT-BUTTON
-     LABEL "Exit" 
-     SIZE 7.8 BY 1.81
-     BGCOLOR 21 .
 
 DEFINE BUTTON btJob 
      LABEL "Job" 
@@ -163,7 +158,6 @@ DEFINE RECTANGLE rHighlight
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     btExit AT ROW 1 COL 201.2 WIDGET-ID 64
      btJob AT ROW 1.19 COL 5.4 WIDGET-ID 2 NO-TAB-STOP 
      btPO AT ROW 1.19 COL 29.8 WIDGET-ID 24 NO-TAB-STOP 
      btRelease AT ROW 1.19 COL 53.8 WIDGET-ID 48 NO-TAB-STOP 
@@ -207,7 +201,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          VIRTUAL-WIDTH      = 208
          RESIZE             = no
          SCROLL-BARS        = no
-         STATUS-AREA        = no
+         STATUS-AREA        = yes
          BGCOLOR            = ?
          FGCOLOR            = ?
          THREE-D            = yes
@@ -295,19 +289,6 @@ END.
 ON CHOOSE OF btDelete IN FRAME F-Main /* Delete */
 DO:
     {methods/run_link.i "LOADTAG-SOURCE" "DeleteSelected"}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME btExit
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btExit W-Win
-ON CHOOSE OF btExit IN FRAME F-Main /* Exit */
-DO:
-    APPLY "CLOSE" TO THIS-PROCEDURE.
-    
-    RETURN NO-APPLY.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -439,6 +420,14 @@ PROCEDURE adm-create-objects :
 
     WHEN 0 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
+             INPUT  'smartobj/exit.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_exit ).
+       RUN set-position IN h_exit ( 1.00 , 201.20 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 7.80 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
              INPUT  'sharpshooter/smartobj/b-loadtags.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
@@ -460,7 +449,15 @@ PROCEDURE adm-create-objects :
              INPUT  '':U ,
              OUTPUT h_jobfilter ).
        RUN set-position IN h_jobfilter ( 2.95 , 5.20 ) NO-ERROR.
-       /* Size in UIB:  ( 3.33 , 76.40 ) */
+       /* Size in UIB:  ( 3.52 , 76.40 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'sharpshooter/smartobj/userfields.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_userfields ).
+       RUN set-position IN h_userfields ( 11.05 , 138.60 ) NO-ERROR.
+       /* Size in UIB:  ( 9.19 , 68.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'sharpshooter/smartobj/fgfilter.w':U ,
@@ -476,7 +473,7 @@ PROCEDURE adm-create-objects :
              INPUT  '':U ,
              OUTPUT h_printcopies ).
        RUN set-position IN h_printcopies ( 7.14 , 98.40 ) NO-ERROR.
-       /* Size in UIB:  ( 1.86 , 32.60 ) */
+       /* Size in UIB:  ( 1.86 , 46.60 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'sharpshooter/smartobj/qtyunits.w':U ,
@@ -486,17 +483,13 @@ PROCEDURE adm-create-objects :
        RUN set-position IN h_qtyunits ( 10.95 , 5.00 ) NO-ERROR.
        /* Size in UIB:  ( 9.29 , 131.40 ) */
 
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'sharpshooter/smartobj/userfields.w':U ,
-             INPUT  FRAME F-Main:HANDLE ,
-             INPUT  '':U ,
-             OUTPUT h_userfields ).
-       RUN set-position IN h_userfields ( 11.05 , 138.60 ) NO-ERROR.
-       /* Size in UIB:  ( 9.19 , 68.00 ) */
-
        /* Links to SmartObject h_jobfilter. */
        RUN add-link IN adm-broker-hdl ( h_jobfilter , 'JOB':U , THIS-PROCEDURE ).
        RUN add-link IN adm-broker-hdl ( h_jobfilter , 'State':U , THIS-PROCEDURE ).
+
+       /* Links to SmartObject h_userfields. */
+       RUN add-link IN adm-broker-hdl ( h_userfields , 'State':U , THIS-PROCEDURE ).
+       RUN add-link IN adm-broker-hdl ( h_userfields , 'USERFIELD':U , THIS-PROCEDURE ).
 
        /* Links to SmartObject h_fgfilter. */
        RUN add-link IN adm-broker-hdl ( h_fgfilter , 'FGITEM':U , THIS-PROCEDURE ).
@@ -508,15 +501,7 @@ PROCEDURE adm-create-objects :
        /* Links to SmartObject h_qtyunits. */
        RUN add-link IN adm-broker-hdl ( h_qtyunits , 'QTY':U , THIS-PROCEDURE ).
 
-       /* Links to SmartObject h_userfields. */
-       RUN add-link IN adm-broker-hdl ( h_userfields , 'State':U , THIS-PROCEDURE ).
-       RUN add-link IN adm-broker-hdl ( h_userfields , 'USERFIELD':U , THIS-PROCEDURE ).
-
        /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_fgfilter ,
-             h_jobfilter , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_printcopies ,
-             h_fgfilter , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_qtyunits ,
              h_printcopies , 'AFTER':U ).
     END. /* Page 1 */
@@ -583,8 +568,8 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  ENABLE RECT-1 btExit RECT-34 rHighlight btJob btPO btRelease btReturn 
-         btDelete btReprint btPrint btSplit 
+  ENABLE btJob btPO btRelease btReturn btDelete btReprint btPrint btSplit 
+         RECT-1 RECT-34 rHighlight 
       WITH FRAME F-Main IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-F-Main}
   VIEW W-Win.
@@ -611,7 +596,7 @@ PROCEDURE GetConfig :
     
     CASE iCurrentPage:
         WHEN 1 THEN
-            opoConfig = system.ConfigLoader:Instance:GetConfig("SSLoadTagJob").
+            opoConfig = system.ConfigLoader:Instance:GetConfig("SSLoadTag").
         
     END CASE.
 
@@ -688,32 +673,46 @@ PROCEDURE pInit :
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE oSSLoadTagJobConfig AS system.Config NO-UNDO.
+    DEFINE VARIABLE oSSLoadTagConfig AS system.Config NO-UNDO.
 
     DO WITH FRAME {&FRAME-NAME}:
     END.
     
-    oSSLoadTagJobConfig = system.ConfigLoader:Instance:GetConfig("SSLoadTagJob").
+    oSSLoadTagConfig = system.ConfigLoader:Instance:GetConfig("SSLoadTag").
 
-    IF VALID-OBJECT(oSSLoadTagJobConfig) THEN DO:
-        IF oSSLoadTagJobConfig:IsAttributeAvailable("AutoCreateLoadtagOnJobScan", "Active") THEN
+    IF VALID-OBJECT(oSSLoadTagConfig) THEN DO:
+        IF oSSLoadTagConfig:IsAttributeAvailable("AutoCreateLoadtagOnJobScan", "Active") THEN
             ASSIGN
-                glAutoCreateLoadtagOnJobScan = LOGICAL(oSSLoadTagJobConfig:GetAttributeValue("AutoCreateLoadtagOnJobScan", "Active"))
+                glAutoCreateLoadtagOnJobScan = LOGICAL(oSSLoadTagConfig:GetAttributeValue("AutoCreateLoadtagOnJobScan", "Active"))
                 btCreate:HIDDEN              = glAutoCreateLoadtagOnJobScan
                 .
         
-        IF oSSLoadTagJobConfig:IsAttributeAvailable("AutoPrintLoadtagOnJobScan", "Active") THEN
+        IF oSSLoadTagConfig:IsAttributeAvailable("AutoPrintLoadtagOnJobScan", "Active") THEN
             ASSIGN
-                glAutoPrintLoadtagOnJobScan  = LOGICAL(oSSLoadTagJobConfig:GetAttributeValue("AutoPrintLoadtagOnJobScan", "Active"))
+                glAutoPrintLoadtagOnJobScan  = LOGICAL(oSSLoadTagConfig:GetAttributeValue("AutoPrintLoadtagOnJobScan", "Active"))
                 btDelete:HIDDEN              = glAutoPrintLoadtagOnJobScan
                 .
         
-        IF oSSLoadTagJobConfig:IsAttributeAvailable("DefaultPrintCopies", "Copies") THEN
-            giDefaultPrintCopies = INTEGER(oSSLoadTagJobConfig:GetAttributeValue("DefaultPrintCopies", "Copies")).
+        IF oSSLoadTagConfig:IsAttributeAvailable("DefaultPrintCopies", "Copies") THEN
+            giDefaultPrintCopies = INTEGER(oSSLoadTagConfig:GetAttributeValue("DefaultPrintCopies", "Copies")).
     END.
     
     IF giDefaultPrintCopies EQ 0 THEN
         giDefaultPrintCopies = 1.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Select_Exit W-Win 
+PROCEDURE Select_Exit :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    APPLY "CLOSE":U TO THIS-PROCEDURE.
+    RETURN NO-APPLY.    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -736,20 +735,17 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Set-Focus W-Win
-PROCEDURE Set-Focus:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Set-Focus W-Win 
+PROCEDURE Set-Focus :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
     {methods/run_link.i "JOB-SOURCE" "Set-Focus"}
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed W-Win 
 PROCEDURE state-changed :

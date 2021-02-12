@@ -53,8 +53,13 @@
 	"LabelMatrixLoadTagOutputFilePath" : {
 		"Description" : "Path to save the label matrix output file",
 		"Path" : "C:\\BA\\Label\\",
-		"File" : "loadtag1.txt"
+		"File" : "loadtag.txt"
 	},
+    "LabelMatrixBOLLoadTagOutputFilePath" : {
+        "Description" : "Path to save the BOL tag label matrix output file",
+        "Path" : "C:\\BA\\Label\\BOL\\",
+        "File" : "BOLTag.txt"
+    },
 	"AutoPrintLoadtagOnJobScan" : {
 		"Description" : "Print loadtag on a valid job scan",
 		"Active" : true	
@@ -63,8 +68,16 @@
 		"Description" : "Create a temporary record for verifying before printing a loadtag on a valid job scan",
 		"Active" : true	
 	},
+    "CreateTagsForEmptyBOLLineTags" : {
+        "Description" : "Create loadtags for BOL lines if BOL line's tag is empty while printing",
+        "Active" : true    
+    },
 	"LabelMatrixAutoPrint" : { 
 	   "Description" : "Print label matrix",
-	   "Active" : true
-	}
+	   "Active" : false
+	},
+    "CreateTagForPartial" : {
+        "Description" : "Create a separate loadtag for partial quantity",
+        "Active" : false    
+    }	
 }
