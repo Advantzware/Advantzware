@@ -208,6 +208,41 @@ PROCEDURE OS_RunFile:
         OUTPUT oplSuccess,
         OUTPUT opcMessage
         ) NO-ERROR.
+        
+END PROCEDURE.
+
+PROCEDURE OS_PlaySound:
+    /*------------------------------------------------------------------------------
+     Purpose: Procedure to open a file with windows default option from OS-COMMAND.
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcFile   AS CHARACTER.
+    DEFINE OUTPUT PARAMETER opcStatus AS  LONGCHAR.
+    
+    DEFINE VARIABLE oplSuccess AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE opcMessage AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE  loStatus AS LOGICAL NO-UNDO.
+    
+    ipcFile = TRIM(ipcFile, ' ').
+    ipcFile = TRIM(ipcFile, '"').
+    
+    RUN FileSys_ValidateFile(
+        INPUT  ipcFile,
+        OUTPUT oplSuccess,
+        OUTPUT opcMessage
+        ) NO-ERROR.
+        
+    IF NOT oplSuccess THEN
+        RETURN.
+        
+    opcStatus = STRING(loStatus).
+    
+    RUN sndPlaySoundA (
+        INPUT ipcFile, 
+        INPUT 2,
+        OUTPUT loStatus
+        ) NO-ERROR.
 
 END PROCEDURE.
 
@@ -231,4 +266,10 @@ PROCEDURE pRunOSCommandWithNoWait PRIVATE:
     DEFINE INPUT  PARAMETER ipcCommand    AS CHARACTER NO-UNDO.
 
     OS-COMMAND NO-WAIT VALUE(ipcCommand).
+END PROCEDURE.
+
+PROCEDURE sndPlaySoundA EXTERNAL "winmm.dll" :
+    DEFINE INPUT  PARAMETER ic  AS CHARACTER.
+    DEFINE INPUT  PARAMETER ish AS LONG.
+    DEFINE OUTPUT PARAMETER osh AS LONG.
 END PROCEDURE.

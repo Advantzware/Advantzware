@@ -57,10 +57,8 @@ DEFINE  VARIABLE  OKpressedbad AS LOGICAL NO-UNDO.
 &Scoped-define FRAME-NAME DEFAULT-FRAME
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS bselWin bPlayGood bselPy bPlayPython bselNo ~
-bPlayNode 
-&Scoped-Define DISPLAYED-OBJECTS fiWindows fiPython fiNode EDITOR-1 ~
-EDITOR-2 
+&Scoped-Define ENABLED-OBJECTS bselWin bPlayGood bPlayPython bPlayNode 
+&Scoped-Define DISPLAYED-OBJECTS fiSound EDITOR-1 EDITOR-2 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -82,19 +80,11 @@ DEFINE BUTTON bPlayGood
 
 DEFINE BUTTON bPlayNode 
      LABEL "Play with Node" 
-     SIZE 22 BY 1.14.
+     SIZE 23 BY 1.14.
 
 DEFINE BUTTON bPlayPython 
      LABEL "Play with Python" 
-     SIZE 22 BY 1.14.
-
-DEFINE BUTTON bselNo 
-     LABEL "Select" 
-     SIZE 8.4 BY 1.
-
-DEFINE BUTTON bselPy 
-     LABEL "Select" 
-     SIZE 8.4 BY 1.
+     SIZE 23 BY 1.14.
 
 DEFINE BUTTON bselWin 
      LABEL "Select" 
@@ -108,17 +98,7 @@ DEFINE VARIABLE EDITOR-2 AS CHARACTER INITIAL "Node version: 15.8.0 , Need to in
      VIEW-AS EDITOR
      SIZE 79 BY 1.91 NO-UNDO.
 
-DEFINE VARIABLE fiNode AS CHARACTER FORMAT "X(256)":U INITIAL "C:~\Asigui~\Repository~\Source~\util~\done.mp3" 
-     LABEL "Sound" 
-     VIEW-AS FILL-IN NATIVE 
-     SIZE 70 BY 1 NO-UNDO.
-
-DEFINE VARIABLE fiPython AS CHARACTER FORMAT "X(256)":U INITIAL "C:~\Asigui~\Repository~\Source~\util~\done.mp3" 
-     LABEL "Sound" 
-     VIEW-AS FILL-IN NATIVE 
-     SIZE 70 BY 1 NO-UNDO.
-
-DEFINE VARIABLE fiWindows AS CHARACTER FORMAT "X(256)":U INITIAL "C:~\Asigui~\Repository~\Source~\util~\done.wav" 
+DEFINE VARIABLE fiSound AS CHARACTER FORMAT "X(256)":U INITIAL "C:~\Asigui~\Repository~\Source~\util~\done.wav" 
      LABEL "Sound" 
      VIEW-AS FILL-IN NATIVE 
      SIZE 70 BY 1 NO-UNDO.
@@ -127,33 +107,29 @@ DEFINE VARIABLE fiWindows AS CHARACTER FORMAT "X(256)":U INITIAL "C:~\Asigui~\Re
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
-     fiWindows AT ROW 2.19 COL 17 COLON-ALIGNED WIDGET-ID 2
+     fiSound AT ROW 2.19 COL 17 COLON-ALIGNED WIDGET-ID 2
      bselWin AT ROW 2.24 COL 89.6 WIDGET-ID 4
      bPlayGood AT ROW 3.38 COL 75 WIDGET-ID 6
-     fiPython AT ROW 5.05 COL 17 COLON-ALIGNED WIDGET-ID 12
-     bselPy AT ROW 5.1 COL 89.6 WIDGET-ID 10
-     bPlayPython AT ROW 6.24 COL 76 WIDGET-ID 8
-     fiNode AT ROW 7.91 COL 17 COLON-ALIGNED WIDGET-ID 18
-     bselNo AT ROW 7.95 COL 89.6 WIDGET-ID 16
-     bPlayNode AT ROW 9.1 COL 76 WIDGET-ID 14
-     EDITOR-1 AT ROW 11.48 COL 9 NO-LABEL WIDGET-ID 28
-     EDITOR-2 AT ROW 14.38 COL 9 NO-LABEL WIDGET-ID 30
-     "**Node" VIEW-AS TEXT
-          SIZE 11 BY .62 AT ROW 13.67 COL 9.2 WIDGET-ID 34
-          FGCOLOR 12 
-     "**Python" VIEW-AS TEXT
-          SIZE 11 BY .62 AT ROW 10.76 COL 10 WIDGET-ID 32
-          FGCOLOR 12 
+     bPlayPython AT ROW 4.76 COL 75.2 WIDGET-ID 8
+     bPlayNode AT ROW 6.19 COL 75.4 WIDGET-ID 14
+     EDITOR-1 AT ROW 7.95 COL 9 NO-LABEL WIDGET-ID 28
+     EDITOR-2 AT ROW 10.86 COL 9 NO-LABEL WIDGET-ID 30
+     "*wav, mp3, flac" VIEW-AS TEXT
+          SIZE 17 BY .62 AT ROW 6.43 COL 58 WIDGET-ID 26
+     "*wav, mp3" VIEW-AS TEXT
+          SIZE 11 BY .62 AT ROW 5.05 COL 63.4 WIDGET-ID 22
      "*wav" VIEW-AS TEXT
           SIZE 6 BY .62 AT ROW 3.62 COL 68 WIDGET-ID 20
-     "*wav, mp3" VIEW-AS TEXT
-          SIZE 11 BY .62 AT ROW 6.52 COL 64 WIDGET-ID 22
-     "*wav, mp3, flac" VIEW-AS TEXT
-          SIZE 17 BY .62 AT ROW 9.33 COL 58 WIDGET-ID 26
+     "**Python" VIEW-AS TEXT
+          SIZE 11 BY .62 AT ROW 7.24 COL 10 WIDGET-ID 32
+          FGCOLOR 12 
+     "**Node" VIEW-AS TEXT
+          SIZE 11 BY .62 AT ROW 10.14 COL 9.2 WIDGET-ID 34
+          FGCOLOR 12 
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 102.8 BY 16.48 WIDGET-ID 100.
+         SIZE 102.8 BY 12.48 WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -173,7 +149,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Play Sound"
-         HEIGHT             = 16.48
+         HEIGHT             = 12.48
          WIDTH              = 102.8
          MAX-HEIGHT         = 16.48
          MAX-WIDTH          = 106.6
@@ -211,11 +187,7 @@ ASSIGN
 ASSIGN 
        EDITOR-2:READ-ONLY IN FRAME DEFAULT-FRAME        = TRUE.
 
-/* SETTINGS FOR FILL-IN fiNode IN FRAME DEFAULT-FRAME
-   NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN fiPython IN FRAME DEFAULT-FRAME
-   NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN fiWindows IN FRAME DEFAULT-FRAME
+/* SETTINGS FOR FILL-IN fiSound IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = NO.
@@ -259,20 +231,11 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL bPlayGood C-Win
 ON CHOOSE OF bPlayGood IN FRAME DEFAULT-FRAME /* Play with windows */
 DO:
-
-  IF fiWindows:screen-value = "" THEN
-  DO:
-    MESSAGE "Please select any file to play."
-      VIEW-AS ALERT-BOX INFORMATION BUTTONS OK.
-      RETURN NO-APPLY.
-  END.
+  DEFINE VARIABLE oplcPlayStatus AS INTEGER.
   
-  DEF VAR play-status AS INTEGER.
-  RUN sndPlaySoundA (
-        INPUT fiWindows:screen-value, 
-        INPUT 2,
-        OUTPUT play-status
-        ).
+  RUN OS_PlaySound (INPUT fiSound:screen-value, 
+                    OUTPUT oplcPlayStatus
+                    ).
 
  END.
 
@@ -284,7 +247,7 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL bPlayNode C-Win
 ON CHOOSE OF bPlayNode IN FRAME DEFAULT-FRAME /* Play with Node */
 DO:
-  IF fiNode:screen-value = "" THEN
+  IF fiSound:screen-value = "" THEN
   DO:
     MESSAGE "Please select any file to play."
       VIEW-AS ALERT-BOX INFORMATION BUTTONS OK.
@@ -297,7 +260,9 @@ DO:
   DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
 
   cNodeFile = SEARCH("util\playsoundnode.js").
-  cRunNodeScript  = "node " + cNodeFile + " " + fiNode:screen-value.
+  
+  cRunNodeScript  = "node " + cNodeFile + " " + fiSound:screen-value.
+  
   RUN OS_RunCommand(INPUT  cRunNodeScript,
                     INPUT  "",  // Output File
                     INPUT  YES, // Silent
@@ -314,7 +279,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL bPlayPython C-Win
 ON CHOOSE OF bPlayPython IN FRAME DEFAULT-FRAME /* Play with Python */
 DO:
-    IF fiPython:SCREEN-VALUE = "" THEN
+    IF fiSound:SCREEN-VALUE = "" THEN
     DO:
         MESSAGE "Please select any file to play."
             VIEW-AS ALERT-BOX INFORMATION BUTTONS OK.
@@ -327,7 +292,8 @@ DO:
     DEFINE VARIABLE cMessage     AS CHARACTER NO-UNDO.
  
     cPyFile = SEARCH("util\sound.py") .
-    cRunPyScript  = "python " + cPyFile + " " + fiPython:screen-value.
+    
+    cRunPyScript  = "python " + cPyFile + " " + fiSound:screen-value.
  
     RUN OS_RunCommand(INPUT  cRunPyScript,
                       INPUT  "",  // Output File
@@ -336,40 +302,6 @@ DO:
                       OUTPUT lSuccess,
                       OUTPUT cMessage).
     
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME bselNo
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL bselNo C-Win
-ON CHOOSE OF bselNo IN FRAME DEFAULT-FRAME /* Select */
-DO:
-    SYSTEM-DIALOG GET-FILE inNoSoundPath
-    TITLE   "Choose File to Play ..."
-    FILTERS "Source Files (*)"   "*"
-    MUST-EXIST
-    USE-FILENAME
-    UPDATE OKpressedbad.
-    fiNode:screen-value = inNoSoundPath.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME bselPy
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL bselPy C-Win
-ON CHOOSE OF bselPy IN FRAME DEFAULT-FRAME /* Select */
-DO:
-    SYSTEM-DIALOG GET-FILE inPySoundPath
-    TITLE   "Choose File to Play ..."
-    FILTERS "Source Files (*)"   "*"
-    MUST-EXIST
-    USE-FILENAME
-    UPDATE OKpressedbad.
-    fiPython:screen-value =   inPySoundPath.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -388,7 +320,7 @@ DO:
     USE-FILENAME
     UPDATE OKpressedgood.
     
-    fiWindows:screen-value =   inWinSoundPath.
+    fiSound:screen-value =   inWinSoundPath.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -420,12 +352,6 @@ MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
   RUN enable_UI.
-  
-    PROCEDURE sndPlaySoundA EXTERNAL "winmm.dll":
-        DEFINE INPUT  PARAMETER ic  AS CHARACTER.
-        DEFINE INPUT  PARAMETER ish AS LONG.
-        DEFINE OUTPUT PARAMETER osh AS LONG.
-    END PROCEDURE.
     
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
@@ -467,9 +393,9 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY fiWindows fiPython fiNode EDITOR-1 EDITOR-2 
+  DISPLAY fiSound EDITOR-1 EDITOR-2 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE bselWin bPlayGood bselPy bPlayPython bselNo bPlayNode 
+  ENABLE bselWin bPlayGood bPlayPython bPlayNode 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
