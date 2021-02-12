@@ -104,6 +104,8 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW ProgressBarWindow ASSIGN
          HIDDEN             = YES
          TITLE              = "Progress Bar"
+         COLUMN             = 15
+         ROW                = 5
          HEIGHT             = 1
          WIDTH              = 100
          MAX-HEIGHT         = 1
