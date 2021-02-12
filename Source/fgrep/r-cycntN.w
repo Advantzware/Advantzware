@@ -119,13 +119,13 @@ DEF VAR cTextListToDefault AS cha NO-UNDO.
 ASSIGN cTextListToSelect = "ITEM,DESCRIPTION,CUSTOMER," +
                       "JOB#,WHSE,BIN,TAG," +
                       "RCT DATE,ON HAND QTY,PALLETS,QUANTITY COUNTED,COUNTED DATE,COST/M,SELL VALUE,CUSTOMER PART #," +
-                      "SELL UOM,FIRST TRX DATE,FIRST TRX TYPE,PO #,SALESPERSON CODE,SALESPERSON NAME"
+                      "SELL UOM,FIRST TRX DATE,FIRST TRX TYPE,PO #,SALESPERSON CODE,SALESPERSON NAME,COUNT"
        cFieldListToSelect = "fg-bin.i-no,itemfg.i-name,v-cust-no," +
                             "lv-job-no,fg-bin.loc,fg-bin.loc-bin,v-tag," +
                             "lv-date,fg-bin.qty,li-palls,v-writein,v-counted-date,v-costM,v-sellValue,itemfg.part-no," +
-                            "v-sellUom,cFirstTrxDt,cFirstTrxTyp,po-no,sales-code,sales-name" 
-       cFieldLength = "15,25,8," + "9,5,8,20," + "10,11,7,21,12,10,10,15," + "8,14,14,9,16,30"
-       cFieldType   = "c,c,c," + "c,c,c,c," + "c,i,i,i,c,i,i,c," + "c,c,c,c,c,c" 
+                            "v-sellUom,cFirstTrxDt,cFirstTrxTyp,po-no,sales-code,sales-name,count" 
+       cFieldLength = "15,25,8," + "9,5,8,20," + "10,11,7,21,12,10,10,15," + "8,14,14,9,16,30,10"
+       cFieldType   = "c,c,c," + "c,c,c,c," + "c,i,i,i,c,i,i,c," + "c,c,c,c,c,c,i" 
        .
 ASSIGN cTextListToDefault  = "ITEM,DESCRIPTION,CUSTOMER," + "WHSE,BIN,TAG,JOB#," +
                              "RCT DATE,ON HAND QTY,PALLETS,QUANTITY COUNTED" .
@@ -1715,7 +1715,7 @@ DEF BUFFER bitemfg FOR itemfg.
 DEF VAR str-tit4 AS cha FORM "x(200)" NO-UNDO.
 DEF VAR str-tit5 AS cha FORM "x(200)" NO-UNDO.
 
-{sys/form/r-top5DL.f} 
+{sys/form/r-top5DL2.f} 
 
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 
@@ -1738,6 +1738,7 @@ DEFINE VARIABLE cPoNo AS CHARACTER NO-UNDO.
 DEFINE VARIABLE iEntryNumber AS INTEGER NO-UNDO.
 DEFINE VARIABLE cSalesCode AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cSalesName AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iFGCount   AS INTEGER   NO-UNDO.
 
 RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 ASSIGN
@@ -1867,7 +1868,9 @@ ASSIGN lv-date    = ?
        v-li-palls = ""
        v-cust-no = ""
        dTrxDate  = ?
-       cTrxType  = "".
+       cTrxType  = ""
+       iFGCount  = 0
+       .
 
 IF v-item-bin EQ "C" THEN RUN run-reportCust.
 ELSE DO:
@@ -1925,7 +1928,9 @@ ELSE DO:
       ASSIGN
          v-qty       = STRING(fg-bin.qty)
          v-li-palls  = STRING(li-palls)
-         v-cust-no = IF fg-bin.cust-no <> "" THEN fg-bin.cust-no ELSE itemfg.cust-no.
+         v-cust-no = IF fg-bin.cust-no <> "" THEN fg-bin.cust-no ELSE itemfg.cust-no
+         iFGCount  = (integer(itemfg.case-count) * integer(itemfg.case-pall) )
+             + integer(itemfg.quantityPartial) .
    /*ELSE
       ASSIGN
          v-qty       = ""
@@ -2034,6 +2039,7 @@ ELSE DO:
                  WHEN "po-no" THEN cVarValue =  STRING(cPoNo,"x(9)") .
                  WHEN "sales-code" THEN cVarValue = STRING(cSalesCode).
                  WHEN "sales-name" THEN cVarValue =  STRING(cSalesName,"x(30)") .
+                 WHEN "count"      THEN cVarValue =  STRING(iFGCount,"->,>>>,>>9") .
             END CASE.
             cExcelVarValue = cVarValue.  
             cDisplay = cDisplay + cVarValue +
@@ -2172,6 +2178,7 @@ DEF BUFFER bfg-bin FOR fg-bin.
 DEFINE VARIABLE iEntryNumber AS INTEGER NO-UNDO.
 DEFINE VARIABLE cSalesCode AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cSalesName AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iFGCount   AS INTEGER   NO-UNDO.
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 
 ASSIGN 
@@ -2240,6 +2247,9 @@ FOR EACH tt-report
      ASSIGN v-qty       = ""
             v-li-palls  = "".
   v-cust-no = IF fg-bin.cust-no <> "" THEN fg-bin.cust-no ELSE itemfg.cust-no.
+  iFGCount  = (integer(itemfg.case-count) * integer(itemfg.case-pall) )
+             + integer(itemfg.quantityPartial).
+  
   ASSIGN cDisplay = ""
           cTmpField = ""
           cVarValue = ""
@@ -2331,6 +2341,7 @@ FOR EACH tt-report
                  WHEN "cFirstTrxTyp" THEN cVarValue = STRING(cTrxType).
                  WHEN "sales-code" THEN cVarValue = STRING(cSalesCode).
                  WHEN "sales-name" THEN cVarValue =  STRING(cSalesName,"x(30)") .
+                 WHEN "count"      THEN cVarValue =  STRING(iFGCount,"->,>>>,>>9") .
             END CASE.
             cExcelVarValue = cVarValue.  
             cDisplay = cDisplay + cVarValue +
