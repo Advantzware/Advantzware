@@ -809,14 +809,15 @@ PROCEDURE ipChangeEnvironment :
             cTop = cMapDir + "\" + cEnvDir + "\" + cSelectedEnvironment + "\"
             preProPath = cMapDir + "\" + cEnvDir + "\" + cSelectedEnvironment + "," +
                         cTop + cEnvCustomerDir + "," +
-                        cTop + cEnvOverrideDir + "\Addon," +
                         cTop + cEnvOverrideDir + "," +
-                        cTop + cEnvProgramsDir + "\Addon" + "," +
                         cTop + cEnvProgramsDir + "," +
+                        cTop + cEnvCustomerDir + "\Addon," +
+                        cTop + cEnvOverrideDir + "\Addon," +
+                        cTop + cEnvProgramsDir + "\Addon" + "," +
                         cTop + cEnvCustFiles + "," +
                         cTop + cEnvResourceDir + "," +
                         cTop + cEnvResourceDir + "\Addon" + "," +
-                        cMapDir + "\" + cAdminDir + "\" + cEnvAdmin + ","
+                        cMapDir + "\" + cAdminDir + "\" + cEnvAdmin + ",".
             PROPATH = preProPath + origPropath.      
         RETURN.
     END.
@@ -876,14 +877,15 @@ PROCEDURE ipChangeEnvironment :
                         (IF iEnvLevel GE 21000000 THEN cMapDir + "\" + cEnvDir + "\" + cSelectedEnvironment + "\asiObjects.pl," ELSE "") +
                         (IF iEnvLevel GE 21000000 THEN cMapDir + "\" + cEnvDir + "\" + cSelectedEnvironment + "\asigraphics.pl," ELSE "") +
                         cTop + cEnvCustomerDir + "," +
-                        cTop + cEnvOverrideDir + "\Addon," +
                         cTop + cEnvOverrideDir + "," +
-                        cTop + cEnvProgramsDir + "\Addon" + "," +
                         cTop + cEnvProgramsDir + "," +
+                        cTop + cEnvCustomerDir + "\Addon," +
+                        cTop + cEnvOverrideDir + "\Addon," +
+                        cTop + cEnvProgramsDir + "\Addon" + "," +
                         cTop + cEnvCustFiles + "," +
                         cTop + cEnvResourceDir + "," +
                         cTop + cEnvResourceDir + "\Addon" + "," +
-                        cMapDir + "\" + cAdminDir + "\" + cEnvAdmin + ","
+                        cMapDir + "\" + cAdminDir + "\" + cEnvAdmin + ",".
             PROPATH = preProPath + origPropath.
     END.
     
