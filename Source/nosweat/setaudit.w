@@ -630,7 +630,6 @@ ON ROW-LEAVE OF dbTables IN FRAME DEFAULT-FRAME /* Database Tables */
 DO:
     IF BROWSE {&SELF-NAME}:MODIFIED THEN
     fSetSaveButton (YES).
-/*    fSetSaveButton (YES).*/
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -658,7 +657,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ResetFromDefault C-Win
 ON CHOOSE OF ResetFromDefault IN FRAME DEFAULT-FRAME /* Reset ALL From Defaults */
 DO:
-    RUN pResetFromDefault.  
+    RUN pResetFromDefault.
+    fSetSaveButton (NO).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -760,9 +760,29 @@ ON CLOSE OF THIS-PROCEDURE
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
 
-ON "VALUE-CHANGED":U OF ttTable.Audit[3]
+ON VALUE-CHANGED OF ttTable.Audit[1]
 DO:
+    ttTable.Audit[1] = NOT ttTable.Audit[1].
+    fSetSaveButton (YES).
+END.
+
+ON VALUE-CHANGED OF ttTable.Audit[2]
+DO:
+    ttTable.Audit[2] = NOT ttTable.Audit[2].
+    fSetSaveButton (YES).
+END.
+
+ON VALUE-CHANGED OF ttTable.Audit[3]
+DO:
+    ttTable.Audit[3] = NOT ttTable.Audit[3].
     RUN pSetFieldAudit (BROWSE dbTables ttTable.Audit[3]).
+    fSetSaveButton (YES).
+END.
+
+ON VALUE-CHANGED OF ttTable.Audit[4]
+DO:
+    ttTable.Audit[4] = NOT ttTable.Audit[4].
+    fSetSaveButton (YES).
 END.
 
 &IF DEFINED(UIB_is_Running) EQ 0 &THEN
@@ -792,7 +812,6 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       toggleFields:MOVE-TO-TOP().
       ASSIGN
         lSuperAdmin              = DYNAMIC-FUNCTION("sfIsUserSuperAdmin")
-/*        btnSaveAsDefault:HIDDEN  = NOT lSuperAdmin*/
         btnSaveTable:HIDDEN      = NOT lSuperAdmin
         btnSaveField:HIDDEN      = NOT lSuperAdmin
         BROWSE dbtables:MODIFIED = NO
@@ -1225,6 +1244,7 @@ PROCEDURE pSetAudit :
     END. /* each tttable */
     {&OPEN-QUERY-dbTables}
     APPLY "VALUE-CHANGED":U TO BROWSE dbTables.
+    fSetSaveButton (YES).
     SESSION:SET-WAIT-STATE("").
 
 END PROCEDURE.
