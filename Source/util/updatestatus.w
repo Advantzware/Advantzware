@@ -92,11 +92,11 @@ RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
 &Scoped-Define ENABLED-OBJECTS btExit RECT-1 fiBeginOrder fiEndingOrder ~
 tbUpdateOrderStatus fiBeginJob fiEndingJob tbUpdateJobStatus fiBeginRelease ~
 fiEndingRelease tbUpdateReleases fiBeginPO fiEndingPO ~
-tbupdatePurchaseOrders btSimulate btExecute 
+tbupdatePurchaseOrders tbOpenFiles btSimulate btExecute 
 &Scoped-Define DISPLAYED-OBJECTS fiBeginOrder fiEndingOrder ~
 tbUpdateOrderStatus fiBeginJob fiEndingJob tbUpdateJobStatus fiBeginRelease ~
 fiEndingRelease tbUpdateReleases fiBeginPO fiEndingPO ~
-tbupdatePurchaseOrders fiDirectory 
+tbupdatePurchaseOrders fiDirectory tbOpenFiles 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -187,6 +187,11 @@ DEFINE RECTANGLE RECT-14
      SIZE 106.8 BY 2.14
      BGCOLOR 21 FGCOLOR 21 .
 
+DEFINE VARIABLE tbOpenFiles AS LOGICAL INITIAL NO 
+     LABEL "Open Files" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 16 BY .81 NO-UNDO.
+
 DEFINE VARIABLE tbUpdateJobStatus AS LOGICAL INITIAL NO 
      LABEL "Update Job Status" 
      VIEW-AS TOGGLE-BOX
@@ -229,6 +234,7 @@ DEFINE FRAME DEFAULT-FRAME
      fiEndingPO AT ROW 9.19 COL 78.4 COLON-ALIGNED WIDGET-ID 32
      tbupdatePurchaseOrders AT ROW 9.38 COL 5.6 WIDGET-ID 4
      fiDirectory AT ROW 11.91 COL 18.4 COLON-ALIGNED NO-LABEL WIDGET-ID 12
+     tbOpenFiles AT ROW 11.95 COL 79 WIDGET-ID 324
      btSimulate AT ROW 13.76 COL 31.6 WIDGET-ID 34
      btExecute AT ROW 13.76 COL 53.2 WIDGET-ID 38
      "Records to view or recover purged information will be stored in directory:" VIEW-AS TEXT
@@ -493,6 +499,8 @@ DO:
     DEFINE VARIABLE cNewStat AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cocode   AS CHARACTER NO-UNDO.
     
+    btExecute:SENSITIVE = btSimulate:SENSITIVE.
+    
     EMPTY TEMP-TABLE  ttOe-rel.
     EMPTY TEMP-TABLE  ttOe-ord.
     EMPTY TEMP-TABLE  ttPo-ord.
@@ -628,18 +636,108 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME fiBeginJob
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiBeginJob C-Win
+ON VALUE-CHANGED OF fiBeginJob IN FRAME DEFAULT-FRAME /* Begin Job */
+DO:
+    RUN SetButtons.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME fiBeginOrder
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiBeginOrder C-Win
+ON VALUE-CHANGED OF fiBeginOrder IN FRAME DEFAULT-FRAME /* Begin Order */
+DO:
+    RUN SetButtons.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME fiBeginPO
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiBeginPO C-Win
+ON VALUE-CHANGED OF fiBeginPO IN FRAME DEFAULT-FRAME /* Begin PO */
+DO:
+    RUN SetButtons.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME fiBeginRelease
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiBeginRelease C-Win
+ON VALUE-CHANGED OF fiBeginRelease IN FRAME DEFAULT-FRAME /* Begin Release */
+DO:
+    RUN SetButtons.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME fiEndingJob
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiEndingJob C-Win
+ON VALUE-CHANGED OF fiEndingJob IN FRAME DEFAULT-FRAME /* Ending Job */
+DO:
+    RUN SetButtons.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME fiEndingOrder
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiEndingOrder C-Win
+ON VALUE-CHANGED OF fiEndingOrder IN FRAME DEFAULT-FRAME /* Ending Order */
+DO:
+    RUN SetButtons.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME fiEndingPO
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiEndingPO C-Win
+ON VALUE-CHANGED OF fiEndingPO IN FRAME DEFAULT-FRAME /* Ending PO */
+DO:
+    RUN SetButtons.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME fiEndingRelease
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiEndingRelease C-Win
+ON VALUE-CHANGED OF fiEndingRelease IN FRAME DEFAULT-FRAME /* Ending Release */
+DO:
+    RUN SetButtons.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME tbUpdateJobStatus
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tbUpdateJobStatus C-Win
 ON VALUE-CHANGED OF tbUpdateJobStatus IN FRAME DEFAULT-FRAME /* Update Job Status */
 DO:
    ASSIGN
-        fiBeginJob:hidden        = NOT tbUpdateJobStatus:checked
-        fiEndingJob:hidden       = NOT tbUpdateJobStatus:checked
-        fiBeginJob:visible       = tbUpdateJobStatus:checked
-        fiEndingJob:visible      = tbUpdateJobStatus:checked
+        fiBeginJob:HIDDEN        = NOT tbUpdateJobStatus:CHECKED 
+        fiEndingJob:HIDDEN       = NOT tbUpdateJobStatus:CHECKED 
+        fiBeginJob:VISIBLE       = tbUpdateJobStatus:CHECKED 
+        fiEndingJob:VISIBLE      = tbUpdateJobStatus:CHECKED 
         fiEndingJob:SCREEN-VALUE =  ""
-        fiEndingJob:SCREEN-VALUE =  "" 
+        fiBeginJob:SCREEN-VALUE =  "" 
         .
+    RUN SetButtons.
+        
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -651,13 +749,14 @@ END.
 ON VALUE-CHANGED OF tbUpdateOrderStatus IN FRAME DEFAULT-FRAME /* Update Order Status */
 DO:  
  ASSIGN
-        fiBeginOrder:hidden        = NOT tbUpdateOrderStatus:checked
-        fiEndingOrder:hidden       = NOT tbUpdateOrderStatus:checked
-        fiBeginOrder:visible       = tbUpdateOrderStatus:checked
-        fiEndingOrder:visible      = tbUpdateOrderStatus:checked
+        fiBeginOrder:HIDDEN        = NOT tbUpdateOrderStatus:CHECKED 
+        fiEndingOrder:HIDDEN       = NOT tbUpdateOrderStatus:CHECKED 
+        fiBeginOrder:VISIBLE       = tbUpdateOrderStatus:CHECKED 
+        fiEndingOrder:VISIBLE      = tbUpdateOrderStatus:CHECKED 
         fiEndingOrder:SCREEN-VALUE = ""
         fiBeginOrder:SCREEN-VALUE  = ""
         .
+    RUN SetButtons.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -669,13 +768,14 @@ END.
 ON VALUE-CHANGED OF tbupdatePurchaseOrders IN FRAME DEFAULT-FRAME /* Update Purchase Orders */
 DO:
    ASSIGN
-        fiBeginPO:hidden        = NOT tbupdatePurchaseOrders:checked
-        fiEndingPO:hidden       = NOT tbupdatePurchaseOrders:checked
-        fiBeginPO:visible       = tbupdatePurchaseOrders:checked
-        fiEndingPO:visible      = tbupdatePurchaseOrders:checked
+        fiBeginPO:HIDDEN        = NOT tbupdatePurchaseOrders:CHECKED 
+        fiEndingPO:HIDDEN       = NOT tbupdatePurchaseOrders:CHECKED 
+        fiBeginPO:VISIBLE       = tbupdatePurchaseOrders:CHECKED 
+        fiEndingPO:VISIBLE      = tbupdatePurchaseOrders:CHECKED 
         fiBeginPO:SCREEN-VALUE  = ""
-        fiEndingPO:SCREEN-VALUE = ""       
+        fiEndingPO:SCREEN-VALUE = ""
         .
+    RUN SetButtons.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -687,13 +787,14 @@ END.
 ON VALUE-CHANGED OF tbUpdateReleases IN FRAME DEFAULT-FRAME /* Update Releases */
 DO:
   ASSIGN
-        fiBeginRelease:hidden        = NOT tbUpdateReleases:checked
-        fiEndingRelease:hidden       = NOT tbUpdateReleases:checked
-        fiBeginRelease:visible       = tbUpdateReleases:checked
-        fiEndingRelease:visible      = tbUpdateReleases:checked
+        fiBeginRelease:HIDDEN        = NOT tbUpdateReleases:CHECKED 
+        fiEndingRelease:HIDDEN       = NOT tbUpdateReleases:CHECKED 
+        fiBeginRelease:VISIBLE       = tbUpdateReleases:CHECKED 
+        fiEndingRelease:VISIBLE      = tbUpdateReleases:CHECKED 
         fiBeginRelease:SCREEN-VALUE  = "" 
-        fiEndingRelease:SCREEN-VALUE = "" 
+        fiEndingRelease:SCREEN-VALUE = ""
         .
+        RUN SetButtons.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -725,8 +826,11 @@ MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
    {sys/inc/f3helpw.i}
-    btSimulate:load-image("Graphics/32x32/Simulate.png").
-    btExecute:load-image("Graphics/32x32/Execute.png").
+    btSimulate:LOAD-IMAGE("Graphics/32x32/Simulate.png").
+    btExecute:LOAD-IMAGE("Graphics/32x32/Execute.png").
+    btSimulate:LOAD-IMAGE-INSENSITIVE("Graphics/32x32/Simulate_disabled.png").
+    btExecute:LOAD-IMAGE-INSENSITIVE("Graphics/32x32/Execute_disabled.png").
+    
     RUN enable_UI.
      ASSIGN
         fiBeginPo:HIDDEN         = TRUE
@@ -745,6 +849,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         fiEndingRelease:HIDDEN   = TRUE
         fiBeginRelease:VISIBLE   = FALSE
         fiEndingRelease:VISIBLE  = FALSE
+        btSimulate:SENSITIVE     = FALSE 
+        btExecute:SENSITIVE      = FALSE 
+        tbOpenFiles:SENSITIVE      = FALSE
         .
     RUN FileSys_GetTempDirectory(
         OUTPUT cLocation
@@ -794,15 +901,87 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY fiBeginOrder fiEndingOrder tbUpdateOrderStatus fiBeginJob fiEndingJob 
           tbUpdateJobStatus fiBeginRelease fiEndingRelease tbUpdateReleases 
-          fiBeginPO fiEndingPO tbupdatePurchaseOrders fiDirectory 
+          fiBeginPO fiEndingPO tbupdatePurchaseOrders fiDirectory tbOpenFiles 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   ENABLE btExit RECT-1 fiBeginOrder fiEndingOrder tbUpdateOrderStatus 
          fiBeginJob fiEndingJob tbUpdateJobStatus fiBeginRelease 
          fiEndingRelease tbUpdateReleases fiBeginPO fiEndingPO 
-         tbupdatePurchaseOrders btSimulate btExecute 
+         tbupdatePurchaseOrders tbOpenFiles btSimulate btExecute 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE SetButtons C-Win 
+PROCEDURE SetButtons :
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DO WITH FRAME {&frame-name}:
+        END.
+    IF tbUpdateJobStatus:CHECKED THEN 
+    DO:
+        IF  
+            fiBeginJob:SCREEN-VALUE NE "" AND 
+            fiEndingJob:SCREEN-VALUE NE "" THEN 
+                btSimulate:SENSITIVE = TRUE.
+                
+        ELSE 
+            btSimulate:SENSITIVE = FALSE.
+                
+    END.
+    IF tbUpdateOrderStatus:CHECKED THEN 
+    DO:
+        IF  
+            fiBeginOrder:SCREEN-VALUE NE "" AND 
+            fiEndingOrder:SCREEN-VALUE NE "" THEN 
+            btSimulate:SENSITIVE = TRUE.
+        ELSE 
+            btSimulate:SENSITIVE = FALSE.
+                
+    END.
+    IF tbupdatePurchaseOrders:CHECKED THEN 
+    DO:
+        IF  
+            fiBeginPO:SCREEN-VALUE NE "" AND 
+            fiEndingPO:SCREEN-VALUE NE "" THEN 
+            btSimulate:SENSITIVE = TRUE.
+        ELSE 
+            btSimulate:SENSITIVE = FALSE.
+                
+    END.
+    
+    IF tbUpdateReleases:CHECKED THEN 
+    DO:
+        IF  
+            fiBeginRelease:SCREEN-VALUE NE "" AND 
+            fiEndingRelease:SCREEN-VALUE NE "" THEN 
+            btSimulate:SENSITIVE = TRUE.
+            
+        ELSE 
+            btSimulate:SENSITIVE = FALSE.
+                
+    END.
+     
+    IF  NOT tbUpdateReleases:CHECKED AND 
+        NOT tbupdatePurchaseOrders:CHECKED AND 
+        NOT tbUpdateOrderStatus:CHECKED  AND 
+        NOT tbUpdateJobStatus:CHECKED    
+    THEN 
+        btSimulate:SENSITIVE = FALSE. 
+        
+    IF NOT btSimulate:SENSITIVE THEN 
+        tbOpenFiles:CHECKED = FALSE.
+              
+    ASSIGN  
+        btExecute:SENSITIVE   = btSimulate:SENSITIVE 
+        tbOpenFiles:SENSITIVE = btSimulate:SENSITIVE
+        .
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
