@@ -545,6 +545,8 @@ PROCEDURE pValidate PRIVATE:
             .       
     END.
 
+    ipbf-ttImportAP1.InvoiceNo = TRIM(ipbf-ttImportAP1.InvoiceNo).
+
     FIND FIRST ap-inv NO-LOCK 
         WHERE ap-inv.company EQ ipbf-ttImportAP1.Company
           AND ap-inv.vend-no EQ ipbf-ttImportAP1.VendorID

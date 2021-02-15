@@ -1288,6 +1288,8 @@ PROCEDURE valid-inv-no :
       RETURN ERROR.
     END.
 
+    ap-inv.inv-no:SCREEN-VALUE = TRIM(ap-inv.inv-no:SCREEN-VALUE).
+
     RUN valid-vend-inv NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN ERROR.
   END.
