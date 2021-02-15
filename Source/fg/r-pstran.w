@@ -3451,6 +3451,7 @@ PROCEDURE print-and-post :
 ------------------------------------------------------------------------------*/
   DEFINE VARIABLE lv-r-no LIKE rm-rctd.r-no NO-UNDO.
   DEFINE VARIABLE lContinue AS LOGICAL NO-UNDO.
+  DEFINE VARIABLE lInvalid AS LOGICAL NO-UNDO.
   DEFINE BUFFER bf-fg-rctd FOR fg-rctd.
   /* 11111302 - Automatically include set components instead of this validate*/
   /* RUN ValidateFGItemRange(OUTPUT lContinue). */
@@ -3507,6 +3508,12 @@ PROCEDURE print-and-post :
           VIEW-AS ALERT-BOX.
   END.
   ELSE choice = NO. 
+  
+  IF choice THEN DO:
+    RUN pCheckPeriod(OUTPUT lInvalid).
+     IF NOT lInvalid THEN choice = yes.
+     ELSE choice = no.    
+  END.
 
   IF choice THEN DO:
     FOR EACH w-fg-rctd
@@ -4530,6 +4537,30 @@ DEFINE VARIABLE hNotesProcs AS HANDLE NO-UNDO.
 
 END PROCEDURE.
     
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckPeriod d-oeitem 
+PROCEDURE pCheckPeriod :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  define output parameter oplReturnNotValidPost as logical no-undo.
+  DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE lSuccess AS LOGICAL NO-UNDO.
+    oplReturnNotValidPost = no.
+    
+    RUN GL_CheckModClosePeriod(input cocode, input v-post-date, input "FG", output cMessage, output lSuccess ) .  
+    if not lSuccess then 
+    do:
+      message cMessage view-as alert-box info.
+      oplReturnNotValidPost = yes.
+    end.  
+     
+END PROCEDURE.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

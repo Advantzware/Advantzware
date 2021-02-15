@@ -214,6 +214,8 @@ PROCEDURE pCheckDate:
     END.
     ELSE IF period.pstat EQ NO THEN
          cErrorMsg = "Period for " + STRING(ipdtDate,"99/99/9999") + " is already closed".
+    ELSE IF period.subLedgerAP EQ "C" THEN
+          cErrorMsg = "Payables sub ledger Period for " + STRING(ipdtDate,"99/99/9999") + " is already closed".    
          ELSE IF postdate-dat NE ? AND ipdtDate LE postdate-dat THEN
               cErrorMsg = "Transaction Date must be after " + STRING(ipdtDate,"99/99/9999").
     oplInvalid = fErrorMsg(cErrorMsg).

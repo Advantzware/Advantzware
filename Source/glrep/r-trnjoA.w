@@ -1167,7 +1167,7 @@ DEFINE VARIABLE ws_disc LIKE ap-payl.amt-disc COLUMN-LABEL "Discount" NO-UNDO.
 DEFINE VARIABLE ws_check-no LIKE ap-chk.check-no NO-UNDO format ">>>>>>>"
     column-label "Check#".
 DEFINE VARIABLE ws_order-no LIKE oe-ord.ord-no NO-UNDO
-    format ">>>>>>".
+    format ">>>>>>>".
 def var ws_jrnl like glhist.jrnl column-label "Journal" no-undo.
 DEF VAR GL_JRNL_LIST AS CHAR NO-UNDO.
 
@@ -1199,7 +1199,7 @@ form
         ap-invl.amt-msf
         ws_disc
         ap-invl.amt FORMAT "->>,>>>,>>9.99"
-        WITH FRAME f-det width 158 DOWN STREAM-IO.
+        WITH FRAME f-det width 159 DOWN STREAM-IO.
 
 
 assign

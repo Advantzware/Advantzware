@@ -574,6 +574,9 @@ DO:
   END.
       
   DEF VAR lv-post AS LOG NO-UNDO.
+  
+  RUN pCheckDate.
+  if v-invalid then return no-apply.
 
   assign /*rd-dest
          post-date
@@ -2132,6 +2135,31 @@ PROCEDURE show-param :
 
   put fill("-",80) format "x(80)" skip.
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckDate C-Win 
+PROCEDURE pCheckDate :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE lSuccess AS LOGICAL NO-UNDO.
+  DO with frame {&frame-name}:
+    v-invalid = no.
+    
+    RUN GL_CheckModClosePeriod(input cocode, input DATE(post-date), input "FG", output cMessage, output lSuccess ) .  
+    IF NOT lSuccess THEN 
+    DO:
+      MESSAGE cMessage VIEW-AS ALERT-BOX INFO.
+      v-invalid = YES.
+    END.       
+    
+  END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

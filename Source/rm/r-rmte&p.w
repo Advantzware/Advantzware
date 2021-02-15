@@ -1293,13 +1293,26 @@ PROCEDURE check-Period :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF VAR lv-period LIKE period.pnum NO-UNDO.
-
+  DEFINE VARIABLE lSuccess           AS LOGICAL   NO-UNDO.
+  DEFINE VARIABLE cMessage           AS CHARACTER NO-UNDO.
+    
   DO WITH FRAME {&FRAME-NAME}:   
     RUN sys/inc/valtrndt.p (cocode,
                             DATE(v-post-date:SCREEN-VALUE),
                             OUTPUT lv-period) NO-ERROR.
     lInvalid = ERROR-STATUS:ERROR.
     IF lInvalid THEN APPLY "entry" TO v-post-date.
+    
+    IF NOT lInvalid THEN
+    DO:
+       RUN GL_CheckModClosePeriod(input cocode, input DATE(v-post-date), input "RM", output cMessage, output lSuccess ) .  
+       IF NOT lSuccess then 
+       do:
+         message cMessage view-as alert-box info.
+         lInvalid = yes.
+         APPLY "entry" TO v-post-date.
+       end.         
+    END.
   END.
 
 END PROCEDURE.

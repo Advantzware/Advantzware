@@ -617,6 +617,10 @@ PROCEDURE check-date :
           MESSAGE "Period Already Closed. " VIEW-AS ALERT-BOX ERROR.
           v-invalid = YES.
        END.
+       IF period.subLedgerAP EQ "C" THEN DO:
+          MESSAGE "Payables sub ledger already closed. " VIEW-AS ALERT-BOX ERROR.
+          v-invalid = YES.
+       END.
         tran-period:SCREEN-VALUE = string(period.pnum).
     END.
     ELSE DO:

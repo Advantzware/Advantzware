@@ -1813,6 +1813,7 @@ PROCEDURE local-update-record :
 ------------------------------------------------------------------------------*/
   DEF VAR v-dumb AS LOG NO-UNDO.
   DEF VAR v-progstack AS CHAR NO-UNDO.
+  DEFINE VARIABLE lInvalid AS LOGICAL NO-UNDO.  
 
 v-progstack = (IF PROGRAM-NAME(1) NE ? THEN "," + PROGRAM-NAME(1) ELSE "") 
         + (IF PROGRAM-NAME(2) NE ? THEN "," + PROGRAM-NAME(2) ELSE "")
@@ -1874,7 +1875,11 @@ v-progstack = (IF PROGRAM-NAME(1) NE ? THEN "," + PROGRAM-NAME(1) ELSE "")
                    AND loadtag.tag-no = fg-rctd.tag2 NO-LOCK NO-ERROR.
     */
   IF lPostAuto-log THEN
+  DO:
+     RUN pCheckPeriod(OUTPUT lInvalid).
+     IF NOT lInvalid THEN 
      RUN auto-post.
+  END.   
   lv-new-tag-number-chosen = ?.
   /* Workaround: if tab through to row-leave, scan-next doesn't get run */
   /* so if we're not here because of p-updbar, then run it              */
@@ -2111,6 +2116,30 @@ PROCEDURE state-changed :
          or add new cases. */
       {src/adm/template/bstates.i}
   END CASE.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckPeriod B-table-Win 
+PROCEDURE pCheckPeriod :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  define output parameter oplReturnNotValidPost as logical no-undo.
+  DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE lSuccess AS LOGICAL NO-UNDO.
+    oplReturnNotValidPost = no.
+    
+    RUN GL_CheckModClosePeriod(input cocode, input today, input "FG", output cMessage, output lSuccess ) .  
+    if not lSuccess then 
+    do:
+      message cMessage view-as alert-box info.
+      oplReturnNotValidPost = yes.
+    end.  
+     
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

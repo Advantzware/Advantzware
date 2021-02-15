@@ -700,6 +700,11 @@ DO:
     APPLY "entry" TO v-post-date.
     RETURN NO-APPLY.
   END.
+  ELSE IF period.subLedgerFG EQ "C" THEN DO:
+      MESSAGE "F/G Inventory sub ledger already closed. " VIEW-AS ALERT-BOX ERROR.
+      APPLY "entry" TO v-post-date.
+      RETURN NO-APPLY.
+  END.
 
   RUN print-and-post.
 END.

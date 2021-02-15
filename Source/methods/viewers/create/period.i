@@ -10,30 +10,28 @@ DEF BUFFER new-period FOR period.
 DEF BUFFER b-company FOR company.
 
 
-{methods/run_link.i "RECORD-SOURCE" "Get-Values" "(OUTPUT op-company)"}
-
-FIND FIRST b-company WHERE b-company.company EQ op-company NO-LOCK NO-ERROR.
+FIND FIRST b-company WHERE b-company.company EQ company.company NO-LOCK NO-ERROR.
 
 DO WITH FRAME {&FRAME-NAME}:
   ASSIGN
    period_year    = INT(period.yr:SCREEN-VALUE IN FRAME {&FRAME-NAME})
-   period.company = op-company
+   period.company = company.company
    period.pstat   = YES.
 
   RELEASE old-period.
 
   IF NOT CAN-FIND(FIRST old-period
-                  WHERE old-period.company EQ op-company
+                  WHERE old-period.company EQ company.company
                     AND old-period.yr      EQ period_year) THEN
   FIND LAST old-period
-      WHERE old-period.company EQ op-company
+      WHERE old-period.company EQ company.company
         AND old-period.yr      LT period_year
       NO-LOCK NO-ERROR.
   IF AVAIL old-period THEN DO:
     old-yr = old-period.yr.
 
     FOR EACH old-period
-        WHERE old-period.company EQ op-company
+        WHERE old-period.company EQ company.company
           AND old-period.yr      EQ old-yr
         NO-LOCK:
       
@@ -42,6 +40,14 @@ DO WITH FRAME {&FRAME-NAME}:
       ASSIGN
        new-period.yr    = period_year
        new-period.pstat = YES
+       new-period.SubLedgerAP = "A"
+       new-period.SubLedgerPO = "A"
+       new-period.SubLedgerOP = "A"
+       new-period.SubLedgerWIP = "A"
+       new-period.SubLedgerRM = "A"
+       new-period.SubLedgerFG = "A"
+       new-period.SubLedgerBR = "A"
+       new-period.SubLedgerAR = "A" 
        lv-rowid         = ROWID(new-period).
 
       DO i = 1 TO 31:
@@ -76,6 +82,15 @@ DO WITH FRAME {&FRAME-NAME}:
        new-period.yr      = period_year
        new-period.pnum    = i
        new-period.pstat   = TRUE
+       new-period.SubLedgerAP = "A"
+       new-period.SubLedgerPO = "A"
+       new-period.SubLedgerOP = "A"
+       new-period.SubLedgerWIP = "A"
+       new-period.SubLedgerRM = "A"
+       new-period.SubLedgerFG = "A"
+       new-period.SubLedgerBR = "A"
+       new-period.SubLedgerAR = "A"
+
        lv-rowid           = ROWID(new-period).
 
       IF (b-company.yend-off + i) GE 13 AND b-company.yend-off NE 12 THEN
@@ -124,24 +139,6 @@ DO WITH FRAME {&FRAME-NAME}:
   END.
 
   FIND new-period WHERE ROWID(new-period) EQ lv-rowid NO-ERROR.
-      /*WHERE new-period.company EQ op-company
-        AND new-period.yr      EQ period_year
-        AND ROWID(new-period)  NE ROWID(period)
-      NO-ERROR.*/
-
-  IF AVAIL new-period THEN DO:
-    ASSIGN
-     period.pnum:SCREEN-VALUE  = STRING(new-period.pnum)
-     period.pnum               = new-period.pnum
-     period.pst:SCREEN-VALUE   = STRING(new-period.pst)
-     period.pend:SCREEN-VALUE  = STRING(new-period.pend)
-     period.pstat:SCREEN-VALUE = "YES".
-
-    DELETE new-period.
-  END.
-
-  ELSE DO:
-    RUN dispatch ("cancel-record").
-    RETURN "ADM-ERROR".
-  END.
+      
+  DELETE period.
 END.

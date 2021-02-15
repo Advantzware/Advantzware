@@ -62,7 +62,7 @@ ASSIGN cTextListToSelect = "Account,Account Description,Journal,Vendor,Name,Date
                            "Amt MSF,Discount,Amount,Currency Code,Created By,Created Date,Posted,Run#" 
        cFieldListToSelect = "account,acc-desc,jou,vend,name,date,inv,chk,ord,qty," +
                             "msf,dis,amt,curr-code,createdby,createddate,posted,run"
-       cFieldLength = "25,30,8,8,35,8,12,7,6,13," + "10,10,14,13,10,12,6,7"
+       cFieldLength = "25,30,8,8,35,8,12,7,7,13," + "10,10,14,13,10,12,6,7"
        cFieldType = "c,c,c,c,c,c,i,i,i,i," + "i,i,i,c,c,c,c,i" 
     .
 
@@ -1612,7 +1612,7 @@ DEFINE VARIABLE ws_disc LIKE ap-payl.amt-disc COLUMN-LABEL "Discount" NO-UNDO.
 DEFINE VARIABLE ws_check-no LIKE ap-chk.check-no NO-UNDO format ">>>>>>>"
     column-label "Check#".
 DEFINE VARIABLE ws_order-no LIKE oe-ord.ord-no NO-UNDO
-    format ">>>>>>".
+    format ">>>>>>>".
 def var ws_jrnl like glhist.jrnl column-label "Journal" no-undo.
 DEF VAR GL_JRNL_LIST AS CHAR NO-UNDO.
 
@@ -1897,7 +1897,7 @@ do:
                          WHEN "date"  THEN cVarValue = STRING(ap-inv.inv-date,"99/99/99") .
                          WHEN "inv"   THEN cVarValue = STRING(ap-inv.inv-no,"x(12)") .
                          WHEN "chk"  THEN cVarValue = STRING(ws_check-no,">>>>>>>") .
-                         WHEN "ord"   THEN cVarValue = STRING(ws_order-no,">>>>>>") .
+                         WHEN "ord"   THEN cVarValue = STRING(ws_order-no,">>>>>>>") .
                          WHEN "qty"  THEN cVarValue = IF ap-invl.qty <> 0 THEN STRING(ap-invl.qty,"->,>>>,>>9.99") ELSE "" .
 
                          WHEN "msf"  THEN cVarValue = IF ap-invl.amt-msf <> 0 THEN STRING(ap-invl.amt-msf,"->>,>>9.99") ELSE "" .

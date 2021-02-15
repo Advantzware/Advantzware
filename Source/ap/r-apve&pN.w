@@ -860,7 +860,8 @@ PROCEDURE check-date :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF VAR lv-period LIKE period.pnum NO-UNDO.
-
+  DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE lSuccess AS LOGICAL NO-UNDO.
 
   DO WITH FRAME {&FRAME-NAME}:
     RUN sys/inc/valtrndt.p (cocode,
@@ -869,6 +870,17 @@ PROCEDURE check-date :
     v-invalid = ERROR-STATUS:ERROR.
     IF v-invalid THEN APPLY "entry" TO tran-date.
     ELSE tran-period:SCREEN-VALUE = STRING(lv-period).
+    
+    IF NOT v-invalid THEN
+    DO:
+       RUN GL_CheckModClosePeriod(input cocode, input DATE(tran-date:SCREEN-VALUE), input "AP", output cMessage, output lSuccess ) .  
+        IF NOT lSuccess then 
+        do:
+          message cMessage view-as alert-box info.
+          v-invalid = yes.
+        end.           
+    END.
+    
   END.
 
 END PROCEDURE.
@@ -906,6 +918,8 @@ PROCEDURE check-inv-date :
 
          ELSE IF NOT period.pstat THEN
             lv-msg = "Period for " + TRIM(STRING(ip-date)) + " is already closed, enter security password or enter to return".
+         ELSE IF period.subLedgerAP EQ "C" THEN
+            lv-msg = "Payables sub ledger period for " + TRIM(STRING(ip-date)) + " is already closed, enter security password or enter to return".    
          ELSE
             lv-msg = "".
 

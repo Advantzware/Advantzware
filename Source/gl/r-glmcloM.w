@@ -4,7 +4,7 @@
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS C-Win 
 /*------------------------------------------------------------------------
 
-  File: ce-ctrl.w.w
+  File: gl/r-glmcloM.w
 
   Description: Cost Estimating Control File
 
@@ -14,9 +14,9 @@
   Output Parameters:
       <none>
 
-  Author: Ron Stark
+  Author: sewa singh
 
-  Created: 01/12/2000
+  Created: 01/18/2021
 
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
@@ -33,7 +33,7 @@ CREATE WIDGET-POOL.
 /* ***************************  Definitions  ************************** */
 
 /* Parameters Definitions ---                                           */
-
+DEFINE INPUT PARAMETER ipcModule AS CHARACTER NO-UNDO.
 /* Local Variable Definitions ---                                       */
 def var list-name as cha no-undo.
 DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
@@ -73,10 +73,30 @@ def buffer b-racct for account.
 def buffer b-cacct for account.
 DEF VAR uperiod AS INT NO-UNDO.
 DEF VAR choice AS LOG NO-UNDO.
+DEFINE VARIABLE lv-font-no AS CHARACTER FORMAT "X(256)":U INITIAL "11" NO-UNDO.
+DEFINE VARIABLE lv-ornt AS CHARACTER INITIAL "P" NO-UNDO.
+DEFINE VARIABLE cModuleTitle AS CHARACTER NO-UNDO.
 
 ASSIGN time_stamp = string(time,"hh:mmam")
        .
 DEF STREAM excel.
+IF ipcModule EQ "AP" THEN
+ASSIGN cModuleTitle = "Close A/P – Payables" .
+ELSE IF ipcModule EQ "PO" THEN
+ASSIGN cModuleTitle = "Close P/O – Purchasing" .
+ELSE IF ipcModule EQ "OP" THEN
+ASSIGN cModuleTitle = "Close O/P - Order Processing" .
+ELSE IF ipcModule EQ "WIP" THEN
+ASSIGN cModuleTitle = "Close WIP - Work In Process" .
+ELSE IF ipcModule EQ "RM" THEN
+ASSIGN cModuleTitle = "Close R/M - Inventory" .
+ELSE IF ipcModule EQ "FG" THEN
+ASSIGN cModuleTitle = "Close F/G –Inventory" .
+ELSE IF ipcModule EQ "BR" THEN
+ASSIGN cModuleTitle = "Close B/R - Bank Reconciliation" .
+ELSE IF ipcModule EQ "AR" THEN
+ASSIGN cModuleTitle = "Close A/R – Receivables" .  
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -93,13 +113,9 @@ DEF STREAM excel.
 &Scoped-define FRAME-NAME FRAME-A
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 tb_inact tb_prior-period-data ~
-tb_out-bal tb_invalid-period tb_post-out-period fi_file rd-dest ~
-lines-per-page lv-ornt lv-font-no td-show-parm btn-ok btn-cancel 
-&Scoped-Define DISPLAYED-OBJECTS fiText tran-year tran-period tb_inact ~
-tb_prior-period-data tb_out-bal tb_invalid-period tb_post-out-period ~
-fi_file rd-dest lines-per-page lv-ornt lv-font-no lv-font-name td-show-parm ~
-v-msg1 v-msg2 
+&Scoped-Define ENABLED-OBJECTS RECT-7 tb_sub-report tb_close-sub btn-ok btn-cancel 
+&Scoped-Define DISPLAYED-OBJECTS fiText tran-year tran-period tb_sub-report ~
+tb_close-sub 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -123,28 +139,9 @@ DEFINE BUTTON btn-ok
      LABEL "&OK" 
      SIZE 15 BY 1.14.
 
-DEFINE VARIABLE fiText AS CHARACTER FORMAT "X(256)":U INITIAL "This operation will perform a CLOSE on your first open period" 
+DEFINE VARIABLE fiText AS CHARACTER FORMAT "X(300)":U INITIAL "This operation will perform a CLOSE on your first open period for this sub ledger" 
      VIEW-AS FILL-IN 
-     SIZE 66 BY 1 NO-UNDO.
-
-DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(250)":U INITIAL "c:~\tmp~\r-glmclo.csv" 
-     LABEL "File Location" 
-     VIEW-AS FILL-IN 
-     SIZE 57.6 BY 1 NO-UNDO.
-
-DEFINE VARIABLE lines-per-page AS INTEGER FORMAT ">>":U INITIAL 99 
-     LABEL "Lines Per Page" 
-     VIEW-AS FILL-IN 
-     SIZE 4 BY 1 NO-UNDO.
-
-DEFINE VARIABLE lv-font-name AS CHARACTER FORMAT "X(256)":U INITIAL "Courier New Size=7 (17 cpi for 132 column Report)" 
-     VIEW-AS FILL-IN 
-     SIZE 62 BY 1 NO-UNDO.
-
-DEFINE VARIABLE lv-font-no AS CHARACTER FORMAT "X(256)":U INITIAL "11" 
-     LABEL "Font" 
-     VIEW-AS FILL-IN 
-     SIZE 7 BY 1 NO-UNDO.
+     SIZE 78 BY 1 NO-UNDO.
 
 DEFINE VARIABLE tran-period AS INTEGER FORMAT ">>":U INITIAL 0 
      LABEL "Period" 
@@ -156,68 +153,19 @@ DEFINE VARIABLE tran-year AS INTEGER FORMAT ">>>>":U INITIAL 0
      VIEW-AS FILL-IN 
      SIZE 8.6 BY 1 NO-UNDO.
 
-DEFINE VARIABLE v-msg1 AS CHARACTER FORMAT "X(256)":U 
-      VIEW-AS TEXT 
-     SIZE 90 BY 1.1
-     FONT 6 NO-UNDO.
-
-DEFINE VARIABLE v-msg2 AS CHARACTER FORMAT "X(256)":U 
-      VIEW-AS TEXT 
-     SIZE 88 BY 1.19
-     FONT 6 NO-UNDO.
-
-DEFINE VARIABLE lv-ornt AS CHARACTER INITIAL "P" 
-     VIEW-AS RADIO-SET HORIZONTAL
-     RADIO-BUTTONS 
-          "Portrait", "P",
-"Landscape", "L"
-     SIZE 30 BY .95 NO-UNDO.
-
-DEFINE VARIABLE rd-dest AS INTEGER INITIAL 2 
-     VIEW-AS RADIO-SET VERTICAL
-     RADIO-BUTTONS 
-          "To Printer", 1,
-"To Screen", 2,
-"To File", 3
-     SIZE 16 BY 5.24 NO-UNDO.
-
-DEFINE RECTANGLE RECT-6
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 94 BY 7.86.
-
 DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 94 BY 13.57.
+     SIZE 94 BY 8.81.
 
-DEFINE VARIABLE tb_inact AS LOGICAL INITIAL no 
-     LABEL "JE's with inactive account" 
+DEFINE VARIABLE tb_sub-report AS LOGICAL INITIAL no 
+     LABEL "Sub Ledger Report" 
      VIEW-AS TOGGLE-BOX
      SIZE 36 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_invalid-period AS LOGICAL INITIAL no 
-     LABEL "Invalid Period Entries" 
+DEFINE VARIABLE tb_close-sub AS LOGICAL INITIAL no 
+     LABEL "Close Sub Ledger" 
      VIEW-AS TOGGLE-BOX
      SIZE 36 BY 1 NO-UNDO.
-
-DEFINE VARIABLE tb_out-bal AS LOGICAL INITIAL no 
-     LABEL "Out of balance entries" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 36 BY 1 NO-UNDO.
-
-DEFINE VARIABLE tb_post-out-period AS LOGICAL INITIAL no 
-     LABEL "Posting Date Outside Period" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 36 BY 1 NO-UNDO.
-
-DEFINE VARIABLE tb_prior-period-data AS LOGICAL INITIAL no 
-     LABEL "Prior period data" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 36 BY 1 NO-UNDO.
-
-DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL no 
-     LABEL "Show Parameters?" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 24 BY .81 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -226,33 +174,17 @@ DEFINE FRAME FRAME-A
      fiText AT ROW 2.43 COL 9 COLON-ALIGNED NO-LABEL
      tran-year AT ROW 3.62 COL 20 COLON-ALIGNED WIDGET-ID 6
      tran-period AT ROW 3.62 COL 39 COLON-ALIGNED
-     tb_inact AT ROW 5.29 COL 21.8 WIDGET-ID 10
-     tb_prior-period-data AT ROW 5.29 COL 57 WIDGET-ID 40
-     tb_out-bal AT ROW 6.43 COL 21.8 WIDGET-ID 12
-     tb_invalid-period AT ROW 7.52 COL 21.8 WIDGET-ID 14
-     tb_post-out-period AT ROW 8.57 COL 21.8 WIDGET-ID 16
-     fi_file AT ROW 10.29 COL 19.4 COLON-ALIGNED HELP
-          "Enter Beginning Customer Number" WIDGET-ID 18
-     rd-dest AT ROW 16.1 COL 9 NO-LABEL
-     lines-per-page AT ROW 16.1 COL 83 COLON-ALIGNED
-     lv-ornt AT ROW 16.33 COL 31 NO-LABEL
-     lv-font-no AT ROW 18.48 COL 34 COLON-ALIGNED
-     lv-font-name AT ROW 19.67 COL 28 COLON-ALIGNED NO-LABEL
-     td-show-parm AT ROW 21.33 COL 10
-     btn-ok AT ROW 23.05 COL 18
-     btn-cancel AT ROW 23.05 COL 57
-     v-msg1 AT ROW 11.52 COL 3.2 NO-LABEL WIDGET-ID 2
-     v-msg2 AT ROW 13.05 COL 2 COLON-ALIGNED NO-LABEL WIDGET-ID 4
+     tb_sub-report AT ROW 5.50 COL 21.8 WIDGET-ID 10
+     tb_close-sub AT ROW 7.10 COL 21.8 WIDGET-ID 12
+     btn-ok AT ROW 10.29 COL 18
+     btn-cancel AT ROW 10.29 COL 57
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.24 COL 5
-     "Output Destination" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 15.14 COL 5
-     RECT-6 AT ROW 14.67 COL 1
      RECT-7 AT ROW 1 COL 1
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1.6 ROW 1.24
-         SIZE 95.2 BY 24.33.
+         SIZE 95.2 BY 11.33.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -271,8 +203,8 @@ DEFINE FRAME FRAME-A
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
-         TITLE              = "G/L Month-End Closing"
-         HEIGHT             = 24.76
+         TITLE              = cModuleTitle
+         HEIGHT             = 11.76
          WIDTH              = 95.8
          MAX-HEIGHT         = 33.29
          MAX-WIDTH          = 204.8
@@ -316,29 +248,11 @@ ASSIGN
        fiText:READ-ONLY IN FRAME FRAME-A        = TRUE.
 
 ASSIGN 
-       fi_file:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "parm".
-
-/* SETTINGS FOR FILL-IN lv-font-name IN FRAME FRAME-A
-   NO-ENABLE                                                            */
-ASSIGN 
-       tb_inact:PRIVATE-DATA IN FRAME FRAME-A     = 
+       tb_sub-report:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 ASSIGN 
-       tb_invalid-period:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "parm".
-
-ASSIGN 
-       tb_out-bal:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "parm".
-
-ASSIGN 
-       tb_post-out-period:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "parm".
-
-ASSIGN 
-       tb_prior-period-data:PRIVATE-DATA IN FRAME FRAME-A     = 
+       tb_close-sub:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 /* SETTINGS FOR FILL-IN tran-period IN FRAME FRAME-A
@@ -352,16 +266,6 @@ ASSIGN
 ASSIGN 
        tran-year:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
-
-/* SETTINGS FOR FILL-IN v-msg1 IN FRAME FRAME-A
-   NO-ENABLE ALIGN-L                                                    */
-ASSIGN 
-       v-msg1:HIDDEN IN FRAME FRAME-A           = TRUE.
-
-/* SETTINGS FOR FILL-IN v-msg2 IN FRAME FRAME-A
-   NO-ENABLE                                                            */
-ASSIGN 
-       v-msg2:HIDDEN IN FRAME FRAME-A           = TRUE.
 
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = no.
@@ -377,7 +281,7 @@ THEN C-Win:HIDDEN = no.
 
 &Scoped-define SELF-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON END-ERROR OF C-Win /* G/L Month-End Closing */
+ON END-ERROR OF C-Win /* Close A/P – Payables */
 OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
   /* This case occurs when the user presses the "Esc" key.
      In a persistently run window, just ignore this.  If we did not, the
@@ -390,7 +294,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON WINDOW-CLOSE OF C-Win /* G/L Month-End Closing */
+ON WINDOW-CLOSE OF C-Win /* Close A/P – Payables */
 DO:
   /* This event will close the window and terminate the procedure.  */
   APPLY "CLOSE":U TO THIS-PROCEDURE.
@@ -416,41 +320,32 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-ok C-Win
 ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 DO:
-  assign rd-dest
-           
-           tran-period
-           uperiod = tran-period
-           .
+  ASSIGN 
+       tran-period
+       uperiod = tran-period
+       .
 
   run check-date (YES).
   if v-invalid then return no-apply.       
 
-  assign rd-dest
+  assign /*rd-dest*/
          
          tran-period
          uperiod = tran-period
          .
-
+ /*IF tb_sub-report THEN
+ DO:
   run run-report. 
 
-  case rd-dest:
-       when 1 then run output-to-printer.
-       when 2 then run output-to-screen.
-       when 3 then run output-to-file.
-  end case. 
-  DO:
+  run output-to-screen.
+ END.*/     
+  IF tb_close-sub THEN DO:
      choice = NO.
-     MESSAGE " Close G/L Period" uperiod VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
+     MESSAGE " Close " ipcModule " Period" uperiod VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
            UPDATE choice.
      IF choice THEN do:
         RUN close-month.
-        MESSAGE "Closing G/L Period is completed. " VIEW-AS ALERT-BOX INFO.
-        ASSIGN v-msg1:HIDDEN = YES
-               v-msg2:HIDDEN = YES
-               v-msg1 = ""
-               v-msg2 = ""
-               v-msg1:BGCOLOR = ?
-               v-msg2:BGCOLOR = ?.
+        MESSAGE "Closing " ipcModule " Period is completed. " VIEW-AS ALERT-BOX INFO.       
 
      END.
   END.
@@ -462,24 +357,9 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME fi_file
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_file C-Win
-ON HELP OF fi_file IN FRAME FRAME-A /* File Location */
-DO:
-    DEF VAR char-val AS cha NO-UNDO.
-
-    RUN WINDOWS/l-cust.w (cocode,{&SELF-NAME}:SCREEN-VALUE, OUTPUT char-val).
-    IF char-val <> "" THEN ASSIGN {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val)
-                                  .
-
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_file C-Win
-ON LEAVE OF fi_file IN FRAME FRAME-A /* File Location */
+&Scoped-define SELF-NAME tb_sub-report
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_sub-report C-Win
+ON VALUE-CHANGED OF tb_sub-report IN FRAME FRAME-A /* JE's with inactive account */
 DO:
   assign {&self-name}.
 END.
@@ -488,135 +368,11 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME lines-per-page
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lines-per-page C-Win
-ON LEAVE OF lines-per-page IN FRAME FRAME-A /* Lines Per Page */
+&Scoped-define SELF-NAME tb_close-sub
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_close-sub C-Win
+ON VALUE-CHANGED OF tb_close-sub IN FRAME FRAME-A /* Out of balance entries */
 DO:
   assign {&self-name}.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME lv-font-no
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-font-no C-Win
-ON HELP OF lv-font-no IN FRAME FRAME-A /* Font */
-DO:
-    DEF VAR char-val AS cha NO-UNDO.
-
-    RUN WINDOWS/l-fonts.w (FOCUS:SCREEN-VALUE, OUTPUT char-val).
-    IF char-val <> "" THEN ASSIGN FOCUS:SCREEN-VALUE = ENTRY(1,char-val)
-                                  LV-FONT-NAME:SCREEN-VALUE = ENTRY(2,char-val).
-
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-font-no C-Win
-ON LEAVE OF lv-font-no IN FRAME FRAME-A /* Font */
-DO:
-   ASSIGN lv-font-no.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME lv-ornt
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-ornt C-Win
-ON LEAVE OF lv-ornt IN FRAME FRAME-A
-DO:
-  ASSIGN lv-ornt.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-ornt C-Win
-ON VALUE-CHANGED OF lv-ornt IN FRAME FRAME-A
-DO:
-  {custom/chgfont.i}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME rd-dest
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd-dest C-Win
-ON VALUE-CHANGED OF rd-dest IN FRAME FRAME-A
-DO:
-   assign {&self-name}.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME tb_inact
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_inact C-Win
-ON VALUE-CHANGED OF tb_inact IN FRAME FRAME-A /* JE's with inactive account */
-DO:
-  assign {&self-name}.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME tb_invalid-period
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_invalid-period C-Win
-ON VALUE-CHANGED OF tb_invalid-period IN FRAME FRAME-A /* Invalid Period Entries */
-DO:
-  assign {&self-name}.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME tb_out-bal
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_out-bal C-Win
-ON VALUE-CHANGED OF tb_out-bal IN FRAME FRAME-A /* Out of balance entries */
-DO:
-  assign {&self-name}.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME tb_post-out-period
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_post-out-period C-Win
-ON VALUE-CHANGED OF tb_post-out-period IN FRAME FRAME-A /* Posting Date Outside Period */
-DO:
-  assign {&self-name}.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME tb_prior-period-data
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_prior-period-data C-Win
-ON VALUE-CHANGED OF tb_prior-period-data IN FRAME FRAME-A /* Prior period data */
-DO:
-  assign {&self-name}.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME td-show-parm
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL td-show-parm C-Win
-ON VALUE-CHANGED OF td-show-parm IN FRAME FRAME-A /* Show Parameters? */
-DO:
-    assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -734,7 +490,6 @@ PROCEDURE check-date :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF INPUT PARAM ip-oktogo AS LOG NO-UNDO.
-  DEFINE VARIABLE lMessage AS LOGICAL NO-UNDO.
 
   def buffer alt-period for period.
 
@@ -745,27 +500,42 @@ PROCEDURE check-date :
     find first period                   
         where period.company eq cocode
           AND period.yr   EQ tran-year
-          AND period.pnum EQ tran-period
+          AND period.pnum EQ tran-period           
         no-lock no-error.
     if avail period THEN DO:
-       IF NOT period.pstat THEN DO:
-          MESSAGE "Already Closed. " VIEW-AS ALERT-BOX ERROR.
+       IF period.subLedgerAP EQ "C" AND ipcModule EQ "AP" THEN DO:
+          MESSAGE "Payables - Already Closed. " VIEW-AS ALERT-BOX ERROR.
           v-invalid = YES.
        END.
-       ELSE IF period.subLedgerAP NE "C" OR 
-               period.subLedgerPO NE "C" OR 
-               period.subLedgerOP NE "C" OR 
-               period.subLedgerWIP NE "C" OR 
-               period.subLedgerRM NE "C" OR 
-               period.subLedgerFG NE "C" OR 
-               period.subLedgerBR NE "C" OR 
-               period.subLedgerAR NE "C" THEN
-       DO:
-          RUN displayMessageQuestionLOG ("60", OUTPUT lMessage).
-          IF NOT lMessage THEN
+       ELSE IF period.subLedgerPO EQ "C" AND ipcModule EQ "PO" THEN DO:
+          MESSAGE "Purchasing - Already Closed. " VIEW-AS ALERT-BOX ERROR.
           v-invalid = YES.
-       END.       
-       else do:
+       END.
+       ELSE IF period.subLedgerOP EQ "C" AND ipcModule EQ "OP" THEN DO:
+          MESSAGE "Order Processing - Already Closed. " VIEW-AS ALERT-BOX ERROR.
+          v-invalid = YES.
+       END.
+       ELSE IF period.subLedgerWIP EQ "C" AND ipcModule EQ "WIP" THEN DO:
+          MESSAGE "Work In Process - Already Closed. " VIEW-AS ALERT-BOX ERROR.
+          v-invalid = YES.
+       END.
+       ELSE IF period.subLedgerRM EQ "C" AND ipcModule EQ "RM" THEN DO:
+          MESSAGE "R/M Inventory - Already Closed. " VIEW-AS ALERT-BOX ERROR.
+          v-invalid = YES.
+       END.
+       ELSE IF period.subLedgerFG EQ "C" AND ipcModule EQ "FG" THEN DO:
+          MESSAGE "F/G Inventory - Already Closed. " VIEW-AS ALERT-BOX ERROR.
+          v-invalid = YES.
+       END.
+       ELSE IF period.subLedgerBR EQ "C" AND ipcModule EQ "BR" THEN DO:
+          MESSAGE "Bank Reconciliation - Already Closed. " VIEW-AS ALERT-BOX ERROR.
+          v-invalid = YES.
+       END.
+       ELSE IF period.subLedgerAR EQ "C" AND ipcModule EQ "AR" THEN DO:
+          MESSAGE "A/R Receivables - Already Closed. " VIEW-AS ALERT-BOX ERROR.
+          v-invalid = YES.
+       END.
+       /*else do:
          find first alt-period
              where alt-period.company             eq cocode
                and alt-period.pst - period.pend   eq 1
@@ -808,7 +578,7 @@ PROCEDURE check-date :
                      update choice .
            end.
          end.
-       END.
+       END.   */
        /*tran-period:SCREEN-VALUE = string(period.pnum).*/
     END.
 
@@ -833,7 +603,7 @@ PROCEDURE close-month :
    DEF VAR li AS INT NO-UNDO.
    DEF VAR lv-rowid AS ROWID NO-UNDO.
 
-   DEF BUFFER b-period FOR period.   
+   DEF BUFFER b-period FOR period.
 
    SESSION:SET-WAIT-STATE ("general").
 
@@ -857,285 +627,13 @@ PROCEDURE close-month :
       message "Unable to Find Profit Contra Account from G/L Control File." VIEW-AS ALERT-BOX ERROR.
       return.
    end.
-
-   ASSIGN v-msg1:HIDDEN IN FRAME {&FRAME-NAME} = NO
-          v-msg2:HIDDEN = NO
-          v-msg1:BGCOLOR = 4
-          v-msg2:BGCOLOR = 4
-          v-msg1 = "PROCESSING... PLEASE WAIT and DO NOT CANCEL OUT OF SCREEN!". 
-   DISPLAY v-msg1 WITH FRAME {&FRAME-NAME}.
-
-   for each glhist
-       where glhist.company eq cocode
-         and glhist.tr-date ge period.pst
-         and glhist.tr-date le period.pend
-         and glhist.period  eq uperiod
-         AND glhist.posted  EQ NO
-       transaction:
-       v-msg2 = "Account: " + glhist.actnum + "   " + glhist.jrnl.
-       DISP v-msg2 WITH FRAME {&FRAME-NAME}.
-
-      find first account
-          where account.company eq cocode
-            and account.actnum  eq glhist.actnum
-          no-error.
-      if avail account then do:
-         account.cyr[uperiod] = account.cyr[uperiod] + glhist.tr-amt.
-
-         if index("RE",account.type) gt 0 then do:
-            find first b-racct
-                where b-racct.company eq cocode
-                  and b-racct.actnum  eq gl-ctrl.ret.
-
-            b-racct.cyr[uperiod] = b-racct.cyr[uperiod] + glhist.tr-amt.
-
-            find first b-cacct
-                where b-cacct.company eq cocode
-                  and b-cacct.actnum  eq gl-ctrl.contra.
-
-            b-cacct.cyr[uperiod] = b-cacct.cyr[uperiod] - glhist.tr-amt.
-         end.
-      end.
-
-      assign
-       glhist.posted   = YES
-       glhist.postedBy = USERID(LDBNAME(1)).           
-   end.
-   RELEASE glhist.
-   for each cust where cust.company eq cocode transaction:
-      assign
-       cust.cost[1] = 0
-       cust.comm[1] = 0.
-
-      for each ar-ledger
-          where ar-ledger.company eq cocode
-            and ar-ledger.cust-no eq cust.cust-no
-            and ar-ledger.tr-date gt period.pend
-            and ar-ledger.ref-num begins "INV#"
-          no-lock,
-
-          first ar-inv
-          where ar-inv.company eq cocode
-            and ar-inv.posted  eq yes
-            and ar-inv.cust-no eq cust.cust-no
-            and ar-inv.inv-no  eq int(substr(ar-ledger.ref-num,6,
-                                                length(ar-ledger.ref-num)))
-          use-index posted no-lock:
-
-         assign
-          cust.cost[1] = cust.cost[1] +
-                         if ar-inv.t-cost eq ? then 0 else ar-inv.t-cost
-          cust.comm[1] = cust.comm[1] +
-                         if ar-inv.t-comm eq ? then 0 else ar-inv.t-comm.
-      end.                
-   end.
-
-   IF period.pnum EQ company.num-per THEN DO:
-     lv-rowid = ROWID(period).
-
-     FIND NEXT period
-         WHERE period.company EQ cocode
-           AND period.pstat   EQ YES
-         NO-LOCK NO-ERROR.
-
-     IF AVAIL period THEN DO:
-       /* Cust Processing  */
-       FOR EACH cust WHERE cust.company eq cocode:
-         STATUS DEFAULT "Please Wait...Updating Customer: " + TRIM(cust.cust-no).
-
-         {util/reopeny1.i 1 lyytd lyr 6}
-
-         {util/reopeny1.i 0 ytd ytd 5}
-       END.
-
-       /* Vend Processing  */
-       FOR EACH vend WHERE vend.company eq cocode:
-         STATUS DEFAULT "Please Wait...Updating Vendor: " + TRIM(vend.vend-no).
-
-         {util/reopeny2.i 1 lyytd last-year}
-
-         {util/reopeny2.i 0 ytd-msf purch[13]}
-       END. /* for each vend */
-     END.
-
-     FIND period WHERE ROWID(period) EQ lv-rowid NO-LOCK NO-ERROR.
-
-     /*FIND FIRST b-period
-         WHERE b-period.company EQ cocode
-           AND b-period.yr      EQ period.yr
-         NO-LOCK NO-ERROR.
-     start-date = IF AVAIL b-period THEN b-period.pst ELSE ?.
-
-     FIND LAST b-period
-         WHERE b-period.company EQ cocode
-           AND b-period.yr      EQ period.yr
-         NO-LOCK NO-ERROR.
-     end-date = IF AVAIL b-period THEN b-period.pend ELSE ?.
-
-     /* Cust Processing  */
-     IF start-date NE ? AND end-date NE ? THEN
-     for each cust where cust.company eq cocode transaction:
-
-       status default "Please Wait...Updating Customer: " + trim(cust.cust-no).
-
-       cust.lyr-sales = 0.
-
-       for each ar-ledger
-           where ar-ledger.company eq cocode
-             and ar-ledger.tr-date ge start-date
-             and ar-ledger.tr-date le end-date
-             and ar-ledger.cust-no eq cust.cust-no
-             and ar-ledger.ref-num begins "INV#"
-           no-lock:
-
-         find first ar-inv
-             where ar-inv.company eq cocode
-               and ar-inv.cust-no eq cust.cust-no
-               and ar-inv.posted  eq yes
-               and ar-inv.inv-no eq int(substr(ar-ledger.ref-num,6,LENGTH(ar-ledger.ref-num)))
-             USE-INDEX posted no-lock no-error.
-
-         if avail ar-inv THEN do:
-           for each ar-invl where ar-invl.company eq cocode and
-                                  ar-invl.cust-no eq ar-inv.cust-no and
-                                  ar-invl.inv-no eq ar-inv.inv-no
-                            use-index inv-no no-lock:
-             if ar-invl.amt-msf ne 0 then
-               assign cust.lyytd-msf = cust.lyytd-msf + ar-invl.amt-msf
-                      cust.ytd-msf = cust.ytd-msf - ar-invl.amt-msf.
-             ELSE do:
-               find first itemfg where itemfg.company eq cocode and
-                                       itemfg.i-no eq ar-invl.i-no
-                                 use-index i-no no-lock no-error.
-               if avail itemfg then
-                 assign cust.lyytd-msf = cust.lyytd-msf +
-                                         ((ar-invl.inv-qty / 1000) * itemfg.t-sqft)
-                        cust.ytd-msf   = cust.ytd-msf -
-                                         ((ar-invl.inv-qty / 1000) * itemfg.t-sqft).
-             end.
-           end.
-
-/*         assign cust.sales[6] = cust.sales[6] + (ar-inv.net - ar-inv.tax-amt)
-                  cust.sales[13] = cust.sales[13] - (ar-inv.net - ar-inv.tax-amt)
-*/
-           assign cust.lyr-sales = cust.lyr-sales + (ar-inv.net - ar-inv.tax-amt)
-                  cust.ytd-sales = cust.ytd-sales - (ar-inv.net - ar-inv.tax-amt)
-                  cust.cost[6]  = cust.cost[6] + ar-inv.t-cost
-                  cust.cost[5] = cust.cost[5] - ar-inv.t-cost
-                  cust.comm[6]  = cust.comm[6] + ar-inv.t-comm
-                  cust.comm[5] = cust.comm[5] - ar-inv.t-comm.
-         end. /* if avail ar-inv */
-       end. /* for each ar-ledger INV */
-
-       for each ar-ledger where ar-ledger.company eq cocode and
-                                ar-ledger.tr-date ge start-date and
-                                ar-ledger.tr-date le end-date and
-                                ar-ledger.cust-no eq cust.cust-no and
-                                ar-ledger.ref-num begins "Memo#" no-lock:
-
-         find first ar-cash where ar-cash.company eq cocode and
-                                  ar-cash.cust-no eq cust.cust-no and
-                                  ar-cash.posted and
-                                  ar-cash.check-no eq int(substr(ar-ledger.ref-num,6,8))
-                            USE-INDEX posted no-lock no-error.
-
-         for each ar-cashl where ar-cashl.company eq cocode and
-                                 ar-cashl.c-no eq ar-cash.c-no
-                           use-index c-no no-lock:
-/*         assign cust.sales[6] = cust.sales[6] +
-                                  (ar-cashl.amt-paid - ar-cashl.amt-disc)
-                  cust.sales[5] = cust.sales[5] -
-                                  (ar-cashl.amt-paid - ar-cashl.amt-disc).
-*/
-           assign cust.lyr-sales = cust.lyr-sales +
-                                   (ar-cashl.amt-paid - ar-cashl.amt-disc)
-                  cust.ytd-sales = cust.ytd-sales -
-                                   (ar-cashl.amt-paid - ar-cashl.amt-disc).
-         end.
-       end. /* for each ar-ledger MEMO */
-     end. /* for each cust */
-
-     /* Vend Processing  */
-     IF start-date NE ? AND end-date NE ? THEN
-     for each vend where vend.company eq cocode transaction:
-
-       status default "Please Wait...Updating Vendor: " + trim(vend.vend-no).
-
-       vend.last-year = 0.
-
-       for each ap-ledger where ap-ledger.company eq cocode and
-                                ap-ledger.tr-date ge start-date and
-                                ap-ledger.tr-date le end-date and
-                                ap-ledger.vend-no eq vend.vend-no and
-                                ap-ledger.refnum begins "INV#" no-lock:
-
-         find first ap-inv where ap-inv.company eq cocode and
-                                 ap-inv.vend-no eq vend.vend-no and
-                                 ap-inv.posted  eq yes and
-                                 ap-inv.inv-no eq substr(ap-ledger.refnum,6,length(ap-ledger.refnum))
-                           USE-INDEX ap-inv no-lock no-error.
-
-         if avail ap-inv THEN do:
-           FOR each ap-invl where ap-invl.company eq cocode and
-                                  ap-invl.inv-no eq ap-inv.inv-no and
-                                  ap-invl.i-no eq ap-inv.i-no
-                            use-index i-no no-lock:
-             if ap-invl.amt-msf ne 0 then
-               assign vend.lyytd = vend.lyytd + ap-invl.amt-msf
-                      vend.ytd-msf = vend.ytd-msf - ap-invl.amt-msf.
-             else do:
-               find first itemfg where itemfg.company eq cocode and
-                                       itemfg.i-no eq string(ap-invl.i-no)
-                                 use-index i-no no-lock no-error.
-               if avail itemfg then
-                 assign vend.lyytd   = vend.lyytd +
-                                       ((ap-invl.qty / 1000) * itemfg.t-sqft)
-                        vend.ytd-msf = vend.ytd-msf -
-                                       ((ap-invl.qty / 1000) * itemfg.t-sqft).
-             end.
-           end.
-         end. /* if avail ap-inv */
-
-         assign vend.purch[13] = vend.purch[13] - ap-ledger.amt
-                vend.last-year = vend.last-year + ap-ledger.amt.
-       end. /* for each ap-ledger INV */
-
-       for each ap-ledger where ap-ledger.company eq cocode and
-                                ap-ledger.tr-date ge start-date and
-                                ap-ledger.tr-date le end-date and
-                                ap-ledger.vend-no eq vend.vend-no and
-                                (ap-ledger.refnum begins "Memo#" or
-                                 ap-ledger.refnum begins "Chk#") no-lock:
-
-         assign vend.purch[13] = vend.purch[13] - ap-ledger.amt
-                vend.last-year = vend.last-year + ap-ledger.amt.
-       end. /* for each ap-ledger MEMO */
-     end. /* for each vend */
-
-     status default "".*/
-   end.
-
-   do transaction:
-      find first period
-          where period.company eq cocode
-            AND period.yr      EQ tran-year
-            and period.pnum    eq uperiod
-            and period.pstat   eq yes
-          exclusive-lock.
-      period.pstat = false.
-      if period.pnum eq company.num-per then company.yend-per = no.
-   end.
-
-   find next period
-       where period.company eq cocode
-         and period.pstat   eq yes
-       no-lock.
-   if avail period then ASSIGN tran-period = period.pnum
-                               uperiod = period.pnum.
-
+           
+   RUN GL_pCloseMonthModule(cocode, tran-year, uperiod, ipcModule). /* Company,Year,Period,Module*/ 
+      
+  
    SESSION:SET-WAIT-STATE ("").
 
-   message "Current accounting period changed to " uperiod VIEW-AS ALERT-BOX.
+  /* message "Current accounting period changed to " uperiod VIEW-AS ALERT-BOX.*/
 
 END PROCEDURE.
 
@@ -1149,23 +647,23 @@ PROCEDURE close-test :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-ASSIGN v-msg1:HIDDEN IN FRAME {&FRAME-NAME} = NO
+/*ASSIGN v-msg1:HIDDEN IN FRAME {&FRAME-NAME} = NO
           v-msg2:HIDDEN = NO
        v-msg1:BGCOLOR = 4
           v-msg1 = "PROCESSING... PLEASE WAIT and DO NOT CANCEL OUT OF SCREEN!". 
-   DISPLAY v-msg1 WITH FRAME {&FRAME-NAME}.
+   DISPLAY v-msg1 WITH FRAME {&FRAME-NAME}.  */
 
  for each glhist
        where glhist.company eq cocode
          and glhist.tr-date ge period.pst
          and glhist.tr-date le period.pend
          and glhist.period  eq uperiod
-         AND glhist.posted  EQ NO 
+         AND glhist.posted  EQ NO
     :
 
-    ASSIGN v-msg2 = jrnl + "Period: "  + 
-           string(glhist.period) + "Act: " + glhist.actnum.
-    DISP v-msg2 WITH FRAME {&FRAME-NAME}.
+    /*ASSIGN v-msg2 = jrnl + "Period: "  + 
+           string(gltrans.period) + "Act: " + gltrans.actnum.
+    DISP v-msg2 WITH FRAME {&FRAME-NAME}.*/
     .
 
 END.
@@ -1205,13 +703,9 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY fiText tran-year tran-period tb_inact tb_prior-period-data tb_out-bal 
-          tb_invalid-period tb_post-out-period fi_file rd-dest lines-per-page 
-          lv-ornt lv-font-no lv-font-name td-show-parm v-msg1 v-msg2 
+  DISPLAY fiText tran-year tran-period tb_sub-report tb_close-sub 
       WITH FRAME FRAME-A IN WINDOW C-Win.
-  ENABLE RECT-6 RECT-7 tb_inact tb_prior-period-data tb_out-bal 
-         tb_invalid-period tb_post-out-period fi_file rd-dest lines-per-page 
-         lv-ornt lv-font-no td-show-parm btn-ok btn-cancel 
+  ENABLE RECT-7 tb_sub-report tb_close-sub btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -1293,14 +787,14 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE run-report C-Win 
 PROCEDURE run-report :
-DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+/*DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
  DEFINE VARIABLE excelheader AS CHARACTER NO-UNDO.
 
  RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
  OUTPUT STREAM excel TO VALUE(cFileName).
  excelheader = "Account,Description,Reason" .
- PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' skip.
+ PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' skip. */
 
  
 form account.actnum label "Account Number"
@@ -1313,9 +807,9 @@ form account.actnum label "Account Number"
  {sys/form/r-topw.f}
 
  {sys/inc/print1.i}
- {sys/inc/outprint.i VALUE(lines-per-page)}
+ {sys/inc/outprint.i VALUE(99)}
 
- IF td-show-parm THEN RUN show-param.
+/* IF td-show-parm THEN RUN show-param.*/
  SESSION:SET-WAIT-STATE("general").
  ASSIGN uperiod = tran-period .
         
@@ -1327,7 +821,7 @@ form account.actnum label "Account Number"
 
 
  str-tit  = coname + " - " + loname.
- str-tit2 = "MONTHLY SUMMARY & G/L CLOSING" .
+ str-tit2 = "Monthly Summary & Close A/P – Payables" .
  str-tit3 = "Period " + string(uperiod,"99") + " - " +
                string(period.pst) + " to " + string(period.pend).
  x = (112 - length(str-tit)) / 2.
@@ -1341,17 +835,17 @@ form account.actnum label "Account Number"
 
    SESSION:SET-WAIT-STATE ("general").
 
-   for each account where account.company eq cocode NO-LOCK :
-       IF tb_inact AND account.inactive THEN do:
+   /*for each account where account.company eq cocode NO-LOCK :
+       IF tb_sub-report AND account.inactive THEN do:
            PUT STREAM excel UNFORMATTED
                '"' account.actnum                   '",'
                '"' account.dscr                     '",'
                '"' "Inactive Account"               '",'
                        SKIP.
        END.
-   END.
+   END.  */
 
-   PUT STREAM excel UNFORMATTED SKIP(1) .
+   /*PUT STREAM excel UNFORMATTED SKIP(1) .
 
    PUT STREAM excel UNFORMATTED
        '"' "Account "                 '",'
@@ -1362,77 +856,74 @@ form account.actnum label "Account Number"
        '"' "Period"                   '",'
        '"' "Amount"                   '",'
        '"' "Reason  "                 '",'
-       SKIP.
+       SKIP. */
 
    for each account where account.company eq cocode no-lock with frame r-mclo:
        
-       IF tb_out-bal THEN DO:
+      /* IF tb_close-sub THEN DO:
 
        END.
 
        IF tb_invalid-period THEN DO:
-          FOR EACH glhist no-lock 
-              where glhist.company eq cocode
-              and glhist.actnum  eq account.actnum
-              and glhist.tr-date ge period.pst
-              and glhist.tr-date le period.pend
-              and glhist.period EQ 0
-              AND glhist.posted EQ NO BREAK BY glhist.actnum:
+          FOR EACH gltrans no-lock 
+              where gltrans.company eq cocode
+              and gltrans.actnum  eq account.actnum
+              and gltrans.tr-date ge period.pst
+              and gltrans.tr-date le period.pend
+              and gltrans.period EQ 0 BREAK BY gltrans.actnum:
               
               PUT STREAM excel UNFORMATTED
                   '"' account.actnum                  '",'
-                  '"' glhist.tr-num                   '",'
+                  '"' gltrans.trnum                   '",'
                   '"' account.dscr                    '",'
-                  '"' glhist.jrnl                    '",'
-                  '"' glhist.tr-date                 '",'
-                  '"' glhist.period                 '",'
-                  '"' glhist.tr-amt                  '",'
+                  '"' gltrans.jrnl                    '",'
+                  '"' gltrans.tr-date                 '",'
+                  '"' gltrans.period                 '",'
+                  '"' gltrans.tr-amt                  '",'
                   '"' "Invalid Period  "               '",'
                   SKIP.
           END.
-       END.
+       END. */
       
-       IF tb_post-out-period THEN DO:
-           FOR EACH glhist no-lock 
-              where glhist.company eq cocode
-              and glhist.actnum  eq account.actnum
-              and glhist.tr-date LT period.pst
-              and glhist.tr-date GT period.pend
-              and glhist.period EQ uperiod
-              AND glhist.posted EQ NO BREAK BY glhist.actnum:
+       /*IF tb_post-out-period THEN DO:
+           FOR EACH gltrans no-lock 
+              where gltrans.company eq cocode
+              and gltrans.actnum  eq account.actnum
+              and gltrans.tr-date LT period.pst
+              and gltrans.tr-date GT period.pend
+              and gltrans.period EQ uperiod BREAK BY gltrans.actnum:
               
               PUT STREAM excel UNFORMATTED
                   '"' account.actnum                  '",'
-                  '"' glhist.tr-num                   '",'
+                  '"' gltrans.trnum                   '",'
                   '"' account.dscr                    '",'
-                  '"' glhist.jrnl                    '",'
-                  '"' glhist.tr-date                 '",'
-                  '"' glhist.period                 '",'
-                  '"' glhist.tr-amt                  '",'
+                  '"' gltrans.jrnl                    '",'
+                  '"' gltrans.tr-date                 '",'
+                  '"' gltrans.period                 '",'
+                  '"' gltrans.tr-amt                  '",'
                   '"' "Data outside period  "         '",'
                   SKIP.
           END.
-       END.
+       END.*/
 
-       IF tb_prior-period-data THEN DO:
-           FOR EACH glhist no-lock 
-              where glhist.company eq cocode
-              and glhist.actnum  eq account.actnum
-              and glhist.tr-date LT period.pst
-              AND glhist.posted EQ NO:
+       /*IF tb_prior-period-data THEN DO:
+           FOR EACH gltrans no-lock 
+              where gltrans.company eq cocode
+              and gltrans.actnum  eq account.actnum
+              and gltrans.tr-date LT period.pst :
               
               PUT STREAM excel UNFORMATTED
                   '"' account.actnum                  '",'
-                  '"' glhist.tr-num                   '",'
+                  '"' gltrans.trnum                   '",'
                   '"' account.dscr                    '",'
-                  '"' glhist.jrnl                    '",'
-                  '"' glhist.tr-date                 '",'
-                  '"' glhist.period                 '",'
-                  '"' glhist.tr-amt                  '",'
+                  '"' gltrans.jrnl                    '",'
+                  '"' gltrans.tr-date                 '",'
+                  '"' gltrans.period                 '",'
+                  '"' gltrans.tr-amt                  '",'
                   '"' "Invalid Data  "  '",'
                   SKIP.
           END.
-       END.
+       END. */
 
 
       if line-counter gt page-size - 3 then page.
@@ -1500,12 +991,7 @@ form account.actnum label "Account Number"
            "TOTAL" @ glhist.jrnl
            tot-tx  @ glhist.tr-amt
            tot-all @ open-amt
-           with frame r-mclo.
-
-
-   OUTPUT STREAM excel CLOSE.
-   OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
-
+           with frame r-mclo.    
 
  SESSION:SET-WAIT-STATE("").
 

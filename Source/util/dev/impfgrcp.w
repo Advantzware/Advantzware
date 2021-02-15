@@ -67,6 +67,7 @@ DEF TEMP-TABLE tt-email NO-UNDO FIELD tt-recid AS RECID
 
 DEF VAR v-fgpostgl AS CHAR NO-UNDO.                        
 def var v-post-date as date init today no-undo.
+DEFINE VARIABLE lInvalid AS LOGICAL NO-UNDO.
 
 {custom/globdefs.i}
 {methods/defines/hndldefs.i}
@@ -294,6 +295,9 @@ DO:
   MESSAGE "FG Receipts import is completed!  Posting now......"
       VIEW-AS ALERT-BOX INFO BUTTONS OK.
       
+      
+   RUN pCheckDate(INPUT DATE(TODAY)).
+   IF lInvalid then RETURN NO-APPLY .   
   /*run PostFGImport.*/   
   run fg/fgpost.p (input table FGReceiptRow). 
   
@@ -1021,3 +1025,28 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckDate wWin 
+PROCEDURE pCheckDate :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE INPUT PARAMETER ipdtDate AS DATE NO-UNDO.
+  DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE lSuccess AS LOGICAL NO-UNDO.
+  
+    lInvalid = no.
+    
+    RUN GL_CheckModClosePeriod(input cocode, input DATE(ipdtDate), input "FG", output cMessage, output lSuccess ) .  
+    IF NOT lSuccess THEN 
+    DO:
+      MESSAGE cMessage VIEW-AS ALERT-BOX INFO.
+      lInvalid = YES.
+    END.      
+    
+  
+END PROCEDURE.
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
