@@ -5,7 +5,7 @@
 
     Syntax      :
 
-    Description : Caller Program for w-order.w
+    Description : Caller Program for OU1 Screen
 
     Author(s)   : Rahul Rawat
     Created     : Thu Jan 21 09:26:19 EST 2021
@@ -21,6 +21,9 @@
 /* ***************************  Main Block  *************************** */
 
     {methods/prgsecur.i}
+    
+    IF access-close THEN 
+        RETURN.
     
     RUN oe/w-order.w(
         INPUT "OU1"
