@@ -799,8 +799,8 @@ PROCEDURE ipCheck3dPartyVersions:
     IF cXprintActVer EQ "" THEN DO: 
         MESSAGE 
             "YOU DO NOT HAVE XPRINT SOFTWARE INSTALLED!" SKIP(1)
-            "You will not be able to run this function" SKIP 
-            "or many Advantzware reports."
+            "Advantzware will never send an email that asks you to provide, confirm or verify personal, login or account" SKIP 
+            "information."
             VIEW-AS ALERT-BOX ERROR.
         ASSIGN 
             oplError = TRUE.
