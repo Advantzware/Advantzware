@@ -226,14 +226,6 @@ DEFINE VARIABLE cFieldBuffer       AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFieldName         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lIsBreakByUsed     AS LOGICAL   NO-UNDO.
 
-RUN Browser_GetRecordAndTimeLimit(
-    INPUT  cocode,
-    INPUT  "OU1",
-    OUTPUT iRecordLimit,
-    OUTPUT dQueryTimeLimit,
-    OUTPUT lEnableShowAll
-    ).
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -257,7 +249,7 @@ RUN Browser_GetRecordAndTimeLimit(
 /* Definitions for BROWSE Browser-Table                                 */
 &Scoped-define FIELDS-IN-QUERY-Browser-Table oe-ordl.ord-no oe-ordl.cust-no ~
 getRS() @ lc-rs getMI() @ lc-mi getstat() @ cstatus oe-ord.ord-date oe-ordl.req-date ~
-oe-ord.cust-name oe-ordl.i-no oe-ordl.part-no oe-ordl.po-no ~
+oe-ord.cust-name oe-ordl.i-no oe-ordl.part-no oe-ord.po-no oe-ordl.po-no ~
 oe-ordl.est-no oe-ordl.job-no oe-ordl.job-no2 itemfg.cad-no oe-ordl.qty ~
 get-prod(li-bal) @ li-prod oe-ordl.ship-qty get-xfer-qty () @ ld-xfer-qty ~
 get-inv-qty() @ iInvQty get-bal(li-qoh) @ li-bal get-act-rel-qty() @ li-act-rel-qty ~
@@ -299,11 +291,11 @@ AND itemfg.i-no EQ oe-ordl.i-no OUTER-JOIN NO-LOCK ~
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS tbApproved tbClosed tbHold Browser-Table ~
-tbOpened tbWeb fiOrderDate btSHowAll fi_ord-no fi_cust-no fi_i-no ~
-fi_part-no fi_po-no1 fi_est-no fi_job-no fi_job-no2 fi_cad-no fi_sman ~
-btn_go btn_prev fi_i-name RECT-1 
-&Scoped-Define DISPLAYED-OBJECTS tbApproved tbClosed tbHold tbOpened tbWeb ~
+&Scoped-Define ENABLED-OBJECTS cbType fiItemPo Browser-Table tbApproved ~
+tbHold tbWeb fiOrderDate btSHowAll fi_ord-no fi_cust-no fi_i-no fi_part-no ~
+fi_po-no1 fi_est-no fi_job-no fi_job-no2 fi_cad-no fi_sman btn_go btn_prev ~
+fi_i-name RECT-1 
+&Scoped-Define DISPLAYED-OBJECTS cbType fiItemPo tbApproved tbHold tbWeb ~
 fiOrderDate fi_ord-no fi_cust-no fi_i-no fi_part-no fi_po-no1 fi_est-no ~
 fi_job-no fi_job-no2 fi_cad-no fi_sman fi_sort-by fi_i-name 
 
@@ -446,7 +438,7 @@ FUNCTION get-inv-qty RETURNS INT
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD pGetSortCondition B-table-Win
 FUNCTION pGetSortCondition RETURNS CHARACTER 
-  (ipcSortBy AS CHARACTER) FORWARD.
+  (ipcSortBy AS CHARACTER,ipcSortLabel AS CHARACTER) FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -461,14 +453,6 @@ FUNCTION pGetWhereCriteria RETURNS CHARACTER
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD pIsValidSearch B-table-Win
-FUNCTION pIsValidSearch RETURNS LOGICAL PRIVATE
-  (  ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 
 
@@ -495,6 +479,16 @@ DEFINE BUTTON btSHowAll
      LABEL "Show All" 
      SIZE 9.6 BY 1.
 
+DEFINE VARIABLE cbType AS CHARACTER FORMAT "X(256)":U INITIAL "Opened" 
+     VIEW-AS COMBO-BOX INNER-LINES 5
+     LIST-ITEMS "All","Opened","Closed" 
+     DROP-DOWN-LIST
+     SIZE 13 BY 1 NO-UNDO.
+
+DEFINE VARIABLE fiItemPo AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS FILL-IN 
+     SIZE 20 BY 1 NO-UNDO.
+
 DEFINE VARIABLE fiOrderDate AS DATE FORMAT "99/99/9999":U 
      LABEL "From Date" 
      VIEW-AS FILL-IN 
@@ -518,7 +512,7 @@ DEFINE VARIABLE fi_est-no AS CHARACTER FORMAT "X(8)":U
 
 DEFINE VARIABLE fi_i-name AS CHARACTER FORMAT "X(30)":U 
      VIEW-AS FILL-IN 
-     SIZE 41 BY 1
+     SIZE 34.5 BY 1
      BGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE fi_i-no AS CHARACTER FORMAT "X(15)":U 
@@ -568,36 +562,24 @@ DEFINE VARIABLE fi_sort-by AS CHARACTER FORMAT "X(256)":U
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 159 BY 3.33.
+     SIZE 168 BY 3.33.
 
-DEFINE VARIABLE tbApproved AS LOGICAL INITIAL no 
+DEFINE VARIABLE tbApproved AS LOGICAL INITIAL yes 
      LABEL "Approved" 
      VIEW-AS TOGGLE-BOX
      SIZE 13.2 BY .81
      BGCOLOR 15 FGCOLOR 9  NO-UNDO.
 
-DEFINE VARIABLE tbClosed AS LOGICAL INITIAL no 
-     LABEL "Closed" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 10.2 BY .81
-     BGCOLOR 15 FGCOLOR 9  NO-UNDO.
-
-DEFINE VARIABLE tbHold AS LOGICAL INITIAL no 
+DEFINE VARIABLE tbHold AS LOGICAL INITIAL yes 
      LABEL "Hold" 
      VIEW-AS TOGGLE-BOX
      SIZE 8 BY .81
      BGCOLOR 15 FGCOLOR 9  NO-UNDO.
 
-DEFINE VARIABLE tbOpened AS LOGICAL INITIAL yes 
-     LABEL "Opened" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 12 BY .81
-     BGCOLOR 15 FGCOLOR 9  NO-UNDO.
-
-DEFINE VARIABLE tbWeb AS LOGICAL INITIAL no 
+DEFINE VARIABLE tbWeb AS LOGICAL INITIAL yes 
      LABEL "Web" 
      VIEW-AS TOGGLE-BOX
-     SIZE 8.8 BY .81
+     SIZE 7.6 BY .81
      BGCOLOR 15 FGCOLOR 9  NO-UNDO.
 
 /* Query definitions                                                    */
@@ -624,7 +606,9 @@ DEFINE QUERY Browser-Table FOR
       oe-ordl.e-num
       oe-ordl.whsed
       oe-ordl.s-man[1]
-      oe-ordl.managed), 
+      oe-ordl.managed
+      oe-ordl.est-no
+      oe-ordl.ord-no), 
       oe-ord, 
       itemfg SCROLLING.
 &ANALYZE-RESUME
@@ -647,7 +631,8 @@ DEFINE BROWSE Browser-Table
       oe-ordl.i-no COLUMN-LABEL "FG Item#" FORMAT "x(15)":U LABEL-BGCOLOR 14
       oe-ordl.part-no COLUMN-LABEL "Cust Part#" FORMAT "x(15)":U
             LABEL-BGCOLOR 14
-      oe-ordl.po-no FORMAT "x(15)":U LABEL-BGCOLOR 14
+      oe-ord.po-no COLUMN-LABEL "Order PO#" FORMAT "x(15)":U LABEL-BGCOLOR 14
+      oe-ordl.po-no COLUMN-LABEL "Item PO#" FORMAT "x(15)":U LABEL-BGCOLOR 14
       oe-ordl.est-no COLUMN-LABEL "Est#" FORMAT "x(8)":U WIDTH 12
             LABEL-BGCOLOR 14
       oe-ordl.job-no COLUMN-LABEL "Job#" FORMAT "x(6)":U WIDTH 12
@@ -692,21 +677,21 @@ DEFINE BROWSE Browser-Table
       oe-ordl.job-no2
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 155 BY 16.5
+    WITH NO-ASSIGN SEPARATORS SIZE 181 BY 16.52
          FONT 2.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     tbApproved AT ROW 3.14 COL 136 WIDGET-ID 28
-     tbClosed AT ROW 3.14 COL 149.4 WIDGET-ID 30
-     tbHold AT ROW 3.14 COL 127.8 WIDGET-ID 26
+     cbType AT ROW 1.95 COL 146.2 COLON-ALIGNED NO-LABEL WIDGET-ID 32
+     fiItemPo AT ROW 3.14 COL 68.2 COLON-ALIGNED NO-LABEL WIDGET-ID 36
      Browser-Table AT ROW 4.33 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
-     tbOpened AT ROW 3.14 COL 106.2 WIDGET-ID 22
-     tbWeb AT ROW 3.14 COL 118.6 WIDGET-ID 24
-     fiOrderDate AT ROW 3.14 COL 86.6 COLON-ALIGNED WIDGET-ID 20
+     tbApproved AT ROW 3.14 COL 154.6 WIDGET-ID 28
+     tbHold AT ROW 3.14 COL 146.4 WIDGET-ID 26
+     tbWeb AT ROW 3.14 COL 138.6 WIDGET-ID 24
+     fiOrderDate AT ROW 3.14 COL 109.6 COLON-ALIGNED WIDGET-ID 20
      btSHowAll AT ROW 3.14 COL 25.6 WIDGET-ID 16
      fi_ord-no AT ROW 1.95 COL 2 NO-LABEL
      fi_cust-no AT ROW 1.95 COL 14 COLON-ALIGNED NO-LABEL
@@ -721,15 +706,18 @@ DEFINE FRAME F-Main
      btn_go AT ROW 3.14 COL 2
      btn_prev AT ROW 3.14 COL 7.8
      btn_next AT ROW 3.14 COL 16.6
-     fi_sort-by AT ROW 3.14 COL 84 COLON-ALIGNED NO-LABEL
+     fi_sort-by AT ROW 3.14 COL 107.4 COLON-ALIGNED NO-LABEL
      fi_i-name AT ROW 3.14 COL 33.6 COLON-ALIGNED NO-LABEL WIDGET-ID 8
      "Job#" VIEW-AS TEXT
           SIZE 8 BY .71 AT ROW 1.24 COL 104
           FGCOLOR 9 FONT 22
+     "Type" VIEW-AS TEXT
+          SIZE 6 BY .62 AT ROW 1.24 COL 150.6 WIDGET-ID 34
+          FGCOLOR 9 FONT 22
      "REP#" VIEW-AS TEXT
           SIZE 6.6 BY .71 AT ROW 1.24 COL 140.2 WIDGET-ID 12
           FGCOLOR 9 FONT 22
-     "Cust PO#" VIEW-AS TEXT
+     "Order/Item PO" VIEW-AS TEXT
           SIZE 18 BY .71 AT ROW 1.24 COL 70
           FGCOLOR 9 FONT 22
      "Estimate#" VIEW-AS TEXT
@@ -791,7 +779,7 @@ END.
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW B-table-Win ASSIGN
          HEIGHT             = 20.48
-         WIDTH              = 159.
+         WIDTH              = 181.8.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -871,58 +859,60 @@ AND itemfg.i-no EQ oe-ordl.i-no"
 "oe-ordl.i-no" "FG Item#" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[10]   > ASI.oe-ordl.part-no
 "oe-ordl.part-no" "Cust Part#" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[11]   > ASI.oe-ordl.po-no
-"oe-ordl.po-no" ? ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[12]   > ASI.oe-ordl.est-no
+     _FldNameList[11]   > ASI.oe-ord.po-no
+"oe-ord.po-no" "Order PO#" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[12]   > ASI.oe-ordl.po-no
+"oe-ordl.po-no" "Item PO#" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[13]   > ASI.oe-ordl.est-no
 "oe-ordl.est-no" "Est#" "x(8)" "character" ? ? ? 14 ? ? yes ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[13]   > ASI.oe-ordl.job-no
+     _FldNameList[14]   > ASI.oe-ordl.job-no
 "oe-ordl.job-no" "Job#" ? "character" ? ? ? 14 ? ? yes ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[14]   > ASI.oe-ordl.job-no2
+     _FldNameList[15]   > ASI.oe-ordl.job-no2
 "oe-ordl.job-no2" "" ? "integer" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[15]   > ASI.itemfg.cad-no
+     _FldNameList[16]   > ASI.itemfg.cad-no
 "itemfg.cad-no" "CAD#" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[16]   > ASI.oe-ordl.qty
+     _FldNameList[17]   > ASI.oe-ordl.qty
 "oe-ordl.qty" "Ordered Qty" "->>,>>>,>>>" "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[17]   > "_<CALC>"
+     _FldNameList[18]   > "_<CALC>"
 "get-prod(li-bal) @ li-prod" "Prod. Qty" "->>,>>>,>>>" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[18]   > ASI.oe-ordl.ship-qty
+     _FldNameList[19]   > ASI.oe-ordl.ship-qty
 "oe-ordl.ship-qty" "Shipped Qty" "->>,>>>,>>>" "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[19]   > "_<CALC>"
-"get-xfer-qty () @ ld-xfer-qty" "Transfer!Qty" "->>,>>>,>>>" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[20]   > "_<CALC>"
-"get-inv-qty() @ iInvQty" "Invoice Qty" "->>,>>>,>>>" "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"get-xfer-qty () @ ld-xfer-qty" "Transfer!Qty" "->>,>>>,>>>" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[21]   > "_<CALC>"
-"get-bal(li-qoh) @ li-bal" "On Hand Qty" "->>,>>>,>>>" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"get-inv-qty() @ iInvQty" "Invoice Qty" "->>,>>>,>>>" "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[22]   > "_<CALC>"
-"get-act-rel-qty() @ li-act-rel-qty" "Act. Rel.!Quantity" "->>,>>>,>>>" ? ? ? ? ? ? ? no ? no no "12.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"get-bal(li-qoh) @ li-bal" "On Hand Qty" "->>,>>>,>>>" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[23]   > "_<CALC>"
-"get-wip() @ li-wip" "Production!Balance" "->>,>>>,>>>" ? ? ? ? ? ? ? no ? no no "14.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"get-act-rel-qty() @ li-act-rel-qty" "Act. Rel.!Quantity" "->>,>>>,>>>" ? ? ? ? ? ? ? no ? no no "12.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[24]   > "_<CALC>"
-"get-pct(li-bal) @ li-pct" "O/U%" "->>>>>%" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"get-wip() @ li-wip" "Production!Balance" "->>,>>>,>>>" ? ? ? ? ? ? ? no ? no no "14.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[25]   > "_<CALC>"
+"get-pct(li-bal) @ li-pct" "O/U%" "->>>>>%" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[26]   > "_<CALC>"
 "get-fgitem() @ lc-fgitem" "FG Item#" "x(15)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[26]   > ASI.oe-ordl.i-name
+     _FldNameList[27]   > ASI.oe-ordl.i-name
 "oe-ordl.i-name" "Item Name" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[27]   > ASI.oe-ordl.line
+     _FldNameList[28]   > ASI.oe-ordl.line
 "oe-ordl.line" ? ">>99" "integer" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[28]   > ASI.oe-ordl.po-no-po
+     _FldNameList[29]   > ASI.oe-ordl.po-no-po
 "oe-ordl.po-no-po" ? ? "integer" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[29]   = ASI.oe-ordl.e-num
-     _FldNameList[30]   > ASI.oe-ordl.whsed
+     _FldNameList[30]   = ASI.oe-ordl.e-num
+     _FldNameList[31]   > ASI.oe-ordl.whsed
 "oe-ordl.whsed" ? ? "logical" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[31]   > "_<CALC>"
-"get-act-bol-qty() @ li-act-bol-qty" "Act. BOL!Qty" "->>,>>>,>>>" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[32]   > "_<CALC>"
-"getTotalReturned() @ dTotQtyRet" "Tot Returned" ">>>,>>9" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"get-act-bol-qty() @ li-act-bol-qty" "Act. BOL!Qty" "->>,>>>,>>>" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[33]   > "_<CALC>"
+"getTotalReturned() @ dTotQtyRet" "Tot Returned" ">>>,>>9" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[34]   > "_<CALC>"
 "getReturnedInv() @ dTotRetInv" "Qty Returned Inv" ">>>,>>9" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[34]   > ASI.oe-ordl.s-man[1]
+     _FldNameList[35]   > ASI.oe-ordl.s-man[1]
 "oe-ordl.s-man[1]" "Rep" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[35]   > "_<CALC>"
+     _FldNameList[36]   > "_<CALC>"
 "fget-qty-nothand(get-act-rel-qty() + get-act-bol-qty(),li-qoh) @ iHandQtyNoalloc" "On Hand Qty not Allocated" "->>>>>>>>" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[36]   > ASI.oe-ordl.managed
+     _FldNameList[37]   > ASI.oe-ordl.managed
 "oe-ordl.managed" ? ? "logical" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
-_FldNameList[37]   > "_<CALC>"
+     _FldNameList[38]   > "_<CALC>"
 "fnPrevOrder(oe-ordl.est-no,oe-ordl.ord-no) @ iPreOrder" "Prev Order" ">>>>>>>>" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
@@ -1023,7 +1013,8 @@ DO:
     ASSIGN
      lv-sort-by     = lv-column-nam
      lv-sort-by-lab = lv-column-lab.
-
+MESSAGE lv-sort-by 
+VIEW-AS ALERT-BOX.
   APPLY 'END-SEARCH' TO {&BROWSE-NAME}.
 
   RUN dispatch ("open-query").
@@ -1116,17 +1107,13 @@ DO:
       fi_job-no2
       fi_cad-no
       fi_sman
-      tbOpened
       tbWeb
       tbHold
       tbApproved
-      tbClosed
+      cbType
       fiOrderDate
       lButtongoPressed = YES
       .
-      
-    IF NOT pIsValidSearch() THEN
-      RETURN NO-APPLY.
       
     IF tbWeb:CHECKED THEN     
       RUN util/fixcXMLDuplicates.p.  
@@ -1177,10 +1164,7 @@ END.
 &Scoped-define SELF-NAME btn_next
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_next B-table-Win
 ON CHOOSE OF btn_next IN FRAME F-Main /* Next */
-DO:
-  IF NOT pIsValidSearch() THEN 
-      RETURN NO-APPLY.  
-          
+DO:          
    SESSION:SET-WAIT-STATE("general").
   DO WITH FRAME {&FRAME-NAME}:
     RUN set-defaults.
@@ -1202,9 +1186,6 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_prev B-table-Win
 ON CHOOSE OF btn_prev IN FRAME F-Main /* Prev */
 DO:
-  IF NOT pIsValidSearch() THEN 
-      RETURN NO-APPLY.  
-          
    SESSION:SET-WAIT-STATE("general").
   DO WITH FRAME {&FRAME-NAME}:
     RUN set-defaults.
@@ -1223,10 +1204,7 @@ END.
 &Scoped-define SELF-NAME btSHowAll
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btSHowAll B-table-Win
 ON CHOOSE OF btSHowAll IN FRAME F-Main /* Show All */
-DO:
-    IF NOT pIsValidSearch() THEN 
-      RETURN NO-APPLY.
-          
+DO:          
     lShowAll = YES.
     APPLY "choose" TO btn_go.       
 END.
@@ -1234,6 +1212,32 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&Scoped-define SELF-NAME cbType
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cbType B-table-Win
+ON VALUE-CHANGED OF cbType IN FRAME F-Main /* Combo 3 */
+DO:
+    ASSIGN {&SELF-NAME}.
+    IF cbType EQ "Opened" THEN DO:
+        ASSIGN 
+            tbApproved:SENSITIVE = YES
+            tbWeb:SENSITIVE      = YES
+            tbHold:SENSITIVE     = YES
+            tbApproved:CHECKED   = YES
+            tbWeb:CHECKED        = YES 
+            tbHold:CHECKED       = YES
+            .
+    END.
+    ELSE 
+        ASSIGN 
+            tbApproved:SENSITIVE = NO
+            tbWeb:SENSITIVE      = NO
+            tbHold:SENSITIVE     = NO
+            .      
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &Scoped-define SELF-NAME fi_cust-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_cust-no B-table-Win
@@ -1762,9 +1766,22 @@ PROCEDURE local-initialize :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
+  DEFINE VARIABLE cScreenType AS CHARACTER NO-UNDO.
 
   /* Code placed here will execute PRIOR to standard behavior. */
-
+  {methods/run_link.i "container-source" "GetScreenType" "(Output cScreenType)"}
+  
+  RUN Browser_GetRecordAndTimeLimit(
+    INPUT  cocode,
+    INPUT  cScreenType,
+    OUTPUT iRecordLimit,
+    OUTPUT dQueryTimeLimit,
+    OUTPUT lEnableShowAll
+    ).
+   IF cScreentype EQ "OW" OR cScreenType EQ "OC" THEN 
+       RUN pSetDefaults(
+           INPUT cScreenType
+           ).
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
 
@@ -1805,8 +1822,12 @@ PROCEDURE local-open-query :
     IF fiOrderDate GT 10/01/2018 THEN 
         lUseRecKeyCriteria = YES.
     ELSE 
-        lUseRecKeyCriteria = NO.   
-                 
+        lUseRecKeyCriteria = NO.
+           
+    IF fi_est-no NE "" THEN 
+        fi_est-no = FILL(" ",8 - LENGTH(TRIM(fi_est-no))) + TRIM(fi_est-no).
+    IF fi_job-no NE "" THEN 
+        fi_job-no = FILL(" ",6 - LENGTH(TRIM(fi_job-no))) + TRIM(fi_job-no).                 
 
     /* Code placed here will execute PRIOR to standard behavior. */
 
@@ -1938,8 +1959,6 @@ PROCEDURE navigate-browser :
 
   IF ROWID(oe-ordl) EQ lv-frst-rowid THEN
     op-nav-type = IF op-nav-type EQ "L" THEN "B" ELSE "F".
-
-  {methods/run_link.i "CONTAINER-SOURCE" "ChangePanelState" "(2)"}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1970,7 +1989,7 @@ PROCEDURE one-row-query :
              + " WHERE itemfg.company EQ oe-ordl.company"
              + "   AND itemfg.i-no    EQ oe-ordl.i-no"
              + ( IF fi_cad-no NE "" THEN " AND itemfg.cad-no BEGINS " + QUOTER(fi_cad-no) ELSE "")
-             + " BY " + pGetSortCondition(lv-sort-by) + ( IF ll-sort-asc THEN  "" ELSE " DESC") +  " BY oe-ordl.ord-no BY oe-ordl.i-no"
+             + " BY " + pGetSortCondition(lv-sort-by,lv-sort-by-lab) + ( IF ll-sort-asc THEN  "" ELSE " DESC") +  " BY oe-ordl.ord-no BY oe-ordl.i-no"
              .
                  
     RUN Browse_PrepareAndExecuteBrowseQuery(
@@ -2092,8 +2111,7 @@ PROCEDURE pPrepareAndExecuteQuery :
             ).   
         cLimitingQuery = "For EACH oe-ord NO-LOCK"
                          + " WHERE oe-ord.company EQ " + QUOTER(cocode)
-                         + " AND " + pGetWhereCriteria("oe-ord")
-                    
+                         + " AND " + pGetWhereCriteria("oe-ord")                  
                          + ",FIRST oe-ordl of oe-ord NO-LOCK "
                          + " WHERE " + pGetWhereCriteria("oe-ordl")
                          + " BY oe-ord.rec_key DESC"
@@ -2133,7 +2151,7 @@ PROCEDURE pPrepareAndExecuteQuery :
   
     ELSE 
         cResponse = "OrderNo". /* For identification purpose */
-              
+        
     IF cResponse EQ "" AND lButtongoPressed THEN  
         MESSAGE "No Records Found..."
             VIEW-AS ALERT-BOX ERROR.
@@ -2158,8 +2176,9 @@ PROCEDURE pPrepareAndExecuteQuery :
                        + " WHERE itemfg.company EQ oe-ordl.company"
                        + "   AND itemfg.i-no    EQ oe-ordl.i-no"
                        + ( IF fi_cad-no NE "" THEN " AND itemfg.cad-no BEGINS " + QUOTER(fi_cad-no) ELSE "")
-                       + " BY " + pGetSortCondition(lv-sort-by) + ( IF ll-sort-asc THEN  "" ELSE " DESC") +  " BY oe-ordl.ord-no BY oe-ordl.i-no"
-                       .                                                                          
+                       + " BY " + pGetSortCondition(lv-sort-by,lv-sort-by-lab) + ( IF ll-sort-asc THEN  "" ELSE " DESC") +  " BY oe-ordl.ord-no BY oe-ordl.i-no"
+                       . 
+                                                                        
         RUN Browse_PrepareAndExecuteBrowseQuery(
             INPUT  BROWSE {&BROWSE-NAME}:QUERY, /* Browse Query Handle */      
             INPUT  cBrowseQuery,                /* BRowse Query */             
@@ -2263,7 +2282,7 @@ PROCEDURE pPrepareAndExecuteQueryForPrevNext PRIVATE :
                         + " WHERE itemfg.company EQ oe-ordl.company"
                         + "   AND itemfg.i-no    EQ oe-ordl.i-no"
                         + ( IF fi_cad-no NE "" THEN " AND itemfg.cad-no BEGINS " + QUOTER(fi_cad-no) ELSE "")
-                        + " BY " + pGetSortCondition(lv-sort-by) + ( IF ll-sort-asc THEN  "" ELSE " DESC") +  " BY oe-ordl.ord-no BY oe-ordl.i-no"
+                        + " BY " + pGetSortCondition(lv-sort-by,lv-sort-by-lab) + ( IF ll-sort-asc THEN  "" ELSE " DESC") +  " BY oe-ordl.ord-no BY oe-ordl.i-no"
                         .   
                         
         RUN Browse_PrepareAndExecuteBrowseQuery(
@@ -2304,7 +2323,7 @@ PROCEDURE pPrepareAndExecuteQueryForShowAll PRIVATE :
                     + " WHERE itemfg.company EQ oe-ordl.company"
                     + "   AND itemfg.i-no    EQ oe-ordl.i-no"
                     + ( IF fi_cad-no NE "" THEN " AND itemfg.cad-no BEGINS " + QUOTER(fi_cad-no) ELSE "")
-                    + " BY " + pGetSortCondition(lv-sort-by) + ( IF ll-sort-asc THEN  "" ELSE " DESC") +  " BY oe-ordl.ord-no BY oe-ordl.i-no"
+                    + " BY " + pGetSortCondition(lv-sort-by,lv-sort-by-lab) + ( IF ll-sort-asc THEN  "" ELSE " DESC") +  " BY oe-ordl.ord-no BY oe-ordl.i-no"
                     .               
     RUN Browse_PrepareAndExecuteBrowseQuery(
         INPUT  BROWSE {&BROWSE-NAME}:QUERY, /* Browse Query Handle */      
@@ -2320,6 +2339,33 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetDefaults B-table-Win
+PROCEDURE pSetDefaults PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: Set the toggle box defaults based on screen type
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcScreen AS CHARACTER NO-UNDO.
+    
+    IF ipcScreen EQ "OW" THEN 
+        ASSIGN 
+            tbApproved = NO
+            tbHold     = NO
+            .
+    ELSE IF ipcScreen EQ "OC" THEN 
+        ASSIGN 
+            tbWeb      = NO
+            tbApproved = NO
+            tbHold     = YES
+            .                        
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pushpin-image-proc B-table-Win 
 PROCEDURE pushpin-image-proc :
@@ -2371,7 +2417,10 @@ PROCEDURE record-added :
      fi_job-no2
      fi_cad-no
      fi_sman
-     tbOpened
+     cbType
+     tbApproved
+     tbHold
+     tbWeb
      .
 
 END PROCEDURE.
@@ -2415,9 +2464,7 @@ PROCEDURE reopen-query1 :
   END.
   DO WITH FRAME {&FRAME-NAME}:
     RUN dispatch ("open-query").
-    IF AVAILABLE  b-oe-ordl THEN 
-        REPOSITION {&browse-name} TO ROWID ip-rowid NO-ERROR.
-    RUN dispatch ("row-changed").
+    RUN repo-query (ip-rowid).
   END.
 
 END PROCEDURE.
@@ -2590,7 +2637,6 @@ PROCEDURE set-defaults :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN
       fi_cust-no:SCREEN-VALUE = ""
@@ -2601,11 +2647,11 @@ PROCEDURE set-defaults :
       fi_est-no:SCREEN-VALUE  = ""
       fi_job-no:SCREEN-VALUE  = ""
       fi_job-no2:SCREEN-VALUE = "" 
-      fi_sman:SCREEN-VALUE    = ""
-      tbOpened:CHECKED        = YES 
+      fi_sman:SCREEN-VALUE    = "" 
+      cbType:SCREEN-VALUE     = "Opened"
       .
   END.
-
+  APPLY "VALUE-CHANGED":U TO cbType.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3301,7 +3347,7 @@ END FUNCTION.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION pGetSortCondition B-table-Win
 FUNCTION pGetSortCondition RETURNS CHARACTER 
-  (ipcSortBy AS CHARACTER ):
+  (ipcSortBy AS CHARACTER,ipcSortLabel AS CHARACTER):
 /*------------------------------------------------------------------------------
  Purpose: Retuns the sort condition based on the input 
  Notes:
@@ -3320,7 +3366,8 @@ FUNCTION pGetSortCondition RETURNS CHARACTER
             IF ipcSortBy EQ 'i-no'      THEN "oe-ordl.i-no"                        ELSE ~
             IF ipcSortBy EQ 'i-name'    THEN "oe-ordl.i-name"                      ELSE ~
             IF ipcSortBy EQ 'part-no'   THEN "oe-ordl.part-no"                     ELSE ~
-            IF ipcSortBy EQ 'po-no'     THEN "oe-ordl.po-no"                       ELSE ~
+            IF ipcSortBy EQ 'po-no'     THEN (If ipcSortLabel EQ "Order PO#" THEN 
+                                              oe-ord.po-no ELSE oe-ordl.po-no)     ELSE ~
             IF ipcSortBy EQ 'est-no'    THEN "oe-ordl.est-no"                      ELSE ~
             IF ipcSortBy EQ 'job-no'    THEN "STRING(oe-ordl.job-no,'x(6)') 
                                                  + STRING(oe-ordl.job-no2,'99')"   ELSE ~
@@ -3349,53 +3396,54 @@ FUNCTION pGetWhereCriteria RETURNS CHARACTER
 ------------------------------------------------------------------------------*/
     DEFINE VARIABLE cWhereCriteria AS CHARACTER NO-UNDO.
     
-    IF ipcTable EQ "oe-ord" THEN DO:         
-        IF tbOpened OR (tbHold AND tbApproved)THEN 
-            cWhereCriteria = " oe-ord.stat NE 'W' ".
-            
-        IF tbClosed THEN DO:  
-            IF cWhereCriteria EQ " " THEN 
-                cWhereCriteria = " oe-ord.stat EQ 'C' ".
-            ELSE 
-                cWhereCriteria = cWhereCriteria + " OR oe-ord.stat EQ 'C'".                    
-        END.
-             
-        IF tbWeb THEN DO:
+    IF ipcTable EQ "oe-ord" THEN DO: 
+        IF cbType EQ "Closed" OR cbtype EQ "All" OR (cbType EQ "Opened" AND tbApproved) THEN 
+            cWhereCriteria = " oe-ord.stat NE 'W'".
+              
+        IF (cbType EQ "Opened" AND tbApproved AND NOT tbHold) THEN DO:
             IF cWhereCriteria EQ "" THEN 
-                cWhereCriteria =  " oe-ord.stat EQ 'W' ".
-            ELSE 
-                cWhereCriteria = cWhereCriteria + " OR oe-ord.stat EQ 'W'".       
-        END.   
-            
-        IF tbHold AND NOT tbApproved AND NOT tbOpened THEN DO:
-            IF cWhereCriteria EQ "" THEN 
-                cWhereCriteria = " oe-ord.stat EQ 'H' ".
-            ELSE 
-                cWhereCriteria = cWhereCriteria + " OR oe-ord.stat EQ 'H'".
-                    
-        END. 
+                cWhereCriteria = " oe-ord.stat NE 'H'".
+            ELSE DO: 
+                cWhereCriteria = cWhereCriteria + " AND oe-ord.stat NE 'H'". 
+                cWhereCriteria = "(" + cWhereCriteria + ")".    
+            END.                
+        END.  
            
-        IF tbApproved AND NOT tbHold AND NOT tbOpened THEN DO:
+        IF (cbType EQ "Opened" AND tbHold) THEN DO:
             IF cWhereCriteria EQ "" THEN 
-                cWhereCriteria = " oe-ord.stat NE 'H' ".
-            ELSE         
-                cWhereCriteria = cWhereCriteria + " OR oe-ord.stat NE 'H' ".
-        END. 
+                cWhereCriteria = " oe-ord.stat EQ 'H'".
+            ELSE     
+                cWhereCriteria = cWhereCriteria + " OR oe-ord.stat EQ 'H'".          
+        END.   
+        IF cbType EQ "Opened" AND tbWeb THEN DO:
+            IF cWhereCriteria EQ "" THEN 
+                cWhereCriteria = " oe-ord.stat EQ 'W'" .
+            ELSE     
+                cWhereCriteria = cWhereCriteria + " OR oe-ord.stat EQ 'W'".             
+        END.                 
         cWhereCriteria = "(" + cWhereCriteria + ")".
-        IF tbClosed AND tbOpened THEN
-            cWhereCriteria = cWhereCriteria + " AND (oe-ord.opened EQ NO OR oe-ord.opened EQ YES)".
-        ELSE IF tbClosed THEN 
-            cWhereCriteria = cWhereCriteria + " AND oe-ord.opened EQ NO".
-        ELSE 
-            cWhereCriteria = cWhereCriteria + " AND oe-ord.opened EQ YES ". 
         
-        cWhereCriteria =  cWhereCriteria  + " AND oe-ord.ord-date  GE " + STRING(fiOrderDate) +  " AND oe-ord.rec_key NE ''".                  
+        IF cbType EQ "All" OR cbType EQ "Closed" THEN DO:
+            IF lUseRecKeyCriteria THEN 
+                cWhereCriteria = cWhereCriteria + " AND (oe-ord.opened EQ NO OR oe-ord.opened EQ YES)".
+            ELSE 
+                cWhereCriteria = cWhereCriteria + " AND ((oe-ord.opened EQ NO) OR (oe-ord.opened EQ YES or oe-ordl.stat EQ 'C'))".        
+                
+        END.    
+            
+        ELSE IF cbType EQ "Opened" THEN 
+            cWhereCriteria = cWhereCriteria + " AND oe-ord.opened EQ YES".
+                    
+        cWhereCriteria =  cWhereCriteria  + " AND oe-ord.ord-date  GE " + STRING(fiOrderDate) 
+                          + " AND oe-ord.rec_key NE ''"
+                          + (IF fi_po-no1 NE "" THEN " AND oe-ord.po-no BEGINS " + QUOTER(fi_po-no1) ELSE "")
+                          .                  
     END. 
     ELSE DO:
-        IF tbClosed AND tbOpened THEN
-            cWhereCriteria = cWhereCriteria + " (( oe-ordl.opened EQ NO AND oe-ordl.stat EQ 'C') OR (oe-ordl.opened EQ YES AND oe-ordl.stat NE 'C'))" .             
-        ELSE IF tbClosed THEN 
-            cWhereCriteria = cWhereCriteria +  " oe-ordl.opened EQ NO AND oe-ordl.stat EQ 'C'".
+        IF cbType EQ "All" THEN
+            cWhereCriteria = cWhereCriteria + " (( oe-ordl.opened EQ NO OR oe-ordl.stat EQ 'C') OR (oe-ordl.opened EQ YES AND oe-ordl.stat NE 'C'))" .             
+        ELSE IF cbType EQ "Closed" THEN 
+            cWhereCriteria = cWhereCriteria +  " (oe-ordl.opened EQ NO OR oe-ordl.stat EQ 'C')".
         ELSE 
             cWhereCriteria = cWhereCriteria  + " oe-ordl.opened EQ YES AND oe-ordl.stat NE 'C'".   
             
@@ -3408,7 +3456,7 @@ FUNCTION pGetWhereCriteria RETURNS CHARACTER
                          + (IF fi_job-no  NE "" AND fi_job-no2 NE 0 THEN " AND oe-ordl.job-no2 EQ " + STRING(fi_job-no2)  ELSE "")
                          + (IF fi_i-no    NE "" THEN " AND oe-ordl.i-no   BEGINS "    + QUOTER (fi_i-no)    ELSE "")
                          + (IF fi_part-no NE "" THEN " AND oe-ordl.part-no BEGINS "   + QUOTER(fi_part-no)  ELSE "")
-                         + (IF fi_po-no1  NE "" THEN " AND oe-ordl.po-no BEGINS "     + QUOTER(fi_po-no1)   ELSE "")
+                         + (IF fiItemPo   NE "" THEN " AND oe-ordl.po-no BEGINS "     + QUOTER(fiItemPo)    ELSE "")
                          + (IF fi_sman    NE "" THEN " AND oe-ordl.s-man[1] BEGINS "  + QUOTER(fi_sman)     ELSE "")
                          + (IF fi_i-name  NE "" THEN " AND oe-ordl.i-name BEGINS "    + QUOTER(fi_i-name)   ELSE "") . 
      
@@ -3420,27 +3468,5 @@ END FUNCTION.
 &ANALYZE-RESUME
 
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION pIsValidSearch B-table-Win
-FUNCTION pIsValidSearch RETURNS LOGICAL PRIVATE
-  (  ):
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-    DO WITH FRAME {&FRAME-NAME}:
-        IF NOT tbOpened:CHECKED AND NOT tbWeb:CHECKED AND NOT tbHold
-           AND NOT tbApproved AND NOT tbClosed THEN DO: 
-            MESSAGE "Invalid search criteria, Atleast one toggle box should be checked"
-                VIEW-AS ALERT-BOX ERROR.  
-            RETURN NO.
-        END.    
-        ELSE 
-            RETURN YES. 
-    END.       
-END FUNCTION.
-	
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 

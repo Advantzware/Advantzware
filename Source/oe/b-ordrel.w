@@ -717,14 +717,19 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
 ON DEFAULT-ACTION OF br_table IN FRAME F-Main
 DO:
- DEFINE VARIABLE lv-rowid AS ROWID NO-UNDO .
- DEFINE VARIABLE lCheckUpdate AS LOGICAL NO-UNDO . 
+ DEFINE VARIABLE lv-rowid     AS ROWID     NO-UNDO.
+ DEFINE VARIABLE lCheckUpdate AS LOGICAL   NO-UNDO. 
+ DEFINE VARIABLE cScreenType  AS CHARACTER NO-UNDO.
  IF lUpdateReleaseItem THEN do:
+     
+     /* Get the screen type and allow the update only if screen type is "OU1" or blank */   
+     {methods/run_link.i "container-source" "GetScreenType" "(Output cScreenType)"}
+     
      RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"update-target", OUTPUT char-hdl) NO-ERROR.
      IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
-         lCheckUpdate = YES .
-
-     IF LOOKUP(oe-rel.stat,"A,B,P,Z,C") EQ 0 AND oe-ordl.opened EQ YES AND oe-ordl.stat NE 'C' AND lCheckUpdate  THEN do:
+         lCheckUpdate = YES.
+              
+     IF LOOKUP(oe-rel.stat,"A,B,P,Z,C") EQ 0 AND oe-ordl.opened EQ YES AND oe-ordl.stat NE 'C' AND lCheckUpdate AND (cScreentype EQ "OU1" OR cScreentype EQ "OW" OR cScreentype EQ "")  THEN do:
          RUN oe/d-ordrel.w (ROWID(oe-rel),ROWID(oe-ordl), "update", OUTPUT lv-rowid) .
          RUN reopen-query .
          RUN repo-query (ROWID(oe-rel)).
@@ -855,6 +860,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
 ON VALUE-CHANGED OF br_table IN FRAME F-Main
 DO:
+    DEFINE VARIABLE cScreenType AS CHARACTER NO-UNDO. 
+       
   /* This ADM trigger code must be preserved in order to notify other
      objects when the browser's current row changes. */
   {src/adm/template/brschnge.i}
@@ -878,14 +885,14 @@ DO:
     END.
 
   END.
-
+  {methods/run_link.i "container-source" "GetScreenType" "(Output cScreenType)"}
 /* lJustDeletedLine needed because adm-adding-record not accurate after and add and delete */
   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"ordrel-source", OUTPUT char-hdl) NO-ERROR.
   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN DO:
       IF  ( adm-new-record AND adm-adding-record AND NOT lJustDeletedLine) THEN
         RUN reset-button IN WIDGET-HANDLE(char-hdl) (NO).
       ELSE
-        RUN reset-button IN WIDGET-HANDLE(char-hdl) (YES).
+        RUN reset-button IN WIDGET-HANDLE(char-hdl)( IF( cScreenType EQ "OU1" OR cScreenType EQ "" ) THEN YES ELSE NO).
   END.
   
   ASSIGN 

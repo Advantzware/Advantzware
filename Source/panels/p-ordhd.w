@@ -524,6 +524,7 @@ DEFINE INPUT PARAMETER panel-state AS CHARACTER NO-UNDO.
 
 DEF VAR char-hdl AS cha NO-UNDO.
 DEF VAR ll-avail AS LOG NO-UNDO.
+DEFINE VARIABLE cScreenType AS CHARACTER NO-UNDO.
 
 DO WITH FRAME Panel-Frame:
 
@@ -639,7 +640,14 @@ DO WITH FRAME Panel-Frame:
 &ENDIF
 
   END. /* panel-state = action-chosen */
-
+  {methods/run_link.i "container-source" "GetScreenType" "(Output cScreenType)"}
+  /* If screen is "OW" then keep the screen in update only mode */
+  IF cScreenType EQ "OW" AND NOT panel-state EQ "action-chosen" THEN
+      ASSIGN  
+          Btn-Add:SENSITIVE   = NO
+          Btn-Reset:SENSITIVE = NO
+          Btn-Copy:SENSITIVE  = NO
+          .        
   /* ASI panel security include */
   {custom/secpanel.i}
 

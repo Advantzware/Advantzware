@@ -281,6 +281,23 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE DisableAll V-table-Win
+PROCEDURE DisableAll:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DO WITH FRAME {&FRAME-NAME}:
+        DISABLE ALL.
+    END.   
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-row-available V-table-Win 
 PROCEDURE local-row-available :
 /*------------------------------------------------------------------------------
@@ -288,8 +305,9 @@ PROCEDURE local-row-available :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF VAR ll-opened LIKE oe-ord.opened NO-UNDO.
-
-
+  DEFINE VARIABLE pHandle     AS HANDLE    NO-UNDO.
+  DEFINE VARIABLE cScreenType AS CHARACTER NO-UNDO.
+  
   /* Code placed here will execute PRIOR to standard behavior. */
 
   /* Dispatch standard ADM method.                             */
@@ -312,7 +330,15 @@ PROCEDURE local-row-available :
     END.
     ELSE btn-update:LABEL = STRING(ll-opened,"&Close/&Reopen").
   END.
-
+  {methods/run_link.i "container-source" "GetScreenType" "(Output cScreenType)"}
+  IF cScreenType EQ "OW" OR cScreenType EQ "OC" OR cScreenType EQ "OQ1" THEN 
+       btn-update:SENSITIVE = NO.
+  ELSE IF cScreenType EQ "OU1" AND AVAILABLE oe-ord THEN DO:
+      IF oe-ord.stat EQ "C" THEN 
+          btn-update:SENSITIVE = YES.
+      ELSE 
+          btn-update:SENSITIVE = YES.                
+  END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

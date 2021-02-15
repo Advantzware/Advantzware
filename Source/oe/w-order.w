@@ -37,8 +37,10 @@ CREATE WIDGET-POOL.
 &SCOPED-DEFINE h_Object10 h_p-orel-2
 &SCOPED-DEFINE h_Object11 h_p-obol
 &SCOPED-DEFINE setUserExit TRUE
-/* Parameters Definitions ---                                           */
+&SCOPED-DEFINE LocalInit
 
+/* Parameters Definitions ---                                           */
+DEFINE INPUT PARAMETER ipcScreen AS CHARACTER NO-UNDO.
 /* Local Variable Definitions ---                                       */
 
 
@@ -1344,28 +1346,36 @@ PROCEDURE ChangePanelState :
  Purpose: Procedure to enable/disbale panels based on order statuss
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipiCurrentPage AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiCurrentPage AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER ipcScreen      AS CHARACTER NO-UNDO.
     
     DEFINE VARIABLE lRecordAvailable AS LOGICAL NO-UNDO.
     DEFINE VARIABLE lIsOrderClosed   AS LOGICAL NO-UNDO.
     
-    IF VALID-HANDLE(h_v-ord) THEN DO:
-        RUN GetOrderStatus IN h_v-ord(
-            OUTPUT lRecordAvailable,
-            OUTPUT lIsOrderClosed
-            ) .
-        IF lRecordAvailable THEN DO: 
-            IF lIsOrderClosed THEN
-                RUN pDisablePanels(
-                    INPUT ipiCurrentPage
-                    ).          
-            ELSE 
-                RUN pEnablePanels(
-                    INPUT ipiCurrentPage
-                    ).                        
-        END.  
+    IF ipcScreen EQ "OU1" THEN DO:        
+        IF VALID-HANDLE(h_v-ord) THEN DO:
+            RUN GetOrderStatus IN h_v-ord(
+                OUTPUT lRecordAvailable,
+                OUTPUT lIsOrderClosed
+                ) .
+            IF lRecordAvailable THEN DO: 
+                IF lIsOrderClosed THEN
+                    RUN pDisablePanels(
+                        INPUT ipiCurrentPage,
+                        INPUT ipcScreen
+                        ).          
+                ELSE 
+                    RUN pEnablePanels(
+                        INPUT ipiCurrentPage
+                        ).                        
+            END.  
+        END.
     END.
-
+    ELSE  
+        RUN pDisablePanels(
+            INPUT ipiCurrentPage,
+            INPUT ipcScreen
+            ).     
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1412,6 +1422,23 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetScreenType W-Win
+PROCEDURE GetScreenType:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opcScreenType AS CHARACTER NO-UNDO.
+    
+    opcScreenType = ipcScreen.
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE hide-estimate W-Win 
 PROCEDURE hide-estimate :
@@ -1592,7 +1619,8 @@ PROCEDURE local-change-page :
      RUN set-buttons IN h_p-obol ('initial').
   END. 
   RUN ChangePanelState(
-      INPUT li-cur-page
+      INPUT li-cur-page,
+      INPUT ipcScreen
       ).                      
   /* Code placed here will execute AFTER standard behavior.    */
   {methods/winReSizePgChg.i}
@@ -1733,7 +1761,6 @@ END PROCEDURE.
   Parameters:  <none>
   Notes:    If activated, should APPLY CLOSE, *not* dispatch adm-exit.   
 -------------------------------------------------------------*/
-
 PROCEDURE setUserExit.
 
     IF VALID-HANDLE(h_v-ord) THEN
@@ -1743,57 +1770,100 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pChangeWindowTitle W-Win
+PROCEDURE pChangeWindowTitle PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: Change the windows's title based o the input screen type
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcScreen AS CHARACTER NO-UNDO.
+    
+    CASE ipcScreen:
+        WHEN "OQ1" THEN 
+            {&WINDOW-NAME}:TITLE = REPLACE({&WINDOW-NAME}:TITLE,"Order Maintenance","Order Inquiry").
+         WHEN "OW" THEN 
+            {&WINDOW-NAME}:TITLE = REPLACE({&WINDOW-NAME}:TITLE,"Order Maintenance","Web Orders Transfer/Approve").
+         WHEN "OC" THEN 
+            {&WINDOW-NAME}:TITLE = REPLACE({&WINDOW-NAME}:TITLE,"Order Maintenance","Credit Hold / Approve Orders").
+         WHEN "OU6" THEN 
+            {&WINDOW-NAME}:TITLE = REPLACE({&WINDOW-NAME}:TITLE,"Order Maintenance","Close/Reopen Orders").                                 
+    END.    
+END PROCEDURE.
+    
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pDisablePanels W-Win
 PROCEDURE pDisablePanels:
 /*------------------------------------------------------------------------------
- Purpose: Disable panles based on page number
+ Purpose: Disable panels based on page number
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipiCurrentPage AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiCurrentPage AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER ipcScreen      AS CHARACTER NO-UNDO.
     
     CASE ipiCurrentPage: 
-        WHEN 2 THEN DO:
-              RUN set-buttons IN h_p-ordhd( 
-                  INPUT "add-only"
-                  ).
-              RUN Disable-All IN h_vp-tandm.
-              RUN Disable-All IN h_oe-hold.          
-          END.                      
-          WHEN 3 THEN DO:
-              RUN set-buttons IN h_p-orel(
-                  "Disable-all"
-                  ).
-              RUN set-buttons IN h_p-obol-2(
-                  "Disable-all"
-                  ).
-          END. 
-          WHEN 4 THEN DO:  
-              RUN DisableAll  IN h_p-ordmis.
-              RUN disable-All IN h_v-navest-2.
-          END.    
-              
-          WHEN 5 THEN DO:
-              RUN set-buttons IN h_p-orel-2(
-                  "Disable-all"
-                  ).
-              RUN set-buttons IN h_p-obol(
-                  "Disable-all"
-                  ).
-          END. 
-          WHEN 7 THEN 
-             RUN set-buttons IN h_p-ordt (
-                 "Disable-all"
-                 ).                                           
-          WHEN 10 THEN 
-             RUN set-buttons IN h_p-updshp(
-                 "Disable-all"
+        WHEN 2 THEN DO: /* Detail Tab */
+            RUN disable-all IN h_vp-tandm.
+            
+            /* Disable Navigation Panel*/  
+            IF ipcScreen EQ "OQ1" OR ipcScreen EQ "OW" OR ipcScreen EQ "OC" THEN
+                RUN disable-all IN h_v-navest.  
+                  
+            IF ipcScreen NE "OW" THEN                    
+                RUN set-buttons IN h_p-ordhd(
+                    INPUT IF ipcScreen EQ "OU1" THEN "add-only"  ELSE "disable-all"
+                    ).
+         END.                      
+         WHEN 3 THEN DO: /* Items Tab */
+             /*Disable Release Button*/
+             RUN set-buttons IN h_p-orel(
+                 INPUT "Disable-all"
                  ).
-          WHEN 11 THEN 
-             RUN set-buttons IN h_p-updcan-3 (
-                 "Disable-all"
-                 ).    
+             /* Disable BOL/INV button */    
+             RUN set-buttons IN h_p-obol-2(
+                 INPUT "Disable-all"
+                 ).   
+         END. 
+         WHEN 4 THEN DO: /* Misc Tab */
+             /* Disable update panel */
+             RUN DisableAll  IN h_p-ordmis.
+             
+             /* Disable navigation Panel */
+             RUN disable-All IN h_v-navest-2.
+         END.    
+             
+         WHEN 5 THEN DO: /* Release Tab */
+             /* Disable Release Button */
+             RUN set-buttons IN h_p-orel-2(
+                 INPUT "Disable-all"
+                 ).
+                 
+             /* Disable BOL/INV Button */    
+             RUN set-buttons IN h_p-obol(
+                 INPUT "Disable-all"
+                 ).                          
+         END. 
+         WHEN 7 THEN /* Order Totals */
+            /* Disable Update Panel */
+            RUN set-buttons IN h_p-ordt (
+                INPUT "Disable-all"
+                ). 
+                                                          
+         WHEN 10 THEN /* Ship Notes Tab */
+            /* Disable Ship Notes Panel*/
+            IF ipcScreen NE "OW" THEN 
+                RUN set-buttons IN h_p-updshp(
+                    INPUT "Disable-all"
+                    ).
+                
+         WHEN 11 THEN /* Billto Notes Tab */ 
+            /* Disable Billto Notes Panel */
+            IF ipcScreen NE "OW" THEN 
+                RUN set-buttons IN h_p-updcan-3 (
+                    INPUT "Disable-all"
+                    ).    
     END CASE.
-
 END PROCEDURE.
     
 /* _UIB-CODE-BLOCK-END */
@@ -1817,7 +1887,7 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pEnablePanels W-Win 
 PROCEDURE pEnablePanels :
 /*------------------------------------------------------------------------------
- Purpose:Enable Panles based on input page number
+ Purpose: Enable Panles based on input page number
  Notes:
 ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipiCurrentPage AS INTEGER NO-UNDO.
@@ -1832,10 +1902,10 @@ PROCEDURE pEnablePanels :
           END.                      
           WHEN 3 THEN DO: /*Items Tab*/
               RUN set-buttons IN h_p-orel(
-                  "Initial"
+                  INPUT "Initial"
                   ).
               RUN set-buttons IN h_p-obol-2(
-                  "Initial"
+                  INPUT "Initial"
                   ).
           END. 
           WHEN 4 THEN DO:  /*Misc Tab*/
@@ -1845,23 +1915,23 @@ PROCEDURE pEnablePanels :
               
           WHEN 5 THEN DO: /* Release Tab*/
               RUN set-buttons IN h_p-orel-2(
-                  "Initial"
+                  INPUT "Initial"
                   ).
               RUN set-buttons IN h_p-obol(
-                  "Initial"
+                  INPUT "Initial"
                   ).
           END. 
           WHEN 7 THEN /*Totals Tab*/
              RUN set-buttons IN h_p-ordt (
-                 "Initial"
+                 INPUT "Initial"
                  ).                                           
           WHEN 10 THEN /*ShipNots Tab*/
              RUN set-buttons IN h_p-updshp(
-                 "initial"
+                 INPUT "initial"
                  ).
           WHEN 11 THEN /*Bill Notes Tabe*/
              RUN set-buttons IN h_p-updcan-3 (
-                 "Initial"
+                 INPUT "Initial"
                  ).    
     END CASE.                     
 END PROCEDURE.

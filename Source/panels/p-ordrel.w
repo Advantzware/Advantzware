@@ -504,6 +504,7 @@ DEF VAR ll-no-bol AS LOG NO-UNDO.
 DEF VAR ll-no-job AS LOG NO-UNDO.
 DEF VAR char-hdl AS CHAR NO-UNDO.
 DEF VAR prev-panel AS CHAR NO-UNDO.
+DEFINE VARIABLE cScreenType AS CHARACTER NO-UNDO.
 
 
 RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, 'TABLEIO-TARGET':U, OUTPUT char-hdl).
@@ -519,11 +520,13 @@ IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN DO:
    
   IF ll-no-bol OR ll-no-job THEN panel-state = prev-panel.
 END.
-
 RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, 'inquiry-rel-target':U, OUTPUT char-hdl).
 IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN 
     panel-state = 'disable-all'.
-
+    
+  {methods/run_link.i "container-source" "GetScreenType" "(Output cScreenType)"} 
+  IF cScreenType EQ "OQ1" OR cScreenType EQ "OW" OR cScreenType EQ "OC" OR cScreenType EQ "OU6" THEN
+      panel-state = 'disable-all'.         
   DO WITH FRAME {&FRAME-NAME}:  
       IF panel-state = 'disable-all':U THEN DO:
           ASSIGN btn-add:SENSITIVE = NO

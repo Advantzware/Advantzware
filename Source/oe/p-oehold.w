@@ -379,7 +379,10 @@ PROCEDURE local-row-available :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-
+  DEFINE VARIABLE cScreenType AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE char-hdl    AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE pHandle     AS HANDLE    NO-UNDO.
+  
   /* Code placed here will execute PRIOR to standard behavior. */
 
   /* Dispatch standard ADM method.                             */
@@ -389,13 +392,19 @@ PROCEDURE local-row-available :
   DO WITH FRAME {&FRAME-NAME}:
       IF NOT v-can-update THEN ASSIGN btnHold:SENSITIVE IN FRAME {&FRAME-NAME} = NO .
       ELSE ENABLE btnHold.
-    IF AVAIL oe-ord THEN DO:
-      btnHold:LABEL = IF oe-ord.stat EQ "H" THEN "Re&lease" ELSE "&Hold".
-      IF oe-ord.stat EQ "C" THEN    
-      RUN disable-all. 
-    END.  
+    IF AVAIL oe-ord THEN 
+      btnHold:LABEL = IF oe-ord.stat EQ "H" THEN "Re&lease" ELSE "&Hold".  
   END.
-
+  {methods/run_link.i "container-source" "GetScreenType" "(Output cScreenType)"}
+  
+   IF cScreenType EQ "OW" OR cScreenType EQ "OQ1" OR cScreenType EQ "OU6" OR cScreenType EQ "OC" OR NOT AVAILABLE oe-ord THEN 
+        btnHold:SENSITIVE = NO.
+   ELSE IF cScreenType EQ "OU1" AND AVAILABLE oe-ord THEN DO:
+       IF oe-ord.stat EQ "C" THEN 
+           btnHold:SENSITIVE = NO.
+       ELSE 
+           btnHold:SENSITIVE = YES.                
+   END.                       
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
