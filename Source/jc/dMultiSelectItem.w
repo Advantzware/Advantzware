@@ -512,7 +512,7 @@ DO:
     IF NOT AVAILABLE itemfg THEN RETURN NO-APPLY.      
     IF itemfg.q-alloc NE 0 THEN
     DO:    
-        RUN oeinq/b-ordinfo.w(ROWID(itemfg), cLocation) .
+        RUN oeinq/b-ordinfo.w(ROWID(itemfg), "*All") .
     END. 
 END.
 
