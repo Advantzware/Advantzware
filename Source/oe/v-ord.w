@@ -3279,12 +3279,6 @@ DEF BUFFER bf-oe-ord FOR oe-ord.
         job-hdr.ord-no  EQ 0)
         USE-INDEX enum:
 
-        IF job-hdr.ord-no NE 0 THEN DO:          
-          IF AVAIL job THEN DO:
-            {util/dljobkey.i}
-          END.
-        END.
-
         DO loop-limit = 1 TO 1000:
           FIND del-job-hdr WHERE ROWID(del-job-hdr) EQ ROWID(job-hdr)
           EXCLUSIVE NO-WAIT NO-ERROR.

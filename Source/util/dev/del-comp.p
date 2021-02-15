@@ -3242,8 +3242,6 @@ CASE ipcTable:
               IF llCancel THEN 
                   LEAVE. 
      
-              {util/dljobkey.i}    
-
               FOR EACH notes WHERE notes.rec_key EQ {&deltable}.rec_key 
                   EXCLUSIVE-LOCK: 
                   EXPORT STREAM sNotes notes. 

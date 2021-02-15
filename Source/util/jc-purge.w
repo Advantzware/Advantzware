@@ -511,9 +511,7 @@ for each job
           and job-hdr.job     eq job.job
           and job-hdr.job-no  eq job.job-no
           and job-hdr.job-no2 eq job.job-no2
-        exclusive-lock:
-
-      {util/dljobkey.i}          
+        exclusive-lock:         
 
       delete job-hdr.
     end.
