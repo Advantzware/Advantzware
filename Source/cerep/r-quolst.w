@@ -10,7 +10,7 @@
 
 {sys/inc/var.i new shared}
 
-ASSIGN
+assign
  cocode = gcompany
  locode = gloc.
 

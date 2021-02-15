@@ -355,7 +355,7 @@ PROCEDURE Output_TempTableToCSV:
         OUTPUT STREAM sOutput to VALUE(cFullFilePath). 
         DO iIndex = 1 TO hBuffer:NUM-FIELDS: 
             IF hBuffer:BUFFER-FIELD(iIndex):EXTENT GT 0 THEN DO:
-                DO eIndex = 1 TO hBuffer:BUFFER-FIELD(iIndex):EXTENT:
+                DO eIndex = 1 to hBuffer:BUFFER-FIELD(iIndex):EXTENT:
                     PUT STREAM sOutput UNFORMATTED 
                     (IF hBuffer:BUFFER-FIELD(iIndex):LABEL NE "" AND hBuffer:BUFFER-FIELD(iIndex):LABEL NE ? THEN
                         hBuffer:BUFFER-FIELD(iIndex):LABEL 
@@ -394,7 +394,7 @@ PROCEDURE Output_TempTableToCSV:
      
             ELSE 
             IF hBuffer:BUFFER-FIELD(iIndex):EXTENT GT 0 THEN DO:
-                DO eIndex = 1 TO hBuffer:BUFFER-FIELD(iIndex):EXTENT:
+                DO eIndex = 1 to hBuffer:BUFFER-FIELD(iIndex):EXTENT:
                     PUT STREAM sOutput UNFORMATTED  
                         '"' FormatForCSV(hBuffer:BUFFER-FIELD(iIndex):BUFFER-VALUE(eIndex),lReplaceQuote,lAddTab) 
                         (IF iIndex EQ hBuffer:NUM-FIELDS AND eIndex EQ hBuffer:BUFFER-FIELD(iIndex):EXTENT THEN '"' ELSE '",').
@@ -410,43 +410,6 @@ PROCEDURE Output_TempTableToCSV:
     OUTPUT STREAM sOutput CLOSE.
         
 END PROCEDURE.
-
-
-PROCEDURE Output_TempTableToEmail:
-    /*------------------------------------------------------------------------------
-     Purpose: Exports the contents of the temp-table to XML
-     Notes:
-    ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER iplIsXprintForm AS LOGICAL  NO-UNDO.
-    DEFINE INPUT PARAMETER ipcType AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcBeginCust AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcEndCust CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcMailSubject AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcMailBody AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcFileName AS LOGICAL NO-UNDO.
-
-    IF iplIsXprintForm THEN 
-    DO:
-        {custom/asimail.i &TYPE=ipcType
-                             &begin_cust=ipcBeginCust
-                             &end_cust=ipcEndCust
-                             &mail-subject=ipcMailSubject
-                             &mail-body=ipcMailBody
-                             &mail-file=ipcFileName }
-    END.
-    ELSE 
-    DO:
-        {custom/asimailr.i &TYPE=ipcType
-                                  &begin_cust=ipcBeginCust
-                                  &end_cust=ipcEndCust
-                                  &mail-subject=ipcMailSubject
-                                  &mail-body=ipcMailBody
-                                  &mail-file=ipcFileName }
-
-    END.
-    
-END PROCEDURE.
-
 
 PROCEDURE Output_TempTableToJSON:
     /*------------------------------------------------------------------------------
@@ -479,51 +442,6 @@ PROCEDURE Output_TempTableToJSON:
             
     lRetOK = iphTT:WRITE-JSON(cTargetType, cFullFilePath, lFormatted).
     
-END PROCEDURE.
-
-PROCEDURE Output_ListToScreen:
-    /*------------------------------------------------------------------------------
-     Purpose: Exports the contents of the temp-table to XML
-     Notes:
-    ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcListName      AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcWinTitle      AS CHARACTER NO-UNDO.   
-    DEFINE INPUT PARAMETER ipcFontNo        AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcOrientation AS CHARACTER NO-UNDO.
-    
-    IF ipcFontNo = "" THEN 
-        ipcFontNo = "11".
-    IF ipcOrientation BEGINS "L" THEN 
-        ipcOrientation = 3.
-    ELSE 
-        ipcOrientation = 1.      
-    RUN scr-rpt.w (ipcListName,ipcWinTitle,int(ipcFontNo),ipcOrientation). /* open file-name, title */ 
-    
-END PROCEDURE.
-
-
-PROCEDURE Output_TempTableToPrinter:
-    /*------------------------------------------------------------------------------
-     Purpose: Exports the contents of the temp-table to XML
-     Notes:
-    ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAM ipcPrtName     AS cha NO-UNDO.
-    DEFINE INPUT PARAM ipcFont        AS INT NO-UNDO.
-    DEFINE INPUT PARAM ipcOrientation AS cha NO-UNDO.
-
-    DEFINE VARIABLE result    AS LOGICAL   NO-UNDO.
-  
-    IF ipcOrientation BEGINS "L" THEN 
-        ipcOrientation = 3.
-    ELSE 
-        ipcOrientation = 1.
-        
-    IF ipcFontNo = "" THEN 
-        ipcFontNo = "11".
-
-    /* Use Progress Print. Always use Font#9 in Registry (set above) */
-    RUN 'adecomm/_osprint.p' (INPUT ?, INPUT ipcPrtName,
-        INPUT ipcFont, INPUT INTEGER(ipcOrientation), INPUT 0, INPUT 0, OUTPUT result).
 END PROCEDURE.
 
 PROCEDURE Output_TempTableToXML:
@@ -793,9 +711,9 @@ FUNCTION GetCurrentPage RETURNS INTEGER
     /*------------------------------------------------------------------------------
      Purpose: Returns the value of the PageCount property
      Notes:
-    ------------------------------------------------------------------------------*/	
+    ------------------------------------------------------------------------------*/    
     RETURN giPageCount.
-		
+        
 END FUNCTION.
 
 FUNCTION FormatForCSV RETURNS CHARACTER 
@@ -803,7 +721,7 @@ FUNCTION FormatForCSV RETURNS CHARACTER
     /*------------------------------------------------------------------------------
      Purpose: Fixes the input character value and returns a CSV friendly text
      Notes:
-    ------------------------------------------------------------------------------*/	
+    ------------------------------------------------------------------------------*/    
     DEFINE VARIABLE iZeroCode AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iNineCode AS INTEGER   NO-UNDO.
     DEFINE VARIABLE chChar    AS CHARACTER NO-UNDO.                    
@@ -822,7 +740,7 @@ FUNCTION FormatForCSV RETURNS CHARACTER
             ipcValue = CHR(9) + ipcValue.
     END.
     RETURN ipcValue.   
-		
+        
 END FUNCTION.
 
 FUNCTION FormatNumber RETURNS CHARACTER 

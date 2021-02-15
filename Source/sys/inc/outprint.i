@@ -1,3 +1,5 @@
 /* sys/inc/outprint.i */
 
-OUTPUT to value(list-name) page-size {1} .
+output to value(list-name) page-size {1} .
+
+
