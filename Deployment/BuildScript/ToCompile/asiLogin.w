@@ -822,47 +822,49 @@ PROCEDURE ipChangeEnvironment :
         RETURN.
     END.
     ELSE DO:
-        ASSIGN
-            cAvailDbList = "".
-        CASE cbEnvironment:{&SV}:
-            WHEN "Prod" THEN DO:
-                DO iCtr = 1 TO NUM-ENTRIES(cDbList):
-                    IF INDEX(ENTRY(iCtr,cDbList),"Prod") NE 0 THEN ASSIGN
-                        cAvailDbList = cAvailDbList + ENTRY(iCtr,cDbList) + ",".
-                END.
-                ASSIGN 
-                    cAvailDbList = TRIM(cAvailDbList,",")
-                    cSelectedDatabase = ENTRY(1,cAvailDbList)
-                    cbDatabase:LIST-ITEMS = cAvailDbList
-                    cbDatabase:{&SV} = cSelectedDatabase.
-            END.
-            WHEN "Test" THEN DO:
-                DO iCtr = 1 TO NUM-ENTRIES(cDbList):
-                    IF INDEX(ENTRY(iCtr,cDbList),"Test") NE 0 THEN ASSIGN
+        IF cAvailDbList EQ cDbList THEN DO:
+            ASSIGN
+                cAvailDbList = "".
+            CASE cbEnvironment:{&SV}:
+                WHEN "Prod" THEN DO:
+                    DO iCtr = 1 TO NUM-ENTRIES(cDbList):
+                        IF INDEX(ENTRY(iCtr,cDbList),"Prod") NE 0 THEN ASSIGN
                             cAvailDbList = cAvailDbList + ENTRY(iCtr,cDbList) + ",".
+                    END.
+                    ASSIGN 
+                        cAvailDbList = TRIM(cAvailDbList,",")
+                        cSelectedDatabase = ENTRY(1,cAvailDbList)
+                        cbDatabase:LIST-ITEMS = cAvailDbList
+                        cbDatabase:{&SV} = cSelectedDatabase.
                 END.
-                ASSIGN 
-                    cAvailDbList = TRIM(cAvailDbList,",")
-                    cSelectedDatabase = ENTRY(1,cAvailDbList)
-                    cbDatabase:LIST-ITEMS = cAvailDbList
-                    cbDatabase:{&SV} = cSelectedDatabase.
-            END.
-            OTHERWISE DO:
-                ASSIGN 
-                    cTestList = ""
-                    cbDatabase:LIST-ITEMS = "".
-                DO iCtr = 1 TO NUM-ENTRIES(cDbList):
-                    IF intVer(ENTRY(iCtr,cDbVerList)) EQ iEnvLevel THEN ASSIGN
-                        cTestList = cTestList + ENTRY(iCtr,cDbList) + ",".
+                WHEN "Test" THEN DO:
+                    DO iCtr = 1 TO NUM-ENTRIES(cDbList):
+                        IF INDEX(ENTRY(iCtr,cDbList),"Test") NE 0 THEN ASSIGN
+                                cAvailDbList = cAvailDbList + ENTRY(iCtr,cDbList) + ",".
+                    END.
+                    ASSIGN 
+                        cAvailDbList = TRIM(cAvailDbList,",")
+                        cSelectedDatabase = ENTRY(1,cAvailDbList)
+                        cbDatabase:LIST-ITEMS = cAvailDbList
+                        cbDatabase:{&SV} = cSelectedDatabase.
                 END.
-                ASSIGN 
-                    cTestList = TRIM(cTestList,",")
-                    cAvailDbList = cTestList
-                    cbDatabase:LIST-ITEMS = cAvailDbList
-                    cbDatabase:{&SV} = ENTRY(1,cAvailDbList)
-                    cSelectedDatabase = ENTRY(1,cAvailDbList).
-            END.
-        END CASE.
+                OTHERWISE DO:
+                    ASSIGN 
+                        cTestList = ""
+                        cbDatabase:LIST-ITEMS = "".
+                    DO iCtr = 1 TO NUM-ENTRIES(cDbList):
+                        IF intVer(ENTRY(iCtr,cDbVerList)) EQ iEnvLevel THEN ASSIGN
+                            cTestList = cTestList + ENTRY(iCtr,cDbList) + ",".
+                    END.
+                    ASSIGN 
+                        cTestList = TRIM(cTestList,",")
+                        cAvailDbList = cTestList
+                        cbDatabase:LIST-ITEMS = cAvailDbList
+                        cbDatabase:{&SV} = ENTRY(1,cAvailDbList)
+                        cSelectedDatabase = ENTRY(1,cAvailDbList).
+                END.
+            END CASE.
+        END.
         IF cSessionParam EQ "" THEN 
             APPLY 'value-changed' TO cbDatabase.
         IF NUM-ENTRIES(cAvailDbList) EQ 1 THEN ASSIGN 
