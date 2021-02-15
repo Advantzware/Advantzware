@@ -37,6 +37,7 @@ DEFINE VARIABLE period_pos   AS INTEGER   NO-UNDO.
 DEFINE VARIABLE num-groups   AS INTEGER   NO-UNDO.
 DEFINE VARIABLE group-ok     AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE access-close AS LOGICAL   NO-UNDO.
+DEF VAR deXprintTgtVer AS DECI NO-UNDO INITIAL 10.17.
 
 IF INDEX(PROGRAM-NAME(1),".uib") NE 0 OR
    INDEX(PROGRAM-NAME(1),".ab")  NE 0 OR
@@ -127,7 +128,6 @@ END.
 
 RUN system/OutputProcs.p PERSISTENT SET hOutputProcs.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -181,11 +181,12 @@ DEFINE VARIABLE begin_file AS CHARACTER FORMAT "X(100)"
 
 DEFINE VARIABLE begin_font AS CHARACTER FORMAT "X(100)" 
      LABEL "Font" 
+     INITIAL "Tahoma"
      VIEW-AS FILL-IN 
      SIZE 20.4 BY 1.
 
-DEFINE VARIABLE begin_font-size AS INTEGER FORMAT "->,>>>,>>9" INITIAL 0 
-     LABEL "Font Size" 
+DEFINE VARIABLE begin_font-size AS INTEGER FORMAT "->,>>>,>>9" INITIAL 10 
+     LABEL "Font Size"
      VIEW-AS FILL-IN 
      SIZE 11 BY 1.
 
@@ -205,27 +206,27 @@ DEFINE RECTANGLE RECT-9
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 71.6 BY 18.57.
 
-DEFINE VARIABLE tb_bar-code AS LOGICAL INITIAL no 
+DEFINE VARIABLE tb_bar-code AS LOGICAL INITIAL yes 
      LABEL "Print Bar Code" 
      VIEW-AS TOGGLE-BOX
      SIZE 33 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_image AS LOGICAL INITIAL no 
-     LABEL "Print Image" 
+DEFINE VARIABLE tb_image AS LOGICAL INITIAL yes 
+     LABEL "Print Image"
      VIEW-AS TOGGLE-BOX
      SIZE 33 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_line AS LOGICAL INITIAL no 
+DEFINE VARIABLE tb_line AS LOGICAL INITIAL yes
      LABEL "Print Line" 
      VIEW-AS TOGGLE-BOX
      SIZE 33 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_log AS LOGICAL INITIAL no 
+DEFINE VARIABLE tb_log AS LOGICAL INITIAL no
      LABEL "Create Dbug Log File?" 
      VIEW-AS TOGGLE-BOX
      SIZE 33 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_rec AS LOGICAL INITIAL no 
+DEFINE VARIABLE tb_rec AS LOGICAL INITIAL yes
      LABEL "Print Rectangle" 
      VIEW-AS TOGGLE-BOX
      SIZE 33 BY 1 NO-UNDO.
@@ -469,9 +470,10 @@ DO:
         THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hOutputProcs).
          
     /* 95411 Add check for latest versions of 3rd party components to Xprint tester */
+    /*
     RUN ipCheck3dPartyVersions (OUTPUT lError).
     IF lError THEN RETURN.
-             
+    */         
            RUN run-report("",NO).
         IF rd-dest EQ 3 THEN
         RUN GenerateReport("",YES).
@@ -635,10 +637,28 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     RUN enable_UI.
   
     {methods/nowait.i}
-    {custom/usrprint.i}
-
- 
- 
+    /* {custom/usrprint.i} */
+    ASSIGN 
+        fi_text:SCREEN-VALUE = "Advantzware will never send an email that" + CHR(10) +
+                               "asks you to provide, confirm or verify" + CHR(10) +
+                               "personal, login or account information.".
+        
+    /* Check xPrint Version */
+    DEF VAR xVer AS MEMPTR.
+    DEF VAR xPrintVersion AS CHAR NO-UNDO.
+    SET-SIZE(xVer) = 256.
+    RUN xPrintVersion(xVer).
+    xPrintVersion = GET-STRING(xVer, 1).
+    SET-SIZE(xVer) = 0.
+    IF DECIMAL(xPrintVersion) LT deXprintTgtVer THEN 
+    DO: 
+        MESSAGE 
+            "Your xPrint version is out of date." SKIP 
+            "You should update this from the Advantzware" SKIP 
+            "'Install/LocalPrintInstall' folder to version " + STRING(deXprintTgtVer)
+            VIEW-AS ALERT-BOX. 
+    END. 
+    
     IF NOT THIS-PROCEDURE:PERSISTENT THEN
         WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -737,92 +757,6 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipCheck3dPartyVersions C-Win
-PROCEDURE ipCheck3dPartyVersions:
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-    DEF OUTPUT PARAMETER oplError AS LOG.
-    
-    DEF VAR cCommand AS CHAR NO-UNDO.
-    DEF VAR cVersionLine AS CHAR NO-UNDO.
-    DEF VAR lInXprint AS LOG NO-UNDO.
-    DEF VAR lInJasper AS LOG NO-UNDO.
-    DEF VAR cXprintTgtVer AS CHAR NO-UNDO INITIAL "10.17".
-    DEF VAR cJasperTgtVer AS CHAR NO-UNDO INITIAL "3.4.1".
-    DEF VAR cXprintActVer AS CHAR NO-UNDO.
-    DEF VAR cJasperActVer AS CHAR NO-UNDO.
-    
-    OS-DELETE VALUE("c:\tmp\3PVersion1.txt").
-    OS-DELETE VALUE("c:\tmp\3PVersion2.txt").
-    OS-DELETE VALUE("c:\tmp\3PVersion.txt").
-
-    ASSIGN 
-        cCommand = "reg export HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall c:\tmp\3PVersion1.txt".
-    OS-COMMAND SILENT VALUE(cCommand).
-    ASSIGN 
-        cCommand = "reg export HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\JasperStarter c:\tmp\3PVersion2.txt".
-    OS-COMMAND SILENT VALUE(cCommand).
-    OS-COMMAND SILENT VALUE("COPY c:\tmp\3PVersion1.txt + c:\tmp\3PVersion2.txt c:\tmp\3PVersion.txt").
-    
-    INPUT FROM VALUE("c:\tmp\3PVersion.txt").
-    REPEAT:
-        IMPORT UNFORMATTED cVersionLine.
-        IF INDEX(cVersionLine,'"DisplayName"="vpxPrint') NE 0 THEN 
-        DO:
-            ASSIGN 
-                lInXprint = TRUE.
-            NEXT.
-        END.
-        ELSE IF INDEX(cVersionLine,'"DisplayName"="JasperStarter') NE 0 THEN 
-            DO: 
-                ASSIGN 
-                    cJasperActVer = ENTRY(2,cVersionLine," ")
-                    cJasperActVer = TRIM(cJasperActVer,'"').
-                NEXT.
-            END.
-            ELSE IF lInXprint AND INDEX(cVersionLine,"DisplayVersion") NE 0 THEN 
-                DO: 
-                    ASSIGN 
-                        cXprintActVer = REPLACE(cVersionLine,'"','')
-                        cXprintActVer = ENTRY(2,cXprintActVer,"=")
-                        lInXprint = FALSE.
-                    NEXT.
-                END.
-    END.
-
-    OS-DELETE VALUE("c:\tmp\3PVersion1.txt").
-    OS-DELETE VALUE("c:\tmp\3PVersion2.txt").
-    OS-DELETE VALUE("c:\tmp\3PVersion.txt").
-
-    IF cXprintActVer EQ "" THEN DO: 
-        MESSAGE 
-            "YOU DO NOT HAVE XPRINT SOFTWARE INSTALLED!" SKIP(1)
-            "You will not be able to run this function" SKIP 
-            "or many Advantzware reports."
-            VIEW-AS ALERT-BOX ERROR.
-        ASSIGN 
-            oplError = TRUE.
-    END.
-    ELSE IF cXprintActVer LT cXprintTgtVer THEN DO: 
-        MESSAGE 
-            "Your xPrint version is out of date." SKIP 
-            "You should update this from the Advantzware" SKIP 
-            "'Install/LocalPrintInstall' folder to version " + cXprintTgtVer
-            VIEW-AS ALERT-BOX.
-        ASSIGN 
-            oplError = TRUE.
-    END.
-    ELSE MESSAGE 
-        "xPrint version check PASSED."
-        VIEW-AS ALERT-BOX INFO.            
-
-END PROCEDURE.
-	
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE output-to-printer C-Win 
@@ -894,7 +828,7 @@ PROCEDURE pProgram :
     
     RUN Output_WriteToXprint(4,52,"Asi Version #: {&awversion} ",YES,NO,NO,NO) .
 
-    RUN Output_WriteToXprint(5,52,"Xprint Version #: ",YES,NO,NO,NO) .
+    RUN Output_WriteToXprint(5,52,"Xprint Version #: " + xPrintVersion,YES,NO,NO,NO) .
 
     IF tb_image THEN
     RUN Output_WriteToXprintImage(2,3,8,50,ls-full-img1) . /* row form, col from, row size,col size ,image path */
