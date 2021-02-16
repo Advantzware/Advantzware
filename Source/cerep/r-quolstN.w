@@ -84,7 +84,8 @@ ASSIGN cTextListToDefault  = "Company Name,Address1,Address2,City,State,Zip,Rep,
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 begin_cust-no end_cust-no ~
 begin_slsmn end_slsmn begin_date end_date sl_avail Btn_Def sl_selected ~
-Btn_Add Btn_Remove btn_Up btn_down rd-dest tbAutoClose btn-ok btn-cancel 
+Btn_Add Btn_Remove btn_Up btn_down rd-dest fi_file tb_runExcel tbAutoClose ~
+btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_cust-no end_cust-no begin_slsmn ~
 end_slsmn begin_date end_date sl_avail sl_selected rd-dest fi_file ~
 tb_runExcel tbAutoClose 
@@ -109,7 +110,7 @@ FUNCTION GEtFieldValue RETURNS CHARACTER
 /* ***********************  Control Definitions  ********************** */
 
 /* Define the widget handle for the window                              */
-DEFINE VARIABLE C-Win AS WIDGET-HANDLE NO-UNDO.
+DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btn-cancel AUTO-END-KEY 
@@ -240,19 +241,19 @@ DEFINE FRAME FRAME-A
      rd-dest AT ROW 14.1 COL 5.8 NO-LABEL
      fi_file AT ROW 16.95 COL 25.4 COLON-ALIGNED HELP
           "Enter File Name" WIDGET-ID 8
-     tb_runExcel AT ROW 16.95 COL 87 RIGHT-ALIGNED WIDGET-ID 12
+     tb_runExcel AT ROW 17.05 COL 87 RIGHT-ALIGNED WIDGET-ID 12
      tbAutoClose AT ROW 19.1 COL 26.2 WIDGET-ID 16
      btn-ok AT ROW 20.24 COL 25.8
      btn-cancel AT ROW 20.24 COL 48.4
      "Available Columns" VIEW-AS TEXT
           SIZE 29 BY .62 AT ROW 6.71 COL 3.6 WIDGET-ID 38
-     "Selected Columns(In Display Order)" VIEW-AS TEXT
-          SIZE 34 BY .62 AT ROW 6.71 COL 59.8 WIDGET-ID 44
-     "Output Destination" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 13.24 COL 2.8
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.29 COL 3
           BGCOLOR 15 
+     "Output Destination" VIEW-AS TEXT
+          SIZE 18 BY .62 AT ROW 13.24 COL 2.8
+     "Selected Columns(In Display Order)" VIEW-AS TEXT
+          SIZE 34 BY .62 AT ROW 6.71 COL 59.8 WIDGET-ID 44
      RECT-6 AT ROW 13.62 COL 2
      RECT-7 AT ROW 1.67 COL 2
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
@@ -345,14 +346,12 @@ ASSIGN
        end_slsmn:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
-/* SETTINGS FOR FILL-IN fi_file IN FRAME FRAME-A
-   NO-ENABLE                                                            */
 ASSIGN 
        fi_file:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 /* SETTINGS FOR TOGGLE-BOX tb_runExcel IN FRAME FRAME-A
-   NO-ENABLE ALIGN-R                                                    */
+   ALIGN-R                                                              */
 ASSIGN 
        tb_runExcel:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -748,17 +747,11 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     Btn_Remove:load-image("Graphics/32x32/remove.png").
     btn_Up:load-image("Graphics/32x32/moveup.png").
     btn_down:load-image("Graphics/32x32/movedown.png").
+    
   RUN enable_UI.
- /* DEFINE VARIABLE hTempHand AS HANDLE.
-    hTempHand = FRAME {&FRAME-NAME}:handle.
-    hTempHand = hTempHand:FIRST-CHILD .
-    IF hTempHand:TYPE = "FIELD-GROUP" THEN  
-        hTempHand  = hTempHand:FIRST-CHILD.
-            
-    REPEAT WHILE VALID-HANDLE(hTempHand):
-         hTempHand:FONT  = 22.
-        hTempHand = hTempHand:NEXT-SIBLING.
-    END.*/
+    ASSIGN rd-dest.
+    APPLY 'VALUE-CHANGED' TO rd-dest.
+
   {methods/nowait.i}
 
    /* gdm - 10130807 */
@@ -925,7 +918,8 @@ PROCEDURE enable_UI :
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 begin_cust-no end_cust-no begin_slsmn end_slsmn 
          begin_date end_date sl_avail Btn_Def sl_selected Btn_Add Btn_Remove 
-         btn_Up btn_down rd-dest tbAutoClose btn-ok btn-cancel 
+         btn_Up btn_down rd-dest fi_file tb_runExcel tbAutoClose btn-ok 
+         btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -1001,10 +995,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-
-
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE output-to-printer C-Win 
 PROCEDURE output-to-printer :
 /*------------------------------------------------------------------------------
@@ -1025,7 +1015,7 @@ PROCEDURE output-to-printer :
                           /* font #*/ /* use-dialog(1) and landscape(2) */
   */
  // RUN custom/prntproc.p (list-name,INT(lv-font-no),lv-ornt).
-    RUN custom/prntproc.p (list-name,0,1).
+    RUN custom/prntproc.p (list-name,0,"P").
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1039,7 +1029,7 @@ PROCEDURE output-to-screen :
   Notes:       
 ------------------------------------------------------------------------------*/
  // RUN scr-rpt.w (list-name,c-win:TITLE,int(lv-font-no),lv-ornt). /* open file-name, title */ 
-    RUN scr-rpt.w (list-name,c-win:TITLE,0,1). /* open file-name, title */ 
+    RUN scr-rpt.w (list-name,c-win:TITLE,0,"P"). /* open file-name, title */ 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
