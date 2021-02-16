@@ -40,7 +40,7 @@ RUN fgrep\fgReorder.p PERSISTENT SET hdFGReorder.
 /*{sys/inc/f16to32.i}*/
 {sys/inc/lastship.i}
 
-&SCOPED-DEFINE yellowColumnsName dMultiSelectItem
+&SCOPED-DEFINE yellowColumnsName dFMultiSelectItem
 
 
 /* _UIB-CODE-BLOCK-END */
@@ -202,9 +202,11 @@ DEFINE BROWSE BROWSE-2
             WIDTH 8 VIEW-AS TOGGLE-BOX
       ttMultiSelectItem.multiplier COLUMN-LABEL "Molds" FORMAT ">9" LABEL-BGCOLOR 14
       ttMultiSelectItem.quantityToOrder COLUMN-LABEL "Quantity To Order" FORMAT "->>>,>>>,>>9" LABEL-BGCOLOR 14
-      ttMultiSelectItem.quantityToOrderSuggested COLUMN-LABEL "Suggested Reorder" FORMAT "->>>,>>>,>>9" LABEL-BGCOLOR 14
       ttMultiSelectItem.itemID COLUMN-LABEL "FG Item" FORMAT "x(15)":U WIDTH 24 LABEL-BGCOLOR 14
-      ttMultiSelectItem.itemName COLUMN-LABEL "FG Name" WIDTH 30 FORMAT "x(30)"  LABEL-BGCOLOR 14
+      ttMultiSelectItem.dateDueDateEarliest COLUMN-LABEL "Earliest Due Date" FORMAT "99/99/9999":U
+            WIDTH 24  LABEL-BGCOLOR 14 
+      ttMultiSelectItem.orderQtyEarliest COLUMN-LABEL "Earliest Order Qty" FORMAT "->>>,>>>,>>9":U
+            WIDTH 25  LABEL-BGCOLOR 14 
       ttMultiSelectItem.quantityReorderLevel COLUMN-LABEL "Min Level" FORMAT "->>>,>>>,>>9" LABEL-BGCOLOR 14
       ttMultiSelectItem.quantityOnHand COLUMN-LABEL "On Hand" FORMAT "->>,>>>,>>9":U
             WIDTH 13 LABEL-BGCOLOR 14
@@ -214,16 +216,7 @@ DEFINE BROWSE BROWSE-2
             WIDTH 15 LABEL-BGCOLOR 14
       ttMultiSelectItem.quantityAvailable COLUMN-LABEL "Available" FORMAT "->>,>>>,>>9":U
             WIDTH 15 LABEL-BGCOLOR 14
-      ttMultiSelectItem.availOnHand COLUMN-LABEL "Available On-Hand" FORMAT "->>,>>>,>>9":U
-            WIDTH 25 LABEL-BGCOLOR 14             
-      ttMultiSelectItem.dateDueDateEarliest COLUMN-LABEL "Earliest Due Date" FORMAT "99/99/9999":U
-            WIDTH 24  LABEL-BGCOLOR 14 
-      ttMultiSelectItem.orderQtyEarliest COLUMN-LABEL "Earliest Order Qty" FORMAT "->>>,>>>,>>9":U
-            WIDTH 25  LABEL-BGCOLOR 14      
-      ttMultiSelectItem.quantityMinOrder COLUMN-LABEL "Minimum Order" FORMAT "->>,>>>,>>9":U
-            WIDTH 21  LABEL-BGCOLOR 14
-      ttMultiSelectItem.quantityMaxOrder COLUMN-LABEL "Maximum Order" FORMAT "->>,>>>,>>9":U
-            WIDTH 21 LABEL-BGCOLOR 14
+      ttMultiSelectItem.quantityToOrderSuggested COLUMN-LABEL "Suggested Reorder" FORMAT "->>>,>>>,>>9" LABEL-BGCOLOR 14
       ttMultiSelectItem.board COLUMN-LABEL "Furnish" FORMAT "x(10)":U
             WIDTH 18  LABEL-BGCOLOR 14      
       ttMultiSelectItem.itemCustPart COLUMN-LABEL "Customer Part" FORMAT "x(15)":U
@@ -232,8 +225,6 @@ DEFINE BROWSE BROWSE-2
             WIDTH 15 LABEL-BGCOLOR 14
       ttMultiSelectItem.itemCustName COLUMN-LABEL "Cust Name" FORMAT "x(30)":U
             WIDTH 33 LABEL-BGCOLOR 14
-      ttMultiSelectItem.itemEstNO COLUMN-LABEL "Estimate" FORMAT "x(8)":U
-            WIDTH 12 LABEL-BGCOLOR 14
       ttMultiSelectItem.itemStyle COLUMN-LABEL "Style" FORMAT "x(8)":U
             WIDTH 10  LABEL-BGCOLOR 14           
       ttMultiSelectItem.itemWhse COLUMN-LABEL "Warehouse" FORMAT "x(8)":U
@@ -512,7 +503,7 @@ DO:
     IF NOT AVAILABLE itemfg THEN RETURN NO-APPLY.      
     IF itemfg.q-alloc NE 0 THEN
     DO:    
-        RUN oeinq/b-ordinfo.w(ROWID(itemfg), cLocation) .
+        RUN oeinq/b-ordinfo.w(ROWID(itemfg), "*All") .
     END. 
 END.
 
@@ -733,7 +724,9 @@ PROCEDURE repo-query :
              AND (ttFGReorder.quantityToOrderSuggested GT 0 OR NOT tb_sugg-qty) :
                         
              CREATE ttMultiSelectItem.
-             BUFFER-COPY ttFGReorder TO ttMultiSelectItem. 
+             BUFFER-COPY ttFGReorder TO ttMultiSelectItem.
+             
+             ttMultiSelectItem.dateDueDateEarliest = TODAY.
 
                 FIND FIRST cust NO-LOCK
                      WHERE cust.company EQ cocode 
@@ -753,7 +746,7 @@ PROCEDURE repo-query :
                     ttMultiSelectItem.orderQtyEarliest = oe-ordl.qty - oe-ordl.ship-qty.
                     LEAVE.
                  END. 
-                 IF ttMultiSelectItem.dateDueDateEarliest EQ ? THEN ttMultiSelectItem.dateDueDateEarliest = 01/01/0001.
+                 IF ttMultiSelectItem.dateDueDateEarliest EQ ? THEN ttMultiSelectItem.dateDueDateEarliest = TODAY.
                   
                    FIND FIRST ttInputEst NO-LOCK 
                         WHERE ttInputEst.cStockNo EQ ttMultiSelectItem.itemID NO-ERROR.

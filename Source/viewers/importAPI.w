@@ -226,6 +226,19 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE DisableImport V-table-Win 
+PROCEDURE DisableImport :
+/*------------------------------------------------------------------------------
+  Purpose: Disables import button
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    btn-import:SENSITIVE IN FRAME {&FRAME-NAME} = FALSE.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed s-object 
 PROCEDURE state-changed :
 /* -----------------------------------------------------------

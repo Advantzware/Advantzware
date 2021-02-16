@@ -38,8 +38,8 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 DEF TEMP-TABLE tt-glhist NO-UNDO LIKE glhist
-        FIELD db-amt LIKE gltrans.tr-amt   LABEL "Debit Amount"
-        FIELD cr-amt LIKE gltrans.tr-amt   LABEL "Credit Amount".
+        FIELD db-amt LIKE glhist.tr-amt   LABEL "Debit Amount"
+        FIELD cr-amt LIKE glhist.tr-amt   LABEL "Credit Amount".
 
 {sa/sa-sls01.i}
 
@@ -380,21 +380,8 @@ PROCEDURE build-inquiry :
        tt-glhist.db-amt = glhist.tr-amt.
      IF glhist.tr-amt LT 0 THEN
        tt-glhist.cr-amt = glhist.tr-amt.   
-  END.
-
-  FOR EACH gltrans NO-LOCK
-      WHERE gltrans.company EQ lv-company
-        AND gltrans.trnum   EQ lv-tr-num:
-    CREATE tt-glhist.
-    BUFFER-COPY gltrans TO tt-glhist
-    ASSIGN
-     tt-glhist.tr-num = gltrans.trnum.
-     IF gltrans.tr-amt GT 0 THEN
-       tt-glhist.db-amt = gltrans.tr-amt.
-     IF gltrans.tr-amt LT 0 THEN
-       tt-glhist.cr-amt = gltrans.tr-amt.
-  END.
-
+  END.  
+  
   FOR EACH tt-glhist WHERE tt-glhist.tr-dscr MATCHES "*Inv# *":
     lv-inv-no = TRIM(SUBSTR(tt-glhist.tr-dscr,INDEX(tt-glhist.tr-dscr,"Inv# ") + 5,8)) NO-ERROR.
     IF ERROR-STATUS:ERROR THEN lv-inv-no = "".

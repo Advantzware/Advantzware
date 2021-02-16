@@ -47,8 +47,9 @@ PROCEDURE updateRequestData:
 /*------------------------------------------------------------------------------
  Purpose: Replaces the given key field with the value in the request data
  Notes: Below is the format for the key field to enter a format or data type in configuration.
-        $keyfield|format|datatype|$
-        Eg. $poID|>>>>>>>9|INT|$, $poNotes|X(30)|$, $poData|YYYYMMDD|DATE|$
+        $keyfield|format|datatype|alignmentstype|trim|$
+        Eg. $poID|>>>>>>>9|INT|$, $poNotes|X(30)|$, $poData|YYYYMMDD|DATE|$, $poID|>>>>>>>9|INT|L|$,
+            $poID|>>>>>>>9|INT||TRIM|$
 ------------------------------------------------------------------------------*/
     DEFINE INPUT-OUTPUT PARAMETER ioplcRequestData AS LONGCHAR  NO-UNDO.
     DEFINE INPUT        PARAMETER ipcField         AS CHARACTER NO-UNDO.
@@ -63,6 +64,11 @@ PROCEDURE updateRequestData:
     DEFINE VARIABLE cSourceString     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cTargetString     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cAlignmentStyle   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cTrim             AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lFormatAvail      AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lFormatTypeAvail  AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lAlignmentAvail   AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lTrimAvail        AS LOGICAL   NO-UNDO.
     
     ASSIGN
         cFieldValuePrefix = "$"
@@ -89,9 +95,17 @@ PROCEDURE updateRequestData:
             cFormatType     = ""
             cAlignmentStyle = ""
             cSourceString   = ""
+            cTrim           = ""
             cNextChar       = SUBSTRING(ioplcRequestData,INDEX(ioplcRequestData,cFieldValuePrefix + ipcField + "|") + LENGTH(cFieldValuePrefix + ipcField), 1)
             .
         
+        ASSIGN
+            lFormatAvail     = FALSE
+            lFormatTypeAvail = FALSE
+            lAlignmentAvail  = FALSE
+            lTrimAvail       = FALSE
+            .
+            
         /* If $ do nothing, as it would have been already replaced */
         IF cNextChar EQ "$" THEN
             cFormat = "".
@@ -110,6 +124,8 @@ PROCEDURE updateRequestData:
                     .
             END.
 
+            lFormatAvail = TRUE.
+            
             /* Block to check if a data type exist */            
             iIndex = iIndex + 1.
             
@@ -124,9 +140,11 @@ PROCEDURE updateRequestData:
                         iIndex      = iIndex + 1
                         .
                 END.
+                
+                lFormatTypeAvail = TRUE.
             END.
-            
-            ELSE iIndex = iIndex - 1.
+            ELSE 
+                iIndex = iIndex - 1.
             
             /* Block to check if a alignment style exist */
             iIndex = iIndex + 1.
@@ -142,7 +160,28 @@ PROCEDURE updateRequestData:
                         iIndex          = iIndex + 1
                         .
                 END.
-            END.            
+                
+                lAlignmentAvail = TRUE.
+            END. 
+            ELSE
+                iIndex = iIndex - 1.
+                
+            iIndex = iIndex + 1.    
+            
+            /* If the next character after the alignment is not $, then trim exist */
+            IF SUBSTRING(ioplcRequestData,iIndex,1) NE "$" THEN DO:
+                DO WHILE TRUE:
+                    IF SUBSTRING(ioplcRequestData,iIndex,1) EQ "|" THEN
+                        LEAVE.
+  
+                    ASSIGN
+                        cTrim  = cTrim + SUBSTRING(ioplcRequestData,iIndex,1)
+                        iIndex = iIndex + 1
+                        .
+                END.
+                
+                lTrimAvail = TRUE.
+            END.                    
         END.    
         ELSE
             cFormat = ?.    
@@ -176,6 +215,11 @@ PROCEDURE updateRequestData:
                     INPUT  cFormat,
                     OUTPUT cTargetString
                     ) NO-ERROR.
+            ELSE IF cFormatType BEGINS "LOG" THEN
+                ASSIGN
+                    cTargetString = STRING(LOGICAL(ipcValue), cFormat)
+                    cTargetString = TRIM(cTargetString)
+                    .
         END.
         ELSE
             cTargetString = STRING(ipcValue,cFormat).
@@ -186,14 +230,23 @@ PROCEDURE updateRequestData:
             ELSE IF cAlignmentStyle EQ "R" THEN
                 cTargetString = FILL(" ", LENGTH(cFormat) - LENGTH(cTargetString)) + cTargetString.
         END.
+
+        /* If trim format exists them trim the target string */
+        IF cTrim EQ "TRIM" THEN
+            cTargetString = TRIM(cTargetString).
         
-        cSourceString = cSourceString + cFieldValuePrefix + ipcField + "|" + cFormat + "|".
+        IF lFormatAvail THEN        
+            cSourceString = cSourceString + cFieldValuePrefix + ipcField + "|" + cFormat + "|".
         
-        IF cFormatType NE "" THEN
+        /* Constructing the string to replace with the formatted string */
+        IF lFormatTypeAvail THEN
             cSourceString = cSourceString + cFormatType + "|".
         
-        IF cAlignmentStyle NE "" THEN
+        IF lAlignmentAvail THEN
             cSourceString = cSourceString + cAlignmentStyle + "|".
+
+        IF lTrimAvail THEN
+            cSourceString = cSourceString + cTrim + "|".
 
         cSourceString = cSourceString + cFieldValueSuffix.
                 

@@ -888,17 +888,21 @@ do transaction on error undo, leave:
           RELEASE xap-payl.
        end.  /* for each xpayl */
        IF LAST-OF(ap-pay.bank-code) THEN DO:
-          create gltrans.
-          ASSIGN gltrans.company = cocode
-                 gltrans.actnum  = bank.actnum
-                 gltrans.jrnl    = "APVOIDCK"
-                 gltrans.tr-dscr = "AP VOIDED CHECK REGISTER"
-                 gltrans.tr-date = udate
-                 gltrans.tr-amt  = v-bank-amt
-                 gltrans.period  = tran-period
-                 gltrans.trnum   = v-trnum
-                 v-bank-amt = 0.
-          RELEASE gltrans.
+          RUN GL_SpCreateGLHist(cocode,
+                             bank.actnum,
+                             "APVOIDCK",
+                             "AP VOIDED CHECK REGISTER",
+                             udate,
+                             v-bank-amt,
+                             v-trnum,
+                             tran-period,
+                             "A",
+                             udate,
+                             string(ap-pay.vend-no),
+                             "AP").
+          
+          ASSIGN 
+             v-bank-amt = 0.
        END.
 
        RELEASE bank.
@@ -906,30 +910,20 @@ do transaction on error undo, leave:
 
    FIND CURRENT ap-pay NO-LOCK NO-ERROR.
 
-   /* old way -> changed to post by bank account
-   create gltrans.
-   assign
-    gltrans.company = cocode
-    gltrans.actnum  = bank.actnum
-    gltrans.jrnl    = "APVOIDCK"
-    gltrans.tr-dscr = "AP VOIDED CHECK REGISTER"
-    gltrans.tr-date = udate
-    gltrans.tr-amt  = v-tot-amt-paid
-    gltrans.period  = tran-period
-    gltrans.trnum   = v-trnum.
-   */
+
    if v-tot-amt-disc ne 0 then do:
-     create gltrans.
-     assign
-      gltrans.company = cocode
-      gltrans.actnum  = ap-ctrl.discount
-      gltrans.jrnl    = "APVOIDCK"
-      gltrans.tr-dscr = "AP VOIDED CHECK REGISTER"
-      gltrans.tr-date = udate
-      gltrans.tr-amt  = v-tot-amt-disc
-      gltrans.period  = tran-period
-      gltrans.trnum   = v-trnum.
-     RELEASE gltrans.
+     RUN GL_SpCreateGLHist(cocode,
+                        ap-ctrl.discount,
+                        "APVOIDCK",
+                        "AP VOIDED CHECK REGISTER",
+                        udate,
+                        v-tot-amt-disc,
+                        v-trnum,
+                        tran-period,
+                        "A",
+                        udate,
+                        string(ap-pay.vend-no),
+                        "AP").
    end.
 
    for each w-disb break by w-actnum:
@@ -941,32 +935,33 @@ do transaction on error undo, leave:
      accumulate w-amt-disc (sub-total by w-actnum).
 
      if last-of(w-actnum) then do:
-       create gltrans.
-       assign
-        gltrans.company = cocode
-        gltrans.actnum  = w-actnum
-        gltrans.jrnl    = "APVOIDCK"
-        gltrans.tr-dscr = "AP VOIDED CHECK REGISTER"
-        gltrans.tr-date = udate
-        gltrans.tr-amt  = ((accum sub-total by w-actnum w-amt-paid) +
-                           (accum sub-total by w-actnum w-amt-disc)) * -1 
-        gltrans.period  = tran-period
-        gltrans.trnum   = v-trnum.
-       RELEASE gltrans.
+     RUN GL_SpCreateGLHist(cocode,
+                        w-actnum,
+                        "APVOIDCK",
+                        "AP VOIDED CHECK REGISTER",
+                        udate,
+                        (((accum sub-total by w-actnum w-amt-paid) +
+                           (accum sub-total by w-actnum w-amt-disc)) * -1),
+                        v-trnum,
+                        tran-period,
+                        "A",
+                        udate,
+                        string(ap-pay.vend-no),
+                        "AP").
      end.
    end.
-
-   create gltrans.
-   assign
-    gltrans.company = cocode
-    gltrans.actnum  = ap-ctrl.payables
-    gltrans.jrnl    = "APVOIDCK"
-    gltrans.tr-dscr = "AP VOIDED CHECK REGISTER"
-    gltrans.tr-date = udate
-    gltrans.tr-amt  = (v-tot-amt-paid + v-tot-amt-disc) * -1
-    gltrans.period  = tran-period
-    gltrans.trnum   = v-trnum.
-   RELEASE gltrans.
+     RUN GL_SpCreateGLHist(cocode,
+                        ap-ctrl.payables,
+                        "APVOIDCK",
+                        "AP VOIDED CHECK REGISTER",
+                        udate,
+                        ((v-tot-amt-paid + v-tot-amt-disc) * -1),
+                        v-trnum,
+                        tran-period,
+                        "A",
+                        udate,
+                        string(ap-pay.vend-no),
+                        "AP").
 
 end. /* postit */
 

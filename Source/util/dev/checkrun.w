@@ -703,17 +703,7 @@ FOR EACH ar-ledger
 
       v-tot[2] = v-tot[2] + glhist.tr-amt.
     END.
-
-    FOR EACH gltrans
-        WHERE gltrans.company EQ ar-ledger.company
-          AND gltrans.actnum  EQ v-ar-acct
-          AND gltrans.tr-date EQ ar-ledger.tr-date
-          AND gltrans.trnum   EQ ar-ledger.tr-num
-        NO-LOCK:
-
-      v-tot[2] = v-tot[2] + gltrans.tr-amt.
-    END.
-
+    
     v-tot[3] = v-tot[1] - v-tot[2].
 
     IF v-tot[3] GT 0 THEN

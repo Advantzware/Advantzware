@@ -814,8 +814,10 @@ PROCEDURE addFilterObjects :
              NO-ERROR.
         IF AVAILABLE dynValueColumn THEN
         hWidget[li-count]:SCREEN-VALUE = dynValueColumn.filterInitValue.
+
     END. /* do li-count */
-    h_focus:SCREEN-VALUE = cFocusValue.
+    IF cFocusValue NE "0" AND cFocusValue NE  "" AND h_focus:DATA-TYPE = "Integer" THEN 
+        h_focus:SCREEN-VALUE = cFocusValue.
 
 END PROCEDURE.
 

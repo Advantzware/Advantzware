@@ -819,7 +819,7 @@ PROCEDURE close-month :
    DEF VAR li AS INT NO-UNDO.
    DEF VAR lv-rowid AS ROWID NO-UNDO.
 
-   DEF BUFFER b-period FOR period.
+   DEF BUFFER b-period FOR period.   
 
    SESSION:SET-WAIT-STATE ("general").
 
@@ -851,51 +851,43 @@ PROCEDURE close-month :
           v-msg1 = "PROCESSING... PLEASE WAIT and DO NOT CANCEL OUT OF SCREEN!". 
    DISPLAY v-msg1 WITH FRAME {&FRAME-NAME}.
 
-   for each gltrans
-       where gltrans.company eq cocode
-         and gltrans.tr-date ge period.pst
-         and gltrans.tr-date le period.pend
-         and gltrans.period  eq uperiod
+   for each glhist
+       where glhist.company eq cocode
+         and glhist.tr-date ge period.pst
+         and glhist.tr-date le period.pend
+         and glhist.period  eq uperiod
+         AND glhist.posted  EQ NO
        transaction:
-       v-msg2 = "Account: " + gltrans.actnum + "   " + gltrans.jrnl.
+       v-msg2 = "Account: " + glhist.actnum + "   " + glhist.jrnl.
        DISP v-msg2 WITH FRAME {&FRAME-NAME}.
 
       find first account
           where account.company eq cocode
-            and account.actnum  eq gltrans.actnum
+            and account.actnum  eq glhist.actnum
           no-error.
       if avail account then do:
-         account.cyr[uperiod] = account.cyr[uperiod] + gltrans.tr-amt.
+         account.cyr[uperiod] = account.cyr[uperiod] + glhist.tr-amt.
 
          if index("RE",account.type) gt 0 then do:
             find first b-racct
                 where b-racct.company eq cocode
                   and b-racct.actnum  eq gl-ctrl.ret.
 
-            b-racct.cyr[uperiod] = b-racct.cyr[uperiod] + gltrans.tr-amt.
+            b-racct.cyr[uperiod] = b-racct.cyr[uperiod] + glhist.tr-amt.
 
             find first b-cacct
                 where b-cacct.company eq cocode
                   and b-cacct.actnum  eq gl-ctrl.contra.
 
-            b-cacct.cyr[uperiod] = b-cacct.cyr[uperiod] - gltrans.tr-amt.
+            b-cacct.cyr[uperiod] = b-cacct.cyr[uperiod] - glhist.tr-amt.
          end.
       end.
 
-      create glhist.
       assign
-       glhist.company = gltrans.company
-       glhist.actnum  = gltrans.actnum
-       glhist.jrnl    = gltrans.jrnl
-       glhist.period  = gltrans.period
-       glhist.tr-dscr = gltrans.tr-dscr
-       glhist.tr-date = gltrans.tr-date
-       glhist.tr-num  = gltrans.trnum
-       glhist.tr-amt  = gltrans.tr-amt.
-
-      delete gltrans.
+       glhist.posted   = YES
+       glhist.postedBy = USERID(LDBNAME(1)).           
    end.
-
+   RELEASE glhist.
    for each cust where cust.company eq cocode transaction:
       assign
        cust.cost[1] = 0
@@ -1149,15 +1141,16 @@ ASSIGN v-msg1:HIDDEN IN FRAME {&FRAME-NAME} = NO
           v-msg1 = "PROCESSING... PLEASE WAIT and DO NOT CANCEL OUT OF SCREEN!". 
    DISPLAY v-msg1 WITH FRAME {&FRAME-NAME}.
 
- for each gltrans
-       where gltrans.company eq cocode
-         and gltrans.tr-date ge period.pst
-         and gltrans.tr-date le period.pend
-         and gltrans.period  eq uperiod
+ for each glhist
+       where glhist.company eq cocode
+         and glhist.tr-date ge period.pst
+         and glhist.tr-date le period.pend
+         and glhist.period  eq uperiod
+         AND glhist.posted  EQ NO 
     :
 
     ASSIGN v-msg2 = jrnl + "Period: "  + 
-           string(gltrans.period) + "Act: " + gltrans.actnum.
+           string(glhist.period) + "Act: " + glhist.actnum.
     DISP v-msg2 WITH FRAME {&FRAME-NAME}.
     .
 
@@ -1298,8 +1291,8 @@ DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
  
 form account.actnum label "Account Number"
      account.dscr   label "Account Description"
-     gltrans.jrnl   label " Journal "
-     gltrans.tr-amt format "(>>>,>>>,>>>,>>9.99)" label "Transaction"
+     glhist.jrnl   label " Journal "
+     glhist.tr-amt format "(>>>,>>>,>>>,>>9.99)" label "Transaction"
      open-amt       label "Account Balance"
     with frame r-mclo down width 132 no-box column 10 STREAM-IO.
 
@@ -1364,61 +1357,64 @@ form account.actnum label "Account Number"
        END.
 
        IF tb_invalid-period THEN DO:
-          FOR EACH gltrans no-lock 
-              where gltrans.company eq cocode
-              and gltrans.actnum  eq account.actnum
-              and gltrans.tr-date ge period.pst
-              and gltrans.tr-date le period.pend
-              and gltrans.period EQ 0 BREAK BY gltrans.actnum:
+          FOR EACH glhist no-lock 
+              where glhist.company eq cocode
+              and glhist.actnum  eq account.actnum
+              and glhist.tr-date ge period.pst
+              and glhist.tr-date le period.pend
+              and glhist.period EQ 0
+              AND glhist.posted EQ NO BREAK BY glhist.actnum:
               
               PUT STREAM excel UNFORMATTED
                   '"' account.actnum                  '",'
-                  '"' gltrans.trnum                   '",'
+                  '"' glhist.tr-num                   '",'
                   '"' account.dscr                    '",'
-                  '"' gltrans.jrnl                    '",'
-                  '"' gltrans.tr-date                 '",'
-                  '"' gltrans.period                 '",'
-                  '"' gltrans.tr-amt                  '",'
+                  '"' glhist.jrnl                    '",'
+                  '"' glhist.tr-date                 '",'
+                  '"' glhist.period                 '",'
+                  '"' glhist.tr-amt                  '",'
                   '"' "Invalid Period  "               '",'
                   SKIP.
           END.
        END.
       
        IF tb_post-out-period THEN DO:
-           FOR EACH gltrans no-lock 
-              where gltrans.company eq cocode
-              and gltrans.actnum  eq account.actnum
-              and gltrans.tr-date LT period.pst
-              and gltrans.tr-date GT period.pend
-              and gltrans.period EQ uperiod BREAK BY gltrans.actnum:
+           FOR EACH glhist no-lock 
+              where glhist.company eq cocode
+              and glhist.actnum  eq account.actnum
+              and glhist.tr-date LT period.pst
+              and glhist.tr-date GT period.pend
+              and glhist.period EQ uperiod
+              AND glhist.posted EQ NO BREAK BY glhist.actnum:
               
               PUT STREAM excel UNFORMATTED
                   '"' account.actnum                  '",'
-                  '"' gltrans.trnum                   '",'
+                  '"' glhist.tr-num                   '",'
                   '"' account.dscr                    '",'
-                  '"' gltrans.jrnl                    '",'
-                  '"' gltrans.tr-date                 '",'
-                  '"' gltrans.period                 '",'
-                  '"' gltrans.tr-amt                  '",'
+                  '"' glhist.jrnl                    '",'
+                  '"' glhist.tr-date                 '",'
+                  '"' glhist.period                 '",'
+                  '"' glhist.tr-amt                  '",'
                   '"' "Data outside period  "         '",'
                   SKIP.
           END.
        END.
 
        IF tb_prior-period-data THEN DO:
-           FOR EACH gltrans no-lock 
-              where gltrans.company eq cocode
-              and gltrans.actnum  eq account.actnum
-              and gltrans.tr-date LT period.pst :
+           FOR EACH glhist no-lock 
+              where glhist.company eq cocode
+              and glhist.actnum  eq account.actnum
+              and glhist.tr-date LT period.pst
+              AND glhist.posted EQ NO:
               
               PUT STREAM excel UNFORMATTED
                   '"' account.actnum                  '",'
-                  '"' gltrans.trnum                   '",'
+                  '"' glhist.tr-num                   '",'
                   '"' account.dscr                    '",'
-                  '"' gltrans.jrnl                    '",'
-                  '"' gltrans.tr-date                 '",'
-                  '"' gltrans.period                 '",'
-                  '"' gltrans.tr-amt                  '",'
+                  '"' glhist.jrnl                    '",'
+                  '"' glhist.tr-date                 '",'
+                  '"' glhist.period                 '",'
+                  '"' glhist.tr-amt                  '",'
                   '"' "Invalid Data  "  '",'
                   SKIP.
           END.
@@ -1430,27 +1426,29 @@ form account.actnum label "Account Number"
       do i = 1 to uperiod:
          open-amt = open-amt + cyr[i].
       end.
-      find first gltrans
-          where gltrans.company eq cocode
-            and gltrans.actnum  eq account.actnum
-            and gltrans.tr-date ge period.pst
-            and gltrans.tr-date le period.pend
-            and gltrans.period  eq uperiod
+      find first glhist
+          where glhist.company eq cocode
+            and glhist.actnum  eq account.actnum
+            and glhist.tr-date ge period.pst
+            and glhist.tr-date le period.pend
+            and glhist.period  eq uperiod
+            AND glhist.posted  EQ NO
           no-lock no-error.
-      if open-amt eq 0 and not avail gltrans then next.
+      if open-amt eq 0 and not avail glhist then next.
       display account.actnum
               account.dscr
               open-amt.
       down.
       tot-all = tot-all + open-amt.
 
-      for each gltrans no-lock
-          where gltrans.company eq account.company
-            and gltrans.actnum  eq account.actnum
-            and gltrans.tr-date ge period.pst
-            and gltrans.tr-date le period.pend
-            and gltrans.period  eq uperiod
-          break by gltrans.jrnl with frame r-mclo:
+      for each glhist no-lock
+          where glhist.company eq account.company
+            and glhist.actnum  eq account.actnum
+            and glhist.tr-date ge period.pst
+            and glhist.tr-date le period.pend
+            and glhist.period  eq uperiod
+            AND glhist.posted  EQ NO
+          break by glhist.jrnl with frame r-mclo:
 
            
 
@@ -1462,21 +1460,21 @@ form account.actnum label "Account Number"
           tot-jrnl = tot-jrnl + tr-amt
           tot-act  = tot-act  + tr-amt.
 
-         if last-of(gltrans.jrnl) then do:
+         if last-of(glhist.jrnl) then do:
             display "" @ account.actnum
                     "" @ account.dscr
-                    gltrans.jrnl
-                    tot-jrnl @ gltrans.tr-amt
+                    glhist.jrnl
+                    tot-jrnl @ glhist.tr-amt
                    "" @ open-amt.
             tot-jrnl = 0.
             down.
          end.
-      end. /* each gltrans */
+      end. /* each glhist */
 
       display "" @ account.actnum
               "" @ account.dscr
-              "" @ gltrans.jrnl
-              tot-act @ gltrans.tr-amt
+              "" @ glhist.jrnl
+              tot-act @ glhist.tr-amt
               (tot-act + open-amt) format "->>>,>>>,>>>,>>9.99" @ open-amt
               "*" with frame r-mclo.
       down 2.
@@ -1485,8 +1483,8 @@ form account.actnum label "Account Number"
 
    display "" @ account.actnum
            "" @ account.dscr
-           "TOTAL" @ gltrans.jrnl
-           tot-tx  @ gltrans.tr-amt
+           "TOTAL" @ glhist.jrnl
+           tot-tx  @ glhist.tr-amt
            tot-all @ open-amt
            with frame r-mclo.
 

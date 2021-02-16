@@ -219,8 +219,7 @@ PROCEDURE startCopy:
      RUN fg-rdtl   .
      RUN fg-rdtlh  .
      RUN gl-jrn    .
-     RUN glhist    .
-     RUN gltrans   .
+     RUN glhist    .     
      /*RUN inv-head  .
      RUN inv-line  .
      RUN inv-misc  .*/
@@ -2943,24 +2942,6 @@ PROCEDURE glhist:
   RUN showMsg ('',YES).
 END PROCEDURE.
 
-PROCEDURE gltrans:
-  DEFINE BUFFER bgltrans FOR gltrans.
-
-  RUN showMsg ('gltrans',NO).
-  IF CAN-FIND(FIRST gltrans WHERE gltrans.company EQ ipCompanyTo) THEN
-  FOR EACH gltrans EXCLUSIVE-LOCK WHERE gltrans.company EQ ipCompanyTo:
-    DELETE gltrans.
-  END.
-  FOR EACH gltrans NO-LOCK WHERE gltrans.company EQ ipCompanyFrom:
-    CREATE bgltrans.
-    BUFFER-COPY gltrans EXCEPT company rec_key TO bgltrans
-      ASSIGN bgltrans.company = ipCompanyTo.
-
-    {custom\rec_key.i bgltrans}
-
-  END.
-  RUN showMsg ('',YES).
-END PROCEDURE.
 
 PROCEDURE inv-head:
   DEFINE BUFFER binv-head FOR inv-head.

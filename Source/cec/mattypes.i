@@ -157,7 +157,7 @@ CASE fi_mat-type:SCREEN-VALUE:
 END CASE.
 &UNDEFINE group#
 
-    IF lDisplayWood AND INDEX("1234",fi_mat-type) GT 0 THEN DO:
+    IF lDisplayWood AND INDEX("1234",fi_mat-type:SCREEN-VALUE) GT 0 THEN DO:
        ASSIGN
           item.flute:LABEL       = "Lumber"              
           item.s-dep:LABEL       = "Thickness"
@@ -170,6 +170,7 @@ END CASE.
           item.cal:SENSITIVE     = NO
             .        
       END.
-
+      
+     RUN pLabelValueChange.
 
 end. /* do with frame */

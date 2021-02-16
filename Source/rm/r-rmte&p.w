@@ -1641,21 +1641,23 @@ PROCEDURE gl-from-work :
      credits = credits + work-gl.credits.
 
     IF LAST-OF(work-gl.actnum) THEN DO:
-      CREATE gltrans.
-      ASSIGN
-       gltrans.company = cocode
-       gltrans.actnum  = work-gl.actnum
-       gltrans.jrnl    = "RMPOST"
-       gltrans.period  = period.pnum
-       gltrans.tr-amt  = debits - credits
-       gltrans.tr-date = v-post-date
-       gltrans.tr-dscr = IF work-gl.job-no NE "" THEN "RM Issue to Job"
-                                                 ELSE "RM Receipt"
-       gltrans.trnum   = ip-trnum
+      
+      RUN GL_SpCreateGLHist(cocode,
+                         work-gl.actnum,
+                         "RMPOST",
+                         (if work-gl.job-no NE "" then "RM Issue to Job" else "RM Receipt"),
+                         v-post-date,
+                         debits - credits,
+                         ip-trnum,
+                         period.pnum,
+                         "A",
+                         v-post-date,
+                         "",
+                         "RM").  
+      ASSIGN 
        debits  = 0
-       credits = 0.
-
-      RELEASE gltrans.
+       credits = 0. 
+      
     END.
   END.
 

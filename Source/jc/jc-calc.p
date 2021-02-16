@@ -1757,6 +1757,12 @@ PROCEDURE pUpdateJobQty PRIVATE:
     DEFINE OUTPUT PARAMETER oplAvailOeRel  AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER oplAvailOeOrdl AS LOGICAL NO-UNDO.
     
+    DEFINE VARIABLE cIsItem AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cIsPartNo AS CHARACTER NO-UNDO.  
+    DEFINE VARIABLE clsUom AS cha NO-UNDO.  
+    DEFINE VARIABLE cFGItemLoc AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFGItemLocBin AS CHARACTER NO-UNDO.
+    
     DEFINE BUFFER xeb    FOR eb.
     DEFINE BUFFER itemfg FOR itemfg.
     
@@ -1817,8 +1823,24 @@ PROCEDURE pUpdateJobQty PRIVATE:
             IF gvlNoPrompt THEN
                 choice = NO.
             IF NOT gvlNoPrompt THEN
-                MESSAGE "Item: " + TRIM(xeb.stock-no) + " doesn't exist, would you LIKE to create it?"
-                    VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE choice.
+            DO: 
+               FIND FIRST shipto NO-LOCK 
+                      WHERE shipto.company EQ xeb.company
+                      AND shipto.cust-no EQ xeb.cust-no
+                      AND shipto.ship-id EQ xeb.ship-id
+                      NO-ERROR.
+               IF AVAILABLE shipto THEN 
+               ASSIGN 
+                   cFGItemLoc = shipto.loc
+                   cFGItemLocBin = shipto.loc-bin.
+                     
+               ASSIGN cIsItem = xeb.stock-no
+                      cIsPartNo = xeb.part-no                          
+                      clsUom = "M".
+               RUN oe/d-citmfg.w (xeb.est-no, INPUT-OUTPUT cIsItem,
+                                INPUT-OUTPUT cIsPartNo,INPUT-OUTPUT clsUom, INPUT-OUTPUT cFGItemLoc, INPUT-OUTPUT cFGItemLocBin) NO-ERROR.
+               choice = IF cIsItem EQ "" THEN NO ELSE YES.                   
+            END.        
             IF choice THEN 
             DO:
             {jc/fgadd.i} 

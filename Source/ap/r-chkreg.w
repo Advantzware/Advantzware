@@ -1677,29 +1677,31 @@ DEF VAR lv-check-no LIKE ap-chk.check-no NO-UNDO.
     ACCUM tt-post.curr-paid - ap-sel.amt-paid (TOTAL BY tt-post.actnum). 
 
     IF LAST-OF(tt-post.actnum) THEN DO:
-      CREATE gltrans.
-      ASSIGN
-      gltrans.company = cocode
-      gltrans.actnum  = tt-post.actnum
-      gltrans.jrnl    = "APCKR"
-      gltrans.tr-dscr = "AP CHECK REGISTER CURRENCY GAIN/LOSS"
-      gltrans.tr-date = tran-date
-      gltrans.tr-amt  = (ACCUM TOTAL BY tt-post.actnum tt-post.curr-paid - ap-sel.amt-paid)
-      gltrans.period  = tran-period
-      gltrans.trnum   = v-trnum.
-      RELEASE gltrans.
+     RUN GL_SpCreateGLHist(cocode,
+                        tt-post.actnum,
+                        "APCKR",
+                        "AP CHECK REGISTER CURRENCY GAIN/LOSS",
+                        tran-date,
+                        (ACCUM TOTAL BY tt-post.actnum tt-post.curr-paid - ap-sel.amt-paid),
+                        v-trnum,
+                        tran-period,
+                        "A",
+                        tran-date,
+                        string(ap-inv.inv-no),
+                        "AP").
 
-      CREATE gltrans.
-      ASSIGN
-      gltrans.company = cocode
-      gltrans.actnum  = tt-post.actnum
-      gltrans.jrnl    = "APCKR"
-      gltrans.tr-dscr = "AP CHECK REGISTER CURRENCY GAIN/LOSS"
-      gltrans.tr-date = tran-date
-      gltrans.tr-amt  = - (ACCUM TOTAL BY tt-post.actnum tt-post.curr-paid - ap-sel.amt-paid)
-      gltrans.period  = tran-period
-      gltrans.trnum   = v-trnum.
-      RELEASE gltrans.
+     RUN GL_SpCreateGLHist(cocode,
+                        tt-post.actnum,
+                        "APCKR",
+                        "AP CHECK REGISTER CURRENCY GAIN/LOSS",
+                        tran-date,
+                        - (ACCUM TOTAL BY tt-post.actnum tt-post.curr-paid - ap-sel.amt-paid),
+                        v-trnum,
+                        tran-period,
+                        "A",
+                        tran-date,
+                        string(ap-inv.inv-no),
+                        "AP").
     END.
   END.
 
@@ -1859,17 +1861,18 @@ DEF VAR lv-check-no LIKE ap-chk.check-no NO-UNDO.
 
     /*** Moved gltrans create here so bank's actnum can be used ***/
     IF LAST-OF(ap-sel.bank-code) THEN DO:
-      CREATE gltrans.
-      ASSIGN
-      gltrans.company = cocode
-      gltrans.actnum  = bank.actnum
-      gltrans.jrnl    = "APCKR"
-      gltrans.tr-dscr = "AP CHECK REGISTER"
-      gltrans.tr-date = tran-date
-      gltrans.tr-amt  = - ACCUM TOTAL BY ap-sel.bank-code ap-sel.amt-paid
-      gltrans.period  = tran-period
-      gltrans.trnum   = v-trnum.
-      RELEASE gltrans.
+     RUN GL_SpCreateGLHist(cocode,
+                        bank.actnum,
+                        "APCKR",
+                        "AP CHECK REGISTER",
+                        tran-date,
+                        - ACCUM TOTAL BY ap-sel.bank-code ap-sel.amt-paid,
+                        v-trnum,
+                        tran-period,
+                        "A",
+                        tran-date,
+                        string(ap-inv.inv-no),
+                        "AP").
     END.
 
     DELETE ap-sel.
@@ -1897,30 +1900,33 @@ DEF VAR lv-check-no LIKE ap-chk.check-no NO-UNDO.
 
   FIND FIRST ap-ctrl WHERE ap-ctrl.company EQ cocode NO-LOCK NO-ERROR.
 
-  CREATE gltrans.
-  ASSIGN
-    gltrans.company = cocode
-    gltrans.actnum  = ap-ctrl.payables
-    gltrans.jrnl    = "APCKR"
-    gltrans.tr-dscr = "AP CHECK REGISTER"
-    gltrans.tr-date = tran-date
-    gltrans.tr-amt  = gtot1 + gtot2
-    gltrans.period  = tran-period
-    gltrans.trnum   = v-trnum.
-  RELEASE gltrans.
+     RUN GL_SpCreateGLHist(cocode,
+                        ap-ctrl.payables,
+                        "APCKR",
+                        "AP CHECK REGISTER",
+                        tran-date,
+                        (gtot1 + gtot2),
+                        v-trnum,
+                        tran-period,
+                        "A",
+                        tran-date,
+                        string(ap-inv.inv-no),
+                        "AP").
+  
 
   IF gtot1 NE 0 THEN DO:
-    CREATE gltrans.
-    ASSIGN
-     gltrans.company = cocode
-     gltrans.actnum  = ap-ctrl.discount
-     gltrans.jrnl    = "APCKR"
-     gltrans.tr-dscr = "AP CHECK REGISTER"
-     gltrans.tr-date = tran-date
-     gltrans.tr-amt  = - gtot1
-     gltrans.period  = tran-period
-     gltrans.trnum   = v-trnum.
-    RELEASE gltrans.
+    RUN GL_SpCreateGLHist(cocode,
+                        ap-ctrl.discount,
+                        "APCKR",
+                        "AP CHECK REGISTER",
+                        tran-date,
+                        - gtot1,
+                        v-trnum,
+                        tran-period,
+                        "A",
+                        tran-date,
+                        string(ap-inv.inv-no),
+                        "AP").
   END.
 /*END. */
 

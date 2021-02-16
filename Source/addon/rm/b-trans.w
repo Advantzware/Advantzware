@@ -39,6 +39,7 @@ CREATE WIDGET-POOL.
 {custom/globdefs.i}
 {sys/inc/var.i NEW SHARED}
 {sys/inc/varasgn.i}
+{Inventory/ttInventory.i "NEW SHARED"}
 
 def var ext-cost as decimal no-undo.
 def var lv-recid as recid no-undo.
@@ -52,6 +53,10 @@ DEFINE VARIABLE lPostAuto-log AS LOGICAL NO-UNDO .
 DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO .
 DEFINE VARIABLE lRecFound AS LOGICAL   NO-UNDO .
 DEF NEW SHARED TEMP-TABLE tt-selected FIELD tt-rowid AS ROWID.
+DEFINE VARIABLE hdInventoryProcs AS HANDLE NO-UNDO.
+DEFINE VARIABLE iWarehouseLength AS INTEGER NO-UNDO.
+
+RUN inventory/InventoryProcs.p PERSISTENT SET hdInventoryProcs.
 
 cocode = g_company.
 locode = g_loc.
@@ -513,11 +518,15 @@ ON LEAVE OF rm-rctd.loc IN BROWSE Browser-Table /* From!Whs */
 DO:
   IF LASTKEY NE -1 THEN DO:
 
-     IF LENGTH(SELF:SCREEN-VALUE) > 5 THEN DO:
+     RUN Inventory_GetWarehouseLength IN hdInventoryProcs (
+        INPUT  cocode,
+        OUTPUT iWarehouseLength
+        ).
+     IF LENGTH(SELF:SCREEN-VALUE) > iWarehouseLength THEN DO:
           DEF VAR v-locbin AS cha NO-UNDO.
           v-locbin = SELF:SCREEN-VALUE.
-          ASSIGN rm-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name} = SUBSTRING(v-locbin,1,5)
-                 rm-rctd.loc-bin:SCREEN-VALUE = SUBSTRING(v-locbin,6,8).
+          ASSIGN rm-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name} = SUBSTRING(v-locbin,1,iWarehouseLength)
+                 rm-rctd.loc-bin:SCREEN-VALUE = SUBSTRING(v-locbin,iWarehouseLength + 1).
      END.
 
      RUN valid-loc-bin-tag NO-ERROR.
@@ -625,11 +634,15 @@ END.
 ON LEAVE OF rm-rctd.loc2 IN BROWSE Browser-Table /* To !Whs */
 DO:
   IF LASTKEY NE -1 THEN DO:
-    IF LENGTH(SELF:SCREEN-VALUE) > 5 THEN DO:
+    RUN Inventory_GetWarehouseLength IN hdInventoryProcs (
+        INPUT  cocode,
+        OUTPUT iWarehouseLength
+        ).
+    IF LENGTH(SELF:SCREEN-VALUE) > iWarehouseLength THEN DO:
           DEF VAR v-locbin AS cha NO-UNDO.
           v-locbin = SELF:SCREEN-VALUE.
-          ASSIGN rm-rctd.loc2:SCREEN-VALUE IN BROWSE {&browse-name} = SUBSTRING(v-locbin,1,5)
-                 rm-rctd.loc-bin2:SCREEN-VALUE = SUBSTRING(v-locbin,6,8).
+          ASSIGN rm-rctd.loc2:SCREEN-VALUE IN BROWSE {&browse-name} = SUBSTRING(v-locbin,1,iWarehouseLength)
+                 rm-rctd.loc-bin2:SCREEN-VALUE = SUBSTRING(v-locbin,iWarehouseLength + 1).
     END.
     RUN valid-loc2 NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
@@ -945,7 +958,7 @@ PROCEDURE local-enable-fields :
 
     {&BROWSE-NAME}:READ-ONLY = NO.
   END.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

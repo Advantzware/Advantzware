@@ -28,8 +28,7 @@ DEFINE VARIABLE gcTagSelectionCode  AS CHARACTER NO-UNDO. /* Tag selection code 
 DEFINE VARIABLE glUseItemfgLoc      AS LOGICAL   NO-UNDO. /* Get location from itemfg? */
 DEFINE VARIABLE gcCompanyDefaultBin AS CHARACTER NO-UNDO.  /* default bin */
 DEFINE VARIABLE cFreightCalculationValue AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lr-rel-lib AS HANDLE NO-UNDO.
-DEFINE VARIABLE hdOutboundProcs AS HANDLE NO-UNDO.
+
 DEFINE VARIABLE scInstance AS CLASS system.SharedConfig NO-UNDO.
 
 DEFINE VARIABLE gcCaseUOMList AS CHARACTER NO-UNDO.
@@ -38,9 +37,6 @@ DEFINE TEMP-TABLE ttUpdateOrderReleaseStatus NO-UNDO
   FIELD ord-no AS INTEGER.
 
 {oe/ttOrder.i}
-
-RUN sbo/oerel-recalc-act.p PERSISTENT SET lr-rel-lib.
-RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
 
 /* ********************  Preprocessor Definitions  ******************** */
 
@@ -382,7 +378,11 @@ PROCEDURE Order_CallCreateReleaseTrigger:
     DEFINE VARIABLE cPrimaryID   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cRNoValues   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE iNumValues   AS INTEGER NO-UNDO.
-     
+
+    DEFINE VARIABLE hdOutboundProcs AS HANDLE NO-UNDO.
+
+    RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
+
     ASSIGN 
         scInstance = SharedConfig:instance. 
         cRNoValues= scInstance:ConsumeValue("RNoOERelh")
@@ -475,7 +475,11 @@ PROCEDURE Order_CallCreateReleaseTrigger:
         END.  
         RUN Outbound_ResetContext IN hdOutboundProcs.  
     END.  
-
+    
+    FINALLY:
+        IF VALID-HANDLE(hdOutboundProcs) THEN
+            DELETE PROCEDURE hdOutboundProcs.
+    END.
 END PROCEDURE.
 
 PROCEDURE Order_GetLinesTotal:
@@ -1982,8 +1986,6 @@ PROCEDURE ReleaseOrder :
             INPUT  "CreateRelease"
             ).
             
-     IF VALID-HANDLE(hdOutboundProcs) THEN
-        DELETE OBJECT hdOutboundProcs.
 END PROCEDURE.
 
 PROCEDURE ProcessImportedOrder:
@@ -3353,10 +3355,14 @@ PROCEDURE Order_DeleteBOL:
     DEFINE OUTPUT PARAMETER oplSuccess AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
     
+    DEFINE VARIABLE hdRelLib AS HANDLE NO-UNDO.
+    
     DEFINE BUFFER bf-oe-bolh FOR oe-bolh.
     DEFINE BUFFER bf-oe-boll FOR oe-boll
     .
     DEFINE VARIABLE dOut AS DECIMAL NO-UNDO.
+    
+    RUN sbo/oerel-recalc-act.p PERSISTENT SET hdRelLib.
     
     oplSuccess = YES.
     
@@ -3435,20 +3441,26 @@ PROCEDURE Order_DeleteBOL:
                     OUTPUT oe-rel.stat
                     ).
  
-                IF AVAILABLE oe-rel AND VALID-HANDLE(lr-rel-lib) THEN 
-                    RUN recalc-act-qty IN lr-rel-lib (
+                IF AVAILABLE oe-rel AND VALID-HANDLE(hdRelLib) THEN DO:
+                    RUN recalc-act-qty IN hdRelLib (
                         INPUT ROWID(oe-rel), 
                         OUTPUT dOut
                         ).
+                
+                END.
             END.          
         END.
     
         DELETE ttUpdateOrderReleaseStatus.
     END.
-    
+        
     RELEASE bf-oe-bolh.
     RELEASE bf-oe-bolh.
-    DELETE PROCEDURE lr-rel-lib.
+
+    FINALLY:
+        IF VALID-HANDLE(hdRelLib) THEN
+            DELETE PROCEDURE hdRelLib.
+    END.
 END PROCEDURE.
 
 PROCEDURE pReleaseLineUpdateBOLStatusLinks PRIVATE:
@@ -3657,7 +3669,11 @@ PROCEDURE pRunAPIOutboundTrigger :
     DEFINE BUFFER bf-oe-rell FOR oe-rell.
     DEFINE BUFFER bf-cust    FOR cust.
     DEFINE BUFFER bf-itemfg  FOR itemfg.
-    
+
+    DEFINE VARIABLE hdOutboundProcs AS HANDLE NO-UNDO.
+
+    RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
+
     IF AVAILABLE ipbf-oe-relh THEN DO:
 
         FOR EACH bf-oe-rell NO-LOCK 
@@ -3696,7 +3712,10 @@ PROCEDURE pRunAPIOutboundTrigger :
            data inside OutboundProcs */
         RUN Outbound_ResetContext IN hdOutboundProcs.
     END.
-
+    
+    FINALLY:
+        DELETE PROCEDURE hdOutboundProcs.
+    END.
 END PROCEDURE.
 
 PROCEDURE pProcessImportedOrderHeader PRIVATE:
