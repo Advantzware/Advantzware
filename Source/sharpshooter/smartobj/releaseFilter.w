@@ -10,12 +10,12 @@
 *********************************************************************/
 /*------------------------------------------------------------------------
 
-  File: sharpshooter/viewFGInquiry.w
+  File:
 
   Description: from SMART.W - Template for basic SmartObject
 
-  Author: Mithun Porandla
-  Created: 11/27/2020
+  Author:
+  Created:
 
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
@@ -34,8 +34,10 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-DEFINE VARIABLE hdFGInquiry    AS HANDLE    NO-UNDO.
-DEFINE VARIABLE hdFGInquiryWin AS HANDLE    NO-UNDO.
+DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO.
+DEFINE VARIABLE oReleaseHeader AS oe.ReleaseHeader NO-UNDO.
+
+oReleaseHeader = NEW oe.ReleaseHeader().
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -52,7 +54,8 @@ DEFINE VARIABLE hdFGInquiryWin AS HANDLE    NO-UNDO.
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-1 btViewFGInquiry 
+&Scoped-Define ENABLED-OBJECTS btFind fiRelease 
+&Scoped-Define DISPLAYED-OBJECTS fiRelease 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -66,23 +69,25 @@ DEFINE VARIABLE hdFGInquiryWin AS HANDLE    NO-UNDO.
 
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btViewFGInquiry 
-     LABEL "View FG" 
-     SIZE 15 BY 1.14.
+DEFINE BUTTON btFind 
+     LABEL "Find" 
+     SIZE 11 BY 1.48.
 
-DEFINE RECTANGLE RECT-1
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 17 BY 1.62.
+DEFINE VARIABLE fiRelease AS INTEGER FORMAT ">>>>>>9":U INITIAL 0 
+     LABEL "Release #" 
+     VIEW-AS FILL-IN 
+     SIZE 28 BY 1.38 TOOLTIP "Enter release #" NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     btViewFGInquiry AT ROW 1.29 COL 1.8 WIDGET-ID 2 NO-TAB-STOP 
-     RECT-1 AT ROW 1.05 COL 1 WIDGET-ID 4
+     btFind AT ROW 1.19 COL 48 WIDGET-ID 4
+     fiRelease AT ROW 1.24 COL 17 COLON-ALIGNED WIDGET-ID 2
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE  WIDGET-ID 100.
+         AT COL 1 ROW 1 SCROLLABLE 
+         BGCOLOR 15 FONT 17 WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -112,7 +117,7 @@ END.
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW s-object ASSIGN
          HEIGHT             = 6.52
-         WIDTH              = 50.
+         WIDTH              = 66.4.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -158,24 +163,79 @@ ASSIGN
 
 /* ************************  Control Triggers  ************************ */
 
-&Scoped-define SELF-NAME btViewFGInquiry
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btViewFGInquiry s-object
-ON CHOOSE OF btViewFGInquiry IN FRAME F-Main /* View FG */
+&Scoped-define SELF-NAME btFind
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btFind s-object
+ON CHOOSE OF btFind IN FRAME F-Main /* Find */
 DO:
-    DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cItemID  AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE lAvail   AS LOGICAL   NO-UNDO.
-    
-    DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE pHandle  AS HANDLE    NO-UNDO. 
-    
-    {methods/run_link.i "FGInq-TARGET" "GetItem" "(OUTPUT cCompany, OUTPUT cItemID, OUTPUT lAvail)"}         
-    
-    IF lAvail THEN
-        RUN pViewFGInquiry (
-            INPUT cCompany,
-            INPUT cItemID
-            ).
+    APPLY "HELP" TO fiRelease.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME fiRelease
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiRelease s-object
+ON ANY-KEY OF fiRelease IN FRAME F-Main /* Release # */
+DO:
+    IF KEY-LABEL(LASTKEY) EQ "HELP" THEN
+        APPLY "HELP" TO SELF.
+        
+    IF KEY-LABEL(LASTKEY) EQ "ENTER" OR KEY-LABEL(LASTKEY) EQ "TAB" THEN
+        APPLY "LEAVE" TO SELF.  
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiRelease s-object
+ON ENTRY OF fiRelease IN FRAME F-Main /* Release # */
+DO:
+    SELF:SET-SELECTION ( 1, -1).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiRelease s-object
+ON HELP OF fiRelease IN FRAME F-Main /* Release # */
+DO:
+    DEFINE VARIABLE returnFields AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lookupField  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE recVal       AS RECID     NO-UNDO.
+  
+    RUN system/openlookup.p (
+        INPUT  "",  /* company */ 
+        INPUT  "",  /* lookup field */
+        INPUT  160, /* Subject ID */
+        INPUT  "",  /* User ID */
+        INPUT  0,   /* Param value ID */
+        OUTPUT returnFields, 
+        OUTPUT lookupField, 
+        OUTPUT recVal
+        ). 
+
+    IF lookupField NE "" THEN DO:
+        SELF:SCREEN-VALUE = IF NUM-ENTRIES(returnFields,"|") GE 2 THEN
+                                ENTRY(2, returnFields, "|")
+                            ELSE
+                                "".
+        
+        APPLY "LEAVE" TO SELF.
+    END.  
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiRelease s-object
+ON LEAVE OF fiRelease IN FRAME F-Main /* Release # */
+DO:
+    IF LASTKEY NE -1 OR SELF:SCREEN-VALUE NE "" THEN
+        RUN pReleaseScan.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -200,6 +260,21 @@ END.
 
 /* **********************  Internal Procedures  *********************** */
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE DisableRelease s-object 
+PROCEDURE DisableRelease :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    fiRelease:SENSITIVE IN FRAME {&FRAME-NAME} = FALSE.
+    
+    btFind:SENSITIVE = FALSE.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI s-object  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
 /*------------------------------------------------------------------------------
@@ -218,44 +293,111 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pViewFGInquiry s-object 
-PROCEDURE pViewFGInquiry PRIVATE :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE EnableRelease s-object 
+PROCEDURE EnableRelease :
 /*------------------------------------------------------------------------------
   Purpose:     
   Parameters:  <none>
   Notes:       
-------------------------------------------------------------------------------*/    
-    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcItemID  AS CHARACTER NO-UNDO.
+------------------------------------------------------------------------------*/
+    fiRelease:SENSITIVE IN FRAME {&FRAME-NAME} = TRUE.
+
+    btFind:SENSITIVE = TRUE.
         
-    IF NOT VALID-HANDLE(hdFGInquiry) THEN DO:         
-        RUN sharpshooter/w-fgInquiry.w PERSISTENT SET hdFGInquiry.
+    APPLY "ENTRY" TO fiRelease.
+END PROCEDURE.
 
-        RUN dispatch IN hdFGInquiry (
-            INPUT 'initialize':U
-            ) NO-ERROR.
-        
-        hdFGInquiryWin = hdFGInquiry:CURRENT-WINDOW.
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetReleaseID s-object 
+PROCEDURE GetReleaseID :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opoReleaseHeader AS oe.ReleaseHeader NO-UNDO.
+    
+    opoReleaseHeader = oReleaseHeader.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable s-object 
+PROCEDURE local-enable :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+
+    /* Code placed here will execute PRIOR to standard behavior. */
+
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable':U ) .
+
+    /* Code placed here will execute AFTER standard behavior.    */
+    RUN pInit.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pInit s-object 
+PROCEDURE pInit :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    RUN spGetSessionParam ("Company", OUTPUT cCompany).
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pReleaseScan s-object 
+PROCEDURE pReleaseScan :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DO WITH FRAME {&FRAME-NAME}:
     END.
-                                                 
-    IF VALID-HANDLE(hdFGInquiry) AND
-        VALID-HANDLE(hdFGInquiryWin) THEN DO: 
-
-        RUN ScanItem IN hdFGInquiry (
-            INPUT ipcCompany,
-            INPUT "",
-            INPUT "",
-            INPUT ipcItemID,
-            INPUT "",
-            INPUT "",
-            INPUT 0
-            ) NO-ERROR.            
-
-        IF hdFGInquiryWin:WINDOW-STATE EQ 2 THEN ASSIGN 
-            hdFGInquiryWin:WINDOW-STATE = 3.
-
-        hdFGInquiryWin:MOVE-TO-TOP().
+    
+    RUN new-state (
+        INPUT "release-invalid"
+        ).
+    
+    oReleaseHeader:SetContext(cCompany, INTEGER(fiRelease:SCREEN-VALUE)).
+    
+    IF NOT oReleaseHeader:IsAvailable() THEN DO:
+        MESSAGE "Invalid release # '" + fiRelease:SCREEN-VALUE + "'"
+            VIEW-AS ALERT-BOX ERROR.
+        RETURN.
     END.
+    
+    RUN new-state (
+        INPUT "release-valid"
+        ).
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Set-Foucs s-object 
+PROCEDURE Set-Foucs :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+    
+    APPLY "ENTRY" TO fiRelease.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

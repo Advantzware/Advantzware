@@ -36,6 +36,9 @@ DEFINE VARIABLE gcCaseUOMList AS CHARACTER NO-UNDO.
 DEFINE TEMP-TABLE ttUpdateOrderReleaseStatus NO-UNDO 
   FIELD ord-no AS INTEGER.
 
+DEFINE TEMP-TABLE ttOeBoll NO-UNDO
+    LIKE oe-boll.
+
 {oe/ttOrder.i}
 
 /* ********************  Preprocessor Definitions  ******************** */
@@ -1151,6 +1154,196 @@ PROCEDURE pGetcXMLShipToPrefix PRIVATE:
         opcShipToID = REPLACE(ipcShipToID, cXMLShipToPrefix, "").
     ELSE
         opcShipToID = ipcShipToID.
+END PROCEDURE.
+
+PROCEDURE pOrderProcsMakeBOLLinesFromSSRelBol PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany   AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiReleaseID AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiBOLID     AS INTEGER   NO-UNDO.
+        
+    DEFINE VARIABLE iBOLLine        AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iBOLQty         AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cBOLPrint       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lBOLWeight      AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cRtnBOLPrint    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lFoundBOLPrint  AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cRtnBOLWeight   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lFoundBOLWeight AS LOGICAL   NO-UNDO.
+    
+    DEFINE BUFFER bf-oe-relh        FOR oe-relh.
+    DEFINE BUFFER bf-oe-bolh        FOR oe-bolh.
+    DEFINE BUFFER bf-oe-boll        FOR oe-boll.
+    DEFINE BUFFER bf-ssrelbol       FOR ssrelbol.
+    DEFINE BUFFER bf-create-oe-boll FOR oe-boll.
+    DEFINE BUFFER bf-itemfg         FOR itemfg.
+    DEFINE BUFFER bf-loadtag        FOR loadtag.
+    
+    MAIN-BLOCK:
+    DO ON ERROR UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
+        ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
+        
+        RUN sys/ref/nk1look.p (
+            INPUT  ipcCompany, 
+            INPUT  "BOLPRINT", 
+            INPUT  "C" /* Logical */, 
+            INPUT  YES /* check by cust */, 
+            INPUT  YES /* use cust NOT vendor */, 
+            INPUT  "" /* cust */,
+            INPUT  "" /* ship-to*/,
+            OUTPUT cRtnBOLPrint, 
+            OUTPUT lFoundBOLPrint
+            ).
+        IF lFoundBOLPrint THEN
+            cBOLPrint = cRtnBOLPrint NO-ERROR. 
+                    
+        RUN sys/ref/nk1look.p (
+            INPUT  ipcCompany, 
+            INPUT  "BOLWeight", 
+            INPUT  "L" /* Logical */, 
+            INPUT  YES /* check by cust */, 
+            INPUT  YES /* use cust NOT vendor */, 
+            INPUT  "" /* cust */,
+            INPUT  "" /* ship-to*/,
+            OUTPUT cRtnBOLWeight, 
+            OUTPUT lFoundBOLWeight
+            ).
+            
+        IF lFoundBOLWeight THEN
+            lBOLWeight = LOGICAL(cRtnBOLWeight) NO-ERROR.
+        
+        FIND FIRST bf-oe-relh NO-LOCK
+             WHERE bf-oe-relh.company  EQ ipcCompany
+               AND bf-oe-relh.release# EQ ipiReleaseID 
+             NO-ERROR.
+        IF NOT AVAILABLE bf-oe-relh THEN DO:
+            UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK.
+        END.
+        
+        FIND FIRST bf-oe-bolh EXCLUSIVE-LOCK
+             WHERE bf-oe-bolh.company EQ ipcCompany
+               AND bf-oe-bolh.bol-no  EQ ipiBOLID
+             NO-ERROR.
+        IF NOT AVAILABLE bf-oe-bolh THEN DO:
+            UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK.    
+        END.
+        
+        EMPTY TEMP-TABLE ttOeBoll.
+        
+        FOR EACH bf-oe-boll EXCLUSIVE-LOCK
+            WHERE bf-oe-boll.company EQ bf-oe-bolh.company
+              AND bf-oe-boll.b-no    EQ bf-oe-bolh.b-no:
+            CREATE ttOeBoll.
+            BUFFER-COPY bf-oe-boll TO ttOeBoll.
+            
+            DELETE bf-oe-boll.
+        END.
+         
+        FOR EACH bf-ssrelbol EXCLUSIVE-LOCK
+            WHERE bf-ssrelbol.company  EQ bf-oe-relh.company
+              AND bf-ssrelbol.release# EQ bf-oe-relh.release#
+            BY bf-ssrelbol.seq:
+        
+            FIND FIRST ttOeBoll EXCLUSIVE-LOCK
+                 WHERE ttOeBoll.company EQ bf-oe-bolh.company
+                   AND ttOeBoll.b-no    EQ bf-oe-bolh.b-no
+                   AND ttOeBoll.i-no    EQ bf-ssrelbol.i-no
+                   AND ttOeBoll.ord-no  EQ bf-ssrelbol.ord-no
+                 USE-INDEX b-no NO-ERROR.
+            
+            IF AVAILABLE ttOeBoll THEN 
+                iBOLLine = ttOeBoll.bol-line.        
+            ELSE DO:
+                FIND LAST ttOeBoll EXCLUSIVE-LOCK
+                    WHERE ttOeBoll.company EQ bf-oe-bolh.company
+                      AND ttOeBoll.b-no    EQ bf-oe-bolh.b-no
+                      AND ttOeBoll.i-no    EQ bf-ssrelbol.i-no
+                    USE-INDEX bol-line NO-ERROR.
+                iBOLLine  = (IF AVAILABLE ttOeBoll THEN 
+                                 ttOeBoll.bol-line 
+                             ELSE 
+                                 0) + 1.
+            END.
+            IF NOT AVAILABLE ttOeBoll THEN 
+                UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK.
+                
+            CREATE bf-create-oe-boll.
+            BUFFER-COPY ttOeBoll EXCEPT ttOeBoll.rec_key TO bf-create-oe-boll.
+            ASSIGN
+                bf-create-oe-boll.job-no    = bf-ssrelbol.job-no
+                bf-create-oe-boll.job-no2   = bf-ssrelbol.job-no2
+                bf-create-oe-boll.loc       = bf-ssrelbol.loc
+                bf-create-oe-boll.loc-bin   = bf-ssrelbol.loc-bin
+                bf-create-oe-boll.cust-no   = bf-ssrelbol.cust-no
+                bf-create-oe-boll.tag       = bf-ssrelbol.tag#
+                bf-create-oe-boll.cases     = bf-ssrelbol.cases
+                bf-create-oe-boll.qty-case  = bf-ssrelbol.qty-case
+                bf-create-oe-boll.partial   = bf-ssrelbol.partial
+                bf-create-oe-boll.qty       = bf-ssrelbol.qty
+                bf-create-oe-boll.po-no     = bf-ssrelbol.po-no
+                bf-create-oe-boll.enteredBy = USERID("asi")
+                bf-create-oe-boll.enteredDT = DATETIME(TODAY, MTIME) 
+                .
+
+            RUN oe/pallcalc.p (
+                INPUT  ROWID(bf-create-oe-boll), 
+                OUTPUT bf-create-oe-boll.tot-pallets
+                ).
+      
+            IF bf-create-oe-boll.loc-bin EQ "" THEN 
+                bf-create-oe-boll.loc-bin = cBOLPrint.
+           
+            iBOLQty  = iBOLQty  + bf-create-oe-boll.qty.
+            
+            FIND FIRST bf-itemfg NO-LOCK 
+                 WHERE bf-itemfg.company EQ bf-create-oe-boll.company
+                   AND bf-itemfg.i-no    EQ bf-create-oe-boll.i-no
+                 NO-ERROR.
+            
+            IF AVAILABLE bf-itemfg  AND
+               bf-create-oe-boll.qty-case  EQ 0 AND
+               bf-itemfg.case-count NE 0 THEN DO:
+               
+                bf-create-oe-boll.qty-case = bf-itemfg.case-count.
+            
+                IF bf-create-oe-boll.qty-case NE 0 THEN
+                    bf-create-oe-boll.cases = TRUNC((bf-create-oe-boll.qty - bf-create-oe-boll.partial) / bf-create-oe-boll.qty-case,0).
+            END.
+    
+            IF AVAILABLE bf-itemfg THEN
+                ASSIGN
+                    bf-create-oe-boll.weight = ((((bf-create-oe-boll.cases * bf-create-oe-boll.qty-case) +
+                                                   bf-create-oe-boll.partial) / 100) * bf-itemfg.weight-100)
+                    bf-oe-bolh.tot-wt        = bf-oe-bolh.tot-wt + bf-create-oe-boll.weight
+                    .
+     
+            IF lBOLWeight AND TRIM(bf-create-oe-boll.tag) NE "" THEN 
+                FIND FIRST bf-loadtag NO-LOCK 
+                     WHERE bf-loadtag.company   EQ bf-create-oe-boll.company
+                       AND bf-loadtag.item-type EQ NO
+                       AND bf-loadtag.tag-no    EQ bf-create-oe-boll.tag 
+                     NO-ERROR.
+                     
+            IF AVAILABLE bf-loadtag THEN
+                bf-create-oe-boll.weight = ((bf-ssrelbol.cases * bf-loadtag.misc-dec[1]) + bf-loadtag.misc-dec[3]).
+            
+            IF bf-create-oe-boll.qty LT 0 THEN 
+                bf-create-oe-boll.tag = "".
+                
+            DELETE bf-ssrelbol.
+        END.
+        
+        IF (cFreightCalculationValue EQ "ALL" OR cFreightCalculationValue EQ "Bol Processing") THEN do:
+            RUN oe/calcBolFrt.p (
+                INPUT  ROWID(oe-bolh), 
+                OUTPUT bf-oe-bolh.freight
+                ).
+        END.
+    END.
+
 END PROCEDURE.
 
 PROCEDURE ProcessOrdersFromImport:
@@ -2349,12 +2542,13 @@ END PROCEDURE.
 
 /* Post Releases */
 PROCEDURE OrderProcsPostReleases: 
-    DEFINE INPUT  PARAMETER ipcCompany   AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipiReleaseID AS INTEGER   NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcUserName  AS CHARACTER NO-UNDO.
-    DEFINE OUTPUT PARAMETER oplSuccess   AS LOGICAL   NO-UNDO. 
-    DEFINE OUTPUT PARAMETER opcMessage   AS CHARACTER NO-UNDO.
-    DEFINE OUTPUT PARAMETER opiBOLID     AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcCompany                    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiReleaseID                  AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER iplCreateBOLLinesFromSSRelBOL AS LOGICAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcUserName                   AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplSuccess                    AS LOGICAL   NO-UNDO. 
+    DEFINE OUTPUT PARAMETER opcMessage                    AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiBOLID                      AS INTEGER   NO-UNDO.
     
     DEFINE VARIABLE cRtnCharBol  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lRecFoundBol AS LOGICAL   NO-UNDO.
@@ -2508,7 +2702,8 @@ PROCEDURE OrderProcsPostReleases:
         RUN pOrderProcsCreateBOLLines (
             INPUT ipcCompany,
             INPUT ipiReleaseID,
-            INPUT opiBOLID
+            INPUT opiBOLID,
+            INPUT iplCreateBOLLinesFromSSRelBOL
             ).
             
         FOR EACH oe-rell WHERE oe-rell.company EQ oe-relh.company
@@ -2995,10 +3190,11 @@ PROCEDURE pOrderProcsNewBOL PRIVATE:
 END PROCEDURE.
 
 PROCEDURE pOrderProcsCreateBOLLines PRIVATE:
-    DEFINE INPUT PARAMETER ipcCompany   AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipiReleaseID AS INTEGER   NO-UNDO.
-    DEFINE INPUT PARAMETER ipiBOLID     AS INTEGER   NO-UNDO.
-
+    DEFINE INPUT PARAMETER ipcCompany                    AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiReleaseID                  AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER ipiBOLID                      AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER iplCreateBOLLinesFromSSRelBOL AS LOGICAL   NO-UNDO.
+    
     DO TRANSACTION:
         FIND FIRST oe-relh NO-LOCK
              WHERE oe-relh.company  EQ ipcCompany
@@ -3022,7 +3218,14 @@ PROCEDURE pOrderProcsCreateBOLLines PRIVATE:
             INPUT ipiReleaseID,
             INPUT ipiBOLID
             ).
-
+        
+        IF iplCreateBOLLinesFromSSRelBOL THEN
+            RUN pOrderProcsMakeBOLLinesFromSSRelBol (
+                INPUT ipcCompany,
+                INPUT ipiReleaseID,
+                INPUT ipiBOLID
+                ).
+                
         FIND FIRST oe-bolh 
              WHERE oe-bolh.company EQ ipcCompany
                AND oe-bolh.bol-no  EQ ipiBOLID
@@ -3030,13 +3233,17 @@ PROCEDURE pOrderProcsCreateBOLLines PRIVATE:
 
         FOR EACH  oe-boll EXCLUSIVE-LOCK 
             WHERE oe-boll.company EQ oe-bolh.company
-              AND oe-boll.b-no    EQ oe-bolh.b-no:
+              AND oe-boll.b-no    EQ oe-bolh.b-no
+            BREAK BY oe-boll.i-no:
               
             RUN oe/calcBolWeight.p (
                 INPUT ROWID(oe-boll), 
                 OUTPUT oe-boll.weight
                 ).
-           
+                
+            IF LAST-OF(oe-boll.i-no) THEN DO:
+                {oe/oe-bolpc.i ALL}
+            END.
         END.
         
         RUN oe/palcal2.p (
