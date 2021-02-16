@@ -40,11 +40,13 @@ CREATE WIDGET-POOL.
 {custom/globdefs.i}
 {sys/inc/var.i "NEW SHARED"}
 {sys/inc/varasgn.i}
-
+{system/sysconst.i}
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCompany     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cLocation    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCompanyName AS CHARACTER NO-UNDO.
 
 /* Required for run_link.i */
 DEFINE VARIABLE char-hdl  AS CHARACTER NO-UNDO.
@@ -163,7 +165,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          VIRTUAL-WIDTH      = 204
          RESIZE             = no
          SCROLL-BARS        = no
-         STATUS-AREA        = no
+         STATUS-AREA        = yes
          BGCOLOR            = ?
          FGCOLOR            = ?
          THREE-D            = yes
@@ -563,7 +565,13 @@ PROCEDURE pInit :
     END.
     
     RUN spGetSessionParam (INPUT "Company", OUTPUT cCompany).
-        
+    RUN spGetSessionParam (INPUT "CompanyName", OUTPUT cCompanyName).
+    RUN spGetSessionParam (INPUT "Location", OUTPUT cLocation).
+
+    {&WINDOW-NAME}:TITLE = {&WINDOW-NAME}:TITLE
+                         + " - {&awversion}" + " - " 
+                         + cCompanyName + " - " + cLocation.
+                         
     fiTrailer:HIDDEN = NOT glScanTrailer.
     
     RUN pInvalidRelease.
