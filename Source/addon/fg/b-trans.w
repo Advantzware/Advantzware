@@ -35,6 +35,8 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 &SCOPED-DEFINE yellowColumnsName b-trans
+&SCOPED-DEFINE winReSize
+{methods/defines/winReSize.i}
 
 {custom/gcompany.i}
 {custom/gloc.i}
@@ -982,6 +984,7 @@ ASSIGN sstransf-log = sys-ctrl.log-fld
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF
+{methods/winReSize.i}
 /* Ticket# : 92946
    Hiding this widget for now, as browser's column label should be indicating the column which is sorted by */
 fi_sortby:HIDDEN  = TRUE.
