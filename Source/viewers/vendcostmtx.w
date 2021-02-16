@@ -31,7 +31,7 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 &Scoped-define proc-enable proc-enable 
-&SCOPED-DEFINE procDisbale
+&SCOPED-DEFINE procDisable
  
 /* Parameters Definitions ---                                           */
 
