@@ -415,7 +415,7 @@ END.
 ON WINDOW-CLOSE OF C-Win /* A/R Invoice Edit/Posting Register */
 DO:
    RUN spCommon_CheckPostingProcess(INPUT "ar-ctrl", INPUT "postInProcess", INPUT "postType", INPUT "postUserID",
-                                        INPUT "postStartDtTm", INPUT cocode, INPUT "AU4", INPUT YES, 
+                                        INPUT "postStartDtTm", INPUT cocode, INPUT string("AU4-" + cocode), INPUT YES, 
                                         OUTPUT cFieldInProcess, OUTPUT cFieldPostType, OUTPUT cFieldUserId, OUTPUT cFieldDateTime).
   /* This event will close the window and terminate the procedure.  */
   APPLY "CLOSE":U TO THIS-PROCEDURE.
@@ -455,7 +455,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    RUN spCommon_CheckPostingProcess(INPUT "ar-ctrl", INPUT "postInProcess", INPUT "postType", INPUT "postUserID",
-                                        INPUT "postStartDtTm", INPUT cocode, INPUT "AU4", INPUT YES, 
+                                        INPUT "postStartDtTm", INPUT cocode, INPUT string("AU4-" + cocode), INPUT YES, 
                                         OUTPUT cFieldInProcess, OUTPUT cFieldPostType, OUTPUT cFieldUserId, OUTPUT cFieldDateTime).
                                         
    IF VALID-HANDLE(hdOutboundProcs) THEN
@@ -745,7 +745,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   RUN enable_UI.
   
   RUN spCommon_CheckPostingProcess(INPUT "ar-ctrl", INPUT "postInProcess", INPUT "postType", INPUT "postUserID",
-                                        INPUT "postStartDtTm", INPUT cocode, INPUT "AU4", INPUT NO, 
+                                        INPUT "postStartDtTm", INPUT cocode, INPUT string("AU4-" + cocode), INPUT NO, 
                                         OUTPUT cFieldInProcess, OUTPUT cFieldPostType, OUTPUT cFieldUserId, OUTPUT cFieldDateTime).
   IF cFieldInProcess EQ "Yes" THEN
   DO:    

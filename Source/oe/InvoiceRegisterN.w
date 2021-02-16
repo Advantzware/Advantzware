@@ -536,7 +536,7 @@ OR ENDKEY OF {&WINDOW-NAME} ANYWHERE
 ON WINDOW-CLOSE OF C-Win /* Invoice Register */
 DO:         
         RUN spCommon_CheckPostingProcess(INPUT "ar-ctrl", INPUT "postInProcess", INPUT "postType", INPUT "postUserID",
-                                        INPUT "postStartDtTm", INPUT cocode, INPUT "OB4", INPUT YES, 
+                                        INPUT "postStartDtTm", INPUT cocode, INPUT STRING("OB4-" + STRING(cocode)), INPUT YES, 
                                         OUTPUT cFieldInProcess, OUTPUT cFieldPostType, OUTPUT cFieldUserId, OUTPUT cFieldDateTime). 
         /* This event will close the window and terminate the procedure.  */
         DELETE OBJECT hNotesProcs.
@@ -584,7 +584,7 @@ ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
     
         RUN spCommon_CheckPostingProcess(INPUT "ar-ctrl", INPUT "postInProcess", INPUT "postType", INPUT "postUserID",
-                                        INPUT "postStartDtTm", INPUT cocode, INPUT "OB4", INPUT YES, 
+                                        INPUT "postStartDtTm", INPUT cocode, INPUT STRING("OB4-" + STRING(cocode)), INPUT YES, 
                                         OUTPUT cFieldInProcess, OUTPUT cFieldPostType, OUTPUT cFieldUserId, OUTPUT cFieldDateTime). 
                                         
         IF VALID-HANDLE(hdOutboundProcs) THEN
@@ -994,7 +994,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     END.
     
     RUN spCommon_CheckPostingProcess(INPUT "ar-ctrl", INPUT "postInProcess", INPUT "postType", INPUT "postUserID",
-                                        INPUT "postStartDtTm", INPUT cocode, INPUT "OB4", INPUT NO, 
+                                        INPUT "postStartDtTm", INPUT cocode, INPUT STRING("OB4-" + cocode), INPUT NO, 
                                         OUTPUT cFieldInProcess, OUTPUT cFieldPostType, OUTPUT cFieldUserId, OUTPUT cFieldDateTime).
     IF cFieldInProcess EQ "Yes" THEN
     DO:    
