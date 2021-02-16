@@ -2452,16 +2452,19 @@ PROCEDURE valid-tax-code :
   DO WITH FRAME {&FRAME-NAME}:
     shipto.tax-code:SCREEN-VALUE = CAPS(shipto.tax-code:SCREEN-VALUE).
 
+    {methods/run_link.i "RECORD-SOURCE" "Get-Values"
+    "(OUTPUT op-company,OUTPUT op-cust-no)"}
+    
     IF NOT AVAIL cust THEN
     FIND FIRST cust
-        WHERE cust.company EQ shipto.company
-          AND cust.cust-no EQ shipto.cust-no
+        WHERE cust.company EQ cocode
+          AND cust.cust-no EQ op-cust-no
         NO-LOCK NO-ERROR.
 
-    IF ((AVAIL cust AND cust.SORT EQ "Y") or v-tax-mand)                    AND
+    IF ((AVAIL cust AND cust.SORT EQ "Y") or v-tax-mand)                    AND  
        (shipto.tax-code:SCREEN-VALUE EQ "" OR
         NOT CAN-FIND(FIRST stax
-                     WHERE stax.company   EQ shipto.company
+                     WHERE stax.company   EQ cocode
                        AND stax.tax-group EQ shipto.tax-code:SCREEN-VALUE)) THEN DO:
       MESSAGE "Must enter a valid tax code, try help..." VIEW-AS ALERT-BOX ERROR.
       APPLY "entry" TO shipto.tax-code.
