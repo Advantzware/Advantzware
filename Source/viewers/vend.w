@@ -477,7 +477,7 @@ DEFINE FRAME F-Main
           SIZE 12 BY 2.62
      curr_dscr AT ROW 9.1 COL 94 COLON-ALIGNED NO-LABEL
      vend.loc AT ROW 14.24 COL 83 COLON-ALIGNED WIDGET-ID 4
-          LABEL "Whs"
+          LABEL "Loc"
           VIEW-AS FILL-IN 
           SIZE 8 BY 1
      "Status:" VIEW-AS TEXT
