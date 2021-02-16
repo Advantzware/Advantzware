@@ -171,21 +171,31 @@ PROCEDURE Browse_PrepareAndExecuteLimitingQuery:
             iStartTime = ETIME
             .
             
-        DO WHILE (ETIME - iStartTime) LT ipdTimeLimit AND NOT hdQuery:QUERY-OFF-END:
+        IF iplInitialQuery THEN DO WHILE NOT hdQuery:QUERY-OFF-END:
             IF NOT iplIsBreakByUsed OR hdQuery:FIRST-OF(1) THEN DO:
                 opcReturnValue = STRING(hdBuffer:BUFFER-FIELD(ipcFieldName):BUFFER-VALUE).
-                ASSIGN 
-                    iTotalCount = iTotalCount + 1
-                    iCount      = iCount      + 1
-                    .
-                IF iCount GE ipiRecordLimit THEN DO:                   
-                    iTimeTaken = iTimeTaken + (ETIME - iStartTime).
-                    LEAVE.
-                END.  
-            END.
-            hdQuery:GET-NEXT().                          
+                iCount = iCount + 1.
+                IF iCount GE 30 THEN                   
+                    LEAVE. 
+                hdQuery:GET-NEXT().   
+            END.                         
         END.
-        
+        ELSE DO:
+            DO WHILE (ETIME - iStartTime) LT ipdTimeLimit AND NOT hdQuery:QUERY-OFF-END:
+                IF NOT iplIsBreakByUsed OR hdQuery:FIRST-OF(1) THEN DO:
+                    opcReturnValue = STRING(hdBuffer:BUFFER-FIELD(ipcFieldName):BUFFER-VALUE).
+                    ASSIGN 
+                        iTotalCount = iTotalCount + 1
+                        iCount      = iCount      + 1
+                        .
+                    IF iCount GE ipiRecordLimit THEN DO:                   
+                        iTimeTaken = iTimeTaken + (ETIME - iStartTime).
+                        LEAVE.
+                    END.  
+                END.
+                hdQuery:GET-NEXT().                          
+            END.
+        END.
         /* If Query has ended or if its initialQuery then leave the mainloop */
         IF hdQuery:QUERY-OFF-END OR iplInitialQuery THEN 
             LEAVE MainLoop.
