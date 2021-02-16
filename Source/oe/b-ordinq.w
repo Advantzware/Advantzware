@@ -1854,14 +1854,15 @@ PROCEDURE local-open-query :
                 INPUT lUseRecKeyCriteria
                 ).
     END.        
-    ELSE DO:
+    ELSE 
         RUN pPrepareAndExecuteQuery(
             INPUT IF lButtongoPressed THEN NO ELSE YES, /* If Button go is pressed then only show the limit alert */ 
             INPUT lUseRecKeyCriteria 
             ).
-        IF lButtongoPressed THEN 
-            lButtongoPressed = NO.        
-    END.
+
+    IF lButtongoPressed THEN 
+        lButtongoPressed = NO.        
+
     IF AVAILABLE {&first-table-in-query-{&browse-name}} THEN 
     DO:
         RUN dispatch ("display-fields").
