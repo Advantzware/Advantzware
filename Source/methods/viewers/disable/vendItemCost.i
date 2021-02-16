@@ -15,6 +15,6 @@
 /* ***************************  Definitions  ************************** */
 
 /* ***************************  Main Block  *************************** */
-    &IF DEFINED(procDisbale) NE 0 &THEN 
+    &IF DEFINED(procDisable) NE 0 &THEN 
         RUN pDisableButtons.
     &ENDIF.
