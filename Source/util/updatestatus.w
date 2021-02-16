@@ -423,6 +423,7 @@ DO:
             END.
 
     END CASE.
+    RUN SetButtons.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -589,8 +590,7 @@ DO:
                 ttOe-ord.newstat = oe-ord.stat.
             RUN oe/getStatusDesc.p( INPUT ttOe-ord.newstat, OUTPUT cResult) .
             ttOe-ord.newstatDesc = cResult.
-        END.
-                  
+        END.          
         RUN Output_TempTableToCSV IN hdOutputProcs (
             INPUT TEMP-TABLE ttOe-ord:HANDLE,
             INPUT cLocation + "\Order.csv",
@@ -604,8 +604,8 @@ DO:
     DO:
         FOR EACH job NO-LOCK 
             WHERE job.company EQ cocode
-              AND job.job-no  GE fiBeginOrder:INPUT-VALUE
-              AND job.job-no  LE fiEndingOrder:INPUT-VALUE :
+              AND job.job-no  GE fiBeginOrder:SCREEN-VALUE
+              AND job.job-no  LE fiEndingOrder:SCREEN-VALUE :
             CREATE ttJob.
             ASSIGN 
             ttJob.job-no = job.job-no
@@ -630,6 +630,30 @@ DO:
 
     MESSAGE "CSV with updated status have been created in " + cLocation + " folder."
     VIEW-AS ALERT-BOX.
+    
+    IF tbOpenFiles:CHECKED THEN 
+    DO:
+        IF tbUpdateJobStatus:CHECKED  THEN  
+            RUN OS_RunFile(
+                INPUT cLocation + "\Job.csv",
+                OUTPUT lSuccess,
+                OUTPUT cMessage).
+        IF tbupdatePurchaseOrders:CHECKED  THEN
+            RUN OS_RunFile(
+                INPUT cLocation + "\PurchaseOrder.csv",
+                OUTPUT lSuccess,
+                OUTPUT cMessage).
+        IF tbUpdateOrderStatus:CHECKED THEN 
+            RUN OS_RunFile(
+                INPUT cLocation + "\Order.csv",
+                OUTPUT lSuccess,
+                OUTPUT cMessage).
+        IF tbUpdateReleases:CHECKED THEN
+            RUN OS_RunFile(
+                INPUT cLocation + "\ResleaseOrder.csv",
+                OUTPUT lSuccess,
+                OUTPUT cMessage).
+    END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -856,7 +880,6 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     RUN FileSys_GetTempDirectory(
         OUTPUT cLocation
         ).
-    cLocation = cLocation + "\UpdateStatus-" + STRING(YEAR(TODAY),"9999") + STRING(MONTH(TODAY),"99")+ STRING(DAY(TODAY),"99") + "-" + STRING(TIME,"99999"). 
  
     fiDirectory:screen-value = cLocation. 
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
@@ -926,29 +949,27 @@ PROCEDURE SetButtons :
         END.
     IF tbUpdateJobStatus:CHECKED THEN 
     DO:
-        IF  
-            fiBeginJob:SCREEN-VALUE NE "" AND 
-            fiEndingJob:SCREEN-VALUE NE "" THEN 
+        IF  fiBeginJob:SCREEN-VALUE NE " " AND 
+            fiEndingJob:SCREEN-VALUE NE " " THEN 
                 btSimulate:SENSITIVE = TRUE.
                 
         ELSE 
-            btSimulate:SENSITIVE = FALSE.
-                
+            btSimulate:SENSITIVE = FALSE.               
     END.
+    
     IF tbUpdateOrderStatus:CHECKED THEN 
     DO:
-        IF  
-            fiBeginOrder:SCREEN-VALUE NE "" AND 
-            fiEndingOrder:SCREEN-VALUE NE "" THEN 
+        IF fiBeginOrder:SCREEN-VALUE NE "" AND 
+           fiEndingOrder:SCREEN-VALUE NE "" THEN 
             btSimulate:SENSITIVE = TRUE.
         ELSE 
             btSimulate:SENSITIVE = FALSE.
                 
     END.
+    
     IF tbupdatePurchaseOrders:CHECKED THEN 
     DO:
-        IF  
-            fiBeginPO:SCREEN-VALUE NE "" AND 
+        IF  fiBeginPO:SCREEN-VALUE NE "" AND 
             fiEndingPO:SCREEN-VALUE NE "" THEN 
             btSimulate:SENSITIVE = TRUE.
         ELSE 
@@ -958,8 +979,7 @@ PROCEDURE SetButtons :
     
     IF tbUpdateReleases:CHECKED THEN 
     DO:
-        IF  
-            fiBeginRelease:SCREEN-VALUE NE "" AND 
+        IF  fiBeginRelease:SCREEN-VALUE NE ""  AND 
             fiEndingRelease:SCREEN-VALUE NE "" THEN 
             btSimulate:SENSITIVE = TRUE.
             
@@ -968,9 +988,9 @@ PROCEDURE SetButtons :
                 
     END.
      
-    IF  NOT tbUpdateReleases:CHECKED AND 
+    IF  NOT tbUpdateReleases:CHECKED       AND 
         NOT tbupdatePurchaseOrders:CHECKED AND 
-        NOT tbUpdateOrderStatus:CHECKED  AND 
+        NOT tbUpdateOrderStatus:CHECKED    AND 
         NOT tbUpdateJobStatus:CHECKED    
     THEN 
         btSimulate:SENSITIVE = FALSE. 
