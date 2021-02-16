@@ -395,6 +395,7 @@ PROCEDURE pBuildJobItem PRIVATE:
     DEFINE VARIABLE dQtyOnHand   AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE dtOrderDate  AS DATE      NO-UNDO.
     DEFINE VARIABLE dtDueDate    AS DATE      NO-UNDO.
+    DEFINE VARIABLE iCount       AS INTEGER   NO-UNDO.
     DEFINE VARIABLE lHasOrder    AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lIsComp      AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lNoMake      AS LOGICAL   NO-UNDO.
@@ -426,7 +427,10 @@ PROCEDURE pBuildJobItem PRIVATE:
             lNoMake      = NO
             dtOrderDate  = ?
             dtDueDate    = ?
+            iCount       = iCount + 1
             .
+        IF lProgressBar THEN
+        RUN spProgressBar (cProgressBar, iCount, ?).
         RUN pGetQuantityMadeAsOf (
             job-hdr.company,
             job-hdr.job-no,
@@ -626,7 +630,10 @@ PROCEDURE pBuildJobItem PRIVATE:
             lNoMake      = NO
             dtOrderDate  = oe-ord.ord-date
             dtDueDate    = oe-ord.due-date
+            iCount       = iCount + 1
             .
+        IF lProgressBar THEN
+        RUN spProgressBar (cProgressBar, iCount, ?).
         RUN pGetInvoicedAmountForMiscAsOf (
             oe-ord.company,
             oe-ord.ord-no,
@@ -694,6 +701,10 @@ PROCEDURE pBuildJobItem PRIVATE:
             lNoMake      = NO
             dtOrderDate  = oe-ord.ord-date
             dtDueDate    = oe-ord.due-date
+            iCount       = iCount + 1
+            .
+        IF lProgressBar THEN
+        RUN spProgressBar (cProgressBar, iCount, ?).
             .
         RUN pGetQuantityInvShipAsOf (
             ROWID(oe-ordl),

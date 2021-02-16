@@ -48,6 +48,7 @@ END FUNCTION.
 /* **********************  Internal Procedures  *********************** */
 
 PROCEDURE pBusinessLogic:
+    /* Note: C:\Program Files\Common Files\System\ado\msado15.dll */
     /* create ActiveX Data Object connection */
     CREATE "ADODB.Connection.6.0" hConnection.
     hConnection:ConnectionString = "{AOA/dynBL/IndepedentII.i}".
@@ -78,7 +79,8 @@ END PROCEDURE.
 PROCEDURE pADO:
     DEFINE INPUT PARAMETER ipcType AS CHARACTER NO-UNDO.
 
-    DEFINE VARIABLE cSelect AS CHARACTER  NO-UNDO.
+    DEFINE VARIABLE cSelect AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iCount  AS INTEGER   NO-UNDO.
 
     EMPTY TEMP-TABLE ttCompare.
     /* set sql select statement */
@@ -90,6 +92,9 @@ PROCEDURE pADO:
     /* read all record set rows */
     DO WHILE TRUE:
         IF hRecordSet:EOF THEN LEAVE.
+        iCount = iCount + 1.
+        IF lProgressBar THEN
+        RUN spProgressBar (cProgressBar, iCount, hRecordSet:RecordCount).
         CASE ipcType:
             WHEN "Cust" THEN
             RUN pCreatettCust.
@@ -102,11 +107,11 @@ PROCEDURE pADO:
     END. /* do while */
     CASE ipcType:
         WHEN "Cust" THEN
-        RUN pCust.
+        RUN pCust (hRecordSet:RecordCount).
         WHEN "ItemFG" THEN
-        RUN pItemFG.
+        RUN pItemFG (hRecordSet:RecordCount).
         WHEN "Terms" THEN
-        RUN pTerms.
+        RUN pTerms (hRecordSet:RecordCount).
     END CASE.
     /* close record set */
     hRecordSet:Close ().

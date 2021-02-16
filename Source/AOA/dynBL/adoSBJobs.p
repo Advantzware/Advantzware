@@ -17,6 +17,7 @@ DEFINE VARIABLE hConnection AS COM-HANDLE NO-UNDO.
 DEFINE VARIABLE hFields     AS COM-HANDLE NO-UNDO.
 DEFINE VARIABLE hRecordSet  AS COM-HANDLE NO-UNDO.
 DEFINE VARIABLE hTable      AS HANDLE     NO-UNDO EXTENT 2.
+DEFINE VARIABLE iTotal      AS INTEGER    NO-UNDO.
 DEFINE VARIABLE lNoChange   AS LOGICAL    NO-UNDO.
 
 /* Temp-Table Definitions ---                                           */
@@ -89,10 +90,13 @@ PROCEDURE pBusinessLogic:
     RELEASE OBJECT hRecordSet.
     RELEASE OBJECT hConnection.
 
+    RUN spProgressBar (?, ?, 100).
+
 END PROCEDURE.
 
 PROCEDURE pADOSBJobs:
     DEFINE VARIABLE cSelect AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iCount  AS INTEGER   NO-UNDO.
 
     /* set sql select statement */
     RUN pSetSelect (OUTPUT cSelect).
@@ -103,6 +107,8 @@ PROCEDURE pADOSBJobs:
     /* read all record set rows */
     DO WHILE TRUE:
         IF hRecordSet:EOF THEN LEAVE.
+        iCount = iCount + 1.
+        RUN spProgressBar ("ADO SB Jobs - Phase 1", iCount, hRecordSet:RecordCount).
         RUN pCreatettSBJobs.
         hRecordSet:MoveNext.
     END. /* do while */
@@ -144,6 +150,7 @@ PROCEDURE pCreatettSBJobs:
             ttSBJobs.seq-no   = hFields:Item("mach_seq_no"):Value
             ttSBJobs.speed    = hFields:Item("mach_speed"):Value
             ttSBJobs.run-hr   = ttSBJobs.run-qty / ttSBJobs.speed
+            iTotal            = iTotal + 1
             .
     END. /* if avail */
 
@@ -177,6 +184,7 @@ END PROCEDURE.
 PROCEDURE pSBJobs:
     DEFINE VARIABLE cCEMenu   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cIndustry AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iCount    AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iJob      AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iJNo      AS INTEGER   NO-UNDO.
     DEFINE VARIABLE lCEMenu   AS LOGICAL   NO-UNDO.
@@ -191,6 +199,8 @@ PROCEDURE pSBJobs:
            ELSE "".
 
     FOR EACH ttSBJobs:
+        iCount = iCount + 1.
+        RUN spProgressBar ("ADO SB Jobs - Phase 3", iCount, iTotal).
         FIND FIRST ttUniqueJob
              WHERE ttUniqueJob.company EQ ttSBJobs.company
                AND ttUniqueJob.job-no  EQ ttSBJobs.job-no
@@ -301,13 +311,16 @@ PROCEDURE pSBJobs:
 END PROCEDURE.
 
 PROCEDURE pSetLineOrder:
-    DEFINE VARIABLE iLine AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iLine  AS INTEGER NO-UNDO.
 
     FOR EACH ttSBJobs
         BREAK BY ttSBJobs.company
               BY ttSBJobs.job-no
               BY ttSBJobs.seq-no
         :
+        iCount = iCount + 1.
+        RUN spProgressBar ("ADO SB Jobs - Phase 2", iCount, iTotal).
         IF FIRST-OF(ttSBJobs.job-no) THEN
         iLine = 0.
         ASSIGN

@@ -214,7 +214,8 @@ PROCEDURE pResultsBrowser :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER iphQuery AS HANDLE NO-UNDO.
+    DEFINE INPUT PARAMETER iphQuery       AS HANDLE NO-UNDO.
+    DEFINE INPUT PARAMETER iplProgressBar AS LOGICAL NO-UNDO.
     
 &IF "{&program-id}" NE "dynBrowserParam." &THEN
     DEFINE VARIABLE hColumn AS HANDLE  NO-UNDO.
@@ -238,6 +239,7 @@ PROCEDURE pResultsBrowser :
         hQueryBrowse:QUERY   = iphQuery
         hQueryBrowse:VISIBLE = TRUE
         iNumColumns          = 0
+        idx                  = 0
         .
     FOR EACH dynValueColumn NO-LOCK
         WHERE dynValueColumn.subjectID    EQ dynParamValue.subjectID
@@ -248,6 +250,8 @@ PROCEDURE pResultsBrowser :
            BY dynValueColumn.sortOrder
         :
         hColumn = ?.
+        IF iplProgressBar THEN
+        RUN spProgressBar (hQueryBrowse:TITLE, ?, 33).
         IF dynValueColumn.isCalcField THEN DO:
             IF dynValueColumn.calcProc NE "" THEN
             ASSIGN
@@ -285,6 +289,8 @@ PROCEDURE pResultsBrowser :
         hColumn:WIDTH-CHARS = dynValueColumn.columnSize.
         iNumColumns = iNumColumns + 1.
     END. /* each dynvaluecolumn */
+    IF iplProgressBar THEN
+    RUN spProgressBar (hQueryBrowse:TITLE, ?, 67).
     hBrowseQuery = iphQuery:HANDLE.
     iphQuery:QUERY-OPEN.
     IF iphQuery:NUM-RESULTS GT 0 THEN
@@ -299,6 +305,8 @@ PROCEDURE pResultsBrowser :
         btnSaveResults:MOVE-TO-TOP().
     END. /* results frame */
     RUN LockWindowUpdate (0,OUTPUT i).
+    IF iplProgressBar THEN
+    RUN spProgressBar (?, ?, 100).
 &ENDIF
 
 END PROCEDURE.
@@ -349,11 +357,12 @@ PROCEDURE pRunQuery:
     DEFINE INPUT PARAMETER ipcUserID     AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcTaskRecKey AS CHARACTER NO-UNDO.
 
-    DEFINE VARIABLE cError     AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cTableName AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE hQuery     AS HANDLE    NO-UNDO.
-    DEFINE VARIABLE idx        AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE lOK        AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cError       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cTableName   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE hQuery       AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE idx          AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE lOK          AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lProgressBar AS LOGICAL   NO-UNDO.
     
     DEFINE BUFFER {1}SubjectTable FOR {1}SubjectTable.    
 
@@ -364,8 +373,9 @@ PROCEDURE pRunQuery:
         cTableName = cTableName + {1}SubjectTable.tableName + ",".
     END. /* each {1}SubjectTable */
     ASSIGN
-        cTableName = TRIM(cTableName,",")
-        lOK        = TRUE
+        cTableName   = TRIM(cTableName,",")
+        lOK          = TRUE
+        lProgressBar = CAN-DO("Grid,LocalCSV,Print -d,View", ipcType)
         .
     IF ipcType EQ "Grid" THEN DO:
         IF dynSubject.businessLogic EQ "" THEN
@@ -380,6 +390,7 @@ PROCEDURE pRunQuery:
             ).
         ELSE
         RUN pRunBusinessLogic (
+            lProgressBar,
             OUTPUT hQuery,
             OUTPUT lOK,
             OUTPUT cError
@@ -390,7 +401,7 @@ PROCEDURE pRunQuery:
             RUN pSetParamValueDefault.
             CASE ipcType:
                 WHEN "Grid" THEN
-                RUN pResultsBrowser (hQuery).
+                RUN pResultsBrowser (hQuery, lProgressBar).
                 WHEN "LocalCSV" OR WHEN "Print -d" OR WHEN "View" THEN
                 RUN pResultsJasper (ipcType, ipcUserID, ipcTaskRecKey).
                 OTHERWISE DO:

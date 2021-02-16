@@ -779,11 +779,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   RUN enable_UI.
   RUN pCreateDynParameters (FRAME paramFrame:HANDLE, YES).
   IF iplParameters EQ NO THEN DO:
-/*    IF dynParamValue.user-id NE "{&defaultUser}" AND*/
-/*       dynParamValue.paramValueID NE 0 THEN DO:     */
-        FRAME blankFrame:HIDDEN = NO.
-        FRAME blankFrame:MOVE-TO-TOP().
-/*    END. /* if user-id */*/
+    FRAME blankFrame:HIDDEN = NO.
+    FRAME blankFrame:MOVE-TO-TOP().
     IF dynParamValue.outputFormat EQ "LocalCSV" THEN
     APPLY "CHOOSE":U TO btnLocalCSV.
     ELSE
