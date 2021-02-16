@@ -164,6 +164,7 @@ DEFINE VARIABLE cSSBOLPassword AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hNotesProcs AS HANDLE NO-UNDO.
 DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lCheckTagHoldMessage AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lRecordUpdating AS LOGICAL NO-UNDO.
 DEFINE VARIABLE hInventoryProcs AS HANDLE NO-UNDO.
 {inventory/ttInventory.i "NEW SHARED"}
 RUN inventory\InventoryProcs.p PERSISTENT SET hInventoryProcs.
@@ -2349,6 +2350,27 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-disable-fields B-table-Win
+PROCEDURE local-disable-fields:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    /* Code placed here will execute PRIOR to standard behavior. */
+    
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'disable-fields':U ) .
+
+    /* Code placed here will execute AFTER standard behavior.    */
+    lRecordUpdating = FALSE.
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable-fields B-table-Win 
 PROCEDURE local-enable-fields :
 /*------------------------------------------------------------------------------
@@ -2366,6 +2388,7 @@ PROCEDURE local-enable-fields :
 
   /* Code placed here will execute AFTER standard behavior.    */
   lCheckTagHoldMessage = NO .
+  lRecordUpdating = TRUE.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2723,6 +2746,12 @@ PROCEDURE print-bol :
   DEFINE VARIABLE lMsgResponse AS LOGICAL NO-UNDO.
   DEFINE VARIABLE iOverShipQty AS INTEGER  INITIAL 0 NO-UNDO.
   DEFINE VARIABLE iUnderShipQty AS INTEGER  INITIAL 0 NO-UNDO .
+
+  /* If the browse is currently in update mode */
+  IF lRecordUpdating THEN
+      RUN dispatch (
+          INPUT "cancel-record"
+          ).
   
   RUN validate-scan(OUTPUT v-create-backorder) NO-ERROR.
 
