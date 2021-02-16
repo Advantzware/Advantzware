@@ -1017,7 +1017,7 @@ DO:
               AND po-ordl.item-type
             NO-LOCK NO-ERROR.
     
-        IF po-ordl.stat NE "C" 
+        IF (po-ordl.stat NE "C" AND dAmountReceived NE 0 AND dAmountInvoiced NE 0)
             OR (apinvmsg-log = YES AND dQtyReceived EQ 0 
                 AND dQtyInvoiced EQ 0) 
             OR dQtyReceived NE dQtyInvoiced 
