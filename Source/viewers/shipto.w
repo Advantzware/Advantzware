@@ -346,7 +346,7 @@ DEFINE FRAME F-Main
           SIZE 94 BY 1
      ship_note AT ROW 16 COL 5 NO-LABEL
      shipto.loc AT ROW 1.43 COL 125 COLON-ALIGNED
-          LABEL "Warehouse"
+          LABEL "Location"
           VIEW-AS FILL-IN 
           SIZE 15.6 BY 1
           FONT 4
