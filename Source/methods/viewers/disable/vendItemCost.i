@@ -15,7 +15,6 @@
 /* ***************************  Definitions  ************************** */
 
 /* ***************************  Main Block  *************************** */
-    {methods/run_link.i "getPanel-SOURCE" "EnablePanel"}.
-    DO WITH FRAME {&FRAME-NAME}:
-        btn_multi:SENSITIVE = YES.
-    END.
+    &IF DEFINED(procDisbale) NE 0 &THEN 
+        RUN pDisableButtons.
+    &ENDIF.
