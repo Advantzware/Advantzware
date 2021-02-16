@@ -103,11 +103,11 @@ def var lv-estqty-recid as recid no-undo.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS cust-no ship-to style-cod flue test f-tab ~
-len wid dep cst-part colr-dscr fg-no board glu-cod bndl-cod plat-cod ~
-bndng-cod Btn_OK Btn_Cancel RECT-1 fg-cat quantity 
+len wid dep cst-part colr-dscr fg-no fg-cat quantity board glu-cod bndl-cod ~
+plat-cod bndng-cod Btn_OK Btn_Cancel RECT-1 item-dscr 
 &Scoped-Define DISPLAYED-OBJECTS cust-no ship-to style-cod style-dscr flue ~
-test f-tab len wid dep cst-part colr-dscr fg-no board glu-cod bndl-cod ~
-plat-cod bndng-cod fg-cat quantity 
+test f-tab len wid dep cst-part colr-dscr fg-no fg-cat quantity board ~
+glu-cod bndl-cod plat-cod bndng-cod item-dscr 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -192,6 +192,11 @@ DEFINE VARIABLE glu-cod AS CHARACTER FORMAT "X(15)":U
      VIEW-AS FILL-IN 
      SIZE 17.4 BY 1 NO-UNDO.
 
+DEFINE VARIABLE item-dscr AS CHARACTER FORMAT "X(30)":U 
+     LABEL "Item Description" 
+     VIEW-AS FILL-IN 
+     SIZE 39.4 BY 1 NO-UNDO.
+
 DEFINE VARIABLE len AS DECIMAL FORMAT ">>9.99":U INITIAL 0 
      LABEL "Length" 
      VIEW-AS FILL-IN 
@@ -249,18 +254,19 @@ DEFINE FRAME D-Dialog
      len AT ROW 6.05 COL 19.2 COLON-ALIGNED WIDGET-ID 190
      wid AT ROW 6.05 COL 38.4 COLON-ALIGNED WIDGET-ID 194
      dep AT ROW 6.05 COL 58.2 COLON-ALIGNED WIDGET-ID 192
-     cst-part AT ROW 8.24 COL 19 COLON-ALIGNED WIDGET-ID 88
-     colr-dscr AT ROW 9.57 COL 19 COLON-ALIGNED WIDGET-ID 162
-     fg-no AT ROW 10.95 COL 19 COLON-ALIGNED WIDGET-ID 42
-     fg-cat AT ROW 12.29 COL 19 COLON-ALIGNED WIDGET-ID 196
-     quantity AT ROW 12.29 COL 44.4 COLON-ALIGNED WIDGET-ID 198
+     cst-part AT ROW 7.81 COL 19 COLON-ALIGNED WIDGET-ID 88
+     colr-dscr AT ROW 9 COL 19 COLON-ALIGNED WIDGET-ID 162
+     fg-no AT ROW 10.14 COL 19 COLON-ALIGNED WIDGET-ID 42
+     item-dscr AT ROW 11.29 COL 19 COLON-ALIGNED WIDGET-ID 200
+     fg-cat AT ROW 12.48 COL 19 COLON-ALIGNED WIDGET-ID 196
+     quantity AT ROW 12.48 COL 44.4 COLON-ALIGNED WIDGET-ID 198
      board AT ROW 15.57 COL 18 COLON-ALIGNED WIDGET-ID 174
      glu-cod AT ROW 16.67 COL 18 COLON-ALIGNED WIDGET-ID 164
      bndl-cod AT ROW 17.76 COL 18 COLON-ALIGNED WIDGET-ID 168
      plat-cod AT ROW 18.86 COL 18 COLON-ALIGNED WIDGET-ID 170
      bndng-cod AT ROW 19.95 COL 18 COLON-ALIGNED WIDGET-ID 172
      Btn_OK AT ROW 22.19 COL 16
-     Btn_Cancel AT ROW 22.19 COL 48.2
+     Btn_Cancel AT ROW 22.19 COL 48.2        
      "DEFAULT Materials" VIEW-AS TEXT
           SIZE 25 BY 1 AT ROW 13.95 COL 8 WIDGET-ID 166
      RECT-1 AT ROW 1.1 COL 2 WIDGET-ID 82
@@ -352,7 +358,6 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME bndl-cod
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL bndl-cod D-Dialog
 ON LEAVE OF bndl-cod IN FRAME D-Dialog /* Bundle Code */
 DO:
@@ -390,7 +395,6 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME board
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL board D-Dialog
 ON LEAVE OF board IN FRAME D-Dialog /* Board */
 DO:
@@ -406,17 +410,6 @@ DO:
     END.
                             .                                    
  END.
-
- /* _UIB-CODE-BLOCK-END */
- &ANALYZE-RESUME
-
-
- &Scoped-define SELF-NAME Btn_Cancel
- &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Cancel D-Dialog
-   ON CHOOSE OF Btn_Cancel IN FRAME D-Dialog /* Cancel */
-DO:
-  opCADCAM = ''.
-END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -467,7 +460,8 @@ DO:
    if char-val <> "" and self:screen-value <> entry(1,char-val) then 
                         ASSIGN
                           self:screen-value  = entry(1,char-val)
-                          fg-no:screen-value  = entry(4,char-val) .
+                          fg-no:screen-value  = entry(4,char-val)
+                          item-dscr:SCREEN-VALUE = entry(2,char-val).
 
 END.
 
@@ -525,6 +519,45 @@ END.
 &ANALYZE-RESUME
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL dep D-Dialog
+ON LEAVE OF dep IN FRAME D-Dialog /* Depth */
+DO:
+   DEF VAR v-dec AS DEC DECIMALS 6 NO-UNDO.
+   DEF VAR op-dec AS DEC DECIMALS 6 NO-UNDO.
+   DEF VAR op-error AS LOG NO-UNDO.
+   DEFINE VAR len-num AS INT NO-UNDO.
+   
+    if lastkey = -1 then return.
+    v-dec = decimal(self:screen-value) - trunc(decimal(self:screen-value),0).
+   if lastkey <> -1 and
+      decimal(self:screen-value) - trunc(decimal(self:screen-value),0) >= v-16-or-32 
+   then do:
+      message "Can not have more than " v-16-or-32 - 0.01 " as decimal, field is (inches.16ths/32nd's) "
+          view-as alert-box error.
+      return no-apply.
+   end.
+
+   IF v-cecscrn-dec THEN
+   DO:
+      len-num = INT(self:screen-value) .
+      RUN valid-64-dec(INPUT v-dec, OUTPUT op-error, OUTPUT op-dec).
+      IF op-error THEN DO:
+         MESSAGE "Invalid Dimension."
+            VIEW-AS ALERT-BOX ERROR BUTTONS OK.
+         APPLY "ENTRY" TO SELF.
+         RETURN NO-APPLY.
+      END.
+      ELSE do: 
+          
+          /* eb.len:screen-value = string( len-num +  op-dec) . */
+      END.
+   END.     
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME f-tab
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL f-tab D-Dialog
 ON HELP OF f-tab IN FRAME D-Dialog /* Tab */
@@ -560,7 +593,6 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME fg-cat
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-cat D-Dialog
 ON LEAVE OF fg-cat IN FRAME D-Dialog /* FG Category */
 DO:
@@ -576,6 +608,7 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
 &Scoped-define SELF-NAME fg-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-no D-Dialog
 ON HELP OF fg-no IN FRAME D-Dialog /* FG Item Code */
@@ -589,7 +622,9 @@ DO:
                self:screen-value  = entry(1,char-val) .
               FIND FIRST itemfg WHERE RECID(itemfg) = look-recid NO-LOCK NO-ERROR.
              IF AVAIL itemfg THEN
-             cst-part:SCREEN-VALUE = itemfg.part-no .
+             ASSIGN
+             cst-part:SCREEN-VALUE = itemfg.part-no
+             item-dscr:SCREEN-VALUE = itemfg.part-dscr1.
                
 END.
 
@@ -688,7 +723,6 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME glu-cod
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL glu-cod D-Dialog
 ON LEAVE OF glu-cod IN FRAME D-Dialog /* Glue Code */
 DO:
@@ -708,89 +742,44 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME item-dscr
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL item-dscr D-Dialog
+ON HELP OF item-dscr IN FRAME D-Dialog /* Item Description */
+DO:
+     def var char-val as cha no-undo.
+     def var look-recid as recid no-undo.
+
+           run windows/l-itemfa.w (gcompany, "", focus:screen-value, output char-val, output look-recid).
+           if char-val <> "" and self:screen-value <> entry(1,char-val) then 
+               ASSIGN
+               self:screen-value  = entry(1,char-val) .
+              FIND FIRST itemfg WHERE RECID(itemfg) = look-recid NO-LOCK NO-ERROR.
+             IF AVAIL itemfg THEN
+             cst-part:SCREEN-VALUE = itemfg.part-no .
+               
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL item-dscr D-Dialog
+ON LEAVE OF item-dscr IN FRAME D-Dialog /* Item Description */
+DO:
+   IF LASTKEY NE -1 THEN DO:
+   assign {&self-name}.
+   RUN valid-fgitem NO-ERROR.
+      IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME len
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL len D-Dialog
 ON LEAVE OF len IN FRAME D-Dialog /* Length */
-DO:
-   DEF VAR v-dec AS DEC DECIMALS 6 NO-UNDO.
-   DEF VAR op-dec AS DEC DECIMALS 6 NO-UNDO.
-   DEF VAR op-error AS LOG NO-UNDO.
-   DEFINE VAR len-num AS INT NO-UNDO.
-   
-    if lastkey = -1 then return.
-    v-dec = decimal(self:screen-value) - trunc(decimal(self:screen-value),0).
-   if lastkey <> -1 and
-      decimal(self:screen-value) - trunc(decimal(self:screen-value),0) >= v-16-or-32 
-   then do:
-      message "Can not have more than " v-16-or-32 - 0.01 " as decimal, field is (inches.16ths/32nd's) "
-          view-as alert-box error.
-      return no-apply.
-   end.
-
-   IF v-cecscrn-dec THEN
-   DO:
-      len-num = INT(self:screen-value) .
-      RUN valid-64-dec(INPUT v-dec, OUTPUT op-error, OUTPUT op-dec).
-      IF op-error THEN DO:
-         MESSAGE "Invalid Dimension."
-            VIEW-AS ALERT-BOX ERROR BUTTONS OK.
-         APPLY "ENTRY" TO SELF.
-         RETURN NO-APPLY.
-      END.
-      ELSE do: 
-          
-          /* eb.len:screen-value = string( len-num +  op-dec) . */
-      END.
-   END.     
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME wid
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL wid D-Dialog
-ON LEAVE OF wid IN FRAME D-Dialog /* Length */
-DO:
-   DEF VAR v-dec AS DEC DECIMALS 6 NO-UNDO.
-   DEF VAR op-dec AS DEC DECIMALS 6 NO-UNDO.
-   DEF VAR op-error AS LOG NO-UNDO.
-   DEFINE VAR len-num AS INT NO-UNDO.
-   
-    if lastkey = -1 then return.
-    v-dec = decimal(self:screen-value) - trunc(decimal(self:screen-value),0).
-   if lastkey <> -1 and
-      decimal(self:screen-value) - trunc(decimal(self:screen-value),0) >= v-16-or-32 
-   then do:
-      message "Can not have more than " v-16-or-32 - 0.01 " as decimal, field is (inches.16ths/32nd's) "
-          view-as alert-box error.
-      return no-apply.
-   end.
-
-   IF v-cecscrn-dec THEN
-   DO:
-      len-num = INT(self:screen-value) .
-      RUN valid-64-dec(INPUT v-dec, OUTPUT op-error, OUTPUT op-dec).
-      IF op-error THEN DO:
-         MESSAGE "Invalid Dimension."
-            VIEW-AS ALERT-BOX ERROR BUTTONS OK.
-         APPLY "ENTRY" TO SELF.
-         RETURN NO-APPLY.
-      END.
-      ELSE do: 
-          
-          /* eb.len:screen-value = string( len-num +  op-dec) . */
-      END.
-   END.     
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME dep
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL dep D-Dialog
-ON LEAVE OF dep IN FRAME D-Dialog /* Length */
 DO:
    DEF VAR v-dec AS DEC DECIMALS 6 NO-UNDO.
    DEF VAR op-dec AS DEC DECIMALS 6 NO-UNDO.
@@ -846,7 +835,6 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME plat-cod
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL plat-cod D-Dialog
 ON LEAVE OF plat-cod IN FRAME D-Dialog /* Pallet Code */
 DO:
@@ -864,6 +852,7 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME quantity
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL quantity D-Dialog
@@ -929,6 +918,7 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
 &Scoped-define SELF-NAME ship-to
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ship-to D-Dialog
 ON HELP OF ship-to IN FRAME D-Dialog /* Ship To */
@@ -948,7 +938,6 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME ship-to
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ship-to D-Dialog
 ON LEAVE OF ship-to IN FRAME D-Dialog /* Ship To */
 DO:
@@ -1066,6 +1055,46 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME wid
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL wid D-Dialog
+ON LEAVE OF wid IN FRAME D-Dialog /* Width */
+DO:
+   DEF VAR v-dec AS DEC DECIMALS 6 NO-UNDO.
+   DEF VAR op-dec AS DEC DECIMALS 6 NO-UNDO.
+   DEF VAR op-error AS LOG NO-UNDO.
+   DEFINE VAR len-num AS INT NO-UNDO.
+   
+    if lastkey = -1 then return.
+    v-dec = decimal(self:screen-value) - trunc(decimal(self:screen-value),0).
+   if lastkey <> -1 and
+      decimal(self:screen-value) - trunc(decimal(self:screen-value),0) >= v-16-or-32 
+   then do:
+      message "Can not have more than " v-16-or-32 - 0.01 " as decimal, field is (inches.16ths/32nd's) "
+          view-as alert-box error.
+      return no-apply.
+   end.
+
+   IF v-cecscrn-dec THEN
+   DO:
+      len-num = INT(self:screen-value) .
+      RUN valid-64-dec(INPUT v-dec, OUTPUT op-error, OUTPUT op-dec).
+      IF op-error THEN DO:
+         MESSAGE "Invalid Dimension."
+            VIEW-AS ALERT-BOX ERROR BUTTONS OK.
+         APPLY "ENTRY" TO SELF.
+         RETURN NO-APPLY.
+      END.
+      ELSE do: 
+          
+          /* eb.len:screen-value = string( len-num +  op-dec) . */
+      END.
+   END.     
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK D-Dialog 
@@ -1099,7 +1128,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
           len:SCREEN-VALUE = "0" 
           wid:SCREEN-VALUE = "0"
           dep:SCREEN-VALUE = "0"
-          quantity:SCREEN-VALUE = "0" .
+          quantity:SCREEN-VALUE = "0"
+          item-dscr:SCREEN-VALUE = "" .
 
     APPLY "entry" TO cust-no IN FRAME {&FRAME-NAME}.
   END.
@@ -1170,6 +1200,7 @@ PROCEDURE create-ttfrmout :
          tt-frmout.part-no       = cst-part
          tt-frmout.stack-no  = fg-no
          tt-frmout.colr-dscr     = colr-dscr
+         tt-frmout.part-dscr1  = item-dscr
          tt-frmout.glu-cod     = glu-cod
          tt-frmout.bndl-cod     = bndl-cod
          tt-frmout.plat-cod     = plat-cod
@@ -1266,12 +1297,12 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY cust-no ship-to style-cod style-dscr flue test f-tab len wid dep 
-          cst-part colr-dscr fg-no board glu-cod bndl-cod plat-cod bndng-cod 
-          fg-cat quantity 
+          cst-part colr-dscr fg-no fg-cat quantity board glu-cod bndl-cod 
+          plat-cod bndng-cod item-dscr 
       WITH FRAME D-Dialog.
   ENABLE cust-no ship-to style-cod flue test f-tab len wid dep cst-part 
-         colr-dscr fg-no board glu-cod bndl-cod plat-cod bndng-cod Btn_OK 
-         Btn_Cancel RECT-1 fg-cat quantity 
+         colr-dscr fg-no fg-cat quantity board glu-cod bndl-cod plat-cod 
+         bndng-cod Btn_OK Btn_Cancel RECT-1 item-dscr 
       WITH FRAME D-Dialog.
   VIEW FRAME D-Dialog.
   {&OPEN-BROWSERS-IN-QUERY-D-Dialog}
@@ -1291,6 +1322,28 @@ PROCEDURE send-records :
   /* SEND-RECORDS does nothing because there are no External
      Tables specified for this SmartDialog, and there are no
      tables specified in any contained Browse, Query, or Frame. */
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-64-dec D-Dialog 
+PROCEDURE valid-64-dec :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DEFINE INPUT PARAMETER ip-dec AS DEC DECIMALS 6 NO-UNDO.
+   DEFINE OUTPUT PARAMETER op-error AS LOG NO-UNDO.
+   DEFINE OUTPUT PARAMETER op-dec AS DEC DECIMALS 6 NO-UNDO.
+    
+    FIND FIRST tt-64-dec WHERE
+      substring(string(tt-64-dec.DEC),1,3) EQ substring(string(ip-dec),1,3) NO-LOCK NO-ERROR.
+    IF NOT AVAIL tt-64-dec  THEN
+      op-error = YES.
+    ELSE  op-dec = tt-64-dec.DEC .
 
 END PROCEDURE.
 
@@ -1324,6 +1377,30 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-flute D-Dialog 
+PROCEDURE valid-flute :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+    DO WITH FRAME {&FRAME-NAME}:
+        IF NOT CAN-FIND(FIRST stack-flute
+                    WHERE stack-flute.company  EQ gcompany
+                     AND stack-flute.loc     EQ locode
+                     AND stack-flute.code    EQ flue:SCREEN-VALUE)  THEN DO:
+            MESSAGE "Invalid entry, try help..." VIEW-AS ALERT-BOX ERROR.
+            APPLY "entry" TO flue .
+            RETURN ERROR.
+        END.
+    END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-part-no D-Dialog 
 PROCEDURE valid-part-no :
 /*------------------------------------------------------------------------------
@@ -1350,8 +1427,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-procat B-table-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-procat D-Dialog 
 PROCEDURE valid-procat :
 /*------------------------------------------------------------------------------
   Purpose:     
@@ -1376,7 +1452,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-ship-id B-table-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-ship-id D-Dialog 
 PROCEDURE valid-ship-id :
 /*------------------------------------------------------------------------------
   Purpose:     
@@ -1401,7 +1477,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-style B-table-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-style D-Dialog 
 PROCEDURE valid-style :
 /*------------------------------------------------------------------------------
   Purpose:     
@@ -1425,50 +1501,3 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-flute B-table-Win 
-PROCEDURE valid-flute :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-
-    DO WITH FRAME {&FRAME-NAME}:
-        IF NOT CAN-FIND(FIRST stack-flute
-                    WHERE stack-flute.company  EQ gcompany
-                     AND stack-flute.loc     EQ locode
-                     AND stack-flute.code    EQ flue:SCREEN-VALUE)  THEN DO:
-            MESSAGE "Invalid entry, try help..." VIEW-AS ALERT-BOX ERROR.
-            APPLY "entry" TO flue .
-            RETURN ERROR.
-        END.
-    END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-64-dec V-table-Win 
-PROCEDURE valid-64-dec :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-   DEFINE INPUT PARAMETER ip-dec AS DEC DECIMALS 6 NO-UNDO.
-   DEFINE OUTPUT PARAMETER op-error AS LOG NO-UNDO.
-   DEFINE OUTPUT PARAMETER op-dec AS DEC DECIMALS 6 NO-UNDO.
-    
-    FIND FIRST tt-64-dec WHERE
-      substring(string(tt-64-dec.DEC),1,3) EQ substring(string(ip-dec),1,3) NO-LOCK NO-ERROR.
-    IF NOT AVAIL tt-64-dec  THEN
-      op-error = YES.
-    ELSE  op-dec = tt-64-dec.DEC .
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME

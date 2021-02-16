@@ -3651,6 +3651,7 @@ DEF VAR lv-comm LIKE eb.comm NO-UNDO.
      IF AVAIL itemfg THEN
          ASSIGN
         eb.part-dscr1 = itemfg.i-name
+        eb.part-dscr2 = tt-frmout.part-dscr1
         eb.stock-no   = CAPS(itemfg.i-no)
      /*  eb.style      = itemfg.style*/
         eb.procat     = itemfg.procat
