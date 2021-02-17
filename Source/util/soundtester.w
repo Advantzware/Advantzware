@@ -191,7 +191,7 @@ ON CHOOSE OF bPlayGood IN FRAME DEFAULT-FRAME /* Play */
 DO:
 
 
-  DEFINE VARIABLE oplcPlayStatus AS INTEGER.
+  DEFINE VARIABLE oplcPlayStatus AS LONGCHAR.
   
   RUN OS_PlaySound (INPUT fiSound:screen-value, 
                     OUTPUT oplcPlayStatus
