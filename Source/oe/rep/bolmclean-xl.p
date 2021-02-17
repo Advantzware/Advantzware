@@ -287,59 +287,28 @@ PROCEDURE FillData:
                         v-comp-addr[2] = oe-ord.sold-addr[2]
                         v-comp-addr3   = oe-ord.sold-city + ", " +
                              oe-ord.sold-state + "  " +
-                             oe-ord.sold-zip.
-                release oe-rel.
-                FIND FIRST oe-rell
-                     WHERE oe-rell.company eq cocode
-                     AND oe-rell.r-no    eq oe-boll.r-no
-                     AND oe-rell.ord-no  EQ oe-boll.ord-no
-                     AND oe-rell.i-no    eq oe-boll.i-no
-                     AND oe-rell.line    eq oe-boll.line
-                  NO-LOCK NO-ERROR.    
-                IF AVAIL oe-rell then do:
-                  FIND first oe-relh of oe-rell no-lock.
-                  FIND FIRST oe-rel
-                       WHERE oe-rel.company eq cocode
-                       AND oe-rel.ord-no  eq oe-rell.ord-no
-                       AND oe-rel.line    eq oe-rell.line
-                       AND oe-rel.link-no eq oe-rell.r-no
-                       AND oe-rel.ship-no eq oe-relh.ship-no
-                       AND oe-rel.i-no    eq oe-rell.i-no
-                       AND oe-rel.spare-char-1 NE ""
-                      NO-LOCK NO-ERROR.
-                  IF NOT AVAIL oe-rel THEN
-                  FIND FIRST oe-rel
-                       WHERE oe-rel.company  eq cocode
-                       AND oe-rel.ord-no   eq oe-rell.ord-no
-                       AND oe-rel.line     eq oe-rell.line
-                       AND oe-rel.rel-date eq oe-relh.rel-date
-                       AND oe-rel.ship-no  eq oe-relh.ship-no
-                       AND oe-rel.i-no     eq oe-rell.i-no
-                     NO-LOCK NO-ERROR.
-                              
-                   IF AVAIL oe-rel  AND oe-rel.spare-char-1 NE "" THEN
-                   DO:
-                       FIND FIRST loc NO-LOCK 
-                            WHERE loc.company EQ cocode 
-                            AND loc.loc EQ oe-rel.spare-char-1 NO-ERROR.
-                       IF AVAIL loc THEN
-                       DO:
-                         FIND FIRST location NO-LOCK
-                              WHERE location.locationCode = loc.loc
-                              AND location.rec_key = loc.addrRecKey NO-ERROR .
-                              
-                             ASSIGN
-                                 v-comp-name    = loc.dscr
-                                 v-comp-addr[1] = IF AVAIL location THEN location.streetAddr[1] ELSE ""
-                                 v-comp-addr[2] = IF AVAIL location THEN location.streetAddr[2] ELSE ""
-                                 v-comp-addr3   = (IF AVAIL location THEN location.subCode3 ELSE "") + ", " +
-                                                  (IF AVAIL location THEN location.subCode1 ELSE "") + "  " +
-                                                  (IF AVAIL location THEN location.subCode4 ELSE ""). 
-                       END.
-                   END.
+                             oe-ord.sold-zip.                                    
+            END.
+            IF oe-bolh.loc NE "" THEN
+            DO:
+               FIND FIRST loc NO-LOCK 
+                    WHERE loc.company EQ cocode 
+                    AND loc.loc EQ oe-bolh.loc NO-ERROR.
+               IF AVAIL loc THEN
+               DO:
+                 FIND FIRST location NO-LOCK
+                      WHERE location.locationCode = loc.loc
+                      AND location.rec_key = loc.addrRecKey NO-ERROR .
                       
-                END.             
-            END.      
+                     ASSIGN
+                         v-comp-name    = loc.dscr
+                         v-comp-addr[1] = IF AVAIL location THEN location.streetAddr[1] ELSE ""
+                         v-comp-addr[2] = IF AVAIL location THEN location.streetAddr[2] ELSE ""
+                         v-comp-addr3   = (IF AVAIL location THEN location.subCode3 ELSE "") + ", " +
+                                          (IF AVAIL location THEN location.subCode1 ELSE "") + "  " +
+                                          (IF AVAIL location THEN location.subCode4 ELSE ""). 
+               END.
+            END.
        
             IF TRIM(v-comp-addr3) EQ "," THEN v-comp-addr3 = "".
               
