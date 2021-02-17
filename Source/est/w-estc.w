@@ -1410,7 +1410,8 @@ PROCEDURE local-change-page :
       RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostForm# = ' + ( IF AVAIL bf-eb THEN string(bf-eb.form-no) ELSE "" ) ).
       RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostBlank# = ' + ( IF AVAIL bf-eb THEN string(bf-eb.blank-no) ELSE "" ) ).
       li-pageb4VendCost = li-page[2].  
-      RUN select-page (13).      
+      RUN select-page (13).
+      RUN show-current-page IN h_folder ("11").      
             
       RETURN.           
   END. 
