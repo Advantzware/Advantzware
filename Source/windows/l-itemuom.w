@@ -128,8 +128,6 @@ DEFINE BROWSE BROWSE-1
       ttUOMEffective.uom
       ttUOMEffective.uomDescription 
       ttUOMEffective.multiplierToBase
-      ttUOMEffective.canPurchase 
-      ttUOMEffective.canSell
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ROW-MARKERS SIZE 92 BY 11.19

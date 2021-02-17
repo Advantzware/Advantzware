@@ -136,12 +136,12 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 21.6 BY 1
           BGCOLOR 15 
-     itemUoM.canPurchase AT ROW 4.81 COL 16 WIDGET-ID 20
-          LABEL "Valid for PO Quantity and Cost"
+     itemUoM.canPurchase AT ROW 4.86 COL 16 WIDGET-ID 20
+          LABEL "Valid for Quantity"
           VIEW-AS TOGGLE-BOX
           SIZE 33 BY .81
      itemUoM.canSell AT ROW 5.81 COL 16 WIDGET-ID 22
-          LABEL "Valid for Order Quantity && Price"
+          LABEL "Valid for Price & Cost"
           VIEW-AS TOGGLE-BOX
           SIZE 33 BY .81
      itemUoM.inactive AT ROW 6.71 COL 16 WIDGET-ID 16

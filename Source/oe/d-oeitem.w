@@ -1128,12 +1128,12 @@ DO:
               END.
          END.
          WHEN "fi_qty-uom" THEN DO:
-              RUN get-valid-uom-tt (lw-focus, oe-ordl.i-no:SCREEN-VALUE).
+              RUN get-valid-uom-tt (lw-focus, oe-ordl.i-no:SCREEN-VALUE, "Qty").
               RUN windows/l-itemuom.w (g_company,oe-ordl.pr-uom:screen-value,INPUT TABLE ttUOMEffective, OUTPUT char-val).
               IF char-val <> "" THEN lw-focus:SCREEN-VALUE = ENTRY(1,char-val).
          END.
          WHEN "pr-uom" THEN DO:
-              RUN get-valid-uom-tt (lw-focus, oe-ordl.i-no:SCREEN-VALUE).
+              RUN get-valid-uom-tt (lw-focus, oe-ordl.i-no:SCREEN-VALUE, "Price").
               RUN windows/l-itemuom.w (g_company,oe-ordl.pr-uom:screen-value, INPUT TABLE ttUOMEffective, OUTPUT char-val).
               IF char-val <> "" THEN lw-focus:SCREEN-VALUE = ENTRY(1,char-val).
               IF oe-ordl.est-no:SCREEN-VALUE NE "" AND
@@ -6221,10 +6221,11 @@ PROCEDURE get-valid-uom-tt :
 ------------------------------------------------------------------------------*/
   DEF INPUT PARAM ip-focus AS HANDLE NO-UNDO.
   DEFINE INPUT PARAMETER ipcFGItem AS CHARACTER NO-UNDO.
+  DEFINE INPUT PARAMETER ipcType AS CHARACTER NO-UNDO.
   
   EMPTY TEMP-TABLE ttUOM.
   
-  RUN pSetValidUOMTT(g_company, ipcFGITem).  
+  RUN pSetValidUOMTT(g_company, ipcFGITem, ipcType).  
   
 END PROCEDURE.
 
@@ -7793,6 +7794,7 @@ PROCEDURE pSetValidUOMTT PRIVATE:
 ------------------------------------------------------------------------------*/
 DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER ipcItemID AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipcType AS CHARACTER NO-UNDO.
 
 DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
@@ -7807,12 +7809,16 @@ DEFINE BUFFER bf-itemfg FOR itemfg.
 
     END.
     IF AVAILABLE bf-itemfg THEN DO: 
-        RUN Conv_GetValidOrderQtyUOMTTForItem(ROWID(bf-itemfg), OUTPUT lError, OUTPUT cMessage, OUTPUT TABLE ttUOMEffective).
-        RUN Conv_GetValidPriceUOMTTForItem(ROWID(bf-itemfg), OUTPUT lError, OUTPUT cMessage, OUTPUT TABLE ttUOMEffective).
+        IF ipcType EQ "Qty" THEN 
+            RUN Conv_GetValidOrderQtyUOMTTForItem(ROWID(bf-itemfg), OUTPUT lError, OUTPUT cMessage, OUTPUT TABLE ttUOMEffective).
+        ELSE 
+            RUN Conv_GetValidPriceUOMTTForItem(ROWID(bf-itemfg), OUTPUT lError, OUTPUT cMessage, OUTPUT TABLE ttUOMEffective).
     END.
     ELSE DO: 
-        RUN Conv_GetValidOrderQtyUOMTT(OUTPUT TABLE ttUOMEffective).
-        RUN Conv_GetValidPriceUOMTT(OUTPUT TABLE ttUOMEffective).
+        IF ipcType EQ "Qty" THEN
+            RUN Conv_GetValidOrderQtyUOMTT(OUTPUT TABLE ttUOMEffective).
+        ELSE 
+            RUN Conv_GetValidPriceUOMTT(OUTPUT TABLE ttUOMEffective).
     END.
 
 END PROCEDURE.
