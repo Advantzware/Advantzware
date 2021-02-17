@@ -39,5 +39,6 @@ def {1} temp-table tt-frmout NO-UNDO
     FIELD quantity AS INT
     FIELD cat AS CHAR
     field copy-qty as int extent 20 
-    field copy-rel as int extent 20  		
+    field copy-rel as int extent 20
+    field item-name as character  		
     .
