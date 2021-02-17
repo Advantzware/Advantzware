@@ -177,7 +177,7 @@ form header
   END.
 
   ASSIGN v-oh-relqty = 0 .
-
+  
   FOR EACH oe-ordl
       WHERE oe-ordl.company EQ cocode
         AND oe-ordl.opened  EQ YES
@@ -521,7 +521,9 @@ form header
        w-ord.rel-due-date      = IF cRelDueDate NE ? THEN cRelDueDate ELSE "" 
        w-ord.Printed           = lPrinted 
        w-ord.promiseDate       = IF oe-ord.promiseDate NE ? THEN  string(oe-ord.promiseDate) ELSE ""
-       w-ord.priority          = oe-ord.priority .
+       w-ord.priority          = oe-ord.priority
+       w-ord.pr-uom            = oe-ordl.pr-uom
+       .
 
       {sys/inc/roundup.i ld-palls}
 
