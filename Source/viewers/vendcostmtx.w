@@ -31,6 +31,8 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 &Scoped-define proc-enable proc-enable 
+&SCOPED-DEFINE procDisable
+ 
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
@@ -1103,6 +1105,25 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pDisableButtons V-table-Win
+PROCEDURE pDisableButtons PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    {methods/run_link.i "getPanel-SOURCE" "EnablePanel"}.
+    DO WITH FRAME {&FRAME-NAME}:
+        btn_multi:SENSITIVE = YES.
+    END.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE proc-enable V-table-Win 
 PROCEDURE proc-enable :

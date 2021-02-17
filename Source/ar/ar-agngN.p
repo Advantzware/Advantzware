@@ -463,12 +463,13 @@ DEF VAR cToCust AS CHAR NO-UNDO.
                         v-gltrans-desc = "VOID " + cust.cust-no + " " +                          
                             STRING(ar-cash.check-no,"999999999999")
                             +                          " Inv# " + STRING(ar-cashl.inv-no).         
-                        FIND FIRST gltrans WHERE               gltrans.company EQ cust.company
-                            AND               gltrans.jrnl EQ "CASHRVD"
-                            AND               gltrans.tr-dscr EQ v-gltrans-desc              
-                            NO-LOCK NO-ERROR.         
-                        IF AVAIL gltrans THEN            
-                            v-check-date = gltrans.tr-date.         
+                        FIND FIRST glhist WHERE glhist.company EQ cust.company
+                                           AND glhist.jrnl     EQ "CASHRVD"
+                                           AND glhist.tr-dscr  EQ v-gltrans-desc
+                                           AND glhist.posted   EQ NO
+                                           NO-LOCK NO-ERROR.         
+                        IF AVAIL glhist THEN            
+                            v-check-date = glhist.tr-date.         
                         ELSE            
                             v-check-date = ar-cash.check-date.      
                     END.      
@@ -608,13 +609,14 @@ DEF VAR cToCust AS CHAR NO-UNDO.
                         v-gltrans-desc = "VOID " + cust.cust-no + " " + 
                             STRING(tt-ar-cash.check-no,"999999999999") +
                             " Inv# " + STRING(tt-ar-cashl.inv-no).
-                        FIND FIRST gltrans WHERE 
-                            gltrans.company EQ cust.company AND
-                            gltrans.jrnl EQ "CASHRVD" AND
-                            gltrans.tr-dscr EQ v-gltrans-desc
+                        FIND FIRST glhist WHERE 
+                            glhist.company EQ cust.company AND
+                            glhist.jrnl EQ "CASHRVD" AND
+                            glhist.tr-dscr EQ v-gltrans-desc AND 
+                            glhist.posted EQ NO
                             NO-LOCK NO-ERROR.
-                        IF AVAIL gltrans THEN
-                            v-check-date = gltrans.tr-date.
+                        IF AVAIL glhist THEN
+                            v-check-date = glhist.tr-date.
                         ELSE
                             v-check-date = tt-ar-cash.check-date.
                     END.
@@ -828,13 +830,14 @@ DEF VAR cToCust AS CHAR NO-UNDO.
                             v-gltrans-desc = "VOID " + cust.cust-no + " " + 
                                 STRING(tt-ar-cash.check-no,"999999999999") +
                                 " Inv# " + STRING(tt-ar-cashl.inv-no).
-                            FIND FIRST gltrans WHERE 
-                                gltrans.company EQ cust.company AND
-                                gltrans.jrnl EQ "CASHRVD" AND
-                                gltrans.tr-dscr EQ v-gltrans-desc
+                            FIND FIRST glhist WHERE 
+                                glhist.company EQ cust.company AND
+                                glhist.jrnl EQ "CASHRVD" AND
+                                glhist.tr-dscr EQ v-gltrans-desc AND 
+                                glhist.posted EQ NO
                                 NO-LOCK NO-ERROR.
-                            IF AVAIL gltrans THEN
-                                v-check-date = gltrans.tr-date.
+                            IF AVAIL glhist THEN
+                                v-check-date = glhist.tr-date.
                             ELSE
                                 v-check-date = tt-ar-cash.check-date.
                         END.
@@ -872,10 +875,11 @@ DEF VAR cToCust AS CHAR NO-UNDO.
                         IF tt-ar-cashl.amt-paid GT 0 AND
                             (tt-ar-cashl.voided = YES                        
                              OR
-                            CAN-FIND(FIRST gltrans WHERE
-                            gltrans.company EQ cust.company AND
-                            gltrans.jrnl EQ "CASHRVD" AND
-                            gltrans.tr-dscr EQ v-tr-dscr)) THEN
+                            CAN-FIND(FIRST glhist WHERE
+                            glhist.company EQ cust.company AND
+                            glhist.jrnl EQ "CASHRVD" AND
+                            glhist.tr-dscr EQ v-tr-dscr AND 
+                            glhist.posted EQ NO)) THEN
                             v-type = "VD".
                         ELSE
                             v-type = "PY".
@@ -1113,14 +1117,14 @@ DEF VAR cToCust AS CHAR NO-UNDO.
                                         STRING(tt-ar-cash.check-no,"999999999999") +
                                         " Inv# " + STRING(tt-ar-cashl.inv-no).
 
-                                    FIND FIRST gltrans WHERE
-                                        gltrans.company EQ cust.company AND
-                                        gltrans.jrnl EQ "CASHRVD" AND
-                                        gltrans.tr-dscr EQ v-gltrans-desc
-                                        NO-LOCK NO-ERROR.
+                                    FIND FIRST glhist WHERE glhist.company EQ cust.company AND
+                                                            glhist.jrnl EQ "CASHRVD" AND
+                                                            glhist.tr-dscr EQ v-gltrans-desc AND 
+                                                            glhist.posted EQ NO
+                                                            NO-LOCK NO-ERROR.
                 
-                                    IF AVAIL gltrans THEN
-                                        v-check-date = gltrans.tr-date.
+                                    IF AVAIL glhist THEN
+                                        v-check-date = glhist.tr-date.
                                     ELSE
                                         v-check-date = tt-ar-cash.check-date.
                                 END.
@@ -1269,8 +1273,8 @@ DEF VAR cToCust AS CHAR NO-UNDO.
                 ELSE                                                     
                 DO:                                                         
                     v-gltrans-desc = "VOID " + cust.cust-no + " " +                           STRING(tt-ar-cash.check-no,"9999999999") +                          " Inv# " + STRING(tt-ar-cashl.inv-no).          
-                    FIND FIRST gltrans WHERE               gltrans.company EQ cust.company AND               gltrans.jrnl EQ "CASHRVD" AND               gltrans.tr-dscr EQ v-gltrans-desc               NO-LOCK NO-ERROR.          
-                    IF AVAIL gltrans THEN             v-check-date = gltrans.tr-date.          
+                    FIND FIRST glhist WHERE               glhist.company EQ cust.company AND               glhist.jrnl EQ "CASHRVD" AND               glhist.tr-dscr EQ v-gltrans-desc         AND glhist.posted EQ NO               NO-LOCK NO-ERROR.          
+                    IF AVAIL glhist THEN             v-check-date = glhist.tr-date.          
                     ELSE             v-check-date = tt-ar-cash.check-date.       
                 END.       
             END.       
@@ -1343,8 +1347,8 @@ DEF VAR cToCust AS CHAR NO-UNDO.
                 ELSE                                                     
                 DO:                                                         
                     v-gltrans-desc = "VOID " + cust.cust-no + " " +                           STRING(tt-ar-cash.check-no,"9999999999") +                          " Inv# " + STRING(tt-ar-cashl.inv-no).          
-                    FIND FIRST gltrans WHERE               gltrans.company EQ cust.company AND               gltrans.jrnl EQ "CASHRVD" AND               gltrans.tr-dscr EQ v-gltrans-desc               NO-LOCK NO-ERROR.          
-                    IF AVAIL gltrans THEN             v-check-date = gltrans.tr-date.          
+                    FIND FIRST glhist WHERE               glhist.company EQ cust.company AND               glhist.jrnl EQ "CASHRVD" AND               glhist.tr-dscr EQ v-gltrans-desc             AND glhist.posted EQ NO               NO-LOCK NO-ERROR.          
+                    IF AVAIL glhist THEN             v-check-date = glhist.tr-date.          
                     ELSE             v-check-date = tt-ar-cash.check-date.       
                 END.       
             END.       
@@ -1420,10 +1424,11 @@ DEF VAR cToCust AS CHAR NO-UNDO.
                 IF 
                     tt-ar-cashl.voided EQ YES
                      OR
-                    CAN-FIND(FIRST gltrans WHERE
-                    gltrans.company EQ cust.company AND
-                    gltrans.jrnl EQ "CASHRVD" AND
-                    gltrans.tr-dscr EQ v-tr-dscr) THEN
+                    CAN-FIND(FIRST glhist WHERE
+                    glhist.company EQ cust.company AND
+                    glhist.jrnl EQ "CASHRVD" AND
+                    glhist.tr-dscr EQ v-tr-dscr AND
+                    glhist.posted EQ NO) THEN
                 DO:
                     ASSIGN
                         v-type     = "VD"
@@ -1455,14 +1460,15 @@ DEF VAR cToCust AS CHAR NO-UNDO.
                             STRING(tt-ar-cash.check-no,"999999999999") +
                             " Inv# " + STRING(tt-ar-cashl.inv-no).
 
-                        FIND FIRST gltrans WHERE
-                            gltrans.company EQ cust.company AND
-                            gltrans.jrnl EQ "CASHRVD" AND
-                            gltrans.tr-dscr EQ v-gltrans-desc
+                        FIND FIRST glhist WHERE
+                            glhist.company EQ cust.company AND
+                            glhist.jrnl EQ "CASHRVD" AND
+                            glhist.tr-dscr EQ v-gltrans-desc AND 
+                            glhist.posted EQ NO
                             NO-LOCK NO-ERROR.
               
-                        IF AVAIL gltrans THEN
-                            v-check-date = gltrans.tr-date.
+                        IF AVAIL glhist THEN
+                            v-check-date = glhist.tr-date.
                         ELSE
                             v-check-date = tt-ar-cash.check-date.
                     END.
@@ -1588,14 +1594,15 @@ DEF VAR cToCust AS CHAR NO-UNDO.
                             STRING(tt-ar-cash.check-no,"999999999999") +
                             " Inv# " + STRING(tt-ar-cashl.inv-no).
 
-                        FIND FIRST gltrans WHERE
-                            gltrans.company EQ cust.company AND
-                            gltrans.jrnl EQ "CASHRVD" AND
-                            gltrans.tr-dscr EQ v-gltrans-desc
+                        FIND FIRST glhist WHERE
+                            glhist.company EQ cust.company AND
+                            glhist.jrnl EQ "CASHRVD" AND
+                            glhist.tr-dscr EQ v-gltrans-desc AND
+                            glhist.posted EQ NO
                             NO-LOCK NO-ERROR.
              
-                        IF AVAIL gltrans THEN
-                            v-check-date = gltrans.tr-date.
+                        IF AVAIL glhist THEN
+                            v-check-date = glhist.tr-date.
                         ELSE
                             v-check-date = tt-ar-cash.check-date.
                     END.

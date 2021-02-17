@@ -36,6 +36,7 @@ CREATE WIDGET-POOL.
 &SCOPED-DEFINE winReSize
 &SCOPED-DEFINE h_Browse01 h_b-trans
 &SCOPED-DEFINE h_Object01 h_p-updsav
+&SCOPED-DEFINE h_Object02 h_viewfginquiry
 
 /* Parameters Definitions ---                                           */
 
@@ -144,7 +145,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 320
          VIRTUAL-HEIGHT     = 320
          VIRTUAL-WIDTH      = 320
-         MAX-BUTTON         = no
+         MAX-BUTTON         = yes
          RESIZE             = yes
          SCROLL-BARS        = no
          STATUS-AREA        = yes

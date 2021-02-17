@@ -36,6 +36,9 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 
+DEFINE VARIABLE cProgressBar AS CHARACTER NO-UNDO INITIAL "Super Procedures".
+DEFINE VARIABLE lProgressBar AS LOGICAL   NO-UNDO INITIAL YES.
+
 {methods/defines/sortByDefs.i}
 {AOA/tempTable/ttSuperProc.i}
 

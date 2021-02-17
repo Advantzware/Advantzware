@@ -964,20 +964,22 @@ ASSIGN
         USE-INDEX vend NO-LOCK.
 
     FOR EACH ap-invl WHERE ap-invl.i-no EQ ap-inv.i-no:
-      CREATE gltrans.
+     RUN GL_SpCreateGLHist(cocode,
+                        ap-invl.actnum,
+                        "ACPAY",
+                        vend.name  + "  " + string(ap-inv.inv-date),
+                        tran-date,
+                        ap-invl.amt,
+                        v-trnum,
+                        tran-period,
+                        "A",
+                        tran-date,
+                        string(ap-inv.inv-no),
+                        "AP").
       ASSIGN
        t1 = t1 + ap-invl.amt
        g2 = g2 + ap-invl.amt
        total-msf = total-msf + ap-invl.amt-msf
-
-       gltrans.company = cocode
-       gltrans.actnum  = ap-invl.actnum
-       gltrans.jrnl    = "ACPAY"
-       gltrans.tr-dscr = vend.name  + "  " + string(ap-inv.inv-date)
-       gltrans.tr-date = tran-date
-       gltrans.tr-amt  = ap-invl.amt
-       gltrans.trnum   = v-trnum
-       gltrans.period  = tran-period
        ap-invl.posted  = YES.
 
       FIND FIRST po-ordl
@@ -1251,48 +1253,55 @@ ASSIGN
   END. /* for each ap-inv */
 
   IF lv-frt-total NE 0 THEN DO:
-    CREATE gltrans.
+     RUN GL_SpCreateGLHist(cocode,
+                        v-frt-acct,
+                        "ACPAY",
+                        "ACCOUNTS PAYABLE FREIGHT",
+                        tran-date,
+                        lv-frt-total,
+                        v-trnum,
+                        tran-period,
+                        "A",
+                        tran-date,
+                        string(ap-inv.inv-no),
+                        "AP").
+    
     ASSIGN
-     gltrans.company = cocode
-     gltrans.actnum  = v-frt-acct
-     gltrans.jrnl    = "ACPAY"
-     gltrans.tr-dscr = "ACCOUNTS PAYABLE FREIGHT"
-     gltrans.tr-date = tran-date
-     gltrans.tr-amt  = lv-frt-total
-     gltrans.period  = tran-period
-     gltrans.trnum   = v-trnum.
-
-    g2 = g2 + lv-frt-total.
+      g2 = g2 + lv-frt-total.
   END.
 
-  CREATE gltrans.
-  ASSIGN
-   gltrans.company = cocode
-   gltrans.actnum  = xap-acct
-   gltrans.jrnl    = "ACPAY"
-   gltrans.tr-dscr = "ACCOUNTS PAYABLE INVOICE"
-   gltrans.tr-date = tran-date
-   gltrans.tr-amt  = - g2
-   gltrans.period  = tran-period
-   gltrans.trnum   = v-trnum.
-
+  RUN GL_SpCreateGLHist(cocode,
+                        xap-acct,
+                        "ACPAY",
+                        "ACCOUNTS PAYABLE INVOICE",
+                        tran-date,
+                        - g2,
+                        v-trnum,
+                        tran-period,
+                        "A",
+                        tran-date,
+                        string(ap-inv.inv-no),
+                        "AP").
+  
   FOR EACH work-gl BREAK BY work-gl.actnum:
     ASSIGN
      debits  = debits  + work-gl.debits
      credits = credits + work-gl.credits.
 
     IF LAST-OF(work-gl.actnum) THEN DO:
-      CREATE gltrans.
-      ASSIGN
-       gltrans.company = cocode
-       gltrans.actnum  = work-gl.actnum
-       gltrans.jrnl    = "ACPAY"
-       gltrans.period  = tran-period
-       gltrans.tr-amt  = debits - credits
-       gltrans.tr-date = tran-date
-       gltrans.tr-dscr = "AP for FG Receipts from PO"
-       gltrans.trnum   = v-trnum.
-
+     RUN GL_SpCreateGLHist(cocode,
+                        work-gl.actnum,
+                        "ACPAY",
+                        "AP for FG Receipts from PO",
+                        tran-date,
+                        (debits - credits),
+                        v-trnum,
+                        tran-period,
+                        "A",
+                        tran-date,
+                        string(ap-inv.inv-no),
+                        "AP").
+      
       ASSIGN
        debits  = 0
        credits = 0.

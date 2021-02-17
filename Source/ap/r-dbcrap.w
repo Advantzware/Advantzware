@@ -781,6 +781,7 @@ PROCEDURE post-gl :
    DEF VAR v-i-qty AS DEC NO-UNDO.
    DEF VAR v-t-qty AS DEC NO-UNDO.
    DEF VAR lv-uom AS CHAR NO-UNDO.
+   DEFINE VARIABLE dAmount AS DECIMAL NO-UNDO.
 
    DEF BUFFER b-rm-bin FOR rm-bin.
 
@@ -868,27 +869,29 @@ PROCEDURE post-gl :
          END.
 
          RELEASE ap-inv.
-
-         create gltrans.
+          dAmount = - (ap-payl.amt-paid - ap-payl.amt-disc).
+          RUN GL_SpCreateGLHist(cocode,
+                             ap-payl.actnum,
+                             "APMEM",
+                             vend.name  + "  " + string(ap-pay.check-date),
+                             tran-date,
+                             dAmount,
+                             xtrnum,
+                             tran-period,
+                             "A",
+                             tran-date,
+                             string(ap-inv.inv-no),
+                             "AP").
+        
          assign
             t1 = t1 - ap-payl.amt-paid + ap-payl.amt-disc
-            gltrans.company = cocode
-            gltrans.actnum  = ap-payl.actnum
-            gltrans.jrnl    = "APMEM"
-            gltrans.tr-dscr = vend.name  + "  " + string(ap-pay.check-date)
-            gltrans.tr-date = tran-date
-            gltrans.tr-amt  = - (ap-payl.amt-paid - ap-payl.amt-disc)
-            gltrans.period  = tran-period
-            gltrans.trnum   = xtrnum
             ap-payl.posted  = true.
-
+                                   
          find first bank where bank.company = cocode and
                                bank.actnum = ap-payl.actnum no-error.
          if avail bank then
-           assign bank.bal = bank.bal + gltrans.tr-amt.
-
-         RELEASE gltrans.
-
+           assign bank.bal = bank.bal + dAmount .
+         
          if last-of(ap-payl.inv-no) then do:
             assign
                vend.purch[tran-period]   = vend.purch[tran-period]   + t1
@@ -914,17 +917,18 @@ PROCEDURE post-gl :
          end.
          assign ap-pay.posted = true.
       end.
-      create gltrans.
-      assign
-      gltrans.company = cocode
-      gltrans.actnum  = xap-acct
-      gltrans.jrnl    = "APMEM"
-      gltrans.tr-dscr = "ACCOUNTS PAYABLE MEMO"
-      gltrans.tr-date = tran-date
-      gltrans.tr-amt  = g1 - g2   /* DAR  -  g2 - g1  */
-      gltrans.period  = tran-period
-      gltrans.trnum   = xtrnum.
-      RELEASE gltrans.
+     RUN GL_SpCreateGLHist(cocode,
+                        xap-acct,
+                        "APMEM",
+                        "ACCOUNTS PAYABLE MEMO",
+                        tran-date,
+                        g1 - g2   /* DAR  -  g2 - g1  */,
+                        xtrnum,
+                        tran-period,
+                        "A",
+                        tran-date,
+                        string(ap-inv.inv-no),
+                        "AP").
 
       /* Recalc Rm Bins whose cost has been changed by APCRMEMO sys-ctrl param */
       FOR EACH tt-rm-bin,

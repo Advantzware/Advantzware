@@ -34,6 +34,9 @@ def input parameter ip-company like itemfg.company no-undo.
 def input parameter ip-cur-val as cha no-undo.
 def output parameter op-char-val as cha no-undo. /* string i-code + i-name */
 
+DEFINE VARIABLE lFlag AS LOGICAL NO-UNDO.
+    IF PROGRAM-NAME(2) MATCHES "*est/dAddEditComp*" THEN ASSIGN lFlag = TRUE.
+
 def var lv-type-dscr as cha no-undo.
 def var lv-first-time as log init yes no-undo.
 &scoped-define fld-name-1 style.style
@@ -70,12 +73,14 @@ def var lv-first-time as log init yes no-undo.
 &Scoped-define QUERY-STRING-BROWSE-1 FOR EACH style WHERE ~{&KEY-PHRASE} ~
       AND style.company = ip-company  ~
 and style.style <> "" ~
-AND style.industry = "2" NO-LOCK ~
+AND style.industry = "2" ~
+and (lFlag and style.type eq "W" or not lFlag) NO-LOCK ~
     ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-BROWSE-1 OPEN QUERY BROWSE-1 FOR EACH style WHERE ~{&KEY-PHRASE} ~
       AND style.company = ip-company  ~
 and style.style <> "" ~
-AND style.industry = "2" NO-LOCK ~
+AND style.industry = "2" ~
+and (lFlag and style.type eq "W" or not lFlag) NO-LOCK ~
     ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-BROWSE-1 style
 &Scoped-define FIRST-TABLE-IN-QUERY-BROWSE-1 style
@@ -202,6 +207,7 @@ ASSIGN
      _Where[1]         = "ASI.style.company = ip-company 
 and style.style <> """"
 AND ASI.style.industry = ""2"""
+AND (lFlag and style.type eq "W" or not lFlag)
      _FldNameList[1]   > ASI.style.style
 "style.style" "Style" ? "character" ? ? ? ? ? ? no ? no no "9" yes no no "U" "" ""
      _FldNameList[2]   > ASI.style.dscr

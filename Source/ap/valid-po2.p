@@ -71,25 +71,25 @@ AND (io-po-ordl.t-rec-qty NE 0
         item.i-code  EQ "R" AND 
         item.stocked EQ NO
         USE-INDEX i-no)))
-        THEN.
+THEN DO:
+    /* Scan for existing invoice lines for this PO line */
+    FOR EACH ap-invl NO-LOCK WHERE
+        ap-invl.company EQ io-po-ordl.company AND 
+        ap-invl.po-no EQ io-po-ordl.po-no AND 
+        {ap/invlline.i -1} EQ io-po-ordl.line AND 
+        ROWID(ap-invl) NE ROWID(io-ap-invl):
+        ASSIGN 
+            iCtr = iCtr + 1
+            tInvoicedQty = tInvoicedQty + ap-invl.qty
+            cUoM = ap-invl.pr-qty-uom.
+    END.
+
+    /* If the invoiced total qty plus this (input) qty GT PO line qty, show a warning */
+    IF tInvoicedQty + io-ap-invl.qty GT io-po-ordl.ord-qty THEN DO:    
+        ASSIGN 
+            opcOutError = "There are already " + STRING(iCtr) + " AP invoices for this PO line totalling " +
+                          STRING(tInvoicedQty) + " units (" + cUoM + "). Do you want to continue?". 
+    END.  
+END.
 ELSE RELEASE io-po-ordl.
-
-/* Scan for existing invoice lines for this PO line */
-FOR EACH ap-invl NO-LOCK WHERE
-    ap-invl.company EQ io-po-ordl.company AND 
-    ap-invl.po-no EQ io-po-ordl.po-no AND 
-    {ap/invlline.i -1} EQ io-po-ordl.line AND 
-    ROWID(ap-invl) NE ROWID(io-ap-invl):
-    ASSIGN 
-        iCtr = iCtr + 1
-        tInvoicedQty = tInvoicedQty + ap-invl.qty
-        cUoM = ap-invl.pr-qty-uom.
-END.
-
-/* If the invoiced total qty plus this (input) qty GT PO line qty, show a warning */
-IF tInvoicedQty + io-ap-invl.qty GT io-po-ordl.ord-qty THEN DO:    
-    ASSIGN 
-        opcOutError = "There are already " + STRING(iCtr) + " AP invoices for this PO line totalling " +
-                      STRING(tInvoicedQty) + " units (" + cUoM + "). Do you want to continue?". 
-END.
       

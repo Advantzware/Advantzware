@@ -38,8 +38,8 @@ DEF BUFFER b-ar-invl  FOR ar-invl.
 
 DEF TEMP-TABLE t-invoice NO-UNDO
   FIELD tt-invoice LIKE v-invno
-  FIELD tt-amt     LIKE gltrans.tr-amt
-  FIELD tt-date    LIKE gltrans.tr-date.
+  FIELD tt-amt     LIKE glhist.tr-amt
+  FIELD tt-date    LIKE glhist.tr-date.
 
  
 
@@ -70,18 +70,19 @@ FIND LAST ar-invl NO-LOCK USE-INDEX x-no.
 v-ref-arl = ar-invl.x-no + 1.
 
 
-FOR EACH gltrans WHERE
-         gltrans.jrnl = "OEINV" AND
-        (gltrans.tr-date >= ip-beg-date AND 
-         gltrans.tr-date <= ip-end-date)  NO-LOCK:
+FOR EACH glhist WHERE
+         glhist.jrnl = "OEINV" AND
+        (glhist.tr-date >= ip-beg-date AND 
+         glhist.tr-date <= ip-end-date) AND
+         glhist.posted  EQ NO NO-LOCK:
 
-   v-pos = R-INDEX(gltrans.tr-dscr,"Inv#").
+   v-pos = R-INDEX(glhist.tr-dscr,"Inv#").
 
    IF v-pos = 0 THEN NEXT.
 
    ASSIGN
     v-pos = v-pos + 4
-    v-invno = INT(SUBSTRING(gltrans.tr-dscr,v-pos,10)).
+    v-invno = INT(SUBSTRING(glhist.tr-dscr,v-pos,10)).
 
     IF ( v-invno < ip-st-invno  OR 
          v-invno > ip-end-invno) THEN  NEXT . 
@@ -106,11 +107,11 @@ FOR EACH gltrans WHERE
       DO:
          CREATE t-invoice.
          ASSIGN t-invoice.tt-invoice = v-invno
-                t-invoice.tt-date    = gltrans.tr-date
-                t-invoice.tt-amt     = gltrans.tr-amt.
+                t-invoice.tt-date    = glhist.tr-date
+                t-invoice.tt-amt     = glhist.tr-amt.
       END.
       ELSE
-        t-invoice.tt-amt = t-invoice.tt-amt + gltrans.tr-amt.
+        t-invoice.tt-amt = t-invoice.tt-amt + glhist.tr-amt.
    END.
 
 END.

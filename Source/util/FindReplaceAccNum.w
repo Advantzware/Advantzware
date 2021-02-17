@@ -439,25 +439,20 @@ PROCEDURE CheckHistory :
     DEFINE VARIABLE iLength AS INTEGER     NO-UNDO.
 
     DEFINE BUFFER bf-glhist FOR glhist.
-    DEFINE BUFFER bf-gltrans FOR gltrans.
-
-
+    
     IF NOT AVAIL gbf-company THEN 
         RUN ValidateCompany(OUTPUT oplOK).
     ELSE 
         oplOK = YES.
     IF oplOK THEN DO:
-        RUN GetSubstringArgs(INPUT ipiLevel, OUTPUT iStart, OUTPUT iLength).
-        FIND FIRST bf-gltrans 
-            WHERE bf-gltrans.company EQ gbf-company.company
-              AND SUBSTRING(bf-gltrans.actnum, iStart, iLength) EQ ipcAccount
+        RUN GetSubstringArgs(INPUT ipiLevel, OUTPUT iStart, OUTPUT iLength).         
+       
+        FIND FIRST bf-glhist 
+            WHERE bf-glhist.company EQ gbf-company.company
+              AND SUBSTRING(bf-glhist.actnum, iStart, iLength) EQ ipcAccount
+              AND bf-glhist.posted EQ NO
             NO-LOCK NO-ERROR.
-        IF NOT AVAIL bf-gltrans THEN
-            FIND FIRST bf-glhist 
-                WHERE bf-glhist.company EQ gbf-company.company
-                  AND SUBSTRING(bf-glhist.actnum, iStart, iLength) EQ ipcAccount
-                NO-LOCK NO-ERROR.
-        oplOK = NOT AVAIL bf-gltrans AND NOT AVAIL bf-glhist.
+        oplOK = NOT AVAIL bf-glhist.
     END.
 
 END PROCEDURE.

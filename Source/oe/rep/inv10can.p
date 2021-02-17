@@ -122,6 +122,7 @@ DEF BUFFER bf-cust FOR cust .
 DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
 DEFINE VARIABLE iOrdQty        AS INTEGER format "99999" no-undo.
+DEFINE SHARED VARIABLE nsv_setcomp AS LOGICAL NO-UNDO.
 
 RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
@@ -433,11 +434,13 @@ find first company where company.company eq cocode NO-LOCK.
 
         v-subtot-lines = 0.
         v-t-tax = 0.
+        MAIN-INVLOOP:
         for each inv-line no-lock where inv-line.r-no = inv-head.r-no:
           assign v-case-line = ""
                  v-part-line = ""
                  v-case-cnt = "".
-
+                 
+       
           IF v-printline > 50 THEN DO:
                PAGE.
                v-printline = 0.
@@ -486,6 +489,9 @@ find first company where company.company eq cocode NO-LOCK.
                                      oe-ordl.ord-no = inv-line.ord-no and
                                      oe-ordl.i-no = inv-line.i-no
                                      no-lock no-error.
+            IF AVAIL oe-ordl AND oe-ordl.is-a-component AND NOT nsv_setcomp THEN 
+             NEXT MAIN-INVLOOP.    
+             
             if avail oe-ordl then DO:
               v-bo-qty = if (inv-line.qty - v-ship-qty -
                              oe-ordl.t-ship-qty) < 0 then 0 else

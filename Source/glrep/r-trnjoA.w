@@ -1168,7 +1168,7 @@ DEFINE VARIABLE ws_check-no LIKE ap-chk.check-no NO-UNDO format ">>>>>>>"
     column-label "Check#".
 DEFINE VARIABLE ws_order-no LIKE oe-ord.ord-no NO-UNDO
     format ">>>>>>".
-def var ws_jrnl like gltrans.jrnl column-label "Journal" no-undo.
+def var ws_jrnl like glhist.jrnl column-label "Journal" no-undo.
 DEF VAR GL_JRNL_LIST AS CHAR NO-UNDO.
 
 def var lo_actnum like account.actnum label "From GL Acct#" no-undo.
@@ -1274,13 +1274,13 @@ SESSION:SET-WAIT-STATE ("general").
     VIEW FRAME F-DET.
     DOWN 0 WITH FRAME F-DET.
 
-    FOR EACH gltrans NO-LOCK
-        WHERE gltrans.company = cocode
-        AND gltrans.actnum = account.actnum
-        AND gltrans.tr-date >= lo_trandate
-        AND gltrans.tr-date <= hi_trandate
-        AND CAN-DO(GL_JRNL_LIST, gltrans.jrnl)
-        BY gltrans.tr-date:
+    FOR EACH glhist NO-LOCK
+        WHERE glhist.company = cocode
+        AND glhist.actnum = account.actnum
+        AND glhist.tr-date >= lo_trandate
+        AND glhist.tr-date <= hi_trandate
+        AND CAN-DO(GL_JRNL_LIST, glhist.jrnl)
+        BY glhist.tr-date:
       IF NOT hdg_printed THEN
       DO:
 
@@ -1297,55 +1297,6 @@ SESSION:SET-WAIT-STATE ("general").
         hdg_printed = TRUE.
       END.
 
-      DISPLAY
-        gltrans.jrnl @ ws_jrnl
-        gltrans.tr-dscr @ vend.name
-        gltrans.tr-date @ ap-inv.inv-date
-        gltrans.tr-amt  @ ap-invl.amt
-      with frame f-det.
-      down 1 with frame f-det.
-
-      IF tb_excel THEN
-      DO:
-         PUT STREAM excel UNFORMATTED
-             '"' gltrans.jrnl            '",'
-             '"' ""                      '",'
-             '"' gltrans.tr-dscr         '",'
-             '"' STRING(gltrans.tr-date) '",'.
-
-         DO viCount = 1 TO 6:
-            PUT STREAM excel UNFORMATTED '"' ""  '",'.
-         END.
-
-         PUT STREAM excel UNFORMATTED
-             '"' STRING(gltrans.tr-amt,"->>,>>>,>>9.99") '",' SKIP.
-      END.
-
-      ASSIGN t-disc = t-disc + ws_disc
-        t-amt = t-amt + gltrans.tr-amt.
-    END.
-
-    FOR EACH glhist NO-LOCK
-        WHERE glhist.company = cocode
-        AND glhist.actnum = account.actnum
-        AND glhist.tr-date >= lo_trandate
-        AND glhist.tr-date <= hi_trandate
-        AND CAN-DO(GL_JRNL_LIST, glhist.jrnl)
-        BY glhist.tr-date:
-      IF NOT hdg_printed THEN
-      DO:
-        v-line = account.actnum + ' - ' + account.dscr.
-        PUT SKIP v-line SKIP.
-
-        IF tb_excel THEN
-           PUT STREAM excel UNFORMATTED
-               '"' account.actnum          '",'
-               '"' ""                      '",'
-               '"' account.dscr            '",'
-               SKIP.
-
-        hdg_printed = TRUE.
-      END.
       DISPLAY
         glhist.jrnl @ ws_jrnl
         glhist.tr-dscr @ vend.name

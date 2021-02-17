@@ -477,12 +477,12 @@ DEFINE FRAME Corr
           VIEW-AS FILL-IN 
           SIZE 23 BY 1
           FONT 6
-     eb.procat AT ROW 9.14 COL 17.8 COLON-ALIGNED
+     eb.procat AT ROW 9.14 COL 16.8 COLON-ALIGNED
           LABEL "FG Category" FORMAT "x(5)"
           VIEW-AS FILL-IN 
           SIZE 10 BY 1
           FONT 6
-     procat_desc AT ROW 9.14 COL 27.8 COLON-ALIGNED NO-LABEL
+     procat_desc AT ROW 9.14 COL 26.8 COLON-ALIGNED NO-LABEL
      eb.spc-no AT ROW 8.86 COL 90 COLON-ALIGNED
           LABEL "SPC/QC #"
           VIEW-AS FILL-IN 
@@ -581,7 +581,7 @@ DEFINE FRAME Corr
           SIZE 11.6 BY 1
      bt-new-plate AT ROW 7.91 COL 115.6 WIDGET-ID 10
      eb.loc AT ROW 9.19 COL 62.2 COLON-ALIGNED WIDGET-ID 14
-          LABEL "W"
+          LABEL "Loc"
           VIEW-AS FILL-IN 
           SIZE 8 BY 1
      btn_fgitem AT ROW 3.81 COL 115 WIDGET-ID 16

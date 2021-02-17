@@ -5,6 +5,9 @@
 
 /* ***************************  Definitions  ***************************/
 
+DEFINE VARIABLE cProgressBar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lProgressBar AS LOGICAL   NO-UNDO.
+
 {aoa/BL/r-aragedDefs.i}
 
 /* Parameters Definitions ---                                           */

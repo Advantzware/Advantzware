@@ -127,6 +127,11 @@ def var n               as int no-undo initial 0.
 DEF VAR v-avgcost AS LOG NO-UNDO.
 DEFINE VARIABLE cBarCodeProgram AS CHARACTER NO-UNDO .
 DEFINE VARIABLE hdJobProcs AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hdInventoryProcs AS HANDLE NO-UNDO.
+DEFINE VARIABLE iWarehouseLength  AS INTEGER   NO-UNDO.
+
+RUN Inventory/InventoryProcs.p PERSISTENT SET hdInventoryProcs.
+{Inventory/ttInventory.i "NEW SHARED"}
 {rm/avgcost.i}
 
 DEF BUFFER b-company FOR company.
@@ -1399,10 +1404,14 @@ PROCEDURE createWPO :
 
   IF NOT checkWhsBin(cocode,w-po.loc,w-po.loc-bin) THEN
   DO:
+    RUN Inventory_GetWarehouseLength IN hdInventoryProcs (
+         INPUT  cocode,
+         OUTPUT iWarehouseLength
+         ).
     IF v-bin NE 'RMITEM' THEN
     ASSIGN
-      w-po.loc = SUBSTR(v-bin,1,5)
-      w-po.loc-bin = SUBSTR(v-bin,6).
+      w-po.loc = SUBSTR(v-bin,1,iWarehouseLength)
+      w-po.loc-bin = SUBSTR(v-bin,iWarehouseLength + 1).
     IF NOT checkWhsBin(cocode,w-po.loc,w-po.loc-bin) THEN
     DO:
       FIND FIRST rm-bin WHERE rm-bin.company EQ cocode
@@ -1470,10 +1479,14 @@ PROCEDURE createWPOfromItem :
 
     IF NOT checkWhsBin(cocode,w-po.loc,w-po.loc-bin) THEN
     DO:
+      RUN Inventory_GetWarehouseLength IN hdInventoryProcs (
+            INPUT  cocode,
+            OUTPUT iWarehouseLength
+            ).
       IF v-bin NE 'RMITEM' THEN
       ASSIGN
-        w-po.loc = SUBSTR(v-bin,1,5)
-        w-po.loc-bin = SUBSTR(v-bin,6).
+        w-po.loc = SUBSTR(v-bin,1,iWarehouseLength)
+        w-po.loc-bin = SUBSTR(v-bin,iWarehouseLength + 1).
       IF NOT checkWhsBin(cocode,w-po.loc,w-po.loc-bin) THEN
       DO:
         FIND FIRST rm-bin NO-LOCK WHERE rm-bin.company EQ cocode

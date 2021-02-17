@@ -876,7 +876,7 @@ DO:
            RETURN NO-APPLY.
        END.  /* cust-no*/
        WHEN "eqty" THEN DO:
-           IF est.est-type LE 6 THEN DO:
+           IF est.est-type LE 6 AND est.est-type NE 4 THEN DO:
              lv-estqty-recid = IF AVAIL est-qty THEN RECID(est-qty) ELSE ?.
              RUN est/estqtyd.w (lv-estqty-recid, RECID(eb),est-qty.eqty:screen-value IN BROWSE {&browse-name}, OUTPUT char-val, OUTPUT char-val2, OUTPUT date-val, OUTPUT date-val2) .
              IF char-val <> "?" 
@@ -3651,6 +3651,7 @@ DEF VAR lv-comm LIKE eb.comm NO-UNDO.
      IF AVAIL itemfg THEN
          ASSIGN
         eb.part-dscr1 = itemfg.i-name
+        eb.part-dscr2 = tt-frmout.part-dscr1
         eb.stock-no   = CAPS(itemfg.i-no)
      /*  eb.style      = itemfg.style*/
         eb.procat     = itemfg.procat

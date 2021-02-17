@@ -74,7 +74,6 @@ DEFINE OUTPUT PARAMETER op-returnFields AS CHARACTER NO-UNDO.
 DEFINE OUTPUT PARAMETER op-lookupField  AS CHARACTER NO-UNDO.
 DEFINE OUTPUT PARAMETER op-recVal       AS RECID     NO-UNDO.
  
-DEFINE VARIABLE cFilterValue    AS CHARACTER NO-UNDO EXTENT 1000.
 DEFINE VARIABLE cCustListQuery  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFocusValue     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE h_brbuffer      AS HANDLE    NO-UNDO.
@@ -92,7 +91,6 @@ DEFINE VARIABLE h_ttquery       AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hCalcColumn     AS HANDLE    NO-UNDO EXTENT 1000.
 DEFINE VARIABLE hColumn         AS HANDLE    NO-UNDO EXTENT 1000.
 DEFINE VARIABLE hDynCalcField   AS HANDLE    NO-UNDO.
-DEFINE VARIABLE hFilterField    AS HANDLE    NO-UNDO EXTENT 1000.
 DEFINE VARIABLE hStatusField    AS HANDLE    NO-UNDO EXTENT 1000.
 DEFINE VARIABLE iRowCount       AS INTEGER   NO-UNDO.
 DEFINE VARIABLE li-count        AS INTEGER   NO-UNDO.
@@ -664,18 +662,6 @@ PROCEDURE addBrowseCols :
                 hStatusField[li-count]    = h_colHandle
                 rDynValueColumn[li-count] = ROWID(dynValueColumn)
                 .
-            FIND FIRST dynValueColumn NO-LOCK
-                 WHERE dynValueColumn.subjectID         EQ ip-subjectID
-                   AND dynValueColumn.user-id           EQ ip-userID
-                   AND dynValueColumn.paramValueID      EQ ip-paramValueID
-                   AND dynValueColumn.isFilterInitField EQ YES
-                   AND LOOKUP(h_colHandle:NAME,dynValueColumn.colName,".") EQ 2
-                 NO-ERROR.
-            IF AVAILABLE dynValueColumn THEN
-            ASSIGN
-                hFilterField[li-count] = h_colHandle
-                cFilterValue[li-count] = dynValueColumn.filterInitValue
-                .
         END. /* if ne 0 */
     END. /* do li-count */
 
@@ -710,11 +696,7 @@ PROCEDURE addFilterObjects :
                 h_browseCol = h_browser:GET-BROWSE-COL(h_colNum):HANDLE
                 .                
             IF VALID-HANDLE(h_field) THEN DO:
-                IF h_field:DATA-TYPE = "CHARACTER" OR
-                   h_field:DATA-TYPE = "INTEGER"   OR
-                   h_field:DATA-TYPE = "DECIMAL"   OR
-                   h_field:DATA-TYPE = "DATE" THEN DO:
-
+                IF CAN-DO("CHARACTER,DATE,DECIMAL,INTEGER",h_field:DATA-TYPE) THEN DO:
                    CREATE FILL-IN h_fillin
                    ASSIGN FRAME     = h_filterFrame
                        ROW          = h_browser:ROW - 1.26
@@ -734,10 +716,9 @@ PROCEDURE addFilterObjects :
                    h_focus = h_fillin.
 
                    IF h_field:DATA-TYPE = "DATE" THEN DO:
-                       h_fillin:WIDTH-CHARS = 16.
-                      
+                       h_fillin:WIDTH-CHARS = 16.                      
                        CREATE BUTTON h_calendar
-                       ASSIGN FRAME    = h_filterFrame                          
+                       ASSIGN FRAME     = h_filterFrame
                            ROW          = h_browser:ROW - 1.28
                            COLUMN       = h_fillin:COLUMN + h_fillin:WIDTH
                            WIDTH        = 4.6
@@ -748,13 +729,13 @@ PROCEDURE addFilterObjects :
                            TRIGGERS:
                                ON CHOOSE PERSISTENT RUN chooseDate (h_calendar:PRIVATE-DATA).
                            END TRIGGERS.            
-                       hWidget[li-count] = h_fillin:HANDLE.
+                       hWidget[li-count] = h_calendar:HANDLE.
                        h_calendar:LOAD-IMAGE-UP("Graphics/16x16/calendar.bmp").          
                    END.
                 END.
                 ELSE IF h_field:DATA-TYPE = "LOGICAL" THEN DO:
                    CREATE COMBO-BOX h_combobox
-                   ASSIGN FRAME       = h_filterFrame
+                   ASSIGN FRAME        = h_filterFrame                       
                        ROW             = h_browser:ROW - 1.26
                        X               = h_browseCol:X
                        WIDTH-PIXELS    = h_browseCol:WIDTH-PIXELS + 4
@@ -769,7 +750,7 @@ PROCEDURE addFilterObjects :
                        TRIGGERS:
                            ON VALUE-CHANGED PERSISTENT RUN openFilterQuery.
                        END TRIGGERS.
-                   hWidget[li-count] = h_fillin:HANDLE.
+                   hWidget[li-count] = h_combobox:HANDLE.
                 END.
             END.
         END.
@@ -824,10 +805,19 @@ PROCEDURE addFilterObjects :
     CLEAR FRAME filter-frame NO-PAUSE.
     /* set any filter init values */
     DO li-count = 1 TO NUM-ENTRIES(ip-filterList):
-        IF VALID-HANDLE(hFilterField[li-count]) THEN
-        hWidget[li-count]:SCREEN-VALUE = cFilterValue[li-count].
+        FIND FIRST dynValueColumn NO-LOCK
+             WHERE dynValueColumn.subjectID         EQ ip-subjectID
+               AND dynValueColumn.user-id           EQ ip-userID
+               AND dynValueColumn.paramValueID      EQ ip-paramValueID
+               AND dynValueColumn.isFilterInitField EQ YES
+               AND LOOKUP(ENTRY(li-count,ip-filterList),dynValueColumn.colName,".") EQ 2
+             NO-ERROR.
+        IF AVAILABLE dynValueColumn THEN
+        hWidget[li-count]:SCREEN-VALUE = dynValueColumn.filterInitValue.
+
     END. /* do li-count */
-    h_focus:SCREEN-VALUE = cFocusValue.
+    IF cFocusValue NE "0" AND cFocusValue NE  "" AND h_focus:DATA-TYPE = "Integer" THEN 
+        h_focus:SCREEN-VALUE = cFocusValue.
 
 END PROCEDURE.
 

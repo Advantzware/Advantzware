@@ -102,8 +102,7 @@ PROCEDURE fixTables:
   RUN fixGL-JRN.
   RUN fixGL-JRNL.
   RUN fixGL-RPT.
-  RUN fixGLHIST.
-  RUN fixGLTRANS.
+  RUN fixGLHIST.  
   RUN fixINV-HEAD.
   RUN fixINV-LINE.
   RUN fixINV-MISC.
@@ -1893,21 +1892,6 @@ PROCEDURE fixGLHIST:
   RUN msg ('Fixed ' + STRING(i) + ' Records' + CHR(10)).
 END PROCEDURE.
  
-PROCEDURE fixGLTRANS:
-  DEFINE VARIABLE i AS INTEGER NO-UNDO.
-
-  DISABLE TRIGGERS FOR LOAD OF gltrans.
- 
-  IF NOT CAN-FIND(FIRST gltrans WHERE gltrans.rec_key EQ '') THEN RETURN.
-  RUN msg ('Processing gltrans ... ').
-  FOR EACH gltrans EXCLUSIVE-LOCK WHERE gltrans.rec_key EQ '':
-    ASSIGN
-      gltrans.rec_key = nextRecKey()
-      i = i + 1.
-    RUN createRecKey (gltrans.rec_key,'gltrans').
-  END.
-  RUN msg ('Fixed ' + STRING(i) + ' Records' + CHR(10)).
-END PROCEDURE.
  
 PROCEDURE fixINV-HEAD:
   DEFINE VARIABLE i AS INTEGER NO-UNDO.

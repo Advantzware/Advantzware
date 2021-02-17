@@ -52,6 +52,7 @@ DEFINE VARIABLE hInventoryProcs      AS HANDLE NO-UNDO.
 DEFINE VARIABLE lActiveBin AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lFgEmails AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lPromptForClose AS LOGICAL NO-UNDO INITIAL YES.
+DEFINE VARIABLE iWarehouseLength AS INTEGER   NO-UNDO.
 
 ASSIGN cocode = g_company
        locode = g_loc.
@@ -690,14 +691,19 @@ END.
 ON LEAVE OF fg-rctd.loc IN BROWSE br_table /* Whse */
 DO:
     IF LASTKEY = -1 THEN RETURN.
+    
+   RUN Inventory_GetWarehouseLength IN hInventoryProcs (
+       INPUT  cocode,
+       OUTPUT iWarehouseLength
+        ).
 
     DEF VAR v-locbin AS cha NO-UNDO.
     IF SELF:MODIFIED THEN DO:
-       IF LENGTH(SELF:SCREEN-VALUE) > 5 THEN DO:
+       IF LENGTH(SELF:SCREEN-VALUE) > iWarehouseLength THEN DO:
           
           v-locbin = SELF:SCREEN-VALUE.
-          ASSIGN fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name} = SUBSTRING(v-locbin,1,5)
-                 fg-rctd.loc-bin:SCREEN-VALUE = SUBSTRING(v-locbin,6,8).
+          ASSIGN fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name} = SUBSTRING(v-locbin,1,iWarehouseLength)
+                 fg-rctd.loc-bin:SCREEN-VALUE = SUBSTRING(v-locbin,iWarehouseLength + 1).
 
           RUN ValidateLoc IN hInventoryProcs (cocode, fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}, OUTPUT lActiveBin).
           IF NOT lActiveBin THEN DO:
@@ -996,21 +1002,22 @@ PROCEDURE gl-from-work :
      credits = credits + work-gl.credits.
 
     if last-of(work-gl.actnum) then do:
-      create gltrans.
+     RUN GL_SpCreateGLHist(cocode,
+                        work-gl.actnum,
+                        "FGPOST",
+                        (if work-gl.job-no ne "" then "FG Receipt from Job"
+                                                 else "FG Receipt from PO"),
+                        v-post-date,
+                        (debits - credits),
+                        ip-trnum,
+                        period.pnum,
+                        "A",
+                        v-post-date,
+                        string(IF AVAIL fg-rctd THEN fg-rctd.i-no ELSE ""),
+                        "FG").
       assign
-       gltrans.company = cocode
-       gltrans.actnum  = work-gl.actnum
-       gltrans.jrnl    = "FGPOST"
-       gltrans.period  = period.pnum
-       gltrans.tr-amt  = debits - credits
-       gltrans.tr-date = v-post-date
-       gltrans.tr-dscr = if work-gl.job-no ne "" then "FG Receipt from Job"
-                                                 else "FG Receipt from PO"
-       gltrans.trnum   = ip-trnum
        debits  = 0
        credits = 0.
-
-      RELEASE gltrans.
     end.
   end.
 END PROCEDURE.

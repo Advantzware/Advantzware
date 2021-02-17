@@ -63,11 +63,17 @@ DEFINE VARIABLE dActMatCost AS DECIMAL NO-UNDO .
 {jc/rep/job-sum.i new}
  DEFINE VARIABLE tb_exclude_prep AS LOGICAL INIT YES NO-UNDO .
 ASSIGN cTextListToSelect = "Customer Name,Invoice#,FG Item#,Job#,Mat'l Cost," +
-                           "Labor Cost,FixOH Cost,VarOH Cost,Total Cost,Sales Amt,Act Mat'l Cost"
+                           "Labor Cost,FixOH Cost,VarOH Cost,Total Cost,Sales Amt,Act Mat'l Cost," +
+                           "Est Revenue,Est Cost,Est Margin,Est GM%," +
+                           "Act Revenue,Act Cost,Act Margin,Act GM%," +
+                           "MFG total Variance"
        cFieldListToSelect = "cust-nam,inv,i-no,job,mat-cst," +
-                            "lbr-cst,fix-oh,var-oh,ttl-cst,sal-amt,act-mat-cost"
-       cFieldLength = "30,8,15,10,11," + "11,11,11,11,15,13" 
-       cFieldType = "c,i,c,c,i," + "i,i,i,i,i,i"
+                            "lbr-cst,fix-oh,var-oh,ttl-cst,sal-amt,act-mat-cost," +
+                            "EstRevenue,EstCost,EstMargin,EstGM," +
+                            "ActRevenue,ActCost,ActMargin,ActGM," +
+                            "MFGTotalVariance"
+       cFieldLength = "30,8,15,10,11," + "11,11,11,11,15,13," + "11,11,11,11," + "11,11,11,11," + "11"
+       cFieldType = "c,i,c,c,i," + "i,i,i,i,i,i," + "d,d,d,d," + "d,d,d,d," + "d"
     .
 
 {sys/inc/ttRptSel.i}
@@ -1405,7 +1411,17 @@ DEF VAR str-line AS cha FORM "x(300)" NO-UNDO.
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 DEF VAR excelheader AS CHAR NO-UNDO.
 DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
-DEFINE VARIABLE lPrintActMatCost AS LOGICAL NO-UNDO .
+DEFINE VARIABLE lPrintActMatCost         AS LOGICAL NO-UNDO .
+DEFINE VARIABLE dEstRevenue              AS DECIMAL NO-UNDO .
+DEFINE VARIABLE dEstCost                 AS DECIMAL NO-UNDO .
+DEFINE VARIABLE dEstMargin               AS DECIMAL NO-UNDO .
+DEFINE VARIABLE dEstGM                   AS DECIMAL NO-UNDO .
+DEFINE VARIABLE dProductionQty           AS DECIMAL NO-UNDO .
+DEFINE VARIABLE dActRevenue              AS DECIMAL NO-UNDO .
+DEFINE VARIABLE dActCost                 AS DECIMAL NO-UNDO .
+DEFINE VARIABLE dActMargin               AS DECIMAL NO-UNDO .
+DEFINE VARIABLE dActGM                   AS DECIMAL NO-UNDO .
+DEFINE VARIABLE dMFGTotalVariance        AS DECIMAL NO-UNDO .
 
 RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 

@@ -44,12 +44,13 @@ FOR EACH ar-cash ~
             cGltransDesc = "VOID " + cust.cust-no + " " ~
                          + STRING(ar-cash.check-no,"999999999999") ~
                          + " Inv# " + STRING(ar-cashl.inv-no). ~
-            FIND FIRST gltrans NO-LOCK ~
-                 WHERE gltrans.company EQ cust.company ~
-                   AND gltrans.jrnl    EQ "CASHRVD" ~
-                   AND gltrans.tr-dscr EQ cGltransDesc ~
+            FIND FIRST glhist NO-LOCK ~
+                 WHERE glhist.company EQ cust.company ~
+                   AND glhist.jrnl    EQ "CASHRVD" ~
+                   AND glhist.tr-dscr EQ cGltransDesc ~
+                   AND glhist.posted  EQ NO ~
                  NO-ERROR. ~
-            dtInvoiceDate = IF AVAILABLE gltrans THEN gltrans.tr-date ~
+            dtInvoiceDate = IF AVAILABLE glhist THEN glhist.tr-date ~
                             ELSE ar-cash.check-date. ~
         END. ~
     END. ~
@@ -115,6 +116,7 @@ PROCEDURE pBusinessLogic:
     DEFINE VARIABLE i                 AS INTEGER   NO-UNDO.
     DEFINE VARIABLE cLvText           AS CHARACTER NO-UNDO.
     DEFINE VARIABLE dAmountDue        AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE iRecCount         AS INTEGER   NO-UNDO EXTENT 2.
     
     FOR EACH company NO-LOCK
         WHERE company.company GE cStartCompany
@@ -161,7 +163,11 @@ PROCEDURE pBusinessLogic:
                 tt-cust.sorter    = IF cSort1 EQ "Customer No" THEN cust.cust-no
                                ELSE IF cSort1 EQ "Name" THEN cust.name
                                ELSE cust.sman
-                tt-cust.row-id    = ROWID(cust) .
+                tt-cust.row-id    = ROWID(cust)
+                iRecCount[2]      = iRecCount[2] + 1
+                .
+            IF lProgressBar THEN
+            RUN spProgressBar (cProgressBar, iRecCount[2], ?).
             IF tt-cust.curr-code NE company.curr-code THEN
             lMultCurr = YES.
         END. /* if lValidCust */
@@ -172,6 +178,9 @@ PROCEDURE pBusinessLogic:
         BREAK BY tt-cust.curr-code
               BY tt-cust.sorter
         :
+        iRecCount[1] = iRecCount[1] + 1.
+        IF lProgressBar THEN
+        RUN spProgressBar (cProgressBar, iRecCount[1], iRecCount[2]).
         FIND FIRST sman NO-LOCK
             WHERE sman.company EQ cust.company
               AND sman.sman    EQ cust.sman
@@ -275,12 +284,13 @@ PROCEDURE pBusinessLogic:
                         cGltransDesc = "VOID " + cust.cust-no + " "
                                      + STRING(ar-cash.check-no,"999999999999")
                                      + " Inv# " + STRING(ar-cashl.inv-no).
-                        FIND FIRST gltrans NO-LOCK
-                             WHERE gltrans.company EQ cust.company
-                               AND gltrans.jrnl    EQ "CASHRVD"
-                               AND gltrans.tr-dscr EQ cGltransDesc
+                        FIND FIRST glhist NO-LOCK
+                             WHERE glhist.company EQ cust.company
+                               AND glhist.jrnl    EQ "CASHRVD"
+                               AND glhist.tr-dscr EQ cGltransDesc
+                               AND glhist.posted  EQ NO 
                              NO-ERROR.
-                        dtInvoiceDate = IF AVAILABLE gltrans THEN gltrans.tr-date
+                        dtInvoiceDate = IF AVAILABLE glhist THEN glhist.tr-date
                                         ELSE ar-cash.check-date.
                     END. /* else */
                 END. /* if ar-cashl.amt-paid */
@@ -412,12 +422,13 @@ PROCEDURE pBusinessLogic:
                             cGltransDesc = "VOID " + cust.cust-no + " "
                                          + STRING(ar-cash.check-no,"999999999999")
                                          + " Inv# " + STRING(ar-cashl.inv-no).
-                            FIND FIRST gltrans NO-LOCK
-                                 WHERE gltrans.company EQ cust.company
-                                   AND gltrans.jrnl    EQ "CASHRVD"
-                                   AND gltrans.tr-dscr EQ cGltransDesc
+                            FIND FIRST glhist NO-LOCK
+                                 WHERE glhist.company EQ cust.company
+                                   AND glhist.jrnl    EQ "CASHRVD"
+                                   AND glhist.tr-dscr EQ cGltransDesc
+                                   AND glhist.posted  EQ NO
                                  NO-ERROR.
-                            dtInvoiceDate = IF AVAILABLE gltrans THEN gltrans.tr-date
+                            dtInvoiceDate = IF AVAILABLE glhist THEN glhist.tr-date
                                             ELSE ar-cash.check-date.
                         END. /* else */
                     END. /* if ar-cashl.amt-paid GT 0 */
@@ -443,10 +454,11 @@ PROCEDURE pBusinessLogic:
                                 + " Inv# " + STRING(ar-cashl.inv-no).
                         IF ar-cashl.amt-paid GT 0 AND
                           (ar-cashl.voided  EQ YES OR
-                           CAN-FIND(FIRST gltrans
-                                    WHERE gltrans.company EQ cust.company
-                                      AND gltrans.jrnl    EQ "CASHRVD"
-                                      AND gltrans.tr-dscr EQ cTrDscr)) THEN
+                           CAN-FIND(FIRST glhist
+                                    WHERE glhist.company EQ cust.company
+                                      AND glhist.jrnl    EQ "CASHRVD"
+                                      AND glhist.tr-dscr EQ cTrDscr
+                                      AND glhist.posted  EQ NO)) THEN
                         cvType = "VD".
                         ELSE cvType = "PY".
                         ASSIGN
@@ -562,12 +574,13 @@ PROCEDURE pBusinessLogic:
                                 cGltransDesc = "VOID " + cust.cust-no + " "
                                              + STRING(ar-cash.check-no,"999999999999")
                                              + " Inv# " + STRING(ar-cashl.inv-no).
-                                FIND FIRST gltrans NO-LOCK
-                                     WHERE gltrans.company EQ cust.company
-                                       AND gltrans.jrnl    EQ "CASHRVD"
-                                       AND gltrans.tr-dscr EQ cGltransDesc
+                                FIND FIRST glhist NO-LOCK
+                                     WHERE glhist.company EQ cust.company
+                                       AND glhist.jrnl    EQ "CASHRVD"
+                                       AND glhist.tr-dscr EQ cGltransDesc
+                                       AND glhist.posted  EQ NO
                                      NO-ERROR.
-                                dtInvoiceDate = IF AVAILABLE gltrans THEN gltrans.tr-date
+                                dtInvoiceDate = IF AVAILABLE glhist THEN glhist.tr-date
                                                 ELSE ar-cash.check-date.
                             END. /* else */
                         END. /* IF v-type EQ "VD" */
@@ -699,10 +712,11 @@ PROCEDURE pBusinessLogic:
                     + STRING(ar-cash.check-no,"999999999999")
                     + " Inv# " + STRING(ar-cashl.inv-no).
                 IF ar-cashl.voided EQ YES OR   
-                   CAN-FIND(FIRST gltrans
-                            WHERE gltrans.company EQ cust.company
-                              AND gltrans.jrnl    EQ "CASHRVD"
-                              AND gltrans.tr-dscr EQ cTrDscr) THEN DO:
+                   CAN-FIND(FIRST glhist
+                            WHERE glhist.company EQ cust.company
+                              AND glhist.jrnl    EQ "CASHRVD"
+                              AND glhist.tr-dscr EQ cTrDscr
+                              AND glhist.posted  EQ NO) THEN DO:
                     ASSIGN
                         cvType       = "VD"
                         cInvoiceNote = "VOID"
@@ -726,12 +740,13 @@ PROCEDURE pBusinessLogic:
                         cGltransDesc = "VOID " + cust.cust-no + " "
                                      + STRING(ar-cash.check-no,"999999999999")
                                      + " Inv# " + STRING(ar-cashl.inv-no).
-                        FIND FIRST gltrans NO-LOCK
-                             WHERE gltrans.company EQ cust.company
-                               AND gltrans.jrnl    EQ "CASHRVD"
-                               AND gltrans.tr-dscr EQ cGltransDesc
+                        FIND FIRST glhist NO-LOCK
+                             WHERE glhist.company EQ cust.company
+                               AND glhist.jrnl    EQ "CASHRVD"
+                               AND glhist.tr-dscr EQ cGltransDesc
+                               AND glhist.posted  EQ NO
                              NO-ERROR.
-                        dtInvoiceDate = IF AVAILABLE gltrans THEN gltrans.tr-date
+                        dtInvoiceDate = IF AVAILABLE glhist THEN glhist.tr-date
                                         ELSE ar-cash.check-date.
                     END. /* ELSE DO */
                 END. /*  IF v-type EQ "VD" */
@@ -803,12 +818,13 @@ PROCEDURE pBusinessLogic:
                         cGltransDesc = "VOID " + cust.cust-no + " "
                                      + STRING(ar-cash.check-no,"999999999999")
                                      + " Inv# " + STRING(ar-cashl.inv-no).
-                        FIND FIRST gltrans NO-LOCK
-                             WHERE gltrans.company EQ cust.company
-                               AND gltrans.jrnl EQ "CASHRVD"
-                               AND gltrans.tr-dscr EQ cGltransDesc
+                        FIND FIRST glhist NO-LOCK
+                             WHERE glhist.company EQ cust.company
+                               AND glhist.jrnl EQ "CASHRVD"
+                               AND glhist.tr-dscr EQ cGltransDesc
+                               AND glhist.posted  EQ NO
                              NO-ERROR.                         
-                        dtInvoiceDate = IF AVAILABLE gltrans THEN gltrans.tr-date
+                        dtInvoiceDate = IF AVAILABLE glhist THEN glhist.tr-date
                                         ELSE ar-cash.check-date.
                     END. /* ELSE DO  */
                 END. /* IF v-type EQ "VD" */

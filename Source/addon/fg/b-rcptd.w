@@ -63,8 +63,9 @@ DEF BUFFER reftable-job FOR reftable.
 DEF VAR lv-frst-rno AS INT NO-UNDO.
 DEF VAR lv-linker LIKE fg-rcpts.linker NO-UNDO.
 DEF VAR ll-set-parts AS LOG NO-UNDO.
-DEFINE VARIABLE hInventoryProcs      AS HANDLE NO-UNDO.
-DEFINE VARIABLE lActiveBin AS LOGICAL NO-UNDO.
+DEFINE VARIABLE hInventoryProcs  AS HANDLE NO-UNDO.
+DEFINE VARIABLE lActiveBin       AS LOGICAL NO-UNDO.
+DEFINE VARIABLE iWarehouseLength AS INTEGER   NO-UNDO.
 
 RUN Inventory/InventoryProcs.p PERSISTENT SET hInventoryProcs.
 
@@ -956,15 +957,21 @@ END.
 ON LEAVE OF fg-rctd.loc IN BROWSE Browser-Table /* Whs */
 DO:
     IF LASTKEY = -1 THEN RETURN.
+       
+       RUN Inventory_GetWarehouseLength IN hInventoryProcs (
+        INPUT  cocode,
+        OUTPUT iWarehouseLength
+        ).
 
     IF SELF:MODIFIED THEN DO:
-       IF LENGTH(SELF:SCREEN-VALUE) > 5 THEN DO:
+       IF LENGTH(SELF:SCREEN-VALUE) > iWarehouseLength THEN DO:
           DEFINE VARIABLE v-locbin AS CHARACTER NO-UNDO.
           
           v-locbin = SELF:SCREEN-VALUE.
+               
           ASSIGN 
-              fg-rctd.loc:SCREEN-VALUE     IN BROWSE {&BROWSE-NAME} = IF cFGDefWhse NE "" THEN cFGDefWhse ELSE SUBSTRING(v-locbin,1,5)
-              fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} = IF cFGDefBin  NE "" THEN cFGDefBin  ELSE SUBSTRING(v-locbin,6,8)
+              fg-rctd.loc:SCREEN-VALUE     IN BROWSE {&BROWSE-NAME} = IF cFGDefWhse NE "" THEN cFGDefWhse ELSE SUBSTRING(v-locbin,1,iWarehouseLength)
+              fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} = IF cFGDefBin  NE "" THEN cFGDefBin  ELSE SUBSTRING(v-locbin,iWarehouseLength + 1)
               .
        END.
 
@@ -2027,21 +2034,24 @@ PROCEDURE gl-from-work :
      credits = credits + work-gl.credits.
 
     IF LAST-OF(work-gl.actnum) THEN DO:
-      CREATE gltrans.
-      ASSIGN
-       gltrans.company = cocode
-       gltrans.actnum  = work-gl.actnum
-       gltrans.jrnl    = "FGPOST"
-       gltrans.period  = period.pnum
-       gltrans.tr-amt  = debits - credits
-       gltrans.tr-date = v-post-date
-       gltrans.tr-dscr = IF work-gl.job-no NE "" THEN "FG Receipt from Job"
-                                                 ELSE "FG Receipt from PO"
-       gltrans.trnum   = ip-trnum
+    RUN GL_SpCreateGLHist(cocode,
+                       work-gl.actnum,
+                       "FGPOST",
+                       (IF work-gl.job-no NE "" THEN "FG Receipt from Job"
+                                                ELSE "FG Receipt from PO"),
+                       v-post-date,
+                       (debits - credits),
+                       ip-trnum,
+                       period.pnum,
+                       "A",
+                       v-post-date,
+                       string(IF AVAIL fg-rctd THEN fg-rctd.i-no ELSE ""),
+                       "FG").
+        
+     assign
        debits  = 0
        credits = 0.
-
-      RELEASE gltrans.
+       
     END.
   END.
 

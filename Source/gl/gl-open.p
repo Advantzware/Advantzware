@@ -52,13 +52,14 @@ IF AVAIL gl-ctrl THEN DO:
            or  (period.yr    eq v-curr-yr and period.pnum lt uperiod))
         no-lock,
 
-        each gltrans
-        where gltrans.company eq account.company
-          and gltrans.actnum  eq account.actnum
-          and gltrans.tr-date ge period.pst
-          and gltrans.tr-date le period.pend
+        each glhist
+        where glhist.company eq account.company
+          and glhist.actnum  eq account.actnum
+          and glhist.tr-date ge period.pst
+          and glhist.tr-date le period.pend
+          AND glhist.posted  EQ NO
         no-lock:
-      v-open-bal = v-open-bal + gltrans.tr-amt.
+      v-open-bal = v-open-bal + glhist.tr-amt.
     end.
   end.
 
@@ -75,14 +76,15 @@ IF AVAIL gl-ctrl THEN DO:
           and period.pnum    lt uperiod
         no-lock,
 
-        each gltrans
-        where gltrans.company eq account.company
-          and gltrans.actnum  eq account.actnum
-          and gltrans.tr-date ge period.pst
-          and gltrans.tr-date le period.pend
+        each glhist
+        where glhist.company eq account.company
+          and glhist.actnum  eq account.actnum
+          and glhist.tr-date ge period.pst
+          and glhist.tr-date le period.pend
+          AND glhist.posted  EQ NO
         no-lock:
         
-      v-open-bal = v-open-bal + gltrans.tr-amt.
+      v-open-bal = v-open-bal + glhist.tr-amt.
     end.
   end.
 
@@ -98,17 +100,18 @@ IF AVAIL gl-ctrl THEN DO:
          or  (period.yr    eq v-curr-yr and period.pnum lt uperiod))
       no-lock,
 
-      each gltrans
-      where gltrans.company eq b-acc.company
-        and gltrans.actnum  eq b-acc.actnum
-        and gltrans.tr-date ge period.pst
-        and gltrans.tr-date le period.pend
+      each glhist
+      where glhist.company eq b-acc.company
+        and glhist.actnum  eq b-acc.actnum
+        and glhist.tr-date ge period.pst
+        and glhist.tr-date le period.pend
+        AND glhist.posted  EQ NO
       no-lock:
 
     if account.actnum eq gl-ctrl.ret then
-      v-open-bal = v-open-bal + gltrans.tr-amt.
+      v-open-bal = v-open-bal + glhist.tr-amt.
     else
     if period.yr eq v-curr-yr then
-      v-open-bal = v-open-bal - gltrans.tr-amt.
+      v-open-bal = v-open-bal - glhist.tr-amt.
   end.
 end.

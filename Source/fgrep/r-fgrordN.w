@@ -83,13 +83,15 @@ ASSIGN cTextListToSelect = "ITEM #,CUST PART #,DESC,PROD CAT,UOM,REORD LVL,QTY O
                            "QTY ALLOC,QTY ORD,MIN ORD QTY,MAX ORD QTY,QTY AVAIL,SELL PRC,SUGT REORDER QTY," +
                            "VENDOR ITEM#,HISTORY,WHS DAYS,LAST SHIP,PO DUE DATE,JOB DUE DATE,CUSTOMER#,SALES REP,COST,COST UOM," +
                            "MO AVG,SUGT - AVG,SUGT REORDER MSF,STATUS,ESTIMATE ROUTING,OPTIMAL ORDER QTY,CSR NAME," +
-                           "EST STYLE,EST BOARD,EST LENGTH,EST WIDTH,EST DEPTH,EST PLATE#,ITEM COUNT"
+                           "EST STYLE,EST BOARD,EST LENGTH,EST WIDTH,EST DEPTH,EST PLATE#,ITEM COUNT," +
+                           "ITEM LOCATION,GROUP"
        cFieldListToSelect = "itemfg.i-no,itemfg.part-no,itemfg.i-name,itemfg.procat,itemfg.sell-uom,itemfg.ord-level,v-qty-onh,whse," +
                             "v-alloc-qty,itemfg.q-ono,itemfg.ord-min,itemfg.ord-max,v-qty-avail,itemfg.sell-price,v-reord-qty," +
                             "itemfg.vend-item,li-hist,whs-day,last-ship,po-due-dt,job-due-dt,itemfg.cust-no,v-rep,itemfg.total-std-cost,itemfg.prod-uom," +
                             "mo-avg,sug-avg,msf-reord,itemfg.stat,est-rout,opt-qty,csr-name," +
-                            "est-style,est-board,est-length,est-wid,est-depth,est-plate,item-count"
-       cFieldLength = "15,15,20,8,3,12,13,5,11,9,12,12,9,9,16,17,47,8,10,11,12,9,20,11,8," + "8,10,16,6,30,17,30," + "9,10,10,10,10,15,10"  .
+                            "est-style,est-board,est-length,est-wid,est-depth,est-plate,item-count," +
+                            "item-location,group"
+       cFieldLength = "15,15,20,8,3,12,13,5,11,9,12,12,9,9,16,17,47,8,10,11,12,9,20,11,8," + "8,10,16,6,200,17,30," + "9,10,10,10,10,15,10," + "15,15"  .
 
 {sys/inc/ttRptSel.i}
 ASSIGN cTextListToDefault  = "ITEM #,CUST PART #,DESC,PROD CAT,UOM,REORD LVL,QTY ON HAND," + 
@@ -1044,7 +1046,7 @@ DO:
 
   SESSION:SET-WAIT-STATE("general").
   
-  cFieldLength = "15,15,20,8,3,12,13,5,11,9,12,12,9,9,16,17," + STRING(8 * display_hist)  + ",8,10,11,12,9,20,11,8," + "8,10,16,6,30,17,30," +  "9,10,10,10,10,15,10" .
+  cFieldLength = "15,15,20,8,3,12,13,5,11,9,12,12,9,9,16,17," + STRING(8 * display_hist)  + ",8,10,11,12,9,20,11,8," + "8,10,16,6,200,17,30," +  "9,10,10,10,10,15,10," + "15,15" .
   
   RUN GetSelectionList.
   FIND FIRST  ttCustList NO-LOCK NO-ERROR.
@@ -2198,6 +2200,8 @@ DEF BUFFER bitemfg FOR itemfg.
 DEF VAR lSelected AS LOG INIT YES NO-UNDO.
 DEFINE VARIABLE cMachine AS CHARACTER NO-UNDO . 
 DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+DEFINE VARIABLE cItemLocation  AS CHARACTER NO-UNDO .
+DEFINE VARIABLE cGroup         AS CHARACTER NO-UNDO .
 
 RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
@@ -2395,6 +2399,8 @@ DEF BUFFER bitemfg FOR itemfg.
 DEF VAR lSelected AS LOG INIT YES NO-UNDO.
 DEFINE VARIABLE cMachine AS CHARACTER NO-UNDO .
 DEFINE VARIABLE cFileName2 LIKE fi_file NO-UNDO .
+DEFINE VARIABLE cItemLocation   AS CHARACTER NO-UNDO .
+DEFINE VARIABLE cGroup          AS CHARACTER NO-UNDO .
 
 RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName2) .
 

@@ -142,6 +142,49 @@ PROCEDURE pGetAccountAR PRIVATE:
 
 END PROCEDURE.
 
+PROCEDURE GL_SpCreateGLHist :
+    /*------------------------------------------------------------------------------
+     Purpose: get AR Class GL Account
+     Notes:
+     Syntax:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany     AS CHARACTER   NO-UNDO.    
+    DEFINE INPUT  PARAMETER ipcActnum      AS CHARACTER   NO-UNDO.    
+    DEFINE INPUT  PARAMETER ipcJrnl        AS CHARACTER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTrDscr      AS CHARACTER   NO-UNDO.    
+    DEFINE INPUT  PARAMETER ipdtTrDate     AS DATE        NO-UNDO.    
+    DEFINE INPUT  PARAMETER ipdTrAmount    AS DECIMAL     NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiTrNumber    AS INTEGER     NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiPeriod      AS INTEGER     NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcEntryType   AS CHARACTER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdtSourceDate AS DATE        NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcDocumentID  AS CHARACTER   NO-UNDO. 
+    DEFINE INPUT  PARAMETER ipcModule      AS CHARACTER   NO-UNDO.
+    
+    
+    DEFINE BUFFER bf-glhist FOR glhist.
+    
+    CREATE bf-glhist.
+      ASSIGN
+       bf-glhist.company    = ipcCompany
+       bf-glhist.actnum     = ipcActnum
+       bf-glhist.jrnl       = ipcJrnl
+       bf-glhist.tr-dscr    = ipcTrDscr
+       bf-glhist.tr-date    = ipdtTrDate
+       bf-glhist.tr-amt     = ipdTrAmount
+       bf-glhist.tr-num     = ipiTrNumber
+       bf-glhist.period     = ipiPeriod  
+       bf-glhist.glYear     = YEAR(ipdtTrDate)         
+       bf-glhist.entryType  = ipcEntryType
+       bf-glhist.sourceDate = ipdtSourceDate
+       bf-glhist.documentID = ipcDocumentID
+       bf-glhist.module     = ipcModule        
+       bf-glhist.posted     = NO.
+                          
+    RELEASE bf-glhist.
+
+END PROCEDURE.
+
 
 /* ************************  Function Implementations ***************** */
 

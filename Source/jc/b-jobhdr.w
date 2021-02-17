@@ -810,9 +810,9 @@ PROCEDURE local-assign-record :
      RUN rebuild-stds.
      lv-qty-changed = FALSE.
   END.
-  IF adm-new-record THEN DO:
-    RUN jc/addJobFarm.p (INPUT job.job).
-  END.
+/*  IF adm-new-record THEN DO:            */
+/*    RUN jc/addJobFarm.p (INPUT job.job).*/
+/*  END.                                  */
 
 END PROCEDURE.
 
@@ -857,6 +857,17 @@ PROCEDURE local-delete-record :
       EXCLUSIVE:
     DELETE job-farm-rctd.
   END.
+  
+  IF AVAIL job-hdr AND job-hdr.ord-no EQ 0 THEN
+  DO:
+      RUN util/upditmfg.p (
+                   INPUT ROWID(job-hdr),
+                   INPUT -1
+                   ).   
+  END.
+  
+  RUN jc/jc-dall.p(RECID(job)). /* update item Committed qty */
+  
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'delete-record':U ) .
 

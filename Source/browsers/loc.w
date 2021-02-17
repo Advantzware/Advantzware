@@ -37,7 +37,6 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 &SCOPED-DEFINE winReSize
-&SCOPED-DEFINE browseOnly
 {methods/defines/winReSize.i}
 
 {custom/gcompany.i}

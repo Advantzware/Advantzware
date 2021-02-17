@@ -63,6 +63,8 @@ DEFINE VARIABLE iActualQty AS INTEGER NO-UNDO .
 DEFINE VARIABLE iBolQty AS INTEGER NO-UNDO.
 DEFINE VARIABLE lr-rel-lib AS HANDLE NO-UNDO.
 DEFINE VARIABLE v-col-move AS LOG INIT YES NO-UNDO.
+DEFINE VARIABLE lc-rs AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lc-mi AS CHARACTER NO-UNDO.
 DO TRANSACTION:
      {sys/ref/CustList.i NEW}
     {sys/inc/custlistform.i ""OT1"" }
@@ -109,6 +111,8 @@ END.
 &SCOPED-DEFINE sortby-log ~
     IF lv-sort-by EQ "ord-no"    THEN STRING(oe-rell.ord-no,"9999999999") ELSE ~
     IF lv-sort-by EQ "release#"  THEN STRING(oe-relh.release#,"9999999999") ELSE ~
+    IF lv-sort-by EQ 'lc-rs'     THEN getRS() ELSE ~
+    IF lv-sort-by EQ 'lc-mi'     THEN getMI() ELSE ~
     IF lv-sort-by EQ "cust-no"   THEN oe-relh.cust-no ELSE ~
     IF lv-sort-by EQ "cPartno"   THEN get-part-no()                                                                                                      ELSE ~
     IF lv-sort-by EQ "ship-id"   THEN oe-relh.ship-id                                                                                                   ELSE ~
@@ -157,7 +161,7 @@ END.
 
 /* Definitions for BROWSE Browser-Table                                 */
 &Scoped-define FIELDS-IN-QUERY-Browser-Table oe-relh.release# ~
-oe-rell.ord-no oe-rell.po-no oe-relh.cust-no get-part-no() @ cPartno ~
+oe-rell.ord-no getRS() @ lc-rs getMI() @ lc-mi oe-rell.po-no oe-relh.cust-no get-part-no() @ cPartno ~
 oe-relh.ship-id oe-rell.i-no oe-relh.rel-date oe-rell.job-no ~
 oe-rell.job-no2 oe-relh.printed oe-rell.qty get-act-rel-qty() @ iActualQty ~
 get-act-bol-qty() @ iBolQty itemfg.q-onh get-shipto-zone() @ v-shipto-zone 
@@ -239,6 +243,21 @@ FUNCTION get-shipto-zone RETURNS CHARACTER
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD getMI B-table-Win 
+FUNCTION getMI RETURNS CHARACTER
+  ( /* parameter-definitions */ )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD getRS B-table-Win 
+FUNCTION getRS RETURNS CHARACTER
+  ( /* parameter-definitions */ )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 /* ***********************  Control Definitions  ********************** */
 
@@ -333,6 +352,8 @@ DEFINE BROWSE Browser-Table
   QUERY Browser-Table NO-LOCK DISPLAY
       oe-relh.release# FORMAT ">>>>>>>>>>":U WIDTH 15 LABEL-BGCOLOR 14
       oe-rell.ord-no FORMAT ">>>>>9":U WIDTH 9 LABEL-BGCOLOR 14
+      getRS() @ lc-rs COLUMN-LABEL "R&S" FORMAT "X":U WIDTH 4 LABEL-BGCOLOR 14
+      getMI() @ lc-mi COLUMN-LABEL "MI" FORMAT "X":U WIDTH 4 LABEL-BGCOLOR 14
       oe-rell.po-no FORMAT "x(15)":U WIDTH 22 LABEL-BGCOLOR 14
       oe-relh.cust-no FORMAT "x(8)":U WIDTH 12 LABEL-BGCOLOR 14
       get-part-no() @ cPartno COLUMN-LABEL "Cust Part #" FORMAT "x(15)":U
@@ -511,32 +532,36 @@ use-index r-no"
      _FldNameList[2]   > ASI.oe-rell.ord-no
 "oe-rell.ord-no" ? ? "integer" ? ? ? 14 ? ? yes ? no no "9" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.oe-rell.po-no
-"oe-rell.po-no" ? ? "character" ? ? ? 14 ? ? yes ? no no "22" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[4]   > ASI.oe-relh.cust-no
-"oe-relh.cust-no" ? ? "character" ? ? ? 14 ? ? yes ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"getRS() @ lc-rs" "R&S" "X" ? ? ?  14 ? ? no ? no no "4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[4]   > "_<CALC>"
+"getMI() @ lc-mi" "MI" "X" ? ? ? 14 ? ? no ? no no "4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > "_<CALC>"
+"oe-rell.po-no" ? ? "character" ? ? ? 14 ? ? yes ? no no "22" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[6]   > ASI.oe-relh.cust-no
+"oe-relh.cust-no" ? ? "character" ? ? ? 14 ? ? yes ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[7]   > "_<CALC>"
 "get-part-no() @ cPartno" "Cust Part #" "x(15)" "character" ? ? ? 14 ? ? no ? no no "22" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[6]   > ASI.oe-relh.ship-id
+     _FldNameList[8]   > ASI.oe-relh.ship-id
 "oe-relh.ship-id" "Ship To" ? "character" ? ? ? 14 ? ? yes ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[7]   > ASI.oe-rell.i-no
+     _FldNameList[9]   > ASI.oe-rell.i-no
 "oe-rell.i-no" "FG Item Number" ? "character" ? ? ? 14 ? ? yes ? no no "22" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[8]   > ASI.oe-relh.rel-date
+     _FldNameList[10]   > ASI.oe-relh.rel-date
 "oe-relh.rel-date" "Release Date" ? "date" ? ? ? 14 ? ? yes ? no no "15" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[9]   > ASI.oe-rell.job-no
+     _FldNameList[11]   > ASI.oe-rell.job-no
 "oe-rell.job-no" "Job #" ? "character" ? ? ? 14 ? ? yes ? no no "9" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[10]   > ASI.oe-rell.job-no2
+     _FldNameList[12]   > ASI.oe-rell.job-no2
 "oe-rell.job-no2" "" ? "integer" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[11]   > ASI.oe-relh.printed
+     _FldNameList[13]   > ASI.oe-relh.printed
 "oe-relh.printed" ? ? "logical" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[12]   > ASI.oe-rell.qty
+     _FldNameList[14]   > ASI.oe-rell.qty
 "oe-rell.qty" "Scheduled Qty" ? "integer" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[13]   > "_<CALC>"
+     _FldNameList[15]   > "_<CALC>"
 "get-act-rel-qty() @ iActualQty" "Actual Rel.Qty" "->>,>>>,>>>" ? ? ? ? ? ? ? no ? no no "22.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[14]   > "_<CALC>"
-"get-act-bol-qty() @ iBolQty" "Actual Shipped Qty" "->>,>>>,>>>" ? ? ? ? ? ? ? no ? no no "22.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[15]   > ASI.itemfg.q-onh
-"itemfg.q-onh" "Qty On Hand" "->,>>>,>>>" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[16]   > "_<CALC>"
+"get-act-bol-qty() @ iBolQty" "Actual Shipped Qty" "->>,>>>,>>>" ? ? ? ? ? ? ? no ? no no "22.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[17]   > ASI.itemfg.q-onh
+"itemfg.q-onh" "Qty On Hand" "->,>>>,>>>" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[18]   > "_<CALC>"
 "get-shipto-zone() @ v-shipto-zone" "Ship To Zone" "x(8)" ? ? ? ? ? ? ? no ? no no "10" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is OPENED
 */  /* BROWSE Browser-Table */
@@ -1853,6 +1878,58 @@ FUNCTION get-shipto-zone RETURNS CHARACTER
   END.
 
   RETURN "".
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION getMI B-table-Win 
+FUNCTION getMI RETURNS CHARACTER
+  ( /* parameter-definitions */ ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lc-result AS CHARACTER NO-UNDO.
+
+    lc-result = "".
+     FIND FIRST oe-ordl NO-LOCK
+             WHERE oe-ordl.company EQ oe-rell.company
+               AND oe-ordl.ord-no EQ oe-rell.ord-no 
+               AND oe-ordl.i-no EQ oe-rell.i-no 
+               AND oe-ordl.line EQ oe-rell.line NO-ERROR .
+        IF AVAILABLE oe-ordl THEN
+        IF oe-ordl.managed = true THEN
+            lc-result = "X".
+        RETURN lc-result.   /* Function return value. */
+
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION getRS B-table-Win 
+FUNCTION getRS RETURNS CHARACTER
+  ( /* parameter-definitions */ ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lc-result AS CHARACTER NO-UNDO.
+    lc-result = "".
+     FIND FIRST oe-ordl NO-LOCK
+             WHERE oe-ordl.company EQ oe-rell.company
+               AND oe-ordl.ord-no EQ oe-rell.ord-no 
+               AND oe-ordl.i-no EQ oe-rell.i-no 
+               AND oe-ordl.line EQ oe-rell.line NO-ERROR .
+        IF AVAILABLE oe-ordl THEN
+    IF oe-ordl.whsed THEN lc-result = "X".
+
+    RETURN lc-result.   /* Function return value. */
 
 END FUNCTION.
 

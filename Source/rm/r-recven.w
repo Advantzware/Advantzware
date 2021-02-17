@@ -34,6 +34,7 @@ CREATE WIDGET-POOL.
 {custom/gloc.i}
 {custom/getcmpny.i}
 {custom/getloc.i}
+{Inventory/ttInventory.i "NEW SHARED"}
 
 /*{sys/inc/var.i new shared} */
 def new shared var cocode as cha no-undo.
@@ -50,6 +51,10 @@ find first loc  where
 
 DEF VAR v-loadtag AS CHAR NO-UNDO INIT "ASI". /* sys ctrl option */
 DEF VAR v-bin AS CHAR NO-UNDO. /* sys ctrl cption */
+DEFINE VARIABLE hdInventoryProcs AS HANDLE    NO-UNDO.
+DEFINE VARIABLE iWarehouseLength AS INTEGER   NO-UNDO.
+
+RUN Inventory/InventoryProcs.p PERSISTENT SET hdInventoryProcs.
 
 DEF BUFFER b-company FOR company.
 
@@ -804,11 +809,15 @@ PROCEDURE process-tag-proc :
 
    IF NOT checkWhsBin(cocode,w-po.loc,w-po.loc-bin) THEN
    DO:
-
+     RUN Inventory_GetWarehouseLength IN hdInventoryProcs (
+          INPUT  cocode,
+          OUTPUT iWarehouseLength
+          ).
+   
      IF v-bin NE 'RMITEM' THEN
         ASSIGN
-           w-po.loc = SUBSTR(v-bin,1,5)
-           w-po.loc-bin = SUBSTR(v-bin,6).
+           w-po.loc = SUBSTR(v-bin,1,iWarehouseLength)
+           w-po.loc-bin = SUBSTR(v-bin,iWarehouseLength + 1).
 
      IF NOT checkWhsBin(cocode,w-po.loc,w-po.loc-bin) THEN
      DO:

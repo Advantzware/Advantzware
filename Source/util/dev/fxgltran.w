@@ -341,36 +341,37 @@ assign
  v-fisc-yr = period.yr - int(not company.yend-per)
  v-date    = period.pst.
 
-for each gltrans
-    where gltrans.company  eq cocode
-      and gltrans.tr-date  lt v-date,
+for each glhist
+    where glhist.company  eq cocode
+      and glhist.tr-date  lt v-date
+      AND glhist.posted   EQ NO,
 
     first period
     where period.company eq cocode
-      and period.pst     le gltrans.tr-date
-      and period.pend    ge gltrans.tr-date
+      and period.pst     le glhist.tr-date
+      and period.pend    ge glhist.tr-date
     no-lock,
 
     first account
     where account.company eq cocode
-      and account.actnum  eq gltrans.actnum
+      and account.actnum  eq glhist.actnum
 
     transaction:
 
   if period.yr eq v-fisc-yr then
-    account.cyr[period.pnum] = account.cyr[period.pnum] + gltrans.tr-amt.
+    account.cyr[period.pnum] = account.cyr[period.pnum] + glhist.tr-amt.
 
   else
   if period.yr eq v-fisc-yr - 1 then do:
-    account.lyr[period.pnum] = account.lyr[period.pnum] + gltrans.tr-amt.
+    account.lyr[period.pnum] = account.lyr[period.pnum] + glhist.tr-amt.
 
     if index("ALCT",account.type) ne 0 then
-      account.cyr-open = account.cyr-open + gltrans.tr-amt.
+      account.cyr-open = account.cyr-open + glhist.tr-amt.
   end.
 
   else
   if period.yr eq v-fisc-yr - 2 and index("ALCT",account.type) ne 0 then
-    account.lyr-open = account.lyr-open + gltrans.tr-amt.
+    account.lyr-open = account.lyr-open + glhist.tr-amt.
 
   if index("RE",account.type) gt 0 then do:
     find first b-racct
@@ -378,44 +379,34 @@ for each gltrans
           and b-racct.actnum  eq gl-ctrl.ret.
 
     if period.yr eq v-fisc-yr then
-      b-racct.cyr[period.pnum] = b-racct.cyr[period.pnum] + gltrans.tr-amt.
+      b-racct.cyr[period.pnum] = b-racct.cyr[period.pnum] + glhist.tr-amt.
 
     else
     if period.yr eq v-fisc-yr - 1 then
       assign
-       b-racct.lyr[period.pnum] = b-racct.lyr[period.pnum] + gltrans.tr-amt
-       b-racct.cyr-open         = b-racct.cyr-open         + gltrans.tr-amt.
+       b-racct.lyr[period.pnum] = b-racct.lyr[period.pnum] + glhist.tr-amt
+       b-racct.cyr-open         = b-racct.cyr-open         + glhist.tr-amt.
 
     else
     if period.yr eq v-fisc-yr - 2 then
-      b-racct.lyr-open = b-racct.lyr-open + gltrans.tr-amt.
+      b-racct.lyr-open = b-racct.lyr-open + glhist.tr-amt.
 
     find first b-cacct
         where b-cacct.company eq cocode
           and b-cacct.actnum  eq gl-ctrl.contra.
 
     if period.yr eq v-fisc-yr then
-      b-cacct.cyr[period.pnum] = b-cacct.cyr[period.pnum] - gltrans.tr-amt.
+      b-cacct.cyr[period.pnum] = b-cacct.cyr[period.pnum] - glhist.tr-amt.
 
     else
     if period.yr eq v-fisc-yr - 1 then
-      b-cacct.lyr[period.pnum] = b-cacct.lyr[period.pnum] - gltrans.tr-amt.
+      b-cacct.lyr[period.pnum] = b-cacct.lyr[period.pnum] - glhist.tr-amt.
   end.
-
-  create glhist.
   assign
-   glhist.company = gltrans.company
-   glhist.actnum  = gltrans.actnum
-   glhist.jrnl    = gltrans.jrnl
-   glhist.period  = period.pnum
-   glhist.tr-dscr = gltrans.tr-dscr
-   glhist.tr-date = gltrans.tr-date
-   glhist.tr-num  = gltrans.trnum
-   glhist.tr-amt  = gltrans.tr-amt.
-
-  delete gltrans.
+  glhist.posted   = YES
+  glhist.postedBy = USERID(LDBNAME(1)).   
 end.
-
+RELEASE glhist.
 SESSION:SET-WAIT-STATE("").
 
 MESSAGE TRIM(c-win:TITLE) + " Process Is Completed." VIEW-AS ALERT-BOX.

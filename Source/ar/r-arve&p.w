@@ -51,7 +51,7 @@ def new shared var v-trnum as INT NO-UNDO.
 
 DEF NEW SHARED TEMP-TABLE wkdistrib NO-UNDO
   FIELD ACTNUM  LIKE account.actnum COLUMN-LABEL "Account"
-  FIELD tr-dscr LIKE gltrans.tr-dscr
+  FIELD tr-dscr LIKE glhist.tr-dscr
   FIELD AMOUNT  AS DECIMAL FORMAT "->>>,>>>,>>>.99"
   FIELD debit   AS LOG 
   FIELD recs    AS INTEGER COLUMN-LABEL "Records" FORMAT ">>,>>>"
@@ -1080,28 +1080,19 @@ PROCEDURE post-gl :
     if not v-post-ok then leave post-2.
 
     for each wkdistrib:
-      /*create gltrans.
-      assign
-       gltrans.company = cocode
-       gltrans.actnum  = IF wkdistrib.use-cur-act THEN xar-cur-acct ELSE xar-acct
-       gltrans.jrnl    = "ARINV"
-       gltrans.tr-dscr = "ACCOUNTS RECEIVABLE INVOICE"
-       gltrans.tr-date = tran-date
-       gltrans.tr-amt  = (-1 * wkdistrib.amount)
-       gltrans.period  = tran-period
-       gltrans.trnum   = v-trnum.*/
+     RUN GL_SpCreateGLHist(cocode,
+                        wkdistrib.actnum,
+                        "ARINV",
+                        wkdistrib.tr-dscr,
+                        tran-date,
+                        wkdistrib.amount,
+                        v-trnum,
+                        tran-period,
+                        "A",
+                        tran-date,
+                        "",
+                        "AR").
 
-      create gltrans.
-      assign
-       gltrans.company = cocode
-       gltrans.actnum  = wkdistrib.actnum
-       gltrans.jrnl    = "ARINV"
-       gltrans.tr-dscr = wkdistrib.tr-dscr
-       gltrans.tr-date = tran-date
-       gltrans.tr-amt  = wkdistrib.amount
-       gltrans.period  = tran-period
-       gltrans.trnum   = v-trnum.
-      RELEASE gltrans.
     end.    /* each wkdistrib */
 
   end. /* post-2 */

@@ -194,6 +194,9 @@ END.
   RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF
 
+PROCEDURE No-Resize :
+END.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

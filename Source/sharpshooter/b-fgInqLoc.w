@@ -39,7 +39,9 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-DEFINE VARIABLE lHasAccess AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lHasAccess        AS LOGICAL NO-UNDO.
+DEFINE VARIABLE iWarehouseLength  AS INTEGER   NO-UNDO.
+DEFINE VARIABLE cCompany          AS CHARACTER NO-UNDO.
 
 {Inventory/ttInventory.i "NEW SHARED"}
 {methods/defines/sortByDefs.i}
@@ -438,6 +440,45 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable W-Win
+PROCEDURE local-enable:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+    /* Code placed here will execute PRIOR to standard behavior. */
+
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable':U ) .
+
+    /* Code placed here will execute AFTER standard behavior.    */
+    RUN pInit.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pInit W-Win
+PROCEDURE pInit PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RUN inventory/InventoryProcs.p PERSISTENT SET hdInventoryProcs.
+
+    RUN spGetSessionParam ("Company", OUTPUT cCompany).
+
+    RUN Inventory_GetWarehouseLength IN hdInventoryProcs (
+        INPUT  cCompany,
+        OUTPUT iWarehouseLength
+        ).
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI B-table-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
 /*------------------------------------------------------------------------------
@@ -592,7 +633,7 @@ FUNCTION fGetConcatLocation RETURNS CHARACTER PRIVATE
        
     IF AVAILABLE ttBrowseInventory THEN
         cConcatLocation = ttBrowseInventory.warehouseID 
-                        + FILL(" ", 5 - LENGTH(ttBrowseInventory.warehouseID)) 
+                        + FILL(" ", iWarehouseLength - LENGTH(ttBrowseInventory.warehouseID)) 
                         + ttBrowseInventory.locationID.
 
     RETURN cConcatLocation.

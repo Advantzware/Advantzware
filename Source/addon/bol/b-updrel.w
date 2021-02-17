@@ -868,44 +868,7 @@ DO:
      IF NOT ll THEN RETURN NO-APPLY.
      tt-relbol.warned = YES.
    END.
-   IF NOT tt-relbol.warned THEN DO:
-     lv-qty-rel = 0.
-     FOR EACH oe-rell FIELDS(qty)
-         WHERE oe-rell.company   EQ cocode
-           AND oe-rell.r-no      EQ oe-relh.r-no
-           AND oe-rell.ord-no   EQ v-ord-no
-           AND oe-rell.i-no      EQ loadtag.i-no
-         USE-INDEX r-no NO-LOCK:
-       lv-qty-rel = lv-qty-rel + oe-rell.qty.
-     END.
-     lv-qty-tag = loadtag.pallet-count.
-     FOR EACH bf-tmp
-         WHERE bf-tmp.release# EQ INT(tt-relbol.release#:SCREEN-VALUE IN BROWSE {&browse-name})
-           AND (bf-tmp.ord-no   EQ v-ord-no)
-           AND bf-tmp.i-no     EQ loadtag.i-no
-           AND bf-tmp.warned   EQ NO
-           AND ROWID(bf-tmp)   NE ROWID(tt-relbol):
-       lv-qty-tag = lv-qty-tag + bf-tmp.qty.
-     END.
-   END.
-   ll = NO.
-   IF lv-qty-tag GT lv-qty-rel THEN DO:
-     MESSAGE "Qty scanned exceeds qty released for Order# " + TRIM(STRING(v-ord-no),">>>>>>>>")
-              + " FG# "  + TRIM(loadtag.i-no) +
-             ", accept this tag anyway?"
-         VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE ll.
-     IF NOT ll THEN DO:
-       APPLY "entry" TO tt-relbol.tag# .
-       RETURN NO-APPLY.
-     END.
-     FOR FIRST bf-tmp 
-         WHERE bf-tmp.release# EQ INT(tt-relbol.release#:SCREEN-VALUE IN BROWSE {&browse-name})
-           AND bf-tmp.i-no     EQ loadtag.i-no
-           AND ROWID(bf-tmp)   NE ROWID(tt-relbol):
-       bf-tmp.warned = YES.
-     END.
-   END.
-
+   
    RELEASE oe-ord.
    IF v-ord-no NE 0 THEN
    FIND FIRST oe-ord NO-LOCK
@@ -2728,11 +2691,11 @@ FOR EACH report WHERE report.term-id EQ v-term,
     IF ssbolprint-log EQ YES THEN
     DO:
        RUN custom/setUserPrint.p (oe-bolh.company,'oe-boll_.',
-                                  'begin_cust,end_cust,begin_bol#,end_bol#,begin_ord#,end_ord#,tb_reprint,tb_posted,rd_bolcert',
+                                  'begin_cust,end_cust,begin_bol#,end_bol#,begin_ord#,end_ord#,tb_reprint,tb_posted,rd_bolcert,begin_date,end_date',
                                   oe-bolh.cust-no + ',' + oe-bolh.cust-no + ',' +
                                   STRING(oe-boll.bol-no) + ',' + STRING(oe-boll.bol-no) +
                                   ',,99999999,' + STRING(oe-bolh.printed) + ',' +
-                                  STRING(oe-bolh.posted) + ',BOL').
+                                  STRING(oe-bolh.posted) + ',BOL' + ',' + string(oe-bolh.bol-date) + ',' + string(oe-bolh.bol-date)).
       
        RUN listobjs/oe-boll_.w.
     END.
@@ -2806,6 +2769,8 @@ PROCEDURE print-bol :
   DEFINE VARIABLE v-scan-qty-c AS INTEGER  INITIAL 0 NO-UNDO.
   DEFINE VARIABLE v-rel-qty-c AS INTEGER  INITIAL 0 NO-UNDO .
   DEFINE VARIABLE lMsgResponse AS LOGICAL NO-UNDO.
+  DEFINE VARIABLE iOverShipQty AS INTEGER  INITIAL 0 NO-UNDO.
+  DEFINE VARIABLE iUnderShipQty AS INTEGER  INITIAL 0 NO-UNDO .
 
   RUN validate-scan (OUTPUT v-create-backorder) NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN .
@@ -2820,7 +2785,10 @@ PROCEDURE print-bol :
           ASSIGN 
               v-scan-qty-c = 0
               v-rel-qty-c  = 0
-              li           = YES  .
+              li           = YES
+              iOverShipQty  = 0
+              iUnderShipQty = 0.
+              
         FOR EACH bf-tmp NO-LOCK
           WHERE bf-tmp.release# EQ tt-relbol.release#
             AND bf-tmp.i-no     EQ tt-relbol.i-no:
@@ -2834,17 +2802,24 @@ PROCEDURE print-bol :
             AND oe-rell.r-no    EQ oe-relh.r-no
             USE-INDEX r-no NO-LOCK BREAK BY oe-rell.i-no BY oe-rell.LINE:
 
+            FIND FIRST oe-ordl NO-LOCK
+                 WHERE oe-ordl.company EQ oe-relh.company
+                 AND oe-ordl.ord-no  EQ oe-rell.ord-no
+                 AND oe-ordl.LINE    EQ oe-rell.LINE
+                 NO-ERROR.
             v-rel-qty-c = v-rel-qty-c + oe-rell.qty.
+            iOverShipQty = iOverShipQty + (oe-rell.qty + (oe-rell.qty * ((IF AVAIL oe-ordl THEN oe-ordl.over-pct ELSE 0) / 100))).
+            iUnderShipQty = iUnderShipQty + (oe-rell.qty - (oe-rell.qty * ((IF AVAIL oe-ordl THEN oe-ordl.under-pct ELSE 0) / 100))).
         END.
 
-        IF v-rel-qty-c LT v-scan-qty-c AND (ssbolprint-char = "OverShipWarning" OR ssbolprint-char =  "OverUnderShipWarning") THEN
-            MESSAGE "Release Qty for item# " + STRING(tt-relbol.i-no) + " :  " + string(v-rel-qty-c) + "   " +
+        IF iOverShipQty LT v-scan-qty-c AND (ssbolprint-char = "OverShipWarning" OR ssbolprint-char =  "OverUnderShipWarning") THEN
+            MESSAGE "Release Qty for item# " + STRING(tt-relbol.i-no) + " :  " + string(iOverShipQty) + "   " +
               "Scanned Qty for item# " + STRING(tt-relbol.i-no) + " :  " + STRING(v-scan-qty-c) + "   " +
               "Continue with BOL Creation?" 
             VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE li.
 
-        ELSE IF v-rel-qty-c GT v-scan-qty-c AND (ssbolprint-char = "UnderShipWarning" OR ssbolprint-char =  "OverUnderShipWarning") THEN
-            MESSAGE "Release Qty for item# " + STRING(tt-relbol.i-no) + " :  " + string(v-rel-qty-c) + "   " +
+        ELSE IF iUnderShipQty GT v-scan-qty-c AND (ssbolprint-char = "UnderShipWarning" OR ssbolprint-char =  "OverUnderShipWarning") THEN
+            MESSAGE "Release Qty for item# " + STRING(tt-relbol.i-no) + " :  " + string(iUnderShipQty) + "   " +
               "Scanned Qty for item# " + STRING(tt-relbol.i-no) + " :  " + STRING(v-scan-qty-c) + "   " +
               "Continue with BOL Creation?" 
             VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE li.

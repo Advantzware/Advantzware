@@ -1222,7 +1222,7 @@ def var v-e-dat like v-s-dat init 12/31/9999.
 def var tot-all  as dec format "(>>>,>>>,>>>,>>9.99)".
 def var tot-tot  as dec format "(>>>,>>>,>>>,>>9.99)".
 def var v-print as log init no.
-def var tmp-dscr like gltrans.tr-dscr.
+def var tmp-dscr like glhist.tr-dscr.
 /*def var str-tit4 as char no-undo.
 def var str-tit5 as char no-undo.*/
 DEF VAR cDisplay AS cha NO-UNDO.
@@ -1428,121 +1428,6 @@ FOR EACH glhist WHERE
    END.
 END.
 
-FOR EACH gltrans WHERE
-         gltrans.company EQ cocode
-     AND gltrans.trnum   GE v-s-run
-     AND gltrans.trnum   LE v-e-run
-     AND gltrans.tr-date GE v-s-dat
-     AND gltrans.tr-date LE v-e-dat
-     NO-LOCK,
-   FIRST account WHERE
-         account.company EQ cocode 
-     AND account.actnum  EQ gltrans.actnum
-     NO-LOCK
-     BREAK BY gltrans.trnum
-           BY gltrans.actnum:
-
-     {custom/statusMsg.i " 'Processing Run #  '  + string(gltrans.trnum) "}
-
-   ASSIGN
-      v-print = YES
-      tot-all = tot-all + gltrans.tr-amt.
-
-  /* DISPLAY 
-      gltrans.trnum WHEN FIRST-OF(gltrans.trnum) FORMAT "9999999" SPACE(5) 
-      gltrans.actnum  FORMAT 'x(14)'  SPACE (2)
-      account.dscr    FORMAT 'x(28)'  SPACE (2) 
-      gltrans.jrnl                    SPACE (5)
-      gltrans.tr-dscr FORMAT 'x(35)'  SPACE (1)
-      /* tmp-dscr*/
-      gltrans.tr-date                 
-      gltrans.tr-amt  FORMAT "(>>,>>>,>>9.99)"
-      WITH FRAME aaa NO-LABELS STREAM-IO WIDTH 200 NO-BOX.*/
-
-   ASSIGN cDisplay = ""
-                   cTmpField = ""
-                   cVarValue = ""
-                   cExcelDisplay = ""
-                   cExcelVarValue = "".
-
-            DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
-               cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
-                    CASE cTmpField:             
-                         WHEN "run"    THEN cVarValue = IF  FIRST-OF(gltrans.trnum) THEN string(gltrans.trnum,"9999999") ELSE "" .
-                         WHEN "acc"   THEN cVarValue = string(gltrans.actnum,"x(25)").
-                         WHEN "acc-desc"  THEN cVarValue = STRING(account.dscr,"x(30)")  .
-                         WHEN "jour"   THEN cVarValue = string(gltrans.jrnl,"x(12)") .
-                         WHEN "ref"   THEN cVarValue = STRING(gltrans.tr-dscr,"x(30)").
-                         WHEN "date"   THEN cVarValue = STRING(gltrans.tr-date,"99/99/9999").
-                         WHEN "bal"   THEN cVarValue = STRING(gltrans.tr-amt,"->>>,>>>,>>9.99").
-                         WHEN "acc-stat"   THEN cVarValue = IF AVAIL account AND account.inactive  THEN STRING("Inactive") ELSE "Active".
-                         WHEN "period"   THEN cVarValue = STRING(gltrans.period,">>>>>9").
-                         WHEN "out-per"   THEN cVarValue = IF gltrans.period NE MONTH(gltrans.tr-date) THEN STRING("Yes") ELSE "".
-                         WHEN "trans"   THEN cVarValue = STRING(gltrans.trnum,"->>>>>>>>>>9").
-
-                    END CASE.
-
-                    cExcelVarValue = cVarValue.
-                    cDisplay = cDisplay + cVarValue +
-                               FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-                    cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
-            END.
-
-            PUT UNFORMATTED cDisplay SKIP.
-            IF tb_excel THEN DO:
-                 PUT STREAM s-temp UNFORMATTED  
-                       cExcelDisplay SKIP.
-             END.
-
-   IF FIRST-OF(gltrans.trnum) THEN
-      v-tr-num = STRING(gltrans.trnum).
-   ELSE
-      v-tr-num = "". 
-
-
-
-   IF LAST-OF(gltrans.trnum) THEN DO:
-     /* PUT "-------------"       TO 132 SKIP
-          "Total:"              AT 109
-          tot-all               TO 132
-          SKIP(1).*/
-       PUT str-line SKIP .
-       ASSIGN cDisplay = ""
-                   cTmpField = ""
-                   cVarValue = ""
-                   cExcelDisplay = ""
-                   cExcelVarValue = "".
-
-            DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
-               cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
-                    CASE cTmpField:             
-                         WHEN "run"    THEN cVarValue = "".
-                         WHEN "acc"   THEN cVarValue = "".
-                         WHEN "acc-desc"  THEN cVarValue = "" .
-                         WHEN "jour"   THEN cVarValue = "" .
-                         WHEN "ref"   THEN cVarValue = "".
-                         WHEN "date"   THEN cVarValue = "".
-                         WHEN "bal"   THEN cVarValue = STRING(tot-all,"->>>,>>>,>>9.99").
-                         WHEN "acc-stat"   THEN cVarValue = "" .
-                         WHEN "period"   THEN cVarValue = "".
-                         WHEN "out-per"   THEN cVarValue = "".
-                         WHEN "trans"   THEN cVarValue = "".
-
-                    END CASE.
-
-                    cExcelVarValue = cVarValue.
-                    cDisplay = cDisplay + cVarValue +
-                               FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-                    cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
-            END.
-
-            PUT UNFORMATTED "            Total:" SUBSTRING(cDisplay,19,300) SKIP(1).
-
-   ASSIGN
-      tot-tot = tot-tot + tot-all
-      tot-all = 0.
-   END.
-END.
 
 IF v-print THEN
    /*PUT "============"      TO 132 SKIP

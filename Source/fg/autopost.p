@@ -5,7 +5,18 @@ DEF INPUT  PARAM ip-job-no2 LIKE fg-bin.job-no2 NO-UNDO.
 DEF OUTPUT PARAM op-loc     LIKE fg-bin.loc     NO-UNDO.
 DEF OUTPUT PARAM op-loc-bin LIKE fg-bin.loc-bin NO-UNDO.
 
-DEF VAR ll-shipto AS LOG NO-UNDO.
+DEF VAR ll-shipto                AS LOG NO-UNDO.
+DEFINE VARIABLE iWarehouseLength AS INTEGER   NO-UNDO.
+DEFINE VARIABLE ipcCompany AS INTEGER   NO-UNDO.
+
+DEFINE VARIABLE hdInventoryProcs AS HANDLE NO-UNDO.
+RUN Inventory/InventoryProcs.p PERSISTENT SET hdInventoryProcs.
+
+
+    RUN Inventory_GetWarehouseLength IN hdInventoryProcs (
+        INPUT  ipcCompany,
+        OUTPUT iWarehouseLength
+        ).
 
 {sys/inc/var.i NEW SHARED}
 
@@ -88,8 +99,8 @@ IF AVAIL itemfg THEN DO:
       
   ELSE
     ASSIGN
-     op-loc     = SUBSTR(fgwhsbin-cha,1,5)
-     op-loc-bin = SUBSTR(fgwhsbin-cha,6,8).
+     op-loc     = SUBSTR(fgwhsbin-cha,1,iWarehouseLength)
+     op-loc-bin = SUBSTR(fgwhsbin-cha,iWarehouseLength + 1).
 
   IF fgwhsbin-cha NE "FGITEM" THEN DO:
     IF NOT AVAIL fg-bin THEN
