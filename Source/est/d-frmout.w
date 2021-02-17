@@ -104,10 +104,10 @@ def var lv-estqty-recid as recid no-undo.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS cust-no ship-to style-cod flue test f-tab ~
 len wid dep cst-part colr-dscr fg-no fg-cat quantity board glu-cod bndl-cod ~
-plat-cod bndng-cod Btn_OK Btn_Cancel RECT-1 item-dscr 
+plat-cod bndng-cod Btn_OK Btn_Cancel RECT-1 item-name 
 &Scoped-Define DISPLAYED-OBJECTS cust-no ship-to style-cod style-dscr flue ~
 test f-tab len wid dep cst-part colr-dscr fg-no fg-cat quantity board ~
-glu-cod bndl-cod plat-cod bndng-cod item-dscr 
+glu-cod bndl-cod plat-cod bndng-cod item-name 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -192,8 +192,8 @@ DEFINE VARIABLE glu-cod AS CHARACTER FORMAT "X(15)":U
      VIEW-AS FILL-IN 
      SIZE 17.4 BY 1 NO-UNDO.
 
-DEFINE VARIABLE item-dscr AS CHARACTER FORMAT "X(30)":U 
-     LABEL "Item Description" 
+DEFINE VARIABLE item-name AS CHARACTER FORMAT "X(30)":U 
+     LABEL "Item Name" 
      VIEW-AS FILL-IN 
      SIZE 39.4 BY 1 NO-UNDO.
 
@@ -257,7 +257,7 @@ DEFINE FRAME D-Dialog
      cst-part AT ROW 7.81 COL 19 COLON-ALIGNED WIDGET-ID 88
      colr-dscr AT ROW 9 COL 19 COLON-ALIGNED WIDGET-ID 162
      fg-no AT ROW 10.14 COL 19 COLON-ALIGNED WIDGET-ID 42
-     item-dscr AT ROW 11.29 COL 19 COLON-ALIGNED WIDGET-ID 200
+     item-name AT ROW 11.29 COL 19 COLON-ALIGNED WIDGET-ID 200
      fg-cat AT ROW 12.48 COL 19 COLON-ALIGNED WIDGET-ID 196
      quantity AT ROW 12.48 COL 44.4 COLON-ALIGNED WIDGET-ID 198
      board AT ROW 15.57 COL 18 COLON-ALIGNED WIDGET-ID 174
@@ -461,7 +461,7 @@ DO:
                         ASSIGN
                           self:screen-value  = entry(1,char-val)
                           fg-no:screen-value  = entry(4,char-val)
-                          item-dscr:SCREEN-VALUE = entry(2,char-val).
+                          item-name:SCREEN-VALUE = entry(5,char-val).
 
 END.
 
@@ -624,7 +624,7 @@ DO:
              IF AVAIL itemfg THEN
              ASSIGN
              cst-part:SCREEN-VALUE = itemfg.part-no
-             item-dscr:SCREEN-VALUE = itemfg.part-dscr1.
+             item-name:SCREEN-VALUE = itemfg.i-name.
                
 END.
 
@@ -741,30 +741,8 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&Scoped-define SELF-NAME item-dscr
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL item-dscr D-Dialog
-ON HELP OF item-dscr IN FRAME D-Dialog /* Item Description */
-DO:
-     def var char-val as cha no-undo.
-     def var look-recid as recid no-undo.
-
-           run windows/l-itemfa.w (gcompany, "", focus:screen-value, output char-val, output look-recid).
-           if char-val <> "" and self:screen-value <> entry(1,char-val) then 
-               ASSIGN
-               self:screen-value  = entry(1,char-val) .
-              FIND FIRST itemfg WHERE RECID(itemfg) = look-recid NO-LOCK NO-ERROR.
-             IF AVAIL itemfg THEN
-             cst-part:SCREEN-VALUE = itemfg.part-no .
-               
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL item-dscr D-Dialog
-ON LEAVE OF item-dscr IN FRAME D-Dialog /* Item Description */
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL item-name D-Dialog
+ON LEAVE OF item-name IN FRAME D-Dialog /* Item Description */
 DO:
    IF LASTKEY NE -1 THEN DO:
    assign {&self-name}.
@@ -1129,7 +1107,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
           wid:SCREEN-VALUE = "0"
           dep:SCREEN-VALUE = "0"
           quantity:SCREEN-VALUE = "0"
-          item-dscr:SCREEN-VALUE = "" .
+          item-name:SCREEN-VALUE = "" .
 
     APPLY "entry" TO cust-no IN FRAME {&FRAME-NAME}.
   END.
@@ -1200,7 +1178,7 @@ PROCEDURE create-ttfrmout :
          tt-frmout.part-no       = cst-part
          tt-frmout.stack-no  = fg-no
          tt-frmout.colr-dscr     = colr-dscr
-         tt-frmout.part-dscr1  = item-dscr
+         tt-frmout.item-name  = item-name
          tt-frmout.glu-cod     = glu-cod
          tt-frmout.bndl-cod     = bndl-cod
          tt-frmout.plat-cod     = plat-cod
@@ -1298,11 +1276,11 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY cust-no ship-to style-cod style-dscr flue test f-tab len wid dep 
           cst-part colr-dscr fg-no fg-cat quantity board glu-cod bndl-cod 
-          plat-cod bndng-cod item-dscr 
+          plat-cod bndng-cod item-name 
       WITH FRAME D-Dialog.
   ENABLE cust-no ship-to style-cod flue test f-tab len wid dep cst-part 
          colr-dscr fg-no fg-cat quantity board glu-cod bndl-cod plat-cod 
-         bndng-cod Btn_OK Btn_Cancel RECT-1 item-dscr 
+         bndng-cod Btn_OK Btn_Cancel RECT-1 item-name 
       WITH FRAME D-Dialog.
   VIEW FRAME D-Dialog.
   {&OPEN-BROWSERS-IN-QUERY-D-Dialog}

@@ -3591,7 +3591,8 @@ DEF VAR lv-comm LIKE eb.comm NO-UNDO.
          eb.len =   tt-frmout.len
          eb.wid =  tt-frmout.wid
          eb.dep = tt-frmout.dep
-         eb.procat =  tt-frmout.cat .
+         eb.procat =  tt-frmout.cat 
+         eb.part-dscr1 = tt-frmout.item-name.
      
      IF AVAIL est-qty THEN
          ASSIGN eb.eqty = tt-frmout.quantity
@@ -3649,9 +3650,7 @@ DEF VAR lv-comm LIKE eb.comm NO-UNDO.
          AND itemfg.stat = "A" AND itemfg.i-no = tt-frmout.stack-no NO-LOCK NO-ERROR .
 
      IF AVAIL itemfg THEN
-         ASSIGN
-        eb.part-dscr1 = itemfg.i-name
-        eb.part-dscr2 = tt-frmout.part-dscr1
+         ASSIGN        
         eb.stock-no   = CAPS(itemfg.i-no)
      /*  eb.style      = itemfg.style*/
         eb.procat     = itemfg.procat
