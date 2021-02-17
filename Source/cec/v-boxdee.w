@@ -205,10 +205,6 @@ DEFINE FRAME F-Main
     AT COL 1 ROW 1 SCROLLABLE 
     FGCOLOR 1 FONT 6.
 
-MESSAGE 
-box-design-hdr.lscore:FONT
-VIEW-AS ALERT-BOX.
-
 /* *********************** Procedure Settings ************************ */
 
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
@@ -1274,8 +1270,8 @@ PROCEDURE local-display-fields :
     ASSIGN
      li-lscore-len                   = IF li GE 20 THEN 105 ELSE 80
      li-font                         = IF li-lscore-len GT 80 THEN 4 ELSE 0
-     box-design-hdr.lscore:FONT      = li-font
-     box-design-hdr.lcum-score:FONT  = li-font
+     //box-design-hdr.lscore:FONT      = li-font
+     //box-design-hdr.lcum-score:FONT  = li-font
      box-design-hdr.lscore:WIDTH     = 116
      box-design-hdr.lcum-score:WIDTH = 116
      NO-ERROR.
