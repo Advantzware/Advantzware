@@ -127,22 +127,22 @@ DEFINE FRAME paramFrame
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 158 BY 28.57
+         SIZE 198 BY 28.57
          FGCOLOR 1  WIDGET-ID 100.
 
 DEFINE FRAME outputFrame
-     btnReset AT ROW 1.95 COL 147 HELP
+     btnReset AT ROW 1.95 COL 189 HELP
           "Reset" WIDGET-ID 8
-     btnSave AT ROW 1.95 COL 139 HELP
+     btnSave AT ROW 1.95 COL 181 HELP
           "Save" WIDGET-ID 6
      "RESERVED AREA" VIEW-AS TEXT
-          SIZE 19 BY .62 AT ROW 2.67 COL 70 WIDGET-ID 4
+          SIZE 19 BY .62 AT ROW 2.67 COL 90 WIDGET-ID 4
           FGCOLOR 15 FONT 6
-     RECT-1 AT ROW 1.71 COL 138 WIDGET-ID 10
+     RECT-1 AT ROW 1.71 COL 180 WIDGET-ID 10
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 158 BY 5
+         SIZE 198 BY 5
          BGCOLOR 1 FGCOLOR 15 
          TITLE BGCOLOR 15 FGCOLOR 1 "Output Reserved Area" WIDGET-ID 200.
 
@@ -165,11 +165,11 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          HIDDEN             = YES
          TITLE              = "Dynamic Subject Parameter Set Builder"
          HEIGHT             = 28.57
-         WIDTH              = 158
+         WIDTH              = 198
          MAX-HEIGHT         = 28.57
-         MAX-WIDTH          = 158
+         MAX-WIDTH          = 198
          VIRTUAL-HEIGHT     = 28.57
-         VIRTUAL-WIDTH      = 158
+         VIRTUAL-WIDTH      = 198
          RESIZE             = yes
          SCROLL-BARS        = no
          STATUS-AREA        = no
