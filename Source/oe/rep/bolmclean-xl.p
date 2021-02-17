@@ -287,8 +287,28 @@ PROCEDURE FillData:
                         v-comp-addr[2] = oe-ord.sold-addr[2]
                         v-comp-addr3   = oe-ord.sold-city + ", " +
                              oe-ord.sold-state + "  " +
-                             oe-ord.sold-zip.
-            END.      
+                             oe-ord.sold-zip.                                    
+            END.
+            IF oe-bolh.loc NE "" THEN
+            DO:
+               FIND FIRST loc NO-LOCK 
+                    WHERE loc.company EQ cocode 
+                    AND loc.loc EQ oe-bolh.loc NO-ERROR.
+               IF AVAIL loc THEN
+               DO:
+                 FIND FIRST location NO-LOCK
+                      WHERE location.locationCode = loc.loc
+                      AND location.rec_key = loc.addrRecKey NO-ERROR .
+                      
+                     ASSIGN
+                         v-comp-name    = loc.dscr
+                         v-comp-addr[1] = IF AVAIL location THEN location.streetAddr[1] ELSE ""
+                         v-comp-addr[2] = IF AVAIL location THEN location.streetAddr[2] ELSE ""
+                         v-comp-addr3   = (IF AVAIL location THEN location.subCode3 ELSE "") + ", " +
+                                          (IF AVAIL location THEN location.subCode1 ELSE "") + "  " +
+                                          (IF AVAIL location THEN location.subCode4 ELSE ""). 
+               END.
+            END.
        
             IF TRIM(v-comp-addr3) EQ "," THEN v-comp-addr3 = "".
               
