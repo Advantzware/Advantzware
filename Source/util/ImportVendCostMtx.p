@@ -90,7 +90,8 @@ DEFINE TEMP-TABLE ttImportVendCostMtx
     FIELD LevelSetup10            AS DECIMAL   FORMAT "->>,>>9.99" INITIAL 0 COLUMN-LABEL "Setup 10" HELP "Optional - decimal"
     FIELD DeviationCost10         AS DECIMAL   FORMAT "->,>>>,>>9.99":U INITIAL 0 COLUMN-LABEL "Deviation Cost 10" HELP "Optional - Decimal"
     FIELD LeadTime10              AS INTEGER   FORMAT ">,>>>,>>9":U INITIAL 0 COLUMN-LABEL "Lead Time 10" HELP "Optional - Integer"
-    
+    FIELD useQuantityFromBase     AS CHARACTER FORMAT "x(8)" COLUMN-LABEL "Quantity Basis" HELP "Optional - From/Up To"
+        
     .
 DEFINE VARIABLE giIndexOffset AS INTEGER NO-UNDO INIT 2. /*Set to 2 to skip Company and Location field in temp-table since this will not be part of the import data*/
  
@@ -167,6 +168,7 @@ PROCEDURE pProcessRecord PRIVATE:
     RUN pAssignValueD (ipbf-ttImportVendCostMtx.dimLengthOver, iplIgnoreBlanks, INPUT-OUTPUT bf-vendItemCost.dimLengthOver).                                 
     RUN pAssignValueD (ipbf-ttImportVendCostMtx.quantityMinimumOrder, iplIgnoreBlanks, INPUT-OUTPUT bf-vendItemCost.quantityMinimumOrder).                             
     RUN pAssignValueD (ipbf-ttImportVendCostMtx.quantityMaximumOrder, iplIgnoreBlanks, INPUT-OUTPUT bf-vendItemCost.quantityMaximumOrder). 
+    RUN pAssignValueCtoL (ipbf-ttImportVendCostMtx.useQuantityFromBase,"From", iplIgnoreBlanks, INPUT-OUTPUT bf-vendItemCost.useQuantityFromBase).
     
     FOR EACH  bf-vendItemCostLevel EXCLUSIVE-LOCK
         WHERE bf-vendItemCostLevel.vendItemCostID EQ bf-vendItemCost.vendItemCostID :
@@ -348,6 +350,9 @@ PROCEDURE pValidate PRIVATE:
 
         IF oplValid THEN 
             RUN pIsValidFromList IN hdValidator ("UOM",ipbf-ttImportVendCostMtx.vendorUOM,uom-list, OUTPUT oplValid, OUTPUT cValidNote).
+        IF oplValid AND ipbf-ttImportVendCostMtx.useQuantityFromBase NE "" THEN  
+           RUN pIsValidFromList ("Quantity Basis", ipbf-ttImportVendCostMtx.useQuantityFromBase, "From,Up To", OUTPUT oplValid, OUTPUT cValidNote). 
+        
     END.
     
     IF NOT oplValid AND cValidNote NE "" THEN opcNote = cValidNote.
