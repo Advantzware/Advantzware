@@ -799,7 +799,7 @@ PROCEDURE Set-Focus :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    {methods/run_link.i "RELEASE-SOURCE" "Set-Foucs"}
+    {methods/run_link.i "RELEASE-SOURCE" "Set-Focus"}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

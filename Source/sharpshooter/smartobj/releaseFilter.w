@@ -387,8 +387,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Set-Foucs s-object 
-PROCEDURE Set-Foucs :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Set-Focus s-object 
+PROCEDURE Set-Focus :
 /*------------------------------------------------------------------------------
   Purpose:     
   Parameters:  <none>
