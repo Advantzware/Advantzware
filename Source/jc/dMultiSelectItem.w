@@ -40,7 +40,7 @@ RUN fgrep\fgReorder.p PERSISTENT SET hdFGReorder.
 /*{sys/inc/f16to32.i}*/
 {sys/inc/lastship.i}
 
-&SCOPED-DEFINE yellowColumnsName dFMultiSelectItem
+&SCOPED-DEFINE yellowColumnsName dMultiSelectItem
 
 
 /* _UIB-CODE-BLOCK-END */
@@ -746,7 +746,7 @@ PROCEDURE repo-query :
                     ttMultiSelectItem.orderQtyEarliest = oe-ordl.qty - oe-ordl.ship-qty.
                     LEAVE.
                  END. 
-                 IF ttMultiSelectItem.dateDueDateEarliest EQ ? THEN ttMultiSelectItem.dateDueDateEarliest = TODAY.
+                 IF ttMultiSelectItem.dateDueDateEarliest EQ ? OR ttMultiSelectItem.dateDueDateEarliest EQ 01/01/0001 THEN ttMultiSelectItem.dateDueDateEarliest = TODAY.
                   
                    FIND FIRST ttInputEst NO-LOCK 
                         WHERE ttInputEst.cStockNo EQ ttMultiSelectItem.itemID NO-ERROR.
