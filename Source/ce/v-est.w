@@ -1088,9 +1088,9 @@ DO:
    SYSTEM-DIALOG GET-FILE cadfile 
                 TITLE 'Select Image File to insert'
                 FILTERS 'JPG Files    (*.jpg)' '*.jpg',
-                        'JPEG Files   (*.bmp)' '*.bmp',
-                        'Bitmap files (*.pdf)' '*.pdf',                         
-                        'TIF Files    (*.ard)' '*.ard',
+                        'Bitmap Files   (*.bmp)' '*.bmp',
+                        'PDF Files (*.pdf)' '*.pdf',                         
+                        'Artios Files    (*.ard)' '*.ard',
                         'All Files    (*.*) ' '*.*'
                         INITIAL-FILTER iInitialFilter
                 INITIAL-DIR initDir                      
