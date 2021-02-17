@@ -125,11 +125,12 @@ PROCEDURE Inventory_AdjustRawMaterialBinQty:
     DEFINE BUFFER bf-rm-bin            FOR rm-bin.
     DEFINE BUFFER bf-ttBrowseInventory FOR ttBrowseInventory.
     
-    RUN pCreateRMTransaction (
+    RUN pCreateRMTransactionFromRMBin (
         INPUT  ipriRMBin,
         INPUT  "A",  /* Adjust */
         INPUT  ipdQty,
         INPUT  ipcReasonCode,
+        INPUT  TRUE, /* Update Job Details */
         OUTPUT riRMRctd,
         OUTPUT oplSuccess,
         OUTPUT opcMessage        
@@ -703,7 +704,115 @@ PROCEDURE pCreateFGTransaction PRIVATE:
         .
 END PROCEDURE.
 
+PROCEDURE Inventory_CreateRMTransaction:
+/*------------------------------------------------------------------------------
+ Purpose: 
+ Notes: 
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcItemID     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTag        AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcLocation   AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcBin        AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTransType  AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdQty        AS DECIMAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdCost       AS DECIMAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcReasonCode AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opriRMRctd    AS ROWID     NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError      AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage    AS CHARACTER NO-UNDO.
+    
+    RUN pCreateRMTransaction (
+        INPUT  ipcCompany, 
+        INPUT  ipcItemID, 
+        INPUT  ipcTag, 
+        INPUT  ipcLocation, 
+        INPUT  ipcBin, 
+        INPUT  ipcTransType, 
+        INPUT  ipdQty, 
+        INPUT  ipdCost, 
+        INPUT  ipcReasonCode, 
+        OUTPUT opriRMRctd, 
+        OUTPUT oplError, 
+        OUTPUT opcMessage
+        ).
+END PROCEDURE.
+
 PROCEDURE pCreateRMTransaction PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: 
+ Notes: 
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcItemID     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTag        AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcLocation   AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcBin        AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTransType  AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdQty        AS DECIMAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdCost       AS DECIMAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcReasonCode AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opriRMRctd    AS ROWID     NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError      AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage    AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE iNextSeqNo AS INTEGER NO-UNDO.
+    
+    DEFINE BUFFER bf-item    FOR item.
+    DEFINE BUFFER bf-rm-rctd FOR rm-rctd.
+
+    MAIN-BLOCK:
+    DO TRANSACTION ON ERROR UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
+        ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:      
+        FIND FIRST bf-item NO-LOCK
+             WHERE bf-item.company EQ ipcCompany
+               AND bf-item.i-no    EQ ipcItemID
+             NO-ERROR.
+        IF NOT AVAILABLE bf-item THEN DO:
+            ASSIGN
+                oplError   = TRUE
+                opcMessage = "Item '" + ipcItemID + "' not found"
+                .
+            RETURN.
+        END.
+        
+        RUN sys/ref/asiseq.p (
+            INPUT  bf-item.company, 
+            INPUT  "rm_rcpt_seq", 
+            OUTPUT iNextSeqNo
+            ) NO-ERROR.        
+        IF ERROR-STATUS:ERROR THEN DO:
+            ASSIGN
+                oplError   = TRUE
+                opcMessage = "Could not obtain next sequence #, please contact ASI: "
+                .
+            RETURN.
+        END.
+    
+        CREATE bf-rm-rctd.
+        ASSIGN
+            bf-rm-rctd.company        = bf-item.company
+            bf-rm-rctd.r-no           = iNextSeqNo
+            bf-rm-rctd.i-no           = bf-item.i-no
+            bf-rm-rctd.i-name         = bf-item.i-name
+            bf-rm-rctd.tag            = ipcTag
+            bf-rm-rctd.rita-code      = ipcTransType
+            bf-rm-rctd.rct-date       = TODAY
+            bf-rm-rctd.loc            = ipcLocation
+            bf-rm-rctd.loc-bin        = ipcBin
+            bf-rm-rctd.qty            = ipdQty
+            bf-rm-rctd.cost           = ipdCost
+            bf-rm-rctd.pur-uom        = bf-item.cons-uom
+            bf-rm-rctd.cost-uom       = bf-item.cons-uom
+            bf-rm-rctd.adjustmentCode = ipcReasonCode
+            bf-rm-rctd.enteredBy      = USERID("ASI")
+            bf-rm-rctd.enteredDT      = NOW
+            opriRMRctd                = ROWID(bf-rm-rctd)
+            .
+    END.
+END PROCEDURE.
+
+PROCEDURE Inventory_CreateRMTransactionFromRMBin:
 /*------------------------------------------------------------------------------
  Purpose: Procedure to Update RM Bin quantity and create a transaction
  Notes: This is a business logic copy of procedure cre-tran.p 
@@ -712,88 +821,111 @@ PROCEDURE pCreateRMTransaction PRIVATE:
     DEFINE INPUT  PARAMETER ipcTransType  AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipdQty        AS DECIMAL   NO-UNDO.
     DEFINE INPUT  PARAMETER ipcReasonCode AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER iplUpdateJob  AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opriRMRctd    AS ROWID     NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError      AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage    AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE lSuccess AS LOGICAL NO-UNDO.
+    
+    RUN pCreateRMTransactionFromRMBin (
+        INPUT  ipriRMBin,
+        INPUT  ipcTransType,
+        INPUT  ipdQty,
+        INPUT  ipcReasonCode,
+        INPUT  iplUpdateJob,
+        OUTPUT opriRMRctd,
+        OUTPUT lSuccess,  
+        OUTPUT opcMessage          
+        ).
+        
+    oplError = NOT lSuccess.
+END PROCEDURE.
+
+PROCEDURE pCreateRMTransactionFromRMBin PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: Procedure to Update RM Bin quantity and create a transaction
+ Notes: This is a business logic copy of procedure cre-tran.p 
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipriRMBin     AS ROWID     NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTransType  AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdQty        AS DECIMAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcReasonCode AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER iplUpdateJob  AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opriRMRctd    AS ROWID     NO-UNDO.
     DEFINE OUTPUT PARAMETER oplSuccess    AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage    AS CHARACTER NO-UNDO.
     
     DEFINE VARIABLE iNextSeqNo AS INTEGER NO-UNDO.
+    DEFINE VARIABLE lError     AS LOGICAL NO-UNDO.
     
     DEFINE BUFFER bf-rm-bin  FOR rm-bin.
-    DEFINE BUFFER bf-item    FOR item.
     DEFINE BUFFER bf-rm-rctd FOR rm-rctd.
+
+    MAIN-BLOCK:
+    DO TRANSACTION ON ERROR UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
+        ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:      
+        FIND FIRST bf-rm-bin NO-LOCK
+             WHERE ROWID(bf-rm-bin) EQ ipriRMBin 
+             NO-ERROR.
+        IF NOT AVAILABLE bf-rm-bin THEN DO:
+            ASSIGN
+                oplSuccess = FALSE
+                opcMessage = "Invalid RM Bin ROWID passed as input"
+                .
+            RETURN.    
+        END.
     
-    FIND FIRST bf-rm-bin NO-LOCK
-         WHERE ROWID(bf-rm-bin) EQ ipriRMBin 
-         NO-ERROR.
-    IF NOT AVAILABLE bf-rm-bin THEN DO:
-        ASSIGN
-            oplSuccess = FALSE
-            opcMessage = "Invalid RM Bin ROWID passed as input"
-            .
-        RETURN.    
-    END.
+        RUN pCreateRMTransaction(
+            INPUT  bf-rm-bin.company, 
+            INPUT  bf-rm-bin.i-no, 
+            INPUT  bf-rm-bin.tag, 
+            INPUT  bf-rm-bin.loc, 
+            INPUT  bf-rm-bin.loc-bin, 
+            INPUT  ipcTransType, 
+            INPUT  ipdQty, 
+            INPUT  bf-rm-bin.cost, 
+            INPUT  ipcReasonCode, 
+            OUTPUT opriRMRctd, 
+            OUTPUT lError, 
+            OUTPUT opcMessage
+            ).
+        oplSuccess = NOT lError.
         
-    FIND FIRST bf-item NO-LOCK
-         WHERE bf-item.company EQ bf-rm-bin.company
-           AND bf-item.i-no    EQ bf-rm-bin.i-no
-         NO-ERROR.
-    IF NOT AVAILABLE bf-item THEN DO:
+        IF NOT oplSuccess THEN
+            RETURN.
+        
+        FIND FIRST bf-rm-rctd EXCLUSIVE-LOCK
+             WHERE ROWID(bf-rm-rctd) EQ opriRMRctd
+             NO-ERROR.
+        IF NOT AVAILABLE bf-rm-rctd THEN DO:
+            ASSIGN
+                oplSuccess = FALSE
+                opcMessage = "Error while creating RM transaction"
+                .
+            RETURN.
+        END.
+        
+        IF iplUpdateJob THEN DO:
+            bf-rm-rctd.po-no = STRING(bf-rm-bin.po-no).
+    
+            RUN pGetJobFromPOAndRMItem (
+                INPUT  bf-rm-rctd.company,
+                INPUT  bf-rm-rctd.i-no,
+                INPUT  bf-rm-rctd.po-no,
+                OUTPUT bf-rm-rctd.job-no,
+                OUTPUT bf-rm-rctd.job-no2,
+                OUTPUT bf-rm-rctd.s-num,
+                OUTPUT bf-rm-rctd.b-num
+                ).  
+        END.
+        
         ASSIGN
-            oplSuccess = FALSE
-            opcMessage = "Item '" + bf-rm-bin.i-no + "' not found"
-            .
-        RETURN.
+            oplSuccess = TRUE
+            opcMessage = "Success"
+            .    
     END.
     
-    RUN sys/ref/asiseq.p (
-        INPUT  bf-rm-bin.company, 
-        INPUT  "rm_rcpt_seq", 
-        OUTPUT iNextSeqNo
-        ) NO-ERROR.        
-    IF ERROR-STATUS:ERROR THEN DO:
-        ASSIGN
-            oplSuccess = FALSE
-            opcMessage = "Could not obtain next sequence #, please contact ASI: "
-            .
-        RETURN.
-    END.
-
-    CREATE bf-rm-rctd.
-    ASSIGN
-        bf-rm-rctd.company        = bf-rm-bin.company
-        bf-rm-rctd.r-no           = iNextSeqNo
-        bf-rm-rctd.i-no           = bf-item.i-no
-        bf-rm-rctd.i-name         = bf-item.i-name
-        bf-rm-rctd.tag            = bf-rm-bin.tag
-        bf-rm-rctd.po-no          = STRING(bf-rm-bin.po-no)
-        bf-rm-rctd.rita-code      = ipcTransType
-        bf-rm-rctd.rct-date       = TODAY
-        bf-rm-rctd.loc            = bf-rm-bin.loc
-        bf-rm-rctd.loc-bin        = bf-rm-bin.loc-bin
-        bf-rm-rctd.qty            = ipdQty
-        bf-rm-rctd.cost           = bf-rm-bin.cost
-        bf-rm-rctd.pur-uom        = bf-item.cons-uom
-        bf-rm-rctd.cost-uom       = bf-item.cons-uom
-        bf-rm-rctd.adjustmentCode = ipcReasonCode
-        bf-rm-rctd.enteredBy      = USERID("ASI")
-        bf-rm-rctd.enteredDT      = NOW
-        opriRMRctd                = ROWID(bf-rm-rctd)
-        .
-
-    RUN pGetJobFromPOAndRMItem (
-        INPUT  bf-rm-rctd.company,
-        INPUT  bf-rm-rctd.i-no,
-        INPUT  bf-rm-rctd.po-no,
-        OUTPUT bf-rm-rctd.job-no,
-        OUTPUT bf-rm-rctd.job-no2,
-        OUTPUT bf-rm-rctd.s-num,
-        OUTPUT bf-rm-rctd.b-num
-        ).  
-
-    ASSIGN
-        oplSuccess = TRUE
-        opcMessage = "Success"
-        .    
 END PROCEDURE.
 
 PROCEDURE Inventory_BuildFGBinSummaryForItem:
@@ -2555,6 +2687,21 @@ PROCEDURE pPostRawMaterialsGLTrans PRIVATE:
             LEAVE.
         END.
     END.
+END PROCEDURE.
+
+PROCEDURE Inventory_BuildRawMaterialToPost:
+/*------------------------------------------------------------------------------
+ Purpose: Build all the rm-rctd transactions first then Inventory_PostRawMaterials
+          will take of GL Transaction creation and posting
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipriRmRctd      AS ROWID     NO-UNDO.
+
+    CREATE ttBrowseInventory.
+    ASSIGN
+        ttBrowseInventory.inventoryStatus  = gcStatusStockScanned
+        ttBrowseInventory.inventoryStockID = STRING(ipriRmRctd)
+        .
 END PROCEDURE.
 
 PROCEDURE pPostRawMaterials PRIVATE:
