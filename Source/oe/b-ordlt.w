@@ -1210,10 +1210,6 @@ PROCEDURE delete-item :
                 run fg/comp-upd.p (recid(itemfg), job-hdr.qty * -1, "q-ono", job-hdr.est-no).
              end.*/
           END.
-          
-          IF AVAILABLE job-hdr THEN DO:
-             {util/dljobkey.i}
-          END.
           DELETE job-hdr.
        END.
      END.
@@ -1438,7 +1434,6 @@ PROCEDURE delete-item :
                              AND job-hdr.job-no2  EQ oe-ordl.job-no2
                              AND job-hdr.ord-no   EQ oe-ordl.ord-no NO-ERROR.
         IF AVAILABLE job-hdr THEN DO:
-           {util/dljobkey.i}        
            DELETE job-hdr.
         END.          
         RUN jc/jc-dall.p (RECID(job)).          

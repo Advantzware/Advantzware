@@ -127,5 +127,4 @@ for each job-hdr
 
   job-hdr.opened = job.opened.
 
-  {util/mkjobkey.i}
 end.

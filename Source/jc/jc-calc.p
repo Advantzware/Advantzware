@@ -1934,7 +1934,6 @@ PROCEDURE pUpdateJobQty PRIVATE:
                 job-hdr.po-no = b-oe-ordl.po-no.
         END.
 
-        {util/mkjobkey.i}
 
     END.
     

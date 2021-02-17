@@ -928,8 +928,6 @@ DEFINE VARIABLE v-post-date AS DATE INIT TODAY NO-UNDO.
                         job-hdr.job-no  EQ job.job-no AND 
                         job-hdr.job-no2 EQ job.job-no2:
 
-                        {util/dljobkey.i}
-
                         IF tbArchive THEN 
                         DO:
                             IF lProcess THEN EXPORT STREAM sjob-hdr      job-hdr.
