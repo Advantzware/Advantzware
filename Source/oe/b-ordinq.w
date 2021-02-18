@@ -777,7 +777,7 @@ DEFINE FRAME F-Main
      "Job#" VIEW-AS TEXT
           SIZE 8 BY .71 AT ROW 1.24 COL 104
           FGCOLOR 9 FONT 22
-     "Type" VIEW-AS TEXT
+     "Open" VIEW-AS TEXT
           SIZE 6 BY .62 AT ROW 1.24 COL 150.6 WIDGET-ID 34
           FGCOLOR 9 FONT 22
      "REP#" VIEW-AS TEXT
@@ -1298,19 +1298,19 @@ DO:
     ASSIGN {&SELF-NAME}.
     IF cbType EQ "Opened" THEN DO:
         ASSIGN 
-            tbApproved:SENSITIVE = YES
-            tbWeb:SENSITIVE      = YES
-            tbHold:SENSITIVE     = YES
-            tbApproved:CHECKED   = YES
-            tbWeb:CHECKED        = YES 
-            tbHold:CHECKED       = YES
+            tbApproved:VISIBLE = YES
+            tbWeb:VISIBLE      = YES
+            tbHold:VISIBLE     = YES
+            tbApproved:CHECKED = YES
+            tbWeb:CHECKED      = YES 
+            tbHold:CHECKED     = YES
             .
     END.
     ELSE 
         ASSIGN 
-            tbApproved:SENSITIVE = NO
-            tbWeb:SENSITIVE      = NO
-            tbHold:SENSITIVE     = NO
+            tbApproved:HIDDEN  = YES
+            tbWeb:HIDDEN       = YES
+            tbHold:HIDDEN      = YES
             .      
 END.
 
