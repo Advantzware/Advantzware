@@ -54,8 +54,8 @@ DEFINE BUFFER b-oe-rel FOR oe-rel.
 
 DEFINE VARIABLE ll-first AS LOG INIT YES NO-UNDO.
 DEFINE VARIABLE ll-initial AS LOG INIT YES NO-UNDO.
-DEFINE VARIABLE lv-sort-by AS CHARACTER INIT "rec_key" NO-UNDO.
-DEFINE VARIABLE lv-sort-by-lab AS CHARACTER INIT "Rec Key" NO-UNDO.
+DEFINE VARIABLE lv-sort-by AS CHARACTER INIT "ord-no" NO-UNDO.
+DEFINE VARIABLE lv-sort-by-lab AS CHARACTER INIT "Order#" NO-UNDO.
 DEFINE VARIABLE ll-sort-asc AS LOG NO-UNDO.
 DEFINE VARIABLE lv-frst-rowid AS ROWID NO-UNDO.
 DEFINE VARIABLE lv-last-rowid AS ROWID NO-UNDO.
@@ -219,7 +219,6 @@ DEFINE VARIABLE cFirstRecKey       AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cLastRecKey        AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lEnableShowAll     AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lShowAll           AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE lUseRecKeyCriteria AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cBrowseWhereClause AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cQueryBuffers      AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFieldBuffer       AS CHARACTER NO-UNDO.
@@ -434,6 +433,56 @@ FUNCTION get-inv-qty RETURNS INT
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD pGetCostUom B-table-Win
+FUNCTION pGetCostUom RETURNS CHARACTER PRIVATE
+  (  ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD pGetExtenedPrice B-table-Win
+FUNCTION pGetExtenedPrice RETURNS DECIMAL PRIVATE
+  (  ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD pGetInvoiceLineCost B-table-Win
+FUNCTION pGetInvoiceLineCost RETURNS DECIMAL PRIVATE
+  (  ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD pGetPriceUom B-table-Win
+FUNCTION pGetPriceUom RETURNS CHARACTER PRIVATE
+  (  ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD pGetSellPrice B-table-Win
+FUNCTION pGetSellPrice RETURNS DECIMAL PRIVATE
+  (  ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD pGetSortCondition B-table-Win
@@ -1818,12 +1867,7 @@ PROCEDURE local-open-query :
 /*------------------------------------------------------------------------------
   Purpose:     Override standard ADM method
   Notes:       
-------------------------------------------------------------------------------*/
-    IF fiOrderDate GT 10/01/2018 THEN 
-        lUseRecKeyCriteria = YES.
-    ELSE 
-        lUseRecKeyCriteria = NO.
-           
+------------------------------------------------------------------------------*/           
     IF fi_est-no NE "" THEN 
         fi_est-no = FILL(" ",8 - LENGTH(TRIM(fi_est-no))) + TRIM(fi_est-no).
     IF fi_job-no NE "" THEN 
@@ -1836,28 +1880,24 @@ PROCEDURE local-open-query :
 
     /* Code placed here will execute AFTER standard behavior.    */
     IF lShowAll THEN 
-        RUN pPrepareAndExecuteQueryForShowAll(  
-            INPUT lUseRecKeyCriteria
-            ).
+        RUN pPrepareAndExecuteQueryForShowAll.
    
     ELSE IF lv-show-prev OR lv-show-next THEN DO:
-        IF lUseRecKeyCriteria THEN 
-            RUN pPrepareAndExecuteQueryForPrevNext(
-                IF lv-show-prev THEN cLastRecKey ELSE cFirstRecKey,
-                INPUT lv-show-prev,
-                INPUT lUseRecKeyCriteria
-                ).
-        ELSE            
-            RUN pPrepareAndExecuteQueryForPrevNext(
-                IF lv-show-prev THEN lv-last-show-ord-no ELSE lv-first-show-ord-no,
-                INPUT lv-show-prev,
-                INPUT lUseRecKeyCriteria
-                ).
+        /* Use below logic to sort records by rec_key */
+        
+        /* RUN pPrepareAndExecuteQueryForPrevNext(
+            IF lv-show-prev THEN cLastRecKey ELSE cFirstRecKey,
+            INPUT lv-show-prev
+            ). */
+                      
+        RUN pPrepareAndExecuteQueryForPrevNext(
+            IF lv-show-prev THEN lv-last-show-ord-no ELSE lv-first-show-ord-no,
+            INPUT lv-show-prev
+            ).
     END.        
     ELSE 
         RUN pPrepareAndExecuteQuery(
-            INPUT IF lButtongoPressed THEN NO ELSE YES, /* If Button go is pressed then only show the limit alert */ 
-            INPUT lUseRecKeyCriteria 
+            INPUT IF lButtongoPressed THEN NO ELSE YES /* If Button go is pressed then only show the limit alert */ 
             ).
 
     IF lButtongoPressed THEN 
@@ -2058,28 +2098,26 @@ PROCEDURE pAssignCommonRecords PRIVATE:
  Purpose: Assign Common Records for the query
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE INPUT        PARAMETER iplUseRecKeyCriteria AS LOGICAL   NO-UNDO.
     DEFINE INPUT-OUTPUT PARAMETER iopcQueryBuffer      AS CHARACTER NO-UNDO.
     DEFINE INPUT-OUTPUT PARAMETER iopcFieldBuffer      AS CHARACTER NO-UNDO.
     DEFINE INPUT-OUTPUT PARAMETER iopcFieldName        AS CHARACTER NO-UNDO.
     DEFINE INPUT-OUTPUT PARAMETER ioplIsBreakByUsed    AS LOGICAL   NO-UNDO.
-    DEFINE INPUT-OUTPUT PARAMETER iopcSortBy           AS CHARACTER NO-UNDO.
+   
+    /* Use below logic to sort records by rec-key */
     
-    IF iplUseRecKeyCriteria THEN
-        ASSIGN   
-            iopcQueryBuffer   = "oe-ord,oe-ordl"
-            iopcFieldBuffer   = "oe-ord"
-            iopcFieldName     = "rec_key"
-            ioplIsBreakByUsed = NO  
-            .
-    ELSE 
-        ASSIGN         
-            iopcQueryBuffer   = "oe-ordl,oe-ord"
-            iopcFieldBuffer   = "oe-ordl"
-            iopcFieldName     = "ord-no" 
-            ioplIsBreakByUsed = YES 
-            iopcSortBy        = IF iopcSortBy EQ "rec_key" THEN "ord-no" ELSE iopcSortBy
-            .
+    /*ASSIGN   
+        iopcQueryBuffer   = "oe-ord,oe-ordl"
+        iopcFieldBuffer   = "oe-ord"
+        iopcFieldName     = "rec_key"
+        ioplIsBreakByUsed = NO  
+        . */
+      
+    ASSIGN         
+        iopcQueryBuffer   = "oe-ordl,oe-ord"
+        iopcFieldBuffer   = "oe-ordl"
+        iopcFieldName     = "ord-no" 
+        ioplIsBreakByUsed = YES 
+        .
 END PROCEDURE.
 	
 /* _UIB-CODE-BLOCK-END */
@@ -2094,47 +2132,37 @@ PROCEDURE pPrepareAndExecuteQuery :
  Notes:
 ------------------------------------------------------------------------------*/   
     DEFINE INPUT PARAMETER iplInitialLoad    AS LOGICAL NO-UNDO.
-    DEFINE INPUT PARAMETER iplRecKeyCriteria AS LOGICAL NO-UNDO.
     
     DEFINE VARIABLE cLimitingQuery        AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cBrowseQuery          AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cResponse             AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cOrderTypeWhereClause AS CHARACTER NO-UNDO.
     
-    IF iplRecKeyCriteria THEN DO:
-        RUN pAssignCommonRecords(
-            INPUT YES,
-            INPUT-OUTPUT cQueryBuffers,
-            INPUT-OUTPUT cFieldBuffer,
-            INPUT-OUTPUT cFieldName,
-            INPUT-OUTPUT lIsBreakByUsed,
-            INPUT-OUTPUT lv-Sort-by
-            ).   
-        cLimitingQuery = "For EACH oe-ord NO-LOCK"
-                         + " WHERE oe-ord.company EQ " + QUOTER(cocode)
-                         + " AND " + pGetWhereCriteria("oe-ord")                  
-                         + ",FIRST oe-ordl of oe-ord NO-LOCK "
-                         + " WHERE " + pGetWhereCriteria("oe-ordl")
-                         + " BY oe-ord.rec_key DESC"
-                         .                        
-    END.   
-    ELSE DO:
-        RUN pAssignCommonRecords(
-            INPUT NO,
-            INPUT-OUTPUT cQueryBuffers,
-            INPUT-OUTPUT cFieldBuffer,
-            INPUT-OUTPUT cFieldName,
-            INPUT-OUTPUT lIsBreakByUsed,
-            INPUT-OUTPUT lv-Sort-by
-            ).     
-        cLimitingQuery = "FOR EACH oe-ordl NO-LOCK"
-                         + " WHERE oe-ordl.company EQ " + QUOTER(cocode)
-                         + " AND " + pGetWhereCriteria("oe-ordl")
-                         + ", FIRST oe-ord OF oe-ordl NO-LOCK"
-                         +  " WHERE " + pGetWhereCriteria("oe-ord")
-                         + " BREAK BY oe-ordl.ord-no DESC"
-                         .                    
-    END.   
+    RUN pAssignCommonRecords(
+        INPUT-OUTPUT cQueryBuffers,
+        INPUT-OUTPUT cFieldBuffer,
+        INPUT-OUTPUT cFieldName,
+        INPUT-OUTPUT lIsBreakByUsed
+        ).
+          
+    cLimitingQuery = "FOR EACH oe-ordl NO-LOCK"
+                     + " WHERE oe-ordl.company EQ " + QUOTER(cocode)
+                     + " AND " + pGetWhereCriteria("oe-ordl")
+                     + ", FIRST oe-ord OF oe-ordl NO-LOCK"
+                     +  " WHERE " + pGetWhereCriteria("oe-ord")
+                     + " BREAK BY oe-ordl.ord-no DESC"
+                     .  
+                     
+     /* Use below query to sort records by rec_key */
+                              
+    /* cLimitingQuery = "For EACH oe-ord NO-LOCK"
+                     + " WHERE oe-ord.company EQ " + QUOTER(cocode)
+                     + " AND " + pGetWhereCriteria("oe-ord")                  
+                     + ",FIRST oe-ordl of oe-ord NO-LOCK "
+                     + " WHERE " + pGetWhereCriteria("oe-ordl")
+                     + " BY oe-ord.rec_key DESC"
+                     .      */                       
+         
     /* Limit the query if order no is 0 or cadd No is Blank */                    
     IF fi_ord-no EQ 0 AND fi_cad-no EQ "" THEN             
         RUN Browse_PrepareAndExecuteLimitingQuery(
@@ -2157,20 +2185,19 @@ PROCEDURE pPrepareAndExecuteQuery :
         MESSAGE "No Records Found..."
             VIEW-AS ALERT-BOX ERROR.
               
-    ELSE IF cResponse EQ "ShowALL" THEN
-        APPLY "CHOOSE":U TO btSHowAll IN FRAME {&FRAME-NAME}.
-    
+    ELSE IF cResponse EQ "ShowALL" THEN 
+        RUN pPrepareAndExecuteQueryForShowAll.
+            
     ELSE DO:
-        IF iplRecKeyCriteria THEN 
-            cBrowseWhereClause = (IF fi_ord-no EQ 0 AND fi_cad-no EQ "" THEN " AND ( oe-ordl.rec_key GE " +  QUOTER(cResponse) + " AND oe-ordl.rec_key NE ? ) " ELSE "" ).  
-        ELSE
-            cBrowseWhereClause = (IF fi_ord-no EQ 0 AND fi_cad-no EQ "" THEN " AND oe-ordl.ord-no  GE " + STRING(INTEGER(cResponse)) ELSE "").        
+        /* Use below logic to sort records by rec_key */
+        /* cBrowseWhereClause = (IF fi_ord-no EQ 0 AND fi_cad-no EQ "" THEN " AND oe-ordl.rec_key GE " +  QUOTER(cResponse) ELSE "" ).  */ 
+        
+        cBrowseWhereClause = (IF fi_ord-no EQ 0 AND fi_cad-no EQ "" THEN " AND oe-ordl.ord-no  GE " + STRING(INTEGER(cResponse)) ELSE "").        
                
         cBrowseQuery = "FOR EACH oe-ordl NO-LOCK"
                        + " WHERE oe-ordl.company EQ " + QUOTER(cocode)
                        + cBrowseWhereClause   
                        + " AND " + pGetWhereCriteria("oe-ordl")            
-                       + (IF fi_ord-no NE 0 OR fi_cad-no NE "" OR NOT iplRecKeyCriteria THEN " " ELSE " USE-INDEX rec_key")
                        + ", FIRST oe-ord OF oe-ordl NO-LOCK"
                        + " WHERE " + pGetWhereCriteria("oe-ord")
                        + ",FIRST itemfg " + (IF fi_cad-no EQ "" THEN "OUTER-JOIN" ELSE "") + " NO-LOCK"
@@ -2179,7 +2206,8 @@ PROCEDURE pPrepareAndExecuteQuery :
                        + ( IF fi_cad-no NE "" THEN " AND itemfg.cad-no BEGINS " + QUOTER(fi_cad-no) ELSE "")
                        + " BY " + pGetSortCondition(lv-sort-by,lv-sort-by-lab) + ( IF ll-sort-asc THEN  "" ELSE " DESC") +  " BY oe-ordl.ord-no BY oe-ordl.i-no"
                        . 
-                                                                        
+          MESSAGE cBrowseQuery
+          VIEW-AS ALERT-BOX.                                                              
         RUN Browse_PrepareAndExecuteBrowseQuery(
             INPUT  BROWSE {&BROWSE-NAME}:QUERY, /* Browse Query Handle */      
             INPUT  cBrowseQuery,                /* BRowse Query */             
@@ -2201,50 +2229,39 @@ PROCEDURE pPrepareAndExecuteQueryForPrevNext PRIVATE :
  Purpose: Private procedure to parepare an execute query for prev and next 
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcValue              AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER iplPrevious           AS LOGICAL   NO-UNDO.
-    DEFINE INPUT PARAMETER iplUseRecKeyCriteria  AS LOGICAL   NO-UNDO.
+    DEFINE INPUT PARAMETER ipcValue    AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER iplPrevious AS LOGICAL   NO-UNDO.
     
     DEFINE VARIABLE cLimitingQuery AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cBrowseQuery   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cResponse      AS CHARACTER NO-UNDO. 
            
-    IF iplUseRecKeyCriteria THEN DO:
-        RUN pAssignCommonRecords(
-            INPUT YES,
-            INPUT-OUTPUT cQueryBuffers,
-            INPUT-OUTPUT cFieldBuffer,
-            INPUT-OUTPUT cFieldName,
-            INPUT-OUTPUT lIsBreakByUsed,
-            INPUT-OUTPUT lv-Sort-by
-            ).      
-        cLimitingQuery = "For EACH oe-ord NO-LOCK"
-                         + " WHERE oe-ord.company EQ " + QUOTER(cocode)
-                         + " AND " + pGetWhereCriteria("oe-ord")
-                         + " AND oe-ord.rec_key " + (IF iplPrevious THEN "LE " ELSE "GE ") + QUOTER(ipcValue)
-                         + ", FIRST oe-ordl of oe-ord NO-LOCK "
-                         + " WHERE " + pGetWhereCriteria("oe-ord")
-                         + " BY oe-ord.rec_key DESC"
-                         .
-    END.
-    ELSE DO:
-        RUN pAssignCommonRecords(
-            INPUT NO,
-            INPUT-OUTPUT cQueryBuffers,
-            INPUT-OUTPUT cFieldBuffer,
-            INPUT-OUTPUT cFieldName,
-            INPUT-OUTPUT lIsBreakByUsed,
-            INPUT-OUTPUT lv-Sort-by
-            ).  
-        cLimitingQuery = "FOR EACH oe-ordl NO-LOCK"
-                         + " WHERE oe-ordl.company EQ " + QUOTER(cocode)
-                         + " AND oe-ordl.ord-no " + (IF iplPrevious THEN "LE " ELSE "GE ") + STRING(INTEGER(ipcValue))
-                         + " AND " + pGetWhereCriteria("oe-ordl")
-                         + ", FIRST oe-ord OF oe-ordl NO-LOCK"
-                         + " WHERE " + pGetWhereCriteria("oe-ord")
-                         + " BREAK BY oe-ordl.ord-no DESC"
-                         .                    
-    END.
+    RUN pAssignCommonRecords(
+        INPUT-OUTPUT cQueryBuffers,
+        INPUT-OUTPUT cFieldBuffer,
+        INPUT-OUTPUT cFieldName,
+        INPUT-OUTPUT lIsBreakByUsed
+        ).   
+    /* Use Below logic to soet records by rec_key */
+           
+    /* cLimitingQuery = "For EACH oe-ord NO-LOCK"
+                     + " WHERE oe-ord.company EQ " + QUOTER(cocode)
+                     + " AND " + pGetWhereCriteria("oe-ord")
+                     + " AND oe-ord.rec_key " + (IF iplPrevious THEN "LE " ELSE "GE ") + QUOTER(ipcValue)
+                     + ", FIRST oe-ordl of oe-ord NO-LOCK "
+                     + " WHERE " + pGetWhereCriteria("oe-ord")
+                     + " BY oe-ord.rec_key DESC"
+                     . */
+                      
+    cLimitingQuery = "FOR EACH oe-ordl NO-LOCK"
+                     + " WHERE oe-ordl.company EQ " + QUOTER(cocode)
+                     + " AND oe-ordl.ord-no " + (IF iplPrevious THEN "LE " ELSE "GE ") + STRING(INTEGER(ipcValue))
+                     + " AND " + pGetWhereCriteria("oe-ordl")
+                     + ", FIRST oe-ord OF oe-ordl NO-LOCK"
+                     + " WHERE " + pGetWhereCriteria("oe-ord")
+                     + " BREAK BY oe-ordl.ord-no DESC"
+                     .                    
+                     
     RUN Browse_PrepareAndExecuteLimitingQuery(
         INPUT  cLimitingQuery,   /* Query */
         INPUT  cQueryBuffers,    /* Buffers Name */
@@ -2263,13 +2280,13 @@ PROCEDURE pPrepareAndExecuteQueryForPrevNext PRIVATE :
             VIEW-AS ALERT-BOX ERROR. 
               
     ELSE IF cResponse EQ "ShowAll" THEN
-        APPLY "CHOOSE":U TO btSHowAll IN FRAME {&FRAME-NAME}.
+        RUN pPrepareAndExecuteQueryForShowAll.
     
     ELSE DO:
-        IF iplUseRecKeyCriteria THEN 
-            cBrowseWhereClause = " AND oe-ordl.rec_key "   + (IF iplPrevious THEN "LE " ELSE "GE ") + QUOTER(ipcValue)
-                                 + " AND oe-ordl.rec_key " + (IF iplPrevious THEN "GE " ELSE "LE ") + QUOTER(cResponse).
-        ELSE 
+            /* Use below logic to sort records by rec_key */
+            /* cBrowseWhereClause = " AND oe-ordl.rec_key "   + (IF iplPrevious THEN "LE " ELSE "GE ") + QUOTER(ipcValue)
+                                 + " AND oe-ordl.rec_key " + (IF iplPrevious THEN "GE " ELSE "LE ") + QUOTER(cResponse). */
+                                 
             cBrowseWhereClause = " AND oe-ordl.ord-no "   + (IF iplPrevious THEN "LE " ELSE "GE ") + STRING(INTEGER(ipcValue))
                                  + " AND oe-ordl.ord-no " + (IF iplPrevious THEN "GE " ELSE "LE ") + STRING (INTEGER(cResponse)).
              
@@ -2306,15 +2323,10 @@ PROCEDURE pPrepareAndExecuteQueryForShowAll PRIVATE :
 /*------------------------------------------------------------------------------
  Purpose: Private procedure to show all records in browse
  Notes:
-------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER iplUseRecKeyCriteria AS LOGICAL NO-UNDO.
-    
+------------------------------------------------------------------------------*/    
     DEFINE VARIABLE cShowAllQuery AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cResponse     AS CHARACTER NO-UNDO.
-    
-    IF NOT iplUseRecKeyCriteria AND lv-sort-by EQ "rec_key" THEN 
-        lv-sort-by = "ord-no".
-           
+               
     cShowAllQuery = "FOR EACH oe-ordl NO-LOCK"
                     + " WHERE oe-ordl.company EQ " + QUOTER(cocode)
                     + " AND " + pGetWhereCriteria("oe-ordl")
@@ -3346,6 +3358,199 @@ END FUNCTION.
 &ANALYZE-RESUME
 
 
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION pGetCostUom B-table-Win
+FUNCTION pGetCostUom RETURNS CHARACTER PRIVATE
+  (  ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE BUFFER bf-ar-invl FOR ar-invl.
+    
+    FIND FIRST bf-ar-invl NO-LOCK 
+         WHERE bf-ar-invl.company EQ oe-ord.company
+           AND bf-ar-invl.ord-no  EQ oe-ord.ord-no
+           AND bf-ar-invl.i-no    EQ oe-ordl.i-no 
+         NO-ERROR.
+    IF AVAILABLE bf-ar-invl THEN DO:
+       IF bf-ar-invl.dscr[1] EQ "" THEN
+          RETURN "M".
+       ELSE
+          RETURN bf-ar-invl.dscr[1].
+    END.
+    ELSE
+       RETURN "M".
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION pGetExtenedPrice B-table-Win
+FUNCTION pGetExtenedPrice RETURNS DECIMAL PRIVATE
+  (  ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE BUFFER bf-oe-ordl FOR oe-ordl.
+    
+    DEFINE VARIABLE dExtendedPrice AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dTempPrics     AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dOrderQuantity AS DECIMAL NO-UNDO.
+    
+    FIND FIRST bf-oe-ordl NO-LOCK
+         WHERE ROWID(bf-oe-ordl) EQ ROWID(oe-ordl) 
+         NO-ERROR.
+    
+    dExtendedPrice = bf-oe-ordl.t-price.
+    
+    /* #97347 NK1 = OEINQ - Remove Invoice Price */
+    
+    /*IF oeinq-char NE "Order Price" THEN
+    FOR EACH ar-invl FIELDS(inv-no amt i-no unit-pr disc) NO-LOCK 
+        WHERE ar-invl.company EQ cocode 
+          AND ar-invl.ord-no  EQ bf-oe-ordl.ord-no 
+          AND ar-invl.i-no    EQ bf-oe-ordl.i-no
+        BY ar-invl.inv-no DESCENDING:
+    
+        FIND FIRST itemfg NO-LOCK
+             WHERE itemfg.company EQ cocode
+               AND itemfg.i-no    EQ ar-invl.i-no
+             NO-ERROR.
+    
+        ASSIGN
+           dOrderQuantity = IF bf-oe-ordl.pr-uom BEGINS "L" AND bf-oe-ordl.pr-uom NE "LB" THEN
+                            IF bf-oe-ordl.qty LT 0 THEN -1 ELSE 1
+                            ELSE
+                            IF bf-oe-ordl.pr-uom EQ "CS" THEN
+                               bf-oe-ordl.qty / (IF bf-oe-ordl.cas-cnt NE 0 THEN bf-oe-ordl.cas-cnt ELSE
+                                               IF AVAILABLE itemfg AND itemfg.case-count NE 0
+                                                              THEN itemfg.case-count ELSE
+                                                                   1)
+                            ELSE
+                            IF bf-oe-ordl.pr-uom EQ "C" THEN
+                               bf-oe-ordl.qty / 100
+                            ELSE
+                            IF bf-oe-ordl.pr-uom EQ "M" THEN
+                              bf-oe-ordl.qty / 1000
+                            ELSE
+                              bf-oe-ordl.qty
+    
+           dTempPrics = dOrderQuantity * ar-invl.unit-pr.
+/*           dExtendedPrice =  IF v-print-fmt EQ "Dayton" THEN             */
+/*                  (dTempPrice - ROUND(dTempPrice * ar-invl.disc / 100,2))*/
+/*                ELSE                                                     */
+/*                  ROUND(dTempPrice * (1 - (ar-invl.disc / 100)),2).      */
+    
+        LEAVE.
+    END.
+    */
+    RETURN dExtendedPrice.
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION pGetInvoiceLineCost B-table-Win
+FUNCTION pGetInvoiceLineCost RETURNS DECIMAL PRIVATE
+  (  ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE BUFFER bf-ar-invl FOR ar-invl.
+    
+    FIND FIRST bf-ar-invl NO-LOCK 
+         WHERE bf-ar-invl.company EQ oe-ord.company
+           AND bf-ar-invl.ord-no  EQ oe-ord.ord-no
+           AND bf-ar-invl.i-no    EQ oe-ordl.i-no 
+         NO-ERROR.
+         
+    RETURN IF AVAILABLE bf-ar-invl THEN bf-ar-invl.cost ELSE 0.  
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION pGetPriceUom B-table-Win
+FUNCTION pGetPriceUom RETURNS CHARACTER PRIVATE
+  (  ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE BUFFER bf-oe-ordl FOR oe-ordl.
+    
+    DEFINE VARIABLE cPriceUom AS CHARACTER NO-UNDO.
+    
+    FIND FIRST bf-oe-ordl NO-LOCK 
+         WHERE ROWID(bf-oe-ordl) EQ ROWID(oe-ordl) 
+         NO-ERROR.
+    
+    cPriceUOm = bf-oe-ordl.pr-uom.
+    
+    FOR EACH ar-invl FIELDS(inv-no pr-uom) NO-LOCK 
+        WHERE ar-invl.company EQ cocode 
+          AND ar-invl.ord-no  EQ bf-oe-ordl.ord-no 
+          AND ar-invl.i-no    EQ bf-oe-ordl.i-no
+        BY ar-invl.inv-no DESCENDING: 
+        cPriceUom = ar-invl.pr-uom.
+        LEAVE.
+    END. 
+    RETURN cPriceUom.
+    
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION pGetSellPrice B-table-Win
+FUNCTION pGetSellPrice RETURNS DECIMAL PRIVATE
+  (  ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE BUFFER bf-oe-ordl FOR oe-ordl.
+    
+    DEFINE VARIABLE dSellPrice AS DECIMAL NO-UNDO.
+    
+    FIND FIRST bf-oe-ordl NO-LOCK
+         WHERE ROWID(bf-oe-ordl) EQ ROWID(oe-ordl) 
+         NO-ERROR.
+    
+    dSellPrice = bf-oe-ordl.price * (1 - (bf-oe-ordl.disc / 100)).
+    
+    FOR EACH ar-invl FIELDS(inv-no unit-pr disc) NO-LOCK
+        WHERE ar-invl.company EQ cocode 
+          AND ar-invl.ord-no  EQ bf-oe-ordl.ord-no 
+          AND ar-invl.i-no    EQ bf-oe-ordl.i-no
+        BY ar-invl.inv-no DESCENDING:   
+        dSellPrice = ar-invl.unit-pr * (1 - (ar-invl.disc / 100)).
+        LEAVE.
+    END.
+    RETURN dSellPrice.
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION pGetSortCondition B-table-Win
 FUNCTION pGetSortCondition RETURNS CHARACTER 
   (ipcSortBy AS CHARACTER,ipcSortLabel AS CHARACTER):
@@ -3425,18 +3630,17 @@ FUNCTION pGetWhereCriteria RETURNS CHARACTER
         cWhereCriteria = "(" + cWhereCriteria + ")".
         
         IF cbType EQ "All" OR cbType EQ "Closed" THEN DO:
-            IF lUseRecKeyCriteria THEN 
-                cWhereCriteria = cWhereCriteria + " AND (oe-ord.opened EQ NO OR oe-ord.opened EQ YES)".
-            ELSE 
-                cWhereCriteria = cWhereCriteria + " AND ((oe-ord.opened EQ NO) OR (oe-ord.opened EQ YES or oe-ordl.stat EQ 'C'))".        
-                
+            /* Use below logic to sort records by rec_key */ 
+                    
+            /* cWhereCriteria = cWhereCriteria + " AND (oe-ord.opened EQ NO OR oe-ord.opened EQ YES)". */
+            
+            cWhereCriteria = cWhereCriteria + " AND ((oe-ord.opened EQ NO) OR (oe-ord.opened EQ YES or oe-ordl.stat EQ 'C'))".                   
         END.    
             
         ELSE IF cbType EQ "Opened" THEN 
             cWhereCriteria = cWhereCriteria + " AND oe-ord.opened EQ YES".
                     
         cWhereCriteria =  cWhereCriteria  + " AND oe-ord.ord-date  GE " + STRING(fiOrderDate) 
-                          + " AND oe-ord.rec_key NE ''"
                           + (IF fi_po-no1 NE "" THEN " AND oe-ord.po-no BEGINS " + QUOTER(fi_po-no1) ELSE "")
                           .                  
     END. 

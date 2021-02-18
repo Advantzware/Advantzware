@@ -176,9 +176,9 @@ PROCEDURE Browse_PrepareAndExecuteLimitingQuery:
                 opcReturnValue = STRING(hdBuffer:BUFFER-FIELD(ipcFieldName):BUFFER-VALUE).
                 iCount = iCount + 1.
                 IF iCount GE 30 THEN                   
-                    LEAVE. 
-                hdQuery:GET-NEXT().   
-            END.                         
+                    LEAVE.              
+            END. 
+            hdQuery:GET-NEXT().                         
         END.
         ELSE DO:
             DO WHILE (ETIME - iStartTime) LT ipdTimeLimit AND NOT hdQuery:QUERY-OFF-END:
