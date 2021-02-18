@@ -373,7 +373,8 @@ PROCEDURE ClearRecords:
  Notes:
 ------------------------------------------------------------------------------*/
     EMPTY TEMP-TABLE ttBrowseInventory.
-
+    EMPTY TEMP-TABLE ttInventoryLoc.
+    
     RUN dispatch (
         INPUT "open-query"
         ).
@@ -501,7 +502,6 @@ PROCEDURE ScanItem :
 ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ipcCompany   AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcItemID    AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcCustItem  AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcWarehouse AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcLocation  AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER oplError     AS LOGICAL   NO-UNDO.
@@ -513,22 +513,18 @@ PROCEDURE ScanItem :
     EMPTY TEMP-TABLE ttInventoryLoc.
     
     RUN Inventory_BuildFGBinForItem IN hdInventoryProcs (
-        INPUT        ipcCompany,
-        INPUT        ipcWarehouse,
-        INPUT        "",
-        INPUT-OUTPUT ipcItemID,
-        INPUT-OUTPUT ipcCustItem,
-        INPUT        "",
-        INPUT        0,
-        INPUT        FALSE, /* Include Zero qty tags */
-        INPUT        TRUE,  /* Include empty tags */
-        OUTPUT       cConsUOM,
-        OUTPUT       oplError,
-        OUTPUT       opcMessage    
+        INPUT  ipcCompany,
+        INPUT  ipcWarehouse,
+        INPUT  ipcLocation,
+        INPUT  ipcItemID,
+        INPUT  "",
+        INPUT  0,
+        INPUT  FALSE, /* Include Zero qty tags */
+        INPUT  TRUE,  /* Include empty tags */
+        OUTPUT cConsUOM,
+        OUTPUT oplError,
+        OUTPUT opcMessage    
         ). 
-    
-    IF oplError THEN
-        MESSAGE opcMessage VIEW-AS ALERT-BOX ERROR.
 
     IF NOT oplError THEN DO:
         FOR EACH ttBrowseInventory:

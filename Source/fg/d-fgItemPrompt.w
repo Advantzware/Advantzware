@@ -42,6 +42,7 @@ CREATE WIDGET-POOL.
 
 /* Parameters Definitions ---                                           */
 DEFINE INPUT  PARAMETER ipcCompany  AS CHARACTER NO-UNDO.
+DEFINE INPUT  PARAMETER ipcItemID   AS CHARACTER NO-UNDO.
 DEFINE INPUT  PARAMETER ipcCustItem AS CHARACTER NO-UNDO.
 DEFINE OUTPUT PARAMETER opcItemID   AS CHARACTER NO-UNDO.
 
@@ -103,7 +104,7 @@ DEFINE BUTTON btOk AUTO-GO
 DEFINE FRAME D-Dialog
      btCancel AT ROW 1.24 COL 96.2
      btOk AT ROW 1.24 COL 86
-     SPACE(10.19) SKIP(11.41)
+     SPACE(10.20) SKIP(11.41)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          BGCOLOR 21 
@@ -222,6 +223,7 @@ PROCEDURE adm-create-objects :
 
        /* Links to SmartBrowser h_b-fgitem-2. */
        RUN add-link IN adm-broker-hdl ( h_b-fgitem-2 , 'FGITEM':U , THIS-PROCEDURE ).
+       RUN add-link IN adm-broker-hdl ( h_b-fgitem-2 , 'State':U , THIS-PROCEDURE ).
 
        /* Adjust the tab order of the smart objects. */
     END. /* Page 0 */
@@ -323,7 +325,7 @@ PROCEDURE pInit PRIVATE :
     
     FRAME {&FRAME-NAME}:TITLE = FRAME {&FRAME-NAME}:TITLE + " '" + ipcCustItem + "'".
     
-    {methods/run_link.i "FGITEM-SOURCE" "BuildFGItemForCustPart" "(INPUT ipcCompany, INPUT ipcCustItem)"}
+    {methods/run_link.i "FGITEM-SOURCE" "BuildFGItemForCustPart" "(INPUT ipcCompany, INPUT ipcItemID, INPUT ipcCustItem)"}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -353,8 +355,13 @@ PROCEDURE state-changed :
   Parameters:  <none>
   Notes:       
 -------------------------------------------------------------*/
-  DEFINE INPUT PARAMETER p-issuer-hdl AS HANDLE NO-UNDO.
-  DEFINE INPUT PARAMETER p-state AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER p-issuer-hdl AS HANDLE    NO-UNDO.
+    DEFINE INPUT PARAMETER p-state      AS CHARACTER NO-UNDO.
+  
+    CASE p-state:
+        WHEN "item-chosen" THEN
+            APPLY "CHOOSE" TO btOk IN FRAME {&FRAME-NAME}.
+    END CASE.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

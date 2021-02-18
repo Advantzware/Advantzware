@@ -5,4 +5,5 @@ DEFINE TEMP-TABLE ttFGItem NO-UNDO
     FIELD itemDesc       AS CHARACTER LABEL "Item Description"
     FIELD customerPartID AS CHARACTER LABEL "Part #"
     FIELD quantityOnHand AS DECIMAL   LABEL "Quantity On-Hand"
+    INDEX idxCustPartID company itemID customerPartID
     .

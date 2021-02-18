@@ -544,38 +544,33 @@ PROCEDURE ScanItem :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEFINE INPUT        PARAMETER ipcCompany     AS CHARACTER NO-UNDO.
-    DEFINE INPUT        PARAMETER ipcWarehouse   AS CHARACTER NO-UNDO.
-    DEFINE INPUT        PARAMETER ipcLocation    AS CHARACTER NO-UNDO.
-    DEFINE INPUT-OUTPUT PARAMETER iopcItemID     AS CHARACTER NO-UNDO.
-    DEFINE INPUT-OUTPUT PARAMETER iopcCustItem   AS CHARACTER NO-UNDO.
-    DEFINE INPUT        PARAMETER ipcJobNo       AS CHARACTER NO-UNDO.
-    DEFINE INPUT        PARAMETER ipiJobNo2      AS INTEGER   NO-UNDO.    
-    DEFINE INPUT        PARAMETER iplZeroQtyBins AS LOGICAL   NO-UNDO.
-    DEFINE INPUT        PARAMETER iplEmptyTags   AS LOGICAL   NO-UNDO.
-    DEFINE OUTPUT       PARAMETER opcConsUOM     AS CHARACTER NO-UNDO.
-    DEFINE OUTPUT       PARAMETER oplError       AS LOGICAL   NO-UNDO.
-    DEFINE OUTPUT       PARAMETER opcMessage     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcCompany     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcWarehouse   AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcLocation    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcItemID      AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcJobNo       AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiJobNo2      AS INTEGER   NO-UNDO.    
+    DEFINE INPUT  PARAMETER iplZeroQtyBins AS LOGICAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER iplEmptyTags   AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcConsUOM     AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError       AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage     AS CHARACTER NO-UNDO.
     
     EMPTY TEMP-TABLE ttBrowseInventory.
 
     RUN Inventory_BuildFGBinForItem IN hdInventoryProcs (
-        INPUT        ipcCompany,
-        INPUT        ipcWarehouse,
-        INPUT        ipcLocation,
-        INPUT-OUTPUT iopcItemID,
-        INPUT-OUTPUT iopcCustItem,
-        INPUT        ipcJobNo,
-        INPUT        ipiJobNo2,
-        INPUT        iplZeroQtyBins,
-        INPUT        iplEmptyTags,
-        OUTPUT       opcConsUOM,
-        OUTPUT       oplError,
-        OUTPUT       opcMessage
+        INPUT  ipcCompany,
+        INPUT  ipcWarehouse,
+        INPUT  ipcLocation,
+        INPUT  ipcItemID,
+        INPUT  ipcJobNo,
+        INPUT  ipiJobNo2,
+        INPUT  iplZeroQtyBins,
+        INPUT  iplEmptyTags,
+        OUTPUT opcConsUOM,
+        OUTPUT oplError,
+        OUTPUT opcMessage
         ).
-    
-    IF oplError THEN
-        MESSAGE opcMessage VIEW-AS ALERT-BOX ERROR.
 
     {&OPEN-QUERY-{&BROWSE-NAME}}
 

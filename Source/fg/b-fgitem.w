@@ -239,19 +239,24 @@ OPEN QUERY {&SELF-NAME} FOR EACH ttFGItem.
 
  
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _XFTR "SmartBrowserCues" B-table-Win _INLINE
-/* Actions: adecomm/_so-cue.w ? adecomm/_so-cued.p ? adecomm/_so-cuew.p */
-/* SmartBrowser,ab,49266
-Destroy on next read */
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
 
 /* ************************  Control Triggers  ************************ */
 
 &Scoped-define BROWSE-NAME br_table
 &Scoped-define SELF-NAME br_table
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
+ON DEFAULT-ACTION OF br_table IN FRAME F-Main
+DO:
+    RUN new-state (
+        INPUT "item-chosen"
+        ).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
 ON ROW-ENTRY OF br_table IN FRAME F-Main
 DO:
@@ -333,11 +338,13 @@ PROCEDURE BuildFGItemForCustPart :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER ipcCompany       AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcCustItem      AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcCompany  AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcItemID   AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcCustItem AS CHARACTER NO-UNDO.
 
     RUN FG_BuildFGItemForCustPart IN hdFGProcs (
         INPUT  ipcCompany,
+        INPUT  ipcItemID,
         INPUT  ipcCustItem,
         OUTPUT TABLE ttFGItem BY-REFERENCE
         ).

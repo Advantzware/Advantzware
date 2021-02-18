@@ -573,8 +573,8 @@ PROCEDURE ScanItem :
   Notes:       
 ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ipcCompany     AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER iopcItemID     AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER iopcCustItem   AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcItemID      AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcLocation    AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER oplError       AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage     AS CHARACTER NO-UNDO.
     
@@ -582,14 +582,15 @@ PROCEDURE ScanItem :
 
     RUN Inventory_BuildFGBinSummaryForItem IN hdInventoryProcs (
         INPUT  ipcCompany,
-        INPUT  iopcItemID,
-        INPUT  iopcCustItem,
+        INPUT  ipcItemID,
         OUTPUT oplError,
         OUTPUT opcMessage
         ).
     
-    IF oplError THEN
-        MESSAGE opcMessage VIEW-AS ALERT-BOX ERROR.
+    FOR EACH ttBrowseInventory:
+        IF NOT ttBrowseInventory.warehouseID BEGINS ipcLocation THEN
+            DELETE ttBrowseInventory.    
+    END.   
 
     {&OPEN-QUERY-{&BROWSE-NAME}}
 
