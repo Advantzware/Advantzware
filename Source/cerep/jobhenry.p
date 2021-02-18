@@ -435,7 +435,7 @@ FOR EACH job-hdr NO-LOCK
 END. /* first job-no */
 
 FOR EACH ef
-    WHERE ef.company EQ job-hdr.company
+    NO-LOCK WHERE ef.company EQ job-hdr.company
     AND ef.est-no  EQ job-hdr.est-no
     BREAK BY ef.est-no BY ef.form-no:
 
@@ -487,7 +487,7 @@ FOR EACH ef
         END.
         ELSE 
         DO:
-            FOR EACH eb WHERE eb.company     EQ ef.company
+            FOR EACH eb NO-LOCK WHERE eb.company     EQ ef.company
                 AND eb.est-no      EQ ef.est-no
                 AND eb.form-no     EQ ef.form-no
                 AND ((eb.stock-no  EQ job-hdr.i-no AND
