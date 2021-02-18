@@ -86,7 +86,13 @@ DEFINE VARIABLE lActive AS LOG NO-UNDO.
 DEFINE VARIABLE lSwitchToWeb AS LOG NO-UNDO.
 DEFINE VARIABLE iPreOrder AS INTEGER NO-UNDO .
 DEFINE VARIABLE iInvQty AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lButtongoPressed AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lButtongoPressed AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE dSellPrice       AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE dExtendedPrice   AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE cPriceUom        AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCostUom         AS CHARACTER NO-UNDO.
+DEFINE VARIABLE dInvoiceLineCost AS DECIMAL   NO-UNDO.
+
 DEFINE TEMP-TABLE ttRelease NO-UNDO
     FIELD ordlRecID AS RECID
     FIELD lot-no AS CHARACTER
@@ -257,7 +263,10 @@ oe-ordl.i-name oe-ordl.line oe-ordl.po-no-po oe-ordl.e-num oe-ordl.whsed ~
 get-act-bol-qty() @ li-act-bol-qty getTotalReturned() @ dTotQtyRet ~
 getReturnedInv() @ dTotRetInv oe-ordl.s-man[1] ~
 fget-qty-nothand(get-act-rel-qty() + get-act-bol-qty(),li-qoh) @ iHandQtyNoalloc ~
-oe-ordl.managed fnPrevOrder(oe-ordl.est-no,oe-ordl.ord-no) @ iPreOrder
+oe-ordl.managed fnPrevOrder(oe-ordl.est-no,oe-ordl.ord-no) @ iPreOrder ~
+oe-ordl.cost pGetSellPrice() @ dSellPrice ~
+pGetExtendedPrice() @ dExtendedPrice pGetInvoiceLineCost() @ dInvoiceLineCost ~
+pGetPriceUom() @ cPriceUom pGetCostUom() @ cCostUom 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table oe-ordl.ord-no ~
 oe-ordl.cust-no oe-ord.ord-date oe-ordl.req-date oe-ord.cust-name ~
 oe-ordl.i-no oe-ordl.part-no oe-ordl.po-no oe-ordl.est-no oe-ordl.job-no ~
@@ -449,7 +458,7 @@ FUNCTION pGetCostUom RETURNS CHARACTER PRIVATE
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD pGetExtenedPrice B-table-Win
-FUNCTION pGetExtenedPrice RETURNS DECIMAL PRIVATE
+FUNCTION pGetExtendedPrice RETURNS DECIMAL PRIVATE
   (  ) FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
@@ -657,7 +666,8 @@ DEFINE QUERY Browser-Table FOR
       oe-ordl.s-man[1]
       oe-ordl.managed
       oe-ordl.est-no
-      oe-ordl.ord-no), 
+      oe-ordl.ord-no
+      oe-ordl.cost), 
       oe-ord, 
       itemfg SCROLLING.
 &ANALYZE-RESUME
@@ -711,7 +721,14 @@ DEFINE BROWSE Browser-Table
       oe-ordl.s-man[1] COLUMN-LABEL "Rep" FORMAT "x(3)":U LABEL-BGCOLOR 14
       fget-qty-nothand(get-act-rel-qty() + get-act-bol-qty(),li-qoh) @ iHandQtyNoalloc COLUMN-LABEL "On Hand Qty not Allocated" FORMAT "->>>>>>>>":U
       oe-ordl.managed FORMAT "yes/no":U
-      fnPrevOrder(oe-ordl.est-no,oe-ordl.ord-no) @ iPreOrder COLUMN-LABEL "Prev Order" FORMAT ">>>>>>>>":U 
+      fnPrevOrder(oe-ordl.est-no,oe-ordl.ord-no) @ iPreOrder COLUMN-LABEL "Prev Order" FORMAT ">>>>>>>>":U
+      oe-ordl.cost COLUMN-LABEL "Order Line Cost" FORMAT "->>>,>>>,>>9.99":U
+            LABEL-BGCOLOR 14
+      pGetSellPrice() @ dSellPrice COLUMN-LABEL "Sell Price" FORMAT ">>,>>>,>>9.99<<<<":U
+      pGetExtendedPrice() @ dExtendedPrice COLUMN-LABEL "Extended! Price" FORMAT "->>,>>>,>>9.99":U
+      pGetInvoiceLineCost() @ dInvoiceLineCost COLUMN-LABEL "Invoice Line Cost" FORMAT "->>>,>>>,>>9.99<<<<":U
+      pGetPriceUom() @ cPriceUom COLUMN-LABEL "UOM" FORMAT "X(4)":U
+      pGetCostUom() @ cCostUom COLUMN-LABEL "Cost!Uom" FORMAT "x(4)":U
   ENABLE
       oe-ordl.ord-no
       oe-ordl.cust-no
@@ -963,6 +980,18 @@ AND itemfg.i-no EQ oe-ordl.i-no"
 "oe-ordl.managed" ? ? "logical" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[38]   > "_<CALC>"
 "fnPrevOrder(oe-ordl.est-no,oe-ordl.ord-no) @ iPreOrder" "Prev Order" ">>>>>>>>" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[39]   > ASI.oe-ordl.cost
+"oe-ordl.cost" "Order Line Cost" ? "decimal" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[40]   > "_<CALC>"
+"pGetSellPrice() @ dSellPrice" "Sell Price" ">>,>>>,>>9.99<<<<" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[41]   > "_<CALC>"
+"pGetExtendedPrice() @ dExtendedPrice" "Extended! Price" "->>,>>>,>>9.99" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[42]   > "_<CALC>"
+"pGetInvoiceLineCost() @ dInvoiceLineCost" "Invoice Line Cost" "->>>,>>>,>>9.99<<<<" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[43]   > "_<CALC>"
+"pGetPriceUom() @ cPriceUom" "UOM" "X(4)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[44]   > "_<CALC>"
+"pGetCostUom() @ cCostUom" "Cost!Uom" "x(4)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
@@ -2205,9 +2234,7 @@ PROCEDURE pPrepareAndExecuteQuery :
                        + "   AND itemfg.i-no    EQ oe-ordl.i-no"
                        + ( IF fi_cad-no NE "" THEN " AND itemfg.cad-no BEGINS " + QUOTER(fi_cad-no) ELSE "")
                        + " BY " + pGetSortCondition(lv-sort-by,lv-sort-by-lab) + ( IF ll-sort-asc THEN  "" ELSE " DESC") +  " BY oe-ordl.ord-no BY oe-ordl.i-no"
-                       . 
-          MESSAGE cBrowseQuery
-          VIEW-AS ALERT-BOX.                                                              
+                       .                                                               
         RUN Browse_PrepareAndExecuteBrowseQuery(
             INPUT  BROWSE {&BROWSE-NAME}:QUERY, /* Browse Query Handle */      
             INPUT  cBrowseQuery,                /* BRowse Query */             
@@ -3393,7 +3420,7 @@ END FUNCTION.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION pGetExtenedPrice B-table-Win
-FUNCTION pGetExtenedPrice RETURNS DECIMAL PRIVATE
+FUNCTION pGetExtendedPrice RETURNS DECIMAL PRIVATE
   (  ):
 /*------------------------------------------------------------------------------
  Purpose:
@@ -3559,28 +3586,29 @@ FUNCTION pGetSortCondition RETURNS CHARACTER
  Notes:
 ------------------------------------------------------------------------------*/
     
-    RETURN (IF ipcSortBy EQ 'ord-no'    THEN "STRING(oe-ordl.ord-no,'9999999999')" ELSE ~
-            IF ipcSortBy EQ 'cStatus'   THEN "oe-ord.stat"                         ELSE ~
-            IF ipcSortBy EQ 'lc-rs'     THEN "getRS()"                             ELSE ~
-            IF ipcSortBy EQ 'lc-mi'     THEN "getMI()"                             ELSE ~
-            IF ipcSortBy EQ 'ord-date'  THEN "STRING(YEAR(oe-ord.ord-date),'9999') 
-                                             + STRING(MONTH(oe-ord.ord-date),'99') 
-                                             + STRING(DAY(oe-ord.ord-date),'99')"  ELSE ~
-            IF ipcSortBy EQ 'cust-no'   THEN "oe-ordl.cust-no"                     ELSE ~
-            IF ipcSortBy EQ 'po-no'     THEN "oe-ord.po-no"                        ELSE ~
-            IF ipcSortBy EQ 'cust-name' THEN "oe-ord.cust-name"                    ELSE ~
-            IF ipcSortBy EQ 'i-no'      THEN "oe-ordl.i-no"                        ELSE ~
-            IF ipcSortBy EQ 'i-name'    THEN "oe-ordl.i-name"                      ELSE ~
-            IF ipcSortBy EQ 'part-no'   THEN "oe-ordl.part-no"                     ELSE ~
-            IF ipcSortBy EQ 'po-no'     THEN (If ipcSortLabel EQ "Order PO#" THEN 
-                                              oe-ord.po-no ELSE oe-ordl.po-no)     ELSE ~
-            IF ipcSortBy EQ 'est-no'    THEN "oe-ordl.est-no"                      ELSE ~
-            IF ipcSortBy EQ 'job-no'    THEN "STRING(oe-ordl.job-no,'x(6)') 
-                                                 + STRING(oe-ordl.job-no2,'99')"   ELSE ~
-            IF ipcSortBy EQ 'cad-no'    THEN "itemfg.cad-no"                       ELSE ~
-            IF ipcSortBy EQ 's-man'     THEN "oe-ordl.s-man[1]"                    ELSE ~
-            IF ipcSortBy EQ 'e-num'     THEN "STRING(oe-ordl.e-num)"               ELSE ~
-            IF ipcSortBy EQ 'rec_key'   THEN "STRING(oe-ord.rec_key)"              ELSE ~
+    RETURN (IF ipcSortBy EQ 'ord-no'    THEN "STRING(oe-ordl.ord-no,'9999999999')"   ELSE ~
+            IF ipcSortBy EQ 'cStatus'   THEN "oe-ord.stat"                           ELSE ~
+            IF ipcSortBy EQ 'lc-rs'     THEN "getRS()"                               ELSE ~
+            IF ipcSortBy EQ 'lc-mi'     THEN "getMI()"                               ELSE ~
+            IF ipcSortBy EQ 'ord-date'  THEN "STRING(YEAR(oe-ord.ord-date),'9999')   
+                                             + STRING(MONTH(oe-ord.ord-date),'99')   
+                                             + STRING(DAY(oe-ord.ord-date),'99')"    ELSE ~
+            IF ipcSortBy EQ 'cust-no'   THEN "oe-ordl.cust-no"                       ELSE ~
+            IF ipcSortBy EQ 'po-no'     THEN "oe-ord.po-no"                          ELSE ~
+            IF ipcSortBy EQ 'cust-name' THEN "oe-ord.cust-name"                      ELSE ~
+            IF ipcSortBy EQ 'i-no'      THEN "oe-ordl.i-no"                          ELSE ~
+            IF ipcSortBy EQ 'i-name'    THEN "oe-ordl.i-name"                        ELSE ~
+            IF ipcSortBy EQ 'part-no'   THEN "oe-ordl.part-no"                       ELSE ~
+            IF ipcSortBy EQ 'po-no'     THEN (If ipcSortLabel EQ "Order PO#" THEN    
+                                              oe-ord.po-no ELSE oe-ordl.po-no)       ELSE ~
+            IF ipcSortBy EQ 'est-no'    THEN "oe-ordl.est-no"                        ELSE ~
+            IF ipcSortBy EQ 'job-no'    THEN "STRING(oe-ordl.job-no,'x(6)')          
+                                                 + STRING(oe-ordl.job-no2,'99')"     ELSE ~
+            IF ipcSortBy EQ 'cad-no'    THEN "itemfg.cad-no"                         ELSE ~
+            IF ipcSortBy EQ 's-man'     THEN "oe-ordl.s-man[1]"                      ELSE ~
+            IF ipcSortBy EQ 'e-num'     THEN "STRING(oe-ordl.e-num)"                 ELSE ~
+            IF ipcSortBy EQ 'cost'      THEN "STRING(oe-ordl.cost,'-9999999999.99')" ELSE ~
+            IF ipcSortBy EQ 'rec_key'   THEN "STRING(oe-ord.rec_key)"                ELSE ~
                                              "STRING(YEAR(oe-ordl.req-date),'9999')
                                              + STRING(MONTH(oe-ordl.req-date),'99')
                                              + STRING(DAY(oe-ordl.req-date),'99')"
