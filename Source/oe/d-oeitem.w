@@ -8340,6 +8340,13 @@ IF AVAIL itemfg THEN DO:
               e-itemfg-vend.form-no  EQ b-eb2.form-no AND
               e-itemfg-vend.blank-no EQ b-eb2.blank-no
               NO-LOCK:
+              
+              IF e-itemfg-vend.i-no EQ "" THEN 
+              DO:
+                 FIND CURRENT e-itemfg-vend EXCLUSIVE-LOCK NO-ERROR .
+                 ASSIGN e-itemfg-vend.i-no = b-eb2.stock-no. 
+                 FIND CURRENT e-itemfg-vend NO-LOCK NO-ERROR .    
+              END.
 
               v-cost-updated = NO.
 
