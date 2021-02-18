@@ -530,7 +530,7 @@ print-po-blok:
                 "Score: " AT 8
                 len-score FORMAT "X(70)" .
            IF v-totflg AND ITEM.mat-type EQ "B" THEN 
-           PUT "Total Sq. Ft: "  AT 50 v-tot-sqft FORM ">>>,>>9".
+           PUT "Total Sq. Ft: "  AT 50 v-tot-sqft FORM ">>>,>>>,>>9".
 
             ASSIGN
             v-line-number = v-line-number + 1
