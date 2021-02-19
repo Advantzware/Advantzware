@@ -281,7 +281,7 @@ DEFINE FRAME F-Main
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 160 BY 28.62
+         SIZE 200 BY 28.62
          BGCOLOR 21 FGCOLOR 1  WIDGET-ID 100.
 
 
@@ -809,7 +809,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_userparam ).
-       RUN set-position IN h_userparam ( 4.91 , 2.00 ) NO-ERROR.
+       RUN set-position IN h_userparam ( 4.91 , 1.00 ) NO-ERROR.
        /* Size in UIB:  ( 24.71 , 158.00 ) */
 
     END. /* Page 2 */
@@ -1248,10 +1248,10 @@ PROCEDURE pWinReSize :
     SESSION:SET-WAIT-STATE("General").
     DO WITH FRAME {&FRAME-NAME}:
         HIDE FRAME {&FRAME-NAME}.
-        IF {&WINDOW-NAME}:HEIGHT LT 33 THEN
+        IF {&WINDOW-NAME}:HEIGHT LT 33  THEN
         {&WINDOW-NAME}:HEIGHT = 33.
-        IF {&WINDOW-NAME}:WIDTH  LT 160   THEN
-        {&WINDOW-NAME}:WIDTH  = 160.
+        IF {&WINDOW-NAME}:WIDTH  LT 200 THEN
+        {&WINDOW-NAME}:WIDTH  = 200.
         ASSIGN
             FRAME {&FRAME-NAME}:VIRTUAL-HEIGHT = {&WINDOW-NAME}:HEIGHT
             FRAME {&FRAME-NAME}:VIRTUAL-WIDTH  = {&WINDOW-NAME}:WIDTH
