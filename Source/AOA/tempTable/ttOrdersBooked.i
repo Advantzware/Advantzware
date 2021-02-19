@@ -2,7 +2,7 @@
 
 /* Orders Booked.rpa */
 DEFINE TEMP-TABLE ttOrdersBooked NO-UNDO
-    {aoa/tempTable/ttFields.i}
+    {AOA/tempTable/ttFields.i}
     FIELD salesRep     AS CHARACTER LABEL "Sales Rep"      FORMAT "X(3)"
     FIELD salesRepName AS CHARACTER LABEL "Sales Rep Name" FORMAT "X(30)"
     FIELD dueDate      AS DATE      LABEL "Due Date"       FORMAT 99/99/9999
@@ -36,6 +36,13 @@ DEFINE TEMP-TABLE ttOrdersBooked NO-UNDO
     FIELD dFullCost    AS DECIMAL   LABEL "Full Cost"      FORMAT "->>>>>>>9.99"
     FIELD cEnterBy     AS CHARACTER LABEL "Entered By"     FORMAT "x(10)"
     FIELD cStatus      AS CHARACTER LABEL "Status"         FORMAT "x(20)"
+    FIELD shippedQty   AS INTEGER   LABEL "Shipped Qty"    
+    FIELD ackDate      AS DATE      LABEL "Ack. Date"      FORMAT "99/99/9999"
+    FIELD shipFrom     AS CHARACTER LABEL "Ship From"      FORMAT "x(9)"
+    FIELD poReceived   AS DATE      LABEL "PO Received"    FORMAT "99/99/9999"
+    FIELD prevOrderNo  AS CHARACTER LABEL "Prev Order"     FORMAT "x(8)"
+    FIELD approvedDate AS DATE      LABEL "Approved Date"  FORMAT "99/99/9999"
+    FIELD csr          AS CHARACTER LABEL "CSR"            FORMAT "x(8)"
     FIELD zzCost       AS DECIMAL   LABEL "Cost"           FORMAT "->>,>>9.99"   
     FIELD xxSort       AS CHARACTER LABEL "Sort"           FORMAT "x(100)"
         INDEX ttOrdersBooked IS PRIMARY rowType xxSort
