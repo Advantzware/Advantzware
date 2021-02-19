@@ -596,6 +596,7 @@ END.
 ON LEAVE OF rm-rctd.tag IN BROWSE Browser-Table /* Tag# */
 DO:
   DEFINE VARIABLE lvTag AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE lFoundRecord AS LOGICAL NO-UNDO.
   
   IF LASTKEY NE -1 THEN  DO:
     lvTag = rm-rctd.tag:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}.
@@ -615,18 +616,15 @@ DO:
     
     IF adm-new-record THEN
     DO:
-       FIND FIRST rm-rdtlh WHERE
+       FOR EACH rm-rdtlh WHERE
             rm-rdtlh.company EQ cocode AND
             rm-rdtlh.loc EQ loadtag.loc AND
             rm-rdtlh.loc-bin EQ loadtag.loc-bin AND
             rm-rdtlh.tag EQ loadtag.tag-no AND
             rm-rdtlh.rita-code EQ "I" AND
             rm-rdtlh.qty GT 0
-            NO-LOCK NO-ERROR.
-       
-       IF AVAIL rm-rdtlh THEN DO:
-       
-         FOR EACH rm-rcpth OF rm-rdtlh
+            NO-LOCK,        
+           EACH rm-rcpth OF rm-rdtlh
              NO-LOCK BREAK BY rm-rcpth.trans-date DESC:
               
              ASSIGN
@@ -640,11 +638,12 @@ DO:
                rm-rctd.loc-bin:SCREEN-VALUE = rm-rdtlh.loc-bin
                rm-rctd.s-num:SCREEN-VALUE = STRING(rm-rdtlh.s-num)
                rm-rctd.b-num:SCREEN-VALUE = STRING(rm-rdtlh.b-num).
+               lFoundRecord = YES.
              LEAVE.
-         END.
+       END.
+       IF lFoundRecord THEN 
+       RUN update-qty-proc.
        
-         RUN update-qty-proc.
-       END. /* avail rm-rdtlh*/
     END.
 
        
