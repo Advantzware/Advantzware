@@ -2331,15 +2331,18 @@ PROCEDURE valid-issued-tag :
     IF AVAIL loadtag THEN
       FOR EACH rm-rdtlh FIELDS(r-no) WHERE
            rm-rdtlh.company EQ cocode AND
-           rm-rdtlh.loc EQ loadtag.loc AND
-           rm-rdtlh.loc-bin EQ loadtag.loc-bin AND
+/*           rm-rdtlh.loc EQ loadtag.loc AND        */
+/*           rm-rdtlh.loc-bin EQ loadtag.loc-bin AND*/
+           rm-rdtlh.rita-code EQ 'I' AND
            rm-rdtlh.tag EQ loadtag.tag-no
            NO-LOCK,
       FIRST rm-rcpth WHERE
            rm-rcpth.r-no    EQ rm-rdtlh.r-no AND
            rm-rcpth.i-no    EQ loadtag.i-no
            NO-LOCK:
-  
+          ASSIGN 
+            rm-rctd.loc:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} = rm-rdtlh.loc
+            rm-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} = rm-rdtlh.loc-bin 
            lv-valid-tag = YES.
            LEAVE.
       END.
