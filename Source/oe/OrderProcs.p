@@ -3351,7 +3351,7 @@ PROCEDURE pOrderProcsMakeBOLLs PRIVATE:
            AND oe-relh.release# EQ ipiReleaseID 
          NO-ERROR.
          
-    FIND FIRST oe-bolh NO-LOCK
+    FIND FIRST oe-bolh EXCLUSIVE-LOCK
          WHERE oe-bolh.company EQ ipcCompany
            AND oe-bolh.bol-no  EQ ipiBOLID
          NO-ERROR.
