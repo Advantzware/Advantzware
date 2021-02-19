@@ -209,32 +209,30 @@ PROCEDURE Inventory_BuildFGBinForItem:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE INPUT        PARAMETER ipcCompany     AS CHARACTER NO-UNDO.
-    DEFINE INPUT        PARAMETER ipcWarehouseID AS CHARACTER NO-UNDO.
-    DEFINE INPUT        PARAMETER ipcLocationID  AS CHARACTER NO-UNDO.    
-    DEFINE INPUT-OUTPUT PARAMETER iopcItemID     AS CHARACTER NO-UNDO.
-    DEFINE INPUT-OUTPUT PARAMETER iopcCustItem   AS CHARACTER NO-UNDO.
-    DEFINE INPUT        PARAMETER ipcJobNo       AS CHARACTER NO-UNDO.
-    DEFINE INPUT        PARAMETER ipiJobNo2      AS INTEGER   NO-UNDO.
-    DEFINE INPUT        PARAMETER iplZeroQtyBins AS LOGICAL   NO-UNDO.
-    DEFINE INPUT        PARAMETER iplEmptyTags   AS LOGICAL   NO-UNDO.
-    DEFINE OUTPUT       PARAMETER opcConsUOM     AS CHARACTER NO-UNDO.
-    DEFINE OUTPUT       PARAMETER oplError       AS LOGICAL   NO-UNDO.
-    DEFINE OUTPUT       PARAMETER opcMessage     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcCompany     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcWarehouseID AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcLocationID  AS CHARACTER NO-UNDO.    
+    DEFINE INPUT  PARAMETER iopcItemID     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcJobNo       AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiJobNo2      AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER iplZeroQtyBins AS LOGICAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER iplEmptyTags   AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcConsUOM     AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError       AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage     AS CHARACTER NO-UNDO.
 
     RUN pBuildFGBinForItem (
-        INPUT        ipcCompany,
-        INPUT        ipcWarehouseID,
-        INPUT        ipcLocationID,
-        INPUT-OUTPUT iopcItemID,
-        INPUT-OUTPUT iopcCustItem,
-        INPUT        ipcJobNo,
-        INPUT        ipiJobNo2,
-        INPUT        iplZeroQtyBins,
-        INPUT        iplEmptyTags,
-        OUTPUT       opcConsUOM,
-        OUTPUT       oplError,
-        OUTPUT       opcMessage    
+        INPUT  ipcCompany,
+        INPUT  ipcWarehouseID,
+        INPUT  ipcLocationID,
+        INPUT  iopcItemID,
+        INPUT  ipcJobNo,
+        INPUT  ipiJobNo2,
+        INPUT  iplZeroQtyBins,
+        INPUT  iplEmptyTags,
+        OUTPUT opcConsUOM,
+        OUTPUT oplError,
+        OUTPUT opcMessage    
         ).
 END PROCEDURE.
 
@@ -935,7 +933,6 @@ PROCEDURE Inventory_BuildFGBinSummaryForItem:
 ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ipcCompany   AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcItemID    AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcCustItem  AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER oplError     AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage   AS CHARACTER NO-UNDO.
 
@@ -948,8 +945,7 @@ PROCEDURE Inventory_BuildFGBinSummaryForItem:
     RUN pBuildFGBinSummaryForItem (
         INPUT  ipcCompany,
         INPUT  ipcItemID,
-        INPUT  ipcCustItem,
-        INPUT  TRUE,
+        INPUT  TRUE,  /* Build Temp-table */
         OUTPUT iTotOnHand, 
         OUTPUT iTotOnOrder,
         OUTPUT iTotAlloc,  
@@ -967,7 +963,6 @@ PROCEDURE Inventory_BuildFGBinTotalsForItem:
 ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ipcCompany    AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcItemID     AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcCustItem   AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opiTotOnHand  AS INTEGER   NO-UNDO.
     DEFINE OUTPUT PARAMETER opiTotOnOrder AS INTEGER   NO-UNDO.
     DEFINE OUTPUT PARAMETER opiTotAlloc   AS INTEGER   NO-UNDO.
@@ -979,8 +974,7 @@ PROCEDURE Inventory_BuildFGBinTotalsForItem:
     RUN pBuildFGBinSummaryForItem (
         INPUT  ipcCompany,
         INPUT  ipcItemID,
-        INPUT  ipcCustItem,
-        INPUT  FALSE,
+        INPUT  FALSE, /* Build temp-table */
         OUTPUT opiTotOnHand, 
         OUTPUT opiTotOnOrder,
         OUTPUT opiTotAlloc,  
@@ -998,7 +992,6 @@ PROCEDURE pBuildFGBinSummaryForItem PRIVATE:
 ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ipcCompany    AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcItemID     AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcCustItem   AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER iplCreateTT   AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opiTotOnHand  AS INTEGER   NO-UNDO.
     DEFINE OUTPUT PARAMETER opiTotOnOrder AS INTEGER   NO-UNDO.
@@ -1012,30 +1005,23 @@ PROCEDURE pBuildFGBinSummaryForItem PRIVATE:
     DEFINE BUFFER bf-itemfg-loc FOR itemfg-loc.
     DEFINE BUFFER bf-loc        FOR loc.
     
-    IF ipcItemID EQ "" AND ipcCustItem EQ "" THEN DO:
+    IF ipcItemID EQ "" THEN DO:
         ASSIGN
             oplError   = TRUE
-            opcMessage = "Item #/Customer Item # is empty"
+            opcMessage = "Item # is empty"
             .
         RETURN.        
     END.
     
-    IF ipcItemID NE "" THEN
-        FIND FIRST bf-itemfg NO-LOCK
-             WHERE bf-itemfg.company EQ ipcCompany
-               AND bf-itemfg.i-no    EQ ipcItemID
-             NO-ERROR.
-    
-    IF NOT AVAILABLE bf-itemfg AND ipcCustItem NE "" THEN
-        FIND FIRST bf-itemfg NO-LOCK
-             WHERE bf-itemfg.company EQ ipcCompany
-               AND bf-itemfg.part-no EQ ipcCustItem
-             NO-ERROR.
+    FIND FIRST bf-itemfg NO-LOCK
+         WHERE bf-itemfg.company EQ ipcCompany
+           AND bf-itemfg.i-no    EQ ipcItemID
+         NO-ERROR.
     
     IF NOT AVAILABLE bf-itemfg THEN DO:
         ASSIGN
             oplError   = TRUE
-            opcMessage = "Invalid Item # '" + ipcItemID + "' or Customer Item # '" + ipcCustItem + "'" 
+            opcMessage = "Invalid Item # '" + ipcItemID + "'" 
             .
         RETURN.
     END.
@@ -1124,7 +1110,7 @@ PROCEDURE pBuildFGBinSummaryForItem PRIVATE:
         IF NOT TEMP-TABLE ttBrowseInventory:HAS-RECORDS THEN DO:
             ASSIGN
                 oplError   = TRUE
-                opcMessage = "No FG bins available for Item # '" + ipcItemID + "' or Customer Item # '" + ipcCustItem + "'"
+                opcMessage = "No FG bins available for Item # '" + ipcItemID + "'"
                 .
             RETURN.        
         END.
@@ -1187,11 +1173,10 @@ PROCEDURE pBuildRMBinSummaryForItem PRIVATE:
         RETURN.        
     END.
     
-    IF ipcItemID NE "" THEN
-        FIND FIRST bf-item NO-LOCK
-             WHERE bf-item.company EQ ipcCompany
-               AND bf-item.i-no    EQ ipcItemID
-             NO-ERROR.
+    FIND FIRST bf-item NO-LOCK
+         WHERE bf-item.company EQ ipcCompany
+           AND bf-item.i-no    EQ ipcItemID
+         NO-ERROR.
     
     IF NOT AVAILABLE bf-item THEN DO:
         ASSIGN
@@ -1238,18 +1223,17 @@ PROCEDURE pBuildFGBinForItem PRIVATE:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE INPUT        PARAMETER ipcCompany     AS CHARACTER NO-UNDO.
-    DEFINE INPUT        PARAMETER ipcWarehouseID AS CHARACTER NO-UNDO.
-    DEFINE INPUT        PARAMETER ipcLocationID  AS CHARACTER NO-UNDO.
-    DEFINE INPUT-OUTPUT PARAMETER iopcItemID     AS CHARACTER NO-UNDO.
-    DEFINE INPUT-OUTPUT PARAMETER iopcCustItem   AS CHARACTER NO-UNDO.
-    DEFINE INPUT        PARAMETER ipcJobNo       AS CHARACTER NO-UNDO.
-    DEFINE INPUT        PARAMETER ipiJobNo2      AS INTEGER   NO-UNDO.    
-    DEFINE INPUT        PARAMETER iplZeroQtyBins AS LOGICAL   NO-UNDO.
-    DEFINE INPUT        PARAMETER iplEmptyTags   AS LOGICAL   NO-UNDO.
-    DEFINE OUTPUT       PARAMETER opcConsUOM     AS CHARACTER NO-UNDO.
-    DEFINE OUTPUT       PARAMETER oplError       AS LOGICAL   NO-UNDO.
-    DEFINE OUTPUT       PARAMETER opcMessage     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcCompany     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcWarehouseID AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcLocationID  AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcItemID      AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcJobNo       AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiJobNo2      AS INTEGER   NO-UNDO.    
+    DEFINE INPUT  PARAMETER iplZeroQtyBins AS LOGICAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER iplEmptyTags   AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcConsUOM     AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError       AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage     AS CHARACTER NO-UNDO.
     
     DEFINE VARIABLE lRecAvail         AS LOGICAL NO-UNDO.
     DEFINE VARIABLE lIsWarehouseEmpty AS LOGICAL NO-UNDO.
@@ -1259,7 +1243,7 @@ PROCEDURE pBuildFGBinForItem PRIVATE:
     DEFINE BUFFER bf-itemfg FOR itemfg.
     DEFINE BUFFER bf-fg-bin FOR fg-bin.
     
-    IF iopcItemID EQ "" AND iopcCustItem EQ "" THEN DO:
+    IF ipcItemID EQ "" THEN DO:
         ASSIGN
             oplError   = TRUE
             opcMessage = "Item #/Customer Item # is empty"
@@ -1267,29 +1251,20 @@ PROCEDURE pBuildFGBinForItem PRIVATE:
         RETURN.        
     END.
     
-    IF iopcItemID NE "" THEN
-        FIND FIRST bf-itemfg NO-LOCK
-             WHERE bf-itemfg.company EQ ipcCompany
-               AND bf-itemfg.i-no    EQ iopcItemID
-             NO-ERROR.
-    
-    IF NOT AVAILABLE bf-itemfg AND iopcCustItem NE "" THEN
-        FIND FIRST bf-itemfg NO-LOCK
-             WHERE bf-itemfg.company EQ ipcCompany
-               AND bf-itemfg.part-no EQ iopcCustItem
-             NO-ERROR.
+    FIND FIRST bf-itemfg NO-LOCK
+         WHERE bf-itemfg.company EQ ipcCompany
+           AND bf-itemfg.i-no    EQ ipcItemID
+         NO-ERROR.
     
     IF NOT AVAILABLE bf-itemfg THEN DO:
         ASSIGN
             oplError   = TRUE
-            opcMessage = "Invalid Item # '" + iopcItemID + "' or Customer Item # '" + iopcCustItem + "'" 
+            opcMessage = "Invalid Item # '" + ipcItemID + "'" 
             .
         RETURN.
     END.
     
     ASSIGN
-        iopcItemID   = bf-itemfg.i-no
-        iopcCustItem = bf-itemfg.part-no
         opcConsUOM   = IF bf-itemfg.cons-uom EQ "" THEN
                            "EA"
                        ELSE
@@ -1334,7 +1309,7 @@ PROCEDURE pBuildFGBinForItem PRIVATE:
     IF NOT TEMP-TABLE ttBrowseInventory:HAS-RECORDS THEN DO:
         ASSIGN
             oplError   = TRUE
-            opcMessage = "No FG bins available for Item # '" + iopcItemID + "' or Customer Item # '" + iopcCustItem + "'"
+            opcMessage = "No FG bins available for Item # '" + ipcItemID + "'"
             .
         RETURN.        
     END.    

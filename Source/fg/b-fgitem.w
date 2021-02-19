@@ -12,10 +12,9 @@
 *********************************************************************/
 /*------------------------------------------------------------------------
 
-  File:  sharpshooter/b-fgInqLocBin.w
+  File:  fg/b-itemfg.w
 
-  Description: from BROWSER.W - Basic SmartBrowser Object Template
-
+  Description:
   Input Parameters:
       <none>
 
@@ -35,29 +34,12 @@
 CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
+{fg/ttFGItem.i}
 
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-{Inventory/ttInventory.i "NEW SHARED"}
-{methods/defines/sortByDefs.i}
-
-DEFINE TEMP-TABLE ttInventoryLoc NO-UNDO
-    FIELD locationID     AS CHARACTER 
-    FIELD warehouseID    AS CHARACTER
-    FIELD totWhseTags    AS INTEGER
-    FIELD totLocTags     AS INTEGER
-    FIELD quantityOnHand AS DECIMAL
-    INDEX locationID warehouseID locationID
-    .
-    
-DEFINE VARIABLE hdInventoryProcs AS HANDLE NO-UNDO.
-DEFINE VARIABLE iWarehouseLength  AS INTEGER   NO-UNDO.
-DEFINE VARIABLE cCompany          AS CHARACTER NO-UNDO.
-
-RUN Inventory/InventoryProcs.p PERSISTENT SET hdInventoryProcs.
-
-&SCOPED-DEFINE SORTBY-PHRASE BY ttInventoryLoc.warehouseID
+DEFINE VARIABLE hdFGProcs AS HANDLE NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -74,25 +56,28 @@ RUN Inventory/InventoryProcs.p PERSISTENT SET hdInventoryProcs.
 
 /* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
-&Scoped-define BROWSE-NAME ttBrowseInventory
+&Scoped-define BROWSE-NAME br_table
 
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
-&Scoped-define INTERNAL-TABLES ttInventoryLoc
+&Scoped-define INTERNAL-TABLES ttFGItem
 
-/* Definitions for BROWSE ttBrowseInventory                             */
-&Scoped-define FIELDS-IN-QUERY-ttBrowseInventory ttInventoryLoc.locationID ttInventoryLoc.totLocTags ttInventoryLoc.warehouseID   
-&Scoped-define ENABLED-FIELDS-IN-QUERY-ttBrowseInventory   
-&Scoped-define SELF-NAME ttBrowseInventory
-&Scoped-define QUERY-STRING-ttBrowseInventory FOR EACH ttInventoryLoc ~{&SORTBY-PHRASE}
-&Scoped-define OPEN-QUERY-ttBrowseInventory OPEN QUERY {&SELF-NAME} FOR EACH ttInventoryLoc ~{&SORTBY-PHRASE}.
-&Scoped-define TABLES-IN-QUERY-ttBrowseInventory ttInventoryLoc
-&Scoped-define FIRST-TABLE-IN-QUERY-ttBrowseInventory ttInventoryLoc
+/* Define KEY-PHRASE in case it is used by any query. */
+&Scoped-define KEY-PHRASE TRUE
+
+/* Definitions for BROWSE br_table                                      */
+&Scoped-define FIELDS-IN-QUERY-br_table ttFGItem.itemID ttFGItem.quantityOnHand   
+&Scoped-define ENABLED-FIELDS-IN-QUERY-br_table   
+&Scoped-define SELF-NAME br_table
+&Scoped-define QUERY-STRING-br_table FOR EACH ttFGItem
+&Scoped-define OPEN-QUERY-br_table OPEN QUERY {&SELF-NAME} FOR EACH ttFGItem.
+&Scoped-define TABLES-IN-QUERY-br_table ttFGItem
+&Scoped-define FIRST-TABLE-IN-QUERY-br_table ttFGItem
 
 
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS ttBrowseInventory 
+&Scoped-Define ENABLED-OBJECTS br_table 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -143,22 +128,6 @@ RUN set-attribute-list (
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-/* ************************  Function Prototypes ********************** */
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetConcatJob B-table-Win 
-FUNCTION fGetConcatJob RETURNS CHARACTER
-  ( /* parameter-definitions */ )  FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetConcatLocation B-table-Win 
-FUNCTION fGetConcatLocation RETURNS CHARACTER PRIVATE
-  ( /* parameter-definitions */ )  FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
 /* ***********************  Control Definitions  ********************** */
 
@@ -166,28 +135,25 @@ FUNCTION fGetConcatLocation RETURNS CHARACTER PRIVATE
 /* Definitions of the field level widgets                               */
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
-DEFINE QUERY ttBrowseInventory FOR 
-      ttInventoryLoc SCROLLING.
+DEFINE QUERY br_table FOR 
+      ttFGItem SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
-DEFINE BROWSE ttBrowseInventory
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS ttBrowseInventory B-table-Win _FREEFORM
-  QUERY ttBrowseInventory DISPLAY
-      ttInventoryLoc.locationID WIDTH 40 COLUMN-LABEL "Location" FORMAT "X(20)" LABEL-BGCOLOR 14
-    ttInventoryLoc.totLocTags WIDTH 40 COLUMN-LABEL "Total Tags Per Location" FORMAT "->,>>>,>>>,>>9" LABEL-BGCOLOR 14
-    ttInventoryLoc.warehouseID WIDTH 35 COLUMN-LABEL "Warehouse" FORMAT "X(5)" LABEL-BGCOLOR 14
-    ttInventoryLoc.quantityOnHand WIDTH 25 COLUMN-LABEL "Qty On-Hand" FORMAT "->,>>>,>>>,>>9" LABEL-BGCOLOR 14
+DEFINE BROWSE br_table
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br_table B-table-Win _FREEFORM
+  QUERY br_table NO-LOCK DISPLAY
+      ttFGItem.itemID WIDTH 50 FORMAT "X(30)"
+ttFGItem.quantityOnHand WIDTH 30
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS NO-TAB-STOP SIZE 179 BY 26.91
-         FONT 36 ROW-HEIGHT-CHARS .95 FIT-LAST-COLUMN.
+    WITH NO-ASSIGN SEPARATORS SIZE 87 BY 11.67.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     ttBrowseInventory AT ROW 1 COL 1 WIDGET-ID 200
+     br_table AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE  WIDGET-ID 100.
@@ -219,8 +185,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW B-table-Win ASSIGN
-         HEIGHT             = 27.05
-         WIDTH              = 179.2.
+         HEIGHT             = 11.67
+         WIDTH              = 87.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -243,19 +209,26 @@ END.
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
-/* BROWSE-TAB ttBrowseInventory 1 F-Main */
+/* BROWSE-TAB br_table 1 F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
-
-ASSIGN 
-       ttBrowseInventory:ALLOW-COLUMN-SEARCHING IN FRAME F-Main = TRUE.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
 
 /* Setting information for Queries and Browse Widgets fields            */
+
+&ANALYZE-SUSPEND _QUERY-BLOCK BROWSE br_table
+/* Query rebuild information for BROWSE br_table
+     _START_FREEFORM
+OPEN QUERY {&SELF-NAME} FOR EACH ttFGItem.
+     _END_FREEFORM
+     _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
+     _Query            is NOT OPENED
+*/  /* BROWSE br_table */
+&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _QUERY-BLOCK FRAME F-Main
 /* Query rebuild information for FRAME F-Main
@@ -264,54 +237,55 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _QUERY-BLOCK BROWSE ttBrowseInventory
-/* Query rebuild information for BROWSE ttBrowseInventory
-     _START_FREEFORM
-OPEN QUERY {&SELF-NAME} FOR EACH ttInventoryLoc ~{&SORTBY-PHRASE}.
-     _END_FREEFORM
-     _Query            is NOT OPENED
-*/  /* BROWSE ttBrowseInventory */
-&ANALYZE-RESUME
-
  
 
 
 
 /* ************************  Control Triggers  ************************ */
 
-&Scoped-define BROWSE-NAME ttBrowseInventory
-&Scoped-define SELF-NAME ttBrowseInventory
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ttBrowseInventory B-table-Win
-ON START-SEARCH OF ttBrowseInventory IN FRAME F-Main
+&Scoped-define BROWSE-NAME br_table
+&Scoped-define SELF-NAME br_table
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
+ON DEFAULT-ACTION OF br_table IN FRAME F-Main
 DO:
-    IF {&BROWSE-NAME}:CURRENT-COLUMN:NAME NE ? THEN DO:
-        cColumnLabel = BROWSE {&BROWSE-NAME}:CURRENT-COLUMN:NAME.
-        
-        IF cColumnLabel EQ cSaveLabel THEN
-            lAscending = NOT lAscending.
-        IF VALID-HANDLE(hSaveLabel) THEN
-            hSaveLabel:LABEL-BGCOLOR = ?.
-    
-        ASSIGN
-            hColumnLabel               = {&BROWSE-NAME}:CURRENT-COLUMN
-            hColumnLabel:LABEL-BGCOLOR = 14
-            hSaveLabel                 = hColumnLabel
-            cSaveLabel                 = cColumnLabel
-            .
-        RUN pReopenBrowse.
-    END.
-    
-    RETURN NO-APPLY.  
+    RUN new-state (
+        INPUT "item-chosen"
+        ).
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ttBrowseInventory B-table-Win
-ON VALUE-CHANGED OF ttBrowseInventory IN FRAME F-Main
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
+ON ROW-ENTRY OF br_table IN FRAME F-Main
 DO:
-    //btAdjustQty:SENSITIVE = AVAILABLE ttBrowseInventory.
+  /* This code displays initial values for newly added or copied rows. */
+  {src/adm/template/brsentry.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
+ON ROW-LEAVE OF br_table IN FRAME F-Main
+DO:
+    /* Do not disable this code or no updates will take place except
+     by pressing the Save button on an Update SmartPanel. */
+   {src/adm/template/brsleave.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
+ON VALUE-CHANGED OF br_table IN FRAME F-Main
+DO:
+  /* This ADM trigger code must be preserved in order to notify other
+     objects when the browser's current row changes. */
+  {src/adm/template/brschnge.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -328,14 +302,6 @@ END.
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF
-
-{sharpshooter/smartobj/browseNavigate.i}
-
-&Scoped-define sdBrowseName ttBrowseInventory
-{methods/sortByProc.i "pByLocationID" "ttInventoryLoc.locationID"}
-{methods/sortByProc.i "pByWarehouseID" "ttInventoryLoc.warehouseID"}
-{methods/sortByProc.i "pByTotTags" "ttInventoryLoc.totLocTags"}
-{methods/sortByProc.i "pByQuantityOnHand" "ttInventoryLoc.quantityOnHand"}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -365,26 +331,31 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ClearRecords B-table-Win
-PROCEDURE ClearRecords:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE BuildFGItemForCustPart B-table-Win 
+PROCEDURE BuildFGItemForCustPart :
 /*------------------------------------------------------------------------------
- Purpose:
- Notes:
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
 ------------------------------------------------------------------------------*/
-    EMPTY TEMP-TABLE ttBrowseInventory.
-    EMPTY TEMP-TABLE ttInventoryLoc.
+    DEFINE INPUT  PARAMETER ipcCompany  AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcItemID   AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcCustItem AS CHARACTER NO-UNDO.
+
+    RUN FG_BuildFGItemForCustPart IN hdFGProcs (
+        INPUT  ipcCompany,
+        INPUT  ipcItemID,
+        INPUT  ipcCustItem,
+        OUTPUT TABLE ttFGItem BY-REFERENCE
+        ).
     
     RUN dispatch (
         INPUT "open-query"
         ).
-
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI B-table-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
@@ -404,36 +375,29 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy B-table-Win
-PROCEDURE local-destroy:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetSelectedFGItem B-table-Win 
+PROCEDURE GetSelectedFGItem :
 /*------------------------------------------------------------------------------
- Purpose:
- Notes:
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
 ------------------------------------------------------------------------------*/
-
-    /* Code placed here will execute PRIOR to standard behavior. */
-    IF VALID-HANDLE(hdInventoryProcs) THEN
-        DELETE PROCEDURE hdInventoryProcs.
-    /* Dispatch standard ADM method.                             */
-    RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
-
-    /* Code placed here will execute AFTER standard behavior.    */
+    DEFINE OUTPUT PARAMETER opcItemID AS CHARACTER NO-UNDO.
     
+    IF AVAILABLE ttFGItem THEN
+        opcItemID = ttFGItem.itemID.
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable W-Win
-PROCEDURE local-enable:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable B-table-Win 
+PROCEDURE local-enable :
 /*------------------------------------------------------------------------------
- Purpose:
- Notes:
+  Purpose:     Override standard ADM method
+  Notes:       
 ------------------------------------------------------------------------------*/
- 
+
     /* Code placed here will execute PRIOR to standard behavior. */
 
     /* Dispatch standard ADM method.                             */
@@ -441,118 +405,20 @@ PROCEDURE local-enable:
 
     /* Code placed here will execute AFTER standard behavior.    */
     RUN pInit.
-
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-  &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pInit W-Win
-PROCEDURE pInit PRIVATE:
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-  /*  RUN inventory/InventoryProcs.p PERSISTENT SET hdInventoryProcs.*/
-    
-    RUN spGetSessionParam ("Company", OUTPUT cCompany).
-    
-    RUN Inventory_GetWarehouseLength IN hdInventoryProcs (
-        INPUT  cCompany,
-        OUTPUT iWarehouseLength
-        ).
-END PROCEDURE.
-	
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pReopenBrowse B-table-Win 
-PROCEDURE pReopenBrowse :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pInit B-table-Win 
+PROCEDURE pInit :
 /*------------------------------------------------------------------------------
   Purpose:     
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    CASE cColumnLabel:
-        WHEN "totLocTags" THEN
-            RUN pByTotTags.
-        WHEN "warehouseID" THEN
-            RUN pByWarehouseID.
-        WHEN "locationID" THEN
-            RUN pByLocationID.
-        WHEN "quantityOnHand" THEN
-            RUN pByQuantityOnhand.
-        OTHERWISE
-        {&OPEN-QUERY-{&BROWSE-NAME}}
-    END CASE.
-
-    IF AVAILABLE ttInventoryLoc THEN
-        APPLY "VALUE-CHANGED":U TO {&BROWSE-NAME} IN FRAME {&FRAME-NAME}.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ScanItem B-table-Win 
-PROCEDURE ScanItem :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER ipcCompany   AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcItemID    AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcWarehouse AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcLocation  AS CHARACTER NO-UNDO.
-    DEFINE OUTPUT PARAMETER oplError     AS LOGICAL   NO-UNDO.
-    DEFINE OUTPUT PARAMETER opcMessage   AS CHARACTER NO-UNDO.
+    RUN fg/FGProcs.p PERSISTENT SET hdFGProcs.
     
-    DEFINE VARIABLE cConsUOM AS CHARACTER NO-UNDO.
-    
-    EMPTY TEMP-TABLE ttBrowseInventory.
-    EMPTY TEMP-TABLE ttInventoryLoc.
-    
-    RUN Inventory_BuildFGBinForItem IN hdInventoryProcs (
-        INPUT  ipcCompany,
-        INPUT  ipcWarehouse,
-        INPUT  ipcLocation,
-        INPUT  ipcItemID,
-        INPUT  "",
-        INPUT  0,
-        INPUT  FALSE, /* Include Zero qty tags */
-        INPUT  TRUE,  /* Include empty tags */
-        OUTPUT cConsUOM,
-        OUTPUT oplError,
-        OUTPUT opcMessage    
-        ). 
-
-    IF NOT oplError THEN DO:
-        FOR EACH ttBrowseInventory:
-            FIND FIRST ttInventoryLoc 
-                 WHERE ttInventoryLoc.warehouseID EQ ttBrowseInventory.warehouseID
-                   AND ttInventoryLoc.locationID  EQ ttBrowseInventory.locationID
-                 NO-ERROR.
-            IF NOT AVAILABLE ttInventoryLoc THEN DO:
-                CREATE ttInventoryLoc.
-                ASSIGN
-                    ttInventoryLoc.warehouseID = ttBrowseInventory.warehouseID
-                    ttInventoryLoc.locationID  = ttBrowseInventory.locationID
-                    .
-            END. 
-            
-            ASSIGN
-                ttInventoryLoc.totWhseTags    = ttInventoryLoc.totWhseTags + 1
-                ttInventoryLoc.totLocTags     = ttInventoryLoc.totLocTags + 1
-                ttInventoryLoc.quantityOnHand = ttInventoryLoc.quantityOnHand + ttBrowseInventory.quantity
-                .
-        END.
-    END.
-
-    EMPTY TEMP-TABLE ttBrowseInventory.
-    
-    {&OPEN-QUERY-{&BROWSE-NAME}}
-
-    APPLY "VALUE-CHANGED" TO BROWSE {&BROWSE-NAME}.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -570,7 +436,7 @@ PROCEDURE send-records :
   {src/adm/template/snd-head.i}
 
   /* For each requested table, put it's ROWID in the output list.      */
-  {src/adm/template/snd-list.i "ttInventoryLoc"}
+  {src/adm/template/snd-list.i "ttFGItem"}
 
   /* Deal with any unexpected table requests before closing.           */
   {src/adm/template/snd-end.i}
@@ -596,51 +462,6 @@ PROCEDURE state-changed :
       {src/adm/template/bstates.i}
   END CASE.
 END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-/* ************************  Function Implementations ***************** */
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetConcatJob B-table-Win 
-FUNCTION fGetConcatJob RETURNS CHARACTER
-  ( /* parameter-definitions */ ) :
-/*------------------------------------------------------------------------------
-  Purpose:  
-    Notes:  
-------------------------------------------------------------------------------*/
-    DEFINE VARIABLE cConcatJob AS CHARACTER NO-UNDO.
-       
-    IF AVAILABLE ttBrowseInventory AND ttBrowseInventory.jobID NE "" THEN DO:
-        cConcatJob = ttBrowseInventory.jobID 
-                   + FILL(" ", 6 - LENGTH(ttBrowseInventory.jobID)) 
-                   + "-"
-                   + STRING(ttBrowseInventory.jobID2,"99").
-    END.
-    
-    RETURN cConcatJob.
-END FUNCTION.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetConcatLocation B-table-Win 
-FUNCTION fGetConcatLocation RETURNS CHARACTER PRIVATE
-  ( /* parameter-definitions */ ) :
-/*------------------------------------------------------------------------------
-  Purpose:  
-    Notes:  
-------------------------------------------------------------------------------*/
-    DEFINE VARIABLE cConcatLocation AS CHARACTER NO-UNDO.
-       
-    IF AVAILABLE ttBrowseInventory THEN
-        cConcatLocation = ttBrowseInventory.warehouseID 
-                        + FILL(" ", iWarehouseLength - LENGTH(ttBrowseInventory.warehouseID)) 
-                        + ttBrowseInventory.locationID.
-
-    RETURN cConcatLocation.
-
-END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
