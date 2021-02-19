@@ -92,15 +92,15 @@ DEFINE TEMP-TABLE ttImportCust
     FIELD SwiftBIC      AS CHARACTER FORMAT "x(11)" COLUMN-LABEL "Swift Code" HELP "Optional - Validated - Size:11"
     FIELD BankRTN       AS INTEGER FORMAT "999999999" COLUMN-LABEL "Routing" HELP "Optional - Integer"
     
-    FIELD accountType   AS CHARACTER FORMAT "X(12)" COLUMN-LABEL "Account Type" HELP "Account type is used for sales reporting optional - Size:12 Split,Originated,Handed,None, None for no change"
+    FIELD accountType   AS CHARACTER FORMAT "X(12)" COLUMN-LABEL "Account Type" HELP "Account type is used for sales reporting optional - Size:12 Split/Originated/Handed/None (None for no change)"
     FIELD splitType     AS INTEGER FORMAT "9" COLUMN-LABEL "Split Type" HELP "Split type used for sales reporting Optional - default 0"
     FIELD parentCust    AS CHARACTER FORMAT "x(12)" COLUMN-LABEL "Parent Customer" HELP "Master customer account Optional - Size:12"
     FIELD marketSegment AS CHARACTER FORMAT "x(16)" COLUMN-LABEL "Market Segment" HELP "Market segment for sales reporting Optional - Size:16"
-    FIELD naicsCode     AS CHARACTER FORMAT "999999" COLUMN-LABEL "NAICS" HELP "NAICS Code, link to NaicsTable, Default = 999999"
+    FIELD naicsCode     AS CHARACTER FORMAT "999999" COLUMN-LABEL "NAICS" HELP "NAICS Code - link to NaicsTable (Default = 999999)"
     FIELD classId       AS INTEGER   FORMAT ">>" COLUMN-LABEL "AR ClassID" HELP "Optional - Integer  Default = blank or 0 "    
     FIELD accountant    AS CHARACTER FORMAT "x(10)" COLUMN-LABEL "Accountant" HELP "Optional - Size:10 "    
     FIELD matrixPrecision AS INTEGER FORMAT "9"   COLUMN-LABEL "Matrix Precision" HELP "Optional - default 0"
-    FIELD matrixRounding  AS CHARACTER FORMAT "X" COLUMN-LABEL "Matrix Rounding"  HELP "Optional - N,U,D (Default 'U' if 'write blank and zero' flag is selected)"
+    FIELD matrixRounding  AS CHARACTER FORMAT "X" COLUMN-LABEL "Matrix Rounding"  HELP "Optional - N/U/D (Default 'U' if 'write blank and zero' flag is selected)"
     .
 
 DEFINE VARIABLE giIndexOffset AS INTEGER NO-UNDO INIT 2. /*Set to 1 if there is a Company field in temp-table since this will not be part of the mport data*/
