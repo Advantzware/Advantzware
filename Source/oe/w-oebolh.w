@@ -427,7 +427,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_v-navest ).
-       RUN set-position IN h_v-navest ( 13.14 , 12.00 ) NO-ERROR.
+       RUN set-position IN h_v-navest ( 13.84 , 12.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.43 , 34.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -437,7 +437,7 @@ PROCEDURE adm-create-objects :
                      SmartPanelType = Update,
                      AddFunction = One-Record':U ,
              OUTPUT h_p-oebolh ).
-       RUN set-position IN h_p-oebolh ( 13.14 , 54.00 ) NO-ERROR.
+       RUN set-position IN h_p-oebolh ( 13.84 , 54.00 ) NO-ERROR.
        RUN set-size IN h_p-oebolh ( 1.52 , 94.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
@@ -445,7 +445,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_b-oeboll ).
-       RUN set-position IN h_b-oeboll ( 14.81 , 4.00 ) NO-ERROR.
+       RUN set-position IN h_b-oeboll ( 15.31 , 4.00 ) NO-ERROR.
        RUN set-size IN h_b-oeboll ( 7.86 , 145.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
@@ -455,15 +455,15 @@ PROCEDURE adm-create-objects :
                      SmartPanelType = Update,
                      AddFunction = One-Record':U ,
              OUTPUT h_p-bolitm ).
-       RUN set-position IN h_p-bolitm ( 22.67 , 32.00 ) NO-ERROR.
-       RUN set-size IN h_p-bolitm ( 1.76 , 82.00 ) NO-ERROR.
+       RUN set-position IN h_p-bolitm ( 23.27 , 32.00 ) NO-ERROR.
+       RUN set-size IN h_p-bolitm ( 1.66 , 82.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'oe/vp-selbin.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_vp-selbin ).
-       RUN set-position IN h_vp-selbin ( 22.67 , 114.00 ) NO-ERROR.
+       RUN set-position IN h_vp-selbin ( 23.27 , 114.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.67 , 20.00 ) */
 
        /* Initialize other pages that this page requires. */

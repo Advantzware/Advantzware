@@ -16,6 +16,8 @@ DEF VAR tot-other-freight AS DEC NO-UNDO DECIMALS 10.
 DEF VAR ldMinRate AS DEC NO-UNDO.
 DEF VAR dTotFreight AS DEC NO-UNDO DECIMALS 10.
 DEFINE VARIABLE cCustID AS CHARACTER NO-UNDO.
+DEFINE VARIABLE dRatePerPallet AS DECIMAL NO-UNDO.
+DEFINE VARIABLE cTagDescription AS CHARACTER NO-UNDO.
 DEF BUFFER bf-oe-boll FOR oe-boll.
 
 
@@ -95,7 +97,8 @@ DEF BUFFER bf-oe-boll FOR oe-boll.
                         tot-other-freight, 
                         1, 
                         OUTPUT dFreight, 
-                        OUTPUT ldMinRate).
+                        OUTPUT ldMinRate,
+                        OUTPUT dRatePerPallet).
 
    ASSIGN bf-oe-boll.freight = dFreight. 
           dTotFreight = dTotFreight + dFreight.
@@ -133,6 +136,31 @@ DEF BUFFER bf-oe-boll FOR oe-boll.
  /*oe-bolh.freight = dTotFreight.*/ /* task NO 5051503 */
  FIND CURRENT oe-bolh NO-LOCK.
  opdFreight = dTotFreight.
+ 
+ FIND FIRST carrier NO-LOCK
+      WHERE carrier.company EQ oe-bolh.company
+      AND carrier.carrier EQ oe-bolh.carrier NO-ERROR .
+ IF AVAIL carrier THEN
+ DO:    
+   IF carrier.chg-method EQ "P" THEN
+   cTagDescription = "Loc = " + oe-bolh.loc + ", Carrier = Pallet, Zone = " + v-del-zone + ", Pallet = " +  string(oe-bolh.tot-pallet) + " @ $" + string(dRatePerPallet) + "/Pallet".
+   ELSE IF carrier.chg-method EQ "W" THEN
+   cTagDescription = "Loc = " + oe-bolh.loc + ", Carrier = Weight, Zone = " + v-del-zone + ", Weight = " +  string(oe-bolh.tot-wt) + " @ $" + string(dRatePerPallet) + "/100 Lbs".
+   ELSE IF carrier.chg-method EQ "M" THEN
+   cTagDescription = "Loc = " + oe-bolh.loc + ", Carrier = Msf, Zone = " + v-del-zone + ", MSF = @ $" + string(dRatePerPallet) + "/Msf".
+   
+   IF dTotFreight LT ldMinRate THEN 
+    cTagDescription = cTagDescription + ", Minimum applied @ $" + STRING(ldMinRate) .
+ END.  
+ ELSE cTagDescription = "Carrier not found".
+ 
+   RUN ClearTagsByRecKey(oe-bolh.rec_key).  /*Clear all hold tags - TagProcs.p*/
+   RUN AddTagInfo(
+        INPUT oe-bolh.rec_key,
+        INPUT "oe-bolh",
+        INPUT cTagDescription,
+        INPUT ""
+        ). /*From TagProcs Super Proc*/
 
 
 /* **********************  Internal Procedures  *********************** */

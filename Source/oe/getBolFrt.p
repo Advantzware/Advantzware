@@ -127,7 +127,7 @@ PROCEDURE getBolhFreight :
     DEFINE BUFFER bf-oe-boll FOR oe-boll.
     DEFINE BUFFER bf-oe-bolh FOR oe-bolh.
     DEFINE VARIABLE dAccumFreight AS DECIMAL DECIMALS 10 NO-UNDO.
-
+    DEFINE VARIABLE dRatePerUnit AS DECIMAL NO-UNDO.
 
     dTotFreight = 0.        
     tot-other-freight = 0.
@@ -178,7 +178,8 @@ PROCEDURE getBolhFreight :
             tot-other-freight, 
             1, 
             OUTPUT dFreight, 
-            OUTPUT ldMinRate).
+            OUTPUT ldMinRate,
+            OUTPUT dRatePerUnit).
  
         dTotFreight = dTotFreight + dFreight.
         dTotBasis = dTotBasis + v-other-freight.
@@ -219,6 +220,8 @@ PROCEDURE getBollFreight :
     DEFINE    VARIABLE      dTotFreight AS DECIMAL DECIMALS 10 NO-UNDO.
     DEFINE VARIABLE cCustID AS CHARACTER NO-UNDO.
     DEFINE    VARIABLE      ldMinRate   AS DECIMAL     DECIMALS 10.
+    DEFINE VARIABLE dRatePerUnit AS DECIMAL NO-UNDO.
+    
     DEFINE BUFFER bf-oe-boll FOR oe-boll.
     DEFINE BUFFER bf-shipto FOR shipto.
     
@@ -310,7 +313,8 @@ PROCEDURE getBollFreight :
                 tot-other-freight, 
                 1, 
                 OUTPUT dFreight, 
-                OUTPUT ldMinRate).
+                OUTPUT ldMinRate,
+                OUTPUT dRatePerUnit).
 
  
             dTotFreight = dTotFreight + dFreight.
