@@ -133,10 +133,10 @@ iSecurityLevel = DYNAMIC-FUNCTION("sfUserSecurityLevel").
     ~{&OPEN-QUERY-browseTasks}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnMoveColumn btnSearch searchBar ~
-filterTasks filterDescrip filterModule filterUser filterHotkey filterGroup ~
+&Scoped-Define ENABLED-OBJECTS btnMoveColumn filterTasks searchBar ~
+btnSearch filterDescrip filterModule filterUser filterHotkey filterGroup ~
 filterScheduled browseTasks 
-&Scoped-Define DISPLAYED-OBJECTS searchBar filterTasks filterDescrip ~
+&Scoped-Define DISPLAYED-OBJECTS filterTasks searchBar filterDescrip ~
 filterModule filterUser filterHotkey filterGroup filterScheduled 
 
 /* Custom List Definitions                                              */
@@ -208,7 +208,7 @@ DEFINE VARIABLE filterDescrip AS CHARACTER FORMAT "X(256)":U INITIAL "<All>"
      VIEW-AS COMBO-BOX SORT INNER-LINES 50
      LIST-ITEMS "<All>" 
      DROP-DOWN-LIST
-     SIZE 62 BY 1 TOOLTIP "Select Report"
+     SIZE 71 BY 1 TOOLTIP "Select Report"
      FONT 1 NO-UNDO.
 
 DEFINE VARIABLE filterGroup AS CHARACTER FORMAT "X(256)":U INITIAL "<All>" 
@@ -249,21 +249,22 @@ DEFINE VARIABLE filterUser AS CHARACTER FORMAT "X(256)":U INITIAL "<All>"
 DEFINE VARIABLE searchBar AS CHARACTER FORMAT "X(256)":U 
      LABEL "Search" 
      VIEW-AS FILL-IN 
-     SIZE 48.6 BY 1 TOOLTIP "Search Bar" NO-UNDO.
+     SIZE 56 BY 1 TOOLTIP "Search Bar" NO-UNDO.
 
 DEFINE VARIABLE filterTasks AS INTEGER INITIAL 1 
-     VIEW-AS RADIO-SET HORIZONTAL
+     VIEW-AS RADIO-SET VERTICAL
      RADIO-BUTTONS 
           "&Favorites", 1,
 "My &Tasks", 2,
 "My &Groups", 3,
 "&Default Tasks", 4,
 "&All Tasks", 5
-     SIZE 84 BY 1 NO-UNDO.
+     SIZE 23 BY 4.29
+     BGCOLOR 14  NO-UNDO.
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 158 BY 4.76.
+     SIZE 198 BY 4.76.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -294,47 +295,47 @@ ttDynParamValue.subjectType
 ttDynParamValue.externalForm
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-BOX NO-ROW-MARKERS SEPARATORS SIZE 159 BY 19.43
+    WITH NO-BOX NO-ROW-MARKERS SEPARATORS SIZE 198 BY 19.43
          BGCOLOR 25 FONT 22 ROW-HEIGHT-CHARS .86.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     btnSort AT ROW 3.62 COL 151 HELP
+     btnSort AT ROW 3.62 COL 191 HELP
           "Sort" WIDGET-ID 48
-     btnMoveColumn AT ROW 1.71 COL 151 HELP
+     btnMoveColumn AT ROW 1.71 COL 191 HELP
           "Move Column" WIDGET-ID 42
-     btnSearch AT ROW 1.62 COL 61 HELP
-          "Search" WIDGET-ID 288
-     searchBar AT ROW 1.71 COL 10.4 COLON-ALIGNED HELP
+     filterTasks AT ROW 1.48 COL 3 NO-LABEL WIDGET-ID 66
+     searchBar AT ROW 1.81 COL 40 COLON-ALIGNED HELP
           "Search" WIDGET-ID 6
-     filterTasks AT ROW 1.71 COL 67 NO-LABEL WIDGET-ID 66
-     filterDescrip AT ROW 4.33 COL 3 HELP
+     btnSearch AT ROW 1.71 COL 99 HELP
+          "Search" WIDGET-ID 288
+     filterDescrip AT ROW 4.33 COL 33 HELP
           "Select Report" NO-LABEL WIDGET-ID 50
-     filterModule AT ROW 4.33 COL 66 HELP
+     filterModule AT ROW 4.33 COL 105 HELP
           "Select Module" NO-LABEL WIDGET-ID 54
-     filterUser AT ROW 4.33 COL 77 HELP
+     filterUser AT ROW 4.33 COL 116 HELP
           "Select User" NO-LABEL WIDGET-ID 58
-     filterHotkey AT ROW 4.33 COL 93 HELP
+     filterHotkey AT ROW 4.33 COL 132 HELP
           "Select Hotkey" NO-LABEL WIDGET-ID 290
-     filterGroup AT ROW 4.33 COL 104 HELP
+     filterGroup AT ROW 4.33 COL 143 HELP
           "Select Group" NO-LABEL WIDGET-ID 294
-     filterScheduled AT ROW 4.33 COL 138.6 HELP
+     filterScheduled AT ROW 4.33 COL 177.6 HELP
           "Select Hotkey" NO-LABEL WIDGET-ID 298
      browseTasks AT ROW 6.24 COL 2 WIDGET-ID 500
-     "User:" VIEW-AS TEXT
-          SIZE 7 BY .62 AT ROW 3.62 COL 77 WIDGET-ID 60
      "Hotkey:" VIEW-AS TEXT
-          SIZE 9 BY .62 AT ROW 3.62 COL 93 WIDGET-ID 292
-     "Module:" VIEW-AS TEXT
-          SIZE 9 BY .62 AT ROW 3.62 COL 66 WIDGET-ID 56
-     "Description:" VIEW-AS TEXT
-          SIZE 14 BY .62 AT ROW 3.62 COL 3 WIDGET-ID 52
-     "Group:" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 3.62 COL 104 WIDGET-ID 296
+          SIZE 9 BY .62 AT ROW 3.62 COL 132 WIDGET-ID 292
+     "User:" VIEW-AS TEXT
+          SIZE 7 BY .62 AT ROW 3.62 COL 116 WIDGET-ID 60
      "Scheduled:" VIEW-AS TEXT
-          SIZE 12 BY .62 AT ROW 3.62 COL 138 WIDGET-ID 300
+          SIZE 12 BY .62 AT ROW 3.62 COL 177 WIDGET-ID 300
+     "Group:" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 3.62 COL 143 WIDGET-ID 296
+     "Description:" VIEW-AS TEXT
+          SIZE 14 BY .62 AT ROW 3.62 COL 33 WIDGET-ID 52
+     "Module:" VIEW-AS TEXT
+          SIZE 9 BY .62 AT ROW 3.62 COL 105 WIDGET-ID 56
      RECT-1 AT ROW 1.24 COL 2 WIDGET-ID 302
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -368,7 +369,7 @@ END.
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW s-object ASSIGN
          HEIGHT             = 24.67
-         WIDTH              = 160.4.
+         WIDTH              = 201.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -395,7 +396,7 @@ END.
 ASSIGN 
        FRAME F-Main:HIDDEN           = TRUE
        FRAME F-Main:HEIGHT           = 24.67
-       FRAME F-Main:WIDTH            = 160.
+       FRAME F-Main:WIDTH            = 200.
 
 ASSIGN 
        browseTasks:ALLOW-COLUMN-SEARCHING IN FRAME F-Main = TRUE
@@ -669,7 +670,6 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL searchBar s-object
