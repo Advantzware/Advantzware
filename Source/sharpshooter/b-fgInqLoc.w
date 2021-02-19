@@ -176,7 +176,7 @@ DEFINE QUERY ttBrowseInventory FOR
 DEFINE BROWSE ttBrowseInventory
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS ttBrowseInventory B-table-Win _FREEFORM
   QUERY ttBrowseInventory DISPLAY
-      ttBrowseInventory.warehouseID WIDTH 25 COLUMN-LABEL "Warehouse" FORMAT "X(60)" LABEL-BGCOLOR 14
+      ttBrowseInventory.warehouseID WIDTH 25 COLUMN-LABEL "Location" FORMAT "X(60)" LABEL-BGCOLOR 14
     ttBrowseInventory.locDscr WIDTH 60 COLUMN-LABEL "Description" FORMAT "X(100)" LABEL-BGCOLOR 14
     ttBrowseInventory.quantityOnHand WIDTH 25 COLUMN-LABEL "Qty On-Hand" FORMAT "->,>>>,>>>,>>9" LABEL-BGCOLOR 14
 /* _UIB-CODE-BLOCK-END */
