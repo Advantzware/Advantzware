@@ -48,8 +48,7 @@ CREATE WIDGET-POOL.
 ASSIGN
  cocode = g_company
  locode = g_loc.
-
-{sys/inc/oeinq.i}
+ 
 {sys/inc/ou6brows.i}
 
 DEF VAR ll-first AS LOG INIT YES NO-UNDO.
@@ -110,8 +109,6 @@ DEF VAR lActive AS LOG NO-UNDO.
 
 DEF BUFFER b-itemfg FOR itemfg.
 DEFINE BUFFER bff-oe-ord FOR oe-ord.
-
-ll-sort-asc = NOT oeinq.
 
 IF ou6brows EQ 'Order Entry' THEN
 ASSIGN
@@ -195,15 +192,6 @@ DEFINE TEMP-TABLE tt-ord
     FIELD i-no LIKE oe-ordl.i-no
     FIELD part-no LIKE oe-ordl.part-no
     FIELD ord-date LIKE oe-ord.ord-date.
-
-
-FIND FIRST sys-ctrl
-      WHERE sys-ctrl.company EQ cocode
-        AND sys-ctrl.name    EQ "INVPRINT"
-      NO-LOCK NO-ERROR.
-  IF AVAIL sys-ctrl THEN
-    ASSIGN
-     v-print-fmt  = sys-ctrl.char-fld.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -3536,45 +3524,42 @@ FUNCTION get-extended-price RETURNS DECIMAL
 
   ld = b-oe-ordl.t-price.
 
-  IF oeinq-char NE "Order Price" THEN
-  FOR EACH ar-invl FIELDS(inv-no amt i-no unit-pr disc) WHERE
-      ar-invl.company EQ cocode AND
-      ar-invl.ord-no EQ b-oe-ordl.ord-no AND
-      ar-invl.i-no EQ b-oe-ordl.i-no
-      NO-LOCK
-      BY ar-invl.inv-no DESC:
-
-      FIND FIRST itemfg
-      {sys/look/itemfgrlW.i}
-        AND itemfg.i-no EQ ar-invl.i-no
-        NO-LOCK NO-ERROR.
-
-      ASSIGN
-         v-tmp-price = IF b-oe-ordl.pr-uom BEGINS "L" AND b-oe-ordl.pr-uom NE "LB" THEN
-                       IF b-oe-ordl.qty LT 0 THEN -1 ELSE 1
-                       ELSE
-                       IF b-oe-ordl.pr-uom EQ "CS" THEN
-                          b-oe-ordl.qty / (IF b-oe-ordl.cas-cnt NE 0 THEN b-oe-ordl.cas-cnt ELSE
-                                          IF AVAIL itemfg AND itemfg.case-count NE 0
-                                                         THEN itemfg.case-count ELSE
-                                                              1)
-                       ELSE
-                       IF b-oe-ordl.pr-uom EQ "C" THEN
-                          b-oe-ordl.qty / 100
-                       ELSE
-                       IF b-oe-ordl.pr-uom EQ "M" THEN
-                         b-oe-ordl.qty / 1000
-                       ELSE
-                         b-oe-ordl.qty
-
-         lv-t-price = v-tmp-price * ar-invl.unit-pr
-         ld =  IF v-print-fmt EQ "Dayton" THEN 
-                (lv-t-price - ROUND(lv-t-price * ar-invl.disc / 100,2))
-              ELSE
-                ROUND(lv-t-price * (1 - (ar-invl.disc / 100)),2).
-
-      LEAVE.
-  END.
+/*  IF oeinq-char NE "Order Price" THEN                                                           */
+/*  FOR EACH ar-invl FIELDS(inv-no amt i-no unit-pr disc) WHERE                                   */
+/*      ar-invl.company EQ cocode AND                                                             */
+/*      ar-invl.ord-no EQ b-oe-ordl.ord-no AND                                                    */
+/*      ar-invl.i-no EQ b-oe-ordl.i-no                                                            */
+/*      NO-LOCK                                                                                   */
+/*      BY ar-invl.inv-no DESC:                                                                   */
+/*                                                                                                */
+/*      FIND FIRST itemfg                                                                         */
+/*      {sys/look/itemfgrlW.i}                                                                    */
+/*        AND itemfg.i-no EQ ar-invl.i-no                                                         */
+/*        NO-LOCK NO-ERROR.                                                                       */
+/*                                                                                                */
+/*      ASSIGN                                                                                    */
+/*         v-tmp-price = IF b-oe-ordl.pr-uom BEGINS "L" AND b-oe-ordl.pr-uom NE "LB" THEN         */
+/*                       IF b-oe-ordl.qty LT 0 THEN -1 ELSE 1                                     */
+/*                       ELSE                                                                     */
+/*                       IF b-oe-ordl.pr-uom EQ "CS" THEN                                         */
+/*                          b-oe-ordl.qty / (IF b-oe-ordl.cas-cnt NE 0 THEN b-oe-ordl.cas-cnt ELSE*/
+/*                                          IF AVAIL itemfg AND itemfg.case-count NE 0            */
+/*                                                         THEN itemfg.case-count ELSE            */
+/*                                                              1)                                */
+/*                       ELSE                                                                     */
+/*                       IF b-oe-ordl.pr-uom EQ "C" THEN                                          */
+/*                          b-oe-ordl.qty / 100                                                   */
+/*                       ELSE                                                                     */
+/*                       IF b-oe-ordl.pr-uom EQ "M" THEN                                          */
+/*                         b-oe-ordl.qty / 1000                                                   */
+/*                       ELSE                                                                     */
+/*                         b-oe-ordl.qty                                                          */
+/*                                                                                                */
+/*         lv-t-price = v-tmp-price * ar-invl.unit-pr                                             */
+/*         ld =   ROUND(lv-t-price * (1 - (ar-invl.disc / 100)),2).                               */
+/*                                                                                                */
+/*      LEAVE.                                                                                    */
+/*  END.                                                                                          */
 
   RETURN ld.
 
