@@ -1165,7 +1165,7 @@ PROCEDURE local-update-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-
+  DEFINE VARIABLE lInvalid AS LOGICAL NO-UNDO.
   /* Code placed here will execute PRIOR to standard behavior. */
   RUN validate-record NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN ERROR.
@@ -1173,8 +1173,11 @@ PROCEDURE local-update-record :
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
-  IF SSMoveFG-log THEN
+  IF SSMoveFG-log THEN DO:
+     RUN pCheckPeriod(OUTPUT lInvalid).
+     IF NOT lInvalid THEN 
      RUN post-finish-goods-single.
+  END.   
 
   /* Code placed here will execute AFTER standard behavior.    */
   RUN scan-next.
@@ -1412,6 +1415,30 @@ PROCEDURE state-changed :
          or add new cases. */
       {src/adm/template/bstates.i}
   END CASE.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckPeriod B-table-Win 
+PROCEDURE pCheckPeriod :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  define output parameter oplReturnNotValidPost as logical no-undo.
+  DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE lSuccess AS LOGICAL NO-UNDO.
+    oplReturnNotValidPost = no.
+    
+    RUN GL_CheckModClosePeriod(input cocode, input today, input "FG", output cMessage, output lSuccess ) .  
+    if not lSuccess then 
+    do:
+      message cMessage view-as alert-box info.
+      oplReturnNotValidPost = yes.
+    end.  
+     
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

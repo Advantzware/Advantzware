@@ -818,6 +818,14 @@
                 .
             RETURN.
         END.
+        IF AVAILABLE bf-period AND period.subLedgerFG EQ "C" THEN DO:
+            ASSIGN
+                oplSuccess = FALSE
+                opcMessage = "Unable to post tag " + fg-rctd.tag + "."
+                           + " Sub ledger FG Inventory Period closed for " + STRING(TODAY)
+                .
+            RETURN.
+        END.
 
         iPeriod = bf-period.pnum.
 

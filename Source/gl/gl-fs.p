@@ -438,9 +438,7 @@ PROCEDURE detail-line.
     else
       tot2[i] = tot2[i] + tot[i].
   END.
-
-  RELEASE glhist.
-      
+          
   IF ip-last-of THEN DO:
     IF gl-rpt.type EQ {gl/gl-type.i 22} OR
        gl-rpt.type EQ {gl/gl-type.i 24} THEN

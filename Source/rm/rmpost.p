@@ -7,6 +7,7 @@ DEF VAR end_userid AS CHAR NO-UNDO.
 DEF VAR ip-post AS LOG NO-UNDO.
 DEF VAR v-post-date AS DATE NO-UNDO.
 DEF VAR ll-auto AS LOG NO-UNDO.
+DEFINE VARIABLE lInvalid AS LOGICAL NO-UNDO.
 
 ASSIGN
   begin_userid = USERID("nosweat")
@@ -189,17 +190,11 @@ DEF TEMP-TABLE tt-mat NO-UNDO FIELD frm LIKE job-mat.frm
       END.
     END.
 
-    IF ip-post THEN DO:
-       FIND FIRST period
-           WHERE period.company EQ cocode
-             AND period.pst     LE v-post-date
-             AND period.pend    GE v-post-date
-           NO-LOCK NO-ERROR.
-       IF NOT AVAIL period THEN DO:
-         MESSAGE "No period exists for this date..."
-                 VIEW-AS ALERT-BOX ERROR.
-         RETURN NO-APPLY.
-       END.
+    IF ip-post THEN DO:  
+    
+       RUN pCheckDate(INPUT v-post-date).
+       IF lInvalid then RETURN NO-APPLY.
+       
     END.
 
     IF lv-post THEN do:
@@ -1317,4 +1312,26 @@ PROCEDURE send-rmemail :
 
   EMPTY TEMP-TABLE tt-email.
 
+END PROCEDURE.
+
+PROCEDURE pCheckDate :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE INPUT PARAMETER ipdtDate AS DATE NO-UNDO.
+  DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE lSuccess AS LOGICAL NO-UNDO.
+  
+    lInvalid = no.
+    
+    RUN GL_CheckModClosePeriod(input cocode, input DATE(ipdtDate), input "RM", output cMessage, output lSuccess ) .  
+    IF NOT lSuccess THEN 
+    DO:
+      MESSAGE cMessage VIEW-AS ALERT-BOX INFO.
+      lInvalid = YES.
+    END.      
+    
+  
 END PROCEDURE.

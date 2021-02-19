@@ -482,21 +482,23 @@ PROCEDURE check-date :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE lSuccess AS LOGICAL NO-UNDO.
   DO with frame {&frame-name}:
     v-invalid = no.
 
-    find first period                   
+    RUN GL_CheckModClosePeriod(input cocode, input DATE(tran-date), input "AP", output cMessage, output lSuccess ) .  
+    IF NOT lSuccess THEN 
+    DO:
+      MESSAGE cMessage VIEW-AS ALERT-BOX INFO.
+      v-invalid = YES.
+    END.
+    FIND first period                   
         where period.company eq cocode
           and period.pst     le tran-date
           and period.pend    ge tran-date
         no-lock no-error.
-    if avail period then tran-period:SCREEN-VALUE = string(period.pnum).
-
-    else
-    IF ip-post THEN DO:
-      message "No Defined Period Exists for" tran-date view-as alert-box error.
-      v-invalid = yes.
-    end.
+    if avail period then tran-period:SCREEN-VALUE = string(period.pnum).     
   END.
 END PROCEDURE.
 
