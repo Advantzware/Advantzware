@@ -489,20 +489,32 @@ ASI.oe-ordl.line LT 99999999"
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON DEFAULT-ACTION OF Browser-Table IN FRAME F-Main
 DO:
-
-    DEFINE VARIABLE char-hdl AS cha NO-UNDO.
+    DEFINE VARIABLE cScreenType    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lIsOrderClosed AS LOGICAL   NO-UNDO.
+    
+        /* Get the screen type and allow the update only if screen type is "OU1", "OW" or blank */
+    {methods/run_link.i "container-source" "GetScreenType" "(Output cScreenType)"}
+    
+    IF cScreenType EQ "OU1"  AND AVAILABLE oe-ord AND oe-ord.stat EQ "C" THEN
+        lIsOrderClosed = YES.        
+          
+    
     RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"update-target",OUTPUT char-hdl).
     
-    IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) AND lUpdateOrderItem THEN 
+    IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) AND lUpdateOrderItem AND ((cScreenType EQ "OU1" AND NOT lIsOrderClosed) OR cScreenType EQ "OW" OR cScreenType EQ "")THEN 
         RUN update-item IN WIDGET-HANDLE(char-hdl).
     
-    RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"dtl-view-target",OUTPUT char-hdl).
+    ELSE DO:
+        RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"dtl-view-target",OUTPUT char-hdl).
 
-    IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN DO: 
-        RUN oe/d-oeitem.w (RECID(oe-ordl), oe-ordl.ord-no, "View",
-                      INPUT TABLE tt-item-qty-price,
-                      OUTPUT v-rowid-list,
-                      OUTPUT ll-canceled).
+        IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) OR (cScreenType EQ "OQ1" OR cScreenType EQ "OC" OR cScreenType EQ "OU6" OR (cScreenType EQ "OU1" AND lIsOrderClosed) ) THEN 
+            RUN oe/d-oeitem.w (
+                INPUT RECID(oe-ordl),
+                INPUT oe-ordl.ord-no,
+                INPUT "View",
+                INPUT  TABLE tt-item-qty-price,
+                OUTPUT v-rowid-list,
+                OUTPUT ll-canceled).
     END.
     
 END.

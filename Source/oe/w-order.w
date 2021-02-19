@@ -37,8 +37,10 @@ CREATE WIDGET-POOL.
 &SCOPED-DEFINE h_Object10 h_p-orel-2
 &SCOPED-DEFINE h_Object11 h_p-obol
 &SCOPED-DEFINE setUserExit TRUE
-/* Parameters Definitions ---                                           */
+&SCOPED-DEFINE LocalInit
 
+/* Parameters Definitions ---                                           */
+DEFINE INPUT PARAMETER ipcScreen AS CHARACTER NO-UNDO.
 /* Local Variable Definitions ---                                       */
 
 
@@ -97,6 +99,7 @@ DEFINE VARIABLE h_b-ordrel AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_exit AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_expxls AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_folder AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_jobprod AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_loadtag AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_miscflds AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_movecol AS HANDLE NO-UNDO.
@@ -134,12 +137,14 @@ DEFINE VARIABLE h_vi-ord-3 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_vi-ord-4 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_vi-ordl AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_vi-ordlr AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_vp-clsoe AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_vp-oeitm AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_vp-tandm AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_v-hldapp AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_w-ordesf AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_w-ordest AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_w-ordfg AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_w-ordjob AS HANDLE NO-UNDO. 
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -520,6 +525,14 @@ PROCEDURE adm-create-objects :
        /* Size in UIB:  ( 1.81 , 8.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
+             INPUT  'smartobj/jobprod.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_jobprod ).
+       RUN set-position IN h_jobprod ( 1.00 , 27.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.91 , 8.00 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
              INPUT  'smartobj/smartmsg.w':U ,
              INPUT  FRAME message-frame:HANDLE ,
              INPUT  '':U ,
@@ -589,6 +602,8 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_b-ordinq , 'attach':U , h_options3 ).
 	   RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'udficon':U , h_options3 ).
        /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_jobprod ,
+             FRAME OPTIONS-FRAME:HANDLE , 'BEFORE':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_attcust ,
              h_optonote , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_folder ,
@@ -691,8 +706,16 @@ PROCEDURE adm-create-objects :
        RUN set-position IN h_v-hldapp ( 22.91 , 128.00 ) NO-ERROR.
        /* Size in UIB:  ( 2.38 , 40.00 ) */
 
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'oe/vp-clsoe.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_vp-clsoe ).
+       RUN set-position IN h_vp-clsoe ( 22.91 , 142.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.91 , 13.00 ) */
+
        /* Initialize other pages that this page requires. */
-       RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
+       RUN init-pages IN THIS-PROCEDURE ('1,3':U) NO-ERROR.
 
        /* Links to SmartViewer h_v-ord. */
        RUN add-link IN adm-broker-hdl ( h_b-ordinq , 'Record':U , h_v-ord ).
@@ -713,6 +736,10 @@ PROCEDURE adm-create-objects :
        /* Links to SmartViewer h_vp-tandm. */
        RUN add-link IN adm-broker-hdl ( h_v-ord , 'tandem':U , h_vp-tandm ).
 
+
+       /* Links to SmartViewer h_vp-clsoe. */
+       RUN add-link IN adm-broker-hdl ( h_v-ord , 'Record':U , h_vp-clsoe ).
+
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_v-ord ,
              h_folder , 'AFTER':U ).
@@ -726,6 +753,8 @@ PROCEDURE adm-create-objects :
              h_oe-hold , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_v-hldapp ,
              h_vp-tandm , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_vp-clsoe ,
+             h_v-hldapp , 'AFTER':U ).
     END. /* Page 2 */
     WHEN 3 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
@@ -1104,15 +1133,15 @@ PROCEDURE adm-create-objects :
        RUN set-size IN h_p-ordt ( 1.76 , 31.00 ) NO-ERROR.
 
        /* Initialize other pages that this page requires. */
-       RUN init-pages IN THIS-PROCEDURE ('2,1':U) NO-ERROR.
+       RUN init-pages IN THIS-PROCEDURE ('2,1,4':U) NO-ERROR.
 
        /* Links to SmartViewer h_vi-ord-2. */
        RUN add-link IN adm-broker-hdl ( h_v-ord , 'Record':U , h_vi-ord-2 ).
 
        /* Links to SmartViewer h_v-ordt. */
        RUN add-link IN adm-broker-hdl ( h_b-ordinq , 'Record':U , h_v-ordt ).
-       RUN add-link IN adm-broker-hdl ( h_p-ordt , 'TableIO':U , h_v-ordt ).
        RUN add-link IN adm-broker-hdl ( h_b-ordm , 'oemisc':U , h_v-ordt ).
+       RUN add-link IN adm-broker-hdl ( h_p-ordt , 'TableIO':U , h_v-ordt ).
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_vi-ord-2 ,
@@ -1311,6 +1340,47 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ChangePanelState W-Win 
+PROCEDURE ChangePanelState :
+/*------------------------------------------------------------------------------
+ Purpose: Procedure to enable/disbale panels based on order statuss
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipiCurrentPage AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER ipcScreen      AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE lRecordAvailable AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lIsOrderClosed   AS LOGICAL NO-UNDO.
+    
+    IF ipcScreen EQ "OU1" THEN DO:        
+        IF VALID-HANDLE(h_v-ord) THEN DO:
+            RUN GetOrderStatus IN h_v-ord(
+                OUTPUT lRecordAvailable,
+                OUTPUT lIsOrderClosed
+                ) .
+            IF lRecordAvailable THEN DO: 
+                IF lIsOrderClosed THEN
+                    RUN pDisablePanels(
+                        INPUT ipiCurrentPage,
+                        INPUT ipcScreen
+                        ).          
+                ELSE 
+                    RUN pEnablePanels(
+                        INPUT ipiCurrentPage
+                        ).                        
+            END.  
+        END.
+    END.
+    ELSE  
+        RUN pDisablePanels(
+            INPUT ipiCurrentPage,
+            INPUT ipcScreen
+            ).     
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI W-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
 /*------------------------------------------------------------------------------
@@ -1352,6 +1422,23 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetScreenType W-Win
+PROCEDURE GetScreenType:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opcScreenType AS CHARACTER NO-UNDO.
+    
+    opcScreenType = ipcScreen.
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE hide-estimate W-Win 
 PROCEDURE hide-estimate :
@@ -1419,6 +1506,38 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE jobProd W-Win
+PROCEDURE JobProd:
+/*------------------------------------------------------------------------------
+ Purpose: Opens Job Production window 
+ Notes:
+------------------------------------------------------------------------------*/
+    IF VALID-HANDLE(h_w-ordjob) THEN 
+        RUN dispatch IN h_w-ordjob ('Destroy'). 
+         
+    RUN init-object IN THIS-PROCEDURE (
+          INPUT  'oeinq/w-ordjob.w':U ,
+          INPUT  {&WINDOW-NAME} ,
+          INPUT  'Layout = ':U ,
+          OUTPUT h_w-ordjob ).
+              
+    /* Initialize other pages that this page requires. */
+    RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
+    
+    /* Links to SmartWindow h_w-ordjob. */
+    RUN add-link IN adm-broker-hdl ( h_b-ordinq , 'Record':U , h_w-ordjob ).
+    RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'quote':U , h_w-ordjob ).
+
+    RUN dispatch IN h_w-ordjob ('Initialize').
+    
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-change-page W-Win 
 PROCEDURE local-change-page :
@@ -1498,7 +1617,11 @@ PROCEDURE local-change-page :
   IF li-cur-page EQ 5 then do:
      RUN set-buttons IN h_p-orel-2 ('initial').
      RUN set-buttons IN h_p-obol ('initial').
-  END.
+  END. 
+  RUN ChangePanelState(
+      INPUT li-cur-page,
+      INPUT ipcScreen
+      ).                      
   /* Code placed here will execute AFTER standard behavior.    */
   {methods/winReSizePgChg.i}
 
@@ -1638,13 +1761,111 @@ END PROCEDURE.
   Parameters:  <none>
   Notes:    If activated, should APPLY CLOSE, *not* dispatch adm-exit.   
 -------------------------------------------------------------*/
-
 PROCEDURE setUserExit.
 
     IF VALID-HANDLE(h_v-ord) THEN
        RUN manual-apply-save IN h_p-ordhd.
 
 END PROCEDURE.
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pChangeWindowTitle W-Win
+PROCEDURE pChangeWindowTitle PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: Change the windows's title based o the input screen type
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcScreen AS CHARACTER NO-UNDO.
+    
+    CASE ipcScreen:
+        WHEN "OQ1" THEN 
+            {&WINDOW-NAME}:TITLE = REPLACE({&WINDOW-NAME}:TITLE,"Order Maintenance","Order Inquiry").
+         WHEN "OW" THEN 
+            {&WINDOW-NAME}:TITLE = REPLACE({&WINDOW-NAME}:TITLE,"Order Maintenance","Web Orders Transfer/Approve").
+         WHEN "OC" THEN 
+            {&WINDOW-NAME}:TITLE = REPLACE({&WINDOW-NAME}:TITLE,"Order Maintenance","Credit Hold / Approve Orders").
+         WHEN "OU6" THEN 
+            {&WINDOW-NAME}:TITLE = REPLACE({&WINDOW-NAME}:TITLE,"Order Maintenance","Close/Reopen Orders").                                 
+    END.    
+END PROCEDURE.
+    
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pDisablePanels W-Win
+PROCEDURE pDisablePanels:
+/*------------------------------------------------------------------------------
+ Purpose: Disable panels based on page number
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipiCurrentPage AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER ipcScreen      AS CHARACTER NO-UNDO.
+    
+    CASE ipiCurrentPage: 
+        WHEN 2 THEN DO: /* Detail Tab */
+            RUN disable-all IN h_vp-tandm.
+            
+            /* Disable Navigation Panel*/  
+            IF ipcScreen EQ "OQ1" OR ipcScreen EQ "OW" OR ipcScreen EQ "OC" THEN
+                RUN disable-all IN h_v-navest.  
+                  
+            IF ipcScreen NE "OW" THEN                    
+                RUN set-buttons IN h_p-ordhd(
+                    INPUT IF ipcScreen EQ "OU1" THEN "add-only"  ELSE "disable-all"
+                    ).
+         END.                      
+         WHEN 3 THEN DO: /* Items Tab */
+             /*Disable Release Button*/
+             RUN set-buttons IN h_p-orel(
+                 INPUT "Disable-all"
+                 ).
+             /* Disable BOL/INV button */    
+             RUN set-buttons IN h_p-obol-2(
+                 INPUT "Disable-all"
+                 ).   
+         END. 
+         WHEN 4 THEN DO: /* Misc Tab */
+             /* Disable update panel */
+             RUN DisableAll  IN h_p-ordmis.
+             
+             /* Disable navigation Panel */
+             RUN disable-All IN h_v-navest-2.
+         END.    
+             
+         WHEN 5 THEN DO: /* Release Tab */
+             /* Disable Release Button */
+             RUN set-buttons IN h_p-orel-2(
+                 INPUT "Disable-all"
+                 ).
+                 
+             /* Disable BOL/INV Button */    
+             RUN set-buttons IN h_p-obol(
+                 INPUT "Disable-all"
+                 ).                          
+         END. 
+         WHEN 7 THEN /* Order Totals */
+            /* Disable Update Panel */
+            RUN set-buttons IN h_p-ordt (
+                INPUT "Disable-all"
+                ). 
+                                                          
+         WHEN 10 THEN /* Ship Notes Tab */
+            /* Disable Ship Notes Panel*/
+            IF ipcScreen NE "OW" THEN 
+                RUN set-buttons IN h_p-updshp(
+                    INPUT "Disable-all"
+                    ).
+                
+         WHEN 11 THEN /* Billto Notes Tab */ 
+            /* Disable Billto Notes Panel */
+            IF ipcScreen NE "OW" THEN 
+                RUN set-buttons IN h_p-updcan-3 (
+                    INPUT "Disable-all"
+                    ).    
+    END CASE.
+END PROCEDURE.
+    
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1659,8 +1880,62 @@ PROCEDURE reopen-query.
 
     IF VALID-HANDLE(h_v-ord) THEN
        RUN local-open-query IN h_b-ordinq.
-
 END PROCEDURE.
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pEnablePanels W-Win 
+PROCEDURE pEnablePanels :
+/*------------------------------------------------------------------------------
+ Purpose: Enable Panles based on input page number
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipiCurrentPage AS INTEGER NO-UNDO.
+    
+    CASE ipiCurrentPage: 
+        WHEN 2 THEN DO: /*Detail Tab*/
+              RUN set-buttons IN h_p-ordhd( 
+                  INPUT "Initial"
+                  ).
+              RUN Enable-All IN h_vp-tandm.
+              RUN Enable-All IN h_oe-hold.          
+          END.                      
+          WHEN 3 THEN DO: /*Items Tab*/
+              RUN set-buttons IN h_p-orel(
+                  INPUT "Initial"
+                  ).
+              RUN set-buttons IN h_p-obol-2(
+                  INPUT "Initial"
+                  ).
+          END. 
+          WHEN 4 THEN DO:  /*Misc Tab*/
+              RUN EnableAll  IN h_p-ordmis.
+              RUN EnableAll IN h_v-navest-2.
+          END.    
+              
+          WHEN 5 THEN DO: /* Release Tab*/
+              RUN set-buttons IN h_p-orel-2(
+                  INPUT "Initial"
+                  ).
+              RUN set-buttons IN h_p-obol(
+                  INPUT "Initial"
+                  ).
+          END. 
+          WHEN 7 THEN /*Totals Tab*/
+             RUN set-buttons IN h_p-ordt (
+                 INPUT "Initial"
+                 ).                                           
+          WHEN 10 THEN /*ShipNots Tab*/
+             RUN set-buttons IN h_p-updshp(
+                 INPUT "initial"
+                 ).
+          WHEN 11 THEN /*Bill Notes Tabe*/
+             RUN set-buttons IN h_p-updcan-3 (
+                 INPUT "Initial"
+                 ).    
+    END CASE.                     
+END PROCEDURE.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

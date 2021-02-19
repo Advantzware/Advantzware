@@ -369,9 +369,10 @@ PROCEDURE local-initialize :
   END.
 
   &IF "{&FIRST-EXTERNAL-TABLE}" EQ "address" OR
-      "{&FIRST-EXTERNAL-TABLE}" EQ "notes" OR
-      "{&FIRST-EXTERNAL-TABLE}" EQ "phone" OR
-      "{&FIRST-EXTERNAL-TABLE}" EQ "oe-ord" &THEN
+      "{&FIRST-EXTERNAL-TABLE}" EQ "notes"   OR
+      "{&FIRST-EXTERNAL-TABLE}" EQ "phone"   OR
+      "{&FIRST-EXTERNAL-TABLE}" EQ "oe-ord"  OR 
+      "{&FIRST-EXTERNAL-TABLE}" EQ "oe-ordl" &THEN
     {methods/windows/initial/{&FIRST-EXTERNAL-TABLE}.i}
   &ENDIF
   /*

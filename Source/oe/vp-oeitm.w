@@ -724,7 +724,9 @@ PROCEDURE local-display-fields :
   DEF VAR lAccess AS LOG NO-UNDO.
   DEF VAR lAccessClose AS LOG NO-UNDO.
   DEF VAR cAccessList AS CHAR NO-UNDO.
-
+  DEFINE VARIABLE cScreenType AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE char-hdl    AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE pHandle     AS HANDLE    NO-UNDO.
   
 
   /* Code placed here will execute PRIOR to standard behavior. */
@@ -739,7 +741,7 @@ PROCEDURE local-display-fields :
   DO WITH FRAME {&FRAME-NAME}:
     
     IF AVAIL oe-ord AND NOT oe-ord.opened THEN
-      DISABLE Btn-Save Btn-Add Btn-Delete Btn-Price .
+      DISABLE Btn-Save Btn-Add Btn-Delete Btn-Price Btn-Rebuild.
     ELSE DO:
       ENABLE Btn-Save Btn-Add Btn-Delete Btn-Price .
 
@@ -769,7 +771,10 @@ PROCEDURE local-display-fields :
       */            
     END.
   END.
-
+  {methods/run_link.i "container-source" "GetScreenType" "(Output cScreenType)"}
+  RUN SetButtons(
+      INPUT cScreenType
+      ). 
   IF NOT AVAIL oe-ord OR oe-ord.opened THEN DO WITH FRAME {&FRAME-NAME}:
     IF NOT v-can-create THEN ASSIGN  btn-add:SENSITIVE = NO.
     IF NOT v-can-update THEN ASSIGN btn-save:SENSITIVE = NO
@@ -897,6 +902,49 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE SetButtons V-table-Win
+PROCEDURE SetButtons:
+/*------------------------------------------------------------------------------
+ Purpose: Enable or disable the buttons based on input screen number
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcScreen AS CHARACTER NO-UNDO.
+
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+              
+    IF ipcScreen EQ "OQ1" OR ipcScreen EQ "OU6" THEN 
+        ASSIGN
+            Btn-Add:SENSITIVE     = NO
+            Btn-Delete:SENSITIVE  = NO
+            btn-price:SENSITIVE   = NO 
+            Btn-Rebuild:SENSITIVE = NO
+            Btn-Save:SENSITIVE    = NO 
+            Btn-Update:SENSITIVE  = NO
+            .
+    ELSE IF ipcScreen EQ "OW" THEN 
+        ASSIGN  
+            Btn-Add:SENSITIVE     = NO
+            Btn-Delete:SENSITIVE  = NO
+            Btn-Rebuild:SENSITIVE = NO 
+            .                     
+    ELSE IF ipcScreen EQ "OC" THEN 
+        ASSIGN  
+            Btn-Add:SENSITIVE     = NO
+            Btn-Delete:SENSITIVE  = NO
+            Btn-Rebuild:SENSITIVE = NO
+            Btn-Save:SENSITIVE    = NO 
+            Btn-Update:SENSITIVE  = NO
+            .         
+    
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed V-table-Win 
 PROCEDURE state-changed :

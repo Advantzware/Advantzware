@@ -431,7 +431,6 @@ DO WITH FRAME Panel-Frame:
   END. /* panel-state = action-chosen */
 
   DO WITH FRAME {&FRAME-NAME}:     
-    btn-release:SENSITIVE = yes.
     IF NOT v-can-update THEN ASSIGN btn-release:SENSITIVE = NO.    
   END.
 
