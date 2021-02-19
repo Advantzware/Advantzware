@@ -511,6 +511,14 @@ FUNCTION pGetWhereCriteria RETURNS CHARACTER
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD pIsValidSearch B-table-Win
+FUNCTION pIsValidSearch RETURNS LOGICAL PRIVATE
+  (  ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 
 
@@ -622,19 +630,19 @@ DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 168 BY 3.33.
 
-DEFINE VARIABLE tbApproved AS LOGICAL INITIAL yes 
+DEFINE VARIABLE tbApproved AS LOGICAL INITIAL YES 
      LABEL "Approved" 
      VIEW-AS TOGGLE-BOX
      SIZE 13.2 BY .81
      BGCOLOR 15 FGCOLOR 9  NO-UNDO.
 
-DEFINE VARIABLE tbHold AS LOGICAL INITIAL yes 
+DEFINE VARIABLE tbHold AS LOGICAL INITIAL YES 
      LABEL "Hold" 
      VIEW-AS TOGGLE-BOX
      SIZE 8 BY .81
      BGCOLOR 15 FGCOLOR 9  NO-UNDO.
 
-DEFINE VARIABLE tbWeb AS LOGICAL INITIAL yes 
+DEFINE VARIABLE tbWeb AS LOGICAL INITIAL YES 
      LABEL "Web" 
      VIEW-AS TOGGLE-BOX
      SIZE 7.6 BY .81
@@ -1192,7 +1200,9 @@ DO:
       fiOrderDate
       lButtongoPressed = YES
       .
-      
+    IF NOT pIsValidSearch() THEN 
+        RETURN.
+        
     IF tbWeb:CHECKED THEN     
       RUN util/fixcXMLDuplicates.p.  
       
@@ -1475,9 +1485,9 @@ END.
 ON HELP OF fi_cad-no IN FRAME F-Main
 DO:
     DEFINE VARIABLE char-val AS cha NO-UNDO.
-    run windows/l-itemfc.w  (g_company,fi_cad-no:screen-value, output char-val). 
-    if char-val <> "" then 
-        {&SELF-NAME}:screen-value = entry(1,char-val).
+    RUN windows/l-itemfc.w  (g_company,fi_cad-no:screen-value, OUTPUT char-val). 
+    IF char-val <> "" THEN 
+        {&SELF-NAME}:screen-value = ENTRY(1,char-val).
 
 END.
 
@@ -3155,7 +3165,7 @@ FUNCTION getMI RETURNS CHARACTER
     DEFINE VARIABLE lc-result AS CHARACTER NO-UNDO.
 
     lc-result = "".
-        IF oe-ordl.managed = true THEN
+        IF oe-ordl.managed = TRUE THEN
             lc-result = "X".
         RETURN lc-result.   /* Function return value. */
 
@@ -3599,7 +3609,7 @@ FUNCTION pGetSortCondition RETURNS CHARACTER
             IF ipcSortBy EQ 'i-no'      THEN "oe-ordl.i-no"                          ELSE ~
             IF ipcSortBy EQ 'i-name'    THEN "oe-ordl.i-name"                        ELSE ~
             IF ipcSortBy EQ 'part-no'   THEN "oe-ordl.part-no"                       ELSE ~
-            IF ipcSortBy EQ 'po-no'     THEN (If ipcSortLabel EQ "Order PO#" THEN    
+            IF ipcSortBy EQ 'po-no'     THEN (IF ipcSortLabel EQ "Order PO#" THEN    
                                               oe-ord.po-no ELSE oe-ordl.po-no)       ELSE ~
             IF ipcSortBy EQ 'est-no'    THEN "oe-ordl.est-no"                        ELSE ~
             IF ipcSortBy EQ 'job-no'    THEN "STRING(oe-ordl.job-no,'x(6)')          
@@ -3699,6 +3709,27 @@ END FUNCTION.
 	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION pIsValidSearch B-table-Win
+FUNCTION pIsValidSearch RETURNS LOGICAL PRIVATE
+  (  ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    IF cbType EQ "Opened" AND NOT tbWeb
+       AND NOT tbApproved AND NOT tbHold THEN DO:
+        MESSAGE "Atleast one toggle box should be checked." 
+        VIEW-AS ALERT-BOX ERROR.        
+        RETURN NO.   
+    END.
+    ELSE 
+        RETURN YES.        
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
