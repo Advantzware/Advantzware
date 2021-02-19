@@ -299,11 +299,11 @@ AND itemfg.i-no EQ oe-ordl.i-no OUTER-JOIN NO-LOCK ~
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS cbType fiItemPo Browser-Table tbApproved ~
+&Scoped-Define ENABLED-OBJECTS cbType fiItemPo Browser-Table tbOther ~
 tbHold tbWeb fiOrderDate btSHowAll fi_ord-no fi_cust-no fi_i-no fi_part-no ~
 fi_po-no1 fi_est-no fi_job-no fi_job-no2 fi_cad-no fi_sman btn_go btn_prev ~
 fi_i-name RECT-1 
-&Scoped-Define DISPLAYED-OBJECTS cbType fiItemPo tbApproved tbHold tbWeb ~
+&Scoped-Define DISPLAYED-OBJECTS cbType fiItemPo tbOther tbHold tbWeb ~
 fiOrderDate fi_ord-no fi_cust-no fi_i-no fi_part-no fi_po-no1 fi_est-no ~
 fi_job-no fi_job-no2 fi_cad-no fi_sman fi_sort-by fi_i-name 
 
@@ -630,8 +630,8 @@ DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 168 BY 3.33.
 
-DEFINE VARIABLE tbApproved AS LOGICAL INITIAL YES 
-     LABEL "Approved" 
+DEFINE VARIABLE tbOther AS LOGICAL INITIAL YES 
+     LABEL "Other" 
      VIEW-AS TOGGLE-BOX
      SIZE 13.2 BY .81
      BGCOLOR 15 FGCOLOR 9  NO-UNDO.
@@ -762,7 +762,7 @@ DEFINE FRAME F-Main
      fiItemPo AT ROW 3.14 COL 68.2 COLON-ALIGNED NO-LABEL WIDGET-ID 36
      Browser-Table AT ROW 4.33 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
-     tbApproved AT ROW 3.14 COL 154.6 WIDGET-ID 28
+     tbOther AT ROW 3.14 COL 154.6 WIDGET-ID 28
      tbHold AT ROW 3.14 COL 146.4 WIDGET-ID 26
      tbWeb AT ROW 3.14 COL 138.6 WIDGET-ID 24
      fiOrderDate AT ROW 3.14 COL 109.6 COLON-ALIGNED WIDGET-ID 20
@@ -1195,7 +1195,7 @@ DO:
       fi_sman
       tbWeb
       tbHold
-      tbApproved
+      tbOther
       cbType
       fiOrderDate
       lButtongoPressed = YES
@@ -1308,19 +1308,19 @@ DO:
     ASSIGN {&SELF-NAME}.
     IF cbType EQ "Opened" THEN DO:
         ASSIGN 
-            tbApproved:VISIBLE = YES
-            tbWeb:VISIBLE      = YES
-            tbHold:VISIBLE     = YES
-            tbApproved:CHECKED = YES
-            tbWeb:CHECKED      = YES 
-            tbHold:CHECKED     = YES
+            tbOther:VISIBLE = YES
+            tbWeb:VISIBLE   = YES
+            tbHold:VISIBLE  = YES
+            tbOther:CHECKED = YES
+            tbWeb:CHECKED   = YES 
+            tbHold:CHECKED  = YES
             .
     END.
     ELSE 
         ASSIGN 
-            tbApproved:HIDDEN  = YES
-            tbWeb:HIDDEN       = YES
-            tbHold:HIDDEN      = YES
+            tbOther:HIDDEN  = YES
+            tbWeb:HIDDEN    = YES
+            tbHold:HIDDEN   = YES
             .      
 END.
 
@@ -2296,9 +2296,8 @@ PROCEDURE pPrepareAndExecuteQueryForPrevNext PRIVATE :
                      + " AND " + pGetWhereCriteria("oe-ordl")
                      + ", FIRST oe-ord OF oe-ordl NO-LOCK"
                      + " WHERE " + pGetWhereCriteria("oe-ord")
-                     + " BREAK BY oe-ordl.ord-no DESC"
-                     .                    
-                     
+                     + " BREAK BY oe-ordl.ord-no " + (IF iplPrevious THEN "DESCENDING" ELSE "" )
+                     .  
     RUN Browse_PrepareAndExecuteLimitingQuery(
         INPUT  cLimitingQuery,   /* Query */
         INPUT  cQueryBuffers,    /* Buffers Name */
@@ -2401,14 +2400,14 @@ PROCEDURE pSetDefaults PRIVATE:
     
     IF ipcScreen EQ "OW" THEN 
         ASSIGN 
-            tbApproved = NO
-            tbHold     = NO
+            tbOther = NO
+            tbHold  = NO
             .
     ELSE IF ipcScreen EQ "OC" THEN 
         ASSIGN 
-            tbWeb      = NO
-            tbApproved = NO
-            tbHold     = YES
+            tbWeb   = NO
+            tbOther = NO
+            tbHold  = YES
             .                        
 END PROCEDURE.
 	
@@ -2468,7 +2467,7 @@ PROCEDURE record-added :
      fi_cad-no
      fi_sman
      cbType
-     tbApproved
+     tbOther
      tbHold
      tbWeb
      .
@@ -3641,10 +3640,10 @@ FUNCTION pGetWhereCriteria RETURNS CHARACTER
     DEFINE VARIABLE cWhereCriteria AS CHARACTER NO-UNDO.
     
     IF ipcTable EQ "oe-ord" THEN DO: 
-        IF cbType EQ "Closed" OR cbtype EQ "All" OR (cbType EQ "Opened" AND tbApproved) THEN 
+        IF cbType EQ "Closed" OR cbtype EQ "All" OR (cbType EQ "Opened" AND tbOther) THEN 
             cWhereCriteria = " oe-ord.stat NE 'W'".
               
-        IF (cbType EQ "Opened" AND tbApproved AND NOT tbHold) THEN DO:
+        IF (cbType EQ "Opened" AND tbOther AND NOT tbHold) THEN DO:
             IF cWhereCriteria EQ "" THEN 
                 cWhereCriteria = " oe-ord.stat NE 'H'".
             ELSE DO: 
@@ -3718,7 +3717,7 @@ FUNCTION pIsValidSearch RETURNS LOGICAL PRIVATE
  Notes:
 ------------------------------------------------------------------------------*/
     IF cbType EQ "Opened" AND NOT tbWeb
-       AND NOT tbApproved AND NOT tbHold THEN DO:
+       AND NOT tbOther AND NOT tbHold THEN DO:
         MESSAGE "Atleast one toggle box should be checked." 
         VIEW-AS ALERT-BOX ERROR.        
         RETURN NO.   
