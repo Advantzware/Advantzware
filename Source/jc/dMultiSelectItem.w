@@ -58,30 +58,30 @@ RUN fgrep\fgReorder.p PERSISTENT SET hdFGReorder.
 
 /* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME Dialog-Frame
-&Scoped-define BROWSE-NAME BROWSE-2
+&Scoped-define BROWSE-NAME BROWSE-NAME
 
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
 &Scoped-define INTERNAL-TABLES ttMultiSelectItem
 
-/* Definitions for BROWSE BROWSE-2                                      */
-&Scoped-define FIELDS-IN-QUERY-BROWSE-2 ttMultiSelectItem.isSelected ttMultiSelectItem.multiplier ttMultiSelectItem.quantityToOrder ttMultiSelectItem.quantityToOrderSuggested ttMultiSelectItem.itemID ttMultiSelectItem.itemName ttMultiSelectItem.quantityReorderLevel ttMultiSelectItem.quantityOnHand ttMultiSelectItem.quantityOnOrder ttMultiSelectItem.quantityAllocated ttMultiSelectItem.quantityAvailable ttMultiSelectItem.availOnHand ttMultiSelectItem.dateDueDateEarliest ttMultiSelectItem.orderQtyEarliest ttMultiSelectItem.quantityReorderLevel ttMultiSelectItem.quantityMinOrder ttMultiSelectItem.quantityMaxOrder ttMultiSelectItem.itemCustPart ttMultiSelectItem.itemCust ttMultiSelectItem.itemCustName ttMultiSelectItem.itemEstNO ttMultiSelectItem.itemStyle ttMultiSelectItem.itemWhse ttMultiSelectItem.board  
-&Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-2 ttMultiSelectItem.isSelected ttMultiSelectItem.multiplier ttMultiSelectItem.quantityToOrder   
-&Scoped-define ENABLED-TABLES-IN-QUERY-BROWSE-2 ttMultiSelectItem
-&Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-BROWSE-2 ttMultiSelectItem
-&Scoped-define SELF-NAME BROWSE-2
-&Scoped-define QUERY-STRING-BROWSE-2 FOR EACH ttMultiSelectItem NO-LOCK ~{&SORTBY-PHRASE}
-&Scoped-define OPEN-QUERY-BROWSE-2 OPEN QUERY {&SELF-NAME} FOR EACH ttMultiSelectItem ~{&SORTBY-PHRASE}.
-&Scoped-define TABLES-IN-QUERY-BROWSE-2 ttMultiSelectItem
-&Scoped-define FIRST-TABLE-IN-QUERY-BROWSE-2 ttMultiSelectItem
+/* Definitions for BROWSE BROWSE-NAME                                      */
+&Scoped-define FIELDS-IN-QUERY-BROWSE-NAME ttMultiSelectItem.isSelected ttMultiSelectItem.multiplier ttMultiSelectItem.quantityToOrder ttMultiSelectItem.quantityToOrderSuggested ttMultiSelectItem.itemID ttMultiSelectItem.itemName ttMultiSelectItem.quantityReorderLevel ttMultiSelectItem.quantityOnHand ttMultiSelectItem.quantityOnOrder ttMultiSelectItem.quantityAllocated ttMultiSelectItem.quantityAvailable ttMultiSelectItem.availOnHand ttMultiSelectItem.dateDueDateEarliest ttMultiSelectItem.orderQtyEarliest ttMultiSelectItem.quantityReorderLevel ttMultiSelectItem.quantityMinOrder ttMultiSelectItem.quantityMaxOrder ttMultiSelectItem.itemCustPart ttMultiSelectItem.itemCust ttMultiSelectItem.itemCustName ttMultiSelectItem.itemEstNO ttMultiSelectItem.itemStyle ttMultiSelectItem.itemWhse ttMultiSelectItem.board  
+&Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-NAME ttMultiSelectItem.isSelected ttMultiSelectItem.multiplier ttMultiSelectItem.quantityToOrder   
+&Scoped-define ENABLED-TABLES-IN-QUERY-BROWSE-NAME ttMultiSelectItem
+&Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-BROWSE-NAME ttMultiSelectItem
+&Scoped-define SELF-NAME BROWSE-NAME
+&Scoped-define QUERY-STRING-BROWSE-NAME FOR EACH ttMultiSelectItem NO-LOCK ~{&SORTBY-PHRASE}
+&Scoped-define OPEN-QUERY-BROWSE-NAME OPEN QUERY {&SELF-NAME} FOR EACH ttMultiSelectItem ~{&SORTBY-PHRASE}.
+&Scoped-define TABLES-IN-QUERY-BROWSE-NAME ttMultiSelectItem
+&Scoped-define FIRST-TABLE-IN-QUERY-BROWSE-NAME ttMultiSelectItem
 
 
 /* Definitions for DIALOG-BOX Dialog-Frame                              */
 &Scoped-define OPEN-BROWSERS-IN-QUERY-Dialog-Frame ~
-    ~{&OPEN-QUERY-BROWSE-2}
+    ~{&OPEN-QUERY-BROWSE-NAME}
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-39 btExit btFilter cFGItem cStyle btOk ~
-cCat cLoc cBoard tb_sugg-qty BROWSE-2 btViewJob btViewAllocated 
+cCat cLoc cBoard tb_sugg-qty BROWSE-NAME btViewJob btViewAllocated 
 &Scoped-Define DISPLAYED-OBJECTS fieventIDlb fiStyleLebel cFGItem cStyle ~
 fiCatLabel filocLabel fiBoardLabel cCat cLoc cBoard tb_sugg-qty fi_sortby
 
@@ -190,14 +190,14 @@ DEFINE VARIABLE fi_sortby    AS CHARACTER FORMAT "X(256)":U
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
-DEFINE QUERY BROWSE-2 FOR 
+DEFINE QUERY BROWSE-NAME FOR 
       ttMultiSelectItem SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
-DEFINE BROWSE BROWSE-2
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-2 Dialog-Frame _FREEFORM
-  QUERY BROWSE-2 NO-LOCK DISPLAY
+DEFINE BROWSE BROWSE-NAME
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-NAME Dialog-Frame _FREEFORM
+  QUERY BROWSE-NAME NO-LOCK DISPLAY
       ttMultiSelectItem.isSelected COLUMN-LABEL "[ ] All" 
             WIDTH 8 VIEW-AS TOGGLE-BOX
       ttMultiSelectItem.multiplier COLUMN-LABEL "Molds" FORMAT ">9" LABEL-BGCOLOR 14
@@ -255,7 +255,7 @@ DEFINE FRAME Dialog-Frame
      fiBoardLabel AT ROW 1.36 COL 91.6 COLON-ALIGNED NO-LABEL WIDGET-ID 78
      tb_sugg-qty AT ROW 3.55 COL 45.6 WIDGET-ID 6
      btFilter AT ROW 1.71 COL 114.4 WIDGET-ID 18     
-     BROWSE-2 AT ROW 5.76 COL 2 WIDGET-ID 200     
+     BROWSE-NAME AT ROW 5.76 COL 2 WIDGET-ID 200     
      btExit AT ROW 1.24 COL 165 WIDGET-ID 326
      btViewJob AT ROW 4.67 COL 2 WIDGET-ID 328
      btViewAllocated AT ROW 4.67 COL 22 WIDGET-ID 330
@@ -296,18 +296,18 @@ DEFINE FRAME Dialog-Frame
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
 /* SETTINGS FOR DIALOG-BOX Dialog-Frame
    FRAME-NAME Custom                                                    */
-/* BROWSE-TAB BROWSE-2 cLoc Dialog-Frame */
+/* BROWSE-TAB BROWSE-NAME cLoc Dialog-Frame */
 ASSIGN 
        FRAME Dialog-Frame:SCROLLABLE       = FALSE
        FRAME Dialog-Frame:HIDDEN           = TRUE.
 
 ASSIGN 
-       BROWSE-2:ALLOW-COLUMN-SEARCHING IN FRAME Dialog-Frame = TRUE.
+       BROWSE-NAME:ALLOW-COLUMN-SEARCHING IN FRAME Dialog-Frame = TRUE.
 
 ASSIGN 
        btOk:PRIVATE-DATA IN FRAME Dialog-Frame     = 
                 "NoWinReSize".
-       BROWSE-2:NUM-LOCKED-COLUMNS IN FRAME Dialog-Frame     = 1 .               
+       BROWSE-NAME:NUM-LOCKED-COLUMNS IN FRAME Dialog-Frame     = 1 .               
 
 /* SETTINGS FOR FILL-IN fiCatLabel IN FRAME Dialog-Frame
    NO-ENABLE                                                            */
@@ -332,15 +332,15 @@ ASSIGN
 
 /* Setting information for Queries and Browse Widgets fields            */
 
-&ANALYZE-SUSPEND _QUERY-BLOCK BROWSE BROWSE-2
-/* Query rebuild information for BROWSE BROWSE-2
+&ANALYZE-SUSPEND _QUERY-BLOCK BROWSE BROWSE-NAME
+/* Query rebuild information for BROWSE BROWSE-NAME
      _START_FREEFORM
 OPEN QUERY {&SELF-NAME} FOR EACH ttMultiSelectItem
       ~{&SORTBY-PHRASE}.
      _END_FREEFORM
      _Options          = "NO-LOCK INDEXED-REPOSITION SORTBY-PHRASE"
      _Query            is OPENED
-*/  /* BROWSE BROWSE-2 */
+*/  /* BROWSE BROWSE-NAME */
 &ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _QUERY-BLOCK DIALOG-BOX Dialog-Frame
@@ -396,10 +396,10 @@ DO:
 &ANALYZE-RESUME
 
 
-&Scoped-define BROWSE-NAME BROWSE-2
-&Scoped-define SELF-NAME BROWSE-2
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-2 Dialog-Frame
-ON DEFAULT-ACTION OF BROWSE-2 IN FRAME Dialog-Frame
+&Scoped-define BROWSE-NAME BROWSE-NAME
+&Scoped-define SELF-NAME BROWSE-NAME
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-NAME Dialog-Frame
+ON DEFAULT-ACTION OF BROWSE-NAME IN FRAME Dialog-Frame
 DO:
     IF AVAILABLE ttMultiSelectItem THEN DO:
         /*RUN api/ResponseInboundDataViewer.w (
@@ -412,8 +412,8 @@ END.
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-2 Dialog-Frame
-ON START-SEARCH OF BROWSE-2 IN FRAME Dialog-Frame
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-NAME Dialog-Frame
+ON START-SEARCH OF BROWSE-NAME IN FRAME Dialog-Frame
 DO:  
     IF SELF:CURRENT-COLUMN:NAME EQ "isSelected" THEN DO:
         lSelectTrigger = NOT lSelectTrigger.
@@ -610,7 +610,7 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&Scoped-define BROWSE-NAME BROWSE-2
+&Scoped-define BROWSE-NAME BROWSE-NAME
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK Dialog-Frame 
@@ -673,7 +673,7 @@ PROCEDURE enable_UI :
   DISPLAY fieventIDlb fiStyleLebel cFGItem cStyle fiCatLabel filocLabel cCat 
           fiBoardLabel cLoc cBoard tb_sugg-qty 
       WITH FRAME Dialog-Frame.
-  ENABLE RECT-39 btExit btFilter cFGItem cStyle btOk cCat cLoc cBoard tb_sugg-qty BROWSE-2 
+  ENABLE RECT-39 btExit btFilter cFGItem cStyle btOk cCat cLoc cBoard tb_sugg-qty BROWSE-NAME 
           btViewJob btViewAllocated WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
@@ -758,9 +758,9 @@ PROCEDURE repo-query :
          END.
      END.
 
-    CLOSE QUERY BROWSE-2.
+    CLOSE QUERY BROWSE-NAME.
     DO WITH FRAME {&FRAME-NAME}:      
-        OPEN QUERY BROWSE-2 FOR EACH ttMultiSelectItem
+        OPEN QUERY BROWSE-NAME FOR EACH ttMultiSelectItem
             NO-LOCK BY ttMultiSelectItem.itemID.                
     END.    
     
