@@ -54,6 +54,14 @@ DEFINE BUFFER bf-ordl FOR oe-ordl.
 DEFINE VARIABLE lActiveBin      AS LOGICAL NO-UNDO.
 DEF VAR ll-secure AS LOG INIT NO NO-UNDO.
 DEF VAR op-company AS CHAR NO-UNDO.
+DEFINE VARIABLE lValueChangedAp AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lValueChangedPO AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lValueChangedOP AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lValueChangedWIP AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lValueChangedRM AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lValueChangedFG AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lValueChangedBR AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lValueChangedAR AS LOGICAL NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -647,27 +655,7 @@ DO:
             APPLY "go" TO FRAME {&FRAME-NAME}.
             RETURN.
         END.
-   
-        /*RUN valid-i-no NO-ERROR.
-        IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
-        RUN valid-job-loc-bin-tag NO-ERROR.
-        IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
-        RUN valid-loc2 NO-ERROR.
-        IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
-        RUN valid-loc-bin2 NO-ERROR.
-        IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
-        RUN valid-tag NO-ERROR.
-        IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-        
-        period.tag2:SCREEN-VALUE = period.tag:SCREEN-VALUE.
-        RUN valid-tag2 (OUTPUT lValidateResult) NO-ERROR.
-        IF NOT lValidateResult THEN 
-            RETURN NO-APPLY.  */
-  
+                        
         DO TRANSACTION:             
           ASSIGN  
              cAPStatus = period.subLedgerAP 
@@ -684,35 +672,35 @@ DO:
                 ASSIGN {&FIELDS-IN-QUERY-{&FRAME-NAME}} .
             END.
             
-            IF cAPStatus NE period.subLedgerAP  THEN
+            IF cAPStatus NE period.subLedgerAP AND lValueChangedAp  THEN
             ASSIGN
                period.APClosedBy = USERID(LDBNAME(1))
                period.APClosed   = NOW.
-            IF cPoStatus NE period.subLedgerPO THEN
+            IF cPoStatus NE period.subLedgerPO AND lValueChangedPO THEN
             ASSIGN
                period.POClosedBy = USERID(LDBNAME(1))
                period.POClosed   = NOW.
-            IF cOPStatus NE period.subLedgerOP THEN
+            IF cOPStatus NE period.subLedgerOP AND lValueChangedOP THEN
             ASSIGN
                period.OPClosedBy = USERID(LDBNAME(1))
                period.OPClosed   = NOW.
-            IF cWIPStatus NE period.subLedgerWIP THEN
+            IF cWIPStatus NE period.subLedgerWIP AND lValueChangedWIP THEN
             ASSIGN
                period.WIPClosedBy = USERID(LDBNAME(1))
                period.WIPClosed   = NOW.
-            IF cRMStatus NE period.subLedgerRM THEN
+            IF cRMStatus NE period.subLedgerRM AND lValueChangedRM THEN
             ASSIGN
                period.RMClosedBy = USERID(LDBNAME(1))
                period.RMClosed   = NOW.
-            IF cFGStatus NE period.subLedgerFG THEN
+            IF cFGStatus NE period.subLedgerFG AND lValueChangedFG THEN
             ASSIGN
                period.FGClosedBy = USERID(LDBNAME(1))
                period.FGClosed   = NOW.
-            IF cBRStatus NE period.subLedgerBR THEN
+            IF cBRStatus NE period.subLedgerBR AND lValueChangedBR THEN
             ASSIGN
                period.BRClosedBy = USERID(LDBNAME(1))
                period.BRClosed   = NOW.
-            IF cARStatus NE period.subLedgerAR THEN
+            IF cARStatus NE period.subLedgerAR AND lValueChangedAR THEN
             ASSIGN
                period.ARClosedBy = USERID(LDBNAME(1))
                period.ARClosed   = NOW.
@@ -774,6 +762,86 @@ DO:
        MESSAGE "Not all days for the year are accounted for with ALL periods in the Year"
          VIEW-AS ALERT-BOX warning  .
   
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME period.subLedgerAP
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL period.subLedgerAP Dialog-Frame
+ON VALUE-CHANGED OF period.subLedgerAP IN FRAME Dialog-Frame /*  */
+DO:
+    ASSIGN lValueChangedAp = YES.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME period.subLedgerPO
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL period.subLedgerPO Dialog-Frame
+ON VALUE-CHANGED OF period.subLedgerPO IN FRAME Dialog-Frame /*  */
+DO:
+    ASSIGN lValueChangedPO = YES.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME period.subLedgerOP
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL period.subLedgerOP Dialog-Frame
+ON VALUE-CHANGED OF period.subLedgerOP IN FRAME Dialog-Frame /*  */
+DO:
+    ASSIGN lValueChangedOP = YES.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME period.subLedgerWIP
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL period.subLedgerWIP Dialog-Frame
+ON VALUE-CHANGED OF period.subLedgerWIP IN FRAME Dialog-Frame /*  */
+DO:
+    ASSIGN lValueChangedWIP = YES.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME period.subLedgerRM
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL period.subLedgerRM Dialog-Frame
+ON VALUE-CHANGED OF period.subLedgerRM IN FRAME Dialog-Frame /*  */
+DO:
+    ASSIGN lValueChangedRM = YES.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME period.subLedgerFG
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL period.subLedgerFG Dialog-Frame
+ON VALUE-CHANGED OF period.subLedgerFG IN FRAME Dialog-Frame /*  */
+DO:
+    ASSIGN lValueChangedFG = YES.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME period.subLedgerBR
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL period.subLedgerBR Dialog-Frame
+ON VALUE-CHANGED OF period.subLedgerBR IN FRAME Dialog-Frame /*  */
+DO:
+    ASSIGN lValueChangedBR = YES.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME period.subLedgerAR
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL period.subLedgerAR Dialog-Frame
+ON VALUE-CHANGED OF period.subLedgerAR IN FRAME Dialog-Frame /*  */
+DO:
+    ASSIGN lValueChangedAR = YES.
 END.
 
 /* _UIB-CODE-BLOCK-END */

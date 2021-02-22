@@ -459,7 +459,15 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     end.
     FIND FIRST period NO-LOCK WHERE 
         period.company EQ company.company AND
-        period.pstat EQ TRUE 
+        period.pstat EQ TRUE AND
+        ((period.subLedgerAP NE "C" AND ipcModule EQ "AP") OR
+        (period.subLedgerPO NE "C" AND ipcModule EQ "PO") OR
+        (period.subLedgerOP NE "C" AND ipcModule EQ "OP") OR
+        (period.subLedgerWIP NE "C" AND ipcModule EQ "WIP") OR
+        (period.subLedgerRM NE "C" AND ipcModule EQ "RM") OR
+        (period.subLedgerFG NE "C" AND ipcModule EQ "FG") OR
+        (period.subLedgerBR NE "C" AND ipcModule EQ "BR") OR
+        (period.subLedgerAR NE "C" AND ipcModule EQ "AR"))
         NO-ERROR.
     IF AVAIL period THEN ASSIGN 
         tran-year = period.yr
