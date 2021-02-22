@@ -53,7 +53,7 @@
 	"LabelMatrixLoadTagOutputFilePath" : {
 		"Description" : "Path to save the label matrix output file",
 		"Path" : "C:\\BA\\Label\\",
-		"File" : "loadtag1.txt"
+		"File" : "loadtag.txt"
 	},
 	"AutoPrintLoadtagOnJobScan" : {
 		"Description" : "Print loadtag on a valid job scan",
