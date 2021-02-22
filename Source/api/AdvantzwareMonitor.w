@@ -126,7 +126,8 @@ serverResource.refreshFrequency fGetConfigDescription() @ cEmailConfigDesc
     ~{&OPEN-QUERY-BROWSE-10}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-29 btRefresh btexit BROWSE-10 fiProcess 
+&Scoped-Define ENABLED-OBJECTS btexit RECT-29 RECT-30 BROWSE-10 btRefresh ~
+fiProcess 
 &Scoped-Define DISPLAYED-OBJECTS fiProcess 
 
 /* Custom List Definitions                                              */
@@ -171,29 +172,31 @@ DEFINE VARIABLE chCtrlFrame AS COMPONENT-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btexit 
-     IMAGE-UP FILE "Graphics/32x32/exit_white.png":U
+     IMAGE-UP FILE "Graphics/32x32/exit_white.png":U NO-FOCUS 
      LABEL "" 
-     SIZE 11 BY 2.62 TOOLTIP "Exit Window".
+     SIZE 7.2 BY 1.71 TOOLTIP "Exit Window"
+     BGCOLOR 21 FGCOLOR 21 .
 
 DEFINE BUTTON btRefresh 
-     IMAGE-UP FILE "Graphics/32x32/refresh.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/refresh_disabled.ico":U
+     IMAGE-UP FILE "Graphics/32x32/refresh.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/refresh_disabled.png":U NO-FOCUS 
      LABEL "Restart" 
-     SIZE 11 BY 2.62 TOOLTIP "Refresh Services Status".
+     SIZE 7.2 BY 1.71 TOOLTIP "Refresh Services Status"
+     BGCOLOR 21 FGCOLOR 21 .
 
 DEFINE BUTTON btStart 
-     IMAGE-UP FILE "Graphics/32x32/media_play.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/media_play_disabled.ico":U
+     IMAGE-UP FILE "Graphics/32x32/media_play.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/media_play_disabled.png":U NO-FOCUS 
      LABEL "Start" 
-     SIZE 11 BY 2.62 TOOLTIP "Start Service"
-     FONT 6.
+     SIZE 7.2 BY 1.71 TOOLTIP "Start Service"
+     BGCOLOR 21 FGCOLOR 21 FONT 6.
 
 DEFINE BUTTON btStop 
-     IMAGE-UP FILE "Graphics/32x32/close.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/delete_disabled.ico":U
+     IMAGE-UP FILE "Graphics/32x32/navigate_cross.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_cross_disabled.png":U NO-FOCUS 
      LABEL "Stop" 
-     SIZE 11 BY 2.62 TOOLTIP "Stop Service"
-     FONT 6.
+     SIZE 7.2 BY 1.71 TOOLTIP "Stop Service"
+     BGCOLOR 21 FGCOLOR 21 FONT 6.
 
 DEFINE VARIABLE fiProcess AS CHARACTER FORMAT "X(256)":U 
       VIEW-AS TEXT 
@@ -201,8 +204,13 @@ DEFINE VARIABLE fiProcess AS CHARACTER FORMAT "X(256)":U
      FGCOLOR 9 FONT 5 NO-UNDO.
 
 DEFINE RECTANGLE RECT-29
-     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
      SIZE 211 BY 24.29.
+
+DEFINE RECTANGLE RECT-30
+     EDGE-PIXELS 2 GRAPHIC-EDGE    
+     SIZE 216.2 BY 2.29
+     BGCOLOR 21 FGCOLOR 21 .
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -239,16 +247,17 @@ DEFINE BROWSE BROWSE-10
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
-     btStart AT ROW 1.67 COL 5 WIDGET-ID 6
-     btStop AT ROW 1.67 COL 22 WIDGET-ID 8
-     btRefresh AT ROW 1.67 COL 186 WIDGET-ID 28
-     btexit AT ROW 1.67 COL 203.4 WIDGET-ID 12
-     BROWSE-10 AT ROW 5.67 COL 5 WIDGET-ID 200
-     fiProcess AT ROW 3.1 COL 154 COLON-ALIGNED NO-LABEL WIDGET-ID 40
+     btStart AT ROW 1.38 COL 180.8 WIDGET-ID 6
+     btexit AT ROW 1.38 COL 207.4 WIDGET-ID 12
+     BROWSE-10 AT ROW 5.19 COL 5 WIDGET-ID 200
+     btRefresh AT ROW 1.38 COL 198.4 WIDGET-ID 28
+     btStop AT ROW 1.38 COL 189.6 WIDGET-ID 8
+     fiProcess AT ROW 3.38 COL 154 COLON-ALIGNED NO-LABEL WIDGET-ID 40
      "Advantzware Service Resource Monitor" VIEW-AS TEXT
-          SIZE 46.8 BY .62 AT ROW 4.71 COL 8.2 WIDGET-ID 36
+          SIZE 46.8 BY .62 AT ROW 4.24 COL 8.2 WIDGET-ID 36
           FONT 5
-     RECT-29 AT ROW 5.05 COL 4 WIDGET-ID 34
+     RECT-29 AT ROW 4.57 COL 4 WIDGET-ID 34
+     RECT-30 AT ROW 1 COL 1 WIDGET-ID 42
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -302,7 +311,7 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME DEFAULT-FRAME
    FRAME-NAME                                                           */
-/* BROWSE-TAB BROWSE-10 btexit DEFAULT-FRAME */
+/* BROWSE-TAB BROWSE-10 RECT-30 DEFAULT-FRAME */
 /* SETTINGS FOR BUTTON btStart IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
 /* SETTINGS FOR BUTTON btStop IN FRAME DEFAULT-FRAME
@@ -768,7 +777,7 @@ PROCEDURE enable_UI :
   RUN control_load.
   DISPLAY fiProcess 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE RECT-29 btRefresh btexit BROWSE-10 fiProcess 
+  ENABLE btexit RECT-29 RECT-30 BROWSE-10 btRefresh fiProcess 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
@@ -852,64 +861,9 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pInit C-Win 
-PROCEDURE pInit :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetASIMonitorStartCommand C-Win 
+PROCEDURE pGetASIMonitorStartCommand PRIVATE :
 /*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    DEFINE VARIABLE iCurrBrowseRow AS INTEGER NO-UNDO.
-    DEFINE VARIABLE lIsServer      AS LOGICAL NO-UNDO.
-    
-    DO WITH FRAME {&FRAME-NAME}:
-    END.
-    
-    RUN pValidateClientServer (
-        OUTPUT lIsServer
-        ).
-
-    IF NOT lIsServer THEN
-        RETURN.
-        
-    RUN pStoreHandles.
-    
-    ASSIGN
-        fiProcess:SCREEN-VALUE = "Refreshing..."
-        btRefresh:SENSITIVE    = FALSE
-        .
-    
-    SESSION:SET-WAIT-STATE("GENERAL").
-
-    STATUS DEFAULT "Refreshing Service Resources status. Please wait..." IN WINDOW THIS-PROCEDURE:CURRENT-WINDOW.
-    
-    RUN AdvantzwareMonitor_UpdateResourceStatus IN hdAdvantzwareMonitorProcs.
-
-    STATUS DEFAULT "Last Refresh Time: " + STRING(TIME, "hh:mm:ss") IN WINDOW THIS-PROCEDURE:CURRENT-WINDOW.
-    SESSION:SET-WAIT-STATE("").
-    
-    ASSIGN
-        iCurrBrowseRow = BROWSE {&BROWSE-NAME}:FOCUSED-ROW
-        .
-
-    {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
-    BROWSE {&BROWSE-NAME}:SELECT-ROW(iCurrBrowseRow).
-    APPLY "VALUE-CHANGED" TO {&BROWSE-NAME}. 
-    
-    ASSIGN
-        fiProcess:SCREEN-VALUE = ""
-        btRefresh:SENSITIVE    = TRUE
-        .
-    
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pStartASIMonitor C-Win
-PROCEDURE pGetASIMonitorStartCommand PRIVATE:
-    /*------------------------------------------------------------------------------
      Purpose: Procedure to generate ASI start service command 
      Notes:
     ------------------------------------------------------------------------------*/
@@ -991,11 +945,63 @@ PROCEDURE pGetASIMonitorStartCommand PRIVATE:
         opcMessage = "Success"
         .               
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pInit C-Win 
+PROCEDURE pInit :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE iCurrBrowseRow AS INTEGER NO-UNDO.
+    DEFINE VARIABLE lIsServer      AS LOGICAL NO-UNDO.
+    
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+    
+    RUN pValidateClientServer (
+        OUTPUT lIsServer
+        ).
 
+    IF NOT lIsServer THEN
+        RETURN.
+        
+    RUN pStoreHandles.
+    
+    ASSIGN
+        fiProcess:SCREEN-VALUE = "Refreshing..."
+        btRefresh:SENSITIVE    = FALSE
+        .
+    
+    SESSION:SET-WAIT-STATE("GENERAL").
+
+    STATUS DEFAULT "Refreshing Service Resources status. Please wait..." IN WINDOW THIS-PROCEDURE:CURRENT-WINDOW.
+    
+    RUN AdvantzwareMonitor_UpdateResourceStatus IN hdAdvantzwareMonitorProcs.
+
+    STATUS DEFAULT "Last Refresh Time: " + STRING(TIME, "hh:mm:ss") IN WINDOW THIS-PROCEDURE:CURRENT-WINDOW.
+    SESSION:SET-WAIT-STATE("").
+    
+    ASSIGN
+        iCurrBrowseRow = BROWSE {&BROWSE-NAME}:FOCUSED-ROW
+        .
+
+    {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
+    BROWSE {&BROWSE-NAME}:SELECT-ROW(iCurrBrowseRow).
+    APPLY "VALUE-CHANGED" TO {&BROWSE-NAME}. 
+    
+    ASSIGN
+        fiProcess:SCREEN-VALUE = ""
+        btRefresh:SENSITIVE    = TRUE
+        .
+    
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pStoreHandles C-Win 
 PROCEDURE pStoreHandles :
