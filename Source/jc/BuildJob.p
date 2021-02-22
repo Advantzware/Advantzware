@@ -415,7 +415,12 @@ PROCEDURE pBuildMaterials PRIVATE:
             bf-job-mat.n-up         = estCostForm.numOut
             bf-job-mat.basis-w      = estCostForm.basisWeight
             .
-        bf-job-mat.post = fIsAutoIssue(bf-jc-ctrl.post, estCostMaterial.materialType).
+
+        bf-job-mat.post = fIsAutoIssue(bf-jc-ctrl.post, estCostMaterial.materialType) OR 
+                          CAN-FIND(FIRST materialType 
+                                   WHERE materialType.company      EQ bf-job-mat.company 
+                                     AND materialType.materialType EQ estCostMaterial.materialType 
+                                     AND materialType.autoIssue    EQ TRUE).
         
         IF bf-job-mat.qty-all EQ 0 OR NOT bf-job-mat.all-flg  THEN
             bf-job-mat.qty-all = bf-job-mat.qty - bf-job-mat.qty-iss.
