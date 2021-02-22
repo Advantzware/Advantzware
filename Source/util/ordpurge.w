@@ -858,7 +858,7 @@ DEFINE VARIABLE v-post-date AS DATE INIT TODAY NO-UNDO.
             END. /* oe-rell */
             
             STATUS DEFAULT "Processing order# " + STRING(oe-ord.ord-no) + "...removing BOL line records".
-            FOR EACH oe-boll EXCLUSIVE 
+            FOR EACH oe-boll EXCLUSIVE-LOCK
                 WHERE oe-boll.company EQ oe-ord.company 
                   AND oe-boll.ord-no  EQ oe-ord.ord-no
                 BREAK BY oe-boll.ord-no:
