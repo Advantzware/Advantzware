@@ -289,6 +289,7 @@ DEFINE VARIABLE cCaseSize AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCaseCount AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCasePerPallet AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lPrintSetHeader AS LOGICAL NO-UNDO.
+DEFINE VARIABLE iJobOverQty AS INTEGER NO-UNDO .
 
 cNewOrderValue = CAPS(cJobType) .
 
@@ -1264,7 +1265,7 @@ FOR EACH job-hdr NO-LOCK
 /*                              iEbTotalYldQty = IF eb.yld-qty EQ 0 THEN eb.bl-qty ELSE eb.yld-qty .*/
 /*                              iEbTotalblQty  = eb.bl-qty  .                                       */
                               RUN pGetJobQty(bf-jobhdr.job-no,bf-jobhdr.job-no2,bf-jobhdr.frm,eb.blank-no, OUTPUT iJobQty ) .        
-                              iEbTotalOverQty = IF AVAIL oe-ordl THEN( iEbTotalBlQty * ( 1 + oe-ordl.over-pct / 100 )) ELSE IF iJobQty NE 0 THEN iJobQty ELSE bf-jobhdr.qty .
+                              iJobOverQty = IF AVAIL oe-ordl THEN( v-ord-qty * ( 1 + oe-ordl.over-pct / 100 )) ELSE IF iJobQty NE 0 THEN iJobQty ELSE bf-jobhdr.qty .
                               IF cSetFGItem NE "" THEN do:
                                   FIND FIRST fg-set WHERE fg-set.company = eb.company
                                       AND fg-set.set-no = cSetFGItem
@@ -1278,8 +1279,8 @@ FOR EACH job-hdr NO-LOCK
                                
                               PUT 
                                   "<R-1><P10><C20><b>Customer Part: </B>" eb.part-no FORMAT "x(15)"   
-                                  "<C45><b>FG#: </b>" eb.stock-no FORMAT "x(15)"     
-                                  "<C70><B><P10>Yield Qty: </B>" TRIM(STRING(iEbTotalYldQty)) FORMAT "x(12)"  skip 
+                                  "<C45><b>FG#: </b>" eb.stock-no FORMAT "x(15)" skip    
+                                //  "<C70><B><P10>Yield Qty: </B>" TRIM(STRING(iEbTotalYldQty)) FORMAT "x(12)"  skip 
 
                                   "<P10><C20><b>Descr.: </B>" eb.part-dscr1 FORMAT "x(30)"  
                                   "<C45><b>Cad#: </b>" eb.cad-no FORMAT "x(20)"
@@ -1287,7 +1288,7 @@ FOR EACH job-hdr NO-LOCK
 
                                   "<P10><C20><b>Adhesive: </B>" eb.adhesive FORMAT "x(15)"  
                                   "<C45><b>Art#: </b>" eb.Plate-no FORMAT "x(30)"
-                                  "<C70><B><P10>Over Qty: </B>" TRIM(STRING(iEbTotalOverQty)) FORMAT "x(12)" SKIP 
+                                  "<C70><B><P10>Job Qty: </B>" TRIM(STRING(iJobOverQty)) FORMAT "x(12)" SKIP 
                                   
                                   "<C2><B>Blank | </B>" STRING(eb.blank-no,"99")  "<C10><B># Up: </b>" string(eb.num-up)
                                   "<P10><C20><b>Size: </B>" (string(eb.len,">9.9999") + " x " + STRING(eb.wid,">9.9999") + " x " + STRING(eb.dep,">9.9999")) FORMAT "x(40)" 
@@ -1338,7 +1339,7 @@ FOR EACH job-hdr NO-LOCK
 /*                                     iEbTotalYldQty = IF bff-eb.yld-qty EQ 0 THEN bff-eb.bl-qty ELSE bff-eb.yld-qty .*/
 /*                                     iEbTotalblQty  = bff-eb.bl-qty  .                                               */
                                      RUN pGetJobQty(bf-jobhdr.job-no,bf-jobhdr.job-no2,bf-jobhdr.frm,bff-eb.blank-no, OUTPUT iJobQty ) .
-                                     iEbTotalOverQty = IF AVAIL oe-ordl THEN (iEbTotalBlQty * (1 + oe-ordl.over-pct / 100 )) ELSE IF iJobQty NE 0 THEN iJobQty ELSE bf-jobhdr.qty .
+                                     iJobOverQty = IF AVAIL oe-ordl THEN (v-ord-qty * (1 + oe-ordl.over-pct / 100 )) ELSE IF iJobQty NE 0 THEN iJobQty ELSE bf-jobhdr.qty .
                                      IF cSetFGItem NE "" THEN 
                                      do:
                                          FIND FIRST fg-set WHERE fg-set.company = eb.company
@@ -1354,7 +1355,7 @@ FOR EACH job-hdr NO-LOCK
                                      PUT 
                                          "<R-1><P10><C20><b>Customer Part: </B>" bff-eb.part-no FORMAT "x(15)"   
                                          "<C45><b>FG#: </b>" bff-eb.stock-no  FORMAT "x(15)"    
-                                         "<C70><B><P10>Yield Qty: </B>" TRIM(STRING(iEbTotalYldQty)) FORMAT "x(12)"  skip 
+                                       /*  "<C70><B><P10>Yield Qty: </B>" TRIM(STRING(iEbTotalYldQty)) FORMAT "x(12)" */ skip
                                          
                                          "<P10><C20><b>Descr.: </B>" bff-eb.part-dscr1 FORMAT "x(30)"  
                                          "<C45><b>Cad#: </b>" bff-eb.cad-no FORMAT "x(20)"
@@ -1362,7 +1363,7 @@ FOR EACH job-hdr NO-LOCK
                                          
                                          "<P10><C20><b>Adhesive: </B>" bff-eb.adhesive FORMAT "x(15)"  
                                          "<C45><b>Art#: </b>" bff-eb.Plate-no FORMAT "x(30)"
-                                         "<C70><B><P10>Over Qty: </B>" TRIM(STRING(iEbTotalOverQty)) FORMAT "x(12)" SKIP
+                                         "<C70><B><P10>Job Qty: </B>" TRIM(STRING(iJobOverQty)) FORMAT "x(12)" SKIP
                                          
                                          "<C2><B>Blank | </B>" STRING(bff-eb.blank-no,"99")  "<C10><B># Up: </B>" string(bff-eb.num-up)
                                          "<P10><C20><b>Size: </B>" (string(bff-eb.len,">9.9999") + " x " + STRING(bff-eb.wid,">9.9999") + " x " + STRING(bff-eb.dep,">9.9999")) FORMAT "x(40)" 
