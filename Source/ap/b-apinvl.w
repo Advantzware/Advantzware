@@ -3105,12 +3105,13 @@ PROCEDURE valid-po-no :
                 IF NOT lContinue THEN DO:
                     APPLY "entry" TO ap-invl.po-no.
                     oplReturnError = YES.
+                    RETURN NO-APPLY.
                 END.
             END.
                 
             IF AVAIL po-ordl THEN LEAVE.
         END.
-        IF NOT AVAIL po-ordl AND lv-msg EQ "" THEN lv-msg = "No Receipts exist for this PO".
+        IF NOT AVAIL po-ordl AND lv-msg EQ "" THEN lv-msg = "There are no receipts available to match with this invoice".
       END.
 
       IF lv-msg EQ ""                                                        AND
@@ -3120,7 +3121,7 @@ PROCEDURE valid-po-no :
         RUN build-table (RECID(po-ord)).
 
         IF NOT apinvmsg-log AND lv-num-rec LE 0 THEN
-          lv-msg = "All receipts for this PO have been invoiced".
+          lv-msg = "All receipts for this PO have been invoiced already".
 
         ELSE DO:
           RUN ap/d-selpos.w (RECID(ap-inv)).
