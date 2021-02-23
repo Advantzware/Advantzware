@@ -94,14 +94,15 @@ RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
 &Scoped-define FRAME-NAME DEFAULT-FRAME
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btExit RECT-1 fiBeginOrder fiEndingOrder ~
-tbUpdateOrderStatus fiBeginJob fiEndingJob tbUpdateJobStatus fiBeginRelease ~
-fiEndingRelease tbUpdateReleases fiBeginPO fiEndingPO ~
-tbupdatePurchaseOrders tbOpenFiles btSimulate btExecute 
-&Scoped-Define DISPLAYED-OBJECTS fiBeginOrder fiEndingOrder ~
-tbUpdateOrderStatus fiBeginJob fiEndingJob tbUpdateJobStatus fiBeginRelease ~
-fiEndingRelease tbUpdateReleases fiBeginPO fiEndingPO ~
-tbupdatePurchaseOrders fiDirectory tbOpenFiles 
+&Scoped-Define ENABLED-OBJECTS btExit tbUpdateOrderStatus RECT-1 ~
+fiBeginOrder fiEndingOrder tbUpdateJobStatus fiBeginJob fiBeginJob-2 ~
+fiEndingJob fiEndingJob-2 tbUpdateReleases fiBeginRelease fiEndingRelease ~
+tbupdatePurchaseOrders fiBeginPO fiEndingPO tbOpenFiles btSimulate ~
+btExecute 
+&Scoped-Define DISPLAYED-OBJECTS tbUpdateOrderStatus fiBeginOrder ~
+fiEndingOrder tbUpdateJobStatus fiBeginJob fiBeginJob-2 fiEndingJob ~
+fiEndingJob-2 tbUpdateReleases fiBeginRelease fiEndingRelease ~
+tbupdatePurchaseOrders fiBeginPO fiEndingPO fiDirectory tbOpenFiles 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -134,7 +135,12 @@ DEFINE BUTTON btSimulate
 DEFINE VARIABLE fiBeginJob AS CHARACTER FORMAT "X(256)":U 
      LABEL "Begin Job" 
      VIEW-AS FILL-IN 
-     SIZE 14 BY 1
+     SIZE 10.6 BY 1
+     FONT 22 NO-UNDO.
+
+DEFINE VARIABLE fiBeginJob-2 AS INTEGER FORMAT ">9":U INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 4.2 BY 1
      FONT 22 NO-UNDO.
 
 DEFINE VARIABLE fiBeginOrder AS INTEGER FORMAT ">>>>>>>":U INITIAL 0 
@@ -163,7 +169,12 @@ DEFINE VARIABLE fiDirectory AS CHARACTER FORMAT "X(256)":U
 DEFINE VARIABLE fiEndingJob AS CHARACTER FORMAT "X(256)":U 
      LABEL "Ending Job" 
      VIEW-AS FILL-IN 
-     SIZE 14 BY 1
+     SIZE 10.6 BY 1
+     FONT 22 NO-UNDO.
+
+DEFINE VARIABLE fiEndingJob-2 AS INTEGER FORMAT ">9":U INITIAL 99 
+     VIEW-AS FILL-IN 
+     SIZE 4.2 BY 1
      FONT 22 NO-UNDO.
 
 DEFINE VARIABLE fiEndingOrder AS INTEGER FORMAT ">>>>>>>":U INITIAL 0 
@@ -192,30 +203,30 @@ DEFINE RECTANGLE RECT-14
      SIZE 106.8 BY 2.14
      BGCOLOR 21 FGCOLOR 21 .
 
-DEFINE VARIABLE tbOpenFiles AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tbOpenFiles AS LOGICAL INITIAL no 
      LABEL "Open Files" 
      VIEW-AS TOGGLE-BOX
      SIZE 16 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tbUpdateJobStatus AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tbUpdateJobStatus AS LOGICAL INITIAL no 
      LABEL "Update Job Status" 
      VIEW-AS TOGGLE-BOX
      SIZE 23 BY .81
      FONT 22 NO-UNDO.
 
-DEFINE VARIABLE tbUpdateOrderStatus AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tbUpdateOrderStatus AS LOGICAL INITIAL no 
      LABEL "Update Order Status" 
      VIEW-AS TOGGLE-BOX
      SIZE 26 BY .81
      FONT 22 NO-UNDO.
 
-DEFINE VARIABLE tbupdatePurchaseOrders AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tbupdatePurchaseOrders AS LOGICAL INITIAL no 
      LABEL "Update Purchase Orders" 
      VIEW-AS TOGGLE-BOX
      SIZE 31 BY .81
      FONT 22 NO-UNDO.
 
-DEFINE VARIABLE tbUpdateReleases AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tbUpdateReleases AS LOGICAL INITIAL no 
      LABEL "Update Releases" 
      VIEW-AS TOGGLE-BOX
      SIZE 26.8 BY .81
@@ -226,18 +237,20 @@ DEFINE VARIABLE tbUpdateReleases AS LOGICAL INITIAL NO
 
 DEFINE FRAME DEFAULT-FRAME
      btExit AT ROW 1.19 COL 91.6 WIDGET-ID 320
+     tbUpdateOrderStatus AT ROW 4.57 COL 5.6 WIDGET-ID 2
      fiBeginOrder AT ROW 4.38 COL 47.4 COLON-ALIGNED WIDGET-ID 18
      fiEndingOrder AT ROW 4.38 COL 78.4 COLON-ALIGNED WIDGET-ID 20
-     tbUpdateOrderStatus AT ROW 4.57 COL 5.6 WIDGET-ID 2
-     fiBeginJob AT ROW 6 COL 47.4 COLON-ALIGNED WIDGET-ID 22
-     fiEndingJob AT ROW 6 COL 78.4 COLON-ALIGNED WIDGET-ID 24
      tbUpdateJobStatus AT ROW 6.19 COL 5.6 WIDGET-ID 6
+     fiBeginJob AT ROW 6 COL 47.4 COLON-ALIGNED WIDGET-ID 22
+     fiBeginJob-2 AT ROW 6 COL 58 COLON-ALIGNED NO-LABEL WIDGET-ID 326
+     fiEndingJob AT ROW 6 COL 78.4 COLON-ALIGNED WIDGET-ID 24
+     fiEndingJob-2 AT ROW 6 COL 89 COLON-ALIGNED NO-LABEL WIDGET-ID 328
+     tbUpdateReleases AT ROW 7.81 COL 5.8 WIDGET-ID 8
      fiBeginRelease AT ROW 7.62 COL 47.4 COLON-ALIGNED WIDGET-ID 26
      fiEndingRelease AT ROW 7.62 COL 78.4 COLON-ALIGNED WIDGET-ID 28
-     tbUpdateReleases AT ROW 7.81 COL 5.8 WIDGET-ID 8
+     tbupdatePurchaseOrders AT ROW 9.38 COL 5.6 WIDGET-ID 4
      fiBeginPO AT ROW 9.19 COL 47.4 COLON-ALIGNED WIDGET-ID 30
      fiEndingPO AT ROW 9.19 COL 78.4 COLON-ALIGNED WIDGET-ID 32
-     tbupdatePurchaseOrders AT ROW 9.38 COL 5.6 WIDGET-ID 4
      fiDirectory AT ROW 11.91 COL 18.4 COLON-ALIGNED NO-LABEL WIDGET-ID 12
      tbOpenFiles AT ROW 11.95 COL 79 WIDGET-ID 324
      btSimulate AT ROW 13.76 COL 31.6 WIDGET-ID 34
@@ -277,15 +290,15 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 273.2
          VIRTUAL-HEIGHT     = 33.57
          VIRTUAL-WIDTH      = 273.2
-         RESIZE             = YES
-         SCROLL-BARS        = NO
-         STATUS-AREA        = YES
+         RESIZE             = yes
+         SCROLL-BARS        = no
+         STATUS-AREA        = yes
          BGCOLOR            = ?
          FGCOLOR            = ?
-         KEEP-FRAME-Z-ORDER = YES
-         THREE-D            = YES
-         MESSAGE-AREA       = NO
-         SENSITIVE          = YES.
+         KEEP-FRAME-Z-ORDER = yes
+         THREE-D            = yes
+         MESSAGE-AREA       = no
+         SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
@@ -298,9 +311,12 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* SETTINGS FOR WINDOW C-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME DEFAULT-FRAME
-   FRAME-NAME                                                           */
+   FRAME-NAME Custom                                                    */
 ASSIGN 
        fiBeginJob:HIDDEN IN FRAME DEFAULT-FRAME           = TRUE.
+
+ASSIGN 
+       fiBeginJob-2:HIDDEN IN FRAME DEFAULT-FRAME           = TRUE.
 
 ASSIGN 
        fiBeginOrder:HIDDEN IN FRAME DEFAULT-FRAME           = TRUE.
@@ -320,6 +336,9 @@ ASSIGN
        fiEndingJob:HIDDEN IN FRAME DEFAULT-FRAME           = TRUE.
 
 ASSIGN 
+       fiEndingJob-2:HIDDEN IN FRAME DEFAULT-FRAME           = TRUE.
+
+ASSIGN 
        fiEndingOrder:HIDDEN IN FRAME DEFAULT-FRAME           = TRUE.
 
 ASSIGN 
@@ -331,7 +350,7 @@ ASSIGN
 /* SETTINGS FOR RECTANGLE RECT-14 IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-THEN C-Win:HIDDEN = NO.
+THEN C-Win:HIDDEN = no.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -629,8 +648,10 @@ DO:
         STATUS INPUT "Processing Job Status update.".
         FOR EACH job NO-LOCK 
             WHERE job.company EQ cocode
-              AND job.job-no  GE fiBeginOrder:SCREEN-VALUE
-              AND job.job-no  LE fiEndingOrder:SCREEN-VALUE :
+              AND job.job-no  GE fiBeginJob:SCREEN-VALUE
+              AND job.job-no  LE fiEndingJob:SCREEN-VALUE 
+              AND job.job-no2 GE fiBeginJob-2:INPUT-VALUE
+              AND job.job-no2 LE fiEndingJob-2:INPUT-VALUE:
                 /*  MESSAGE TRIM(job.job-no) + "-" +
                   STRING(job.job-no2,"99")
                   VIEW-AS ALERT-BOX.*/
@@ -703,6 +724,17 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME fiBeginJob-2
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiBeginJob-2 C-Win
+ON VALUE-CHANGED OF fiBeginJob-2 IN FRAME DEFAULT-FRAME
+DO:
+    RUN SetButtons.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME fiBeginOrder
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiBeginOrder C-Win
 ON VALUE-CHANGED OF fiBeginOrder IN FRAME DEFAULT-FRAME /* Begin Order */
@@ -739,6 +771,17 @@ END.
 &Scoped-define SELF-NAME fiEndingJob
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiEndingJob C-Win
 ON VALUE-CHANGED OF fiEndingJob IN FRAME DEFAULT-FRAME /* Ending Job */
+DO:
+    RUN SetButtons.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME fiEndingJob-2
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiEndingJob-2 C-Win
+ON VALUE-CHANGED OF fiEndingJob-2 IN FRAME DEFAULT-FRAME
 DO:
     RUN SetButtons.
 END.
@@ -789,6 +832,10 @@ DO:
         fiEndingJob:HIDDEN       = NOT tbUpdateJobStatus:CHECKED 
         fiBeginJob:VISIBLE       = tbUpdateJobStatus:CHECKED 
         fiEndingJob:VISIBLE      = tbUpdateJobStatus:CHECKED 
+        fiBeginJob-2:HIDDEN        = NOT tbUpdateJobStatus:CHECKED 
+        fiEndingJob-2:HIDDEN       = NOT tbUpdateJobStatus:CHECKED 
+        fiBeginJob-2:VISIBLE       = tbUpdateJobStatus:CHECKED 
+        fiEndingJob-2:VISIBLE      = tbUpdateJobStatus:CHECKED 
         fiEndingJob:SCREEN-VALUE =  ""
         fiBeginJob:SCREEN-VALUE =  "" 
         .
@@ -907,7 +954,11 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         fiEndingRelease:VISIBLE  = FALSE
         btSimulate:SENSITIVE     = FALSE 
         btExecute:SENSITIVE      = FALSE 
-        tbOpenFiles:SENSITIVE      = FALSE
+        tbOpenFiles:SENSITIVE    = FALSE       
+        fiBeginJob-2:HIDDEN      = TRUE  
+        fiEndingJob-2:HIDDEN     = TRUE  
+        fiBeginJob-2:VISIBLE     = FALSE  
+        fiEndingJob-2:VISIBLE    = FALSE 
         .
     RUN FileSys_GetTempDirectory(
         OUTPUT cLocation
@@ -954,14 +1005,15 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY fiBeginOrder fiEndingOrder tbUpdateOrderStatus fiBeginJob fiEndingJob 
-          tbUpdateJobStatus fiBeginRelease fiEndingRelease tbUpdateReleases 
-          fiBeginPO fiEndingPO tbupdatePurchaseOrders fiDirectory tbOpenFiles 
+  DISPLAY tbUpdateOrderStatus fiBeginOrder fiEndingOrder tbUpdateJobStatus 
+          fiBeginJob fiBeginJob-2 fiEndingJob fiEndingJob-2 tbUpdateReleases 
+          fiBeginRelease fiEndingRelease tbupdatePurchaseOrders fiBeginPO 
+          fiEndingPO fiDirectory tbOpenFiles 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE btExit RECT-1 fiBeginOrder fiEndingOrder tbUpdateOrderStatus 
-         fiBeginJob fiEndingJob tbUpdateJobStatus fiBeginRelease 
-         fiEndingRelease tbUpdateReleases fiBeginPO fiEndingPO 
-         tbupdatePurchaseOrders tbOpenFiles btSimulate btExecute 
+  ENABLE btExit tbUpdateOrderStatus RECT-1 fiBeginOrder fiEndingOrder 
+         tbUpdateJobStatus fiBeginJob fiBeginJob-2 fiEndingJob fiEndingJob-2 
+         tbUpdateReleases fiBeginRelease fiEndingRelease tbupdatePurchaseOrders 
+         fiBeginPO fiEndingPO tbOpenFiles btSimulate btExecute 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
