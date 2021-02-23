@@ -157,7 +157,7 @@ DEFINE        VARIABLE cCycles       AS CHARACTER NO-UNDO.
 DEFINE        VARIABLE cFurnish      AS CHARACTER NO-UNDO.
 DEFINE        VARIABLE cConsistency  AS CHARACTER NO-UNDO.
 DEFINE        VARIABLE cMoldTime     AS CHARACTER NO-UNDO.
-DEFINE        VARIABLE cAgitate      AS CHARACTER NO-UNDO.
+DEFINE        VARIABLE cAgitation    AS CHARACTER NO-UNDO.
 DEFINE        VARIABLE cDelay        AS CHARACTER NO-UNDO.
 DEFINE        VARIABLE cOverTemp     AS CHARACTER NO-UNDO.
 DEFINE        VARIABLE cBeltSpeed    AS CHARACTER NO-UNDO.
@@ -167,6 +167,12 @@ DEFINE        VARIABLE cItemID       AS CHARACTER NO-UNDO.
 DEFINE        VARIABLE cItemName     AS CHARACTER NO-UNDO.
 DEFINE        VARIABLE cMoldCount    AS CHARACTER NO-UNDO.
 DEFINE        VARIABLE cGeneralNotes AS CHARACTER NO-UNDO.
+DEFINE        VARIABLE cPreAgitate   AS CHARACTER NO-UNDO.
+DEFINE        VARIABLE cUpAgitate    AS CHARACTER NO-UNDO.
+DEFINE        VARIABLE cDownAgitate  AS CHARACTER NO-UNDO.
+DEFINE        VARIABLE cOvenTemp1    AS CHARACTER NO-UNDO.
+DEFINE        VARIABLE cOvenTemp2    AS CHARACTER NO-UNDO.
+DEFINE        VARIABLE cOvenTemp3    AS CHARACTER NO-UNDO.
 
 DEFINE        VARIABLE cItemSpecLabel AS CHARACTER NO-UNDO.
 DEFINE        VARIABLE cFGItemLabel AS CHARACTER NO-UNDO.
@@ -189,22 +195,29 @@ DEFINE        VARIABLE cCartonCodeLabel AS CHARACTER NO-UNDO.
 DEFINE        VARIABLE cPalletLabel AS CHARACTER NO-UNDO.
 DEFINE        VARIABLE cInstructionsLabel AS CHARACTER NO-UNDO.
 
+DEFINE        VARIABLE cJobMachCode   AS CHARACTER NO-UNDO.
+DEFINE        VARIABLE cJobMachRunQty AS CHARACTER NO-UNDO.
+DEFINE        VARIABLE cCycleValue AS CHARACTER NO-UNDO.
+
 {cec/msfcalc.i}
 DEFINE BUFFER bf-eb     FOR eb.
 DEFINE BUFFER bf-jobhdr FOR job-hdr.
 v-fill = FILL("=",132).
 
+FUNCTION fGetMiscFields RETURNS CHARACTER
+  (iRecKey AS CHARACTER,iId AS CHARACTER)  FORWARD.
+            
 DEFINE NEW SHARED FRAME head.
 
 FORMAT HEADER
          "<C45>HENRY MOLDED PRODUCTS,INC."   SKIP
          "<C47>Job/Head Especificación"  SKIP
-         "<C88>Fecha:"  v-today  SKIP
-         /*"JOB NUMBER:" v-job-no space(0) "-" space(0)
-         v-job-no2 format "99" */
-         "<C4>Código de barras de la orden"   
-         "<C35>Apropado:"   
-         "<C88>Fecha De Vencimiento:"  v-due-date SKIP 
+         "<C38>Número de orden: "  "<B>"STRING(v-job-no + "-" + STRING(v-job-no2,"99"))"</B>" 
+         "<C55>Máquina: " "<B>" cJobMachCode "</B>"
+         "<C66>Ciclos: " "<B>" cCycleValue "</B>"
+         "<C87>Fecha:"  v-today  SKIP
+         "<C4>Código de barras de la orden"
+         "<C87>Fecha De Vencimiento:"  v-due-date SKIP 
          /*v-fill*/
          WITH NO-BOX FRAME headSpanish NO-LABELS STREAM-IO WIDTH 132.
 
@@ -212,10 +225,9 @@ FORMAT HEADER
     "<C45>HENRY MOLDED PRODUCTS,INC."   SKIP
     "<C45>Job/Head Specification"  SKIP
     "<C94>DATE:"  v-today  SKIP
-    /*"JOB NUMBER:" v-job-no space(0) "-" space(0)
-    v-job-no2 format "99" */
-       
-    "<C29>Approved By:"   
+    "<C33>Job #:"  "<B>"STRING(v-job-no + "-" + STRING(v-job-no2,"99"))"</B>" 
+    "<C49>Machine: " "<B>" cJobMachCode "</B>"
+    "<C60>Cycles: " "<B>" cCycleValue "</B>"
     "<C94>DUE DATE:"  v-due-date SKIP
     /*v-fill*/
     WITH NO-BOX FRAME head NO-LABELS STREAM-IO WIDTH 132.
@@ -223,9 +235,8 @@ FORMAT HEADER
 FORMAT "Customer:" oe-ord.cust-name "Sold To:" oe-ord.sold-id
     "Salesman:" AT 68 oe-ord.sname[1] "Order#:" AT 113 oe-ord.ord-no
     WITH NO-BOX FRAME line-head NO-LABELS STREAM-IO WIDTH 132.
-    
+   
 {sys/inc/notes.i}
-
 
 FIND FIRST oe-ctrl WHERE oe-ctrl.company EQ cocode NO-LOCK NO-ERROR.
 
@@ -307,8 +318,17 @@ FOR EACH job-hdr NO-LOCK
             AND job.job     EQ job-hdr.job
             AND job.job-no  EQ v-job-no
             AND job.job-no2 EQ v-job-no2
-            NO-LOCK NO-ERROR.  
-
+            NO-LOCK NO-ERROR.
+        FIND FIRST job-mch
+                WHERE job-mch.company EQ cocode
+                AND job-mch.job     EQ job.job
+                AND job-mch.job-no  EQ job.job-no
+                AND job-mch.job-no2 EQ job.job-no2
+                NO-LOCK NO-ERROR.
+                
+        ASSIGN 
+            cJobMachCode = TRIM(job-mch.m-code)
+            cCycleValue  = TRIM(STRING(job-mch.run-qty)) .
         v-due-date = IF AVAILABLE oe-ord THEN oe-ord.due-date ELSE ?.
         
         IF NOT FIRST(job-hdr.job-no) THEN PAGE.
@@ -347,7 +367,7 @@ FOR EACH job-hdr NO-LOCK
             by job-mch.blank-no
             by job-mch.pass
             by job-mch.run-qty desc:
-
+            
         FIND FIRST wrk-op
             WHERE wrk-op.m-code EQ job-mch.m-code
             AND wrk-op.s-num  EQ job-mch.frm
@@ -527,26 +547,25 @@ FOR EACH ef
             END.
             
             RUN pGetPrintLabel1(INPUT lSpanish, OUTPUT cJobLabel, OUTPUT cMachineLabel, OUTPUT cCycles, OUTPUT cFurnish,
-                                 OUTPUT cConsistency, OUTPUT cMoldTime , OUTPUT cAgitate, OUTPUT cDelay , OUTPUT cOverTemp,
+                                 OUTPUT cConsistency, OUTPUT cMoldTime , OUTPUT cAgitation, OUTPUT cDelay , OUTPUT cOverTemp,
                                  OUTPUT cBeltSpeed, OUTPUT cDryTime, OUTPUT cItemList, OUTPUT cItemID, OUTPUT cItemName , 
-                                 OUTPUT cMoldCount, OUTPUT cGeneralNotes).
+                                 OUTPUT cMoldCount, OUTPUT cGeneralNotes, OUTPUT cPreAgitate, OUTPUT cUpAgitate, OUTPUT cDownAgitate, OUTPUT cOvenTemp1, OUTPUT cOvenTemp2, OUTPUT cOvenTemp3).
         
-            PUT "<C2><#2><R+10><C+33><RECT#2><|3>"
+            PUT "<C2><#2><R+10><C+39><RECT#2><|3>"
                 "<#3><R-10><C+42><RECT#3><|3>"
-                "<#4><R+10><C+33><RECT#4><|3>" SKIP.
+                "<#4><R+10><C+27><RECT#4><|3>" SKIP.
             
-            PUT "<=#2> <C3>" cJobLabel FORMAT "x(17)" STRING(job-hdr.job-no + "-" + STRING(job-hdr.job-no2,"99")) FORMAT "x(12)" SKIP
-                "<C3>" cMachineLabel FORMAT "x(9)" (IF AVAILABLE wrk-op THEN (wrk-op.m-code + " - " + wrk-op.m-dscr) ELSE "") FORMAT "x(40)" SKIP
-                "<C3>" cCycles FORMAT "x(8)" (IF AVAILABLE wrk-op THEN STRING(wrk-op.num-sh[1]) ELSE "") FORMAT "x(20)"  SKIP(1)
-                "<P9><C3>" cFurnish FORMAT "x(18)"  cBoardDscr  FORMAT "x(40)" SKIP
-                "<C3>" cConsistency FORMAT "x(23)" SKIP
-                 "<C3>" cMoldTime FORMAT "x(17)" (IF AVAILABLE wrk-op THEN STRING(wrk-op.mr[1],"->>,>>9.99") ELSE "") FORMAT "x(10)"  "<C18> " cDryTime FORMAT "x(13)" SKIP
-                 "<C3>" cAgitate FORMAT "x(9)"    "<C18> " cOverTemp FORMAT "x(23)" SKIP
-                 "<C3>" cDelay FORMAT "x(10)"     "<C18> " cBeltSpeed FORMAT "x(24)" (IF AVAILABLE wrk-op THEN STRING(wrk-op.speed[1]) ELSE "") SKIP(1)
-                "<P10>".
+            PUT "<=#2> <C3>" cFurnish FORMAT "x(18)"  cBoardDscr  FORMAT "x(40)" SKIP
+                "<C3>" cMoldTime    FORMAT "x(20)"    STRING(fGetMiscFields(est.rec_key,"00008"))    "<C21>" cConsistency FORMAT "x(25)" STRING(fGetMiscFields(est.rec_key,"00007")) SKIP
+                "<C3>" cPreAgitate  FORMAT "x(20)"    STRING(fGetMiscFields(est.rec_key,"00009"))    "<C21>" cDryTime     FORMAT "x(25)" STRING(fGetMiscFields(est.rec_key,"00014")) SKIP
+                "<C3>" cUpAgitate   FORMAT "x(20)"    STRING(fGetMiscFields(est.rec_key,"00010"))    "<C21>" cBeltSpeed   FORMAT "x(25)" STRING(fGetMiscFields(est.rec_key,"00015")) SKIP
+                "<C3>" cDownAgitate FORMAT "x(20)"    STRING(fGetMiscFields(est.rec_key,"00011"))    "<C21>" cOvenTemp1   FORMAT "x(25)" STRING(fGetMiscFields(est.rec_key,"00016")) SKIP
+                "<C3>" cAgitation   FORMAT "x(20)"    STRING(fGetMiscFields(est.rec_key,"00012"))    "<C21>" cOvenTemp2   FORMAT "x(25)" STRING(fGetMiscFields(est.rec_key,"00017")) SKIP
+                "<C3>" cDelay       FORMAT "x(20)"    STRING(fGetMiscFields(est.rec_key,"00013"))    "<C21>" cOvenTemp3   FORMAT "x(25)" STRING(fGetMiscFields(est.rec_key,"00018")) SKIP
+                .
    
-            PUT "<=#3><R-10> <C35><B>" cItemList FORMAT "x(30)"  "</b> "  SKIP
-                "<C34.6>  " cItemID FORMAT "x(27)"       "<C51>" cItemName FORMAT "x(25)"    "<C65.5>" cMoldCount FORMAT "x(25)" "<P9>" FORMAT "x(200)" SKIP    .
+            PUT "<=#3><R-10> <C41.3><B>" cItemList FORMAT "x(30)"  "</b> "  SKIP
+                "<C40.9>  " cItemID FORMAT "x(27)"       "<C57>" cItemName FORMAT "x(25)"    "<C71.5>" cMoldCount FORMAT "x(25)" "<P9>" FORMAT "x(200)" SKIP    .
             j = 9.     
             FOR EACH bf-jobhdr NO-LOCK WHERE bf-jobhdr.company = job-hdr.company
                 AND bf-jobhdr.job-no = job-hdr.job-no
@@ -565,13 +584,13 @@ FOR EACH ef
                      AND b-eb.blank-no  EQ bf-jobhdr.blank-no  
                      NO-ERROR.
                 i = i + 1.
-                PUT "<=#3><C34.9><R-" + STRING(j - i) + ">" FORMAT "x(18)" i FORMAT "9"  "<C35.5>  " bf-jobhdr.i-no  FORMAT "x(15)" 
-                    "<C51>" (IF AVAILABLE itemfg THEN itemfg.i-name ELSE "" ) FORMAT "x(27)" "<C72.5>"  (IF AVAILABLE b-eb THEN b-eb.num-up ELSE 0)  SKIP   .
+                PUT "<=#3><C41.2><R-" + STRING(j - i) + ">" FORMAT "x(18)" i FORMAT "9"  "<C41.8>  " bf-jobhdr.i-no  FORMAT "x(15)" 
+                    "<C57>" (IF AVAILABLE itemfg THEN itemfg.i-name ELSE "" ) FORMAT "x(27)" "<C78.5>"  (IF AVAILABLE b-eb THEN b-eb.num-up ELSE 0)  SKIP   .
                
             END. 
             PUT SKIP(j - i) .
          
-            PUT "<=#4><P10> <C77><B> " cGeneralNotes FORMAT "x(18)" "</b> "  SKIP .
+            PUT "<=#4><P10> <C83><B> " cGeneralNotes FORMAT "x(18)" "</b> "  SKIP .
          
             FOR EACH notes
                 WHERE notes.rec_key   EQ job.rec_key
@@ -600,7 +619,7 @@ FOR EACH ef
                 i = 0.
                 FOR EACH tt-formtext WHERE tt-text NE "" BREAK BY tt-line-no:
                     i = i + 1 .
-                    PUT "<=#4><P8><C77><R+" + STRING(i) + ">" FORMAT "x(22)" tt-formtext.tt-text FORMAT "x(80)"  SKIP.
+                    PUT "<=#4><P8><C83><R+" + STRING(i) + ">" FORMAT "x(22)" tt-formtext.tt-text FORMAT "x(80)"  SKIP.
                     
                     IF i GE 9 THEN LEAVE.
                 END.
@@ -764,9 +783,9 @@ FOR EACH ef
             AND itemfg.i-no    EQ job-hdr.i-no
             NO-ERROR .           
             
-        PUT "<=#5> <C3>" cFGItemLabel FORMAT "x(10)" job-hdr.i-no FORMAT "x(18)"  "<B>" cKeyItemLabel FORMAT "x(15)" "</B> " job-hdr.keyItem  "<C35>" cMoldsLabel FORMAT "x(8)" eb.num-up   "<C55>" cWetWeightLabel FORMAT "x(13)" "<C75>" cFirstDryLabel FORMAT "x(14)" SKIP
-            "<C3>" cDscrLabel FORMAT "x(13)" ( IF AVAILABLE itemfg THEN itemfg.part-dscr1 ELSE "") FORMAT "x(30)"    "<C35>" cMoldIDsLabel FORMAT "x(25)"  "<C55>" cBoneDryLabel FORMAT "x(10)" "<C75>" cMoistureLabel FORMAT "X(9)" SKIP
-            "<C3>" cSizeLabel FORMAT "x(8)"  eb.len " x " eb.wid " x " eb.dep  "<C35>" cJigAvailableLabel FORMAT "x(21)"  "<C55>" cMinWeightLabel FORMAT "x(12)" "<C75>" cFiberContentLabel FORMAT "x(20)" SKIP
+        PUT "<=#5> <C3>" cFGItemLabel FORMAT "x(10)" job-hdr.i-no FORMAT "x(18)"  "<B>" cKeyItemLabel FORMAT "x(15)" "</B> " job-hdr.keyItem  "<C35>" cMoldsLabel FORMAT "x(8)" eb.num-up   "<C55>" cWetWeightLabel FORMAT "x(13)" STRING(fGetMiscFields(itemfg.rec_key,"00001")) "<C75>" cFirstDryLabel FORMAT "x(14)" STRING(fGetMiscFields(itemfg.rec_key,"00003")) SKIP
+            "<C3>" cDscrLabel FORMAT "x(13)" ( IF AVAILABLE itemfg THEN itemfg.part-dscr1 ELSE "") FORMAT "x(30)"    "<C35>" cMoldIDsLabel FORMAT "x(25)"  "<C55>" cBoneDryLabel FORMAT "x(10)" "<C75>" cMoistureLabel FORMAT "X(9)" STRING(fGetMiscFields(itemfg.rec_key,"00005")) SKIP
+            "<C3>" cSizeLabel FORMAT "x(8)"  eb.len " x " eb.wid " x " eb.dep  "<C35>" cJigAvailableLabel FORMAT "x(21)" STRING(fGetMiscFields(itemfg.rec_key,"00004"))  "<C55>" cMinWeightLabel FORMAT "x(12)" STRING(fGetMiscFields(itemfg.rec_key,"00002")) "<C75>" cFiberContentLabel FORMAT "x(20)" STRING(fGetMiscFields(itemfg.rec_key,"00006")) SKIP
             .
                
         PUT "<=#5><R+0.5><UNITS=INCHES><C88><FROM><C109><r+2><BARCODE,TYPE=128B,CHECKSUM=NONE,VALUE=" 
@@ -942,7 +961,7 @@ PROCEDURE pGetPrintLabel1:
   DEFINE OUTPUT PARAMETER opcFurnish AS CHARACTER NO-UNDO.
   DEFINE OUTPUT PARAMETER opcConsistency AS CHARACTER NO-UNDO.
   DEFINE OUTPUT PARAMETER opcMoldTime  AS CHARACTER NO-UNDO.
-  DEFINE OUTPUT PARAMETER opcAgitate AS CHARACTER NO-UNDO.
+  DEFINE OUTPUT PARAMETER opcAgitation AS CHARACTER NO-UNDO.
   DEFINE OUTPUT PARAMETER opcDelay AS CHARACTER NO-UNDO.
   DEFINE OUTPUT PARAMETER opcOverTemp AS CHARACTER NO-UNDO.
   DEFINE OUTPUT PARAMETER opcBeltSpeed AS CHARACTER NO-UNDO.
@@ -952,6 +971,12 @@ PROCEDURE pGetPrintLabel1:
   DEFINE OUTPUT PARAMETER opcItemName AS CHARACTER NO-UNDO.
   DEFINE OUTPUT PARAMETER opcMoldCount AS CHARACTER NO-UNDO.
   DEFINE OUTPUT PARAMETER opcGeneralNotes AS CHARACTER NO-UNDO.
+  DEFINE OUTPUT PARAMETER opcPreAgitate AS CHARACTER NO-UNDO.
+  DEFINE OUTPUT PARAMETER opcUpAgitate AS CHARACTER NO-UNDO.
+  DEFINE OUTPUT PARAMETER opcDownAgitate AS CHARACTER NO-UNDO.
+  DEFINE OUTPUT PARAMETER opcOvenTemp1 AS CHARACTER NO-UNDO.
+  DEFINE OUTPUT PARAMETER opcOvenTemp2 AS CHARACTER NO-UNDO.
+  DEFINE OUTPUT PARAMETER opcOvenTemp3 AS CHARACTER NO-UNDO.
    
     IF iplSpanish THEN DO:
      ASSIGN
@@ -961,7 +986,7 @@ PROCEDURE pGetPrintLabel1:
          opcFurnish       = "Material de pulpa: "
          opcConsistency   = "Consistencia de pulpa: "
          opcMoldTime      = "Tiempo de molde: "
-         opcAgitate       = "Agitar: "
+         opcAgitation     = "Agitación: "
          opcDelay         = "Retrasar: "
          opcOverTemp      = "Temperatura del horno:"
          opcBeltSpeed     = "Velocidad de la Correa: "
@@ -970,7 +995,14 @@ PROCEDURE pGetPrintLabel1:
          opcItemID        = " Identificación del artículo"
          opcItemName      = "Nombre del árticulo "
          opcMoldCount     = "Cantidad de moldes "
-         opcGeneralNotes  = " Notas generales".
+         opcGeneralNotes  = " Notas generales"
+         opcPreAgitate    = "Pre-agitar: "
+         opcUpAgitate     = "Agitar: "
+         opcDownAgitate   = "Agitar hacia abajo: "
+         opcOvenTemp1     = "Temperatura del horno 1: "
+         opcOvenTemp2     = "Temperatura del horno 2: "
+         opcOvenTemp3     = "Temperatura del horno 3: "
+         .
     END.
     ELSE DO:
        ASSIGN
@@ -980,7 +1012,7 @@ PROCEDURE pGetPrintLabel1:
          opcFurnish       = "Furnish: "
          opcConsistency   = "Consistency: "
          opcMoldTime      = "Mold Time: "
-         opcAgitate       = "Agitate: "
+         opcAgitation     = "Agitation: "
          opcDelay         = "Delay: "
          opcOverTemp      = "Over Temp:"
          opcBeltSpeed     = "Belt Speed: "
@@ -989,7 +1021,14 @@ PROCEDURE pGetPrintLabel1:
          opcItemID        = "  Item ID"
          opcItemName      = "Item Name"
          opcMoldCount     = "Mold Count"
-         opcGeneralNotes  = "General Notes". 
+         opcGeneralNotes  = "General Notes"
+         opcPreAgitate    = "Pre-Agitate: " /* 13 */
+         opcUpAgitate     = "Up-Agitate: "   /* 12 */
+         opcDownAgitate   = "Down-Agitate: "  /* 14 */
+         opcOvenTemp1     = "Oven Temp 1: "  /* 13 */
+         opcOvenTemp2     = "Oven Temp 2: "  /* 13 */
+         opcOvenTemp3     = "Oven Temp 3: "  /* 13 */
+         . 
     
     END.
 END PROCEDURE.
@@ -1068,5 +1107,24 @@ PROCEDURE pGetPrintLabel2:
 END PROCEDURE.
     
 IF v-format EQ "Fibre" THEN PAGE.
+
+FUNCTION fGetMiscFields RETURNS CHARACTER
+  (iRecKey AS CHARACTER,iId AS CHARACTER) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+    
+    FIND FIRST mfvalues NO-LOCK
+        WHERE mfvalues.rec_key EQ iRecKey
+        AND mfvalues.mf_id EQ iId
+        NO-ERROR.
+    IF AVAILABLE mfvalues 
+        THEN
+            RETURN  mfvalues.mf_value.
+        ELSE 
+            RETURN "".
+   
+END FUNCTION.
 
 /* end ---------------------------------- copr. 1994  advanced software, inc. */
