@@ -146,9 +146,9 @@ PROCEDURE pBuildRMToProcess PRIVATE:
     DEFINE VARIABLE dSpecQty   AS DECIMAL NO-UNDO.
     
     FIND FIRST bf-est NO-LOCK
-        WHERE bf-est.company EQ ipcCompany
-          AND bf-est.est-no  EQ ipcEstimateID
-        NO-ERROR.
+         WHERE bf-est.company EQ ipcCompany
+           AND bf-est.est-no  EQ ipcEstimateID
+         NO-ERROR.
     IF AVAILABLE bf-est THEN DO:
         FIND FIRST bf-est-qty NO-LOCK 
              WHERE bf-est-qty.company EQ bf-est.company
@@ -250,7 +250,7 @@ PROCEDURE pBuildRMTransactions PRIVATE:
                 ttRMTransaction.quantityUOM       = bf-item.cons-uom
                 ttRMTransaction.costPerUOM        = bf-rm-bin.cost
                 ttRMTransaction.costTotal         = bf-rm-bin.cost * ttRMTransaction.quantity
-/*                ttRMTransaction.costUOM           = bf-rm-bin.*/
+                ttRMTransaction.costUOM           = "EA"
                 ttRMTransaction.rmBInRowID        = ROWID(bf-rm-bin)
                 ttRMTransaction.transactionStatus = "Created"
                 dQuantity                         = dQuantity - ttRMTransaction.quantity
@@ -281,7 +281,7 @@ PROCEDURE pBuildRMTransactions PRIVATE:
                 ttRMTransaction.costPerUOM        = bf-rm-bin.cost
                 ttRMTransaction.costTotal         = bf-rm-bin.cost * ttRMTransaction.quantity
                 ttRMTransaction.transactionStatus = "Created"
-/*                ttRMTransaction.costUOM         = bf-rm-bin.*/
+                ttRMTransaction.costUOM           = "EA"
                 ttRMTransaction.rmBinRowID        = ROWID(bf-rm-bin)
                 dQuantity                         = dQuantity - ttRMTransaction.quantity
                 dCostTotal                        = dCostTotal + ttRMTransaction.costTotal
@@ -312,7 +312,7 @@ PROCEDURE pBuildRMTransactions PRIVATE:
             ttRMTransaction.costPerUOM        = dCostPerUOM
             ttRMTransaction.costTotal         = dCostTotal
             ttRMTransaction.transactionStatus = "Created"
-/*                ttRMTransaction.costUOM         = bf-rm-bin.*/
+            ttRMTransaction.costUOM           = "EA"
             .        
     END.
     
