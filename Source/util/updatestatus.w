@@ -46,6 +46,7 @@ DEFINE TEMP-TABLE ttOe-ord NO-UNDO
     FIELDS statDesc    AS CHARACTER LABEL "Previous Status Description"
     FIELDS newStat     AS CHARACTER LABEL "Current Status"  
     FIELDS newStatDesc AS CHARACTER LABEL "Current Status Description"
+    FIELDS different   AS CHARACTER LABEL "Different"
     .
 DEFINE TEMP-TABLE ttPo-ord NO-UNDO 
     FIELDS po-no       AS INTEGER   LABEL "Purchase Order Number"
@@ -53,13 +54,16 @@ DEFINE TEMP-TABLE ttPo-ord NO-UNDO
     FIELDS statDesc    AS CHARACTER LABEL "Previous Status Description"
     FIELDS newStat     AS CHARACTER LABEL "Current Status"
     FIELDS newStatDesc AS CHARACTER LABEL "Current Status Description"
+    FIELDS different   AS CHARACTER LABEL "Different"
     .
 DEFINE TEMP-TABLE ttJob NO-UNDO 
     FIELDS job-no      AS CHARACTER LABEL "Job Number"
+    FIELDS job-no2     AS CHARACTER LABEL "Run Number"
     FIELDS stat        AS CHARACTER LABEL "Previous Status"   
     FIELDS statDesc    AS CHARACTER LABEL "Previous Status Description"
     FIELDS newStat     AS CHARACTER LABEL "Current Status"
     FIELDS newStatDesc AS CHARACTER LABEL "Current Status Description"
+    FIELDS different   AS CHARACTER LABEL "Different"
     .
 DEFINE TEMP-TABLE ttOe-rel NO-UNDO 
     FIELDS ord-no      AS INTEGER   LABEL "Order Number"
@@ -68,6 +72,7 @@ DEFINE TEMP-TABLE ttOe-rel NO-UNDO
     FIELDS statDesc    AS CHARACTER LABEL "Previous Status Description" 
     FIELDS newStat     AS CHARACTER LABEL "Current Status"
     FIELDS newStatDesc AS CHARACTER LABEL "Current Status Description"
+    FIELDS different   AS CHARACTER LABEL "Different"
     .
 
 RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
@@ -145,7 +150,7 @@ DEFINE VARIABLE fiBeginPO AS INTEGER FORMAT ">>>>>>>":U INITIAL 0
      FONT 22 NO-UNDO.
 
 DEFINE VARIABLE fiBeginRelease AS INTEGER FORMAT ">>>>>>>":U INITIAL 0 
-     LABEL "Begin Release" 
+     LABEL "Begin Order" 
      VIEW-AS FILL-IN 
      SIZE 14 BY 1
      FONT 22 NO-UNDO.
@@ -174,7 +179,7 @@ DEFINE VARIABLE fiEndingPO AS INTEGER FORMAT ">>>>>>>":U INITIAL 0
      FONT 22 NO-UNDO.
 
 DEFINE VARIABLE fiEndingRelease AS INTEGER FORMAT ">>>>>>>":U INITIAL 0 
-     LABEL "Ending Release" 
+     LABEL "Ending Order" 
      VIEW-AS FILL-IN 
      SIZE 14 BY 1 NO-UNDO.
 
@@ -237,7 +242,7 @@ DEFINE FRAME DEFAULT-FRAME
      tbOpenFiles AT ROW 11.95 COL 79 WIDGET-ID 324
      btSimulate AT ROW 13.76 COL 31.6 WIDGET-ID 34
      btExecute AT ROW 13.76 COL 53.2 WIDGET-ID 38
-     "Records to view or recover purged information will be stored in directory:" VIEW-AS TEXT
+     "Files with updated status information will be stored in directory:" VIEW-AS TEXT
           SIZE 81.8 BY .62 AT ROW 11.05 COL 9.6 WIDGET-ID 10
           FONT 22
      RECT-1 AT ROW 3.91 COL 4 WIDGET-ID 40
@@ -274,7 +279,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          VIRTUAL-WIDTH      = 273.2
          RESIZE             = YES
          SCROLL-BARS        = NO
-         STATUS-AREA        = NO
+         STATUS-AREA        = YES
          BGCOLOR            = ?
          FGCOLOR            = ?
          KEEP-FRAME-Z-ORDER = YES
@@ -434,7 +439,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btExecute C-Win
 ON CHOOSE OF btExecute IN FRAME DEFAULT-FRAME /* Execute */
 DO:   
-    FOR EACH ttOe-rel:                      
+    FOR EACH ttOe-rel: 
+        STATUS INPUT "Processing Release Number - " + STRING(ttOe-rel.rel-no) + " on Order number - " + STRING(ttOe-rel.ord-no).                     
         FOR FIRST  oe-rel EXCLUSIVE-LOCK 
             WHERE oe-rel.ord-no EQ ttOe-rel.ord-no
               AND  oe-rel.rel-no EQ ttOe-rel.rel-no:
@@ -442,14 +448,16 @@ DO:
                 oe-rel.stat = ttOe-rel.newstat.
         END.
     END.
-    FOR EACH ttPo-ord:
+    FOR EACH ttPo-ord:      
+        STATUS INPUT "Processing Purchase Order Number - " + STRING(ttPo-ord.po-no). 
         FOR FIRST  po-ord EXCLUSIVE-LOCK 
             WHERE po-ord.po-no EQ ttPo-ord.po-no:
             ASSIGN 
                 po-ord.stat = ttPo-ord.newstat.
         END.
      END.
-     FOR EACH ttOe-ord:   
+     FOR EACH ttOe-ord:         
+         STATUS INPUT "Processing Order Number - " + STRING(ttOe-ord.ord-no).   
         FOR FIRST  oe-ord EXCLUSIVE-LOCK 
             WHERE oe-ord.ord-no EQ ttOe-ord.ord-no:
             ASSIGN 
@@ -457,6 +465,8 @@ DO:
         END.                    
      END.       
      FOR EACH ttJob:
+         
+        STATUS INPUT "Processing Job Number - " + ttJob.job-no. 
         FOR FIRST  job EXCLUSIVE-LOCK 
             WHERE job.job-no EQ ttJob.job-no:
             ASSIGN 
@@ -469,8 +479,7 @@ DO:
     EMPTY TEMP-TABLE  ttPo-ord.
     EMPTY TEMP-TABLE  ttJob.
     
-    MESSAGE "Status have been updated."
-    VIEW-AS ALERT-BOX.
+    STATUS INPUT "Status have been updated.". 
     
 END.
 
@@ -510,7 +519,8 @@ DO:
     RUN spGetSessionParam ("Company", OUTPUT cocode).
     
     IF tbUpdateReleases:CHECKED THEN 
-    DO:        
+    DO:   
+        STATUS INPUT "Processing Release Status update.".     
         FOR EACH oe-rel NO-LOCK 
            WHERE oe-rel.company EQ cocode
              AND oe-rel.ord-no  GE fiBeginOrder:INPUT-VALUE   
@@ -536,6 +546,8 @@ DO:
             ttOe-rel.statDesc = cResult.
             RUN oe/getReleaseStatusDesc.p( INPUT ttOe-rel.newstat, OUTPUT cResult) .
             ttOe-rel.newstatDesc = cResult.
+            
+            ttOe-rel.different = IF ttOe-rel.newstat = ttOe-rel.stat THEN "SAME" ELSE "UPDATE".
         END.
           
         RUN Output_TempTableToCSV IN hdOutputProcs (
@@ -549,20 +561,25 @@ DO:
     END.          
     IF tbupdatePurchaseOrders:CHECKED  THEN 
     DO:
+       STATUS INPUT "Processing Purchase Order Status update.".
        FOR EACH po-ord NO-LOCK 
           WHERE po-ord.company EQ cocode
             AND po-ord.po-no   GE fiBeginPO:INPUT-VALUE
             AND po-ord.po-no   LE fiEndingPO:INPUT-VALUE:
            CREATE ttPo-ord.
            ASSIGN 
-           ttPo-ord.po-no = po-ord.po-no
-           ttPo-ord.stat   = po-ord.stat.
+                ttPo-ord.po-no = po-ord.po-no
+                ttPo-ord.stat   = po-ord.stat
+                ttPo-ord.newstat = po-ord.stat
+                .
            IF po-ord.opened NE (po-ord.stat NE "C") THEN 
                ttPo-ord.newstat = po-ord.stat.
            RUN oe/getStatusDesc.p( INPUT po-ord.stat, OUTPUT cResult) .
            ttPo-ord.statDesc = cResult.
            RUN oe/getStatusDesc.p( INPUT ttPo-ord.newstat, OUTPUT cResult) .
            ttPo-ord.newstatDesc = cResult.
+           
+           ttPo-ord.different = IF ttPo-ord.newstat = ttPo-ord.stat THEN "SAME" ELSE "UPDATE".
         END. 
           
         RUN Output_TempTableToCSV IN hdOutputProcs (
@@ -576,20 +593,27 @@ DO:
     END.
     IF tbUpdateOrderStatus:CHECKED THEN 
     DO:
+        STATUS INPUT "Processing Order Status update.".
         FOR EACH oe-ord NO-LOCK
            WHERE oe-ord.company EQ cocode
              AND oe-ord.ord-no  GE fiBeginOrder:INPUT-VALUE 
              AND oe-ord.ord-no  LE fiEndingOrder:INPUT-VALUE:
             CREATE ttOe-ord.
             ASSIGN 
-            ttOe-ord.ord-no = oe-ord.ord-no
-            ttOe-ord.stat   = oe-ord.stat.
+                ttOe-ord.ord-no  = oe-ord.ord-no           
+                ttOe-ord.stat    = oe-ord.stat
+                ttOe-ord.newstat = oe-ord.stat.
+            
             RUN oe/getStatusDesc.p( INPUT oe-ord.stat, OUTPUT cResult) .
             ttOe-ord.statDesc = cResult.
-            IF oe-ord.opened NE (INDEX("CDZ",oe-ord.stat) LE 0) THEN 
+            
+            IF oe-ord.opened NE (INDEX("CDZ",oe-ord.stat) LE 0) THEN
                 ttOe-ord.newstat = oe-ord.stat.
+                
             RUN oe/getStatusDesc.p( INPUT ttOe-ord.newstat, OUTPUT cResult) .
             ttOe-ord.newstatDesc = cResult.
+            
+            ttOe-ord.different = IF ttOe-ord.newstat = ttOe-ord.stat THEN "SAME" ELSE "UPDATE".
         END.          
         RUN Output_TempTableToCSV IN hdOutputProcs (
             INPUT TEMP-TABLE ttOe-ord:HANDLE,
@@ -602,20 +626,30 @@ DO:
     END.
     IF tbUpdateJobStatus:CHECKED  THEN  
     DO:
+        STATUS INPUT "Processing Job Status update.".
         FOR EACH job NO-LOCK 
             WHERE job.company EQ cocode
               AND job.job-no  GE fiBeginOrder:SCREEN-VALUE
               AND job.job-no  LE fiEndingOrder:SCREEN-VALUE :
+                /*  MESSAGE TRIM(job.job-no) + "-" +
+                  STRING(job.job-no2,"99")
+                  VIEW-AS ALERT-BOX.*/
+            
             CREATE ttJob.
             ASSIGN 
             ttJob.job-no = job.job-no
-            ttJob.stat = job.stat.
+            ttJob.job-no2 = STRING(job.job-no2)
+            ttJob.stat = job.stat
+            ttJob.newstat = job.stat
+            .
             IF job.opened NE (INDEX("CZ",job.stat) LE 0) THEN 
                 ttJob.newstat = job.stat.
             RUN oe/getJobStatusDesc.p( INPUT job.stat, OUTPUT cResult) .
             ttJob.statDesc = cResult.
             RUN oe/getJobStatusDesc.p( INPUT ttJob.newstat, OUTPUT cResult) .
             ttJob.newstatDesc = cResult.
+            
+            ttJob.different = IF ttJob.newstat = ttJob.stat THEN "SAME" ELSE "UPDATE".
         END. 
           
         RUN Output_TempTableToCSV IN hdOutputProcs (
@@ -627,9 +661,7 @@ DO:
             OUTPUT cMessage
             ).
     END.           
-
-    MESSAGE "CSV with updated status have been created in " + cLocation + " folder."
-    VIEW-AS ALERT-BOX.
+    STATUS INPUT "CSV with updated status have been created in " + cLocation + " folder.".
     
     IF tbOpenFiles:CHECKED THEN 
     DO:
@@ -695,7 +727,7 @@ END.
 
 &Scoped-define SELF-NAME fiBeginRelease
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiBeginRelease C-Win
-ON VALUE-CHANGED OF fiBeginRelease IN FRAME DEFAULT-FRAME /* Begin Release */
+ON VALUE-CHANGED OF fiBeginRelease IN FRAME DEFAULT-FRAME /* Begin Order */
 DO:
     RUN SetButtons.
 END.
@@ -739,7 +771,7 @@ END.
 
 &Scoped-define SELF-NAME fiEndingRelease
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiEndingRelease C-Win
-ON VALUE-CHANGED OF fiEndingRelease IN FRAME DEFAULT-FRAME /* Ending Release */
+ON VALUE-CHANGED OF fiEndingRelease IN FRAME DEFAULT-FRAME /* Ending Order */
 DO:
     RUN SetButtons.
 END.
@@ -940,7 +972,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE SetButtons C-Win 
 PROCEDURE SetButtons :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
