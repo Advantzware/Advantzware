@@ -46,6 +46,7 @@ DEFINE TEMP-TABLE tt-job-hdr
     FIELD on-allo AS DECIMAL
     FIELD on-required AS DECIMAL
     FIELD org-qty AS DECIMAL
+    FIELD job AS INTEGER 
     FIELD job-no AS CHARACTER
     FIELD job-no2 AS INTEGER
     FIELD riJobHdr AS ROWID
@@ -409,6 +410,7 @@ DO:
     FOR EACH bf-tt-job-hdr NO-LOCK ,
        FIRST bf-job-hdr EXCLUSIVE-LOCK 
        WHERE bf-job-hdr.company  EQ bf-tt-job-hdr.company  
+         AND bf-job-hdr.job      EQ bf-tt-job-hdr.job
          AND bf-job-hdr.job-no   EQ bf-tt-job-hdr.job-no
          AND bf-job-hdr.job-no2  EQ bf-tt-job-hdr.job-no2
          AND bf-job-hdr.frm      EQ bf-tt-job-hdr.frm
@@ -556,6 +558,7 @@ PROCEDURE build-table :
                 tt-job-hdr.i-no       =   bf-job-hdr.i-no    
                 tt-job-hdr.qty        =   bf-job-hdr.qty     
                 tt-job-hdr.org-qty    =   bf-job-hdr.qty 
+                tt-job-hdr.job        =   bf-job-hdr.job
                 tt-job-hdr.job-no     =   bf-job-hdr.job-no  
                 tt-job-hdr.job-no2    =   bf-job-hdr.job-no2 
                 tt-job-hdr.riJobHdr   =   ROWID(bf-job-hdr)
