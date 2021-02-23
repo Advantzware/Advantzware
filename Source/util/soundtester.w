@@ -82,7 +82,7 @@ DEFINE BUTTON bselWin
      LABEL "Select" 
      SIZE 8.4 BY 1.
 
-DEFINE VARIABLE fiSound AS CHARACTER FORMAT "X(256)":U INITIAL "C:~\Asigui~\Repository~\Resources~\sound~\done.wav" 
+DEFINE VARIABLE fiSound AS CHARACTER FORMAT "X(256)":U INITIAL ".~\Resources~\sound~\done.wav" 
      LABEL "Sound" 
      VIEW-AS FILL-IN NATIVE 
      SIZE 70 BY 1 NO-UNDO.
@@ -123,15 +123,15 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 106.6
          VIRTUAL-HEIGHT     = 16.48
          VIRTUAL-WIDTH      = 106.6
-         RESIZE             = yes
-         SCROLL-BARS        = no
-         STATUS-AREA        = no
+         RESIZE             = YES
+         SCROLL-BARS        = NO
+         STATUS-AREA        = NO
          BGCOLOR            = ?
          FGCOLOR            = ?
-         KEEP-FRAME-Z-ORDER = yes
-         THREE-D            = yes
-         MESSAGE-AREA       = no
-         SENSITIVE          = yes.
+         KEEP-FRAME-Z-ORDER = YES
+         THREE-D            = YES
+         MESSAGE-AREA       = NO
+         SENSITIVE          = YES.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
@@ -148,7 +148,7 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* SETTINGS FOR FILL-IN fiSound IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-THEN C-Win:HIDDEN = no.
+THEN C-Win:HIDDEN = NO.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -191,10 +191,10 @@ ON CHOOSE OF bPlayGood IN FRAME DEFAULT-FRAME /* Play */
 DO:
 
 
-  DEFINE VARIABLE oplcPlayStatus AS LONGCHAR.
+  DEFINE VARIABLE opiPlayStatus AS INTEGER.
   
   RUN OS_PlaySound (INPUT fiSound:screen-value, 
-                    OUTPUT oplcPlayStatus
+                    OUTPUT opiPlayStatus
                     ).
                     
                     
