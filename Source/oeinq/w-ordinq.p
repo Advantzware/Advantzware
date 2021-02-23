@@ -1,6 +1,6 @@
 
 /*------------------------------------------------------------------------
-    File        : oeinq/w-ordinqN.p
+    File        : oeinq/w-ordinq.p
     Purpose     : 
 
     Syntax      :
@@ -24,6 +24,8 @@
     IF access-close THEN 
         RETURN.  
         
-    RUN oe/w-order.w(
+    RUN oe/wOrderEntryMaster.w(
         INPUT "OQ1"
         ).
+    IF VALID-HANDLE(THIS-PROCEDURE) THEN     
+        DELETE PROCEDURE THIS-PROCEDURE.

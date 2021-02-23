@@ -2062,7 +2062,7 @@ PROCEDURE one-row-query :
     cQuery = "FOR EACH oe-ordl NO-LOCK"
              + " WHERE oe-ordl.company EQ " + QUOTER(cocode)
              + " AND ROWID(oe-ordl)    EQ " + "TO-ROWID(" + "'" + STRING(ip-rowid) + "')"
-             + " AND " + pGetWhereCriteria("oe-ordl")
+             + pGetWhereCriteria("oe-ordl")
              + ",FIRST oe-ord OF oe-ordl NO-LOCK"
              + " WHERE " + pGetWhereCriteria("oe-ord")
              + ",FIRST itemfg " + (IF fi_cad-no EQ "" THEN "OUTER-JOIN" ELSE "") + " NO-LOCK"
@@ -2186,12 +2186,11 @@ PROCEDURE pPrepareAndExecuteQuery :
           
     cLimitingQuery = "FOR EACH oe-ordl NO-LOCK"
                      + " WHERE oe-ordl.company EQ " + QUOTER(cocode)
-                     + " AND " + pGetWhereCriteria("oe-ordl")
+                     + pGetWhereCriteria("oe-ordl") 
                      + ", FIRST oe-ord OF oe-ordl NO-LOCK"
                      +  " WHERE " + pGetWhereCriteria("oe-ord")
                      + " BREAK BY oe-ordl.ord-no DESC"
                      .  
-                     
      /* Use below query to sort records by rec_key */
                               
     /* cLimitingQuery = "For EACH oe-ord NO-LOCK"
@@ -2236,7 +2235,7 @@ PROCEDURE pPrepareAndExecuteQuery :
         cBrowseQuery = "FOR EACH oe-ordl NO-LOCK"
                        + " WHERE oe-ordl.company EQ " + QUOTER(cocode)
                        + cBrowseWhereClause   
-                       + " AND " + pGetWhereCriteria("oe-ordl")            
+                       + pGetWhereCriteria("oe-ordl")             
                        + ", FIRST oe-ord OF oe-ordl NO-LOCK"
                        + " WHERE " + pGetWhereCriteria("oe-ord")
                        + ",FIRST itemfg " + (IF fi_cad-no EQ "" THEN "OUTER-JOIN" ELSE "") + " NO-LOCK"
@@ -2293,7 +2292,7 @@ PROCEDURE pPrepareAndExecuteQueryForPrevNext PRIVATE :
     cLimitingQuery = "FOR EACH oe-ordl NO-LOCK"
                      + " WHERE oe-ordl.company EQ " + QUOTER(cocode)
                      + " AND oe-ordl.ord-no " + (IF iplPrevious THEN "LE " ELSE "GE ") + STRING(INTEGER(ipcValue))
-                     + " AND " + pGetWhereCriteria("oe-ordl")
+                     + pGetWhereCriteria("oe-ordl")  
                      + ", FIRST oe-ord OF oe-ordl NO-LOCK"
                      + " WHERE " + pGetWhereCriteria("oe-ord")
                      + " BREAK BY oe-ordl.ord-no " + (IF iplPrevious THEN "DESCENDING" ELSE "" )
@@ -2329,7 +2328,7 @@ PROCEDURE pPrepareAndExecuteQueryForPrevNext PRIVATE :
         cBrowseQuery = "FOR EACH oe-ordl NO-LOCK"
                         + " WHERE oe-ordl.company EQ " + QUOTER(cocode)
                         +  cBrowseWhereClause
-                        + " AND " + pGetWhereCriteria("oe-ordl")
+                        + pGetWhereCriteria("oe-ordl")  
                         + ",FIRST oe-ord OF oe-ordl NO-LOCK"
                         + " WHERE " + pGetWhereCriteria("oe-ord")
                         + ",FIRST itemfg " + (IF fi_cad-no EQ "" THEN "OUTER-JOIN" ELSE "") + " NO-LOCK"
@@ -2365,7 +2364,7 @@ PROCEDURE pPrepareAndExecuteQueryForShowAll PRIVATE :
                
     cShowAllQuery = "FOR EACH oe-ordl NO-LOCK"
                     + " WHERE oe-ordl.company EQ " + QUOTER(cocode)
-                    + " AND " + pGetWhereCriteria("oe-ordl")
+                    + pGetWhereCriteria("oe-ordl") 
                     + ", FIRST oe-ord OF oe-ordl NO-LOCK"
                     + " WHERE " + pGetWhereCriteria("oe-ord")
                     + ",FIRST itemfg " + (IF fi_cad-no EQ "" THEN "OUTER-JOIN" ELSE "") + " NO-LOCK"
@@ -3595,7 +3594,7 @@ FUNCTION pGetSortCondition RETURNS CHARACTER
  Notes:
 ------------------------------------------------------------------------------*/
     
-    RETURN (IF ipcSortBy EQ 'ord-no'    THEN "STRING(oe-ordl.ord-no,'9999999999')"   ELSE ~
+    RETURN (IF ipcSortBy EQ 'ord-no'    THEN "oe-ordl.ord-no"                        ELSE ~
             IF ipcSortBy EQ 'cStatus'   THEN "oe-ord.stat"                           ELSE ~
             IF ipcSortBy EQ 'lc-rs'     THEN "getRS()"                               ELSE ~
             IF ipcSortBy EQ 'lc-mi'     THEN "getMI()"                               ELSE ~
@@ -3640,7 +3639,7 @@ FUNCTION pGetWhereCriteria RETURNS CHARACTER
     DEFINE VARIABLE cWhereCriteria AS CHARACTER NO-UNDO.
     
     IF ipcTable EQ "oe-ord" THEN DO: 
-        IF cbType EQ "Closed" OR cbtype EQ "All" OR (cbType EQ "Opened" AND tbOther) THEN 
+        IF cbType EQ "Closed" OR (cbType EQ "Opened" AND tbOther) THEN 
             cWhereCriteria = " oe-ord.stat NE 'W'".
               
         IF (cbType EQ "Opened" AND tbOther AND NOT tbHold) THEN DO:
@@ -3664,14 +3663,15 @@ FUNCTION pGetWhereCriteria RETURNS CHARACTER
             ELSE     
                 cWhereCriteria = cWhereCriteria + " OR oe-ord.stat EQ 'W'".             
         END.                 
-        cWhereCriteria = "(" + cWhereCriteria + ")".
+        IF cbType NE "All" THEN 
+            cWhereCriteria = "(" + cWhereCriteria + ")".
         
-        IF cbType EQ "All" OR cbType EQ "Closed" THEN DO:
+        IF cbType EQ "Closed" THEN DO:
             /* Use below logic to sort records by rec_key */ 
                     
             /* cWhereCriteria = cWhereCriteria + " AND (oe-ord.opened EQ NO OR oe-ord.opened EQ YES)". */
             
-            cWhereCriteria = cWhereCriteria + " AND ((oe-ord.opened EQ NO) OR (oe-ord.opened EQ YES or oe-ordl.stat EQ 'C'))".                   
+            cWhereCriteria = cWhereCriteria + " AND ((oe-ord.opened EQ YES) OR (oe-ord.opened EQ NO OR oe-ordl.stat EQ 'C'))".                   
         END.    
             
         ELSE IF cbType EQ "Opened" THEN 
@@ -3682,12 +3682,10 @@ FUNCTION pGetWhereCriteria RETURNS CHARACTER
                           .                  
     END. 
     ELSE DO:
-        IF cbType EQ "All" THEN
-            cWhereCriteria = cWhereCriteria + " (( oe-ordl.opened EQ NO OR oe-ordl.stat EQ 'C') OR (oe-ordl.opened EQ YES AND oe-ordl.stat NE 'C'))" .             
-        ELSE IF cbType EQ "Closed" THEN 
-            cWhereCriteria = cWhereCriteria +  " (oe-ordl.opened EQ NO OR oe-ordl.stat EQ 'C')".
-        ELSE 
-            cWhereCriteria = cWhereCriteria  + " oe-ordl.opened EQ YES AND oe-ordl.stat NE 'C'".   
+        IF cbType EQ "Closed" THEN 
+            cWhereCriteria = cWhereCriteria +  " AND oe-ordl.opened EQ NO".
+        ELSE IF cbType EQ "opened" THEN
+            cWhereCriteria = cWhereCriteria  + " AND oe-ordl.opened EQ YES AND oe-ordl.stat NE 'C'".   
             
         cWhereCriteria = cWhereCriteria  
                          + (IF custCount  NE "" THEN " AND ((LOOKUP(oe-ordl.cust-no," + QUOTER(custcount) + ") NE 0" + " AND oe-ordl.cust-no NE '') OR " + QUOTER(custcount) + " EQ '')" ELSE "")

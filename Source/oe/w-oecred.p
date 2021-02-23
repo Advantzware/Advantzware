@@ -1,15 +1,15 @@
 
 /*------------------------------------------------------------------------
-    File        : oe/w-orderN.p
+    File        : oe/w-oecred.p
     Purpose     : 
 
     Syntax      :
 
-    Description : Caller Program for OU1 Screen
+    Description : Caller Program for OC Screen
 
     Author(s)   : Rahul Rawat
-    Created     : Thu Jan 21 09:26:19 EST 2021
-    Notes       : 
+    Created     : Tue Feb 09 05:00:06 EST 2021
+    Notes       :
   ----------------------------------------------------------------------*/
 
 /* ***************************  Definitions  ************************** */
@@ -23,8 +23,10 @@
     {methods/prgsecur.i}
     
     IF access-close THEN 
-        RETURN.
-    
-    RUN oe/w-order.w(
-        INPUT "OU1"
+        RETURN.   
+        
+    RUN oe/wOrderEntryMaster.w(
+        INPUT "OC"
         ).
+    IF VALID-HANDLE(THIS-PROCEDURE) THEN     
+        DELETE PROCEDURE THIS-PROCEDURE.        

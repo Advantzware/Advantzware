@@ -20,7 +20,6 @@
      cleanup will occur on deletion of the procedure. */
 
 CREATE WIDGET-POOL.
-
 /* ***************************  Definitions  ************************** */
 
 &SCOPED-DEFINE winReSize
@@ -1782,7 +1781,7 @@ PROCEDURE pChangeWindowTitle PRIVATE:
         WHEN "OQ1" THEN 
             {&WINDOW-NAME}:TITLE = REPLACE({&WINDOW-NAME}:TITLE,"Order Maintenance","Order Inquiry").
          WHEN "OW" THEN 
-            {&WINDOW-NAME}:TITLE = REPLACE({&WINDOW-NAME}:TITLE,"Order Maintenance","Web Orders Transfer/Approve").
+            {&WINDOW-NAME}:TITLE = REPLACE({&WINDOW-NAME}:TITLE,"Order Maintenance","Web Orders").
          WHEN "OC" THEN 
             {&WINDOW-NAME}:TITLE = REPLACE({&WINDOW-NAME}:TITLE,"Order Maintenance","Credit Hold / Approve Orders").
          WHEN "OU6" THEN 

@@ -175,7 +175,7 @@ PROCEDURE Browse_PrepareAndExecuteLimitingQuery:
             IF NOT iplIsBreakByUsed OR hdQuery:FIRST-OF(1) THEN DO:
                 opcReturnValue = STRING(hdBuffer:BUFFER-FIELD(ipcFieldName):BUFFER-VALUE).
                 iCount = iCount + 1.
-                IF iCount GE 30 THEN                   
+                IF iCount GE 20 THEN  /* Initial Load Record Limit*/                 
                     LEAVE.              
             END. 
             hdQuery:GET-NEXT().                         
