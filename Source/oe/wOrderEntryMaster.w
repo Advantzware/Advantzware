@@ -7,7 +7,7 @@
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS W-Win 
 /*------------------------------------------------------------------------
 
-  File: oe\w-order.w
+  File: oe\wOrderEntryMaster.w
   
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
@@ -461,6 +461,8 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
+
+SESSION:SET-WAIT-STATE("").
 
 // Ticket #96577: To fix the icon issue need to increase the height of window do that all icon fit on the window.
 //seting the width in main block as window resize trigger will resize all objects wrt. window width 

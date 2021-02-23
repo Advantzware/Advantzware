@@ -1,4 +1,3 @@
-
 /*------------------------------------------------------------------------
     File        : oe/w-oeweb.p
     Purpose     : 
@@ -20,13 +19,4 @@
 
 /* ***************************  Main Block  *************************** */
 
-    {methods/prgsecur.i}
-    
-    IF access-close THEN 
-        RETURN.   
-           
-    RUN oe/wOrderEntryMaster.w(
-        INPUT "OW"
-        ).
-    IF VALID-HANDLE(THIS-PROCEDURE) THEN     
-        DELETE PROCEDURE THIS-PROCEDURE.        
+{oe/wOrderEntryMaster.i OW}
