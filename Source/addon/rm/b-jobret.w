@@ -1928,7 +1928,7 @@ PROCEDURE pGetLastIssue PRIVATE:
             AND opbf-rm-rdtlh.rita-code EQ "I" 
             AND opbf-rm-rdtlh.qty GT 0,        
             EACH opbf-rm-rcpth OF opbf-rm-rdtlh NO-LOCK 
-            BREAK BY opbf-rm-rcpth.trans-date DESC:
+            BY opbf-rm-rcpth.trans-date DESC:
             
             oplFound = YES.
             LEAVE.        
