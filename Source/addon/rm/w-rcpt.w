@@ -24,7 +24,9 @@ CREATE WIDGET-POOL.
 /* ***************************  Definitions  ************************** */
 
 &SCOPED-DEFINE winViewPrgmName w-rcpt
-
+&SCOPED-DEFINE winReSize
+&SCOPED-DEFINE h_Object01 h_p-updsav
+&SCOPED-DEFINE h_Object02 h_v-post
 /* Parameters Definitions ---                                           */
 
 &IF DEFINED(UIB_is_Running) EQ 0 &THEN
@@ -128,8 +130,8 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          TITLE              = "Warehouse Transaction"
          HEIGHT             = 24
          WIDTH              = 149.8
-         MAX-HEIGHT         = 33.29
-         MAX-WIDTH          = 204.8
+         MAX-HEIGHT         = 320
+         MAX-WIDTH          = 320
          VIRTUAL-HEIGHT     = 33.29
          VIRTUAL-WIDTH      = 204.8
          RESIZE             = no
@@ -248,7 +250,7 @@ END.
 
 /* Include custom  Main Block code for SmartWindows. */
 {src/adm/template/windowmn.i}
-
+{custom/initializeprocs.i}
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

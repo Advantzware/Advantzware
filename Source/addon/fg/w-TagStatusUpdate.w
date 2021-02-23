@@ -548,6 +548,7 @@ END.
 /* ***************************  Main Block  *************************** */
 
 /* Include custom  Main Block code for SmartWindows. */
+{methods/template/brwcustomSharpShooter.i}
 {src/adm/template/windowmn.i}
 {wip/pNavigate.i}
 {wip/pKeyboard.i}

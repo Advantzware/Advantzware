@@ -34,7 +34,10 @@ CREATE WIDGET-POOL.
 /* ***************************  Definitions  ************************** */
 
 &SCOPED-DEFINE winViewPrgmName fg-phys
-
+&SCOPED-DEFINE winReSize
+&SCOPED-DEFINE h_Object01 h_p-updsav
+&SCOPED-DEFINE h_Object02 h_pv-trans
+&SCOPED-DEFINE h_Object03 h_v-postct
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
@@ -137,8 +140,8 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          TITLE              = "FINISHED GOODS  PHYSICAL COUNT PROCESSING"
          HEIGHT             = 24
          WIDTH              = 150
-         MAX-HEIGHT         = 33.29
-         MAX-WIDTH          = 204.8
+         MAX-HEIGHT         = 320
+         MAX-WIDTH          = 320
          VIRTUAL-HEIGHT     = 33.29
          VIRTUAL-WIDTH      = 204.8
          RESIZE             = no
