@@ -19,13 +19,5 @@
 
 
 /* ***************************  Main Block  *************************** */
-    {methods/prgsecur.i}
-    
-     IF access-close THEN 
-        RETURN.  
-    
-    RUN oe/wOrderEntryMaster.w(
-        INPUT "OU6"
-        ).
-    IF VALID-HANDLE(THIS-PROCEDURE) THEN     
-        DELETE PROCEDURE THIS-PROCEDURE.        
+
+{oe/wOrderEntryMaster.i OU6}
