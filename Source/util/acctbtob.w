@@ -380,14 +380,15 @@ FOR EACH account
         AND period.pnum    GE 1
         AND period.pnum    LE EXTENT(ld-period$),
 
-      EACH gltrans NO-LOCK
-      WHERE gltrans.company EQ account.company
-        AND gltrans.actnum  EQ account.actnum
-        AND gltrans.period  EQ period.pnum
-        AND gltrans.tr-date GE period.pst
-        AND gltrans.tr-date LE period.pend:
+      EACH glhist NO-LOCK
+      WHERE glhist.company EQ account.company
+        AND glhist.actnum  EQ account.actnum
+        AND glhist.period  EQ period.pnum
+        AND glhist.tr-date GE period.pst
+        AND glhist.tr-date LE period.pend
+        AND glhist.posted  EQ NO:
 
-    ld-period$[period.pnum] = ld-period$[period.pnum] + gltrans.tr-amt.
+    ld-period$[period.pnum] = ld-period$[period.pnum] + glhist.tr-amt.
   END.
 
   DO li = 1 TO MIN(EXTENT(account.bud),EXTENT(ld-period$)):

@@ -244,6 +244,7 @@
               IF (ACCUM TOTAL job-hdr.qty) NE 0 THEN
               FOR EACH job-hdr NO-LOCK
                   WHERE job-hdr.company EQ job.company
+                    AND job-hdr.job     EQ job.job
                     AND job-hdr.job-no  EQ job.job-no
                     AND job-hdr.job-no2 EQ job.job-no2
                     AND job-hdr.i-no    EQ {1}.i-no,
@@ -308,13 +309,27 @@
                                                   
                     RUN jc/jc-autop.p (ROWID(job-mat), 0, v-dec).
                   END.
-
                   ELSE DO:
-                    v-dec = {2}.t-qty / (ACCUM TOTAL job-hdr.qty) *
-                            (IF job-mat.blank-no EQ 0 THEN (job-hdr.sq-in / 100)
-                                                      ELSE 1). 
+                      FIND FIRST materialType 
+                           WHERE materialType.company      EQ item.company
+                             AND materialType.materialType EQ item.mat-type
+                           NO-ERROR.
+                      IF AVAILABLE materialType AND materialType.calculationType EQ "ByFGWeight" THEN DO:                      
+                          IF itemfg.weightPerEA NE 0 AND {1}.qty NE 0 THEN DO:
+                              v-dec = {1}.qty * itemfg.weightPerEA.
+                          
+                              RUN jc/jc-autop.p (ROWID(job-mat), 0, v-dec).
+                          END.
+                      END.
+                      ELSE DO:
+                          v-dec = {2}.t-qty / (ACCUM TOTAL job-hdr.qty) *
+                                  (IF job-mat.blank-no EQ 0 THEN 
+                                      (job-hdr.sq-in / 100)
+                                   ELSE 
+                                       1). 
                                                   
-                    RUN jc/jc-autop.p (ROWID(job-mat), v-dec, 0).
+                          RUN jc/jc-autop.p (ROWID(job-mat), v-dec, 0).
+                      END.
                   END.
               END.
 

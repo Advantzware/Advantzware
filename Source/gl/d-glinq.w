@@ -359,24 +359,8 @@ PROCEDURE pDisplayValue :
                 iPeriod      = glhist.period
                 iYear        = glhist.yr  .          
             dtCheckDate  = glhist.tr-date .
-        END.
-    
-        IF NOT AVAILABLE glhist THEN 
-        DO:
-            FIND FIRST  gltrans NO-LOCK
-                WHERE ROWID(gltrans) EQ ipriRowid NO-ERROR .
-            IF AVAILABLE gltrans THEN
-            DO:
-                ASSIGN 
-                    bank_account = gltrans.actnum
-                    dAmount      = gltrans.tr-amt
-                    dtDate       = gltrans.tr-date
-                    iPeriod      = gltrans.period
-                    iYear        = gltrans.yr  .
-                dtCheckDate  = gltrans.tr-date .
-           
-            END.       
-        END.
+        END.      
+       
         APPLY "entry" TO bank_account .            
     END.
 
@@ -392,8 +376,7 @@ PROCEDURE pAssignValue :
                   Parameters:  <none>
                   Notes:       
                 ------------------------------------------------------------------------------*/
-
-    DEFINE BUFFER bf-gltrans FOR gltrans.
+      
     DEFINE BUFFER bf-glhist  FOR glhist.
     DO WITH FRAME {&FRAME-NAME}:
         FIND FIRST  bf-glhist EXCLUSIVE-LOCK
@@ -408,27 +391,10 @@ PROCEDURE pAssignValue :
                 bf-glhist.yr        = iYear
                 bf-glhist.createdBy = USERID(LDBNAME(1)).          
             opriRowid = ROWID(bf-glhist).
-        END.
-    
-        IF NOT AVAILABLE glhist THEN 
-        DO:
-            FIND FIRST  bf-gltrans EXCLUSIVE-LOCK
-                WHERE ROWID(bf-gltrans) EQ ipriRowid NO-ERROR .
-            IF AVAILABLE bf-gltrans THEN
-            DO:
-                ASSIGN 
-                    bf-gltrans.actnum    = bank_account  
-                    bf-gltrans.tr-amt    = dAmount       
-                    bf-gltrans.tr-date   = dtDate        
-                    bf-gltrans.period    = iPeriod       
-                    bf-gltrans.yr        = iYear          
-                    bf-gltrans.createdBy = USERID(LDBNAME(1)).
-                opriRowid = ROWID(bf-gltrans).
-           
-            END.       
-        END.
+        END.      
+      
         RELEASE bf-glhist.
-        RELEASE bf-gltrans.              
+                    
     END.
 
 END PROCEDURE.

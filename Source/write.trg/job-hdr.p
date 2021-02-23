@@ -56,7 +56,7 @@ FOR EACH job
   END.
 
   /* Make sure job-farm was created */
-  RUN jc/addJobFarm.p (INPUT job.job).
+  //RUN jc/addJobFarm.p (INPUT job.job).
 
   LEAVE.
 END.

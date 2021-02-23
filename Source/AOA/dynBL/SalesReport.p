@@ -581,7 +581,7 @@ PROCEDURE pBusinessLogic:
                .
         
             RELEASE ar-ledger.
-            RELEASE gltrans.
+            RELEASE glhist.
             IF AVAILABLE ar-inv THEN
                 FIND FIRST ar-ledger
                     WHERE ar-ledger.company  EQ cocode
@@ -591,14 +591,16 @@ PROCEDURE pBusinessLogic:
                     NO-LOCK NO-ERROR.
           
             IF AVAILABLE ar-inv AND AVAILABLE ar-ledger  THEN
-                FIND FIRST gltrans NO-LOCK
-                    WHERE  gltrans.company EQ cocode 
-                    AND gltrans.trnum EQ  ar-ledger.tr-num NO-ERROR .   
+                FIND FIRST glhist NO-LOCK
+                    WHERE  glhist.company EQ cocode 
+                    AND glhist.tr-num      EQ ar-ledger.tr-num 
+                    AND glhist.posted     EQ NO 
+                    NO-ERROR .   
              
             ASSIGN
-                ttSalesReport.invGLPeriod = IF AVAILABLE gltrans THEN gltrans.period ELSE 0
-                ttSalesReport.invGLYear   = IF AVAILABLE gltrans AND gltrans.tr-date NE ? THEN YEAR(gltrans.tr-date) ELSE 0
-                ttSalesReport.invGLRun    = IF AVAILABLE gltrans THEN gltrans.trnum ELSE 0 .               
+                ttSalesReport.invGLPeriod = IF AVAILABLE glhist THEN glhist.period ELSE 0
+                ttSalesReport.invGLYear   = IF AVAILABLE glhist AND glhist.tr-date NE ? THEN YEAR(glhist.tr-date) ELSE 0
+                ttSalesReport.invGLRun    = IF AVAILABLE glhist THEN glhist.tr-num ELSE 0 .               
         
             RELEASE job-hdr .
             IF AVAILABLE ar-invl THEN

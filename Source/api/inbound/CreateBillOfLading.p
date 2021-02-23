@@ -100,6 +100,7 @@ END.
 RUN OrderProcsPostReleases IN hdOrderProcs (
     INPUT  ipcCompany,
     INPUT  ipiReleaseID,
+    INPUT  FALSE, /* Create Lines from ssrelbol table */
     INPUT  ipcUserName,
     OUTPUT oplSuccess,
     OUTPUT opcMessage,

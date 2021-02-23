@@ -46,6 +46,8 @@ DEFINE VARIABLE lHasAccess AS LOGICAL NO-UNDO.
 {methods/defines/sortByDefs.i}
 
 DEFINE VARIABLE hdInventoryProcs AS HANDLE NO-UNDO.
+DEFINE VARIABLE iWarehouseLength  AS INTEGER   NO-UNDO.
+
 RUN Inventory/InventoryProcs.p PERSISTENT SET hdInventoryProcs.
 
 DEFINE VARIABLE hdPgmSecurity AS HANDLE  NO-UNDO.
@@ -444,6 +446,26 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ClearRecords B-table-Win
+PROCEDURE ClearRecords:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    EMPTY TEMP-TABLE ttBrowseInventory.
+
+    RUN dispatch (
+        INPUT "open-query"
+        ).
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI B-table-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
 /*------------------------------------------------------------------------------
@@ -461,6 +483,30 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy B-table-Win
+PROCEDURE local-destroy:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+    /* Code placed here will execute PRIOR to standard behavior. */
+    IF VALID-HANDLE(hdInventoryProcs) THEN
+        DELETE PROCEDURE hdInventoryProcs.
+        
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
+
+    /* Code placed here will execute AFTER standard behavior.    */
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pReopenBrowse B-table-Win 
 PROCEDURE pReopenBrowse :
@@ -498,38 +544,33 @@ PROCEDURE ScanItem :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEFINE INPUT        PARAMETER ipcCompany     AS CHARACTER NO-UNDO.
-    DEFINE INPUT        PARAMETER ipcWarehouse   AS CHARACTER NO-UNDO.
-    DEFINE INPUT        PARAMETER ipcLocation    AS CHARACTER NO-UNDO.
-    DEFINE INPUT-OUTPUT PARAMETER iopcItemID     AS CHARACTER NO-UNDO.
-    DEFINE INPUT-OUTPUT PARAMETER iopcCustItem   AS CHARACTER NO-UNDO.
-    DEFINE INPUT        PARAMETER ipcJobNo       AS CHARACTER NO-UNDO.
-    DEFINE INPUT        PARAMETER ipiJobNo2      AS INTEGER   NO-UNDO.    
-    DEFINE INPUT        PARAMETER iplZeroQtyBins AS LOGICAL   NO-UNDO.
-    DEFINE INPUT        PARAMETER iplEmptyTags   AS LOGICAL   NO-UNDO.
-    DEFINE OUTPUT       PARAMETER opcConsUOM     AS CHARACTER NO-UNDO.
-    DEFINE OUTPUT       PARAMETER oplError       AS LOGICAL   NO-UNDO.
-    DEFINE OUTPUT       PARAMETER opcMessage     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcCompany     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcWarehouse   AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcLocation    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcItemID      AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcJobNo       AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiJobNo2      AS INTEGER   NO-UNDO.    
+    DEFINE INPUT  PARAMETER iplZeroQtyBins AS LOGICAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER iplEmptyTags   AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcConsUOM     AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError       AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage     AS CHARACTER NO-UNDO.
     
     EMPTY TEMP-TABLE ttBrowseInventory.
 
     RUN Inventory_BuildFGBinForItem IN hdInventoryProcs (
-        INPUT        ipcCompany,
-        INPUT        ipcWarehouse,
-        INPUT        ipcLocation,
-        INPUT-OUTPUT iopcItemID,
-        INPUT-OUTPUT iopcCustItem,
-        INPUT        ipcJobNo,
-        INPUT        ipiJobNo2,
-        INPUT        iplZeroQtyBins,
-        INPUT        iplEmptyTags,
-        OUTPUT       opcConsUOM,
-        OUTPUT       oplError,
-        OUTPUT       opcMessage
+        INPUT  ipcCompany,
+        INPUT  ipcWarehouse,
+        INPUT  ipcLocation,
+        INPUT  ipcItemID,
+        INPUT  ipcJobNo,
+        INPUT  ipiJobNo2,
+        INPUT  iplZeroQtyBins,
+        INPUT  iplEmptyTags,
+        OUTPUT opcConsUOM,
+        OUTPUT oplError,
+        OUTPUT opcMessage
         ).
-    
-    IF oplError THEN
-        MESSAGE opcMessage VIEW-AS ALERT-BOX ERROR.
 
     {&OPEN-QUERY-{&BROWSE-NAME}}
 
@@ -590,11 +631,17 @@ FUNCTION fGetConcatLocation RETURNS CHARACTER PRIVATE
   Purpose:  
     Notes:  
 ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE cConcatLocation AS CHARACTER NO-UNDO.
-       
+    DEFINE VARIABLE cConcatLocation   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCompany          AS CHARACTER NO-UNDO. 
+    RUN spGetSessionParam ("Company", OUTPUT cCompany).
+    
+    RUN Inventory_GetWarehouseLength IN hdInventoryProcs (
+        INPUT  cCompany,
+        OUTPUT iWarehouseLength
+        ).
     IF AVAILABLE ttBrowseInventory THEN
         cConcatLocation = ttBrowseInventory.warehouseID 
-                        + FILL(" ", 5 - LENGTH(ttBrowseInventory.warehouseID)) 
+                        + FILL(" ", iWarehouseLength - LENGTH(ttBrowseInventory.warehouseID)) 
                         + ttBrowseInventory.locationID.
 
     RETURN cConcatLocation.

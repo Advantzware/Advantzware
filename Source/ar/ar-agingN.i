@@ -154,13 +154,14 @@ DEF TEMP-TABLE tt-inv NO-UNDO  FIELD sorter    LIKE ar-inv.inv-no
          v-gltrans-desc = "VOID " + cust.cust-no + " " + ~
                           STRING(ar-cash.check-no,"999999999999") + ~
                          " Inv# " + STRING(ar-cashl.inv-no). ~
-         FIND FIRST gltrans WHERE ~
-              gltrans.company EQ cust.company AND ~
-              gltrans.jrnl EQ "CASHRVD" AND ~
-              gltrans.tr-dscr EQ v-gltrans-desc ~
+         FIND FIRST glhist WHERE ~
+              glhist.company EQ cust.company AND ~
+              glhist.jrnl EQ "CASHRVD" AND ~
+              glhist.tr-dscr EQ v-gltrans-desc ~
+              AND glhist.posted EQ NO ~
               NO-LOCK NO-ERROR. ~
-         IF AVAIL gltrans THEN ~
-            v-check-date = gltrans.tr-date. ~
+         IF AVAIL glhist THEN ~
+            v-check-date = glhist.tr-date. ~
          ELSE ~
             v-check-date = ar-cash.check-date. ~
       END. ~
@@ -442,13 +443,14 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
               v-gltrans-desc = "VOID " + cust.cust-no + " " + 
                                STRING(ar-cash.check-no,"999999999999") +
                               " Inv# " + STRING(ar-cashl.inv-no).
-              FIND FIRST gltrans WHERE 
-                   gltrans.company EQ cust.company AND
-                   gltrans.jrnl EQ "CASHRVD" AND
-                   gltrans.tr-dscr EQ v-gltrans-desc
+              FIND FIRST glhist WHERE 
+                   glhist.company EQ cust.company AND
+                   glhist.jrnl EQ "CASHRVD" AND
+                   glhist.tr-dscr EQ v-gltrans-desc AND
+                   glhist.posted EQ NO
                    NO-LOCK NO-ERROR.
-              IF AVAIL gltrans THEN
-                 v-check-date = gltrans.tr-date.
+              IF AVAIL glhist THEN
+                 v-check-date = glhist.tr-date.
               ELSE
                  v-check-date = ar-cash.check-date.
            END.
@@ -637,13 +639,14 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
               v-gltrans-desc = "VOID " + cust.cust-no + " " + 
                                STRING(ar-cash.check-no,"999999999999") +
                               " Inv# " + STRING(ar-cashl.inv-no).
-              FIND FIRST gltrans WHERE 
-                   gltrans.company EQ cust.company AND
-                   gltrans.jrnl EQ "CASHRVD" AND
-                   gltrans.tr-dscr EQ v-gltrans-desc
+              FIND FIRST glhist WHERE 
+                   glhist.company EQ cust.company AND
+                   glhist.jrnl EQ "CASHRVD" AND
+                   glhist.tr-dscr EQ v-gltrans-desc AND
+                   glhist.posted EQ NO
                    NO-LOCK NO-ERROR.
-              IF AVAIL gltrans THEN
-                 v-check-date = gltrans.tr-date.
+              IF AVAIL glhist THEN
+                 v-check-date = glhist.tr-date.
               ELSE
                  v-check-date = ar-cash.check-date.
            END.
@@ -680,10 +683,11 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
 
            IF ar-cashl.amt-paid GT 0 AND
               (ar-cashl.voided EQ YES OR
-              CAN-FIND(FIRST gltrans WHERE
-              gltrans.company EQ cust.company AND
-              gltrans.jrnl EQ "CASHRVD" AND
-              gltrans.tr-dscr EQ v-tr-dscr)) THEN
+              CAN-FIND(FIRST glhist WHERE
+              glhist.company EQ cust.company AND
+              glhist.jrnl EQ "CASHRVD" AND
+              glhist.tr-dscr EQ v-tr-dscr AND
+              glhist.posted EQ NO)) THEN
               v-type = "VD".
            ELSE
               v-type = "PY".
@@ -863,14 +867,15 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
                                   STRING(ar-cash.check-no,"999999999999") +
                                  " Inv# " + STRING(ar-cashl.inv-no).
 
-                 FIND FIRST gltrans WHERE
-                      gltrans.company EQ cust.company AND
-                      gltrans.jrnl EQ "CASHRVD" AND
-                      gltrans.tr-dscr EQ v-gltrans-desc
+                 FIND FIRST glhist WHERE
+                      glhist.company EQ cust.company AND
+                      glhist.jrnl EQ "CASHRVD" AND
+                      glhist.tr-dscr EQ v-gltrans-desc AND 
+                      glhist.posted EQ NO
                       NO-LOCK NO-ERROR.
                 
-                 IF AVAIL gltrans THEN
-                    v-check-date = gltrans.tr-date.
+                 IF AVAIL glhist THEN
+                    v-check-date = glhist.tr-date.
                  ELSE
                     v-check-date = ar-cash.check-date.
               END.
@@ -1051,10 +1056,11 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
                    + " Inv# " + STRING(ar-cashl.inv-no).
 
          IF ar-cashl.voided EQ YES OR
-            CAN-FIND(FIRST gltrans WHERE
-            gltrans.company EQ cust.company AND
-            gltrans.jrnl EQ "CASHRVD" AND
-            gltrans.tr-dscr EQ v-tr-dscr) THEN
+            CAN-FIND(FIRST glhist WHERE
+            glhist.company EQ cust.company AND
+            glhist.jrnl EQ "CASHRVD" AND
+            glhist.tr-dscr EQ v-tr-dscr AND
+            glhist.posted EQ NO) THEN
             DO:
               ASSIGN
                  v-type = "VD"
@@ -1085,14 +1091,15 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
                                 STRING(ar-cash.check-no,"999999999999") +
                                 " Inv# " + STRING(ar-cashl.inv-no).
 
-               FIND FIRST gltrans WHERE
-                    gltrans.company EQ cust.company AND
-                    gltrans.jrnl EQ "CASHRVD" AND
-                    gltrans.tr-dscr EQ v-gltrans-desc
+               FIND FIRST glhist WHERE
+                    glhist.company EQ cust.company AND
+                    glhist.jrnl EQ "CASHRVD" AND
+                    glhist.tr-dscr EQ v-gltrans-desc AND 
+                    glhist.posted EQ NO
                     NO-LOCK NO-ERROR.
               
-               IF AVAIL gltrans THEN
-                  v-check-date = gltrans.tr-date.
+               IF AVAIL glhist THEN
+                  v-check-date = glhist.tr-date.
                ELSE
                   v-check-date = ar-cash.check-date.
             END.
@@ -1202,14 +1209,15 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
                                STRING(ar-cash.check-no,"999999999999") +
                                " Inv# " + STRING(ar-cashl.inv-no).
 
-              FIND FIRST gltrans WHERE
-                   gltrans.company EQ cust.company AND
-                   gltrans.jrnl EQ "CASHRVD" AND
-                   gltrans.tr-dscr EQ v-gltrans-desc
+              FIND FIRST glhist WHERE
+                   glhist.company EQ cust.company AND
+                   glhist.jrnl EQ "CASHRVD" AND
+                   glhist.tr-dscr EQ v-gltrans-desc AND 
+                   glhist.posted EQ NO
                    NO-LOCK NO-ERROR.
              
-              IF AVAIL gltrans THEN
-                 v-check-date = gltrans.tr-date.
+              IF AVAIL glhist THEN
+                 v-check-date = glhist.tr-date.
               ELSE
                  v-check-date = ar-cash.check-date.
            END.

@@ -114,6 +114,12 @@ FUNCTION fFormatTime RETURNS CHARACTER PRIVATE
 FUNCTION fFormIsPurchasedFG RETURNS LOGICAL PRIVATE
     (ipiFormID AS INT64) FORWARD.
 
+FUNCTION fGetCostGroupLabel RETURNS CHARACTER PRIVATE
+	(ipcCompany AS CHARACTER,
+	 ipcLocation AS CHARACTER,
+	 ipcCostGroupID AS CHARACTER,
+	 ipcCostGroupLabel AS CHARACTER) FORWARD.
+
 FUNCTION fTypeAllowsMult RETURNS LOGICAL PRIVATE
     (ipcEstType AS CHARACTER) FORWARD.
 
@@ -925,7 +931,7 @@ PROCEDURE pPrintCostSummaryInfoForForm PRIVATE:
                         IF estCostSummary.costTotal NE 0 THEN 
                         DO:            
                             RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
-                            RUN pWriteToCoordinates(iopiRowCount, iColumn[1], estCostGroup.costGroupLabel, NO, NO, NO).
+                            RUN pWriteToCoordinates(iopiRowCount, iColumn[1], fGetCostGroupLabel(ipbf-estCostHeader.company, ipbf-estCostHeader.warehouseID, estCostGroup.estCostGroupID, estCostGroup.costGroupLabel), NO, NO, NO).
                             RUN pWriteToCoordinatesNumNeg(iopiRowCount, iColumn[2] , estCostSummary.costTotalPerMFinished , 6, 2, NO, YES, NO, NO, YES).
                             RUN pWriteToCoordinatesNumNeg(iopiRowCount, iColumn[2] + iColumnWidth, estCostSummary.costTotal , 6, 2, NO, YES, NO, NO, YES).
                             IF ipbf-estCostHeader.quantityReference NE 0 THEN 
@@ -1937,6 +1943,36 @@ FUNCTION fFormIsPurchasedFG RETURNS LOGICAL PRIVATE
         AND bf-estCostMaterial.isPurchasedFG
         NO-ERROR.
     RETURN AVAILABLE bf-estCostMaterial.
+		
+END FUNCTION.
+
+FUNCTION fGetCostGroupLabel RETURNS CHARACTER PRIVATE
+	( ipcCompany AS CHARACTER, ipcLocation AS CHARACTER, ipcCostGroupID AS CHARACTER, ipcCostGroupLabel AS CHARACTER):
+/*------------------------------------------------------------------------------
+ Purpose: Given company, costGroupID and Cost Group Label, return the appropriate label
+ Notes:
+------------------------------------------------------------------------------*/	
+    DEFINE VARIABLE cLabel AS CHARACTER NO-UNDO.
+    
+    cLabel = ipcCostGroupLabel.
+    IF LOOKUP(ipcCostGroupID, "costGroup13,costGroup14,costGroup15") GT 0 THEN 
+    DO:
+        FIND FIRST ce-ctrl NO-LOCK 
+            WHERE ce-ctrl.company EQ ipcCompany 
+            AND ce-ctrl.loc EQ ipcLocation
+            NO-ERROR.
+        IF AVAILABLE ce-ctrl THEN 
+            CASE ipcCostGroupID:
+                WHEN "costGroup13" THEN 
+                    cLabel = ce-ctrl.spec-l[1].
+                WHEN "costGroup14" THEN 
+                    cLabel = ce-ctrl.spec-l[2].
+                WHEN "costGroup15" THEN 
+                    cLabel = ce-ctrl.spec-l[3].
+            END CASE.
+    END.
+    
+    RETURN cLabel.
 		
 END FUNCTION.
 

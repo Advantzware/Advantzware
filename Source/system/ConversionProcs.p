@@ -13,22 +13,8 @@
 
 /* ***************************  Definitions  ************************** */
 
-DEFINE TEMP-TABLE ttUOM NO-UNDO
-    FIELD uom                 AS CHARACTER LABEL "UOM"         FORMAT "x(4)"
-    FIELD uomBase             AS CHARACTER LABEL "Base UOM"    FORMAT "x(4)"
-    FIELD multiplierToBase    AS DECIMAL   LABEL "Multiplier"  FORMAT ">>>,>>>,>>9.9999"
-    FIELD uomDescription      AS CHARACTER LABEL "Description" FORMAT "x(30)"
-    FIELD canUseOrderQuantity AS LOGICAL   LABEL "Use Order Qty"
-    FIELD canUsePOQuantity    AS LOGICAL   LABEL "Use PO Qty"
-    FIELD canUseStockQuantity AS LOGICAL   LABEL "Use Stock Qty"
-    FIELD canUsePricePerUnit  AS LOGICAL   LABEL "Use Price Per Unit"
-    FIELD canUseCostPerUnit   AS LOGICAL   LABEL "Use Cost Per Unit"
-    FIELD isBaseConverter     AS LOGICAL   LABEL "Base Converter"
-    FIELD isOverridden        AS LOGICAL   LABEL "Overridden"
-    FIELD uomSource           AS CHARACTER LABEL "UOM Source"
-    FIELD iSourceLevel        AS INTEGER   LABEL "Source Level"
-    . 
-
+ {system/ttConversionProcs.i}
+    
 /* ********************  Preprocessor Definitions  ******************** */
 
 /* ************************  Function Prototypes ********************** */
@@ -161,6 +147,19 @@ PROCEDURE Conv_CalcTotalPrice:
 
 END PROCEDURE.
 
+PROCEDURE Conv_GetValidAllUOMTT:
+    /*------------------------------------------------------------------------------
+     Purpose:  Return a comma separated list of valid UOMs for Cost - not item 
+     specific
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER TABLE FOR ttUOMEffective.
+    DEFINE VARIABLE cValidUOMs AS CHARACTER NO-UNDO.
+    
+    RUN pGetValidUoms("ALL", OUTPUT cValidUOMs).
+      
+END PROCEDURE.
+
 PROCEDURE Conv_GetValidCostUOMs:
     /*------------------------------------------------------------------------------
      Purpose:  Return a comma separated list of valid UOMs for Cost - not item 
@@ -170,6 +169,19 @@ PROCEDURE Conv_GetValidCostUOMs:
     DEFINE OUTPUT PARAMETER opcValidUOMs AS CHARACTER NO-UNDO.    
     
     RUN pGetValidUoms("Cost", OUTPUT opcValidUOMs).
+      
+END PROCEDURE.
+
+PROCEDURE Conv_GetValidCostUOMTT:
+    /*------------------------------------------------------------------------------
+     Purpose:  Return a comma separated list of valid UOMs for Cost - not item 
+     specific
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER TABLE FOR ttUOMEffective.
+    DEFINE VARIABLE cValidUOMs AS CHARACTER NO-UNDO.
+    
+    RUN pGetValidUoms("Cost", OUTPUT cValidUOMs).
       
 END PROCEDURE.
 
@@ -187,6 +199,21 @@ PROCEDURE Conv_GetValidCostUOMsForItem:
 
 END PROCEDURE.
 
+PROCEDURE Conv_GetValidCostUOMTTForItem:
+    /*------------------------------------------------------------------------------
+     Purpose:  Given an item, return a comma separated list of valid UOMs for Cost
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipriItem AS ROWID NO-UNDO.      
+    DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER TABLE FOR ttUOMEffective.
+    DEFINE VARIABLE cValidUOMs AS CHARACTER NO-UNDO.
+
+    RUN pGetValidUOMsForItem(ipriItem, "Cost", OUTPUT cValidUOMs, OUTPUT oplError, OUTPUT opcMessage).
+
+END PROCEDURE.
+
 PROCEDURE Conv_GetValidPOQtyUOMs:
     /*------------------------------------------------------------------------------
      Purpose:  Return a comma separated list of valid UOMs for PO Qty - not item 
@@ -196,6 +223,19 @@ PROCEDURE Conv_GetValidPOQtyUOMs:
     DEFINE OUTPUT PARAMETER opcValidUOMs AS CHARACTER NO-UNDO.    
     
     RUN pGetValidUoms("POQty", OUTPUT opcValidUOMs).
+      
+END PROCEDURE.
+
+PROCEDURE Conv_GetValidPOQtyUOMTT:
+    /*------------------------------------------------------------------------------
+     Purpose:  Return a comma separated list of valid UOMs for PO Qty - not item 
+     specific
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER TABLE FOR ttUOMEffective.
+    DEFINE VARIABLE cValidUOMs AS CHARACTER NO-UNDO.
+    
+    RUN pGetValidUoms("POQty", OUTPUT cValidUOMs).
       
 END PROCEDURE.
 
@@ -213,6 +253,21 @@ PROCEDURE Conv_GetValidPOQtyUOMsForItem:
 
 END PROCEDURE.
 
+PROCEDURE Conv_GetValidPOQtyUOMTTForItem:
+    /*------------------------------------------------------------------------------
+     Purpose:  Given an item, return a comma separated list of valid UOMs for PO Qty
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipriItem AS ROWID NO-UNDO.      
+    DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER TABLE FOR ttUOMEffective.
+    DEFINE VARIABLE cValidUOMs AS CHARACTER NO-UNDO.
+
+    RUN pGetValidUOMsForItem(ipriItem, "POQty", OUTPUT cValidUOMs, OUTPUT oplError, OUTPUT opcMessage).
+
+END PROCEDURE.
+
 PROCEDURE Conv_GetValidPriceUOMs:
     /*------------------------------------------------------------------------------
      Purpose:  Return a comma separated list of valid UOMs for Price - not item 
@@ -222,6 +277,19 @@ PROCEDURE Conv_GetValidPriceUOMs:
     DEFINE OUTPUT PARAMETER opcValidUOMs AS CHARACTER NO-UNDO.    
     
     RUN pGetValidUoms("Price", OUTPUT opcValidUOMs).
+      
+END PROCEDURE.
+
+PROCEDURE Conv_GetValidPriceUOMTT:
+    /*------------------------------------------------------------------------------
+     Purpose:  Return a comma separated list of valid UOMs for Price - not item 
+     specific
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER TABLE FOR ttUOMEffective.   
+    DEFINE VARIABLE cValidUOMs AS CHARACTER NO-UNDO.
+    
+    RUN pGetValidUoms("Price", OUTPUT cValidUOMs).
       
 END PROCEDURE.
 
@@ -239,6 +307,21 @@ PROCEDURE Conv_GetValidPriceUOMsForItem:
 
 END PROCEDURE.
 
+PROCEDURE Conv_GetValidPriceUOMTTForItem:
+    /*------------------------------------------------------------------------------
+     Purpose:  Given an item, return a comma separated list of valid UOMs for Price
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipriItem AS ROWID NO-UNDO.    
+    DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER TABLE FOR ttUOMEffective.
+    DEFINE VARIABLE cValidUOMs AS CHARACTER NO-UNDO.
+
+    RUN pGetValidUOMsForItem(ipriItem, "Price", OUTPUT cValidUOMs, OUTPUT oplError, OUTPUT opcMessage).
+
+END PROCEDURE.
+
 PROCEDURE Conv_GetValidOrderQtyUOMs:
     /*------------------------------------------------------------------------------
      Purpose:  Return a comma separated list of valid UOMs for OrderQty - not item 
@@ -248,6 +331,19 @@ PROCEDURE Conv_GetValidOrderQtyUOMs:
     DEFINE OUTPUT PARAMETER opcValidUOMs AS CHARACTER NO-UNDO.    
     
     RUN pGetValidUoms("OrderQty", OUTPUT opcValidUOMs).
+      
+END PROCEDURE.
+
+PROCEDURE Conv_GetValidOrderQtyUOMTT:
+    /*------------------------------------------------------------------------------
+     Purpose:  Return a comma separated list of valid UOMs for OrderQty - not item 
+     specific
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER TABLE FOR ttUOMEffective.
+    DEFINE VARIABLE cValidUOMs AS CHARACTER NO-UNDO.
+    
+    RUN pGetValidUoms("OrderQty", OUTPUT cValidUOMs).
       
 END PROCEDURE.
 
@@ -262,6 +358,21 @@ PROCEDURE Conv_GetValidOrderQtyUOMsForItem:
     DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
     
     RUN pGetValidUOMsForItem(ipriItem, "OrderQty", OUTPUT opcValidUOMs, OUTPUT oplError, OUTPUT opcMessage).
+      
+END PROCEDURE.
+
+PROCEDURE Conv_GetValidOrderQtyUOMTTForItem:
+    /*------------------------------------------------------------------------------
+     Purpose:  Given an item, return a comma separated list of valid UOMs for OrderQty
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipriItem AS ROWID NO-UNDO.        
+    DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER TABLE FOR ttUOMEffective.
+    DEFINE VARIABLE cValidUOMs AS CHARACTER NO-UNDO.
+    
+    RUN pGetValidUOMsForItem(ipriItem, "OrderQty", OUTPUT cValidUOMs, OUTPUT oplError, OUTPUT opcMessage).
       
 END PROCEDURE.
 
@@ -628,6 +739,7 @@ PROCEDURE pAddUOM PRIVATE:
     DEFINE INPUT PARAMETER ipcSource AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcPurposes AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipiSourceLevel AS INTEGER NO-UNDO.
+    
 
     FIND FIRST ttUOM EXCLUSIVE-LOCK 
         WHERE ttUOM.uom EQ ipcUOM
@@ -652,8 +764,7 @@ PROCEDURE pAddUOM PRIVATE:
         ttUOM.canUsePOQuantity    = CAN-DO(ipcPurposes,"POQty")
         ttUOM.canUsePricePerUnit  = CAN-DO(ipcPurposes,"Price")
         ttUOM.canUseStockQuantity = CAN-DO(ipcPurposes,"Stock")
-        ttUOM.isOverridden        = NOT iplOverride
-            
+        ttUOM.isOverridden        = NOT iplOverride         
         .
 END PROCEDURE.
 
@@ -679,7 +790,7 @@ PROCEDURE pAddUOMsFromDimensions PRIVATE:
         DO:
             RUN pAddUOM("SQIN", YES, "EA", "Square Inches", 1 / fGetSqin(ipdLength, ipdWidth, ipcDimUOM), ipcSource, "Cost", ipiSourceLevel).
             RUN pAddUOM("MSI", YES, "EA", "Thousand Square Inches", 1000 / fGetSqin(ipdLength, ipdWidth, ipcDimUOM), ipcSource, "Cost", ipiSourceLevel).
-            RUN pAddUOM("MSF", YES, "EA", "Thousand Square Feet", 1000 / fGetSqft(ipdLength, ipdWidth, ipcDimUOM), ipcSource, "Cost", ipiSourceLevel ).
+            RUN pAddUOM("MSF", YES, "EA", "Thousand Square Feet", 1000 / fGetSqft(ipdLength, ipdWidth, ipcDimUOM), ipcSource, "Cost", ipiSourceLevel).
             RUN pAddUOM("SF", YES, "EA", "Square Feet", 1 / fGetSqft(ipdLength, ipdWidth, ipcDimUOM), ipcSource, "Cost", ipiSourceLevel).
             IF ipdDepth GT 0 THEN 
                 RUN pAddUOM("BF", YES, "EA", "Board Feet", 1 / (fGetSqft(ipdLength, ipdWidth, ipcDimUOM) * fGetInches(ipdDepth,ipcDimUOM)), ipcSource, "Cost", ipiSourceLevel).    
@@ -921,7 +1032,7 @@ PROCEDURE pGetValidUOMs PRIVATE:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcPurpose AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opcValidUOMList AS CHARACTER NO-UNDO.
-
+    EMPTY TEMP-TABLE ttUOMEffective.
     FOR EACH ttUOM NO-LOCK 
         WHERE ((ipcPurpose EQ "Price" AND ttUOM.canUsePricePerUnit) 
         OR (ipcPurpose EQ "OrderQty" AND ttUOM.canUseOrderQuantity)
@@ -929,8 +1040,10 @@ PROCEDURE pGetValidUOMs PRIVATE:
         OR (ipcPurpose EQ "Cost" AND ttUOM.canUseCostPerUnit)
         OR (ipcPurpose EQ "All"))
         AND NOT ttUOM.isOverridden:
-    
+         
         opcValidUOMList = opcValidUOMList + ttUOM.uom + ",". 
+        CREATE ttUOMEffective.
+        BUFFER-COPY ttUOM TO ttUOMEffective.
     END. 
 
     opcValidUOMList = TRIM(opcValidUOMList,","). 

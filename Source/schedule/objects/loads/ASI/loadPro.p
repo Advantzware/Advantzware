@@ -35,6 +35,7 @@
 RUN get{&version}.
 
 DEFINE VARIABLE idx AS INTEGER NO-UNDO.
+DEFINE VARIABLE iJobCount AS INTEGER NO-UNDO.
 DEFINE VARIABLE customLabelList AS CHARACTER NO-UNDO.
 DEFINE VARIABLE ufCust AS LOGICAL NO-UNDO INIT YES.
 DEFINE VARIABLE ufBoardName AS LOGICAL NO-UNDO INIT YES.
@@ -559,6 +560,8 @@ FOR EACH job-hdr NO-LOCK
 /*            BY job-mch.blank-no*/
             BY job-mch.line
       :
+    iJobCount = iJobCount + 1.
+    RUN spProgressBar ("SB Job Load", iJobCount, ?).
     IF est.est-type EQ 3 OR est.est-type EQ 4 OR
        est.est-type EQ 7 OR est.est-type EQ 8 THEN DO:
       IF job-mch.frm NE job-hdr.frm THEN NEXT.
@@ -1379,6 +1382,7 @@ FOR EACH job-hdr NO-LOCK
       &keyValue=keyValues}
   END. /* each job-mch */
 END. /* each job-hdr */
+RUN spProgressBar (?, ?, 100).
 
 /* **********************  Internal Procedures  *********************** */
 

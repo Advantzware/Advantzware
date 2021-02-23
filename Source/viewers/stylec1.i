@@ -21,21 +21,13 @@
     i = i + 1.
     IF i GT EXTENT(ld-{1}-array) THEN LEAVE.
     ASSIGN
-       ld-{1}-array[i]    = tt-dec
-       ld-total[1]        = ld-total[1] + (IF v-cecscrn-char NE "Decimal" THEN TRUNC(tt-dec,0)
-                                           ELSE tt-dec)
+       ld-{1}-array[i]    = tt-dec       
        lv-{1}-scr-type[i] = tt-type.
-
-    IF v-cecscrn-char NE "Decimal" THEN
-       ld-total[2] = ld-total[2] + ((tt-dec - TRUNC(tt-dec,0)) * 100).
+     ld-total[1] = ld-total[1] + tt-dec .    
   END.
 
-  IF v-cecscrn-char NE "Decimal" THEN
-     ASSIGN
-        ld-total[1] = ld-total[1] + TRUNC(ld-total[2] / li-16-32,0)
-        ld-total[2] = (ld-total[2] MODULO li-16-32) / 100.
-
-  {&self-name}:SCREEN-VALUE = STRING(ld-total[1] + ld-total[2]).
+  ld-total[1] = DYNAMIC-FUNCTION("sfCommon_ConvDecimalTo1632",cocode, ld-total[1]) .
+  {&self-name}:SCREEN-VALUE = STRING(ld-total[1]).
 
   APPLY "leave" TO {&self-name}.
 

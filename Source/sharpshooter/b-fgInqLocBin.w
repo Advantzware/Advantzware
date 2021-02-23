@@ -52,6 +52,9 @@ DEFINE TEMP-TABLE ttInventoryLoc NO-UNDO
     .
     
 DEFINE VARIABLE hdInventoryProcs AS HANDLE NO-UNDO.
+DEFINE VARIABLE iWarehouseLength  AS INTEGER   NO-UNDO.
+DEFINE VARIABLE cCompany          AS CHARACTER NO-UNDO.
+
 RUN Inventory/InventoryProcs.p PERSISTENT SET hdInventoryProcs.
 
 &SCOPED-DEFINE SORTBY-PHRASE BY ttInventoryLoc.warehouseID
@@ -171,9 +174,9 @@ DEFINE QUERY ttBrowseInventory FOR
 DEFINE BROWSE ttBrowseInventory
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS ttBrowseInventory B-table-Win _FREEFORM
   QUERY ttBrowseInventory DISPLAY
-      ttInventoryLoc.locationID WIDTH 40 COLUMN-LABEL "Location" FORMAT "X(20)" LABEL-BGCOLOR 14
-    ttInventoryLoc.totLocTags WIDTH 40 COLUMN-LABEL "Total Tags Per Location" FORMAT "->,>>>,>>>,>>9" LABEL-BGCOLOR 14
-    ttInventoryLoc.warehouseID WIDTH 35 COLUMN-LABEL "Warehouse" FORMAT "X(5)" LABEL-BGCOLOR 14
+      ttInventoryLoc.locationID WIDTH 40 COLUMN-LABEL "Bin" FORMAT "X(20)" LABEL-BGCOLOR 14
+    ttInventoryLoc.totLocTags WIDTH 40 COLUMN-LABEL "Total Tags Per Bin" FORMAT "->,>>>,>>>,>>9" LABEL-BGCOLOR 14
+    ttInventoryLoc.warehouseID WIDTH 35 COLUMN-LABEL "Location" FORMAT "X(5)" LABEL-BGCOLOR 14
     ttInventoryLoc.quantityOnHand WIDTH 25 COLUMN-LABEL "Qty On-Hand" FORMAT "->,>>>,>>>,>>9" LABEL-BGCOLOR 14
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -362,6 +365,27 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ClearRecords B-table-Win
+PROCEDURE ClearRecords:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    EMPTY TEMP-TABLE ttBrowseInventory.
+    EMPTY TEMP-TABLE ttInventoryLoc.
+    
+    RUN dispatch (
+        INPUT "open-query"
+        ).
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI B-table-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
 /*------------------------------------------------------------------------------
@@ -377,6 +401,68 @@ PROCEDURE disable_UI :
   IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
 END PROCEDURE.
 
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy B-table-Win
+PROCEDURE local-destroy:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+    /* Code placed here will execute PRIOR to standard behavior. */
+    IF VALID-HANDLE(hdInventoryProcs) THEN
+        DELETE PROCEDURE hdInventoryProcs.
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
+
+    /* Code placed here will execute AFTER standard behavior.    */
+    
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable W-Win
+PROCEDURE local-enable:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+ 
+    /* Code placed here will execute PRIOR to standard behavior. */
+
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable':U ) .
+
+    /* Code placed here will execute AFTER standard behavior.    */
+    RUN pInit.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+  &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pInit W-Win
+PROCEDURE pInit PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+  /*  RUN inventory/InventoryProcs.p PERSISTENT SET hdInventoryProcs.*/
+    
+    RUN spGetSessionParam ("Company", OUTPUT cCompany).
+    
+    RUN Inventory_GetWarehouseLength IN hdInventoryProcs (
+        INPUT  cCompany,
+        OUTPUT iWarehouseLength
+        ).
+END PROCEDURE.
+	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -416,7 +502,6 @@ PROCEDURE ScanItem :
 ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ipcCompany   AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcItemID    AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcCustItem  AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcWarehouse AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcLocation  AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER oplError     AS LOGICAL   NO-UNDO.
@@ -428,22 +513,18 @@ PROCEDURE ScanItem :
     EMPTY TEMP-TABLE ttInventoryLoc.
     
     RUN Inventory_BuildFGBinForItem IN hdInventoryProcs (
-        INPUT        ipcCompany,
-        INPUT        ipcWarehouse,
-        INPUT        "",
-        INPUT-OUTPUT ipcItemID,
-        INPUT-OUTPUT ipcCustItem,
-        INPUT        "",
-        INPUT        0,
-        INPUT        FALSE, /* Include Zero qty tags */
-        INPUT        TRUE,  /* Include empty tags */
-        OUTPUT       cConsUOM,
-        OUTPUT       oplError,
-        OUTPUT       opcMessage    
+        INPUT  ipcCompany,
+        INPUT  ipcWarehouse,
+        INPUT  ipcLocation,
+        INPUT  ipcItemID,
+        INPUT  "",
+        INPUT  0,
+        INPUT  FALSE, /* Include Zero qty tags */
+        INPUT  TRUE,  /* Include empty tags */
+        OUTPUT cConsUOM,
+        OUTPUT oplError,
+        OUTPUT opcMessage    
         ). 
-    
-    IF oplError THEN
-        MESSAGE opcMessage VIEW-AS ALERT-BOX ERROR.
 
     IF NOT oplError THEN DO:
         FOR EACH ttBrowseInventory:
@@ -554,7 +635,7 @@ FUNCTION fGetConcatLocation RETURNS CHARACTER PRIVATE
        
     IF AVAILABLE ttBrowseInventory THEN
         cConcatLocation = ttBrowseInventory.warehouseID 
-                        + FILL(" ", 5 - LENGTH(ttBrowseInventory.warehouseID)) 
+                        + FILL(" ", iWarehouseLength - LENGTH(ttBrowseInventory.warehouseID)) 
                         + ttBrowseInventory.locationID.
 
     RETURN cConcatLocation.

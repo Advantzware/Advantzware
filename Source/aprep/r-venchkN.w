@@ -55,6 +55,11 @@ DEF TEMP-TABLE tt-report    LIKE report
     FIELD gross-amt         LIKE ap-payl.amt-paid
     FIELD amt-disc          LIKE ap-payl.amt-disc
     FIELD amt-paid          LIKE ap-payl.amt-paid
+    FIELD bank              LIKE ap-pay.bank-code
+    FIELD cleared           AS CHARACTER
+    FIELD manual            LIKE ap-pay.man-check
+    FIELD period            LIKE ap-pay.period
+    FIELD void-date         LIKE ap-pay.check-date
     FIELD LINE              AS INT
     FIELD c-no              AS INT
     FIELD row-id            AS ROWID.
@@ -81,12 +86,12 @@ DEF BUFFER b-itemfg FOR itemfg .
 DEF VAR cTextListToDefault AS cha NO-UNDO.
 
 
-ASSIGN cTextListToSelect = "CHECK#,CHK DATE,INVOICE#,VENDOR#,VEND NAME,DUE DATE,GROSS AMT,DISCOUNT,NET AMT" 
+ASSIGN cTextListToSelect = "CHECK#,CHK DATE,INVOICE#,VENDOR#,VEND NAME,DUE DATE,GROSS AMT,DISCOUNT,NET AMT,BANK,STATUS,MANUAL,PERIOD,VOID DATE" 
 
-       cFieldListToSelect = "chk,chk-date,inv,vend,vend-name,due-date,gross-amt,dis,net-amt" 
+       cFieldListToSelect = "chk,chk-date,inv,vend,vend-name,due-date,gross-amt,dis,net-amt,bank,status,manual,period,void-date" 
 
-       cFieldLength = "8,8,12,8,30,8,14,10,14" /*+ "7,15,7,4,20,6,13,12"*/
-       cFieldType = "i,c,c,c,c,c,i,i,i" /*+ "c,c,c,i,c,i,i,i" */
+       cFieldLength = "8,8,12,8,30,8,14,10,14,8,8,8,8,8" /*+ "7,15,7,4,20,6,13,12"*/
+       cFieldType = "i,c,c,c,c,c,i,i,i,c,c,c,i,c" /*+ "c,c,c,i,c,i,i,i" */
     .
 
 {sys/inc/ttRptSel.i}
@@ -111,11 +116,12 @@ ASSIGN cTextListToDefault  = "CHECK#,CHK DATE,INVOICE#,VENDOR#,VEND NAME,DUE DAT
 end_vend begin_check end_check Begin_Bank End_Bank rd_print tb_prt-acc ~
 tb_post-date sl_avail Btn_Def sl_selected Btn_Add Btn_Remove btn_Up ~
 btn_down rd-dest lv-ornt lines-per-page lv-font-no td-show-parm tb_excel ~
-tb_runExcel fi_file btn-ok btn-cancel 
+rd_CheckStatus tb_runExcel fi_file btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_date end_date begin_vend end_vend ~
 begin_check end_check Begin_Bank End_Bank lbl_sort rd_print tb_prt-acc ~
 tb_post-date sl_avail sl_selected rd-dest lv-ornt lines-per-page lv-font-no ~
-lv-font-name td-show-parm tb_excel tb_runExcel fi_file 
+lbl_CheckStatus rd_CheckStatus lv-font-name td-show-parm tb_excel ~
+tb_runExcel fi_file 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -300,6 +306,18 @@ DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL no
      VIEW-AS TOGGLE-BOX
      SIZE 24 BY .81 NO-UNDO.
 
+DEFINE VARIABLE lbl_CheckStatus AS CHARACTER FORMAT "X(256)":U INITIAL "Check Status:" 
+     VIEW-AS FILL-IN 
+     SIZE 15 BY 1 NO-UNDO.
+
+DEFINE VARIABLE rd_CheckStatus AS CHARACTER INITIAL "All" 
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "All", "All",
+"Cleared", "Cleared",
+"Open", "Open",
+"Void", "Void"
+     SIZE 42 BY 1 NO-UNDO.
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -318,9 +336,11 @@ DEFINE FRAME FRAME-A
           "Enter Ending Check Date"
      Begin_Bank AT ROW 6.81 COL 24 COLON-ALIGNED WIDGET-ID 4
      End_Bank AT ROW 6.81 COL 66 COLON-ALIGNED WIDGET-ID 6
-     lbl_sort AT ROW 8.1 COL 13.6 COLON-ALIGNED NO-LABEL WIDGET-ID 58
+     lbl_sort AT ROW 8.1 COL 9 COLON-ALIGNED NO-LABEL WIDGET-ID 58
      rd_print AT ROW 8.1 COL 26.6 NO-LABEL WIDGET-ID 60
-     tb_prt-acc AT ROW 9.19 COL 25 WIDGET-ID 2
+     lbl_CheckStatus AT ROW 9.19 COL 9 COLON-ALIGNED NO-LABEL WIDGET-ID 58
+     rd_CheckStatus AT ROW 9.19 COL 26.6 NO-LABEL WIDGET-ID 60
+     tb_prt-acc AT ROW 10.29 COL 56 WIDGET-ID 2
      tb_post-date AT ROW 10.29 COL 25
      sl_avail AT ROW 12.29 COL 5.4 NO-LABEL WIDGET-ID 26
      Btn_Def AT ROW 12.29 COL 41.4 HELP
@@ -478,6 +498,18 @@ ASSIGN
    ALIGN-R                                                              */
 ASSIGN 
        tb_runExcel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+/* SETTINGS FOR FILL-IN lbl_CheckStatus IN FRAME FRAME-A
+   NO-ENABLE                                                            */
+ASSIGN 
+       lbl_CheckStatus:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "rd_CheckStatus".
+
+/* SETTINGS FOR FILL-IN rd_CheckStatus IN FRAME FRAME-A
+   NO-ENABLE                                                            */
+ASSIGN 
+       rd_CheckStatus:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
@@ -861,6 +893,15 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME rd_CheckStatus
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd_CheckStatus C-Win
+ON VALUE-CHANGED OF rd_CheckStatus IN FRAME FRAME-A
+DO:
+  assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &Scoped-define SELF-NAME sl_avail
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sl_avail C-Win
@@ -1176,13 +1217,13 @@ PROCEDURE enable_UI :
   DISPLAY begin_date end_date begin_vend end_vend begin_check end_check 
           Begin_Bank End_Bank lbl_sort rd_print tb_prt-acc tb_post-date sl_avail 
           sl_selected rd-dest lv-ornt lines-per-page lv-font-no lv-font-name 
-          td-show-parm tb_excel tb_runExcel fi_file 
+          lbl_CheckStatus rd_CheckStatus td-show-parm tb_excel tb_runExcel fi_file 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 begin_date end_date begin_vend end_vend begin_check 
          end_check Begin_Bank End_Bank rd_print tb_prt-acc tb_post-date 
          sl_avail Btn_Def sl_selected Btn_Add Btn_Remove btn_Up btn_down 
          rd-dest lv-ornt lines-per-page lv-font-no td-show-parm tb_excel 
-         tb_runExcel fi_file btn-ok btn-cancel 
+         rd_CheckStatus tb_runExcel fi_file btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -1605,6 +1646,12 @@ FORM tt-report.check-no    FORMAT ">>>>>>>>"  COLUMN-LABEL "Check#"
      tt-report.gross-amt                      COLUMN-LABEL "Gross Amt"
      tt-report.amt-disc                       COLUMN-LABEL "Discount"
      tt-report.amt-paid                       COLUMN-LABEL "Net Amt"
+     tt-report.bank                           COLUMN-LABEL "BANK"
+     tt-report.cleared                        COLUMN-LABEL "STATUS"
+     tt-report.manual                         COLUMN-LABEL "MANUAL"
+     tt-report.period                         COLUMN-LABEL "PERIOD"
+     tt-report.void-date   FORMAT "99/99/99"  COLUMN-LABEL "VOID DATE"
+     
 
     WITH NO-BOX FRAME ap-chk DOWN WIDTH 180 STREAM-IO.  
 
@@ -1620,7 +1667,7 @@ ASSIGN
 
 DEF VAR cslist AS cha NO-UNDO.
  FOR EACH ttRptSelected BY ttRptSelected.DisplayOrder:
-   IF LOOKUP(ttRptSelected.TextList, "CHECK#,CHK DATE,INVOICE#,VENDOR#,VEND NAME,DUE DATE,GROSS AMT,DISCOUNT,NET AMT") <> 0    THEN
+   IF LOOKUP(ttRptSelected.TextList, "CHECK#,CHK DATE,INVOICE#,VENDOR#,VEND NAME,DUE DATE,GROSS AMT,DISCOUNT,NET AMT,BANK,STATUS,MANUAL,PERIOD,VOID DATE") <> 0    THEN
        DO:
 
        IF LENGTH(ttRptSelected.TextList) = ttRptSelected.FieldLength 
@@ -1636,7 +1683,7 @@ DEF VAR cslist AS cha NO-UNDO.
                excelheader = excelHeader + ttRptSelected.TextList + ","
                .        
                    cSlist = cSlist + ttRptSelected.FieldList + ",".
-            IF LOOKUP(ttRptSelected.TextList, "CHECK#,INVOICE#,VENDOR#,VEND NAME,GROSS AMT,DISCOUNT,NET AMT,") <> 0    THEN
+            IF LOOKUP(ttRptSelected.TextList, "CHECK#,INVOICE#,VENDOR#,VEND NAME,GROSS AMT,DISCOUNT,NET AMT,BANK,STATUS,MANUAL,PERIOD,VOID DATE") <> 0    THEN
                 ASSIGN
                 str-line = str-line + FILL("-",ttRptSelected.FieldLength) + " " .
             ELSE
@@ -1682,8 +1729,12 @@ FOR EACH ap-pay
       AND ap-pay.bank-code  LE end_bank
       AND ap-pay.posted     EQ YES
       AND ap-pay.memo       EQ NO
+      AND ((rd_CheckStatus EQ "Cleared" AND ap-pay.cleared)
+           OR (rd_CheckStatus EQ "Open" AND NOT ap-pay.cleared)
+           OR (rd_CheckStatus EQ "Void" AND ap-pay.cleared EQ ?)
+           OR (rd_CheckStatus EQ "All"))  
     USE-INDEX vend-no NO-LOCK,
-
+                            
     EACH ap-payl WHERE ap-payl.c-no EQ ap-pay.c-no NO-LOCK
 
     BREAK BY ap-pay.check-act
@@ -1691,7 +1742,7 @@ FOR EACH ap-pay
           BY ap-payl.inv-no
           BY ap-payl.line
           BY ap-payl.amt-paid:
-
+                       
     {custom/statusMsg.i " 'Processing Vendor #  '  + string(ap-pay.vend-no) "}
 
     FIND first ap-ledger
@@ -1760,9 +1811,17 @@ FOR EACH ap-pay
      tt-report.LINE       = ap-payl.LINE
      tt-report.vend-no    = ap-pay.vend-no
      tt-report.vend-name  = v-vend-name
+     tt-report.bank       = ap-pay.bank-code
+     tt-report.manual     = ap-pay.man-check
+     tt-report.period     = ap-pay.period
+     tt-report.void-date  = DATE(IF ap-pay.cleared EQ ? THEN (ap-pay.spare-char-1) ELSE ?)
+     tt-report.row-id     = ROWID(ap-pay)
      v-amt-disc           = v-amt-disc + ap-payl.amt-disc
-     v-check-no = 0
-     tt-report.row-id       = ROWID(ap-pay).
+     v-check-no           = 0.
+     
+     IF ap-pay.cleared = YES THEN  ASSIGN tt-report.cleared    =  "Cleared".
+     IF ap-pay.cleared = NO THEN  ASSIGN tt-report.cleared    =  "Open".
+     IF ap-pay.cleared = ? THEN  ASSIGN tt-report.cleared    =  "Void".
 
      RELEASE vend.
   END.
@@ -1803,8 +1862,16 @@ FOR EACH ap-pay
        tt-report.amt-disc   = v-amt-disc
        tt-report.amt-paid   = ap-pay.check-amt
        tt-report.vend-no    = ap-pay.vend-no
-       tt-report.vend-name  = v-vend-name.
-
+       tt-report.vend-name  = v-vend-name
+       tt-report.bank       = ap-pay.bank-code
+       tt-report.manual     = ap-pay.man-check
+       tt-report.period     = ap-pay.period
+       tt-report.void-date  = DATE(IF ap-pay.cleared EQ ? THEN (ap-pay.spare-char-1) ELSE ?)
+       .
+       IF ap-pay.cleared = YES THEN  ASSIGN tt-report.cleared    =  "Cleared".
+       IF ap-pay.cleared = NO THEN  ASSIGN tt-report.cleared    =  "Open".
+       IF ap-pay.cleared = ? THEN  ASSIGN tt-report.cleared    =  "Void".
+       
       IF tt-report.inv-no EQ "Void" THEN
         ASSIGN
          tt-report.gross-amt = tt-report.gross-amt * -1
@@ -1848,7 +1915,7 @@ FOR EACH tt-report NO-LOCK /*WITH FRAME ap-chk*/
 
   IF rd_print EQ "Detail" THEN  
   IF tt-report.key-03 EQ FILL("z",100) + "TOTAL" THEN DO:
-   PUT str-line FORMAT "x(125)" SKIP .   
+   PUT str-line FORMAT "x(170)" SKIP .   
   END.
 
   IF tt-report.key-03 NE FILL("z",100) + "TOTAL" OR tt-report.inv-no EQ "Void" THEN
@@ -1878,6 +1945,11 @@ FOR EACH tt-report NO-LOCK /*WITH FRAME ap-chk*/
                          WHEN "gross-amt"   THEN cVarValue = STRING(tt-report.gross-amt,"->>,>>>,>>9.99") .
                          WHEN "dis"  THEN cVarValue = STRING(tt-report.amt-disc,"->>>>>9.99") .
                          WHEN "net-amt"  THEN cVarValue = STRING(tt-report.amt-paid,"->>,>>>,>>9.99") .
+                         WHEN "bank"      THEN cVarValue = STRING(tt-report.bank) .
+                         WHEN "status"    THEN cVarValue = STRING(tt-report.cleared) .
+                         WHEN "manual"    THEN cVarValue = STRING(tt-report.manual) .
+                         WHEN "period"    THEN cVarValue = STRING(tt-report.period) .
+                         WHEN "void-date" THEN cVarValue = IF tt-report.void-date <> ? THEN string(tt-report.void-date,"99/99/99") ELSE "" .
                     END CASE.
 
                     cExcelVarValue = cVarValue.
@@ -1886,7 +1958,7 @@ FOR EACH tt-report NO-LOCK /*WITH FRAME ap-chk*/
                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
             END.
 
-            PUT UNFORMATTED cDisplay FORMAT "x(125)" SKIP.
+            PUT UNFORMATTED cDisplay FORMAT "x(170)" SKIP. 
             IF tb_excel THEN DO:
                  PUT STREAM excel UNFORMATTED  
                        cExcelDisplay SKIP.
@@ -1898,7 +1970,7 @@ FOR EACH tt-report NO-LOCK /*WITH FRAME ap-chk*/
   IF rd_print EQ "Detail" AND LAST-OF(tt-report.key-02) THEN /*DOWN 2*/ PUT SKIP(2) .
 
   IF LAST(tt-report.key-01) THEN DO:
-    PUT str-line2 FORMAT "x(125)" SKIP .
+    PUT str-line2 FORMAT "x(170)" SKIP .
 
     ASSIGN cDisplay = ""
                    cTmpField = ""
@@ -1918,6 +1990,7 @@ FOR EACH tt-report NO-LOCK /*WITH FRAME ap-chk*/
                          WHEN "gross-amt"   THEN cVarValue = STRING(v-gross-amt,"->>,>>>,>>9.99") .
                          WHEN "dis"  THEN cVarValue = STRING(v-amt-disc,"->>>>>9.99") .
                          WHEN "net-amt"  THEN cVarValue = STRING(v-amt-paid,"->>,>>>,>>9.99") .
+                         OTHERWISE cVarValue = "" .
                     END CASE.
 
                     cExcelVarValue = cVarValue.
@@ -1926,7 +1999,7 @@ FOR EACH tt-report NO-LOCK /*WITH FRAME ap-chk*/
                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
             END.
 
-            PUT UNFORMATTED cDisplay FORMAT "x(125)" SKIP.
+            PUT UNFORMATTED cDisplay FORMAT "x(170)" SKIP.
             IF tb_excel THEN DO:
                  PUT STREAM excel UNFORMATTED  
                        cExcelDisplay SKIP.

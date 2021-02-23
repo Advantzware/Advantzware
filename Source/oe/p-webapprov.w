@@ -277,19 +277,38 @@ PROCEDURE local-row-available :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-
+  DEFINE VARIABLE cScreenType AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE char-hdl    AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE pHandle     AS HANDLE    NO-UNDO.
+  
     /* Code placed here will execute PRIOR to standard behavior. */
 
   /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'row-available':U ) .
-
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'row-available':U ) . 
   /* Code placed here will execute AFTER standard behavior.    */
-  DO WITH FRAME {&FRAME-NAME}:
-    DISABLE btn-update.
-    IF AVAILABLE oe-ord AND INDEX("W",oe-ord.stat) GT 0 THEN
-    ENABLE btn-update.
-  END.
-
+    DO WITH FRAME {&FRAME-NAME}:
+        /* Get the screen type */
+        {methods/run_link.i "container-source" "GetScreenType" "(Output cScreenType)"}
+        IF AVAIL oe-ord THEN DO:
+            IF (cScreenType EQ "OW" OR cScreenType EQ "OU1") AND INDEX ("W",oe-ord.stat) GT 0 THEN DO: 
+                btn-update:LABEL = "&Approve".
+                ENABLE btn-update.
+            END.
+            ELSE IF cScreenType EQ "OC" THEN DO:
+                btn-update:LABEL = IF INDEX("HW",oe-ord.stat) GT 0 THEN "&Approve" ELSE "&Hold".
+                ENABLE btn-update.    
+            END.
+            ELSE DO: /* Disable ther button for other screens*/
+                btn-update:LABEL = "&Approve".
+                DISABLE btn-update.
+            END.        
+        END.
+        ELSE DO:
+          btn-update:LABEL = "Hold/Approve".
+          DISABLE btn-update.
+        END.
+     END.
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

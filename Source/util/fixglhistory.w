@@ -30,11 +30,11 @@ CREATE WIDGET-POOL.
 
 cocode = g_company.
 
-DEFINE TEMP-TABLE tt-gltrans NO-UNDO LIKE gltrans
-   FIELD gltrans-flag AS LOG
+DEFINE TEMP-TABLE tt-glhist NO-UNDO LIKE glhist
+   FIELD glhist-flag AS LOG
    FIELD acct-dscr LIKE account.dscr
    FIELD tt-rowid AS ROWID
-   INDEX tt-gltrans gltrans-flag DESC actnum ASC.
+   INDEX tt-glhist glhist-flag DESC actnum ASC.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -52,18 +52,18 @@ DEFINE TEMP-TABLE tt-gltrans NO-UNDO LIKE gltrans
 &Scoped-define BROWSE-NAME BROWSE-1
 
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
-&Scoped-define INTERNAL-TABLES tt-gltrans
+&Scoped-define INTERNAL-TABLES tt-glhist
 
 /* Definitions for BROWSE BROWSE-1                                      */
-&Scoped-define FIELDS-IN-QUERY-BROWSE-1 tt-gltrans.actnum tt-gltrans.acct-dscr tt-gltrans.jrnl tt-gltrans.tr-dscr tt-gltrans.tr-date tt-gltrans.tr-amt   
-&Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-1 tt-gltrans.tr-amt   
-&Scoped-define ENABLED-TABLES-IN-QUERY-BROWSE-1 tt-gltrans
-&Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-BROWSE-1 tt-gltrans
+&Scoped-define FIELDS-IN-QUERY-BROWSE-1 tt-glhist.actnum tt-glhist.acct-dscr tt-glhist.jrnl tt-glhist.tr-dscr tt-glhist.tr-date tt-glhist.tr-amt   
+&Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-1 tt-glhist.tr-amt   
+&Scoped-define ENABLED-TABLES-IN-QUERY-BROWSE-1 tt-glhist
+&Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-BROWSE-1 tt-glhist
 &Scoped-define SELF-NAME BROWSE-1
-&Scoped-define QUERY-STRING-BROWSE-1 FOR EACH tt-gltrans
-&Scoped-define OPEN-QUERY-BROWSE-1 OPEN QUERY {&SELF-NAME} FOR EACH tt-gltrans.
-&Scoped-define TABLES-IN-QUERY-BROWSE-1 tt-gltrans
-&Scoped-define FIRST-TABLE-IN-QUERY-BROWSE-1 tt-gltrans
+&Scoped-define QUERY-STRING-BROWSE-1 FOR EACH tt-glhist
+&Scoped-define OPEN-QUERY-BROWSE-1 OPEN QUERY {&SELF-NAME} FOR EACH tt-glhist.
+&Scoped-define TABLES-IN-QUERY-BROWSE-1 tt-glhist
+&Scoped-define FIRST-TABLE-IN-QUERY-BROWSE-1 tt-glhist
 
 
 /* Definitions for FRAME FRAME-A                                        */
@@ -100,21 +100,21 @@ DEFINE VARIABLE begin_run-no AS INTEGER FORMAT ">>>>>>>>":U INITIAL 0
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY BROWSE-1 FOR 
-      tt-gltrans SCROLLING.
+      tt-glhist SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
 DEFINE BROWSE BROWSE-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-1 C-Win _FREEFORM
   QUERY BROWSE-1 DISPLAY
-      tt-gltrans.actnum FORMAT "X(14)" COLUMN-LABEL "Account Number"
- tt-gltrans.acct-dscr FORMAT "X(28)" COLUMN-LABEL "Account Description"
- tt-gltrans.jrnl COLUMN-LABEL "Journal"
- tt-gltrans.tr-dscr COLUMN-LABEL "Reference" WIDTH 50
- tt-gltrans.tr-date COLUMN-LABEL "Date"
- tt-gltrans.tr-amt COLUMN-LABEL "Balance" FORMAT "->,>>>,>>9.99"
+      tt-glhist.actnum FORMAT "X(14)" COLUMN-LABEL "Account Number"
+ tt-glhist.acct-dscr FORMAT "X(28)" COLUMN-LABEL "Account Description"
+ tt-glhist.jrnl COLUMN-LABEL "Journal"
+ tt-glhist.tr-dscr COLUMN-LABEL "Reference" WIDTH 50
+ tt-glhist.tr-date COLUMN-LABEL "Date"
+ tt-glhist.tr-amt COLUMN-LABEL "Balance" FORMAT "->,>>>,>>9.99"
 
- ENABLE tt-gltrans.tr-amt
+ ENABLE tt-glhist.tr-amt
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ROW-MARKERS SEPARATORS SIZE 125 BY 12.38.
@@ -201,7 +201,7 @@ THEN C-Win:HIDDEN = no.
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE BROWSE-1
 /* Query rebuild information for BROWSE BROWSE-1
      _START_FREEFORM
-OPEN QUERY {&SELF-NAME} FOR EACH tt-gltrans.
+OPEN QUERY {&SELF-NAME} FOR EACH tt-glhist.
      _END_FREEFORM
      _Query            is OPENED
 */  /* BROWSE BROWSE-1 */
@@ -279,38 +279,26 @@ DO:
 
       ASSIGN begin_run-no.
 
-      EMPTY TEMP-TABLE tt-gltrans.
-
-      FOR EACH gltrans WHERE
-          gltrans.company EQ cocode AND
-          gltrans.trnum   EQ begin_run-no
-          NO-LOCK,
-          FIRST account fields(dscr) WHERE
-                account.company EQ cocode AND
-                account.actnum  EQ gltrans.actnum
-                NO-LOCK:
-
-          CREATE tt-gltrans.
-          BUFFER-COPY gltrans TO tt-gltrans
-             ASSIGN tt-gltrans.gltrans-flag = YES
-                    tt-gltrans.acct-dscr = account.dscr
-                    tt-gltrans.tt-rowid = ROWID(gltrans).
-          RELEASE tt-gltrans.
-      END.
+      EMPTY TEMP-TABLE tt-glhist.
 
       FOR EACH glhist WHERE
           glhist.company EQ cocode AND
           glhist.tr-num   EQ begin_run-no
-          NO-LOCK:
+          NO-LOCK,
+          FIRST account fields(dscr) WHERE
+                account.company EQ cocode AND
+                account.actnum  EQ glhist.actnum
+                NO-LOCK:
 
-          CREATE tt-gltrans.
-          BUFFER-COPY glhist TO tt-gltrans
-             ASSIGN tt-gltrans.gltrans-flag = NO
-                    tt-gltrans.tt-rowid = ROWID(glhist).
-          RELEASE tt-gltrans.
-      END.
+          CREATE tt-glhist.
+          BUFFER-COPY glhist TO tt-glhist
+             ASSIGN tt-glhist.glhist-flag = YES
+                    tt-glhist.acct-dscr = account.dscr
+                    tt-glhist.tt-rowid = ROWID(glhist).
+          RELEASE tt-glhist.
+      END.      
 
-      OPEN QUERY browse-1 FOR EACH tt-gltrans.
+      OPEN QUERY browse-1 FOR EACH tt-glhist.
    END.
 END.
 
@@ -340,32 +328,23 @@ PAUSE 0 BEFORE-HIDE.
 
 SESSION:DATA-ENTRY-RETURN = YES.
 
-ON 'leave':U OF tt-gltrans.tr-amt DO:
+ON 'leave':U OF tt-glhist.tr-amt DO:
   IF LASTKEY NE -1 THEN DO:
-    IF AVAIL tt-gltrans AND
-       DEC(tt-gltrans.tr-amt:SCREEN-VALUE IN BROWSE {&browse-name}) NE
-       tt-gltrans.tr-amt THEN DO:
+    IF AVAIL tt-glhist AND
+       DEC(tt-glhist.tr-amt:SCREEN-VALUE IN BROWSE {&browse-name}) NE
+       tt-glhist.tr-amt THEN DO:
         
-       IF tt-gltrans.gltrans-flag THEN
-       DO:
-          FIND FIRST gltrans WHERE
-               ROWID(gltrans) EQ tt-gltrans.tt-rowid
-               EXCLUSIVE-LOCK.
-
-          gltrans.tr-amt = DEC(tt-gltrans.tr-amt:SCREEN-VALUE IN BROWSE {&browse-name}).
-               
-          FIND CURRENT gltrans NO-LOCK.
-       END.
-       ELSE
+       IF tt-glhist.glhist-flag THEN
        DO:
           FIND FIRST glhist WHERE
-               ROWID(glhist) EQ tt-gltrans.tt-rowid
+               ROWID(glhist) EQ tt-glhist.tt-rowid
                EXCLUSIVE-LOCK.
 
-          glhist.tr-amt = DEC(tt-gltrans.tr-amt:SCREEN-VALUE IN BROWSE {&browse-name}).
+          glhist.tr-amt = DEC(tt-glhist.tr-amt:SCREEN-VALUE IN BROWSE {&browse-name}).
                
           FIND CURRENT glhist NO-LOCK.
        END.
+       
     END.
     
   END.

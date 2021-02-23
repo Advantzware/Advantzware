@@ -229,7 +229,7 @@ PROCEDURE AutoPOFromOrderLine:
     
     RUN pCheckAbort(BUFFER bf-ttAutoPOMaster, OUTPUT lAbort, OUTPUT opcMessage).
     IF lAbort THEN RETURN.
-    RUN pBuild
+    //RUN pBuild
     RUN pAddFGItemsToPurchase(bf-oe-ordl.company, bf-oe-ordl.i-no, OUTPUT oplError, OUTPUT opcMessage).
     RUN pAddRMItemsToPurchase(bf-oe-ordl.company, bf-oe-ordl.i-no, bf-oe-ordl.job-no, bf-oe-ordl.job-no2, OUTPUT oplError, OUTPUT opcMessage).
     
@@ -354,383 +354,383 @@ PROCEDURE pProcessItemsToPurchase PRIVATE:
     ------------------------------------------------------------------------------*/
     DEFINE PARAMETER BUFFER ipbf-ttAutoPOMaster FOR ttAutoPOMaster.
 
-    FOR EACH ttItemToPurchase:
-        
-    END.    
-    FOR EACH w-job-mat    
-    WHERE (IF iplPromptRM THEN TRUE ELSE w-job-mat.this-is-a-rm EQ FALSE)
-        BREAK BY w-job-mat.this-is-a-rm
-        BY w-job-mat.frm
-        BY w-job-mat.blank-no
-        BY w-job-mat.i-no:
-
-        ASSIGN 
-            gvcVendNo      = ""
-            gvrPoOrdl      = ?
-            gvrItem        = ?
-            gvrVend        = ?
-            gvrPoOrd       = ?
-            gvrTT-eiv      = ?
-            gvrTT-ei       = ?
-            gvrItemfg      = ?
-            gvcFilIdSource = ? 
-            gvrWJobMat     = ?.
-
-        IF NOT w-job-mat.this-is-a-rm THEN 
-        DO:
-            FIND itemfg NO-LOCK WHERE itemfg.company EQ cocode
-                AND itemfg.i-no EQ w-job-mat.i-no 
-                NO-ERROR.
-            IF AVAILABLE itemfg THEN
-                gvrItemfg = ROWID(itemfg).
-        END.
-        FIND oe-ord NO-LOCK WHERE ROWID(oe-ord) EQ gvrOeOrd NO-ERROR.
-  
-        IF gvlDebug THEN
-            PUT STREAM sDebug UNFORMATTED "Process Item " + w-job-mat.i-no SKIP.
-        lNextOuters = NO.
-
-        EMPTY TEMP-TABLE tt-ei.
-        EMPTY TEMP-TABLE tt-eiv.
-
-        v-vendor-chosen-report = ?.
-        gvrWJobMat = ROWID(w-job-mat).
-
-        llFirstOfJobFrm = FIRST-OF(w-job-mat.frm).
-        llFirstJobFrm = FIRST(w-job-mat.frm).        
-
-        IF w-job-mat.this-is-a-rm THEN 
-        DO:
-  
-            /* Create tt-ei and tt-eiv for e-itemvend of an item */
-            IF lNewVendorItemCost THEN RUN RevCreateTtEivVend (INPUT cocode, INPUT ROWID(w-job-mat), INPUT v-po-best, OUTPUT gvrItem).
-            ELSE RUN createTtEivVend (INPUT cocode, INPUT ROWID(w-job-mat), INPUT v-po-best, OUTPUT gvrItem).
-        END.
-        ELSE 
-        DO:            
-      
-            FIND itemfg NO-LOCK WHERE itemfg.company = cocode
-                AND itemfg.i-no = w-job-mat.rm-i-no NO-ERROR.
-            IF NOT AVAIL itemfg THEN RETURN.
-            /* Create tt-eiv for a w-job-mat and itemfg */
-            IF lNewVendorItemCost THEN RUN RevCreateTtEiv (INPUT rowid(itemfg), INPUT  ROWID(w-job-mat)).
-            ELSE RUN createTtEivItemfg (INPUT  cocode, INPUT  ROWID(w-job-mat)).
-        END.
-
-        /* Just a prompt to create a line */
-        RUN promptCreatePoLine.        
-
-        /* User choose not to create, so don't continue with this item */
-        IF NOT gvlChoice THEN
-            NEXT outers.
-
-        /* Sets gvrB-orderpo, initialize global variables and create a b-orderpo */
-        RUN initJobVals (INPUT cocode,
-            INPUT fil_id,
-            INPUT gvrJob,
-            INPUT ROWID(w-job-mat),
-            INPUT gvrOeOrdl,
-            OUTPUT v-job,
-            OUTPUT gvcVendNo).
-
-        /* Get v-len, v-wid, v-dep, v-job-mat-qty, v-qty-comp, v-uom-comp */         
-        RUN initRptRecs (INPUT cocode,
-            INPUT ROWID(w-job-mat),
-            OUTPUT gvrTT-ei) .
-  
-
-  
-  
-        /* Creates a report record for each tt-eiv, sets fil_id */
-   
-        RUN buildRptRecs (INPUT cocode, 
-            INPUT llFirstJobFrm,
-            INPUT ROWID(w-job-mat),
-            INPUT gvrOeOrdl,
-            INPUT gvrTT-ei,
-            INPUT gvrItemfg,
-            OUTPUT gvrVend).
-
-        /* Warning message that vendor matrix does not exist */
-        IF gvcVendNo EQ "" AND gvlChoice AND NOT ll-canceled THEN 
-            RUN cancelMessage.        
-         
-        IF gvcVendNo EQ "" OR ll-canceled THEN 
-        DO:
-            IF gvlDebug THEN             
-                PUT STREAM sDebug UNFORMATTED "Skip Item for canceled or gvcVendNo " w-job-mat.i-no " gvcVendNo " gvcVendNo SKIP.
-            NEXT.
-        END.
-    
-        /* Set po dates from oe-ord or job */
-        RUN setPoDates (INPUT gvrVend, INPUT gvrOeOrd, INPUT gvrJob).
-
-        /* Set GV ll-drop */
-        RUN promptDropShip.
-
-        /* prompt for updating PO for given vendor and date */
-        RUN promptUpdPoNum (INPUT cocode, 
-            INPUT w-job-mat.po-no,
-            OUTPUT gvrPoOrd,
-            OUTPUT gvrTT-eiv,
-            OUTPUT lNextOuters). /* set choice */
-
-        IF lNextOuters THEN
-            NEXT outers.
-
-        FIND po-ord NO-LOCK WHERE ROWID(po-ord) EQ gvrPoOrd NO-ERROR.
-        FIND oe-ord NO-LOCK WHERE ROWID(oe-ord) EQ gvrOeOrd NO-ERROR.
-  
-        IF NOT gvlChoice THEN 
-        DO:
-            IF NOT AVAILABLE po-ord THEN 
-            DO:
-                /* SEts globals gvdDueDate and gvdPoDate */
-                RUN calcDueDate (INPUT ROWID(w-job-mat)).
-            END.
-        END.
-
-        /* If they chose not to update existing then return */
-        IF NOT gvlChoice AND AVAIL(po-ord) THEN 
-        DO:
-            IF gvlDebug THEN             
-                PUT STREAM sDebug UNFORMATTED "Return since choose not to update existing " w-job-mat.i-no  SKIP.
-            /* RETURN. WFK - taken out so that prompts for remaining RMs */
-            NEXT outers.
-        END.
-    
-        /* Check gvlChoice and update oe-ordl.po-no-po and vend-no */
-        RUN ProcessExisting (INPUT cocode,
-            INPUT gvrOeOrdl,
-            INPUT llFirstOfJobFrm,
-            INPUT ROWID(w-job-mat),
-            INPUT gvrPoOrd).
-  
-        /* Find existing PO for a due date and vendor. */
-        RUN findExistingPo (INPUT w-job-mat.po-no, OUTPUT lPoExists, OUTPUT gvrPoOrd).
-
-        FIND po-ord NO-LOCK WHERE ROWID(po-ord) EQ gvrPoOrd NO-ERROR.
-        FIND oe-ord NO-LOCK WHERE ROWID(oe-ord) EQ gvrOeOrd NO-ERROR.
-  
-        IF NOT lPoExists THEN 
-        DO:
-            IF AVAILABLE po-ord THEN 
-            DO:
-                /* Po exists for given vendor and date, locks record if say yes */
-                RUN PromptExistingPo. /* release current po-ord buffer if they say no */      
-            END.
-            IF NOT AVAILABLE po-ord THEN 
-            DO:
-                RUN createPoOrd (INPUT gvrOeOrd, OUTPUT gvrPoOrd, OUTPUT lNextOuters).
-                IF lNextOuters THEN 
-                DO:
-                    IF gvlDebug THEN             
-                        PUT STREAM sDebug UNFORMATTED "Skip do to createPoOrd " w-job-mat.i-no  SKIP.
-                    NEXT outers.
-                END.
-                FIND po-ord NO-LOCK WHERE ROWID(po-ord) EQ gvrPoOrd NO-ERROR.
-   
-            END. /* Not avail po-ord then add it */
-        END.
-        ELSE
-            gvlChoice = YES.
-
-        /* Assign po values to oe-ordl and assign vend values to po-ord */
-        RUN setPoValues (INPUT llFirstOfJobFrm, 
-            INPUT gvrPoOrd, 
-            INPUT gvrOeOrdl,
-            INPUT ROWID(w-job-mat)).
-                  
-        FIND po-ord NO-LOCK WHERE ROWID(po-ord) EQ gvrpoOrd NO-ERROR.
-
-        IF NOT AVAILABLE po-ord THEN 
-        DO:
-            MESSAGE "Error: No Po found (after assign po values)"
-                VIEW-AS ALERT-BOX INFORMATION BUTTONS OK.
-            NEXT.
-        END.
-
-        FIND b-item NO-LOCK WHERE ROWID(b-item) EQ gvrItem NO-ERROR.
-        FIND vend NO-LOCK WHERE ROWID(vend) EQ gvrVend NO-ERROR.
-
-        IF gvlDebug THEN             
-            PUT STREAM sDebug UNFORMATTED "Create PO Line " w-job-mat.i-no  SKIP.
-        FIND bf-ordl NO-LOCK WHERE ROWID(bf-ordl) EQ gvrOeOrdl NO-ERROR.
-
-        /* creates po-ordl based on gvlChoice */
-        RUN createPoOrdl (INPUT gvrPoOrd,
-            INPUT gvrOeOrdl,
-            INPUT ROWID(w-job-mat),
-            INPUT gvrItem,
-            OUTPUT gvrItemfg).
-
-        FIND itemfg NO-LOCK WHERE ROWID(itemfg) EQ gvrItemfg NO-ERROR.
-
-        FIND po-ord NO-LOCK WHERE ROWID(po-ord) EQ gvrpoOrd NO-ERROR.
-        IF NOT AVAILABLE po-ord THEN 
-        DO:
-            MESSAGE "Error: No Po found (after create po-ordl)"
-                VIEW-AS ALERT-BOX INFORMATION BUTTONS OK.
-            NEXT.
-        END.
-
-        FIND po-ordl NO-LOCK WHERE ROWID(po-ordl) EQ gvrPoOrdl NO-ERROR.
-        IF NOT AVAILABLE po-ordl THEN 
-        DO:
-            MESSAGE "PO Line not available, skipping it"
-                VIEW-AS ALERT-BOX INFORMATION BUTTONS OK.
-            NEXT outers.
-        END.
-
-        /* set values from item and w-job-mat */
-        IF po-ordl.item-type THEN
-            RUN setPoOrdRm (INPUT gvrPoOrd,
-                INPUT gvrPoOrdl,
-                INPUT gvrItem,
-                INPUT ROWID(w-job-mat),
-                INPUT gvrOeOrdl,
-                INPUT gvrJob).
-        ELSE
-            /* Set values from itemfg */
-            RUN setPoOrdlFg (INPUT gvrPoOrd,
-                INPUT gvrPoOrdl,
-                INPUT gvrItemfg,
-                INPUT ROWID(w-job-mat),
-                INPUT gvrOeOrdl,
-                INPUT gvrJob).
-
-
-        FIND po-ord NO-LOCK WHERE ROWID(po-ord) EQ gvrpoOrd NO-ERROR.
-        IF NOT AVAILABLE po-ord THEN 
-        DO:
-            MESSAGE "Error: No Po found (after assign po-ordl)"
-                VIEW-AS ALERT-BOX INFORMATION BUTTONS OK.
-            NEXT.
-        END.
-
-        FIND po-ordl NO-LOCK WHERE ROWID(po-ordl) EQ gvrPoOrdl NO-ERROR.
-
-        IF NOT AVAILABLE po-ordl THEN 
-        DO:
-            MESSAGE 'Error: No Po Line available (main block)' 
-                VIEW-AS ALERT-BOX INFORMATION BUTTONS OK.
-            NEXT.
-        END.
-
-
-        IF po-ordl.item-type THEN 
-        DO:
-  
-            IF NOT AVAILABLE tt-ei THEN
-                FIND FIRST tt-ei
-                    WHERE tt-ei.company EQ cocode
-                    AND tt-ei.i-no    EQ w-job-mat.rm-i-no
-                    NO-LOCK NO-ERROR.
-
-            IF AVAILABLE tt-ei THEN
-                gvrTT-ei = ROWID(tt-ei).
-            ELSE 
-                gvrTT-ei = ?.
-
-            /* get v-new-i-no, v-new-len, v-new-wid, set po-ordl.cons-uom and pr-uom */
-            RUN poOrdlAddVals (INPUT gvrPoOrdl,
-                INPUT gvrItem,
-                INPUT ROWID(w-job-mat),
-                INPUT gvrOeOrdl,
-                INPUT gvrTT-ei).
-        END. /* run poOrdlAddVals */   
-
-        /* Get len, wid, depth from item. Set po-ordl.cust-no */
-        IF lNewVendorItemCost THEN RUN calcLenWidN (INPUT gvrPoOrd,
-                INPUT gvrPoOrdl,
-                INPUT gvrItem).
-        ELSE RUN calcLenWid (INPUT gvrPoOrd,
-                INPUT gvrPoOrdl,
-                INPUT gvrItem).
-
-        /* get po-ordl.ord-qty from job-hdr, w-job-mat or oe-ordl */
-        IF po-ordl.item-type THEN 
-            RUN calcEstValues (INPUT gvrPoOrdl,
-                INPUT gvrJob,
-                INPUT ROWID(w-job-mat),
-                INPUT gvrOeOrdl,
-                INPUT gvrItem).
-        /* Set po-ordl.s-num and b-num. UOM Conversion on po-ordl.ord-qty */
-        RUN calcOrdQty    (INPUT gvrPoOrdl, INPUT ROWID(w-job-mat)).
-
-        /* get po-ordl.cost from w-job-mat or v-item-cost */
-        RUN calcCostSetup (INPUT gvrTt-ei, INPUT ROWID(w-job-mat),
-            INPUT gvrPoOrdl, INPUT gvcVendNo,
-            INPUT v-vend-item).
-
-        /*  Calculate v-tot-msf. Set po-ordl.s-len and s-wid */
-        RUN calcMSF       (INPUT gvrPoOrdl).
-
-        /* runs po/po-adder.p and po/po-vendc.i */
-        RUN processAdders (INPUT ROWID(w-job-mat), INPUT gvrPoOrdl, INPUT gvrPoOrd).
-
-        /* UOM conversion for po-ordl.cost */
-        RUN calcCost      (INPUT gvrTT-ei, INPUT gvrPoOrdl).
-
-        RELEASE b-item.
-  
-        /* Warns user of zero length or width in Job */
-        RUN zeroLenWarning (INPUT gvrPoOrdl, OUTPUT gvrItem).
-
-        FIND b-item WHERE ROWID(b-item) EQ gvrItem NO-LOCK NO-ERROR.
-        FIND po-ordl WHERE ROWID(po-ordl) EQ gvrPoOrdl NO-LOCK NO-ERROR.
-
-        IF (AVAILABLE b-item AND index("1234BPR",b-item.mat-type) GT 0) OR
-            NOT po-ordl.item-type                                   THEN 
-        DO:
-    
-            /* Validate than Length was entered */
-            RUN brdLenCheck (INPUT gvrPoOrdl).
-
-            /* UOM conversions to handle zere line qty or cost. Calculate oe-ordl.cost  */
-            RUN checkZeroQty (INPUT gvrPoOrdl).
-
-            /* Calculate po-ordl.t-cost and cons-cost */
-            RUN calcExtCost (INPUT gvrPoOrdl).
-
-            /* Find po-ordl and set v-old-i-no, v-tot-ord and po-ordl.dscr */
-            RUN addHeaderTot (INPUT gvrPoOrdl).
-
-            /* If v-new-i-no is a valid item, set w-job-mat.rm-i-no to it */
-            RUN autoRm (INPUT gvrPoOrdl,
-                INPUT ROWID(w-job-mat),
-                OUTPUT gvrItem) /* needs additional buffers */.
-
-        END. /* if avail b-item ... */
-
-        /* Update Farm recs, deal with changes to scoring allowances */
-        RUN PoOrdlFinal (INPUT gvrPoOrdl).
-        FIND po-ord NO-LOCK WHERE ROWID(po-ord) EQ gvrPoOrd NO-ERROR.
-        IF NOT AVAILABLE po-ord THEN 
-        DO:
-            MESSAGE "Internal Error - PO not found." 
-                VIEW-AS ALERT-BOX INFORMATION BUTTONS OK.
-            NEXT.
-        END.
-
-        /* Calculate PO Header Totals */
-        RUN po/po-total.p (RECID(po-ord)).
-
-        /* CHECK for exceeding vendor's max PO Cost and worn for it (set v-hold) */
-        RUN validMaxCost (gvrPoOrd).
-
-        FIND po-ordl WHERE ROWID(po-ordl) EQ gvrPoOrdl NO-LOCK NO-ERROR.
-        IF NOT AVAILABLE po-ordl THEN 
-        DO:
-            MESSAGE "Error - Po Line not found (22)" 
-                VIEW-AS ALERT-BOX INFORMATION BUTTONS OK.
-            NEXT.
-        END.
-
-        /* Update item inventory totals */
-        RUN po/poordlup.p (RECID(po-ordl), 1, v-cont-upd).
-
-    END. /* each w-job-mat */
+/*    FOR EACH ttItemToPurchase:                                                                                                        */
+/*                                                                                                                                      */
+/*    END.                                                                                                                              */
+/*    FOR EACH w-job-mat                                                                                                                */
+/*    WHERE (IF iplPromptRM THEN TRUE ELSE w-job-mat.this-is-a-rm EQ FALSE)                                                             */
+/*        BREAK BY w-job-mat.this-is-a-rm                                                                                               */
+/*        BY w-job-mat.frm                                                                                                              */
+/*        BY w-job-mat.blank-no                                                                                                         */
+/*        BY w-job-mat.i-no:                                                                                                            */
+/*                                                                                                                                      */
+/*        ASSIGN                                                                                                                        */
+/*            gvcVendNo      = ""                                                                                                       */
+/*            gvrPoOrdl      = ?                                                                                                        */
+/*            gvrItem        = ?                                                                                                        */
+/*            gvrVend        = ?                                                                                                        */
+/*            gvrPoOrd       = ?                                                                                                        */
+/*            gvrTT-eiv      = ?                                                                                                        */
+/*            gvrTT-ei       = ?                                                                                                        */
+/*            gvrItemfg      = ?                                                                                                        */
+/*            gvcFilIdSource = ?                                                                                                        */
+/*            gvrWJobMat     = ?.                                                                                                       */
+/*                                                                                                                                      */
+/*        IF NOT w-job-mat.this-is-a-rm THEN                                                                                            */
+/*        DO:                                                                                                                           */
+/*            FIND itemfg NO-LOCK WHERE itemfg.company EQ cocode                                                                        */
+/*                AND itemfg.i-no EQ w-job-mat.i-no                                                                                     */
+/*                NO-ERROR.                                                                                                             */
+/*            IF AVAILABLE itemfg THEN                                                                                                  */
+/*                gvrItemfg = ROWID(itemfg).                                                                                            */
+/*        END.                                                                                                                          */
+/*        FIND oe-ord NO-LOCK WHERE ROWID(oe-ord) EQ gvrOeOrd NO-ERROR.                                                                 */
+/*                                                                                                                                      */
+/*        IF gvlDebug THEN                                                                                                              */
+/*            PUT STREAM sDebug UNFORMATTED "Process Item " + w-job-mat.i-no SKIP.                                                      */
+/*        lNextOuters = NO.                                                                                                             */
+/*                                                                                                                                      */
+/*        EMPTY TEMP-TABLE tt-ei.                                                                                                       */
+/*        EMPTY TEMP-TABLE tt-eiv.                                                                                                      */
+/*                                                                                                                                      */
+/*        v-vendor-chosen-report = ?.                                                                                                   */
+/*        gvrWJobMat = ROWID(w-job-mat).                                                                                                */
+/*                                                                                                                                      */
+/*        llFirstOfJobFrm = FIRST-OF(w-job-mat.frm).                                                                                    */
+/*        llFirstJobFrm = FIRST(w-job-mat.frm).                                                                                         */
+/*                                                                                                                                      */
+/*        IF w-job-mat.this-is-a-rm THEN                                                                                                */
+/*        DO:                                                                                                                           */
+/*                                                                                                                                      */
+/*            /* Create tt-ei and tt-eiv for e-itemvend of an item */                                                                   */
+/*            IF lNewVendorItemCost THEN RUN RevCreateTtEivVend (INPUT cocode, INPUT ROWID(w-job-mat), INPUT v-po-best, OUTPUT gvrItem).*/
+/*            ELSE RUN createTtEivVend (INPUT cocode, INPUT ROWID(w-job-mat), INPUT v-po-best, OUTPUT gvrItem).                         */
+/*        END.                                                                                                                          */
+/*        ELSE                                                                                                                          */
+/*        DO:                                                                                                                           */
+/*                                                                                                                                      */
+/*            FIND itemfg NO-LOCK WHERE itemfg.company = cocode                                                                         */
+/*                AND itemfg.i-no = w-job-mat.rm-i-no NO-ERROR.                                                                         */
+/*            IF NOT AVAIL itemfg THEN RETURN.                                                                                          */
+/*            /* Create tt-eiv for a w-job-mat and itemfg */                                                                            */
+/*            IF lNewVendorItemCost THEN RUN RevCreateTtEiv (INPUT rowid(itemfg), INPUT  ROWID(w-job-mat)).                             */
+/*            ELSE RUN createTtEivItemfg (INPUT  cocode, INPUT  ROWID(w-job-mat)).                                                      */
+/*        END.                                                                                                                          */
+/*                                                                                                                                      */
+/*        /* Just a prompt to create a line */                                                                                          */
+/*        RUN promptCreatePoLine.                                                                                                       */
+/*                                                                                                                                      */
+/*        /* User choose not to create, so don't continue with this item */                                                             */
+/*        IF NOT gvlChoice THEN                                                                                                         */
+/*            NEXT outers.                                                                                                              */
+/*                                                                                                                                      */
+/*        /* Sets gvrB-orderpo, initialize global variables and create a b-orderpo */                                                   */
+/*        RUN initJobVals (INPUT cocode,                                                                                                */
+/*            INPUT fil_id,                                                                                                             */
+/*            INPUT gvrJob,                                                                                                             */
+/*            INPUT ROWID(w-job-mat),                                                                                                   */
+/*            INPUT gvrOeOrdl,                                                                                                          */
+/*            OUTPUT v-job,                                                                                                             */
+/*            OUTPUT gvcVendNo).                                                                                                        */
+/*                                                                                                                                      */
+/*        /* Get v-len, v-wid, v-dep, v-job-mat-qty, v-qty-comp, v-uom-comp */                                                          */
+/*        RUN initRptRecs (INPUT cocode,                                                                                                */
+/*            INPUT ROWID(w-job-mat),                                                                                                   */
+/*            OUTPUT gvrTT-ei) .                                                                                                        */
+/*                                                                                                                                      */
+/*                                                                                                                                      */
+/*                                                                                                                                      */
+/*                                                                                                                                      */
+/*        /* Creates a report record for each tt-eiv, sets fil_id */                                                                    */
+/*                                                                                                                                      */
+/*        RUN buildRptRecs (INPUT cocode,                                                                                               */
+/*            INPUT llFirstJobFrm,                                                                                                      */
+/*            INPUT ROWID(w-job-mat),                                                                                                   */
+/*            INPUT gvrOeOrdl,                                                                                                          */
+/*            INPUT gvrTT-ei,                                                                                                           */
+/*            INPUT gvrItemfg,                                                                                                          */
+/*            OUTPUT gvrVend).                                                                                                          */
+/*                                                                                                                                      */
+/*        /* Warning message that vendor matrix does not exist */                                                                       */
+/*        IF gvcVendNo EQ "" AND gvlChoice AND NOT ll-canceled THEN                                                                     */
+/*            RUN cancelMessage.                                                                                                        */
+/*                                                                                                                                      */
+/*        IF gvcVendNo EQ "" OR ll-canceled THEN                                                                                        */
+/*        DO:                                                                                                                           */
+/*            IF gvlDebug THEN                                                                                                          */
+/*                PUT STREAM sDebug UNFORMATTED "Skip Item for canceled or gvcVendNo " w-job-mat.i-no " gvcVendNo " gvcVendNo SKIP.     */
+/*            NEXT.                                                                                                                     */
+/*        END.                                                                                                                          */
+/*                                                                                                                                      */
+/*        /* Set po dates from oe-ord or job */                                                                                         */
+/*        RUN setPoDates (INPUT gvrVend, INPUT gvrOeOrd, INPUT gvrJob).                                                                 */
+/*                                                                                                                                      */
+/*        /* Set GV ll-drop */                                                                                                          */
+/*        RUN promptDropShip.                                                                                                           */
+/*                                                                                                                                      */
+/*        /* prompt for updating PO for given vendor and date */                                                                        */
+/*        RUN promptUpdPoNum (INPUT cocode,                                                                                             */
+/*            INPUT w-job-mat.po-no,                                                                                                    */
+/*            OUTPUT gvrPoOrd,                                                                                                          */
+/*            OUTPUT gvrTT-eiv,                                                                                                         */
+/*            OUTPUT lNextOuters). /* set choice */                                                                                     */
+/*                                                                                                                                      */
+/*        IF lNextOuters THEN                                                                                                           */
+/*            NEXT outers.                                                                                                              */
+/*                                                                                                                                      */
+/*        FIND po-ord NO-LOCK WHERE ROWID(po-ord) EQ gvrPoOrd NO-ERROR.                                                                 */
+/*        FIND oe-ord NO-LOCK WHERE ROWID(oe-ord) EQ gvrOeOrd NO-ERROR.                                                                 */
+/*                                                                                                                                      */
+/*        IF NOT gvlChoice THEN                                                                                                         */
+/*        DO:                                                                                                                           */
+/*            IF NOT AVAILABLE po-ord THEN                                                                                              */
+/*            DO:                                                                                                                       */
+/*                /* SEts globals gvdDueDate and gvdPoDate */                                                                           */
+/*                RUN calcDueDate (INPUT ROWID(w-job-mat)).                                                                             */
+/*            END.                                                                                                                      */
+/*        END.                                                                                                                          */
+/*                                                                                                                                      */
+/*        /* If they chose not to update existing then return */                                                                        */
+/*        IF NOT gvlChoice AND AVAIL(po-ord) THEN                                                                                       */
+/*        DO:                                                                                                                           */
+/*            IF gvlDebug THEN                                                                                                          */
+/*                PUT STREAM sDebug UNFORMATTED "Return since choose not to update existing " w-job-mat.i-no  SKIP.                     */
+/*            /* RETURN. WFK - taken out so that prompts for remaining RMs */                                                           */
+/*            NEXT outers.                                                                                                              */
+/*        END.                                                                                                                          */
+/*                                                                                                                                      */
+/*        /* Check gvlChoice and update oe-ordl.po-no-po and vend-no */                                                                 */
+/*        RUN ProcessExisting (INPUT cocode,                                                                                            */
+/*            INPUT gvrOeOrdl,                                                                                                          */
+/*            INPUT llFirstOfJobFrm,                                                                                                    */
+/*            INPUT ROWID(w-job-mat),                                                                                                   */
+/*            INPUT gvrPoOrd).                                                                                                          */
+/*                                                                                                                                      */
+/*        /* Find existing PO for a due date and vendor. */                                                                             */
+/*        RUN findExistingPo (INPUT w-job-mat.po-no, OUTPUT lPoExists, OUTPUT gvrPoOrd).                                                */
+/*                                                                                                                                      */
+/*        FIND po-ord NO-LOCK WHERE ROWID(po-ord) EQ gvrPoOrd NO-ERROR.                                                                 */
+/*        FIND oe-ord NO-LOCK WHERE ROWID(oe-ord) EQ gvrOeOrd NO-ERROR.                                                                 */
+/*                                                                                                                                      */
+/*        IF NOT lPoExists THEN                                                                                                         */
+/*        DO:                                                                                                                           */
+/*            IF AVAILABLE po-ord THEN                                                                                                  */
+/*            DO:                                                                                                                       */
+/*                /* Po exists for given vendor and date, locks record if say yes */                                                    */
+/*                RUN PromptExistingPo. /* release current po-ord buffer if they say no */                                              */
+/*            END.                                                                                                                      */
+/*            IF NOT AVAILABLE po-ord THEN                                                                                              */
+/*            DO:                                                                                                                       */
+/*                RUN createPoOrd (INPUT gvrOeOrd, OUTPUT gvrPoOrd, OUTPUT lNextOuters).                                                */
+/*                IF lNextOuters THEN                                                                                                   */
+/*                DO:                                                                                                                   */
+/*                    IF gvlDebug THEN                                                                                                  */
+/*                        PUT STREAM sDebug UNFORMATTED "Skip do to createPoOrd " w-job-mat.i-no  SKIP.                                 */
+/*                    NEXT outers.                                                                                                      */
+/*                END.                                                                                                                  */
+/*                FIND po-ord NO-LOCK WHERE ROWID(po-ord) EQ gvrPoOrd NO-ERROR.                                                         */
+/*                                                                                                                                      */
+/*            END. /* Not avail po-ord then add it */                                                                                   */
+/*        END.                                                                                                                          */
+/*        ELSE                                                                                                                          */
+/*            gvlChoice = YES.                                                                                                          */
+/*                                                                                                                                      */
+/*        /* Assign po values to oe-ordl and assign vend values to po-ord */                                                            */
+/*        RUN setPoValues (INPUT llFirstOfJobFrm,                                                                                       */
+/*            INPUT gvrPoOrd,                                                                                                           */
+/*            INPUT gvrOeOrdl,                                                                                                          */
+/*            INPUT ROWID(w-job-mat)).                                                                                                  */
+/*                                                                                                                                      */
+/*        FIND po-ord NO-LOCK WHERE ROWID(po-ord) EQ gvrpoOrd NO-ERROR.                                                                 */
+/*                                                                                                                                      */
+/*        IF NOT AVAILABLE po-ord THEN                                                                                                  */
+/*        DO:                                                                                                                           */
+/*            MESSAGE "Error: No Po found (after assign po values)"                                                                     */
+/*                VIEW-AS ALERT-BOX INFORMATION BUTTONS OK.                                                                             */
+/*            NEXT.                                                                                                                     */
+/*        END.                                                                                                                          */
+/*                                                                                                                                      */
+/*        FIND b-item NO-LOCK WHERE ROWID(b-item) EQ gvrItem NO-ERROR.                                                                  */
+/*        FIND vend NO-LOCK WHERE ROWID(vend) EQ gvrVend NO-ERROR.                                                                      */
+/*                                                                                                                                      */
+/*        IF gvlDebug THEN                                                                                                              */
+/*            PUT STREAM sDebug UNFORMATTED "Create PO Line " w-job-mat.i-no  SKIP.                                                     */
+/*        FIND bf-ordl NO-LOCK WHERE ROWID(bf-ordl) EQ gvrOeOrdl NO-ERROR.                                                              */
+/*                                                                                                                                      */
+/*        /* creates po-ordl based on gvlChoice */                                                                                      */
+/*        RUN createPoOrdl (INPUT gvrPoOrd,                                                                                             */
+/*            INPUT gvrOeOrdl,                                                                                                          */
+/*            INPUT ROWID(w-job-mat),                                                                                                   */
+/*            INPUT gvrItem,                                                                                                            */
+/*            OUTPUT gvrItemfg).                                                                                                        */
+/*                                                                                                                                      */
+/*        FIND itemfg NO-LOCK WHERE ROWID(itemfg) EQ gvrItemfg NO-ERROR.                                                                */
+/*                                                                                                                                      */
+/*        FIND po-ord NO-LOCK WHERE ROWID(po-ord) EQ gvrpoOrd NO-ERROR.                                                                 */
+/*        IF NOT AVAILABLE po-ord THEN                                                                                                  */
+/*        DO:                                                                                                                           */
+/*            MESSAGE "Error: No Po found (after create po-ordl)"                                                                       */
+/*                VIEW-AS ALERT-BOX INFORMATION BUTTONS OK.                                                                             */
+/*            NEXT.                                                                                                                     */
+/*        END.                                                                                                                          */
+/*                                                                                                                                      */
+/*        FIND po-ordl NO-LOCK WHERE ROWID(po-ordl) EQ gvrPoOrdl NO-ERROR.                                                              */
+/*        IF NOT AVAILABLE po-ordl THEN                                                                                                 */
+/*        DO:                                                                                                                           */
+/*            MESSAGE "PO Line not available, skipping it"                                                                              */
+/*                VIEW-AS ALERT-BOX INFORMATION BUTTONS OK.                                                                             */
+/*            NEXT outers.                                                                                                              */
+/*        END.                                                                                                                          */
+/*                                                                                                                                      */
+/*        /* set values from item and w-job-mat */                                                                                      */
+/*        IF po-ordl.item-type THEN                                                                                                     */
+/*            RUN setPoOrdRm (INPUT gvrPoOrd,                                                                                           */
+/*                INPUT gvrPoOrdl,                                                                                                      */
+/*                INPUT gvrItem,                                                                                                        */
+/*                INPUT ROWID(w-job-mat),                                                                                               */
+/*                INPUT gvrOeOrdl,                                                                                                      */
+/*                INPUT gvrJob).                                                                                                        */
+/*        ELSE                                                                                                                          */
+/*            /* Set values from itemfg */                                                                                              */
+/*            RUN setPoOrdlFg (INPUT gvrPoOrd,                                                                                          */
+/*                INPUT gvrPoOrdl,                                                                                                      */
+/*                INPUT gvrItemfg,                                                                                                      */
+/*                INPUT ROWID(w-job-mat),                                                                                               */
+/*                INPUT gvrOeOrdl,                                                                                                      */
+/*                INPUT gvrJob).                                                                                                        */
+/*                                                                                                                                      */
+/*                                                                                                                                      */
+/*        FIND po-ord NO-LOCK WHERE ROWID(po-ord) EQ gvrpoOrd NO-ERROR.                                                                 */
+/*        IF NOT AVAILABLE po-ord THEN                                                                                                  */
+/*        DO:                                                                                                                           */
+/*            MESSAGE "Error: No Po found (after assign po-ordl)"                                                                       */
+/*                VIEW-AS ALERT-BOX INFORMATION BUTTONS OK.                                                                             */
+/*            NEXT.                                                                                                                     */
+/*        END.                                                                                                                          */
+/*                                                                                                                                      */
+/*        FIND po-ordl NO-LOCK WHERE ROWID(po-ordl) EQ gvrPoOrdl NO-ERROR.                                                              */
+/*                                                                                                                                      */
+/*        IF NOT AVAILABLE po-ordl THEN                                                                                                 */
+/*        DO:                                                                                                                           */
+/*            MESSAGE 'Error: No Po Line available (main block)'                                                                        */
+/*                VIEW-AS ALERT-BOX INFORMATION BUTTONS OK.                                                                             */
+/*            NEXT.                                                                                                                     */
+/*        END.                                                                                                                          */
+/*                                                                                                                                      */
+/*                                                                                                                                      */
+/*        IF po-ordl.item-type THEN                                                                                                     */
+/*        DO:                                                                                                                           */
+/*                                                                                                                                      */
+/*            IF NOT AVAILABLE tt-ei THEN                                                                                               */
+/*                FIND FIRST tt-ei                                                                                                      */
+/*                    WHERE tt-ei.company EQ cocode                                                                                     */
+/*                    AND tt-ei.i-no    EQ w-job-mat.rm-i-no                                                                            */
+/*                    NO-LOCK NO-ERROR.                                                                                                 */
+/*                                                                                                                                      */
+/*            IF AVAILABLE tt-ei THEN                                                                                                   */
+/*                gvrTT-ei = ROWID(tt-ei).                                                                                              */
+/*            ELSE                                                                                                                      */
+/*                gvrTT-ei = ?.                                                                                                         */
+/*                                                                                                                                      */
+/*            /* get v-new-i-no, v-new-len, v-new-wid, set po-ordl.cons-uom and pr-uom */                                               */
+/*            RUN poOrdlAddVals (INPUT gvrPoOrdl,                                                                                       */
+/*                INPUT gvrItem,                                                                                                        */
+/*                INPUT ROWID(w-job-mat),                                                                                               */
+/*                INPUT gvrOeOrdl,                                                                                                      */
+/*                INPUT gvrTT-ei).                                                                                                      */
+/*        END. /* run poOrdlAddVals */                                                                                                  */
+/*                                                                                                                                      */
+/*        /* Get len, wid, depth from item. Set po-ordl.cust-no */                                                                      */
+/*        IF lNewVendorItemCost THEN RUN calcLenWidN (INPUT gvrPoOrd,                                                                   */
+/*                INPUT gvrPoOrdl,                                                                                                      */
+/*                INPUT gvrItem).                                                                                                       */
+/*        ELSE RUN calcLenWid (INPUT gvrPoOrd,                                                                                          */
+/*                INPUT gvrPoOrdl,                                                                                                      */
+/*                INPUT gvrItem).                                                                                                       */
+/*                                                                                                                                      */
+/*        /* get po-ordl.ord-qty from job-hdr, w-job-mat or oe-ordl */                                                                  */
+/*        IF po-ordl.item-type THEN                                                                                                     */
+/*            RUN calcEstValues (INPUT gvrPoOrdl,                                                                                       */
+/*                INPUT gvrJob,                                                                                                         */
+/*                INPUT ROWID(w-job-mat),                                                                                               */
+/*                INPUT gvrOeOrdl,                                                                                                      */
+/*                INPUT gvrItem).                                                                                                       */
+/*        /* Set po-ordl.s-num and b-num. UOM Conversion on po-ordl.ord-qty */                                                          */
+/*        RUN calcOrdQty    (INPUT gvrPoOrdl, INPUT ROWID(w-job-mat)).                                                                  */
+/*                                                                                                                                      */
+/*        /* get po-ordl.cost from w-job-mat or v-item-cost */                                                                          */
+/*        RUN calcCostSetup (INPUT gvrTt-ei, INPUT ROWID(w-job-mat),                                                                    */
+/*            INPUT gvrPoOrdl, INPUT gvcVendNo,                                                                                         */
+/*            INPUT v-vend-item).                                                                                                       */
+/*                                                                                                                                      */
+/*        /*  Calculate v-tot-msf. Set po-ordl.s-len and s-wid */                                                                       */
+/*        RUN calcMSF       (INPUT gvrPoOrdl).                                                                                          */
+/*                                                                                                                                      */
+/*        /* runs po/po-adder.p and po/po-vendc.i */                                                                                    */
+/*        RUN processAdders (INPUT ROWID(w-job-mat), INPUT gvrPoOrdl, INPUT gvrPoOrd).                                                  */
+/*                                                                                                                                      */
+/*        /* UOM conversion for po-ordl.cost */                                                                                         */
+/*        RUN calcCost      (INPUT gvrTT-ei, INPUT gvrPoOrdl).                                                                          */
+/*                                                                                                                                      */
+/*        RELEASE b-item.                                                                                                               */
+/*                                                                                                                                      */
+/*        /* Warns user of zero length or width in Job */                                                                               */
+/*        RUN zeroLenWarning (INPUT gvrPoOrdl, OUTPUT gvrItem).                                                                         */
+/*                                                                                                                                      */
+/*        FIND b-item WHERE ROWID(b-item) EQ gvrItem NO-LOCK NO-ERROR.                                                                  */
+/*        FIND po-ordl WHERE ROWID(po-ordl) EQ gvrPoOrdl NO-LOCK NO-ERROR.                                                              */
+/*                                                                                                                                      */
+/*        IF (AVAILABLE b-item AND index("1234BPR",b-item.mat-type) GT 0) OR                                                            */
+/*            NOT po-ordl.item-type                                   THEN                                                              */
+/*        DO:                                                                                                                           */
+/*                                                                                                                                      */
+/*            /* Validate than Length was entered */                                                                                    */
+/*            RUN brdLenCheck (INPUT gvrPoOrdl).                                                                                        */
+/*                                                                                                                                      */
+/*            /* UOM conversions to handle zere line qty or cost. Calculate oe-ordl.cost  */                                            */
+/*            RUN checkZeroQty (INPUT gvrPoOrdl).                                                                                       */
+/*                                                                                                                                      */
+/*            /* Calculate po-ordl.t-cost and cons-cost */                                                                              */
+/*            RUN calcExtCost (INPUT gvrPoOrdl).                                                                                        */
+/*                                                                                                                                      */
+/*            /* Find po-ordl and set v-old-i-no, v-tot-ord and po-ordl.dscr */                                                         */
+/*            RUN addHeaderTot (INPUT gvrPoOrdl).                                                                                       */
+/*                                                                                                                                      */
+/*            /* If v-new-i-no is a valid item, set w-job-mat.rm-i-no to it */                                                          */
+/*            RUN autoRm (INPUT gvrPoOrdl,                                                                                              */
+/*                INPUT ROWID(w-job-mat),                                                                                               */
+/*                OUTPUT gvrItem) /* needs additional buffers */.                                                                       */
+/*                                                                                                                                      */
+/*        END. /* if avail b-item ... */                                                                                                */
+/*                                                                                                                                      */
+/*        /* Update Farm recs, deal with changes to scoring allowances */                                                               */
+/*        RUN PoOrdlFinal (INPUT gvrPoOrdl).                                                                                            */
+/*        FIND po-ord NO-LOCK WHERE ROWID(po-ord) EQ gvrPoOrd NO-ERROR.                                                                 */
+/*        IF NOT AVAILABLE po-ord THEN                                                                                                  */
+/*        DO:                                                                                                                           */
+/*            MESSAGE "Internal Error - PO not found."                                                                                  */
+/*                VIEW-AS ALERT-BOX INFORMATION BUTTONS OK.                                                                             */
+/*            NEXT.                                                                                                                     */
+/*        END.                                                                                                                          */
+/*                                                                                                                                      */
+/*        /* Calculate PO Header Totals */                                                                                              */
+/*        RUN po/po-total.p (RECID(po-ord)).                                                                                            */
+/*                                                                                                                                      */
+/*        /* CHECK for exceeding vendor's max PO Cost and worn for it (set v-hold) */                                                   */
+/*        RUN validMaxCost (gvrPoOrd).                                                                                                  */
+/*                                                                                                                                      */
+/*        FIND po-ordl WHERE ROWID(po-ordl) EQ gvrPoOrdl NO-LOCK NO-ERROR.                                                              */
+/*        IF NOT AVAILABLE po-ordl THEN                                                                                                 */
+/*        DO:                                                                                                                           */
+/*            MESSAGE "Error - Po Line not found (22)"                                                                                  */
+/*                VIEW-AS ALERT-BOX INFORMATION BUTTONS OK.                                                                             */
+/*            NEXT.                                                                                                                     */
+/*        END.                                                                                                                          */
+/*                                                                                                                                      */
+/*        /* Update item inventory totals */                                                                                            */
+/*        RUN po/poordlup.p (RECID(po-ordl), 1, v-cont-upd).                                                                            */
+/*                                                                                                                                      */
+/*    END. /* each w-job-mat */                                                                                                         */
 
 END PROCEDURE.
 

@@ -986,11 +986,11 @@ def var bsht as char label "Bal Sheet" format "x(10)" init "__________" NO-UNDO.
 def var incs as char label "Income Stat" format "x(11)" init "___________" NO-UNDO.
 def var v-rep-tot as dec no-undo.
 def var vyear like period.yr no-undo.
-def var vdate like gltrans.tr-date no-undo.
+def var vdate like glhist.tr-date no-undo.
 def var v-fisc-yr like period.yr no-undo.
 
-def var tacct like gltrans.actnum  label "      To Account Number" NO-UNDO.
-def var facct like gltrans.actnum  label "    From Account Number" NO-UNDO.
+def var tacct like glhist.actnum  label "      To Account Number" NO-UNDO.
+def var facct like glhist.actnum  label "    From Account Number" NO-UNDO.
 def var ptd-value as dec format "->>>,>>>,>>9.99" init 0 no-undo.
 def var tot-ptd as dec format "->>>,>>>,>>9.99" init 0 no-undo.
 def var suppress-zero as logical no-undo init true
@@ -1118,19 +1118,7 @@ DO:
            tot-ptd   = tot-ptd   + glhist.tr-amt
            cyr       = cyr + glhist.tr-amt.
         end.
-
-        for each gltrans no-lock
-            where gltrans.company eq account.company
-              and gltrans.actnum  eq account.actnum
-              and gltrans.tr-date ge vdate 
-              and gltrans.tr-date le tran-date:
-
-          assign
-           ptd-value = ptd-value + gltrans.tr-amt
-           tot-ptd   = tot-ptd   + gltrans.tr-amt
-           cyr       = cyr + gltrans.tr-amt.
-        end.
-
+                   
         if not suppress-zero or cyr ne 0 or ptd-value ne 0 then
         do:
            display skip(1)

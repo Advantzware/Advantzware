@@ -434,15 +434,21 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
 ON MOUSE-SELECT-DBLCLICK OF br_table IN FRAME F-Main
 DO:
-   DEFINE VARIABLE lv-rowid AS ROWID NO-UNDO .
-   DEFINE VARIABLE lCheckUpdate AS LOGICAL NO-UNDO .
+   DEFINE VARIABLE lv-rowid       AS ROWID     NO-UNDO.
+   DEFINE VARIABLE lCheckUpdate   AS LOGICAL   NO-UNDO.
+   DEFINE VARIABLE cScreenType    AS CHARACTER NO-UNDO.
+   DEFINE VARIABLE pHandle        AS HANDLE    NO-UNDO.
+   DEFINE VARIABLE lIsOrderClosed AS LOGICAL   NO-UNDO.
+   
+   /* Get the screen type and allow the update only if screen type is "OU1" or "OW" or blank */
+   {methods/run_link.i "container-source" "GetScreenType" "(Output cScreenType)"}
+   
    RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"update-target",OUTPUT char-hdl).
 
    IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
          lCheckUpdate = YES .
-
-  
-   IF AVAIL oe-ordm AND lUpdateMiscItem AND lCheckUpdate THEN do:
+ 
+   IF AVAIL oe-ordm AND lUpdateMiscItem AND lCheckUpdate AND ((cScreenType EQ "OU1" AND NOT lIsOrderClosed) OR cScreenType EQ "OW" OR cScreenType EQ "")THEN DO:
        RUN oe/d-ordm.w (ROWID(oe-ordm),ROWID(oe-ord), "update", OUTPUT lv-rowid) .
 
        RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"oemisc-target",OUTPUT char-hdl).

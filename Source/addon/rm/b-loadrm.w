@@ -40,6 +40,7 @@ CREATE WIDGET-POOL.
 {sys/inc/var.i NEW SHARED}
 {sys/inc/varasgn.i}
 {methods/template/brwCustomDef.i}
+{Inventory/ttInventory.i "NEW SHARED"}
 
 def var char-val as cha no-undo.
 def var ext-cost as decimal no-undo.
@@ -48,6 +49,10 @@ def var ls-prev-po as cha no-undo.
 def var hd-post as widget-handle no-undo.
 def var hd-post-child as widget-handle no-undo.
 def var ll-help-run as log no-undo.  /* set on browse help, reset row-entry */
+DEFINE VARIABLE hdInventoryProcs AS HANDLE NO-UNDO.
+DEFINE VARIABLE iWarehouseLength  AS INTEGER   NO-UNDO.
+
+RUN Inventory/InventoryProcs.p PERSISTENT SET hdInventoryProcs.
 
 DEF NEW SHARED TEMP-TABLE tt-selected FIELD tt-rowid AS ROWID.
 
@@ -726,10 +731,15 @@ PROCEDURE local-create-record :
       message "Sys-ctrl record NOT found. " sys-ctrl.descrip
                  update sys-ctrl.char-fld.
     end.
+    RUN Inventory_GetWarehouseLength IN hdInventoryProcs (
+       INPUT  cocode,
+       OUTPUT iWarehouseLength
+       ).
+    
     IF sys-ctrl.char-fld NE 'RMITEM' THEN
     ASSIGN
-      rm-rctd.loc = SUBSTR(sys-ctrl.char-fld,1,5)
-      rm-rctd.loc-bin = SUBSTR(sys-ctrl.char-fld,6).
+      rm-rctd.loc = SUBSTR(sys-ctrl.char-fld,1,iWarehouseLength)
+      rm-rctd.loc-bin = SUBSTR(sys-ctrl.char-fld,iWarehouseLength + 1).
   disp rm-rctd.loc rm-rctd.loc-bin rm-rctd.rct-date with browse {&browse-name}. 
   lv-recid = recid(rm-rctd).  
 

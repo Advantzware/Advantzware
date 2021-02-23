@@ -35,6 +35,7 @@ CREATE WIDGET-POOL.
 {custom/globdefs.i}
 {sys/inc/var.i new shared}
 {sys/inc/varasgn.i}
+{Inventory/ttInventory.i "NEW SHARED"}
 
 ASSIGN
     cocode = g_company
@@ -79,6 +80,8 @@ DEF VAR lAllowRmAdd AS LOG NO-UNDO.
 DEF VAR lcReturn   AS CHAR NO-UNDO.
 DEF VAR llRecFound AS LOG  NO-UNDO.
 DEFINE VARIABLE lRMOverrunCost AS LOGICAL NO-UNDO .
+DEFINE VARIABLE hdInventoryProcs  AS HANDLE    NO-UNDO.
+DEFINE VARIABLE iWarehouseLength  AS INTEGER   NO-UNDO.
 
 RUN sys/ref/nk1look.p (cocode, "RMAllowAdd", "L", NO, NO, "", "", 
     OUTPUT lcReturn, OUTPUT llRecFound).
@@ -624,7 +627,7 @@ DO:
                             END.*/
                             IF v-bin NE "user entered" AND v-bin NE "RMITEM" THEN
                             ASSIGN 
-                                rm-rctd.loc-bin:screen-value IN BROWSE {&browse-name} = SUBSTR(v-bin,6).
+                                rm-rctd.loc-bin:screen-value IN BROWSE {&browse-name} = SUBSTR(v-bin,iWarehouseLength + 1).
                         END.
 
                         RUN tag-method (OUTPUT ll-tag#).
@@ -637,8 +640,8 @@ DO:
                         DISPLAY ext-cost WITH BROWSE {&browse-name}.
                         IF v-bin NE "" AND v-bin NE 'RMITEM' AND v-bin NE "user entered" THEN
                             ASSIGN
-                                rm-rctd.loc:screen-value IN BROWSE {&browse-name}     = SUBSTR(v-bin,1,5)
-                                rm-rctd.loc-bin:screen-value IN BROWSE {&browse-name} = SUBSTR(v-bin,6).
+                                rm-rctd.loc:screen-value IN BROWSE {&browse-name}     = SUBSTR(v-bin,1,iWarehouseLength)
+                                rm-rctd.loc-bin:screen-value IN BROWSE {&browse-name} = SUBSTR(v-bin,iWarehouseLength + 1).
                     END.  /* char-val <> "" */  
                 END.
             WHEN "i-no" THEN 
@@ -1974,7 +1977,7 @@ PROCEDURE create-rcptd :
                 rm-rctd.loc-bin = item.loc-bin.
 
         IF rm-rctd.loc-bin = "" THEN
-            rm-rctd.loc-bin = SUBSTR(v-bin,6).
+            rm-rctd.loc-bin = SUBSTR(v-bin,iWarehouseLength + 1).
 
         IF ll-tag-meth  THEN
         DO:
@@ -2151,8 +2154,8 @@ PROCEDURE display-item :
 
         IF v-bin NE "" AND v-bin NE 'RMITEM' AND v-bin NE "user entered" THEN
             ASSIGN
-                rm-rctd.loc:screen-value IN BROWSE {&browse-name}     = SUBSTR(v-bin,1,5)
-                rm-rctd.loc-bin:screen-value IN BROWSE {&browse-name} = SUBSTR(v-bin,6).
+                rm-rctd.loc:screen-value IN BROWSE {&browse-name}     = SUBSTR(v-bin,1,iWarehouseLength)
+                rm-rctd.loc-bin:screen-value IN BROWSE {&browse-name} = SUBSTR(v-bin,iWarehouseLength + 1).
     END.
 
 END PROCEDURE.
@@ -2950,8 +2953,8 @@ PROCEDURE local-create-record :
 
   IF v-bin NE "user entered" AND v-bin NE "RMITEM" THEN
     ASSIGN
-        rm-rctd.loc-bin = SUBSTR(v-bin,6)
-        rm-rctd.loc = SUBSTR(v-bin,1,5).
+        rm-rctd.loc-bin = SUBSTR(v-bin,iWarehouseLength + 1)
+        rm-rctd.loc = SUBSTR(v-bin,1,iWarehouseLength).
        
         FIND FIRST b-rm-rctd WHERE b-rm-rctd.company = cocode
             AND b-rm-rctd.rita-code = "R"
@@ -3022,6 +3025,26 @@ PROCEDURE local-disable-fields :
     IF VALID-HANDLE(hd-post-child) THEN  hd-post-child:SENSITIVE = YES.
 /* value assigned from local-enable-fields*/
   
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable B-table-Win
+PROCEDURE local-enable:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+    /* Code placed here will execute PRIOR to standard behavior. */
+
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable':U ) .
+
+    /* Code placed here will execute AFTER standard behavior.    */
+    RUN pInit.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -5029,3 +5052,19 @@ END FUNCTION.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pInit W-Win
+PROCEDURE pInit PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RUN inventory/InventoryProcs.p PERSISTENT SET hdInventoryProcs.
+
+    RUN Inventory_GetWarehouseLength IN hdInventoryProcs (
+        INPUT  cocode,
+        OUTPUT iWarehouseLength
+        ).
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME

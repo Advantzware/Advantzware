@@ -444,7 +444,6 @@ DO WITH FRAME Panel-Frame:
   END. /* panel-state = action-chosen */
 
   DO WITH FRAME {&FRAME-NAME}:     
-   btn-bol:SENSITIVE = yes.
    IF NOT v-can-update THEN ASSIGN btn-bol:SENSITIVE = NO.    
   END.
 

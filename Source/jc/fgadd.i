@@ -33,6 +33,8 @@
        itemfg.pur-man     = xeb.pur-man
        itemfg.alloc       = xeb.set-is-assembled
        itemfg.type-code   = "O"
+       itemfg.def-loc     = IF cFGItemLoc NE "" THEN CAPS(cFGItemLoc) ELSE itemfg.def-loc
+       itemfg.def-loc-bin = IF cFGItemLoc NE "" THEN CAPS(cFGItemLocBin) ELSE itemfg.def-loc-bin 
        .
 
       IF itemfg.alloc NE ? THEN itemfg.alloc = NOT itemfg.alloc.

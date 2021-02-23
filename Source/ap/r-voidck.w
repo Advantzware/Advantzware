@@ -482,21 +482,23 @@ PROCEDURE check-date :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE lSuccess AS LOGICAL NO-UNDO.
   DO with frame {&frame-name}:
     v-invalid = no.
 
-    find first period                   
+    RUN GL_CheckModClosePeriod(input cocode, input DATE(tran-date), input "AP", output cMessage, output lSuccess ) .  
+    IF NOT lSuccess THEN 
+    DO:
+      MESSAGE cMessage VIEW-AS ALERT-BOX INFO.
+      v-invalid = YES.
+    END.
+    FIND first period                   
         where period.company eq cocode
           and period.pst     le tran-date
           and period.pend    ge tran-date
         no-lock no-error.
-    if avail period then tran-period:SCREEN-VALUE = string(period.pnum).
-
-    else
-    IF ip-post THEN DO:
-      message "No Defined Period Exists for" tran-date view-as alert-box error.
-      v-invalid = yes.
-    end.
+    if avail period then tran-period:SCREEN-VALUE = string(period.pnum).     
   END.
 END PROCEDURE.
 
@@ -836,29 +838,33 @@ do transaction on error undo, leave:
            xap-payl.vend-no    = ap-payl.vend-no.
        end.  /* for each xpayl */
    end. /* for each ap-pay record */
-
-   create gltrans.
-   assign
-    gltrans.company = cocode
-    gltrans.actnum  = bank.actnum
-    gltrans.jrnl    = "APVOIDCK"
-    gltrans.tr-dscr = "AP VOIDED CHECK REGISTER"
-    gltrans.tr-date = udate
-    gltrans.tr-amt  = v-tot-amt-paid
-    gltrans.period  = uperiod
-    gltrans.trnum   = v-trans-num.
+     RUN GL_SpCreateGLHist(cocode,
+                        bank.actnum,
+                        "APVOIDCK",
+                        "AP VOIDED CHECK REGISTER",
+                        udate,
+                        v-tot-amt-paid,
+                        v-trans-num,
+                        uperiod,
+                        "A",
+                        udate,
+                        string(ap-pay.vend-no),
+                        "AP").
 
    if v-tot-amt-disc ne 0 then do:
-     create gltrans.
-     assign
-      gltrans.company = cocode
-      gltrans.actnum  = ap-ctrl.discount
-      gltrans.jrnl    = "APVOIDCK"
-      gltrans.tr-dscr = "AP VOIDED CHECK REGISTER"
-      gltrans.tr-date = udate
-      gltrans.tr-amt  = v-tot-amt-disc
-      gltrans.period  = uperiod
-      gltrans.trnum   = v-trans-num.
+     RUN GL_SpCreateGLHist(cocode,
+                        ap-ctrl.discount,
+                        "APVOIDCK",
+                        "AP VOIDED CHECK REGISTER",
+                        udate,
+                        v-tot-amt-disc,
+                        v-trans-num,
+                        uperiod,
+                        "A",
+                        udate,
+                        string(ap-pay.vend-no),
+                        "AP").
+     
    end.
 
    for each w-disb break by w-actnum:
@@ -870,30 +876,35 @@ do transaction on error undo, leave:
      accumulate w-amt-disc (sub-total by w-actnum).
 
      if last-of(w-actnum) then do:
-       create gltrans.
-       assign
-        gltrans.company = cocode
-        gltrans.actnum  = w-actnum
-        gltrans.jrnl    = "APVOIDCK"
-        gltrans.tr-dscr = "AP VOIDED CHECK REGISTER"
-        gltrans.tr-date = udate
-        gltrans.tr-amt  = ((accum sub-total by w-actnum w-amt-paid) +
-                           (accum sub-total by w-actnum w-amt-disc)) * -1 
-        gltrans.period  = uperiod
-        gltrans.trnum   = v-trans-num.
+     RUN GL_SpCreateGLHist(cocode,
+                        w-actnum,
+                        "APVOIDCK",
+                        "AP VOIDED CHECK REGISTER",
+                        udate,
+                        (((accum sub-total by w-actnum w-amt-paid) +
+                           (accum sub-total by w-actnum w-amt-disc)) * -1),
+                        v-trans-num,
+                        uperiod,
+                        "A",
+                        udate,
+                        string(ap-pay.vend-no),
+                        "AP").
+       
      end.
    end.
-
-   create gltrans.
-   assign
-    gltrans.company = cocode
-    gltrans.actnum  = ap-ctrl.payables
-    gltrans.jrnl    = "APVOIDCK"
-    gltrans.tr-dscr = "AP VOIDED CHECK REGISTER"
-    gltrans.tr-date = udate
-    gltrans.tr-amt  = (v-tot-amt-paid + v-tot-amt-disc) * -1
-    gltrans.period  = uperiod
-    gltrans.trnum   = v-trans-num.
+     
+     RUN GL_SpCreateGLHist(cocode,
+                        ap-ctrl.payables,
+                        "APVOIDCK",
+                        "AP VOIDED CHECK REGISTER",
+                        udate,
+                        ((v-tot-amt-paid + v-tot-amt-disc) * -1),
+                        v-trans-num,
+                        uperiod,
+                        "A",
+                        udate,
+                        string(ap-pay.vend-no),
+                        "AP").
 end. /* postit */
 
 END PROCEDURE.

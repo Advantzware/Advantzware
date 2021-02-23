@@ -28,8 +28,7 @@ DEFINE VARIABLE gcTagSelectionCode  AS CHARACTER NO-UNDO. /* Tag selection code 
 DEFINE VARIABLE glUseItemfgLoc      AS LOGICAL   NO-UNDO. /* Get location from itemfg? */
 DEFINE VARIABLE gcCompanyDefaultBin AS CHARACTER NO-UNDO.  /* default bin */
 DEFINE VARIABLE cFreightCalculationValue AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lr-rel-lib AS HANDLE NO-UNDO.
-DEFINE VARIABLE hdOutboundProcs AS HANDLE NO-UNDO.
+
 DEFINE VARIABLE scInstance AS CLASS system.SharedConfig NO-UNDO.
 
 DEFINE VARIABLE gcCaseUOMList AS CHARACTER NO-UNDO.
@@ -37,10 +36,10 @@ DEFINE VARIABLE gcCaseUOMList AS CHARACTER NO-UNDO.
 DEFINE TEMP-TABLE ttUpdateOrderReleaseStatus NO-UNDO 
   FIELD ord-no AS INTEGER.
 
-{oe/ttOrder.i}
+DEFINE TEMP-TABLE ttOeBoll NO-UNDO
+    LIKE oe-boll.
 
-RUN sbo/oerel-recalc-act.p PERSISTENT SET lr-rel-lib.
-RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
+{oe/ttOrder.i}
 
 /* ********************  Preprocessor Definitions  ******************** */
 
@@ -200,6 +199,170 @@ PROCEDURE GetOEImportConsol:
         oplOEImportConsol = LOGICAL(cRtnChar).
 END PROCEDURE.
 
+PROCEDURE Order_CalculateOrderTotal:
+/*------------------------------------------------------------------------------
+ Purpose: Calculates the order balance change for a given order and updates 
+          cust order balance
+ Notes:   Orignal Source - oe/calordt.p, Deprecates - oe/calcordt.p
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipriOeOrd           AS ROWID NO-UNDO.
+    DEFINE INPUT PARAMETER iplUpdateOrdBalance AS LOGICAL NO-UNDO.
+    
+    DEFINE BUFFER bf-oe-ordl FOR oe-ordl.
+    DEFINE BUFFER bf-oe-ord  FOR oe-ord.
+    DEFINE BUFFER bf-cust    FOR cust.
+    
+    DEFINE VARIABLE lCalledFromJC       AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE dTaxCalculated      AS DECIMAL NO-UNDO INIT 0.
+    DEFINE VARIABLE dOrderCostNew       AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dOrderRevenueNew    AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dOrderTaxNew        AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dOrderWeightNew     AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dOrderFreightNew    AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dOrderRevenueOld    AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dOrderTaxOld        AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dOrderBalanceChange AS DECIMAL NO-UNDO.
+    
+    FIND FIRST oe-ord NO-LOCK
+         WHERE ROWID(oe-ord) EQ ipriOeOrd 
+         NO-ERROR.
+
+    /*so cust is not locked when it does not need to be since
+      jc-calc only updates cost*/
+    IF INDEX(PROGRAM-NAME(1),"jc-calc") > 0 OR
+       INDEX(PROGRAM-NAME(2),"jc-calc") > 0 OR
+       INDEX(PROGRAM-NAME(3),"jc-calc") > 0 OR
+       INDEX(PROGRAM-NAME(4),"jc-calc") > 0 OR
+       INDEX(PROGRAM-NAME(5),"jc-calc") > 0 THEN
+        lCalledFromJC = YES.
+
+    IF AVAILABLE oe-ord THEN DO:
+        ASSIGN
+            dOrderCostNew    = 0
+            dOrderRevenueNew = 0
+            dOrderTaxNew     = 0
+            dOrderWeightNew  = 0
+            dOrderFreightNew = 0
+            dOrderRevenueOld = 0
+            dOrderTaxOld     = 0
+            dOrderBalanceChange = 0.
+    
+        /*Recalculate Order line cost*/
+        FOR EACH bf-oe-ordl OF oe-ord NO-LOCK:
+    
+            IF bf-oe-ordl.t-cost NE bf-oe-ordl.cost * (bf-oe-ordl.qty / 1000) THEN DO:  /*Order Line Cost needs recalculated*/    
+                FIND oe-ordl EXCLUSIVE-LOCK 
+                     WHERE ROWID(oe-ordl) EQ ROWID(bf-oe-ordl)
+                     NO-ERROR NO-WAIT.
+          
+                IF NOT AVAILABLE oe-ordl OR LOCKED oe-ordl THEN 
+                    NEXT.
+      
+                oe-ordl.t-cost = oe-ordl.cost * (oe-ordl.qty / 1000).
+            END.
+        END.  /*Each bf-oe-ordl for cost recalculation*/
+    
+        /*Calculate new order totals from standard order lines*/
+        FOR EACH oe-ordl OF oe-ord NO-LOCK:
+            ASSIGN
+                dOrderCostNew    = dOrderCostNew    + oe-ordl.t-cost
+                dOrderRevenueNew = dOrderRevenueNew + oe-ordl.t-price
+                dOrderWeightNew  = dOrderWeightNew  + oe-ordl.t-weight
+                dOrderFreightNew = dOrderFreightNew + oe-ordl.t-freight
+                .
+    
+            IF oe-ordl.tax THEN DO:
+                RUN Tax_Calculate  (
+                    INPUT  oe-ord.company,
+                    INPUT  oe-ord.tax-gr,
+                    INPUT  FALSE,   /* Is this freight */
+                    INPUT  oe-ordl.t-price,
+                    INPUT  oe-ordl.i-no,
+                    OUTPUT dTaxCalculated
+                    ). 
+                dOrderTaxNew = dOrderTaxNew + dTaxCalculated.
+            END.   
+        END.  /*Each oe-ordl for Order Totals Recalculation*/
+    
+        /*Add billable misc charges to new order totals*/
+        FOR EACH oe-ordm OF oe-ord NO-LOCK
+            WHERE oe-ordm.bill NE "N":
+    
+            ASSIGN
+                dOrderRevenueNew = dOrderRevenueNew + oe-ordm.amt
+                dOrderCostNew    = dOrderCostNew    + oe-ordm.cost
+                .
+    
+            IF oe-ordm.tax THEN DO:
+                RUN Tax_Calculate  (
+                    INPUT  oe-ord.company,
+                    INPUT  oe-ord.tax-gr,
+                    INPUT  FALSE,   /* Is this freight */
+                    INPUT  oe-ordm.amt,
+                    INPUT  oe-ordm.ord-i-no,
+                    OUTPUT dTaxCalculated
+                    ). 
+                dOrderTaxNew = dOrderTaxNew + dTaxCalculated.
+            END.
+        END.  /*Each oe-ordm that are billable*/
+    
+        /*Add commission and freight to new order cost*/
+        ASSIGN
+            dOrderCostNew = dOrderCostNew + oe-ord.t-comm
+            dOrderCostNew = dOrderCostNew + dOrderFreightNew
+            .
+        
+        /*Add billable freight and corresponding tax to New Order Totals*/
+        IF oe-ord.f-bill THEN
+            dOrderRevenueNew = dOrderRevenueNew + dOrderFreightNew.
+    
+        /*Assign new order totals*/    
+        IF  oe-ord.t-cost     NE dOrderCostNew    OR
+            oe-ord.t-revenue  NE dOrderRevenueNew OR
+            oe-ord.tax        NE dOrderTaxNew     OR
+            oe-ord.t-weight   NE dOrderWeightNew  OR
+            oe-ord.t-freight  NE dOrderFreightNew THEN DO:
+                
+            ASSIGN 
+                dOrderRevenueOld = oe-ord.t-revenue
+                dOrderTaxOld     = oe-ord.tax
+                .
+                
+            FIND FIRST bf-oe-ord EXCLUSIVE-LOCK
+                 WHERE ROWID(bf-oe-ord) EQ ROWID(oe-ord)
+                 NO-ERROR.
+                 
+            ASSIGN
+                bf-oe-ord.t-cost    = dOrderCostNew  
+                bf-oe-ord.t-revenue = dOrderRevenueNew  
+                bf-oe-ord.tax       = dOrderTaxNew  
+                bf-oe-ord.t-weight  = dOrderWeightNew  
+                bf-oe-ord.t-freight = dOrderFreightNew  
+                .
+                
+            RELEASE bf-oe-ord.
+            dOrderBalanceChange = dOrderRevenueNew - dOrderRevenueOld + dOrderTaxNew - dOrderTaxOld.
+        END.
+        
+        /*Update customer order balance*/
+        IF oe-ord.cust-no           NE "" 
+            AND lCalledFromJC       EQ NO 
+            AND dOrderBalanceChange NE 0 
+            AND iplUpdateOrdBalance THEN DO:
+                
+            FIND FIRST bf-cust EXCLUSIVE-LOCK 
+                 WHERE bf-cust.company EQ oe-ord.company
+                   AND bf-cust.cust-no EQ oe-ord.cust-no
+                 NO-ERROR.
+       
+            IF AVAILABLE bf-cust THEN DO:
+                bf-cust.ord-bal = bf-cust.ord-bal + dOrderBalanceChange.
+                RELEASE bf-cust.
+            END.
+        END. /* avail cust */
+    END. /* if avail oe-ord */
+END PROCEDURE.
+
 PROCEDURE Order_CallCreateReleaseTrigger:
 /*------------------------------------------------------------------------------
  Purpose: Generice procedure to call create release trigger for sendRelease,
@@ -218,7 +381,11 @@ PROCEDURE Order_CallCreateReleaseTrigger:
     DEFINE VARIABLE cPrimaryID   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cRNoValues   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE iNumValues   AS INTEGER NO-UNDO.
-     
+
+    DEFINE VARIABLE hdOutboundProcs AS HANDLE NO-UNDO.
+
+    RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
+
     ASSIGN 
         scInstance = SharedConfig:instance. 
         cRNoValues= scInstance:ConsumeValue("RNoOERelh")
@@ -311,7 +478,105 @@ PROCEDURE Order_CallCreateReleaseTrigger:
         END.  
         RUN Outbound_ResetContext IN hdOutboundProcs.  
     END.  
+    
+    FINALLY:
+        IF VALID-HANDLE(hdOutboundProcs) THEN
+            DELETE PROCEDURE hdOutboundProcs.
+    END.
+END PROCEDURE.
 
+PROCEDURE Order_GetLinesTotal:
+/*------------------------------------------------------------------------------
+ Purpose: Returns Order lines total including freight and tax
+ Notes:   Orignal Source - ar/updCust1.p
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany         AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiOrderNo         AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTaxGroup        AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdOrderLinesTotal AS DECIMAL   NO-UNDO.
+        
+    DEFINE VARIABLE dLineQuantity AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dLinePrice    AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dTaxAmount    AS DECIMAL NO-UNDO.
+    
+    FOR EACH oe-ordl NO-LOCK
+        WHERE oe-ordl.company EQ ipcCompany
+          AND oe-ordl.ord-no  EQ ipiOrderNo:
+    
+        dLineQuantity = 0.
+    
+        IF oe-ordl.stat EQ "C" THEN 
+            dLineQuantity = oe-ordl.qty.
+    
+        ELSE
+            FOR EACH ar-invl NO-LOCK
+                WHERE ar-invl.company EQ oe-ordl.company
+                  AND ar-invl.ord-no  EQ oe-ordl.ord-no
+                  AND ar-invl.i-no    EQ oe-ordl.i-no
+                USE-INDEX ord-no:
+                  dLineQuantity = dLineQuantity + ar-invl.inv-qty.
+            END.
+    
+        dLineQuantity = IF dLineQuantity LT oe-ordl.qty THEN dLineQuantity / oe-ordl.qty ELSE 1.
+    
+        IF dLineQuantity GT 0 THEN DO:
+            ASSIGN
+               dLinePrice         = oe-ordl.t-price * dLineQuantity
+               opdOrderLinesTotal = opdOrderLinesTotal + dLinePrice
+               dTaxAmount         = 0
+               .
+                           
+            IF oe-ordl.tax THEN DO:
+                RUN Tax_Calculate(
+                    INPUT  ipcCompany, 
+                    INPUT  ipcTaxGroup,
+                    INPUT  FALSE,
+                    INPUT  dLinePrice,
+                    INPUT  oe-ordl.i-no, 
+                    OUTPUT dTaxAmount
+                    ).    
+                opdOrderLinesTotal = opdOrderLinesTotal + ROUND(dTaxAmount,2).
+            END. /* End of oe-ordl.tax */
+            IF oe-ord.f-bill THEN
+                opdOrderLinesTotal = opdOrderLinesTotal + (oe-ordl.t-freight * dLineQuantity).
+        END. /* End of IF dLineQuantity GT 0  */
+    END. /* End of For Each oe-ordl */
+END PROCEDURE.
+
+PROCEDURE Order_GetMiscAmountAndTax:
+/*------------------------------------------------------------------------------
+ Purpose: Returns Misc amount and Tax
+ Notes:   Orignal Source - ar/updcust1.p
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiOrderNo    AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTaxGroup   AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdMiscAmount AS DECIMAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdMiscTax    AS DECIMAL   NO-UNDO.
+    
+    DEFINE VARIABLE dTaxAmount AS DECIMAL NO-UNDO.
+    
+    FOR EACH oe-ordm NO-LOCK
+        WHERE oe-ordm.company EQ ipcCompany
+          AND oe-ordm.ord-no  EQ ipiOrderNo
+          AND oe-ordm.bill    EQ "I":
+    
+        ASSIGN 
+            opdMiscAmount = opdMiscAmount + oe-ordm.amt
+            dTaxAmount    = 0
+            .
+        IF oe-ordm.tax THEN DO:    
+            RUN Tax_Calculate(
+                INPUT  ipcCompany, 
+                INPUT  ipcTaxGroup,
+                INPUT  FALSE,
+                INPUT  oe-ordm.amt,
+                INPUT  oe-ordm.charge, 
+                OUTPUT dTaxAmount
+                ).  
+            opdMiscTax = opdMiscTax + ROUND(dTaxAmount,2).
+        END.  /* End of IF oe-ordm.tax */
+    END. /* End of oe-ordm */ 
 END PROCEDURE.
 
 PROCEDURE pConsolidateImportedOrderLines PRIVATE:
@@ -889,6 +1154,196 @@ PROCEDURE pGetcXMLShipToPrefix PRIVATE:
         opcShipToID = REPLACE(ipcShipToID, cXMLShipToPrefix, "").
     ELSE
         opcShipToID = ipcShipToID.
+END PROCEDURE.
+
+PROCEDURE pOrderProcsMakeBOLLinesFromSSRelBol PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany   AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiReleaseID AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiBOLID     AS INTEGER   NO-UNDO.
+        
+    DEFINE VARIABLE iBOLLine        AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iBOLQty         AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cBOLPrint       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lBOLWeight      AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cRtnBOLPrint    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lFoundBOLPrint  AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cRtnBOLWeight   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lFoundBOLWeight AS LOGICAL   NO-UNDO.
+    
+    DEFINE BUFFER bf-oe-relh        FOR oe-relh.
+    DEFINE BUFFER bf-oe-bolh        FOR oe-bolh.
+    DEFINE BUFFER bf-oe-boll        FOR oe-boll.
+    DEFINE BUFFER bf-ssrelbol       FOR ssrelbol.
+    DEFINE BUFFER bf-create-oe-boll FOR oe-boll.
+    DEFINE BUFFER bf-itemfg         FOR itemfg.
+    DEFINE BUFFER bf-loadtag        FOR loadtag.
+    
+    MAIN-BLOCK:
+    DO ON ERROR UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
+        ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
+        
+        RUN sys/ref/nk1look.p (
+            INPUT  ipcCompany, 
+            INPUT  "BOLPRINT", 
+            INPUT  "C" /* Logical */, 
+            INPUT  YES /* check by cust */, 
+            INPUT  YES /* use cust NOT vendor */, 
+            INPUT  "" /* cust */,
+            INPUT  "" /* ship-to*/,
+            OUTPUT cRtnBOLPrint, 
+            OUTPUT lFoundBOLPrint
+            ).
+        IF lFoundBOLPrint THEN
+            cBOLPrint = cRtnBOLPrint NO-ERROR. 
+                    
+        RUN sys/ref/nk1look.p (
+            INPUT  ipcCompany, 
+            INPUT  "BOLWeight", 
+            INPUT  "L" /* Logical */, 
+            INPUT  YES /* check by cust */, 
+            INPUT  YES /* use cust NOT vendor */, 
+            INPUT  "" /* cust */,
+            INPUT  "" /* ship-to*/,
+            OUTPUT cRtnBOLWeight, 
+            OUTPUT lFoundBOLWeight
+            ).
+            
+        IF lFoundBOLWeight THEN
+            lBOLWeight = LOGICAL(cRtnBOLWeight) NO-ERROR.
+        
+        FIND FIRST bf-oe-relh NO-LOCK
+             WHERE bf-oe-relh.company  EQ ipcCompany
+               AND bf-oe-relh.release# EQ ipiReleaseID 
+             NO-ERROR.
+        IF NOT AVAILABLE bf-oe-relh THEN DO:
+            UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK.
+        END.
+        
+        FIND FIRST bf-oe-bolh EXCLUSIVE-LOCK
+             WHERE bf-oe-bolh.company EQ ipcCompany
+               AND bf-oe-bolh.bol-no  EQ ipiBOLID
+             NO-ERROR.
+        IF NOT AVAILABLE bf-oe-bolh THEN DO:
+            UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK.    
+        END.
+        
+        EMPTY TEMP-TABLE ttOeBoll.
+        
+        FOR EACH bf-oe-boll EXCLUSIVE-LOCK
+            WHERE bf-oe-boll.company EQ bf-oe-bolh.company
+              AND bf-oe-boll.b-no    EQ bf-oe-bolh.b-no:
+            CREATE ttOeBoll.
+            BUFFER-COPY bf-oe-boll TO ttOeBoll.
+            
+            DELETE bf-oe-boll.
+        END.
+         
+        FOR EACH bf-ssrelbol EXCLUSIVE-LOCK
+            WHERE bf-ssrelbol.company  EQ bf-oe-relh.company
+              AND bf-ssrelbol.release# EQ bf-oe-relh.release#
+            BY bf-ssrelbol.seq:
+        
+            FIND FIRST ttOeBoll EXCLUSIVE-LOCK
+                 WHERE ttOeBoll.company EQ bf-oe-bolh.company
+                   AND ttOeBoll.b-no    EQ bf-oe-bolh.b-no
+                   AND ttOeBoll.i-no    EQ bf-ssrelbol.i-no
+                   AND ttOeBoll.ord-no  EQ bf-ssrelbol.ord-no
+                 USE-INDEX b-no NO-ERROR.
+            
+            IF AVAILABLE ttOeBoll THEN 
+                iBOLLine = ttOeBoll.bol-line.        
+            ELSE DO:
+                FIND LAST ttOeBoll EXCLUSIVE-LOCK
+                    WHERE ttOeBoll.company EQ bf-oe-bolh.company
+                      AND ttOeBoll.b-no    EQ bf-oe-bolh.b-no
+                      AND ttOeBoll.i-no    EQ bf-ssrelbol.i-no
+                    USE-INDEX bol-line NO-ERROR.
+                iBOLLine  = (IF AVAILABLE ttOeBoll THEN 
+                                 ttOeBoll.bol-line 
+                             ELSE 
+                                 0) + 1.
+            END.
+            IF NOT AVAILABLE ttOeBoll THEN 
+                UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK.
+                
+            CREATE bf-create-oe-boll.
+            BUFFER-COPY ttOeBoll EXCEPT ttOeBoll.rec_key TO bf-create-oe-boll.
+            ASSIGN
+                bf-create-oe-boll.job-no    = bf-ssrelbol.job-no
+                bf-create-oe-boll.job-no2   = bf-ssrelbol.job-no2
+                bf-create-oe-boll.loc       = bf-ssrelbol.loc
+                bf-create-oe-boll.loc-bin   = bf-ssrelbol.loc-bin
+                bf-create-oe-boll.cust-no   = bf-ssrelbol.cust-no
+                bf-create-oe-boll.tag       = bf-ssrelbol.tag#
+                bf-create-oe-boll.cases     = bf-ssrelbol.cases
+                bf-create-oe-boll.qty-case  = bf-ssrelbol.qty-case
+                bf-create-oe-boll.partial   = bf-ssrelbol.partial
+                bf-create-oe-boll.qty       = bf-ssrelbol.qty
+                bf-create-oe-boll.po-no     = bf-ssrelbol.po-no
+                bf-create-oe-boll.enteredBy = USERID("asi")
+                bf-create-oe-boll.enteredDT = DATETIME(TODAY, MTIME) 
+                .
+
+            RUN oe/pallcalc.p (
+                INPUT  ROWID(bf-create-oe-boll), 
+                OUTPUT bf-create-oe-boll.tot-pallets
+                ).
+      
+            IF bf-create-oe-boll.loc-bin EQ "" THEN 
+                bf-create-oe-boll.loc-bin = cBOLPrint.
+           
+            iBOLQty  = iBOLQty  + bf-create-oe-boll.qty.
+            
+            FIND FIRST bf-itemfg NO-LOCK 
+                 WHERE bf-itemfg.company EQ bf-create-oe-boll.company
+                   AND bf-itemfg.i-no    EQ bf-create-oe-boll.i-no
+                 NO-ERROR.
+            
+            IF AVAILABLE bf-itemfg  AND
+               bf-create-oe-boll.qty-case  EQ 0 AND
+               bf-itemfg.case-count NE 0 THEN DO:
+               
+                bf-create-oe-boll.qty-case = bf-itemfg.case-count.
+            
+                IF bf-create-oe-boll.qty-case NE 0 THEN
+                    bf-create-oe-boll.cases = TRUNC((bf-create-oe-boll.qty - bf-create-oe-boll.partial) / bf-create-oe-boll.qty-case,0).
+            END.
+    
+            IF AVAILABLE bf-itemfg THEN
+                ASSIGN
+                    bf-create-oe-boll.weight = ((((bf-create-oe-boll.cases * bf-create-oe-boll.qty-case) +
+                                                   bf-create-oe-boll.partial) / 100) * bf-itemfg.weight-100)
+                    bf-oe-bolh.tot-wt        = bf-oe-bolh.tot-wt + bf-create-oe-boll.weight
+                    .
+     
+            IF lBOLWeight AND TRIM(bf-create-oe-boll.tag) NE "" THEN 
+                FIND FIRST bf-loadtag NO-LOCK 
+                     WHERE bf-loadtag.company   EQ bf-create-oe-boll.company
+                       AND bf-loadtag.item-type EQ NO
+                       AND bf-loadtag.tag-no    EQ bf-create-oe-boll.tag 
+                     NO-ERROR.
+                     
+            IF AVAILABLE bf-loadtag THEN
+                bf-create-oe-boll.weight = ((bf-ssrelbol.cases * bf-loadtag.misc-dec[1]) + bf-loadtag.misc-dec[3]).
+            
+            IF bf-create-oe-boll.qty LT 0 THEN 
+                bf-create-oe-boll.tag = "".
+                
+            DELETE bf-ssrelbol.
+        END.
+        
+        IF (cFreightCalculationValue EQ "ALL" OR cFreightCalculationValue EQ "Bol Processing") THEN do:
+            RUN oe/calcBolFrt.p (
+                INPUT  ROWID(oe-bolh), 
+                OUTPUT bf-oe-bolh.freight
+                ).
+        END.
+    END.
+
 END PROCEDURE.
 
 PROCEDURE ProcessOrdersFromImport:
@@ -1724,8 +2179,6 @@ PROCEDURE ReleaseOrder :
             INPUT  "CreateRelease"
             ).
             
-     IF VALID-HANDLE(hdOutboundProcs) THEN
-        DELETE OBJECT hdOutboundProcs.
 END PROCEDURE.
 
 PROCEDURE ProcessImportedOrder:
@@ -2089,12 +2542,13 @@ END PROCEDURE.
 
 /* Post Releases */
 PROCEDURE OrderProcsPostReleases: 
-    DEFINE INPUT  PARAMETER ipcCompany   AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipiReleaseID AS INTEGER   NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcUserName  AS CHARACTER NO-UNDO.
-    DEFINE OUTPUT PARAMETER oplSuccess   AS LOGICAL   NO-UNDO. 
-    DEFINE OUTPUT PARAMETER opcMessage   AS CHARACTER NO-UNDO.
-    DEFINE OUTPUT PARAMETER opiBOLID     AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcCompany                    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiReleaseID                  AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER iplCreateBOLLinesFromSSRelBOL AS LOGICAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcUserName                   AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplSuccess                    AS LOGICAL   NO-UNDO. 
+    DEFINE OUTPUT PARAMETER opcMessage                    AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiBOLID                      AS INTEGER   NO-UNDO.
     
     DEFINE VARIABLE cRtnCharBol  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lRecFoundBol AS LOGICAL   NO-UNDO.
@@ -2248,7 +2702,8 @@ PROCEDURE OrderProcsPostReleases:
         RUN pOrderProcsCreateBOLLines (
             INPUT ipcCompany,
             INPUT ipiReleaseID,
-            INPUT opiBOLID
+            INPUT opiBOLID,
+            INPUT iplCreateBOLLinesFromSSRelBOL
             ).
             
         FOR EACH oe-rell WHERE oe-rell.company EQ oe-relh.company
@@ -2735,10 +3190,11 @@ PROCEDURE pOrderProcsNewBOL PRIVATE:
 END PROCEDURE.
 
 PROCEDURE pOrderProcsCreateBOLLines PRIVATE:
-    DEFINE INPUT PARAMETER ipcCompany   AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipiReleaseID AS INTEGER   NO-UNDO.
-    DEFINE INPUT PARAMETER ipiBOLID     AS INTEGER   NO-UNDO.
-
+    DEFINE INPUT PARAMETER ipcCompany                    AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiReleaseID                  AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER ipiBOLID                      AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER iplCreateBOLLinesFromSSRelBOL AS LOGICAL   NO-UNDO.
+    
     DO TRANSACTION:
         FIND FIRST oe-relh NO-LOCK
              WHERE oe-relh.company  EQ ipcCompany
@@ -2762,7 +3218,14 @@ PROCEDURE pOrderProcsCreateBOLLines PRIVATE:
             INPUT ipiReleaseID,
             INPUT ipiBOLID
             ).
-
+        
+        IF iplCreateBOLLinesFromSSRelBOL THEN
+            RUN pOrderProcsMakeBOLLinesFromSSRelBol (
+                INPUT ipcCompany,
+                INPUT ipiReleaseID,
+                INPUT ipiBOLID
+                ).
+                
         FIND FIRST oe-bolh 
              WHERE oe-bolh.company EQ ipcCompany
                AND oe-bolh.bol-no  EQ ipiBOLID
@@ -2770,13 +3233,17 @@ PROCEDURE pOrderProcsCreateBOLLines PRIVATE:
 
         FOR EACH  oe-boll EXCLUSIVE-LOCK 
             WHERE oe-boll.company EQ oe-bolh.company
-              AND oe-boll.b-no    EQ oe-bolh.b-no:
+              AND oe-boll.b-no    EQ oe-bolh.b-no
+            BREAK BY oe-boll.i-no:
               
             RUN oe/calcBolWeight.p (
                 INPUT ROWID(oe-boll), 
                 OUTPUT oe-boll.weight
                 ).
-           
+                
+            IF LAST-OF(oe-boll.i-no) THEN DO:
+                {oe/oe-bolpc.i ALL}
+            END.
         END.
         
         RUN oe/palcal2.p (
@@ -2884,7 +3351,7 @@ PROCEDURE pOrderProcsMakeBOLLs PRIVATE:
            AND oe-relh.release# EQ ipiReleaseID 
          NO-ERROR.
          
-    FIND FIRST oe-bolh NO-LOCK
+    FIND FIRST oe-bolh EXCLUSIVE-LOCK
          WHERE oe-bolh.company EQ ipcCompany
            AND oe-bolh.bol-no  EQ ipiBOLID
          NO-ERROR.
@@ -3095,10 +3562,14 @@ PROCEDURE Order_DeleteBOL:
     DEFINE OUTPUT PARAMETER oplSuccess AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
     
+    DEFINE VARIABLE hdRelLib AS HANDLE NO-UNDO.
+    
     DEFINE BUFFER bf-oe-bolh FOR oe-bolh.
     DEFINE BUFFER bf-oe-boll FOR oe-boll
     .
     DEFINE VARIABLE dOut AS DECIMAL NO-UNDO.
+    
+    RUN sbo/oerel-recalc-act.p PERSISTENT SET hdRelLib.
     
     oplSuccess = YES.
     
@@ -3177,20 +3648,26 @@ PROCEDURE Order_DeleteBOL:
                     OUTPUT oe-rel.stat
                     ).
  
-                IF AVAILABLE oe-rel AND VALID-HANDLE(lr-rel-lib) THEN 
-                    RUN recalc-act-qty IN lr-rel-lib (
+                IF AVAILABLE oe-rel AND VALID-HANDLE(hdRelLib) THEN DO:
+                    RUN recalc-act-qty IN hdRelLib (
                         INPUT ROWID(oe-rel), 
                         OUTPUT dOut
                         ).
+                
+                END.
             END.          
         END.
     
         DELETE ttUpdateOrderReleaseStatus.
     END.
-    
+        
     RELEASE bf-oe-bolh.
     RELEASE bf-oe-bolh.
-    DELETE PROCEDURE lr-rel-lib.
+
+    FINALLY:
+        IF VALID-HANDLE(hdRelLib) THEN
+            DELETE PROCEDURE hdRelLib.
+    END.
 END PROCEDURE.
 
 PROCEDURE pReleaseLineUpdateBOLStatusLinks PRIVATE:
@@ -3399,7 +3876,11 @@ PROCEDURE pRunAPIOutboundTrigger :
     DEFINE BUFFER bf-oe-rell FOR oe-rell.
     DEFINE BUFFER bf-cust    FOR cust.
     DEFINE BUFFER bf-itemfg  FOR itemfg.
-    
+
+    DEFINE VARIABLE hdOutboundProcs AS HANDLE NO-UNDO.
+
+    RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
+
     IF AVAILABLE ipbf-oe-relh THEN DO:
 
         FOR EACH bf-oe-rell NO-LOCK 
@@ -3438,7 +3919,10 @@ PROCEDURE pRunAPIOutboundTrigger :
            data inside OutboundProcs */
         RUN Outbound_ResetContext IN hdOutboundProcs.
     END.
-
+    
+    FINALLY:
+        DELETE PROCEDURE hdOutboundProcs.
+    END.
 END PROCEDURE.
 
 PROCEDURE pProcessImportedOrderHeader PRIVATE:

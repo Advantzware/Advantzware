@@ -169,12 +169,12 @@ if b-uom eq "REM" THEN
 
 if b-uom eq "" then b-uom = "MSF".
 
-if NOT xeb.pur-man AND b-uom eq "EA" and avail item and item.i-code eq "R" then do:
-  v-new-uom = if index("1234",item.mat-type) gt 0 then "BF" else "MSF".
-
-  run sys/ref/convcuom.p (b-uom, v-new-uom,
-                          item.basis-w, xef.gsh-len, xef.gsh-wid, xef.gsh-dep,
-                          b-msh, output b-msh).
-
-  b-uom = v-new-uom.
-end.  
+/*if NOT xeb.pur-man AND b-uom eq "EA" and avail item and item.i-code eq "R" then do:  */
+/*  v-new-uom = if index("1234",item.mat-type) gt 0 then "BF" else "MSF".              */  
+/*                                                                                     */
+/*  run sys/ref/convcuom.p (b-uom, v-new-uom,                                          */
+/*                          item.basis-w, xef.gsh-len, xef.gsh-wid, xef.gsh-dep,       */ 
+/*                          b-msh, output b-msh).                                      */
+/*                                                                                     */
+/*  b-uom = v-new-uom.                                                                 */
+/*end.                                                                                 */

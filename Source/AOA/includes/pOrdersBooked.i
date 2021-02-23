@@ -18,9 +18,9 @@
     DEFINE VARIABLE lAllSalesRep AS LOGICAL NO-UNDO.
     DEFINE VARIABLE cStartSalesRep AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cEndSalesRep AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE lAllProdCategory AS LOGICAL NO-UNDO.
-    DEFINE VARIABLE cStartProdCategory AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cEndProdCategory AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lAllProCat AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE cStartProCat AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cEndProCat AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lIncludePrepMiscChg AS LOGICAL NO-UNDO.
     DEFINE VARIABLE lExcludeSetComponents AS LOGICAL NO-UNDO.
     DEFINE VARIABLE lExcludeTransferReleasesOrders AS LOGICAL NO-UNDO.
@@ -56,9 +56,9 @@
         lAllSalesRep = DYNAMIC-FUNCTION("fGetParamValue","svAllSalesRep") EQ "yes"
         cStartSalesRep = DYNAMIC-FUNCTION("fGetParamValue","svStartSalesRep")
         cEndSalesRep = DYNAMIC-FUNCTION("fGetParamValue","svEndSalesRep")
-        lAllProdCategory = DYNAMIC-FUNCTION("fGetParamValue","svAllProdCategory") EQ "yes"
-        cStartProdCategory = DYNAMIC-FUNCTION("fGetParamValue","svStartProdCategory")
-        cEndProdCategory = DYNAMIC-FUNCTION("fGetParamValue","svEndProdCategory")
+        lAllProCat = DYNAMIC-FUNCTION("fGetParamValue","svAllProCat") EQ "yes"
+        cStartProCat = DYNAMIC-FUNCTION("fGetParamValue","svStartProCat")
+        cEndProCat = DYNAMIC-FUNCTION("fGetParamValue","svEndProCat")
         lIncludePrepMiscChg = DYNAMIC-FUNCTION("fGetParamValue","svIncludePrepMiscChg") EQ "yes"
         lExcludeSetComponents = DYNAMIC-FUNCTION("fGetParamValue","svExcludeSetComponents") EQ "yes"
         lExcludeTransferReleasesOrders = DYNAMIC-FUNCTION("fGetParamValue","svExcludeTransferReleasesOrders") EQ "yes"
@@ -85,10 +85,10 @@
         cEndSalesRep   = CHR(254)
         .
 
-    IF lAllProdCategory THEN
+    IF lAllProCat THEN
     ASSIGN
-        cStartProdCategory = CHR(32)
-        cEndProdCategory   = CHR(254)
+        cStartProCat = CHR(32)
+        cEndProCat   = CHR(254)
         .
 
     IF lCustList THEN

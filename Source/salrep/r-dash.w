@@ -1353,15 +1353,16 @@ PROCEDURE dso-proc :
 /*           v-total-period-bal = v-total-period-bal + account.cyr[period.pnum]. */
           v-total-period-bal = v-total-period-bal + dOpenBal.          
 /*           IF period.pstat eq YES THEN */
-         FOR each gltrans FIELDS(tr-amt) WHERE
-             gltrans.company eq account.company AND
-             gltrans.actnum  eq account.actnum AND
-             gltrans.period  eq period.pnum AND
-             gltrans.tr-date ge period.pst AND
-             gltrans.tr-date le period.pend
+         FOR each glhist FIELDS(tr-amt) WHERE
+             glhist.company eq account.company AND
+             glhist.actnum  eq account.actnum AND
+             glhist.period  eq period.pnum AND
+             glhist.tr-date ge period.pst AND
+             glhist.tr-date le period.pend AND
+             glhist.posted  EQ NO
              no-lock:
 
-             v-total-period-bal = v-total-period-bal + gltrans.tr-amt.
+             v-total-period-bal = v-total-period-bal + glhist.tr-amt.
          END.
       END.
 

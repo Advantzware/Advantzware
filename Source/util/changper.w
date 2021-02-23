@@ -363,19 +363,13 @@ DO:
      fi_to-period:SENSITIVE = YES.
 
   ELSE DO:
-    FIND FIRST gltrans NO-LOCK
-        WHERE gltrans.company EQ cocode
-          AND gltrans.trnum   EQ INT({&self-name}:SCREEN-VALUE)
-        NO-ERROR.
-    IF AVAIL gltrans THEN lv-date = gltrans.tr-date.
-
-    ELSE DO:
-      FIND FIRST glhist NO-LOCK
-          WHERE glhist.company EQ cocode
-            AND glhist.tr-num  EQ INT({&self-name}:SCREEN-VALUE)
-          NO-ERROR.
-      IF AVAIL glhist THEN lv-date = glhist.tr-date.
-    END.
+    
+    FIND FIRST glhist NO-LOCK
+      WHERE glhist.company EQ cocode
+        AND glhist.tr-num  EQ INT({&self-name}:SCREEN-VALUE)
+      NO-ERROR.
+    IF AVAIL glhist THEN lv-date = glhist.tr-date.
+   
 
     IF lv-date NE ? THEN DO:
       FIND FIRST b-period NO-LOCK
@@ -833,27 +827,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE do-gltrans C-Win 
-PROCEDURE do-gltrans :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-
-      gltrans.period = fi_to-period.
-
-      IF begin_run-no EQ gltrans.trnum THEN gltrans.tr-date = new_date.
-      ELSE
-      IF AVAIL b-period THEN
-        IF gltrans.tr-date LT b-period.pst THEN gltrans.tr-date = b-period.pst.
-        ELSE
-        IF gltrans.tr-date GT b-period.pend THEN gltrans.tr-date = b-period.pend.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI C-Win  _DEFAULT-ENABLE
 PROCEDURE enable_UI :
@@ -957,15 +930,7 @@ FOR EACH period
 
       RUN do-glhist.
     END.
-
-    FOR EACH gltrans
-        WHERE gltrans.company eq cocode
-          AND gltrans.actnum  eq account.actnum
-          AND gltrans.tr-date GE period.pst
-          AND gltrans.tr-date LE period.pend:
-
-      RUN do-gltrans.
-    END.
+        
   END.
 
   FOR EACH gl-jrn
@@ -1012,28 +977,11 @@ DO TRANSACTION:
 
     RUN do-glhist.
   END.
-
-  FOR EACH gltrans
-      WHERE gltrans.company EQ cocode
-        AND gltrans.trnum   EQ begin_run-no
-      USE-INDEX tr-num:
-
-    RUN do-gltrans.
-  END.
+   
 
   EMPTY TEMP-TABLE tt-journal.
 
-  FOR EACH gltrans NO-LOCK
-      WHERE gltrans.company EQ cocode
-        AND gltrans.trnum   EQ begin_run-no
-        AND gltrans.jrnl    EQ "GENERAL":
-        
-    IF gltrans.tr-dscr MATCHES "*JRN#" THEN NEXT.
-
-    CREATE tt-journal.
-    tt-journal = INT(SUBSTR(gltrans.tr-dscr,INDEX(gltrans.tr-dscr,"JRN#") + 4,7)).
-  END.
-
+  
   FOR EACH glhist NO-LOCK
       WHERE glhist.company EQ cocode
         AND glhist.tr-num  EQ begin_run-no

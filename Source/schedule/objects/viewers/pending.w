@@ -37,7 +37,6 @@ CREATE WIDGET-POOL.
 {{&viewers}/includes/sharedVars.i NEW}
 &SCOPED-DEFINE useTable ttblJob
 {{&includes}/jobStatusFunc.i}
-
 {methods/defines/sortByDefs.i}
 
 /* Parameters Definitions ---                                           */
@@ -1101,10 +1100,10 @@ END.
   RUN initializeObject.
 &ENDIF
 
-&Scoped-define sdBrowseName jobID
-{methods/template/brwcustom2.i 1}
-&Scoped-define sdBrowseName pendingJob
-{methods/template/brwcustom2.i 2}
+/*&Scoped-define sdBrowseName jobID     */
+/*{methods/template/brwcustom2.i 1}     */
+/*&Scoped-define sdBrowseName pendingJob*/
+/*{methods/template/brwcustom2.i 2}     */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

@@ -27,6 +27,7 @@ PROCEDURE pBusinessLogic:
     DEFINE VARIABLE cItemFG         AS CHARACTER NO-UNDO.
     DEFINE VARIABLE dMSF            AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE hDynCalcField   AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE iCount          AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iShiftStartTime AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iShiftEndTime   AS INTEGER   NO-UNDO INITIAL 86400.
     
@@ -138,7 +139,10 @@ PROCEDURE pBusinessLogic:
             ttMachineTransactions.xxRecKey       = machtran.rec_key
             ttMachineTransactions.loginDateTime  = TRIM(STRING(machtran.start_date) + " " + STRING(machtran.start_time,"hh:mm am"))
             ttMachineTransactions.logoutDateTime = TRIM(STRING(machtran.end_date) + " " + STRING(machtran.end_time,"hh:mm am"))                                
+            iCount = iCount + 1
             .
+        IF lProgressBar THEN
+        RUN spProgressBar (cProgressBar, iCount, ?).
         GET NEXT qMachTran.
     END. /* do while */
     DELETE PROCEDURE hDynCalcField.

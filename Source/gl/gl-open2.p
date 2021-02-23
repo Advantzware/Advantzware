@@ -16,12 +16,4 @@ FOR EACH glhist NO-LOCK
       AND glhist.tr-date LE ip-end:
 
   op-bal = op-bal + glhist.tr-amt.
-END.
-
-FOR EACH gltrans NO-LOCK
-    WHERE gltrans.company EQ account.company
-      AND gltrans.actnum  EQ account.actnum
-      AND gltrans.tr-date GE ip-start
-      AND gltrans.tr-date LE ip-end:  
-  op-bal = op-bal + gltrans.tr-amt.
-END.
+END.  

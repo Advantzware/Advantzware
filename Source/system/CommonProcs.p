@@ -40,6 +40,18 @@ DEFINE VARIABLE lUserAMPM           AS LOGICAL   NO-UNDO.
 
 /* ************************  Function Prototypes ********************** */
 
+&IF DEFINED(EXCLUDE-fGetNK1Cecscrn) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetNK1Cecscrn Procedure 
+FUNCTION fGetNK1Cecscrn RETURNS CHARACTER PRIVATE
+  ( ipcCompany AS CHARACTER ) FORWARD.
+  
+  /* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+  
+
 &IF DEFINED(EXCLUDE-sfCommon_CheckIntDecValue) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfCommon_CheckIntDecValue Procedure 
@@ -50,6 +62,17 @@ FUNCTION sfCommon_CheckIntDecValue RETURNS CHARACTER
 &ANALYZE-RESUME
 
 &ENDIF
+
+&IF DEFINED(EXCLUDE-sfCommon_ConvDecimalTo1632) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfCommon_ConvDecimalTo1632 Procedure 
+FUNCTION sfCommon_ConvDecimalTo1632 RETURNS DECIMAL
+  (ipcCompany AS CHARACTER, ipdValue AS DECIMAL ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF  
 
 &IF DEFINED(EXCLUDE-sfCommon_DateOptionDate) = 0 &THEN
 
@@ -687,8 +710,8 @@ PROCEDURE spCommon_CheckPostingProcess:
     DEFINE INPUT  PARAMETER iplReleaseLock    AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opcFieldInProcess AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opcFieldPostType  AS CHARACTER NO-UNDO.
-    DEFINE OUTPUT PARAMETER opcFieldUserId    AS CHARACTER NO-UNDO.
-    DEFINE OUTPUT PARAMETER opcFieldDateTime  AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcFieldUserId    AS CHARACTER NO-UNDO.     
+    DEFINE OUTPUT PARAMETER opcFieldDateTime  AS CHARACTER NO-UNDO.      
     
     define variable qh as handle no-undo.
     define variable bh as handle no-undo.
@@ -698,53 +721,99 @@ PROCEDURE spCommon_CheckPostingProcess:
     define variable fhDate as handle no-undo.
   
     DEFINE VARIABLE cQueryString AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cGetQueryString AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE h_buffer        AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE h_lquery        AS HANDLE NO-UNDO.
+    DEFINE VARIABLE lCheckLock     AS LOGICAL NO-UNDO.
                 
-    cQueryString =  "for each " + ipcTableName + " WHERE " + ipcTableName + ".company = '" + ipcFieldCompany + "'"  .
-               
-    create buffer bh for table ipcTableName.
-    create query qh.
-    qh:set-buffers( bh ).
-    qh:query-prepare( cQueryString ).
-    qh:query-open.
-  
-    do transaction:
-      qh:get-first( EXCLUSIVE-LOCK ).
-      fhProcess = bh:buffer-field( ipcFieldInProcess ).
-      fhType = bh:buffer-field( ipcFieldPostType ).
-      fhUser = bh:buffer-field( ipcFieldUserId ).
-      fhDate = bh:buffer-field( ipcFieldDateTime ).
-      IF NOT iplReleaseLock THEN
-      DO:     
-        IF fhProcess:BUFFER-VALUE EQ NO THEN
-        DO:            
-           opcFieldInProcess = "No" .
-           ASSIGN
-                fhProcess:buffer-value = "Yes"
-                fhType:buffer-value = ipcTypeValue
-                fhUser:buffer-value = USERID(LDBNAME(1))
-                fhDate:buffer-value = NOW .       
+    
+    IF NOT iplReleaseLock THEN
+    DO:
+        cGetQueryString =  "for each " + ipcTableName    .
+        CREATE BUFFER h_buffer FOR TABLE ipcTableName.
+        CREATE QUERY h_lquery.
+        h_lquery:SET-BUFFERS(h_buffer).                
+        h_lquery:QUERY-PREPARE(cGetQueryString).
+        h_lquery:QUERY-OPEN().
+     
+        h_lquery:GET-FIRST().
+    
+        REPEAT:
+            IF h_lquery:QUERY-OFF-END THEN
+                LEAVE.
+            fhProcess = h_buffer:BUFFER-FIELD( ipcFieldInProcess ).
+            fhType = h_buffer:BUFFER-FIELD( ipcFieldPostType ).
+            fhUser = h_buffer:BUFFER-FIELD( ipcFieldUserId ).
+            fhDate = h_buffer:BUFFER-FIELD( ipcFieldDateTime ).
+            IF fhProcess:BUFFER-VALUE EQ YES THEN
+            DO: 
+                lCheckLock = YES.
+                opcFieldInProcess = "Yes".
+                opcFieldPostType = fhType:BUFFER-VALUE .
+                opcFieldUserId = fhUser:BUFFER-VALUE.
+                opcFieldDateTime = fhDate:BUFFER-VALUE.
+                LEAVE.
+            END.  
+        
+            h_lquery:GET-NEXT().
         END.
-        ELSE IF fhProcess:BUFFER-VALUE EQ YES THEN
-        DO:            
-           ASSIGN
-            opcFieldInProcess = "Yes" 
-            opcFieldPostType = fhType:buffer-value
-            opcFieldUserId =  fhUser:buffer-value
-            opcFieldDateTime = fhDate:BUFFER-VALUE .    
-        END.       
-      END.
-      ELSE IF iplReleaseLock THEN
-      DO:
-         ASSIGN
-          fhProcess:buffer-value = "NO"
-          fhType:buffer-value = ""
-          fhUser:buffer-value = ""
-          fhDate:buffer-value = "".  
-      END.       
-    end.
+        DELETE OBJECT h_lquery.
+        DELETE OBJECT h_buffer . 
+    END.
+            
+    
+    IF NOT lCheckLock THEN
+    DO:    
+    
+        cQueryString =  "for each " + ipcTableName + " WHERE " + ipcTableName + ".company = '" + ipcFieldCompany + "'"  .
 
-    DELETE object bh.
-    DELETE object qh. 
+               
+        CREATE BUFFER bh FOR TABLE ipcTableName.
+        CREATE QUERY qh.
+        qh:SET-BUFFERS( bh ).
+        qh:QUERY-PREPARE( cQueryString ).
+        qh:QUERY-OPEN.
+  
+        DO TRANSACTION:
+            qh:GET-FIRST( EXCLUSIVE-LOCK ).
+            fhProcess = bh:BUFFER-FIELD( ipcFieldInProcess ).
+            fhType = bh:BUFFER-FIELD( ipcFieldPostType ).
+            fhUser = bh:BUFFER-FIELD( ipcFieldUserId ).
+            fhDate = bh:BUFFER-FIELD( ipcFieldDateTime ).
+            IF NOT iplReleaseLock THEN
+            DO:     
+                IF fhProcess:BUFFER-VALUE EQ NO THEN
+                DO:            
+                    opcFieldInProcess = "No" .
+                    ASSIGN
+                        fhProcess:BUFFER-VALUE = "Yes"
+                        fhType:BUFFER-VALUE    = ipcTypeValue
+                        fhUser:BUFFER-VALUE    = USERID(LDBNAME(1))
+                        fhDate:BUFFER-VALUE    = NOW .       
+                END.
+                ELSE IF fhProcess:BUFFER-VALUE EQ YES THEN
+                    DO:            
+                        ASSIGN
+                            opcFieldInProcess = "Yes" 
+                            opcFieldPostType  = fhType:BUFFER-VALUE
+                            opcFieldUserId    = fhUser:BUFFER-VALUE
+                            opcFieldDateTime  = fhDate:BUFFER-VALUE .    
+                    END.       
+            END.
+            ELSE IF iplReleaseLock THEN
+                DO:
+                    ASSIGN
+                        fhProcess:BUFFER-VALUE = "NO"
+                        fhType:BUFFER-VALUE    = ""
+                        fhUser:BUFFER-VALUE    = ""
+                        fhDate:BUFFER-VALUE    = "".  
+                END.       
+        END.
+        
+        DELETE object bh.
+        DELETE object qh.
+    END. /*  NOT lCheckLock*/         
+   
 
 END PROCEDURE.
 	
@@ -754,6 +823,38 @@ END PROCEDURE.
 &ENDIF
 
 /* ************************  Function Implementations ***************** */
+
+&IF DEFINED(EXCLUDE-fGetNK1Cecscrn) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetNK1Cecscrn Procedure 
+FUNCTION fGetNK1Cecscrn RETURNS CHARACTER PRIVATE
+  ( ipcCompany AS CHARACTER ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cReturnValue AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lRecFound    AS LOGICAL   NO-UNDO.
+            
+    RUN sys/ref/nk1look.p (
+        INPUT ipcCompany,         /* Company Code */ 
+        INPUT "CECSCRN",          /* sys-ctrl name */
+        INPUT "C",                /* Output return value */
+        INPUT NO,                 /* Use ship-to */
+        INPUT NO,                 /* ship-to vendor */
+        INPUT "",                 /* ship-to vendor value */
+        INPUT "",                 /* shi-id value */
+        OUTPUT cReturnValue, 
+        OUTPUT lRecFound
+        ).    
+    RETURN cReturnValue.
+    
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
 
 &IF DEFINED(EXCLUDE-sfCommon_CheckIntDecValue) = 0 &THEN
 
@@ -783,6 +884,50 @@ FUNCTION sfCommon_CheckIntDecValue RETURNS CHARACTER
         RETURN cTemp.
     ELSE
         RETURN ?. /* If no integers in the string return the unknown value. */
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
+&IF DEFINED(EXCLUDE-sfCommon_ConvDecimalTo1632) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION sfCommon_ConvDecimalTo1632 Procedure 
+FUNCTION sfCommon_ConvDecimalTo1632 RETURNS DECIMAL
+  ( ipcCompany AS CHARACTER, ipdValue AS DECIMAL ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE dReturnValue AS DECIMAL NO-UNDO.    
+    DEF VAR dli-16-32 AS DECIMAL INIT 16 NO-UNDO.
+    DEFINE VARIABLE dTotal AS DECIMAL EXTENT 2 NO-UNDO.
+    DEFINE VARIABLE cCecscrn AS CHARACTER NO-UNDO.
+    
+    cCecscrn = fGetNK1Cecscrn(ipcCompany).
+    
+    IF cCecscrn EQ "16th's" THEN.
+    ELSE IF cCecscrn EQ "32nd's" THEN
+     ASSIGN         
+        dli-16-32   = 32.
+    ELSE
+    IF cCecscrn EQ "Decimal" THEN
+      ASSIGN        
+         dli-16-32   = 1.
+         
+     dTotal[1]        = (IF cCecscrn NE "Decimal" THEN TRUNC(ipdValue,0)
+                                           ELSE ipdValue) .
+     IF cCecscrn NE "Decimal" THEN
+       ASSIGN
+       dTotal[2] = ((ipdValue - TRUNC(ipdValue,0)) * 100)
+       dTotal[1] = dTotal[1] + TRUNC(dTotal[2] / dli-16-32,0)
+       dTotal[2] = (dTotal[2] MODULO dli-16-32) / 100.
+       
+     dReturnValue = dTotal[1] + dTotal[2].        
+        
+     RETURN dReturnValue .        
 
 END FUNCTION.
 

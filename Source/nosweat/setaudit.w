@@ -34,6 +34,9 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
+&Scoped-define addRow .76
+&Scoped-define focusedRow 1.05
+
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
@@ -120,10 +123,10 @@ DEFINE TEMP-TABLE ttField NO-UNDO
     ~{&OPEN-QUERY-dbTables}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnBeforeValueFilterClear btnExit svFilter ~
-btnResetField dbTables dbFields btnResetTable svToggleAuditCreate ~
-btnSaveField svToggleAuditDelete svToggleAuditUpdate svStackTrace ~
-btnSaveTable toggleFields ResetFromDefault 
+&Scoped-Define ENABLED-OBJECTS btnResetField btnSaveField ~
+btnBeforeValueFilterClear svFilter dbTables dbFields svToggleAuditCreate ~
+svToggleAuditDelete svToggleAuditUpdate svStackTrace toggleFields btnExit ~
+btnResetTable btnSaveTable ResetFromDefault 
 &Scoped-Define DISPLAYED-OBJECTS svFilter svToggleAuditCreate ~
 svToggleAuditDelete svToggleAuditUpdate svStackTrace toggleFields 
 
@@ -204,7 +207,7 @@ DEFINE VARIABLE svFilter AS CHARACTER FORMAT "X(256)":U
 
 DEFINE RECTANGLE RECT-11
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 236 BY 2.38.
+     SIZE 237 BY 2.38.
 
 DEFINE VARIABLE svStackTrace AS LOGICAL INITIAL no 
      LABEL "Stack" 
@@ -255,7 +258,7 @@ ttField.audit
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ROW-MARKERS SEPARATORS SIZE 93 BY 30.48
-         TITLE "Fields".
+         TITLE "Fields" ROW-HEIGHT-CHARS .84.
 
 DEFINE BROWSE dbTables
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS dbTables C-Win _FREEFORM
@@ -283,53 +286,53 @@ ttTable.audit[4]
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ROW-MARKERS SEPARATORS SIZE 142 BY 30.48
-         TITLE "Database Tables".
+         TITLE "Database Tables" ROW-HEIGHT-CHARS .84.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
+     btnResetField AT ROW 1.48 COL 151 WIDGET-ID 62
+     btnSaveField AT ROW 1.48 COL 146 WIDGET-ID 64
      btnBeforeValueFilterClear AT ROW 2.43 COL 66 HELP
           "Click to Clear Value Filter" WIDGET-ID 40
-     btnOK AT ROW 1.48 COL 221 HELP
-          "Use this function to ACCEPT selected field"
-     btnExit AT ROW 1.48 COL 229 HELP
-          "Use this function to CANCEL field selecition"
-     btnSaveAsDefault AT ROW 1.48 COL 11 HELP
-          "Save As Defaults" WIDGET-ID 46
      svFilter AT ROW 2.43 COL 32 COLON-ALIGNED HELP
           "Enter Filter Value" WIDGET-ID 6
-     btnResetField AT ROW 1.48 COL 151 WIDGET-ID 62
      dbTables AT ROW 3.86 COL 2 WIDGET-ID 100
      dbFields AT ROW 3.86 COL 145 WIDGET-ID 200
-     btnResetTable AT ROW 2.91 COL 8 WIDGET-ID 60
      svToggleAuditCreate AT ROW 3.91 COL 83 HELP
           "Select to Toggle Audit Create" WIDGET-ID 4
-     btnSaveField AT ROW 1.48 COL 146 WIDGET-ID 64
      svToggleAuditDelete AT ROW 3.91 COL 98 HELP
           "Select to Toggle Audit Delete" WIDGET-ID 8
      svToggleAuditUpdate AT ROW 3.91 COL 113 HELP
           "Select to Toggle Audit Update" WIDGET-ID 10
      svStackTrace AT ROW 3.91 COL 128 HELP
           "Select to Toggle Audit Stack Trace" WIDGET-ID 42
-     btnSaveTable AT ROW 2.91 COL 3 WIDGET-ID 58
+     btnOK AT ROW 1.48 COL 221 HELP
+          "Use this function to ACCEPT selected field"
      toggleFields AT ROW 3.91 COL 221.6 HELP
           "Toggle ON/OFF" WIDGET-ID 44
+     btnExit AT ROW 1.48 COL 229 HELP
+          "Use this function to CANCEL field selecition"
+     btnSaveAsDefault AT ROW 1.48 COL 11 HELP
+          "Save As Defaults" WIDGET-ID 46
+     btnResetTable AT ROW 2.91 COL 8 WIDGET-ID 60
+     btnSaveTable AT ROW 2.91 COL 3 WIDGET-ID 58
      ResetFromDefault AT ROW 1.48 COL 3 HELP
           "Reset From Defaults" WIDGET-ID 48
      " RED : Default Value is OFF" VIEW-AS TEXT
           SIZE 27 BY .62 AT ROW 2.91 COL 87 WIDGET-ID 50
           BGCOLOR 12 FGCOLOR 15 
-     " PURPLE: Default Overridden" VIEW-AS TEXT
-          SIZE 29 BY .62 AT ROW 2.91 COL 115 WIDGET-ID 54
-          BGCOLOR 13 FGCOLOR 15 
-     " CYAN : Field Audit Overrides Exist" VIEW-AS TEXT
-          SIZE 34 BY .62 AT ROW 2.91 COL 175 WIDGET-ID 56
-          BGCOLOR 11 
      " GREEN : Default Value is ON" VIEW-AS TEXT
           SIZE 29 BY .62 AT ROW 2.91 COL 145 WIDGET-ID 52
           BGCOLOR 10 
-     RECT-11 AT ROW 1.24 COL 2 WIDGET-ID 2
+     " CYAN : Field Audit Overrides Exist" VIEW-AS TEXT
+          SIZE 34 BY .62 AT ROW 2.91 COL 175 WIDGET-ID 56
+          BGCOLOR 11 
+     " PURPLE: Default Overridden" VIEW-AS TEXT
+          SIZE 29 BY .62 AT ROW 2.91 COL 115 WIDGET-ID 54
+          BGCOLOR 13 FGCOLOR 15 
+     RECT-11 AT ROW 1.24 COL 1 WIDGET-ID 2
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -382,7 +385,7 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME DEFAULT-FRAME
    FRAME-NAME                                                           */
-/* BROWSE-TAB dbTables btnResetField DEFAULT-FRAME */
+/* BROWSE-TAB dbTables svFilter DEFAULT-FRAME */
 /* BROWSE-TAB dbFields dbTables DEFAULT-FRAME */
 /* SETTINGS FOR BUTTON btnOK IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
@@ -581,8 +584,8 @@ END.
 ON VALUE-CHANGED OF dbFields IN FRAME DEFAULT-FRAME /* Fields */
 DO:
     ASSIGN
-        btnSaveField:ROW  = SELF:ROW + .86 + SELF:FOCUSED-ROW * .81
-        btnResetField:ROW = SELF:ROW + .86 + SELF:FOCUSED-ROW * .81
+        btnSaveField:ROW  = SELF:ROW + {&addRow} + SELF:FOCUSED-ROW * {&focusedRow}
+        btnResetField:ROW = SELF:ROW + {&addRow} + SELF:FOCUSED-ROW * {&focusedRow}
         .
     btnSaveField:MOVE-TO-TOP().
     btnResetField:MOVE-TO-TOP().
@@ -630,7 +633,6 @@ ON ROW-LEAVE OF dbTables IN FRAME DEFAULT-FRAME /* Database Tables */
 DO:
     IF BROWSE {&SELF-NAME}:MODIFIED THEN
     fSetSaveButton (YES).
-/*    fSetSaveButton (YES).*/
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -642,12 +644,13 @@ ON VALUE-CHANGED OF dbTables IN FRAME DEFAULT-FRAME /* Database Tables */
 DO:
     {&OPEN-QUERY-dbFields}
     ASSIGN
-        btnSaveTable:ROW  = SELF:ROW + .86 + SELF:FOCUSED-ROW * .81
-        btnResetTable:ROW = SELF:ROW + .86 + SELF:FOCUSED-ROW * .81
+        btnSaveTable:ROW  = SELF:ROW + {&addRow} + SELF:FOCUSED-ROW * {&focusedRow}
+        btnResetTable:ROW = SELF:ROW + {&addRow} + SELF:FOCUSED-ROW * {&focusedRow}
         .
     btnSaveTable:MOVE-TO-TOP().
     btnResetTable:MOVE-TO-TOP().
     APPLY "VALUE-CHANGED":U TO BROWSE dbFields.
+    APPLY "ROW-LEAVE":U TO BROWSE dbTables.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -658,7 +661,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ResetFromDefault C-Win
 ON CHOOSE OF ResetFromDefault IN FRAME DEFAULT-FRAME /* Reset ALL From Defaults */
 DO:
-    RUN pResetFromDefault.  
+    RUN pResetFromDefault.
+    fSetSaveButton (NO).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -760,9 +764,31 @@ ON CLOSE OF THIS-PROCEDURE
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
 
-ON "VALUE-CHANGED":U OF ttTable.Audit[3]
+ON VALUE-CHANGED OF ttField.audit
 DO:
+    ttField.audit = NOT ttField.audit.
+    fSetSaveButton (YES).
+END.
+
+ON VALUE-CHANGED OF ttTable.Audit[1]
+DO:
+    APPLY "ROW-LEAVE":U TO BROWSE dbTables.
+END.
+
+ON VALUE-CHANGED OF ttTable.Audit[2]
+DO:
+    APPLY "ROW-LEAVE":U TO BROWSE dbTables.
+END.
+
+ON VALUE-CHANGED OF ttTable.Audit[3]
+DO:
+    APPLY "ROW-LEAVE":U TO BROWSE dbTables.
     RUN pSetFieldAudit (BROWSE dbTables ttTable.Audit[3]).
+END.
+
+ON VALUE-CHANGED OF ttTable.Audit[4]
+DO:
+    APPLY "ROW-LEAVE":U TO BROWSE dbTables.
 END.
 
 &IF DEFINED(UIB_is_Running) EQ 0 &THEN
@@ -792,7 +818,6 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       toggleFields:MOVE-TO-TOP().
       ASSIGN
         lSuperAdmin              = DYNAMIC-FUNCTION("sfIsUserSuperAdmin")
-/*        btnSaveAsDefault:HIDDEN  = NOT lSuperAdmin*/
         btnSaveTable:HIDDEN      = NOT lSuperAdmin
         btnSaveField:HIDDEN      = NOT lSuperAdmin
         BROWSE dbtables:MODIFIED = NO
@@ -844,10 +869,10 @@ PROCEDURE enable_UI :
   DISPLAY svFilter svToggleAuditCreate svToggleAuditDelete svToggleAuditUpdate 
           svStackTrace toggleFields 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE btnBeforeValueFilterClear btnExit svFilter btnResetField dbTables 
-         dbFields btnResetTable svToggleAuditCreate btnSaveField 
-         svToggleAuditDelete svToggleAuditUpdate svStackTrace btnSaveTable 
-         toggleFields ResetFromDefault 
+  ENABLE btnResetField btnSaveField btnBeforeValueFilterClear svFilter dbTables 
+         dbFields svToggleAuditCreate svToggleAuditDelete svToggleAuditUpdate 
+         svStackTrace toggleFields btnExit btnResetTable btnSaveTable 
+         ResetFromDefault 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
@@ -1225,6 +1250,7 @@ PROCEDURE pSetAudit :
     END. /* each tttable */
     {&OPEN-QUERY-dbTables}
     APPLY "VALUE-CHANGED":U TO BROWSE dbTables.
+    fSetSaveButton (YES).
     SESSION:SET-WAIT-STATE("").
 
 END PROCEDURE.

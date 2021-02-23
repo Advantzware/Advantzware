@@ -536,7 +536,7 @@ OR ENDKEY OF {&WINDOW-NAME} ANYWHERE
 ON WINDOW-CLOSE OF C-Win /* Invoice Register */
 DO:         
         RUN spCommon_CheckPostingProcess(INPUT "ar-ctrl", INPUT "postInProcess", INPUT "postType", INPUT "postUserID",
-                                        INPUT "postStartDtTm", INPUT cocode, INPUT "OB4", INPUT YES, 
+                                        INPUT "postStartDtTm", INPUT cocode, INPUT STRING("OB4-" + STRING(cocode)), INPUT YES, 
                                         OUTPUT cFieldInProcess, OUTPUT cFieldPostType, OUTPUT cFieldUserId, OUTPUT cFieldDateTime). 
         /* This event will close the window and terminate the procedure.  */
         DELETE OBJECT hNotesProcs.
@@ -584,7 +584,7 @@ ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
     
         RUN spCommon_CheckPostingProcess(INPUT "ar-ctrl", INPUT "postInProcess", INPUT "postType", INPUT "postUserID",
-                                        INPUT "postStartDtTm", INPUT cocode, INPUT "OB4", INPUT YES, 
+                                        INPUT "postStartDtTm", INPUT cocode, INPUT STRING("OB4-" + STRING(cocode)), INPUT YES, 
                                         OUTPUT cFieldInProcess, OUTPUT cFieldPostType, OUTPUT cFieldUserId, OUTPUT cFieldDateTime). 
                                         
         IF VALID-HANDLE(hdOutboundProcs) THEN
@@ -994,7 +994,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     END.
     
     RUN spCommon_CheckPostingProcess(INPUT "ar-ctrl", INPUT "postInProcess", INPUT "postType", INPUT "postUserID",
-                                        INPUT "postStartDtTm", INPUT cocode, INPUT "OB4", INPUT NO, 
+                                        INPUT "postStartDtTm", INPUT cocode, INPUT STRING("OB4-" + cocode), INPUT NO, 
                                         OUTPUT cFieldInProcess, OUTPUT cFieldPostType, OUTPUT cFieldUserId, OUTPUT cFieldDateTime).
     IF cFieldInProcess EQ "Yes" THEN
     DO:    
@@ -1158,29 +1158,24 @@ PROCEDURE check-date :
           Parameters:  <none>
           Notes:       
         ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lSuccess AS LOGICAL NO-UNDO. 
     DO WITH FRAME {&frame-name}:
         v-invalid = NO.
+        
+        RUN GL_CheckModClosePeriod(input cocode, input DATE(tran-date), input "AR", output cMessage, output lSuccess ) .  
+        IF NOT lSuccess then 
+        DO:
+           MESSAGE cMessage VIEW-AS ALERT-BOX INFO.
+           v-invalid = YES.
+        END.  
 
         FIND FIRST period                   
             WHERE period.company EQ cocode
             AND period.pst     LE tran-date
             AND period.pend    GE tran-date
             NO-LOCK NO-ERROR.
-        IF AVAILABLE period THEN 
-        DO:
-            IF NOT period.pstat THEN 
-            DO:
-                MESSAGE "Period Already Closed. " VIEW-AS ALERT-BOX ERROR.
-                v-invalid = YES.
-            END.
-            tran-period:SCREEN-VALUE = STRING(period.pnum).
-        END.
-
-        ELSE 
-        DO:
-            MESSAGE "No Defined Period Exists for" tran-date VIEW-AS ALERT-BOX ERROR.
-            v-invalid = YES.
-        END.
+        IF AVAILABLE period THEN tran-period:SCREEN-VALUE = STRING(period.pnum).       
     END.
 END PROCEDURE.
 

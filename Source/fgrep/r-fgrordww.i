@@ -61,10 +61,12 @@ for each itemfg
   BUFFER bitemfg:FIND-BY-ROWID(ROWID(itemfg)) .
   ASSIGN
   v-whse-bin-found = NO
-  v-qty-onh = 0
-  v-sales-rep = "".
-  cMachine = "" .
-  cCsrName = "".
+  v-qty-onh        = 0
+  v-sales-rep      = ""
+  cMachine         = ""
+  cCsrName         = ""
+  cGroup           = ""
+  cItemLocation    = "".
   /*Added for premier mod 08291201*/
   FIND FIRST cust WHERE cust.company = itemfg.company
       AND cust.cust-no = itemfg.cust-no NO-LOCK NO-ERROR.
@@ -86,10 +88,10 @@ for each itemfg
   END.
   ELSE v-sales-rep = "" .
   
-  IF v-custown = NO THEN
+IF v-custown = NO THEN  
   FOR EACH fg-bin FIELDS(qty)
     WHERE fg-bin.company EQ itemfg.company
-    AND fg-bin.i-no    EQ itemfg.i-no
+    AND fg-bin.i-no    EQ itemfg-loc.i-no
     AND fg-bin.loc     EQ itemfg-loc.loc
     AND fg-bin.cust-no EQ ""
     NO-LOCK:
@@ -97,7 +99,7 @@ for each itemfg
     v-qty-onh = v-qty-onh + fg-bin.qty
     v-whse-bin-found = YES.
   END.
-  ELSE
+ELSE
   FOR EACH fg-bin FIELDS(qty)
     WHERE fg-bin.company EQ itemfg.company
     AND fg-bin.i-no    EQ itemfg-loc.i-no
@@ -119,7 +121,9 @@ for each itemfg
 
   ASSIGN
   v-alloc-qty = 0
-  v-qty-avail = v-qty-onh + (if v-inconh then itemfg-loc.q-ono else 0).
+  v-qty-avail = v-qty-onh + (if v-inconh then itemfg-loc.q-ono else 0)
+  cGroup           = itemfg.spare-char-1
+  cItemLocation    = itemfg.def-loc.
   
   /* q-alloc is a calculation in I-F-1, but reinstating in 07181302 */
   /* since q-alloc should now be accurate                           */
@@ -398,7 +402,7 @@ for each itemfg
               				 cExcelVarValue = "". 
             WHEN "whse" THEN ASSIGN cVarValue = STRING(itemfg-loc.loc,"x(5)") 
                               cExcelVarValue = "".
-            WHEN "est-rout" THEN ASSIGN cVarValue = STRING(cMachine,"X(30)")
+            WHEN "est-rout" THEN ASSIGN cVarValue = STRING(cMachine,"X(200)")
                               cExcelVarValue = "".
             WHEN "est-style" THEN ASSIGN cVarValue = STRING(cEstStyle,"X(9)")
                               cExcelVarValue = "".
@@ -424,7 +428,10 @@ for each itemfg
                     ELSE cExcelVarValue = cExcelVarValue + quoter(STRING(li-hist[j],"->>>>>9")) + "," .
                 END.
             END.
-            
+            WHEN "item-location" THEN ASSIGN cVarValue = STRING(cItemLocation,"X(15)")
+                               cExcelVarValue = "".
+            WHEN "group" THEN ASSIGN cVarValue = STRING(cGroup,"X(15)")
+                               cExcelVarValue = "".
           END CASE.
           IF cExcelVarValue = "" THEN cExcelVarValue = cVarValue.
           cDisplay = cDisplay + cVarValue +
@@ -522,7 +529,7 @@ for each itemfg
 				cExcelVarValue = "". 
           WHEN "whse" THEN ASSIGN cVarValue = STRING(itemfg-loc.loc,"x(5)") 
                               cExcelVarValue = "".
-          WHEN "est-rout" THEN ASSIGN cVarValue = STRING(cMachine,"X(30)")
+          WHEN "est-rout" THEN ASSIGN cVarValue = STRING(cMachine,"X(200)")
                               cExcelVarValue = "".
           WHEN "est-style" THEN ASSIGN cVarValue = STRING(cEstStyle,"X(9)")
                               cExcelVarValue = "".
@@ -546,6 +553,10 @@ for each itemfg
                   cExcelVarValue = cExcelVarValue + quoter(STRING(li-hist[j],"->>>>>9")) + "," .
               END.
           END.
+          WHEN "item-location" THEN ASSIGN cVarValue = STRING(cItemLocation,"X(15)")
+                              cExcelVarValue = "".
+          WHEN "group" THEN ASSIGN cVarValue = STRING(cGroup,"X(15)")
+                              cExcelVarValue = "".
         END CASE.
         IF cExcelVarValue = "" THEN cExcelVarValue = cVarValue.
 

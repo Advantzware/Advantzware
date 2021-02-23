@@ -1562,8 +1562,9 @@ PROCEDURE valid-mach :
                 i = INT(adm-new-record).
                 FOR EACH xop NO-LOCK
                     WHERE xop.company EQ est-op.company
-                    AND xop.est-no  EQ est-op.est-no
-                    AND (xop.qty    EQ est-op.qty OR est.est-type GE 2)
+                    AND xop.est-no  EQ est-op.est-no                      
+                    AND ((xop.qty eq est-qty.eqty and est.est-type ne 4) OR 
+                    (xop.qty eq est-op.qty and est.est-type ge 3))
                     AND xop.s-num   EQ b-ef.form-no
                     AND xop.line    LT 500
                     AND (ROWID(xop) NE ROWID(est-op) OR NOT adm-new-record)

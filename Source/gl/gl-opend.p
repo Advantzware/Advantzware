@@ -24,14 +24,6 @@ IF AVAIL period THEN DO:
         AND glhist.tr-date LT ip-date:
 
     op-bal = op-bal + glhist.tr-amt.
-  END.
-
-  FOR EACH gltrans NO-LOCK
-      WHERE gltrans.company EQ account.company
-        AND gltrans.actnum  EQ account.actnum
-        AND gltrans.tr-date GE period.pst 
-        AND gltrans.tr-date LT ip-date:
-
-    op-bal = op-bal + gltrans.tr-amt.
-  END.
+  END.      
+  
 END.

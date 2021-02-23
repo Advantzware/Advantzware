@@ -522,7 +522,7 @@ DO:
             RUN system/openLookup.p (
             INPUT  g_company, 
             INPUT  "",  /* Lookup ID */
-            INPUT  87,  /* Subject ID */
+            INPUT  107,  /* Subject ID */
             INPUT  "",  /* User ID */
             INPUT  0,   /* Param Value ID */
             OUTPUT cFieldsValue, 

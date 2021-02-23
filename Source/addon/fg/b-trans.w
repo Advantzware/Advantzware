@@ -35,6 +35,8 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 &SCOPED-DEFINE yellowColumnsName b-trans
+&SCOPED-DEFINE winReSize
+{methods/defines/winReSize.i}
 
 {custom/gcompany.i}
 {custom/gloc.i}
@@ -62,6 +64,7 @@ DEFINE VARIABLE lFgEmails AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE hInventoryProcs AS HANDLE NO-UNDO.
 DEFINE VARIABLE lActiveBin AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lPromptForClose AS LOGICAL NO-UNDO INITIAL YES.
+DEFINE VARIABLE iWarehouseLength      AS INTEGER   NO-UNDO.
 
 {pc/pcprdd4u.i NEW}
 {fg/invrecpt.i NEW}
@@ -694,11 +697,17 @@ END.
 ON LEAVE OF fg-rctd.loc IN BROWSE Browser-Table /* From!Whse */
 DO:
   IF LASTKEY NE -1 THEN DO:
-     IF LENGTH(SELF:SCREEN-VALUE) > 5 THEN DO:
+  
+      RUN Inventory_GetWarehouseLength IN hInventoryProcs (
+        INPUT  cocode,
+        OUTPUT iWarehouseLength
+        ).
+        
+     IF LENGTH(SELF:SCREEN-VALUE) > iWarehouseLength THEN DO:
           DEF VAR v-locbin AS cha NO-UNDO.
           v-locbin = SELF:SCREEN-VALUE.
-          ASSIGN fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name} = SUBSTRING(v-locbin,1,5)
-                 fg-rctd.loc-bin:SCREEN-VALUE = SUBSTRING(v-locbin,6,8).
+          ASSIGN fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name} = SUBSTRING(v-locbin,1,iWarehouseLength)
+                 fg-rctd.loc-bin:SCREEN-VALUE = SUBSTRING(v-locbin,iWarehouseLength + 1).
      END.
 
      RUN valid-job-loc-bin-tag NO-ERROR.
@@ -813,18 +822,23 @@ DO:
   DEF VAR lv-scanned-loc AS cha NO-UNDO.
 
   IF LASTKEY NE -1 THEN DO:
+         RUN Inventory_GetWarehouseLength IN hInventoryProcs (
+        INPUT  cocode,
+        OUTPUT iWarehouseLength
+        ).
+        
     lv-scanned-loc = focus:SCREEN-VALUE.
-    IF LENGTH(SELF:SCREEN-VALUE) > 5 THEN DO:
+    IF LENGTH(SELF:SCREEN-VALUE) > iWarehouseLength THEN DO:
           DEF VAR v-locbin AS cha NO-UNDO.
           v-locbin = FOCUS:SCREEN-VALUE.
-          ASSIGN fg-rctd.loc2:SCREEN-VALUE IN BROWSE {&browse-name} = SUBSTRING(v-locbin,1,5)
-                 fg-rctd.loc-bin2:SCREEN-VALUE = SUBSTRING(v-locbin,6,8).
+          ASSIGN fg-rctd.loc2:SCREEN-VALUE IN BROWSE {&browse-name} = SUBSTRING(v-locbin,1,iWarehouseLength)
+                 fg-rctd.loc-bin2:SCREEN-VALUE = SUBSTRING(v-locbin,iWarehouseLength + 1).
        END.
 
     RUN valid-loc2 NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
-    IF length(lv-scanned-loc) > 5 THEN do:
+    IF length(lv-scanned-loc) > iWarehouseLength THEN do:
        RUN valid-loc-bin2 NO-ERROR.    
        IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
        APPLY "tab" TO fg-rctd.loc-bin2 IN BROWSE {&browse-name} .       
@@ -970,6 +984,7 @@ ASSIGN sstransf-log = sys-ctrl.log-fld
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF
+{methods/winReSize.i}
 /* Ticket# : 92946
    Hiding this widget for now, as browser's column label should be indicating the column which is sorted by */
 fi_sortby:HIDDEN  = TRUE.
@@ -1801,6 +1816,7 @@ PROCEDURE local-update-record :
 ------------------------------------------------------------------------------*/
   DEF VAR v-dumb AS LOG NO-UNDO.
   DEF VAR v-progstack AS CHAR NO-UNDO.
+  DEFINE VARIABLE lInvalid AS LOGICAL NO-UNDO.  
 
 v-progstack = (IF PROGRAM-NAME(1) NE ? THEN "," + PROGRAM-NAME(1) ELSE "") 
         + (IF PROGRAM-NAME(2) NE ? THEN "," + PROGRAM-NAME(2) ELSE "")
@@ -1862,7 +1878,11 @@ v-progstack = (IF PROGRAM-NAME(1) NE ? THEN "," + PROGRAM-NAME(1) ELSE "")
                    AND loadtag.tag-no = fg-rctd.tag2 NO-LOCK NO-ERROR.
     */
   IF lPostAuto-log THEN
+  DO:
+     RUN pCheckPeriod(OUTPUT lInvalid).
+     IF NOT lInvalid THEN 
      RUN auto-post.
+  END.   
   lv-new-tag-number-chosen = ?.
   /* Workaround: if tab through to row-leave, scan-next doesn't get run */
   /* so if we're not here because of p-updbar, then run it              */
@@ -2099,6 +2119,30 @@ PROCEDURE state-changed :
          or add new cases. */
       {src/adm/template/bstates.i}
   END CASE.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckPeriod B-table-Win 
+PROCEDURE pCheckPeriod :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  define output parameter oplReturnNotValidPost as logical no-undo.
+  DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE lSuccess AS LOGICAL NO-UNDO.
+    oplReturnNotValidPost = no.
+    
+    RUN GL_CheckModClosePeriod(input cocode, input today, input "FG", output cMessage, output lSuccess ) .  
+    if not lSuccess then 
+    do:
+      message cMessage view-as alert-box info.
+      oplReturnNotValidPost = yes.
+    end.  
+     
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

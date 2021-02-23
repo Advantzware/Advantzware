@@ -45,6 +45,9 @@ DEFINE BUFFER jasperUserPrint FOR user-print.
 {AOA/includes/aoaProcedures.i}
 {AOA/includes/pRunBusinessLogic.i}
 
+DEFINE STREAM sLocalCSV.
+DEFINE STREAM sJasper.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -395,7 +398,7 @@ PROCEDURE pJasperBackgroundBand :
   Notes:       
 ------------------------------------------------------------------------------*/
     /* background band */
-    PUT UNFORMATTED
+    PUT STREAM sJasper UNFORMATTED
         "    <background>" SKIP
         "        <band splitType=~"Stretch~"/>" SKIP
         "    </background>" SKIP
@@ -418,12 +421,12 @@ PROCEDURE pJasperColumnFooterBand :
   Notes:       
 ------------------------------------------------------------------------------*/
     /* column footer band */
-    PUT UNFORMATTED
+    PUT STREAM sJasper UNFORMATTED
         "    <columnFooter>" SKIP
         "        <band height=~"" 14 "~" splitType=~"Stretch~">" SKIP
         .
     RUN pJasperGroupType ("Column").
-    PUT UNFORMATTED
+    PUT STREAM sJasper UNFORMATTED
         "        </band>" SKIP
         "    </columnFooter>" SKIP
         .
@@ -447,7 +450,7 @@ PROCEDURE pJasperColumnHeaderBand :
     DEFINE BUFFER ttColumn FOR ttColumn.
     
     /* column header band */
-    PUT UNFORMATTED
+    PUT STREAM sJasper UNFORMATTED
         "    <columnHeader>" SKIP
         "        <band height=~"" 14 "~" splitType=~"Stretch~">" SKIP
         .
@@ -455,7 +458,7 @@ PROCEDURE pJasperColumnHeaderBand :
         WHERE ttColumn.isActive EQ YES
            BY ttColumn.ttOrder
         :
-        PUT UNFORMATTED
+        PUT STREAM sJasper UNFORMATTED
             "            <staticText>" SKIP
             "                <reportElement "
             "x=~"" ttColumn.ttJasperColumn "~" "
@@ -465,10 +468,10 @@ PROCEDURE pJasperColumnHeaderBand :
             "                    <textElement"
             .
         IF CAN-DO("Decimal,Integer",ttColumn.ttType) THEN
-        PUT UNFORMATTED
+        PUT STREAM sJasper UNFORMATTED
             " textAlignment=~"Right~""
             .
-        PUT UNFORMATTED
+        PUT STREAM sJasper UNFORMATTED
             ">" SKIP
             "                        <font isBold=~"true~" isUnderline=~"true~"/>" SKIP
             "                    </textElement>" SKIP
@@ -476,7 +479,7 @@ PROCEDURE pJasperColumnHeaderBand :
             "            </staticText>" SKIP
             .
         END. /* each ttColumn */
-    PUT UNFORMATTED
+    PUT STREAM sJasper UNFORMATTED
         "        </band>" SKIP
         "    </columnHeader>" SKIP
         .
@@ -532,7 +535,7 @@ PROCEDURE pJasperDetailBand :
     DEFINE BUFFER ttColumn FOR ttColumn.
     
     /* detail band */
-    PUT UNFORMATTED
+    PUT STREAM sJasper UNFORMATTED
         "    <detail>" SKIP
         "        <band height=~"" 14 "~" splitType=~"Stretch~">" SKIP
         "            <rectangle radius=~"" 0 "~">" SKIP
@@ -556,14 +559,14 @@ PROCEDURE pJasperDetailBand :
         WHERE ttColumn.isActive EQ YES
            BY ttColumn.ttOrder
         :
-        PUT UNFORMATTED
+        PUT STREAM sJasper UNFORMATTED
             "            <textField isBlankWhenNull=~"true~""
             .
         IF CAN-DO("Decimal,Integer",ttColumn.ttType) THEN
-        PUT UNFORMATTED
+        PUT STREAM sJasper UNFORMATTED
             " pattern=~"" fJasperPattern(ttColumn.ttFormat) "~""
             .
-        PUT UNFORMATTED
+        PUT STREAM sJasper UNFORMATTED
             ">" SKIP
             "                <reportElement "
             "x=~"" ttColumn.ttJasperColumn "~" "
@@ -574,7 +577,7 @@ PROCEDURE pJasperDetailBand :
             "                </reportElement>" SKIP
             .
         IF CAN-DO("Decimal,Integer",ttColumn.ttType) THEN
-        PUT UNFORMATTED
+        PUT STREAM sJasper UNFORMATTED
             "                <textElement textAlignment=~"Right~"/>" SKIP
             .
         IF ttColumn.ttFormula NE "" AND INDEX(ttColumn.ttFormula,"|") EQ 0 THEN
@@ -587,13 +590,13 @@ PROCEDURE pJasperDetailBand :
             cFieldName = REPLACE(cFieldName,"]","")
             cFieldName = "$F~{" + cFieldName + "}"
             . 
-        PUT UNFORMATTED
+        PUT STREAM sJasper UNFORMATTED
             "                <textFieldExpression><![CDATA[" cFieldName
             "]]></textFieldExpression>" SKIP
             "            </textField>" SKIP
             .
     END. /* each ttColumn */
-    PUT UNFORMATTED
+    PUT STREAM sJasper UNFORMATTED
         "        </band>" SKIP
         "    </detail>" SKIP
         .
@@ -642,7 +645,7 @@ PROCEDURE pJasperFieldDeclarations :
             cData      = IF ttColumn.ttFormula NE "" AND INDEX(ttColumn.ttFormula,"|") EQ 0 THEN ttColumn.ttFormula
                          ELSE cFieldName
             .
-        PUT UNFORMATTED
+        PUT STREAM sJasper UNFORMATTED
             "    <field name=~"" cFieldName "~" class=~"java.lang." cDataType "~">" SKIP
             "        <property name=~"net.sf.jasperreports.xpath.field.expression~" value=~"" cFieldName "~"/>" SKIP
             "        <fieldDescription><![CDATA[" cData "]]></fieldDescription>" SKIP
@@ -673,7 +676,7 @@ PROCEDURE pJasperGroupDeclarations :
         WHERE ttColumn.isGroup EQ YES
            BY ttColumn.ttOrder
         :
-        PUT UNFORMATTED
+        PUT STREAM sJasper UNFORMATTED
             "    <group name=~"" REPLACE(ttColumn.ttLabel," ","_") + "_Group~">" SKIP
             "        <groupExpression><![CDATA[$F~{"
             (IF ttColumn.ttTable NE "" THEN ttColumn.ttTable + "__" ELSE "")
@@ -683,7 +686,7 @@ PROCEDURE pJasperGroupDeclarations :
         RUN pJasperGroupHeader (ROWID(ttColumn)).
         IF svShowGroupFooter THEN
         RUN pJasperGroupFooter (ROWID(ttColumn)).
-        PUT UNFORMATTED 
+        PUT STREAM sJasper UNFORMATTED 
             "    </group>" SKIP
             .
     END. /* each ttColumn */
@@ -715,7 +718,7 @@ PROCEDURE pJasperGroupFooter :
     cGroupLabel = IF ttColumn.ttGroupLabel NE "" THEN ttColumn.ttGroupLabel
                   ELSE "** " + ttColumn.ttLabel + " **"
                   .
-    PUT UNFORMATTED
+    PUT STREAM sJasper UNFORMATTED
         "        <groupFooter>" SKIP
         "            <band height=~"" 20 "~" splitType=~"Stretch~">" SKIP
         "                <staticText>" SKIP
@@ -745,7 +748,7 @@ PROCEDURE pJasperGroupFooter :
         cPattern = "#,###,###,###".
         ELSE
         cPattern = fJasperPattern(bttColumn.ttFormat).
-        PUT UNFORMATTED
+        PUT STREAM sJasper UNFORMATTED
             "                <textField isBlankWhenNull=~"true~" pattern=~"" cPattern "~">" SKIP
             "                    <reportElement "
             "x=~"" IF bttColumn.ttJasperColumn GE 110 THEN bttColumn.ttJasperColumn ELSE 110 "~" "
@@ -765,7 +768,7 @@ PROCEDURE pJasperGroupFooter :
             "                </textField>" SKIP
             .
     END. /* each bttColumn */
-    PUT UNFORMATTED
+    PUT STREAM sJasper UNFORMATTED
         "            </band>" SKIP
         "        </groupFooter>" SKIP
         .
@@ -787,7 +790,7 @@ PROCEDURE pJasperGroupHeader :
 ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER iprRowID AS ROWID NO-UNDO.
     
-    PUT UNFORMATTED
+    PUT STREAM sJasper UNFORMATTED
         "        <groupHeader>" SKIP
         "            <band height=~"" 0 "~" splitType=~"Stretch~"/>" SKIP
         "        </groupHeader>" SKIP
@@ -824,7 +827,7 @@ PROCEDURE pJasperGroupType :
               BY ttColumn.ttOrder
         :
         IF FIRST-OF(ttGroupCalc.ttGroup) THEN
-        PUT UNFORMATTED
+        PUT STREAM sJasper UNFORMATTED
             "            <staticText>" SKIP
             "                <reportElement "
             "x=~"" 0 "~" "
@@ -843,7 +846,7 @@ PROCEDURE pJasperGroupType :
         cPattern = "#,###,###,###".
         ELSE
         cPattern = fJasperPattern(ttColumn.ttFormat).
-        PUT UNFORMATTED
+        PUT STREAM sJasper UNFORMATTED
             "            <textField isBlankWhenNull=~"true~" pattern=~"" cPattern "~">" SKIP
             "                <reportElement "
             "x=~"" IF ttColumn.ttJasperColumn GE 110 THEN ttColumn.ttJasperColumn ELSE 110 "~" "
@@ -854,7 +857,7 @@ PROCEDURE pJasperGroupType :
             "                    <topPen lineWidth=~"1.0~"/>" SKIP
             .
         IF ttGroupCalc.ttGroup EQ "Report" THEN
-        PUT UNFORMATTED
+        PUT STREAM sJasper UNFORMATTED
             "                    <bottomPen lineWidth=~"1.0~"/>" SKIP
             .
         ASSIGN
@@ -862,7 +865,7 @@ PROCEDURE pJasperGroupType :
             cFieldName = REPLACE(cFieldName,"[","")
             cFieldName = REPLACE(cFieldName,"]","")
             .
-        PUT UNFORMATTED
+        PUT STREAM sJasper UNFORMATTED
             "                </box>" SKIP
             "                <textElement textAlignment=~"Right~">" SKIP
             "                    <font isBold=~"true~"/>" SKIP
@@ -909,8 +912,8 @@ PROCEDURE pJasperJSON:
         OS-CREATE-DIR "users\_default".
         OS-CREATE-DIR VALUE("users\" + aoaUserID).
         cJasperFile = "users\" + aoaUserID + "\" + REPLACE(aoaTitle," ","") + ".json".
-        OUTPUT TO VALUE(cJasperFile).
-        PUT UNFORMATTED
+        OUTPUT STREAM sJasper TO VALUE(cJasperFile).
+        PUT STREAM sJasper UNFORMATTED
             "~{" SKIP
             FILL(" ",2)
             "~"" REPLACE(aoaTitle," ","_") "~": ~{" SKIP
@@ -937,10 +940,10 @@ PROCEDURE pJasperJSON:
             IF hQuery:QUERY-OFF-END THEN LEAVE.
             IF hQueryBuf:BUFFER-FIELD("RowType"):BUFFER-VALUE() NE "Data" THEN NEXT.
             IF lFirstRow EQ NO THEN
-            PUT UNFORMATTED "," SKIP.
+            PUT STREAM sJasper UNFORMATTED "," SKIP.
             ELSE
             lFirstRow = NO.
-            PUT UNFORMATTED FILL(" ",6) "~{" SKIP.
+            PUT STREAM sJasper UNFORMATTED FILL(" ",6) "~{" SKIP.
             FOR EACH ttColumn
                 WHERE (ttColumn.isActive    EQ YES
                    OR  ttColumn.isGroup     EQ YES
@@ -956,26 +959,26 @@ PROCEDURE pJasperJSON:
                     cFullName    = REPLACE(cFullName,"[","")
                     cFullName    = REPLACE(cFullName,"]","")
                     .
-                PUT UNFORMATTED
+                PUT STREAM sJasper UNFORMATTED
                     FILL(" ",8)
                     "~"" cFullName "~": ~""
                     IF cBufferValue NE "" THEN cBufferValue ELSE " "
                     "~""
                     .
                 IF NOT LAST(ttColumn.ttField) THEN
-                PUT UNFORMATTED "," SKIP.
+                PUT STREAM sJasper UNFORMATTED "," SKIP.
             END. /* each ttColumn */
-            PUT UNFORMATTED SKIP FILL(" ",6) "}".
+            PUT STREAM sJasper UNFORMATTED SKIP FILL(" ",6) "}".
         END. /* repeat */
         hQuery:QUERY-CLOSE().
         DELETE OBJECT hQuery.
-        PUT UNFORMATTED
+        PUT STREAM sJasper UNFORMATTED
             SKIP
             FILL(" ",4) "]" SKIP
             FILL(" ",2) "}" SKIP
             "}" SKIP
             .
-        OUTPUT CLOSE.
+        OUTPUT STREAM sJasper CLOSE.
         RUN pJasperCopy (cJasperFile).
     END. /* valid happsrv */
 
@@ -1097,13 +1100,13 @@ PROCEDURE pJasperLastPageFooter :
     
     IF dynParamValue.pageHeight GE (iParameterRow + 3) * 14 THEN DO:
         /* last page footer band */
-        PUT UNFORMATTED
+        PUT STREAM sJasper UNFORMATTED
             "    <lastPageFooter>" SKIP
             "        <band height=~"" (iParameterRow + 3) * 14 "~" splitType=~"Stretch~">" SKIP
             .
         IF svShowPageFooter THEN
         RUN pJasperGroupType ("Page").
-        PUT UNFORMATTED
+        PUT STREAM sJasper UNFORMATTED
             "            <rectangle>" SKIP
             "                <reportElement mode=~"Transparent~" "
             "x=~"" 0 "~" "
@@ -1125,7 +1128,7 @@ PROCEDURE pJasperLastPageFooter :
             .
         DO idx = 1 TO iParameterRow:
             IF cParameter[idx] NE "" AND cParameter[idx] NE CHR(254) THEN
-            PUT UNFORMATTED
+            PUT STREAM sJasper UNFORMATTED
                 "            <staticText>" SKIP
                 "                <reportElement "
                 "x=~"" 60 "~" "
@@ -1137,7 +1140,7 @@ PROCEDURE pJasperLastPageFooter :
                 .
         END. /* do idx */
         RUN pJasperPageBottom (iParameterRow * 14).
-        PUT UNFORMATTED
+        PUT STREAM sJasper UNFORMATTED
             "        </band>" SKIP
             "    </lastPageFooter>" SKIP
             .
@@ -1164,7 +1167,7 @@ PROCEDURE pJasperPageBottom :
     IF CAN-FIND(FIRST ttGroupCalc
                 WHERE ttGroupCalc.ttGroup EQ "Page") THEN
     ipiRow = ipiRow + 14.
-    PUT UNFORMATTED
+    PUT STREAM sJasper UNFORMATTED
         "            <textField pattern=~"MMM d, yyyy h:mm:ss a~">" SKIP
         "                <reportElement "
         "x=~"" 0 "~" "
@@ -1208,13 +1211,13 @@ PROCEDURE pJasperPageFooterBand :
   Notes:       
 ------------------------------------------------------------------------------*/
     /* page footer band */
-    PUT UNFORMATTED
+    PUT STREAM sJasper UNFORMATTED
         "    <pageFooter>" SKIP
         "        <band height=~"" 44 "~" splitType=~"Stretch~">" SKIP
         .
     RUN pJasperGroupType ("Page").    
     RUN pJasperPageBottom (0).
-    PUT UNFORMATTED
+    PUT STREAM sJasper UNFORMATTED
         "        </band>" SKIP
         "    </pageFooter>" SKIP
         .
@@ -1236,7 +1239,7 @@ PROCEDURE pJasperPageHeaderBand :
   Notes:       
 ------------------------------------------------------------------------------*/
     /* page header band */
-    PUT UNFORMATTED
+    PUT STREAM sJasper UNFORMATTED
         "    <pageHeader>" SKIP
         "        <band height=~"" 0 "~" splitType=~"Stretch~"/>" SKIP
         "    </pageHeader>" SKIP
@@ -1258,7 +1261,7 @@ PROCEDURE pJasperQueryString :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    PUT UNFORMATTED
+    PUT STREAM sJasper UNFORMATTED
         "    <queryString language=~"json~">" SKIP
         "        <![CDATA[" REPLACE(aoaTitle," ","_") "." REPLACE(aoaTitle," ","") "]]>" SKIP
         "    </queryString>" SKIP
@@ -1294,7 +1297,7 @@ PROCEDURE pJasperReport :
 
     CASE ipcReport:
         WHEN "Open" THEN DO:
-            PUT UNFORMATTED
+            PUT STREAM sJasper UNFORMATTED
                 "<?xml version=~"1.0~" encoding=~"UTF-8~"?>" SKIP
                 "<!-- Created with Jaspersoft Studio version 6.6.0.final using JasperReports Library version 6.6.0  -->" SKIP
                 "<jasperReport xmlns=~"http://jasperreports.sourceforge.net/jasperreports~" "
@@ -1304,10 +1307,10 @@ PROCEDURE pJasperReport :
                 "name=~"" REPLACE(aoaTitle," ","") "~" "
                 .
             IF AVAILABLE dynParamValue AND dynParamValue.pageHeight GT 0 THEN
-            PUT UNFORMATTED
+            PUT STREAM sJasper UNFORMATTED
                 "pageHeight=~"" dynParamValue.pageHeight "~" "
                 . 
-            PUT UNFORMATTED
+            PUT STREAM sJasper UNFORMATTED
                 "pageWidth=~"" ipiSize "~" "
                 "columnWidth=~"" ipiSize - iMargin * 2 "~" "
                 "orientation=~"" IF AVAILABLE dynParamValue THEN dynParamValue.pageOrientation ELSE "Landscape" ""~" "
@@ -1319,7 +1322,7 @@ PROCEDURE pJasperReport :
                 ">" SKIP.
         END. /* open */
         WHEN "Close" THEN
-        PUT UNFORMATTED
+        PUT STREAM sJasper UNFORMATTED
             "</jasperReport>" SKIP
             .
     END CASE.
@@ -1427,7 +1430,7 @@ PROCEDURE pJasperStyles :
     DEFINE VARIABLE cColor AS CHARACTER NO-UNDO.
     
     cColor = "#DCF5EB".
-    PUT UNFORMATTED
+    PUT STREAM sJasper UNFORMATTED
         "    <style name=~"Zebra~" mode=~"Transparent~">" SKIP
         "        <conditionalStyle>" SKIP
         "            <conditionExpression><![CDATA[$V~{REPORT_COUNT}%2 == 1]]></conditionExpression>" SKIP
@@ -1453,12 +1456,12 @@ PROCEDURE pJasperSummaryBand :
   Notes:       
 ------------------------------------------------------------------------------*/
     /* summary band */
-    PUT UNFORMATTED
+    PUT STREAM sJasper UNFORMATTED
         "    <summary>" SKIP
         "        <band height=~"" 14 "~" splitType=~"Stretch~">" SKIP
         .
     RUN pJasperGroupType ("Report").
-    PUT UNFORMATTED
+    PUT STREAM sJasper UNFORMATTED
         "        </band>" SKIP
         "    </summary>" SKIP
         .
@@ -1517,41 +1520,41 @@ PROCEDURE pJasperVariableDeclarations :
                         + IF ttGroupCalc.ttGroup BEGINS "[Group] " THEN cResetGroup
                           ELSE ttGroupCalc.ttGroup + "Footer"
                         .
-        PUT UNFORMATTED
+        PUT STREAM sJasper UNFORMATTED
             "    <variable name=~"" cName "~" class=~"java.lang." cDataType
             .
         IF ttGroupCalc.ttGroup BEGINS "[Group] " THEN
-        PUT UNFORMATTED
+        PUT STREAM sJasper UNFORMATTED
             "~" resetType=~"Group~" resetGroup=~"" cResetGroup
             .
         ELSE IF ttGroupCalc.ttGroup NE "Report" THEN
-        PUT UNFORMATTED
+        PUT STREAM sJasper UNFORMATTED
             "~" resetType=~"" ttGroupCalc.ttGroup
             .
         IF ENTRY(1,ttGroupCalc.ttCalcType,"|") NE "Calculated" THEN
-        PUT UNFORMATTED
+        PUT STREAM sJasper UNFORMATTED
             "~" calculation=~"" ttGroupCalc.ttCalcType
             .
-        PUT UNFORMATTED 
+        PUT STREAM sJasper UNFORMATTED 
              "~">" SKIP
             "        <variableExpression><![CDATA["
             .
         IF ENTRY(1,ttGroupCalc.ttCalcType,"|") EQ "Calculated" THEN
-        PUT UNFORMATTED
+        PUT STREAM sJasper UNFORMATTED
             ENTRY(2,ttGroupCalc.ttCalcType,"|")
             .
         ELSE
         IF ttColumn.ttFormula NE "" THEN
-        PUT UNFORMATTED
+        PUT STREAM sJasper UNFORMATTED
             ttColumn.ttField
             .
         ELSE
-        PUT UNFORMATTED
+        PUT STREAM sJasper UNFORMATTED
             "$F~{"
             (IF ttColumn.ttTable NE "" THEN ttColumn.ttTable + "__" ELSE "")
             ttColumn.ttField "}"
             .
-        PUT UNFORMATTED
+        PUT STREAM sJasper UNFORMATTED
             "]]></variableExpression>" SKIP
             "    </variable>" SKIP
             .
@@ -1633,7 +1636,7 @@ PROCEDURE pJasterTitleBand :
                   .
     END. /* each dynsubjectparamset */
     cSubTitle = TRIM(cSubTitle," - ").
-    PUT UNFORMATTED
+    PUT STREAM sJasper UNFORMATTED
         "    <title>" SKIP
         "        <band height=~"" IF cSubTitle EQ "" THEN 40 ELSE 80 "~" splitType=~"Stretch~">" SKIP
         "            <staticText>" SKIP
@@ -1645,7 +1648,7 @@ PROCEDURE pJasterTitleBand :
         "            </staticText>" SKIP
         .
     IF cSubTitle NE "" THEN
-    PUT UNFORMATTED
+    PUT STREAM sJasper UNFORMATTED
         "            <staticText>" SKIP
         "                <reportElement x=~"" 0 "~" y=~"" 40 "~" width=~"" ipiSize "~" height=~"" 40 "~"/>" SKIP
         "                <textElement>" SKIP
@@ -1654,7 +1657,7 @@ PROCEDURE pJasterTitleBand :
         "                <text><![CDATA[" cSubTitle "]]></text>" SKIP
         "            </staticText>" SKIP
         .
-    PUT UNFORMATTED
+    PUT STREAM sJasper UNFORMATTED
         "        </band>" SKIP
         "    </title>" SKIP
         .
@@ -1674,7 +1677,7 @@ PROCEDURE pLocalCSV:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER iphQuery      AS HANDLE    NO-UNDO.
+    DEFINE INPUT PARAMETER iphQuery AS HANDLE NO-UNDO.
 
     DEFINE VARIABLE cBufferValue   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cCompany       AS CHARACTER NO-UNDO.
@@ -1687,11 +1690,14 @@ PROCEDURE pLocalCSV:
     DEFINE VARIABLE hOutputProcs   AS HANDLE    NO-UNDO.
     DEFINE VARIABLE hQuery         AS HANDLE    NO-UNDO.
     DEFINE VARIABLE hQueryBuf      AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE idx            AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iNumResults    AS INTEGER   NO-UNDO.
     DEFINE VARIABLE lAddTab        AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lProceed       AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lReplaceQuote  AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lUseCustList   AS LOGICAL   NO-UNDO.
 
+    SESSION:SET-WAIT-STATE("General").
     RUN AOA/spDynCalcField.p PERSISTENT SET hDynCalcField.
     RUN system/OutputProcs.p PERSISTENT SET hOutputProcs.
     RUN spGetSessionParam ("Company", OUTPUT cCompany). 
@@ -1699,9 +1705,7 @@ PROCEDURE pLocalCSV:
         cCompany,
         OUTPUT lReplaceQuote,
         OUTPUT lAddTab
-        ). 
-
-    SESSION:SET-WAIT-STATE("General").
+        ).
     IF dynParamValue.useCustList OR dynParamValue.CustListID NE "" THEN
     RUN spCustList (
         dynParamValue.subjectID,
@@ -1719,8 +1723,8 @@ PROCEDURE pLocalCSV:
                + ".csv"
                .
     IF SEARCH(cExcelFile) NE ? THEN
-    OS-DELETE VALUE(SEARCH(cExcelFile)).        
-    OUTPUT TO VALUE(cExcelFile).
+    OS-DELETE VALUE(SEARCH(cExcelFile)).
+    OUTPUT STREAM sLocalCSV TO VALUE(cExcelFile).
     IF svShowPageHeader THEN DO:
         FOR EACH dynValueColumn NO-LOCK
             WHERE dynValueColumn.subjectID    EQ dynParamValue.subjectID
@@ -1730,15 +1734,20 @@ PROCEDURE pLocalCSV:
               AND dynValueColumn.isActive     EQ YES
                BY dynValueColumn.sortOrder
             :
-            PUT UNFORMATTED dynValueColumn.colLabel + ",".
+            PUT STREAM sLocalCSV UNFORMATTED dynValueColumn.colLabel + ",".
         END. /* each dynvaluecolumn */
-        PUT UNFORMATTED SKIP.
+        PUT STREAM sLocalCSV UNFORMATTED SKIP.
     END. /* show page header */
     iphQuery:QUERY-OPEN.
+    {AOA/includes/iNumResults.i}
     iphQuery:GET-FIRST().
     IF NOT iphQuery:QUERY-OFF-END THEN
     REPEAT:
-        lProceed = YES.
+        ASSIGN
+            lProceed = YES
+            idx = idx + 1
+            .
+        RUN spProgressBar (aoaTitle, idx, iNumResults).
         IF lUseCustList THEN
         RUN spCheckCustList (iphQuery, cCustListField, OUTPUT lProceed).
         IF lProceed THEN DO:
@@ -1781,16 +1790,16 @@ PROCEDURE pLocalCSV:
                     cBufferValue = fFormatValue(hQueryBuf, cFieldName, dynValueColumn.colFormat)
                     cBufferValue = DYNAMIC-FUNCTION("FormatForCSV" IN hOutputProcs, cBufferValue, lReplaceQuote, lAddTab)
                     .
-                PUT UNFORMATTED REPLACE(cBufferValue,",","") + ",".
+                PUT STREAM sLocalCSV UNFORMATTED REPLACE(cBufferValue,",","") + ",".
             END. /* each dynvaluecolumn */
-            PUT UNFORMATTED SKIP.
+            PUT STREAM sLocalCSV UNFORMATTED SKIP.
         END. /* if lproceed */
         iphQuery:GET-NEXT().
         IF iphQuery:QUERY-OFF-END THEN LEAVE.
     END. /* repeat */
     iphQuery:QUERY-CLOSE().
     DELETE OBJECT iphQuery.
-    OUTPUT CLOSE.
+    OUTPUT STREAM sLocalCSV CLOSE.
     DELETE PROCEDURE hDynCalcField.
     DELETE PROCEDURE hOutputProcs.  
     OS-COMMAND NO-WAIT START excel.exe VALUE("~"" + cExcelFile + "~"").
@@ -1871,7 +1880,7 @@ PROCEDURE spJasper :
                 + REPLACE(aoaTitle," ","") + "."
                 + ipcTaskRecKey + ".jrxml"
                 .    
-    OUTPUT TO VALUE(cJasperFile).    
+    OUTPUT STREAM sJasper TO VALUE(cJasperFile).    
     RUN pJasperReport ("Open", ipcType, iSize).
     RUN pJasperStyles.
     RUN pJasperQueryString.
@@ -1897,7 +1906,7 @@ PROCEDURE spJasper :
     IF svShowReportFooter THEN 
     RUN pJasperSummaryBand.    
     RUN pJasperReport ("Close", ipcType, iSize).    
-    OUTPUT CLOSE.    
+    OUTPUT STREAM sJasper CLOSE.    
     /* copy local jasper files to jasper studio workspace */
     RUN pJasperCopy (cJasperFile).
     /* command line call to jasperstarter script */
@@ -1926,21 +1935,23 @@ PROCEDURE spJasperQuery:
     DEFINE INPUT  PARAMETER ipcTaskRecKey AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opcJasperFile AS CHARACTER NO-UNDO.
     
-    DEFINE VARIABLE cError      AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cJasperFile AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cjrxml      AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cTableName  AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cUserFolder AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE hQuery      AS HANDLE    NO-UNDO.
-    DEFINE VARIABLE idx         AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE iSize       AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE lOK         AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cError       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cJasperFile  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cjrxml       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cTableName   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cUserFolder  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE hQuery       AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE idx          AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iSize        AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE lOK          AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lProgressBar AS LOGICAL   NO-UNDO.
 
     ASSIGN
-        aoaTitle   = ipcTitle
-        aoaUserID  = ipcUserID
-        hAppSrvBin = iphAppSrvBin
-        cjrxml     = REPLACE(aoaTitle," ","") + "." + ipcTaskRecKey
+        aoaTitle     = ipcTitle
+        aoaUserID    = ipcUserID
+        hAppSrvBin   = iphAppSrvBin
+        cjrxml       = REPLACE(aoaTitle," ","") + "." + ipcTaskRecKey
+        lProgressBar = CAN-DO("Grid,LocalCSV,Print -d,View", ipcType)
         .
     /* find dynParamValue storing parameter values */
     RUN pGetUserParamValue (iprRowID).
@@ -1965,7 +1976,7 @@ PROCEDURE spJasperQuery:
             IF iSize EQ ? THEN RETURN.    
             /* create jasper jrxml file */
             cJasperFile = "users\" + aoaUserID + "\" + cjrxml + ".jrxml".
-            OUTPUT TO VALUE(cJasperFile).    
+            OUTPUT STREAM sJasper TO VALUE(cJasperFile).    
             RUN pJasperReport ("Open", ipcType, iSize).
             RUN pJasperStyles.
             RUN pJasperQueryString.
@@ -1991,7 +2002,7 @@ PROCEDURE spJasperQuery:
             IF svShowReportFooter THEN 
             RUN pJasperSummaryBand.    
             RUN pJasperReport ("Close", ipcType, iSize).    
-            OUTPUT CLOSE.    
+            OUTPUT STREAM sJasper CLOSE.
         END. /* else if not using external form */
         /* copy local jasper files to jasper studio workspace */
         RUN pJasperCopy (cJasperFile).
@@ -2022,6 +2033,7 @@ PROCEDURE spJasperQuery:
         ELSE
         /* run business logic */
         RUN pRunBusinessLogic (
+            lProgressBar,
             OUTPUT hQuery,
             OUTPUT lOK,
             OUTPUT cError
@@ -2034,6 +2046,7 @@ PROCEDURE spJasperQuery:
                     ipcUserID,
                     dynSubject.subjectTitle,
                     ipcTaskRecKey,
+                    lProgressBar,
                     OUTPUT cJasperFile,
                     OUTPUT lOK
                     ).

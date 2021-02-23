@@ -89,6 +89,8 @@ ASSIGN
 
 RUN system/CommonProcs.p PERSISTENT SET hdCommonProcs.
 
+ipcVendorInvoiceNumber = TRIM(ipcVendorInvoiceNumber).
+
 /* Validates all required fields */
 RUN pValidations (
     INPUT  ipcCompany,

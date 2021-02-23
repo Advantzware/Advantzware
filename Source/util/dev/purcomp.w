@@ -562,7 +562,6 @@ lcTableList =
 "gl-jrn," +
 "gl-rpt," +
 "glhist," +
-"gltrans," +
 "inv-head," +
 "inv-line," +
 "inv-misc," +

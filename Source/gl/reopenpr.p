@@ -33,6 +33,7 @@ find first gl-ctrl where gl-ctrl.company eq cocode no-lock no-error.
 
 find first glhist
     where glhist.company eq cocode
+    AND glhist.posted  EQ YES
     use-index glhist no-lock no-error.
     
 do while avail glhist:
@@ -44,6 +45,7 @@ do while avail glhist:
         and glhist.tr-date ge period.pst
         and glhist.tr-date le period.pend
         and glhist.period  eq period.pnum
+        AND glhist.posted  EQ YES
       transaction:
 
     find first account
@@ -65,14 +67,10 @@ do while avail glhist:
               and b-cacct.actnum  eq gl-ctrl.contra.
 
         b-cacct.cyr[period.pnum] = b-cacct.cyr[period.pnum] + glhist.tr-amt.
-      end.
+      end.       
       
-      create gltrans.
-      buffer-copy glhist to gltrans
-      assign
-       gltrans.trnum = glhist.tr-num.
-       
-      delete glhist.
+      assign         
+       glhist.posted  = NO.        
     end.
   end.
    

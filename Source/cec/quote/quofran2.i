@@ -1,5 +1,5 @@
  /* cec/quote/quofran2.i */
- 
+     
      PUT "<C3><R2><#1><R+8><C+65><IMAGE#1=" ls-full-img1 SKIP.
      /*PUT "<=1>" SKIP. */
      PUT "<C1><#2><Farial>"
@@ -31,7 +31,7 @@
          .
     
    PUT "<FArial><P12><=#3>" /*<R-3>" "    Page#: " + string(PAGE-NUM - lv-pg-num,">>9") + " of " + string(lv-tot-pg) FORM "x(20)" */
-       "<=#3><R-2><P13> <B>Quotation#: " v-first-q-no "</B><P12>" "           Page#: " + string(PAGE-NUM - lv-pg-num,">>9") + " of " + string(lv-tot-pg) FORM "x(30)"
+       "<=#3><R-2><P13> <B>Quotation#: " v-first-q-no "</B><P12>" "          Page#: " string(PAGE-NUM - lv-pg-num,">>9") + " of  [=@endPage" + TRIM(string(xquo.q-no,">>>>>9")) + "-@startPage" + TRIM(string(xquo.q-no,">>>>>9")) + "+1]" FORMAT "x(100)"
        "<P10>" SKIP
    "<=#3> Customer ID             Contact"
    "<=#3><R+2> Telephone                       Fax <FCourier New>" 

@@ -205,7 +205,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnOk C-Win
 ON CHOOSE OF btnOk IN FRAME DEFAULT-FRAME /* OK */
 DO:
-   DEF VAR v-dscr LIKE gltrans.tr-dscr NO-UNDO.
+   DEF VAR v-dscr LIKE glhist.tr-dscr NO-UNDO.
    DEF VAR lines-per-page AS INT INIT 50 NO-UNDO.
    DEF VAR v-inv-amt AS DEC NO-UNDO.
    DEF VAR v-inv-disc AS DEC NO-UNDO.
@@ -309,23 +309,24 @@ DO:
                          " Inv# " + STRING(ar-inv.inv-no,"99999999") + " LINE"
                 v-tr-amt = 0.
 
-             FOR EACH gltrans FIELDS(tr-amt tr-dscr trnum) WHERE
-                 gltrans.company = cocode AND
-                 gltrans.jrnl    = "OEINV" AND
-                 gltrans.tr-dscr = v-dscr
+             FOR EACH glhist FIELDS(tr-amt tr-dscr tr-num) WHERE
+                 glhist.company = cocode AND
+                 glhist.jrnl    = "OEINV" AND
+                 glhist.tr-dscr = v-dscr AND
+                 glhist.posted EQ NO
                  NO-LOCK
-                 BREAK BY gltrans.tr-dscr:
+                 BREAK BY glhist.tr-dscr:
 
-                 v-tr-amt = v-tr-amt + (gltrans.tr-amt * -1).
+                 v-tr-amt = v-tr-amt + (glhist.tr-amt * -1).
 
-                 IF LAST-OF(gltrans.tr-dscr) AND v-tr-amt NE v-inv-amt + v-inv-disc THEN
+                 IF LAST-OF(glhist.tr-dscr) AND v-tr-amt NE v-inv-amt + v-inv-disc THEN
                  DO:
-                    DISPLAY gltrans.tr-dscr COLUMN-LABEL "G/L Description"
+                    DISPLAY glhist.tr-dscr COLUMN-LABEL "G/L Description"
                             ar-inv.inv-no COLUMN-LABEL "Invoice #"
                             ar-inv.inv-date COLUMN-LABEL "Invoice Date"
                             v-inv-amt + v-inv-disc COLUMN-LABEL "Invoice Amount"
-                            gltrans.tr-amt * -1 COLUMN-LABEL "G/L Amount"
-                            gltrans.trnum FORMAT "ZZZZ9" COLUMN-LABEL "G/L Run #"
+                            glhist.tr-amt * -1 COLUMN-LABEL "G/L Amount"
+                            glhist.tr-num FORMAT "ZZZZ9" COLUMN-LABEL "G/L Run #"
                      with no-box frame frame-a down STREAM-IO width 200.
 
                     down with frame frame-a.

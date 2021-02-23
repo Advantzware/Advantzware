@@ -352,7 +352,10 @@ PROCEDURE local-assign-record :
   /* Code placed here will execute AFTER standard behavior.    */
   ASSIGN FRAME {&frame-name} v-voided .
 
-  IF v-voided THEN ap-pay.cleared = ?.
+  IF v-voided THEN DO:
+        ap-pay.spare-char-1 = STRING(TODAY).
+        ap-pay.cleared = ?.
+  END.
   ELSE ap-pay.cleared = NO.
        
 

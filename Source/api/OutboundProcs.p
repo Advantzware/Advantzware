@@ -109,10 +109,12 @@ PROCEDURE Outbound_CopyAPIDependencies:
                        bf-Source-APIOutboundDetail.apiOutboundID 
                        bf-Source-APIOutboundDetail.apiOutboundDetailID
                        bf-Source-APIOutboundDetail.rec_key
+                       bf-Source-APIOutboundDetail.company
                 TO bf-Target-APIOutboundDetail.
             ASSIGN
                 bf-Target-APIOutboundDetail.apiID         = bf-Target-APIOutbound.apiID
                 bf-Target-APIOutboundDetail.clientID      = bf-Target-APIOutbound.clientID
+                bf-Target-APIOutboundDetail.company       = bf-Target-APIOutbound.company
                 bf-Target-APIOutboundDetail.apiOutboundID = bf-Target-APIOutbound.apiOutboundID
                 .
         END.
@@ -136,10 +138,12 @@ PROCEDURE Outbound_CopyAPIDependencies:
                        bf-Source-APIOutboundTrigger.rec_key
                        bf-Source-APIOutboundTrigger.createBy
                        bf-Source-APIOutboundTrigger.createTime
+                       bf-Source-APIOutboundTrigger.company
                 TO bf-Target-APIOutboundTrigger.
             ASSIGN
                 bf-Target-APIOutboundTrigger.apiID         = bf-Target-APIOutbound.apiID
                 bf-Target-APIOutboundTrigger.clientID      = bf-Target-APIOutbound.clientID
+                bf-Target-APIOutboundTrigger.company       = bf-Target-APIOutbound.company
                 bf-Target-APIOutboundTrigger.apiOutboundID = bf-Target-APIOutbound.apiOutboundID
                 .
         END.

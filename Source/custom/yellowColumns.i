@@ -1114,6 +1114,27 @@ PROCEDURE openQuery:
     IF sortColumn EQ 'Machine Code[9]' THEN routing.m-code[9]  ELSE ~
        routing.m-code[10]  ~{&SORTED}
 
+&ELSEIF '{&yellowColumnsName}' EQ 'period1' &THEN
+   &SCOPED-DEFINE SORTBY-PHRASE BY ~
+    IF sortColumn EQ 'Year'    THEN string(period.yr,'99999')   ELSE ~
+    IF sortColumn EQ 'Period'     THEN STRING(period.pnum,'9999') ELSE ~
+    IF sortColumn EQ 'Start Date' THEN STRING(YEAR(period.pst),'9999') + ~
+                                       STRING(MONTH(period.pst),'99') + ~
+                                       STRING(DAY(period.pst),'99') ELSE ~
+    IF sortColumn EQ 'End Date' THEN STRING(YEAR(period.pend),'9999') + ~
+                                       STRING(MONTH(period.pend),'99') + ~
+                                       STRING(DAY(period.pend),'99') ELSE ~
+    IF sortColumn EQ 'Status' THEN string(period.pstat)  ELSE ~
+    IF sortColumn EQ 'AP' THEN string(getSubLedger(period.SubLedgerAP))  ELSE ~
+    IF sortColumn EQ 'P/O' THEN getSubLedger(period.SubLedgerPO)  ELSE ~
+    IF sortColumn EQ 'O/P' THEN getSubLedger(period.SubLedgerOP)  ELSE ~
+    IF sortColumn EQ 'WIP' THEN getSubLedger(period.SubLedgerWIP)  ELSE ~
+    IF sortColumn EQ 'R/M' THEN getSubLedger(period.SubLedgerRM)  ELSE ~
+    IF sortColumn EQ 'F/G' THEN getSubLedger(period.SubLedgerFG)  ELSE ~
+    IF sortColumn EQ 'B/R' THEN getSubLedger(period.SubLedgerBR)  ELSE ~
+    IF sortColumn EQ 'A/R' THEN getSubLedger(period.SubLedgerAR)  ELSE ~
+       string(period.yr,'99999')  ~{&SORTED}
+
 &ELSEIF '{&yellowColumnsName}' EQ 'ar-cash' &THEN
    &SCOPED-DEFINE SORTBY-PHRASE BY ~
     IF sortColumn EQ 'Customer Number'    THEN cust-no   ELSE ~
@@ -1474,7 +1495,7 @@ PROCEDURE openQuery:
   IF sortColumn EQ 'Available On-Hand' THEN string(ttMultiSelectItem.availOnHand,"-999999999")  ELSE ~
   IF sortColumn EQ 'Minimum Order' THEN string(ttMultiSelectItem.quantityMinOrder,"-999999999")  ELSE ~
   IF sortColumn EQ 'Maximum Order' THEN string(ttMultiSelectItem.quantityMaxOrder,"-999999999")  ELSE ~
-  IF sortColumn EQ 'Earliest Order Qty' THEN string(ttMultiSelectItem.dateDueDateEarliest,"-999999999")  ELSE ~
+  IF sortColumn EQ 'Earliest Order Qty' THEN string(ttMultiSelectItem.orderQtyEarliest,"-999999999")  ELSE ~
   IF sortColumn EQ 'Customer Part' THEN string(ttMultiSelectItem.itemCustPart)  ELSE ~
   IF sortColumn EQ 'Customer' THEN string(ttMultiSelectItem.itemCust)  ELSE ~
   IF sortColumn EQ 'Cust Name' THEN string(ttMultiSelectItem.itemCustName)  ELSE ~

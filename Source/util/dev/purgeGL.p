@@ -35,7 +35,6 @@ DEFINE NEW SHARED VARIABLE g_mainmenu    AS WIDGET-HANDLE NO-UNDO.
 
 
 /* ***************************  Main Block  *************************** */
-{util/dev/deltable.i gltrans}
 {util/dev/deltable.i glhist}
 {util/dev/deltable.i gl-jrnl}
 {util/dev/deltable.i gl-rpt}

@@ -26,6 +26,7 @@ DEF VAR ip-post AS LOG INIT NO NO-UNDO.
 /* Local Variable Definitions ---                                       */
 def var list-name as cha no-undo.
 DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lInvalid AS LOGICAL NO-UNDO.
 
 {methods/defines/hndldefs.i}
 {methods/prgsecur.i}
@@ -571,6 +572,9 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 
         IF ip-post THEN 
         DO:
+            RUN pCheckDate.
+            IF lInvalid then return no-apply.
+         
             IF ll-ok-to-post THEN 
             DO:
                 lv-post = NO.
@@ -914,18 +918,19 @@ PROCEDURE gl-from-work :
             credits = credits + work-gl.credits.
 
         if last-of(work-gl.actnum) then 
-        do:
-            create gltrans.
-            assign
-                gltrans.company = cocode
-                gltrans.actnum  = work-gl.actnum
-                gltrans.jrnl    = "JCOST"
-                gltrans.period  = period.pnum
-                gltrans.tr-amt  = debits - credits
-                gltrans.tr-date = TODAY
-                gltrans.tr-dscr = "Production Job Costing"
-                gltrans.trnum   = ip-trnum.
-
+        do:               
+          RUN GL_SpCreateGLHist(cocode,
+                               work-gl.actnum,
+                               "JCOST",
+                               "Production Job Costing",
+                               TODAY,
+                               debits - credits,
+                               ip-trnum,
+                               period.pnum,
+                               "A",
+                               TODAY,
+                               "",
+                               "RM").    
             assign
                 debits  = 0
                 credits = 0.
@@ -2654,6 +2659,31 @@ PROCEDURE update-plate-die :
                 END.
             END.
         END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckDate C-Win 
+PROCEDURE pCheckDate :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE lSuccess AS LOGICAL NO-UNDO.
+  DO with frame {&frame-name}:
+    lInvalid = no.
+    
+    RUN GL_CheckModClosePeriod(input cocode, input DATE(TODAY), input "RM", output cMessage, output lSuccess ) .  
+    IF NOT lSuccess THEN 
+    DO:
+      MESSAGE cMessage VIEW-AS ALERT-BOX INFO.
+      lInvalid = YES.
+    END.       
+    
+  END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

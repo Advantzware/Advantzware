@@ -54,7 +54,7 @@ assign
 DEF TEMP-TABLE tt-report FIELD actnum LIKE account.actnum
                          FIELD vend-no LIKE vend.vend-no
                          FIELD inv-no LIKE ap-inv.inv-no
-                         FIELD jrnl LIKE gltrans.jrnl
+                         FIELD jrnl LIKE glhist.jrnl
                          FIELD tr-date LIKE ap-ledger.tr-date
                          FIELD trnum LIKE ap-ledger.trnum
                          FIELD amt AS DEC
@@ -822,7 +822,7 @@ END PROCEDURE.
 PROCEDURE run-report :
 {sys/form/r-topw.f}   
 
-DEF VAR lv-jrnl LIKE gltrans.jrnl NO-UNDO.
+DEF VAR lv-jrnl LIKE glhist.jrnl NO-UNDO.
 DEF VAR li AS INT NO-UNDO.
 DEF VAR lv-bank-code LIKE bank.bank-code NO-UNDO.
 DEF VAR lv-check-no AS CHAR NO-UNDO.

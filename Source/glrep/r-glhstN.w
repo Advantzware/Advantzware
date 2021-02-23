@@ -1354,10 +1354,9 @@ DEFINE VARIABLE tot-act LIKE tot-all NO-UNDO.
 DEFINE VARIABLE open-amt LIKE tot-all NO-UNDO.
 DEFINE VARIABLE pri-amt LIKE tot-all NO-UNDO.
 DEFINE VARIABLE net-inc  AS DECIMAL NO-UNDO.
-DEFINE VARIABLE tmp-amt LIKE gltrans.tr-amt NO-UNDO.
+DEFINE VARIABLE tmp-amt LIKE glhist.tr-amt NO-UNDO.
 DEFINE VARIABLE tmp-dscr AS CHARACTER FORMAT "X(54)" NO-UNDO.
 DEFINE VARIABLE ap-dscr AS CHARACTER FORMAT "X(30)" NO-UNDO.
-DEFINE BUFFER xgltrans FOR gltrans.
 DEFINE BUFFER xglhist FOR glhist.
 DEFINE BUFFER xperiod FOR period.
 /*DEFINE VARIABLE str-tit4 as char no-undo.
@@ -1371,8 +1370,8 @@ DEFINE VARIABLE v-answer AS LOGICAL NO-UNDO.
 DEFINE VARIABLE li-dscr AS INTEGER NO-UNDO.
 DEFINE VARIABLE ld-per-start AS DATE NO-UNDO.
 
-DEFINE VARIABLE tacct LIKE gltrans.actnum  LABEL "    To Account Number" NO-UNDO.
-DEFINE VARIABLE facct LIKE gltrans.actnum  LABEL "  From Account Number" NO-UNDO.
+DEFINE VARIABLE tacct LIKE glhist.actnum  LABEL "    To Account Number" NO-UNDO.
+DEFINE VARIABLE facct LIKE glhist.actnum  LABEL "  From Account Number" NO-UNDO.
 DEFINE VARIABLE op AS CHARACTER FORMAT "x" INITIAL "S" LABEL "  S)ummary or D)etail?" NO-UNDO.
 DEFINE VARIABLE excelheader AS CHARACTER NO-UNDO.
 DEFINE VARIABLE acct-hdr-printed AS LOGICAL NO-UNDO.
@@ -1476,16 +1475,7 @@ SESSION:SET-WAIT-STATE ("general").
             AND (glhist.jrnl   NE "AUTODIST" OR NOT tb_exc-auto):
         open-amt = open-amt + glhist.tr-amt.
       END.
-
-      FOR EACH gltrans FIELDS(tr-amt) NO-LOCK
-          WHERE gltrans.company EQ account.company
-            AND gltrans.actnum  EQ account.actnum
-            AND gltrans.tr-date GE ld-per-start
-            AND gltrans.tr-date LT v-s-date
-            AND (gltrans.jrnl   NE "AUTODIST" OR NOT tb_exc-auto):
-        open-amt = open-amt + gltrans.tr-amt.
-      END.
-
+            
       IF tb_exc-acc AND open-amt EQ 0 THEN NEXT .
 
    /*   display string(account.actnum) + "  " + account.dscr format "x(75)" @
@@ -1628,91 +1618,7 @@ SESSION:SET-WAIT-STATE ("general").
             tot-tx   = tot-tx   + glhist.tr-amt
             tot-act  = tot-act  + glhist.tr-amt.
       END.
-      FOR EACH gltrans NO-LOCK
-          WHERE gltrans.company EQ account.company
-            AND gltrans.actnum  EQ account.actnum AND 
-                                        gltrans.tr-date GE v-s-date AND 
-                                        gltrans.tr-date LE v-e-date AND 
-                                        (gltrans.jrnl NE "AUTODIST" OR 
-                                         NOT tb_exc-auto)
-        BREAK BY gltrans.tr-date BY gltrans.jrnl BY gltrans.trnum:
-
-          {custom/statusMsg.i " 'Processing Run #  '  + string(gltrans.trnum) "}
-
-        tmp-dscr = "".
-        ap-dscr = "".
-        IF gltrans.jrnl = "ACPAY" /*AND tb_desc*/ THEN DO:
-            RUN GetTransDesc(INPUT gltrans.tr-dscr,
-                             INPUT gltrans.tr-amt,
-                             OUTPUT ap-dscr). 
-        END.
-        /*IF tmp-dscr EQ "" THEN*/
-            ASSIGN tmp-dscr = TRIM(gltrans.tr-dscr).
-
-         IF gltrans.jrnl EQ "MCSHREC" THEN DO:
-           RELEASE ar-mcash.
-           li-dscr = INTEGER(tmp-dscr) NO-ERROR.
-           IF NOT ERROR-STATUS:ERROR THEN
-           FIND FIRST ar-mcash NO-LOCK WHERE ar-mcash.m-no EQ li-dscr NO-ERROR.
-           IF AVAILABLE ar-mcash THEN tmp-dscr = ar-mcash.payer + " Rec# " + tmp-dscr.
-         END.
-
-        IF tb_exc-acc AND gltrans.tr-amt EQ 0 THEN NEXT .
-
-          ASSIGN cDisplay = ""
-          cTmpField = ""
-          cVarValue = ""
-          cExcelDisplay = ""
-          cExcelVarValue = ""
-          .
-
-       DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
-       cTmpField = ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
-
-            CASE cTmpField:               
-                 WHEN "actnum"  THEN cVarValue = "" . 
-                 WHEN "actdesc" THEN cVarValue =  "" .
-                 WHEN "ap-desc" THEN cVarValue = STRING(ap-dscr,"x(30)") .
-                 WHEN "run"     THEN cVarValue = STRING(gltrans.trnum,"99999999") .
-                 WHEN "jour"    THEN cVarValue = STRING(gltrans.jrnl) .
-                 WHEN "ref"     THEN cVarValue = STRING(tmp-dscr,"x(52)").
-                 WHEN "date"    THEN cVarValue = STRING(gltrans.tr-date,"99/99/99") .
-                 WHEN "amt"     THEN cVarValue = STRING(gltrans.tr-amt,"(>>,>>>,>>9.99)") .
-                 WHEN "bal"     THEN cVarValue =  "" .
-
-            END CASE.
-            cExcelVarValue = cVarValue.  
-            cDisplay = cDisplay + cVarValue +
-                       FILL(" ",INTEGER(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)).             
-            cExcelDisplay = cExcelDisplay + QUOTER(cExcelVarValue) + ",". 
-
-   END.
-   PUT UNFORMATTED cDisplay SKIP.
-   IF tb_excel THEN DO:
-         PUT STREAM excel UNFORMATTED  
-               cExcelDisplay SKIP.
-   END.
-
-        /* IF tb_excel THEN
-         DO:
-            IF NOT acct-hdr-printed THEN
-            DO:
-               acct-hdr-printed = YES.
-               RUN excel-acct-proc(INPUT open-amt).
-            END.
-
-            RUN excel-det-proc(INPUT tmp-dscr,
-                               INPUT gltrans.trnum,
-                               INPUT gltrans.jrnl,
-                               INPUT gltrans.tr-date,
-                               INPUT gltrans.tr-amt).
-         END.*/
-
-         ASSIGN
-            tot-all  = tot-all  + gltrans.tr-amt
-            tot-tx   = tot-tx   + gltrans.tr-amt
-            tot-act  = tot-act  + gltrans.tr-amt.
-      END.
+      
     END.
     ELSE
     DO:
@@ -1844,137 +1750,8 @@ SESSION:SET-WAIT-STATE ("general").
            tot-all  = tot-all  + glhist.tr-amt
            tot-tx   = tot-tx   + glhist.tr-amt
            tot-act  = tot-act  + glhist.tr-amt.
-      END. /* each glhist */
-
-      FOR EACH gltrans NO-LOCK
-          WHERE gltrans.company EQ account.company
-            AND gltrans.actnum  EQ account.actnum AND
-                                        gltrans.tr-date GE v-s-date AND
-                                        gltrans.tr-date LE v-e-date AND
-                                        (gltrans.jrnl NE "AUTODIST" OR 
-                                         NOT tb_exc-auto)
-      BREAK BY gltrans.tr-date BY gltrans.jrnl BY gltrans.trnum:
-
-          {custom/statusMsg.i " 'Processing Run #  '  + string(gltrans.trnum) "}
-
-        IF LINE-COUNTER GT PAGE-SIZE - 2 THEN PAGE.
-        IF LAST-OF(gltrans.trnum) THEN 
-        DO:
-        ASSIGN tmp-amt = 0.
-        FOR EACH xgltrans FIELDS(tr-amt) NO-LOCK
-            WHERE xgltrans.company EQ cocode AND
-                                xgltrans.actnum  EQ gltrans.actnum  AND
-                                xgltrans.period  EQ gltrans.period  AND
-                                xgltrans.tr-date EQ gltrans.tr-date AND
-                                xgltrans.trnum   EQ gltrans.trnum   AND
-                                xgltrans.jrnl    EQ gltrans.jrnl:
-
-          ASSIGN tmp-amt = tmp-amt + xgltrans.tr-amt.
-        END.
-
-         IF tb_exc-acc AND tmp-amt EQ 0 THEN NEXT .
-
-        IF gltrans.jrnl EQ "CASHR" THEN
-          ASSIGN tmp-dscr = "CASH RECEIPTS                           ".
-        ELSE IF gltrans.jrnl EQ "APCKR" THEN
-          ASSIGN tmp-dscr = "ACCOUNTS PAYABLE CHECK REGISTER         ".
-        ELSE IF gltrans.jrnl EQ "GENERAL" THEN
-          ASSIGN tmp-dscr = "GENERAL                                 ".
-        ELSE IF gltrans.jrnl EQ "OEINV" THEN
-          ASSIGN tmp-dscr = "ORDER ENTRY INVOICE                     ".
-        ELSE IF gltrans.jrnl EQ "ARINV" THEN
-          ASSIGN tmp-dscr = "ACCOUNTS RECEIVABLE INVOICE             ".
-        ELSE IF gltrans.jrnl EQ "MCSHREC" THEN
-          ASSIGN tmp-dscr = "MISC CASH RECEIPTS                      ".
-        ELSE IF gltrans.jrnl EQ "CDISB" THEN
-          ASSIGN tmp-dscr = "CASH DISBURSEMENT                       ".
-        ELSE IF gltrans.jrnl EQ "APMEM" THEN
-          ASSIGN tmp-dscr = "ACCOUNTS PAYABLE MEMO                   ".
-        ELSE IF gltrans.jrnl EQ "CRMEM" THEN
-          ASSIGN tmp-dscr = "CREDIT MEMO                             ".
-        ELSE IF gltrans.jrnl EQ "ACPAY" THEN DO:
-            RUN GetTransDesc(INPUT gltrans.tr-dscr,
-                             INPUT gltrans.tr-amt,
-                             OUTPUT tmp-dscr).
-            IF tmp-dscr EQ "" THEN
-                ASSIGN tmp-dscr = "ACCOUNTS PAYABLE                        ".
-        END.
-        ELSE IF gltrans.jrnl EQ "APVOIDCK" THEN 
-          ASSIGN tmp-dscr = "ACCOUNTS PAYABLE VOID CHECK             ".
-        ELSE IF gltrans.jrnl EQ "ADJUST" THEN 
-          ASSIGN tmp-dscr = "ADJUSTMENT                              ".
-        ELSE IF gltrans.jrnl EQ "AUTODIST" THEN 
-          ASSIGN tmp-dscr = "AUTOMATIC DISTRIBUTION                  ".
-        ELSE 
-          ASSIGN tmp-dscr = "                                        ".
-
-          ap-dscr = "".
-           IF gltrans.jrnl EQ "ACPAY" THEN
-           RUN GetTransDesc(INPUT gltrans.tr-dscr,
-                             INPUT gltrans.tr-amt,
-                             OUTPUT ap-dscr).
-
-        /*put space(19)
-            gltrans.trnum format "9999999" space(1)
-            gltrans.jrnl space(1)
-            tmp-dscr FORMAT "X(52)"
-            gltrans.tr-date FORMAT "99/99/99" SPACE(1)
-            tmp-amt FORMAT "(>>,>>>,>>9.99)" skip.*/
-
-           ASSIGN cDisplay = ""
-          cTmpField = ""
-          cVarValue = ""
-          cExcelDisplay = ""
-          cExcelVarValue = ""
-          .
-
-       DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
-       cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
-
-            CASE cTmpField:               
-                 WHEN "actnum"  THEN cVarValue = "" . 
-                 WHEN "actdesc" THEN cVarValue =  "" .
-                 WHEN "ap-desc" THEN cVarValue = STRING(ap-dscr,"x(30)") .
-                 WHEN "run"     THEN cVarValue = STRING(gltrans.trnum,"99999999") .
-                 WHEN "jour"    THEN cVarValue = STRING(gltrans.jrnl) .
-                 WHEN "ref"     THEN cVarValue = STRING(tmp-dscr,"x(52)").
-                 WHEN "date"    THEN cVarValue = STRING(gltrans.tr-date,"99/99/99") .
-                 WHEN "amt"     THEN cVarValue = STRING(tmp-amt,"(>>,>>>,>>9.99)") .
-                 WHEN "bal"     THEN cVarValue =  "" .
-            END CASE.
-            cExcelVarValue = cVarValue.  
-            cDisplay = cDisplay + cVarValue +
-                       FILL(" ",INTEGER(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)).             
-            cExcelDisplay = cExcelDisplay + QUOTER(cExcelVarValue) + ",". 
-
-   END.
-   PUT UNFORMATTED cDisplay SKIP.
-   IF tb_excel THEN DO:
-         PUT STREAM excel UNFORMATTED  
-               cExcelDisplay SKIP.
-   END.
-
-       /* IF tb_excel THEN
-        DO:
-           IF NOT acct-hdr-printed THEN
-              DO:
-                 acct-hdr-printed = YES.
-                 RUN excel-acct-proc(INPUT open-amt).
-              END.
-
-           RUN excel-det-proc(INPUT tmp-dscr,
-                              INPUT gltrans.trnum,
-                              INPUT gltrans.jrnl,
-                              INPUT gltrans.tr-date,
-                              INPUT tmp-amt).
-        END.*/
-        END.
-
-         ASSIGN
-            tot-all  = tot-all  + gltrans.tr-amt
-            tot-tx   = tot-tx   + gltrans.tr-amt
-            tot-act  = tot-act  + gltrans.tr-amt.
-      END. /* each gltrans */
+      END. /* each glhist */ 
+      
     END.
 
   /*  IF tb_excel AND NOT acct-hdr-printed AND open-amt NE 0 THEN

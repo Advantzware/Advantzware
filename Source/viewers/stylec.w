@@ -255,48 +255,48 @@ DEFINE FRAME F-Main
      style.material[1] AT ROW 3.62 COL 62 COLON-ALIGNED
           LABEL "Board"
           VIEW-AS FILL-IN 
-          SIZE 14 BY 1
+          SIZE 16 BY 1
           BGCOLOR 15 FONT 4
      style.material[2] AT ROW 4.57 COL 62 COLON-ALIGNED
           LABEL "Ink"
           VIEW-AS FILL-IN 
-          SIZE 14 BY 1
+          SIZE 16 BY 1
           BGCOLOR 15 FONT 4
      style.material[3] AT ROW 5.52 COL 62 COLON-ALIGNED
           LABEL "Ink Cov %"
           VIEW-AS FILL-IN 
-          SIZE 14 BY 1
+          SIZE 16 BY 1
           BGCOLOR 15 FONT 4
      style.material[4] AT ROW 6.48 COL 62 COLON-ALIGNED
           LABEL "Adder"
           VIEW-AS FILL-IN 
-          SIZE 14 BY 1
+          SIZE 16 BY 1
           BGCOLOR 15 FONT 4
      style.material[5] AT ROW 7.43 COL 62 COLON-ALIGNED
           LABEL "Label"
           VIEW-AS FILL-IN 
-          SIZE 14 BY 1
+          SIZE 16 BY 1
           BGCOLOR 15 FONT 4
      style.material[6] AT ROW 8.38 COL 62 COLON-ALIGNED
           LABEL "Coating"
           VIEW-AS FILL-IN 
-          SIZE 14 BY 1
+          SIZE 16 BY 1
           BGCOLOR 15 FONT 4
      style.material[7] AT ROW 9.33 COL 62 COLON-ALIGNED
           LABEL "Joint Glue"
           VIEW-AS FILL-IN 
-          SIZE 14 BY 1
+          SIZE 16 BY 1
           BGCOLOR 15 FONT 4
      style.qty-per-set AT ROW 10.29 COL 62 COLON-ALIGNED
           LABEL "Qty/Set" FORMAT "->>>>>9"
           VIEW-AS FILL-IN 
-          SIZE 14 BY 1
+          SIZE 16 BY 1
           BGCOLOR 15 FONT 4
      style.spare-char-5 AT ROW 11.24 COL 62 COLON-ALIGNED WIDGET-ID 6
           LABEL "Packing Code"
           FORMAT "X(10)"
           VIEW-AS FILL-IN 
-          SIZE 14 BY 1
+          SIZE 16 BY 1
           BGCOLOR 15 
      style.dim-df AT ROW 12.43 COL 62 COLON-ALIGNED HELP
           "" WIDGET-ID 4
@@ -1713,6 +1713,7 @@ PROCEDURE local-display-fields :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF VAR i AS INT NO-UNDO.
+  DEFINE VARIABLE dTotal AS DECIMAL EXTENT 2 NO-UNDO.
 
   DEF BUFFER bf-reftable FOR reftable.
 /*MESSAGE "start " + STRING(flute.code) VIEW-AS ALERT-BOX ERROR.*/
@@ -1761,19 +1762,26 @@ PROCEDURE local-display-fields :
    {viewers/stylec3.i 7}
 
    DEF VAR ld-total AS DEC DECIMALS 6 NO-UNDO.
-   RUN get-dim-values (style.style,flute.code, "1", OUTPUT ld-total).                                 
+   RUN get-dim-values (style.style,flute.code, "1", OUTPUT ld-total).  
+   /*{sys/inc/k16dd.i ld-total} .*/ ld-total = DYNAMIC-FUNCTION("sfCommon_ConvDecimalTo1632",cocode, ld-total).
    ld-joint-tab = ld-total.
-   RUN get-dim-values (    style.style,flute.code, "2", OUTPUT ld-total).                                 
+   RUN get-dim-values (    style.style,flute.code, "2", OUTPUT ld-total).  
+   ld-total = DYNAMIC-FUNCTION("sfCommon_ConvDecimalTo1632",cocode, ld-total).
    ld-blank-width = (ld-total).
-   RUN get-dim-values (    style.style,flute.code, "3", OUTPUT ld-total).                                 
+   RUN get-dim-values (    style.style,flute.code, "3", OUTPUT ld-total).
+   ld-total = DYNAMIC-FUNCTION("sfCommon_ConvDecimalTo1632",cocode, ld-total).
    ld-glue-in = (ld-total).
-   RUN get-dim-values (    style.style,flute.code, "4", OUTPUT ld-total).                                 
+   RUN get-dim-values (    style.style,flute.code, "4", OUTPUT ld-total). 
+   ld-total = DYNAMIC-FUNCTION("sfCommon_ConvDecimalTo1632",cocode, ld-total).
    ld-glue-out = (ld-total).
-   RUN get-dim-values (    style.style,flute.code, "5", OUTPUT ld-total).                                 
+   RUN get-dim-values (    style.style,flute.code, "5", OUTPUT ld-total). 
+   ld-total = DYNAMIC-FUNCTION("sfCommon_ConvDecimalTo1632",cocode, ld-total).
    ld-stitch-in = (ld-total).
-   RUN get-dim-values (    style.style,flute.code, "6", OUTPUT ld-total).                                 
+   RUN get-dim-values (    style.style,flute.code, "6", OUTPUT ld-total). 
+   ld-total = DYNAMIC-FUNCTION("sfCommon_ConvDecimalTo1632",cocode, ld-total).
    ld-stitch-out = (ld-total).
-   RUN get-dim-values (    style.style,flute.code, "7", OUTPUT ld-total).                                 
+   RUN get-dim-values (    style.style,flute.code, "7", OUTPUT ld-total). 
+   ld-total = DYNAMIC-FUNCTION("sfCommon_ConvDecimalTo1632",cocode, ld-total).
    ld-tape-score = (ld-total).
 
   DISPLAY ld-joint-tab ld-blank-width ld-glue-in ld-glue-out ld-stitch-in ld-stitch-out

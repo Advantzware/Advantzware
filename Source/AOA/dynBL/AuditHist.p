@@ -37,6 +37,7 @@ PROCEDURE pBusinessLogic:
     DEFINE VARIABLE cEndUser          AS CHARACTER NO-UNDO.
     DEFINE VARIABLE dtEndDateTime     AS DATETIME  NO-UNDO.
     DEFINE VARIABLE dtStartDateTime   AS DATETIME  NO-UNDO.
+    DEFINE VARIABLE iCount            AS INTEGER   NO-UNDO.
     DEFINE VARIABLE lDelete           AS LOGICAL   NO-UNDO.
     
     DEFINE BUFFER bAuditDtl FOR AuditDtl.
@@ -79,6 +80,9 @@ PROCEDURE pBusinessLogic:
           AND bAuditDtl.AuditAfterValue  GE cStartAfterValue
           AND bAuditDtl.AuditAfterValue  LE cEndAfterValue
         :
+        iCount = iCount + 1.
+        IF lProgressBar THEN
+        RUN spProgressBar (cProgressBar, iCount, ?).
         FIND FIRST AuditTbl NO-LOCK
              WHERE AuditTbl.AuditTable EQ AuditHdr.AuditTable
              NO-ERROR.

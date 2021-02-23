@@ -42,20 +42,20 @@ DEF SHARED VAR g_period AS INT NO-UNDO.
 {sys/inc/VAR.i NEW SHARED}
 
 DEF TEMP-TABLE tt-glinq NO-UNDO
-    FIELD tr-date LIKE gltrans.tr-date LABEL "Date"
-    FIELD jrnl LIKE gltrans.jrnl       LABEL "Ref#"
+    FIELD tr-date LIKE glhist.tr-date LABEL "Date"
+    FIELD jrnl LIKE glhist.jrnl       LABEL "Ref#"
     FIELD tr-dscr AS CHAR FORMAT "X(60)" LABEL "Description"
-    FIELD tr-amt LIKE gltrans.tr-amt   LABEL "Amount"
-    FIELD db-amt LIKE gltrans.tr-amt   LABEL "Debit Amount"
-    FIELD cr-amt LIKE gltrans.tr-amt   LABEL "Credit Amount"
-    FIELD tr-num LIKE gltrans.trnum FORMAT "9999999"  LABEL "Run #" 
+    FIELD tr-amt LIKE glhist.tr-amt   LABEL "Amount"
+    FIELD db-amt LIKE glhist.tr-amt   LABEL "Debit Amount"
+    FIELD cr-amt LIKE glhist.tr-amt   LABEL "Credit Amount"
+    FIELD tr-num LIKE glhist.tr-num FORMAT "9999999"  LABEL "Run #" 
     FIELD tr-from AS cha      FORM "x(30)"    LABEL "Inquiry From" 
-    FIELD actnum LIKE gltrans.actnum LABEL "Account#"
-    FIELD createdBy LIKE gltrans.createdBy LABEL "Created By"
-    FIELD createdDate LIKE gltrans.createdDate LABEL "Created Date"
-    FIELD posted LIKE gltrans.posted LABEL "Posted"
-    FIELD tr-period LIKE gltrans.period LABEL "Pd"
-    FIELD tr-yr LIKE gltrans.yr LABEL "Year"
+    FIELD actnum LIKE glhist.actnum LABEL "Account#"
+    FIELD createdBy LIKE glhist.createdBy LABEL "Created By"
+    FIELD createdDate LIKE glhist.createdDate LABEL "Created Date"
+    FIELD posted LIKE glhist.posted LABEL "Posted"
+    FIELD tr-period LIKE glhist.period LABEL "Pd"
+    FIELD tr-yr LIKE glhist.yr LABEL "Year"
     FIELD riRowid AS ROWID 
     INDEX tr-date IS PRIMARY tr-date.
 
@@ -1051,14 +1051,14 @@ PROCEDURE build-inquiry :
         AND glhist.tr-date le dtDateTo 
         AND (glhist.tr-num ge iRunFrom  OR iRunFrom EQ 0)
         AND (glhist.tr-num le iRunTo  OR  iRunTo EQ 0)
-       
-      by glhist.tr-date :
+          
+      by glhist.tr-date :    
       CREATE tt-glinq.
       ASSIGN tt-glinq.tr-date = glhist.tr-date
              tt-glinq.jrnl = glhist.jrnl
              tt-glinq.tr-dscr = glhist.tr-dscr
              tt-glinq.tr-amt = glhist.tr-amt
-             tt-glinq.tr-from = "GL History "
+             tt-glinq.tr-from = IF glhist.posted EQ YES THEN "GL History " ELSE "GL Transaction " + string(glhist.tr-num)
              tt-glinq.actnum = glhist.actnum
              tt-glinq.tr-num = glhist.tr-num               
              tt-glinq.createdBy = glhist.createdBy
@@ -1066,7 +1066,7 @@ PROCEDURE build-inquiry :
              tt-glinq.posted = glhist.posted
              tt-glinq.tr-num = glhist.tr-num
              tt-glinq.tr-period = glhist.period
-             tt-glinq.tr-yr = glhist.yr
+             tt-glinq.tr-yr = glhist.glYear
              tt-glinq.riRowid = ROWID(glhist).
         IF glhist.tr-amt GT 0 THEN
         ASSIGN
@@ -1076,53 +1076,11 @@ PROCEDURE build-inquiry :
         ASSIGN
            tt-glinq.cr-amt = glhist.tr-amt * - 1
            lv-close-bal = lv-close-bal + ( glhist.tr-amt * - 1) .   
-
+                
       IF LENGTH(glhist.tr-dscr) GT v-max-dscr-length THEN
-         v-max-dscr-length = LENGTH(glhist.tr-dscr).
+         v-max-dscr-length = LENGTH(glhist.tr-dscr).  
   end.
-
-  for each gltrans  NO-LOCK
-      where gltrans.company eq cocode
-        and (gltrans.actnum  eq begin_acct OR begin_acct = "")
-        AND (gltrans.period  ge lv-period-fr OR lv-period-fr EQ 0)
-        and (gltrans.period  le lv-period-to OR lv-period-to EQ 0)       
-        AND (YEAR(gltrans.tr-date) EQ lv-year OR lv-year EQ 0)
-        AND gltrans.tr-date ge dtDateFrom 
-        AND gltrans.tr-date le dtDateTo 
-        AND (gltrans.trnum ge iRunFrom  OR iRunFrom EQ 0)
-        AND (gltrans.trnum le iRunTo  OR  iRunTo EQ 0)
-      by gltrans.tr-date:
-      CREATE tt-glinq.
-      ASSIGN tt-glinq.tr-date = gltran.tr-date
-             tt-glinq.jrnl = gltran.jrnl
-             tt-glinq.tr-dscr = gltran.tr-dscr
-             tt-glinq.tr-amt = gltran.tr-amt
-             tt-glinq.tr-from = "GL Transaction " + string(gltran.trnum)
-             tt-glinq.actnum = gltrans.actnum
-             tt-glinq.tr-num = gltrans.trnum
-             tt-glinq.createdBy = gltrans.createdBy
-             tt-glinq.createdDate = gltrans.createdDate
-             tt-glinq.posted = gltrans.posted
-             tt-glinq.tr-num = gltrans.trnum
-             tt-glinq.tr-period = gltrans.period
-             tt-glinq.tr-yr = gltrans.yr
-             tt-glinq.riRowid = ROWID(gltrans)
-             .
-             
-        IF gltran.tr-amt GT 0 THEN
-         ASSIGN
-           tt-glinq.db-amt = gltran.tr-amt 
-           lv-open-bal = lv-open-bal + gltran.tr-amt.
-        IF gltran.tr-amt LT 0 THEN
-        ASSIGN
-           tt-glinq.cr-amt = gltran.tr-amt * - 1
-           lv-close-bal = lv-close-bal + (gltran.tr-amt * - 1).
-
-      IF LENGTH(gltran.tr-dscr) GT v-max-dscr-length THEN
-         v-max-dscr-length = LENGTH(gltran.tr-dscr).           
-           
-  end.
- 
+              
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
