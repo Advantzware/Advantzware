@@ -1045,11 +1045,17 @@ PROCEDURE pAddEstOperationFromEstOp PRIVATE:
             opbf-estCostOperation.isPrinter = YES.
         IF fIsDepartment(gcDeptsForCoaters, opbf-estCostOperation.departmentID) THEN  
             opbf-estCostOperation.isCoater = YES.
-        IF fIsDepartment(gcDeptsForSheeters, opbf-estCostOperation.departmentID)  THEN 
-            ASSIGN 
-                opbf-estCostOperation.isNetSheetMaker = YES
-                opbf-estCostOperation.outputType      = "S"
-                .
+        IF fIsDepartment(gcDeptsForSheeters, opbf-estCostOperation.departmentID) THEN 
+        DO: 
+            IF NOT CAN-FIND(FIRST estCostOperation 
+                WHERE estCostOperation.estCostHeaderID EQ opbf-estCostOperation.estCostHeaderID
+                AND estCostOperation.estCostFormID EQ ipbf-estCostForm.estCostFormID
+                AND estCostOperation.isNetSheetMaker
+                AND estCostOperation.estCostOperationID NE opbf-estCostOperation.estCostOperationID) THEN   
+                opbf-estCostOperation.isNetSheetMaker = YES.
+            
+            opbf-estCostOperation.outputType      = "S".
+        END.
         IF fIsDepartment(gcDeptsForGluers, opbf-estCostOperation.departmentID)  THEN 
             opbf-estCostOperation.isGluer = YES.
         IF fIsDepartment(gcDeptsForLeafers, opbf-estCostOperation.departmentID)  THEN 
