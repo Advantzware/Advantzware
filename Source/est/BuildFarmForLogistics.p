@@ -153,7 +153,7 @@ PROCEDURE pBuildQuantitiesAndCostsFromQuote PRIVATE:
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE PARAMETER BUFFER ipbf-eb FOR eb.
-    DEFINE VARIABLE cNewEstNo   AS CHARACTER NO-UNDO.
+    
     DEFINE VARIABLE cEstNo      AS CHARACTER NO-UNDO.
     
     DEFINE VARIABLE iQuoteNo    AS INTEGER   NO-UNDO.
@@ -162,10 +162,9 @@ PROCEDURE pBuildQuantitiesAndCostsFromQuote PRIVATE:
     DEFINE VARIABLE cChoice     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE iQuoteQty   AS INTEGER   NO-UNDO.
     DEFINE VARIABLE rwRowid     AS ROWID     NO-UNDO.
-        
+    
     EMPTY TEMP-TABLE ttQuantityCost.
     cEstNo = ipbf-eb.sourceEstimate.
-    cNewEstNo = ipbf-eb.est-no.
     RUN util/rjust.p (INPUT-OUTPUT cEstNo,8). 
     
     IF iplPromptForQuotes AND CAN-FIND(FIRST quotehd WHERE quotehd.company EQ ipbf-eb.company AND quotehd.est-no EQ cEstNo) THEN
@@ -185,24 +184,22 @@ PROCEDURE pBuildQuantitiesAndCostsFromQuote PRIVATE:
        
     FOR EACH quotehd NO-LOCK
         WHERE quotehd.company  EQ ipbf-eb.company
-        AND (quotehd.q-no EQ iQuoteNo OR iQuoteNo EQ 0) 
+        AND (quotehd.q-no EQ iQuoteNo OR iQuoteNo EQ 0)        
         AND quotehd.est-no    EQ cEstNo 
         AND (quotehd.expireDate GE TODAY OR quotehd.expireDate EQ ?)
         AND quotehd.quo-date LE TODAY
         ,
         FIRST quoteitm NO-LOCK 
-        WHERE quoteitm.company EQ quotehd.company
-        AND quoteitm.loc EQ quotehd.loc
+        WHERE quoteitm.company EQ quotehd.company         
         AND quoteitm.q-no EQ quotehd.q-no
         AND quoteitm.part-no EQ ipbf-eb.part-no
         ,
         EACH quoteqty NO-LOCK
-        WHERE quoteqty.company EQ quoteitm.company
-        AND quoteqty.loc EQ quoteitm.loc
+        WHERE quoteqty.company EQ quoteitm.company         
         AND quoteqty.q-no EQ quoteitm.q-no
         AND quoteqty.line EQ quoteitm.line
         BY quotehd.quo-date DESCENDING:
-        
+            
         FIND FIRST ttQuantityCost 
             WHERE ttQuantityCost.iQty EQ quoteqty.qty
             NO-ERROR.
@@ -216,7 +213,7 @@ PROCEDURE pBuildQuantitiesAndCostsFromQuote PRIVATE:
                 RUN Conv_ValueToEA(quoteqty.company, quoteitm.i-no, quoteqty.price, quoteqty.uom, 0, OUTPUT ttQuantityCost.dCostPerEA).
         END.               
     END.
-    RUN pCreateQuoteMisc(INPUT ipbf-eb.company, INPUT ipbf-eb.loc, INPUT cEstNo, INPUT cNewEstNo, INPUT iQuoteNo) .
+
 END PROCEDURE. 
           
 PROCEDURE pGetCostFrom PRIVATE:
@@ -247,71 +244,13 @@ PROCEDURE pGetLastQuoteNO PRIVATE:
     DEFINE OUTPUT PARAMETER opiQuoteNO AS INTEGER   NO-UNDO.    
         
     FOR EACH quotehd FIELDS(q-no) NO-LOCK  
-        WHERE quotehd.company EQ ipcCompany 
+        WHERE quotehd.company EQ ipcCompany         
         AND quotehd.quo-date LE TODAY 
         AND (quotehd.expireDate GE TODAY OR quotehd.expireDate EQ ?)
-        AND quotehd.est-no EQ ipcEstimate
+        AND quotehd.est-no EQ ipcEstimate  
         BREAK BY quotehd.q-no DESC:
         opiQuoteNO = quotehd.q-no .
         LEAVE.
     END.
 
 END PROCEDURE.   
-
-
-PROCEDURE pCreateQuoteMisc PRIVATE:
-    /*------------------------------------------------------------------------------
-     Purpose:
-     Notes:
-    ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcCompany       AS CHARACTER NO-UNDO. 
-    DEFINE INPUT PARAMETER ipcloc           AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcEstimate      AS CHARACTER NO-UNDO. 
-    DEFINE INPUT PARAMETER ipcNewEstimate   AS CHARACTER NO-UNDO. 
-    DEFINE INPUT PARAMETER ipiQuoteNO       AS INTEGER   NO-UNDO.    
-        
-    DEFINE BUFFER bf-quotehd FOR quotehd.
-    DEFINE BUFFER bf-quoteitm FOR quoteitm.
-    DEFINE BUFFER bf-quoteqty FOR quoteqty.
-    DEFINE BUFFER bf-quotechg FOR quotechg.
-    
-    FOR EACH bf-quotehd NO-LOCK
-        WHERE bf-quotehd.company  EQ ipcCompany
-        AND (bf-quotehd.q-no EQ ipiQuoteNO) 
-        AND bf-quotehd.est-no    EQ ipcEstimate 
-        AND (bf-quotehd.expireDate GE TODAY OR bf-quotehd.expireDate EQ ?)
-        AND bf-quotehd.quo-date LE TODAY:
-        
-        CREATE quotehd.
-        BUFFER-COPY bf-quotehd EXCEPT bf-quotehd.q-no bf-quotehd.est-no  TO quotehd.
-         ASSIGN 
-             quotehd.est-no   = ipcNewEstimate
-             quotehd.quo-date = TODAY.
-
-         FOR EACH bf-quoteitm OF bf-quotehd NO-LOCK :
-             CREATE quoteitm.
-             BUFFER-COPY bf-quoteitm EXCEPT bf-quoteitm.q-no TO quoteitm.
-             ASSIGN quoteitm.q-no = quotehd.q-no.
-
-             FOR EACH bf-quoteqty WHERE bf-quoteqty.company = bf-quoteitm.company
-                                    AND bf-quoteqty.loc = bf-quoteitm.loc
-                                    AND bf-quoteqty.q-no = bf-quoteitm.q-no
-                                    AND bf-quoteqty.line = bf-quoteitm.line NO-LOCK:
-                 CREATE quoteqty.
-                 BUFFER-COPY bf-quoteqty EXCEPT bf-quoteqty.q-no TO quoteqty.
-                 ASSIGN quoteqty.q-no = quotehd.q-no.
-
-                 FOR EACH bf-quotechg WHERE bf-quotechg.company eq bf-quoteqty.company
-                                        AND bf-quotechg.loc eq bf-quoteqty.loc
-                                        AND bf-quotechg.q-no eq bf-quoteqty.q-no
-                                        AND ((bf-quotechg.line eq bf-quoteqty.line AND bf-quotechg.qty eq bf-quoteqty.qty) OR
-                                            (bf-quotechg.LINE eq 0                 AND bf-quotechg.qty eq 0               )) NO-LOCK:
-                     CREATE quotechg.
-                     BUFFER-COPY bf-quotechg EXCEPT bf-quotechg.q-no TO quotechg.
-                     ASSIGN quotechg.q-no = quotehd.q-no.
-                 END.   
-             END. /*FOR EACH bf-quoteqty*/
-         END.  /*FOR EACH bf-quoteitm*/
-     END.  /*FOR EACH bf-quotehd*/
-
-END PROCEDURE.
