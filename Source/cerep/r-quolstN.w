@@ -565,6 +565,56 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME DEFAULT-FRAME
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL FRAME-A C-Win
+ON HELP OF FRAME FRAME-A
+DO:
+    DEFINE VARIABLE cFieldsValue  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFoundValue   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE recFoundRecID AS RECID     NO-UNDO.
+    
+    CASE FOCUS:NAME :
+        WHEN "begin_cust-no" OR 
+        WHEN "end_cust-no"  THEN DO:
+            RUN system/openLookup.p (
+            INPUT  g_company, 
+            INPUT  "",  /* Lookup ID */
+            INPUT  23,  /* Subject ID */
+            INPUT  "",  /* User ID */
+            INPUT  0,   /* Param Value ID */
+            OUTPUT cFieldsValue, 
+            OUTPUT cFoundValue, 
+            OUTPUT recFoundRecID
+            ).   
+            IF cFoundValue <> "" THEN 
+                ASSIGN FOCUS:SCREEN-VALUE = cFoundValue.         
+        END.
+        WHEN "begin_slsmn" OR 
+        WHEN "end_slsmn"  THEN 
+            DO:
+                RUN system/openLookup.p (
+                    INPUT  g_company, 
+                    INPUT  "",  /* Lookup ID */
+                    INPUT  29,  /* Subject ID */
+                    INPUT  "",  /* User ID */
+                    INPUT  0,   /* Param Value ID */
+                    OUTPUT cFieldsValue, 
+                    OUTPUT cFoundValue, 
+                    OUTPUT recFoundRecID
+                    ).   
+                IF cFoundValue <> "" THEN 
+                    ASSIGN FOCUS:SCREEN-VALUE = cFoundValue.         
+            END.
+
+    END CASE.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 &Scoped-define SELF-NAME end_cust-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_cust-no C-Win
 ON LEAVE OF end_cust-no IN FRAME FRAME-A /* Ending Customer# */
