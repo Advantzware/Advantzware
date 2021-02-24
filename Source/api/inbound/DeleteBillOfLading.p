@@ -18,25 +18,12 @@ DEFINE OUTPUT PARAMETER opcMessage  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hdOrderProcs AS HANDLE NO-UNDO.
 
 /* This will eventually move to setsession approach */
-&SCOPED-DEFINE NEW NEW
-{methods/defines/globdefs.i}
-{methods/defines/hndldefs.i}
-  
-DEFINE VARIABLE hSession AS HANDLE NO-UNDO.
-DEFINE VARIABLE hTags    AS HANDLE NO-UNDO.
-  
-g_company=ipcCompany.
-  
-RUN nosweat/persist.p  PERSISTENT SET Persistent-Handle.
-RUN lstlogic/persist.p PERSISTENT SET ListLogic-Handle.
-  
-RUN system/session.p  PERSISTENT SET hSession.
-SESSION:ADD-SUPER-PROCEDURE (hSession).
-RUN system/TagProcs.p PERSISTENT SET hTags.
-SESSION:ADD-SUPER-PROCEDURE (hTags).
-{sys/inc/var.i "new shared"}
+{methods/defines/globdefs.i}  
+{sys/inc/var.i "NEW SHARED"}
 
-RUN oe/OrderProcs.p PERSISTENT SET hdOrderProcs.
+g_company=ipcCompany.
+
+{sys/inc/varasgn.i}
 
 oplSuccess = YES.
 
@@ -76,6 +63,8 @@ IF oe-bolh.posted EQ TRUE THEN DO:
 END.
 
 DO TRANSACTION ON ERROR UNDO,LEAVE:
+    RUN oe/OrderProcs.p PERSISTENT SET hdOrderProcs.
+
     /* Deletes a BOL and unposts related release */
     RUN Order_DeleteBOL IN hdOrderProcs (
         INPUT  ipcCompany,
@@ -90,6 +79,9 @@ DO TRANSACTION ON ERROR UNDO,LEAVE:
                          opcMessage.
         UNDO, LEAVE.
     END.
+    
+    FINALLY:
+        IF VALID-HANDLE(hdOrderProcs) THEN
+            DELETE PROCEDURE hdOrderProcs.        
+    END.
 END.      
-     
-DELETE PROCEDURE hdOrderProcs.

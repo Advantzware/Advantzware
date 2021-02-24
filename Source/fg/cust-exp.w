@@ -112,7 +112,7 @@ ASSIGN cTextListToSelect = "Customer,Name,Status,Address1,Address2,City,State,Zi
                                  "Territory,Pallet ID,Overrun%,Underrun%,Pallet,Case/Bundle,Mark-up,No Load Tags,Whse Days,Pallet Positions," +
                                  "PO# Mandatory,Show Set Parts,Paperless Invoice?,Partial Ship,Taxable,Tax Prep Code,Tax Code,Tax Resale#,Exp," +
                                  "Email,Group,Broker Comm%,Flat Comm%,Prefix,Contract Pricing,Bank Account,Swift Code,Routing,Account Type," + 
-                                 "Split Type,Parent Cust,Market segment,NAICS Code,AR ClassId,Accountant" .
+                                 "Split Type,Parent Cust,Market segment,NAICS Code,AR ClassId,Accountant,Matrix Precision,Matrix Rounding" .
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

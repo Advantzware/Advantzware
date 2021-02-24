@@ -74,6 +74,8 @@ DEFINE VARIABLE cCalcJobDueDate AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCalcDueDateMsg AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cJobType AS CHARACTER NO-UNDO.
 
+DEFINE VARIABLE lAddFromTool AS LOGICAL NO-UNDO.
+
 RUN sys/ref/nk1look.p (cocode, "CalcJobDueDate", "L", NO, NO, "", "", 
                        OUTPUT cCalcJobDueDate, OUTPUT llRecFound).
 IF llRecFound THEN
@@ -738,30 +740,51 @@ PROCEDURE add-job :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEFINE VARIABLE lCreateJob AS LOGICAL NO-UNDO.
-  DEFINE VARIABLE cJobNo AS CHARACTER NO-UNDO.
-  DEFINE VARIABLE iJobNo2 AS INTEGER NO-UNDO.
-  DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE lCreateJob  AS LOGICAL    NO-UNDO.
+  DEFINE VARIABLE cJobNo      AS CHARACTER  NO-UNDO.
+  DEFINE VARIABLE iJobNo2     AS INTEGER    NO-UNDO.
+  DEFINE VARIABLE char-hdl    AS CHARACTER  NO-UNDO.
+  DEFINE VARIABLE lAddOption  AS CHARACTER  NO-UNDO.
+  
   DEFINE BUFFER bf-job-hdr FOR job-hdr.
-  IF cJobType EQ "Molded" THEN
-  DO:                          
-    RUN jc/dAddJobWithEst.w("",ROWID(job), OUTPUT lCreateJob, OUTPUT cJobNo, OUTPUT iJobNo2).
-    IF lCreateJob THEN
-    DO:
+  
+  IF NOT lAddFromTool THEN
+  DO:
+      RUN jc/d-addJob.w (INPUT NO, OUTPUT lAddOption). 
+      IF lAddOption = "" THEN RETURN NO-APPLY.    /* cancel */
+  END.
+
+  ASSIGN
+    lAddFromTool = NO.
+    
+  IF lAddOption = "AddNewJob" AND cJobType EQ "Molded" THEN
+  DO:
+     RUN jc/dAddJobWithEst.w("",ROWID(job), OUTPUT lCreateJob, OUTPUT cJobNo, OUTPUT iJobNo2).
+     IF lCreateJob THEN
+     DO:
          FIND FIRST bf-job-hdr NO-LOCK
-              WHERE bf-job-hdr.company EQ cocode
-              AND bf-job-hdr.job-no EQ cJobNo
-              AND bf-job-hdr.job-no2 EQ iJobNo2 NO-ERROR .
-           
+             WHERE bf-job-hdr.company EQ cocode
+             AND bf-job-hdr.job-no EQ cJobNo
+             AND bf-job-hdr.job-no2 EQ iJobNo2 NO-ERROR .
+
          RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"record-source", OUTPUT char-hdl). 
          IF AVAILABLE bf-job-hdr THEN
-         RUN reopen-query IN WIDGET-HANDLE(char-hdl) (ROWID(bf-job-hdr)).          
-    END.
+         RUN reopen-query IN WIDGET-HANDLE(char-hdl) (ROWID(bf-job-hdr)).
+     end. 
   END.
-  ELSE 
+  ELSE IF lAddOption = "AddJobFromEst" THEN
   DO:
-    RUN dispatch ('add-record').
+     
+     RUN dispatch ('add-record').          
+  
   END.
+  ELSE
+  DO:
+     
+     RUN dispatch ('add-record').          
+  
+  END.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1525,6 +1548,11 @@ PROCEDURE local-update-record :
   DEFINE VARIABLE choice AS LOG NO-UNDO.
   DEFINE VARIABLE rEbRow AS ROWID NO-UNDO.
   DEFINE VARIABLE cNewItem AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cIsItem AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cIsPartNo AS CHARACTER NO-UNDO.  
+  DEFINE VARIABLE clsUom AS cha NO-UNDO.  
+  DEFINE VARIABLE cLoc AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cLocBin AS CHARACTER NO-UNDO.
   /* Code placed here will execute PRIOR to standard behavior. */
   IF lCheckStartDate THEN do:
       RUN validate-start-date.
@@ -1610,13 +1638,36 @@ PROCEDURE local-update-record :
                 AND itemfg.i-no   EQ xeb.stock-no
               NO-LOCK NO-ERROR.
              IF NOT AVAILABLE itemfg THEN
-            MESSAGE "Item: " + TRIM(xeb.stock-no) + " doesn't exist for Cust Part#: " +  TRIM(xeb.part-no) + 
-                 " and Form#: " + STRING(xeb.form-no) + ", would you LIKE to create it?"
-                    VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE choice.
+             DO:
+                 FIND FIRST shipto NO-LOCK 
+                      WHERE shipto.company EQ xeb.company
+                      AND shipto.cust-no EQ xeb.cust-no
+                      AND shipto.ship-id EQ xeb.ship-id
+                      NO-ERROR.
+                 IF AVAILABLE shipto THEN 
+                 ASSIGN 
+                     cLoc = shipto.loc
+                     cLocBin = shipto.loc-bin. 
+                 
+                 ASSIGN cIsItem = xeb.stock-no
+                        cIsPartNo = xeb.part-no                          
+                        clsUom = "M".
+                 RUN oe/d-citmfg.w (xeb.est-no, INPUT-OUTPUT cIsItem,
+                                INPUT-OUTPUT cIsPartNo,INPUT-OUTPUT clsUom, INPUT-OUTPUT cLoc, INPUT-OUTPUT cLocBin) NO-ERROR.
+                 choice = IF cIsItem EQ "" THEN NO ELSE YES.
+                 IF NOT choice THEN
+                 DO:
+                   RUN dispatch ("cancel-record").
+                   RETURN.                      
+                 END.                   
+             END.             
+            
             IF choice THEN DO:
                 RUN pFGAdd (
                     INPUT ROWID(xeb),
-                    INPUT ROWID(xest)
+                    INPUT ROWID(xest),
+                    INPUT cLoc,
+                    INPUT cLocBin
                     ).
             END.
 
@@ -1817,7 +1868,12 @@ PROCEDURE pFGAdd PRIVATE :
  Notes:
 ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ipriEb  AS ROWID NO-UNDO.
-    DEFINE INPUT  PARAMETER ipriEst AS ROWID NO-UNDO.    
+    DEFINE INPUT  PARAMETER ipriEst AS ROWID NO-UNDO. 
+    DEFINE INPUT  PARAMETER ipcLoc  AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcLocBin AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE cFGItemLoc  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFGItemLocBin AS CHARACTER NO-UNDO.
     
     DEFINE BUFFER xeb  FOR eb.
     DEFINE BUFFER xest FOR est.
@@ -1829,6 +1885,9 @@ PROCEDURE pFGAdd PRIVATE :
     FIND FIRST xest EXCLUSIVE-LOCK
          WHERE ROWID(xest) EQ ipriEst
          NO-ERROR.
+    ASSIGN
+    cFGItemLoc = ipcLoc
+    cFGItemLocBin = ipcLocBin.
         
     {jc/fgadd.i}
 END PROCEDURE.

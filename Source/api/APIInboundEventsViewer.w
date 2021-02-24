@@ -120,14 +120,15 @@ hdQuery:SET-BUFFERS(BUFFER APIInboundEvent:HANDLE).
     ~{&OPEN-QUERY-ttAPIInboundEvent}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-26 btExport btExit fieventID btFilter ~
-btAPIIDLookup fiAPIId cbSuccess btBeginRequestDateCal btEndRequestDateCal ~
-fiBeginRequestDate fiBeginHours fiBeginMins fiEndRequestDate fiEndHours ~
-fiEndMins btRestart fiRequestData ttAPIInboundEvent 
-&Scoped-Define DISPLAYED-OBJECTS fieventIDlb fieventID fiAPIIdLabel fiAPIId ~
-fiSuccessLabel cbSuccess fiBeginRequestDatelabel fiBeginRequestDate ~
-fiBeginHours fiBeginMins fiendRequestDatelabel fiEndRequestDate fiEndHours ~
-fiEndMins fiRequestData fiMessage 
+&Scoped-Define ENABLED-OBJECTS RECT-26 RECT-27 btExport btExit fieventID ~
+btFilter btAPIIDLookup fiAPIId cbSuccess btBeginRequestDateCal ~
+btEndRequestDateCal fiBeginRequestDate fiBeginMins fiEndRequestDate ~
+fiEndHours fiEndMins btRestart fiRequestData ttAPIInboundEvent fiBeginHours 
+&Scoped-Define DISPLAYED-OBJECTS fieventID fiAPIId cbSuccess ~
+fiBeginRequestDate fiBeginMins fiEndRequestDate fiEndHours fiEndMins ~
+fiRequestData fiMessage fieventIDlb fiAPIIdLabel fiSuccessLabel ~
+fiBeginRequestDatelabel fiBeginHours fiendRequestDatelabel ~
+fiFindRequestData 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -159,105 +160,121 @@ DEFINE BUTTON btEndRequestDateCal
      SIZE 5.2 BY 1.24.
 
 DEFINE BUTTON btExit 
-     IMAGE-UP FILE "Graphics/32x32/exit_white.png":U
+     IMAGE-UP FILE "Graphics/32x32/exit_white.png":U NO-FOCUS
      LABEL "Exit" 
-     SIZE 11 BY 2.62.
+     SIZE 7.2 BY 1.71.
 
 DEFINE BUTTON btExport 
-     IMAGE-UP FILE "Graphics/32x32/file_excel.png":U
+     IMAGE-UP FILE "Graphics/32x32/file_excel.png":U NO-FOCUS
      LABEL "Export" 
-     SIZE 11 BY 2.62 TOOLTIP "Export Data".
+     SIZE 7.2 BY 1.71 TOOLTIP "Export Data".
 
 DEFINE BUTTON btFilter 
-     IMAGE-UP FILE "Graphics/32x32/magnifying_glass.ico":U
+     IMAGE-UP FILE "Graphics/32x32/search_New.png":U
      LABEL "Filter" 
-     SIZE 9 BY 2.14.
+     SIZE 7.2 BY 1.71.
 
 DEFINE BUTTON btRestart 
-     IMAGE-UP FILE "Graphics/32x32/refresh.ico":U
+     IMAGE-UP FILE "Graphics/32x32/refresh.png":U
      LABEL "Restart" 
-     SIZE 9 BY 2.14 TOOLTIP "Retry Event(s)".
+     SIZE 7.2 BY 1.71 TOOLTIP "Retry Event(s)".
 
 DEFINE VARIABLE cbSuccess AS CHARACTER FORMAT "X(256)":U INITIAL "ALL" 
      VIEW-AS COMBO-BOX INNER-LINES 5
      LIST-ITEMS "ALL","FAILED","SUCCESS","QUEUED" 
      DROP-DOWN-LIST
      SIZE 16 BY 1
-     FGCOLOR 9 FONT 6 NO-UNDO.
+     FGCOLOR 0 FONT 22 NO-UNDO.
 
 DEFINE VARIABLE fiAPIId AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
      SIZE 49.8 BY 1
-     FONT 6 NO-UNDO.
+     FGCOLOR 0 FONT 22 NO-UNDO.
 
 DEFINE VARIABLE fiAPIIdLabel AS CHARACTER FORMAT "X(256)":U INITIAL "API Route:" 
-     VIEW-AS FILL-IN 
+      VIEW-AS TEXT 
      SIZE 13.2 BY 1
-     FONT 6 NO-UNDO.
+     BGCOLOR 23 FGCOLOR 24 FONT 22 NO-UNDO.
 
 DEFINE VARIABLE fiBeginHours AS INTEGER FORMAT "99":U INITIAL 0 
-     VIEW-AS FILL-IN 
-     SIZE 4.4 BY 1 NO-UNDO.
+      VIEW-AS TEXT 
+     SIZE 4.4 BY 1
+     BGCOLOR 23 FGCOLOR 24 FONT 22 NO-UNDO.
 
 DEFINE VARIABLE fiBeginMins AS INTEGER FORMAT "99":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 4.4 BY 1 NO-UNDO.
+     SIZE 4.4 BY 1
+     FGCOLOR 0 FONT 22 NO-UNDO.
 
 DEFINE VARIABLE fiBeginRequestDate AS DATE FORMAT "99/99/99":U 
      VIEW-AS FILL-IN 
      SIZE 15 BY 1
-     FONT 6 NO-UNDO.
+     FGCOLOR 0 FONT 22 NO-UNDO.
 
 DEFINE VARIABLE fiBeginRequestDatelabel AS CHARACTER FORMAT "X(256)":U INITIAL "Begin Request Date:" 
-     VIEW-AS FILL-IN 
+      VIEW-AS TEXT 
      SIZE 24 BY 1
-     FONT 6 NO-UNDO.
+     BGCOLOR 23 FGCOLOR 24 FONT 22 NO-UNDO.
 
 DEFINE VARIABLE fiEndHours AS INTEGER FORMAT "99":U INITIAL 23 
      VIEW-AS FILL-IN 
-     SIZE 4.4 BY 1 NO-UNDO.
+     SIZE 4.4 BY 1
+     FGCOLOR 0 FONT 22 NO-UNDO.
 
 DEFINE VARIABLE fiEndMins AS INTEGER FORMAT "99":U INITIAL 59 
      VIEW-AS FILL-IN 
-     SIZE 4.4 BY 1 NO-UNDO.
+     SIZE 4.4 BY 1
+     FGCOLOR 0 FONT 22 NO-UNDO.
 
 DEFINE VARIABLE fiEndRequestDate AS DATE FORMAT "99/99/99":U 
      VIEW-AS FILL-IN 
      SIZE 15 BY 1
-     FONT 6 NO-UNDO.
+     FGCOLOR 0 FONT 22 NO-UNDO.
 
 DEFINE VARIABLE fiendRequestDatelabel AS CHARACTER FORMAT "X(256)":U INITIAL "End Request Date:" 
-     VIEW-AS FILL-IN 
+      VIEW-AS TEXT 
      SIZE 21.8 BY 1
-     FONT 6 NO-UNDO.
+     BGCOLOR 23 FGCOLOR 24 FONT 22 NO-UNDO.
 
 DEFINE VARIABLE fieventID AS INTEGER FORMAT "->,>>>,>>9":U INITIAL 0 
      VIEW-AS FILL-IN 
      SIZE 22.6 BY 1
-     FONT 6 NO-UNDO.
+     FGCOLOR 0 FONT 22 NO-UNDO.
 
 DEFINE VARIABLE fieventIDlb AS CHARACTER FORMAT "X(256)":U INITIAL "Event ID:" 
-     VIEW-AS FILL-IN 
+      VIEW-AS TEXT 
      SIZE 11.6 BY 1
-     FONT 6 NO-UNDO.
+     BGCOLOR 23 FGCOLOR 24 FONT 22 NO-UNDO.
+
+DEFINE VARIABLE fiFindRequestData AS CHARACTER FORMAT "X(256)":U INITIAL "Find Request Data:" 
+      VIEW-AS TEXT 
+     SIZE 24 BY 1
+     BGCOLOR 23 FGCOLOR 24 FONT 22 NO-UNDO.
 
 DEFINE VARIABLE fiMessage AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
-     SIZE 47.4 BY 1 NO-UNDO.
+     SIZE 47.4 BY 1
+     BGCOLOR 23 FGCOLOR 0 FONT 22 NO-UNDO.
 
 DEFINE VARIABLE fiRequestData AS CHARACTER FORMAT "X(256)":U 
-     LABEL "Find Request Data" 
      VIEW-AS FILL-IN 
-     SIZE 52 BY 1 NO-UNDO.
+     SIZE 52 BY 1
+     FGCOLOR 0 FONT 22 NO-UNDO.
 
 DEFINE VARIABLE fiSuccessLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Status:" 
-     VIEW-AS FILL-IN 
+      VIEW-AS TEXT 
      SIZE 9.2 BY 1
-     FONT 6 NO-UNDO.
+     BGCOLOR 23 FGCOLOR 24 FONT 22 NO-UNDO.
 
 DEFINE RECTANGLE RECT-26
-     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 138 BY 5.48.
+     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     SIZE 138 BY 5.48
+     BGCOLOR 23 FGCOLOR 24 .
+
+DEFINE RECTANGLE RECT-27
+     EDGE-PIXELS 2 GRAPHIC-EDGE    
+     SIZE 227.4 BY 2.29
+     BGCOLOR 21 FGCOLOR 21 .
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -290,45 +307,44 @@ DEFINE BROWSE ttAPIInboundEvent
       ENABLE ttAPIInboundEvent.retryEvent
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 226 BY 22.38
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 226 BY 19.76
          FONT 34 ROW-HEIGHT-CHARS .9 FIT-LAST-COLUMN.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
-     btExport AT ROW 1.24 COL 202 WIDGET-ID 50
-     btExit AT ROW 1.24 COL 216.8 WIDGET-ID 2
-     fieventIDlb AT ROW 1.67 COL 13.4 COLON-ALIGNED NO-LABEL WIDGET-ID 32
-     fieventID AT ROW 1.67 COL 25.2 COLON-ALIGNED NO-LABEL WIDGET-ID 30
-     btFilter AT ROW 1.71 COL 129.6 WIDGET-ID 18
-     btAPIIDLookup AT ROW 2.76 COL 77 WIDGET-ID 48
-     fiAPIIdLabel AT ROW 2.81 COL 13.8 NO-LABEL WIDGET-ID 6
-     fiAPIId AT ROW 2.81 COL 25.2 COLON-ALIGNED NO-LABEL WIDGET-ID 40
-     fiSuccessLabel AT ROW 2.81 COL 81.8 COLON-ALIGNED NO-LABEL WIDGET-ID 12
-     cbSuccess AT ROW 2.81 COL 91.2 COLON-ALIGNED NO-LABEL WIDGET-ID 14
-     btBeginRequestDateCal AT ROW 3.86 COL 42.4 WIDGET-ID 44
-     btEndRequestDateCal AT ROW 3.86 COL 108.2 WIDGET-ID 46
-     fiBeginRequestDatelabel AT ROW 3.95 COL 1 COLON-ALIGNED NO-LABEL WIDGET-ID 8
-     fiBeginRequestDate AT ROW 3.95 COL 25.2 COLON-ALIGNED NO-LABEL WIDGET-ID 10
-     fiBeginHours AT ROW 3.95 COL 46.6 COLON-ALIGNED NO-LABEL WIDGET-ID 58
-     fiBeginMins AT ROW 3.95 COL 52 COLON-ALIGNED NO-LABEL WIDGET-ID 62
-     fiendRequestDatelabel AT ROW 3.95 COL 69.2 COLON-ALIGNED NO-LABEL WIDGET-ID 36
-     fiEndRequestDate AT ROW 3.95 COL 91.2 COLON-ALIGNED NO-LABEL WIDGET-ID 38
-     fiEndHours AT ROW 3.95 COL 112.4 COLON-ALIGNED NO-LABEL WIDGET-ID 64
-     fiEndMins AT ROW 3.95 COL 117.8 COLON-ALIGNED NO-LABEL WIDGET-ID 66
-     btRestart AT ROW 4.1 COL 129.6 WIDGET-ID 26
-     fiRequestData AT ROW 5.1 COL 25.2 COLON-ALIGNED WIDGET-ID 56
-     fiMessage AT ROW 5.1 COL 78.8 COLON-ALIGNED NO-LABEL WIDGET-ID 70
-     ttAPIInboundEvent AT ROW 6.95 COL 2 WIDGET-ID 200
+     btExport AT ROW 1.24 COL 209.2 WIDGET-ID 50
+     btExit AT ROW 1.24 COL 218 WIDGET-ID 2
+     fieventID AT ROW 4.05 COL 25.2 COLON-ALIGNED NO-LABEL WIDGET-ID 30
+     btFilter AT ROW 4.1 COL 129.6 WIDGET-ID 18
+     btAPIIDLookup AT ROW 5.14 COL 77 WIDGET-ID 48
+     fiAPIId AT ROW 5.19 COL 25.2 COLON-ALIGNED NO-LABEL WIDGET-ID 40
+     cbSuccess AT ROW 5.19 COL 91.2 COLON-ALIGNED NO-LABEL WIDGET-ID 14
+     btBeginRequestDateCal AT ROW 6.24 COL 42.4 WIDGET-ID 44
+     btEndRequestDateCal AT ROW 6.24 COL 108.2 WIDGET-ID 46
+     fiBeginRequestDate AT ROW 6.33 COL 25.2 COLON-ALIGNED NO-LABEL WIDGET-ID 10
+     fiBeginMins AT ROW 6.33 COL 52 COLON-ALIGNED NO-LABEL WIDGET-ID 62
+     fiEndRequestDate AT ROW 6.33 COL 91.2 COLON-ALIGNED NO-LABEL WIDGET-ID 38
+     fiEndHours AT ROW 6.33 COL 112.4 COLON-ALIGNED NO-LABEL WIDGET-ID 64
+     fiEndMins AT ROW 6.33 COL 117.8 COLON-ALIGNED NO-LABEL WIDGET-ID 66
+     btRestart AT ROW 6.48 COL 129.6 WIDGET-ID 26
+     fiRequestData AT ROW 7.48 COL 25.2 COLON-ALIGNED NO-LABEL WIDGET-ID 56
+     fiMessage AT ROW 7.48 COL 78.8 COLON-ALIGNED NO-LABEL WIDGET-ID 70
+     ttAPIInboundEvent AT ROW 9.57 COL 2 WIDGET-ID 200
+     fieventIDlb AT ROW 4.05 COL 13.4 COLON-ALIGNED NO-LABEL WIDGET-ID 32
+     fiAPIIdLabel AT ROW 5.19 COL 13.8 NO-LABEL WIDGET-ID 6
+     fiSuccessLabel AT ROW 5.19 COL 81.8 COLON-ALIGNED NO-LABEL WIDGET-ID 12
+     fiBeginRequestDatelabel AT ROW 6.33 COL 1 COLON-ALIGNED NO-LABEL WIDGET-ID 8
+     fiBeginHours AT ROW 6.33 COL 46.6 COLON-ALIGNED NO-LABEL WIDGET-ID 58
+     fiendRequestDatelabel AT ROW 6.33 COL 69.2 COLON-ALIGNED NO-LABEL WIDGET-ID 36
+     fiFindRequestData AT ROW 7.43 COL 1 COLON-ALIGNED NO-LABEL WIDGET-ID 74
      ":" VIEW-AS TEXT
-          SIZE 1 BY .62 AT ROW 4.1 COL 53 WIDGET-ID 60
-     " Filter" VIEW-AS TEXT
-          SIZE 7 BY .62 AT ROW 1 COL 4.2 WIDGET-ID 52
-          FONT 6
+          SIZE 1 BY .62 AT ROW 6.48 COL 53 WIDGET-ID 60
      ":" VIEW-AS TEXT
-          SIZE 1 BY .62 AT ROW 4.1 COL 118.8 WIDGET-ID 68
-     RECT-26 AT ROW 1.24 COL 2 WIDGET-ID 34
+          SIZE 1 BY .62 AT ROW 6.48 COL 118.8 WIDGET-ID 68
+     RECT-26 AT ROW 3.62 COL 2 WIDGET-ID 34
+     RECT-27 AT ROW 1 COL 1 WIDGET-ID 72
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1.05
@@ -389,6 +405,8 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* SETTINGS FOR FILL-IN fiendRequestDatelabel IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fieventIDlb IN FRAME DEFAULT-FRAME
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiFindRequestData IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fiMessage IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
@@ -897,7 +915,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     DEFINE VARIABLE iBrowseColumn AS INTEGER NO-UNDO.
     
     RUN enable_UI.
-
+    {methods/template/brwcustom.i}
     DO iBrowseColumn = 1 TO BROWSE {&BROWSE-NAME}:NUM-COLUMNS :
         IF {&BROWSE-NAME}:GET-BROWSE-COLUMN(iBrowseColumn):NAME = "userField1" THEN
             hdUserField1Column = {&BROWSE-NAME}:GET-BROWSE-COLUMN(iBrowseColumn).
@@ -969,15 +987,15 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY fieventIDlb fieventID fiAPIIdLabel fiAPIId fiSuccessLabel cbSuccess 
-          fiBeginRequestDatelabel fiBeginRequestDate fiBeginHours fiBeginMins 
-          fiendRequestDatelabel fiEndRequestDate fiEndHours fiEndMins 
-          fiRequestData fiMessage 
+  DISPLAY fieventID fiAPIId cbSuccess fiBeginRequestDate fiBeginMins 
+          fiEndRequestDate fiEndHours fiEndMins fiRequestData fiMessage 
+          fieventIDlb fiAPIIdLabel fiSuccessLabel fiBeginRequestDatelabel 
+          fiBeginHours fiendRequestDatelabel fiFindRequestData 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE RECT-26 btExport btExit fieventID btFilter btAPIIDLookup fiAPIId 
-         cbSuccess btBeginRequestDateCal btEndRequestDateCal fiBeginRequestDate 
-         fiBeginHours fiBeginMins fiEndRequestDate fiEndHours fiEndMins 
-         btRestart fiRequestData ttAPIInboundEvent 
+  ENABLE RECT-26 RECT-27 btExport btExit fieventID btFilter btAPIIDLookup 
+         fiAPIId cbSuccess btBeginRequestDateCal btEndRequestDateCal 
+         fiBeginRequestDate fiBeginMins fiEndRequestDate fiEndHours fiEndMins 
+         btRestart fiRequestData ttAPIInboundEvent fiBeginHours 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.

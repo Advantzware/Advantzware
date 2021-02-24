@@ -353,14 +353,6 @@ DO:
                 ttInputEst.cFgEstNo  = itemfg.est-no
                 ttInputEst.dSqFt     = itemfg.t-sqft * iMolds .               
         END.
-        IF tb_default THEN
-        DO:
-          FOR EACH bf-ttInputEst 
-              WHERE bf-ttInputEst.cStockNo NE cStock:
-              ASSIGN 
-                  ttInputEst.lKeyItem = NO .
-          END.             
-        END.
         
         op-rowid = ROWID(ttInputEst).
         

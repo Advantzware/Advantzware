@@ -80,19 +80,8 @@ END.
 STATUS DEFAULT "Processing job-hdr...".
 
 FOR EACH job-hdr {&where-phrase} EXCLUSIVE TRANSACTION:
-  {util/dljobkey.i}
-
   {&fix}
 
-  FIND FIRST job
-      WHERE job.company EQ job-hdr.company
-        AND job.job     EQ job-hdr.job
-        AND job.job-no  EQ job-hdr.job-no
-        AND job.job-no2 EQ job-hdr.job-no2
-      NO-LOCK NO-ERROR.
-  IF AVAIL job THEN DO:
-    {util/mkjobkey.i}
-  END.
 END.
 
 STATUS DEFAULT "Processing job-mat...".

@@ -2252,6 +2252,30 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckPeriod B-table-Win 
+PROCEDURE pCheckPeriod :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  define output parameter oplReturnNotValidPost as logical no-undo.
+  DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE lSuccess AS LOGICAL NO-UNDO.
+    oplReturnNotValidPost = no.
+    
+    RUN GL_CheckModClosePeriod(input cocode, input today, input "FG", output cMessage, output lSuccess ) .  
+    if not lSuccess then 
+    do:
+      message cMessage view-as alert-box info.
+      oplReturnNotValidPost = yes.
+    end.  
+     
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-i-no B-table-Win 
 PROCEDURE valid-i-no :
 /*------------------------------------------------------------------------------

@@ -86,7 +86,7 @@ DEFINE QUERY external_tables FOR box-design-hdr.
 box-design-hdr.box-image box-design-hdr.lscore 
 &Scoped-define ENABLED-TABLES box-design-hdr
 &Scoped-define FIRST-ENABLED-TABLE box-design-hdr
-&Scoped-Define ENABLED-OBJECTS box-image-2 btn_right btn_left ~
+&Scoped-Define ENABLED-OBJECTS box-image-2 RECT-40 btn_right btn_left ~
 editor_wcum-score editor_wscore 
 &Scoped-Define DISPLAYED-FIELDS box-design-hdr.design-no ~
 box-design-hdr.description box-design-hdr.box-image box-design-hdr.lscore ~
@@ -132,82 +132,79 @@ RUN set-attribute-list (
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btn_left 
-    IMAGE-UP FILE "adm2/image/prev.bmp":U
-    LABEL "" 
-    SIZE 4 BY 1.
+     IMAGE-UP FILE "adm2/image/prev.bmp":U
+     LABEL "" 
+     SIZE 4 BY 1.
 
 DEFINE BUTTON btn_right 
-    IMAGE-UP FILE "adm2/image/next.bmp":U
-    LABEL "" 
-    SIZE 4 BY 1.
+     IMAGE-UP FILE "adm2/image/next.bmp":U
+     LABEL "" 
+     SIZE 4 BY 1.
 
 DEFINE VARIABLE editor_wcum-score AS CHARACTER 
-    VIEW-AS EDITOR NO-WORD-WRAP SCROLLBAR-VERTICAL
-    SIZE 14 BY 12.38
-    FONT 2 NO-UNDO.
+     VIEW-AS EDITOR NO-WORD-WRAP SCROLLBAR-VERTICAL
+     SIZE 14 BY 12.38
+     FONT 2 NO-UNDO.
 
-DEFINE VARIABLE editor_wscore     AS CHARACTER 
-    VIEW-AS EDITOR NO-WORD-WRAP SCROLLBAR-VERTICAL
-    SIZE 15 BY 12.38
-    FONT 2.
+DEFINE VARIABLE editor_wscore AS CHARACTER 
+     VIEW-AS EDITOR NO-WORD-WRAP SCROLLBAR-VERTICAL
+     SIZE 15 BY 12.38
+     FONT 2.
 
 DEFINE IMAGE box-image-2
-    SIZE 117 BY 12.86.
+     SIZE 117 BY 12.86.
 
 DEFINE RECTANGLE RECT-40
-    EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED
-    SIZE 149 BY 16.67.
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 149 BY 16.67.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-    box-design-hdr.design-no AT ROW 1.24 COL 15 COLON-ALIGNED
-    VIEW-AS FILL-IN 
-    SIZE 6.2 BY 1.1
-    box-design-hdr.description AT ROW 1.24 COL 22 COLON-ALIGNED NO-LABELS
-    VIEW-AS FILL-IN 
-    SIZE 38 BY 1
-    box-design-hdr.box-image AT ROW 1.24 COL 75 COLON-ALIGNED  FORMAT "x(200)"
-    VIEW-AS FILL-IN 
-    SIZE 63 BY 1
-    box-design-hdr.box-3d-image AT ROW 1.24 COL 75 COLON-ALIGNED  FORMAT "x(200)"
-    VIEW-AS FILL-IN 
-    SIZE 62 BY 1
-    BGCOLOR 14 
-    box-design-hdr.lscore AT ROW 2.43 COL 2 NO-LABELS FORMAT "x(210)"
-    VIEW-AS FILL-IN 
-    SIZE 116 BY 1
-    FONT 2
-    btn_right AT ROW 2.43 COL 118
-    box-design-hdr.lcum-score AT ROW 3.38 COL 2 NO-LABELS FORMAT "x(210)"
-    VIEW-AS FILL-IN 
-    SIZE 116 BY 1
-    FONT 2
-    btn_left AT ROW 3.38 COL 118
-    box-design-hdr.box-text AT ROW 4.57 COL 2 NO-LABELS
-    VIEW-AS EDITOR NO-WORD-WRAP SCROLLBAR-HORIZONTAL SCROLLBAR-VERTICAL
-    SIZE 116 BY 12.62
-    FONT 2
-    editor_wcum-score AT ROW 4.81 COL 119 HELP
-    "Enter the cumulative width score." NO-LABELS
-    editor_wscore AT ROW 4.81 COL 133 NO-LABELS
-    "Score:" VIEW-AS TEXT
-    SIZE 8 BY .62 AT ROW 2.43 COL 122
-    "W Totals   W Score" VIEW-AS TEXT
-    SIZE 23 BY .62 AT ROW 4.1 COL 123
-    "Total" VIEW-AS TEXT
-    SIZE 7 BY .62 AT ROW 3.33 COL 122
-    box-image-2 AT ROW 4.57 COL 2
-    RECT-40 AT ROW 1 COL 1
+     box-design-hdr.design-no AT ROW 1.24 COL 15 COLON-ALIGNED
+          VIEW-AS FILL-IN 
+          SIZE 6.2 BY 1.1
+     box-design-hdr.description AT ROW 1.24 COL 22 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 38 BY 1
+     box-design-hdr.box-3d-image AT ROW 1.24 COL 75 COLON-ALIGNED
+          VIEW-AS FILL-IN 
+          SIZE 62 BY 1
+          BGCOLOR 14 
+     box-design-hdr.box-image AT ROW 1.24 COL 75 COLON-ALIGNED
+          VIEW-AS FILL-IN 
+          SIZE 63 BY 1
+     box-design-hdr.lscore AT ROW 2.43 COL 2 NO-LABEL FORMAT "x(210)"
+          VIEW-AS FILL-IN 
+          SIZE 116 BY 1
+          FONT 2
+     btn_right AT ROW 2.43 COL 118
+     box-design-hdr.lcum-score AT ROW 3.38 COL 2 NO-LABEL FORMAT "x(210)"
+          VIEW-AS FILL-IN 
+          SIZE 116 BY 1
+          FONT 2
+     btn_left AT ROW 3.38 COL 118
+     box-design-hdr.box-text AT ROW 4.57 COL 2 NO-LABEL
+          VIEW-AS EDITOR NO-WORD-WRAP SCROLLBAR-HORIZONTAL SCROLLBAR-VERTICAL
+          SIZE 116 BY 12.62
+          FONT 2
+     editor_wcum-score AT ROW 4.81 COL 119 HELP
+          "Enter the cumulative width score." NO-LABEL
+     editor_wscore AT ROW 4.81 COL 133 NO-LABEL
+     "Total" VIEW-AS TEXT
+          SIZE 7 BY .62 AT ROW 3.33 COL 122
+     "W Totals   W Score" VIEW-AS TEXT
+          SIZE 23 BY .62 AT ROW 4.1 COL 123
+     "Score:" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 2.43 COL 122
+     box-image-2 AT ROW 4.57 COL 2
+     RECT-40 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-    SIDE-LABELS NO-UNDERLINE THREE-D 
-    AT COL 1 ROW 1 SCROLLABLE 
-    FGCOLOR 1 FONT 6.
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1 SCROLLABLE 
+         FGCOLOR 1 FONT 6.
 
-MESSAGE 
-box-design-hdr.lscore:FONT
-VIEW-AS ALERT-BOX.
 
 /* *********************** Procedure Settings ************************ */
 
@@ -223,11 +220,10 @@ VIEW-AS ALERT-BOX.
 
 /* This procedure should always be RUN PERSISTENT.  Report the error,  */
 /* then cleanup and return.                                            */
-IF NOT THIS-PROCEDURE:PERSISTENT THEN 
-DO:
-    MESSAGE "{&FILE-NAME} should only be RUN PERSISTENT.":U
-        VIEW-AS ALERT-BOX ERROR BUTTONS OK.
-    RETURN.
+IF NOT THIS-PROCEDURE:PERSISTENT THEN DO:
+  MESSAGE "{&FILE-NAME} should only be RUN PERSISTENT.":U
+          VIEW-AS ALERT-BOX ERROR BUTTONS OK.
+  RETURN.
 END.
 
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS
@@ -262,19 +258,19 @@ END.
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 ASSIGN 
-       FRAME F-Main:SCROLLABLE = FALSE
-       FRAME F-Main:HIDDEN     = TRUE.
+       FRAME F-Main:SCROLLABLE       = FALSE
+       FRAME F-Main:HIDDEN           = TRUE.
 
 /* SETTINGS FOR FILL-IN box-design-hdr.box-3d-image IN FRAME F-Main
    NO-DISPLAY NO-ENABLE                                                 */
 ASSIGN 
-       box-design-hdr.box-3d-image:HIDDEN IN FRAME F-Main = TRUE.
+       box-design-hdr.box-3d-image:HIDDEN IN FRAME F-Main           = TRUE.
 
 /* SETTINGS FOR EDITOR box-design-hdr.box-text IN FRAME F-Main
    NO-DISPLAY NO-ENABLE                                                 */
 ASSIGN 
-       box-design-hdr.box-text:HIDDEN IN FRAME F-Main          = TRUE
-       box-design-hdr.box-text:RETURN-INSERTED IN FRAME F-Main = TRUE.
+       box-design-hdr.box-text:HIDDEN IN FRAME F-Main           = TRUE
+       box-design-hdr.box-text:RETURN-INSERTED IN FRAME F-Main  = TRUE.
 
 /* SETTINGS FOR FILL-IN box-design-hdr.description IN FRAME F-Main
    1                                                                    */
@@ -283,24 +279,24 @@ ASSIGN
 /* SETTINGS FOR EDITOR editor_wcum-score IN FRAME F-Main
    2                                                                    */
 ASSIGN 
-       editor_wcum-score:RETURN-INSERTED IN FRAME F-Main = TRUE
-       editor_wcum-score:READ-ONLY IN FRAME F-Main       = TRUE.
+       editor_wcum-score:RETURN-INSERTED IN FRAME F-Main  = TRUE
+       editor_wcum-score:READ-ONLY IN FRAME F-Main        = TRUE.
 
 /* SETTINGS FOR EDITOR editor_wscore IN FRAME F-Main
    2                                                                    */
 ASSIGN 
-       editor_wscore:RETURN-INSERTED IN FRAME F-Main = TRUE
-       editor_wscore:READ-ONLY IN FRAME F-Main       = TRUE.
+       editor_wscore:RETURN-INSERTED IN FRAME F-Main  = TRUE
+       editor_wscore:READ-ONLY IN FRAME F-Main        = TRUE.
 
 /* SETTINGS FOR FILL-IN box-design-hdr.lcum-score IN FRAME F-Main
    NO-ENABLE ALIGN-L 2 EXP-LABEL EXP-FORMAT                             */
 ASSIGN 
-       box-design-hdr.lcum-score:AUTO-RESIZE IN FRAME F-Main = TRUE.
+       box-design-hdr.lcum-score:AUTO-RESIZE IN FRAME F-Main      = TRUE.
 
 /* SETTINGS FOR FILL-IN box-design-hdr.lscore IN FRAME F-Main
    ALIGN-L EXP-LABEL EXP-FORMAT                                         */
 ASSIGN 
-       box-design-hdr.lscore:AUTO-RESIZE IN FRAME F-Main = TRUE.
+       box-design-hdr.lscore:AUTO-RESIZE IN FRAME F-Main      = TRUE.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -315,7 +311,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -566,7 +562,6 @@ DO:
 
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -576,41 +571,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK V-table-Win 
 
 
-/* ***************************  Main Block  *************************** */
-
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-disable-fields V-table-Win
-PROCEDURE local-disable-fields:
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-  /* Code placed here will execute PRIOR to standard behavior. */
-
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'disable-fields':U ) .
-
-  /* Code placed here will execute AFTER standard behavior.    */
-  {methods/run_link.i "CONTAINER-SOURCE" "SetUpdateEnd"}
-END PROCEDURE.
-	
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-
-   PROCEDURE WinExec EXTERNAL "KERNEL32.DLL":
-       DEFINE INPUT PARAMETER programname AS cha.
-       DEFINE INPUT PARAMETER visualstyle AS long.
-       DEFINE RETURN PARAMETER statuscode AS LONG.
-   END.
-
-  &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
+&IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
-  &ENDIF         
-
-  /************************ INTERNAL PROCEDURES ********************/
+  &ENDIF
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -701,7 +664,7 @@ FIND FIRST style NO-LOCK WHERE style.company EQ xeb.company
                  NO-ERROR.
 IF AVAILABLE style THEN
   FIND FIRST xbox-design-hdr NO-LOCK WHERE xbox-design-hdr.design-no EQ style.design-no
-     			               AND xbox-design-hdr.company   eq style.company       
+                                       AND xbox-design-hdr.company   eq style.company       
                                AND xbox-design-hdr.est-no    EQ ""
              NO-ERROR.
 
@@ -1242,6 +1205,24 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-disable-fields V-table-Win 
+PROCEDURE local-disable-fields :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+  /* Code placed here will execute PRIOR to standard behavior. */
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'disable-fields':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+  {methods/run_link.i "CONTAINER-SOURCE" "SetUpdateEnd"}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-display-fields V-table-Win 
 PROCEDURE local-display-fields :
 /*------------------------------------------------------------------------------
@@ -1274,8 +1255,8 @@ PROCEDURE local-display-fields :
     ASSIGN
      li-lscore-len                   = IF li GE 20 THEN 105 ELSE 80
      li-font                         = IF li-lscore-len GT 80 THEN 4 ELSE 0
-     box-design-hdr.lscore:FONT      = li-font
-     box-design-hdr.lcum-score:FONT  = li-font
+     //box-design-hdr.lscore:FONT      = li-font
+     //box-design-hdr.lcum-score:FONT  = li-font
      box-design-hdr.lscore:WIDTH     = 116
      box-design-hdr.lcum-score:WIDTH = 116
      NO-ERROR.

@@ -108,8 +108,7 @@ DO:
             job-hdr.ord-no  = oe-ordl.ord-no
             job-hdr.po-no   = oe-ordl.po-no
             job-hdr.frm     = oe-ordl.form-no.
-     
-        {util/mkjobkey.i}
+
     END. /* not avail job-hdr */
 
     /** if this is a new line item then write job number to order line **/

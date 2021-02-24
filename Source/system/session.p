@@ -18,6 +18,7 @@
 /*----------------------------------------------------------------------*/
 
 /* ***************************  Definitions  ************************** */
+
 USING system.SharedConfig.
 USING system.SessionConfig.
 
@@ -31,6 +32,7 @@ DEFINE VARIABLE cProgramID          AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cSuperProcedure     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cUserID             AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hMainMenuHandle     AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hProgressBar        AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hSuperProcedure     AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hSysCtrlUsageHandle AS HANDLE    NO-UNDO.
 DEFINE VARIABLE idx                 AS INTEGER   NO-UNDO.
@@ -59,7 +61,8 @@ DEFINE VARIABLE sessionInstance     AS CLASS system.SessionConfig NO-UNDO.
 
 /* vv alphabetical list of super-procedures comma delimited vv */
 ASSIGN 
-    cSuperProcedure = "est/EstimateProcs.p,"
+    cSuperProcedure = "browsers/BrowserProcs.p,"
+                    + "est/EstimateProcs.p,"
                     + "system/CommonProcs.p,"
                     + "system/ConversionProcs.p,"
                     + "system/CreditProcs.p,"
@@ -71,7 +74,6 @@ ASSIGN
                     + "system/TagProcs.p,"
                     + "system/TaxProcs.p,"
                     + "system/VendorCostProcs.p,"
-                    + "browsers/BrowserProcs.p,"
     cSuperProcedure = TRIM(cSuperProcedure,",")
     .
 /* ^^ alphabetical list of super-procedures comma delimited ^^ */
@@ -1554,6 +1556,38 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 &ENDIF
+
+&IF DEFINED(EXCLUDE-spProgressBar) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spProgressBar Procedure
+PROCEDURE spProgressBar:
+/*------------------------------------------------------------------------------
+ Purpose: generic progress bar
+ Notes: if count and total are unknown, count should be ?, total is treated as percent
+        if total is unknown, set total to ? and it displays Phase X in title
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcTitle AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiCount AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER ipiTotal AS INTEGER   NO-UNDO.
+
+    IF NOT VALID-HANDLE(hProgressBar) THEN
+    RUN system/progressBar.w PERSISTENT SET hProgressBar.
+
+    IF VALID-HANDLE(hProgressBar) THEN DO:
+        RUN pProgressBar IN hProgressBar (ipcTitle, ipiCount, ipiTotal).
+        IF (ipiCount EQ ? AND ipiTotal EQ 100) OR
+            ipiCount EQ ipiTotal OR
+            ipcTitle EQ ? THEN
+        DELETE PROCEDURE hProgressBar.
+    END. /* if valid-handle */
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
 &IF DEFINED(EXCLUDE-spSendEmail) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spSendEmail Procedure

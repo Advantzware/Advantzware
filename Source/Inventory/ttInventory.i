@@ -107,6 +107,7 @@ DEFINE {1} TEMP-TABLE ttPhysicalBrowseInventory
 
 DEFINE TEMP-TABLE ttInventoryStockDetails NO-UNDO
     LIKE ttBrowseInventory
+    FIELD itemCode AS CHARACTER
     .
 
 DEFINE TEMP-TABLE ttPOOrderLineDetails NO-UNDO

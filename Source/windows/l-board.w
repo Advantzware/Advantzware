@@ -161,7 +161,7 @@ DEFINE BROWSE BROWSE-1
             WIDTH 8
       item.q-onh COLUMN-LABEL "Qty OnHand" FORMAT "->>>,>>>,>>9.9<<":U
             WIDTH 16
-      item.q-comm COLUMN-LABEL "Committed" FORMAT ">>>,>>>,>>9.9<<":U
+      item.q-comm COLUMN-LABEL "Committed" FORMAT "->>>,>>>,>>9.9<<":U
             WIDTH 16
       item.q-avail COLUMN-LABEL "Available" FORMAT "->>>,>>>,>>9.9<<":U
             WIDTH 16
@@ -239,7 +239,7 @@ and (item.mat-type = 'B' or item.mat-type = 'P' or item.mat-type = 'R')"
      _FldNameList[7]   > ASI.item.q-onh
 "item.q-onh" "Qty OnHand" ? "decimal" ? ? ? ? ? ? no ? no no "16" yes no no "U" "" ""
      _FldNameList[8]   > ASI.item.q-comm
-"item.q-comm" "Committed" ? "decimal" ? ? ? ? ? ? no ? no no "16" yes no no "U" "" ""
+"item.q-comm" "Committed" "->>>,>>>,>>9.9<<" "decimal" ? ? ? ? ? ? no ? no no "16" yes no no "U" "" ""
      _FldNameList[9]   > ASI.item.q-avail
 "item.q-avail" "Available" ? "decimal" ? ? ? ? ? ? no ? no no "16" yes no no "U" "" ""
      _Query            is OPENED

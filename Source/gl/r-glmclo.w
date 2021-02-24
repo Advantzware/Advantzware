@@ -73,6 +73,7 @@ def buffer b-racct for account.
 def buffer b-cacct for account.
 DEF VAR uperiod AS INT NO-UNDO.
 DEF VAR choice AS LOG NO-UNDO.
+DEFINE VARIABLE lMessage AS LOGICAL NO-UNDO.
 
 ASSIGN time_stamp = string(time,"hh:mmam")
        .
@@ -708,6 +709,23 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     IF AVAIL period THEN ASSIGN 
         tran-year = period.yr
         tran-period = period.pnum.
+        
+    IF AVAIL period AND (period.subLedgerAP NE "C" OR 
+       period.subLedgerPO NE "C" OR 
+       period.subLedgerOP NE "C" OR 
+       period.subLedgerWIP NE "C" OR 
+       period.subLedgerRM NE "C" OR 
+       period.subLedgerFG NE "C" OR 
+       period.subLedgerBR NE "C" OR 
+       period.subLedgerAR NE "C") THEN
+    DO:
+          RUN displayMessageQuestionLOG ("60", OUTPUT lMessage).
+          IF NOT lMessage THEN 
+          DO:
+             APPLY "close" TO THIS-PROCEDURE.
+             RETURN .
+          END. 
+    END.       
  
   RUN enable_UI.
 
@@ -734,7 +752,7 @@ PROCEDURE check-date :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF INPUT PARAM ip-oktogo AS LOG NO-UNDO.
-
+  
   def buffer alt-period for period.
 
 
@@ -750,7 +768,7 @@ PROCEDURE check-date :
        IF NOT period.pstat THEN DO:
           MESSAGE "Already Closed. " VIEW-AS ALERT-BOX ERROR.
           v-invalid = YES.
-       END.
+       END.         
        else do:
          find first alt-period
              where alt-period.company             eq cocode

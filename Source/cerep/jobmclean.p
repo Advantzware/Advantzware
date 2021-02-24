@@ -289,6 +289,7 @@ DEFINE VARIABLE cCaseSize AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCaseCount AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCasePerPallet AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lPrintSetHeader AS LOGICAL NO-UNDO.
+DEFINE VARIABLE iJobOverQty AS INTEGER NO-UNDO .
 
 cNewOrderValue = CAPS(cJobType) .
 
@@ -1264,7 +1265,7 @@ FOR EACH job-hdr NO-LOCK
 /*                              iEbTotalYldQty = IF eb.yld-qty EQ 0 THEN eb.bl-qty ELSE eb.yld-qty .*/
 /*                              iEbTotalblQty  = eb.bl-qty  .                                       */
                               RUN pGetJobQty(bf-jobhdr.job-no,bf-jobhdr.job-no2,bf-jobhdr.frm,eb.blank-no, OUTPUT iJobQty ) .        
-                              iEbTotalOverQty = IF AVAIL oe-ordl THEN( iEbTotalBlQty * ( 1 + oe-ordl.over-pct / 100 )) ELSE IF iJobQty NE 0 THEN iJobQty ELSE bf-jobhdr.qty .
+                              iJobOverQty = IF AVAIL oe-ordl THEN( v-ord-qty * ( 1 + oe-ordl.over-pct / 100 )) ELSE IF iJobQty NE 0 THEN iJobQty ELSE bf-jobhdr.qty .
                               IF cSetFGItem NE "" THEN do:
                                   FIND FIRST fg-set WHERE fg-set.company = eb.company
                                       AND fg-set.set-no = cSetFGItem
@@ -1278,8 +1279,8 @@ FOR EACH job-hdr NO-LOCK
                                
                               PUT 
                                   "<R-1><P10><C20><b>Customer Part: </B>" eb.part-no FORMAT "x(15)"   
-                                  "<C45><b>FG#: </b>" eb.stock-no FORMAT "x(15)"     
-                                  "<C70><B><P10>Yield Qty: </B>" TRIM(STRING(iEbTotalYldQty)) FORMAT "x(12)"  skip 
+                                  "<C45><b>FG#: </b>" eb.stock-no FORMAT "x(15)" skip    
+                                //  "<C70><B><P10>Yield Qty: </B>" TRIM(STRING(iEbTotalYldQty)) FORMAT "x(12)"  skip 
 
                                   "<P10><C20><b>Descr.: </B>" eb.part-dscr1 FORMAT "x(30)"  
                                   "<C45><b>Cad#: </b>" eb.cad-no FORMAT "x(20)"
@@ -1287,7 +1288,7 @@ FOR EACH job-hdr NO-LOCK
 
                                   "<P10><C20><b>Adhesive: </B>" eb.adhesive FORMAT "x(15)"  
                                   "<C45><b>Art#: </b>" eb.Plate-no FORMAT "x(30)"
-                                  "<C70><B><P10>Over Qty: </B>" TRIM(STRING(iEbTotalOverQty)) FORMAT "x(12)" SKIP 
+                                  "<C70><B><P10>Job Qty: </B>" TRIM(STRING(iJobOverQty)) FORMAT "x(12)" SKIP 
                                   
                                   "<C2><B>Blank | </B>" STRING(eb.blank-no,"99")  "<C10><B># Up: </b>" string(eb.num-up)
                                   "<P10><C20><b>Size: </B>" (string(eb.len,">9.9999") + " x " + STRING(eb.wid,">9.9999") + " x " + STRING(eb.dep,">9.9999")) FORMAT "x(40)" 
@@ -1338,7 +1339,7 @@ FOR EACH job-hdr NO-LOCK
 /*                                     iEbTotalYldQty = IF bff-eb.yld-qty EQ 0 THEN bff-eb.bl-qty ELSE bff-eb.yld-qty .*/
 /*                                     iEbTotalblQty  = bff-eb.bl-qty  .                                               */
                                      RUN pGetJobQty(bf-jobhdr.job-no,bf-jobhdr.job-no2,bf-jobhdr.frm,bff-eb.blank-no, OUTPUT iJobQty ) .
-                                     iEbTotalOverQty = IF AVAIL oe-ordl THEN (iEbTotalBlQty * (1 + oe-ordl.over-pct / 100 )) ELSE IF iJobQty NE 0 THEN iJobQty ELSE bf-jobhdr.qty .
+                                     iJobOverQty = IF AVAIL oe-ordl THEN (v-ord-qty * (1 + oe-ordl.over-pct / 100 )) ELSE IF iJobQty NE 0 THEN iJobQty ELSE bf-jobhdr.qty .
                                      IF cSetFGItem NE "" THEN 
                                      do:
                                          FIND FIRST fg-set WHERE fg-set.company = eb.company
@@ -1354,7 +1355,7 @@ FOR EACH job-hdr NO-LOCK
                                      PUT 
                                          "<R-1><P10><C20><b>Customer Part: </B>" bff-eb.part-no FORMAT "x(15)"   
                                          "<C45><b>FG#: </b>" bff-eb.stock-no  FORMAT "x(15)"    
-                                         "<C70><B><P10>Yield Qty: </B>" TRIM(STRING(iEbTotalYldQty)) FORMAT "x(12)"  skip 
+                                       /*  "<C70><B><P10>Yield Qty: </B>" TRIM(STRING(iEbTotalYldQty)) FORMAT "x(12)" */ skip
                                          
                                          "<P10><C20><b>Descr.: </B>" bff-eb.part-dscr1 FORMAT "x(30)"  
                                          "<C45><b>Cad#: </b>" bff-eb.cad-no FORMAT "x(20)"
@@ -1362,7 +1363,7 @@ FOR EACH job-hdr NO-LOCK
                                          
                                          "<P10><C20><b>Adhesive: </B>" bff-eb.adhesive FORMAT "x(15)"  
                                          "<C45><b>Art#: </b>" bff-eb.Plate-no FORMAT "x(30)"
-                                         "<C70><B><P10>Over Qty: </B>" TRIM(STRING(iEbTotalOverQty)) FORMAT "x(12)" SKIP
+                                         "<C70><B><P10>Job Qty: </B>" TRIM(STRING(iJobOverQty)) FORMAT "x(12)" SKIP
                                          
                                          "<C2><B>Blank | </B>" STRING(bff-eb.blank-no,"99")  "<C10><B># Up: </B>" string(bff-eb.num-up)
                                          "<P10><C20><b>Size: </B>" (string(bff-eb.len,">9.9999") + " x " + STRING(bff-eb.wid,">9.9999") + " x " + STRING(bff-eb.dep,">9.9999")) FORMAT "x(40)" 
@@ -1527,7 +1528,8 @@ DO:
        
         IF est.est-type NE 1 AND NOT CAN-FIND(FIRST ttSoule NO-LOCK
                         WHERE  ttSoule.frm EQ bf-jobhdr.frm
-                         AND   ttSoule.runForm EQ YES ) THEN NEXT MAIN-PRINT-BOX.
+                         AND   ttSoule.runForm EQ YES
+                         AND   ttSoule.lPrintDieImage ) THEN NEXT MAIN-PRINT-BOX.
 
         IF FIRST-OF(bf-jobhdr.frm) THEN 
         DO:
@@ -1556,13 +1558,17 @@ DO:
             
                 PUT UNFORMATTED 
                     "<#12><C2><R8><FROM><C80><R+52><RECT><||3><C80>" /*v-qa-text*/ SKIP
-                    "<=12><R+1><C5>Image: Cad        "    "Form No:" bf-jobhdr.frm FORMAT ">99"  
+                    "<=12><R+1><C5>Image: Die        "    "Form No:" bf-jobhdr.frm FORMAT ">99"  
                     "<=12><R+2><C2><FROM><C80><LINE><||3>"
                     "<=12><R+3><C3><#21><R+46><C+76><IMAGE#21=" lv-cad-image ">" SKIP. 
             END.
         END.
     END. /*each bf-jobhdr*/
 END.  /* print-box*/
+
+RUN pPrintCadPlateImage("CADFILE",job-hdr.company,job-hdr.job-no,job-hdr.job-no2).
+
+RUN pPrintCadPlateImage("PLATEFILE",job-hdr.company,job-hdr.job-no,job-hdr.job-no2).
 
 /* print fgitem image */
 IF s-prt-fgimage THEN 
@@ -1576,7 +1582,8 @@ DO:
         IF est.est-type NE 1 AND NOT CAN-FIND(FIRST ttSoule NO-LOCK
                         WHERE  ttSoule.frm EQ bf-jobhdr.frm
                          AND   ttSoule.i-no EQ bf-jobhdr.i-no
-                         AND   ttSoule.runForm EQ YES ) THEN NEXT MAIN-PRINT-IMAGE.
+                         AND   ttSoule.runForm EQ YES
+                         AND   ttSoule.lPrintFGImage) THEN NEXT MAIN-PRINT-IMAGE.
         
         IF FIRST-OF(bf-jobhdr.frm) THEN 
         DO:
@@ -1970,8 +1977,8 @@ PROCEDURE pPrintMiscItems :
         
         IF LAST-OF(bf-item.i-no) THEN do:
             PUT 
-                "<P10><C20><b>Code: </B>" STRING(bf-item.i-no)  
-                "<C45><b>Desc: </b>" bf-item.i-name FORMAT "x(20)" SKIP.
+                "<P10><C20><b>Code: </B>" STRING(bf-item.i-no) FORMAT "x(20)" 
+                "<C45><b>Desc: </b>" bf-item.i-name FORMAT "x(30)" SKIP.
             
         END.
     END.
@@ -1999,8 +2006,8 @@ PROCEDURE pPrintMiscItems :
                 NO-ERROR.
             IF AVAILABLE bf-item AND NOT AVAILABLE bf-job-mat THEN  
                 PUT
-                    "<P10><C20><b>Code: </B>" STRING(bf-item.i-no)
-                    "<C45><b>Desc: </b>" bf-item.i-name FORMAT "x(20)" SKIP.
+                    "<P10><C20><b>Code: </B>" STRING(bf-item.i-no)  FORMAT "x(20)" 
+                    "<C45><b>Desc: </b>" bf-item.i-name FORMAT "x(30)" SKIP.
         END.
         IF AVAILABLE bf-eb AND bf-eb.layer-pad NE "" THEN DO:
             FIND FIRST bf-item NO-LOCK
@@ -2018,8 +2025,8 @@ PROCEDURE pPrintMiscItems :
                 NO-ERROR.    
             IF AVAILABLE bf-item AND NOT AVAILABLE bf-job-mat THEN 
                 PUT
-                    "<P10><C20><b>Code: </B>" STRING(bf-item.i-no)
-                    "<C45><b>Desc: </b>" bf-item.i-name FORMAT "x(20)" SKIP.        
+                    "<P10><C20><b>Code: </B>" STRING(bf-item.i-no)  FORMAT "x(20)" 
+                    "<C45><b>Desc: </b>" bf-item.i-name FORMAT "x(30)" SKIP.        
         END.
                                  
 /*    IF ipiBlank EQ 1  THEN do:                                                                         */
@@ -2127,3 +2134,78 @@ PROCEDURE pPrintOperationsForForm PRIVATE:
     
 
 END PROCEDURE.
+
+
+PROCEDURE pPrintCadPlateImage PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcType AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcJobID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiJobID2 AS INTEGER NO-UNDO.
+    DEFINE VARIABLE cFileExt AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cPrintImage AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cPlateImageList AS CHARACTER NO-UNDO.
+    
+    /* print Plate image */
+    IF print-box THEN 
+    DO: 
+        lv-cad-image-list = "".
+        cImageBoxDesign = "".
+        cPlateImageList = "".
+        MAIN-PRINT-BOX:
+        FOR EACH bf-jobhdr NO-LOCK WHERE bf-jobhdr.company = ipcCompany
+            AND bf-jobhdr.job-no = ipcJobID
+            AND bf-jobhdr.job-no2 = ipiJobID2
+            BREAK BY bf-jobhdr.frm
+                  BY bf-jobhdr.blank-no:
+           
+            IF est.est-type NE 1 AND NOT CAN-FIND(FIRST ttSoule NO-LOCK
+                            WHERE  ttSoule.frm EQ bf-jobhdr.frm
+                             AND   ttSoule.runForm EQ YES 
+                             AND   ((ttSoule.lPrintCadImage AND ipcType EQ "CADFILE") OR (ttSoule.lPrintPlateImage AND ipcType EQ "PLATEFILE"))) THEN NEXT MAIN-PRINT-BOX.
+
+            IF FIRST-OF(bf-jobhdr.blank-no) THEN 
+            DO:
+                cImageBoxDesign = "".
+                FIND FIRST b-eb WHERE b-eb.company = bf-jobhdr.company
+                    AND b-eb.est-no = bf-jobhdr.est-no
+                    AND b-eb.form-no = bf-jobhdr.frm 
+                    AND b-eb.blank-no = bf-jobhdr.blank-no NO-LOCK NO-ERROR.
+                FIND FIRST sys-ctrl WHERE sys-ctrl.company = job-hdr.company
+                    AND sys-ctrl.NAME = ipcType NO-LOCK NO-ERROR. 
+                IF AVAILABLE b-eb AND ((b-eb.plate-no <> "" AND ipcType = "PLATEFILE") OR 
+                    (b-eb.cad-no <> "" AND ipcType = "CADFILE"))
+                    AND ((LOOKUP(b-eb.plate-no,cPlateImageList) <= 0 AND ipcType = "PLATEFILE") OR
+                    (LOOKUP(b-eb.cad-no,lv-cad-image-list) <= 0 AND ipcType = "CADFILE"))
+                    THEN 
+                DO:                                         
+                    IF AVAILABLE sys-ctrl AND sys-ctrl.int-fld EQ 0 THEN 
+                    cFileExt = ".jpg".
+                    ELSE IF AVAILABLE sys-ctrl AND sys-ctrl.int-fld EQ 1 THEN 
+                    cFileExt = ".bmp".
+                    ELSE IF AVAILABLE sys-ctrl AND sys-ctrl.int-fld EQ 2 THEN 
+                    cFileExt = ".pdf".
+                    ELSE cFileExt = ".ard".
+                    cPrintImage =  (IF AVAILABLE sys-ctrl THEN sys-ctrl.char-fld ELSE "") + "\" +
+                        (IF ipcType = "PLATEFILE" THEN b-eb.plate-no ELSE b-eb.cad-no) + cFileExt  .   
+                    lv-cad-image-list = lv-cad-image-list + b-eb.cad-no + ",". 
+                    cPlateImageList = cPlateImageList + b-eb.plate-no + ",".
+                    PUT "<C74><R64>Page: " string(PAGE-NUM - lv-pg-num,">>9") + " of <#PAGES>"  FORM "x(20)" .
+                    PAGE.
+                    RUN pPrintHeader .
+                
+                    PUT UNFORMATTED 
+                        "<#12><C2><R8><FROM><C80><R+52><RECT><||3><C80>" /*v-qa-text*/ SKIP
+                        "<=12><R+1><C5>Image: " (IF ipcType = "PLATEFILE" THEN "Plate" ELSE "CAD")         "          Form No:" bf-jobhdr.frm FORMAT ">99"  
+                        "<=12><R+2><C2><FROM><C80><LINE><||3>"
+                        "<=12><R+3><C3><#21><R+46><C+76><IMAGE#21=" cPrintImage ">" SKIP. 
+                END.
+            END.
+        END. /*each bf-jobhdr*/
+    END.  /* print-box*/       
+
+END PROCEDURE.
+

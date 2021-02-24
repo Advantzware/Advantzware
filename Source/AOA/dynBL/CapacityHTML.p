@@ -66,7 +66,13 @@ PROCEDURE pBusinessLogic:
     END. /* else do */
     RUN getScenario.
     iHTMLPage = INTEGER(cHTMLPage).
-    RUN {&objects}/sbHTML.p (cCompany, iHTMLPage, lLaunchHTMLPage).
+    RUN {&objects}/sbHTML.p (
+        cCompany,
+        iHTMLPage,
+        lLaunchHTMLPage,
+        lProgressBar,
+        cProgressBar
+        ).
 
 END PROCEDURE.
 

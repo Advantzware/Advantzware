@@ -698,7 +698,9 @@ PROCEDURE GetRecalcJobCostForJobHdr:
         WHERE job-prep.company EQ job-hdr.company
         AND job-prep.job EQ job-hdr.job
         AND job-prep.job-no EQ job-hdr.job-no
-        AND job-prep.job-no2 EQ job-hdr.job-no2:
+        AND job-prep.job-no2 EQ job-hdr.job-no2
+        AND job-prep.frm EQ job-hdr.frm
+        AND (job-prep.blank-no EQ job-hdr.blank-no OR job-prep.blank-no EQ 0):
         
         IF job-prep.ml THEN 
             opdCostMat = opdCostMat + job-prep.cost-m.

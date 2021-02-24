@@ -64,7 +64,7 @@ ASSIGN cTextListToSelect = "Item Type,Item Id,Vendor,Customer,Estimate,Form,Blan
                             "Level Quantity 3,Level Quantity 4," + /*2*/
                             "Level Quantity 5,Level Quantity 6," + /*2*/
                             "Level Quantity 7,Level Quantity 8," + /*2*/
-                            "Level Quantity 9,Level Quantity 10,Product Category"  /*2*/
+                            "Level Quantity 9,Level Quantity 10,Product Category,Quantity Basis"  /*2*/
                             
        cFieldListToSelect = "itemType,itemID,vendorID,customerID,estimateNo,formNo,blankNo," +
                             "vendorItemID,effectiveDate,expirationDate,vendorUOM," +
@@ -74,7 +74,7 @@ ASSIGN cTextListToSelect = "Item Type,Item Id,Vendor,Customer,Estimate,Form,Blan
                             "levelQuantity3,levelQuantity4," +
                             "levelQuantity5,levelQuantity6," +
                             "levelQuantity7,levelQuantity8," +
-                            "levelQuantity9,levelQuantity10,pro-cat".
+                            "levelQuantity9,levelQuantity10,pro-cat,quantityBasis".
 
 {sys/inc/ttRptSel.i}
 
@@ -1542,6 +1542,12 @@ FUNCTION getValue RETURNS CHARACTER
              lc-return =  IF AVAIL ITEM THEN ITEM.procat ELSE "" .             
            END.
         
+        END.
+        WHEN "quantityBasis" THEN DO:
+              IF ipb-vendItemCost.useQuantityFromBase THEN
+                ASSIGN lc-return = "From".
+              ELSE
+                ASSIGN lc-return = "Up To".
         END.
         OTHERWISE DO:
             IF INDEX(ipc-field,"[") > 0 THEN DO:

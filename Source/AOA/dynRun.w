@@ -167,7 +167,7 @@ DEFINE BUTTON btnXLS
 
 DEFINE VARIABLE svRecipients AS CHARACTER 
      VIEW-AS EDITOR SCROLLBAR-VERTICAL
-     SIZE 69 BY 1.67
+     SIZE 86 BY 2.38
      BGCOLOR 15 .
 
 DEFINE RECTANGLE RECT-PANEL
@@ -176,7 +176,7 @@ DEFINE RECTANGLE RECT-PANEL
 
 DEFINE RECTANGLE RECT-SHOW
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 158 BY 1.19.
+     SIZE 198 BY 1.19.
 
 DEFINE VARIABLE svAutoClose AS LOGICAL INITIAL no 
      LABEL "Auto Close" 
@@ -245,7 +245,7 @@ DEFINE FRAME paramFrame
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 160 BY 28.57
+         SIZE 200 BY 28.57
          FGCOLOR 1  WIDGET-ID 100.
 
 DEFINE FRAME blankFrame
@@ -257,50 +257,50 @@ DEFINE FRAME blankFrame
          TITLE "Building Grid ..." WIDGET-ID 1400.
 
 DEFINE FRAME outputFrame
-     btnCSV AT ROW 1.48 COL 95 HELP
+     btnCSV AT ROW 1.48 COL 135 HELP
           "Excel CSV" WIDGET-ID 140
-     btnLocalCSV AT ROW 1.48 COL 87 HELP
+     btnLocalCSV AT ROW 1.48 COL 127 HELP
           "Local Excel CSV" WIDGET-ID 656
      svRecipients AT ROW 1.24 COL 8 NO-LABEL WIDGET-ID 600
-     svRunSync AT ROW 2.9 COL 8 HELP
+     svRunSync AT ROW 1.48 COL 96 HELP
           "Toggle to Run Synchronous" WIDGET-ID 654
-     svAutoClose AT ROW 2.9 COL 45 HELP
+     svAutoClose AT ROW 2.43 COL 96 HELP
           "Toggle to Auto Close" WIDGET-ID 658
-     btnPageFormat AT ROW 1.48 COL 143 HELP
-          "Page Format" WIDGET-ID 652
      svShowAll AT ROW 4.1 COL 8 WIDGET-ID 18
-     svShowReportHeader AT ROW 4.1 COL 24 WIDGET-ID 2
-     svShowReportFooter AT ROW 4.1 COL 45 WIDGET-ID 4
-     svShowPageHeader AT ROW 4.1 COL 66 WIDGET-ID 6
-     svShowPageFooter AT ROW 4.1 COL 85 WIDGET-ID 8
-     svShowGroupHeader AT ROW 4.1 COL 104 WIDGET-ID 10
-     svShowGroupFooter AT ROW 4.1 COL 124 WIDGET-ID 12
-     btnRunResults AT ROW 1.48 COL 79 HELP
+     svShowReportHeader AT ROW 4.1 COL 32 WIDGET-ID 2
+     svShowReportFooter AT ROW 4.1 COL 53 WIDGET-ID 4
+     svShowPageHeader AT ROW 4.1 COL 85 WIDGET-ID 6
+     svShowPageFooter AT ROW 4.1 COL 104 WIDGET-ID 8
+     svShowGroupHeader AT ROW 4.1 COL 136 WIDGET-ID 10
+     svShowGroupFooter AT ROW 4.1 COL 156 WIDGET-ID 12
+     svShowParameters AT ROW 4.1 COL 183 WIDGET-ID 16
+     btnPageFormat AT ROW 1.48 COL 183 HELP
+          "Page Format" WIDGET-ID 652
+     btnRunResults AT ROW 1.48 COL 119 HELP
           "Results Grid" WIDGET-ID 254
-     svShowParameters AT ROW 4.1 COL 143 WIDGET-ID 16
-     btnHTML AT ROW 1.48 COL 127 HELP
+     btnHTML AT ROW 1.48 COL 167 HELP
           "HTML" WIDGET-ID 144
-     btnView AT ROW 1.48 COL 151 HELP
+     btnView AT ROW 1.48 COL 191 HELP
           "Jasper Viewer" WIDGET-ID 148
      btnAddEmail AT ROW 1.95 COL 3 HELP
           "Add Recipents" WIDGET-ID 636
-     btnPrint AT ROW 1.48 COL 135 HELP
+     btnPrint AT ROW 1.48 COL 175 HELP
           "Printer" WIDGET-ID 644
-     btnDOCX AT ROW 1.48 COL 111 HELP
+     btnDOCX AT ROW 1.48 COL 151 HELP
           "Word DOCX" WIDGET-ID 142
-     btnPDF AT ROW 1.48 COL 119 HELP
+     btnPDF AT ROW 1.48 COL 159 HELP
           "PDF" WIDGET-ID 146
-     btnXLS AT ROW 1.48 COL 103 HELP
+     btnXLS AT ROW 1.48 COL 143 HELP
           "Excel XLS" WIDGET-ID 150
      "Email:" VIEW-AS TEXT
           SIZE 6 BY .62 AT ROW 1.24 COL 2 WIDGET-ID 640
-     RECT-PANEL AT ROW 1.24 COL 78 WIDGET-ID 256
+     RECT-PANEL AT ROW 1.24 COL 118 WIDGET-ID 256
      RECT-SHOW AT ROW 3.86 COL 2 WIDGET-ID 642
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 160 BY 5.24
-         BGCOLOR 21 FGCOLOR 15 
+         SIZE 200 BY 5.24
+         BGCOLOR 22 FGCOLOR 1 
          TITLE BGCOLOR 15 "Parameters" WIDGET-ID 1300.
 
 DEFINE FRAME resultsFrame
@@ -333,11 +333,11 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          HIDDEN             = YES
          TITLE              = "Dynamic Run Subject/Query"
          HEIGHT             = 28.57
-         WIDTH              = 160
-         MAX-HEIGHT         = 320
-         MAX-WIDTH          = 320
-         VIRTUAL-HEIGHT     = 320
-         VIRTUAL-WIDTH      = 320
+         WIDTH              = 200
+         MAX-HEIGHT         = 28.57
+         MAX-WIDTH          = 200
+         VIRTUAL-HEIGHT     = 28.57
+         VIRTUAL-WIDTH      = 200
          RESIZE             = yes
          SCROLL-BARS        = no
          STATUS-AREA        = yes
@@ -779,11 +779,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   RUN enable_UI.
   RUN pCreateDynParameters (FRAME paramFrame:HANDLE, YES).
   IF iplParameters EQ NO THEN DO:
-/*    IF dynParamValue.user-id NE "{&defaultUser}" AND*/
-/*       dynParamValue.paramValueID NE 0 THEN DO:     */
-        FRAME blankFrame:HIDDEN = NO.
-        FRAME blankFrame:MOVE-TO-TOP().
-/*    END. /* if user-id */*/
+    FRAME blankFrame:HIDDEN = NO.
+    FRAME blankFrame:MOVE-TO-TOP().
     IF dynParamValue.outputFormat EQ "LocalCSV" THEN
     APPLY "CHOOSE":U TO btnLocalCSV.
     ELSE
@@ -835,11 +832,11 @@ PROCEDURE enable_UI :
           svShowReportFooter svShowPageHeader svShowPageFooter svShowGroupHeader 
           svShowGroupFooter svShowParameters 
       WITH FRAME outputFrame IN WINDOW C-Win.
-  ENABLE btnCSV btnLocalCSV svRecipients svRunSync svAutoClose btnPageFormat 
-         svShowAll svShowReportHeader svShowReportFooter svShowPageHeader 
-         svShowPageFooter svShowGroupHeader svShowGroupFooter btnRunResults 
-         svShowParameters btnHTML btnView btnAddEmail btnPrint btnDOCX btnPDF 
-         btnXLS 
+  ENABLE btnCSV btnLocalCSV svRecipients svRunSync svAutoClose svShowAll 
+         svShowReportHeader svShowReportFooter svShowPageHeader 
+         svShowPageFooter svShowGroupHeader svShowGroupFooter svShowParameters 
+         btnPageFormat btnRunResults btnHTML btnView btnAddEmail btnPrint 
+         btnDOCX btnPDF btnXLS 
       WITH FRAME outputFrame IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-outputFrame}
   VIEW FRAME paramFrame IN WINDOW C-Win.
@@ -1100,8 +1097,8 @@ PROCEDURE pWinReSize :
         HIDE FRAME {&FRAME-NAME}.
         IF {&WINDOW-NAME}:HEIGHT LT 28.57 THEN
         {&WINDOW-NAME}:HEIGHT = 28.57.
-        IF {&WINDOW-NAME}:WIDTH  LT 160   THEN
-        {&WINDOW-NAME}:WIDTH  = 160.
+        IF {&WINDOW-NAME}:WIDTH  LT 200   THEN
+        {&WINDOW-NAME}:WIDTH  = 200.
         ASSIGN
             FRAME {&FRAME-NAME}:VIRTUAL-HEIGHT = {&WINDOW-NAME}:HEIGHT
             FRAME {&FRAME-NAME}:VIRTUAL-WIDTH  = {&WINDOW-NAME}:WIDTH

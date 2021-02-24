@@ -78,7 +78,7 @@ DEFINE RECTANGLE RECT-1
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     btViewFGInquiry AT ROW 1.29 COL 1.8 WIDGET-ID 2
+     btViewFGInquiry AT ROW 1.29 COL 1.8 WIDGET-ID 2 NO-TAB-STOP 
      RECT-1 AT ROW 1.05 COL 1 WIDGET-ID 4
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -193,6 +193,9 @@ END.
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
   RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF
+
+PROCEDURE No-Resize :
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

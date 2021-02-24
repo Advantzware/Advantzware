@@ -40,6 +40,14 @@ CLASS bol.BOLHeader:
                 RETURN bf-oe-bolh.company. 
             WHEN "BOLID" THEN 
                 RETURN STRING(bf-oe-bolh.bol-no).
+            WHEN "CustomerID" THEN 
+                RETURN bf-oe-bolh.cust-no.
+            WHEN "Printed" THEN 
+                RETURN STRING(bf-oe-bolh.printed).
+            WHEN "Posted" THEN 
+                RETURN STRING(bf-oe-bolh.posted).
+            WHEN "BOLDate" THEN 
+                RETURN STRING(bf-oe-bolh.bol-date).                
             OTHERWISE
                 RETURN "".
         END.

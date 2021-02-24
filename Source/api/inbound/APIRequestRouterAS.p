@@ -19,6 +19,10 @@ DEFINE INPUT  PARAMETER iplcRequestData      AS LONGCHAR  NO-UNDO.
 DEFINE INPUT  PARAMETER ipcRecordSource      AS CHARACTER NO-UNDO.
 DEFINE OUTPUT PARAMETER oplcResponseData     AS LONGCHAR  NO-UNDO.
 DEFINE OUTPUT PARAMETER opcAPIInboundEvent   AS CHARACTER NO-UNDO.
+    
+&SCOPED-DEFINE NEW NEW
+{methods/defines/globdefs.i}
+{methods/defines/hndldefs.i}
 
 DEFINE VARIABLE cResponseDataStructure  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cMessage                AS CHARACTER NO-UNDO.
@@ -31,10 +35,15 @@ DEFINE VARIABLE lRetrigger              AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE iAPIInboundEventID      AS INTEGER   NO-UNDO INITIAL ?.
 DEFINE VARIABLE cCompany                AS CHARACTER NO-UNDO.
 
-DEFINE VARIABLE hdSession AS HANDLE NO-UNDO.
+DEFINE VARIABLE cProcName AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hdProc    AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hSession  AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hTags     AS HANDLE    NO-UNDO.
 
-RUN system/session.p  PERSISTENT SET hdSession.
-SESSION:ADD-SUPER-PROCEDURE (hdSession).
+{system/runPersist.i &procName="nosweat/persist.p" &procHandle="Persistent-Handle" &addToSuperProc="false"}
+{system/runPersist.i &procName="lstlogic/persist.p" &procHandle="ListLogic-Handle" &addToSuperProc="false"}
+{system/runPersist.i &procName="system/session.p" &procHandle="hSession" &addToSuperProc="true"}
+{system/runPersist.i &procName="system/TagProcs.p" &procHandle="hTags" &addToSuperProc="true"}
 
 /* When this procedure is called from within ASI application 
    ( for offline load of queued requests, when the AppServer is down )
@@ -247,9 +256,6 @@ ELSE DO:
         OUTPUT opcAPIInboundEvent
         ) NO-ERROR.
 END.
-     
-SESSION:REMOVE-SUPER-PROCEDURE (hdSession).
-DELETE PROCEDURE hdSession.
 
 /* This procedure checks whether username and password are valid or not */
 PROCEDURE UserAuthenticationCheck:

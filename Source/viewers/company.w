@@ -66,18 +66,23 @@ DEFINE QUERY external_tables FOR company.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-FIELDS company.fid company.name company.sid ~
 company.addr[1] company.addr[2] company.city company.state company.zip ~
-company.co-acc company.num-per company.acc-level company.acc-dig[1] ~
-company.acc-dig[2] company.acc-dig[3] company.acc-dig[4] company.acc-dig[5] ~
-company.yend-off company.spare-char-1 company.curr-code 
+company.subLedgerAP company.co-acc company.num-per company.subLedgerPO ~
+company.subLedgerOP company.acc-level company.acc-dig[1] company.acc-dig[2] ~
+company.acc-dig[3] company.acc-dig[4] company.acc-dig[5] ~
+company.subLedgerWIP company.yend-off company.spare-char-1 ~
+company.subLedgerRM company.subLedgerFG company.subLedgerBR ~
+company.curr-code company.subLedgerAR 
 &Scoped-define ENABLED-TABLES company
 &Scoped-define FIRST-ENABLED-TABLE company
 &Scoped-Define ENABLED-OBJECTS RECT-1 
 &Scoped-Define DISPLAYED-FIELDS company.company company.fid company.name ~
 company.sid company.addr[1] company.addr[2] company.city company.state ~
-company.zip company.co-acc company.num-per company.acc-level ~
+company.zip company.subLedgerAP company.co-acc company.num-per ~
+company.subLedgerPO company.subLedgerOP company.acc-level ~
 company.acc-dig[1] company.acc-dig[2] company.acc-dig[3] company.acc-dig[4] ~
-company.acc-dig[5] company.yend-off company.spare-char-1 company.yend-per ~
-company.curr-code 
+company.acc-dig[5] company.subLedgerWIP company.yend-off ~
+company.spare-char-1 company.subLedgerRM company.subLedgerFG ~
+company.yend-per company.subLedgerBR company.curr-code company.subLedgerAR 
 &Scoped-define DISPLAYED-TABLES company
 &Scoped-define FIRST-DISPLAYED-TABLE company
 &Scoped-Define DISPLAYED-OBJECTS lv-first-year lv-prd-num lv-prd-dt1 ~
@@ -144,7 +149,7 @@ DEFINE VARIABLE lv-prd-num AS INTEGER FORMAT ">9":U INITIAL 0
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 102 BY 15.24.
+     SIZE 130 BY 15.24.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -188,6 +193,14 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 15 BY 1
           BGCOLOR 15 FONT 4
+     company.subLedgerAP AT ROW 6.29 COL 116.6 COLON-ALIGNED
+          LABEL "A/P - Payables"
+          VIEW-AS COMBO-BOX INNER-LINES 5
+          LIST-ITEM-PAIRS "Yes",YES,
+                     "NO",NO
+          DROP-DOWN-LIST
+          SIZE 11 BY 1
+          BGCOLOR 15 FONT 1
      company.co-acc AT ROW 7.43 COL 39 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 5.6 BY 1
@@ -196,6 +209,22 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 4.4 BY 1
           BGCOLOR 15 FONT 4
+     company.subLedgerPO AT ROW 7.57 COL 116.6 COLON-ALIGNED
+          LABEL "P/O - Purchasing"
+          VIEW-AS COMBO-BOX INNER-LINES 5
+          LIST-ITEM-PAIRS "Yes",YES,
+                     "NO",NO
+          DROP-DOWN-LIST
+          SIZE 11 BY 1
+          BGCOLOR 15 FONT 1
+     company.subLedgerOP AT ROW 8.81 COL 116.6 COLON-ALIGNED
+          LABEL "O/P - Order Processing"
+          VIEW-AS COMBO-BOX INNER-LINES 5
+          LIST-ITEM-PAIRS "Yes",YES,
+                     "NO",NO
+          DROP-DOWN-LIST
+          SIZE 11 BY 1
+          BGCOLOR 15 FONT 1
      company.acc-level AT ROW 8.86 COL 39 COLON-ALIGNED
           LABEL "G/L Account - # of Levels"
           VIEW-AS FILL-IN 
@@ -222,6 +251,21 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 3.2 BY 1
           BGCOLOR 7 FGCOLOR 15 FONT 4
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1 SCROLLABLE 
+         FONT 6.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME F-Main
+     company.subLedgerWIP AT ROW 10 COL 116.6 COLON-ALIGNED
+          LABEL "WIP - Work In Process"
+          VIEW-AS COMBO-BOX INNER-LINES 5
+          LIST-ITEM-PAIRS "Yes",YES,
+                     "NO",NO
+          DROP-DOWN-LIST
+          SIZE 11 BY 1
+          BGCOLOR 15 FONT 1
      company.yend-off AT ROW 10.29 COL 39 COLON-ALIGNED
           LABEL "Calendar Month of Year End"
           VIEW-AS FILL-IN 
@@ -232,7 +276,23 @@ DEFINE FRAME F-Main
           LABEL "Seq. Suffix" FORMAT "x(2)"
           VIEW-AS FILL-IN 
           SIZE 5 BY 1
+     company.subLedgerRM AT ROW 11.24 COL 116.6 COLON-ALIGNED
+          LABEL "R/M - Close Inventory"
+          VIEW-AS COMBO-BOX INNER-LINES 5
+          LIST-ITEM-PAIRS "Yes",YES,
+                     "NO",NO
+          DROP-DOWN-LIST
+          SIZE 11 BY 1
+          BGCOLOR 15 FONT 1
      lv-first-year AT ROW 11.48 COL 39 COLON-ALIGNED
+     company.subLedgerFG AT ROW 12.48 COL 116.6 COLON-ALIGNED
+          LABEL "F/G - Close Inventory" 
+          VIEW-AS COMBO-BOX INNER-LINES 5
+          LIST-ITEM-PAIRS "Yes",YES,
+                     "NO",NO
+          DROP-DOWN-LIST
+          SIZE 11 BY 1
+          BGCOLOR 15 FONT 1
      company.yend-per AT ROW 12.67 COL 41
           LABEL ""
           VIEW-AS TOGGLE-BOX
@@ -240,17 +300,28 @@ DEFINE FRAME F-Main
      lv-prd-num AT ROW 13.62 COL 39 COLON-ALIGNED
      lv-prd-dt1 AT ROW 13.62 COL 48 COLON-ALIGNED NO-LABEL
      lv-prd-dt2 AT ROW 13.62 COL 70 COLON-ALIGNED
+     company.subLedgerBR AT ROW 13.67 COL 116.6 COLON-ALIGNED
+          LABEL "B/R - Bank Reconciliation"
+          VIEW-AS COMBO-BOX INNER-LINES 5
+          LIST-ITEM-PAIRS "Yes",YES,
+                     "NO",NO
+          DROP-DOWN-LIST
+          SIZE 11 BY 1
+          BGCOLOR 15 FONT 1
      company.curr-code AT ROW 14.81 COL 39 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 7 BY 1
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE 
-         FONT 6.
-
-/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
-DEFINE FRAME F-Main
      c-desc AT ROW 14.81 COL 47 COLON-ALIGNED NO-LABEL
+     company.subLedgerAR AT ROW 14.86 COL 116.6 COLON-ALIGNED
+          LABEL "A/R - Receivables"
+          VIEW-AS COMBO-BOX INNER-LINES 5
+          LIST-ITEM-PAIRS "Yes",YES,
+                     "NO",NO
+          DROP-DOWN-LIST
+          SIZE 11 BY 1
+          BGCOLOR 15 FONT 1
+     "Sub Ledger Close" VIEW-AS TEXT
+          SIZE 23 BY 1.19 AT ROW 4.76 COL 103 WIDGET-ID 216
      "Previous Year Closed?" VIEW-AS TEXT
           SIZE 28 BY .95 AT ROW 12.67 COL 12
      RECT-1 AT ROW 1 COL 1
@@ -288,7 +359,7 @@ END.
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW V-table-Win ASSIGN
          HEIGHT             = 16.24
-         WIDTH              = 115.
+         WIDTH              = 132.2.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -363,7 +434,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -868,6 +939,31 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-buttons V-table-Win 
+PROCEDURE valid-buttons :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    /*add and delete not valid buttons*/
+    DEF OUTPUT PARAMETER op-add-valid AS LOG NO-UNDO.
+    DEF OUTPUT PARAMETER op-delete-valid AS LOG INIT YES NO-UNDO.
+
+    DEF VAR hPgmSecurity AS HANDLE NO-UNDO.
+    DEF VAR lResult AS LOG NO-UNDO.
+    RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
+    RUN epCanAccess IN hPgmSecurity ("viewers/company.w", "", OUTPUT lResult).
+    DELETE OBJECT hPgmSecurity.
+
+    ASSIGN 
+        op-add-valid = lResult.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-co-acc V-table-Win 
 PROCEDURE valid-co-acc :
 /*------------------------------------------------------------------------------
@@ -967,27 +1063,3 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-buttons V-table-Win 
-PROCEDURE valid-buttons :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    /*add and delete not valid buttons*/
-    DEF OUTPUT PARAMETER op-add-valid AS LOG NO-UNDO.
-    DEF OUTPUT PARAMETER op-delete-valid AS LOG INIT YES NO-UNDO.
-
-    DEF VAR hPgmSecurity AS HANDLE NO-UNDO.
-    DEF VAR lResult AS LOG NO-UNDO.
-    RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
-    RUN epCanAccess IN hPgmSecurity ("viewers/company.w", "", OUTPUT lResult).
-    DELETE OBJECT hPgmSecurity.
-
-    ASSIGN 
-        op-add-valid = lResult.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME

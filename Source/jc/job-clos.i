@@ -109,8 +109,6 @@ DEF VAR ll-set AS LOG NO-UNDO.
 
 
         RUN jc/jobnotes.p (BUFFER job).
-       
-        {util/mkjobkey.i}
 
         RUN jc/job-cls2.p (RECID(job)).
       END.

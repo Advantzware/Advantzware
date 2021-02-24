@@ -32,6 +32,9 @@ DEFINE TEMP-TABLE ttQtyRestore NO-UNDO
 /* ************************  Function Prototypes ********************** */
 
 
+FUNCTION fSetHeaderOnly RETURNS LOGICAL PRIVATE
+	(ipcCompany AS CHARACTER ) FORWARD.
+
 FUNCTION fIsAutoIssue RETURNS LOGICAL PRIVATE
 	(iplAutoIssueArray LIKE jc-ctrl.post,
 	 ipcMaterialType AS CHARACTER) FORWARD.
@@ -165,7 +168,12 @@ PROCEDURE pBuildHeaders PRIVATE:
     DEFINE           BUFFER bf-reftable FOR reftable.
     
     DEFINE VARIABLE dQtyInM AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE lSetHeaderOnly AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lIsSet AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lIsSetHeader AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lMakeJobHeader AS LOGICAL NO-UNDO.
     
+    lSetHeaderOnly = fSetHeaderOnly(ipbf-job.company).  /*NK1 JobBuildVersion Logical Value = YES*/
     FOR EACH bf-reftable
         WHERE bf-reftable.reftable EQ "jc/jc-calc.p"
         AND bf-reftable.company  EQ ipbf-job.company
@@ -181,17 +189,24 @@ PROCEDURE pBuildHeaders PRIVATE:
         AND estCostItem.estCostItemID EQ estCostBlank.estCostItemID,
         FIRST estCostHeader NO-LOCK 
         WHERE estCostHeader.estCostHeaderID EQ estCostBlank.estCostHeaderID:
-        FIND FIRST bf-job-hdr EXCLUSIVE-LOCK 
-            WHERE bf-job-hdr.company EQ ipbf-job.company
-            AND bf-job-hdr.job EQ ipbf-job.job
-            AND bf-job-hdr.job-no EQ ipbf-job.job-no
-            AND bf-job-hdr.job-no2 EQ ipbf-job.job-no2
-            AND bf-job-hdr.frm EQ estCostBlank.formNo
-            AND bf-job-hdr.blank-no EQ estCostBlank.blankNo
-            AND bf-job-hdr.i-no EQ estCostItem.itemID
-            NO-ERROR.
+        ASSIGN 
+            lIsSet = estCostHeader.estType EQ "Set"
+            lIsSetHeader = estCostBlank.formNo EQ 0 
+            lMakeJobHeader = NOT lSetHeaderOnly OR lIsSetHeader OR NOT lIsSet
+            .
         
-        IF NOT AVAILABLE bf-job-hdr AND estCostBlank.formNo EQ 0 THEN 
+        IF lMakeJobHeader THEN 
+            FIND FIRST bf-job-hdr EXCLUSIVE-LOCK 
+                WHERE bf-job-hdr.company EQ ipbf-job.company
+                AND bf-job-hdr.job EQ ipbf-job.job
+                AND bf-job-hdr.job-no EQ ipbf-job.job-no
+                AND bf-job-hdr.job-no2 EQ ipbf-job.job-no2
+                AND bf-job-hdr.frm EQ estCostBlank.formNo
+                AND bf-job-hdr.blank-no EQ estCostBlank.blankNo
+                AND bf-job-hdr.i-no EQ estCostItem.itemID
+                NO-ERROR.
+    
+        IF NOT AVAILABLE bf-job-hdr AND lIsSetHeader THEN 
         DO:  /*Job Build Process creates the Set Header job-hdr with form 1 blank 1.  This is a workaround to find that to prevent
             creating more than one job-hdr for the set header which will need to be cleaned up*/
             FIND FIRST bf-job-hdr EXCLUSIVE-LOCK 
@@ -203,7 +218,7 @@ PROCEDURE pBuildHeaders PRIVATE:
                 NO-ERROR.                
         END.            
         
-        IF NOT AVAILABLE bf-job-hdr THEN 
+        IF NOT AVAILABLE bf-job-hdr AND lMakeJobHeader THEN 
         DO:
             CREATE bf-job-hdr.
             ASSIGN 
@@ -219,23 +234,24 @@ PROCEDURE pBuildHeaders PRIVATE:
                 bf-job-hdr.loc     = ipbf-job.loc
                 .
         END.
-        CREATE ttJobHdrToKeep.
-        ASSIGN 
-            dQtyInM                 = bf-job-hdr.qty / 1000
-            ttJobHdrToKeep.riJobHdr = ROWID(bf-job-hdr)
-            bf-job-hdr.frm          = estCostBlank.formNo
-            bf-job-hdr.blank-no     = estCostBlank.blankNo
-            bf-job-hdr.sq-in        = estCostBlank.pctOfForm  * 100
-            bf-job-hdr.std-tot-cost = estCostItem.costTotalFactory / dQtyInM
-            bf-job-hdr.std-mat-cost = estCostItem.costTotalMaterial / dQtyInM
-            bf-job-hdr.std-lab-cost = estCostItem.costTotalLabor / dQtyInM
-            bf-job-hdr.std-var-cost = estCostItem.costTotalVariableOverhead / dQtyInM
-            bf-job-hdr.std-fix-cost = estCostItem.costTotalFixedOverhead / dQtyInM
-            bf-job-hdr.n-on         = estCostBlank.numOut
-            bf-job-hdr.ftick-prnt   = NO
-            .
-            
-        IF estCostHeader.estType EQ "Set" AND NOT estCostItem.isSet THEN 
+        IF AVAILABLE bf-job-hdr THEN DO:
+            CREATE ttJobHdrToKeep.
+            ASSIGN 
+                dQtyInM                 = bf-job-hdr.qty / 1000
+                ttJobHdrToKeep.riJobHdr = ROWID(bf-job-hdr)
+                bf-job-hdr.frm          = estCostBlank.formNo
+                bf-job-hdr.blank-no     = estCostBlank.blankNo
+                bf-job-hdr.sq-in        = estCostBlank.pctOfForm  * 100
+                bf-job-hdr.std-tot-cost = estCostItem.costTotalFactory / dQtyInM
+                bf-job-hdr.std-mat-cost = estCostItem.costTotalMaterial / dQtyInM
+                bf-job-hdr.std-lab-cost = estCostItem.costTotalLabor / dQtyInM
+                bf-job-hdr.std-var-cost = estCostItem.costTotalVariableOverhead / dQtyInM
+                bf-job-hdr.std-fix-cost = estCostItem.costTotalFixedOverhead / dQtyInM
+                bf-job-hdr.n-on         = estCostBlank.numOut
+                bf-job-hdr.ftick-prnt   = NO
+                .
+        END.    
+        IF lIsSet AND NOT lIsSetHeader THEN 
         DO:
             FIND FIRST bf-reftable
                 WHERE bf-reftable.reftable EQ "jc/jc-calc.p"
@@ -261,10 +277,10 @@ PROCEDURE pBuildHeaders PRIVATE:
                     .
             END.
             ASSIGN
-                bf-reftable.val[1] = bf-reftable.val[1] + bf-job-hdr.std-lab-cost
-                bf-reftable.val[2] = bf-reftable.val[2] + bf-job-hdr.std-mat-cost
-                bf-reftable.val[3] = bf-reftable.val[3] + bf-job-hdr.std-var-cost
-                bf-reftable.val[4] = bf-reftable.val[4] + bf-job-hdr.std-fix-cost
+                bf-reftable.val[1] = bf-reftable.val[1] + estCostItem.costTotalLabor / dQtyInM
+                bf-reftable.val[2] = bf-reftable.val[2] + estCostItem.costTotalMaterial / dQtyInM
+                bf-reftable.val[3] = bf-reftable.val[3] + estCostItem.costTotalVariableOverhead / dQtyInM
+                bf-reftable.val[4] = bf-reftable.val[4] + estCostItem.costTotalFixedOverhead / dQtyInM
                 bf-reftable.val[5] = bf-reftable.val[1] + bf-reftable.val[2] +
                          bf-reftable.val[3] + bf-reftable.val[4].
         END.
@@ -399,7 +415,12 @@ PROCEDURE pBuildMaterials PRIVATE:
             bf-job-mat.n-up         = estCostForm.numOut
             bf-job-mat.basis-w      = estCostForm.basisWeight
             .
-        bf-job-mat.post = fIsAutoIssue(bf-jc-ctrl.post, estCostMaterial.materialType).
+
+        bf-job-mat.post = fIsAutoIssue(bf-jc-ctrl.post, estCostMaterial.materialType) OR 
+                          CAN-FIND(FIRST materialType 
+                                   WHERE materialType.company      EQ bf-job-mat.company 
+                                     AND materialType.materialType EQ estCostMaterial.materialType 
+                                     AND materialType.autoIssue    EQ TRUE).
         
         IF bf-job-mat.qty-all EQ 0 OR NOT bf-job-mat.all-flg  THEN
             bf-job-mat.qty-all = bf-job-mat.qty - bf-job-mat.qty-iss.
@@ -566,6 +587,7 @@ PROCEDURE pCalcEstimateForJob PRIVATE:
                         .
                 END.                
             END.
+            RELEASE bf-eb.
         END.
     END.         
     ELSE 
@@ -604,7 +626,7 @@ PROCEDURE pCleanJob PRIVATE:
     DEFINE           BUFFER bf-job-prep FOR job-prep.
     DEFINE           BUFFER bf-job-farm FOR job-farm.
     DEFINE           BUFFER bf-job-hdr  FOR job-hdr.
-    
+        
     FOR EACH bf-job-mat EXCLUSIVE-LOCK
         WHERE bf-job-mat.company EQ ipbf-job.company
         AND bf-job-mat.job EQ ipbf-job.job
@@ -644,13 +666,14 @@ PROCEDURE pCleanJob PRIVATE:
         DELETE bf-job-farm.
     END.
     RELEASE bf-job-farm.
-    
+       
     FOR EACH bf-job-hdr EXCLUSIVE-LOCK
         WHERE bf-job-hdr.company EQ ipbf-job.company
         AND bf-job-hdr.job EQ ipbf-job.job
         AND bf-job-hdr.job-no EQ ipbf-job.job-no
         AND bf-job-hdr.job-no2 EQ ipbf-job.job-no2
-        AND NOT CAN-FIND(FIRST ttJobHdrToKeep WHERE ttJobHdrToKeep.riJobHdr EQ ROWID(bf-job-hdr)): 
+        AND NOT CAN-FIND(FIRST ttJobHdrToKeep WHERE ttJobHdrToKeep.riJobHdr EQ ROWID(bf-job-hdr)):
+                 
             DELETE bf-job-hdr.
     END.     
     RELEASE bf-job-hdr.
@@ -676,6 +699,29 @@ END PROCEDURE.
 
 
 /* ************************  Function Implementations ***************** */
+
+FUNCTION fSetHeaderOnly RETURNS LOGICAL PRIVATE
+	(ipcCompany AS CHARACTER ):
+    /*------------------------------------------------------------------------------
+     Purpose: NK1 JobBuildVersion Logical Value = YES.  When yes, set componenents will
+     not be created as job-hdrs.  This is for any job tickets that expect legacy Job builds
+     and requires extra functionality to get components for some reason.
+     This could be deprecated if all customers tickets are changed to handle set components
+     their own job-hdrs.
+     Notes:
+    ------------------------------------------------------------------------------*/	
+    DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lFound  AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lSetHeaderOnly AS LOGICAL NO-UNDO.
+    
+    RUN sys/ref/nk1look.p (ipcCompany, "JobBuildVersion", "L", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
+    lSetHeaderOnly = lFound AND cReturn EQ "YES".
+
+    RETURN lSetHeaderOnly.
+
+
+		
+END FUNCTION.
 
 FUNCTION fIsAutoIssue RETURNS LOGICAL PRIVATE
 	(iplAutoIssueArray LIKE jc-ctrl.post, ipcMaterialType AS CHARACTER):

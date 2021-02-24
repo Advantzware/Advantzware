@@ -41,7 +41,7 @@ DEFINE VARIABLE labelLine     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE dataLine      AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hPgmSecurity  AS HANDLE    NO-UNDO.
 DEFINE VARIABLE lAuditMonitor AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE hSession      AS HANDLE    NO-UNDO.
+
 DEFINE VARIABLE cResourceTypeASI          AS CHARACTER NO-UNDO INITIAL "ASI".
 DEFINE VARIABLE hdAdvantzwareMonitorProcs AS HANDLE    NO-UNDO.
 DEFINE VARIABLE lRunNow AS LOG NO-UNDO.
@@ -55,9 +55,6 @@ ASSIGN
     locode = g_loc.
 
 RUN api/AdvantzwareMonitorProcs.p PERSISTENT SET hdAdvantzwareMonitorProcs.
-
-RUN system/session.p PERSISTENT SET hSession.
-SESSION:ADD-SUPER-PROCEDURE (hSession).
 
 IF INDEX(PROPATH,".\custom") EQ 0 THEN ASSIGN 
     PROPATH = ".\custom," + PROPATH.

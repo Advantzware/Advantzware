@@ -28,6 +28,7 @@ PROCEDURE pSuperProcs:
     DEFINE VARIABLE hSuperProc     AS HANDLE    NO-UNDO.
     DEFINE VARIABLE idx            AS INTEGER   NO-UNDO.
     DEFINE VARIABLE jdx            AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iCount         AS INTEGER   NO-UNDO.
     
     /* vv alphabetical list of persistent procedures vv */
     cSuperProcs = "AOA/spDynCalcField.p,"
@@ -97,6 +98,9 @@ PROCEDURE pSuperProcs:
     /* ^^ alphabetical list of persistent procedures ^^ */
     cSuperProcs = TRIM(cSuperProcs,",").
     DO idx = 1 TO NUM-ENTRIES(cSuperProcs):
+        iCount = iCount + 1.
+        IF lProgressBar THEN
+        RUN spProgressBar (cProgressBar, iCount, NUM-ENTRIES(cSuperProcs)).
         cProcFile = ENTRY(idx,cSuperProcs).
         IF SEARCH(cProcFile) EQ ? THEN
         cProcFile = REPLACE(cProcFile,".p",".r").

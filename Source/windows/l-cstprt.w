@@ -315,7 +315,7 @@ ON DEFAULT-ACTION OF BROWSE-1 IN FRAME Dialog-Frame
 DO:
    op-char-val = cust-part.part-no:screen-value in browse {&browse-name} + "," +
                  itemfg.part-dscr1:screen-value in browse {&browse-name} + "," +
-                 itemfg.part-dscr2 + "," + itemfg.i-no
+                 itemfg.part-dscr2 + "," + itemfg.i-no + "," + itemfg.i-name
                  .
    op-recid = recid(itemfg).              
    apply "window-close" to frame {&frame-name}. 
@@ -349,7 +349,7 @@ ON CHOOSE OF bt-ok IN FRAME Dialog-Frame /* OK */
 DO:
    op-char-val = cust-part.part-no:screen-value in browse {&browse-name} + "," +
                  itemfg.part-dscr1:screen-value in browse {&browse-name} + "," +
-                 itemfg.part-dscr2 + "," + itemfg.i-no 
+                 itemfg.part-dscr2 + "," + itemfg.i-no + "," + itemfg.i-name
                  .
    op-recid = recid(itemfg).              
 

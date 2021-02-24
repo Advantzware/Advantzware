@@ -116,6 +116,7 @@ PROCEDURE pBusinessLogic:
     DEFINE VARIABLE i                 AS INTEGER   NO-UNDO.
     DEFINE VARIABLE cLvText           AS CHARACTER NO-UNDO.
     DEFINE VARIABLE dAmountDue        AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE iRecCount         AS INTEGER   NO-UNDO EXTENT 2.
     
     FOR EACH company NO-LOCK
         WHERE company.company GE cStartCompany
@@ -162,7 +163,11 @@ PROCEDURE pBusinessLogic:
                 tt-cust.sorter    = IF cSort1 EQ "Customer No" THEN cust.cust-no
                                ELSE IF cSort1 EQ "Name" THEN cust.name
                                ELSE cust.sman
-                tt-cust.row-id    = ROWID(cust) .
+                tt-cust.row-id    = ROWID(cust)
+                iRecCount[2]      = iRecCount[2] + 1
+                .
+            IF lProgressBar THEN
+            RUN spProgressBar (cProgressBar, iRecCount[2], ?).
             IF tt-cust.curr-code NE company.curr-code THEN
             lMultCurr = YES.
         END. /* if lValidCust */
@@ -173,6 +178,9 @@ PROCEDURE pBusinessLogic:
         BREAK BY tt-cust.curr-code
               BY tt-cust.sorter
         :
+        iRecCount[1] = iRecCount[1] + 1.
+        IF lProgressBar THEN
+        RUN spProgressBar (cProgressBar, iRecCount[1], iRecCount[2]).
         FIND FIRST sman NO-LOCK
             WHERE sman.company EQ cust.company
               AND sman.sman    EQ cust.sman
