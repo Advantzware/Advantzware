@@ -229,6 +229,7 @@ ll-initial = browser-log. */
     get-act-bol-qty() @ li-act-bol-qty COLUMN-LABEL "Act. BOL!Qty" FORMAT "->>,>>>,>>>":U
     fget-qty-nothand(get-act-rel-qty() + get-act-bol-qty(),li-qoh) @ iHandQtyNoalloc COLUMN-LABEL "On Hand Qty not Allocated" FORMAT "->>>>>>>>":U
     fnPrevOrder(oe-ordl.est-no,oe-ordl.ord-no) @ iPreOrder COLUMN-LABEL "Prev Order" FORMAT ">>>>>>>>":U
+    pGetInvoiceLineCost() @ dInvoiceLineCost COLUMN-LABEL "Invoice Line Cost" FORMAT "->>>,>>>,>>9.99<<<<":U
 */
 
 DEFINE VARIABLE iRecordLimit       AS INTEGER   NO-UNDO.
@@ -273,8 +274,7 @@ get-act-rel-qty() @ li-act-rel-qty get-pct(li-bal) @ li-pct oe-ordl.i-name ~
 oe-ordl.line oe-ordl.po-no-po oe-ordl.e-num oe-ordl.whsed ~
 getTotalReturned() @ dTotQtyRet getReturnedInv() @ dTotRetInv ~
 oe-ordl.s-man[1] oe-ordl.managed oe-ordl.cost pGetSellPrice() @ dSellPrice ~
-pGetExtendedPrice() @ dExtendedPrice ~
-pGetInvoiceLineCost() @ dInvoiceLineCost pGetPriceUom() @ cPriceUom ~
+pGetExtendedPrice() @ dExtendedPrice pGetPriceUom() @ cPriceUom ~
 pGetCostUom() @ cCostUom 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table oe-ordl.ord-no ~
 oe-ordl.cust-no oe-ord.ord-date oe-ordl.req-date oe-ord.cust-name ~
@@ -736,7 +736,6 @@ DEFINE BROWSE Browser-Table
             LABEL-BGCOLOR 14
       pGetSellPrice() @ dSellPrice COLUMN-LABEL "Sell Price" FORMAT ">>,>>>,>>9.99<<<<":U
       pGetExtendedPrice() @ dExtendedPrice COLUMN-LABEL "Extended! Price" FORMAT "->>,>>>,>>9.99":U
-      pGetInvoiceLineCost() @ dInvoiceLineCost COLUMN-LABEL "Invoice Line Cost" FORMAT "->>>,>>>,>>9.99<<<<":U
       pGetPriceUom() @ cPriceUom COLUMN-LABEL "UOM" FORMAT "X(4)":U
       pGetCostUom() @ cCostUom COLUMN-LABEL "Cost!Uom" FORMAT "x(4)":U
   ENABLE
@@ -984,10 +983,8 @@ AND itemfg.i-no EQ oe-ordl.i-no"
      _FldNameList[34]   > "_<CALC>"
 "pGetExtendedPrice() @ dExtendedPrice" "Extended! Price" "->>,>>>,>>9.99" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[35]   > "_<CALC>"
-"pGetInvoiceLineCost() @ dInvoiceLineCost" "Invoice Line Cost" "->>>,>>>,>>9.99<<<<" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[36]   > "_<CALC>"
 "pGetPriceUom() @ cPriceUom" "UOM" "X(4)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[37]   > "_<CALC>"
+     _FldNameList[36]   > "_<CALC>"
 "pGetCostUom() @ cCostUom" "Cost!Uom" "x(4)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
