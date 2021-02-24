@@ -549,6 +549,8 @@ PROCEDURE state-changed :
         END.
         WHEN "print-tags" THEN DO:
             {methods/run_link.i "LOADTAG-SOURCE" "PrintTTLoadTags"}
+            
+            RUN Set-Focus.
         END.
     END CASE.
 END PROCEDURE.
