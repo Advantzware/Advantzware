@@ -293,6 +293,9 @@ DEFINE VARIABLE iJobOverQty AS INTEGER NO-UNDO .
 
 cNewOrderValue = CAPS(cJobType) .
 
+FUNCTION fGetBlankJobYieldQty RETURNS INTEGER PRIVATE
+    ( ipcCompany AS CHARACTER, ipcJobID AS CHARACTER, ipiJobID2 AS INTEGER, ipiFormNo AS INTEGER, ipiBlankNo AS INTEGER ) FORWARD.
+
 
 
 FORMAT "  Customer:" oe-ord.cust-name "Sold To:" oe-ord.sold-id
@@ -1264,8 +1267,9 @@ FOR EACH job-hdr NO-LOCK
                               PUT v-fill SKIP  .
 /*                              iEbTotalYldQty = IF eb.yld-qty EQ 0 THEN eb.bl-qty ELSE eb.yld-qty .*/
 /*                              iEbTotalblQty  = eb.bl-qty  .                                       */
-                              RUN pGetJobQty(bf-jobhdr.job-no,bf-jobhdr.job-no2,bf-jobhdr.frm,eb.blank-no, OUTPUT iJobQty ) .        
-                              iJobOverQty = IF AVAIL oe-ordl THEN( v-ord-qty * ( 1 + oe-ordl.over-pct / 100 )) ELSE IF iJobQty NE 0 THEN iJobQty ELSE bf-jobhdr.qty .
+                              RUN pGetJobQty(bf-jobhdr.job-no,bf-jobhdr.job-no2,bf-jobhdr.frm,eb.blank-no, OUTPUT iJobQty ) . 
+                              iJobOverQty = fGetBlankJobYieldQty(ef.company, job-hdr.job-no, job-hdr.job-no2,ef.form-no,eb.blank-no).
+                              iJobOverQty = IF AVAIL oe-ordl THEN( iJobOverQty * ( 1 + oe-ordl.over-pct / 100 )) ELSE iJobOverQty .
                               IF cSetFGItem NE "" THEN do:
                                   FIND FIRST fg-set WHERE fg-set.company = eb.company
                                       AND fg-set.set-no = cSetFGItem
@@ -1339,7 +1343,10 @@ FOR EACH job-hdr NO-LOCK
 /*                                     iEbTotalYldQty = IF bff-eb.yld-qty EQ 0 THEN bff-eb.bl-qty ELSE bff-eb.yld-qty .*/
 /*                                     iEbTotalblQty  = bff-eb.bl-qty  .                                               */
                                      RUN pGetJobQty(bf-jobhdr.job-no,bf-jobhdr.job-no2,bf-jobhdr.frm,bff-eb.blank-no, OUTPUT iJobQty ) .
-                                     iJobOverQty = IF AVAIL oe-ordl THEN (v-ord-qty * (1 + oe-ordl.over-pct / 100 )) ELSE IF iJobQty NE 0 THEN iJobQty ELSE bf-jobhdr.qty .
+                                     
+                                     iJobOverQty = fGetBlankJobYieldQty(ef.company, job-hdr.job-no, job-hdr.job-no2,bff-eb.form-no,bff-eb.blank-no).
+                                     iJobOverQty = IF AVAIL oe-ordl THEN( iJobOverQty * ( 1 + oe-ordl.over-pct / 100 )) ELSE iJobOverQty .
+                                     
                                      IF cSetFGItem NE "" THEN 
                                      do:
                                          FIND FIRST fg-set WHERE fg-set.company = eb.company
@@ -2209,3 +2216,36 @@ PROCEDURE pPrintCadPlateImage PRIVATE:
 
 END PROCEDURE.
 
+/* ************************  Function Implementations ***************** */ 
+FUNCTION fGetBlankJobYieldQty RETURNS INTEGER PRIVATE
+    ( ipcCompany AS CHARACTER, ipcJobID AS CHARACTER, ipiJobID2 AS INTEGER, ipiFormNo AS INTEGER, ipiBlankNo AS INTEGER ):
+    /*------------------------------------------------------------------------------
+     Purpose:  Given inputs, validate folder and build new file name.  Return complete path.
+     Notes:
+    ------------------------------------------------------------------------------*/	
+    DEFINE VARIABLE iReturnValue AS INTEGER NO-UNDO.
+
+    FOR FIRST estCostHeader NO-LOCK
+        WHERE estCostHeader.company EQ ipcCompany
+        AND estCostHeader.jobID EQ ipcJobID
+        AND estCostHeader.jobID2 EQ ipiJobID2,
+        EACH estCostOperation NO-LOCK
+        WHERE estCostOperation.estCostHeaderID EQ estCostHeader.estCostHeaderID
+        AND estCostOperation.formNo EQ ipiFormNo
+        AND estCostOperation.blankNo EQ ipiBlankNo,
+        FIRST job-mch NO-LOCK 
+        WHERE job-mch.company EQ estCostOperation.company
+        AND job-mch.job-no EQ estCostHeader.jobID
+        AND job-mch.job-no2 EQ estCostHeader.jobID2
+        AND job-mch.m-code EQ estCostOperation.operationID
+        AND job-mch.frm EQ estCostOperation.formNo 
+        AND job-mch.blank-no EQ estCostOperation.blankNo
+            BY estCostOperation.sequence:        
+               
+           iReturnValue = estCostOperation.quantityOut .
+           LEAVE.
+    END.
+    
+    RETURN iReturnValue.
+    		
+END FUNCTION.
