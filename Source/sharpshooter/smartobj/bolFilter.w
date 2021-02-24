@@ -51,7 +51,7 @@ oBOLHeader = NEW bol.BOLHeader().
 &Scoped-define PROCEDURE-TYPE SmartObject
 &Scoped-define DB-AWARE no
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
@@ -140,7 +140,7 @@ END.
 /* SETTINGS FOR WINDOW s-object
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE Size-to-Fit                                              */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
@@ -165,6 +165,38 @@ ASSIGN
 /* ************************  Control Triggers  ************************ */
 
 &Scoped-define SELF-NAME fiBOL
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiBOL s-object
+ON ANY-KEY OF fiBOL IN FRAME F-Main /* BOL */
+DO:
+    IF KEYLABEL(LASTKEY) EQ "ENTER" THEN
+        APPLY "LEAVE" TO SELF.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiBOL s-object
+ON ENTRY OF fiBOL IN FRAME F-Main /* BOL */
+DO:
+    SELF:SET-SELECTION(1, -1).  
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiBOL s-object
+ON HELP OF fiBOL IN FRAME F-Main /* BOL */
+DO:
+    RUN applhelp.p.  
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiBOL s-object
 ON LEAVE OF fiBOL IN FRAME F-Main /* BOL */
 DO:
@@ -216,9 +248,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetBOLHeader s-object
-PROCEDURE GetBOLHeader:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetBOLHeader s-object 
+PROCEDURE GetBOLHeader :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -227,11 +258,9 @@ PROCEDURE GetBOLHeader:
 
     opoBOLHeader = oBOLHeader.
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable s-object 
 PROCEDURE local-enable :
@@ -296,9 +325,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Set-Focus s-object
-PROCEDURE Set-Focus:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Set-Focus s-object 
+PROCEDURE Set-Focus :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -309,11 +337,9 @@ PROCEDURE Set-Focus:
     APPLY "ENTRY" TO fiBOL.
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed s-object 
 PROCEDURE state-changed :

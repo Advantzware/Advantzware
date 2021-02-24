@@ -302,7 +302,7 @@ PROCEDURE pBuildLoadTagsFromBOL PRIVATE:
                                               ELSE
                                                   "Created"
                 bf-ttLoadTag.recordSource   = "BOL"
-                bf-ttLoadTag.exportTemplate = "LabelMatrix"
+                bf-ttLoadTag.exportFileType = "BOLTag"
                 bf-ttLoadTag.exportFile     = gcLabelMatrixBOLLoadTagOutputPath + gcLabelMatrixBOLLoadTagOutputFile
                 .
     
@@ -335,18 +335,19 @@ PROCEDURE pBuildLoadTagsFromBOL PRIVATE:
                                                      STRING(bf-job-hdr.due-date, "99/99/9999") 
                                                  ELSE
                                                      "".
-            IF AVAILABLE bf-job THEN
+            IF AVAILABLE bf-job THEN DO:
                 bf-ttLoadTag.dueDateJob = IF bf-job.due-date NE ? THEN 
                                               STRING(bf-job.due-date, "99/99/9999") 
                                           ELSE 
                                               "".
     
-            RUN pUpdateTTLoadTagEstimateDetails (
-                INPUT bf-job.company,
-                INPUT bf-job.est-no,
-                INPUT bf-ttLoadTag.recordID
-                ).
-
+                RUN pUpdateTTLoadTagEstimateDetails (
+                    INPUT bf-job.company,
+                    INPUT bf-job.est-no,
+                    INPUT bf-ttLoadTag.recordID
+                    ).
+            END.
+            
             FIND FIRST bf-fg-bin NO-LOCK 
                  WHERE bf-fg-bin.company EQ bf-oe-boll.company
                    AND bf-fg-bin.job-no  EQ bf-oe-boll.job-no
@@ -381,6 +382,16 @@ PROCEDURE pBuildLoadTagsFromBOL PRIVATE:
                 INPUT bf-ttLoadTag.recordID
                 ).
                             
+            RUN pGetExportTemplateFile(
+                INPUT  bf-ttLoadTag.company,
+                INPUT  "BOlTagFile",
+                INPUT  bf-ttLoadTag.itemID,
+                INPUT  bf-ttLoadTag.custID,
+                INPUT  bf-ttLoadTag.shipID,
+                OUTPUT bf-ttLoadTag.exportTemplateFile,
+                OUTPUT bf-ttLoadTag.exportTemplate
+                ).
+
             IF glCreateComponenetTagsForSetHeaderItem THEN DO:
                 RUN pCreateSetComponentsForTTLoadTagItem (
                     INPUT  bf-ttLoadTag.recordID,
@@ -1156,6 +1167,56 @@ PROCEDURE pGetCostFromPO PRIVATE:
 END PROCEDURE.
 
 
+PROCEDURE pGetExportTemplateFile PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany      AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcSysCtrlName  AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcItemID       AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcCustomerID   AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcShipID       AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcPathTemplate AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcTemplateType AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE lFound  AS LOGICAL   NO-UNDO.
+    
+    DEFINE BUFFER bf-cust-part FOR cust-part.
+    
+    FIND FIRST bf-cust-part NO-LOCK
+         WHERE bf-cust-part.company EQ ipcCompany
+           AND bf-cust-part.cust-no EQ ipcCustomerID
+           AND bf-cust-part.i-no    EQ ipcItemID
+         NO-ERROR.
+    IF AVAILABLE bf-cust-part THEN
+        opcPathTemplate = bf-cust-part.labelPallet.
+    
+    IF opcPathTemplate EQ "" THEN DO:
+        RUN sys/ref/nk1look.p (
+            INPUT  ipcCompany, 
+            INPUT  ipcSysCtrlName, 
+            INPUT  "C", 
+            INPUT  YES, 
+            INPUT  YES, 
+            INPUT  ipcCustomerID, 
+            INPUT  ipcShipID, 
+            OUTPUT opcPathTemplate, 
+            OUTPUT lFound
+            ).
+    END.
+    
+    IF opcPathTemplate NE "" THEN
+        opcTemplateType = IF opcPathTemplate MATCHES "*.xpr*" THEN 
+                              "XPrint" 
+                          ELSE IF opcPathTemplate MATCHES "*.lwl" THEN 
+                              "Loftware" 
+                          ELSE IF opcPathTemplate MATCHES "*.qdf" THEN
+                              "LabelMatrix"
+                          ELSE
+                              "".
+END PROCEDURE.
+
 PROCEDURE pIncrementCustPalletID PRIVATE:
 /*------------------------------------------------------------------------------
   Purpose:     Increment the pallet number for a given customer and return the
@@ -1219,22 +1280,18 @@ PROCEDURE pPrintLabelMatrix PRIVATE:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER ipcCompany AS CHARACTER NO-UNDO.
-    
-    DEFINE VARIABLE hdOutputProcs AS HANDLE NO-UNDO.
-    DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE lFound AS LOGICAL NO-UNDO.
-    DEFINE VARIABLE cPathTemplate AS CHARACTER NO-UNDO.
-    RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
+    DEFINE INPUT  PARAMETER ipcCompany      AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcPathTemplate AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcType         AS CHARACTER NO-UNDO.
 
-    RUN sys/ref/nk1look.p (ipcCompany, "BARDIR", "C", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound). 
-    IF lFound THEN 
-        cPathTemplate = cReturn.
-            
+    DEFINE VARIABLE hdOutputProcs AS HANDLE NO-UNDO.
+
+    RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
+    
     RUN PrintLabelMatrixFile IN hdOutputProcs (
         INPUT ipcCompany,
-        INPUT cPathTemplate,
-        INPUT "loadtag"
+        INPUT ipcPathTemplate,
+        INPUT ipcType
         ).
         
     DELETE PROCEDURE hdOutputProcs.
@@ -1420,8 +1477,8 @@ PROCEDURE pPrintTTLoadTags PRIVATE:
     
     RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
     
-    cTTLoadTagHandle = STRING(TEMP-TABLE ttLoadTag:HANDLE).
-    
+    cTTLoadTagHandle = STRING(TEMP-TABLE ttLoadTag:HANDLE).        
+
     FOR EACH ttLoadTag
         WHERE ttLoadTag.exportTemplate EQ "LabelMatrix"
           AND ttLoadTag.tagStatus      EQ "Created"
@@ -1438,8 +1495,8 @@ PROCEDURE pPrintTTLoadTags PRIVATE:
                 INPUT  ipcCompany,                             /* Company Code (Mandatory) */
                 INPUT  ipcLocation,                            /* Location Code (Mandatory) */
                 INPUT  "CreateLoadtag",                        /* API ID (Mandatory) */
-                INPUT  "",                                     /* Scope ID */
-                INPUT  "",                                     /* Scope Type */
+                INPUT  ttLoadTag.custID,                       /* Scope ID */
+                INPUT  "Customer",                             /* Scope Type */
                 INPUT  "PrintLoadtag",                         /* Trigger ID (Mandatory) */
                 INPUT  cArgKeyList,                            /* Comma separated list of table names for which data being sent (Mandatory) */
                 INPUT  cArgValueList,                          /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
@@ -1448,10 +1505,12 @@ PROCEDURE pPrintTTLoadTags PRIVATE:
                 OUTPUT lSuccess,                               /* Success/Failure flag */
                 OUTPUT cMessage                                /* Status message */
                 ) NO-ERROR.
-            
+
             IF glLabelMatrixAutoPrint THEN
                 RUN pPrintLabelMatrix (
-                    INPUT ipcCompany
+                    INPUT ipcCompany,
+                    INPUT ttLoadTag.exportTemplateFile,
+                    INPUT ttLoadTag.exportFileType
                     ).            
         END.
     END.
@@ -2191,10 +2250,9 @@ PROCEDURE pBuildLoadTagsFromJob PRIVATE:
             bf-ttLoadTag.tagStatus      = "Pending"
             bf-ttLoadTag.recordSource   = "JOB"
             bf-ttLoadTag.isSelected     = TRUE
-            bf-ttLoadTag.exportTemplate = "LabelMatrix"
+            bf-ttLoadTag.exportFileType = "laodtag"
             bf-ttLoadTag.exportFile     = gcLabelMatrixLoadTagOutputPath + gcLabelMatrixLoadTagOutputFile
             .
-        
         
         IF bf-job-hdr.ord-no NE 0 THEN DO:
             iCount = 9.
@@ -2268,6 +2326,16 @@ PROCEDURE pBuildLoadTagsFromJob PRIVATE:
                          
         IF bf-ttLoadTag.partial EQ ? THEN 
             bf-ttLoadTag.partial = 0. 
+        
+        RUN pGetExportTemplateFile(
+            INPUT  bf-ttLoadTag.company,
+            INPUT  "BARDIR",
+            INPUT  bf-ttLoadTag.itemID,
+            INPUT  bf-ttLoadTag.custID,
+            INPUT  bf-ttLoadTag.shipID,
+            OUTPUT bf-ttLoadTag.exportTemplateFile,
+            OUTPUT bf-ttLoadTag.exportTemplate
+            ).
         
         IF glCreateComponenetTagsForSetHeaderItem THEN DO:
             RUN pCreateSetComponentsForTTLoadTagItem (

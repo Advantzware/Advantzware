@@ -115,6 +115,7 @@ DEFINE TEMP-TABLE ttLoadTag
     FIELD   exportFile                   AS      CHARACTER
     FIELD   exportTemplateFile           AS      CHARACTER
     FIELD   exportTemplate               AS      CHARACTER
+    FIELD   exportFileType               AS      CHARACTER
     FIELD   errorMessage                 AS      CHARACTER
     FIELD   isError                      AS      LOGICAL
     INDEX   recordID IS PRIMARY UNIQUE recordID
