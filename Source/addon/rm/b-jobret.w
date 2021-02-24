@@ -29,7 +29,8 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 {custom/globdefs.i}
-
+&SCOPED-DEFINE winReSize
+{methods/defines/winReSize.i}
 {sys/inc/var.i NEW SHARED}
 {methods/template/brwCustomDef.i}
 
@@ -966,7 +967,7 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
-
+{methods/winReSize.i}
 {sys/inc/rmissue.i}
 lv-rmissue = v-rmissue.
 

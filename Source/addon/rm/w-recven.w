@@ -24,7 +24,9 @@ CREATE WIDGET-POOL.
 /* ***************************  Definitions  ************************** */
 
 &SCOPED-DEFINE winViewPrgmName w-recven
-
+&SCOPED-DEFINE winReSize
+&SCOPED-DEFINE h_Object01 h_p-updven
+&SCOPED-DEFINE h_Object02 h_v-post
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
@@ -124,18 +126,18 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          TITLE              = "Scan Vendor Tags"
          HEIGHT             = 24
          WIDTH              = 149.8
-         MAX-HEIGHT         = 33.29
-         MAX-WIDTH          = 204.8
+         MAX-HEIGHT         = 320
+         MAX-WIDTH          = 320
          VIRTUAL-HEIGHT     = 33.29
          VIRTUAL-WIDTH      = 204.8
-         RESIZE             = no
-         SCROLL-BARS        = no
-         STATUS-AREA        = yes
+         RESIZE             = YES
+         SCROLL-BARS        = NO
+         STATUS-AREA        = YES
          BGCOLOR            = ?
          FGCOLOR            = ?
-         THREE-D            = yes
-         MESSAGE-AREA       = no
-         SENSITIVE          = yes.
+         THREE-D            = YES
+         MESSAGE-AREA       = NO
+         SENSITIVE          = YES.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
@@ -244,7 +246,7 @@ END.
 
 /* Include custom  Main Block code for SmartWindows. */
 {src/adm/template/windowmn.i}
-
+{custom/initializeprocs.i}
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -267,20 +269,20 @@ PROCEDURE adm-create-objects :
 
     WHEN 0 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'smartobj/exit.w':U ,
-             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
-             INPUT  '':U ,
-             OUTPUT h_exit ).
-       RUN set-position IN h_exit ( 1.00 , 1.00 ) NO-ERROR.
-       /* Size in UIB:  ( 1.81 , 7.80 ) */
-
-       RUN init-object IN THIS-PROCEDURE (
              INPUT  'smartobj/smartmsg.w':U ,
              INPUT  FRAME message-frame:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_smartmsg ).
        RUN set-position IN h_smartmsg ( 1.00 , 2.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.14 , 32.00 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'smartobj/exit.w':U ,
+             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_exit ).
+       RUN set-position IN h_exit ( 1.00 , 28.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 7.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/folder.w':U ,
@@ -351,19 +353,19 @@ PROCEDURE adm-create-objects :
        /* Links to SmartViewer h_v-recven. */
        RUN add-link IN adm-broker-hdl ( h_p-updven , 'srch2':U , h_v-recven ).
 
-       /* Links to  h_b-recven. */
+       /* Links to SmartNavBrowser h_b-recven. */
        RUN add-link IN adm-broker-hdl ( h_p-updven , 'TableIO':U , h_b-recven ).
        RUN add-link IN adm-broker-hdl ( h_v-post , 'State':U , h_b-recven ).
        RUN add-link IN adm-broker-hdl ( h_v-recven , 'srch':U , h_b-recven ).
        RUN add-link IN adm-broker-hdl ( h_b-recven , 'Record':U , THIS-PROCEDURE ).
 
        /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_loadtag ,
-             h_exit , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_v-recven ,
              FRAME message-frame:HANDLE , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_p-updven ,
+       RUN adjust-tab-order IN adm-broker-hdl ( h_b-recven ,
              h_v-recven , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_p-updven ,
+             h_b-recven , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_v-post ,
              h_p-updven , 'AFTER':U ).
     END. /* Page 1 */
