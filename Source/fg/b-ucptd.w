@@ -62,7 +62,6 @@ ASSIGN cocode = g_company
 {fg/invrecpt.i NEW}
 /* For fgpostBatch.p */
 {fg/fgPostBatch.i}
-{Inventory/ttInventory.i "NEW SHARED"}    
 
 /*DEF TEMP-TABLE w-fg-rctd NO-UNDO LIKE fg-rctd                        */
 /*    FIELD row-id   AS ROWID                                          */

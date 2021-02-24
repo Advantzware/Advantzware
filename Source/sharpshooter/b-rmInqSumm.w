@@ -433,6 +433,7 @@ PROCEDURE ScanItem :
     RUN Inventory_BuildRMBinSummaryForItem IN hdInventoryProcs (
         INPUT  ipcCompany,
         INPUT  ipcItemID,
+        INPUT-OUTPUT TABLE ttBrowseInventory,
         OUTPUT oplError,
         OUTPUT opcMessage
         ).

@@ -13,7 +13,6 @@
   ----------------------------------------------------------------------*/
 
 /* ***************************  Definitions  ************************** */
-    {Inventory/ttInventory.i "NEW SHARED"}
     {jc/jcgl-sh.i  NEW}
     
     DEFINE INPUT        PARAMETER ipcCompany                 AS CHARACTER NO-UNDO.

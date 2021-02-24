@@ -14,9 +14,9 @@
   ----------------------------------------------------------------------*/
 
 /* ***************************  Definitions  ************************** */
-{inventory/ttInventory.i "NEW SHARED"}
 {fg/ttFGBins.i "SHARED"}
 {fg/ttInventoryTables.i}
+{Inventory/ttInventory.i}
 
 DEFINE STREAM sExport1.
 DEFINE STREAM sExport2.

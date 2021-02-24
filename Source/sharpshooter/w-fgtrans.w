@@ -42,7 +42,7 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 
-{inventory/ttInventory.i "NEW SHARED"}
+{inventory/ttInventory.i}
 {jc/jcgl-sh.i  NEW}
 
 DEFINE VARIABLE oLoadTag         AS Inventory.Loadtag NO-UNDO.

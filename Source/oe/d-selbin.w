@@ -32,7 +32,6 @@ DEF INPUT  PARAM ip-i-no AS cha NO-UNDO.
 DEF OUTPUT PARAM op-rowid-list AS CHAR NO-UNDO.
 
 {oe/d-selbin.i}
-{inventory/ttInventory.i "NEW SHARED"}
 
 DEF VAR v-i-no    LIKE oe-ordl.i-no NO-UNDO.
 DEF VAR v-ord     LIKE oe-ordl.ord-no NO-UNDO.

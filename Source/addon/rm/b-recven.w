@@ -34,7 +34,6 @@ CREATE WIDGET-POOL.
 {custom/globdefs.i}
 
 {sys/inc/var.i NEW SHARED} 
-{Inventory/ttInventory.i "NEW SHARED"}
 
 ASSIGN
  cocode = g_company

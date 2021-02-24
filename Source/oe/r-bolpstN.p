@@ -49,7 +49,6 @@ DEFINE VARIABLE lSingleBOL AS LOGICAL NO-UNDO.
 {custom/getloc.i}
 
 {sys/inc/VAR.i new shared}
-{Inventory/ttInventory.i "NEW SHARED"}
     
 assign
  cocode = gcompany

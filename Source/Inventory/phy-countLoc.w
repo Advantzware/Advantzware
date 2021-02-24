@@ -58,7 +58,7 @@ DEFINE VARIABLE scFilterAllTags          AS CHARACTER NO-UNDO INITIAL "3".
 
 {system/sysconst.i}
 {wip/keyboardDefs.i}
-{Inventory/ttInventory.i "NEW SHARED"}
+{Inventory/ttInventory.i}
 {methods/template/brwcustomdef.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -1180,6 +1180,7 @@ PROCEDURE pAdjustQuantity :
         ipcCompany,
         ipcTag,
         ipdQuantity, /* Zeroing out */
+        INPUT-OUTPUT TABLE ttPhysicalBrowseInventory,
         OUTPUT lCreated,
         OUTPUT cMessage
         ).
@@ -1208,14 +1209,16 @@ PROCEDURE pBuildBrowseTable :
         ipcCompany,
         ipcWarehouseID,
         ipcLocationID,
-        gcTransactionTypeCompare
+        gcTransactionTypeCompare,
+        INPUT-OUTPUT TABLE ttPhysicalBrowseInventory
         ).
         
     RUN BuildPhyScanBrowseFromTransactionLocation IN hdInventoryProcs (
         ipcCompany,
         ipcWarehouseID,
         ipcLocationID,
-        gcTransactionTypeCompare
+        gcTransactionTypeCompare,
+        INPUT-OUTPUT TABLE ttPhysicalBrowseInventory
         ).
             
     {&OPEN-BROWSERS-IN-QUERY-F-Main}
@@ -1240,6 +1243,7 @@ PROCEDURE pConfirmNotScanned :
         ipcCompany,
         ipcTag,
         0, /* Zeroing out */
+        INPUT-OUTPUT TABLE ttPhysicalBrowseInventory,
         OUTPUT lCreated,
         OUTPUT cMessage
         ).        
@@ -1469,6 +1473,7 @@ PROCEDURE pSubmitScan :
         ipcLocationID,
         ipcTag,
         FALSE, /* Set input parameter location to record */
+        INPUT-OUTPUT TABLE ttPhysicalBrowseInventory,
         OUTPUT lCreated,
         OUTPUT cMessage
         ).

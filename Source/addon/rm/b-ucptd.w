@@ -37,7 +37,6 @@ CREATE WIDGET-POOL.
 
 {custom/globdefs.i}
 {sys/inc/VAR.i NEW SHARED}
-{Inventory/ttInventory.i "NEW SHARED"}
 &scoped-define fld-name-1 rm-rctd.tag
 &scoped-define SORTBY-1 BY {&fld-name-1}
 &global-define IAMWHAT LOOKUP

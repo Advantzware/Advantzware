@@ -76,7 +76,6 @@ DEFINE VARIABLE loadtagFunction   AS CHARACTER INITIAL "Order" NO-UNDO.
 DEFINE VARIABLE g_company         AS CHARACTER NO-UNDO.
 
 {system/sysconst.i}
-{Inventory/ttInventory.i "NEW SHARED"}
 {methods/defines/sortByDefs.i}
 {wip/keyboardDefs.i}
 

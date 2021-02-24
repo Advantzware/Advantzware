@@ -15,7 +15,7 @@
 /* ***************************  Definitions  ************************** */
 DEFINE VARIABLE hdInventoryProcs AS HANDLE.
 RUN inventory/InventoryProcs.p PERSISTENT SET hdInventoryProcs.
-{Inventory/ttInventory.i "NEW SHARED"}
+{Inventory/ttInventory.i}
 
 /* ********************  Preprocessor Definitions  ******************** */
 
@@ -40,8 +40,16 @@ FIND FIRST job-mat NO-LOCK
     AND job-mat.rm-i-no EQ "SBS18"
     NO-ERROR.
   
-RUN CreatePreLoadtagsFromInputsWIP IN hdInventoryProcs (ROWID(job-mch), ROWID(job-mat), 
-    job-mat.qty, 500, 1, "EA", OUTPUT lCreated, OUTPUT cMessage).
+RUN CreatePreLoadtagsFromInputsWIP IN hdInventoryProcs 
+    (ROWID(job-mch),
+     ROWID(job-mat), 
+     job-mat.qty,
+     500,
+     1, 
+     "EA",
+     INPUT-OUTPUT TABLE ttInventoryStockPreLoadtag,
+     OUTPUT lCreated,
+     OUTPUT cMessage).
 
 /*FOR EACH ttInventoryStockPreLoadtag:                      */
 /*    DISPLAY                                               */
@@ -57,7 +65,8 @@ RUN CreatePreLoadtagsFromInputsWIP IN hdInventoryProcs (ROWID(job-mch), ROWID(jo
 /*        .                                                 */
 /* END.                                                     */
 /*UI Code to manipulate the ttInventoryStockPreLoadtag table here*/
-RUN CreateInventoryLoadtagsFromPreLoadtags IN hdInventoryProcs.
+RUN CreateInventoryLoadtagsFromPreLoadtags IN hdInventoryProcs
+    (INPUT-OUTPUT TABLE ttInventoryStockPreLoadtag).
 
 /*EMPTY TEMP-TABLE InventoryStock.*/
 FOR EACH ttInventoryStockLoadtag:
@@ -65,7 +74,13 @@ FOR EACH ttInventoryStockLoadtag:
         lCreated = NO
         cMessage = ""
         . 
-    RUN CreateInventoryStockFromLoadtag IN hdInventoryProcs (ttInventoryStockLoadtag.InventoryStockID, YES, NO, OUTPUT lCreated, OUTPUT cMessage).
+    RUN CreateInventoryStockFromLoadtag IN hdInventoryProcs (
+        ttInventoryStockLoadtag.InventoryStockID,
+        YES, 
+        NO,
+        INPUT-OUTPUT TABLE ttInventoryStockPreLoadtag, 
+        OUTPUT lCreated, 
+        OUTPUT cMessage).
 /*    DISPLAY                                                */
 /*        ttInventoryStockLoadtag.InventoryStockID           */
 /*        ttInventoryStockLoadtag.JobID                      */

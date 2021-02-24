@@ -69,7 +69,6 @@ DEFINE VARIABLE iWarehouseLength AS INTEGER NO-UNDO.
 RUN inventory/InventoryProcs.p PERSISTENT SET hdInventoryProcs.
 
 {windows/l-poitmw.i NEW}
-{Inventory/ttInventory.i "NEW SHARED"}
 
 DEF BUFFER br-tmp FOR rm-rctd.  /* for tag validation */
 DEF BUFFER xrm-rdtlh FOR rm-rdtlh. /* for tag validation */

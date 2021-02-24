@@ -41,9 +41,9 @@ CREATE WIDGET-POOL.
 /* Local Variable Definitions ---                                       */
 DEFINE VARIABLE lHasAccess AS LOGICAL NO-UNDO.
 
-{Inventory/ttInventory.i "NEW SHARED"}
 {jc/jcgl-sh.i  NEW}
 {methods/defines/sortByDefs.i}
+{inventory/ttInventory.i}
 
 DEFINE VARIABLE hdInventoryProcs AS HANDLE NO-UNDO.
 DEFINE VARIABLE iWarehouseLength  AS INTEGER   NO-UNDO.
@@ -567,6 +567,7 @@ PROCEDURE ScanItem :
         INPUT  ipiJobNo2,
         INPUT  iplZeroQtyBins,
         INPUT  iplEmptyTags,
+        INPUT-OUTPUT TABLE ttBrowseInventory,
         OUTPUT opcConsUOM,
         OUTPUT oplError,
         OUTPUT opcMessage

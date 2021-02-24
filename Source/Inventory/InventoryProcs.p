@@ -13,7 +13,7 @@
   ----------------------------------------------------------------------*/
 
 /* ***************************  Definitions  ************************** */
-{Inventory/ttInventory.i SHARED}
+{Inventory/ttInventory.i}
 {custom/formtext.i NEW}
 {fg/invrecpt.i NEW}
 {fg/fgPostBatch.i}
@@ -117,6 +117,7 @@ PROCEDURE Inventory_AdjustRawMaterialBinQty:
     DEFINE INPUT  PARAMETER ipriRMBin     AS ROWID     NO-UNDO.
     DEFINE INPUT  PARAMETER ipdQty        AS DECIMAL   NO-UNDO.
     DEFINE INPUT  PARAMETER ipcReasonCode AS CHARACTER NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttBrowseInventory.
     DEFINE OUTPUT PARAMETER oplSuccess    AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage    AS CHARACTER NO-UNDO.
 
@@ -153,6 +154,7 @@ PROCEDURE Inventory_AdjustRawMaterialBinQty:
         RUN Inventory_PostRawMaterials (
             INPUT  bf-rm-bin.company,
             INPUT  TODAY,
+            INPUT-OUTPUT TABLE bf-ttBrowseInventory,
             OUTPUT oplSuccess,
             OUTPUT opcMessage
             ).
@@ -217,6 +219,7 @@ PROCEDURE Inventory_BuildFGBinForItem:
     DEFINE INPUT  PARAMETER ipiJobNo2      AS INTEGER   NO-UNDO.
     DEFINE INPUT  PARAMETER iplZeroQtyBins AS LOGICAL   NO-UNDO.
     DEFINE INPUT  PARAMETER iplEmptyTags   AS LOGICAL   NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttBrowseInventory.
     DEFINE OUTPUT PARAMETER opcConsUOM     AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER oplError       AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage     AS CHARACTER NO-UNDO.
@@ -933,6 +936,7 @@ PROCEDURE Inventory_BuildFGBinSummaryForItem:
 ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ipcCompany   AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcItemID    AS CHARACTER NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttBrowseInventory.
     DEFINE OUTPUT PARAMETER oplError     AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage   AS CHARACTER NO-UNDO.
 
@@ -1124,6 +1128,7 @@ PROCEDURE Inventory_BuildRMBinSummaryForItem:
 ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ipcCompany   AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcItemID    AS CHARACTER NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttBrowseInventory.
     DEFINE OUTPUT PARAMETER oplError     AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage   AS CHARACTER NO-UNDO.
 
@@ -1329,6 +1334,7 @@ PROCEDURE Inventory_BuildRMBinForItem:
     DEFINE INPUT        PARAMETER ipiJobID2      AS INTEGER   NO-UNDO.
     DEFINE INPUT        PARAMETER iplZeroQtyBins AS LOGICAL   NO-UNDO.
     DEFINE INPUT        PARAMETER iplEmptyTags   AS LOGICAL   NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttBrowseInventory.
     DEFINE OUTPUT       PARAMETER opcConsUOM     AS CHARACTER NO-UNDO.
     DEFINE OUTPUT       PARAMETER oplError       AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT       PARAMETER opcMessage     AS CHARACTER NO-UNDO.
@@ -1533,6 +1539,7 @@ PROCEDURE Inventory_PostRawMaterials:
 ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ipcCompany      AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipdtPostingDate AS DATE      NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttBrowseInventory.
     DEFINE OUTPUT PARAMETER oplSuccess      AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage      AS CHARACTER NO-UNDO.
 
@@ -1693,6 +1700,7 @@ PROCEDURE Inventory_CreateRMIssueFromTag:
     DEFINE INPUT  PARAMETER ipcCompany  AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcTag      AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER iplPost     AS LOGICAL   NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttBrowseInventory.
     DEFINE OUTPUT PARAMETER oplSuccess  AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage  AS CHARACTER NO-UNDO.
     
@@ -1707,6 +1715,7 @@ PROCEDURE Inventory_CreateRMIssueFromTag:
         RUN Inventory_PostRawMaterials (
             INPUT  ipcCompany,
             INPUT  TODAY,
+            INPUT-OUTPUT TABLE ttBrowseInventory,
             OUTPUT oplSuccess,
             OUTPUT opcMessage
             ).
@@ -4106,6 +4115,7 @@ PROCEDURE CreateInventoryStockFromLoadtag:
     DEFINE INPUT  PARAMETER ipcInventoryStockID AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER iplCreateReceipt    AS LOGICAL   NO-UNDO.
     DEFINE INPUT  PARAMETER iplPost             AS LOGICAL   NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttInventoryStockLoadtag.
     DEFINE OUTPUT PARAMETER oplCreated          AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage          AS CHARACTER NO-UNDO.
            
@@ -4545,6 +4555,7 @@ PROCEDURE CreatePreLoadtagsFromInputsWIP:
     DEFINE INPUT  PARAMETER ipdQuantityPerSubUnit      AS DECIMAL   NO-UNDO.
     DEFINE INPUT  PARAMETER ipiQuantitySubUnitsPerUnit AS INTEGER   NO-UNDO.
     DEFINE INPUT  PARAMETER ipcQuantityUOM             AS CHARACTER NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttInventoryStockPreLoadtag.
     DEFINE OUTPUT PARAMETER oplCreated                 AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage                 AS CHARACTER NO-UNDO.
 
@@ -4645,6 +4656,7 @@ PROCEDURE CreatePrintInventory:
      Notes: 
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcInventoryStockID LIKE inventoryTransaction.inventoryStockID NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttPrintInventoryStock.
     
     DEFINE VARIABLE cCustName LIKE oe-ord.cust-name NO-UNDO.
     DEFINE VARIABLE cMachName LIKE mach.m-dscr      NO-UNDO.
@@ -4730,6 +4742,7 @@ PROCEDURE CreatePrintInventoryForRM:
      Notes: 
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcInventoryStockID LIKE inventoryTransaction.inventoryStockID NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttPrintInventoryStockRM.
 
     DEFINE VARIABLE hdJobProcs AS HANDLE NO-UNDO.
     
@@ -4903,6 +4916,7 @@ PROCEDURE CreatePrintInventoryForFG:
      Notes: 
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcInventoryStockID LIKE inventoryTransaction.inventoryStockID NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttPrintInventoryStockFG.
         
     DEFINE VARIABLE iIndex     AS INTEGER   NO-UNDO.
     DEFINE VARIABLE cJobNumber AS CHARACTER NO-UNDO.
@@ -5220,6 +5234,7 @@ PROCEDURE CreateTransactionInitializedFromJob:
     DEFINE INPUT  PARAMETER ipiQuantitySubUnitsPerUnit AS INTEGER   NO-UNDO.
     DEFINE INPUT  PARAMETER ipcQuantityUOM             AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcItemType                AS CHARACTER NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttInventoryStockPreLoadtag.
     DEFINE OUTPUT PARAMETER oplCreated                 AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage                 AS CHARACTER NO-UNDO.
 
@@ -5317,11 +5332,13 @@ PROCEDURE CreateTransactionInitializedFromJob:
                 INPUT  ipdQuantityPerSubUnit,
                 INPUT  ipiQuantitySubUnitsPerUnit,
                 INPUT  ipcQuantityUOM,
+                INPUT-OUTPUT TABLE ttInventoryStockPreLoadtag,
                 OUTPUT oplCreated,
                 OUTPUT opcMessage
                 ).
 
-            RUN CreateInventoryLoadtagsFromPreLoadtags.
+            RUN CreateInventoryLoadtagsFromPreLoadtags
+                (INPUT-OUTPUT TABLE ttInventoryStockPreLoadtag).
 
             FOR EACH ttInventoryStockLoadtag:
                 ASSIGN 
@@ -5331,6 +5348,7 @@ PROCEDURE CreateTransactionInitializedFromJob:
                     INPUT  ttInventoryStockLoadtag.inventoryStockID,
                     INPUT  YES,
                     INPUT  NO,
+                    INPUT-OUTPUT TABLE ttInventoryStockPreLoadtag
                     OUTPUT oplCreated,
                     OUTPUT opcMessage
                     ).
@@ -5743,6 +5761,7 @@ PROCEDURE BuildPhyScanBrowseFromSnapshotLocation:
     DEFINE INPUT PARAMETER ipcWarehouseID      AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcLocationID       AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcTransactionType  AS CHARACTER NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttPhysicalBrowseInventory.
 
     FOR EACH inventoryStockSnapshot NO-LOCK
         WHERE inventoryStockSnapshot.company     EQ ipcCompany
@@ -5823,6 +5842,7 @@ PROCEDURE BuildPhyScanBrowseFromTransactionLocation:
     DEFINE INPUT PARAMETER ipcWarehouseID      AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcLocationID       AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcTransactionType  AS CHARACTER NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttPhysicalBrowseInventory.
 
     FOR EACH inventoryTransaction NO-LOCK
         WHERE inventoryTransaction.company         EQ ipcCompany
@@ -5903,6 +5923,7 @@ PROCEDURE BuildPhyScanBrowseFromTransactionUser:
     DEFINE INPUT PARAMETER ipcCompany          AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcUser             AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcTransactionType  AS CHARACTER NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttPhysicalBrowseInventory. 
 
     FOR EACH inventoryTransaction NO-LOCK
         WHERE inventoryTransaction.company         EQ ipcCompany
@@ -5981,7 +6002,8 @@ PROCEDURE pAdjustTransactionQuantity:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ipcCompany          AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcTag              AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipdQuantity         AS DECIMAL   NO-UNDO.    
+    DEFINE INPUT  PARAMETER ipdQuantity         AS DECIMAL   NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttPhysicalBrowseInventory.    
     DEFINE OUTPUT PARAMETER oplCreated          AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage          AS CHARACTER NO-UNDO.
     
@@ -6226,6 +6248,7 @@ PROCEDURE SubmitPhysicalCountScan:
     DEFINE INPUT  PARAMETER ipcLocationID  AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcTag         AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER iplSetParamLoc AS LOGICAL   NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttPhysicalBrowseInventory.
     DEFINE OUTPUT PARAMETER oplCreated     AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage     AS CHARACTER NO-UNDO.
     
@@ -6352,6 +6375,7 @@ PROCEDURE RebuildRMBrowse:
     DEFINE INPUT  PARAMETER ipiFormno    AS INTEGER   NO-UNDO.
     DEFINE INPUT  PARAMETER ipiBlankno   AS INTEGER   NO-UNDO.
     DEFINE INPUT  PARAMETER ipcRMItem    AS CHARACTER NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttBrowseInventory.
     
     EMPTY TEMP-TABLE ttBrowseInventory.
     
@@ -6489,6 +6513,7 @@ PROCEDURE RebuildBrowseTTFromPO:
     DEFINE INPUT  PARAMETER ipiLine       AS INTEGER   NO-UNDO.
     DEFINE INPUT  PARAMETER ipcItem       AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcItemType   AS CHARACTER NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttBrowseInventory.
     
     EMPTY TEMP-TABLE ttBrowseInventory.
     
@@ -6532,6 +6557,7 @@ PROCEDURE RebuildWIPBrowseTT:
     DEFINE INPUT  PARAMETER ipiJobno2     AS INTEGER   NO-UNDO.
     DEFINE INPUT  PARAMETER ipiFormno     AS INTEGER   NO-UNDO.
     DEFINE INPUT  PARAMETER ipiBlankno    AS INTEGER   NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttBrowseInventory.
     DEFINE OUTPUT PARAMETER opiTotTags    AS INTEGER   NO-UNDO.
     DEFINE OUTPUT PARAMETER opiTotOnHand  AS INTEGER   NO-UNDO.
     
@@ -6934,6 +6960,8 @@ PROCEDURE CreateInventoryLoadtagsFromPreLoadtags:
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
+    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttInventoryStockPreLoadtag.
+    
     DEFINE VARIABLE iCountOfLoadtags          AS INTEGER NO-UNDO.
     DEFINE VARIABLE dQuantityPerFullLoadtag   AS DECIMAL NO-UNDO.
     DEFINE VARIABLE iCountOfFullLoadtags      AS INTEGER NO-UNDO.

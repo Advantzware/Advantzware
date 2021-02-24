@@ -51,8 +51,8 @@ DEFINE VARIABLE cWarehouseID        AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lCreated            AS LOGICAL   NO-UNDO.
 
 {system/sysconst.i}
-{Inventory/ttInventory.i "NEW SHARED"}
 {wip/keyboardDefs.i}
+{Inventory/ttInventory.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

@@ -33,6 +33,7 @@
     DEFINE VARIABLE cTransactionTypeCount AS CHARACTER NO-UNDO INITIAL "C".
     DEFINE VARIABLE cDBNameASI            AS CHARACTER NO-UNDO INITIAL "ASI".
     DEFINE VARIABLE cJobID                AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE gcItemTypeFG          AS CHARACTER NO-UNDO INITIAL "FG".
 
     /* This temp-table definition is required as is, and is used in existing
        posting program fg-cpost.i */
@@ -52,8 +53,7 @@
         cJobID = iopcJobID
         .
 
-    {Inventory/ttInventory.i "NEW SHARED"}
-
+    
     DEFINE VARIABLE hdInventoryProcs AS HANDLE NO-UNDO.
     DEFINE VARIABLE hdJobProcs       AS HANDLE NO-UNDO.
     RUN inventory/InventoryProcs.p PERSISTENT SET hdInventoryProcs.

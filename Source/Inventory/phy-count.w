@@ -53,7 +53,7 @@ DEFINE VARIABLE cColumnHandles        AS CHARACTER NO-UNDO.
 
 {system/sysconst.i}
 {wip/keyboardDefs.i}
-{Inventory/ttInventory.i "NEW SHARED"}
+{Inventory/ttInventory.i}
 {methods/template/brwcustomdef.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -947,7 +947,8 @@ PROCEDURE init :
     RUN BuildPhyScanBrowseFromTransactionUser IN hdInventoryProcs (
         ipcCompany,
         USERID(gcDBUser),           /* User ID */
-        gcTransactionTypeCompare /* Compare Transaction Type */
+        gcTransactionTypeCompare, /* Compare Transaction Type */
+        INPUT-OUTPUT TABLE ttPhysicalBrowseInventory
         ).
             
     RUN pStoreColHandles.
@@ -1053,6 +1054,7 @@ PROCEDURE pAdjustQuantity :
         ipcCompany,
         ipcTag,
         ipdQuantity, /* Zeroing out */
+        INPUT-OUTPUT TABLE ttPhysicalBrowseInventory,
         OUTPUT lCreated,
         OUTPUT cMessage
         ).
@@ -1230,6 +1232,7 @@ PROCEDURE pSubmitScan :
         ipcLocationID,
         ipcTag,
         TRUE, /* Set input parameter location to record */
+        INPUT-OUTPUT TABLE ttPhysicalBrowseInventory,
         OUTPUT lCreated,
         OUTPUT cMessage
         ).

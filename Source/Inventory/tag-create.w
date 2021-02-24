@@ -637,6 +637,7 @@ DO:
             1,
             "EA",
             gcItemTypeWIP,
+            INPUT-OUTPUT TABLE ttInventoryStockPreLoadtag,
             OUTPUT lCreated, 
             OUTPUT cMessage
             ).    
@@ -654,6 +655,7 @@ DO:
             1,
             "EA",
             gcItemTypeFG,
+            INPUT-OUTPUT TABLE ttInventoryStockPreLoadtag,
             OUTPUT lCreated, 
             OUTPUT cMessage
             ).    
@@ -670,6 +672,7 @@ DO:
             1,
             "EA",
             gcItemTypeRM,
+            INPUT-OUTPUT TABLE ttInventoryStockPreLoadtag,
             OUTPUT lCreated, 
             OUTPUT cMessage
             ).    
@@ -838,7 +841,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btPrintAll W-Win
 ON CHOOSE OF btPrintAll IN FRAME F-Main /* Print and Receive All */
 DO: 
-    EMPTY TEMP-TABLE ttPrintInventoryStock.
+    EMPTY TEMP-TABLE ttPrintInventoryStockFG.
     
     FOR EACH ttBrowseInventory
        WHERE ttBrowseInventory.inventoryStatus EQ gcStatusStockInitial
@@ -850,7 +853,8 @@ DO:
             ).
 
         RUN CreatePrintInventoryForFG IN hdInventoryProcs (
-            INPUT ttBrowseInventory.inventoryStockID
+            INPUT ttBrowseInventory.inventoryStockID,
+            INPUT-OUTPUT TABLE ttPrintInventoryStockFG
             ).
     END.
     
@@ -865,7 +869,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btPrintSelected W-Win
 ON CHOOSE OF btPrintSelected IN FRAME F-Main /* Print and Receive Selected */
 DO:
-    EMPTY TEMP-TABLE ttPrintInventoryStock.
+    EMPTY TEMP-TABLE ttPrintInventoryStockFG.
 
     IF AVAILABLE ttBrowseInventory THEN DO:
         IF ttBrowseInventory.inventoryStatus EQ gcStatusStockInitial THEN
@@ -875,7 +879,8 @@ DO:
                 ).
     
         RUN CreatePrintInventoryForFG in hdInventoryProcs (
-            INPUT ttBrowseInventory.inventoryStockID
+            INPUT ttBrowseInventory.inventoryStockID,
+            INPUT-OUTPUT TABLE ttPrintInventoryStockFG
             ).
     
         RUN pPrintLabels.
@@ -1659,6 +1664,7 @@ PROCEDURE pRebuildBrowse :
         ipiJobno2,
         ipiFormno,
         ipiBlankno,
+        INPUT-OUTPUT TABLE ttBrowseInventory,
         OUTPUT iTotTags,
         OUTPUT iTotOnHand
         ).

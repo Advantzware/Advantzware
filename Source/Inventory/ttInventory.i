@@ -14,7 +14,7 @@
 
 /* ***************************  Definitions  ************************** */
     
-DEFINE {1} TEMP-TABLE ttInventoryStockPreLoadtag
+DEFINE TEMP-TABLE ttInventoryStockPreLoadtag
     LIKE inventoryStock
     FIELD quantityTotal AS DECIMAL  
     FIELD quantityTotalRunning AS DECIMAL 
@@ -24,12 +24,12 @@ DEFINE {1} TEMP-TABLE ttInventoryStockPreLoadtag
     FIELD labelProgram AS CHARACTER 
     .   
 
-DEFINE {1} TEMP-TABLE ttInventoryStockLoadtag
+DEFINE TEMP-TABLE ttInventoryStockLoadtag
      LIKE ttInventoryStockPreLoadtag
      FIELD countOfLabels AS INTEGER
      .    
      
-DEFINE {1} TEMP-TABLE ttInventoryStockLoadtagWIP
+DEFINE TEMP-TABLE ttInventoryStockLoadtagWIP
     LIKE ttInventoryStockLoadtag
     FIELD nextMachineID AS CHARACTER 
     FIELD nextMachineName AS CHARACTER
@@ -39,7 +39,7 @@ DEFINE {1} TEMP-TABLE ttInventoryStockLoadtagWIP
     FIELD rmItemName AS CHARACTER 
     .
 
-DEFINE {1} TEMP-TABLE ttPrintInventoryStock
+DEFINE TEMP-TABLE ttPrintInventoryStock
     FIELD inventoryStockID AS CHARACTER LABEL "InventoryStockID"
     FIELD tag AS CHARACTER	LABEL "WIPTag"
     FIELD wipItemID AS CHARACTER LABEL "WIPItemID"
@@ -71,7 +71,7 @@ DEFINE {1} TEMP-TABLE ttPrintInventoryStock
     FIELD company AS CHARACTER LABEL "Company"
     .
 
-DEFINE {1} TEMP-TABLE ttBrowseInventory
+DEFINE TEMP-TABLE ttBrowseInventory
     LIKE ttInventoryStockLoadtagWIP
     FIELD transactionType   AS CHARACTER
     FIELD locDscr           AS CHARACTER
@@ -86,7 +86,7 @@ DEFINE {1} TEMP-TABLE ttBrowseInventory
     FIELD quantityAvailable AS DECIMAL
     .
 
-DEFINE {1} TEMP-TABLE ttPhysicalBrowseInventory
+DEFINE TEMP-TABLE ttPhysicalBrowseInventory
     FIELD company                AS CHARACTER
     FIELD inventoryStockID       AS CHARACTER
     FIELD tag                    AS CHARACTER
@@ -113,7 +113,7 @@ DEFINE TEMP-TABLE ttPOOrderLineDetails NO-UNDO
     LIKE po-ordl
     .
 
-DEFINE {1} TEMP-TABLE ttPrintInventoryStockFG NO-UNDO
+DEFINE TEMP-TABLE ttPrintInventoryStockFG NO-UNDO
     FIELDS customerName       AS CHARACTER FORMAT "X(30)"       LABEL "CUSTOMER"
     FIELDS orderID            AS INTEGER   FORMAT ">>>>>9"      LABEL "ORDNUMBER"
     FIELDS jobID              AS CHARACTER                      LABEL "JOBNUMBER"
@@ -193,7 +193,7 @@ DEFINE {1} TEMP-TABLE ttPrintInventoryStockFG NO-UNDO
     FIELDS sscc               AS CHARACTER                      LABEL "SSCC"
     .
 
-DEFINE {1} TEMP-TABLE ttPrintInventoryStockRM NO-UNDO
+DEFINE TEMP-TABLE ttPrintInventoryStockRM NO-UNDO
     FIELDS tagID                  AS CHARACTER LABEL 'Tag#'                                                                  
     FIELDS acknowledgement        AS LOGICAL   LABEL 'Acknowledgement'           FORMAT "Yes/No"                             
     FIELDS accountNo              AS CHARACTER LABEL 'Account No'                                                            

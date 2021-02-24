@@ -68,7 +68,7 @@ DEFINE VARIABLE iCount                  AS         INTEGER   NO-UNDO.
 DEFINE VARIABLE cValidateJobNo          AS         CHARACTER NO-UNDO.
 
 {system/sysconst.i}
-{Inventory/ttInventory.i "NEW SHARED"}
+{Inventory/ttInventory.i}
 {wip/keyboardDefs.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -1270,6 +1270,7 @@ PROCEDURE rebuildTempTable :
         ipiJobno2,
         ipiFormno,
         ipiBlankno,
+        INPUT-OUTPUT TABLE ttBrowseInventory,
         OUTPUT iTotTags,
         OUTPUT iTotOnHand
         ).

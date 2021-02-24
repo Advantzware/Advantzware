@@ -42,7 +42,7 @@ CREATE WIDGET-POOL.
 DEFINE VARIABLE lHasAccess AS LOGICAL NO-UNDO.
 DEFINE VARIABLE iWarehouseLength AS INTEGER   NO-UNDO.
 
-{Inventory/ttInventory.i "NEW SHARED"}
+{Inventory/ttInventory.i}
 {methods/defines/sortByDefs.i}
 
 DEFINE VARIABLE hdInventoryProcs AS HANDLE NO-UNDO.
@@ -410,6 +410,7 @@ PROCEDURE AdjustQuantity :
                     INPUT  TO-ROWID(ttBrowseInventory.inventoryStockID),
                     INPUT  dTotalQuantity - ttBrowseInventory.quantity,
                     INPUT  cAdjReasonCode,
+                    INPUT-OUTPUT TABLE ttBrowseInventory,
                     OUTPUT lSuccess,
                     OUTPUT cMessage
                     ).
@@ -530,6 +531,7 @@ PROCEDURE ScanItem :
         INPUT        0,   /* JobID2 */
         INPUT        iplZeroQtyBins,  /* Include Zero qty bins */
         INPUT        iplEmptyTags,    /* Include empty tag bins */
+        INPUT-OUTPUT TABLE ttBrowseInventory,
         OUTPUT       opcConsUOM,
         OUTPUT       oplError,
         OUTPUT       opcMessage

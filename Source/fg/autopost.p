@@ -9,7 +9,6 @@ DEF VAR ll-shipto                AS LOG NO-UNDO.
 DEFINE VARIABLE iWarehouseLength AS INTEGER   NO-UNDO.
 DEFINE VARIABLE ipcCompany AS INTEGER   NO-UNDO.
 
-{inventory/ttInventory.i "NEW SHARED"}
 
 DEFINE VARIABLE hdInventoryProcs AS HANDLE NO-UNDO.
 RUN Inventory/InventoryProcs.p PERSISTENT SET hdInventoryProcs.

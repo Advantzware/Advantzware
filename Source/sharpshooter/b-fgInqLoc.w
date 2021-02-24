@@ -43,7 +43,7 @@ DEFINE VARIABLE lHasAccess        AS LOGICAL NO-UNDO.
 DEFINE VARIABLE iWarehouseLength  AS INTEGER   NO-UNDO.
 DEFINE VARIABLE cCompany          AS CHARACTER NO-UNDO.
 
-{Inventory/ttInventory.i "NEW SHARED"}
+{Inventory/ttInventory.i}
 {methods/defines/sortByDefs.i}
 
 DEFINE VARIABLE hdInventoryProcs AS HANDLE NO-UNDO.
@@ -583,6 +583,7 @@ PROCEDURE ScanItem :
     RUN Inventory_BuildFGBinSummaryForItem IN hdInventoryProcs (
         INPUT  ipcCompany,
         INPUT  ipcItemID,
+        INPUT-OUTPUT TABLE ttBrowseInventory,
         OUTPUT oplError,
         OUTPUT opcMessage
         ).

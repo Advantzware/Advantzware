@@ -40,7 +40,6 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-{inventory/ttInventory.i "NEW SHARED"}
 {jc/jcgl-sh.i  NEW}
 
 DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO.

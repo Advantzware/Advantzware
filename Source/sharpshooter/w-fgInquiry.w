@@ -43,7 +43,6 @@ CREATE WIDGET-POOL.
 /* Local Variable Definitions ---                                       */
 {system/sysconst.i}
 {wip/keyboardDefs.i}
-{inventory/ttInventory.i "NEW SHARED"}
 
 DEFINE VARIABLE cCompany   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cItemID    AS CHARACTER NO-UNDO.

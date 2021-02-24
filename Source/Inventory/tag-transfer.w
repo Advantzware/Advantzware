@@ -53,7 +53,7 @@ DEFINE VARIABLE lCreated            AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE iWarehouseLength    AS INTEGER   NO-UNDO.
 
 {system/sysconst.i}
-{Inventory/ttInventory.i "NEW SHARED"}
+{Inventory/ttInventory.i}
 {wip/keyboardDefs.i}
 
 /* _UIB-CODE-BLOCK-END */

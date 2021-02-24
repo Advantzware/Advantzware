@@ -62,7 +62,7 @@ DEFINE VARIABLE iCopies                 AS INTEGER   NO-UNDO.
 DEFINE VARIABLE gcPathDataFileDefault AS CHARACTER INITIAL "C:\BA\LABEL".
 
 {system/sysconst.i}
-{Inventory/ttInventory.i "NEW SHARED"}
+{Inventory/ttInventory.i}
 {methods/defines/sortByDefs.i}
 {wip/keyboardDefs.i}
 
@@ -906,11 +906,13 @@ DO:
         
         IF ttBrowseInventory.itemType EQ gcItemTypeFG THEN
             RUN CreatePrintInventoryForFG IN hdInventoryProcs (
-                INPUT ttBrowseInventory.inventoryStockID
+                INPUT ttBrowseInventory.inventoryStockID,
+                INPUT-OUTPUT TABLE ttPrintInventoryStockFG
                 ).
         ELSE IF ttBrowseInventory.itemType EQ gcItemTypeRM THEN
             RUN CreatePrintInventoryForRM IN hdInventoryProcs (
-                INPUT ttBrowseInventory.inventoryStockID
+                INPUT ttBrowseInventory.inventoryStockID,
+                INPUT-OUTPUT TABLE ttPrintInventoryStockRM
                 ).
     END.
     
@@ -937,11 +939,13 @@ DO:
         
         IF ttBrowseInventory.itemType EQ gcItemTypeFG THEN
             RUN CreatePrintInventoryForFG in hdInventoryProcs (
-                INPUT ttBrowseInventory.inventoryStockID
+                INPUT ttBrowseInventory.inventoryStockID,
+                INPUT-OUTPUT TABLE ttPrintInventoryStockFG
                 ).
         ELSE IF ttBrowseInventory.itemType EQ gcItemTypeRM THEN
             RUN CreatePrintInventoryForRM in hdInventoryProcs (
-                INPUT ttBrowseInventory.inventoryStockID
+                INPUT ttBrowseInventory.inventoryStockID,
+                INPUT-OUTPUT TABLE ttPrintInventoryStockRM
                 ).
     
         RUN pPrintLabels.
@@ -1705,7 +1709,8 @@ PROCEDURE pRebuildBrowse :
         ipiPONo,
         ipiLine,
         ipcItem,
-        ipcItemType
+        ipcItemType,
+        INPUT-OUTPUT TABLE ttBrowseInventory
         ).    
     {&OPEN-BROWSERS-IN-QUERY-F-Main}
 END PROCEDURE.
@@ -1780,13 +1785,15 @@ PROCEDURE pTagScan :
             IF ttInventoryStockDetails.itemType EQ gcItemTypeFG THEN DO:
                 cItemType = gcItemTypeFG.
                 RUN CreatePrintInventoryForFG in hdInventoryProcs (
-                    INPUT ttInventoryStockDetails.inventoryStockID
+                    INPUT ttInventoryStockDetails.inventoryStockID,
+                    INPUT-OUTPUT TABLE ttPrintInventoryStockFG
                     ).
             END.
             ELSE IF ttInventoryStockDetails.itemType EQ gcItemTypeRM THEN DO:
                 cItemType = gcItemTypeRM.            
                 RUN CreatePrintInventoryForRM in hdInventoryProcs (
-                    INPUT ttInventoryStockDetails.inventoryStockID
+                    INPUT ttInventoryStockDetails.inventoryStockID,
+                    INPUT-OUTPUT TABLE ttPrintInventoryStockFG
                     ).
             END.
                                 

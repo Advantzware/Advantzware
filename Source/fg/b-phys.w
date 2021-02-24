@@ -76,7 +76,7 @@ physCnt-log = LOGICAL(cRtnChr) NO-ERROR.
 ASSIGN
  cocode = g_company
  locode = g_loc.
-{Inventory/ttInventory.i "NEW SHARED"}
+
 IF physCnt-log THEN
 DO: 
     OS-CREATE-DIR VALUE(cLogFolder).

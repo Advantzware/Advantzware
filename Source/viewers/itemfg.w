@@ -62,7 +62,7 @@ DEFINE VARIABLE lCheckPurMan    AS LOGICAL   NO-UNDO .
 /*DEFINE VARIABLE lFound          AS LOGICAL   NO-UNDO.*/
 DEFINE VARIABLE lCheckMessage   AS LOGICAL   NO-UNDO .
 DEFINE VARIABLE hInventoryProcs      AS HANDLE NO-UNDO.
-{Inventory/ttInventory.i "NEW SHARED"}
+
 DEFINE TEMP-TABLE w-est-no
     FIELD w-est-no LIKE itemfg.est-no
     FIELD w-run    AS LOG.

@@ -83,7 +83,7 @@ DEFINE VARIABLE cValidateJobno          AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFilterBy               AS CHARACTER NO-UNDO.
 
 {system/sysconst.i}
-{Inventory/ttInventory.i "NEW SHARED"}
+{Inventory/ttInventory.i}
 {methods/defines/sortByDefs.i}
 {wip/keyboardDefs.i}
 {methods/template/brwcustomdef.i}
@@ -1542,7 +1542,8 @@ PROCEDURE pRebuildBrowse :
         ipiJobno2,
         ipiFormno,
         ipiBlankno,
-        ipcRMItem
+        ipcRMItem,
+        INPUT-OUTPUT TABLE ttBrowseInventory
         ).
     
     ASSIGN

@@ -83,7 +83,7 @@ DEFINE VARIABLE gcPathDataFileDefault AS CHARACTER INITIAL "C:\BA\LABEL".
 &SCOPED-DEFINE SORTBY-PHRASE BY ttBrowseInventory.lastTransTime DESCENDING
 
 {system/sysconst.i}
-{Inventory/ttInventory.i "NEW SHARED"}
+{Inventory/ttInventory.i}
 {methods/defines/sortByDefs.i}
 {wip/keyboardDefs.i}
 
@@ -707,6 +707,7 @@ DO:
         1,  /* Sub Units Per Unit */
         "EA", /* Quantity UOM */
         gcItemTypeWIP,
+        INPUT-OUTPUT TABLE ttInventoryStockPreLoadtag,
         OUTPUT lCreated, 
         OUTPUT cMessage
         ).
@@ -784,7 +785,8 @@ DO:
                     ).
     
             RUN CreatePrintInventory IN hdInventoryProcs (
-                INPUT ttBrowseInventory.inventoryStockID
+                INPUT ttBrowseInventory.inventoryStockID,
+                INPUT-OUTPUT TABLE ttPrintInventoryStock
                 ).
         END.
         
@@ -800,7 +802,8 @@ DO:
                     ).
         
             RUN CreatePrintInventory in hdInventoryProcs (
-                INPUT ttBrowseInventory.inventoryStockID
+                INPUT ttBrowseInventory.inventoryStockID,
+                INPUT-OUTPUT TABLE ttPrintInventoryStock
                 ).
         
             RUN pPrintLabels.
@@ -2117,6 +2120,7 @@ PROCEDURE rebuildTempTable :
         ipiJobno2,
         ipiFormno,
         ipiBlankno,
+        INPUT-OUTPUT TABLE ttBrowseInventory,
         OUTPUT iTotTags,
         OUTPUT iTotOnHand
         ).

@@ -44,7 +44,6 @@ CREATE WIDGET-POOL.
 {methods/prgsecur.i}
 {sys/ref/sys-ctrl.i}
 {methods/defines/sortByDefs.i "EXTENT 2"}
-{Inventory/ttInventory.i "NEW SHARED"}
 
 DEFINE VARIABLE hCurrentFilter   AS HANDLE    NO-UNDO.
 DEFINE VARIABLE cFilter          AS CHARACTER NO-UNDO INITIAL "ALL".

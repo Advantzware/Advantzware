@@ -67,7 +67,7 @@ DEFINE VARIABLE hdQuantityColumnLabel   AS HANDLE    NO-UNDO.
 DEFINE VARIABLE iWarehouseLength        AS INTEGER   NO-UNDO.
 
 {system/sysconst.i}
-{Inventory/ttInventory.i "NEW SHARED"}
+{Inventory/ttInventory.i}
 {methods/defines/sortByDefs.i}
 {wip/keyboardDefs.i}
 {custom/globdefs.i}
@@ -771,6 +771,7 @@ DO:
     RUN Inventory_PostRawMaterials IN hdInventoryProcs (
         INPUT  cocode,
         INPUT  TODAY,
+        INPUT-OUTPUT TABLE ttPhysicalBrowseInventory,
         OUTPUT lSuccess,
         OUTPUT cMessage
         ).
@@ -1677,6 +1678,7 @@ PROCEDURE pRebuildBrowse :
             INPUT        ipiJobNo2,
             INPUT        FALSE,  /* Include Zero qty bins */
             INPUT        TRUE,   /* Include empty tag bins */
+            INPUT-OUTPUT TABLE FOR ttBrowseInventory,
             OUTPUT       cConsUOM,
             OUTPUT       lError,
             OUTPUT       cMessage
@@ -1691,7 +1693,8 @@ PROCEDURE pRebuildBrowse :
             INPUT  ipiBlankno,
             INPUT  ipcRMItem,
             INPUT  "I",  /* Issue Transactions */
-            INPUT  FALSE /* Empty existing temp-table records */
+            INPUT  FALSE, /* Empty existing temp-table records */
+            INPUT-OUTPUT TABLE FOR ttBrowseInventory
             ).
 
         RUN Inventory_BuildRMHistory IN hdInventoryProcs (
@@ -1702,7 +1705,8 @@ PROCEDURE pRebuildBrowse :
             INPUT ipcJobNo,
             INPUT ipiJobNo2,
             INPUT "I",
-            INPUT FALSE /* Empty existing temp-table records */
+            INPUT FALSE, /* Empty existing temp-table records */
+            INPUT-OUTPUT TABLE FOR ttBrowseInventory
             ).                    
     END.
     
@@ -1867,6 +1871,7 @@ PROCEDURE pTagScan :
                 INPUT  ipcCompany,
                 INPUT  ttInventoryStockDetails.tag,
                 INPUT  lAutoPost,
+                INPUT-OUTPUT TABLE ttBrowseInventory,
                 OUTPUT lCreated,                    
                 OUTPUT cMessage
                 ).
