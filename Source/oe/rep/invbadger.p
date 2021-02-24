@@ -132,10 +132,11 @@ DEF VAR v-fax AS cha FORM "x(30)" NO-UNDO.
 DEF VAR v-contact AS cha FORM "x(20)" NO-UNDO .
 DEF BUFFER bf-cust FOR cust .
 DEF VAR v-comp-name AS cha FORM "x(30)" NO-UNDO.
-DEF VAR v-comp-add1 AS cha FORM "x(30)" NO-UNDO.
+DEF VAR v-comp-add1 AS cha FORM "x(40)" NO-UNDO.
 DEF VAR v-comp-add2 AS cha FORM "x(40)" NO-UNDO.
-DEF VAR v-comp-add3 AS cha FORM "x(30)" NO-UNDO.
-DEF VAR v-comp-add4 AS cha FORM "x(30)" NO-UNDO.
+DEF VAR v-comp-add3 AS cha FORM "x(40)" NO-UNDO.
+DEF VAR v-comp-add4 AS cha FORM "x(40)" NO-UNDO.
+DEF VAR v-comp-add5 AS cha FORM "x(40)" NO-UNDO.
 
 /*For calculating Weight column*/
 DEF VAR lv-weight LIKE oe-boll.weight NO-UNDO.
@@ -144,18 +145,17 @@ find first company where company.company = cocode no-lock no-error.
 find first oe-ctrl where oe-ctrl.company = cocode no-lock no-error.
 
 ASSIGN
-    v-comp-name = company.NAME
-    v-comp-add1 = company.addr[1]
-    v-comp-add2 = company.city + ", " + company.state + " " + company.zip .
+    v-comp-name = cName 
+    v-comp-add1 = cInvMessage[1] 
+    v-comp-add2 = cInvMessage[2]
+    v-comp-add3 = cInvMessage[3]
+    v-comp-add4 = cInvMessage[4]  
+    v-comp-add5 = cInvMessage[5]
+    .
 
 FIND FIRST bf-cust WHERE bf-cust.company = cocode AND
                        bf-cust.active = "X" NO-LOCK NO-ERROR.
-    IF AVAIL bf-cust THEN
-       ASSIGN 
-           v-comp-name = company.NAME 
-           v-comp-add1 = bf-cust.addr[1]
-           v-comp-add2 = bf-cust.city + ", " + bf-cust.state + "  " + bf-cust.zip
-              .
+
 
 for each report where report.term-id eq v-term-id no-lock,
         first xinv-head where recid(xinv-head) eq report.rec-id no-lock
@@ -575,7 +575,11 @@ for each report where report.term-id eq v-term-id no-lock,
 
     PUT "<FArial><R58><C1><P12><B> Remit to: " v-comp-name SKIP
          "<c9>" v-comp-add1 SKIP
-         "<c9>" v-comp-add2   "</B> <P9>" SKIP
+         "<c9>" v-comp-add2 SKIP
+        /* "<c9>" v-comp-add3 SKIP
+         "<c9>" v-comp-add4 SKIP
+         "<c9>" v-comp-add5 SKIP*/
+         "</B> <P9>" SKIP
          .
 
     PUT "<FArial><R61><C1><P12><B> Notes </B> <P9> " SKIP
