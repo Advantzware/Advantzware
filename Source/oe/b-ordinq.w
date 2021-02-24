@@ -219,6 +219,18 @@ END.
 
 ll-initial = browser-log. */
 
+
+/* Ticket 97427 O-U-1 Review Items -> Below columns have been removed
+    get-xfer-qty () @ ld-xfer-qty COLUMN-LABEL "Transfer!Qty" FORMAT "->>,>>>,>>>":U
+    get-bal(li-qoh) @ li-bal COLUMN-LABEL "On Hand Qty" FORMAT "->>,>>>,>>>":U
+    get-wip() @ li-wip COLUMN-LABEL "Production!Balance" FORMAT "->>,>>>,>>>":U
+            WIDTH 14.4
+    get-fgitem() @ lc-fgitem COLUMN-LABEL "FG Item#" FORMAT "x(15)":U
+    get-act-bol-qty() @ li-act-bol-qty COLUMN-LABEL "Act. BOL!Qty" FORMAT "->>,>>>,>>>":U
+    fget-qty-nothand(get-act-rel-qty() + get-act-bol-qty(),li-qoh) @ iHandQtyNoalloc COLUMN-LABEL "On Hand Qty not Allocated" FORMAT "->>>>>>>>":U
+    fnPrevOrder(oe-ordl.est-no,oe-ordl.ord-no) @ iPreOrder COLUMN-LABEL "Prev Order" FORMAT ">>>>>>>>":U
+*/
+
 DEFINE VARIABLE iRecordLimit       AS INTEGER   NO-UNDO.
 DEFINE VARIABLE dQueryTimeLimit    AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE cFirstRecKey       AS CHARACTER NO-UNDO.
@@ -256,17 +268,14 @@ DEFINE VARIABLE lIsBreakByUsed     AS LOGICAL   NO-UNDO.
 getRS() @ lc-rs getMI() @ lc-mi getstat() @ cstatus oe-ord.ord-date oe-ordl.req-date ~
 oe-ord.cust-name oe-ordl.i-no oe-ordl.part-no oe-ord.po-no oe-ordl.po-no ~
 oe-ordl.est-no oe-ordl.job-no oe-ordl.job-no2 itemfg.cad-no oe-ordl.qty ~
-get-prod(li-bal) @ li-prod oe-ordl.ship-qty get-xfer-qty () @ ld-xfer-qty ~
-get-inv-qty() @ iInvQty get-bal(li-qoh) @ li-bal get-act-rel-qty() @ li-act-rel-qty ~
-get-wip() @ li-wip get-pct(li-bal) @ li-pct get-fgitem() @ lc-fgitem ~
-oe-ordl.i-name oe-ordl.line oe-ordl.po-no-po oe-ordl.e-num oe-ordl.whsed ~
-get-act-bol-qty() @ li-act-bol-qty getTotalReturned() @ dTotQtyRet ~
-getReturnedInv() @ dTotRetInv oe-ordl.s-man[1] ~
-fget-qty-nothand(get-act-rel-qty() + get-act-bol-qty(),li-qoh) @ iHandQtyNoalloc ~
-oe-ordl.managed fnPrevOrder(oe-ordl.est-no,oe-ordl.ord-no) @ iPreOrder ~
-oe-ordl.cost pGetSellPrice() @ dSellPrice ~
-pGetExtendedPrice() @ dExtendedPrice pGetInvoiceLineCost() @ dInvoiceLineCost ~
-pGetPriceUom() @ cPriceUom pGetCostUom() @ cCostUom 
+get-prod(li-bal) @ li-prod oe-ordl.ship-qty get-inv-qty() @ iInvQty ~
+get-act-rel-qty() @ li-act-rel-qty get-pct(li-bal) @ li-pct oe-ordl.i-name ~
+oe-ordl.line oe-ordl.po-no-po oe-ordl.e-num oe-ordl.whsed ~
+getTotalReturned() @ dTotQtyRet getReturnedInv() @ dTotRetInv ~
+oe-ordl.s-man[1] oe-ordl.managed oe-ordl.cost pGetSellPrice() @ dSellPrice ~
+pGetExtendedPrice() @ dExtendedPrice ~
+pGetInvoiceLineCost() @ dInvoiceLineCost pGetPriceUom() @ cPriceUom ~
+pGetCostUom() @ cCostUom 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table oe-ordl.ord-no ~
 oe-ordl.cust-no oe-ord.ord-date oe-ordl.req-date oe-ord.cust-name ~
 oe-ordl.i-no oe-ordl.part-no oe-ordl.po-no oe-ordl.est-no oe-ordl.job-no ~
@@ -545,9 +554,9 @@ DEFINE BUTTON btSHowAll
      LABEL "Show All" 
      SIZE 9.6 BY 1.
 
-DEFINE VARIABLE cbType AS CHARACTER FORMAT "X(256)":U INITIAL "Opened" 
+DEFINE VARIABLE cbType AS CHARACTER FORMAT "X(256)":U INITIAL "Open" 
      VIEW-AS COMBO-BOX INNER-LINES 5
-     LIST-ITEMS "All","Opened","Closed" 
+     LIST-ITEMS "All","Open","Closed" 
      DROP-DOWN-LIST
      SIZE 13 BY 1 NO-UNDO.
 
@@ -709,27 +718,20 @@ DEFINE BROWSE Browser-Table
       oe-ordl.qty COLUMN-LABEL "Ordered Qty" FORMAT "->>,>>>,>>>":U
       get-prod(li-bal) @ li-prod COLUMN-LABEL "Prod. Qty" FORMAT "->>,>>>,>>>":U
       oe-ordl.ship-qty COLUMN-LABEL "Shipped Qty" FORMAT "->>,>>>,>>>":U
-      get-xfer-qty () @ ld-xfer-qty COLUMN-LABEL "Transfer!Qty" FORMAT "->>,>>>,>>>":U
       get-inv-qty() @ iInvQty COLUMN-LABEL "Invoice Qty" FORMAT "->>,>>>,>>>":U
-      get-bal(li-qoh) @ li-bal COLUMN-LABEL "On Hand Qty" FORMAT "->>,>>>,>>>":U
       get-act-rel-qty() @ li-act-rel-qty COLUMN-LABEL "Act. Rel.!Quantity" FORMAT "->>,>>>,>>>":U
             WIDTH 12.4
-      get-wip() @ li-wip COLUMN-LABEL "Production!Balance" FORMAT "->>,>>>,>>>":U
-            WIDTH 14.4
       get-pct(li-bal) @ li-pct COLUMN-LABEL "O/U%" FORMAT "->>>>>%":U
-      get-fgitem() @ lc-fgitem COLUMN-LABEL "FG Item#" FORMAT "x(15)":U
       oe-ordl.i-name COLUMN-LABEL "Item Name" FORMAT "x(30)":U
+            LABEL-BGCOLOR 14
       oe-ordl.line FORMAT ">>99":U
       oe-ordl.po-no-po FORMAT ">>>>>9":U
-      oe-ordl.e-num FORMAT ">>>>>9":U
+      oe-ordl.e-num FORMAT ">>>>>9":U LABEL-BGCOLOR 14
       oe-ordl.whsed FORMAT "yes/no":U
-      get-act-bol-qty() @ li-act-bol-qty COLUMN-LABEL "Act. BOL!Qty" FORMAT "->>,>>>,>>>":U
       getTotalReturned() @ dTotQtyRet COLUMN-LABEL "Tot Returned" FORMAT ">>>,>>9":U
       getReturnedInv() @ dTotRetInv COLUMN-LABEL "Qty Returned Inv" FORMAT ">>>,>>9":U
       oe-ordl.s-man[1] COLUMN-LABEL "Rep" FORMAT "x(3)":U LABEL-BGCOLOR 14
-      fget-qty-nothand(get-act-rel-qty() + get-act-bol-qty(),li-qoh) @ iHandQtyNoalloc COLUMN-LABEL "On Hand Qty not Allocated" FORMAT "->>>>>>>>":U
       oe-ordl.managed FORMAT "yes/no":U
-      fnPrevOrder(oe-ordl.est-no,oe-ordl.ord-no) @ iPreOrder COLUMN-LABEL "Prev Order" FORMAT ">>>>>>>>":U
       oe-ordl.cost COLUMN-LABEL "Order Line Cost" FORMAT "->>>,>>>,>>9.99":U
             LABEL-BGCOLOR 14
       pGetSellPrice() @ dSellPrice COLUMN-LABEL "Sell Price" FORMAT ">>,>>>,>>9.99<<<<":U
@@ -952,53 +954,40 @@ AND itemfg.i-no EQ oe-ordl.i-no"
      _FldNameList[19]   > ASI.oe-ordl.ship-qty
 "oe-ordl.ship-qty" "Shipped Qty" "->>,>>>,>>>" "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[20]   > "_<CALC>"
-"get-xfer-qty () @ ld-xfer-qty" "Transfer!Qty" "->>,>>>,>>>" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[21]   > "_<CALC>"
 "get-inv-qty() @ iInvQty" "Invoice Qty" "->>,>>>,>>>" "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[22]   > "_<CALC>"
-"get-bal(li-qoh) @ li-bal" "On Hand Qty" "->>,>>>,>>>" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[23]   > "_<CALC>"
+     _FldNameList[21]   > "_<CALC>"
 "get-act-rel-qty() @ li-act-rel-qty" "Act. Rel.!Quantity" "->>,>>>,>>>" ? ? ? ? ? ? ? no ? no no "12.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[24]   > "_<CALC>"
-"get-wip() @ li-wip" "Production!Balance" "->>,>>>,>>>" ? ? ? ? ? ? ? no ? no no "14.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[25]   > "_<CALC>"
+     _FldNameList[22]   > "_<CALC>"
 "get-pct(li-bal) @ li-pct" "O/U%" "->>>>>%" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[26]   > "_<CALC>"
-"get-fgitem() @ lc-fgitem" "FG Item#" "x(15)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[27]   > ASI.oe-ordl.i-name
-"oe-ordl.i-name" "Item Name" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[28]   > ASI.oe-ordl.line
+     _FldNameList[23]   > ASI.oe-ordl.i-name
+"oe-ordl.i-name" "Item Name" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[24]   > ASI.oe-ordl.line
 "oe-ordl.line" ? ">>99" "integer" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[29]   > ASI.oe-ordl.po-no-po
+     _FldNameList[25]   > ASI.oe-ordl.po-no-po
 "oe-ordl.po-no-po" ? ? "integer" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[30]   = ASI.oe-ordl.e-num
-     _FldNameList[31]   > ASI.oe-ordl.whsed
+     _FldNameList[26]   > ASI.oe-ordl.e-num
+"oe-ordl.e-num" ? ? "integer" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[27]   > ASI.oe-ordl.whsed
 "oe-ordl.whsed" ? ? "logical" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[32]   > "_<CALC>"
-"get-act-bol-qty() @ li-act-bol-qty" "Act. BOL!Qty" "->>,>>>,>>>" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[33]   > "_<CALC>"
+     _FldNameList[28]   > "_<CALC>"
 "getTotalReturned() @ dTotQtyRet" "Tot Returned" ">>>,>>9" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[34]   > "_<CALC>"
+     _FldNameList[29]   > "_<CALC>"
 "getReturnedInv() @ dTotRetInv" "Qty Returned Inv" ">>>,>>9" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[35]   > ASI.oe-ordl.s-man[1]
+     _FldNameList[30]   > ASI.oe-ordl.s-man[1]
 "oe-ordl.s-man[1]" "Rep" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[36]   > "_<CALC>"
-"fget-qty-nothand(get-act-rel-qty() + get-act-bol-qty(),li-qoh) @ iHandQtyNoalloc" "On Hand Qty not Allocated" "->>>>>>>>" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[37]   > ASI.oe-ordl.managed
+     _FldNameList[31]   > ASI.oe-ordl.managed
 "oe-ordl.managed" ? ? "logical" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[38]   > "_<CALC>"
-"fnPrevOrder(oe-ordl.est-no,oe-ordl.ord-no) @ iPreOrder" "Prev Order" ">>>>>>>>" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[39]   > ASI.oe-ordl.cost
+     _FldNameList[32]   > ASI.oe-ordl.cost
 "oe-ordl.cost" "Order Line Cost" ? "decimal" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[40]   > "_<CALC>"
+     _FldNameList[33]   > "_<CALC>"
 "pGetSellPrice() @ dSellPrice" "Sell Price" ">>,>>>,>>9.99<<<<" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[41]   > "_<CALC>"
+     _FldNameList[34]   > "_<CALC>"
 "pGetExtendedPrice() @ dExtendedPrice" "Extended! Price" "->>,>>>,>>9.99" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[42]   > "_<CALC>"
+     _FldNameList[35]   > "_<CALC>"
 "pGetInvoiceLineCost() @ dInvoiceLineCost" "Invoice Line Cost" "->>>,>>>,>>9.99<<<<" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[43]   > "_<CALC>"
+     _FldNameList[36]   > "_<CALC>"
 "pGetPriceUom() @ cPriceUom" "UOM" "X(4)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[44]   > "_<CALC>"
+     _FldNameList[37]   > "_<CALC>"
 "pGetCostUom() @ cCostUom" "Cost!Uom" "x(4)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
@@ -1099,8 +1088,7 @@ DO:
     ASSIGN
      lv-sort-by     = lv-column-nam
      lv-sort-by-lab = lv-column-lab.
-MESSAGE lv-sort-by 
-VIEW-AS ALERT-BOX.
+
   APPLY 'END-SEARCH' TO {&BROWSE-NAME}.
 
   RUN dispatch ("open-query").
@@ -1306,7 +1294,7 @@ END.
 ON VALUE-CHANGED OF cbType IN FRAME F-Main /* Combo 3 */
 DO:
     ASSIGN {&SELF-NAME}.
-    IF cbType EQ "Opened" THEN DO:
+    IF cbType EQ "Open" THEN DO:
         ASSIGN 
             tbOther:VISIBLE = YES
             tbWeb:VISIBLE   = YES
@@ -2696,7 +2684,7 @@ PROCEDURE set-defaults :
       fi_job-no:SCREEN-VALUE  = ""
       fi_job-no2:SCREEN-VALUE = "" 
       fi_sman:SCREEN-VALUE    = "" 
-      cbType:SCREEN-VALUE     = "Opened"
+      cbType:SCREEN-VALUE     = "Open"
       .
   END.
   APPLY "VALUE-CHANGED":U TO cbType.
@@ -3617,6 +3605,10 @@ FUNCTION pGetSortCondition RETURNS CHARACTER
             IF ipcSortBy EQ 'e-num'     THEN "STRING(oe-ordl.e-num)"                 ELSE ~
             IF ipcSortBy EQ 'cost'      THEN "STRING(oe-ordl.cost,'-9999999999.99')" ELSE ~
             IF ipcSortBy EQ 'rec_key'   THEN "STRING(oe-ord.rec_key)"                ELSE ~
+            IF ipcSortBy EQ 'i-name'    THEN 'oe-ordl.i-name'                        ELSE ~
+            IF ipcSortBy EQ 'e-num'     THEN 'oe-ordl.e-num'                         ELSE ~
+            IF ipcSortBy EQ 'qty'       THEN 'oe-ordl.qty'                           ELSE ~
+            IF ipcSortBy EQ 'ship-qty'  THEN 'oe-ordl.ship-qty'                      ELSE ~           
                                              "STRING(YEAR(oe-ordl.req-date),'9999')
                                              + STRING(MONTH(oe-ordl.req-date),'99')
                                              + STRING(DAY(oe-ordl.req-date),'99')"
@@ -3639,10 +3631,10 @@ FUNCTION pGetWhereCriteria RETURNS CHARACTER
     DEFINE VARIABLE cWhereCriteria AS CHARACTER NO-UNDO.
     
     IF ipcTable EQ "oe-ord" THEN DO: 
-        IF cbType EQ "Closed" OR (cbType EQ "Opened" AND tbOther) THEN 
+        IF cbType EQ "Closed" OR (cbType EQ "Open" AND tbOther) THEN 
             cWhereCriteria = " oe-ord.stat NE 'W'".
               
-        IF (cbType EQ "Opened" AND tbOther AND NOT tbHold) THEN DO:
+        IF (cbType EQ "Open" AND tbOther AND NOT tbHold) THEN DO:
             IF cWhereCriteria EQ "" THEN 
                 cWhereCriteria = " oe-ord.stat NE 'H'".
             ELSE DO: 
@@ -3651,13 +3643,13 @@ FUNCTION pGetWhereCriteria RETURNS CHARACTER
             END.                
         END.  
            
-        IF (cbType EQ "Opened" AND tbHold) THEN DO:
+        IF (cbType EQ "Open" AND tbHold) THEN DO:
             IF cWhereCriteria EQ "" THEN 
                 cWhereCriteria = " oe-ord.stat EQ 'H'".
             ELSE     
                 cWhereCriteria = cWhereCriteria + " OR oe-ord.stat EQ 'H'".          
         END.   
-        IF cbType EQ "Opened" AND tbWeb THEN DO:
+        IF cbType EQ "Open" AND tbWeb THEN DO:
             IF cWhereCriteria EQ "" THEN 
                 cWhereCriteria = " oe-ord.stat EQ 'W'" .
             ELSE     
@@ -3674,17 +3666,17 @@ FUNCTION pGetWhereCriteria RETURNS CHARACTER
             cWhereCriteria = cWhereCriteria + " AND ((oe-ord.opened EQ YES) OR (oe-ord.opened EQ NO OR oe-ordl.stat EQ 'C'))".                   
         END.    
             
-        ELSE IF cbType EQ "Opened" THEN 
+        ELSE IF cbType EQ "Open" THEN 
             cWhereCriteria = cWhereCriteria + " AND oe-ord.opened EQ YES".
                     
-        cWhereCriteria =  cWhereCriteria  + " AND oe-ord.ord-date  GE " + STRING(fiOrderDate) 
+        cWhereCriteria =  cWhereCriteria  + (IF cbType NE "All" THEN " AND " ELSE " ") + "oe-ord.ord-date  GE " + STRING(fiOrderDate) 
                           + (IF fi_po-no1 NE "" THEN " AND oe-ord.po-no BEGINS " + QUOTER(fi_po-no1) ELSE "")
                           .                  
     END. 
     ELSE DO:
         IF cbType EQ "Closed" THEN 
             cWhereCriteria = cWhereCriteria +  " AND oe-ordl.opened EQ NO".
-        ELSE IF cbType EQ "opened" THEN
+        ELSE IF cbType EQ "open" THEN
             cWhereCriteria = cWhereCriteria  + " AND oe-ordl.opened EQ YES AND oe-ordl.stat NE 'C'".   
             
         cWhereCriteria = cWhereCriteria  
@@ -3714,7 +3706,7 @@ FUNCTION pIsValidSearch RETURNS LOGICAL PRIVATE
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    IF cbType EQ "Opened" AND NOT tbWeb
+    IF cbType EQ "Open" AND NOT tbWeb
        AND NOT tbOther AND NOT tbHold THEN DO:
         MESSAGE "Atleast one toggle box should be checked." 
         VIEW-AS ALERT-BOX ERROR.        
