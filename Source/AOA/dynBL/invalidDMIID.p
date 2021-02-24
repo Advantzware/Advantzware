@@ -46,7 +46,7 @@ PROCEDURE pBusinessLogic:
         NEXT.
         // only process dmitrans record with invalid dmiid values
         CASE cPostDelete:
-            WHEN "Delete" THEN DO:
+            WHEN "Delete" THEN DO TRANSACTION:
                 CREATE ttDMITrans.
                 BUFFER-COPY dmiTrans TO ttDMITrans.
                 DELETE dmiTrans.
