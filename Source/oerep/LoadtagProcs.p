@@ -1476,6 +1476,7 @@ PROCEDURE pPrintTTLoadTags PRIVATE:
     DEFINE VARIABLE lSuccess         AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cArgKeyList      AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cArgValueList    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cTriggerID       AS CHARACTER NO-UNDO.
     
     RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
     
@@ -1492,14 +1493,21 @@ PROCEDURE pPrintTTLoadTags PRIVATE:
                 cArgKeyList   = "ExportTemplate,ExportFile,TTLoadTagHandle"
                 cArgValueList = ttLoadTag.exportTemplate + "," + ttLoadTag.exportFile + "," + cTTLoadTagHandle
                 .
-                
+            
+            cTriggerID = IF ttLoadTag.exportFileType EQ "loadtag" THEN
+                             "PrintLoadTag"
+                         ELSE IF ttLoadTag.exportFileType EQ "boltag" THEN
+                             "PrintBolTag"
+                         ELSE
+                             "".
+                             
             RUN Outbound_PrepareAndExecuteForScope IN hdOutboundProcs (
                 INPUT  ipcCompany,                             /* Company Code (Mandatory) */
                 INPUT  ipcLocation,                            /* Location Code (Mandatory) */
                 INPUT  "CreateLoadtag",                        /* API ID (Mandatory) */
                 INPUT  ttLoadTag.custID,                       /* Scope ID */
                 INPUT  "Customer",                             /* Scope Type */
-                INPUT  "PrintLoadtag",                         /* Trigger ID (Mandatory) */
+                INPUT  cTriggerID,                             /* Trigger ID (Mandatory) */
                 INPUT  cArgKeyList,                            /* Comma separated list of table names for which data being sent (Mandatory) */
                 INPUT  cArgValueList,                          /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
                 INPUT  ttLoadTag.tag,                          /* Primary ID for which API is called for (Mandatory) */   
@@ -2252,7 +2260,7 @@ PROCEDURE pBuildLoadTagsFromJob PRIVATE:
             bf-ttLoadTag.tagStatus      = "Pending"
             bf-ttLoadTag.recordSource   = "JOB"
             bf-ttLoadTag.isSelected     = TRUE
-            bf-ttLoadTag.exportFileType = "laodtag"
+            bf-ttLoadTag.exportFileType = "loadtag"
             bf-ttLoadTag.exportFile     = gcLabelMatrixLoadTagOutputPath + gcLabelMatrixLoadTagOutputFile
             .
         
