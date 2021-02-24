@@ -557,6 +557,7 @@ PROCEDURE pCalcEstimateForJob PRIVATE:
         DO:  
             FIND FIRST bf-job-hdr NO-LOCK 
                 WHERE bf-job-hdr.company EQ ipbf-job.company
+                AND bf-job-hdr.job EQ ipbf-job.job
                 AND bf-job-hdr.job-no EQ ipbf-job.job-no
                 AND bf-job-hdr.job-no2 EQ ipbf-job.job-no2
                 NO-ERROR.
@@ -567,6 +568,7 @@ PROCEDURE pCalcEstimateForJob PRIVATE:
         DO:
             FOR EACH bf-job-hdr NO-LOCK
                 WHERE bf-job-hdr.company EQ ipbf-job.company
+                AND bf-job-hdr.job EQ ipbf-job.job
                 AND bf-job-hdr.job-no EQ ipbf-job.job-no
                 AND bf-job-hdr.job-no2 EQ ipbf-job.job-no2
                 ,
