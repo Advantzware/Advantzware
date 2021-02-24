@@ -2,16 +2,16 @@
 &ANALYZE-RESUME
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS Include 
 /*--------------------------------------------------------------------------
-    File        : brwcustom.i
+    File        : brwcustomSharpShooter.i
     Purpose     : Browser customization based on New Designes
 
-    Syntax      : {methods/template/brwcustom.i}
+    Syntax      : {methods/template/brwcustomSharpShooter.i}
 
     Description : Browser customization as per new enhanced UI 
 
 
     Author(s)   : Anjly
-    Created     : 08/10/20
+    Created     : 02/23/21
     Notes       :
   ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
