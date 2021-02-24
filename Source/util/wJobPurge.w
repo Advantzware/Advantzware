@@ -434,19 +434,17 @@ DO:
             STATUS DEFAULT "Purging job #" + job.job-no + "-" + STRING(job.job-no2,"99") + "...".
             
             IF rsPurge:SCREEN-VALUE EQ "P" THEN 
-                RUN Purge_SimulateOrDeleteRecordsByTable(
-                    INPUT  "job",
-                    INPUT  ROWID(job),
-                    INPUT  YES,       /* Purge Records? */
+                RUN Purge_SimulateAndPurgeJobRecords(
+                    BUFFER job,
+                    INPUT  YES,      /* Purge Records? */
                     INPUT  lVerbose,  /* Create .csv for child tables? */
                     INPUT  NO,        /* Called from trigger? */
                     OUTPUT lSuccess,
                     OUTPUT cMessage
                     ). 
             ELSE 
-                RUN Purge_SimulateOrDeleteRecordsByTable(
-                    INPUT  "job",
-                    INPUT  ROWID(job),
+                RUN Purge_SimulateAndPurgeJobRecords(
+                    BUFFER job,
                     INPUT  NO,        /* Purge Records? */
                     INPUT  lVerbose,  /* Create .csv for child tables? */
                     INPUT  NO,        /* Called from trigger? */
@@ -474,9 +472,8 @@ DO:
             STATUS DEFAULT "Purging job #" + job.job-no + "-" + STRING(job.job-no2,"99") + "...".
             
             IF rsPurge:SCREEN-VALUE EQ "P" THEN 
-                RUN Purge_SimulateOrDeleteRecordsByTable(
-                    INPUT  "job",
-                    INPUT  ROWID(job),
+                RUN Purge_SimulateAndPurgeJobRecords(
+                    BUFFER job,
                     INPUT  YES,       /* Purge Recordss? */
                     INPUT  lVerbose,  /* Create .csv for child tables? */
                     INPUT  NO,        /* Called from trigger? */
@@ -484,9 +481,8 @@ DO:
                     OUTPUT cMessage
                     ). 
             ELSE 
-                RUN Purge_SimulateOrDeleteRecordsByTable(
-                    INPUT  "job",
-                    INPUT  ROWID(job),
+                RUN Purge_SimulateAndPurgeJobRecords(
+                    BUFFER job,
                     INPUT  NO,         /* Purge Records? */
                     INPUT  lVerbose,   /* Create .csv for child tables?*/
                     INPUT  NO,         /* Called from trigger? */
