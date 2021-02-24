@@ -192,7 +192,8 @@ DEFINE VARIABLE fiEndingPO AS INTEGER FORMAT ">>>>>>>":U INITIAL 0
 DEFINE VARIABLE fiEndingRelease AS INTEGER FORMAT ">>>>>>>":U INITIAL 0 
      LABEL "Ending Order" 
      VIEW-AS FILL-IN 
-     SIZE 14 BY 1 NO-UNDO.
+     SIZE 14 BY 1 
+     FONT 22 NO-UNDO.
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -203,30 +204,30 @@ DEFINE RECTANGLE RECT-14
      SIZE 106.8 BY 2.14
      BGCOLOR 21 FGCOLOR 21 .
 
-DEFINE VARIABLE tbOpenFiles AS LOGICAL INITIAL no 
+DEFINE VARIABLE tbOpenFiles AS LOGICAL INITIAL NO 
      LABEL "Open Files" 
      VIEW-AS TOGGLE-BOX
      SIZE 16 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tbUpdateJobStatus AS LOGICAL INITIAL no 
+DEFINE VARIABLE tbUpdateJobStatus AS LOGICAL INITIAL NO 
      LABEL "Update Job Status" 
      VIEW-AS TOGGLE-BOX
      SIZE 23 BY .81
      FONT 22 NO-UNDO.
 
-DEFINE VARIABLE tbUpdateOrderStatus AS LOGICAL INITIAL no 
+DEFINE VARIABLE tbUpdateOrderStatus AS LOGICAL INITIAL NO 
      LABEL "Update Order Status" 
      VIEW-AS TOGGLE-BOX
      SIZE 26 BY .81
      FONT 22 NO-UNDO.
 
-DEFINE VARIABLE tbupdatePurchaseOrders AS LOGICAL INITIAL no 
+DEFINE VARIABLE tbupdatePurchaseOrders AS LOGICAL INITIAL NO 
      LABEL "Update Purchase Orders" 
      VIEW-AS TOGGLE-BOX
      SIZE 31 BY .81
      FONT 22 NO-UNDO.
 
-DEFINE VARIABLE tbUpdateReleases AS LOGICAL INITIAL no 
+DEFINE VARIABLE tbUpdateReleases AS LOGICAL INITIAL NO 
      LABEL "Update Releases" 
      VIEW-AS TOGGLE-BOX
      SIZE 26.8 BY .81
@@ -290,15 +291,15 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 273.2
          VIRTUAL-HEIGHT     = 33.57
          VIRTUAL-WIDTH      = 273.2
-         RESIZE             = yes
-         SCROLL-BARS        = no
-         STATUS-AREA        = yes
+         RESIZE             = YES
+         SCROLL-BARS        = NO
+         STATUS-AREA        = YES
          BGCOLOR            = ?
          FGCOLOR            = ?
-         KEEP-FRAME-Z-ORDER = yes
-         THREE-D            = yes
-         MESSAGE-AREA       = no
-         SENSITIVE          = yes.
+         KEEP-FRAME-Z-ORDER = YES
+         THREE-D            = YES
+         MESSAGE-AREA       = NO
+         SENSITIVE          = YES.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
@@ -350,7 +351,7 @@ ASSIGN
 /* SETTINGS FOR RECTANGLE RECT-14 IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-THEN C-Win:HIDDEN = no.
+THEN C-Win:HIDDEN = NO.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -458,6 +459,23 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btExecute C-Win
 ON CHOOSE OF btExecute IN FRAME DEFAULT-FRAME /* Execute */
 DO:   
+    FOR EACH ttOe-ord:         
+        STATUS INPUT "Processing Order Number - " + STRING(ttOe-ord.ord-no).   
+        FOR FIRST  oe-ord EXCLUSIVE-LOCK 
+            WHERE oe-ord.ord-no EQ ttOe-ord.ord-no:
+            ASSIGN 
+                oe-ord.stat = ttOe-ord.newstat.
+        END.                    
+    END.       
+    FOR EACH ttJob:
+         
+        STATUS INPUT "Processing Job Number - " + ttJob.job-no. 
+        FOR FIRST  job EXCLUSIVE-LOCK 
+            WHERE job.job-no EQ ttJob.job-no:
+            ASSIGN 
+                job.stat = ttJob.newstat.
+        END.
+    END.
     FOR EACH ttOe-rel: 
         STATUS INPUT "Processing Release Number - " + STRING(ttOe-rel.rel-no) + " on Order number - " + STRING(ttOe-rel.ord-no).                     
         FOR FIRST  oe-rel EXCLUSIVE-LOCK 
@@ -475,23 +493,7 @@ DO:
                 po-ord.stat = ttPo-ord.newstat.
         END.
      END.
-     FOR EACH ttOe-ord:         
-         STATUS INPUT "Processing Order Number - " + STRING(ttOe-ord.ord-no).   
-        FOR FIRST  oe-ord EXCLUSIVE-LOCK 
-            WHERE oe-ord.ord-no EQ ttOe-ord.ord-no:
-            ASSIGN 
-                oe-ord.stat = ttOe-ord.newstat.
-        END.                    
-     END.       
-     FOR EACH ttJob:
-         
-        STATUS INPUT "Processing Job Number - " + ttJob.job-no. 
-        FOR FIRST  job EXCLUSIVE-LOCK 
-            WHERE job.job-no EQ ttJob.job-no:
-            ASSIGN 
-                job.stat = ttJob.newstat.
-        END.
-    END.
+
     
     EMPTY TEMP-TABLE  ttOe-rel.
     EMPTY TEMP-TABLE  ttOe-ord.
@@ -527,16 +529,99 @@ DO:
     DEFINE VARIABLE cResult  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cNewStat AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cocode   AS CHARACTER NO-UNDO.
-    
-    btExecute:SENSITIVE = btSimulate:SENSITIVE.
-    
+      
     EMPTY TEMP-TABLE  ttOe-rel.
     EMPTY TEMP-TABLE  ttOe-ord.
     EMPTY TEMP-TABLE  ttPo-ord.
     EMPTY TEMP-TABLE  ttJob.
     
+    RUN validateInput(
+        OUTPUT lSuccess,
+        OUTPUT cMessage).
+        
+    IF NOT lSuccess THEN 
+    DO:
+        MESSAGE cMessage
+        VIEW-AS ALERT-BOX.
+        RETURN NO-APPLY.
+    END.
+        
+    btExecute:SENSITIVE = btSimulate:SENSITIVE.
+    
     RUN spGetSessionParam ("Company", OUTPUT cocode).
     
+    IF tbUpdateOrderStatus:CHECKED THEN 
+    DO:
+        STATUS INPUT "Processing Order Status update.".
+        FOR EACH oe-ord NO-LOCK
+            WHERE oe-ord.company EQ cocode
+            AND oe-ord.ord-no  GE fiBeginOrder:INPUT-VALUE 
+            AND oe-ord.ord-no  LE fiEndingOrder:INPUT-VALUE:
+            CREATE ttOe-ord.
+            ASSIGN 
+                ttOe-ord.ord-no  = oe-ord.ord-no           
+                ttOe-ord.stat    = oe-ord.stat
+                ttOe-ord.newstat = oe-ord.stat.
+            
+            RUN oe/getStatusDesc.p( INPUT oe-ord.stat, OUTPUT cResult) .
+            ttOe-ord.statDesc = cResult.
+            
+            IF oe-ord.opened NE (INDEX("CDZ",oe-ord.stat) LE 0) THEN
+                ttOe-ord.newstat = oe-ord.stat.
+                
+            RUN oe/getStatusDesc.p( INPUT ttOe-ord.newstat, OUTPUT cResult) .
+            ttOe-ord.newstatDesc = cResult.
+            
+            ttOe-ord.different = IF ttOe-ord.newstat = ttOe-ord.stat THEN "SAME" ELSE "UPDATE".
+        END.          
+        RUN Output_TempTableToCSV IN hdOutputProcs (
+            INPUT TEMP-TABLE ttOe-ord:HANDLE,
+            INPUT cLocation + "\Order.csv",
+            INPUT TRUE,  /* Export Header */
+            INPUT FALSE, /* Auto increment File name */
+            OUTPUT lSuccess,
+            OUTPUT cMessage
+            ).
+    END.
+    IF tbUpdateJobStatus:CHECKED  THEN  
+    DO:
+        STATUS INPUT "Processing Job Status update.".
+        FOR EACH job NO-LOCK 
+            WHERE job.company EQ cocode
+            AND job.job-no  GE fiBeginJob:SCREEN-VALUE
+            AND job.job-no  LE fiEndingJob:SCREEN-VALUE 
+            AND job.job-no2 GE fiBeginJob-2:INPUT-VALUE
+            AND job.job-no2 LE fiEndingJob-2:INPUT-VALUE:
+            /*  MESSAGE TRIM(job.job-no) + "-" +
+              STRING(job.job-no2,"99")
+              VIEW-AS ALERT-BOX.*/
+            
+            CREATE ttJob.
+            ASSIGN 
+                ttJob.job-no  = job.job-no
+                ttJob.job-no2 = STRING(job.job-no2)
+                ttJob.stat    = job.stat
+                ttJob.newstat = job.stat
+                .
+            IF job.opened NE (INDEX("CZ",job.stat) LE 0) THEN 
+                ttJob.newstat = job.stat.
+            RUN oe/getJobStatusDesc.p( INPUT job.stat, OUTPUT cResult) .
+            ttJob.statDesc = cResult.
+            RUN oe/getJobStatusDesc.p( INPUT ttJob.newstat, OUTPUT cResult) .
+            ttJob.newstatDesc = cResult.
+            
+            ttJob.different = IF ttJob.newstat = ttJob.stat THEN "SAME" ELSE "UPDATE".
+        END. 
+          
+        RUN Output_TempTableToCSV IN hdOutputProcs (
+            INPUT TEMP-TABLE ttJob:HANDLE,
+            INPUT cLocation + "\Job.csv",
+            INPUT TRUE,  /* Export Header */
+            INPUT FALSE, /* Auto increment File name */
+            OUTPUT lSuccess,
+            OUTPUT cMessage
+            ).
+    END. 
     IF tbUpdateReleases:CHECKED THEN 
     DO:   
         STATUS INPUT "Processing Release Status update.".     
@@ -609,86 +694,24 @@ DO:
             OUTPUT lSuccess,
             OUTPUT cMessage
             ).
-    END.
-    IF tbUpdateOrderStatus:CHECKED THEN 
-    DO:
-        STATUS INPUT "Processing Order Status update.".
-        FOR EACH oe-ord NO-LOCK
-           WHERE oe-ord.company EQ cocode
-             AND oe-ord.ord-no  GE fiBeginOrder:INPUT-VALUE 
-             AND oe-ord.ord-no  LE fiEndingOrder:INPUT-VALUE:
-            CREATE ttOe-ord.
-            ASSIGN 
-                ttOe-ord.ord-no  = oe-ord.ord-no           
-                ttOe-ord.stat    = oe-ord.stat
-                ttOe-ord.newstat = oe-ord.stat.
-            
-            RUN oe/getStatusDesc.p( INPUT oe-ord.stat, OUTPUT cResult) .
-            ttOe-ord.statDesc = cResult.
-            
-            IF oe-ord.opened NE (INDEX("CDZ",oe-ord.stat) LE 0) THEN
-                ttOe-ord.newstat = oe-ord.stat.
-                
-            RUN oe/getStatusDesc.p( INPUT ttOe-ord.newstat, OUTPUT cResult) .
-            ttOe-ord.newstatDesc = cResult.
-            
-            ttOe-ord.different = IF ttOe-ord.newstat = ttOe-ord.stat THEN "SAME" ELSE "UPDATE".
-        END.          
-        RUN Output_TempTableToCSV IN hdOutputProcs (
-            INPUT TEMP-TABLE ttOe-ord:HANDLE,
-            INPUT cLocation + "\Order.csv",
-            INPUT TRUE,  /* Export Header */
-            INPUT FALSE, /* Auto increment File name */
-            OUTPUT lSuccess,
-            OUTPUT cMessage
-            ).
-    END.
-    IF tbUpdateJobStatus:CHECKED  THEN  
-    DO:
-        STATUS INPUT "Processing Job Status update.".
-        FOR EACH job NO-LOCK 
-            WHERE job.company EQ cocode
-              AND job.job-no  GE fiBeginJob:SCREEN-VALUE
-              AND job.job-no  LE fiEndingJob:SCREEN-VALUE 
-              AND job.job-no2 GE fiBeginJob-2:INPUT-VALUE
-              AND job.job-no2 LE fiEndingJob-2:INPUT-VALUE:
-                /*  MESSAGE TRIM(job.job-no) + "-" +
-                  STRING(job.job-no2,"99")
-                  VIEW-AS ALERT-BOX.*/
-            
-            CREATE ttJob.
-            ASSIGN 
-            ttJob.job-no = job.job-no
-            ttJob.job-no2 = STRING(job.job-no2)
-            ttJob.stat = job.stat
-            ttJob.newstat = job.stat
-            .
-            IF job.opened NE (INDEX("CZ",job.stat) LE 0) THEN 
-                ttJob.newstat = job.stat.
-            RUN oe/getJobStatusDesc.p( INPUT job.stat, OUTPUT cResult) .
-            ttJob.statDesc = cResult.
-            RUN oe/getJobStatusDesc.p( INPUT ttJob.newstat, OUTPUT cResult) .
-            ttJob.newstatDesc = cResult.
-            
-            ttJob.different = IF ttJob.newstat = ttJob.stat THEN "SAME" ELSE "UPDATE".
-        END. 
-          
-        RUN Output_TempTableToCSV IN hdOutputProcs (
-            INPUT TEMP-TABLE ttJob:HANDLE,
-            INPUT cLocation + "\Job.csv",
-            INPUT TRUE,  /* Export Header */
-            INPUT FALSE, /* Auto increment File name */
-            OUTPUT lSuccess,
-            OUTPUT cMessage
-            ).
-    END.           
+    END.          
     STATUS INPUT "CSV with updated status have been created in " + cLocation + " folder.".
     
     IF tbOpenFiles:CHECKED THEN 
     DO:
+        IF tbUpdateOrderStatus:CHECKED THEN 
+            RUN OS_RunFile(
+                INPUT cLocation + "\Order.csv",
+                OUTPUT lSuccess,
+                OUTPUT cMessage).
         IF tbUpdateJobStatus:CHECKED  THEN  
             RUN OS_RunFile(
                 INPUT cLocation + "\Job.csv",
+                OUTPUT lSuccess,
+                OUTPUT cMessage).            
+        IF tbUpdateReleases:CHECKED THEN
+            RUN OS_RunFile(
+                INPUT cLocation + "\ResleaseOrder.csv",
                 OUTPUT lSuccess,
                 OUTPUT cMessage).
         IF tbupdatePurchaseOrders:CHECKED  THEN
@@ -696,16 +719,7 @@ DO:
                 INPUT cLocation + "\PurchaseOrder.csv",
                 OUTPUT lSuccess,
                 OUTPUT cMessage).
-        IF tbUpdateOrderStatus:CHECKED THEN 
-            RUN OS_RunFile(
-                INPUT cLocation + "\Order.csv",
-                OUTPUT lSuccess,
-                OUTPUT cMessage).
-        IF tbUpdateReleases:CHECKED THEN
-            RUN OS_RunFile(
-                INPUT cLocation + "\ResleaseOrder.csv",
-                OUTPUT lSuccess,
-                OUTPUT cMessage).
+
     END.
 END.
 
@@ -1086,6 +1100,65 @@ PROCEDURE SetButtons :
         btExecute:SENSITIVE   = btSimulate:SENSITIVE 
         tbOpenFiles:SENSITIVE = btSimulate:SENSITIVE
         .
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE validateInput C-Win 
+PROCEDURE validateInput :
+/*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER oplSuccess AS LOGICAL NO-UNDO INITIAL TRUE.
+    DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO. 
+    
+    DO WITH FRAME {&frame-name}:
+    END.
+    IF tbUpdateOrderStatus:CHECKED AND 
+        fiBeginOrder:INPUT-VALUE GT fiEndingOrder:INPUT-VALUE  THEN 
+    DO:
+        ASSIGN 
+            oplSuccess = FALSE
+            opcMessage = "Begin order is less than end order. Please correct."
+            .
+        RETURN.
+                             
+    END.    
+    IF tbUpdateJobStatus:CHECKED AND 
+       fiBeginJob:SCREEN-VALUE GT fiEndingJob:SCREEN-VALUE  THEN 
+    DO:
+        ASSIGN 
+             oplSuccess = FALSE
+             opcMessage = "Begin job is less than end job. Please correct."
+             .
+             RETURN.
+                             
+    END.
+    IF tbUpdateReleases:CHECKED AND 
+        fiBeginRelease:INPUT-VALUE GT fiEndingRelease:INPUT-VALUE  THEN 
+    DO:
+        ASSIGN 
+            oplSuccess = FALSE
+            opcMessage = "Begin order is less than end order. Please correct."
+            .
+        RETURN.
+                             
+    END.
+    IF tbupdatePurchaseOrders:CHECKED AND 
+    fiBeginPO:INPUT-VALUE GT fiEndingPO:INPUT-VALUE  THEN 
+    DO:
+        ASSIGN 
+            oplSuccess = FALSE
+            opcMessage = "Begin purchase order is less than end purchase order. Please correct."
+            .
+        RETURN.
+                             
+    END.
+   
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
