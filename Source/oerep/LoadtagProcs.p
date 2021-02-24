@@ -152,8 +152,9 @@ PROCEDURE pCreateLoadTagFromTT:
         END.
         
         FOR EACH ttLoadTag
-            WHERE ttLoadTag.tagStatus EQ "Pending"
-              AND ttLoadTag.isChild   EQ FALSE:
+            WHERE ttLoadTag.tagStatus  EQ "Pending"
+              AND ttLoadTag.isSelected EQ TRUE
+              AND ttLoadTag.isChild    EQ FALSE:
             RUN pExplodeTTLoadTag (
                 BUFFER ttLoadTag,
                 OUTPUT lError,
@@ -162,8 +163,9 @@ PROCEDURE pCreateLoadTagFromTT:
         END.
         
         FOR EACH ttLoadTag
-            WHERE ttLoadTag.tagStatus EQ "Pending"
-              AND ttLoadTag.isChild   EQ TRUE:
+            WHERE ttLoadTag.tagStatus  EQ "Pending"
+              AND ttLoadTag.isSelected EQ TRUE
+              AND ttLoadTag.isChild    EQ TRUE:
             RUN pCreateLoadTag (
                 BUFFER ttLoadTag,
                 OUTPUT ttLoadTag.isError,
