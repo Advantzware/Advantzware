@@ -169,7 +169,7 @@ DEFINE QUERY external_tables FOR po-ord.
 po-ord.cust-no po-ord.ship-id po-ord.buyer po-ord.contact po-ord.due-date ~
 po-ord.last-ship-date po-ord.under-pct po-ord.over-pct po-ord.carrier ~
 po-ord.excludeFromVoucher po-ord.tax-gr po-ord.terms po-ord.frt-pay ~
-po-ord.fob-code po-ord.priceHold po-ord.t-freight po-ord.printed 
+po-ord.fob-code po-ord.priceHold po-ord.t-freight 
 &Scoped-define ENABLED-TABLES po-ord
 &Scoped-define FIRST-ENABLED-TABLE po-ord
 &Scoped-Define ENABLED-OBJECTS btnCalendar-1 rd_drop-shipment btnCalendar-2 ~
@@ -617,7 +617,10 @@ ASSIGN
 /* SETTINGS FOR TOGGLE-BOX po-ord.priceHold IN FRAME F-Main
    ALIGN-R                                                              */
 /* SETTINGS FOR FILL-IN po-ord.printed IN FRAME F-Main
-   NO-DISPLAY                                                           */
+   NO-DISPLAY NO-ENABLE                                                 */
+ASSIGN 
+       po-ord.printed:HIDDEN IN FRAME F-Main           = TRUE.
+
 ASSIGN 
        rd_drop-shipment:PRIVATE-DATA IN FRAME F-Main     = 
                 "parm".
