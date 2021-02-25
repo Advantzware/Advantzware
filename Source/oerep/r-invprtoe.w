@@ -190,15 +190,14 @@ v-prgmname = ipcPrgmnameOverride.
 begin_cust end_cust begin_inv end_inv begin_date end_date tb_reprint ~
 tb_setcomp tb_prt-inst tb_qty-all tb_open-inv rd_sort tb_BatchMail ~
 tb_HideDialog tb_attachBOL rd-dest lv-ornt lines-per-page lv-font-no ~
-tb_email-orig tb_override-email td-show-parm run_format fi_name tb_open-Notes ~
-tb_close-Notes fi_note1 fi_note2 fi_note3 fi_note4 fi_note5 btn-ok btn-cancel 
+tb_email-orig tb_override-email td-show-parm run_format ~
+fi_note1 fi_note2 fi_note3 fi_note4 fi_note5 btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS tb_cust-list begin_cust end_cust begin_inv ~
 end_inv begin_date end_date tb_reprint tb_setcomp tb_prt-inst tb_qty-all ~
 tb_open-inv lbl_sort rd_sort tb_BatchMail tb_HideDialog tb_attachBOL ~
 rd-dest lv-ornt lines-per-page lv-font-no lv-font-name tb_email-orig ~
 tb_override-email td-show-parm run_format tb_splitPDF fiEndDateLabel ~
-fi_note1 fi_note2 fi_note3 fi_note4 fi_note5 fi_name tb_open-Notes ~
-tb_close-Notes fiBeginDateLabel 
+fi_note1 fi_note2 fi_note3 fi_note4 fi_note5 fiBeginDateLabel 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -466,41 +465,26 @@ DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL no
      LABEL "Show Parameters?" 
      VIEW-AS TOGGLE-BOX
      SIZE 24 BY .81 NO-UNDO.
-
-DEFINE VARIABLE fi_name AS CHARACTER FORMAT "X(30)":U 
-     LABEL "Name" 
-     VIEW-AS FILL-IN 
-     SIZE 25 BY 1 NO-UNDO.
-     
-DEFINE VARIABLE tb_open-Notes AS LOGICAL INITIAL NO 
-     LABEL "Open" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 10 BY 1 NO-UNDO.
-     
-DEFINE VARIABLE tb_close-Notes AS LOGICAL INITIAL NO 
-     LABEL "Close" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 12 BY 1 NO-UNDO.
      
 DEFINE VARIABLE fi_note1 AS CHARACTER FORMAT "X(40)" 
      VIEW-AS FILL-IN 
-     SIZE 46 BY 1.
+     SIZE 52 BY 1.
      
 DEFINE VARIABLE fi_note2 AS CHARACTER FORMAT "X(40)" 
      VIEW-AS FILL-IN 
-     SIZE 46 BY 1.
+     SIZE 52 BY 1.
      
 DEFINE VARIABLE fi_note3 AS CHARACTER FORMAT "X(40)" 
      VIEW-AS FILL-IN 
-     SIZE 46 BY 1.
+     SIZE 52 BY 1.
      
 DEFINE VARIABLE fi_note4 AS CHARACTER FORMAT "X(40)" 
      VIEW-AS FILL-IN 
-     SIZE 46 BY 1.
+     SIZE 52 BY 1.
      
 DEFINE VARIABLE fi_note5 AS CHARACTER FORMAT "X(40)" 
      VIEW-AS FILL-IN 
-     SIZE 46 BY 1.
+     SIZE 52 BY 1.
      
 
 /* ************************  Frame Definitions  *********************** */
@@ -562,21 +546,18 @@ DEFINE FRAME FRAME-A
      btn-cancel AT ROW 29.86 COL 56
      fiEndDateLabel AT ROW 4.52 COL 51.4 COLON-ALIGNED NO-LABEL WIDGET-ID 22
      fiBeginDateLabel AT ROW 4.57 COL 6.8 COLON-ALIGNED NO-LABEL WIDGET-ID 20
-     fi_name AT ROW 15.83 COL 66 COLON-ALIGNED WIDGET-ID 12
-     tb_open-Notes AT ROW 17.83 COL 66 LEFT-ALIGNED
-     tb_close-Notes AT ROW 17.83 COL 76 LEFT-ALIGNED
-     fi_note1 AT ROW 15.29 COL 12 COLON-ALIGNED HELP
+     fi_note1 AT ROW 15.29 COL 22 COLON-ALIGNED HELP
           "Enter AR7 Notes separated by commas" NO-LABEL
-     fi_note2 AT ROW 16.41 COL 12 COLON-ALIGNED HELP
+     fi_note2 AT ROW 16.41 COL 22 COLON-ALIGNED HELP
           "Enter AR7 Notes separated by commas" NO-LABEL
-     fi_note3 AT ROW 17.53 COL 12 COLON-ALIGNED HELP
+     fi_note3 AT ROW 17.53 COL 22 COLON-ALIGNED HELP
           "Enter AR7 Notes separated by commas" NO-LABEL
-     fi_note4 AT ROW 18.65 COL 12 COLON-ALIGNED HELP
+     fi_note4 AT ROW 18.65 COL 22 COLON-ALIGNED HELP
           "Enter AR7 Notes separated by commas" NO-LABEL
-     fi_note5 AT ROW 19.77 COL 12 COLON-ALIGNED HELP
+     fi_note5 AT ROW 19.77 COL 22 COLON-ALIGNED HELP
           "Enter AR7 Notes separated by commas" NO-LABEL
-     "A-R-7 Note:" VIEW-AS TEXT
-          SIZE 12 BY .62 AT ROW 15.29 COL 2
+     "Invoice Message: " VIEW-AS TEXT
+          SIZE 17 BY .62 AT ROW 15.29 COL 4
      "Output Destination" VIEW-AS TEXT
           SIZE 18 BY .62 AT ROW 21.38 COL 4
      "Selection Parameters" VIEW-AS TEXT
@@ -1166,7 +1147,6 @@ DO:
             tb_prt-dupl        ,
             NO  /* Pdf only */ , 
             tb_open-inv,
-            fi_name:SCREEN-VALUE,
             fi_note1:SCREEN-VALUE,
             fi_note2:SCREEN-VALUE,
             fi_note3:SCREEN-VALUE,
@@ -2254,16 +2234,14 @@ PROCEDURE enable_UI :
           rd_sort tb_BatchMail tb_HideDialog tb_attachBOL rd-dest lv-ornt 
           lines-per-page lv-font-no lv-font-name tb_email-orig tb_override-email 
           td-show-parm run_format tb_splitPDF fiEndDateLabel fiBeginDateLabel
-          tb_open-Notes tb_close-Notes fi_name fi_note1 fi_note2 fi_note3
-          fi_note4 fi_note5
+          fi_note1 fi_note2 fi_note3 fi_note4 fi_note5
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 tb_cust-list btnCustList begin_cust end_cust begin_inv 
          end_inv begin_date end_date tb_reprint tb_setcomp tb_prt-inst 
          tb_qty-all tb_open-inv rd_sort tb_BatchMail tb_HideDialog tb_attachBOL 
          rd-dest lv-ornt lines-per-page lv-font-no tb_email-orig 
-         tb_override-email td-show-parm run_format fi_name
-         tb_open-Notes tb_close-Notes fi_note1 fi_note2 fi_note3 fi_note4
-         fi_note5 btn-ok btn-cancel 
+         tb_override-email td-show-parm run_format fi_note1 fi_note2 
+         fi_note3 fi_note4 fi_note5 btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.

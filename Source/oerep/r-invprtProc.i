@@ -273,7 +273,6 @@ PROCEDURE assignSelections:
     DEFINE INPUT PARAMETER iptb_prt-dupl        AS LOGICAL INITIAL NO               .
     DEFINE INPUT PARAMETER iptbPdfOnly          AS LOGICAL INITIAL NO               .
     DEFINE INPUT PARAMETER iptbOpenInvOnly      AS LOGICAL INITIAL NO               .
-    DEFINE INPUT PARAMETER ipfi_name            AS CHARACTER FORMAT "X(40)"         .
     DEFINE INPUT PARAMETER ipfi_note1           AS CHARACTER FORMAT "X(40)"         .
     DEFINE INPUT PARAMETER ipfi_note2           AS CHARACTER FORMAT "X(40)"         .
     DEFINE INPUT PARAMETER ipfi_note3           AS CHARACTER FORMAT "X(40)"         .
@@ -327,7 +326,6 @@ PROCEDURE assignSelections:
         tb_prt-dupl      = iptb_prt-dupl
         tb_PdfOnly       = iptbPdfOnly
         tb_open-inv      = iptbOpenInvOnly
-        cName            = ipfi_name
         cInvMessage[1]   = ipfi_note1
         cInvMessage[2]   = ipfi_note2
         cInvMessage[3]   = ipfi_note3
