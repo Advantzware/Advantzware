@@ -980,7 +980,7 @@ PROCEDURE local-create-record :
   DO WITH FRAME {&FRAME-NAME}:
     CREATE bf-vendItemCostLevel .
         ASSIGN bf-vendItemCostLevel.vendItemCostID = vendItemCost.vendItemCostID 
-               bf-vendItemCostLevel.quantityBase    = 99999999 .
+               bf-vendItemCostLevel.quantityBase    = 9999999 .
         FIND CURRENT bf-vendItemCostLevel NO-LOCK NO-ERROR .
 
      RUN RecalculateFromAndTo IN hVendorCostProcs (vendItemCost.vendItemCostID, OUTPUT lReturnError ,OUTPUT cReturnMessage ) .

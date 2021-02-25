@@ -277,6 +277,23 @@ PROCEDURE pValidate PRIVATE:
                 opcNote  = "Item Type must be FG or RM".
     END.
     
+    IF oplValid THEN 
+    DO:
+        IF ipbf-ttImportVendCostMtx.LevelQuantity01 GT 9999999.9  OR 
+           ipbf-ttImportVendCostMtx.LevelQuantity02 GT 9999999.9 OR
+           ipbf-ttImportVendCostMtx.LevelQuantity03 GT 9999999.9 OR 
+           ipbf-ttImportVendCostMtx.LevelQuantity04 GT 9999999.9 OR
+           ipbf-ttImportVendCostMtx.LevelQuantity05 GT 9999999.9 OR 
+           ipbf-ttImportVendCostMtx.LevelQuantity06 GT 9999999.9 OR 
+           ipbf-ttImportVendCostMtx.LevelQuantity07 GT 9999999.9 OR 
+           ipbf-ttImportVendCostMtx.LevelQuantity08 GT 9999999.9 OR 
+           ipbf-ttImportVendCostMtx.LevelQuantity09 GT 9999999.9 OR 
+           ipbf-ttImportVendCostMtx.LevelQuantity10 GT 9999999.9  THEN 
+            ASSIGN 
+                oplValid = NO
+                opcNote  = "Level Quantity must be less then or equal 9999999.9".
+    END.      
+    
     ipbf-ttImportVendCostMtx.estimateNo =  FILL(" ",8 - LENGTH(TRIM(ipbf-ttImportVendCostMtx.estimateNo))) + TRIM(ipbf-ttImportVendCostMtx.estimateNo).
     
     /*Determine if Add or Update*/
