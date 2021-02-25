@@ -34,6 +34,8 @@ IF old-{&TABLENAME}.po-no NE 0  AND
    {&TABLENAME}.opened          AND
    {&TABLENAME}.stat NE "U"     AND
    {&TABLENAME}.stat NE "H"     AND
+   {&TABLENAME}.stat NE "O"     AND
+   {&TABLENAME}.stat NE "N"     AND
    {&TABLENAME}.printed         AND
    old-{&TABLENAME}.printed     THEN {&TABLENAME}.stat = "U".
 
