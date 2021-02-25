@@ -40,6 +40,7 @@ DEFINE            VARIABLE ls-drop-custno      AS cha       NO-UNDO.
 DEFINE            VARIABLE ls-ship-choice      AS cha       NO-UNDO.
 DEFINE            VARIABLE lv-ship-no          LIKE shipto.ship-no NO-UNDO.
 DEFINE            VARIABLE ll-got-vendor       AS LOG       NO-UNDO.
+DEFINE            VARIABLE lManualStatuschange AS LOG       NO-UNDO.
 DEFINE            VARIABLE lv-type             LIKE po-ord.type NO-UNDO.
 DEFINE            VARIABLE lv-prev-val         AS CHARACTER NO-UNDO.
 DEFINE            VARIABLE lv-copy-from-po-num AS INTEGER   NO-UNDO.
@@ -168,7 +169,7 @@ DEFINE QUERY external_tables FOR po-ord.
 po-ord.cust-no po-ord.ship-id po-ord.buyer po-ord.contact po-ord.due-date ~
 po-ord.last-ship-date po-ord.under-pct po-ord.over-pct po-ord.carrier ~
 po-ord.excludeFromVoucher po-ord.tax-gr po-ord.terms po-ord.frt-pay ~
-po-ord.fob-code po-ord.priceHold po-ord.t-freight 
+po-ord.fob-code po-ord.priceHold po-ord.t-freight po-ord.printed 
 &Scoped-define ENABLED-TABLES po-ord
 &Scoped-define FIRST-ENABLED-TABLE po-ord
 &Scoped-Define ENABLED-OBJECTS btnCalendar-1 rd_drop-shipment btnCalendar-2 ~
@@ -498,6 +499,9 @@ DEFINE FRAME F-Main
           BGCOLOR 15 
      approved_text AT ROW 1.24 COL 127 COLON-ALIGNED NO-LABEL WIDGET-ID 12
      lbl_sort AT ROW 2.43 COL 60 COLON-ALIGNED NO-LABEL WIDGET-ID 14
+     po-ord.printed AT ROW 6.24 COL 140 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 3.2 BY 1 NO-TAB-STOP 
      "FOB:" VIEW-AS TEXT
           SIZE 6 BY .81 AT ROW 15.05 COL 76.8
      "Freight Payment:" VIEW-AS TEXT
@@ -612,6 +616,8 @@ ASSIGN
    NO-ENABLE 2                                                          */
 /* SETTINGS FOR TOGGLE-BOX po-ord.priceHold IN FRAME F-Main
    ALIGN-R                                                              */
+/* SETTINGS FOR FILL-IN po-ord.printed IN FRAME F-Main
+   NO-DISPLAY                                                           */
 ASSIGN 
        rd_drop-shipment:PRIVATE-DATA IN FRAME F-Main     = 
                 "parm".
@@ -1133,6 +1139,8 @@ DO:
     RUN valid-po-status(OUTPUT lReturnError) NO-ERROR.
     IF lReturnError THEN RETURN NO-APPLY.    
   END.
+  ASSIGN 
+    lManualStatusChange = TRUE.
   
 END.
 
@@ -1607,6 +1615,8 @@ PROCEDURE hold-release :
      IF choice THEN DO:  
         DEFINE BUFFER bf-po-ord FOR po-ord.
         FIND bf-po-ord EXCLUSIVE-LOCK WHERE RECID(bf-po-ord) EQ recid(po-ord) NO-ERROR.
+        ASSIGN 
+            bf-po-ord.printed = FALSE.
         IF bf-po-ord.stat = "H" THEN DO:                    
             RUN pRunAPIOutboundTrigger (
                 BUFFER po-ord,
@@ -1646,6 +1656,8 @@ PROCEDURE hold-release :
         approved_text:HIDDEN = IF AVAILABLE po-ord AND po-ord.stat EQ "H" THEN TRUE ELSE FALSE .
      END.        
  END.
+ 
+ 
 
 END PROCEDURE.
 
@@ -2196,6 +2208,10 @@ PROCEDURE local-update-record :
     RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source",OUTPUT char-hdl).
     RUN record-added IN WIDGET-HANDLE(char-hdl).
   END.
+  
+    /* 97404 Ticket 95260 PO change order flag */
+    IF lManualStatusChange THEN ASSIGN 
+        po-ord.printed:SCREEN-VALUE = "N".    
     
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
@@ -2551,10 +2567,9 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pClearPriceHoldManually V-table-Win
-PROCEDURE pClearPriceHoldManually PRIVATE:
-    /*------------------------------------------------------------------------------
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pClearPriceHoldManually V-table-Win 
+PROCEDURE pClearPriceHoldManually PRIVATE :
+/*------------------------------------------------------------------------------
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
@@ -2569,11 +2584,9 @@ PROCEDURE pClearPriceHoldManually PRIVATE:
         ).
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE post-enable V-table-Win 
 PROCEDURE post-enable :
