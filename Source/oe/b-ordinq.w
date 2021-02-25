@@ -2451,6 +2451,9 @@ PROCEDURE record-added :
      fi_cad-no
      fi_sman
      cbType
+     tbOther:SCREEN-VALUE = "YES"
+     tbHold:SCREEN-VALUE  = "YES"
+     tbWeb:SCREEN-VALUE   = "YES" 
      tbOther
      tbHold
      tbWeb
@@ -2684,7 +2687,6 @@ PROCEDURE set-defaults :
       cbType:SCREEN-VALUE     = "Open"
       .
   END.
-  APPLY "VALUE-CHANGED":U TO cbType.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
