@@ -65,8 +65,6 @@ DEFINE            VARIABLE v-fill2       AS cha       INIT "-" FORM "x(100)" NO-
 DEFINE            VARIABLE v-fill3       AS CHARACTER FORMAT "x(100)" NO-UNDO.
 DEFINE            VARIABLE li            AS INTEGER   NO-UNDO.
 
-DEFINE TEMP-TABLE w-lo NO-UNDO
-    FIELD layout LIKE v-layout.
 
 DEFINE NEW SHARED BUFFER xjob-hdr FOR job-hdr.
 DEFINE BUFFER b-eb       FOR eb.
@@ -87,14 +85,10 @@ DEFINE SHARED VARIABLE lFSC AS LOGICAL NO-UNDO .
 DEFINE VARIABLE v-inst2          AS cha  EXTENT 70 NO-UNDO.    
 DEFINE VARIABLE v-start-date     AS DATE NO-UNDO.
 DEFINE VARIABLE v-shipto         AS cha  FORMAT "x(30)" EXTENT 4 NO-UNDO.
-DEFINE VARIABLE v-case-size      AS cha  NO-UNDO.  
 DEFINE BUFFER xjob-mat FOR job-mat.
-DEFINE VARIABLE v-fgdsc LIKE eb.part-dscr1 EXTENT 30 NO-UNDO.
 DEFINE VARIABLE v-cust-name LIKE oe-ord.cust-name NO-UNDO.
 DEFINE VARIABLE v-spc-no    AS cha     FORM "x(15)" NO-UNDO.
-DEFINE VARIABLE v-ord-qty   AS INTEGER NO-UNDO.
 DEFINE VARIABLE v-stock-no  LIKE eb.stock-no NO-UNDO.
-DEFINE VARIABLE v-shipvia   LIKE carrier.dscr NO-UNDO.
 
 {custom/formtext.i NEW}
 DEFINE VARIABLE lv-text     AS CHARACTER NO-UNDO.
@@ -110,11 +104,7 @@ DEFINE NEW SHARED FRAME head.
 DEFINE SHARED VARIABLE s-prt-mstandard     AS LOG     NO-UNDO.
 DEFINE SHARED VARIABLE s-prt-sellprc       AS LOG     NO-UNDO.
 DEFINE        VARIABLE v-ink-seq           AS INTEGER NO-UNDO.
-DEFINE        VARIABLE v-ink-list          AS cha     NO-UNDO.
 DEFINE        VARIABLE v-ink-use-per-blank AS INTEGER NO-UNDO.  
-DEFINE        VARIABLE vs-len              AS cha     NO-UNDO.
-DEFINE        VARIABLE vs-wid              AS cha     NO-UNDO.
-DEFINE        VARIABLE vs-dep              AS cha     NO-UNDO.
 
 DEFINE BUFFER bf-jobhdr FOR job-hdr.
 
@@ -123,10 +113,8 @@ DEFINE TEMP-TABLE tt-reftable NO-UNDO LIKE reftable
 
 DEFINE        VARIABLE lv-cad-image      AS cha       NO-UNDO.
 DEFINE        VARIABLE lv-cad-image-list AS cha       NO-UNDO.
-DEFINE        VARIABLE v-case-due-date   AS DATE      NO-UNDO.
 DEFINE        VARIABLE cNewOrderValue    AS CHARACTER NO-UNDO .
 DEFINE        VARIABLE cLabelSetItem     AS CHARACTER NO-UNDO .
-
 DEFINE        VARIABLE cLabelSetPart     AS CHARACTER NO-UNDO .
 DEFINE        VARIABLE cSetItemName      AS CHARACTER NO-UNDO .
 DEFINE        VARIABLE cSetPartNo        AS CHARACTER NO-UNDO .
@@ -347,8 +335,7 @@ FOR EACH job-hdr NO-LOCK
     END.
 
     FIND CURRENT job NO-LOCK NO-ERROR.
-      
-    v-est-qty = IF AVAILABLE est THEN est.est-qty[1] ELSE 0.
+        
     FIND FIRST oe-ord WHERE oe-ord.company EQ job-hdr.company
         AND oe-ord.ord-no  EQ job-hdr.ord-no NO-LOCK NO-ERROR.
     IF FIRST-OF(job-hdr.job-no2) THEN v-first = YES.
@@ -491,20 +478,10 @@ FOR EACH job-hdr NO-LOCK
                 v-cust-name = IF AVAILABLE oe-ord THEN oe-ord.cust-name 
                 ELSE IF AVAILABLE cust THEN cust.name
                 ELSE bf-jobhdr.cust-no.
-                FIND FIRST eb WHERE eb.company = est.company
-                    AND eb.est-no = est.est-no
-                    AND eb.form-no <> 0
-                    AND eb.blank-no <> 0 NO-LOCK NO-ERROR.
-                v-spc-no = IF AVAILABLE eb THEN eb.spc-no ELSE "".
+                
                 FIND FIRST oe-rel WHERE oe-rel.company EQ cocode
                     AND oe-rel.ord-no  EQ oe-ordl.ord-no
-                    NO-LOCK NO-ERROR.
-           
-                FIND FIRST carrier WHERE carrier.company = oe-rel.company
-                    AND carrier.carrier  EQ oe-rel.carrier NO-LOCK NO-ERROR.
-                IF AVAILABLE carrier 
-                    THEN ASSIGN v-shipvia = carrier.dscr.
-                ELSE ASSIGN v-shipvia = "".         
+                    NO-LOCK NO-ERROR.                  
      
             END. /* first-of(bf-jobhdr.ord-no)*/
         END. /* for each bf-jobhdr*/
@@ -550,23 +527,10 @@ FOR EACH job-hdr NO-LOCK
                     WHERE ef.company EQ job-hdr.company
                     AND ef.est-no  EQ bf-jobhdr.est-no
                     AND ef.form-no = tt-reftable.val[12] /*bf-jobhdr.frm*/
-                    BREAK BY ef.est-no BY ef.form-no:
-     
-                    v-est-qty = 0.
-                    IF est.est-type EQ 4 THEN
-                        FOR EACH eb FIELDS(yld-qty)
-                            WHERE eb.company  EQ ef.company
-                            AND eb.est-no   EQ ef.est-no
-                            AND eb.stock-no EQ bf-jobhdr.i-no
-                            NO-LOCK:
-                            v-est-qty = v-est-qty + eb.yld-qty.
-                        END.
-
-                    ELSE v-fac = 1.
+                    BREAK BY ef.est-no BY ef.form-no:       
+                   
                     v-itm-printed = 0.
-                    /* FOR EACH tt-ink:
-                        DELETE tt-ink.
-                    END.  */
+                    
                     IF ef.form-no EQ tt-reftable.val[12] THEN 
                         ebloop:
                         FOR EACH eb
@@ -577,53 +541,14 @@ FOR EACH job-hdr NO-LOCK
                             FIRST ttSoule WHERE ttSoule.frm EQ eb.form-no 
                                 AND ttSoule.blank-no EQ eb.blank-no 
                                 AND ttSoule.runForm EQ YES NO-LOCK                            
-                            BREAK BY eb.form-no BY eb.blank-no.
+                            BREAK BY eb.form-no BY eb.blank-no.                                    
                             
-                            CREATE w-lo.
-                            FOR EACH b-eb
-                                WHERE b-eb.company EQ eb.company
-                                AND b-eb.est-no  EQ eb.est-no
-                                AND b-eb.part-no EQ eb.part-no
-                                NO-LOCK BREAK BY b-eb.est-no:
-                                v-fup = "F" + trim(STRING(b-eb.form-no,">>9")) + "-" +
-                                    trim(STRING(b-eb.blank-no,"99")) + "/" +
-                                    trim(STRING(b-eb.num-up,">>9")) + "up".
-                                IF LENGTH(TRIM(v-fup)) + length(TRIM(w-lo.layout)) GT 30 THEN 
-                                DO:
-                                    substr(w-lo.layout,LENGTH(TRIM(w-lo.layout)),1) = "".
-                                    CREATE w-lo.
-                                END.
-                                w-lo.layout = TRIM(w-lo.layout + " " + trim(v-fup) + ",").
-                                IF LAST(b-eb.est-no) THEN
-                                    substr(w-lo.layout,LENGTH(TRIM(w-lo.layout)),1) = "".
-                            END.
-                                    
-                            FIND FIRST style
-                                WHERE style.company EQ eb.company
-                                AND style.style   EQ eb.style
-                                NO-LOCK NO-ERROR.
-                            IF AVAILABLE style THEN v-stypart = style.dscr.
-                            ASSIGN
-                                v-dsc[1]  = eb.part-dscr1
-                                v-dsc[2]  = eb.part-dscr2
-                                v-size[1] = STRING(eb.len) + "x" + string(eb.wid) + "x" +
-                         string(eb.dep)
-                                v-size[2] = eb.i-coldscr.
                             FIND FIRST itemfg WHERE itemfg.company = eb.company
-                                AND itemfg.i-no = eb.stock-no NO-LOCK NO-ERROR.
+                                AND itemfg.i-no = eb.stock-no NO-LOCK NO-ERROR.                            
                             
-                            IF eb.blank-no > 0 AND eb.blank-no < 11 THEN 
-                                ASSIGN v-fgdsc[eb.blank-no] = eb.part-dscr1.
-                            ASSIGN                                
-                                v-job-qty  = 0
+                            ASSIGN                                  
                                 v-stock-no = IF est.est-type >= 2 AND est.est-type <= 3 THEN bf-jobhdr.i-no ELSE eb.stock.
-                            FOR EACH xjob-hdr WHERE xjob-hdr.company EQ cocode
-                                AND xjob-hdr.job     EQ job-hdr.job
-                                AND xjob-hdr.job-no  EQ job-hdr.job-no
-                                AND xjob-hdr.job-no2 EQ job-hdr.job-no2
-                                AND xjob-hdr.i-no    EQ v-stock-no NO-LOCK:
-                                v-job-qty = v-job-qty + xjob-hdr.qty.
-                            END.
+                           
                             /** PRINT ITEM **/
                             IF CAN-FIND(FIRST oe-ordl WHERE oe-ordl.company EQ job-hdr.company
                                 AND oe-ordl.ord-no  EQ bf-jobhdr.ord-no
@@ -663,62 +588,15 @@ FOR EACH job-hdr NO-LOCK
                                     AND oe-ordl.ord-no  EQ bf-jobhdr.ord-no
                                     NO-LOCK NO-ERROR.
                             IF AVAILABLE oe-ordl THEN 
-                            DO:
-                                IF oe-ordl.i-no EQ v-stock-no THEN v-est-qty = oe-ordl.qty.
+                            DO:                                 
                                 FIND FIRST oe-ord OF oe-ordl NO-LOCK.
                             END.
-                            ELSE v-est-qty = v-job-qty.
-            
-                            RELEASE w-lo.
-                            FIND FIRST w-lo NO-ERROR.
-                            v-case-size = STRING(eb.cas-len) + "x" + string(eb.cas-wid) + "x" +
-                                string(eb.cas-dep).
-
-                            ASSIGN 
-                                vs-len = ""
-                                vs-wid = ""
-                                vs-dep = "".
-                            IF eb.cas-len <> 0 THEN RUN sys/inc/dec-frac.p (eb.cas-len,32,OUTPUT vs-len).
-                            IF eb.cas-wid <> 0 THEN RUN sys/inc/dec-frac.p (eb.cas-wid,32,OUTPUT vs-wid).
-                            IF eb.cas-dep <> 0 THEN RUN sys/inc/dec-frac.p (eb.cas-dep,32,OUTPUT vs-dep).
-                            v-case-size = (IF vs-len <> "" THEN TRIM(vs-len) + "x" ELSE "") +
-                                (IF vs-wid <> "" THEN TRIM(vs-wid) + "x" ELSE "") +
-                                trim(vs-dep).
-
-                            ASSIGN 
-                                vs-len = ""
-                                vs-wid = ""
-                                vs-dep = "".
-                            IF eb.len <> 0 THEN RUN sys/inc/dec-frac.p (eb.len,32,OUTPUT vs-len).
-                            IF eb.wid <> 0 THEN RUN sys/inc/dec-frac.p (eb.wid,32,OUTPUT vs-wid).
-                            IF eb.dep <> 0 THEN RUN sys/inc/dec-frac.p (eb.dep,32,OUTPUT vs-dep).
-                            v-size[1] = (IF vs-len <> "" THEN TRIM(vs-len) + "x" ELSE "") +
-                                (IF vs-wid <> "" THEN TRIM(vs-wid) + "x" ELSE "") +
-                                trim(vs-dep).
-                            IF ef.trim-l <> 0 THEN RUN sys/inc/dec-frac.p (ef.trim-l,32,OUTPUT vs-len).
-                            IF ef.trim-w <> 0 THEN RUN sys/inc/dec-frac.p (ef.trim-w,32,OUTPUT vs-wid).
-                            IF ef.trim-d <> 0 THEN RUN sys/inc/dec-frac.p (ef.trim-d,32,OUTPUT vs-dep).
-            
-                            ASSIGN
-                                v-up       = eb.num-up                                  
-                                v-spc-no   = eb.spc-no
-                                v-ink-list = "".    
-                          
-                            ASSIGN
-                                v-ord-qty   = IF AVAILABLE oe-ordl AND oe-ordl.i-no EQ v-stock-no THEN
-                          (IF eb.cust-% > 0 THEN (oe-ordl.qty * eb.cust-%)
-                           ELSE oe-ordl.qty)
-                        ELSE v-est-qty
-                                v-job-qty   = v-job-qty * (IF eb.cust-% > 0 THEN eb.cust-% ELSE 1)                                  
-                                v-dsc[1]    = IF AVAILABLE oe-ordl THEN oe-ordl.part-dscr1 ELSE v-dsc[1].
-
-                            FIND FIRST po-ordl WHERE po-ordl.company = job-hdr.company
+                                       
+                           FIND FIRST po-ordl WHERE po-ordl.company = job-hdr.company
                                 AND po-ordl.job-no = job-hdr.job-no
                                 AND po-ordl.job-no2 = job-hdr.job-no2
                                 AND po-ordl.i-no = eb.cas-no NO-LOCK NO-ERROR.
-                            v-case-due-date = IF AVAILABLE po-ordl THEN po-ordl.due-date ELSE ?.
-                            IF eb.est-type EQ 4 THEN v-fac = eb.yld-qty / v-est-qty.
-                           
+                                                       
                             FIND FIRST ITEM NO-LOCK 
                                 WHERE ITEM.company EQ ef.company
                                 AND ITEM.i-no EQ ef.board NO-ERROR .
