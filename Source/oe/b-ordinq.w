@@ -1293,9 +1293,9 @@ DO:
     ASSIGN {&SELF-NAME}.
     IF cbType EQ "Open" THEN DO:
         ASSIGN 
-            tbOther:VISIBLE = YES
-            tbWeb:VISIBLE   = YES
-            tbHold:VISIBLE  = YES
+            tbOther:HIDDEN  = NO
+            tbWeb:HIDDEN    = NO
+            tbHold:HIDDEN   = NO
             tbOther:CHECKED = YES
             tbWeb:CHECKED   = YES 
             tbHold:CHECKED  = YES
@@ -2438,6 +2438,7 @@ PROCEDURE record-added :
 ------------------------------------------------------------------------------*/
   ll-first = YES.
   RUN set-defaults.
+  APPLY "VALUE-CHANGED":U TO cbType IN FRAME {&FRAME-NAME}.
   ASSIGN FRAME {&FRAME-NAME}
      fi_cust-no
      fi_i-no
@@ -2450,10 +2451,7 @@ PROCEDURE record-added :
      fi_job-no2
      fi_cad-no
      fi_sman
-     cbType:SCREEN-VALUE  = "Open"
-     tbOther:SCREEN-VALUE = "YES"
-     tbHold:SCREEN-VALUE  = "YES"
-     tbWeb:SCREEN-VALUE   = "YES" 
+     cbType:SCREEN-VALUE = "Open"
      cbType
      tbOther
      tbHold
