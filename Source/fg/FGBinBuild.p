@@ -16,7 +16,7 @@
 /* ***************************  Definitions  ************************** */
 {fg/ttFGBins.i "SHARED"}
 {fg/ttInventoryTables.i}
-{Inventory/ttInventory.i}
+
 
 DEFINE STREAM sExport1.
 DEFINE STREAM sExport2.
@@ -29,6 +29,22 @@ DEFINE VARIABLE hdInventoryProcs    AS HANDLE    NO-UNDO.
 DEFINE VARIABLE iInventoryStockSeq        AS INTEGER NO-UNDO.
 DEFINE VARIABLE iInventoryTransactionSeq  AS INTEGER NO-UNDO.
 DEFINE VARIABLE iInventoryStockAliasSeq   AS INTEGER NO-UNDO.
+
+DEFINE VARIABLE gcItemTypeFG               AS CHARACTER NO-UNDO INITIAL "FG".
+DEFINE VARIABLE gcFGUOM                    AS CHARACTER NO-UNDO INITIAL "EA".
+DEFINE VARIABLE gcUOMInches                AS CHARACTER NO-UNDO INITIAL "IN".
+DEFINE VARIABLE gcUOMWeightBasis           AS CHARACTER NO-UNDO INITIAL "C".
+DEFINE VARIABLE gcUOMWeight                AS CHARACTER NO-UNDO INITIAL "LB".
+DEFINE VARIABLE gcInventorySourceTypeFG    AS CHARACTER NO-UNDO INITIAL "FG".
+DEFINE VARIABLE gcStatusStockInitial       AS CHARACTER NO-UNDO INITIAL "Created".
+DEFINE VARIABLE gcStatusTransactionPosted  AS CHARACTER NO-UNDO INITIAL "Posted".
+DEFINE VARIABLE gcTransactionTypeReceive   AS CHARACTER NO-UNDO INITIAL "R".
+DEFINE VARIABLE gcTransactionTypeTransfer  AS CHARACTER NO-UNDO INITIAL "T".
+DEFINE VARIABLE gcTransactionTypeAdjustQty AS CHARACTER NO-UNDO INITIAL "A".
+DEFINE VARIABLE gcTransactionTypeConsume   AS CHARACTER NO-UNDO INITIAL "I".
+DEFINE VARIABLE gcTransactionTypeShip      AS CHARACTER NO-UNDO INITIAL "S".
+DEFINE VARIABLE gcTransactionTypeCompare   AS CHARACTER NO-UNDO INITIAL "C".
+DEFINE VARIABLE gcTransactionTypeReturns   AS CHARACTER NO-UNDO INITIAL "E".
 
 RUN inventory/InventoryProcs.p PERSISTENT SET hdInventoryProcs.
 
