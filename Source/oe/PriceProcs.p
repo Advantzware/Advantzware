@@ -1353,7 +1353,7 @@ PROCEDURE Price_ExpireVendItemCostByItem:
     FOR EACH bf-vendItemCost EXCLUSIVE-LOCK 
         WHERE bf-vendItemCost.company        EQ ipcCompany
           AND bf-vendItemCost.ItemID         EQ ipcItemID
-          AND(bf-vendItemCost.expirationDate EQ TODAY OR bf-vendItemCost.expirationDate EQ ?) :
+          AND(bf-vendItemCost.expirationDate GE TODAY OR bf-vendItemCost.expirationDate EQ ?) :
             bf-vendItemCost.expirationDate = TODAY.      
         END.
 END PROCEDURE.
