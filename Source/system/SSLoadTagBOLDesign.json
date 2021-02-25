@@ -1,30 +1,4 @@
 {
-	"FGFilter" : {
-	   "FGItem" : {
-            "visible" : true,
-            "sensitive" : false	   
-	   }
-	},
-	"UserFields" : {
-		"User Field 1" : {
-			"visible" : false,
-			"sensitive" : false
-		},
-		"User Field 2" : {
-			"visible" : false,
-			"sensitive" : false
-		},		
-		"User Field 3" : {
-			"visible" : false,
-			"sensitive" : false
-		},		
-        "UserFieldsRectangle" : {
-            "visible" : false
-        },
-        "UserFieldsRectangleLabel" : {
-            "visible" : false
-        }
-	},
 	"PrintCopies" : {
         "Copies" : {
             "label" : "Print Copies",
@@ -32,69 +6,10 @@
             "sensitive" : true
         }
 	},
-	"Quantities" : {
-		"Quantity" : {
-			"label" : "Total Quantity",
-            "visible" : true,
-            "sensitive" : false
-		},
-		"QuantityOfUnits" : {
-			"label" : "Pallet Quantity",
-            "visible" : false,
-            "sensitive" : false
-		},
-		"QuantityInSubUnit" : {
-			"label" : "Case Quantity",
-            "visible" : true,
-            "sensitive" : false
-		},
-		"QuantityOfSubUnits" : {
-			"label" : "Cases",
-            "visible" : false,
-            "sensitive" : false
-		},
-		"SubUnitsPerUnit" : {
-			"label" : "Cases Per Pallet",
-            "visible" : true,
-            "sensitive" : false
-		},
-		"Partial" : {
-			"label" : "Partial Quantity",
-            "visible" : false,
-            "sensitive" : false
-		},
-		"TotalTags" : {
-			"label" : "Pallets",
-            "visible" : false,
-            "sensitive" : false
-		},
-		"FullTags" : {
-			"label" : "Full Tags",
-            "visible" : false,
-            "sensitive" : false
-		},
-		"PartialTags" : {
-			"label" : "Partial Tags",
-            "visible" : false,
-            "sensitive" : false
-		},
-		"UnitCountsRectangle" : {
-		    "visible" : false
-		},
-		"QuantitiesRectangle" : {
-		    "visible" : true
-		},
-        "UnitCountsRectangleLabel" : {
-            "visible" : false
-        },
-        "QuantitiesRectangleLabel" : {
-            "visible" : true
-        }		
-	},
     "LoadtagBrowse" : {
         "Select" : {
             "label" : "",
-            "visible" : false
+            "visible" : true
         },
         "Tag" : {
             "label" : "Tag#",
@@ -102,7 +17,7 @@
         },
         "OrderID" : {
             "label" : "Order#",
-            "visible" : false
+            "visible" : true
         },
         "JobID" : {
             "label" : "Job#",
@@ -114,7 +29,7 @@
         },
         "CustomerID" : {
             "label" : "Customer#",
-            "visible" : false
+            "visible" : true
         },
         "ItemID" : {
             "label" : "Item#",
@@ -146,7 +61,7 @@
         },
         "Partial" : {
             "label" : "Partial",
-            "visible" : false
+            "visible" : true
         },
         "QuantityInUnit" : {
             "label" : "Pallet!Quantity",
@@ -190,11 +105,11 @@
         },
         "JobQuantity" : {
             "label" : "Job!Quantity",
-            "visible" : true
+            "visible" : false
         },
         "TotalQuantity" : {
             "label" : "Total!Quantity",
-            "visible" : false
+            "visible" : true
         }
     }
 }
