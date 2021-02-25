@@ -2450,10 +2450,11 @@ PROCEDURE record-added :
      fi_job-no2
      fi_cad-no
      fi_sman
-     cbType
+     cbType:SCREEN-VALUE  = "Open"
      tbOther:SCREEN-VALUE = "YES"
      tbHold:SCREEN-VALUE  = "YES"
      tbWeb:SCREEN-VALUE   = "YES" 
+     cbType
      tbOther
      tbHold
      tbWeb
@@ -2684,7 +2685,6 @@ PROCEDURE set-defaults :
       fi_job-no:SCREEN-VALUE  = ""
       fi_job-no2:SCREEN-VALUE = "" 
       fi_sman:SCREEN-VALUE    = "" 
-      cbType:SCREEN-VALUE     = "Open"
       .
   END.
 END PROCEDURE.
