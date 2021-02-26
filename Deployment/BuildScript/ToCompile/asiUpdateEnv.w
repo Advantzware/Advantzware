@@ -3334,9 +3334,20 @@ PROCEDURE ipDataFix210002:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
+    DEF VAR cOrigPropath AS CHAR NO-UNDO.
+    DEF VAR cNewPropath AS CHAR NO-UNDO.
+
     RUN ipStatus ("  Data Fix 210002...").
 
+    ASSIGN
+        cOrigPropath = PROPATH
+        cNewPropath  = cEnvDir + "\" + fiEnvironment:{&SV} + "\Programs," + PROPATH
+        PROPATH = cNewPropath.
+        
     RUN util/ConversionGLTrans.p.
+    
+    ASSIGN 
+        PROPATH = cOrigPropath.     
 
 END PROCEDURE.
 	
