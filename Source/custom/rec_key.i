@@ -13,7 +13,8 @@ ELSE DO:
                 + STRING(TIME,"99999")
                 + ".NoSuper"
                 .
-    RUN custom/RecKeyLog.p ("{1}").
+    /* 97591 GLConvertGLTrans */
+    /* RUN custom/RecKeyLog.p ("{1}"). */
 END. /* else */
 /* Resolves hanging EXCLUSIVE lock issue whenever a record is created */
 /* FIND CURRENT rec_key NO-LOCK NO-ERROR. */
