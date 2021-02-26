@@ -2213,8 +2213,16 @@ PROCEDURE local-update-record :
   END.
   
     /* 97404 Ticket 95260 PO change order flag */
-    IF lManualStatusChange THEN ASSIGN 
-        po-ord.printed:SCREEN-VALUE = "N".    
+    IF lManualStatusChange THEN DO:
+        ASSIGN
+            po-ord.printed:SCREEN-VALUE = "N".
+        FOR EACH po-ordl EXCLUSIVE-LOCK WHERE
+            po-ordl.company = po-ord.company AND
+            po-ordl.po-no = po-ord.po-no:
+            ASSIGN 
+                po-ordl.stat = po-ord.stat:SCREEN-VALUE. 
+        END.
+    END.    
     
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
