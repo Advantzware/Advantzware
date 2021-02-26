@@ -42,7 +42,7 @@ CREATE WIDGET-POOL.
 DEFINE VARIABLE lHasAccess AS LOGICAL NO-UNDO.
 DEFINE VARIABLE iWarehouseLength AS INTEGER   NO-UNDO.
 
-{Inventory/ttInventory.i "NEW SHARED"}
+{Inventory/ttInventory.i}
 {methods/defines/sortByDefs.i}
 
 DEFINE VARIABLE hdInventoryProcs AS HANDLE NO-UNDO.
