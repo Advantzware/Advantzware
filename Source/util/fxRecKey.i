@@ -114,7 +114,7 @@ PROCEDURE fixTables:
   RUN fixITEMFG-INK.
   RUN fixITEMFG-LOC.
   RUN fixITEMFGDTL.
-  RUN fixJC-CTRL.
+  RUN fixMaterialType.
   RUN fixJOB.
   RUN fixJOB-ALL.
   RUN fixJOB-BRD.
@@ -2069,18 +2069,18 @@ PROCEDURE fixITEMFGDTL:
   RUN msg ('Fixed ' + STRING(i) + ' Records' + CHR(10)).
 END PROCEDURE.
  
-PROCEDURE fixJC-CTRL:
+PROCEDURE fixMaterialType:
   DEFINE VARIABLE i AS INTEGER NO-UNDO.
 
-  DISABLE TRIGGERS FOR LOAD OF jc-ctrl.
+  DISABLE TRIGGERS FOR LOAD OF materialType.
  
-  IF NOT CAN-FIND(FIRST jc-ctrl WHERE jc-ctrl.rec_key EQ '') THEN RETURN.
-  RUN msg ('Processing jc-ctrl ... ').
-  FOR EACH jc-ctrl EXCLUSIVE-LOCK WHERE jc-ctrl.rec_key EQ '':
+  IF NOT CAN-FIND(FIRST materialType WHERE materialType.rec_key EQ '') THEN RETURN.
+  RUN msg ('Processing materialType ... ').
+  FOR EACH materialType EXCLUSIVE-LOCK WHERE materialType.rec_key EQ '':
     ASSIGN
-      jc-ctrl.rec_key = nextRecKey()
+      materialType.rec_key = nextRecKey()
       i = i + 1.
-    RUN createRecKey (jc-ctrl.rec_key,'jc-ctrl').
+    RUN createRecKey (materialType.rec_key,'materialType').
   END.
   RUN msg ('Fixed ' + STRING(i) + ' Records' + CHR(10)).
 END PROCEDURE.

@@ -1027,8 +1027,7 @@ FOR EACH oe-reth
     fg-bin.last-cost    = IF avail job-hdr THEN job-hdr.std-tot-cost
     ELSE itemfg.std-tot-cost.
 
-    FIND FIRST jc-ctrl WHERE jc-ctrl.company EQ cocode NO-LOCK NO-ERROR.
-    IF avail itemfg AND avail jc-ctrl THEN DO:
+    IF AVAILABLE itemfg THEN DO:
       FOR EACH prodl
         WHERE prodl.company EQ cocode
         AND prodl.procat  EQ itemfg.procat

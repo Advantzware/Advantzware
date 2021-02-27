@@ -15,8 +15,6 @@ DEF VAR ll-set AS LOG NO-UNDO.
 find job where rowid(job) eq ip-rowid exclusive-lock no-error.
 if not avail job then return.
 
-find first jc-ctrl where jc-ctrl.company eq cocode no-lock.
-
 find first sys-ctrl
     where sys-ctrl.company eq job.company
       and sys-ctrl.name    eq "AUTOISSU"
