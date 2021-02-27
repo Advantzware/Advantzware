@@ -344,6 +344,10 @@ PROCEDURE GL_SpCreateGLHist :
     
     
     DEFINE BUFFER bf-glhist FOR glhist.
+    FIND FIRST period NO-LOCK
+         WHERE period.company EQ ipcCompany
+         AND period.pst LE ipdtTrDate
+         AND period.pend GE ipdtTrDate NO-ERROR.
     
     CREATE bf-glhist.
       ASSIGN
@@ -355,7 +359,7 @@ PROCEDURE GL_SpCreateGLHist :
        bf-glhist.tr-amt     = ipdTrAmount
        bf-glhist.tr-num     = ipiTrNumber
        bf-glhist.period     = ipiPeriod  
-       bf-glhist.glYear     = YEAR(ipdtTrDate)         
+       bf-glhist.glYear     = IF AVAIL period THEN period.yr ELSE YEAR(ipdtTrDate)         
        bf-glhist.entryType  = ipcEntryType
        bf-glhist.sourceDate = ipdtSourceDate
        bf-glhist.documentID = ipcDocumentID

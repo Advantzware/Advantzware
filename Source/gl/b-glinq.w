@@ -1046,7 +1046,7 @@ PROCEDURE build-inquiry :
         and (glhist.actnum  eq begin_acct OR begin_acct = "")
         and (glhist.period  ge lv-period-fr OR lv-period-fr EQ 0)
         and (glhist.period  le lv-period-to  OR lv-period-to EQ 0)        
-        AND (YEAR(glhist.tr-date) EQ lv-year OR lv-year EQ 0)
+        AND (glhist.glYear EQ  lv-year OR lv-year EQ 0)
         AND glhist.tr-date ge dtDateFrom 
         AND glhist.tr-date le dtDateTo 
         AND (glhist.tr-num ge iRunFrom  OR iRunFrom EQ 0)
