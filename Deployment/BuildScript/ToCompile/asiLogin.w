@@ -513,14 +513,17 @@ ON VALUE-CHANGED OF cbDatabase IN FRAME DEFAULT-FRAME /* Database */
         CASE SELF:NAME:
             WHEN "cbDatabase" THEN 
                 DO:
+                    ASSIGN cbDatabase.
                     RUN ipChangeDatabase.
                 END.
             WHEN "cbEnvironment" THEN 
                 DO:
+                    ASSIGN cbEnvironment.
                     RUN ipChangeEnvironment.
                 END.
             WHEN "cbMode" THEN 
                 DO:
+                    ASSIGN cbMode.
                     RUN ipChangeMode.
                 END.
         END CASE.
@@ -722,15 +725,10 @@ PROCEDURE ipAutoLogin :
         cbEnvironment = ENTRY(3, cSessionParam)
         cbMode = REPLACE(ENTRY(4, cSessionParam),"_"," ")
         cbDatabase = ENTRY(5, cSessionParam)
-        .   
-    
-    RUN ipFindUser.
-
-    IF AVAIL ttUsers THEN ASSIGN
-            cEnvironmentList = IF cValidEnvs <> "" THEN cValidEnvs ELSE IF ttUsers.ttfEnvList <> "" THEN ttUsers.ttfEnvList ELSE cEnvList
-            cDatabaseList = IF cValidDbs <> "" THEN cValidDbs ELSE IF ttUsers.ttfDbList <> "" THEN ttUsers.ttfDbList ELSE cDbList
-            cModeScrList = IF ttUsers.ttfModeList <> "" THEN ttUsers.ttfModeList ELSE cModeList
-            .
+        cEnvironmentList = cEnvList
+        cDatabaseList = cDbList
+        cModeScrList = cModeList
+        .
   
     RUN ipChangeEnvironment.
     RUN ipChangeMode. 
@@ -765,9 +763,9 @@ PROCEDURE ipChangeDatabase :
 
     /* Highlight for new password */    
     ASSIGN
-        iPos = LOOKUP(cbEnvironment:SCREEN-VALUE IN FRAME {&FRAME-NAME},cEnvironmentList)
+        iPos = LOOKUP(cbEnvironment,cEnvironmentList)
         iEnvLevel = intVer(ENTRY(iPos,cEnvVerList))
-        iPos = LOOKUP(cbDatabase:SCREEN-VALUE IN FRAME {&frame-name},cDbList)
+        iPos = LOOKUP(cbDatabase,cDbList)
         iDbLevel = intVer(ENTRY(iPos,cDbVerList)).
     IF iDbLevel GT 20010000 
         AND fiUserID:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "ASI" THEN ASSIGN 
@@ -819,9 +817,9 @@ PROCEDURE ipChangeEnvironment :
     DEF VAR iEnvLevelM AS INT NO-UNDO.
     
     ASSIGN
-        iPos = LOOKUP(cbEnvironment:SCREEN-VALUE IN FRAME {&FRAME-NAME},cEnvironmentList)
+        iPos = LOOKUP(cbEnvironment,cEnvironmentList)
         iEnvLevel = intVer(ENTRY(iPos,cEnvVerList))
-        iPos = LOOKUP(cbDatabase:SCREEN-VALUE IN FRAME {&frame-name},cDatabaseList)
+        iPos = LOOKUP(cbDatabase,cDatabaseList)
         iDbLevel = intVer(ENTRY(iPos,cDbVerList))
         iEnvLevelM = iEnvLevel / 1000
         .
@@ -829,20 +827,30 @@ PROCEDURE ipChangeEnvironment :
     IF cSessionParam NE "" THEN 
     DO:
         ASSIGN
-            iLookup = LOOKUP(cbEnvironment:SCREEN-VALUE IN FRAME {&frame-name},cEnvList)
+            iLookup = LOOKUP(cbEnvironment,cEnvList)
             cTop = cMapDir + "\" + cEnvDir + "\" + cbEnvironment + "\"
             preProPath = cMapDir + "\" + cEnvDir + "\" + cbEnvironment + "," +
-                     cTop + cEnvCustomerDir + "," +
-                     cTop + cEnvOverrideDir + "," +
-                     cTop + cEnvProgramsDir + "," +
-                     cTop + cEnvCustomerDir + "\Addon," +
-                     cTop + cEnvOverrideDir + "\Addon," +
-                     cTop + cEnvProgramsDir + "\Addon" + "," +
-                     cTop + cEnvCustFiles + "," +
-                     cTop + cEnvResourceDir + "," +
-                     cTop + cEnvResourceDir + "\Addon" + "," +
-                     cMapDir + "\" + cAdminDir + "\" + cEnvAdmin + ",".
+                         (IF iEnvLevel GE 21000000 THEN cMapDir + "\" + cEnvDir + "\" + cbEnvironment + "\asiObjects.pl," ELSE "") +
+                         (IF iEnvLevel GE 21000000 THEN cMapDir + "\" + cEnvDir + "\" + cbEnvironment + "\asigraphics.pl," ELSE "") +
+                         cTop + cEnvCustomerDir + "," +
+                         cTop + cEnvOverrideDir + "," +
+                         cTop + cEnvProgramsDir + "," +
+                         cTop + cEnvCustomerDir + "\Addon," +
+                         cTop + cEnvOverrideDir + "\Addon," +
+                         cTop + cEnvProgramsDir + "\Addon" + "," +
+                         cTop + cEnvCustFiles + "," +
+                         cTop + cEnvResourceDir + "," +
+                         cTop + cEnvResourceDir + "\Addon" + "," +
+                         cMapDir + "\" + cAdminDir + "\" + cEnvAdmin. 
+                         /* Add this section when running in Eclipse 
+                         + "," +
+                         "N:\Repositories\Advantzware\Source," + 
+                         "N:\Repositories\Advantzware\Resources," +
+                         "N:\Repositories\Advantzware\Source\Addon". 
+                         */
         PROPATH = preProPath + origPropath.      
+        
+        
         RETURN.
     END.
     ELSE 
@@ -894,7 +902,7 @@ PROCEDURE ipChangeEnvironment :
             APPLY 'value-changed' to cbDatabase.
 
         ASSIGN
-            iLookup = LOOKUP(cbEnvironment:SCREEN-VALUE IN FRAME {&frame-name},cEnvList)
+            iLookup = LOOKUP(cbEnvironment,cEnvList)
             cTop = cMapDir + "\" + cEnvDir + "\" + cbEnvironment + "\"
             preProPath = cMapDir + "\" + cEnvDir + "\" + cbEnvironment + "," +
                          (IF iEnvLevel GE 21000000 THEN cMapDir + "\" + cEnvDir + "\" + cbEnvironment + "\asiObjects.pl," ELSE "") +
@@ -908,7 +916,13 @@ PROCEDURE ipChangeEnvironment :
                          cTop + cEnvCustFiles + "," +
                          cTop + cEnvResourceDir + "," +
                          cTop + cEnvResourceDir + "\Addon" + "," +
-                         cMapDir + "\" + cAdminDir + "\" + cEnvAdmin + ",".
+                         cMapDir + "\" + cAdminDir + "\" + cEnvAdmin. 
+                         /* Add this section when running in Eclipse 
+                         + "," +
+                         "N:\Repositories\Advantzware\Source," + 
+                         "N:\Repositories\Advantzware\Resources," +
+                         "N:\Repositories\Advantzware\Source\Addon". 
+                         */
         PROPATH = preProPath + origPropath.
     END.
     
@@ -927,6 +941,7 @@ PROCEDURE ipChangeMode :
     DEF VAR cModeItem AS CHAR NO-UNDO.
     DEF VAR cPgmItem AS CHAR NO-UNDO.
     DEF VAR iIndex AS INT NO-UNDO.
+
     
     ASSIGN
         cModeItem = IF cbMode:VISIBLE IN FRAME {&frame-name} THEN cbMode:{&SV} ELSE cbMode
@@ -953,15 +968,14 @@ PROCEDURE ipClickOk :
     DEF VAR cDbLevel AS CHAR NO-UNDO.
  
     ASSIGN
-        iPos = LOOKUP(cbEnvironment:SCREEN-VALUE IN FRAME {&frame-name},cEnvironmentList)
+        iPos = LOOKUP(cbEnvironment,cEnvironmentList)
         iEnvLevel = intVer(ENTRY(iPos,cEnvVerList))
-        iPos = LOOKUP(cbDatabase:SCREEN-VALUE IN FRAME {&frame-name},cDbList)
+        iPos = LOOKUP(cbDatabase,cDbList)
         iDbLevel = intVer(ENTRY(iPos,cDbVerList))
         cDbLevel = STRING(iDbLevel)
         cDbLevel = SUBSTRING(cDbLevel,1,6)
         iTruncLevel = INT(cDbLevel)
         no-error.
-
     IF connectStatement <> "" 
         AND cbMode NE "Monitor Users" THEN 
     DO:
@@ -990,7 +1004,7 @@ PROCEDURE ipClickOk :
     /* This is the normal operation for Mode choices */
     IF NOT cbMode = "Monitor Users" THEN 
     DO: 
-
+/*
         /* 95512 Optimize use of .ini files to set color and fonts */
         IF iEnvLevel GE 21000000 THEN 
         DO:
@@ -1014,6 +1028,7 @@ PROCEDURE ipClickOk :
         END.
         PUT-KEY-VALUE COLOR ALL.
         PUT-KEY-VALUE FONT ALL.
+ */ 
         /* Set current dir */
         RUN ipSetCurrentDir (cMapDir + "\" + cEnvDir + "\" + cbEnvironment). 
         
@@ -1129,11 +1144,10 @@ PROCEDURE ipConnectDb :
     IF iEnvLevel LT 16070000 THEN ASSIGN
             lConnectAudit = FALSE.
 
-    IF lConnectAudit THEN 
-    DO:
+    IF lConnectAudit THEN     DO:
         ASSIGN
             xdbName = cbDatabase
-            iLookup = LOOKUP(cbDatabase:SCREEN-VALUE IN FRAME {&frame-name},cDbList)
+            iLookup = LOOKUP(cbDatabase,cDbList)
             xDbName = ENTRY(iLookup,cAudDbList)
             xdbPort = ENTRY(iLookup,cAudPortList)
             connectStatement = "".
@@ -1369,9 +1383,9 @@ PROCEDURE ipPreRun :
     DEFINE VARIABLE hPurgeProcs AS HANDLE NO-UNDO.
 
     ASSIGN
-        iPos = LOOKUP(cbEnvironment:SCREEN-VALUE IN FRAME {&frame-name},cEnvironmentList)
+        iPos = LOOKUP(cbEnvironment,cEnvironmentList)
         iEnvLevel = intVer(ENTRY(iPos,cEnvVerList))
-        iPos = LOOKUP(cbDatabase:SCREEN-VALUE IN FRAME {&frame-name},cDatabaseList)
+        iPos = LOOKUP(cbDatabase,cDatabaseList)
         iDbLevel = intVer(ENTRY(iPos,cDbVerList))
         iTruncLevel = iDbLevel
         .
