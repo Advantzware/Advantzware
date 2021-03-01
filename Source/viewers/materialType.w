@@ -340,10 +340,26 @@ PROCEDURE pInit :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cCalculationTypeList AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE hdMaterialProcs      AS HANDLE    NO-UNDO.
+    
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+    
     RUN spGetSessionParam (
         INPUT  "Company",
         OUTPUT cCompany
         ).
+        
+    RUN rm/MaterialProcs.p PERSISTENT SET hdMaterialProcs.
+    
+    RUN Material_GetCalculationTypeList IN hdMaterialProcs (
+        OUTPUT cCalculationTypeList
+        ).
+        
+    DELETE PROCEDURE hdMaterialProcs.
+    
+    materialType.calculationType:LIST-ITEMS = cCalculationTypeList.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

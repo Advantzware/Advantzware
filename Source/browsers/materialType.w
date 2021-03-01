@@ -330,7 +330,7 @@ DO:
         lAutoIssue       = LOGICAL(cbAutoIssue:SCREEN-VALUE)                           
         NO-ERROR.
     
-    IF cCalculationType EQ ? THEN
+    IF cCalculationType EQ ? OR cCalculationType EQ "ALL" THEN
         cCalculationType = "".
     
     RUN dispatch (
@@ -542,10 +542,26 @@ PROCEDURE pInit :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cCalculationTypeList AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE hdMaterialProcs      AS HANDLE    NO-UNDO.
+    
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+    
     RUN spGetSessionParam (
         INPUT  "Company",
         OUTPUT cCompany
         ).
+        
+    RUN rm/MaterialProcs.p PERSISTENT SET hdMaterialProcs.
+    
+    RUN Material_GetCalculationTypeList IN hdMaterialProcs (
+        OUTPUT cCalculationTypeList
+        ).
+        
+    DELETE PROCEDURE hdMaterialProcs.
+    
+    cbCalculationType:LIST-ITEMS = "ALL," + cCalculationTypeList.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
