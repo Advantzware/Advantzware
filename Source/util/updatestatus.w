@@ -39,6 +39,11 @@ CREATE WIDGET-POOL.
 DEFINE VARIABLE cStatUpd      AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cLocation     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hdOutputProcs AS HANDLE    NO-UNDO.
+DEFINE VARIABLE lCheckSimulate AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cOrderFileName AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cJobFileName AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cPOFileName AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cRelFileName AS CHARACTER NO-UNDO.
 
 DEFINE TEMP-TABLE ttOe-ord NO-UNDO 
     FIELDS ord-no      AS INTEGER   LABEL "Order Number"
@@ -90,12 +95,12 @@ RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS btExit RECT-1 fiBeginOrder fiEndingOrder ~
-tbUpdateOrderStatus fiBeginJob fiEndingJob tbUpdateJobStatus fiBeginRelease ~
-fiEndingRelease tbUpdateReleases fiBeginPO fiEndingPO ~
+tbUpdateOrderStatus fiBeginJob fiEndingJob tbUpdateJobStatus fiBeginReleaseOrder ~
+fiEndingReleaseOrder tbUpdateReleases fiBeginPO fiEndingPO ~
 tbupdatePurchaseOrders tbOpenFiles btSimulate btExecute 
 &Scoped-Define DISPLAYED-OBJECTS fiBeginOrder fiEndingOrder ~
-tbUpdateOrderStatus fiBeginJob fiEndingJob tbUpdateJobStatus fiBeginRelease ~
-fiEndingRelease tbUpdateReleases fiBeginPO fiEndingPO ~
+tbUpdateOrderStatus fiBeginJob fiEndingJob tbUpdateJobStatus fiBeginReleaseOrder ~
+fiEndingReleaseOrder tbUpdateReleases fiBeginPO fiEndingPO ~
 tbupdatePurchaseOrders fiDirectory tbOpenFiles 
 
 /* Custom List Definitions                                              */
@@ -144,8 +149,8 @@ DEFINE VARIABLE fiBeginPO AS INTEGER FORMAT ">>>>>>>":U INITIAL 0
      SIZE 14 BY 1
      FONT 22 NO-UNDO.
 
-DEFINE VARIABLE fiBeginRelease AS INTEGER FORMAT ">>>>>>>":U INITIAL 0 
-     LABEL "Begin Release" 
+DEFINE VARIABLE fiBeginReleaseOrder AS INTEGER FORMAT ">>>>>>>":U INITIAL 0 
+     LABEL "Begin Order" 
      VIEW-AS FILL-IN 
      SIZE 14 BY 1
      FONT 22 NO-UNDO.
@@ -173,8 +178,8 @@ DEFINE VARIABLE fiEndingPO AS INTEGER FORMAT ">>>>>>>":U INITIAL 0
      SIZE 14 BY 1
      FONT 22 NO-UNDO.
 
-DEFINE VARIABLE fiEndingRelease AS INTEGER FORMAT ">>>>>>>":U INITIAL 0 
-     LABEL "Ending Release" 
+DEFINE VARIABLE fiEndingReleaseOrder AS INTEGER FORMAT ">>>>>>>":U INITIAL 0 
+     LABEL "Ending Order" 
      VIEW-AS FILL-IN 
      SIZE 14 BY 1 NO-UNDO.
 
@@ -227,8 +232,8 @@ DEFINE FRAME DEFAULT-FRAME
      fiBeginJob AT ROW 6 COL 47.4 COLON-ALIGNED WIDGET-ID 22
      fiEndingJob AT ROW 6 COL 78.4 COLON-ALIGNED WIDGET-ID 24
      tbUpdateJobStatus AT ROW 6.19 COL 5.6 WIDGET-ID 6
-     fiBeginRelease AT ROW 7.62 COL 47.4 COLON-ALIGNED WIDGET-ID 26
-     fiEndingRelease AT ROW 7.62 COL 78.4 COLON-ALIGNED WIDGET-ID 28
+     fiBeginReleaseOrder AT ROW 7.62 COL 47.4 COLON-ALIGNED WIDGET-ID 26
+     fiEndingReleaseOrder AT ROW 7.62 COL 78.4 COLON-ALIGNED WIDGET-ID 28
      tbUpdateReleases AT ROW 7.81 COL 5.8 WIDGET-ID 8
      fiBeginPO AT ROW 9.19 COL 47.4 COLON-ALIGNED WIDGET-ID 30
      fiEndingPO AT ROW 9.19 COL 78.4 COLON-ALIGNED WIDGET-ID 32
@@ -274,7 +279,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          VIRTUAL-WIDTH      = 273.2
          RESIZE             = YES
          SCROLL-BARS        = NO
-         STATUS-AREA        = NO
+         STATUS-AREA        = YES
          BGCOLOR            = ?
          FGCOLOR            = ?
          KEEP-FRAME-Z-ORDER = YES
@@ -304,7 +309,7 @@ ASSIGN
        fiBeginPO:HIDDEN IN FRAME DEFAULT-FRAME           = TRUE.
 
 ASSIGN 
-       fiBeginRelease:HIDDEN IN FRAME DEFAULT-FRAME           = TRUE.
+       fiBeginReleaseOrder:HIDDEN IN FRAME DEFAULT-FRAME           = TRUE.
 
 /* SETTINGS FOR FILL-IN fiDirectory IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
@@ -321,7 +326,7 @@ ASSIGN
        fiEndingPO:HIDDEN IN FRAME DEFAULT-FRAME           = TRUE.
 
 ASSIGN 
-       fiEndingRelease:HIDDEN IN FRAME DEFAULT-FRAME           = TRUE.
+       fiEndingReleaseOrder:HIDDEN IN FRAME DEFAULT-FRAME           = TRUE.
 
 /* SETTINGS FOR RECTANGLE RECT-14 IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
@@ -405,8 +410,8 @@ DO:
             END.
         WHEN "fiBeginOrder" OR 
         WHEN "fiEndingOrder" OR 
-        WHEN "fiBeginRelease" OR 
-        WHEN "fiEndingRelease"  THEN 
+        WHEN "fiBeginReleaseOrder" OR 
+        WHEN "fiEndingReleaseOrder"  THEN 
             DO:
                 RUN system/openLookup.p (
                     INPUT  g_company, 
@@ -434,10 +439,15 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btExecute C-Win
 ON CHOOSE OF btExecute IN FRAME DEFAULT-FRAME /* Execute */
 DO:   
-    FOR EACH ttOe-rel:                      
+
+   RUN pRunProcess(YES). 
+     
+   /* FOR EACH ttOe-rel:                      
         FOR FIRST  oe-rel EXCLUSIVE-LOCK 
             WHERE oe-rel.ord-no EQ ttOe-rel.ord-no
               AND  oe-rel.rel-no EQ ttOe-rel.rel-no:
+              
+              {custom/statusMsg.i " 'Processing Order Release#  '  + string(oe-rel.ord-no) "}
             ASSIGN 
                 oe-rel.stat = ttOe-rel.newstat.
         END.
@@ -445,22 +455,28 @@ DO:
     FOR EACH ttPo-ord:
         FOR FIRST  po-ord EXCLUSIVE-LOCK 
             WHERE po-ord.po-no EQ ttPo-ord.po-no:
+            {custom/statusMsg.i " 'Processing Purchase Order#  '  + string(po-ord.po-no) "}
             ASSIGN 
-                po-ord.stat = ttPo-ord.newstat.
+                po-ord.stat = ttPo-ord.newstat
+                po-ord.opened = NO.
         END.
      END.
      FOR EACH ttOe-ord:   
         FOR FIRST  oe-ord EXCLUSIVE-LOCK 
             WHERE oe-ord.ord-no EQ ttOe-ord.ord-no:
+            {custom/statusMsg.i " 'Processing Order#  '  + string(oe-ord.ord-no) "}
             ASSIGN 
-                oe-ord.stat = ttOe-ord.newstat.
+                oe-ord.stat = ttOe-ord.newstat
+                oe-ord.opened = NO.
         END.                    
      END.       
      FOR EACH ttJob:
         FOR FIRST  job EXCLUSIVE-LOCK 
             WHERE job.job-no EQ ttJob.job-no:
+            {custom/statusMsg.i " 'Processing Job#  '  + string(job.job-no) "}
             ASSIGN 
-                job.stat = ttJob.newstat.
+                job.stat = ttJob.newstat
+                job.opened = NO.
         END.
     END.
     
@@ -468,9 +484,14 @@ DO:
     EMPTY TEMP-TABLE  ttOe-ord.
     EMPTY TEMP-TABLE  ttPo-ord.
     EMPTY TEMP-TABLE  ttJob.
+    RELEASE oe-rel.
+    RELEASE oe-ord.
+    RELEASE job.
+    RELEASE po-ord.
     
     MESSAGE "Status have been updated."
     VIEW-AS ALERT-BOX.
+    STATUS DEFAULT "Process Complete" .  */
     
 END.
 
@@ -493,167 +514,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btSimulate C-Win
 ON CHOOSE OF btSimulate IN FRAME DEFAULT-FRAME /* Simulate */
 DO:   
-
-    DEFINE VARIABLE lSuccess AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cResult  AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cNewStat AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cocode   AS CHARACTER NO-UNDO.
-    
-    btExecute:SENSITIVE = btSimulate:SENSITIVE.
-    
-    EMPTY TEMP-TABLE  ttOe-rel.
-    EMPTY TEMP-TABLE  ttOe-ord.
-    EMPTY TEMP-TABLE  ttPo-ord.
-    EMPTY TEMP-TABLE  ttJob.
-    
-    RUN spGetSessionParam ("Company", OUTPUT cocode).
-    
-    IF tbUpdateReleases:CHECKED THEN 
-    DO:        
-        FOR EACH oe-rel NO-LOCK 
-           WHERE oe-rel.company EQ cocode
-             AND oe-rel.ord-no  GE fiBeginOrder:INPUT-VALUE   
-             AND oe-rel.ord-no  LE fiEndingOrder:INPUT-VALUE:
-            CREATE ttOe-rel.
-            ASSIGN 
-                ttOe-rel.ord-no = oe-rel.ord-no
-                ttOe-rel.rel-no = oe-rel.rel-no
-                ttOe-rel.stat   = oe-rel.stat
-                .               
-            FIND FIRST oe-ord NO-LOCK
-                WHERE oe-ord.company EQ oe-rel.company
-                  AND oe-ord.ord-no  EQ oe-rel.ord-no
-                NO-ERROR.
-            IF AVAIL oe-ord THEN 
-            DO:
-                {oe/rel-stat.i cNewStat}
-            END.
-            ELSE 
-                cNewStat = "S".
-            ttOe-rel.newstat = cNewStat.
-            RUN oe/getReleaseStatusDesc.p( INPUT oe-rel.stat, OUTPUT cResult) .
-            ttOe-rel.statDesc = cResult.
-            RUN oe/getReleaseStatusDesc.p( INPUT ttOe-rel.newstat, OUTPUT cResult) .
-            ttOe-rel.newstatDesc = cResult.
-        END.
-          
-        RUN Output_TempTableToCSV IN hdOutputProcs (
-            INPUT TEMP-TABLE ttOe-rel:HANDLE,
-            INPUT cLocation + "\ResleaseOrder.csv",
-            INPUT TRUE,  /* Export Header */
-            INPUT FALSE, /* Auto increment File name */
-            OUTPUT lSuccess,
-            OUTPUT cMessage
-            ).
-    END.          
-    IF tbupdatePurchaseOrders:CHECKED  THEN 
-    DO:
-       FOR EACH po-ord NO-LOCK 
-          WHERE po-ord.company EQ cocode
-            AND po-ord.po-no   GE fiBeginPO:INPUT-VALUE
-            AND po-ord.po-no   LE fiEndingPO:INPUT-VALUE:
-           CREATE ttPo-ord.
-           ASSIGN 
-           ttPo-ord.po-no = po-ord.po-no
-           ttPo-ord.stat   = po-ord.stat.
-           IF po-ord.opened NE (po-ord.stat NE "C") THEN 
-               ttPo-ord.newstat = po-ord.stat.
-           RUN oe/getStatusDesc.p( INPUT po-ord.stat, OUTPUT cResult) .
-           ttPo-ord.statDesc = cResult.
-           RUN oe/getStatusDesc.p( INPUT ttPo-ord.newstat, OUTPUT cResult) .
-           ttPo-ord.newstatDesc = cResult.
-        END. 
-          
-        RUN Output_TempTableToCSV IN hdOutputProcs (
-            INPUT TEMP-TABLE ttPo-ord:HANDLE,
-            INPUT cLocation + "\PurchaseOrder.csv",
-            INPUT TRUE,  /* Export Header */
-            INPUT FALSE, /* Auto increment File name */
-            OUTPUT lSuccess,
-            OUTPUT cMessage
-            ).
-    END.
-    IF tbUpdateOrderStatus:CHECKED THEN 
-    DO:
-        FOR EACH oe-ord NO-LOCK
-           WHERE oe-ord.company EQ cocode
-             AND oe-ord.ord-no  GE fiBeginOrder:INPUT-VALUE 
-             AND oe-ord.ord-no  LE fiEndingOrder:INPUT-VALUE:
-            CREATE ttOe-ord.
-            ASSIGN 
-            ttOe-ord.ord-no = oe-ord.ord-no
-            ttOe-ord.stat   = oe-ord.stat.
-            RUN oe/getStatusDesc.p( INPUT oe-ord.stat, OUTPUT cResult) .
-            ttOe-ord.statDesc = cResult.
-            IF oe-ord.opened NE (INDEX("CDZ",oe-ord.stat) LE 0) THEN 
-                ttOe-ord.newstat = oe-ord.stat.
-            RUN oe/getStatusDesc.p( INPUT ttOe-ord.newstat, OUTPUT cResult) .
-            ttOe-ord.newstatDesc = cResult.
-        END.          
-        RUN Output_TempTableToCSV IN hdOutputProcs (
-            INPUT TEMP-TABLE ttOe-ord:HANDLE,
-            INPUT cLocation + "\Order.csv",
-            INPUT TRUE,  /* Export Header */
-            INPUT FALSE, /* Auto increment File name */
-            OUTPUT lSuccess,
-            OUTPUT cMessage
-            ).
-    END.
-    IF tbUpdateJobStatus:CHECKED  THEN  
-    DO:
-        FOR EACH job NO-LOCK 
-            WHERE job.company EQ cocode
-              AND job.job-no  GE fiBeginOrder:SCREEN-VALUE
-              AND job.job-no  LE fiEndingOrder:SCREEN-VALUE :
-            CREATE ttJob.
-            ASSIGN 
-            ttJob.job-no = job.job-no
-            ttJob.stat = job.stat.
-            IF job.opened NE (INDEX("CZ",job.stat) LE 0) THEN 
-                ttJob.newstat = job.stat.
-            RUN oe/getJobStatusDesc.p( INPUT job.stat, OUTPUT cResult) .
-            ttJob.statDesc = cResult.
-            RUN oe/getJobStatusDesc.p( INPUT ttJob.newstat, OUTPUT cResult) .
-            ttJob.newstatDesc = cResult.
-        END. 
-          
-        RUN Output_TempTableToCSV IN hdOutputProcs (
-            INPUT TEMP-TABLE ttJob:HANDLE,
-            INPUT cLocation + "\Job.csv",
-            INPUT TRUE,  /* Export Header */
-            INPUT FALSE, /* Auto increment File name */
-            OUTPUT lSuccess,
-            OUTPUT cMessage
-            ).
-    END.           
-
-    MESSAGE "CSV with updated status have been created in " + cLocation + " folder."
-    VIEW-AS ALERT-BOX.
-    
-    IF tbOpenFiles:CHECKED THEN 
-    DO:
-        IF tbUpdateJobStatus:CHECKED  THEN  
-            RUN OS_RunFile(
-                INPUT cLocation + "\Job.csv",
-                OUTPUT lSuccess,
-                OUTPUT cMessage).
-        IF tbupdatePurchaseOrders:CHECKED  THEN
-            RUN OS_RunFile(
-                INPUT cLocation + "\PurchaseOrder.csv",
-                OUTPUT lSuccess,
-                OUTPUT cMessage).
-        IF tbUpdateOrderStatus:CHECKED THEN 
-            RUN OS_RunFile(
-                INPUT cLocation + "\Order.csv",
-                OUTPUT lSuccess,
-                OUTPUT cMessage).
-        IF tbUpdateReleases:CHECKED THEN
-            RUN OS_RunFile(
-                INPUT cLocation + "\ResleaseOrder.csv",
-                OUTPUT lSuccess,
-                OUTPUT cMessage).
-    END.
+  lCheckSimulate = YES.
+  RUN pRunProcess(NO).
+  
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -693,9 +556,9 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME fiBeginRelease
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiBeginRelease C-Win
-ON VALUE-CHANGED OF fiBeginRelease IN FRAME DEFAULT-FRAME /* Begin Release */
+&Scoped-define SELF-NAME fiBeginReleaseOrder
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiBeginReleaseOrder C-Win
+ON VALUE-CHANGED OF fiBeginReleaseOrder IN FRAME DEFAULT-FRAME /* Begin Release */
 DO:
     RUN SetButtons.
 END.
@@ -737,9 +600,9 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME fiEndingRelease
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiEndingRelease C-Win
-ON VALUE-CHANGED OF fiEndingRelease IN FRAME DEFAULT-FRAME /* Ending Release */
+&Scoped-define SELF-NAME fiEndingReleaseOrder
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiEndingReleaseOrder C-Win
+ON VALUE-CHANGED OF fiEndingReleaseOrder IN FRAME DEFAULT-FRAME /* Ending Release */
 DO:
     RUN SetButtons.
 END.
@@ -811,12 +674,12 @@ END.
 ON VALUE-CHANGED OF tbUpdateReleases IN FRAME DEFAULT-FRAME /* Update Releases */
 DO:
   ASSIGN
-        fiBeginRelease:HIDDEN        = NOT tbUpdateReleases:CHECKED 
-        fiEndingRelease:HIDDEN       = NOT tbUpdateReleases:CHECKED 
-        fiBeginRelease:VISIBLE       = tbUpdateReleases:CHECKED 
-        fiEndingRelease:VISIBLE      = tbUpdateReleases:CHECKED 
-        fiBeginRelease:SCREEN-VALUE  = "" 
-        fiEndingRelease:SCREEN-VALUE = ""
+        fiBeginReleaseOrder:HIDDEN        = NOT tbUpdateReleases:CHECKED 
+        fiEndingReleaseOrder:HIDDEN       = NOT tbUpdateReleases:CHECKED 
+        fiBeginReleaseOrder:VISIBLE       = tbUpdateReleases:CHECKED 
+        fiEndingReleaseOrder:VISIBLE      = tbUpdateReleases:CHECKED 
+        fiBeginReleaseOrder:SCREEN-VALUE  = "" 
+        fiEndingReleaseOrder:SCREEN-VALUE = ""
         .
         RUN SetButtons.
 END.
@@ -869,10 +732,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         fiEndingOrder:HIDDEN     = TRUE
         fiBeginOrder:VISIBLE     = FALSE
         fiEndingOrder:VISIBLE    = FALSE
-        fiBeginRelease:HIDDEN    = TRUE
-        fiEndingRelease:HIDDEN   = TRUE
-        fiBeginRelease:VISIBLE   = FALSE
-        fiEndingRelease:VISIBLE  = FALSE
+        fiBeginReleaseOrder:HIDDEN    = TRUE
+        fiEndingReleaseOrder:HIDDEN   = TRUE
+        fiBeginReleaseOrder:VISIBLE   = FALSE
+        fiEndingReleaseOrder:VISIBLE  = FALSE
         btSimulate:SENSITIVE     = FALSE 
         btExecute:SENSITIVE      = FALSE 
         tbOpenFiles:SENSITIVE      = FALSE
@@ -923,12 +786,12 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY fiBeginOrder fiEndingOrder tbUpdateOrderStatus fiBeginJob fiEndingJob 
-          tbUpdateJobStatus fiBeginRelease fiEndingRelease tbUpdateReleases 
+          tbUpdateJobStatus fiBeginReleaseOrder fiEndingReleaseOrder tbUpdateReleases 
           fiBeginPO fiEndingPO tbupdatePurchaseOrders fiDirectory tbOpenFiles 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   ENABLE btExit RECT-1 fiBeginOrder fiEndingOrder tbUpdateOrderStatus 
-         fiBeginJob fiEndingJob tbUpdateJobStatus fiBeginRelease 
-         fiEndingRelease tbUpdateReleases fiBeginPO fiEndingPO 
+         fiBeginJob fiEndingJob tbUpdateJobStatus fiBeginReleaseOrder 
+         fiEndingReleaseOrder tbUpdateReleases fiBeginPO fiEndingPO 
          tbupdatePurchaseOrders tbOpenFiles btSimulate btExecute 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
@@ -979,8 +842,8 @@ PROCEDURE SetButtons :
     
     IF tbUpdateReleases:CHECKED THEN 
     DO:
-        IF  fiBeginRelease:SCREEN-VALUE NE ""  AND 
-            fiEndingRelease:SCREEN-VALUE NE "" THEN 
+        IF  fiBeginReleaseOrder:SCREEN-VALUE NE ""  AND 
+            fiEndingReleaseOrder:SCREEN-VALUE NE "" THEN 
             btSimulate:SENSITIVE = TRUE.
             
         ELSE 
@@ -1002,6 +865,314 @@ PROCEDURE SetButtons :
         btExecute:SENSITIVE   = btSimulate:SENSITIVE 
         tbOpenFiles:SENSITIVE = btSimulate:SENSITIVE
         .
+    lCheckSimulate = YES.    
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRunProcess C-Win 
+PROCEDURE pRunProcess :
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcExecute AS LOGICAL NO-UNDO.    
+        
+    DEFINE VARIABLE lSuccess     AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cResult      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cNewStat     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cocode       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lCheckStatus AS LOGICAL   NO-UNDO.
+    
+    DEFINE BUFFER bf-oe-ordl FOR oe-ordl.
+    DEFINE BUFFER bf-job-hdr FOR job-hdr.
+    DEFINE BUFFER bf-po-ordl FOR po-ordl. 
+    
+    RUN spGetSessionParam ("Company", OUTPUT cocode).
+        
+    DO WITH FRAME {&frame-name}:  
+        btExecute:SENSITIVE = btSimulate:SENSITIVE.    
+    
+        IF lCheckSimulate THEN
+        DO:
+  
+            EMPTY TEMP-TABLE  ttOe-rel.
+            EMPTY TEMP-TABLE  ttOe-ord.
+            EMPTY TEMP-TABLE  ttPo-ord.
+            EMPTY TEMP-TABLE  ttJob. 
+          
+            IF tbUpdateReleases:CHECKED THEN 
+            DO:        
+                FOR EACH oe-rel NO-LOCK 
+                    WHERE oe-rel.company EQ cocode
+                    AND oe-rel.ord-no  GE fiBeginReleaseOrder:INPUT-VALUE   
+                    AND oe-rel.ord-no  LE fiEndingReleaseOrder:INPUT-VALUE               
+                    AND LOOKUP(oe-rel.stat,"C,Z") EQ 0 :
+                
+                    {custom/statusMsg.i " 'Processing Order Release#  '  + string(oe-rel.ord-no) "}
+            
+                    FIND FIRST oe-ord NO-LOCK
+                        WHERE oe-ord.company EQ oe-rel.company
+                        AND oe-ord.ord-no  EQ oe-rel.ord-no
+                        NO-ERROR.
+                    IF AVAILABLE oe-ord THEN 
+                    DO:
+                        {oe/rel-stat.i cNewStat}
+                    END.
+                    ELSE 
+                        cNewStat = "S".
+                
+                    IF cNewStat EQ "C" OR cNewStat EQ "Z" THEN
+                    DO:            
+                        CREATE ttOe-rel.
+                        ASSIGN 
+                            ttOe-rel.ord-no = oe-rel.ord-no
+                            ttOe-rel.rel-no = oe-rel.rel-no
+                            ttOe-rel.stat   = oe-rel.stat
+                            .                   
+                    
+                        ttOe-rel.newstat = cNewStat.
+                        RUN oe/getReleaseStatusDesc.p( INPUT oe-rel.stat, OUTPUT cResult) .
+                        ttOe-rel.statDesc = cResult.
+                        RUN oe/getReleaseStatusDesc.p( INPUT ttOe-rel.newstat, OUTPUT cResult) .
+                        ttOe-rel.newstatDesc = cResult.
+                    END.
+                END.
+          
+                RUN sys/ref/ExcelNameExt.p (INPUT cLocation + "\ResleaseOrder.csv",OUTPUT cRelFileName) . 
+        
+                RUN Output_TempTableToCSV IN hdOutputProcs (
+                    INPUT TEMP-TABLE ttOe-rel:HANDLE,
+                    INPUT cRelFileName,
+                    INPUT TRUE,  /* Export Header */
+                    INPUT FALSE, /* Auto increment File name */
+                    OUTPUT lSuccess,
+                    OUTPUT cMessage
+                    ).
+            END.          
+            IF tbupdatePurchaseOrders:CHECKED  THEN 
+            DO:
+                FOR EACH po-ord NO-LOCK 
+                    WHERE po-ord.company EQ cocode
+                    AND po-ord.po-no   GE fiBeginPO:INPUT-VALUE
+                    AND po-ord.po-no   LE fiEndingPO:INPUT-VALUE
+                    AND po-ord.opened EQ YES:
+            
+                    {custom/statusMsg.i " 'Processing Purchase Order#  '  + string(po-ord.po-no) "}
+            
+                    lCheckStatus = NO .
+                  
+                    FOR EACH bf-po-ordl NO-LOCK
+                        WHERE bf-po-ordl.company EQ po-ord.company
+                        AND bf-po-ordl.po-no EQ po-ord.po-no:
+                        IF bf-po-ordl.opened EQ NO THEN lCheckStatus = YES.
+                        ELSE lCheckStatus = NO.
+                    END.
+                    IF lCheckStatus THEN 
+                    DO:             
+                        CREATE ttPo-ord.
+                        ASSIGN 
+                            ttPo-ord.po-no = po-ord.po-no
+                            ttPo-ord.stat  = po-ord.stat.
+               
+                        ttPo-ord.newstat = "C".
+                        RUN oe/getStatusDesc.p( INPUT po-ord.stat, OUTPUT cResult) .
+                        ttPo-ord.statDesc = cResult.
+                        RUN oe/getStatusDesc.p( INPUT ttPo-ord.newstat, OUTPUT cResult) .
+                        ttPo-ord.newstatDesc = cResult.
+                    END.
+                END. 
+                RUN sys/ref/ExcelNameExt.p (INPUT cLocation + "\PurchaseOrder.csv",OUTPUT cPOFileName) .  
+                RUN Output_TempTableToCSV IN hdOutputProcs (
+                    INPUT TEMP-TABLE ttPo-ord:HANDLE,
+                    INPUT cPOFileName,
+                    INPUT TRUE,  /* Export Header */
+                    INPUT FALSE, /* Auto increment File name */
+                    OUTPUT lSuccess,
+                    OUTPUT cMessage
+                    ).
+            END.
+            IF tbUpdateOrderStatus:CHECKED THEN 
+            DO:      
+                FOR EACH oe-ord NO-LOCK
+                    WHERE oe-ord.company EQ cocode
+                    AND oe-ord.ord-no  GE fiBeginOrder:INPUT-VALUE 
+                    AND oe-ord.ord-no  LE fiEndingOrder:INPUT-VALUE 
+                    AND oe-ord.opened  EQ YES  :
+                    lCheckStatus = NO .
+             
+                    {custom/statusMsg.i " 'Processing Order#  '  + string(oe-ord.ord-no) "}
+                  
+                    FOR EACH bf-oe-ordl NO-LOCK
+                        WHERE bf-oe-ordl.company EQ oe-ord.company
+                        AND bf-oe-ordl.ord-no EQ oe-ord.ord-no:
+                        IF bf-oe-ordl.opened EQ NO THEN lCheckStatus = YES.
+                        ELSE lCheckStatus = NO.
+                    END.
+                    
+                    IF lCheckStatus THEN 
+                    DO:
+                        CREATE ttOe-ord.
+                
+                        ASSIGN 
+                            ttOe-ord.ord-no = oe-ord.ord-no
+                            ttOe-ord.stat   = oe-ord.stat.
+                        RUN oe/getStatusDesc.p( INPUT oe-ord.stat, OUTPUT cResult) .
+                        ttOe-ord.statDesc = cResult.
+                        ttOe-ord.newstat = "C".
+                        RUN oe/getStatusDesc.p( INPUT ttOe-ord.newstat, OUTPUT cResult) .
+                        ttOe-ord.newstatDesc = cResult.
+                    END.
+                END.       
+        
+                RUN sys/ref/ExcelNameExt.p (INPUT cLocation + "\OrderHeader.csv",OUTPUT cOrderFileName) .
+            
+                RUN Output_TempTableToCSV IN hdOutputProcs (
+                    INPUT TEMP-TABLE ttOe-ord:HANDLE,
+                    INPUT cOrderFileName,
+                    INPUT TRUE,  /* Export Header */
+                    INPUT FALSE, /* Auto increment File name */
+                    OUTPUT lSuccess,
+                    OUTPUT cMessage
+                    ).
+            END.
+            IF tbUpdateJobStatus:CHECKED  THEN  
+            DO:
+                FOR EACH job NO-LOCK 
+                    WHERE job.company EQ cocode
+                    AND job.job-no  GE fiBeginOrder:SCREEN-VALUE
+                    AND job.job-no  LE fiEndingOrder:SCREEN-VALUE
+                    AND job-hdr.opened EQ YES:
+              
+                    {custom/statusMsg.i " 'Processing Job#  '  + string(job.job-no) "}
+              
+                    lCheckStatus = NO .
+                  
+                    FOR EACH bf-job-hdr NO-LOCK
+                        WHERE bf-job-hdr.company EQ job.company
+                        AND bf-job-hdr.job EQ job.job
+                        AND bf-job-hdr.job-no EQ job.job-no
+                        AND bf-job-hdr.job-no2 EQ job.job-no2:
+                        IF bf-job-hdr.opened EQ NO THEN lCheckStatus = YES.
+                        ELSE lCheckStatus = NO.
+                    END.
+                    IF lCheckStatus THEN
+                    DO:
+                        CREATE ttJob.
+                        ASSIGN 
+                            ttJob.job-no = job.job-no
+                            ttJob.stat   = job.stat.
+                        ttJob.newstat = "C".
+                        RUN oe/getJobStatusDesc.p( INPUT job.stat, OUTPUT cResult) .
+                        ttJob.statDesc = cResult.
+                        RUN oe/getJobStatusDesc.p( INPUT ttJob.newstat, OUTPUT cResult) .
+                        ttJob.newstatDesc = cResult.
+                    END.
+                END. 
+        
+                RUN sys/ref/ExcelNameExt.p (INPUT cLocation + "\JobHeader.csv",OUTPUT cJobFileName) .
+         
+                RUN Output_TempTableToCSV IN hdOutputProcs (
+                    INPUT TEMP-TABLE ttJob:HANDLE,
+                    INPUT cJobFileName,
+                    INPUT TRUE,  /* Export Header */
+                    INPUT FALSE, /* Auto increment File name */
+                    OUTPUT lSuccess,
+                    OUTPUT cMessage
+                    ).
+            END.           
+
+                
+            lCheckSimulate = NO .
+            STATUS DEFAULT "Process Complete" . 
+    
+        END.    
+    
+        IF ipcExecute THEN 
+        DO:
+            FOR EACH ttOe-rel:                      
+                FOR FIRST  oe-rel EXCLUSIVE-LOCK 
+                    WHERE oe-rel.ord-no EQ ttOe-rel.ord-no
+                    AND  oe-rel.rel-no EQ ttOe-rel.rel-no:
+              
+                    {custom/statusMsg.i " 'Processing Order Release#  '  + string(oe-rel.ord-no) "}
+                    ASSIGN 
+                        oe-rel.stat = ttOe-rel.newstat.
+                END.
+            END.
+            FOR EACH ttPo-ord:
+                FOR FIRST  po-ord EXCLUSIVE-LOCK 
+                    WHERE po-ord.po-no EQ ttPo-ord.po-no:
+                    {custom/statusMsg.i " 'Processing Purchase Order#  '  + string(po-ord.po-no) "}
+                    ASSIGN 
+                        po-ord.stat   = ttPo-ord.newstat
+                        po-ord.opened = NO.
+                END.
+            END.
+            FOR EACH ttOe-ord:   
+                FOR FIRST  oe-ord EXCLUSIVE-LOCK 
+                    WHERE oe-ord.ord-no EQ ttOe-ord.ord-no:
+                    {custom/statusMsg.i " 'Processing Order#  '  + string(oe-ord.ord-no) "}
+                    ASSIGN 
+                        oe-ord.stat   = ttOe-ord.newstat
+                        oe-ord.opened = NO.
+                END.                    
+            END.       
+            FOR EACH ttJob:
+                FOR FIRST  job EXCLUSIVE-LOCK 
+                    WHERE job.job-no EQ ttJob.job-no:
+                    {custom/statusMsg.i " 'Processing Job#  '  + string(job.job-no) "}
+                    ASSIGN 
+                        job.stat   = ttJob.newstat
+                        job.opened = NO.
+                END.
+            END.
+    
+            EMPTY TEMP-TABLE  ttOe-rel.
+            EMPTY TEMP-TABLE  ttOe-ord.
+            EMPTY TEMP-TABLE  ttPo-ord.
+            EMPTY TEMP-TABLE  ttJob.
+            RELEASE oe-rel.
+            RELEASE oe-ord.
+            RELEASE job.
+            RELEASE po-ord.
+    
+            MESSAGE "Status have been updated."
+                VIEW-AS ALERT-BOX.
+            STATUS DEFAULT "Process Complete" .
+    
+     
+        END.    /* ipcExecute */
+        
+        IF tbOpenFiles:CHECKED THEN 
+        DO:
+            IF tbUpdateJobStatus:CHECKED  THEN  
+                RUN OS_RunFile(
+                    INPUT cJobFileName,
+                    OUTPUT lSuccess,
+                    OUTPUT cMessage).
+            IF tbupdatePurchaseOrders:CHECKED  THEN
+                RUN OS_RunFile(
+                    INPUT cPOFileName,
+                    OUTPUT lSuccess,
+                    OUTPUT cMessage).
+            IF tbUpdateOrderStatus:CHECKED THEN 
+                RUN OS_RunFile(
+                    INPUT cOrderFileName,
+                    OUTPUT lSuccess,
+                    OUTPUT cMessage).
+            IF tbUpdateReleases:CHECKED THEN
+                RUN OS_RunFile(
+                    INPUT cRelFileName,
+                    OUTPUT lSuccess,
+                    OUTPUT cMessage).
+        END.
+           
+    END.   
+   
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
