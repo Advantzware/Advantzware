@@ -51,6 +51,22 @@ DEF TEMP-TABLE tt-oe-prmtxx LIKE oe-prmtx
    FIELD row-no   AS INTEGER
    FIELD refcode  AS CHAR.
 DEFINE VARIABLE fi_eff-date AS DATE FORMAT "99/99/9999":U INITIAL TODAY .
+DEFINE VARIABLE cSortBy             AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lSortAsc            AS LOGICAL   NO-UNDO INIT YES.
+DEFINE VARIABLE lIsGoButtonPressed  AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cScreenType         AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iRecordLimit        AS INTEGER   NO-UNDO.
+DEFINE VARIABLE dQueryTimeLimit     AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE lEnableShowAll      AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lShowAll            AS LOGICAL   NO-UNDO.
+
+RUN Browser_GetRecordAndTimeLimit(
+  INPUT  cocode,
+  INPUT  "OF3",
+  OUTPUT iRecordLimit,
+  OUTPUT dQueryTimeLimit,
+  OUTPUT lEnableShowAll
+  ).
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -80,13 +96,16 @@ DEFINE VARIABLE fi_eff-date AS DATE FORMAT "99/99/9999":U INITIAL TODAY .
 oe-prmtx.custype oe-prmtx.custShipID oe-prmtx.i-no oe-prmtx.procat ~
 oe-prmtx.eff-date oe-prmtx.exp-date oe-prmtx.price[1] oe-prmtx.price[2] ~
 oe-prmtx.price[3] oe-prmtx.price[4] oe-prmtx.price[5] oe-prmtx.price[6] ~
-oe-prmtx.price[7] oe-prmtx.price[8] oe-prmtx.price[9] oe-prmtx.price[10] oe-prmtx.online 
+oe-prmtx.price[7] oe-prmtx.price[8] oe-prmtx.price[9] oe-prmtx.price[10] ~
+oe-prmtx.online 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH oe-prmtx WHERE ~{&KEY-PHRASE} ~
-      AND oe-prmtx.company = cocode NO-LOCK ~
+      AND oe-prmtx.company = cocode ~
+AND oe-prmtx.cust-no EQ "zzzzzzzz" NO-LOCK ~
     ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY Browser-Table FOR EACH oe-prmtx WHERE ~{&KEY-PHRASE} ~
-      AND oe-prmtx.company = cocode NO-LOCK ~
+      AND oe-prmtx.company = cocode ~
+AND oe-prmtx.cust-no EQ "zzzzzzzz" NO-LOCK ~
     ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-Browser-Table oe-prmtx
 &Scoped-define FIRST-TABLE-IN-QUERY-Browser-Table oe-prmtx
@@ -100,9 +119,11 @@ oe-prmtx.price[7] oe-prmtx.price[8] oe-prmtx.price[9] oe-prmtx.price[10] oe-prmt
 
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Browser-Table RECT-4 browse-order auto_find ~
+&Scoped-Define ENABLED-OBJECTS RECT-4 RECT-5 btGo fiCustomer fiType fiItem ~
+fiCategory fiEffDate cbStatus Browser-Table browse-order auto_find ~
 Btn_Clear_Find 
-&Scoped-Define DISPLAYED-OBJECTS browse-order fi_sortby auto_find 
+&Scoped-Define DISPLAYED-OBJECTS fiCustomer fiType fiItem fiCategory ~
+fiEffDate cbStatus browse-order fi_sortby auto_find 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -111,20 +132,67 @@ Btn_Clear_Find
 &ANALYZE-RESUME
 
 
+/* ************************  Function Prototypes ********************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD pfGetWhereConditions B-table-Win 
+FUNCTION pfGetWhereConditions RETURNS CHARACTER PRIVATE
+  (  ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 /* ***********************  Control Definitions  ********************** */
 
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON btGo 
+     LABEL "Go" 
+     SIZE 12 BY 1.14.
+
 DEFINE BUTTON Btn_Clear_Find 
      LABEL "&Clear Find" 
      SIZE 13 BY 1
      FONT 4.
 
+DEFINE BUTTON btSHowAll 
+     LABEL "Show All" 
+     SIZE 13.6 BY 1.14.
+
+DEFINE VARIABLE cbStatus AS CHARACTER FORMAT "X(256)":U INITIAL "All" 
+     VIEW-AS COMBO-BOX INNER-LINES 5
+     LIST-ITEMS "All","Inactive","Active" 
+     DROP-DOWN-LIST
+     SIZE 12.2 BY 1 NO-UNDO.
+
 DEFINE VARIABLE auto_find AS CHARACTER FORMAT "X(256)":U 
      LABEL "Auto Find" 
      VIEW-AS FILL-IN 
      SIZE 30 BY 1 NO-UNDO.
+
+DEFINE VARIABLE fiCategory AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS FILL-IN 
+     SIZE 14 BY 1
+     BGCOLOR 15 FONT 22 NO-UNDO.
+
+DEFINE VARIABLE fiCustomer AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS FILL-IN 
+     SIZE 14 BY 1
+     BGCOLOR 15 FONT 22 NO-UNDO.
+
+DEFINE VARIABLE fiEffDate AS DATE FORMAT "99/99/9999":U 
+     VIEW-AS FILL-IN 
+     SIZE 16 BY 1 NO-UNDO.
+
+DEFINE VARIABLE fiItem AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS FILL-IN 
+     SIZE 16.8 BY 1
+     BGCOLOR 15 FONT 22 NO-UNDO.
+
+DEFINE VARIABLE fiType AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS FILL-IN 
+     SIZE 14 BY 1
+     BGCOLOR 15 FONT 22 NO-UNDO.
 
 DEFINE VARIABLE fi_sortby AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
@@ -140,6 +208,10 @@ DEFINE VARIABLE browse-order AS INTEGER
 DEFINE RECTANGLE RECT-4
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 145 BY 1.43.
+
+DEFINE RECTANGLE RECT-5
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 143 BY 2.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -174,11 +246,11 @@ DEFINE BROWSE Browser-Table
   QUERY Browser-Table NO-LOCK DISPLAY
       oe-prmtx.cust-no FORMAT "x(8)":U LABEL-BGCOLOR 14
       oe-prmtx.custype FORMAT "x(8)":U LABEL-BGCOLOR 14
-      oe-prmtx.custShipID FORMAT "x(8)":U WIDTH 11.2
+      oe-prmtx.custShipID FORMAT "x(8)":U LABEL-BGCOLOR 14
       oe-prmtx.i-no FORMAT "x(15)":U LABEL-BGCOLOR 14
       oe-prmtx.procat COLUMN-LABEL "Cat" FORMAT "x(5)":U LABEL-BGCOLOR 14
-      oe-prmtx.eff-date FORMAT "99/99/9999":U
-      oe-prmtx.exp-date FORMAT "99/99/9999":U
+      oe-prmtx.eff-date FORMAT "99/99/9999":U LABEL-BGCOLOR 14
+      oe-prmtx.exp-date FORMAT "99/99/9999":U LABEL-BGCOLOR 14
       oe-prmtx.price[1] COLUMN-LABEL "Price01" FORMAT ">>>,>>9.99<<":U
       oe-prmtx.price[2] COLUMN-LABEL "Price02" FORMAT ">>>,>>9.99<<":U
       oe-prmtx.price[3] COLUMN-LABEL "Price03" FORMAT ">>>,>>9.99<<":U
@@ -189,17 +261,25 @@ DEFINE BROWSE Browser-Table
       oe-prmtx.price[8] COLUMN-LABEL "Price08" FORMAT ">>>,>>9.99<<":U
       oe-prmtx.price[9] COLUMN-LABEL "Price09" FORMAT ">>>,>>9.99<<":U
       oe-prmtx.price[10] COLUMN-LABEL "Price10" FORMAT ">>>,>>9.99<<":U
-      oe-prmtx.online COLUMN-LABEL "Online" FORMAT "yes/no":U
+      oe-prmtx.online FORMAT "yes/no":U LABEL-BGCOLOR 14
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 144 BY 18.1
+    WITH NO-ASSIGN SEPARATORS SIZE 144 BY 17.67
          FONT 2.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     Browser-Table AT ROW 1 COL 1 HELP
+     btGo AT ROW 1.67 COL 117.4 WIDGET-ID 10
+     btSHowAll AT ROW 1.67 COL 129.8 WIDGET-ID 12
+     fiCustomer AT ROW 1.81 COL 2.8 NO-LABEL WIDGET-ID 2
+     fiType AT ROW 1.81 COL 19 COLON-ALIGNED NO-LABEL WIDGET-ID 4
+     fiItem AT ROW 1.81 COL 37.6 COLON-ALIGNED NO-LABEL WIDGET-ID 6
+     fiCategory AT ROW 1.81 COL 58.8 COLON-ALIGNED NO-LABEL WIDGET-ID 8
+     fiEffDate AT ROW 1.81 COL 78.4 COLON-ALIGNED NO-LABEL WIDGET-ID 24
+     cbStatus AT ROW 1.81 COL 99.8 COLON-ALIGNED NO-LABEL WIDGET-ID 30
+     Browser-Table AT ROW 3.14 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
      browse-order AT ROW 19.33 COL 6 HELP
           "Select Browser Sort Order" NO-LABEL
@@ -208,13 +288,31 @@ DEFINE FRAME F-Main
           "Enter Auto Find Value"
      Btn_Clear_Find AT ROW 19.33 COL 132 HELP
           "CLEAR AUTO FIND Value"
-     "By:" VIEW-AS TEXT
-          SIZE 4 BY 1 AT ROW 19.33 COL 2
+     "Status" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 1.19 COL 103 WIDGET-ID 32
+          BGCOLOR 23 FGCOLOR 24 FONT 22
+     "Customer#" VIEW-AS TEXT
+          SIZE 12.2 BY .62 AT ROW 1.19 COL 3.4 WIDGET-ID 16
+          BGCOLOR 23 FGCOLOR 24 FONT 22
+     "Type" VIEW-AS TEXT
+          SIZE 6 BY .62 AT ROW 1.19 COL 24.8 WIDGET-ID 18
+          BGCOLOR 23 FGCOLOR 24 FONT 22
+     "Item No#" VIEW-AS TEXT
+          SIZE 12 BY .62 AT ROW 1.19 COL 41.8 WIDGET-ID 20
+          BGCOLOR 23 FGCOLOR 24 FONT 22
+     "Category" VIEW-AS TEXT
+          SIZE 11 BY .62 AT ROW 1.19 COL 62 WIDGET-ID 22
+          BGCOLOR 23 FGCOLOR 24 FONT 22
+     "From Eff. Date" VIEW-AS TEXT
+          SIZE 15 BY .62 AT ROW 1.19 COL 81.2 WIDGET-ID 26
+          BGCOLOR 23 FGCOLOR 24 FONT 22
      RECT-4 AT ROW 19.1 COL 1
+     RECT-5 AT ROW 1.05 COL 1 WIDGET-ID 14
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
-         BGCOLOR 8 FGCOLOR 0 .
+         BGCOLOR 8 FGCOLOR 0 
+         DEFAULT-BUTTON btGo.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -270,10 +368,16 @@ END.
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
-/* BROWSE-TAB Browser-Table TEXT-1 F-Main */
+/* BROWSE-TAB Browser-Table cbStatus F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
+
+ASSIGN 
+       auto_find:HIDDEN IN FRAME F-Main           = TRUE.
+
+ASSIGN 
+       browse-order:HIDDEN IN FRAME F-Main           = TRUE.
 
 ASSIGN 
        Browser-Table:MAX-DATA-GUESS IN FRAME F-Main         = 100000
@@ -281,10 +385,20 @@ ASSIGN
                 "2"
        Browser-Table:ALLOW-COLUMN-SEARCHING IN FRAME F-Main = TRUE.
 
+ASSIGN 
+       Btn_Clear_Find:HIDDEN IN FRAME F-Main           = TRUE.
+
+/* SETTINGS FOR BUTTON btSHowAll IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiCustomer IN FRAME F-Main
+   ALIGN-L                                                              */
 /* SETTINGS FOR FILL-IN fi_sortby IN FRAME F-Main
    NO-ENABLE                                                            */
 ASSIGN 
        fi_sortby:READ-ONLY IN FRAME F-Main        = TRUE.
+
+ASSIGN 
+       RECT-4:HIDDEN IN FRAME F-Main           = TRUE.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -297,41 +411,44 @@ ASSIGN
      _TblList          = "ASI.oe-prmtx"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = "USED"
-     _Where[1]         = "ASI.oe-prmtx.company = cocode"
+     _Where[1]         = "ASI.oe-prmtx.company = cocode
+AND ASI.oe-prmtx.cust-no EQ ""zzzzzzzz"""
      _FldNameList[1]   > ASI.oe-prmtx.cust-no
-"cust-no" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"oe-prmtx.cust-no" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.oe-prmtx.custype
-"custype" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"oe-prmtx.custype" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.oe-prmtx.custShipID
-"custShipID" ? ? "character" ? ? ? ? ? ? no ? no no "11.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"oe-prmtx.custShipID" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > ASI.oe-prmtx.i-no
-"i-no" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"oe-prmtx.i-no" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > ASI.oe-prmtx.procat
-"procat" "Cat" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[6]   = ASI.oe-prmtx.eff-date
-     _FldNameList[7]   = ASI.oe-prmtx.exp-date
+"oe-prmtx.procat" "Cat" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[6]   > ASI.oe-prmtx.eff-date
+"oe-prmtx.eff-date" ? ? "date" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[7]   > ASI.oe-prmtx.exp-date
+"oe-prmtx.exp-date" ? ? "date" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > ASI.oe-prmtx.price[1]
-"price[1]" "Price01" ">>>,>>9.99<<" "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"oe-prmtx.price[1]" "Price01" ">>>,>>9.99<<" "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[9]   > ASI.oe-prmtx.price[2]
-"price[2]" "Price02" ">>>,>>9.99<<" "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"oe-prmtx.price[2]" "Price02" ">>>,>>9.99<<" "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[10]   > ASI.oe-prmtx.price[3]
-"price[3]" "Price03" ">>>,>>9.99<<" "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"oe-prmtx.price[3]" "Price03" ">>>,>>9.99<<" "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[11]   > ASI.oe-prmtx.price[4]
-"price[4]" "Price04" ">>>,>>9.99<<" "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"oe-prmtx.price[4]" "Price04" ">>>,>>9.99<<" "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[12]   > ASI.oe-prmtx.price[5]
-"price[5]" "Price05" ">>>,>>9.99<<" "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"oe-prmtx.price[5]" "Price05" ">>>,>>9.99<<" "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[13]   > ASI.oe-prmtx.price[6]
-"price[6]" "Price06" ">>>,>>9.99<<" "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"oe-prmtx.price[6]" "Price06" ">>>,>>9.99<<" "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[14]   > ASI.oe-prmtx.price[7]
-"price[7]" "Price07" ">>>,>>9.99<<" "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"oe-prmtx.price[7]" "Price07" ">>>,>>9.99<<" "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[15]   > ASI.oe-prmtx.price[8]
-"price[8]" "Price08" ">>>,>>9.99<<" "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"oe-prmtx.price[8]" "Price08" ">>>,>>9.99<<" "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[16]   > ASI.oe-prmtx.price[9]
-"price[9]" "Price09" ">>>,>>9.99<<" "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"oe-prmtx.price[9]" "Price09" ">>>,>>9.99<<" "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[17]   > ASI.oe-prmtx.price[10]
-"price[10]" "Price10" ">>>,>>9.99<<" "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"oe-prmtx.price[10]" "Price10" ">>>,>>9.99<<" "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[18]   > ASI.oe-prmtx.online
-"online" "Online" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"oe-prmtx.online" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
@@ -378,7 +495,26 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON START-SEARCH OF Browser-Table IN FRAME F-Main
 DO:
-  RUN startsearch.
+   {methods/template/sortindicator.i}  
+    DEFINE VARIABLE hdColumn    AS HANDLE     NO-UNDO.
+    DEFINE VARIABLE cColumnName AS CHARACTER  NO-UNDO.
+
+    ASSIGN
+        hdColumn     = {&BROWSE-NAME}:CURRENT-COLUMN 
+        cColumnName  = hdColumn:NAME
+        .
+    IF hdColumn:LABEL-BGCOLOR NE 14 THEN 
+        RETURN NO-APPLY.
+    
+    IF cSortBy EQ cColumnName THEN 
+        lSortAsc = NOT lSortAsc.
+    ELSE
+        cSortBy = cColumnName.
+        
+    APPLY 'END-SEARCH' TO {&BROWSE-NAME}.
+
+    RUN dispatch ("open-query").
+    {methods/template/sortindicatorend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -392,6 +528,40 @@ DO:
      objects when the browser's current row changes. */
   {src/adm/template/brschnge.i}
   {methods/template/local/setvalue.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btGo
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btGo B-table-Win
+ON CHOOSE OF btGo IN FRAME F-Main /* Go */
+DO:
+    
+    ASSIGN 
+        fiCustomer
+        fiItem
+        fiCategory
+        fiType
+        fiEffDate
+        cbStatus
+        lIsGoButtonPressed = YES.
+   RUN dispatch ("open-query").
+   lIsGoButtonPressed = NO.        
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btSHowAll
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btSHowAll B-table-Win
+ON CHOOSE OF btSHowAll IN FRAME F-Main /* Show All */
+DO:
+    lShowAll = YES.
+    APPLY "CHOOSE":U TO btGo.
+    lShowAll = NO.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -414,6 +584,10 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
    Hiding this widget for now, as browser's column label should be indicating the column which is sorted by */
 fi_sortby:HIDDEN  = TRUE.
 fi_sortby:VISIBLE = FALSE.
+
+IF lEnableShowAll THEN 
+    btSHowAll:SENSITIVE = lEnableShowAll.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -491,6 +665,12 @@ DEFINE VAR catto   AS CHAR NO-UNDO.
         ItemTo       = oe-prmtx.i-no   
         typeTo       = oe-prmtx.custype
         catto        = oe-prmtx.procat .
+        
+    IF fiCustomer NE "" OR fiItem NE "" OR fiCategory NE "" OR fiType NE ""  THEN
+        auto_find = "zzz".
+    ELSE
+        auto_find = "".
+                 
 
 RUN oerep/rd-prmtx.w (CustFrom,CustTo,ItemFrom,ItemTo,typeFrom,typeTo,catfrom,catto,auto_find).
 
@@ -499,7 +679,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-open-query B-table-Win 
 PROCEDURE local-open-query :
@@ -512,10 +691,72 @@ PROCEDURE local-open-query :
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .
+  RUN pPrepareAndExecuteQuery(
+      INPUT lShowAll
+      ).
+  IF AVAILABLE {&first-table-in-query-{&browse-name}} THEN DO:
+        RUN dispatch ("display-fields").
+        RUN dispatch ("row-changed"). 
+  END.         
+END PROCEDURE.
 
-  /* Code placed here will execute AFTER standard behavior.    */
-  APPLY 'ENTRY' TO {&BROWSE-NAME} IN FRAME {&FRAME-NAME}.
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pPrepareAndExecuteQuery B-table-Win 
+PROCEDURE pPrepareAndExecuteQuery PRIVATE :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iplShowAll AS LOGICAL NO-UNDO.
+    
+    DEFINE VARIABLE cBrowseQuery   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cResponse      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cLimitingQuery AS CHARACTER NO-UNDO.
+    
+    IF NOT iplShowAll THEN DO:
+        cLimitingQuery = " FOR EACH oe-prmtx NO-LOCK" 
+                         + " WHERE oe-prmtx.company EQ " + QUOTER(cocode)
+                         + pfGetWhereConditions()
+                         + " BY rec_key DESC"
+                         .
+                   
+        RUN Browse_PrepareAndExecuteLimitingQuery(
+            INPUT  cLimitingQuery,         /* Query */
+            INPUT  "oe-prmtx",             /* Buffers Name */
+            INPUT  iRecordLimit,           /* Record Limit */
+            INPUT  dQueryTimeLimit,        /* Time Limit*/
+            INPUT  lEnableShowAll,         /* Enable ShowAll Button? */
+            INPUT  "oe-prmtx",             /* Buffer name to fetch the field's value*/
+            INPUT  "rec_key",              /* Field Name*/
+            INPUT  NOT lIsGoButtonPressed, /* Initial Query*/
+            INPUT  NO,                     /* Is breakby used */
+            OUTPUT cResponse           
+            ). 
+        IF cResponse EQ "" THEN DO:
+            IF lIsGoButtonPressed THEN
+                MESSAGE "No Records Found"
+                    VIEW-AS ALERT-BOX ERROR.
+            RETURN.                            
+        END.           
+     END.       
+     cBrowseQuery = " FOR EACH oe-prmtx NO-LOCK" 
+                   + " WHERE oe-prmtx.company EQ " + QUOTER(cocode)
+                   + " AND oe-prmtx.rec_key GE "   + QUOTER(cResponse)   
+                   + pfGetWhereConditions() 
+                   + (IF cSortBY NE "" THEN " BY oe-prmtx." + cSortBY + (IF NOT lSortAsc THEN " DESC" ELSE "")  ELSE "")
+                   .   
+               
+        RUN Browse_PrepareAndExecuteBrowseQuery(
+            INPUT  BROWSE {&BROWSE-NAME}:QUERY, /* Browse Query Handle */
+            INPUT  cBrowseQuery,                /* BRowse Query */
+            INPUT  NO,                          /* Show limit alert? */
+            INPUT  0,                           /* Record limit */
+            INPUT  0,                           /* Time Limit */
+            INPUT  lEnableShowAll,              /* Enable ShowAll Button */
+            OUTPUT cResponse
+            ).
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -559,6 +800,30 @@ PROCEDURE state-changed :
       {src/adm/template/bstates.i}
   END CASE.
 END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+/* ************************  Function Implementations ***************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION pfGetWhereConditions B-table-Win 
+FUNCTION pfGetWhereConditions RETURNS CHARACTER PRIVATE
+  (  ):
+/*------------------------------------------------------------------------------
+ Purpose: Returns the where clause conditions
+ Notes:
+------------------------------------------------------------------------------*/
+    RETURN (  IF fiCustomer NE "" THEN " AND oe-prmtx.cust-no  BEGINS " + QUOTER(fiCustomer) ELSE "")
+           + (IF fiType     NE "" THEN " AND oe-prmtx.custType BEGINS " + QUOTER(fiType)     ELSE "")
+           + (IF fiItem     NE "" THEN " AND oe-prmtx.i-no     BEGINS " + QUOTER(fiItem)     ELSE "")
+           + (IF fiCategory NE "" THEN " AND oe-prmtx.procat   BEGINS " + QUOTER(fiCategory) ELSE "")
+           + (IF fiEffDate  NE ?  THEN " AND oe-prmtx.eff-date GE "     + STRING(fiEffDate)  ELSE "")
+           + (IF cbStatus   EQ "Active"   THEN " AND (oe-prmtx.exp-date GT TODAY OR oe-prmtx.exp-date EQ ?)"
+           ELSE IF cbStatus EQ "Inactive" THEN " AND oe-prmtx.exp-date  GT TODAY"
+           ELSE "")
+              .
+  
+END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
