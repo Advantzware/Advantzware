@@ -814,7 +814,7 @@ FUNCTION pfGetWhereConditions RETURNS CHARACTER PRIVATE
  Notes:
 ------------------------------------------------------------------------------*/
     RETURN (  IF fiCustomer NE "" THEN " AND oe-prmtx.cust-no  BEGINS " + QUOTER(fiCustomer) ELSE "")
-           + (IF fiType     NE "" THEN " AND oe-prmtx.custType BEGINS " + QUOTER(fiType)     ELSE "")
+           + (IF fiType     NE "" THEN " AND oe-prmtx.custype  BEGINS " + QUOTER(fiType)     ELSE "")
            + (IF fiItem     NE "" THEN " AND oe-prmtx.i-no     BEGINS " + QUOTER(fiItem)     ELSE "")
            + (IF fiCategory NE "" THEN " AND oe-prmtx.procat   BEGINS " + QUOTER(fiCategory) ELSE "")
            + (IF fiEffDate  NE ?  THEN " AND oe-prmtx.eff-date GE "     + STRING(fiEffDate)  ELSE "")
