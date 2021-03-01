@@ -902,8 +902,8 @@ PROCEDURE post-gl :
              glhist.tr-dscr = "CASH RECEIPTS VOID"
              glhist.tr-date = tran-date
              glhist.period  = tran-period
-             glhist.tr-num   = v-trnum   
-             glhist.glYear  = YEAR(tran-date)
+             glhist.tr-num  = v-trnum   
+             glhist.glYear  = IF AVAIL period THEN period.yr ELSE YEAR(tran-date)
              glhist.module  = "AR"
              glhist.posted  = NO
              glhist.entryType = "A"
