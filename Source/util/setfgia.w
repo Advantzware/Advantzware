@@ -38,7 +38,9 @@ CREATE WIDGET-POOL.
 
 def var list-name as cha no-undo.
 DEFINE VARIABLE init-dir     AS CHARACTER NO-UNDO.
-DEFINE VARIABLE hdPriceProcs AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hdFGProcs    AS HANDLE    NO-UNDO.
+
+RUN fg/FGProcs.p PERSISTENT SET hdFGProcs.
 
 {methods/defines/hndldefs.i}
 {methods/prgsecur.i}
@@ -109,9 +111,7 @@ RUN sys/ref/nk1look.p (INPUT cocode,
                        OUTPUT lFound).
 IF lFound THEN
     cMasterItemfg = cReturn.
-
-RUN oe/priceProcs.p PERSISTENT SET hdPriceProcs.    
-
+  
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -552,10 +552,9 @@ ON WINDOW-CLOSE OF C-Win /* Finished Goods Set Inactive Utility */
 DO:
   IF VALID-HANDLE(hStatus) THEN
       DELETE OBJECT hStatus.
-      
-  IF VALID-HANDLE(hdPriceProcs) THEN 
-      DELETE PROCEDURE hdPriceProcs.    
-
+  IF VALID-HANDLE(hdFGProcs) THEN
+      DELETE PROCEDURE hdFGProcs.      
+     
   /* This event will close the window and terminate the procedure.  */
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
@@ -1078,7 +1077,7 @@ FOR EACH tt-inactive-list:
 
         ASSIGN itemfg.stat = "I".
         IF iplExpirePrice THEN    
-            RUN Price_ExpirePricesByItem IN hdPriceProcs(
+            RUN FG_ExpirePricesByItem IN hdFGProcs(
                 INPUT cocode,
                 INPUT itemfg.i-no
                 ).
