@@ -1542,7 +1542,17 @@ PROCEDURE openQuery:
     IF sortColumn EQ 'Menu!Num'            THEN STRING(mnu-item.menu-num,">>>>9") ELSE~
     IF sortColumn EQ 'Program!Description' THEN STRING(mnu-item.descrip)          ELSE ~
     STRING(mnu-item.pgm-name) ~{&SORTED}
-      
+ 
+ &ELSEIF '{&yellowColumnsName}' EQ 'l-ARLookUp' &THEN
+  &SCOPED-DEFINE SORTBY-PHRASE BY ~
+     IF sortColumn EQ 'Invoice#'        THEN string(ar-inv.inv-no, '99999999')                           ELSE ~
+     IF sortColumn EQ 'Cust#'           THEN STRING(ar-inv.cust-no)                  ELSE ~
+     IF sortColumn EQ 'Customer Name'   THEN STRING(ar-inv.cust-name)                ELSE ~
+     IF sortColumn EQ 'Order#'          THEN STRING(ar-invl.ord-no, '999999')                  ELSE ~
+     IF sortColumn EQ 'Board PO #'      THEN STRING(ar-invl.po-no-po, '999999')                ELSE ~
+     IF sortColumn EQ 'BOL No#'         THEN STRING(ar-invl.b-no, '999999')                    ELSE ~
+     IF sortColumn EQ 'Amount Due'      THEN STRING(ar-inv.due, '->>,>>>,>>9.99')    ELSE ~
+        STRING(ar-inv.inv-no, '9999999') ~{&SORTED}
         
 &ENDIF
 
