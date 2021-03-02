@@ -28,6 +28,8 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+&SCOPED-DEFINE winReSize
+{methods/defines/winReSize.i}
 {custom/globdefs.i}
 {sys/inc/VAR.i "new shared" }
 ASSIGN cocode = g_company
@@ -1366,7 +1368,7 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
-
+{methods/winReSize.i}
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF

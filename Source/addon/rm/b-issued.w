@@ -33,7 +33,8 @@ CREATE WIDGET-POOL.
 {sys/inc/var.i NEW SHARED}
 {methods/template/brwCustomDef.i}
 {Inventory/ttInventory.i "NEW SHARED"}
-
+&SCOPED-DEFINE winReSize
+{methods/defines/winReSize.i}
 &SCOPED-DEFINE BRWSDEFS rm-issued
 
 ASSIGN
@@ -1249,7 +1250,7 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
-
+{methods/winReSize.i}
 {sys/inc/rmissue.i}
 lv-rmissue = v-rmissue.
 {custom/yellowColumns.i}
