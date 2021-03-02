@@ -25,7 +25,7 @@ FUNCTION Conv_IsEAUOM RETURNS LOGICAL
     ipcItemID AS CHARACTER,
     ipcUOM AS CHARACTER) FORWARD.
 
-FUNCTION fGetFeet RETURNS DECIMAL PRIVATE
+FUNCTION fConv_GetFeet RETURNS DECIMAL
     (ipdDim AS DECIMAL,
     ipcUOM AS CHARACTER) FORWARD.
 
@@ -785,7 +785,7 @@ PROCEDURE pAddUOMsFromDimensions PRIVATE:
         RUN pAddUOM("LI", YES, "EA","Lineal Inches", 1 / fGetInches(ipdLength,ipcDimUOM), ipcSource, "Cost", ipiSourceLevel).
         RUN pAddUOM("MLI", YES, "EA","Lineal Inches", 1000 / fGetInches(ipdLength, ipcDimUOM), ipcSource, "Cost", ipiSourceLevel).
         RUN pAddUOM("IN", YES, "EA","Inches", 1 / fGetInches(ipdLength, ipcDimUOM), ipcSource, "Cost", ipiSourceLevel).
-        RUN pAddUOM("LF", YES, "EA","Lineal Feet", 1 / fGetFeet(ipdLength, ipcSource), ipcSource, "Cost", ipiSourceLevel).
+        RUN pAddUOM("LF", YES, "EA","Lineal Feet", 1 / fConv_GetFeet(ipdLength, ipcSource), ipcSource, "Cost", ipiSourceLevel).
         IF ipdWidth GT 0 THEN 
         DO:
             RUN pAddUOM("SQIN", YES, "EA", "Square Inches", 1 / fGetSqin(ipdLength, ipdWidth, ipcDimUOM), ipcSource, "Cost", ipiSourceLevel).
@@ -1247,7 +1247,7 @@ FUNCTION Conv_IsEAUOM RETURNS LOGICAL
     
 END FUNCTION.
 
-FUNCTION fGetFeet RETURNS DECIMAL PRIVATE
+FUNCTION fConv_GetFeet RETURNS DECIMAL
     ( ipdDim AS DECIMAL, ipcUOM AS CHARACTER ):
     /*------------------------------------------------------------------------------
      Purpose: Given a length dimension, convert to feet
@@ -1307,7 +1307,7 @@ FUNCTION fGetSqft RETURNS DECIMAL PRIVATE
     ------------------------------------------------------------------------------*/	
     DEFINE VARIABLE dSqft AS DECIMAL NO-UNDO.
     
-    dSqft = fGetFeet(ipdLength, ipcDimUOM) * fGetFeet(ipdWidth, ipcDimUOM).
+    dSqft = fConv_GetFeet(ipdLength, ipcDimUOM) * fConv_GetFeet(ipdWidth, ipcDimUOM).
     RETURN dSqft.
     
 END FUNCTION.

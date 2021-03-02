@@ -43,13 +43,6 @@ DEFINE VARIABLE gcDeptsForCoaters                     AS CHARACTER NO-UNDO INITI
 DEFINE VARIABLE gcIndustryFolding                     AS CHARACTER NO-UNDO INITIAL "Folding".
 DEFINE VARIABLE gcIndustryCorrugated                  AS CHARACTER NO-UNDO INITIAL "Corrugated".
 
-DEFINE VARIABLE gcTypeSingle                          AS CHARACTER NO-UNDO INITIAL "Single".
-DEFINE VARIABLE gcTypeSet                             AS CHARACTER NO-UNDO INITIAL "Set".
-DEFINE VARIABLE gcTypeCombo                           AS CHARACTER NO-UNDO INITIAL "Combo/Tandem".
-DEFINE VARIABLE gcTypeMisc                            AS CHARACTER NO-UNDO INITIAL "Miscellaneous".
-DEFINE VARIABLE gcTypeWood                            AS CHARACTER NO-UNDO INITIAL "Wood".
-DEFINE VARIABLE gcTypeList                            AS CHARACTER NO-UNDO. 
-
 DEFINE VARIABLE gcErrorWarning                        AS CHARACTER NO-UNDO INITIAL "Warning".
 DEFINE VARIABLE gcErrorImportant                      AS CHARACTER NO-UNDO INITIAL "Important".
 DEFINE VARIABLE gcErrorCritical                       AS CHARACTER NO-UNDO INITIAL "Critical".
@@ -106,29 +99,23 @@ FUNCTION fIsDepartment RETURNS LOGICAL PRIVATE
 FUNCTION fRoundUP RETURNS DECIMAL PRIVATE
     (ipdValue AS DECIMAL) FORWARD.
 
-FUNCTION fUseNew RETURNS LOGICAL 
-    (ipcCompany AS CHARACTER) FORWARD.
-
-FUNCTION IsComboType RETURNS LOGICAL 
+FUNCTION fIsComboType RETURNS LOGICAL PRIVATE 
     (ipcEstType AS CHARACTER) FORWARD.
 
-FUNCTION IsMiscType RETURNS LOGICAL 
+FUNCTION fIsMiscType RETURNS LOGICAL PRIVATE 
     (ipcEstType AS CHARACTER) FORWARD.
 
-FUNCTION IsSetType RETURNS LOGICAL 
+FUNCTION fIsSetType RETURNS LOGICAL PRIVATE 
     (ipcEstType AS CHARACTER) FORWARD.
 
-FUNCTION IsSingleType RETURNS LOGICAL 
+FUNCTION fIsSingleType RETURNS LOGICAL PRIVATE 
     (ipcEstType AS CHARACTER) FORWARD.
 
-FUNCTION IsWoodType RETURNS LOGICAL 
+FUNCTION fIsWoodType RETURNS LOGICAL PRIVATE 
     (ipcEstType AS CHARACTER) FORWARD.
 
 /* ***************************  Main Block  *************************** */
-ASSIGN 
-    /*Build mapping from estimate type # to descriptive type*/ 
-    gcTypeList = gcTypeSingle + "," + gcTypeSet + ","  + gcTypeCombo + "," + gcTypeCombo + "," + gcTypeSingle + "," + gcTypeSet + ","  + gcTypeCombo + "," + gcTypeCombo
-    .
+                                                                                                                                                      
 
 RUN system\FreightProcs.p PERSISTENT SET ghFreight.
 THIS-PROCEDURE:ADD-SUPER-PROCEDURE (ghFreight).
@@ -460,10 +447,10 @@ PROCEDURE pAddEstBlank PRIVATE:
         opbf-estCostBlank.weightPerBlank          = ipbf-estCostForm.basisWeight * opbf-estCostBlank.blankAreaNetWindow / 144000 
     
         opbf-estCostBlank.quantityPerSet          = fGetQuantityPerSet(BUFFER ipbf-eb)
-        opbf-estCostBlank.quantityRequired        = (IF ipbf-estCostHeader.estType EQ gcTypeCombo THEN ipbf-eb.bl-qty ELSE ipbf-estCostHeader.quantityMaster) * opbf-estCostBlank.quantityPerSet 
-        opbf-estCostBlank.quantityYielded         = (IF ipbf-estCostHeader.estType EQ gcTypeCombo THEN ipbf-eb.yld-qty ELSE ipbf-estCostHeader.quantityMaster) * opbf-estCostBlank.quantityPerSet
+        opbf-estCostBlank.quantityRequired        = (IF fIsComboType(ipbf-estCostHeader.estType) THEN ipbf-eb.bl-qty ELSE ipbf-estCostHeader.quantityMaster) * opbf-estCostBlank.quantityPerSet 
+        opbf-estCostBlank.quantityYielded         = (IF fIsComboType(ipbf-estCostHeader.estType)THEN ipbf-eb.yld-qty ELSE ipbf-estCostHeader.quantityMaster) * opbf-estCostBlank.quantityPerSet
         
-        opbf-estCostBlank.priceBasedOnYield       = ipbf-eb.yrprice AND ipbf-estCostHeader.estType EQ gcTypeCombo
+        opbf-estCostBlank.priceBasedOnYield       = ipbf-eb.yrprice AND fIsComboType(ipbf-estCostHeader.estType)
         
         .
         
@@ -489,7 +476,7 @@ PROCEDURE pAddEstBlank PRIVATE:
         ipbf-estCostForm.blankArea         = ipbf-estCostForm.blankArea + opbf-estCostBlank.blankArea * opbf-estCostBlank.numOut
         . 
     
-    IF IsSetType(ipbf-estCostHeader.estType) AND opbf-estCostBlank.formNo NE 0 THEN 
+    IF fIsSetType(ipbf-estCostHeader.estType) AND opbf-estCostBlank.formNo NE 0 THEN 
     DO:
         FIND FIRST bf-SetHeader-estCostBlank EXCLUSIVE-LOCK 
             WHERE bf-SetHeader-estCostBlank.estCostHeaderID EQ ipbf-estCostHeader.estCostHeaderID
@@ -629,7 +616,7 @@ PROCEDURE pAddEstItem PRIVATE:
         
         .
         
-    IF ipbf-estCostHeader.estType EQ gcTypeCombo THEN 
+    IF fIsComboType(ipbf-estCostHeader.estType) THEN 
         ASSIGN 
             opbf-estCostItem.quantityRequired = ipbf-eb.bl-qty
             opbf-estCostItem.quantityYielded  = ipbf-eb.yld-qty
@@ -2099,7 +2086,7 @@ PROCEDURE pCalculateHeader PRIVATE:
                       
         END.  /*Each ef of est*/  
         /* if combo, update the master quantity for per M calculations*/
-        IF bf-estCostHeader.estType EQ gcTypeCombo THEN 
+        IF fIsComboType(bf-estCostHeader.estType) THEN 
         DO:
             FIND CURRENT bf-estCostHeader EXCLUSIVE-LOCK.
             bf-estCostHeader.quantityMaster = dQtyMaster.
@@ -2534,7 +2521,7 @@ PROCEDURE pBuildItems PRIVATE:
             ASSIGN 
                 bf-estCostItem.quantityRequired = bf-estCostItem.quantityRequired + eb.bl-qty
                 bf-estCostItem.quantityYielded  = bf-estCostItem.quantityYielded + eb.yld-qty
-                bf-estCostItem.quantityPerSet   = IF IsSetType(ipbf-estCostHeader.estType) THEN bf-estCostItem.quantityPerSet + fGetQuantityPerSet(BUFFER eb) ELSE 1.
+                bf-estCostItem.quantityPerSet   = IF fIsSetType(ipbf-estCostHeader.estType) THEN bf-estCostItem.quantityPerSet + fGetQuantityPerSet(BUFFER eb) ELSE 1.
             .      
         RELEASE bf-estCostItem.
     END. /*Build EstItems*/
@@ -2750,7 +2737,7 @@ PROCEDURE pCopyHeaderCostsToSetItem PRIVATE:
     DEFINE           BUFFER bf-estCostBlank    FOR estCostBlank. 
     DEFINE           BUFFER bf-estCostItem     FOR estCostItem.
 
-    IF ipbf-estCostHeader.estType EQ gcTypeSet THEN 
+    IF fIsSetType(ipbf-estCostHeader.estType) THEN 
     DO:
         FOR EACH bf-estCostBlank NO-LOCK
             WHERE bf-estCostBlank.estCostHeaderID EQ ipbf-estCostHeader.estCostHeaderID
@@ -3883,7 +3870,7 @@ PROCEDURE pBuildHeader PRIVATE:
     END.
     ASSIGN 
         ipbf-estCostHeader.industry                    = IF bf-est.est-type LE 4 THEN gcIndustryFolding ELSE gcIndustryCorrugated
-        ipbf-estCostHeader.estType                     = ENTRY(bf-est.est-type, gcTypeList)
+        ipbf-estCostHeader.estType                     = DYNAMIC-FUNCTION("fEstimate_GetType", bf-est.est-type, bf-est.estimateTypeID)
         ipbf-estCostHeader.warehouseID                 = bf-est.loc
         ipbf-estCostHeader.marginOn                    = bf-ce-ctrl.sell-by
         ipbf-estCostHeader.marginPct                   = bf-ce-ctrl.prof-mrkup
@@ -3917,12 +3904,6 @@ PROCEDURE pBuildHeader PRIVATE:
         ipbf-estCostHeader.special3MarkupPct           = IF bf-ce-ctrl.spec-%[3] < 1 THEN bf-ce-ctrl.spec-%[3] ELSE 0 /*ctrl[4] - already a fraction?*/ 
         ipbf-estCostHeader.special3FlatValue           = IF bf-ce-ctrl.spec-%[3] < 1 THEN 0 ELSE bf-ce-ctrl.spec-%[3] /*REFACTOR - treatment of Special Costs*/
         .
-    CASE bf-est.estimateTypeID:
-        WHEN "Misc" THEN 
-            ipbf-estCostHeader.estType = gcTypeMisc.
-        WHEN "Wood" THEN
-            ipbf-estCostHeader.estType = gcTypeWood.
-    END CASE.
     
 END PROCEDURE.
 
@@ -4612,7 +4593,7 @@ PROCEDURE pProcessOperation PRIVATE:
     END.
     
     //Apply feed types A and P after base in-out calculation performed.  These will only affect the run hrs
-    IF IsSetType(ipbf-estCostHeader.estType) AND (ipbf-estCostOperation.feedType EQ "A" OR  ipbf-estCostOperation.feedType EQ "P") THEN 
+    IF fIsSetType(ipbf-estCostHeader.estType) AND (ipbf-estCostOperation.feedType EQ "A" OR  ipbf-estCostOperation.feedType EQ "P") THEN 
     DO: 
         IF ipbf-estCostOperation.feedType EQ "P" THEN 
             dPartCount = fGetPartCount(ipbf-estCostHeader.company, ipbf-estCostHeader.estimateNo).
@@ -4986,27 +4967,11 @@ END FUNCTION.
 FUNCTION fGetQuantityPerSet RETURNS DECIMAL PRIVATE
     (BUFFER ipbf-eb FOR eb):
     /*------------------------------------------------------------------------------
-     Purpose: 
+     Purpose: Returns the quantity per set in decimal form for an eb 
      Notes:
     ------------------------------------------------------------------------------*/	
 
-    DEFINE VARIABLE dQuantityPerSet AS DECIMAL NO-UNDO.
-    
-    
-
-    IF ipbf-eb.est-type LT 5 THEN
-        dQuantityPerSet     = ipbf-eb.cust-%. 
-    ELSE         
-        dQuantityPerSet     = ipbf-eb.quantityPerSet.
-        
-    IF dQuantityPerSet LT 0 THEN 
-        dQuantityPerSet     = ABSOLUTE(1 / dQuantityPerSet). 
-    
-    IF ipbf-eb.form-no EQ 0 OR dQuantityPerSet EQ 0 THEN
-        dQuantityPerSet =  1.
-
-    RETURN dQuantityPerSet.
-
+    RETURN DYNAMIC-FUNCTION("fEstimate_GetQuantityPerSet", BUFFER ipbf-eb).
 		
 END FUNCTION.
 
@@ -5016,17 +4981,8 @@ FUNCTION fIsDepartment RETURNS LOGICAL PRIVATE
      Purpose: determine if provided department is in department list
      Notes:
     ------------------------------------------------------------------------------*/    
-    DEFINE VARIABLE iIndex        AS INTEGER NO-UNDO.
-    DEFINE VARIABLE lIsDepartment AS LOGICAL NO-UNDO. 
-    
-    DO iIndex = 1 TO 4:
-        IF CAN-DO(ipcDepartment,ipcDepartmentList[iIndex]) THEN 
-        DO:
-            lIsDepartment = YES.
-            LEAVE.
-        END.
-    END.
-    RETURN lIsDepartment.
+
+    RETURN DYNAMIC-FUNCTION("fEstimate_IsDepartment", ipcDepartment, ipcDepartmentList).
         
 END FUNCTION.
 
@@ -5036,79 +4992,59 @@ FUNCTION fRoundUP RETURNS DECIMAL PRIVATE
      Purpose: Given a value, rounds up to next integer
      Notes:
     ------------------------------------------------------------------------------*/	
-    DEFINE VARIABLE dValueRounded AS DECIMAL NO-UNDO.
 
-    IF (ipdValue - INTEGER(ipdValue)) > 0 THEN 
-        dValueRounded = INTEGER(ipdValue) + 1.
-    ELSE dValueRounded = INTEGER (ipdValue).
-    RETURN dValueRounded.
+    RETURN DYNAMIC-FUNCTION("sfCommon_RoundUp", ipdValue).
 		
 END FUNCTION.
 
-FUNCTION fUseNew RETURNS LOGICAL 
-    (ipcCompany AS CHARACTER):
-    /*------------------------------------------------------------------------------
-     Purpose: Returns the Setting to use new estimate calculation
-     Notes:
-    ------------------------------------------------------------------------------*/	
-    DEFINE VARIABLE lFound  AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
-    
-    RUN sys/ref/nk1look.p (ipcCompany, "CEVersion", "C" /* Character */, NO /* check by cust */, 
-        INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-        OUTPUT cReturn, OUTPUT lFound).
-    
-    RETURN lFound AND cReturn EQ "New".
-		
-END FUNCTION.
 
-FUNCTION IsComboType RETURNS LOGICAL 
+FUNCTION fIsComboType RETURNS LOGICAL PRIVATE
     (ipcEstType AS CHARACTER):
     /*------------------------------------------------------------------------------
      Purpose:  Returns the constant value for Combo Estimate Type
      Notes:
     ------------------------------------------------------------------------------*/    
-    RETURN ipcEstType EQ gcTypeCombo.
+    RETURN DYNAMIC-FUNCTION("fEstimate_IsComboType", ipcEstType).
     
 END FUNCTION.
 
-FUNCTION IsMiscType RETURNS LOGICAL 
+FUNCTION fIsMiscType RETURNS LOGICAL PRIVATE 
     (ipcEstType AS CHARACTER):
     /*------------------------------------------------------------------------------
      Purpose:  Returns the constant value for Combo Estimate Type
      Notes:
     ------------------------------------------------------------------------------*/    
-    RETURN ipcEstType EQ gcTypeMisc.
+    RETURN DYNAMIC-FUNCTION("fEstimate_IsMiscType", ipcEstType).
 		
 END FUNCTION.
 
-FUNCTION IsSetType RETURNS LOGICAL 
+FUNCTION fIsSetType RETURNS LOGICAL PRIVATE
     (ipcEstType AS CHARACTER):
     /*------------------------------------------------------------------------------
      Purpose:  Returns the constant value for Set Estimate Type
      Notes:
     ------------------------------------------------------------------------------*/    
-    RETURN ipcEstType EQ gcTypeSet.
+    RETURN DYNAMIC-FUNCTION("fEstimate_IsSetType", ipcEstType).
 		
 END FUNCTION.
 
-FUNCTION IsSingleType RETURNS LOGICAL
+FUNCTION fIsSingleType RETURNS LOGICAL PRIVATE
     (ipcEstType AS CHARACTER):
     /*------------------------------------------------------------------------------
      Purpose:  Returns the constant value for Single Estimate Type
      Notes:
     ------------------------------------------------------------------------------*/	
-    RETURN ipcEstType EQ gcTypeSingle.
+    RETURN DYNAMIC-FUNCTION("fEstimate_IsSingleType", ipcEstType).
 	
 END FUNCTION.
 
-FUNCTION IsWoodType RETURNS LOGICAL 
+FUNCTION fIsWoodType RETURNS LOGICAL PRIVATE 
     (ipcEstType AS CHARACTER):
     /*------------------------------------------------------------------------------
      Purpose:  Returns the constant value for Single Estimate Type
      Notes:
     ------------------------------------------------------------------------------*/    
-    RETURN ipcEstType EQ gcTypeWood.
+    RETURN DYNAMIC-FUNCTION("fEstimate_IsWoodType", ipcEstType).
     
 END FUNCTION.
 

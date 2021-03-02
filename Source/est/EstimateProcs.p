@@ -13,11 +13,111 @@
 
 /* ***************************  Definitions  ************************** */
 {est/ttGoto.i}
+
+DEFINE VARIABLE gcTypeSingle AS CHARACTER NO-UNDO INITIAL "Single".
+DEFINE VARIABLE gcTypeSet    AS CHARACTER NO-UNDO INITIAL "Set".
+DEFINE VARIABLE gcTypeCombo  AS CHARACTER NO-UNDO INITIAL "Combo/Tandem".
+DEFINE VARIABLE gcTypeMisc   AS CHARACTER NO-UNDO INITIAL "Miscellaneous".
+DEFINE VARIABLE gcTypeWood   AS CHARACTER NO-UNDO INITIAL "Wood".
+DEFINE VARIABLE gcTypeList   AS CHARACTER NO-UNDO. 
 /* ********************  Preprocessor Definitions  ******************** */
+
+/* ************************  Function Prototypes ********************** */
+
+
+FUNCTION fEstimate_GetEstimateType RETURNS CHARACTER 
+	(ipiEstimateStructureType AS INTEGER,
+	 ipcEstimateTypeID AS CHARACTER) FORWARD.
+
+FUNCTION fEstimate_GetQuantityPerSet RETURNS DECIMAL 
+	(BUFFER ipbf-eb FOR eb) FORWARD.
+
+FUNCTION fEstimate_IsDepartment RETURNS LOGICAL 
+	(ipcDepartment AS CHARACTER,
+	 ipcDepartmentList AS CHARACTER EXTENT 4) FORWARD.
+
+FUNCTION fEstimate_IsComboType RETURNS LOGICAL 
+    (ipcEstType AS CHARACTER) FORWARD.
+
+FUNCTION fEstimate_IsInk RETURNS LOGICAL 
+	(ipcMaterialType AS CHARACTER,
+	 ipcInkType AS CHARACTER) FORWARD.
+
+FUNCTION fEstimate_IsMiscType RETURNS LOGICAL 
+    (ipcEstType AS CHARACTER) FORWARD.
+
+FUNCTION fEstimate_IsSetType RETURNS LOGICAL 
+    (ipcEstType AS CHARACTER) FORWARD.
+
+FUNCTION fEstimate_IsSingleType RETURNS LOGICAL
+    (ipcEstType AS CHARACTER) FORWARD.
+
+FUNCTION fEstimate_IsWoodType RETURNS LOGICAL 
+    (ipcEstType AS CHARACTER) FORWARD.
 
 /* ***************************  Main Block  *************************** */
 
+ASSIGN 
+    /*Build mapping from estimate type # to descriptive type*/ 
+    gcTypeList = gcTypeSingle + "," + gcTypeSet + ","  + gcTypeCombo + "," + gcTypeCombo + "," + gcTypeSingle + "," + gcTypeSet + ","  + gcTypeCombo + "," + gcTypeCombo
+    .
+    
 /* **********************  Internal Procedures  *********************** */
+
+PROCEDURE Estimate_GetVersionSettings:
+    /*------------------------------------------------------------------------------
+     Purpose: Gets settings to use the new estimate calc and prompt, given est buffer
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcEstimateTypeID AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplUseNew AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplUseNewPrompt AS LOGICAL NO-UNDO.
+    
+    DEFINE VARIABLE cReturn    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lFound     AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE iCEVersion AS INTEGER   NO-UNDO.
+
+    RUN sys/ref/nk1look.p (ipcCompany, "CEVersion", "C" /* Character */, NO /* check by cust */, 
+        INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+        OUTPUT cReturn, OUTPUT lFound).
+    oplUseNew = lFound AND cReturn EQ "New".
+ 
+    RUN sys/ref/nk1look.p (ipcCompany, "CEVersion", "I" /* Character */, NO /* check by cust */, 
+        INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+        OUTPUT cReturn, OUTPUT lFound).
+    IF lFound THEN 
+        iCEVersion = INTEGER(cReturn).
+        
+    IF oplUseNew THEN 
+        CASE iCEVersion:
+            WHEN 1 THEN 
+                ASSIGN 
+                    oplUseNewPrompt = oplUseNew.
+            WHEN 2 THEN 
+                DO:
+                    IF NOT DYNAMIC-FUNCTION("sfIsUserSuperAdmin") THEN 
+                        oplUseNew = NO.            
+                    ASSIGN 
+                        oplUseNewPrompt = oplUseNew.
+                END.
+            WHEN 3 THEN 
+                DO:
+                    IF DYNAMIC-FUNCTION("sfIsUserSuperAdmin") THEN 
+                        oplUseNewPrompt = YES.
+                    ELSE 
+                        oplUseNewPrompt = NO.            
+                END.
+            WHEN 4 THEN 
+                DO:
+                    IF NOT ipcEstimateTypeID EQ "MISC" THEN 
+                        ASSIGN 
+                            oplUseNew       = NO
+                            oplUseNewPrompt = NO.
+                END.
+        END CASE.
+
+END PROCEDURE.
 
 PROCEDURE Estimate_LoadEstToTT:
 /*------------------------------------------------------------------------------
@@ -645,3 +745,149 @@ PROCEDURE pUpdateFormBoard PRIVATE:
             .
     END.
 END PROCEDURE.
+
+
+/* ************************  Function Implementations ***************** */
+
+FUNCTION fEstimate_GetEstimateType RETURNS CHARACTER 
+	(ipiEstimateStructureType AS INTEGER, ipcEstimateTypeID AS CHARACTER):
+    /*------------------------------------------------------------------------------
+    Purpose:  Given estimate qualifiers, return the Estimate Type
+    Notes:
+    ------------------------------------------------------------------------------*/	
+
+    DEFINE VARIABLE cType AS CHARACTER NO-UNDO.
+    
+    cType = ENTRY(ipiEstimateStructureType, gcTypeList).
+    CASE ipcEstimateTypeID:
+        WHEN "Misc" THEN 
+            cType = gcTypeMisc.
+        WHEN "Wood" THEN
+            cType = gcTypeWood.
+    END CASE.	
+    RETURN cType.
+    
+END FUNCTION.
+
+FUNCTION fEstimate_GetQuantityPerSet RETURNS DECIMAL 
+    (BUFFER ipbf-eb FOR eb):
+    /*------------------------------------------------------------------------------
+     Purpose: 
+     Notes:
+    ------------------------------------------------------------------------------*/    
+
+    DEFINE VARIABLE dQuantityPerSet AS DECIMAL NO-UNDO.
+       
+
+    IF ipbf-eb.est-type LT 5 THEN
+        dQuantityPerSet     = ipbf-eb.cust-%. 
+    ELSE         
+        dQuantityPerSet     = ipbf-eb.quantityPerSet.
+        
+    IF dQuantityPerSet LT 0 THEN 
+        dQuantityPerSet     = ABSOLUTE(1 / dQuantityPerSet). 
+    
+    IF ipbf-eb.form-no EQ 0 OR dQuantityPerSet EQ 0 THEN
+        dQuantityPerSet =  1.
+
+    RETURN dQuantityPerSet.
+
+END FUNCTION.
+
+FUNCTION fEstimate_IsDepartment RETURNS LOGICAL 
+    (ipcDepartment AS CHARACTER, ipcDepartmentList AS CHARACTER EXTENT 4):
+    /*------------------------------------------------------------------------------
+     Purpose: determine if provided department is in department list
+     Notes:
+    ------------------------------------------------------------------------------*/    
+    DEFINE VARIABLE iIndex        AS INTEGER NO-UNDO.
+    DEFINE VARIABLE lIsDepartment AS LOGICAL NO-UNDO. 
+    
+    DO iIndex = 1 TO 4:
+        IF CAN-DO(ipcDepartment,ipcDepartmentList[iIndex]) THEN 
+        DO:
+            lIsDepartment = YES.
+            LEAVE.
+        END.
+    END.
+    RETURN lIsDepartment.
+        
+END FUNCTION.
+
+FUNCTION fEstimate_IsComboType RETURNS LOGICAL 
+    (ipcEstType AS CHARACTER):
+    /*------------------------------------------------------------------------------
+     Purpose:  Returns the constant value for Combo Estimate Type
+     Notes:
+    ------------------------------------------------------------------------------*/    
+    RETURN ipcEstType EQ gcTypeCombo.
+    
+END FUNCTION.
+
+FUNCTION fEstimate_IsInk RETURNS LOGICAL 
+	(ipcMaterialType AS CHARACTER, ipcInkType AS CHARACTER):
+    /*------------------------------------------------------------------------------
+    Purpose:  Given a material type and ink type, return if valid Ink
+    Notes:
+    ------------------------------------------------------------------------------*/	
+    
+    RETURN INDEX("IV",ipcMaterialType) GT 0 AND ipcInkType NE "A".
+    		
+END FUNCTION.
+
+FUNCTION fEstimate_IsMiscType RETURNS LOGICAL 
+    (ipcEstType AS CHARACTER):
+    /*------------------------------------------------------------------------------
+     Purpose:  Returns the constant value for Combo Estimate Type
+     Notes:
+    ------------------------------------------------------------------------------*/    
+    RETURN ipcEstType EQ gcTypeMisc.
+        
+END FUNCTION.
+
+FUNCTION fEstimate_IsSetType RETURNS LOGICAL 
+    (ipcEstType AS CHARACTER):
+    /*------------------------------------------------------------------------------
+     Purpose:  Returns the constant value for Set Estimate Type
+     Notes:
+    ------------------------------------------------------------------------------*/    
+    RETURN ipcEstType EQ gcTypeSet.
+        
+END FUNCTION.
+
+FUNCTION fEstimate_IsSingleType RETURNS LOGICAL
+    (ipcEstType AS CHARACTER):
+    /*------------------------------------------------------------------------------
+     Purpose:  Returns the constant value for Single Estimate Type
+     Notes:
+    ------------------------------------------------------------------------------*/    
+    RETURN ipcEstType EQ gcTypeSingle.
+    
+END FUNCTION.
+
+FUNCTION fEstimate_IsWoodType RETURNS LOGICAL 
+    (ipcEstType AS CHARACTER):
+    /*------------------------------------------------------------------------------
+     Purpose:  Returns the constant value for Single Estimate Type
+     Notes:
+    ------------------------------------------------------------------------------*/    
+    RETURN ipcEstType EQ gcTypeWood.
+    
+END FUNCTION.
+
+FUNCTION fEstimate_UseNew RETURNS LOGICAL 
+    (ipcCompany AS CHARACTER):
+    /*------------------------------------------------------------------------------
+     Purpose: Returns the Setting to use new estimate calculation
+     Notes:
+    ------------------------------------------------------------------------------*/    
+    DEFINE VARIABLE lFound  AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
+    
+    RUN sys/ref/nk1look.p (ipcCompany, "CEVersion", "C" /* Character */, NO /* check by cust */, 
+        INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+        OUTPUT cReturn, OUTPUT lFound).
+    
+    RETURN lFound AND cReturn EQ "New".
+        
+END FUNCTION.

@@ -47,7 +47,7 @@ THIS-PROCEDURE:ADD-SUPER-PROCEDURE (ghOperationProcs).
 
 {src/adm2/widgetprto.i}
 
-{est\ttAttribute.i}
+{est\ttOperationAttribute.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -99,19 +99,15 @@ operationID fi_file tb_excel
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
 
+
 /* ************************  Function Prototypes ********************** */
 
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fValidateInputs wOperationsTester
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fValidateInputs wOperationsTester 
 FUNCTION fValidateInputs RETURNS LOGICAL PRIVATE
     (  ) FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
-
 
 
 /* ***********************  Control Definitions  ********************** */
@@ -120,98 +116,98 @@ FUNCTION fValidateInputs RETURNS LOGICAL PRIVATE
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btnAssess 
-    LABEL "Show Standards for Attributes" 
-    SIZE 46 BY 1.14.
+     LABEL "Show Standards for Attributes" 
+     SIZE 46 BY 1.14.
 
 DEFINE BUTTON btnDon AUTO-GO 
-    LABEL "Done" 
-    SIZE 15 BY 1.14.
+     LABEL "Done" 
+     SIZE 15 BY 1.14.
 
 DEFINE BUTTON btnGo 
-    LABEL "Get Attributes" 
-    SIZE 46 BY 1.14.
+     LABEL "Get Attributes" 
+     SIZE 46 BY 1.14.
 
-DEFINE VARIABLE blankNo     AS INTEGER   FORMAT "->,>>>,>>9":U INITIAL 1 
-    LABEL "Blank" 
-    VIEW-AS FILL-IN 
-    SIZE 4 BY 1 NO-UNDO.
+DEFINE VARIABLE blankNo AS INTEGER FORMAT "->,>>>,>>9":U INITIAL 1 
+     LABEL "Blank" 
+     VIEW-AS FILL-IN 
+     SIZE 4 BY 1 NO-UNDO.
 
-DEFINE VARIABLE company     AS CHARACTER FORMAT "X(6)":U INITIAL "001" 
-    LABEL "Company" 
-    VIEW-AS FILL-IN 
-    SIZE 18 BY 1 NO-UNDO.
+DEFINE VARIABLE company AS CHARACTER FORMAT "X(6)":U INITIAL "001" 
+     LABEL "Company" 
+     VIEW-AS FILL-IN 
+     SIZE 18 BY 1 NO-UNDO.
 
-DEFINE VARIABLE estimateID  AS CHARACTER FORMAT "X(6)":U 
-    LABEL "Estimate" 
-    VIEW-AS FILL-IN 
-    SIZE 18 BY 1 NO-UNDO.
+DEFINE VARIABLE estimateID AS CHARACTER FORMAT "X(6)":U 
+     LABEL "Estimate" 
+     VIEW-AS FILL-IN 
+     SIZE 18 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fi_file     AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\OperationsTester.csv" 
-    LABEL "If Yes, File Name" 
-    VIEW-AS FILL-IN 
-    SIZE 41 BY 1
-    FGCOLOR 9 .
+DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\OperationsTester.csv" 
+     LABEL "If Yes, File Name" 
+     VIEW-AS FILL-IN 
+     SIZE 41 BY 1
+     FGCOLOR 9 .
 
-DEFINE VARIABLE formNo      AS INTEGER   FORMAT "->,>>>,>>9":U INITIAL 1 
-    LABEL "Form" 
-    VIEW-AS FILL-IN 
-    SIZE 4 BY 1 NO-UNDO.
+DEFINE VARIABLE formNo AS INTEGER FORMAT "->,>>>,>>9":U INITIAL 1 
+     LABEL "Form" 
+     VIEW-AS FILL-IN 
+     SIZE 4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE operationID AS CHARACTER FORMAT "X(6)":U 
-    LABEL "Operation" 
-    VIEW-AS FILL-IN 
-    SIZE 18 BY 1 NO-UNDO.
+     LABEL "Operation" 
+     VIEW-AS FILL-IN 
+     SIZE 18 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_excel    AS LOGICAL   INITIAL no 
-    LABEL "Export To Excel?" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 21 BY .81 NO-UNDO.
+DEFINE VARIABLE tb_excel AS LOGICAL INITIAL no 
+     LABEL "Export To Excel?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 21 BY .81 NO-UNDO.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY BROWSE-1 FOR 
-    ttAttribute SCROLLING.
+      ttAttribute SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
 DEFINE BROWSE BROWSE-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-1 wOperationsTester _FREEFORM
-    QUERY BROWSE-1 DISPLAY
-    ttAttribute.attributeID COLUMN-LABEL 'ID' WIDTH 12  
+  QUERY BROWSE-1 DISPLAY
+      ttAttribute.attributeID COLUMN-LABEL 'ID' WIDTH 12  
     ttAttribute.attributeName COLUMN-LABEL 'Name' FORMAT "x(50)" WIDTH 40
     ttAttribute.attributeValue COLUMN-LABEL 'Value' FORMAT "x(50)" WIDTH 40
     ENABLE 
         ttAttribute.attributeValue
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 133 BY 12.14 ROW-HEIGHT-CHARS .75 FIT-LAST-COLUMN.
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 133 BY 11.67 ROW-HEIGHT-CHARS .75 FIT-LAST-COLUMN.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME wOperationsTester
-    company AT ROW 1.24 COL 24 COLON-ALIGNED HELP
-    "Enter Company" WIDGET-ID 36
-    estimateID AT ROW 2.52 COL 24 COLON-ALIGNED HELP
-    "Enter Estimate" WIDGET-ID 46
-    formNo AT ROW 2.52 COL 48 COLON-ALIGNED HELP
-    "Enter Estimate" WIDGET-ID 48
-    blankNo AT ROW 2.52 COL 60 COLON-ALIGNED HELP
-    "Enter Estimate" WIDGET-ID 50
-    operationID AT ROW 3.86 COL 24 COLON-ALIGNED HELP
-    "Enter Estimate" WIDGET-ID 52
-    btnGo AT ROW 5.24 COL 5.6 WIDGET-ID 10
-    fi_file AT ROW 5.24 COL 95 COLON-ALIGNED HELP
-    "Enter File Name" WIDGET-ID 40
-    tb_excel AT ROW 5.38 COL 76.6 RIGHT-ALIGNED WIDGET-ID 42
-    BROWSE-1 AT ROW 6.71 COL 5 WIDGET-ID 200
-    btnDon AT ROW 19.1 COL 122
-    btnAssess AT ROW 19.33 COL 26 WIDGET-ID 44
-    SPACE(69.99) SKIP(1.43)
+     company AT ROW 1.24 COL 24 COLON-ALIGNED HELP
+          "Enter Company" WIDGET-ID 36
+     estimateID AT ROW 2.52 COL 24 COLON-ALIGNED HELP
+          "Enter Estimate" WIDGET-ID 46
+     formNo AT ROW 2.52 COL 48 COLON-ALIGNED HELP
+          "Enter Estimate" WIDGET-ID 48
+     blankNo AT ROW 2.52 COL 60 COLON-ALIGNED HELP
+          "Enter Estimate" WIDGET-ID 50
+     operationID AT ROW 3.86 COL 24 COLON-ALIGNED HELP
+          "Enter Estimate" WIDGET-ID 52
+     btnGo AT ROW 5.24 COL 5.6 WIDGET-ID 10
+     fi_file AT ROW 5.24 COL 95 COLON-ALIGNED HELP
+          "Enter File Name" WIDGET-ID 40
+     tb_excel AT ROW 5.38 COL 76.6 RIGHT-ALIGNED WIDGET-ID 42
+     BROWSE-1 AT ROW 6.71 COL 5 WIDGET-ID 200
+     btnDon AT ROW 19.1 COL 122
+     btnAssess AT ROW 19.33 COL 26 WIDGET-ID 44
+     SPACE(69.99) SKIP(0.66)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
-    SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
-    TITLE "Operations Tester"
-    DEFAULT-BUTTON btnGo WIDGET-ID 100.
+         SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
+         TITLE "Operations Tester"
+         DEFAULT-BUTTON btnGo WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -243,16 +239,18 @@ DEFINE FRAME wOperationsTester
    FRAME-NAME                                                           */
 /* BROWSE-TAB BROWSE-1 tb_excel wOperationsTester */
 ASSIGN 
-    FRAME wOperationsTester:SCROLLABLE = FALSE
-    FRAME wOperationsTester:HIDDEN     = TRUE.
+       FRAME wOperationsTester:SCROLLABLE       = FALSE
+       FRAME wOperationsTester:HIDDEN           = TRUE.
 
 ASSIGN 
-    fi_file:PRIVATE-DATA IN FRAME wOperationsTester = "parm".
+       fi_file:PRIVATE-DATA IN FRAME wOperationsTester     = 
+                "parm".
 
 /* SETTINGS FOR TOGGLE-BOX tb_excel IN FRAME wOperationsTester
    ALIGN-R                                                              */
 ASSIGN 
-    tb_excel:PRIVATE-DATA IN FRAME wOperationsTester = "parm".
+       tb_excel:PRIVATE-DATA IN FRAME wOperationsTester     = 
+                "parm".
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -285,7 +283,7 @@ OPEN QUERY {&SELF-NAME} FOR EACH ttAttribute.
 &Scoped-define SELF-NAME wOperationsTester
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL wOperationsTester wOperationsTester
 ON WINDOW-CLOSE OF FRAME wOperationsTester /* Operations Tester */
-    DO:  
+DO:  
         /* Add Trigger to equate WINDOW-CLOSE to END-ERROR. */
         APPLY "END-ERROR":U TO SELF.
     END.
@@ -297,7 +295,7 @@ ON WINDOW-CLOSE OF FRAME wOperationsTester /* Operations Tester */
 &Scoped-define SELF-NAME blankNo
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL blankNo wOperationsTester
 ON LEAVE OF blankNo IN FRAME wOperationsTester /* Blank */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -308,7 +306,7 @@ ON LEAVE OF blankNo IN FRAME wOperationsTester /* Blank */
 &Scoped-define SELF-NAME btnAssess
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnAssess wOperationsTester
 ON CHOOSE OF btnAssess IN FRAME wOperationsTester /* Show Standards for Attributes */
-    DO:
+DO:
         IF fValidateInputs() THEN 
             RUN pAssessSelection(company, estimateID, operationID).  
     END.
@@ -320,7 +318,7 @@ ON CHOOSE OF btnAssess IN FRAME wOperationsTester /* Show Standards for Attribut
 &Scoped-define SELF-NAME btnGo
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnGo wOperationsTester
 ON CHOOSE OF btnGo IN FRAME wOperationsTester /* Get Attributes */
-    DO:
+DO:
 
         IF fValidateInputs() THEN          
             RUN pBuildList (company, estimateID, formNo, blankNo).
@@ -335,7 +333,7 @@ ON CHOOSE OF btnGo IN FRAME wOperationsTester /* Get Attributes */
 &Scoped-define SELF-NAME company
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL company wOperationsTester
 ON LEAVE OF company IN FRAME wOperationsTester /* Company */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -346,7 +344,7 @@ ON LEAVE OF company IN FRAME wOperationsTester /* Company */
 &Scoped-define SELF-NAME estimateID
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL estimateID wOperationsTester
 ON LEAVE OF estimateID IN FRAME wOperationsTester /* Estimate */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -357,7 +355,7 @@ ON LEAVE OF estimateID IN FRAME wOperationsTester /* Estimate */
 &Scoped-define SELF-NAME fi_file
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_file wOperationsTester
 ON LEAVE OF fi_file IN FRAME wOperationsTester /* If Yes, File Name */
-    DO:
+DO:
         assign {&self-name}.
     END.
 
@@ -368,7 +366,7 @@ ON LEAVE OF fi_file IN FRAME wOperationsTester /* If Yes, File Name */
 &Scoped-define SELF-NAME formNo
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL formNo wOperationsTester
 ON LEAVE OF formNo IN FRAME wOperationsTester /* Form */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -379,7 +377,7 @@ ON LEAVE OF formNo IN FRAME wOperationsTester /* Form */
 &Scoped-define SELF-NAME operationID
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL operationID wOperationsTester
 ON LEAVE OF operationID IN FRAME wOperationsTester /* Operation */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -390,7 +388,7 @@ ON LEAVE OF operationID IN FRAME wOperationsTester /* Operation */
 &Scoped-define SELF-NAME tb_excel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_excel wOperationsTester
 ON VALUE-CHANGED OF tb_excel IN FRAME wOperationsTester /* Export To Excel? */
-    DO:
+DO:
         assign {&self-name}.
     END.
 
@@ -433,16 +431,16 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI wOperationsTester  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
-    /*------------------------------------------------------------------------------
-      Purpose:     DISABLE the User Interface
-      Parameters:  <none>
-      Notes:       Here we clean-up the user-interface by deleting
-                   dynamic widgets we have created and/or hide 
-                   frames.  This procedure is usually called when
-                   we are ready to "clean-up" after running.
-    ------------------------------------------------------------------------------*/
-    /* Hide all frames. */
-    HIDE FRAME wOperationsTester.
+/*------------------------------------------------------------------------------
+  Purpose:     DISABLE the User Interface
+  Parameters:  <none>
+  Notes:       Here we clean-up the user-interface by deleting
+               dynamic widgets we have created and/or hide 
+               frames.  This procedure is usually called when
+               we are ready to "clean-up" after running.
+------------------------------------------------------------------------------*/
+  /* Hide all frames. */
+  HIDE FRAME wOperationsTester.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -450,22 +448,22 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI wOperationsTester  _DEFAULT-ENABLE
 PROCEDURE enable_UI :
-    /*------------------------------------------------------------------------------
-      Purpose:     ENABLE the User Interface
-      Parameters:  <none>
-      Notes:       Here we display/view/enable the widgets in the
-                   user-interface.  In addition, OPEN all queries
-                   associated with each FRAME and BROWSE.
-                   These statements here are based on the "Other 
-                   Settings" section of the widget Property Sheets.
-    ------------------------------------------------------------------------------*/
-    DISPLAY company estimateID formNo blankNo operationID fi_file tb_excel 
-        WITH FRAME wOperationsTester.
-    ENABLE company estimateID formNo blankNo operationID btnGo fi_file tb_excel 
-        BROWSE-1 btnDon btnAssess 
-        WITH FRAME wOperationsTester.
-    VIEW FRAME wOperationsTester.
-    {&OPEN-BROWSERS-IN-QUERY-wOperationsTester}
+/*------------------------------------------------------------------------------
+  Purpose:     ENABLE the User Interface
+  Parameters:  <none>
+  Notes:       Here we display/view/enable the widgets in the
+               user-interface.  In addition, OPEN all queries
+               associated with each FRAME and BROWSE.
+               These statements here are based on the "Other 
+               Settings" section of the widget Property Sheets.
+------------------------------------------------------------------------------*/
+  DISPLAY company estimateID formNo blankNo operationID fi_file tb_excel 
+      WITH FRAME wOperationsTester.
+  ENABLE company estimateID formNo blankNo operationID btnGo fi_file tb_excel 
+         BROWSE-1 btnDon btnAssess 
+      WITH FRAME wOperationsTester.
+  VIEW FRAME wOperationsTester.
+  {&OPEN-BROWSERS-IN-QUERY-wOperationsTester}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -473,7 +471,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pAssessSelection wOperationsTester 
 PROCEDURE pAssessSelection PRIVATE :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
          Purpose:
          Notes:
         ------------------------------------------------------------------------------*/
@@ -503,7 +501,8 @@ PROCEDURE pAssessSelection PRIVATE :
             "MR Hours: " dOpMRHours SKIP 
             "Run Speed: " dOpRunSpeed SKIP 
             "Run Spoil: " dOpRunSpoil SKIP(1) 
-            "Error: " lError cMessage
+            "Error: " lError SKIP 
+            cMessage
             VIEW-AS ALERT-BOX.
     END.
 END PROCEDURE.
@@ -513,7 +512,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pBuildList wOperationsTester 
 PROCEDURE pBuildList PRIVATE :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
              Purpose:
              Notes:
             ------------------------------------------------------------------------------*/
@@ -551,7 +550,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRunReport wOperationsTester 
 PROCEDURE pRunReport PRIVATE :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
                   Purpose:     
                   Parameters:  <none>
                   Notes:       
@@ -575,8 +574,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pValidateInputs wOperationsTester
-PROCEDURE pValidateInputs PRIVATE:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pValidateInputs wOperationsTester 
+PROCEDURE pValidateInputs PRIVATE :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -584,14 +583,13 @@ PROCEDURE pValidateInputs PRIVATE:
     
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 /* ************************  Function Implementations ***************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fValidateInputs wOperationsTester
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fValidateInputs wOperationsTester 
 FUNCTION fValidateInputs RETURNS LOGICAL PRIVATE
     (  ):
     /*------------------------------------------------------------------------------
@@ -610,9 +608,7 @@ FUNCTION fValidateInputs RETURNS LOGICAL PRIVATE
     RETURN lAllValid.
 
 END FUNCTION.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
