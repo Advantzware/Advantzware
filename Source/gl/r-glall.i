@@ -70,22 +70,24 @@
         glhist.actnum EQ account.actnum AND
         glhist.period = v-period and
         glhist.tr-date ge period.pst and
-        glhist.tr-date le period.pend:
+        glhist.tr-date le period.pend and
+        glhist.posted eq Yes:
         assign tot-ptd-sales = tot-ptd-sales + glhist.tr-amt.
     end.
 
     if pre-close then
     do:
 
-      for each gltrans no-lock where gltrans.actnum eq account.actnum and
-                                     gltrans.company eq cocode:
-        if gltrans.tr-date le v-ptd and
-           gltrans.tr-date >= period.pst and
-           gltrans.tr-date <= period.pend then
+      for each glhist no-lock where glhist.actnum eq account.actnum and
+                                     glhist.company eq cocode and 
+				     glhist.posted eq no:
+        if glhist.tr-date le v-ptd and
+           glhist.tr-date >= period.pst and
+           glhist.tr-date <= period.pend then
         do:
-          if gltrans.period <> period.pnum then
+          if glhist.period <> period.pnum then
             next.
-          assign tot-ptd-sales = tot-ptd-sales + gltrans.tr-amt.
+          assign tot-ptd-sales = tot-ptd-sales + glhist.tr-amt.
         end.
       end.
     end.
@@ -101,7 +103,8 @@
             glhist.actnum EQ account.actnum AND
             glhist.period = per-loop and
             glhist.tr-date >= xperiod.pst and
-            glhist.tr-date <= xperiod.pend:
+            glhist.tr-date <= xperiod.pend and
+            glhist.posted EQ Yes:
           assign tot-ytd-sales = tot-ytd-sales + glhist.tr-amt.
         end.
     end.
@@ -126,22 +129,24 @@
         glhist.actnum EQ account.actnum AND
         glhist.period = v-period and
         glhist.tr-date ge period.pst and
-        glhist.tr-date le period.pend:
+        glhist.tr-date le period.pend and
+        glhist.posted EQ Yes:
       assign ptd-sales = ptd-sales + glhist.tr-amt.
     end.
 
 
     if pre-close then
     do:
-      for each gltrans no-lock where gltrans.actnum = account.actnum and
-                                     gltrans.company = cocode:
-        if gltrans.tr-date le v-ptd and
-             gltrans.tr-date >= period.pst and
-             gltrans.tr-date <= period.pend then
+      for each glhist no-lock where glhist.actnum = account.actnum and
+                                     glhist.company = cocode and 
+				     glhist.posted eq no:
+        if glhist.tr-date le v-ptd and
+             glhist.tr-date >= period.pst and
+             glhist.tr-date <= period.pend then
         do:
-          if gltrans.period <> period.pnum then
+          if glhist.period <> period.pnum then
             next.
-          assign ptd-sales = ptd-sales + gltrans.tr-amt.
+          assign ptd-sales = ptd-sales + glhist.tr-amt.
         end.
       end.
     end.
@@ -160,7 +165,8 @@
               glhist.actnum EQ account.actnum AND
               glhist.period = per-loop and
               glhist.tr-date >= xperiod.pst and
-              glhist.tr-date <= xperiod.pend:
+              glhist.tr-date <= xperiod.pend and
+	      glhist.posted EQ Yes:
             assign ytd-sales = ytd-sales + glhist.tr-amt.
           end.
       end.
@@ -197,22 +203,24 @@
         glhist.actnum EQ account.actnum AND
         glhist.period = v-period and
         glhist.tr-date ge period.pst and
-        glhist.tr-date le period.pend:
+        glhist.tr-date le period.pend and
+        glhist.posted EQ Yes:
 
       assign ptd-cos = ptd-cos + glhist.tr-amt.
     end.
 
     if pre-close then
     do:
-        for each gltrans no-lock where gltrans.actnum = account.actnum and
-                                       gltrans.company = cocode:
-          if gltrans.tr-date le v-ptd and
-             gltrans.tr-date >= period.pst and
-             gltrans.tr-date <= period.pend then
+        for each glhist no-lock where glhist.actnum = account.actnum and
+                                       glhist.company = cocode and 
+				       glhist.posted eq no:
+          if glhist.tr-date le v-ptd and
+             glhist.tr-date >= period.pst and
+             glhist.tr-date <= period.pend then
           do:
-            if gltrans.period <> period.pnum then
+            if glhist.period <> period.pnum then
               next.
-            assign ptd-cos = ptd-cos + gltrans.tr-amt.
+            assign ptd-cos = ptd-cos + glhist.tr-amt.
           end.
         end.
     end.
@@ -231,7 +239,8 @@
               glhist.actnum EQ account.actnum AND
               glhist.period = per-loop and
               glhist.tr-date >= xperiod.pst and
-              glhist.tr-date <= xperiod.pend:
+              glhist.tr-date <= xperiod.pend and
+	      glhist.posted EQ Yes:
             assign ytd-cos = ytd-cos + glhist.tr-amt.
           end.
       end.
@@ -278,22 +287,24 @@
         glhist.actnum EQ account.actnum AND
         glhist.period = v-period and
         glhist.tr-date ge period.pst and
-        glhist.tr-date le period.pend:
+        glhist.tr-date le period.pend and
+	glhist.posted EQ Yes:
       assign ptd-oper = ptd-oper + glhist.tr-amt.
     end.
 
 
     if pre-close then
     do:
-        for each gltrans no-lock where gltrans.actnum = account.actnum and
-                                       gltrans.company = cocode:
-          if gltrans.tr-date le v-ptd and
-             gltrans.tr-date >= period.pst and
-             gltrans.tr-date <= period.pend then
+        for each glhist no-lock where glhist.actnum = account.actnum and
+                                       glhist.company = cocode and 
+				       glhist.posted eq no:
+          if glhist.tr-date le v-ptd and
+             glhist.tr-date >= period.pst and
+             glhist.tr-date <= period.pend then
           do:
-            if gltrans.period <> period.pnum then
+            if glhist.period <> period.pnum then
               next.
-            assign ptd-oper = ptd-oper + gltrans.tr-amt.
+            assign ptd-oper = ptd-oper + glhist.tr-amt.
           end.
         end.
     end.
@@ -312,7 +323,8 @@
               glhist.actnum EQ account.actnum AND
               glhist.period = per-loop and
               glhist.tr-date >= xperiod.pst and
-              glhist.tr-date <= xperiod.pend:
+              glhist.tr-date <= xperiod.pend and
+	      glhist.posted EQ Yes:
             assign ytd-oper = ytd-oper + glhist.tr-amt.
           end.
       end.
@@ -354,21 +366,23 @@
         glhist.actnum EQ account.actnum AND
         glhist.period = v-period and
         glhist.tr-date ge period.pst and
-        glhist.tr-date le period.pend:
+        glhist.tr-date le period.pend and
+	glhist.posted EQ Yes:
       assign ptd-gen = ptd-gen + glhist.tr-amt.
     end.
 
     if pre-close then
     do:
-        for each gltrans no-lock where gltrans.actnum = account.actnum and
-                                       gltrans.company = cocode:
-          if gltrans.tr-date le v-ptd and
-             gltrans.tr-date >= period.pst and
-             gltrans.tr-date <= period.pend then
+        for each glhist no-lock where glhist.actnum = account.actnum and
+                                       glhist.company = cocode and 
+				       glhist.posted eq no:
+          if glhist.tr-date le v-ptd and
+             glhist.tr-date >= period.pst and
+             glhist.tr-date <= period.pend then
           do:
-            if gltrans.period <> period.pnum then
+            if glhist.period <> period.pnum then
               next.
-            assign ptd-gen = ptd-gen + gltrans.tr-amt.
+            assign ptd-gen = ptd-gen + glhist.tr-amt.
           end.
         end.
     end.
@@ -387,7 +401,8 @@
               glhist.actnum EQ account.actnum AND
               glhist.period = per-loop and
               glhist.tr-date >= xperiod.pst and
-              glhist.tr-date <= xperiod.pend:
+              glhist.tr-date <= xperiod.pend and
+	      glhist.posted EQ Yes:
             assign ytd-gen = ytd-gen + glhist.tr-amt.
           end.
       end.
@@ -429,22 +444,24 @@
         glhist.actnum EQ account.actnum AND
         glhist.period = v-period and
         glhist.tr-date ge period.pst and
-        glhist.tr-date le period.pend:
+        glhist.tr-date le period.pend and
+	glhist.posted EQ Yes:
       assign ptd-inc = ptd-inc + glhist.tr-amt.
     end.
 
 
     if pre-close then
     do:
-      for each gltrans no-lock where gltrans.actnum = account.actnum and
-                                       gltrans.company = cocode:
-        if gltrans.tr-date le v-ptd and
-           gltrans.tr-date >= period.pst and
-           gltrans.tr-date <= period.pend then
+      for each glhist no-lock where glhist.actnum = account.actnum and
+                                       glhist.company = cocode and 
+				       glhist.posted eq no:
+        if glhist.tr-date le v-ptd and
+           glhist.tr-date >= period.pst and
+           glhist.tr-date <= period.pend then
         do:
-          if gltrans.period <> period.pnum then
+          if glhist.period <> period.pnum then
             next.
-          assign ptd-inc = ptd-inc + gltrans.tr-amt.
+          assign ptd-inc = ptd-inc + glhist.tr-amt.
         end.
       end.
     end.
@@ -463,7 +480,8 @@
               glhist.actnum EQ account.actnum AND
               glhist.period = per-loop and
               glhist.tr-date >= xperiod.pst and
-              glhist.tr-date <= xperiod.pend:
+              glhist.tr-date <= xperiod.pend and
+	      glhist.posted EQ Yes:
             assign ytd-inc = ytd-inc + glhist.tr-amt.
           end.
       end.
@@ -521,22 +539,24 @@
         glhist.actnum EQ account.actnum AND
         glhist.period = v-period and
         glhist.tr-date ge period.pst and
-        glhist.tr-date le period.pend:
+        glhist.tr-date le period.pend and
+	glhist.posted EQ Yes:
       assign ptd-oth = ptd-oth + glhist.tr-amt.
     end.
 
 
     if pre-close then
     do:
-      for each gltrans no-lock where gltrans.actnum = account.actnum and
-                                       gltrans.company = cocode:
-        if gltrans.tr-date le v-ptd and
-           gltrans.tr-date >= period.pst and
-           gltrans.tr-date <= period.pend then
+      for each glhist no-lock where glhist.actnum = account.actnum and
+                                       glhist.company = cocode and 
+				       glhist.posted eq no:
+        if glhist.tr-date le v-ptd and
+           glhist.tr-date >= period.pst and
+           glhist.tr-date <= period.pend then
         do:
-          if gltrans.period <> period.pnum then
+          if glhist.period <> period.pnum then
             next.
-          assign ptd-oth = ptd-oth + gltrans.tr-amt.
+          assign ptd-oth = ptd-oth + glhist.tr-amt.
         end.
       end.
     end.
@@ -555,7 +575,8 @@
               glhist.actnum EQ account.actnum AND
               glhist.period = per-loop and
               glhist.tr-date >= xperiod.pst and
-              glhist.tr-date <= xperiod.pend:
+              glhist.tr-date <= xperiod.pend and
+              glhist.posted EQ Yes:
             assign ytd-oth = ytd-oth + glhist.tr-amt.
           end.
       end.

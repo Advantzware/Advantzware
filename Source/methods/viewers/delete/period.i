@@ -1,11 +1,6 @@
 /* period.i */
 
-If can-find(first gltrans where gltrans.company = period.company
-                            and gltrans.tr-date >= period.pst
-                            AND gltrans.tr-date <= period.pend
-            )
-    OR
-    can-find(first glhist where glhist.company = period.company
+If can-find(first glhist where glhist.company = period.company
                             and glhist.tr-date >= period.pst
                             AND glhist.tr-date <= period.pend
             )

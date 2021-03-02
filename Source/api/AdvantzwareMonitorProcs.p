@@ -35,15 +35,15 @@ DEFINE VARIABLE cMessage      AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cLine         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hdOutputProcs AS HANDLE    NO-UNDO.
 DEFINE VARIABLE cPathDataFile AS CHARACTER NO-UNDO.
-DEFINE VARIABLE hdSession     AS HANDLE    NO-UNDO.
 
 RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
-RUN system/Session.p     PERSISTENT SET hdSession.
 
 /* This is to get temporary path */
 RUN Output_GetTempFilePath IN hdOutputProcs (
     OUTPUT cPathDataFile
     ).
+
+DELETE PROCEDURE hdOutputProcs.
 
 PROCEDURE AdvantzwareMonitor_Initialize:
     /*------------------------------------------------------------------------------
@@ -432,7 +432,7 @@ PROCEDURE pSendEmail PRIVATE:
             cSubject = REPLACE(cSubject,"<$serverResourceName$>",bufServerResource.name)
             .
 
-        RUN spSendEmail IN hdSession (
+        RUN spSendEmail (
             INPUT bufServerResource.configID,  /* emailConfig.ConfigID */
             INPUT "",                          /* Override for Email RecipientsinTo */
             INPUT "",                          /* Override for Email RecipientsinReplyTo */

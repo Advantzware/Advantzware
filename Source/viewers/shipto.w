@@ -346,7 +346,7 @@ DEFINE FRAME F-Main
           SIZE 94 BY 1
      ship_note AT ROW 16 COL 5 NO-LABEL
      shipto.loc AT ROW 1.43 COL 125 COLON-ALIGNED
-          LABEL "Warehouse"
+          LABEL "Location"
           VIEW-AS FILL-IN 
           SIZE 15.6 BY 1
           FONT 4
@@ -2451,7 +2451,7 @@ PROCEDURE valid-tax-code :
   {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     shipto.tax-code:SCREEN-VALUE = CAPS(shipto.tax-code:SCREEN-VALUE).
-
+      
     IF NOT AVAIL cust THEN
     FIND FIRST cust
         WHERE cust.company EQ shipto.company
@@ -2461,7 +2461,7 @@ PROCEDURE valid-tax-code :
     IF ((AVAIL cust AND cust.SORT EQ "Y") or v-tax-mand)                    AND
        (shipto.tax-code:SCREEN-VALUE EQ "" OR
         NOT CAN-FIND(FIRST stax
-                     WHERE stax.company   EQ shipto.company
+                     WHERE stax.company   EQ cocode
                        AND stax.tax-group EQ shipto.tax-code:SCREEN-VALUE)) THEN DO:
       MESSAGE "Must enter a valid tax code, try help..." VIEW-AS ALERT-BOX ERROR.
       APPLY "entry" TO shipto.tax-code.

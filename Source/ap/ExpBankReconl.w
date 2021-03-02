@@ -148,7 +148,7 @@ DEFINE VARIABLE begin_chk-no AS CHARACTER FORMAT "x(13)"
      SIZE 20 BY 1.
 
 DEFINE VARIABLE begin_date AS DATE FORMAT "99/99/9999" 
-     LABEL "Strat Date:" 
+     LABEL "Start Date" 
      VIEW-AS FILL-IN 
      SIZE 20 BY 1.
 
@@ -401,7 +401,7 @@ END.
 
 &Scoped-define SELF-NAME begin_date
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_date rd-fgexp
-ON LEAVE OF begin_date IN FRAME rd-fgexp /* Strat Date: */
+ON LEAVE OF begin_date IN FRAME rd-fgexp /* Start Date */
 DO:
    assign {&self-name}.
 END.

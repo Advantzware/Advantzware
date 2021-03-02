@@ -527,11 +527,7 @@ PROCEDURE local-cancel-record :
   /* Code placed here will execute PRIOR to standard behavior. */
   IF AVAIL gl-rpt THEN lv-rowid = ROWID(gl-rpt).
   
-  IF tt-account.actnum:BGCOLOR IN BROWSE {&browse-name} EQ 16 THEN 
-      ASSIGN 
-          tt-account.actnum:BGCOLOR IN BROWSE {&browse-name}  = ?
-          tt-account.actnum:FGCOLOR IN BROWSE {&browse-name}  = ?
-          .
+  RUN presetColor NO-ERROR.
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
@@ -637,11 +633,7 @@ PROCEDURE local-reset-record:
 ------------------------------------------------------------------------------*/
 
     /* Code placed here will execute PRIOR to standard behavior. */
-    IF tt-account.actnum:BGCOLOR IN BROWSE {&browse-name} EQ 16 THEN 
-        ASSIGN 
-            tt-account.actnum:BGCOLOR IN BROWSE {&browse-name}  = ?
-            tt-account.actnum:FGCOLOR IN BROWSE {&browse-name}  = ?
-            .
+    RUN presetColor NO-ERROR.
     /* Dispatch standard ADM method.                             */
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'reset-record':U ) .
 
@@ -681,6 +673,27 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE presetColor B-table-Win
+PROCEDURE presetColor:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+    IF tt-account.actnum:BGCOLOR IN BROWSE {&BROWSE-NAME} EQ 16 THEN             
+        ASSIGN 
+            tt-account.actnum:BGCOLOR IN BROWSE {&BROWSE-NAME} = ?
+            tt-account.actnum:FGCOLOR IN BROWSE {&BROWSE-NAME} = ?
+            .
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE repo-query B-table-Win 
 PROCEDURE repo-query :
@@ -814,9 +827,9 @@ PROCEDURE valid-actnum :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/  
-  DEFINE VARIABLE lSuccess  AS LOGICAL   NO-UNDO.
-  DEFINE VARIABLE lActive   AS LOGICAL   NO-UNDO.
-  DEFINE VARIABLE cMessage  AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE lSuccess AS LOGICAL   NO-UNDO.
+  DEFINE VARIABLE lActive  AS LOGICAL   NO-UNDO.
+  DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
 
   DO WITH FRAME {&FRAME-NAME}:
       
@@ -830,29 +843,21 @@ PROCEDURE valid-actnum :
             
       IF lSuccess = NO THEN DO:               
           MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.            
-          IF tt-account.actnum:BGCOLOR IN BROWSE {&BROWSE-NAME} EQ 16 THEN             
-                ASSIGN 
-                    tt-account.actnum:BGCOLOR IN BROWSE {&BROWSE-NAME} = ?
-                    tt-account.actnum:FGCOLOR IN BROWSE {&BROWSE-NAME} = ?
-                   .
+          RUN presetColor NO-ERROR.
           APPLY "ENTRY" TO tt-account.actnum IN BROWSE {&BROWSE-NAME}.       
           RETURN ERROR. 
       END.   
       
       IF lSuccess = YES AND lActive = NO THEN DO:  
+          MESSAGE cMessage VIEW-AS ALERT-BOX ERROR. 
           ASSIGN 
               tt-account.actnum:BGCOLOR IN BROWSE {&BROWSE-NAME} = 16
               tt-account.actnum:FGCOLOR IN BROWSE {&BROWSE-NAME} = 15
-              .   
-          MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.           
+              .                       
           APPLY "ENTRY" TO tt-account.actnum IN BROWSE {&BROWSE-NAME}.
           RETURN ERROR.                      
       END.      
-      IF lActive = YES AND tt-account.actnum:BGCOLOR IN BROWSE {&BROWSE-NAME} EQ 16 THEN             
-          ASSIGN 
-              tt-account.actnum:BGCOLOR IN BROWSE {&BROWSE-NAME} = ?
-              tt-account.actnum:FGCOLOR IN BROWSE {&BROWSE-NAME} = ?
-              .                                  
+      RUN presetColor NO-ERROR.                               
               
       IF CAN-FIND(FIRST b-tt-acc
                   WHERE b-tt-acc.actnum EQ tt-account.actnum:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}

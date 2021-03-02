@@ -311,27 +311,9 @@ END.
 ON CHOOSE OF btnOK IN FRAME Dialog-Frame /* OK */
 DO:
    DEF BUFFER bff-eb FOR eb .
-   FIND FIRST eb WHERE RECID(eb) = ipRecid NO-LOCK NO-ERROR.
-
-  IF AVAILABLE itemfg THEN DO:
-      
-      IF AVAIL eb THEN
-          IF eb.est-no NE itemfg.est THEN do:
-              
-              IF itemfg.est-no NE '' THEN DO:
-                  MESSAGE 'Item Exists for another Estimate.'
-                      VIEW-AS ALERT-BOX TITLE 'Estimate: ' + LEFT-TRIM(itemfg.est-no).
-                  RETURN NO-APPLY.
-               END. /* if est-no */
-               ELSE IF itemfg.part-no NE ipPartNo THEN DO:
-                   MESSAGE 'Customer Part# does not match Estimates Customer Part#.'
-                       VIEW-AS ALERT-BOX TITLE 'Cust Part#: ' + itemfg.part-no +
-                       ' - Est Part#: ' + ipPartNo.
-               RETURN NO-APPLY.
-               END. /* if part-no */
-       END. /* not equal est-no */
-  END. /* if avail */
-  iopStockNo = stock-no.
+   FIND FIRST eb WHERE RECID(eb) = ipRecid NO-LOCK NO-ERROR. 
+   
+    iopStockNo = stock-no.
   
 END.
 

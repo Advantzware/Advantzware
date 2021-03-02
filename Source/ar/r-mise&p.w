@@ -685,26 +685,25 @@ PROCEDURE check-date :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE lSuccess AS LOGICAL NO-UNDO.
   DO with frame {&frame-name}:
     v-invalid = no.
 
+    RUN GL_CheckModClosePeriod(input cocode, input DATE(tran-date), input "AR", output cMessage, output lSuccess ) .  
+    IF NOT lSuccess THEN 
+    DO:
+      MESSAGE cMessage VIEW-AS ALERT-BOX INFO.
+      v-invalid = YES.
+    END.
+    
     find first period                   
         where period.company eq cocode
           and period.pst     le tran-date
           and period.pend    ge tran-date
         no-lock no-error.
-    if avail period then do:
-       IF NOT period.pstat THEN DO:
-          MESSAGE "Period Already Closed. " VIEW-AS ALERT-BOX ERROR.
-          v-invalid = YES.
-       END.
-        tran-period:SCREEN-VALUE = string(period.pnum).
-    END.
-
-    ELSE DO:
-      message "No Defined Period Exists for" tran-date view-as alert-box error.
-      v-invalid = yes.
-    end.
+    if avail period THEN tran-period:SCREEN-VALUE = string(period.pnum).    
+    
   END.
 END PROCEDURE.
 
@@ -911,17 +910,18 @@ DO TRANSACTION:
      END.
      w-bank.bal = w-bank.bal + ar-mcash.check-amt.
 
-     CREATE gltrans.
-     ASSIGN
-      gltrans.company = cocode
-      gltrans.actnum  = ar-mcash.actnum
-      gltrans.jrnl    = "MCSHREC"
-      gltrans.tr-dscr = STRING(ar-mcash.m-no)
-      gltrans.tr-date = tran-date
-      gltrans.period  = tran-period
-      gltrans.trnum   = xtrnum
-      gltrans.tr-amt  = - ar-mcash.check-amt.
-     RELEASE gltrans.
+     RUN GL_SpCreateGLHist(cocode,
+                        ar-mcash.actnum,
+                        "MCSHREC",
+                        STRING(ar-mcash.m-no),
+                        tran-date,
+                        - ar-mcash.check-amt,
+                        xtrnum,
+                        tran-period,
+                        "A",
+                        tran-date,
+                        "",
+                        "AR").
 
      CREATE ar-ledger.
      ASSIGN
@@ -937,31 +937,34 @@ DO TRANSACTION:
      ACCUM tt-post.curr-amt - ar-mcash.check-amt (TOTAL BY tt-post.actnum).
 
      IF LAST-OF(tt-post.actnum) AND tt-post.actnum NE "" THEN DO:
-       CREATE gltrans.
-       ASSIGN
-        gltrans.company = cocode
-        gltrans.actnum  = tt-post.actnum
-        gltrans.jrnl    = "MCSHREC"
-        gltrans.tr-dscr = "MISC CASH RECEIPTS CURRENCY GAIN/LOSS " +
-                          STRING(ar-mcash.m-no)
-        gltrans.tr-date = tran-date
-        gltrans.period  = tran-period
-        gltrans.trnum   = xtrnum
-        gltrans.tr-amt  = (ACCUM TOTAL BY tt-post.actnum tt-post.curr-amt - ar-mcash.check-amt).
-       RELEASE gltrans.
+       RUN GL_SpCreateGLHist(cocode,
+                          tt-post.actnum,
+                          "MCSHREC",
+                          "MISC CASH RECEIPTS CURRENCY GAIN/LOSS " +
+                                                             STRING(ar-mcash.m-no),
+                          tran-date,
+                          (ACCUM TOTAL BY tt-post.actnum tt-post.curr-amt - ar-mcash.check-amt),
+                          xtrnum,
+                          tran-period,
+                          "A",
+                          tran-date,
+                          "",
+                          "AR").
+       
+       RUN GL_SpCreateGLHist(cocode,
+                          tt-post.actnum,
+                          "MCSHREC",
+                          "MISC CASH RECEIPTS CURRENCY GAIN/LOSS " +
+                                                             STRING(ar-mcash.m-no),
+                          tran-date,
+                          - (ACCUM TOTAL BY tt-post.actnum tt-post.curr-amt - ar-mcash.check-amt),
+                          xtrnum,
+                          tran-period,
+                          "A",
+                          tran-date,
+                          "",
+                          "AR").
 
-       CREATE gltrans.
-       ASSIGN
-        gltrans.company = cocode
-        gltrans.actnum  = tt-post.actnum
-        gltrans.jrnl    = "MCSHREC"
-        gltrans.tr-dscr = "MISC CASH RECEIPTS CURRENCY GAIN/LOSS " +
-                          STRING(ar-mcash.m-no)
-        gltrans.tr-date = tran-date
-        gltrans.period  = tran-period
-        gltrans.trnum   = xtrnum
-        gltrans.tr-amt  = - (ACCUM TOTAL BY tt-post.actnum tt-post.curr-amt - ar-mcash.check-amt).
-       RELEASE gltrans.
     END.
 
     DELETE tt-post.
@@ -969,17 +972,19 @@ DO TRANSACTION:
  END.  /* DO WHILE */
 
  FOR EACH w-bank:
-   CREATE gltrans.
-   ASSIGN
-    gltrans.company = cocode
-    gltrans.actnum  = w-bank.actnum
-    gltrans.jrnl    = "MCSHREC"
-    gltrans.tr-dscr = "MISC CASH RECEIPTS"
-    gltrans.tr-date = tran-date
-    gltrans.period  = tran-period
-    gltrans.trnum   = xtrnum
-    gltrans.tr-amt  = w-bank.bal.
-   RELEASE gltrans.
+    RUN GL_SpCreateGLHist(cocode,
+                          w-bank.actnum,
+                          "MCSHREC",
+                          "MISC CASH RECEIPTS",
+                          tran-date,
+                          w-bank.bal,
+                          xtrnum,
+                          tran-period,
+                          "A",
+                          tran-date,
+                          "",
+                          "AR").
+
  END.
 END. /* DO TRANS */
 

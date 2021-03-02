@@ -49,6 +49,10 @@ DEFINE TEMP-TABLE tt-accounts NO-UNDO
     FIELD c-acct   AS CHARACTER
     FIELD h-acct   AS HANDLE
     INDEX KEY AS PRIMARY UNIQUE i-extent.
+    
+DEFINE VARIABLE hGLProcs AS HANDLE NO-UNDO.
+
+RUN system/GLProcs.p PERSISTENT SET hGLProcs.    
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -456,23 +460,384 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
+ 
+
+
+
 /* ************************  Control Triggers  ************************ */
+
+&Scoped-define SELF-NAME stax.tax-acc1[10]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL stax.tax-acc1[10] V-table-Win
+ON LEAVE OF stax.tax-acc1[10] IN FRAME F-Main /* Sales Tax Account[10] */
+DO:
+    DEFINE VARIABLE lError    AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lInactive AS LOGICAL NO-UNDO.
+    
+    {&methods/lValidateError.i YES}
+    IF LASTKEY EQ -1 THEN RETURN.
+  
+    IF stax.tax-code1[10]:SCREEN-VALUE NE "" THEN DO:
+        RUN pvalidGLAccount(INPUT stax.tax-acc1[10]:SCREEN-VALUE, OUTPUT lError, OUTPUT lInactive).
+        
+        IF lError THEN DO:            
+            RUN presetColor(INPUT stax.tax-acc1[10]:HANDLE).
+            IF lInactive EQ YES THEN 
+                RUN pchangeColor(INPUT INPUT stax.tax-acc1[10]:HANDLE) NO-ERROR.
+            APPLY "ENTRY" TO stax.tax-acc1[10].
+            RETURN NO-APPLY.
+        END.    
+    END.           
+    ELSE DO:
+      IF stax.tax-acc1[10]:SCREEN-VALUE NE "" THEN DO: 
+          MESSAGE "First enter corresponding tax-code." VIEW-AS ALERT-BOX INFORMATION.
+          SELF:SCREEN-VALUE = "".
+          APPLY "ENTRY" TO stax.tax-code1[10].
+          RETURN NO-APPLY.         
+      END.    
+    END. 
+    RUN presetColor(INPUT stax.tax-acc1[10]:HANDLE).
+   {&methods/lValidateError.i NO}
+    
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME stax.tax-acc1[1]
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL stax.tax-acc1[1] V-table-Win
 ON LEAVE OF stax.tax-acc1[1] IN FRAME F-Main /* Sales Tax Account[1] */
 DO:
-  {&methods/lValidateError.i YES}
-  if lastkey <> -1 and stax.tax-code1[1]:screen-value <> "" then do:
-     if not can-find(first account where account.company = gcompany and
-                                         account.type <> "T" and
-                                         account.actnum BEGINS self:screen-value)
-     then do:
-         message "Invalid Account. Account Type must not be 'T'. " view-as alert-box error.
-         return no-apply.
-     end.
-  end.
-  {&methods/lValidateError.i NO}
+    DEFINE VARIABLE lError    AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lInactive AS LOGICAL NO-UNDO.
+    
+    {&methods/lValidateError.i YES}
+    IF LASTKEY EQ -1 THEN RETURN.
+  
+    IF stax.tax-code1[1]:SCREEN-VALUE NE "" THEN DO:
+        RUN pvalidGLAccount(INPUT stax.tax-acc1[1]:SCREEN-VALUE, OUTPUT lError, OUTPUT lInactive).
+      
+        IF lError THEN DO:            
+            RUN presetColor(INPUT stax.tax-acc1[1]:HANDLE).
+            IF lInactive EQ YES THEN 
+                RUN pchangeColor(INPUT stax.tax-acc1[1]:HANDLE) NO-ERROR.
+            APPLY "ENTRY" TO stax.tax-acc1[1].
+            RETURN NO-APPLY.
+        END.    
+    END.           
+    ELSE DO:
+      IF stax.tax-acc1[1]:SCREEN-VALUE NE "" THEN DO: 
+          MESSAGE "First enter corresponding tax-code." VIEW-AS ALERT-BOX INFORMATION.
+          SELF:SCREEN-VALUE = "".
+          APPLY "ENTRY" TO stax.tax-code1[1].
+          RETURN NO-APPLY.         
+      END.    
+    END. 
+    RUN presetColor(INPUT stax.tax-acc1[1]:HANDLE). 
+   {&methods/lValidateError.i NO}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME stax.tax-acc1[2]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL stax.tax-acc1[2] V-table-Win
+ON LEAVE OF stax.tax-acc1[2] IN FRAME F-Main /* Sales Tax Account[2] */
+DO:
+    DEFINE VARIABLE lError    AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lInactive AS LOGICAL NO-UNDO.
+    
+    {&methods/lValidateError.i YES}
+    IF LASTKEY EQ -1 THEN RETURN.
+  
+    IF stax.tax-code1[2]:SCREEN-VALUE NE "" THEN DO:
+        RUN pvalidGLAccount(INPUT stax.tax-acc1[2]:SCREEN-VALUE, OUTPUT lError, OUTPUT lInactive).
+       
+        IF lError THEN DO:            
+            RUN presetColor(INPUT stax.tax-acc1[2]:HANDLE).
+            IF lInactive EQ YES THEN 
+                RUN pchangeColor(INPUT stax.tax-acc1[2]:HANDLE) NO-ERROR.
+            APPLY "ENTRY" TO stax.tax-acc1[2].
+            RETURN NO-APPLY.
+        END.    
+    END.           
+    ELSE DO:
+      IF stax.tax-acc1[2]:SCREEN-VALUE NE "" THEN DO: 
+          MESSAGE "First enter corresponding tax-code." VIEW-AS ALERT-BOX INFORMATION.
+          SELF:SCREEN-VALUE = "".
+          APPLY "ENTRY" TO stax.tax-code1[2].
+          RETURN NO-APPLY.         
+      END.    
+    END. 
+    RUN presetColor(INPUT stax.tax-acc1[2]:HANDLE).
+   {&methods/lValidateError.i NO}
+  
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME stax.tax-acc1[3]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL stax.tax-acc1[3] V-table-Win
+ON LEAVE OF stax.tax-acc1[3] IN FRAME F-Main /* Sales Tax Account[3] */
+DO:
+    DEFINE VARIABLE lError    AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lInactive AS LOGICAL NO-UNDO.
+    
+    {&methods/lValidateError.i YES}
+    IF LASTKEY EQ -1 THEN RETURN.
+  
+    IF stax.tax-code1[3]:SCREEN-VALUE NE "" THEN DO:
+        RUN pvalidGLAccount(INPUT stax.tax-acc1[3]:SCREEN-VALUE, OUTPUT lError, OUTPUT lInactive) NO-ERROR.
+        
+        IF lError THEN DO:            
+            RUN presetColor(INPUT stax.tax-acc1[3]:HANDLE) NO-ERROR.
+            IF lInactive EQ YES THEN 
+                RUN pchangeColor(INPUT stax.tax-acc1[3]:HANDLE) NO-ERROR.
+            APPLY "ENTRY" TO stax.tax-acc1[3].
+            RETURN NO-APPLY.
+        END.    
+    END.           
+    ELSE DO:
+      IF stax.tax-acc1[3]:SCREEN-VALUE NE "" THEN DO: 
+          MESSAGE "First enter corresponding tax-code." VIEW-AS ALERT-BOX INFORMATION.
+          SELF:SCREEN-VALUE = "".
+          APPLY "ENTRY" TO stax.tax-code1[3].
+          RETURN NO-APPLY.         
+      END.    
+    END. 
+    RUN presetColor(INPUT stax.tax-acc1[3]:HANDLE) NO-ERROR.
+   {&methods/lValidateError.i NO}
+    
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME stax.tax-acc1[4]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL stax.tax-acc1[4] V-table-Win
+ON LEAVE OF stax.tax-acc1[4] IN FRAME F-Main /* Sales Tax Account[4] */
+DO:
+    DEFINE VARIABLE lError    AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lInactive AS LOGICAL NO-UNDO.
+    
+    {&methods/lValidateError.i YES}
+    IF LASTKEY EQ -1 THEN RETURN.
+  
+    IF stax.tax-code1[4]:SCREEN-VALUE <> "" THEN DO:
+        RUN pvalidGLAccount(INPUT stax.tax-acc1[4]:SCREEN-VALUE, OUTPUT lError, OUTPUT lInactive).
+        
+        IF lError THEN DO:            
+            RUN presetColor(INPUT stax.tax-acc1[4]:HANDLE) NO-ERROR.
+            IF lInactive EQ YES THEN 
+                RUN pchangeColor(INPUT stax.tax-acc1[4]:HANDLE) NO-ERROR.
+            APPLY "ENTRY" TO stax.tax-acc1[4].
+            RETURN NO-APPLY.
+        END.    
+    END.            
+    ELSE DO:
+      IF stax.tax-acc1[4]:SCREEN-VALUE NE "" THEN DO: 
+          MESSAGE "First enter corresponding tax-code." VIEW-AS ALERT-BOX INFORMATION.
+          SELF:SCREEN-VALUE = "".
+          APPLY "ENTRY" TO stax.tax-code1[4].
+          RETURN NO-APPLY.         
+      END.    
+    END. 
+    RUN presetColor(INPUT stax.tax-acc1[4]:HANDLE) NO-ERROR.
+   {&methods/lValidateError.i NO}
+    
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME stax.tax-acc1[5]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL stax.tax-acc1[5] V-table-Win
+ON LEAVE OF stax.tax-acc1[5] IN FRAME F-Main /* Sales Tax Account[5] */
+DO:
+    DEFINE VARIABLE lError    AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lInactive AS LOGICAL NO-UNDO.
+    
+    {&methods/lValidateError.i YES}
+    IF LASTKEY EQ -1 THEN RETURN.
+  
+    IF stax.tax-code1[5]:SCREEN-VALUE NE "" THEN DO:
+        RUN pvalidGLAccount(INPUT stax.tax-acc1[5]:SCREEN-VALUE, OUTPUT lError, OUTPUT lInactive).
+       
+        IF lError THEN DO:            
+            RUN presetColor(INPUT stax.tax-acc1[5]:HANDLE) NO-ERROR.
+            IF lInactive EQ YES THEN 
+                RUN pchangeColor(INPUT stax.tax-acc1[5]:HANDLE) NO-ERROR.
+            APPLY "ENTRY" TO stax.tax-acc1[5].
+            RETURN NO-APPLY.
+        END.    
+    END.           
+    ELSE DO:
+      IF stax.tax-acc1[5]:SCREEN-VALUE NE "" THEN DO: 
+          MESSAGE "First enter corresponding tax-code." VIEW-AS ALERT-BOX INFORMATION.
+          SELF:SCREEN-VALUE = "".
+          APPLY "ENTRY" TO stax.tax-code1[5].
+          RETURN NO-APPLY.         
+      END.    
+    END. 
+    RUN presetColor(INPUT stax.tax-acc1[5]:HANDLE) NO-ERROR. 
+   {&methods/lValidateError.i NO}
+    
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME stax.tax-acc1[6]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL stax.tax-acc1[6] V-table-Win
+ON LEAVE OF stax.tax-acc1[6] IN FRAME F-Main /* Sales Tax Account[6] */
+DO:
+    DEFINE VARIABLE lError    AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lInactive AS LOGICAL NO-UNDO.
+    
+    {&methods/lValidateError.i YES}
+    IF LASTKEY EQ -1 THEN RETURN.
+  
+    IF stax.tax-code1[6]:SCREEN-VALUE NE "" THEN DO:
+        RUN pvalidGLAccount(INPUT stax.tax-acc1[6]:SCREEN-VALUE, OUTPUT lError, OUTPUT lInactive).
+        
+        IF lError THEN DO:            
+            RUN presetColor(INPUT stax.tax-acc1[6]:HANDLE) NO-ERROR.
+            IF lInactive EQ YES THEN 
+                RUN pchangeColor(INPUT stax.tax-acc1[6]:HANDLE) NO-ERROR.
+            APPLY "ENTRY" TO stax.tax-acc1[6].
+            RETURN NO-APPLY.
+        END.    
+    END.           
+    ELSE DO:
+      IF stax.tax-acc1[6]:SCREEN-VALUE NE "" THEN DO: 
+          MESSAGE "First enter corresponding tax-code." VIEW-AS ALERT-BOX INFORMATION.
+          SELF:SCREEN-VALUE = "".
+          APPLY "ENTRY" TO stax.tax-code1[6].
+          RETURN NO-APPLY.         
+      END.    
+    END. 
+    RUN presetColor(INPUT stax.tax-acc1[6]:HANDLE) NO-ERROR. 
+   {&methods/lValidateError.i NO}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME stax.tax-acc1[7]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL stax.tax-acc1[7] V-table-Win
+ON LEAVE OF stax.tax-acc1[7] IN FRAME F-Main /* Sales Tax Account[7] */
+DO:
+    DEFINE VARIABLE lError    AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lInactive AS LOGICAL NO-UNDO.
+    
+    {&methods/lValidateError.i YES}
+    IF LASTKEY EQ -1 THEN RETURN.
+  
+    IF stax.tax-code1[7]:SCREEN-VALUE NE "" THEN DO:
+        RUN pvalidGLAccount(INPUT stax.tax-acc1[7]:SCREEN-VALUE, OUTPUT lError, OUTPUT lInactive).
+        
+        IF lError THEN DO:            
+            RUN presetColor(INPUT stax.tax-acc1[7]:HANDLE) NO-ERROR.
+            IF lInactive EQ YES THEN 
+                RUN pchangeColor(INPUT stax.tax-acc1[7]:HANDLE) NO-ERROR.
+            APPLY "ENTRY" TO stax.tax-acc1[7].
+            RETURN NO-APPLY.
+        END.    
+    END.           
+    ELSE DO:
+      IF stax.tax-acc1[7]:SCREEN-VALUE NE "" THEN DO: 
+          MESSAGE "First enter corresponding tax-code." VIEW-AS ALERT-BOX INFORMATION.
+          SELF:SCREEN-VALUE = "".
+          APPLY "ENTRY" TO stax.tax-code1[7].
+          RETURN NO-APPLY.         
+      END.    
+    END. 
+    RUN presetColor(INPUT stax.tax-acc1[7]:HANDLE) NO-ERROR.
+   {&methods/lValidateError.i NO}
+    
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME stax.tax-acc1[8]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL stax.tax-acc1[8] V-table-Win
+ON LEAVE OF stax.tax-acc1[8] IN FRAME F-Main /* Sales Tax Account[8] */
+DO:
+    DEFINE VARIABLE lError    AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lInactive AS LOGICAL NO-UNDO.
+    
+    {&methods/lValidateError.i YES}
+    IF LASTKEY EQ -1 THEN RETURN.
+  
+    IF stax.tax-code1[8]:SCREEN-VALUE NE "" THEN DO:
+        RUN pvalidGLAccount(INPUT stax.tax-acc1[8]:SCREEN-VALUE, OUTPUT lError, OUTPUT lInactive).
+        
+        IF lError THEN DO:            
+            RUN presetColor(INPUT stax.tax-acc1[8]:HANDLE) NO-ERROR.
+            IF lInactive EQ YES THEN 
+                RUN pchangeColor(INPUT stax.tax-acc1[8]:HANDLE) NO-ERROR.
+            APPLY "ENTRY" TO stax.tax-acc1[8].
+            RETURN NO-APPLY.
+        END.    
+    END.           
+    ELSE DO:
+      IF stax.tax-acc1[8]:SCREEN-VALUE NE "" THEN DO: 
+          MESSAGE "First enter corresponding tax-code." VIEW-AS ALERT-BOX INFORMATION.
+          SELF:SCREEN-VALUE = "".
+          APPLY "ENTRY" TO stax.tax-code1[8].
+          RETURN NO-APPLY.         
+      END.    
+    END. 
+    RUN presetColor(INPUT stax.tax-acc1[8]:HANDLE) NO-ERROR.
+   {&methods/lValidateError.i NO}
+    
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME stax.tax-acc1[9]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL stax.tax-acc1[9] V-table-Win
+ON LEAVE OF stax.tax-acc1[9] IN FRAME F-Main /* Sales Tax Account[9] */
+DO:
+    DEFINE VARIABLE lError    AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lInactive AS LOGICAL NO-UNDO.
+    
+    {&methods/lValidateError.i YES}
+    IF LASTKEY EQ -1 THEN RETURN.
+  
+    IF stax.tax-code1[9]:SCREEN-VALUE NE "" THEN DO:
+        RUN pvalidGLAccount(INPUT stax.tax-acc1[9]:SCREEN-VALUE, OUTPUT lError, OUTPUT lInactive).
+        
+        IF lError THEN DO:            
+            RUN presetColor(INPUT stax.tax-acc1[9]:HANDLE) NO-ERROR.
+            IF lInactive EQ YES THEN 
+                RUN pchangeColor(INPUT stax.tax-acc1[9]:HANDLE) NO-ERROR.
+            APPLY "ENTRY" TO stax.tax-acc1[9].
+            RETURN NO-APPLY.
+        END.    
+    END.           
+    ELSE DO:
+      IF stax.tax-acc1[9]:SCREEN-VALUE NE "" THEN DO: 
+          MESSAGE "First enter corresponding tax-code." VIEW-AS ALERT-BOX INFORMATION.
+          SELF:SCREEN-VALUE = "".
+          APPLY "ENTRY" TO stax.tax-code1[9].
+          RETURN NO-APPLY.         
+      END.    
+    END. 
+   RUN presetColor(INPUT stax.tax-acc1[9]:HANDLE) NO-ERROR.
+   {&methods/lValidateError.i NO}
+    
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -953,6 +1318,27 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-cancel-record V-table-Win
+PROCEDURE local-cancel-record:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+    /* Code placed here will execute PRIOR to standard behavior. */
+    RUN presetColor(INPUT "") NO-ERROR.
+    
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .   
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-create-record V-table-Win 
 PROCEDURE local-create-record :
 /*------------------------------------------------------------------------------
@@ -974,6 +1360,27 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-reset-record V-table-Win
+PROCEDURE local-reset-record:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+    /* Code placed here will execute PRIOR to standard behavior. */
+    RUN presetColor(INPUT "") NO-ERROR.
+    
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .   
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record V-table-Win 
 PROCEDURE local-update-record :
 /*------------------------------------------------------------------------------
@@ -983,6 +1390,8 @@ PROCEDURE local-update-record :
   DEFINE VARIABLE frame-handle AS HANDLE NO-UNDO.
   DEFINE VARIABLE group-handle AS HANDLE NO-UNDO.
   DEFINE VARIABLE field-handle AS HANDLE NO-UNDO.
+  DEFINE VARIABLE lError    AS LOGICAL NO-UNDO.
+  DEFINE VARIABLE lInactive AS LOGICAL NO-UNDO.
 
   ASSIGN frame-handle = FRAME {&FRAME-NAME}:HANDLE
          group-handle = frame-handle:FIRST-CHILD
@@ -1016,15 +1425,28 @@ PROCEDURE local-update-record :
   END.
   {&methods/lValidateError.i YES}
   /* now check the accounts against the tax codes */
-  FOR FIRST tt-accounts WHERE tt-accounts.i-extent = 1 AND tt-accounts.c-code <> "":
-      if not can-find(first account where account.company = gcompany and
-                                          account.type <> "T" and
-                                          account.actnum = tt-accounts.c-acct)
-      then do:
-          message "Invalid Account." view-as alert-box error.
-          apply "entry" to tt-accounts.h-acct.
-          return no-apply.
-      end.
+  FOR EACH tt-accounts:
+      IF tt-accounts.c-code NE "" THEN DO:
+          RUN pvalidGLAccount(INPUT tt-accounts.c-acct, OUTPUT lError, OUTPUT lInactive).
+          IF lError THEN 
+          DO:
+              RUN presetColor(INPUT h-acct) NO-ERROR.
+              IF lInactive EQ YES THEN 
+                  RUN pchangeColor(INPUT h-acct) NO-ERROR.
+              APPLY "ENTRY" TO tt-accounts.h-acct.
+              RETURN NO-APPLY.
+          END. 
+      END.    
+      ELSE DO:
+          IF tt-accounts.c-acct NE "" THEN DO:
+              MESSAGE "First enter corresponding tax-code." VIEW-AS ALERT-BOX INFORMATION.
+              tt-accounts.h-acct:SCREEN-VALUE = "".
+              APPLY "ENTRY" TO tt-accounts.h-acct.
+              RETURN NO-APPLY.                         
+          END. 
+      END.       
+             
+      RUN presetColor(INPUT h-acct) NO-ERROR.                     
   END.
   {&methods/lValidateError.i NO}
   /* Dispatch standard ADM method.                             */
@@ -1036,6 +1458,124 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pchangeColor V-table-Win
+PROCEDURE pchangeColor:
+/*------------------------------------------------------------------------------
+ Purpose: If GL Account is inactive then change the background color of fill-in.
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iphfieldHandle AS HANDLE NO-UNDO.
+    
+    IF VALID-HANDLE(iphfieldHandle) THEN DO:
+        IF iphfieldHandle:TYPE      EQ "fill-in"   AND 
+           iphfieldHandle:DATA-TYPE EQ "CHARACTER" AND 
+           iphfieldHandle:NAME MATCHES "*tax-acc1*" THEN 
+            ASSIGN 
+                iphfieldHandle:BGCOLOR = 16
+                iphfieldHandle:FGCOLOR = 15
+                .                                            
+    END.    
+    
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE presetColor V-table-Win
+PROCEDURE presetColor:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iphfieldHandle AS HANDLE NO-UNDO.
+
+    DEFINE VARIABLE hframeHandle AS HANDLE NO-UNDO.
+    DEFINE VARIABLE hgroupHandle AS HANDLE NO-UNDO.
+    DEFINE VARIABLE hfieldHandle AS HANDLE NO-UNDO.    
+
+    ASSIGN 
+        hframeHandle = FRAME {&FRAME-NAME}:HANDLE
+        hgroupHandle = hframeHandle:FIRST-CHILD
+        hfieldHandle = hgroupHandle:FIRST-CHILD
+        .       
+    IF VALID-HANDLE(iphfieldHandle) THEN DO:
+        IF iphfieldHandle:TYPE      EQ "fill-in"   AND 
+           iphfieldHandle:DATA-TYPE EQ "CHARACTER" AND 
+           iphfieldHandle:NAME MATCHES "*tax-acc1*" THEN  
+            IF iphfieldHandle:BGCOLOR EQ 16 THEN          
+                ASSIGN 
+                    iphfieldHandle:BGCOLOR = 15
+                    iphfieldHandle:FGCOLOR = ?
+                    .                                
+    END. 
+    ELSE DO:                
+        DO WHILE VALID-HANDLE(hfieldHandle):                           
+            IF hfieldHandle:TYPE      EQ "fill-in"   AND 
+               hfieldHandle:DATA-TYPE EQ "CHARACTER" AND 
+               hfieldHandle:NAME MATCHES "*tax-acc1*" THEN               
+               IF hfieldHandle:BGCOLOR EQ 16 THEN             
+                   ASSIGN 
+                       hfieldHandle:BGCOLOR = 15
+                       hfieldHandle:FGCOLOR = ?
+                       .                                        
+            hfieldHandle = hfieldHandle:NEXT-SIBLING.
+        END. 
+    END.                                     
+   
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pvalidGLAccount V-table-Win
+PROCEDURE pvalidGLAccount:
+/*------------------------------------------------------------------------------
+ Purpose: To check valid and active GL Account.
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipAccount LIKE account.actnum NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError    AS LOGICAL        NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplInactive AS LOGICAL        NO-UNDO.
+
+    DEFINE VARIABLE lSuccess AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lActive  AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+  
+    DO WITH FRAME {&FRAME-NAME}:                  
+        RUN GL_CheckGLAccount IN hGLProcs(
+            INPUT  gcompany,
+            INPUT  ipAccount,            
+            OUTPUT cMessage,
+            OUTPUT lSuccess,
+            OUTPUT lActive
+            ). 
+        IF lSuccess EQ NO THEN DO:
+            MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.             
+            oplError = YES.
+        END.  
+        IF lSuccess EQ YES AND lActive EQ NO THEN DO:                      
+            MESSAGE cMessage VIEW-AS ALERT-BOX ERROR. 
+            ASSIGN 
+                oplError    = YES 
+                oplInactive = YES
+                .                                                        
+        END.  
+    END.            
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records V-table-Win  _ADM-SEND-RECORDS
 PROCEDURE send-records :

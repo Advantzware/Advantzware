@@ -408,6 +408,9 @@ DO:
   END.    
   
   DEF VAR lv-post AS LOG NO-UNDO.
+  
+  run pCheckDate.
+  if v-invalid then return no-apply.
 
   assign rd-dest
          post-date
@@ -741,23 +744,20 @@ postit:
       /* gdm - 11050906 */
 
       for each work-job break by work-job.actnum:
-        create gltrans.
-        assign
-         gltrans.company = cocode
-         gltrans.actnum  = work-job.actnum
-         gltrans.jrnl    = "ADJUST"
-         gltrans.tr-date = udate
-         gltrans.period  = uperiod
-         gltrans.trnum   = v-trnum.
-
-        if work-job.fg then
-          assign
-           gltrans.tr-amt  = - work-job.amt
-           gltrans.tr-dscr = "FG Adjustment entries FG".
-        else
-          assign
-           gltrans.tr-amt  = work-job.amt
-           gltrans.tr-dscr = "FG Adjustment entries COGS".
+          RUN GL_SpCreateGLHist(cocode,
+                             work-job.actnum,
+                             "ADJUST",
+                             (IF work-job.fg THEN "FG Adjustment entries FG"
+                                             ELSE "FG Adjustment entries COGS"),
+                             udate,
+                             (IF work-job.fg THEN - work-job.amt
+                                             ELSE work-job.amt),
+                             v-trnum,
+                             uperiod,
+                             "A",
+                             udate,
+                             "",
+                             "FG").
       end. /* each work-job */
     end.
   end. /* postit */
@@ -1467,6 +1467,31 @@ PROCEDURE show-param :
 
   put fill("-",80) format "x(80)" skip.
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckDate C-Win 
+PROCEDURE pCheckDate :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE lSuccess AS LOGICAL NO-UNDO.
+  DO with frame {&frame-name}:
+    v-invalid = no.
+    
+    RUN GL_CheckModClosePeriod(input cocode, input DATE(post-date), input "FG", output cMessage, output lSuccess ) .  
+    IF NOT lSuccess THEN 
+    DO:
+      MESSAGE cMessage VIEW-AS ALERT-BOX INFO.
+      v-invalid = YES.
+    END.       
+    
+  END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

@@ -41,12 +41,9 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-{custom/globdefs.i}
-{sys/inc/var.i "NEW SHARED"}
-{sys/inc/varasgn.i}
-
 {system/sysconst.i}
 {wip/keyboardDefs.i}
+{inventory/ttInventory.i "NEW SHARED"}
 
 DEFINE VARIABLE cCompany   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cItemID    AS CHARACTER NO-UNDO.
@@ -65,10 +62,16 @@ DEFINE VARIABLE hdItemBins   AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hdItemLoc    AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hdItemLocBin AS HANDLE    NO-UNDO.
 
+DEFINE VARIABLE iWarehouseLength AS INTEGER   NO-UNDO.
+
+/* As smart browsers are not instantiated until the page it contains is selected,
+   the below variables will track if a page containing the browser is already selected
+   and decides if queries on smart browsers should be run or not */
 DEFINE VARIABLE lLocQueryRan     AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lBinsQueryRan    AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lLocBinsQueryRan AS LOGICAL NO-UNDO.
 
+DEFINE VARIABLE hdFGProcs AS HANDLE NO-UNDO.
 &SCOPED-DEFINE SORTBY-PHRASE BY ttBrowseInventory.tag
 
 /* _UIB-CODE-BLOCK-END */
@@ -187,8 +190,8 @@ DEFINE VARIABLE rdView AS INTEGER
      VIEW-AS RADIO-SET HORIZONTAL
      RADIO-BUTTONS 
           "Detail", 1,
-"Warehouse", 2,
-"Bin Location", 3
+"Location", 2,
+"Bin", 3
      SIZE 63 BY 1.33 NO-UNDO.
 
 DEFINE RECTANGLE RECT-2
@@ -210,7 +213,7 @@ DEFINE RECTANGLE RECT-34
 DEFINE FRAME F-Main
      rdView AT ROW 3.76 COL 96.6 NO-LABEL WIDGET-ID 160 NO-TAB-STOP 
      fiFGItem AT ROW 1.38 COL 25.4 COLON-ALIGNED WIDGET-ID 2
-     fiCustItem AT ROW 3.62 COL 25.4 COLON-ALIGNED WIDGET-ID 4
+     fiCustItem AT ROW 3.62 COL 25.6 COLON-ALIGNED WIDGET-ID 4
      fiLocation AT ROW 1.38 COL 106.4 COLON-ALIGNED WIDGET-ID 142
      btItemHelp AT ROW 1.33 COL 77.6 WIDGET-ID 138 NO-TAB-STOP 
      btnKeyboardItem AT ROW 1.33 COL 85 WIDGET-ID 136 NO-TAB-STOP 
@@ -328,10 +331,14 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL W-Win W-Win
 ON WINDOW-CLOSE OF W-Win /* FG Inquiry */
 DO:
-  /* This ADM code must be left here in order for the SmartWindow
-     and its descendents to terminate properly on exit. */
-  APPLY "CLOSE":U TO THIS-PROCEDURE.
-  RETURN NO-APPLY.
+    /* This ADM code must be left here in order for the SmartWindow
+       and its descendents to terminate properly on exit. */
+    
+    IF VALID-HANDLE(hdFGProcs) THEN
+        DELETE PROCEDURE hdFGProcs.
+        
+    APPLY "CLOSE":U TO THIS-PROCEDURE.
+    RETURN NO-APPLY.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -434,6 +441,18 @@ END.
 
 &Scoped-define SELF-NAME fiCustItem
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiCustItem W-Win
+ON ANY-KEY OF fiCustItem IN FRAME F-Main /* Customer Part # */
+DO:
+    /* Apply fg item scan on press enter key */
+    IF KEY-LABEL(LASTKEY) EQ "ENTER" THEN
+        APPLY "LEAVE" TO SELF.  
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiCustItem W-Win
 ON ENTRY OF fiCustItem IN FRAME F-Main /* Customer Part # */
 DO:
     hFocusField = SELF.
@@ -489,18 +508,54 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiCustItem W-Win
 ON LEAVE OF fiCustItem IN FRAME F-Main /* Customer Part # */
 DO:
-    IF cCustItem EQ SELF:SCREEN-VALUE AND cCustItem NE "" THEN
+    DEFINE VARIABLE lHasMutlipleItems AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cItemSelected     AS CHARACTER NO-UNDO.
+    
+    IF LASTKEY EQ -1 THEN
         RETURN.
 
-    IF SELF:SCREEN-VALUE EQ "" THEN
-        RETURN.
-        
-    ASSIGN        
-        cCustItem             = SELF:SCREEN-VALUE
-        fiFGItem:SCREEN-VALUE = ""
-        cItemID               = ""
+    IF fiFGItem:SCREEN-VALUE EQ "" THEN
+        RUN pClearRecords.
+    
+    IF SELF:SCREEN-VALUE EQ "" THEN DO:
+        cCustItem = "".
+        RETURN.    
+    END.
+    
+    ASSIGN
+        cCustItem = SELF:SCREEN-VALUE
+        cItemID   = fiFGItem:SCREEN-VALUE
         .
 
+    RUN FG_HasMultipleFGItemsForCustPart IN hdFGProcs (
+        INPUT  cCompany,
+        INPUT  cItemID,
+        INPUT  cCustItem,
+        OUTPUT cItemID,
+        OUTPUT lHasMutlipleItems
+        ).
+    IF lHasMutlipleItems THEN DO:
+        cItemID = fiFGItem:SCREEN-VALUE.
+        
+        RUN fg/d-fgItemPrompt.w (
+            INPUT  cCompany,
+            INPUT  cItemID,
+            INPUT  cCustItem,
+            OUTPUT cItemSelected
+            ).
+        
+        IF cItemSelected EQ "" THEN DO:
+            MESSAGE "Please select a valid item for cust part # " + cCustItem
+            VIEW-AS ALERT-BOX ERROR. 
+            
+            cCustItem = "".
+            
+            RETURN.
+        END.
+        
+        cItemID = cItemSelected.
+    END.
+    
     RUN pScanItem.
 END.
 
@@ -509,6 +564,18 @@ END.
 
 
 &Scoped-define SELF-NAME fiFGItem
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiFGItem W-Win
+ON ANY-KEY OF fiFGItem IN FRAME F-Main /* FG Item# */
+DO:
+    /* Apply fg item scan on press enter key */
+    IF KEY-LABEL(LASTKEY) EQ "ENTER" THEN
+        APPLY "LEAVE" TO SELF.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiFGItem W-Win
 ON ENTRY OF fiFGItem IN FRAME F-Main /* FG Item# */
 DO:
@@ -560,12 +627,16 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiFGItem W-Win
 ON LEAVE OF fiFGItem IN FRAME F-Main /* FG Item# */
 DO:
-    IF cItemID EQ SELF:SCREEN-VALUE AND cItemID NE "" THEN
-        RETURN.
-
-    IF SELF:SCREEN-VALUE EQ "" THEN
+    IF cItemID EQ SELF:SCREEN-VALUE OR LASTKEY EQ -1 THEN
         RETURN.
         
+    RUN pClearRecords.
+    
+    IF SELF:SCREEN-VALUE EQ "" THEN DO:
+        cItemID = "".
+        RETURN.
+    END.
+    
     ASSIGN        
         cItemID                 = SELF:SCREEN-VALUE
         fiCustItem:SCREEN-VALUE = ""
@@ -580,6 +651,18 @@ END.
 
 
 &Scoped-define SELF-NAME fiLocation
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiLocation W-Win
+ON ANY-KEY OF fiLocation IN FRAME F-Main /* Location */
+DO:
+    /* Apply location scan on press enter key */
+    IF KEY-LABEL(LASTKEY) EQ "ENTER" THEN
+        APPLY "LEAVE" TO SELF.  
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiLocation W-Win
 ON ENTRY OF fiLocation IN FRAME F-Main /* Location */
 DO:
@@ -630,13 +713,13 @@ END.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiLocation W-Win
 ON LEAVE OF fiLocation IN FRAME F-Main /* Location */
-DO:    
-    IF cWarehouse EQ SUBSTRING(fiLocation:SCREEN-VALUE, 1, 5) AND cLocation EQ SUBSTRING(fiLocation:SCREEN-VALUE, 6) THEN
+DO:        
+    IF cWarehouse EQ TRIM(SUBSTRING(fiLocation:SCREEN-VALUE, 1, iWarehouseLength)) AND cLocation EQ TRIM(SUBSTRING(fiLocation:SCREEN-VALUE, iWarehouseLength + 1)) THEN
         RETURN.
         
     ASSIGN
-        cWarehouse = SUBSTRING(fiLocation:SCREEN-VALUE, 1, 5)
-        cLocation  = SUBSTRING(fiLocation:SCREEN-VALUE, 6)
+        cWarehouse = TRIM(SUBSTRING(fiLocation:SCREEN-VALUE, 1, iWarehouseLength))
+        cLocation  = TRIM(SUBSTRING(fiLocation:SCREEN-VALUE, iWarehouseLength + 1))
         .        
 
     RUN pScanItem.
@@ -780,8 +863,6 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_b-fginqbins , 'ADJUST':U , h_adjustqty ).
 
        /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_navigatelast ,
-             h_navigatefirst , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_navigatenext ,
              h_navigatelast , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_navigateprev ,
@@ -857,8 +938,6 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_b-fginqloc , 'NAV-PREV':U , h_navigateprev-2 ).
 
        /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_navigatelast-2 ,
-             h_adjustqty-2 , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_navigatefirst-2 ,
              h_navigatelast-2 , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_navigatenext-2 ,
@@ -923,8 +1002,6 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_b-fginqlocbin , 'NAV-FIRST':U , h_navigatefirst-3 ).
 
        /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_navigatenext-3 ,
-             h_navigatelast-3 , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_b-fginqlocbin ,
              h_navigatenext-3 , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_navigatefirst-3 ,
@@ -1024,6 +1101,27 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy W-Win 
+PROCEDURE local-destroy :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+    /* Code placed here will execute PRIOR to standard behavior. */
+    IF VALID-HANDLE(hdFGProcs) THEN
+        DELETE PROCEDURE hdFGProcs.
+        
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
+
+    /* Code placed here will execute AFTER standard behavior.    */
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable W-Win 
 PROCEDURE local-enable :
 /*------------------------------------------------------------------------------
@@ -1059,6 +1157,25 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pClearRecords W-Win 
+PROCEDURE pClearRecords :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    IF VALID-HANDLE(hdItemBins) THEN 
+        RUN ClearRecords IN hdItemBins.
+
+    IF VALID-HANDLE(hdItemLoc) THEN
+        RUN ClearRecords IN hdItemLoc.
+
+    IF VALID-HANDLE(hdItemLocBin) THEN
+        RUN ClearRecords IN hdItemLocBin.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pInit W-Win 
 PROCEDURE pInit :
 /*------------------------------------------------------------------------------
@@ -1066,18 +1183,30 @@ PROCEDURE pInit :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE hdPgmSecurity AS HANDLE  NO-UNDO.
-
+    DEFINE VARIABLE hdPgmSecurity    AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE cLoc             AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE hdInventoryProcs AS HANDLE    NO-UNDO.
+    
+    RUN spGetSessionParam ("Company", OUTPUT cCompany).
+    RUN spGetSessionParam ("Location", OUTPUT cLoc).
+    
     FIND FIRST company NO-LOCK 
-         WHERE company.company EQ cocode
+         WHERE company.company EQ cCompany
          NO-ERROR .
     IF AVAILABLE company THEN
     {&WINDOW-NAME}:TITLE = {&WINDOW-NAME}:TITLE
                          + " - {&awversion}" + " - " 
-                         + STRING(company.name) + " - " + locode.
+                         + STRING(company.name) + " - " + cLoc.
 
-    cCompany = cocode.
-
+    RUN inventory/InventoryProcs.p PERSISTENT SET hdInventoryProcs.
+    
+    RUN Inventory_GetWarehouseLength IN hdInventoryProcs (
+        INPUT  cCompany,
+        OUTPUT iWarehouseLength
+        ).
+            
+    DELETE PROCEDURE hdInventoryProcs.
+    
     RUN "system/PgmMstrSecur.p" PERSISTENT SET hdPgmSecurity.
 
     RUN epCanAccess IN hdPgmSecurity (
@@ -1087,6 +1216,8 @@ PROCEDURE pInit :
         ).
         
     DELETE OBJECT hdPgmSecurity.    
+    
+    RUN fg/FGProcs.p PERSISTENT SET hdFGProcs.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1138,18 +1269,17 @@ PROCEDURE pScanItem :
     IF VALID-HANDLE(hdItemBins) THEN DO:
         lBinsQueryRan = TRUE.
         RUN ScanItem IN hdItemBins (
-            INPUT        cCompany,
-            INPUT        cWarehouse,
-            INPUT        cLocation,
-            INPUT-OUTPUT cItemID,
-            INPUT-OUTPUT cCustItem,
-            INPUT        cJobNo,
-            INPUT        iJobNo2,
-            INPUT        FALSE,  /* Include Zero qty bins */
-            INPUT        TRUE,   /* Include empty tag bins */
-            OUTPUT       cSellUOM,
-            OUTPUT       lError,
-            OUTPUT       cMessage
+            INPUT  cCompany,
+            INPUT  cWarehouse,
+            INPUT  cLocation,
+            INPUT  cItemID,
+            INPUT  cJobNo,
+            INPUT  iJobNo2,
+            INPUT  FALSE,  /* Include Zero qty bins */
+            INPUT  TRUE,   /* Include empty tag bins */
+            OUTPUT cSellUOM,
+            OUTPUT lError,
+            OUTPUT cMessage
             ).
     END.
 
@@ -1158,7 +1288,7 @@ PROCEDURE pScanItem :
         RUN ScanItem IN hdItemLoc (
             INPUT  cCompany,
             INPUT  cItemID,
-            INPUT  cCustItem,
+            INPUT  cWarehouse,
             OUTPUT lError,
             OUTPUT cMessage
             ).
@@ -1169,12 +1299,16 @@ PROCEDURE pScanItem :
         RUN ScanItem IN hdItemLocBin (
             INPUT  cCompany,
             INPUT  cItemID,
-            INPUT  cCustItem,
+            INPUT  cWarehouse,
+            INPUT  cLocation,
             OUTPUT lError,
             OUTPUT cMessage
             ).
     END.
     
+    IF lError THEN
+        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
+            
     ASSIGN
         fiFGItem:SCREEN-VALUE   = cItemID
         fiCustItem:SCREEN-VALUE = cCustItem

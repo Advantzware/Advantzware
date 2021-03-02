@@ -46,6 +46,8 @@ DEFINE VARIABLE lHasAccess AS LOGICAL NO-UNDO.
 {methods/defines/sortByDefs.i}
 
 DEFINE VARIABLE hdInventoryProcs AS HANDLE NO-UNDO.
+DEFINE VARIABLE iWarehouseLength  AS INTEGER   NO-UNDO.
+
 RUN Inventory/InventoryProcs.p PERSISTENT SET hdInventoryProcs.
 
 DEFINE VARIABLE hdPgmSecurity AS HANDLE  NO-UNDO.
@@ -74,7 +76,7 @@ DELETE OBJECT hdPgmSecurity.
 
 &Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 &Scoped-define BROWSE-NAME ttBrowseInventory
 
@@ -82,7 +84,7 @@ DELETE OBJECT hdPgmSecurity.
 &Scoped-define INTERNAL-TABLES ttBrowseInventory
 
 /* Definitions for BROWSE ttBrowseInventory                             */
-&Scoped-define FIELDS-IN-QUERY-ttBrowseInventory fGetConcatJob () @ ttBrowseInventory.jobID ttBrowseInventory.poID fGetConcatLocation () @ ttBrowseInventory.locationID ttBrowseInventory.tag ttBrowseInventory.quantity   
+&Scoped-define FIELDS-IN-QUERY-ttBrowseInventory ttBrowseInventory.jobID ttBrowseInventory.jobID2 ttBrowseInventory.poID fGetConcatLocation () @ ttBrowseInventory.locationID ttBrowseInventory.tag ttBrowseInventory.quantity   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-ttBrowseInventory   
 &Scoped-define SELF-NAME ttBrowseInventory
 &Scoped-define QUERY-STRING-ttBrowseInventory FOR EACH ttBrowseInventory ~{&SORTBY-PHRASE}
@@ -147,13 +149,6 @@ RUN set-attribute-list (
 
 /* ************************  Function Prototypes ********************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetConcatJob B-table-Win 
-FUNCTION fGetConcatJob RETURNS CHARACTER
-  ( /* parameter-definitions */ )  FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetConcatLocation B-table-Win 
 FUNCTION fGetConcatLocation RETURNS CHARACTER PRIVATE
   ( /* parameter-definitions */ )  FORWARD.
@@ -176,7 +171,8 @@ DEFINE QUERY ttBrowseInventory FOR
 DEFINE BROWSE ttBrowseInventory
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS ttBrowseInventory B-table-Win _FREEFORM
   QUERY ttBrowseInventory DISPLAY
-      fGetConcatJob () @ ttBrowseInventory.jobID WIDTH 25 COLUMN-LABEL "Job #" LABEL-BGCOLOR 14
+      ttBrowseInventory.jobID WIDTH 25 COLUMN-LABEL "Job #" LABEL-BGCOLOR 14
+    ttBrowseInventory.jobID2 WIDTH 5 COLUMN-LABEL "" FORMAT ">9"
     ttBrowseInventory.poID WIDTH 25 COLUMN-LABEL "PO #" FORMAT ">>>>>>" LABEL-BGCOLOR 14
     fGetConcatLocation () @ ttBrowseInventory.locationID WIDTH 30 COLUMN-LABEL "Location" FORMAT "X(20)" LABEL-BGCOLOR 14
     ttBrowseInventory.tag WIDTH 60 COLUMN-LABEL "Tag #" FORMAT "X(30)" LABEL-BGCOLOR 14
@@ -245,7 +241,7 @@ END.
 /* SETTINGS FOR WINDOW B-table-Win
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE Size-to-Fit                                              */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 /* BROWSE-TAB ttBrowseInventory 1 F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
@@ -450,6 +446,26 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ClearRecords B-table-Win
+PROCEDURE ClearRecords:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    EMPTY TEMP-TABLE ttBrowseInventory.
+
+    RUN dispatch (
+        INPUT "open-query"
+        ).
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI B-table-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
 /*------------------------------------------------------------------------------
@@ -467,6 +483,30 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy B-table-Win
+PROCEDURE local-destroy:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+    /* Code placed here will execute PRIOR to standard behavior. */
+    IF VALID-HANDLE(hdInventoryProcs) THEN
+        DELETE PROCEDURE hdInventoryProcs.
+        
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
+
+    /* Code placed here will execute AFTER standard behavior.    */
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pReopenBrowse B-table-Win 
 PROCEDURE pReopenBrowse :
@@ -504,38 +544,33 @@ PROCEDURE ScanItem :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEFINE INPUT        PARAMETER ipcCompany     AS CHARACTER NO-UNDO.
-    DEFINE INPUT        PARAMETER ipcWarehouse   AS CHARACTER NO-UNDO.
-    DEFINE INPUT        PARAMETER ipcLocation    AS CHARACTER NO-UNDO.
-    DEFINE INPUT-OUTPUT PARAMETER iopcItemID     AS CHARACTER NO-UNDO.
-    DEFINE INPUT-OUTPUT PARAMETER iopcCustItem   AS CHARACTER NO-UNDO.
-    DEFINE INPUT        PARAMETER ipcJobNo       AS CHARACTER NO-UNDO.
-    DEFINE INPUT        PARAMETER ipiJobNo2      AS INTEGER   NO-UNDO.    
-    DEFINE INPUT        PARAMETER iplZeroQtyBins AS LOGICAL   NO-UNDO.
-    DEFINE INPUT        PARAMETER iplEmptyTags   AS LOGICAL   NO-UNDO.
-    DEFINE OUTPUT       PARAMETER opcConsUOM     AS CHARACTER NO-UNDO.
-    DEFINE OUTPUT       PARAMETER oplError       AS LOGICAL   NO-UNDO.
-    DEFINE OUTPUT       PARAMETER opcMessage     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcCompany     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcWarehouse   AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcLocation    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcItemID      AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcJobNo       AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiJobNo2      AS INTEGER   NO-UNDO.    
+    DEFINE INPUT  PARAMETER iplZeroQtyBins AS LOGICAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER iplEmptyTags   AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcConsUOM     AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError       AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage     AS CHARACTER NO-UNDO.
     
     EMPTY TEMP-TABLE ttBrowseInventory.
 
     RUN Inventory_BuildFGBinForItem IN hdInventoryProcs (
-        INPUT        ipcCompany,
-        INPUT        ipcWarehouse,
-        INPUT        ipcLocation,
-        INPUT-OUTPUT iopcItemID,
-        INPUT-OUTPUT iopcCustItem,
-        INPUT        ipcJobNo,
-        INPUT        ipiJobNo2,
-        INPUT        iplZeroQtyBins,
-        INPUT        iplEmptyTags,
-        OUTPUT       opcConsUOM,
-        OUTPUT       oplError,
-        OUTPUT       opcMessage
+        INPUT  ipcCompany,
+        INPUT  ipcWarehouse,
+        INPUT  ipcLocation,
+        INPUT  ipcItemID,
+        INPUT  ipcJobNo,
+        INPUT  ipiJobNo2,
+        INPUT  iplZeroQtyBins,
+        INPUT  iplEmptyTags,
+        OUTPUT opcConsUOM,
+        OUTPUT oplError,
+        OUTPUT opcMessage
         ).
-    
-    IF oplError THEN
-        MESSAGE opcMessage VIEW-AS ALERT-BOX ERROR.
 
     {&OPEN-QUERY-{&BROWSE-NAME}}
 
@@ -589,28 +624,6 @@ END PROCEDURE.
 
 /* ************************  Function Implementations ***************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetConcatJob B-table-Win 
-FUNCTION fGetConcatJob RETURNS CHARACTER
-  ( /* parameter-definitions */ ) :
-/*------------------------------------------------------------------------------
-  Purpose:  
-    Notes:  
-------------------------------------------------------------------------------*/
-    DEFINE VARIABLE cConcatJob AS CHARACTER NO-UNDO.
-       
-    IF AVAILABLE ttBrowseInventory AND ttBrowseInventory.jobID NE "" THEN DO:
-        cConcatJob = ttBrowseInventory.jobID 
-                   + FILL(" ", 6 - LENGTH(ttBrowseInventory.jobID)) 
-                   + "-"
-                   + STRING(ttBrowseInventory.jobID2,"99").
-    END.
-    
-    RETURN cConcatJob.
-END FUNCTION.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetConcatLocation B-table-Win 
 FUNCTION fGetConcatLocation RETURNS CHARACTER PRIVATE
   ( /* parameter-definitions */ ) :
@@ -618,11 +631,17 @@ FUNCTION fGetConcatLocation RETURNS CHARACTER PRIVATE
   Purpose:  
     Notes:  
 ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE cConcatLocation AS CHARACTER NO-UNDO.
-       
+    DEFINE VARIABLE cConcatLocation   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCompany          AS CHARACTER NO-UNDO. 
+    RUN spGetSessionParam ("Company", OUTPUT cCompany).
+    
+    RUN Inventory_GetWarehouseLength IN hdInventoryProcs (
+        INPUT  cCompany,
+        OUTPUT iWarehouseLength
+        ).
     IF AVAILABLE ttBrowseInventory THEN
         cConcatLocation = ttBrowseInventory.warehouseID 
-                        + FILL(" ", 5 - LENGTH(ttBrowseInventory.warehouseID)) 
+                        + FILL(" ", iWarehouseLength - LENGTH(ttBrowseInventory.warehouseID)) 
                         + ttBrowseInventory.locationID.
 
     RETURN cConcatLocation.

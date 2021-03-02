@@ -13,7 +13,7 @@ FUNCTION fJasperFields RETURNS CHARACTER
     FOR EACH bttSubjectColumn
         WHERE bttSubjectColumn.subjectID EQ dynSubject.subjectID
         :
-        cFields = cFields + "$F~{" + bttSubjectColumn.fieldName + "},".
+        cFields = cFields + "$F~{" + REPLACE(bttSubjectColumn.fieldName,".","__") + "},".
     END. /* each ttSubjectColumn*/
     RETURN TRIM(cFields,",").
 
@@ -83,7 +83,7 @@ FUNCTION fJasperVariables RETURNS CHARACTER
         :
         ASSIGN
             cResetGroup = REPLACE(REPLACE(ttGroupCalc.groupName,"[Group] ","")," ","_") + "_Group"
-            cName       = ttGroupCalc.fieldName + "_"
+            cName       = REPLACE(ttGroupCalc.fieldName,".","__") + "_"
                         + IF ttGroupCalc.groupName BEGINS "[Group] " THEN cResetGroup
                           ELSE ttGroupCalc.groupName + "Footer" 
             cVariables  = cVariables + "$V~{" + cName + "},".

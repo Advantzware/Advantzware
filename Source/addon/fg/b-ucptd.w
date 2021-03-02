@@ -52,6 +52,8 @@ DEFINE VARIABLE hInventoryProcs      AS HANDLE NO-UNDO.
 DEFINE VARIABLE lActiveBin AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lFgEmails AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lPromptForClose AS LOGICAL NO-UNDO INITIAL YES.
+DEFINE VARIABLE iWarehouseLength AS INTEGER NO-UNDO.
+DEFINE VARIABLE hdInventoryProcs AS HANDLE  NO-UNDO.
 
 ASSIGN cocode = g_company
        locode = g_loc.
@@ -692,12 +694,19 @@ DO:
     IF LASTKEY = -1 THEN RETURN.
 
     DEF VAR v-locbin AS cha NO-UNDO.
+    RUN inventory/InventoryProcs.p PERSISTENT SET hdInventoryProcs.
+    
+    RUN Inventory_GetWarehouseLength IN hdInventoryProcs (
+        INPUT  cocode,
+        OUTPUT iWarehouseLength
+        ).
+    
     IF SELF:MODIFIED THEN DO:
-       IF LENGTH(SELF:SCREEN-VALUE) > 5 THEN DO:
+       IF LENGTH(SELF:SCREEN-VALUE) > iWarehouseLength THEN DO:
           
           v-locbin = SELF:SCREEN-VALUE.
-          ASSIGN fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name} = SUBSTRING(v-locbin,1,5)
-                 fg-rctd.loc-bin:SCREEN-VALUE = SUBSTRING(v-locbin,6,8).
+          ASSIGN fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name} = SUBSTRING(v-locbin,1,iWarehouseLength)
+                 fg-rctd.loc-bin:SCREEN-VALUE = SUBSTRING(v-locbin,iWarehouseLength + 1).
 
           RUN ValidateLoc IN hInventoryProcs (cocode, fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}, OUTPUT lActiveBin).
           IF NOT lActiveBin THEN DO:
@@ -1023,21 +1032,24 @@ PROCEDURE gl-from-work :
      credits = credits + work-gl.credits.
 
     if last-of(work-gl.actnum) then do:
-      create gltrans.
-      assign
-       gltrans.company = cocode
-       gltrans.actnum  = work-gl.actnum
-       gltrans.jrnl    = "FGPOST"
-       gltrans.period  = period.pnum
-       gltrans.tr-amt  = debits - credits
-       gltrans.tr-date = v-post-date
-       gltrans.tr-dscr = if work-gl.job-no ne "" then "FG Receipt from Job"
-                                                 else "FG Receipt from PO"
-       gltrans.trnum   = ip-trnum
+    RUN GL_SpCreateGLHist(cocode,
+                         work-gl.actnum,
+                         "FGPOST",
+                         (if work-gl.job-no ne "" then "FG Receipt from Job"
+                                                else "FG Receipt from PO"),
+                         v-post-date,
+                         (debits - credits),
+                         ip-trnum,
+                         period.pnum,
+                         "A",
+                         v-post-date,
+                         string(IF AVAIL fg-rctd THEN fg-rctd.i-no ELSE ""),
+                         "FG").
+                       
+     ASSIGN  
        debits  = 0
        credits = 0.
 
-      RELEASE gltrans.
     end.
   end.
 END PROCEDURE.
@@ -1179,7 +1191,7 @@ PROCEDURE local-update-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-
+   DEFINE VARIABLE lInvalid AS LOGICAL NO-UNDO.
   /* Code placed here will execute PRIOR to standard behavior. */
   RUN validate-record NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN ERROR.
@@ -1187,8 +1199,11 @@ PROCEDURE local-update-record :
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
-  IF SSMoveFG-log THEN
+  IF SSMoveFG-log THEN DO:
+     RUN pCheckPeriod(OUTPUT lInvalid).
+     IF NOT lInvalid THEN 
      RUN post-finish-goods-single.
+  END.    
 
   /* Code placed here will execute AFTER standard behavior.    */
   RUN scan-next.
@@ -1425,6 +1440,30 @@ PROCEDURE state-changed :
          or add new cases. */
       {src/adm/template/bstates.i}
   END CASE.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckPeriod B-table-Win 
+PROCEDURE pCheckPeriod :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  define output parameter oplReturnNotValidPost as logical no-undo.
+  DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE lSuccess AS LOGICAL NO-UNDO.
+    oplReturnNotValidPost = no.
+    
+    RUN GL_CheckModClosePeriod(input cocode, input today, input "FG", output cMessage, output lSuccess ) .  
+    if not lSuccess then 
+    do:
+      message cMessage view-as alert-box info.
+      oplReturnNotValidPost = yes.
+    end.  
+     
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

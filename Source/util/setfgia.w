@@ -1,4 +1,3 @@
-&ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI
 &ANALYZE-RESUME
 &Scoped-define WINDOW-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS C-Win 
@@ -38,7 +37,8 @@ CREATE WIDGET-POOL.
                                      */
 
 def var list-name as cha no-undo.
-DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
+DEFINE VARIABLE init-dir     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hdPriceProcs AS HANDLE    NO-UNDO.
 
 {methods/defines/hndldefs.i}
 {methods/prgsecur.i}
@@ -109,6 +109,8 @@ RUN sys/ref/nk1look.p (INPUT cocode,
                        OUTPUT lFound).
 IF lFound THEN
     cMasterItemfg = cReturn.
+
+RUN oe/priceProcs.p PERSISTENT SET hdPriceProcs.    
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -550,6 +552,9 @@ ON WINDOW-CLOSE OF C-Win /* Finished Goods Set Inactive Utility */
 DO:
   IF VALID-HANDLE(hStatus) THEN
       DELETE OBJECT hStatus.
+      
+  IF VALID-HANDLE(hdPriceProcs) THEN 
+      DELETE PROCEDURE hdPriceProcs.    
 
   /* This event will close the window and terminate the procedure.  */
   APPLY "CLOSE":U TO THIS-PROCEDURE.
@@ -705,14 +710,20 @@ DO:
    IF AVAIL tt-inactive-list THEN DO:
 
       /* Prompt to inactivate items based on list created */
-       MESSAGE "Deactivate the " gviCnt " items?"
+       MESSAGE "Set " gviCnt "items to inactive?"
               VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
-              UPDATE ll-do-deactivate.
+              UPDATE ll-do-deactivate.    
        IF ll-do-deactivate THEN DO:
+           MESSAGE "Do you want to inactivate all quotes and price matrix entries ?"
+                VIEW-AS ALERT-BOX QUESTION
+                BUTTONS YES-NO 
+                UPDATE lResponse AS LOGICAL.  
           RUN windows/w-message.w PERSISTENT SET hStatus.
           RUN setWindowTitle IN hStatus (INPUT "Deactivating Items").
 
-          RUN deactivate-items.
+          RUN deactivate-items(
+              INPUT lResponse
+              ).
           IF VALID-HANDLE(hStatus) THEN
                DELETE OBJECT hStatus.
           MESSAGE "Done!"
@@ -1041,9 +1052,10 @@ PROCEDURE deactivate-items :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iplExpirePrice AS LOGICAL NO-UNDO.
+    
 DEF VAR iCnt          AS INT  NO-UNDO.
 DEF VAR jCnt          AS INT  NO-UNDO.
-
 
 FOR EACH tt-inactive-list:
 
@@ -1065,6 +1077,11 @@ FOR EACH tt-inactive-list:
             LEAVE.
 
         ASSIGN itemfg.stat = "I".
+        IF iplExpirePrice THEN    
+            RUN Price_ExpirePricesByItem IN hdPriceProcs(
+                INPUT cocode,
+                INPUT itemfg.i-no
+                ).
 /*         FIND FIRST reftable     WHERE reftable.reftable EQ "FGSTATUS" */
 /*           AND reftable.company  EQ cocode                             */
 /*           AND reftable.loc      EQ ""                                 */

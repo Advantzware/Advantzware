@@ -53,7 +53,8 @@ for each account where account.company eq cocode:
       where glhist.company eq account.company
         and glhist.actnum  eq account.actnum
         and glhist.tr-date ge period.pst
-        and glhist.tr-date le period.pend   
+        and glhist.tr-date le period.pend 
+        AND glhist.posted  EQ YES
       no-lock
       
       by period.yr

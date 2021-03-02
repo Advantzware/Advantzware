@@ -26,7 +26,7 @@ DEFINE TEMP-TABLE ttARInv LIKE ar-inv
     USE-INDEX rec_key AS PRIMARY.
 DEFINE TEMP-TABLE ttARInvl LIKE ar-invl
     USE-INDEX rec_key AS PRIMARY.
-DEFINE TEMP-TABLE ttGLTrans LIKE gltrans
+DEFINE TEMP-TABLE ttGlhist LIKE glhist
     USE-INDEX rec_key AS PRIMARY.
 
 DEFINE VARIABLE cCompany            AS CHARACTER NO-UNDO INITIAL '001'.
@@ -172,16 +172,16 @@ PROCEDURE pBuildCompareFiles PRIVATE:
             BUFFER-COPY ar-invl TO ttArInvl.
         END.    
     END.
-    FOR EACH gltrans NO-LOCK
-        WHERE gltrans.company EQ '001'
-        AND gltrans.trnum EQ 60200:
-        CREATE ttGlTrans.
-        BUFFER-COPY gltrans TO ttGlTrans.
+    FOR EACH glhist NO-LOCK
+        WHERE glhist.company EQ '001'
+        AND glhist.tr-num EQ 60200:
+        CREATE ttGlhist.
+        BUFFER-COPY glhist TO ttGlhist.
     END.
     
     RUN Output_TempTableToCSV(TEMP-TABLE ttArInv:HANDLE, cTempFolder + "\" + ipcResults + "ARInv.csv", YES,YES, OUTPUT lSuccess, OUTPUT cMessage).
     RUN Output_TempTableToCSV(TEMP-TABLE ttArInvl:HANDLE, cTempFolder + "\" + ipcResults + "ARInvl.csv", YES,YES, OUTPUT lSuccess, OUTPUT cMessage).
-    RUN Output_TempTableToCSV(TEMP-TABLE ttGlTrans:HANDLE, cTempFolder + "\" + ipcResults + "GlTrans.csv", YES,YES, OUTPUT lSuccess, OUTPUT cMessage).
+    RUN Output_TempTableToCSV(TEMP-TABLE ttGlhist:HANDLE, cTempFolder + "\" + ipcResults + "GlTrans.csv", YES,YES, OUTPUT lSuccess, OUTPUT cMessage).
           
 
 END PROCEDURE.

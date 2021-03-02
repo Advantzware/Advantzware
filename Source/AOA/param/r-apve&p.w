@@ -740,6 +740,8 @@ PROCEDURE pCheckDate :
     DEFINE INPUT  PARAMETER ipcCompany AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipdtDate   AS DATE      NO-UNDO.    
     DEFINE OUTPUT PARAMETER oplInvalid AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lSuccess AS LOGICAL NO-UNDO.
     
     DEFINE VARIABLE iPeriod AS INTEGER NO-UNDO.
 
@@ -748,6 +750,16 @@ PROCEDURE pCheckDate :
     oplInvalid = ERROR-STATUS:ERROR.
     IF NOT oplInvalid THEN
     svPeriod:SCREEN-VALUE IN FRAME {&FRAME-NAME} = STRING(iPeriod).
+    
+    IF NOT oplInvalid THEN
+    DO:
+       RUN GL_CheckModClosePeriod(input ipcCompany, input DATE(ipdtDate), input "AP", output cMessage, output lSuccess ) .  
+       IF NOT lSuccess then 
+       do:
+         message cMessage view-as alert-box info.
+         oplInvalid = yes.
+       end.         
+    END.
 
 END PROCEDURE.
 

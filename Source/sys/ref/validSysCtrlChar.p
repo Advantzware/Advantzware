@@ -12,7 +12,16 @@ DEFINE OUTPUT PARAMETER oplResult AS LOGICAL     NO-UNDO.
   DEF VAR thisOne AS CHAR NO-UNDO.
   DEF VAR comp-char-val AS CHAR NO-UNDO.
   DEF VAR j AS INT NO-UNDO.  
-
+  DEFINE VARIABLE hdInventoryProcs AS HANDLE    NO-UNDO.
+  DEFINE VARIABLE iWarehouseLength AS INTEGER   NO-UNDO.
+  {Inventory/ttInventory.i "NEW SHARED"}
+  RUN Inventory/InventoryProcs.p PERSISTENT SET hdInventoryProcs.
+  
+  RUN Inventory_GetWarehouseLength IN hdInventoryProcs (
+      INPUT  ipcCompany,
+      OUTPUT iWarehouseLength
+      ).
+  
   IF NOT (ipcSVName = "VendXfer" OR
      ipcSVName = "CustXfer" OR  ipcSVName = "ORDERXFER")
   THEN DO: 
@@ -44,8 +53,8 @@ DEFINE OUTPUT PARAMETER oplResult AS LOGICAL     NO-UNDO.
         FIND FIRST fg-bin
             WHERE fg-bin.company EQ ipcCompany
               AND fg-bin.i-no    EQ ""
-              AND fg-bin.loc     EQ SUBSTR(ipcSVCharFld,1,5)
-              AND fg-bin.loc-bin EQ SUBSTR(ipcSVCharFld,6)
+              AND fg-bin.loc     EQ SUBSTR(ipcSVCharFld,1,iWarehouseLength)
+              AND fg-bin.loc-bin EQ SUBSTR(ipcSVCharFld,iWarehouseLength + 1)
             NO-LOCK NO-ERROR.
         IF NOT AVAIL fg-bin THEN lv-msg = "FG Bin does not exist".
       END.
@@ -55,9 +64,9 @@ DEFINE OUTPUT PARAMETER oplResult AS LOGICAL     NO-UNDO.
         IF ipcSVCharFld NE "RMITEM" THEN DO:
           FIND FIRST rm-bin
               WHERE rm-bin.company EQ ipcCompany
-                AND rm-bin.loc     EQ SUBSTR(ipcSVCharFld,1,5)
+                AND rm-bin.loc     EQ SUBSTR(ipcSVCharFld,1,iWarehouseLength)
                 AND rm-bin.i-no    EQ ""
-                AND rm-bin.loc-bin EQ SUBSTR(ipcSVCharFld,6)
+                AND rm-bin.loc-bin EQ SUBSTR(ipcSVCharFld,iWarehouseLength + 1)
               NO-LOCK NO-ERROR.
           IF NOT AVAIL rm-bin THEN lv-msg = "RM Bin does not exist".
         END.

@@ -62,7 +62,7 @@ ASSIGN cTextListToSelect = "Account,Account Description,Journal,Vendor,Name,Date
                            "Amt MSF,Discount,Amount,Currency Code,Created By,Created Date,Posted,Run#" 
        cFieldListToSelect = "account,acc-desc,jou,vend,name,date,inv,chk,ord,qty," +
                             "msf,dis,amt,curr-code,createdby,createddate,posted,run"
-       cFieldLength = "25,30,8,8,35,8,12,7,6,13," + "10,10,14,13,10,12,6,7"
+       cFieldLength = "25,30,8,8,35,8,12,7,7,13," + "10,10,14,13,10,12,6,7"
        cFieldType = "c,c,c,c,c,c,i,i,i,i," + "i,i,i,c,c,c,c,i" 
     .
 
@@ -1612,8 +1612,8 @@ DEFINE VARIABLE ws_disc LIKE ap-payl.amt-disc COLUMN-LABEL "Discount" NO-UNDO.
 DEFINE VARIABLE ws_check-no LIKE ap-chk.check-no NO-UNDO format ">>>>>>>"
     column-label "Check#".
 DEFINE VARIABLE ws_order-no LIKE oe-ord.ord-no NO-UNDO
-    format ">>>>>>".
-def var ws_jrnl like gltrans.jrnl column-label "Journal" no-undo.
+    format ">>>>>>>".
+def var ws_jrnl like glhist.jrnl column-label "Journal" no-undo.
 DEF VAR GL_JRNL_LIST AS CHAR NO-UNDO.
 
 def var lo_actnum like account.actnum label "From GL Acct#" no-undo.
@@ -1750,13 +1750,13 @@ SESSION:SET-WAIT-STATE ("general").
       ws_order-no = 0.
     
 
-    FOR EACH gltrans NO-LOCK
-        WHERE gltrans.company = cocode
-        AND gltrans.actnum = account.actnum
-        AND gltrans.tr-date >= lo_trandate
-        AND gltrans.tr-date <= hi_trandate
-        AND CAN-DO(GL_JRNL_LIST, gltrans.jrnl)
-        BY gltrans.tr-date:
+    FOR EACH glhist NO-LOCK
+        WHERE glhist.company = cocode
+        AND glhist.actnum = account.actnum
+        AND glhist.tr-date >= lo_trandate
+        AND glhist.tr-date <= hi_trandate
+        AND CAN-DO(GL_JRNL_LIST, glhist.jrnl)        
+        BY glhist.tr-date:
       IF NOT hdg_printed THEN
       DO:
 
@@ -1766,65 +1766,6 @@ SESSION:SET-WAIT-STATE ("general").
     
 
             ASSIGN cDisplay = ""
-                   cTmpField = ""
-                   cVarValue = ""
-                   cExcelDisplay = ""
-                   cExcelVarValue = "".
-
-            DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
-               cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
-                    CASE cTmpField:             
-                         WHEN "jou"    THEN cVarValue = string(gltrans.jrnl,"x(8)") .
-                         WHEN "vend"   THEN cVarValue = "".
-                         WHEN "name"   THEN cVarValue = string(gltrans.tr-dscr,"x(35)").
-                         WHEN "date"  THEN cVarValue = STRING(gltrans.tr-date,"99/99/99") .
-                         WHEN "inv"   THEN cVarValue = "" .
-                         WHEN "chk"  THEN cVarValue = "" .
-                         WHEN "ord"   THEN cVarValue = "" .
-                         WHEN "qty"  THEN cVarValue = "" .
-
-                         WHEN "msf"  THEN cVarValue = "" .
-                         WHEN "dis"   THEN cVarValue = "" .
-                         WHEN "amt"  THEN cVarValue = STRING(gltrans.tr-amt,"->>,>>>,>>9.99") .
-                         WHEN "account"  THEN cVarValue = STRING(account.actnum,"x(25)") .
-                         WHEN "acc-desc"  THEN cVarValue = STRING(account.dscr,"x(30)") .
-                         WHEN "curr-code"  THEN cVarValue = STRING(gltrans.curr-code[1]) .
-                         WHEN "createdby"  THEN cVarValue = STRING(gltrans.createdBy,"x(10)") .
-                         WHEN "createddate"  THEN cVarValue = IF gltrans.createdDate NE ? THEN STRING(gltrans.createdDate,"99/99/9999") ELSE "" .
-                         WHEN "posted"  THEN cVarValue = STRING(gltrans.posted) .
-                         WHEN "run"  THEN cVarValue = STRING(gltrans.trnum,"9999999") .
-
-                    END CASE.
-
-                    cExcelVarValue = cVarValue.
-                    cDisplay = cDisplay + cVarValue +
-                               FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-                    cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
-            END.
-
-            PUT UNFORMATTED cDisplay SKIP.
-            IF tb_excel THEN DO:
-                 PUT STREAM excel UNFORMATTED  
-                       cExcelDisplay SKIP.
-             END.
-
-      ASSIGN t-disc = t-disc + ws_disc
-        t-amt = t-amt + gltrans.tr-amt.
-    END.
-
-    FOR EACH glhist NO-LOCK
-        WHERE glhist.company = cocode
-        AND glhist.actnum = account.actnum
-        AND glhist.tr-date >= lo_trandate
-        AND glhist.tr-date <= hi_trandate
-        AND CAN-DO(GL_JRNL_LIST, glhist.jrnl)
-        BY glhist.tr-date:
-      IF NOT hdg_printed THEN
-      DO:
-        hdg_printed = TRUE.
-      END.
-      
-      ASSIGN cDisplay = ""
                    cTmpField = ""
                    cVarValue = ""
                    cExcelDisplay = ""
@@ -1869,7 +1810,7 @@ SESSION:SET-WAIT-STATE ("general").
 
       ASSIGN t-disc = t-disc + ws_disc
         t-amt = t-amt + glhist.tr-amt.
-    END.
+    END.    
 
 /*
       ws_jrnl = "AP-DIS".
@@ -1956,7 +1897,7 @@ do:
                          WHEN "date"  THEN cVarValue = STRING(ap-inv.inv-date,"99/99/99") .
                          WHEN "inv"   THEN cVarValue = STRING(ap-inv.inv-no,"x(12)") .
                          WHEN "chk"  THEN cVarValue = STRING(ws_check-no,">>>>>>>") .
-                         WHEN "ord"   THEN cVarValue = STRING(ws_order-no,">>>>>>") .
+                         WHEN "ord"   THEN cVarValue = STRING(ws_order-no,">>>>>>>") .
                          WHEN "qty"  THEN cVarValue = IF ap-invl.qty <> 0 THEN STRING(ap-invl.qty,"->,>>>,>>9.99") ELSE "" .
 
                          WHEN "msf"  THEN cVarValue = IF ap-invl.amt-msf <> 0 THEN STRING(ap-invl.amt-msf,"->>,>>9.99") ELSE "" .

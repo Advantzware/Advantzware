@@ -818,6 +818,14 @@
                 .
             RETURN.
         END.
+        IF AVAILABLE bf-period AND period.subLedgerFG EQ "C" THEN DO:
+            ASSIGN
+                oplSuccess = FALSE
+                opcMessage = "Unable to post tag " + fg-rctd.tag + "."
+                           + " Sub ledger FG Inventory Period closed for " + STRING(TODAY)
+                .
+            RETURN.
+        END.
 
         iPeriod = bf-period.pnum.
 
@@ -838,27 +846,22 @@
             END.
 
             FOR EACH work-job
-                BREAK BY work-job.actnum:
-                CREATE gltrans.
-                ASSIGN
-                    gltrans.company = cocode
-                    gltrans.actnum  = work-job.actnum
-                    gltrans.jrnl    = "OEINV"
-                    gltrans.tr-date = TODAY
-                    gltrans.period  = iPeriod
-                    gltrans.trnum   = iTrnNum
-                    .
-
-                IF work-job.fg THEN
-                    ASSIGN
-                        gltrans.tr-amt  = - work-job.amt
-                        gltrans.tr-dscr = "ORDER ENTRY INVOICE FG"
-                        .
-                ELSE
-                    ASSIGN
-                        gltrans.tr-amt  = work-job.amt
-                        gltrans.tr-dscr = "ORDER ENTRY INVOICE COGS"
-                        .
+               BREAK BY work-job.actnum:
+               RUN GL_SpCreateGLHist(cocode,
+                                  work-job.actnum,
+                                  "OEINV",
+                                  (IF work-job.fg THEN "ORDER ENTRY INVOICE FG"
+                                                  ELSE "ORDER ENTRY INVOICE COGS"),
+                                  TODAY,
+                                  (IF work-job.fg THEN - work-job.amt
+                                                  ELSE work-job.amt),
+                                  iTrnNum,
+                                  iPeriod,
+                                  "A",
+                                  TODAY,
+                                  "",
+                                  "FG").
+                
             END.
         END.
 

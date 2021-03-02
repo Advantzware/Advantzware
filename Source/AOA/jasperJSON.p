@@ -5,6 +5,7 @@ DEFINE INPUT  PARAMETER iphQuery       AS HANDLE    NO-UNDO.
 DEFINE INPUT  PARAMETER ipcUserID      AS CHARACTER NO-UNDO.
 DEFINE INPUT  PARAMETER ipcSubjectName AS CHARACTER NO-UNDO.
 DEFINE INPUT  PARAMETER ipcTaskRecKey  AS CHARACTER NO-UNDO.
+DEFINE INPUT  PARAMETER iplProgressBar AS LOGICAL   NO-UNDO.
 DEFINE OUTPUT PARAMETER opcJasperFile  AS CHARACTER NO-UNDO.
 DEFINE OUTPUT PARAMETER oplOK          AS LOGICAL   NO-UNDO.
 
@@ -15,6 +16,10 @@ DEFINE VARIABLE cJasonName    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cTableName    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hDynCalcField AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hQueryBuf     AS HANDLE    NO-UNDO.
+DEFINE VARIABLE idx           AS INTEGER   NO-UNDO.
+DEFINE VARIABLE iNumResults   AS INTEGER   NO-UNDO.
+
+DEFINE STREAM sJasperJSON.
 
 {AOA/includes/dynFuncs.i}
 
@@ -26,8 +31,6 @@ FIND FIRST dynParamValue NO-LOCK
      NO-ERROR.
 IF NOT AVAILABLE dynParamValue THEN RETURN.
 
-iphQuery:QUERY-OPEN.
-iphQuery:GET-FIRST().
 OS-CREATE-DIR "users".
 OS-CREATE-DIR "users\_default".
 OS-CREATE-DIR VALUE("users\" + ipcUserID).
@@ -38,17 +41,23 @@ ASSIGN
                   + cJasonName
                   + ".json"
                   .
-OUTPUT TO VALUE(opcJasperFile).
-PUT UNFORMATTED
+OUTPUT STREAM sJasperJSON TO VALUE(opcJasperFile).
+PUT STREAM sJasperJSON UNFORMATTED
     "~{" SKIP
     FILL(" ",2)
     "~"" REPLACE(ipcSubjectName," ","_") "~": ~{" SKIP
     FILL(" ",4)
     "~"" REPLACE(ipcSubjectName," ","") "~": [" SKIP
     .
+iphQuery:QUERY-OPEN.
+{AOA/includes/iNumResults.i}
+iphQuery:GET-FIRST().
 IF NOT iphQuery:QUERY-OFF-END THEN
 REPEAT:
-    PUT UNFORMATTED
+    idx = idx + 1.
+    IF iplProgressBar THEN
+    RUN spProgressBar (ipcSubjectName, idx, iNumResults).
+    PUT STREAM sJasperJSON UNFORMATTED
         FILL(" ",6) "~{" SKIP
         .
     FOR EACH dynValueColumn NO-LOCK
@@ -94,33 +103,33 @@ REPEAT:
             cFullName    = REPLACE(cFullName,"]","")
             .
         IF dynValueColumn.sortOrder GT 1 THEN
-        PUT UNFORMATTED "," SKIP.
-        PUT UNFORMATTED
+        PUT STREAM sJasperJSON UNFORMATTED "," SKIP.
+        PUT STREAM sJasperJSON UNFORMATTED
             FILL(" ",8)
             "~"" cFullName "~": ~""
             IF cBufferValue NE "" THEN cBufferValue ELSE " "
             "~""
             .
     END. /* each dynvaluecolumn */
-    PUT UNFORMATTED SKIP FILL(" ",6) "}".
+    PUT STREAM sJasperJSON UNFORMATTED SKIP FILL(" ",6) "}".
     iphQuery:GET-NEXT().
     IF iphQuery:QUERY-OFF-END THEN LEAVE.
-    PUT UNFORMATTED "," SKIP.
+    PUT STREAM sJasperJSON UNFORMATTED "," SKIP.
 END. /* repeat */
 ELSE
-PUT UNFORMATTED
+PUT STREAM sJasperJSON UNFORMATTED
     FILL(" ",8) "~{" SKIP
     FILL(" ",12)
     "~"NoDataMessage~": ~"No Data Exists for the Selected Parameter Value(s)~"" SKIP
     FILL(" ",8) "}" SKIP
     .
-PUT UNFORMATTED
+PUT STREAM sJasperJSON UNFORMATTED
     SKIP
     FILL(" ",4) "]" SKIP
     FILL(" ",2) "}" SKIP
     "}" SKIP
     .
-OUTPUT CLOSE.
+OUTPUT STREAM sJasperJSON CLOSE.
 oplOK = TRUE.
 iphQuery:QUERY-CLOSE().
 

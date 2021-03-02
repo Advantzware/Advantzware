@@ -285,25 +285,6 @@ DEF VAR loop-limit AS INT NO-UNDO.
                  job-hdr.ord-no  eq 0) 
           use-index enum:
           
-        if job-hdr.ord-no ne 0 then do:
-          /*if avail job and job.stat ne "P" then do:
-            find first itemfg where itemfg.company = oe-ord.company and
-                                    itemfg.i-no = oe-ordl.i-no no-error.
-            if avail itemfg then do:
-              itemfg.q-ono = itemfg.q-ono - job-hdr.qty.
-              if itemfg.q-ono lt 0 then itemfg.q-ono = 0.
-              itemfg.q-avail = itemfg.q-onh + itemfg.q-ono - itemfg.q-alloc.
-                  
-              run fg/comp-upd.p (recid(itemfg), job-hdr.qty * -1,
-                                 "q-ono", job-hdr.est-no).
-            end.
-          end.*/
-          
-          if avail job then do:
-            {util/dljobkey.i}
-          end.
-        end.
-          
         DO loop-limit = 1 TO 1000:
           FIND del-job-hdr WHERE ROWID(del-job-hdr) EQ ROWID(job-hdr)
               EXCLUSIVE NO-WAIT NO-ERROR.

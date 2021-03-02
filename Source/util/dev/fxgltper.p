@@ -10,15 +10,16 @@ assign
  cocode = g_company
  locode = g_loc.
 
-for each gltrans where gltrans.company eq cocode,
+for each glhist where glhist.company eq cocode
+                AND glhist.posted EQ NO,
     first period
-    where period.company eq gltrans.company
-      and period.pst     le gltrans.tr-date
-      and period.pend    ge gltrans.tr-date
-      and period.pnum    ne gltrans.period
+    where period.company eq glhist.company
+      and period.pst     le glhist.tr-date
+      and period.pend    ge glhist.tr-date
+      and period.pnum    ne glhist.period
     no-lock:
     
-  gltrans.period = period.pnum.
+  glhist.period = period.pnum.
 end.
 
 SESSION:SET-WAIT-STATE("").

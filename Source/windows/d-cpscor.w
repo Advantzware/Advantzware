@@ -170,6 +170,45 @@ END.
 &ANALYZE-RESUME
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
+ON HELP OF FRAME Dialog-Frame /* help */
+DO:
+  DEFINE VARIABLE char-val AS CHARACTER NO-UNDO.   
+  DEFINE VARIABLE lw-focus AS WIDGET-HANDLE NO-UNDO. 
+  DO WITH FRAME {&FRAME-NAME}:
+    lw-focus = FOCUS.
+    CASE lw-focus:NAME :
+         WHEN "begin_style" THEN DO:
+              RUN windows/l-style.w (cocode,begin_style:SCREEN-VALUE, OUTPUT char-val).
+              begin_style:SCREEN-VALUE = ENTRY(1,char-val).
+              APPLY "entry" TO begin_style.
+         END. 
+         WHEN "end_style" THEN DO:
+              RUN windows/l-style.w (cocode,end_style:SCREEN-VALUE, OUTPUT char-val).
+                  end_style:SCREEN-VALUE = ENTRY(1,char-val).
+                  APPLY "entry" TO end_style.
+         END.   
+         WHEN "begin_flute" THEN DO:
+              RUN windows/l-flute.w (cocode, OUTPUT char-val).
+              begin_flute:SCREEN-VALUE = ENTRY(1,char-val).
+              APPLY "entry" TO begin_flute.
+         END. 
+         WHEN "end_flute" THEN DO:
+              RUN windows/l-flute.w (cocode, OUTPUT char-val).
+              end_flute:SCREEN-VALUE = ENTRY(1,char-val).
+              APPLY "entry" TO end_flute.
+         END. 
+          
+    END CASE.
+  END.
+
+  RETURN NO-APPLY.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME begin_flute
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_flute Dialog-Frame
 ON LEAVE OF begin_flute IN FRAME Dialog-Frame /* From Flute */

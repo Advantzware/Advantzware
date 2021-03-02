@@ -110,7 +110,7 @@ DEFINE TEMP-TABLE ttGroup NO-UNDO
 
 
 /* Definitions for BROWSE subjectColumnBrowse                           */
-&Scoped-define FIELDS-IN-QUERY-subjectColumnBrowse ttSubjectColumn.isActive ttSubjectColumn.fieldLabel ttSubjectColumn.sortOrder ttSubjectColumn.groupCalc ttSubjectColumn.fieldName ttSubjectColumn.fieldFormat   
+&Scoped-define FIELDS-IN-QUERY-subjectColumnBrowse ttSubjectColumn.isActive ttSubjectColumn.fieldLabel ttSubjectColumn.sortOrder ttSubjectColumn.fieldName ttSubjectColumn.groupCalc ttSubjectColumn.fieldFormat   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-subjectColumnBrowse ttSubjectColumn.isActive ttSubjectColumn.fieldLabel   
 &Scoped-define ENABLED-TABLES-IN-QUERY-subjectColumnBrowse ttSubjectColumn
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-subjectColumnBrowse ttSubjectColumn
@@ -223,7 +223,7 @@ DEFINE BUTTON btnSortMoveUp
 DEFINE VARIABLE searchBar AS CHARACTER FORMAT "X(256)":U 
      LABEL "Search" 
      VIEW-AS FILL-IN 
-     SIZE 42 BY 1 NO-UNDO.
+     SIZE 126 BY 1 NO-UNDO.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -269,15 +269,15 @@ DEFINE BROWSE subjectColumnBrowse
       ttSubjectColumn.isActive VIEW-AS TOGGLE-BOX
 ttSubjectColumn.fieldLabel
 ttSubjectColumn.sortOrder
-ttSubjectColumn.groupCalc
 ttSubjectColumn.fieldName FORMAT "x(40)"
+ttSubjectColumn.groupCalc
 ttSubjectColumn.fieldFormat
 ENABLE
 ttSubjectColumn.isActive
 ttSubjectColumn.fieldLabel
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SIZE 42 BY 23.33
+    WITH NO-ROW-MARKERS SIZE 126 BY 23.33
          TITLE "Column Order" ROW-HEIGHT-CHARS .81.
 
 
@@ -286,11 +286,11 @@ ttSubjectColumn.fieldLabel
 DEFINE FRAME F-Main
      searchBar AT ROW 1.24 COL 7 COLON-ALIGNED HELP
           "Enter Search" WIDGET-ID 22
-     sortBrowse AT ROW 1.24 COL 103 WIDGET-ID 300
+     sortBrowse AT ROW 1.24 COL 144 WIDGET-ID 300
      subjectColumnBrowse AT ROW 2.19 COL 9 WIDGET-ID 200
      btnColMoveDown AT ROW 8.38 COL 1 HELP
           "Move Down Column" WIDGET-ID 14
-     groupBrowse AT ROW 17.19 COL 103 WIDGET-ID 400
+     groupBrowse AT ROW 17.19 COL 144 WIDGET-ID 400
      btnColMoveUp AT ROW 6.48 COL 1 HELP
           "Move Up Column" WIDGET-ID 16
      btnAdvanced AT ROW 2.67 COL 1 HELP
@@ -301,17 +301,17 @@ DEFINE FRAME F-Main
           "Update/Save Columns" WIDGET-ID 24
      btnReset AT ROW 14.1 COL 1 HELP
           "Reset" WIDGET-ID 28
-     btnAddGroup AT ROW 18.62 COL 95 HELP
+     btnAddGroup AT ROW 18.62 COL 136 HELP
           "Add Group" WIDGET-ID 10
-     btnAddSort AT ROW 2.67 COL 95 HELP
+     btnAddSort AT ROW 2.67 COL 136 HELP
           "Add Sort" WIDGET-ID 2
-     btnRemoveGroup AT ROW 23.62 COL 95 HELP
+     btnRemoveGroup AT ROW 23.62 COL 136 HELP
           "Remove Group" WIDGET-ID 12
-     btnRemoveSort AT ROW 15.05 COL 95 HELP
+     btnRemoveSort AT ROW 15.05 COL 136 HELP
           "Remove Sort" WIDGET-ID 4
-     btnSortMoveDown AT ROW 8.38 COL 95 HELP
+     btnSortMoveDown AT ROW 8.38 COL 136 HELP
           "Move Down" WIDGET-ID 8
-     btnSortMoveUp AT ROW 6.48 COL 95 HELP
+     btnSortMoveUp AT ROW 6.48 COL 136 HELP
           "Move Up" WIDGET-ID 6
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -345,7 +345,7 @@ END.
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW s-object ASSIGN
          HEIGHT             = 24.62
-         WIDTH              = 158.4.
+         WIDTH              = 200.6.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -374,7 +374,7 @@ END.
 ASSIGN 
        FRAME F-Main:HIDDEN           = TRUE
        FRAME F-Main:HEIGHT           = 24.52
-       FRAME F-Main:WIDTH            = 158.
+       FRAME F-Main:WIDTH            = 200.
 
 /* SETTINGS FOR BUTTON btnAddGroup IN FRAME F-Main
    1                                                                    */
@@ -684,8 +684,8 @@ PROCEDURE local-view :
   /* Code placed here will execute AFTER standard behavior.    */
   RUN pUserColumns.
   FRAME {&FRAME-NAME}:MOVE-TO-TOP().
-  RUN pSetSortGroupButtons (dynParamValue.user-id NE "_default").
-  btnSave:SENSITIVE = dynParamValue.user-id NE "_default".
+  RUN pSetSortGroupButtons (dynParamValue.user-id EQ USERID("ASI")).
+  btnSave:SENSITIVE = dynParamValue.user-id EQ USERID("ASI").
   RUN pUpdateMode (NO).
 
 END PROCEDURE.
@@ -767,11 +767,10 @@ PROCEDURE pAdvanced :
     ASSIGN
         lAdvanced = ttSubjectColumn.fieldName:VISIBLE IN BROWSE subjectColumnBrowse
         lAdvanced = NOT lAdvanced
-        ttSubjectColumn.sortOrder:VISIBLE      = lAdvanced
-        ttSubjectColumn.groupCalc:VISIBLE      = lAdvanced
         ttSubjectColumn.fieldName:VISIBLE      = lAdvanced
+        ttSubjectColumn.groupCalc:VISIBLE      = lAdvanced
         ttSubjectColumn.fieldFormat:VISIBLE    = lAdvanced
-        BROWSE subjectColumnBrowse:WIDTH       = IF lAdvanced THEN 86 ELSE 42
+        BROWSE subjectColumnBrowse:WIDTH       = IF lAdvanced THEN 127 ELSE 48
         searchBar:WIDTH IN FRAME {&FRAME-NAME} = BROWSE subjectColumnBrowse:WIDTH
         .
      FOR EACH bttSubjectColumn:

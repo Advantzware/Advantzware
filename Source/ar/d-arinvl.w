@@ -1364,6 +1364,29 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE presetColor Dialog-Frame
+PROCEDURE presetColor:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+    DO WITH FRAME {&FRAME-NAME}:
+        IF ar-invl.actnum:BGCOLOR EQ 16 THEN             
+            ASSIGN 
+                ar-invl.actnum:BGCOLOR = ?
+                ar-invl.actnum:FGCOLOR = ?
+                .                             
+    END. 
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE show-comm Dialog-Frame 
 PROCEDURE show-comm :
 /*------------------------------------------------------------------------------
@@ -1475,29 +1498,23 @@ PROCEDURE valid-actnum:
             
       IF lSuccess = NO THEN DO:               
           MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.            
-          IF ar-invl.actnum:BGCOLOR EQ 16 THEN             
-                ASSIGN 
-                    ar-invl.actnum:BGCOLOR  = ?
-                    ar-invl.actnum:FGCOLOR  = ?
-                   .
+          RUN presetColor NO-ERROR.
           APPLY "ENTRY" TO ar-invl.actnum.     
           RETURN ERROR. 
       END.   
       
       IF lSuccess = YES AND lActive = NO THEN DO:  
+          MESSAGE cMessage VIEW-AS ALERT-BOX ERROR. 
           ASSIGN 
               ar-invl.actnum:BGCOLOR  = 16
               ar-invl.actnum:FGCOLOR  = 15
-              .   
-          MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.           
+              .                      
           APPLY "ENTRY" TO ar-invl.actnum .
           RETURN ERROR.                      
       END.      
-      IF lActive = YES AND ar-invl.actnum:BGCOLOR EQ 16 THEN             
-          ASSIGN 
-              ar-invl.actnum:BGCOLOR  = ?
-              ar-invl.actnum:FGCOLOR  = ?
-              .
+      
+      RUN presetColor NO-ERROR.
+         
   END.              
 END PROCEDURE.
 	

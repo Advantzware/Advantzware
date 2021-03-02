@@ -85,6 +85,7 @@ costtype.inv-asset costtype.pur-var costtype.cons-exp costtype.ap-accrued
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,List-5,F1 */
 &Scoped-define ADM-CREATE-FIELDS costtype.cost-type 
+&Scoped-define GL-FIELDS costtype.inv-asset costtype.pur-var costtype.cons-exp costtype.ap-accrued
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -426,6 +427,27 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-cancel-record V-table-Win
+PROCEDURE local-cancel-record:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
+    /* Code placed here will execute PRIOR to standard behavior. */    
+    RUN presetColor(INPUT "") NO-ERROR.        
+
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ).
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-create-record V-table-Win 
 PROCEDURE local-create-record :
 /*------------------------------------------------------------------------------
@@ -445,6 +467,27 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-reset-record V-table-Win
+PROCEDURE local-reset-record:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
+    /* Code placed here will execute PRIOR to standard behavior. */
+    RUN presetColor(INPUT "") NO-ERROR.
+    
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'reset-record':U ).
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record V-table-Win 
 PROCEDURE local-update-record :
@@ -470,6 +513,88 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pchangeColor V-table-Win
+PROCEDURE pchangeColor:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iphfieldHandle AS HANDLE NO-UNDO.
+    
+    DEFINE VARIABLE cfieldName AS CHARACTER NO-UNDO.
+    
+    IF VALID-HANDLE(iphfieldHandle) THEN DO:
+        cfieldName = "costtype." + iphfieldHandle:NAME.
+        IF iphfieldHandle:TYPE                   EQ "fill-in"   AND 
+           iphfieldHandle:DATA-TYPE              EQ "CHARACTER" AND 
+           LOOKUP(cfieldName,"{&GL-FIELDS}"," ") GT 0 THEN DO:
+            ASSIGN 
+                iphfieldHandle:BGCOLOR = 16
+                iphfieldHandle:FGCOLOR = 15
+                .                                    
+            APPLY "ENTRY" TO iphfieldHandle.
+        END.     
+    END.    
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE presetColor V-table-Win
+PROCEDURE presetColor:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iphfieldHandle AS HANDLE NO-UNDO.
+
+    DEFINE VARIABLE hframeHandle AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE hgroupHandle AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE hfieldHandle AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE cfieldName   AS CHARACTER NO-UNDO.
+
+    ASSIGN 
+        hframeHandle = FRAME {&FRAME-NAME}:HANDLE
+        hgroupHandle = hframeHandle:FIRST-CHILD
+        hfieldHandle = hgroupHandle:FIRST-CHILD
+        .
+    IF VALID-HANDLE(iphfieldHandle) THEN DO:
+        cfieldName = "costtype." + iphfieldHandle:NAME.
+        IF iphfieldHandle:TYPE                   EQ "fill-in"   AND 
+           iphfieldHandle:DATA-TYPE              EQ "CHARACTER" AND 
+           LOOKUP(cfieldName,"{&GL-FIELDS}"," ") GT 0 THEN            
+            IF iphfieldHandle:BGCOLOR EQ 16 THEN             
+               ASSIGN 
+                   iphfieldHandle:BGCOLOR = 15
+                   iphfieldHandle:FGCOLOR = ?
+                   .                               
+    END. 
+    ELSE DO:                
+        DO WHILE VALID-HANDLE(hfieldHandle):
+            cfieldName = "costtype." + hfieldHandle:NAME.
+            IF hfieldHandle:TYPE      EQ "fill-in"   AND 
+                hfieldHandle:DATA-TYPE EQ "CHARACTER" AND 
+                LOOKUP(cfieldName,"{&GL-FIELDS}"," ") GT 0 THEN           
+                IF hfieldHandle:BGCOLOR EQ 16 THEN             
+                    ASSIGN 
+                        hfieldHandle:BGCOLOR = 15
+                        hfieldHandle:FGCOLOR = ?
+                        .                     
+            hfieldHandle = hfieldHandle:NEXT-SIBLING.
+        END. 
+    END.                                                 
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records V-table-Win  _ADM-SEND-RECORDS
 PROCEDURE send-records :
@@ -529,6 +654,7 @@ PROCEDURE valid-acct :
   DEF VAR ll AS LOG NO-UNDO.
   DEF VAR li AS INT NO-UNDO.
   DEF VAR lv-msg AS CHAR NO-UNDO.
+  DEFINE VARIABLE lInactive AS LOGICAL NO-UNDO.
 
 
   {methods/lValidateError.i YES}
@@ -576,25 +702,68 @@ PROCEDURE valid-acct :
           MESSAGE lv-msg + " but an " + TRIM(ENTRY(li,lv-dscr)) + ", enter anyway?"
               VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
               UPDATE ll.
+          IF ll THEN DO:
+              IF account.inactive THEN
+                  ASSIGN 
+                      lInactive = YES
+                      ll = NO.               
+          END.         
         END.
 
         ELSE MESSAGE lv-msg + ", try help..." VIEW-AS ALERT-BOX ERROR.
       END.
-
+      ELSE IF account.inactive THEN
+          lInactive = YES.             
       ELSE ll = YES.
 
       IF NOT ll THEN DO:
-        CASE ip-int:
-          WHEN 1 THEN APPLY "entry" TO costtype.inv-asset.
-          WHEN 2 THEN APPLY "entry" TO costtype.pur-var.
-          WHEN 3 THEN APPLY "entry" TO costtype.cons-exp.
-          WHEN 4 THEN APPLY "entry" TO costtype.ap-accrued.
-        END CASE.
-        RETURN ERROR.
-      END.
-
-      ELSE ll-acct-warned[ip-int] = YES.
+          IF lInactive THEN DO:
+              MESSAGE "GL Account is Inactive." VIEW-AS ALERT-BOX ERROR. 
+              CASE ip-int:  
+                  WHEN 1 THEN DO: 
+                      RUN pchangeColor(INPUT costtype.inv-asset:HANDLE) NO-ERROR.                      
+                  END.
+                  WHEN 2 THEN DO:
+                      RUN pchangeColor(INPUT costtype.pur-var:HANDLE) NO-ERROR.                      
+                  END.
+                  WHEN 3 THEN DO:
+                      RUN pchangeColor(INPUT costtype.cons-exp:HANDLE) NO-ERROR.                      
+                  END.
+                  WHEN 4 THEN DO:
+                      RUN pchangeColor(INPUT costtype.ap-accrued:HANDLE) NO-ERROR.                      
+                  END.
+              END CASE.
+              RETURN ERROR.         
+          END.  
+          ELSE DO:  
+              CASE ip-int:
+                  WHEN 1 THEN APPLY "entry" TO costtype.inv-asset.
+                  WHEN 2 THEN APPLY "entry" TO costtype.pur-var.
+                  WHEN 3 THEN APPLY "entry" TO costtype.cons-exp.
+                  WHEN 4 THEN APPLY "entry" TO costtype.ap-accrued.
+                  END CASE.
+                  RETURN ERROR.
+          END.
+      END.    
+      ELSE ll-acct-warned[ip-int] = YES.          
     END.
+    
+    IF lv-value EQ "" OR ll THEN DO:
+        CASE ip-int:  
+          WHEN 1 THEN DO: 
+              RUN presetColor(INPUT costtype.inv-asset:HANDLE) NO-ERROR.                     
+          END.
+          WHEN 2 THEN DO:
+              RUN presetColor(INPUT costtype.pur-var:HANDLE) NO-ERROR.                              
+          END.
+          WHEN 3 THEN DO:
+              RUN presetColor(INPUT costtype.cons-exp:HANDLE) NO-ERROR.                                   
+          END.
+          WHEN 4 THEN DO:
+              RUN presetColor(INPUT costtype.ap-accrued:HANDLE) NO-ERROR.                                  
+          END.
+      END CASE.      
+    END.    
   END.
 
   {methods/lValidateError.i NO}

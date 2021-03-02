@@ -210,12 +210,14 @@ PROCEDURE pUpdateFGItemQty PRIVATE:
     
     FOR EACH bf-job-hdr NO-LOCK
          WHERE bf-job-hdr.company EQ ipbf-job.company
+         AND bf-job-hdr.job EQ ipbf-job.job
          AND bf-job-hdr.job-no EQ ipbf-job.job-no
          AND bf-job-hdr.job-no2 EQ ipbf-job.job-no2:
          
          RUN util/upditmfg.p (
                     INPUT ROWID(bf-job-hdr),
                     INPUT 1
-                    ).       
+                    ). 
+                   
     END.   
 END PROCEDURE.   

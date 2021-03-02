@@ -69,7 +69,7 @@ ASSIGN
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS bExit RECT-1 bTest eInstructions fiEndDate ~
-fiOutputDir tbInventory slCompleted tbOrders tbInvoices 
+fiOutputDir tbInventory slCompleted tbOrders tbInvoices tbPurchasing 
 &Scoped-Define DISPLAYED-OBJECTS fiInstructionsLabel eInstructions ~
 fiEndDate fiOutputDir tbInventory slCompleted tbOrders tbInvoices ~
 tbPurchasing tbEstimating tbAccounting fiGroups fiCompleted 
@@ -169,7 +169,7 @@ DEFINE VARIABLE tbOrders AS LOGICAL INITIAL no
      SIZE 71 BY .81 NO-UNDO.
 
 DEFINE VARIABLE tbPurchasing AS LOGICAL INITIAL no 
-     LABEL "Purchasing Files (PO Lines, Vendor Invoice Lines)" 
+     LABEL "Purchasing Files (PO Lines)" 
      VIEW-AS TOGGLE-BOX
      SIZE 83 BY .81 NO-UNDO.
 
@@ -278,8 +278,6 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR TOGGLE-BOX tbEstimating IN FRAME fMain
    NO-ENABLE                                                            */
-/* SETTINGS FOR TOGGLE-BOX tbPurchasing IN FRAME fMain
-   NO-ENABLE                                                            */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(wWin)
 THEN wWin:HIDDEN = yes.
 
@@ -357,7 +355,8 @@ DO:
                                 "ar-inv,ar-invl,ar-invm," +
                                 "inv-head,inv-line,inv-misc,"
                                 ELSE "") +
-                            (IF tbPurchasing:CHECKED THEN "" ELSE "")
+                            (IF tbPurchasing:CHECKED THEN 
+                                "po-ord,po-ordl,po-ordl-add" ELSE "")
                 cFileList = REPLACE(cFileList,",,",",")
                 cFileList = TRIM(cFileList,","). 
         
@@ -598,7 +597,7 @@ PROCEDURE enable_UI :
           fiGroups fiCompleted 
       WITH FRAME fMain IN WINDOW wWin.
   ENABLE bExit RECT-1 bTest eInstructions fiEndDate fiOutputDir tbInventory 
-         slCompleted tbOrders tbInvoices 
+         slCompleted tbOrders tbInvoices tbPurchasing 
       WITH FRAME fMain IN WINDOW wWin.
   {&OPEN-BROWSERS-IN-QUERY-fMain}
   VIEW wWin.

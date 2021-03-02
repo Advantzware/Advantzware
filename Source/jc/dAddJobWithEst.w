@@ -29,6 +29,7 @@ DEFINE INPUT PARAMETER ipType AS CHARACTER NO-UNDO.  /* poup in edit or add mode
 DEFINE INPUT PARAMETER ipriRowid AS ROWID NO-UNDO .
 DEFINE OUTPUT PARAMETER oplCreated AS LOGICAL NO-UNDO .
 DEFINE OUTPUT PARAMETER opcJobNo AS CHARACTER NO-UNDO.
+DEFINE OUTPUT PARAMETER opiJobNo2 AS INTEGER NO-UNDO.
 
 /* Local Variable Definitions ---                                       */
 {methods/defines/hndldefs.i}
@@ -585,7 +586,7 @@ DO:
                     bf-ttInputEst.iQuantityYield = dTotalCyclesRequired * ttFGReorderSelection.multiplier
                     bf-ttInputEst.lKeyItem = ttFGReorderSelection.KeyItem 
                     lv-rowid               = ROWID(bf-ttInputEst).
-                    IF ttFGReorderSelection.dateDueDateEarliest NE ? AND (ttFGReorderSelection.dateDueDateEarliest GT date(dtDueDate:SCREEN-VALUE) OR date(dtDueDate:SCREEN-VALUE) EQ ?) THEN
+                    IF ttFGReorderSelection.dateDueDateEarliest NE ? AND (ttFGReorderSelection.dateDueDateEarliest LT date(dtDueDate:SCREEN-VALUE) OR date(dtDueDate:SCREEN-VALUE) EQ ?) THEN
                     dtDueDate:SCREEN-VALUE = string(ttFGReorderSelection.dateDueDateEarliest) . 
                     FIND FIRST itemfg NO-LOCK 
                          WHERE itemfg.company EQ cocode
@@ -789,14 +790,13 @@ DO:
               
         IF NOT lEstimateCreate THEN
         RUN est/BuildEstimate.p ("F", OUTPUT riEb).
-         
-
+                                
         FIND FIRST bff-eb NO-LOCK
              WHERE bff-eb.company EQ cocode
              AND ROWID(bff-eb) EQ riEb NO-ERROR .             
         IF AVAIL bff-eb THEN
         DO:
-          RUN jc/UpdateMoldEstItem.p(ROWID(bff-eb)).
+          RUN jc/UpdateMoldEstItem.p(ROWID(bff-eb),lEstimateCreate).
           RUN jc/CrtEstopForMold.p(ROWID(bff-eb), cMachCode).
           cEstNo:SCREEN-VALUE IN FRAME {&FRAME-NAME} = bff-eb.est-no.  
           ipType = "created".
@@ -821,7 +821,8 @@ DO:
            cStatus:SCREEN-VALUE        = STRING(bf-job.stat)  
            Btn_OK:SENSITIVE            = NO 
            oplCreated                  = YES
-           opcJobNo                    = bf-job.job-no. 
+           opcJobNo                    = bf-job.job-no
+           opiJobNo2                   = bf-job.job-no2. 
         END.
          
          MESSAGE "Process complete." VIEW-AS ALERT-BOX INFO. 
@@ -969,6 +970,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
          dtEstCom:HIDDEN = YES
          dtStartDate:HIDDEN = YES
          cEstNo:HIDDEN = YES
+         dtDueDate:SCREEN-VALUE = STRING(TODAY).
          .
         APPLY "entry" TO cMachCode.    
     END.

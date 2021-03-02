@@ -105,13 +105,37 @@ DEF VAR ls-full-img1 AS cha FORM "x(200)" NO-UNDO.
 
 DEF VAR lv-print-specs AS LOG NO-UNDO.
 DEF VAR lv-spec-list AS CHAR NO-UNDO.
+DEFINE VARIABLE cRtnChar  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lValid    AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cMessage  AS CHARACTER NO-UNDO.
 
 RUN getPrintSpecNotes IN SOURCE-PROCEDURE (OUTPUT lv-print-specs, OUTPUT lv-spec-list) NO-ERROR.
 
-ASSIGN ls-image1 = "images\axis.jpg"
-       tmpstore = fill("-",130)
-       FILE-INFO:FILE-NAME = ls-image1
-       ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">".
+RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+
+IF lRecFound AND cRtnChar NE "" THEN DO:
+    cRtnChar = DYNAMIC-FUNCTION (
+                   "fFormatFilePath",
+                   cRtnChar
+                   ).
+                   
+    /* Validate the N-K-1 BusinessFormLogo image file */
+    RUN FileSys_ValidateFile(
+        INPUT  cRtnChar,
+        OUTPUT lValid,
+        OUTPUT cMessage
+        ) NO-ERROR.
+
+    IF NOT lValid THEN DO:
+        MESSAGE "Unable to find image file '" + cRtnChar + "' in N-K-1 setting for BusinessFormLogo"
+            VIEW-AS ALERT-BOX ERROR.
+    END.
+END.
+
+ASSIGN ls-full-img1 = cRtnChar + ">".
 
 find first sys-ctrl where sys-ctrl.company eq cocode
                       and sys-ctrl.name    eq "BOLFMT" no-lock no-error.

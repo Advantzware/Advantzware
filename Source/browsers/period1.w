@@ -30,14 +30,25 @@
 CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
-
+&SCOPED-DEFINE yellowColumnsName period1
 &SCOPED-DEFINE winReSize
+&SCOPED-DEFINE proc-init proc-init
 //&SCOPED-DEFINE sizeOption HEIGHT
 {methods/defines/winReSize.i}
 
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+DEFINE VARIABLE cSubLedgerAP AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cSubLedgerPO AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cSubLedgerOP AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cSubLedgerWIP AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cSubLedgerRM AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cSubLedgerFG AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cSubLedgerBR AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cSubLedgerAR AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lColMove     AS LOGICAL INIT YES NO-UNDO.
+
 DEFINE BUFFER bf-period FOR period .
 {custom/globdefs.i}
 {sys/inc/VAR.i NEW SHARED}
@@ -57,7 +68,7 @@ ASSIGN cocode = g_company
 
 &Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target,Navigation-Target
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 &Scoped-define BROWSE-NAME Browser-Table
 
@@ -76,8 +87,11 @@ DEFINE QUERY external_tables FOR company.
 
 /* Definitions for BROWSE Browser-Table                                 */
 &Scoped-define FIELDS-IN-QUERY-Browser-Table period.yr period.pnum ~
-period.pst period.pend period.pstat 
+period.pst period.pend period.pstat getSubLedger(period.SubLedgerAP) @ cSubLedgerAP getSubLedger(period.SubLedgerPO) @ cSubLedgerPO ~
+getSubLedger(period.SubLedgerOP) @ cSubLedgerOP getSubLedger(period.SubLedgerWIP) @ cSubLedgerWIP getSubLedger(period.SubLedgerRM) @ cSubLedgerRM ~
+getSubLedger(period.SubLedgerFG) @ cSubLedgerFG getSubLedger(period.SubLedgerBR) @ cSubLedgerBR getSubLedger(period.SubLedgerAR) @ cSubLedgerAR 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
+&Scoped-define ENABLED-TABLES-IN-QUERY-Browser-Table period
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH period OF company WHERE ~{&KEY-PHRASE} NO-LOCK ~
     ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY Browser-Table FOR EACH period OF company WHERE ~{&KEY-PHRASE} NO-LOCK ~
@@ -91,7 +105,7 @@ period.pst period.pend period.pstat
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS Browser-Table RECT-4 browse-order auto_find ~
 Btn_Clear_Find 
-&Scoped-Define DISPLAYED-OBJECTS browse-order auto_find 
+&Scoped-Define DISPLAYED-OBJECTS browse-order auto_find fi_sortby
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -100,6 +114,13 @@ Btn_Clear_Find
 &ANALYZE-RESUME
 
 
+/* ************************  Function Prototypes ********************** */
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD getSubLedger B-table-Win 
+FUNCTION getSubLedger RETURNS CHARACTER
+  ( ipcSubLedger AS CHARACTER )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 /* ***********************  Control Definitions  ********************** */
 
@@ -114,6 +135,11 @@ DEFINE VARIABLE auto_find AS CHARACTER FORMAT "X(256)":U
      LABEL "Auto Find" 
      VIEW-AS FILL-IN 
      SIZE 15 BY 1 NO-UNDO.
+     
+DEFINE VARIABLE fi_sortby AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS FILL-IN 
+     SIZE 44 BY 1
+     BGCOLOR 14 FONT 6 NO-UNDO.     
 
 DEFINE VARIABLE browse-order AS INTEGER 
      VIEW-AS RADIO-SET HORIZONTAL
@@ -133,21 +159,37 @@ DEFINE QUERY Browser-Table FOR
       period.pnum
       period.pst
       period.pend
-      period.pstat) SCROLLING.
+      period.pstat
+      period.subLedgerAP
+      period.subLedgerPO
+      period.subLedgerOP
+      period.subLedgerWIP
+      period.subLedgerRM
+      period.subLedgerFG
+      period.subLedgerBR
+      period.subLedgerAR) SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
 DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
-      period.yr FORMAT "9999":U
-      period.pnum FORMAT ">9":U
-      period.pst COLUMN-LABEL "Start Date" FORMAT "99/99/9999":U
-      period.pend COLUMN-LABEL "End Date" FORMAT "99/99/9999":U
-      period.pstat COLUMN-LABEL "Status" FORMAT "Open/Closed":U
+      period.yr FORMAT "9999":U LABEL-BGCOLOR 14
+      period.pnum FORMAT ">9":U LABEL-BGCOLOR 14
+      period.pst COLUMN-LABEL "Start Date" FORMAT "99/99/9999":U LABEL-BGCOLOR 14
+      period.pend COLUMN-LABEL "End Date" FORMAT "99/99/9999":U LABEL-BGCOLOR 14
+      period.pstat COLUMN-LABEL "Status" FORMAT "Open/Closed":U LABEL-BGCOLOR 14
+      getSubLedger(period.SubLedgerAP) @ cSubLedgerAP COLUMN-LABEL "AP" FORMAT "x(10)":U LABEL-BGCOLOR 14
+      getSubLedger(period.SubLedgerPO) @ cSubLedgerPO COLUMN-LABEL "P/O" FORMAT "x(10)":U LABEL-BGCOLOR 14
+      getSubLedger(period.SubLedgerOP) @ cSubLedgerOP COLUMN-LABEL "O/P" FORMAT "x(10)":U LABEL-BGCOLOR 14
+      getSubLedger(period.SubLedgerWIP) @ cSubLedgerWIP COLUMN-LABEL "WIP" FORMAT "x(10)":U LABEL-BGCOLOR 14
+      getSubLedger(period.SubLedgerRM) @ cSubLedgerRM COLUMN-LABEL "R/M" FORMAT "x(10)":U LABEL-BGCOLOR 14
+      getSubLedger(period.SubLedgerFG) @ cSubLedgerFG COLUMN-LABEL "F/G" FORMAT "x(10)":U LABEL-BGCOLOR 14
+      getSubLedger(period.SubLedgerBR) @ cSubLedgerBR COLUMN-LABEL "B/R" FORMAT "x(10)":U LABEL-BGCOLOR 14
+      getSubLedger(period.SubLedgerAR) @ cSubLedgerAR COLUMN-LABEL "A/R" FORMAT "x(10)":U LABEL-BGCOLOR 14
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 82 BY 15.48
+    WITH NO-ASSIGN SEPARATORS SIZE 144 BY 15.48
          FONT 2
          TITLE "Periods".
 
@@ -161,6 +203,7 @@ DEFINE FRAME F-Main
           "Select Browser Sort Order" NO-LABEL
      auto_find AT ROW 16.71 COL 51 COLON-ALIGNED HELP
           "Enter Auto Find Value"
+     fi_sortby AT ROW 16.33 COL 46 COLON-ALIGNED NO-LABEL WIDGET-ID 2          
      Btn_Clear_Find AT ROW 16.71 COL 69 HELP
           "CLEAR AUTO FIND Value"
      "By:" VIEW-AS TEXT
@@ -224,11 +267,19 @@ END.
 /* SETTINGS FOR WINDOW B-table-Win
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE Size-to-Fit                                              */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 /* BROWSE-TAB Browser-Table TEXT-1 F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
+       
+Browser-Table:ALLOW-COLUMN-SEARCHING IN FRAME F-Main = TRUE.       
+       
+/* SETTINGS FOR FILL-IN fi_sortby IN FRAME F-Main
+   NO-ENABLE                                                            */
+ASSIGN 
+       fi_sortby:HIDDEN IN FRAME F-Main           = TRUE
+       fi_sortby:READ-ONLY IN FRAME F-Main        = TRUE.       
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -249,6 +300,22 @@ ASSIGN
 "period.pend" "End Date" ? "date" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > ASI.period.pstat
 "period.pstat" "Status" ? "logical" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[6]   > "_<CALC>"
+"getSubLedger(period.SubLedgerAP) @ cSubLedgerAP" "AP" "x(10)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[7]   > "_<CALC>"
+"getSubLedger(period.SubLedgerPO) @ cSubLedgerPO" "P/O" "x(10)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[8]   > "_<CALC>"
+"getSubLedger(period.SubLedgerOP) @ cSubLedgerOP" "O/P" "x(10)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[9]   > "_<CALC>"
+"getSubLedger(period.SubLedgerWIP) @ cSubLedgerWIP" "WIP" "x(10)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[10]   > "_<CALC>"
+"getSubLedger(period.SubLedgerRM) @ cSubLedgerRM" "R/M" "x(10)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[11]   > "_<CALC>"
+"getSubLedger(period.SubLedgerFG) @ cSubLedgerFG" "F/G" "x(10)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[12]   > "_<CALC>"
+"getSubLedger(period.SubLedgerBR) @ cSubLedgerBR" "B/R" "x(10)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[13]   > "_<CALC>"
+"getSubLedger(period.SubLedgerAR) @ cSubLedgerAR" "A/R" "x(10)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
@@ -278,6 +345,21 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
+ON DEFAULT-ACTION OF Browser-Table IN FRAME F-Main
+DO:
+   DEFINE VARIABLE lv-rowid AS ROWID   NO-UNDO.
+
+    IF AVAILABLE period THEN DO:
+        RUN viewers/d-period.w (RECID(period),RECID(company),"view", OUTPUT lv-rowid) . 
+        RUN repo-query (lv-rowid).
+    END.
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON ROW-LEAVE OF Browser-Table IN FRAME F-Main /* Periods */
@@ -292,7 +374,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
-ON START-SEARCH OF Browser-Table IN FRAME F-Main
+ON START-SEARCH OF Browser-Table IN FRAME F-Main /* Periods */
 DO:  
   RUN startsearch.
 END.
@@ -321,12 +403,17 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
+ {custom/yellowColumns.i}
 {sys/inc/f3help.i}
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF
 
 {methods/winReSize.i}
+
+&SCOPED-DEFINE cellColumnDat browsers-period
+
+{methods/browsers/setCellColumns.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -398,27 +485,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE repo-query B-table-Win 
-PROCEDURE repo-query :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEF INPUT PARAM ip-rowid AS ROWID NO-UNDO.
-
-  RUN dispatch IN THIS-PROCEDURE ("open-query").
-
-  REPOSITION {&browse-name} TO ROWID ip-rowid NO-ERROR.
-
-  RUN dispatch IN THIS-PROCEDURE ("row-changed").
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pAutoFilter B-table-Win 
 PROCEDURE pAutoFilter :
 /*------------------------------------------------------------------------------
@@ -444,6 +510,25 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE repo-query B-table-Win 
+PROCEDURE repo-query :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEF INPUT PARAM ip-rowid AS ROWID NO-UNDO.
+
+  RUN dispatch IN THIS-PROCEDURE ("open-query").
+
+  REPOSITION {&browse-name} TO ROWID ip-rowid NO-ERROR.
+
+  RUN dispatch IN THIS-PROCEDURE ("row-changed").
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records B-table-Win  _ADM-SEND-RECORDS
 PROCEDURE send-records :
@@ -488,3 +573,176 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-delete-record B-table-Win 
+PROCEDURE local-delete-record :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       oe/oe-rel.del, oe/oerelunp.p 
+------------------------------------------------------------------------------*/
+  
+  IF NOT adm-new-record THEN DO:
+        {custom/askdel.i}   
+  END. 
+  
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'delete-record':U ) .
+
+       
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+  
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE proc-init B-table-Win 
+PROCEDURE proc-init :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Notes:       
+------------------------------------------------------------------------------*/   
+
+    RUN setCellColumns.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME  
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE move-columns B-table-Win 
+PROCEDURE move-columns :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+DO WITH FRAME {&FRAME-NAME}:
+  ASSIGN
+     Browser-Table:COLUMN-MOVABLE = lColMove
+     Browser-Table:COLUMN-RESIZABLE = lColMove
+     lColMove = NOT lColMove.
+	 
+     /*FI_moveCol = IF v-col-move = NO THEN "Move" ELSE "Sort".
+  DISPLAY FI_moveCol.*/
+END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME  
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pAddRecord B-table-Win 
+PROCEDURE pAddRecord :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE VARIABLE lv-rowid AS ROWID   NO-UNDO. 
+  DEFINE BUFFER bff-fg-rctd FOR fg-rctd .
+    
+   RUN viewers/d-period.w (?,RECID(company),"New", OUTPUT lv-rowid) . 
+   RUN repo-query (lv-rowid).
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateRecord B-table-Win 
+PROCEDURE pUpdateRecord :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lv-rowid AS ROWID   NO-UNDO. 
+    
+    IF AVAILABLE period THEN
+    DO:
+       RUN viewers/d-period.w (RECID(period),RECID(company),"update", OUTPUT lv-rowid) . 
+       RUN repo-query (lv-rowid).
+    END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pViewRecord B-table-Win 
+PROCEDURE pViewRecord :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lv-rowid AS ROWID   NO-UNDO. 
+    
+    IF AVAILABLE period THEN
+    DO:
+       RUN viewers/d-period.w (RECID(period),RECID(company),"view", OUTPUT lv-rowid) . 
+       RUN repo-query (lv-rowid).
+    END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCopyRecord B-table-Win 
+PROCEDURE pCopyRecord :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DEF VAR lv-rno LIKE fg-rctd.r-no NO-UNDO.
+   DEF BUFFER b-fg-rctd FOR fg-rctd.
+   DEFINE BUFFER bff-fg-rctd FOR fg-rctd.
+   DEFINE VARIABLE lv-rowid AS ROWID   NO-UNDO. 
+    
+    IF AVAILABLE period THEN
+    DO:  
+       RUN viewers/d-period.w (RECID(period),RECID(company),"copy", OUTPUT lv-rowid) . 
+       IF lv-rowid NE ? THEN
+           RUN repo-query (lv-rowid).
+    END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION getSubLedger B-table-Win 
+FUNCTION getSubLedger RETURNS CHARACTER
+  (  ipcSubLedger AS CHARACTER ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lc-result AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cResult AS CHARACTER NO-UNDO.
+                 
+    IF AVAILABLE period THEN DO: 
+        lc-result = ipcSubLedger .         
+        IF lc-result EQ "O" THEN
+        cResult = "Open". 
+        ELSE IF lc-result EQ "C" THEN
+        cResult = "Close".
+        ELSE IF lc-result EQ "A" THEN
+        cResult = "Auto Close".
+        ELSE IF lc-result EQ "X" THEN
+        cResult = "NA".            
+        IF lc-result EQ "" AND period.pstat EQ TRUE THEN
+        cResult = "Open".
+        ELSE IF lc-result EQ "" AND period.pstat EQ FALSE THEN
+         cResult = "Close".       
+    END.
+    RETURN cResult.   /* Function return value. */
+    
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME

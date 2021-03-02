@@ -95,6 +95,7 @@ DEF VAR v-len-score2 AS CHAR FORMAT 'x(30)'          NO-UNDO.
 DEF VAR v-len-score3 AS CHAR FORMAT 'x(30)'          NO-UNDO.
 DEF VAR v-xcnt       AS INT                          NO-UNDO.
 DEF VAR v-ship-id    AS CHAR                         NO-UNDO.
+DEF VAR v-frt-pay-dscr AS CHAR FORMAT "x(14)"        NO-UNDO.
 
 DEF BUFFER bf-reftable1 FOR reftable.
 DEF BUFFER bf-reftable2 FOR reftable.
@@ -650,17 +651,21 @@ MESSAGE "lv-test22 " + STRING(lv-text) + "    " + STRING(tt-formtext.tt-text) VI
                                    xeb.ship-id
                               ELSE "".
 
-        FIND FIRST bf-shipto-notes NO-LOCK WHERE
-                   bf-shipto-notes.company EQ cust.company AND
-                   bf-shipto-notes.cust-no EQ cust.cust-no AND
-                   bf-shipto-notes.ship-id EQ v-ship-id NO-ERROR.
-        IF AVAIL bf-shipto-notes THEN
-           ASSIGN v-shpnote[1] = bf-shipto-notes.notes[1]
-                  v-shpnote[2] = bf-shipto-notes.notes[2]
-                  v-shpnote[3] = bf-shipto-notes.notes[3] 
-                  v-shpnote[4] = bf-shipto-notes.notes[4].
-        RELEASE bf-shipto-notes.
-                                                                       
+        IF AVAIL xoe-rel THEN
+           ASSIGN v-shpnote[1] = xoe-rel.ship-i[1]
+                  v-shpnote[2] = xoe-rel.ship-i[2]
+                  v-shpnote[3] = xoe-rel.ship-i[3] 
+                  v-shpnote[4] = xoe-rel.ship-i[4].
+        
+        IF AVAIL xoe-ord THEN DO:
+           CASE xoe-ord.frt-pay:
+             WHEN "P" THEN v-frt-pay-dscr = "Prepaid".
+             WHEN "C" THEN v-frt-pay-dscr = "Collect".
+             WHEN "B" THEN v-frt-pay-dscr = "Bill".
+             WHEN "T" THEN v-frt-pay-dscr = "Third Party".
+           END CASE.
+        END.
+        
         RELEASE b1-in-house-cust.
         RELEASE b1-shipto.        
 
@@ -744,12 +749,12 @@ MESSAGE "lv-test22 " + STRING(lv-text) + "    " + STRING(tt-formtext.tt-text) VI
                 xeb.ship-id when avail xeb @ xoe-ord.sold-id
                 xoe-ord.ship-id when avail xoe-ord @ xoe-ord.sold-id
                 v-whs-ship-id WHEN v-whs-ship-id NE "" @ xoe-ord.sold-id SKIP
-                v-shpnote[1] FORMAT 'x(50)' AT 35 v-shp[1] AT 90 SKIP
-                v-shpnote[2] FORMAT 'x(50)' AT 35 v-shp[2] AT 90 SKIP
-                v-shpnote[3] FORMAT 'x(50)' AT 35 v-shp[3] AT 90 SKIP
-                v-shpnote[4] FORMAT 'x(50)' AT 35 v-shp[4] AT 90 SKIP
+                TRIM(v-shpnote[1]) FORMAT 'x(50)' AT 35 v-shp[1] AT 90 SKIP
+                TRIM(v-shpnote[2]) FORMAT 'x(50)' AT 35 v-shp[2] AT 90 SKIP
+                TRIM(v-shpnote[3]) FORMAT 'x(50)' AT 35 v-shp[3] AT 90 SKIP
+                TRIM(v-shpnote[4]) FORMAT 'x(50)' AT 35 v-shp[4] AT 90 SKIP
                  "Item PO #:" AT 90 xoe-ordl.po-no when avail xoe-ordl
-                "" SKIP   
+                "Freight Payment Terms:" AT 90 v-frt-pay-dscr SKIP   
                 "" SKIP                 
                 with no-box no-labels frame m8 width 170 no-attr-space STREAM-IO.
 

@@ -4,6 +4,15 @@ DEF VAR ls-name AS cha NO-UNDO.
 DEF VAR ls-name-value AS cha NO-UNDO.
 DEF VAR lv-msg AS CHAR NO-UNDO.
 DEF VAR i AS INT NO-UNDO.
+DEFINE VARIABLE hdInventoryProcs AS HANDLE    NO-UNDO.
+DEFINE VARIABLE iWarehouseLength AS INTEGER   NO-UNDO.
+{Inventory/ttInventory.i "NEW SHARED"}
+RUN Inventory/InventoryProcs.p PERSISTENT SET hdInventoryProcs.
+
+    RUN Inventory_GetWarehouseLength IN hdInventoryProcs (
+         INPUT  gcompany,
+         OUTPUT iWarehouseLength
+         ). 
 
 DO WITH FRAME {&FRAME-NAME}:
   ls-name = {&nameField}.
@@ -18,8 +27,8 @@ DO WITH FRAME {&FRAME-NAME}:
     FIND FIRST fg-bin
         WHERE fg-bin.company EQ gcompany
           AND fg-bin.i-no    EQ ""
-          AND fg-bin.loc     EQ SUBSTR({&tableName}.char-fld:SCREEN-VALUE,1,5)
-          AND fg-bin.loc-bin EQ SUBSTR({&tableName}.char-fld:SCREEN-VALUE,6)
+          AND fg-bin.loc     EQ SUBSTR({&tableName}.char-fld:SCREEN-VALUE,1,iWarehouseLength)
+          AND fg-bin.loc-bin EQ SUBSTR({&tableName}.char-fld:SCREEN-VALUE,iWarehouseLength + 1)
         NO-LOCK NO-ERROR.
     IF NOT AVAIL fg-bin THEN lv-msg = "FG Bin does not exist".
   END.
@@ -29,9 +38,9 @@ DO WITH FRAME {&FRAME-NAME}:
     IF {&tableName}.char-fld:SCREEN-VALUE NE "RMITEM" THEN DO:
       FIND FIRST rm-bin
           WHERE rm-bin.company EQ gcompany
-            AND rm-bin.loc     EQ SUBSTR({&tableName}.char-fld:SCREEN-VALUE,1,5)
+            AND rm-bin.loc     EQ SUBSTR({&tableName}.char-fld:SCREEN-VALUE,1,iWarehouseLength)
             AND rm-bin.i-no    EQ ""
-            AND rm-bin.loc-bin EQ SUBSTR({&tableName}.char-fld:SCREEN-VALUE,6)
+            AND rm-bin.loc-bin EQ SUBSTR({&tableName}.char-fld:SCREEN-VALUE,iWarehouseLength + 1)
           NO-LOCK NO-ERROR.
       IF NOT AVAIL rm-bin THEN lv-msg = "RM Bin does not exist".
     END.

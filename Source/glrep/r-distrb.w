@@ -45,8 +45,8 @@ DEF TEMP-TABLE tt-trans NO-UNDO
                         FIELD TYPE AS cha
                         FIELD c-rate LIKE acctcost.c-rate
                         FIELD costacct LIKE acctcost.costacct
-                        FIELD jrnl LIKE gltrans.jrnl
-                        FIELD tr-amt LIKE gltrans.tr-amt
+                        FIELD jrnl LIKE glhist.jrnl
+                        FIELD tr-amt LIKE glhist.tr-amt
                         INDEX tt-trans IS PRIMARY TYPE tt-recid.
 
 DEF VAR v-distribute AS LOG NO-UNDO.
@@ -369,6 +369,9 @@ END.
 ON LEAVE OF begin_accnt IN FRAME FRAME-A /* Beginning Acct# */
 DO:
   assign {&self-name}.
+  RUN pcheckGLAccount NO-ERROR.
+  IF ERROR-STATUS:ERROR THEN 
+      RETURN NO-APPLY.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -403,6 +406,10 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 DO:
   RUN check-date.
   IF v-invalid THEN RETURN NO-APPLY.
+  
+  RUN pcheckGLAccount NO-ERROR.
+  IF ERROR-STATUS:ERROR THEN 
+      RETURN NO-APPLY.
 
   ASSIGN {&DISPLAYED-OBJECTS}.
 
@@ -710,12 +717,12 @@ PROCEDURE cost-distribute :
   Notes:       
 ------------------------------------------------------------------------------*/
   SESSION:SET-WAIT-STATE("general").
-  DEF BUFFER cost-trans FOR gltrans.
+  DEF BUFFER cost-trans FOR glhist.
   DEF BUFFER cost-hist  FOR glhist.
   DEF VAR v-act-amt AS DEC NO-UNDO.
 
   FOR EACH tt-trans WHERE tt-trans.TYPE = "GLTRANS",
-      EACH gltrans WHERE RECID(gltrans) = tt-trans.tt-recid
+      EACH glhist WHERE RECID(glhist) = tt-trans.tt-recid
       /*EACH acctcost NO-LOCK WHERE acctcost.company = gltrans.company
                               AND acctcost.actnum = gltrans.actnum */
       BREAK BY /*gltrans.actnum*/ tt-trans.costacct:
@@ -725,13 +732,13 @@ PROCEDURE cost-distribute :
       v-act-amt = v-act-amt + tt-trans.tr-amt .
       IF LAST-OF(tt-trans.costacct) THEN DO:
          CREATE cost-trans.
-         BUFFER-COPY gltrans TO cost-trans.
+         BUFFER-COPY glhist TO cost-trans.
          ASSIGN cost-trans.tr-amt = v-act-amt /*tt-trans.tr-amt*/
              cost-trans.actnum = tt-trans.costacct
              cost-trans.tr-date = tran-date
              cost-trans.jrnl = "AUTODIST"
              cost-trans.period  = tran-period
-             cost-trans.trnum   = v-trnum
+             cost-trans.tr-num   = v-trnum
              cost-trans.tr-dscr = "Auto Distribution"
              .
              /*gltrans.jrnl = "AUTODIST"*/ .
@@ -788,24 +795,24 @@ PROCEDURE cost-distribute-det :
   Notes:       
 ------------------------------------------------------------------------------*/
  SESSION:SET-WAIT-STATE("general").
-  DEF BUFFER cost-trans FOR gltrans.
+  DEF BUFFER cost-trans FOR glhist.
   DEF BUFFER cost-hist  FOR glhist.
   DEF VAR v-act-amt AS DEC NO-UNDO.
 
   FOR EACH tt-trans WHERE tt-trans.TYPE = "GLTRANS",
-      EACH gltrans WHERE RECID(gltrans) = tt-trans.tt-recid
+      EACH glhist WHERE RECID(glhist) = tt-trans.tt-recid
       /*EACH acctcost NO-LOCK WHERE acctcost.company = gltrans.company
                               AND acctcost.actnum = gltrans.actnum */
-      BREAK BY gltrans.actnum:
+      BREAK BY glhist.actnum:
 
       CREATE cost-trans.
-      BUFFER-COPY gltrans TO cost-trans.
+      BUFFER-COPY glhist TO cost-trans.
       ASSIGN cost-trans.tr-amt = tt-trans.tr-amt
              cost-trans.actnum = tt-trans.costacct
              cost-trans.tr-date = tran-date
              cost-trans.jrnl = "AUTODIST"
              cost-trans.period  = tran-period
-             cost-trans.trnum   = v-trnum
+             cost-trans.tr-num   = v-trnum
              cost-trans.tr-dscr = "Auto Distribution"
              .
              /*gltrans.jrnl = "AUTODIST"*/ .
@@ -947,6 +954,77 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE presetColor C-Win
+PROCEDURE presetColor:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DO WITH FRAME {&FRAME-NAME}:
+        IF begin_accnt:BGCOLOR EQ 16 THEN             
+            ASSIGN 
+                begin_accnt:BGCOLOR = ?
+                begin_accnt:FGCOLOR = ?
+                .                          
+    END. 
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pcheckGLAccount C-Win
+PROCEDURE pcheckGLAccount:
+/*------------------------------------------------------------------------------
+ Purpose: To check valid and active GL account.
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lValid    AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage  AS CHARACTER NO-UNDO.    
+    DEFINE VARIABLE hValidate AS HANDLE    NO-UNDO.
+    
+    RUN util/Validate.p PERSISTENT SET hValidate.
+
+    DO WITH FRAME {&FRAME-NAME}:        
+        IF begin_accnt:SCREEN-VALUE NE "" THEN DO:
+            RUN pIsValidGLAccount IN hValidate (
+                INPUT  begin_accnt:SCREEN-VALUE, 
+                INPUT  NO, 
+                INPUT  cocode, 
+               OUTPUT lValid, 
+               OUTPUT cMessage
+               ) NO-ERROR.        
+            IF NOT lValid THEN DO:                
+                MESSAGE cMessage VIEW-AS ALERT-BOX ERROR. 
+                RUN presetColor NO-ERROR.      
+                IF INDEX(cMessage, "Inactive") GT 0 THEN 
+                    ASSIGN 
+                        begin_accnt:BGCOLOR = 16
+                        begin_accnt:FGCOLOR = 15
+                        .                     
+                APPLY "ENTRY" TO begin_accnt.
+                RETURN ERROR.   
+            END.  
+        END.                  
+       
+        IF begin_accnt:SCREEN-VALUE EQ "" OR lValid THEN 
+            RUN presetColor NO-ERROR.         
+    END.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE run-report C-Win 
 PROCEDURE run-report :
 /***************************************************************************\
@@ -967,8 +1045,8 @@ DEF VAR ws_disc LIKE ap-payl.amt-disc COLUMN-LABEL "Discount" NO-UNDO.
 DEF VAR ws_check-no LIKE ap-chk.check-no NO-UNDO FORMAT ">>>>>>>"
     COLUMN-LABEL "Check#".
 DEF VAR ws_order-no LIKE oe-ord.ord-no NO-UNDO
-    FORMAT ">>>>>>".
-DEF VAR ws_jrnl LIKE gltrans.jrnl COLUMN-LABEL "Journal" NO-UNDO.
+    FORMAT ">>>>>>>".
+DEF VAR ws_jrnl LIKE glhist.jrnl COLUMN-LABEL "Journal" NO-UNDO.
 DEF VAR gl_jrnl_list AS CHAR NO-UNDO.
 DEF VAR lo_actnum LIKE account.actnum LABEL "From GL Acct#" NO-UNDO.
 DEF VAR hi_actnum LIKE account.actnum LABEL "Thru GL Acct#" NO-UNDO.
@@ -993,7 +1071,7 @@ FORM    ws_jrnl FORM "x(15)"
         /*ap-invl.amt-msf*/
         ws_disc
         ap-invl.amt
-        WITH FRAME f-det width 144 DOWN STREAM-IO.
+        WITH FRAME f-det width 145 DOWN STREAM-IO.
 
 
 SESSION:SET-WAIT-STATE ("general").
@@ -1036,56 +1114,59 @@ v-distribute = NO.
   FOR EACH account NO-LOCK
       WHERE account.company EQ cocode
         AND account.actnum  GE lo_actnum
-        AND account.actnum  LE hi_actnum:
-
-    FOR EACH gltrans NO-LOCK
-        WHERE gltrans.company EQ cocode
-          AND gltrans.actnum  EQ account.actnum
-          AND gltrans.tr-date GE lo_trandate
-          AND gltrans.tr-date LE hi_trandate
-          AND CAN-DO(gl_jrnl_list,gltrans.jrnl),
-
-        EACH acctcost NO-LOCK
-        WHERE acctcost.company EQ account.company
-          AND acctcost.actnum  EQ account.actnum
-
-        BREAK BY gltrans.actnum
-             /* BY acctcost.costacct*/:
-
-      IF FIRST-OF(gltrans.actnum) THEN v-tot-amt = 0.
-
-      /* auto distribution to sub cost account */
-      CREATE tt-trans.
-      ASSIGN
-       tt-trans.tt-recid = RECID(gltrans)
-       tt-trans.type     = "GLTRANS"
-       tt-trans.c-rate   = acctcost.c-rate
-       tt-trans.tr-amt   = ROUND(gltrans.tr-amt * acctcost.c-rate / 100,2)
-       tt-trans.costacct = acctcost.costacct
-       tt-trans.jrnl     = gltrans.jrnl.
-
-      v-tot-amt = v-tot-amt + tt-trans.tr-amt.
-
-      IF LAST-OF(gltrans.actnum) THEN DO:
-      /*  IF v-tot-amt NE gltrans.tr-amt THEN
-          tt-trans.tr-amt = tt-trans.tr-amt + (gltrans.tr-amt - v-tot-amt).
-      */
-        CREATE tt-trans.
-        ASSIGN
-         tt-trans.tt-recid = RECID(gltrans)
-         tt-trans.type     = "GLTRANS"
-         tt-trans.c-rate   = 100
-         tt-trans.tr-amt   = v-tot-amt * -1 /*gltrans.tr-amt * -1*/
-         tt-trans.costacct = gltrans.actnum
-         tt-trans.jrnl     = "Cost Distribution".           
-      END.               
-    END. /* gltrans */
+        AND account.actnum  LE hi_actnum
+        AND account.inactive EQ NO :
 
     FOR EACH glhist NO-LOCK
         WHERE glhist.company EQ cocode
           AND glhist.actnum  EQ account.actnum
           AND glhist.tr-date GE lo_trandate
           AND glhist.tr-date LE hi_trandate
+          AND glhist.posted  EQ NO
+          AND CAN-DO(gl_jrnl_list,glhist.jrnl),
+
+        EACH acctcost NO-LOCK
+        WHERE acctcost.company EQ account.company
+          AND acctcost.actnum  EQ account.actnum
+
+        BREAK BY glhist.actnum
+             /* BY acctcost.costacct*/:
+
+      IF FIRST-OF(glhist.actnum) THEN v-tot-amt = 0.
+
+      /* auto distribution to sub cost account */
+      CREATE tt-trans.
+      ASSIGN
+       tt-trans.tt-recid = RECID(glhist)
+       tt-trans.type     = "GLTRANS"
+       tt-trans.c-rate   = acctcost.c-rate
+       tt-trans.tr-amt   = ROUND(glhist.tr-amt * acctcost.c-rate / 100,2)
+       tt-trans.costacct = acctcost.costacct
+       tt-trans.jrnl     = glhist.jrnl.
+
+      v-tot-amt = v-tot-amt + tt-trans.tr-amt.
+
+      IF LAST-OF(glhist.actnum) THEN DO:
+      /*  IF v-tot-amt NE gltrans.tr-amt THEN
+          tt-trans.tr-amt = tt-trans.tr-amt + (gltrans.tr-amt - v-tot-amt).
+      */
+        CREATE tt-trans.
+        ASSIGN
+         tt-trans.tt-recid = RECID(glhist)
+         tt-trans.type     = "GLTRANS"
+         tt-trans.c-rate   = 100
+         tt-trans.tr-amt   = v-tot-amt * -1 /*gltrans.tr-amt * -1*/
+         tt-trans.costacct = glhist.actnum
+         tt-trans.jrnl     = "Cost Distribution".           
+      END.               
+    END. /* glhist */
+
+    FOR EACH glhist NO-LOCK
+        WHERE glhist.company EQ cocode
+          AND glhist.actnum  EQ account.actnum
+          AND glhist.tr-date GE lo_trandate
+          AND glhist.tr-date LE hi_trandate
+          AND glhist.posted  EQ YES
           AND CAN-DO(gl_jrnl_list,glhist.jrnl),
 
         EACH acctcost NO-LOCK

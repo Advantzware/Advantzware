@@ -207,23 +207,25 @@ DO:
     ASSIGN lv-comp-no lv-cust-no lv-tr-no lv-tr-date lv-actnum.
 
     li-num-trans = 0.
-    FOR EACH gltrans WHERE gltrans.company = lv-comp-no
-                          AND gltrans.trnum = lv-tr-no
-                          AND gltrans.tr-date = lv-tr-date
-                          AND gltrans.actnum = lv-actnum
-                          AND (gltrans.tr-dscr BEGINS lv-cust-no OR lv-cust-no = "")
+    FOR EACH glhist WHERE glhist.company = lv-comp-no
+                          AND glhist.tr-num = lv-tr-no
+                          AND glhist.tr-date = lv-tr-date
+                          AND glhist.actnum = lv-actnum
+                          AND (glhist.tr-dscr BEGINS lv-cust-no OR lv-cust-no = "")
+                          AND glhist.posted EQ NO
                           NO-LOCK.
         li-num-trans = li-num-trans + 1.
     END.
 
 
-    FIND FIRST gltrans WHERE gltrans.company = lv-comp-no
-                          AND gltrans.trnum = lv-tr-no
-                          AND gltrans.tr-date = lv-tr-date
-                          AND gltrans.actnum = lv-actnum
-                          AND (gltrans.tr-dscr BEGINS lv-cust-no OR lv-cust-no = "")
+    FIND FIRST glhist WHERE glhist.company = lv-comp-no
+                          AND glhist.tr-num = lv-tr-no
+                          AND glhist.tr-date = lv-tr-date
+                          AND glhist.actnum = lv-actnum
+                          AND (glhist.tr-dscr BEGINS lv-cust-no OR lv-cust-no = "")
+                          AND glhist.posted EQ NO
                           NO-LOCK NO-ERROR.
-    IF NOT AVAIL gltrans THEN DO:
+    IF NOT AVAIL glhist THEN DO:
        FIND FIRST glhist WHERE glhist.company = lv-comp-no
                           AND glhist.tr-num = lv-tr-no
                           AND glhist.tr-date = lv-tr-date
@@ -239,8 +241,8 @@ DO:
                                    lv-tr-dscr = glhist.tr-dscr.
     END.
 
-    ELSE ASSIGN lv-tramt = gltrans.tr-amt
-                lv-tr-dscr = gltrans.tr-dscr
+    ELSE ASSIGN lv-tramt = glhist.tr-amt
+                lv-tr-dscr = glhist.tr-dscr
                 lv-trans-type = "Trans".
 
     DISP lv-tramt lv-tr-dscr WITH FRAME {&FRAME-NAME}.
@@ -263,13 +265,14 @@ DO:
           FIND CURRENT glhist NO-LOCK NO-ERROR.          
      END.
      */
-     FIND NEXT gltrans WHERE gltrans.company = lv-comp-no
-                          AND gltrans.trnum = lv-tr-no
-                          AND gltrans.tr-date = lv-tr-date
-                          AND gltrans.actnum = lv-actnum
-                          AND (gltrans.tr-dscr BEGINS lv-cust-no OR lv-cust-no = "")
+     FIND NEXT glhist WHERE glhist.company = lv-comp-no
+                          AND glhist.tr-num = lv-tr-no
+                          AND glhist.tr-date = lv-tr-date
+                          AND glhist.actnum = lv-actnum
+                          AND (glhist.tr-dscr BEGINS lv-cust-no OR lv-cust-no = "")
+                          AND glhist.posted EQ NO
                           NO-LOCK NO-ERROR.
-    IF NOT AVAIL gltrans THEN DO:
+    IF NOT AVAIL glhist THEN DO:
        FIND next glhist WHERE glhist.company = lv-comp-no
                           AND glhist.tr-num = lv-tr-no
                           AND glhist.tr-date = lv-tr-date
@@ -286,8 +289,8 @@ DO:
                                    lv-trans-type = "Hist".
     END.
 
-    ELSE ASSIGN lv-tramt = gltrans.tr-amt
-                lv-tr-dscr = gltrans.tr-dscr
+    ELSE ASSIGN lv-tramt = glhist.tr-amt
+                lv-tr-dscr = glhist.tr-dscr
                 lv-trans-type = "Trans".
 
     DISP lv-tramt lv-tr-dscr WITH FRAME {&FRAME-NAME}.
@@ -306,14 +309,8 @@ DO:
     IF ll-ans THEN DO:
        ASSIGN lv-tramt.
 
-       IF lv-trans-type = "Trans" THEN DO:
-          FIND CURRENT gltrans EXCLUSIVE-LOCK NO-ERROR.
-          IF AVAIL gltrans THEN gltrans.tr-amt = lv-tramt.
-       END.
-       ELSE IF lv-trans-type = "Hist" THEN DO:
-          FIND CURRENT glhist EXCLUSIVE-LOCK NO-ERROR.
-          IF AVAIL glhist THEN glhist.tr-amt = lv-tramt.
-       END.
+       FIND CURRENT glhist EXCLUSIVE-LOCK NO-ERROR.
+       IF AVAIL glhist THEN glhist.tr-amt = lv-tramt.       
 
     END.    
     IF li-num-trans <= 1 THEN  APPLY "GO" TO FRAME {&FRAME-NAME}.

@@ -102,7 +102,7 @@ fgcat.cogsExpAcct fgcat.lActive
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,List-5,F1 */
 &Scoped-define ADM-CREATE-FIELDS fgcat.procat 
 &Scoped-define F1 F1 
-
+&Scoped-Define GL-FIELDS fgcat.glacc fgcat.brdExpAcct fgcat.cogsExpAcct
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -348,6 +348,7 @@ DO:
         WHERE account.company EQ cocode
           AND account.actnum  BEGINS {&self-name}:SCREEN-VALUE
           AND account.TYPE    EQ "E"
+          AND account.inactive EQ NO 
         NO-LOCK NO-ERROR.
   IF AVAIL account THEN DO:
      {&self-name}:SCREEN-VALUE = account.actnum.
@@ -380,6 +381,7 @@ DO:
         WHERE account.company EQ cocode
           AND account.actnum  BEGINS {&self-name}:SCREEN-VALUE
           AND account.TYPE    EQ "E"
+          AND account.inactive EQ NO 
         NO-LOCK NO-ERROR.
   IF AVAIL account THEN DO:
      {&self-name}:SCREEN-VALUE = account.actnum.
@@ -412,6 +414,7 @@ DO:
         WHERE account.company EQ cocode
           AND account.actnum  BEGINS {&self-name}:SCREEN-VALUE
           AND account.TYPE    EQ "R"
+          AND account.inactive EQ NO 
         NO-LOCK NO-ERROR.
   IF AVAIL account THEN DO:
     {&self-name}:SCREEN-VALUE = account.actnum.
@@ -601,6 +604,7 @@ PROCEDURE local-cancel-record :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
+    RUN presetColor(INPUT "") NO-ERROR.                 
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
@@ -660,6 +664,29 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-reset-record V-table-Win
+PROCEDURE local-reset-record:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+    /* Code placed here will execute PRIOR to standard behavior. */
+    DO WITH FRAME {&FRAME-NAME}:
+        RUN presetColor(INPUT "") NO-ERROR. 
+    END.      
+
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'reset-record':U ).
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record V-table-Win 
 PROCEDURE local-update-record :
 /*------------------------------------------------------------------------------
@@ -696,6 +723,91 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pchangeColor V-table-Win
+PROCEDURE pchangeColor:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iphfieldHandle AS HANDLE NO-UNDO.
+    
+    DEFINE VARIABLE cfieldName AS CHARACTER NO-UNDO.
+    
+    IF VALID-HANDLE(iphfieldHandle) THEN DO:
+        cfieldName = "fgcat." + iphfieldHandle:NAME.
+        IF iphfieldHandle:TYPE      EQ "fill-in"   AND 
+           iphfieldHandle:DATA-TYPE EQ "CHARACTER" AND 
+           LOOKUP(cfieldName,"{&GL-FIELDS}"," ") GT 0 THEN DO:
+            ASSIGN 
+                iphfieldHandle:BGCOLOR = 16
+                iphfieldHandle:FGCOLOR = 15
+                .                                    
+            APPLY "ENTRY" TO iphfieldHandle.
+        END.     
+    END.    
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE presetColor V-table-Win
+PROCEDURE presetColor:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+    DEFINE INPUT PARAMETER iphfieldHandle AS HANDLE NO-UNDO.
+
+    DEFINE VARIABLE hframeHandle AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE hgroupHandle AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE hfieldHandle AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE cfieldName   AS CHARACTER NO-UNDO.
+
+    ASSIGN 
+        hframeHandle = FRAME {&FRAME-NAME}:HANDLE
+        hgroupHandle = hframeHandle:FIRST-CHILD
+        hfieldHandle = hgroupHandle:FIRST-CHILD
+        .
+    IF VALID-HANDLE(iphfieldHandle) THEN DO:
+        cfieldName = "fgcat." + iphfieldHandle:NAME.
+        IF iphfieldHandle:TYPE      EQ "fill-in"   AND 
+           iphfieldHandle:DATA-TYPE EQ "CHARACTER" AND 
+           LOOKUP(cfieldName,"{&GL-FIELDS}"," ") GT 0 THEN DO:            
+            IF iphfieldHandle:BGCOLOR EQ 16 THEN             
+               ASSIGN 
+                   iphfieldHandle:BGCOLOR = 15
+                   iphfieldHandle:FGCOLOR = ?
+                   .                 
+        END.       
+    END. 
+    ELSE DO:                
+        DO WHILE VALID-HANDLE(hfieldHandle):
+            cfieldName = "fgcat." + hfieldHandle:NAME.
+            IF hfieldHandle:TYPE      EQ "fill-in"   AND 
+                hfieldHandle:DATA-TYPE EQ "CHARACTER" AND 
+                LOOKUP(cfieldName,"{&GL-FIELDS}"," ") GT 0 THEN           
+                IF hfieldHandle:BGCOLOR EQ 16 THEN             
+                    ASSIGN 
+                        hfieldHandle:BGCOLOR = 15
+                        hfieldHandle:FGCOLOR = ?
+                        .                     
+            hfieldHandle = hfieldHandle:NEXT-SIBLING.
+        END. 
+    END.                                                   
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE proc-enable V-table-Win 
 PROCEDURE proc-enable :
@@ -789,12 +901,25 @@ PROCEDURE valid-fg-glacc :
          NOT CAN-FIND(FIRST account
                       WHERE account.company EQ cocode
                         AND account.actnum  EQ fgcat.cogsExpAcct:SCREEN-VALUE
-                        AND account.TYPE    EQ "E") THEN DO:
+                        AND account.TYPE    EQ "E") THEN DO:                           
          MESSAGE "Invalid FG Board Expense GL#, try help..."
                  VIEW-AS ALERT-BOX ERROR.
+         RUN presetColor(INPUT fgcat.cogsExpAcct:HANDLE) NO-ERROR.        
          APPLY "entry" TO fgcat.cogsExpAcct.
          RETURN ERROR.
       END.
+      IF NOT fgcat.cogsExpAcct:SCREEN-VALUE EQ "" AND
+         NOT CAN-FIND(FIRST account
+                      WHERE account.company  EQ cocode
+                        AND account.actnum   EQ fgcat.cogsExpAcct:SCREEN-VALUE
+                        AND account.TYPE     EQ "E"
+                        AND account.inactive EQ NO) THEN DO:
+         MESSAGE "Inactive FG Board Expense GL#, try help..."
+                 VIEW-AS ALERT-BOX ERROR.
+         RUN pchangeColor(INPUT fgcat.cogsExpAcct:HANDLE) NO-ERROR.
+         RETURN ERROR.
+      END.
+      RUN presetColor(INPUT fgcat.cogsExpAcct:HANDLE) NO-ERROR.
    END.
     
   {methods/lValidateError.i NO}
@@ -816,12 +941,24 @@ PROCEDURE valid-glacc :
     IF NOT CAN-FIND(FIRST account
                     WHERE account.company EQ cocode
                       AND account.actnum  EQ fgcat.glacc:SCREEN-VALUE
-                      AND account.TYPE    EQ "R") THEN DO:
+                      AND account.TYPE    EQ "R") THEN DO:                              
       MESSAGE "Invalid Revenue Account#, try help..."
               VIEW-AS ALERT-BOX ERROR.
+      RUN presetColor(INPUT fgcat.glacc:HANDLE) NO-ERROR.         
       APPLY "entry" TO fgcat.glacc.
       RETURN ERROR.
     END.
+    IF NOT CAN-FIND(FIRST account
+                    WHERE account.company  EQ cocode
+                      AND account.actnum   EQ fgcat.glacc:SCREEN-VALUE
+                      AND account.TYPE     EQ "R"
+                      AND account.inactive EQ NO) THEN DO:
+      MESSAGE "Inactive Revenue Account#, try help..."
+              VIEW-AS ALERT-BOX ERROR.
+      RUN pchangeColor(INPUT fgcat.glacc:HANDLE) NO-ERROR.
+      RETURN ERROR.
+    END.
+    RUN presetColor(INPUT fgcat.glacc:HANDLE) NO-ERROR. 
   END.
 
   {methods/lValidateError.i NO}
@@ -843,12 +980,25 @@ PROCEDURE valid-rm-glacc :
          NOT CAN-FIND(FIRST account
                       WHERE account.company EQ cocode
                         AND account.actnum  EQ fgcat.brdExpAcct:SCREEN-VALUE
-                        AND account.TYPE    EQ "E") THEN DO:
+                        AND account.TYPE    EQ "E") THEN DO:                           
          MESSAGE "Invalid RM Board Expense GL#, try help..."
                  VIEW-AS ALERT-BOX ERROR.
+         RUN presetColor(INPUT fgcat.glacc:HANDLE) NO-ERROR.         
          APPLY "entry" TO fgcat.brdExpAcct.
          RETURN ERROR.
       END.
+      IF NOT fgcat.brdExpAcct:SCREEN-VALUE EQ "" AND
+         NOT CAN-FIND(FIRST account
+                      WHERE account.company  EQ cocode
+                        AND account.actnum   EQ fgcat.brdExpAcct:SCREEN-VALUE
+                        AND account.TYPE     EQ "E"
+                        AND account.inactive EQ NO) THEN DO:
+         MESSAGE "Inactive RM Board Expense GL#, try help..."
+                 VIEW-AS ALERT-BOX ERROR.
+         RUN pchangeColor(INPUT fgcat.brdExpAcct:HANDLE) NO-ERROR.                 
+         RETURN ERROR.
+      END.
+      RUN presetColor(INPUT fgcat.glacc:HANDLE) NO-ERROR. 
    END.
    
   {methods/lValidateError.i NO}

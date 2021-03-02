@@ -67,6 +67,7 @@ DEF TEMP-TABLE tt-email NO-UNDO FIELD tt-recid AS RECID
 
 DEF VAR v-fgpostgl AS CHAR NO-UNDO.                        
 def var v-post-date as date init today no-undo.
+DEFINE VARIABLE lInvalid AS LOGICAL NO-UNDO.
 
 {custom/globdefs.i}
 {methods/defines/hndldefs.i}
@@ -294,6 +295,9 @@ DO:
   MESSAGE "FG Receipts import is completed!  Posting now......"
       VIEW-AS ALERT-BOX INFO BUTTONS OK.
       
+      
+   RUN pCheckDate(INPUT DATE(TODAY)).
+   IF lInvalid then RETURN NO-APPLY .   
   /*run PostFGImport.*/   
   run fg/fgpost.p (input table FGReceiptRow). 
   
@@ -464,22 +468,23 @@ PROCEDURE gl-from-work :
      debits  = debits  + work-gl.debits
      credits = credits + work-gl.credits.
 
-    if last-of(work-gl.actnum) then do:
-      create gltrans.
-      assign
-       gltrans.company = cocode
-       gltrans.actnum  = work-gl.actnum
-       gltrans.jrnl    = "FGPOST"
-       gltrans.period  = period.pnum
-       gltrans.tr-amt  = debits - credits
-       gltrans.tr-date = v-post-date
-       gltrans.tr-dscr = if work-gl.job-no ne "" then "FG Receipt from Job"
-                                                 else "FG Receipt from PO"
-       gltrans.trnum   = ip-trnum
+    if last-of(work-gl.actnum) then do:        
+      RUN GL_SpCreateGLHist(cocode,
+                         work-gl.actnum,
+                         "FGPOST",
+                         (if work-gl.job-no ne "" then "FG Receipt from Job"
+                                                  else "FG Receipt from PO"),
+                         v-post-date,
+                         debits - credits,
+                         ip-trnum,
+                         period.pnum,
+                         "A",
+                         v-post-date,
+                         "",
+                         "FG").  
+      ASSIGN  
        debits  = 0
-       credits = 0.
-
-      RELEASE gltrans.
+       credits = 0.       
     end.
   end.
 
@@ -844,25 +849,22 @@ for each FGReceiptRow no-lock /* where FGReceiptRow.TableRowid <> ? */ :
        gl-ctrl.trnum = v-trnum.
       FIND CURRENT gl-ctrl NO-LOCK.
       FOR EACH work-job BREAK BY work-job.actnum:
-         CREATE gltrans.
-        ASSIGN
-         gltrans.company = cocode
-         gltrans.actnum  = work-job.actnum
-         gltrans.jrnl    = "ADJUST"
-         gltrans.tr-date = v-post-date
-         gltrans.period  = period.pnum
-         gltrans.trnum   = v-trnum.
-
-        IF work-job.fg THEN
-          ASSIGN
-           gltrans.tr-amt  = - work-job.amt
-           gltrans.tr-dscr = "ADJUSTMENT FG".
-        ELSE
-          ASSIGN
-           gltrans.tr-amt  = work-job.amt
-           gltrans.tr-dscr = "ADJUSTMENT COGS".
-
-        RELEASE gltrans.
+        
+        RUN GL_SpCreateGLHist(cocode,
+                         work-job.actnum,
+                         "ADJUST",
+                         (if work-job.fg then "ADJUSTMENT FG"
+                                         else "ADJUSTMENT COGS"),
+                         v-post-date,
+                         (if work-job.fg then - work-job.amt
+                                         else work-job.amt),
+                         v-trnum,
+                         period.pnum,
+                         "A",
+                         v-post-date,
+                         "",
+                         "FG").      
+        
       END. /* each work-job */
     END.
     IF v-got-fgemail THEN DO:
@@ -1023,3 +1025,28 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckDate wWin 
+PROCEDURE pCheckDate :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE INPUT PARAMETER ipdtDate AS DATE NO-UNDO.
+  DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE lSuccess AS LOGICAL NO-UNDO.
+  
+    lInvalid = no.
+    
+    RUN GL_CheckModClosePeriod(input cocode, input DATE(ipdtDate), input "FG", output cMessage, output lSuccess ) .  
+    IF NOT lSuccess THEN 
+    DO:
+      MESSAGE cMessage VIEW-AS ALERT-BOX INFO.
+      lInvalid = YES.
+    END.      
+    
+  
+END PROCEDURE.
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME

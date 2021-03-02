@@ -107,6 +107,7 @@ DEFINE {1} TEMP-TABLE ttPhysicalBrowseInventory
 
 DEFINE TEMP-TABLE ttInventoryStockDetails NO-UNDO
     LIKE ttBrowseInventory
+    FIELD itemCode AS CHARACTER
     .
 
 DEFINE TEMP-TABLE ttPOOrderLineDetails NO-UNDO
@@ -363,6 +364,11 @@ DEFINE VARIABLE gcUOMWeight                AS CHARACTER NO-UNDO INITIAL "LB".
 DEFINE VARIABLE gcInventorySourceTypeJob   AS CHARACTER NO-UNDO INITIAL "Job".
 DEFINE VARIABLE gcInventorySourceTypePO    AS CHARACTER NO-UNDO INITIAL "PO".
 DEFINE VARIABLE gcInventorySourceTypeFG    AS CHARACTER NO-UNDO INITIAL "FG".
+
+DEFINE VARIABLE gcInventorySourceTypeRMBIN     AS CHARACTER NO-UNDO INITIAL "RMBIN".
+DEFINE VARIABLE gcInventorySourceTypeRMHISTORY AS CHARACTER NO-UNDO INITIAL "RMHISTORY".
+DEFINE VARIABLE gcInventorySourceTypeRMRCTD    AS CHARACTER NO-UNDO INITIAL "RMRCTD".
+
 
 /* ********************  Preprocessor Definitions  ******************** */
 

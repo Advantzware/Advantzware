@@ -860,7 +860,8 @@ PROCEDURE check-date :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF VAR lv-period LIKE period.pnum NO-UNDO.
-
+  DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE lSuccess AS LOGICAL NO-UNDO.
 
   DO WITH FRAME {&FRAME-NAME}:
     RUN sys/inc/valtrndt.p (cocode,
@@ -869,6 +870,17 @@ PROCEDURE check-date :
     v-invalid = ERROR-STATUS:ERROR.
     IF v-invalid THEN APPLY "entry" TO tran-date.
     ELSE tran-period:SCREEN-VALUE = STRING(lv-period).
+    
+    IF NOT v-invalid THEN
+    DO:
+       RUN GL_CheckModClosePeriod(input cocode, input DATE(tran-date:SCREEN-VALUE), input "AP", output cMessage, output lSuccess ) .  
+        IF NOT lSuccess then 
+        do:
+          message cMessage view-as alert-box info.
+          v-invalid = yes.
+        end.           
+    END.
+    
   END.
 
 END PROCEDURE.
@@ -906,6 +918,8 @@ PROCEDURE check-inv-date :
 
          ELSE IF NOT period.pstat THEN
             lv-msg = "Period for " + TRIM(STRING(ip-date)) + " is already closed, enter security password or enter to return".
+         ELSE IF period.subLedgerAP EQ "C" THEN
+            lv-msg = "Payables sub ledger period for " + TRIM(STRING(ip-date)) + " is already closed, enter security password or enter to return".    
          ELSE
             lv-msg = "".
 
@@ -1293,24 +1307,26 @@ DEF VAR ll-rcpth AS LOG.
 
     for each ap-invl where ap-invl.i-no eq ap-inv.i-no,
 
-        first tt-ap-invl where tt-ap-invl.row-id eq rowid(ap-invl):
-
-      create gltrans.
+        first tt-ap-invl where tt-ap-invl.row-id eq rowid(ap-invl):  
+      
       assign
        t1              = t1 + ap-invl.amt
        g2              = g2 + ap-invl.amt
        total-msf       = total-msf + ap-invl.amt-msf
-       gltrans.company = cocode
-       gltrans.actnum  = tt-ap-invl.actnum
-       gltrans.jrnl    = "ACPAY"
-       gltrans.tr-dscr = vend.name  + "  " + string(ap-inv.inv-date)
-       gltrans.tr-date = tran-date
-       gltrans.tr-amt  = tt-ap-invl.amt
-       gltrans.trnum   = v-trnum
-       gltrans.period  = tran-period
-       ap-invl.posted  = yes.      
-
-      RELEASE gltrans.
+       ap-invl.posted  = yes.
+       
+      RUN GL_SpCreateGLHist(cocode,
+                         tt-ap-invl.actnum,
+                         "ACPAY",
+                         vend.name  + "  " + string(ap-inv.inv-date),
+                         tran-date,
+                         tt-ap-invl.amt,
+                         v-trnum,
+                         tran-period,
+                         "A",
+                         tran-date,
+                         "",
+                         "AP").                    
 
       find first po-ordl
           where po-ordl.company eq cocode
@@ -1642,18 +1658,19 @@ DEF VAR ll-rcpth AS LOG.
     IF LAST-OF(tt-report.actnum) AND
        tt-report.actnum NE ""    AND
        (ACCUM TOTAL BY tt-report.actnum tt-report.curr-amt - (ap-inv.net + ap-inv.freight))
-                        NE 0    THEN DO:
-      CREATE gltrans.
-      ASSIGN
-       gltrans.company = cocode
-       gltrans.actnum  = tt-report.actnum
-       gltrans.jrnl    = "ACPAY"
-       gltrans.tr-dscr = "ACCOUNTS PAYABLE CURRENCY GAIN/LOSS"
-       gltrans.tr-date = tran-date
-       gltrans.tr-amt  = (ACCUM TOTAL BY tt-report.actnum tt-report.curr-amt - (ap-inv.net + ap-inv.freight)) * -1
-       gltrans.period  = tran-period
-       gltrans.trnum   = v-trnum.
-      RELEASE gltrans.
+                        NE 0    THEN DO:      
+      RUN GL_SpCreateGLHist(cocode,
+                         tt-report.actnum,
+                         "ACPAY",
+                         "ACCOUNTS PAYABLE CURRENCY GAIN/LOSS",
+                         tran-date,
+                         (ACCUM TOTAL BY tt-report.actnum tt-report.curr-amt - (ap-inv.net + ap-inv.freight)) * -1,
+                         v-trnum,
+                         tran-period,
+                         "A",
+                         tran-date,
+                         STRING(ap-inv.inv-no),
+                         "AP").    
     END.
   end. /* for each ap-inv */
 
@@ -1661,18 +1678,19 @@ DEF VAR ll-rcpth AS LOG.
 
     DO TRANSACTION:
         IF lv-frt-total NE 0 THEN DO:
-            CREATE gltrans.
-            ASSIGN
-                gltrans.company = cocode
-                gltrans.actnum  = v-frt-acct
-                gltrans.jrnl    = "ACPAY"
-                gltrans.tr-dscr = "ACCOUNTS PAYABLE FREIGHT"
-                gltrans.tr-date = tran-date
-                gltrans.tr-amt  = (ACCUM TOTAL ap-inv.freight * tt-report.ex-rate)
-                gltrans.period  = tran-period
-                gltrans.trnum   = v-trnum
-                .
-            RELEASE gltrans.
+            
+         RUN GL_SpCreateGLHist(cocode,
+                               v-frt-acct,
+                               "ACPAY",
+                               "ACCOUNTS PAYABLE FREIGHT",
+                               tran-date,
+                               (ACCUM TOTAL ap-inv.freight * tt-report.ex-rate),
+                               v-trnum,
+                               tran-period,
+                               "A",
+                               tran-date,
+                               STRING(ap-inv.inv-no),
+                               "AP").
         END.
 
         FOR EACH tt-ap-tax BREAK BY tt-ap-tax.actnum:
@@ -1681,33 +1699,34 @@ DEF VAR ll-rcpth AS LOG.
             g2 = g2 + tt-ap-tax.amt.
 
             IF LAST-OF(tt-ap-tax.actnum) THEN DO:
-                CREATE gltrans.
-                ASSIGN
-                    gltrans.company = cocode
-                    gltrans.actnum  = tt-ap-tax.actnum
-                    gltrans.jrnl    = "ACPAY"
-                    gltrans.tr-dscr = "ACCOUNTS PAYABLE TAX"
-                    gltrans.tr-date = tran-date
-                    gltrans.tr-amt  = (ACCUM TOTAL BY tt-ap-tax.actnum tt-ap-tax.curr-amt)
-                    gltrans.period  = tran-period
-                    gltrans.trnum   = v-trnum
-                    .
-                RELEASE gltrans.
+                
+             RUN GL_SpCreateGLHist(cocode,
+                                   tt-ap-tax.actnum,
+                                   "ACPAY",
+                                   "ACCOUNTS PAYABLE TAX",
+                                   tran-date,
+                                   (ACCUM TOTAL BY tt-ap-tax.actnum tt-ap-tax.curr-amt),
+                                   v-trnum,
+                                   tran-period,
+                                   "A",
+                                   tran-date,
+                                   "",
+                                   "AP").                
             END.
-        END.
-
-        CREATE gltrans.
-        ASSIGN
-            gltrans.company = cocode
-            gltrans.actnum  = xap-acct
-            gltrans.jrnl    = "ACPAY"
-            gltrans.tr-dscr = "ACCOUNTS PAYABLE INVOICE"
-            gltrans.tr-date = tran-date
-            gltrans.tr-amt  = - g2
-            gltrans.period  = tran-period
-            gltrans.trnum   = v-trnum
-            .
-        RELEASE gltrans.
+        END. 
+        
+        RUN GL_SpCreateGLHist(cocode,
+                           xap-acct,
+                           "ACPAY",
+                           "ACCOUNTS PAYABLE INVOICE",
+                           tran-date,
+                           (- g2),
+                           v-trnum,
+                           tran-period,
+                           "A",
+                           tran-date,
+                           "",
+                           "AP").          
     END.
 END PROCEDURE.
 

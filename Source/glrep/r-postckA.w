@@ -813,7 +813,7 @@ DEF VAR v-excel-hdr  AS CHAR.
 DEF VAR v-exp-name   AS CHAR FORMAT "x(40)" INIT "c:\tmp\r-postrg.csv".
 DEF VAR v-tr-num     AS CHAR. 
 
-def var v-s-run like glhist.tr-num format ">>>>>>" init 0.
+def var v-s-run LIKE glhist.tr-num format ">>>>>>" init 0.
 def var v-e-run like v-s-run init 999999.
 def var v-s-dat like glhist.tr-date format "99/99/9999" init 01/01/0001.
 def var v-e-dat like v-s-dat init 12/31/9999.
@@ -895,47 +895,6 @@ if td-show-parm then run show-param.
     end.
 
     if last-of(glhist.tr-date) then put skip(1).
-  end.
-
-  for each gltrans
-      where gltrans.company eq cocode
-        and gltrans.trnum   ge v-s-run
-        and gltrans.trnum   le v-e-run
-        and gltrans.tr-date ge v-s-dat
-        and gltrans.tr-date le v-e-dat
-      no-lock
-
-      break by gltrans.tr-date
-            by gltrans.trnum:
-
-        {custom/statusMsg.i " 'Processing Run #  '  + string(gltrans.trnum) "}
-
-    v-tot = v-tot + gltrans.tr-amt.
-
-    if last-of(gltrans.trnum) then do:
-      display gltrans.tr-date   label "Trans Date"
-              space(3)
-              gltrans.trnum     label "Run #"       format "9999999"
-              space(3)
-              gltrans.jrnl      label "Journal"
-              space(3)
-              v-tot             label "Balance"
-              string(v-tot eq 0,"/Out of Balance")
-                 format "x(14)" no-label
-
-        with frame f-2 stream-io width 200 down no-box no-attr-space.
-    IF v-export THEN
-      PUT STREAM s-temp UNFORMATTED
-         '"' gltrans.tr-date        '",'
-         '"' gltrans.trnum   '",'
-         '"' gltrans.jrnl     '",'
-         '"' v-tot  '",'
-         '"' string(v-tot eq 0,"/Out of Balance") '",'
-         SKIP .
-      v-tot = 0.
-    END.
-
-    if last-of(gltrans.tr-date) then put skip(1).
   end.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

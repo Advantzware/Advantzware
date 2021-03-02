@@ -354,6 +354,21 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
+ON HELP OF C-Win /* Employee In/Out Transaction Report */
+DO:
+   DEFINE VARIABLE char-val AS cha NO-UNDO.
+
+   IF FOCUS:NAME = "begin_employee" THEN 
+   DO:
+       RUN windows/l-emp.w (INPUT gcompany, FOCUS:SCREEN-VALUE, OUTPUT char-val).
+       IF char-val <> "" THEN FOCUS:SCREEN-VALUE = char-val.   
+   END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME btn-cancel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
@@ -371,21 +386,23 @@ END.
 ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 DO:
   ASSIGN {&displayed-objects}.
+     IF begin_employee NE "" THEN
+     DO:
+          FIND employee WHERE employee.company = g_company
+                       AND employee.employee = begin_employee
+                     NO-LOCK NO-ERROR.
+            IF NOT AVAILABLE employee THEN DO:
+               MESSAGE "Invalid Employee#. Try help." VIEW-AS ALERT-BOX ERROR.
+               APPLY "entry" TO begin_employee.
+               RETURN NO-APPLY.
+            END.  
 
-  FIND employee WHERE employee.company = g_company
-                  AND employee.employee = begin_employee
-                NO-LOCK NO-ERROR.
-  IF NOT AVAILABLE employee THEN DO:
-     MESSAGE "Invalid Employee#. Try help." VIEW-AS ALERT-BOX ERROR.
-     APPLY "entry" TO begin_employee.
-     RETURN NO-APPLY.
-  END.
-
-  IF v-password NE employee.passwd THEN DO:
-     MESSAGE "Invalid Password. Try again. " VIEW-AS ALERT-BOX ERROR.
-     APPLY "entry" TO v-password.
-     RETURN NO-APPLY.
-  END.
+       IF v-password NE employee.passwd THEN DO:
+          MESSAGE "Invalid Password. Try again. " VIEW-AS ALERT-BOX ERROR.
+          APPLY "entry" TO v-password.
+          RETURN NO-APPLY.
+       END.
+     END.
 
   RUN run-report.
 
@@ -747,7 +764,7 @@ PROCEDURE run-report :
 
   for each emplogin no-lock where
       emplogin.company EQ cocode AND
-      emplogin.employee = begin_employee AND
+      (emplogin.employee = begin_employee OR begin_employee EQ "") AND
       emplogin.start_date >= begin_end_date AND
       emplogin.start_date <= end_end_date
       BREAK by emplogin.employee by emplogin.start_date by start_time:

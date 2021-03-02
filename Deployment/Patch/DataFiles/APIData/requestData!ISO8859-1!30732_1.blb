@@ -1,0 +1,12 @@
+{
+    "Requester": "[STRING-REQ]",
+    "Transfers": [{
+        "Company": "[STRING-REQ]",
+        "WareHouseID": "[STRING-REQ]",
+        "LocationID": "[STRING-REQ]",
+        "InventoryStockIDTag": "[STRING-REQ]",
+        "PrimaryID": "[STRING-REQ]",
+        "ItemType": "[STRING-REQ]",
+        "RequesterNotes": "[STRING-OPT]"
+    }]
+}

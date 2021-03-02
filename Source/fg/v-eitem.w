@@ -1471,20 +1471,21 @@ PROCEDURE local-assign-record :
             e-itemfg.run-qty[i] = e-itemfg-vend.run-qty[i]
             e-itemfg.run-cost[i] = e-itemfg-vend.run-cost[i].
     END.
-
-    IF e-itemfg-vend.i-no = "" THEN DO:
-        run get-link-handle in adm-broker-hdl(this-procedure,"record-source", output char-hdl).
-        run get-link-handle in adm-broker-hdl(widget-handle(char-hdl),"record-source", output char-hdl).
-        run get-eb-record in widget-handle(char-hdl) (output lv-eb-recid).
-        FIND FIRST eb NO-LOCK WHERE 
-            RECID(eb) EQ lv-eb-recid 
-            NO-ERROR.
-        IF AVAIL eb THEN ASSIGN 
-            e-itemfg-vend.est-no = eb.est-no
-            e-itemfg-vend.eqty = eb.eqty
-            e-itemfg-vend.form-no = eb.form-no
-            e-itemfg-vend.blank-no = eb.blank-no.
-    END.
+   /* procedure get-eb-record not define */
+   /* IF e-itemfg-vend.i-no = "" THEN DO:                                                                     */
+   /*     run get-link-handle in adm-broker-hdl(this-procedure,"record-source", output char-hdl).             */
+   /*     run get-link-handle in adm-broker-hdl(widget-handle(char-hdl),"record-source", output char-hdl).    */
+   /*                                                                                                         */
+   /*     run get-eb-record in widget-handle(char-hdl) (output lv-eb-recid).                                  */
+   /*     FIND FIRST eb NO-LOCK WHERE                                                                         */
+   /*         RECID(eb) EQ lv-eb-recid                                                                        */
+   /*         NO-ERROR.                                                                                       */
+   /*     IF AVAIL eb THEN ASSIGN                                                                             */
+   /*         e-itemfg-vend.est-no = eb.est-no                                                                */
+   /*         e-itemfg-vend.eqty = eb.eqty                                                                    */
+   /*         e-itemfg-vend.form-no = eb.form-no                                                              */
+   /*         e-itemfg-vend.blank-no = eb.blank-no.                                                           */
+   /* END.                                                                                                    */
 
     ASSIGN
         e-itemfg-vend.selected[01] = tb_sel-01

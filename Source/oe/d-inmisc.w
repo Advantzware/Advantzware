@@ -1540,6 +1540,28 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE presetColor Dialog-Frame
+PROCEDURE presetColor:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DO WITH FRAME {&FRAME-NAME}:
+        IF inv-misc.actnum:BGCOLOR EQ 16 THEN             
+            ASSIGN 
+                inv-misc.actnum:BGCOLOR = ?
+                inv-misc.actnum:FGCOLOR = ?
+                .                             
+    END. 
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE show-comm Dialog-Frame 
 PROCEDURE show-comm :
     /*------------------------------------------------------------------------------
@@ -1573,15 +1595,35 @@ PROCEDURE valid-actnum :
           Notes:       
         ------------------------------------------------------------------------------*/
     DEFINE OUTPUT PARAMETER opReturnError AS LOGICAL NO-UNDO .
+    
+    DEFINE VARIABLE lValid    AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage  AS CHARACTER NO-UNDO.    
+    DEFINE VARIABLE hValidate AS HANDLE    NO-UNDO.
+    
+    RUN util/Validate.p PERSISTENT SET hValidate.
+    
     DO WITH FRAME {&FRAME-NAME}:
-        IF NOT CAN-FIND(FIRST account WHERE account.company EQ cocode
-            AND account.actnum  EQ inv-misc.actnum:SCREEN-VALUE 
-            /*AND account.type    EQ "R"*/) THEN 
-        DO:
-            MESSAGE "Invalid entry, try help..." VIEW-AS ALERT-BOX INFORMATION.
-            APPLY "entry" TO inv-misc.actnum .
-            opReturnError = YES .
-        END.
+        RUN pIsValidGLAccount IN hValidate (
+            INPUT  inv-misc.actnum:SCREEN-VALUE, 
+            INPUT  YES, 
+            INPUT  cocode, 
+            OUTPUT lValid, 
+            OUTPUT cMessage
+            ) NO-ERROR.        
+        IF NOT lValid THEN DO:
+            MESSAGE cMessage VIEW-AS ALERT-BOX ERROR. 
+            RUN presetColor NO-ERROR.
+            IF INDEX(cMessage, "Inactive") GT 0 THEN 
+                ASSIGN 
+                    inv-misc.actnum:BGCOLOR = 16
+                    inv-misc.actnum:FGCOLOR = 15
+                    .                   
+            APPLY "ENTRY" TO inv-misc.actnum.
+            opReturnError = YES.   
+        END.               
+       
+        IF lValid THEN 
+            RUN presetColor NO-ERROR.                   
     END.
 
 END PROCEDURE.

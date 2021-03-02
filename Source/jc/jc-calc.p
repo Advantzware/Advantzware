@@ -1110,8 +1110,12 @@ DO:
                             ll-all-warn = YES.
                         END.
         
-                    job-mat.post = (z GT 0 AND jc-ctrl.post[z]) OR CAN-DO("J",type-mat).
-        
+                    job-mat.post = (z GT 0 AND jc-ctrl.post[z]) OR CAN-DO("J",type-mat) OR 
+                                   CAN-FIND(FIRST materialType 
+                                            WHERE materialType.company      EQ job-mat.company 
+                                              AND materialType.materialType EQ type-mat
+                                              AND materialType.autoIssue    EQ TRUE).
+
                     IF ll-use-netsht AND CAN-DO("1,2,3,4,B,P,R",item.mat-type) THEN 
                     DO:
                         v-blk-qty = 0.
@@ -1757,6 +1761,12 @@ PROCEDURE pUpdateJobQty PRIVATE:
     DEFINE OUTPUT PARAMETER oplAvailOeRel  AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER oplAvailOeOrdl AS LOGICAL NO-UNDO.
     
+    DEFINE VARIABLE cIsItem AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cIsPartNo AS CHARACTER NO-UNDO.  
+    DEFINE VARIABLE clsUom AS cha NO-UNDO.  
+    DEFINE VARIABLE cFGItemLoc AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFGItemLocBin AS CHARACTER NO-UNDO.
+    
     DEFINE BUFFER xeb    FOR eb.
     DEFINE BUFFER itemfg FOR itemfg.
     
@@ -1817,8 +1827,24 @@ PROCEDURE pUpdateJobQty PRIVATE:
             IF gvlNoPrompt THEN
                 choice = NO.
             IF NOT gvlNoPrompt THEN
-                MESSAGE "Item: " + TRIM(xeb.stock-no) + " doesn't exist, would you LIKE to create it?"
-                    VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE choice.
+            DO: 
+               FIND FIRST shipto NO-LOCK 
+                      WHERE shipto.company EQ xeb.company
+                      AND shipto.cust-no EQ xeb.cust-no
+                      AND shipto.ship-id EQ xeb.ship-id
+                      NO-ERROR.
+               IF AVAILABLE shipto THEN 
+               ASSIGN 
+                   cFGItemLoc = shipto.loc
+                   cFGItemLocBin = shipto.loc-bin.
+                     
+               ASSIGN cIsItem = xeb.stock-no
+                      cIsPartNo = xeb.part-no                          
+                      clsUom = "M".
+               RUN oe/d-citmfg.w (xeb.est-no, INPUT-OUTPUT cIsItem,
+                                INPUT-OUTPUT cIsPartNo,INPUT-OUTPUT clsUom, INPUT-OUTPUT cFGItemLoc, INPUT-OUTPUT cFGItemLocBin) NO-ERROR.
+               choice = IF cIsItem EQ "" THEN NO ELSE YES.                   
+            END.        
             IF choice THEN 
             DO:
             {jc/fgadd.i} 
@@ -1912,7 +1938,6 @@ PROCEDURE pUpdateJobQty PRIVATE:
                 job-hdr.po-no = b-oe-ordl.po-no.
         END.
 
-        {util/mkjobkey.i}
 
     END.
     

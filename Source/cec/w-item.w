@@ -976,6 +976,7 @@ PROCEDURE local-change-page :
         ASSIGN 
             li-page-b4VendCost = li-prev-page.        
         RUN select-page (11).
+        RUN show-current-page IN h_folder ("5").
 
         RETURN.
     END. 

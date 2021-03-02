@@ -300,7 +300,16 @@
        v-job-no2  = 0
        v-msf[1]   = 0
        v-po-no-po = 0
-       v-pct      = 1.
+       v-pct      = 1
+       dEstRevenue       = 0
+       dEstCost          = 0
+       dEstMargin        = 0
+       dEstGM            = 0
+       dActRevenue       = 0
+       dActCost          = 0
+       dActMargin        = 0
+       dActGM            = 0
+       dMFGTotalVariance = 0 .
 
       DO li = 1 TO 5:
         v-cst[(5 * (li - 1)) + 1] = 0.
@@ -315,6 +324,9 @@
         find first ar-invl where recid(ar-invl) eq w-data.rec-id no-lock.
 
         find ar-inv where ar-inv.x-no eq ar-invl.x-no no-lock.
+        
+        RUN fg/GetProductionQty.p (INPUT cocode, INPUT ar-invl.job-no, INPUT ar-invl.job-no2, INPUT ar-invl.i-no, INPUT NO, OUTPUT dProductionQty).
+                
         assign
          v-cust-no  = ar-inv.cust-no
          v-date     = ar-inv.inv-date
@@ -329,8 +341,20 @@
          v-cst[1]   = v-qty[1] / 1000 * ar-invl.std-mat-cost
          v-cst[6]   = v-qty[1] / 1000 * ar-invl.std-lab-cost
          v-cst[11]  = v-qty[1] / 1000 * ar-invl.std-fix-cost
-         v-cst[16]  = v-qty[1] / 1000 * ar-invl.std-var-cost.
-
+         v-cst[16]  = v-qty[1] / 1000 * ar-invl.std-var-cost
+         dEstRevenue         = ar-invl.ship-qty * ar-invl.unit-pr
+         dEstCost            = ar-invl.ship-qty * ar-invl.cost
+         dEstMargin          = dEstRevenue - dEstCost
+         dEstGM              = (dEstMargin * 100) / dEstRevenue
+         dActRevenue         = dProductionQty * ar-invl.unit-pr
+         dActCost            = dProductionQty * ar-invl.cost
+         dActMargin          = dActRevenue - dActCost
+         dActGM              = (dActMargin * 100) / dActRevenue
+         dMFGTotalVariance   = dActMargin - dEstMargin
+         .
+        
+         
+        
         IF ar-invl.dscr[1] = "M" OR ar-invl.dscr[1] EQ ""  THEN
            v-cst[21]  = v-qty[1] / 1000 * ar-invl.cost.
         ELSE
@@ -458,6 +482,19 @@
               end.
 
               if v-pct le 0 or v-pct eq ? then v-pct = 1.
+              
+              RUN fg/GetProductionQty.p (INPUT cocode, INPUT ar-invl.job-no, INPUT ar-invl.job-no2, INPUT ar-invl.i-no, INPUT NO, OUTPUT dProductionQty).
+              
+              ASSIGN
+                   dEstRevenue         = ar-invl.ship-qty * ar-invl.unit-pr
+                   dEstCost            = ar-invl.ship-qty * ar-invl.cost
+                   dEstMargin          = dEstRevenue - dEstCost
+                   dEstGM              = (dEstMargin * 100) / dEstRevenue
+                   dActRevenue         = dProductionQty * ar-invl.unit-pr
+                   dActCost            = dProductionQty * ar-invl.cost
+                   dActMargin          = dActRevenue - dActCost
+                   dActGM              = (dActMargin * 100) / dActRevenue
+                   dMFGTotalVariance   = dActMargin - dEstMargin.
             end.
 
             ASSIGN
@@ -538,8 +575,15 @@
                           WHEN "ttl-cst"     THEN cVarValue = IF v-cost2 THEN string(v-brdc[5],"->>>,>>9.99") ELSE "" .     
                           WHEN "sal-amt"     THEN cVarValue = string(v-amt[2],"->>>,>>>,>>9.99<<") .
                           WHEN "act-mat-cost" THEN cVarValue = string(decimal(tt-report2.key-06),"->,>>>,>>9.99") .
-                          
-                          
+                          WHEN "EstRevenue"       THEN cVarValue = string(dEstRevenue). 
+                          WHEN "EstCost"          THEN cVarValue = string(dEstCost).
+                          WHEN "EstMargin"        THEN cVarValue = string(dEstMargin).
+                          WHEN "EstGM"            THEN cVarValue = string(dEstGM,"->>>,>>9.99").
+                          WHEN "ActRevenue"       THEN cVarValue = string(dActRevenue).
+                          WHEN "ActCost"          THEN cVarValue = string(dActCost).
+                          WHEN "ActMargin"        THEN cVarValue = string(dActMargin).
+                          WHEN "ActGM"            THEN cVarValue = string(dActGM,"->>>,>>9.99").
+                          WHEN "MFGTotalVariance" THEN cVarValue = string(dMFGTotalVariance).
                      END CASE.
                        
                      cExcelVarValue = cVarValue.
@@ -617,6 +661,7 @@
                           WHEN "ttl-cst"     THEN cVarValue = IF v-cost2 THEN string(v-cst[23],"->>>,>>9.99") ELSE "" .     
                           WHEN "sal-amt"     THEN cVarValue = string(v-amt[3],"->>>,>>>,>>9.99<<") . 
                           WHEN "act-mat-cost" THEN cVarValue = "" .
+                          OTHERWISE cVarValue = "" .
                           
                           
                      END CASE.
@@ -695,7 +740,7 @@
                           WHEN "ttl-cst"     THEN cVarValue = IF v-cost2 THEN string(v-cst[24],"->>>,>>9.99") ELSE "" .     
                           WHEN "sal-amt"     THEN cVarValue = string(v-amt[4],"->>>,>>>,>>9.99<<") . 
                           WHEN "act-mat-cost" THEN cVarValue = "" .
-                          
+                          OTHERWISE cVarValue = "" .
                           
                      END CASE.
                        
@@ -784,7 +829,7 @@
                           WHEN "ttl-cst"     THEN cVarValue = IF v-cost2 THEN string(v-cst[25],"->>>,>>9.99") ELSE "" .     
                           WHEN "sal-amt"     THEN cVarValue = string(v-amt[5],"->>>,>>>,>>9.99<<") .  
                           WHEN "act-mat-cost" THEN cVarValue = "" .
-                          
+                          OTHERWISE cVarValue = "" .
                           
                      END CASE.
                        

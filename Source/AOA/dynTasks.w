@@ -181,12 +181,6 @@ DEFINE BUTTON btnRunResults
      LABEL "Results Grid" 
      SIZE 8 BY 1.91 TOOLTIP "Results Grid".
 
-DEFINE BUTTON btnSave 
-     IMAGE-UP FILE "Graphics/32x32/floppy_disk.png":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/floppy_disk_disabled.png":U NO-FOCUS FLAT-BUTTON
-     LABEL "Save" 
-     SIZE 8 BY 1.91 TOOLTIP "Save".
-
 DEFINE BUTTON btnSaveAs 
      IMAGE-UP FILE "Graphics/32x32/floppy_disks.png":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/floppy_disks_disabled.png":U NO-FOCUS FLAT-BUTTON
@@ -246,7 +240,7 @@ DEFINE RECTANGLE RECT-OPTIONS
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     btnTaskerHTML AT ROW 1.24 COL 53 HELP
+     btnTaskerHTML AT ROW 1.24 COL 49 HELP
           "Tasker HTML Page" WIDGET-ID 680
      btnCSV AT ROW 1.24 COL 93 HELP
           "Excel CSV" WIDGET-ID 140
@@ -270,26 +264,24 @@ DEFINE FRAME F-Main
           "Exit" WIDGET-ID 288
      btnPageFormat AT ROW 1.24 COL 65 HELP
           "Page Format" WIDGET-ID 652
-     btnSave AT ROW 1.24 COL 2 HELP
-          "Save" WIDGET-ID 248
-     btnSaveAs AT ROW 1.24 COL 10 HELP
+     btnSaveAs AT ROW 1.24 COL 2 HELP
           "Save As" WIDGET-ID 674
-     btnScheduleTask AT ROW 1.24 COL 18 HELP
+     btnScheduleTask AT ROW 1.24 COL 10 HELP
           "Schedule Task" WIDGET-ID 252
-     btnFavorite AT ROW 1.24 COL 42 HELP
+     btnFavorite AT ROW 1.24 COL 34 HELP
           "Favorite" WIDGET-ID 672
-     btnDeleteTask AT ROW 1.24 COL 34 HELP
+     btnDeleteTask AT ROW 1.24 COL 26 HELP
           "Delete Task" WIDGET-ID 260
-     btnSubjctAttr AT ROW 1.24 COL 26 HELP
+     btnSubjctAttr AT ROW 1.24 COL 18 HELP
           "Set Subject Attributes" WIDGET-ID 286
-     RECT-1 AT ROW 1.24 COL 51
+     RECT-1 AT ROW 1.24 COL 43
      RECT-OPTIONS AT ROW 1.24 COL 151
      RECT-2 AT ROW 1.24 COL 63 WIDGET-ID 676
      RECT-3 AT ROW 1.24 COL 75 WIDGET-ID 678
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 160 BY 28.62
+         SIZE 200 BY 28.62
          BGCOLOR 21 FGCOLOR 1  WIDGET-ID 100.
 
 
@@ -401,8 +393,6 @@ ASSIGN
        btnRunResults:PRIVATE-DATA IN FRAME F-Main     = 
                 "Grid".
 
-/* SETTINGS FOR BUTTON btnSave IN FRAME F-Main
-   NO-ENABLE                                                            */
 /* SETTINGS FOR BUTTON btnSaveAs IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR BUTTON btnScheduleTask IN FRAME F-Main
@@ -594,18 +584,6 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btnSave
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnSave W-Win
-ON CHOOSE OF btnSave IN FRAME F-Main /* Save */
-DO:
-    RUN pSave IN h_userparam.
-    RUN pSave IN h_usercols.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &Scoped-define SELF-NAME btnSaveAs
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnSaveAs W-Win
 ON CHOOSE OF btnSaveAs IN FRAME F-Main /* Save As */
@@ -681,12 +659,13 @@ END.
 /* ***************************  Main Block  *************************** */
 
 &Scoped-define mFileItems ~
-MENU-ITEM m_Save LABEL "Save" ~
 MENU-ITEM m_SaveAs LABEL "Save As" ~
 MENU-ITEM m_ScheduleTask LABEL "Schedule" ~
 MENU-ITEM m_SubjctAttr LABEL "Attributes" ~
 MENU-ITEM m_DeleteTask LABEL "Delete" ~
 MENU-ITEM m_Favorite LABEL "Favorite" ~
+RULE ~
+MENU-ITEM m_TaskerHTML LABEL "User Tasks Page" ~
 RULE
 
 &Scoped-define mOptionsItems ~
@@ -707,10 +686,6 @@ DEFINE SUB-MENU m_Options ~
     .
 
 &Scoped-define mOptionsTriggers ~
-ON CHOOSE OF MENU-ITEM m_Save ~
-DO: ~
-    APPLY "CHOOSE":U TO btnSave IN FRAME {&FRAME-NAME}. ~
-END. ~
 ON CHOOSE OF MENU-ITEM m_SaveAs ~
 DO: ~
     APPLY "CHOOSE":U TO btnSaveAs IN FRAME {&FRAME-NAME}. ~
@@ -730,6 +705,10 @@ END. ~
 ON CHOOSE OF MENU-ITEM m_Favorite ~
 DO: ~
     APPLY "CHOOSE":U TO btnFavorite IN FRAME {&FRAME-NAME}. ~
+END. ~
+ON CHOOSE OF MENU-ITEM m_TaskerHTML ~
+DO: ~
+    APPLY "CHOOSE":U TO btnTaskerHTML IN FRAME {&FRAME-NAME}. ~
 END. ~
 ON CHOOSE OF MENU-ITEM m_RunResults ~
 DO: ~
@@ -830,7 +809,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_userparam ).
-       RUN set-position IN h_userparam ( 4.91 , 2.00 ) NO-ERROR.
+       RUN set-position IN h_userparam ( 4.91 , 1.00 ) NO-ERROR.
        /* Size in UIB:  ( 24.71 , 158.00 ) */
 
     END. /* Page 2 */
@@ -1160,9 +1139,9 @@ PROCEDURE pSetButtons :
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER iplAvailable    AS LOGICAL   NO-UNDO.
-    DEFINE INPUT PARAMETER ipcUserID       AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER iplFavorite     AS LOGICAL   NO-UNDO.
+    DEFINE INPUT PARAMETER iplAvailable AS LOGICAL   NO-UNDO.
+    DEFINE INPUT PARAMETER ipcUserID    AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER iplFavorite  AS LOGICAL   NO-UNDO.
 
     IF iplAvailable THEN DO:
         RUN enable-folder-page IN h_folder (2).
@@ -1190,7 +1169,6 @@ PROCEDURE pSetButtons :
             iplAvailable              = iplAvailable AND ipcUserID EQ USERID("ASI")
             btnDeleteTask:SENSITIVE   = iplAvailable
             btnFavorite:SENSITIVE     = iplAvailable
-            btnSave:SENSITIVE         = iplAvailable
             btnSubjctAttr:SENSITIVE   = iplAvailable
             MENU-ITEM m_SubjctAttr:SENSITIVE   IN MENU MENU-BAR-{&WINDOW-NAME} = btnSubjctAttr:SENSITIVE
             MENU-ITEM m_CSV:SENSITIVE          IN MENU MENU-BAR-{&WINDOW-NAME} = btnCSV:SENSITIVE
@@ -1203,7 +1181,6 @@ PROCEDURE pSetButtons :
             MENU-ITEM m_PDF:SENSITIVE          IN MENU MENU-BAR-{&WINDOW-NAME} = btnPDF:SENSITIVE
             MENU-ITEM m_Print:SENSITIVE        IN MENU MENU-BAR-{&WINDOW-NAME} = btnPrint:SENSITIVE
             MENU-ITEM m_RunResults:SENSITIVE   IN MENU MENU-BAR-{&WINDOW-NAME} = btnRunResults:SENSITIVE
-            MENU-ITEM m_Save:SENSITIVE         IN MENU MENU-BAR-{&WINDOW-NAME} = btnSave:SENSITIVE
             MENU-ITEM m_SaveAs:SENSITIVE       IN MENU MENU-BAR-{&WINDOW-NAME} = btnSaveAs:SENSITIVE
             MENU-ITEM m_ScheduleTask:SENSITIVE IN MENU MENU-BAR-{&WINDOW-NAME} = btnScheduleTask:SENSITIVE
             MENU-ITEM m_View:SENSITIVE         IN MENU MENU-BAR-{&WINDOW-NAME} = btnView:SENSITIVE
@@ -1243,12 +1220,14 @@ PROCEDURE pTaskerHTML:
     DEFINE VARIABLE cFile AS CHARACTER NO-UNDO.
 
     FIND FIRST config NO-LOCK.
+    IF config.taskerHTMLFolder EQ "" THEN RETURN.
     ASSIGN
         cFile = config.taskerHTMLFolder + "\tasker-" + USERID("ASI") + ".htm"
         cFile = IF SEARCH(cFile) NE ? THEN cFile ELSE REPLACE(cFile,USERID("ASI"),"ALL")
         FILE-INFO:FILE-NAME = SEARCH(cFile)
         cFile = FILE-INFO:FULL-PATHNAME
         .
+    IF SEARCH(cFile) NE ? THEN
     OS-COMMAND NO-WAIT start VALUE(cFile).
 
 END PROCEDURE.
@@ -1269,10 +1248,10 @@ PROCEDURE pWinReSize :
     SESSION:SET-WAIT-STATE("General").
     DO WITH FRAME {&FRAME-NAME}:
         HIDE FRAME {&FRAME-NAME}.
-        IF {&WINDOW-NAME}:HEIGHT LT 33 THEN
+        IF {&WINDOW-NAME}:HEIGHT LT 33  THEN
         {&WINDOW-NAME}:HEIGHT = 33.
-        IF {&WINDOW-NAME}:WIDTH  LT 160   THEN
-        {&WINDOW-NAME}:WIDTH  = 160.
+        IF {&WINDOW-NAME}:WIDTH  LT 200 THEN
+        {&WINDOW-NAME}:WIDTH  = 200.
         ASSIGN
             FRAME {&FRAME-NAME}:VIRTUAL-HEIGHT = {&WINDOW-NAME}:HEIGHT
             FRAME {&FRAME-NAME}:VIRTUAL-WIDTH  = {&WINDOW-NAME}:WIDTH

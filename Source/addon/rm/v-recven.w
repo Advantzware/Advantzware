@@ -29,6 +29,7 @@ CREATE WIDGET-POOL.
 {custom/gloc.i}
 
 {sys/inc/var.i NEW SHARED} 
+{Inventory/ttInventory.i "NEW SHARED"}
 
 ASSIGN
  cocode = g_company
@@ -168,6 +169,10 @@ RUN sys/ref/nk1look.p (
     OUTPUT lRecFound
     ).    
 DEFINE VARIABLE lSSScanVendorLength AS LOGICAL NO-UNDO .
+DEFINE VARIABLE hdInventoryProcs AS HANDLE NO-UNDO.
+DEFINE VARIABLE iWarehouseLength AS INTEGER NO-UNDO.
+
+RUN inventory/InventoryProcs.p PERSISTENT SET hdInventoryProcs.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1420,11 +1425,14 @@ PROCEDURE process-tag-proc :
    
    IF NOT checkWhsBin(cocode,w-po.loc,w-po.loc-bin) THEN
    DO:
-
+     RUN Inventory_GetWarehouseLength IN hdInventoryProcs (
+          INPUT  cocode,
+          OUTPUT iWarehouseLength
+          ).
      IF v-bin NE 'RMITEM' THEN
         ASSIGN
-           w-po.loc = SUBSTR(v-bin,1,5)
-           w-po.loc-bin = SUBSTR(v-bin,6).
+           w-po.loc = SUBSTR(v-bin,1,iWarehouseLength)
+           w-po.loc-bin = SUBSTR(v-bin,iWarehouseLength + 1).
 
      IF NOT checkWhsBin(cocode,w-po.loc,w-po.loc-bin) THEN
      DO:

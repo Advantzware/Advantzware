@@ -66,17 +66,17 @@ DEFINE QUERY external_tables FOR style.
 style.royalty style.dim-gl style.dim-tk style.dim-dkl style.dim-dkw ~
 style.dim-pan5 style.dim-fit style.material[1] style.material[2] ~
 style.material[3] style.material[4] style.material[5] style.material[6] ~
-style.material[7] style.qty-per-set style.m-code[1] style.m-code[2] ~
-style.m-code[3] style.m-code[4] style.m-code[5] style.m-code[6] ~
-style.m-code[7] style.formula[9] style.formula[10] style.formula[11] ~
-style.formula[12] style.formula[1] style.formula[2] style.formula[3] ~
-style.formula[4] style.formula[5] style.formula[6] style.formula[7] ~
-style.formula[8] style.use-w[2] style.use-w[3] style.use-w[4] ~
-style.use-w[5] style.use-w[6] style.use-w[7] style.use-w[8] style.use-w[9] ~
-style.use-w[10] style.use-w[11] style.use-w[12] style.use-w[13] ~
-style.use-l[2] style.use-l[3] style.use-l[4] style.use-l[5] style.use-l[6] ~
-style.use-l[7] style.use-l[8] style.use-l[9] style.use-l[10] ~
-style.use-l[11] style.use-l[12] style.use-l[13] style.spare-char-5 
+style.material[7] style.qty-per-set style.spare-char-5 style.m-code[1] ~
+style.m-code[2] style.m-code[3] style.m-code[4] style.m-code[5] ~
+style.m-code[6] style.m-code[7] style.formula[9] style.formula[10] ~
+style.formula[11] style.formula[12] style.formula[1] style.formula[2] ~
+style.formula[3] style.formula[4] style.formula[5] style.formula[6] ~
+style.formula[7] style.formula[8] style.use-w[2] style.use-w[3] ~
+style.use-w[4] style.use-w[5] style.use-w[6] style.use-w[7] style.use-w[8] ~
+style.use-w[9] style.use-w[10] style.use-w[11] style.use-w[12] ~
+style.use-w[13] style.use-l[2] style.use-l[3] style.use-l[4] style.use-l[5] ~
+style.use-l[6] style.use-l[7] style.use-l[8] style.use-l[9] style.use-l[10] ~
+style.use-l[11] style.use-l[12] style.use-l[13] 
 &Scoped-define ENABLED-TABLES style
 &Scoped-define FIRST-ENABLED-TABLE style
 &Scoped-Define ENABLED-OBJECTS RECT-1 RECT-10 RECT-11 RECT-7 RECT-8 RECT-9 
@@ -84,19 +84,19 @@ style.use-l[11] style.use-l[12] style.use-l[13] style.spare-char-5
 style.design-no style.royalty style.dim-gl style.dim-tk style.dim-dkl ~
 style.dim-dkw style.dim-pan5 style.dim-fit style.material[1] ~
 style.material[2] style.material[3] style.material[4] style.material[5] ~
-style.material[6] style.material[7] style.qty-per-set style.m-code[1] ~
-style.m-dscr[1] style.m-code[2] style.m-dscr[2] style.m-code[3] ~
-style.m-dscr[3] style.m-code[4] style.m-dscr[4] style.m-code[5] ~
-style.m-dscr[5] style.m-code[6] style.m-dscr[6] style.m-code[7] ~
-style.m-dscr[7] style.formula[9] style.formula[10] style.formula[11] ~
-style.formula[12] style.formula[1] style.formula[2] style.formula[3] ~
-style.formula[4] style.formula[5] style.formula[6] style.formula[7] ~
-style.formula[8] style.use-w[2] style.use-w[3] style.use-w[4] ~
-style.use-w[5] style.use-w[6] style.use-w[7] style.use-w[8] style.use-w[9] ~
-style.use-w[10] style.use-w[11] style.use-w[12] style.use-w[13] ~
-style.use-l[2] style.use-l[3] style.use-l[4] style.use-l[5] style.use-l[6] ~
-style.use-l[7] style.use-l[8] style.use-l[9] style.use-l[10] ~
-style.use-l[11] style.use-l[12] style.use-l[13] style.spare-char-5 
+style.material[6] style.material[7] style.qty-per-set style.spare-char-5 ~
+style.m-code[1] style.m-dscr[1] style.m-code[2] style.m-dscr[2] ~
+style.m-code[3] style.m-dscr[3] style.m-code[4] style.m-dscr[4] ~
+style.m-code[5] style.m-dscr[5] style.m-code[6] style.m-dscr[6] ~
+style.m-code[7] style.m-dscr[7] style.formula[9] style.formula[10] ~
+style.formula[11] style.formula[12] style.formula[1] style.formula[2] ~
+style.formula[3] style.formula[4] style.formula[5] style.formula[6] ~
+style.formula[7] style.formula[8] style.use-w[2] style.use-w[3] ~
+style.use-w[4] style.use-w[5] style.use-w[6] style.use-w[7] style.use-w[8] ~
+style.use-w[9] style.use-w[10] style.use-w[11] style.use-w[12] ~
+style.use-w[13] style.use-l[2] style.use-l[3] style.use-l[4] style.use-l[5] ~
+style.use-l[6] style.use-l[7] style.use-l[8] style.use-l[9] style.use-l[10] ~
+style.use-l[11] style.use-l[12] style.use-l[13] 
 &Scoped-define DISPLAYED-TABLES style
 &Scoped-define FIRST-DISPLAYED-TABLE style
 
@@ -211,45 +211,51 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 11.6 BY 1
           BGCOLOR 15 FONT 4
-     style.material[1] AT ROW 3.14 COL 66 COLON-ALIGNED
+     style.material[1] AT ROW 3.14 COL 65 COLON-ALIGNED
           LABEL "Board"
           VIEW-AS FILL-IN 
-          SIZE 14 BY 1
+          SIZE 16 BY 1
           BGCOLOR 15 FONT 4
-     style.material[2] AT ROW 4.14 COL 66 COLON-ALIGNED
+     style.material[2] AT ROW 4.14 COL 65 COLON-ALIGNED
           LABEL "Ink"
           VIEW-AS FILL-IN 
-          SIZE 14 BY 1
+          SIZE 16 BY 1
           BGCOLOR 15 FONT 4
-     style.material[3] AT ROW 5.14 COL 66 COLON-ALIGNED
+     style.material[3] AT ROW 5.14 COL 65 COLON-ALIGNED
           LABEL "Ink Cov %"
           VIEW-AS FILL-IN 
-          SIZE 14 BY 1
+          SIZE 16 BY 1
           BGCOLOR 15 FONT 4
-     style.material[4] AT ROW 6.14 COL 66 COLON-ALIGNED
+     style.material[4] AT ROW 6.14 COL 65 COLON-ALIGNED
           LABEL "Film"
           VIEW-AS FILL-IN 
-          SIZE 14 BY 1
+          SIZE 16 BY 1
           BGCOLOR 15 FONT 4
-     style.material[5] AT ROW 7.14 COL 66 COLON-ALIGNED
+     style.material[5] AT ROW 7.14 COL 65 COLON-ALIGNED
           LABEL "Leaf"
           VIEW-AS FILL-IN 
-          SIZE 14 BY 1
+          SIZE 16 BY 1
           BGCOLOR 15 FONT 4
-     style.material[6] AT ROW 8.14 COL 66 COLON-ALIGNED
+     style.material[6] AT ROW 8.14 COL 65 COLON-ALIGNED
           LABEL "Coating"
           VIEW-AS FILL-IN 
-          SIZE 14 BY 1
+          SIZE 16 BY 1
           BGCOLOR 15 FONT 4
-     style.material[7] AT ROW 9.1 COL 66 COLON-ALIGNED
+     style.material[7] AT ROW 9.1 COL 65 COLON-ALIGNED
           LABEL "Adhesive"
           VIEW-AS FILL-IN 
-          SIZE 14 BY 1
+          SIZE 16 BY 1
           BGCOLOR 15 FONT 4
-     style.qty-per-set AT ROW 10.05 COL 66 COLON-ALIGNED
+     style.qty-per-set AT ROW 10.05 COL 65 COLON-ALIGNED
           LABEL "Qty/Set"
           VIEW-AS FILL-IN 
-          SIZE 14 BY 1
+          SIZE 16 BY 1
+          BGCOLOR 15 
+     style.spare-char-5 AT ROW 11 COL 65 COLON-ALIGNED WIDGET-ID 2
+          LABEL "Pack Code"
+          FORMAT "X(10)"
+          VIEW-AS FILL-IN 			
+          SIZE 16 BY 1
           BGCOLOR 15 
      style.m-code[1] AT ROW 10.62 COL 5.2 COLON-ALIGNED
           LABEL "1"
@@ -260,11 +266,6 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 30 BY 1
           BGCOLOR 15 FONT 4
-     style.m-code[2] AT ROW 11.57 COL 5.2 COLON-ALIGNED
-          LABEL "2"
-          VIEW-AS FILL-IN 
-          SIZE 14 BY 1
-          BGCOLOR 15 FONT 4
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -272,6 +273,11 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
+     style.m-code[2] AT ROW 11.57 COL 5.2 COLON-ALIGNED
+          LABEL "2"
+          VIEW-AS FILL-IN 
+          SIZE 14 BY 1
+          BGCOLOR 15 FONT 4
      style.m-dscr[2] AT ROW 11.62 COL 19.2 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 30 BY 1
@@ -361,11 +367,6 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 32 BY 1
           BGCOLOR 15 FONT 4
-     style.formula[5] AT ROW 11.67 COL 106.4 COLON-ALIGNED
-          LABEL "#3     Stagger Wid"
-          VIEW-AS FILL-IN 
-          SIZE 32 BY 1
-          BGCOLOR 15 FONT 4
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -373,6 +374,11 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
+     style.formula[5] AT ROW 11.67 COL 106.4 COLON-ALIGNED
+          LABEL "#3     Stagger Wid"
+          VIEW-AS FILL-IN 
+          SIZE 32 BY 1
+          BGCOLOR 15 FONT 4
      style.formula[6] AT ROW 12.62 COL 106.4 COLON-ALIGNED
           LABEL "Len"
           VIEW-AS FILL-IN 
@@ -454,6 +460,13 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 3.2 BY 1
           BGCOLOR 15 FONT 4
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1 SCROLLABLE 
+         FONT 6.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME F-Main
      style.use-l[6] AT ROW 17.81 COL 108 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 3.2 BY 1
@@ -462,13 +475,6 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 3.2 BY 1
           BGCOLOR 15 FONT 4
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE 
-         FONT 6.
-
-/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
-DEFINE FRAME F-Main
      style.use-l[8] AT ROW 17.81 COL 116 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 3.2 BY 1
@@ -493,34 +499,9 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 3.2 BY 1
           BGCOLOR 15 FONT 4
-     style.spare-char-5 AT ROW 11 COL 66 COLON-ALIGNED WIDGET-ID 2
-          LABEL "Pack Code"
-          VIEW-AS FILL-IN 
-          SIZE 14 BY 1
-          BGCOLOR 15 
-     "  Default Dimensions" VIEW-AS TEXT 
+     "  Default Dimensions" VIEW-AS TEXT
           SIZE 24 BY .62 AT ROW 2.43 COL 15
           FGCOLOR 9 
-     "  Die && Rule Formulas" VIEW-AS TEXT
-          SIZE 25 BY .62 AT ROW 2.43 COL 104
-          FGCOLOR 9 
-     "  Layout Formulas" VIEW-AS TEXT
-          SIZE 21 BY .62 AT ROW 7.17 COL 103.4
-          FGCOLOR 9 
-     "  Default Machine Routing" VIEW-AS TEXT
-          SIZE 30 BY .62 AT ROW 9.91 COL 14
-          FGCOLOR 9 
-     "  Default Material Codes" VIEW-AS TEXT
-          SIZE 28 BY .70 AT ROW 2.43 COL 55
-          FGCOLOR 9 
-     "6" VIEW-AS TEXT
-          SIZE 3 BY .62 AT ROW 15.91 COL 111
-     "3" VIEW-AS TEXT
-          SIZE 3 BY .62 AT ROW 15.91 COL 99
-     "# On Len" VIEW-AS TEXT
-          SIZE 12 BY .62 AT ROW 18 COL 71.6
-     "# On Wid" VIEW-AS TEXT
-          SIZE 10.8 BY .62 AT ROW 16.86 COL 71.8
      "9" VIEW-AS TEXT
           SIZE 3 BY .62 AT ROW 15.91 COL 123
      "5" VIEW-AS TEXT
@@ -541,6 +522,26 @@ DEFINE FRAME F-Main
           SIZE 3 BY .62 AT ROW 15.91 COL 130
      "10" VIEW-AS TEXT
           SIZE 3 BY .62 AT ROW 15.91 COL 126
+     "  Die && Rule Formulas" VIEW-AS TEXT
+          SIZE 25 BY .62 AT ROW 2.43 COL 104
+          FGCOLOR 9 
+     "  Layout Formulas" VIEW-AS TEXT
+          SIZE 21 BY .62 AT ROW 7.19 COL 103.4
+          FGCOLOR 9 
+     "  Default Machine Routing" VIEW-AS TEXT
+          SIZE 30 BY .62 AT ROW 9.91 COL 14
+          FGCOLOR 9 
+     "  Default Material Codes" VIEW-AS TEXT
+          SIZE 28 BY .71 AT ROW 2.43 COL 55
+          FGCOLOR 9 
+     "6" VIEW-AS TEXT
+          SIZE 3 BY .62 AT ROW 15.91 COL 111
+     "3" VIEW-AS TEXT
+          SIZE 3 BY .62 AT ROW 15.91 COL 99
+     "# On Len" VIEW-AS TEXT
+          SIZE 12 BY .62 AT ROW 18 COL 71.6
+     "# On Wid" VIEW-AS TEXT
+          SIZE 10.8 BY .62 AT ROW 16.86 COL 71.8
      RECT-1 AT ROW 1.1 COL 2
      RECT-10 AT ROW 7.38 COL 85
      RECT-11 AT ROW 2.67 COL 85

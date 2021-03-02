@@ -957,9 +957,8 @@ def var tot-act  like tot-all NO-UNDO.
 def var open-amt like tot-all NO-UNDO.
 def var pri-amt  like tot-all NO-UNDO.
 def var net-inc  as DEC NO-UNDO.
-def var tmp-amt like gltrans.tr-amt NO-UNDO.
+def var tmp-amt like glhist.tr-amt NO-UNDO.
 def var tmp-dscr AS CHAR FORMAT "X(54)" NO-UNDO.
-def buffer xgltrans for gltrans.
 def buffer xglhist for glhist.
 def buffer xperiod for period.
 def var str-tit4 as char no-undo.
@@ -973,8 +972,8 @@ def var v-answer as LOG NO-UNDO.
 DEF VAR li-dscr AS INT NO-UNDO.
 DEF VAR ld-per-start AS DATE NO-UNDO.
 
-DEF VAR tacct LIKE gltrans.actnum  LABEL "    To Account Number" NO-UNDO.
-DEF VAR facct LIKE gltrans.actnum  LABEL "  From Account Number" NO-UNDO.
+DEF VAR tacct LIKE glhist.actnum  LABEL "    To Account Number" NO-UNDO.
+DEF VAR facct LIKE glhist.actnum  LABEL "  From Account Number" NO-UNDO.
 DEF VAR op AS CHAR FORMAT "x" INITIAL "S" LABEL "  S)ummary or D)etail?" NO-UNDO.
 DEF VAR excelheader AS CHAR NO-UNDO.
 DEF VAR acct-hdr-printed AS LOG NO-UNDO.
@@ -1058,15 +1057,7 @@ SESSION:SET-WAIT-STATE ("general").
         open-amt = open-amt + glhist.tr-amt.
       END.
 
-      FOR EACH gltrans fields(tr-amt) NO-LOCK
-          WHERE gltrans.company EQ account.company
-            AND gltrans.actnum  EQ account.actnum
-            AND gltrans.tr-date >= ld-per-start
-            AND gltrans.tr-date < v-s-date
-            AND (gltrans.jrnl   NE "AUTODIST" OR NOT tb_exc-auto):
-        open-amt = open-amt + gltrans.tr-amt.
-      END.
-
+      
       display string(account.actnum) + "  " + account.dscr format "x(75)" @
               account.actnum
               open-amt with frame r-cmon.
@@ -1130,61 +1121,7 @@ SESSION:SET-WAIT-STATE ("general").
             tot-tx   = tot-tx   + glhist.tr-amt
             tot-act  = tot-act  + glhist.tr-amt.
       end.
-      FOR EACH gltrans NO-LOCK
-          WHERE gltrans.company EQ account.company
-            AND gltrans.actnum  EQ account.actnum and
-                                        gltrans.tr-date >= v-s-date and
-                                        gltrans.tr-date <= v-e-date and
-                                        (gltrans.jrnl NE "AUTODIST" or
-                                         NOT tb_exc-auto)
-        break by gltrans.tr-date by gltrans.jrnl by gltrans.trnum:
-
-            {custom/statusMsg.i " 'Processing Run #  '  + string(gltrans.trnum) "}
-
-        tmp-dscr = "".
-        IF gltrans.jrnl = "ACPAY" AND tb_desc THEN DO:
-            RUN GetTransDesc(INPUT gltrans.tr-dscr,
-                             INPUT gltrans.tr-amt,
-                             OUTPUT tmp-dscr).
-        END.
-        IF tmp-dscr EQ "" THEN
-            assign tmp-dscr = trim(gltrans.tr-dscr).
-
-         IF gltrans.jrnl EQ "MCSHREC" THEN DO:
-           RELEASE ar-mcash.
-           li-dscr = INT(tmp-dscr) NO-ERROR.
-           IF NOT ERROR-STATUS:ERROR THEN
-           FIND FIRST ar-mcash WHERE ar-mcash.m-no EQ li-dscr NO-LOCK NO-ERROR.
-           IF AVAIL ar-mcash THEN tmp-dscr = ar-mcash.payer + " Rec# " + tmp-dscr.
-         END.
-
-         put space(19)
-             gltrans.trnum format "9999999" space(1)
-             gltrans.jrnl space(1)
-             tmp-dscr FORMAT "X(52)"
-             gltrans.tr-date FORMAT "99/99/99" SPACE(1)
-             gltrans.tr-amt FORMAT "(>>,>>>,>>9.99)" skip.
-
-         IF tb_excel THEN
-         DO:
-            IF NOT acct-hdr-printed THEN
-            DO:
-               acct-hdr-printed = YES.
-               RUN excel-acct-proc(INPUT open-amt).
-            END.
-
-            RUN excel-det-proc(INPUT tmp-dscr,
-                               INPUT gltrans.trnum,
-                               INPUT gltrans.jrnl,
-                               INPUT gltrans.tr-date,
-                               INPUT gltrans.tr-amt).
-         END.
-
-         ASSIGN
-            tot-all  = tot-all  + gltrans.tr-amt
-            tot-tx   = tot-tx   + gltrans.tr-amt
-            tot-act  = tot-act  + gltrans.tr-amt.
-      end.
+      
     end.
     else
     do:
@@ -1276,96 +1213,8 @@ SESSION:SET-WAIT-STATE ("general").
            tot-all  = tot-all  + glhist.tr-amt
            tot-tx   = tot-tx   + glhist.tr-amt
            tot-act  = tot-act  + glhist.tr-amt.
-      end. /* each glhist */
-
-      FOR EACH gltrans NO-LOCK
-          WHERE gltrans.company EQ account.company
-            AND gltrans.actnum  EQ account.actnum and
-                                        gltrans.tr-date >= v-s-date and
-                                        gltrans.tr-date <= v-e-date and
-                                        (gltrans.jrnl NE "AUTODIST" or
-                                         NOT tb_exc-auto)
-      break by gltrans.tr-date by gltrans.jrnl by gltrans.trnum:
-
-           {custom/statusMsg.i " 'Processing Run #  '  + string(gltrans.trnum) "}
-
-        if line-counter > page-size - 2 then page.
-        if last-of(gltrans.trnum) then
-        do:
-        assign tmp-amt = 0.
-        for each xgltrans FIELDS(tr-amt)
-            where xgltrans.company = cocode and
-                                xgltrans.actnum = gltrans.actnum and
-                                xgltrans.period = gltrans.period and
-                                xgltrans.tr-date = gltrans.tr-date and
-                                xgltrans.trnum = gltrans.trnum and
-                                xgltrans.jrnl = gltrans.jrnl no-lock:
-
-          assign tmp-amt = tmp-amt + xgltrans.tr-amt.
-        end.
-
-        if gltrans.jrnl = "CASHR" then
-          assign tmp-dscr = "CASH RECEIPTS                           ".
-        else if gltrans.jrnl = "APCKR" then
-          assign tmp-dscr = "ACCOUNTS PAYABLE CHECK REGISTER         ".
-        else if gltrans.jrnl = "GENERAL" then
-          assign tmp-dscr = "GENERAL                                 ".
-        else if gltrans.jrnl = "OEINV" then
-          assign tmp-dscr = "ORDER ENTRY INVOICE                     ".
-        else if gltrans.jrnl = "ARINV" then
-          assign tmp-dscr = "ACCOUNTS RECEIVABLE INVOICE             ".
-        else if gltrans.jrnl = "MCSHREC" then
-          assign tmp-dscr = "MISC CASH RECEIPTS                      ".
-        else if gltrans.jrnl = "CDISB" then
-          assign tmp-dscr = "CASH DISBURSEMENT                       ".
-        else if gltrans.jrnl = "APMEM" then
-          assign tmp-dscr = "ACCOUNTS PAYABLE MEMO                   ".
-        else if gltrans.jrnl = "CRMEM" then
-          assign tmp-dscr = "CREDIT MEMO                             ".
-        else if gltrans.jrnl = "ACPAY" THEN DO:
-            RUN GetTransDesc(INPUT gltrans.tr-dscr,
-                             INPUT gltrans.tr-amt,
-                             OUTPUT tmp-dscr).
-            IF tmp-dscr EQ "" THEN
-                assign tmp-dscr = "ACCOUNTS PAYABLE                        ".
-        END.
-        else if gltrans.jrnl = "APVOIDCK" then
-          assign tmp-dscr = "ACCOUNTS PAYABLE VOID CHECK             ".
-        else if gltrans.jrnl = "ADJUST" then
-          assign tmp-dscr = "ADJUSTMENT                              ".
-        else if gltrans.jrnl = "AUTODIST" then
-          assign tmp-dscr = "AUTOMATIC DISTRIBUTION                  ".
-        else
-          assign tmp-dscr = "                                        ".
-
-        put space(19)
-            gltrans.trnum format "9999999" space(1)
-            gltrans.jrnl space(1)
-            tmp-dscr FORMAT "X(52)"
-            gltrans.tr-date FORMAT "99/99/99" SPACE(1)
-            tmp-amt FORMAT "(>>,>>>,>>9.99)" skip.
-
-        IF tb_excel THEN
-        DO:
-           IF NOT acct-hdr-printed THEN
-              DO:
-                 acct-hdr-printed = YES.
-                 RUN excel-acct-proc(INPUT open-amt).
-              END.
-
-           RUN excel-det-proc(INPUT tmp-dscr,
-                              INPUT gltrans.trnum,
-                              INPUT gltrans.jrnl,
-                              INPUT gltrans.tr-date,
-                              INPUT tmp-amt).
-        END.
-        end.
-
-         ASSIGN
-            tot-all  = tot-all  + gltrans.tr-amt
-            tot-tx   = tot-tx   + gltrans.tr-amt
-            tot-act  = tot-act  + gltrans.tr-amt.
-      end. /* each gltrans */
+      end. /* each glhist */ 
+      
     end.
 
     IF tb_excel AND NOT acct-hdr-printed AND open-amt NE 0 THEN

@@ -1,0 +1,16 @@
+{
+  "sending_location_id": "$LocationID$",
+  "estimated_time_of_arrival": "$EstimatedTimeOfArrival|YYYY-MM-DDThh:mm:ssZ|DATE|$",
+  "pro_number": "$BOLID$",
+  "scac": "$CarrierName$",
+  "trailer_id": "$TrailerID$",
+  "non_retail_store_shipments": [
+    {
+      "receiving_location_id": "$ShipID$",
+      "in_store_date": "$InStoreDate|YYYY-MM-DDThh:mm:ssZ|DATE|$",
+      "detached_container_count": $TotalPallets$,
+      "total_pallet_count": $TotalPallets$,
+      "total_weight": $TotalWeight$
+    }
+  ]
+}

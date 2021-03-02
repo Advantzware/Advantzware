@@ -257,8 +257,21 @@ IF ERROR-STATUS:ERROR OR NOT oplSuccess THEN DO:
 END.
     
 /* Put Response Data from Temporary file into a variable */
-COPY-LOB FILE gcResponseFile TO glcResponseData.
+COPY-LOB FILE gcResponseFile TO glcResponseData NO-ERROR.
 
+IF ERROR-STATUS:ERROR THEN DO:
+    ASSIGN
+        oplSuccess = FALSE
+        opcMessage = "Error reading the response"
+        .
+
+    /* delete temporary files */
+    OS-DELETE VALUE(gcRequestFile).
+    OS-DELETE VALUE(gcResponseFile).
+        
+    RETURN.
+END.
+    
 oplcResponseData = glcResponseData.
 
 /* Read Response  */

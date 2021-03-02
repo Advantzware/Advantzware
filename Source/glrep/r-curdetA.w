@@ -832,10 +832,10 @@ PROCEDURE run-report :
 
 {sys/form/r-topw.f}
 
-def buffer xgltrans for gltrans.
+def buffer xglhist for glhist.
 
-def var tacct like gltrans.actnum  label "    To Account Number".
-def var facct like gltrans.actnum  label "  From Account Number".
+def var tacct like glhist.actnum  label "    To Account Number".
+def var facct like glhist.actnum  label "  From Account Number".
 def var op as char format "!" init "S" label "  S)ummary or D)etail?".
 def var inc as log init no label "  Print Accounts with NO Activity?".
 
@@ -847,8 +847,8 @@ def var tot-tx   like tot-all.
 def var tot-act  like tot-all.
 def var open-amt like tot-all.
 def var net-inc  as   dec.
-def var tmp-amt  like gltrans.tr-amt FORMAT "(>>>,>>>,>>9.99)".
-def var tmp-dscr like gltrans.tr-dscr.
+def var tmp-amt  like glhist.tr-amt FORMAT "(>>>,>>>,>>9.99)".
+def var tmp-dscr like glhist.tr-dscr.
 def var v-crdit  like tmp-amt extent 3.
 def var v-debit  like v-crdit.
 def var str-tit4 as   char no-undo.
@@ -931,83 +931,85 @@ END.
     run gl/gl-open1.p (recid(account), vyear, tran-date, tran-period,
                        output open-amt).
 
-    find first gltrans no-lock
-        where gltrans.company eq cocode
-          and gltrans.actnum  eq account.actnum
-          and gltrans.period  eq tran-period
+    find first glhist no-lock
+        where glhist.company eq cocode
+          and glhist.actnum  eq account.actnum
+          and glhist.period  eq tran-period
+          AND glhist.posted  EQ NO
         no-error.
 
-    if avail gltrans or inc then do:
+    if avail glhist or inc then do:
       if line-counter gt page-size - 2 then page.
       display string(account.actnum) + "  " + account.dscr format "x(75)" @
               account.actnum open-amt with frame r-cmon.
       down with frame r-cmon.
-      if not avail gltrans then put skip(1).
+      if not avail glhist then put skip(1).
     end.
 
     /* gdm - 10010905 */
     ASSIGN v-runbal = open-amt.
 
-    for each gltrans no-lock
-        where gltrans.company eq cocode
-          and gltrans.actnum  eq account.actnum
-          and gltrans.period  eq tran-period
-        break by gltrans.trnum
-              by gltrans.tr-date
-              by gltrans.jrnl:
+    for each glhist no-lock
+        where glhist.company eq cocode
+          and glhist.actnum  eq account.actnum
+          and glhist.period  eq tran-period
+          AND glhist.posted  EQ NO
+        break by glhist.tr-num
+              by glhist.tr-date
+              by glhist.jrnl:
 
-      if gltrans.tr-amt ge 0 then
+      if glhist.tr-amt ge 0 then
         assign
-         v-debit[1] = v-debit[1] + gltrans.tr-amt
+         v-debit[1] = v-debit[1] + glhist.tr-amt
          v-crdit[1] = v-crdit[1] + 0.
       else
         assign
-         v-crdit[1] = v-crdit[1] + gltrans.tr-amt
+         v-crdit[1] = v-crdit[1] + glhist.tr-amt
          v-debit[1] = v-debit[1] + 0.
 
       /* gdm - 10010905 */
       ASSIGN v-runbal = v-runbal + v-crdit[1] + v-debit[1].
 
-      if last-of(gltrans.trnum) or op eq "D" then do:
+      if last-of(glhist.tr-num) or op eq "D" then do:
         if line-counter gt page-size - 2 then page.
 
         ASSIGN
-        tmp-dscr = if op eq "D" then gltrans.tr-dscr                   else
-                   if gltrans.jrnl eq "CASHR"                          then
+        tmp-dscr = if op eq "D" then glhist.tr-dscr                   else
+                   if glhist.jrnl eq "CASHR"                          then
                      "CASH RECEIPTS"                                   else
-                   if gltrans.jrnl eq "APCKR"                          then
+                   if glhist.jrnl eq "APCKR"                          then
                      "ACCOUNTS PAYABLE CHECK REGISTER"                 else
-                   if gltrans.jrnl eq "GENERAL"                        then
+                   if glhist.jrnl eq "GENERAL"                        then
                      "GENERAL"                                         else
-                   if gltrans.jrnl eq "ARINV"                          then
+                   if glhist.jrnl eq "ARINV"                          then
                      "ACCOUNTS RECEIVABLE INVOICE"                     else
-                   if gltrans.jrnl eq "MCSHREC"                        then
+                   if glhist.jrnl eq "MCSHREC"                        then
                      "MISC CASH RECEIPTS"                              else
-                   if gltrans.jrnl eq "CDISB"                          then
+                   if glhist.jrnl eq "CDISB"                          then
                      "CASH DISBURSEMENT"                               else
                      ""
 
-        tmp-dscr = if op eq "D" then gltrans.tr-dscr                   else
+        tmp-dscr = if op eq "D" then glhist.tr-dscr                   else
                    if tmp-dscr ne "" then tmp-dscr                     else
-                   if gltrans.jrnl eq "APMEM"                          then
+                   if glhist.jrnl eq "APMEM"                          then
                      "ACCOUNTS PAYABLE MEMO"                           else
-                   if gltrans.jrnl eq "CRMEM"                          then
+                   if glhist.jrnl eq "CRMEM"                          then
                      "CREDIT MEMO"                                     else
-                   if gltrans.jrnl eq "DBMEM"                          then
+                   if glhist.jrnl eq "DBMEM"                          then
                      "DEBIT MEMO"                                      else
-                   if gltrans.jrnl eq "ACPAY"                          then
+                   if glhist.jrnl eq "ACPAY"                          then
                      "ACCOUNTS PAYABLE"                                else
-                   if gltrans.jrnl eq "APVOIDCK"                       then
+                   if glhist.jrnl eq "APVOIDCK"                       then
                      "ACCOUNTS PAYABLE VOID CHECK"                     else
-                   if gltrans.jrnl eq "OEINV"                          then
+                   if glhist.jrnl eq "OEINV"                          then
                      "ORDER ENTRY INVOICE"                             else
-                   if gltrans.jrnl eq "JCOST"                          then
+                   if glhist.jrnl eq "JCOST"                          then
                      "PRODUCTION JOB COSTING"                          else
                      ""
 
-        tmp-dscr = if op eq "D" then gltrans.tr-dscr                   else
+        tmp-dscr = if op eq "D" then glhist.tr-dscr                   else
                    if tmp-dscr ne "" then tmp-dscr                     else
-                   if gltrans.jrnl eq "ADJUST"                         then
+                   if glhist.jrnl eq "ADJUST"                         then
                      "ADJUSTMENT"                                      else
                      "".
 
@@ -1016,15 +1018,15 @@ END.
           PUT STREAM str-exl UNFORMATTED 
               STRING(account.actnum)  ","  
               REPLACE(account.dscr, "," ," ")  ",,"               
-              gltrans.trnum ",".
+              glhist.tr-num ",".
 
           IF op EQ "D" 
-            THEN PUT STREAM str-exl UNFORMATTED  gltrans.jrnl ",".
+            THEN PUT STREAM str-exl UNFORMATTED  glhist.jrnl ",".
             ELSE PUT STREAM str-exl UNFORMATTED  " " ",".
 
           PUT STREAM str-exl UNFORMATTED 
               REPLACE(TRIM(tmp-dscr),","," ") ","
-              STRING(gltrans.tr-date,"99/99/9999") ",".
+              STRING(glhist.tr-date,"99/99/9999") ",".
 
           IF v-debit[1] NE 0
             THEN PUT STREAM str-exl UNFORMATTED v-debit[1] ",".
@@ -1041,19 +1043,19 @@ END.
         END.
         /* gdm - 10010905 */
 
-        if op eq "D" and gltrans.jrnl eq "GENERAL" and
+        if op eq "D" and glhist.jrnl eq "GENERAL" and
            length(tmp-dscr) ge 11 then
         do:   
-          if op eq "D" and gltrans.jrnl eq "GENERAL" and
+          if op eq "D" and glhist.jrnl eq "GENERAL" and
              substring(tmp-dscr,(length(tmp-dscr) - 10),4) eq "JRN#" then
           do:
             display space(11)
                     substring(tmp-dscr,(length(tmp-dscr) - 6),length(tmp-dscr))
                                     format "x(7)"
-                    gltrans.trnum   format "9999999"
-                    gltrans.jrnl    when op eq "D"
+                    glhist.tr-num   format "9999999"
+                    glhist.jrnl    when op eq "D"
                     substring(tmp-dscr,1,length(tmp-dscr) - 11) format "x(35)"
-                    gltrans.tr-date format "99/99/99"
+                    glhist.tr-date format "99/99/99"
                     v-debit[1]      when v-debit[1] ne 0
                     v-crdit[1]      when v-crdit[1] ne 0
                 with no-box stream-io width 200 no-attr-space no-labels frame f1.
@@ -1062,10 +1064,10 @@ END.
           else                          
           do:
             display space(19)
-                    gltrans.trnum   format "9999999"
-                    gltrans.jrnl    when op eq "D"
+                    glhist.tr-num   format "9999999"
+                    glhist.jrnl    when op eq "D"
                     tmp-dscr        format "x(35)"
-                    gltrans.tr-date format "99/99/99"
+                    glhist.tr-date format "99/99/99"
                     v-debit[1]      when v-debit[1] ne 0
                     v-crdit[1]      when v-crdit[1] ne 0
                 with no-box stream-io width 200 no-attr-space no-labels frame f2.
@@ -1075,10 +1077,10 @@ END.
         else                          
         do:
           display space(19)
-                  gltrans.trnum   format "9999999"
-                  gltrans.jrnl    when op eq "D"
+                  glhist.tr-num   format "9999999"
+                  glhist.jrnl    when op eq "D"
                   tmp-dscr        format "x(35)"
-                  gltrans.tr-date format "99/99/99"
+                  glhist.tr-date format "99/99/99"
                   v-debit[1]      when v-debit[1] ne 0
                   v-crdit[1]      when v-crdit[1] ne 0
               with no-box stream-io width 200 no-attr-space no-labels frame f2.
@@ -1089,21 +1091,21 @@ END.
 
       end.
 
-      if gltrans.tr-amt ge 0 then
+      if glhist.tr-amt ge 0 then
         assign
-          v-debit[2] = v-debit[2] + gltrans.tr-amt
+          v-debit[2] = v-debit[2] + glhist.tr-amt
           v-crdit[2] = v-crdit[2] + 0.
       else
         assign
           v-debit[2] = v-debit[2] + 0
-          v-crdit[2] = v-crdit[2] + gltrans.tr-amt.
+          v-crdit[2] = v-crdit[2] + glhist.tr-amt.
 /*
       assign
        v-debit[2] = v-debit[2] + v-debit[1]
        v-crdit[2] = v-crdit[2] + v-crdit[1].
 */
 
-      if last(gltrans.trnum) then do:
+      if last(glhist.tr-num) then do:
         PUT v-debit[2]                                   to 97 format "(>>>,>>>,>>9.99)"
             v-crdit[2]                                   to 114 format "(>>>,>>>,>>9.99)"
             v-debit[2] +

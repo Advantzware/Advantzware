@@ -684,6 +684,9 @@ DEFINE VARIABLE v-post-date AS DATE INIT TODAY NO-UNDO.
     DEFINE VARIABLE v-first-ord LIKE oe-ord.ord-no NO-UNDO.
     DEFINE VARIABLE v-last-ord LIKE oe-ord.ord-no NO-UNDO.
     DEFINE VARIABLE cRecKeyPrefix AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lDelete       AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE iRNo          AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iBNo          AS INTEGER   NO-UNDO.
     
 /*  DISABLE TRIGGERS FOR LOAD OF oe-ord.                                                                      */
 /*  Leaving triggers to fire for oe-ord so that audit is written                                              */
@@ -810,44 +813,158 @@ DEFINE VARIABLE v-post-date AS DATE INIT TODAY NO-UNDO.
             END. /* oe-rel */
 
             STATUS DEFAULT "Processing order# " + STRING(oe-ord.ord-no) + "...removing release line records".
-            FOR EACH oe-rell EXCLUSIVE WHERE 
-                oe-rell.company EQ oe-ord.company AND 
-                oe-rell.ord-no  EQ oe-ord.ord-no:
-                IF tbArchive THEN 
-                DO:
+            FOR EACH oe-rell EXCLUSIVE-LOCK 
+                WHERE oe-rell.company EQ oe-ord.company 
+                  AND oe-rell.ord-no  EQ oe-ord.ord-no
+                BREAK BY oe-rell.ord-no:
+                IF tbArchive THEN DO:
                     IF lProcess THEN EXPORT STREAM soe-rell      oe-rell.
                     ELSE IF lSimulate THEN EXPORT STREAM soe-rell DELIMITER "," oe-rell.
-                END.
-                IF lProcess THEN DELETE oe-rell.
+                END.              
+                IF LAST-OF(oe-rell.ord-no) THEN
+                    ASSIGN 
+                        lDelete = YES
+                        iRNo    = oe-rell.r-no
+                        .
+                 
+                IF lProcess THEN 
+                    DELETE oe-rell.
+                    MESSAGE lDelete iRno
+                    VIEW-AS ALERT-BOX.
+                IF lDelete THEN DO:
+                    lDelete = NO.
+                    STATUS DEFAULT "Processing order# " + STRING(oe-ord.ord-no) + "...removing release header records".
+                    
+                    FIND FIRST oe-relh NO-LOCK 
+                         WHERE oe-relh.company EQ oe-ord.company
+                           AND oe-relh.r-no    EQ iRNo
+                         NO-ERROR.
+                    IF AVAILABLE oe-relh AND NOT CAN-FIND(FIRST b-rell
+                                                          WHERE b-rell.r-no   EQ oe-relh.r-no
+                                                            AND b-rell.ord-no NE oe-ord.ord-no )THEN DO:
+                                                                       
+                        IF tbArchive THEN DO:
+                            IF lProcess THEN 
+                                EXPORT STREAM soe-relh oe-relh.
+                            ELSE IF lSimulate THEN 
+                                EXPORT STREAM soe-relh DELIMITER "," oe-relh.
+                        END.
+                        IF lProcess THEN DO:
+                            FIND CURRENT oe-relh EXCLUSIVE-LOCK NO-ERROR.
+                            DELETE oe-relh.
+                        END.    
+                    END.         
+                END.      
             END. /* oe-rell */
-
-            STATUS DEFAULT "Processing order# " + STRING(oe-ord.ord-no) + "...removing release header records".
-            FIND FIRST oe-relh EXCLUSIVE WHERE 
-                oe-relh.company EQ oe-ord.company AND 
-                oe-relh.ord-no EQ oe-ord.ord-no 
-                NO-ERROR.
-            IF AVAIL oe-relh 
-            AND NOT CAN-FIND(FIRST b-rell WHERE 
-                            b-rell.r-no EQ oe-relh.r-no AND 
-                            b-rell.ord-no NE oe-relh.ord-no) THEN DO:
-                IF tbArchive THEN 
-                DO:
-                    IF lProcess THEN EXPORT STREAM soe-relh      oe-relh.
-                    ELSE IF lSimulate THEN EXPORT STREAM soe-relh DELIMITER "," oe-relh.
-                END.
-                IF lProcess THEN DELETE oe-relh.
-            END.
             
             STATUS DEFAULT "Processing order# " + STRING(oe-ord.ord-no) + "...removing BOL line records".
-            FOR EACH oe-boll EXCLUSIVE WHERE 
-                oe-boll.company EQ oe-ord.company AND 
-                oe-boll.ord-no  EQ oe-ord.ord-no:
-                IF tbArchive THEN 
-                DO:
+            FOR EACH oe-boll EXCLUSIVE-LOCK
+                WHERE oe-boll.company EQ oe-ord.company 
+                  AND oe-boll.ord-no  EQ oe-ord.ord-no
+                BREAK BY oe-boll.ord-no:
+                IF tbArchive THEN DO:
                     IF lProcess THEN EXPORT STREAM soe-boll      oe-boll.
                     ELSE IF lSimulate THEN EXPORT STREAM soe-boll DELIMITER "," oe-boll.
                 END.
-                IF lProcess THEN DELETE oe-boll.
+                IF LAST-OF(oe-boll.ord-no) THEN
+                    ASSIGN 
+                        lDelete = YES
+                        iBNo    = oe-boll.b-no
+                        .
+                    
+                IF lProcess THEN 
+                    DELETE oe-boll.
+                
+                IF lDelete THEN DO:
+                    lDelete = NO.
+                    STATUS DEFAULT "Processing order# " + STRING(oe-ord.ord-no) + "...removing BOL Header records".
+                    
+                    FIND FIRST oe-bolh NO-LOCK 
+                         WHERE oe-bolh.company EQ oe-ord.company 
+                           AND oe-bolh.b-no    EQ iBNo
+                         NO-ERROR.  
+                    IF AVAIL oe-bolh 
+                    AND tbInvoices:CHECKED THEN 
+                        FOR EACH inv-head EXCLUSIVE-LOCK 
+                            WHERE inv-head.company EQ cocode 
+                              AND inv-head.bol-no  EQ oe-bolh.bol-no:
+        
+                        STATUS DEFAULT "Processing order# " + STRING(oe-ord.ord-no) + "...removing Invoice Line records".
+                        FOR EACH inv-line EXCLUSIVE-LOCK
+                            WHERE inv-line.r-no    EQ inv-head.r-no 
+                              AND inv-line.company EQ inv-head.company:
+                            IF tbArchive THEN DO: 
+                                IF lProcess THEN 
+                                    EXPORT STREAM sinv-line inv-line.
+                                ELSE IF lSimulate THEN 
+                                    EXPORT STREAM sinv-line DELIMITER "," inv-line.
+                            END.
+                            IF lProcess THEN DELETE inv-line.
+                        END. /* inv-line */
+        
+                        STATUS DEFAULT "Processing order# " + STRING(oe-ord.ord-no) + "...removing Invoice Misc records".
+                        FOR EACH inv-misc EXCLUSIVE-LOCK 
+                            WHERE inv-misc.r-no    EQ inv-head.r-no 
+                              AND inv-misc.company EQ inv-head.company:
+                            IF tbArchive THEN DO:
+                                IF lProcess THEN 
+                                    EXPORT STREAM sinv-misc inv-misc.
+                                ELSE IF lSimulate THEN 
+                                    EXPORT STREAM sinv-misc DELIMITER "," inv-misc.
+                            END.
+                            IF lProcess THEN 
+                                DELETE inv-misc.
+                        END. /* inv-misc */
+        
+                        STATUS DEFAULT "Processing order# " + STRING(oe-ord.ord-no) + "...removing Invoice Headers records".
+                        IF tbArchive THEN DO: 
+                            IF lProcess THEN 
+                                EXPORT STREAM sinv-head inv-head.
+                            ELSE IF lSimulate THEN 
+                                EXPORT STREAM sinv-head DELIMITER "," inv-head.
+                        END.
+                        IF lProcess THEN 
+                            DELETE inv-head.
+                    END. /* inv-head */
+        
+                    IF AVAIL oe-bolh THEN DO:
+                        IF NOT CAN-FIND(FIRST b-boll 
+                                        WHERE b-boll.b-no   EQ oe-bolh.b-no 
+                                          AND b-boll.ord-no NE oe-ord.ord-no) THEN DO:
+                            IF tbArchive THEN DO:
+                                IF lProcess THEN EXPORT STREAM soe-bolh oe-bolh.
+                                ELSE IF lSimulate THEN EXPORT STREAM soe-bolh DELIMITER "," oe-bolh.
+                            END.
+                            /*Delete oe-bolh header record */ 
+                            IF lProcess THEN DO:
+                                FIND CURRENT oe-bolh EXCLUSIVE-LOCK NO-ERROR.
+                                DELETE oe-bolh.
+                            END.
+                        END.
+                        ELSE DO:
+                            /* Reset the oe-bolh header release number if it's deleted */
+                            IF NOT CAN-FIND(FIRST oe-relh
+                                            WHERE oe-relh.company  EQ oe-ord.company
+                                              AND oe-relh.release# EQ oe-bolh.release#
+                                            ) THEN DO:
+                                FIND FIRST b-boll NO-LOCK 
+                                     WHERE b-boll.company EQ oe-ord.company
+                                       AND b-boll.ord-no  EQ oe-ord.ord-no
+                                     NO-ERROR.   
+                                IF AVAILABLE b-boll THEN DO:
+                                    FIND FIRST oe-relh NO-LOCK 
+                                         WHERE oe-relh.company EQ b-boll.company
+                                           AND oe-relh.r-no    EQ b-boll.r-no
+                                         NO-ERROR.   
+                                    IF AVAILABLE oe-relh THEN DO:
+                                        FIND CURRENT oe-bolh EXCLUSIVE-LOCK NO-ERROR.
+                                        oe-bolh.release# = oe-relh.release#.                                      
+                                    END.                                       
+                                END.                        
+                            END.                        
+                        END.               
+                    END.  
+                END.        
             END. /* oe-boll */
 
             STATUS DEFAULT "Processing order# " + STRING(oe-ord.ord-no) + "...removing BOL Header records".
@@ -855,57 +972,6 @@ DEFINE VARIABLE v-post-date AS DATE INIT TODAY NO-UNDO.
                 oe-bolh.company EQ oe-ord.company AND 
                 oe-bolh.b-no EQ oe-ord.ord-no
                 NO-ERROR.
-
-            IF AVAIL oe-bolh 
-            AND tbInvoices:CHECKED THEN FOR EACH inv-head EXCLUSIVE WHERE 
-                inv-head.company EQ cocode AND  
-                inv-head.bol-no EQ oe-bolh.bol-no:
-
-                STATUS DEFAULT "Processing order# " + STRING(oe-ord.ord-no) + "...removing Invoice Line records".
-                FOR EACH inv-line EXCLUSIVE WHERE 
-                    inv-line.r-no    EQ inv-head.r-no AND 
-                    inv-line.company EQ inv-head.company:
-                    IF tbArchive THEN 
-                    DO:
-                        IF lProcess THEN EXPORT STREAM sinv-line      inv-line.
-                        ELSE IF lSimulate THEN EXPORT STREAM sinv-line DELIMITER "," inv-line.
-                    END.
-                    IF lProcess THEN DELETE inv-line.
-                END. /* inv-line */
-
-                STATUS DEFAULT "Processing order# " + STRING(oe-ord.ord-no) + "...removing Invoice Misc records".
-                FOR EACH inv-misc EXCLUSIVE WHERE 
-                    inv-misc.r-no    EQ inv-head.r-no AND 
-                    inv-misc.company EQ inv-head.company:
-                    IF tbArchive THEN 
-                    DO:
-                        IF lProcess THEN EXPORT STREAM sinv-misc      inv-misc.
-                        ELSE IF lSimulate THEN EXPORT STREAM sinv-misc DELIMITER "," inv-misc.
-                    END.
-                    IF lProcess THEN DELETE inv-misc.
-                END. /* inv-misc */
-
-                STATUS DEFAULT "Processing order# " + STRING(oe-ord.ord-no) + "...removing Invoice Headers records".
-                IF tbArchive THEN 
-                DO:
-                    IF lProcess THEN EXPORT STREAM sinv-head      inv-head.
-                    ELSE IF lSimulate THEN EXPORT STREAM sinv-head DELIMITER "," inv-head.
-                END.
-                IF lProcess THEN DELETE inv-head.
-            END. /* inv-head */
-
-            IF AVAIL oe-bolh
-            AND NOT CAN-FIND(FIRST b-boll WHERE 
-                            b-boll.b-no EQ oe-bolh.b-no AND 
-                            b-boll.ord-no NE oe-bolh.ord-no) THEN DO:
-                IF tbArchive THEN 
-                DO:
-                    IF lProcess THEN EXPORT STREAM soe-bolh      oe-bolh.
-                    ELSE IF lSimulate THEN EXPORT STREAM soe-bolh DELIMITER "," oe-bolh.
-                END.
-                IF lProcess THEN DELETE oe-bolh.
-            END.
-
 
             STATUS DEFAULT "Processing order# " + STRING(oe-ord.ord-no) + "...removing Order line records".
             FOR EACH oe-ordl NO-LOCK WHERE 
@@ -927,8 +993,6 @@ DEFINE VARIABLE v-post-date AS DATE INIT TODAY NO-UNDO.
                         job-hdr.job     EQ job.job AND 
                         job-hdr.job-no  EQ job.job-no AND 
                         job-hdr.job-no2 EQ job.job-no2:
-
-                        {util/dljobkey.i}
 
                         IF tbArchive THEN 
                         DO:

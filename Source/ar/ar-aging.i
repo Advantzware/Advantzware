@@ -119,13 +119,14 @@ DEF TEMP-TABLE tt-inv NO-UNDO
                 v-gltrans-desc = "VOID " + cust.cust-no + " " + ~
                           STRING(ar-cash.check-no,"999999999999") + ~
                          " Inv# " + STRING(ar-cashl.inv-no). ~
-                FIND FIRST gltrans WHERE ~
-                    gltrans.company EQ cust.company AND ~
-                    gltrans.jrnl EQ "CASHRVD" AND ~
-                    gltrans.tr-dscr EQ v-gltrans-desc ~
+                FIND FIRST glhist WHERE ~
+                    glhist.company EQ cust.company AND ~
+                    glhist.jrnl EQ "CASHRVD" AND ~
+                    glhist.tr-dscr EQ v-gltrans-desc ~
+                    AND glhist.posted EQ NO ~
                     NO-LOCK NO-ERROR. ~
-                IF AVAIL gltrans THEN ~
-                    v-check-date = gltrans.tr-date. ~
+                IF AVAIL glhist THEN ~
+                    v-check-date = glhist.tr-date. ~
                 ELSE ~
                     v-check-date = ar-cash.check-date. ~
             END. ~
@@ -362,13 +363,13 @@ DEF TEMP-TABLE tt-factored
                         v-gltrans-desc = "VOID " + cust.cust-no + " " + 
                                        STRING(ar-cash.check-no,"999999999999") +
                                         " Inv# " + STRING(ar-cashl.inv-no).
-                        FIND FIRST gltrans WHERE 
-                            gltrans.company EQ cust.company AND
-                            gltrans.jrnl EQ "CASHRVD" AND
-                            gltrans.tr-dscr EQ v-gltrans-desc
-                            NO-LOCK NO-ERROR.
-                        IF AVAIL gltrans THEN
-                            v-check-date = gltrans.tr-date.
+                        FIND FIRST glhist WHERE glhist.company     EQ cust.company 
+                                                AND glhist.jrnl    EQ "CASHRVD" 
+                                                AND glhist.tr-dscr EQ v-gltrans-desc
+                                                AND glhist.posted  EQ NO
+                                                NO-LOCK NO-ERROR.
+                        IF AVAIL glhist THEN
+                            v-check-date = glhist.tr-date.
                         ELSE
                             v-check-date = ar-cash.check-date.
                     END.
@@ -546,13 +547,13 @@ DEF TEMP-TABLE tt-factored
               v-gltrans-desc = "VOID " + cust.cust-no + " " + 
                                STRING(ar-cash.check-no,"999999999999") +
                               " Inv# " + STRING(ar-cashl.inv-no).
-              FIND FIRST gltrans WHERE 
-                   gltrans.company EQ cust.company AND
-                   gltrans.jrnl EQ "CASHRVD" AND
-                   gltrans.tr-dscr EQ v-gltrans-desc
-                   NO-LOCK NO-ERROR.
-              IF AVAIL gltrans THEN
-                 v-check-date = gltrans.tr-date.
+              FIND FIRST glhist WHERE glhist.company EQ cust.company
+                                  AND glhist.jrnl    EQ "CASHRVD"
+                                  AND glhist.tr-dscr EQ v-gltrans-desc
+                                  AND glhist.posted  EQ NO
+                                  NO-LOCK NO-ERROR.
+              IF AVAIL glhist THEN
+                 v-check-date = glhist.tr-date.
               ELSE
                  v-check-date = ar-cash.check-date.
            END.
@@ -589,10 +590,11 @@ DEF TEMP-TABLE tt-factored
 
            IF ar-cashl.amt-paid GT 0 AND
               (ar-cashl.voided = YES OR
-              CAN-FIND(FIRST gltrans WHERE
-              gltrans.company EQ cust.company AND
-              gltrans.jrnl EQ "CASHRVD" AND
-              gltrans.tr-dscr EQ v-tr-dscr)) THEN
+              CAN-FIND(FIRST glhist WHERE
+              glhist.company EQ cust.company AND
+              glhist.jrnl EQ "CASHRVD" AND
+              glhist.tr-dscr EQ v-tr-dscr AND
+              glhist.posted EQ NO)) THEN
               v-type = "VD".
            ELSE
               v-type = "PY".
@@ -659,14 +661,15 @@ DEF TEMP-TABLE tt-factored
                                   STRING(ar-cash.check-no,"999999999999") +
                                  " Inv# " + STRING(ar-cashl.inv-no).
 
-                 FIND FIRST gltrans WHERE
-                      gltrans.company EQ cust.company AND
-                      gltrans.jrnl EQ "CASHRVD" AND
-                      gltrans.tr-dscr EQ v-gltrans-desc
+                 FIND FIRST glhist WHERE
+                      glhist.company EQ cust.company AND
+                      glhist.jrnl EQ "CASHRVD" AND
+                      glhist.tr-dscr EQ v-gltrans-desc AND 
+                      glhist.posted EQ NO
                       NO-LOCK NO-ERROR.
                 
-                 IF AVAIL gltrans THEN
-                    v-check-date = gltrans.tr-date.
+                 IF AVAIL glhist THEN
+                    v-check-date = glhist.tr-date.
                  ELSE
                     v-check-date = ar-cash.check-date.
               END.
@@ -801,10 +804,11 @@ DEF TEMP-TABLE tt-factored
                    + " Inv# " + STRING(ar-cashl.inv-no).
 
          IF ar-cashl.voided = YES OR
-            CAN-FIND(FIRST gltrans WHERE
-            gltrans.company EQ cust.company AND
-            gltrans.jrnl EQ "CASHRVD" AND
-            gltrans.tr-dscr EQ v-tr-dscr) THEN
+            CAN-FIND(FIRST glhist WHERE
+            glhist.company EQ cust.company AND
+            glhist.jrnl EQ "CASHRVD" AND
+            glhist.tr-dscr EQ v-tr-dscr AND 
+            glhist.posted EQ NO) THEN
             DO:
               ASSIGN
                  v-type = "VD"
@@ -835,14 +839,15 @@ DEF TEMP-TABLE tt-factored
                                 STRING(ar-cash.check-no,"999999999999") +
                                 " Inv# " + STRING(ar-cashl.inv-no).
 
-               FIND FIRST gltrans WHERE
-                    gltrans.company EQ cust.company AND
-                    gltrans.jrnl EQ "CASHRVD" AND
-                    gltrans.tr-dscr EQ v-gltrans-desc
+               FIND FIRST glhist WHERE
+                    glhist.company EQ cust.company AND
+                    glhist.jrnl EQ "CASHRVD" AND
+                    glhist.tr-dscr EQ v-gltrans-desc AND 
+                    glhist.posted EQ NO
                     NO-LOCK NO-ERROR.
               
-               IF AVAIL gltrans THEN
-                  v-check-date = gltrans.tr-date.
+               IF AVAIL glhist THEN
+                  v-check-date = glhist.tr-date.
                ELSE
                   v-check-date = ar-cash.check-date.
             END.
@@ -899,14 +904,15 @@ DEF TEMP-TABLE tt-factored
                                STRING(ar-cash.check-no,"999999999999") +
                                " Inv# " + STRING(ar-cashl.inv-no).
 
-              FIND FIRST gltrans WHERE
-                   gltrans.company EQ cust.company AND
-                   gltrans.jrnl EQ "CASHRVD" AND
-                   gltrans.tr-dscr EQ v-gltrans-desc
+              FIND FIRST glhist WHERE
+                   glhist.company EQ cust.company AND
+                   glhist.jrnl EQ "CASHRVD" AND
+                   glhist.tr-dscr EQ v-gltrans-desc AND 
+                   glhist.posted EQ NO
                    NO-LOCK NO-ERROR.
              
-              IF AVAIL gltrans THEN
-                 v-check-date = gltrans.tr-date.
+              IF AVAIL glhist THEN
+                 v-check-date = glhist.tr-date.
               ELSE
                  v-check-date = ar-cash.check-date.
            END.

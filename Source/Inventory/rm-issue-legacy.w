@@ -62,6 +62,9 @@ DEFINE VARIABLE iCount                  AS INTEGER   NO-UNDO.
 DEFINE VARIABLE cValidateJobno          AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFilterBy               AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lAutoPost               AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cSSIssueDefaultRM       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hdQuantityColumnLabel   AS HANDLE    NO-UNDO.
+DEFINE VARIABLE iWarehouseLength        AS INTEGER   NO-UNDO.
 
 {system/sysconst.i}
 {Inventory/ttInventory.i "NEW SHARED"}
@@ -877,7 +880,9 @@ DO:
         INPUT FALSE,  /* Error */
         INPUT FALSE   /* Alert-box*/
         ).
-
+    
+    APPLY "ENTRY" TO fiTag.
+    
     RUN pRebuildBrowse (
         INPUT cCompany,
         INPUT cFormattedJobNo,
@@ -1405,11 +1410,20 @@ PROCEDURE pHighlightSelection :
     
     CASE ipcFilterType:
         WHEN gcStatusStockReceived THEN
-            rSelected:COL = btTotal:COL - 1.
+            ASSIGN
+                rSelected:COL               = btTotal:COL - 1
+                hdQuantityColumnLabel:LABEL = "Qty On-Hand"
+                .
         WHEN gcStatusStockConsumed THEN
-            rSelected:COL = btConsumed:COL - 1.
+            ASSIGN
+                rSelected:COL               = btConsumed:COL - 1
+                hdQuantityColumnLabel:LABEL = "Qty Issued"
+                .
         WHEN gcStatusStockScanned THEN
-            rSelected:COL = btScanned:COL - 1.    
+            ASSIGN
+                rSelected:COL               = btScanned:COL - 1
+                hdQuantityColumnLabel:LABEL = "Qty Scanned"
+                .    
     END.
     
     {&OPEN-BROWSERS-IN-QUERY-F-Main}
@@ -1427,11 +1441,38 @@ PROCEDURE pInit :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE lSuccess AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lSuccess  AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE hdBrowse  AS HANDLE  NO-UNDO.
+    DEFINE VARIABLE iColumn   AS INTEGER NO-UNDO.
+    DEFINE VARIABLE hdColumn  AS HANDLE  NO-UNDO.
     
     DO WITH FRAME {&FRAME-NAME}:
     END.
-    
+ 
+    RUN sys/ref/nk1look.p (
+        INPUT cCompany,           /* Company Code */ 
+        INPUT "SSIssueDefaultRM", /* sys-ctrl name */
+        INPUT "C",                /* Output return value */
+        INPUT NO,                 /* Use ship-to */
+        INPUT NO,                 /* ship-to vendor */
+        INPUT "",                 /* ship-to vendor value */
+        INPUT "",                 /* shi-id value */
+        OUTPUT cSSIssueDefaultRM, 
+        OUTPUT lRecFound
+        ).
+
+    hdBrowse = BROWSE {&BROWSE-NAME}:HANDLE.
+
+    DO iColumn = 1 TO hdBrowse:NUM-COLUMNS :
+        hdColumn = hdBrowse:GET-BROWSE-COLUMN (iColumn).
+        
+        IF hdColumn:NAME EQ "quantity" THEN DO:
+            hdQuantityColumnLabel = hdColumn.
+            LEAVE.
+        END.
+    END.
+                    
     RUN inventory/InventoryProcs.p PERSISTENT SET hdInventoryProcs.
     RUN jc/JobProcs.p PERSISTENT SET hdJobProcs.
     
@@ -1441,6 +1482,10 @@ PROCEDURE pInit :
         {&WINDOW-NAME}:TITLE = {&WINDOW-NAME}:TITLE + " - {&awversion}" + " - " 
                              + STRING(company.name) + " - " + cLocation  .
     
+    RUN Inventory_GetWarehouseLength IN hdInventoryProcs (
+        INPUT  cCompany,
+        OUTPUT iWarehouseLength
+        ).
     IF lAutoPost THEN
         btPost:HIDDEN = TRUE.
         
@@ -1768,7 +1813,7 @@ PROCEDURE pTagScan :
         INPUT  ipcTag,
         OUTPUT lValidInv,
         OUTPUT cMessage,
-        INPUT-OUTPUT TABLE ttInventoryStockDetails
+        INPUT-OUTPUT TABLE ttInventoryStockDetails BY-REFERENCE
         ).
   
     IF lValidInv THEN DO:
@@ -1783,46 +1828,34 @@ PROCEDURE pTagScan :
                 iFormNo  = ttInventoryStockDetails.formNo
                 iBlankNo = ttInventoryStockDetails.blankNo
                 .
-  
-        IF (fiJobno:SCREEN-VALUE   NE cJobNo OR
+        
+        IF cbRMItem:SCREEN-VALUE NE cRMItem THEN DO:
+            MESSAGE "Tag belongs to a different item #"  
+                VIEW-AS ALERT-BOX.
+            RETURN.
+        END.
+        
+        IF ttInventoryStockDetails.itemCode EQ "E" AND
+           (fiJobno:SCREEN-VALUE   NE cJobNo OR
             cbJobno2:SCREEN-VALUE  NE STRING(iJobNo2,"99") OR
             cbFormno:SCREEN-VALUE  NE STRING(iFormNo,"99") OR
             cbBlankno:SCREEN-VALUE NE STRING(iBlankNo,"99")) AND
             cJobNo NE "" THEN DO:
-            MESSAGE "Tag belongs to different Job context. Do you want to switch Job?"
+            MESSAGE "Tag belongs to different Job. Do you want to continue?"
                 VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO-CANCEL
-                TITLE "Continue?" UPDATE lSwitchJob AS LOGICAL.
-            IF lSwitchJob THEN DO:
-                RUN pJobScan (
-                    INPUT  ipcCompany,
-                    INPUT  cJobNo,
-                    INPUT  iJobNo2,
-                    INPUT  iFormNo,
-                    INPUT  iBlankNo,
-                    INPUT  cRMItem,
-                    OUTPUT lSuccess,
-                    OUTPUT cMessage
-                    ).
-                
-                IF NOT lSuccess THEN DO:
-                    RUN pUpdateMessageText (
-                        INPUT cMessage,    /* Message Text */
-                        INPUT TRUE,        /* Error */
-                        INPUT TRUE         /* Alert-box*/
-                        ).
-                    RETURN.
-                END.                    
-            END.
-            ELSE
+                TITLE "Continue?" UPDATE lIssue AS LOGICAL.
+            IF NOT lIssue THEN
                 RETURN.
         END.
-  
-        cFormattedJobno = cJobNo.
         
         IF AVAILABLE ttInventoryStockDetails THEN DO:  
             RUN Inventory_CreateRMIssueFromTag in hdInventoryProcs (
                 INPUT  ipcCompany,
                 INPUT  ttInventoryStockDetails.tag,
+                INPUT  fiJobNo:SCREEN-VALUE,
+                INPUT  INTEGER(cbJobNo2:SCREEN-VALUE),
+                INPUT  INTEGER(cbFormNo:SCREEN-VALUE),
+                INPUT  INTEGER(cbBlankNo:SCREEN-VALUE),
                 INPUT  lAutoPost,
                 OUTPUT lCreated,                    
                 OUTPUT cMessage
@@ -1922,6 +1955,9 @@ PROCEDURE pUpdateRMItemList :
     
     cbRMItem:LIST-ITEMS IN FRAME {&FRAME-NAME} = cRMListitems.
 
+    IF cSSIssueDefaultRM NE "User Select" THEN
+        cbRMItem:SCREEN-VALUE = ENTRY(1, cRMListitems) NO-ERROR.
+        
     APPLY "VALUE-CHANGED" TO cbRMItem IN FRAME {&FRAME-NAME}.    
 END PROCEDURE.
 
@@ -1993,7 +2029,7 @@ FUNCTION fGetConcatLocationID RETURNS CHARACTER PRIVATE
 ------------------------------------------------------------------------------*/
 
     RETURN ttBrowseInventory.warehouseID + " " 
-           + FILL(" ", 5 - LENGTH(ttBrowseInventory.warehouseID)) 
+           + FILL(" ", iWarehouseLength - LENGTH(ttBrowseInventory.warehouseID)) 
            + ttBrowseInventory.locationID.
 
 END FUNCTION.

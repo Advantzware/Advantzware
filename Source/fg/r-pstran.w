@@ -2756,25 +2756,21 @@ PROCEDURE fg-post :
     END.
 
     FOR EACH work-job BREAK BY work-job.actnum:
-      CREATE gltrans.
-      ASSIGN
-       gltrans.company = cocode
-       gltrans.actnum  = work-job.actnum
-       gltrans.jrnl    = "ADJUST"
-       /*gltrans.tr-date = v-post-date*/
-       gltrans.period  = period.pnum
-       gltrans.trnum   = v-trnum.
-    
-      IF work-job.fg THEN
-        ASSIGN
-         gltrans.tr-amt  = - work-job.amt
-         gltrans.tr-dscr = "ADJUSTMENT FG".
-      ELSE
-        ASSIGN
-         gltrans.tr-amt  = work-job.amt
-         gltrans.tr-dscr = "ADJUSTMENT COGS".
+          RUN GL_SpCreateGLHist(cocode,
+                             work-job.actnum,
+                             "ADJUST",
+                             (IF work-job.fg THEN "ADJUSTMENT FG"
+                                             ELSE "ADJUSTMENT COGS"),
+                             v-post-date,
+                             (IF work-job.fg THEN - work-job.amt
+                                             ELSE work-job.amt),
+                             v-trnum,
+                             period.pnum,
+                             "A",
+                             v-post-date,
+                             "",
+                             "FG").
 
-      RELEASE gltrans.
     END. /* each work-job */
   END.
 
@@ -3156,21 +3152,23 @@ PROCEDURE gl-from-work :
      credits = credits + work-gl.credits.
 
     IF LAST-OF(work-gl.actnum) THEN DO:
-      CREATE gltrans.
-      ASSIGN
-       gltrans.company = cocode
-       gltrans.actnum  = work-gl.actnum
-       gltrans.jrnl    = "FGPOST"
-       gltrans.period  = period.pnum
-       gltrans.tr-amt  = debits - credits
-       /*gltrans.tr-date = v-post-date*/
-       gltrans.tr-dscr = IF work-gl.job-no NE "" THEN "FG Receipt from Job"
-                                                 ELSE "FG Receipt from PO"
-       gltrans.trnum   = ip-trnum
-       debits  = 0
-       credits = 0.
+          RUN GL_SpCreateGLHist(cocode,
+                             work-gl.actnum,
+                             "FGPOST",
+                             (IF work-gl.job-no NE "" THEN "FG Receipt from Job"
+                                                      ELSE "FG Receipt from PO"),
+                             v-post-date,
+                             (debits - credits),
+                             ip-trnum,
+                             period.pnum,
+                             "A",
+                             v-post-date,
+                             "",
+                             "FG").
+           ASSIGN
+               debits        = 0
+               credits       = 0.
 
-      RELEASE gltrans.
     END.
   END.
 
@@ -3453,6 +3451,7 @@ PROCEDURE print-and-post :
 ------------------------------------------------------------------------------*/
   DEFINE VARIABLE lv-r-no LIKE rm-rctd.r-no NO-UNDO.
   DEFINE VARIABLE lContinue AS LOGICAL NO-UNDO.
+  DEFINE VARIABLE lInvalid AS LOGICAL NO-UNDO.
   DEFINE BUFFER bf-fg-rctd FOR fg-rctd.
   /* 11111302 - Automatically include set components instead of this validate*/
   /* RUN ValidateFGItemRange(OUTPUT lContinue). */
@@ -3509,6 +3508,12 @@ PROCEDURE print-and-post :
           VIEW-AS ALERT-BOX.
   END.
   ELSE choice = NO. 
+  
+  IF choice THEN DO:
+    RUN pCheckPeriod(OUTPUT lInvalid).
+     IF NOT lInvalid THEN choice = yes.
+     ELSE choice = no.    
+  END.
 
   IF choice THEN DO:
     FOR EACH w-fg-rctd
@@ -4532,6 +4537,30 @@ DEFINE VARIABLE hNotesProcs AS HANDLE NO-UNDO.
 
 END PROCEDURE.
     
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckPeriod d-oeitem 
+PROCEDURE pCheckPeriod :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  define output parameter oplReturnNotValidPost as logical no-undo.
+  DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE lSuccess AS LOGICAL NO-UNDO.
+    oplReturnNotValidPost = no.
+    
+    RUN GL_CheckModClosePeriod(input cocode, input v-post-date, input "FG", output cMessage, output lSuccess ) .  
+    if not lSuccess then 
+    do:
+      message cMessage view-as alert-box info.
+      oplReturnNotValidPost = yes.
+    end.  
+     
+END PROCEDURE.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

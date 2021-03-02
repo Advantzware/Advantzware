@@ -1270,6 +1270,94 @@ PROCEDURE pGetQtyMatchInfo PRIVATE:
 
 END PROCEDURE.
 
+PROCEDURE Price_ExpirePriceMatrixByItem:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcItemID  AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-oe-prmtx FOR oe-prmtx.
+    
+    FOR EACH bf-oe-prmtx EXCLUSIVE-LOCK 
+        WHERE bf-oe-prmtx.company   EQ ipcCompany
+          AND bf-oe-prmtx.i-no      EQ ipcItemID
+          AND (bf-oe-prmtx.exp-date GT TODAY OR bf-oe-prmtx.exp-date EQ ?):
+              
+        bf-oe-prmtx.exp-date = TODAY.              
+    END.          
+
+END PROCEDURE.
+
+PROCEDURE Price_ExpirePricesByItem:
+/*------------------------------------------------------------------------------
+ Purpose: Expire prices of all quotes,VendItemCost and price matrix
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany  AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcItemID   AS CHARACTER NO-UNDO.
+    
+    RUN Price_ExpirePriceMatrixByItem( 
+        INPUT ipcCompany,
+        INPUT ipcItemID
+        ).
+    RUN Price_ExpireVendItemCostByItem(
+        INPUT ipcCompany,
+        INPUT ipcItemID
+        ).      
+    RUN Price_ExpireQuotesByItem(
+        INPUT ipcCompany,
+        INPUT ipcItemID
+        ).
+END PROCEDURE.
+
+PROCEDURE Price_ExpireQuotesByItem:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany  AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcItemID   AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-quoteitm FOR quoteitm.
+    DEFINE BUFFER bf-quotehd  FOR quotehd.
+    
+    FOR EACH bf-quoteitm NO-LOCK
+        WHERE bf-quoteitm.company EQ ipcCompany
+          AND bf-quoteitm.i-no    EQ ipcItemID
+        BREAK BY bf-quoteitm.q-no DESCENDING:
+        IF FIRST-OF (bf-quoteitm.q-no) THEN DO:     
+            FIND FIRST bf-quotehd EXCLUSIVE-LOCK 
+                 WHERE bf-quotehd.company EQ ipcCompany
+                   AND bf-quotehd.loc     EQ bf-quoteitm.loc 
+                   AND bf-quotehd.q-no    EQ bf-quoteitm.q-no
+                   AND (bf-quotehd.expiredate GT TODAY OR bf-quotehd.expiredate EQ ?)
+                 NO-ERROR.       
+            IF AVAILABLE bf-quotehd THEN 
+                bf-quotehd.expiredate = TODAY.
+        END.                         
+     END.        
+END PROCEDURE.
+
+PROCEDURE Price_ExpireVendItemCostByItem:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcItemID  AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-vendItemCost FOR vendItemCost.
+    
+    FOR EACH bf-vendItemCost EXCLUSIVE-LOCK 
+        WHERE bf-vendItemCost.company        EQ ipcCompany
+          AND bf-vendItemCost.ItemID         EQ ipcItemID
+          AND(bf-vendItemCost.expirationDate GE TODAY OR bf-vendItemCost.expirationDate EQ ?) :
+            bf-vendItemCost.expirationDate = TODAY.      
+        END.
+END PROCEDURE.
+
 PROCEDURE pSetBuffers PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose: Sets Buffers for FG Item and Customers

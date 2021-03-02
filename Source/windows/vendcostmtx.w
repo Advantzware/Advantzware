@@ -99,6 +99,7 @@ DEFINE VARIABLE h_VendItemCostRes AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-updsavRes AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-navicoRes AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_import AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_vp-price AS HANDLE NO-UNDO.
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
@@ -469,6 +470,14 @@ PROCEDURE adm-create-objects :
              OUTPUT h_p-updsav2 ).
        RUN set-position IN h_p-updsav2 ( 18.91 , 56.00 ) NO-ERROR.
        RUN set-size IN h_p-updsav2 ( 1.56 , 50.00 ) NO-ERROR.
+       
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'rm/vp-price.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_vp-price ).
+       RUN set-position IN h_vp-price ( 22.20 , 70.00 ) NO-ERROR.
+       /* Size in UIB:  ( 2.05 , 17.20 ) */
 
       
        /* Initialize other pages that this page requires. */
@@ -483,6 +492,9 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl (  h_p-updsav2  , 'TableIO':U , h_b-vendcostvalue) .
        RUN add-link IN adm-broker-hdl ( h_b-vendcostvalue , 'bottom':U , h_venditemcost-2 ).
        RUN add-link IN adm-broker-hdl ( h_p-updsav2 , 'getPanel':U , h_venditemcost-2 ).
+       
+       /* Links to SmartViewer h_vp-price. */
+       RUN add-link IN adm-broker-hdl ( h_b-vendcostvalue , 'price-change':U , h_vp-price ).
        
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_venditemcost-2 ,

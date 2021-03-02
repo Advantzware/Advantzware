@@ -54,10 +54,11 @@ if ar-cashl.amt-paid ne 0 then do:
 
      IF t-credits LT 0 AND
         ar-cashl.voided EQ YES OR
-        can-find(FIRST gltrans WHERE
-           gltrans.company EQ cocode AND
-           gltrans.jrnl EQ "CASHRVD" AND
-           gltrans.tr-dscr EQ v-gltrans-desc) THEN
+        can-find(FIRST glhist WHERE
+           glhist.company EQ cocode AND
+           glhist.jrnl EQ "CASHRVD" AND
+           glhist.tr-dscr EQ v-gltrans-desc AND 
+           glhist.posted EQ NO) THEN
         t-check-no = "Void".
   END.
      
@@ -88,14 +89,15 @@ if ar-cashl.amt-paid ne 0 then do:
             tt-arinq.tr-date = ar-cashl.voidDate.
          ELSE
          DO:
-            FIND FIRST gltrans WHERE
-                 gltrans.company EQ cocode AND
-                 gltrans.jrnl EQ "CASHRVD" AND
-                 gltrans.tr-dscr EQ v-gltrans-desc
+            FIND FIRST glhist WHERE
+                 glhist.company EQ cocode AND
+                 glhist.jrnl EQ "CASHRVD" AND
+                 glhist.tr-dscr EQ v-gltrans-desc AND 
+                 glhist.posted EQ NO
                  NO-LOCK NO-ERROR.
 
-            IF AVAIL gltrans THEN
-               tt-arinq.tr-date = gltrans.tr-date.
+            IF AVAIL glhist THEN
+               tt-arinq.tr-date = glhist.tr-date.
             ELSE
                tt-arinq.tr-date = ar-cash.check-date.
          END.
@@ -144,14 +146,15 @@ if ar-cashl.amt-paid ne 0 then do:
              tt-arinq.tr-date = ar-cashl.voidDate.
           ELSE
           DO:
-             FIND FIRST gltrans WHERE
-                  gltrans.company EQ cocode AND
-                  gltrans.jrnl EQ "CASHRVD" AND
-                  gltrans.tr-dscr EQ v-gltrans-desc
+             FIND FIRST glhist WHERE
+                  glhist.company EQ cocode AND
+                  glhist.jrnl EQ "CASHRVD" AND
+                  glhist.tr-dscr EQ v-gltrans-desc AND
+                  glhist.posted EQ NO
                   NO-LOCK NO-ERROR.
 
-             IF AVAIL gltrans THEN
-                tt-arinq.tr-date = gltrans.tr-date.
+             IF AVAIL glhist THEN
+                tt-arinq.tr-date = glhist.tr-date.
              ELSE
                 tt-arinq.tr-date = ar-cash.check-date.
           END.

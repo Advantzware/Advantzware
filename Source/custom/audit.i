@@ -219,8 +219,6 @@ WHEN "gl-rpt" THEN
 RUN auditprg/gl-rpt.p (ttbl_header.v_action).
 WHEN "glhist" THEN
 RUN auditprg/glhist.p (ttbl_header.v_action).
-WHEN "gltrans" THEN
-RUN auditprg/gltrans.p (ttbl_header.v_action).
 WHEN "inv-head" THEN
 RUN auditprg/inv-head.p (ttbl_header.v_action).
 WHEN "inv-line" THEN

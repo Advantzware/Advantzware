@@ -380,10 +380,13 @@ PROCEDURE build-table :
   DEF VAR ld AS DEC NO-UNDO.
   DEF VAR li2 AS INT NO-UNDO.
 
-
   EMPTY TEMP-TABLE tt-layer.
 
   IF ll-assem-part THEN DO:
+    IF CAN-FIND(FIRST b-eb
+                WHERE b-eb.company EQ eb.company
+                  AND b-eb.est-no  EQ eb.est-no
+                  AND ROWID(b-eb)  NE ROWID(eb)) THEN 
     FOR EACH b-eb NO-LOCK
         WHERE b-eb.company EQ eb.company
           AND b-eb.est-no  EQ eb.est-no

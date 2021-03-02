@@ -49,9 +49,9 @@ def var lv-first-time as log init yes no-undo.
 DEF VAR jrnl-list AS CHAR NO-UNDO.
 DEF VAR dscr-list AS CHAR NO-UNDO.
 
-DEF TEMP-TABLE tt-table FIELD tt-run-no LIKE gltrans.trnum
-                        FIELD tt-date LIKE gltrans.tr-date
-                        FIELD tt-jrnl LIKE gltrans.jrnl
+DEF TEMP-TABLE tt-table FIELD tt-run-no LIKE glhist.tr-num
+                        FIELD tt-date LIKE glhist.tr-date
+                        FIELD tt-jrnl LIKE glhist.jrnl
                         FIELD tt-dscr AS CHAR FORMAT "x(50)"
                         INDEX tt-run-no tt-run-no
                         INDEX tt-jrnl   tt-jrnl tt-run-no
@@ -420,23 +420,7 @@ PROCEDURE build-table :
       IF LOOKUP(tt-jrnl,jrnl-list) GT 0 THEN
         tt-dscr = ENTRY(LOOKUP(tt-jrnl,jrnl-list),dscr-list).   
     END.
-  END. 
-
-  FOR EACH gltrans WHERE gltrans.company eq ip-company NO-LOCK
-      BREAK BY gltrans.trnum:
-
-    IF FIRST-OF(gltrans.trnum) THEN DO:
-      CREATE tt-table.
-      ASSIGN
-       tt-run-no = gltrans.trnum
-       tt-jrnl   = gltrans.jrnl
-       tt-date   = gltrans.tr-date
-       tt-dscr   = gltrans.tr-dscr.
-
-      IF LOOKUP(tt-jrnl,jrnl-list) GT 0 THEN
-        tt-dscr = ENTRY(LOOKUP(tt-jrnl,jrnl-list),dscr-list).   
-    END.
-  END.
+  END.    
 
 END PROCEDURE.
 

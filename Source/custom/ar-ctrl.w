@@ -78,6 +78,8 @@ cDscrDiscTaken cDscrChargeAcc cDscrFreightAcc cDscrSalesTaxAcc
 ar-ctrl.cash-act ar-ctrl.discount ar-ctrl.onac ar-ctrl.freight ar-ctrl.stax ~
 ar-ctrl.postUserID ar-ctrl.postStartDtTm ar-ctrl.postType 
 &Scoped-define F1 F1 F-2 F-3 F-4 F-5 F-6 F-7 
+&Scoped-define GL-Fields ar-ctrl.receivables ar-ctrl.sales ~
+ar-ctrl.cash-act ar-ctrl.discount ar-ctrl.onac ar-ctrl.freight ar-ctrl.stax
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -484,14 +486,21 @@ ON CHOOSE OF Btn_Close IN FRAME ar-ctrl /* Close */
 DO:
   IF {&SELF-NAME}:LABEL = "&Close" THEN
   APPLY "CLOSE" TO THIS-PROCEDURE.
-  ELSE
-  DO WITH FRAME {&FRAME-NAME}:
-    DISABLE {&LIST-1} WITH FRAME {&FRAME-NAME}.
+  ELSE      
+  DO WITH FRAME {&FRAME-NAME}:   
+      RUN presetColor(INPUT ar-ctrl.receivables:HANDLE).
+      RUN presetColor(INPUT ar-ctrl.sales:HANDLE).
+      RUN presetColor(INPUT ar-ctrl.cash-act:HANDLE).
+      RUN presetColor(INPUT ar-ctrl.discount:HANDLE).
+      RUN presetColor(INPUT ar-ctrl.onac:HANDLE).
+      RUN presetColor(INPUT ar-ctrl.freight:HANDLE).
+      RUN presetColor(INPUT ar-ctrl.stax:HANDLE).                         
+    DISABLE {&LIST-1} WITH FRAME {&FRAME-NAME}.    
     ASSIGN
       {&SELF-NAME}:LABEL = "&Close"
       Btn_Update:LABEL = "&Update".
     RUN enable_UI.
-  END.
+  END.  
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -515,15 +524,13 @@ DO:
   DO WITH FRAME {&FRAME-NAME}:
     /* VALIDATION */
     DEF VAR v-avail AS LOG NO-UNDO.
-
-    {custom/validate/acct.i ar-ctrl.receivables}
-    {custom/validate/acct.i ar-ctrl.sales}
-    {custom/validate/acct.i ar-ctrl.cash-act}
-    {custom/validate/acct.i ar-ctrl.discount}
-    {custom/validate/acct.i ar-ctrl.onac}
-    {custom/validate/acct.i ar-ctrl.freight}
-    {custom/validate/acct.i ar-ctrl.stax}
-
+    DEFINE VARIABLE lValid   AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+    
+    RUN validateGLAccount NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN 
+        RETURN NO-APPLY.                
+       
     DISABLE {&LIST-1}.
     HIDE {&F1} NO-PAUSE.
     ASSIGN
@@ -797,6 +804,9 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pDisplayField C-Win 
 PROCEDURE pDisplayField :
 /*------------------------------------------------------------------------------
@@ -820,6 +830,107 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE presetColor C-Win
+PROCEDURE presetColor:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iphfieldHandle AS HANDLE NO-UNDO.
+    
+    DEFINE VARIABLE hframeHandle AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE hgroupHandle AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE hfieldHandle AS HANDLE    NO-UNDO. 
+    DEFINE VARIABLE cGLField     AS CHARACTER NO-UNDO.   
+    
+    ASSIGN 
+        hframeHandle = FRAME {&frame-name}:HANDLE
+        hgroupHandle = hframeHandle:FIRST-CHILD
+        hfieldHandle = hgroupHandle:FIRST-CHILD
+        .     
+     
+    IF VALID-HANDLE(iphfieldHandle) THEN DO:        
+        cGLField = "ar-ctrl." + iphfieldHandle:NAME.
+        IF iphfieldHandle:TYPE                   EQ "FILL-IN"   AND  
+           iphfieldHandle:DATA-TYPE              EQ "CHARACTER" AND 
+           LOOKUP(cGLField,"{&GL-Fields}"," ")   GT 0 THEN         
+            IF iphfieldHandle:BGCOLOR EQ 16 THEN           
+                ASSIGN 
+                    iphfieldHandle:BGCOLOR = 15
+                    iphfieldHandle:FGCOLOR = ?
+                    .                                
+    END. 
+   
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE validateGLAccount C-Win
+PROCEDURE validateGLAccount:
+/*------------------------------------------------------------------------------
+ Purpose: Check for valid and Active GL Account
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE hframeHandle AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE hgroupHandle AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE hfieldHandle AS HANDLE    NO-UNDO. 
+    DEFINE VARIABLE hValidate    AS HANDLE    NO-UNDO.       
+    DEFINE VARIABLE lValid       AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cGLField     AS CHARACTER NO-UNDO.
+  
+    RUN util/Validate.p PERSISTENT SET hValidate.
+
+    {methods/lValidateError.i YES}
+    
+    ASSIGN 
+        hframeHandle = FRAME {&frame-name}:HANDLE
+        hgroupHandle = hframeHandle:FIRST-CHILD
+        hfieldHandle = hgroupHandle:FIRST-CHILD
+        .
+
+    DO WHILE VALID-HANDLE(hfieldHandle):
+        cGLField = "ar-ctrl." + hfieldHandle:NAME.
+        IF hfieldHandle:TYPE                   EQ "FILL-IN"   AND  
+           hfieldHandle:DATA-TYPE              EQ "CHARACTER" AND 
+           LOOKUP(cGLField,"{&GL-Fields}"," ") GT 0 THEN DO:        
+            
+            RUN pIsValidGLAccount IN hValidate (
+                INPUT  hfieldHandle:SCREEN-VALUE, 
+                INPUT  YES,             
+                INPUT  g_company, 
+                OUTPUT lValid, 
+                OUTPUT cMessage
+                ) NO-ERROR.
+            
+            IF NOT lValid THEN DO:
+                MESSAGE cMessage VIEW-AS ALERT-BOX ERROR. 
+                RUN presetColor(INPUT hfieldHandle) NO-ERROR.                      
+                IF INDEX(cMessage, "Inactive") GT 0 THEN 
+                    ASSIGN 
+                        hfieldHandle:BGCOLOR = 16
+                        hfieldHandle:FGCOLOR = 15
+                        .                     
+                APPLY "ENTRY" TO hfieldHandle.
+                RETURN ERROR.   
+            END.                     
+        END.  
+        RUN presetColor(INPUT hfieldHandle) NO-ERROR.       
+        hfieldHandle = hfieldHandle:NEXT-SIBLING.
+     END.          
+
+  {methods/lValidateError.i NO}  
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 /* ************************  Function Implementations ***************** */
 

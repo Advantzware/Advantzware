@@ -29,12 +29,12 @@
                 "<||5><R19><C1><#4><FROM><R23><C81><RECT>" SKIP
                 "<R21><C1><FROM><R21><C81><LINE>" SKIP    
                 "<R19><C12><FROM><R23><C12><LINE>" SKIP
-              /*"<R19><C24><FROM><R23><C24><LINE>" SKIP      */
-                "<R19><C34><FROM><R23><C34><LINE>" SKIP
+                "<R19><C24><FROM><R23><C24><LINE>" SKIP      
+                "<R19><C40><FROM><R23><C40><LINE>" SKIP
                 "<R19><C57><FROM><R23><C57><LINE>" SKIP
                 /*"<R19><C69><FROM><R23><C69><LINE>" SKIP*/
-                "<=4><R+1>    Date               FOB                       Carrier                    Freight Terms    " SKIP
-                "<=4><R+3> " oe-bolh.bol-date /*v-po-no FORM "x(15)" */ space(6) /*v-ord-no*/ v-fob space(11) space(1) carrier.dscr space(1) v-frt-terms /*SPACE(1) v-tot-wt*/ SKIP
+                "<=4><R+1>     Date           FOB          Carrier          Trailer ID               Freight Terms    " SKIP
+                "<=4><R+3>  " oe-bolh.bol-date /*v-po-no FORM "x(15)" */ space(4) /*v-ord-no*/ v-fob space(5) TRIM(carrier.dscr) SPACE(8) oe-bolh.trailer SPACE(6)  v-frt-terms /*SPACE(1) v-tot-wt*/ SKIP
                 "<||5><R24><C1><#5><FROM><R26><C81><RECT>" SKIP    
                 "<R24><C12><FROM><R26><C12><LINE>" SKIP
                 "<R24><C25><FROM><R26><C25><LINE>" SKIP

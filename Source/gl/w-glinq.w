@@ -34,6 +34,7 @@ CREATE WIDGET-POOL.
 
 &SCOPED-DEFINE winReSize
 &SCOPED-DEFINE h_Browse01 h_b-glinq
+&SCOPED-DEFINE AuditTableList glhist
 
 /* Parameters Definitions ---                                           */
 

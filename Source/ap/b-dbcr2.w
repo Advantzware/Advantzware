@@ -942,6 +942,27 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE presetColor B-table-Win
+PROCEDURE presetColor:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+    IF ap-payl.actnum:BGCOLOR IN BROWSE {&BROWSE-NAME} EQ 16 THEN             
+        ASSIGN 
+            ap-payl.actnum:BGCOLOR IN BROWSE {&BROWSE-NAME} = ?
+            ap-payl.actnum:FGCOLOR IN BROWSE {&BROWSE-NAME} = ?
+            .
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE redisplay-header B-table-Win 
 PROCEDURE redisplay-header :
 /*------------------------------------------------------------------------------
@@ -1038,11 +1059,7 @@ PROCEDURE valid-actnum :
             
       IF lSuccess = NO THEN DO:               
           MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.            
-          IF ap-payl.actnum:BGCOLOR IN BROWSE {&BROWSE-NAME} EQ 16 THEN             
-                ASSIGN 
-                    ap-payl.actnum:BGCOLOR IN BROWSE {&BROWSE-NAME} = ?
-                    ap-payl.actnum:FGCOLOR IN BROWSE {&BROWSE-NAME} = ?
-                   .
+          RUN presetColor NO-ERROR.
           APPLY "ENTRY" TO ap-payl.actnum IN BROWSE {&browse-name}.     
           RETURN ERROR. 
       END.   
@@ -1056,11 +1073,7 @@ PROCEDURE valid-actnum :
           APPLY "ENTRY" TO ap-payl.actnum IN BROWSE {&browse-name}.
           RETURN ERROR.                      
       END.      
-      IF lActive = YES AND ap-payl.actnum:BGCOLOR IN BROWSE {&BROWSE-NAME} EQ 16 THEN             
-          ASSIGN 
-              ap-payl.actnum:BGCOLOR IN BROWSE {&BROWSE-NAME} = ?
-              ap-payl.actnum:FGCOLOR IN BROWSE {&BROWSE-NAME} = ?
-              .                                  
+      RUN presetColor NO-ERROR.                                
                                   
       act_dscr:SCREEN-VALUE IN BROWSE {&browse-name} = display-actdscr().                      
   END.

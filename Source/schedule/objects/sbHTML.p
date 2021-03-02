@@ -2,15 +2,19 @@
 
 /* ***************************  Definitions  ************************** */
 
-DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER ipiVersion AS INTEGER   NO-UNDO.
-DEFINE INPUT PARAMETER iplLaunch  AS LOGICAL   NO-UNDO.
+DEFINE INPUT PARAMETER ipcCompany     AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipiVersion     AS INTEGER   NO-UNDO.
+DEFINE INPUT PARAMETER iplLaunch      AS LOGICAL   NO-UNDO.
+DEFINE INPUT PARAMETER iplProgressBar AS LOGICAL   NO-UNDO.
+DEFINE INPUT PARAMETER ipcProgressBar AS CHARACTER NO-UNDO.
 
 {schedule/scopDir.i}
 {{&includes}/defBoard.i}
 {{&includes}/sharedVars.i}
 {{&includes}/filterVars.i}
 {{&includes}/ttblJob.i}
+
+DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
 
 /* configuration vars */
 {{&includes}/configVars.i}
@@ -26,6 +30,8 @@ DEFINE TEMP-TABLE resourceList NO-UNDO
     FIELD m-seq    LIKE mach.m-seq
         INDEX resourceList IS PRIMARY d-seq m-seq resource
         .
+
+DEFINE STREAM sHTML.
 
 SESSION:SET-WAIT-STATE("General").
 RUN pGetResources.
@@ -80,16 +86,19 @@ PROCEDURE pFromPendingByDueDate:
     DEFINE BUFFER bPendingJob FOR pendingJob.
     
     CREATE bPendingJob.
-    INPUT FROM VALUE(SEARCH('{&data}/' + ID + '/pending.dat')) NO-ECHO.
-    IMPORT ^ ^.
+    INPUT STREAM sHTML FROM VALUE(SEARCH('{&data}/' + ID + '/pending.dat')) NO-ECHO.
+    IMPORT STREAM sHTML ^ ^.
     REPEAT:
-        IMPORT bPendingJob.
+        IMPORT STREAM sHTML bPendingJob.
+        iCount = iCount + 1.
+        IF iplProgressBar THEN
+        RUN spProgressBar (ipcProgressBar, iCount, ?).
         CREATE pendingJob.
         BUFFER-COPY bPendingJob TO pendingJob.
         IF pendingJob.rowIDs EQ '' THEN
         pendingJob.rowIDs = STRING(ROWID(pendingJob)).
     END. /* repeat */
-    INPUT CLOSE.
+    INPUT STREAM sHTML CLOSE.
 
     ASSIGN
         pendingDays    = 1
@@ -100,6 +109,9 @@ PROCEDURE pFromPendingByDueDate:
               BY bPendingJob.job
               BY bPendingJob.resourceSeq
         :
+        iCount = iCount + 1.
+        IF iplProgressBar THEN
+        RUN spProgressBar (ipcProgressBar, iCount, ?).
         IF LAST-OF(bPendingJob.job) THEN DO:
             ASSIGN
                 bPendingJob.startDate = bPendingJob.dueDate - pendingDays
@@ -149,10 +161,13 @@ PROCEDURE pGetResources:
     DEFINE VARIABLE resourceName AS CHARACTER NO-UNDO.
     DEFINE VARIABLE resourceUse  AS CHARACTER NO-UNDO.
 
-    INPUT FROM VALUE(SEARCH('{&data}/' + ID + '/resourceList.dat')) NO-ECHO.
-    IMPORT resourceUse.
+    INPUT STREAM sHTML FROM VALUE(SEARCH('{&data}/' + ID + '/resourceList.dat')) NO-ECHO.
+    IMPORT STREAM sHTML resourceUse.
     REPEAT:
-        IMPORT resourceName.
+        IMPORT STREAM sHTML resourceName.
+        iCount = iCount + 1.
+        IF iplProgressBar THEN
+        RUN spProgressBar (ipcProgressBar, iCount, ?).
         FIND FIRST mach NO-LOCK
              WHERE mach.company EQ ipcCompany
                AND mach.m-code  EQ resourceName
@@ -165,7 +180,7 @@ PROCEDURE pGetResources:
             resourceList.m-seq    = mach.m-seq
             .
     END. /* repeat */
-    INPUT CLOSE.
+    INPUT STREAM sHTML CLOSE.
 END PROCEDURE.
 
 PROCEDURE pHTMLPageVertical:
@@ -217,6 +232,9 @@ PROCEDURE pHTMLPageVertical:
                   AND (ttblDowntime.startDate EQ dtDate
                    OR  ttblDowntime.startDate EQ ?)
                 :
+                iCount = iCount + 1.
+                IF iplProgressBar THEN
+                RUN spProgressBar (ipcProgressBar, iCount, ?).
                 fTimeSlice (resourceList.resource,dtDate,ttblDowntime.startTime,"DT","Start",NO,"").
                 fTimeSlice (resourceList.resource,dtDate,ttblDowntime.endTime,  "DT","End",  NO,"").
             END. /* each ttbldowntime */
@@ -235,6 +253,9 @@ PROCEDURE pHTMLPageVertical:
                        OR  bTtblJob.endDate   EQ dtDate)
                     BY bTtblJob.startDateTime
                     :
+                    iCount = iCount + 1.
+                    IF iplProgressBar THEN
+                    RUN spProgressBar (ipcProgressBar, iCount, ?).
                     ASSIGN
                         iStartTime = IF bTtblJob.startDate EQ dtDate THEN bTtblJob.startTime ELSE 0
                         iEndTime   = IF bTtblJob.endDate   EQ dtDate THEN bTtblJob.endTime   ELSE 86400
@@ -286,8 +307,8 @@ PROCEDURE pHTMLPageVertical:
             cHTMLFolder = IF lFound AND cHTMLFolder NE "" THEN cHTMLFolder ELSE "c:\tmp"
             cHTMLPage = cHTMLFolder + "\sbHTMLCapacity." + SUBSTRING(ID,R-INDEX(ID,"/") + 1) + STRING(jdx) + ".htm"
             .
-        OUTPUT TO VALUE(cHTMLPage).
-        PUT UNFORMATTED
+        OUTPUT STREAM sHTML TO VALUE(cHTMLPage).
+        PUT STREAM sHTML UNFORMATTED
             '<html>' SKIP
             '<head>' SKIP
             '<title>Schedule Capacity</title>' SKIP
@@ -317,14 +338,14 @@ PROCEDURE pHTMLPageVertical:
             .
         RUN pOutputResources.
         DO dtDate = dtStartDate TO dtEndDate:
-            PUT UNFORMATTED
+            PUT STREAM sHTML UNFORMATTED
                 '    <tr style="height: ' INTEGER(90 / iDays) '%;">' SKIP
                 '      <td bgcolor="#576490" align="center" nowrap><font face="{&fontFace}" color="#FFFFFF">'
                 ENTRY(WEEKDAY(dtDate),cDays) ' ' MONTH(dtDate) '/' DAY(dtDate) '/' YEAR(dtDate) '</font></td>' SKIP
                 .
             FOR EACH resourceList
                 :
-                PUT UNFORMATTED
+                PUT STREAM sHTML UNFORMATTED
                     '      <td style="padding: 5px">' SKIP
                     '        <table border="1" cellspacing="0" cellpadding="0" align="center" width="70%" height="140px">' SKIP
                     .
@@ -365,7 +386,7 @@ PROCEDURE pHTMLPageVertical:
     
                     dPercentage = ROUND((iTime - ttTime.timeSlice) / 86400 * 100,2).
                     IF dPercentage GT 0 THEN DO:
-                        PUT UNFORMATTED
+                        PUT STREAM sHTML UNFORMATTED
                             '          <tr style="height: ' dPercentage '%;">' SKIP
                             '            <td bgcolor="#'
                             (IF ttTime.newJob AND ttTime.timeType2 EQ "Start" THEN "85FEFE" ELSE
@@ -374,28 +395,28 @@ PROCEDURE pHTMLPageVertical:
                             '" align="center" nowrap><font face="{&fontFace}">'
                             .
                         IF jdx LE 3 AND ttTime.spanText NE "" THEN
-                        PUT UNFORMATTED '<span title="' ttTime.spanText '">'.
+                        PUT STREAM sHTML UNFORMATTED '<span title="' ttTime.spanText '">'.
                         CASE jdx:
                             WHEN 1 OR WHEN 4 THEN
                                 IF dPercentage EQ 100 THEN
-                                PUT UNFORMATTED "24:00:00".
+                                PUT STREAM sHTML UNFORMATTED "24:00:00".
                                 ELSE
-                                PUT UNFORMATTED STRING(iTime - ttTime.timeSlice,"hh:mm:ss").
+                                PUT STREAM sHTML UNFORMATTED STRING(iTime - ttTime.timeSlice,"hh:mm:ss").
                             WHEN 2 OR WHEN 5 THEN
-                                PUT UNFORMATTED dPercentage '%'.
+                                PUT STREAM sHTML UNFORMATTED dPercentage '%'.
                             WHEN 3 OR WHEN 6 THEN DO:
                                 IF dPercentage EQ 100 THEN
-                                PUT UNFORMATTED "24:00:00".
+                                PUT STREAM sHTML UNFORMATTED "24:00:00".
                                 ELSE
-                                PUT UNFORMATTED STRING(iTime - ttTime.timeSlice,"hh:mm:ss").
-                                PUT UNFORMATTED ' / ' dPercentage '%'.
+                                PUT STREAM sHTML UNFORMATTED STRING(iTime - ttTime.timeSlice,"hh:mm:ss").
+                                PUT STREAM sHTML UNFORMATTED ' / ' dPercentage '%'.
                             END. /* 5 or 6 */
                         END CASE.
                         IF jdx LE 3 AND ttTime.spanText NE "" THEN
-                        PUT UNFORMATTED '</span>'.
+                        PUT STREAM sHTML UNFORMATTED '</span>'.
                         IF jdx GE 4 AND ttTime.jobCount NE 0 THEN
-                        PUT UNFORMATTED ' (' + STRING(ttTime.jobCount) + ')'.
-                        PUT UNFORMATTED 
+                        PUT STREAM sHTML UNFORMATTED ' (' + STRING(ttTime.jobCount) + ')'.
+                        PUT STREAM sHTML UNFORMATTED 
                             '</font></td>' SKIP
                             '          </tr>' SKIP
                             .
@@ -406,19 +427,19 @@ PROCEDURE pHTMLPageVertical:
                         cType2 = ttTime.timeType2
                         .
                 END. /* each tttime */
-                PUT UNFORMATTED
+                PUT STREAM sHTML UNFORMATTED
                     '        </table>' SKIP 
                     '      </td>' SKIP
                     .
             END. /* each resourcelist */
-            PUT UNFORMATTED
+            PUT STREAM sHTML UNFORMATTED
                 '      <td bgcolor="#576490" align="center" nowrap><font face="{&fontFace}" color="#FFFFFF">'
                 ENTRY(WEEKDAY(dtDate),cDays) ' ' MONTH(dtDate) '/' DAY(dtDate) '/' YEAR(dtDate) '</font></td>' SKIP
                 '    </tr>' SKIP
                 .
         END. /* do dtdate */
         RUN pOutputResources.
-        PUT UNFORMATTED
+        PUT STREAM sHTML UNFORMATTED
             '  </table>' SKIP
             '  <div align="left"><font face="{&fontFace}"><a href="#Top">Top</a></font>' SKIP
             '  <div align="right"><font face="{&fontFace}">~&copy; Advantzware, Inc., All Rights Reserved</font></div>' SKIP
@@ -434,7 +455,7 @@ PROCEDURE pHTMLPageVertical:
             '</form>' SKIP
             '</html>' SKIP
             .
-        OUTPUT CLOSE.
+        OUTPUT STREAM sHTML CLOSE.
         IF iplLaunch THEN DO:
             OS-COMMAND NO-WAIT START VALUE(cHTMLPage).
             PAUSE 1 NO-MESSAGE.
@@ -446,9 +467,12 @@ END PROCEDURE.
 PROCEDURE pLoadDowntime:
     EMPTY TEMP-TABLE ttblDowntime.
 
-    INPUT FROM VALUE(SEARCH('{&data}/' + ID + '/downtimes.Actual.dat')) NO-ECHO.
+    INPUT STREAM sHTML FROM VALUE(SEARCH('{&data}/' + ID + '/downtimes.Actual.dat')) NO-ECHO.
     REPEAT:
-        IMPORT tempDowntime.
+        IMPORT STREAM sHTML tempDowntime.
+        iCount = iCount + 1.
+        IF iplProgressBar THEN
+        RUN spProgressBar (ipcProgressBar, iCount, ?).
         tempDowntime.dayID = tempDowntime.dayID MODULO 7.
         IF tempDowntime.dayID EQ 0 THEN
         tempDowntime.dayID = 7.
@@ -464,19 +488,19 @@ PROCEDURE pLoadDowntime:
                     WHERE resourceList.resource EQ tempDowntime.resource) THEN
         RUN pCreateTtblDowntime.
     END. /* repeat */
-    INPUT CLOSE.
+    INPUT STREAM sHTML CLOSE.
 
 END PROCEDURE.
 
 PROCEDURE pOutputResources:
-    PUT UNFORMATTED
+    PUT STREAM sHTML UNFORMATTED
         '    <tr>' SKIP
         '      <td bgcolor="#576490" align="center" nowrap><font face="{&fontFace}" color="#FFFFFF"><b>'
         'Operation</b></font></td>' SKIP
         .
     FOR EACH resourceList
         :
-        PUT UNFORMATTED
+        PUT STREAM sHTML UNFORMATTED
             '      <td bgcolor="#576490" align="left" nowrap><font face="{&fontFace}" color="#FFFFFF">'
             '<img src="'
             (IF SEARCH("Graphics/48x48/" + resourceList.resource + ".png") NE ? THEN
@@ -486,7 +510,7 @@ PROCEDURE pOutputResources:
             resourceList.resource '</b></font></td>' SKIP
             .
     END. /* each ttbljob */
-    PUT UNFORMATTED
+    PUT STREAM sHTML UNFORMATTED
         '      <td bgcolor="#576490" align="center" nowrap><font face="{&fontFace}" color="#FFFFFF"><b>'
         'Operation</b></font></td>' SKIP
         '    </tr>' SKIP
@@ -519,6 +543,9 @@ PROCEDURE pSetDueDateJob :
         BREAK BY bufPendingJob.job
               BY bufPendingJob.resourceSeq DESCENDING
         :
+        iCount = iCount + 1.
+        IF iplProgressBar THEN
+        RUN spProgressBar (ipcProgressBar, iCount, ?).
         ASSIGN
           bufPendingJob.endDate = priorStartDate
           bufPendingJob.endTime = priorStartTime
@@ -564,6 +591,9 @@ PROCEDURE pSetResourceSequence :
            BY buffJob.startDate
            BY buffJob.startTime
         :
+        iCount = iCount + 1.
+        IF iplProgressBar THEN
+        RUN spProgressBar (ipcProgressBar, iCount, ?).
         ASSIGN
             idx                 = idx + 1
             buffJob.jobSequence = idx
@@ -595,6 +625,9 @@ PROCEDURE pSummarizeTimeSlices:
                   BY ttTime.timeSlice DESCENDING
                   BY ttTime.timeType2 DESCENDING
             :
+            iCount = iCount + 1.
+            IF iplProgressBar THEN
+            RUN spProgressBar (ipcProgressBar, iCount, ?).
             IF ttTime.timeType2 EQ "End" THEN
             iTimeSlice = ttTime.timeSlice.
             ELSE

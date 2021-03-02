@@ -16,20 +16,8 @@ USING system.SharedConfig.
 
 &SCOPED-DEFINE NEW NEW
 {methods/defines/globdefs.i}
-{methods/defines/hndldefs.i}
-
-DEFINE VARIABLE hSession AS HANDLE NO-UNDO.
-DEFINE VARIABLE hTags    AS HANDLE NO-UNDO.
 
 DEFINE BUFFER bf-shipto FOR shipto.
-
-RUN nosweat/persist.p  PERSISTENT SET Persistent-Handle.
-RUN lstlogic/persist.p PERSISTENT SET ListLogic-Handle.
-
-RUN system/session.p  PERSISTENT SET hSession.
-SESSION:ADD-SUPER-PROCEDURE (hSession).
-RUN system/TagProcs.p PERSISTENT SET hTags.
-SESSION:ADD-SUPER-PROCEDURE (hTags).
 
 {sys/inc/var.i "new shared"}
 
@@ -446,6 +434,10 @@ SESSION:ADD-SUPER-PROCEDURE (hTags).
       opcReturnValue = 'Successfully Generated Order'
       .
 
+FINALLY:
+    IF VALID-HANDLE(hOrderProcs) THEN
+        DELETE PROCEDURE hOrderProcs.
+END.
 /* Procedure genTempOrderLinesLocal is modelled after internal procedure (genTempOrderLines)
    defined in cXML\cXMLOrderProc.i. The logic in the existing procedure genTempOrderLines
    validates supplierid against itemfg table and empties temp tables ttOrdLines and ttOrdHead
