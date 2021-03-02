@@ -849,7 +849,7 @@ PROCEDURE GetItemAndPart:
     END.
     ASSIGN
         opcPartID = bf-customerPart.customerPart
-        opcItemID = bf-customerPart.item
+        opcItemID = bf-customerPart.itemID
         .
 /* This has been commented out because as per the new specs 
    present in ticket #60939 this logic is no longer in use */
