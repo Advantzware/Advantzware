@@ -643,6 +643,7 @@ PROCEDURE genOrderLinesLocal:
          INPUT  ttOrdLines.ttItemSupplierPartID,
          INPUT  ttOrdLines.ttItemManufacturerPartID,
          INPUT  oe-ord.cust-no,
+         INPUT  oe-ord.ship-id,
          INPUT  ipcWarehouseID,
          OUTPUT itemSupplierPartID,
          OUTPUT itemManufacturerPartID,
@@ -809,31 +810,47 @@ PROCEDURE GetItemAndPart:
     DEFINE INPUT  PARAMETER ipcSupplierPartID AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcManufactureID  AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcCustNo         AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcShipTo         AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcWarehouseID    AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opcPartID         AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opcItemID         AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER oplSuccess        AS LOGICAL   NO-UNDO.
 
+    DEFINE BUFFER bf-itemfg       FOR itemfg.
+    DEFINE BUFFER bf-customerPart FOR customerPart.
+    
     oplSuccess = YES.
     
     /* Checking itemfg part number */   
-    FIND FIRST itemfg NO-LOCK 
-         WHERE itemfg.company EQ ipcCompany
-           AND itemfg.def-loc EQ ipcWarehouseID
-           AND itemfg.part-no EQ ipcSupplierPartID
-           AND itemfg.stat    EQ "A"
+    FIND FIRST bf-itemfg NO-LOCK 
+         WHERE bf-itemfg.company EQ ipcCompany
+           AND bf-itemfg.def-loc EQ ipcWarehouseID
+           AND bf-itemfg.part-no EQ ipcSupplierPartID
+           AND bf-itemfg.stat    EQ "A"
          NO-ERROR.
-    IF NOT AVAILABLE itemfg THEN DO:
-            oplSuccess = NO.
+    IF AVAILABLE bf-itemfg THEN DO:
+        ASSIGN
+            opcPartID = bf-itemfg.part-no
+            opcItemID = bf-itemfg.i-no
+            .
  
         RETURN.
     END.
-    
+    FIND FIRST bf-customerPart NO-LOCK
+         WHERE bf-customerPart.company      EQ ipcCompany
+           AND bf-customerPart.customerID   EQ ipcCustNo
+           AND bf-customerPart.shipToID     EQ ipcShipTo
+           AND bf-customerPart.customerPart EQ ipcSupplierPartID
+         NO-ERROR.
+    IF NOT AVAILABLE bf-customerPart THEN DO:
+        oplSuccess = FALSE.
+        
+        RETURN.
+    END.
     ASSIGN
-        opcPartID = itemfg.part-no
-        opcItemID = itemfg.i-no
+        opcPartID = bf-customerPart.customerPart
+        opcItemID = bf-customerPart.item
         .
-
 /* This has been commented out because as per the new specs 
    present in ticket #60939 this logic is no longer in use */
 /* 
