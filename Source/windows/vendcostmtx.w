@@ -395,8 +395,8 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_venditemcost ).
-       /* Position in AB:  ( 4.57 , 4.00 ) */
-       /* Size in UIB:  ( 19.52 , 147.00 ) */
+       RUN set-position IN h_venditemcost ( 4.57 , 4.00 ) NO-ERROR.
+       RUN set-size IN h_venditemcost ( 19.52 , 150.00 ) NO-ERROR.
 
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('2':U) NO-ERROR.
@@ -437,8 +437,8 @@ PROCEDURE adm-create-objects :
                      Layout = ,
                      Create-On-Add = Yes':U ,
              OUTPUT h_b-vendcostvalue ).
-       /* Position in AB:  ( 7.81 , 56.60 ) */
-       /* Size in UIB:  ( 16.19 , 94.40 ) */
+       RUN set-position IN h_b-vendcostvalue ( 7.80 , 56.60 ) NO-ERROR.
+       /* Size in UIB:  ( 16.19 , 142.00 ) */
 
 
        RUN init-object IN THIS-PROCEDURE (
