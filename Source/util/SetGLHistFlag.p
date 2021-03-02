@@ -1,5 +1,5 @@
 /*------------------------------------------------------------------------
-    File        : util/popYearGLTrans.p
+    File        : util/SetGLHistFlag.p
     Purpose     : populate year field in GLHist and fix posted field in old data
 
     Syntax      : 
@@ -12,7 +12,8 @@
   ----------------------------------------------------------------------*/
   DEFINE BUFFER bf-glhist FOR glhist.
   DEFINE BUFFER bf-period FOR period.
-  FOR EACH bf-glhist:
+  FOR EACH bf-glhist 
+      WHERE bf-glhist.tr-date GT 01/01/2018 :
        
     FIND FIRST bf-period NO-LOCK
          where bf-period.company eq bf-glhist.company
