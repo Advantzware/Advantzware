@@ -67,12 +67,12 @@ DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO.
 DEFINE QUERY external_tables FOR customerPart.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-FIELDS customerPart.customerID customerPart.shipToID ~
-customerPart.item customerPart.customerPart 
+customerPart.itemID customerPart.customerPart 
 &Scoped-define ENABLED-TABLES customerPart
 &Scoped-define FIRST-ENABLED-TABLE customerPart
 &Scoped-Define ENABLED-OBJECTS RECT-1 
-&Scoped-Define DISPLAYED-FIELDS customerPart.customerID customerPart.shipToID ~
-customerPart.item customerPart.customerPart 
+&Scoped-Define DISPLAYED-FIELDS customerPart.customerID ~
+customerPart.shipToID customerPart.itemID customerPart.customerPart 
 &Scoped-define DISPLAYED-TABLES customerPart
 &Scoped-define FIRST-DISPLAYED-TABLE customerPart
 
@@ -124,7 +124,7 @@ DEFINE FRAME F-Main
      customerPart.shipToID AT ROW 1.48 COL 65 COLON-ALIGNED WIDGET-ID 8
           VIEW-AS FILL-IN 
           SIZE 21 BY 1
-     customerPart.item AT ROW 2.71 COL 17.6 COLON-ALIGNED WIDGET-ID 6
+     customerPart.itemID AT ROW 2.71 COL 17.6 COLON-ALIGNED WIDGET-ID 6
           VIEW-AS FILL-IN 
           SIZE 34.4 BY 1
      customerPart.customerPart AT ROW 3.95 COL 17.6 COLON-ALIGNED WIDGET-ID 4
@@ -207,13 +207,6 @@ ASSIGN
 &ANALYZE-RESUME
 
  
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _XFTR "SmartViewerCues" V-table-Win _INLINE
-/* Actions: adecomm/_so-cue.w ? adecomm/_so-cued.p ? adecomm/_so-cuew.p */
-/* SmartViewer,ab,49270
-Destroy on next read */
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK V-table-Win 

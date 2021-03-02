@@ -71,20 +71,20 @@ DEFINE VARIABLE cCustomerPart AS CHARACTER NO-UNDO.
 
 /* Definitions for BROWSE br_table                                      */
 &Scoped-define FIELDS-IN-QUERY-br_table customerPart.customerID ~
-customerPart.shipToID customerPart.item customerPart.customerPart 
+customerPart.shipToID customerPart.itemID customerPart.customerPart 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br_table 
 &Scoped-define QUERY-STRING-br_table FOR EACH customerPart WHERE ~{&KEY-PHRASE} ~
       AND customerPart.company = cCompany AND ~
 ASI.customerPart.customerID BEGINS cCustomer AND ~
 ASI.customerPart.shipToID BEGINS cShipTo AND ~
-ASI.customerPart.item BEGINS cItem AND ~
+ASI.customerPart.itemID BEGINS cItem AND ~
 ASI.customerPart.customerPart BEGINS cCustomerPart NO-LOCK ~
     ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-br_table OPEN QUERY br_table FOR EACH customerPart WHERE ~{&KEY-PHRASE} ~
       AND customerPart.company = cCompany AND ~
 ASI.customerPart.customerID BEGINS cCustomer AND ~
 ASI.customerPart.shipToID BEGINS cShipTo AND ~
-ASI.customerPart.item BEGINS cItem AND ~
+ASI.customerPart.itemID BEGINS cItem AND ~
 ASI.customerPart.customerPart BEGINS cCustomerPart NO-LOCK ~
     ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-br_table customerPart
@@ -185,7 +185,7 @@ DEFINE BROWSE br_table
   QUERY br_table NO-LOCK DISPLAY
       customerPart.customerID FORMAT "x(8)":U WIDTH 18.2
       customerPart.shipToID FORMAT "x(8)":U WIDTH 25.2
-      customerPart.item FORMAT "x(15)":U WIDTH 31.2
+      customerPart.itemID FORMAT "x(15)":U WIDTH 31.2
       customerPart.customerPart FORMAT "x(32)":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -296,14 +296,14 @@ ASSIGN
      _Where[1]         = "ASI.customerPart.company = cCompany AND
 ASI.customerPart.customerID BEGINS cCustomer AND
 ASI.customerPart.shipToID BEGINS cShipTo AND
-ASI.customerPart.item BEGINS cItem AND
+ASI.customerPart.itemID BEGINS cItem AND
 ASI.customerPart.customerPart BEGINS cCustomerPart"
      _FldNameList[1]   > ASI.customerPart.customerID
 "customerPart.customerID" ? ? "character" ? ? ? ? ? ? no ? no no "18.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.customerPart.shipToID
 "customerPart.shipToID" ? ? "character" ? ? ? ? ? ? no ? no no "25.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[3]   > ASI.customerPart.item
-"customerPart.item" ? ? "character" ? ? ? ? ? ? no ? no no "31.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[3]   > ASI.customerPart.itemID
+"customerPart.itemID" ? ? "character" ? ? ? ? ? ? no ? no no "31.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   = ASI.customerPart.customerPart
      _Query            is NOT OPENED
 */  /* BROWSE br_table */
