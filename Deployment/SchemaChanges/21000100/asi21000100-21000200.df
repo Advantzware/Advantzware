@@ -1,0 +1,248 @@
+ADD TABLE "materialType"
+  AREA "Data"
+  LABEL "Material Type"
+  DESCRIPTION "Stores the material types"
+  DUMP-NAME "materialtype"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg\materialType.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg\materialType.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" NO-OVERRIDE PROCEDURE "write.trg\materialType.p" CRC "?" 
+
+ADD FIELD "materialType" OF "materialType" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Material Type"
+  POSITION 2
+  MAX-WIDTH 16
+  COLUMN-LABEL "Material Type"
+  ORDER 10
+
+ADD FIELD "rec_key" OF "materialType" AS character 
+  FORMAT "x(21)"
+  INITIAL ""
+  LABEL "Record Key"
+  POSITION 3
+  MAX-WIDTH 42
+  COLUMN-LABEL "Record Key"
+  ORDER 20
+
+ADD FIELD "company" OF "materialType" AS character 
+  FORMAT "x(3)"
+  INITIAL ""
+  LABEL "Company"
+  POSITION 4
+  MAX-WIDTH 6
+  COLUMN-LABEL "Company"
+  ORDER 30
+
+ADD FIELD "materialTypeID" OF "materialType" AS int64 
+  FORMAT ">,>>>,>>9"
+  INITIAL "0"
+  LABEL "Material Type ID"
+  POSITION 5
+  MAX-WIDTH 8
+  COLUMN-LABEL "Material Type ID"
+  ORDER 40
+
+ADD FIELD "materialDescription" OF "materialType" AS character 
+  DESCRIPTION "Material Description"
+  FORMAT "x(40)"
+  INITIAL ""
+  LABEL "Material Description"
+  POSITION 6
+  MAX-WIDTH 80
+  COLUMN-LABEL "Material Description"
+  ORDER 50
+
+ADD FIELD "calculationType" OF "materialType" AS character 
+  DESCRIPTION "Calculation Type"
+  FORMAT "x(32)"
+  INITIAL ""
+  LABEL "Calculation Type"
+  POSITION 7
+  MAX-WIDTH 64
+  COLUMN-LABEL "Calculation Type"
+  ORDER 60
+
+ADD FIELD "autoIssue" OF "materialType" AS logical 
+  DESCRIPTION "Auto Issue Material"
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Auto Issue"
+  POSITION 8
+  MAX-WIDTH 1
+  VIEW-AS "VIEW-AS TOGGLE-BOX"
+  COLUMN-LABEL "Auto Issue"
+  ORDER 70
+
+ADD INDEX "idxMaterialType" ON "materialType" 
+  AREA "Index"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "materialType" ASCENDING 
+
+ADD INDEX "idxMaterialTypeID" ON "materialType" 
+  AREA "Index"
+  UNIQUE
+  INDEX-FIELD "materialTypeID" ASCENDING 
+
+ADD INDEX "rec_key" ON "materialType" 
+  AREA "Index"
+  UNIQUE
+  INDEX-FIELD "rec_key" ASCENDING 
+
+ADD TABLE "POReceiptLink"
+  AREA "Data"
+  LABEL "PO Receipt Linker"
+  DUMP-NAME "poreceiptlink"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg\poReceiptLink.p" CRC "33887" 
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg/poReceiptLink.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg/poReceiptLink.p" CRC "?" 
+
+ADD FIELD "rec_key" OF "POReceiptLink" AS character 
+  FORMAT "x(21)"
+  INITIAL ""
+  LABEL "Record Key"
+  POSITION 2
+  MAX-WIDTH 42
+  ORDER 10
+
+ADD FIELD "poReceiptLinkID" OF "POReceiptLink" AS int64 
+  FORMAT ">,>>>,>>9"
+  INITIAL "0"
+  LABEL "PO Receipt Link ID"
+  POSITION 3
+  MAX-WIDTH 8
+  ORDER 20
+
+ADD FIELD "inventoryStockRecKey" OF "POReceiptLink" AS character 
+  FORMAT "x(21)"
+  INITIAL ""
+  LABEL "Inventory Stock Record Key"
+  POSITION 4
+  MAX-WIDTH 42
+  ORDER 30
+
+ADD FIELD "apInvoiceLineRecKey" OF "POReceiptLink" AS character 
+  DESCRIPTION "AP Invoice Line Record Key"
+  FORMAT "x(21)"
+  INITIAL ""
+  LABEL "AP Invoice Line Record Key"
+  POSITION 5
+  MAX-WIDTH 42
+  ORDER 40
+
+ADD FIELD "quantityInvoiced" OF "POReceiptLink" AS decimal 
+  FORMAT "->,>>>,>>9.99<<<<"
+  INITIAL "0"
+  LABEL "Quantity Invoiced"
+  POSITION 6
+  MAX-WIDTH 17
+  DECIMALS 2
+  ORDER 50
+
+ADD FIELD "quantityInvoicedUOM" OF "POReceiptLink" AS character 
+  FORMAT "x(3)"
+  INITIAL ""
+  LABEL "Quantity Invoiced UOM"
+  POSITION 7
+  MAX-WIDTH 6
+  ORDER 60
+
+ADD INDEX "idxInventoryInvoiceLine" ON "POReceiptLink" 
+  AREA "Index"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "inventoryStockRecKey" ASCENDING 
+  INDEX-FIELD "apInvoiceLineRecKey" ASCENDING 
+
+ADD INDEX "idxPOReceiptLinkID" ON "POReceiptLink" 
+  AREA "Index"
+  UNIQUE
+  INDEX-FIELD "poReceiptLinkID" ASCENDING 
+
+ADD INDEX "rec_key" ON "POReceiptLink" 
+  AREA "Index"
+  UNIQUE
+  INDEX-FIELD "rec_key" ASCENDING 
+
+ADD FIELD "invoiceMessage1" OF "ar-ctrl" AS character
+  FORMAT "x(40)"
+  POSITION 26
+  INITIAL ""
+  LABEL "Invoice Message 1"
+  ORDER 230
+  MAX-WIDTH 16
+
+ADD FIELD "invoiceMessage2" OF "ar-ctrl" AS character
+  FORMAT "x(40)"
+  POSITION 27
+  INITIAL ""
+  LABEL "Invoice Message 2"
+  ORDER 240
+  MAX-WIDTH 16
+
+ADD FIELD "invoiceMessage3" OF "ar-ctrl" AS character
+  FORMAT "x(40)"
+  POSITION 28
+  INITIAL ""
+  LABEL "Invoice Message 3"
+  ORDER 250
+  MAX-WIDTH 16
+
+ADD FIELD "invoiceMessage4" OF "ar-ctrl" AS character
+  FORMAT "x(40)"
+  POSITION 29
+  INITIAL ""
+  LABEL "Invoice Message 4"
+  ORDER 260
+  MAX-WIDTH 16
+
+ADD FIELD "invoiceMessage5" OF "ar-ctrl" AS character
+  FORMAT "x(40)"
+  POSITION 30
+  INITIAL ""
+  LABEL "Invoice Message 5"
+  ORDER 270
+  MAX-WIDTH 16
+
+DROP FIELD "spare-char-1" OF "ar-ctrl"
+DROP FIELD "spare-char-2" OF "ar-ctrl"
+DROP FIELD "spare-char-3" OF "ar-ctrl"
+DROP FIELD "spare-char-4" OF "ar-ctrl"
+DROP FIELD "spare-char-5" OF "ar-ctrl"
+
+ADD FIELD "weightPerEA" OF "itemfg" AS decimal
+  DESCRIPTION "Weight of the finished good per unit."
+  FORMAT ">>,>>9.99<<<<"
+  POSITION 232
+  INITIAL "0"
+  HELP "Enter weight of the finished good per unit."
+  LABEL "Weight Per Each"
+  COLUMN-LABEL "Weight Per Each"
+  DECIMALS 2
+  ORDER 2280
+  MAX-WIDTH 17
+
+UPDATE FIELD "archived" OF "taskResult"
+  LABEL "Archived"
+
+ADD SEQUENCE "materialTypeID_seq"
+  INITIAL 0
+  INCREMENT 1
+  CYCLE-ON-LIMIT no
+  MIN-VAL ?
+  MAX-VAL ?
+
+ADD SEQUENCE "poReceiptLinkID_seq"
+  INITIAL 0
+  INCREMENT 1
+  CYCLE-ON-LIMIT no
+  MIN-VAL ?
+  MAX-VAL ?
+
+.
+PSC
+cpstream=ISO8859-1
+.
+0000005741
