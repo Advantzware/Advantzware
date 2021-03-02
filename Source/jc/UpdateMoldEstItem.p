@@ -65,19 +65,21 @@ FOR EACH ttInputEst NO-LOCK:
                   DO:                  
                       ASSIGN
                         bff-eb.cas-no     = bf-eb.cas-no
-                        bff-eb.tr-no      = bf-eb.tr-no
+                        bff-eb.cas-cnt    = bf-eb.cas-cnt
                         bff-eb.cas-len    = bf-eb.cas-len
                         bff-eb.cas-wid    = bf-eb.cas-wid
                         bff-eb.cas-dep    = bf-eb.cas-dep
                         bff-eb.cas-wt     = bf-eb.cas-wt
+                        bff-eb.cas-pal    = bf-eb.cas-pal
+                        bff-eb.tr-no      = bf-eb.tr-no
                         bff-eb.tr-len     = bf-eb.tr-len
                         bff-eb.tr-wid     = bf-eb.tr-wid
                         bff-eb.tr-dep     = bf-eb.tr-dep
                         bff-eb.tr-cas     = bf-eb.tr-cas
                         bff-eb.stacks     = bf-eb.stacks
                         bff-eb.stack-code = bf-eb.stack-code
-                        bff-eb.cas-pal    = bf-eb.cas-pal
-                        bff-eb.tr-cnt     = bf-eb.tr-cnt  .
+                        bff-eb.tr-cnt     = bf-eb.tr-cnt
+                          .
                         
                       FIND FIRST bf-ef EXCLUSIVE-LOCK
                            WHERE bf-ef.company EQ bff-eb.company
