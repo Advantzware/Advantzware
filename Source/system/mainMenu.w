@@ -2415,7 +2415,10 @@ PROCEDURE pSearchSelections :
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cSearchSelectionsValue AS CHARACTER NO-UNDO.
     DO WITH FRAME searchFrame:
+        IF searchSelections:SCREEN-VALUE NE ? THEN
+        cSearchSelectionsValue = searchSelections:SCREEN-VALUE.
         ASSIGN 
             menuTreeFilter
             searchSelections:LIST-ITEM-PAIRS = ?
@@ -2442,6 +2445,8 @@ PROCEDURE pSearchSelections :
         END. /* each ttmenutree */
     END. /* with frame */
 
+    IF cSearchSelectionsValue NE "" THEN
+    searchSelections:SCREEN-VALUE = cSearchSelectionsValue.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
