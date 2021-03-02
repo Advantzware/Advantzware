@@ -587,7 +587,8 @@ DO:
                     bf-ttInputEst.lKeyItem = ttFGReorderSelection.KeyItem 
                     lv-rowid               = ROWID(bf-ttInputEst).
                     IF ttFGReorderSelection.dateDueDateEarliest NE ? AND (ttFGReorderSelection.dateDueDateEarliest LT date(dtDueDate:SCREEN-VALUE) OR date(dtDueDate:SCREEN-VALUE) EQ ?) THEN
-                    dtDueDate:SCREEN-VALUE = string(ttFGReorderSelection.dateDueDateEarliest) . 
+                    dtDueDate:SCREEN-VALUE = string(ttFGReorderSelection.dateDueDateEarliest) .
+                    cBoard:SCREEN-VALUE = ttFGReorderSelection.board.
                     FIND FIRST itemfg NO-LOCK 
                          WHERE itemfg.company EQ cocode
                          AND itemfg.i-no EQ ttFGReorderSelection.itemID NO-ERROR .
@@ -1442,6 +1443,12 @@ PROCEDURE pImportRemaingBalance :
                     bf-ttInputEst.iQuantityYield = 1 
                     bf-ttInputEst.lKeyItem = NO 
                     lv-rowid               = ROWID(bf-ttInputEst).
+                    
+                    FIND FIRST ef NO-LOCK
+                         WHERE ef.company EQ cocode
+                         AND ef.est-no EQ job-hdr.est-no NO-ERROR .
+                    IF AVAIL ef THEN
+                    ASSIGN cBoard:SCREEN-VALUE IN FRAME {&FRAME-NAME} = ef.board.
                     
                     FIND FIRST itemfg NO-LOCK 
                          WHERE itemfg.company EQ cocode
