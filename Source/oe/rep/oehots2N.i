@@ -249,6 +249,9 @@ IF AVAIL itemfg THEN DO:
   
    v-ship-city = IF AVAIL shipto AND shipto.ship-city <> "" THEN shipto.ship-city ELSE w-ord.ship-id.
    cShipZip = IF AVAIL shipto AND shipto.ship-zip <> "" THEN shipto.ship-zip ELSE "".
+   
+   IF AVAIL oe-rel THEN cLotNo = oe-rel.lot-no .
+                   ELSE cLotNo = "" .
    IF substring(lv-routing,15,1) = "," THEN 
       lv-routing = SUBSTRING(lv-routing,1,14).
   
@@ -397,6 +400,7 @@ IF AVAIL itemfg THEN DO:
                  WHEN "v-qtyAvail" THEN cVarValue = STRING(itemfg.q-onh + (IF oereordr-cha EQ "XOnOrder" THEN 0 ELSE itemfg.q-ono) - itemfg.q-alloc).
                  WHEN "skids" THEN cVarValue = STRING(w-ord.palls,"->>>,>>9").
                  WHEN "ship-zip" THEN cVarValue = string(cShipZip,"x(10)").
+                 WHEN "lot-no"   THEN cVarValue = string(cLotNo,"x(15)").
             END CASE.
             cExcelVarValue = cVarValue.
             cDisplay = cDisplay + cVarValue +

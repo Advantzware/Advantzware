@@ -25,6 +25,7 @@
    DEF VAR v-note4             AS CHAR                 NO-UNDO.
    DEF VAR ld-palls AS DEC NO-UNDO.
    DEF VAR cShipZip        LIKE shipto.ship-zip   NO-UNDO.
+   DEF VAR cLotNo          LIKE oe-rel.lot-no     NO-UNDO.
 
    ASSIGN 
       v-line  = "<C1><FROM><C107><LINE><||3>" .
