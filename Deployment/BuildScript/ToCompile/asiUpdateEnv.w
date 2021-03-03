@@ -1983,6 +1983,77 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipConvertJcCtrl C-Win 
+PROCEDURE ipConvertJcCtrl :
+/*------------------------------------------------------------------------------
+  Purpose:     Rajesh - Ticket 97460
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE gcMaterialTypes AS CHARACTER NO-UNDO INITIAL "C,D,F,G,I,L,M,P,R,T,V,W,B,1,2,3,4,5,6,7,8,9,X,Y,@".
+    DEFINE VARIABLE gcMaterialNames AS CHARACTER NO-UNDO INITIAL "Case,Pallet,Foil,Glue,Ink,Laminate,Misc.,Paper,Die Rule,Tray,Varnish,Window,Real Board,Polyethylene,Polyurethane,Exp. Polystyrene,Polystyrene,Layer Pad,Divider,Printing Die/ Plates,Cutting Dies,Wood,Rotary Die,Flat Die,@ Misc.".
+ 
+    DEFINE VARIABLE iCount AS INTEGER   NO-UNDO.
+
+    DEFINE BUFFER bf-jc-ctrl      FOR jc-ctrl. 
+    DEFINE BUFFER bf-mat          FOR mat.
+    DEFINE BUFFER bf-company      FOR company.
+    DEFINE BUFFER bf-materialType FOR materialType.
+
+    RUN ipStatus ("    Creating materialType records.").
+
+    FOR EACH bf-company NO-LOCK:
+        FOR EACH bf-mat NO-LOCK:
+            FIND FIRST bf-materialType EXCLUSIVE-LOCK    
+                WHERE bf-materialType.company      EQ bf-company.company
+                AND bf-materialType.materialType EQ bf-mat.mat
+                NO-ERROR.
+            IF NOT AVAILABLE bf-materialType THEN 
+            DO:
+                CREATE bf-materialType.         
+                ASSIGN
+                    bf-materialType.company             = bf-company.company
+                    bf-materialType.materialType        = bf-mat.mat
+                    bf-materialType.materialDescription = bf-mat.dscr
+                    bf-materialType.calculationType     = "ByDefault"
+                    .
+            END.
+        END.
+    END.
+
+    FOR EACH bf-company NO-LOCK:
+        FIND FIRST bf-jc-ctrl NO-LOCK 
+            WHERE bf-jc-ctrl.company EQ bf-company.company
+            NO-ERROR.
+        DO iCount = 1 TO NUM-ENTRIES(gcMaterialTypes):
+            FIND FIRST bf-materialType EXCLUSIVE-LOCK    
+                WHERE bf-materialType.company      EQ bf-company.company
+                AND bf-materialType.materialType EQ ENTRY(iCount, gcMaterialTypes)
+                NO-ERROR.
+            IF NOT AVAILABLE bf-materialType THEN 
+            DO:
+                CREATE bf-materialType.
+                ASSIGN
+                    bf-materialType.company         = bf-company.company
+                    bf-materialType.materialType    = ENTRY(iCount, gcMaterialTypes)
+                    bf-materialType.calculationType = "ByDefault"
+                    .
+            END.
+
+            IF bf-materialType.materialDescription EQ '' THEN
+                bf-materialType.materialDescription = ENTRY(iCount, gcMaterialNames).
+
+            IF AVAILABLE bf-jc-ctrl AND iCount LE EXTENT(bf-jc-ctrl.post) THEN
+                bf-materialType.autoIssue = bf-jc-ctrl.post[iCount].
+        END.
+    END.
+        
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipConvertModule C-Win 
 PROCEDURE ipConvertModule :
 /*------------------------------------------------------------------------------
@@ -2600,6 +2671,8 @@ PROCEDURE ipDataFix :
         RUN ipDataFix210001.
     IF iCurrentVersion LT 21000200 THEN
         RUN ipDataFix210002.
+    IF iCurrentVersion LT 21000300 THEN
+        RUN ipDataFix210003.
     IF iCurrentVersion LT 99999999 THEN
         RUN ipDataFix999999.
 
@@ -3354,6 +3427,24 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix210003 C-Win
+PROCEDURE ipDataFix210003:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEF VAR cOrigPropath AS CHAR NO-UNDO.
+    DEF VAR cNewPropath AS CHAR NO-UNDO.
+
+    RUN ipStatus ("  Data Fix 210003...").
+
+    RUN ipConvertJcCtrl.
+    
+END PROCEDURE.
+    
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix999999 C-Win 
@@ -3370,12 +3461,12 @@ PROCEDURE ipDataFix999999 :
     RUN ipLoadAPIConfigData.
     RUN ipLoadAPIData.
     RUN ipSetCueCards.
-/*    RUN ipDeleteAudit.*/
     RUN ipCleanTemplates.
     RUN ipLoadEstCostData.
     RUN ipChangeCostMethod.
     RUN ipSetDepartmentRequired.
     RUN ipAddDbmsFonts.
+    RUN ipDeleteAudit.
     
 END PROCEDURE.
 
