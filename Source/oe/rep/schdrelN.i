@@ -399,6 +399,97 @@ if chosen eq 2 then DO:
 
                                     cVarValue = IF v-m-code NE "" THEN v-m-code ELSE "" .
                 END.
+                
+                WHEN "remaining-routing" THEN do:  
+                        ASSIGN v-m-code = "" .
+                        FOR EACH tt-fg-set:
+                            DELETE tt-fg-set.
+                        END.
+                        RELEASE job-hdr.
+                        RELEASE job.
+                        RELEASE reftable.
+                    
+                   
+                        FIND FIRST job-hdr
+                            WHERE job-hdr.company EQ cocode
+                            AND job-hdr.job-no  EQ w-ord.job-no
+                            AND job-hdr.job-no2 EQ w-ord.job-no2
+                            AND job-hdr.ord-no  EQ w-ord.ord-no
+                            AND job-hdr.i-no    EQ w-ord.i-no
+                            NO-LOCK NO-ERROR.
+                        IF NOT AVAIL job-hdr THEN
+                            FIND FIRST job-hdr
+                            WHERE job-hdr.company EQ cocode
+                            AND job-hdr.job-no  EQ w-ord.job-no
+                            AND job-hdr.job-no2 EQ w-ord.job-no2
+                            AND job-hdr.ord-no  EQ w-ord.ord-no
+                            NO-LOCK NO-ERROR.
+                       
+                        IF AVAIL job-hdr THEN
+                            FIND FIRST job
+                            WHERE job.company EQ job-hdr.company
+                            AND job.job     EQ job-hdr.job
+                            AND job.job-no  EQ job-hdr.job-no
+                            AND job.job-no2 EQ job-hdr.job-no2
+                            NO-LOCK NO-ERROR.
+                        
+                        IF AVAIL job THEN DO:
+                            IF (itemfg.isaset OR w-ord.is-a-component)                          AND
+                                CAN-FIND(FIRST reftable
+                                         WHERE reftable.reftable EQ "jc/jc-calc.p"
+                                         AND reftable.company  EQ job.company
+                                         AND reftable.loc      EQ ""
+                                         AND reftable.code     EQ STRING(job.job,"999999999")) THEN
+                                FOR EACH reftable
+                                WHERE reftable.reftable EQ "jc/jc-calc.p"
+                                AND reftable.company  EQ job-hdr.company
+                                AND reftable.loc      EQ ""
+                                AND reftable.code     EQ STRING(job-hdr.job,"999999999")
+                                AND ((reftable.code2  EQ w-ord.i-no AND w-ord.is-a-component) OR
+                                     (job-hdr.i-no    EQ w-ord.i-no AND NOT w-ord.is-a-component))
+                                NO-LOCK:
+                                CREATE tt-fg-set.
+                                ASSIGN
+                                    tt-fg-set.part-no      = reftable.code2
+                                    tt-fg-set.QtyPerSet     = reftable.val[12]
+                                    tt-fg-set.part-qty-dec = reftable.val[13].
+                                END.
+                                ELSE DO:
+                                    CREATE tt-fg-set.
+                                    ASSIGN
+                                        tt-fg-set.part-no      = job-hdr.i-no
+                                        tt-fg-set.QtyPerSet     = job-hdr.frm
+                                        tt-fg-set.part-qty-dec = job-hdr.blank-no.
+                                END.
+
+                                FOR EACH tt-fg-set
+                                    BREAK BY tt-fg-set.QtyPerSet
+                                    BY tt-fg-set.part-qty-dec:
+                                     
+                                    FOR EACH job-mch
+                                        WHERE job-mch.company EQ job.company
+                                        AND job-mch.job     EQ job.job
+                                        AND job-mch.job-no  EQ job.job-no
+                                        AND job-mch.job-no2 EQ job.job-no2
+                                        AND job-mch.frm     EQ INTEGER(tt-fg-set.QtyPerSet)
+                                        AND NOT job-mch.run-complete
+                                        NO-LOCK
+                                        BREAK BY job-mch.line:
+                                        IF FIRST(job-mch.line) AND v-m-code <> "" THEN 
+                                            v-m-code = v-m-code + "," .
+                                        ASSIGN v-m-code = v-m-code + job-mch.m-code.
+                                       /* PUT UNFORMATTED job-mch.m-code. */
+                                          IF NOT LAST(job-mch.line) THEN do: /*PUT ", ".*/
+                                          ASSIGN  v-m-code = v-m-code + "," .
+                                          END.
+                                        END.
+                             END.
+                        END.
+                    
+                    cVarValue = IF v-m-code NE "" THEN v-m-code ELSE "" .
+                    
+                END.
+                
                 WHEN "mfg-date" THEN DO:
                   IF w-ord.prom-date NE ? THEN
                       cVarValue = STRING(w-ord.prom-date) .
