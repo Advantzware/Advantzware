@@ -52,7 +52,7 @@ DEFINE            VARIABLE v-prev-ext-gap AS INTEGER   NO-UNDO.
 DEFINE            VARIABLE v-po-no        LIKE oe-ordl.po-no NO-UNDO.
 DEFINE            VARIABLE cBoardDscr     AS CHARACTER NO-UNDO.
 DEFINE            VARIABLE iPageCount     AS INTEGER   NO-UNDO.
-DEFINE            VARIABLE dExpectedPallets     AS DECIMAL   NO-UNDO.
+DEFINE            VARIABLE iExpectedPallets     AS INTEGER   NO-UNDO.
 
 DEFINE WORKFILE w-lo
     FIELD layout LIKE v-layout.
@@ -787,7 +787,7 @@ FOR EACH ef
             NO-ERROR .           
         
         ASSIGN
-            dExpectedPallets =  ( job-hdr.qty / eb.tr-cnt ) .
+            iExpectedPallets =  ROUND( job-hdr.qty / eb.tr-cnt,0 ) .
         
         PUT "<=#5> <C3>" cFGItemLabel FORMAT "x(10)" job-hdr.i-no FORMAT "x(18)"  "<B>" cKeyItemLabel FORMAT "x(15)" "</B> " job-hdr.keyItem  "<C35>" cMoldsLabel FORMAT "x(8)" eb.num-up   "<C55>" cWetWeightLabel FORMAT "x(13)" STRING(fGetMiscFields(itemfg.rec_key,"00001")) "<C75>" cFirstDryLabel FORMAT "x(14)" STRING(fGetMiscFields(itemfg.rec_key,"00003")) SKIP
             "<C3>" cDscrLabel FORMAT "x(13)" ( IF AVAILABLE itemfg THEN itemfg.part-dscr1 ELSE "") FORMAT "x(30)"    "<C35>" cMoldIDsLabel FORMAT "x(25)"  "<C55>" cBoneDryLabel FORMAT "x(10)" "<C75>" cMoistureLabel FORMAT "X(9)" STRING(fGetMiscFields(itemfg.rec_key,"00005")) SKIP
@@ -802,7 +802,7 @@ FOR EACH ef
             "<C25>" cCartonCodeLabel           FORMAT "x(20)" eb.cas-no SKIP
             "<C3>" cPalletCountLabel           FORMAT "x(23)" eb.tr-cnt FORMAT ">,>>>,>>9"    
             "<C25>" cPalletSizeLabel           FORMAT "x(23)"  ( IF AVAILABLE eb THEN (STRING(eb.tr-len) + " x " +  STRING(eb.tr-wid) + " x " +  STRING(eb.tr-dep)) ELSE "") FORMAT "x(12)" SKIP
-            "<C3>" cExpectedPallets            FORMAT "x(23)"  ( dExpectedPallets )
+            "<C3>" cExpectedPallets            FORMAT "x(23)"  STRING( iExpectedPallets )
             "<C25>" cPalletLabel               FORMAT "x(25)" ( IF AVAILABLE eb THEN eb.tr-no ELSE "") SKIP
             "<C2><FROM><C47><LINE>" .
            
