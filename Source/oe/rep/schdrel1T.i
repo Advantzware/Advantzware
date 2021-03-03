@@ -97,6 +97,7 @@ def temp-table w-ord
   FIELD po-ord-qty AS DECIMAL
   FIELD po-rec-qty AS DECIMAL
   FIELD pr-uom AS CHARACTER 
+  FIELD lot-no AS CHARACTER 
   .
 
 def buffer b-w-ord for w-ord.
