@@ -34,7 +34,9 @@ CREATE WIDGET-POOL.
 /* ***************************  Definitions  ************************** */
 
 &SCOPED-DEFINE winViewPrgmName w-issue
-
+&SCOPED-DEFINE winReSize
+&SCOPED-DEFINE h_Object01 h_p-updsav
+&SCOPED-DEFINE h_Object02 h_v-post
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
@@ -136,18 +138,18 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          TITLE              = "WAREHOUSE TRANSACTION ISSUES"
          HEIGHT             = 24
          WIDTH              = 149.8
-         MAX-HEIGHT         = 33.29
-         MAX-WIDTH          = 204.8
+         MAX-HEIGHT         = 320
+         MAX-WIDTH          = 320
          VIRTUAL-HEIGHT     = 33.29
          VIRTUAL-WIDTH      = 204.8
-         RESIZE             = no
-         SCROLL-BARS        = no
-         STATUS-AREA        = yes
+         RESIZE             = YES
+         SCROLL-BARS        = NO
+         STATUS-AREA        = YES
          BGCOLOR            = ?
          FGCOLOR            = ?
-         THREE-D            = yes
-         MESSAGE-AREA       = no
-         SENSITIVE          = yes.
+         THREE-D            = YES
+         MESSAGE-AREA       = NO
+         SENSITIVE          = YES.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
@@ -259,6 +261,7 @@ ASSIGN cocode = gcompany
        locode = gloc.
 /* Include custom  Main Block code for SmartWindows. */
 {src/adm/template/windowmn.i}
+{custom/initializeprocs.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

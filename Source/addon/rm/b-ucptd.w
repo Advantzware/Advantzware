@@ -41,6 +41,8 @@ CREATE WIDGET-POOL.
 &scoped-define fld-name-1 rm-rctd.tag
 &scoped-define SORTBY-1 BY {&fld-name-1}
 &global-define IAMWHAT LOOKUP
+&SCOPED-DEFINE winReSize
+{methods/defines/winReSize.i}
 
 DEF VAR ll-help-run AS LOG NO-UNDO.
 
@@ -752,6 +754,7 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
+{methods/winReSize.i}
 {methods/ctrl-a_browser.i}
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
