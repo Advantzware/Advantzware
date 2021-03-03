@@ -29,7 +29,7 @@ DEFINE VARIABLE lMatrixExists AS LOGICAL     NO-UNDO.
       AND cust.cust-no eq quotehd.cust-no
     USE-INDEX cust NO-LOCK NO-ERROR.
     IF AVAILABLE cust THEN 
-        RUN GetPriceMatrixPriceSimple IN hdPriceProcs (itemfg.company, itemfg.i-no, cust.cust-no, "", DECIMAL(lv-qty),
+        RUN Price_GetPriceMatrixPriceSimple(itemfg.company, itemfg.i-no, cust.cust-no, "", DECIMAL(lv-qty),
                                                       OUTPUT lMatrixExists, INPUT-OUTPUT lv-price, INPUT-OUTPUT lv-uom).
  
     ASSIGN

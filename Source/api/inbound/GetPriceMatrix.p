@@ -20,10 +20,8 @@ DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttPriceMatrix.
 DEFINE OUTPUT       PARAMETER oplSuccess  AS LOGICAL   NO-UNDO.
 DEFINE OUTPUT       PARAMETER opcMessage  AS CHARACTER NO-UNDO.
 
-DEFINE VARIABLE hdPriceProcs    AS HANDLE NO-UNDO.
 DEFINE VARIABLE hdValidateProcs AS HANDLE NO-UNDO.
 
-RUN oe/PriceProcs.p PERSISTENT SET hdPriceProcs.
 RUN util/Validate.p PERSISTENT SET hdValidateProcs.
 
 /* Input validation */
@@ -55,7 +53,6 @@ IF oplSuccess THEN DO:
         opcMessage = ERROR-STATUS:GET-MESSAGE(1).
 END.
     
-DELETE PROCEDURE hdPriceProcs.
 DELETE PROCEDURE hdValidateProcs.
 
 /* **********************  Internal Procedures  *********************** */
@@ -91,8 +88,8 @@ PROCEDURE pProcessInputs PRIVATE:
             .
         RETURN.
     END.
-
-    RUN GetPriceMatrix IN hdPriceProcs (
+    
+    RUN Price_GetPriceMatrix (
         INPUT        ipcCompany,
         INPUT        ipcItemID,
         INPUT        ipcCustID,

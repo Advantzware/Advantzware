@@ -50,9 +50,7 @@ DEFINE VARIABLE ou-cust-int LIKE sys-ctrl.int-fld NO-UNDO.
 {custom/getloc.i}
 
 {sys/inc/var.i new shared}
-DEFINE VARIABLE hdPriceProcs  AS HANDLE.
 
-RUN oe/PriceProcs.p PERSISTENT SET hdPriceProcs.
 ASSIGN
  cocode = gcompany
  locode = gloc.

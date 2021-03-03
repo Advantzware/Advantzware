@@ -98,9 +98,7 @@ DEF VAR rCurTTRow AS ROWID NO-UNDO.
 DEF VAR rCurItemRow AS ROWID NO-UNDO.
 DEFINE VARIABLE rPrevItemRow AS ROWID       NO-UNDO.
 DEFINE VARIABLE rPrevTTRow  AS ROWID       NO-UNDO.
-DEFINE VARIABLE hdPriceProcs AS HANDLE NO-UNDO.
 
-RUN oe/PriceProcs.p PERSISTENT SET hdPriceProcs.
 /*&SCOPED-DEFINE SORTBY-PHRASE  BY itemfg.last-count*/
 gcompany = g_company.
 {sys/inc/fgbrowse.i}
@@ -935,7 +933,7 @@ DO:
     MESSAGE "Quantity must be greater than 0" VIEW-AS ALERT-BOX.
     RETURN NO-APPLY.
   END.*/
-  RUN GetPriceMatrixPriceSimple IN hdPriceProcs (itemfg.company, itemfg.i-no, cust.cust-no, "", DECIMAL(tt-ordl.e-qty:SCREEN-VALUE IN BROWSE {&browse-name}),
+  RUN Price_GetPriceMatrixPriceSimple(itemfg.company, itemfg.i-no, cust.cust-no, "", DECIMAL(tt-ordl.e-qty:SCREEN-VALUE IN BROWSE {&browse-name}),
                                           OUTPUT lMatrixExists, INPUT-OUTPUT v-i-price, INPUT-OUTPUT v-i-uom).
 
       ASSIGN

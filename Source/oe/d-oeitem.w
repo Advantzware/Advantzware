@@ -161,12 +161,10 @@ DEFINE VARIABLE OEPO#Xfer-log AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE oeDateChange-log AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE oeDateChange-chr AS CHARACTER   NO-UNDO.
 DEFINE VARIABLE gcLastDateChange AS CHARACTER   NO-UNDO.
-DEFINE VARIABLE hdPriceProcs AS HANDLE NO-UNDO.
+
 DEFINE VARIABLE hdSalesManProcs AS HANDLE NO-UNDO.
 
 RUN salrep/SalesManProcs.p PERSISTENT SET hdSalesManProcs.
-
-RUN oe/PriceProcs.p PERSISTENT SET hdPriceProcs.
 
 cocode = g_company.
 
@@ -6941,7 +6939,7 @@ PROCEDURE OnSaveButton :
             lPMPrompt = NO 
             lPMBlock  = NO.
       
-    RUN CheckPriceMatrix IN hdPriceProcs ( cocode, oe-ordl.i-no:SCREEN-VALUE,  oe-ord.cust-no, oe-ord.ship-id, DEC(oe-ordl.qty:SCREEN-VALUE),DEC(oe-ordl.price:SCREEN-VALUE),
+    RUN Price_CheckPriceMatrix ( cocode, oe-ordl.i-no:SCREEN-VALUE,  oe-ord.cust-no, oe-ord.ship-id, DEC(oe-ordl.qty:SCREEN-VALUE),DEC(oe-ordl.price:SCREEN-VALUE),
         OUTPUT lPMPrompt, OUTPUT cPMMessage, OUTPUT lPMBlock).
     IF lPMPrompt THEN 
     DO: 
@@ -7007,7 +7005,7 @@ PROCEDURE OnSaveButton :
 
         END.
 
-        RUN CheckPriceHoldForOrder IN hdPriceProcs(ROWID(oe-ord),
+        RUN Price_CheckPriceHoldForOrder(ROWID(oe-ord),
                                               YES, /*Prompt*/
                                               YES, /*Set oe-ord hold fields*/
                                               OUTPUT lPriceHold, 
@@ -10189,7 +10187,7 @@ FUNCTION fIsCustPriceHoldExempt RETURNS LOGICAL PRIVATE
     DEFINE VARIABLE lPriceHold AS LOGICAL NO-UNDO.
     DEFINE VARIABLE lPriceHoldActive AS LOGICAL NO-UNDO.
         
-        RUN CheckPriceHoldForCustShip IN hdPriceProcs (ipcCompany, ipcCustomerID, ipcShipToID, OUTPUT lPriceHold, OUTPUT lPriceHoldActive).
+        RUN Price_CheckPriceHoldForCustShip (ipcCompany, ipcCustomerID, ipcShipToID, OUTPUT lPriceHold, OUTPUT lPriceHoldActive).
 
     lCustExempt = NOT lPriceHold AND lPriceHoldActive.
     

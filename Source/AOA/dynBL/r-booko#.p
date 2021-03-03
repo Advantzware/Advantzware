@@ -20,9 +20,6 @@
 {AOA/includes/subjectID{&subjectID}Defs.i}
 
 DEFINE NEW SHARED VARIABLE cocode       AS CHARACTER NO-UNDO.
-DEFINE            VARIABLE hdPriceProcs AS HANDLE    NO-UNDO.
-
-RUN oe/PriceProcs.p PERSISTENT SET hdPriceProcs.
 
 /* subject business logic */
 /* **********************  Internal Procedures  *********************** */
