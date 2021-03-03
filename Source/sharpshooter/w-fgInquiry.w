@@ -45,6 +45,7 @@ CREATE WIDGET-POOL.
 {wip/keyboardDefs.i}
 {inventory/ttInventory.i "NEW SHARED"}
 
+
 DEFINE VARIABLE cCompany   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cItemID    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCustItem  AS CHARACTER NO-UNDO.
@@ -93,7 +94,7 @@ DEFINE VARIABLE hdFGProcs AS HANDLE NO-UNDO.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS rdView fiFGItem fiCustItem fiLocation ~
 btItemHelp btnKeyboardItem btnKeyboardLoc btnNumPad btItemNameHelp ~
-btnKeyboardItemName btLocHelp RECT-33 RECT-34 
+btnKeyboardItemName btLocHelp RECT-33 RECT-34 RECT-35 
 &Scoped-Define DISPLAYED-OBJECTS rdView fiFGItem fiCustItem fiLocation ~
 fiSellUOM 
 
@@ -132,17 +133,17 @@ DEFINE VARIABLE h_navigateprev-3 AS HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btItemHelp 
-     IMAGE-UP FILE "Graphics/32x32/magnifying_glass.ico":U
+     IMAGE-UP FILE "Graphics/32x32/search_new.png":U
      LABEL "" 
      SIZE 6.6 BY 1.57.
 
 DEFINE BUTTON btItemNameHelp 
-     IMAGE-UP FILE "Graphics/32x32/magnifying_glass.ico":U
+     IMAGE-UP FILE "Graphics/32x32/search_new.png":U
      LABEL "" 
      SIZE 6.6 BY 1.52.
 
 DEFINE BUTTON btLocHelp 
-     IMAGE-UP FILE "Graphics/32x32/magnifying_glass.ico":U
+     IMAGE-UP FILE "Graphics/32x32/search_new.png":U
      LABEL "" 
      SIZE 6.6 BY 1.57.
 
@@ -167,24 +168,23 @@ DEFINE BUTTON btnNumPad
      SIZE 8 BY 1.91 TOOLTIP "Numeric Keypad".
 
 DEFINE VARIABLE fiCustItem AS CHARACTER FORMAT "X(256)":U 
-     LABEL "Customer Part #" 
      VIEW-AS FILL-IN 
-     SIZE 49.6 BY 1.43 NO-UNDO.
+     SIZE 49.6 BY 1.43
+     FGCOLOR 0  NO-UNDO.
 
 DEFINE VARIABLE fiFGItem AS CHARACTER FORMAT "X(256)":U 
-     LABEL "FG Item#" 
      VIEW-AS FILL-IN 
-     SIZE 49.6 BY 1.43 NO-UNDO.
+     SIZE 49.6 BY 1.43
+     FGCOLOR 0  NO-UNDO.
 
 DEFINE VARIABLE fiLocation AS CHARACTER FORMAT "X(256)":U 
-     LABEL "Location" 
      VIEW-AS FILL-IN 
      SIZE 32.2 BY 1.43 NO-UNDO.
 
 DEFINE VARIABLE fiSellUOM AS CHARACTER FORMAT "X(256)":U 
-     LABEL "UOM" 
      VIEW-AS FILL-IN 
-     SIZE 9.8 BY 1.43 NO-UNDO.
+     SIZE 9.8 BY 1.43
+     FGCOLOR 0  NO-UNDO.
 
 DEFINE VARIABLE rdView AS INTEGER 
      VIEW-AS RADIO-SET HORIZONTAL
@@ -192,7 +192,8 @@ DEFINE VARIABLE rdView AS INTEGER
           "Detail", 1,
 "Location", 2,
 "Bin", 3
-     SIZE 63 BY 1.33 NO-UNDO.
+     SIZE 63 BY 1.33
+     BGCOLOR 23 FGCOLOR 0  NO-UNDO.
 
 DEFINE RECTANGLE RECT-2
      EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
@@ -200,34 +201,53 @@ DEFINE RECTANGLE RECT-2
      BGCOLOR 12 .
 
 DEFINE RECTANGLE RECT-33
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 197.8 BY .1.
+     EDGE-PIXELS 2 GRAPHIC-EDGE    
+     SIZE 186.4 BY 4.5
+     BGCOLOR 23 FGCOLOR 24 .
 
 DEFINE RECTANGLE RECT-34
-     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
      SIZE 65.8 BY 1.95.
+
+DEFINE RECTANGLE RECT-35
+     EDGE-PIXELS 2 GRAPHIC-EDGE    
+     SIZE 14.8 BY 32.8
+     BGCOLOR 21 FGCOLOR 21 .
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
      rdView AT ROW 3.76 COL 96.6 NO-LABEL WIDGET-ID 160 NO-TAB-STOP 
-     fiFGItem AT ROW 1.38 COL 25.4 COLON-ALIGNED WIDGET-ID 2
-     fiCustItem AT ROW 3.62 COL 25.6 COLON-ALIGNED WIDGET-ID 4
-     fiLocation AT ROW 1.38 COL 106.4 COLON-ALIGNED WIDGET-ID 142
-     btItemHelp AT ROW 1.33 COL 77.6 WIDGET-ID 138 NO-TAB-STOP 
-     btnKeyboardItem AT ROW 1.33 COL 85 WIDGET-ID 136 NO-TAB-STOP 
+     fiFGItem AT ROW 1.38 COL 26.4 COLON-ALIGNED NO-LABEL WIDGET-ID 2
+     fiCustItem AT ROW 3.62 COL 26.6 COLON-ALIGNED NO-LABEL WIDGET-ID 4
+     fiLocation AT ROW 1.38 COL 106.4 COLON-ALIGNED NO-LABEL WIDGET-ID 142
+     btItemHelp AT ROW 1.33 COL 78.6 WIDGET-ID 138 NO-TAB-STOP 
+     btnKeyboardItem AT ROW 1.33 COL 86 WIDGET-ID 136 NO-TAB-STOP 
      btnKeyboardLoc AT ROW 1.33 COL 149 WIDGET-ID 144 NO-TAB-STOP 
      btnNumPad AT ROW 1.57 COL 178.6 WIDGET-ID 120 NO-TAB-STOP 
-     btItemNameHelp AT ROW 3.57 COL 77.6 WIDGET-ID 140 NO-TAB-STOP 
-     btnKeyboardItemName AT ROW 3.57 COL 85.2 WIDGET-ID 134 NO-TAB-STOP 
+     btItemNameHelp AT ROW 3.57 COL 78.6 WIDGET-ID 140 NO-TAB-STOP 
+     btnKeyboardItemName AT ROW 3.57 COL 86.2 WIDGET-ID 134 NO-TAB-STOP 
      btLocHelp AT ROW 1.33 COL 141.6 WIDGET-ID 146 NO-TAB-STOP 
-     fiSellUOM AT ROW 1.48 COL 164.2 COLON-ALIGNED WIDGET-ID 148 NO-TAB-STOP 
+     fiSellUOM AT ROW 1.48 COL 164.2 COLON-ALIGNED NO-LABEL WIDGET-ID 148 NO-TAB-STOP 
      "View Inventory By" VIEW-AS TEXT
-          SIZE 21 BY .67 AT ROW 3.14 COL 97.8 WIDGET-ID 154
-          FONT 6
-     RECT-33 AT ROW 5.62 COL 2.6 WIDGET-ID 6
+          SIZE 21 BY .67 AT ROW 3.14 COL 95.6 WIDGET-ID 154
+          BGCOLOR 23 FGCOLOR 24 FONT 22
+     "FG Item#:" VIEW-AS TEXT
+          SIZE 16 BY 1.1 AT ROW 1.57 COL 11.6 WIDGET-ID 166
+          BGCOLOR 23 FGCOLOR 24 FONT 36
+     "Customer Part #:" VIEW-AS TEXT
+          SIZE 25.6 BY 1.1 AT ROW 3.86 COL 2.4 WIDGET-ID 168
+          BGCOLOR 23 FGCOLOR 24 FONT 36
+     "Location:" VIEW-AS TEXT
+          SIZE 14 BY 1.1 AT ROW 1.48 COL 93.6 WIDGET-ID 170
+          BGCOLOR 23 FGCOLOR 24 FONT 36
+     "UOM:" VIEW-AS TEXT
+          SIZE 9 BY 1.1 AT ROW 1.62 COL 156.8 WIDGET-ID 172
+          BGCOLOR 23 FGCOLOR 24 FONT 36
+     RECT-33 AT ROW 1.19 COL 1.8 WIDGET-ID 6
      RECT-34 AT ROW 3.38 COL 95 WIDGET-ID 152
+     RECT-35 AT ROW 1 COL 188.2 WIDGET-ID 164
      RECT-2 AT ROW 1.38 COL 177.6 WIDGET-ID 130
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -758,6 +778,7 @@ END.
 
 /* ***************************  Main Block  *************************** */
 /* Include custom  Main Block code for SmartWindows. */
+
 {src/adm/template/windowmn.i}
 {sharpshooter/smartobj/windowExit.i}
 {wip/pKeyboard.i}
@@ -863,8 +884,10 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_b-fginqbins , 'ADJUST':U , h_adjustqty ).
 
        /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_navigatenext ,
-             h_navigatelast , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_b-fginqbins ,
+             fiFGItem:HANDLE IN FRAME F-Main , 'BEFORE':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_navigatefirst ,
+             fiFGItem:HANDLE IN FRAME F-Main , 'BEFORE':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_navigateprev ,
              h_navigatenext , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_adjustqty ,
@@ -872,20 +895,20 @@ PROCEDURE adm-create-objects :
     END. /* Page 1 */
     WHEN 2 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'sharpshooter/b-fginqloc.w':U ,
-             INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Layout = ':U ,
-             OUTPUT h_b-fginqloc ).
-       RUN set-position IN h_b-fginqloc ( 6.00 , 2.20 ) NO-ERROR.
-       RUN set-size IN h_b-fginqloc ( 27.62 , 187.00 ) NO-ERROR.
-
-       RUN init-object IN THIS-PROCEDURE (
              INPUT  'sharpshooter/smartobj/adjustqty.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_adjustqty-2 ).
        RUN set-position IN h_adjustqty-2 ( 18.38 , 190.00 ) NO-ERROR.
        /* Size in UIB:  ( 2.62 , 11.00 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'sharpshooter/b-fginqloc.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_b-fginqloc ).
+       RUN set-position IN h_b-fginqloc ( 6.00 , 2.20 ) NO-ERROR.
+       RUN set-size IN h_b-fginqloc ( 27.62 , 187.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'sharpshooter/smartobj/navigatelast.w':U ,
@@ -919,11 +942,11 @@ PROCEDURE adm-create-objects :
        RUN set-position IN h_navigateprev-2 ( 10.76 , 190.00 ) NO-ERROR.
        /* Size in UIB:  ( 2.62 , 11.00 ) */
 
-       /* Links to SmartBrowser h_b-fginqloc. */
-       RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'Loc':U , h_b-fginqloc ).
-
        /* Links to SmartObject h_adjustqty-2. */
        RUN add-link IN adm-broker-hdl ( h_b-fginqloc , 'ADJUST':U , h_adjustqty-2 ).
+
+       /* Links to SmartBrowser h_b-fginqloc. */
+       RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'Loc':U , h_b-fginqloc ).
 
        /* Links to SmartObject h_navigatelast-2. */
        RUN add-link IN adm-broker-hdl ( h_b-fginqloc , 'NAV-LAST':U , h_navigatelast-2 ).
@@ -938,8 +961,10 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_b-fginqloc , 'NAV-PREV':U , h_navigateprev-2 ).
 
        /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_navigatefirst-2 ,
-             h_navigatelast-2 , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_adjustqty-2 ,
+             fiFGItem:HANDLE IN FRAME F-Main , 'BEFORE':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_b-fginqloc ,
+             fiFGItem:HANDLE IN FRAME F-Main , 'BEFORE':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_navigatenext-2 ,
              h_navigatefirst-2 , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_navigateprev-2 ,
@@ -947,19 +972,19 @@ PROCEDURE adm-create-objects :
     END. /* Page 2 */
     WHEN 3 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'sharpshooter/smartobj/navigateprev.w':U ,
-             INPUT  FRAME F-Main:HANDLE ,
-             INPUT  '':U ,
-             OUTPUT h_navigateprev-3 ).
-       RUN set-position IN h_navigateprev-3 ( 10.76 , 190.00 ) NO-ERROR.
-       /* Size in UIB:  ( 2.62 , 11.00 ) */
-
-       RUN init-object IN THIS-PROCEDURE (
              INPUT  'sharpshooter/smartobj/navigatelast.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_navigatelast-3 ).
        RUN set-position IN h_navigatelast-3 ( 31.00 , 190.00 ) NO-ERROR.
+       /* Size in UIB:  ( 2.62 , 11.00 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'sharpshooter/smartobj/navigateprev.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_navigateprev-3 ).
+       RUN set-position IN h_navigateprev-3 ( 10.76 , 190.00 ) NO-ERROR.
        /* Size in UIB:  ( 2.62 , 11.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -986,11 +1011,11 @@ PROCEDURE adm-create-objects :
        RUN set-position IN h_navigatefirst-3 ( 6.00 , 190.00 ) NO-ERROR.
        /* Size in UIB:  ( 2.62 , 11.00 ) */
 
-       /* Links to SmartObject h_navigateprev-3. */
-       RUN add-link IN adm-broker-hdl ( h_b-fginqlocbin , 'NAV-PREV':U , h_navigateprev-3 ).
-
        /* Links to SmartObject h_navigatelast-3. */
        RUN add-link IN adm-broker-hdl ( h_b-fginqlocbin , 'NAV-LAST':U , h_navigatelast-3 ).
+
+       /* Links to SmartObject h_navigateprev-3. */
+       RUN add-link IN adm-broker-hdl ( h_b-fginqlocbin , 'NAV-PREV':U , h_navigateprev-3 ).
 
        /* Links to SmartObject h_navigatenext-3. */
        RUN add-link IN adm-broker-hdl ( h_b-fginqlocbin , 'NAV-NEXT':U , h_navigatenext-3 ).
@@ -1002,8 +1027,10 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_b-fginqlocbin , 'NAV-FIRST':U , h_navigatefirst-3 ).
 
        /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_b-fginqlocbin ,
-             h_navigatenext-3 , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_navigateprev-3 ,
+             fiFGItem:HANDLE IN FRAME F-Main , 'BEFORE':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_navigatelast-3 ,
+             fiFGItem:HANDLE IN FRAME F-Main , 'BEFORE':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_navigatefirst-3 ,
              h_b-fginqlocbin , 'AFTER':U ).
     END. /* Page 3 */
@@ -1074,7 +1101,7 @@ PROCEDURE enable_UI :
       WITH FRAME F-Main IN WINDOW W-Win.
   ENABLE rdView fiFGItem fiCustItem fiLocation btItemHelp btnKeyboardItem 
          btnKeyboardLoc btnNumPad btItemNameHelp btnKeyboardItemName btLocHelp 
-         RECT-33 RECT-34 
+         RECT-33 RECT-34 RECT-35 
       WITH FRAME F-Main IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-F-Main}
   VIEW W-Win.

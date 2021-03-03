@@ -16,10 +16,6 @@ DEFINE VARIABLE cMatrixMatchMessage     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lQtyMatchFound          AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lQtyWithinMatrixRange   AS LOGICAL   NO-UNDO.
 
-DEFINE VARIABLE hdPriceProcs  AS HANDLE.
-
-RUN oe/PriceProcs.p PERSISTENT SET hdPriceProcs.
-
 FIND FIRST bf-cust NO-LOCK 
     WHERE bf-cust.company EQ ipbf-oe-ord.company
     AND bf-cust.cust-no EQ ipbf-oe-ord.cust-no
@@ -41,7 +37,7 @@ FOR EACH bf-oe-ordl EXCLUSIVE-LOCK
     :
     dOrderOrigAmount = bf-oe-ordl.t-price.
 
-    RUN GetPriceMatrixPrice IN hdPriceProcs (bf-oe-ordl.company, bf-oe-ordl.i-no, ipbf-oe-ord.cust-no, ipbf-oe-ord.ship-id,
+    RUN Price_GetPriceMatrixPrice (bf-oe-ordl.company, bf-oe-ordl.i-no, ipbf-oe-ord.cust-no, ipbf-oe-ord.ship-id,
         0, ipiPriceLevel,
         OUTPUT lMatrixMatchFound, OUTPUT cMatrixMatchMessage,
         INPUT-OUTPUT bf-oe-ordl.price, INPUT-OUTPUT bf-oe-ordl.pr-uom, 

@@ -29,6 +29,8 @@ CREATE WIDGET-POOL.
 {custom/globdefs.i}
 {sys/inc/VAR.i NEW SHARED}
 {methods/template/brwCustomDef.i}
+&SCOPED-DEFINE winReSize
+{methods/defines/winReSize.i}
 ASSIGN
  cocode = g_company
  locode = g_loc.
@@ -899,7 +901,7 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
-
+{methods/winReSize.i}
 ASSIGN
  cocode = g_company
  locode = g_loc.

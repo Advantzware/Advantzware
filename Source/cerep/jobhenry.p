@@ -212,8 +212,8 @@ DEFINE NEW SHARED FRAME head.
 FORMAT HEADER
          "<C45>HENRY MOLDED PRODUCTS,INC."   SKIP
          "<C47>Job/Head Especificación"  SKIP
-         "<C38>Número de orden: "  "<B>"STRING(v-job-no + "-" + STRING(v-job-no2,"99"))"</B>" 
-         "<C55>Máquina: " "<B>" cJobMachCode "</B>"
+         "<C33>Número de orden: "  "<B>"STRING(v-job-no + "-" + STRING(v-job-no2,"99"))"</B>" 
+         "<C52>Máquina: " "<B>" cJobMachCode "</B>"
          "<C66>Ciclos: " "<B>" cCycleValue "</B>"
          "<C87>Fecha:"  v-today  SKIP
          "<C4>Código de barras de la orden"
@@ -226,8 +226,8 @@ FORMAT HEADER
     "<C45>Job/Head Specification"  SKIP
     "<C94>DATE:"  v-today  SKIP
     "<C33>Job #:"  "<B>"STRING(v-job-no + "-" + STRING(v-job-no2,"99"))"</B>" 
-    "<C49>Machine: " "<B>" cJobMachCode "</B>"
-    "<C60>Cycles: " "<B>" cCycleValue "</B>"
+    "<C47>Machine: " "<B>" cJobMachCode "</B>"
+    "<C63>Cycles: " "<B>" cCycleValue "</B>"
     "<C94>DUE DATE:"  v-due-date SKIP
     /*v-fill*/
     WITH NO-BOX FRAME head NO-LABELS STREAM-IO WIDTH 132.
@@ -612,7 +612,7 @@ FOR EACH ef
                     CREATE tt-formtext.
                     ASSIGN
                         tt-line-no = li
-                        tt-length  = 76.
+                        tt-length  = 55.
                 END.
 
                 RUN custom/formtext.p (lv-text).
@@ -782,7 +782,7 @@ FOR EACH ef
             WHERE itemfg.company EQ job-hdr.company
             AND itemfg.i-no    EQ job-hdr.i-no
             NO-ERROR .           
-            
+          
         PUT "<=#5> <C3>" cFGItemLabel FORMAT "x(10)" job-hdr.i-no FORMAT "x(18)"  "<B>" cKeyItemLabel FORMAT "x(15)" "</B> " job-hdr.keyItem  "<C35>" cMoldsLabel FORMAT "x(8)" eb.num-up   "<C55>" cWetWeightLabel FORMAT "x(13)" STRING(fGetMiscFields(itemfg.rec_key,"00001")) "<C75>" cFirstDryLabel FORMAT "x(14)" STRING(fGetMiscFields(itemfg.rec_key,"00003")) SKIP
             "<C3>" cDscrLabel FORMAT "x(13)" ( IF AVAILABLE itemfg THEN itemfg.part-dscr1 ELSE "") FORMAT "x(30)"    "<C35>" cMoldIDsLabel FORMAT "x(25)"  "<C55>" cBoneDryLabel FORMAT "x(10)" "<C75>" cMoistureLabel FORMAT "X(9)" STRING(fGetMiscFields(itemfg.rec_key,"00005")) SKIP
             "<C3>" cSizeLabel FORMAT "x(8)"  eb.len " x " eb.wid " x " eb.dep  "<C35>" cJigAvailableLabel FORMAT "x(21)" STRING(fGetMiscFields(itemfg.rec_key,"00004"))  "<C55>" cMinWeightLabel FORMAT "x(12)" STRING(fGetMiscFields(itemfg.rec_key,"00002")) "<C75>" cFiberContentLabel FORMAT "x(20)" STRING(fGetMiscFields(itemfg.rec_key,"00006")) SKIP
@@ -793,10 +793,9 @@ FOR EACH ef
                
         PUT "<=#6> <C3><B>" cPackingLabel FORMAT "x(8)"  "</B>" SKIP
             "<C3>" cPalletCountLabel FORMAT "x(23)" TRIM(STRING(( IF AVAILABLE itemfg THEN (itemfg.case-count * itemfg.case-pall + itemfg.quantityPartial) ELSE 0),"->>,>>>,>>9"))    
-            "<C30>" cPalletSizeLabel  FORMAT "x(21)" ( IF AVAILABLE itemfg THEN (STRING(itemfg.UnitLength) + " x " +  string(itemfg.UnitWidth) + " x " + string(itemfg.UnitHeight)) ELSE "") 
-            SKIP
-            "<C3>" cCartonCodeLabel FORMAT "x(18)" eb.cas-no 
-            "<C30>" cPalletLabel FORMAT "x(10)" ( IF AVAILABLE itemfg THEN itemfg.trNo ELSE "") SKIP
+            "<C25>" cPalletSizeLabel FORMAT "x(23)"  ( IF AVAILABLE eb THEN (STRING(eb.tr-len) + " x " +  STRING(eb.tr-wid) + " x " +  STRING(eb.tr-dep)) ELSE "") FORMAT "x(12)" SKIP
+            "<C3>" cCartonCodeLabel FORMAT "x(22)" eb.cas-no 
+            "<C25>" cPalletLabel FORMAT "x(25)" ( IF AVAILABLE eb THEN eb.tr-no ELSE "") SKIP
             "<C2><FROM><C47><LINE>" .
            
                 

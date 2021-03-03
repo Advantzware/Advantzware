@@ -41,6 +41,8 @@ def var ls-prev-po as cha no-undo.
 def var hd-post as widget-handle no-undo.
 def var hd-post-child as widget-handle no-undo.
 def var ll-help-run as log no-undo.  /* set on browse help, reset row-entry */
+&SCOPED-DEFINE winReSize
+{methods/defines/winReSize.i}
 DEFINE VARIABLE hdInventoryProcs AS HANDLE NO-UNDO.
 DEFINE VARIABLE iWarehouseLength AS INTEGER NO-UNDO.
 
@@ -670,6 +672,7 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
+{methods/winReSize.i}
 {custom/getcmpny.i}
 {custom/getloc.i}
 

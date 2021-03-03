@@ -3592,7 +3592,9 @@ DEF VAR lv-comm LIKE eb.comm NO-UNDO.
          eb.wid =  tt-frmout.wid
          eb.dep = tt-frmout.dep
          eb.procat =  tt-frmout.cat 
-         eb.part-dscr1 = tt-frmout.item-name.
+         eb.part-dscr1 = tt-frmout.item-name
+         eb.num-wid  = 1
+         eb.num-len  = 1.
      
      IF AVAIL est-qty THEN
          ASSIGN eb.eqty = tt-frmout.quantity

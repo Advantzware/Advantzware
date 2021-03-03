@@ -60,8 +60,12 @@ DEFINE VARIABLE lv-puruom       LIKE itemfg.pur-uom NO-UNDO.
 DEFINE VARIABLE v-shpmet        LIKE itemfg.ship-meth NO-UNDO.
 DEFINE VARIABLE lCheckPurMan    AS LOGICAL   NO-UNDO .
 /*DEFINE VARIABLE lFound          AS LOGICAL   NO-UNDO.*/
-DEFINE VARIABLE lCheckMessage   AS LOGICAL   NO-UNDO .
-DEFINE VARIABLE hInventoryProcs      AS HANDLE NO-UNDO.
+DEFINE VARIABLE lCheckMessage    AS LOGICAL NO-UNDO .
+DEFINE VARIABLE hInventoryProcs  AS HANDLE  NO-UNDO.
+DEFINE VARIABLE hdFGProcs        AS HANDLE  NO-UNDO.
+
+RUN fg/FGProcs.p PERSISTENT SET hdFGProcs.
+
 {Inventory/ttInventory.i "NEW SHARED"}
 DEFINE TEMP-TABLE w-est-no
     FIELD w-est-no LIKE itemfg.est-no
@@ -71,6 +75,7 @@ RUN sys/ref/ordtypes.p (OUTPUT lv-type-codes, OUTPUT lv-type-dscrs).
 
 DEF BUFFER b-vendItemCost FOR vendItemCost .
 DEF BUFFER b-venditemCostlevel FOR vendItemCostLevel .
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -2154,8 +2159,9 @@ PROCEDURE local-exit :
 
   /* Code placed here will execute AFTER standard behavior.    */
   DELETE OBJECT hInventoryProcs.
-
-
+  IF VALID-HANDLE(hdFGProcs) THEN
+      DELETE PROCEDURE hdFGProcs.
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2367,7 +2373,11 @@ PROCEDURE local-update-record :
     DO WITH FRAME {&FRAME-NAME}:
         RUN fg/chkfgloc.p (INPUT itemfg.i-no:SCREEN-VALUE, INPUT "").
     END.
-
+    IF itemfg.stat:SCREEN-VALUE EQ "I" AND itemfg.stat EQ "A" THEN 
+        MESSAGE "Do you want to inactivate all quotes and price matrix entries ?"
+            VIEW-AS ALERT-BOX QUESTION
+            BUTTONS YES-NO 
+            UPDATE lResponse AS LOGICAL.   
     /* Dispatch standard ADM method.                             */
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
@@ -2402,6 +2412,11 @@ PROCEDURE local-update-record :
 
         tb_taxable:SCREEN-VALUE = STRING(itemfg.taxable).
     END.
+    IF lResponse THEN 
+        RUN FG_ExpirePricesByItem IN hdFGProcs(
+            INPUT cocode,
+            INPUT itemfg.i-no:SCREEN-VALUE
+            ).
     ASSIGN
         ll-new-part-no    = old-part-no# NE itemfg.part-no
         ll-new-i-name     = old-i-name  NE itemfg.i-name 

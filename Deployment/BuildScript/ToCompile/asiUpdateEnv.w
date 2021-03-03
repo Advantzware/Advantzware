@@ -2533,72 +2533,74 @@ PROCEDURE ipDataFix :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEF VAR cThisEntry AS CHAR NO-UNDO.
+    DEF VAR iCurrentVersion AS INT NO-UNDO.
     DEF VAR cTgtEnv AS CHAR NO-UNDO.
 
     RUN ipStatus ("Starting Data Fixes - from version " + fiFromVer:{&SV}).
 
     ASSIGN 
-        cThisEntry = fiFromVer:{&SV}
+        iCurrentVersion = fIntVer(fiFromVer:{&SV})
         lSuccess = FALSE.
 
-    IF fIntVer(cThisEntry) LT 16001000 THEN
+    IF iCurrentVersion LT 16001000 THEN
         RUN ipDataFix160001.
-    IF fIntVer(cThisEntry) LT 16014000 THEN
+    IF iCurrentVersion LT 16014000 THEN
         RUN ipDataFix160104.
-    IF fIntVer(cThisEntry) LT 16020000 THEN
+    IF iCurrentVersion LT 16020000 THEN
         RUN ipDataFix160200.
-    IF fIntVer(cThisEntry) LT 16060000 THEN
+    IF iCurrentVersion LT 16060000 THEN
         RUN ipDataFixConfig.
-    IF fIntVer(cThisEntry) LT 16069000 THEN
+    IF iCurrentVersion LT 16069000 THEN
         RUN ipDataFix160609.
-    IF fIntVer(cThisEntry) LT 16070000 THEN 
+    IF iCurrentVersion LT 16070000 THEN 
         RUN ipDataFix160700.
-    IF fIntVer(cThisEntry) LT 16074000 THEN
+    IF iCurrentVersion LT 16074000 THEN
         RUN ipDataFix160704.
-    IF fIntVer(cThisEntry) LT 16078000 THEN
+    IF iCurrentVersion LT 16078000 THEN
         RUN ipDataFix160708.
-    IF fIntVer(cThisEntry) LT 16071200 THEN
+    IF iCurrentVersion LT 16071200 THEN
         RUN ipDataFix160712.
-    IF fIntVer(cThisEntry) LT 16080000 THEN
+    IF iCurrentVersion LT 16080000 THEN
         RUN ipDataFix160800.
-    IF fIntVer(cThisEntry) LT 16084000 THEN
+    IF iCurrentVersion LT 16084000 THEN
         RUN ipDataFix160840.
-    IF fIntVer(cThisEntry) LT 16085000 THEN
+    IF iCurrentVersion LT 16085000 THEN
         RUN ipDataFix160850.
-    IF fIntVer(cThisEntry) LT 16085100 THEN
+    IF iCurrentVersion LT 16085100 THEN
         RUN ipDataFix160851.
-    IF fIntVer(cThisEntry) LT 16086000 THEN
+    IF iCurrentVersion LT 16086000 THEN
         RUN ipDataFix160860.
-    IF fIntVer(cThisEntry) LT 16088000 THEN 
+    IF iCurrentVersion LT 16088000 THEN 
         RUN ipDataFix160880.
-    IF fIntVer(cThisEntry) LT 16089000 THEN 
+    IF iCurrentVersion LT 16089000 THEN 
         RUN ipDataFix160890.
-    IF fIntVer(cThisEntry) LT 16100000 THEN
+    IF iCurrentVersion LT 16100000 THEN
         RUN ipDataFix161000.
-    IF fIntVer(cThisEntry) LT 16120000 THEN 
+    IF iCurrentVersion LT 16120000 THEN 
         RUN ipDataFix161200.
-    IF fIntVer(cThisEntry) LT 16130000 THEN 
+    IF iCurrentVersion LT 16130000 THEN 
         RUN ipDataFix161300.
-    IF fIntVer(cThisEntry) LT 16140000 THEN 
+    IF iCurrentVersion LT 16140000 THEN 
         RUN ipDataFix161400.
-    IF fIntVer(cThisEntry) LT 16140100 THEN  
+    IF iCurrentVersion LT 16140100 THEN  
         RUN ipDataFix161401.
-    IF fIntVer(cThisEntry) LT 16150000 THEN  
+    IF iCurrentVersion LT 16150000 THEN  
         RUN ipDataFix161500.
-    IF fIntVer(cThisEntry) LT 20010000 THEN  
+    IF iCurrentVersion LT 20010000 THEN  
         RUN ipDataFix200100.
-    IF fIntVer(cThisEntry) LT 20011000 THEN  
+    IF iCurrentVersion LT 20011000 THEN  
         RUN ipDataFix200110.
-    IF fIntVer(cThisEntry) LT 20020000 THEN  
+    IF iCurrentVersion LT 20020000 THEN  
         RUN ipDataFix200200.
-    IF fIntVer(cThisEntry) LT 20020200 THEN 
+    IF iCurrentVersion LT 20020200 THEN 
         RUN ipDataFix200202.
-    IF fIntVer(cThisEntry) LT 20030300 THEN 
+    IF iCurrentVersion LT 20030300 THEN 
         RUN ipDataFix200303.
-    IF fIntVer(cThisEntry) LT 21000000 THEN
-        RUN ipDataFix200306.
-    IF fIntVer(cThisEntry) LT 99999999 THEN
+    IF iCurrentVersion LT 21000100 THEN
+        RUN ipDataFix210001.
+    IF iCurrentVersion LT 21000200 THEN
+        RUN ipDataFix210002.
+    IF iCurrentVersion LT 99999999 THEN
         RUN ipDataFix999999.
 
 RUN ipStatus ("Completed Data Fixes").
@@ -3259,8 +3261,8 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix200306 C-Win
-PROCEDURE ipDataFix200306:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix210001 C-Win
+PROCEDURE ipDataFix210001:
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -3269,7 +3271,7 @@ PROCEDURE ipDataFix200306:
     DISABLE TRIGGERS FOR LOAD OF ar-ledger.
     DEF VAR cNewValue AS CHAR FORMAT "x(17)".
 
-    RUN ipStatus ("  Data Fix 200306...").
+    RUN ipStatus ("  Data Fix 210001...").
 
     /* 95500 After Update, A-R-8 report lists only 3 December deposits */
     /* In older records, these values will have 10-digit check numbers, and new program
@@ -3320,6 +3322,35 @@ PROCEDURE ipDataFix200306:
          
 END PROCEDURE.
     
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix210002 C-Win
+PROCEDURE ipDataFix210002:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEF VAR cOrigPropath AS CHAR NO-UNDO.
+    DEF VAR cNewPropath AS CHAR NO-UNDO.
+
+    RUN ipStatus ("  Data Fix 210002...").
+
+    ASSIGN
+        cOrigPropath = PROPATH
+        cNewPropath  = cEnvDir + "\" + fiEnvironment:{&SV} + "\Programs," + PROPATH
+        PROPATH = cNewPropath.
+        
+    RUN util/ConversionGLTrans.p.
+    
+    ASSIGN 
+        PROPATH = cOrigPropath.     
+
+END PROCEDURE.
+	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
