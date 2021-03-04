@@ -1716,6 +1716,8 @@ PROCEDURE pLocalCSV:
         OUTPUT cCustListField,
         OUTPUT lUseCustList
         ).
+    OS-CREATE-DIR "users".
+    OS-CREATE-DIR VALUE("users\" + aoaUserID).
     cExcelFile = "users\" + aoaUserID + "\"
                + REPLACE(aoaTitle," ","") + "."
                + STRING(TODAY,"99999999") + "."
