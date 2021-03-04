@@ -44,7 +44,10 @@ DEFINE TEMP-TABLE ttItemLines
     FIELD iCaseCount      AS INTEGER
     FIELD cTableType      AS CHARACTER 
     .
-
+DEFINE TEMP-TABLE ttOePrmtx
+    LIKE oe-prmtx.
+    
+    
 {oe/ttPriceHold.i} 
 {system/ttPriceMatrix.i}
 
@@ -62,6 +65,31 @@ FUNCTION fUseLastPrice RETURNS LOGICAL PRIVATE
 
 
 /* **********************  Internal Procedures  *********************** */
+
+PROCEDURE pCreateOePrmtxTT PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany        AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcItemID         AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcShipID         AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcCustNo         AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcCustType       AS CHARACTER NO-UNDO.
+    
+    EMPTY TEMP-TABLE ttOePrmtx.
+    
+    FOR EACH oe-prmtx NO-LOCK 
+        WHERE oe-prmtx.company    EQ ipcCompany
+          AND oe-prmtx.cust-no    EQ ipcCustNo
+          AND oe-prmtx.i-no       EQ ipcItemID
+          AND oe-prmtx.custype    EQ ipcCustType
+          AND oe-prmtx.custShipID EQ ipcShipID:
+        CREATE ttOePrmtx.
+        BUFFER-COPY oe-prmtx TO ttOePrmtx.        
+    END.              
+
+END PROCEDURE.
 
 PROCEDURE Price_CheckPriceHoldForCustShip:
     /*------------------------------------------------------------------------------
@@ -379,6 +407,72 @@ PROCEDURE Price_CalculateLinePrice:
         END.
     END. /*iplUpdateDB*/
 
+END PROCEDURE.
+
+PROCEDURE Price_ExpireOldPrice:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany        AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcItemID         AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcShipID         AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcCustNo         AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcCustType       AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcProcat         AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-oe-prmtx  FOR oe-prmtx.
+    
+    DEFINE VARIABLE dtEffectiveDate AS DATE    NO-UNDO.
+    DEFINE VARIABLE iCount          AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iCount1         AS INTEGER NO-UNDO.
+         
+      RUN pCreateOePrmtxTT(
+          INPUT ipcCompany,
+          INPUT ipcItemID,
+          INPUT ipcShipID,
+          INPUT ipcCustNo,
+          INPUT ipcCustType
+          ).   
+    FOR EACH bf-oe-prmtx EXCLUSIVE-LOCK 
+        WHERE bf-oe-prmtx.company    EQ ipcCompany
+          AND bf-oe-prmtx.cust-no    EQ ipcCustNo
+          AND bf-oe-prmtx.i-no       EQ ipcItemID
+          AND bf-oe-prmtx.custype    EQ ipcCustType
+          AND bf-oe-prmtx.custShipID EQ ipcShipID
+          AND bf-oe-prmtx.procat     EQ ipcProcat
+          BY bf-oe-prmtx.eff-date
+          BY bf-oe-prmtx.exp-date:
+              
+        ASSIGN 
+            iCount = iCount + 1
+            iCount1 = 0
+            .
+            
+        IF NOT(bf-oe-prmtx.exp-date EQ ? OR bf-oe-prmtx.exp-date GT TODAY) THEN 
+            NEXT.
+            
+        FOR EACH ttOePrmtx NO-LOCK
+            WHERE ttOePrmtx.company    EQ ipcCompany
+              AND ttOePrmtx.cust-no    EQ ipcCustNo
+              AND ttOePrmtx.i-no       EQ ipcItemID
+              AND ttOePrmtx.custype    EQ ipcCustType
+              AND ttOePrmtx.custShipID EQ ipcShipID
+              AND ttOePrmtx.procat     EQ ipcProcat
+              BY ttoeprmtx.eff-date 
+              BY ttoeprmtx.exp-date:
+
+            iCount1 = iCount1 + 1.
+            IF iCount1 EQ iCount + 1 THEN DO: 
+                /* Make sure effective date is GE expiry date */ 
+                IF ttOeprmtx.eff-date - 1  LT bf-oe-prmtx.eff-date THEN 
+                    bf-oe-prmtx.exp-date = ttOeprmtx.eff-date.             
+                ELSE
+                    bf-oe-prmtx.exp-date = ttOeprmtx.eff-date - 1.
+                LEAVE.  
+            END.                              
+        END.                                        
+    END.
 END PROCEDURE.
 
 PROCEDURE Price_GetPriceMatrix:

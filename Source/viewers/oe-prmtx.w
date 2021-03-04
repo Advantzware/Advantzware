@@ -1286,6 +1286,15 @@ PROCEDURE local-update-record :
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
+      RUN Price_ExpireOldPrice(
+          INPUT oe-prmtx.company,
+          INPUT oe-prmtx.i-no,
+          INPUT oe-prmtx.custshipid,
+          INPUT oe-prmtx.cust-no,
+          INPUT oe-prmtx.custype,
+          INPUT oe-prmtx.procat
+          ).
+
   /* Code placed here will execute AFTER standard behavior.    */
   RUN set-panel (1).
   lEditMode = NO.
