@@ -853,7 +853,7 @@ DO:
             RUN system/openLookup.p (
                 INPUT  g_company, 
                 INPUT  "",  /* Lookup ID */
-                INPUT  87,  /* Subject ID */
+                INPUT  107,  /* Subject ID */
                 INPUT  "",  /* User ID */
                 INPUT  0,   /* Param Value ID */
                 OUTPUT cFieldsValue, 
@@ -1455,6 +1455,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL po-ordl.i-no Dialog-Frame
 ON LEAVE OF po-ordl.i-no IN FRAME Dialog-Frame /* Item# */
 DO:
+     DEF VAR cActNum AS CHAR NO-UNDO. 
+     
      DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO .  
         IF LASTKEY NE -1 
         AND SELF:SCREEN-VALUE NE "" THEN 
@@ -1469,6 +1471,13 @@ DO:
                  APPLY 'choose' TO btn_Cancel.
                  RETURN NO-APPLY .
             END.
+
+            IF SELF:MODIFIED THEN 
+            DO:
+                RUN get-itemfg-gl (INPUT cocode, INPUT SELF:screen-value, OUTPUT cActNum).
+                IF cActNum NE "" THEN ASSIGN 
+                        po-ordl.actnum:SCREEN-VALUE = cActNum.
+            END. 
 
             /* gdm - 06040918 */
             FIND FIRST bf-itemfg NO-LOCK 
