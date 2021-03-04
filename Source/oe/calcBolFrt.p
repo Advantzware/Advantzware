@@ -18,6 +18,7 @@ DEF VAR dTotFreight AS DEC NO-UNDO DECIMALS 10.
 DEFINE VARIABLE cCustID AS CHARACTER NO-UNDO.
 DEFINE VARIABLE dRatePerPallet AS DECIMAL NO-UNDO.
 DEFINE VARIABLE cTagDescription AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lForceFreight AS LOGICAL NO-UNDO.
 DEF BUFFER bf-oe-boll FOR oe-boll.
 
 
@@ -28,7 +29,17 @@ DEF BUFFER bf-oe-boll FOR oe-boll.
  ASSIGN oe-bolh.tot-pallets = 0
         dTotFreight         = 0
         tot-other-freight   = 0.
- 
+        
+IF oe-bolh.cwt NE 0 THEN
+DO:
+  lForceFreight = YES.
+  opdFreight =  oe-bolh.cwt / 100 * oe-bolh.tot-wt . 
+  cTagDescription = "Freight cost forced at $" + string(oe-bolh.cwt) + "/ 100 lbs x " + string(oe-bolh.tot-wt) + " lbs = $" + string(opdFreight). 
+END.
+
+IF NOT lForceFreight THEN
+DO:    
+
  /* Obtain total basis weight for all lines on the BOL */
  FOR EACH bf-oe-boll
      WHERE bf-oe-boll.company EQ oe-bolh.company
@@ -89,7 +100,7 @@ DEF BUFFER bf-oe-boll FOR oe-boll.
 
 
    RUN oe/getLineFrt.p (oe-bolh.company, 
-                        bf-oe-boll.loc, 
+                        oe-bolh.loc, 
                         oe-bolh.carrier, 
                         v-del-zone,
                         shipto.ship-zip, 
@@ -136,10 +147,12 @@ DEF BUFFER bf-oe-boll FOR oe-boll.
  /*oe-bolh.freight = dTotFreight.*/ /* task NO 5051503 */
  FIND CURRENT oe-bolh NO-LOCK.
  opdFreight = dTotFreight.
+
  
  FIND FIRST carrier NO-LOCK
       WHERE carrier.company EQ oe-bolh.company
-      AND carrier.carrier EQ oe-bolh.carrier NO-ERROR .
+      AND carrier.carrier EQ oe-bolh.carrier
+      AND carrier.loc EQ oe-bolh.loc NO-ERROR .
  IF AVAIL carrier THEN
  DO:    
    IF carrier.chg-method EQ "P" THEN
@@ -153,7 +166,17 @@ DEF BUFFER bf-oe-boll FOR oe-boll.
     cTagDescription = cTagDescription + ", Minimum applied @ $" + STRING(ldMinRate) .
  END.  
  ELSE cTagDescription = "Carrier not found".
- 
+END.
+ELSE DO:
+ RUN oe/bolfrteq.p (BUFFER oe-bolh, opdFreight, 0).
+ /* Obtain the total freight for all lines on BOL */
+ FOR EACH bf-oe-boll
+     WHERE bf-oe-boll.company EQ oe-bolh.company
+       AND bf-oe-boll.b-no    EQ oe-bolh.b-no:
+          oe-bolh.tot-pallets = oe-bolh.tot-pallets + bf-oe-boll.tot-pallets.           
+ END. /* each oe-boll */
+END.
+
    RUN ClearTagsByRecKey(oe-bolh.rec_key).  /*Clear all hold tags - TagProcs.p*/
    RUN AddTagInfo(
         INPUT oe-bolh.rec_key,

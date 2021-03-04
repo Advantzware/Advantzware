@@ -2,6 +2,7 @@
 
 DEF VAR cRtnCharBol AS CHAR NO-UNDO.
 DEFINE VARIABLE lRecFoundBol AS LOGICAL     NO-UNDO.
+DEFINE VARIABLE cRellLoc AS CHARACTER       NO-UNDO.
 
 RUN sys/ref/nk1look.p (INPUT cocode, "RELPOST", "L" /* Logical */, YES /* check by cust */, 
     INPUT YES /* use cust not vendor */, oe-relh.cust-no /* cust */, oe-relh.ship-id /* ship-to*/,
@@ -70,6 +71,7 @@ end.*/
   /* ah 03-15-10 */              
   ASSIGN vfrt-pay = (IF vfrt-list <> "" THEN SUBSTR(vfrt-list,1,1) ELSE "")
          vfob-code = (IF vfob-list <> "" THEN SUBSTR(vfob-list,1,1) ELSE "").
+         cRellLoc  = IF AVAIL bf-rell and bf-rell.loc NE "" THEN bf-rell.loc ElSE locode .
 
 
     IF bf-rell.lot-no <> "" THEN DO:   
@@ -119,7 +121,7 @@ end.*/
   create oe-bolh.
   assign
    oe-bolh.company  = oe-relh.company
-   oe-bolh.loc      = locode
+   oe-bolh.loc      = cRellLoc 
    oe-bolh.b-no     = x
    oe-bolh.bol-no   = v-n-bol
    oe-bolh.release# = oe-relh.release#

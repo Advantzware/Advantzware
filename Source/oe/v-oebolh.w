@@ -608,7 +608,7 @@ DO:
           END.
          /* gdm - */
          WHEN "loc" THEN DO:
-              RUN windows/l-newbol.w (g_company, oe-bolh.loc:screen-value IN FRAME {&frame-name}, OUTPUT char-val).
+              RUN windows/l-loc.w (g_company, oe-bolh.loc:screen-value IN FRAME {&frame-name}, OUTPUT char-val).
               IF char-val <> "" THEN DO:
                 FOCUS:SCREEN-VALUE IN FRAME {&frame-name} = entry(1,char-val).
               END.
@@ -936,6 +936,15 @@ DO:
         INPUT oe-bolh.rec_key,
         INPUT ""
         ).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-bolh.cwt V-table-Win
+ON VALUE-CHANGED OF oe-bolh.cwt IN FRAME F-Main /* Rate/100 Wt */
+DO:
+  RUN pCalcFrtForce.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1527,6 +1536,10 @@ PROCEDURE local-assign-record :
   DEF VAR hContainer AS HANDLE NO-UNDO.
   DEF VAR char-hdl AS CHAR NO-UNDO.
   DEF VAR char-val AS CHAR NO-UNDO.
+  DEFINE VARIABLE new-loc AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE old-loc AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE dNewCwt AS DECIMAL NO-UNDO.
+  DEFINE VARIABLE dOldCwt AS DECIMAL NO-UNDO.
   
   /* Code placed here will execute PRIOR to standard behavior. */
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"Container-source",OUTPUT char-hdl).
@@ -1538,7 +1551,9 @@ PROCEDURE local-assign-record :
    old-freight = oe-bolh.freight
    old-bol     = oe-bolh.bol-no
    old-carrier = oe-bolh.carrier
-   old-shipid  = oe-bolh.ship-id.
+   old-shipid  = oe-bolh.ship-id
+   old-loc     = oe-bolh.loc
+   dOldCwt     = oe-bolh.cwt.
   
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
@@ -1550,7 +1565,9 @@ PROCEDURE local-assign-record :
    new-freight  = oe-bolh.freight
    new-bol      = oe-bolh.bol-no
    new-carrier  = oe-bolh.carrier
-   new-shipid   = oe-bolh.ship-id.
+   new-shipid   = oe-bolh.ship-id
+   new-loc      = oe-bolh.loc
+   dNewCwt      = oe-bolh.cwt.
   oe-bolh.spare-int-1 = (IF tgSigned:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "YES" THEN 1 ELSE 0).
 
   IF old-weight NE new-weight THEN DO:
@@ -1597,12 +1614,24 @@ PROCEDURE local-assign-record :
     END.
   END.
 
-  IF (old-carrier NE new-carrier OR old-shipid NE new-shipid)
+  IF (old-carrier NE new-carrier OR old-shipid NE new-shipid OR 
+      new-loc NE new-loc OR (dOldCwt NE dNewCwt AND dNewCwt NE 0) )
       AND (NOT lFreightEntered)
       AND (cFreightCalculationValue EQ "ALL" OR cFreightCalculationValue EQ "Bol Processing") THEN DO:
       
     RUN oe/calcBolFrt.p (INPUT ROWID(oe-bolh), OUTPUT dFreight).
      oe-bolh.freight = dFreight .
+  END.
+  IF lFreightEntered THEN 
+  DO:
+      RUN ClearTagsByRecKey(oe-bolh.rec_key).  /*Clear all hold tags - TagProcs.p*/
+      RUN AddTagInfo(
+            INPUT oe-bolh.rec_key,
+            INPUT "oe-bolh",
+            INPUT "Freight Cost manually entered",
+            INPUT ""
+            ). /*From TagProcs Super Proc*/
+  
   END.
 
   IF old-freight NE new-freight THEN DO:
@@ -2305,6 +2334,28 @@ PROCEDURE state-changed :
          or add new cases. */
       {src/adm/template/vstates.i}
   END CASE.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCalcFrtForce V-table-Win 
+PROCEDURE pCalcFrtForce :
+/*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lValid    AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lContinue AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE ldDate    AS DATE    NO-UNDO.
+    DO WITH FRAME {&FRAME-NAME}:
+    
+      IF integer(oe-bolh.cwt:SCREEN-VALUE) NE 0 THEN
+      DO:
+          oe-bolh.freight:SCREEN-VALUE = string( DECIMAL(oe-bolh.cwt:SCREEN-VALUE) / 100 * decimal(oe-bolh.tot-wt:SCREEN-VALUE)).  
+          
+      END.          
+    END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
