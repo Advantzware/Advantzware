@@ -305,6 +305,11 @@ DO:
         WHEN "bTest" THEN DO:
             STATUS INPUT "Analyzing files and running tests...".
             STATUS DEFAULT "Analyzing files and running tests...".
+            OS-CREATE-DIR VALUE (SESSION:TEMP-DIRECTORY + "GLaccountPurge-" + 
+                                 STRING(YEAR(TODAY),"9999") +
+                                 STRING(MONTH(TODAY),"99") +
+                                 STRING(DAY(TODAY),"99") +
+                                 "-" + STRING(TIME,"99999")).
             ASSIGN 
                 fiOutputDir:SCREEN-VALUE = SESSION:TEMP-DIRECTORY + "GLaccountPurge-" + 
                                             STRING(YEAR(TODAY),"9999") +
@@ -465,6 +470,7 @@ DO:
     ASSIGN 
         SELF:SCREEN-VALUE = cSelectedDir.
     APPLY 'value-changed' TO SELF.
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -483,7 +489,7 @@ DO:
                 lHasDumpFile = TRUE.
     END. 
     ASSIGN 
-        bReview:SENSITIVE = SEARCH(SELF:SCREEN-VALUE + "\" + "_PurgeReport.csv") NE ?
+        bReview:SENSITIVE = SEARCH(SELF:SCREEN-VALUE + "\" + "_ConsolidationReport.csv") NE ?
         bPurge:SENSITIVE = NOT lHasDumpFile.
 END.
 

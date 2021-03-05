@@ -308,15 +308,9 @@ PROCEDURE pTestGlhist:
         daPeriodStartDate = period.pst
         daPeriodEndDate = period.pend.
         
-    ASSIGN 
-        cQueryString = "FOR EACH glhist  WHERE " +
-                            "glhist.company EQ '" + ipcCompany + "' AND " +
-                            "glhist.yr EQ " + STRING(ipiYear,"9999") + " AND " +
-                            "glhist.period EQ " + STRING(ipiPeriod,"99") + 
-                            " NO-LOCK".
-
     FOR EACH bglhist NO-LOCK WHERE 
         bglhist.company EQ ipcCompany AND 
+        bglhist.entryType NE "B" AND  
         (bglhist.yr EQ ipiYear AND bglhist.period EQ ipiPeriod) OR 
         (bglhist.yr EQ 0 AND bglhist.tr-date GE daPeriodStartDate AND bglhist.tr-date LE daPeriodEndDate):
             
