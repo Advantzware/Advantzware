@@ -129,11 +129,11 @@ DEF VAR v-tel AS cha FORM "x(30)" NO-UNDO.
 DEF VAR v-fax AS cha FORM "x(30)" NO-UNDO.
 DEF VAR v-contact AS cha FORM "x(20)" NO-UNDO .
 DEF VAR v-comp-name AS cha FORM "x(30)" NO-UNDO.
-DEF VAR v-comp-add1 AS cha FORM "x(30)" NO-UNDO.
+DEF VAR v-comp-add1 AS cha FORM "x(40)" NO-UNDO.
 DEF VAR v-comp-add2 AS cha FORM "x(40)" NO-UNDO.
-DEF VAR v-comp-add3 AS cha FORM "x(30)" NO-UNDO.
-DEF VAR v-comp-add4 AS cha FORM "x(30)" NO-UNDO.
-DEF VAR v-comp-add5 AS cha FORM "x(30)" NO-UNDO.
+DEF VAR v-comp-add3 AS cha FORM "x(40)" NO-UNDO.
+DEF VAR v-comp-add4 AS cha FORM "x(40)" NO-UNDO.
+DEF VAR v-comp-add5 AS cha FORM "x(40)" NO-UNDO.
 DEF VAR lv-display-comp AS LOG NO-UNDO.
 DEF VAR lv-email AS cha FORM "x(30)" NO-UNDO.
 DEF VAR lv-comp-name AS cha FORM "x(30)" NO-UNDO.
@@ -161,19 +161,19 @@ ELSE lv-comp-color = "BLACK".
        v-comp-add4 = ""
        v-comp-add5 = "".
 
-ASSIGN
-    v-comp-name = company.NAME
-    v-comp-add1 = company.addr[1]
-    v-comp-add2 = company.city + ", " + company.state + " " + company.zip .
 
+    ASSIGN
+        v-comp-add1 = cInvMessage[1]
+        v-comp-add2 = cInvMessage[2]
+        v-comp-add3 = cInvMessage[3]
+        v-comp-add4 = cInvMessage[4]
+        v-comp-add5 = cInvMessage[5]
+        .
 
     FIND FIRST cust WHERE cust.company = cocode AND
                        cust.active = "X" NO-LOCK NO-ERROR.
     IF AVAIL cust THEN
-       ASSIGN v-comp-add1 = cust.addr[1]
-              v-comp-add2 = cust.city + ", " + cust.state + "  " + cust.zip
-              v-comp-add4 = "Phone:  " + string(cust.area-code,"(999)") + string(cust.phone,"999-9999") 
-              v-comp-add5 = "Fax     :  " + string(cust.fax,"(999)999-9999") 
+       ASSIGN  
               lv-email    = "Email:  " + cust.email 
               lv-comp-name = cust.NAME.
  
@@ -509,9 +509,11 @@ ASSIGN
         "<=8><R+4> " v-bot-lab[3]
         "<=8><R+5> Grand Total:" v-subtot-lines + v-t-tax[1] + v-t-tax[2] + v-t-tax[3] + v-inv-freight FORM "->>,>>9.99" .
 
-    PUT "<FArial><R58><C1><P12><B> Remit to: " v-comp-name SKIP
-         "<c9>" v-comp-add1 SKIP
-         "<c9>" v-comp-add2   "</B> <P9>" SKIP
+    PUT "<FArial><R56><C1><P12><B> Remit to: " v-comp-add1 SKIP
+         "<c9>" v-comp-add2 SKIP
+         "<c9>" v-comp-add3 SKIP  
+         "<c9>" v-comp-add4 SKIP  
+         "<c9>" v-comp-add5 "</B> <P9>" 
          .
 
     PUT "<FArial><R61><C1><P12><B> Notes </B> <P9> " SKIP
