@@ -473,7 +473,11 @@ END.
 ON CHOOSE OF btOk IN FRAME Dialog-Frame /* OK */
 DO:
      DEFINE VARIABLE iCountSelected AS INTEGER NO-UNDO.
-    DEFINE VARIABLE dTotalArea AS DECIMAL NO-UNDO.      
+    DEFINE VARIABLE dTotalArea AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
+    
+    RUN pCheckFurnish(OUTPUT lReturnError).
+    IF lReturnError THEN RETURN NO-APPLY.
    
     RUN AssessSelections IN hdFGReorder (
                        INPUT TABLE ttMultiSelectItem,
@@ -769,3 +773,36 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckFurnish Dialog-Frame 
+PROCEDURE pCheckFurnish :
+     DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
+     DEFINE VARIABLE cFurnish AS CHARACTER NO-UNDO.
+     
+     FOR EACH ttMultiSelectItem WHERE
+          ttMultiSelectItem.isSelected : 
+          
+          IF cFurnish NE "" AND cFurnish NE ttMultiSelectItem.board THEN
+          DO:
+            MESSAGE "Items selected do not have the same furnish" SKIP
+                    "allow them continue."   
+                     VIEW-AS ALERT-BOX QUESTION 
+                     BUTTONS YES-NO UPDATE lcheckflg as logical .
+                 IF NOT lcheckflg THEN
+                 DO:                     
+                  oplReturnError = YES .
+                  RETURN NO-APPLY.
+                 END. 
+                 IF lcheckflg THEN
+                 DO:                   
+                  LEAVE.
+                 END.
+          END.
+          
+         cFurnish =  ttMultiSelectItem.board .         
+     END.      
+    
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
