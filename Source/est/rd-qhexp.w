@@ -1237,6 +1237,8 @@ FOR EACH quotehd
           dPrice = DECIMAL(quoteqty.price)
           dProfit = DECIMAL(quoteqty.profit) 
           cUom   = quoteqty.uom .
+     IF dProfit EQ ? THEN ASSIGN 
+        dProfit = 9999999.99.
     
 
     FOR EACH ttRptSelected:
