@@ -886,6 +886,10 @@ PROCEDURE pRunProcess :
     DEFINE VARIABLE cNewStat     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cocode       AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lCheckStatus AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cStatus AS CHARACTER   NO-UNDO.
+    DEFINE VARIABLE cReason AS CHARACTER   NO-UNDO.
+    DEFINE VARIABLE v-fin-qty  AS INTEGER  NO-UNDO.
+    DEFINE VARIABLE close_date AS DATE     NO-UNDO.
     
     DEFINE BUFFER bf-oe-ordl FOR oe-ordl.
     DEFINE BUFFER bf-job-hdr FOR job-hdr.
@@ -968,9 +972,19 @@ PROCEDURE pRunProcess :
                     FOR EACH bf-po-ordl NO-LOCK
                         WHERE bf-po-ordl.company EQ po-ord.company
                         AND bf-po-ordl.po-no EQ po-ord.po-no:
-                        IF bf-po-ordl.opened EQ NO THEN lCheckStatus = YES.
-                        ELSE lCheckStatus = NO.
+                                                
+                        RUN pPoLineCloseCheck(BUFFER bf-po-ordl,
+                                                OUTPUT cStatus,
+                                                OUTPUT cReason).
+                        IF cStatus EQ "C" THEN lCheckStatus = YES. 
+                        IF cStatus NE "C" THEN
+                        DO:
+                          lCheckStatus = NO .
+                          LEAVE.
+                        END.
+                        
                     END.
+                    
                     IF lCheckStatus THEN 
                     DO:             
                         CREATE ttPo-ord.
@@ -1009,8 +1023,16 @@ PROCEDURE pRunProcess :
                     FOR EACH bf-oe-ordl NO-LOCK
                         WHERE bf-oe-ordl.company EQ oe-ord.company
                         AND bf-oe-ordl.ord-no EQ oe-ord.ord-no:
-                        IF bf-oe-ordl.opened EQ NO THEN lCheckStatus = YES.
-                        ELSE lCheckStatus = NO.
+                                                
+                        RUN pOrderLineCloseCheck(BUFFER bf-oe-ordl,
+                                                OUTPUT cStatus,
+                                                OUTPUT cReason).
+                        IF cStatus EQ "C" THEN lCheckStatus = YES. 
+                        IF cStatus NE "C" THEN
+                        DO:                         
+                          lCheckStatus = NO.
+                          LEAVE.
+                        END.
                     END.
                     
                     IF lCheckStatus THEN 
@@ -1043,24 +1065,12 @@ PROCEDURE pRunProcess :
             DO:
                 FOR EACH job NO-LOCK 
                     WHERE job.company EQ cocode
-                    AND job.job-no  GE fiBeginOrder:SCREEN-VALUE
-                    AND job.job-no  LE fiEndingOrder:SCREEN-VALUE
-                    AND job-hdr.opened EQ YES:
+                    AND job.job-no  GE fiBeginJob:SCREEN-VALUE
+                    AND job.job-no  LE fiEndingJob:SCREEN-VALUE
+                    AND job.opened EQ YES
+                    AND job.stat EQ "W":
               
                     {custom/statusMsg.i " 'Processing Job#  '  + string(job.job-no) "}
-              
-                    lCheckStatus = NO .
-                  
-                    FOR EACH bf-job-hdr NO-LOCK
-                        WHERE bf-job-hdr.company EQ job.company
-                        AND bf-job-hdr.job EQ job.job
-                        AND bf-job-hdr.job-no EQ job.job-no
-                        AND bf-job-hdr.job-no2 EQ job.job-no2:
-                        IF bf-job-hdr.opened EQ NO THEN lCheckStatus = YES.
-                        ELSE lCheckStatus = NO.
-                    END.
-                    IF lCheckStatus THEN
-                    DO:
                         CREATE ttJob.
                         ASSIGN 
                             ttJob.job-no = job.job-no
@@ -1069,8 +1079,7 @@ PROCEDURE pRunProcess :
                         RUN oe/getJobStatusDesc.p( INPUT job.stat, OUTPUT cResult) .
                         ttJob.statDesc = cResult.
                         RUN oe/getJobStatusDesc.p( INPUT ttJob.newstat, OUTPUT cResult) .
-                        ttJob.newstatDesc = cResult.
-                    END.
+                        ttJob.newstatDesc = cResult.                
                 END. 
         
                 RUN sys/ref/ExcelNameExt.p (INPUT cLocation + "\JobHeader.csv",OUTPUT cJobFileName) .
@@ -1104,30 +1113,59 @@ PROCEDURE pRunProcess :
                 END.
             END.
             FOR EACH ttPo-ord:
-                FOR FIRST  po-ord EXCLUSIVE-LOCK 
-                    WHERE po-ord.po-no EQ ttPo-ord.po-no:
+                FOR FIRST  po-ordl NO-LOCK 
+                    WHERE po-ordl.company EQ cocode
+                    AND po-ordl.po-no EQ ttPo-ord.po-no,
+                    FIRST po-ord EXCLUSIVE-LOCK
+                    WHERE po-ord.company EQ cocode
+                    AND po-ord.po-no EQ po-ordl.po-no BREAK BY po-ord.po-no :
                     {custom/statusMsg.i " 'Processing Purchase Order#  '  + string(po-ord.po-no) "}
-                    ASSIGN 
-                        po-ord.stat   = ttPo-ord.newstat
-                        po-ord.opened = NO.
+                    
+                    RUN po/closepol.p (ROWID(po-ordl), -1).
+                    
+                    IF LAST-OF(po-ord.po-no) THEN
+                    DO:
+                          po-ord.stat = "C" .
+                    END.                        
+                    
                 END.
             END.
             FOR EACH ttOe-ord:   
-                FOR FIRST  oe-ord EXCLUSIVE-LOCK 
-                    WHERE oe-ord.ord-no EQ ttOe-ord.ord-no:
-                    {custom/statusMsg.i " 'Processing Order#  '  + string(oe-ord.ord-no) "}
-                    ASSIGN 
-                        oe-ord.stat   = ttOe-ord.newstat
-                        oe-ord.opened = NO.
+                FOR FIRST  oe-ordl NO-LOCK 
+                    WHERE oe-ordl.ord-no EQ ttOe-ord.ord-no
+                    AND oe-ordl.company EQ cocode,
+                    FIRST oe-ord NO-LOCK               
+                    WHERE oe-ord.company    EQ oe-ordl.company  
+                    AND oe-ord.ord-no     EQ oe-ordl.ord-no  :
+                    
+                    {custom/statusMsg.i " 'Processing Order#  '  + string(oe-ord.ord-no) "}                     
+                    
+                    RUN oe/closelin.p (INPUT ROWID(oe-ordl),INPUT YES) .
+                        
+                    IF NOT CAN-FIND(FIRST bf-oe-ordl WHERE 
+                            bf-oe-ordl.company = oe-ord.company AND
+                            bf-oe-ordl.ord-no = oe-ord.ord-no AND 
+                            bf-oe-ordl.stat NE "C") THEN
+                            RUN oe\close.p(RECID(oe-ord), YES).                      
                 END.                    
             END.       
             FOR EACH ttJob:
                 FOR FIRST  job EXCLUSIVE-LOCK 
-                    WHERE job.job-no EQ ttJob.job-no:
-                    {custom/statusMsg.i " 'Processing Job#  '  + string(job.job-no) "}
-                    ASSIGN 
-                        job.stat   = ttJob.newstat
-                        job.opened = NO.
+                    WHERE job.company EQ cocode
+                    AND job.job-no EQ ttJob.job-no,
+                    EACH job-hdr
+                    WHERE job-hdr.company EQ job.company
+                      AND job-hdr.job     EQ job.job
+                      AND job-hdr.job-no  EQ job.job-no
+                      AND job-hdr.job-no2 EQ job.job-no2
+                    USE-INDEX job :
+                    {custom/statusMsg.i " 'Processing Job#  '  + string(job.job-no) "}                      
+                    
+                     {jc/job-clos.i}  
+                     
+                     FIND CURRENT reftable NO-LOCK NO-ERROR.
+
+                     job-hdr.opened = job.opened.  
                 END.
             END.
     
@@ -1136,9 +1174,11 @@ PROCEDURE pRunProcess :
             EMPTY TEMP-TABLE  ttPo-ord.
             EMPTY TEMP-TABLE  ttJob.
             RELEASE oe-rel.
-            RELEASE oe-ord.
-            RELEASE job.
+            RELEASE oe-ord.            
             RELEASE po-ord.
+            RELEASE po-ordl.
+            RELEASE job-hdr.
+            RELEASE job.
     
             MESSAGE "Status have been updated."
                 VIEW-AS ALERT-BOX.
@@ -1178,3 +1218,222 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pOrderLineCloseCheck C-Win 
+PROCEDURE pOrderLineCloseCheck :
+    /*------------------------------------------------------------------------------
+      Purpose: Checks to see if an order line can be closed    
+      Parameters:  order line buffer - > Outputs order status and reason
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-oe-ordl FOR oe-ordl.
+    DEFINE OUTPUT PARAMETER opcStatus AS CHARACTER   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcReason AS CHARACTER   NO-UNDO.
+
+    DEFINE BUFFER bf-oe-ordl FOR oe-ordl.
+
+    DEFINE VARIABLE lAllTransfers            AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE dAllowableUnderrun       LIKE oe-ordl.qty NO-UNDO.
+    DEFINE VARIABLE lInvQtyMet               AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lShipQtyMet              AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lUnassembledSetComponent AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lUnassembledSetHeader    AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lNotStocked              AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cQtyMessage              AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cOEClose                 AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iCountBoll               AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iCountTrans              AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iInvoicedQuantity        AS INTEGER   NO-UNDO.
+
+    FIND FIRST oe-ord NO-LOCK OF ipbf-oe-ordl NO-ERROR.
+    IF NOT AVAILABLE oe-ord THEN 
+    DO:
+        ASSIGN
+            opcStatus = ipbf-oe-ordl.stat
+            opcReason = 'Order Header does not exist.'
+            .
+        RETURN.
+    END.
+                      
+    /*Transfer types*/
+    IF oe-ord.type EQ "T" THEN 
+    DO:
+
+        FOR EACH oe-boll
+            WHERE oe-boll.company  EQ ipbf-oe-ordl.company
+            AND oe-boll.ord-no   EQ ipbf-oe-ordl.ord-no
+            AND oe-boll.line     EQ ipbf-oe-ordl.line
+            AND oe-boll.i-no     EQ ipbf-oe-ordl.i-no
+            AND CAN-FIND(FIRST oe-bolh WHERE oe-bolh.b-no   EQ oe-boll.b-no
+            AND oe-bolh.posted EQ YES)
+            USE-INDEX ord-no
+            NO-LOCK:
+            ACCUMULATE oe-boll.qty (TOTAL).
+        END.
+        IF (ipbf-oe-ordl.qty GT 0 
+            AND (ACCUM TOTAL oe-boll.qty) GE ipbf-oe-ordl.qty) 
+            OR
+            (ipbf-oe-ordl.qty LT 0 
+            AND (ACCUM TOTAL oe-boll.qty) LE ipbf-oe-ordl.qty) 
+            THEN
+            ASSIGN 
+                opcStatus = 'C'
+                opcReason = 'Closed. Transfer order requirements met. BOL Qty Shipped: ' + STRING(ACCUM TOTAL oe-boll.qty) + ' OrderLine Qty: ' + STRING(ipbf-oe-ordl.qty) 
+                .
+        ELSE
+            ASSIGN
+                opcStatus = ''
+                opcReason = 'Not closed. Transfer order requirements not met. BOL Qty Shipped: ' + STRING(ACCUM TOTAL oe-boll.qty) + ' OrderLine Qty: ' + STRING(ipbf-oe-ordl.qty) 
+                .
+    END. /* Transfer order */
+    ELSE 
+    DO: /*all other cases*/
+        FIND FIRST itemfg
+            WHERE itemfg.company EQ ipbf-oe-ordl.company
+            AND itemfg.i-no    EQ ipbf-oe-ordl.i-no
+            NO-LOCK NO-ERROR.
+        RUN GetOEClose(INPUT ipbf-oe-ordl.company,
+            OUTPUT cOEClose).
+        
+        /*Get invoiced quantity*/
+        iInvoicedQuantity = ipbf-oe-ordl.inv-qty.
+        /*Subtract the invoiced quantity that is still unposted*/
+        FOR EACH inv-line NO-LOCK 
+            WHERE inv-line.company EQ ipbf-oe-ordl.company
+            AND inv-line.ord-no EQ ipbf-oe-ordl.ord-no
+            AND inv-line.i-no EQ ipbf-oe-ordl.i-no:
+            iInvoicedQuantity = iInvoicedQuantity - inv-line.inv-qty.
+        END.
+        
+        ASSIGN
+            dAllowableUnderrun       = ipbf-oe-ordl.qty * (1 - (ipbf-oe-ordl.under-pct / 100))
+            lUnassembledSetComponent = ipbf-oe-ordl.is-a-component
+            lInvQtyMet               = iInvoicedQuantity  GE dAllowableUnderrun
+            lShipQtyMet              = ipbf-oe-ordl.ship-qty GE dAllowableUnderrun
+            lUnassembledSetHeader    = CAN-FIND(FIRST bf-oe-ordl {sys/inc/ordlcomp.i bf-oe-ordl ipbf-oe-ordl})
+            lNotStocked              = AVAILABLE itemfg AND NOT itemfg.stocked
+            cQtyMessage              = ' Allowable Underrun Qty: ' + STRING(dAllowableUnderrun) + 
+            ' Inv Qty: ' + STRING(ipbf-oe-ordl.inv-qty) + 
+            ' Ship Qty: ' + STRING(ipbf-oe-ordl.ship-qty).
+        .
+
+        IF (lInvQtyMet OR lUnassembledSetComponent) /*if component, don't check inv qty*/
+            AND 
+            (lShipQtyMet OR lUnassembledSetHeader /*OR lNotStocked*/ ) /*if UnAssembled Set Header, don't check ship qty*/
+            THEN 
+        DO:  /*Allowable underrun is met*/
+        
+            /*additional check for job bin qty = 0*/
+            IF cOEClose EQ "OnHand=0" 
+                AND ipbf-oe-ordl.job-no NE ""
+                AND AVAILABLE itemfg 
+                AND itemfg.pur-man EQ NO
+                THEN 
+            DO:  /*Additional check for on-hand = 0 case for manufuctured items*/
+
+                FIND FIRST fg-bin
+                    WHERE fg-bin.company EQ ipbf-oe-ordl.company
+                    AND fg-bin.i-no EQ ipbf-oe-ordl.i-no
+                    AND fg-bin.job-no EQ ipbf-oe-ordl.job-no
+                    AND fg-bin.job-no2 EQ ipbf-oe-ordl.job-no2
+                    AND fg-bin.qty GT 0
+                    NO-LOCK NO-ERROR.
+                IF NOT AVAILABLE fg-bin THEN
+                    ASSIGN
+                        opcStatus = 'C'
+                        opcReason = 'Closed. Requirements for allowable underrun met and job inventory is 0.' + cQtyMessage
+                        .
+                ELSE
+                    ASSIGN 
+                        opcStatus = ''
+                        opcReason = 'Not Closed. Requirements for allowable underrun met but job inventory still exists.' + cQtyMessage
+                        .
+            END.  /*Additional check for on-hand = 0 case for manufactured items*/
+            ELSE 
+                ASSIGN 
+                    opcStatus = 'C'
+                    opcReason = 'Closed. Requirements for allowable underrun met.' + cQtyMessage  
+                    .
+        END. /*Allowable underrun is met*/
+        ELSE
+            ASSIGN 
+                opcStatus = ''
+                opcReason = 'Not closed. Requirements for allowable underrun not met.' + cQtyMessage
+                .
+    END. /*Non transfer order cases*/
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pPoLineCloseCheck C-Win 
+PROCEDURE pPoLineCloseCheck :
+    /*------------------------------------------------------------------------------
+      Purpose: Checks to see if an order line can be closed    
+      Parameters:  order line buffer - > Outputs order status and reason
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-po-ordl FOR po-ordl.
+    DEFINE OUTPUT PARAMETER opcStatus AS CHARACTER   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcReason AS CHARACTER   NO-UNDO.
+
+    DEFINE BUFFER bf-po-ordl FOR po-ordl.
+
+    DEFINE VARIABLE dOverrunQty            LIKE po-ordl.ord-qty NO-UNDO.
+    DEFINE VARIABLE dUnderrunQty          LIKE po-ordl.ord-qty NO-UNDO.
+        
+    IF AVAIL ipbf-po-ordl THEN DO:
+     ASSIGN
+         dOverrunQty  = ipbf-po-ordl.cons-qty *
+                    (1 + (ipbf-po-ordl.over-pct / 100))
+         dUnderrunQty = ipbf-po-ordl.cons-qty *
+                    (1 - (ipbf-po-ordl.under-pct / 100)).
+                    
+         IF ipbf-po-ordl.t-rec-qty GE dUnderrunQty THEN DO:
+          ASSIGN
+           opcStatus = 'C'
+           opcReason = 'Closed. Requirements for allowable underrun met.' .         
+         END. 
+    END.      
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetOEClose C-Win 
+PROCEDURE GetOEClose PRIVATE :
+    /*------------------------------------------------------------------------------
+      Purpose:  Get the value of OEClose N-K-1   
+      Parameters:  outputs the char value
+      Notes:       
+    ------------------------------------------------------------------------------*/
+
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcCharValue AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lFound  AS LOGICAL   NO-UNDO.
+
+    RUN sys/ref/nk1look.p (INPUT ipcCompany, 
+        INPUT 'OECLOSE', 
+        INPUT 'C', 
+        INPUT NO, 
+        INPUT NO, 
+        INPUT '', 
+        INPUT '', 
+        OUTPUT cReturn, 
+        OUTPUT lFound).
+
+    IF lFound THEN
+        opcCharValue = cReturn.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
