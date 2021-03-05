@@ -701,6 +701,8 @@ PROCEDURE pCreateInputEst :
             ttInputEst.iStackCode       = b-eb.stack-code 
             ttInputEst.cEstType         = "MiscEstimate"
             ttInputEst.cSourceEst       = b-eb.est-no 
+            ttInputEst.cTest            = b-eb.test
+            ttInputEst.cFlute           = b-eb.flute
             .
         
         FIND FIRST est-qty NO-LOCK
