@@ -52,6 +52,7 @@ DEFINE            VARIABLE v-prev-ext-gap AS INTEGER   NO-UNDO.
 DEFINE            VARIABLE v-po-no        LIKE oe-ordl.po-no NO-UNDO.
 DEFINE            VARIABLE cBoardDscr     AS CHARACTER NO-UNDO.
 DEFINE            VARIABLE iPageCount     AS INTEGER   NO-UNDO.
+DEFINE            VARIABLE dExpectedPallets     AS DECIMAL   NO-UNDO.
 
 DEFINE WORKFILE w-lo
     FIELD layout LIKE v-layout.
@@ -195,9 +196,11 @@ DEFINE        VARIABLE cCartonCodeLabel AS CHARACTER NO-UNDO.
 DEFINE        VARIABLE cPalletLabel AS CHARACTER NO-UNDO.
 DEFINE        VARIABLE cInstructionsLabel AS CHARACTER NO-UNDO.
 
-DEFINE        VARIABLE cJobMachCode   AS CHARACTER NO-UNDO.
-DEFINE        VARIABLE cJobMachRunQty AS CHARACTER NO-UNDO.
-DEFINE        VARIABLE cCycleValue AS CHARACTER NO-UNDO.
+DEFINE        VARIABLE cJobMachCode     AS CHARACTER NO-UNDO.
+DEFINE        VARIABLE cJobMachRunQty   AS CHARACTER NO-UNDO.
+DEFINE        VARIABLE cCycleValue      AS CHARACTER NO-UNDO.
+DEFINE        VARIABLE cTotalCount      AS CHARACTER NO-UNDO.
+DEFINE        VARIABLE cExpectedPallets AS CHARACTER NO-UNDO.
 
 {cec/msfcalc.i}
 DEFINE BUFFER bf-eb     FOR eb.
@@ -744,7 +747,7 @@ FOR EACH ef
             RUN pGetPrintLabel2(INPUT lSpanish, OUTPUT cItemSpecLabel, OUTPUT cFGItemLabel, OUTPUT cKeyItemLabel, OUTPUT cMoldsLabel, OUTPUT cWetWeightLabel,
                                  OUTPUT cFirstDryLabel, OUTPUT cDscrLabel , OUTPUT cMoldIDsLabel, OUTPUT cBoneDryLabel , OUTPUT cMoistureLabel,
                                  OUTPUT cSizeLabel, OUTPUT cJigAvailableLabel, OUTPUT cMinWeightLabel, OUTPUT cFiberContentLabel, OUTPUT cPackingLabel , 
-                                 OUTPUT cPalletCountLabel, OUTPUT cPalletSizeLabel, OUTPUT cCartonCodeLabel, OUTPUT cPalletLabel, OUTPUT cInstructionsLabel).
+                                 OUTPUT cPalletCountLabel, OUTPUT cPalletSizeLabel, OUTPUT cCartonCodeLabel, OUTPUT cPalletLabel, OUTPUT cInstructionsLabel, OUTPUT cTotalCount, OUTPUT cExpectedPallets).
                                  
             PUT "<R-0.5><C45>" cItemSpecLabel FORMAT "x(23)" SKIP .
         END.    
@@ -782,7 +785,16 @@ FOR EACH ef
             WHERE itemfg.company EQ job-hdr.company
             AND itemfg.i-no    EQ job-hdr.i-no
             NO-ERROR .           
-          
+        
+        
+            IF eb.tr-cnt NE 0 THEN
+            DO:
+               ASSIGN dExpectedPallets =  ( job-hdr.qty / eb.tr-cnt ) .
+                {sys/inc/roundup.i dExpectedPallets}
+            END.
+            ELSE dExpectedPallets = 0 .
+            
+        
         PUT "<=#5> <C3>" cFGItemLabel FORMAT "x(10)" job-hdr.i-no FORMAT "x(18)"  "<B>" cKeyItemLabel FORMAT "x(15)" "</B> " job-hdr.keyItem  "<C35>" cMoldsLabel FORMAT "x(8)" eb.num-up   "<C55>" cWetWeightLabel FORMAT "x(13)" STRING(fGetMiscFields(itemfg.rec_key,"00001")) "<C75>" cFirstDryLabel FORMAT "x(14)" STRING(fGetMiscFields(itemfg.rec_key,"00003")) SKIP
             "<C3>" cDscrLabel FORMAT "x(13)" ( IF AVAILABLE itemfg THEN itemfg.part-dscr1 ELSE "") FORMAT "x(30)"    "<C35>" cMoldIDsLabel FORMAT "x(25)"  "<C55>" cBoneDryLabel FORMAT "x(10)" "<C75>" cMoistureLabel FORMAT "X(9)" STRING(fGetMiscFields(itemfg.rec_key,"00005")) SKIP
             "<C3>" cSizeLabel FORMAT "x(8)"  eb.len " x " eb.wid " x " eb.dep  "<C35>" cJigAvailableLabel FORMAT "x(21)" STRING(fGetMiscFields(itemfg.rec_key,"00004"))  "<C55>" cMinWeightLabel FORMAT "x(12)" STRING(fGetMiscFields(itemfg.rec_key,"00002")) "<C75>" cFiberContentLabel FORMAT "x(20)" STRING(fGetMiscFields(itemfg.rec_key,"00006")) SKIP
@@ -791,11 +803,13 @@ FOR EACH ef
         PUT "<=#5><R+0.5><UNITS=INCHES><C88><FROM><C109><r+2><BARCODE,TYPE=128B,CHECKSUM=NONE,VALUE=" 
         STRING(TRIM(job-hdr.job-no) + "-" + STRING(job-hdr.job-no2,"99") + "-" + STRING(job-hdr.frm,"99") + "-" + STRING(job-hdr.blank-no,"99")) FORMAT "x(15)" "><R-3>" . 
                
-        PUT "<=#6> <C3><B>" cPackingLabel FORMAT "x(8)"  "</B>" SKIP
-            "<C3>" cPalletCountLabel FORMAT "x(23)" TRIM(STRING(( IF AVAILABLE itemfg THEN (itemfg.case-count * itemfg.case-pall + itemfg.quantityPartial) ELSE 0),"->>,>>>,>>9"))    
-            "<C25>" cPalletSizeLabel FORMAT "x(23)"  ( IF AVAILABLE eb THEN (STRING(eb.tr-len) + " x " +  STRING(eb.tr-wid) + " x " +  STRING(eb.tr-dep)) ELSE "") FORMAT "x(12)" SKIP
-            "<C3>" cCartonCodeLabel FORMAT "x(22)" eb.cas-no 
-            "<C25>" cPalletLabel FORMAT "x(25)" ( IF AVAILABLE eb THEN eb.tr-no ELSE "") SKIP
+        PUT "<=#6><R-1> <C3><B>" cPackingLabel FORMAT "x(8)"  "</B>" SKIP
+            "<C3>" cTotalCount                 FORMAT "x(23)" job-hdr.qty FORMAT ">>>,>>>,>>9"
+            "<C25>" cCartonCodeLabel           FORMAT "x(20)" eb.cas-no SKIP
+            "<C3>" cPalletCountLabel           FORMAT "x(23)" eb.tr-cnt FORMAT ">,>>>,>>9"    
+            "<C25>" cPalletSizeLabel           FORMAT "x(23)"  ( IF AVAILABLE eb THEN (STRING(eb.tr-len) + " x " +  STRING(eb.tr-wid) + " x " +  STRING(eb.tr-dep)) ELSE "") FORMAT "x(12)" SKIP
+            "<C3>" cExpectedPallets            FORMAT "x(23)"  STRING( dExpectedPallets )
+            "<C25>" cPalletLabel               FORMAT "x(25)" ( IF AVAILABLE eb THEN eb.tr-no ELSE "") SKIP
             "<C2><FROM><C47><LINE>" .
            
                 
@@ -1054,6 +1068,8 @@ PROCEDURE pGetPrintLabel2:
   DEFINE OUTPUT PARAMETER opcCartonCodeLabel AS CHARACTER NO-UNDO.      
   DEFINE OUTPUT PARAMETER opcPalletLabel AS CHARACTER NO-UNDO.
   DEFINE OUTPUT PARAMETER opcInstructionsLabel AS CHARACTER NO-UNDO.
+  DEFINE OUTPUT PARAMETER opcTotalCount AS CHARACTER NO-UNDO.
+  DEFINE OUTPUT PARAMETER opcExpectedPallets AS CHARACTER NO-UNDO.
   
       
     IF iplSpanish THEN DO:
@@ -1077,7 +1093,10 @@ PROCEDURE pGetPrintLabel2:
       opcPalletSizeLabel   = "Tamaño de la paleta: "  /*21*/
       opcCartonCodeLabel   = "Código de cartón:"  /*18*/
       opcPalletLabel       = "Paleta:"     /*7*/
-      opcInstructionsLabel = "Instrucciones".  /*13*/
+      opcInstructionsLabel = "Instrucciones"  /*13*/
+      opcTotalCount        = "Cuenta total:"  /*14*/
+      opcExpectedPallets   = "# Palets esperados:"  /*20*/
+      .
     END.
     ELSE DO:
       ASSIGN
@@ -1100,7 +1119,10 @@ PROCEDURE pGetPrintLabel2:
       opcPalletSizeLabel   =  "Pallet Size: "
       opcCartonCodeLabel   =  "Carton Code: "
       opcPalletLabel       =  "Pallet #: "
-      opcInstructionsLabel =  "Instructions". 
+      opcInstructionsLabel =  "Instructions"
+      opcTotalCount        =  "Total Count:"
+      opcExpectedPallets   =  "Expected # Pallets:"
+      .
     
     END.
 END PROCEDURE.
