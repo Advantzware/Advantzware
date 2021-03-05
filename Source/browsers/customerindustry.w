@@ -44,7 +44,7 @@ CREATE WIDGET-POOL.
 {custom/globdefs.i}
 {sys/inc/VAR.i NEW SHARED}
 
-DEFINE BUFFER bf-customerindustry FOR customerindustry.
+DEFINE BUFFER bf-customerindustry FOR customerIndustry.
 
 &IF DEFINED(UIB_is_Running) NE 0 &THEN
 &Scoped-define NEW NEW GLOBAL
@@ -85,14 +85,16 @@ IF AVAILABLE users THEN ASSIGN
 &SCOPED-DEFINE for-each1                          ~
     FOR EACH customerindustry                           ~
         WHERE {&key-phrase}                       ~
-          AND customerindustry.industryid ge fi_industryId      ~
-          AND (IF fi_name BEGINS '*'     THEN customerindustry.industryname MATCHES (fi_name + "*") ~
+          AND customerIndustry.company EQ cocode   ~
+          AND customerindustry.industryID BEGINS fi_industryId ~
+          AND (IF fi_name BEGINS '*' THEN customerindustry.industryname MATCHES (fi_name + "*") ~
               ELSE customerindustry.industryname BEGINS fi_name) ~
           AND ((customerindustry.inactive AND tb_inActive) OR ( NOT customerindustry.inactive AND NOT tb_inActive)) 
 
 &SCOPED-DEFINE for-eachblank ~
     FOR EACH customerindustry  ~
-        WHERE {&key-phrase} 
+        WHERE {&key-phrase}    ~
+          AND customerIndustry.company EQ cocode
         
 
 /* &SCOPED-DEFINE sortby-log 
@@ -100,7 +102,7 @@ IF AVAILABLE users THEN ASSIGN
     IF lv-sort-by EQ "name"             THEN customerindustry.industryname ELSE ~
     IF lv-sort-by EQ "inactive"         THEN string(customerindustry.inactive) ELSE ""
    */ 
-&SCOPED-DEFINE sortby BY customerindustry.industryid 
+&SCOPED-DEFINE sortby BY customerindustry.industryID 
 
 &SCOPED-DEFINE sortby-phrase-asc BY ({&sortby-log}) ~
        {&sortby}
@@ -132,8 +134,8 @@ IF AVAILABLE users THEN ASSIGN
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE Browser-Table                                 */
-&Scoped-define FIELDS-IN-QUERY-Browser-Table customerindustry.industryid customerindustry.industryname ~
-customerindustry.Inactive 
+&Scoped-define FIELDS-IN-QUERY-Browser-Table customerindustry.industryID ~
+customerindustry.industryName customerindustry.inActive 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH customerindustry WHERE ~{&KEY-PHRASE} NO-LOCK ~
     ~{&SORTBY-PHRASE}
@@ -215,9 +217,9 @@ DEFINE BUTTON btn_show
      SIZE 12 BY 1
      FONT 6.
 
-DEFINE VARIABLE fi_industryId AS INTEGER FORMAT ">>":U INITIAL 0 
+DEFINE VARIABLE fi_industryId AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
-     SIZE 15 BY 1
+     SIZE 26 BY 1
      BGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE fi_name AS CHARACTER FORMAT "X(48)":U 
@@ -246,13 +248,12 @@ DEFINE QUERY Browser-Table FOR
 DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
-      customerindustry.industryid COLUMN-LABEL "AR Industry ID" FORMAT "->,>>>,>>9":U
-            WIDTH 26.8
-      customerindustry.industryname COLUMN-LABEL "Name" FORMAT "x(16)":U WIDTH 72.2
-      customerindustry.Inactive FORMAT "yes/no":U WIDTH 30
+      customerindustry.industryID FORMAT "x(16)":U WIDTH 35.8
+      customerindustry.industryName FORMAT "x(16)":U WIDTH 84.2
+      customerindustry.inActive FORMAT "yes/no":U WIDTH 24.2
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 135.6 BY 16
+    WITH NO-ASSIGN SEPARATORS SIZE 139 BY 16.24
          FONT 2.
 
 
@@ -260,26 +261,26 @@ DEFINE BROWSE Browser-Table
 
 DEFINE FRAME F-Main
      fi_industryId AT ROW 2.1 COL 1 COLON-ALIGNED NO-LABEL WIDGET-ID 48
-     fi_name AT ROW 2.1 COL 20.8 COLON-ALIGNED NO-LABEL WIDGET-ID 16
-     tb_inActive AT ROW 2.1 COL 64
-     btn_go AT ROW 3.38 COL 1.8 WIDGET-ID 4
-     btn_show AT ROW 3.38 COL 15.2 WIDGET-ID 10
+     fi_name AT ROW 2.1 COL 27.8 COLON-ALIGNED NO-LABEL WIDGET-ID 16
+     tb_inActive AT ROW 2.1 COL 66.2
+     btn_go AT ROW 3.38 COL 2.8 WIDGET-ID 4
+     btn_show AT ROW 3.38 COL 16.2 WIDGET-ID 10
      fi_sort-by AT ROW 3.38 COL 67.6 COLON-ALIGNED NO-LABEL WIDGET-ID 12
-     Browser-Table AT ROW 4.57 COL 2.4 HELP
+     Browser-Table AT ROW 4.52 COL 3 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
      "Name" VIEW-AS TEXT
-          SIZE 20 BY .71 AT ROW 1.24 COL 22.8 WIDGET-ID 38
+          SIZE 20 BY .71 AT ROW 1.24 COL 29.8 WIDGET-ID 38
           FGCOLOR 9 FONT 6
      "AR Industry ID" VIEW-AS TEXT
           SIZE 18 BY .71 AT ROW 1.24 COL 3 WIDGET-ID 42
           FGCOLOR 9 FONT 6
      "Inactive" VIEW-AS TEXT
-          SIZE 10.4 BY .71 AT ROW 1.24 COL 62.6
+          SIZE 10.4 BY .71 AT ROW 1.24 COL 65.8
           FGCOLOR 9 FONT 6
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
-         BGCOLOR 8 FGCOLOR 0 
+         BGCOLOR 15 
          DEFAULT-BUTTON btn_go WIDGET-ID 100.
 
 
@@ -309,8 +310,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW B-table-Win ASSIGN
-         HEIGHT             = 19.52
-         WIDTH              = 139.
+         HEIGHT             = 19.91
+         WIDTH              = 141.8.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -357,12 +358,12 @@ ASSIGN
      _TblList          = "asi.customerindustry"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = "customerindustry"
-     _FldNameList[1]   > asi.customerindustry.industryid
-"customerindustry.industryid" "AR Industry ID" ? "integer" ? ? ? ? ? ? no ? no no "26.8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[2]   > asi.customerindustry.industryname
-"customerindustry.industryname" "Name" ? "character" ? ? ? ? ? ? no ? no no "72.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[3]   > asi.customerindustry.Inactive
-"customerindustry.Inactive" ? ? "logical" ? ? ? ? ? ? no ? no no "30" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[1]   > asi.customerindustry.industryID
+"customerindustry.industryID" ? ? "character" ? ? ? ? ? ? no ? no no "35.8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[2]   > asi.customerindustry.industryName
+"customerindustry.industryName" ? ? "character" ? ? ? ? ? ? no ? no no "84.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[3]   > asi.customerindustry.inActive
+"customerindustry.inActive" ? ? "logical" ? ? ? ? ? ? no ? no no "24.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
@@ -380,31 +381,16 @@ ASSIGN
 
 /* ************************  Control Triggers  ************************ */
 
-&Scoped-define SELF-NAME F-Main
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL F-Main B-table-Win
-ON HELP OF FRAME F-Main
-DO:
-        DEFINE VARIABLE lv-handle AS HANDLE NO-UNDO.
-        DEFINE VARIABLE char-val  AS cha    NO-UNDO.
-        DEFINE VARIABLE rec-val   AS RECID  NO-UNDO. 
-        DEFINE VARIABLE city-val  AS cha    NO-UNDO. 
-        DEFINE VARIABLE state-val AS cha    NO-UNDO. 
-
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &Scoped-define BROWSE-NAME Browser-Table
 &Scoped-define SELF-NAME Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON DEFAULT-ACTION OF Browser-Table IN FRAME F-Main
 DO:
-        DEFINE VARIABLE phandle  AS HANDLE NO-UNDO.
-        DEFINE VARIABLE char-hdl AS cha    NO-UNDO.
-        {methods/run_link.i "container-source" "select-page" "(2)"}
-    END.
+    DEFINE VARIABLE phandle  AS HANDLE NO-UNDO.
+    DEFINE VARIABLE char-hdl AS cha    NO-UNDO.
+    
+    {methods/run_link.i "container-source" "select-page" "(2)"}
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -413,9 +399,9 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON ROW-ENTRY OF Browser-Table IN FRAME F-Main
 DO:
-        /* This code displays initial values for newly added or copied rows. */
-        {src/adm/template/brsentry.i}
-    END.
+    /* This code displays initial values for newly added or copied rows. */
+    {src/adm/template/brsentry.i}
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -424,10 +410,10 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON ROW-LEAVE OF Browser-Table IN FRAME F-Main
 DO:
-        /* Do not disable this code or no updates will take place except
-         by pressing the Save button on an Update SmartPanel. */
-        {src/adm/template/brsleave.i}
-    END.
+    /* Do not disable this code or no updates will take place except
+     by pressing the Save button on an Update SmartPanel. */
+    {src/adm/template/brsleave.i}
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -436,27 +422,27 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON START-SEARCH OF Browser-Table IN FRAME F-Main
 DO:
-                {methods/template/sortindicator.i}
-        /*RUN startSearch.*/
-        DEFINE VARIABLE lh-column     AS HANDLE NO-UNDO.
-        DEFINE VARIABLE lv-column-nam AS CHARACTER   NO-UNDO.
-        DEFINE VARIABLE lv-column-lab AS CHARACTER   NO-UNDO.
+    {methods/template/sortindicator.i}
 
+    DEFINE VARIABLE lh-column     AS HANDLE NO-UNDO.
+    DEFINE VARIABLE lv-column-nam AS CHARACTER   NO-UNDO.
+    DEFINE VARIABLE lv-column-lab AS CHARACTER   NO-UNDO.
+
+    ASSIGN
+        lh-column     = {&BROWSE-NAME}:CURRENT-COLUMN 
+        lv-column-nam = lh-column:NAME
+        lv-column-lab = lh-column:LABEL.
+
+    IF lv-sort-by EQ lv-column-nam THEN ll-sort-asc = NOT ll-sort-asc.
+    ELSE
         ASSIGN
-            lh-column     = {&BROWSE-NAME}:CURRENT-COLUMN 
-            lv-column-nam = lh-column:NAME
-            lv-column-lab = lh-column:LABEL.
+            lv-sort-by     = lv-column-nam
+            lv-sort-by-lab = lv-column-lab.
 
-        IF lv-sort-by EQ lv-column-nam THEN ll-sort-asc = NOT ll-sort-asc.
-        ELSE
-            ASSIGN
-                lv-sort-by     = lv-column-nam
-                lv-sort-by-lab = lv-column-lab.
-
-        APPLY 'END-SEARCH' TO {&BROWSE-NAME}.
-        RUN dispatch ("open-query").
-                {methods/template/sortindicatorend.i}
-    END.
+    APPLY 'END-SEARCH' TO {&BROWSE-NAME}.
+    RUN dispatch ("open-query").
+            {methods/template/sortindicatorend.i}
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -465,13 +451,10 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON VALUE-CHANGED OF Browser-Table IN FRAME F-Main
 DO:
-        /* This ADM trigger code must be preserved in order to notify other
-           objects when the browser's current row changes. */
-        {src/adm/template/brschnge.i}
-    /*{methods/template/local/setvalue.i}*/
-  
-  
-    END.
+    /* This ADM trigger code must be preserved in order to notify other
+       objects when the browser's current row changes. */
+    {src/adm/template/brschnge.i}
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -482,18 +465,18 @@ DO:
 ON CHOOSE OF btn_go IN FRAME F-Main /* Go */
 DO:
   
-        DO WITH FRAME {&FRAME-NAME}:
-            ASSIGN
-                fi_industryId                                                                  
-                fi_name  
-                tb_inActive
-                ll-first = NO.                                             
-     
-            RUN dispatch ("open-query").
-    
-            GET FIRST Browser-Table .
-        END.
+    DO WITH FRAME {&FRAME-NAME}:
+        ASSIGN
+            fi_industryId                                                                  
+            fi_name  
+            tb_inActive
+            ll-first = NO.                                             
+ 
+        RUN dispatch ("open-query").
+
+        GET FIRST Browser-Table .
     END.
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -503,11 +486,11 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_show B-table-Win
 ON CHOOSE OF btn_show IN FRAME F-Main /* Show All */
 DO:
-        DO WITH FRAME {&FRAME-NAME}:
-            ll-show-all = YES.
-            APPLY "choose" TO btn_go.
-        END.
+    DO WITH FRAME {&FRAME-NAME}:
+        ll-show-all = YES.
+        APPLY "choose" TO btn_go.
     END.
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -988,18 +971,15 @@ PROCEDURE set-defaults :
       Notes:       
     ------------------------------------------------------------------------------*/
     DO WITH FRAME {&FRAME-NAME}:
-        ASSIGN
-    
+        ASSIGN    
             fi_industryId:SCREEN-VALUE    = ""             
             fi_name:SCREEN-VALUE          = ""
             tb_inActive:SCREEN-VALUE      = "No"          
-            fi_industryId                 = 0              
+            fi_industryId                 = ""              
             fi_name                       = ""
             tb_inActive                   = NO
-            .     
-        
+            .        
     END.
-
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

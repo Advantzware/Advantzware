@@ -74,8 +74,8 @@ DEFINE QUERY external_tables FOR customerindustry.
 DEFINE VAR W-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of handles for SmartObjects                              */
-DEFINE VARIABLE h_arindustry-2 AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_arindustry-4 AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_customerindustry AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_customerindustry-2 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_exit AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_folder AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_options AS HANDLE NO-UNDO.
@@ -113,7 +113,7 @@ DEFINE FRAME message-frame
    Type: SmartWindow
    External Tables: asi.customerindustry
    Allow: Basic,Browse,DB-Fields,Query,Smart,Window
-   Design Page: 1
+   Design Page: 2
    Other Settings: COMPILE
  */
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS
@@ -126,7 +126,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          HIDDEN             = YES
          TITLE              = "Industry Maintenance"
          HEIGHT             = 23.81
-         WIDTH              = 144
+         WIDTH              = 143.6
          MAX-HEIGHT         = 32.52
          MAX-WIDTH          = 273.2
          VIRTUAL-HEIGHT     = 32.52
@@ -321,25 +321,25 @@ PROCEDURE adm-create-objects :
     END. /* Page 0 */
     WHEN 1 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'arindustry.w':U ,
+             INPUT  'browsers/customerindustry.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
-             OUTPUT h_arindustry-2 ).
-       RUN set-position IN h_arindustry-2 ( 4.67 , 4.20 ) NO-ERROR.
-       /* Size in UIB:  ( 19.57 , 137.00 ) */
+             OUTPUT h_customerindustry ).
+       RUN set-position IN h_customerindustry ( 4.67 , 2.00 ) NO-ERROR.
+       /* Size in UIB:  ( 19.76 , 141.00 ) */
 
        /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_arindustry-2 ,
+       RUN adjust-tab-order IN adm-broker-hdl ( h_customerindustry ,
              h_folder , 'AFTER':U ).
     END. /* Page 1 */
     WHEN 2 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'c:/users/goutam.sharma/advantzware/source/viewers/arindustry.w':U ,
+             INPUT  'viewers/customerindustry.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
-             OUTPUT h_arindustry-4 ).
-       RUN set-position IN h_arindustry-4 ( 5.05 , 19.00 ) NO-ERROR.
-       /* Size in UIB:  ( 9.05 , 106.00 ) */
+             OUTPUT h_customerindustry-2 ).
+       RUN set-position IN h_customerindustry-2 ( 4.81 , 20.00 ) NO-ERROR.
+       /* Size in UIB:  ( 3.10 , 106.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/p-updsav.r':U ,
@@ -348,21 +348,21 @@ PROCEDURE adm-create-objects :
                      SmartPanelType = Update,
                      AddFunction = One-Record':U ,
              OUTPUT h_p-updsav ).
-       RUN set-position IN h_p-updsav ( 14.57 , 68.00 ) NO-ERROR.
-       RUN set-size IN h_p-updsav ( 2.14 , 56.00 ) NO-ERROR.
+       RUN set-position IN h_p-updsav ( 9.10 , 36.00 ) NO-ERROR.
+       RUN set-size IN h_p-updsav ( 2.14 , 72.00 ) NO-ERROR.
 
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
 
-       /* Links to SmartViewer h_arindustry-4. */
-       RUN add-link IN adm-broker-hdl ( h_arindustry-2 , 'Record':U , h_arindustry-4 ).
-       RUN add-link IN adm-broker-hdl ( h_p-updsav , 'TableIO':U , h_arindustry-4 ).
+       /* Links to SmartViewer h_customerindustry-2. */
+       RUN add-link IN adm-broker-hdl ( h_customerindustry , 'Record':U , h_customerindustry-2 ).
+       RUN add-link IN adm-broker-hdl ( h_p-updsav , 'TableIO':U , h_customerindustry-2 ).
 
        /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_arindustry-4 ,
+       RUN adjust-tab-order IN adm-broker-hdl ( h_customerindustry-2 ,
              h_folder , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_p-updsav ,
-             h_arindustry-4 , 'AFTER':U ).
+             h_customerindustry-2 , 'AFTER':U ).
     END. /* Page 2 */
 
   END CASE.

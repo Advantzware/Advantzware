@@ -45,6 +45,8 @@ DEF VAR iBaseLevel AS INT NO-UNDO.
 DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
 DEFINE VARIABLE pHandle  AS HANDLE    NO-UNDO.
 
+DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -70,12 +72,12 @@ DEFINE VARIABLE pHandle  AS HANDLE    NO-UNDO.
 DEFINE QUERY external_tables FOR customerindustry.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-FIELDS customerIndustry.industryID ~
-customerIndustry.inactive customerIndustry.industryname 
+customerIndustry.industryName customerIndustry.inActive 
 &Scoped-define ENABLED-TABLES customerIndustry
 &Scoped-define FIRST-ENABLED-TABLE customerIndustry
 &Scoped-Define ENABLED-OBJECTS RECT-1 
 &Scoped-Define DISPLAYED-FIELDS customerIndustry.industryID ~
-customerIndustry.inactive customerIndustry.industryname 
+customerIndustry.industryName customerIndustry.inActive 
 &Scoped-define DISPLAYED-TABLES customerIndustry
 &Scoped-define FIRST-DISPLAYED-TABLE customerIndustry
 
@@ -114,8 +116,9 @@ RUN set-attribute-list (
 
 /* Definitions of the field level widgets                               */
 DEFINE RECTANGLE RECT-1
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 106 BY 9.05.
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 106 BY 3.81
+     BGCOLOR 15 .
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -124,23 +127,23 @@ DEFINE FRAME F-Main
      customerIndustry.industryID AT ROW 1.24 COL 27.4 COLON-ALIGNED
           LABEL "AR Industry ID"
           VIEW-AS FILL-IN 
-          SIZE 10.4 BY 1
+          SIZE 43.6 BY 1
           BGCOLOR 15 
-     customerIndustry.inactive AT ROW 1.24 COL 47
+     customerIndustry.industryName AT ROW 2.43 COL 27.4 COLON-ALIGNED
+          LABEL "Industry Name" FORMAT "x(30)"
+          VIEW-AS FILL-IN 
+          SIZE 43.6 BY 1
+          BGCOLOR 15 
+     customerIndustry.inActive AT ROW 3.62 COL 29.4
           LABEL "Inactive"
           VIEW-AS TOGGLE-BOX
           SIZE 15 BY 1
-          BGCOLOR 15 
-     customerIndustry.industryname AT ROW 2.43 COL 27.4 COLON-ALIGNED
-          LABEL "Industry Name"
-          VIEW-AS FILL-IN 
-          SIZE 44 BY 1
           BGCOLOR 15 
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
-         FONT 6.
+         BGCOLOR 15 FONT 6.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -199,12 +202,12 @@ ASSIGN
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
-/* SETTINGS FOR TOGGLE-BOX customerIndustry.inactive IN FRAME F-Main
+/* SETTINGS FOR TOGGLE-BOX customerIndustry.inActive IN FRAME F-Main
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN customerIndustry.industryID IN FRAME F-Main
    EXP-LABEL                                                            */
-/* SETTINGS FOR FILL-IN customerIndustry.industryname IN FRAME F-Main
-   EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN customerIndustry.industryName IN FRAME F-Main
+   EXP-LABEL EXP-FORMAT                                                 */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -346,16 +349,21 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-assign-record V-table-Win 
-PROCEDURE local-assign-record :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-assign-statement V-table-Win 
+PROCEDURE local-assign-statement :
 /*------------------------------------------------------------------------------
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
 
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
-  
+    /* Code placed here will execute PRIOR to standard behavior. */
 
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-statement':U ) .
+
+    /* Code placed here will execute AFTER standard behavior.    */
+    IF AVAILABLE customerIndustry THEN
+        customerIndustr.company = cCompany.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -461,15 +469,23 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-display-fields V-table-Win 
-PROCEDURE local-display-fields :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable V-table-Win 
+PROCEDURE local-enable :
 /*------------------------------------------------------------------------------
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-         
-    RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ).
-    
+
+    /* Code placed here will execute PRIOR to standard behavior. */
+
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable':U ) .
+
+    /* Code placed here will execute AFTER standard behavior.    */
+    RUN spGetSessionParam (
+        INPUT  "Company",
+        OUTPUT cCompany
+        ).
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -622,28 +638,30 @@ PROCEDURE valid-industryID :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEFINE OUTPUT PARAMETER opReturnError AS LOGICAL NO-UNDO . 
-  DEFINE BUFFER bf-customerindustry FOR customerindustry.
-  {&methods/lValidateError.i YES}
+    DEFINE OUTPUT PARAMETER opReturnError AS LOGICAL NO-UNDO . 
+    
+    DEFINE BUFFER bf-customerIndustry FOR customerIndustry.
+    {&methods/lValidateError.i YES}
 
-  DO WITH FRAME {&FRAME-NAME}:
-    IF customerindustry.industryID:SCREEN-VALUE EQ "" OR customerindustry.industryID:SCREEN-VALUE EQ "0" THEN DO:
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+        
+    IF customerindustry.industryID:SCREEN-VALUE EQ "" THEN DO:
         MESSAGE "Enter valid Ar Industry id = Must enter a unique number" VIEW-AS ALERT-BOX INFO .
         opReturnError = YES .                 
     END.
     ELSE DO:
-      FIND FIRST bf-customerindustry NO-LOCK
-          WHERE bf-customerindustry.industryID EQ integer(customerindustry.industryID:SCREEN-VALUE)
-          AND rowid(bf-customerindustry) NE rowid(customerindustry) NO-ERROR .
-      IF AVAIL bf-customerindustry THEN
-      DO:
-           MESSAGE "AR Industry ID is already exist... " VIEW-AS ALERT-BOX INFO .
-           opReturnError = YES .           
-      END.     
+         FIND FIRST bf-customerindustry NO-LOCK
+              WHERE bf-customerIndustry.company   EQ cCompany
+                AND bf-customerindustry.industryID EQ customerIndustry.industryID:SCREEN-VALUE
+              NO-ERROR .
+         IF AVAIL bf-customerindustry THEN DO:
+             MESSAGE "AR Industry ID already exists... " VIEW-AS ALERT-BOX INFO .
+             opReturnError = YES .           
+        END.     
     END.    
     
-  END.
-  {&methods/lValidateError.i NO}
+    {&methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

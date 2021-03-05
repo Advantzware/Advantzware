@@ -5,4 +5,3 @@
 TRIGGER PROCEDURE FOR DELETE OF {&TABLENAME}.
 
 {methods/triggers/delete.i}
-{methods/delete.trg/{&TABLENAME}.i}
