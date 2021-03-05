@@ -374,7 +374,9 @@ ASSIGN
     lUserAMPM   = users.AMPM
     lSuperAdmin = users.securityLevel GE 1000
     lAdmin      = users.securityLevel GE 900
+    cUserID     = users.user_id
     .
+RUN spSetSessionParam("UserID",cUserID).
 /* build temp-table of super-procedures */
 DO idx = 1 TO NUM-ENTRIES(cSuperProcedure):
     CREATE ttSuperProcedure.
