@@ -1229,15 +1229,6 @@ display str-tit with frame r-top.
 */
 {sa/sa-sls01.i}
 
-/* gdm - 10130808 */
-IF rd-dest = 4 THEN DO:
-    OUTPUT STREAM excel TO VALUE(cFileName).
-    PUT STREAM excel UNFORMATTED
-        v_exclhdr1
-    SKIP.
-
-END.
-
 IF rd-dest = 4 THEN DO:
   OUTPUT STREAM excel TO VALUE(cFileName).
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
