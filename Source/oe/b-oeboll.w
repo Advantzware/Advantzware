@@ -2208,9 +2208,9 @@ PROCEDURE local-enable-fields :
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"Container-source",OUTPUT char-hdl).
   RUN make-buttons-insensitive IN WIDGET-HANDLE(char-hdl).
 
-  DO li-cnt = 1 TO {&BROWSE-NAME}:NUM-COLUMNS IN FRAME {&FRAME-NAME}:
-    APPLY "cursor-left" TO {&BROWSE-NAME} IN FRAME {&FRAME-NAME}.
-  END.
+/*  DO li-cnt = 1 TO {&BROWSE-NAME}:NUM-COLUMNS IN FRAME {&FRAME-NAME}:*/
+/*    APPLY "cursor-left" TO {&BROWSE-NAME} IN FRAME {&FRAME-NAME}.    */
+/*  END.                                                               */
   
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable-fields':U ) .
