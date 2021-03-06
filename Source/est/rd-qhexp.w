@@ -1255,7 +1255,7 @@ FOR EACH quotehd
             WHEN "price" THEN                                                                
                 v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(dPrice)). 
             WHEN "profit" THEN                                                                
-                v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(dProfit, "->,>>>,>>9.99")).
+                v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(dProfit)).
             WHEN "price-uom" THEN                                                                
                 v-excel-detail-lines = v-excel-detail-lines + appendXLLine(cUom). 
             WHEN "shipto" THEN                                                                
