@@ -98,8 +98,16 @@ PROCEDURE FillData:
         FOR EACH probe WHERE probe.company EQ tt-temp-table.company AND 
             ASI.probe.est-no = tt-temp-table.est-no 
             AND probe.probe-date NE ? NO-LOCK :
-            iSheetQty =  iSheetQty + probe.gsh-qty .
+                       
+          FOR EACH estCostForm NO-LOCK
+              WHERE estCostHeaderID EQ INT64(probe.spare-char-2)
+              AND estCostForm.company EQ eb.company
+              AND estCostForm.estimateNo EQ eb.est-no
+              AND estCostForm.formNo EQ tt-temp-table.form-no:        
+             iSheetQty =  iSheetQty + estCostForm.grossQtyRequiredTotal .
+          END.
         END.
+        
       
         IF  tt-temp-table.board NE "" THEN
         DO:
