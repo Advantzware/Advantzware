@@ -21,9 +21,17 @@ DEFINE VARIABLE v-dir              AS CHARACTER        FORMAT "X(80)" NO-UNDO.
 DEFINE VARIABLE iRowCount          AS INTEGER          NO-UNDO.
 DEFINE VARIABLE iQtyOnHand         AS INTEGER          NO-UNDO.
 DEFINE VARIABLE cPrintItem         AS CHARACTER        NO-UNDO.
+DEFINE VARIABLE iSize              AS INTEGER          NO-UNDO.
+DEFINE VARIABLE dQuantity          AS DECIMAL          NO-UNDO.
+
+DEFINE VARIABLE hdEstimateCalcProcs AS HANDLE.
+RUN est/EstimateCalcProcs.p PERSISTENT SET hdEstimateCalcProcs.
+THIS-PROCEDURE:ADD-SUPER-PROCEDURE (hdEstimateCalcProcs).
 
 DEFINE TEMP-TABLE tt-temp-table LIKE eb
     FIELD board LIKE ef.board
+    FIELD lRoll AS LOGICAL
+    FIELD cRollUom LIKE ef.cost-uom
     FIELD rwRowid AS ROWID . 
 
 DEFINE BUFFER bf-eb FOR eb.
@@ -35,6 +43,10 @@ IF AVAILABLE users AND users.user_program[2] NE "" THEN
     v-dir = users.user_program[2] + "\".
 ELSE
     v-dir = "c:\tmp\".
+
+FUNCTION fTypePrintsBoard RETURNS LOGICAL PRIVATE
+    (ipcEstType AS CHARACTER) FORWARD.
+
 
 RUN InitializeExcel.
 RUN MainLoop.
@@ -62,19 +74,68 @@ PROCEDURE FillData:
             AND ef.est-no EQ bf-eb.est-no 
             AND ef.form-no EQ bf-eb.form-no NO-ERROR .
      
+        IF ef.roll THEN
+                   ASSIGN iSize = ef.roll-wid .
+                   ELSE   iSize = ef.gsh-wid  .
+               
         CREATE tt-temp-table.
         BUFFER-COPY bf-eb TO tt-temp-table.
         ASSIGN         
             tt-temp-table.board = IF AVAILABLE ef THEN ef.board ELSE "" 
-            tt-temp-table.rwRowid = ROWID(eb).         
+            tt-temp-table.rwRowid = ROWID(eb)
+            tt-temp-table.lRoll      = ef.roll 
+            tt-temp-table.cRollUom   = ef.cost-uom.         
     END.
-     
+    dQuantity = 0 .
+    
+    FOR EACH probe WHERE probe.company EQ tt-temp-table.company AND 
+            ASI.probe.est-no = tt-temp-table.est-no 
+            AND probe.probe-date NE ? NO-LOCK :
+            IF tt-temp-table.lRoll AND tt-temp-table.cRollUom EQ "LF" THEN
+            DO:
+                FIND FIRST estCostHeader NO-LOCK
+                        WHERE estCostHeader.company EQ eb.company
+                        AND estCostHeader.estCostHeaderID EQ INT64(probe.spare-char-2) NO-ERROR.
+
+                    FOR EACH estCostMaterial NO-LOCK
+                        WHERE estCostMaterial.estCostHeaderID EQ INT64(probe.spare-char-2)
+                        AND estCostMaterial.company EQ eb.company
+                        AND estCostMaterial.estimateNo EQ eb.est-no
+                        AND estCostMaterial.formNo EQ tt-temp-table.form-no:
+
+                    IF estCostMaterial.isPrimarySubstrate 
+                    AND NOT fTypePrintsBoard(estCostHeader.estType) 
+                    THEN 
+                    NEXT.
+
+                    IF estCostMaterial.isPrimarySubstrate THEN 
+                    DO:
+
+                        dQuantity = dQuantity + estCostMaterial.quantityRequiredNoWasteInCUOM .
+                    END.
+                                           
+                    END.
+                END.
+                ELSE
+                    FOR EACH estCostForm NO-LOCK
+                        WHERE estCostForm.estCostHeaderID EQ INT64(probe.spare-char-2)
+                        AND estCostForm.company EQ eb.company
+                        AND estCostForm.estimateNo EQ eb.est-no
+                        AND estCostForm.formNo EQ tt-temp-table.form-no:        
+                        dQuantity =  dQuantity + estCostForm.grossQtyRequiredTotal .
+                    END.
+
+        END.
+
+    
+    
     FIND FIRST cust NO-LOCK
         WHERE cust.company EQ eb.company 
         AND cust.cust-no EQ eb.cust-no NO-ERROR.
      
     ASSIGN
         viWorkSheetCount = 1. 
+        
    
     /* Go to the Active Sheet. */
     chWorkbook:WorkSheets(viWorkSheetCount):Activate NO-ERROR.   
@@ -113,7 +174,7 @@ PROCEDURE FillData:
                     chWorkSheet:Range("A" + STRING(iRowCount)):value = ITEM.i-name .
                 
                 IF AVAILABLE ITEM THEN     
-                    chWorkSheet:Range("B" + STRING(iRowCount)):value = STRING(ITEM.r-wid) .
+                    chWorkSheet:Range("B" + STRING(iRowCount)):value = STRING(iSize) .
                 
                /*IF ITEM.mat-type EQ "B" THEN*/
                chWorkSheet:Range("C" + STRING(iRowCount)):value = ITEM.i-name . 
@@ -126,7 +187,7 @@ PROCEDURE FillData:
                         iQtyOnHand = iQtyOnHand + rm-bin.qty.
                 END.  
                 chWorkSheet:Range("D" + STRING(iRowCount)):value = STRING(iQtyOnHand) . 
-                chWorkSheet:Range("E" + STRING(iRowCount)):value = STRING(iSheetQty - iQtyOnHand) .
+                chWorkSheet:Range("E" + STRING(iRowCount)):value = STRING(dQuantity) .
                 
                 RUN pGetWastePer( BUFFER tt-temp-table, OUTPUT dWastePer) .
                 chWorkSheet:Range("F" + STRING(iRowCount)):value = STRING(dWastePer) .
@@ -409,3 +470,12 @@ PROCEDURE find-depth-reftable :
   END.
 END PROCEDURE.
 
+FUNCTION fTypePrintsBoard RETURNS LOGICAL PRIVATE
+    (ipcEstType AS CHARACTER):
+    /*------------------------------------------------------------------------------
+     Purpose: Returns if given type should print board details
+     Notes:
+    ------------------------------------------------------------------------------*/    
+    RETURN NOT DYNAMIC-FUNCTION("IsMiscType",ipcEstType).
+        
+END FUNCTION.
