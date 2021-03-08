@@ -1261,7 +1261,38 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-   
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCallAudit B-table-Win
+PROCEDURE pCallAudit:
+    DEFINE INPUT PARAMETER ipcType AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE cMsgResponse AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE hTable AS HANDLE NO-UNDO.
+
+    IF AVAILABLE tt-glinq THEN DO:
+        IF NOT CAN-FIND(FIRST AuditTbl
+                        WHERE AuditTbl.AuditTable   EQ "glhist"
+                          AND (AuditTbl.AuditCreate EQ YES
+                           OR  AuditTbl.AuditDelete EQ YES
+                           OR  AuditTbl.AuditUpdate EQ YES)) THEN DO:
+            RUN displayMessageQuestion ("17", OUTPUT cMsgResponse).
+            IF cMsgResponse EQ "no" THEN DO:
+                RETURN NO-APPLY.
+            END. /* if no */
+        END. /* if audittble */
+        FIND FIRST glhist NO-LOCK
+             WHERE ROWID(glhist) EQ tt-glinq.riRowid
+             NO-ERROR.
+        IF AVAILABLE glhist THEN DO:
+            hTable = BUFFER glhist:HANDLE.
+            RUN system/CallAudit.p ("glhist", hTable, ipcType, PROGRAM-NAME(1)).
+        END. /* avail glhist */
+    END. /* avail tt-glinq */
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdate B-table-Win 
 PROCEDURE pUpdate :
 /*------------------------------------------------------------------------------

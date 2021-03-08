@@ -22,11 +22,9 @@ DEFINE OUTPUT PARAMETER opcPriceUOM       AS CHARACTER NO-UNDO.
 DEFINE OUTPUT PARAMETER oplSuccess        AS LOGICAL   NO-UNDO.
 DEFINE OUTPUT PARAMETER opcMessage        AS CHARACTER NO-UNDO.
 
-DEFINE VARIABLE hdPriceProcs      AS HANDLE NO-UNDO.
 DEFINE VARIABLE hdConversionProcs AS HANDLE NO-UNDO.
 DEFINE VARIABLE hdValidateProcs   AS HANDLE NO-UNDO.
 
-RUN oe/PriceProcs.p PERSISTENT SET hdPriceProcs.
 RUN system/ConversionProcs.p PERSISTENT SET hdConversionProcs.
 RUN util/Validate.p PERSISTENT SET hdValidateProcs.
 
@@ -66,7 +64,6 @@ IF oplSuccess THEN DO:
         opcMessage = ERROR-STATUS:GET-MESSAGE(1).
 END.
 
-DELETE PROCEDURE hdPriceProcs.
 DELETE PROCEDURE hdConversionProcs.
 DELETE PROCEDURE hdValidateProcs.
 
@@ -118,7 +115,7 @@ PROCEDURE pProcessInputs PRIVATE:
         OUTPUT dQuantityInEA
         ).
     
-    RUN GetPriceMatrixPriceSimple IN hdPriceProcs (
+    RUN Price_GetPriceMatrixPriceSimple (
         INPUT  ipcCompany,
         INPUT  ipcItemID,
         INPUT  ipcCustID,

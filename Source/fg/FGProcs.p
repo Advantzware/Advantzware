@@ -48,6 +48,29 @@ PROCEDURE FG_BuildFGItemForCustPart:
         ).
 END PROCEDURE.
 
+PROCEDURE FG_ExpirePricesByItem:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany  AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcItemID   AS CHARACTER NO-UNDO.
+    
+    RUN Price_ExpirePriceMatrixByItem( 
+        INPUT ipcCompany,
+        INPUT ipcItemID
+        ).     
+    RUN Price_ExpireQuotesByItem(
+        INPUT ipcCompany,
+        INPUT ipcItemID
+        ).
+    RUN Vendor_ExpirePriceByItem(
+        INPUT ipcCompany,
+        INPUT ipcItemID
+        ).     
+
+END PROCEDURE.
+
 PROCEDURE FG_HasMultipleFGItemsForCustPart:
 /*------------------------------------------------------------------------------
  Purpose:

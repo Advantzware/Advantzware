@@ -51,9 +51,6 @@ cocode = g_company.
 
 DEF TEMP-TABLE tt-quoteitm FIELD row-id AS ROWID INDEX row-id row-id.
 DEF VAR v-quoflg AS LOG NO-UNDO.
-DEFINE VARIABLE hdPriceProcs AS HANDLE.
-
-RUN oe/PriceProcs.p PERSISTENT SET hdPriceProcs.
 
 ll-new-file = CAN-FIND(FIRST asi._file WHERE asi._file._file-name EQ "cust-part").
 
@@ -1186,7 +1183,7 @@ PROCEDURE new-part-no :
         FIND FIRST cust WHERE cust.company = itemfg.company
             AND cust.cust-no = itemfg.cust-no NO-LOCK NO-ERROR.
         IF AVAIL cust THEN
-            RUN GetPriceMatrixPriceSimple IN hdPriceProcs (itemfg.company, itemfg.i-no, cust.cust-no, "", DECIMAL(v-i-qty),
+            RUN Price_GetPriceMatrixPriceSimple(itemfg.company, itemfg.i-no, cust.cust-no, "", DECIMAL(v-i-qty),
                                           OUTPUT lMatrixExists, INPUT-OUTPUT v-i-price, INPUT-OUTPUT v-i-uom).
       ASSIGN
        quoteitm.part-dscr1:SCREEN-VALUE IN BROWSE {&browse-name} = itemfg.i-name

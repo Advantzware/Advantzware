@@ -62,7 +62,10 @@ DEFINE VARIABLE lCheckPurMan    AS LOGICAL   NO-UNDO .
 /*DEFINE VARIABLE lFound          AS LOGICAL   NO-UNDO.*/
 DEFINE VARIABLE lCheckMessage    AS LOGICAL NO-UNDO .
 DEFINE VARIABLE hInventoryProcs  AS HANDLE  NO-UNDO.
-DEFINE VARIABLE hdPriceProcs     AS HANDLE  NO-UNDO.
+DEFINE VARIABLE hdFGProcs        AS HANDLE  NO-UNDO.
+
+RUN fg/FGProcs.p PERSISTENT SET hdFGProcs.
+
 {Inventory/ttInventory.i "NEW SHARED"}
 DEFINE TEMP-TABLE w-est-no
     FIELD w-est-no LIKE itemfg.est-no
@@ -73,7 +76,6 @@ RUN sys/ref/ordtypes.p (OUTPUT lv-type-codes, OUTPUT lv-type-dscrs).
 DEF BUFFER b-vendItemCost FOR vendItemCost .
 DEF BUFFER b-venditemCostlevel FOR vendItemCostLevel .
 
-RUN oe/priceProcs.p PERSISTENT SET hdPriceProcs.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -2157,9 +2159,9 @@ PROCEDURE local-exit :
 
   /* Code placed here will execute AFTER standard behavior.    */
   DELETE OBJECT hInventoryProcs.
+  IF VALID-HANDLE(hdFGProcs) THEN
+      DELETE PROCEDURE hdFGProcs.
   
-  IF VALID-HANDLE(hdPriceProcs) THEN 
-      DELETE PROCEDURE hdPriceProcs.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2411,7 +2413,7 @@ PROCEDURE local-update-record :
         tb_taxable:SCREEN-VALUE = STRING(itemfg.taxable).
     END.
     IF lResponse THEN 
-        RUN Price_ExpirePricesByItem IN hdPriceProcs(
+        RUN FG_ExpirePricesByItem IN hdFGProcs(
             INPUT cocode,
             INPUT itemfg.i-no:SCREEN-VALUE
             ).

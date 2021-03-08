@@ -3490,13 +3490,16 @@ PROCEDURE update-counts :
         AND itemfg.i-no    EQ w-ord.i-no:
 
      IF tb_per-unit THEN itemfg.case-count = w-ord.pcs.
-
+     IF tb_per-pallet THEN itemfg.case-pall = w-ord.bundle.
+     
      IF w-ord.ord-no NE 0 THEN
      FOR EACH oe-ordl
          WHERE oe-ordl.company EQ itemfg.company
            AND oe-ordl.ord-no  EQ w-ord.ord-no
            AND oe-ordl.i-no    EQ itemfg.i-no:
        IF tb_per-unit THEN oe-ordl.cas-cnt = w-ord.pcs.
+       IF tb_per-pallet THEN oe-ordl.cases-unit = w-ord.bundle.
+       
      END.
 
      IF TRIM(w-ord.est-no) NE "" THEN

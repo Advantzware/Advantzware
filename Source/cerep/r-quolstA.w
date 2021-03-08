@@ -742,12 +742,10 @@ PROCEDURE output-to-printer :
 /*     DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
 */
-
   /* Use Progress Print. Always use Font#9 in Registry (set above) */
      RUN 'adecomm/_osprint.p' (INPUT ?, INPUT list-name,
                             INPUT 3, INPUT 1, INPUT 0, INPUT 0, OUTPUT result).
@@ -974,7 +972,6 @@ SESSION:SET-WAIT-STATE("general").
             leave.
           end.  
         end.
-
         if j ne 0 then v-rels = int(quote.prof-on[quoteit.line]).
   */        
       FOR EACH quoteqty WHERE quoteqty.company = quoteitm.company
@@ -1135,4 +1132,3 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
