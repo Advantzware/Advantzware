@@ -1170,7 +1170,7 @@ DEFINE VARIABLE list-name AS cha NO-UNDO.
 DEFINE VARIABLE lv-pdf-file AS cha NO-UNDO.
 DEFINE VARIABLE iQty AS INTEGER NO-UNDO .
 DEFINE VARIABLE dPrice AS DECIMAL NO-UNDO .
-DEFINE VARIABLE dProfit AS DECIMAL FORMAT "->>,>>9.99%" NO-UNDO .
+DEFINE VARIABLE dProfit AS DECIMAL FORMAT "->,>>>,>>9.99%" NO-UNDO .
 DEFINE VARIABLE cUom AS CHARACTER NO-UNDO .
 DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO . 
 DEFINE VARIABLE cItemCategory AS CHARACTER  NO-UNDO .
@@ -1237,6 +1237,8 @@ FOR EACH quotehd
           dPrice = DECIMAL(quoteqty.price)
           dProfit = DECIMAL(quoteqty.profit) 
           cUom   = quoteqty.uom .
+     IF dProfit EQ ? THEN ASSIGN 
+        dProfit = 9999999.99.
     
 
     FOR EACH ttRptSelected:
@@ -1253,7 +1255,7 @@ FOR EACH quotehd
             WHEN "price" THEN                                                                
                 v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(dPrice)). 
             WHEN "profit" THEN                                                                
-                v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(dProfit, "->>,>>9.99")).
+                v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(dProfit)).
             WHEN "price-uom" THEN                                                                
                 v-excel-detail-lines = v-excel-detail-lines + appendXLLine(cUom). 
             WHEN "shipto" THEN                                                                
