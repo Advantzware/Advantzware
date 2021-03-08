@@ -2002,6 +2002,14 @@ PROCEDURE ipConvertJcCtrl :
 
     RUN ipStatus ("    Creating materialType records.").
 
+    DEF VAR cOrigPropath AS CHAR NO-UNDO.
+    DEF VAR cNewPropath AS CHAR NO-UNDO.
+
+    ASSIGN
+        cOrigPropath = PROPATH
+        cNewPropath  = cEnvDir + "\" + fiEnvironment:{&SV} + "\Programs," + PROPATH
+        PROPATH = cNewPropath.
+
     FOR EACH bf-company NO-LOCK:
         FOR EACH bf-mat NO-LOCK:
             FIND FIRST bf-materialType EXCLUSIVE-LOCK    
@@ -2047,6 +2055,9 @@ PROCEDURE ipConvertJcCtrl :
                 bf-materialType.autoIssue = bf-jc-ctrl.post[iCount].
         END.
     END.
+
+    ASSIGN 
+        PROPATH = cOrigPropath.
         
 END PROCEDURE.
 
