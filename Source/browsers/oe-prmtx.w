@@ -59,6 +59,8 @@ DEFINE VARIABLE iRecordLimit        AS INTEGER   NO-UNDO.
 DEFINE VARIABLE dQueryTimeLimit     AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE lEnableShowAll      AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lShowAll            AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE char-hdl            AS CHARACTER NO-UNDO.
+DEFINE VARIABLE pHandle             AS HANDLE    NO-UNDO.
 
 RUN Browser_GetRecordAndTimeLimit(
   INPUT  cocode,
@@ -159,11 +161,11 @@ DEFINE BUTTON btSHowAll
      LABEL "Show All" 
      SIZE 13.6 BY 1.14.
 
-DEFINE VARIABLE cbStatus AS CHARACTER FORMAT "X(256)":U INITIAL "All" 
+DEFINE VARIABLE cbStatus AS CHARACTER FORMAT "X(256)":U INITIAL "Active" 
      VIEW-AS COMBO-BOX INNER-LINES 5
      LIST-ITEMS "All","Inactive","Active" 
      DROP-DOWN-LIST
-     SIZE 12.2 BY 1 NO-UNDO.
+     SIZE 12.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE auto_find AS CHARACTER FORMAT "X(256)":U 
      LABEL "Auto Find" 
@@ -352,8 +354,6 @@ END.
 
 {src/adm/method/browser.i}
 {src/adm/method/query.i}
-{methods/template/browser.i}
-{custom/yellowColumns.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -784,6 +784,22 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Set-Focus B-table-Win
+PROCEDURE Set-Focus PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: To avoid error message when moving to new row in browse
+ Notes:
+------------------------------------------------------------------------------*/
+
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed B-table-Win 
 PROCEDURE state-changed :
 /* -----------------------------------------------------------
@@ -819,7 +835,7 @@ FUNCTION pfGetWhereConditions RETURNS CHARACTER PRIVATE
            + (IF fiCategory NE "" THEN " AND oe-prmtx.procat   BEGINS " + QUOTER(fiCategory) ELSE "")
            + (IF fiEffDate  NE ?  THEN " AND oe-prmtx.eff-date GE "     + STRING(fiEffDate)  ELSE "")
            + (IF cbStatus   EQ "Active"   THEN " AND (oe-prmtx.exp-date GT TODAY OR oe-prmtx.exp-date EQ ?)"
-           ELSE IF cbStatus EQ "Inactive" THEN " AND oe-prmtx.exp-date  GT TODAY"
+           ELSE IF cbStatus EQ "Inactive" THEN " AND oe-prmtx.exp-date  LE TODAY"
            ELSE "")
               .
   

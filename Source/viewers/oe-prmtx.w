@@ -42,7 +42,7 @@ CREATE WIDGET-POOL.
 DEFINE {&NEW} SHARED VARIABLE g_lookup-var AS CHARACTER NO-UNDO.
 
 &scoped-def oe-prmtx-maint oe-prmtx
-
+&SCOPED-DEFINE OePrmtxCopy
 {sys/inc/var.i new shared}
 
 assign
