@@ -303,7 +303,7 @@ PROCEDURE pValidate PRIVATE:
     IF oplValid AND iplFieldValidation THEN 
     DO:
         IF oplValid AND ipbf-ttImportCust.CustStatus NE "" THEN 
-            RUN pIsValidFromList IN hdValidator ("Active", ipbf-ttImportCust.CustStatus, "Active,Inhouse,Statement,Service,Inactive", OUTPUT oplValid, OUTPUT cValidNote).
+            RUN pIsValidFromList IN hdValidator ("Active", ipbf-ttImportCust.CustStatus, "Active,Inhouse,Service,Inactive", OUTPUT oplValid, OUTPUT cValidNote).
 
         IF oplValid AND ipbf-ttImportCust.CustSman NE "" THEN 
             RUN pIsValidSalesRep IN hdValidator (ipbf-ttImportCust.CustSman, NO, ipbf-ttImportCust.Company, OUTPUT oplValid, OUTPUT cValidNote).
@@ -405,8 +405,6 @@ PROCEDURE pValidate PRIVATE:
         ipbf-ttImportCust.CustStatus = "I".
     ELSE IF ipbf-ttImportCust.CustStatus EQ "Inhouse" THEN 
         ipbf-ttImportCust.CustStatus = "X".
-    ELSE IF ipbf-ttImportCust.CustStatus EQ "Statement" THEN 
-        ipbf-ttImportCust.CustStatus = "S".
     ELSE IF ipbf-ttImportCust.CustStatus EQ "Service" THEN 
         ipbf-ttImportCust.CustStatus = "E".
        
