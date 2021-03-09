@@ -12,6 +12,8 @@
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
 
+USING system.SharedConfig.
+
 CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
@@ -48,6 +50,8 @@ DEFINE NEW SHARED BUFFER xqty FOR est-qty.
 DEFINE NEW SHARED VARIABLE xcal   AS DECIMAL       NO-UNDO.
 DEFINE NEW SHARED VARIABLE sh-wid AS DECIMAL       NO-UNDO.
 DEFINE NEW SHARED VARIABLE sh-len AS DECIMAL       NO-UNDO.
+
+DEFINE VARIABLE scInstance AS CLASS system.SharedConfig NO-UNDO.
 
 DEFINE TEMP-TABLE ttEstimate 
       FIELD cEstimateNo AS CHARACTER LABEL "Estimate Number"
@@ -861,7 +865,10 @@ PROCEDURE run-process :
         PUT UNFORMATTED  
             'Processing estimate ' STRING(bf-est.est-no)   SKIP. 
         EMPTY TEMP-TABLE ttInputEst .
-        RUN pCreateInputEst(ROWID(bf-eb)) .        
+        RUN pCreateInputEst(ROWID(bf-eb)) .  
+        
+        scInstance = SharedConfig:instance.
+        scInstance:SetValue("UtilPrompt","Yes").
                
         RUN est/BuildEstimate.p ("C", OUTPUT riEb).             
        
@@ -988,7 +995,10 @@ PROCEDURE run-process :
             INPUT TRUE /* Auto increment File name */,
             OUTPUT lSuccess,
             OUTPUT cMessage
-            ).               
+            ). 
+            
+  scInstance = SharedConfig:instance.
+  scinstance:DeleteValue(INPUT "UtilPrompt"). /* Delete stale data, if any */            
   
 END PROCEDURE.
 
