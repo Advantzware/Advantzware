@@ -56,22 +56,7 @@
        ( refer methods/triggers/create.i ) */
 
     /* This will eventually move to setsession approach */
-    &SCOPED-DEFINE NEW NEW
     {methods/defines/globdefs.i}
-    {methods/defines/hndldefs.i}
-
-    DEFINE VARIABLE hdSession AS HANDLE NO-UNDO.
-    DEFINE VARIABLE hdTags    AS HANDLE NO-UNDO.
-
-    RUN nosweat/persist.p  PERSISTENT SET Persistent-Handle.
-    RUN lstlogic/persist.p PERSISTENT SET ListLogic-Handle.
-
-    RUN system/session.p  PERSISTENT SET hdSession.
-    SESSION:ADD-SUPER-PROCEDURE (hdSession).
-
-    RUN system/TagProcs.p PERSISTENT SET hdTags.
-    SESSION:ADD-SUPER-PROCEDURE (hdTags).
-
     {sys/inc/var.i "NEW SHARED"}
     {sys/inc/varasgn.i}
 
@@ -127,12 +112,6 @@
 
     THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE(hdCommonProcs).
     DELETE PROCEDURE hdCommonProcs.
-
-    SESSION:REMOVE-SUPER-PROCEDURE (hdSession).
-    DELETE PROCEDURE hdSession.
-
-    SESSION:REMOVE-SUPER-PROCEDURE (hdTags).
-    DELETE PROCEDURE hdTags.
 
     PROCEDURE pPrepareInputs PRIVATE:
     /*------------------------------------------------------------------------------
