@@ -78,6 +78,13 @@ FUNCTION fEnableImportForm RETURNS LOGICAL
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fEnableMold D-Dialog 
+FUNCTION fEnableMold RETURNS LOGICAL
+  (ipcCompany AS CHARACTER) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fEnableMisc D-Dialog 
 FUNCTION fEnableMisc RETURNS LOGICAL PRIVATE
   ( ipcCompany AS CHARACTER ) FORWARD.
@@ -504,7 +511,8 @@ IF fEnableImportForm(cocode) THEN
         btnImportForm:HIDDEN = NO
         btnImportForm:SENSITIVE = YES 
         .
-ASSIGN
+IF fEnableMold(cocode) THEN
+  ASSIGN
     Btn_new-set-mold:HIDDEN = NO
     Btn_new-set-mold:SENSITIVE = YES
     Btn_est-new-mold:HIDDEN = NO
@@ -681,6 +689,37 @@ FUNCTION fEnableImportForm RETURNS LOGICAL
         OUTPUT lFound).
 
     lResult = lFound AND cReturn EQ 'YES'.
+    RETURN lResult.
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fEnableMold D-Dialog 
+FUNCTION fEnableMold RETURNS LOGICAL
+  (ipcCompany AS CHARACTER):
+
+ /*------------------------------------------------------------------------------
+     Purpose: Returns a logical value based on the value of the CEImportForm NK1 
+     Notes:
+    ------------------------------------------------------------------------------*/    
+    DEFINE VARIABLE lResult AS LOGICAL   NO-UNDO.
+    
+    DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lFound  AS LOGICAL   NO-UNDO. 
+    
+    RUN sys\ref\nk1look.p (ipcCompany,
+        'JobType',
+        'C',
+        NO,
+        NO,
+        '',
+        '', 
+        OUTPUT cReturn,
+        OUTPUT lFound).
+
+    lResult = lFound AND cReturn EQ 'Molded'.
     RETURN lResult.
 
 END FUNCTION.
