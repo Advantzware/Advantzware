@@ -5348,7 +5348,7 @@ PROCEDURE CreateTransactionInitializedFromJob:
                     INPUT  ttInventoryStockLoadtag.inventoryStockID,
                     INPUT  YES,
                     INPUT  NO,
-                    INPUT-OUTPUT TABLE ttInventoryStockPreLoadtag
+                    INPUT-OUTPUT TABLE ttInventoryStockPreLoadtag,
                     OUTPUT oplCreated,
                     OUTPUT opcMessage
                     ).
