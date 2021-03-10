@@ -42,9 +42,6 @@ DEFINE VARIABLE cCustNo                 AS CHARACTER NO-UNDO.
 /* The below code is added as APIInboundEvent.rec_key will be populated in the APIInboundEvent's
    create trigger, only if session.p is running persistently, else will be populated with empty value.
    ( refer methods/triggers/create.i ) */
-DEFINE VARIABLE hdSession AS HANDLE NO-UNDO.
-RUN system/session.p PERSISTENT SET hdSession.
-SESSION:ADD-SUPER-PROCEDURE (hdSession).
 
 RUN api/JSONProcs.p PERSISTENT SET hdJSONProcs.
 THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hdJSONProcs). 
@@ -209,7 +206,4 @@ PROCEDURE pProcessInputs:
         oplcConcatResponseData = TRIM(oplcConcatResponseData,",") 
         .
 END PROCEDURE. 
-
-SESSION:REMOVE-SUPER-PROCEDURE (hdSession).
-DELETE PROCEDURE hdSession.
   
