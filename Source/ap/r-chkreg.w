@@ -1691,7 +1691,7 @@ DEF VAR lv-check-no LIKE ap-chk.check-no NO-UNDO.
                         tran-period,
                         "A",
                         tran-date,
-                        string(ap-inv.inv-no),
+                        string(ap-sel.inv-no),
                         "AP").
 
      RUN GL_SpCreateGLHist(cocode,
@@ -1704,7 +1704,7 @@ DEF VAR lv-check-no LIKE ap-chk.check-no NO-UNDO.
                         tran-period,
                         "A",
                         tran-date,
-                        string(ap-inv.inv-no),
+                        string(ap-sel.inv-no),
                         "AP").
     END.
   END.
@@ -1914,7 +1914,7 @@ DEF VAR lv-check-no LIKE ap-chk.check-no NO-UNDO.
                         tran-period,
                         "A",
                         tran-date,
-                        string(ap-inv.inv-no),
+                        "",
                         "AP").
   
 
@@ -1929,7 +1929,7 @@ DEF VAR lv-check-no LIKE ap-chk.check-no NO-UNDO.
                         tran-period,
                         "A",
                         tran-date,
-                        string(ap-inv.inv-no),
+                        "",
                         "AP").
   END.
 /*END. */
@@ -1960,6 +1960,8 @@ PROCEDURE run-report :
     DEFINE VARIABLE lcResponseXML   AS LONGCHAR  NO-UNDO.
     DEFINE VARIABLE lcRequestData   AS LONGCHAR  NO-UNDO.
     DEFINE VARIABLE cNotesMessage   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cTempPath       AS CHARACTER NO-UNDO.  
+    DEFINE VARIABLE lCreated        AS CHARACTER NO-UNDO.
     
     RUN system/ftpProcs.p PERSISTENT SET hdFTPProcs.
     
@@ -2107,7 +2109,15 @@ END.
 IF tb_APcheckFile THEN do:
    
     IF rd_print-apfile EQ "Text" THEN
+    DO:
+        cTempPath =  SUBSTRING(fi_CheckFile,1,R-INDEX(fi_CheckFile,"\") - 1) .
+        RUN FileSys_CreateDirectory(INPUT  cTempPath,
+                                    OUTPUT lCreated,
+                                    OUTPUT cMessage
+                                    ) NO-ERROR.
+        
         OUTPUT STREAM checkFile TO VALUE(fi_CheckFile).
+    END.    
     ELSE do:
        RUN sys/ref/ExcelNameExt.p (INPUT fi_CheckFile,OUTPUT cAPFileName) .
         OUTPUT STREAM ap-excel TO VALUE(cAPFileName).
