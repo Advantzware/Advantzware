@@ -144,7 +144,7 @@ DEFINE VARIABLE fiBeginingCustomer AS CHARACTER FORMAT "X(10)":U
      SIZE 20 BY 1
      BGCOLOR 15 FONT 22 NO-UNDO.
 
-DEFINE VARIABLE fiBeginingItem AS CHARACTER FORMAT "X(256)":U 
+DEFINE VARIABLE fiBeginingItem AS CHARACTER FORMAT "X(15)":U 
      LABEL "Begining Item" 
      VIEW-AS FILL-IN 
      SIZE 20 BY 1
@@ -161,7 +161,7 @@ DEFINE VARIABLE fiEndingCustomer AS CHARACTER FORMAT "X(10)":U
      SIZE 20 BY 1
      BGCOLOR 15 FONT 22 NO-UNDO.
 
-DEFINE VARIABLE fiEndingItem AS CHARACTER FORMAT "X(256)":U 
+DEFINE VARIABLE fiEndingItem AS CHARACTER FORMAT "X(15)":U 
      LABEL "Ending Item" 
      VIEW-AS FILL-IN 
      SIZE 20 BY 1
@@ -230,9 +230,10 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 273.2
          VIRTUAL-HEIGHT     = 33.57
          VIRTUAL-WIDTH      = 273.2
-         RESIZE             = yes
+         MAX-BUTTON         = no
+         RESIZE             = no
          SCROLL-BARS        = no
-         STATUS-AREA        = no
+         STATUS-AREA        = yes
          BGCOLOR            = ?
          FGCOLOR            = ?
          KEEP-FRAME-Z-ORDER = yes
@@ -485,12 +486,13 @@ PROCEDURE pRunProcess PRIVATE :
 
     SESSION:SET-WAIT-STATE("General"). 
     STATUS DEFAULT "Processing...".  
-       
-    RUN FileSys_CreateDirectory(
-        INPUT  cLocation,
-        OUTPUT lSuccess,
-        OUTPUT cMessage
-        ). 
+    
+    IF NOT iplExpire THEN    
+        RUN FileSys_CreateDirectory(
+            INPUT  cLocation,
+            OUTPUT lSuccess,
+            OUTPUT cMessage
+            ). 
         
     FOR EACH oe-prmtx NO-LOCK 
         WHERE oe-prmtx.company  EQ cocode 

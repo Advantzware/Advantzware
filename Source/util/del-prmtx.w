@@ -400,7 +400,7 @@ DO:
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN {&displayed-objects}.
   END.
-  message "Are you sure you want to expire these records?" 
+  message "Are you sure you want to delete these records?" 
              view-as alert-box ERROR BUTTON YES-NO UPDATE v-ans AS LOG.
      IF v-ans THEN DO:
          FOR EACH oe-prmtx WHERE oe-prmtx.company = cocode 
@@ -415,8 +415,16 @@ DO:
              AND oe-prmtx.eff-date GE begin_date
              AND oe-prmtx.eff-date LE end_date
              EXCLUSIVE-LOCK:
-             
-             oe-prmtx.exp-date = TODAY.
+             FIND FIRST reftable
+                 WHERE reftable.rec_key  EQ oe-prmtx.rec_key
+                 AND reftable.company  EQ "oe-prmtx"
+/*                  AND date(reftable.CODE) GE begin_date */
+/*                  AND date(reftable.CODE) LE END_date   */
+                 USE-INDEX rec_key NO-ERROR.
+             IF AVAIL reftable THEN do:
+                 DELETE reftable.
+             END.
+             DELETE oe-prmtx .
          END.
          
          
