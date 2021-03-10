@@ -2942,10 +2942,11 @@ PROCEDURE valid-po-date :
         IF DATE(po-ord.po-date:SCREEN-VALUE) EQ ? THEN DO:        
                MESSAGE "Please enter PO Date. " VIEW-AS ALERT-BOX WARNING.
                APPLY "entry" TO po-ord.po-date.
+               oplReturnError = YES.
+               lCheckError = YES .               
         END.
         IF DATE(po-ord.po-date:SCREEN-VALUE) LT (TODAY - 90) AND NOT lCheckError THEN DO:        
-               MESSAGE "PO Date cannot be more then 90 days earlier than today" VIEW-AS ALERT-BOX WARNING.
-               APPLY "entry" TO po-ord.po-date.
+            MESSAGE "PO Date is more than 90 days earlier than today" VIEW-AS ALERT-BOX INFO.
         END.  
   END.
   {methods/lValidateError.i NO}
