@@ -295,7 +295,7 @@ DEFINE BROWSE br_table
     w-job.po-no                LABEL "PO#"                    FORMAT "x(9)"        WIDTH 13   LABEL-BGCOLOR 14
     w-job.loc                  LABEL "Whse"                                        WIDTH 10   LABEL-BGCOLOR 14
     w-job.loc-bin              LABEL "Bin"                                         WIDTH 14   LABEL-BGCOLOR 14
-    w-job.tag                  LABEL "Tag"                    FORMAT "x(20)"       WIDTH 28   LABEL-BGCOLOR 14
+    w-job.tag                  LABEL "Tag"                    FORMAT "x(22)"       WIDTH 30   LABEL-BGCOLOR 14
     w-job.cases                LABEL "Units"                                                  LABEL-BGCOLOR 14
     w-job.case-count           LABEL "Unit Count"             FORMAT ">>>,>>9"                LABEL-BGCOLOR 14
     w-job.cases-unit           COLUMN-LABEL "Units/!Pallet"   FORMAT ">>>,>>9"                LABEL-BGCOLOR 14
