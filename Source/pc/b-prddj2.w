@@ -1649,7 +1649,7 @@ PROCEDURE new-m-code :
     END.
 
     ASSIGN
-     tt-prdd.frm:SCREEN-VALUE IN BROWSE {&browse-name}      = STRING(lv-frm)
+     
      tt-prdd.blank-no:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(lv-blk).
 
     RUN new-job-hdr.
