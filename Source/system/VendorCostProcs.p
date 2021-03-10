@@ -33,6 +33,20 @@ DEFINE VARIABLE gcScopeDefault      AS CHARACTER NO-UNDO.
 
 /*Settings Variables*/
 
+DEFINE TEMP-TABLE ttVendItemCostCsv
+    FIELD company           AS CHARACTER                LABEL "Company"
+    FIELD estimate          AS CHARACTER                LABEL "Estimate"
+    FIELD formNo            AS INTEGER   FORMAT ">9"    LABEL "Form"
+    FIELD blankNo           AS INTEGER   FORMAT ">9"    LABEL "Blank"
+    FIELD itemID            AS CHARACTER FORMAT "X(20)" LABEL "Item"
+    FIELD vendorID          AS CHARACTER FORMAT "X(10)" LABEL "Vendor"
+    FIELD customerID        AS CHARACTER FORMAT "X(10)" LABEL "Customer"
+    FIELD itemType          AS CHARACTER                LABEL "Item Type"
+    FIELD UOM               AS CHARACTER FORMAT "X(5)"  LABEL "Vendor UOM"
+    FIELD effectiveDate     AS DATE                     LABEL "Effective Date"
+    FIELD oldExpirationDate AS DATE                     LABEL "Old Expiry Date"
+    FIELD newExpirationDate AS DATE                     LABEL "New Expiry Date"
+    .
 
 /* ********************  Preprocessor Definitions  ******************** */
 
@@ -672,6 +686,49 @@ PROCEDURE GetDimCharge:
     
 END PROCEDURE.
 
+PROCEDURE pExpirePriceByCust PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany  AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcCustomer AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER iplProcess  AS LOGICAL   NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttVendItemCostCsv.
+    
+    DEFINE BUFFER bf-vendItemCost FOR vendItemCost.
+    
+    EMPTY TEMP-TABLE ttVendItemCostCsv.
+    
+    FOR EACH bf-vendItemCost NO-LOCK  
+        WHERE bf-vendItemCost.company        EQ ipcCompany
+          AND bf-vendItemCost.customerID     EQ ipcCustomer
+          AND(bf-vendItemCost.expirationDate GT TODAY OR bf-vendItemCost.expirationDate EQ ?) :
+            IF iplProcess THEN DO:
+                FIND CURRENT bf-vendItemCost EXCLUSIVE-LOCK NO-ERROR. 
+                bf-vendItemCost.expirationDate = TODAY.
+            END.    
+            ELSE DO:
+                CREATE ttVendItemCostCsv.
+                ASSIGN 
+                    ttVendItemCostCsv.company           = bf-vendItemCost.company
+                    ttVendItemCostCsv.estimate          = bf-vendItemCost.estimate
+                    ttVendItemCostCsv.blankNo           = bf-vendItemCost.blankNo
+                    ttVendItemCostCsv.customerID        = bf-vendItemCost.customerId
+                    ttVendItemCostCsv.effectiveDate     = bf-vendItemCost.effectiveDate
+                    ttVendItemCostCsv.formNo            = bf-vendItemCost.formNo
+                    ttVendItemCostCsv.itemID            = bf-vendItemCost.itemId
+                    ttVendItemCostCsv.itemType          = bf-vendItemCost.itemType
+                    ttVendItemCostCsv.oldExpirationDate = bf-vendItemCost.expirationDate
+                    ttVendItemCostCsv.newExpirationDate = TODAY
+                    ttVendItemCostCsv.UOM               = bf-vendItemCost.VendorUom
+                    ttVendItemCostCsv.vendorID          = bf-vendItemCost.vendorID
+                    .                      
+            END.              
+        END.
+
+END PROCEDURE.
+
 PROCEDURE Vendor_CheckPriceHoldForPo:
     /*------------------------------------------------------------------------------
      Purpose: Given an oe-ord rowid, check all order lines to see if Price Hold criteria
@@ -850,6 +907,41 @@ PROCEDURE Vendor_CheckPriceHoldForPo:
     END.
     RELEASE bf-po-ord.
     
+END PROCEDURE.
+
+PROCEDURE Vendor_ExpirePriceByCust:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany  AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcCustomer AS CHARACTER NO-UNDO.
+    
+    RUN pExpirePriceByCust(
+        INPUT ipcCompany,
+        INPUT ipcCustomer,
+        INPUT YES,
+        INPUT-OUTPUT TABLE ttVendItemCostCsv
+        ).
+
+END PROCEDURE.
+
+PROCEDURE Vendor_ExpirePriceByCustTT:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany  AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcCustomer AS CHARACTER NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttVendItemCostCsv.
+    
+    RUN pExpirePriceByCust(
+        INPUT ipcCompany,
+        INPUT ipcCustomer,
+        INPUT NO,
+        INPUT-OUTPUT TABLE ttVendItemCostCsv
+        ).
+
 END PROCEDURE.
 
 PROCEDURE Vendor_VendItemCostWithPercentage:
