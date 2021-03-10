@@ -145,6 +145,7 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* ************************* Included-Libraries *********************** */
 
 {src/adm/method/containr.i}
+{methods/template/windows.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -221,7 +222,6 @@ END.
 
 /* Include custom  Main Block code for SmartWindows. */
 {src/adm/template/windowmn.i}
-{methods/template/windows.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
