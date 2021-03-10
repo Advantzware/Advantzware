@@ -618,8 +618,7 @@ PROCEDURE pRunProcess PRIVATE :
                 OUTPUT cMessage
                 ). 
     END.
-    MESSAGE cMessage
-    VIEW-AS ALERT-BOX.
+    
     pfSetDirectory(). 
      
     EMPTY TEMP-TABLE ttOePrmtxCsv. 
