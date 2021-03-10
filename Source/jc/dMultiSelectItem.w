@@ -235,7 +235,7 @@ DEFINE BROWSE BROWSE-NAME
              ttMultiSelectItem.quantityToOrder
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 177.6 BY 20.70
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 247.6 BY 20.70
          FONT 34 ROW-HEIGHT-CHARS 0.9.
 
 
@@ -256,10 +256,10 @@ DEFINE FRAME Dialog-Frame
      tb_sugg-qty AT ROW 3.55 COL 45.6 WIDGET-ID 6
      btFilter AT ROW 1.71 COL 114.4 WIDGET-ID 18     
      BROWSE-NAME AT ROW 5.76 COL 2 WIDGET-ID 200     
-     btExit AT ROW 1.24 COL 165 WIDGET-ID 326
+     btExit AT ROW 1.24 COL 235 WIDGET-ID 326
      btViewJob AT ROW 4.67 COL 2 WIDGET-ID 328
      btViewAllocated AT ROW 4.67 COL 22 WIDGET-ID 330
-     btOk AT ROW 26.70 COL 80.5 WIDGET-ID 24
+     btOk AT ROW 26.70 COL 117.5 WIDGET-ID 24
      " Filter" VIEW-AS TEXT
           SIZE 7 BY .62 AT ROW 1 COL 2.6 WIDGET-ID 52
           FONT 6
@@ -616,6 +616,26 @@ END.
 
 &Scoped-define BROWSE-NAME BROWSE-NAME
 &UNDEFINE SELF-NAME
+&Scoped-define SELF-NAME ttMultiSelectItem.multiplier
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ttMultiSelectItem.multiplier BROWSE-NAME _BROWSE-COLUMN Dialog-Frame
+ON ENTRY OF ttMultiSelectItem.multiplier IN BROWSE BROWSE-NAME /* Molds */
+DO:  
+    APPLY "select" TO ttMultiSelectItem.multiplier IN BROWSE {&browse-name}.     
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME ttMultiSelectItem.quantityToOrder
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ttMultiSelectItem.quantityToOrder BROWSE-NAME _BROWSE-COLUMN Dialog-Frame
+ON ENTRY OF ttMultiSelectItem.quantityToOrder IN BROWSE BROWSE-NAME /* Quantity To Order */
+DO:  
+    APPLY "select" TO ttMultiSelectItem.quantityToOrder IN BROWSE {&browse-name}.     
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK Dialog-Frame 
 

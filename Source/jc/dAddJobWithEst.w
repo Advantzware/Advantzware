@@ -134,10 +134,10 @@ DEFINE TEMP-TABLE ttCompareEst NO-UNDO
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS BROWSE-1 cMachCode cBoard iTargetCyl ~
 dtDueDate btnCalendar-1 btn-add btn-update btn-delete btn-viewjob ~
-btn-add-multiple btn-imp-bal btn-sel-head tb_auto Btn_OK Btn_Cancel 
+btn-add-multiple btn-imp-bal btn-sel-head tb_runnow Btn_OK Btn_Cancel 
 &Scoped-Define DISPLAYED-OBJECTS cMachCode cBoard iTargetCyl cJobNo ~
 cLineDscr cBoardDscr dtDueDate dtCreatedDate cUserID dtStartDate cStatus ~
-dtEstCom cEstNo iItem dTotSqFt iMolds dUtilization tb_auto 
+dtEstCom cEstNo iItem dTotSqFt iMolds dUtilization tb_runnow 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -318,8 +318,8 @@ DEFINE RECTANGLE RECT-6
      SIZE 62.4 BY 2.71
      BGCOLOR 15 .
 
-DEFINE VARIABLE tb_auto AS LOGICAL INITIAL yes 
-     LABEL "Auto Schedule" 
+DEFINE VARIABLE tb_runnow AS LOGICAL INITIAL NO 
+     LABEL "Run Now" 
      VIEW-AS TOGGLE-BOX
      SIZE 24.8 BY 1 NO-UNDO.
 
@@ -356,6 +356,7 @@ DEFINE FRAME D-Dialog
      cJobNo AT ROW 2 COL 91.2 COLON-ALIGNED WIDGET-ID 196
      cLineDscr AT ROW 2 COL 37.4 COLON-ALIGNED NO-LABEL WIDGET-ID 202
      cBoardDscr AT ROW 4.29 COL 43.4 COLON-ALIGNED NO-LABEL
+     tb_runnow AT ROW 4.29 COL 130.8 WIDGET-ID 260
      dtDueDate AT ROW 5.43 COL 130.8 COLON-ALIGNED WIDGET-ID 280
      btnCalendar-1 AT ROW 5.43 COL 147.6
      btn-add AT ROW 21.19 COL 4 WIDGET-ID 16       
@@ -374,8 +375,7 @@ DEFINE FRAME D-Dialog
      dUtilization AT ROW 24.05 COL 45.2 COLON-ALIGNED WIDGET-ID 288
      btn-add-multiple AT ROW 6.57 COL 4.2 WIDGET-ID 292
      btn-imp-bal AT ROW 6.57 COL 32.6 WIDGET-ID 296
-     btn-sel-head AT ROW 6.57 COL 68.2 WIDGET-ID 294
-     tb_auto AT ROW 24.05 COL 81.6 WIDGET-ID 260
+     btn-sel-head AT ROW 6.57 COL 68.2 WIDGET-ID 294       
      Btn_OK AT ROW 23.91 COL 110.4
      Btn_Cancel AT ROW 23.91 COL 135.4
      " Head Analysis" VIEW-AS TEXT
@@ -456,7 +456,7 @@ ASSIGN
 /* SETTINGS FOR RECTANGLE RECT-6 IN FRAME D-Dialog
    NO-ENABLE                                                            */
 ASSIGN 
-       tb_auto:PRIVATE-DATA IN FRAME D-Dialog     = 
+       tb_runnow:PRIVATE-DATA IN FRAME D-Dialog     = 
                 "parm".
 
 /* _RUN-TIME-ATTRIBUTES-END */
@@ -586,7 +586,8 @@ DO:
                     bf-ttInputEst.iQuantityYield = dTotalCyclesRequired * ttFGReorderSelection.multiplier
                     bf-ttInputEst.lKeyItem = ttFGReorderSelection.KeyItem 
                     lv-rowid               = ROWID(bf-ttInputEst).
-                    IF ttFGReorderSelection.dateDueDateEarliest NE ? AND (ttFGReorderSelection.dateDueDateEarliest LT date(dtDueDate:SCREEN-VALUE) OR date(dtDueDate:SCREEN-VALUE) EQ ?) THEN
+                    IF ttFGReorderSelection.dateDueDateEarliest NE ? AND (ttFGReorderSelection.dateDueDateEarliest LT date(dtDueDate:SCREEN-VALUE) OR date(dtDueDate:SCREEN-VALUE) EQ ?)
+                       AND tb_runnow:SCREEN-VALUE NE "Yes" THEN
                     dtDueDate:SCREEN-VALUE = string(ttFGReorderSelection.dateDueDateEarliest) .
                     cBoard:SCREEN-VALUE = ttFGReorderSelection.board.
                     FIND FIRST itemfg NO-LOCK 
@@ -755,6 +756,7 @@ DO:
         DEFINE VARIABLE riJob AS ROWID NO-UNDO.
         DEFINE VARIABLE cKeyItem AS CHARACTER NO-UNDO.
         DEFINE VARIABLE lEstimateCreate AS LOGICAL NO-UNDO.
+        DEFINE VARIABLE iPriority AS INTEGER NO-UNDO.
         
         DEFINE BUFFER bff-eb FOR eb.
         DEFINE BUFFER bf-job FOR job.
@@ -767,6 +769,7 @@ DO:
 
         DO WITH FRAME {&FRAME-NAME}:
             ASSIGN {&displayed-objects}.
+            iPriority = IF tb_runnow THEN 1 ELSE 2.
         END.   
         
          RUN valid-mach(OUTPUT lError) NO-ERROR.
@@ -809,7 +812,7 @@ DO:
              LEAVE.
         END.
         
-        RUN jc/MoldJobProcs.p(INPUT ROWID(bff-eb),INPUT dtDueDate, INPUT cKeyItem, OUTPUT riJob).
+        RUN jc/MoldJobProcs.p(INPUT ROWID(bff-eb),INPUT dtDueDate, INPUT cKeyItem, INPUT iPriority, OUTPUT riJob).
         
         FIND FIRST bf-job NO-LOCK
              WHERE ROWID(bf-job) EQ riJob NO-ERROR .
@@ -921,6 +924,16 @@ DO:
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_runnow D-Dialog
+ON VALUE-CHANGED OF tb_runnow IN FRAME D-Dialog /* Run Now */
+DO:     
+       RUN pRunNow.
+       
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL iTargetCyl D-Dialog
 ON VALUE-CHANGED OF iTargetCyl IN FRAME D-Dialog /* Target Cycles */
 DO:     
@@ -962,7 +975,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     DO WITH FRAME {&frame-name}:  
         cJobQueueURL = fGetJobQueueURL(cocode).
         IF cJobQueueURL EQ "" THEN DISABLE btn-viewjob.
-        DISABLE btn-sel-head tb_auto.
+        DISABLE btn-sel-head .
         ASSIGN
          cJobNo:HIDDEN = YES
          dtCreatedDate:HIDDEN = YES 
@@ -1057,7 +1070,8 @@ PROCEDURE create-ttfrmout :
             bf-ttInputEst.dLength          = itemfg.l-score[50]
             bf-ttInputEst.dWidth           = itemfg.w-score[50]            
             bf-ttInputEst.dDepth           = itemfg.d-score[50]   
-            bf-ttInputEst.cCategory        = itemfg.procat .
+            bf-ttInputEst.cCategory        = itemfg.procat
+            .
        IF AVAIL cust THEN
           ASSIGN
             bf-ttInputEst.cCustomer = cust.cust-no
@@ -1118,11 +1132,11 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY cMachCode cBoard iTargetCyl cJobNo cLineDscr cBoardDscr dtDueDate 
           dtCreatedDate cUserID dtStartDate cStatus dtEstCom cEstNo iItem 
-          dTotSqFt iMolds dUtilization tb_auto 
+          dTotSqFt iMolds dUtilization tb_runnow 
       WITH FRAME D-Dialog.
   ENABLE BROWSE-1 cMachCode cBoard iTargetCyl dtDueDate btnCalendar-1 btn-add 
          btn-update btn-delete btn-viewjob btn-add-multiple 
-         btn-imp-bal btn-sel-head tb_auto Btn_OK Btn_Cancel 
+         btn-imp-bal btn-sel-head tb_runnow Btn_OK Btn_Cancel 
       WITH FRAME D-Dialog.
   VIEW FRAME D-Dialog.
   {&OPEN-BROWSERS-IN-QUERY-D-Dialog}
@@ -1208,6 +1222,30 @@ PROCEDURE pNewMachine :
             cLineDscr:SCREEN-VALUE = "L: " + TRIM(STRING(mach.max-len / 12,">>>>>>9.9")) + " ft x W: " + TRIM(STRING(mach.max-wid / 12 , ">>>>>>9.9")) + " ft - " + TRIM(STRING(dMachBlankSqFt, ">>>>>>9.9")) + " Sq Ft" . 
             RUN repo-query(lv-rowid).
         END.         
+    END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRunNow D-Dialog 
+PROCEDURE pRunNow :
+/*------------------------------------------------------------------------------
+          Purpose:     
+          Parameters:  <none>
+          Notes:       
+        ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lv-rowid  AS ROWID NO-UNDO.
+    DO WITH FRAME {&FRAME-NAME}:
+        IF tb_runnow:SCREEN-VALUE EQ "Yes" THEN
+        DO:
+            dtDueDate:SENSITIVE = NO.
+            dtDueDate:SCREEN-VALUE = STRING(TODAY).
+        END. 
+        ELSE DO:
+           dtDueDate:SENSITIVE = YES.
+        END.
     END.
 
 END PROCEDURE.
@@ -1468,7 +1506,7 @@ PROCEDURE pImportRemaingBalance :
                   
                   
                ASSIGN   
-                 dQuantityCyclesRequired  = dQuantityToOrderSuggested / (MAXIMUM(1,bf-ttInputEst.iMolds))
+                 dQuantityCyclesRequired  =  - (itemfg.q-onh + itemfg.q-ono - itemfg.q-alloc)  //dQuantityToOrderSuggested / (MAXIMUM(1,bf-ttInputEst.iMolds))
                  dTotalCyclesRequired = IF dTotalCyclesRequired EQ 0 THEN dQuantityCyclesRequired ELSE IF dQuantityCyclesRequired  LT dTotalCyclesRequired  THEN dQuantityCyclesRequired  ELSE  dTotalCyclesRequired .
                   
                END. 

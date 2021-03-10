@@ -16,6 +16,7 @@
 DEFINE INPUT PARAMETER ipriRowid AS ROWID NO-UNDO. 
 DEFINE INPUT PARAMETER ipdtDueDate AS DATE NO-UNDO.
 DEFINE INPUT PARAMETER ipcKeyItem AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipiPriority AS INTEGER NO-UNDO.
 DEFINE OUTPUT PARAMETER opriJob AS ROWID NO-UNDO.
 
 DEFINE VARIABLE riEb      AS ROWID   NO-UNDO.
@@ -52,7 +53,8 @@ ASSIGN
     bf-job.due-date   = ipdtDueDate 
     bf-job.stat       = "P"
     bf-job.est-no     = est.est-no 
-    bf-job.csrUser_id = est.csrUser_id .
+    bf-job.csrUser_id = est.csrUser_id 
+    bf-job.priority   = ipiPriority.
    
 RUN jc/job-no.p (INPUT-OUTPUT v-bld-job, 
     INPUT-OUTPUT iJobNo2,
