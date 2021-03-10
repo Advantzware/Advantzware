@@ -50,12 +50,7 @@
     DEFINE VARIABLE iTopLevelParent    AS INTEGER   NO-UNDO INITIAL 0.
     DEFINE VARIABLE cValidFreightTerms AS CHARACTER NO-UNDO INITIAL "P,B,C,T".
 
-    {methods/defines/globdefs.i}
-    {methods/defines/hndldefs.i}
-    
-    DEFINE VARIABLE hdSession AS HANDLE NO-UNDO.
-    DEFINE VARIABLE hdTags    AS HANDLE NO-UNDO.
-        
+    {methods/defines/globdefs.i}        
     {sys/inc/var.i NEW SHARED}
     {sys/inc/varasgn.i}  
         

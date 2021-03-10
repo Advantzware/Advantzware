@@ -1,0 +1,44 @@
+ADD FIELD "weightNetPerEA" OF "itemfg" AS decimal
+  FORMAT "->>,>>9.99<<<<"
+  POSITION 228
+  INITIAL "0"
+  HELP "Weight Per Each Net of Packing"
+  LABEL "Net Wgt/EA"
+  DECIMALS 2
+  ORDER 2240
+  MAX-WIDTH 17
+
+ADD FIELD "weightUOM" OF "itemfg" AS character
+  FORMAT "x(8)"
+  POSITION 229
+  INITIAL "LB"
+  HELP "Unit of Measure for Weight Fields"
+  LABEL "Wgt UoM"
+  ORDER 2250
+  MAX-WIDTH 16
+
+ADD FIELD "weightTarePerUnit" OF "itemfg" AS decimal
+  FORMAT "->>,>>9.99<<<<"
+  POSITION 230
+  INITIAL "0"
+  HELP "Packing Weight Per Each Unit/Pallet"
+  LABEL "Tare Wgt/Unit"
+  DECIMALS 2
+  ORDER 2260
+  MAX-WIDTH 17
+
+ADD FIELD "weightTarePerSubunit" OF "itemfg" AS decimal
+  FORMAT "->>,>>9.99<<<<"
+  POSITION 231
+  INITIAL "0"
+  HELP "Packing Weight Per Each SubUnit/Cas"
+  LABEL "Tare Wgt/Subunit"
+  DECIMALS 2
+  ORDER 2270
+  MAX-WIDTH 17
+
+.
+PSC
+cpstream=ISO8859-1
+.
+0000000877

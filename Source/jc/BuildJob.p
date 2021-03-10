@@ -415,7 +415,12 @@ PROCEDURE pBuildMaterials PRIVATE:
             bf-job-mat.n-up         = estCostForm.numOut
             bf-job-mat.basis-w      = estCostForm.basisWeight
             .
-        bf-job-mat.post = fIsAutoIssue(bf-jc-ctrl.post, estCostMaterial.materialType).
+
+        bf-job-mat.post = fIsAutoIssue(bf-jc-ctrl.post, estCostMaterial.materialType) OR 
+                          CAN-FIND(FIRST materialType 
+                                   WHERE materialType.company      EQ bf-job-mat.company 
+                                     AND materialType.materialType EQ estCostMaterial.materialType 
+                                     AND materialType.autoIssue    EQ TRUE).
         
         IF bf-job-mat.qty-all EQ 0 OR NOT bf-job-mat.all-flg  THEN
             bf-job-mat.qty-all = bf-job-mat.qty - bf-job-mat.qty-iss.
@@ -552,6 +557,7 @@ PROCEDURE pCalcEstimateForJob PRIVATE:
         DO:  
             FIND FIRST bf-job-hdr NO-LOCK 
                 WHERE bf-job-hdr.company EQ ipbf-job.company
+                AND bf-job-hdr.job EQ ipbf-job.job
                 AND bf-job-hdr.job-no EQ ipbf-job.job-no
                 AND bf-job-hdr.job-no2 EQ ipbf-job.job-no2
                 NO-ERROR.
@@ -562,6 +568,7 @@ PROCEDURE pCalcEstimateForJob PRIVATE:
         DO:
             FOR EACH bf-job-hdr NO-LOCK
                 WHERE bf-job-hdr.company EQ ipbf-job.company
+                AND bf-job-hdr.job EQ ipbf-job.job
                 AND bf-job-hdr.job-no EQ ipbf-job.job-no
                 AND bf-job-hdr.job-no2 EQ ipbf-job.job-no2
                 ,

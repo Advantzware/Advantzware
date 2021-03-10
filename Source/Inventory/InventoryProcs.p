@@ -1699,6 +1699,10 @@ PROCEDURE Inventory_CreateRMIssueFromTag:
 ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ipcCompany  AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcTag      AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcJobID    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiJobID2   AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiFormNo   AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiBlankNo  AS INTEGER   NO-UNDO.
     DEFINE INPUT  PARAMETER iplPost     AS LOGICAL   NO-UNDO.
     DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttBrowseInventory.
     DEFINE OUTPUT PARAMETER oplSuccess  AS LOGICAL   NO-UNDO.
@@ -1707,6 +1711,10 @@ PROCEDURE Inventory_CreateRMIssueFromTag:
     RUN pCreateRMIssueFromTag (
         INPUT  ipcCompany,
         INPUT  ipcTag,
+        INPUT  ipcJobID,
+        INPUT  ipiJobID2,
+        INPUT  ipiFormNo,
+        INPUT  ipiBlankNo,
         OUTPUT oplSuccess,
         OUTPUT opcMessage
         ).
@@ -1875,6 +1883,10 @@ PROCEDURE pCreateRMIssueFromTag PRIVATE:
 ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ipcCompany  AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcTag      AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcJobID    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiJobID2   AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiFormNo   AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiBlankNo  AS INTEGER   NO-UNDO.
     DEFINE OUTPUT PARAMETER oplSuccess  AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage  AS CHARACTER NO-UNDO.
     
@@ -1886,6 +1898,12 @@ PROCEDURE pCreateRMIssueFromTag PRIVATE:
     DEFINE BUFFER bf-job     FOR job.
     DEFINE BUFFER bf-job-hdr FOR job-hdr.
     DEFINE BUFFER bf-est     FOR est.
+
+    DEFINE VARIABLE cJobID   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iJobID2  AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iFormNo  AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iBlankNo AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE riRMBin  AS ROWID     NO-UNDO.
     
     DEFINE VARIABLE iNextRNo        AS INTEGER NO-UNDO.
     DEFINE VARIABLE dTotalIssuedQty AS DECIMAL NO-UNDO.
@@ -1911,29 +1929,32 @@ PROCEDURE pCreateRMIssueFromTag PRIVATE:
             .
         RETURN.
     END.    
-                
-    RUN pValidateRMLocBinTag(
-        INPUT  ipcCompany,
-        INPUT  bf-loadtag.loc,
-        INPUT  bf-loadtag.loc-bin,
-        INPUT  ipcTag,
-        INPUT  bf-loadtag.i-no,
-        INPUT  bf-loadtag.pallet-count,
-        OUTPUT oplSuccess,
-        OUTPUT opcMessage
-        ).
-    IF NOT oplSuccess THEN
-        RETURN.
 
     dIssuedQty = bf-loadtag.pallet-count.
     
+    FOR EACH bf-rm-bin NO-LOCK
+        WHERE bf-rm-bin.company EQ ipcCompany
+          AND bf-rm-bin.i-no    EQ bf-loadtag.i-no
+          AND bf-rm-bin.tag     EQ bf-loadtag.tag-no:
+        RUN pGetJobFromPOAndRMItem (
+            INPUT  bf-rm-bin.company,
+            INPUT  bf-rm-bin.i-no,
+            INPUT  bf-rm-bin.po-no,
+            OUTPUT cJobID,
+            OUTPUT iJobID2,
+            OUTPUT iFormNo,
+            OUTPUT iBlankNo
+            ).    
+        
+        riRMBin = ROWID(bf-rm-bin).
+        
+        IF ipcJobID NE "" AND ipcJobID EQ cJobID AND ipiJobID2 EQ ipiJobID2 THEN
+            LEAVE.
+    END.
+    
     FIND FIRST bf-rm-bin NO-LOCK
-         WHERE bf-rm-bin.company EQ ipcCompany
-           AND bf-rm-bin.i-no    EQ bf-loadtag.i-no
-           AND bf-rm-bin.loc     EQ bf-loadtag.loc
-           AND bf-rm-bin.loc-bin EQ bf-loadtag.loc-bin
-           AND bf-rm-bin.tag     EQ bf-loadtag.tag-no
-         NO-ERROR.
+         WHERE ROWID(bf-rm-bin) EQ riRMBin
+         NO-ERROR.         
     IF AVAILABLE bf-rm-bin THEN
         dIssuedQty = bf-rm-bin.qty.
         
@@ -1968,8 +1989,8 @@ PROCEDURE pCreateRMIssueFromTag PRIVATE:
 
     FIND FIRST bf-job NO-LOCK
          WHERE bf-job.company EQ ipcCompany
-           AND bf-job.job-no  EQ bf-loadtag.job-no
-           AND bf-job.job-no2 EQ bf-loadtag.job-no2
+           AND bf-job.job-no  EQ ipcJobID
+           AND bf-job.job-no2 EQ ipiJobID2
          USE-INDEX job-no
          NO-ERROR.
 
@@ -2011,11 +2032,11 @@ PROCEDURE pCreateRMIssueFromTag PRIVATE:
         bf-rm-rctd.r-no      = iNextRNo
         bf-rm-rctd.tag       = ipcTag
         bf-rm-rctd.rita-code = "I"
-        bf-rm-rctd.s-num     = bf-loadtag.form-no
-        bf-rm-rctd.b-num     = bf-loadtag.blank-no
+        bf-rm-rctd.s-num     = ipiFormNo
+        bf-rm-rctd.b-num     = ipiBlankNo
         bf-rm-rctd.rct-date  = TODAY
-        bf-rm-rctd.job-no    = bf-loadtag.job-no
-        bf-rm-rctd.job-no2   = bf-loadtag.job-no2
+        bf-rm-rctd.job-no    = ipcJobID
+        bf-rm-rctd.job-no2   = ipiJobID2
         bf-rm-rctd.i-no      = bf-loadtag.i-no
         bf-rm-rctd.i-name    = bf-loadtag.i-name
         bf-rm-rctd.loc       = bf-loadtag.loc
@@ -2024,21 +2045,14 @@ PROCEDURE pCreateRMIssueFromTag PRIVATE:
         bf-rm-rctd.enteredBy = USERID("ASI")
         bf-rm-rctd.enteredDT = NOW
         .
-        
-    IF AVAILABLE bf-rm-bin THEN 
-         bf-rm-rctd.cost = bf-rm-bin.cost.
-        
-    FIND FIRST bf-po-ordl NO-LOCK
-         WHERE bf-po-ordl.company = ipcCompany
-           AND bf-po-ordl.po-no   = INTEGER(SUBSTRING(ipcTag,1,7))
-           AND bf-po-ordl.line    = INTEGER(SUBSTRING(ipcTag,8,3))
-         NO-ERROR.     
-    IF AVAILABLE bf-po-ordl THEN
-        ASSIGN
-            bf-rm-rctd.s-num = bf-po-ordl.s-num
-            bf-rm-rctd.b-num = bf-po-ordl.b-num
-            .
     
+    IF AVAILABLE bf-rm-bin THEN
+        ASSIGN
+            bf-rm-rctd.loc     = bf-rm-bin.loc
+            bf-rm-rctd.loc-bin = bf-rm-bin.loc-bin
+            bf-rm-rctd.cost    = bf-rm-bin.cost
+            .
+
     FIND FIRST bf-item NO-LOCK
          WHERE bf-item.company EQ bf-loadtag.company
            AND bf-item.i-no    EQ bf-loadtag.i-no 
@@ -7385,6 +7399,7 @@ PROCEDURE pGetInventoryStockDetails:
     DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttInventoryStockDetails.
         
     DEFINE BUFFER bf-loadtag FOR loadtag.
+    DEFINE BUFFER bf-item    FOR item.
     
     FIND FIRST inventoryStock NO-LOCK
          WHERE inventoryStock.company EQ ipcCompany
@@ -7427,6 +7442,13 @@ PROCEDURE pGetInventoryStockDetails:
             ttInventoryStockDetails.inventoryStockID    = STRING(ROWID(bf-loadtag))
             oplValidInvStock                            = TRUE
             .
+
+        FIND FIRST bf-item NO-LOCK
+             WHERE bf-item.company EQ bf-loadtag.company
+               AND bf-item.i-no    EQ bf-loadtag.i-no
+             NO-ERROR.
+        IF AVAILABLE bf-item THEN
+            ttInventoryStockDetails.itemCode = bf-item.i-code.
     END.    
     ELSE IF AVAILABLE inventoryStock THEN DO:
         CREATE ttInventoryStockDetails.

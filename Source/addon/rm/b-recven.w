@@ -32,6 +32,8 @@ CREATE WIDGET-POOL.
 {custom/gcompany.i}
 {custom/gloc.i}
 {custom/globdefs.i}
+&SCOPED-DEFINE winReSize
+{methods/defines/winReSize.i}
 
 {sys/inc/var.i NEW SHARED} 
 
@@ -1471,6 +1473,7 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
+{methods/winReSize.i}
 {custom/getcmpny.i}
 {custom/getloc.i}
 

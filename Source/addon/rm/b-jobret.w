@@ -29,7 +29,8 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 {custom/globdefs.i}
-
+&SCOPED-DEFINE winReSize
+{methods/defines/winReSize.i}
 {sys/inc/var.i NEW SHARED}
 {methods/template/brwCustomDef.i}
 
@@ -965,7 +966,7 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
-
+{methods/winReSize.i}
 {sys/inc/rmissue.i}
 lv-rmissue = v-rmissue.
 
@@ -1927,7 +1928,7 @@ PROCEDURE pGetLastIssue PRIVATE:
             AND opbf-rm-rdtlh.rita-code EQ "I" 
             AND opbf-rm-rdtlh.qty GT 0,        
             EACH opbf-rm-rcpth OF opbf-rm-rdtlh NO-LOCK 
-            BREAK BY opbf-rm-rcpth.trans-date DESC:
+            BY opbf-rm-rcpth.trans-date DESC:
             
             oplFound = YES.
             LEAVE.        

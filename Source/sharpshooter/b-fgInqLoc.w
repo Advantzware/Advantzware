@@ -45,7 +45,7 @@ DEFINE VARIABLE cCompany          AS CHARACTER NO-UNDO.
 
 {Inventory/ttInventory.i}
 {methods/defines/sortByDefs.i}
-
+&SCOPED-DEFINE exclude-brwCustom
 DEFINE VARIABLE hdInventoryProcs AS HANDLE NO-UNDO.
 
 DEFINE VARIABLE hdPgmSecurity AS HANDLE  NO-UNDO.
@@ -325,7 +325,7 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
-
+{methods/template/brwcustomSharpShooter.i}
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF

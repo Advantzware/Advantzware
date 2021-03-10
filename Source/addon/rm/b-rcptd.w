@@ -25,7 +25,8 @@ CREATE WIDGET-POOL.
 
 /* gdm - 09190805 */
 &SCOPED-DEFINE yellowColumnsName b-rcptd
-
+&SCOPED-DEFINE winReSize
+{methods/defines/winReSize.i}
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
@@ -1292,6 +1293,7 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
+{methods/winReSize.i}
 {custom/getcmpny.i}
 {custom/getloc.i}
 

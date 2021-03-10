@@ -93,6 +93,7 @@ CREATE WIDGET-POOL.
         OUTPUT lRecFound    
         ).        
     lSSTagStatus = LOGICAL(cRtnValue) NO-ERROR.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -114,7 +115,7 @@ CREATE WIDGET-POOL.
 &Scoped-define INTERNAL-TABLES ttFGBin2
 
 /* Definitions for BROWSE BROWSE-2                                      */
-&Scoped-define FIELDS-IN-QUERY-BROWSE-2 ttFGBin2.quantity ttFGBin2.tag ttFGBin2.warehouseID ttFGBin2.jobID ttFGBin2.poID fGetInventoryStatus(ttFGBin2.inventoryStatus) @ cInventoryStatus  
+&Scoped-define FIELDS-IN-QUERY-BROWSE-2 ttFGBin2.quantity ttFGBin2.tag ttFGBin2.warehouseID ttFGBin2.jobID ttFGBin2.poID fGetInventoryStatus(ttFGBin2.inventoryStatus) @ cInventoryStatus   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-2   
 &Scoped-define SELF-NAME BROWSE-2
 &Scoped-define QUERY-STRING-BROWSE-2 FOR EACH ttFGBin2
@@ -128,7 +129,7 @@ CREATE WIDGET-POOL.
     ~{&OPEN-QUERY-BROWSE-2}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnExit fiTagNo btnKeyboard BROWSE-2 ~
+&Scoped-Define ENABLED-OBJECTS RECT-31 btnExit fiTagNo btnKeyboard BROWSE-2 ~
 btnFirst btnPrevious btnNext btnLast 
 &Scoped-Define DISPLAYED-OBJECTS fiTagNo fiTagStatus fiStatusDescription 
 
@@ -139,12 +140,15 @@ btnFirst btnPrevious btnNext btnLast
 &ANALYZE-RESUME
 
 
+/* ************************  Function Prototypes ********************** */
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetInventoryStatus W-Win 
 FUNCTION fGetInventoryStatus RETURNS CHARACTER
     ( ipcInventoryStatus AS CHARACTER ) FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
 /* ***********************  Control Definitions  ********************** */
 
@@ -185,21 +189,27 @@ DEFINE BUTTON btnPrevious
 DEFINE VARIABLE fiStatusDescription AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
      SIZE 54.8 BY 1.52 TOOLTIP "Status Description"
-     FONT 37 NO-UNDO.
+     FGCOLOR 0 FONT 37 NO-UNDO.
 
 DEFINE VARIABLE fiTagNo AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
-     SIZE 79 BY 1.52
-     FONT 37 NO-UNDO.
+     SIZE 101 BY 1.52
+     FGCOLOR 0 FONT 37 NO-UNDO.
 
 DEFINE VARIABLE fiTagStatus AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
      SIZE 22 BY 1.52 TOOLTIP "Tag Status"
-     FONT 37 NO-UNDO.
+     FGCOLOR 0 FONT 37 NO-UNDO.
 
 DEFINE RECTANGLE RECT-30
-     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 202 BY 5.48.
+     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     SIZE 125 BY 5.48
+     BGCOLOR 23 FGCOLOR 24 .
+
+DEFINE RECTANGLE RECT-31
+     EDGE-PIXELS 2 GRAPHIC-EDGE    
+     SIZE 12.8 BY 32.91
+     BGCOLOR 21 FGCOLOR 21 .
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -225,27 +235,28 @@ DEFINE BROWSE BROWSE-2
 
 /* ************************  Frame Definitions  *********************** */
 
-DEFINE FRAME F-Main       
+DEFINE FRAME F-Main
+     btnExit AT ROW 1.24 COL 192.4 WIDGET-ID 26
      fiTagNo AT ROW 2 COL 39 COLON-ALIGNED NO-LABEL WIDGET-ID 2
-     btnKeyboard AT ROW 2 COL 121.4 WIDGET-ID 6
-     fiTagStatus AT ROW 4 COL 39.2 COLON-ALIGNED NO-LABEL WIDGET-ID 8
-     fiStatusDescription AT ROW 4 COL 99.6 COLON-ALIGNED NO-LABEL WIDGET-ID 12
+     btnKeyboard AT ROW 2.05 COL 143.4 WIDGET-ID 6
+     fiTagStatus AT ROW 4 COL 39 COLON-ALIGNED NO-LABEL WIDGET-ID 8
+     fiStatusDescription AT ROW 4 COL 93 COLON-ALIGNED NO-LABEL WIDGET-ID 12
      BROWSE-2 AT ROW 6.71 COL 3 WIDGET-ID 200
      btnFirst AT ROW 6.95 COL 191.6 WIDGET-ID 18
      btnPrevious AT ROW 11.24 COL 191.6 WIDGET-ID 20
      btnNext AT ROW 25.62 COL 191.6 WIDGET-ID 22
      btnLast AT ROW 30.52 COL 191.6 WIDGET-ID 24
-     btnExit AT ROW 1.24 COL 192.4 WIDGET-ID 26
-     "Tag:" VIEW-AS TEXT
-          SIZE 8 BY 1.19 AT ROW 2.14 COL 31.8 WIDGET-ID 4
-          FONT 36
-     "Status Description:" VIEW-AS TEXT
-          SIZE 27 BY 1.52 AT ROW 4 COL 74 WIDGET-ID 14
-          FONT 36
      "Status:" VIEW-AS TEXT
           SIZE 10 BY 1.52 AT ROW 4 COL 28.6 WIDGET-ID 10
-          FONT 36
-     RECT-30 AT ROW 1 COL 1 WIDGET-ID 16
+          BGCOLOR 23 FGCOLOR 24 FONT 36
+     "Tag:" VIEW-AS TEXT
+          SIZE 8 BY 1.19 AT ROW 2.14 COL 31.8 WIDGET-ID 4
+          BGCOLOR 23 FGCOLOR 24 FONT 36
+     "Status Description:" VIEW-AS TEXT
+          SIZE 30 BY 1.52 AT ROW 4 COL 64.6 WIDGET-ID 14
+          BGCOLOR 23 FGCOLOR 24 FONT 36
+     RECT-30 AT ROW 1 COL 27 WIDGET-ID 16
+     RECT-31 AT ROW 1 COL 190.2 WIDGET-ID 28
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -307,7 +318,8 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* SETTINGS FOR WINDOW W-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-   FRAME-NAME                                                           */ 
+   FRAME-NAME                                                           */
+/* BROWSE-TAB BROWSE-2 fiStatusDescription F-Main */
 /* SETTINGS FOR FILL-IN fiStatusDescription IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fiTagStatus IN FRAME F-Main
@@ -444,8 +456,6 @@ END.
 &ANALYZE-RESUME
 
 
-
-
 &Scoped-define SELF-NAME fiTagNo
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiTagNo W-Win
 ON LEAVE OF fiTagNo IN FRAME F-Main
@@ -548,6 +558,7 @@ END.
 /* ***************************  Main Block  *************************** */
 
 /* Include custom  Main Block code for SmartWindows. */
+{methods/template/brwcustomSharpShooter.i}
 {src/adm/template/windowmn.i}
 {wip/pNavigate.i}
 {wip/pKeyboard.i}
@@ -625,8 +636,8 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY fiTagNo fiTagStatus fiStatusDescription 
       WITH FRAME F-Main IN WINDOW W-Win.
-  ENABLE btnExit fiTagNo btnKeyboard BROWSE-2 btnFirst btnPrevious btnNext 
-         btnLast 
+  ENABLE RECT-31 btnExit fiTagNo btnKeyboard BROWSE-2 btnFirst btnPrevious 
+         btnNext btnLast 
       WITH FRAME F-Main IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-F-Main}
   VIEW W-Win.
@@ -970,3 +981,4 @@ END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+

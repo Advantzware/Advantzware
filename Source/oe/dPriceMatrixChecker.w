@@ -37,9 +37,6 @@ DEFINE TEMP-TABLE ttPriceResults
     FIELD cPriceUOM AS CHARACTER 
     .
 
-DEFINE VARIABLE hdPriceProcs AS HANDLE.
-RUN oe/PriceProcs.p PERSISTENT SET hdPriceProcs.
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -325,7 +322,7 @@ FIND FIRST oe-ord NO-LOCK
     NO-ERROR.    
 IF AVAILABLE oe-ord THEN DO:
     /*builds the shared temp table ttPriceHold*/
-    RUN CheckPriceHoldForOrderReturnTT IN hdPriceProcs (ROWID(oe-ord), NO, NO, OUTPUT lHold, OUTPUT cReason, OUTPUT TABLE ttPriceHold).
+    RUN Price_CheckPriceHoldForOrderReturnTT (ROWID(oe-ord), NO, NO, OUTPUT lHold, OUTPUT cReason, OUTPUT TABLE ttPriceHold).
     ASSIGN 
         fiHold = STRING(lHold)
         fiReason = STRING(cReason)
@@ -345,7 +342,7 @@ IF AVAILABLE oe-ord THEN DO:
                     ttPriceResults.dPriceOld = oe-ordl.price
                     ttPriceResults.cPriceOldUOM = oe-ordl.pr-uom
                 .
-            RUN GetPriceMatrixPrice IN hdPriceProcs (oe-ordl.company, 
+            RUN Price_GetPriceMatrixPrice (oe-ordl.company, 
                                                      ttPriceResults.cFGItemID, 
                                                      ttPriceResults.cCustID, ttPriceResults.cShipID,
                                                      ttPriceResults.dQuantity, 
@@ -372,7 +369,7 @@ IF AVAILABLE oe-ord THEN DO:
                 ttPriceResults.cPriceUOM = oe-ordl.pr-uom
                 ttPriceResults.cPriceOldUOM = oe-ordl.pr-uom
                 .
-        RUN CalculateLinePrice IN hdPriceProcs (ttPriceResults.riLine, ttPriceResults.cFGItemID, ttPriceResults.cCustID, ttPriceResults.cShipID, ttPriceResults.dQuantity, NO,
+        RUN Price_CalculateLinePrice(ttPriceResults.riLine, ttPriceResults.cFGItemID, ttPriceResults.cCustID, ttPriceResults.cShipID, ttPriceResults.dQuantity, NO,
                             OUTPUT ttPriceResults.lMatrixMatch, INPUT-OUTPUT ttPriceResults.dPrice, INPUT-OUTPUT ttPriceResults.cPriceUOM).
         
     END.

@@ -86,9 +86,9 @@ DEFINE VARIABLE iWarehouseLength AS INTEGER   NO-UNDO.
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-33 btItemHelp btnKeyboardItem btLocHelp ~
-btnKeyboardLoc fiRMItem fiLocation btnNumPad btNameHelp btnKeyboardName ~
-fiRMName tgSummary 
+&Scoped-Define ENABLED-OBJECTS RECT-33 RECT-34 btItemHelp btnKeyboardItem ~
+btLocHelp btnKeyboardLoc fiRMItem fiLocation btnNumPad btNameHelp ~
+btnKeyboardName fiRMName tgSummary 
 &Scoped-Define DISPLAYED-OBJECTS fiRMItem fiLocation fiRMName fiConsUOM ~
 tgSummary 
 
@@ -117,17 +117,17 @@ DEFINE VARIABLE h_navigateprev AS HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btItemHelp 
-     IMAGE-UP FILE "Graphics/32x32/magnifying_glass.ico":U
+     IMAGE-UP FILE "Graphics/32x32/search_new.png":U
      LABEL "" 
      SIZE 6.6 BY 1.57.
 
 DEFINE BUTTON btLocHelp 
-     IMAGE-UP FILE "Graphics/32x32/magnifying_glass.ico":U
+     IMAGE-UP FILE "Graphics/32x32/search_new.png":U
      LABEL "" 
      SIZE 6.6 BY 1.57.
 
 DEFINE BUTTON btNameHelp 
-     IMAGE-UP FILE "Graphics/32x32/magnifying_glass.ico":U
+     IMAGE-UP FILE "Graphics/32x32/search_new.png":U
      LABEL "" 
      SIZE 6.6 BY 1.57.
 
@@ -152,24 +152,24 @@ DEFINE BUTTON btnNumPad
      SIZE 8 BY 1.91 TOOLTIP "Numeric Keypad".
 
 DEFINE VARIABLE fiConsUOM AS CHARACTER FORMAT "X(256)":U 
-     LABEL "UOM" 
      VIEW-AS FILL-IN 
-     SIZE 15.2 BY 1.43 NO-UNDO.
+     SIZE 15.2 BY 1.43
+     FONT 36 NO-UNDO.
 
 DEFINE VARIABLE fiLocation AS CHARACTER FORMAT "X(256)":U 
-     LABEL "Location" 
      VIEW-AS FILL-IN 
-     SIZE 32.2 BY 1.43 NO-UNDO.
+     SIZE 32.2 BY 1.43
+     FONT 36 NO-UNDO.
 
 DEFINE VARIABLE fiRMItem AS CHARACTER FORMAT "X(256)":U 
-     LABEL "RM Item#" 
      VIEW-AS FILL-IN 
-     SIZE 69.8 BY 1.43 NO-UNDO.
+     SIZE 69.8 BY 1.43
+     FONT 36 NO-UNDO.
 
 DEFINE VARIABLE fiRMName AS CHARACTER FORMAT "X(256)":U 
-     LABEL "RM Name" 
      VIEW-AS FILL-IN 
-     SIZE 69.8 BY 1.43 NO-UNDO.
+     SIZE 69.8 BY 1.43
+     FONT 36 NO-UNDO.
 
 DEFINE RECTANGLE RECT-2
      EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
@@ -177,13 +177,20 @@ DEFINE RECTANGLE RECT-2
      BGCOLOR 12 .
 
 DEFINE RECTANGLE RECT-33
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 197.8 BY .1.
+     EDGE-PIXELS 2 GRAPHIC-EDGE    
+     SIZE 186.2 BY 4.52
+     BGCOLOR 23 FGCOLOR 24 .
+
+DEFINE RECTANGLE RECT-34
+     EDGE-PIXELS 2 GRAPHIC-EDGE    
+     SIZE 13 BY 32.8
+     BGCOLOR 21 FGCOLOR 21 .
 
 DEFINE VARIABLE tgSummary AS LOGICAL INITIAL no 
      LABEL "View Summary" 
      VIEW-AS TOGGLE-BOX
-     SIZE 26 BY .95 NO-UNDO.
+     SIZE 28 BY .95
+     BGCOLOR 23 FGCOLOR 0 FONT 36 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -193,16 +200,29 @@ DEFINE FRAME F-Main
      btnKeyboardItem AT ROW 1.81 COL 98.8 WIDGET-ID 136 NO-TAB-STOP 
      btLocHelp AT ROW 1.81 COL 156 WIDGET-ID 146 NO-TAB-STOP 
      btnKeyboardLoc AT ROW 1.81 COL 163.2 WIDGET-ID 144 NO-TAB-STOP 
-     fiRMItem AT ROW 1.86 COL 18.2 COLON-ALIGNED WIDGET-ID 2
-     fiLocation AT ROW 1.86 COL 120.8 COLON-ALIGNED WIDGET-ID 142
+     fiRMItem AT ROW 1.86 COL 18.2 COLON-ALIGNED NO-LABEL WIDGET-ID 2
+     fiLocation AT ROW 1.86 COL 120.8 COLON-ALIGNED NO-LABEL WIDGET-ID 142
      btnNumPad AT ROW 1.86 COL 178.6 WIDGET-ID 120 NO-TAB-STOP 
      btNameHelp AT ROW 3.43 COL 91.2 WIDGET-ID 152 NO-TAB-STOP 
      btnKeyboardName AT ROW 3.43 COL 98.8 WIDGET-ID 154 NO-TAB-STOP 
-     fiRMName AT ROW 3.52 COL 18.2 COLON-ALIGNED WIDGET-ID 4
-     fiConsUOM AT ROW 3.52 COL 120.8 COLON-ALIGNED WIDGET-ID 148
+     fiRMName AT ROW 3.52 COL 18.2 COLON-ALIGNED NO-LABEL WIDGET-ID 4
+     fiConsUOM AT ROW 3.52 COL 120.8 COLON-ALIGNED NO-LABEL WIDGET-ID 148
      tgSummary AT ROW 3.76 COL 145 WIDGET-ID 150
-     RECT-33 AT ROW 5.33 COL 3.2 WIDGET-ID 6
+     "UOM:" VIEW-AS TEXT
+          SIZE 10.4 BY 1.1 AT ROW 3.62 COL 112 WIDGET-ID 162
+          BGCOLOR 23 FGCOLOR 24 FONT 36
+     "Location:" VIEW-AS TEXT
+          SIZE 15 BY 1.1 AT ROW 2.1 COL 107.4 WIDGET-ID 160
+          BGCOLOR 23 FGCOLOR 24 FONT 36
+     "RM Name:" VIEW-AS TEXT
+          SIZE 16 BY 1.1 AT ROW 3.67 COL 3.6 WIDGET-ID 158
+          BGCOLOR 23 FGCOLOR 24 FONT 36
+     "RM Item#:" VIEW-AS TEXT
+          SIZE 16 BY 1.1 AT ROW 2.05 COL 3.6 WIDGET-ID 156
+          BGCOLOR 23 FGCOLOR 24 FONT 36
+     RECT-33 AT ROW 1 COL 2.8 WIDGET-ID 6
      RECT-2 AT ROW 1.67 COL 177.6 WIDGET-ID 130
+     RECT-34 AT ROW 1 COL 189.2 WIDGET-ID 164
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -850,8 +870,9 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY fiRMItem fiLocation fiRMName fiConsUOM tgSummary 
       WITH FRAME F-Main IN WINDOW W-Win.
-  ENABLE RECT-33 btItemHelp btnKeyboardItem btLocHelp btnKeyboardLoc fiRMItem 
-         fiLocation btnNumPad btNameHelp btnKeyboardName fiRMName tgSummary 
+  ENABLE RECT-33 RECT-34 btItemHelp btnKeyboardItem btLocHelp btnKeyboardLoc 
+         fiRMItem fiLocation btnNumPad btNameHelp btnKeyboardName fiRMName 
+         tgSummary 
       WITH FRAME F-Main IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-F-Main}
   VIEW W-Win.

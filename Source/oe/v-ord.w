@@ -118,7 +118,6 @@ DEF VAR llRecFound AS LOG  NO-UNDO.
 DEF NEW SHARED BUFFER xest FOR est.
 DEF NEW SHARED BUFFER xeb FOR eb.
 DEF NEW SHARED BUFFER xef FOR ef.
-DEFINE VARIABLE hdPriceProcs AS HANDLE NO-UNDO.
 DEFINE VARIABLE lCreditAccSec AS LOGICAL NO-UNDO .
 DEFINE VARIABLE llOeShipFromLog AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lErrorValid AS LOGICAL NO-UNDO .
@@ -127,7 +126,6 @@ DEFINE VARIABLE cFreightCalculationValue AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cMisEstimate AS CHARACTER NO-UNDO .
 DEFINE VARIABLE lLocalCancelRecords AS LOGICAL NO-UNDO .
 
-RUN oe/PriceProcs.p PERSISTENT SET hdPriceProcs.
 &Scoped-define sman-fields oe-ord.sman oe-ord.s-pct oe-ord.s-comm
 
 DEF NEW SHARED TEMP-TABLE w-ord NO-UNDO FIELD w-ord-no LIKE oe-ord.ord-no.
@@ -2411,7 +2409,7 @@ DEFINE VARIABLE lPriceHold AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
 
 IF oe-ord.priceHold AND NOT oe-ord.priceHold:CHECKED IN FRAME {&FRAME-NAME} THEN DO:
-    RUN CheckPriceHoldForOrder IN hdPriceProcs (ROWID(oe-ord), NO, NO, OUTPUT lPriceHold, OUTPUT cMessage).
+    RUN Price_CheckPriceHoldForOrder(ROWID(oe-ord), NO, NO, OUTPUT lPriceHold, OUTPUT cMessage).
     IF lPriceHold THEN 
         MESSAGE "Warning: Order still qualifies for Price Hold and may be reset to Price Hold on a change to the order line. " SKIP(2)
             "Price Hold Reason: " cMessage

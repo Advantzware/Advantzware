@@ -44,7 +44,7 @@ DEFINE VARIABLE lHasAccess AS LOGICAL NO-UNDO.
 {jc/jcgl-sh.i  NEW}
 {methods/defines/sortByDefs.i}
 {inventory/ttInventory.i}
-
+&SCOPED-DEFINE exclude-brwCustom
 DEFINE VARIABLE hdInventoryProcs AS HANDLE NO-UNDO.
 DEFINE VARIABLE iWarehouseLength  AS INTEGER   NO-UNDO.
 
@@ -323,7 +323,7 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
-
+{methods/template/brwcustomSharpShooter.i}
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF

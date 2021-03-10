@@ -1110,8 +1110,12 @@ DO:
                             ll-all-warn = YES.
                         END.
         
-                    job-mat.post = (z GT 0 AND jc-ctrl.post[z]) OR CAN-DO("J",type-mat).
-        
+                    job-mat.post = (z GT 0 AND jc-ctrl.post[z]) OR CAN-DO("J",type-mat) OR 
+                                   CAN-FIND(FIRST materialType 
+                                            WHERE materialType.company      EQ job-mat.company 
+                                              AND materialType.materialType EQ type-mat
+                                              AND materialType.autoIssue    EQ TRUE).
+
                     IF ll-use-netsht AND CAN-DO("1,2,3,4,B,P,R",item.mat-type) THEN 
                     DO:
                         v-blk-qty = 0.

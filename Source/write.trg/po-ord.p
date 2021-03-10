@@ -34,8 +34,9 @@ IF old-{&TABLENAME}.po-no NE 0  AND
    {&TABLENAME}.opened          AND
    {&TABLENAME}.stat NE "U"     AND
    {&TABLENAME}.stat NE "H"     AND
-   {&TABLENAME}.printed         AND
-   old-{&TABLENAME}.printed     THEN {&TABLENAME}.stat = "U".
+   {&TABLENAME}.stat NE "O"     AND
+   {&TABLENAME}.stat NE "N"     AND
+   {&TABLENAME}.printed         THEN {&TABLENAME}.stat = "U".
 
 FIND FIRST vend OF {&TABLENAME} NO-LOCK NO-ERROR.
 

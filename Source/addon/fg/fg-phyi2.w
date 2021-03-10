@@ -36,6 +36,9 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 
+&SCOPED-DEFINE winReSize
+&SCOPED-DEFINE h_Object01 h_p-updba2
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -49,7 +52,7 @@ CREATE WIDGET-POOL.
 
 &Scoped-define ADM-CONTAINER WINDOW
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 
 /* Custom List Definitions                                              */
@@ -76,7 +79,14 @@ DEFINE FRAME F-Main
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 151.6 BY 17.52.
+         SIZE 151.6 BY 13.19.
+
+DEFINE FRAME OPTIONS-FRAME
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1
+         SIZE 11 BY 2.3
+         BGCOLOR 21 FGCOLOR 21  WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -96,23 +106,23 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW W-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "FG Warehouse Returns"
-         HEIGHT             = 17.52
+         HEIGHT             = 13.19
          WIDTH              = 151.6
          MAX-HEIGHT         = 17.52
          MAX-WIDTH          = 151.6
          VIRTUAL-HEIGHT     = 17.52
          VIRTUAL-WIDTH      = 151.6
-         CONTROL-BOX        = no
-         MIN-BUTTON         = no
-         MAX-BUTTON         = no
-         RESIZE             = no
-         SCROLL-BARS        = no
-         STATUS-AREA        = no
+         CONTROL-BOX        = NO
+         MIN-BUTTON         = NO
+         MAX-BUTTON         = NO
+         RESIZE             = NO
+         SCROLL-BARS        = NO
+         STATUS-AREA        = NO
          BGCOLOR            = ?
          FGCOLOR            = ?
-         THREE-D            = yes
-         MESSAGE-AREA       = no
-         SENSITIVE          = yes.
+         THREE-D            = YES
+         MESSAGE-AREA       = NO
+         SENSITIVE          = YES.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
@@ -133,10 +143,15 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
 /* SETTINGS FOR WINDOW W-Win
   VISIBLE,,RUN-PERSISTENT                                               */
+/* REPARENT FRAME */
+ASSIGN FRAME OPTIONS-FRAME:FRAME = FRAME F-Main:HANDLE.
+
 /* SETTINGS FOR FRAME F-Main
+   FRAME-NAME                                                           */
+/* SETTINGS FOR FRAME OPTIONS-FRAME
                                                                         */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(W-Win)
-THEN W-Win:HIDDEN = yes.
+THEN W-Win:HIDDEN = YES.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -183,6 +198,7 @@ END.
 
 /* Include custom  Main Block code for SmartWindows. */
 {src/adm/template/windowmn.i}
+{custom/initializeprocs.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -206,11 +222,19 @@ PROCEDURE adm-create-objects :
 
     WHEN 0 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
+             INPUT  'smartobj/exit.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_exit ).
+       RUN set-position IN h_exit ( 1.10 , 141.20 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 7.80 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
              INPUT  'addon/fg/b-phyi2.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_b-phyi2 ).
-       RUN set-position IN h_b-phyi2 ( 1.00 , 1.00 ) NO-ERROR.
+       RUN set-position IN h_b-phyi2 ( 3.76 , 1.00 ) NO-ERROR.
        RUN set-size IN h_b-phyi2 ( 7.38 , 150.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
@@ -220,25 +244,19 @@ PROCEDURE adm-create-objects :
                      SmartPanelType = Update,
                      AddFunction = One-Record':U ,
              OUTPUT h_p-updba2 ).
-       RUN set-position IN h_p-updba2 ( 8.62 , 10.00 ) NO-ERROR.
-       RUN set-size IN h_p-updba2 ( 1.67 , 68.00  ) NO-ERROR.
-
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'smartobj/exit.w':U ,
-             INPUT  FRAME F-Main:HANDLE ,
-             INPUT  '':U ,
-             OUTPUT h_exit ).
-       RUN set-position IN h_exit ( 8.86 , 1.00 ) NO-ERROR.
-       /* Size in UIB:  ( 1.81 , 7.80 ) */
+       RUN set-position IN h_p-updba2 ( 11.71 , 36.00 ) NO-ERROR.
+       RUN set-size IN h_p-updba2 ( 1.67 , 68.00 ) NO-ERROR.
 
        /* Links to SmartBrowser h_b-phyi2. */
        RUN add-link IN adm-broker-hdl ( h_p-updba2 , 'TableIO':U , h_b-phyi2 ).
 
        /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_exit ,
+             FRAME OPTIONS-FRAME:HANDLE , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_b-phyi2 ,
+             h_exit , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_p-updba2 ,
              h_b-phyi2 , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_exit ,
-             h_p-updba2 , 'AFTER':U ).
     END. /* Page 0 */
 
   END CASE.
@@ -302,6 +320,8 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   VIEW FRAME F-Main IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-F-Main}
+  VIEW FRAME OPTIONS-FRAME IN WINDOW W-Win.
+  {&OPEN-BROWSERS-IN-QUERY-OPTIONS-FRAME}
   VIEW W-Win.
 END PROCEDURE.
 

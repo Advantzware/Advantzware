@@ -50,9 +50,10 @@ IF lv-msg NE "" THEN DO:
   RETURN ERROR.
 END.
 */
-RUN Purge_SimulateOrDeleteRecordsByTable(
-    INPUT  {&TABLENAME},
-    INPUT  ROWID({&TABLENAME}),
+{jc/jc-dall.i}
+
+RUN Purge_SimulateAndPurgeJobRecords(
+    BUFFER {&TABLENAME},
     INPUT  YES,        /* Delete Records ? */
     INPUT  NO,         /* Create .csv files for child tables? */
     INPUT  YES,        /* Called from trigger?  */
@@ -60,6 +61,10 @@ RUN Purge_SimulateOrDeleteRecordsByTable(
     OUTPUT cMessage
     ). 
     
+IF {&TABLENAME}.exported THEN DO:
+  {&TABLENAME}.stat = "X".
+  {jc/kiwiexp4.i}
+END.    
 /* Clear out any error-status from find with no-error that is false */
 DEF VAR ll-error AS LOG NO-UNDO.
 ll-error = YES NO-ERROR.    

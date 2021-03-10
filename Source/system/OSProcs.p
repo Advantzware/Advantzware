@@ -217,12 +217,12 @@ PROCEDURE OS_PlaySound:
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ipcFile   AS CHARACTER.
-    DEFINE OUTPUT PARAMETER opcStatus AS  LONGCHAR.
+    DEFINE OUTPUT PARAMETER opiStatus AS  INTEGER.
     
     DEFINE VARIABLE oplSuccess AS LOGICAL NO-UNDO.
     DEFINE VARIABLE opcMessage AS CHARACTER NO-UNDO.
     
-    DEFINE VARIABLE  loStatus AS LOGICAL NO-UNDO.
+  //  DEFINE VARIABLE  iStatus AS INTEGER NO-UNDO.
     
     ipcFile = TRIM(ipcFile, ' ').
     ipcFile = TRIM(ipcFile, '"').
@@ -239,10 +239,10 @@ PROCEDURE OS_PlaySound:
     RUN sndPlaySoundA (
         INPUT ipcFile, 
         INPUT 2,
-        OUTPUT loStatus
+        OUTPUT opiStatus
         ) NO-ERROR.
         
-    opcStatus = STRING(loStatus).
+    //opcStatus = STRING(loStatus).
 
 END PROCEDURE.
 

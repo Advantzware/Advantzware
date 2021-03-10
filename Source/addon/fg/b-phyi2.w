@@ -37,6 +37,8 @@ def var ls-prev-po as cha no-undo.
 def var hd-post as widget-handle no-undo.
 def var hd-post-child as widget-handle no-undo.
 def var ll-help-run as log no-undo.  /* set on browse help, reset row-entry */
+&SCOPED-DEFINE winReSize
+{methods/defines/winReSize.i}
 
 DEF BUFFER bf-tmp FOR fg-rctd.  /* for tag validation */
 DEF BUFFER xfg-rdtlh FOR fg-rdtlh. /* for tag validation */
@@ -779,7 +781,7 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
-
+{methods/winReSize.i}
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
    RUN dispatch IN THIS-PROCEDURE ('initialize':U).
 &ENDIF

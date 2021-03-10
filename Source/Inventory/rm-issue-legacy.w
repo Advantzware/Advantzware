@@ -881,7 +881,9 @@ DO:
         INPUT FALSE,  /* Error */
         INPUT FALSE   /* Alert-box*/
         ).
-
+    
+    APPLY "ENTRY" TO fiTag.
+    
     RUN pRebuildBrowse (
         INPUT cCompany,
         INPUT cFormattedJobNo,
@@ -1815,7 +1817,7 @@ PROCEDURE pTagScan :
         INPUT  ipcTag,
         OUTPUT lValidInv,
         OUTPUT cMessage,
-        INPUT-OUTPUT TABLE ttInventoryStockDetails
+        INPUT-OUTPUT TABLE ttInventoryStockDetails BY-REFERENCE
         ).
   
     IF lValidInv THEN DO:
@@ -1830,46 +1832,34 @@ PROCEDURE pTagScan :
                 iFormNo  = ttInventoryStockDetails.formNo
                 iBlankNo = ttInventoryStockDetails.blankNo
                 .
-  
-        IF (fiJobno:SCREEN-VALUE   NE cJobNo OR
+        
+        IF cbRMItem:SCREEN-VALUE NE cRMItem THEN DO:
+            MESSAGE "Tag belongs to a different item #"  
+                VIEW-AS ALERT-BOX.
+            RETURN.
+        END.
+        
+        IF ttInventoryStockDetails.itemCode EQ "E" AND
+           (fiJobno:SCREEN-VALUE   NE cJobNo OR
             cbJobno2:SCREEN-VALUE  NE STRING(iJobNo2,"99") OR
             cbFormno:SCREEN-VALUE  NE STRING(iFormNo,"99") OR
             cbBlankno:SCREEN-VALUE NE STRING(iBlankNo,"99")) AND
             cJobNo NE "" THEN DO:
-            MESSAGE "Tag belongs to different Job context. Do you want to switch Job?"
+            MESSAGE "Tag belongs to different Job. Do you want to continue?"
                 VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO-CANCEL
-                TITLE "Continue?" UPDATE lSwitchJob AS LOGICAL.
-            IF lSwitchJob THEN DO:
-                RUN pJobScan (
-                    INPUT  ipcCompany,
-                    INPUT  cJobNo,
-                    INPUT  iJobNo2,
-                    INPUT  iFormNo,
-                    INPUT  iBlankNo,
-                    INPUT  cRMItem,
-                    OUTPUT lSuccess,
-                    OUTPUT cMessage
-                    ).
-                
-                IF NOT lSuccess THEN DO:
-                    RUN pUpdateMessageText (
-                        INPUT cMessage,    /* Message Text */
-                        INPUT TRUE,        /* Error */
-                        INPUT TRUE         /* Alert-box*/
-                        ).
-                    RETURN.
-                END.                    
-            END.
-            ELSE
+                TITLE "Continue?" UPDATE lIssue AS LOGICAL.
+            IF NOT lIssue THEN
                 RETURN.
         END.
-  
-        cFormattedJobno = cJobNo.
         
         IF AVAILABLE ttInventoryStockDetails THEN DO:  
             RUN Inventory_CreateRMIssueFromTag in hdInventoryProcs (
                 INPUT  ipcCompany,
                 INPUT  ttInventoryStockDetails.tag,
+                INPUT  fiJobNo:SCREEN-VALUE,
+                INPUT  INTEGER(cbJobNo2:SCREEN-VALUE),
+                INPUT  INTEGER(cbFormNo:SCREEN-VALUE),
+                INPUT  INTEGER(cbBlankNo:SCREEN-VALUE),
                 INPUT  lAutoPost,
                 INPUT-OUTPUT TABLE ttBrowseInventory,
                 OUTPUT lCreated,                    

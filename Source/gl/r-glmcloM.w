@@ -175,7 +175,7 @@ DEFINE FRAME FRAME-A
      tran-year AT ROW 3.62 COL 20 COLON-ALIGNED WIDGET-ID 6
      tran-period AT ROW 3.62 COL 39 COLON-ALIGNED
      tb_sub-report AT ROW 5.50 COL 21.8 WIDGET-ID 10
-     tb_close-sub AT ROW 7.10 COL 21.8 WIDGET-ID 12
+     tb_close-sub AT ROW 6.10 COL 21.8 WIDGET-ID 12
      btn-ok AT ROW 10.29 COL 18
      btn-cancel AT ROW 10.29 COL 57
      "Selection Parameters" VIEW-AS TEXT
@@ -326,7 +326,10 @@ DO:
        .
 
   run check-date (YES).
-  if v-invalid then return no-apply.       
+  if v-invalid then return no-apply. 
+  
+  run pCheckClosePermission .
+  if v-invalid then return no-apply.
 
   assign /*rd-dest*/
          
@@ -477,6 +480,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
     {methods/nowait.i}
     DO with frame {&frame-name}:
+        tb_sub-report:HIDDEN IN FRAME FRAME-A    = TRUE.
         APPLY "entry" TO tran-year.
     END.
     
@@ -594,6 +598,38 @@ PROCEDURE check-date :
       message "No Defined Period Exists for" tran-period view-as alert-box error.
       v-invalid = yes.
     END.
+  END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckClosePermission C-Win 
+PROCEDURE pCheckClosePermission :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    
+  DO with frame {&frame-name}:
+    v-invalid = no.
+
+    IF AVAIL company AND ((ipcModule EQ "AP" AND NOT company.subLedgerAP) OR
+     (ipcModule EQ "PO" AND NOT company.subLedgerPO) OR
+     (ipcModule EQ "OP" AND NOT company.subLedgerOP) OR 
+     (ipcModule EQ "WIP" AND NOT company.subLedgerWIP) OR 
+     (ipcModule EQ "RM" AND NOT company.subLedgerRM) OR 
+     (ipcModule EQ "FG" AND NOT company.subLedgerFG) OR 
+     (ipcModule EQ "BR" AND NOT company.subLedgerBR) OR 
+     (ipcModule EQ "AR" AND NOT company.subLedgerAR) ) THEN
+    DO:
+       MESSAGE "This sub ledger is not configured to be closed separately than the period.  Change setting or proceed to close the period" VIEW-AS ALERT-BOX INFO.
+          v-invalid = YES.        
+    END.
+    
   END.
 
 END PROCEDURE.

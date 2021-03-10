@@ -853,7 +853,7 @@ DO:
             RUN system/openLookup.p (
                 INPUT  g_company, 
                 INPUT  "",  /* Lookup ID */
-                INPUT  87,  /* Subject ID */
+                INPUT  107,  /* Subject ID */
                 INPUT  "",  /* User ID */
                 INPUT  0,   /* Param Value ID */
                 OUTPUT cFieldsValue, 
@@ -2695,7 +2695,8 @@ PROCEDURE create-item :
             po-ordl.due-date  = po-ord.due-date
             po-ordl.over-pct  = po-ord.over-pct
             po-ordl.under-pct = po-ord.under-pct
-            po-ordl.vend-no   = po-ord.vend-no.
+            po-ordl.vend-no   = po-ord.vend-no
+            po-ordl.cust-no   = po-ord.cust-no.
 
         IF AVAILABLE bf-itemfg 
             THEN

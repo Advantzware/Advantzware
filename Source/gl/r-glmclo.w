@@ -710,14 +710,14 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         tran-year = period.yr
         tran-period = period.pnum.
         
-    IF AVAIL period AND (period.subLedgerAP NE "C" OR 
-       period.subLedgerPO NE "C" OR 
-       period.subLedgerOP NE "C" OR 
-       period.subLedgerWIP NE "C" OR 
-       period.subLedgerRM NE "C" OR 
-       period.subLedgerFG NE "C" OR 
-       period.subLedgerBR NE "C" OR 
-       period.subLedgerAR NE "C") THEN
+    IF AVAIL period AND ((period.subLedgerAP NE "C" AND company.subLedgerAP) OR 
+       (period.subLedgerPO NE "C" AND company.subLedgerPO) OR 
+       (period.subLedgerOP NE "C" AND company.subLedgerOP) OR 
+       (period.subLedgerWIP NE "C" AND company.subLedgerWIP) OR 
+       (period.subLedgerRM NE "C" AND company.subLedgerRM) OR 
+       (period.subLedgerFG NE "C" AND company.subLedgerFG) OR 
+       (period.subLedgerBR NE "C" AND company.subLedgerBR) OR 
+       (period.subLedgerAR NE "C" AND company.subLedgerAR)) THEN
     DO:
           RUN displayMessageQuestionLOG ("60", OUTPUT lMessage).
           IF NOT lMessage THEN 

@@ -2356,7 +2356,7 @@ PROCEDURE pPrepareAndExecuteQueryForHeader PRIVATE :
            + ( IF cStartField        EQ CHR(32) AND cEndField       EQ CHR(254) THEN "" ELSE " AND AuditDtl.AuditField       EQ '" + cStartField + "'")
            + ( IF cStartBeforeValue  EQ CHR(32) AND cEndBeforeValue EQ CHR(254) THEN "" ELSE " AND AuditDtl.AuditBeforeValue EQ '" + cStartBeforeValue + "'")
            + ( IF cStartAfterValue   EQ CHR(32) AND cEndAfterValue  EQ CHR(254) THEN "" ELSE " AND AuditDtl.AuditAfterValue  EQ '" + cStartAfterValue + "'")
-           + ( IF cSortBy NE "" THEN "BY " + cSortBy +( IF lAscending THEN "" ELSE " DESCENDING")  ELSE " ")
+           + ( IF cSortBy NE "" THEN " BY " + cSortBy +( IF lAscending THEN "" ELSE " DESCENDING")  ELSE " ")
            +  " MAX-ROWS " + STRING(maxrows)
            . 
     SESSION:SET-WAIT-STATE("General").

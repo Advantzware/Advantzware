@@ -25,6 +25,7 @@
    DEF VAR v-note4             AS CHAR                 NO-UNDO.
    DEF VAR ld-palls AS DEC NO-UNDO.
    DEF VAR cShipZip        LIKE shipto.ship-zip   NO-UNDO.
+   DEF VAR cLotNo          LIKE oe-rel.lot-no     NO-UNDO.
 
    ASSIGN 
       v-line  = "<C1><FROM><C107><LINE><||3>" .
@@ -402,7 +403,8 @@
                   v-po-no   = oe-rel.po-no
                   v-rel-no  = IF rd_rel BEGINS "N" OR v-rel-no EQ 0 THEN oe-rel.rel-no ELSE v-rel-no
                   v-ship-id = oe-rel.ship-id
-                  v-carrier = oe-rel.carrier.
+                  v-carrier = oe-rel.carrier 
+                  cLotNO    = oe-rel.lot-no.
       END.
       ELSE /*job without order*/
       DO:
@@ -460,7 +462,8 @@
 
             IF ld-palls LT 0 THEN ld-palls = ld-palls * -1.
 
-            w-ord.palls = w-ord.palls + ld-palls.
+            w-ord.palls  = w-ord.palls + ld-palls.
+            w-ord.lot-no = oe-rel.lot-no .
               
          IF v-comps AND AVAIL itemfg AND itemfg.isaset THEN DO:
 

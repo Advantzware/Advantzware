@@ -1205,22 +1205,13 @@ END.
 
 
 &Scoped-define FRAME-NAME searchFrame
+
 &Scoped-define SELF-NAME menuTreeFilter
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL menuTreeFilter MAINMENU
-ON LEAVE OF menuTreeFilter IN FRAME searchFrame
-DO:
-    ASSIGN {&SELF-NAME}.
-    RUN pSearchSelections.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL menuTreeFilter MAINMENU
 ON RETURN OF menuTreeFilter IN FRAME searchFrame
 DO:
-    APPLY "LEAVE":U TO menuTreeFilter.
+    ASSIGN {&SELF-NAME}.
+    RUN pSearchSelections.
     APPLY "ENTRY":U TO SELF.
     RETURN NO-APPLY.
 END.
@@ -2415,7 +2406,10 @@ PROCEDURE pSearchSelections :
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cSearchSelectionsValue AS CHARACTER NO-UNDO.
     DO WITH FRAME searchFrame:
+        IF searchSelections:SCREEN-VALUE NE ? THEN
+        cSearchSelectionsValue = searchSelections:SCREEN-VALUE.
         ASSIGN 
             menuTreeFilter
             searchSelections:LIST-ITEM-PAIRS = ?
@@ -2442,6 +2436,8 @@ PROCEDURE pSearchSelections :
         END. /* each ttmenutree */
     END. /* with frame */
 
+    IF cSearchSelectionsValue NE "" THEN
+    searchSelections:SCREEN-VALUE = cSearchSelectionsValue.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

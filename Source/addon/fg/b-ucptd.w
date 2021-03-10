@@ -40,7 +40,8 @@ CREATE WIDGET-POOL.
 &scoped-define fld-name-1 fg-rctd.tag
 &scoped-define SORTBY-1 BY {&fld-name-1}
 &global-define IAMWHAT LOOKUP
-
+&SCOPED-DEFINE winReSize
+{methods/defines/winReSize.i}
 DEF VAR ll-help-run AS LOG NO-UNDO.
 
 DEF VAR lv-prev-job2 AS cha NO-UNDO.
@@ -819,6 +820,7 @@ END.
 
 /* ***************************  Main Block  *************************** */
 {methods/ctrl-a_browser.i}
+{methods/winReSize.i}
 
 DO TRANSACTION:
    {sys/inc/closejob.i FGPost}

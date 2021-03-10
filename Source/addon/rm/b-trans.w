@@ -47,6 +47,8 @@ def var ls-prev-po as cha no-undo.
 def var hd-post as widget-handle no-undo.
 def var hd-post-child as widget-handle no-undo.
 def var ll-help-run as log no-undo.  /* set on browse help, reset row-entry */
+&SCOPED-DEFINE winReSize
+{methods/defines/winReSize.i}
 DEF VAR gvr-rm-row AS ROWID NO-UNDO.
 DEFINE VARIABLE lPostAuto-log AS LOGICAL NO-UNDO .
 DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO .
@@ -672,6 +674,7 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
+{methods/winReSize.i}
 {custom/getcmpny.i}
 {custom/getloc.i}
 ASSIGN
