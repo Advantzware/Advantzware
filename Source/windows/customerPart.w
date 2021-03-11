@@ -41,6 +41,7 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+&SCOPED-DEFINE winReSize
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -85,14 +86,14 @@ DEFINE FRAME F-Main
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 140 BY 21.19
+         SIZE 125 BY 21.19
          BGCOLOR 15  WIDGET-ID 100.
 
 DEFINE FRAME OPTIONS-FRAME
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 140 BY 1.91
+         SIZE 125 BY 1.91
          BGCOLOR 21  WIDGET-ID 200.
 
 
@@ -114,19 +115,19 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          HIDDEN             = YES
          TITLE              = "Customer Part Maintenance"
          HEIGHT             = 21.19
-         WIDTH              = 140
-         MAX-HEIGHT         = 25.48
-         MAX-WIDTH          = 182.6
+         WIDTH              = 125
+         MAX-HEIGHT         = 320
+         MAX-WIDTH          = 320
          VIRTUAL-HEIGHT     = 25.48
          VIRTUAL-WIDTH      = 182.6
-         RESIZE             = yes
-         SCROLL-BARS        = no
-         STATUS-AREA        = yes
+         RESIZE             = YES
+         SCROLL-BARS        = NO
+         STATUS-AREA        = YES
          BGCOLOR            = ?
          FGCOLOR            = ?
-         THREE-D            = yes
-         MESSAGE-AREA       = no
-         SENSITIVE          = yes.
+         THREE-D            = YES
+         MESSAGE-AREA       = NO
+         SENSITIVE          = YES.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
@@ -135,7 +136,7 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* ************************* Included-Libraries *********************** */
 
 {src/adm/method/containr.i}
-
+{methods/template/windows.i}
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -155,7 +156,7 @@ ASSIGN FRAME OPTIONS-FRAME:FRAME = FRAME F-Main:HANDLE.
 /* SETTINGS FOR FRAME OPTIONS-FRAME
                                                                         */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(W-Win)
-THEN W-Win:HIDDEN = yes.
+THEN W-Win:HIDDEN = YES.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -203,6 +204,14 @@ END.
 /* Include custom  Main Block code for SmartWindows. */
 {src/adm/template/windowmn.i}
 
+    /* Set the option frame size and colour to give blue background to icons and 
+          add the handle of scope define object to temptable for resizizng */
+    RUN beforeinitialize IN THIS-PROCEDURE NO-ERROR.
+    /* Add the handle of all smart object to be resized/shifted on resize to the temptable and 
+              Shift all the icons towards right */
+    RUN afterinitialize IN THIS-PROCEDURE NO-ERROR.  
+
+{custom/initializeprocs.i}
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -229,17 +238,17 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_exit ).
-       RUN set-position IN h_exit ( 1.00 , 132.80 ) NO-ERROR.
+       RUN set-position IN h_exit ( 1.00 , 116.60 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/folder.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'FOLDER-LABELS = ':U + 'Browse|Detail' + ',
-                     FOLDER-TAB-TYPE = 1':U ,
+                     FOLDER-TAB-TYPE = 2':U ,
              OUTPUT h_folder ).
        RUN set-position IN h_folder ( 3.43 , 1.00 ) NO-ERROR.
-       RUN set-size IN h_folder ( 18.76 , 140.00 ) NO-ERROR.
+       RUN set-size IN h_folder ( 18.76 , 125.00 ) NO-ERROR.
 
        /* Links to SmartFolder h_folder. */
        RUN add-link IN adm-broker-hdl ( h_folder , 'Page':U , THIS-PROCEDURE ).
@@ -309,7 +318,7 @@ PROCEDURE adm-create-objects :
 
   END CASE.
   /* Select a Startup page. */
-  IF adm-current-page eq 0 
+  IF adm-current-page EQ 0 
   THEN RUN select-page IN THIS-PROCEDURE ( 1 ).
 
 END PROCEDURE.
@@ -378,6 +387,30 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-change-page W-Win 
+PROCEDURE local-change-page :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+DEF VAR iCurrentPage AS INT.
+DEFINE VARIABLE v-spec AS LOGICAL NO-UNDO.
+  /* Code placed here will execute PRIOR to standard behavior. */
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'change-page':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+  {methods/winReSizePgChg.i}
+
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-exit W-Win 
 PROCEDURE local-exit :

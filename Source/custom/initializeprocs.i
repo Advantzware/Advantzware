@@ -336,9 +336,11 @@ PROCEDURE setCapturedWindowSize:
                     NO-ERROR . 
            
         IF deOrigWinWidth > {&WINDOW-NAME}:WIDTH THEN
-            {&WINDOW-NAME}:WIDTH = deOrigWinWidth.
+            ASSIGN 
+            {&WINDOW-NAME}:WIDTH = deOrigWinWidth NO-ERROR.
         IF deOrigWinHeight > {&WINDOW-NAME}:HEIGHT THEN
-            {&WINDOW-NAME}:HEIGHT = deOrigWinHeight. 
+            ASSIGN 
+            {&WINDOW-NAME}:HEIGHT = deOrigWinHeight NO-ERROR. 
             
         ASSIGN                 
             {&WINDOW-NAME}:VIRTUAL-HEIGHT-PIXELS = {&WINDOW-NAME}:HEIGHT-PIXELS
@@ -393,8 +395,10 @@ VIEW-AS ALERT-BOX.
        {&WINDOW-NAME}:Y > (SESSION:WORK-AREA-HEIGHT-PIXELS - {&WINDOW-NAME}:HEIGHT-PIXELS)
         THEN
         ASSIGN  {&WINDOW-NAME}:X = (SESSION:WORK-AREA-WIDTH-PIXELS - {&WINDOW-NAME}:WIDTH-PIXELS) / 2
-                {&WINDOW-NAME}:Y = (SESSION:WORK-AREA-HEIGHT-PIXELS - {&WINDOW-NAME}:HEIGHT-PIXELS) / 2.
-    
-    {&WINDOW-NAME}:WIDTH         = deOrigWinWidth.
-    {&WINDOW-NAME}:HEIGHT        = deOrigWinHeight.
+                {&WINDOW-NAME}:Y = (SESSION:WORK-AREA-HEIGHT-PIXELS - {&WINDOW-NAME}:HEIGHT-PIXELS) / 2
+                NO-ERROR.
+    ASSIGN
+    {&WINDOW-NAME}:WIDTH         = deOrigWinWidth
+    {&WINDOW-NAME}:HEIGHT        = deOrigWinHeight
+    NO-ERROR.
 END PROCEDURE.

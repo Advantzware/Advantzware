@@ -38,7 +38,10 @@ CREATE WIDGET-POOL.
 /* ***************************  Definitions  ************************** */
 
 /* Parameters Definitions ---                                           */
-
+&SCOPED-DEFINE winReSize
+{methods/defines/winReSize.i}
+&SCOPED-DEFINE browseOnly
+{custom/globdefs.i}
 /* Local Variable Definitions ---                                       */
 DEFINE VARIABLE cCompany      AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCustomer     AS CHARACTER NO-UNDO.
@@ -94,8 +97,8 @@ ASI.customerPart.customerPart BEGINS cCustomerPart NO-LOCK ~
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btSearch fiCustomer fiShipTo fiItem ~
-fiCustomerPart br_table 
+&Scoped-Define ENABLED-OBJECTS RECT-1 RECT-2 btSearch fiCustomer fiShipTo ~
+fiItem fiCustomerPart br_table 
 &Scoped-Define DISPLAYED-OBJECTS fiCustomer fiShipTo fiItem fiCustomerPart 
 
 /* Custom List Definitions                                              */
@@ -155,23 +158,37 @@ RUN set-attribute-list (
 DEFINE BUTTON btSearch 
      IMAGE-UP FILE "Graphics/32x32/search_new.png":U
      LABEL "" 
-     SIZE 8 BY 1.91.
+     SIZE 6.8 BY 1.62.
 
 DEFINE VARIABLE fiCustomer AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
-     SIZE 17.8 BY 1 NO-UNDO.
+     SIZE 17.8 BY 1
+     FONT 22 NO-UNDO.
 
 DEFINE VARIABLE fiCustomerPart AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
-     SIZE 28.4 BY 1 NO-UNDO.
+     SIZE 28.4 BY 1
+     FONT 22 NO-UNDO.
 
 DEFINE VARIABLE fiItem AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
-     SIZE 24.4 BY 1 NO-UNDO.
+     SIZE 24.4 BY 1
+     FONT 22 NO-UNDO.
 
 DEFINE VARIABLE fiShipTo AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
-     SIZE 17.8 BY 1 NO-UNDO.
+     SIZE 17.8 BY 1
+     FONT 22 NO-UNDO.
+
+DEFINE RECTANGLE RECT-1
+     EDGE-PIXELS 2 GRAPHIC-EDGE    
+     SIZE 108 BY 2.2
+     BGCOLOR 23 FGCOLOR 24 .
+
+DEFINE RECTANGLE RECT-2
+     EDGE-PIXELS 2 GRAPHIC-EDGE    
+     SIZE .5 BY 1.8
+     BGCOLOR 23 FGCOLOR 24 .
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -195,24 +212,26 @@ DEFINE BROWSE br_table
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     btSearch AT ROW 1 COL 97 WIDGET-ID 18
-     fiCustomer AT ROW 1.91 COL 2 NO-LABEL WIDGET-ID 4
-     fiShipTo AT ROW 1.91 COL 20.6 NO-LABEL WIDGET-ID 6
-     fiItem AT ROW 1.91 COL 39.6 NO-LABEL WIDGET-ID 10
-     fiCustomerPart AT ROW 1.91 COL 65.6 NO-LABEL WIDGET-ID 14
-     br_table AT ROW 3.38 COL 1
+     btSearch AT ROW 1.43 COL 100.8 WIDGET-ID 18
+     fiCustomer AT ROW 2.05 COL 4 NO-LABEL WIDGET-ID 4
+     fiShipTo AT ROW 2.05 COL 22.6 NO-LABEL WIDGET-ID 6
+     fiItem AT ROW 2.05 COL 41.6 NO-LABEL WIDGET-ID 10
+     fiCustomerPart AT ROW 2.05 COL 67.6 NO-LABEL WIDGET-ID 14
+     br_table AT ROW 3.57 COL 1
      "Ship To #" VIEW-AS TEXT
-          SIZE 16 BY .62 AT ROW 1.1 COL 20.6 WIDGET-ID 8
-          FONT 6
-     "Item #" VIEW-AS TEXT
-          SIZE 16 BY .62 AT ROW 1.1 COL 39.6 WIDGET-ID 12
-          FONT 6
-     "Customer Part #" VIEW-AS TEXT
-          SIZE 16 BY .62 AT ROW 1.1 COL 65.8 WIDGET-ID 16
-          FONT 6
+          SIZE 16 BY .62 AT ROW 1.38 COL 22.6 WIDGET-ID 8
+          BGCOLOR 23 FGCOLOR 24 FONT 22
      "Customer #" VIEW-AS TEXT
-          SIZE 16 BY .62 AT ROW 1.1 COL 2 WIDGET-ID 2
-          FONT 6
+          SIZE 16 BY .62 AT ROW 1.38 COL 4 WIDGET-ID 2
+          BGCOLOR 23 FGCOLOR 24 FONT 22
+     "Customer Part #" VIEW-AS TEXT
+          SIZE 16 BY .62 AT ROW 1.38 COL 67.8 WIDGET-ID 16
+          BGCOLOR 23 FGCOLOR 24 FONT 22
+     "Item #" VIEW-AS TEXT
+          SIZE 16 BY .62 AT ROW 1.38 COL 41.6 WIDGET-ID 12
+          BGCOLOR 23 FGCOLOR 24 FONT 22
+     RECT-1 AT ROW 1.19 COL 1.8 WIDGET-ID 20
+     RECT-2 AT ROW 1.38 COL 98.6 WIDGET-ID 22
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -245,7 +264,7 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW B-table-Win ASSIGN
-         HEIGHT             = 15.52
+         HEIGHT             = 16.29
          WIDTH              = 120.
 /* END WINDOW DEFINITION */
                                                                         */
@@ -379,6 +398,64 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME F-Main
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL F-Main c-win
+ON HELP OF FRAME F-Main
+DO:
+    DEFINE VARIABLE cFieldsValue  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFoundValue   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE recFoundRecID AS RECID     NO-UNDO.
+
+    CASE FOCUS:NAME :
+        WHEN "fiCustomer"  THEN DO:
+            RUN system/openLookup.p (
+            INPUT  g_company, 
+            INPUT  "",  /* Lookup ID */
+            INPUT  23,  /* Subject ID */
+            INPUT  "",  /* User ID */
+            INPUT  0,   /* Param Value ID */
+            OUTPUT cFieldsValue, 
+            OUTPUT cFoundValue, 
+            OUTPUT recFoundRecID
+            ).   
+            IF cFoundValue <> "" THEN 
+                ASSIGN FOCUS:SCREEN-VALUE = cFoundValue.         
+        END.
+        WHEN "fiShipTo"  THEN DO:
+            RUN system/openLookup.p (
+            INPUT  g_company, 
+            INPUT  "",  /* Lookup ID */
+            INPUT  122,  /* Subject ID */
+            INPUT  "",  /* User ID */
+            INPUT  0,   /* Param Value ID */
+            OUTPUT cFieldsValue, 
+            OUTPUT cFoundValue, 
+            OUTPUT recFoundRecID
+            ).   
+            IF cFoundValue <> "" THEN 
+                ASSIGN FOCUS:SCREEN-VALUE = cFoundValue.         
+        END.
+        WHEN "fiItem"  THEN DO:
+            RUN system/openLookup.p (
+            INPUT  g_company, 
+            INPUT  "",  /* Lookup ID */
+            INPUT  25,  /* Subject ID */
+            INPUT  "",  /* User ID */
+            INPUT  0,   /* Param Value ID */
+            OUTPUT cFieldsValue, 
+            OUTPUT cFoundValue, 
+            OUTPUT recFoundRecID
+            ).   
+            IF cFoundValue <> "" THEN 
+                ASSIGN FOCUS:SCREEN-VALUE = cFoundValue.         
+        END.
+
+    END CASE.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK B-table-Win 
@@ -389,7 +466,7 @@ END.
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF
-
+{methods/winReSize.i}
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
