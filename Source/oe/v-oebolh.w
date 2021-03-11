@@ -73,6 +73,7 @@ END.
 
 RUN oe/s-codes.p (OUTPUT lv-type-code, OUTPUT lv-type-dscr).
 DEFINE VARIABLE cFreightCalculationValue AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iFreightCalculationValue AS INTEGER NO-UNDO.
 DEFINE VARIABLE cRetChar AS CHAR NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
 
@@ -82,6 +83,12 @@ RUN sys/ref/nk1look.p (INPUT cocode, "FreightCalculation", "C" /* Logical */, NO
 IF lRecFound THEN
     cFreightCalculationValue = cRetChar NO-ERROR.
 
+RUN sys/ref/nk1look.p (INPUT cocode, "FreightCalculation", "I" /* Logical */, NO /* check by cust */, 
+                       INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+                       OUTPUT cRetChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    iFreightCalculationValue = INTEGER(cRetChar) NO-ERROR.
+    
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -666,6 +673,9 @@ DO:
            APPLY "entry" TO oe-bolh.freight .
            RETURN NO-APPLY.
        END.
+       
+      RUN valid-freight NO-ERROR.
+      IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   END.
 END.
 
@@ -1894,6 +1904,9 @@ PROCEDURE local-update-record :
   RUN valid-bol-date NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   
+  RUN valid-freight NO-ERROR.
+  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  
   lv-newbol = ROWID(oe-bolh).
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -2322,6 +2335,29 @@ PROCEDURE valid-frt-pay :
      APPLY "entry" TO oe-bolh.frt-pay.
      RETURN ERROR.
   END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-freight V-table-Win 
+PROCEDURE valid-freight :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  DO WITH FRAME {&FRAME-NAME}:
+     IF iFreightCalculationValue EQ 1 AND oe-bolh.frt-pay:SCREEN-VALUE NE "B" AND oe-bolh.freight:SCREEN-VALUE <> "0.00" THEN DO:
+          MESSAGE "Freight is prepaid so the freight charge should not be added or the freight terms should be adjusted." VIEW-AS ALERT-BOX ERROR.
+          APPLY "entry" TO oe-bolh.freight .
+          RETURN ERROR.
+     END.
+     
+  END.
+
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
