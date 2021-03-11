@@ -397,9 +397,9 @@ PROCEDURE build-inquiry :
         FIND FIRST period WHERE period.company = cCompany
                       AND period.yr = opiYear  NO-LOCK NO-ERROR.
         tmp-start = IF AVAIL period THEN period.pst ELSE 01/01/01 .
+                
+        RUN GL_GetAccountOpenBal(ROWID(account),tmp-start, OUTPUT opening_Balance).
         
-        RUN gl/gl-opend.p (ROWID(account), tmp-start, OUTPUT opening_Balance).
-                          
         begin_acct:SCREEN-VALUE IN FRAME {&FRAME-NAME} = account.actnum.
         opening_Balance:SCREEN-VALUE IN FRAME {&FRAME-NAME} = string(opening_Balance) /*STRING(account.cyr-open)*/.
         begin_acct = account.actnum.

@@ -370,6 +370,78 @@ PROCEDURE GL_SpCreateGLHist :
 
 END PROCEDURE.
 
+PROCEDURE GL_GetAccountOpenBal :
+    /*------------------------------------------------------------------------------
+     Purpose: get open balance GL Account
+     Notes:
+     Syntax:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER iprwRowid      AS ROWID   NO-UNDO.    
+    DEFINE INPUT  PARAMETER ipdtDate       AS   DATE NO-UNDO.    
+    DEFINE OUTPUT PARAMETER opdBalYtd      AS   DECIMAL NO-UNDO.
+       
+    DEFINE VARIABLE lIsCurrentYear   AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lIsOldCheckTrans AS LOGICAL NO-UNDO.
+
+    DEFINE BUFFER bf-cur-period        FOR period.
+    DEFINE BUFFER bf-first-period      FOR period.
+    DEFINE BUFFER bf-first-open-period FOR period.
+
+    FIND account WHERE ROWID(account) EQ iprwRowid NO-LOCK NO-ERROR.
+
+    FIND LAST bf-cur-period NO-LOCK
+        WHERE bf-cur-period.company EQ account.company
+        AND bf-cur-period.pst     LE ipdtDate
+        AND bf-cur-period.pend    GE ipdtDate
+        NO-ERROR.
+
+    IF AVAILABLE bf-cur-period THEN       
+        FIND FIRST bf-first-period NO-LOCK      
+            WHERE bf-first-period.company EQ bf-cur-period.company
+            AND bf-first-period.yr EQ bf-cur-period.yr
+            AND bf-first-period.pnum EQ 1
+            NO-ERROR.   
+
+    FIND FIRST bf-first-open-period NO-LOCK
+        WHERE bf-first-open-period.company EQ account.company
+        AND bf-first-open-period.pstat   EQ YES
+        NO-ERROR.
+        
+    lIsCurrentYear = bf-first-open-period.yr EQ (IF AVAILABLE bf-first-period THEN bf-first-period.yr ELSE YEAR(ipdtDate)).
+     
+    lIsOldCheckTrans = (IF AVAILABLE bf-first-period THEN bf-first-period.yr ELSE YEAR(ipdtDate)) LT bf-first-open-period.yr.
+
+    IF INDEX("ALCT",account.type) GT 0 THEN
+        opdBalYtd = IF lIsCurrentYear THEN account.cyr-open ELSE account.lyr-open  .
+    
+    IF NOT lIsOldCheckTrans  THEN
+    DO:       
+        FOR EACH glhist NO-LOCK
+            WHERE glhist.company EQ account.company
+            AND glhist.actnum EQ account.actnum
+            AND glhist.tr-date GE bf-first-period.pst
+            AND glhist.tr-date LE ipdtDate:  
+                
+            ASSIGN
+                opdBalYtd      = opdBalYtd + glhist.tr-amt                 
+                . 
+        END. 
+    END.
+    ELSE 
+    DO: 
+        FOR EACH glhist NO-LOCK
+            WHERE glhist.company EQ account.company
+            AND glhist.actnum EQ account.actnum
+            AND glhist.tr-date GE ipdtDate
+            AND glhist.tr-date LE bf-first-open-period.pst:  
+                
+            ASSIGN
+                opdBalYtd      = opdBalYtd - glhist.tr-amt                 
+                .             
+        END.  
+    END.   
+
+END PROCEDURE.
 
 /* ************************  Function Implementations ***************** */
 
