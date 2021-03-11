@@ -238,7 +238,8 @@ DEFINE VARIABLE cbMatrixRounding AS CHARACTER FORMAT "X(256)":U
      VIEW-AS COMBO-BOX INNER-LINES 5
      LIST-ITEM-PAIRS "Nomal Round","N",
                      "Round Up","U",
-                     "Round Down","D"
+                     "Round Down","D",
+                     "<None>","None"
      DROP-DOWN-LIST
      SIZE 18 BY 1
      FONT 4 NO-UNDO.
@@ -2182,7 +2183,7 @@ PROCEDURE local-assign-record :
    cust.inv-meth = rd_inv-meth
    cust.email    = TRIM(fl_custemail)
    cust.matrixPrecision = cbMatrixPrecision
-   cust.matrixRounding  = cbMatrixRounding
+   cust.matrixRounding  = IF cbMatrixRounding EQ "None" THEN "" ELSE cbMatrixRounding
    .  /* gdm - 05180924 */
 
   /* gdm - 11190903 */
@@ -2423,12 +2424,9 @@ PROCEDURE local-display-fields :
       DISPLAY {&faxFields}.
     END.
     IF AVAILABLE cust AND NOT adm-new-record THEN DO:
-        
-        IF cust.matrixRounding EQ "" AND cbMatrixRounding:LOOKUP("") EQ 0 THEN
-            cbMatrixRounding:ADD-LAST("","").
         ASSIGN 
             cbMatrixPrecision = cust.matrixPrecision
-            cbMatrixRounding  = IF cust.matrixRounding EQ "" THEN " " ELSE cust.matrixRounding
+            cbMatrixRounding  = IF cust.matrixRounding EQ "" THEN "None" ELSE cust.matrixRounding
             .
         DISPLAY
             cbMatrixPrecision

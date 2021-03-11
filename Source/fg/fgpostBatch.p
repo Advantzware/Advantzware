@@ -60,7 +60,7 @@ DO TRANSACTION:
 END.
 
 {jc/jcgl-sh.i }
-{fg/fg-post3.i NEW}
+{fg/fg-post3.i}
 
 
 DO TRANSACTION:

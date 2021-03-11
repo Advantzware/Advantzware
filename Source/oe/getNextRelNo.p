@@ -21,8 +21,7 @@
             /* that create this condition, but all reported cases have been resolved within 1-2  */
             /* sequence numbers                                                                  */
             DO WHILE CAN-FIND(FIRST oe-rel WHERE
-                oe-rel.company EQ cocode AND
-                oe-rel.r-no EQ opNextRelNo):
+                                    oe-rel.r-no EQ opNextRelNo):
                 ASSIGN 
                     opNextRelNo = NEXT-VALUE(oerel_rno_seq).
             END.
@@ -42,8 +41,7 @@
             /* that create this condition, but all reported cases have been resolved within 1-2  */
             /* sequence numbers                                                                  */
             DO WHILE CAN-FIND(FIRST oe-relh WHERE
-                oe-relh.company EQ cocode AND
-                oe-relh.r-no EQ opNextRelNo):
+                                    oe-relh.r-no EQ opNextRelNo):
                 ASSIGN 
                     opNextRelNo = NEXT-VALUE(oerel_release_seq).
             END.

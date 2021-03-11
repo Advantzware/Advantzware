@@ -76,7 +76,6 @@ RUN sys/ref/ordtypes.p (OUTPUT lv-type-codes, OUTPUT lv-type-dscrs).
 DEF BUFFER b-vendItemCost FOR vendItemCost .
 DEF BUFFER b-venditemCostlevel FOR vendItemCostLevel .
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -235,9 +234,7 @@ DEFINE FRAME F-Main
           SIZE 16.4 BY 1
      itemfg.poStatus AT ROW 16.91 COL 50 COLON-ALIGNED
           VIEW-AS COMBO-BOX INNER-LINES 3
-          LIST-ITEM-PAIRS "Default","Default",
-                     "Locked","Locked",
-                     "NoAuto","NoAuto"
+          LIST-ITEMS "Default","Locked","NoAuto","<none>" 
           DROP-DOWN-LIST
           SIZE 14.2 BY 1
      itemfg.setupDate AT ROW 19.86 COL 15.4 COLON-ALIGNED
@@ -318,6 +315,9 @@ DEFINE FRAME F-Main
           LABEL "Cust#" FORMAT "x(8)"
           VIEW-AS FILL-IN 
           SIZE 15 BY 1
+     itemfg.cust-name AT ROW 1.48 COL 91.2 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 35.8 BY 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -325,9 +325,6 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
-     itemfg.cust-name AT ROW 1.48 COL 91.2 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 35.8 BY 1
      tb_taxable AT ROW 1.29 COL 129.6
      itemfg.stat AT ROW 3 COL 78.8 NO-LABEL
           VIEW-AS RADIO-SET HORIZONTAL
@@ -411,6 +408,11 @@ DEFINE FRAME F-Main
      itemfg.cc-code AT ROW 8.52 COL 128.2 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 13.8 BY .95
+     itemfg.quantityPartial AT ROW 9.48 COL 128.4 COLON-ALIGNED HELP
+          ""
+          LABEL "Partial" FORMAT ">>>,>>9"
+          VIEW-AS FILL-IN 
+          SIZE 13.8 BY 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -418,11 +420,6 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
-     itemfg.quantityPartial AT ROW 9.48 COL 128.4 COLON-ALIGNED HELP
-          ""
-          LABEL "Partial" FORMAT ">>>,>>9"
-          VIEW-AS FILL-IN 
-          SIZE 13.8 BY 1
      itemfg.prod-notes AT ROW 10.52 COL 114 COLON-ALIGNED
           LABEL "Pk Note"
           VIEW-AS FILL-IN 
@@ -496,6 +493,10 @@ DEFINE FRAME F-Main
           LABEL "Setup By" FORMAT "x(8)"
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
+     itemfg.modifiedBy AT ROW 18.57 COL 50.4 COLON-ALIGNED
+          LABEL "Modifed By" FORMAT "x(8)"
+          VIEW-AS FILL-IN 
+          SIZE 16 BY 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -503,10 +504,6 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
-     itemfg.modifiedBy AT ROW 18.57 COL 50.4 COLON-ALIGNED
-          LABEL "Modifed By" FORMAT "x(8)"
-          VIEW-AS FILL-IN 
-          SIZE 16 BY 1
      itemfg.modifiedDate AT ROW 19.86 COL 50.4 COLON-ALIGNED
           LABEL "Modified Date" FORMAT "99/99/9999"
           VIEW-AS FILL-IN 
@@ -2117,13 +2114,10 @@ PROCEDURE local-display-fields :
     /*   DISABLE rd_status tb_exempt-disc WITH FRAME {&FRAME-NAME}. */
 
     IF AVAILABLE itemfg THEN 
-    DO:
-        IF poStatus:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE itemfg.poStatus THEN
-           poStatus:SCREEN-VALUE IN FRAME {&FRAME-NAME} = IF itemfg.poStatus EQ "" THEN
-                                                              ' '
-                                                          ELSE
-                                                              itemfg.poStatus.
-
+    DO WITH FRAME {&frame-name}:
+        IF itemfg.poStatus EQ "" 
+        OR itemfg.poStatus EQ ? THEN ASSIGN 
+            poStatus:SCREEN-VALUE = '<none>'.
         FIND FIRST cust WHERE cust.company = itemfg.company
             AND cust.cust-no = itemfg.cust-no NO-LOCK NO-ERROR.
         IF AVAILABLE cust AND cust.name <> itemfg.cust-name THEN
@@ -2407,6 +2401,8 @@ PROCEDURE local-update-record :
                  END. */
                     END.
                 END.
+                IF itemfg.poStatus:SCREEN-VALUE EQ "<none>" THEN ASSIGN 
+                    itemfg.poStatus = "".
             END.
         END.
 
