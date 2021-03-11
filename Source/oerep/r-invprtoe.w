@@ -1240,7 +1240,12 @@ DO:
         tb_cust-list       ,
         tb_prt-dupl        ,
         YES /* Pdf only */ ,
-        tb_open-inv
+        tb_open-inv,
+        cInvMessage1,
+        cInvMessage2,
+        cInvMessage3,
+        cInvMessage4,
+        cInvMessage5        
         ).
 RUN BatchMail (begin_cust, end_cust).
         END.
