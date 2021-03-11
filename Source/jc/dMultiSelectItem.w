@@ -805,7 +805,7 @@ PROCEDURE pCheckFurnish :
           IF cFurnish NE "" AND cFurnish NE ttMultiSelectItem.board THEN
           DO:
             MESSAGE "Items selected do not have the same furnish" SKIP
-                    "allow them continue."   
+                    "Do you want to continue?"   
                      VIEW-AS ALERT-BOX QUESTION 
                      BUTTONS YES-NO UPDATE lcheckflg as logical .
                  IF NOT lcheckflg THEN
