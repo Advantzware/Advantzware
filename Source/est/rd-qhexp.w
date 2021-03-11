@@ -78,7 +78,7 @@ ASSIGN cTextListToSelect = "Part #,Customer,Quote#,Quantity,Price,Profit %,Price
 {sys/inc/ttRptSel.i}
 ASSIGN cTextListToDefault  = "Part #,Customer,Quote#,Quantity,Price,Profit %,Price UOM,ShipTo,SoldTo,Quote Date,Delivery Date,Expiration Date," +
                              "Estimate #,Contact,Sales Group,Terms Code,Carrier,Zone,FG Item #,Item Description," +
-                             "Item Description 2,Est Style,Dimensions,Board,Color,FG Category, EST Category" .
+                             "Item Description 2,Est Style,Dimensions,Board,Color,FG Category,EST Category" .
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
