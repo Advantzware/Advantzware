@@ -110,7 +110,7 @@ DEFINE QUERY external_tables FOR oe-bolh.
 &Scoped-Define ENABLED-FIELDS oe-bolh.bol-no oe-bolh.bol-date ~
 oe-bolh.quotedFreight oe-bolh.quoteNote oe-bolh.carrier oe-bolh.ship-id ~
 oe-bolh.trailer oe-bolh.frt-pay oe-bolh.airway-bill oe-bolh.freight ~
-oe-bolh.cwt oe-bolh.tot-wt oe-bolh.tot-pallets oe-bolh.loc  
+oe-bolh.cwt oe-bolh.tot-wt oe-bolh.tot-pallets oe-bolh.loc 
 &Scoped-define ENABLED-TABLES oe-bolh
 &Scoped-define FIRST-ENABLED-TABLE oe-bolh
 &Scoped-Define ENABLED-OBJECTS btnCalendar-1 RECT-2 
@@ -119,7 +119,7 @@ oe-bolh.quotedFreight oe-bolh.quoteNote oe-bolh.stat oe-bolh.release# ~
 oe-bolh.cust-no oe-bolh.carrier oe-bolh.ship-id oe-bolh.trailer ~
 oe-bolh.frt-pay oe-bolh.airway-bill oe-bolh.freight oe-bolh.cwt ~
 oe-bolh.tot-wt oe-bolh.tot-pallets oe-bolh.user-id oe-bolh.printed ~
-oe-bolh.posted oe-bolh.loc oe-bolh.upd-date 
+oe-bolh.freightCalculationAmount oe-bolh.posted oe-bolh.loc oe-bolh.upd-date 
 &Scoped-define DISPLAYED-TABLES oe-bolh
 &Scoped-define FIRST-DISPLAYED-TABLE oe-bolh
 &Scoped-Define DISPLAYED-OBJECTS tgSigned cust_name ship_name cust_addr1 ~
@@ -170,7 +170,12 @@ DEFINE BUTTON btnCalendar-1
 DEFINE BUTTON btnTags 
      IMAGE-UP FILE "Graphics/16x16/question.png":U
      LABEL "" 
-     SIZE 4.2 BY .95 TOOLTIP "Show Details".     
+     SIZE 4.2 BY .95 TOOLTIP "Show Details".
+
+DEFINE BUTTON btnTags1 
+     IMAGE-UP FILE "Graphics/16x16/question.png":U
+     LABEL "" 
+     SIZE 4.2 BY .95 TOOLTIP "Show Details".
 
 DEFINE VARIABLE cBillFreightDscr AS CHARACTER FORMAT "x(15)" 
      VIEW-AS FILL-IN 
@@ -240,7 +245,7 @@ DEFINE VARIABLE ship_zip AS CHARACTER FORMAT "x(10)"
 
 DEFINE RECTANGLE RECT-2
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 143.6 BY 9.37.
+     SIZE 143.6 BY 10.37.
 
 DEFINE VARIABLE tgSigned AS LOGICAL INITIAL no 
      LABEL "Signed" 
@@ -251,7 +256,8 @@ DEFINE VARIABLE tgSigned AS LOGICAL INITIAL no
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     btnTags AT ROW 6.00 COL 139.6 WIDGET-ID 34
+     btnTags AT ROW 7.00 COL 139.6 WIDGET-ID 34
+     btnTags1 AT ROW 5.00 COL 139.6 WIDGET-ID 34
      oe-bolh.bol-no AT ROW 1.24 COL 8 COLON-ALIGNED
           LABEL "BOL#" FORMAT ">>>>>>>9"
           VIEW-AS FILL-IN 
@@ -293,7 +299,7 @@ DEFINE FRAME F-Main
      oe-bolh.trailer AT ROW 4.52 COL 69.6 COLON-ALIGNED
           LABEL "Trailer#"
           VIEW-AS FILL-IN 
-          SIZE 33 BY 1      
+          SIZE 30 BY 1      
      oe-bolh.cust-no AT ROW 4.52 COL 14 COLON-ALIGNED HELP
           "Enter customer number."
           LABEL "Customer#" FORMAT "x(8)"
@@ -307,12 +313,16 @@ DEFINE FRAME F-Main
           LABEL "Rate/100 Wt"
           VIEW-AS FILL-IN 
           SIZE 16 BY 1   
-     oe-bolh.quotedFreight AT ROW 4.95 COL 122.4 COLON-ALIGNED
+     oe-bolh.quotedFreight AT ROW 5.95 COL 122.4 COLON-ALIGNED
           LABEL "Quoted Freight"
           VIEW-AS FILL-IN 
           SIZE 15.2 BY 1     
-     oe-bolh.freight AT ROW 6 COL 122.4 COLON-ALIGNED
+     oe-bolh.freight AT ROW 7 COL 122.4 COLON-ALIGNED
           LABEL "Freight Cost" FORMAT "->,>>,>>9.99"
+          VIEW-AS FILL-IN 
+          SIZE 15.2 BY 1
+     oe-bolh.freightCalculationAmount AT ROW 4.95 COL 122.4 COLON-ALIGNED
+          LABEL "Calculated Freight" FORMAT "->,>>,>>9.99"
           VIEW-AS FILL-IN 
           SIZE 15.2 BY 1
      cust_name AT ROW 6.48 COL 58 COLON-ALIGNED NO-LABEL
@@ -320,7 +330,7 @@ DEFINE FRAME F-Main
      cust_addr1 AT ROW 7.43 COL 58 COLON-ALIGNED NO-LABEL      
      ship_addr1 AT ROW 7.38 COL 14 COLON-ALIGNED NO-LABEL
      cust_addr2 AT ROW 8.38 COL 58 COLON-ALIGNED NO-LABEL
-     oe-bolh.tot-wt AT ROW 8.1 COL 122.4 COLON-ALIGNED
+     oe-bolh.tot-wt AT ROW 9.1 COL 122.4 COLON-ALIGNED
           LABEL "Total Weight" FORMAT "->,>>>,>>9"
           VIEW-AS FILL-IN 
           SIZE 15.2 BY 1
@@ -331,7 +341,7 @@ DEFINE FRAME F-Main
      ship_city AT ROW 9.19 COL 14 COLON-ALIGNED NO-LABEL
      ship_state AT ROW 9.19 COL 34 COLON-ALIGNED NO-LABEL
      ship_zip AT ROW 9.19 COL 38 COLON-ALIGNED NO-LABEL
-     oe-bolh.tot-pallets AT ROW 9.14 COL 122.4 COLON-ALIGNED
+     oe-bolh.tot-pallets AT ROW 10.14 COL 122.4 COLON-ALIGNED
           LABEL "Total Pallets" FORMAT "->,>>>,>>9"
           VIEW-AS FILL-IN 
           SIZE 15.2 BY 1
@@ -360,7 +370,7 @@ DEFINE FRAME F-Main
      cOrderBy AT ROW 1.24 COL 71.4 COLON-ALIGNED
      btnCalendar-1 AT ROW 1.24 COL 54
      cBillFreightDscr AT ROW 2.33 COL 121.2 COLON-ALIGNED NO-LABEL WIDGET-ID 300
-     dBillableFreight AT ROW 7.05 COL 122.4 COLON-ALIGNED WIDGET-ID 302
+     dBillableFreight AT ROW 8.05 COL 122.4 COLON-ALIGNED WIDGET-ID 302
      "@" VIEW-AS TEXT
           SIZE 1.8 BY .62 AT ROW 1.33 COL 134.2 WIDGET-ID 298
      RECT-2 AT ROW 1 COL 1
@@ -426,7 +436,9 @@ ASSIGN
        FRAME F-Main:HIDDEN           = TRUE.
 
 /* SETTINGS FOR BUTTON btnTags IN FRAME F-Main
-   NO-ENABLE                                                            */       
+   NO-ENABLE                                                            */
+/* SETTINGS FOR BUTTON btnTags1 IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN oe-bolh.airway-bill IN FRAME F-Main
    EXP-LABEL EXP-FORMAT EXP-HELP                                        */
 /* SETTINGS FOR FILL-IN oe-bolh.bol-no IN FRAME F-Main
@@ -479,6 +491,8 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN oe-bolh.freight IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
+/* SETTINGS FOR FILL-IN oe-bolh.freightCalculationAmount IN FRAME F-Main
+   EXP-LABEL EXP-FORMAT NO-ENABLE                                       */
 /* SETTINGS FOR FILL-IN oe-bolh.frt-pay IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN oe-bolh.loc IN FRAME F-Main
@@ -941,6 +955,19 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME btnTags
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnTags V-table-Win
+ON CHOOSE OF btnTags1 IN FRAME F-Main
+DO:
+    RUN system/d-TagViewer.w (
+        INPUT oe-bolh.rec_key,
+        INPUT ""
+        ).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-bolh.cwt V-table-Win
 ON VALUE-CHANGED OF oe-bolh.cwt IN FRAME F-Main /* Rate/100 Wt */
 DO:
@@ -1056,11 +1083,13 @@ DEF VAR ldMinRate AS DEC NO-UNDO.
 /*                    OUTPUT ld ).                  */
         RUN oe/calcBolFrt.p (ROWID(oe-bolh), OUTPUT ld).
         oe-bolh.freight:SCREEN-VALUE = STRING(ld).
+        oe-bolh.freightCalculationAmount:SCREEN-VALUE = STRING(ld).
       END.
       ELSE DO: 
         FIND CURRENT oe-bolh.
         oe-bolh.freight = 0.
-        dTotFreight = 0.        
+        dTotFreight = 0.
+        oe-bolh.freightCalculationAmount = 0.
 
  
         oe-bolh.tot-pallets = 0.
@@ -1072,6 +1101,7 @@ DEF VAR ldMinRate AS DEC NO-UNDO.
         END. /* each oe-boll */        
         RUN oe/calcBolFrt.p (ROWID(oe-bolh), OUTPUT dTotFreight).
         oe-bolh.freight = dTotFreight.
+        oe-bolh.freightCalculationAmount = dTotFreight.
         
         FIND CURRENT oe-bolh NO-LOCK.
         RUN dispatch ("row-available").
@@ -1621,6 +1651,7 @@ PROCEDURE local-assign-record :
       
     RUN oe/calcBolFrt.p (INPUT ROWID(oe-bolh), OUTPUT dFreight).
      oe-bolh.freight = dFreight .
+     oe-bolh.freightCalculationAmount = dFreight .
   END.
   IF lFreightEntered THEN 
   DO:
@@ -1934,11 +1965,17 @@ PROCEDURE local-display-fields :
                  INPUT "oe-bolh",
                  OUTPUT lAvailable
                  ).
-               IF lAvailable THEN  
-                   btnTags:SENSITIVE IN FRAME {&FRAME-NAME} = TRUE
+               IF lAvailable THEN DO: 
+               
+                   btnTags:SENSITIVE IN FRAME {&FRAME-NAME} = TRUE .
+                   btnTags1:SENSITIVE IN FRAME {&FRAME-NAME} = TRUE
                    .
-               ELSE 
+                 END.  
+               ELSE DO:
+               
                    btnTags:SENSITIVE IN FRAME {&FRAME-NAME} = FALSE. 
+                   btnTags1:SENSITIVE IN FRAME {&FRAME-NAME} = FALSE.
+                END.
   END.
 END PROCEDURE.
 
