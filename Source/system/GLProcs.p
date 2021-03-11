@@ -380,12 +380,14 @@ PROCEDURE GL_GetAccountOpenBal :
     DEFINE INPUT  PARAMETER ipdtDate       AS   DATE NO-UNDO.    
     DEFINE OUTPUT PARAMETER opdBalYtd      AS   DECIMAL NO-UNDO.
        
-    DEFINE VARIABLE lIsCurrentYear   AS LOGICAL NO-UNDO.
-    DEFINE VARIABLE lIsOldCheckTrans AS LOGICAL NO-UNDO.
-
+    DEFINE VARIABLE lIsBalanceSheet   AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lIsAsOfDateInClosedYear AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE dtAsOfYearStart AS DATE NO-UNDO.
+    
     DEFINE BUFFER bf-cur-period        FOR period.
     DEFINE BUFFER bf-first-period      FOR period.
     DEFINE BUFFER bf-first-open-period FOR period.
+    DEFINE BUFFER bf-first-open-year-period FOR period.
 
     FIND account WHERE ROWID(account) EQ iprwRowid NO-LOCK NO-ERROR.
 
@@ -406,20 +408,33 @@ PROCEDURE GL_GetAccountOpenBal :
         WHERE bf-first-open-period.company EQ account.company
         AND bf-first-open-period.pstat   EQ YES
         NO-ERROR.
+    IF AVAILABLE bf-first-open-period THEN 
+        FIND FIRST bf-first-open-year-period NO-LOCK 
+            WHERE bf-first-open-year-period.company EQ account.company
+            AND bf-first-open-year-period.yr EQ bf-first-open-period.yr
+            AND bf-first-open-year-period.pnum EQ 1
+            NO-ERROR.
         
-    lIsCurrentYear = bf-first-open-period.yr EQ (IF AVAILABLE bf-first-period THEN bf-first-period.yr ELSE YEAR(ipdtDate)).
-     
-    lIsOldCheckTrans = (IF AVAILABLE bf-first-period THEN bf-first-period.yr ELSE YEAR(ipdtDate)) LT bf-first-open-period.yr.
+    lIsAsOfDateInClosedYear = ipdtDate LT bf-first-open-year-period.pst.
+    lIsBalanceSheet = INDEX("ALCT",account.type) GT 0.
 
-    IF INDEX("ALCT",account.type) GT 0 THEN
-        opdBalYtd = IF lIsCurrentYear THEN account.cyr-open ELSE account.lyr-open  .
-    
-    IF NOT lIsOldCheckTrans  THEN
+    IF lIsBalanceSheet THEN
+        ASSIGN   //Balance Sheet - Pivot on the current year open balance of FY - add if as of date is in open year and subtract if as of date in closed year
+            opdBalYtd = account.cyr-open
+            dtAsOfYearStart = bf-first-open-year-period.pst
+            .
+    ELSE 
+        ASSIGN //Income statement - always start from zero and count forward from first day of FY
+            opdBalYtd = 0
+            dtAsOfYearStart = bf-first-period.pst
+            .
+            
+    IF NOT lIsAsOfDateInClosedYear OR NOT lIsBalanceSheet THEN
     DO:       
         FOR EACH glhist NO-LOCK
             WHERE glhist.company EQ account.company
             AND glhist.actnum EQ account.actnum
-            AND glhist.tr-date GE bf-first-period.pst
+            AND glhist.tr-date GE dtAsOFYearStart
             AND glhist.tr-date LE ipdtDate:  
                 
             ASSIGN
@@ -433,7 +448,7 @@ PROCEDURE GL_GetAccountOpenBal :
             WHERE glhist.company EQ account.company
             AND glhist.actnum EQ account.actnum
             AND glhist.tr-date GE ipdtDate
-            AND glhist.tr-date LE bf-first-open-period.pst:  
+            AND glhist.tr-date LT dtAsOfYearStart:  
                 
             ASSIGN
                 opdBalYtd      = opdBalYtd - glhist.tr-amt                 
