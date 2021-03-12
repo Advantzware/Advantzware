@@ -101,7 +101,7 @@ DEFINE TEMP-TABLE ttImportCust
     FIELD accountant    AS CHARACTER FORMAT "x(10)" COLUMN-LABEL "Accountant" HELP "Optional - Size:10 "    
     FIELD matrixPrecision AS INTEGER FORMAT "9"   COLUMN-LABEL "Matrix Precision" HELP "Optional - default 0"
     FIELD matrixRounding  AS CHARACTER FORMAT "X" COLUMN-LABEL "Matrix Rounding"  HELP "Optional - N/U/D (Default 'U' if 'write blank and zero' flag is selected)"
-    FIELD industry        AS CHArACTER FORMAT "x(16)" COLUMN-LABEL "Industry"  HELP "Industry name"
+    FIELD industryID      AS CHArACTER FORMAT "x(16)" COLUMN-LABEL "Industry"  HELP "Industry name"
     .
 
 DEFINE VARIABLE giIndexOffset AS INTEGER NO-UNDO INIT 2. /*Set to 1 if there is a Company field in temp-table since this will not be part of the mport data*/
@@ -496,7 +496,7 @@ PROCEDURE pProcessRecord PRIVATE:
     RUN pAssignValueC (ipbf-ttImportCust.cTaxGr, iplIgnoreBlanks, INPUT-OUTPUT bf-cust.tax-gr).
     RUN pAssignValueC (ipbf-ttImportCust.cTaxResale, iplIgnoreBlanks, INPUT-OUTPUT bf-cust.tax-id).
     RUN pAssignValueCToDt (ipbf-ttImportCust.cExpDate, YES, INPUT-OUTPUT bf-cust.date-field[2]).
-    RUN pAssignValueC (ipbf-ttImportCust.industry, iplIgnoreBlanks, INPUT-OUTPUT bf-cust.industry).
+    RUN pAssignValueC (ipbf-ttImportCust.industryID, iplIgnoreBlanks, INPUT-OUTPUT bf-cust.industryID).
     
    IF date(ipbf-ttImportCust.cExpDate) EQ TODAY THEN
         bf-cust.date-field[2] = ?.

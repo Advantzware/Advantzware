@@ -85,6 +85,7 @@ IF AVAILABLE users THEN ASSIGN
 &SCOPED-DEFINE for-each1                          ~
     FOR EACH customerindustry                           ~
         WHERE {&key-phrase}                       ~
+          AND customerindustry.company ge cocode      ~
           AND customerindustry.industryid ge fi_industryId      ~
           AND (IF fi_name BEGINS '*'     THEN customerindustry.industryname MATCHES (fi_name + "*") ~
               ELSE customerindustry.industryname BEGINS fi_name) ~
@@ -95,11 +96,11 @@ IF AVAILABLE users THEN ASSIGN
         WHERE {&key-phrase} 
         
 
-/* &SCOPED-DEFINE sortby-log 
-    IF lv-sort-by EQ "ID"               THEN string(customerindustry.industryid) ELSE ~
+&SCOPED-DEFINE sortby-log ~
+    IF lv-sort-by EQ "ID"               THEN customerindustry.industryid ELSE ~
     IF lv-sort-by EQ "name"             THEN customerindustry.industryname ELSE ~
     IF lv-sort-by EQ "inactive"         THEN string(customerindustry.inactive) ELSE ""
-   */ 
+  
 &SCOPED-DEFINE sortby BY customerindustry.industryid 
 
 &SCOPED-DEFINE sortby-phrase-asc BY ({&sortby-log}) ~
@@ -132,8 +133,8 @@ IF AVAILABLE users THEN ASSIGN
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE Browser-Table                                 */
-&Scoped-define FIELDS-IN-QUERY-Browser-Table customerindustry.industryid customerindustry.industryname ~
-customerindustry.Inactive 
+&Scoped-define FIELDS-IN-QUERY-Browser-Table customerindustry.industryid ~
+customerindustry.industryname customerindustry.Inactive 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH customerindustry WHERE ~{&KEY-PHRASE} NO-LOCK ~
     ~{&SORTBY-PHRASE}
@@ -215,7 +216,7 @@ DEFINE BUTTON btn_show
      SIZE 12 BY 1
      FONT 6.
 
-DEFINE VARIABLE fi_industryId AS INTEGER FORMAT ">>":U INITIAL 0 
+DEFINE VARIABLE fi_industryId AS CHARACTER FORMAT "X(256)":U INITIAL "0" 
      VIEW-AS FILL-IN 
      SIZE 15 BY 1
      BGCOLOR 15  NO-UNDO.
@@ -246,9 +247,10 @@ DEFINE QUERY Browser-Table FOR
 DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
-      customerindustry.industryid COLUMN-LABEL "AR Industry ID" FORMAT "->,>>>,>>9":U
+      customerindustry.industryid COLUMN-LABEL "AR Industry ID" FORMAT "x(16)":U
             WIDTH 26.8
-      customerindustry.industryname COLUMN-LABEL "Name" FORMAT "x(16)":U WIDTH 72.2
+      customerindustry.industryname COLUMN-LABEL "Name" FORMAT "x(16)":U
+            WIDTH 72.2
       customerindustry.Inactive FORMAT "yes/no":U WIDTH 30
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -358,11 +360,11 @@ ASSIGN
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = "customerindustry"
      _FldNameList[1]   > asi.customerindustry.industryid
-"customerindustry.industryid" "AR Industry ID" ? "integer" ? ? ? ? ? ? no ? no no "26.8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"industryid" "AR Industry ID" ? "integer" ? ? ? ? ? ? no ? no no "26.8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > asi.customerindustry.industryname
-"customerindustry.industryname" "Name" ? "character" ? ? ? ? ? ? no ? no no "72.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"industryname" "Name" ? "character" ? ? ? ? ? ? no ? no no "72.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > asi.customerindustry.Inactive
-"customerindustry.Inactive" ? ? "logical" ? ? ? ? ? ? no ? no no "30" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"Inactive" ? ? "logical" ? ? ? ? ? ? no ? no no "30" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
@@ -777,8 +779,8 @@ PROCEDURE local-open-query :
         OPEN QUERY {&browse-name}               ~
            {&for-eachblank} NO-LOCK
             
-        IF ll-sort-asc THEN {&open-query}. // {&sortby-phrase-asc}.
-                   ELSE {&open-query}. // {&sortby-phrase-desc}.
+        IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
+                   ELSE {&open-query} {&sortby-phrase-desc}.
     END.
     ELSE RUN first-query.
 
@@ -881,8 +883,8 @@ PROCEDURE query-first :
       OPEN QUERY {&browse-name}               ~
         {&for-each1}                      NO-LOCK
             
-IF ll-sort-asc THEN {&open-query}. // {&sortby-phrase-asc}.
-                 ELSE {&open-query}. // {&sortby-phrase-desc}.
+IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
+                 ELSE {&open-query}  {&sortby-phrase-desc}.
   
 END PROCEDURE.
 
@@ -903,8 +905,8 @@ PROCEDURE query-go :
           OPEN QUERY {&browse-name}               ~
             {&for-each1}                      NO-LOCK
 
-    IF ll-sort-asc THEN {&open-query}. // {&sortby-phrase-asc}.
-                    ELSE {&open-query}. // {&sortby-phrase-desc}.
+    IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
+                    ELSE {&open-query} {&sortby-phrase-desc}.
 
 END PROCEDURE.
 
@@ -989,11 +991,10 @@ PROCEDURE set-defaults :
     ------------------------------------------------------------------------------*/
     DO WITH FRAME {&FRAME-NAME}:
         ASSIGN
-    
             fi_industryId:SCREEN-VALUE    = ""             
             fi_name:SCREEN-VALUE          = ""
             tb_inActive:SCREEN-VALUE      = "No"          
-            fi_industryId                 = 0              
+            fi_industryId                 = ""              
             fi_name                       = ""
             tb_inActive                   = NO
             .     

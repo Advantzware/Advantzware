@@ -103,7 +103,7 @@ ASSIGN cTextListToSelect = "Customer,Name,Status,Address1,Address2,City,State,Zi
                            "hibal,hibal-date,lpay,lpay-date,num-inv,avg-pay,ord-bal,acc-bal,on-account,title,cphone,ext,csrUser_id," +
                            "note1,note2,note3,note4,ship-name,ship-addr1,ship-addr2,ship-city,ship-state,ship-zip,log-field[1],cnt-price," +
                            "bank-acct,SwiftBIC,Bank-RTN,accountType,splitType,parentCust,marketSegment,naicsCode,classId,accountant,matrixPrecision,matrixRounding," +
-                           "industry" .
+                           "industryID" .
 {sys/inc/ttRptSel.i}
 
     ASSIGN cTextListToDefault  = "Customer,Name,Address1,Address2,City,State,Country,Zip,Sales Rep,Area Code,Phone#," +

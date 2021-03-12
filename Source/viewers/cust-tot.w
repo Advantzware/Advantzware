@@ -68,7 +68,7 @@ DEFINE QUERY external_tables FOR cust.
 cust.accountType cust.cost[1] cust.cost[5] cust.cost[6] cust.splitType ~
 cust.parentCust cust.comm[1] cust.comm[5] cust.comm[6] cust.marketSegment ~
 cust.ytd-msf cust.lyytd-msf cust.naicsCode cust.hibal cust.hibal-date ~
-cust.num-inv cust.industry cust.lpay cust.lpay-date cust.avg-pay ~
+cust.num-inv cust.industryID cust.lpay cust.lpay-date cust.avg-pay ~
 cust.ord-bal cust.acc-bal cust.on-account 
 &Scoped-define ENABLED-TABLES cust
 &Scoped-define FIRST-ENABLED-TABLE cust
@@ -77,7 +77,7 @@ cust.ord-bal cust.acc-bal cust.on-account
 cust.accountType cust.cost[1] cust.cost[5] cust.cost[6] cust.splitType ~
 cust.parentCust cust.comm[1] cust.comm[5] cust.comm[6] cust.marketSegment ~
 cust.ytd-msf cust.lyytd-msf cust.naicsCode cust.hibal cust.hibal-date ~
-cust.num-inv cust.industry cust.lpay cust.lpay-date cust.avg-pay ~
+cust.num-inv cust.industryID cust.lpay cust.lpay-date cust.avg-pay ~
 cust.ord-bal cust.acc-bal cust.on-account 
 &Scoped-define DISPLAYED-TABLES cust
 &Scoped-define FIRST-DISPLAYED-TABLE cust
@@ -277,8 +277,7 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 8 BY 1
           BGCOLOR 15 FONT 4
-     cust.industry AT ROW 10 COL 126 COLON-ALIGNED WIDGET-ID 6
-          LABEL "Industry"
+     cust.industryID AT ROW 10 COL 126 COLON-ALIGNED WIDGET-ID 8
           VIEW-AS FILL-IN 
           SIZE 21.2 BY 1
      cust.lpay AT ROW 10.76 COL 26 COLON-ALIGNED
@@ -307,14 +306,14 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 18.8 BY 1
           BGCOLOR 15 FONT 4
+     "Period to Date" VIEW-AS TEXT
+          SIZE 17 BY .62 AT ROW 1.24 COL 30
      "Reporting Data" VIEW-AS TEXT
           SIZE 21 BY 1.19 AT ROW 1.24 COL 123 WIDGET-ID 2
      "Year to Date" VIEW-AS TEXT
           SIZE 15 BY .62 AT ROW 1.24 COL 56
      "Prior Year" VIEW-AS TEXT
           SIZE 12 BY .62 AT ROW 1.24 COL 81
-     "Period to Date" VIEW-AS TEXT
-          SIZE 17 BY .62 AT ROW 1.24 COL 30
      RECT-1 AT ROW 1 COL 1
      RECT-2 AT ROW 1 COL 106 WIDGET-ID 4
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -393,8 +392,6 @@ ASSIGN
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN cust.hibal-date IN FRAME F-Main
    EXP-LABEL                                                            */
-/* SETTINGS FOR FILL-IN cust.industry IN FRAME F-Main
-   EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN cust.lpay-date IN FRAME F-Main
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN lyr-profit IN FRAME F-Main
@@ -466,7 +463,12 @@ DO:
           RUN system/openlookup.p (cust.company, "naics", 0, "", 0, OUTPUT cAllFields, OUTPUT cMainField, OUTPUT recRecordID).
           IF cMainField <> "" THEN focus:SCREEN-VALUE in frame {&frame-name} = cMainField.
            return no-apply.  
-     end.     
+     end.
+     when "industryID" then do:
+          RUN system/openlookup.p (cust.company, "", 168, "", 0, OUTPUT cAllFields, OUTPUT cMainField, OUTPUT recRecordID).
+          IF cMainField <> "" THEN focus:SCREEN-VALUE in frame {&frame-name} = cMainField.
+           return no-apply.
+     end.      
   end case.  
 END.
 
@@ -507,21 +509,6 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME cust.industry
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cust.industry V-table-Win
-ON LEAVE OF cust.industry IN FRAME F-Main /* Industry */
-DO:
-    DEFINE VARIABLE lCheckReturnError AS LOGICAL NO-UNDO.
-    IF LASTKEY NE -1 THEN DO:
-      RUN valid-industry(OUTPUT lCheckReturnError) NO-ERROR.
-      IF lCheckReturnError THEN RETURN NO-APPLY.
-    END.  
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &Scoped-define SELF-NAME cust.lyr-sales
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cust.lyr-sales V-table-Win
 ON LEAVE OF cust.lyr-sales IN FRAME F-Main /* LYR Sales */
@@ -547,6 +534,21 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&Scoped-define SELF-NAME cust.industryID
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cust.industryID V-table-Win
+ON LEAVE OF cust.industryID IN FRAME F-Main /* Industry */
+DO:
+    DEFINE VARIABLE lCheckReturnError AS LOGICAL NO-UNDO.
+    IF LASTKEY NE -1 THEN DO:
+      RUN valid-industryID(OUTPUT lCheckReturnError) NO-ERROR.
+      IF lCheckReturnError THEN RETURN NO-APPLY.
+    END.     
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 &Scoped-define SELF-NAME cust.parentCust
@@ -712,9 +714,9 @@ PROCEDURE local-update-record :
    DEFINE VARIABLE lCheckError AS LOGICAL NO-UNDO .
     
     /* Code placed here will execute PRIOR to standard behavior. */
-    IF cust.AccountType:SCREEN-VALUE IN FRAME {&frame-name} = "<None>" THEN ASSIGN 
-        cust.accountType = "".
-  
+   IF cust.AccountType:SCREEN-VALUE IN FRAME {&frame-name} = "<None>" THEN ASSIGN 
+        cust.AccountType:SCREEN-VALUE = "".
+ 
      
   RUN valid-cust(OUTPUT lCheckError) NO-ERROR.
   IF lCheckError THEN RETURN NO-APPLY.
@@ -851,8 +853,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-industry V-table-Win 
-PROCEDURE valid-industry :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-industryID V-table-Win 
+PROCEDURE valid-industryID :
 /*------------------------------------------------------------------------------
   Purpose:     
   Parameters:  <none>
@@ -863,12 +865,12 @@ PROCEDURE valid-industry :
   {&methods/lValidateError.i YES}
 
   DO WITH FRAME {&FRAME-NAME}:
-    IF cust.industry:SCREEN-VALUE NE "" THEN
+    IF cust.industryID:SCREEN-VALUE NE "" THEN
     DO:
       FIND FIRST bf-customerindustry NO-LOCK
-           WHERE bf-customerindustry.industryname EQ cust.industry:SCREEN-VALUE
+           WHERE bf-customerindustry.industryID EQ cust.industryID:SCREEN-VALUE
            AND rowid(bf-customerindustry) NE rowid(customerindustry) NO-ERROR .
-        IF AVAIL bf-customerindustry THEN
+        IF NOT AVAIL bf-customerindustry THEN
         DO:
            MESSAGE "Please enter a valid industry... " VIEW-AS ALERT-BOX INFO .
            opReturnError = YES .           

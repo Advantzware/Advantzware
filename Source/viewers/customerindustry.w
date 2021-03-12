@@ -633,7 +633,7 @@ PROCEDURE valid-industryID :
     END.
     ELSE DO:
       FIND FIRST bf-customerindustry NO-LOCK
-          WHERE bf-customerindustry.industryID EQ integer(customerindustry.industryID:SCREEN-VALUE)
+          WHERE bf-customerindustry.industryID EQ customerindustry.industryID:SCREEN-VALUE
           AND rowid(bf-customerindustry) NE rowid(customerindustry) NO-ERROR .
       IF AVAIL bf-customerindustry THEN
       DO:
