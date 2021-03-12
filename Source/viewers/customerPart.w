@@ -218,12 +218,15 @@ ON LEAVE OF customerPart.customerID IN FRAME F-Main /* Customer */
 DO:
     DEFINE VARIABLE lSuccess AS LOGICAL NO-UNDO.
     DEFINE VARIABLE cMsg AS CHARACTER  NO-UNDO. 
-    RUN validataData(INPUT "customerID", OUTPUT lSuccess, OUTPUT cMsg).
-    IF NOT lSuccess THEN 
+    IF LASTKEY NE -1 THEN 
     DO:
-        MESSAGE cMsg
-        VIEW-AS ALERT-BOX.
-        RETURN NO-APPLY.
+        RUN validataData(INPUT "customerID", OUTPUT lSuccess, OUTPUT cMsg).
+        IF NOT lSuccess THEN 
+        DO:
+            MESSAGE cMsg
+            VIEW-AS ALERT-BOX.
+            RETURN NO-APPLY.
+        END.
     END.
 END.
 
@@ -237,12 +240,15 @@ ON LEAVE OF customerPart.itemID IN FRAME F-Main /* Item # */
 DO:
     DEFINE VARIABLE lSuccess AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cMsg     AS CHARACTER NO-UNDO.
-    RUN validataData(INPUT "itemID", OUTPUT lSuccess, OUTPUT cMsg).
-    IF NOT lSuccess THEN 
+    IF LASTKEY NE -1 THEN 
     DO:
-        MESSAGE cMsg
-            VIEW-AS ALERT-BOX.
-        RETURN NO-APPLY.
+        RUN validataData(INPUT "itemID", OUTPUT lSuccess, OUTPUT cMsg).
+        IF NOT lSuccess THEN 
+        DO:
+            MESSAGE cMsg
+                VIEW-AS ALERT-BOX.
+            RETURN NO-APPLY.
+        END.
     END.
 END.
 
@@ -256,12 +262,15 @@ ON LEAVE OF customerPart.shipToID IN FRAME F-Main /* Ship To */
 DO:
     DEFINE VARIABLE lSuccess AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cMsg     AS CHARACTER NO-UNDO.
-    RUN validataData(INPUT "shipToID", OUTPUT lSuccess, OUTPUT cMsg).
-    IF NOT lSuccess THEN 
+    IF LASTKEY NE -1 THEN 
     DO:
-        MESSAGE cMsg
-            VIEW-AS ALERT-BOX.
-        RETURN NO-APPLY.
+        RUN validataData(INPUT "shipToID", OUTPUT lSuccess, OUTPUT cMsg).
+        IF NOT lSuccess THEN 
+        DO:
+            MESSAGE cMsg
+                VIEW-AS ALERT-BOX.
+            RETURN NO-APPLY.
+        END.
     END.
 END.
 
@@ -451,7 +460,7 @@ PROCEDURE validataData :
     CASE ipcField:
         WHEN "shipToID" THEN 
         DO:
-            IF customerPart.shipToID:screen-value NE "" 
+            IF customerPart.shipToID:SCREEN-VALUE NE "" 
             AND  
                 NOT CAN-FIND(FIRST shipTo WHERE shipTo.ship-no EQ integer(customerPart.shipToID:screen-value))
                THEN
