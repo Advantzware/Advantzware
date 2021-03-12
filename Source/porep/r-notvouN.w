@@ -1832,6 +1832,7 @@ display "" with frame r-top.
         and po-ordl.i-no      le titm
         and po-ordl.po-no     ge fpo
         and po-ordl.po-no     le tpo
+        AND NOT po-ordl.excludeFromVoucher
       USE-INDEX opened no-lock,
 
       first po-ord
@@ -1841,6 +1842,7 @@ display "" with frame r-top.
         and po-ord.po-date le tdat
         AND po-ord.vend-no GE fvend
         AND po-ord.vend-no LE tvend
+        AND NOT po-ord.excludeFromVoucher
       no-lock:
       {custom/statusMsg.i " 'Processing PO#  '  + string(po-ordl.po-no) "}
       IF po-ordl.item-type AND

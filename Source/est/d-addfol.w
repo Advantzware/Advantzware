@@ -59,8 +59,8 @@ IF lRecFound THEN
 &Scoped-define FRAME-NAME D-Dialog
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-25 Btn_itm Btn_itm-cad ~
-Btn_tandem Btn_set Btn_frm-out Btn_est Btn-Copy Btn_est-2 Btn_Cancel 
+&Scoped-Define ENABLED-OBJECTS RECT-25 Btn_itm Btn_itm-cad Btn_tandem ~
+Btn_set Btn_frm-out Btn_est Btn-Copy Btn_est-2 Btn_Cancel 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -73,6 +73,13 @@ Btn_tandem Btn_set Btn_frm-out Btn_est Btn-Copy Btn_est-2 Btn_Cancel
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fEnableImportForm D-Dialog 
 FUNCTION fEnableImportForm RETURNS LOGICAL
+  (ipcCompany AS CHARACTER) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fEnableMold D-Dialog 
+FUNCTION fEnableMold RETURNS LOGICAL
   (ipcCompany AS CHARACTER) FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
@@ -116,6 +123,11 @@ DEFINE BUTTON Btn_est-2 AUTO-GO
      SIZE 26 BY 2.14
      BGCOLOR 8 .
 
+DEFINE BUTTON Btn_est-new-mold AUTO-GO 
+     LABEL "New Mold Estimate" 
+     SIZE 26 BY 2.14
+     BGCOLOR 8 .
+
 DEFINE BUTTON Btn_est-rel AUTO-GO 
      LABEL "Misc Estimate" 
      SIZE 26 BY 2.14
@@ -138,6 +150,11 @@ DEFINE BUTTON Btn_itm-cad AUTO-GO
 
 DEFINE BUTTON Btn_new-set AUTO-GO 
      LABEL "&New Wood Set" 
+     SIZE 26 BY 2.14
+     BGCOLOR 8 .
+
+DEFINE BUTTON Btn_new-set-mold AUTO-GO 
+     LABEL "&New Mold Set Estimate" 
      SIZE 26 BY 2.14
      BGCOLOR 8 .
 
@@ -169,8 +186,10 @@ DEFINE FRAME D-Dialog
      Btn_new-set AT ROW 1.48 COL 73.8 WIDGET-ID 10
      Btn_tandem AT ROW 3.86 COL 10.4
      Btn_part AT ROW 3.86 COL 42.4 WIDGET-ID 4
+     Btn_est-new-mold AT ROW 3.86 COL 73.8 WIDGET-ID 14
      Btn_set AT ROW 6.24 COL 10.4
      Btn_frm-out AT ROW 6.24 COL 42.4 WIDGET-ID 6
+     Btn_new-set-mold AT ROW 6.24 COL 73.8 WIDGET-ID 12
      Btn_est AT ROW 8.62 COL 10.4
      Btn-Copy AT ROW 8.62 COL 42.4
      Btn_est-2 AT ROW 11 COL 10.4
@@ -220,15 +239,25 @@ ASSIGN
 ASSIGN 
        btnImportForm:HIDDEN IN FRAME D-Dialog           = TRUE.
 
+/* SETTINGS FOR BUTTON Btn_est-new-mold IN FRAME D-Dialog
+   NO-ENABLE                                                            */
+ASSIGN 
+       Btn_est-new-mold:HIDDEN IN FRAME D-Dialog           = TRUE.
+
 /* SETTINGS FOR BUTTON Btn_est-rel IN FRAME D-Dialog
    NO-ENABLE                                                            */
 ASSIGN 
        Btn_est-rel:HIDDEN IN FRAME D-Dialog           = TRUE.
-       
+
 /* SETTINGS FOR BUTTON Btn_new-set IN FRAME D-Dialog
    NO-ENABLE                                                            */
 ASSIGN 
-       Btn_new-set:HIDDEN IN FRAME D-Dialog           = TRUE.       
+       Btn_new-set:HIDDEN IN FRAME D-Dialog           = TRUE.
+
+/* SETTINGS FOR BUTTON Btn_new-set-mold IN FRAME D-Dialog
+   NO-ENABLE                                                            */
+ASSIGN 
+       Btn_new-set-mold:HIDDEN IN FRAME D-Dialog           = TRUE.
 
 /* SETTINGS FOR BUTTON Btn_part IN FRAME D-Dialog
    NO-ENABLE                                                            */
@@ -325,6 +354,18 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME Btn_est-new-mold
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_est-new-mold D-Dialog
+ON CHOOSE OF Btn_est-new-mold IN FRAME D-Dialog /* New Mold Estimate */
+DO:
+    assign ls-add-what = "NewEstMold".
+    apply "window-close" to this-procedure.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME Btn_est-rel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_est-rel D-Dialog
 ON CHOOSE OF Btn_est-rel IN FRAME D-Dialog /* Misc Estimate */
@@ -383,9 +424,21 @@ END.
 
 &Scoped-define SELF-NAME Btn_new-set
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_new-set D-Dialog
-ON CHOOSE OF Btn_new-set IN FRAME D-Dialog /* New Set Estimate */
+ON CHOOSE OF Btn_new-set IN FRAME D-Dialog /* New Wood Set */
 DO:
     assign ls-add-what = "NewSetEst".
+    apply "window-close" to this-procedure.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME Btn_new-set-mold
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_new-set-mold D-Dialog
+ON CHOOSE OF Btn_new-set-mold IN FRAME D-Dialog /* New Mold Set Estimate */
+DO:
+    assign ls-add-what = "NewSetEstMold".
     apply "window-close" to this-procedure.
 END.
 
@@ -458,6 +511,12 @@ IF fEnableImportForm(cocode) THEN
         btnImportForm:HIDDEN = NO
         btnImportForm:SENSITIVE = YES 
         .
+IF fEnableMold(cocode) THEN
+  ASSIGN
+    Btn_new-set-mold:HIDDEN = NO
+    Btn_new-set-mold:SENSITIVE = YES
+    Btn_est-new-mold:HIDDEN = NO
+    Btn_est-new-mold:SENSITIVE = YES.
     
 {src/adm/template/dialogmn.i}
 
@@ -530,8 +589,8 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  ENABLE RECT-25 Btn_itm Btn_itm-cad Btn_tandem Btn_set Btn_frm-out 
-         Btn_est Btn-Copy Btn_est-2 Btn_Cancel 
+  ENABLE RECT-25 Btn_itm Btn_itm-cad Btn_tandem Btn_set Btn_frm-out Btn_est 
+         Btn-Copy Btn_est-2 Btn_Cancel 
       WITH FRAME D-Dialog.
   VIEW FRAME D-Dialog.
   {&OPEN-BROWSERS-IN-QUERY-D-Dialog}
@@ -630,6 +689,37 @@ FUNCTION fEnableImportForm RETURNS LOGICAL
         OUTPUT lFound).
 
     lResult = lFound AND cReturn EQ 'YES'.
+    RETURN lResult.
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fEnableMold D-Dialog 
+FUNCTION fEnableMold RETURNS LOGICAL
+  (ipcCompany AS CHARACTER):
+
+ /*------------------------------------------------------------------------------
+     Purpose: Returns a logical value based on the value of the CEImportForm NK1 
+     Notes:
+    ------------------------------------------------------------------------------*/    
+    DEFINE VARIABLE lResult AS LOGICAL   NO-UNDO.
+    
+    DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lFound  AS LOGICAL   NO-UNDO. 
+    
+    RUN sys\ref\nk1look.p (ipcCompany,
+        'JobType',
+        'C',
+        NO,
+        NO,
+        '',
+        '', 
+        OUTPUT cReturn,
+        OUTPUT lFound).
+
+    lResult = lFound AND cReturn EQ 'Molded'.
     RETURN lResult.
 
 END FUNCTION.

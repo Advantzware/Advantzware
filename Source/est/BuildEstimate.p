@@ -161,6 +161,7 @@ FOR EACH ttInputEst NO-LOCK BREAK BY ttInputEst.iFormNo
         ef.blank-qty    = 1
         ef.trim-w       = ttInputEst.dWidthDie
         ef.trim-l       = ttInputEst.dLengthDie
+        ef.cal          = ttInputEst.dCaliper
         eb.stock-no     = ttInputEst.cStockNo
         eb.cas-cnt      = ttInputEst.iUnitCount
         eb.cas-pal      = ttInputEst.iPerPallet
@@ -363,6 +364,8 @@ FOR EACH ttInputEst NO-LOCK BREAK BY ttInputEst.iFormNo
             eb.flute = item.flute
             eb.test  = item.reg-no
             .
+    IF ttInputEst.dCaliper NE 0 THEN ef.cal = ttInputEst.dCaliper.
+    
     RUN est/CalcLayout.p (ipcIndustry,
         ROWID(ef),
         ROWID(eb),
@@ -420,8 +423,8 @@ FOR EACH ttInputEst NO-LOCK BREAK BY ttInputEst.iFormNo
       ASSIGN
          est.estimateTypeID = "WOOD" .
          
-    END. 
-    IF ttInputEst.cEstType EQ "MoldTandem" THEN
+    END.     
+    ELSE IF ttInputEst.cEstType EQ "MoldTandem" THEN
     DO: 
        IF ttInputEst.iQuantityYield GT 0 THEN 
          eb.bl-qty      = ttInputEst.iQuantityYield.
@@ -430,6 +433,16 @@ FOR EACH ttInputEst NO-LOCK BREAK BY ttInputEst.iFormNo
             eb.num-up      = ttInputEst.iMolds
             .   
     END.
+    ELSE IF ttInputEst.cEstType EQ "SingleMold" THEN DO:
+      ASSIGN
+         est.estimateTypeID = "SingleMold" .
+         
+    END.
+    ELSE IF ttInputEst.cEstType EQ "MoldSetEstimate" THEN DO:
+      ASSIGN
+         est.estimateTypeID = "SetMold" .           
+    END.
+    
        
     RUN est/BuildDefaultPreps.p (BUFFER est,
         BUFFER ef,

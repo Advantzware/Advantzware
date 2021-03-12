@@ -572,7 +572,7 @@ lcTableList =
 "itemfg-ink," +
 "itemfg-loc," +
 "itemfgdtl," +
-"jc-ctrl," +
+"materialType," +
 "job," +
 "job-sch," +
 "job-all," +

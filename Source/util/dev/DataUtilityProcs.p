@@ -130,7 +130,7 @@ DEFINE VARIABLE gcLocTableExceptions AS CHARACTER NO-UNDO.
 DEFINE VARIABLE gcTableMergeExceptions   AS CHARACTER NO-UNDO 
     INIT "ar-ctrl,ap-ctrl,bank,ce-ctrl,attach,box-design-hdr,box-design-line,~
 company,gl-ctrl,inv-head,inv-line,po-ctrl,fg-ctrl,,oe-ctrl,rm-ctrl,~
-usrx,jc-ctrl,fg-rdtlh,fg-rcpth". 
+usrx,fg-rdtlh,fg-rcpth". 
     
 DEFINE VARIABLE gcCustIDFields           AS CHARACTER NO-UNDO 
     INIT "cust-no,cust"
