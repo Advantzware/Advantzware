@@ -25,8 +25,8 @@
     DEFINE VARIABLE cFileName  AS CHARACTER NO-UNDO.
         
     FIND FIRST APIOutbound NO-LOCK
-         WHERE APIOutbound.apiOutboundID   EQ ipiAPIOutboundID
-           AND APIOutbound.requestDataType EQ "FTP" /* This API can only have FTP transfer */ 
+         WHERE APIOutbound.apiOutboundID EQ ipiAPIOutboundID
+           AND APIOutbound.requestType   EQ "FTP" /* This API can only have FTP transfer */ 
          NO-ERROR.
     IF NOT AVAILABLE APIOutbound THEN DO:
         ASSIGN

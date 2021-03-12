@@ -778,7 +778,7 @@ PROCEDURE repo-query :
                    ASSIGN
                    ttMultiSelectItem.isSelected = YES
                    ttMultiSelectItem.multiplier = ttInputEst.iMolds
-                   ttMultiSelectItem.quantityToOrder = ttInputEst.iQuantityYield .                  
+                   .                  
          END.
      END.
 

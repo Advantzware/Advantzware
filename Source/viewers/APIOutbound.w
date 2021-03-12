@@ -159,7 +159,7 @@ DEFINE VARIABLE cbRequestDataType AS CHARACTER FORMAT "X(256)":U
      LABEL "Request Data Type" 
      VIEW-AS COMBO-BOX INNER-LINES 5
      DROP-DOWN-LIST
-     SIZE 17 BY 1
+     SIZE 32.8 BY 1
      BGCOLOR 15 FGCOLOR 0  NO-UNDO.
 
 DEFINE VARIABLE cbRequestType AS CHARACTER FORMAT "X(256)":U 
@@ -259,8 +259,8 @@ DEFINE FRAME F-Main
           SIZE 14 BY .81
           BGCOLOR 15 FGCOLOR 0 
      cbRequestType AT ROW 8.19 COL 20.8 COLON-ALIGNED WIDGET-ID 66
-     cbRequestVerb AT ROW 8.19 COL 64.4 COLON-ALIGNED WIDGET-ID 42
-     cbRequestDataType AT ROW 8.19 COL 111.2 COLON-ALIGNED WIDGET-ID 40
+     cbRequestVerb AT ROW 8.19 COL 60.2 COLON-ALIGNED WIDGET-ID 42
+     cbRequestDataType AT ROW 8.19 COL 102.2 COLON-ALIGNED WIDGET-ID 40
      tgSSLEnabled AT ROW 8.29 COL 138.8 WIDGET-ID 38
      APIOutbound.hostSSHKey AT ROW 9.48 COL 20.8 COLON-ALIGNED WIDGET-ID 76
           VIEW-AS FILL-IN 
@@ -747,9 +747,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy V-table-Win
-PROCEDURE local-destroy:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy V-table-Win 
+PROCEDURE local-destroy :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -762,11 +761,9 @@ PROCEDURE local-destroy:
 
     /* Code placed here will execute AFTER standard behavior.    */
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-disable-fields V-table-Win 
 PROCEDURE local-disable-fields :

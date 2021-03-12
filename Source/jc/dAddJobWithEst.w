@@ -40,6 +40,10 @@ DEFINE VARIABLE period_pos   AS INTEGER NO-UNDO.
 DEFINE VARIABLE v-count      AS INTEGER NO-UNDO.
 DEFINE VARIABLE k_frac       AS DECIMAL INIT 6.25 NO-UNDO.
 DEFINE VARIABLE lCreateNewFG AS LOGICAL NO-UNDO .
+DEFINE VARIABLE hdOutboundProcs AS HANDLE  NO-UNDO.
+
+/* Procedure to prepare and execute API calls */
+RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
 
 IF INDEX(PROGRAM-NAME(1),".uib") NE 0 OR
    INDEX(PROGRAM-NAME(1),".ab")  NE 0 OR
@@ -827,6 +831,8 @@ DO:
            oplCreated                  = YES
            opcJobNo                    = bf-job.job-no
            opiJobNo2                   = bf-job.job-no2. 
+           
+           RUN pCallOutboundAPI(BUFFER bf-job).
         END.
          
          MESSAGE "Process complete." VIEW-AS ALERT-BOX INFO. 
@@ -1145,6 +1151,56 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCallOutboundAPI D-Dialog
+PROCEDURE pCallOutboundAPI PRIVATE :
+    /*------------------------------------------------------------------------------
+     Purpose: To call outbound api 
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-job FOR job.
+
+    DEFINE VARIABLE cAPIID       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cTriggerID   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cDescription AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cPrimaryID   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lSuccess     AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage     AS CHARACTER NO-UNDO.
+    
+    IF AVAILABLE ipbf-job THEN 
+    DO:
+        cTriggerID = "CreateJobMolded".
+            
+        ASSIGN  
+            cAPIId       = "SendJob"
+            cPrimaryID   = ipbf-job.job-no + "-" + STRING(ipbf-job.job-no2)
+            cDescription = cAPIID + " triggered by " + cTriggerID + " from r-ticket.w for Job: " + cPrimaryID
+            .
+        RUN Outbound_PrepareAndExecute IN hdOutboundProcs (
+            INPUT  ipbf-job.company,           /* Company Code (Mandatory) */
+            INPUT  ipbf-job.loc,               /* Location Code (Mandatory) */
+            INPUT  cAPIID,                     /* API ID (Mandatory) */
+            INPUT  "",                         /* Client ID (Optional) - Pass empty in case to make request for all clients */
+            INPUT  cTriggerID,                 /* Trigger ID (Mandatory) */
+            INPUT  "job",                      /* Comma separated list of table names for which data being sent (Mandatory) */
+            INPUT  STRING(ROWID(ipbf-Job)),    /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
+            INPUT  cPrimaryID,                 /* Primary ID for which API is called for (Mandatory) */   
+            INPUT  cDescription,               /* Event's description (Optional) */
+            OUTPUT lSuccess,                   /* Success/Failure flag */
+            OUTPUT cMessage                    /* Status message */
+            ).
+        /* Reset context at the end of API calls to clear temp-table 
+           data inside OutboundProcs */
+        RUN Outbound_ResetContext IN hdOutboundProcs. 
+    END.                       
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckEstimate D-Dialog 
 PROCEDURE pCheckEstimate :
 /*------------------------------------------------------------------------------
@@ -1452,7 +1508,8 @@ PROCEDURE pImportRemaingBalance :
     FOR EACH job-mch NO-LOCK
          WHERE job-mch.company EQ cocode
          AND job-mch.m-code EQ cMachineCode 
-         BY job-mch.end-date DESC BY job-mch.end-time DESC :
+         //BY job-mch.end-date DESC BY job-mch.end-time DESC 
+         BY job-mch.rec_key DESC:
          
         iJob = job-mch.job .
         LEAVE.
@@ -1501,12 +1558,12 @@ PROCEDURE pImportRemaingBalance :
                   
                   iQuantityReorderLevel = itemfg.ord-level
                   iQuantityAvailable = itemfg.q-onh + itemfg.q-ono - itemfg.q-alloc
-                  dQuantityToOrderSuggested = MAX(0,iQuantityReorderLevel - iQuantityAvailable)
+                  dQuantityToOrderSuggested = MAX(0, - iQuantityAvailable)
                   bf-ttInputEst.quantityToOrderSuggested = dQuantityToOrderSuggested.
                   
                   
                ASSIGN   
-                 dQuantityCyclesRequired  =  - (itemfg.q-onh + itemfg.q-ono - itemfg.q-alloc)  //dQuantityToOrderSuggested / (MAXIMUM(1,bf-ttInputEst.iMolds))
+                 dQuantityCyclesRequired  =  dQuantityToOrderSuggested / (MAXIMUM(1,bf-ttInputEst.iMolds))
                  dTotalCyclesRequired = IF dTotalCyclesRequired EQ 0 THEN dQuantityCyclesRequired ELSE IF dQuantityCyclesRequired  LT dTotalCyclesRequired  THEN dQuantityCyclesRequired  ELSE  dTotalCyclesRequired .
                   
                END. 

@@ -86,6 +86,8 @@
     DEFINE VARIABLE cGrain                        AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cCylinder                     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cTray                         AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cPriority                     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cIsPriority                   AS CHARACTER NO-UNDO.
     
     /*Job Material variables*/
     
@@ -269,6 +271,8 @@
                     cSquareInchPct                = STRING(job-hdr.sq-in,">>9.99")                    cFreezeNotesDate              = STRING(job-hdr.freezeNotesDate,"99/99/9999")                    cWarehoused                   = STRING(job-hdr.whsed)
                     cOpened                       = STRING(job-hdr.opened)
                     cPrinted                      = STRING(job-hdr.ftick-prnt)
+                    cIsPriority                   = STRING(job.priority EQ 1,"true/false")
+                    cPriority                     = STRING(job.priority)
                     cCSRID                        = job.csrUser_id
                     cEnteredBy                    = job.user-id
                     .
@@ -297,6 +301,8 @@
                 RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "Warehoused",cWarehoused).
                 RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "Opened",cWarehoused).
                 RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "Printed",cPrinted).
+                RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "Priority",cPriority).
+                RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "IsPriority",cIsPriority).
                 RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "SquareInchPercentage",cSquareInchPct).
                 RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "CSRID",cCSRID).                
                 RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "EnteredBy",cEnteredBy).
