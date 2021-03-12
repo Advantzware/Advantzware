@@ -1470,6 +1470,8 @@ PROCEDURE pPrintTTLoadTags PRIVATE:
     DEFINE INPUT  PARAMETER ipcLocation AS CHARACTER NO-UNDO.
     DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttLoadTag.
     
+    DEFINE BUFFER bf-ttLoadtag FOR ttLoadtag.
+   
     DEFINE VARIABLE hdOutboundProcs  AS HANDLE    NO-UNDO.
     DEFINE VARIABLE cTTLoadTagHandle AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cMessage         AS CHARACTER NO-UNDO.
@@ -1482,35 +1484,35 @@ PROCEDURE pPrintTTLoadTags PRIVATE:
     
     cTTLoadTagHandle = STRING(TEMP-TABLE ttLoadTag:HANDLE).        
 
-    FOR EACH ttLoadTag
-        WHERE ttLoadTag.exportTemplate EQ "LabelMatrix"
-          AND ttLoadTag.tagStatus      EQ "Created"
-          AND ttLoadTag.isSelected     EQ TRUE
-          AND ttLoadTag.isError        EQ FALSE
-        BREAK BY ttLoadTag.exportFile:
-        IF FIRST-OF (ttLoadTag.exportFile) THEN DO:
+    FOR EACH bf-ttLoadTag
+        WHERE bf-ttLoadTag.exportTemplate EQ "LabelMatrix"
+          AND bf-ttLoadTag.tagStatus      EQ "Created"
+          AND bf-ttLoadTag.isSelected     EQ TRUE
+          AND bf-ttLoadTag.isError        EQ FALSE
+        BREAK BY bf-ttLoadTag.exportFile:
+        IF FIRST-OF (bf-ttLoadTag.exportFile) THEN DO:
             ASSIGN
                 cArgKeyList   = "ExportTemplate,ExportFile,TTLoadTagHandle"
-                cArgValueList = ttLoadTag.exportTemplate + "," + ttLoadTag.exportFile + "," + cTTLoadTagHandle
+                cArgValueList = bf-ttLoadTag.exportTemplate + "," + bf-ttLoadTag.exportFile + "," + cTTLoadTagHandle
                 .
             
-            cTriggerID = IF ttLoadTag.exportFileType EQ "loadtag" THEN
+            cTriggerID = IF bf-ttLoadTag.exportFileType EQ "loadtag" THEN
                              "PrintLoadTag"
-                         ELSE IF ttLoadTag.exportFileType EQ "boltag" THEN
+                         ELSE IF bf-ttLoadTag.exportFileType EQ "boltag" THEN
                              "PrintBolTag"
                          ELSE
                              "".
-                             
+        
             RUN Outbound_PrepareAndExecuteForScope IN hdOutboundProcs (
                 INPUT  ipcCompany,                             /* Company Code (Mandatory) */
                 INPUT  ipcLocation,                            /* Location Code (Mandatory) */
                 INPUT  "CreateLoadtag",                        /* API ID (Mandatory) */
-                INPUT  ttLoadTag.custID,                       /* Scope ID */
+                INPUT  bf-ttLoadTag.custID,                       /* Scope ID */
                 INPUT  "Customer",                             /* Scope Type */
                 INPUT  cTriggerID,                             /* Trigger ID (Mandatory) */
                 INPUT  cArgKeyList,                            /* Comma separated list of table names for which data being sent (Mandatory) */
                 INPUT  cArgValueList,                          /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
-                INPUT  ttLoadTag.tag,                          /* Primary ID for which API is called for (Mandatory) */   
+                INPUT  bf-ttLoadTag.tag,                          /* Primary ID for which API is called for (Mandatory) */   
                 INPUT  "Print loadtag from LoadTagProcs.p",    /* Event's description (Optional) */
                 OUTPUT lSuccess,                               /* Success/Failure flag */
                 OUTPUT cMessage                                /* Status message */
@@ -1519,9 +1521,10 @@ PROCEDURE pPrintTTLoadTags PRIVATE:
             IF glLabelMatrixAutoPrint THEN
                 RUN pPrintLabelMatrix (
                     INPUT ipcCompany,
-                    INPUT ttLoadTag.exportTemplateFile,
-                    INPUT ttLoadTag.exportFileType
+                    INPUT bf-ttLoadTag.exportTemplateFile,
+                    INPUT bf-ttLoadTag.exportFileType
                     ).            
+            
         END.
     END.
     
