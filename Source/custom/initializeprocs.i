@@ -283,8 +283,10 @@ PROCEDURE afterinitialize:
     // set the window size to last captured size
     RUN setCapturedWindowSize.
     // if window size have been changed the apply window resize trigger to repositioned or resize objects
-    IF  deOrigWinWidth NE  {&WINDOW-NAME}:WIDTH OR
-    deOrigWinHeight NE {&WINDOW-NAME}:HEIGHT
+    
+    IF  VALID-HANDLE({&WINDOW-NAME}) AND 
+        (deOrigWinWidth NE  {&WINDOW-NAME}:WIDTH OR
+        deOrigWinHeight NE {&WINDOW-NAME}:HEIGHT)
     THEN
     APPLY "WINDOW-RESIZED" TO {&WINDOW-NAME}. 
     
@@ -335,10 +337,12 @@ PROCEDURE setCapturedWindowSize:
                 {&WINDOW-NAME}:HEIGHT-PIXELS = {&WINDOW-NAME}:HEIGHT-PIXELS - (userWindow.sessionHeight - SESSION:HEIGHT-PIXELS)
                     NO-ERROR . 
            
-        IF deOrigWinWidth > {&WINDOW-NAME}:WIDTH THEN
+        IF VALID-HANDLE({&WINDOW-NAME}) AND 
+            deOrigWinWidth > {&WINDOW-NAME}:WIDTH THEN
             ASSIGN 
             {&WINDOW-NAME}:WIDTH = deOrigWinWidth NO-ERROR.
-        IF deOrigWinHeight > {&WINDOW-NAME}:HEIGHT THEN
+        IF  VALID-HANDLE({&WINDOW-NAME}) AND 
+            deOrigWinHeight > {&WINDOW-NAME}:HEIGHT THEN
             ASSIGN 
             {&WINDOW-NAME}:HEIGHT = deOrigWinHeight NO-ERROR. 
             

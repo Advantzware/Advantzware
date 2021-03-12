@@ -41,7 +41,10 @@ CREATE WIDGET-POOL.
 &SCOPED-DEFINE winReSize
 {methods/defines/winReSize.i}
 &SCOPED-DEFINE browseOnly
+&SCOPED-DEFINE noSortByField
 {custom/globdefs.i}
+&SCOPED-DEFINE yellowColumnsName customerPart
+
 /* Local Variable Definitions ---                                       */
 DEFINE VARIABLE cCompany      AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCustomer     AS CHARACTER NO-UNDO.
@@ -200,10 +203,10 @@ DEFINE QUERY br_table FOR
 DEFINE BROWSE br_table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br_table B-table-Win _STRUCTURED
   QUERY br_table NO-LOCK DISPLAY
-      customerPart.customerID FORMAT "x(8)":U WIDTH 18.2
-      customerPart.shipToID FORMAT "x(8)":U WIDTH 25.2
-      customerPart.itemID FORMAT "x(15)":U WIDTH 31.2
-      customerPart.customerPart FORMAT "x(32)":U
+      customerPart.customerID LABEL-BGCOLOR 14 FORMAT "x(8)":U WIDTH 18.2
+      customerPart.shipToID LABEL-BGCOLOR 14 FORMAT "x(8)":U WIDTH 25.2
+      customerPart.itemID LABEL-BGCOLOR 14 FORMAT "x(15)":U WIDTH 31.2
+      customerPart.customerPart LABEL-BGCOLOR 14 FORMAT "x(32)":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 120 BY 13.14.
@@ -275,6 +278,7 @@ END.
 
 {src/adm/method/browser.i}
 {src/adm/method/query.i}
+{custom/yellowColumns.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -341,65 +345,8 @@ ASI.customerPart.customerPart BEGINS cCustomerPart"
 
 /* ************************  Control Triggers  ************************ */
 
-&Scoped-define BROWSE-NAME br_table
-&Scoped-define SELF-NAME br_table
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
-ON ROW-ENTRY OF br_table IN FRAME F-Main
-DO:
-  /* This code displays initial values for newly added or copied rows. */
-  {src/adm/template/brsentry.i}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
-ON ROW-LEAVE OF br_table IN FRAME F-Main
-DO:
-    /* Do not disable this code or no updates will take place except
-     by pressing the Save button on an Update SmartPanel. */
-   {src/adm/template/brsleave.i}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
-ON VALUE-CHANGED OF br_table IN FRAME F-Main
-DO:
-  /* This ADM trigger code must be preserved in order to notify other
-     objects when the browser's current row changes. */
-  {src/adm/template/brschnge.i}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME btSearch
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btSearch B-table-Win
-ON CHOOSE OF btSearch IN FRAME F-Main
-DO:
-    ASSIGN
-        cCustomer     = fiCustomer:SCREEN-VALUE
-        cShipTo       = fiShipTo:SCREEN-VALUE
-        cItem         = fiItem:SCREEN-VALUE
-        cCustomerPart = fiCustomerPart:SCREEN-VALUE
-        .
-
-    RUN dispatch (
-        INPUT "open-query"
-        ).            
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &Scoped-define SELF-NAME F-Main
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL F-Main c-win
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL F-Main B-table-Win
 ON HELP OF FRAME F-Main
 DO:
     DEFINE VARIABLE cFieldsValue  AS CHARACTER NO-UNDO.
@@ -455,6 +402,73 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&Scoped-define BROWSE-NAME br_table
+&Scoped-define SELF-NAME br_table
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
+ON ROW-ENTRY OF br_table IN FRAME F-Main
+DO:
+  /* This code displays initial values for newly added or copied rows. */
+  {src/adm/template/brsentry.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
+ON ROW-LEAVE OF br_table IN FRAME F-Main
+DO:
+    /* Do not disable this code or no updates will take place except
+     by pressing the Save button on an Update SmartPanel. */
+   {src/adm/template/brsleave.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
+ON START-SEARCH OF br_table IN FRAME F-Main
+DO:
+ RUN startSearch.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
+ON VALUE-CHANGED OF br_table IN FRAME F-Main
+DO:
+  /* This ADM trigger code must be preserved in order to notify other
+     objects when the browser's current row changes. */
+  {src/adm/template/brschnge.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btSearch
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btSearch B-table-Win
+ON CHOOSE OF btSearch IN FRAME F-Main
+DO:
+    ASSIGN
+        cCustomer     = fiCustomer:SCREEN-VALUE
+        cShipTo       = fiShipTo:SCREEN-VALUE
+        cItem         = fiItem:SCREEN-VALUE
+        cCustomerPart = fiCustomerPart:SCREEN-VALUE
+        .
+
+    RUN dispatch (
+        INPUT "open-query"
+        ).            
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &UNDEFINE SELF-NAME
 
