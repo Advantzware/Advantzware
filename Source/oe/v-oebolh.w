@@ -976,9 +976,9 @@ END.
 &Scoped-define SELF-NAME btnTags
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnTags V-table-Win
 ON CHOOSE OF btnTags1 IN FRAME F-Main
-DO:
+DO: /* Need to add tag viewer for group here */
     RUN system/d-TagViewer.w (
-        INPUT (oe-bolh.rec_key + "CalcFreight"),
+        INPUT oe-bolh.rec_key,
         INPUT ""
         ).
 END.
