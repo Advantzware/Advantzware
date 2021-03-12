@@ -123,6 +123,7 @@ DEFINE VARIABLE logDelMachTran AS LOGICAL    NO-UNDO.
 
 DEF VAR begin_job_number AS cha NO-UNDO.
 DEF VAR END_job_number AS cha NO-UNDO.
+DEFINE VARIABLE lInvalid AS LOGICAL NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1004,6 +1005,10 @@ DO:
   end case. 
 
   IF lv-valid-to-post THEN DO:
+  
+       RUN pCheckDate(INPUT DATE(TODAY)).
+       IF lInvalid then RETURN NO-APPLY .     
+   
       MESSAGE 
           "Are you ready to Post?" 
         VIEW-AS ALERT-BOX BUTTON YES-NO UPDATE ll-ans4 AS LOG.
@@ -2181,3 +2186,27 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckDate C-Win 
+PROCEDURE pCheckDate :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE INPUT PARAMETER ipdtDate AS DATE NO-UNDO.
+  DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE lSuccess AS LOGICAL NO-UNDO.
+  
+    lInvalid = no.
+    
+    RUN GL_CheckModClosePeriod(input cocode, input DATE(ipdtDate), input "FG", output cMessage, output lSuccess ) .  
+    IF NOT lSuccess THEN 
+    DO:
+      MESSAGE cMessage VIEW-AS ALERT-BOX INFO.
+      lInvalid = YES.
+    END.      
+    
+  
+END PROCEDURE.
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME

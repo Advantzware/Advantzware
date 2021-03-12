@@ -74,6 +74,8 @@ DEFINE VARIABLE cCalcJobDueDate AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCalcDueDateMsg AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cJobType AS CHARACTER NO-UNDO.
 
+DEFINE VARIABLE lAddFromTool AS LOGICAL NO-UNDO.
+
 RUN sys/ref/nk1look.p (cocode, "CalcJobDueDate", "L", NO, NO, "", "", 
                        OUTPUT cCalcJobDueDate, OUTPUT llRecFound).
 IF llRecFound THEN
@@ -738,30 +740,51 @@ PROCEDURE add-job :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEFINE VARIABLE lCreateJob AS LOGICAL NO-UNDO.
-  DEFINE VARIABLE cJobNo AS CHARACTER NO-UNDO.
-  DEFINE VARIABLE iJobNo2 AS INTEGER NO-UNDO.
-  DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE lCreateJob  AS LOGICAL    NO-UNDO.
+  DEFINE VARIABLE cJobNo      AS CHARACTER  NO-UNDO.
+  DEFINE VARIABLE iJobNo2     AS INTEGER    NO-UNDO.
+  DEFINE VARIABLE char-hdl    AS CHARACTER  NO-UNDO.
+  DEFINE VARIABLE lAddOption  AS CHARACTER  NO-UNDO.
+  
   DEFINE BUFFER bf-job-hdr FOR job-hdr.
-  IF cJobType EQ "Molded" THEN
-  DO:                          
-    RUN jc/dAddJobWithEst.w("",ROWID(job), OUTPUT lCreateJob, OUTPUT cJobNo, OUTPUT iJobNo2).
-    IF lCreateJob THEN
-    DO:
+  
+  IF NOT lAddFromTool THEN
+  DO:
+      RUN jc/d-addJob.w (INPUT NO, OUTPUT lAddOption). 
+      IF lAddOption = "" THEN RETURN NO-APPLY.    /* cancel */
+  END.
+
+  ASSIGN
+    lAddFromTool = NO.
+    
+  IF lAddOption = "AddNewJob" AND cJobType EQ "Molded" THEN
+  DO:
+     RUN jc/dAddJobWithEst.w("",ROWID(job), OUTPUT lCreateJob, OUTPUT cJobNo, OUTPUT iJobNo2).
+     IF lCreateJob THEN
+     DO:
          FIND FIRST bf-job-hdr NO-LOCK
-              WHERE bf-job-hdr.company EQ cocode
-              AND bf-job-hdr.job-no EQ cJobNo
-              AND bf-job-hdr.job-no2 EQ iJobNo2 NO-ERROR .
-           
+             WHERE bf-job-hdr.company EQ cocode
+             AND bf-job-hdr.job-no EQ cJobNo
+             AND bf-job-hdr.job-no2 EQ iJobNo2 NO-ERROR .
+
          RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"record-source", OUTPUT char-hdl). 
          IF AVAILABLE bf-job-hdr THEN
-         RUN reopen-query IN WIDGET-HANDLE(char-hdl) (ROWID(bf-job-hdr)).          
-    END.
+         RUN reopen-query IN WIDGET-HANDLE(char-hdl) (ROWID(bf-job-hdr)).
+     end. 
   END.
-  ELSE 
+  ELSE IF lAddOption = "AddJobFromEst" THEN
   DO:
-    RUN dispatch ('add-record').
+     
+     RUN dispatch ('add-record').          
+  
   END.
+  ELSE
+  DO:
+     
+     RUN dispatch ('add-record').          
+  
+  END.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

@@ -28,6 +28,8 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+&SCOPED-DEFINE winReSize
+{methods/defines/winReSize.i}
 {custom/globdefs.i}
 {sys/inc/VAR.i "new shared" }
 ASSIGN cocode = g_company
@@ -1366,7 +1368,7 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
-
+{methods/winReSize.i}
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF
@@ -2449,8 +2451,8 @@ PROCEDURE local-update-record :
 ------------------------------------------------------------------------------*/
   DEF VAR li AS INT NO-UNDO.
   DEF VAR op-error AS LOG NO-UNDO.
-    DEF VAR lvrSaveRowid AS ROWID NO-UNDO.
-    
+  DEF VAR lvrSaveRowid AS ROWID NO-UNDO.
+  DEFINE VARIABLE lInvalid AS LOGICAL NO-UNDO.  
   /* Code placed here will execute PRIOR to standard behavior. */
   lvrSaveRowid = ROWID(fg-rctd).  
   
@@ -2543,8 +2545,12 @@ PROCEDURE local-update-record :
     END.
   END.
 
-  IF SSPostFG-log THEN
+  IF SSPostFG-log THEN 
+  DO:
+     RUN pCheckPeriod(OUTPUT lInvalid).
+     IF NOT lInvalid THEN 
      RUN post-finish-goods.
+  END.   
   lvrSaveRowid = ROWID(fg-rctd).
   IF lvlAutoAdd THEN
     RUN scan-next.
@@ -3082,6 +3088,30 @@ PROCEDURE tag-sequence :
           = string(int(fg-rctd.po-no:screen-value in browse {&browse-name}),"999999") + string(v-tag-seq,"99").
 */          
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckPeriod B-table-Win 
+PROCEDURE pCheckPeriod :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  define output parameter oplReturnNotValidPost as logical no-undo.
+  DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE lSuccess AS LOGICAL NO-UNDO.
+    oplReturnNotValidPost = no.
+    
+    RUN GL_CheckModClosePeriod(input cocode, input today, input "FG", output cMessage, output lSuccess ) .  
+    if not lSuccess then 
+    do:
+      message cMessage view-as alert-box info.
+      oplReturnNotValidPost = yes.
+    end.  
+     
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

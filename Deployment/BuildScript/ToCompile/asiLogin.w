@@ -850,22 +850,24 @@ PROCEDURE ipChangeEnvironment :
         CASE cbEnvironment:SCREEN-VALUE IN FRAME {&FRAME-NAME}:
             WHEN "Prod" THEN 
                 DO:
-                    DO iCtr = 1 TO NUM-ENTRIES(cDatabaseList):
-                        IF INDEX(ENTRY(iCtr,cDatabaseList),"Prod") <> 0 AND cSessionParam EQ "" THEN 
+                    DO iCtr = 1 TO NUM-ENTRIES(cDbList):
+                        IF INDEX(ENTRY(iCtr,cDbList),"Prod") <> 0 AND cSessionParam EQ "" THEN 
                         DO:
                             ASSIGN
-                                cbDatabase:SCREEN-VALUE = ENTRY(iCtr,cDatabaseList).
+                                cbDatabase:list-items = ENTRY(iCtr,cDbList).
+                                cbDatabase:SCREEN-VALUE = ENTRY(iCtr,cDbList).
                             LEAVE.
                         END.
                     END.
                 END.
             WHEN "Test" THEN 
                 DO:
-                    DO iCtr = 1 TO NUM-ENTRIES(cDatabaseList):
-                        IF INDEX(ENTRY(iCtr,cDatabaseList),"Test") <> 0 AND cSessionParam EQ "" THEN 
+                    DO iCtr = 1 TO NUM-ENTRIES(cDbList):
+                        IF INDEX(ENTRY(iCtr,cDbList),"Test") <> 0 AND cSessionParam EQ "" THEN 
                         DO:
                             ASSIGN
-                                cbDatabase:SCREEN-VALUE = ENTRY(iCtr,cDatabaseList).
+                                cbDatabase:list-items = ENTRY(iCtr,cDbList).
+                                cbDatabase:SCREEN-VALUE = ENTRY(iCtr,cDbList).
                             LEAVE.
                         END.
                     END.
@@ -991,29 +993,68 @@ PROCEDURE ipClickOk :
     IF NOT cbMode = "Monitor Users" THEN 
     DO: 
 
-        /* 95512 Optimize use of .ini files to set color and fonts */
-        IF iEnvLevel GE 21000000 THEN 
-        DO:
+        /*  This is hideously complicated, as there are two independent variables:  64/32 bit architecture, and ASI versioo.
+            We have to account for both, leading to 4 possible ini files, and we DON'T want to build on the fly, as these are
+            server-level, and start-of-day logins overwhelm the filesystem.  Therefore we build these ini files once and, if built,
+            just use them */
+        DEF VAR cDLC AS CHAR NO-UNDO.
+        DEF VAR cBitness AS CHAR NO-UNDO.
+        DEF VAR cVersion AS CHAR NO-UNDO.
+                    
+        /* First, lets see what the bitness is, and get the appropriate DLC variable */
+        IF PROCESS-ARCHITECTURE = 64 THEN DO:
+            LOAD "dbms".
+            USE "dbms".
+            GET-KEY-VALUE SECTION "Startup" KEY "DLC" VALUE cDLC.
+            cBitness = "64".
+        END.
+        ELSE DO:
+            LOAD "dbms32".
+            USE "dbms32".
+            GET-KEY-VALUE SECTION "Startup" KEY "DLC" VALUE cDLC.
+            cBitness = "32".
+        END.
+
+        /* Now determine the ASI version level */
+        IF iEnvLevel GE 21000000 THEN ASSIGN 
+            cVersion = "21".
+        ELSE ASSIGN 
+            cVersion = "16".
+             
+        /* If the required ini file already exists, just use it */
+        IF SEARCH("dbms_" + cBitness + "_" + cVersion + ".ini") NE ? THEN DO:
+            LOAD "dbms_" + cBitness + "_" + cVersion + ".ini" BASE-KEY "ini".
+            USE "dbms_" + cBitness + "_" + cVersion + ".ini".
+        END.               
+        /* Otherwise, create it and then use it */
+        ELSE DO:      
+            LOAD "dbms_" + cBitness + "_" + cVersion + ".ini" NEW BASE-KEY "ini".
+            USE "dbms_" + cBitness + "_" + cVersion + ".ini".
+            
+            PUT-KEY-VALUE SECTION "Startup" KEY "DLC" VALUE cDlc.
             PUT-KEY-VALUE SECTION "Colors" KEY "Normal" VALUE "".
             PUT-KEY-VALUE SECTION "Colors" KEY "Input" VALUE "".
             PUT-KEY-VALUE SECTION "Colors" KEY "Messages" VALUE "".
-            DO iCtr = 1 TO NUM-ENTRIES(cNewFonts,"|"):
-                PUT-KEY-VALUE SECTION "Fonts" KEY "Font" + STRING(iCtr - 1) VALUE ENTRY(iCtr,cNewFonts,"|").
+            IF cVersion EQ "21" THEN DO:
+                DO iCtr = 1 TO NUM-ENTRIES(cNewFonts,"|"):
+                    PUT-KEY-VALUE SECTION "Fonts" KEY "Font" + STRING(iCtr - 1) VALUE ENTRY(iCtr,cNewFonts,"|").
+                END.
+                DO iCtr = 1 TO NUM-ENTRIES(cNewColors,"|"):
+                    PUT-KEY-VALUE SECTION "Colors" KEY "Color" + STRING(iCtr - 1) VALUE ENTRY(iCtr,cNewColors,"|").
+                END.
             END.
-            DO iCtr = 1 TO NUM-ENTRIES(cNewColors,"|"):
-                PUT-KEY-VALUE SECTION "Colors" KEY "Color" + STRING(iCtr - 1) VALUE ENTRY(iCtr,cNewColors,"|").
+            ELSE IF cVersion EQ "16" THEN DO:
+                DO iCtr = 1 TO NUM-ENTRIES(cOldFonts,"|"):
+                    PUT-KEY-VALUE SECTION "Fonts" KEY "Font" + STRING(iCtr - 1) VALUE ENTRY(iCtr,cOldFonts,"|").
+                END.
+                DO iCtr = 1 TO NUM-ENTRIES(cOldColors,"|"):
+                    PUT-KEY-VALUE SECTION "Colors" KEY "Color" + STRING(iCtr - 1) VALUE ENTRY(iCtr,cOldColors,"|").
+                END.
             END.
-        END.
-        ELSE DO:
-            DO iCtr = 1 TO NUM-ENTRIES(cOldFonts,"|"):
-                PUT-KEY-VALUE SECTION "Fonts" KEY "Font" + STRING(iCtr - 1) VALUE ENTRY(iCtr,cOldFonts,"|").
-            END.
-            DO iCtr = 1 TO NUM-ENTRIES(cOldColors,"|"):
-                PUT-KEY-VALUE SECTION "Colors" KEY "Color" + STRING(iCtr - 1) VALUE ENTRY(iCtr,cOldColors,"|").
-            END.
-        END.
-        PUT-KEY-VALUE COLOR ALL.
-        PUT-KEY-VALUE FONT ALL.
+            PUT-KEY-VALUE COLOR ALL.
+            PUT-KEY-VALUE FONT ALL.
+        END. 
+
         /* Set current dir */
         RUN ipSetCurrentDir (cMapDir + "\" + cEnvDir + "\" + cbEnvironment). 
         

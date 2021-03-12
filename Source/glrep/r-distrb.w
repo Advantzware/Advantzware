@@ -1045,7 +1045,7 @@ DEF VAR ws_disc LIKE ap-payl.amt-disc COLUMN-LABEL "Discount" NO-UNDO.
 DEF VAR ws_check-no LIKE ap-chk.check-no NO-UNDO FORMAT ">>>>>>>"
     COLUMN-LABEL "Check#".
 DEF VAR ws_order-no LIKE oe-ord.ord-no NO-UNDO
-    FORMAT ">>>>>>".
+    FORMAT ">>>>>>>".
 DEF VAR ws_jrnl LIKE glhist.jrnl COLUMN-LABEL "Journal" NO-UNDO.
 DEF VAR gl_jrnl_list AS CHAR NO-UNDO.
 DEF VAR lo_actnum LIKE account.actnum LABEL "From GL Acct#" NO-UNDO.
@@ -1071,7 +1071,7 @@ FORM    ws_jrnl FORM "x(15)"
         /*ap-invl.amt-msf*/
         ws_disc
         ap-invl.amt
-        WITH FRAME f-det width 144 DOWN STREAM-IO.
+        WITH FRAME f-det width 145 DOWN STREAM-IO.
 
 
 SESSION:SET-WAIT-STATE ("general").

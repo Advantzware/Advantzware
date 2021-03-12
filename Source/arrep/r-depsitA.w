@@ -58,7 +58,7 @@ DEF VAR lv-amt      LIKE ar-cash.check-amt NO-UNDO.
 DEF VAR lv-cust-no  LIKE cust.cust-no NO-UNDO.
 DEF VAR lv-name     LIKE cust.name NO-UNDO.
 
-DEF TEMP-TABLE tt-gltrans NO-UNDO LIKE glhist
+DEF TEMP-TABLE tt-glhist NO-UNDO LIKE glhist
     FIELD VOID AS LOG.
 
 DEF STREAM excel.
@@ -1124,7 +1124,7 @@ END.
 
 SESSION:SET-WAIT-STATE ("general").
 
-EMPTY TEMP-TABLE tt-gltrans.
+EMPTY TEMP-TABLE tt-glhist.
 
 FOR EACH ar-cash NO-LOCK
     WHERE ar-cash.company   EQ cocode
@@ -1164,20 +1164,20 @@ FOR EACH ar-cash NO-LOCK
 
       IF NOT AVAIL ar-ledger THEN NEXT.
 
-      CREATE tt-gltrans.
+      CREATE tt-glhist.
       ASSIGN
-        tt-gltrans.company = ar-cash.company
-        tt-gltrans.actnum  = ar-cash.bank-code
-        tt-gltrans.jrnl    = "CASHR"
-        tt-gltrans.tr-dscr = ar-cash.cust-no + " " +
+        tt-glhist.company = ar-cash.company
+        tt-glhist.actnum  = ar-cash.bank-code
+        tt-glhist.jrnl    = "CASHR"
+        tt-glhist.tr-dscr = ar-cash.cust-no + " " +
                              STRING(ar-cash.check-no,"999999999999") +
                              " Inv# " + STRING(ar-cashl.inv-no)
-        tt-gltrans.tr-date = ar-ledger.tr-date
-        tt-gltrans.tr-amt  = ar-cashl.amt-paid
-        tt-gltrans.tr-num   = ar-ledger.tr-num
-        tt-gltrans.VOID    = v-void
+        tt-glhist.tr-date = ar-ledger.tr-date
+        tt-glhist.tr-amt  = ar-cashl.amt-paid
+        tt-glhist.tr-num   = ar-ledger.tr-num
+        tt-glhist.VOID    = v-void
         .
-      RELEASE tt-gltrans.
+      RELEASE tt-glhist.
   END. /* each ar-cashl */
 END.
 
@@ -1198,16 +1198,16 @@ IF TRIM(begin_cust) EQ "" AND
          AND ar-ledger.tr-date LE v-e-date
        NO-LOCK:
           {custom/statusMsg.i " 'Processing Bank#  '  + ar-mcash.bank-code "}
-       CREATE tt-gltrans.
+       CREATE tt-glhist.
        assign
-        tt-gltrans.company = ar-mcash.company
-        tt-gltrans.actnum  = ar-mcash.bank-code
-        tt-gltrans.jrnl    = "MCSHREC"
-        tt-gltrans.tr-dscr = string(ar-mcash.m-no)
-        tt-gltrans.tr-date = ar-ledger.tr-date
-        tt-gltrans.tr-amt  = ar-ledger.amt
-        tt-gltrans.tr-num   = ar-ledger.tr-num.
-       RELEASE tt-gltrans.
+        tt-glhist.company = ar-mcash.company
+        tt-glhist.actnum  = ar-mcash.bank-code
+        tt-glhist.jrnl    = "MCSHREC"
+        tt-glhist.tr-dscr = string(ar-mcash.m-no)
+        tt-glhist.tr-date = ar-ledger.tr-date
+        tt-glhist.tr-amt  = ar-ledger.amt
+        tt-glhist.tr-num   = ar-ledger.tr-num.
+       RELEASE tt-glhist.
 END.
 
 FOR EACH bank
@@ -1222,17 +1222,17 @@ FOR EACH bank
    bank-tot = 0.
 
   do date-loop = v-s-date to v-e-date:
-    for each tt-gltrans
-        where tt-gltrans.company eq bank.company
-          and tt-gltrans.actnum  eq bank.bank-code
-          and tt-gltrans.tr-date eq date-loop
+    for each tt-glhist
+        where tt-glhist.company eq bank.company
+          and tt-glhist.actnum  eq bank.bank-code
+          and tt-glhist.tr-date eq date-loop
         no-lock
 
-        break by tt-gltrans.tr-date
-              BY tt-gltrans.tr-num
-              BY tt-gltrans.tr-dscr:
+        break by tt-glhist.tr-date
+              BY tt-glhist.tr-num
+              BY tt-glhist.tr-dscr:
 
-        {custom/statusMsg.i " 'Processing Bank#  '  + tt-gltrans.actnum "}
+        {custom/statusMsg.i " 'Processing Bank#  '  + tt-glhist.actnum "}
 
       IF v-frst THEN
       DO:
@@ -1251,10 +1251,10 @@ FOR EACH bank
       IF tb_det THEN DO:
          IF v-frst THEN DOWN WITH FRAME day-log.
 
-         RUN get-detail-values (tt-gltrans.jrnl, tt-gltrans.tr-dscr, tt-gltrans.tr-amt,
-                                tt-gltrans.VOID).
+         RUN get-detail-values (tt-glhist.jrnl, tt-glhist.tr-dscr, tt-glhist.tr-amt,
+                                tt-glhist.VOID).
 
-         IF lv-amt EQ 0 THEN lv-amt = tt-gltrans.tr-amt.
+         IF lv-amt EQ 0 THEN lv-amt = tt-glhist.tr-amt.
 
          IF lv-check-no NE 0 THEN DO:
            DISPLAY lv-name     @ bank.actnum
@@ -1282,9 +1282,9 @@ FOR EACH bank
 
       ASSIGN
          v-frst = NO
-         tot-daily[1] = tot-daily[1] + tt-gltrans.tr-amt.
+         tot-daily[1] = tot-daily[1] + tt-glhist.tr-amt.
 
-      IF LAST-OF(tt-gltrans.tr-num) THEN DO:
+      IF LAST-OF(tt-glhist.tr-num) THEN DO:
         IF tb_det THEN
         DO:
           UNDERLINE tot-daily[2] WITH FRAME day-log.
@@ -1299,8 +1299,8 @@ FOR EACH bank
                SKIP.
         END.
 
-        display tt-gltrans.tr-date @ v-date
-                TRIM(STRING(tt-gltrans.tr-num,">>>>>>>>>>")) @ v-tr-num
+        display tt-glhist.tr-date @ v-date
+                TRIM(STRING(tt-glhist.tr-num,">>>>>>>>>>")) @ v-tr-num
                 tot-daily[1] @ tot-daily[2]
 
             with frame day-log.
@@ -1310,20 +1310,20 @@ FOR EACH bank
           PUT STREAM excel UNFORMATTED
               '"' "" '",'
               '"' "" '",'
-              '"' (IF tt-gltrans.tr-date NE ? THEN STRING(tt-gltrans.tr-date)
+              '"' (IF tt-glhist.tr-date NE ? THEN STRING(tt-glhist.tr-date)
                    ELSE "") '",'
-              '"' TRIM(STRING(tt-gltrans.tr-num,">>>>>>>>>>")) '",'
+              '"' TRIM(STRING(tt-glhist.tr-num,">>>>>>>>>>")) '",'
               '"' STRING(tot-daily[1],"->>,>>>,>>9.99") '",'
              SKIP.
 
-        IF tb_det AND NOT LAST-OF(tt-gltrans.tr-date) THEN PUT SKIP(1). 
+        IF tb_det AND NOT LAST-OF(tt-glhist.tr-date) THEN PUT SKIP(1). 
 
         ASSIGN
          tot-daily[2] = tot-daily[2] + tot-daily[1]
          tot-daily[1] = 0.
       END.
 
-      if last-of(tt-gltrans.tr-date) then do:
+      if last-of(tt-glhist.tr-date) then do:
         UNDERLINE tot-daily[2] WITH FRAME day-log.
         IF tb_det THEN DO:
           down with frame day-log.

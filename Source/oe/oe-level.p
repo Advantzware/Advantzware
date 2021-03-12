@@ -10,9 +10,6 @@ DEFINE BUFFER bf-oe-ordl  FOR oe-ordl.
 
 DEFINE VARIABLE dQty          AS DECIMAL NO-UNDO.
 DEFINE VARIABLE lMatrixExists AS LOGICAL NO-UNDO.
-DEFINE VARIABLE hdPriceProcs  AS HANDLE.
-
-RUN oe/PriceProcs.p PERSISTENT SET hdPriceProcs.
                                              
 FOR EACH bf-oe-ordl NO-LOCK  
     WHERE bf-oe-ordl.company EQ ipbf-oe-ord.company
@@ -27,7 +24,7 @@ FIND FIRST bf-oe-ordl NO-LOCK
     AND bf-oe-ordl.ord-no EQ ipbf-oe-ord.ord-no
     NO-ERROR.
 
-RUN GetPriceMatrixLevel IN hdPriceProcs (ipbf-oe-ord.company, bf-oe-ordl.i-no, ipbf-oe-ord.cust-no, ipbf-oe-ord.ship-id,
+RUN Price_GetPriceMatrixLevel (ipbf-oe-ord.company, bf-oe-ordl.i-no, ipbf-oe-ord.cust-no, ipbf-oe-ord.ship-id,
     dQty,
     OUTPUT opiLevel).
   

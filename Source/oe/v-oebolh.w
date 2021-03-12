@@ -73,6 +73,7 @@ END.
 
 RUN oe/s-codes.p (OUTPUT lv-type-code, OUTPUT lv-type-dscr).
 DEFINE VARIABLE cFreightCalculationValue AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iFreightCalculationValue AS INTEGER NO-UNDO.
 DEFINE VARIABLE cRetChar AS CHAR NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE dTotalFreight AS DECIMAL NO-UNDO.
@@ -90,6 +91,12 @@ RUN sys/ref/nk1look.p (INPUT cocode, "FreightCalculation", "I" /* Logical */, NO
 IF lRecFound THEN
     iFreightCalculationValue = INTEGER(cRetChar) NO-ERROR.    
 
+RUN sys/ref/nk1look.p (INPUT cocode, "FreightCalculation", "I" /* Logical */, NO /* check by cust */, 
+                       INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+                       OUTPUT cRetChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    iFreightCalculationValue = INTEGER(cRetChar) NO-ERROR.
+    
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -2605,6 +2612,29 @@ PROCEDURE valid-frt-pay :
      RETURN ERROR.
   END.
   
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-freight V-table-Win 
+PROCEDURE valid-freight :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  DO WITH FRAME {&FRAME-NAME}:
+     IF iFreightCalculationValue EQ 1 AND oe-bolh.frt-pay:SCREEN-VALUE NE "B" AND oe-bolh.freight:SCREEN-VALUE <> "0.00" THEN DO:
+          MESSAGE "Freight is prepaid so the freight charge should not be added or the freight terms should be adjusted." VIEW-AS ALERT-BOX ERROR.
+          APPLY "entry" TO oe-bolh.freight .
+          RETURN ERROR.
+     END.
+     
+  END.
+
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

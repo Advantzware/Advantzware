@@ -430,8 +430,13 @@ PROCEDURE check-date :
           MESSAGE "Period Already Closed. " VIEW-AS ALERT-BOX ERROR.
           v-invalid = YES.
        END.
+       ELSE IF AVAIL period AND period.subLedgerAR EQ "C" THEN
+       DO:
+          MESSAGE "Sub ledger AR Receivables already closed. " VIEW-AS ALERT-BOX ERROR.
+          v-invalid = YES.  
+       END.
         tran-period:SCREEN-VALUE = STRING(period.pnum).
-    END.
+    END.     
 
     ELSE DO:
       MESSAGE "No Defined Period Exists for" tran-date VIEW-AS ALERT-BOX ERROR.

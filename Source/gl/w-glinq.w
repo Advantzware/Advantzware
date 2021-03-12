@@ -34,6 +34,7 @@ CREATE WIDGET-POOL.
 
 &SCOPED-DEFINE winReSize
 &SCOPED-DEFINE h_Browse01 h_b-glinq
+/*&SCOPED-DEFINE AuditTableList glhist*/
 
 /* Parameters Definitions ---                                           */
 
@@ -59,6 +60,13 @@ DEF VAR li-last-page AS INT NO-UNDO.  /* for folding estimate page */
 /* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 
+/* External Tables                                                      */
+&Scoped-define EXTERNAL-TABLES glhist
+&Scoped-define FIRST-EXTERNAL-TABLE glhist
+
+
+/* Need to scope the external tables to this procedure                  */
+DEFINE QUERY external_tables FOR glhist.
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
 
@@ -331,6 +339,9 @@ PROCEDURE adm-create-objects :
              OUTPUT h_movecol ).
        RUN set-position IN h_movecol ( 1.00 , 96.60 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.80 ) */
+
+       /* Links to SmartNavBrowser h_mach. */
+       RUN add-link IN adm-broker-hdl ( h_b-glinq , 'Record':U , THIS-PROCEDURE ).
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_b-glinq ,

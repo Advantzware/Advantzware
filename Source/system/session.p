@@ -62,6 +62,7 @@ DEFINE VARIABLE sessionInstance     AS CLASS system.SessionConfig NO-UNDO.
 /* vv alphabetical list of super-procedures comma delimited vv */
 ASSIGN 
     cSuperProcedure = "browsers/BrowserProcs.p,"
+                    + "oe/PriceProcs.p,"
                     + "est/EstimateProcs.p,"
                     + "system/CommonProcs.p,"
                     + "system/ConversionProcs.p,"
@@ -373,7 +374,9 @@ ASSIGN
     lUserAMPM   = users.AMPM
     lSuperAdmin = users.securityLevel GE 1000
     lAdmin      = users.securityLevel GE 900
+    cUserID     = users.user_id
     .
+RUN spSetSessionParam("UserID",cUserID).
 /* build temp-table of super-procedures */
 DO idx = 1 TO NUM-ENTRIES(cSuperProcedure):
     CREATE ttSuperProcedure.

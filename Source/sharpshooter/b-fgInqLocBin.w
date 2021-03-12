@@ -174,9 +174,9 @@ DEFINE QUERY ttBrowseInventory FOR
 DEFINE BROWSE ttBrowseInventory
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS ttBrowseInventory B-table-Win _FREEFORM
   QUERY ttBrowseInventory DISPLAY
-      ttInventoryLoc.locationID WIDTH 40 COLUMN-LABEL "Location" FORMAT "X(20)" LABEL-BGCOLOR 14
-    ttInventoryLoc.totLocTags WIDTH 40 COLUMN-LABEL "Total Tags Per Location" FORMAT "->,>>>,>>>,>>9" LABEL-BGCOLOR 14
-    ttInventoryLoc.warehouseID WIDTH 35 COLUMN-LABEL "Warehouse" FORMAT "X(5)" LABEL-BGCOLOR 14
+      ttInventoryLoc.locationID WIDTH 40 COLUMN-LABEL "Bin" FORMAT "X(20)" LABEL-BGCOLOR 14
+    ttInventoryLoc.totLocTags WIDTH 40 COLUMN-LABEL "Total Tags Per Bin" FORMAT "->,>>>,>>>,>>9" LABEL-BGCOLOR 14
+    ttInventoryLoc.warehouseID WIDTH 35 COLUMN-LABEL "Location" FORMAT "X(5)" LABEL-BGCOLOR 14
     ttInventoryLoc.quantityOnHand WIDTH 25 COLUMN-LABEL "Qty On-Hand" FORMAT "->,>>>,>>>,>>9" LABEL-BGCOLOR 14
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

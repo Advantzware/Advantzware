@@ -171,6 +171,12 @@ RUN oe/PostInvoices.p PERSISTENT SET hPostInvoices.
 /* Allows for other names besides r-invprt. */
 v-prgmname = ipcPrgmnameOverride.
 
+DEFINE VARIABLE cInvMessage1 AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cInvMessage2 AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cInvMessage3 AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cInvMessage4 AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cInvMessage5 AS CHARACTER NO-UNDO.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -190,7 +196,8 @@ v-prgmname = ipcPrgmnameOverride.
 begin_cust end_cust begin_inv end_inv begin_date end_date tb_reprint ~
 tb_setcomp tb_prt-inst tb_qty-all tb_open-inv rd_sort tb_BatchMail ~
 tb_HideDialog tb_attachBOL rd-dest lv-ornt lines-per-page lv-font-no ~
-tb_email-orig tb_override-email td-show-parm run_format btn-ok btn-cancel 
+tb_email-orig tb_override-email td-show-parm run_format btnInvoiceMessage ~
+btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS tb_cust-list begin_cust end_cust begin_inv ~
 end_inv begin_date end_date tb_reprint tb_setcomp tb_prt-inst tb_qty-all ~
 tb_open-inv lbl_sort rd_sort tb_BatchMail tb_HideDialog tb_attachBOL ~
@@ -233,6 +240,10 @@ DEFINE BUTTON btnCustList
      LABEL "Preview" 
      SIZE 9.8 BY .81.
 
+DEFINE BUTTON btnInvoiceMessage 
+     LABEL "Invoice Message" 
+     SIZE 18.5 BY .91.
+     
 DEFINE VARIABLE begin_bol AS INTEGER FORMAT ">>>>>>>>" INITIAL 0 
      LABEL "Beginning BOL#" 
      VIEW-AS FILL-IN 
@@ -504,6 +515,7 @@ DEFINE FRAME FRAME-A
      tb_cust-copy AT ROW 13.91 COL 12
      tb_office-copy AT ROW 13.91 COL 39
      tb_sman-copy AT ROW 13.91 COL 64
+     btnInvoiceMessage AT ROW 13.91 COL 74.4
      tb_BatchMail AT ROW 15.86 COL 48.8 RIGHT-ALIGNED
      tb_HideDialog AT ROW 15.86 COL 48
      tb_attachBOL AT ROW 15.86 COL 69 WIDGET-ID 16
@@ -1077,7 +1089,12 @@ DO:
             tb_cust-list       ,
             tb_prt-dupl        ,
             NO  /* Pdf only */ , 
-            tb_open-inv
+            tb_open-inv,
+            cInvMessage1,
+            cInvMessage2,
+            cInvMessage3,
+            cInvMessage4,
+            cInvMessage5
             ).
 
         IF begin_bol EQ end_bol THEN 
@@ -1223,7 +1240,12 @@ DO:
         tb_cust-list       ,
         tb_prt-dupl        ,
         YES /* Pdf only */ ,
-        tb_open-inv
+        tb_open-inv,
+        cInvMessage1,
+        cInvMessage2,
+        cInvMessage3,
+        cInvMessage4,
+        cInvMessage5        
         ).
 RUN BatchMail (begin_cust, end_cust).
         END.
@@ -1272,6 +1294,23 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&Scoped-define SELF-NAME btnInvoiceMessage
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnInvoiceMessage C-Win
+ON CHOOSE OF btnInvoiceMessage IN FRAME FRAME-A /* Preview */
+DO:
+  RUN custom/d-invmesssage.w (
+        "update" ,
+        INPUT-OUTPUT cInvMessage1,
+        INPUT-OUTPUT cInvMessage2,
+        INPUT-OUTPUT cInvMessage3,
+        INPUT-OUTPUT cInvMessage4,
+        INPUT-OUTPUT cInvMessage5).
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &Scoped-define SELF-NAME end_bol
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_bol C-Win
@@ -1916,7 +1955,8 @@ lines-per-page:SCREEN-VALUE = STRING(lines-per-page).
 IF glPaperless THEN 
     tb_override-email:CHECKED = FALSE.
 
-
+    
+    RUN pGetInvMessage.
 
 /* Include file */
     RUN setBOLRange (INPUT begin_bol:SCREEN-VALUE ,  
@@ -2114,7 +2154,7 @@ PROCEDURE enable_UI :
   ENABLE RECT-6 RECT-7 tb_cust-list btnCustList begin_cust end_cust begin_inv 
          end_inv begin_date end_date tb_reprint tb_setcomp tb_prt-inst 
          tb_qty-all tb_open-inv rd_sort tb_BatchMail tb_HideDialog tb_attachBOL 
-         rd-dest lv-ornt lines-per-page lv-font-no tb_email-orig 
+         rd-dest lv-ornt lines-per-page lv-font-no tb_email-orig btnInvoiceMessage
          tb_override-email td-show-parm run_format btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
@@ -2280,6 +2320,13 @@ PROCEDURE pRunFormatValueChanged :
          IF v-print-fmt EQ "invprint 10" OR v-print-fmt EQ  "invprint 20" OR v-print-fmt EQ  "invprint 21" OR v-print-fmt EQ "LancoYork" OR v-print-fmt EQ "invprint10-CAN" THEN
              ASSIGN tb_qty-all:HIDDEN = NO .
          ELSE tb_qty-all:HIDDEN = YES .
+         
+         IF v-print-fmt EQ "Badger" THEN
+             ASSIGN btnInvoiceMessage:HIDDEN    = NO
+             btnInvoiceMessage:SENSITIVE = YES.
+         ELSE
+             ASSIGN btnInvoiceMessage:HIDDEN    = YES
+             btnInvoiceMessage:SENSITIVE = NO.
        
     END.
 END PROCEDURE.
@@ -2395,3 +2442,26 @@ END FUNCTION.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetInvMessage C-Win 
+PROCEDURE pGetInvMessage :
+/*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    FIND FIRST ar-ctrl
+        WHERE ar-ctrl.company EQ cocode
+        NO-LOCK NO-ERROR.
+
+    IF AVAILABLE ar-ctrl THEN
+      ASSIGN
+           cInvMessage1 = ar-ctrl.invoiceMessage1
+           cInvMessage2 = ar-ctrl.invoiceMessage2
+           cInvMessage3 = ar-ctrl.invoiceMessage3
+           cInvMessage4 = ar-ctrl.invoiceMessage4
+           cInvMessage5 = ar-ctrl.invoiceMessage5 .
+
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME

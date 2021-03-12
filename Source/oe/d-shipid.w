@@ -47,6 +47,15 @@ DEFINE TEMP-TABLE tt-oe-shipto
     FIELD IS-SELECTED AS LOG       COLUMN-LABEL "" VIEW-AS TOGGLE-BOX .
 
 DEFINE VARIABLE cbShipFrom AS CHARACTER  NO-UNDO .
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
+DEFINE VARIABLE iOEShipfrom AS INTEGER NO-UNDO.
+
+RUN sys/ref/nk1look.p (INPUT g_company, "OEShipfrom", "I" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    iOEShipfrom = integer(cRtnChar) NO-ERROR. 
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -129,7 +138,7 @@ DEFINE BROWSE browse-shipto
   QUERY browse-shipto NO-LOCK DISPLAY
       tt-oe-shipto.ship-from FORMAT "x(8)":U COLUMN-LABEL "Ship From" WIDTH 16
       tt-oe-shipto.on-hand-qty FORMAT "->,>>>,>>9":U COLUMN-LABEL "On Hand"  WIDTH 18
-      tt-oe-shipto.avail-qty FORMAT "->,>>>,>>>,>>9":U COLUMN-LABEL "Available" WIDTH 20 
+      tt-oe-shipto.avail-qty FORMAT "->,>>>,>>>,>>9":U COLUMN-LABEL "Available to Ship" WIDTH 20 
       tt-oe-shipto.q-status COLUMN-LABEL "Status":U WIDTH 8
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -371,8 +380,15 @@ PROCEDURE build-table :
                 :
                 RUN fg/calcqabl.p (ROWID(itemfg), itemfg-loc.loc, OUTPUT iAlloc, OUTPUT iBack).
                 ASSIGN
-                    tt-oe-shipto.on-hand-qty  = itemfg-loc.q-onh
-                    tt-oe-shipto.avail-qty   = itemfg-loc.q-onh + itemfg-loc.q-ono - iAlloc .
+                    tt-oe-shipto.on-hand-qty  = itemfg-loc.q-onh .
+                    IF iOEShipfrom EQ 0 THEN
+                      tt-oe-shipto.avail-qty   = itemfg-loc.q-onh + itemfg-loc.q-ono - iAlloc .
+                    ELSE IF iOEShipfrom EQ 1 THEN
+                      tt-oe-shipto.avail-qty   = itemfg-loc.q-onh - iAlloc . 
+                    ELSE IF iOEShipfrom EQ 2 THEN
+                      tt-oe-shipto.avail-qty   = itemfg-loc.q-onh + itemfg-loc.q-ono - iAlloc .
+                    ELSE IF iOEShipfrom EQ 3 THEN
+                      tt-oe-shipto.avail-qty   = itemfg-loc.q-onh + itemfg-loc.q-ono  .  
                 
                 IF ipiOrderQty LE itemfg-loc.q-onh THEN
                     tt-oe-shipto.q-status = "1".

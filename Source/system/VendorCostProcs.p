@@ -2460,6 +2460,25 @@ PROCEDURE pUpdateVendCostPriceWithPercentage PRIVATE:
 
 END PROCEDURE.
 
+PROCEDURE Vendor_ExpirePriceByItem:
+/*------------------------------------------------------------------------------
+ Purpose: Expire the vendItemCost Prices based upon company and item
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcItemID  AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-vendItemCost FOR vendItemCost.
+    
+    FOR EACH bf-vendItemCost EXCLUSIVE-LOCK 
+        WHERE bf-vendItemCost.company        EQ ipcCompany
+          AND bf-vendItemCost.ItemID         EQ ipcItemID
+          AND(bf-vendItemCost.expirationDate GT TODAY OR bf-vendItemCost.expirationDate EQ ?) :
+            bf-vendItemCost.expirationDate = TODAY.      
+        END.
+
+END PROCEDURE.
+
 /* ************************  Function Implementations ***************** */
 
 FUNCTION VendCost_GetValidScopes RETURNS CHARACTER 

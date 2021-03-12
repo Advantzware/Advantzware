@@ -29,7 +29,8 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 {custom/globdefs.i}
-
+&SCOPED-DEFINE winReSize
+{methods/defines/winReSize.i}
 {sys/inc/var.i NEW SHARED}
 {methods/template/brwCustomDef.i}
 
@@ -596,6 +597,10 @@ END.
 ON LEAVE OF rm-rctd.tag IN BROWSE Browser-Table /* Tag# */
 DO:
   DEFINE VARIABLE lvTag AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE lFoundRecord AS LOGICAL NO-UNDO.
+  
+  DEFINE BUFFER bf-rm-rdtlh FOR rm-rdtlh.
+  DEFINE BUFFER bf-rm-rcpth FOR rm-rcpth.
   
   IF LASTKEY NE -1 THEN  DO:
     lvTag = rm-rctd.tag:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}.
@@ -615,36 +620,23 @@ DO:
     
     IF adm-new-record THEN
     DO:
-       FIND FIRST rm-rdtlh WHERE
-            rm-rdtlh.company EQ cocode AND
-            rm-rdtlh.loc EQ loadtag.loc AND
-            rm-rdtlh.loc-bin EQ loadtag.loc-bin AND
-            rm-rdtlh.tag EQ loadtag.tag-no AND
-            rm-rdtlh.rita-code EQ "I" AND
-            rm-rdtlh.qty GT 0
-            NO-LOCK NO-ERROR.
-       
-       IF AVAIL rm-rdtlh THEN DO:
-       
-         FOR EACH rm-rcpth OF rm-rdtlh
-             NO-LOCK BREAK BY rm-rcpth.trans-date DESC:
-              
+        RUN pGetLastIssue(BUFFER loadtag, BUFFER bf-rm-rdtlh, BUFFER bf-rm-rcpth, OUTPUT lFoundRecord).
+        IF lFoundRecord THEN DO: 
              ASSIGN
-               rm-rctd.pur-uom:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} = rm-rcpth.pur-uom
-               rm-rctd.po-no:SCREEN-VALUE = rm-rcpth.po-no
-               rm-rctd.cost:SCREEN-VALUE = STRING(rm-rdtlh.cost)
-               rm-rctd.cost-uom:SCREEN-VALUE = rm-rcpth.pur-uom
-               rm-rctd.job-no:SCREEN-VALUE = STRING(rm-rcpth.job-no)
-               rm-rctd.job-no2:SCREEN-VALUE = STRING(rm-rcpth.job-no2)
-               rm-rctd.loc:SCREEN-VALUE = rm-rdtlh.loc
-               rm-rctd.loc-bin:SCREEN-VALUE = rm-rdtlh.loc-bin
-               rm-rctd.s-num:SCREEN-VALUE = STRING(rm-rdtlh.s-num)
-               rm-rctd.b-num:SCREEN-VALUE = STRING(rm-rdtlh.b-num).
-             LEAVE.
-         END.
+               rm-rctd.pur-uom:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} = bf-rm-rcpth.pur-uom
+               rm-rctd.po-no:SCREEN-VALUE = bf-rm-rcpth.po-no
+               rm-rctd.cost:SCREEN-VALUE = STRING(bf-rm-rdtlh.cost)
+               rm-rctd.cost-uom:SCREEN-VALUE = bf-rm-rcpth.pur-uom
+               rm-rctd.job-no:SCREEN-VALUE = STRING(bf-rm-rcpth.job-no)
+               rm-rctd.job-no2:SCREEN-VALUE = STRING(bf-rm-rcpth.job-no2)
+               rm-rctd.loc:SCREEN-VALUE = bf-rm-rdtlh.loc
+               rm-rctd.loc-bin:SCREEN-VALUE = bf-rm-rdtlh.loc-bin
+               rm-rctd.s-num:SCREEN-VALUE = STRING(bf-rm-rdtlh.s-num)
+               rm-rctd.b-num:SCREEN-VALUE = STRING(bf-rm-rdtlh.b-num).
+        
+            RUN update-qty-proc.
+        END.
        
-         RUN update-qty-proc.
-       END. /* avail rm-rdtlh*/
     END.
 
        
@@ -975,7 +967,7 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
-
+{methods/winReSize.i}
 {sys/inc/rmissue.i}
 lv-rmissue = v-rmissue.
 
@@ -1916,6 +1908,40 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetLastIssue B-table-Win
+PROCEDURE pGetLastIssue PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Given a loadtag buffer, find the last issue for the tag
+     and return whether it is found and history record buffers
+     Notes: 
+    ------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-loadtag  FOR loadtag.
+    DEFINE PARAMETER BUFFER opbf-rm-rdtlh FOR rm-rdtlh.
+    DEFINE PARAMETER BUFFER opbf-rm-rcpth FOR rm-rcpth.
+    DEFINE OUTPUT PARAMETER oplFound AS LOGICAL NO-UNDO.
+    
+    IF AVAIL ipbf-loadtag THEN
+        FOR EACH opbf-rm-rdtlh NO-LOCK
+            WHERE opbf-rm-rdtlh.company EQ ipbf-loadtag.company 
+            AND opbf-rm-rdtlh.tag EQ ipbf-loadtag.tag-no 
+            AND opbf-rm-rdtlh.loc EQ ipbf-loadtag.loc  // needed for speed purposes
+            AND opbf-rm-rdtlh.rita-code EQ "I" 
+            AND opbf-rm-rdtlh.qty GT 0,        
+            EACH opbf-rm-rcpth OF opbf-rm-rdtlh NO-LOCK 
+            BY opbf-rm-rcpth.trans-date DESC:
+            
+            oplFound = YES.
+            LEAVE.        
+        END.    
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE rmbin-help B-table-Win 
 PROCEDURE rmbin-help :
 /*------------------------------------------------------------------------------
@@ -2309,8 +2335,10 @@ PROCEDURE valid-issued-tag :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF VAR lv-valid-tag AS LOG NO-UNDO.
-
+    DEFINE VARIABLE lValidTag AS LOG NO-UNDO.
+    DEFINE BUFFER bf-rm-rdtlh FOR rm-rdtlh.
+    DEFINE BUFFER bf-rm-rcpth FOR rm-rcpth.
+    
    FIND FIRST loadtag NO-LOCK
        WHERE loadtag.company = cocode and
        loadtag.item-type = YES and
@@ -2328,24 +2356,10 @@ PROCEDURE valid-issued-tag :
        rm-rctd.tag:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} = loadtag.tag-no.
      
     END.
+    RUN pGetLastIssue(BUFFER loadtag, BUFFER bf-rm-rdtlh, BUFFER bf-rm-rcpth, OUTPUT lValidTag).
+    
 
-    IF AVAIL loadtag THEN
-      FOR EACH rm-rdtlh FIELDS(r-no) WHERE
-           rm-rdtlh.company EQ cocode AND
-           rm-rdtlh.loc EQ loadtag.loc AND
-           rm-rdtlh.loc-bin EQ loadtag.loc-bin AND
-           rm-rdtlh.tag EQ loadtag.tag-no
-           NO-LOCK,
-      FIRST rm-rcpth WHERE
-           rm-rcpth.r-no    EQ rm-rdtlh.r-no AND
-           rm-rcpth.i-no    EQ loadtag.i-no
-           NO-LOCK:
-  
-           lv-valid-tag = YES.
-           LEAVE.
-      END.
-
-  IF NOT lv-valid-tag THEN
+  IF NOT lValidTag THEN
   DO:
      MESSAGE "Tag not issued, issue tag to create return."
          VIEW-AS ALERT-BOX ERROR BUTTONS OK.

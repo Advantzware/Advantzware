@@ -617,6 +617,10 @@ PROCEDURE check-date :
           MESSAGE "Period Already Closed. " VIEW-AS ALERT-BOX ERROR.
           v-invalid = YES.
        END.
+       IF period.subLedgerAP EQ "C" THEN DO:
+          MESSAGE "Payables sub ledger already closed. " VIEW-AS ALERT-BOX ERROR.
+          v-invalid = YES.
+       END.
         tran-period:SCREEN-VALUE = string(period.pnum).
     END.
     ELSE DO:
@@ -807,7 +811,7 @@ PROCEDURE post-gl :
           break by ap-pay.vend-no by ap-payl.inv-no by ap-payl.line
           on error undo postit, leave postit:
 
-         FIND FIRST ap-inv
+         FIND FIRST ap-inv EXCLUSIVE
              WHERE ap-inv.company EQ cocode
                AND ap-inv.vend-no EQ vend.vend-no
                AND ap-inv.inv-no  EQ ap-payl.inv-no
@@ -868,7 +872,7 @@ PROCEDURE post-gl :
            END.
          END.
 
-         RELEASE ap-inv.
+         FIND CURRENT ap-inv NO-LOCK.
           dAmount = - (ap-payl.amt-paid - ap-payl.amt-disc).
           RUN GL_SpCreateGLHist(cocode,
                              ap-payl.actnum,

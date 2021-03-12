@@ -10,10 +10,7 @@ ENABLE ptd-sales total-msf WITH FRAME {&FRAME-NAME}.
 APPLY 'ENTRY' TO ptd-sales.
 &ELSE
 DO WITH FRAME {&FRAME-NAME}:
-  
-  IF cbMatrixRounding:LOOKUP("") NE 0 THEN 
-    cbMatrixRounding:DELETE(cbMatrixRounding:LOOKUP("")).
-    
+   
   ENABLE {&faxFields} fi_flat-comm fl_custemail cbMatrixPrecision cbMatrixRounding.
 
 

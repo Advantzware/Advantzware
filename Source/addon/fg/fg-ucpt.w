@@ -34,7 +34,10 @@ CREATE WIDGET-POOL.
 /* ***************************  Definitions  ************************** */
 
 &SCOPED-DEFINE winViewPrgmName fg-ucpt
-
+&SCOPED-DEFINE winReSize
+&SCOPED-DEFINE h_Object01 h_p-updcan
+&SCOPED-DEFINE h_Object02 h_v-post
+&SCOPED-DEFINE h_Object03 h_viewfginquiry
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
@@ -110,8 +113,8 @@ DEFINE FRAME OPTIONS-FRAME
 DEFINE FRAME message-frame
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 24 ROW 2.91
-         SIZE 127 BY 1.43
+         AT COL 2 ROW 1
+         SIZE 148 BY 1.91
          BGCOLOR 15 .
 
 
@@ -262,6 +265,7 @@ END.
 
 /* Include custom  Main Block code for SmartWindows. */
 {src/adm/template/windowmn.i}
+{custom/initializeprocs.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

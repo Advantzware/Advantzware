@@ -46,6 +46,12 @@ CREATE WIDGET-POOL.
 {custom/getcmpny.i}
 {custom/format.i}
 
+DEFINE VARIABLE cInvMessage1 AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cInvMessage2 AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cInvMessage3 AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cInvMessage4 AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cInvMessage5 AS CHARACTER NO-UNDO.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -62,7 +68,7 @@ CREATE WIDGET-POOL.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-15 RECT-16 Btn_Update Btn_Close ~
-Btn_Clear 
+Btn_Clear btn_inv-msg
 &Scoped-Define DISPLAYED-FIELDS ar-ctrl.last-inv ar-ctrl.receivables ~
 ar-ctrl.sales ar-ctrl.cash-act ar-ctrl.discount ar-ctrl.onac ~
 ar-ctrl.freight ar-ctrl.stax ar-ctrl.postUserID ar-ctrl.postStartDtTm ~
@@ -112,6 +118,11 @@ DEFINE BUTTON Btn_Close
 DEFINE BUTTON Btn_Update 
      LABEL "&Update" 
      SIZE 15 BY 1.14.
+     
+DEFINE BUTTON btn_inv-msg 
+     LABEL "Invoice Message" 
+     SIZE 19.4 BY 1
+     BGCOLOR 15 FONT 4.     
 
 DEFINE VARIABLE cDscrAccRec AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
@@ -248,6 +259,7 @@ DEFINE FRAME ar-ctrl
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
           BGCOLOR 7 FGCOLOR 15  NO-TAB-STOP 
+     btn_inv-msg AT ROW 1.24 COL 55.2     
      Btn_Update AT ROW 13.24 COL 27 HELP
           "Update/Save System Configurations"
      Btn_Close AT ROW 13.24 COL 43 HELP
@@ -538,8 +550,35 @@ DO:
       Btn_Close:LABEL = "&Close".
     FIND CURRENT ar-ctrl EXCLUSIVE-LOCK.
     ASSIGN {&LIST-1}.
+    ASSIGN
+        ar-ctrl.invoiceMessage1 = cInvMessage1
+        ar-ctrl.invoiceMessage2 = cInvMessage2
+        ar-ctrl.invoiceMessage3 = cInvMessage3
+        ar-ctrl.invoiceMessage4 = cInvMessage4
+        ar-ctrl.invoiceMessage5 = cInvMessage5 .
     FIND CURRENT ar-ctrl NO-LOCK.
   END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME btn_inv-msg
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_inv-msg C-Win
+ON CHOOSE OF btn_inv-msg IN FRAME ar-ctrl /* inv message */
+DO:
+   IF AVAIL ar-ctrl THEN
+    ASSIGN cInvMessage1 = ar-ctrl.invoiceMessage1
+           cInvMessage2 = ar-ctrl.invoiceMessage2
+           cInvMessage3 = ar-ctrl.invoiceMessage3
+           cInvMessage4 = ar-ctrl.invoiceMessage4
+           cInvMessage5 = ar-ctrl.invoiceMessage5.
+
+    IF ar-ctrl.last-inv:SENSITIVE IN FRAME {&FRAME-NAME} EQ NO THEN
+     RUN custom/d-invmesssage.w ("View" ,INPUT-OUTPUT cInvMessage1, INPUT-OUTPUT cInvMessage2, INPUT-OUTPUT cInvMessage3, INPUT-OUTPUT cInvMessage4, INPUT-OUTPUT cInvMessage5).
+    ELSE
+     RUN custom/d-invmesssage.w ("update" ,INPUT-OUTPUT cInvMessage1, INPUT-OUTPUT cInvMessage2, INPUT-OUTPUT cInvMessage3, INPUT-OUTPUT cInvMessage4, INPUT-OUTPUT cInvMessage5).
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -795,7 +834,7 @@ PROCEDURE enable_UI :
           ar-ctrl.discount ar-ctrl.onac ar-ctrl.freight ar-ctrl.stax 
           ar-ctrl.postUserID ar-ctrl.postStartDtTm ar-ctrl.postType 
       WITH FRAME ar-ctrl IN WINDOW C-Win.
-  ENABLE RECT-15 RECT-16 Btn_Update Btn_Close Btn_Clear 
+  ENABLE RECT-15 RECT-16 Btn_Update Btn_Close Btn_Clear btn_inv-msg
       WITH FRAME ar-ctrl IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-ar-ctrl}
   VIEW C-Win.
@@ -824,6 +863,12 @@ PROCEDURE pDisplayField :
         cDscrFreightAcc = getAccountDesc(ar-ctrl.freight)
         cDscrSalesTaxAcc = getAccountDesc(ar-ctrl.stax)
         . 
+        ASSIGN
+        cInvMessage1 = ar-ctrl.invoiceMessage1
+        cInvMessage2 = ar-ctrl.invoiceMessage2
+        cInvMessage3 = ar-ctrl.invoiceMessage3
+        cInvMessage4 = ar-ctrl.invoiceMessage4
+        cInvMessage5 = ar-ctrl.invoiceMessage5  .
    END. 
     
 END PROCEDURE.

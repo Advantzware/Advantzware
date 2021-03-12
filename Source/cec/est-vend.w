@@ -32,7 +32,7 @@ def output parameter op-vend-no as cha no-undo.
 def output parameter op-error as log no-undo.
 
 {sys/inc/var.i shared}
-
+{system/VendorCostProcs.i}
 DEF TEMP-TABLE tt-report LIKE report.
 
 def var ls-vend-name as cha form "x(30)" no-undo.
@@ -85,6 +85,19 @@ END.
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
+
+/* ************************  Function Prototypes ********************** */
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fUseVendItemCost D-Dialog
+FUNCTION fUseVendItemCost RETURNS LOGICAL PRIVATE
+  (ipcCompany AS CHARACTER) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 
 
@@ -345,92 +358,131 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE build-tt-report D-Dialog 
 PROCEDURE build-tt-report :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-/* --------------------------------------------- sys/look/estbvnd.p 05/01 JLF */
-/*                                                                            */
-/* -------------------------------------------------------------------------- */
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    /* --------------------------------------------- sys/look/estbvnd.p 05/01 JLF */
+    /*                                                                            */
+    /* -------------------------------------------------------------------------- */
 
-DEF VAR v-forms AS INT EXTENT 2 NO-UNDO.
-DEF VAR li AS INT NO-UNDO.
+    DEF    VAR      v-forms  AS INT       EXTENT 2 NO-UNDO.
+    DEF    VAR      li       AS INT       NO-UNDO.
+    DEFINE VARIABLE lUseVIC  AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lError   AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cScope   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE dQty     AS DECIMAL   NO-UNDO.
+    
+    cScope = DYNAMIC-FUNCTION("VendCost_GetValidScopes","Est-RM-Over").
 
+    FIND est WHERE RECID(est) EQ v-recid NO-LOCK NO-ERROR.
 
-FIND est WHERE RECID(est) EQ v-recid NO-LOCK NO-ERROR.
-
-IF NOT AVAIL est                        OR
-   NOT CAN-FIND(FIRST eb OF est
-                WHERE eb.form-no GT 0
-                  AND eb.pur-man EQ NO) THEN LEAVE.
-
-FOR EACH ef
-    WHERE ef.company EQ est.company
-      AND ef.est-no  EQ est.est-no
-      AND CAN-FIND(FIRST eb OF ef WHERE NOT eb.pur-man)
-    NO-LOCK:
-
-  v-forms[1] = v-forms[1] + 1.
-
-  IF ef.cost-msh NE 0 THEN
-     v-board-cost-not-zero = YES.
-
-  FOR EACH e-item-vend
-      WHERE e-item-vend.company EQ ef.company
-        AND e-item-vend.i-no    EQ ef.board
-        AND e-item-vend.vend-no NE ""         
-        AND ef.gsh-wid          GE e-item-vend.roll-w[27]
-        AND ef.gsh-wid          LE e-item-vend.roll-w[28]
-        AND ef.gsh-len          GE e-item-vend.roll-w[29]
-        AND ef.gsh-len          LE e-item-vend.roll-w[30]
-      NO-LOCK:
-
-    FIND FIRST vend
-        WHERE vend.company EQ e-item-vend.company
-          AND vend.vend-no EQ e-item-vend.vend-no
-        NO-LOCK NO-ERROR.
-
-    CREATE tt-report.
-    ASSIGN
-     tt-report.key-01  = e-item-vend.vend-no
-     tt-report.key-02  = IF AVAIL vend THEN vend.name ELSE ""
-     tt-report.rec-id  = RECID(e-item-vend).
-  END.
-END.
-
-FOR EACH tt-report BREAK BY tt-report.key-01:
-
-  IF FIRST-OF(tt-report.key-01) THEN v-forms[2] = 0.
-
-  v-forms[2] = v-forms[2] + 1.
-
-  IF NOT LAST-OF(tt-report.key-01) OR v-forms[1] NE v-forms[2] THEN
-    DELETE tt-report.
-END.
-
-adder-blok:
-FOR EACH tt-report.
-
-  FOR EACH ef
-      WHERE ef.company EQ est.company
+    IF NOT AVAIL est                        OR
+        NOT CAN-FIND(FIRST eb OF est
+        WHERE eb.form-no GT 0
+        AND eb.pur-man EQ NO) THEN LEAVE.
+    lUseVIC = fUseVendItemCost(est.company).
+    
+    FOR EACH ef
+        WHERE ef.company EQ est.company
         AND ef.est-no  EQ est.est-no
         AND CAN-FIND(FIRST eb OF ef WHERE NOT eb.pur-man)
-      NO-LOCK:
-    DO li = 1 TO 6:
-      IF ef.adder[li] NE ""                                          AND
-         NOT CAN-FIND(FIRST e-item-vend
-                      WHERE e-item-vend.company EQ cocode
-                        AND e-item-vend.i-no    EQ ef.adder[li]
-                        AND e-item-vend.vend-no EQ tt-report.key-01) THEN DO:
-        DELETE tt-report.
-        NEXT adder-blok.
-      END.
-    END.
-  END.
-END.
+        NO-LOCK:
+        v-forms[1] = v-forms[1] + 1.
+    
+        IF ef.cost-msh NE 0 THEN
+            v-board-cost-not-zero = YES.
+               
+        IF lUseVIC THEN 
+        DO:
+            FIND FIRST est-qty NO-LOCK 
+                WHERE est-qty.company EQ est.company
+                AND est-qty.est-no EQ est.est-no
+                NO-ERROR.
+            IF AVAILABLE est-qty THEN dQty = est-qty.eqty.
+            RUN BuildVendItemCosts(est.company, ef.board, "RM", cScope, YES,
+                ef.est-no,ef.form-no,0,
+                dQty, "EA", 
+                ef.gsh-len, ef.gsh-wid, ef.gsh-dep, "IN",
+                ef.weight, "LBS/MSF", 
+                OUTPUT TABLE ttVendItemCost,
+                OUTPUT lError, OUTPUT cMessage).
+            FOR EACH ttVendItemCost, 
+                FIRST vend NO-LOCK 
+                    WHERE vend.company EQ ttVendItemCost.company
+                    AND vend.vend-no EQ ttVendItemCost.vendorID:
+                CREATE tt-report.
+                ASSIGN 
+                    tt-report.key-01 = vend.vend-no
+                    tt-report.key-02 = vend.name
+                    .
+            END.
+            EMPTY TEMP-TABLE ttVendItemCost.
+        END.
+        ELSE 
+        DO:
+    
 
-CREATE tt-report.
+            FOR EACH e-item-vend
+                WHERE e-item-vend.company EQ ef.company
+                AND e-item-vend.i-no    EQ ef.board
+                AND e-item-vend.vend-no NE ""         
+                AND ef.gsh-wid          GE e-item-vend.roll-w[27]
+                AND ef.gsh-wid          LE e-item-vend.roll-w[28]
+                AND ef.gsh-len          GE e-item-vend.roll-w[29]
+                AND ef.gsh-len          LE e-item-vend.roll-w[30]
+                NO-LOCK:
+    
+                FIND FIRST vend
+                    WHERE vend.company EQ e-item-vend.company
+                    AND vend.vend-no EQ e-item-vend.vend-no
+                    NO-LOCK NO-ERROR.
+    
+                CREATE tt-report.
+                ASSIGN
+                    tt-report.key-01 = e-item-vend.vend-no
+                    tt-report.key-02 = IF AVAIL vend THEN vend.name ELSE ""
+                    tt-report.rec-id = RECID(e-item-vend).
+            END.
+        END.
+    END.
+    FOR EACH tt-report BREAK BY tt-report.key-01:
+    
+        IF FIRST-OF(tt-report.key-01) THEN v-forms[2] = 0.
+    
+        v-forms[2] = v-forms[2] + 1.
+    
+        IF NOT LAST-OF(tt-report.key-01) OR v-forms[1] NE v-forms[2] THEN
+            DELETE tt-report.
+    END.
+    
+    IF NOT lUseVIC THEN DO:
+        adder-blok:
+        FOR EACH tt-report.
+        
+            FOR EACH ef
+                WHERE ef.company EQ est.company
+                AND ef.est-no  EQ est.est-no
+                AND CAN-FIND(FIRST eb OF ef WHERE NOT eb.pur-man)
+                NO-LOCK:
+                DO li = 1 TO 6:
+                    IF ef.adder[li] NE ""                                          AND
+                        NOT CAN-FIND(FIRST e-item-vend
+                        WHERE e-item-vend.company EQ cocode
+                        AND e-item-vend.i-no    EQ ef.adder[li]
+                        AND e-item-vend.vend-no EQ tt-report.key-01) THEN 
+                    DO:
+                        DELETE tt-report.
+                        NEXT adder-blok.
+                    END.
+                END.
+            END.
+        END.
+    END.
+    
+    CREATE tt-report.
 
 /* end ---------------------------------- copr. 2001  advanced software, inc. */
 END PROCEDURE.
@@ -527,4 +579,27 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+/* ************************  Function Implementations ***************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fUseVendItemCost D-Dialog
+FUNCTION fUseVendItemCost RETURNS LOGICAL PRIVATE
+  (ipcCompany AS CHARACTER):
+    /*------------------------------------------------------------------------------
+     Purpose:  Returns NK1 setting to activate VendItemCost as source of vendor costs
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lFound AS LOGICAL NO-UNDO.
+    
+    RUN sys/ref/nk1look.p (ipcCompany, "VendItemCost", "L", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
+    
+    RETURN lFound AND cReturn EQ "Yes".	
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 

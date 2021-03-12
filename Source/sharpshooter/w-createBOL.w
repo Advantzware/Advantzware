@@ -47,6 +47,8 @@ CREATE WIDGET-POOL.
 DEFINE VARIABLE cCompany     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cLocation    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCompanyName AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lSSBOLPrint  AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE iSSBOLPrint  AS INTEGER   NO-UNDO.
 
 /* Required for run_link.i */
 DEFINE VARIABLE char-hdl  AS CHARACTER NO-UNDO.
@@ -561,6 +563,9 @@ PROCEDURE pInit :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lFound  AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cResult AS CHARACTER NO-UNDO.
+    
     DO WITH FRAME {&FRAME-NAME}:
     END.
     
@@ -573,7 +578,37 @@ PROCEDURE pInit :
                          + cCompanyName + " - " + cLocation.
                          
     fiTrailer:HIDDEN = NOT glScanTrailer.
+
+    RUN sys/ref/nk1look.p (
+        INPUT  cCompany,
+        INPUT  "SSBOLPRINT",
+        INPUT  "L",
+        INPUT  NO,
+        INPUT  NO,
+        INPUT  "",
+        INPUT  "",
+        OUTPUT cResult,
+        OUTPUT lFound
+        ).
+    IF NOT lFound THEN
+        lSSBOLPrint = ?.
+    ELSE
+        lSSBOLPrint = LOGICAL(cResult).
+        
+    RUN sys/ref/nk1look.p (
+        INPUT  cCompany,
+        INPUT  "SSBOLPRINT",
+        INPUT  "I",
+        INPUT  NO,
+        INPUT  NO,
+        INPUT  "",
+        INPUT  "",
+        OUTPUT cResult,
+        OUTPUT lFound
+        ).
     
+    iSSBOLPrint = INTEGER(cResult).
+        
     RUN pInvalidRelease.
 END PROCEDURE.
 
@@ -609,11 +644,16 @@ PROCEDURE pPrintBOL PRIVATE :
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE lSuccess   AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE cMessage   AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE iReleaseID AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE iBOLID     AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE lSuccess            AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage            AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iReleaseID          AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iBOLID              AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cBOLPrintValueList  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cBOLPrintFieldList  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lPostBOL            AS LOGICAL   NO-UNDO.
     
+    DEFINE VARIABLE oBOLHeader AS bol.BOLHeader NO-UNDO.
+        
     DO WITH FRAME {&FRAME-NAME}:
     END.
     
@@ -631,9 +671,64 @@ PROCEDURE pPrintBOL PRIVATE :
         
         RETURN.
     END.    
- 
-    MESSAGE "Release posted. BOL # '" + STRING(iBOLID) + "' is generated"
-    VIEW-AS ALERT-BOX.
+    
+    oBOLHeader = NEW bol.BOLHeader().
+    
+    oBOLHeader:SetContext(cCompany, iBOLID).
+    
+    IF NOT oBOLHeader:IsAvailable() THEN DO:
+        MESSAGE "Invalid BOL # '" + STRING(iBOLID) + "'"
+            VIEW-AS ALERT-BOX ERROR.
+        
+        RETURN.        
+    END.
+    
+    IF lSSBOLPrint NE ? THEN DO:
+        IF lSSBOLPrint EQ YES THEN DO:
+            ASSIGN
+                cBOLPrintFieldList = 'begin_cust,end_cust,begin_bol#,end_bol#,begin_ord#,end_ord#,tb_reprint,tb_posted,rd_bolcert,begin_date,end_date'
+                cBOLPrintValueList = oBOLHeader:GetValue("CustomerID") + ',' + oBOLHeader:GetValue("CustomerID") + ',' 
+                                   + oBOLHeader:GetValue("BOLID") + ',' + oBOLHeader:GetValue("BOLID")
+                                   + ',,99999999,' 
+                                   + oBOLHeader:GetValue("Printed") + ',' 
+                                   + oBOLHeader:GetValue("Posted") + ',BOL' + ',' 
+                                   + oBOLHeader:GetValue("BOLDate") + ',' 
+                                   + oBOLHeader:GetValue("BOLDate")
+                .
+                
+            RUN custom/setUserPrint.p (
+                INPUT oBOLHeader:GetValue("Company"),
+                INPUT 'oe-boll_.',
+                INPUT cBOLPrintFieldList,
+                INPUT cBOLPrintValueList
+                ).
+      
+            RUN listobjs/oe-boll_.w.
+        END.
+        ELSE DO:
+            SESSION:SET-WAIT-STATE ("GENERAL").
+            
+            lPostBOL = iSSBOLPrint EQ 1.
+             
+            RUN bol/printBol.p (
+                INPUT oBOLHeader:GetValue("Company"),
+                INPUT cLocation,
+                INPUT oBOLHeader:GetValue("CustomerID"),
+                INPUT oBOLHeader:GetValue("BOLID"),
+                INPUT oBOLHeader:GetValue("Printed"),
+                INPUT oBOLHeader:GetValue("Posted"),
+                INPUT lPostBOL
+                ).
+
+            SESSION:SET-WAIT-STATE ("").
+        END.
+    END.
+
+    RUN pInValidRelease.
+    
+    {methods/run_link.i "REL-ITEMS-SOURCE" "EmptyReleaseItems"}
+
+    {methods/run_link.i "REL-TAGS-SOURCE" "EmptyReleaseTags"}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

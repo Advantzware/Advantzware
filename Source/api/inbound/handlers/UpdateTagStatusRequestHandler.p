@@ -46,10 +46,6 @@ DEFINE VARIABLE cStatusID           AS CHARACTER  NO-UNDO.
    create trigger, only if session.p is running persistently, else will be populated with empty value.
    ( refer methods/triggers/create.i ) */
 
-DEFINE VARIABLE hdSession AS HANDLE NO-UNDO.
-RUN system/session.p PERSISTENT SET hdSession.
-SESSION:ADD-SUPER-PROCEDURE (hdSession).
-
 RUN api/JSONProcs.p PERSISTENT SET hdJSONProcs. 
 THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hdJSONProcs). 
 
@@ -254,6 +250,3 @@ PROCEDURE pProcessInputs:
         END.
     END.
 END PROCEDURE.            
-
-SESSION:REMOVE-SUPER-PROCEDURE (hdSession).
-DELETE PROCEDURE hdSession.

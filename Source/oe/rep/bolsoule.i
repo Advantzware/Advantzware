@@ -187,7 +187,7 @@ for each report where report.term-id eq v-term-id,
         v-tot-cases = v-tot-cases + w2.cases.
         DELETE w2.
       END.
-      PUT {1} SKIP(1).
+      PUT {1}.
       v-printline = v-printline + 1.
     END.
   END.

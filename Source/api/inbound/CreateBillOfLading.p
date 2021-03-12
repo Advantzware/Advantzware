@@ -22,22 +22,10 @@ DEFINE VARIABLE lValidReleaseID  AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lValidCompany    AS LOGICAL   NO-UNDO.
   
 /* This will eventually move to setsession approach */
-&SCOPED-DEFINE NEW NEW
 {methods/defines/globdefs.i}
-{methods/defines/hndldefs.i}
-  
-DEFINE VARIABLE hSession AS HANDLE NO-UNDO.
-DEFINE VARIABLE hTags    AS HANDLE NO-UNDO.
   
 g_company=ipcCompany.
-  
-RUN nosweat/persist.p  PERSISTENT SET Persistent-Handle.
-RUN lstlogic/persist.p PERSISTENT SET ListLogic-Handle.
-  
-RUN system/session.p  PERSISTENT SET hSession.
-SESSION:ADD-SUPER-PROCEDURE (hSession).
-RUN system/TagProcs.p PERSISTENT SET hTags.
-SESSION:ADD-SUPER-PROCEDURE (hTags).
+
 {sys/inc/var.i "new shared"}
 
 RUN oe/OrderProcs.p PERSISTENT SET hdOrderProcs.

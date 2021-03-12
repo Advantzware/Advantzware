@@ -118,7 +118,6 @@ DEF VAR llRecFound AS LOG  NO-UNDO.
 DEF NEW SHARED BUFFER xest FOR est.
 DEF NEW SHARED BUFFER xeb FOR eb.
 DEF NEW SHARED BUFFER xef FOR ef.
-DEFINE VARIABLE hdPriceProcs AS HANDLE NO-UNDO.
 DEFINE VARIABLE lCreditAccSec AS LOGICAL NO-UNDO .
 DEFINE VARIABLE llOeShipFromLog AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lErrorValid AS LOGICAL NO-UNDO .
@@ -127,7 +126,6 @@ DEFINE VARIABLE cFreightCalculationValue AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cMisEstimate AS CHARACTER NO-UNDO .
 DEFINE VARIABLE lLocalCancelRecords AS LOGICAL NO-UNDO .
 
-RUN oe/PriceProcs.p PERSISTENT SET hdPriceProcs.
 &Scoped-define sman-fields oe-ord.sman oe-ord.s-pct oe-ord.s-comm
 
 DEF NEW SHARED TEMP-TABLE w-ord NO-UNDO FIELD w-ord-no LIKE oe-ord.ord-no.
@@ -2411,7 +2409,7 @@ DEFINE VARIABLE lPriceHold AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
 
 IF oe-ord.priceHold AND NOT oe-ord.priceHold:CHECKED IN FRAME {&FRAME-NAME} THEN DO:
-    RUN CheckPriceHoldForOrder IN hdPriceProcs (ROWID(oe-ord), NO, NO, OUTPUT lPriceHold, OUTPUT cMessage).
+    RUN Price_CheckPriceHoldForOrder(ROWID(oe-ord), NO, NO, OUTPUT lPriceHold, OUTPUT cMessage).
     IF lPriceHold THEN 
         MESSAGE "Warning: Order still qualifies for Price Hold and may be reset to Price Hold on a change to the order line. " SKIP(2)
             "Price Hold Reason: " cMessage
@@ -4194,6 +4192,26 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetOrderStatus V-table-Win 
+PROCEDURE GetOrderStatus :
+/*------------------------------------------------------------------------------
+ Purpose: Checks whether an order is available or not
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER oplAvailable AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplClosed    AS LOGICAL NO-UNDO.
+    
+    IF AVAILABLE oe-ord THEN 
+        ASSIGN  
+            oplAvailable = YES
+            oplClosed    = IF oe-ord.stat EQ "C" THEN YES ELSE NO
+            .
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE hide-comm V-table-Win 
 PROCEDURE hide-comm :
 /*------------------------------------------------------------------------------
@@ -5566,6 +5584,50 @@ PROCEDURE local-initialize :
         lWebOrder = VALID-HANDLE (pHandle) AND INDEX (pHandle:NAME,"w-oeweb") NE 0
         .
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-row-available V-table-Win 
+PROCEDURE local-row-available :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE VARIABLE cScreenType AS CHARACTER NO-UNDO.
+  /* Code placed here will execute PRIOR to standard behavior. */
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'row-available':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+  {methods/run_link.i "container-source" "GetScreenType" "(Output cScreenType)"}
+  
+  /* Keep the Update panel disabled,in OC Screen*/   
+  IF AVAILABLE oe-ord THEN DO: 
+      /* Keep panel in disable mode in OC screen*/
+      IF cScreenType EQ "OC" THEN DO:
+          {methods/run_link.i "TABLEIO-source" "Set-buttons" "(INPUT 'Disable-all')"}
+      END.   
+      /* Keep panels in disable mode in OU6 screen*/
+      ELSE IF cScreenType EQ "OU6" THEN DO:
+          {methods/run_link.i "TABLEIO-source" "Set-buttons" "(INPUT 'disable-all')"}
+          {methods/run_link.i "tandem-target" "disable-all"}
+      END.
+      ELSE IF cScreenType EQ "OU1" THEN DO:
+          /* IF an order is closed then disable the panel and keep the update panel in add-only mode */
+          IF oe-ord.stat EQ "C" THEN DO:
+              {methods/run_link.i "TABLEIO-source" "Set-buttons" "(INPUT 'add-only')"}
+              {methods/run_link.i "tandem-target" "disable-all"}              
+          END.  
+          ELSE DO: 
+              /* In case of an open order enable the panels*/  
+              {methods/run_link.i "TABLEIO-source" "Set-buttons" "(INPUT 'initial')"}
+              {methods/run_link.i "tandem-target" "enable-all"} 
+          END.   
+      END.        
+  END.         
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

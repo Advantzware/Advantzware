@@ -71,14 +71,14 @@ RUN Output_GetValueNK1OutputCSV IN hdOutputProcs(
 
 ASSIGN cTextListToSelect = "Part #,Customer,Quote#,Quantity,Price,Profit %,Price UOM,ShipTo,SoldTo,Quote Date,Delivery Date,Expiration Date," +
                            "Estimate #,Contact,Sales Group,Terms Code,Carrier,Zone,FG Item #,Item Description," +
-                           "Item Description 2,Est Style,Dimensions,Board,Color"
+                           "Item Description 2,Est Style,Dimensions,Board,Color,FG Category, EST Category"
             cFieldListToSelect = "part-no,cust-no,quote,qty,price,profit,price-uom,shipto,soldto,quote-date,del-date,exp-date," +
                                  "est-no,contact,sale-group,terms,carrier,zone,fg-item,item-dscr," +
-                                 "item-dscr2,style,dimension,board,color"    .
+                                 "item-dscr2,style,dimension,board,color,itemCategory,estCategory"    .
 {sys/inc/ttRptSel.i}
 ASSIGN cTextListToDefault  = "Part #,Customer,Quote#,Quantity,Price,Profit %,Price UOM,ShipTo,SoldTo,Quote Date,Delivery Date,Expiration Date," +
                              "Estimate #,Contact,Sales Group,Terms Code,Carrier,Zone,FG Item #,Item Description," +
-                             "Item Description 2,Est Style,Dimensions,Board,Color" .
+                             "Item Description 2,Est Style,Dimensions,Board,Color,FG Category, EST Category" .
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1173,6 +1173,8 @@ DEFINE VARIABLE dPrice AS DECIMAL NO-UNDO .
 DEFINE VARIABLE dProfit AS DECIMAL FORMAT "->>,>>9.99%" NO-UNDO .
 DEFINE VARIABLE cUom AS CHARACTER NO-UNDO .
 DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO . 
+DEFINE VARIABLE cItemCategory AS CHARACTER  NO-UNDO .
+DEFINE VARIABLE cEstCategory AS  CHARACTER  NO-UNDO . 
 
 v-excelheader = buildHeader(). 
 SESSION:SET-WAIT-STATE ("general").
@@ -1212,6 +1214,7 @@ FOR EACH quotehd
 
     IF AVAIL itemfg THEN
         IF NOT(itemfg.procat GE begin_fg-procat AND itemfg.procat LE end_fg-procat) THEN NEXT MAIN.
+        ELSE cItemCategory = itemfg.procat.
      
      FIND FIRST eb NO-LOCK 
          WHERE eb.company EQ cocode
@@ -1225,6 +1228,7 @@ FOR EACH quotehd
     
      IF AVAILABLE eb THEN
          IF NOT(eb.procat GE begin_procat AND eb.procat LE end_procat) THEN NEXT MAIN.
+         ELSE cEstCategory = eb.procat.
 
     
      
@@ -1288,6 +1292,10 @@ FOR EACH quotehd
                 v-excel-detail-lines = v-excel-detail-lines + appendXLLine(quoteitm.i-dscr).
             WHEN "color" THEN                                                              
                 v-excel-detail-lines = v-excel-detail-lines + appendXLLine(quoteitm.i-coldscr).
+            WHEN "itemCategory" THEN                                                              
+                  v-excel-detail-lines = v-excel-detail-lines + appendXLLine(cItemCategory).
+            WHEN "estCategory" THEN                                                              
+                  v-excel-detail-lines = v-excel-detail-lines + appendXLLine(cEstCategory).
           END CASE.  
         
     END.

@@ -9,7 +9,6 @@
 ---------------------------------------------------------------------------*/
 
 /* ***************************  Definitions  ************************** */
-DEFINE VARIABLE hdPriceProcs AS HANDLE NO-UNDO.
 {custom/globdefs.i}
 {sys/inc/var.i SHARED}
 
@@ -27,8 +26,6 @@ DEFINE TEMP-TABLE ttValidation
 
 
 /* ***************************  Main Block  *************************** */
-IF NOT VALID-HANDLE(hdPriceProcs) THEN 
-    RUN oe/PriceProcs.p PERSISTENT SET hdPriceProcs.
     
 /* **********************  Internal Procedures  *********************** */
 
@@ -436,7 +433,7 @@ PROCEDURE pPriceHold PRIVATE:
     DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opcNotes   AS CHARACTER NO-UNDO.
     
-    RUN CheckPriceHoldForOrder IN hdPriceProcs (ROWID(ipboe-ord), NO, NO, OUTPUT oplHold, OUTPUT opcMessage).
+    RUN Price_CheckPriceHoldForOrder(ROWID(ipboe-ord), NO, NO, OUTPUT oplHold, OUTPUT opcMessage).
 
         
 END PROCEDURE.

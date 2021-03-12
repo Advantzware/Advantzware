@@ -3266,45 +3266,42 @@ FUNCTION get-extended-price RETURNS DECIMAL
 
   ld = b-oe-ordl.t-price.
 
-  IF oeinq-char NE "Order Price" THEN
-  FOR EACH ar-invl FIELDS(inv-no amt i-no unit-pr disc) WHERE
-      ar-invl.company EQ cocode AND
-      ar-invl.ord-no EQ b-oe-ordl.ord-no AND
-      ar-invl.i-no EQ b-oe-ordl.i-no
-      NO-LOCK
-      BY ar-invl.inv-no DESC:
-
-      find first itemfg
-      {sys/look/itemfgrlW.i}
-        and itemfg.i-no eq ar-invl.i-no
-        no-lock no-error.
-
-      assign
-         v-tmp-price = if b-oe-ordl.pr-uom begins "L" AND b-oe-ordl.pr-uom NE "LB" then
-                       if b-oe-ordl.qty lt 0 then -1 else 1
-                       else
-                       if b-oe-ordl.pr-uom eq "CS" then
-                          b-oe-ordl.qty / (if b-oe-ordl.cas-cnt ne 0 then b-oe-ordl.cas-cnt else
-                                          if avail itemfg and itemfg.case-count ne 0
-                                                         then itemfg.case-count else
-                                                              1)
-                       else
-                       if b-oe-ordl.pr-uom eq "C" then
-                          b-oe-ordl.qty / 100
-                       else
-                       if b-oe-ordl.pr-uom eq "M" then
-                         b-oe-ordl.qty / 1000
-                       else
-                         b-oe-ordl.qty
-
-         lv-t-price = v-tmp-price * ar-invl.unit-pr
-         ld =  IF v-print-fmt EQ "Dayton" THEN 
-                (lv-t-price - ROUND(lv-t-price * ar-invl.disc / 100,2))
-              ELSE
-                ROUND(lv-t-price * (1 - (ar-invl.disc / 100)),2).
-
-      LEAVE.
-  END.
+/*  IF oeinq-char NE "Order Price" THEN                                                           */
+/*  FOR EACH ar-invl FIELDS(inv-no amt i-no unit-pr disc) WHERE                                   */
+/*      ar-invl.company EQ cocode AND                                                             */
+/*      ar-invl.ord-no EQ b-oe-ordl.ord-no AND                                                    */
+/*      ar-invl.i-no EQ b-oe-ordl.i-no                                                            */
+/*      NO-LOCK                                                                                   */
+/*      BY ar-invl.inv-no DESC:                                                                   */
+/*                                                                                                */
+/*      find first itemfg                                                                         */
+/*      {sys/look/itemfgrlW.i}                                                                    */
+/*        and itemfg.i-no eq ar-invl.i-no                                                         */
+/*        no-lock no-error.                                                                       */
+/*                                                                                                */
+/*      assign                                                                                    */
+/*         v-tmp-price = if b-oe-ordl.pr-uom begins "L" AND b-oe-ordl.pr-uom NE "LB" then         */
+/*                       if b-oe-ordl.qty lt 0 then -1 else 1                                     */
+/*                       else                                                                     */
+/*                       if b-oe-ordl.pr-uom eq "CS" then                                         */
+/*                          b-oe-ordl.qty / (if b-oe-ordl.cas-cnt ne 0 then b-oe-ordl.cas-cnt else*/
+/*                                          if avail itemfg and itemfg.case-count ne 0            */
+/*                                                         then itemfg.case-count else            */
+/*                                                              1)                                */
+/*                       else                                                                     */
+/*                       if b-oe-ordl.pr-uom eq "C" then                                          */
+/*                          b-oe-ordl.qty / 100                                                   */
+/*                       else                                                                     */
+/*                       if b-oe-ordl.pr-uom eq "M" then                                          */
+/*                         b-oe-ordl.qty / 1000                                                   */
+/*                       else                                                                     */
+/*                         b-oe-ordl.qty                                                          */
+/*                                                                                                */
+/*         lv-t-price = v-tmp-price * ar-invl.unit-pr                                             */
+/*         ld         =  ROUND(lv-t-price * (1 - (ar-invl.disc / 100)),2).                        */
+/*                                                                                                */
+/*      LEAVE.                                                                                    */
+/*  END.                                                                                          */
 
   RETURN ld.
 

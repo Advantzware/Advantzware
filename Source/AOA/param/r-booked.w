@@ -49,7 +49,7 @@ CREATE WIDGET-POOL.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS svCompany svCustList btnCustList svAllCustNo ~
 svStartCustNo svEndCustNo svAllSalesRep svStartSalesRep svEndSalesRep ~
-svAllProdCategory svStartProdCategory svEndProdCategory svStartOrderDate ~
+svAllProCat svStartProCat svEndProCat svStartOrderDate ~
 btnCalendar-1 svStartOrderDateOption svEndOrderDate btnCalendar-2 ~
 svEndOrderDateOption svStartDueDate btnCalendar-3 svStartDueDateOption ~
 svEndDueDate btnCalendar-4 svEndDueDateOption svIncludePrepMiscChg ~
@@ -58,8 +58,8 @@ svUnderValue svPrintOrderOverPct svOverValue btnAddEmail svRecipients
 &Scoped-Define DISPLAYED-OBJECTS svCompany svCustList svAllCustNo ~
 svStartCustNo startCustName svEndCustNo endCustName svAllSalesRep ~
 svStartSalesRep startSalesRepName svEndSalesRep endSalesRepName ~
-svAllProdCategory svStartProdCategory startProdCategoryName ~
-svEndProdCategory endProdCategoryName svStartOrderDate ~
+svAllProCat svStartProCat startProCatName ~
+svEndProCat endProCatName svStartOrderDate ~
 svStartOrderDateOption svEndOrderDate svEndOrderDateOption svStartDueDate ~
 svStartDueDateOption svEndDueDate svEndDueDateOption svIncludePrepMiscChg ~
 svExcludeSetComponents svExcludeTransferReleasesOrders svPrintOrderUnderPct ~
@@ -141,7 +141,7 @@ DEFINE VARIABLE endCustName AS CHARACTER FORMAT "X(30)"
      VIEW-AS FILL-IN 
      SIZE 40 BY 1.
 
-DEFINE VARIABLE endProdCategoryName AS CHARACTER FORMAT "X(30)" 
+DEFINE VARIABLE endProCatName AS CHARACTER FORMAT "X(30)" 
      VIEW-AS FILL-IN 
      SIZE 40 BY 1.
 
@@ -153,7 +153,7 @@ DEFINE VARIABLE startCustName AS CHARACTER FORMAT "X(30)"
      VIEW-AS FILL-IN 
      SIZE 40 BY 1.
 
-DEFINE VARIABLE startProdCategoryName AS CHARACTER FORMAT "X(30)" 
+DEFINE VARIABLE startProCatName AS CHARACTER FORMAT "X(30)" 
      VIEW-AS FILL-IN 
      SIZE 40 BY 1.
 
@@ -181,7 +181,7 @@ DEFINE VARIABLE svEndOrderDate AS DATE FORMAT "99/99/9999" INITIAL 12/31/49
      VIEW-AS FILL-IN 
      SIZE 15.6 BY 1.
 
-DEFINE VARIABLE svEndProdCategory AS CHARACTER FORMAT "X(5)" 
+DEFINE VARIABLE svEndProCat AS CHARACTER FORMAT "X(5)" 
      LABEL "End Prod Category" 
      VIEW-AS FILL-IN 
      SIZE 15.6 BY 1.
@@ -210,7 +210,7 @@ DEFINE VARIABLE svStartOrderDate AS DATE FORMAT "99/99/9999" INITIAL 01/01/50
      VIEW-AS FILL-IN 
      SIZE 15.6 BY 1.
 
-DEFINE VARIABLE svStartProdCategory AS CHARACTER FORMAT "X(5)" 
+DEFINE VARIABLE svStartProCat AS CHARACTER FORMAT "X(5)" 
      LABEL "Start Prod Category" 
      VIEW-AS FILL-IN 
      SIZE 15.6 BY 1.
@@ -253,7 +253,7 @@ DEFINE VARIABLE svAllCustNo AS LOGICAL INITIAL yes
      VIEW-AS TOGGLE-BOX
      SIZE 16 BY 1 NO-UNDO.
 
-DEFINE VARIABLE svAllProdCategory AS LOGICAL INITIAL yes 
+DEFINE VARIABLE svAllProCat AS LOGICAL INITIAL yes 
      LABEL "All Product Categories" 
      VIEW-AS TOGGLE-BOX
      SIZE 26 BY 1 NO-UNDO.
@@ -320,14 +320,14 @@ DEFINE FRAME F-Main
           "Enter Ending SalesRep" WIDGET-ID 20
      endSalesRepName AT ROW 11.62 COL 42 COLON-ALIGNED HELP
           "Enter Ending Customer Name" NO-LABEL WIDGET-ID 16
-     svAllProdCategory AT ROW 14.33 COL 27 HELP
+     svAllProCat AT ROW 14.33 COL 27 HELP
           "All Sales Reps?" WIDGET-ID 112
-     svStartProdCategory AT ROW 15.43 COL 25 COLON-ALIGNED HELP
+     svStartProCat AT ROW 15.43 COL 25 COLON-ALIGNED HELP
           "Enter Start Product Category" WIDGET-ID 90
-     startProdCategoryName AT ROW 15.43 COL 41 COLON-ALIGNED NO-LABEL WIDGET-ID 210
-     svEndProdCategory AT ROW 16.62 COL 25 COLON-ALIGNED HELP
+     startProCatName AT ROW 15.43 COL 41 COLON-ALIGNED NO-LABEL WIDGET-ID 210
+     svEndProCat AT ROW 16.62 COL 25 COLON-ALIGNED HELP
           "Enter End Product Category" WIDGET-ID 88
-     endProdCategoryName AT ROW 16.62 COL 41 COLON-ALIGNED NO-LABEL WIDGET-ID 208
+     endProCatName AT ROW 16.62 COL 41 COLON-ALIGNED NO-LABEL WIDGET-ID 208
      svStartOrderDate AT ROW 3.14 COL 108 COLON-ALIGNED HELP
           "Enter Start Order Date" WIDGET-ID 84
      btnCalendar-1 AT ROW 3.14 COL 125 WIDGET-ID 76
@@ -452,7 +452,7 @@ ASSIGN
    3                                                                    */
 /* SETTINGS FOR FILL-IN endCustName IN FRAME F-Main
    NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN endProdCategoryName IN FRAME F-Main
+/* SETTINGS FOR FILL-IN endProCatName IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN endSalesRepName IN FRAME F-Main
    NO-ENABLE                                                            */
@@ -470,7 +470,7 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN startCustName IN FRAME F-Main
    NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN startProdCategoryName IN FRAME F-Main
+/* SETTINGS FOR FILL-IN startProCatName IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN startSalesRepName IN FRAME F-Main
    NO-ENABLE                                                            */
@@ -577,11 +577,11 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME svAllProdCategory
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svAllProdCategory sObject
-ON VALUE-CHANGED OF svAllProdCategory IN FRAME F-Main /* All Product Categories */
+&Scoped-define SELF-NAME svAllProCat
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svAllProCat sObject
+ON VALUE-CHANGED OF svAllProCat IN FRAME F-Main /* All Product Categories */
 DO:
-    {aoa/includes/svAllValueChanged.i svStartProdCategory svEndProdCategory}
+    {aoa/includes/svAllValueChanged.i svStartProCat svEndProCat}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -683,11 +683,11 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME svEndProdCategory
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svEndProdCategory sObject
-ON LEAVE OF svEndProdCategory IN FRAME F-Main /* End Prod Category */
+&Scoped-define SELF-NAME svEndProCat
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svEndProCat sObject
+ON LEAVE OF svEndProCat IN FRAME F-Main /* End Prod Category */
 DO:
-    endProdCategoryName:SCREEN-VALUE = {aoa/includes/fSetDescription.i}
+    endProCatName:SCREEN-VALUE = {aoa/includes/fSetDescription.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -772,11 +772,11 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME svStartProdCategory
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svStartProdCategory sObject
-ON LEAVE OF svStartProdCategory IN FRAME F-Main /* Start Prod Category */
+&Scoped-define SELF-NAME svStartProCat
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svStartProCat sObject
+ON LEAVE OF svStartProCat IN FRAME F-Main /* Start Prod Category */
 DO:
-    startProdCategoryName:SCREEN-VALUE = {aoa/includes/fSetDescription.i}
+    startProCatName:SCREEN-VALUE = {aoa/includes/fSetDescription.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -871,9 +871,9 @@ PROCEDURE pInitialize :
         APPLY "LEAVE":U TO svStartSalesRep.
         APPLY "LEAVE":U TO svEndSalesRep.
         
-        APPLY "VALUE-CHANGED":U TO svAllProdCategory.
-        APPLY "LEAVE":U TO svStartProdCategory.
-        APPLY "LEAVE":U TO svEndProdCategory.
+        APPLY "VALUE-CHANGED":U TO svAllProCat.
+        APPLY "LEAVE":U TO svStartProCat.
+        APPLY "LEAVE":U TO svEndProCat.
     END.
 
 END PROCEDURE.

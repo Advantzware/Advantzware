@@ -1158,29 +1158,24 @@ PROCEDURE check-date :
           Parameters:  <none>
           Notes:       
         ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lSuccess AS LOGICAL NO-UNDO. 
     DO WITH FRAME {&frame-name}:
         v-invalid = NO.
+        
+        RUN GL_CheckModClosePeriod(input cocode, input DATE(tran-date), input "AR", output cMessage, output lSuccess ) .  
+        IF NOT lSuccess then 
+        DO:
+           MESSAGE cMessage VIEW-AS ALERT-BOX INFO.
+           v-invalid = YES.
+        END.  
 
         FIND FIRST period                   
             WHERE period.company EQ cocode
             AND period.pst     LE tran-date
             AND period.pend    GE tran-date
             NO-LOCK NO-ERROR.
-        IF AVAILABLE period THEN 
-        DO:
-            IF NOT period.pstat THEN 
-            DO:
-                MESSAGE "Period Already Closed. " VIEW-AS ALERT-BOX ERROR.
-                v-invalid = YES.
-            END.
-            tran-period:SCREEN-VALUE = STRING(period.pnum).
-        END.
-
-        ELSE 
-        DO:
-            MESSAGE "No Defined Period Exists for" tran-date VIEW-AS ALERT-BOX ERROR.
-            v-invalid = YES.
-        END.
+        IF AVAILABLE period THEN tran-period:SCREEN-VALUE = STRING(period.pnum).       
     END.
 END PROCEDURE.
 

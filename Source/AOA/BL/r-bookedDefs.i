@@ -1,28 +1,26 @@
-/* r-bookedDefs.i - used in aoa/BL/r-booked.p & aoa/BL/recappc.p */
-
-/* Orders Booked.rpa */
-{aoa/tempTable/ttOrdersBooked.i}
-/* Recap Product Category.rpa */
-{aoa/tempTable/ttRecapProductCategory.i}
+/* r-bookedDefs.i - used in AOA/BL/r-booked.p & AOA/BL/recappc.p */
+/*            used in AOA/dynBL/r-booked.p & AOA/dynBL/recappc.p */
 
 {sys/ref/CustList.i NEW}
 
 DEFINE TEMP-TABLE w-data NO-UNDO
-    FIELD ord-no  LIKE oe-ord.ord-no
-    FIELD line    LIKE oe-ordl.line
-    FIELD sman    AS   CHARACTER 
-    FIELD item-n  LIKE itemfg.i-name 
-    FIELD proCat  LIKE itemfg.proCat 
-    FIELD qty     LIKE oe-ordl.qty   
-    FIELD sqft    LIKE itemfg.t-sqft 
-    FIELD t-sqft  LIKE itemfg.t-sqft 
-    FIELD t-tons  AS   DECIMAL         
-    FIELD price   LIKE oe-ordl.price 
-    FIELD revenue LIKE oe-ordl.t-price 
-    FIELD misc    AS   LOGICAL
-    FIELD cost    AS   DECIMAL
-    FIELD comm    AS   DECIMAL 
-    FIELD margin  AS   DECIMAL
+    FIELD ord-no     LIKE oe-ord.ord-no
+    FIELD line       LIKE oe-ordl.line
+    FIELD sman         AS CHARACTER 
+    FIELD item-n     LIKE itemfg.i-name 
+    FIELD proCat     LIKE itemfg.proCat 
+    FIELD qty        LIKE oe-ordl.qty   
+    FIELD sqft       LIKE itemfg.t-sqft 
+    FIELD t-sqft     LIKE itemfg.t-sqft 
+    FIELD t-tons       AS DECIMAL         
+    FIELD price      LIKE oe-ordl.price 
+    FIELD revenue    LIKE oe-ordl.t-price 
+    FIELD misc         AS LOGICAL
+    FIELD cost         AS DECIMAL
+    FIELD comm         AS DECIMAL 
+    FIELD margin       AS DECIMAL
+    FIELD shp-qty    LIKE oe-ordl.ship-qty  
+    FIELD cShip-from LIKE oe-rel.spare-char-1
     . 
 
 DEFINE TEMP-TABLE tt-report NO-UNDO LIKE report

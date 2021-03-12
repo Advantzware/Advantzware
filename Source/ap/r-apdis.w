@@ -712,6 +712,10 @@ PROCEDURE check-date :
           MESSAGE "Period Already Closed. " VIEW-AS ALERT-BOX ERROR.
           v-invalid = YES.
        END.
+       ELSE IF period.subLedgerAP EQ "C" THEN DO:
+          MESSAGE "Payables sub ledger already closed. " VIEW-AS ALERT-BOX ERROR.
+          v-invalid = YES.
+       END.
         tran-period:SCREEN-VALUE = string(period.pnum).
     END.
 
@@ -990,7 +994,7 @@ PROCEDURE post-gl :
                                tran-period,
                                "A",
                                tran-date,
-                               string(ap-inv.inv-no),
+                               "",
                                "AP").
             do :
               find first b-bank where b-bank.actnum = ap-disl.actnum
@@ -1042,7 +1046,7 @@ PROCEDURE post-gl :
                                tran-period,
                                "A",
                                tran-date,
-                               string(ap-inv.inv-no),
+                               "",
                                "AP").
          assign
          bank.last-chk = IF lv-chkno-posted >= bank.last-chk THEN lv-chkno-posted

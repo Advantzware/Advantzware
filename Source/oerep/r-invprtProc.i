@@ -273,6 +273,11 @@ PROCEDURE assignSelections:
     DEFINE INPUT PARAMETER iptb_prt-dupl        AS LOGICAL INITIAL NO               .
     DEFINE INPUT PARAMETER iptbPdfOnly          AS LOGICAL INITIAL NO               .
     DEFINE INPUT PARAMETER iptbOpenInvOnly      AS LOGICAL INITIAL NO               .
+    DEFINE INPUT PARAMETER ipcInvMessage1       AS CHARACTER FORMAT "X(40)"         .
+    DEFINE INPUT PARAMETER ipcInvMessage2       AS CHARACTER FORMAT "X(40)"         .
+    DEFINE INPUT PARAMETER ipcInvMessage3       AS CHARACTER FORMAT "X(40)"         .
+    DEFINE INPUT PARAMETER ipcInvMessage4       AS CHARACTER FORMAT "X(40)"         .
+    DEFINE INPUT PARAMETER ipcInvMessage5       AS CHARACTER FORMAT "X(40)"         .
     
     ASSIGN
         begin_bol         = ipbegin_bol        
@@ -321,6 +326,11 @@ PROCEDURE assignSelections:
         tb_prt-dupl      = iptb_prt-dupl
         tb_PdfOnly       = iptbPdfOnly
         tb_open-inv      = iptbOpenInvOnly
+        cInvMessage[1]   = ipcInvMessage1
+        cInvMessage[2]   = ipcInvMessage2
+        cInvMessage[3]   = ipcInvMessage3
+        cInvMessage[4]   = ipcInvMessage4
+        cInvMessage[5]   = ipcInvMessage5
         .
         
         CASE rd-dest:
@@ -1751,11 +1761,10 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
         vcInvNums = RIGHT-TRIM (SUBSTRING (vcInvNums, 1, INDEX (vcInvNums,'-')), '-') +     
             SUBSTRING (vcInvNums, R-INDEX (vcInvNums, '-')).
     
-    IF "{&head}" EQ "inv-head" THEN
-        RUN pRunAPIOutboundTrigger (
-            BUFFER {&head},
-            INPUT  LOGICAL(report.key-04)
-            ).
+    RUN pRunAPIOutboundTrigger (
+        INPUT  ROWID({&head}),
+        INPUT  LOGICAL(report.key-04)
+        ).
 END.
 
 FOR EACH ttSaveLine WHERE ttSaveLine.sessionID EQ "save-line" + v-term-id:
@@ -3417,40 +3426,70 @@ PROCEDURE pRunAPIOutboundTrigger PRIVATE:
      Notes:
     ------------------------------------------------------------------------------*/
     
-    DEFINE PARAMETER BUFFER ipbf-inv-head FOR inv-head.
+    DEFINE INPUT PARAMETER ipriRowID  AS ROWID   NO-UNDO.
     DEFINE INPUT PARAMETER lIsRePrint AS LOGICAL NO-UNDO.
     
     DEFINE VARIABLE lSuccess     AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cMessage     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCompany     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cAPIID       AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cTriggerID   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCustomerID  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cTable       AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cDescription AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cPrimaryID   AS CHARACTER NO-UNDO.
 
     DEFINE VARIABLE hdOutboundProcs AS HANDLE NO-UNDO.
     RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
     
-    IF AVAILABLE ipbf-inv-head THEN DO:
+    DEFINE BUFFER bf-inv-head FOR inv-head.
+    DEFINE BUFFER bf-ar-inv   FOR ar-inv.
     
-        ASSIGN 
-            cAPIID       = "SendInvoice"
-            cTriggerID   = IF lIsRePrint THEN 
-                               "RePrintInvoice"
-                           ELSE
-                               "PrintInvoice"
-            cPrimaryID   = STRING(ipbf-inv-head.inv-no)
-            cDescription = cAPIID + " triggered by " + cTriggerID + " from PostInvoices.p for invoice: " + cPrimaryID
-            .
+    FIND FIRST bf-inv-head NO-LOCK
+         WHERE ROWID(bf-inv-head) EQ ipriRowID
+         NO-ERROR.
+    IF NOT AVAILABLE bf-inv-head THEN
+        FIND FIRST bf-ar-inv NO-LOCK
+             WHERE ROWID(bf-ar-inv) EQ ipriRowID
+             NO-ERROR.
 
+    IF NOT AVAILABLE bf-inv-head AND NOT AVAILABLE bf-ar-inv THEN
+        RETURN.
+                      
+    ASSIGN 
+        cAPIID       = "SendInvoice"
+        cTriggerID   = IF lIsRePrint THEN 
+                           "RePrintInvoice"
+                       ELSE
+                           "PrintInvoice"
+        cDescription = cAPIID + " triggered by " + cTriggerID + " from PostInvoices.p for invoice: " + cPrimaryID
+        .
+
+    IF AVAILABLE bf-inv-head THEN  
+        ASSIGN
+            cCompany     = bf-inv-head.company
+            cPrimaryID   = STRING(bf-inv-head.inv-no)
+            cCustomerID  = bf-inv-head.cust-no 
+            cTable       = "inv-head"           
+            .
+    ELSE IF AVAILABLE bf-ar-inv THEN   
+        ASSIGN
+            cCompany     = bf-ar-inv.company
+            cPrimaryID   = STRING(bf-ar-inv.inv-no)   
+            cCustomerID  = bf-ar-inv.cust-no   
+            cTable       = "ar-inv"      
+            .
+            
+    IF AVAILABLE bf-inv-head OR AVAILABLE bf-ar-inv THEN DO:
         RUN Outbound_PrepareAndExecuteForScope IN hdOutboundProcs (
-            INPUT  ipbf-inv-head.company,         /* Company Code (Mandatory) */
+            INPUT  cCompany,                      /* Company Code (Mandatory) */
             INPUT  locode,                        /* Location Code (Mandatory) */
             INPUT  cAPIID,                        /* API ID (Mandatory) */
-            INPUT  ipbf-inv-head.cust-no,         /* Scope ID */
+            INPUT  cCustomerID,                   /* Scope ID */
             INPUT  "Customer",                    /* Scope Type */
             INPUT  cTriggerID,                    /* Trigger ID (Mandatory) */
-            INPUT  "inv-head",                    /* Comma separated list of table names for which data being sent (Mandatory) */
-            INPUT  STRING(ROWID(ipbf-inv-head)),  /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
+            INPUT  cTable,                        /* Comma separated list of table names for which data being sent (Mandatory) */
+            INPUT  STRING(ipriRowID),             /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
             INPUT  cPrimaryID,                    /* Primary ID for which API is called for (Mandatory) */   
             INPUT  cDescription,                  /* Event's description (Optional) */
             OUTPUT lSuccess,                      /* Success/Failure flag */

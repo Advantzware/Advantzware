@@ -63,7 +63,7 @@ FUNCTION fUseLastPrice RETURNS LOGICAL PRIVATE
 
 /* **********************  Internal Procedures  *********************** */
 
-PROCEDURE CheckPriceHoldForCustShip:
+PROCEDURE Price_CheckPriceHoldForCustShip:
     /*------------------------------------------------------------------------------
      Purpose: Checks Price Hold for passed criteria.  Adds record to ttPriceHold table.
      Notes:
@@ -90,7 +90,7 @@ PROCEDURE CheckPriceHoldForCustShip:
             
 END PROCEDURE.
 
-PROCEDURE CheckPriceHoldForOrder:
+PROCEDURE Price_CheckPriceHoldForOrder:
     /*------------------------------------------------------------------------------
      Purpose: Given an oe-ord rowid, check all order lines to see if Price Hold criteria
      is met.  Return price hold.  
@@ -177,9 +177,9 @@ PROCEDURE CheckPriceHoldForOrder:
     
 END PROCEDURE.
 
-PROCEDURE CheckPriceHoldForOrderReturnTT:
+PROCEDURE Price_CheckPriceHoldForOrderReturnTT:
 /*------------------------------------------------------------------------------
- Purpose: Wrapper of CheckPriceHoldForOrder that returns the Temp-table to the
+ Purpose: Wrapper of Price_CheckPriceHoldForOrder that returns the Temp-table to the
  caller.
  Notes:
 ------------------------------------------------------------------------------*/
@@ -190,11 +190,11 @@ PROCEDURE CheckPriceHoldForOrderReturnTT:
     DEFINE OUTPUT PARAMETER opcPriceHoldReason AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER TABLE FOR ttPriceHold.
     
-   RUN CheckPriceHoldForOrder(ipriOeOrd, iplPrompt, iplUpdateDB, OUTPUT oplPriceHold, OUTPUT opcPriceHoldReason). 
+   RUN Price_CheckPriceHoldForOrder(ipriOeOrd, iplPrompt, iplUpdateDB, OUTPUT oplPriceHold, OUTPUT opcPriceHoldReason). 
 
 END PROCEDURE.
 
-PROCEDURE CheckPriceMatrix:
+PROCEDURE Price_CheckPriceMatrix:
     /*------------------------------------------------------------------------------
      Purpose:  Performs Check based on OEPriceMatrixCheck NK1
         Returns information to prompt or not and to block entry to just warn
@@ -269,7 +269,7 @@ PROCEDURE CheckPriceMatrix:
 
 END PROCEDURE.
 
-PROCEDURE CalculateLinePrice:
+PROCEDURE Price_CalculateLinePrice:
     /*------------------------------------------------------------------------------
      Purpose: Given an order line rowid, determine appropriate price from price matrix
      Can also pass FG Item ID and Qty since these may not be saved to the oe-ordl yet
@@ -319,7 +319,7 @@ PROCEDURE CalculateLinePrice:
             ttItemLines.dQuantityLookup = ttItemLines.dQuantity.
         
         /*Get Price from Matching Price Matrix (note if no match found, price not changed*/    
-        RUN GetPriceMatrixPriceSimple (ttItemLines.cCompany,
+        RUN Price_GetPriceMatrixPriceSimple (ttItemLines.cCompany,
             ttItemLines.cFGItemID, 
             ttItemLines.cCustID, 
             ttItemLines.cShipID,
@@ -381,7 +381,7 @@ PROCEDURE CalculateLinePrice:
 
 END PROCEDURE.
 
-PROCEDURE GetPriceMatrix:
+PROCEDURE Price_GetPriceMatrix:
     /*------------------------------------------------------------------------------
      Purpose: Returns a Rowid of a valid price matrix, given 3 key inputs
      Notes: Replaces oe/GetPriceMatrix.p - NOTE
@@ -393,7 +393,7 @@ PROCEDURE GetPriceMatrix:
      
      Syntax Example:
     RUN oe/PriceProcs.p PERSISTENT SET hdPriceProcs.
-    RUN GetPriceMatrix in hdPriceProcs (cocode, oe-ordl.i-no, oe-ord.cust-no, oe-ord.ship-id,
+    RUN Price_GetPriceMatrix in hdPriceProcs (cocode, oe-ordl.i-no, oe-ord.cust-no, oe-ord.ship-id,
                                         OUTPUT riMatrix, OUTPUT lFound, OUTPUT cMessage).
         
     ------------------------------------------------------------------------------*/
@@ -416,13 +416,13 @@ PROCEDURE GetPriceMatrix:
 
 END PROCEDURE.
 
-PROCEDURE GetPriceMatrixLevel:
+PROCEDURE Price_GetPriceMatrixLevel:
     /*------------------------------------------------------------------------------
      Purpose: Returns a price level based on matrix information provided
      Notes:
          Syntax Example:
     RUN oe/PriceProcs.p PERSISTENT SET hdPriceProcs.
-    RUN GetPriceMatrixLevel in hdPriceProcs (cocode, itemfg.i-no, cust.cust-no, shipto.ship-id,
+    RUN Price_GetPriceMatrixLevel in hdPriceProcs (cocode, itemfg.i-no, cust.cust-no, shipto.ship-id,
                                              oe-ordl.qty,
                                              OUTPUT iLevel).
     ------------------------------------------------------------------------------*/
@@ -447,14 +447,14 @@ PROCEDURE GetPriceMatrixLevel:
 
 END PROCEDURE.
 
-PROCEDURE GetPriceMatrixPrice:
+PROCEDURE Price_GetPriceMatrixPrice:
     /*------------------------------------------------------------------------------
      Purpose: Returns a Price and Price UOM, given Item, Customer and ShipTo criteria.
      Also allows for override of a 
      Notes:
     Syntax Example:
     RUN oe/PriceProcs.p PERSISTENT SET hdPriceProcs.
-    RUN GetPriceMatrixPrice in hdPriceProcs (cocode, oe-ordl.i-no, oe-ord.cust-no, oe-ord.ship-id,
+    RUN Price_GetPriceMatrixPrice in hdPriceProcs (cocode, oe-ordl.i-no, oe-ord.cust-no, oe-ord.ship-id,
                                              oe-ordl.qty, 0,
                                              OUTPUT lMatrixMatchFound, OUTPUT cMatrixMatchMessage,
                                              OUTPUT oe-ordl.price, OUTPUT oe-ordl.pr-uom, 
@@ -528,13 +528,13 @@ PROCEDURE GetPriceMatrixPrice:
 
 END PROCEDURE.
 
-PROCEDURE GetPriceMatrixPriceSimple:
+PROCEDURE Price_GetPriceMatrixPriceSimple:
     /*------------------------------------------------------------------------------
         Purpose: Simpler version of GetPriceMatrixPrice with wrapper and defined variables
         Notes:
        Syntax Example:
        RUN oe/PriceProcs.p PERSISTENT SET hdPriceProcs.
-       RUN GetPriceMatrixPriceSimple in hdPriceProcs (cocode, oe-ordl.i-no, oe-ord.cust-no,
+       RUN Price_GetPriceMatrixPriceSimple in hdPriceProcs (cocode, oe-ordl.i-no, oe-ord.cust-no,
                                                       oe-ordl.qty,
                                                        OUTPUT lMatrixMatchFound,
                                                        OUTPUT oe-ordl.price, OUTPUT oe-ordl.pr-uom).
@@ -555,7 +555,7 @@ PROCEDURE GetPriceMatrixPriceSimple:
     DEFINE VARIABLE lQtyMatchFound        AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lQtyWithinMatrixRange AS LOGICAL   NO-UNDO.
     
-    RUN GetPriceMatrixPrice(ipcCompany, ipcFGITemID, ipcCustID, ipcShipID, ipdQuantity, 0,
+    RUN Price_GetPriceMatrixPrice(ipcCompany, ipcFGITemID, ipcCustID, ipcShipID, ipdQuantity, 0,
         OUTPUT oplMatrixMatchFound, OUTPUT cMessage, 
         INPUT-OUTPUT iopdPrice, INPUT-OUTPUT iopcUOM, 
         OUTPUT lQtyMatchFound, OUTPUT lQtyWithinMatrixRange).
@@ -1268,6 +1268,54 @@ PROCEDURE pGetQtyMatchInfo PRIVATE:
         END. /*Qty LE oe-prmtx qty*/
     END.
 
+END PROCEDURE.
+
+PROCEDURE Price_ExpirePriceMatrixByItem:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcItemID  AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-oe-prmtx FOR oe-prmtx.
+    
+    FOR EACH bf-oe-prmtx EXCLUSIVE-LOCK 
+        WHERE bf-oe-prmtx.company   EQ ipcCompany
+          AND bf-oe-prmtx.i-no      EQ ipcItemID
+          AND (bf-oe-prmtx.exp-date GT TODAY OR bf-oe-prmtx.exp-date EQ ?):
+              
+        bf-oe-prmtx.exp-date = TODAY.              
+    END.          
+
+END PROCEDURE.
+
+PROCEDURE Price_ExpireQuotesByItem:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany  AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcItemID   AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-quoteitm FOR quoteitm.
+    DEFINE BUFFER bf-quotehd  FOR quotehd.
+    
+    FOR EACH bf-quoteitm NO-LOCK
+        WHERE bf-quoteitm.company EQ ipcCompany
+          AND bf-quoteitm.i-no    EQ ipcItemID
+        BREAK BY bf-quoteitm.q-no DESCENDING:
+        IF FIRST-OF (bf-quoteitm.q-no) THEN DO:     
+            FIND FIRST bf-quotehd EXCLUSIVE-LOCK 
+                 WHERE bf-quotehd.company EQ ipcCompany
+                   AND bf-quotehd.loc     EQ bf-quoteitm.loc 
+                   AND bf-quotehd.q-no    EQ bf-quoteitm.q-no
+                   AND (bf-quotehd.expiredate GT TODAY OR bf-quotehd.expiredate EQ ?)
+                 NO-ERROR.       
+            IF AVAILABLE bf-quotehd THEN 
+                bf-quotehd.expiredate = TODAY.
+        END.                         
+     END.        
 END PROCEDURE.
 
 PROCEDURE pSetBuffers PRIVATE:

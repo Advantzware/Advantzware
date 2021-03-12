@@ -385,7 +385,9 @@ FOR EACH ttInputEst NO-LOCK BREAK BY ttInputEst.iFormNo
             ef.fr-uom          = ttInputEst.cForceFrtUom
             ef.adder[7]        = ttInputEst.cAddersDscr1
             ef.adder[8]        = ttInputEst.cAddersDscr2
-            ef.adder[9]        = ttInputEst.cAddersDscr3.
+            ef.adder[9]        = ttInputEst.cAddersDscr3
+            ef.nc              = YES
+            .
              
       FIND FIRST xeb WHERE ROWID(xeb) EQ ROWID(eb) NO-LOCK NO-ERROR.
       FIND FIRST xest WHERE ROWID(xest) EQ ROWID(est) NO-LOCK NO-ERROR.

@@ -99,6 +99,7 @@ DEFINE VARIABLE h_p-updsav-2 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_period-2 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_period1 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_smartmsg AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_movecol-3 AS HANDLE NO-UNDO.
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -378,7 +379,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_company-2 ).
-       RUN set-position IN h_company-2 ( 5.52 , 23.00 ) NO-ERROR.
+       RUN set-position IN h_company-2 ( 5.52 , 10.00 ) NO-ERROR.
        /* Size in UIB:  ( 15.24 , 102.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -422,6 +423,14 @@ PROCEDURE adm-create-objects :
     END. /* Page 2 */
     WHEN 3 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
+             INPUT  'viewers/movecol.w':U ,
+             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_movecol-3 ).
+       RUN set-position IN h_movecol-3 ( 1 , 54.40 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 7.80 ) */
+       
+       RUN init-object IN THIS-PROCEDURE (
              INPUT  'viewerid/company.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
@@ -436,23 +445,15 @@ PROCEDURE adm-create-objects :
              OUTPUT h_period1 ).
        RUN set-position IN h_period1 ( 6.95 , 5.00 ) NO-ERROR.
        RUN set-size IN h_period1 ( 16.91 , 83.00 ) NO-ERROR.
-
+              
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'viewers/period.w':U ,
-             INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Layout = ':U ,
-             OUTPUT h_period-2 ).
-       RUN set-position IN h_period-2 ( 9.57 , 95.00 ) NO-ERROR.
-       /* Size in UIB:  ( 7.14 , 48.00 ) */
-
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'adm/objects/p-updsav.r':U ,
+             INPUT  'panels/p-updbtn.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Edge-Pixels = 2,
                      SmartPanelType = Update,
                      AddFunction = One-Record':U ,
              OUTPUT h_p-updsav-2 ).
-       RUN set-position IN h_p-updsav-2 ( 17.43 , 91.00 ) NO-ERROR.
+       RUN set-position IN h_p-updsav-2 ( 22.43 , 91.00 ) NO-ERROR.
        RUN set-size IN h_p-updsav-2 ( 2.14 , 56.00 ) NO-ERROR.
 
        /* Initialize other pages that this page requires. */
@@ -465,18 +466,17 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_company , 'Record':U , h_period1 ).
 
        /* Links to SmartViewer h_period-2. */
-       RUN add-link IN adm-broker-hdl ( h_p-updsav-2 , 'TableIO':U , h_period-2 ).
-       RUN add-link IN adm-broker-hdl ( h_period1 , 'Record':U , h_period-2 ).
+       RUN add-link IN adm-broker-hdl ( h_p-updsav-2 , 'TableIO':U , h_period1 ).
+       /*RUN add-link IN adm-broker-hdl ( h_period1 , 'Record':U , h_period-2 ).*/
+       
+       /* Links to SmartObject h_movecol-3. */
+       RUN add-link IN adm-broker-hdl ( h_period1 , 'move-columns':U , h_movecol-3 ).
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_company-3 ,
              h_folder , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_period1 ,
-             h_company-3 , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_period-2 ,
-             h_period1 , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_p-updsav-2 ,
-             h_period-2 , 'AFTER':U ).
+             h_company-3 , 'AFTER':U ).         
     END. /* Page 3 */
 
   END CASE.
