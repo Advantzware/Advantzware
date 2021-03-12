@@ -2390,7 +2390,7 @@ IF tb_prt-acc THEN DO:
 
   DISPLAY "" WITH FRAME f-top2.
 
-  FOR EACH tt-post,
+  FOR EACH tt-post NO-LOCK,
 
       FIRST ap-sel WHERE ROWID(ap-sel) EQ tt-post.row-id NO-LOCK,
 
@@ -2442,7 +2442,7 @@ IF tb_prt-acc THEN DO:
           " *" SKIP(1).
   END.
 
-  FOR EACH tt-post,
+  FOR EACH tt-post NO-LOCK,
 
       FIRST ap-sel WHERE ROWID(ap-sel) EQ tt-post.row-id NO-LOCK,
 
@@ -2507,7 +2507,7 @@ IF tb_prt-acc THEN DO:
           " *" SKIP(1).
   END.
 
-  FOR EACH tt-post WHERE tt-post.actnum NE "",
+  FOR EACH tt-post NO-LOCK WHERE tt-post.actnum NE "",
 
       FIRST ap-sel WHERE ROWID(ap-sel) EQ tt-post.row-id NO-LOCK,
 
