@@ -714,6 +714,17 @@ DO:
        RUN est/dAddSetEst.w(INPUT "Edit" ,INPUT ROWID(eb)) .
        RUN local-open-query.
    END.
+   ELSE IF AVAIL est AND  est.estimateTypeID = "SingleMold"  THEN do:
+       EMPTY TEMP-TABLE ttInputEst .       
+       RUN est/dAddMoldEst.w(INPUT "Edit" ,INPUT ROWID(eb)) .
+       RUN local-open-query.
+   END.
+   ELSE IF AVAIL est AND  est.estimateTypeID = "SetMold"  THEN do:
+       EMPTY TEMP-TABLE ttInputEst .
+       EMPTY TEMP-TABLE tt-eb-set.
+       RUN est/dAddSetEstMold.w(INPUT "Edit" ,INPUT ROWID(eb)) .
+       RUN local-open-query.
+   END.
    ELSE
        RUN new-state IN phandle ('update-begin':U).
 
@@ -5451,6 +5462,17 @@ PROCEDURE local-add-record :
       RUN est/dAddSetEst.w("",riRowidEbNew) .
       RUN pCreateSetEstimate.
   END.
+  ELSE IF ls-add-what = "NewSetEstMold" THEN DO:
+      EMPTY TEMP-TABLE ttInputEst .
+      EMPTY TEMP-TABLE tt-eb-set.
+      RUN est/dAddSetEstMold.w("",riRowidEbNew) .
+      RUN pCreateSetEstimate.
+  END.
+  ELSE IF ls-add-what = "NewEstMold" THEN DO:
+      EMPTY TEMP-TABLE ttInputEst .
+      RUN est/dAddMoldEst.w("",riRowidEbNew) .
+      RUN pCreateMoldEstimate.
+  END.
   ELSE DO:
     {est/d-cadcamrun.i}
 
@@ -6975,6 +6997,74 @@ PROCEDURE pCreateMiscEstimate :
           RUN est/estReleases.w (riEb).
 
   END.
+  
+  IF iCount > 0 THEN DO:
+     RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source",OUTPUT char-hdl).
+     RUN new_record IN WIDGET-HANDLE(char-hdl)  (riEb).
+  END. 
+  
+  THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE(hftp).
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCreateMoldEstimate B-table-Win 
+PROCEDURE pCreateMoldEstimate :
+/*------------------------------------------------------------------------------
+ Purpose: Processes ttInputEst temp-table, adding forms to the estimate in context
+ Notes:
+------------------------------------------------------------------------------*/
+  DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
+  DEFINE VARIABLE lDummy AS LOGICAL NO-UNDO.
+  DEFINE VARIABLE riEb AS ROWID NO-UNDO . 
+  DEFINE VARIABLE iEstReleaseID AS INTEGER NO-UNDO .
+  DEFINE VARIABLE lError AS LOGICAL NO-UNDO .
+  DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO .
+  DEFINE VARIABLE lv-rowid AS ROWID NO-UNDO .
+  DEFINE VARIABLE hftp            AS HANDLE    NO-UNDO.
+  DEFINE BUFFER bff-eb FOR eb.
+
+  RUN system/FreightProcs.p PERSISTENT SET hftp.
+  THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hftp).
+
+  ASSIGN
+    ll-new-record = YES
+    iCount = 0
+    .
+
+  FOR EACH ttInputEst:
+      iCount = iCount + 1.
+  END.
+  
+  RUN est/BuildEstimate.p ("C", OUTPUT riEb).
+
+  FIND FIRST bff-eb NO-LOCK
+      WHERE bff-eb.company EQ cocode
+        AND ROWID(bff-eb) EQ riEb NO-ERROR .
+
+
+  /*IF AVAIL bff-eb THEN DO:
+      IF bff-eb.sourceEstimate NE "" THEN 
+        RUN est/BuildFarmForLogistics.p (INPUT riEb,INPUT YES).
+      ELSE 
+        RUN est/dNewMiscCost.w( INPUT riEb ) .
+  END.
+  IF iCount > 0 AND AVAIL bff-eb THEN do:
+      
+      RUN CreateEstReleaseForEstBlank(INPUT riEb,INPUT NO, OUTPUT iEstReleaseID ,
+                                     OUTPUT lError,OUTPUT cMessage) .
+
+      FIND FIRST estRelease NO-LOCK
+          WHERE estRelease.company EQ cocode 
+          AND estRelease.estReleaseID EQ estReleaseID NO-ERROR .
+
+      IF AVAIL estRelease THEN
+          //RUN est/dNewMiscUpd.w (RECID(estRelease), riEb, "Update", OUTPUT lv-rowid) .
+          RUN est/estReleases.w (riEb).
+
+  END.*/
   
   IF iCount > 0 THEN DO:
      RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source",OUTPUT char-hdl).
@@ -8594,6 +8684,17 @@ PROCEDURE pUpdateRecord :
        EMPTY TEMP-TABLE ttInputEst .
        EMPTY TEMP-TABLE tt-eb-set.
        RUN est/dAddSetEst.w(INPUT "Edit" ,INPUT ROWID(eb)) .
+       RUN local-open-query.
+   END.
+   IF AVAIL est AND  est.estimateTypeID = "SingleMold"  THEN do:
+       EMPTY TEMP-TABLE ttInputEst .
+       RUN est/dAddMoldEst.w(INPUT "Edit" ,INPUT ROWID(eb)) .
+       RUN local-open-query.
+   END.
+   ELSE IF AVAIL est AND  est.estimateTypeID = "SetMold"  THEN do:
+       EMPTY TEMP-TABLE ttInputEst .
+       EMPTY TEMP-TABLE tt-eb-set.
+       RUN est/dAddSetEstMold.w(INPUT "Edit" ,INPUT ROWID(eb)) .
        RUN local-open-query.
    END.
    ELSE
