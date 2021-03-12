@@ -503,6 +503,7 @@ DO:
     DEFINE VARIABLE lUpdateJobPO AS LOGICAL NO-UNDO.
     
     DEFINE BUFFER b-fg-bin FOR fg-bin.
+    DEFINE BUFFER bf-fg-rctd FOR fg-rctd.
 
     DISABLE TRIGGERS FOR LOAD OF loadtag.
   
@@ -626,8 +627,53 @@ DO:
                 fg-bin.qty           = w-job.qty
                 fg-bin.partial-count = w-job.partial-count
                 .
-            IF ll-changed THEN DO:
-                RUN fg/cre-pchr.p (ROWID(fg-bin), "A", lv-qty, lv-part,cReasonCode).
+            IF ll-changed THEN DO:                
+                FIND FIRST itemfg
+                     {sys/look/itemfgrlW.i}
+                     AND itemfg.i-no EQ fg-bin.i-no
+                     NO-LOCK NO-ERROR.
+                 x = 1.
+                 FOR EACH fg-rctd no-lock BY fg-rctd.r-no DESC:
+                   LEAVE.
+                 END.
+                 IF avail fg-rctd then x = fg-rctd.r-no.
+                 
+                 FIND last fg-rcpth use-index r-no no-lock no-error.
+                 IF avail fg-rcpth and fg-rcpth.r-no GT x then x = fg-rcpth.r-no.
+                 
+                 CREATE bf-fg-rctd.
+                 assign
+                    bf-fg-rctd.r-no           = X + 1
+                    bf-fg-rctd.rct-date       = TODAY /*c-prdd.op-date*/
+                    bf-fg-rctd.trans-time     = TIME
+                    bf-fg-rctd.company        = fg-bin.company
+                    bf-fg-rctd.rita-code      = "A"
+                    bf-fg-rctd.i-name         = IF AVAIL itemfg THEN itemfg.i-name ELSE ""
+                    bf-fg-rctd.i-no           = fg-bin.i-no
+                    bf-fg-rctd.job-no         = fg-bin.job-no
+                    bf-fg-rctd.job-no2        = fg-bin.job-no2
+                    bf-fg-rctd.pur-uom        = if fg-bin.pur-uom ne "" then fg-bin.pur-uom
+                                               else itemfg.pur-uom
+                    bf-fg-rctd.cost-uom       = bf-fg-rctd.pur-uom                      
+                    bf-fg-rctd.reject-code[1] = cReasonCode
+                    bf-fg-rctd.loc            = fg-bin.loc
+                    bf-fg-rctd.loc-bin        = fg-bin.loc-bin        
+                    bf-fg-rctd.cust-no        = fg-bin.cust-no
+                    bf-fg-rctd.qty            = lv-qty
+                    bf-fg-rctd.tag            = fg-bin.tag
+                    bf-fg-rctd.cases          = TRUNC((lv-qty - lv-part) / fg-bin.case-count,0)
+                    bf-fg-rctd.qty-case       = fg-bin.case-count
+                    bf-fg-rctd.partial        = lv-part 
+                    bf-fg-rctd.stacks-unit    = fg-bin.cases-unit
+                    bf-fg-rctd.units-pallet   = fg-bin.units-pallet
+                    bf-fg-rctd.cost           = fg-bin.std-tot-cost                     
+                    bf-fg-rctd.t-qty          = lv-qty
+                    bf-fg-rctd.ext-cost       = fg-bin.std-tot-cost * (lv-qty / IF bf-fg-rctd.pur-uom EQ "M" THEN 1000 ELSE 1)
+                    bf-fg-rctd.cases-unit     = fg-bin.cases-unit .  
+                    
+                    RELEASE bf-fg-rctd.
+                    
+                 
                 IF fg-bin.tag NE "" THEN DO:
                 FOR EACH loadtag
                     WHERE loadtag.company     EQ fg-bin.company
@@ -642,31 +688,8 @@ DO:
                         .
                 END.
     
-                ll-changed = NO.
-    
-                IF CAN-FIND(FIRST b-fg-bin
-                    WHERE b-fg-bin.company EQ fg-bin.company
-                      AND b-fg-bin.i-no    EQ fg-bin.i-no
-                      AND b-fg-bin.tag     EQ fg-bin.tag
-                      AND ROWID(b-fg-bin)  NE ROWID(fg-bin)
-                      AND b-fg-bin.qty NE 0) THEN
-                MESSAGE "Generate zero qty for identical Tag# in other bins?"
-                    VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO
-                    UPDATE ll-changed. 
-                IF ll-changed THEN
-                FOR EACH b-fg-bin
-                    WHERE b-fg-bin.company EQ fg-bin.company
-                      AND b-fg-bin.i-no    EQ fg-bin.i-no
-                      AND b-fg-bin.tag     EQ fg-bin.tag
-                      AND ROWID(b-fg-bin)  NE ROWID(fg-bin)
-                    USE-INDEX tag
-                    :
-                    ASSIGN
-                        b-fg-bin.qty           = 0
-                        b-fg-bin.partial-count = 0
-                        .
-                    RUN fg/cre-pchr.p (ROWID(b-fg-bin), "C", 0, 0,cReasonCode).
-                END.
+                ll-changed = NO.    
+                
             END.
 
             RUN fg/d-reqtys.w (ROWID(itemfg), NO).
