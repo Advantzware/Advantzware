@@ -3194,9 +3194,9 @@ CASE ipcTable:
            
         END. 
     
-        WHEN "jc-ctrl" THEN DO: 
-          &SCOPED-DEFINE deltable jc-ctrl 
-          DISABLE TRIGGERS FOR LOAD OF {&deltable}. 
+        WHEN "materialType" THEN DO: 
+          &SCOPED-DEFINE deltable materialType 
+          DISABLE TRIGGERS FOR LOAD OF materialType. 
           IF llCancel THEN 
               RETURN. 
           PUBLISH "NUMDEL" (ipcTable, jCnt). 

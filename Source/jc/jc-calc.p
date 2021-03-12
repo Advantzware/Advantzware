@@ -251,8 +251,6 @@ DO TRANSACTION:
 END.
 ll-jqcust = sys-ctrl.log-fld.
 
-FIND FIRST jc-ctrl WHERE jc-ctrl.company EQ cocode NO-LOCK NO-ERROR.
- 
 IF nufile EQ ? THEN
     ASSIGN
         nufile      = YES
@@ -1110,7 +1108,7 @@ DO:
                             ll-all-warn = YES.
                         END.
         
-                    job-mat.post = (z GT 0 AND jc-ctrl.post[z]) OR CAN-DO("J",type-mat) OR 
+                    job-mat.post = CAN-DO("J",type-mat) OR 
                                    CAN-FIND(FIRST materialType 
                                             WHERE materialType.company      EQ job-mat.company 
                                               AND materialType.materialType EQ type-mat

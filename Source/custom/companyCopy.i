@@ -90,8 +90,8 @@ PROCEDURE startCopy:
       RUN itemfg-locCopy.
   IF tg_itemfgdtl THEN
       RUN itemfgdtlCopy.
-  IF tg_jc-ctrl THEN
-      RUN jc-ctrlCopy.
+  IF tg_MaterialTypes THEN
+      RUN pMaterialTypesCopy.
   IF tg_loadtag THEN
       RUN loadtagCopy.
   IF tg_loc THEN
@@ -1212,20 +1212,20 @@ PROCEDURE itemfgdtlCopy:
   RUN showMsg ('',YES).
 END PROCEDURE.
 
-PROCEDURE jc-ctrlCopy:
-  DEFINE BUFFER bjc-ctrl FOR jc-ctrl.
+PROCEDURE pMaterialTypesCopy:
+  DEFINE BUFFER bf-MaterialType FOR materialType.
 
-  RUN showMsg ('jc-ctrl',NO).
-  IF CAN-FIND(FIRST jc-ctrl WHERE jc-ctrl.company EQ ipCompanyTo) THEN
-  FOR EACH jc-ctrl EXCLUSIVE-LOCK WHERE jc-ctrl.company EQ ipCompanyTo:
-    DELETE jc-ctrl.
+  RUN showMsg ('materialType',NO).
+  IF CAN-FIND(FIRST materialType WHERE materialType.company EQ ipCompanyTo) THEN
+  FOR EACH materialType EXCLUSIVE-LOCK WHERE materialType.company EQ ipCompanyTo:
+    DELETE materialType.
   END.
-  FOR EACH jc-ctrl NO-LOCK WHERE jc-ctrl.company EQ ipCompanyFrom:
-    CREATE bjc-ctrl.
-    BUFFER-COPY jc-ctrl EXCEPT company rec_key TO bjc-ctrl
-      ASSIGN bjc-ctrl.company = ipCompanyTo.
+  FOR EACH materialType NO-LOCK WHERE materialType.company EQ ipCompanyFrom:
+    CREATE bf-materialType.
+    BUFFER-COPY materialType EXCEPT company rec_key TO bf-materialType
+      ASSIGN bf-materialType.company = ipCompanyTo.
 
-    {custom\rec_key.i bjc-ctrl}
+    {custom\rec_key.i bf-materialType}
 
   END.
   RUN showMsg ('',YES).

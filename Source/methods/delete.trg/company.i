@@ -236,8 +236,8 @@ FOR EACH itemfgdtl EXCLUSIVE-LOCK WHERE itemfgdtl.company = company.company:
   DELETE itemfgdtl.
 END.
 
-FOR EACH jc-ctrl EXCLUSIVE-LOCK WHERE jc-ctrl.company = company.company:
-  DELETE jc-ctrl.
+FOR EACH materialType EXCLUSIVE-LOCK WHERE materialType.company = company.company:
+  DELETE materialType.
 END.
 
 FOR EACH job EXCLUSIVE-LOCK WHERE job.company = company.company:

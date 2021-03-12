@@ -4276,7 +4276,7 @@ PROCEDURE pParseTables :
             cTableName[5]  = "db-ctrl"  cFieldList[5]  = "rec_key"
             cTableName[6]  = "fg-ctrl"  cFieldList[6]  = "rec_key"
             cTableName[7]  = "gl-ctrl"  cFieldList[7]  = "rec_key"
-            cTableName[8]  = "jc-ctrl"  cFieldList[8]  = "rec_key"
+            cTableName[8]  = "materialType"  cFieldList[8]  = "rec_key"
             cTableName[9]  = "oe-ctrl"  cFieldList[9]  = "rec_key"
             cTableName[10] = "po-ctrl"  cFieldList[10] = "rec_key"
             cTableName[11] = "rfq-ctrl" cFieldList[11] = "rec_key"

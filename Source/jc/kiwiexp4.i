@@ -16,8 +16,6 @@ def var v-dc-seq    like v-rc-seq                                      no-undo.
 
 {sys/inc/kiwidir.i}
 
-         
-find first jc-ctrl where jc-ctrl.company eq cocode no-lock no-error.
 
 for each dept by dept.fc:
   if dept.code eq "RC" then
