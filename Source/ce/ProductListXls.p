@@ -21,7 +21,6 @@ DEFINE VARIABLE v-dir              AS CHARACTER        FORMAT "X(80)" NO-UNDO.
 DEFINE VARIABLE iRowCount          AS INTEGER          NO-UNDO.
 DEFINE VARIABLE iQtyOnHand         AS INTEGER          NO-UNDO.
 DEFINE VARIABLE cPrintItem         AS CHARACTER        NO-UNDO.
-DEFINE VARIABLE iSize              AS INTEGER          NO-UNDO.
 DEFINE VARIABLE dQuantity          AS DECIMAL          NO-UNDO.
 
 DEFINE VARIABLE hdEstimateCalcProcs AS HANDLE.
@@ -32,6 +31,7 @@ DEFINE TEMP-TABLE tt-temp-table LIKE eb
     FIELD board LIKE ef.board
     FIELD lRoll AS LOGICAL
     FIELD cRollUom LIKE ef.cost-uom
+    FIELD cSize AS CHARACTER
     FIELD rwRowid AS ROWID . 
 
 DEFINE BUFFER bf-eb FOR eb.
@@ -74,9 +74,7 @@ PROCEDURE FillData:
             AND ef.est-no EQ bf-eb.est-no 
             AND ef.form-no EQ bf-eb.form-no NO-ERROR .
      
-        IF ef.roll THEN
-                   ASSIGN iSize = ef.roll-wid .
-                   ELSE   iSize = ef.gsh-wid  .
+        
                
         CREATE tt-temp-table.
         BUFFER-COPY bf-eb TO tt-temp-table.
@@ -84,49 +82,12 @@ PROCEDURE FillData:
             tt-temp-table.board = IF AVAILABLE ef THEN ef.board ELSE "" 
             tt-temp-table.rwRowid = ROWID(eb)
             tt-temp-table.lRoll      = ef.roll 
-            tt-temp-table.cRollUom   = ef.cost-uom.         
+            tt-temp-table.cRollUom   = ef.cost-uom
+            .
+            IF ef.roll THEN
+                   ASSIGN tt-temp-table.cSize = STRING(ef.roll-wid) .
+                   ELSE   tt-temp-table.cSize = STRING(ef.gsh-wid) + " x " + STRING(ef.gsh-len) .
     END.
-    dQuantity = 0 .
-    
-    FOR EACH probe WHERE probe.company EQ tt-temp-table.company AND 
-            ASI.probe.est-no = tt-temp-table.est-no 
-            AND probe.probe-date NE ? NO-LOCK :
-            IF tt-temp-table.lRoll AND tt-temp-table.cRollUom EQ "LF" THEN
-            DO:
-                FIND FIRST estCostHeader NO-LOCK
-                        WHERE estCostHeader.company EQ eb.company
-                        AND estCostHeader.estCostHeaderID EQ INT64(probe.spare-char-2) NO-ERROR.
-
-                    FOR EACH estCostMaterial NO-LOCK
-                        WHERE estCostMaterial.estCostHeaderID EQ INT64(probe.spare-char-2)
-                        AND estCostMaterial.company EQ eb.company
-                        AND estCostMaterial.estimateNo EQ eb.est-no
-                        AND estCostMaterial.formNo EQ tt-temp-table.form-no:
-
-                    IF estCostMaterial.isPrimarySubstrate 
-                    AND NOT fTypePrintsBoard(estCostHeader.estType) 
-                    THEN 
-                    NEXT.
-
-                    IF estCostMaterial.isPrimarySubstrate THEN 
-                    DO:
-
-                        dQuantity = dQuantity + estCostMaterial.quantityRequiredNoWasteInCUOM .
-                    END.
-                                           
-                    END.
-                END.
-                ELSE
-                    FOR EACH estCostForm NO-LOCK
-                        WHERE estCostForm.estCostHeaderID EQ INT64(probe.spare-char-2)
-                        AND estCostForm.company EQ eb.company
-                        AND estCostForm.estimateNo EQ eb.est-no
-                        AND estCostForm.formNo EQ tt-temp-table.form-no:        
-                        dQuantity =  dQuantity + estCostForm.grossQtyRequiredTotal .
-                    END.
-
-        END.
-
     
     
     FIND FIRST cust NO-LOCK
@@ -174,7 +135,7 @@ PROCEDURE FillData:
                     chWorkSheet:Range("A" + STRING(iRowCount)):value = ITEM.i-name .
                 
                 IF AVAILABLE ITEM THEN     
-                    chWorkSheet:Range("B" + STRING(iRowCount)):value = STRING(iSize) .
+                    chWorkSheet:Range("B" + STRING(iRowCount)):value = STRING(tt-temp-table.cSize) .
                 
                /*IF ITEM.mat-type EQ "B" THEN*/
                chWorkSheet:Range("C" + STRING(iRowCount)):value = ITEM.i-name . 
@@ -186,6 +147,9 @@ PROCEDURE FillData:
                     ASSIGN
                         iQtyOnHand = iQtyOnHand + rm-bin.qty.
                 END.  
+                dQuantity = 0.
+                RUN pGetBoardMaterialQty(OUTPUT dQuantity).
+                
                 chWorkSheet:Range("D" + STRING(iRowCount)):value = STRING(item.q-onh) . 
                 chWorkSheet:Range("E" + STRING(iRowCount)):value = STRING(dQuantity) .
                 
@@ -466,6 +430,57 @@ PROCEDURE find-depth-reftable :
     op-rowid = ROWID(b-rt).
     RELEASE b-rt.
   END.
+END PROCEDURE.
+
+PROCEDURE pGetBoardMaterialQty :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+DEFINE OUTPUT PARAMETER opdQuantity AS DECIMAL NO-UNDO.
+opdQuantity = 0.
+FOR EACH probe WHERE probe.company EQ tt-temp-table.company AND 
+            ASI.probe.est-no = tt-temp-table.est-no 
+            AND probe.probe-date NE ? NO-LOCK :
+            
+            IF tt-temp-table.lRoll AND tt-temp-table.cRollUom EQ "LF" THEN
+            DO:
+                FIND FIRST estCostHeader NO-LOCK
+                        WHERE estCostHeader.company EQ eb.company
+                        AND estCostHeader.estCostHeaderID EQ INT64(probe.spare-char-2) NO-ERROR.
+
+                    FOR EACH estCostMaterial NO-LOCK
+                        WHERE estCostMaterial.estCostHeaderID EQ INT64(probe.spare-char-2)
+                        AND estCostMaterial.company EQ eb.company
+                        AND estCostMaterial.estimateNo EQ eb.est-no
+                        AND estCostMaterial.formNo EQ tt-temp-table.form-no:
+
+                        IF estCostMaterial.isPrimarySubstrate 
+                        AND NOT fTypePrintsBoard(estCostHeader.estType) 
+                        THEN 
+                        NEXT.
+
+                        IF estCostMaterial.isPrimarySubstrate THEN 
+                        DO:
+
+                            opdQuantity = opdQuantity + estCostMaterial.quantityRequiredNoWasteInCUOM .
+                        END.
+                                           
+                    END.
+            END.
+            ELSE
+                FOR EACH estCostForm NO-LOCK
+                    WHERE estCostForm.estCostHeaderID EQ INT64(probe.spare-char-2)
+                    AND estCostForm.company EQ eb.company
+                    AND estCostForm.estimateNo EQ eb.est-no
+                    AND estCostForm.formNo EQ tt-temp-table.form-no:        
+                    opdQuantity =  opdQuantity + estCostForm.grossQtyRequiredTotal .
+            END.
+
+        END.
+              
+
 END PROCEDURE.
 
 FUNCTION fTypePrintsBoard RETURNS LOGICAL PRIVATE
