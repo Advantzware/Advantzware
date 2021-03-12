@@ -179,19 +179,13 @@ ELSE DO:
  END. /* each oe-boll */
 END.
 
-   RUN ClearTagsByRecKey(oe-bolh.rec_key).  /*Clear all hold tags - TagProcs.p*/
-   RUN ClearTagsByRecKey(oe-bolh.rec_key + "CalcFreight").  /*Clear all hold tags - TagProcs.p*/
-   RUN AddTagInfo(
+   RUN ClearTagsForGroup(oe-bolh.rec_key, "CalcFreight").  /*Clear all hold tags - TagProcs.p*/
+   RUN AddTagInfoForGroup(
         INPUT oe-bolh.rec_key,
         INPUT "oe-bolh",
         INPUT cTagDescription,
-        INPUT ""
-        ). /*From TagProcs Super Proc*/
-   RUN AddTagInfo(
-        INPUT oe-bolh.rec_key + "CalcFreight",
-        INPUT "oe-bolh",
-        INPUT cTagDescription,
-        INPUT ""
+        INPUT "",
+        INPUT "CalcFreight"
         ). /*From TagProcs Super Proc*/
 
 
