@@ -145,6 +145,7 @@ DO:
  END. /* if below minimum */
 
  /*oe-bolh.freight = dTotFreight.*/ /* task NO 5051503 */
+ oe-bolh.freightCalculationAmount = dTotFreight.
  FIND CURRENT oe-bolh NO-LOCK.
  opdFreight = dTotFreight.
 
@@ -168,7 +169,8 @@ DO:
  ELSE cTagDescription = "Carrier not found".
 END.
 ELSE DO:
- RUN oe/bolfrteq.p (BUFFER oe-bolh, opdFreight, 0).
+ RUN oe/bolfrteq.p (BUFFER oe-bolh, opdFreight, 0).  
+ oe-bolh.freightCalculationAmount = opdFreight.   
  /* Obtain the total freight for all lines on BOL */
  FOR EACH bf-oe-boll
      WHERE bf-oe-boll.company EQ oe-bolh.company
@@ -178,8 +180,15 @@ ELSE DO:
 END.
 
    RUN ClearTagsByRecKey(oe-bolh.rec_key).  /*Clear all hold tags - TagProcs.p*/
+   RUN ClearTagsByRecKey(oe-bolh.rec_key + "CalcFreight").  /*Clear all hold tags - TagProcs.p*/
    RUN AddTagInfo(
         INPUT oe-bolh.rec_key,
+        INPUT "oe-bolh",
+        INPUT cTagDescription,
+        INPUT ""
+        ). /*From TagProcs Super Proc*/
+   RUN AddTagInfo(
+        INPUT oe-bolh.rec_key + "CalcFreight",
         INPUT "oe-bolh",
         INPUT cTagDescription,
         INPUT ""

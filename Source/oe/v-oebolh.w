@@ -960,7 +960,7 @@ END.
 ON CHOOSE OF btnTags1 IN FRAME F-Main
 DO:
     RUN system/d-TagViewer.w (
-        INPUT oe-bolh.rec_key,
+        INPUT (oe-bolh.rec_key + "CalcFreight"),
         INPUT ""
         ).
 END.
@@ -1082,16 +1082,13 @@ DEF VAR ldMinRate AS DEC NO-UNDO.
 /*                    oe-bolh.carrier:SCREEN-VALUE, */
 /*                    OUTPUT ld ).                  */
         RUN oe/calcBolFrt.p (ROWID(oe-bolh), OUTPUT ld).
-        oe-bolh.freight:SCREEN-VALUE = STRING(ld).
-        oe-bolh.freightCalculationAmount:SCREEN-VALUE = STRING(ld).
+        oe-bolh.freight:SCREEN-VALUE = STRING(ld).         
       END.
       ELSE DO: 
         FIND CURRENT oe-bolh.
         oe-bolh.freight = 0.
         dTotFreight = 0.
-        oe-bolh.freightCalculationAmount = 0.
-
- 
+         
         oe-bolh.tot-pallets = 0.
         FOR EACH oe-boll
             WHERE oe-boll.company EQ oe-bolh.company
@@ -1101,8 +1098,7 @@ DEF VAR ldMinRate AS DEC NO-UNDO.
         END. /* each oe-boll */        
         RUN oe/calcBolFrt.p (ROWID(oe-bolh), OUTPUT dTotFreight).
         oe-bolh.freight = dTotFreight.
-        oe-bolh.freightCalculationAmount = dTotFreight.
-        
+                
         FIND CURRENT oe-bolh NO-LOCK.
         RUN dispatch ("row-available").
         RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,'container-source':U,OUTPUT char-hdl).
@@ -1650,8 +1646,7 @@ PROCEDURE local-assign-record :
       AND (cFreightCalculationValue EQ "ALL" OR cFreightCalculationValue EQ "Bol Processing") THEN DO:
       
     RUN oe/calcBolFrt.p (INPUT ROWID(oe-bolh), OUTPUT dFreight).
-     oe-bolh.freight = dFreight .
-     oe-bolh.freightCalculationAmount = dFreight .
+     oe-bolh.freight = dFreight .     
   END.
   IF lFreightEntered THEN 
   DO:
