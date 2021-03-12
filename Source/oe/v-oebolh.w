@@ -2633,32 +2633,7 @@ PROCEDURE valid-freight :
      
   END.
 
-
 END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-freight V-table-Win 
-PROCEDURE valid-freight :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-
-  DO WITH FRAME {&FRAME-NAME}:
-     IF iFreightCalculationValue EQ 1 AND oe-bolh.frt-pay:SCREEN-VALUE NE "B" AND oe-bolh.freight:SCREEN-VALUE <> "0.00" THEN DO:
-          MESSAGE "Freight is prepaid so the freight charge should not be added or the freight terms should be adjusted." VIEW-AS ALERT-BOX ERROR.
-          APPLY "entry" TO oe-bolh.freight .
-          RETURN ERROR.
-     END.
-     
-  END.
-
-
-END PROCEDURE.
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
