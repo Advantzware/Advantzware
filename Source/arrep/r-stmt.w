@@ -4375,11 +4375,11 @@ form
   code-legend skip
   with frame no-stmt-total no-box no-labels stream-io width 80.
 
-if v-use-cust then
+/*if v-use-cust then
    find first cust WHERE
         cust.company eq cocode AND
         cust.active  eq "S"
-        no-lock no-error.
+        no-lock no-error.*/
 
 find first company where company.company eq cocode no-lock no-error.
 
@@ -4931,11 +4931,11 @@ form
   code-legend skip
   with frame no-stmt-total no-box no-labels stream-io width 80.
 
-if v-use-cust then
+/*if v-use-cust then
    find first cust WHERE
         cust.company eq cocode AND
         cust.active  eq "S"
-        no-lock no-error.
+        no-lock no-error.*/
 
 find first company where company.company eq cocode no-lock no-error.
 
