@@ -79,6 +79,7 @@ DEFINE VARIABLE h_exit AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_folder AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-navico AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-updsav AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_smartmsg AS HANDLE NO-UNDO.
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -95,6 +96,12 @@ DEFINE FRAME OPTIONS-FRAME
          AT COL 1 ROW 1
          SIZE 125 BY 1.91
          BGCOLOR 21  WIDGET-ID 200.
+DEFINE FRAME message-frame
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1.76
+         SIZE 5 BY 1.14
+         BGCOLOR 15 .
 
 
 /* *********************** Procedure Settings ************************ */
@@ -149,7 +156,8 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* SETTINGS FOR WINDOW W-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* REPARENT FRAME */
-ASSIGN FRAME OPTIONS-FRAME:FRAME = FRAME F-Main:HANDLE.
+ASSIGN FRAME message-frame:FRAME = FRAME F-Main:HANDLE
+       FRAME OPTIONS-FRAME:FRAME = FRAME F-Main:HANDLE.
 
 /* SETTINGS FOR FRAME F-Main
    FRAME-NAME                                                           */
