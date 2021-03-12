@@ -77,7 +77,6 @@ DEFINE VARIABLE iFreightCalculationValue AS INTEGER NO-UNDO.
 DEFINE VARIABLE cRetChar AS CHAR NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE dTotalFreight AS DECIMAL NO-UNDO.
-DEFINE VARIABLE iFreightCalculationValue AS INTEGER NO-UNDO.
 
 RUN sys/ref/nk1look.p (INPUT cocode, "FreightCalculation", "C" /* Logical */, NO /* check by cust */, 
                        INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
