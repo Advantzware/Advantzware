@@ -132,7 +132,7 @@ PROCEDURE BuildReport:
             IF ttFGReorder.quantityMaxOrder NE 0 AND ttFGReorder.quantityToOrderSuggested GT ttFGReorder.quantityMaxOrder THEN 
                 ttFGReorder.quantityToOrderSuggested = ttFGReorder.quantityMaxOrder.
                 
-            ttFGReorder.quantityToOrder = -(dQuantityOnHand + dQuantityOnOrder - dQuantityAllocated) .              
+            ttFGReorder.quantityToOrder = MAX(-(dQuantityOnHand + dQuantityOnOrder - dQuantityAllocated),0) .              
             
         END.
     END.
