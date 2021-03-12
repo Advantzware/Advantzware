@@ -15,7 +15,8 @@
 /* ***************************  Definitions  ************************** */
 {system/VendorCostProcs.i}
 {po/ttVendCostReport.i}
-{oe/ttPriceHold.i} 
+{oe/ttPriceHold.i}
+{util/ttInactiveQuotes.i} 
 
 /*Constants*/
 DEFINE VARIABLE gcItemTypeFG        AS CHARACTER NO-UNDO INITIAL "FG".
@@ -32,21 +33,6 @@ DEFINE VARIABLE gcScopeList         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE gcScopeDefault      AS CHARACTER NO-UNDO.
 
 /*Settings Variables*/
-
-DEFINE TEMP-TABLE ttVendItemCostCsv
-    FIELD company           AS CHARACTER                LABEL "Company"
-    FIELD estimate          AS CHARACTER                LABEL "Estimate"
-    FIELD formNo            AS INTEGER   FORMAT ">9"    LABEL "Form"
-    FIELD blankNo           AS INTEGER   FORMAT ">9"    LABEL "Blank"
-    FIELD itemID            AS CHARACTER FORMAT "X(20)" LABEL "Item"
-    FIELD vendorID          AS CHARACTER FORMAT "X(10)" LABEL "Vendor"
-    FIELD customerID        AS CHARACTER FORMAT "X(10)" LABEL "Customer"
-    FIELD itemType          AS CHARACTER                LABEL "Item Type"
-    FIELD UOM               AS CHARACTER FORMAT "X(5)"  LABEL "Vendor UOM"
-    FIELD effectiveDate     AS DATE                     LABEL "Effective Date"
-    FIELD oldExpirationDate AS DATE                     LABEL "Old Expiry Date"
-    FIELD newExpirationDate AS DATE                     LABEL "New Expiry Date"
-    .
 
 /* ********************  Preprocessor Definitions  ******************** */
 
