@@ -259,9 +259,6 @@ PROCEDURE Close_Touch_Screen :
   Notes:       
 ------------------------------------------------------------------------------*/
    DEF VAR ictr AS INT.
-   DO ictr = 1 TO 5:
-       MESSAGE PROGRAM-NAME(ictr) VIEW-AS ALERT-BOX.
-   END.
    IF INDEX(program-name(4),"addmain") = 0 
    AND INDEX(PROGRAM-NAME(4),"mainmenu") = 0 THEN
        RUN system/userLogOut.p (NO, 0).
