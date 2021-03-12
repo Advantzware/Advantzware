@@ -186,7 +186,7 @@ PROCEDURE FillData:
                     ASSIGN
                         iQtyOnHand = iQtyOnHand + rm-bin.qty.
                 END.  
-                chWorkSheet:Range("D" + STRING(iRowCount)):value = STRING(iQtyOnHand) . 
+                chWorkSheet:Range("D" + STRING(iRowCount)):value = STRING(item.q-onh) . 
                 chWorkSheet:Range("E" + STRING(iRowCount)):value = STRING(dQuantity) .
                 
                 RUN pGetWastePer( BUFFER tt-temp-table, OUTPUT dWastePer) .
@@ -216,7 +216,7 @@ PROCEDURE FillData:
                         iQtyOnHand = iQtyOnHand + rm-bin.qty.
                 END.  
                 
-                chWorkSheet:Range("D" + STRING(iRowCount)):value = STRING(iQtyOnHand) .    
+                chWorkSheet:Range("D" + STRING(iRowCount)):value = STRING(item.q-onh) .    
                 chWorkSheet:Range("F" + STRING(iRowCount)):value = STRING(dWastePer) .           
                iRowCount = iRowCount + 1. 
                cPrintItem = cPrintItem + tt-temp-table.cas-no + "," .
@@ -248,7 +248,7 @@ PROCEDURE FillData:
                         iQtyOnHand = iQtyOnHand + rm-bin.qty.
                 END.  
                 
-                chWorkSheet:Range("D" + STRING(iRowCount)):value = STRING(iQtyOnHand) .                  
+                chWorkSheet:Range("D" + STRING(iRowCount)):value = STRING(item.q-onh) .                  
                 chWorkSheet:Range("F" + STRING(iRowCount)):value = STRING(dWastePer) .          
                iRowCount = iRowCount + 1. 
                cPrintItem = cPrintItem + tt-temp-table.layer-pad + "," .
@@ -283,13 +283,11 @@ PROCEDURE FillData:
                         iQtyOnHand = iQtyOnHand + rm-bin.qty.
                 END.  
                 IF iQtyOnHand LT 0 THEN iQtyOnHand = 0 .
-                chWorkSheet:Range("D" + STRING(iRowCount)):value = STRING(iQtyOnHand) . 
+                chWorkSheet:Range("D" + STRING(iRowCount)):value = STRING(item.q-onh) . 
                 
                  dQtyPerMaterial = 0.
                  FOR EACH estCostMaterial NO-LOCK 
                      WHERE estCostMaterial.estimateNo EQ tt-temp-table.est-no 
-                     AND estCostMaterial.formNo EQ tt-temp-table.form-no
-                     AND estCostMaterial.blankNo EQ tt-temp-table.blank-no
                      AND estCostMaterial.itemID EQ estPacking.rmItemID
                      BY estCostMaterial.formNo DESCENDING
                      BY estCostMaterial.blankNo
