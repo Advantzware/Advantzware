@@ -44,9 +44,10 @@ DEFINE TEMP-TABLE ttItemLines
     FIELD iCaseCount      AS INTEGER
     FIELD cTableType      AS CHARACTER 
     .
-
+      
 {oe/ttPriceHold.i} 
 {system/ttPriceMatrix.i}
+{util/ttInactiveQuotes.i}
 
 /* ********************  Preprocessor Definitions  ******************** */
 
@@ -62,6 +63,103 @@ FUNCTION fUseLastPrice RETURNS LOGICAL PRIVATE
 
 
 /* **********************  Internal Procedures  *********************** */
+
+PROCEDURE pExpirePriceMatrixByCust PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany  AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcCustomer AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER iplProcess  AS LOGICAL   NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttOePrmtxCsv.
+    
+    DEFINE BUFFER bf-oe-prmtx FOR oe-prmtx.
+    
+    EMPTY TEMP-TABLE ttOePrmtxCsv.
+    
+    FOR EACH bf-oe-prmtx NO-LOCK 
+        WHERE bf-oe-prmtx.company    EQ ipcCompany
+          AND bf-oe-prmtx.cust-no    EQ ipcCustomer
+          AND (bf-oe-prmtx.exp-date GT TODAY OR bf-oe-prmtx.exp-date EQ ?) :
+        IF iplProcess THEN DO:
+            FIND CURRENT bf-oe-prmtx EXCLUSIVE-LOCK NO-ERROR. 
+            bf-oe-prmtx.exp-date = TODAY.
+        END.    
+        ELSE DO:
+            CREATE ttOePrmtxCsv.
+            ASSIGN 
+                ttOePrmtxCsv.company       = bf-oe-prmtx.company
+                ttOePrmtxCsv.custNo        = bf-oe-prmtx.cust-no
+                ttOePrmtxCsv.itemID        = bf-oe-prmtx.i-no
+                ttOePrmtxCsv.custShipId    = bf-oe-prmtx.custShipId
+                ttOePrmtxCsv.custype       = bf-oe-prmtx.custype
+                ttOePrmtxCsv.procat        = bf-oe-prmtx.procat
+                ttOePrmtxCsv.effectiveDate = bf-oe-prmtx.eff-date
+                ttOePrmtxCsv.oldExpiryDate = bf-oe-prmtx.exp-date
+                ttOePrmtxCsv.newExpiryDate = TODAY
+                ttOePrmtxCsv.Price1        = bf-oe-prmtx.price[1]
+                ttOePrmtxCsv.Price2        = bf-oe-prmtx.price[2] 
+                ttOePrmtxCsv.Price3        = bf-oe-prmtx.price[3] 
+                ttOePrmtxCsv.Price4        = bf-oe-prmtx.price[4] 
+                ttOePrmtxCsv.Price5        = bf-oe-prmtx.price[5] 
+                ttOePrmtxCsv.Price6        = bf-oe-prmtx.price[6] 
+                ttOePrmtxCsv.Price7        = bf-oe-prmtx.price[7] 
+                ttOePrmtxCsv.Price8        = bf-oe-prmtx.price[8] 
+                ttOePrmtxCsv.Price9        = bf-oe-prmtx.price[9] 
+                ttOePrmtxCsv.Price10       = bf-oe-prmtx.price[10] 
+                ttOePrmtxCsv.Quantity1     = bf-oe-prmtx.qty[1]
+                ttOePrmtxCsv.Quantity2     = bf-oe-prmtx.qty[2]
+                ttOePrmtxCsv.Quantity3     = bf-oe-prmtx.qty[3]
+                ttOePrmtxCsv.Quantity4     = bf-oe-prmtx.qty[4]
+                ttOePrmtxCsv.Quantity5     = bf-oe-prmtx.qty[5]
+                ttOePrmtxCsv.Quantity6     = bf-oe-prmtx.qty[6]
+                ttOePrmtxCsv.Quantity7     = bf-oe-prmtx.qty[7]
+                ttOePrmtxCsv.Quantity8     = bf-oe-prmtx.qty[8]
+                ttOePrmtxCsv.Quantity9     = bf-oe-prmtx.qty[9]
+                ttOePrmtxCsv.Quantity10    = bf-oe-prmtx.qty[10]
+                .            
+        END.                            
+    END.         
+
+END PROCEDURE.
+
+PROCEDURE pExpireQuoteByCust PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany  AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcCustomer AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER iplProcess  AS LOGICAL   NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttQuoteHdCsv.
+    
+    DEFINE BUFFER bf-quotehd FOR quotehd.
+    
+    FOR EACH bf-quotehd NO-LOCK 
+        WHERE bf-quotehd.company EQ ipcCompany
+          AND bf-quotehd.cust-no EQ ipcCustomer
+           AND (bf-quotehd.expiredate GT TODAY OR bf-quotehd.expiredate EQ ?):
+        IF iplProcess THEN DO:
+            FIND CURRENT bf-quotehd EXCLUSIVE-LOCK NO-ERROR.
+            bf-quotehd.expiredate = TODAY.
+        END.
+        ELSE DO:
+            CREATE ttQuoteHdCsv.
+            ASSIGN 
+                ttQuoteHdCsv.company       = bf-quotehd.company
+                ttQuoteHdCsv.custID        = bf-quotehd.cust-no
+                ttQuoteHdCsv.deliveryDate  = bf-quotehd.del-date
+                ttQuoteHdCsv.estimate      = bf-quotehd.est-no 
+                ttQuoteHdCsv.loc           = bf-quotehd.loc 
+                ttQuoteHdCsv.newExpiryDate = TODAY 
+                ttQuoteHdCsv.oldExpiryDate = bf-quotehd.expireDate
+                ttQuoteHdCsv.quoteDate     = bf-quotehd.quo-date
+                ttQuoteHdCsv.quoteNo       = bf-quotehd.q-no
+                .
+        END.                       
+    END.           
+END PROCEDURE.
 
 PROCEDURE Price_CheckPriceHoldForCustShip:
     /*------------------------------------------------------------------------------
@@ -378,6 +476,78 @@ PROCEDURE Price_CalculateLinePrice:
             END.
         END.
     END. /*iplUpdateDB*/
+
+END PROCEDURE.
+
+PROCEDURE Price_ExpirePriceMatrixByCust:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany  AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcCustomer AS CHARACTER NO-UNDO.
+    
+    RUN pExpirePriceMatrixByCust(
+        INPUT ipcCompany,
+        INPUT ipcCustomer,
+        INPUT YES,
+        INPUT-OUTPUT TABLE ttOePrmtxCsv
+        ).
+
+
+END PROCEDURE.
+
+PROCEDURE Price_ExpirePriceMatrixByCustTT:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany  AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcCustomer AS CHARACTER NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttOePrmtxCsv.
+    
+    RUN pExpirePriceMatrixByCust(
+        INPUT ipcCompany,
+        INPUT ipcCustomer,
+        INPUT NO,
+        INPUT-OUTPUT TABLE ttOePrmtxCsv
+        ).
+
+END PROCEDURE.
+
+PROCEDURE Price_ExpireQuoteByCust:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany  AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcCustomer AS CHARACTER NO-UNDO.
+    
+    RUN pExpireQuoteByCust(
+        INPUT ipcCompany,
+        INPUT ipcCustomer,
+        INPUT YES,
+        INPUT-OUTPUT TABLE ttQuoteHdCsv
+        ).
+
+
+END PROCEDURE.
+
+PROCEDURE Price_ExpireQuoteByCustTT:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany  AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcCustomer AS CHARACTER NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttQuoteHdCsv.
+    
+    RUN pExpireQuoteByCust(
+        INPUT ipcCompany,
+        INPUT ipcCustomer,
+        INPUT NO,
+        INPUT-OUTPUT TABLE ttQuoteHdCsv
+        ).
 
 END PROCEDURE.
 
