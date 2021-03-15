@@ -1063,7 +1063,7 @@ blok:
 DO:
    assign
      str-tit  = company.name
-     str-tit2 = "TRIAL  BALANCE"
+     str-tit2 = "TRIAL  BALANCE AS OF " + STRING(tran-date,"MM/DD/YYYY")
      str-tit3 = "Period " + string(tran-period,"99") + " Date Range:" + STRING(period.pst) + "-" + STRING(period.pend)
      v-rep-tot = 0
      {sys/inc/ctrtext.i str-tit  112}
@@ -1106,7 +1106,7 @@ DO:
         ptd-value = 0.
         view frame r-top.
                 
-        RUN GL_GetAccountOpenBal(ROWID(account),vdate, OUTPUT cyr).
+        RUN GL_GetAccountOpenBal(ROWID(account), tran-date, OUTPUT cyr).
         
         for each glhist no-lock
             where glhist.company eq account.company
@@ -1117,7 +1117,7 @@ DO:
           assign
            ptd-value = ptd-value + glhist.tr-amt
            tot-ptd   = tot-ptd   + glhist.tr-amt
-           cyr       = cyr + glhist.tr-amt.
+           .
         end.
                    
         if not suppress-zero or cyr ne 0 or ptd-value ne 0 then
