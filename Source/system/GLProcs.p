@@ -372,29 +372,40 @@ END PROCEDURE.
 
 PROCEDURE GL_GetAccountOpenBal :
     /*------------------------------------------------------------------------------
-     Purpose: get open balance GL Account
+     Purpose: get open balance GL Account as of the *Start (12:00:01 AM)* of the date entered.
      Notes:
      Syntax:
     ------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER iprwRowid      AS ROWID   NO-UNDO.    
-    DEFINE INPUT  PARAMETER ipdtDate       AS   DATE NO-UNDO.    
-    DEFINE OUTPUT PARAMETER opdBalYtd      AS   DECIMAL NO-UNDO.
+    DEFINE INPUT  PARAMETER ipriAccount      AS ROWID   NO-UNDO.    
+    DEFINE INPUT  PARAMETER ipdtAsOf       AS   DATE NO-UNDO.    
+    DEFINE OUTPUT PARAMETER opdBalOpen      AS   DECIMAL NO-UNDO.
        
     DEFINE VARIABLE lIsBalanceSheet   AS LOGICAL NO-UNDO.
     DEFINE VARIABLE lIsAsOfDateInClosedYear AS LOGICAL NO-UNDO.
-    DEFINE VARIABLE dtAsOfYearStart AS DATE NO-UNDO.
+    DEFINE VARIABLE lIsAccountContra AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lIsAccountRetained AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE dtAsOfFiscalYearStart AS DATE NO-UNDO.
     
     DEFINE BUFFER bf-cur-period        FOR period.
     DEFINE BUFFER bf-first-period      FOR period.
     DEFINE BUFFER bf-first-open-period FOR period.
     DEFINE BUFFER bf-first-open-year-period FOR period.
+    DEFINE BUFFER bf-account FOR account.
 
-    FIND account WHERE ROWID(account) EQ iprwRowid NO-LOCK NO-ERROR.
-
+    FIND account WHERE ROWID(account) EQ ipriAccount NO-LOCK NO-ERROR.
+    IF NOT AVAILABLE account THEN RETURN.
+    FIND FIRST gl-ctrl NO-LOCK 
+        WHERE gl-ctrl.company EQ account.company
+        NO-ERROR.
+    IF AVAILABLE gl-ctrl THEN 
+        ASSIGN 
+            lIsAccountContra = account.actnum EQ gl-ctrl.contra
+            lIsAccountRetained = account.actnum EQ gl-ctrl.ret
+            .
     FIND LAST bf-cur-period NO-LOCK
         WHERE bf-cur-period.company EQ account.company
-        AND bf-cur-period.pst     LE ipdtDate
-        AND bf-cur-period.pend    GE ipdtDate
+        AND bf-cur-period.pst     LE ipdtAsOf
+        AND bf-cur-period.pend    GE ipdtAsOf
         NO-ERROR.
 
     IF AVAILABLE bf-cur-period THEN       
@@ -415,47 +426,65 @@ PROCEDURE GL_GetAccountOpenBal :
             AND bf-first-open-year-period.pnum EQ 1
             NO-ERROR.
         
-    lIsAsOfDateInClosedYear = ipdtDate LT bf-first-open-year-period.pst.
+    lIsAsOfDateInClosedYear = ipdtAsOf LT bf-first-open-year-period.pst.
     lIsBalanceSheet = INDEX("ALCT",account.type) GT 0.
 
     IF lIsBalanceSheet THEN
         ASSIGN   //Balance Sheet - Pivot on the current year open balance of FY - add if as of date is in open year and subtract if as of date in closed year
-            opdBalYtd = account.cyr-open
-            dtAsOfYearStart = bf-first-open-year-period.pst
+            opdBalOpen = IF NOT (lIsAccountContra OR lIsAccountRetained) THEN account.cyr-open ELSE 0
+            dtAsOfFiscalYearStart = bf-first-open-year-period.pst
             .
     ELSE 
         ASSIGN //Income statement - always start from zero and count forward from first day of FY
-            opdBalYtd = 0
-            dtAsOfYearStart = bf-first-period.pst
+            opdBalOpen = 0
+            dtAsOfFiscalYearStart = bf-first-period.pst
             .
+    
+    IF lIsAccountContra OR lIsAccountRetained THEN DO:
+        FOR EACH bf-account NO-LOCK 
+            WHERE bf-account.company EQ account.company
+            AND INDEX("RE",bf-account.type) NE 0,
+            EACH glhist no-lock
+            WHERE glhist.company EQ bf-account.company
+            AND glhist.actnum EQ bf-account.actnum
+            AND glhist.tr-date GE dtAsOfFiscalYearStart
+            AND glhist.tr-date LT ipdtAsOf:
+                
+            IF lIsAccountRetained THEN 
+                opdBalOpen = opdBalOpen + glhist.tr-amt.
+            ELSE 
+                opdBalOpen = opdBalOpen - glhist.tr-amt.
             
-    IF NOT lIsAsOfDateInClosedYear OR NOT lIsBalanceSheet THEN
-    DO:       
-        FOR EACH glhist NO-LOCK
-            WHERE glhist.company EQ account.company
-            AND glhist.actnum EQ account.actnum
-            AND glhist.tr-date GE dtAsOFYearStart
-            AND glhist.tr-date LT ipdtDate:  
-                
-            ASSIGN
-                opdBalYtd      = opdBalYtd + glhist.tr-amt                 
-                . 
-        END. 
+        END.
     END.
-    ELSE 
-    DO: 
-        FOR EACH glhist NO-LOCK
-            WHERE glhist.company EQ account.company
-            AND glhist.actnum EQ account.actnum
-            AND glhist.tr-date GE ipdtDate
-            AND glhist.tr-date LT dtAsOfYearStart:  
-                
-            ASSIGN
-                opdBalYtd      = opdBalYtd - glhist.tr-amt                 
-                .             
-        END.  
-    END.   
-
+    ELSE DO:        
+        IF NOT lIsAsOfDateInClosedYear OR NOT lIsBalanceSheet THEN
+        DO:       
+            FOR EACH glhist NO-LOCK  /*All transactions from start of fiscal year up to the as of date*/
+                WHERE glhist.company EQ account.company
+                AND glhist.actnum EQ account.actnum
+                AND glhist.tr-date GE dtAsOfFiscalYearStart
+                AND glhist.tr-date LT ipdtAsOf:  
+                    
+                ASSIGN
+                    opdBalOpen      = opdBalOpen + glhist.tr-amt                 
+                    . 
+            END. 
+        END.
+        ELSE 
+        DO: 
+            FOR EACH glhist NO-LOCK /*All transactions prior to end of fiscal year start */
+                WHERE glhist.company EQ account.company
+                AND glhist.actnum EQ account.actnum
+                AND glhist.tr-date GE ipdtAsOf
+                AND glhist.tr-date LT dtAsOfFiscalYearStart:  
+                    
+                ASSIGN
+                    opdBalOpen      = opdBalOpen - glhist.tr-amt                 
+                    .             
+            END.  
+        END.   
+    END.
 END PROCEDURE.
 
 /* ************************  Function Implementations ***************** */
