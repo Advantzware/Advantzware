@@ -1063,7 +1063,7 @@ blok:
 DO:
    assign
      str-tit  = company.name
-     str-tit2 = "TRIAL  BALANCE AS OF " + STRING(tran-date,"MM/DD/YYYY")
+     str-tit2 = "TRIAL  BALANCE AS OF " + STRING(tran-date,"99/99/99")
      str-tit3 = "Period " + string(tran-period,"99") + " Date Range:" + STRING(period.pst) + "-" + STRING(period.pend)
      v-rep-tot = 0
      {sys/inc/ctrtext.i str-tit  112}
