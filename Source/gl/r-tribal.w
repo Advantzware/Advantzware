@@ -1004,7 +1004,9 @@ def var v-first as log init yes no-undo.
 def var v-hdr as char initial
 "Account#,Description,PTD,YTD,DB Adjust,CR Adjust,Bal Sheet,Income Stat" no-undo.
 def var v-comma as char format "x" initial "," no-undo.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
 
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
  {sys/inc/print1.i}
  {sys/inc/outprint.i VALUE(lines-per-page)}
@@ -1014,7 +1016,7 @@ def var v-comma as char format "x" initial "," no-undo.
  SESSION:SET-WAIT-STATE("general").
 
 IF tb_excel THEN DO:
-   OUTPUT STREAM excel TO VALUE(fi_file).
+   OUTPUT STREAM excel TO VALUE(cFileName).
    EXPORT STREAM excel DELIMITER ","
        "Account Number"
        "Description"
@@ -1168,7 +1170,7 @@ IF tb_excel THEN
   IF tb_excel THEN DO:
      OUTPUT STREAM excel CLOSE.
      IF tb_runExcel THEN
-         OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+         OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
  END.
  RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 SESSION:SET-WAIT-STATE("").
