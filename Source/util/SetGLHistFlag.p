@@ -22,7 +22,9 @@
       
      bf-glhist.glYear = IF AVAIL bf-period THEN bf-period.yr ELSE bf-glhist.glYear.
      IF bf-glhist.entryType EQ "" OR (AVAIL bf-period AND NOT bf-period.pstat) OR (NOT AVAIL bf-period) THEN
-     bf-glhist.posted = YES.      
+     ASSIGN
+         bf-glhist.posted = YES
+         bf-glhist.entryType = "A".      
      
   END.
   RELEASE bf-glhist.

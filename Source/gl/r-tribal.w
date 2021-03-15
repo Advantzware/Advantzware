@@ -1062,7 +1062,7 @@ DO:
    assign
      str-tit  = company.name
      str-tit2 = "TRIAL  BALANCE"
-     str-tit3 = "Period " + string(tran-period,"99")
+     str-tit3 = "Period " + string(tran-period,"99") + " Date Range:" + STRING(period.pst) + "-" + STRING(period.pend)
      v-rep-tot = 0
      {sys/inc/ctrtext.i str-tit  112}
      {sys/inc/ctrtext.i str-tit2 112}

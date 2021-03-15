@@ -435,7 +435,7 @@ PROCEDURE GL_GetAccountOpenBal :
             WHERE glhist.company EQ account.company
             AND glhist.actnum EQ account.actnum
             AND glhist.tr-date GE dtAsOFYearStart
-            AND glhist.tr-date LT ipdtDate:  
+            AND glhist.tr-date LE ipdtDate:  
                 
             ASSIGN
                 opdBalYtd      = opdBalYtd + glhist.tr-amt                 
@@ -448,7 +448,7 @@ PROCEDURE GL_GetAccountOpenBal :
             WHERE glhist.company EQ account.company
             AND glhist.actnum EQ account.actnum
             AND glhist.tr-date GE ipdtDate
-            AND glhist.tr-date LT dtAsOfYearStart:  
+            AND glhist.tr-date LE dtAsOfYearStart:  
                 
             ASSIGN
                 opdBalYtd      = opdBalYtd - glhist.tr-amt                 
