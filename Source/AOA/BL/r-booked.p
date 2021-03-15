@@ -25,12 +25,13 @@ DEFINE VARIABLE lProgressBar     AS LOGICAL   NO-UNDO.
 DEFINE OUTPUT PARAMETER TABLE FOR ttOrdersBooked.
 {AOA/includes/pOrdersBooked.i}
 
-RUN pBusinessLogic.
-
 /* subject business logic */
 ASSIGN
     cCompany       = ipcCompany
     cEndCustPart   = CHR(254)
     cEndShipFromNo = CHR(254)
     .
+
+RUN pBusinessLogic.
+
 {AOA/BL/r-booked.i}
