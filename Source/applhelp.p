@@ -207,11 +207,11 @@ PROCEDURE pRunDynLookup:
             ELSE
             FIND CURRENT dynLookup EXCLUSIVE-LOCK.
             ASSIGN
-                idx                    = LOOKUP("subjectID",cReturnValues,"|")
+                idx                    = LOOKUP("dynParamValue.subjectID",cReturnValues,"|")
                 dynLookup.subjectID    = INTEGER(ENTRY(idx + 1,cReturnValues,"|"))
-                idx                    = LOOKUP("user-id",cReturnValues,"|")
+                idx                    = LOOKUP("dynParamValue.user-id",cReturnValues,"|")
                 dynLookup.user-id      = ENTRY(idx + 1,cReturnValues,"|")
-                idx                    = LOOKUP("paramValueID",cReturnValues,"|")
+                idx                    = LOOKUP("dynParamValue.paramValueID",cReturnValues,"|")
                 dynLookup.paramValueID = INTEGER(ENTRY(idx + 1,cReturnValues,"|"))
                 .
             FIND CURRENT dynLookup NO-LOCK.
