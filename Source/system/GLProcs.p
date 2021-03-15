@@ -431,7 +431,7 @@ PROCEDURE GL_GetAccountOpenBal :
 
     IF lIsBalanceSheet THEN
         ASSIGN   //Balance Sheet - Pivot on the current year open balance of FY - add if as of date is in open year and subtract if as of date in closed year
-            opdBalOpen = account.cyr-open
+            opdBalOpen = IF NOT (lIsAccountContra OR lIsAccountRetained) THEN account.cyr-open ELSE 0
             dtAsOfFiscalYearStart = bf-first-open-year-period.pst
             .
     ELSE 
