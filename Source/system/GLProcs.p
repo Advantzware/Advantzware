@@ -436,7 +436,7 @@ PROCEDURE GL_GetAccountOpenBal :
             .
     ELSE IF lIsAccountRetained THEN 
         ASSIGN 
-            opdBalOpen            = 0
+            opdBalOpen            = account.cyr-open
             dtAsOfFiscalYearStart = bf-first-open-year-period.pst
             .
     ELSE IF lIsBalanceSheet THEN     
