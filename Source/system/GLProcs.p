@@ -385,6 +385,7 @@ PROCEDURE GL_GetAccountOpenBal :
     DEFINE VARIABLE lIsAccountContra AS LOGICAL NO-UNDO.
     DEFINE VARIABLE lIsAccountRetained AS LOGICAL NO-UNDO.
     DEFINE VARIABLE dtAsOfFiscalYearStart AS DATE NO-UNDO.
+    DEFINE VARIABLE iPeriod AS INTEGER NO-UNDO.
     
     DEFINE BUFFER bf-cur-period        FOR period.
     DEFINE BUFFER bf-first-period      FOR period.
@@ -435,10 +436,15 @@ PROCEDURE GL_GetAccountOpenBal :
             dtAsOfFiscalYearStart = bf-first-period.pst
             .
     ELSE IF lIsAccountRetained THEN 
-        ASSIGN 
-            opdBalOpen            = account.cyr-open
-            dtAsOfFiscalYearStart = bf-first-open-year-period.pst
-            .
+        DO:
+            ASSIGN 
+                opdBalOpen            = account.cyr-open
+                dtAsOfFiscalYearStart = bf-first-open-period.pst
+                .
+            DO iPeriod = 1 to bf-first-open-period.pnum - 1:
+                opdBalOpen = opdBalOpen + account.cyr[iPeriod].
+            END.
+        END.
     ELSE IF lIsBalanceSheet THEN     
         ASSIGN   //Balance Sheet - Pivot on the current year open balance of FY - add if as of date is in open year and subtract if as of date in closed year
             opdBalOpen = account.cyr-open
@@ -454,8 +460,8 @@ PROCEDURE GL_GetAccountOpenBal :
         FOR EACH bf-account NO-LOCK 
             WHERE bf-account.company EQ account.company
             AND INDEX("RE",bf-account.type) NE 0
-            AND bf-account.actnum NE gl-ctrl.contra
-            AND bf-account.actnum NE gl-ctrl.ret
+            //AND bf-account.actnum NE gl-ctrl.contra
+            //AND bf-account.actnum NE gl-ctrl.ret
             ,
             EACH glhist no-lock
             WHERE glhist.company EQ bf-account.company
