@@ -56,6 +56,8 @@ DEF TEMP-TABLE tt-glinq NO-UNDO
     FIELD posted LIKE glhist.posted LABEL "Posted"
     FIELD tr-period LIKE glhist.period LABEL "Pd"
     FIELD tr-yr LIKE glhist.yr LABEL "Year"
+    FIELD documentID LIKE glhist.documentID LABEL "Document Id"
+    FIELD sourceDate LIKE glhist.sourceDate LABEL "Source Date" 
     FIELD riRowid AS ROWID 
     INDEX tr-date IS PRIMARY tr-date.
 
@@ -112,7 +114,7 @@ RUN methods/prgsecur.p
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE br_table                                      */
-&Scoped-define FIELDS-IN-QUERY-br_table tt-glinq.actnum tt-glinq.tr-date tt-glinq.jrnl tt-glinq.tr-dscr tt-glinq.db-amt tt-glinq.cr-amt tt-glinq.tr-from tt-glinq.createdBy tt-glinq.createdDate tt-glinq.posted tt-glinq.tr-num  tt-glinq.tr-period tt-glinq.tr-yr 
+&Scoped-define FIELDS-IN-QUERY-br_table tt-glinq.actnum tt-glinq.tr-date tt-glinq.jrnl tt-glinq.tr-dscr tt-glinq.db-amt tt-glinq.cr-amt tt-glinq.documentID tt-glinq.sourceDate tt-glinq.createdBy tt-glinq.createdDate tt-glinq.posted tt-glinq.tr-num  tt-glinq.tr-period tt-glinq.tr-yr 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br_table tt-glinq.actnum tt-glinq.tr-date tt-glinq.jrnl tt-glinq.tr-dscr    
 &Scoped-define ENABLED-TABLES-IN-QUERY-br_table tt-glinq
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-br_table tt-glinq
@@ -131,7 +133,7 @@ RUN methods/prgsecur.p
 iRunFrom iRunTo dtDateFrom dtDateTo begin_acct lv-year btn-print br_table 
 &Scoped-Define DISPLAYED-OBJECTS lv-period-fr lv-period-to iRunFrom iRunTo ~
 dtDateFrom dtDateTo begin_acct lv-year  lv-open-bal lv-close-bal ~
-acct_dscr
+acct_dscr dTotalBalance 
 //FI_moveCol
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -240,6 +242,11 @@ DEFINE VARIABLE lv-open-bal AS DECIMAL FORMAT "->>,>>>,>>>,>>9.99":U INITIAL 0
      LABEL "Total Debits" 
      VIEW-AS FILL-IN 
      SIZE 23.8 BY 1 NO-UNDO.
+     
+DEFINE VARIABLE dTotalBalance AS DECIMAL FORMAT "->>,>>>,>>>,>>9.99":U INITIAL 0 
+     LABEL "Sum Total" 
+     VIEW-AS FILL-IN 
+     SIZE 23.8 BY 1 NO-UNDO.     
 
 DEFINE VARIABLE lv-period-fr AS INTEGER FORMAT ">9":U INITIAL 0 
      VIEW-AS FILL-IN 
@@ -277,10 +284,11 @@ DEFINE BROWSE br_table
       tt-glinq.actnum LABEL-BGCOLOR 14 
       tt-glinq.tr-date LABEL-BGCOLOR 14
       tt-glinq.jrnl LABEL-BGCOLOR 14
-      tt-glinq.tr-dscr FORM "X(60)" LABEL-BGCOLOR 14 
+      tt-glinq.tr-dscr FORM "X(60)" LABEL-BGCOLOR 14 WIDTH 50
       tt-glinq.db-amt FORM "->>,>>>,>>9.99" LABEL-BGCOLOR 14
       tt-glinq.cr-amt FORM "->>,>>>,>>9.99" LABEL-BGCOLOR 14
-      tt-glinq.tr-from FORM "x(30)" LABEL-BGCOLOR 14
+      tt-glinq.documentID LABEL-BGCOLOR 14
+      tt-glinq.sourceDate LABEL-BGCOLOR 14
       tt-glinq.createdBy  LABEL-BGCOLOR 14
       tt-glinq.createdDate LABEL-BGCOLOR 14
       tt-glinq.posted LABEL-BGCOLOR 14
@@ -307,10 +315,11 @@ DEFINE FRAME F-Main
      dtDateTo AT ROW 2.05 COL 107.5 COLON-ALIGNED NO-LABEL WIDGET-ID 68
      btn-go AT ROW 2 COL 128.2
      btn-all AT ROW 2 COL 144.6     
-     btn-print AT ROW 3.33 COL 111.2
+     btn-print AT ROW 3.33 COL 144.6
   //   FI_moveCol AT ROW 3.33 COL 145.4 COLON-ALIGNED NO-LABEL WIDGET-ID 46
-     lv-open-bal AT ROW 3.38 COL 48.8 COLON-ALIGNED
-     lv-close-bal AT ROW 3.38 COL 86.2 COLON-ALIGNED
+     lv-open-bal AT ROW 3.38 COL 44.8 COLON-ALIGNED
+     lv-close-bal AT ROW 3.38 COL 82.2 COLON-ALIGNED
+     dTotalBalance AT ROW 3.38 COL 118.2 COLON-ALIGNED
      acct_dscr AT ROW 3.43 COL 1 COLON-ALIGNED NO-LABEL
      br_table AT ROW 5.05 COL 1
      "Date" VIEW-AS TEXT
@@ -417,6 +426,8 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN lv-open-bal IN FRAME F-Main
    NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN dTotalBalance IN FRAME F-Main
+   NO-ENABLE                                                            */   
 /* SETTINGS FOR FILL-IN acct_dscr IN FRAME F-Main
    NO-ENABLE EXP-FORMAT                                                 */    
 /* SETTINGS FOR FILL-IN lv-period-fr IN FRAME F-Main
@@ -607,6 +618,14 @@ DO:
            IF ll-sort-asc THEN OPEN QUERY {&SELF-NAME} FOR EACH tt-glinq BY tt-glinq.createdBy.
            ELSE OPEN QUERY {&SELF-NAME} FOR EACH tt-glinq BY tt-glinq.createdBy {&sortby-des}.
       END.
+      WHEN "sourceDate" THEN DO:
+           IF ll-sort-asc THEN OPEN QUERY {&SELF-NAME} FOR EACH tt-glinq BY tt-glinq.sourceDate.
+           ELSE OPEN QUERY {&SELF-NAME} FOR EACH tt-glinq BY tt-glinq.sourceDate {&sortby-des}.
+      END.  
+      WHEN "documentID" THEN DO:
+           IF ll-sort-asc THEN OPEN QUERY {&SELF-NAME} FOR EACH tt-glinq BY tt-glinq.documentID.
+           ELSE OPEN QUERY {&SELF-NAME} FOR EACH tt-glinq BY tt-glinq.documentID {&sortby-des}.
+      END. 
       WHEN "createdDate" THEN DO:
            IF ll-sort-asc THEN OPEN QUERY {&SELF-NAME} FOR EACH tt-glinq BY tt-glinq.createdDate.
            ELSE OPEN QUERY {&SELF-NAME} FOR EACH tt-glinq BY tt-glinq.createdDate {&sortby-des}.
@@ -692,7 +711,7 @@ DO:
       
       RUN build-inquiry.
       {&open-query-{&browse-name}}
-      DISPLAY lv-open-bal lv-close-bal acct_dscr WITH FRAME {&FRAME-NAME}.
+      DISPLAY lv-open-bal lv-close-bal acct_dscr dTotalBalance WITH FRAME {&FRAME-NAME}.
 
 END.
 
@@ -708,7 +727,7 @@ DO:
                   
       RUN build-inquiry.
       {&open-query-{&browse-name}}
-          DISPLAY lv-open-bal lv-close-bal acct_dscr WITH FRAME {&FRAME-NAME}.
+          DISPLAY lv-open-bal lv-close-bal acct_dscr dTotalBalance WITH FRAME {&FRAME-NAME}.
       
       
 END.
@@ -1018,7 +1037,8 @@ PROCEDURE build-inquiry :
      v-max-dscr-length = 0
      uperiod = lv-period-fr
      lv-close-bal = 0
-     lv-open-bal = 0.
+     lv-open-bal = 0
+     dTotalBalance = 0 .
   FIND first account WHERE account.company = g_company
                        AND account.actnum = begin_acct NO-LOCK NO-ERROR.
 
@@ -1067,6 +1087,8 @@ PROCEDURE build-inquiry :
              tt-glinq.tr-num = glhist.tr-num
              tt-glinq.tr-period = glhist.period
              tt-glinq.tr-yr = glhist.glYear
+             tt-glinq.documentID = glhist.documentID
+             tt-glinq.sourceDate = glhist.sourceDate
              tt-glinq.riRowid = ROWID(glhist).
         IF glhist.tr-amt GT 0 THEN
         ASSIGN
@@ -1076,6 +1098,8 @@ PROCEDURE build-inquiry :
         ASSIGN
            tt-glinq.cr-amt = glhist.tr-amt * - 1
            lv-close-bal = lv-close-bal + ( glhist.tr-amt * - 1) .   
+           
+      dTotalBalance = dTotalBalance +  ( IF glhist.tr-amt NE ? THEN glhist.tr-amt ELSE 0).    
                 
       IF LENGTH(glhist.tr-dscr) GT v-max-dscr-length THEN
          v-max-dscr-length = LENGTH(glhist.tr-dscr).  
