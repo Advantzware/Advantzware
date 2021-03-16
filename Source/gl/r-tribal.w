@@ -1106,7 +1106,7 @@ DO:
         ptd-value = 0.
         view frame r-top.
                 
-        RUN GL_GetAccountOpenBal(ROWID(account), tran-date, OUTPUT cyr).
+        RUN GL_GetAccountOpenBal(ROWID(account), tran-date + 1, OUTPUT cyr).
         
         for each glhist no-lock
             where glhist.company eq account.company

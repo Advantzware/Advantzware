@@ -429,9 +429,19 @@ PROCEDURE GL_GetAccountOpenBal :
     lIsAsOfDateInClosedYear = ipdtAsOf LT bf-first-open-year-period.pst.
     lIsBalanceSheet = INDEX("ALCT",account.type) GT 0.
 
-    IF lIsBalanceSheet THEN
+    IF lIsAccountContra THEN
+        ASSIGN 
+            opdBalOpen            = 0
+            dtAsOfFiscalYearStart = bf-first-period.pst
+            .
+    ELSE IF lIsAccountRetained THEN 
+        ASSIGN 
+            opdBalOpen            = account.cyr-open
+            dtAsOfFiscalYearStart = bf-first-open-year-period.pst
+            .
+    ELSE IF lIsBalanceSheet THEN     
         ASSIGN   //Balance Sheet - Pivot on the current year open balance of FY - add if as of date is in open year and subtract if as of date in closed year
-            opdBalOpen = IF NOT (lIsAccountContra OR lIsAccountRetained) THEN account.cyr-open ELSE 0
+            opdBalOpen = account.cyr-open
             dtAsOfFiscalYearStart = bf-first-open-year-period.pst
             .
     ELSE 
@@ -443,7 +453,10 @@ PROCEDURE GL_GetAccountOpenBal :
     IF lIsAccountContra OR lIsAccountRetained THEN DO:
         FOR EACH bf-account NO-LOCK 
             WHERE bf-account.company EQ account.company
-            AND INDEX("RE",bf-account.type) NE 0,
+            AND INDEX("RE",bf-account.type) NE 0
+            AND bf-account.actnum NE gl-ctrl.contra
+            AND bf-account.actnum NE gl-ctrl.ret
+            ,
             EACH glhist no-lock
             WHERE glhist.company EQ bf-account.company
             AND glhist.actnum EQ bf-account.actnum
