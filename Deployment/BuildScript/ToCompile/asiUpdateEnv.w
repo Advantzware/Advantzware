@@ -842,7 +842,8 @@ PROCEDURE ipAddDbmsFonts :
         END.
         ELSE IF FILE-INFO:FILE-TYPE BEGINS "F" 
         AND INDEX(FILE-INFO:FILE-NAME,"dbms") NE 0 
-        AND INDEX(FILE-INFO:FILE-NAME,".ini") NE 0 THEN DO:
+        AND INDEX(FILE-INFO:FILE-NAME,".ini") NE 0 
+        AND FILE-INFO:FILE-NAME NE "dbmsui.ini" THEN DO:
             EMPTY TEMP-TABLE ttDbms.
             ASSIGN 
                 iThisLine = 100.
