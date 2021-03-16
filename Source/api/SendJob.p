@@ -229,6 +229,14 @@
             RETURN.
         END.
         
+        ASSIGN
+            cCompany    = job.company  
+            cJobNo      = job.job-no
+            cJobNo2     = STRING(job.job-no2)            
+            cIsPriority = STRING(job.priority EQ 1,"true/false")
+            cPriority   = STRING(job.priority)
+            .
+    
     FIND FIRST bf-APIOutboundDetail NO-LOCK
          WHERE bf-APIOutboundDetail.apiOutboundID EQ ipiAPIOutboundID
            AND bf-APIOutboundDetail.detailID      EQ "JobHeader"
@@ -260,9 +268,6 @@
                 .                                            
                 ASSIGN 
                     lcJobHeaderData               = bf-APIOutboundDetail.data
-                    cCompany                      = job-hdr.company  
-                    cJobNo                        = job-hdr.job-no
-                    cJobNo2                       = STRING(job-hdr.job-no2)            
                     cLocation                     = job-hdr.loc    
                     cEstimate                     = TRIM(job-hdr.est-no)
                     cOrder                        = TRIM(STRING(job-hdr.ord-no,">>>>>9"))                                     
@@ -271,8 +276,6 @@
                     cSquareInchPct                = STRING(job-hdr.sq-in,">>9.99")                    cFreezeNotesDate              = STRING(job-hdr.freezeNotesDate,"99/99/9999")                    cWarehoused                   = STRING(job-hdr.whsed)
                     cOpened                       = STRING(job-hdr.opened)
                     cPrinted                      = STRING(job-hdr.ftick-prnt)
-                    cIsPriority                   = STRING(job.priority EQ 1,"true/false")
-                    cPriority                     = STRING(job.priority)
                     cCSRID                        = job.csrUser_id
                     cEnteredBy                    = job.user-id
                     .
@@ -301,8 +304,6 @@
                 RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "Warehoused",cWarehoused).
                 RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "Opened",cWarehoused).
                 RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "Printed",cPrinted).
-                RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "Priority",cPriority).
-                RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "IsPriority",cIsPriority).
                 RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "SquareInchPercentage",cSquareInchPct).
                 RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "CSRID",cCSRID).                
                 RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "EnteredBy",cEnteredBy).
@@ -571,6 +572,8 @@
         RUN updateRequestData(INPUT-OUTPUT lcJobsData, "Company",cCompany).
         RUN updateRequestData(INPUT-OUTPUT lcJobsData, "JobNumber1",cJobNo).
         RUN updateRequestData(INPUT-OUTPUT lcJobsData, "JobNumber2",cJobNo2).
+        RUN updateRequestData(INPUT-OUTPUT lcJobsData, "Priority",cPriority).
+        RUN updateRequestData(INPUT-OUTPUT lcJobsData, "IsPriority",cIsPriority).
 
         lcJobsData       = REPLACE(lcJobsData, "$JobHeader$", lcConcatJobHeaderData).
         lcJobsData       = REPLACE(lcJobsData, "$JobMaterial$", lcConcatJobMatData).
