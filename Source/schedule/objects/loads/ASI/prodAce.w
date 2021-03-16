@@ -24,11 +24,10 @@
 
 /* Parameters Definitions ---                                           */
 
-DEFINE INPUT  PARAMETER lvProdAceDat AS CHARACTER NO-UNDO.
-DEFINE INPUT  PARAMETER iphContainerHandle AS HANDLE NO-UNDO.
-DEFINE INPUT  PARAMETER iplAutoMonitor AS LOGICAL NO-UNDO.
-
-DEFINE OUTPUT PARAMETER opContinue AS LOGICAL NO-UNDO.
+DEFINE INPUT  PARAMETER lvProdAceDat       AS CHARACTER NO-UNDO.
+DEFINE INPUT  PARAMETER iphContainerHandle AS HANDLE    NO-UNDO.
+DEFINE INPUT  PARAMETER iplAutoMonitor     AS LOGICAL   NO-UNDO.
+DEFINE OUTPUT PARAMETER opContinue         AS LOGICAL   NO-UNDO.
 
 /* Local Variable Definitions ---                                       */
  
@@ -60,17 +59,11 @@ DEFINE VARIABLE lProdAceBarScan AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cResource AS CHARACTER NO-UNDO.
 
-DEFINE TEMP-TABLE ttblStatus NO-UNDO 
-    FIELD dmiID       AS INTEGER
-    FIELD job         AS CHARACTER 
-    FIELD blank-no    AS INTEGER 
-    FIELD pass        AS INTEGER 
-    FIELD productID   AS CHARACTER 
-    FIELD runID       AS INTEGER 
-    FIELD runComplete AS LOGICAL
-        INDEX ttblStatus IS PRIMARY 
-              runID
-              .
+DEFINE STREAM sProdAce.
+DEFINE STREAM sProcessed.
+DEFINE STREAM sError.
+DEFINE STREAM sHold.
+
 DEFINE TEMP-TABLE ttToggleBox NO-UNDO
     FIELD hToggleBox AS HANDLE
     FIELD rResource AS ROWID
@@ -85,11 +78,6 @@ DEFINE TEMP-TABLE ttblProductID NO-UNDO
               dmiID
               .
 {AOA/tempTable/ttblProdAce.i}
-
-DEFINE STREAM sProdAce.
-DEFINE STREAM sHold.
-DEFINE STREAM sProcessed.
-DEFINE STREAM sError.
 
 {AOA/includes/dateOptionDef.i}
 
@@ -871,7 +859,9 @@ DISABLE TRIGGERS FOR LOAD OF machemp.
 DISABLE TRIGGERS FOR LOAD OF machtran.
 DISABLE TRIGGERS FOR LOAD OF emplogin.
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
-  
+
+{AOA/dynBL/dmiTran.i}
+
 /* Set CURRENT-WINDOW: this will parent dialog-boxes and frames.        */
 ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME} 
        THIS-PROCEDURE:CURRENT-WINDOW = {&WINDOW-NAME}.
@@ -914,8 +904,6 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
-
-{AOA/dynBL/dmiTran.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -960,12 +948,6 @@ PROCEDURE createResourceToggleBoxes :
               LABEL = ttblResource.resource + " - "
                     + ttblResource.resourceDescription
                     .
-        /*
-        TRIGGERS:
-          ON VALUE-CHANGE
-            PERSISTENT RUN pClick IN THIS-PROCEDURE (hWidget:HANDLE).
-        END TRIGGERS.createTtblProdAcecreateTtblProdAce
-        */
         CREATE ttToggleBox.
         ASSIGN
           ttToggleBox.hToggleBox = hWidget
@@ -980,215 +962,201 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE createTtblProdAce C-Win
 PROCEDURE createTtblProdAce:
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-  DEFINE INPUT PARAMETER ipProdAceFile AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipProdAceFile AS CHARACTER NO-UNDO.
 
-  DEFINE VARIABLE lvProdAceDMIID AS INTEGER NO-UNDO.
-  DEFINE VARIABLE lvDate AS DATE NO-UNDO.
-  DEFINE VARIABLE lvTime AS INTEGER NO-UNDO.
-  DEFINE VARIABLE idx AS INTEGER NO-UNDO.
-  DEFINE VARIABLE lvState AS CHARACTER NO-UNDO.
-  DEFINE VARIABLE lvChargeCode AS CHARACTER NO-UNDO.
-  DEFINE VARIABLE lvFile AS CHARACTER NO-UNDO.
-  DEFINE VARIABLE lvTemp AS CHARACTER NO-UNDO.
-  DEFINE VARIABLE cJobNo AS CHARACTER NO-UNDO.
-  DEFINE VARIABLE iJobMchID AS INTEGER NO-UNDO.
+    DEFINE VARIABLE lvProdAceDMIID AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE lvDate         AS DATE      NO-UNDO.
+    DEFINE VARIABLE lvTime         AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE idx            AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE lvState        AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lvChargeCode   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lvFile         AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lvTemp         AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cJobNo         AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iJobMchID      AS INTEGER   NO-UNDO.
 
-  EMPTY TEMP-TABLE ttblStatus.
-  ASSIGN 
-    lvFile = lvProdAceDir + '/wmsjobs.dat'
-    lvTemp = REPLACE(lvFile,".dat",".tmp")
-    .
-  IF SEARCH(lvFile) NE ? THEN DO:
-    OS-RENAME VALUE(lvFile) VALUE(lvTemp).
-    INPUT STREAM sProdAce FROM VALUE(lvTemp).
+    EMPTY TEMP-TABLE ttblProdAce.
+    INPUT STREAM sProdAce FROM VALUE(ipProdAceFile).
+    IF lvPostProdAce THEN DO:
+        OUTPUT STREAM sHold TO VALUE(lvHoldFile).
+        OUTPUT STREAM sProcessed TO VALUE(lvProcessed).
+    END. /* if lvpostprodAce */
     REPEAT:
-      IMPORT STREAM sProdAce UNFORMATTED lvProdAceData.
-      /* check if valid entry to process */
-      IF INDEX(ENTRY(2,lvProdAceData),"Invalid WO") NE 0 THEN NEXT.
-      /* check if valid entry to process */
-      IF INDEX(ENTRY(2,lvProdAceData),"n/f") NE 0 THEN NEXT.
-      /* check if valid entry to process */
-      IF INDEX(ENTRY(2,lvProdAceData),"Unscheduled") NE 0 THEN NEXT.
-      /* make sure job is in long format */
-      IF NUM-ENTRIES(ENTRY(2,lvProdAceData),'.') LT 2 THEN NEXT.
-      CREATE ttblStatus.
-      ASSIGN
-        lvProdAceData = REPLACE(lvProdAceData,', ',',')
-        lvProdAceData = REPLACE(lvProdAceData,'"','')
-        ttblStatus.dmiID = INT(ENTRY(1,lvProdAceData))
-        ttblStatus.productID = ENTRY(3,lvProdAceData)
-        ttblStatus.runID = INT(ENTRY(6,lvProdAceData))
-        ttblStatus.runComplete = ENTRY(10,lvProdAceData) EQ 'C'
-        .
-      IF lProdAceBarScan THEN DO:
-          ASSIGN
-            cJobNo = ENTRY(2,lvProdAceData)
-            iJobMchID = INT(ENTRY(2,cJobNo,'.'))
-            .
-          FIND FIRST job-mch NO-LOCK
-               WHERE job-mch.job-mchID EQ iJobMchID
-               NO-ERROR.
-          IF AVAILABLE job-mch THEN
-          ASSIGN
-            ttblStatus.job = LEFT-TRIM(job-mch.job-no) + '-'
-                           + STRING(job-mch.job-no2) + '.'
-                           + STRING(job-mch.frm)
-            ttblStatus.blank-no = job-mch.blank-no
-            ttblStatus.pass = job-mch.pass
-            .
-      END. /* if prod ace bar scanning */
-      ELSE
-      ASSIGN
-        ttblStatus.job = ENTRY(2,lvProdAceData)
-        ttblStatus.blank-no = INT(ENTRY(3,ttblStatus.job,'.'))
-        ttblStatus.pass = INT(ENTRY(4,ttblStatus.job,'.'))
-        ttblStatus.job = ENTRY(1,ttblStatus.job,'.') + '.'
-                       + ENTRY(2,ttblStatus.job,'.')
-        .
-    END. /* repeat */
-    OUTPUT STREAM sProdAce CLOSE.
-  END. /* if search */
-
-  EMPTY TEMP-TABLE ttblProdAce.
-  INPUT STREAM sProdAce FROM VALUE(ipProdAceFile).
-  IF lvPostProdAce THEN DO:
-    OUTPUT STREAM sHold TO VALUE(lvHoldFile).
-    OUTPUT STREAM sProcessed TO VALUE(lvProcessed).
-  END. /* if lvpostprodAce */
-  REPEAT:
-    IMPORT STREAM sProdAce UNFORMATTED lvProdAceData.
-    IF ENTRY(2,lvProdAceData) EQ 'n/f' THEN NEXT.
-    lvProdAceDMIID = INTEGER(ENTRY(1,lvProdAceData)).
-    FIND FIRST ttblResource
-         WHERE ttblResource.dmiID EQ lvProdAceDMIID
-         NO-ERROR.
-    IF NOT AVAILABLE ttblResource THEN NEXT.
-    IF lvResourceList NE '' AND NOT CAN-DO(lvResourceList,ttblResource.resource) THEN NEXT.
-    ASSIGN
-      lvDate = DATE(ENTRY(9,lvProdAceData))
-      lvTime = INT(SUBSTR(ENTRY(10,lvProdAceData),1,2)) * 3600
-             + INT(SUBSTR(ENTRY(10,lvProdAceData),4,2)) * 60
-             + INT(SUBSTR(ENTRY(10,lvProdAceData),7,2))
-             .
-    IF lvPostProdAce AND
-      ((selectedShift NE 'All' AND
-        selectedShift NE ENTRY(5,lvProdAceData)) OR
-        lvDate LT selectedStartDate OR
-        lvDate GT selectedEndDate) THEN DO:
-      PUT STREAM sHold UNFORMATTED lvProdAceData SKIP.
-      NEXT.
-    END. /* if prodAceshift ne */
-    lvProdAceResource = ttblResource.resource.
-    ASSIGN
-      lvProdAceJob   = ENTRY(2,lvProdAceData)
-      lvProdAceForm  = ENTRY(2,lvProdAceJob,'.')
-      lvProdAceBlank = ENTRY(3,lvProdAceJob,'.')
-      lvProdAcePass  = ENTRY(4,lvProdAceJob,'.')
-      cResource      = ENTRY(5,lvProdAceJob,'.')
-      lvProdAceJob   = ENTRY(1,lvProdAceJob,'.') + '.'
-                     + lvProdAceForm
-                     .
-    /* find ttblJob or pendingJob record, to change resource if needed */
-    IF lvProdAceResource NE cResource THEN DO:
-        FIND FIRST ttblJob
-             WHERE ttblJob.resource EQ cResource
-               AND ttblJob.job EQ lvProdAceJob
-               AND ttblJob.userField19 EQ lvProdAceBlank
-               AND ttblJob.userField20 EQ lvProdAcePass
+        IMPORT STREAM sProdAce UNFORMATTED lvProdAceData.
+        lvProdAceData = REPLACE(lvProdAceData,"'","").
+        IF ENTRY(2,lvProdAceData) EQ 'n/f' THEN NEXT.
+        lvProdAceDMIID = INTEGER(ENTRY(1,lvProdAceData)).
+        FIND FIRST ttblResource
+             WHERE ttblResource.dmiID EQ lvProdAceDMIID
              NO-ERROR.
-        IF AVAILABLE ttblJob THEN
-        ttblJob.resource = lvProdAceResource.
-        ELSE DO:
-            FIND FIRST pendingJob
-                 WHERE pendingJob.resource EQ cResource
-                   AND pendingJob.job EQ lvProdAceJob
-                   AND pendingJob.userField19 EQ lvProdAceBlank
-                   AND pendingJob.userField20 EQ lvProdAcePass
+        IF NOT AVAILABLE ttblResource THEN NEXT.
+        IF lvResourceList NE '' AND NOT CAN-DO(lvResourceList,ttblResource.resource) THEN NEXT.
+        ASSIGN
+            lvDate = DATE(ENTRY(10,lvProdAceData))
+            lvTime = INTEGER(ENTRY(11,lvProdAceData))
+            .
+        IF lvPostProdAce AND
+            ((selectedShift NE 'All' AND
+              selectedShift NE ENTRY(5,lvProdAceData)) OR
+            lvDate LT selectedStartDate OR
+            lvDate GT selectedEndDate) THEN DO:
+            PUT STREAM sHold UNFORMATTED lvProdAceData SKIP.
+            NEXT.
+        END. /* if prodAceshift ne */
+        lvProdAceResource = ttblResource.resource.
+        IF lProdAceBarScan THEN DO:
+            ASSIGN
+                cJobNo    = ENTRY(2,lvProdAceData)
+                iJobMchID = INT(ENTRY(2,cJobNo,'.'))
+                .
+            FIND FIRST job-mch NO-LOCK
+                 WHERE job-mch.job-mchID EQ iJobMchID
                  NO-ERROR.
-            IF AVAILABLE pendingJob THEN
-            pendingJob.resource = lvProdAceResource.
+            IF AVAILABLE job-mch THEN
+            ASSIGN
+                lvProdAceJob   = LEFT-TRIM(job-mch.job-no) + '-'
+                               + STRING(job-mch.job-no2) + '.'
+                               + STRING(job-mch.frm)
+                lvProdAceForm  = STRING(job-mch.frm)
+                lvProdAceBlank = STRING(job-mch.blank-no)
+                lvProdAcePass  = STRING(job-mch.pass)
+                .
+        END. /* if prod ace bar scanning */
+        ELSE
+        ASSIGN
+            lvProdAceJob   = ENTRY(2,lvProdAceData)
+            lvProdAceForm  = ENTRY(2,lvProdAceJob,'.')
+            lvProdAceBlank = ENTRY(3,lvProdAceJob,'.')
+            lvProdAcePass  = ENTRY(4,lvProdAceJob,'.')
+            cResource      = ENTRY(5,lvProdAceJob,'.')
+            lvProdAceJob   = ENTRY(1,lvProdAceJob,'.') + '.'
+                           + lvProdAceForm
+            .
+        /* find ttblJob or pendingJob record, to change resource if needed */
+        IF lvProdAceResource NE cResource THEN DO:
+            FIND FIRST ttblJob
+                 WHERE ttblJob.resource    EQ cResource
+                   AND ttblJob.job         EQ lvProdAceJob
+                   AND ttblJob.userField19 EQ lvProdAceBlank
+                   AND ttblJob.userField20 EQ lvProdAcePass
+                 NO-ERROR.
+            IF AVAILABLE ttblJob THEN
+            ttblJob.resource = lvProdAceResource.
             ELSE DO:
-                PUT STREAM sError UNFORMATTED lvProdAceData SKIP.
-                NEXT.
+                FIND FIRST pendingJob
+                     WHERE pendingJob.resource    EQ cResource
+                       AND pendingJob.job         EQ lvProdAceJob
+                       AND pendingJob.userField19 EQ lvProdAceBlank
+                       AND pendingJob.userField20 EQ lvProdAcePass
+                     NO-ERROR.
+                IF AVAILABLE pendingJob THEN
+                pendingJob.resource = lvProdAceResource.
+                ELSE DO:
+                    PUT STREAM sError UNFORMATTED lvProdAceData SKIP.
+                    NEXT.
+                END. /* else */
             END. /* else */
-        END. /* else */
-    END. /* if resource change */
-    lvProdAceOperator = ''.
-    DO idx = 21 TO NUM-ENTRIES(lvProdAceData):
-      lvProdAceOperator[idx - 20] = IF ENTRY(idx,lvProdAceData) EQ '' THEN lvProdAceBlankEmployee
-                                  ELSE ENTRY(idx,lvProdAceData).
-      IF ENTRY(idx,lvProdAceData) EQ '' THEN LEAVE.
-    END. /* do idx */
-    /* get charge code for non run and mr */    
-    ASSIGN
-        lvState = SUBSTR(ENTRY(16,lvProdAceData),1,1)
-        lvState = IF lvState EQ '1' THEN 'RUN'
-             ELSE IF lvState EQ '4' THEN 'MR'
-             ELSE 'DT'
-        lvChargeCode = lvState
-        . 
-    IF lvState EQ 'DT' AND INT(ENTRY(17,lvProdAceData)) NE 0 THEN DO: 
-      FIND FIRST job-code NO-LOCK 
-           WHERE job-code.dmiID EQ INT(ENTRY(17,lvProdAceData))
-           NO-ERROR.
-      IF AVAILABLE job-code THEN
-      ASSIGN 
-        lvState = job-code.cat
-        lvChargeCode = job-code.code
-        .
-    END. /* if dt and dt reason given */
-    CREATE ttblProdAce.
-    ASSIGN
-      ttblProdAce.prodAceResource = lvProdAceResource
-      ttblProdAce.prodAceDMIID = lvProdAceDMIID
-      ttblProdAce.prodAceJob = lvProdAceJob
-      ttblProdAce.prodAceItem = ENTRY(3,lvProdAceData)
-      ttblProdAce.prodAceSeq = INT(ENTRY(4,lvProdAceData))
-      ttblProdAce.prodAceShift = ENTRY(5,lvProdAceData)
-      ttblProdAce.prodAceShiftDate = DATE(ENTRY(6,lvProdAceData))
-      ttblProdAce.prodAceStartDate = DATE(ENTRY(7,lvProdAceData))
-      ttblProdAce.prodAceStartTime = lvTime
-      ttblProdAce.prodAceTranRunQty = INT(ENTRY(11,lvProdAceData))
-      ttblProdAce.prodAceTranRejectQty = INT(ENTRY(13,lvProdAceData))
-      ttblProdAce.prodAceQtyDue = INT(ENTRY(15,lvProdAceData))
-      ttblProdAce.prodAceState = lvState
-      ttblProdAce.prodAceChargeCode = lvChargeCode
-      ttblProdAce.prodAceOperator = lvProdAceOperator
-      ttblProdAce.prodAceDuration = INT(ENTRY(18,lvProdAceData)) * 60
-                                  + INT(ENTRY(20,lvProdAceData)) * 60
-      ttblProdAce.prodAceRunComplete = ttblProdAce.prodAceState EQ 'RUN' AND
-                                       CAN-FIND(FIRST ttblStatus
-                                                WHERE ttblStatus.dmiID EQ ttblProdAce.prodAceDMIID
-                                                  AND ttblStatus.job EQ ttblProdAce.prodAceJob
-                                                  AND ttblStatus.productID EQ ttblProdAce.prodAceItem
-                                                  AND ttblStatus.runID EQ ttblProdAce.prodAceSeq
-                                                  AND ttblStatus.runComplete EQ YES)
-      ttblProdAce.prodAceData = lvProdAceData
-      .
-    RUN newEnd (ttblProdAce.prodAceDuration, ttblProdAce.prodAceStartDate, ttblProdAce.prodAceStartTime,
-                OUTPUT ttblProdAce.prodAceEndDate, OUTPUT ttblProdAce.prodAceEndTime).
-    IF lvPostProdAce THEN
-    PUT STREAM sProcessed UNFORMATTED lvProdAceData SKIP.
-  END. /* repeat */
-  IF lvPostProdAce THEN DO:
-    OUTPUT STREAM sHold CLOSE.
-    OUTPUT STREAM sProcessed CLOSE.
-  END. /* if lvpostprodAce */
-  INPUT STREAM sProdAce CLOSE.
+        END. /* if resource change */
+        lvProdAceOperator = ''.
+        DO idx = 20 TO NUM-ENTRIES(lvProdAceData):
+            lvProdAceOperator[idx - 19] = IF ENTRY(idx,lvProdAceData) EQ '' THEN lvProdAceBlankEmployee
+                                          ELSE ENTRY(idx,lvProdAceData).
+            IF ENTRY(idx,lvProdAceData) EQ '' THEN LEAVE.
+        END. /* do idx */
+        /* get charge code for non run and mr */    
+        ASSIGN
+            lvState      = ENTRY(15,lvProdAceData)
+            lvChargeCode = lvState
+            . 
+        IF lvState EQ 'DT' AND INTEGER(ENTRY(16,lvProdAceData)) NE 0 THEN DO: 
+            FIND FIRST job-code NO-LOCK 
+                 WHERE job-code.dmiID EQ INTEGER(ENTRY(16,lvProdAceData))
+                 NO-ERROR.
+            IF AVAILABLE job-code THEN
+            ASSIGN 
+                lvState      = job-code.cat
+                lvChargeCode = job-code.code
+                .
+        END. /* if dt and dt reason given */
+        CREATE ttblProdAce.
+        ASSIGN
+            ttblProdAce.prodAceResource      = lvProdAceResource
+            ttblProdAce.prodAceDMIID         = lvProdAceDMIID
+            ttblProdAce.prodAceJob           = lvProdAceJob
+            ttblProdAce.prodAceItem          = ENTRY(3,lvProdAceData)
+            ttblProdAce.prodAceSeq           = INTEGER(ENTRY(5,lvProdAceData))
+            ttblProdAce.prodAceShift         = ENTRY(6,lvProdAceData)
+            ttblProdAce.prodAceShiftDate     = DATE(ENTRY(6,lvProdAceData))
+            ttblProdAce.prodAceStartDate     = DATE(ENTRY(10,lvProdAceData))
+            ttblProdAce.prodAceStartTime     = INTEGER(ENTRY(11,lvProdAceData))
+            ttblProdAce.prodAceEndDate       = DATE(ENTRY(8,lvProdAceData))
+            ttblProdAce.prodAceEndTime       = INTEGER(ENTRY(9,lvProdAceData))
+            ttblProdAce.prodAceTranRunQty    = INTEGER(ENTRY(12,lvProdAceData))
+            ttblProdAce.prodAceTranRejectQty = INTEGER(ENTRY(13,lvProdAceData))
+            ttblProdAce.prodAceQtyDue        = INTEGER(ENTRY(14,lvProdAceData))
+            ttblProdAce.prodAceState         = lvState
+            ttblProdAce.prodAceChargeCode    = lvChargeCode
+            ttblProdAce.prodAceOperator      = lvProdAceOperator
+            ttblProdAce.prodAceDuration      = INTEGER(ENTRY(17,lvProdAceData)) * 60
+                                             + INTEGER(ENTRY(18,lvProdAceData)) * 60
+            ttblProdAce.prodAceRunComplete   = ENTRY(19,lvProdAceData) EQ "C"
+            ttblProdAce.prodAceData          = lvProdAceData
+            .
+        IF lvPostProdAce THEN
+        PUT STREAM sProcessed UNFORMATTED lvProdAceData SKIP.
+        IF CAN-FIND(FIRST dmiTrans
+                    WHERE dmiTrans.dmiID     EQ ttblProdAce.prodAceDMIID
+                      AND dmiTrans.jobID     EQ ENTRY(2,lvProdAceData)
+                      AND dmiTrans.productID EQ ttblProdAce.prodAceItem
+                      AND dmiTrans.seq       EQ ttblProdAce.prodAceSeq
+                      AND dmiTrans.shift     EQ ttblProdAce.prodAceShift
+                      AND dmiTrans.shiftDate EQ ttblProdAce.prodAceShiftDate
+                      AND dmiTrans.startDate EQ ttblProdAce.prodAceStartDate
+                      AND dmiTrans.startTime EQ ttblProdAce.prodAceStartTime
+            ) THEN NEXT.
+        DO TRANSACTION:
+            CREATE dmiTrans.
+            ASSIGN
+                dmiTrans.dmiID          = ttblProdAce.prodAceDMIID
+                dmiTrans.jobID          = ENTRY(2,lvProdAceData)
+                dmiTrans.productID      = ttblProdAce.prodAceItem
+                dmiTrans.seq            = ttblProdAce.prodAceSeq
+                dmiTrans.shift          = ttblProdAce.prodAceShift
+                dmiTrans.shiftDate      = ttblProdAce.prodAceShiftDate
+                dmiTrans.startDate      = ttblProdAce.prodAceStartDate
+                dmiTrans.startTime      = ttblProdAce.prodAceStartTime
+                dmiTrans.tranDate       = ttblProdAce.prodAceEndDate
+                dmiTrans.tranTime       = ttblProdAce.prodAceEndTime
+                dmiTrans.tranRunQty     = ttblProdAce.prodAceTranRunQty
+                dmiTrans.tranRejectQty  = ttblProdAce.prodAceTranRejectQty
+                dmiTrans.qtyDue         = ttblProdAce.prodAceQtyDue
+                dmiTrans.transState     = ttblProdAce.prodAceState
+                dmiTrans.jobCodeDMIID   = INTEGER(ENTRY(16,lvProdAceData))
+                dmiTrans.downTime       = INTEGER(ENTRY(17,lvProdAceData))
+                dmiTrans.runTime        = INTEGER(ENTRY(18,lvProdAceData))
+                dmiTrans.jobStatus      = ENTRY(19,lvProdAceData)
+                dmiTrans.operator       = ENTRY(20,lvProdAceData)
+                dmiTrans.posted         = NO
+                ttblProdAce.dmiTransAdd = YES
+                .
+        END. /* do trans */
+    END. /* repeat */
+    IF lvPostProdAce THEN DO:
+        OUTPUT STREAM sHold CLOSE.
+        OUTPUT STREAM sProcessed CLOSE.
+    END. /* if lvpostprodAce */
+    INPUT STREAM sProdAce CLOSE.
 
 END PROCEDURE.
 	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI C-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
@@ -1238,27 +1206,6 @@ PROCEDURE enable_UI :
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE getProdAceDatValues C-Win 
-PROCEDURE getProdAceDatValues :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  INPUT FROM VALUE(lvProdAceDat) NO-ECHO.
-  IMPORT UNFORMATTED lvProdAceDir.           /* location of prodAce trans file   */
-  IMPORT UNFORMATTED lvProdAceType.          /* Summary or Detail                */
-  IMPORT UNFORMATTED lvEmpLogin.             /* ProdAce or TS                    */
-  IMPORT UNFORMATTED lvProdAceBlankEmployee. /* default employee if blank        */
-  IMPORT UNFORMATTED lvImportDir.            /* location of processed trans file */
-  IMPORT UNFORMATTED lvResourceList.         /* comma delimited list, or blank   */
-  INPUT CLOSE.
-
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

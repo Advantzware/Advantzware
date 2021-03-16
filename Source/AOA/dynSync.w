@@ -377,6 +377,10 @@ END.
 {methods/menus/stdHelpMenu.i}
 {methods/template/brwcustom2.i}
 
+ON VALUE-CHANGED OF ttDynSync.sync
+DO:
+    APPLY "ROW-LEAVE":U TO BROWSE dynSync.
+END.
 
 /* Set CURRENT-WINDOW: this will parent dialog-boxes and frames.        */
 ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME} 

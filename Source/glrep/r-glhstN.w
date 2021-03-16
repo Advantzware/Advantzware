@@ -1432,12 +1432,17 @@ if AVAILABLE period THEN
   ASSIGN uperiod = period.pnum
          v-s-yr = period.yr
          ld-per-start = period.pst.
+ELSE ASSIGN
+         ld-per-start = v-s-date
+         v-s-yr = YEAR(v-s-date)
+         uperiod = MONTH(v-s-date).         
 
 FIND FIRST period NO-LOCK WHERE period.company EQ cocode AND
                         period.pst LE v-e-date AND
                         period.pend GE v-e-date  NO-ERROR.
 IF AVAILABLE period THEN
    v-e-yr = period.yr.
+ELSE v-e-yr = YEAR(v-e-date).   
 
 {sys/inc/outprint.i VALUE(lines-per-page)}
 
@@ -1463,10 +1468,9 @@ SESSION:SET-WAIT-STATE ("general").
       IF LINE-COUNTER GT PAGE-SIZE - 2 THEN PAGE.
 
       acct-hdr-printed = NO.
-
-      RUN gl/gl-open1.p (RECID(account), v-s-yr, v-s-date, uperiod,
-                         OUTPUT open-amt).
-
+                                   
+     RUN GL_GetAccountOpenBal(ROWID(account),v-s-date, OUTPUT open-amt).                         
+       
       FOR EACH glhist FIELDS(tr-amt) NO-LOCK
           WHERE glhist.company EQ account.company
             AND glhist.actnum  EQ account.actnum

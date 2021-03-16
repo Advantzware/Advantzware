@@ -19,6 +19,7 @@ DEFINE TEMP-TABLE ttblProdAce NO-UNDO
     FIELD prodAceState         LIKE dmiTrans.transState
     FIELD prodAceChargeCode    AS CHARACTER LABEL "Charge Code"   FORMAT "x(3)"
     FIELD prodAceRunComplete   AS LOGICAL   LABEL "Run Complete"
+    FIELD dmiTransAdd          AS LOGICAL   LABEL "Added"
     FIELD deleteFlag           AS LOGICAL   LABEL "Delete"
     FIELD prodAceOperator      AS CHARACTER LABEL "Operator"      EXTENT 10
     FIELD prodAceSelected      AS LOGICAL   LABEL "Selected"      INITIAL YES

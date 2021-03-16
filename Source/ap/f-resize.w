@@ -1249,7 +1249,7 @@ ASSIGN
                        tran-period,
                        "A",
                        tran-date,
-                       string(ap-invl.inv-no),
+                       string(ap-inv.inv-no),
                        "AP").
     assign
     g2 = g2 + lv-frt-total.
@@ -1264,7 +1264,7 @@ ASSIGN
                        tran-period,
                        "A",
                        tran-date,
-                       string(ap-invl.inv-no),
+                       string(ap-inv.inv-no),
                        "AP").
   for each work-gl break by work-gl.actnum:
     assign
@@ -1282,7 +1282,7 @@ ASSIGN
                        tran-period,
                        "A",
                        tran-date,
-                       string(ap-invl.inv-no),
+                       string(ap-inv.inv-no),
                        "AP").
       assign
        debits  = 0

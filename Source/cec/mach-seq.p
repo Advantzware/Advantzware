@@ -1,7 +1,7 @@
 /* -------------------------------------------------- cec/mach-seq.p 4/92 cd  */
 /* create machine routing sequence                                            */
 /* -------------------------------------------------------------------------- */
-
+USING system.SharedConfig.
 DEFINE INPUT PARAMETER ipiForm AS INTEGER  NO-UNDO.
 DEFINE INPUT PARAMETER ipiQty LIKE est-op.qty NO-UNDO.
 DEFINE INPUT PARAMETER iplBuildCombo AS LOG NO-UNDO.
@@ -48,7 +48,8 @@ DEFINE VARIABLE v-gsh-len        LIKE xef.gsh-len NO-UNDO.
 DEFINE VARIABLE ll-label         AS LOG       NO-UNDO.
 DEFINE VARIABLE op-farmout       AS LOG       NO-UNDO.
 DEFINE VARIABLE op-valid-mach    AS LOG       NO-UNDO.
-
+DEFINE VARIABLE lRunUtil         AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE scInstance AS CLASS system.SharedConfig NO-UNDO.
 
 DEFINE BUFFER m2-lst FOR m-lst.
 
@@ -753,7 +754,13 @@ END. /* for each xef */
 
 IF ceroute1-log EQ YES THEN
 DO:
-    RUN est/d-machex2.w(AVAILABLE routing, OUTPUT op-farmout, OUTPUT op-valid-mach).
+     ASSIGN 
+        scInstance           = SharedConfig:instance
+        lRunUtil = IF STRING(scInstance:GetValue("UtilPrompt")) EQ "Yes" THEN TRUE ELSE FALSE NO-ERROR
+        .   
+    IF NOT lRunUtil THEN 
+      RUN est/d-machex2.w(AVAILABLE routing, OUTPUT op-farmout, OUTPUT op-valid-mach).
+    ELSE op-valid-mach = YES.   
 
     SESSION:SET-WAIT-STATE ("GENERAL").
     IF op-valid-mach OR NOT CAN-FIND(FIRST tt-mach-route) THEN

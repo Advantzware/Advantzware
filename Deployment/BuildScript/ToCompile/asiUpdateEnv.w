@@ -842,7 +842,8 @@ PROCEDURE ipAddDbmsFonts :
         END.
         ELSE IF FILE-INFO:FILE-TYPE BEGINS "F" 
         AND INDEX(FILE-INFO:FILE-NAME,"dbms") NE 0 
-        AND INDEX(FILE-INFO:FILE-NAME,".ini") NE 0 THEN DO:
+        AND INDEX(FILE-INFO:FILE-NAME,".ini") NE 0 
+        AND FILE-INFO:FILE-NAME NE "dbmsui.ini" THEN DO:
             EMPTY TEMP-TABLE ttDbms.
             ASSIGN 
                 iThisLine = 100.
@@ -2002,6 +2003,14 @@ PROCEDURE ipConvertJcCtrl :
 
     RUN ipStatus ("    Creating materialType records.").
 
+    DEF VAR cOrigPropath AS CHAR NO-UNDO.
+    DEF VAR cNewPropath AS CHAR NO-UNDO.
+
+    ASSIGN
+        cOrigPropath = PROPATH
+        cNewPropath  = cEnvDir + "\" + fiEnvironment:{&SV} + "\Programs," + PROPATH
+        PROPATH = cNewPropath.
+
     FOR EACH bf-company NO-LOCK:
         FOR EACH bf-mat NO-LOCK:
             FIND FIRST bf-materialType EXCLUSIVE-LOCK    
@@ -2047,6 +2056,9 @@ PROCEDURE ipConvertJcCtrl :
                 bf-materialType.autoIssue = bf-jc-ctrl.post[iCount].
         END.
     END.
+
+    ASSIGN 
+        PROPATH = cOrigPropath.
         
 END PROCEDURE.
 

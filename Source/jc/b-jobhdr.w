@@ -89,7 +89,7 @@ DEFINE QUERY external_tables FOR job.
 job-hdr.cust-no job-hdr.i-no job-hdr.qty job-hdr.sq-in job-hdr.ord-no ~
 job-hdr.po-no job-hdr.due-date job-hdr.std-mat-cost job-hdr.std-lab-cost ~
 job-hdr.std-fix-cost job-hdr.std-var-cost get-total-cost () @ ld-total-cost job-hdr.j-no job-hdr.job-no ~
-job-hdr.job-no2 
+job-hdr.job-no2 job-hdr.keyItem
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table job-hdr.frm ~
 job-hdr.blank-no job-hdr.cust-no job-hdr.i-no job-hdr.qty job-hdr.ord-no ~
 job-hdr.po-no job-hdr.due-date 
@@ -174,7 +174,8 @@ DEFINE QUERY Browser-Table FOR
       job-hdr.std-var-cost
       job-hdr.j-no
       job-hdr.job-no
-      job-hdr.job-no2) SCROLLING.
+      job-hdr.job-no2
+      job-hdr.keyItem) SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
@@ -198,6 +199,7 @@ DEFINE BROWSE Browser-Table
       job-hdr.j-no COLUMN-LABEL "" FORMAT ">>>>>>9":U
       job-hdr.job-no COLUMN-LABEL "" FORMAT "x(6)":U
       job-hdr.job-no2 COLUMN-LABEL "" FORMAT ">9":U
+      job-hdr.keyItem COLUMN-LABEL "Key Item" FORMAT "Yes/No":U
   ENABLE
       job-hdr.frm
       job-hdr.blank-no
@@ -344,6 +346,8 @@ ASSIGN
 "job-hdr.job-no" "" ? "character" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[17]   > ASI.job-hdr.job-no2
 "job-hdr.job-no2" "" ? "integer" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[18]   > ASI.job-hdr.keyItem
+"job-hdr.keyItem" "Key Item" ? "logical" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME

@@ -318,10 +318,12 @@ DO:
     IF AVAILABLE inv-head THEN 
     DO:
         IF NOT CAN-FIND(FIRST inv-line
-            WHERE inv-line.r-no  EQ inv-head.r-no) THEN 
+                        WHERE inv-line.r-no EQ inv-head.r-no) AND
+           NOT CAN-FIND(FIRST inv-misc
+                        WHERE inv-misc.r-no EQ inv-head.r-no) THEN 
         DO:
             ASSIGN
-                opcMessage = "No inv-line records available for invoice [ " + STRING(inv-head.inv-no) + " ]"
+                opcMessage = "No inv-line/inv-misc records available for invoice [ " + STRING(inv-head.inv-no) + " ]"
                 oplSuccess = FALSE
                 .
             RETURN.

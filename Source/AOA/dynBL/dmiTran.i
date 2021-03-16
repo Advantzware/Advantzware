@@ -154,6 +154,22 @@ PROCEDURE employeeRate :
   END CASE.
 END PROCEDURE.
 
+PROCEDURE getProdAceDatValues:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    INPUT FROM VALUE(lvProdAceDat) NO-ECHO.
+    IMPORT UNFORMATTED lvProdAceDir.           /* location of prodAce trans file   */
+    IMPORT UNFORMATTED lvProdAceType.          /* Summary or Detail                */
+    IMPORT UNFORMATTED lvEmpLogin.             /* ProdAce or TS                    */
+    IMPORT UNFORMATTED lvProdAceBlankEmployee. /* default employee if blank        */
+    IMPORT UNFORMATTED lvImportDir.            /* location of processed trans file */
+    IMPORT UNFORMATTED lvResourceList.         /* comma delimited list, or blank   */
+    INPUT CLOSE.
+  
+END PROCEDURE.
+
 PROCEDURE newEnd :
   DEFINE INPUT PARAMETER ipTimeSpan   AS INTEGER NO-UNDO.
   DEFINE INPUT PARAMETER newStartDate AS DATE    NO-UNDO.
@@ -252,7 +268,6 @@ PROCEDURE prodAceDetail :
     &IF DEFINED(dmiTran) EQ 0 &THEN
     IF lvEmpLogin EQ 'ProdAce' THEN
     &ENDIF
-/*    RUN createMachEmp (BUFFER machtran).*/
     RUN createEmpLogin (BUFFER ttblProdAce,BUFFER machtran).
     IF ttblProdAce.prodAceRunComplete THEN
     RUN completeMR.

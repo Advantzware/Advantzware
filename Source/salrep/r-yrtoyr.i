@@ -3,13 +3,14 @@
           WHERE ar-inv.company  EQ cocode
             AND ar-inv.inv-date GE fdate[1]
             AND ar-inv.inv-date LE as-of-date
+            AND ar-inv.cust-no  GE fcust
+            AND ar-inv.cust-no  LE tcust
             AND ar-inv.posted   EQ YES
           USE-INDEX inv-date NO-LOCK,
           
           FIRST cust
           WHERE cust.company EQ ar-inv.company
-            AND cust.cust-no GE fcust
-            AND cust.cust-no LE tcust
+            AND cust.cust-no EQ ar-inv.cust-no
             AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq cust.cust-no
             AND ttCustList.log-fld no-lock) else true) /*ar-inv.cust-no*/
           NO-LOCK:

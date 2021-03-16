@@ -1004,7 +1004,9 @@ def var v-first as log init yes no-undo.
 def var v-hdr as char initial
 "Account#,Description,PTD,YTD,DB Adjust,CR Adjust,Bal Sheet,Income Stat" no-undo.
 def var v-comma as char format "x" initial "," no-undo.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
 
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
  {sys/inc/print1.i}
  {sys/inc/outprint.i VALUE(lines-per-page)}
@@ -1014,7 +1016,7 @@ def var v-comma as char format "x" initial "," no-undo.
  SESSION:SET-WAIT-STATE("general").
 
 IF tb_excel THEN DO:
-   OUTPUT STREAM excel TO VALUE(fi_file).
+   OUTPUT STREAM excel TO VALUE(cFileName).
    EXPORT STREAM excel DELIMITER ","
        "Account Number"
        "Description"
@@ -1061,8 +1063,8 @@ blok:
 DO:
    assign
      str-tit  = company.name
-     str-tit2 = "TRIAL  BALANCE"
-     str-tit3 = "Period " + string(tran-period,"99")
+     str-tit2 = "TRIAL  BALANCE AS OF " + STRING(tran-date,"99/99/99")
+     str-tit3 = "Period " + string(tran-period,"99") + " Date Range:" + STRING(period.pst) + "-" + STRING(period.pend)
      v-rep-tot = 0
      {sys/inc/ctrtext.i str-tit  112}
      {sys/inc/ctrtext.i str-tit2 112}
@@ -1103,10 +1105,9 @@ DO:
 
         ptd-value = 0.
         view frame r-top.
-
-        run gl/gl-open1.p (recid(account), vyear, tran-date, tran-period,
-                           output cyr).
-
+                
+        RUN GL_GetAccountOpenBal(ROWID(account), tran-date + 1, OUTPUT cyr).
+        
         for each glhist no-lock
             where glhist.company eq account.company
               and glhist.actnum  eq account.actnum
@@ -1116,7 +1117,7 @@ DO:
           assign
            ptd-value = ptd-value + glhist.tr-amt
            tot-ptd   = tot-ptd   + glhist.tr-amt
-           cyr       = cyr + glhist.tr-amt.
+           .
         end.
                    
         if not suppress-zero or cyr ne 0 or ptd-value ne 0 then
@@ -1169,7 +1170,7 @@ IF tb_excel THEN
   IF tb_excel THEN DO:
      OUTPUT STREAM excel CLOSE.
      IF tb_runExcel THEN
-         OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+         OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
  END.
  RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 SESSION:SET-WAIT-STATE("").

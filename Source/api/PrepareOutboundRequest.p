@@ -74,7 +74,7 @@ PROCEDURE pPrepareRequest PRIVATE:
         INPUT ipiAPIOutboundID
         ).
         
-    IF SEARCH("api/" + ipcAPIID + ".r") EQ ? THEN DO:
+    IF SEARCH("api/" + ipcAPIID + ".r") EQ ? AND SEARCH("api/" + ipcAPIID + ".p") EQ ? THEN DO:
         ASSIGN
             oplSuccess = FALSE
             opcMessage = "Request handler for API " + ipcAPIID + " not Found!"
@@ -82,7 +82,7 @@ PROCEDURE pPrepareRequest PRIVATE:
         RETURN.
     END. 
     
-    RUN VALUE("api/" + ipcAPIID + ".r") (
+    RUN VALUE("api/" + ipcAPIID + ".p") (
         INPUT TABLE  ttArgs,
         INPUT        ipiAPIOutboundID,
         INPUT        ipiAPIOutboundTriggerID,

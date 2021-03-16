@@ -10,8 +10,6 @@ DEF VAR li AS INT NO-UNDO.
 FIND job WHERE ROWID(job) EQ ip-rowid NO-LOCK NO-ERROR.
 
 IF AVAIL job THEN DO:
-  FIND FIRST jc-ctrl WHERE jc-ctrl.company EQ job.company NO-LOCK NO-ERROR.
-
   FOR EACH job-mat
       WHERE job-mat.company EQ job.company
         AND job-mat.job     EQ job.job

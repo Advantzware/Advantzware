@@ -10,7 +10,7 @@
     Created     : 01.07.2021
     Notes       :
   ----------------------------------------------------------------------*/
-  
+  DEFINE BUFFER bf-period FOR period.
   FOR EACH GLTrans:
        
      create glhist.
@@ -41,7 +41,16 @@
     ELSE ASSIGN
          glhist.posted = YES
          glhist.postedBy = USERID(LDBNAME(1)) .
+         
+    FIND first bf-period NO-LOCK
+         where bf-period.company eq gltrans.company
+         and bf-period.pst  le gltrans.tr-date
+         and bf-period.pend ge gltrans.tr-date          
+        NO-ERROR.     
+         
+    glhist.glYear = IF AVAIL bf-period THEN bf-period.yr ELSE glhist.glYear.        
         
     DELETE GLTrans.        
        
   END.
+  RELEASE glhist. 

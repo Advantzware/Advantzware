@@ -41,7 +41,7 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO.
-
+{custom/globdefs.i}
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -209,6 +209,135 @@ ASSIGN
  
 
 
+
+/* ************************  Control Triggers  ************************ */
+&Scoped-define SELF-NAME F-Main
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL F-Main B-table-Win
+ON HELP OF FRAME F-Main
+DO:
+    DEFINE VARIABLE cFieldsValue  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFoundValue   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE recFoundRecID AS RECID     NO-UNDO.
+
+    CASE FOCUS:NAME :
+        WHEN "customerID"  THEN DO:
+            RUN system/openLookup.p (
+            INPUT  g_company, 
+            INPUT  "",  /* Lookup ID */
+            INPUT  23,  /* Subject ID */
+            INPUT  "",  /* User ID */
+            INPUT  0,   /* Param Value ID */
+            OUTPUT cFieldsValue, 
+            OUTPUT cFoundValue, 
+            OUTPUT recFoundRecID
+            ).   
+            IF cFoundValue <> "" THEN 
+                ASSIGN FOCUS:SCREEN-VALUE = cFoundValue.         
+        END.
+        WHEN "shipToID"  THEN DO:
+            RUN system/openLookup.p (
+            INPUT  g_company, 
+            INPUT  "",  /* Lookup ID */
+            INPUT  122,  /* Subject ID */
+            INPUT  "",  /* User ID */
+            INPUT  0,   /* Param Value ID */
+            OUTPUT cFieldsValue, 
+            OUTPUT cFoundValue, 
+            OUTPUT recFoundRecID
+            ).   
+            IF cFoundValue <> "" THEN 
+                ASSIGN FOCUS:SCREEN-VALUE = cFoundValue.         
+        END.
+        WHEN "itemID"  THEN DO:
+            RUN system/openLookup.p (
+            INPUT  g_company, 
+            INPUT  "",  /* Lookup ID */
+            INPUT  25,  /* Subject ID */
+            INPUT  "",  /* User ID */
+            INPUT  0,   /* Param Value ID */
+            OUTPUT cFieldsValue, 
+            OUTPUT cFoundValue, 
+            OUTPUT recFoundRecID
+            ).   
+            IF cFoundValue <> "" THEN 
+                ASSIGN FOCUS:SCREEN-VALUE = cFoundValue.         
+        END.
+
+    END CASE.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME customerPart.customerID
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL customerPart.customerID V-table-Win
+ON LEAVE OF customerPart.customerID IN FRAME F-Main /* Customer */
+DO:
+    DEFINE VARIABLE lSuccess AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE cMsg AS CHARACTER  NO-UNDO. 
+    IF LASTKEY NE -1 THEN 
+    DO:
+        RUN validataData(INPUT "customerID", OUTPUT lSuccess, OUTPUT cMsg).
+        IF NOT lSuccess THEN 
+        DO:
+            MESSAGE cMsg
+            VIEW-AS ALERT-BOX.
+            RETURN NO-APPLY.
+        END.
+    END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME customerPart.itemID
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL customerPart.itemID V-table-Win
+ON LEAVE OF customerPart.itemID IN FRAME F-Main /* Item # */
+DO:
+    DEFINE VARIABLE lSuccess AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMsg     AS CHARACTER NO-UNDO.
+    IF LASTKEY NE -1 THEN 
+    DO:
+        RUN validataData(INPUT "itemID", OUTPUT lSuccess, OUTPUT cMsg).
+        IF NOT lSuccess THEN 
+        DO:
+            MESSAGE cMsg
+                VIEW-AS ALERT-BOX.
+            RETURN NO-APPLY.
+        END.
+    END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME customerPart.shipToID
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL customerPart.shipToID V-table-Win
+ON LEAVE OF customerPart.shipToID IN FRAME F-Main /* Ship To */
+DO:
+    DEFINE VARIABLE lSuccess AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMsg     AS CHARACTER NO-UNDO.
+    IF LASTKEY NE -1 THEN 
+    DO:
+        RUN validataData(INPUT "shipToID", OUTPUT lSuccess, OUTPUT cMsg).
+        IF NOT lSuccess THEN 
+        DO:
+            MESSAGE cMsg
+                VIEW-AS ALERT-BOX.
+            RETURN NO-APPLY.
+        END.
+    END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&UNDEFINE SELF-NAME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK V-table-Win 
 
 
@@ -368,6 +497,61 @@ PROCEDURE state-changed :
          or add new cases. */
       {src/adm/template/vstates.i}
   END CASE.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE validataData V-table-Win 
+PROCEDURE validataData :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcField AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplSuccess AS LOGICAL NO-UNDO INITIAL TRUE.
+    DEFINE OUTPUT PARAMETER opcMsg AS CHARACTER NO-UNDO.
+    DO WITH FRAME {&frame-name}:
+    END.    
+
+    CASE ipcField:
+        WHEN "shipToID" THEN 
+        DO:
+            IF customerPart.shipToID:SCREEN-VALUE NE "" 
+            AND  
+                NOT CAN-FIND(FIRST shipTo WHERE shipTo.ship-no EQ integer(customerPart.shipToID:screen-value))
+               THEN
+           DO:
+                oplSuccess = FALSE.
+                opcMsg = "Please enter valid Ship To ID.".
+                RETURN.
+            END.
+        END.
+    
+        WHEN "itemID" THEN 
+        DO:
+            IF customerPart.itemID:SCREEN-VALUE NE "" AND  
+               NOT CAN-FIND(FIRST itemfg WHERE itemfg.i-no EQ customerPart.itemID:SCREEN-VALUE)
+               THEN 
+               DO:
+                   oplSuccess = FALSE.
+                   opcMsg = "Please enter valid Item Number.".
+                   RETURN.
+               END.
+       END.
+       WHEN "customerId" THEN 
+       DO:
+            IF customerPart.customerID:SCREEN-VALUE NE "" AND  
+               NOT CAN-FIND(FIRST cust WHERE cust.cust-no EQ customerPart.customerID:SCREEN-VALUE)
+               THEN 
+               DO:
+                   oplSuccess = FALSE.
+                   opcMsg = "Please enter valid Customer Number.".
+                   RETURN.
+               END.
+        END.
+    END CASE.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
