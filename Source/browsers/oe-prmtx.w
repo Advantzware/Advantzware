@@ -33,6 +33,7 @@ CREATE WIDGET-POOL.
 
 &SCOPED-DEFINE yellowColumnsName oe-prmtx
 &SCOPED-DEFINE winReSize
+&SCOPED-DEFINE browseOnly
 {methods/defines/winReSize.i}
 
 /* Parameters Definitions ---                                           */
