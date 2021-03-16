@@ -15,7 +15,7 @@
 /* ***************************  Definitions  ************************** */
 
 
-DEFINE TEMP-TABLE ttOePrmtxCsv
+DEFINE TEMP-TABLE ttOePrmtx
     FIELD company       AS CHARACTER LABEL "Company"
     FIELD custNo        AS CHARACTER LABEL "Customer"
     FIELD custype       AS CHARACTER LABEL "Cust Type"
@@ -46,7 +46,7 @@ DEFINE TEMP-TABLE ttOePrmtxCsv
     FIELD quantity10    AS INTEGER   LABEL "Quantity 10" FORMAT ">>,>>>,>>9" 
     FIELD price10       AS DECIMAL   LABEL "Price 10"    FORMAT "->>,>>>,>>9.99<<<<"
     .
-DEFINE TEMP-TABLE ttQuoteHdCsv
+DEFINE TEMP-TABLE ttQuoteHd
     FIELD company       AS CHARACTER              LABEL "Company"  
     FIELD loc           AS CHARACTER              LABEL "Location"
     FIELD quoteNo       AS INTEGER FORMAT ">>>>9" LABEL "Quote"
@@ -58,7 +58,7 @@ DEFINE TEMP-TABLE ttQuoteHdCsv
     FIELD newExpiryDate AS DATE                   LABEL "New Expiry Date"
     .
     
-DEFINE TEMP-TABLE ttVendItemCostCsv
+DEFINE TEMP-TABLE tt-VendItemCost
     FIELD company           AS CHARACTER                LABEL "Company"
     FIELD estimate          AS CHARACTER                LABEL "Estimate"
     FIELD formNo            AS INTEGER   FORMAT ">9"    LABEL "Form"

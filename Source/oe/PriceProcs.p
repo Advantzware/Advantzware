@@ -72,11 +72,11 @@ PROCEDURE pExpirePriceMatrixByCust PRIVATE:
     DEFINE INPUT PARAMETER ipcCompany  AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcCustomer AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER iplProcess  AS LOGICAL   NO-UNDO.
-    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttOePrmtxCsv.
+    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttOePrmtx.
     
     DEFINE BUFFER bf-oe-prmtx FOR oe-prmtx.
     
-    EMPTY TEMP-TABLE ttOePrmtxCsv.
+    EMPTY TEMP-TABLE ttOePrmtx.
     
     FOR EACH bf-oe-prmtx NO-LOCK 
         WHERE bf-oe-prmtx.company    EQ ipcCompany
@@ -87,37 +87,37 @@ PROCEDURE pExpirePriceMatrixByCust PRIVATE:
             bf-oe-prmtx.exp-date = TODAY.
         END.    
         ELSE DO:
-            CREATE ttOePrmtxCsv.
+            CREATE ttOePrmtx.
             ASSIGN 
-                ttOePrmtxCsv.company       = bf-oe-prmtx.company
-                ttOePrmtxCsv.custNo        = bf-oe-prmtx.cust-no
-                ttOePrmtxCsv.itemID        = bf-oe-prmtx.i-no
-                ttOePrmtxCsv.custShipId    = bf-oe-prmtx.custShipId
-                ttOePrmtxCsv.custype       = bf-oe-prmtx.custype
-                ttOePrmtxCsv.procat        = bf-oe-prmtx.procat
-                ttOePrmtxCsv.effectiveDate = bf-oe-prmtx.eff-date
-                ttOePrmtxCsv.oldExpiryDate = bf-oe-prmtx.exp-date
-                ttOePrmtxCsv.newExpiryDate = TODAY
-                ttOePrmtxCsv.Price1        = bf-oe-prmtx.price[1]
-                ttOePrmtxCsv.Price2        = bf-oe-prmtx.price[2] 
-                ttOePrmtxCsv.Price3        = bf-oe-prmtx.price[3] 
-                ttOePrmtxCsv.Price4        = bf-oe-prmtx.price[4] 
-                ttOePrmtxCsv.Price5        = bf-oe-prmtx.price[5] 
-                ttOePrmtxCsv.Price6        = bf-oe-prmtx.price[6] 
-                ttOePrmtxCsv.Price7        = bf-oe-prmtx.price[7] 
-                ttOePrmtxCsv.Price8        = bf-oe-prmtx.price[8] 
-                ttOePrmtxCsv.Price9        = bf-oe-prmtx.price[9] 
-                ttOePrmtxCsv.Price10       = bf-oe-prmtx.price[10] 
-                ttOePrmtxCsv.Quantity1     = bf-oe-prmtx.qty[1]
-                ttOePrmtxCsv.Quantity2     = bf-oe-prmtx.qty[2]
-                ttOePrmtxCsv.Quantity3     = bf-oe-prmtx.qty[3]
-                ttOePrmtxCsv.Quantity4     = bf-oe-prmtx.qty[4]
-                ttOePrmtxCsv.Quantity5     = bf-oe-prmtx.qty[5]
-                ttOePrmtxCsv.Quantity6     = bf-oe-prmtx.qty[6]
-                ttOePrmtxCsv.Quantity7     = bf-oe-prmtx.qty[7]
-                ttOePrmtxCsv.Quantity8     = bf-oe-prmtx.qty[8]
-                ttOePrmtxCsv.Quantity9     = bf-oe-prmtx.qty[9]
-                ttOePrmtxCsv.Quantity10    = bf-oe-prmtx.qty[10]
+                ttOePrmtx.company       = bf-oe-prmtx.company
+                ttOePrmtx.custNo        = bf-oe-prmtx.cust-no
+                ttOePrmtx.itemID        = bf-oe-prmtx.i-no
+                ttOePrmtx.custShipId    = bf-oe-prmtx.custShipId
+                ttOePrmtx.custype       = bf-oe-prmtx.custype
+                ttOePrmtx.procat        = bf-oe-prmtx.procat
+                ttOePrmtx.effectiveDate = bf-oe-prmtx.eff-date
+                ttOePrmtx.oldExpiryDate = bf-oe-prmtx.exp-date
+                ttOePrmtx.newExpiryDate = TODAY
+                ttOePrmtx.Price1        = bf-oe-prmtx.price[1]
+                ttOePrmtx.Price2        = bf-oe-prmtx.price[2] 
+                ttOePrmtx.Price3        = bf-oe-prmtx.price[3] 
+                ttOePrmtx.Price4        = bf-oe-prmtx.price[4] 
+                ttOePrmtx.Price5        = bf-oe-prmtx.price[5] 
+                ttOePrmtx.Price6        = bf-oe-prmtx.price[6] 
+                ttOePrmtx.Price7        = bf-oe-prmtx.price[7] 
+                ttOePrmtx.Price8        = bf-oe-prmtx.price[8] 
+                ttOePrmtx.Price9        = bf-oe-prmtx.price[9] 
+                ttOePrmtx.Price10       = bf-oe-prmtx.price[10] 
+                ttOePrmtx.Quantity1     = bf-oe-prmtx.qty[1]
+                ttOePrmtx.Quantity2     = bf-oe-prmtx.qty[2]
+                ttOePrmtx.Quantity3     = bf-oe-prmtx.qty[3]
+                ttOePrmtx.Quantity4     = bf-oe-prmtx.qty[4]
+                ttOePrmtx.Quantity5     = bf-oe-prmtx.qty[5]
+                ttOePrmtx.Quantity6     = bf-oe-prmtx.qty[6]
+                ttOePrmtx.Quantity7     = bf-oe-prmtx.qty[7]
+                ttOePrmtx.Quantity8     = bf-oe-prmtx.qty[8]
+                ttOePrmtx.Quantity9     = bf-oe-prmtx.qty[9]
+                ttOePrmtx.Quantity10    = bf-oe-prmtx.qty[10]
                 .            
         END.                            
     END.         
@@ -132,7 +132,7 @@ PROCEDURE pExpireQuoteByCust PRIVATE:
     DEFINE INPUT PARAMETER ipcCompany  AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcCustomer AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER iplProcess  AS LOGICAL   NO-UNDO.
-    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttQuoteHdCsv.
+    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttQuoteHd.
     
     DEFINE BUFFER bf-quotehd FOR quotehd.
     
@@ -145,17 +145,17 @@ PROCEDURE pExpireQuoteByCust PRIVATE:
             bf-quotehd.expiredate = TODAY.
         END.
         ELSE DO:
-            CREATE ttQuoteHdCsv.
+            CREATE ttQuoteHd.
             ASSIGN 
-                ttQuoteHdCsv.company       = bf-quotehd.company
-                ttQuoteHdCsv.custID        = bf-quotehd.cust-no
-                ttQuoteHdCsv.deliveryDate  = bf-quotehd.del-date
-                ttQuoteHdCsv.estimate      = bf-quotehd.est-no 
-                ttQuoteHdCsv.loc           = bf-quotehd.loc 
-                ttQuoteHdCsv.newExpiryDate = TODAY 
-                ttQuoteHdCsv.oldExpiryDate = bf-quotehd.expireDate
-                ttQuoteHdCsv.quoteDate     = bf-quotehd.quo-date
-                ttQuoteHdCsv.quoteNo       = bf-quotehd.q-no
+                ttQuoteHd.company       = bf-quotehd.company
+                ttQuoteHd.custID        = bf-quotehd.cust-no
+                ttQuoteHd.deliveryDate  = bf-quotehd.del-date
+                ttQuoteHd.estimate      = bf-quotehd.est-no 
+                ttQuoteHd.loc           = bf-quotehd.loc 
+                ttQuoteHd.newExpiryDate = TODAY 
+                ttQuoteHd.oldExpiryDate = bf-quotehd.expireDate
+                ttQuoteHd.quoteDate     = bf-quotehd.quo-date
+                ttQuoteHd.quoteNo       = bf-quotehd.q-no
                 .
         END.                       
     END.           
@@ -491,7 +491,7 @@ PROCEDURE Price_ExpirePriceMatrixByCust:
         INPUT ipcCompany,
         INPUT ipcCustomer,
         INPUT YES,
-        INPUT-OUTPUT TABLE ttOePrmtxCsv
+        INPUT-OUTPUT TABLE ttOePrmtx
         ).
 
 
@@ -504,13 +504,13 @@ PROCEDURE Price_ExpirePriceMatrixByCustTT:
 ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcCompany  AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcCustomer AS CHARACTER NO-UNDO.
-    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttOePrmtxCsv.
+    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttOePrmtx.
     
     RUN pExpirePriceMatrixByCust(
         INPUT ipcCompany,
         INPUT ipcCustomer,
         INPUT NO,
-        INPUT-OUTPUT TABLE ttOePrmtxCsv
+        INPUT-OUTPUT TABLE ttOePrmtx
         ).
 
 END PROCEDURE.
@@ -527,7 +527,7 @@ PROCEDURE Price_ExpireQuoteByCust:
         INPUT ipcCompany,
         INPUT ipcCustomer,
         INPUT YES,
-        INPUT-OUTPUT TABLE ttQuoteHdCsv
+        INPUT-OUTPUT TABLE ttQuoteHd
         ).
 
 
@@ -540,13 +540,13 @@ PROCEDURE Price_ExpireQuoteByCustTT:
 ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcCompany  AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcCustomer AS CHARACTER NO-UNDO.
-    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttQuoteHdCsv.
+    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttQuoteHd.
     
     RUN pExpireQuoteByCust(
         INPUT ipcCompany,
         INPUT ipcCustomer,
         INPUT NO,
-        INPUT-OUTPUT TABLE ttQuoteHdCsv
+        INPUT-OUTPUT TABLE ttQuoteHd
         ).
 
 END PROCEDURE.

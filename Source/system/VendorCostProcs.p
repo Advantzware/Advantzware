@@ -680,11 +680,11 @@ PROCEDURE pExpirePriceByCust PRIVATE:
     DEFINE INPUT PARAMETER ipcCompany  AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcCustomer AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER iplProcess  AS LOGICAL   NO-UNDO.
-    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttVendItemCostCsv.
+    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR tt-VendItemCost.
     
     DEFINE BUFFER bf-vendItemCost FOR vendItemCost.
     
-    EMPTY TEMP-TABLE ttVendItemCostCsv.
+    EMPTY TEMP-TABLE tt-VendItemCost.
     
     FOR EACH bf-vendItemCost NO-LOCK  
         WHERE bf-vendItemCost.company        EQ ipcCompany
@@ -695,20 +695,20 @@ PROCEDURE pExpirePriceByCust PRIVATE:
                 bf-vendItemCost.expirationDate = TODAY.
             END.    
             ELSE DO:
-                CREATE ttVendItemCostCsv.
+                CREATE tt-VendItemCost.
                 ASSIGN 
-                    ttVendItemCostCsv.company           = bf-vendItemCost.company
-                    ttVendItemCostCsv.estimate          = bf-vendItemCost.estimate
-                    ttVendItemCostCsv.blankNo           = bf-vendItemCost.blankNo
-                    ttVendItemCostCsv.customerID        = bf-vendItemCost.customerId
-                    ttVendItemCostCsv.effectiveDate     = bf-vendItemCost.effectiveDate
-                    ttVendItemCostCsv.formNo            = bf-vendItemCost.formNo
-                    ttVendItemCostCsv.itemID            = bf-vendItemCost.itemId
-                    ttVendItemCostCsv.itemType          = bf-vendItemCost.itemType
-                    ttVendItemCostCsv.oldExpirationDate = bf-vendItemCost.expirationDate
-                    ttVendItemCostCsv.newExpirationDate = TODAY
-                    ttVendItemCostCsv.UOM               = bf-vendItemCost.VendorUom
-                    ttVendItemCostCsv.vendorID          = bf-vendItemCost.vendorID
+                    tt-VendItemCost.company           = bf-vendItemCost.company
+                    tt-VendItemCost.estimate          = bf-vendItemCost.estimate
+                    tt-VendItemCost.blankNo           = bf-vendItemCost.blankNo
+                    tt-VendItemCost.customerID        = bf-vendItemCost.customerId
+                    tt-VendItemCost.effectiveDate     = bf-vendItemCost.effectiveDate
+                    tt-VendItemCost.formNo            = bf-vendItemCost.formNo
+                    tt-VendItemCost.itemID            = bf-vendItemCost.itemId
+                    tt-VendItemCost.itemType          = bf-vendItemCost.itemType
+                    tt-VendItemCost.oldExpirationDate = bf-vendItemCost.expirationDate
+                    tt-VendItemCost.newExpirationDate = TODAY
+                    tt-VendItemCost.UOM               = bf-vendItemCost.VendorUom
+                    tt-VendItemCost.vendorID          = bf-vendItemCost.vendorID
                     .                      
             END.              
         END.
@@ -907,7 +907,7 @@ PROCEDURE Vendor_ExpirePriceByCust:
         INPUT ipcCompany,
         INPUT ipcCustomer,
         INPUT YES,
-        INPUT-OUTPUT TABLE ttVendItemCostCsv
+        INPUT-OUTPUT TABLE tt-VendItemCost
         ).
 
 END PROCEDURE.
@@ -919,13 +919,13 @@ PROCEDURE Vendor_ExpirePriceByCustTT:
 ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcCompany  AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcCustomer AS CHARACTER NO-UNDO.
-    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttVendItemCostCsv.
+    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR tt-VendItemCost.
     
     RUN pExpirePriceByCust(
         INPUT ipcCompany,
         INPUT ipcCustomer,
         INPUT NO,
-        INPUT-OUTPUT TABLE ttVendItemCostCsv
+        INPUT-OUTPUT TABLE tt-VendItemCost
         ).
 
 END PROCEDURE.
