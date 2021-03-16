@@ -454,8 +454,8 @@ PROCEDURE GL_GetAccountOpenBal :
         FOR EACH bf-account NO-LOCK 
             WHERE bf-account.company EQ account.company
             AND INDEX("RE",bf-account.type) NE 0
-            //AND bf-account.actnum NE gl-ctrl.contra
-            //AND bf-account.actnum NE gl-ctrl.ret
+            AND bf-account.actnum NE gl-ctrl.contra
+            AND bf-account.actnum NE gl-ctrl.ret
             ,
             EACH glhist no-lock
             WHERE glhist.company EQ bf-account.company
