@@ -1761,10 +1761,11 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
         vcInvNums = RIGHT-TRIM (SUBSTRING (vcInvNums, 1, INDEX (vcInvNums,'-')), '-') +     
             SUBSTRING (vcInvNums, R-INDEX (vcInvNums, '-')).
     
-    RUN pRunAPIOutboundTrigger (
-        INPUT  ROWID({&head}),
-        INPUT  LOGICAL(report.key-04)
-        ).
+    IF NOT tb_PdfOnly THEN
+        RUN pRunAPIOutboundTrigger (
+            INPUT  ROWID({&head}),
+            INPUT  LOGICAL(report.key-04)
+            ).
 END.
 
 FOR EACH ttSaveLine WHERE ttSaveLine.sessionID EQ "save-line" + v-term-id:
