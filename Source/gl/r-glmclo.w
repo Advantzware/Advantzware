@@ -873,8 +873,7 @@ PROCEDURE close-month :
        where glhist.company eq cocode
          and glhist.tr-date ge period.pst
          and glhist.tr-date le period.pend
-         and glhist.period  eq uperiod
-         AND glhist.posted  EQ NO
+         and glhist.period  eq uperiod          
        transaction:
        v-msg2 = "Account: " + glhist.actnum + "   " + glhist.jrnl.
        DISP v-msg2 WITH FRAME {&FRAME-NAME}.
