@@ -233,20 +233,20 @@ DEFINE VARIABLE iRunTo AS INTEGER FORMAT ">>>>>>9":U INITIAL 0
      SIZE 11 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE lv-close-bal AS DECIMAL FORMAT "->>,>>>,>>>,>>9.99":U INITIAL 0 
+DEFINE VARIABLE lv-close-bal AS DECIMAL FORMAT "->>>,>>>,>>>,>>9.99":U INITIAL 0 
      LABEL "Total Credits" 
      VIEW-AS FILL-IN 
-     SIZE 24 BY 1 NO-UNDO.
+     SIZE 27 BY 1 NO-UNDO.
 
-DEFINE VARIABLE lv-open-bal AS DECIMAL FORMAT "->>,>>>,>>>,>>9.99":U INITIAL 0 
+DEFINE VARIABLE lv-open-bal AS DECIMAL FORMAT "->>>,>>>,>>>,>>9.99":U INITIAL 0 
      LABEL "Total Debits" 
      VIEW-AS FILL-IN 
-     SIZE 23.8 BY 1 NO-UNDO.
+     SIZE 27 BY 1 NO-UNDO.
      
-DEFINE VARIABLE dTotalBalance AS DECIMAL FORMAT "->>,>>>,>>>,>>9.99":U INITIAL 0 
+DEFINE VARIABLE dTotalBalance AS DECIMAL FORMAT "->>>,>>>,>>>,>>9.99":U INITIAL 0 
      LABEL "Sum Total" 
      VIEW-AS FILL-IN 
-     SIZE 23.8 BY 1 NO-UNDO.     
+     SIZE 27 BY 1 NO-UNDO.     
 
 DEFINE VARIABLE lv-period-fr AS INTEGER FORMAT ">9":U INITIAL 0 
      VIEW-AS FILL-IN 
@@ -265,11 +265,11 @@ DEFINE VARIABLE lv-year AS INTEGER FORMAT ">>>9":U INITIAL 0
      
 DEFINE RECTANGLE RECT-9
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 159 BY 4.0.         
+     SIZE 167 BY 4.0.         
  
 DEFINE VARIABLE acct_dscr AS CHARACTER FORMAT "x(30)":U INITIAL "" 
      VIEW-AS FILL-IN 
-     SIZE 30.8 BY 1 NO-UNDO.
+     SIZE 28.8 BY 1 NO-UNDO.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -298,7 +298,7 @@ DEFINE BROWSE br_table
      ENABLE tt-glinq.actnum tt-glinq.tr-date  tt-glinq.jrnl tt-glinq.tr-dscr 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 160 BY 15.52
+    WITH NO-ASSIGN SEPARATORS SIZE 167 BY 15.52
          FONT 2.
 
 
@@ -313,13 +313,13 @@ DEFINE FRAME F-Main
      iRunTo AT ROW 2.05 COL 76 COLON-ALIGNED NO-LABEL WIDGET-ID 58
      dtDateFrom AT ROW 2.05 COL 90.6 COLON-ALIGNED NO-LABEL WIDGET-ID 66
      dtDateTo AT ROW 2.05 COL 107.5 COLON-ALIGNED NO-LABEL WIDGET-ID 68
-     btn-go AT ROW 2 COL 128.2
-     btn-all AT ROW 2 COL 144.6     
-     btn-print AT ROW 3.33 COL 144.6
+     btn-go AT ROW 2 COL 138.2
+     btn-all AT ROW 2 COL 154.6     
+     btn-print AT ROW 3.33 COL 154.6
   //   FI_moveCol AT ROW 3.33 COL 145.4 COLON-ALIGNED NO-LABEL WIDGET-ID 46
-     lv-open-bal AT ROW 3.38 COL 44.8 COLON-ALIGNED
-     lv-close-bal AT ROW 3.38 COL 82.2 COLON-ALIGNED
-     dTotalBalance AT ROW 3.38 COL 118.2 COLON-ALIGNED
+     lv-open-bal AT ROW 3.38 COL 44.6 COLON-ALIGNED
+     lv-close-bal AT ROW 3.38 COL 86.2 COLON-ALIGNED
+     dTotalBalance AT ROW 3.38 COL 124.2 COLON-ALIGNED
      acct_dscr AT ROW 3.43 COL 1 COLON-ALIGNED NO-LABEL
      br_table AT ROW 5.05 COL 1
      "Date" VIEW-AS TEXT
@@ -1031,7 +1031,30 @@ PROCEDURE build-inquiry :
 ------------------------------------------------------------------------------*/
   DEF VAR tmp-start AS DATE NO-UNDO.
   DEF VAR tmp-end AS DATE NO-UNDO.
-
+  DEFINE VARIABLE iRecordLimit    AS INTEGER INIT 1000 NO-UNDO.
+  DEFINE VARIABLE iTotalCount     AS INTEGER   NO-UNDO.
+  DEFINE VARIABLE iCount          AS INTEGER   NO-UNDO.
+  DEFINE VARIABLE cTitle          AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cResponse       AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE lResponse       AS LOGICAL   NO-UNDO.
+  DEFINE VARIABLE iStartTime      AS INTEGER   NO-UNDO.
+  DEFINE VARIABLE lTimeCheck      AS LOGICAL   NO-UNDO.
+  DEFINE VARIABLE iIndex          AS INTEGER   NO-UNDO.
+  DEFINE VARIABLE dQueryTimeLimit AS DECIMAL   NO-UNDO.
+  DEFINE VARIABLE iTimeTaken      AS INTEGER   NO-UNDO.
+  DEFINE VARIABLE lEnableShowAll  AS LOGICAL NO-UNDO.
+  DEFINE VARIABLE cMessage        AS CHARACTER NO-UNDO.    
+  
+   RUN Browser_GetRecordAndTimeLimit(
+    INPUT  cocode,
+    INPUT  "GQ",
+    OUTPUT iRecordLimit,
+    OUTPUT dQueryTimeLimit,
+    OUTPUT lEnableShowAll
+    ).
+    
+  dQueryTimeLimit =  dQueryTimeLimit * 1000. 
+  
   EMPTY TEMP-TABLE tt-glinq.
   ASSIGN
      v-max-dscr-length = 0
@@ -1060,7 +1083,11 @@ PROCEDURE build-inquiry :
  /* RUN gl/gl-opend.p (ROWID(account), tmp-start, OUTPUT lv-open-bal).*/
                      
  /* lv-close-bal = lv-open-bal. */
-      
+  ASSIGN  
+    iCount     = 0
+    iStartTime = ETIME   . 
+    
+  MainLoop:  
   for each glhist NO-LOCK
       where glhist.company eq cocode
         and (glhist.actnum  eq begin_acct OR begin_acct = "")
@@ -1099,12 +1126,56 @@ PROCEDURE build-inquiry :
            tt-glinq.cr-amt = glhist.tr-amt * - 1
            lv-close-bal = lv-close-bal + ( glhist.tr-amt * - 1) .   
            
-      dTotalBalance = dTotalBalance +  ( IF glhist.tr-amt NE ? THEN glhist.tr-amt ELSE 0).    
+         dTotalBalance = dTotalBalance +  ( IF glhist.tr-amt NE ? THEN glhist.tr-amt ELSE 0).    
                 
       IF LENGTH(glhist.tr-dscr) GT v-max-dscr-length THEN
          v-max-dscr-length = LENGTH(glhist.tr-dscr).  
+         
+       ASSIGN 
+        iTotalCount = iTotalCount + 1
+        iCount      = iCount      + 1
+        .
+        
+       IF iCount GE iRecordLimit OR (ETIME - iStartTime) EQ dQueryTimeLimit THEN DO:                   
+            iTimeTaken = iTimeTaken + (ETIME - iStartTime).
+            lTimeCheck = YES .
+       END. 
+        
+       IF lTimeCheck THEN
+       DO:        
+            IF iCount GE iRecordLimit THEN 
+                ASSIGN 
+                    cMessage = "You have reached a limit of " + STRING(iTotalCount) + " records in " + STRING(iTimeTaken / 1000) + " seconds" + ". Continue searching?"
+                    cTitle   = "Record Limit Reached"
+                    .
+            ELSE 
+                ASSIGN 
+                    iIndex   = iIndex + 1
+                    cMessage = "You have reached a limit of " + STRING((dQueryTimeLimit * iIndex) / 1000) + " seconds, Records searched= " + STRING(iTotalCount) + ". Continue searching?"        
+                    cTitle   = "Time Limit Reached"
+                    .   
+            RUN system/d-QueryLimitAlert.w(
+                    INPUT  cMessage,
+                    INPUT  cTitle,
+                    INPUT  NO,
+                    OUTPUT cResponse
+                    ) NO-ERROR.
+            lResponse = LOGICAL(cResponse) NO-ERROR.
+               
+            ASSIGN  
+               iCount     = 0
+               iStartTime = ETIME
+               lTimeCheck = NO
+                .
+                
+            IF lResponse THEN 
+               NEXT MainLoop. 
+            ELSE 
+               LEAVE MainLoop.                 
+       END.           
   end.
-              
+  
+      
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1187,6 +1258,10 @@ PROCEDURE local-initialize :
    lv-period-to = g_period
    uperiod      = g_period.
   RUN GetDefaultValue.
+  dtDateFrom = TODAY . 
+  dtDateFrom:SCREEN-VALUE IN FRAME {&FRAME-NAME} = STRING(TODAY) .
+  dtDateTo = TODAY . 
+  dtDateTo:SCREEN-VALUE IN FRAME {&FRAME-NAME} = STRING(TODAY)  .
   RUN build-inquiry.
   tt-glinq.tr-dscr:WIDTH-CHARS IN BROWSE {&browse-name} = v-max-dscr-length + 20.
 
