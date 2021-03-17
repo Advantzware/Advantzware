@@ -391,6 +391,8 @@ PROCEDURE build-inquiry :
     FIND FIRST account NO-LOCK
         WHERE account.company EQ cCompany
         AND account.actnum EQ cActNum NO-ERROR .
+    FIND FIRST company NO-LOCK
+         WHERE company.company EQ cCompany NO-ERROR.
         
     IF AVAILABLE account THEN
     DO:
@@ -407,7 +409,7 @@ PROCEDURE build-inquiry :
                      
         dTotalAccBalance = opening_Balance. 
               
-        DO iCount = 1 TO 12:
+        DO iCount = 1 TO company.num-per:
            
             FIND FIRST period NO-LOCK                  
                 WHERE period.company EQ cCompany
