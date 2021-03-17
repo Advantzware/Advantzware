@@ -300,7 +300,7 @@ DEFINE BROWSE Browser-Table
       rm-rctd.rct-date COLUMN-LABEL "Issue Date" FORMAT "99/99/9999":U
             LABEL-BGCOLOR 14
       rm-rctd.po-no FORMAT "x(6)":U LABEL-BGCOLOR 14
-      rm-rctd.job-no COLUMN-LABEL "Job" FORMAT "x(9)":U LABEL-BGCOLOR 14
+      rm-rctd.job-no COLUMN-LABEL "Job" FORMAT "x(12)":U LABEL-BGCOLOR 14
       rm-rctd.job-no2 FORMAT "99":U
       rm-rctd.i-no COLUMN-LABEL "Item" FORMAT "x(10)":U LABEL-BGCOLOR 14
       rm-rctd.i-name COLUMN-LABEL "Name/Desc" FORMAT "x(30)":U
@@ -946,7 +946,9 @@ DO:
                cJobNo = SELF:SCREEN-VALUE.
                IF iCheckIndex GT 0 THEN
                    ASSIGN rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} = SUBSTRING(cJobNo,1,iCheckIndex - 1)
-                   rm-rctd.job-no2:SCREEN-VALUE = SUBSTRING(cJobNo,iCheckIndex + 1,2) .
+                   rm-rctd.job-no2:SCREEN-VALUE = SUBSTRING(cJobNo,iCheckIndex + 1,2) 
+                   rm-rctd.s-num:SCREEN-VALUE = SUBSTRING(cJobNo,iCheckIndex + 4,2).
+                   
            END.
        END.
       ASSIGN gv-job-no = trim(rm-rctd.job-no:SCREEN-VALUE) /* stacey */
