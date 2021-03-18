@@ -144,6 +144,7 @@ DEFINE VARIABLE h_w-ordesf AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_w-ordest AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_w-ordfg AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_w-ordjob AS HANDLE NO-UNDO. 
+DEFINE VARIABLE h_vp-clsoe-2 AS HANDLE NO-UNDO.
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -840,6 +841,14 @@ PROCEDURE adm-create-objects :
              OUTPUT h_p-obol-2 ).
        RUN set-position IN h_p-obol-2 ( 23.14 , 143.00 ) NO-ERROR.
        RUN set-size IN h_p-obol-2 ( 1.67 , 12.00 ) NO-ERROR.
+       
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'oe/vp-clsoe.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_vp-clsoe-2 ).
+       RUN set-position IN h_vp-clsoe-2 ( 23.14 , 156.00 ) NO-ERROR.
+       RUN set-size IN h_vp-clsoe-2 ( 1.0 , 8.00 ) NO-ERROR.
 
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('2,5':U) NO-ERROR.
@@ -868,6 +877,10 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_b-ordlt , 'Record':U , h_vp-oeitm ).
        RUN add-link IN adm-broker-hdl ( h_b-ordlt , 'update':U , h_vp-oeitm ).
        RUN add-link IN adm-broker-hdl ( h_v-ord , 'oeitem':U , h_vp-oeitm ).
+       
+       /* Links to SmartViewer h_vp-clsoe-2. */
+       RUN add-link IN adm-broker-hdl ( h_b-ordlt , 'line-item':U , h_vp-clsoe-2 ).
+       RUN add-link IN adm-broker-hdl ( h_b-ordlt , 'Record':U , h_vp-clsoe-2 ).
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_miscflds ,
