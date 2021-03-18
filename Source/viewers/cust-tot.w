@@ -549,6 +549,14 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cust.industryID V-table-Win
+ON VALUE-CHANGED OF cust.industryID IN FRAME F-Main 
+DO: 
+     
+END.
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 &Scoped-define SELF-NAME cust.parentCust
@@ -723,7 +731,10 @@ PROCEDURE local-update-record :
   
   RUN valid-naics(OUTPUT lCheckError) NO-ERROR.
   IF lCheckError THEN RETURN NO-APPLY.
-            
+  
+  RUN valid-industryID(OUTPUT lCheckError) NO-ERROR.
+  IF lCheckError THEN RETURN NO-APPLY.
+                
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
@@ -862,24 +873,29 @@ PROCEDURE valid-industryID :
 ------------------------------------------------------------------------------*/
   DEFINE OUTPUT PARAMETER opReturnError AS LOGICAL NO-UNDO . 
   DEFINE BUFFER bf-customerindustry FOR customerindustry.
-  {&methods/lValidateError.i YES}
+  {methods/lValidateError.i YES}
 
   DO WITH FRAME {&FRAME-NAME}:
     IF cust.industryID:SCREEN-VALUE NE "" THEN
     DO:
       FIND FIRST bf-customerindustry NO-LOCK
           WHERE bf-customerindustry.company = cust.company
-          AND bf-customerindustry.industryID EQ cust.industryID:SCREEN-VALUE
-          AND bf-customerindustry.inactive = NO
-          AND rowid(bf-customerindustry) NE rowid(customerindustry) NO-ERROR .
-        IF NOT AVAIL bf-customerindustry THEN
+          AND bf-customerindustry.industryID EQ cust.industryID:SCREEN-VALUE NO-ERROR.
+        IF AVAIL bf-customerindustry AND bf-customerindustry.inactive EQ YES THEN DO: 
+             MESSAGE "Industry is Inactive." VIEW-AS ALERT-BOX ERROR.
+             opReturnError = TRUE .
+             APPLY "entry" TO cust.industryID.
+        END.
+        ELSE IF NOT AVAIL bf-customerindustry THEN
         DO:
-           MESSAGE "Please enter a valid industry... " VIEW-AS ALERT-BOX INFO .
-           opReturnError = YES .           
+           MESSAGE "Please enter a valid industry... " VIEW-AS ALERT-BOX ERROR .
+           opReturnError = YES .
+           APPLY "entry" TO cust.industryID.          
         END.     
     END.
   END.
-  {&methods/lValidateError.i NO}
+  
+  {methods/lValidateError.i NO}
 
 END PROCEDURE.
 

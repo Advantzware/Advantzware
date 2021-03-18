@@ -255,6 +255,20 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME customerIndustry.industryname
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL customerIndustry.industryname V-table-Win
+ON LEAVE OF customerIndustry.industryName IN FRAME F-Main /* Industry */
+DO:
+    DEFINE VARIABLE lCheckReturnError AS LOGICAL NO-UNDO.
+    IF LASTKEY NE -1 THEN DO:
+      RUN valid-industryname(OUTPUT lCheckReturnError) NO-ERROR.
+      IF lCheckReturnError THEN RETURN NO-APPLY.
+    END.     
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &UNDEFINE SELF-NAME
 
@@ -330,6 +344,7 @@ PROCEDURE local-add-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/             
+    
     ASSIGN
         lAddRecord = TRUE.
            
@@ -383,20 +398,15 @@ PROCEDURE local-copy-record :
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-   /* IF iSecurityLevel LT 1000 THEN DO:
-        MESSAGE 
-            "You do not have sufficient permissions to add a utility." SKIP 
-            "Please contact Advantzware Support for assistance."
-            VIEW-AS ALERT-BOX INFO.
-        RETURN.
-    END. */
-
-    ASSIGN
+      
+  ASSIGN
         lAddRecord = TRUE.
 
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'copy-record':U ) .
 
     DO WITH FRAME {&FRAME-NAME}:
+        customerindustry.industryID:SCREEN-VALUE = "".
+        
         APPLY 'entry' TO customerindustry.industryID.
     END.
 
@@ -519,6 +529,9 @@ PROCEDURE local-update-record :
     RUN valid-industryID(OUTPUT lCheckReturnError) NO-ERROR.
     IF lCheckReturnError THEN RETURN NO-APPLY.
     
+    RUN valid-industryName(OUTPUT lCheckReturnError) NO-ERROR.
+    IF lCheckReturnError THEN RETURN NO-APPLY.
+    
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
     
     ASSIGN
@@ -586,32 +599,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-currency V-table-Win 
-PROCEDURE valid-currency :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-glAccount V-table-Win 
-PROCEDURE valid-glAccount :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-industryID V-table-Win 
 PROCEDURE valid-industryID :
 /*------------------------------------------------------------------------------
@@ -624,14 +611,16 @@ PROCEDURE valid-industryID :
   {&methods/lValidateError.i YES}
 
   DO WITH FRAME {&FRAME-NAME}:
-    IF customerindustry.industryID:SCREEN-VALUE EQ "" OR customerindustry.industryID:SCREEN-VALUE EQ "0" THEN DO:
+    IF customerindustry.industryID:SCREEN-VALUE EQ ""  THEN DO:
         MESSAGE "Enter valid Industry id = Must enter a unique number" VIEW-AS ALERT-BOX INFO .
         opReturnError = YES .                 
     END.
-    ELSE DO:
+    ELSE 
+    DO:
       FIND FIRST bf-customerindustry NO-LOCK
-          WHERE bf-customerindustry.industryID EQ customerindustry.industryID:SCREEN-VALUE
-          AND rowid(bf-customerindustry) NE rowid(customerindustry) NO-ERROR .
+          WHERE bf-customerindustry.company = g_company
+          AND bf-customerindustry.industryID EQ customerindustry.industryID:SCREEN-VALUE 
+          AND ROWID(bf-customerindustry) NE ROWID(customerindustry) NO-ERROR.
       IF AVAIL bf-customerindustry THEN
       DO:
            MESSAGE "AR Industry ID is already exist... " VIEW-AS ALERT-BOX INFO .
@@ -642,6 +631,42 @@ PROCEDURE valid-industryID :
   END.
   {&methods/lValidateError.i NO}
 END PROCEDURE.
+
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-industryName V-table-Win 
+PROCEDURE valid-industryName:
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE OUTPUT PARAMETER opReturnError AS LOGICAL NO-UNDO . 
+  DEFINE BUFFER bf-customerindustry FOR customerindustry.
+  {methods/lValidateError.i YES}
+
+  DO WITH FRAME {&FRAME-NAME}:
+    IF customerindustry.industryname:SCREEN-VALUE EQ "" THEN DO:
+        MESSAGE "Enter valid Industry Name " VIEW-AS ALERT-BOX INFO .
+        opReturnError = YES .                 
+    END.
+    ELSE DO:
+      FIND FIRST bf-customerindustry NO-LOCK
+          WHERE bf-customerindustry.industryname EQ customerindustry.industryname:SCREEN-VALUE
+          AND rowid(bf-customerindustry) NE rowid(customerindustry) NO-ERROR .
+      IF AVAIL bf-customerindustry THEN
+      DO:
+           MESSAGE "Industry Name is already exist for Industry ID: " + bf-customerindustry.industryID  VIEW-AS ALERT-BOX INFO .
+           opReturnError = YES .           
+      END.     
+    END.    
+    
+  END.
+  {methods/lValidateError.i NO}
+END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
