@@ -73,10 +73,10 @@ END.
 
 RUN oe/s-codes.p (OUTPUT lv-type-code, OUTPUT lv-type-dscr).
 DEFINE VARIABLE cFreightCalculationValue AS CHARACTER NO-UNDO.
-DEFINE VARIABLE iFreightCalculationValue AS INTEGER NO-UNDO.
 DEFINE VARIABLE cRetChar AS CHAR NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE dTotalFreight AS DECIMAL NO-UNDO.
+DEFINE VARIABLE iFreightCalculationValue AS INTEGER NO-UNDO.
 
 RUN sys/ref/nk1look.p (INPUT cocode, "FreightCalculation", "C" /* Logical */, NO /* check by cust */, 
                        INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
@@ -90,12 +90,6 @@ RUN sys/ref/nk1look.p (INPUT cocode, "FreightCalculation", "I" /* Logical */, NO
 IF lRecFound THEN
     iFreightCalculationValue = INTEGER(cRetChar) NO-ERROR.    
 
-RUN sys/ref/nk1look.p (INPUT cocode, "FreightCalculation", "I" /* Logical */, NO /* check by cust */, 
-                       INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-                       OUTPUT cRetChar, OUTPUT lRecFound).
-IF lRecFound THEN
-    iFreightCalculationValue = INTEGER(cRetChar) NO-ERROR.
-    
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -609,7 +603,7 @@ DO:
               FIND FIRST oe-boll NO-LOCK 
                 WHERE oe-boll.company EQ oe-bolh.company
                   AND oe-boll.b-no    EQ oe-bolh.b-no NO-ERROR.
-              RUN windows/l-carrie.w (g_company,oe-boll.loc, FOCUS:SCREEN-VALUE, OUTPUT char-val).
+              RUN windows/l-carrie.w (g_company,oe-bolh.loc:screen-value IN FRAME {&frame-name}, FOCUS:SCREEN-VALUE, OUTPUT char-val).
               IF char-val NE "" AND entry(1,char-val) NE FOCUS:SCREEN-VALUE IN FRAME {&FRAME-NAME} THEN DO:
                  FOCUS:SCREEN-VALUE = ENTRY(1,char-val).
                  RUN new-carrier.
@@ -976,9 +970,9 @@ END.
 &Scoped-define SELF-NAME btnTags
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnTags V-table-Win
 ON CHOOSE OF btnTags1 IN FRAME F-Main
-DO: /* Need to add tag viewer for group here */
+DO:
     RUN system/d-TagViewer.w (
-        INPUT oe-bolh.rec_key,
+        INPUT (oe-bolh.rec_key + "CalcFreight"),
         INPUT ""
         ).
 END.
@@ -1099,8 +1093,16 @@ DEF VAR ldMinRate AS DEC NO-UNDO.
 /*                    oe-bolh.ship-id:SCREEN-VALUE, */
 /*                    oe-bolh.carrier:SCREEN-VALUE, */
 /*                    OUTPUT ld ).                  */
-        RUN oe/calcBolFrt.p (ROWID(oe-bolh), OUTPUT ld).
-        oe-bolh.freight:SCREEN-VALUE = STRING(ld).         
+        IF NOT lFreightEntered AND (cFreightCalculationValue EQ "ALL" OR cFreightCalculationValue EQ "Bol Processing") THEN
+        DO:          
+            RUN oe/calcBolFrt.p (ROWID(oe-bolh), YES, OUTPUT ld).
+            oe-bolh.freight:SCREEN-VALUE = STRING(ld).
+            oe-bolh.freightCalculationAmount:SCREEN-VALUE = STRING(ld).
+        END.
+        ELSE DO:   
+           RUN oe/calcBolFrt.p (ROWID(oe-bolh), NO, OUTPUT ld).  
+           oe-bolh.freightCalculationAmount:SCREEN-VALUE = STRING(ld).
+        END.
       END.
       ELSE DO: 
         FIND CURRENT oe-bolh.
@@ -1114,7 +1116,7 @@ DEF VAR ldMinRate AS DEC NO-UNDO.
 
           oe-bolh.tot-pallets = oe-bolh.tot-pallets + oe-boll.tot-pallets.
         END. /* each oe-boll */        
-        RUN oe/calcBolFrt.p (ROWID(oe-bolh), OUTPUT dTotFreight).
+        RUN oe/calcBolFrt.p (ROWID(oe-bolh), YES, OUTPUT dTotFreight).
         oe-bolh.freight = dTotFreight.
                 
         FIND CURRENT oe-bolh NO-LOCK.
@@ -1660,11 +1662,16 @@ PROCEDURE local-assign-record :
 
   IF (old-carrier NE new-carrier OR old-shipid NE new-shipid OR 
       new-loc NE new-loc OR (dOldCwt NE dNewCwt AND dNewCwt NE 0) )
-      AND (NOT lFreightEntered)
-      AND (cFreightCalculationValue EQ "ALL" OR cFreightCalculationValue EQ "Bol Processing") THEN DO:
+      THEN DO:
       
-    RUN oe/calcBolFrt.p (INPUT ROWID(oe-bolh), OUTPUT dFreight).
-     oe-bolh.freight = dFreight .     
+      IF NOT lFreightEntered AND (cFreightCalculationValue EQ "ALL" OR cFreightCalculationValue EQ "Bol Processing") THEN
+      DO:
+         RUN oe/calcBolFrt.p (INPUT ROWID(oe-bolh), INPUT YES, OUTPUT dFreight).
+         oe-bolh.freight = dFreight . 
+      END.
+      ELSE DO:
+        RUN oe/calcBolFrt.p (INPUT ROWID(oe-bolh), INPUT NO, OUTPUT dFreight).
+      END.        
   END.
   IF lFreightEntered THEN 
   DO:
@@ -2197,8 +2204,8 @@ PROCEDURE new-carrier :
           AND carrier.carrier EQ oe-bolh.carrier:SCREEN-VALUE
         NO-LOCK NO-ERROR.
         
-    IF AVAIL carrier AND NOT lFreightEntered AND
-    (cFreightCalculationValue EQ "ALL" OR cFreightCalculationValue EQ "Bol Processing") THEN RUN calc-freight.    
+    IF AVAIL carrier /*AND NOT lFreightEntered AND
+    (cFreightCalculationValue EQ "ALL" OR cFreightCalculationValue EQ "Bol Processing")*/ THEN RUN calc-freight.    
                                      
   END.                             
 
@@ -2260,8 +2267,8 @@ PROCEDURE new-ship-id :
 
     IF AVAIL shipto THEN DO:
       RUN display-shipto-detail (RECID(shipto)).
-      IF NOT lFreightEntered AND
-      (cFreightCalculationValue EQ "ALL" OR cFreightCalculationValue EQ "Bol Processing") THEN
+      /*IF NOT lFreightEntered AND
+      (cFreightCalculationValue EQ "ALL" OR cFreightCalculationValue EQ "Bol Processing") THEN */
       RUN calc-freight.
     END.
   END.
@@ -2541,7 +2548,7 @@ PROCEDURE valid-carrier :
         AND oe-boll.b-no    EQ oe-bolh.b-no NO-ERROR.
     
     FIND FIRST carrier WHERE carrier.company = g_company
-                         AND carrier.loc = (IF AVAIL oe-boll THEN oe-boll.loc ELSE cShipFromLoc)
+                         AND carrier.loc = oe-bolh.loc:SCREEN-VALUE IN FRAME {&FRAME-NAME}  
                          AND carrier.carrier = oe-bolh.carrier:SCREEN-VALUE IN FRAME {&FRAME-NAME}                          
                          NO-LOCK NO-ERROR.
     IF NOT AVAIL carrier THEN DO:
@@ -2633,7 +2640,9 @@ PROCEDURE valid-freight :
      
   END.
 
+
 END PROCEDURE.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

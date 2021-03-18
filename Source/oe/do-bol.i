@@ -29,7 +29,10 @@ DO TRANSACTION:
   RUN oe/bolhtots.p (ROWID(oe-bolh)).
 
   IF (cFreightCalculationValue EQ "ALL" OR cFreightCalculationValue EQ "Bol Processing") THEN do:
-    RUN oe/calcBolFrt.p (ROWID(oe-bolh), OUTPUT oe-bolh.freight).
+    RUN oe/calcBolFrt.p (ROWID(oe-bolh), YES, OUTPUT oe-bolh.freight).
+  END.
+  ELSE DO:
+    RUN oe/calcBolFrt.p (ROWID(oe-bolh), NO, OUTPUT dTotFreight).
   END.
   
   IF oe-bolh.freight EQ ? THEN oe-bolh.freight = 0.

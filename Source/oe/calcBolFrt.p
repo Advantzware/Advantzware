@@ -2,6 +2,7 @@ DISABLE TRIGGERS FOR LOAD OF oe-boll.
 DISABLE TRIGGERS FOR LOAD OF oe-bolh.
 
 DEF INPUT PARAMETER iprBolhRow AS ROWID NO-UNDO.
+DEF INPUT PARAMETER iplFreightCostCalc AS LOGICAL NO-UNDO.
 DEF OUTPUT PARAMETER opdFreight AS DECIMAL DECIMALS 6 NO-UNDO.
 
 
@@ -110,8 +111,10 @@ DO:
                         OUTPUT dFreight, 
                         OUTPUT ldMinRate,
                         OUTPUT dRatePerPallet).
-
+   
+   IF iplFreightCostCalc THEN
    ASSIGN bf-oe-boll.freight = dFreight. 
+   
           dTotFreight = dTotFreight + dFreight.
           dTotBasis = dTotBasis + v-other-freight.
           oe-bolh.tot-pallets = oe-bolh.tot-pallets + bf-oe-boll.tot-pallets.
@@ -138,6 +141,7 @@ DO:
                OUTPUT v-other-freight). 
  
      /* line freight is total / (basis  / total basis */
+     IF iplFreightCostCalc THEN
      bf-oe-boll.freight = dTotFreight * v-other-freight / dTotBasis.
 
    END. /* each bol */
@@ -169,7 +173,10 @@ DO:
  ELSE cTagDescription = "Carrier not found".
 END.
 ELSE DO:
- RUN oe/bolfrteq.p (BUFFER oe-bolh, opdFreight, 0).  
+
+ IF iplFreightCostCalc THEN
+ RUN oe/bolfrteq.p (BUFFER oe-bolh, opdFreight, 0). 
+ 
  oe-bolh.freightCalculationAmount = opdFreight.   
  /* Obtain the total freight for all lines on BOL */
  FOR EACH bf-oe-boll
@@ -178,14 +185,24 @@ ELSE DO:
           oe-bolh.tot-pallets = oe-bolh.tot-pallets + bf-oe-boll.tot-pallets.           
  END. /* each oe-boll */
 END.
-
-   RUN ClearTagsForGroup(oe-bolh.rec_key, "CalcFreight").  /*Clear all hold tags - TagProcs.p*/
-   RUN AddTagInfoForGroup(
-        INPUT oe-bolh.rec_key,
+      
+   IF iplFreightCostCalc AND opdFreight GT 0 THEN
+   DO:
+      RUN ClearTagsByRecKey(oe-bolh.rec_key).  /*Clear all hold tags - TagProcs.p*/ 
+      RUN AddTagInfo(
+          INPUT oe-bolh.rec_key,
+          INPUT "oe-bolh",
+          INPUT cTagDescription,
+          INPUT ""
+          ). /*From TagProcs Super Proc*/       
+   END.
+      
+   RUN ClearTagsByRecKey(oe-bolh.rec_key + "CalcFreight").  /*Clear all hold tags - TagProcs.p*/     
+   RUN AddTagInfo(
+        INPUT oe-bolh.rec_key + "CalcFreight",
         INPUT "oe-bolh",
         INPUT cTagDescription,
-        INPUT "",
-        INPUT "CalcFreight"
+        INPUT ""
         ). /*From TagProcs Super Proc*/
 
 

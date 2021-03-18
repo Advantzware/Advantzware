@@ -1298,6 +1298,7 @@
 
         RUN oe/calcBolFrt.p (
             INPUT  ROWID(bf-oe-bolh),
+            INPUT  YES,
             OUTPUT dTotFreight
             ).
 
