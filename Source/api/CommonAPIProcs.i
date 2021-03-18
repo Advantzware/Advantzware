@@ -41,6 +41,12 @@ PROCEDURE pUpdateDelimiter PRIVATE:
             ioplcRequestData = REPLACE(ioplcRequestData, "$linefeed$", "~n")
             ioplcRequestData = TRIM(ioplcRequestData, "~n")
             .
+            
+    /* Replaces $page$ with Form Feed character (PAGE keyword) */
+    ASSIGN
+        ioplcRequestData = REPLACE(ioplcRequestData, "$formfeed$", CHR(12))
+        ioplcRequestData = TRIM(ioplcRequestData, CHR(12))
+        .    
 END PROCEDURE.
 
 PROCEDURE updateRequestData:

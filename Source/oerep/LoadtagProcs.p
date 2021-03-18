@@ -18,17 +18,18 @@ DEFINE VARIABLE glCreateFGReceipts                     AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE glCheckClosedStatus                    AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE glCreateRFIDTag                        AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE glCreateComponenetTagsForSetHeaderItem AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE glLabelMatrixAutoPrint                 AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE glAutoPrint                            AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE giFGSetRec                             AS INTEGER   NO-UNDO.
 DEFINE VARIABLE gcLoadTag                              AS CHARACTER NO-UNDO.
-DEFINE VARIABLE gcLabelMatrixLoadTagOutputFile         AS CHARACTER NO-UNDO.
-DEFINE VARIABLE gcLabelMatrixLoadTagOutputPath         AS CHARACTER NO-UNDO.
-DEFINE VARIABLE gcLabelMatrixBOLLoadTagOutputFile      AS CHARACTER NO-UNDO.
-DEFINE VARIABLE gcLabelMatrixBOLLoadTagOutputPath      AS CHARACTER NO-UNDO.
+DEFINE VARIABLE gcLoadTagOutputFile                    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE gcLoadTagOutputPath                    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE gcBOLLoadTagOutputFile                 AS CHARACTER NO-UNDO.
+DEFINE VARIABLE gcBOLLoadTagOutputPath                 AS CHARACTER NO-UNDO.
 DEFINE VARIABLE glCreateTagsForEmptyBOLLineTags        AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE glCreateTagForPartial                  AS LOGICAL   NO-UNDO.
 
 {oerep/ttLoadTag.i SHARED}
+{api/ttAPIOutboundEvent.i}
 {fg/fullset.i NEW}
 {oerep/r-loadtg.i }
 {custom/xprint.i}
@@ -139,14 +140,14 @@ PROCEDURE pCreateLoadTagFromTT:
     DO ON ERROR UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:    
         RUN FileSys_ValidateDirectory(
-            INPUT  gcLabelMatrixLoadTagOutputPath,
+            INPUT  gcLoadTagOutputPath,
             OUTPUT lValidOutputPath,
             OUTPUT cMessage
             ).
         IF NOT lValidOutputPath THEN DO:
             ASSIGN
                 lError   = TRUE
-                cMessage = "Invalid output path '" + gcLabelMatrixLoadTagOutputPath + "'"
+                cMessage = "Invalid output path '" + gcLoadTagOutputPath + "'"
                 .
             UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK.
         END.
@@ -305,7 +306,7 @@ PROCEDURE pBuildLoadTagsFromBOL PRIVATE:
                                                   "Created"
                 bf-ttLoadTag.recordSource   = "BOL"
                 bf-ttLoadTag.exportFileType = "BOLTag"
-                bf-ttLoadTag.exportFile     = gcLabelMatrixBOLLoadTagOutputPath + gcLabelMatrixBOLLoadTagOutputFile
+                bf-ttLoadTag.exportFile     = gcBOLLoadTagOutputPath + gcBOLLoadTagOutputFile
                 .
     
             RUN pUpdateTTLoadTagOrderDetails (
@@ -1307,7 +1308,7 @@ PROCEDURE pPrintLoadTag PRIVATE:
 ------------------------------------------------------------------------------*/
     DEFINE PARAMETER BUFFER ipbf-ttLoadTag FOR ttLoadTag.
     
-    OUTPUT TO VALUE (gcLabelMatrixLoadTagOutputPath + gcLabelMatrixLoadTagOutputFile) APPEND.
+    OUTPUT TO VALUE (gcLoadTagOutputPath + gcLoadTagOutputFile) APPEND.
       
     IF AVAILABLE ipbf-ttLoadTag THEN DO:
         
@@ -1434,7 +1435,7 @@ PROCEDURE pPrintLoadTagHeader PRIVATE:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    OUTPUT TO VALUE (gcLabelMatrixLoadTagOutputPath + gcLabelMatrixLoadTagOutputFile).
+    OUTPUT TO VALUE (gcLoadTagOutputPath + gcLoadTagOutputFile).
     
     PUT UNFORMATTED
         "CUSTOMER,ORDNUMBER,JOBNUMBER,ITEM,CUSTPARTNO,CUSTPONO,PCS,BUNDLE,TOTAL,"
@@ -1470,8 +1471,9 @@ PROCEDURE pPrintTTLoadTags PRIVATE:
     DEFINE INPUT  PARAMETER ipcLocation AS CHARACTER NO-UNDO.
     DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttLoadTag.
     
-    DEFINE BUFFER bf-ttLoadtag FOR ttLoadtag.
-   
+    DEFINE BUFFER bf-ttLoadtag        FOR ttLoadtag.
+    DEFINE BUFFER bf-APIOutboundEvent FOR APIOutboundEvent.
+    
     DEFINE VARIABLE hdOutboundProcs  AS HANDLE    NO-UNDO.
     DEFINE VARIABLE cTTLoadTagHandle AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cMessage         AS CHARACTER NO-UNDO.
@@ -1479,14 +1481,14 @@ PROCEDURE pPrintTTLoadTags PRIVATE:
     DEFINE VARIABLE cArgKeyList      AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cArgValueList    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cTriggerID       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lcRequestData    AS LONGCHAR  NO-UNDO.
     
     RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
     
     cTTLoadTagHandle = STRING(TEMP-TABLE ttLoadTag:HANDLE).        
 
     FOR EACH bf-ttLoadTag
-        WHERE bf-ttLoadTag.exportTemplate EQ "LabelMatrix"
-          AND bf-ttLoadTag.tagStatus      EQ "Created"
+        WHERE bf-ttLoadTag.tagStatus      EQ "Created"
           AND bf-ttLoadTag.isSelected     EQ TRUE
           AND bf-ttLoadTag.isError        EQ FALSE
         BREAK BY bf-ttLoadTag.exportFile:
@@ -1507,24 +1509,46 @@ PROCEDURE pPrintTTLoadTags PRIVATE:
                 INPUT  ipcCompany,                             /* Company Code (Mandatory) */
                 INPUT  ipcLocation,                            /* Location Code (Mandatory) */
                 INPUT  "CreateLoadtag",                        /* API ID (Mandatory) */
-                INPUT  bf-ttLoadTag.custID,                       /* Scope ID */
+                INPUT  bf-ttLoadTag.custID,                    /* Scope ID */
                 INPUT  "Customer",                             /* Scope Type */
                 INPUT  cTriggerID,                             /* Trigger ID (Mandatory) */
                 INPUT  cArgKeyList,                            /* Comma separated list of table names for which data being sent (Mandatory) */
                 INPUT  cArgValueList,                          /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
-                INPUT  bf-ttLoadTag.tag,                          /* Primary ID for which API is called for (Mandatory) */   
+                INPUT  bf-ttLoadTag.tag,                       /* Primary ID for which API is called for (Mandatory) */   
                 INPUT  "Print loadtag from LoadTagProcs.p",    /* Event's description (Optional) */
                 OUTPUT lSuccess,                               /* Success/Failure flag */
                 OUTPUT cMessage                                /* Status message */
-                ) NO-ERROR.
+                ).
 
-            IF glLabelMatrixAutoPrint THEN
+            RUN Outbound_GetEvents IN hdOutboundProcs (
+                OUTPUT TABLE ttAPIOutboundEvent
+                ).
+            
+            FOR EACH ttAPIOutboundEvent: 
+                FIND FIRST bf-APIOutboundEvent NO-LOCK
+                     WHERE bf-APIOutboundEvent.apiOutboundEventID EQ ttAPIOutboundEvent.apiOutboundEventID
+                     NO-ERROR.
+                IF AVAILABLE bf-APIOutboundEvent THEN DO:
+                    lcRequestData = bf-APIOutboundEvent.requestData.
+                    
+                    COPY-LOB lcRequestData TO FILE bf-ttLoadTag.exportFile NO-ERROR.  
+                END.      
+            END.
+            
+            RUN Outbound_ResetContext IN hdOutboundProcs.
+            
+            IF bf-ttLoadTag.exportTemplate EQ "LabelMatrix" THEN
                 RUN pPrintLabelMatrix (
                     INPUT ipcCompany,
                     INPUT bf-ttLoadTag.exportTemplateFile,
                     INPUT bf-ttLoadTag.exportFileType
                     ).            
-            
+            ELSE IF bf-ttLoadTag.exportTemplate EQ "XPrint" THEN DO:
+                FILE-INFO:FILE-NAME = bf-ttLoadTag.exportFile.
+                RUN printfile (
+                    INPUT FILE-INFO:FILE-NAME
+                    ).
+            END.
         END.
     END.
     
@@ -1777,15 +1801,15 @@ PROCEDURE pUpdateConfig PRIVATE:
             glUpdateSetWithMaxQuantity             = LOGICAL(oSSLoadTagConfig:GetAttributeValue("UpdateSetWithMaxQuantity", "Active"))
             glCreateRFIDTag                        = LOGICAL(oSSLoadTagConfig:GetAttributeValue("CreateRFIDTag", "Active"))
             glCreateComponenetTagsForSetHeaderItem = LOGICAL(oSSLoadTagConfig:GetAttributeValue("CreateComponenetTagsForSetHeaderItem", "Active"))
-            glLabelMatrixAutoPrint                 = LOGICAL(oSSLoadTagConfig:GetAttributeValue("LabelMatrixAutoPrint", "Active"))
+            glAutoPrint                            = LOGICAL(oSSLoadTagConfig:GetAttributeValue("AutoPrint", "Active"))
             glCreateTagsForEmptyBOLLineTags        = LOGICAL(oSSLoadTagConfig:GetAttributeValue("CreateTagsForEmptyBOLLineTags", "Active"))
             glCreateTagForPartial                  = LOGICAL(oSSLoadTagConfig:GetAttributeValue("CreateTagForPartial", "Active"))
             giFGSetRec                             = INTEGER(oSSLoadTagConfig:GetAttributeValue("FGSetRec", "Value"))
             gcLoadTag                              = STRING(oSSLoadTagConfig:GetAttributeValue("LoadTag", "Printer"))
-            gcLabelMatrixLoadTagOutputFile         = STRING(oSSLoadTagConfig:GetAttributeValue("LabelMatrixLoadTagOutputFilePath", "File"))
-            gcLabelMatrixLoadTagOutputPath         = STRING(oSSLoadTagConfig:GetAttributeValue("LabelMatrixLoadTagOutputFilePath", "Path"))
-            gcLabelMatrixBOLLoadTagOutputFile      = STRING(oSSLoadTagConfig:GetAttributeValue("LabelMatrixBOLLoadTagOutputFilePath", "File"))
-            gcLabelMatrixBOLLoadTagOutputPath      = STRING(oSSLoadTagConfig:GetAttributeValue("LabelMatrixBOLLoadTagOutputFilePath", "Path"))
+            gcLoadTagOutputFile                    = STRING(oSSLoadTagConfig:GetAttributeValue("LoadTagOutputFilePath", "File"))
+            gcLoadTagOutputPath                    = STRING(oSSLoadTagConfig:GetAttributeValue("LoadTagOutputFilePath", "Path"))
+            gcBOLLoadTagOutputFile                 = STRING(oSSLoadTagConfig:GetAttributeValue("BOLLoadTagOutputFilePath", "File"))
+            gcBOLLoadTagOutputPath                 = STRING(oSSLoadTagConfig:GetAttributeValue("BOLLoadTagOutputFilePath", "Path"))
             NO-ERROR.
 END PROCEDURE.
 
@@ -1950,8 +1974,17 @@ PROCEDURE pUpdateTTLoadTagCustDetails:
         END.
             
         ASSIGN
-            bf-ttLoadTag.custID   = bf-cust.cust-no
-            bf-ttLoadTag.custName = bf-cust.name
+            bf-ttLoadTag.custID       = bf-cust.cust-no
+            bf-ttLoadTag.custName     = bf-cust.name
+            bf-ttLoadTag.custAddress1 = bf-cust.addr[1]
+            bf-ttLoadTag.custAddress2 = bf-cust.addr[2]
+            bf-ttLoadTag.custCity     = bf-cust.city
+            bf-ttLoadTag.custState    = bf-cust.state
+            bf-ttLoadTag.custCountry  = bf-cust.country
+            bf-ttLoadTag.custEmail    = bf-cust.email
+            bf-ttLoadTag.custAreaCode = bf-cust.area-code
+            bf-ttLoadTag.custPhone    = bf-cust.phone            
+            bf-ttLoadTag.custFax      = bf-cust.fax
             .
             
         FOR EACH bf-cust-part NO-LOCK 
@@ -2264,7 +2297,7 @@ PROCEDURE pBuildLoadTagsFromJob PRIVATE:
             bf-ttLoadTag.recordSource   = "JOB"
             bf-ttLoadTag.isSelected     = TRUE
             bf-ttLoadTag.exportFileType = "loadtag"
-            bf-ttLoadTag.exportFile     = gcLabelMatrixLoadTagOutputPath + gcLabelMatrixLoadTagOutputFile
+            bf-ttLoadTag.exportFile     = gcLoadTagOutputPath + gcLoadTagOutputFile
             .
         
         IF bf-job-hdr.ord-no NE 0 THEN DO:
