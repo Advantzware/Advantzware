@@ -3263,6 +3263,7 @@ PROCEDURE valid-qty :
     DEFINE VARIABLE dQuantityAvailableToInvoice AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE lError                      AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cMessage                    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lResponse                   AS LOGICAL   NO-UNDO.
     
   DO WITH FRAME {&FRAME-NAME}:
     IF DEC(ap-invl.qty:SCREEN-VALUE IN BROWSE {&browse-name}) EQ 0 THEN DO:
@@ -3280,11 +3281,15 @@ PROCEDURE valid-qty :
           ). 
 
       IF lRecordsFound AND DECIMAL(ap-invl.qty:SCREEN-VALUE IN BROWSE {&browse-name}) GT dQuantityAvailableToInvoice THEN DO:
-          MESSAGE "The Quantity cannot be more than available receipt quantity (" + STRING(dQuantityAvailableToInvoice) + ") to invoice"
-              VIEW-AS ALERT-BOX ERROR.
-          APPLY "entry" TO ap-invl.qty IN BROWSE {&browse-name}.
-          oplReturnError = YES.
-          RETURN.
+          RUN displayMessageQuestion (
+              INPUT  "61",
+              OUTPUT lResponse
+              ).
+          IF NOT lResponse THEN DO:
+              APPLY "entry" TO ap-invl.qty IN BROWSE {&browse-name}.
+              oplReturnError = YES.
+              RETURN.
+          END.
       END.
   END.
 

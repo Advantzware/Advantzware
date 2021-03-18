@@ -78,22 +78,7 @@ PROCEDURE pAutoSelectReceipts PRIVATE:
     DEFINE BUFFER bf-fg-rcpth      FOR fg-rcpth.
     DEFINE BUFFER bf-item          FOR item.
     DEFINE BUFFER bf-POReceiptLink FOR POReceiptLink.
-    
-    RUN pGetReceiptsQtyAvailable (
-        INPUT  ipcAPInvoiceLineRecKey,
-        INPUT  ipcQuantityUOM,
-        OUTPUT lRecordsFound,
-        OUTPUT dQuantityAvailableToInvoice
-        ). 
-    
-    IF dQuantityAvailableToInvoice LT ipdQuantityToInvoice THEN DO:
-        ASSIGN
-            oplError   = TRUE
-            opcMessage = "Receipt quantity available (" + STRING(dQuantityAvailableToInvoice) + ") to invoice is less than input quantity (" + STRING(ipdQuantityToInvoice) + ")"
-            .
-        RETURN.
-    END.
-    
+
     RUN pGetBuffers (
         INPUT  ipcAPInvoiceLineRecKey,
         BUFFER bf-ap-invl,
