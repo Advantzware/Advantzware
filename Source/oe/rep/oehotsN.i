@@ -328,13 +328,13 @@
       IF NOT tt-report.open-job-no-ord THEN
       DO:
          FIND FIRST oe-rel WHERE RECID(oe-rel) EQ tt-report.rec-id NO-LOCK NO-ERROR.
-        IF AVAIL oe-rel THEN
-            ASSIGN v-note1 = oe-rel.ship-i[1] 
-            v-note2 = oe-rel.ship-i[2] 
-            v-note3 = oe-rel.ship-i[3] 
-            v-note4 = oe-rel.ship-i[4] .
-
          IF AVAIL oe-rel THEN DO:
+            ASSIGN
+                v-note1 = oe-rel.ship-i[1] 
+                v-note2 = oe-rel.ship-i[2] 
+                v-note3 = oe-rel.ship-i[3] 
+                v-note4 = oe-rel.ship-i[4]
+                .
             FOR EACH oe-rell WHERE 
                    oe-rell.company  EQ cocode
                AND oe-rell.ord-no   EQ oe-rel.ord-no
@@ -462,8 +462,10 @@
 
             IF ld-palls LT 0 THEN ld-palls = ld-palls * -1.
 
-            w-ord.palls  = w-ord.palls + ld-palls.
-            w-ord.lot-no = oe-rel.lot-no .
+            ASSIGN 
+                w-ord.palls  = w-ord.palls + ld-palls
+                w-ord.lot-no = IF AVAILABLE oe-rel THEN oe-rel.lot-no ELSE ""
+                .
               
          IF v-comps AND AVAIL itemfg AND itemfg.isaset THEN DO:
 
