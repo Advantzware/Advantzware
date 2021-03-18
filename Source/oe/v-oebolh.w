@@ -1661,7 +1661,7 @@ PROCEDURE local-assign-record :
   END.
 
   IF (old-carrier NE new-carrier OR old-shipid NE new-shipid OR 
-      new-loc NE new-loc OR (dOldCwt NE dNewCwt AND dNewCwt NE 0) )
+      new-loc NE new-loc OR (dOldCwt NE dNewCwt ) )
       THEN DO:
       
       IF NOT lFreightEntered AND (cFreightCalculationValue EQ "ALL" OR cFreightCalculationValue EQ "Bol Processing") THEN
@@ -2204,8 +2204,7 @@ PROCEDURE new-carrier :
           AND carrier.carrier EQ oe-bolh.carrier:SCREEN-VALUE
         NO-LOCK NO-ERROR.
         
-    IF AVAIL carrier /*AND NOT lFreightEntered AND
-    (cFreightCalculationValue EQ "ALL" OR cFreightCalculationValue EQ "Bol Processing")*/ THEN RUN calc-freight.    
+    IF AVAIL carrier THEN RUN calc-freight.    
                                      
   END.                             
 
@@ -2267,8 +2266,7 @@ PROCEDURE new-ship-id :
 
     IF AVAIL shipto THEN DO:
       RUN display-shipto-detail (RECID(shipto)).
-      /*IF NOT lFreightEntered AND
-      (cFreightCalculationValue EQ "ALL" OR cFreightCalculationValue EQ "Bol Processing") THEN */
+      
       RUN calc-freight.
     END.
   END.
