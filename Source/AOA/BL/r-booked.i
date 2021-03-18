@@ -648,6 +648,12 @@ PROCEDURE pOrdersBooked2:
                                      ELSE IF AVAILABLE oe-ord THEN oe-ord.csrUser_id
                                      ELSE ""
             . 
+        IF ttOrdersBooked.dCstPerM EQ ? THEN
+        ttOrdersBooked.dCstPerM = 0.
+        IF ttOrdersBooked.dTOTStdCost EQ ? THEN
+        ttOrdersBooked.dTOTStdCost = 0.
+        IF ttOrdersBooked.zzCost EQ ? THEN
+        ttOrdersBooked.zzCost = 0.
         DELETE w-data.
     END.  /* for each tt-report */
 END PROCEDURE.
