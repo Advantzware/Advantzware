@@ -86,7 +86,7 @@ IF AVAILABLE users THEN ASSIGN
     FOR EACH customerindustry                           ~
         WHERE {&key-phrase}                       ~
           AND customerindustry.company ge cocode      ~
-          AND customerindustry.industryid ge fi_industryId      ~
+          AND customerindustry.industryID ge fi_industryId      ~
           AND (IF fi_name BEGINS '*'     THEN customerindustry.industryname MATCHES (fi_name + "*") ~
               ELSE customerindustry.industryname BEGINS fi_name) ~
           AND ((customerindustry.inactive AND tb_inActive) OR ( NOT customerindustry.inactive AND NOT tb_inActive)) 
@@ -97,11 +97,11 @@ IF AVAILABLE users THEN ASSIGN
         
 
 &SCOPED-DEFINE sortby-log ~
-    IF lv-sort-by EQ "ID"               THEN customerindustry.industryid ELSE ~
+    IF lv-sort-by EQ "ID"               THEN customerindustry.industryID ELSE ~
     IF lv-sort-by EQ "name"             THEN customerindustry.industryname ELSE ~
     IF lv-sort-by EQ "inactive"         THEN string(customerindustry.inactive) ELSE ""
   
-&SCOPED-DEFINE sortby BY customerindustry.industryid 
+&SCOPED-DEFINE sortby BY customerindustry.industryID 
 
 &SCOPED-DEFINE sortby-phrase-asc BY ({&sortby-log}) ~
        {&sortby}
@@ -149,8 +149,7 @@ customerindustry.industryname customerindustry.Inactive
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS fi_industryId fi_name tb_inActive btn_go ~
 btn_show Browser-Table 
-&Scoped-Define DISPLAYED-OBJECTS fi_industryId fi_name tb_inActive ~
-fi_sort-by 
+&Scoped-Define DISPLAYED-OBJECTS fi_industryId fi_name tb_inActive 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -218,18 +217,13 @@ DEFINE BUTTON btn_show
 
 DEFINE VARIABLE fi_industryId AS CHARACTER FORMAT "X(256)":U INITIAL "0" 
      VIEW-AS FILL-IN 
-     SIZE 15 BY 1
+     SIZE 18.4 BY 1
      BGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE fi_name AS CHARACTER FORMAT "X(48)":U 
      VIEW-AS FILL-IN 
      SIZE 35 BY 1
      BGCOLOR 15  NO-UNDO.
-
-DEFINE VARIABLE fi_sort-by AS CHARACTER FORMAT "X(256)":U 
-     VIEW-AS FILL-IN 
-     SIZE 34.6 BY 1
-     BGCOLOR 14 FONT 6 NO-UNDO.
 
 DEFINE VARIABLE tb_inActive AS LOGICAL INITIAL no 
      LABEL "" 
@@ -261,22 +255,21 @@ DEFINE BROWSE Browser-Table
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     fi_industryId AT ROW 2.1 COL 1 COLON-ALIGNED NO-LABEL WIDGET-ID 48
-     fi_name AT ROW 2.1 COL 20.8 COLON-ALIGNED NO-LABEL WIDGET-ID 16
-     tb_inActive AT ROW 2.1 COL 64
+     fi_industryId AT ROW 2.1 COL 2.6 COLON-ALIGNED NO-LABEL WIDGET-ID 48
+     fi_name AT ROW 2.1 COL 28.8 COLON-ALIGNED NO-LABEL WIDGET-ID 16
+     tb_inActive AT ROW 2.1 COL 71.4
      btn_go AT ROW 3.38 COL 1.8 WIDGET-ID 4
      btn_show AT ROW 3.38 COL 15.2 WIDGET-ID 10
-     fi_sort-by AT ROW 3.38 COL 67.6 COLON-ALIGNED NO-LABEL WIDGET-ID 12
      Browser-Table AT ROW 4.57 COL 2.4 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
      "Name" VIEW-AS TEXT
-          SIZE 20 BY .71 AT ROW 1.24 COL 22.8 WIDGET-ID 38
+          SIZE 20 BY .71 AT ROW 1.24 COL 32.2 WIDGET-ID 38
           FGCOLOR 9 FONT 6
      "AR Industry ID" VIEW-AS TEXT
-          SIZE 18 BY .71 AT ROW 1.24 COL 3 WIDGET-ID 42
+          SIZE 25 BY .71 AT ROW 1.24 COL 5 WIDGET-ID 42
           FGCOLOR 9 FONT 6
      "Inactive" VIEW-AS TEXT
-          SIZE 10.4 BY .71 AT ROW 1.24 COL 62.6
+          SIZE 10.4 BY .71 AT ROW 1.24 COL 70
           FGCOLOR 9 FONT 6
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -335,7 +328,7 @@ END.
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
-/* BROWSE-TAB Browser-Table fi_sort-by F-Main */
+/* BROWSE-TAB Browser-Table btn_show F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
@@ -346,8 +339,6 @@ ASSIGN
        Browser-Table:ALLOW-COLUMN-SEARCHING IN FRAME F-Main = TRUE
        Browser-Table:COLUMN-RESIZABLE IN FRAME F-Main       = TRUE.
 
-/* SETTINGS FOR FILL-IN fi_sort-by IN FRAME F-Main
-   NO-ENABLE                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -360,11 +351,11 @@ ASSIGN
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = "customerindustry"
      _FldNameList[1]   > asi.customerindustry.industryid
-"industryid" "AR Industry ID" ? "integer" ? ? ? ? ? ? no ? no no "26.8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"customerindustry.industryid" "AR Industry ID" ? "integer" ? ? ? ? ? ? no ? no no "26.8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > asi.customerindustry.industryname
-"industryname" "Name" ? "character" ? ? ? ? ? ? no ? no no "72.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"customerindustry.industryname" "Name" ? "character" ? ? ? ? ? ? no ? no no "72.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > asi.customerindustry.Inactive
-"Inactive" ? ? "logical" ? ? ? ? ? ? no ? no no "30" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"customerindustry.Inactive" ? ? "logical" ? ? ? ? ? ? no ? no no "30" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
@@ -532,10 +523,6 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
 &SCOPED-DEFINE cellColumnDat browsers-customerindustry
 
 {methods/browsers/setCellColumns.i}
-/* Ticket# : 92946
-   Hiding this widget for now, as browser's column label should be indicating the column which is sorted by */
-fi_sort-by:HIDDEN  = TRUE.
-fi_sort-by:VISIBLE = FALSE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -647,11 +634,6 @@ PROCEDURE local-display-fields :
 
     /* Code placed here will execute AFTER standard behavior.    */
   
-    DO WITH FRAME {&FRAME-NAME}:
-        fi_sort-by:SCREEN-VALUE = TRIM(lv-sort-by-lab)               + " " +
-            TRIM(STRING(ll-sort-asc,"As/Des")) + "cending".
-    END.
-                    
  
 END PROCEDURE.
 
@@ -884,7 +866,7 @@ PROCEDURE query-first :
         {&for-each1}                      NO-LOCK
             
 IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
-                 ELSE {&open-query}  {&sortby-phrase-desc}.
+                 ELSE {&open-query} {&sortby-phrase-desc}.
   
 END PROCEDURE.
 

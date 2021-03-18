@@ -70,12 +70,12 @@ DEFINE VARIABLE pHandle  AS HANDLE    NO-UNDO.
 DEFINE QUERY external_tables FOR customerindustry.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-FIELDS customerIndustry.industryID ~
-customerIndustry.inactive customerIndustry.industryname 
+customerIndustry.inActive customerIndustry.industryName 
 &Scoped-define ENABLED-TABLES customerIndustry
 &Scoped-define FIRST-ENABLED-TABLE customerIndustry
 &Scoped-Define ENABLED-OBJECTS RECT-1 
 &Scoped-Define DISPLAYED-FIELDS customerIndustry.industryID ~
-customerIndustry.inactive customerIndustry.industryname 
+customerIndustry.inActive customerIndustry.industryName 
 &Scoped-define DISPLAYED-TABLES customerIndustry
 &Scoped-define FIRST-DISPLAYED-TABLE customerIndustry
 
@@ -122,16 +122,15 @@ DEFINE RECTANGLE RECT-1
 
 DEFINE FRAME F-Main
      customerIndustry.industryID AT ROW 1.24 COL 27.4 COLON-ALIGNED
-          LABEL "AR Industry ID"
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
           BGCOLOR 15 
-     customerIndustry.inactive AT ROW 1.24 COL 47
+     customerIndustry.inActive AT ROW 1.24 COL 47
           LABEL "Inactive"
           VIEW-AS TOGGLE-BOX
           SIZE 15 BY 1
           BGCOLOR 15 
-     customerIndustry.industryname AT ROW 2.43 COL 27.4 COLON-ALIGNED
+     customerIndustry.industryName AT ROW 2.43 COL 27.4 COLON-ALIGNED
           LABEL "Industry Name"
           VIEW-AS FILL-IN 
           SIZE 44 BY 1
@@ -199,11 +198,9 @@ ASSIGN
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
-/* SETTINGS FOR TOGGLE-BOX customerIndustry.inactive IN FRAME F-Main
+/* SETTINGS FOR TOGGLE-BOX customerIndustry.inActive IN FRAME F-Main
    EXP-LABEL                                                            */
-/* SETTINGS FOR FILL-IN customerIndustry.industryID IN FRAME F-Main
-   EXP-LABEL                                                            */
-/* SETTINGS FOR FILL-IN customerIndustry.industryname IN FRAME F-Main
+/* SETTINGS FOR FILL-IN customerIndustry.industryName IN FRAME F-Main
    EXP-LABEL                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -246,7 +243,7 @@ END.
 
 &Scoped-define SELF-NAME customerIndustry.industryID
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL customerIndustry.industryID V-table-Win
-ON LEAVE OF customerIndustry.industryID IN FRAME F-Main /* AR Industry ID */
+ON LEAVE OF customerIndustry.industryID IN FRAME F-Main /* Industry */
 DO:
     DEFINE VARIABLE lCheckReturnError AS LOGICAL NO-UNDO.
     IF LASTKEY NE -1 THEN DO:
@@ -628,7 +625,7 @@ PROCEDURE valid-industryID :
 
   DO WITH FRAME {&FRAME-NAME}:
     IF customerindustry.industryID:SCREEN-VALUE EQ "" OR customerindustry.industryID:SCREEN-VALUE EQ "0" THEN DO:
-        MESSAGE "Enter valid Ar Industry id = Must enter a unique number" VIEW-AS ALERT-BOX INFO .
+        MESSAGE "Enter valid Industry id = Must enter a unique number" VIEW-AS ALERT-BOX INFO .
         opReturnError = YES .                 
     END.
     ELSE DO:

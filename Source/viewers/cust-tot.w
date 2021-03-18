@@ -868,8 +868,10 @@ PROCEDURE valid-industryID :
     IF cust.industryID:SCREEN-VALUE NE "" THEN
     DO:
       FIND FIRST bf-customerindustry NO-LOCK
-           WHERE bf-customerindustry.industryID EQ cust.industryID:SCREEN-VALUE
-           AND rowid(bf-customerindustry) NE rowid(customerindustry) NO-ERROR .
+          WHERE bf-customerindustry.company = cust.company
+          AND bf-customerindustry.industryID EQ cust.industryID:SCREEN-VALUE
+          AND bf-customerindustry.inactive = NO
+          AND rowid(bf-customerindustry) NE rowid(customerindustry) NO-ERROR .
         IF NOT AVAIL bf-customerindustry THEN
         DO:
            MESSAGE "Please enter a valid industry... " VIEW-AS ALERT-BOX INFO .
