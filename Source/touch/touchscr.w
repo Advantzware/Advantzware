@@ -258,7 +258,8 @@ PROCEDURE Close_Touch_Screen :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-   IF INDEX(program-name(4),"addmain") = 0 THEN
+   IF INDEX(program-name(4),"addmain") = 0 
+   AND INDEX(PROGRAM-NAME(4),"mainmenu") = 0 THEN
        RUN system/userLogOut.p (NO, 0).
   APPLY 'CLOSE' TO THIS-PROCEDURE.
 
