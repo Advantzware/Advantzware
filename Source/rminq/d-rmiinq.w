@@ -767,7 +767,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     END.
     ELSE 
     DO:
+        RUN enable_UI.
         RUN display-item.
+        DISABLE ALL WITH FRAME {&FRAME-NAME}.
         ASSIGN btn_done:HIDDEN IN FRAME {&FRAME-NAME} = NO.
             btn_done:SENSITIVE                        = YES.
             btn_ok:HIDDEN                             = YES.
