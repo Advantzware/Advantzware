@@ -1664,7 +1664,7 @@ PROCEDURE local-assign-record :
       new-loc NE new-loc OR (dOldCwt NE dNewCwt ) )
       THEN DO:
       
-      IF NOT lFreightEntered AND (cFreightCalculationValue EQ "ALL" OR cFreightCalculationValue EQ "Bol Processing") THEN
+      IF NOT lFreightEntered AND ((cFreightCalculationValue EQ "ALL" OR cFreightCalculationValue EQ "Bol Processing") OR dNewCwt GT 0) THEN
       DO:
          RUN oe/calcBolFrt.p (INPUT ROWID(oe-bolh), INPUT YES, OUTPUT dFreight).
          oe-bolh.freight = dFreight . 
@@ -1987,15 +1987,24 @@ PROCEDURE local-display-fields :
                  ).
                IF lAvailable THEN DO: 
                
-                   btnTags:SENSITIVE IN FRAME {&FRAME-NAME} = TRUE .
-                   btnTags1:SENSITIVE IN FRAME {&FRAME-NAME} = TRUE
-                   .
+                   btnTags:SENSITIVE IN FRAME {&FRAME-NAME} = TRUE .                    
                  END.  
                ELSE DO:
                
-                   btnTags:SENSITIVE IN FRAME {&FRAME-NAME} = FALSE. 
-                   btnTags1:SENSITIVE IN FRAME {&FRAME-NAME} = FALSE.
+                   btnTags:SENSITIVE IN FRAME {&FRAME-NAME} = FALSE.                    
                 END.
+      RUN Tag_IsTagRecordAvailable(
+                 INPUT oe-bolh.rec_key + "CalcFreight",
+                 INPUT "oe-bolh",
+                 OUTPUT lAvailable
+                 ).
+               IF lAvailable THEN DO:                                       
+                   btnTags1:SENSITIVE IN FRAME {&FRAME-NAME} = TRUE
+                   .
+               END.  
+               ELSE DO:                                        
+                   btnTags1:SENSITIVE IN FRAME {&FRAME-NAME} = FALSE.
+               END.          
   END.
 END PROCEDURE.
 
