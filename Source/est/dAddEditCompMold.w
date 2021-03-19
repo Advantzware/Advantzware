@@ -18,6 +18,7 @@ SESSION:DEBUG-ALERT = FALSE.
 DEFINE INPUT PARAMETER ip-recid  AS RECID     NO-UNDO.
 DEFINE INPUT PARAMETER ip-rowid  AS ROWID     NO-UNDO.
 DEFINE INPUT PARAMETER ip-type   AS CHARACTER NO-UNDO.   /* add,update,view */
+DEFINE INPUT PARAMETER ipcScreen AS CHARACTER NO-UNDO.  /* C for Corrected and F for Folding */
 DEFINE INPUT PARAMETER ipcSetPart  AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER ipcSetPartName AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER ipcPartNo AS CHARACTER NO-UNDO.
@@ -573,7 +574,7 @@ ON CHOOSE OF Btn_OK IN FRAME Dialog-Frame /* Save */
             CREATE ttInputEst.
             ASSIGN
                 ttInputEst.cEstType = "MoldSetEstimate"
-                ttInputEst.cSetType = "Set"
+                ttInputEst.cSetType = IF ipcScreen EQ "C" THEN "Set" ELSE "FoldSet" 
                 ttInputEst.cCompany = cocode .
         END.
         

@@ -24,6 +24,7 @@ CREATE WIDGET-POOL.
 
 
 DEFINE INPUT PARAMETER ipType AS CHARACTER NO-UNDO.  /* poup in edit or add mode */
+DEFINE INPUT PARAMETER ipcScreen AS CHARACTER NO-UNDO.  /* C for Corrected and F for Folding */
 DEFINE INPUT PARAMETER ipriRowid AS ROWID NO-UNDO .
 DEFINE VARIABLE opCADCAM AS CHARACTER NO-UNDO.
 
@@ -1185,6 +1186,7 @@ PROCEDURE create-ttfrmout :
         ttInputEst.cEstType         = "SingleMold"        
         ttInputEst.dCaliper         = caliper
         ttInputEst.lPurchased       = IF rd_pur EQ "P" THEN TRUE ELSE FALSE
+        ttInputEst.cSetType         = IF ipcScreen EQ "F" THEN "FoldSingle" ELSE ""       
         .
      ASSIGN 
          ttInputEst.copy-qty[2] = lv-copy-qty[2] 

@@ -716,13 +716,13 @@ DO:
    END.
    ELSE IF AVAIL est AND  est.estimateTypeID = "SingleMold"  THEN do:
        EMPTY TEMP-TABLE ttInputEst .       
-       RUN est/dAddMoldEst.w(INPUT "Edit" ,INPUT ROWID(eb)) .
+       RUN est/dAddMoldEst.w(INPUT "Edit" ,"C", INPUT ROWID(eb)) .
        RUN local-open-query.
    END.
    ELSE IF AVAIL est AND  est.estimateTypeID = "SetMold"  THEN do:
        EMPTY TEMP-TABLE ttInputEst .
        EMPTY TEMP-TABLE tt-eb-set.
-       RUN est/dAddSetEstMold.w(INPUT "Edit" ,INPUT ROWID(eb)) .
+       RUN est/dAddSetEstMold.w(INPUT "Edit" ,"C", INPUT ROWID(eb)) .
        RUN local-open-query.
    END.
    ELSE
@@ -5465,12 +5465,12 @@ PROCEDURE local-add-record :
   ELSE IF ls-add-what = "NewSetEstMold" THEN DO:
       EMPTY TEMP-TABLE ttInputEst .
       EMPTY TEMP-TABLE tt-eb-set.
-      RUN est/dAddSetEstMold.w("",riRowidEbNew) .
+      RUN est/dAddSetEstMold.w("","C",riRowidEbNew) .
       RUN pCreateSetEstimate.
   END.
   ELSE IF ls-add-what = "NewEstMold" THEN DO:
       EMPTY TEMP-TABLE ttInputEst .
-      RUN est/dAddMoldEst.w("",riRowidEbNew) .
+      RUN est/dAddMoldEst.w("","C",riRowidEbNew) .
       RUN pCreateMoldEstimate.
   END.
   ELSE DO:
@@ -8688,13 +8688,13 @@ PROCEDURE pUpdateRecord :
    END.
    IF AVAIL est AND  est.estimateTypeID = "SingleMold"  THEN do:
        EMPTY TEMP-TABLE ttInputEst .
-       RUN est/dAddMoldEst.w(INPUT "Edit" ,INPUT ROWID(eb)) .
+       RUN est/dAddMoldEst.w(INPUT "Edit", "C", INPUT ROWID(eb)) .
        RUN local-open-query.
    END.
    ELSE IF AVAIL est AND  est.estimateTypeID = "SetMold"  THEN do:
        EMPTY TEMP-TABLE ttInputEst .
        EMPTY TEMP-TABLE tt-eb-set.
-       RUN est/dAddSetEstMold.w(INPUT "Edit" ,INPUT ROWID(eb)) .
+       RUN est/dAddSetEstMold.w(INPUT "Edit", "C", INPUT ROWID(eb)) .
        RUN local-open-query.
    END.
    ELSE
