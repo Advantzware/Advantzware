@@ -34,6 +34,8 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+DEFINE {&NEW} SHARED VARIABLE g_lookup-var AS CHARACTER NO-UNDO.
+
 DEF VAR lAddRecord AS LOG NO-UNDO.
 DEF VAR iBaseLevel AS INT NO-UNDO.
 
@@ -234,6 +236,14 @@ DO:
   DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
   DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
 
+    lv-handle = FOCUS:HANDLE.
+    RUN applhelp.p.
+
+    IF g_lookup-var <> "" THEN DO:
+        lv-handle:SCREEN-VALUE = g_lookup-var.
+    END.   /* g_lookup-var <> "" */
+    APPLY "entry" TO lv-handle.
+    RETURN NO-APPLY.
   
 END.
 
