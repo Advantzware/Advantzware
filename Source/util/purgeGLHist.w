@@ -35,12 +35,6 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 
-/* TESTING ONLY */
-{custom/globdefs.i &NEW="NEW"}
-ASSIGN 
-    g_company = "001".
-/* END TESTING ONLY */
-
 /* {custom/globdefs.i /* Remove outer comments to put in production */ */
 {sys/inc/var.i "new shared"}
 
