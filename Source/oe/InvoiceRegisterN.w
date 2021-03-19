@@ -1846,6 +1846,7 @@ PROCEDURE list-post-inv :
     DEFINE VARIABLE v-tot-frt       AS DECIMAL NO-UNDO.
   
     DEFINE VARIABLE dWeight         AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dTotalFreight   AS DECIMAL NO-UNDO.
   
     DEFINE BUFFER bf-inv-line FOR inv-line .
     DEFINE BUFFER bf-inv-misc FOR inv-misc.
@@ -1857,7 +1858,7 @@ PROCEDURE list-post-inv :
         inv-head.cust-name FORMAT "x(25)" AT 27
         iOrdNo TO 60
         dInvQty
-        inv-head.t-inv-freight FORMAT "->,>>9.99"
+        dTotalFreight FORMAT "->,>>9.99"
         inv-head.t-inv-tax FORMAT "->,>>>,>>9.99"
         dMiscTot FORMAT "->>>>9.99"
         v-line-tot FORMAT "->>>>>>9.99"
@@ -1977,10 +1978,11 @@ PROCEDURE list-post-inv :
                 v-post-cash-w  = v-post-cash-w  + v-line-tot-w
                 v-post-total-w = v-post-total-w - v-line-tot-w.           
         END.
-      
+        dTotalFreight = IF inv-head.f-bill THEN inv-head.t-inv-freight ELSE 0.
         DISPLAY inv-head.inv-no inv-head.inv-date
             inv-head.cust-no inv-head.cust-name iOrdNo
-            dInvQty inv-head.t-inv-freight inv-head.t-inv-tax
+            dInvQty dTotalFreight
+            inv-head.t-inv-tax
             dMiscTot v-line-tot inv-head.t-inv-rev
             ld-pton FORMAT "->>>>>>9.999" 
             WHEN tb_ton

@@ -28,6 +28,7 @@ DEFINE VARIABLE gcTagSelectionCode  AS CHARACTER NO-UNDO. /* Tag selection code 
 DEFINE VARIABLE glUseItemfgLoc      AS LOGICAL   NO-UNDO. /* Get location from itemfg? */
 DEFINE VARIABLE gcCompanyDefaultBin AS CHARACTER NO-UNDO.  /* default bin */
 DEFINE VARIABLE cFreightCalculationValue AS CHARACTER NO-UNDO.
+DEFINE VARIABLE dTotFreight AS DECIMAL NO-UNDO.
 
 DEFINE VARIABLE scInstance AS CLASS system.SharedConfig NO-UNDO.
 
@@ -1338,9 +1339,18 @@ PROCEDURE pOrderProcsMakeBOLLinesFromSSRelBol PRIVATE:
         
         IF (cFreightCalculationValue EQ "ALL" OR cFreightCalculationValue EQ "Bol Processing") THEN do:
             RUN oe/calcBolFrt.p (
-                INPUT  ROWID(oe-bolh), 
+                INPUT  ROWID(oe-bolh),
+                INPUT  YES,
                 OUTPUT bf-oe-bolh.freight
                 ).
+        END.
+        ELSE DO:
+            RUN oe/calcBolFrt.p (
+	        INPUT  ROWID(oe-bolh), 
+	        INPUT  NO,
+	        OUTPUT dTotFreight
+                ).
+        
         END.
     END.
 
@@ -3257,8 +3267,17 @@ PROCEDURE pOrderProcsCreateBOLLines PRIVATE:
         IF (cFreightCalculationValue EQ "ALL" OR cFreightCalculationValue EQ "Bol Processing") THEN do:       
             RUN oe/calcBolFrt.p (
                 INPUT ROWID(oe-bolh), 
+                INPUT YES,
                 OUTPUT oe-bolh.freight
                 ).
+        END.
+        ELSE DO:
+	    RUN oe/calcBolFrt.p (
+		INPUT  ROWID(oe-bolh), 
+		INPUT  NO,
+		OUTPUT dTotFreight
+		).
+	        
         END.
       
         IF oe-bolh.freight EQ ? THEN 
@@ -3464,9 +3483,18 @@ PROCEDURE pOrderProcsMakeBOLLs PRIVATE:
     END. /* each oe-rell */
     IF (cFreightCalculationValue EQ "ALL" OR cFreightCalculationValue EQ "Bol Processing") THEN do:
         RUN oe/calcBolFrt.p (
-            INPUT ROWID(oe-bolh), 
+            INPUT ROWID(oe-bolh),
+            INPUT YES,
             OUTPUT oe-bolh.freight
             ).
+    END.
+    ELSE DO:
+	RUN oe/calcBolFrt.p (
+	INPUT  ROWID(oe-bolh), 
+	INPUT  NO,
+	OUTPUT dTotFreight
+	).
+            
     END.
                
 END PROCEDURE.

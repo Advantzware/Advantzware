@@ -22,7 +22,7 @@ FIND FIRST shipto
 IF AVAIL shipto THEN
 FIND FIRST carrier
     WHERE carrier.company EQ shipto.company
-      AND carrier.loc     EQ shipto.loc
+      AND carrier.loc     EQ oe-bolh.loc
       AND carrier.carrier EQ ip-carrier
     NO-LOCK NO-ERROR.
 
