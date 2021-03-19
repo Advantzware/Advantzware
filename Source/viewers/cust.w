@@ -345,7 +345,7 @@ DEFINE FRAME F-Main
      cust.active AT ROW 1 COL 43 COLON-ALIGNED
           LABEL "Status" FORMAT "x(11)"
           VIEW-AS COMBO-BOX INNER-LINES 5
-          LIST-ITEMS "(A)ctive","(I)nactive","(X) Inhouse","(S)tatement","(E)-Service" 
+          LIST-ITEMS "(A)ctive","(I)nactive","(X) Inhouse","(E)-Service" 
           DROP-DOWN-LIST
           SIZE 19 BY 1 TOOLTIP "Active, Inactive, Inhouse, Statement"
           BGCOLOR 15 
