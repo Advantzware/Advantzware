@@ -1984,6 +1984,38 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipConvertGLTrans C-Win
+PROCEDURE ipConvertGLTrans:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEF VAR cOrigPropath AS CHAR NO-UNDO.
+    DEF VAR cNewPropath AS CHAR NO-UNDO.
+
+    ASSIGN
+        cOrigPropath = PROPATH
+        cNewPropath  = cEnvDir + "\" + fiEnvironment:{&SV} + "\Programs," + PROPATH
+        PROPATH = cNewPropath.
+        
+    RUN ipStatus ("    Convert GLTrans to GLHist...").
+    RUN util/ConversionGLTrans.p.
+    
+    RUN ipStatus ("    Verifying GLHist record data...").
+    RUN util/SetGLHistFlag.p.
+
+    ASSIGN 
+        PROPATH = cOrigPropath.     
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipConvertJcCtrl C-Win 
 PROCEDURE ipConvertJcCtrl :
 /*------------------------------------------------------------------------------
@@ -2681,8 +2713,6 @@ PROCEDURE ipDataFix :
         RUN ipDataFix200303.
     IF iCurrentVersion LT 21000100 THEN
         RUN ipDataFix210001.
-    IF iCurrentVersion LT 21000200 THEN
-        RUN ipDataFix210002.
     IF iCurrentVersion LT 21000300 THEN
         RUN ipDataFix210003.
     IF iCurrentVersion LT 99999999 THEN
@@ -3411,34 +3441,6 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix210002 C-Win
-PROCEDURE ipDataFix210002:
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-    DEF VAR cOrigPropath AS CHAR NO-UNDO.
-    DEF VAR cNewPropath AS CHAR NO-UNDO.
-
-    RUN ipStatus ("  Data Fix 210002...").
-
-    ASSIGN
-        cOrigPropath = PROPATH
-        cNewPropath  = cEnvDir + "\" + fiEnvironment:{&SV} + "\Programs," + PROPATH
-        PROPATH = cNewPropath.
-        
-    RUN util/ConversionGLTrans.p.
-    
-    ASSIGN 
-        PROPATH = cOrigPropath.     
-
-END PROCEDURE.
-	
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix210003 C-Win
 PROCEDURE ipDataFix210003:
 /*------------------------------------------------------------------------------
@@ -3478,6 +3480,7 @@ PROCEDURE ipDataFix999999 :
     RUN ipChangeCostMethod.
     RUN ipSetDepartmentRequired.
     RUN ipAddDbmsFonts.
+    RUN ipConvertGLTrans.
     RUN ipDeleteAudit.
     
 END PROCEDURE.
