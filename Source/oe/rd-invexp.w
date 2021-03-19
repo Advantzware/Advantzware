@@ -92,7 +92,7 @@ ASSIGN cTextListToSelect  = "Invoice#,Customer#,Customer Name,Invoice Date,Bol#,
                                         "comm1,comm2,comm3,cost,cas-cnt,disc,tax,t-price," +
                                         "csr,line-sales-tax,ord-head-ship-stat,ord-line,bill-note,Auto,reason,cAccountant,cInvComment"
         cFieldLength = "15,15,15,20,15,30,15,15," + "15,15,15,20,15,30,15," + "15,15,15,8,2,6,15," +
-                       "30,15,10,30,30," + "15,15,5,4,25,4,25,4,25," + "7,7,7,10,10,10,10,10," + "15,15,15,15,15,10,100,12,8"
+                       "30,15,10,30,30," + "15,15,5,4,25,4,25,4,25," + "7,7,7,10,10,10,10,10," + "15,15,15,15,15,10,100,12,60"
            cFieldType = "c,c,c,c,c,c,c,c," + "c,c,c,c,c,c,c," + "c,c,c,c,i,c,c," +
                         "c,c,i,c,c," + "i,i,c,c,c,c,c,c,c," + "i,i,i,i,i,i,c,i," + "c,c,c,i,c,c,c,c,c"     
        .
