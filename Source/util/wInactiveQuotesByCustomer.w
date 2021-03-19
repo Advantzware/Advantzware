@@ -478,10 +478,10 @@ PROCEDURE pRunProcess PRIVATE :
                 RUN Price_ExpirePriceMatrixByCustTT(
                     INPUT cust.company,
                     INPUT cust.cust-no,
-                    INPUT-OUTPUT TABLE ttOePrmtxCsv
+                    INPUT-OUTPUT TABLE ttOePrmtx
                     ).  
                 RUN Output_TempTableToCSV IN hdOutputProcs (
-                    INPUT TEMP-TABLE ttOePrmtxCsv:HANDLE,
+                    INPUT TEMP-TABLE ttOePrmtx:HANDLE,
                     INPUT cLocation + "\PriceMatrix.csv",
                     INPUT TRUE,  /* Export Header */
                     INPUT FALSE, /* Auto increment File name */
@@ -500,10 +500,10 @@ PROCEDURE pRunProcess PRIVATE :
                 RUN Price_ExpireQuoteByCustTT(
                     INPUT cust.company,
                     INPUT cust.cust-no,
-                    INPUT-OUTPUT TABLE ttQuoteHdCsv
+                    INPUT-OUTPUT TABLE ttQuoteHd
                     ).  
                 RUN Output_TempTableToCSV IN hdOutputProcs (
-                    INPUT TEMP-TABLE ttQuoteHdCsv:HANDLE,
+                    INPUT TEMP-TABLE ttQuoteHd:HANDLE,
                     INPUT cLocation + "\Quotes.csv",
                     INPUT TRUE,  /* Export Header */
                     INPUT FALSE, /* Auto increment File name */
@@ -522,10 +522,10 @@ PROCEDURE pRunProcess PRIVATE :
                 RUN Vendor_ExpirePriceByCustTT(
                     INPUT cust.company,
                     INPUT cust.cust-no,
-                    INPUT-OUTPUT TABLE ttVendItemCostCsv
+                    INPUT-OUTPUT TABLE tt-VendItemCost
                     ).  
                 RUN Output_TempTableToCSV IN hdOutputProcs (
-                    INPUT TEMP-TABLE ttVendItemCostCsv:HANDLE,
+                    INPUT TEMP-TABLE tt-VendItemCost:HANDLE,
                     INPUT cLocation + "\VendItemCost.csv",
                     INPUT TRUE,  /* Export Header */
                     INPUT FALSE, /* Auto increment File name */
@@ -565,9 +565,9 @@ PROCEDURE pRunProcess PRIVATE :
     
     pfSetDirectory(). 
      
-    EMPTY TEMP-TABLE ttOePrmtxCsv. 
-    EMPTY TEMP-TABLE ttQuoteHdCsv.
-    EMPTY TEMP-TABLE ttVendItemCostCsv.
+    EMPTY TEMP-TABLE ttOePrmtx. 
+    EMPTY TEMP-TABLE ttQuoteHd.
+    EMPTY TEMP-TABLE tt-VendItemCost.
               
     SESSION:SET-WAIT-STATE("").   
     STATUS DEFAULT "".                                             
