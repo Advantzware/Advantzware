@@ -165,7 +165,9 @@ PROCEDURE outputGLaccountFile:
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
-    OUTPUT STREAM sReport TO VALUE (cOutputDir + "\" + "_ConsolidationReport.csv").
+    DEF INPUT PARAMETER ipcOutputDir AS CHAR NO-UNDO.
+    
+    OUTPUT STREAM sReport TO VALUE (ipcOutputDir + "\" + "_ConsolidationReport.csv").
     
     PUT STREAM sReport UNFORMATTED 
         "Warning,Year,Period,Account,Journal,Txn Date,Amount,Currency,Description,Type,Created By,FileName,RecKey,Rowid" + CHR(10).
@@ -183,7 +185,7 @@ PROCEDURE outputGLaccountFile:
             STRING(ttGLHistList.daTxnDate,"99/99/99") + "," +
             STRING(ttGLHistList.deAmount,"->>>>>>>>9.99") + "," +
             ttGLHistList.cCurrency + "," +
-            ttGLHistList.cDescription + "," +
+            REPLACE(ttGLHistList.cDescription,","," ") + "," +
             ttGLHistList.cType + "," +
             ttGLHistList.cCreatedBy + "," +
             ttGLHistList.cFileName + "," +   
@@ -297,32 +299,96 @@ PROCEDURE pTestGlhist:
     DEF VAR cQueryString AS CHAR NO-UNDO.
             
     DEF BUFFER bglHist FOR glHist.
+    DEF BUFFER bPeriod FOR period.
+    DEF BUFFER cPeriod FOR period.
     
+    FIND company NO-LOCK WHERE 
+        company.company EQ ipcCompany
+        NO-ERROR.
+        
     FIND period NO-LOCK WHERE
         period.company EQ ipcCompany AND 
         period.yr EQ ipiYear AND 
         period.pnum EQ ipiPeriod
         NO-ERROR.
-    IF NOT AVAIL period THEN RETURN.
-    ELSE ASSIGN 
+    /* There's not a period record for this year/period, so create one based on
+       the latest year where this period number exists. Make sure the period we
+       create here is CLOSED, as are all subledgers.  Let the create.trg assign rec_key. */
+    IF NOT AVAIL period THEN DO:
+        FIND LAST bPeriod NO-LOCK WHERE 
+            bPeriod.company EQ ipcCompany AND 
+            bPeriod.pnum EQ ipiPeriod
+            NO-ERROR.
+        FIND LAST cPeriod NO-LOCK WHERE 
+            cPeriod.company EQ ipcCompany AND 
+            cPeriod.pnum EQ IF ipiPeriod NE company.num-per THEN ipiPeriod + 1 ELSE 1 
+            NO-ERROR.
+        CREATE period.
+        ASSIGN 
+            period.company = ipcCompany
+            period.yr = ipiYear
+            period.pnum = bperiod.pnum
+            period.pname = ""
+            period.pst = DATE(MONTH(bperiod.pst), DAY(bperiod.pst), ipiYear) 
+            /* This is tricky, because it has to account for Feb 29, so it gets the
+               start date for the NEXT month, then subtracts 1 */       
+            period.pend = DATE(MONTH(cperiod.pst), 1, ipiYear) - 1
+            period.pstat = FALSE 
+            period.subledgerAP = "C"
+            period.subledgerPO = "C"
+            period.subledgerOP = "C"
+            period.subledgerWIP = "C"
+            period.subledgerRM = "C"
+            period.subledgerFG = "C"
+            period.subledgerBR = "C"
+            period.subledgerAR = "C"
+            period.subledgerGL = "C"
+            period.apClosedBy = USERID(LDBNAME(1))
+            period.poClosedBy = USERID(LDBNAME(1))
+            period.opClosedBy = USERID(LDBNAME(1))
+            period.wipClosedBy = USERID(LDBNAME(1))
+            period.rmClosedBy = USERID(LDBNAME(1))
+            period.fgClosedBy = USERID(LDBNAME(1))
+            period.brClosedBy = USERID(LDBNAME(1))
+            period.arClosedBy = USERID(LDBNAME(1))
+            period.glClosedBy = USERID(LDBNAME(1))
+            period.apClosed = DATETIME(TODAY, MTIME)
+            period.poClosed = DATETIME(TODAY, MTIME)
+            period.opClosed = DATETIME(TODAY, MTIME)
+            period.wipClosed = DATETIME(TODAY, MTIME)
+            period.rmClosed = DATETIME(TODAY, MTIME)
+            period.fgClosed = DATETIME(TODAY, MTIME)
+            period.brClosed = DATETIME(TODAY, MTIME)
+            period.arClosed = DATETIME(TODAY, MTIME)
+            period.glClosed = DATETIME(TODAY, MTIME)
+            .
+    END.
+    ASSIGN 
         daPeriodStartDate = period.pst
         daPeriodEndDate = period.pend.
+    RELEASE period.
         
     FOR EACH bglhist NO-LOCK WHERE 
         bglhist.company EQ ipcCompany AND 
         bglhist.entryType NE "B" AND  
+            /* If the year and period are included in the gl-hist use them */ 
         (bglhist.yr EQ ipiYear AND bglhist.period EQ ipiPeriod) OR 
+            /* or, if not, use the trans-date to find qualifying records.
+               Note that we do NOT put the (assumed) year/period in the report. */
         (bglhist.yr EQ 0 AND bglhist.tr-date GE daPeriodStartDate AND bglhist.tr-date LE daPeriodEndDate):
             
         CREATE ttGLHistList.
         ASSIGN 
             ttGLHistList.lPosted         = bglhist.posted
-            ttGLHistList.iYear           = IF bglhist.glyear EQ 0 THEN bglhist.yr ELSE bglhist.glyear
+            ttGLHistList.iYear           = IF bglhist.glyear NE 0 THEN bglhist.glyear ELSE          /* First choice = record.glyear */ 
+                                           IF bglhist.yr NE 0 THEN bglhist.yr ELSE                  /* Second choice = record.year */ 
+                                           IF AVAIL period AND period.pnum NE 0 THEN period.yr ELSE /* Third choice = period.pnum */   
+                                           YEAR(bglhist.tr-date)                                    /* finally, year of txn date */
             ttGLHistList.iPeriod         = bglhist.period
             ttGLHistList.cAccount        = bglhist.actnum
             ttGLHistList.cJournal        = bglhist.jrnl
             ttGLHistList.daTxnDate       = bglhist.tr-date
-            ttGLHistList.deAmount        = bglhist.tr-amt
+            ttGLHistList.deAmount        = IF bglhist.tr-amt EQ ? THEN 0 ELSE bglhist.tr-amt
             ttGLHistList.cCurrency       = bglhist.curr-code[1]
             ttGLHistList.cDescription    = bglhist.tr-dscr
             ttGLHistList.cType           = bglhist.entryType
@@ -1029,7 +1095,9 @@ PROCEDURE purgeGLhistFromFile:
             BY ttGLHistList.iPeriod
             BY ttGLHistList.cAccount:
             /* Only on first by break */
-            IF FIRST-OF(ttGLHistList.cAccount) THEN ASSIGN 
+            IF FIRST-OF(ttGLHistList.cAccount) 
+            OR FIRST-OF(ttGLHistList.iPeriod)
+            OR FIRST-OF(ttGLHistList.iYear) THEN ASSIGN 
                 deSummaryAmount = 0.
             /* All records in group */
             ASSIGN 
@@ -1047,6 +1115,8 @@ PROCEDURE purgeGLhistFromFile:
                 DELETE bglHist.
             END.
             /* Only on last of group */
+            /* When creating the balance fwd txn, it's now safe to assign year/prd 
+               because we created any missing ones during the test phase */
             IF LAST-OF(ttGLHistList.cAccount) THEN DO:
                 CREATE bglHist.
                 ASSIGN 
@@ -1197,7 +1267,6 @@ END PROCEDURE.
 
 
 &ENDIF
-
 
 &IF DEFINED(EXCLUDE-testAccounts) = 0 &THEN
 

@@ -53,6 +53,9 @@ DEF VAR iStartYear AS INT NO-UNDO.
 DEF VAR iEndYear AS INT NO-UNDO.
 DEF VAR iEndPeriod AS INT NO-UNDO.
 DEF VAR lError AS LOG NO-UNDO.
+DEF VAR lTested AS LOG NO-UNDO.
+DEF VAR lReviewed AS LOG NO-UNDO.
+DEF VAR lPurged AS LOG NO-UNDO.
 DEF VAR lWarned AS LOG NO-UNDO.
 
 {src/adm2/widgetprto.i}
@@ -81,7 +84,7 @@ ASSIGN
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS bExit fiEndYear fiEndPeriod fiOutputDir ~
-bTest eInstructions 
+eInstructions bTest bReset 
 &Scoped-Define DISPLAYED-OBJECTS fiEndYear fiEndPeriod fiOutputDir ~
 fiAnalyzingYear fiAnalyzingPeriod fiInstructionsLabel eInstructions 
 
@@ -107,6 +110,11 @@ DEFINE BUTTON bExit AUTO-END-KEY
 
 DEFINE BUTTON bPurge 
      LABEL "PURGE" 
+     SIZE 15 BY 1.43
+     FONT 6.
+
+DEFINE BUTTON bReset 
+     LABEL "RESET" 
      SIZE 15 BY 1.43
      FONT 6.
 
@@ -163,11 +171,12 @@ DEFINE FRAME fMain
      fiOutputDir AT ROW 3.14 COL 48 COLON-ALIGNED
      fiAnalyzingYear AT ROW 4.57 COL 48 COLON-ALIGNED NO-TAB-STOP 
      fiAnalyzingPeriod AT ROW 4.57 COL 66 COLON-ALIGNED NO-TAB-STOP 
-     bTest AT ROW 5.29 COL 110
      fiInstructionsLabel AT ROW 6.24 COL 5 COLON-ALIGNED NO-LABEL NO-TAB-STOP 
      eInstructions AT ROW 7.19 COL 8 NO-LABEL NO-TAB-STOP 
-     bReview AT ROW 7.19 COL 110
-     bPurge AT ROW 9.1 COL 110
+     bTest AT ROW 7.19 COL 110
+     bReview AT ROW 9.1 COL 110
+     bPurge AT ROW 11 COL 110
+     bReset AT ROW 14.1 COL 110
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -294,45 +303,47 @@ ON CHOOSE OF bTest IN FRAME fMain /* TEST */
 OR CHOOSE OF bReview IN FRAME fMain
 OR CHOOSE OF bPurge IN FRAME fMain
 OR CHOOSE OF bExit IN FRAME fMain
+OR CHOOSE OF bReset IN FRAME fMain 
 OR MOUSE-SELECT-DOWN OF bExit
 DO:
     DEF VAR cFileList AS CHAR NO-UNDO.
     DEF VAR iErrorCount AS INT NO-UNDO.
     DEF VAR iProcessedCount AS INT NO-UNDO.
     DEF VAR iWarningCount AS INT NO-UNDO.
+    DEF VAR cOutputDirName AS CHAR NO-UNDO.
+    
+    ASSIGN 
+        cOutputDirName = SESSION:TEMP-DIRECTORY + "GLaccountPurge-" + 
+                         STRING(YEAR(TODAY),"9999") +
+                         STRING(MONTH(TODAY),"99") +
+                         STRING(DAY(TODAY),"99") + "-" + 
+                         STRING(TIME,"99999").
     
     CASE SELF:NAME:
         WHEN "bTest" THEN DO:
-            STATUS INPUT "Analyzing files and running tests...".
             STATUS DEFAULT "Analyzing files and running tests...".
-            OS-CREATE-DIR VALUE (SESSION:TEMP-DIRECTORY + "GLaccountPurge-" + 
-                                 STRING(YEAR(TODAY),"9999") +
-                                 STRING(MONTH(TODAY),"99") +
-                                 STRING(DAY(TODAY),"99") +
-                                 "-" + STRING(TIME,"99999")).
+            OS-CREATE-DIR VALUE (cOutputDirName).
             ASSIGN 
-                fiOutputDir:SCREEN-VALUE = SESSION:TEMP-DIRECTORY + "GLaccountPurge-" + 
-                                            STRING(YEAR(TODAY),"9999") +
-                                            STRING(MONTH(TODAY),"99") +
-                                            STRING(DAY(TODAY),"99") +
-                                            "-" + STRING(TIME,"99999")  
-                cFileList = "account". 
+                fiOutputDir:SCREEN-VALUE = cOutputDirName. 
         
-            FIND FIRST period NO-LOCK WHERE 
-                period.company EQ cocode
+            /* Find the oldest glhist record in the table */
+            FIND FIRST glHist NO-LOCK WHERE 
+                glHist.company EQ cocode
+                USE-INDEX tr-date 
                 NO-ERROR.
-            IF NOT AVAIL period THEN DO:
+            IF NOT AVAIL glHist THEN DO:
                 MESSAGE 
-                    "First period not available."
-                    VIEW-AS ALERT-BOX.
+                    "There is a problem with your glhist table." SKIP 
+                    "Please contact ASI Support for assistance."
+                    VIEW-AS ALERT-BOX ERROR.
                 RETURN NO-APPLY.
             END.
-            ELSE DO:
+
                 ASSIGN 
-                    iStartYear = period.yr
+                iStartYear = YEAR(glhist.tr-date) - 1
                     iEndYear = INTEGER(fiEndYear:SCREEN-VALUE)
                     iEndPeriod = INTEGER(fiEndPeriod:SCREEN-VALUE).
-                STATUS INPUT "Analyzing GL account records...".
+
                 STATUS DEFAULT "Analyzing GL account records...".
                 DO iCtr = iStartYear TO iEndYear:
                     ASSIGN 
@@ -356,33 +367,34 @@ DO:
                         END.
                     END.
                 END.
-            END.
             
+            ASSIGN 
+                lTested = TRUE
+                lReviewed = FALSE 
+                lPurged = TRUE.
             STATUS INPUT "Generating report...".
             STATUS DEFAULT "Generating report...".
-            RUN outputGLAccountFile IN hPurge.
+            RUN outputGLAccountFile IN hPurge (fiOutputDir:SCREEN-VALUE).
+            
             APPLY 'value-changed' TO fiOutputDir.
-            ASSIGN 
-                bPurge:SENSITIVE = FALSE.
-            STATUS INPUT "Analysis complete.  Press Review to open the results list.".
             STATUS DEFAULT "Analysis complete.  Press Review to open the results list.".
-            ASSIGN 
-                bTest:SENSITIVE = FALSE
-                bReview:SENSITIVE = TRUE.
         END.
         WHEN "bReview" THEN DO:
             STATUS INPUT "Opening file for review...".
             STATUS DEFAULT "Opening file for review...".
             OS-COMMAND SILENT VALUE ("START " + fiOutputDir:SCREEN-VALUE + "\" + "_ConsolidationReport.csv").
-            OS-COMMAND SILENT VALUE ("PING 127.0.0.1 -n 5"). /* Wait 5 OpSys seconds before next message */
-            STATUS INPUT "Review complete. Records can now be purged.".
-            STATUS DEFAULT "Review complete. Records can now be purged.".
+           
+            /* Use opsys action to give Excel time to open */
+            OS-COMMAND SILENT VALUE ("PING 127.0.0.1 -n 5"). 
+            
+            STATUS DEFAULT "Review complete. Records can now be processed.".
             ASSIGN 
-                bReview:SENSITIVE = FALSE
-                bPurge:SENSITIVE  = TRUE.                
+                lTested = TRUE
+                lReviewed = FALSE   
+                lPurged = FALSE.
             END.
         WHEN "bPurge" THEN DO:
-            STATUS INPUT "Consolidating records...".
+          
             STATUS DEFAULT "Consolidating records...".
             RUN purgeGLhistFromFile IN hPurge (
                 fiOutputDir:SCREEN-VALUE + "\" + "_ConsolidationReport.csv",
@@ -402,17 +414,34 @@ DO:
                 STATUS DEFAULT "Consolidation complete.  Backup files stored in directory.".
                 APPLY 'value-changed' TO fiOutputDir.
                 ASSIGN 
-                    bTest:SENSITIVE   = TRUE 
-                    bReview:SENSITIVE = FALSE
-                    bPurge:SENSITIVE  = FALSE 
-                    .
+                    lTested = FALSE 
+                    lReviewed = TRUE  
+                    lPurged = TRUE.
+                APPLY 'choose' TO bReset.
             END.
         END.
-        WHEN "bExit" THEN 
-            DO:
+        WHEN "bReset" THEN DO:
+            ASSIGN 
+                fiEndYear:SCREEN-VALUE = STRING(YEAR(TODAY) - 2)
+                fiEndPeriod:SCREEN-VALUE = STRING(company.num-per)
+                fiOutputDir:SCREEN-VALUE = SESSION:TEMP-DIRECTORY
+                lTested = FALSE 
+                lReviewed = TRUE  
+                lPurged = TRUE   
+                .  
+                    
+            APPLY 'entry' TO fiEndYear.
+        END.
+        WHEN "bExit" THEN DO:
             APPLY 'window-close' TO wWin.
         END.
     END.                                     
+    ASSIGN 
+        bTest:SENSITIVE = NOT lTested 
+        bReview:SENSITIVE = NOT lReviewed
+        bPurge:SENSITIVE = NOT lPurged 
+        .
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -421,7 +450,7 @@ END.
 
 &Scoped-define SELF-NAME fiEndPeriod
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiEndPeriod wWin
-ON LEAVE OF fiEndPeriod IN FRAME fMain /* End Period */
+ON LEAVE OF fiEndPeriod IN FRAME fMain /* Period */
 DO:
     IF INTEGER(SELF:SCREEN-VALUE) LT 1
     OR INTEGER(SELF:SCREEN-VALUE) GT company.num-per THEN DO:
@@ -438,7 +467,7 @@ END.
 
 &Scoped-define SELF-NAME fiEndYear
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiEndYear wWin
-ON LEAVE OF fiEndYear IN FRAME fMain /* End Year */
+ON LEAVE OF fiEndYear IN FRAME fMain /* Consolidate/Purge GL Records Through...Year */
 DO:
     IF INTEGER(SELF:SCREEN-VALUE) GT (YEAR(TODAY) - 2) 
     AND NOT lWarned THEN DO:
@@ -608,7 +637,7 @@ PROCEDURE enable_UI :
   DISPLAY fiEndYear fiEndPeriod fiOutputDir fiAnalyzingYear fiAnalyzingPeriod 
           fiInstructionsLabel eInstructions 
       WITH FRAME fMain IN WINDOW wWin.
-  ENABLE bExit fiEndYear fiEndPeriod fiOutputDir bTest eInstructions 
+  ENABLE bExit fiEndYear fiEndPeriod fiOutputDir eInstructions bTest bReset 
       WITH FRAME fMain IN WINDOW wWin.
   {&OPEN-BROWSERS-IN-QUERY-fMain}
   VIEW wWin.
