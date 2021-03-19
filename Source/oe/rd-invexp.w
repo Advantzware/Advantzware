@@ -83,18 +83,18 @@ ASSIGN cTextListToSelect  = "Invoice#,Customer#,Customer Name,Invoice Date,Bol#,
                                                 "Name,Cust Part#,Qty Order,Item Dscr1,Item Dscr2," +
                                                 "Qty Ship,Qty Invoice,UOM,Rep1,Rep Name1,Rep2,Rep Name2,Rep3,Rep Name3," +
                                                 "Comm1,Comm2,Comm3,Cost,Case,Discount,Taxable,Ext. Price," +
-                                                "CSR,Line Item Tax,OrderHeader ShipTo State,Order Line No,Billing Note,Auto Approval,Tag,Accountant"
+                                                "CSR,Line Item Tax,OrderHeader ShipTo State,Order Line No,Billing Note,Auto Approval,Tag,Accountant,Invoice Comment"
        cFieldListToSelect = "inv-head.inv-no,inv-head.cust-no,inv-head.cust-name,inv-head.inv-date,inv-head.bol-no,ord-no,inv-head.printed,inv-head.t-inv-rev," +
                                         "stat,inv-head.sold-no,inv-head.sold-name,inv-head.contact,inv-head.tax-gr,inv-head.terms,inv-head.frt-pay," +
                                         "po-no,inv-head.carrier,inv-head.fob-code,job-no,job-no2,est-no,i-no," +
                                         "i-name,part-no,qty,part-dscr1,part-dscr2," +
                                         "ship-qty,inv-qty,pr-uom,sman1,sname1,sman2,sname2,sman3,sname3," +
                                         "comm1,comm2,comm3,cost,cas-cnt,disc,tax,t-price," +
-                                        "csr,line-sales-tax,ord-head-ship-stat,ord-line,bill-note,Auto,reason,cAccountant"
+                                        "csr,line-sales-tax,ord-head-ship-stat,ord-line,bill-note,Auto,reason,cAccountant,cInvComment"
         cFieldLength = "15,15,15,20,15,30,15,15," + "15,15,15,20,15,30,15," + "15,15,15,8,2,6,15," +
-                       "30,15,10,30,30," + "15,15,5,4,25,4,25,4,25," + "7,7,7,10,10,10,10,10," + "15,15,15,15,15,10,100,12"
+                       "30,15,10,30,30," + "15,15,5,4,25,4,25,4,25," + "7,7,7,10,10,10,10,10," + "15,15,15,15,15,10,100,12,8"
            cFieldType = "c,c,c,c,c,c,c,c," + "c,c,c,c,c,c,c," + "c,c,c,c,i,c,c," +
-                        "c,c,i,c,c," + "i,i,c,c,c,c,c,c,c," + "i,i,i,i,i,i,c,i," + "c,c,c,i,c,c,c,c"     
+                        "c,c,i,c,c," + "i,i,c,c,c,c,c,c,c," + "i,i,i,i,i,i,c,i," + "c,c,c,i,c,c,c,c,c"     
        .
 
 {sys/inc/ttRptSel.i}
@@ -1342,6 +1342,7 @@ IF tb_print-del  THEN do:
                       ELSE  cVarValue = "".                      
                   END.
                   WHEN "cAccountant"            THEN cVarValue = STRING(cust.accountant).
+                  WHEN "cInvComment"            THEN cVarValue = STRING(inv-head.spare-char-5).
              END CASE.
 
              cExcelVarValue = cVarValue.
@@ -1507,6 +1508,7 @@ ELSE DO:
                       ELSE  cVarValue = "".                      
                   END.
                   WHEN "cAccountant"            THEN cVarValue = STRING(cust.accountant).
+                  WHEN "cInvComment"            THEN cVarValue = STRING(inv-head.spare-char-5).
              END CASE.
 
              cExcelVarValue = cVarValue.
