@@ -28,13 +28,17 @@ CREATE WIDGET-POOL.
 &SCOPED-DEFINE h_Object02 h_vp-oeitm
 &SCOPED-DEFINE h_Object03 h_p-orel
 &SCOPED-DEFINE h_Object04 h_p-obol-2
-&SCOPED-DEFINE h_Object05 h_v-navest-2
-&SCOPED-DEFINE h_Object06 h_p-ordmis
-&SCOPED-DEFINE h_Object07 h_v-ordt-2
-&SCOPED-DEFINE h_Object08 h_p-navico
+&SCOPED-DEFINE h_Object05 h_vp-clsoe-2
+&SCOPED-DEFINE h_Object06 h_v-navest-2
+&SCOPED-DEFINE h_Object07 h_p-ordmis
+&SCOPED-DEFINE h_Object08 h_v-ordt-2 
 &SCOPED-DEFINE h_Object09 h_p-ordrel
+&SCOPED-DEFINE h_Object12 h_p-navico
 &SCOPED-DEFINE h_Object10 h_p-orel-2
-&SCOPED-DEFINE h_Object11 h_p-obol
+&SCOPED-DEFINE h_Object11 h_p-obol 
+
+
+
 &SCOPED-DEFINE setUserExit TRUE
 &SCOPED-DEFINE LocalInit
 
@@ -714,7 +718,7 @@ PROCEDURE adm-create-objects :
              INPUT  'Layout = ':U ,
              OUTPUT h_vp-clsoe ).
        RUN set-position IN h_vp-clsoe ( 22.91 , 142.00 ) NO-ERROR.
-       /* Size in UIB:  ( 1.91 , 13.00 ) */
+       RUN set-size IN h_vp-clsoe ( 1.88 , 13.50 ) NO-ERROR.           
 
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('1,3':U) NO-ERROR.
@@ -847,8 +851,8 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_vp-clsoe-2 ).
-       RUN set-position IN h_vp-clsoe-2 ( 23.14 , 156.00 ) NO-ERROR.
-       RUN set-size IN h_vp-clsoe-2 ( 1.0 , 8.00 ) NO-ERROR.
+       RUN set-position IN h_vp-clsoe-2 ( 23.14 , 155.00 ) NO-ERROR.
+       RUN set-size IN h_vp-clsoe-2 ( 1.67 , 15.00 ) NO-ERROR.
 
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('2,5':U) NO-ERROR.
@@ -901,6 +905,9 @@ PROCEDURE adm-create-objects :
              h_vp-oeitm , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_p-obol-2 ,
              h_p-orel , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_vp-clsoe-2 ,
+             h_p-obol-2 , 'AFTER':U ).      
+             
     END. /* Page 3 */
     WHEN 4 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
