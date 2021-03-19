@@ -349,7 +349,7 @@ PROCEDURE setCapturedWindowSize:
         ASSIGN                 
             {&WINDOW-NAME}:VIRTUAL-HEIGHT-PIXELS = {&WINDOW-NAME}:HEIGHT-PIXELS
             {&WINDOW-NAME}:VIRTUAL-WIDTH-PIXELS  = {&WINDOW-NAME}:WIDTH-PIXELS 
-            {&window-name}:window-state          = userWindow.state
+            {&window-name}:window-state          = IF userWindow.state = 0 THEN 3 ELSE userWindow.state
               NO-ERROR 
             . 
             
