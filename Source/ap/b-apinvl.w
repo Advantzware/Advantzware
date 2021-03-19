@@ -95,6 +95,8 @@ DEFINE VARIABLE hGLProcs  AS HANDLE  NO-UNDO.
 DEFINE VARIABLE cMatExceptionList AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lFound AS LOGICAL NO-UNDO.
 
+DEFINE VARIABLE lQuantityExceededWarned AS LOGICAL NO-UNDO.
+
 RUN system/GLProcs.p PERSISTENT SET hGLProcs.
 
 DEF TEMP-TABLE tt-ap-invl NO-UNDO LIKE ap-invl
@@ -2243,6 +2245,8 @@ PROCEDURE local-enable-fields :
   /* Code placed here will execute PRIOR to standard behavior. */
   v-msg = "".
 
+  lQuantityExceededWarned = FALSE.
+  
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"clear-source",OUTPUT char-hdl).
   RUN is-in-update IN WIDGET-HANDLE(char-hdl) (OUTPUT v-is-in-update).
   IF v-is-in-update THEN v-msg = "Save or Cancel Invoice Heading Update First." .
@@ -3280,7 +3284,7 @@ PROCEDURE valid-qty :
           OUTPUT dQuantityAvailableToInvoice
           ). 
 
-      IF lRecordsFound AND DECIMAL(ap-invl.qty:SCREEN-VALUE IN BROWSE {&browse-name}) GT dQuantityAvailableToInvoice THEN DO:
+      IF lRecordsFound AND DECIMAL(ap-invl.qty:SCREEN-VALUE IN BROWSE {&browse-name}) GT dQuantityAvailableToInvoice AND NOT lQuantityExceededWarned THEN DO:
           RUN displayMessageQuestion (
               INPUT  "61",
               OUTPUT lResponse
@@ -3290,6 +3294,8 @@ PROCEDURE valid-qty :
               oplReturnError = YES.
               RETURN.
           END.
+          ELSE
+              lQuantityExceededWarned = TRUE.          
       END.
   END.
 
