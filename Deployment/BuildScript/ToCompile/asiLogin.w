@@ -562,11 +562,11 @@ DO:
         cbEnvironment:SCREEN-VALUE = ENTRY(1,cbEnvironment:LIST-ITEMS)
         cbDatabase:SCREEN-VALUE = ENTRY(1,cbDatabase:LIST-ITEMS)
         /* Turn visibility on or off depending on number of valid entries */
-        cbMode:VISIBLE = NUM-ENTRIES(cbMode:LIST-ITEMS) NE 1 
+        cbMode:VISIBLE = TRUE /* NUM-ENTRIES(cbMode:LIST-ITEMS) NE 1 */
         cbMode:SENSITIVE = NUM-ENTRIES(cbMode:LIST-ITEMS) NE 1
-        cbEnvironment:VISIBLE = NUM-ENTRIES(cbEnvironment:LIST-ITEMS) NE 1 
+        cbEnvironment:VISIBLE = TRUE /* NUM-ENTRIES(cbEnvironment:LIST-ITEMS) NE 1  */
         cbEnvironment:SENSITIVE = NUM-ENTRIES(cbEnvironment:LIST-ITEMS) NE 1
-        cbDatabase:VISIBLE = NUM-ENTRIES(cbDatabase:LIST-ITEMS) NE 1 
+        cbDatabase:VISIBLE = TRUE /* NUM-ENTRIES(cbDatabase:LIST-ITEMS) NE 1  */
         cbDatabase:SENSITIVE = NUM-ENTRIES(cbDatabase:LIST-ITEMS) NE 1
         /* set the 'selected' values for use in ipClickOK */
         cEnvSelected = cbEnvironment:SCREEN-VALUE 
@@ -628,9 +628,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
             cbMode:SENSITIVE = FALSE 
             cbEnvironment:SENSITIVE = FALSE 
             cbDatabase:SENSITIVE = FALSE 
-            cbMode:VISIBLE = FALSE 
-            cbEnvironment:VISIBLE = FALSE 
-            cbDatabase:VISIBLE = FALSE. 
+            cbMode:VISIBLE = TRUE
+            cbEnvironment:VISIBLE = TRUE 
+            cbDatabase:VISIBLE = TRUE. 
         RUN enable_UI.
         ASSIGN
             fiUserID:SCREEN-VALUE = OS-GETENV("USERNAME").
@@ -856,7 +856,7 @@ PROCEDURE ipChangeEnvironment :
 
         ASSIGN
             cbDatabase:LIST-ITEMS IN FRAME {&frame-name} = cDBValidList
-            cbDatabase:VISIBLE = NUM-ENTRIES(cDbValidList) NE 1
+            cbDatabase:VISIBLE = TRUE /* NUM-ENTRIES(cDbValidList) NE 1 */
             cTop = cMapDir + "\" + cEnvDir + "\" + cEnvSelected + "\" 
             preProPath = cTop + "," +
                          (IF iEnvLevel GE 21000000 THEN cTop + "asiObjects.pl," ELSE "") +
@@ -872,14 +872,17 @@ PROCEDURE ipChangeEnvironment :
 
         IF NUM-ENTRIES(cDbValidList) EQ 1 THEN DO:
             ASSIGN
-                cDBSelected = cDbValidList.
+                cDBSelected = cDbValidList
+                cbDatabase:LIST-ITEMS = cDbValidList
+                cbDatabase:SCREEN-VALUE = cDbSelected
+                cbDatabase:SENSITIVE = FALSE.
             RUN ipChangeDatabase.
         END.        
         ELSE DO:
             ASSIGN
                 cbDatabase:LIST-ITEMS = cDbValidList
-                cbDatabase:screen-value = cDbSelected.
-            APPLY 'entry' TO cbDatabase.
+                cbDatabase:SCREEN-VALUE = IF NOT CAN-DO(cDbValidList,cDbSelected) THEN ENTRY(1,cDbValidList) ELSE cDbSelected
+                cbDatabase:SENSITIVE = TRUE.
             RETURN NO-APPLY.
         END.
 
