@@ -860,12 +860,21 @@ ON HELP OF style-cod IN FRAME Dialog-Frame /* Style Code */
     DO:
         DEFINE VARIABLE char-val   AS cha   NO-UNDO.
         DEFINE VARIABLE look-recid AS RECID NO-UNDO.
-   
-        RUN windows/l-stylec.w (cocode,FOCUS:SCREEN-VALUE, OUTPUT char-val).
-        IF char-val <> "" AND SELF:screen-value <> entry(1,char-val) THEN 
-            ASSIGN
-                SELF:screen-value = ENTRY(1,char-val)
-                .    
+        IF ipcScreen EQ "C" THEN
+        DO:           
+            RUN windows/l-stylec.w (cocode,FOCUS:SCREEN-VALUE, OUTPUT char-val).
+            IF char-val <> "" AND SELF:screen-value <> entry(1,char-val) THEN 
+                ASSIGN
+                    SELF:screen-value = ENTRY(1,char-val)
+                    .   
+        END. 
+        ELSE DO:
+            RUN windows/l-stylef.w (cocode,style-cod:SCREEN-VALUE, OUTPUT char-val).
+            IF char-val <> "" AND SELF:screen-value <> entry(1,char-val) THEN 
+                ASSIGN
+                    SELF:screen-value = ENTRY(1,char-val)
+                    .   
+        END.
         IF SELF:SCREEN-VALUE NE "" THEN 
         DO:
             FIND FIRST style WHERE style.company = cocode
@@ -1259,6 +1268,8 @@ PROCEDURE valid-style :
     DEFINE OUTPUT PARAMETER oplOutError AS LOGICAL NO-UNDO .
 
     DO WITH FRAME {&FRAME-NAME}:
+     IF ipcScreen EQ "C" THEN
+     DO:         
         IF NOT CAN-FIND(FIRST style
             WHERE style.company  EQ cocode
             AND style.style    EQ style-cod:SCREEN-VALUE
@@ -1268,6 +1279,21 @@ PROCEDURE valid-style :
             APPLY "entry" TO style-cod .
             oplOutError = YES .
         END.
+     END.
+     ELSE DO:
+        IF NOT CAN-FIND(FIRST style
+                    WHERE style.company  EQ cocode
+                      AND style.style    EQ style-cod:SCREEN-VALUE 
+                      AND style.industry EQ "1") OR
+                      style-cod:SCREEN-VALUE EQ "" THEN
+         DO:
+            MESSAGE "Invalid Style Code, try help..." VIEW-AS ALERT-BOX ERROR.
+            APPLY "entry" TO style-cod .
+            oplOutError = YES .
+         END.
+     
+     END.
+     
     END.
 
 END PROCEDURE.

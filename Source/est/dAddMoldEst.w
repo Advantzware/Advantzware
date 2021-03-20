@@ -1455,23 +1455,25 @@ PROCEDURE pDefaultValue :
         FIND FIRST ce-ctrl WHERE ce-ctrl.company = cocode AND
                                  ce-ctrl.loc = locode
                                  NO-LOCK NO-ERROR.
-      
-        IF cCEMiscDefaultStyle NE "" THEN
-            ASSIGN style-cod:SCREEN-VALUE  = cCEMiscDefaultStyle .
-        IF cCEMiscDefaultBoard NE "" THEN
-            ASSIGN board:SCREEN-VALUE  = cCEMiscDefaultBoard .  
-      
-        FIND FIRST ITEM NO-LOCK WHERE item.company = cocode
-            AND item.i-no EQ board:SCREEN-VALUE NO-ERROR .
-        IF AVAILABLE ITEM THEN
-            ASSIGN board-dscr:SCREEN-VALUE = item.i-name .
+        IF ipcScreen EQ "M" THEN
+        DO:         
+            IF cCEMiscDefaultStyle NE "" THEN
+                ASSIGN style-cod:SCREEN-VALUE  = cCEMiscDefaultStyle .
+            IF cCEMiscDefaultBoard NE "" THEN
+                ASSIGN board:SCREEN-VALUE  = cCEMiscDefaultBoard .  
+          
+            FIND FIRST ITEM NO-LOCK WHERE item.company = cocode
+                AND item.i-no EQ board:SCREEN-VALUE NO-ERROR .
+            IF AVAILABLE ITEM THEN
+                ASSIGN board-dscr:SCREEN-VALUE = item.i-name .
 
-        FIND FIRST style NO-LOCK WHERE style.company = cocode
-            AND style.style EQ style-cod:SCREEN-VALUE NO-ERROR .
-        
-        IF AVAILABLE style THEN
-            ASSIGN style-dscr:SCREEN-VALUE = style.dscr
-                   .         
+            FIND FIRST style NO-LOCK WHERE style.company = cocode
+                AND style.style EQ style-cod:SCREEN-VALUE NO-ERROR .
+            
+            IF AVAILABLE style THEN
+                ASSIGN style-dscr:SCREEN-VALUE = style.dscr
+                       .         
+        END.           
     END.
 
 END PROCEDURE.

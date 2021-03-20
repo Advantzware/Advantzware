@@ -453,7 +453,7 @@ DO:
         RUN valid-ship-id(OUTPUT lError) NO-ERROR.
         IF lError THEN RETURN NO-APPLY . 
     
-        RUN est/dAddEditCompMold.w (?,ROWID(eb),"Add", ipcScreen,cCustPart:SCREEN-VALUE IN FRAME {&frame-name},
+        RUN est/dAddEditMoldComp.w (?,ROWID(eb),"Add", ipcScreen,cCustPart:SCREEN-VALUE IN FRAME {&frame-name},
             item-name:SCREEN-VALUE IN FRAME {&frame-name},
             cCustPart:SCREEN-VALUE IN FRAME {&frame-name},
             fg-cat:SCREEN-VALUE IN FRAME {&frame-name},
@@ -481,7 +481,7 @@ DO:
         DO:   
             BUFFER-COPY ttInputEst  TO bff-ttInputEst .
             lv-rowid = IF AVAILABLE eb THEN ROWID(eb) ELSE ?.
-            RUN est/dAddEditCompMold.w (RECID(ttInputEst),lv-rowid,"Copy", ipcScreen, cCustPart:SCREEN-VALUE IN FRAME {&frame-name},
+            RUN est/dAddEditMoldComp.w (RECID(ttInputEst),lv-rowid,"Copy", ipcScreen, cCustPart:SCREEN-VALUE IN FRAME {&frame-name},
                 item-name:SCREEN-VALUE IN FRAME {&frame-name},
                 cCustPart:SCREEN-VALUE IN FRAME {&frame-name},
                 fg-cat:SCREEN-VALUE IN FRAME {&frame-name},
@@ -528,7 +528,7 @@ DO:
         IF AVAILABLE ttInputEst THEN 
         DO:
             rwRowidEb = IF AVAILABLE eb THEN ROWID(eb) ELSE ?.
-            RUN est/dAddEditCompMold.w (RECID(ttInputEst),rwRowidEb,"Update", ipcScreen, cCustPart:SCREEN-VALUE IN FRAME {&frame-name},
+            RUN est/dAddEditMoldComp.w (RECID(ttInputEst),rwRowidEb,"Update", ipcScreen, cCustPart:SCREEN-VALUE IN FRAME {&frame-name},
                 item-name:SCREEN-VALUE IN FRAME {&frame-name},
                 cCustPart:SCREEN-VALUE IN FRAME {&frame-name},
                 fg-cat:SCREEN-VALUE IN FRAME {&frame-name},
