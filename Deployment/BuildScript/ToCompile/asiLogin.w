@@ -85,6 +85,7 @@ DEFINE VARIABLE cDbSelected AS CHAR NO-UNDO.
 DEFINE VARIABLE cDbValidList AS CHAR NO-UNDO.
 DEFINE VARIABLE cEnvSelected AS CHAR NO-UNDO.
 DEFINE VARIABLE cEnvValidList AS CHAR NO-UNDO.
+DEFINE VARIABLE cLoginUser AS CHAR NO-UNDO.
 DEFINE VARIABLE cModeSelected AS CHAR NO-UNDO.
 DEFINE VARIABLE cModeValidList AS CHAR NO-UNDO.
 DEFINE VARIABLE cNewColors AS CHAR NO-UNDO.
@@ -524,6 +525,9 @@ DO:
     FIND FIRST ttUsers NO-LOCK WHERE
         ttUsers.ttfUserID = fiUserID
         NO-ERROR.
+    IF NOT AVAIL ttUsers THEN FIND FIRST ttUsers NO-LOCK WHERE
+        ttUsers.ttfUserAlias = fiUserID
+        NO-ERROR.
     IF NOT AVAIL ttUsers THEN DO:
         IF fwd-embedded-mode THEN 
             RETURN NO-APPLY 
@@ -538,6 +542,7 @@ DO:
         END.
     END.
     ELSE ASSIGN 
+        cLoginUser = ttUsers.ttfUserID
         cEnvValidList = IF ttUsers.ttfEnvList NE "" THEN ttUsers.ttfEnvList ELSE cEnvList
         cModeValidList = IF ttUsers.ttfModeList NE "" THEN ttUsers.ttfModeList ELSE cModeList
         cDbValidList = IF ttUsers.ttfDbList NE "" THEN ttUsers.ttfDbList ELSE cDbList.
@@ -768,7 +773,7 @@ PROCEDURE ipChangeDatabase :
                             " -H " + chostName +
                             " -S " + asiDbPort +
                             " -N tcp -ld ASI -U " +
-                            fiUserID + 
+                            cLoginUser + 
                             " -P '" +
                             fiPassword + 
                             "' -ct 2".
@@ -1002,6 +1007,10 @@ PROCEDURE ipClickOk :
         /* Set current dir */
         RUN ipSetCurrentDir (cMapDir + "\" + cEnvDir + "\" + cEnvSelected). 
         
+        /* Hide the login window */
+        ASSIGN
+            CURRENT-WINDOW:VISIBLE = FALSE.
+
         /* Run the mode program selected in the login dialog */
         RUN VALUE(cRunPgm).
         
@@ -1020,6 +1029,9 @@ PROCEDURE ipClickOk :
         ASSIGN 
             cCmdString = cDLCDir + "\bin\proshut.bat" + " -db " +
                          cDrive + "\" + cTopDir + "\" + cDbDir + "\" + xDbDir + "\" + PDBNAME(1).
+        /* Hide the login window */
+        ASSIGN
+            CURRENT-WINDOW:VISIBLE = FALSE.
         OS-COMMAND VALUE(cCmdString).
     END.
     
@@ -1386,7 +1398,7 @@ PROCEDURE ipUpdUsrFile :
     DEFINE VARIABLE cOutString AS CHAR.
     DEFINE VARIABLE cUserModes AS CHAR NO-UNDO.
     
-    DEFINE BUFFER bttUsrs FOR ttUsers.
+    DEFINE BUFFER bttUsers FOR ttUsers.
 
     /* ipcUserList is a list of all _user records in the connected DBs. */
     ASSIGN 
