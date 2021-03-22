@@ -173,7 +173,7 @@ PROCEDURE Browse_PrepareAndExecuteLimitingQuery:
             
         IF iplInitialQuery THEN DO WHILE NOT hdQuery:QUERY-OFF-END:
             IF NOT iplIsBreakByUsed OR hdQuery:FIRST-OF(1) THEN DO:
-                opcReturnValue = STRING(hdBuffer:BUFFER-FIELD(ipcFieldName):BUFFER-VALUE).
+                opcReturnValue = STRING(hdTableBuffer:BUFFER-FIELD(ipcFieldName):BUFFER-VALUE).
                 iCount = iCount + 1.
                 IF iCount GE 20 THEN  /* Initial Load Record Limit*/                 
                     LEAVE.              
@@ -183,7 +183,7 @@ PROCEDURE Browse_PrepareAndExecuteLimitingQuery:
         ELSE DO:
             DO WHILE (ETIME - iStartTime) LT ipdTimeLimit AND NOT hdQuery:QUERY-OFF-END:
                 IF NOT iplIsBreakByUsed OR hdQuery:FIRST-OF(1) THEN DO:
-                    opcReturnValue = STRING(hdBuffer:BUFFER-FIELD(ipcFieldName):BUFFER-VALUE).
+                    opcReturnValue = STRING(hdTableBuffer:BUFFER-FIELD(ipcFieldName):BUFFER-VALUE).
                     ASSIGN 
                         iTotalCount = iTotalCount + 1
                         iCount      = iCount      + 1

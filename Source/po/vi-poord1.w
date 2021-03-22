@@ -7,7 +7,7 @@
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
 
-  File: po\vp-viewp.w
+  File: po\vi-poord.w
 
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
@@ -27,26 +27,24 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 
-def var char-hdl as cha no-undo.
-/* === vars for d-poordl.w ====*/
 {custom/globdefs.i}
-{sys/inc/VAR.i "new shared"}
+{sys/inc/VAR.i NEW SHARED}
 ASSIGN cocode = g_company
        locode = g_loc.
+
+DEF NEW SHARED VAR v-basis-w AS DEC NO-UNDO. /* for po/po-adder2.p */
+DEF NEW SHARED VAR v-len LIKE po-ordl.s-len NO-UNDO.
+DEF NEW SHARED VAR v-wid LIKE po-ordl.s-wid NO-UNDO.
+DEF NEW SHARED VAR v-dep LIKE po-ordl.s-len NO-UNDO.
 def NEW shared var factor# as decimal no-undo.
 def NEW shared var v-default-gl-log as log no-undo.
 def NEW shared var v-default-gl-cha as cha no-undo.
 def NEW shared var v-po-qty as log initial true no-undo.
 def NEW shared var v-po-msf like sys-ctrl.int-fld no-undo.
 
-{windows/l-jobmt1.i NEW}
-{oe/tt-item-qty-price.i}
+DEF VAR lv-copy-from-po-num AS INT NO-UNDO.
 
-DEF VAR vic-log AS LOG  NO-UNDO.
-DEF VAR cReturn AS CHAR NO-UNDO.
-DEF VAR lFound  AS LOG  NO-UNDO.
-RUN sys/ref/nk1look.p (cocode, "VendItemCost", "L", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
-IF lFound THEN vic-log = IF cReturn = "Yes" THEN YES ELSE No.
+RUN po/po-sysct.p .  /* for vars factor#.... need for d-poordl.w  */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -65,17 +63,25 @@ IF lFound THEN vic-log = IF cReturn = "Yes" THEN YES ELSE No.
 &Scoped-define FRAME-NAME F-Main
 
 /* External Tables                                                      */
-&Scoped-define EXTERNAL-TABLES po-ord po-ordl
+&Scoped-define EXTERNAL-TABLES po-ord
 &Scoped-define FIRST-EXTERNAL-TABLE po-ord
 
 
 /* Need to scope the external tables to this procedure                  */
-DEFINE QUERY external_tables FOR po-ord, po-ordl.
+DEFINE QUERY external_tables FOR po-ord.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Btn-View 
+&Scoped-Define ENABLED-FIELDS po-ord.po-no po-ord.vend-no po-ord.po-date ~
+po-ord.loc 
+&Scoped-define ENABLED-TABLES po-ord
+&Scoped-define FIRST-ENABLED-TABLE po-ord
+&Scoped-Define ENABLED-OBJECTS RECT-1 
+&Scoped-Define DISPLAYED-FIELDS po-ord.po-no po-ord.vend-no po-ord.po-date ~
+po-ord.loc 
+&Scoped-define DISPLAYED-TABLES po-ord
+&Scoped-define FIRST-DISPLAYED-TABLE po-ord
 
 /* Custom List Definitions                                              */
-/* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,List-3,List-4,List-5,List-6      */
+/* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,List-5,F1 */
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -88,17 +94,18 @@ DEFINE QUERY external_tables FOR po-ord, po-ordl.
 THIS-PROCEDURE
 </KEY-OBJECT>
 <FOREIGN-KEYS>
+company||y|ASI.po-ord.company
+Carrier||y|ASI.po-ord.Carrier
 </FOREIGN-KEYS> 
 <EXECUTING-CODE>
 **************************
 * Set attributes related to FOREIGN KEYS
 */
 RUN set-attribute-list (
-    'Keys-Accepted = "",
-     Keys-Supplied = ""':U).
+    'Keys-Accepted = ,
+     Keys-Supplied = "company,Carrier"':U).
 /**************************
-</EXECUTING-CODE> */   
-
+</EXECUTING-CODE> */
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -107,19 +114,37 @@ RUN set-attribute-list (
 
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON Btn-View 
-     LABEL "&View" 
-     SIZE 15 BY 1.29
-     FONT 4.
+
+DEFINE RECTANGLE RECT-1
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     SIZE 144 BY 2.38.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     Btn-View AT ROW 1 COL 1
+     po-ord.po-no AT ROW 1.48 COL 15 COLON-ALIGNED
+          VIEW-AS FILL-IN 
+          SIZE 15 BY 1
+          BGCOLOR 15 FGCOLOR 0 
+     po-ord.vend-no AT ROW 1.48 COL 52 COLON-ALIGNED
+          VIEW-AS FILL-IN 
+          SIZE 14 BY 1
+     po-ord.po-date AT ROW 1.48 COL 88 COLON-ALIGNED
+          VIEW-AS FILL-IN 
+          SIZE 20 BY 1
+     po-ord.loc AT ROW 1.48 COL 120 COLON-ALIGNED
+          LABEL "Loc"
+          VIEW-AS FILL-IN 
+          SIZE 8 BY 1
+    po-ord.stat AT ROW 1.48 COL 138 COLON-ALIGNED
+          VIEW-AS FILL-IN 
+          SIZE 3.2 BY 1   
+     RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE .
+         AT COL 1 ROW 1 SCROLLABLE 
+         FONT 6.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -127,7 +152,7 @@ DEFINE FRAME F-Main
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: SmartViewer
-   External Tables: ASI.po-ord,ASI.po-ordl
+   External Tables: ASI.po-ord
    Allow: Basic,DB-Fields
    Frames: 1
    Add Fields to: EXTERNAL-TABLES
@@ -149,8 +174,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW V-table-Win ASSIGN
-         HEIGHT             = 7.29
-         WIDTH              = 140.4.
+         HEIGHT             = 17.14
+         WIDTH              = 144.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -159,6 +184,7 @@ END.
 /* ************************* Included-Libraries *********************** */
 
 {src/adm/method/viewer.i}
+{methods/template/viewer.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -177,10 +203,11 @@ ASSIGN
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
+/* SETTINGS FOR FILL-IN po-ord.stat IN FRAME F-Main
+   NO-DISPLAY NO-ENABLE                                                 */
 ASSIGN 
-       Btn-View:PRIVATE-DATA IN FRAME F-Main     = 
-                "panel-image".
-
+       po-ord.stat:HIDDEN IN FRAME F-Main           = TRUE.
+       
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -196,23 +223,6 @@ ASSIGN
 
  
 
-
-
-/* ************************  Control Triggers  ************************ */
-
-&Scoped-define SELF-NAME Btn-View
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn-View V-table-Win
-ON CHOOSE OF Btn-View IN FRAME F-Main /* View */
-DO:
-   IF vic-log THEN run po/d-poordlN.w (recid(po-ordl), po-ord.po-no, "view") . 
-   ELSE run po/d-poordl.w (recid(po-ordl), po-ord.po-no, "view") .
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK V-table-Win 
 
@@ -231,6 +241,21 @@ END.
 
 /* **********************  Internal Procedures  *********************** */
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE adm-find-using-key V-table-Win  adm/support/_key-fnd.p
+PROCEDURE adm-find-using-key :
+/*------------------------------------------------------------------------------
+  Purpose:     Finds the current record using the contents of
+               the 'Key-Name' and 'Key-Value' attributes.
+  Parameters:  <none>
+------------------------------------------------------------------------------*/
+
+  /* No Foreign keys are accepted by this SmartObject. */
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE adm-row-available V-table-Win  _ADM-ROW-AVAILABLE
 PROCEDURE adm-row-available :
 /*------------------------------------------------------------------------------
@@ -246,36 +271,17 @@ PROCEDURE adm-row-available :
 
   /* Create a list of all the tables that we need to get.            */
   {src/adm/template/row-list.i "po-ord"}
-  {src/adm/template/row-list.i "po-ordl"}
 
   /* Get the record ROWID's from the RECORD-SOURCE.                  */
   {src/adm/template/row-get.i}
 
   /* FIND each record specified by the RECORD-SOURCE.                */
   {src/adm/template/row-find.i "po-ord"}
-  {src/adm/template/row-find.i "po-ordl"}
 
   /* Process the newly available records (i.e. display fields,
      open queries, and/or pass records on to any RECORD-TARGETS).    */
   {src/adm/template/row-end.i}
 
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pHideFrame V-table-Win 
-PROCEDURE pHideFrame :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    
-    DO WITH FRAME {&FRAME-NAME}:
-        HIDE.
-    END.
-    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -299,8 +305,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-initialize V-table-Win 
-PROCEDURE local-initialize :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-display-fields V-table-Win 
+PROCEDURE local-display-fields :
 /*------------------------------------------------------------------------------
   Purpose:     Override standard ADM method
   Notes:       
@@ -309,10 +315,32 @@ PROCEDURE local-initialize :
   /* Code placed here will execute PRIOR to standard behavior. */
 
   /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  RUN po/po-sysct.p .  /* for vars factor#.... need for d-poordl.w  */
+  
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-key V-table-Win  adm/support/_key-snd.p
+PROCEDURE send-key :
+/*------------------------------------------------------------------------------
+  Purpose:     Sends a requested KEY value back to the calling
+               SmartObject.
+  Parameters:  <see adm/template/sndkytop.i>
+------------------------------------------------------------------------------*/
+
+  /* Define variables needed by this internal procedure.             */
+  {src/adm/template/sndkytop.i}
+
+  /* Return the key value associated with each key case.             */
+  {src/adm/template/sndkycas.i "company" "po-ord" "company"}
+  {src/adm/template/sndkycas.i "Carrier" "po-ord" "Carrier"}
+
+  /* Close the CASE statement and end the procedure.                 */
+  {src/adm/template/sndkyend.i}
 
 END PROCEDURE.
 
@@ -332,7 +360,6 @@ PROCEDURE send-records :
 
   /* For each requested table, put it's ROWID in the output list.      */
   {src/adm/template/snd-list.i "po-ord"}
-  {src/adm/template/snd-list.i "po-ordl"}
 
   /* Deal with any unexpected table requests before closing.           */
   {src/adm/template/snd-end.i}
@@ -357,21 +384,6 @@ PROCEDURE state-changed :
          or add new cases. */
       {src/adm/template/vstates.i}
   END CASE.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE update-item V-table-Win 
-PROCEDURE update-item :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  run oe/d-oeitem.w (recid(oe-ordl), oe-ordl.ord-no,INPUT TABLE tt-item-qty-price,
-                     "Update").
-
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
