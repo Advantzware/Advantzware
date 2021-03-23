@@ -46,3 +46,7 @@
 47 "PeriodDays" "System" "Period Days" "Integer" ">,>>9" "Fill-In" "" "" 1 9 0 "" "" "" ? "" "202007230103805465169"
 48 "sbID" "System" "Schedule Board" "Character" "x(40)" "Selection-List" "" "" 2.95 30 0 "" "" "" ? "" "202008157947805472999"
 50 "HowToUse" "System" "Uses?" "Character" "" "Fill-In" "" "" 1 12 0 "" "" "" ? "" "202101265903006058375"
+51 "SpecNote" "System" "Spec Note" "Character" "x(3)" "Fill-In" "" "" 1 14 0 "" "" "" ? "" "202102154570706046399"
+52 "UnderValue" "System" "Under Value" "Integer" ">9" "Fill-In" "" "" 1 4 0 "" "" "" ? "" "202102185497006061947"
+53 "OverValue" "System" "Over Value" "Integer" ">9" "Fill-In" "" "" 1 4 0 "" "" "" ? "" "202102185501706061948"
+54 "VendorType" "System" "Vendor Type" "Character" "x(8)" "Fill-In" "" "" 1 14 0 "" "" "" ? "" "202103097312606073722"
