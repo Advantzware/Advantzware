@@ -58,12 +58,12 @@ DEF VAR v-prep-lab-orig LIKE prep-lab NO-UNDO.
             ASSIGN
                prep-mat = 0
                prep-lab = est-prep.cost * est-prep.qty.
-
+       
          ASSIGN
             v-prep-mat-orig = prep-mat
             v-prep-lab-orig = prep-lab
             prep-tot = prep-mat + prep-lab.
-
+           
         IF est-prep.simon = 'M' THEN DO:
             dMCostToExcludePrep = dMCostToExcludePrep + prep-tot.
             IF ceprepprice-chr EQ 'Profit' THEN 
@@ -75,7 +75,7 @@ DEF VAR v-prep-lab-orig LIKE prep-lab NO-UNDO.
             prep-tot  = prep-tot / (1 - prep-add) * prep-atz.
          ELSE
             prep-tot  = prep-tot * (1 + prep-add) * prep-atz.
-
+            
          IF ceprep-cha EQ "FiveDollar" AND
             prep-tot NE 0 THEN DO:
             ld-fac = prep-tot.
@@ -101,14 +101,14 @@ DEF VAR v-prep-lab-orig LIKE prep-lab NO-UNDO.
                tprep-lab = tprep-lab + (prep-lab * (1 + prep-add) * prep-atz).
 
          tprep-tot = tprep-tot + prep-tot.
-
+          
          create xprep.
          assign xprep.frm      = est-prep.s-num
                 xprep.blank-no = est-prep.b-num
                 xprep.qty      = est-prep.qty
                 xprep.std-cost = est-prep.cost
                 xprep.ml       = est-prep.ml
-                xprep.cost-m   = prep-tot / (qty / 1000)
+                xprep.cost-m   = est-prep.cost / (qty / 1000)
                 xprep.simon    = est-prep.simon
                 xprep.code     = est-prep.code.
 
