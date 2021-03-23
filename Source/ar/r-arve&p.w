@@ -537,7 +537,13 @@ DO:
 
   SESSION:SET-WAIT-STATE("").
 
-  IF ip-post THEN APPLY "close" TO THIS-PROCEDURE.
+  IF ip-post THEN 
+  do:
+     RUN spCommon_CheckPostingProcess(INPUT "ar-ctrl", INPUT "postInProcess", INPUT "postType", INPUT "postUserID",
+                                        INPUT "postStartDtTm", INPUT cocode, INPUT string("AU4-" + cocode), INPUT YES, 
+                                        OUTPUT cFieldInProcess, OUTPUT cFieldPostType, OUTPUT cFieldUserId, OUTPUT cFieldDateTime).
+    APPLY "close" TO THIS-PROCEDURE.
+  END.  
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1583,7 +1589,7 @@ IF cust.factored THEN
       IF ar-invl.i-dscr NE "" THEN PUT ar-invl.i-dscr AT 79 SKIP.
     END. /* each ar-invl */
 
-    IF ar-inv.freight NE 0 THEN DO:
+    IF ar-inv.freight NE 0 AND ar-inv.f-bill THEN DO:
       PUT "FREIGHT" AT 79 SPACE(1)
           ar-inv.freight FORMAT "->>,>>>,>>9.99" AT 110 SKIP.
 

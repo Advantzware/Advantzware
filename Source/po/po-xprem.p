@@ -116,6 +116,7 @@ DEFINE VARIABLE iPOLoadtagInt AS INTEGER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lPrintPrice AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cShiptoCustomer AS CHARACTER NO-UNDO.
 
 v-dash-line = fill ("_",80).
 
@@ -846,9 +847,14 @@ IF lPrintPrice THEN
           TRIM(STRING(v-tot-sqft / 1000,">>>,>>9.9<<")) AT 50 FORMAT "x(30)".
         PUT SKIP.
   IF po-ord.TYPE = "D" THEN do:
+  
+  FIND FIRST cust NO-LOCK
+        WHERE cust.company = cocode 
+        AND cust.active = "X" NO-ERROR.
+  cShiptoCustomer = IF po-ord.cust-no NE "" THEN po-ord.cust-no ELSE cust.cust-no .                       
     
   FIND FIRST shipto WHERE shipto.company = cocode AND 
-                           shipto.cust-no = po-ord.cust-no AND 
+                           shipto.cust-no = cShiptoCustomer AND 
                           shipto.ship-id = po-ord.ship-id NO-LOCK NO-ERROR.
 
    IF v-printline > 46 THEN DO:                  

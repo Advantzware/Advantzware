@@ -45,14 +45,19 @@
      /* Variables to store job Preperation request data */
     DEFINE VARIABLE lcJobPrepData       AS LONGCHAR  NO-UNDO.
     DEFINE VARIABLE lcConcatJobPrepData AS LONGCHAR  NO-UNDO.
+    DEFINE VARIABLE cCompany            AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cJobNo              AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cJobNo2             AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cLocation           AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cEstimate           AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCSRID              AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cEnteredBy          AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cJobDueDate         AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cJobDueTime         AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cJobStartDate       AS CHARACTER NO-UNDO.
     
     /* Job Header Variables*/
     
-    DEFINE VARIABLE cCompany                      AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cJobNo                        AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cJobNo2                       AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cLocation                     AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cEstimate                     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cOrder                        AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cStartDate                    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cQuantity                     AS CHARACTER NO-UNDO.
@@ -64,6 +69,7 @@
     DEFINE VARIABLE cStandardFixedOverheadCost    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cStandardVariableOverHeadCost AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cItem                         AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFGItemName                   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cCustomer                     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cForm                         AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cBlank                        AS CHARACTER NO-UNDO.
@@ -77,8 +83,6 @@
     DEFINE VARIABLE cWarehoused                   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cOpened                       AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cPrinted                      AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cCSRID                        AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cEnteredBy                    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cPOReceivedDate               AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cOrderQty                     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cMfgDate                      AS CHARACTER NO-UNDO.
@@ -88,6 +92,8 @@
     DEFINE VARIABLE cTray                         AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cPriority                     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cIsPriority                   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cKeyItem                      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cNumberOn                     AS CHARACTER NO-UNDO.
     
     /*Job Material variables*/
     
@@ -130,8 +136,10 @@
     DEFINE VARIABLE cJobMchItem                 AS CHARACTER  NO-UNDO.
     DEFINE VARIABLE cInteger                    AS CHARACTER  NO-UNDO.
     DEFINE VARIABLE cRunHours                   AS CHARACTER  NO-UNDO.
+    DEFINE VARIABLE cRunMinutes                 AS CHARACTER  NO-UNDO.
     DEFINE VARIABLE cRunSpeed                   AS CHARACTER  NO-UNDO.
     DEFINE VARIABLE cMRHours                    AS CHARACTER  NO-UNDO.
+    DEFINE VARIABLE cMRMinutes                  AS CHARACTER  NO-UNDO.
     DEFINE VARIABLE cJobMchLineNumber           AS CHARACTER  NO-UNDO.
     DEFINE VARIABLE cRunQuantity                AS CHARACTER  NO-UNDO.
     DEFINE VARIABLE cRunStartDate               AS CHARACTER  NO-UNDO.
@@ -177,7 +185,7 @@
     
     DEFINE BUFFER bf-APIOutboundDetail FOR APIOutboundDetail.
     DEFINE BUFFER bf-job-mat           FOR job-mat.
-             
+    DEFINE BUFFER bf-itemfg            FOR itemfg.             
 /**********************  Preprocessor Definitions  ******************** */
 
 
@@ -229,6 +237,21 @@
             RETURN.
         END.
         
+        ASSIGN
+            cCompany      = job.company  
+            cJobNo        = job.job-no
+            cLocation     = job.loc    
+            cEstimate     = TRIM(job.est-no)            
+            cJobNo2       = STRING(job.job-no2)            
+            cIsPriority   = STRING(job.priority EQ 1,"true/false")
+            cPriority     = STRING(job.priority)
+            cCSRID        = job.csrUser_id
+            cEnteredBy    = job.user-id
+            cJobDueDate   = STRING(job.due-date)
+            cJobDueTime   = STRING(job.due-time)
+            cJobStartDate = STRING(job.start-date)
+            .
+    
     FIND FIRST bf-APIOutboundDetail NO-LOCK
          WHERE bf-APIOutboundDetail.apiOutboundID EQ ipiAPIOutboundID
            AND bf-APIOutboundDetail.detailID      EQ "JobHeader"
@@ -246,7 +269,16 @@
                    AND oe-ord.ord-no  EQ job-hdr.ord-no 
                  NO-ERROR.
             cPOReceivedDate = IF AVAILABLE oe-ord THEN STRING(oe-ord.poReceivedDate) ELSE "".  
-             
+            
+            cFGItemName = "".
+            
+            FIND FIRST bf-itemfg NO-LOCK
+                 WHERE bf-itemfg.company EQ job-hdr.company 
+                   AND bf-itemfg.i-no    EQ job-hdr.i-no
+                 NO-ERROR.
+            IF AVAILABLE bf-itemfg THEN
+                cFGItemName = bf-itemfg.i-name.
+                     
             FIND FIRST oe-ordl NO-LOCK
                  WHERE oe-ordl.company EQ job-hdr.company
                    AND oe-ordl.ord-no  EQ job-hdr.ord-no
@@ -260,34 +292,26 @@
                 .                                            
                 ASSIGN 
                     lcJobHeaderData               = bf-APIOutboundDetail.data
-                    cCompany                      = job-hdr.company  
-                    cJobNo                        = job-hdr.job-no
-                    cJobNo2                       = STRING(job-hdr.job-no2)            
-                    cLocation                     = job-hdr.loc    
-                    cEstimate                     = TRIM(job-hdr.est-no)
                     cOrder                        = TRIM(STRING(job-hdr.ord-no,">>>>>9"))                                     
                     cStartDate                    = TRIM(STRING(job-hdr.start-date,"99/99/9999"))
                     cQuantity                     = TRIM(STRING(job-hdr.qty,">>,>>>,>>9"))                    cAverageCost                  = TRIM(STRING(job-hdr.avg-cost,">>>,>>9.9999"))                    cLastPurchaseCost             = TRIM(STRING(job-hdr.last-cost,">>>,>>9.9999"))                    cStandardItemCost             = TRIM(STRING(job-hdr.std-tot-cost,"->>>,>>9.99<<"))                    cStandardMaterialCost         = TRIM(STRING(job-hdr.std-mat-cost,"->>>,>>9.99<<"))                    cStandardLaborCost            = TRIM(STRING(job-hdr.std-lab-cost,"->>>,>>9.99<<"))                    cStandardFixedOverheadCost    = TRIM(STRING(job-hdr.std-fix-cost,"->>>,>>9.99<<"))                    cStandardVariableOverHeadCost = TRIM(STRING(job-hdr.std-var-cost,"->>>,>>9.99<<"))                    cItem                         = job-hdr.i-no                    cCustomer                     = job-hdr.cust-no                    cForm                         = TRIM(STRING(job-hdr.frm,">>9"))                    cBlank                        = TRIM(STRING(job-hdr.blank-no,">9"))                    cDueDate                      = TRIM(STRING(job-hdr.due-date,"99/99/9999"))                    cCustomerPO                   = job-hdr.po-no                    cDueTime                      = TRIM(STRING(job-hdr.due-time,">>>>9"))                    cFreezeNotes                  = STRING(job-hdr.freezeNote)                    cSplitShip                    = STRING(job-hdr.splitShip)
                     cSquareInchPct                = STRING(job-hdr.sq-in,">>9.99")                    cFreezeNotesDate              = STRING(job-hdr.freezeNotesDate,"99/99/9999")                    cWarehoused                   = STRING(job-hdr.whsed)
                     cOpened                       = STRING(job-hdr.opened)
                     cPrinted                      = STRING(job-hdr.ftick-prnt)
-                    cIsPriority                   = STRING(job.priority EQ 1,"true/false")
-                    cPriority                     = STRING(job.priority)
-                    cCSRID                        = job.csrUser_id
-                    cEnteredBy                    = job.user-id
+                    cKeyItem                      = STRING(INTEGER(job-hdr.keyItem))
+                    cNumberOn                     = STRING(job-hdr.n-on)
                     .
                 RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "AverageCost",cAverageCost).
                 RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "Blank",cBlank).
                 RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "Customer",cCustomer). 
                 RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "DueDate",cDueDate). 
                 RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "DueTime",cDueTime). 
-                RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "Estimate",cEstimate).
                 RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "FreezeNotes",cFreezeNotes).
                 RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "FreezeNotesDate",cFreezeNotesDate).
                 RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "Form",cForm).
                 RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "Item",cItem).
+                RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "FGItemName",cFGItemName).
                 RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "LastPurchaseCost",cLastPurchaseCost).
-                RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "Location",cLocation).
                 RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "Order",cOrder).
                 RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "CustomerPO",cCustomerPO).
                 RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "Quantity",cQuantity).
@@ -301,14 +325,12 @@
                 RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "Warehoused",cWarehoused).
                 RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "Opened",cWarehoused).
                 RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "Printed",cPrinted).
-                RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "Priority",cPriority).
-                RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "IsPriority",cIsPriority).
                 RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "SquareInchPercentage",cSquareInchPct).
-                RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "CSRID",cCSRID).                
-                RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "EnteredBy",cEnteredBy).
                 RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "POReceivedDate",cPOReceivedDate).
                 RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "MfgDate",cMfgDate).
-                RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "OrderQty",cOrderQty).       
+                RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "OrderQty",cOrderQty). 
+                RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "KeyItem",cKeyItem). 
+                RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "NumberOn",cNumberOn).       
                 lcConcatJobHeaderData = lcConcatJobHeaderData + lcJobHeaderData.
             END.
         END. 
@@ -446,8 +468,10 @@
                    cJobMchItem                = job-mch.i-no
                    cJobMatForm                = TRIM(STRING(job-mch.frm,">>9"))
                    cRunHours                  = TRIM(STRING(job-mch.run-hr,">>9.99"))
+                   cRunMinutes                = TRIM(STRING(ROUND(job-mch.run-hr * 60, 0)))
                    cRunSpeed                  = TRIM(STRING(job-mch.speed, ">>>>9"))
                    cMRHours                   = TRIM(STRING(job-mch.mr-hr,">>9.99"))
+                   cMRMinutes                 = TRIM(STRING(ROUND(job-mch.mr-hr * 60, 0)))
                    cJobMchBlank               = TRIM(STRING(job-mch.blank-no,">9"))
                    cJobMchLineNumber          = TRIM(STRING(job-mch.line,">9"))
                    cRunQuantity               = TRIM(STRING(job-mch.run-qty,">,>>>,>>9.9<<"))
@@ -503,7 +527,9 @@
                 RUN updateRequestData(INPUT-OUTPUT lcJobMachineData, "RunContributionRate",cRunContributionRate).
                 RUN updateRequestData(INPUT-OUTPUT lcJobMachineData, "FixedOverHeadRate",cFixedOverHeadRate).
                 RUN updateRequestData(INPUT-OUTPUT lcJobMachineData, "RunHours",cRunHours).
+                RUN updateRequestData(INPUT-OUTPUT lcJobMachineData, "RunMinutes",cRunMinutes).
                 RUN updateRequestData(INPUT-OUTPUT lcJobMachineData, "MakeReadyHours",cMRHours).
+                RUN updateRequestData(INPUT-OUTPUT lcJobMachineData, "MakeReadyMinutes",cMRMinutes).
                 RUN updateRequestData(INPUT-OUTPUT lcJobMachineData, "RunQuantity",cRunQuantity).
                 RUN updateRequestData(INPUT-OUTPUT lcJobMachineData, "RunRate",cRunRate).
                 RUN updateRequestData(INPUT-OUTPUT lcJobMachineData, "RunVarOH",cVariableOverheadRate).
@@ -568,14 +594,25 @@
             END. 
         END.
         lcJobsData = APIOutboundDetail.data. 
-        RUN updateRequestData(INPUT-OUTPUT lcJobsData, "Company",cCompany).
-        RUN updateRequestData(INPUT-OUTPUT lcJobsData, "JobNumber1",cJobNo).
-        RUN updateRequestData(INPUT-OUTPUT lcJobsData, "JobNumber2",cJobNo2).
 
         lcJobsData       = REPLACE(lcJobsData, "$JobHeader$", lcConcatJobHeaderData).
         lcJobsData       = REPLACE(lcJobsData, "$JobMaterial$", lcConcatJobMatData).
         lcJobsData       = REPLACE(lcJobsData, "$JobMachine$", lcConcatJobMachineData).
         lcJobsData       = REPLACE(lcJobsData, "$JobPrep$", lcConcatJobPrepData).
+
+        RUN updateRequestData(INPUT-OUTPUT lcJobsData, "Company",cCompany).
+        RUN updateRequestData(INPUT-OUTPUT lcJobsData, "JobNumber1",cJobNo).
+        RUN updateRequestData(INPUT-OUTPUT lcJobsData, "JobNumber2",cJobNo2).
+        RUN updateRequestData(INPUT-OUTPUT lcJobsData, "Priority",cPriority).
+        RUN updateRequestData(INPUT-OUTPUT lcJobsData, "IsPriority",cIsPriority).
+        RUN updateRequestData(INPUT-OUTPUT lcJobsData, "Location",cLocation).
+        RUN updateRequestData(INPUT-OUTPUT lcJobsData, "Estimate",cEstimate).
+        RUN updateRequestData(INPUT-OUTPUT lcJobsData, "CSRID",cCSRID).                
+        RUN updateRequestData(INPUT-OUTPUT lcJobsData, "EnteredBy",cEnteredBy).
+        RUN updateRequestData(INPUT-OUTPUT lcJobsData, "JobDueDate",cJobDueDate).
+        RUN updateRequestData(INPUT-OUTPUT lcJobsData, "JobDueTime",cJobDueTime).
+        RUN updateRequestData(INPUT-OUTPUT lcJobsData, "JobStartDate",cJobStartDate).
+
         ioplcRequestData = REPLACE(ioplcRequestData, "$Jobs$", lcJobsData).   
     END.                        
     

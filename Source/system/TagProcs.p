@@ -55,7 +55,8 @@ PROCEDURE AddTagHold:
         INPUT gcTypeHold,
         INPUT ipcLinkTable,
         INPUT ipcDescription,
-        INPUT ipcNotes
+        INPUT ipcNotes,
+        INPUT ""
         ).
         
 END PROCEDURE.
@@ -80,8 +81,37 @@ PROCEDURE AddTagInfo:
         INPUT gcTypeInfo,
         INPUT ipcLinkTable,
         INPUT ipcDescription,
-        INPUT ipcNotes
+        INPUT ipcNotes,
+        INPUT ""
         ).
+        
+END PROCEDURE.
+
+PROCEDURE AddTagInfoForGroup:
+    /*------------------------------------------------------------------------------
+     Purpose: Wrapper to Add tag, specifically for INFO
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcLinkRecKey  AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcLinkTable   AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcDescription AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcNotes       AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcGroup       AS CHARACTER NO-UNDO.
+
+    IF NOT CAN-FIND(FIRST tag 
+        WHERE tag.linkRecKey  EQ ipcLinkRecKey
+        AND tag.tagType     EQ gcTypeInfo 
+        AND tag.linkTable   EQ ipcLinkTable
+        AND tag.description EQ ipcDescription
+        AND tag.groupCode   EQ ipcGroup) THEN 
+        RUN pAddTag(
+            INPUT ipcLinkRecKey,
+            INPUT gcTypeInfo,
+            INPUT ipcLinkTable,
+            INPUT ipcDescription,
+            INPUT ipcNotes,
+            INPUT ipcGroup
+            ).
         
 END PROCEDURE.
 
@@ -101,7 +131,7 @@ PROCEDURE AddTagInactive:
                     WHERE tag.linkRecKey EQ ipcLinkRecKey 
                       AND tag.tagType    EQ gcTypeInactive 
                       AND tag.linkTable  EQ ipcLinkTable) THEN 
-    RUN pAddTag (ipcLinkRecKey, gcTypeInactive, ipcLinkTable, "Record is inactive").
+    RUN pAddTag (ipcLinkRecKey, gcTypeInactive, ipcLinkTable, "Record is inactive","").
 
 END PROCEDURE.
 
@@ -117,7 +147,7 @@ PROCEDURE AddTagRelease:
                     WHERE tag.linkRecKey EQ ipcLinkRecKey 
                       AND tag.tagType    EQ gcTypeRelease
                       AND tag.linkTable  EQ ipcLinkTable) THEN 
-    RUN pAddTag (ipcLinkRecKey, gcTypeRelease, "Record is manually released from hold").
+    RUN pAddTag (ipcLinkRecKey, gcTypeRelease, "Record is manually released from hold","").
                                        
 END PROCEDURE.
 
@@ -131,6 +161,19 @@ PROCEDURE ClearTagsByRecKey:
     RUN pDeleteTags (ipcLinkRecKey, "RecKey", "").
 
 END PROCEDURE.
+
+PROCEDURE ClearTagsForGroup:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcLinkRecKey AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcGroup      AS CHARACTER NO-UNDO.
+
+    RUN pDeleteTags (ipcLinkRecKey, "Group", ipcGroup).
+
+END PROCEDURE.
+
 
 PROCEDURE ClearTagsHold:
 /*------------------------------------------------------------------------------
@@ -188,6 +231,7 @@ PROCEDURE pAddTag PRIVATE:
     DEFINE INPUT PARAMETER ipcLinkTable   AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcDescription AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcNotes       AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcGroup       AS CHARACTER NO-UNDO.
     
     CREATE tag.
     ASSIGN 
@@ -200,6 +244,7 @@ PROCEDURE pAddTag PRIVATE:
         tag.createUser  = USERID("ASI")
         tag.updateUser  = tag.createUser
         tag.note[1]     = ipcNotes
+        tag.groupCode   = ipcGroup
         .    
     RELEASE tag.
         
@@ -233,6 +278,13 @@ PROCEDURE pDeleteTags PRIVATE:
             WHERE tag.linkRecKey  EQ ipcLinkRecKey
               AND tag.tagtype     EQ "HOLD"
               AND tag.description EQ ipcValue
+            :
+            DELETE tag.
+        END.
+        WHEN "Group" THEN 
+        FOR EACH tag EXCLUSIVE-LOCK
+            WHERE tag.linkRecKey EQ ipcLinkRecKey
+            AND tag.groupCode EQ ipcValue
             :
             DELETE tag.
         END.

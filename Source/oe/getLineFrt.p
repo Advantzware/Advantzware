@@ -14,6 +14,7 @@ DEF INPUT  PARAM ip-tot-qty         AS   DEC DECIMALS 10        NO-UNDO.
 DEF INPUT  PARAM ip-rels        AS   INT                    NO-UNDO.
 DEF OUTPUT PARAM op-freight     AS   DEC DECIMALS 10        NO-UNDO.
 DEF OUTPUT PARAM op-min         AS   DEC DECIMALS 10        NO-UNDO.
+DEF OUTPUT PARAM op-mtxrate     AS   DEC DECIMALS 10        NO-UNDO.
 DEF VAR v-zip-code AS CHAR NO-UNDO.
 DEF VAR li AS INT NO-UNDO.
 
@@ -48,6 +49,7 @@ FOR FIRST carr-mtx
 
   DO li = 1 TO 10:
     op-freight = carr-mtx.rate[li] * ip-qty.
+    op-mtxrate = carr-mtx.rate[li].
     IF carr-mtx.weight[li] GE ip-tot-qty THEN LEAVE.
   END.
 

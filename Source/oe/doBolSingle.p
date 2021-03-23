@@ -35,6 +35,7 @@ DEF VAR vFreight AS DECIMAL DECIMALS 6 NO-UNDO.
 DEF VAR vTotFreight AS DECIMAL DECIMALS 6 NO-UNDO.
 DEF VAR dFreight AS DECIMAL DECIMALS 6 NO-UNDO.
 DEFINE VARIABLE cFreightCalculationValue AS CHARACTER NO-UNDO.
+DEFINE VARIABLE dTotFreight AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cRetChar AS CHAR NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
 DEF TEMP-TABLE tt-bolList 
@@ -122,7 +123,10 @@ FOR EACH oe-relh WHERE oe-relh.r-no EQ oe-rell.r-no,
 /*                        oe-bolh.carrier,         */
 /*                        OUTPUT oe-bolh.freight). */
     IF (cFreightCalculationValue EQ "ALL" OR cFreightCalculationValue EQ "Bol Processing") THEN do:
-        RUN oe/calcBolFrt.p (INPUT ROWID(oe-bolh), OUTPUT dFreight).
+        RUN oe/calcBolFrt.p (INPUT ROWID(oe-bolh), YES, OUTPUT dFreight).
+    END.
+    ELSE DO:
+       RUN oe/calcBolFrt.p (INPUT ROWID(oe-bolh), NO, OUTPUT dTotFreight).
     END.
 
     IF oe-bolh.freight EQ 0 AND AVAIL xoe-ord THEN 

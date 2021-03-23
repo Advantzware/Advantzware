@@ -446,7 +446,7 @@ DO:
             CASE  UserWindow.state:
                 WHEN 1 THEN
                     ttUserWindow.cstate = "Maximized".
-                WHEN 2 THEN
+                WHEN 0 THEN
                     ttUserWindow.cstate = "Custom".
                 WHEN 3 THEN
                     ttUserWindow.cstate = "Normal". 

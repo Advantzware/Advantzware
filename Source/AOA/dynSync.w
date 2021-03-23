@@ -859,10 +859,11 @@ PROCEDURE pSync :
                 IF NOT AVAILABLE bDynValueColumn THEN NEXT.
                 CREATE dynValueColumn.
                 BUFFER-COPY bDynValueColumn
-                     EXCEPT user-id sortOrder isActive sortCol sortDescending
+                     EXCEPT user-id paramValueID sortOrder isActive sortCol sortDescending
                          TO dynValueColumn
                      ASSIGN
                          dynValueColumn.user-id        = ttDynSync.user-id
+                         dynValueColumn.paramValueID   = ttDynSync.paramValueID
                          dynValueColumn.sortOrder      = iSortOrder + 1
                          dynValueColumn.isActive       = NO
                          dynValueColumn.sortCol        = 0
