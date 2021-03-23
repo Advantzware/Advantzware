@@ -966,19 +966,16 @@ PROCEDURE pPrepareAndExecuteQuery :
                      + " AND ((quotehd.expireDate LE TODAY AND " + STRING(rd_status) 
                      + " EQ 1) OR ((quotehd.quo-Date LE TODAY AND quotehd.expireDate GT TODAY AND " 
                      + STRING(rd_status) + " EQ 2) OR (quotehd.quo-Date LE TODAY AND quotehd.expireDate EQ ? AND " 
-                     + STRING(rd_status) + " EQ 2)) OR (" + STRING(rd_status) + " EQ 3)) " //{&useIndexPhrase}
+                     + STRING(rd_status) + " EQ 2)) OR (" + STRING(rd_status) + " EQ 3)) "
                      + ",EACH quoteitm OF quotehd NO-LOCK"
                      + " WHERE"
                      + (IF fi_part-no BEGINS '*' THEN " quoteitm.part-no MATCHES " + fi_part-no
                         ELSE " quoteitm.part-no BEGINS " + QUOTER(fi_part-no)) 
                      + (IF fi_item-decr BEGINS '*' THEN " AND quoteitm.part-dscr1 MATCHES " + fi_item-decr
                         ELSE " AND quoteitm.part-dscr1 BEGINS " + QUOTER(fi_item-decr)) 
-                     + " BY " + pGetSortCondition(lv-sort-by).
+                     + " BY " + pGetSortCondition(lv-sort-by) + " quotehd.q-no".
      
         
-    MESSAGE " cLimitingQuery  " cLimitingQuery skip 
-            " iRecordLimit " iRecordLimit
-    VIEW-AS ALERT-BOX.
         RUN Browse_PrepareAndExecuteLimitingQuery(
             INPUT  cLimitingQuery,   /* Query */
             INPUT  cQueryBuffers,    /* Buffers Name */
@@ -1316,7 +1313,7 @@ FUNCTION pGetSortCondition RETURNS CHARACTER
     RETURN (IF sortColumn EQ 'Date' THEN STRING(YEAR(quotehd.quo-date),"9999") + 
                                      STRING(MONTH(quotehd.quo-date),"99") + 
                                      STRING(DAY(quotehd.quo-date),"99")  ELSE ~
-        IF sortColumn EQ 'Cust'             THEN quotehd.cust-no    ELSE ~
+            IF sortColumn EQ 'Cust'             THEN quotehd.cust-no    ELSE ~
             IF sortColumn EQ 'Contact'          THEN quotehd.contact    ELSE ~
             IF sortColumn EQ 'Estimate'         THEN quotehd.est-no     ELSE ~
             IF sortColumn EQ 'Expire Date'  THEN STRING(YEAR(quotehd.expireDate),"9999") + 
@@ -1327,8 +1324,7 @@ FUNCTION pGetSortCondition RETURNS CHARACTER
             IF sortColumn EQ 'Updated Date'     THEN STRING(YEAR(quotehd.upd-date),"9999") + 
                              STRING(MONTH(quotehd.upd-date),"99") + 
                              STRING(DAY(quotehd.upd-date),"99")   ELSE ~
-            IF sortColumn EQ 'Updated User'     THEN quotehd.upd-user   ELSE ~
-             STRING(quotehd.q-no,'>>>>>9')
+            IF sortColumn EQ 'Updated User'     THEN quotehd.upd-user   ELSE ""
             ).
 END FUNCTION.
 /* _UIB-CODE-BLOCK-END */
