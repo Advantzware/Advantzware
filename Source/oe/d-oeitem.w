@@ -32,7 +32,7 @@ DEF OUTPUT PARAM    op-cancel AS LOG NO-UNDO.
 DEF VAR ll-new-file AS LOG NO-UNDO.
 DEF VAR cp-part-no LIKE itemfg.part-no NO-UNDO.
 DEF VAR cp-rowid AS ROWID NO-UNDO.
-
+DEFINE VARIABLE lAvailable AS LOGICAL.
 {custom/globdefs.i}
 {sys/inc/var.i new shared}
 
@@ -398,29 +398,29 @@ dFGForcedCommission = DECIMAL(v-rtn-char) NO-ERROR.
 &Scoped-define INTERNAL-TABLES oe-ordl oe-ord itemfg
 
 /* Definitions for DIALOG-BOX d-oeitem                                  */
-&Scoped-define FIELDS-IN-QUERY-d-oeitem oe-ordl.est-no oe-ordl.job-no ~
-oe-ordl.job-no2 oe-ordl.qty oe-ordl.i-no oe-ordl.part-no oe-ordl.i-name ~
-oe-ordl.part-dscr1 oe-ordl.part-dscr2 oe-ordl.part-dscr3 oe-ordl.po-no ~
-oe-ordl.e-num oe-ordl.po-no-po oe-ordl.vend-no oe-ordl.price oe-ordl.pr-uom ~
-oe-ordl.tax oe-ordl.disc oe-ordl.cas-cnt oe-ordl.t-price oe-ordl.partial ~
-oe-ordl.cost oe-ordl.cases-unit oe-ordl.type-code oe-ordl.managed ~
-oe-ordl.whsed oe-ordl.s-man[1] oe-ordl.s-pct[1] oe-ordl.s-comm[1] ~
-oe-ordl.s-man[2] oe-ordl.s-pct[2] oe-ordl.s-comm[2] oe-ordl.s-man[3] ~
-oe-ordl.s-pct[3] oe-ordl.s-comm[3] oe-ordl.over-pct oe-ordl.under-pct ~
-oe-ordl.req-code oe-ordl.prom-code oe-ordl.req-date oe-ordl.prom-date ~
-oe-ordl.spare-char-1 oe-ordl.spare-dec-1 oe-ordl.spare-char-2 ~
-oe-ordl.SourceEstimateID
-&Scoped-define ENABLED-FIELDS-IN-QUERY-d-oeitem oe-ordl.est-no oe-ordl.qty ~
+&Scoped-define FIELDS-IN-QUERY-d-oeitem oe-ordl.est-no ~
+oe-ordl.sourceEstimateID oe-ordl.job-no oe-ordl.job-no2 oe-ordl.qty ~
 oe-ordl.i-no oe-ordl.part-no oe-ordl.i-name oe-ordl.part-dscr1 ~
 oe-ordl.part-dscr2 oe-ordl.part-dscr3 oe-ordl.po-no oe-ordl.e-num ~
-oe-ordl.po-no-po oe-ordl.price oe-ordl.pr-uom oe-ordl.tax oe-ordl.disc ~
-oe-ordl.cas-cnt oe-ordl.partial oe-ordl.cases-unit oe-ordl.type-code ~
-oe-ordl.managed oe-ordl.whsed oe-ordl.s-man[1] oe-ordl.s-pct[1] ~
-oe-ordl.s-comm[1] oe-ordl.s-man[2] oe-ordl.s-pct[2] oe-ordl.s-comm[2] ~
-oe-ordl.s-man[3] oe-ordl.s-pct[3] oe-ordl.s-comm[3] oe-ordl.over-pct ~
-oe-ordl.under-pct oe-ordl.req-code oe-ordl.prom-code oe-ordl.req-date ~
-oe-ordl.prom-date oe-ordl.spare-char-1 oe-ordl.spare-dec-1  ~
-oe-ordl.spare-char-2 oe-ordl.SourceEstimateID
+oe-ordl.po-no-po oe-ordl.vend-no oe-ordl.price oe-ordl.pr-uom oe-ordl.tax ~
+oe-ordl.disc oe-ordl.cas-cnt oe-ordl.t-price oe-ordl.partial oe-ordl.cost ~
+oe-ordl.cases-unit oe-ordl.type-code oe-ordl.managed oe-ordl.whsed ~
+oe-ordl.s-man[1] oe-ordl.s-pct[1] oe-ordl.s-comm[1] oe-ordl.s-man[2] ~
+oe-ordl.s-pct[2] oe-ordl.s-comm[2] oe-ordl.s-man[3] oe-ordl.s-pct[3] ~
+oe-ordl.s-comm[3] oe-ordl.over-pct oe-ordl.under-pct oe-ordl.req-code ~
+oe-ordl.prom-code oe-ordl.req-date oe-ordl.prom-date oe-ordl.spare-char-1 ~
+oe-ordl.spare-dec-1 oe-ordl.spare-char-2 
+&Scoped-define ENABLED-FIELDS-IN-QUERY-d-oeitem oe-ordl.est-no ~
+oe-ordl.sourceEstimateID oe-ordl.qty oe-ordl.i-no oe-ordl.part-no ~
+oe-ordl.i-name oe-ordl.part-dscr1 oe-ordl.part-dscr2 oe-ordl.part-dscr3 ~
+oe-ordl.po-no oe-ordl.e-num oe-ordl.po-no-po oe-ordl.price oe-ordl.pr-uom ~
+oe-ordl.tax oe-ordl.disc oe-ordl.cas-cnt oe-ordl.partial oe-ordl.cases-unit ~
+oe-ordl.type-code oe-ordl.managed oe-ordl.whsed oe-ordl.s-man[1] ~
+oe-ordl.s-pct[1] oe-ordl.s-comm[1] oe-ordl.s-man[2] oe-ordl.s-pct[2] ~
+oe-ordl.s-comm[2] oe-ordl.s-man[3] oe-ordl.s-pct[3] oe-ordl.s-comm[3] ~
+oe-ordl.over-pct oe-ordl.under-pct oe-ordl.req-code oe-ordl.prom-code ~
+oe-ordl.req-date oe-ordl.prom-date oe-ordl.spare-char-1 oe-ordl.spare-dec-1 ~
+oe-ordl.spare-char-2 
 &Scoped-define ENABLED-TABLES-IN-QUERY-d-oeitem oe-ordl
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-d-oeitem oe-ordl
 &Scoped-define QUERY-STRING-d-oeitem FOR EACH oe-ordl SHARE-LOCK, ~
@@ -436,33 +436,33 @@ oe-ordl.spare-char-2 oe-ordl.SourceEstimateID
 
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS oe-ordl.est-no oe-ordl.qty oe-ordl.i-no ~
-oe-ordl.part-no oe-ordl.i-name oe-ordl.part-dscr1 oe-ordl.part-dscr2 ~
-oe-ordl.part-dscr3 oe-ordl.po-no oe-ordl.e-num oe-ordl.po-no-po ~
-oe-ordl.price oe-ordl.pr-uom oe-ordl.tax oe-ordl.disc oe-ordl.cas-cnt ~
-oe-ordl.partial oe-ordl.cases-unit oe-ordl.type-code oe-ordl.managed ~
-oe-ordl.whsed oe-ordl.s-man[1] oe-ordl.s-pct[1] oe-ordl.s-comm[1] ~
-oe-ordl.s-man[2] oe-ordl.s-pct[2] oe-ordl.s-comm[2] oe-ordl.s-man[3] ~
-oe-ordl.s-pct[3] oe-ordl.s-comm[3] oe-ordl.over-pct oe-ordl.under-pct ~
-oe-ordl.req-code oe-ordl.prom-code oe-ordl.req-date oe-ordl.prom-date ~
-oe-ordl.spare-char-1 oe-ordl.spare-dec-1 oe-ordl.spare-char-2 ~
-oe-ordl.SourceEstimateID
+&Scoped-Define ENABLED-FIELDS oe-ordl.est-no oe-ordl.sourceEstimateID ~
+oe-ordl.qty oe-ordl.i-no oe-ordl.part-no oe-ordl.i-name oe-ordl.part-dscr1 ~
+oe-ordl.part-dscr2 oe-ordl.part-dscr3 oe-ordl.po-no oe-ordl.e-num ~
+oe-ordl.po-no-po oe-ordl.price oe-ordl.pr-uom oe-ordl.tax oe-ordl.disc ~
+oe-ordl.cas-cnt oe-ordl.partial oe-ordl.cases-unit oe-ordl.type-code ~
+oe-ordl.managed oe-ordl.whsed oe-ordl.s-man[1] oe-ordl.s-pct[1] ~
+oe-ordl.s-comm[1] oe-ordl.s-man[2] oe-ordl.s-pct[2] oe-ordl.s-comm[2] ~
+oe-ordl.s-man[3] oe-ordl.s-pct[3] oe-ordl.s-comm[3] oe-ordl.over-pct ~
+oe-ordl.under-pct oe-ordl.req-code oe-ordl.prom-code oe-ordl.req-date ~
+oe-ordl.prom-date oe-ordl.spare-char-1 oe-ordl.spare-dec-1 ~
+oe-ordl.spare-char-2 
 &Scoped-define ENABLED-TABLES oe-ordl
 &Scoped-define FIRST-ENABLED-TABLE oe-ordl
 &Scoped-Define ENABLED-OBJECTS fi_qty-uom Btn_OK Btn_Done Btn_Cancel ~
 Btn_hist fi_jobStartDate btn-quotes RECT-31 RECT-39 RECT-40 RECT-41 
-&Scoped-Define DISPLAYED-FIELDS oe-ordl.est-no oe-ordl.job-no ~
-oe-ordl.job-no2 oe-ordl.qty oe-ordl.i-no oe-ordl.part-no oe-ordl.i-name ~
-oe-ordl.part-dscr1 oe-ordl.part-dscr2 oe-ordl.part-dscr3 oe-ordl.po-no ~
-oe-ordl.e-num oe-ordl.po-no-po oe-ordl.vend-no oe-ordl.price oe-ordl.pr-uom ~
-oe-ordl.tax oe-ordl.disc oe-ordl.cas-cnt oe-ordl.t-price oe-ordl.partial ~
-oe-ordl.cost oe-ordl.cases-unit oe-ordl.type-code oe-ordl.managed ~
-oe-ordl.whsed oe-ordl.s-man[1] oe-ordl.s-pct[1] oe-ordl.s-comm[1] ~
-oe-ordl.s-man[2] oe-ordl.s-pct[2] oe-ordl.s-comm[2] oe-ordl.s-man[3] ~
-oe-ordl.s-pct[3] oe-ordl.s-comm[3] oe-ordl.over-pct oe-ordl.under-pct ~
-oe-ordl.req-code oe-ordl.prom-code oe-ordl.req-date oe-ordl.prom-date ~
-oe-ordl.spare-char-1 oe-ordl.spare-dec-1 oe-ordl.spare-char-2 ~
-oe-ordl.SourceEstimateID
+&Scoped-Define DISPLAYED-FIELDS oe-ordl.est-no oe-ordl.sourceEstimateID ~
+oe-ordl.job-no oe-ordl.job-no2 oe-ordl.qty oe-ordl.i-no oe-ordl.part-no ~
+oe-ordl.i-name oe-ordl.part-dscr1 oe-ordl.part-dscr2 oe-ordl.part-dscr3 ~
+oe-ordl.po-no oe-ordl.e-num oe-ordl.po-no-po oe-ordl.vend-no oe-ordl.price ~
+oe-ordl.pr-uom oe-ordl.tax oe-ordl.disc oe-ordl.cas-cnt oe-ordl.t-price ~
+oe-ordl.partial oe-ordl.cost oe-ordl.cases-unit oe-ordl.type-code ~
+oe-ordl.managed oe-ordl.whsed oe-ordl.s-man[1] oe-ordl.s-pct[1] ~
+oe-ordl.s-comm[1] oe-ordl.s-man[2] oe-ordl.s-pct[2] oe-ordl.s-comm[2] ~
+oe-ordl.s-man[3] oe-ordl.s-pct[3] oe-ordl.s-comm[3] oe-ordl.over-pct ~
+oe-ordl.under-pct oe-ordl.req-code oe-ordl.prom-code oe-ordl.req-date ~
+oe-ordl.prom-date oe-ordl.spare-char-1 oe-ordl.spare-dec-1 ~
+oe-ordl.spare-char-2 
 &Scoped-define DISPLAYED-TABLES oe-ordl
 &Scoped-define FIRST-DISPLAYED-TABLE oe-ordl
 &Scoped-Define DISPLAYED-OBJECTS fiPrevOrder fiPromDtLabel fi_type-dscr ~
@@ -503,8 +503,7 @@ FUNCTION fnPrevOrder RETURNS CHARACTER
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fOEScreenUOMConvert d-oeitem 
 FUNCTION fOEScreenUOMConvert RETURNS DECIMAL
-  ( ipdStartQuantity AS DECIMAL , ipcUOM AS CHARACTER, ipdCount AS DECIMAL, 
-   ipcItemID AS CHARACTER) FORWARD.
+  ( ipdStartQuantity AS DECIMAL , ipcUOM AS CHARACTER, ipdCount AS DECIMAL, ipcItemID AS CHARACTER) FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -533,6 +532,11 @@ DEFINE BUTTON btn-quotes
      LABEL "Quoted Prices" 
      SIZE 18 BY 1.14
      FONT 1.
+
+DEFINE BUTTON btnTags 
+     IMAGE-UP FILE "Graphics/16x16/question.png":U
+     LABEL "" 
+     SIZE 4.2 BY .95 TOOLTIP "Show Details".
 
 DEFINE BUTTON Btn_Cancel AUTO-END-KEY 
      LABEL "Ca&ncel" 
@@ -646,10 +650,10 @@ DEFINE FRAME d-oeitem
      oe-ordl.est-no AT ROW 1.24 COL 15.6 COLON-ALIGNED FORMAT "x(8)"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
-     oe-ordl.SourceEstimateID AT ROW 1.24 COL 60.6 COLON-ALIGNED FORMAT "x(8)"
-          LABEL "Pricing Est ID"
+     oe-ordl.sourceEstimateID AT ROW 1.24 COL 60.6 COLON-ALIGNED
+          LABEL "Pricing Est ID" FORMAT "x(8)"
           VIEW-AS FILL-IN 
-          SIZE 14 BY 1    
+          SIZE 14 BY 1
      oe-ordl.job-no AT ROW 1.14 COL 95 COLON-ALIGNED FORMAT "x(6)"
           VIEW-AS FILL-IN 
           SIZE 16.6 BY 1
@@ -704,11 +708,11 @@ DEFINE FRAME d-oeitem
      oe-ordl.price AT ROW 2.57 COL 93 COLON-ALIGNED FORMAT "->>,>>>,>>9.99<<<<"
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
-     oe-ordl.pr-uom AT ROW 2.57 COL 121.6 COLON-ALIGNED
+     oe-ordl.pr-uom AT ROW 2.57 COL 123 COLON-ALIGNED
           LABEL "UOM" FORMAT "XXX"
           VIEW-AS FILL-IN 
           SIZE 8.4 BY 1
-     oe-ordl.tax AT ROW 2.57 COL 132.8
+     oe-ordl.tax AT ROW 2.57 COL 134.2
           LABEL "Tax"
           VIEW-AS TOGGLE-BOX
           SIZE 9 BY .81
@@ -727,16 +731,16 @@ DEFINE FRAME d-oeitem
           LABEL "Partial" FORMAT "->>>,>>>,>>9"
           VIEW-AS FILL-IN 
           SIZE 13 BY 1
-     oe-ordl.cost AT ROW 5.43 COL 93 COLON-ALIGNED
-          LABEL "Cost/M"
-          VIEW-AS FILL-IN 
-          SIZE 18 BY 1
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          FONT 6.
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME d-oeitem
+     oe-ordl.cost AT ROW 5.43 COL 93 COLON-ALIGNED
+          LABEL "Cost/M"
+          VIEW-AS FILL-IN 
+          SIZE 18 BY 1
      oe-ordl.cases-unit AT ROW 5.43 COL 127.2 COLON-ALIGNED
           LABEL "Units/Pallet" FORMAT ">>>>"
           VIEW-AS FILL-IN 
@@ -807,16 +811,16 @@ DEFINE FRAME d-oeitem
           LABEL "Due Date"
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
-     oe-ordl.prom-date AT ROW 14.52 COL 121 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 18 BY 1
-     Btn_OK AT ROW 17.38 COL 40.4
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          FONT 6.
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME d-oeitem
+     oe-ordl.prom-date AT ROW 14.52 COL 121 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 18 BY 1
+     Btn_OK AT ROW 17.38 COL 40.4
      Btn_Done AT ROW 17.38 COL 60.4
      Btn_Cancel AT ROW 17.38 COL 80.6
      Btn_hist AT ROW 3.14 COL 46.6
@@ -833,6 +837,7 @@ DEFINE FRAME d-oeitem
           SIZE 7 BY 1
      fi_jobStartDate AT ROW 15.67 COL 121 COLON-ALIGNED WIDGET-ID 22
      btn-quotes AT ROW 17.38 COL 6.4 WIDGET-ID 20
+     btnTags AT ROW 2.57 COL 113.2 WIDGET-ID 34
      RECT-31 AT ROW 12.1 COL 1.8
      RECT-39 AT ROW 1 COL 1.8
      RECT-40 AT ROW 1 COL 80 WIDGET-ID 8
@@ -866,6 +871,8 @@ ASSIGN
        FRAME d-oeitem:SCROLLABLE       = FALSE
        FRAME d-oeitem:HIDDEN           = TRUE.
 
+/* SETTINGS FOR BUTTON btnTags IN FRAME d-oeitem
+   NO-ENABLE                                                            */
 ASSIGN 
        Btn_Done:HIDDEN IN FRAME d-oeitem           = TRUE.
 
@@ -881,8 +888,6 @@ ASSIGN
    EXP-LABEL EXP-FORMAT EXP-HELP                                        */
 /* SETTINGS FOR FILL-IN oe-ordl.est-no IN FRAME d-oeitem
    EXP-FORMAT                                                           */
-/* SETTINGS FOR FILL-IN oe-ordl.SourceEstimateID IN FRAME d-oeitem
-   EXP-FORMAT EXP-LABEL                                                 */   
 /* SETTINGS FOR FILL-IN fiPrevOrder IN FRAME d-oeitem
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fiPromDtLabel IN FRAME d-oeitem
@@ -942,14 +947,16 @@ ASSIGN
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN oe-ordl.req-date IN FRAME d-oeitem
    EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN oe-ordl.sourceEstimateID IN FRAME d-oeitem
+   EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN oe-ordl.spare-char-1 IN FRAME d-oeitem
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN oe-ordl.spare-char-2 IN FRAME d-oeitem
    EXP-LABEL                                                            */
-/* SETTINGS FOR FILL-IN oe-ordl.spare-dec-1 IN FRAME d-oeitem
-   EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN spare-dec-1 IN FRAME d-oeitem
    NO-ENABLE LIKE = asi.itemfg. EXP-LABEL EXP-FORMAT                    */
+/* SETTINGS FOR FILL-IN oe-ordl.spare-dec-1 IN FRAME d-oeitem
+   EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN oe-ordl.t-price IN FRAME d-oeitem
    NO-ENABLE 2 EXP-LABEL                                                */
 /* SETTINGS FOR TOGGLE-BOX oe-ordl.tax IN FRAME d-oeitem
@@ -1191,6 +1198,20 @@ END.
 ON CHOOSE OF btn-quotes IN FRAME d-oeitem /* Quoted Prices */
 DO:
   RUN chooseQuotedPrice.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnTags
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnTags d-oeitem
+ON CHOOSE OF btnTags IN FRAME d-oeitem
+DO:
+    RUN system/d-TagViewer.w (
+        INPUT oe-ordl.rec_key,
+        INPUT ""
+        ).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1740,6 +1761,7 @@ DO:
   DEF VAR ll-secure AS LOG NO-UNDO.
   DEFINE VARIABLE cLoc AS CHARACTER NO-UNDO.
   DEFINE VARIABLE cLocBin AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE lAvailable AS LOGICAL. 
 
 
   IF LASTKEY EQ -1 AND NOT historyButton THEN DO:
@@ -1875,17 +1897,28 @@ DO:
 
     IF oescreen-cha NE "item-qty" 
       AND oescreen-log 
-      AND asi.oe-ordl.est-no:SCREEN-VALUE EQ "" THEN DO:
-      IF oe-ordl.price:SENSITIVE  THEN
-        APPLY "entry" TO oe-ordl.price.
-      ELSE 
-        APPLY "entry" TO oe-ordl.pr-uom.
-      RETURN NO-APPLY.
-    END.
-    IF ll-new-record THEN
-      RUN itemfg-sman.    
+      AND asi.oe-ordl.est-no:SCREEN-VALUE EQ "" THEN 
+        DO:
+            IF oe-ordl.price:SENSITIVE  THEN
+                APPLY "entry" TO oe-ordl.price.
+            ELSE 
+                APPLY "entry" TO oe-ordl.pr-uom.
+            RETURN NO-APPLY.
+        END.
+        IF ll-new-record THEN
+            RUN itemfg-sman.    
 
- END. /* modified */
+    END. /* modified */
+    RUN Tag_IsTagRecordAvailable(
+             INPUT oe-ordl.rec_key,
+             INPUT "oe-ordl",
+             OUTPUT lAvailable
+             ).
+           IF lAvailable THEN  
+               btnTags:SENSITIVE = TRUE
+               .
+           ELSE 
+               btnTags:SENSITIVE = FALSE.  
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2292,16 +2325,39 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ordl.price d-oeitem
 ON LEAVE OF oe-ordl.price IN FRAME d-oeitem /* Price */
 DO:
+    DEFINE VARIABLE lAvailable AS LOGICAL.
   IF LASTKEY NE -1 THEN DO:
     IF DEC({&self-name}:SCREEN-VALUE) NE ld-prev-price THEN
     DO:
-       price-ent = YES.
+      price-ent = YES.
 
-       IF oe-ordl.est-no:SCREEN-VALUE NE "" AND
+      IF oe-ordl.est-no:SCREEN-VALUE NE "" AND
           oeestcom-log = YES THEN
           RUN get-est-comm (INPUT ROWID(oe-ordl), INPUT YES).
-    END.
+     RUN ClearTagsForGroup(
+        INPUT oe-ordl.rec_key,
+        INPUT "Price-Source"
+      ).
+      RUN AddTagInfoForGroup(
+        INPUT oe-ordl.rec_key,
+        INPUT "oe-ordl",
+        INPUT "Price was manually entered",
+        INPUT "",
+        INPUT "Price-Source"
+        ). /*From TagProcs Super Proc*/ 
+      RUN Tag_IsTagRecordAvailable(
+          INPUT oe-ordl.rec_key,
+          INPUT "oe-ordl",
+          OUTPUT lAvailable
+          ).
+      IF lAvailable THEN  
+          btnTags:SENSITIVE = TRUE
+              .
+      ELSE 
+          btnTags:SENSITIVE = FALSE.  
   END.
+    
+    END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2795,7 +2851,16 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   FIND FIRST itemfg OF oe-ordl NO-LOCK WHERE
       itemfg.company EQ oe-ordl.company AND
       itemfg.i-no EQ oe-ordl.i-no NO-ERROR.
-
+    RUN Tag_IsTagRecordAvailable(
+        INPUT oe-ordl.rec_key,
+        INPUT "oe-ordl",
+        OUTPUT lAvailable
+        ).
+    IF lAvailable THEN  
+        btnTags:SENSITIVE = TRUE
+            .
+    ELSE 
+        btnTags:SENSITIVE = FALSE.
   ASSIGN
    v-rel = oe-ordl.rel
    ld-prev-t-price = oe-ordl.t-price
@@ -3043,7 +3108,7 @@ oplRelFlg2 = llRelFlg2.
     /* If it's OESHIPTO and they've alread chosen a v-ship-id, then keep it for the next item */
     IF NOT (oeship-cha = "OESHIPTO" AND v-ship-id GT "") THEN DO:
                         
-       IF oe-ord.est-no EQ "" AND b-oe-ordl.est-no NE "" AND oeship-cha EQ "EstShipto" THEN do:
+       IF oe-ord.est-no EQ "" AND b-oe-ordl.est-no NE "" AND oeship-cha EQ "EstShipto" THEN DO:
            FOR EACH eb
                WHERE eb.company  EQ b-oe-ordl.company
                AND eb.est-no   EQ b-oe-ordl.est-no
@@ -3413,17 +3478,60 @@ DO WITH FRAME {&FRAME-NAME}:
 
     CASE lcChoice:
         WHEN "PRICE" THEN DO:
+            
             ASSIGN 
                 oe-ordl.price:SCREEN-VALUE = STRING(lxPrice,">>>,>>>,>99.99<<<")
                 oe-ordl.pr-uom:SCREEN-VALUE = lxUom
                 .
+        RUN ClearTagsForGroup(
+            INPUT oe-ordl.rec_key,
+            INPUT "Price-Source"
+            ).
+        RUN AddTagInfoForGroup(
+            INPUT oe-ordl.rec_key,
+            INPUT "oe-ordl",
+            INPUT "Quoted Price - Quote Number:" + string(iQutNo) + "Quantity:" + string(lxQty),
+            INPUT "",
+            INPUT "Price-Source"
+            ). /*From TagProcs Super Proc*/ 
+        RUN Tag_IsTagRecordAvailable(
+            INPUT oe-ordl.rec_key,
+            INPUT "oe-ordl",
+            OUTPUT lAvailable
+            ).
+        IF lAvailable THEN  
+            btnTags:SENSITIVE = TRUE
+                .
+        ELSE 
+            btnTags:SENSITIVE = FALSE.
         END.
         WHEN "PRICEQTY" THEN DO:
             ASSIGN
                 oe-ordl.price:SCREEN-VALUE = STRING(lxPrice,">>>,>>>,>99.99<<<")                
                 oe-ordl.pr-uom:SCREEN-VALUE = lxUom
-                oe-ordl.qty:SCREEN-VALUE = STRING(lxQty,">>>,>>>,>>9")
+            oe-ordl.qty:SCREEN-VALUE = STRING(lxQty,">>>,>>>,>>9")
+            .
+                       RUN ClearTagsForGroup(
+            INPUT oe-ordl.rec_key,
+            INPUT "Price-Source"
+            ).
+        RUN AddTagInfoForGroup(
+            INPUT oe-ordl.rec_key,
+            INPUT "oe-ordl",
+            INPUT "Quoted Price - Quote Number:" + string(iQutNo) + "Quantity:" + string(lxQty),
+            INPUT "",
+            INPUT "Price-Source"
+            ). /*From TagProcs Super Proc*/ 
+        RUN Tag_IsTagRecordAvailable(
+            INPUT oe-ordl.rec_key,
+            INPUT "oe-ordl",
+            OUTPUT lAvailable
+            ).
+        IF lAvailable THEN  
+            btnTags:SENSITIVE = TRUE
                 .
+        ELSE 
+            btnTags:SENSITIVE = FALSE.
         END.
     END CASE.
     RUN Conv_CalcTotalPrice(cocode, 
@@ -4363,10 +4471,34 @@ PROCEDURE display-est-detail :
         oe-ordl.tax:SCREEN-VALUE = STRING(fGetTaxable(itemfg.company, eb.cust-no, eb.ship-id, itemfg.i-no),"Y/N")
         .
         IF DECIMAL(oe-ordl.price:SCREEN-VALUE) = 0 THEN
+        DO:
+            
             ASSIGN
             oe-ordl.price:SCREEN-VALUE      = STRING(itemfg.sell-price) 
-            oe-ordl.pr-uom:SCREEN-VALUE     = itemfg.sell-uom
-            .  
+                oe-ordl.pr-uom:SCREEN-VALUE     = itemfg.sell-uom
+                .  
+            RUN ClearTagsForGroup(
+        INPUT oe-ordl.rec_key,
+        INPUT "Price-Source"
+      ).
+            RUN AddTagInfoForGroup(
+                INPUT oe-ordl.rec_key,
+                INPUT "oe-ordl",
+                INPUT "Item fg sell price Item-No:" + string(itemfg.i-no),
+                INPUT "",
+                INPUT "Price-Source"
+                ). /*From TagProcs Super Proc*/ 
+            RUN Tag_IsTagRecordAvailable(
+                INPUT oe-ordl.rec_key,
+                INPUT "oe-ordl",
+                OUTPUT lAvailable
+                ).
+            IF lAvailable THEN  
+          btnTags:SENSITIVE = TRUE
+              .
+      ELSE 
+          btnTags:SENSITIVE = FALSE.
+            END.
           
      END.
 
@@ -4498,21 +4630,47 @@ PROCEDURE display-est-detail :
               quotehd.quo-date LE TODAY AND
               (quotehd.expireDate GE TODAY OR quotehd.expireDate EQ ?) NO-ERROR .
            
-          IF AVAIL quotehd THEN do:
-           RUN oe/d-ordqty.w (RECID(est-qty), OUTPUT lv-qty, OUTPUT lv-price, OUTPUT lv-pr-uom,
-                              OUTPUT lv-rel, OUTPUT op-error, OUTPUT TABLE tt-item-qty-price).
-          END.
-          ELSE DO:
-           op-error = YES .
-          END.
+          IF AVAIL quotehd THEN DO:
+                RUN oe/d-ordqty.w (RECID(est-qty), OUTPUT lv-qty, OUTPUT lv-price, OUTPUT lv-pr-uom,
+                    OUTPUT lv-rel, OUTPUT op-error, OUTPUT TABLE tt-item-qty-price).
+            END.
+            ELSE 
+            DO:
+                op-error = YES .
+            END.
 
-           IF op-error EQ NO THEN
-              ASSIGN
-                 oe-ordl.price:SCREEN-VALUE = STRING(lv-price)
-                 oe-ordl.qty:SCREEN-VALUE = STRING(lv-qty)
-                 oe-ordl.pr-uom:SCREEN-VALUE = lv-pr-uom
-                 ll-got-qtprice = YES
-                 v-rel = lv-rel.
+            IF op-error EQ NO THEN
+            DO:
+               MESSAGE "enete quote"
+               VIEW-AS ALERT-BOX. 
+                ASSIGN
+                    oe-ordl.price:SCREEN-VALUE  = STRING(lv-price)
+                    oe-ordl.qty:SCREEN-VALUE    = STRING(lv-qty)
+                    oe-ordl.pr-uom:SCREEN-VALUE = lv-pr-uom
+                    ll-got-qtprice              = YES
+                    v-rel                       = lv-rel.
+            RUN ClearTagsForGroup(
+                INPUT oe-ordl.rec_key,
+                INPUT "Price-Source"
+                ).
+        RUN AddTagInfoForGroup(
+            INPUT oe-ordl.rec_key,
+            INPUT "oe-ordl",
+            INPUT "EST -Detail" + "Quote EST No: " + STRING(quotehd.est-no) + "Quantity:" + string(lv-qty) + "Expiration Date: " + string(quotehd.expireDate),
+            INPUT "",
+            INPUT "Price-Source"
+            ). /*From TagProcs Super Proc*/ 
+        RUN Tag_IsTagRecordAvailable(
+            INPUT oe-ordl.rec_key,
+            INPUT "oe-ordl",
+            OUTPUT lAvailable
+            ).
+        IF lAvailable THEN  
+            btnTags:SENSITIVE = TRUE
+                .
+        ELSE 
+            btnTags:SENSITIVE = FALSE.
+            END.
         END.
      ELSE IF CAN-FIND(FIRST tt-item-qty-price WHERE
           tt-item-qty-price.tt-selected = YES AND
@@ -4529,12 +4687,35 @@ PROCEDURE display-est-detail :
            lv-price = tt-item-qty-price.price
            lv-pr-uom = tt-item-qty-price.uom
            lv-rel    = tt-item-qty-price.rel
-           v-rel     = lv-rel
-           op-error = NO
-           oe-ordl.price:SCREEN-VALUE = STRING(lv-price)
-           oe-ordl.qty:SCREEN-VALUE = STRING(lv-qty)
-           oe-ordl.pr-uom:SCREEN-VALUE = lv-pr-uom
-           ll-got-qtprice = YES.
+             v-rel     = lv-rel
+             op-error = NO
+             oe-ordl.price:SCREEN-VALUE = STRING(lv-price)
+             oe-ordl.qty:SCREEN-VALUE = STRING(lv-qty)
+             oe-ordl.pr-uom:SCREEN-VALUE = lv-pr-uom
+             ll-got-qtprice = YES.
+           MESSAGE "qty price"
+           VIEW-AS ALERT-BOX.
+         RUN ClearTagsForGroup(
+             INPUT oe-ordl.rec_key,
+             INPUT "Price-Source"
+             ).
+         RUN AddTagInfoForGroup(
+             INPUT oe-ordl.rec_key,
+             INPUT "oe-ordl",
+             INPUT "Item Qty Prive"  + "Quantity:" + string(lv-qty),
+             INPUT "",
+             INPUT "Price-Source"
+             ). /*From TagProcs Super Proc*/ 
+        RUN Tag_IsTagRecordAvailable(
+            INPUT oe-ordl.rec_key,
+            INPUT "oe-ordl",
+            OUTPUT lAvailable
+            ).
+        IF lAvailable THEN  
+            btnTags:SENSITIVE = TRUE
+                .
+        ELSE 
+            btnTags:SENSITIVE = FALSE.
      END.
 
      ELSE
@@ -4595,6 +4776,29 @@ PROCEDURE display-est-detail :
                       INPUT-OUTPUT lv-qty).
 
      oe-ordl.qty:SCREEN-VALUE  = STRING(lv-qty).
+     MESSAGE "get quote price"
+     VIEW-AS ALERT-BOX.
+      RUN ClearTagsForGroup(
+          INPUT oe-ordl.rec_key,
+          INPUT "Price-Source"
+          ).
+      RUN AddTagInfoForGroup(
+          INPUT oe-ordl.rec_key,
+          INPUT "oe-ordl",
+          INPUT "Quoted Price Quote Est:" + STRING(cQuoteEst) + "Quote No:" + STRING(lv-q-no) + "Quantity:" + string(lv-qty),
+          INPUT "",
+          INPUT "Price-Source"
+          ). /*From TagProcs Super Proc*/ 
+      RUN Tag_IsTagRecordAvailable(
+          INPUT oe-ordl.rec_key,
+          INPUT "oe-ordl",
+          OUTPUT lAvailable
+          ).
+      IF lAvailable THEN  
+          btnTags:SENSITIVE = TRUE
+              .
+      ELSE 
+          btnTags:SENSITIVE = FALSE.
   END.
   IF lv-qty GT 0 AND AVAILABLE est-qty THEN DO:
         DO iCount = 1 TO EXTENT(est-qty.qty):
@@ -4614,12 +4818,35 @@ PROCEDURE display-est-detail :
           (tt-item-qty-price.part-no EQ oe-ordl.i-no:SCREEN-VALUE AND oe-ordl.i-no:SCREEN-VALUE NE ""))
           NO-ERROR.
 
-     IF AVAIL tt-item-qty-price THEN
-        ASSIGN
-           ll-got-qtprice = YES
-           lv-price = tt-item-qty-price.price
-           lv-pr-uom = tt-item-qty-price.uom
-           lv-q-no = tt-item-qty-price.q-no.
+      IF AVAIL tt-item-qty-price THEN
+          ASSIGN
+              ll-got-qtprice = YES
+              lv-price       = tt-item-qty-price.price
+              lv-pr-uom      = tt-item-qty-price.uom
+              lv-q-no        = tt-item-qty-price.q-no.
+              MESSAGE "not get quote price ttitem"
+              VIEW-AS ALERT-BOX.
+      RUN ClearTagsForGroup(
+          INPUT oe-ordl.rec_key,
+          INPUT "Price-Source"
+          ).
+      RUN AddTagInfoForGroup(
+          INPUT oe-ordl.rec_key,
+          INPUT "oe-ordl",
+          INPUT "Item Qty Price Quote No:" + STRING(lv-q-no)  + "Quantity:" + string(lv-qty),
+          INPUT "",
+          INPUT "Price-Source"
+          ). /*From TagProcs Super Proc*/ 
+      RUN Tag_IsTagRecordAvailable(
+          INPUT oe-ordl.rec_key,
+          INPUT "oe-ordl",
+          OUTPUT lAvailable
+          ).
+      IF lAvailable THEN  
+          btnTags:SENSITIVE = TRUE
+              .
+      ELSE 
+          btnTags:SENSITIVE = FALSE.
   END.
 
   ASSIGN
@@ -4849,6 +5076,27 @@ DO WITH FRAME {&FRAME-NAME}:
                                      INPUT-OUTPUT lv-qty).
                     
                     oe-ordl.qty:SCREEN-VALUE = STRING(lv-qty).
+                    RUN ClearTagsForGroup(
+        INPUT oe-ordl.rec_key,
+        INPUT "Price-Source"
+      ).
+                     RUN AddTagInfoForGroup(
+                         INPUT oe-ordl.rec_key,
+                         INPUT "oe-ordl",
+                         INPUT "Quoted Price Quote No:" + string(lv-q-no) + "Quantity:" + string(lv-qty),
+                         INPUT "",
+                         INPUT "Price-Source"
+                         ). /*From TagProcs Super Proc*/ 
+                     RUN Tag_IsTagRecordAvailable(
+                         INPUT oe-ordl.rec_key,
+                         INPUT "oe-ordl",
+                         OUTPUT lAvailable
+                         ).
+                     IF lAvailable THEN  
+                         btnTags:SENSITIVE = TRUE
+                             .
+                     ELSE 
+                         btnTags:SENSITIVE = FALSE.
                  END.
               ELSE
               DO:
@@ -4858,13 +5106,35 @@ DO WITH FRAME {&FRAME-NAME}:
                       (tt-item-qty-price.part-no EQ v-tmp-part AND v-tmp-part EQ ""))
                       NO-ERROR.
                  
-                 IF AVAIL tt-item-qty-price THEN
-                    ASSIGN
-                       lv-price = tt-item-qty-price.price
-                       lv-pr-uom = tt-item-qty-price.uom
-                       lv-q-no = tt-item-qty-price.q-no.
+                  IF AVAIL tt-item-qty-price THEN
+                      ASSIGN
+                          lv-price  = tt-item-qty-price.price
+                          lv-pr-uom = tt-item-qty-price.uom
+                          lv-q-no   = tt-item-qty-price.q-no.
+                                      RUN ClearTagsForGroup(
+        INPUT oe-ordl.rec_key,
+        INPUT "Price-Source"
+      ).
+                  RUN AddTagInfoForGroup(
+                      INPUT oe-ordl.rec_key,
+                      INPUT "oe-ordl",
+                      INPUT "Item Qty Price Quote No:" + string(lv-q-no) + "Quantity:" + string(lv-qty),
+                      INPUT "",
+                      INPUT "Price-Source"
+                      ). /*From TagProcs Super Proc*/ 
+                  RUN Tag_IsTagRecordAvailable(
+                      INPUT oe-ordl.rec_key,
+                      INPUT "oe-ordl",
+                         OUTPUT lAvailable
+                         ).
+                     IF lAvailable THEN  
+                         btnTags:SENSITIVE = TRUE
+                             .
+                     ELSE 
+                         btnTags:SENSITIVE = FALSE.
               END.
-
+MESSAGE lv-price "lv-price 1"
+VIEW-AS ALERT-BOX.
               ASSIGN 
                oe-ordl.price:screen-value  = STRING(lv-price)
                oe-ordl.pr-uom:screen-value = lv-pr-uom.
@@ -4931,9 +5201,41 @@ DO WITH FRAME {&FRAME-NAME}:
      IF oe-ordl.part-no:SCREEN-VALUE EQ "" THEN
          ASSIGN oe-ordl.part-no:SCREEN-VALUE = oe-ordl.i-no:SCREEN-VALUE .
 
-     IF oe-ordl.est-no:SCREEN-VALUE NE "" AND
-        oeestcom-log = YES THEN
-        RUN get-est-comm (INPUT ROWID(oe-ordl), INPUT YES).
+      IF oe-ordl.est-no:SCREEN-VALUE NE "" AND
+          oeestcom-log = YES THEN
+          RUN get-est-comm (INPUT ROWID(oe-ordl), INPUT YES).
+                       RUN ClearTagsForGroup(
+        INPUT oe-ordl.rec_key,
+        INPUT "Price-Source"
+      ).
+       IF setFromHistory THEN 
+          RUN AddTagInfoForGroup(
+              INPUT oe-ordl.rec_key,
+              INPUT "oe-ordl",
+              INPUT "History Price ",
+              INPUT "",
+              INPUT "Price-Source"
+              ). /*From TagProcs Super Proc*/ 
+        ELSE IF itemfg.sell-price <> 0 THEN 
+           RUN AddTagInfoForGroup(
+               INPUT oe-ordl.rec_key,
+               INPUT "oe-ordl",
+               INPUT "Item Sell Price",
+               INPUT "",
+               INPUT "Price-Source"
+               ). /*From TagProcs Super Proc*/ 
+       
+     
+      RUN Tag_IsTagRecordAvailable(
+          INPUT oe-ordl.rec_key,
+          INPUT "oe-ordl",
+          OUTPUT lAvailable
+                         ).
+                     IF lAvailable THEN  
+                         btnTags:SENSITIVE = TRUE
+                             .
+                     ELSE 
+                         btnTags:SENSITIVE = FALSE.
   END.
 
   IF oe-ordl.est-no:screen-value EQ "" THEN DO:
@@ -5114,9 +5416,41 @@ DO WITH FRAME {&frame-name}:
             oe-ordl.part-dscr2:screen-value = itemfg.part-dscr2
             oe-ordl.part-dscr3:screen-value = itemfg.part-dscr3    .
 
-     IF oe-ordl.est-no:SCREEN-VALUE NE "" AND
-        oeestcom-log = YES THEN
-        RUN get-est-comm (INPUT ROWID(oe-ordl), INPUT YES).
+      IF oe-ordl.est-no:SCREEN-VALUE NE "" AND
+          oeestcom-log = YES THEN
+          RUN get-est-comm (INPUT ROWID(oe-ordl), INPUT YES).
+                             RUN ClearTagsForGroup(
+        INPUT oe-ordl.rec_key,
+        INPUT "Price-Source"
+      ).
+      IF setFromHistory THEN 
+          RUN AddTagInfoForGroup(
+              INPUT oe-ordl.rec_key,
+              INPUT "oe-ordl",
+              INPUT "History Price ",
+              INPUT "",
+              INPUT "Price-Source"
+              ). /*From TagProcs Super Proc*/ 
+      ELSE IF itemfg.sell-price <> 0 THEN 
+              RUN AddTagInfoForGroup(
+                  INPUT oe-ordl.rec_key,
+                  INPUT "oe-ordl",
+                  INPUT "Item Sell Price",
+                  INPUT "",
+                  INPUT "Price-Source"
+                  ). /*From TagProcs Super Proc*/ 
+       
+     
+      RUN Tag_IsTagRecordAvailable(
+          INPUT oe-ordl.rec_key,
+          INPUT "oe-ordl",
+          OUTPUT lAvailable
+                         ).
+                     IF lAvailable THEN  
+                         btnTags:SENSITIVE = TRUE
+                             .
+                     ELSE 
+                         btnTags:SENSITIVE = FALSE.
   END.
 
   IF oe-ordl.est-no:screen-value EQ "" THEN DO:
@@ -5360,31 +5694,31 @@ PROCEDURE enable_UI :
           fi_sname-3 fi_sname-lbl fi_jobStartDate 
       WITH FRAME d-oeitem.
   IF AVAILABLE oe-ordl THEN 
-    DISPLAY oe-ordl.est-no oe-ordl.job-no oe-ordl.job-no2 oe-ordl.qty oe-ordl.i-no 
-          oe-ordl.part-no oe-ordl.i-name oe-ordl.part-dscr1 oe-ordl.part-dscr2 
-          oe-ordl.part-dscr3 oe-ordl.po-no oe-ordl.e-num oe-ordl.po-no-po 
-          oe-ordl.vend-no oe-ordl.price oe-ordl.pr-uom oe-ordl.tax oe-ordl.disc 
-          oe-ordl.cas-cnt oe-ordl.t-price oe-ordl.partial oe-ordl.cost 
-          oe-ordl.cases-unit oe-ordl.type-code oe-ordl.managed oe-ordl.whsed 
-          oe-ordl.s-man[1] oe-ordl.s-pct[1] oe-ordl.s-comm[1] oe-ordl.s-man[2] 
-          oe-ordl.s-pct[2] oe-ordl.s-comm[2] oe-ordl.s-man[3] oe-ordl.s-pct[3] 
-          oe-ordl.s-comm[3] oe-ordl.over-pct oe-ordl.under-pct oe-ordl.req-code 
-          oe-ordl.prom-code oe-ordl.req-date oe-ordl.prom-date 
-          oe-ordl.spare-char-1 oe-ordl.spare-dec-1 oe-ordl.spare-char-2 
-          oe-ordl.SourceEstimateID
+    DISPLAY oe-ordl.est-no oe-ordl.sourceEstimateID oe-ordl.job-no oe-ordl.job-no2 
+          oe-ordl.qty oe-ordl.i-no oe-ordl.part-no oe-ordl.i-name 
+          oe-ordl.part-dscr1 oe-ordl.part-dscr2 oe-ordl.part-dscr3 oe-ordl.po-no 
+          oe-ordl.e-num oe-ordl.po-no-po oe-ordl.vend-no oe-ordl.price 
+          oe-ordl.pr-uom oe-ordl.tax oe-ordl.disc oe-ordl.cas-cnt 
+          oe-ordl.t-price oe-ordl.partial oe-ordl.cost oe-ordl.cases-unit 
+          oe-ordl.type-code oe-ordl.managed oe-ordl.whsed oe-ordl.s-man[1] 
+          oe-ordl.s-pct[1] oe-ordl.s-comm[1] oe-ordl.s-man[2] oe-ordl.s-pct[2] 
+          oe-ordl.s-comm[2] oe-ordl.s-man[3] oe-ordl.s-pct[3] oe-ordl.s-comm[3] 
+          oe-ordl.over-pct oe-ordl.under-pct oe-ordl.req-code oe-ordl.prom-code 
+          oe-ordl.req-date oe-ordl.prom-date oe-ordl.spare-char-1 
+          oe-ordl.spare-dec-1 oe-ordl.spare-char-2 
       WITH FRAME d-oeitem.
-  ENABLE oe-ordl.est-no oe-ordl.qty fi_qty-uom oe-ordl.i-no oe-ordl.part-no 
-         oe-ordl.i-name oe-ordl.part-dscr1 oe-ordl.part-dscr2 
-         oe-ordl.part-dscr3 oe-ordl.po-no oe-ordl.e-num oe-ordl.po-no-po 
-         oe-ordl.price oe-ordl.pr-uom oe-ordl.tax oe-ordl.disc oe-ordl.cas-cnt 
-         oe-ordl.partial oe-ordl.cases-unit oe-ordl.type-code oe-ordl.managed 
-         oe-ordl.whsed oe-ordl.s-man[1] oe-ordl.s-pct[1] oe-ordl.s-comm[1] 
-         oe-ordl.s-man[2] oe-ordl.s-pct[2] oe-ordl.s-comm[2] oe-ordl.s-man[3] 
-         oe-ordl.s-pct[3] oe-ordl.s-comm[3] oe-ordl.over-pct oe-ordl.under-pct 
-         oe-ordl.req-code oe-ordl.prom-code oe-ordl.req-date oe-ordl.prom-date 
-         Btn_OK Btn_Done Btn_Cancel Btn_hist oe-ordl.spare-char-1 
-         oe-ordl.spare-dec-1 oe-ordl.spare-char-2 oe-ordl.SourceEstimateID  
-         fi_jobStartDate btn-quotes RECT-31 RECT-39 RECT-40 RECT-41  
+  ENABLE oe-ordl.est-no oe-ordl.sourceEstimateID oe-ordl.qty fi_qty-uom 
+         oe-ordl.i-no oe-ordl.part-no oe-ordl.i-name oe-ordl.part-dscr1 
+         oe-ordl.part-dscr2 oe-ordl.part-dscr3 oe-ordl.po-no oe-ordl.e-num 
+         oe-ordl.po-no-po oe-ordl.price oe-ordl.pr-uom oe-ordl.tax oe-ordl.disc 
+         oe-ordl.cas-cnt oe-ordl.partial oe-ordl.cases-unit oe-ordl.type-code 
+         oe-ordl.managed oe-ordl.whsed oe-ordl.s-man[1] oe-ordl.s-pct[1] 
+         oe-ordl.s-comm[1] oe-ordl.s-man[2] oe-ordl.s-pct[2] oe-ordl.s-comm[2] 
+         oe-ordl.s-man[3] oe-ordl.s-pct[3] oe-ordl.s-comm[3] oe-ordl.over-pct 
+         oe-ordl.under-pct oe-ordl.req-code oe-ordl.prom-code oe-ordl.req-date 
+         oe-ordl.prom-date Btn_OK Btn_Done Btn_Cancel Btn_hist 
+         oe-ordl.spare-char-1 oe-ordl.spare-dec-1 oe-ordl.spare-char-2 
+         fi_jobStartDate btn-quotes RECT-31 RECT-39 RECT-40 RECT-41 
       WITH FRAME d-oeitem.
   VIEW FRAME d-oeitem.
   {&OPEN-BROWSERS-IN-QUERY-d-oeitem}
@@ -6504,6 +6838,27 @@ PROCEDURE leave-qty :
                             OUTPUT lv-q-no,
                             INPUT-OUTPUT lv-qty).
              oe-ordl.qty:SCREEN-VALUE = STRING(lv-qty).
+             RUN ClearTagsForGroup(
+        INPUT oe-ordl.rec_key,
+        INPUT "Price-Source"
+      ).
+              RUN AddTagInfoForGroup(
+                  INPUT oe-ordl.rec_key,
+                  INPUT "oe-ordl",
+                  INPUT "Quoted Price Quote No:" + string(lv-q-no) + "Quantity: " + string(lv-qty) ,
+                  INPUT "",
+                  INPUT "Price-Source"
+                  ). /*From TagProcs Super Proc*/ 
+              RUN Tag_IsTagRecordAvailable(
+                  INPUT oe-ordl.rec_key,
+                  INPUT "oe-ordl",
+                  OUTPUT lAvailable
+                  ).
+              IF lAvailable THEN  
+                  btnTags:SENSITIVE = TRUE
+                      .
+              ELSE 
+                  btnTags:SENSITIVE = FALSE.
           END.
           ELSE
           DO:
@@ -6514,10 +6869,32 @@ PROCEDURE leave-qty :
              ASSIGN
                 lv-price = tt-item-qty-price.price
                 lv-pr-uom = tt-item-qty-price.uom
-                lv-q-no = tt-item-qty-price.q-no.
-             IF llGotLowerPrice THEN DO:
-                llGotLowerPrice = NO.
-                DELETE tt-item-qty-price.
+                  lv-q-no = tt-item-qty-price.q-no.
+              IF llGotLowerPrice THEN 
+              DO:
+                  llGotLowerPrice = NO.
+                  DELETE tt-item-qty-price.
+                 RUN ClearTagsForGroup(
+        INPUT oe-ordl.rec_key,
+        INPUT "Price-Source"
+      ).
+              RUN AddTagInfoForGroup(
+                  INPUT oe-ordl.rec_key,
+                  INPUT "oe-ordl",
+                  INPUT "Item Qty Price Quote No:" + string(lv-q-no)  ,
+                  INPUT "",
+                  INPUT "Price-Source"
+                  ). /*From TagProcs Super Proc*/ 
+                  RUN Tag_IsTagRecordAvailable(
+                      INPUT oe-ordl.rec_key,
+                      INPUT "oe-ordl",
+                      OUTPUT lAvailable
+                  ).
+              IF lAvailable THEN  
+                  btnTags:SENSITIVE = TRUE
+                      .
+              ELSE 
+                  btnTags:SENSITIVE = FALSE.
 
              END.
           END.
@@ -7695,17 +8072,59 @@ PROCEDURE prev-quote-proc :
                     WHEN "PRICE" THEN DO:
                         ASSIGN 
                             oe-ordl.price:SCREEN-VALUE = STRING(lxPrice,">>>,>>>,>99.99<<<")
-                            oe-ordl.pr-uom:SCREEN-VALUE = lxUom                                      
-                            lv-price = STRING(lxPrice,">>>,>>>,>99.99<<<")
-                            lv-pruom = lxUom.
+                        oe-ordl.pr-uom:SCREEN-VALUE = lxUom                                      
+                        lv-price = STRING(lxPrice,">>>,>>>,>99.99<<<")
+                        lv-pruom = lxUom.
+                        RUN ClearTagsForGroup(
+                            INPUT oe-ordl.rec_key,
+                            INPUT "Price-Source"
+                            ).
+                        RUN AddTagInfoForGroup(
+                            INPUT oe-ordl.rec_key,
+                        INPUT "oe-ordl",
+                  INPUT "Quoted Price Quote No:" + string(lxQno) + "Quantity: " + string(lxQty) ,
+                  INPUT "",
+                  INPUT "Price-Source"
+                  ). /*From TagProcs Super Proc*/ 
+                    RUN Tag_IsTagRecordAvailable(
+                  INPUT oe-ordl.rec_key,
+                  INPUT "oe-ordl",
+                  OUTPUT lAvailable
+                  ).
+              IF lAvailable THEN  
+                  btnTags:SENSITIVE = TRUE
+                      .
+              ELSE 
+                  btnTags:SENSITIVE = FALSE.
                     END.
                     WHEN "PRICEQTY" THEN DO:
                         ASSIGN
                             oe-ordl.price:SCREEN-VALUE = STRING(lxPrice,">>>,>>>,>99.99<<<")                
                             oe-ordl.pr-uom:SCREEN-VALUE = lxUom
-                            oe-ordl.qty:SCREEN-VALUE = STRING(lxQty,">>>,>>>,>>9")                                       
-                            lv-price = STRING(lxPrice,">>>,>>>,>99.99<<<")
-                            lv-pruom = lxUom.
+                        oe-ordl.qty:SCREEN-VALUE = STRING(lxQty,">>>,>>>,>>9")                                       
+                        lv-price = STRING(lxPrice,">>>,>>>,>99.99<<<")
+                        lv-pruom = lxUom.
+                                   RUN ClearTagsForGroup(
+        INPUT oe-ordl.rec_key,
+        INPUT "Price-Source"
+      ).
+              RUN AddTagInfoForGroup(
+                  INPUT oe-ordl.rec_key,
+                  INPUT "oe-ordl",
+                  INPUT "Quoted Price Quote No:" + string(lxQno) + "Quantity: " + string(lxQty) ,
+                  INPUT "",
+                  INPUT "Price-Source"
+                  ). /*From TagProcs Super Proc*/ 
+                    RUN Tag_IsTagRecordAvailable(
+                        INPUT oe-ordl.rec_key,
+                  INPUT "oe-ordl",
+                  OUTPUT lAvailable
+                  ).
+              IF lAvailable THEN  
+                  btnTags:SENSITIVE = TRUE
+                      .
+              ELSE 
+                  btnTags:SENSITIVE = FALSE.
                             
                     END.
                 END CASE.
