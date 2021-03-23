@@ -728,7 +728,9 @@ FUNCTION FormatForCSV RETURNS CHARACTER
     
     IF iplReplaceQuote THEN
         ipcValue = REPLACE(ipcValue,'~"',CHR(27)). 
-    
+    ELSE
+        ipcValue = REPLACE(ipcValue,'"','""').
+        
     ASSIGN 
         iZeroCode = ASC("0")
         iNineCode = ASC("9")
