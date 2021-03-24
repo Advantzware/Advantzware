@@ -632,7 +632,38 @@ DO:
 
 END.
 
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
+&Scoped-define SELF-NAME item.vend-item
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL item.vend-item V-table-Win
+ON LEAVE OF item.vend-item IN FRAME F-Main
+DO:    
+    IF LASTKEY NE -1 THEN
+    DO:
+        RUN valid-itemnumber(item.vend-item:HANDLE) NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN
+            RETURN NO-APPLY.
+    END.
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME item.vend2-item
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL item.vend2-item V-table-Win
+ON LEAVE OF item.vend2-item IN FRAME F-Main
+DO:    
+    IF LASTKEY NE -1 THEN
+    DO:
+    
+        RUN valid-itemnumber(input item.vend2-item:HANDLE) NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN
+            RETURN NO-APPLY.
+    END.
+
+END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1114,6 +1145,15 @@ PROCEDURE local-update-record :
   RUN valid-loc-bin NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
+   DO WITH FRAME {&FRAME-NAME}:
+      RUN valid-itemnumber (item.vend-no:HANDLE) NO-ERROR.
+      IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    
+      RUN valid-itemnumber (item.vend2-no:HANDLE) NO-ERROR.
+       IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    
+  END. 
+   
   do with frame {&frame-name} :
     run sys/ref/uom-rm.p  (item.mat-type, output uom-list).   
     run sys/ref/uom-rm2.p  (item.mat-type, output uom-list-con).
@@ -1407,6 +1447,40 @@ PROCEDURE valid-loc :
 
   {methods/lValidateError.i NO}
 END PROCEDURE.
+
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-itemnumber V-table-Win 
+PROCEDURE valid-itemnumber:
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE INPUT PARAMETER iphItemNumber AS HANDLE NO-UNDO.
+  
+  {methods/lValidateError.i YES} 
+  DO WITH FRAME {&FRAME-NAME}: 
+  IF INDEX(iphItemNumber:SCREEN-VALUE, "?") GT 0 THEN
+  DO:
+      MESSAGE TRIM(iphItemNumber:SCREEN-VALUE) + 
+              " is invalid, ? can not be entered as item number."
+          VIEW-AS ALERT-BOX ERROR.
+
+      APPLY "entry" TO iphItemNumber.
+      
+      RETURN ERROR.
+    
+  END.
+
+  
+  END.
+  
+  {methods/lValidateError.i NO}
+END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
