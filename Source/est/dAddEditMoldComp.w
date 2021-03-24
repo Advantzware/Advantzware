@@ -1310,7 +1310,10 @@ PROCEDURE pGetBoardFromStyle :
         ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcStyle AS CHARACTER NO-UNDO .
     DO WITH FRAME {&FRAME-NAME}:
-    
+       IF ipcScreen EQ "F" THEN
+          ASSIGN 
+              board:SCREEN-VALUE = style.material[1] . 
+       ELSE DO:    
         FIND FIRST flute NO-LOCK
             WHERE flute.company EQ cocode NO-ERROR .
         IF AVAILABLE flute THEN
@@ -1319,6 +1322,7 @@ PROCEDURE pGetBoardFromStyle :
                 AND reftable.code = "BOARD"
                 NO-LOCK NO-ERROR. 
         board:screen-value = IF AVAILABLE reftable AND AVAILABLE flute AND reftable.dscr NE "" THEN reftable.dscr ELSE board:screen-value.
+       END. 
     END.
 
 END PROCEDURE.
