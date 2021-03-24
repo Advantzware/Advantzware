@@ -1692,20 +1692,14 @@ PROCEDURE pLocalCSV:
     DEFINE VARIABLE hQueryBuf      AS HANDLE    NO-UNDO.
     DEFINE VARIABLE idx            AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iNumResults    AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE lAddTab        AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lProceed       AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE lReplaceQuote  AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lUseCustList   AS LOGICAL   NO-UNDO.
 
     SESSION:SET-WAIT-STATE("General").
     RUN AOA/spDynCalcField.p PERSISTENT SET hDynCalcField.
     RUN system/OutputProcs.p PERSISTENT SET hOutputProcs.
     RUN spGetSessionParam ("Company", OUTPUT cCompany). 
-    RUN Output_GetValueNK1OutputCSV IN hOutputProcs (
-        cCompany,
-        OUTPUT lReplaceQuote,
-        OUTPUT lAddTab
-        ).
+
     IF dynParamValue.useCustList OR dynParamValue.CustListID NE "" THEN
     RUN spCustList (
         dynParamValue.subjectID,
@@ -1790,7 +1784,7 @@ PROCEDURE pLocalCSV:
                     hQueryBuf    = iphQuery:GET-BUFFER-HANDLE(ENTRY(1,dynValueColumn.colName,"."))
                     cFieldName   = ENTRY(2,dynValueColumn.colName,".")
                     cBufferValue = fFormatValue(hQueryBuf, cFieldName, dynValueColumn.colFormat)
-                    cBufferValue = DYNAMIC-FUNCTION("FormatForCSV" IN hOutputProcs, cBufferValue, lReplaceQuote, lAddTab)
+                    cBufferValue = DYNAMIC-FUNCTION("FormatForCSV" IN hOutputProcs, cBufferValue)
                     .
                 PUT STREAM sLocalCSV UNFORMATTED REPLACE(cBufferValue,",","") + ",".
             END. /* each dynvaluecolumn */

@@ -67,18 +67,10 @@ DEF VAR ldummy AS LOG NO-UNDO.
 DEF VAR cTextListToSelect AS cha NO-UNDO.
 DEF VAR cFieldListToSelect AS cha NO-UNDO.
 DEF VAR cTextListToDefault AS cha NO-UNDO.
-
-DEFINE VARIABLE lReplaceQuote AS LOGICAL NO-UNDO.
-DEFINE VARIABLE lAddTab       AS LOGICAL NO-UNDO.      
+     
 DEFINE VARIABLE hdOutputProcs AS HANDLE  NO-UNDO.
 
 RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
-
-RUN Output_GetValueNK1OutputCSV IN hdOutputProcs(
-    INPUT cocode,
-    OUTPUT lReplaceQuote,
-    OUTPUT lAddTab
-    ).
 
 /* Removed Prep Tax Code - 16.8.9 - Tkt#48289 - MYT - 4/30/19 */
 ASSIGN cTextListToSelect = "Customer,Name,Status,Address1,Address2,City,State,Zip,Email,Group,Date Added,Type,Type Dscr,Contact,Sales Rep,Sales Rep Name," +
@@ -1124,7 +1116,7 @@ FUNCTION appendXLLine RETURNS CHARACTER
 ------------------------------------------------------------------------------*/
     DEF VAR lc-line AS CHAR NO-UNDO.
     
-    ipc-append = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, ipc-append,lReplaceQuote,lAddTab).
+    ipc-append = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, ipc-append).
     
     lc-line = lc-line + '"' + ipc-append + '",'.
     RETURN lc-line.   /* Function return value. */

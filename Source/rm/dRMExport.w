@@ -54,17 +54,9 @@ DEF VAR ldummy AS LOG NO-UNDO.
 DEF VAR cTextListToSelect AS cha NO-UNDO.
 DEF VAR cFieldListToSelect AS cha NO-UNDO.
 DEF VAR cTextListToDefault AS cha NO-UNDO.
-DEFINE VARIABLE lReplaceQuote AS LOGICAL NO-UNDO.
-DEFINE VARIABLE lAddTab       AS LOGICAL NO-UNDO.
 DEFINE VARIABLE hdOutputProcs AS HANDLE  NO-UNDO.
 
 RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
-
-RUN Output_GetValueNK1OutputCSV IN hdOutputProcs(
-    INPUT  cocode,
-    OUTPUT lReplaceQuote,
-    OUTPUT lAddTab
-    ). 
 
 IF ipcIndustry EQ "2" THEN
   v-prgmname = v-prgmname + "C" .
@@ -1070,7 +1062,7 @@ FUNCTION appendXLLine RETURNS CHARACTER
 ------------------------------------------------------------------------------*/
     DEF VAR lc-line AS CHAR NO-UNDO.
     
-    ipc-append = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, ipc-append,lReplaceQuote,lAddTab).        
+    ipc-append = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, ipc-append).        
     lc-line = lc-line + '"' + ipc-append + '",'.
     RETURN lc-line.   /* Function return value. */
 

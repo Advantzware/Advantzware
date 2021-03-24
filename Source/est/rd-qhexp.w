@@ -57,17 +57,9 @@ DEFINE VARIABLE ldummy AS LOG NO-UNDO.
 DEFINE VARIABLE cTextListToSelect AS cha NO-UNDO.
 DEFINE VARIABLE cFieldListToSelect AS cha NO-UNDO.
 DEF VAR cTextListToDefault AS cha NO-UNDO.
-DEFINE VARIABLE lReplaceQuote AS LOGICAL NO-UNDO.
-DEFINE VARIABLE lAddTab       AS LOGICAL NO-UNDO. 
 DEFINE VARIABLE hdOutputProcs AS HANDLE  NO-UNDO.
 
 RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
-
-RUN Output_GetValueNK1OutputCSV IN hdOutputProcs(
-    INPUT  cocode,
-    OUTPUT lReplaceQuote,
-    OUTPUT lAddTab
-    ). 
 
 ASSIGN cTextListToSelect = "Part #,Customer,Quote#,Quantity,Price,Profit %,Price UOM,ShipTo,SoldTo,Quote Date,Delivery Date,Expiration Date," +
                            "Estimate #,Contact,Sales Group,Terms Code,Carrier,Zone,FG Item #,Item Description," +
@@ -1573,7 +1565,7 @@ FUNCTION appendXLLine RETURNS CHARACTER
     IF ipc-append EQ ? THEN ASSIGN 
         ipc-append = "".       
     
-    ipc-append = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, ipc-append,lReplaceQuote,lAddTab).
+    ipc-append = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, ipc-append).
     
     lc-line = lc-line + '"' + ipc-append + '",'.
     RETURN lc-line.   /* Function return value. */
