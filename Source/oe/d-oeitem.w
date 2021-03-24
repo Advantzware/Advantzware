@@ -1224,6 +1224,7 @@ END.
 ON CHOOSE OF Btn_Cancel IN FRAME d-oeitem /* Cancel */
 DO:
   lv-add-mode = NO.
+  IF ip-type NE 'Update' THEN
   RUN ClearTagsForGroup(
         INPUT oe-ordl.rec_key,
         INPUT "Price-Source"
