@@ -1224,7 +1224,10 @@ END.
 ON CHOOSE OF Btn_Cancel IN FRAME d-oeitem /* Cancel */
 DO:
   lv-add-mode = NO.
-
+  RUN ClearTagsForGroup(
+        INPUT oe-ordl.rec_key,
+        INPUT "Price-Source"
+        ).
   RUN exit-delete.
 
   IF lv-new-tandem NE ? THEN DO:
@@ -1363,14 +1366,34 @@ DO:
           QUESTION BUTTONS YES-NO UPDATE setFromHistory.
           IF setFromHistory THEN
           DO:
-            ASSIGN
-            oe-ordl.price:SCREEN-VALUE  = STRING(historyPrice)
-            oe-ordl.pr-uom:SCREEN-VALUE = STRING(historyPrUOM)
-            price-ent                   = YES.
+              ASSIGN
+                  oe-ordl.price:SCREEN-VALUE  = STRING(historyPrice)
+                  oe-ordl.pr-uom:SCREEN-VALUE = STRING(historyPrUOM)
+                  price-ent                   = YES.
             
-            IF oe-ordl.est-no:SCREEN-VALUE NE "" AND
-            oeestcom-log = YES THEN
-            RUN get-est-comm (INPUT ROWID(oe-ordl), INPUT YES).
+              IF oe-ordl.est-no:SCREEN-VALUE NE "" AND
+                  oeestcom-log = YES THEN
+                  RUN get-est-comm (INPUT ROWID(oe-ordl), INPUT YES).
+            RUN ClearTagsForGroup(
+                INPUT oe-ordl.rec_key,
+                INPUT "Price-Source"
+                ).
+            RUN AddTagInfoForGroup(
+                INPUT oe-ordl.rec_key,
+                INPUT "oe-ordl",
+                INPUT "History Price",
+                INPUT "",
+                INPUT "Price-Source"
+                ). /*From TagProcs Super Proc*/ 
+            RUN Tag_IsTagRecordAvailable(
+                INPUT oe-ordl.rec_key,
+                INPUT "oe-ordl",
+                OUTPUT lAvailable
+                ).
+            IF lAvailable THEN  
+                btnTags:SENSITIVE = TRUE.
+            ELSE 
+                btnTags:SENSITIVE = FALSE.
           END.
           
         END. /* not matrixexits */
@@ -4780,7 +4803,7 @@ PROCEDURE display-est-detail :
      RUN AddTagInfoForGroup(
           INPUT oe-ordl.rec_key,
           INPUT "oe-ordl",         
-          INPUT "Quoted Price Quote Est:" + STRING(cQuoteEst) + " Quote No:" + STRING(lv-q-no) + "Quantity:" + string(lv-qty),
+          INPUT "Quoted Price Quote Est:" + STRING(cQuoteEst) + " Quote No:" + STRING(lv-q-no) + " Quantity:" + string(lv-qty),
           INPUT "",
           INPUT "Price-Source"
           ). /*From TagProcs Super Proc*/ 
