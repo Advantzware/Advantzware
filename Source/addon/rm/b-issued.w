@@ -989,7 +989,8 @@ DO:
       IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
       
       IF adm-new-record AND rm-rctd.i-no NE rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name} AND
-         rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name} NE "" THEN
+         rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name} NE "" 
+         AND NOT iCheckIndex GT 0 THEN
          RUN set-s-b-proc.
 
       RUN validate-jobmat (YES) NO-ERROR.
