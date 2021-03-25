@@ -960,6 +960,7 @@ ON CHOOSE OF btnTags IN FRAME F-Main
 DO:
     RUN system/d-TagViewer.w (
         INPUT oe-bolh.rec_key,
+        INPUT "",
         INPUT ""
         ).
 END.
@@ -973,6 +974,7 @@ ON CHOOSE OF btnTags1 IN FRAME F-Main
 DO:
     RUN system/d-TagViewer.w (
         INPUT (oe-bolh.rec_key + "CalcFreight"),
+        INPUT "",
         INPUT ""
         ).
 END.

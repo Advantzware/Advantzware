@@ -1253,6 +1253,7 @@ ON CHOOSE OF btnTags IN FRAME F-Main
 DO:
     RUN system/d-TagViewer.w (
         INPUT oe-ord.rec_key,
+        INPUT "",
         INPUT ""
         ).
 END.
