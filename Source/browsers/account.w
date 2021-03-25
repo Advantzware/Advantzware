@@ -35,6 +35,7 @@ CREATE WIDGET-POOL.
 //&SCOPED-DEFINE sizeOption HEIGHT
 &SCOPED-DEFINE useMatches
 &SCOPED-DEFINE browseOnly
+&SCOPED-DEFINE local-initialize
 {methods/defines/winReSize.i}
 
 /* Parameters Definitions ---                                           */
@@ -631,6 +632,27 @@ PROCEDURE export-xl :
         lcAccTo = account.actnum
         .
     RUN fg/acc-exp.w (lcAccFrom, lcAccTo).
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-initialize B-table-Win 
+PROCEDURE local-initialize :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+
+  APPLY "entry" TO cAccount IN FRAME {&FRAME-NAME}. 
 
 END PROCEDURE.
 
