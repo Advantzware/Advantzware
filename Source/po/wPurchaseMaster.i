@@ -17,8 +17,7 @@
 IF access-close THEN 
 RETURN.
 
-run-proc = "po/wPurchaseMaster.w".
-{methods/smartrun.i "('{1}')"}
+RUN po/wPurchaseMaster.w( input '{1}')  .
 
 IF VALID-HANDLE(THIS-PROCEDURE) THEN
 DELETE PROCEDURE THIS-PROCEDURE.
