@@ -84,7 +84,16 @@ DEF VAR ll-sort-asc AS LOG INIT NO NO-UNDO.
     BY ({&sortby-log}) DESC       ~
     {&sortby}
 
-DEF VAR ll-first AS LOG INIT YES NO-UNDO.
+DEFINE VARIABLE ll-first            AS LOGICAL INIT YES NO-UNDO.
+DEFINE VARIABLE lRecFound           AS LOGICAL          NO-UNDO.
+DEFINE VARIABLE lAPInvoiceLength    AS LOGICAL          NO-UNDO.
+DEFINE VARIABLE cNK1Value           AS CHARACTER        NO-UNDO.
+
+RUN sys/ref/nk1look.p (INPUT cocode, "APInvoiceLength", "L" /* Logical */, NO /* check by cust */,
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cNK1Value, OUTPUT lRecFound).
+IF lRecFound THEN
+    lAPInvoiceLength = logical(cNK1Value) NO-ERROR.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -803,6 +812,20 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
+ON ROW-DISPLAY OF Browser-Table IN FRAME F-Main
+DO:
+    &SCOPED-DEFINE exclude-row-display true
+    {methods/template/brwRowDisplay.i} 
+    IF lAPInvoiceLength THEN
+        ASSIGN ap-inv.inv-no:FORMAT IN BROWSE {&browse-name} = "x(20)".
+    ELSE
+        ASSIGN ap-inv.inv-no:FORMAT IN BROWSE {&browse-name} = "x(12)".
+
+END.
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-initialize B-table-Win 
 PROCEDURE local-initialize :
 /*------------------------------------------------------------------------------
@@ -815,6 +838,8 @@ PROCEDURE local-initialize :
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
 
+  RUN pAPInvoiceLength.
+  
   /* Code placed here will execute AFTER standard behavior.    */
   ASSIGN 
    ap-inv.vend-no:READ-ONLY IN BROWSE {&browse-name} = YES
@@ -1052,3 +1077,28 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pAPInvoiceLength  B-table-Win 
+PROCEDURE pAPInvoiceLength :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    IF lAPInvoiceLength THEN DO:
+        ASSIGN ap-inv.inv-no:WIDTH IN BROWSE {&browse-name} = 30.
+        DO WITH FRAME {&FRAME-NAME}:
+            ASSIGN fi_finv:FORMAT = "x(20)". 
+            fi_finv:WIDTH-CHARS = 30.
+        END.
+    END.
+    ELSE DO: 
+        ASSIGN ap-inv.inv-no:WIDTH IN BROWSE {&browse-name} = 20.
+        DO WITH FRAME {&FRAME-NAME}:
+            ASSIGN fi_finv:FORMAT = "x(12)".
+            fi_finv:WIDTH-CHARS = 20.
+        END.    
+    END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME

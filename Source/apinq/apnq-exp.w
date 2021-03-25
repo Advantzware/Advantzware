@@ -55,6 +55,16 @@ assign
 
 DEFINE STREAM excel.
 
+DEFINE VARIABLE lRecFound           AS LOGICAL          NO-UNDO.
+DEFINE VARIABLE lAPInvoiceLength    AS LOGICAL          NO-UNDO.
+DEFINE VARIABLE cNK1Value           AS CHARACTER        NO-UNDO.
+
+RUN sys/ref/nk1look.p (INPUT cocode, "APInvoiceLength", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cNK1Value, OUTPUT lRecFound).
+IF lRecFound THEN
+    lAPInvoiceLength = logical(cNK1Value) NO-ERROR.
+
 DEF VAR ldummy AS LOG NO-UNDO.
 DEF VAR cTextListToSelect AS cha NO-UNDO.
 DEF VAR cFieldListToSelect AS cha NO-UNDO.
@@ -164,12 +174,12 @@ DEFINE BUTTON btn_Up
      LABEL "Move Up" 
      SIZE 16 BY 1.
 
-DEFINE VARIABLE begin_inv AS CHARACTER FORMAT "x(10)" 
+DEFINE VARIABLE begin_inv AS CHARACTER /*FORMAT "x(10)"*/ 
      LABEL "From Invoice#" 
      VIEW-AS FILL-IN 
      SIZE 20 BY 1.
 
-DEFINE VARIABLE end_inv AS CHARACTER FORMAT "X(10)" INITIAL "zzzzzzzzzzz" 
+DEFINE VARIABLE end_inv AS CHARACTER /*FORMAT "X(10)" INITIAL "zzzzzzzzzzz"*/ 
      LABEL "To Invoice#" 
      VIEW-AS FILL-IN 
      SIZE 21 BY 1.
@@ -216,9 +226,9 @@ DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL yes
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME rd-fgnq-exp
-     begin_inv AT ROW 3.86 COL 25.6 COLON-ALIGNED HELP
+     begin_inv AT ROW 3.86 COL 23.6 COLON-ALIGNED HELP
           "Enter Beginning Invoice#" WIDGET-ID 142
-     end_inv AT ROW 3.95 COL 67.6 COLON-ALIGNED HELP
+     end_inv AT ROW 3.86 COL 67.6 COLON-ALIGNED HELP
           "Enter Ending Invoice#" WIDGET-ID 144
      sl_avail AT ROW 12.24 COL 9 NO-LABEL WIDGET-ID 26
      sl_selected AT ROW 12.24 COL 64 NO-LABEL WIDGET-ID 28
@@ -600,6 +610,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   RUN enable_UI.
    {methods/nowait.i}
   DO WITH FRAME {&FRAME-NAME}:
+    RUN pAPInvoiceLength.
     {custom/usrprint.i}
     RUN DisplaySelectionList2.
     RUN Set-Sort-Data.
@@ -1332,3 +1343,32 @@ END FUNCTION.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pAPInvoiceLength  B-table-Win 
+PROCEDURE pAPInvoiceLength :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    IF lAPInvoiceLength THEN DO:
+        DO WITH FRAME {&FRAME-NAME}:
+            ASSIGN begin_inv:FORMAT = "x(20)"
+                   end_inv:FORMAT = "x(20)"
+                   begin_inv:WIDTH-CHARS = 30
+                   end_inv:WIDTH-CHARS = 30
+                   end_inv:INITIAL = "zzzzzzzzzzzzzzzzzzzz".
+        END.
+    END.
+    ELSE DO: 
+        DO WITH FRAME {&FRAME-NAME}:
+            ASSIGN begin_inv:FORMAT = "x(12)"
+                   end_inv:FORMAT = "x(12)"
+                   begin_inv:WIDTH-CHARS = 20
+                   end_inv:WIDTH-CHARS = 20
+                   end_inv:INITIAL = "zzzzzzzzzzzz".
+        END.    
+    END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
