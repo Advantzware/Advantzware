@@ -2063,6 +2063,20 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetHoldButton W-Win 
+PROCEDURE pSetHoldButton :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  
+  RUN dispatch IN h_oe-hold ( INPUT 'row-available':U ) . 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE select_att W-Win 
 PROCEDURE select_att :
 /*------------------------------------------------------------------------------
