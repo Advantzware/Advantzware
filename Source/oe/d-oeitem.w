@@ -147,6 +147,7 @@ DEF VAR v-access-close AS LOG NO-UNDO.
 DEF VAR v-access-list AS CHAR NO-UNDO.
 DEFINE VARIABLE lInvoiceFound AS LOGICAL     NO-UNDO.
 
+DEFINE TEMP-TABLE ttTag LIKE tag.
 DEF TEMP-TABLE tt-qty-price
 FIELD oeordl-rowid AS ROWID
 FIELD tt-historyQty LIKE oe-ordl.qty
@@ -1230,6 +1231,22 @@ DO:
         INPUT oe-ordl.rec_key,
         INPUT "Price-Source"
         ).
+  ELSE 
+  DO:
+      RUN ClearTagsForGroup(
+          INPUT oe-ordl.rec_key,
+          INPUT "Price-Source"
+          ).
+      FOR EACH ttTag:
+          RUN AddTagInfoForGroup(
+              INPUT ttTag.linkRecKey,
+              INPUT ttTag.linkTable,
+              INPUT ttTag.description,
+              INPUT "",
+              INPUT ttTag.groupCode
+              ). /*From TagProcs Super Proc*/
+      END.
+  END.
   RUN exit-delete.
 
   IF lv-new-tandem NE ? THEN DO:
@@ -1919,9 +1936,10 @@ DO:
             RUN itemfg-sman.    
 
     END. /* modified */
-    RUN Tag_IsTagRecordAvailable(
+    RUN Tag_IsTagRecordAvailableForGroup(
              INPUT oe-ordl.rec_key,
              INPUT "oe-ordl",
+             INPUT "Price-Source",
              OUTPUT lAvailable
              ).
            IF lAvailable THEN  
@@ -2753,6 +2771,8 @@ MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
 
+
+  EMPTY TEMP-TABLE ttTag.
   DEF VAR ll-master AS LOG NO-UNDO.
 
   IF oe-ordl.vend-no:SCREEN-VALUE EQ "0" THEN
@@ -2844,14 +2864,23 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   FIND FIRST itemfg OF oe-ordl NO-LOCK WHERE
       itemfg.company EQ oe-ordl.company AND
       itemfg.i-no EQ oe-ordl.i-no NO-ERROR.
-    RUN Tag_IsTagRecordAvailable(
+    RUN Tag_IsTagRecordAvailableForGroup(
         INPUT oe-ordl.rec_key,
         INPUT "oe-ordl",
+        INPUT "Price-Source",
         OUTPUT lAvailable
         ).
     IF lAvailable THEN  
-        btnTags:SENSITIVE = TRUE
-            .
+    DO:
+        
+        RUN GetTags(
+            INPUT  oe-ordl.rec_key, 
+            INPUT  "oe-ordl", 
+            INPUT  "Price-Source",   
+            OUTPUT  TABLE  ttTag
+            ).
+        btnTags:SENSITIVE = TRUE.
+    END.
     ELSE 
         btnTags:SENSITIVE = FALSE.
   ASSIGN
@@ -7643,9 +7672,10 @@ PROCEDURE pAddTagInfoForGroup PRIVATE :
             INPUT "",
             INPUT "Price-Source"
             ). /*From TagProcs Super Proc*/ 
-        RUN Tag_IsTagRecordAvailable(
+        RUN Tag_IsTagRecordAvailableForGroup(
             INPUT bf-oe-ordl.rec_key,
             INPUT "oe-ordl",
+            INPUT "Price-Source",
             OUTPUT lAvailable
             ).
         IF lAvailable THEN  
