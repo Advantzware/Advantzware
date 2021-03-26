@@ -10,6 +10,7 @@ DEFINE INPUT  PARAMETER ipcShipToId     AS   CHARACTER               NO-UNDO.
 DEFINE INPUT  PARAMETER ipcFGItem       AS   CHARACTER               NO-UNDO.
 DEFINE OUTPUT PARAMETER opdOverPer      AS   DECIMAL                 NO-UNDO.
 DEFINE OUTPUT PARAMETER opdUnderPer     AS   DECIMAL                 NO-UNDO.
+DEFINE OUTPUT PARAMETER opcTagDesc      AS   CHARACTER                  NO-UNDO.
 DEFINE VARIABLE cRtnChar        AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound       AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cFGOversDefault AS CHARACTER NO-UNDO.
@@ -28,7 +29,9 @@ CASE cFGOversDefault:
             IF AVAILABLE cust THEN     
                 ASSIGN
                     opdOverPer  = cust.over-pct
-                    opdUnderPer = cust.under-pct.                    
+                    opdUnderPer = cust.under-pct
+                    opcTagDesc  = "Customer no. - " + ipcCustomerID.  
+                                      
         END.
     WHEN "Ship To" THEN 
         DO:
@@ -44,7 +47,8 @@ CASE cFGOversDefault:
             IF AVAILABLE shipto THEN
                 ASSIGN
                     opdOverPer  = shipto.oversPercent
-                    opdUnderPer = shipto.undersPercent .                              
+                    opdUnderPer = shipto.undersPercent
+                    opcTagDesc  = "Customer no. - " + ipcCustomerID + " Ship ID - " + ipcShipToId .                              
         END.
     WHEN "ShipToOverride" THEN 
         DO:
@@ -62,11 +66,13 @@ CASE cFGOversDefault:
                 IF AVAILABLE shipto AND shipto.oversPercent NE 0 THEN
                     ASSIGN
                         opdOverPer  = shipto.oversPercent
-                        opdUnderPer = shipto.undersPercent .
+                        opdUnderPer = shipto.undersPercent
+                        opcTagDesc  = "ShipToOverride Customer no. - " + ipcCustomerID + " Ship ID - " + ipcShipToId .
                 ELSE
                     ASSIGN
                         opdOverPer  = cust.over-pct
-                        opdUnderPer = cust.under-pct.      
+                        opdUnderPer = cust.under-pct
+                        opcTagDesc  = "Customer no. - " + ipcCustomerID + " Ship ID - " + ipcShipToId.      
             END.           
         END.                     
     WHEN  "FG category" THEN 
@@ -84,7 +90,11 @@ CASE cFGOversDefault:
                 IF AVAILABLE fgcat THEN
                     ASSIGN
                         opdOverPer  = fgcat.over-pct
-                        opdUnderPer = fgcat.under-pct.                 
+                        opdUnderPer = fgcat.under-pct
+                        opcTagDesc  = "FG category  Customer no. - " + ipcCustomerID + 
+                                                       " Ship ID - " + ipcShipToId + 
+                                                       " Item No. - " + ipcFGItem +
+                                                       " Category - " + string(fgcat.procat).                 
             END.
             ELSE DO:
                 FIND FIRST cust NO-LOCK
@@ -93,7 +103,8 @@ CASE cFGOversDefault:
                 IF AVAILABLE cust THEN     
                 ASSIGN
                     opdOverPer  = cust.over-pct
-                    opdUnderPer = cust.under-pct.            
+                    opdUnderPer = cust.under-pct
+                    opcTagDesc  = "Customer no. - " + ipcCustomerID + " Ship ID - " + ipcShipToId.            
             END.
         END.           
 END CASE.

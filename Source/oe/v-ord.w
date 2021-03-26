@@ -436,6 +436,11 @@ DEFINE BUTTON btnTags
      LABEL "" 
      SIZE 4.2 BY .95 TOOLTIP "Show Details".
 
+DEFINE BUTTON btnTagsOverrn 
+     IMAGE-UP FILE "Graphics/16x16/question.png":U
+     LABEL "" 
+     SIZE 4.2 BY .95 TOOLTIP "Show Details".
+
 DEFINE BUTTON btnValidate 
      LABEL "Validate" 
      SIZE 21 BY 1.05 TOOLTIP "PopUp Calendar".
@@ -762,6 +767,7 @@ DEFINE FRAME F-Main
      oe-ord.spare-char-2 AT ROW 11 COL 78 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 3.6 BY 1 NO-TAB-STOP 
+     btnTagsOverrn AT ROW 9.38 COL 29.6 WIDGET-ID 36
      RECT-30 AT ROW 9.1 COL 1.6
      RECT-33 AT ROW 12.67 COL 78
      RECT-35 AT ROW 15.33 COL 78
@@ -846,6 +852,8 @@ ASSIGN
 /* SETTINGS FOR BUTTON btnCalendar-6 IN FRAME F-Main
    3                                                                    */
 /* SETTINGS FOR BUTTON btnTags IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR BUTTON btnTagsOverrn IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR BUTTON btnValidate IN FRAME F-Main
    3                                                                    */
@@ -1254,6 +1262,21 @@ DO:
     RUN system/d-TagViewer.w (
         INPUT oe-ord.rec_key,
         INPUT ""
+        ).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnTagsOverrn
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnTagsOverrn V-table-Win
+ON CHOOSE OF btnTagsOverrn IN FRAME F-Main
+DO:
+    RUN system/d-TagViewer.w (
+        INPUT oe-ord.rec_key,
+        INPUT "",
+        INPUT "OverPct-Source"
         ).
 END.
 
@@ -6297,15 +6320,39 @@ PROCEDURE pGetOverUnderPct :
 ------------------------------------------------------------------------------*/
    DEFINE VARIABLE dOverPer AS DECIMAL NO-UNDO.
    DEFINE VARIABLE dUnderPer AS DECIMAL NO-UNDO.
+   DEFINE VARIABLE cTagDesc AS CHARACTER NO-UNDO.
+   DEFINE VARIABLE lAvailable AS LOGICAL NO-UNDO.
   
   DO WITH FRAME {&FRAME-NAME}:          
     RUN oe/GetOverUnderPct.p(g_company,
                            oe-ord.cust-no:SCREEN-VALUE ,
                            TRIM(oe-ord.ship-id:SCREEN-VALUE),
                            "", /* FG Item*/
-                           OUTPUT dOverPer , OUTPUT dUnderPer ) .  
-                           oe-ord.over-pct:SCREEN-VALUE = STRING(dOverPer).
-                           oe-ord.Under-pct:SCREEN-VALUE = STRING(dUnderPer). 
+                           OUTPUT dOverPer , OUTPUT dUnderPer, OUTPUT cTagDesc ) .  
+      oe-ord.over-pct:SCREEN-VALUE = STRING(dOverPer).
+      oe-ord.Under-pct:SCREEN-VALUE = STRING(dUnderPer). 
+      RUN ClearTagsForGroup(
+          INPUT oe-ord.rec_key,
+          INPUT "OverPct-Source"
+          ).
+      RUN AddTagInfoForGroup(
+          INPUT oe-ord.rec_key,
+          INPUT "oe-ord",
+          INPUT cTagDesc,
+          INPUT "",
+          INPUT "OverPct-Source"
+          ). /*From TagProcs Super Proc*/ 
+      RUN Tag_IsTagRecordAvailableForGroup(
+          INPUT oe-ord.rec_key,
+          INPUT "oe-ord",
+          INPUT "OverPct-Source",
+          OUTPUT lAvailable
+          ).
+      IF lAvailable THEN  
+          btnTagsOverrn:SENSITIVE = TRUE.
+      ELSE 
+          btnTagsOverrn:SENSITIVE = FALSE.
+                           
   END.
 
   {methods/lValidateError.i NO}
