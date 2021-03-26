@@ -961,7 +961,7 @@ DO:
     RUN system/d-TagViewer.w (
         INPUT oe-bolh.rec_key,
         INPUT "",
-        INPUT ""
+        INPUT "FreightCost"
         ).
 END.
 
@@ -973,9 +973,9 @@ END.
 ON CHOOSE OF btnTags1 IN FRAME F-Main
 DO:
     RUN system/d-TagViewer.w (
-        INPUT (oe-bolh.rec_key + "CalcFreight"),
+        INPUT (oe-bolh.rec_key),
         INPUT "",
-        INPUT ""
+        INPUT "CalcFreight"
         ).
 END.
 
@@ -1677,12 +1677,13 @@ PROCEDURE local-assign-record :
   END.
   IF lFreightEntered THEN 
   DO:
-      RUN ClearTagsByRecKey(oe-bolh.rec_key).  /*Clear all hold tags - TagProcs.p*/
-      RUN AddTagInfo(
+      RUN ClearTagsByRecKeyForGroup(oe-bolh.rec_key,"FreightCost" ).  /*Clear all hold tags - TagProcs.p*/
+      RUN AddTagInfoForGroup(
             INPUT oe-bolh.rec_key,
             INPUT "oe-bolh",
             INPUT "Freight Cost manually entered",
-            INPUT ""
+            INPUT "",
+            INPUT "FreightCost"
             ). /*From TagProcs Super Proc*/
   
   END.
@@ -1982,9 +1983,10 @@ PROCEDURE local-display-fields :
   RUN display-status.
   RUN Display-freight-dscr.
   IF AVAIL oe-bolh THEN DO:
-      RUN Tag_IsTagRecordAvailable(
+      RUN Tag_IsTagRecordAvailableForGroup(
                  INPUT oe-bolh.rec_key,
                  INPUT "oe-bolh",
+                 INPUT "FreightCost",
                  OUTPUT lAvailable
                  ).
                IF lAvailable THEN DO: 
@@ -1995,9 +1997,10 @@ PROCEDURE local-display-fields :
                
                    btnTags:SENSITIVE IN FRAME {&FRAME-NAME} = FALSE.                    
                 END.
-      RUN Tag_IsTagRecordAvailable(
-                 INPUT oe-bolh.rec_key + "CalcFreight",
+      RUN Tag_IsTagRecordAvailableForGroup(
+                 INPUT oe-bolh.rec_key ,
                  INPUT "oe-bolh",
+                 INPUT "CalcFreight",
                  OUTPUT lAvailable
                  ).
                IF lAvailable THEN DO:                                       
