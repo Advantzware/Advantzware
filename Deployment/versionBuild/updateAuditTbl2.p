@@ -56,6 +56,8 @@ FOR EACH _file WHERE _file._file-num GT 0 AND _file._file-num LT 32000 NO-LOCK:
      PUT UNFORMATTED 'grant select on pub."' + _file._file-name + '" to public ~;'
      SKIP.
 END.
+PUT UNFORMATTED 'grant all on pub.dmiTrans to public ~;'.
+SKIP
 PUT UNFORMATTED 'COMMIT;'
 SKIP.
 output close.
