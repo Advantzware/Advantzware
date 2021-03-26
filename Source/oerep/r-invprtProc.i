@@ -2747,6 +2747,11 @@ PROCEDURE SetInvForm:
                 v-program      = "oe/rep/invptreelot.p"
                 lines-per-page = 66
                 is-xprint-form = YES.
+        WHEN "Henry" THEN
+            ASSIGN
+                v-program      = "oe/rep/invhenry.p"
+                lines-per-page = 66
+                is-xprint-form = YES.
         OTHERWISE
         ASSIGN
             v-program      = "oe/rep/invasi.p"
@@ -3334,6 +3339,11 @@ PROCEDURE SetInvPostForm:
         WHEN "Peachtree" THEN
             ASSIGN
                 v-program      = "ar/rep/invptreelot.p"
+                lines-per-page = 66
+                is-xprint-form = YES.
+        WHEN "Henry" THEN
+            ASSIGN
+                v-program      = "ar/rep/invhenry.p"
                 lines-per-page = 66
                 is-xprint-form = YES.
         OTHERWISE
