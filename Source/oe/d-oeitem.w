@@ -1394,7 +1394,7 @@ DO:
                   oeestcom-log = YES THEN
                   RUN get-est-comm (INPUT ROWID(oe-ordl), INPUT YES).
               RUN pAddTagInfoForGroup(
-                    INPUT ROWID(oe-ordl),
+                  oe-ordl.rec_key,
                     INPUT "History Price"
                     ).
              END.
@@ -2363,7 +2363,7 @@ DO:
           oeestcom-log = YES THEN
           RUN get-est-comm (INPUT ROWID(oe-ordl), INPUT YES).
       RUN pAddTagInfoForGroup(
-          INPUT ROWID(oe-ordl),
+          INPUT oe-ordl.rec_key,
           INPUT "Price was manually entered"
           ).
     END.
@@ -3506,7 +3506,7 @@ DO WITH FRAME {&FRAME-NAME}:
                 oe-ordl.pr-uom:SCREEN-VALUE = lxUom
                 .
             RUN pAddTagInfoForGroup(
-                INPUT ROWID(oe-ordl),
+                INPUT oe-ordl.rec_key,
                 INPUT "Quoted Price - Quote Number:" + string(iQutNo) + " Quantity:" + string(lxQty)
                 ).
         END.
@@ -3517,7 +3517,7 @@ DO WITH FRAME {&FRAME-NAME}:
                 oe-ordl.qty:SCREEN-VALUE = STRING(lxQty,">>>,>>>,>>9")
             .
             RUN pAddTagInfoForGroup(
-                INPUT ROWID(oe-ordl),
+                INPUT oe-ordl.rec_key,
                 INPUT "Quoted Price - Quote Number:" + string(iQutNo) + " Quantity:" + string(lxQty)
                 ).
         END.
@@ -4465,7 +4465,7 @@ PROCEDURE display-est-detail :
                 oe-ordl.pr-uom:SCREEN-VALUE     = itemfg.sell-uom
                 . 
             RUN pAddTagInfoForGroup(
-                INPUT ROWID(oe-ordl),
+                INPUT oe-ordl.rec_key,
                 INPUT "Item fg sell price Item-No:" + string(itemfg.i-no)
                 ). 
         END.         
@@ -4617,7 +4617,7 @@ PROCEDURE display-est-detail :
                     ll-got-qtprice              = YES
                     v-rel                       = lv-rel.
                 RUN pAddTagInfoForGroup(
-                    INPUT ROWID(oe-ordl),
+                    INPUT oe-ordl.rec_key,
                     INPUT "EST - Detail Quote EST No: " + STRING(quotehd.est-no) + " Quantity:" + string(lv-qty) + "Expiration Date: " + string(quotehd.expireDate)
                     ). 
             END.
@@ -4644,7 +4644,7 @@ PROCEDURE display-est-detail :
            oe-ordl.pr-uom:SCREEN-VALUE = lv-pr-uom
            ll-got-qtprice = YES.
         RUN pAddTagInfoForGroup(
-                 INPUT ROWID(oe-ordl),
+                 INPUT oe-ordl.rec_key,
                  INPUT "Item Qty Price"  + " Quantity:" + string(lv-qty)
              ). 
      END.
@@ -4708,7 +4708,7 @@ PROCEDURE display-est-detail :
 
      oe-ordl.qty:SCREEN-VALUE  = STRING(lv-qty).
       RUN pAddTagInfoForGroup(
-          INPUT ROWID(oe-ordl),
+          INPUT oe-ordl.rec_key,
           INPUT "Quoted Price Quote Est:" + STRING(cQuoteEst) + " Quote No:" + STRING(lv-q-no) + " Quantity:" + string(lv-qty)
           ).
   
@@ -4738,7 +4738,7 @@ PROCEDURE display-est-detail :
               lv-pr-uom      = tt-item-qty-price.uom
               lv-q-no        = tt-item-qty-price.q-no.
       RUN pAddTagInfoForGroup(
-          INPUT ROWID(oe-ordl),
+          INPUT oe-ordl.rec_key,
           INPUT "Item Qty Price Quote No:" + STRING(lv-q-no)  + " Quantity:" + string(lv-qty)
           ).
   END.
@@ -4971,7 +4971,7 @@ DO WITH FRAME {&FRAME-NAME}:
                     
                     oe-ordl.qty:SCREEN-VALUE = STRING(lv-qty).
                      RUN pAddTagInfoForGroup(
-                         INPUT ROWID(oe-ordl),
+                         INPUT oe-ordl.rec_key,
                          INPUT "Quoted Price Quote No:" + string(lv-q-no) + " Quantity:" + string(lv-qty)
                          ).
                  END.
@@ -4990,7 +4990,7 @@ DO WITH FRAME {&FRAME-NAME}:
                           lv-pr-uom = tt-item-qty-price.uom
                           lv-q-no   = tt-item-qty-price.q-no.
                       RUN pAddTagInfoForGroup(
-                          INPUT ROWID(oe-ordl),
+                          INPUT oe-ordl.rec_key,
                           INPUT "Item Qty Price Quote No:" + string(lv-q-no) + " Quantity:" + string(lv-qty)
                           ).
                   END.
@@ -5070,12 +5070,12 @@ VIEW-AS ALERT-BOX.
       
           IF setFromHistory THEN 
               RUN pAddTagInfoForGroup(
-                  INPUT ROWID(oe-ordl),
+                  INPUT oe-ordl.rec_key,
                   INPUT "History Price"
                   ).
          ELSE IF itemfg.sell-price <> 0 THEN 
               RUN pAddTagInfoForGroup(
-                  INPUT ROWID(oe-ordl),
+                  INPUT oe-ordl.rec_key,
                   INPUT "Item Sell Price"
                   ).
   END.
@@ -5263,12 +5263,12 @@ DO WITH FRAME {&frame-name}:
           RUN get-est-comm (INPUT ROWID(oe-ordl), INPUT YES).
       IF setFromHistory THEN 
           RUN pAddTagInfoForGroup(
-              INPUT ROWID(oe-ordl),
+              INPUT oe-ordl.rec_key,
               INPUT "History Price "
               ). 
       ELSE IF itemfg.sell-price <> 0 THEN 
           RUN pAddTagInfoForGroup(
-              INPUT ROWID(oe-ordl),
+              INPUT oe-ordl.rec_key,
               INPUT "Item Sell Price"
               ). 
   END.
@@ -6214,7 +6214,7 @@ PROCEDURE get-price :
         IF matrixExists THEN 
         DO:  
             RUN pAddTagInfoForGroup(
-                INPUT ROWID(oe-ordl),
+                INPUT oe-ordl.rec_key,
                 INPUT "Price Matrix " + matrixTag
                 ). 
         END.
@@ -6666,7 +6666,7 @@ PROCEDURE leave-qty :
              oe-ordl.qty:SCREEN-VALUE = STRING(lv-qty).
               
               RUN pAddTagInfoForGroup(
-                  INPUT ROWID(oe-ordl),
+                  INPUT oe-ordl.rec_key,
                   INPUT "Quoted Price Quote No:" + string(lv-q-no) + " Quantity: " + string(lv-qty) 
                   ).
           END.
@@ -6685,7 +6685,7 @@ PROCEDURE leave-qty :
                   llGotLowerPrice = NO.
                   DELETE tt-item-qty-price.
                   RUN pAddTagInfoForGroup(
-                      INPUT ROWID(oe-ordl),
+                      INPUT oe-ordl.rec_key,
                       INPUT "Item Qty Price Quote No:" + string(lv-q-no)
                       ).
              END.
@@ -7646,7 +7646,7 @@ PROCEDURE pAddTagInfoForGroup PRIVATE :
       Parameters:  <none>
       Notes:       
     ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipriRowid AS ROWID NO-UNDO.
+    DEFINE INPUT PARAMETER ipcRecKey AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcMessage AS CHARACTER NO-UNDO.
     
     DEFINE VARIABLE lAvailable AS LOGICAL NO-UNDO.
@@ -7657,7 +7657,7 @@ PROCEDURE pAddTagInfoForGroup PRIVATE :
     END.
     
     FIND FIRST bf-oe-ordl NO-LOCK 
-        WHERE ROWID(bf-oe-ordl) EQ ipriRowid NO-ERROR .
+        WHERE bf-oe-ordl.rec_key EQ ipcRecKey NO-ERROR .
     IF AVAIL bf-oe-ordl THEN
     DO:
         
@@ -7917,7 +7917,7 @@ PROCEDURE prev-quote-proc :
                         lv-price = STRING(lxPrice,">>>,>>>,>99.99<<<")
                         lv-pruom = lxUom.
                     RUN pAddTagInfoForGroup(
-                        INPUT ROWID(oe-ordl),
+                        INPUT oe-ordl.rec_key,
                         INPUT "Quoted Price Quote No:" + string(lxQno) + " Quantity: " + string(lxQty)
                         ).
                     END.
@@ -7929,7 +7929,7 @@ PROCEDURE prev-quote-proc :
                             lv-price = STRING(lxPrice,">>>,>>>,>99.99<<<")
                             lv-pruom = lxUom.
                     RUN pAddTagInfoForGroup(
-                        INPUT ROWID(oe-ordl),
+                        INPUT oe-ordl.rec_key,
                         INPUT "Quoted Price Quote No:" + string(lxQno) + " Quantity: " + string(lxQty) 
                         ).
                    END.
