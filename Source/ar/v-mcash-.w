@@ -429,7 +429,15 @@ PROCEDURE get-check-no :
    DEF OUTPUT PARAMETER op-check-no AS CHAR NO-UNDO.
 
    DO WITH FRAME {&FRAME-NAME}:
-      op-check-no = fl_checkno:SCREEN-VALUE.
+      FIND FIRST reftable NO-LOCK
+        WHERE reftable.reftable = "AR-MCASH"       
+          AND reftable.company  = ar-mcash.company
+          AND reftable.loc      = STRING(ar-mcash.m-no,">>>>>>9")
+          AND reftable.code     = ar-mcash.rec_key NO-ERROR.
+      IF AVAIL reftable THEN
+        op-check-no = reftable.code2.
+      ELSE
+        op-check-no = fl_checkno:SCREEN-VALUE.
    END.
 END PROCEDURE.
 
