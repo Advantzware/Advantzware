@@ -35,7 +35,7 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 
-/* {custom/globdefs.i /* Remove outer comments to put in production */ */
+{custom/globdefs.i}
 {sys/inc/var.i "new shared"}
 
 DEF VAR cMessage AS CHAR NO-UNDO.
