@@ -1211,7 +1211,8 @@ ON CHOOSE OF btnTags IN FRAME d-oeitem
 DO:
     RUN system/d-TagViewer.w (
         INPUT oe-ordl.rec_key,
-        INPUT ""
+        INPUT "",
+        INPUT "Price-Source"
         ).
 END.
 
@@ -1375,27 +1376,11 @@ DO:
               IF oe-ordl.est-no:SCREEN-VALUE NE "" AND
                   oeestcom-log = YES THEN
                   RUN get-est-comm (INPUT ROWID(oe-ordl), INPUT YES).
-            RUN ClearTagsForGroup(
-                INPUT oe-ordl.rec_key,
-                INPUT "Price-Source"
-                ).
-            RUN AddTagInfoForGroup(
-                INPUT oe-ordl.rec_key,
-                INPUT "oe-ordl",
-                INPUT "History Price",
-                INPUT "",
-                INPUT "Price-Source"
-                ). /*From TagProcs Super Proc*/ 
-            RUN Tag_IsTagRecordAvailable(
-                INPUT oe-ordl.rec_key,
-                INPUT "oe-ordl",
-                OUTPUT lAvailable
-                ).
-            IF lAvailable THEN  
-                btnTags:SENSITIVE = TRUE.
-            ELSE 
-                btnTags:SENSITIVE = FALSE.
-          END.
+              RUN pAddTagInfoForGroup(
+                    INPUT ROWID(oe-ordl),
+                    INPUT "History Price"
+                    ).
+             END.
           
         END. /* not matrixexits */
         
@@ -2359,27 +2344,11 @@ DO:
       IF oe-ordl.est-no:SCREEN-VALUE NE "" AND
           oeestcom-log = YES THEN
           RUN get-est-comm (INPUT ROWID(oe-ordl), INPUT YES).
-      RUN ClearTagsForGroup(
-            INPUT oe-ordl.rec_key,
-            INPUT "Price-Source"
-            ).
-      RUN AddTagInfoForGroup(
-            INPUT oe-ordl.rec_key,
-            INPUT "oe-ordl",
-            INPUT "Price was manually entered",
-            INPUT "",
-            INPUT "Price-Source"
-            ). /*From TagProcs Super Proc*/ 
-      RUN Tag_IsTagRecordAvailable(
-            INPUT oe-ordl.rec_key,
-            INPUT "oe-ordl",
-            OUTPUT lAvailable
-            ).
-      IF lAvailable THEN  
-          btnTags:SENSITIVE = TRUE.
-      ELSE 
-          btnTags:SENSITIVE = FALSE.  
-  END.
+      RUN pAddTagInfoForGroup(
+          INPUT ROWID(oe-ordl),
+          INPUT "Price was manually entered"
+          ).
+    END.
     
     END.
 END.
@@ -3507,26 +3476,10 @@ DO WITH FRAME {&FRAME-NAME}:
                 oe-ordl.price:SCREEN-VALUE = STRING(lxPrice,">>>,>>>,>99.99<<<")
                 oe-ordl.pr-uom:SCREEN-VALUE = lxUom
                 .
-            RUN ClearTagsForGroup(
-                INPUT oe-ordl.rec_key,
-                INPUT "Price-Source"
+            RUN pAddTagInfoForGroup(
+                INPUT ROWID(oe-ordl),
+                INPUT "Quoted Price - Quote Number:" + string(iQutNo) + " Quantity:" + string(lxQty)
                 ).
-            RUN AddTagInfoForGroup(
-                INPUT oe-ordl.rec_key,
-                INPUT "oe-ordl",
-                INPUT "Quoted Price - Quote Number:" + string(iQutNo) + " Quantity:" + string(lxQty),
-                INPUT "",
-                INPUT "Price-Source"
-                ). /*From TagProcs Super Proc*/ 
-            RUN Tag_IsTagRecordAvailable(
-                INPUT oe-ordl.rec_key,
-                INPUT "oe-ordl",
-                OUTPUT lAvailable
-                ).
-            IF lAvailable THEN  
-                btnTags:SENSITIVE = TRUE.
-            ELSE 
-                btnTags:SENSITIVE = FALSE.
         END.
         WHEN "PRICEQTY" THEN DO:
             ASSIGN
@@ -3534,26 +3487,10 @@ DO WITH FRAME {&FRAME-NAME}:
                 oe-ordl.pr-uom:SCREEN-VALUE = lxUom
                 oe-ordl.qty:SCREEN-VALUE = STRING(lxQty,">>>,>>>,>>9")
             .
-            RUN ClearTagsForGroup(
-                INPUT oe-ordl.rec_key,
-                INPUT "Price-Source"
+            RUN pAddTagInfoForGroup(
+                INPUT ROWID(oe-ordl),
+                INPUT "Quoted Price - Quote Number:" + string(iQutNo) + " Quantity:" + string(lxQty)
                 ).
-            RUN AddTagInfoForGroup(
-                INPUT oe-ordl.rec_key,
-                INPUT "oe-ordl",
-                INPUT "Quoted Price - Quote Number:" + string(iQutNo) + " Quantity:" + string(lxQty),
-                INPUT "",
-                INPUT "Price-Source"
-                ). /*From TagProcs Super Proc*/ 
-            RUN Tag_IsTagRecordAvailable(
-                INPUT oe-ordl.rec_key,
-                INPUT "oe-ordl",
-                OUTPUT lAvailable
-                ).
-            IF lAvailable THEN  
-                btnTags:SENSITIVE = TRUE.
-            ELSE 
-                btnTags:SENSITIVE = FALSE.
         END.
     END CASE.
     RUN Conv_CalcTotalPrice(cocode, 
@@ -4497,27 +4434,11 @@ PROCEDURE display-est-detail :
             ASSIGN
             oe-ordl.price:SCREEN-VALUE      = STRING(itemfg.sell-price) 
                 oe-ordl.pr-uom:SCREEN-VALUE     = itemfg.sell-uom
-                .  
-            RUN ClearTagsForGroup(
-                INPUT oe-ordl.rec_key,
-                INPUT "Price-Source"
-                ).
-            RUN AddTagInfoForGroup(
-                INPUT oe-ordl.rec_key,
-                INPUT "oe-ordl",
-                INPUT "Item fg sell price Item-No:" + string(itemfg.i-no),
-                INPUT "",
-                INPUT "Price-Source"
-                ). /*From TagProcs Super Proc*/ 
-            RUN Tag_IsTagRecordAvailable(
-                INPUT oe-ordl.rec_key,
-                INPUT "oe-ordl",
-                OUTPUT lAvailable
-                ).
-            IF lAvailable THEN  
-                btnTags:SENSITIVE = TRUE.
-            ELSE 
-                btnTags:SENSITIVE = FALSE.
+                . 
+            RUN pAddTagInfoForGroup(
+                INPUT ROWID(oe-ordl),
+                INPUT "Item fg sell price Item-No:" + string(itemfg.i-no)
+                ). 
         END.         
      END.
 
@@ -4666,26 +4587,10 @@ PROCEDURE display-est-detail :
                     oe-ordl.pr-uom:SCREEN-VALUE = lv-pr-uom
                     ll-got-qtprice              = YES
                     v-rel                       = lv-rel.
-                RUN ClearTagsForGroup(
-                    INPUT oe-ordl.rec_key,
-                    INPUT "Price-Source"
-                    ).
-                RUN AddTagInfoForGroup(
-                    INPUT oe-ordl.rec_key,
-                    INPUT "oe-ordl",
-                    INPUT "EST - Detail Quote EST No: " + STRING(quotehd.est-no) + " Quantity:" + string(lv-qty) + "Expiration Date: " + string(quotehd.expireDate),
-                    INPUT "",
-                    INPUT "Price-Source"
-                    ). /*From TagProcs Super Proc*/ 
-                RUN Tag_IsTagRecordAvailable(
-                    INPUT oe-ordl.rec_key,
-                    INPUT "oe-ordl",
-                    OUTPUT lAvailable
-                    ).
-                IF lAvailable THEN  
-                    btnTags:SENSITIVE = TRUE.
-                ELSE 
-                    btnTags:SENSITIVE = FALSE.
+                RUN pAddTagInfoForGroup(
+                    INPUT ROWID(oe-ordl),
+                    INPUT "EST - Detail Quote EST No: " + STRING(quotehd.est-no) + " Quantity:" + string(lv-qty) + "Expiration Date: " + string(quotehd.expireDate)
+                    ). 
             END.
         END.
      ELSE IF CAN-FIND(FIRST tt-item-qty-price WHERE
@@ -4709,28 +4614,10 @@ PROCEDURE display-est-detail :
            oe-ordl.qty:SCREEN-VALUE = STRING(lv-qty)
            oe-ordl.pr-uom:SCREEN-VALUE = lv-pr-uom
            ll-got-qtprice = YES.
-           
-         RUN ClearTagsForGroup(
-             INPUT oe-ordl.rec_key,
-             INPUT "Price-Source"
-             ).
-         RUN AddTagInfoForGroup(
-             INPUT oe-ordl.rec_key,
-             INPUT "oe-ordl",
-             INPUT "Item Qty Price"  + " Quantity:" + string(lv-qty),
-             INPUT "",
-             INPUT "Price-Source"
-             ). /*From TagProcs Super Proc*/ 
-        RUN Tag_IsTagRecordAvailable(
-            INPUT oe-ordl.rec_key,
-            INPUT "oe-ordl",
-            OUTPUT lAvailable
-            ).
-        IF lAvailable THEN  
-            btnTags:SENSITIVE = TRUE
-                .
-        ELSE 
-            btnTags:SENSITIVE = FALSE.
+        RUN pAddTagInfoForGroup(
+                 INPUT ROWID(oe-ordl),
+                 INPUT "Item Qty Price"  + " Quantity:" + string(lv-qty)
+             ). 
      END.
 
      ELSE
@@ -4791,33 +4678,11 @@ PROCEDURE display-est-detail :
                       INPUT-OUTPUT lv-qty).
 
      oe-ordl.qty:SCREEN-VALUE  = STRING(lv-qty).
-
-     RUN ClearTagsForGroup(
-          INPUT oe-ordl.rec_key,
-          INPUT "Price-Source"
+      RUN pAddTagInfoForGroup(
+          INPUT ROWID(oe-ordl),
+          INPUT "Quoted Price Quote Est:" + STRING(cQuoteEst) + " Quote No:" + STRING(lv-q-no) + " Quantity:" + string(lv-qty)
           ).
-     RUN Tag_IsTagRecordAvailable(
-          INPUT oe-ordl.rec_key,
-          INPUT "oe-ordl",
-          OUTPUT lAvailable
-          ).
-     RUN AddTagInfoForGroup(
-          INPUT oe-ordl.rec_key,
-          INPUT "oe-ordl",         
-          INPUT "Quoted Price Quote Est:" + STRING(cQuoteEst) + " Quote No:" + STRING(lv-q-no) + " Quantity:" + string(lv-qty),
-          INPUT "",
-          INPUT "Price-Source"
-          ). /*From TagProcs Super Proc*/ 
-     RUN Tag_IsTagRecordAvailable(
-          INPUT oe-ordl.rec_key,
-          INPUT "oe-ordl",
-          OUTPUT lAvailable
-          ).
-     IF lAvailable THEN  
-          btnTags:SENSITIVE = TRUE
-              .
-     ELSE 
-          btnTags:SENSITIVE = FALSE.
+  
   END.
   IF lv-qty GT 0 AND AVAILABLE est-qty THEN DO:
         DO iCount = 1 TO EXTENT(est-qty.qty):
@@ -4843,29 +4708,10 @@ PROCEDURE display-est-detail :
               lv-price       = tt-item-qty-price.price
               lv-pr-uom      = tt-item-qty-price.uom
               lv-q-no        = tt-item-qty-price.q-no.
-              MESSAGE "not get quote price ttitem"
-              VIEW-AS ALERT-BOX.
-      RUN ClearTagsForGroup(
-          INPUT oe-ordl.rec_key,
-          INPUT "Price-Source"
+      RUN pAddTagInfoForGroup(
+          INPUT ROWID(oe-ordl),
+          INPUT "Item Qty Price Quote No:" + STRING(lv-q-no)  + " Quantity:" + string(lv-qty)
           ).
-      RUN AddTagInfoForGroup(
-          INPUT oe-ordl.rec_key,
-          INPUT "oe-ordl",
-          INPUT "Item Qty Price Quote No:" + STRING(lv-q-no)  + " Quantity:" + string(lv-qty),
-          INPUT "",
-          INPUT "Price-Source"
-          ). /*From TagProcs Super Proc*/ 
-      RUN Tag_IsTagRecordAvailable(
-          INPUT oe-ordl.rec_key,
-          INPUT "oe-ordl",
-          OUTPUT lAvailable
-          ).
-      IF lAvailable THEN  
-          btnTags:SENSITIVE = TRUE
-              .
-      ELSE 
-          btnTags:SENSITIVE = FALSE.
   END.
 
   ASSIGN
@@ -5095,26 +4941,10 @@ DO WITH FRAME {&FRAME-NAME}:
                                      INPUT-OUTPUT lv-qty).
                     
                     oe-ordl.qty:SCREEN-VALUE = STRING(lv-qty).
-                    RUN ClearTagsForGroup(
-                        INPUT oe-ordl.rec_key,
-                        INPUT "Price-Source"
-                        ).
-                    RUN AddTagInfoForGroup(
-                         INPUT oe-ordl.rec_key,
-                         INPUT "oe-ordl",
-                         INPUT "Quoted Price Quote No:" + string(lv-q-no) + " Quantity:" + string(lv-qty),
-                         INPUT "",
-                         INPUT "Price-Source"
-                         ). /*From TagProcs Super Proc*/ 
-                     RUN Tag_IsTagRecordAvailable(
-                         INPUT oe-ordl.rec_key,
-                         INPUT "oe-ordl",
-                         OUTPUT lAvailable
+                     RUN pAddTagInfoForGroup(
+                         INPUT ROWID(oe-ordl),
+                         INPUT "Quoted Price Quote No:" + string(lv-q-no) + " Quantity:" + string(lv-qty)
                          ).
-                     IF lAvailable THEN  
-                         btnTags:SENSITIVE = TRUE.
-                     ELSE 
-                         btnTags:SENSITIVE = FALSE.
                  END.
               ELSE
               DO:
@@ -5130,30 +4960,15 @@ DO WITH FRAME {&FRAME-NAME}:
                           lv-price  = tt-item-qty-price.price
                           lv-pr-uom = tt-item-qty-price.uom
                           lv-q-no   = tt-item-qty-price.q-no.
-                      RUN ClearTagsForGroup(
-                        INPUT oe-ordl.rec_key,
-                        INPUT "Price-Source"
-                        ).
-                      RUN AddTagInfoForGroup(
-                        INPUT oe-ordl.rec_key,
-                        INPUT "oe-ordl",
-                        INPUT "Item Qty Price Quote No:" + string(lv-q-no) + " Quantity:" + string(lv-qty),
-                        INPUT "",
-                        INPUT "Price-Source"
-                        ). /*From TagProcs Super Proc*/ 
-                      RUN Tag_IsTagRecordAvailable(
-                        INPUT oe-ordl.rec_key,
-                        INPUT "oe-ordl",
-                        OUTPUT lAvailable
-                        ).
-                      IF lAvailable THEN  
-                         btnTags:SENSITIVE = TRUE.
-                      ELSE 
-                         btnTags:SENSITIVE = FALSE.
+                      RUN pAddTagInfoForGroup(
+                          INPUT ROWID(oe-ordl),
+                          INPUT "Item Qty Price Quote No:" + string(lv-q-no) + " Quantity:" + string(lv-qty)
+                          ).
                   END.
               END.
 MESSAGE lv-price "lv-price 1"
 VIEW-AS ALERT-BOX.
+
               ASSIGN 
                oe-ordl.price:screen-value  = STRING(lv-price)
                oe-ordl.pr-uom:screen-value = lv-pr-uom.
@@ -5223,35 +5038,17 @@ VIEW-AS ALERT-BOX.
       IF oe-ordl.est-no:SCREEN-VALUE NE "" AND
           oeestcom-log = YES THEN
           RUN get-est-comm (INPUT ROWID(oe-ordl), INPUT YES).
-          RUN ClearTagsForGroup(
-            INPUT oe-ordl.rec_key,
-            INPUT "Price-Source"
-            ).
+      
           IF setFromHistory THEN 
-            RUN AddTagInfoForGroup(
-              INPUT oe-ordl.rec_key,
-              INPUT "oe-ordl",
-              INPUT "History Price ",
-              INPUT "",
-              INPUT "Price-Source"
-              ). /*From TagProcs Super Proc*/ 
+              RUN pAddTagInfoForGroup(
+                  INPUT ROWID(oe-ordl),
+                  INPUT "History Price"
+                  ).
          ELSE IF itemfg.sell-price <> 0 THEN 
-           RUN AddTagInfoForGroup(
-               INPUT oe-ordl.rec_key,
-               INPUT "oe-ordl",
-               INPUT "Item Sell Price",
-               INPUT "",
-               INPUT "Price-Source"
-               ). /*From TagProcs Super Proc*/      
-          RUN Tag_IsTagRecordAvailable(
-            INPUT oe-ordl.rec_key,
-            INPUT "oe-ordl",
-            OUTPUT lAvailable
-            ).
-          IF lAvailable THEN  
-            btnTags:SENSITIVE = TRUE.
-          ELSE 
-            btnTags:SENSITIVE = FALSE.
+              RUN pAddTagInfoForGroup(
+                  INPUT ROWID(oe-ordl),
+                  INPUT "Item Sell Price"
+                  ).
   END.
 
   IF oe-ordl.est-no:screen-value EQ "" THEN DO:
@@ -5435,35 +5232,16 @@ DO WITH FRAME {&frame-name}:
       IF oe-ordl.est-no:SCREEN-VALUE NE "" AND
           oeestcom-log = YES THEN
           RUN get-est-comm (INPUT ROWID(oe-ordl), INPUT YES).
-      RUN ClearTagsForGroup(
-        INPUT oe-ordl.rec_key,
-        INPUT "Price-Source"
-        ).
       IF setFromHistory THEN 
-        RUN AddTagInfoForGroup(
-            INPUT oe-ordl.rec_key,
-            INPUT "oe-ordl",
-            INPUT "History Price ",
-            INPUT "",
-            INPUT "Price-Source"
-            ). /*From TagProcs Super Proc*/ 
+          RUN pAddTagInfoForGroup(
+              INPUT ROWID(oe-ordl),
+              INPUT "History Price "
+              ). 
       ELSE IF itemfg.sell-price <> 0 THEN 
-        RUN AddTagInfoForGroup(
-            INPUT oe-ordl.rec_key,
-            INPUT "oe-ordl",
-            INPUT "Item Sell Price",
-            INPUT "",
-            INPUT "Price-Source"
-            ). /*From TagProcs Super Proc*/     
-      RUN Tag_IsTagRecordAvailable(
-          INPUT oe-ordl.rec_key,
-          INPUT "oe-ordl",
-          OUTPUT lAvailable
-          ).
-      IF lAvailable THEN  
-        btnTags:SENSITIVE = TRUE.
-      ELSE 
-        btnTags:SENSITIVE = FALSE.
+          RUN pAddTagInfoForGroup(
+              INPUT ROWID(oe-ordl),
+              INPUT "Item Sell Price"
+              ). 
   END.
 
   IF oe-ordl.est-no:screen-value EQ "" THEN DO:
@@ -6405,27 +6183,11 @@ PROCEDURE get-price :
       IF AVAIL itemfg THEN DO:          
         RUN oe/oe-price.p.
         IF matrixExists THEN 
-        DO:           
-            RUN ClearTagsForGroup(
-                INPUT oe-ordl.rec_key,
-                INPUT "Price-Source"
-                ).
-            RUN AddTagInfoForGroup(
-                INPUT oe-ordl.rec_key,
-                INPUT "oe-ordl",
-                INPUT "Price Matrix " + matrixTag,
-                INPUT "",
-                INPUT "Price-Source"
-                ). /*From TagProcs Super Proc*/ 
-            RUN Tag_IsTagRecordAvailable(
-              INPUT oe-ordl.rec_key,
-              INPUT "oe-ordl",
-              OUTPUT lAvailable
-              ).
-            IF lAvailable THEN  
-                btnTags:SENSITIVE = TRUE.
-            ELSE 
-                btnTags:SENSITIVE = FALSE. 
+        DO:  
+            RUN pAddTagInfoForGroup(
+                INPUT ROWID(oe-ordl),
+                INPUT "Price Matrix " + matrixTag
+                ). 
         END.
         FIND oe-ordl WHERE ROWID(oe-ordl) EQ lv-rowid NO-ERROR.
         DISPLAY oe-ordl.price oe-ordl.pr-uom oe-ordl.t-price.
@@ -6873,26 +6635,11 @@ PROCEDURE leave-qty :
                             OUTPUT lv-q-no,
                             INPUT-OUTPUT lv-qty).
              oe-ordl.qty:SCREEN-VALUE = STRING(lv-qty).
-             RUN ClearTagsForGroup(
-                INPUT oe-ordl.rec_key,
-                INPUT "Price-Source"
-                ).
-             RUN AddTagInfoForGroup(
-                  INPUT oe-ordl.rec_key,
-                  INPUT "oe-ordl",
-                  INPUT "Quoted Price Quote No:" + string(lv-q-no) + " Quantity: " + string(lv-qty) ,
-                  INPUT "",
-                  INPUT "Price-Source"
-                  ). /*From TagProcs Super Proc*/ 
-              RUN Tag_IsTagRecordAvailable(
-                  INPUT oe-ordl.rec_key,
-                  INPUT "oe-ordl",
-                  OUTPUT lAvailable
+              
+              RUN pAddTagInfoForGroup(
+                  INPUT ROWID(oe-ordl),
+                  INPUT "Quoted Price Quote No:" + string(lv-q-no) + " Quantity: " + string(lv-qty) 
                   ).
-              IF lAvailable THEN  
-                  btnTags:SENSITIVE = TRUE.
-              ELSE 
-                  btnTags:SENSITIVE = FALSE.
           END.
           ELSE
           DO:
@@ -6908,27 +6655,10 @@ PROCEDURE leave-qty :
               DO:
                   llGotLowerPrice = NO.
                   DELETE tt-item-qty-price.
-                  RUN ClearTagsForGroup(
-                    INPUT oe-ordl.rec_key,
-                    INPUT "Price-Source"
-                    ).
-                  RUN AddTagInfoForGroup(
-                    INPUT oe-ordl.rec_key,
-                    INPUT "oe-ordl",
-                    INPUT "Item Qty Price Quote No:" + string(lv-q-no)  ,
-                    INPUT "",
-                    INPUT "Price-Source"
-                    ). /*From TagProcs Super Proc*/ 
-                  RUN Tag_IsTagRecordAvailable(
-                      INPUT oe-ordl.rec_key,
-                      INPUT "oe-ordl",
-                      OUTPUT lAvailable
-                    ).
-                  IF lAvailable THEN  
-                    btnTags:SENSITIVE = TRUE.
-                  ELSE 
-                    btnTags:SENSITIVE = FALSE.
-
+                  RUN pAddTagInfoForGroup(
+                      INPUT ROWID(oe-ordl),
+                      INPUT "Item Qty Price Quote No:" + string(lv-q-no)
+                      ).
              END.
           END.
 
@@ -7880,6 +7610,54 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pAddTagInfoForGroup d-oeitem 
+PROCEDURE pAddTagInfoForGroup PRIVATE :
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipriRowid AS ROWID NO-UNDO.
+    DEFINE INPUT PARAMETER ipcMessage AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE lAvailable AS LOGICAL NO-UNDO.
+    
+    DEFINE BUFFER bf-oe-ordl FOR oe-ordl.
+    
+    DO WITH FRAME {&frame-name}:
+    END.
+    
+    FIND FIRST bf-oe-ordl NO-LOCK 
+        WHERE ROWID(bf-oe-ordl) EQ ipriRowid NO-ERROR .
+    IF AVAIL bf-oe-ordl THEN
+    DO:
+        
+        RUN ClearTagsForGroup(
+            INPUT bf-oe-ordl.rec_key,
+            INPUT "Price-Source"
+            ).
+        RUN AddTagInfoForGroup(
+            INPUT bf-oe-ordl.rec_key,
+            INPUT "oe-ordl",
+            INPUT ipcMessage,
+            INPUT "",
+            INPUT "Price-Source"
+            ). /*From TagProcs Super Proc*/ 
+        RUN Tag_IsTagRecordAvailable(
+            INPUT bf-oe-ordl.rec_key,
+            INPUT "oe-ordl",
+            OUTPUT lAvailable
+            ).
+        IF lAvailable THEN  
+            btnTags:SENSITIVE = TRUE.
+        ELSE 
+            btnTags:SENSITIVE = FALSE.
+    END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCrtPart d-oeitem 
 PROCEDURE pCrtPart :
 /*------------------------------------------------------------------------------
@@ -8108,26 +7886,10 @@ PROCEDURE prev-quote-proc :
                         oe-ordl.pr-uom:SCREEN-VALUE = lxUom                                      
                         lv-price = STRING(lxPrice,">>>,>>>,>99.99<<<")
                         lv-pruom = lxUom.
-                        RUN ClearTagsForGroup(
-                            INPUT oe-ordl.rec_key,
-                            INPUT "Price-Source"
-                            ).
-                        RUN AddTagInfoForGroup(
-                            INPUT oe-ordl.rec_key,
-                            INPUT "oe-ordl",
-                            INPUT "Quoted Price Quote No:" + string(lxQno) + " Quantity: " + string(lxQty) ,
-                            INPUT "",
-                            INPUT "Price-Source"
-                            ). /*From TagProcs Super Proc*/ 
-                        RUN Tag_IsTagRecordAvailable(
-                            INPUT oe-ordl.rec_key,
-                            INPUT "oe-ordl",
-                            OUTPUT lAvailable
-                            ).
-                        IF lAvailable THEN  
-                            btnTags:SENSITIVE = TRUE.
-                        ELSE 
-                            btnTags:SENSITIVE = FALSE.
+                    RUN pAddTagInfoForGroup(
+                        INPUT ROWID(oe-ordl),
+                        INPUT "Quoted Price Quote No:" + string(lxQno) + " Quantity: " + string(lxQty)
+                        ).
                     END.
                     WHEN "PRICEQTY" THEN DO:
                         ASSIGN
@@ -8136,28 +7898,11 @@ PROCEDURE prev-quote-proc :
                             oe-ordl.qty:SCREEN-VALUE = STRING(lxQty,">>>,>>>,>>9")                                       
                             lv-price = STRING(lxPrice,">>>,>>>,>99.99<<<")
                             lv-pruom = lxUom.
-                        RUN ClearTagsForGroup(
-                            INPUT oe-ordl.rec_key,
-                            INPUT "Price-Source"
-                            ).
-                        RUN AddTagInfoForGroup(
-                            INPUT oe-ordl.rec_key,
-                            INPUT "oe-ordl",
-                            INPUT "Quoted Price Quote No:" + string(lxQno) + " Quantity: " + string(lxQty) ,
-                            INPUT "",
-                            INPUT "Price-Source"
-                            ). /*From TagProcs Super Proc*/ 
-                        RUN Tag_IsTagRecordAvailable(
-                            INPUT oe-ordl.rec_key,
-                            INPUT "oe-ordl",
-                            OUTPUT lAvailable
-                            ).
-                        IF lAvailable THEN  
-                            btnTags:SENSITIVE = TRUE.
-                        ELSE 
-                            btnTags:SENSITIVE = FALSE.
-                            
-                    END.
+                    RUN pAddTagInfoForGroup(
+                        INPUT ROWID(oe-ordl),
+                        INPUT "Quoted Price Quote No:" + string(lxQno) + " Quantity: " + string(lxQty) 
+                        ).
+                   END.
                 END CASE.
               
 
