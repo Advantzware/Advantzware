@@ -1006,6 +1006,16 @@ def var v-hdr as char initial
 def var v-comma as char format "x" initial "," no-undo.
 DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
 
+DEFINE VARIABLE lIsLastDateOfFY AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lIsBalanceSheet AS LOGICAL NO-UNDO.
+FIND LAST period NO-LOCK 
+    WHERE period.company EQ company.company 
+    AND period.pnum EQ company.num-per  /* it's the last period of (a) year */ 
+    AND period.pend EQ tran-date        /* it's the end date of the last period */
+    NO-ERROR.
+ASSIGN 
+    lIsLastDateOfFY = AVAIL(period).    /* Therefore, this is the last day of the FY */
+    
 RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
  {sys/inc/print1.i}
@@ -1105,8 +1115,18 @@ DO:
 
         ptd-value = 0.
         view frame r-top.
+
+        lIsBalanceSheet = INDEX("ALCT",account.type) GT 0.
                 
-        RUN GL_GetAccountOpenBal(ROWID(account), tran-date + 1, OUTPUT cyr).
+/*            IF the as-of date is the last day of the FY,                                       */
+/*            AND IF this is an expense account, get the CY open bal from this date              */
+/*            (we'll add this day;s txns below),                                                 */
+/*            ELSE get the NEXT day's open balance, as it should be equal today's closing balance*/
+        IF NOT lIsLastDateOfFY OR lIsBalanceSheet THEN 
+            RUN GL_GetAccountOpenBal(ROWID(account), tran-date + 1, OUTPUT cyr).
+        ELSE 
+            RUN GL_GetAccountOpenBal(ROWID(account), tran-date, OUTPUT cyr).
+            
         
         for each glhist no-lock
             where glhist.company eq account.company
@@ -1119,6 +1139,20 @@ DO:
            tot-ptd   = tot-ptd   + glhist.tr-amt
            .
         end.
+        
+/*      IF the as-of date is the last day of the FY,     */
+/*      AND IF this is an expense account,               */
+/*      we need to add the daily amts to the CY balance  */
+        IF lIsLastDateOfFY AND NOT lIsBalanceSheet THEN DO:
+            
+            FOR EACH glhist NO-LOCK 
+                WHERE glhist.company eq account.company
+                AND glhist.actnum  eq account.actnum
+                AND glhist.tr-date EQ tran-date:
+                ASSIGN 
+                    cyr = cyr + glhist.tr-amt.
+            END.
+        END.
                    
         if not suppress-zero or cyr ne 0 or ptd-value ne 0 then
         do:
