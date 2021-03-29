@@ -18,6 +18,7 @@ SESSION:DEBUG-ALERT = FALSE.
 DEFINE INPUT PARAMETER ip-recid  AS RECID     NO-UNDO.
 DEFINE INPUT PARAMETER ip-rowid  AS ROWID     NO-UNDO.
 DEFINE INPUT PARAMETER ip-type   AS CHARACTER NO-UNDO.   /* add,update,view */
+DEFINE INPUT PARAMETER ipcScreen AS CHARACTER NO-UNDO.  /* C for Corrected and F for Folding */
 DEFINE INPUT PARAMETER ipcSetPart  AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER ipcSetPartName AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER ipcPartNo AS CHARACTER NO-UNDO.
@@ -573,7 +574,7 @@ ON CHOOSE OF Btn_OK IN FRAME Dialog-Frame /* Save */
             CREATE ttInputEst.
             ASSIGN
                 ttInputEst.cEstType = "MoldSetEstimate"
-                ttInputEst.cSetType = "Set"
+                ttInputEst.cSetType = IF ipcScreen EQ "C" THEN "Set" ELSE "FoldSet" 
                 ttInputEst.cCompany = cocode .
         END.
         
@@ -859,12 +860,21 @@ ON HELP OF style-cod IN FRAME Dialog-Frame /* Style Code */
     DO:
         DEFINE VARIABLE char-val   AS cha   NO-UNDO.
         DEFINE VARIABLE look-recid AS RECID NO-UNDO.
-   
-        RUN windows/l-stylec.w (cocode,FOCUS:SCREEN-VALUE, OUTPUT char-val).
-        IF char-val <> "" AND SELF:screen-value <> entry(1,char-val) THEN 
-            ASSIGN
-                SELF:screen-value = ENTRY(1,char-val)
-                .    
+        IF ipcScreen EQ "C" THEN
+        DO:           
+            RUN windows/l-stylec.w (cocode,FOCUS:SCREEN-VALUE, OUTPUT char-val).
+            IF char-val <> "" AND SELF:screen-value <> entry(1,char-val) THEN 
+                ASSIGN
+                    SELF:screen-value = ENTRY(1,char-val)
+                    .   
+        END. 
+        ELSE DO:
+            RUN windows/l-stylef.w (cocode,style-cod:SCREEN-VALUE, OUTPUT char-val).
+            IF char-val <> "" AND SELF:screen-value <> entry(1,char-val) THEN 
+                ASSIGN
+                    SELF:screen-value = ENTRY(1,char-val)
+                    .   
+        END.
         IF SELF:SCREEN-VALUE NE "" THEN 
         DO:
             FIND FIRST style WHERE style.company = cocode
@@ -1258,6 +1268,8 @@ PROCEDURE valid-style :
     DEFINE OUTPUT PARAMETER oplOutError AS LOGICAL NO-UNDO .
 
     DO WITH FRAME {&FRAME-NAME}:
+     IF ipcScreen EQ "C" THEN
+     DO:         
         IF NOT CAN-FIND(FIRST style
             WHERE style.company  EQ cocode
             AND style.style    EQ style-cod:SCREEN-VALUE
@@ -1267,6 +1279,21 @@ PROCEDURE valid-style :
             APPLY "entry" TO style-cod .
             oplOutError = YES .
         END.
+     END.
+     ELSE DO:
+        IF NOT CAN-FIND(FIRST style
+                    WHERE style.company  EQ cocode
+                      AND style.style    EQ style-cod:SCREEN-VALUE 
+                      AND style.industry EQ "1") OR
+                      style-cod:SCREEN-VALUE EQ "" THEN
+         DO:
+            MESSAGE "Invalid Style Code, try help..." VIEW-AS ALERT-BOX ERROR.
+            APPLY "entry" TO style-cod .
+            oplOutError = YES .
+         END.
+     
+     END.
+     
     END.
 
 END PROCEDURE.
@@ -1283,7 +1310,10 @@ PROCEDURE pGetBoardFromStyle :
         ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcStyle AS CHARACTER NO-UNDO .
     DO WITH FRAME {&FRAME-NAME}:
-    
+       IF ipcScreen EQ "F" THEN
+          ASSIGN 
+              board:SCREEN-VALUE = style.material[1] . 
+       ELSE DO:    
         FIND FIRST flute NO-LOCK
             WHERE flute.company EQ cocode NO-ERROR .
         IF AVAILABLE flute THEN
@@ -1292,6 +1322,7 @@ PROCEDURE pGetBoardFromStyle :
                 AND reftable.code = "BOARD"
                 NO-LOCK NO-ERROR. 
         board:screen-value = IF AVAILABLE reftable AND AVAILABLE flute AND reftable.dscr NE "" THEN reftable.dscr ELSE board:screen-value.
+       END. 
     END.
 
 END PROCEDURE.
