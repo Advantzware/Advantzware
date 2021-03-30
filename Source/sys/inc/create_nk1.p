@@ -1472,9 +1472,9 @@ CASE ip-nk1-value:
             INPUT NO,           
             INPUT "Search limitation definition",       /* Description */
             INPUT "",                                   /* Char Value */
-            INPUT 100,                                  /* Int value */
+            INPUT 10000,                                  /* Int value */
             INPUT NO,                                   /* Logical value */ 
-            INPUT 10                                    /* Dec value*/
+            INPUT 90                                    /* Dec value*/
             ).           
     WHEN "SSIssueDefaultRM" THEN    
         RUN sys/inc/addnk1.p (
