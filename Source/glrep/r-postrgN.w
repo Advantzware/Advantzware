@@ -1386,7 +1386,7 @@ FOR EACH tt-glhist NO-LOCK
 
    ASSIGN
       v-print = yes
-      tot-all = tot-all + tt-glhist.tr-amt.
+      tot-all = tot-all + (IF tt-glhist.tr-amt NE ? THEN tt-glhist.tr-amt ELSE 0).
 
    FIND  FIRST account WHERE
          account.company EQ cocode 
