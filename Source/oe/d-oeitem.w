@@ -163,6 +163,7 @@ DEFINE VARIABLE oeDateChange-chr AS CHARACTER   NO-UNDO.
 DEFINE VARIABLE gcLastDateChange AS CHARACTER   NO-UNDO.
 
 DEFINE VARIABLE hdSalesManProcs AS HANDLE NO-UNDO.
+DEFINE VARIABLE lAvailable AS LOGICAL NO-UNDO.
 
 RUN salrep/SalesManProcs.p PERSISTENT SET hdSalesManProcs.
 
@@ -534,6 +535,11 @@ DEFINE BUTTON btn-quotes
      SIZE 18 BY 1.14
      FONT 1.
 
+DEFINE BUTTON btnTagsOverrn 
+     IMAGE-UP FILE "Graphics/16x16/question.png":U
+     LABEL "" 
+     SIZE 4.2 BY .95 TOOLTIP "Show Details".
+
 DEFINE BUTTON Btn_Cancel AUTO-END-KEY 
      LABEL "Ca&ncel" 
      SIZE 15 BY 1.14
@@ -833,6 +839,7 @@ DEFINE FRAME d-oeitem
           SIZE 7 BY 1
      fi_jobStartDate AT ROW 15.67 COL 121 COLON-ALIGNED WIDGET-ID 22
      btn-quotes AT ROW 17.38 COL 6.4 WIDGET-ID 20
+     btnTagsOverrn AT ROW 11.33 COL 137.6 WIDGET-ID 36
      RECT-31 AT ROW 12.1 COL 1.8
      RECT-39 AT ROW 1 COL 1.8
      RECT-40 AT ROW 1 COL 80 WIDGET-ID 8
@@ -866,6 +873,8 @@ ASSIGN
        FRAME d-oeitem:SCROLLABLE       = FALSE
        FRAME d-oeitem:HIDDEN           = TRUE.
 
+/* SETTINGS FOR BUTTON btnTagsOverrn IN FRAME d-oeitem
+   NO-ENABLE                                                            */
 ASSIGN 
        Btn_Done:HIDDEN IN FRAME d-oeitem           = TRUE.
 
@@ -1191,6 +1200,21 @@ END.
 ON CHOOSE OF btn-quotes IN FRAME d-oeitem /* Quoted Prices */
 DO:
   RUN chooseQuotedPrice.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnTagsOverrn
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnTagsOverrn d-oeitem
+ON CHOOSE OF btnTagsOverrn IN FRAME d-oeitem
+DO:
+    RUN system/d-TagViewer.w (
+        INPUT oe-ordl.rec_key,
+        INPUT "",
+        INPUT "OverPct-Source"
+        ).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -7522,6 +7546,100 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetMiscEst d-oeitem 
+PROCEDURE pGetMiscEst :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+     DEFINE INPUT-OUTPUT PARAMETER ipo-Recid AS RECID NO-UNDO.
+     DEFINE BUFFER bff-est FOR est .
+     DEFINE BUFFER bff-eb FOR eb.
+   
+     FIND FIRST bff-eb WHERE RECID(bff-eb) = ipo-Recid NO-LOCK NO-ERROR.
+     IF AVAIL bff-eb THEN
+     FIND FIRST bff-est WHERE bff-est.company = bff-eb.company
+                AND bff-est.est-no = bff-eb.est-no NO-LOCK NO-ERROR.
+                
+     DO WITH FRAME {&FRAME-NAME}:                
+         IF AVAIL bff-eb AND AVAIL bff-est AND bff-est.estimateTypeID EQ "MISC" THEN DO:
+         
+         FIND FIRST eb NO-LOCK
+             WHERE eb.company EQ bff-eb.company
+               AND trim(eb.est-no) EQ trim(bff-eb.sourceEstimate)  /*trim(bff-eb.est-no)*/
+               AND eb.stock-no EQ bff-eb.stock-no NO-ERROR. 
+               IF AVAIL eb THEN DO:
+                 ipo-Recid = RECID(eb) .                 
+                 oe-ordl.SourceEstimateID:SCREEN-VALUE = bff-eb.est-no .
+                 oe-ordl.est-no:SCREEN-VALUE = bff-eb.sourceEstimate.
+               END.
+         END.
+     END.
+     
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetOverUnderPct d-oeitem 
+PROCEDURE pGetOverUnderPct :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DEFINE INPUT PARAMETER ipcCustNo AS CHARACTER NO-UNDO .
+   DEFINE INPUT PARAMETER ipcShipID AS CHARACTER NO-UNDO .
+   DEFINE VARIABLE dOverPer AS DECIMAL NO-UNDO.
+   DEFINE VARIABLE dUnderPer AS DECIMAL NO-UNDO.
+   DEFINE BUFFER bf-shipto FOR shipto .
+   DEFINE VARIABLE cTagDesc   AS CHARACTER NO-UNDO.
+   DEFINE VARIABLE lAvailable AS LOGICAL   NO-UNDO.
+
+  DO WITH FRAME {&FRAME-NAME}:                   
+        RUN oe/GetOverUnderPct.p(g_company, 
+                               ipcCustNo,
+                               TRIM(ipcShipID),
+                               oe-ordl.i-no:SCREEN-VALUE,
+                               OUTPUT dOverPer , OUTPUT dUnderPer,  OUTPUT cTagDesc  ) .
+                               oe-ordl.over-pct:SCREEN-VALUE = STRING(dOverPer).
+                               oe-ordl.Under-pct:SCREEN-VALUE = STRING(dUnderPer). 
+                               MESSAGE cTagDesc
+                               VIEW-AS ALERT-BOX.
+      RUN ClearTagsForGroup(
+          INPUT oe-ordl.rec_key,
+          INPUT "OverPct-Source"
+          ).
+      RUN AddTagInfoForGroup(
+          INPUT oe-ordl.rec_key,
+          INPUT "oe-ordl",
+          INPUT cTagDesc,
+          INPUT "",
+          INPUT "OverPct-Source"
+          ). /*From TagProcs Super Proc*/ 
+      RUN Tag_IsTagRecordAvailableForGroup(
+          INPUT oe-ordl.rec_key,
+          INPUT "oe-ordl",
+          INPUT "OverPct-Source",
+          OUTPUT lAvailable
+          ).
+          MESSAGE lAvailable "lAvailable"
+          VIEW-AS ALERT-BOX.
+      IF lAvailable THEN  
+          btnTagsOverrn:SENSITIVE = TRUE.
+      ELSE 
+          btnTagsOverrn:SENSITIVE = FALSE.
+                           
+                                                       
+  END.
+
+  {methods/lValidateError.i NO}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetPartComm d-oeitem 
 PROCEDURE pGetPartComm :
 /*------------------------------------------------------------------------------
@@ -8979,35 +9097,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetOverUnderPct d-oeitem 
-PROCEDURE pGetOverUnderPct :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-   DEFINE INPUT PARAMETER ipcCustNo AS CHARACTER NO-UNDO .
-   DEFINE INPUT PARAMETER ipcShipID AS CHARACTER NO-UNDO .
-   DEFINE VARIABLE dOverPer AS DECIMAL NO-UNDO.
-   DEFINE VARIABLE dUnderPer AS DECIMAL NO-UNDO.
-   DEFINE BUFFER bf-shipto FOR shipto .
-
-  DO WITH FRAME {&FRAME-NAME}:                   
-        RUN oe/GetOverUnderPct.p(g_company, 
-                               ipcCustNo,
-                               TRIM(ipcShipID),
-                               oe-ordl.i-no:SCREEN-VALUE,
-                               OUTPUT dOverPer , OUTPUT dUnderPer ) .
-                               oe-ordl.over-pct:SCREEN-VALUE = STRING(dOverPer).
-                               oe-ordl.Under-pct:SCREEN-VALUE = STRING(dUnderPer).                         
-  END.
-
-  {methods/lValidateError.i NO}
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-cas-cnt d-oeitem 
 PROCEDURE valid-cas-cnt :
 /*------------------------------------------------------------------------------
@@ -10119,42 +10208,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetMiscEst d-oeitem 
-PROCEDURE pGetMiscEst :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-     DEFINE INPUT-OUTPUT PARAMETER ipo-Recid AS RECID NO-UNDO.
-     DEFINE BUFFER bff-est FOR est .
-     DEFINE BUFFER bff-eb FOR eb.
-   
-     FIND FIRST bff-eb WHERE RECID(bff-eb) = ipo-Recid NO-LOCK NO-ERROR.
-     IF AVAIL bff-eb THEN
-     FIND FIRST bff-est WHERE bff-est.company = bff-eb.company
-                AND bff-est.est-no = bff-eb.est-no NO-LOCK NO-ERROR.
-                
-     DO WITH FRAME {&FRAME-NAME}:                
-         IF AVAIL bff-eb AND AVAIL bff-est AND bff-est.estimateTypeID EQ "MISC" THEN DO:
-         
-         FIND FIRST eb NO-LOCK
-             WHERE eb.company EQ bff-eb.company
-               AND trim(eb.est-no) EQ trim(bff-eb.sourceEstimate)  /*trim(bff-eb.est-no)*/
-               AND eb.stock-no EQ bff-eb.stock-no NO-ERROR. 
-               IF AVAIL eb THEN do:
-                 ipo-Recid = RECID(eb) .                 
-                 oe-ordl.SourceEstimateID:SCREEN-VALUE = bff-eb.est-no .
-                 oe-ordl.est-no:SCREEN-VALUE = bff-eb.sourceEstimate.
-               END.
-         END.
-     END.
-     
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME    
 
 /* ************************  Function Implementations ***************** */
 
