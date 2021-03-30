@@ -786,9 +786,10 @@ PROCEDURE UDF :
 
     IF AVAILABLE(mfgroup) THEN DO:
         RUN Running_Procedures IN Persistent-Handle ("mfvalues.",OUTPUT isRunning).
+        IF AVAILABLE {&FIRST-EXTERNAL-TABLE} THEN
         RUN UDF/mfvalues.w (ENTRY(1,mfgroup.mfgroup_data,"|"),
-                            rec_key_value,
-                            header_value,
+                            {&FIRST-EXTERNAL-TABLE}.rec_key,
+                            {methods/headers/{&FIRST-EXTERNAL-TABLE}.i},
                             h_smartmsg).
     END. /* avail mfgroup */
 

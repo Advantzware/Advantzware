@@ -107,7 +107,9 @@ REPEAT:
         PUT STREAM sJasperJSON UNFORMATTED
             FILL(" ",8)
             "~"" cFullName "~": ~""
-            IF cBufferValue NE "" THEN cBufferValue ELSE " "
+            IF cBufferValue EQ ? AND dynValueColumn.dataType EQ "Character" THEN " "
+            ELSE IF cBufferValue EQ ? AND dynValueColumn.dataType NE "Character" THEN "0"
+            ELSE IF cBufferValue NE "" THEN cBufferValue ELSE " "
             "~""
             .
     END. /* each dynvaluecolumn */

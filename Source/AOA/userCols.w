@@ -66,6 +66,8 @@ DEFINE TEMP-TABLE ttGroup NO-UNDO
     FIELD colRowID AS ROWID
     .
 {AOA/tempTable/ttGroupCalc.i}
+{UDF/ttUDF.i}
+{UDF/mfttdefs.i &NEW="NEW SHARED"}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -128,10 +130,10 @@ DEFINE TEMP-TABLE ttGroup NO-UNDO
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS searchBar sortBrowse subjectColumnBrowse ~
-btnColMoveDown groupBrowse btnColMoveUp btnAdvanced btnGroupCalc btnSave ~
+groupBrowse btnColMoveDown btnColMoveUp btnAdvanced btnGroupCalc btnSave ~
 btnAddGroup btnAddSort btnRemoveGroup btnRemoveSort btnSortMoveDown ~
 btnSortMoveUp 
-&Scoped-Define DISPLAYED-OBJECTS searchBar 
+&Scoped-Define DISPLAYED-OBJECTS searchBar udfGroups udfGroupsLabel 
 
 /* Custom List Definitions                                              */
 /* SortGroupButtons,List-2,List-3,List-4,List-5,List-6                  */
@@ -220,10 +222,20 @@ DEFINE BUTTON btnSortMoveUp
      LABEL "Move Up" 
      SIZE 8 BY 1.91 TOOLTIP "Move Up".
 
+DEFINE VARIABLE udfGroups AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS COMBO-BOX INNER-LINES 5
+     LIST-ITEMS "Item 1" 
+     DROP-DOWN-LIST
+     SIZE 26 BY 1 NO-UNDO.
+
 DEFINE VARIABLE searchBar AS CHARACTER FORMAT "X(256)":U 
      LABEL "Search" 
      VIEW-AS FILL-IN 
      SIZE 126 BY 1 NO-UNDO.
+
+DEFINE VARIABLE udfGroupsLabel AS CHARACTER FORMAT "X(256)":U INITIAL "UDF Groups:" 
+      VIEW-AS TEXT 
+     SIZE 13 BY 1 NO-UNDO.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -277,7 +289,7 @@ ttSubjectColumn.isActive
 ttSubjectColumn.fieldLabel
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SIZE 126 BY 23.33
+    WITH NO-ROW-MARKERS SIZE 126 BY 21.91
          TITLE "Column Order" ROW-HEIGHT-CHARS .81.
 
 
@@ -288,9 +300,10 @@ DEFINE FRAME F-Main
           "Enter Search" WIDGET-ID 22
      sortBrowse AT ROW 1.24 COL 144 WIDGET-ID 300
      subjectColumnBrowse AT ROW 2.19 COL 9 WIDGET-ID 200
+     groupBrowse AT ROW 17.19 COL 144 WIDGET-ID 400
+     udfGroups AT ROW 24.33 COL 20 COLON-ALIGNED NO-LABEL WIDGET-ID 670
      btnColMoveDown AT ROW 8.38 COL 1 HELP
           "Move Down Column" WIDGET-ID 14
-     groupBrowse AT ROW 17.19 COL 144 WIDGET-ID 400
      btnColMoveUp AT ROW 6.48 COL 1 HELP
           "Move Up Column" WIDGET-ID 16
      btnAdvanced AT ROW 2.67 COL 1 HELP
@@ -313,6 +326,7 @@ DEFINE FRAME F-Main
           "Move Down" WIDGET-ID 8
      btnSortMoveUp AT ROW 6.48 COL 136 HELP
           "Move Up" WIDGET-ID 6
+     udfGroupsLabel AT ROW 24.33 COL 7 COLON-ALIGNED NO-LABEL WIDGET-ID 672
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -370,7 +384,7 @@ END.
    NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 /* BROWSE-TAB sortBrowse searchBar F-Main */
 /* BROWSE-TAB subjectColumnBrowse sortBrowse F-Main */
-/* BROWSE-TAB groupBrowse btnColMoveDown F-Main */
+/* BROWSE-TAB groupBrowse subjectColumnBrowse F-Main */
 ASSIGN 
        FRAME F-Main:HIDDEN           = TRUE
        FRAME F-Main:HEIGHT           = 24.52
@@ -396,6 +410,10 @@ ASSIGN
    1                                                                    */
 /* SETTINGS FOR BUTTON btnSortMoveUp IN FRAME F-Main
    1                                                                    */
+/* SETTINGS FOR COMBO-BOX udfGroups IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN udfGroupsLabel IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -659,6 +677,7 @@ PROCEDURE local-initialize :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
+  RUN pGetUDFGroups.
   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,'CONTAINER':U,OUTPUT char-hdl).
   hContainer = WIDGET-HANDLE(char-hdl).
   RUN pAdvanced.
@@ -685,7 +704,10 @@ PROCEDURE local-view :
   RUN pUserColumns.
   FRAME {&FRAME-NAME}:MOVE-TO-TOP().
   RUN pSetSortGroupButtons (dynParamValue.user-id EQ USERID("ASI")).
-  btnSave:SENSITIVE = dynParamValue.user-id EQ USERID("ASI").
+  ASSIGN
+      btnSave:SENSITIVE = dynParamValue.user-id EQ USERID("ASI")
+      udfGroups:SCREEN-VALUE = dynSubject.udfGroup
+      .
   RUN pUpdateMode (NO).
 
 END PROCEDURE.
@@ -794,6 +816,23 @@ PROCEDURE pGetSettings :
   Notes:       
 ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcUserID AS CHARACTER NO-UNDO.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetUDFGroups s-object 
+PROCEDURE pGetUDFGroups :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    udfGroups:LIST-ITEMS IN FRAME {&FRAME-NAME} = " ".
+    FOR EACH mfGroup NO-LOCK:
+        udfGroups:ADD-LAST(ENTRY(1,mfGroup.mfGroup_Data,"|")).
+    END. /* each udfgroup */
+    udfGroups:INNER-LINES = udfGroups:NUM-ITEMS.
 
 END PROCEDURE.
 
@@ -1030,6 +1069,7 @@ PROCEDURE pSave :
                 dynValueColumn.statusAction      = ttSubjectColumn.statusAction
                 dynValueColumn.statusCompare     = ttSubjectColumn.statusCompare
                 dynValueColumn.textColor         = ttSubjectColumn.textColor
+                dynValueColumn.udfID             = ttSubjectColumn.udfID
                 .
         END. /* each ttSubjectColumn */
     END. /* do trans */
@@ -1153,6 +1193,7 @@ PROCEDURE pUserColumns :
             ttSubjectColumn.statusAction      = dynValueColumn.statusAction
             ttSubjectColumn.statusCompare     = dynValueColumn.statusCompare
             ttSubjectColumn.textColor         = dynValueColumn.textColor
+            ttSubjectColumn.udfID             = dynValueColumn.udfID
             ttSubjectColumn.allData           = ttSubjectColumn.fieldLabel
                                               + (IF lAdvanced THEN "|" + ttSubjectColumn.fieldName
                                                  ELSE "")
@@ -1212,7 +1253,10 @@ PROCEDURE pWinReSize :
         FRAME {&FRAME-NAME}:VIRTUAL-WIDTH  = ipdWidth
         FRAME {&FRAME-NAME}:HEIGHT         = ipdHeight
         FRAME {&FRAME-NAME}:WIDTH          = ipdWidth
-        BROWSE subjectColumnBrowse:HEIGHT  = ipdHeight - BROWSE subjectColumnBrowse:ROW + 1
+        udfGroups:ROW                      = FRAME {&FRAME-NAME}:HEIGHT
+        udfGroupsLabel:SCREEN-VALUE        = "UDF Groups:"
+        udfGroupsLabel:ROW                 = udfGroups:ROW
+        BROWSE subjectColumnBrowse:HEIGHT  = ipdHeight - BROWSE subjectColumnBrowse:ROW - udfGroups:HEIGHT + .82
         BROWSE groupBrowse:HEIGHT          = ipdHeight - BROWSE groupBrowse:ROW + 1
         btnRemoveGroup:ROW                 = ipdHeight - btnRemoveGroup:HEIGHT + 1
         .

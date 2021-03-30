@@ -163,6 +163,7 @@ END. /* row-display */
 &ENDIF
 
 {AOA/includes/pDynParamProcs.i "{1}"}
+{AOA/includes/pGetRecipients.i}
 {AOA/includes/pRunNow.i}
 {AOA/includes/pRunBusinessLogic.i}
 {AOA/includes/pSetDynParamValue.i "{1}"}
@@ -171,41 +172,6 @@ END. /* row-display */
 &ANALYZE-RESUME
 
 /* **********************  Internal Procedures  *********************** */
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetRecipients Include
-PROCEDURE pGetRecipients:
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    DEFINE OUTPUT PARAMETER opcRecipients AS CHARACTER NO-UNDO.
-    
-    DEFINE VARIABLE idx AS INTEGER NO-UNDO.
-    
-    FIND FIRST dynValueParam NO-LOCK
-         WHERE dynValueParam.subjectID    EQ dynParamValue.subjectID
-           AND dynValueParam.user-id      EQ dynParamValue.user-id
-           AND dynValueParam.prgmName     EQ dynParamValue.prgmName
-           AND dynValueParam.paramValueID EQ dynParamValue.paramValueID
-           AND dynValueParam.paramName    EQ "svRecipients"
-         NO-ERROR.
-    IF AVAILABLE dynValueParam THEN
-    opcRecipients = dynValueParam.paramValue.
-    IF opcRecipients NE "" THEN DO:
-        MESSAGE
-            "Recipients:" opcRecipients SKIP(1)
-            "Email Results?"
-        VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO
-        UPDATE lUseEmail AS LOGICAL.
-        IF lUseEmail EQ NO THEN
-        opcRecipients = "".
-    END. /* if */
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pResultsBrowser Include 
 PROCEDURE pResultsBrowser :

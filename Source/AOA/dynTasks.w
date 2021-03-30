@@ -1068,6 +1068,10 @@ PROCEDURE pRunTask :
 ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER hOutputOption AS HANDLE NO-UNDO.
 
+    DEFINE VARIABLE lRunTask AS LOGICAL NO-UNDO.
+
+    RUN pCheckIfModified IN h_userParam (OUTPUT lRunTask).
+    IF lRunTask THEN
     RUN pRunTask IN h_usertasks (hOutputOption:PRIVATE-DATA, NO).
 
 END PROCEDURE.

@@ -31,6 +31,7 @@ DEFINE INPUT-OUTPUT PARAMETER iopcTaskDescrip  AS CHARACTER NO-UNDO.
 DEFINE INPUT-OUTPUT PARAMETER iopcExternalForm AS CHARACTER NO-UNDO.
 DEFINE INPUT-OUTPUT PARAMETER iopiRecordLimit  AS INTEGER   NO-UNDO.
 DEFINE INPUT-OUTPUT PARAMETER ioplFavorite     AS LOGICAL   NO-UNDO.
+DEFINE INPUT-OUTPUT PARAMETER iopcUDFGroup     AS CHARACTER NO-UNDO.
 DEFINE       OUTPUT PARAMETER oplOK            AS LOGICAL   NO-UNDO.
 
 /* Local Variable Definitions ---                                       */
@@ -64,9 +65,9 @@ DEFINE       OUTPUT PARAMETER oplOK            AS LOGICAL   NO-UNDO.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS cTaskDescrip cExternalForm iRecordLimit ~
-btnOK btnCancel lFavorite 
+cUDFGroup btnOK btnCancel lFavorite 
 &Scoped-Define DISPLAYED-OBJECTS cTaskDescrip cExternalForm iRecordLimit ~
-lFavorite 
+cUDFGroup lFavorite 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -93,6 +94,13 @@ DEFINE BUTTON btnOK AUTO-GO
      LABEL "OK" 
      SIZE 8 BY 1.91 TOOLTIP "Save"
      BGCOLOR 8 .
+
+DEFINE VARIABLE cUDFGroup AS CHARACTER FORMAT "X(256)":U 
+     LABEL "UDF Group" 
+     VIEW-AS COMBO-BOX INNER-LINES 5
+     LIST-ITEMS "UDF Group" 
+     DROP-DOWN-LIST
+     SIZE 34 BY 1 NO-UNDO.
 
 DEFINE VARIABLE cExternalForm AS CHARACTER FORMAT "x(80)" 
      LABEL "External Form" 
@@ -138,6 +146,7 @@ DEFINE FRAME Dialog-Frame
           "Enter External Form" WIDGET-ID 4
      iRecordLimit AT ROW 4.81 COL 17 COLON-ALIGNED HELP
           "Enter Record Limit" WIDGET-ID 6
+     cUDFGroup AT ROW 4.81 COL 46 COLON-ALIGNED WIDGET-ID 14
      btnOK AT ROW 5.05 COL 84 HELP
           "Save"
      btnCancel AT ROW 5.05 COL 92 HELP
@@ -229,10 +238,12 @@ DO:
         cExternalForm
         iRecordLimit
         lFavorite
+        cUDFGroup
         iopcTaskDescrip  = cTaskDescrip
         iopcExternalForm = cExternalForm
         iopiRecordLimit  = iRecordLimit
         ioplFavorite     = lFavorite
+        iopcUDFGroup     = cUDFGroup
         oplOK = YES
         .
 END.
@@ -258,11 +269,13 @@ THEN FRAME {&FRAME-NAME}:PARENT = ACTIVE-WINDOW.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
+  RUN gGetUDFGroups.
   ASSIGN
       lFavorite     = ioplFavorite
       cTaskDescrip  = iopcTaskDescrip
       cExternalForm = iopcExternalForm
       iRecordLimit  = iopiRecordLimit
+      cUDFGroup     = iopcUDFGroup
       .
   RUN enable_UI.
   cTaskDescrip:SENSITIVE = iopcTaskDescrip NE "User Default".
@@ -307,12 +320,30 @@ PROCEDURE enable_UI :
 
   {&OPEN-QUERY-Dialog-Frame}
   GET FIRST Dialog-Frame.
-  DISPLAY cTaskDescrip cExternalForm iRecordLimit lFavorite 
+  DISPLAY cTaskDescrip cExternalForm iRecordLimit cUDFGroup lFavorite 
       WITH FRAME Dialog-Frame.
-  ENABLE cTaskDescrip cExternalForm iRecordLimit btnOK btnCancel lFavorite 
+  ENABLE cTaskDescrip cExternalForm iRecordLimit cUDFGroup btnOK btnCancel 
+         lFavorite 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE gGetUDFGroups Dialog-Frame 
+PROCEDURE gGetUDFGroups :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    cUDFGroup:LIST-ITEMS IN FRAME {&FRAME-NAME} = " ".
+    FOR EACH mfGroup NO-LOCK:
+        cUDFGroup:ADD-LAST(ENTRY(1,mfGroup.mfGroup_Data,"|")).
+    END. /* each udfgroup */
+    cUDFGroup:INNER-LINES = cUDFGroup:NUM-ITEMS.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
