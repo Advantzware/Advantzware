@@ -13,24 +13,14 @@
   ----------------------------------------------------------------------*/
 
 /* ***************************  Definitions  ************************** */
+{gl\ttTrialBalance.i}
+
 DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER ipdtAsOf AS DATE NO-UNDO.
 DEFINE INPUT PARAMETER ipcAccountStart AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER ipcAccountEnd AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER iplSuppressZeroAmount AS LOGICAL NO-UNDO.
+DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttTrialBalance.   
 
-DEFINE TEMP-TABLE ttTrialBalance NO-UNDO
-    FIELD accountID         AS CHARACTER 
-    FIELD accountName       AS CHARACTER 
-    FIELD accountType       AS CHARACTER 
-    FIELD accountGroup      AS CHARACTER 
-    FIELD amountPTD         AS DECIMAL 
-    FIELD amountYTD         AS DECIMAL
-    FIELD amountYTDOpen     AS DECIMAL 
-    FIELD amountYTDFYE      AS DECIMAL
-    FIELD isBalanceSheet    AS LOGICAL 
-    FIELD isIncomeStatement AS LOGICAL 
-    .
 
 /* ********************  Preprocessor Definitions  ******************** */
 
@@ -42,7 +32,7 @@ FUNCTION fGetAccountGroup RETURNS CHARACTER PRIVATE
 
 
 /* ***************************  Main Block  *************************** */
-RUN pRunReport(ipcCompany, ipdtAsOf, ipcAccountStart, ipcAccountEnd, iplSuppressZeroAmount).
+RUN pRunReport(ipcCompany, ipdtAsOf, ipcAccountStart, ipcAccountEnd).
 
 
 
@@ -123,7 +113,6 @@ PROCEDURE pRunReport PRIVATE:
     DEFINE INPUT PARAMETER ipdtAsOf AS DATE NO-UNDO.
     DEFINE INPUT PARAMETER ipcAccountStart AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcAccountEnd AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER iplSuppressZeroAmount AS LOGICAL NO-UNDO.
     
     DEFINE BUFFER bf-account FOR account.
     
@@ -216,7 +205,7 @@ PROCEDURE pRunReport PRIVATE:
             ttTrialBalance.amountPTD = dTotPTDInc
             .                 
             
-    RUN pExportToCSV(TEMP-TABLE ttTrialBalance:HANDLE).
+    //RUN pExportToCSV(TEMP-TABLE ttTrialBalance:HANDLE).
     
 END PROCEDURE.
 

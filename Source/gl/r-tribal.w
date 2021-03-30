@@ -19,6 +19,7 @@
 CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
+{gl\ttTrialBalance.i}
 
 /* Parameters Definitions ---                                           */
 
@@ -1006,14 +1007,8 @@ def var v-hdr as char initial
 def var v-comma as char format "x" initial "," no-undo.
 DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
 
-DEFINE VARIABLE lIsLastDateOfFY AS LOGICAL NO-UNDO.
-DEFINE VARIABLE lIsBalanceSheet AS LOGICAL NO-UNDO.
-DEFINE VARIABLE cActContra      AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cActRet         AS CHARACTER NO-UNDO.
-DEFINE VARIABLE dAmountYTDFYE   AS DECIMAL NO-UNDO.
-DEFINE VARIABLE dAmountYTD      AS DECIMAL format "->>>,>>>,>>>,>>9.99" NO-UNDO.
-DEFINE VARIABLE dAmountYTDOpen  AS DECIMAL NO-UNDO.
-DEFINE VARIABLE dTotYTD         AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dTotPTD         AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dTotYTD         AS DECIMAL   NO-UNDO.
     
 RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
@@ -1055,7 +1050,12 @@ ASSIGN facct = begin_acct-no
        fsubac = begin_sub-acct
        tsubac = END_sub-acct
        break-flag = tb_sub-acct
-       suppress-zero = tb_sup-zero.
+       suppress-zero = tb_sup-zero
+       dTotYTD = 0
+       dTotPTD = 0.
+
+EMPTY TEMP-TABLE ttTrialBalance.
+RUN gl\TrialBalance.p(company.company, tran-date, facct, tacct, INPUT-OUTPUT TABLE ttTrialBalance).
 
 blok:
 DO:
@@ -1088,103 +1088,57 @@ DO:
           PUT STREAM s-temp UNFORMATTED str_buffa SKIP.
     end.
     
-    RUN pGetCompanyAttributes(cocode, tran-date, OUTPUT lIsLastDateOfFY, OUTPUT cActContra, OUTPUT cActRet, OUTPUT dtPeriodStart).
+    FOR EACH ttTrialBalance, 
+        FIRST account NO-LOCK 
+        WHERE account.company EQ company.company
+            AND account.actnum EQ ttTrialBalance.accountID
+        BY SUBSTRING(account.actnum,start-lvl) WITH WIDTH 132: 
 
-    for each account
-        where account.company eq cocode
-          and account.actnum  ge facct
-          and account.actnum  le tacct
-        no-lock
-        by substr(account.actnum,start-lvl) with width 132:
+
+        subac = IF subac-lvl EQ 1 THEN account.n1 ELSE
+            IF subac-lvl EQ 2 THEN account.n2 ELSE
+            IF subac-lvl EQ 3 THEN account.n3 ELSE
+            IF subac-lvl EQ 4 THEN account.n4 ELSE account.n5.
+        IF subac LT fsubac OR subac GT tsubac THEN NEXT.
         
-        IF account.actnum EQ cActContra OR account.actnum EQ cActRet THEN NEXT. 
-
-        subac = if subac-lvl eq 1 then account.n1 else
-              if subac-lvl eq 2 then account.n2 else
-              if subac-lvl eq 3 then account.n3 else
-              if subac-lvl eq 4 then account.n4 else account.n5.
-        if subac lt fsubac or subac gt tsubac then next.
-
-        ptd-value = 0.
-        dAmountYTDFYE = 0.
-        dAmountYTD = 0.
-        view frame r-top.
-
-        lIsBalanceSheet = INDEX("ALCT",account.type) GT 0 AND NOT account.actnum EQ cActRet.
-                
-/*            IF the as-of date is the last day of the FY,                                       */
-/*            AND IF this is an expense account, get the CY open bal from this date              */
-/*            (we'll add this day;s txns below),                                                 */
-/*            ELSE get the NEXT day's open balance, as it should be equal today's closing balance*/
-        IF NOT lIsLastDateOfFY OR lIsBalanceSheet THEN 
-            RUN GL_GetAccountOpenBal(ROWID(account), tran-date + 1, OUTPUT dAmountYTDOpen).
-        ELSE
-        DO:        
-           RUN GL_GetAccountOpenBal(ROWID(account), tran-date, OUTPUT dAmountYTDOpen).
-           
-           FOR EACH glhist NO-LOCK 
-                WHERE glhist.company EQ account.company 
-                AND glhist.actnum  EQ account.actnum
-                AND glhist.tr-date EQ tran-date:
-                    
-                ASSIGN 
-                    dAmountYTDFYE = dAmountYTDFYE + glhist.tr-amt.
-            END.
-        END.
-        
-        IF dAmountYTDOpen EQ ? THEN dAmountYTDOpen = 0.
-        IF dAmountYTDFYE EQ ? THEN dAmountYTDFYE = 0.
-        
-        ASSIGN 
-            dAmountYTD = dAmountYTDOpen + dAmountYTDFYE  
-            dTotYTD = dTotYTD + dAmountYTD.            
-        
-        for each glhist no-lock
-            where glhist.company eq account.company
-              and glhist.actnum  eq account.actnum
-              and glhist.tr-date ge dtPeriodStart 
-              and glhist.tr-date le tran-date:
-
-          assign
-           ptd-value = ptd-value + glhist.tr-amt
-           tot-ptd   = tot-ptd   + glhist.tr-amt
-           .
-        end.            
-                   
-        if not suppress-zero or dAmountYTD ne 0 or ptd-value ne 0 then
-        do:
-           display skip(1)
-                account.actnum + "  " + account.dscr format "x(45)"
-                      label "Account Number           Description"
-                ptd-value  format "->>>,>>>,>>9.99" label "PTD      "
-                dAmountYTD format "->>>,>>>,>>>,>>9.99" label "YTD       "
+        dTotPTD = dTotPTD + ttTrialBalance.amountPTD.
+        dTotYTD = dTotYTD + ttTrialBalance.amountYTD.
+        IF NOT suppress-zero OR ttTrialBalance.amountYTD NE 0 OR ttTrialBalance.amountPTD NE 0 THEN
+        DO:
+            DISPLAY SKIP(1)
+                account.actnum + "  " + account.dscr FORMAT "x(45)"
+                LABEL "Account Number           Description"
+                ttTrialBalance.amountPTD  FORMAT "->>>,>>>,>>9.99" LABEL "PTD      "
+                ttTrialBalance.amountYTD FORMAT "->>>,>>>,>>>,>>9.99" LABEL "YTD       "
                 dadj cadj bsht incs
-                with centered width 132 STREAM-IO.
+                WITH CENTERED WIDTH 132 STREAM-IO.
 
-IF tb_excel THEN 
-   EXPORT STREAM excel DELIMITER ","
-       account.actnum
-       account.dscr
-       ptd-value
-       dAmountYTD
-       SKIP.
+            IF tb_excel THEN 
+                EXPORT STREAM excel DELIMITER ","
+                    account.actnum
+                    account.dscr
+                    ttTrialBalance.amountPTD    
+                    ttTrialBalance.amountYTD
+                    SKIP.
 
-           if v-download then
-           do:
-              assign str_buffa = "".
-              assign str_buffa = trim(account.actnum) + v-comma 
+            IF v-download THEN
+            DO:
+                ASSIGN 
+                    str_buffa = "".
+                ASSIGN 
+                    str_buffa = TRIM(account.actnum) + v-comma 
                            + trim(account.dscr)   + v-comma
-                           + trim(string(ptd-value,'->>>>>>>>9.99')) + v-comma
-                           + trim(string(dAmountYTD,'->>>>>>>>9.99'))       + v-comma 
+                           + trim(STRING(ttTrialBalance.amountPTD,'->>>>>>>>9.99')) + v-comma
+                           + trim(STRING(ttTrialBalance.amountYTD,'->>>>>>>>9.99'))       + v-comma 
                            + v-comma + v-comma + v-comma.
-              PUT STREAM s-temp UNFORMATTED str_buffa SKIP.
-           end.
-        end.  
+                PUT STREAM s-temp UNFORMATTED str_buffa SKIP.
+            END.
+        END.  
             
     end. /* each account */
 
     put skip(1) "===============" to 61 "===================" to 81 skip
-        "TRIAL BALANCE:" AT 10 tot-ptd format "->>>,>>>,>>9.99" to 61
+        "TRIAL BALANCE:" AT 10 dTotPTD format "->>>,>>>,>>9.99" to 61
                                   dTotYTD format "->>>,>>>,>>>,>>9.99" to 81
         " " dadj " " cadj " " bsht " " incs skip(1).
 
