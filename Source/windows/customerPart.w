@@ -56,9 +56,18 @@ CREATE WIDGET-POOL.
 
 &Scoped-define ADM-CONTAINER WINDOW
 
+&Scoped-define ADM-SUPPORTED-LINKS Record-Source
+
 /* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 
+/* External Tables                                                      */
+&Scoped-define EXTERNAL-TABLES customerPart
+&Scoped-define FIRST-EXTERNAL-TABLE customerPart
+
+
+/* Need to scope the external tables to this procedure                  */
+DEFINE QUERY external_tables FOR customerPart.
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
 
@@ -273,6 +282,12 @@ PROCEDURE adm-create-objects :
              OUTPUT h_customerpart ).
        RUN set-position IN h_customerpart ( 5.00 , 1.60 ) NO-ERROR.
        RUN set-size IN h_customerpart ( 15.52 , 120.00 ) NO-ERROR.
+       
+       /* Initialize other pages that this page requires. */
+       RUN init-pages IN THIS-PROCEDURE ('2':U) NO-ERROR.
+       
+       RUN add-link IN adm-broker-hdl ( h_p-navico , 'Navigation':U , h_customerpart ).
+       RUN add-link IN adm-broker-hdl ( h_customerpart , 'Record':U , THIS-PROCEDURE ).
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_customerpart ,
@@ -310,18 +325,17 @@ PROCEDURE adm-create-objects :
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
 
-       /* Links to SmartViewer h_customerpart-2. */
-       RUN add-link IN adm-broker-hdl ( h_customerpart , 'Record':U , h_customerpart-2 ).
-       RUN add-link IN adm-broker-hdl ( h_p-navico , 'Navigation':U , h_customerpart-2 ).
-       RUN add-link IN adm-broker-hdl ( h_p-updsav , 'TableIO':U , h_customerpart-2 ).
+       /* Links to SmartViewer h_customerpart-2. */            
+       RUN add-link IN adm-broker-hdl ( h_customerpart , 'Record':U , h_customerpart-2 ). 
+       RUN add-link IN adm-broker-hdl ( h_p-updsav , 'TableIO':U , h_customerpart-2 ).       
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_customerpart-2 ,
              h_folder , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_p-navico ,
-             h_customerpart-2 , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_p-updsav ,
-             h_p-navico , 'AFTER':U ).
+             h_customerpart-2 , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_p-navico ,
+             h_p-updsav  , 'AFTER':U ).  
     END. /* Page 2 */
 
   END CASE.
@@ -346,6 +360,15 @@ PROCEDURE adm-row-available :
 
   /* Define variables needed by this internal procedure.             */
   {src/adm/template/row-head.i}
+  
+   /* Create a list of all the tables that we need to get.            */
+  {src/adm/template/row-list.i "customerPart"}
+
+  /* Get the record ROWID's from the RECORD-SOURCE.                  */
+  {src/adm/template/row-get.i}
+
+  /* FIND each record specified by the RECORD-SOURCE.                */
+  {src/adm/template/row-find.i "customerPart"}
 
   /* Process the newly available records (i.e. display fields,
      open queries, and/or pass records on to any RECORD-TARGETS).    */
@@ -411,6 +434,14 @@ DEFINE VARIABLE v-spec AS LOGICAL NO-UNDO.
 
   /* Code placed here will execute AFTER standard behavior.    */
   {methods/winReSizePgChg.i}
+  
+   RUN GET-ATTRIBUTE('CURRENT-PAGE').
+  iCurrentPage = INT(RETURN-VALUE).
+  
+  IF iCurrentPage = 2 THEN DO:
+      RUN dispatch IN h_p-navico ( INPUT 'adm-initialize':U ) .
+      RUN dispatch IN h_p-updsav ( INPUT 'adm-initialize':U ) .        
+  END.
 
 
 END PROCEDURE.
@@ -444,9 +475,14 @@ PROCEDURE send-records :
   Parameters:  see template/snd-head.i
 ------------------------------------------------------------------------------*/
 
-  /* SEND-RECORDS does nothing because there are no External
-     Tables specified for this SmartWindow, and there are no
-     tables specified in any contained Browse, Query, or Frame. */
+  /* Define variables needed by this internal procedure.               */
+  {src/adm/template/snd-head.i}
+
+  /* For each requested table, put it's ROWID in the output list.      */
+  {src/adm/template/snd-list.i "customerPart"}
+
+  /* Deal with any unexpected table requests before closing.           */
+  {src/adm/template/snd-end.i}
 
 END PROCEDURE.
 

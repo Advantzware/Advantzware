@@ -218,6 +218,7 @@ DO:
     DEFINE VARIABLE cFieldsValue  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cFoundValue   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE recFoundRecID AS RECID     NO-UNDO.
+    DEFINE VARIABLE cCharVal      AS CHARACTER NO-UNDO.
 
     CASE FOCUS:NAME :
         WHEN "customerID"  THEN DO:
@@ -234,19 +235,12 @@ DO:
             IF cFoundValue <> "" THEN 
                 ASSIGN FOCUS:SCREEN-VALUE = cFoundValue.         
         END.
-        WHEN "shipToID"  THEN DO:
-            RUN system/openLookup.p (
-            INPUT  g_company, 
-            INPUT  "",  /* Lookup ID */
-            INPUT  122,  /* Subject ID */
-            INPUT  "",  /* User ID */
-            INPUT  0,   /* Param Value ID */
-            OUTPUT cFieldsValue, 
-            OUTPUT cFoundValue, 
-            OUTPUT recFoundRecID
-            ).   
-            IF cFoundValue <> "" THEN 
-                ASSIGN FOCUS:SCREEN-VALUE = cFoundValue.         
+        WHEN "shipToID"  THEN DO:             
+           RUN windows/l-shipto.w (g_company,g_loc,customerpart.customerID:SCREEN-VALUE,customerpart.shipToID:SCREEN-VALUE, OUTPUT cCharVal).
+           IF cCharVal NE "" AND customerpart.shipToID:SCREEN-VALUE NE ENTRY(1,cCharVal) THEN DO:
+              customerpart.shipToID:SCREEN-VALUE = ENTRY(1,cCharVal).                
+           END.
+           RETURN NO-APPLY.                     
         END.
         WHEN "itemID"  THEN DO:
             RUN system/openLookup.p (
@@ -425,6 +419,50 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record V-table-Win 
+PROCEDURE local-update-record :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lSuccess AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMsg     AS CHARACTER NO-UNDO.
+    /* Code placed here will execute PRIOR to standard behavior. */
+    RUN validataData(INPUT "customerID", OUTPUT lSuccess, OUTPUT cMsg).
+    IF NOT lSuccess THEN 
+    DO:
+        MESSAGE cMsg
+        VIEW-AS ALERT-BOX.
+        RETURN NO-APPLY.
+    END.
+    RUN validataData(INPUT "shipToID", OUTPUT lSuccess, OUTPUT cMsg).
+    IF NOT lSuccess THEN 
+    DO:
+        MESSAGE cMsg
+        VIEW-AS ALERT-BOX.
+        RETURN NO-APPLY.
+    END.
+    RUN validataData(INPUT "itemID", OUTPUT lSuccess, OUTPUT cMsg).
+    IF NOT lSuccess THEN 
+    DO:
+        MESSAGE cMsg
+        VIEW-AS ALERT-BOX.
+        RETURN NO-APPLY.
+    END.
+    
+   /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
+
+    /* Code placed here will execute AFTER standard behavior.    */
+  ASSIGN
+       adm-new-record = NO
+       adm-adding-record = NO.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable V-table-Win 
 PROCEDURE local-enable :
 /*------------------------------------------------------------------------------
@@ -520,11 +558,14 @@ PROCEDURE validataData :
         DO:
             IF customerPart.shipToID:SCREEN-VALUE NE "" 
             AND  
-                NOT CAN-FIND(FIRST shipTo WHERE shipTo.ship-no EQ integer(customerPart.shipToID:screen-value))
+                NOT CAN-FIND(FIRST shipTo WHERE shipto.company EQ g_company 
+                                          AND shipTo.ship-id EQ customerPart.shipToID:SCREEN-VALUE
+                                          AND shipTo.cust-no EQ customerPart.customerID:SCREEN-VALUE    )
                THEN
            DO:
                 oplSuccess = FALSE.
-                opcMsg = "Please enter valid Ship To ID.".
+                opcMsg = "Please enter valid Ship To.".
+                APPLY "ENTRY":U TO customerPart.shipToID .
                 RETURN.
             END.
         END.
@@ -532,22 +573,24 @@ PROCEDURE validataData :
         WHEN "itemID" THEN 
         DO:
             IF customerPart.itemID:SCREEN-VALUE NE "" AND  
-               NOT CAN-FIND(FIRST itemfg WHERE itemfg.i-no EQ customerPart.itemID:SCREEN-VALUE)
+               NOT CAN-FIND(FIRST itemfg WHERE itemfg.company EQ g_company AND itemfg.i-no EQ customerPart.itemID:SCREEN-VALUE)
                THEN 
                DO:
                    oplSuccess = FALSE.
                    opcMsg = "Please enter valid Item Number.".
+                   APPLY "ENTRY":U TO customerPart.itemID .
                    RETURN.
                END.
        END.
        WHEN "customerId" THEN 
        DO:
             IF customerPart.customerID:SCREEN-VALUE NE "" AND  
-               NOT CAN-FIND(FIRST cust WHERE cust.cust-no EQ customerPart.customerID:SCREEN-VALUE)
+               NOT CAN-FIND(FIRST cust WHERE cust.company EQ g_company AND cust.cust-no EQ customerPart.customerID:SCREEN-VALUE)
                THEN 
                DO:
                    oplSuccess = FALSE.
                    opcMsg = "Please enter valid Customer Number.".
+                   APPLY "ENTRY":U TO customerPart.customerID .
                    RETURN.
                END.
         END.
