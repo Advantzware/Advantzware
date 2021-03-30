@@ -3030,6 +3030,7 @@ FUNCTION qty-in-ord-uom RETURNS DECIMAL
     FOR EACH rm-rcpth
         WHERE rm-rcpth.company   EQ b-po-ordl.company
           AND rm-rcpth.po-no     EQ STRING(b-po-ordl.po-no)
+          AND rm-rcpth.po-line   EQ b-po-ordl.line
           AND rm-rcpth.i-no      EQ b-po-ordl.i-no
           AND rm-rcpth.rita-code EQ "R" NO-LOCK,
         EACH rm-rdtlh
