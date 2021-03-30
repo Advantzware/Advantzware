@@ -986,7 +986,7 @@ def var bsht as char label "Bal Sheet" format "x(10)" init "__________" NO-UNDO.
 def var incs as char label "Income Stat" format "x(11)" init "___________" NO-UNDO.
 def var v-rep-tot as dec no-undo.
 def var vyear like period.yr no-undo.
-def var vdate like glhist.tr-date no-undo.
+def var dtPeriodStart like glhist.tr-date no-undo.
 def var v-fisc-yr like period.yr no-undo.
 
 def var tacct like glhist.actnum  label "      To Account Number" NO-UNDO.
@@ -1008,13 +1008,12 @@ DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
 
 DEFINE VARIABLE lIsLastDateOfFY AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lIsBalanceSheet AS LOGICAL NO-UNDO.
-FIND LAST period NO-LOCK 
-    WHERE period.company EQ company.company 
-    AND period.pnum EQ company.num-per  /* it's the last period of (a) year */ 
-    AND period.pend EQ tran-date        /* it's the end date of the last period */
-    NO-ERROR.
-ASSIGN 
-    lIsLastDateOfFY = AVAIL(period).    /* Therefore, this is the last day of the FY */
+DEFINE VARIABLE cActContra      AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cActRet         AS CHARACTER NO-UNDO.
+DEFINE VARIABLE dAmountYTDFYE   AS DECIMAL NO-UNDO.
+DEFINE VARIABLE dAmountYTD      AS DECIMAL format "->>>,>>>,>>>,>>9.99" NO-UNDO.
+DEFINE VARIABLE dAmountYTDOpen  AS DECIMAL NO-UNDO.
+DEFINE VARIABLE dTotYTD         AS DECIMAL NO-UNDO.
     
 RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
@@ -1058,17 +1057,6 @@ ASSIGN facct = begin_acct-no
        break-flag = tb_sub-acct
        suppress-zero = tb_sup-zero.
 
-find last period
-    where period.company eq cocode
-      and period.pst     le tran-date
-      and period.pend    ge tran-date
-      and period.pnum    eq tran-period
-    no-lock.
-
-ASSIGN
- vyear = period.yr
- vdate = period.pst.
-
 blok:
 DO:
    assign
@@ -1099,6 +1087,8 @@ DO:
           {gl/outstr.i v-hdr 1 70}.
           PUT STREAM s-temp UNFORMATTED str_buffa SKIP.
     end.
+    
+    RUN pGetCompanyAttributes(cocode, tran-date, OUTPUT lIsLastDateOfFY, OUTPUT cActContra, OUTPUT cActRet, OUTPUT dtPeriodStart).
 
     for each account
         where account.company eq cocode
@@ -1106,6 +1096,8 @@ DO:
           and account.actnum  le tacct
         no-lock
         by substr(account.actnum,start-lvl) with width 132:
+        
+        IF account.actnum EQ cActContra OR account.actnum EQ cActRet THEN NEXT. 
 
         subac = if subac-lvl eq 1 then account.n1 else
               if subac-lvl eq 2 then account.n2 else
@@ -1114,53 +1106,58 @@ DO:
         if subac lt fsubac or subac gt tsubac then next.
 
         ptd-value = 0.
+        dAmountYTDFYE = 0.
+        dAmountYTD = 0.
         view frame r-top.
 
-        lIsBalanceSheet = INDEX("ALCT",account.type) GT 0.
+        lIsBalanceSheet = INDEX("ALCT",account.type) GT 0 AND NOT account.actnum EQ cActRet.
                 
 /*            IF the as-of date is the last day of the FY,                                       */
 /*            AND IF this is an expense account, get the CY open bal from this date              */
 /*            (we'll add this day;s txns below),                                                 */
 /*            ELSE get the NEXT day's open balance, as it should be equal today's closing balance*/
         IF NOT lIsLastDateOfFY OR lIsBalanceSheet THEN 
-            RUN GL_GetAccountOpenBal(ROWID(account), tran-date + 1, OUTPUT cyr).
-        ELSE 
-            RUN GL_GetAccountOpenBal(ROWID(account), tran-date, OUTPUT cyr).
-            
+            RUN GL_GetAccountOpenBal(ROWID(account), tran-date + 1, OUTPUT dAmountYTDOpen).
+        ELSE
+        DO:        
+           RUN GL_GetAccountOpenBal(ROWID(account), tran-date, OUTPUT dAmountYTDOpen).
+           
+           FOR EACH glhist NO-LOCK 
+                WHERE glhist.company EQ account.company 
+                AND glhist.actnum  EQ account.actnum
+                AND glhist.tr-date EQ tran-date:
+                    
+                ASSIGN 
+                    dAmountYTDFYE = dAmountYTDFYE + glhist.tr-amt.
+            END.
+        END.
+        
+        IF dAmountYTDOpen EQ ? THEN dAmountYTDOpen = 0.
+        IF dAmountYTDFYE EQ ? THEN dAmountYTDFYE = 0.
+        
+        ASSIGN 
+            dAmountYTD = dAmountYTDOpen + dAmountYTDFYE  
+            dTotYTD = dTotYTD + dAmountYTD.            
         
         for each glhist no-lock
             where glhist.company eq account.company
               and glhist.actnum  eq account.actnum
-              and glhist.tr-date ge vdate 
+              and glhist.tr-date ge dtPeriodStart 
               and glhist.tr-date le tran-date:
 
           assign
            ptd-value = ptd-value + glhist.tr-amt
            tot-ptd   = tot-ptd   + glhist.tr-amt
            .
-        end.
-        
-/*      IF the as-of date is the last day of the FY,     */
-/*      AND IF this is an expense account,               */
-/*      we need to add the daily amts to the CY balance  */
-        IF lIsLastDateOfFY AND NOT lIsBalanceSheet THEN DO:
-            
-            FOR EACH glhist NO-LOCK 
-                WHERE glhist.company eq account.company
-                AND glhist.actnum  eq account.actnum
-                AND glhist.tr-date EQ tran-date:
-                ASSIGN 
-                    cyr = cyr + glhist.tr-amt.
-            END.
-        END.
+        end.            
                    
-        if not suppress-zero or cyr ne 0 or ptd-value ne 0 then
+        if not suppress-zero or dAmountYTD ne 0 or ptd-value ne 0 then
         do:
            display skip(1)
                 account.actnum + "  " + account.dscr format "x(45)"
                       label "Account Number           Description"
                 ptd-value  format "->>>,>>>,>>9.99" label "PTD      "
-                cyr format "->>>,>>>,>>>,>>9.99" label "YTD       "
+                dAmountYTD format "->>>,>>>,>>>,>>9.99" label "YTD       "
                 dadj cadj bsht incs
                 with centered width 132 STREAM-IO.
 
@@ -1169,7 +1166,7 @@ IF tb_excel THEN
        account.actnum
        account.dscr
        ptd-value
-       cyr
+       dAmountYTD
        SKIP.
 
            if v-download then
@@ -1178,22 +1175,21 @@ IF tb_excel THEN
               assign str_buffa = trim(account.actnum) + v-comma 
                            + trim(account.dscr)   + v-comma
                            + trim(string(ptd-value,'->>>>>>>>9.99')) + v-comma
-                           + trim(string(cyr,'->>>>>>>>9.99'))       + v-comma 
+                           + trim(string(dAmountYTD,'->>>>>>>>9.99'))       + v-comma 
                            + v-comma + v-comma + v-comma.
               PUT STREAM s-temp UNFORMATTED str_buffa SKIP.
            end.
-        end.
-
-        tcyr = tcyr + cyr.      
+        end.  
+            
     end. /* each account */
 
     put skip(1) "===============" to 61 "===================" to 81 skip
         "TRIAL BALANCE:" AT 10 tot-ptd format "->>>,>>>,>>9.99" to 61
-                                  tcyr format "->>>,>>>,>>>,>>9.99" to 81
+                                  dTotYTD format "->>>,>>>,>>>,>>9.99" to 81
         " " dadj " " cadj " " bsht " " incs skip(1).
 
-    if tcyr eq 0 then message "TRIAL BALANCE IN BALANCE" VIEW-AS ALERT-BOX.
-    else              message "TRIAL BALANCE NOT IN BALANCE BY " tcyr VIEW-AS ALERT-BOX.
+    if dTotYTD eq 0 then message "TRIAL BALANCE IN BALANCE" VIEW-AS ALERT-BOX.
+    else              message "TRIAL BALANCE NOT IN BALANCE BY " dTotYTD VIEW-AS ALERT-BOX.
 
     /*if v-download then  */
        output stream s-temp close.
@@ -1277,6 +1273,56 @@ PROCEDURE show-param :
   end.
 
   put fill("-",80) format "x(80)" skip.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetCompanyAttributes C-Win
+PROCEDURE pGetCompanyAttributes PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdtAsOf AS DATE NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplIsFYEnd AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcContra AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcRet AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdtPeriodStart AS DATE NO-UNDO.
+    
+    FIND FIRST company NO-LOCK 
+        WHERE company.company EQ ipcCompany
+        NO-ERROR.
+    IF AVAILABLE company THEN 
+    DO:
+        FIND LAST period NO-LOCK 
+            WHERE period.company EQ ipcCompany
+            AND period.pst     LE ipdtAsOf
+            AND period.pend    GE ipdtAsOf
+            NO-ERROR.
+        IF AVAILABLE period THEN 
+            ASSIGN
+                opdtPeriodStart = period.pst
+                .
+            
+        FIND FIRST gl-ctrl NO-LOCK
+            WHERE gl-ctrl.company EQ company.company
+            NO-ERROR.
+        IF AVAILABLE gl-ctrl THEN 
+            ASSIGN 
+                opcContra = gl-ctrl.contra
+                opcRet    = gl-ctrl.ret
+                .
+        FIND LAST period NO-LOCK 
+            WHERE period.company EQ company.company 
+            AND period.pnum EQ company.num-per  /* it's the last period of (a) year */ 
+            AND period.pend EQ ipdtAsOf        /* it's the end date of the last period */
+            NO-ERROR.
+        ASSIGN 
+            oplIsFYEnd = AVAILABLE period.
+    END.
 
 END PROCEDURE.
 
