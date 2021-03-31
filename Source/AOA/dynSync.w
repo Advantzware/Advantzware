@@ -34,7 +34,7 @@ CREATE WIDGET-POOL.
 
 &Scoped-define program-id dynSync.
 &Scoped-define defaultUser _default
-
+&SCOPED-DEFINE HorScrollPos 0
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
@@ -78,7 +78,12 @@ DEFINE TEMP-TABLE ttDefaultValue NO-UNDO
     FIELD found         AS LOGICAL
     .
 {methods/lockWindowUpdate.i}
+DEFINE VARIABLE hPos     AS INTEGER.
+DEFINE VARIABLE hBrws    AS HANDLE  NO-UNDO.
+DEFINE VARIABLE hCol     AS HANDLE  NO-UNDO.
+DEFINE VARIABLE hNextCol AS HANDLE  NO-UNDO.
 
+  
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -402,6 +407,20 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   RUN pGetSettings.
   RUN pGetSync.
   RUN enable_UI.
+  
+  hBrws = BROWSE {&BROWSE-NAME}:HANDLE.
+  hCol  = hBrws:GET-BROWSE-COLUMN(5).
+  hNextCol = hBrws:GET-BROWSE-COLUMN(6).
+  ON SCROLL-HORIZONTAL OF BROWSE dynSync DO:  
+    RUN GetScrollPos(SELF:HWND, {&HorScrollPos}, OUTPUT hPos).
+    setSync:COL IN FRAME {&frame-name} = (( hNextcol:COL - hcol:COL ) / 2) + hCol:COL.
+  END.
+  PROCEDURE GetScrollPos EXTERNAL "user32.dll" :
+    DEFINE INPUT PARAMETER hWnd AS LONG.
+    DEFINE INPUT PARAMETER nBar AS LONG.
+    DEFINE RETURN PARAMETER pos AS LONG.
+  END PROCEDURE.
+
   APPLY "VALUE-CHANGED":U TO dynSync.
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
