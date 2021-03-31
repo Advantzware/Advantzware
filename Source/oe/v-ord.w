@@ -6667,6 +6667,8 @@ PROCEDURE pValidate :
     ASSIGN 
         fiStatDesc:SCREEN-VALUE IN FRAME {&frame-name} = cStatDesc
         oe-ord.spare-char-2:SCREEN-VALUE IN FRAME {&frame-name} = cStatDesc.
+      
+    {methods/run_link.i "container-source" "pSetHoldButton" }
 
 END PROCEDURE.
 
