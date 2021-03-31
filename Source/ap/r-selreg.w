@@ -78,6 +78,16 @@ find first sys-ctrl NO-LOCK
   IF AVAIL sys-ctrl THEN
       vcDefaultForm = sys-ctrl.char-fld.
 
+DEFINE VARIABLE lRecFound           AS LOGICAL          NO-UNDO.
+DEFINE VARIABLE lAPInvoiceLength    AS LOGICAL          NO-UNDO.
+DEFINE VARIABLE cNK1Value           AS CHARACTER        NO-UNDO.
+
+RUN sys/ref/nk1look.p (INPUT cocode, "APInvoiceLength", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cNK1Value, OUTPUT lRecFound).
+IF lRecFound THEN
+    lAPInvoiceLength = logical(cNK1Value) NO-ERROR.      
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -803,7 +813,13 @@ DEF VAR excelheader AS CHAR NO-UNDO.
 form header
    "Vendor#  Name                           Invoice#     Inv Date  Due Date  Dsc Date            Amount    Discount            Paid" skip
    fill("-",130) format "x(130)"
-   with frame r-top.
+   with no-labels no-box no-underline frame f-top page-top width 130 STREAM-IO.
+   /*with frame r-top.*/
+
+form header
+   "Vendor#  Name                           Invoice#             Inv Date  Due Date  Dsc Date            Amount    Discount            Paid" skip
+   fill("-",140) format "x(140)"
+   with no-labels no-box no-underline frame f-top2 page-top width 140 STREAM-IO.   
 
 ASSIGN t1 = 0
        t2 = 0
@@ -836,8 +852,13 @@ EMPTY TEMP-TABLE tt-report.
   {sys/inc/outprint.i VALUE(lines-per-page)}
 
   IF td-show-parm THEN RUN show-param.
-
-  view frame r-top.
+  
+  VIEW FRAME r-top.
+  
+  IF lAPInvoiceLength THEN
+    VIEW FRAME f-top2.
+  ELSE
+    VIEW FRAME f-top.
 
   for each ap-sel
       where ap-sel.company   eq cocode
@@ -896,7 +917,9 @@ EMPTY TEMP-TABLE tt-report.
            .
     END.
 
-    put ap-sel.inv-no  at 41 space(1)
+    IF lAPInvoiceLength THEN PUT ap-sel.inv-no FORMAT "x(20)"  at 41. 
+                        ELSE PUT ap-sel.inv-no FORMAT "x(12)"  at 41.
+    PUT space(1)
         ap-inv.inv-date      space(2)
         ap-inv.due-date      space(2)
         ap-inv.inv-date + ap-inv.disc-days format "99/99/99" space(4)

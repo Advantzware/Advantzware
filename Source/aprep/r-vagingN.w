@@ -90,15 +90,27 @@ DEFINE VARIABLE iColumnLength AS INTEGER NO-UNDO.
 DEF BUFFER b-itemfg FOR itemfg .
 DEFINE VARIABLE cTextListToDefault AS CHARACTER NO-UNDO.
 
+DEFINE VARIABLE lRecFound           AS LOGICAL          NO-UNDO.
+DEFINE VARIABLE lAPInvoiceLength    AS LOGICAL          NO-UNDO.
+DEFINE VARIABLE cNK1Value           AS CHARACTER        NO-UNDO.
+
+RUN sys/ref/nk1look.p (INPUT cocode, "APInvoiceLength", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cNK1Value, OUTPUT lRecFound).
+IF lRecFound THEN
+    lAPInvoiceLength = logical(cNK1Value) NO-ERROR.
 
 ASSIGN cTextListToSelect = "CURRENCY,VENDOR#,VENDOR NAME,PHONE,TYPE,TERMS,INVOICE#,DATE,DUE DATE,AMOUNT,#DAYS" 
 
        cFieldListToSelect = "curr,vend,vend-name,phone,type,term,inv,date,due-date,amt,day" 
 
-       cFieldLength = "8,10,30,15,6,17,12,8,8,17,6" 
        cFieldType = "c,c,c,c,c,c,c,c,c,i,i" 
     .
-
+IF lAPInvoiceLength THEN
+    ASSIGN cFieldLength = "8,10,30,15,6,17,20,8,8,17,6" .
+ELSE
+    ASSIGN cFieldLength = "8,10,30,15,6,17,12,8,8,17,6" .
+    
 {sys/inc/ttRptSel.i}
 ASSIGN cTextListToDefault  = "CURRENCY,VENDOR#,VENDOR NAME,PHONE,TYPE,TERMS,INVOICE#,DATE,AMOUNT,#DAYS"  .
 
