@@ -559,12 +559,12 @@ FOR EACH ef
                 "<#4><R+10><C+27><RECT#4><|3>" SKIP.
             
             PUT "<=#2> <C3>" cFurnish FORMAT "x(18)"  cBoardDscr  FORMAT "x(40)" SKIP
-                "<C3>" cMoldTime    FORMAT "x(20)"    STRING(fGetMiscFields(est.rec_key,"00008"))    "<C21>" cConsistency FORMAT "x(25)" STRING(fGetMiscFields(est.rec_key,"00007")) SKIP
-                "<C3>" cPreAgitate  FORMAT "x(20)"    STRING(fGetMiscFields(est.rec_key,"00009"))    "<C21>" cDryTime     FORMAT "x(25)" STRING(fGetMiscFields(est.rec_key,"00014")) SKIP
-                "<C3>" cUpAgitate   FORMAT "x(20)"    STRING(fGetMiscFields(est.rec_key,"00010"))    "<C21>" cBeltSpeed   FORMAT "x(25)" STRING(fGetMiscFields(est.rec_key,"00015")) SKIP
-                "<C3>" cDownAgitate FORMAT "x(20)"    STRING(fGetMiscFields(est.rec_key,"00011"))    "<C21>" cOvenTemp1   FORMAT "x(25)" STRING(fGetMiscFields(est.rec_key,"00016")) SKIP
-                "<C3>" cAgitation   FORMAT "x(20)"    STRING(fGetMiscFields(est.rec_key,"00012"))    "<C21>" cOvenTemp2   FORMAT "x(25)" STRING(fGetMiscFields(est.rec_key,"00017")) SKIP
-                "<C3>" cDelay       FORMAT "x(20)"    STRING(fGetMiscFields(est.rec_key,"00013"))    "<C21>" cOvenTemp3   FORMAT "x(25)" STRING(fGetMiscFields(est.rec_key,"00018")) SKIP
+                "<C3>" cMoldTime    FORMAT "x(20)"    "<C15>" STRING(fGetMiscFields(est.rec_key,"00008"))    "<C21>" cConsistency FORMAT "x(25)" "<C37>" STRING(fGetMiscFields(est.rec_key,"00007")) SKIP
+                "<C3>" cPreAgitate  FORMAT "x(20)"    "<C15>" STRING(fGetMiscFields(est.rec_key,"00009"))    "<C21>" cDryTime     FORMAT "x(25)" "<C37>" STRING(fGetMiscFields(est.rec_key,"00014")) SKIP
+                "<C3>" cUpAgitate   FORMAT "x(20)"    "<C15>" STRING(fGetMiscFields(est.rec_key,"00010"))    "<C21>" cBeltSpeed   FORMAT "x(25)" "<C37>" STRING(fGetMiscFields(est.rec_key,"00015")) SKIP
+                "<C3>" cDownAgitate FORMAT "x(20)"    "<C15>" STRING(fGetMiscFields(est.rec_key,"00011"))    "<C21>" cOvenTemp1   FORMAT "x(25)" "<C37>" STRING(fGetMiscFields(est.rec_key,"00016")) SKIP
+                "<C3>" cAgitation   FORMAT "x(20)"    "<C15>" STRING(fGetMiscFields(est.rec_key,"00012"))    "<C21>" cOvenTemp2   FORMAT "x(25)" "<C37>" STRING(fGetMiscFields(est.rec_key,"00017")) SKIP
+                "<C3>" cDelay       FORMAT "x(20)"    "<C15>" STRING(fGetMiscFields(est.rec_key,"00013"))    "<C21>" cOvenTemp3   FORMAT "x(25)" "<C37>" STRING(fGetMiscFields(est.rec_key,"00018")) SKIP
                 .
    
             PUT "<=#3><R-10> <C41.3><B>" cItemList FORMAT "x(30)"  "</b> "  SKIP
