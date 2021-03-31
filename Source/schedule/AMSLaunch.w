@@ -207,13 +207,24 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btLaunch W-Win
 ON CHOOSE OF btLaunch IN FRAME F-Main /* Launch */
 DO:
-    DEFINE VARIABLE cRunURL AS CHARACTER NO-UNDO.
-
+    DEFINE VARIABLE cRunURL  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lSuccess AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+    
     cRunURL = fiURL:SCREEN-VALUE.
 
+    cRunURL = "START " + cRunURL.
+    
     IF cRunURL NE "" THEN
-        OS-COMMAND NO-WAIT START VALUE(cRunURL).  
-        
+        RUN OS_RunCommand (
+            INPUT  cRunURL,     /* Command string to run */
+            INPUT  "",          /* File name to write the command output */
+            INPUT  FALSE,        /* Run with SILENT option */
+            INPUT  TRUE,       /* Run with NO-WAIT option */
+            OUTPUT lSuccess,
+            OUTPUT cMessage
+            ). 
+
     APPLY "CLOSE" TO THIS-PROCEDURE.  
 END.
 
