@@ -17,6 +17,7 @@
 {custom/formtext.i NEW}
 {fg/invrecpt.i NEW}
 {fg/fgPostBatch.i}
+{fg/fg-post3.i NEW}
 
 DEFINE VARIABLE giLengthUniquePrefix       AS INTEGER   INITIAL 20.
 DEFINE VARIABLE giLengthAlias              AS INTEGER   INITIAL 25.
