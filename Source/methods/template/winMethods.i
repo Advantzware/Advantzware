@@ -372,7 +372,8 @@ PROCEDURE local-initialize :
       "{&FIRST-EXTERNAL-TABLE}" EQ "notes"   OR
       "{&FIRST-EXTERNAL-TABLE}" EQ "phone"   OR
       "{&FIRST-EXTERNAL-TABLE}" EQ "oe-ord"  OR 
-      "{&FIRST-EXTERNAL-TABLE}" EQ "oe-ordl" &THEN
+      "{&FIRST-EXTERNAL-TABLE}" EQ "oe-ordl" OR 
+      "{&FIRST-EXTERNAL-TABLE}" EQ "po-ordl" &THEN
     {methods/windows/initial/{&FIRST-EXTERNAL-TABLE}.i}
   &ENDIF
   /*

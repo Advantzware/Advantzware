@@ -36,15 +36,19 @@ CREATE WIDGET-POOL.
 &SCOPED-DEFINE winReSize
 &SCOPED-DEFINE h_Browse01 h_b-po-inq
 &SCOPED-DEFINE h_Object01 h_vp-poord
+&SCOPED-DEFINE h_Object02 h_vp-viewp
+&SCOPED-DEFINE h_Object03 h_vp-clsp2
+
 
 /* Parameters Definitions ---                                           */
-
+DEFINE INPUT PARAMETER ipcScreen AS CHARACTER NO-UNDO.
 /* Local Variable Definitions ---                                       */
     def var li-prev-page as int no-undo.
     def var li-cur-page as int no-undo.
     DEF NEW SHARED VAR lNewOrd AS LOG NO-UNDO.
 
 &scoped-define item_spec FGITEM
+&SCOPED-DEFINE proc-init proc-init
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -85,26 +89,36 @@ DEFINE QUERY external_tables FOR po-ordl, po-ord.
 DEFINE VAR W-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of handles for SmartObjects                              */
-DEFINE VARIABLE h_attach AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_b-po-inq AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_bi-poord AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_exit AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_export AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_f-add AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_f-addbes AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_folder AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_movecol AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_options AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_p-poh AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_q-pobox AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_smartmsg AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_v-boxdee AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_v-navest AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_v-pohold AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_v-purord AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_vi-poord AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_vp-poord AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_import AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_attach        AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_b-po-inq      AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_bi-poord      AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_exit          AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_export        AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_f-add         AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_f-addbes      AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_folder        AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_movecol       AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_options       AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_p-poh         AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_q-pobox       AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_smartmsg      AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_v-boxdee      AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_v-navest      AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_v-pohold      AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_v-purord      AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_vi-poord      AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_vi-poord-2    AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_vi-poord-3    AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_vp-poord      AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_import        AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_v-polinq      AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_b-poliin      AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_v-polinq-2    AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_f-porec       AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_b-posum       AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_vp-clspo      AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_vp-clsp2      AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_vp-viewp      AS HANDLE NO-UNDO.
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
@@ -124,7 +138,7 @@ DEFINE FRAME OPTIONS-FRAME
 DEFINE FRAME message-frame
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 90 ROW 2.91
+         AT COL 105 ROW 2.91
          SIZE 63 BY 1.43
          BGCOLOR 15 .
 
@@ -275,6 +289,7 @@ SESSION:SET-WAIT-STATE('').
 /* Include custom  Main Block code for SmartWindows. */
 {src/adm/template/windowmn.i}
 {custom/initializeprocs.i}
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -315,7 +330,7 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/folder.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'FOLDER-LABELS = ':U + 'Browse|Detail|Items|Design' + ',
+             INPUT  'FOLDER-LABELS = ':U + 'Browse|Detail|Items|Design|Invoices|Receipts|Summary' + ',
                      FOLDER-TAB-TYPE = 2':U ,
              OUTPUT h_folder ).
        RUN set-position IN h_folder ( 3.14 , 2.00 ) NO-ERROR.
@@ -327,7 +342,7 @@ PROCEDURE adm-create-objects :
              INPUT  '':U ,
              OUTPUT h_f-addbes ).
        RUN set-position IN h_f-addbes ( 1.00 , 40.40 ) NO-ERROR.
-       /* Size in UIB:  ( 1.81 , 7.80 ) */
+       /* Size in UIB:  ( 1.81 , 7.80 ) */                  
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'smartobj/attach.w':U ,
@@ -471,6 +486,22 @@ PROCEDURE adm-create-objects :
              OUTPUT h_v-navest ).
        RUN set-position IN h_v-navest ( 21.24 , 8.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.43 , 34.00 ) */
+       
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'po/vp-clspo.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_vp-clspo ).
+       RUN set-position IN h_vp-clspo ( 21.24 , 107.00 ) NO-ERROR.
+       /* Size in UIB:  ( 2.14 , 17.00 ) */
+       
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'poinq/v-polinq.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_v-polinq-2 ).
+       RUN set-position IN h_v-polinq-2 ( 21.20 , 4.00 ) NO-ERROR.
+       /* Size in UIB:  ( 2.62 , 146.00 ) */                             
 
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
@@ -485,6 +516,12 @@ PROCEDURE adm-create-objects :
 
        /* Links to SmartViewer h_v-navest. */
        RUN add-link IN adm-broker-hdl ( h_b-po-inq , 'nav-itm':U , h_v-navest ).
+       
+       /* Links to SmartViewer h_vp-clspo. */
+       RUN add-link IN adm-broker-hdl ( h_v-purord , 'Record':U , h_vp-clspo ).
+       
+       /* Links to SmartViewer h_v-polinq-2. */
+       RUN add-link IN adm-broker-hdl ( h_b-po-inq , 'Record':U , h_v-polinq-2 ).
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_v-purord ,
@@ -520,6 +557,22 @@ PROCEDURE adm-create-objects :
              OUTPUT h_vp-poord ).
        RUN set-position IN h_vp-poord ( 22.91 , 12.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.29 , 136.00 ) */
+       
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'po/vp-viewp.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_vp-viewp ).
+       RUN set-position IN h_vp-viewp ( 22.91 , 61.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.29 , 15.00 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'po/vp-clsp2.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_vp-clsp2 ).
+       RUN set-position IN h_vp-clsp2 ( 22.91 , 76.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.29 , 15.00 ) */
 
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('2':U) NO-ERROR.
@@ -537,6 +590,12 @@ PROCEDURE adm-create-objects :
 
        /* Links to SmartObject h_options. */
        RUN add-link IN adm-broker-hdl (  h_bi-poord  , 'specpo':U , h_options ).
+       
+       /* Links to SmartViewer h_vp-viewp. */
+       RUN add-link IN adm-broker-hdl ( h_bi-poord , 'Record':U , h_vp-viewp ).
+
+       /* Links to SmartViewer h_vp-clsp2. */
+       RUN add-link IN adm-broker-hdl ( h_bi-poord , 'Record':U , h_vp-clsp2 ).
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_vi-poord ,
@@ -576,6 +635,94 @@ PROCEDURE adm-create-objects :
        RUN adjust-tab-order IN adm-broker-hdl ( h_v-boxdee ,
              h_folder , 'AFTER':U ).
     END. /* Page 4 */
+    WHEN 5 THEN DO:
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'po/vi-poord.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_vi-poord-2 ).
+       RUN set-position IN h_vi-poord-2 ( 4.81 , 4.00 ) NO-ERROR.
+       /* Size in UIB:  ( 2.38 , 144.00 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'poinq/v-polinq.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_v-polinq ).
+       RUN set-position IN h_v-polinq ( 7.43 , 3.00 ) NO-ERROR.
+       /* Size in UIB:  ( 2.62 , 146.00 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'poinq/b-poliin.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_b-poliin ).
+       RUN set-position IN h_b-poliin ( 10.29 , 3.00 ) NO-ERROR.
+       RUN set-size IN h_b-poliin ( 12.38 , 146.00 ) NO-ERROR.
+
+       /* Initialize other pages that this page requires. */
+       RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
+
+       /* Links to SmartViewer h_vi-poord-2. */
+       RUN add-link IN adm-broker-hdl ( h_b-po-inq , 'Record':U , h_vi-poord-2 ).
+
+       /* Links to SmartViewer h_v-polinq. */
+       RUN add-link IN adm-broker-hdl ( h_b-po-inq , 'Record':U , h_v-polinq ).
+
+       /* Links to SmartBrowser h_b-poliin. */
+       RUN add-link IN adm-broker-hdl ( h_b-po-inq , 'Record':U , h_b-poliin ).
+       RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'winSize':U , h_b-poliin ).
+
+       /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_vi-poord-2 ,
+             h_folder , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_v-polinq ,
+             h_vi-poord-2 , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_b-poliin ,
+             h_v-polinq , 'AFTER':U ).       
+    END. /* Page 5 */
+    WHEN 6 THEN DO:
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'poinq/f-porec.w':U ,
+             INPUT  {&WINDOW-NAME} ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_f-porec ).
+       RUN set-position IN h_f-porec ( 5.05 , 3.60 ) NO-ERROR.
+       /* Size in UIB:  ( 19.00 , 113.80 ) */
+       
+
+       /* Adjust the tab order of the smart objects. */
+    END. /* Page 6 */
+    WHEN 7 THEN DO:
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'po/vi-poord1.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_vi-poord-3 ).
+       RUN set-position IN h_vi-poord-3 ( 5.05 , 4.00 ) NO-ERROR.
+       /* Size in UIB:  ( 4.38 , 144.00 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'po/b-posum.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_b-posum ).
+       RUN set-position IN h_b-posum ( 8.55 , 4.00 ) NO-ERROR.
+       RUN set-size IN h_b-poliin ( 12.38 , 146.00 ) NO-ERROR.  
+
+       /* Initialize other pages that this page requires. */
+       RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
+
+       /* Links to SmartViewer h_vi-poord-3. */
+       RUN add-link IN adm-broker-hdl ( h_b-posum , 'Record':U , h_vi-poord-3 ).
+
+       /* Links to SmartQuery h_b-posum. */
+       RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'Record':U , h_b-posum ).
+
+       /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_vi-poord-3 ,
+             h_folder , 'AFTER':U ).
+    END. /* Page 7 */
 
   END CASE.
   /* Select a Startup page. */
@@ -620,6 +767,24 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ChangePanelState W-Win 
+PROCEDURE ChangePanelState :
+/*------------------------------------------------------------------------------
+ Purpose: Procedure to enable/disbale panels based on order statuss
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipiCurrentPage AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER ipcScreen      AS CHARACTER NO-UNDO.
+
+        RUN pDisablePanels(
+            INPUT ipiCurrentPage,
+            INPUT ipcScreen
+            ).     
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI W-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
 /*------------------------------------------------------------------------------
@@ -634,6 +799,30 @@ PROCEDURE disable_UI :
   IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(W-Win)
   THEN DELETE WIDGET W-Win.
   IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE get-po-recs W-Win 
+PROCEDURE get-po-recs :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DEFINE VARIABLE vcPONum AS INTEGER NO-UNDO.
+   DEFINE VARIABLE iPOLine AS INTEGER NO-UNDO.
+   
+   vcPONum = DYNAMIC-FUNCTION ('GetCurrentPO' IN h_b-po-inq).
+   iPOLine = DYNAMIC-FUNCTION ('GetPOLine'    IN h_b-po-inq).
+
+   IF VALID-HANDLE(h_f-porec) THEN
+      RUN populate-tt IN h_f-porec(
+          INPUT vcPONum, 
+          INPUT iPOLine
+          ).
+   
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -662,6 +851,20 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetScreenType W-Win
+PROCEDURE GetScreenType:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opcScreenType AS CHARACTER NO-UNDO.
+    
+    opcScreenType = ipcScreen.
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE import-file W-Win 
 PROCEDURE import-file :
 /*------------------------------------------------------------------------------
@@ -685,31 +888,31 @@ PROCEDURE local-change-page :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-    def var lAvail as log no-undo.
+    DEFINE VARIABLE lAvail      AS LOGICAL NO-UNDO.
     DEFINE VARIABLE lUpdateDate AS LOGICAL NO-UNDO.
-    assign 
-        li-prev-page = li-cur-page.
-    run get-attribute ("current-page").
-    assign 
-        li-cur-page = int(return-value).
-        
-    if li-prev-page eq 2 then do:
-        if lNewOrd then do:
-            message "You must save your record with a valid vendor before entering lines."
-            view-as alert-box.
-            run select-page (2).
-            return.
-        end.
+    
+    ASSIGN 
+        li-prev-page = li-cur-page.    
+    RUN GET-ATTRIBUTE ("current-page").
+    ASSIGN 
+        li-cur-page = INT(RETURN-VALUE).       
+    IF li-prev-page EQ 2 THEN DO:
+        IF lNewOrd THEN DO:
+            MESSAGE "You must save your record with a valid vendor before entering lines."
+            VIEW-AS ALERT-BOX.
+            RUN select-page (2).
+            RETURN.
+        END.
         RUN pCheckUpdateMode IN h_v-purord (OUTPUT lUpdateDate).
         IF lUpdateDate THEN
         DO:
-            message "You must save your record or cancel."
-            view-as ALERT-BOX INFO.
-            run select-page (2).
-            return.  
+            MESSAGE "You must save your record or cancel."
+            VIEW-AS ALERT-BOX INFO.
+            RUN select-page (2).
+            RETURN.  
         END.
-    end.
-
+    END.
+  /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'change-page':U ) .
   
     IF li-cur-page = 3 THEN
@@ -725,6 +928,14 @@ PROCEDURE local-change-page :
         RUN addItem IN h_vp-poord.
     END.
 
+    IF li-cur-page EQ 6 THEN
+    RUN get-po-recs.
+      
+    RUN ChangePanelState(
+      INPUT li-cur-page,
+      INPUT ipcScreen
+      ).         
+    
     {methods/winReSizePgChg.i}
 
 END PROCEDURE.
@@ -834,6 +1045,101 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pChangeWindowTitle W-Win
+PROCEDURE pChangeWindowTitle PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: Change the windows's title based o the input screen type
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcScreen AS CHARACTER NO-UNDO.
+    
+    CASE ipcScreen:
+        WHEN "PU1" THEN 
+            {&WINDOW-NAME}:TITLE = REPLACE({&WINDOW-NAME}:TITLE,"Purchase Order","Order Inquiry").
+         WHEN "PQ1" THEN 
+            {&WINDOW-NAME}:TITLE = REPLACE({&WINDOW-NAME}:TITLE,"Purchase Order","PO Inquiry").
+         WHEN "PU4" THEN 
+            {&WINDOW-NAME}:TITLE = REPLACE({&WINDOW-NAME}:TITLE,"Purchase Order","Purchase Orders Open/Close").                                          
+    END.    
+END PROCEDURE.
+    
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pDisablePanels W-Win
+PROCEDURE pDisablePanels:
+/*------------------------------------------------------------------------------
+ Purpose: Disable panels based on page number
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipiCurrentPage AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER ipcScreen      AS CHARACTER NO-UNDO.
+    
+    CASE ipiCurrentPage: 
+        WHEN 1 THEN DO:                  
+            
+        END.
+        WHEN 2 THEN DO:
+        /* Detail Tab */
+            IF ipcScreen NE "PU1" THEN DO:
+                RUN disable-all IN h_v-navest.
+                RUN pHideFrame IN h_p-poh.
+                RUN pHideFrame IN h_v-pohold.                               
+            END.
+            
+            IF ipcScreen NE "PU4" THEN
+            RUN pHideFrame IN h_vp-clspo.
+            
+            IF ipcScreen NE "PQ1" THEN
+            RUN pHideFrame IN h_v-polinq-2.              
+            
+        END.         
+        WHEN 3 THEN DO:
+        /* Detail Tab */
+            IF ipcScreen NE "PU1" THEN
+            RUN pHideFrame IN h_vp-poord.
+             
+            IF ipcScreen NE "PU4" THEN DO:
+                RUN pHideFrame IN h_vp-clspo.
+                RUN pHideFrame IN h_vp-viewp.
+                RUN pHideFrame IN h_vp-clsp2.
+            END.
+        END.
+    END CASE.
+    
+END PROCEDURE.
+    
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE proc-init W-Win
+PROCEDURE proc-init:
+/*------------------------------------------------------------------------------
+ Purpose: Disable panels based on page number
+ Notes:
+------------------------------------------------------------------------------*/
+    IF ipcScreen NE "PU1" THEN DO: 
+        RUN disable-add-button IN h_f-add.
+        RUN disable-button IN h_import.
+        RUN disable-button IN h_f-addbes.
+        RUN disable-button IN h_attach.
+        RUN pChangeWindowTitle(
+            INPUT ipcScreen
+            ). 
+    END. 
+    IF ipcScreen EQ "PU4" THEN
+    DO:
+       RUN disable-button IN  h_export.
+    END.
+    
+END PROCEDURE.
+    
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records W-Win  _ADM-SEND-RECORDS
 PROCEDURE send-records :
