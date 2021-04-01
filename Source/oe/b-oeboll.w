@@ -2887,7 +2887,7 @@ DEF BUFFER bf-boll FOR oe-boll.
    RUN redisplay-header.
    RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source",OUTPUT char-hdl).
 
-   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN DO:
+   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) AND (cFreightCalculationValue EQ "ALL" OR cFreightCalculationValue EQ "Bol Processing") THEN DO:
   
        RUN calc-freight-header IN WIDGET-HANDLE(char-hdl) (INPUT dTotFreight).
        RUN dispatch IN WIDGET-HANDLE(char-hdl) ('display-fields').
