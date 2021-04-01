@@ -1985,7 +1985,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         RUN  pRunFormatValueChanged .
 
         {custom/usrprint.i}
-                       //MESSAGE "hello " VIEW-AS ALERT-BOX ERROR .
+                       
         IF ipcInvoiceType EQ "inv-head" THEN
           ASSIGN tb_posted:SCREEN-VALUE = "NO"
                  fiBeginDateLabel:SCREEN-VALUE = "Beginning Bol Date:"
