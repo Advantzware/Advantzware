@@ -494,6 +494,8 @@ DEF VAR v-pur-qty AS DEC NO-UNDO.
 DEFINE VARIABLE cMatExceptionList AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lFound AS LOGICAL NO-UNDO.
 
+DEFINE VARIABLE lError   AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
 
 DEF BUFFER b-ap-invl FOR ap-invl.
 
@@ -641,11 +643,28 @@ FOR EACH tt-pol,
                                     v-pur-qty, OUTPUT v-pur-qty).
       END.
 
-      IF rm-rcpth.pur-uom NE lv-uom THEN
+      IF rm-rcpth.pur-uom NE lv-uom THEN DO:
          RUN sys/ref/convquom.p (rm-rcpth.pur-uom, lv-uom,
                                  v-bwt, v-len, v-wid, v-dep,
                                  v-qty, OUTPUT v-qty).
-
+          
+         RUN Conv_QuantityFromUOMToUOM (
+             INPUT  po-ordl.company,
+             INPUT  po-ordl.i-no,
+             INPUT  "RM",
+             INPUT  dQuantityInvoiced,
+             INPUT  rm-rcpth.pur-uom, 
+             INPUT  lv-uom,
+             INPUT  0,  /* Item Basis Weight */
+             INPUT  v-len,
+             INPUT  v-wid,
+             INPUT  v-dep,
+             INPUT  0,
+             OUTPUT dQuantityInvoiced,
+             OUTPUT lError,
+             OUTPUT cMessage
+             ).
+      END.
       /* gdm - 05200908 end */  
       
       /*24963 - Prevent the re-use of the same receipt, multiple times*/
