@@ -221,6 +221,9 @@ DEF VAR ll-none AS LOG NO-UNDO.
 DEF VAR li-qty LIKE oe-rell.qty NO-UNDO.
 DEF VAR v-nxt-r-no AS INT NO-UNDO.
 
+DEFINE VARIABLE cFrtPayList AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cFrtPay     AS CHARACTER NO-UNDO.
+
 FIND inv-line WHERE ROWID(inv-line) EQ ip-rowid NO-ERROR.
 IF NOT AVAIL inv-line THEN RETURN.
 
@@ -256,9 +259,19 @@ DO TRANSACTION:
          WHERE oe-rell.company EQ oe-relh.company
            AND oe-rell.r-no    EQ oe-relh.r-no
          USE-INDEX r-no NO-LOCK:
-         li-qty = li-qty + oe-rell.qty.
+         ASSIGN li-qty = li-qty + oe-rell.qty
+                cFrtPayList  = (IF LOOKUP(oe-rell.frt-pay,cFrtPayList) = 0 THEN 
+                                    cFrtPayList + "," + oe-rell.frt-pay 
+                                ELSE 
+                                    cFrtPayList).
      END.
 END.
+
+ASSIGN 
+    cFrtPay = (IF cFrtPayList <> "" THEN 
+                   SUBSTR(cFrtPayList,1,1) 
+               ELSE 
+                   "")
 
 IF li-qty GE inv-line.ship-qty THEN DO TRANSACTION:
   FIND CURRENT inv-line.
@@ -278,7 +291,11 @@ IF li-qty GE inv-line.ship-qty THEN DO TRANSACTION:
       oe-bolh.printed  = YES
       oe-bolh.posted   = YES
       oe-bolh.deleted  = YES
-      oe-bolh.bol-date = TODAY.
+      oe-bolh.bol-date = TODAY
+      oe-bolh.frt-pay  = (IF cFrtPay <> "" THEN 
+                              cFrtPay 
+                          ELSE 
+                              "").
   
      FOR EACH oe-rell
          WHERE oe-rell.company EQ oe-relh.company
