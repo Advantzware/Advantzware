@@ -36,6 +36,7 @@ DEF TEMP-TABLE tt-pol FIELD selekt AS LOG LABEL "Selected"
 
 DEFINE TEMP-TABLE ttInventoryStock NO-UNDO
     FIELD ttPOLRowID AS ROWID
+    FIELD quantity AS DECIMAL
     FIELD inventoryStockRecKey AS CHARACTER
     .
     
@@ -299,6 +300,7 @@ DO:
             ASSIGN
                 ttInventoryStock.ttPOLRowID           = ROWID(tt-pol)
                 ttInventoryStock.inventoryStockRecKey = rm-rdtlh.rec_key
+                ttInventoryStock.quantity             = tt-rec.qty-inv
                 .
 
             ASSIGN
@@ -322,6 +324,7 @@ DO:
           ASSIGN
               ttInventoryStock.ttPOLRowID           = ROWID(tt-pol)
               ttInventoryStock.inventoryStockRecKey = fg-rdtlh.rec_key
+              ttInventoryStock.quantity             = tt-rec.qty-inv
               .
         
           ASSIGN
@@ -605,7 +608,9 @@ FOR EACH tt-pol,
           INPUT  rm-rdtlh.rec_key,
           OUTPUT dQuantityInvoiced
           ).
-      IF dQuantityInvoiced GE rm-rdtlh.qty THEN
+      IF rm-rdtlh.qty LT 0 AND dQuantityInvoiced LE rm-rdtlh.qty THEN
+          NEXT.
+      ELSE IF rm-rdtlh.qty GT 0 AND dQuantityInvoiced GE rm-rdtlh.qty THEN
           NEXT.
         
      lv-uom = po-ordl.pr-qty-uom.
@@ -684,7 +689,10 @@ FOR EACH tt-pol,
         INPUT  fg-rdtlh.rec_key,
         OUTPUT dQuantityInvoiced
         ).
-    IF dQuantityInvoiced GE fg-rdtlh.qty THEN
+
+    IF fg-rdtlh.qty LT 0 AND dQuantityInvoiced LE fg-rdtlh.qty THEN
+        NEXT.
+    ELSE IF fg-rdtlh.qty GT 0 AND dQuantityInvoiced GE fg-rdtlh.qty THEN
         NEXT.
 
     IF NOT CAN-FIND(FIRST tt-rec WHERE tt-rec.rec-id EQ RECID(fg-rcpth)) THEN DO:

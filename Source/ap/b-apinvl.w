@@ -61,6 +61,7 @@ DEF TEMP-TABLE tt-pol FIELD selekt AS LOG LABEL "Selected"
                       .
 DEFINE TEMP-TABLE ttInventoryStock NO-UNDO
     FIELD ttPOLRowID AS ROWID
+    FIELD quantity AS DECIMAL
     FIELD inventoryStockRecKey AS CHARACTER
     .
     
@@ -96,6 +97,7 @@ DEFINE VARIABLE cMatExceptionList AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lFound AS LOGICAL NO-UNDO.
 
 DEFINE VARIABLE lQuantityExceededWarned AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lReselectingReceipts    AS LOGICAL NO-UNDO.
 
 RUN system/GLProcs.p PERSISTENT SET hGLProcs.
 
@@ -658,7 +660,8 @@ END.
 ON LEAVE OF ap-invl.po-no IN BROWSE Browser-Table /* PO Number */
 DO:
    DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
-  IF LASTKEY NE -1 THEN DO:
+  IF LASTKEY NE -1 OR lReselectingReceipts THEN DO:
+    lReselectingReceipts = FALSE.
     RUN valid-po-no(OUTPUT lReturnError) NO-ERROR.    
     IF lReturnError THEN RETURN NO-APPLY.
 
@@ -2087,7 +2090,7 @@ PROCEDURE local-create-record :
            RUN APInvoice_UpdateReceiptsQty IN hdAPInvoiceProcs (
                INPUT  ap-invl.rec_key,
                INPUT  ttInventoryStock.inventoryStockRecKey,
-               INPUT  ap-invl.qty,
+               INPUT  ttInventoryStock.quantity,
                INPUT  ap-invl.cons-uom,
                OUTPUT lError,
                OUTPUT cMessage
@@ -2405,7 +2408,7 @@ PROCEDURE local-update-record :
         RUN APInvoice_UpdateReceiptsQty IN hdAPInvoiceProcs (
             INPUT  bf-invl.rec_key,
             INPUT  ttInventoryStock.inventoryStockRecKey,
-            INPUT  bf-invl.qty,
+            INPUT  ttInventoryStock.quantity,
             INPUT  bf-invl.cons-uom,
             OUTPUT lError,
             OUTPUT cMessage
@@ -2582,6 +2585,45 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pReselectReceipts B-table-Win
+PROCEDURE pReselectReceipts PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipiPOID AS INTEGER NO-UNDO.
+
+    DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
+
+    IF AVAILABLE ap-invl THEN DO:
+        FIND CURRENT ap-invl EXCLUSIVE-LOCK NO-ERROR.
+        IF AVAILABLE ap-invl THEN DO:
+            DELETE ap-invl.
+
+            RUN dispatch (
+                INPUT "open-query"
+                ).            
+            {methods/run_link.i "TableIO-Source" "auto-line-add"}
+
+            IF AVAILABLE ap-invl THEN DO:
+                APPLY "ENTRY" TO ap-invl.po-no IN BROWSE {&BROWSE-NAME}.
+
+                ap-invl.po-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} = STRING(ipiPOID).
+                
+                lReselectingReceipts = TRUE.
+                
+                APPLY "LEAVE" TO ap-invl.po-no IN BROWSE {&BROWSE-NAME}.
+            END.   
+        END.
+    END.
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE presetColor B-table-Win
@@ -3041,11 +3083,12 @@ PROCEDURE update-ttt :
            RUN APInvoice_UpdateReceiptsQty IN hdAPInvoiceProcs (
              INPUT  ap-invl.rec_key,
              INPUT  ttInventoryStock.inventoryStockRecKey,
-             INPUT  ap-invl.qty,
+             INPUT  ttInventoryStock.quantity,
              INPUT  ap-invl.cons-uom,             
              OUTPUT lError,
              OUTPUT cMessage
              ).
+
           DELETE ttInventoryStock.
       END.
 
@@ -3264,6 +3307,7 @@ PROCEDURE valid-qty :
   DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
 
     DEFINE VARIABLE lRecordsFound               AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lHasNegativeReceipts        AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE dQuantityAvailableToInvoice AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE lError                      AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cMessage                    AS CHARACTER NO-UNDO.
@@ -3281,10 +3325,32 @@ PROCEDURE valid-qty :
           INPUT  ap-invl.rec_key,
           INPUT  ap-invl.cons-uom:SCREEN-VALUE IN BROWSE {&browse-name},
           OUTPUT lRecordsFound,
+          OUTPUT lHasNegativeReceipts,
           OUTPUT dQuantityAvailableToInvoice
           ). 
-
-      IF lRecordsFound AND DECIMAL(ap-invl.qty:SCREEN-VALUE IN BROWSE {&browse-name}) GT dQuantityAvailableToInvoice AND NOT lQuantityExceededWarned THEN DO:
+      /* If the PO has negative receipts and quantity is updated then pop-up an error to select the receipts manually */
+      IF lHasNegativeReceipts AND 
+         (ap-invl.qty NE DECIMAL(ap-invl.qty:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}) OR ap-invl.cons-uom:SCREEN-VALUE IN BROWSE {&browse-name} NE ap-invl.cons-uom) THEN DO:
+          RUN displayMessageQuestion (
+              INPUT  "63",
+              OUTPUT lResponse
+              ).
+          IF NOT lResponse THEN DO:
+              APPLY "ENTRY" TO ap-invl.qty IN BROWSE {&browse-name}.
+              oplReturnError = YES.
+              RETURN.
+          END.
+          ELSE DO:
+              RUN dispatch (
+                  INPUT "cancel-record"
+                  ).
+                
+              RUN pReselectReceipts(
+                  INPUT INTEGER(ap-invl.po-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})
+                  ).
+          END.
+      END.
+      ELSE IF lRecordsFound AND DECIMAL(ap-invl.qty:SCREEN-VALUE IN BROWSE {&browse-name}) GT dQuantityAvailableToInvoice AND NOT lQuantityExceededWarned AND NOT lHasNegativeReceipts THEN DO:
           RUN displayMessageQuestion (
               INPUT  "61",
               OUTPUT lResponse
