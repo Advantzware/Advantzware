@@ -104,6 +104,7 @@ DEFINE VARIABLE h_w-invest AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_w-invfg AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_export AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_checkinv AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_movecol AS HANDLE NO-UNDO.
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -360,7 +361,15 @@ PROCEDURE adm-create-objects :
              FRAME message-frame:HANDLE , 'AFTER':U ).
     END. /* Page 0 */
     WHEN 1 THEN DO:
-        RUN init-object IN THIS-PROCEDURE (
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'viewers/movecol.w':U ,
+             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_movecol ).
+       RUN set-position IN h_movecol ( 1.00 , 20.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 7.80 ) */
+       
+       RUN init-object IN THIS-PROCEDURE (
              INPUT  'viewers/checkinv.w':U ,
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  'Layout = ':U ,
@@ -397,6 +406,9 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_b-oeinv , 'export-xl':U , h_export ).
        RUN add-link IN adm-broker-hdl ( h_b-oeinv , 'checkinv':U , h_checkinv ).
 
+       /* Links to SmartViewer h_movecol. */
+       RUN add-link IN adm-broker-hdl ( h_b-oeinv , 'move-columns':U , h_movecol ).
+       
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_b-oeinv ,
              h_folder , 'AFTER':U ).
@@ -1161,14 +1173,16 @@ PROCEDURE setUserPrint :
     /* Dates default to users last report run if no date is set */
     IF dtFromBolDate EQ ? THEN dtFromBolDate = 1/1/0001.
     IF dtToBolDate EQ ? THEN dtToBolDate = 12/31/2999.
-
+                           
     RUN custom/setUserPrint.p (inv-head.company,'inv-hea_.',
-                             'begin_cust-no,end_cust-no,begin_inv,end_inv,begin_date,end_date,begin_bol,end_bol,tb_reprint,tb_posted',
+                             'begin_cust-no,end_cust-no,begin_inv,end_inv,begin_date,end_date,begin_inv-id,end_inv-id,begin_bol,end_bol,tb_reprint,tb_posted',
                              inv-head.cust-no + ',' + inv-head.cust-no + ',' +
                              STRING(inv-head.inv-no) + ',' + STRING(inv-head.inv-no) + ',' +
                              STRING(dtFromBolDate) + ',' + STRING(dtToBolDate) + ',' +
+                             STRING(inv-head.r-no) + ',' + STRING(inv-head.r-no) + ',' +
                              STRING(inv-head.bol-no) + ',' + STRING(inv-head.bol-no) + ',' +
-                             STRING(inv-head.printed) + ',' + STRING(inv-head.posted)).
+                             STRING(inv-head.printed) + ',' + STRING(inv-head.posted) 
+                             ). 
   END.
 
 END PROCEDURE.
