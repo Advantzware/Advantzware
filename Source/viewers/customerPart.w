@@ -259,6 +259,8 @@ DO:
                 ).   
             IF cFoundValue <> "" THEN 
                 ASSIGN FOCUS:SCREEN-VALUE = cFoundValue.                              
+                
+            system.LookupSharedConfig:Instance:DeleteValue(cPrgmName, "Customer,Cust. #").                             
         END.
         WHEN "itemID"  THEN DO:
             RUN system/openLookup.p (
