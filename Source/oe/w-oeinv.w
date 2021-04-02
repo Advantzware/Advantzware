@@ -628,7 +628,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_v-oebolh ).
-       RUN set-position IN h_v-oebolh ( 5.05 , 4.00 ) NO-ERROR.
+       RUN set-position IN h_v-oebolh ( 4.55 , 4.00 ) NO-ERROR.
        /* Size in UIB:  ( 8.33 , 143.60 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -636,7 +636,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_b-oeboll ).
-       RUN set-position IN h_b-oeboll ( 13.86 , 4.00 ) NO-ERROR.
+       RUN set-position IN h_b-oeboll ( 14.96 , 3.00 ) NO-ERROR.
        RUN set-size IN h_b-oeboll ( 7.86 , 145.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
@@ -646,7 +646,7 @@ PROCEDURE adm-create-objects :
                      SmartPanelType = Update,
                      AddFunction = One-Record':U ,
              OUTPUT h_p-bolitm ).
-       RUN set-position IN h_p-bolitm ( 22.43 , 37.00 ) NO-ERROR.
+       RUN set-position IN h_p-bolitm ( 22.93 , 37.00 ) NO-ERROR.
        RUN set-size IN h_p-bolitm ( 1.76 , 82.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
