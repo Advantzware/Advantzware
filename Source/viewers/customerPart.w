@@ -42,6 +42,14 @@ CREATE WIDGET-POOL.
 /* Local Variable Definitions ---                                       */
 DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO.
 {custom/globdefs.i}
+
+DEFINE VARIABLE cPrgmName AS CHARACTER NO-UNDO.
+
+ASSIGN
+    cPrgmName = PROGRAM-NAME(1)
+    cPrgmName = SUBSTRING(cPrgmName,1,INDEX(cPrgmName,"."))
+    cPrgmName = ENTRY(NUM-ENTRIES(cPrgmName," "),cPrgmName," ")
+    .
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -235,12 +243,22 @@ DO:
             IF cFoundValue <> "" THEN 
                 ASSIGN FOCUS:SCREEN-VALUE = cFoundValue.         
         END.
-        WHEN "shipToID"  THEN DO:             
-           RUN windows/l-shipto.w (g_company,g_loc,customerpart.customerID:SCREEN-VALUE,customerpart.shipToID:SCREEN-VALUE, OUTPUT cCharVal).
-           IF cCharVal NE "" AND customerpart.shipToID:SCREEN-VALUE NE ENTRY(1,cCharVal) THEN DO:
-              customerpart.shipToID:SCREEN-VALUE = ENTRY(1,cCharVal).                
-           END.
-           RETURN NO-APPLY.                     
+        WHEN "shipToID"  THEN DO:  
+            /* Provide a list of key values whose dynamic subject column label would be matched  */
+            system.LookupSharedConfig:Instance:SetValue("Customer,Cust. #", customerpart.customerID:SCREEN-VALUE ).
+      
+            RUN system/openLookup.p (
+                INPUT  g_company, 
+                INPUT  "",  /* Lookup ID */
+                INPUT  122, /* Subject ID */
+                INPUT  "",  /* User ID */
+                INPUT  0,   /* Param Value ID */
+                OUTPUT cFieldsValue, 
+                OUTPUT cFoundValue, 
+                OUTPUT recFoundRecID
+                ).   
+            IF cFoundValue <> "" THEN 
+                ASSIGN FOCUS:SCREEN-VALUE = cFoundValue.                              
         END.
         WHEN "itemID"  THEN DO:
             RUN system/openLookup.p (
@@ -418,6 +436,29 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy V-table-Win
+PROCEDURE local-destroy:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    /* Code placed here will execute PRIOR to standard behavior. */
+    
+    /* Clear the Shared Lookup data after lookup is closed */
+    system.LookupSharedConfig:Instance:DeleteByProgram(cPrgmName).
+  
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
+
+    /* Code placed here will execute AFTER standard behavior.    */
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record V-table-Win 
 PROCEDURE local-update-record :

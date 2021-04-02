@@ -176,6 +176,7 @@ PROCEDURE pRunDynLookup:
         ipiSubjectID,
         ipcUserID,
         ipiParamValueID,
+        cPrgmName,
         OUTPUT cReturnValues,
         OUTPUT cLookupField,
         OUTPUT rRecID

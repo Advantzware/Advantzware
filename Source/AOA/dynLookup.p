@@ -4,6 +4,7 @@ DEFINE INPUT  PARAMETER ipcCompany      AS CHARACTER NO-UNDO.
 DEFINE INPUT  PARAMETER ipiSubjectID    AS INTEGER   NO-UNDO.
 DEFINE INPUT  PARAMETER ipcUserID       AS CHARACTER NO-UNDO.
 DEFINE INPUT  PARAMETER ipiParamValueID AS INTEGER   NO-UNDO.
+DEFINE INPUT  PARAMETER ipcProgramName  AS CHARACTER NO-UNDO.
 
 DEFINE OUTPUT PARAMETER opcReturnValues AS CHARACTER NO-UNDO.
 DEFINE OUTPUT PARAMETER opcLookupField  AS CHARACTER NO-UNDO.
@@ -164,6 +165,7 @@ IF lRunLookup THEN DO:
         ipiSubjectID,
         ipcUserID,
         ipiParamValueID,
+        ipcProgramName,
         OUTPUT opcReturnValues,
         OUTPUT opcLookupField,
         OUTPUT oprRecID

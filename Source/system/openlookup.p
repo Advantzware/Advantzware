@@ -32,6 +32,14 @@ DEFINE OUTPUT PARAMETER oprRecID        AS RECID     NO-UNDO.
 
 DEFINE VARIABLE iRecordLimit AS INTEGER NO-UNDO INITIAL 15000.
 
+DEFINE VARIABLE cPrgmName AS CHARACTER NO-UNDO.
+
+ASSIGN
+    cPrgmName = PROGRAM-NAME(2)
+    cPrgmName = SUBSTRING(cPrgmName,1,INDEX(cPrgmName,"."))
+    cPrgmName = ENTRY(NUM-ENTRIES(cPrgmName," "),cPrgmName," ")
+    .
+        
 IF ipcUserID EQ "" THEN
 ipcUserID = "_default".
 IF ipiSubjectID GT 0 AND
@@ -44,6 +52,7 @@ IF ipiSubjectID GT 0 AND
         ipiSubjectID,
         ipcUserID,
         ipiParamValueID,
+        cPrgmName,
         OUTPUT opcReturnFields,
         OUTPUT opcLookupField,
         OUTPUT oprRecID
