@@ -480,9 +480,10 @@ PROCEDURE pGetFilePath PRIVATE:
 
     /* Extract path name from the given input file */
     IF NUM-ENTRIES(opcFilePath, cBackwardSlash) GT 1 THEN DO:
-        /* Replace the file name portion from the input file */   
-        opcFilePath = REPLACE(opcFilePath, ENTRY(NUM-ENTRIES(opcFilePath, cBackwardSlash), opcFilePath, cBackwardSlash), "") NO-ERROR.
-                            
+        /* Replace the file name portion from the input file */
+        IF ENTRY(NUM-ENTRIES(opcFilePath, cBackwardSlash), opcFilePath, cBackwardSlash)  NE "" THEN
+        opcFilePath = REPLACE(opcFilePath, ENTRY(NUM-ENTRIES(opcFilePath, cBackwardSlash), opcFilePath, cBackwardSlash), "").
+
         /* Validate if the extracted path is a directory */
         RUN pValidateDirectory (
             INPUT  opcFilePath,
