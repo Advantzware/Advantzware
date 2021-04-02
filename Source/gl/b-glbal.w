@@ -391,15 +391,17 @@ PROCEDURE build-inquiry :
     FIND FIRST account NO-LOCK
         WHERE account.company EQ cCompany
         AND account.actnum EQ cActNum NO-ERROR .
+    FIND FIRST company NO-LOCK
+         WHERE company.company EQ cCompany NO-ERROR.
         
     IF AVAILABLE account THEN
     DO:
         FIND FIRST period WHERE period.company = cCompany
                       AND period.yr = opiYear  NO-LOCK NO-ERROR.
         tmp-start = IF AVAIL period THEN period.pst ELSE 01/01/01 .
+                
+        RUN GL_GetAccountOpenBal(ROWID(account),tmp-start, OUTPUT opening_Balance).
         
-        RUN gl/gl-opend.p (ROWID(account), tmp-start, OUTPUT opening_Balance).
-                          
         begin_acct:SCREEN-VALUE IN FRAME {&FRAME-NAME} = account.actnum.
         opening_Balance:SCREEN-VALUE IN FRAME {&FRAME-NAME} = string(opening_Balance) /*STRING(account.cyr-open)*/.
         begin_acct = account.actnum.
@@ -407,7 +409,7 @@ PROCEDURE build-inquiry :
                      
         dTotalAccBalance = opening_Balance. 
               
-        DO iCount = 1 TO 12:
+        DO iCount = 1 TO company.num-per:
            
             FIND FIRST period NO-LOCK                  
                 WHERE period.company EQ cCompany

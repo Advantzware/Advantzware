@@ -44,7 +44,6 @@ DEFINE TEMP-TABLE ttItemLines
     FIELD iCaseCount      AS INTEGER
     FIELD cTableType      AS CHARACTER 
     .
-    
 DEFINE TEMP-TABLE ttOePrmtx
     FIELD company       AS CHARACTER LABEL "Company"
     FIELD custNo        AS CHARACTER LABEL "Customer"
@@ -105,6 +104,7 @@ DEFINE TEMP-TABLE tt-VendItemCost
       
 {oe/ttPriceHold.i} 
 {system/ttPriceMatrix.i}
+/* {util/ttInactiveQuotes.i} */
 
 /* ********************  Preprocessor Definitions  ******************** */
 

@@ -2002,7 +2002,7 @@ PROCEDURE local-display-fields :
             cbUserType:screen-value = users.userType
             slEnvironments:screen-value = if ttUsers.ttfEnvList <> "" THEN ttUsers.ttfEnvList else slEnvironments:list-items
             slDatabases:screen-value = if ttUsers.ttfDbList <> "" THEN ttUsers.ttfDbList else slDatabases:list-items
-            users.userAlias:SCREEN-VALUE = ttUsers.ttfUserAlias
+            users.userAlias:SCREEN-VALUE = users.userAlias
             users.userAlias:modified = FALSE
             FGColor-1:BGCOLOR = users.menuFGColor[1]
             FGColor-2:BGCOLOR = users.menuFGColor[2]

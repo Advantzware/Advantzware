@@ -1066,15 +1066,15 @@ procedure itemfgdtl_rec_key:
       rec_key.table_name = "itemfgdtl".
   end.
 end procedure.
-run jc-ctrl_rec_key.
-procedure jc-ctrl_rec_key:
-  for each jc-ctrl exclusive:
+run materialType_rec_key.
+procedure materialType_rec_key:
+  for each materialType exclusive:
     create rec_key.
     assign
-      jc-ctrl.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+      materialType.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
 
-      rec_key.rec_key = jc-ctrl.rec_key
-      rec_key.table_name = "jc-ctrl".
+      rec_key.rec_key = materialType.rec_key
+      rec_key.table_name = "materialType".
   end.
 end procedure.
 run job_rec_key.

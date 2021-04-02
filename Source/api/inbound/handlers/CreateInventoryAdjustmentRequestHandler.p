@@ -51,18 +51,7 @@
        ( refer methods/triggers/create.i ) */
 
     /* This will eventually move to setsession approach */
-    &SCOPED-DEFINE NEW NEW
     {methods/defines/globdefs.i}
-    {methods/defines/hndldefs.i}
-
-    DEFINE VARIABLE hdSession AS HANDLE NO-UNDO.
-
-    RUN nosweat/persist.p  PERSISTENT SET Persistent-Handle.
-    RUN lstlogic/persist.p PERSISTENT SET ListLogic-Handle.
-
-    RUN system/session.p  PERSISTENT SET hdSession.
-    SESSION:ADD-SUPER-PROCEDURE (hdSession).
-
     {sys/inc/var.i "NEW SHARED"}
     {sys/inc/varasgn.i}
 
@@ -111,9 +100,6 @@
         
     THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE(hdJSONProcs).
     DELETE PROCEDURE hdJSONProcs.
-
-    SESSION:REMOVE-SUPER-PROCEDURE (hdSession).
-    DELETE PROCEDURE hdSession.
 
 /* ********************  Preprocessor Definitions  ******************** */
 

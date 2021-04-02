@@ -340,6 +340,42 @@ PROCEDURE GetOperationsForJob:
     RELEASE bf-job-mch.
 END PROCEDURE.
 
+PROCEDURE GetOperationsForJobNotCompleted:
+    /*------------------------------------------------------------------------------
+     Purpose: Returns machine code list for a given jobID Not Completed
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT        PARAMETER ipcCompany      AS CHARACTER NO-UNDO.
+    DEFINE INPUT        PARAMETER ipcJobno        AS CHARACTER NO-UNDO.
+    DEFINE INPUT        PARAMETER ipiJobno2       AS INTEGER   NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER opcMachineList  AS CHARACTER NO-UNDO.
+
+    DEFINE BUFFER bf-job     FOR job.
+    DEFINE BUFFER bf-job-mch FOR job-mch.
+
+    FOR EACH bf-job NO-LOCK
+        WHERE bf-job.company EQ ipcCompany
+          AND bf-job.job-no  EQ ipcJobno
+          AND bf-job.job-no2 EQ ipiJobno2,
+            EACH bf-job-mch NO-LOCK
+            WHERE bf-job-mch.company EQ bf-job.company
+              AND bf-job-mch.job     EQ bf-job.job
+              AND bf-job-mch.job-no  EQ bf-job.job-no
+              AND bf-job-mch.job-no2 EQ bf-job.job-no2
+              AND NOT bf-job-mch.run-complete
+            USE-INDEX line-idx:
+        opcMachineList = IF opcMachineList EQ "" THEN 
+                             STRING(bf-job-mch.m-code)
+                         ELSE IF INDEX(opcMachineList,STRING(bf-job-mch.m-code)) GT 0 THEN
+                             opcMachineList
+                         ELSE
+                             opcMachineList + "," + STRING(bf-job-mch.m-code).           
+    END.
+
+    RELEASE bf-job.
+    RELEASE bf-job-mch.
+END PROCEDURE.
+
 PROCEDURE GetFGItemForJob:
     /*------------------------------------------------------------------------------
      Purpose: Returns machine code list for a given jobID

@@ -711,9 +711,9 @@ FUNCTION GetCurrentPage RETURNS INTEGER
     /*------------------------------------------------------------------------------
      Purpose: Returns the value of the PageCount property
      Notes:
-    ------------------------------------------------------------------------------*/	
+    ------------------------------------------------------------------------------*/    
     RETURN giPageCount.
-		
+        
 END FUNCTION.
 
 FUNCTION FormatForCSV RETURNS CHARACTER 
@@ -721,7 +721,7 @@ FUNCTION FormatForCSV RETURNS CHARACTER
     /*------------------------------------------------------------------------------
      Purpose: Fixes the input character value and returns a CSV friendly text
      Notes:
-    ------------------------------------------------------------------------------*/	
+    ------------------------------------------------------------------------------*/    
     DEFINE VARIABLE iZeroCode AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iNineCode AS INTEGER   NO-UNDO.
     DEFINE VARIABLE chChar    AS CHARACTER NO-UNDO.                    
@@ -740,7 +740,7 @@ FUNCTION FormatForCSV RETURNS CHARACTER
             ipcValue = CHR(9) + ipcValue.
     END.
     RETURN ipcValue.   
-		
+        
 END FUNCTION.
 
 FUNCTION FormatNumber RETURNS CHARACTER 

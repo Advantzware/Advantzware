@@ -15,7 +15,8 @@
 /* ***************************  Definitions  ************************** */
 {system/VendorCostProcs.i}
 {po/ttVendCostReport.i}
-{oe/ttPriceHold.i} 
+{oe/ttPriceHold.i}
+{util/ttInactiveQuotes.i} 
 
 /*Constants*/
 DEFINE VARIABLE gcItemTypeFG        AS CHARACTER NO-UNDO INITIAL "FG".
@@ -32,7 +33,6 @@ DEFINE VARIABLE gcScopeList         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE gcScopeDefault      AS CHARACTER NO-UNDO.
 
 /*Settings Variables*/
-
 
 /* ********************  Preprocessor Definitions  ******************** */
 
@@ -672,6 +672,49 @@ PROCEDURE GetDimCharge:
     
 END PROCEDURE.
 
+PROCEDURE pExpirePriceByCust PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany  AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcCustomer AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER iplProcess  AS LOGICAL   NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR tt-VendItemCost.
+    
+    DEFINE BUFFER bf-vendItemCost FOR vendItemCost.
+    
+    EMPTY TEMP-TABLE tt-VendItemCost.
+    
+    FOR EACH bf-vendItemCost NO-LOCK  
+        WHERE bf-vendItemCost.company        EQ ipcCompany
+          AND bf-vendItemCost.customerID     EQ ipcCustomer
+          AND(bf-vendItemCost.expirationDate GT TODAY OR bf-vendItemCost.expirationDate EQ ?) :
+            IF iplProcess THEN DO:
+                FIND CURRENT bf-vendItemCost EXCLUSIVE-LOCK NO-ERROR. 
+                bf-vendItemCost.expirationDate = TODAY.
+            END.    
+            ELSE DO:
+                CREATE tt-VendItemCost.
+                ASSIGN 
+                    tt-VendItemCost.company           = bf-vendItemCost.company
+                    tt-VendItemCost.estimate          = bf-vendItemCost.estimate
+                    tt-VendItemCost.blankNo           = bf-vendItemCost.blankNo
+                    tt-VendItemCost.customerID        = bf-vendItemCost.customerId
+                    tt-VendItemCost.effectiveDate     = bf-vendItemCost.effectiveDate
+                    tt-VendItemCost.formNo            = bf-vendItemCost.formNo
+                    tt-VendItemCost.itemID            = bf-vendItemCost.itemId
+                    tt-VendItemCost.itemType          = bf-vendItemCost.itemType
+                    tt-VendItemCost.oldExpirationDate = bf-vendItemCost.expirationDate
+                    tt-VendItemCost.newExpirationDate = TODAY
+                    tt-VendItemCost.UOM               = bf-vendItemCost.VendorUom
+                    tt-VendItemCost.vendorID          = bf-vendItemCost.vendorID
+                    .                      
+            END.              
+        END.
+
+END PROCEDURE.
+
 PROCEDURE Vendor_CheckPriceHoldForPo:
     /*------------------------------------------------------------------------------
      Purpose: Given an oe-ord rowid, check all order lines to see if Price Hold criteria
@@ -850,6 +893,41 @@ PROCEDURE Vendor_CheckPriceHoldForPo:
     END.
     RELEASE bf-po-ord.
     
+END PROCEDURE.
+
+PROCEDURE Vendor_ExpirePriceByCust:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany  AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcCustomer AS CHARACTER NO-UNDO.
+    
+    RUN pExpirePriceByCust(
+        INPUT ipcCompany,
+        INPUT ipcCustomer,
+        INPUT YES,
+        INPUT-OUTPUT TABLE tt-VendItemCost
+        ).
+
+END PROCEDURE.
+
+PROCEDURE Vendor_ExpirePriceByCustTT:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany  AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcCustomer AS CHARACTER NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR tt-VendItemCost.
+    
+    RUN pExpirePriceByCust(
+        INPUT ipcCompany,
+        INPUT ipcCustomer,
+        INPUT NO,
+        INPUT-OUTPUT TABLE tt-VendItemCost
+        ).
+
 END PROCEDURE.
 
 PROCEDURE Vendor_VendItemCostWithPercentage:

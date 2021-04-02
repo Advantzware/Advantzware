@@ -145,7 +145,6 @@ DEFINE VARIABLE begin_status AS CHARACTER FORMAT "X(256)":U INITIAL "A"
      LIST-ITEM-PAIRS "(A)ctive","A",
                      "(E)-Service","E",
                      "(I)nactive","I",
-                     "(S)tatement","S",
                      "(X) Inhouse","X"
      DROP-DOWN-LIST
      SIZE 17 BY 1 NO-UNDO.
@@ -156,7 +155,6 @@ DEFINE VARIABLE end_status AS CHARACTER FORMAT "X(256)":U INITIAL "X"
      LIST-ITEM-PAIRS "(A)ctive","A",
                      "(E)-Service","E",
                      "(I)nactive","I",
-                     "(S)tatement","S",
                      "(X) Inhouse","X"
      DROP-DOWN-LIST
      SIZE 17 BY 1 NO-UNDO.

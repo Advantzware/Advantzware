@@ -211,7 +211,6 @@ PROCEDURE pBuildRMTransactions PRIVATE:
     DEFINE INPUT PARAMETER ipcTag AS CHARACTER NO-UNDO.
     
     DEFINE VARIABLE dCostTotal  AS DECIMAL   NO-UNDO.
-    DEFINE VARIABLE dCostPerUOM AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE cCostUOM    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE dQuantity   AS DECIMAL   NO-UNDO.
     
@@ -255,7 +254,6 @@ PROCEDURE pBuildRMTransactions PRIVATE:
                 ttRMTransaction.transactionStatus = "Created"
                 dQuantity                         = dQuantity - ttRMTransaction.quantity
                 dCostTotal                        = dCostTotal + ttRMTransaction.costTotal
-                dCostPerUOM                       = dCostPerUOM + ttRMTransaction.costPerUOM
                 .
         END.
         
@@ -285,7 +283,6 @@ PROCEDURE pBuildRMTransactions PRIVATE:
                 ttRMTransaction.rmBinRowID        = ROWID(bf-rm-bin)
                 dQuantity                         = dQuantity - ttRMTransaction.quantity
                 dCostTotal                        = dCostTotal + ttRMTransaction.costTotal
-                dCostPerUOM                       = dCostPerUOM + ttRMTransaction.costPerUOM
                 .
         END.  
         
@@ -306,10 +303,10 @@ PROCEDURE pBuildRMTransactions PRIVATE:
             ttRMTransaction.company           = ttRMToProcess.company
             ttRMTransaction.itemID            = ttRMToProcess.itemID
             ttRMTransaction.transactionType   = ttRMToProcess.transactionType
-            ttRMTransaction.quantity          = ttRMToProcess.quantity
+            ttRMTransaction.quantity          = IF ttRMToProcess.quantity GT 0 THEN ttRMToProcess.quantity ELSE 1
             ttRMTransaction.tag               = ipcTag
             ttRMTransaction.quantityUOM       = bf-item.cons-uom
-            ttRMTransaction.costPerUOM        = dCostPerUOM
+            ttRMTransaction.costPerUOM        = dCostTotal / ttRMTransaction.quantity
             ttRMTransaction.costTotal         = dCostTotal
             ttRMTransaction.transactionStatus = "Created"
             ttRMTransaction.costUOM           = "EA"

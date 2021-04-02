@@ -47,8 +47,6 @@ DEF TEMP-TABLE w-file NO-UNDO
    FIELD rec-id   AS   RECID
    FIELD cloze    AS   LOG.
 
-find first jc-ctrl where jc-ctrl.company eq cocode no-lock no-error.
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

@@ -69,27 +69,41 @@ DEFINE VARIABLE iColumnLength      AS INTEGER NO-UNDO.
 DEFINE BUFFER b-itemfg FOR itemfg .
 DEFINE VARIABLE cTextListToDefault AS cha NO-UNDO.
 
+DEFINE VARIABLE lRecFound           AS LOGICAL          NO-UNDO.
+DEFINE VARIABLE lAPInvoiceLength    AS LOGICAL          NO-UNDO.
+DEFINE VARIABLE cNK1Value           AS CHARACTER        NO-UNDO.
+
+RUN sys/ref/nk1look.p (INPUT cocode, "APInvoiceLength", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cNK1Value, OUTPUT lRecFound).
+IF lRecFound THEN
+    lAPInvoiceLength = logical(cNK1Value) NO-ERROR.
+
 
 ASSIGN 
     cTextListToSelect  = "AP Inv#,AP Vendor,AP Vend Name,AP Date,AP Due Date,AP Tax Code,AP Discount%,AP Disc Days,AP Status," +   /* 9*/
-                           "AP Tax Amount,AP Amount,AP Paid Amount,AP Freight,AP Blanace Due,AP Currency," +  /* 6*/
-                           "APLine PO#,APLine Account,APLine Dscription,APLine Qty,APLine Qty Uom,APLine Price,APLine Price Uom," +  /* 7*/
-                           "APLine Taxable,APLine SqFt,APLine Amount,APLine Tot Msf,APLine Item,APLine Job,APLine Sheet,APLine Blank," +  /* 8*/
-                           "APLine Line,PO Receipt Date,PO Order Qty,PO Qty UOM,PO Order Price,PO Price Uom,PO Receipts Qty," +    /* 7*/
-    "PO Receipts Amt,PO Variance Amt,PO Variance Qty"  /* 3*/                           
+                         "AP Tax Amount,AP Amount,AP Paid Amount,AP Freight,AP Blanace Due,AP Currency," +  /* 6*/
+                         "APLine PO#,APLine Account,APLine Dscription,APLine Qty,APLine Qty Uom,APLine Price,APLine Price Uom," +  /* 7*/
+                         "APLine Taxable,APLine SqFt,APLine Amount,APLine Tot Msf,APLine Item,APLine Job,APLine Sheet,APLine Blank," +  /* 8*/
+                         "APLine Line,PO Receipt Date,PO Order Qty,PO Qty UOM,PO Order Price,PO Price Uom,PO Receipts Qty," +    /* 7*/
+                         "PO Receipts Amt,PO Variance Amt,PO Variance Qty"  /* 3*/                           
+    
     cFieldListToSelect = "inv,vend,ven-nam,date,due-date,Tax-code,discount,disc-days,status," +   /* 9*/
-                             "tax-amt,amt,paid,freight,bal-due,curr-code," +  /* 6*/
-                             "po-no,act,dscr,apQty,apQtyUom,apPrice,apPriceUom," +   /* 7*/
-                             "apTax,apSqFt,apLineAmt,apTotMsf,apItem,apJob,apSNum,apBNum," +  /* 8*/
-                             "line,PO_ReceiptDate,PO_OrderQty,PO_QuantityUOM,PO_OrderPrice,PO_OrderPriceUom,PO_ReceiptsQty," +   /* 7*/
-    "PO_ReceiptsAmt,PO_VarianceAmt,PO_VarianceQty" /* 3*/
-                           
-    cFieldLength       = "10,9,30,10,11,11,12,12,9," + "13,15,15,11,14,11," + "10,20,30,13,14,13,16," + "14,11,14,14,15,11,12,12," +
-                       "11,15,15,10,15,12,15," + "15,15,15"     
-                      
+                         "tax-amt,amt,paid,freight,bal-due,curr-code," +  /* 6*/
+                         "po-no,act,dscr,apQty,apQtyUom,apPrice,apPriceUom," +   /* 7*/
+                         "apTax,apSqFt,apLineAmt,apTotMsf,apItem,apJob,apSNum,apBNum," +  /* 8*/
+                         "line,PO_ReceiptDate,PO_OrderQty,PO_QuantityUOM,PO_OrderPrice,PO_OrderPriceUom,PO_ReceiptsQty," +   /* 7*/
+                         "PO_ReceiptsAmt,PO_VarianceAmt,PO_VarianceQty" /* 3*/
+    
     cFieldType         = "c,c,c,c,c,c,i,i,c," + "i,i,i,i,i,c," + "i,c,c,i,c,i,c," + "c,i,i,i,c,c,i,i," +
-                     "i,c,i,i,i,c,i," + "i,i,i"
+                         "i,c,i,i,i,c,i," + "i,i,i"
     .
+IF lAPInvoiceLength THEN
+    ASSIGN cFieldLength = "20,9,30,10,11,11,12,12,9," + "13,15,15,11,14,11," + "10,20,30,13,14,13,16," + "14,11,14,14,15,11,12,12," +
+                          "11,15,15,10,15,12,15," + "15,15,15".
+ELSE
+    ASSIGN cFieldLength = "12,9,30,10,11,11,12,12,9," + "13,15,15,11,14,11," + "10,20,30,13,14,13,16," + "14,11,14,14,15,11,12,12," +
+                          "11,15,15,10,15,12,15," + "15,15,15".
 
 {sys/inc/ttRptSel.i}
 ASSIGN 
@@ -1442,7 +1456,7 @@ PROCEDURE run-report :
             cTmpField = ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
             CASE cTmpField:             
                 WHEN "inv"          THEN 
-                    cVarValue = STRING(tt-ap-inv.inv-no).
+                    cVarValue = IF lAPInvoiceLength THEN STRING(tt-ap-inv.inv-no,"x(20)") ELSE STRING(tt-ap-inv.inv-no,"x(12)").
                          
                 WHEN "vend"         THEN 
                     cVarValue = STRING(tt-ap-inv.vend-no).

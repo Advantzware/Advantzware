@@ -357,7 +357,7 @@ PROCEDURE pDisplayValue :
                 dAmount      = glhist.tr-amt
                 dtDate       = glhist.tr-date
                 iPeriod      = glhist.period
-                iYear        = glhist.yr  .          
+                iYear        = glhist.glYear  .          
             dtCheckDate  = glhist.tr-date .
         END.      
        
@@ -388,7 +388,7 @@ PROCEDURE pAssignValue :
                 bf-glhist.tr-amt    = dAmount
                 bf-glhist.tr-date   = dtDate
                 bf-glhist.period    = iPeriod
-                bf-glhist.yr        = iYear
+                bf-glhist.glYear    = iYear
                 bf-glhist.createdBy = USERID(LDBNAME(1)).          
             opriRowid = ROWID(bf-glhist).
         END.      

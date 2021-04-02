@@ -733,6 +733,9 @@ RETURN.
 
 /* **********************  Internal Procedures  *********************** */
 
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI C-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
 /*------------------------------------------------------------------------------
@@ -842,7 +845,8 @@ PROCEDURE ipAddDbmsFonts :
         END.
         ELSE IF FILE-INFO:FILE-TYPE BEGINS "F" 
         AND INDEX(FILE-INFO:FILE-NAME,"dbms") NE 0 
-        AND INDEX(FILE-INFO:FILE-NAME,".ini") NE 0 THEN DO:
+        AND INDEX(FILE-INFO:FILE-NAME,".ini") NE 0 
+        AND FILE-INFO:FILE-NAME NE "dbmsui.ini" THEN DO:
             EMPTY TEMP-TABLE ttDbms.
             ASSIGN 
                 iThisLine = 100.
@@ -1983,6 +1987,120 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipConvertGLTrans C-Win
+PROCEDURE ipConvertGLTrans:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEF VAR cOrigPropath AS CHAR NO-UNDO.
+    DEF VAR cNewPropath AS CHAR NO-UNDO.
+
+    ASSIGN
+        cOrigPropath = PROPATH
+        cNewPropath  = cEnvDir + "\" + fiEnvironment:{&SV} + "\Programs," + PROPATH
+        PROPATH = cNewPropath.
+        
+    RUN ipStatus ("    Convert GLTrans to GLHist...").
+    RUN util/ConversionGLTrans.p.
+    
+    RUN ipStatus ("    Verifying GLHist record data...").
+    RUN util/SetGLHistFlag.p.
+
+    ASSIGN 
+        PROPATH = cOrigPropath.     
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipConvertJcCtrl C-Win 
+PROCEDURE ipConvertJcCtrl :
+/*------------------------------------------------------------------------------
+  Purpose:     Rajesh - Ticket 97460
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE gcMaterialTypes AS CHARACTER NO-UNDO INITIAL "C,D,F,G,I,L,M,P,R,T,V,W,B,1,2,3,4,5,6,7,8,9,X,Y,@".
+    DEFINE VARIABLE gcMaterialNames AS CHARACTER NO-UNDO INITIAL "Case,Pallet,Foil,Glue,Ink,Laminate,Misc.,Paper,Die Rule,Tray,Varnish,Window,Real Board,Polyethylene,Polyurethane,Exp. Polystyrene,Polystyrene,Layer Pad,Divider,Printing Die/ Plates,Cutting Dies,Wood,Rotary Die,Flat Die,@ Misc.".
+ 
+    DEFINE VARIABLE iCount AS INTEGER   NO-UNDO.
+
+    DEFINE BUFFER bf-jc-ctrl      FOR jc-ctrl. 
+    DEFINE BUFFER bf-mat          FOR mat.
+    DEFINE BUFFER bf-company      FOR company.
+    DEFINE BUFFER bf-materialType FOR materialType.
+
+    RUN ipStatus ("    Creating materialType records.").
+
+    DEF VAR cOrigPropath AS CHAR NO-UNDO.
+    DEF VAR cNewPropath AS CHAR NO-UNDO.
+
+    ASSIGN
+        cOrigPropath = PROPATH
+        cNewPropath  = cEnvDir + "\" + fiEnvironment:{&SV} + "\Programs," + PROPATH
+        PROPATH = cNewPropath.
+
+    FOR EACH bf-company NO-LOCK:
+        FOR EACH bf-mat NO-LOCK:
+            FIND FIRST bf-materialType EXCLUSIVE-LOCK    
+                WHERE bf-materialType.company      EQ bf-company.company
+                AND bf-materialType.materialType EQ bf-mat.mat
+                NO-ERROR.
+            IF NOT AVAILABLE bf-materialType THEN 
+            DO:
+                CREATE bf-materialType.         
+                ASSIGN
+                    bf-materialType.company             = bf-company.company
+                    bf-materialType.materialType        = bf-mat.mat
+                    bf-materialType.materialDescription = bf-mat.dscr
+                    bf-materialType.calculationType     = "ByDefault"
+                    .
+            END.
+        END.
+    END.
+
+    FOR EACH bf-company NO-LOCK:
+        FIND FIRST bf-jc-ctrl NO-LOCK 
+            WHERE bf-jc-ctrl.company EQ bf-company.company
+            NO-ERROR.
+        DO iCount = 1 TO NUM-ENTRIES(gcMaterialTypes):
+            FIND FIRST bf-materialType EXCLUSIVE-LOCK    
+                WHERE bf-materialType.company      EQ bf-company.company
+                AND bf-materialType.materialType EQ ENTRY(iCount, gcMaterialTypes)
+                NO-ERROR.
+            IF NOT AVAILABLE bf-materialType THEN 
+            DO:
+                CREATE bf-materialType.
+                ASSIGN
+                    bf-materialType.company         = bf-company.company
+                    bf-materialType.materialType    = ENTRY(iCount, gcMaterialTypes)
+                    bf-materialType.calculationType = "ByDefault"
+                    .
+            END.
+
+            IF bf-materialType.materialDescription EQ '' THEN
+                bf-materialType.materialDescription = ENTRY(iCount, gcMaterialNames).
+
+            IF AVAILABLE bf-jc-ctrl AND iCount LE EXTENT(bf-jc-ctrl.post) THEN
+                bf-materialType.autoIssue = bf-jc-ctrl.post[iCount].
+        END.
+    END.
+
+    ASSIGN 
+        PROPATH = cOrigPropath.
+        
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipConvertModule C-Win 
 PROCEDURE ipConvertModule :
 /*------------------------------------------------------------------------------
@@ -2598,8 +2716,10 @@ PROCEDURE ipDataFix :
         RUN ipDataFix200303.
     IF iCurrentVersion LT 21000100 THEN
         RUN ipDataFix210001.
-    IF iCurrentVersion LT 21000200 THEN
-        RUN ipDataFix210002.
+    IF iCurrentVersion LT 21000300 THEN
+        RUN ipDataFix210003.
+    IF iCurrentVersion LT 21010000 THEN
+        RUN ipDataFix210100.
     IF iCurrentVersion LT 99999999 THEN
         RUN ipDataFix999999.
 
@@ -3326,10 +3446,8 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix210002 C-Win
-PROCEDURE ipDataFix210002:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix210003 C-Win
+PROCEDURE ipDataFix210003:
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -3337,20 +3455,32 @@ PROCEDURE ipDataFix210002:
     DEF VAR cOrigPropath AS CHAR NO-UNDO.
     DEF VAR cNewPropath AS CHAR NO-UNDO.
 
-    RUN ipStatus ("  Data Fix 210002...").
+    RUN ipStatus ("  Data Fix 210003...").
 
-    ASSIGN
-        cOrigPropath = PROPATH
-        cNewPropath  = cEnvDir + "\" + fiEnvironment:{&SV} + "\Programs," + PROPATH
-        PROPATH = cNewPropath.
-        
-    RUN util/ConversionGLTrans.p.
+    RUN ipConvertJcCtrl.
     
-    ASSIGN 
-        PROPATH = cOrigPropath.     
-
 END PROCEDURE.
-	
+    
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix210100 C-Win
+PROCEDURE ipDataFix210100:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEF VAR cOrigPropath AS CHAR NO-UNDO.
+    DEF VAR cNewPropath AS CHAR NO-UNDO.
+
+    RUN ipStatus ("  Data Fix 210100...").
+
+    RUN ipConvertGLTrans.
+    RUN ipFixForeignAccount.
+    RUN ipResetProbeMSF.
+    
+END PROCEDURE.
+    
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -3370,12 +3500,12 @@ PROCEDURE ipDataFix999999 :
     RUN ipLoadAPIConfigData.
     RUN ipLoadAPIData.
     RUN ipSetCueCards.
-/*    RUN ipDeleteAudit.*/
     RUN ipCleanTemplates.
     RUN ipLoadEstCostData.
     RUN ipChangeCostMethod.
     RUN ipSetDepartmentRequired.
     RUN ipAddDbmsFonts.
+    RUN ipDeleteAudit.
     
 END PROCEDURE.
 
@@ -3887,6 +4017,62 @@ PROCEDURE ipFixBlankOrdlShipIDs:
         IF AVAIL oe-ord THEN ASSIGN 
             oe-ordl.ship-id = oe-ord.ship-id.
     END.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipFixForeignAccount C-Win
+PROCEDURE ipFixForeignAccount:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEF VAR lIsInvalidAcct AS LOG NO-UNDO.
+    
+    RUN ipStatus ("    Validating currency foreign accounts").
+
+    DEF BUFFER bCurrency FOR currency.
+    
+    DISABLE TRIGGERS FOR LOAD OF currency.
+    DISABLE TRIGGERS FOR LOAD OF bcurrency.
+    
+    FOR EACH currency NO-LOCK:
+        FIND FIRST account NO-LOCK WHERE
+            account.company EQ currency.company AND  
+            account.actnum EQ currency.ar-ast-acct
+            NO-ERROR.
+        ASSIGN 
+            lIsInvalidAcct = IF (currency.ar-ast-acct EQ "")
+                             OR (NOT AVAIL account) 
+                             OR (AVAIL account AND account.inActive) THEN TRUE ELSE FALSE.
+        IF NOT lIsInvalidAcct THEN NEXT.
+        ELSE DO:
+            FIND FIRST ar-ctrl NO-LOCK WHERE 
+                ar-ctrl.company EQ currency.company 
+                NO-ERROR.
+            IF NOT AVAIL ar-ctrl THEN NEXT.
+            ELSE DO:
+                FIND FIRST account NO-LOCK WHERE
+                    account.company EQ currency.company AND  
+                    account.actnum EQ ar-ctrl.onac
+                    NO-ERROR.
+                IF AVAIL account 
+                AND NOT account.inActive THEN DO:
+                    FIND bcurrency EXCLUSIVE WHERE 
+                        ROWID(bcurrency) EQ ROWID(currency)
+                        NO-ERROR.
+                    ASSIGN 
+                       bCurrency.ar-ast-acct = account.actnum.
+                    RELEASE bcurrency.
+                END. 
+            END.
+        END.
+    END.            
 
 END PROCEDURE.
 	
@@ -6212,6 +6398,41 @@ PROCEDURE ipResetCostGroups:
     ASSIGN 
         PROPATH = cOrigPropath.     
 
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipResetProbeMSF C-Win
+PROCEDURE ipResetProbeMSF:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:     Ticket 98252
+------------------------------------------------------------------------------*/
+    RUN ipStatus ("    Resetting zero quantity probe MSF values").
+
+    DISABLE TRIGGERS FOR LOAD OF probe.
+    
+    /* at least give it a shot at using indexing */
+    FOR EACH company NO-LOCK,
+        EACH loc OF company NO-LOCK:
+        FOR EACH eb NO-LOCK WHERE 
+            eb.company EQ company.company AND
+            eb.loc EQ loc.loc AND  
+            eb.est-type GE 5 USE-INDEX etype,
+            EACH probe EXCLUSIVE WHERE 
+                probe.company EQ eb.company AND 
+                probe.est-no EQ eb.est-no AND 
+                probe.probe-date NE ? AND 
+                probe.gshQtyInSF EQ 0:
+            ASSIGN 
+                probe.gshQtyInSF = probe.tot-lbs.
+        END.
+    END. 
 
 END PROCEDURE.
 	

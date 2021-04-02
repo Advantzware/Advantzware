@@ -948,7 +948,7 @@ DO:
 
    IF AVAIL ITEM THEN do:
       RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostSourceFrom = "MF"' ).
-      RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostEst# = ' + est.est-no).
+      RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostEst# = ' + QUOTER(est.est-no)).
       RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCost = ' + item.i-no).          
       RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostType = "RM" ' ).      
       /*RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostVendor = ' + item.vend-no).*/

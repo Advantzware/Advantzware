@@ -99,7 +99,54 @@ FOR EACH ttInputEst NO-LOCK BREAK BY ttInputEst.iFormNo
             END.
         END.        
         lCalcLayoutDim = NO.
-    END.  /* cSetType EQ "MoldEstSingle"*/   
+    END.  /* cSetType EQ "MoldEstSingle"*/ 
+    ELSE IF ttInputEst.cSetType EQ "FoldSingle" THEN
+    DO:  
+        IF FIRST(ttInputEst.iFormNo) THEN DO:
+        RUN est/NewEstimate.p ('F', 1,OUTPUT opriEb).                                
+        END.
+        ELSE DO:                
+            IF FIRST-OF(ttInputEst.iFormNo) THEN DO:
+              FIND eb WHERE ROWID(eb) EQ opriEb NO-LOCK NO-ERROR.
+              FIND FIRST ef OF eb NO-LOCK NO-ERROR.
+              FIND FIRST est OF ef NO-LOCK NO-ERROR.
+                          
+               RUN est/NewEstimateForm.p ('F', ROWID(est), OUTPUT opriEb).
+                    
+            END.
+            ELSE IF FIRST-OF(ttInputEst.iBlankNo) THEN DO:
+              FIND eb WHERE ROWID(eb) EQ opriEb NO-LOCK NO-ERROR.
+              FIND FIRST ef OF eb NO-LOCK NO-ERROR.
+         
+                RUN cec/newblank.p (ROWID(ef), OUTPUT opriEb).
+                    
+            END.
+        END.        
+        
+    END.  /* cSetType EQ "FoldSingle"*/
+    ELSE IF ttInputEst.cSetType EQ "FoldSet" THEN
+    DO:  
+        IF FIRST(ttInputEst.iFormNo) THEN DO:
+        RUN est/NewEstimate.p ('F', 2,OUTPUT opriEb).                                
+        END.
+        ELSE DO:                
+            IF FIRST-OF(ttInputEst.iFormNo) THEN DO:
+              FIND eb WHERE ROWID(eb) EQ opriEb NO-LOCK NO-ERROR.
+              FIND FIRST ef OF eb NO-LOCK NO-ERROR.
+              FIND FIRST est OF ef NO-LOCK NO-ERROR.
+                          
+               RUN est/NewEstimateForm.p ('F', ROWID(est), OUTPUT opriEb).
+                    
+            END.
+            ELSE IF FIRST-OF(ttInputEst.iBlankNo) THEN DO:
+              FIND eb WHERE ROWID(eb) EQ opriEb NO-LOCK NO-ERROR.
+              FIND FIRST ef OF eb NO-LOCK NO-ERROR.
+         
+                RUN cec/newblank.p (ROWID(ef), OUTPUT opriEb).
+                    
+            END.
+        END.        
+    END.  /* cSetType EQ "FoldSet"*/ 
        
     FIND eb 
         WHERE ROWID(eb) EQ opriEb  
@@ -161,6 +208,7 @@ FOR EACH ttInputEst NO-LOCK BREAK BY ttInputEst.iFormNo
         ef.blank-qty    = 1
         ef.trim-w       = ttInputEst.dWidthDie
         ef.trim-l       = ttInputEst.dLengthDie
+        ef.cal          = ttInputEst.dCaliper
         eb.stock-no     = ttInputEst.cStockNo
         eb.cas-cnt      = ttInputEst.iUnitCount
         eb.cas-pal      = ttInputEst.iPerPallet
@@ -363,6 +411,8 @@ FOR EACH ttInputEst NO-LOCK BREAK BY ttInputEst.iFormNo
             eb.flute = item.flute
             eb.test  = item.reg-no
             .
+    IF ttInputEst.dCaliper NE 0 THEN ef.cal = ttInputEst.dCaliper.
+    
     RUN est/CalcLayout.p (ipcIndustry,
         ROWID(ef),
         ROWID(eb),
@@ -385,7 +435,9 @@ FOR EACH ttInputEst NO-LOCK BREAK BY ttInputEst.iFormNo
             ef.fr-uom          = ttInputEst.cForceFrtUom
             ef.adder[7]        = ttInputEst.cAddersDscr1
             ef.adder[8]        = ttInputEst.cAddersDscr2
-            ef.adder[9]        = ttInputEst.cAddersDscr3.
+            ef.adder[9]        = ttInputEst.cAddersDscr3
+            ef.nc              = YES
+            .
              
       FIND FIRST xeb WHERE ROWID(xeb) EQ ROWID(eb) NO-LOCK NO-ERROR.
       FIND FIRST xest WHERE ROWID(xest) EQ ROWID(est) NO-LOCK NO-ERROR.
@@ -418,8 +470,8 @@ FOR EACH ttInputEst NO-LOCK BREAK BY ttInputEst.iFormNo
       ASSIGN
          est.estimateTypeID = "WOOD" .
          
-    END. 
-    IF ttInputEst.cEstType EQ "MoldTandem" THEN
+    END.     
+    ELSE IF ttInputEst.cEstType EQ "MoldTandem" THEN
     DO: 
        IF ttInputEst.iQuantityYield GT 0 THEN 
          eb.bl-qty      = ttInputEst.iQuantityYield.
@@ -428,6 +480,28 @@ FOR EACH ttInputEst NO-LOCK BREAK BY ttInputEst.iFormNo
             eb.num-up      = ttInputEst.iMolds
             .   
     END.
+    ELSE IF ttInputEst.cEstType EQ "SingleMold" THEN DO:
+      
+      IF ttInputEst.cSetType EQ "FoldSingle" THEN
+      ASSIGN
+         eb.bl-qty      = ttInputEst.iQuantity
+         eb.cust-%      = 1.
+      
+      ASSIGN
+         est.estimateTypeID = "SingleMold" .
+         
+    END.
+    ELSE IF ttInputEst.cEstType EQ "MoldSetEstimate" THEN DO:
+      IF ttInputEst.cSetType EQ "FoldSet" THEN 
+      ASSIGN
+         eb.bl-qty      = ttInputEst.iQuantity
+         eb.yld-qty     = ttInputEst.iQuantity
+         eb.cust-%      = ttInputEst.dQtyPerSet.
+         
+      ASSIGN
+         est.estimateTypeID = "SetMold" .           
+    END.
+    
        
     RUN est/BuildDefaultPreps.p (BUFFER est,
         BUFFER ef,

@@ -79,6 +79,7 @@ DEFINE {1} SHARED TEMP-TABLE ttInputEst
     FIELD cFgEstNo AS CHARACTER /* Optional*/
     FIELD lKeyItem AS LOGICAL /* Optional*/
     FIELD quantityToOrderSuggested AS DECIMAL /* Optional*/
+    FIELD dCaliper AS DECIMAL /* Optional*/
     .
 
 

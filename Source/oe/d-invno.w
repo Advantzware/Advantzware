@@ -163,7 +163,7 @@ DO:
    DEF VAR char-val AS cha NO-UNDO.
    DEF VAR rec-val AS RECID NO-UNDO.
   
-   RUN windows/l-arinv.w (g_company,"",begin_inv-no:SCREEN-VALUE,OUTPUT char-val,OUTPUT rec-val).
+   RUN windows/l-ARLookUp.w (g_company,"",begin_inv-no:SCREEN-VALUE,OUTPUT char-val,OUTPUT rec-val).
    IF char-val <> "" THEN
       ASSIGN begin_inv-no:SCREEN-VALUE = ENTRY(1,char-val).
 
@@ -296,6 +296,21 @@ PROCEDURE valid-inv-no :
         APPLY "entry" TO begin_inv-no.
         RETURN ERROR.
       END.
+      
+      
+      IF INDEX(ip-tital,"Credit") <> 0  OR INDEX(ip-tital,"Rebill") <> 0 THEN
+      DO:
+          IF ar-inv.due EQ 0 THEN
+          DO:
+           MESSAGE "Already paid, the invoice cannot be credited" VIEW-AS ALERT-BOX ERROR.           
+            APPLY "entry" TO begin_inv-no.
+            RETURN ERROR.    
+          END.    
+      END.
+      
+      
+      
+      
     
   END.
 

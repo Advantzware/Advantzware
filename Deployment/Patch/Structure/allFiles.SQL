@@ -456,4 +456,8 @@ grant select on pub."arClass" to public ;
 grant select on pub."dateRules" to public ;
 grant select on pub."userColumn" to public ;
 grant select on pub."userWindow" to public ;
+grant select on pub."materialType" to public ;
+grant select on pub."POReceiptLink" to public ;
+grant select on pub."customerPart" to public ;
+grant select on pub."customerIndustry" to public ;
 COMMIT;

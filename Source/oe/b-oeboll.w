@@ -68,6 +68,7 @@ DEF VAR li-cost AS DEC NO-UNDO.
 DEF VAR lv-relase AS CHAR NO-UNDO.
 DEF VAR lr-rel-lib AS HANDLE NO-UNDO.
 DEFINE VARIABLE cFreightCalculationValue AS CHARACTER NO-UNDO.
+DEFINE VARIABLE dTotFreight AS DECIMAL NO-UNDO.
 DEFINE VARIABLE cRtnChar AS CHAR NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE glPOModified AS LOG NO-UNDO.
@@ -1823,9 +1824,10 @@ DEF VAR iLastBolLine AS INT NO-UNDO.
       AND (v-freight EQ oe-boll.freight)
       AND (cFreightCalculationValue EQ "ALL" OR cFreightCalculationValue EQ "Bol Processing") THEN DO:
     
-      RUN oe/calcBolFrt.p (INPUT ROWID(oe-bolh), OUTPUT dFreight).
+      RUN oe/calcBolFrt.p (INPUT ROWID(oe-bolh), YES, OUTPUT dFreight).
     END.
     ELSE DO:
+         RUN oe/calcBolFrt.p (INPUT ROWID(oe-bolh), NO, OUTPUT dFreight).
          IF AVAIL(b-oe-bolh) THEN
            dFreight = b-oe-bolh.freight.
          ELSE
@@ -2208,9 +2210,9 @@ PROCEDURE local-enable-fields :
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"Container-source",OUTPUT char-hdl).
   RUN make-buttons-insensitive IN WIDGET-HANDLE(char-hdl).
 
-  DO li-cnt = 1 TO {&BROWSE-NAME}:NUM-COLUMNS IN FRAME {&FRAME-NAME}:
-    APPLY "cursor-left" TO {&BROWSE-NAME} IN FRAME {&FRAME-NAME}.
-  END.
+/*  DO li-cnt = 1 TO {&BROWSE-NAME}:NUM-COLUMNS IN FRAME {&FRAME-NAME}:*/
+/*    APPLY "cursor-left" TO {&BROWSE-NAME} IN FRAME {&FRAME-NAME}.    */
+/*  END.                                                               */
   
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable-fields':U ) .
@@ -2651,8 +2653,11 @@ DEF BUFFER bf-oe-boll FOR oe-boll.
             oe-bolh.tot-pallets = oe-bolh.tot-pallets + bf-oe-boll.tot-pallets.
    END. /* each oe-boll */
    IF (cFreightCalculationValue EQ "ALL" OR cFreightCalculationValue EQ "Bol Processing") THEN DO:
-       RUN oe/calcBolFrt.p (INPUT ROWID(oe-bolh), OUTPUT dTotFreight).   
+       RUN oe/calcBolFrt.p (INPUT ROWID(oe-bolh), YES, OUTPUT dTotFreight).   
        oe-bolh.freight = dTotFreight.
+   END.
+   ELSE DO:
+       RUN oe/calcBolFrt.p (INPUT ROWID(oe-bolh), NO, OUTPUT dTotFreight). 
    END.
    FIND CURRENT oe-bolh NO-LOCK.
    opdFreight = dTotFreight.
@@ -2882,7 +2887,7 @@ DEF BUFFER bf-boll FOR oe-boll.
    RUN redisplay-header.
    RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source",OUTPUT char-hdl).
 
-   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN DO:
+   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) AND (cFreightCalculationValue EQ "ALL" OR cFreightCalculationValue EQ "Bol Processing") THEN DO:
   
        RUN calc-freight-header IN WIDGET-HANDLE(char-hdl) (INPUT dTotFreight).
        RUN dispatch IN WIDGET-HANDLE(char-hdl) ('display-fields').

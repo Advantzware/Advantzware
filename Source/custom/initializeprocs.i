@@ -283,8 +283,10 @@ PROCEDURE afterinitialize:
     // set the window size to last captured size
     RUN setCapturedWindowSize.
     // if window size have been changed the apply window resize trigger to repositioned or resize objects
-    IF  deOrigWinWidth NE  {&WINDOW-NAME}:WIDTH OR
-    deOrigWinHeight NE {&WINDOW-NAME}:HEIGHT
+    
+    IF  VALID-HANDLE({&WINDOW-NAME}) AND 
+        (deOrigWinWidth NE  {&WINDOW-NAME}:WIDTH OR
+        deOrigWinHeight NE {&WINDOW-NAME}:HEIGHT)
     THEN
     APPLY "WINDOW-RESIZED" TO {&WINDOW-NAME}. 
     
@@ -335,15 +337,19 @@ PROCEDURE setCapturedWindowSize:
                 {&WINDOW-NAME}:HEIGHT-PIXELS = {&WINDOW-NAME}:HEIGHT-PIXELS - (userWindow.sessionHeight - SESSION:HEIGHT-PIXELS)
                     NO-ERROR . 
            
-        IF deOrigWinWidth > {&WINDOW-NAME}:WIDTH THEN
-            {&WINDOW-NAME}:WIDTH = deOrigWinWidth.
-        IF deOrigWinHeight > {&WINDOW-NAME}:HEIGHT THEN
-            {&WINDOW-NAME}:HEIGHT = deOrigWinHeight. 
+        IF VALID-HANDLE({&WINDOW-NAME}) AND 
+            deOrigWinWidth > {&WINDOW-NAME}:WIDTH THEN
+            ASSIGN 
+            {&WINDOW-NAME}:WIDTH = deOrigWinWidth NO-ERROR.
+        IF  VALID-HANDLE({&WINDOW-NAME}) AND 
+            deOrigWinHeight > {&WINDOW-NAME}:HEIGHT THEN
+            ASSIGN 
+            {&WINDOW-NAME}:HEIGHT = deOrigWinHeight NO-ERROR. 
             
         ASSIGN                 
             {&WINDOW-NAME}:VIRTUAL-HEIGHT-PIXELS = {&WINDOW-NAME}:HEIGHT-PIXELS
             {&WINDOW-NAME}:VIRTUAL-WIDTH-PIXELS  = {&WINDOW-NAME}:WIDTH-PIXELS 
-            {&window-name}:window-state          = userWindow.state
+            {&window-name}:window-state          = IF userWindow.state = 0 THEN 3 ELSE userWindow.state
               NO-ERROR 
             . 
             
@@ -393,8 +399,10 @@ VIEW-AS ALERT-BOX.
        {&WINDOW-NAME}:Y > (SESSION:WORK-AREA-HEIGHT-PIXELS - {&WINDOW-NAME}:HEIGHT-PIXELS)
         THEN
         ASSIGN  {&WINDOW-NAME}:X = (SESSION:WORK-AREA-WIDTH-PIXELS - {&WINDOW-NAME}:WIDTH-PIXELS) / 2
-                {&WINDOW-NAME}:Y = (SESSION:WORK-AREA-HEIGHT-PIXELS - {&WINDOW-NAME}:HEIGHT-PIXELS) / 2.
-    
-    {&WINDOW-NAME}:WIDTH         = deOrigWinWidth.
-    {&WINDOW-NAME}:HEIGHT        = deOrigWinHeight.
+                {&WINDOW-NAME}:Y = (SESSION:WORK-AREA-HEIGHT-PIXELS - {&WINDOW-NAME}:HEIGHT-PIXELS) / 2
+                NO-ERROR.
+    ASSIGN
+    {&WINDOW-NAME}:WIDTH         = deOrigWinWidth
+    {&WINDOW-NAME}:HEIGHT        = deOrigWinHeight
+    NO-ERROR.
 END PROCEDURE.

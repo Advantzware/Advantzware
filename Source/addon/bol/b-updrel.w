@@ -174,6 +174,7 @@ DEFINE VARIABLE lPickTicketValidation AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lsecurityTag AS LOGICAL NO-UNDO.
 DEFINE VARIABLE dRoundup AS DECIMAL NO-UNDO .
 DEFINE VARIABLE cFreightCalculationValue AS CHARACTER NO-UNDO.
+DEFINE VARIABLE dTotFreight AS DECIMAL NO-UNDO.
 DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lCheckTagHoldMessage AS LOGICAL NO-UNDO.
 DEFINE VARIABLE hInventoryProcs AS HANDLE NO-UNDO.
@@ -3269,8 +3270,7 @@ PROCEDURE update-bol :
   DEF VAR li AS INT NO-UNDO.
   DEF VAR lv-weight LIKE oe-boll.weight NO-UNDO.
   DEF VAR lv-freight LIKE oe-boll.freight NO-UNDO.
-  DEF VAR dTotFreight AS DEC NO-UNDO.
-
+  
   FOR EACH tt-boll USE-INDEX tt-boll,
 
       FIRST tt-rell
@@ -3369,8 +3369,11 @@ PROCEDURE update-bol :
         
       FIND CURRENT oe-bolh.
       IF cFreightCalculationValue EQ "ALL" OR cFreightCalculationValue EQ "Bol Processing" THEN do:
-          RUN oe/calcBolFrt.p (ROWID(oe-bolh), OUTPUT dTotFreight).
+          RUN oe/calcBolFrt.p (ROWID(oe-bolh), YES, OUTPUT dTotFreight).
           oe-bolh.freight = dTotFreight.
+      END.
+      ELSE DO:
+          RUN oe/calcBolFrt.p (ROWID(oe-bolh), NO, OUTPUT dTotFreight).
       END.
       
       ASSIGN

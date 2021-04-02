@@ -277,7 +277,6 @@ oplcResponseData = glcResponseData.
 /* Read Response  */
 RUN pReadResponse (
     INPUT  glcResponseData,
-    INPUT  gcResponseDataType,
     OUTPUT oplSuccess,
     OUTPUT opcMessage
     ).
@@ -292,58 +291,31 @@ PROCEDURE pReadResponse PRIVATE:
     Notes:
     ------------------------------------------------------------------------------*/
     
-    DEFINE INPUT  PARAMETER iplcResponseData    AS LONGCHAR  NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcReponseDataType  AS CHARACTER  NO-UNDO.
-    DEFINE OUTPUT PARAMETER oplSuccess          AS LOGICAL   NO-UNDO.
-    DEFINE OUTPUT PARAMETER opcMessage          AS CHARACTER NO-UNDO.
-
-    DEFINE VARIABLE cSourceType AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cReadMode   AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE lRetValue   AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE hdttJSON    AS HANDLE    NO-UNDO.
-
-    CASE ipcReponseDataType:
-        WHEN "JSON" THEN DO:
-            /* JSON processing goes here */
-            CREATE TEMP-TABLE hdttJSON.
-                
-            ASSIGN
-                cSourceType = "longchar"
-                cReadMode   = "empty"
-                oplSuccess  = NO
-                opcMessage  = "Could not get any response"
-                .
+    DEFINE INPUT  PARAMETER iplcResponseData AS LONGCHAR  NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplSuccess       AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage       AS CHARACTER NO-UNDO.
             
-            IF iplcResponseData EQ "" THEN
-                RETURN.
+    IF iplcResponseData EQ "" THEN DO:
+        ASSIGN
+            oplSuccess  = NO
+            opcMessage  = "Could not get any response"
+            .
 
-            RUN VALUE(gcResponseHandler) (
-                INPUT  iplcResponseData,
-                OUTPUT oplSuccess,
-                OUTPUT opcMessage
-                ).  
-
-        END.
-        WHEN "XML" THEN DO:
-            /* XML processing goes here */
-            RUN VALUE(gcResponseHandler) (
-                INPUT  iplcResponseData,
-                OUTPUT oplSuccess,
-                OUTPUT opcMessage
-                ).  
-        END.
-        OTHERWISE DO:
-            ASSIGN 
-                opcMessage = "Invalid Response Data Type [ " 
-                           + ipcReponseDataType 
-                           + " ] found in config in APIOutbound table for APIID [ " 
-                           + gcAPIID  + " ]".
-                oplSuccess = NO
-		  .
-        END.
+        RETURN.
     END.
 
-    IF VALID-HANDLE(hdttJSON) THEN
-        DELETE OBJECT hdttJSON.
+    IF gcResponseHandler EQ "" THEN DO:
+        ASSIGN
+            oplSuccess  = NO
+            opcMessage  = "No response handler available in the API configuration"
+            .
 
+        RETURN.    
+    END.
+    
+    RUN VALUE(gcResponseHandler) (
+        INPUT  iplcResponseData,
+        OUTPUT oplSuccess,
+        OUTPUT opcMessage
+        ).
 END PROCEDURE.

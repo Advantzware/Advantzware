@@ -526,6 +526,7 @@ PROCEDURE adm-create-objects :
 
        /* Links to SmartViewer h_v-navest. */
        RUN add-link IN adm-broker-hdl ( h_b-estq , 'nav-itm':U , h_v-navest ).
+       RUN add-link IN adm-broker-hdl (h_p-fest1, 'upd-viewtab-eb':U , h_b-estitm ).
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_b-estitm ,
@@ -1360,7 +1361,7 @@ PROCEDURE local-change-page :
       RUN get-eb-rowid IN h_b-estitm (OUTPUT opEbRowID).
       FIND bf-eb NO-LOCK WHERE rowid(bf-eb) = opEbRowID NO-ERROR.
       RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostSourceFrom = "Est"' ).   
-      RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostEst# = ' + est.est-no).
+      RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostEst# = ' + QUOTER(est.est-no)).
       RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCost = ' + (IF AVAIL bf-eb THEN bf-eb.stock-no ELSE "") ).         
       RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostType = "FG" ' ).       
       /*      RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostVendor = ' + item.vend-no).*/

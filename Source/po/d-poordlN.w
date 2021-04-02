@@ -853,7 +853,7 @@ DO:
             RUN system/openLookup.p (
                 INPUT  g_company, 
                 INPUT  "",  /* Lookup ID */
-                INPUT  87,  /* Subject ID */
+                INPUT  107,  /* Subject ID */
                 INPUT  "",  /* User ID */
                 INPUT  0,   /* Param Value ID */
                 OUTPUT cFieldsValue, 
@@ -1629,33 +1629,8 @@ DO:
                             RUN getJobFarmInfo.
                     END. /* If a finished good */
 
-                END.
-
-                /* populate GL# from job-hdr.i-no + itemfg tables, then reftable AH 02-24-10 */
-                IF po-ordl.item-type:SCREEN-VALUE = "rm" THEN 
-                DO:
-                    ASSIGN 
-                        v-actnum = "".
-                    FIND FIRST b-job-hdr WHERE 
-                        b-job-hdr.company EQ g_company AND
-                        b-job-hdr.job-no  EQ po-ordl.job-no:SCREEN-VALUE AND
-                        b-job-hdr.job-no2 EQ INT(po-ordl.job-no2:SCREEN-VALUE)  AND
-                        b-job-hdr.frm     EQ INT(po-ordl.s-num:SCREEN-VALUE) NO-LOCK NO-ERROR.
-                    IF AVAILABLE b-job-hdr THEN
-                        RUN get-itemfg-gl (INPUT b-job-hdr.company, b-job-hdr.i-no, OUTPUT v-actnum).
-                    IF v-actnum <> "" THEN 
-                    DO:
-                        ASSIGN 
-                            po-ordl.actnum:SCREEN-VALUE = v-actnum.
-                        FIND FIRST account NO-LOCK
-                            WHERE account.company EQ g_company
-                            AND account.actnum   EQ v-actnum NO-ERROR.
-                        v-gl-desc:SCREEN-VALUE = IF AVAILABLE account THEN account.dscr ELSE ''.
-                    END.
-        
-                    RELEASE b-job-hdr.
-                END.
-                
+                END.  
+                                
                 cFirstMach = "" .
                 RUN GetFirstMach(OUTPUT cFirstMach) .
                 ASSIGN cFirstMach:SCREEN-VALUE = cFirstMach . 
@@ -1705,32 +1680,8 @@ DO:
             DO:
 
                 /* populate GL# from job-hdr.i-no + itemfg tables, then reftable AH 02-24-10 */
-                IF po-ordl.item-type:SCREEN-VALUE = "rm" THEN 
-                DO:
-                    ASSIGN 
-                        v-actnum = "".
-                    FIND FIRST b-job-hdr WHERE 
-                        b-job-hdr.company EQ g_company AND
-                        b-job-hdr.job-no  EQ po-ordl.job-no:SCREEN-VALUE AND
-                        b-job-hdr.job-no2 EQ INT(po-ordl.job-no2:SCREEN-VALUE)  AND
-                        b-job-hdr.frm     EQ INT(po-ordl.s-num:SCREEN-VALUE) NO-LOCK NO-ERROR.
-                    IF AVAILABLE b-job-hdr THEN
-                        RUN get-itemfg-gl (INPUT b-job-hdr.company, b-job-hdr.i-no, OUTPUT v-actnum).
-                    IF v-actnum <> "" THEN 
-                    DO:
-                        ASSIGN 
-                            po-ordl.actnum:SCREEN-VALUE = v-actnum.
-                        FIND FIRST account NO-LOCK
-                            WHERE account.company EQ g_company
-                            AND account.actnum   EQ v-actnum NO-ERROR.
-                        v-gl-desc:SCREEN-VALUE = IF AVAILABLE account THEN account.dscr ELSE ''.
-                    END.
-        
-                    RELEASE b-job-hdr.
-                END.
-                ELSE 
-                DO: 
-    
+                IF po-ordl.item-type:SCREEN-VALUE = "FG" THEN 
+                DO:                      
                     FIND FIRST itemfg WHERE itemfg.company EQ po-ordl.company
                         AND itemfg.i-no EQ po-ordl.i-no:SCREEN-VALUE
                         NO-LOCK NO-ERROR.
@@ -2063,31 +2014,8 @@ DO:
             DO:
 
                 /* populate GL# from job-hdr.i-no + itemfg tables, then reftable AH 02-24-10 */
-                IF po-ordl.item-type:SCREEN-VALUE = "rm" THEN 
-                DO:
-                    ASSIGN 
-                        v-actnum = "".
-                    FIND FIRST b-job-hdr NO-LOCK WHERE 
-                        b-job-hdr.company EQ g_company AND
-                        b-job-hdr.job-no  EQ po-ordl.job-no:SCREEN-VALUE AND
-                        b-job-hdr.job-no2 EQ INT(po-ordl.job-no2:SCREEN-VALUE)  AND
-                        b-job-hdr.frm     EQ INT(po-ordl.s-num:SCREEN-VALUE) NO-ERROR.
-                    IF AVAILABLE b-job-hdr THEN
-                        RUN get-itemfg-gl (INPUT b-job-hdr.company, b-job-hdr.i-no, OUTPUT v-actnum).
-                    IF v-actnum <> "" THEN 
-                    DO:
-                        ASSIGN 
-                            po-ordl.actnum:SCREEN-VALUE = v-actnum.
-                        FIND FIRST account NO-LOCK
-                            WHERE account.company EQ g_company
-                            AND account.actnum   EQ v-actnum NO-ERROR.
-                        v-gl-desc:SCREEN-VALUE = IF AVAILABLE account THEN account.dscr ELSE ''.
-                    END.
-        
-                    RELEASE b-job-hdr.
-                END.
-                ELSE 
-                DO:
+                IF po-ordl.item-type:SCREEN-VALUE = "FG" THEN 
+                DO:                 
                     FIND FIRST itemfg WHERE itemfg.company EQ g_company
                         AND itemfg.i-no EQ po-ordl.i-no:SCREEN-VALUE
                         NO-LOCK NO-ERROR.
@@ -2695,7 +2623,8 @@ PROCEDURE create-item :
             po-ordl.due-date  = po-ord.due-date
             po-ordl.over-pct  = po-ord.over-pct
             po-ordl.under-pct = po-ord.under-pct
-            po-ordl.vend-no   = po-ord.vend-no.
+            po-ordl.vend-no   = po-ord.vend-no
+            po-ordl.cust-no   = po-ord.cust-no.
 
         IF AVAILABLE bf-itemfg 
             THEN
@@ -3859,12 +3788,12 @@ PROCEDURE display-rmitem :
             v-po-wid-frac:SCREEN-VALUE IN FRAME {&FRAME-NAME} = v-wid-frac
             v-po-len-frac:SCREEN-VALUE IN FRAME {&FRAME-NAME} = v-len-frac
             v-po-dep-frac:SCREEN-VALUE IN FRAME {&FRAME-NAME} = v-dep-frac.
-  
+     
         FIND FIRST costtype NO-LOCK
             WHERE costtype.company   EQ cocode
-            AND costtype.loc       EQ po-ord.loc
+            AND costtype.loc       EQ locode
             AND costtype.cost-type EQ item.cost-type
-            NO-ERROR.
+            NO-ERROR.  
         IF AVAILABLE costtype AND v-default-gl-log THEN
             po-ordl.actnum:SCREEN-VALUE =
                 IF v-default-gl-cha EQ "Asset"   THEN costtype.inv-asset

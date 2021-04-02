@@ -25,18 +25,29 @@ CREATE WIDGET-POOL.
 /* ***************************  Definitions  ************************** */
 {methods/prgsecur.i}
 {methods/template/brwcustomdef.i}
-/* Parameters Definitions ---                                           */
-DEF INPUT PARAM ip-ap-recid AS RECID.
 
-/* Local Variable Definitions ---                                       */
-DEF VAR lv-i AS INT NO-UNDO.
-
-DEF SHARED TEMP-TABLE tt-pol FIELD selekt AS LOG LABEL "Selected"
+DEF TEMP-TABLE tt-pol FIELD selekt AS LOG LABEL "Selected"
                       FIELD rec-id AS RECID                      
                       FIELD qty-inv AS LOG
                       FIELD amt-inv AS LOG
                       FIELD qty-to-inv LIKE ap-invl.qty
-                      FIELD qty-to-inv-uom AS CHAR.
+                      FIELD qty-to-inv-uom AS CHAR
+                      .
+
+DEFINE TEMP-TABLE ttInventoryStock NO-UNDO
+    FIELD ttPOLRowID AS ROWID
+    FIELD quantity AS DECIMAL
+    FIELD inventoryStockRecKey AS CHARACTER
+    .
+    
+/* Parameters Definitions ---                                           */
+DEF INPUT PARAM ip-ap-recid AS RECID.
+DEFINE INPUT-OUTPUT PARAMETER TABLE FOR tt-pol.
+DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttInventoryStock.
+ 
+/* Local Variable Definitions ---                                       */
+DEF VAR lv-i AS INT NO-UNDO.
+
 
 DEF TEMP-TABLE tt-rec NO-UNDO
     FIELD selekt AS LOG FORMAT "yes/no" LABEL "Selected"
@@ -49,7 +60,8 @@ DEF TEMP-TABLE tt-rec NO-UNDO
     FIELD qty-inv AS DEC FORM "->>>,>>>,>>9.9<<"  LABEL "Qty To Invoice"
     FIELD qty-inv-uom AS CHAR
     FIELD s-len LIKE po-ordl.s-len
-    FIELD row-id AS ROWID.
+    FIELD row-id AS ROWID
+    .
 
 /* {custom/globdefs.i} */
 {sys/inc/VAR.i "new shared" }
@@ -58,6 +70,11 @@ ASSIGN cocode = g_company
 
 DEF VAR lv-num-rec AS INT NO-UNDO.
 DEFINE VARIABLE lReTrigger AS LOGICAL NO-UNDO INITIAL FALSE.
+
+DEFINE VARIABLE hdAPInvoiceProcs  AS HANDLE  NO-UNDO.
+DEFINE VARIABLE dQuantityInvoiced AS DECIMAL NO-UNDO.
+
+RUN ap/APInvoiceProcs.p PERSISTENT SET hdAPInvoiceProcs.
 
 DO TRANSACTION:
   {sys/inc/appaper.i}
@@ -274,37 +291,47 @@ DO:
 
       ELSE
       FOR FIRST rm-rcpth WHERE RECID(rm-rcpth) EQ tt-rec.rec-id NO-LOCK,
-          EACH rm-rdtlh
+          EACH rm-rdtlh NO-LOCK
           WHERE rm-rdtlh.r-no      EQ rm-rcpth.r-no
             AND rm-rdtlh.rita-code EQ rm-rcpth.rita-code:
-          
-        IF tt-rec.selekt THEN
-          ASSIGN
-           rm-rdtlh.receiver-no = (STRING(ap-inv.i-no,"9999999999") +
-                                   STRING(tt-rec.qty-inv,"-9999999999.99999"))
-           tt-pol.qty-to-inv    = tt-pol.qty-to-inv + tt-rec.qty-inv
-           tt-pol.qty-to-inv-uom = tt-rec.qty-inv-uom
-           tt-pol.selekt        = YES.
+                    
+        IF tt-rec.selekt THEN DO:
+            CREATE ttInventoryStock.
+            ASSIGN
+                ttInventoryStock.ttPOLRowID           = ROWID(tt-pol)
+                ttInventoryStock.inventoryStockRecKey = rm-rdtlh.rec_key
+                ttInventoryStock.quantity             = tt-rec.qty-inv
+                .
 
-        ELSE rm-rdtlh.receiver-no = "".
+            ASSIGN
+                tt-pol.qty-to-inv     = tt-pol.qty-to-inv + tt-rec.qty-inv
+                tt-pol.qty-to-inv-uom = tt-rec.qty-inv-uom
+                tt-pol.selekt         = YES
+                .
+        END.
       END.
     END.
 
     ELSE
     FOR EACH tt-rec WHERE tt-rec.row-id EQ ROWID(tt-pol),
         FIRST fg-rcpth WHERE RECID(fg-rcpth) EQ tt-rec.rec-id NO-LOCK,
-        EACH fg-rdtlh
+        EACH fg-rdtlh NO-LOCK
         WHERE fg-rdtlh.r-no      EQ fg-rcpth.r-no
           AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code:
           
-      IF tt-rec.selekt THEN
-        ASSIGN
-         fg-rdtlh.receiver-no = (STRING(ap-inv.i-no,"9999999999") +
-                                 STRING(tt-rec.qty-inv,"-9999999999.99999"))
-         tt-pol.qty-to-inv    = tt-pol.qty-to-inv + tt-rec.qty-inv
-         tt-pol.selekt        = YES.
-
-      ELSE fg-rdtlh.receiver-no = "".
+      IF tt-rec.selekt THEN DO:
+          CREATE ttInventoryStock.
+          ASSIGN
+              ttInventoryStock.ttPOLRowID           = ROWID(tt-pol)
+              ttInventoryStock.inventoryStockRecKey = fg-rdtlh.rec_key
+              ttInventoryStock.quantity             = tt-rec.qty-inv
+              .
+        
+          ASSIGN
+              tt-pol.qty-to-inv = tt-pol.qty-to-inv + tt-rec.qty-inv
+              tt-pol.selekt     = YES
+              .
+      END.      
     END.
   END.
 
@@ -467,6 +494,8 @@ DEF VAR v-pur-qty AS DEC NO-UNDO.
 DEFINE VARIABLE cMatExceptionList AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lFound AS LOGICAL NO-UNDO.
 
+DEFINE VARIABLE lError   AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
 
 DEF BUFFER b-ap-invl FOR ap-invl.
 
@@ -577,6 +606,15 @@ FOR EACH tt-pol,
 /*                                             AND b-ap-invl.line  EQ (po-ordl.po-no * 1000) + po-ordl.line)*/
         NO-LOCK:        
 
+      RUN APInvoice_GetReceiptHistoryQtyInvoiced IN hdAPInvoiceProcs (
+          INPUT  rm-rdtlh.rec_key,
+          OUTPUT dQuantityInvoiced
+          ).
+      IF rm-rdtlh.qty LT 0 AND dQuantityInvoiced LE rm-rdtlh.qty THEN
+          NEXT.
+      ELSE IF rm-rdtlh.qty GT 0 AND dQuantityInvoiced GE rm-rdtlh.qty THEN
+          NEXT.
+        
      lv-uom = po-ordl.pr-qty-uom.
 
      IF lv-uom EQ "ROLL" THEN
@@ -605,11 +643,28 @@ FOR EACH tt-pol,
                                     v-pur-qty, OUTPUT v-pur-qty).
       END.
 
-      IF rm-rcpth.pur-uom NE lv-uom THEN
+      IF rm-rcpth.pur-uom NE lv-uom THEN DO:
          RUN sys/ref/convquom.p (rm-rcpth.pur-uom, lv-uom,
                                  v-bwt, v-len, v-wid, v-dep,
                                  v-qty, OUTPUT v-qty).
-
+          
+         RUN Conv_QuantityFromUOMToUOM (
+             INPUT  po-ordl.company,
+             INPUT  po-ordl.i-no,
+             INPUT  "RM",
+             INPUT  dQuantityInvoiced,
+             INPUT  rm-rcpth.pur-uom, 
+             INPUT  lv-uom,
+             INPUT  0,  /* Item Basis Weight */
+             INPUT  v-len,
+             INPUT  v-wid,
+             INPUT  v-dep,
+             INPUT  0,
+             OUTPUT dQuantityInvoiced,
+             OUTPUT lError,
+             OUTPUT cMessage
+             ).
+      END.
       /* gdm - 05200908 end */  
       
       /*24963 - Prevent the re-use of the same receipt, multiple times*/
@@ -627,10 +682,7 @@ FOR EACH tt-pol,
                                               ELSE v-rec-qty
            tt-rec.qty-rec-uom = IF rd_qty EQ 1 THEN lv-uom
                                 ELSE rm-rcpth.pur-uom
-           tt-rec.qty-inv    =  IF tt-rec.selekt THEN
-                                   DEC(SUBSTR(rm-rdtlh.receiver-no,11,17))
-                                 ELSE 
-                                    v-qty
+           tt-rec.qty-inv    =  v-qty - dQuantityInvoiced
            tt-rec.qty-inv-uom = lv-uom
            /* gdm - 05200908 end */ 
            tt-rec.s-len      = v-len
@@ -650,9 +702,18 @@ FOR EACH tt-pol,
       EACH fg-rdtlh
       WHERE fg-rdtlh.r-no      EQ fg-rcpth.r-no
         AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code
-        AND NOT CAN-FIND(FIRST b-ap-invl WHERE b-ap-invl.i-no  EQ INT(SUBSTR(fg-rdtlh.receiver-no,1,10))
-                                           AND b-ap-invl.line  EQ (po-ordl.po-no * 1000) + po-ordl.line)
+        AND fg-rdtlh.receiver-no EQ ""
       NO-LOCK:
+    RUN APInvoice_GetReceiptHistoryQtyInvoiced IN hdAPInvoiceProcs (
+        INPUT  fg-rdtlh.rec_key,
+        OUTPUT dQuantityInvoiced
+        ).
+
+    IF fg-rdtlh.qty LT 0 AND dQuantityInvoiced LE fg-rdtlh.qty THEN
+        NEXT.
+    ELSE IF fg-rdtlh.qty GT 0 AND dQuantityInvoiced GE fg-rdtlh.qty THEN
+        NEXT.
+
     IF NOT CAN-FIND(FIRST tt-rec WHERE tt-rec.rec-id EQ RECID(fg-rcpth)) THEN DO:
         
         CREATE tt-rec.
@@ -664,8 +725,7 @@ FOR EACH tt-pol,
          tt-rec.rcpt-date = fg-rcpth.trans-date
          tt-rec.r-no       = fg-rcpth.r-no
          tt-rec.qty-rec    = fg-rdtlh.qty
-         tt-rec.qty-inv    = IF tt-rec.selekt THEN DEC(SUBSTR(fg-rdtlh.receiver-no,11,17))
-                                              ELSE fg-rdtlh.qty
+         tt-rec.qty-inv    = fg-rdtlh.qty - dQuantityInvoiced
          tt-rec.s-len      = IF po-ordl.pr-qty-uom EQ "ROLL" THEN 12 ELSE po-ordl.s-len
          tt-rec.row-id     = ROWID(tt-pol).
     END.
@@ -742,6 +802,29 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy D-Dialog
+PROCEDURE local-destroy:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    /* Code placed here will execute PRIOR to standard behavior. */
+    IF VALID-HANDLE(hdAPInvoiceProcs) THEN
+        DELETE PROCEDURE hdAPInvoiceProcs.
+            
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
+
+    /* Code placed here will execute AFTER standard behavior.    */
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-initialize D-Dialog 
 PROCEDURE local-initialize :

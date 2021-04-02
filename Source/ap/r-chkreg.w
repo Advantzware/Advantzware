@@ -163,6 +163,15 @@ DO TRANSACTION:
      iAPCheckFile = INTEGER(cRecValue) NO-ERROR.          
 END.
 
+DEFINE VARIABLE lAPInvoiceLength    AS LOGICAL          NO-UNDO.
+DEFINE VARIABLE cNK1Value           AS CHARACTER        NO-UNDO.
+
+RUN sys/ref/nk1look.p (INPUT cocode, "APInvoiceLength", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cNK1Value, OUTPUT lRecFound).
+IF lRecFound THEN
+    lAPInvoiceLength = logical(cNK1Value) NO-ERROR.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1691,7 +1700,7 @@ DEF VAR lv-check-no LIKE ap-chk.check-no NO-UNDO.
                         tran-period,
                         "A",
                         tran-date,
-                        string(ap-inv.inv-no),
+                        string(ap-sel.inv-no),
                         "AP").
 
      RUN GL_SpCreateGLHist(cocode,
@@ -1704,7 +1713,7 @@ DEF VAR lv-check-no LIKE ap-chk.check-no NO-UNDO.
                         tran-period,
                         "A",
                         tran-date,
-                        string(ap-inv.inv-no),
+                        string(ap-sel.inv-no),
                         "AP").
     END.
   END.
@@ -1914,7 +1923,7 @@ DEF VAR lv-check-no LIKE ap-chk.check-no NO-UNDO.
                         tran-period,
                         "A",
                         tran-date,
-                        string(ap-inv.inv-no),
+                        "",
                         "AP").
   
 
@@ -1929,7 +1938,7 @@ DEF VAR lv-check-no LIKE ap-chk.check-no NO-UNDO.
                         tran-period,
                         "A",
                         tran-date,
-                        string(ap-inv.inv-no),
+                        "",
                         "AP").
   END.
 /*END. */
@@ -1960,6 +1969,8 @@ PROCEDURE run-report :
     DEFINE VARIABLE lcResponseXML   AS LONGCHAR  NO-UNDO.
     DEFINE VARIABLE lcRequestData   AS LONGCHAR  NO-UNDO.
     DEFINE VARIABLE cNotesMessage   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cTempPath       AS CHARACTER NO-UNDO.  
+    DEFINE VARIABLE lCreated        AS CHARACTER NO-UNDO.
     
     RUN system/ftpProcs.p PERSISTENT SET hdFTPProcs.
     
@@ -2067,8 +2078,18 @@ FORMAT HEADER
        "Number   Number   Name       Check Date"
        "Date      Number                  Due      Taken" AT 55
        "Amt Paid   Date"       AT 110 SKIP
-       FILL("_",132) FORMAT "x(130)"      SKIP
-    WITH FRAME f-top WIDTH 132 NO-BOX NO-LABELS NO-UNDERLINE STREAM-IO.
+       FILL("_",132) FORMAT "x(140)"      SKIP
+    WITH FRAME f-top WIDTH 142 NO-BOX NO-LABELS NO-UNDERLINE STREAM-IO.
+    
+FORMAT HEADER
+       "Check    Vendor"
+       "Invoice                                           Discount" AT 55
+       "   Check   Pre-Issued" AT 120 SKIP
+       "Number   Number   Name       Check Date"
+       "Date      Number                            Due      Taken" AT 55
+       "Amt Paid   Date"       AT 120 SKIP
+       FILL("_",142) FORMAT "x(140)"      SKIP
+    WITH FRAME f-top3 WIDTH 142 NO-BOX NO-LABELS NO-UNDERLINE STREAM-IO.
 
 
 SESSION:SET-WAIT-STATE("general").
@@ -2107,7 +2128,15 @@ END.
 IF tb_APcheckFile THEN do:
    
     IF rd_print-apfile EQ "Text" THEN
+    DO:
+        cTempPath =  SUBSTRING(fi_CheckFile,1,R-INDEX(fi_CheckFile,"\") - 1) .
+        RUN FileSys_CreateDirectory(INPUT  cTempPath,
+                                    OUTPUT lCreated,
+                                    OUTPUT cMessage
+                                    ) NO-ERROR.
+        
         OUTPUT STREAM checkFile TO VALUE(fi_CheckFile).
+    END.    
     ELSE do:
        RUN sys/ref/ExcelNameExt.p (INPUT fi_CheckFile,OUTPUT cAPFileName) .
         OUTPUT STREAM ap-excel TO VALUE(cAPFileName).
@@ -2124,8 +2153,9 @@ END. /* gdm - 05210901 end */
   IF td-show-parm THEN RUN show-param.
 
   DISPLAY "" WITH FRAME r-top.
-  DISPLAY "" WITH FRAME f-top.
-
+  IF lAPInvoiceLength THEN DISPLAY "" WITH FRAME f-top3.
+                      ELSE DISPLAY "" WITH FRAME f-top.
+                      
   FOR EACH ap-sel NO-LOCK
       WHERE ap-sel.company      EQ cocode
         AND ap-sel.check-no     NE ?
@@ -2146,7 +2176,7 @@ END. /* gdm - 05210901 end */
     WHERE vend.company EQ ap-sel.company
       AND vend.vend-no EQ ap-sel.vend-no
 
-    BREAK BY ap-sel.check-no WITH STREAM-IO WIDTH 132 NO-BOX NO-ATTR-SPACE NO-LABELS:
+    BREAK BY ap-sel.check-no WITH STREAM-IO WIDTH 142 NO-BOX NO-ATTR-SPACE NO-LABELS:
 
   IF FIRST-OF(ap-sel.check-no) THEN v-fst-chk = YES.
   IF LAST-OF(ap-sel.check-no)  THEN V-lst-chk = YES.
@@ -2204,12 +2234,22 @@ END. /* gdm - 05210901 end */
 
   IF v-fst-chk THEN
   DO:
-    DISPLAY TRIM(STRING(ap-sel.check-no,">>>>>>>>")) FORMAT "x(8)"
-            vend.vend-no
-            vend.name
-            SPACE(6)
-        WITH FRAME a STREAM-IO.
-
+    IF lAPInvoiceLength THEN
+    DO:
+          DISPLAY TRIM(STRING(ap-sel.check-no,">>>>>>>>")) FORMAT "x(8)"
+                vend.vend-no
+                vend.name
+                SPACE(6)
+            WITH FRAME a STREAM-IO.
+    END.
+    ELSE DO:
+        DISPLAY TRIM(STRING(ap-sel.check-no,">>>>>>>>")) FORMAT "x(8)"
+                vend.vend-no
+                vend.name
+                SPACE(6)
+            WITH FRAME a1 STREAM-IO.
+    END.
+    
     IF tb_excel THEN
     DO:
        FIND FIRST ap-chk WHERE
@@ -2230,15 +2270,28 @@ END. /* gdm - 05210901 end */
          '"' "" '",'
          '"' "" '",'
          '"' "" '",'.
-
-  DISPLAY ap-inv.inv-date           FORMAT "99/99/99"
+IF lAPInvoiceLength THEN
+DO:
+     DISPLAY ap-inv.inv-date           FORMAT "99/99/99"
           SPACE(2)
           ap-sel.inv-no
-          tt-post.curr-bal  TO 91
-          tt-post.curr-disc TO 102
-          tt-post.curr-paid TO 117
+          tt-post.curr-bal  TO 101
+          tt-post.curr-disc TO 112
+          tt-post.curr-paid TO 127
 
-      WITH FRAME a STREAM-IO WIDTH 132 NO-LABELS NO-BOX.
+     WITH FRAME a STREAM-IO WIDTH 142 NO-LABELS NO-BOX.
+END.
+ELSE DO:
+    DISPLAY ap-inv.inv-date           FORMAT "99/99/99"
+              SPACE(2)
+              ap-sel.inv-no
+              tt-post.curr-bal  TO 91
+              tt-post.curr-disc TO 102
+              tt-post.curr-paid TO 117
+
+          WITH FRAME a1 STREAM-IO WIDTH 132 NO-LABELS NO-BOX.
+END.
+  
 
   IF tb_excel THEN
   DO:
@@ -2252,7 +2305,13 @@ END. /* gdm - 05210901 end */
 
   IF ap-sel.man-check THEN
   DO:
-     DISPLAY ap-sel.pre-date TO 130 WITH FRAME a.
+     IF lAPInvoiceLength THEN
+     DO: 
+          DISPLAY ap-sel.pre-date TO 140 WITH FRAME a.
+     END.
+     ELSE DO:
+          DISPLAY ap-sel.pre-date TO 130 WITH FRAME a1.
+     END.
      IF tb_excel THEN
         PUT STREAM excel UNFORMATTED
             '"' ap-sel.pre-date '",'.
@@ -2274,15 +2333,28 @@ END. /* gdm - 05210901 end */
         WHERE ap-chk.company  EQ ap-sel.company
           AND ap-chk.check-no EQ ap-sel.check-no
         NO-LOCK NO-ERROR.
+    IF lAPInvoiceLength THEN
+    DO:
+        DISPLAY ap-chk.check-date AT 30     FORMAT "99/99/99"
+                "** CHECK TOTAL"  AT 51
+                tot0              TO 101
+                tot1              TO 112
+                tot2              TO 127 "*"
+                SKIP(1)
 
-    DISPLAY ap-chk.check-date AT 30     FORMAT "99/99/99"
-            "** CHECK TOTAL"  AT 51
-            tot0              TO 91
-            tot1              TO 102
-            tot2              TO 117 "*"
-            SKIP(1)
+        WITH NO-LABELS NO-BOX NO-UNDERLINE FRAME ctot WIDTH 142 STREAM-IO.
+    END.
+    ELSE DO:
+        DISPLAY ap-chk.check-date AT 30     FORMAT "99/99/99"
+                "** CHECK TOTAL"  AT 51
+                tot0              TO 91
+                tot1              TO 102
+                tot2              TO 117 "*"
+                SKIP(1)
 
-        WITH NO-LABELS NO-BOX NO-UNDERLINE FRAME ctot WIDTH 132 STREAM-IO.
+        WITH NO-LABELS NO-BOX NO-UNDERLINE FRAME ctot1 WIDTH 132 STREAM-IO.
+    END.
+    
 
     IF tb_excel THEN
        PUT STREAM excel UNFORMATTED
@@ -2328,13 +2400,23 @@ END. /* gdm - 05210901 end */
   ACCUM ap-sel.disc-amt (TOTAL).
   ACCUM ap-sel.amt-paid (TOTAL).
 END. /* each ap-sel */
-
-DISPLAY "*** GRAND TOTALS ***" AT 50
-        gtot0                  TO 91
-        gtot1                  TO 102
-        gtot2                  TO 117 "**" SKIP (1)
-        "NUMBER OF CHECKS WRITTEN " ctr
-    WITH NO-LABELS NO-BOX NO-UNDERLINE FRAME b WIDTH 132 STREAM-IO.
+    IF lAPInvoiceLength THEN
+    DO:
+        DISPLAY "*** GRAND TOTALS ***" AT 50
+            gtot0                  TO 101
+            gtot1                  TO 112
+            gtot2                  TO 127 "**" SKIP (1)
+            "NUMBER OF CHECKS WRITTEN " ctr
+        WITH NO-LABELS NO-BOX NO-UNDERLINE FRAME b WIDTH 142 STREAM-IO.
+    END.
+    ELSE DO:
+        DISPLAY "*** GRAND TOTALS ***" AT 50
+                gtot0                  TO 91
+                gtot1                  TO 102
+                gtot2                  TO 117 "**" SKIP (1)
+                "NUMBER OF CHECKS WRITTEN " ctr
+        WITH NO-LABELS NO-BOX NO-UNDERLINE FRAME b1 WIDTH 132 STREAM-IO.
+    END.
 
 IF tb_APcheckFile THEN do:
     IF rd_print-apfile EQ "Text" THEN
@@ -2363,6 +2445,7 @@ ASSIGN   /* For posting without currency exchange rate */
 
 IF tb_prt-acc THEN DO:
   HIDE FRAME f-top.
+  HIDE FRAME f-top3.
 
   ASSIGN
     str-tit3 = "Period " + STRING(tran-period,"99") + " - " + "Summary by Account"
@@ -2377,10 +2460,18 @@ IF tb_prt-acc THEN DO:
        FILL("_",135) FORMAT "x(135)"
 
       WITH NO-LABELS NO-BOX NO-UNDERLINE FRAME f-top2 PAGE-TOP WIDTH 135 STREAM-IO.
+  
+  FORM HEADER
+       "ACCOUNT                             PO#   DATE   VENDOR#  INVOICE#            "
+       "LINE DESCRIPTION                 QTY    UNIT PRICE     AMT PAID" SKIP
+       FILL("_",143) FORMAT "x(143)"
 
-  DISPLAY "" WITH FRAME f-top2.
+      WITH NO-LABELS NO-BOX NO-UNDERLINE FRAME f-top4 PAGE-TOP WIDTH 143 STREAM-IO.
 
-  FOR EACH tt-post,
+  IF lAPInvoiceLength THEN DISPLAY "" WITH FRAME f-top4.
+                      ELSE DISPLAY "" WITH FRAME f-top2.
+
+  FOR EACH tt-post NO-LOCK,
 
       FIRST ap-sel WHERE ROWID(ap-sel) EQ tt-post.row-id NO-LOCK,
 
@@ -2413,9 +2504,10 @@ IF tb_prt-acc THEN DO:
     PUT ap-inv.inv-date         AT 41   FORMAT "99/99/99"
         SPACE(1)
         ap-inv.vend-no
-        SPACE(1)
-        ap-inv.inv-no
-        SPACE(6)
+        SPACE(1).
+    IF lAPInvoiceLength THEN PUT ap-inv.inv-no FORMAT "x(20)".
+                        ELSE PUT ap-inv.inv-no FORMAT "x(12)".
+    PUT SPACE(6)
         "Freight"                       FORMAT "x(18)"
         SPACE(7)
         1.0                             FORMAT "9.9"
@@ -2432,7 +2524,7 @@ IF tb_prt-acc THEN DO:
           " *" SKIP(1).
   END.
 
-  FOR EACH tt-post,
+  FOR EACH tt-post NO-LOCK,
 
       FIRST ap-sel WHERE ROWID(ap-sel) EQ tt-post.row-id NO-LOCK,
 
@@ -2472,9 +2564,10 @@ IF tb_prt-acc THEN DO:
         ap-inv.inv-date       FORMAT "99/99/99"
         SPACE(1)
         ap-inv.vend-no
-        SPACE(1)
-        ap-inv.inv-no
-        SPACE(1)
+        SPACE(1).
+    IF lAPInvoiceLength THEN PUT ap-inv.inv-no FORMAT "x(20)".
+                        ELSE PUT ap-inv.inv-no FORMAT "x(12)".
+    PUT SPACE(1)
         {ap/invlline.i -1}    FORMAT ">>>9"
         SPACE(1)
         ap-invl.dscr          FORMAT "x(18)"
@@ -2497,7 +2590,7 @@ IF tb_prt-acc THEN DO:
           " *" SKIP(1).
   END.
 
-  FOR EACH tt-post WHERE tt-post.actnum NE "",
+  FOR EACH tt-post NO-LOCK WHERE tt-post.actnum NE "",
 
       FIRST ap-sel WHERE ROWID(ap-sel) EQ tt-post.row-id NO-LOCK,
 
@@ -2508,7 +2601,7 @@ IF tb_prt-acc THEN DO:
 
       BREAK BY tt-post.actnum
 
-      WITH WIDTH 132 NO-LABELS:
+      WITH WIDTH 142 NO-LABELS:
 
     IF FIRST-OF(tt-post.actnum) THEN DO:
       FIND FIRST account
@@ -2524,9 +2617,10 @@ IF tb_prt-acc THEN DO:
     PUT ap-inv.inv-date         AT 41   FORMAT "99/99/99"
         SPACE(1)
         ap-inv.vend-no
-        SPACE(1)
-        ap-inv.inv-no
-        SPACE(6)
+        SPACE(1).
+    IF lAPInvoiceLength THEN PUT ap-inv.inv-no FORMAT "x(20)".
+                        ELSE PUT ap-inv.inv-no FORMAT "x(12)".
+    PUT SPACE(6)
         "Currency"                      FORMAT "x(18)"
         SPACE(7)
         1.0                             FORMAT "9.9"

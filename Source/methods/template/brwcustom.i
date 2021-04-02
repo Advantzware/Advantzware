@@ -28,7 +28,7 @@
         {&BROWSE-NAME}:SEPARATOR-FGCOLOR = 15
         {&BROWSE-NAME}:ROW-HEIGHT-CHARS  = 0.84
         {&BROWSE-NAME}:FONT              = 22
-        {&BROWSE-NAME}:FIT-LAST-COLUMN   = TRUE
+    //    {&BROWSE-NAME}:FIT-LAST-COLUMN   = TRUE
         .
     hColumnRowColor = {&BROWSE-NAME}:FIRST-COLUMN.
     DO WHILE VALID-HANDLE(hColumnRowColor):

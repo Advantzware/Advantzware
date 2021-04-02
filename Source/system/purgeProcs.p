@@ -232,13 +232,14 @@ PROCEDURE pDeleteJobRecords PRIVATE:
             
         IF iplPurge AND NOT iplCalledFromTrigger THEN 
             OUTPUT STREAM datafiles TO VALUE (cOutDir + "\DataFiles\" + cTableName + ".d") APPEND.
-               
+
         DO WHILE NOT hdQuery:QUERY-OFF-END:                
             IF cTableName = "job-hdr" AND iplPurge THEN DO:
                 DO iIndex = 1 TO NUM-ENTRIES(cJobHdrRefTbl):
                     FOR EACH reftable EXCLUSIVE-LOCK
                         WHERE reftable.reftable EQ ENTRY(iIndex,cJobHdrRefTbl) + ipcCompany
                           AND reftable.code2    EQ hdBuffer:BUFFER-FIELD ("j-no"):BUFFER-VALUE:
+                        IF iplPurge AND NOT iplCalledFromTrigger THEN
                         EXPORT STREAM sReftable reftable.                                
                         DELETE reftable.
                     END.
@@ -331,13 +332,14 @@ PROCEDURE Purge_SimulateAndPurgeJobRecords:
         IF iplPurge THEN DO:
             IF NOT iplCalledFromTrigger THEN DO:
                 RUN jc/jc-dall.p (RECID(ip-bf-job)).
-                OUTPUT STREAM sReftable TO VALUE(cOutDir + "\DataFiles\reftable.d") APPEND.
+                OUTPUT STREAM sReftable TO VALUE (cOutDir + "\DataFiles\reftable.d") APPEND.
             END.    
             FOR EACH reftable EXCLUSIVE-LOCK
                 WHERE reftable.reftable EQ "jc/jc-calc.p"
                  AND reftable.company   EQ ip-bf-Job.company
                  AND reftable.loc       EQ ""
                  AND reftable.code      EQ STRING(ip-bf-Job.job,"999999999"):
+                IF NOT iplCalledFromTrigger THEN
                 EXPORT STREAM sReftable reftable.     
                 DELETE reftable.
             END.
@@ -346,6 +348,7 @@ PROCEDURE Purge_SimulateAndPurgeJobRecords:
                   AND reftable.company  EQ ip-bf-Job.company
                   AND reftable.loc      EQ ""
                   AND reftable.code     EQ STRING(ip-bf-Job.job,"9999999999"):
+                IF NOT iplCalledFromTrigger THEN
                 EXPORT STREAM sReftable reftable.                      
                 DELETE reftable.
             END.
@@ -355,6 +358,7 @@ PROCEDURE Purge_SimulateAndPurgeJobRecords:
                   AND reftable.company  EQ ip-bf-Job.company
                   AND reftable.loc      EQ ""
                   AND reftable.code     EQ STRING(ip-bf-Job.job,"9999999999"):
+                IF NOT iplCalledFromTrigger THEN
                 EXPORT STREAM sReftable reftable.                      
                 DELETE reftable.
             END.
@@ -370,7 +374,7 @@ PROCEDURE Purge_SimulateAndPurgeJobRecords:
             INPUT iplCalledFromTrigger   /* Called from trigger? */
             ).
         IF iplPurge AND NOT iplCalledFromTrigger THEN
-            OUTPUT STREAM sReftable CLOSE.                              
+        OUTPUT STREAM sReftable CLOSE.                              
     END. /* Transaction */    
     PROCESS EVENTS.
     

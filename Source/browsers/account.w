@@ -690,6 +690,7 @@ PROCEDURE pReopenBrowse :
     IF AVAILABLE account THEN
     APPLY "VALUE-CHANGED":U TO {&BROWSE-NAME}.
 
+    RUN dispatch ('get-first':U).
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
