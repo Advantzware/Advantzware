@@ -75,6 +75,9 @@ DEFINE TEMP-TABLE ttOePrmtx
     FIELD quantity10    AS INTEGER   LABEL "Quantity 10" FORMAT ">>,>>>,>>9" 
     FIELD price10       AS DECIMAL   LABEL "Price 10"    FORMAT "->>,>>>,>>9.99<<<<"
     .  
+
+DEFINE TEMP-TABLE ttOePrmtxCSV LIKE ttOePrmtx.
+
 DEFINE TEMP-TABLE ttQuoteHd
     FIELD company       AS CHARACTER              LABEL "Company"  
     FIELD loc           AS CHARACTER              LABEL "Location"
@@ -194,13 +197,13 @@ PROCEDURE pExpireOldPrices PRIVATE:
             
         FOR EACH ttOePrmtx NO-LOCK
             WHERE ttOePrmtx.company    EQ ipcCompany
-              AND ttOePrmtx.cust-no    EQ ipcCustNo
-              AND ttOePrmtx.i-no       EQ ipcItemID
+              AND ttOePrmtx.custno     EQ ipcCustNo
+              AND ttOePrmtx.itemID     EQ ipcItemID
               AND ttOePrmtx.custype    EQ ipcCustType
               AND ttOePrmtx.custShipID EQ ipcShipID
               AND ttOePrmtx.procat     EQ ipcProcat
-              BY ttoeprmtx.eff-date 
-              BY ttoeprmtx.exp-date:
+              BY ttoeprmtx.effectiveDate 
+              BY ttoeprmtx.oldExpiryDate:
 
             iCount1 = iCount1 + 1.
             IF iCount1 EQ iCount + 1 THEN DO: 
@@ -238,17 +241,17 @@ PROCEDURE pExpireOldPrices PRIVATE:
                         .
                 END.     
                 /* Make sure effective date is GE expiry date */ 
-                IF ttOeprmtx.eff-date - 1  LT bf-oe-prmtx.eff-date THEN DO:
+                IF ttOeprmtx.oldExpiryDate - 1  LT bf-oe-prmtx.eff-date THEN DO:
                     IF iplExpire THEN
-                        bf-oe-prmtx.exp-date = ttOeprmtx.eff-date.
+                        bf-oe-prmtx.exp-date = ttOeprmtx.oldExpiryDate.
                     ELSE 
-                        ttOePrmtxCsv.newExpiryDate = ttOeprmtx.eff-date.    
+                        ttOePrmtxCsv.newExpiryDate = ttOeprmtx.oldExpiryDate.    
                 END.                 
                 ELSE DO:
                     IF iplExpire THEN 
-                        bf-oe-prmtx.exp-date = ttOeprmtx.eff-date - 1.
+                        bf-oe-prmtx.exp-date = ttOeprmtx.effectiveDate - 1.
                     ELSE 
-                        ttOePrmtxCsv.newExpiryDate = ttOeprmtx.eff-date - 1.        
+                        ttOePrmtxCsv.newExpiryDate = ttOeprmtx.effectiveDate - 1.        
                 END.    
                 LEAVE.  
             END.                              
