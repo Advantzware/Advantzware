@@ -164,20 +164,7 @@ DEFINE RECTANGLE RECT-4
 &ANALYZE-SUSPEND
 DEFINE QUERY Browser-Table FOR 
       po-ordl
-    FIELDS(po-ordl.line
-      po-ordl.ord-qty
-      po-ordl.t-rec-qty
-      po-ordl.t-inv-qty
-      po-ordl.stat
-      po-ordl.i-no
-      po-ordl.i-name
-      po-ordl.cost
-      po-ordl.pr-uom
-      po-ordl.t-cost
-      po-ordl.cons-uom
-      po-ordl.ord-qty
-      po-ordl.cost
-      po-ordl.company) SCROLLING.
+     SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
