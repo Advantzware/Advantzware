@@ -622,10 +622,18 @@ find first company where company.company eq cocode NO-LOCK.
             v-printline = v-printline + 1.
       
 
-            do v = 1 to 3:
+            FIND FIRST itemfg NO-LOCK 
+                WHERE itemfg.company = cocode
+                AND itemfg.part-no = inv-line.part-no
+                AND itemfg.i-no = inv-line.i-no
+                AND itemfg.cust-no = inv-line.cust-no
+                NO-ERROR.
+
+            do v = 1 to 4:
               v-part-info = if v eq 1 then inv-line.part-dscr1
                             else
                             if v eq 2 then inv-line.part-dscr2
+                            ELSE IF v EQ 3 AND AVAIL itemfg THEN itemfg.part-dscr3 
                             else          trim(lv-inv-list).
                             
               if v-part-info ne "" OR  (v = 1 AND inv-line.part-no <> "") then do:
@@ -658,19 +666,6 @@ find first company where company.company eq cocode NO-LOCK.
             put skip(1).
             v-printline = v-printline + 1.
             
-            FIND FIRST itemfg NO-LOCK 
-                         WHERE itemfg.company = cocode
-                         AND itemfg.part-no = inv-line.part-no
-                         AND itemfg.i-no = inv-line.i-no
-                         AND itemfg.cust-no = inv-line.cust-no
-                         NO-ERROR.
-            IF AVAILABLE itemfg THEN
-            PUT itemfg.part-dscr1 AT 48 SKIP
-                itemfg.part-dscr2 AT 48 SKIP
-                itemfg.part-dscr3 AT 48 SKIP.
-            v-printline = v-printline + 3.
-
-       
             IF v-print-dept AND AVAIL oe-ordl THEN
             DO:
                FIND FIRST job-hdr WHERE
