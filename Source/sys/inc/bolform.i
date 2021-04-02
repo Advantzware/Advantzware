@@ -490,10 +490,9 @@
 
        OTHERWISE
           ASSIGN
-             v-print-mode   = "PROD"
-             v-program      = "oe/rep/oe-lad" +
-                              (if v-print-fmt eq "c" then "c" else "s") + ".p"
-             lines-per-page = 62.
+             is-xprint-form = YES
+             v-program      = "oe/rep/bolxprnt10.p"
+             lines-per-page = 80.
    END CASE.
 
 
