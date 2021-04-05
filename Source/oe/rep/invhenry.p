@@ -631,8 +631,8 @@ find first company where company.company eq cocode NO-LOCK.
 
             do v = 1 to 4:
               CASE v:
-                WHEN 1 THEN ASSIGN v-part-info = IF ar-invl.part-dscr1 <> "" THEN ar-invl.part-dscr1 ELSE ar-invl.i-dscr.
-                WHEN 2 THEN ASSIGN v-part-info = IF ar-invl.part-dscr2 NE "" THEN ar-invl.part-dscr2 ELSE
+                WHEN 1 THEN ASSIGN v-part-info = IF inv-line.part-dscr1 <> "" THEN inv-line.part-dscr1 ELSE inv-line.i-dscr.
+                WHEN 2 THEN ASSIGN v-part-info = IF inv-line.part-dscr2 NE "" THEN inv-line.part-dscr2 ELSE
                                                  IF AVAIL itemfg THEN itemfg.part-dscr2 ELSE "".
                 WHEN 3 THEN ASSIGN v-part-info = IF AVAIL itemfg THEN itemfg.part-dscr3 ELSE "".
                 WHEN 4 THEN ASSIGN v-part-info = trim(lv-inv-list).
