@@ -35,7 +35,6 @@ CREATE WIDGET-POOL.
 //&SCOPED-DEFINE sizeOption HEIGHT
 &SCOPED-DEFINE useMatches
 &SCOPED-DEFINE browseOnly
-&SCOPED-DEFINE local-initialize
 {methods/defines/winReSize.i}
 
 /* Parameters Definitions ---                                           */
@@ -638,26 +637,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-initialize B-table-Win 
-PROCEDURE local-initialize :
-/*------------------------------------------------------------------------------
-  Purpose:     Override standard ADM method
-  Notes:       
-------------------------------------------------------------------------------*/
-
-  /* Code placed here will execute PRIOR to standard behavior. */
-
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
-
-  /* Code placed here will execute AFTER standard behavior.    */
-
-  APPLY "entry" TO cAccount IN FRAME {&FRAME-NAME}. 
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-open-query B-table-Win 
 PROCEDURE local-open-query :
@@ -678,6 +657,8 @@ PROCEDURE local-open-query :
       .
       RUN pReopenBrowse.
 
+  APPLY 'ENTRY':U TO cAccount IN FRAME {&frame-name}.
+ 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -717,6 +698,7 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records B-table-Win  _ADM-SEND-RECORDS
 PROCEDURE send-records :

@@ -308,7 +308,6 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-initialize Include 
-&IF DEFINED(local-initialize) EQ 0 &THEN
 PROCEDURE local-initialize :
 /*------------------------------------------------------------------------------
   Purpose:     Override standard ADM method
@@ -339,7 +338,6 @@ PROCEDURE local-initialize :
   {custom/resizmn.i} 
   
 END PROCEDURE.
-&ENDIF
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
