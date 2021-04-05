@@ -50,6 +50,7 @@ DEFINE VARIABLE cRequestDataTypeList AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lCopyAPIOutbound     AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE iSourceAPIOutboundID AS INTEGER   NO-UNDO.
 DEFINE VARIABLE lSuperAdmin          AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lUpdatingRecord      AS LOGICAL   NO-UNDO.
 
 /* The below variables are used in run_link.i */
 DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
@@ -302,10 +303,10 @@ DEFINE FRAME F-Main
      fiInactive AT ROW 1.62 COL 123.6 COLON-ALIGNED NO-LABEL WIDGET-ID 72
      "Description:" VIEW-AS TEXT
           SIZE 14 BY .62 AT ROW 3.38 COL 8.8 WIDGET-ID 64
-     "End Point:" VIEW-AS TEXT
-          SIZE 11.6 BY .62 AT ROW 5.48 COL 11.2 WIDGET-ID 36
      "Request Data:" VIEW-AS TEXT
           SIZE 16 BY .62 AT ROW 17.86 COL 6 WIDGET-ID 50
+     "End Point:" VIEW-AS TEXT
+          SIZE 11.6 BY .62 AT ROW 5.48 COL 11.2 WIDGET-ID 36
      RECT-1 AT ROW 1.24 COL 2 WIDGET-ID 26
      RECT-2 AT ROW 12.19 COL 2 WIDGET-ID 30
      RECT-3 AT ROW 14.1 COL 2 WIDGET-ID 44
@@ -487,6 +488,35 @@ DO:
                 INPUT APIOutbound.clientID:SCREEN-VALUE
                 ).
     END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME edRequestData
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL edRequestData V-table-Win
+ON ENTRY OF edRequestData IN FRAME F-Main
+DO:
+    DEFINE VARIABLE lcRequestData AS LONGCHAR  NO-UNDO.
+    DEFINE VARIABLE lSave         AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cAction       AS CHARACTER NO-UNDO.
+    
+    lcRequestData = SELF:SCREEN-VALUE.
+
+    IF lUpdatingRecord THEN
+        cAction = "Update".
+    ELSE
+        cAction = "View".
+        
+    RUN api/d-dataViewer.w (
+        INPUT-OUTPUT lcRequestData,
+        INPUT        cAction,
+        OUTPUT       lSave   
+        ).
+        
+    IF lSave AND cAction EQ "Update" THEN
+        SELF:SCREEN-VALUE = lcRequestData.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -932,7 +962,7 @@ PROCEDURE pDisableFields :
         cbAuthType:SENSITIVE        = FALSE
         edEndPoint:READ-ONLY        = TRUE
         edDescription:READ-ONLY     = TRUE
-        edRequestData:READ-ONLY     = TRUE
+        lUpdatingRecord             = FALSE
         .
 
     {methods/run_link.i "CONTAINER-SOURCE" "SetUpdateEnd"}                            
@@ -1006,8 +1036,8 @@ PROCEDURE pEnableFields :
         tgSSLEnabled:SENSITIVE      = TRUE
         cbAuthType:SENSITIVE        = TRUE
         edEndPoint:READ-ONLY        = FALSE
-        edRequestData:READ-ONLY     = FALSE
         edDescription:READ-ONLY     = FALSE
+        lUpdatingRecord             = TRUE
         .
 
 
