@@ -103,8 +103,8 @@ DEFINE            VARIABLE dTotalBalance  AS DECIMAL FORMAT "->>>,>>>,>>>,>>9.99
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE br_table                                      */
-&Scoped-define FIELDS-IN-QUERY-br_table tt-glinq.actnum tt-glinq.tr-date tt-glinq.jrnl tt-glinq.tr-dscr tt-glinq.db-amt tt-glinq.cr-amt tt-glinq.net-amt tt-glinq.documentID tt-glinq.sourceDate tt-glinq.createdBy tt-glinq.createdDate tt-glinq.posted tt-glinq.tr-num  tt-glinq.tr-period tt-glinq.tr-yr 
-&Scoped-define ENABLED-FIELDS-IN-QUERY-br_table tt-glinq.actnum tt-glinq.tr-date tt-glinq.jrnl tt-glinq.tr-dscr    
+&Scoped-define FIELDS-IN-QUERY-br_table tt-glinq.tr-date tt-glinq.jrnl tt-glinq.db-amt tt-glinq.cr-amt tt-glinq.net-amt tt-glinq.sourceDate tt-glinq.createdBy tt-glinq.createdDate tt-glinq.posted tt-glinq.tr-num  tt-glinq.tr-period tt-glinq.tr-yr 
+&Scoped-define ENABLED-FIELDS-IN-QUERY-br_table tt-glinq.tr-date tt-glinq.jrnl    
 &Scoped-define ENABLED-TABLES-IN-QUERY-br_table tt-glinq
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-br_table tt-glinq
 &Scoped-define SELF-NAME br_table
@@ -245,22 +245,20 @@ DEFINE QUERY br_table FOR
 DEFINE BROWSE br_table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br_table B-table-Win _FREEFORM
     QUERY br_table NO-LOCK DISPLAY
-    tt-glinq.actnum LABEL-BGCOLOR 14 
+    tt-glinq.tr-num FORMAT "9999999" LABEL-BGCOLOR 14  WIDTH 12       
     tt-glinq.tr-date LABEL-BGCOLOR 14
-    tt-glinq.jrnl LABEL-BGCOLOR 14
-    tt-glinq.tr-dscr FORM "X(60)" LABEL-BGCOLOR 14 WIDTH 50
+    tt-glinq.jrnl LABEL-BGCOLOR 14      
     tt-glinq.db-amt FORM "->>,>>>,>>9.99" LABEL-BGCOLOR 14
     tt-glinq.cr-amt FORM "->>,>>>,>>9.99" LABEL-BGCOLOR 14
-    tt-glinq.net-amt FORM "->>,>>>,>>9.99" LABEL-BGCOLOR 14
-    tt-glinq.documentID LABEL-BGCOLOR 14
+    tt-glinq.net-amt FORM "->>,>>>,>>9.99" LABEL-BGCOLOR 14      
     tt-glinq.sourceDate LABEL-BGCOLOR 14
     tt-glinq.createdBy  LABEL-BGCOLOR 14
     tt-glinq.createdDate LABEL-BGCOLOR 14
     tt-glinq.posted LABEL-BGCOLOR 14
-    tt-glinq.tr-num FORMAT "9999999" LABEL-BGCOLOR 14  WIDTH 12
+    
     tt-glinq.tr-period LABEL-BGCOLOR 14
     tt-glinq.tr-yr LABEL-BGCOLOR 14
-     ENABLE tt-glinq.actnum tt-glinq.tr-date  tt-glinq.jrnl tt-glinq.tr-dscr 
+     ENABLE  tt-glinq.tr-date  tt-glinq.jrnl  
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 167 BY 16.52
@@ -537,12 +535,7 @@ ON START-SEARCH OF br_table IN FRAME F-Main
         APPLY 'END-SEARCH' TO {&BROWSE-NAME}.
 
         /*APPLY "choose" TO btn-inq. */
-        CASE lv-column-nam:
-            WHEN "actnum" THEN 
-                DO:
-                    IF ll-sort-asc THEN OPEN QUERY {&SELF-NAME} FOR EACH tt-glinq BY tt-glinq.actnum.
-                    ELSE OPEN QUERY {&SELF-NAME} FOR EACH tt-glinq BY tt-glinq.actnum {&sortby-des}.           
-                END.
+        CASE lv-column-nam:            
             WHEN "tr-date" THEN 
                 DO:
                     IF ll-sort-asc THEN OPEN QUERY {&SELF-NAME} FOR EACH tt-glinq BY tt-glinq.tr-date.
@@ -552,12 +545,7 @@ ON START-SEARCH OF br_table IN FRAME F-Main
                 DO:
                     IF ll-sort-asc THEN OPEN QUERY {&SELF-NAME} FOR EACH tt-glinq BY tt-glinq.jrnl.
                     ELSE OPEN QUERY {&SELF-NAME} FOR EACH tt-glinq BY tt-glinq.jrnl {&sortby-des}.
-                END.
-            WHEN "tr-dscr" THEN 
-                DO:
-                    IF ll-sort-asc THEN OPEN QUERY {&SELF-NAME} FOR EACH tt-glinq BY tt-glinq.tr-dscr.
-                    ELSE OPEN QUERY {&SELF-NAME} FOR EACH tt-glinq BY tt-glinq.tr-dscr {&sortby-des}.
-                END.
+                END.            
             WHEN "db-amt" THEN 
                 DO:
                     IF ll-sort-asc THEN OPEN QUERY {&SELF-NAME} FOR EACH tt-glinq BY tt-glinq.db-amt.
@@ -582,12 +570,7 @@ ON START-SEARCH OF br_table IN FRAME F-Main
                 DO:
                     IF ll-sort-asc THEN OPEN QUERY {&SELF-NAME} FOR EACH tt-glinq BY tt-glinq.sourceDate.
                     ELSE OPEN QUERY {&SELF-NAME} FOR EACH tt-glinq BY tt-glinq.sourceDate {&sortby-des}.
-                END.  
-            WHEN "documentID" THEN 
-                DO:
-                    IF ll-sort-asc THEN OPEN QUERY {&SELF-NAME} FOR EACH tt-glinq BY tt-glinq.documentID.
-                    ELSE OPEN QUERY {&SELF-NAME} FOR EACH tt-glinq BY tt-glinq.documentID {&sortby-des}.
-                END. 
+                END.              
             WHEN "createdDate" THEN 
                 DO:
                     IF ll-sort-asc THEN OPEN QUERY {&SELF-NAME} FOR EACH tt-glinq BY tt-glinq.createdDate.
@@ -633,16 +616,7 @@ ON VALUE-CHANGED OF br_table IN FRAME F-Main
         /* This ADM trigger code must be preserved in order to notify other
            objects when the browser's current row changes. */
         {src/adm/template/brschnge.i}
-
-    /*RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,'run-no-target':U,OUTPUT char-hdl).
-    DO li = 1 TO NUM-ENTRIES(char-hdl):
-      IF VALID-HANDLE(WIDGET-HANDLE(ENTRY(li,char-hdl))) THEN
-        RUN dispatch IN WIDGET-HANDLE(ENTRY(li,char-hdl)) ("open-query"). 
-    END.
-    
-    RUN pGetInvoiceFlag(OUTPUT lEnableButton) .
-    {methods/run_link.i "container-source" "pSetInvoiceButton" "(lEnableButton)" } */
-
+                                           
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -859,10 +833,7 @@ DO:
         v-acc-length = v-acc-length + company.acc-dig[v-count].
         IF company.acc-dig[v-count] NE 0 THEN
             v-acc-length = v-acc-length + 1.
-    END.
-
-    IF v-acc-length GT 1 THEN
-        tt-glinq.actnum:WIDTH-CHARS IN BROWSE {&browse-name} = v-acc-length + 3.
+    END.    
 END.
 
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
@@ -1095,8 +1066,7 @@ PROCEDURE local-initialize :
     dtDateTo = TODAY . 
     dtDateTo:SCREEN-VALUE IN FRAME {&FRAME-NAME} = STRING(TODAY)  .
     RUN build-inquiry.
-    tt-glinq.tr-dscr:WIDTH-CHARS IN BROWSE {&browse-name} = v-max-dscr-length + 20.
-
+    
     /* Dispatch standard ADM method.                             */
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
     RUN setCellColumns.
@@ -1104,13 +1074,9 @@ PROCEDURE local-initialize :
 
     ASSIGN 
         tt-glinq.tr-date:READ-ONLY IN BROWSE {&browse-name} = YES
-        tt-glinq.jrnl:READ-ONLY IN BROWSE {&browse-name}    = YES
-        tt-glinq.tr-dscr:READ-ONLY IN BROWSE {&browse-name} = YES               
-        tt-glinq.actnum:READ-ONLY                           = YES.
-    /*  FI_moveCol = "Sort"
-      .
-          
-   DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}.*/
+        tt-glinq.jrnl:READ-ONLY IN BROWSE {&browse-name}    = YES        
+        .
+    
     APPLY 'ENTRY':U TO begin_acct IN FRAME {&FRAME-NAME}.
 
 
