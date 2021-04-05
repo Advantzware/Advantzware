@@ -165,6 +165,9 @@ DEFINE VARIABLE gcLastDateChange AS CHARACTER   NO-UNDO.
 DEFINE VARIABLE hdSalesManProcs AS HANDLE NO-UNDO.
 DEFINE VARIABLE lAvailable AS LOGICAL NO-UNDO.
 
+DEFINE VARIABLE deAutoOver AS DECIMAL NO-UNDO.
+DEFINE VARIABLE deAutoUnder AS DECIMAL NO-UNDO.
+  
 RUN salrep/SalesManProcs.p PERSISTENT SET hdSalesManProcs.
 
 cocode = g_company.
@@ -540,6 +543,11 @@ DEFINE BUTTON btnTagsOverrn
      LABEL "" 
      SIZE 4.2 BY .95 TOOLTIP "Show Details".
 
+DEFINE BUTTON btnTagsUnder 
+     IMAGE-UP FILE "Graphics/16x16/question.png":U
+     LABEL "" 
+     SIZE 4.2 BY .95 TOOLTIP "Show Details".
+
 DEFINE BUTTON Btn_Cancel AUTO-END-KEY 
      LABEL "Ca&ncel" 
      SIZE 15 BY 1.14
@@ -840,6 +848,7 @@ DEFINE FRAME d-oeitem
      fi_jobStartDate AT ROW 15.67 COL 121 COLON-ALIGNED WIDGET-ID 22
      btn-quotes AT ROW 17.38 COL 6.4 WIDGET-ID 20
      btnTagsOverrn AT ROW 11.33 COL 137.6 WIDGET-ID 36
+     btnTagsUnder AT ROW 12.33 COL 137.6 WIDGET-ID 38
      RECT-31 AT ROW 12.1 COL 1.8
      RECT-39 AT ROW 1 COL 1.8
      RECT-40 AT ROW 1 COL 80 WIDGET-ID 8
@@ -1214,6 +1223,21 @@ DO:
         INPUT oe-ordl.rec_key,
         INPUT "",
         INPUT "OverPct-Source"
+        ).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnTagsUnder
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnTagsUnder d-oeitem
+ON CHOOSE OF btnTagsUnder IN FRAME d-oeitem
+DO:
+    RUN system/d-TagViewer.w (
+        INPUT oe-ordl.rec_key,
+        INPUT "",
+        INPUT "UnderPct-Source"
         ).
 END.
 
@@ -1969,6 +1993,19 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME oe-ordl.over-pct
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ordl.over-pct d-oeitem
+ON LEAVE OF oe-ordl.over-pct IN FRAME d-oeitem /* Overrun % */
+DO:
+  IF deAutoOver NE oe-ordl.over-pct:INPUT-VALUE THEN 
+      RUN pAddTag("OverPct-Source", "Enter Manualy").
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME oe-ordl.part-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ordl.part-no d-oeitem
 ON ENTRY OF oe-ordl.part-no IN FRAME d-oeitem /* Cust Part # */
@@ -2668,6 +2705,18 @@ END.
 ON VALUE-CHANGED OF oe-ordl.type-code IN FRAME d-oeitem /* Type Code */
 DO:
   RUN new-type.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME oe-ordl.under-pct
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ordl.under-pct d-oeitem
+ON LEAVE OF oe-ordl.under-pct IN FRAME d-oeitem /* Underrun % */
+DO:
+    IF deAutoUnder NE oe-ordl.under-pct:INPUT-VALUE THEN 
+    RUN pAddTag("UnderPct-Source", "Enter Manualy").
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -7495,6 +7544,59 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pAddTag d-oeitem 
+PROCEDURE pAddTag :
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+   DEFINE INPUT PARAMETER ipcSource AS CHARACTER NO-UNDO.
+   DEFINE INPUT PARAMETER ipcDesc AS CHARACTER NO-UNDO.
+   
+   DEFINE VARIABLE  lAvailable AS LOGICAL NO-UNDO.
+   
+   DO WITH FRAME {&frame-name}:   
+    RUN ClearTagsForGroup(
+        INPUT oe-ordl.rec_key,
+        INPUT ipcSource
+        ).
+    RUN AddTagInfoForGroup(
+        INPUT oe-ordl.rec_key,
+        INPUT "oe-ordl",
+        INPUT ipcDesc,
+        INPUT "",
+        INPUT ipcSource
+        ). /*From TagProcs Super Proc*/ 
+    RUN Tag_IsTagRecordAvailableForGroup(
+        INPUT oe-ordl.rec_key,
+        INPUT "oe-ordl",
+        INPUT ipcSource,
+        OUTPUT lAvailable
+        ).
+    IF lAvailable THEN  
+    DO:
+         IF ipcSource = "OverPct-Source" THEN 
+         
+        btnTagsOverrn:SENSITIVE = TRUE.
+        ELSE  IF ipcSource = "UnderPct-Source" THEN 
+          btnTagsUnder:SENSITIVE = TRUE.
+    END.
+    ELSE 
+    DO:
+        IF ipcSource = "OverPct-Source" THEN 
+         
+            btnTagsOverrn:SENSITIVE = FALSE.
+        ELSE  IF ipcSource = "UnderPct-Source" THEN 
+                btnTagsUnder:SENSITIVE = FALSE.
+                END.
+   
+    END.  
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCrtPart d-oeitem 
 PROCEDURE pCrtPart :
 /*------------------------------------------------------------------------------
@@ -7602,37 +7704,16 @@ PROCEDURE pGetOverUnderPct :
   DO WITH FRAME {&FRAME-NAME}:                   
         RUN oe/GetOverUnderPct.p(g_company, 
                                ipcCustNo,
-        TRIM(ipcShipID),
+                               TRIM(ipcShipID),
                                oe-ordl.i-no:SCREEN-VALUE,
                                ipiOrdNo,
                                OUTPUT dOverPer , OUTPUT dUnderPer,  OUTPUT cTagDesc  ) .
                                oe-ordl.over-pct:SCREEN-VALUE = STRING(dOverPer).
                                oe-ordl.Under-pct:SCREEN-VALUE = STRING(dUnderPer). 
-                               MESSAGE cTagDesc
-                               VIEW-AS ALERT-BOX.
-      RUN ClearTagsForGroup(
-          INPUT oe-ordl.rec_key,
-          INPUT "OverPct-Source"
-          ).
-      RUN AddTagInfoForGroup(
-          INPUT oe-ordl.rec_key,
-          INPUT "oe-ordl",
-          INPUT cTagDesc,
-          INPUT "",
-          INPUT "OverPct-Source"
-          ). /*From TagProcs Super Proc*/ 
-      RUN Tag_IsTagRecordAvailableForGroup(
-          INPUT oe-ordl.rec_key,
-          INPUT "oe-ordl",
-          INPUT "OverPct-Source",
-          OUTPUT lAvailable
-          ).
-      IF lAvailable THEN  
-          btnTagsOverrn:SENSITIVE = TRUE.
-      ELSE 
-          btnTagsOverrn:SENSITIVE = FALSE.
-                           
-                                                       
+         RUN pAddTag("OverPct-Source", cTagDesc).
+         RUN pAddTag("UnderPct-Source", cTagDesc).
+            deAutoOver = dOverPer.
+   deAutoUnder =  dUnderPer.                                                   
   END.
 
   {methods/lValidateError.i NO}

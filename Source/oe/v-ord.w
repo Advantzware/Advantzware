@@ -442,6 +442,11 @@ DEFINE BUTTON btnTagsOverrn
      LABEL "" 
      SIZE 4.2 BY .95 TOOLTIP "Show Details".
 
+DEFINE BUTTON btnTagsUnder 
+     IMAGE-UP FILE "Graphics/16x16/question.png":U
+     LABEL "" 
+     SIZE 4.2 BY .95 TOOLTIP "Show Details".
+
 DEFINE BUTTON btnValidate 
      LABEL "Validate" 
      SIZE 21 BY 1.05 TOOLTIP "PopUp Calendar".
@@ -768,7 +773,8 @@ DEFINE FRAME F-Main
      oe-ord.spare-char-2 AT ROW 11 COL 78 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 3.6 BY 1 NO-TAB-STOP 
-     btnTagsOverrn AT ROW 9.38 COL 29.6 WIDGET-ID 36
+     btnTagsOverrn AT ROW 9.33 COL 29.6 WIDGET-ID 36
+     btnTagsUnder AT ROW 10.38 COL 29.6 WIDGET-ID 38
      RECT-30 AT ROW 9.1 COL 1.6
      RECT-33 AT ROW 12.67 COL 78
      RECT-35 AT ROW 15.33 COL 78
@@ -855,6 +861,8 @@ ASSIGN
 /* SETTINGS FOR BUTTON btnTags IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR BUTTON btnTagsOverrn IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR BUTTON btnTagsUnder IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR BUTTON btnValidate IN FRAME F-Main
    3                                                                    */
@@ -1273,6 +1281,21 @@ END.
 &Scoped-define SELF-NAME btnTagsOverrn
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnTagsOverrn V-table-Win
 ON CHOOSE OF btnTagsOverrn IN FRAME F-Main
+DO:
+    RUN system/d-TagViewer.w (
+        INPUT oe-ord.rec_key,
+        INPUT "",
+        INPUT "OverPct-Source"
+        ).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnTagsUnder
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnTagsUnder V-table-Win
+ON CHOOSE OF btnTagsUnder IN FRAME F-Main
 DO:
     RUN system/d-TagViewer.w (
         INPUT oe-ord.rec_key,
@@ -1706,12 +1729,27 @@ ON LEAVE OF oe-ord.over-pct IN FRAME F-Main /* Overrun % */
 DO:
     DEFINE VARIABLE lCheckFlg AS LOGICAL.
     IF deAutoOverRun NE  oe-ord.over-pct:INPUT-VALUE THEN
+    DO:
+        RUN pAddTag ("OverPct-Source","Entered manualy"  ).
+        
         RUN displayMessageQuestion (INPUT "62", OUTPUT lCheckFlg).
-    IF lCheckFlg THEN   
+        IF lCheckFlg THEN   
         FOR EACH oe-ordl WHERE oe-ordl.ord-no = oe-ord.ord-no:      
             ASSIGN
                 oe-ordl.over-pct = oe-ord.over-pct:INPUT-VALUE.  
+           RUN ClearTagsForGroup(
+                INPUT oe-ordl.rec_key,
+                INPUT "OverPct-Source"
+                ).
+            RUN AddTagInfoForGroup(
+                INPUT oe-ordl.rec_key,
+                INPUT "oe-ordl",
+                INPUT "Order no. - " + string(oe-ord.ord-no) ,
+                INPUT "",
+                INPUT "OverPct-Source"
+                ). /*From TagProcs Super Proc*/
         END.
+    END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2039,11 +2077,15 @@ ON LEAVE OF oe-ord.under-pct IN FRAME F-Main /* Underrun % */
 DO:
     DEFINE VARIABLE lCheckFlg AS LOGICAL.
     IF deAutoUnderRun NE  oe-ord.under-pct:INPUT-VALUE THEN
+    DO:
+        RUN pAddTag ("UnderPct-Source","Enterd Manualy" ).
         RUN displayMessageQuestion (INPUT "62", OUTPUT lCheckFlg).
-    IF lCheckFlg THEN   
-        FOR EACH oe-ordl WHERE oe-ordl.ord-no = oe-ord.ord-no:      
-            ASSIGN 
-                oe-ordl.under-pct = oe-ord.under-pct:INPUT-VALUE .  
+        IF lCheckFlg THEN   
+            FOR EACH oe-ordl WHERE oe-ordl.ord-no = oe-ord.ord-no:      
+                ASSIGN 
+                    oe-ordl.under-pct = oe-ord.under-pct:INPUT-VALUE .  
+                
+            END.
         END.
 END.
 
@@ -5503,9 +5545,10 @@ PROCEDURE local-display-fields :
             fiStatDesc:SCREEN-VALUE IN FRAME {&frame-name} = cStatDesc
             oe-ord.spare-char-2:SCREEN-VALUE = cStatDesc.
             
-         RUN Tag_IsTagRecordAvailable(
+         RUN Tag_IsTagRecordAvailableForGroup(
              INPUT oe-ord.rec_key,
              INPUT "oe-ord",
+             INPUT "Status-Source",
              OUTPUT lAvailable
              ).
            IF lAvailable THEN  
@@ -6206,6 +6249,57 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pAddTag V-table-Win 
+PROCEDURE pAddTag :
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcSource AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcDesc AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lAvailable AS LOGICAL NO-UNDO.
+    DO WITH FRAME {&FRAME-NAME}:          
+        RUN ClearTagsForGroup(
+            INPUT oe-ord.rec_key,
+            INPUT ipcSource
+            ).
+        RUN AddTagInfoForGroup(
+            INPUT oe-ord.rec_key,
+            INPUT "oe-ord",
+            INPUT ipcDesc,
+            INPUT "",
+            INPUT ipcSource
+            ). /*From TagProcs Super Proc*/ 
+        RUN Tag_IsTagRecordAvailableForGroup(
+            INPUT oe-ord.rec_key,
+            INPUT "oe-ord",
+            INPUT ipcSource,
+            OUTPUT lAvailable
+            ).
+        IF lAvailable THEN  
+        DO:
+            IF ipcSource = "OverPct-Source" THEN        
+                btnTagsOverrn:SENSITIVE = TRUE.
+            ELSE IF ipcSource = "UnderPct-Source" THEN 
+                btnTagsUnder:SENSITIVE = TRUE.
+        END.
+        ELSE 
+        DO:
+            IF ipcSource = "OverPct-Source" THEN        
+                btnTagsOverrn:SENSITIVE = FALSE.
+            ELSE IF ipcSource = "UnderPct-Source" THEN 
+                btnTagsUnder:SENSITIVE = FALSE.
+        END.
+                           
+    END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pAssignHoldReason V-table-Win 
 PROCEDURE pAssignHoldReason :
 /*------------------------------------------------------------------------------
@@ -6369,29 +6463,9 @@ PROCEDURE pGetOverUnderPct :
                            OUTPUT dOverPer , OUTPUT dUnderPer, OUTPUT cTagDesc ) .  
       oe-ord.over-pct:SCREEN-VALUE = STRING(dOverPer).
       oe-ord.Under-pct:SCREEN-VALUE = STRING(dUnderPer). 
-      RUN ClearTagsForGroup(
-          INPUT oe-ord.rec_key,
-          INPUT "OverPct-Source"
-          ).
-      RUN AddTagInfoForGroup(
-          INPUT oe-ord.rec_key,
-          INPUT "oe-ord",
-          INPUT cTagDesc,
-          INPUT "",
-          INPUT "OverPct-Source"
-          ). /*From TagProcs Super Proc*/ 
-      RUN Tag_IsTagRecordAvailableForGroup(
-          INPUT oe-ord.rec_key,
-          INPUT "oe-ord",
-          INPUT "OverPct-Source",
-          OUTPUT lAvailable
-          ).
-      IF lAvailable THEN  
-          btnTagsOverrn:SENSITIVE = TRUE.
-      ELSE 
-          btnTagsOverrn:SENSITIVE = FALSE.
-                           
-  END.
+      RUN pAddTag ("OverPct-Source",cTagDesc ).
+      RUN pAddTag ("UnderPct-Source",cTagDesc ).
+        END.
     deAutoOverRun = dOverPer.
     deAutoUnderRun = dUnderPer.
   {methods/lValidateError.i NO}

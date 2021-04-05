@@ -16,14 +16,13 @@ DEFINE VARIABLE cRtnChar        AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound       AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cFGOversDefault AS CHARACTER NO-UNDO.
 
-IF  ipiOrderNo NE 0 THEN 
-DO:
-    RUN sys/ref/nk1look.p (ipcCompany, "FGOversDefault", "C", NO, NO, "", "", 
+
+RUN sys/ref/nk1look.p (ipcCompany, "FGOversDefault", "C", NO, NO, "", "", 
         OUTPUT cRtnChar, OUTPUT lRecFound).
-    IF lRecFound THEN
-        cFGOversDefault = STRING(cRtnChar) NO-ERROR. 
-END.
-ELSE 
+IF lRecFound THEN
+    cFGOversDefault = STRING(cRtnChar) NO-ERROR. 
+        
+IF  ipiOrderNo NE 0 AND  cFGOversDefault NE  "FG category" THEN  
     cFGOversDefault = "Order".
 
 CASE cFGOversDefault:
