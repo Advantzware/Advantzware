@@ -630,11 +630,13 @@ find first company where company.company eq cocode NO-LOCK.
                 NO-ERROR.
 
             do v = 1 to 4:
-              v-part-info = if v eq 1 then inv-line.part-dscr1
-                            else
-                            if v eq 2 then inv-line.part-dscr2
-                            ELSE IF v EQ 3 AND AVAIL itemfg THEN itemfg.part-dscr3 
-                            else          trim(lv-inv-list).
+              CASE v:
+                WHEN 1 THEN ASSIGN v-part-info = IF ar-invl.part-dscr1 <> "" THEN ar-invl.part-dscr1 ELSE ar-invl.i-dscr.
+                WHEN 2 THEN ASSIGN v-part-info = IF ar-invl.part-dscr2 NE "" THEN ar-invl.part-dscr2 ELSE
+                                                 IF AVAIL itemfg THEN itemfg.part-dscr2 ELSE "".
+                WHEN 3 THEN ASSIGN v-part-info = IF AVAIL itemfg THEN itemfg.part-dscr3 ELSE "".
+                WHEN 4 THEN ASSIGN v-part-info = trim(lv-inv-list).
+              END CASE.
                             
               if v-part-info ne "" OR  (v = 1 AND inv-line.part-no <> "") then do:
                  IF v = 1 THEN DO:
@@ -658,8 +660,7 @@ find first company where company.company eq cocode NO-LOCK.
 
                  END.
                  ELSE
-                 IF v = 2 THEN  PUT /*SPACE(10)  v-po-no FORMAT "x(15)"*/ SPACE(47) v-part-info SKIP.
-                 ELSE          PUT SPACE(47)  v-part-info SKIP.
+                  PUT SPACE(47)  v-part-info SKIP.
                  v-printline = v-printline + 1.
               end.
             end.
