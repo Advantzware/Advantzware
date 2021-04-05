@@ -659,7 +659,7 @@ find first company where company.company eq cocode NO-LOCK.
                  END.
                  ELSE
                  IF v = 2 THEN  PUT /*SPACE(10)  v-po-no FORMAT "x(15)"*/ SPACE(47) v-part-info SKIP.
-                 ELSE          PUT SPACE(26) "Previous Invoice(s): " v-part-info SKIP.
+                 ELSE          PUT SPACE(47)  v-part-info SKIP.
                  v-printline = v-printline + 1.
               end.
             end.
