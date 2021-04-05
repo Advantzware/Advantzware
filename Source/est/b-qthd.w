@@ -58,6 +58,27 @@ DEFINE BUFFER bQuotehd FOR quotehd.
 DEFINE BUFFER bQuoteitm FOR quoteitm.
 DEF VAR lActive AS LOG NO-UNDO.
 
+DEFINE VARIABLE iRecordLimit       AS INTEGER   NO-UNDO.
+DEFINE VARIABLE dQueryTimeLimit    AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE cFirstRecKey       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cLastRecKey        AS CHARACTER NO-UNDO.
+DEFINE VARIABLE ll-First           AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lEnableShowAll     AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cBrowseWhereClause AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cQueryBuffers      AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cFieldBuffer       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cFieldName         AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lIsBreakByUsed     AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lv-sort-by         AS CHARACTER NO-UNDO.
+
+RUN Browser_GetRecordAndTimeLimit(
+    INPUT  cocode,
+    INPUT  "EQ",
+    OUTPUT iRecordLimit,
+    OUTPUT dQueryTimeLimit,
+    OUTPUT lEnableShowAll
+    ).
+
 DO TRANSACTION:
   {sys/inc/custlistform.i ""EQ"" }
   {sys/ref/CustList.i NEW}
@@ -106,8 +127,8 @@ OR fi_est-no EQ "") ~
 AND ((quotehd.expireDate LE TODAY AND rd_status EQ 1) OR ((quotehd.quo-Date LE TODAY AND quotehd.expireDate GT TODAY AND rd_status EQ 2) ~
  OR (quotehd.quo-Date LE TODAY AND quotehd.expireDate EQ ? AND rd_status EQ 2) ) OR (rd_status EQ 3))  ~
 ~{&useIndexPhrase} NO-LOCK, ~
-      EACH quoteitm OF quotehd OUTER-JOIN  ~
-      WHERE ({system/brMatches.i quoteitm.part-no fi_part-no}) ~
+      EACH quoteitm OF quotehd  ~
+	  WHERE ({system/brMatches.i quoteitm.part-no fi_part-no}) ~
     AND {system/brMatches.i quoteitm.part-dscr1 fi_item-decr}   ~
     ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY Browser-Table FOR EACH quotehd ~
@@ -125,8 +146,8 @@ OR fi_est-no EQ "") ~
 AND ((quotehd.expireDate LE TODAY AND rd_status EQ 1) OR ((quotehd.quo-Date LE TODAY AND quotehd.expireDate GT TODAY AND rd_status EQ 2) ~
  OR (quotehd.quo-Date LE TODAY AND quotehd.expireDate EQ ? AND rd_status EQ 2) ) OR (rd_status EQ 3))  ~
 ~{&useIndexPhrase} NO-LOCK, ~
-      EACH quoteitm OF quotehd OUTER-JOIN ~
-      WHERE ({system/brMatches.i quoteitm.part-no fi_part-no}) ~
+      EACH quoteitm OF quotehd  ~
+	  WHERE ({system/brMatches.i quoteitm.part-no fi_part-no}) ~
     AND {system/brMatches.i quoteitm.part-dscr1 fi_item-decr}   ~
     NO-LOCK ~
     ~{&SORTBY-PHRASE}.
@@ -284,6 +305,13 @@ DEFINE BROWSE Browser-Table
     WITH NO-ASSIGN SEPARATORS SIZE 138 BY 16.43
          FONT 2.
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD pGetSortCondition B-table-Win
+FUNCTION pGetSortCondition RETURNS CHARACTER 
+  (ipcSortBy AS CHARACTER) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -447,7 +475,7 @@ ASSIGN
 /* Query rebuild information for BROWSE Browser-Table
      _TblList          = "ASI.quotehd,ASI.quoteitm OF ASI.quotehd "
      _Options          = "NO-LOCK SORTBY-PHRASE"
-     _TblOptList       = "USED, OUTER USED"
+     _TblOptList       = "USED, USED"
      _OrdList          = "ASI.quotehd.q-no|no"
      _Where[1]         = "quotehd.company EQ g_company
 AND quotehd.loc EQ g_loc
@@ -574,6 +602,7 @@ END.
 ON CHOOSE OF btnShowNext IN FRAME F-Main /* Show Next */
 DO:
   RUN getValueFields ('Next').
+  RUN dispatch ("open-query").
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -585,6 +614,7 @@ END.
 ON CHOOSE OF btnShowPrevious IN FRAME F-Main /* Show Previous */
 DO:
   RUN getValueFields ('Previous').
+  RUN dispatch ("open-query").
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -652,7 +682,8 @@ DO:
     q-noValue[2] = IF fi_q-no NE 0 THEN fi_q-no ELSE 999999.
   IF fi_est-no NE '' THEN
   fi_est-no = FILL(' ',8 - LENGTH(TRIM(fi_est-no))) + TRIM(fi_est-no).
-  RUN openQuery.
+  //RUN openQuery.
+  RUN dispatch ("open-query").
   APPLY 'VALUE-CHANGED':U TO BROWSE {&BROWSE-NAME}.
   APPLY 'ENTRY':U TO BROWSE {&BROWSE-NAME}.
 END.
@@ -822,7 +853,8 @@ PROCEDURE getValueFields :
     fi_item-decr = ''.  
   DISPLAY {&filterFields} WITH FRAME {&FRAME-NAME}.
   
-  RUN openQuery.
+  //RUN openQuery.
+  //RUN dispatch ("open-query").
   
 END PROCEDURE.
 
@@ -840,6 +872,7 @@ PROCEDURE initValueFields :
                                AND bQuotehd.loc EQ g_loc NO-ERROR.
   IF NOT AVAILABLE bQuotehd THEN RETURN.
   /*q-noValue[1] = bQuotehd.q-no.*/   /* Task 12051304  */
+  ASSIGN ll-First = YES.
   RUN getValueFields ('Previous':U).
 
 END PROCEDURE.
@@ -879,14 +912,84 @@ PROCEDURE local-open-query :
   IF colLabels EQ '' THEN DO WITH FRAME {&FRAME-NAME}:
     RUN initValueFields.
     RUN getColLabels.
-    RUN openQuery.
+   // RUN openQuery.
+    
   END.
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .
 
-  /* Code placed here will execute AFTER standard behavior.    */
+   /* Code placed here will execute AFTER standard behavior.    */
+   
+  RUN pPrepareAndExecuteQuery(
+      INPUT ll-First
+        ).
   
+  IF ll-First THEN 
+      ll-First = NO.
+  
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pPrepareAndExecuteQuery B-table-Win 
+PROCEDURE pPrepareAndExecuteQuery :
+/*------------------------------------------------------------------------------
+ Purpose: Private procedure to prepare and execute query in browse
+ Notes:
+------------------------------------------------------------------------------*/   
+    DEFINE INPUT PARAMETER iplInitialLoad    AS LOGICAL NO-UNDO.
+    
+    DEFINE VARIABLE cLimitingQuery        AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cBrowseQuery          AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cResponse             AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cOrderTypeWhereClause AS CHARACTER NO-UNDO.
+    
+        ASSIGN cQueryBuffers = "quotehd,quoteitm"
+               cFieldBuffer  = "quotehd" 
+               cFieldName    = "q-no"
+               lIsBreakByUsed = NO.
+             
+    cLimitingQuery = "FOR EACH quotehd NO-LOCK"
+                     + " WHERE quotehd.company EQ " + QUOTER(g_company)
+                     + " AND quotehd.loc EQ " + QUOTER(g_loc)
+                     + " AND quotehd.q-no GE " + STRING(q-noValue[1])
+                     + " AND quotehd.q-no LE " + STRING(q-noValue[2])
+                     + " AND quotehd.cust-no BEGINS " + QUOTER(fi_cust-no)
+                     + " AND ( (lookup(quotehd.cust-no," + QUOTER(custcount) + ") <> 0 AND quotehd.cust-no <> '' ) OR " + QUOTER(custcount) + " = '')"
+                     + (IF fi_contact BEGINS '*' THEN " AND quotehd.contact MATCHES " + fi_contact 
+                        ELSE " AND quotehd.contact BEGINS " + QUOTER(fi_contact) )
+                     + (IF fi_quo-date NE ? THEN " AND quotehd.quo-date GE " + STRING(fi_quo-date) 
+                        ELSE " AND TRUE ")
+                     + " AND (quotehd.est-no EQ " + QUOTER(fi_est-no) + " OR " + QUOTER(fi_est-no) + " EQ '')"
+                     + " AND ((quotehd.expireDate LE TODAY AND " + STRING(rd_status) 
+                     + " EQ 1) OR ((quotehd.quo-Date LE TODAY AND quotehd.expireDate GT TODAY AND " 
+                     + STRING(rd_status) + " EQ 2) OR (quotehd.quo-Date LE TODAY AND quotehd.expireDate EQ ? AND " 
+                     + STRING(rd_status) + " EQ 2)) OR (" + STRING(rd_status) + " EQ 3)) "
+                     + ",EACH quoteitm OF quotehd NO-LOCK"
+                     + " WHERE"
+                     + (IF fi_part-no BEGINS '*' THEN " quoteitm.part-no MATCHES " + fi_part-no
+                        ELSE " quoteitm.part-no BEGINS " + QUOTER(fi_part-no)) 
+                     + (IF fi_item-decr BEGINS '*' THEN " AND quoteitm.part-dscr1 MATCHES " + fi_item-decr
+                        ELSE " AND quoteitm.part-dscr1 BEGINS " + QUOTER(fi_item-decr)) 
+                     + " BY " + pGetSortCondition(lv-sort-by) + " quotehd.q-no".
+     
+        
+        RUN Browse_PrepareAndExecuteLimitingQuery(
+            INPUT  cLimitingQuery,   /* Query */
+            INPUT  cQueryBuffers,    /* Buffers Name */
+            INPUT  iRecordLimit,     /* Record Limit */
+            INPUT  dQueryTimeLimit,  /* Time Limit*/
+            INPUT  lEnableShowAll,   /* Enable ShowAll Button? */
+            INPUT  cFieldBuffer,     /* Buffer name to fetch the field's value*/
+            INPUT  cFieldName,       /* Field Name*/
+            INPUT  iplInitialLoad,   /* Initial Query*/
+            INPUT  lIsBreakByUsed,   /* Is breakby used */
+            OUTPUT cResponse           
+            ).       
+  
+                                      
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1196,6 +1299,34 @@ IF fi_quo-date NE ? THEN
 
 END PROCEDURE.
 
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION pGetSortCondition B-table-Win
+FUNCTION pGetSortCondition RETURNS CHARACTER 
+  (ipcSortBy AS CHARACTER ):
+/*------------------------------------------------------------------------------
+ Purpose: Retuns the sort condition based on the input 
+ Notes:
+------------------------------------------------------------------------------*/
+
+    RETURN (IF sortColumn EQ 'Date' THEN STRING(YEAR(quotehd.quo-date),"9999") + 
+                                     STRING(MONTH(quotehd.quo-date),"99") + 
+                                     STRING(DAY(quotehd.quo-date),"99")  ELSE ~
+            IF sortColumn EQ 'Cust'             THEN quotehd.cust-no    ELSE ~
+            IF sortColumn EQ 'Contact'          THEN quotehd.contact    ELSE ~
+            IF sortColumn EQ 'Estimate'         THEN quotehd.est-no     ELSE ~
+            IF sortColumn EQ 'Expire Date'  THEN STRING(YEAR(quotehd.expireDate),"9999") + 
+                                                 STRING(MONTH(quotehd.expireDate),"99") + 
+                         STRING(DAY(quotehd.expireDate),"99")       ELSE ~
+            IF sortColumn EQ 'Cust Part'        THEN quoteitm.part-no   ELSE ~
+            IF sortColumn EQ 'Item Description' THEN quoteitm.part-dscr1 ELSE ~
+            IF sortColumn EQ 'Updated Date'     THEN STRING(YEAR(quotehd.upd-date),"9999") + 
+                             STRING(MONTH(quotehd.upd-date),"99") + 
+                             STRING(DAY(quotehd.upd-date),"99")   ELSE ~
+            IF sortColumn EQ 'Updated User'     THEN quotehd.upd-user   ELSE ""
+            ).
+END FUNCTION.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

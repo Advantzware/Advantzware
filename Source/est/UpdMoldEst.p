@@ -136,7 +136,21 @@ FOR EACH ttInputEst NO-LOCK:
               est-qty.qty[20] = ttInputEst.copy-qty[20] 
               est-qty.qty[40] = ttInputEst.copy-rel[20]
               est-qty.whsed[20] = logical(ttInputEst.copy-runship[20]).
-     END.             
+     END.      
+     IF est.estimateTypeID EQ "SingleMold" THEN DO:       
+      IF eb.est-type EQ 1 THEN
+      ASSIGN
+         eb.bl-qty      = ttInputEst.iQuantity
+         eb.cust-%      = 1.
+                     
+     END.
+     ELSE IF  est.estimateTypeID EQ "SetMold" THEN DO:
+      IF eb.est-type EQ 2 THEN 
+      ASSIGN
+         eb.bl-qty      = ttInputEst.iQuantity
+         eb.yld-qty     = ttInputEst.iQuantity.              
+     END.        
+     
       
       FIND FIRST xeb WHERE ROWID(xeb) EQ ROWID(eb) NO-LOCK NO-ERROR.
       FIND FIRST xest WHERE ROWID(xest) EQ ROWID(est) NO-LOCK NO-ERROR.
@@ -232,7 +246,7 @@ FOR EACH ttInputEst NO-LOCK:
         ASSIGN 
             ef.board = item.i-no
             ef.cal   = item.cal              
-            .  MESSAGE "ttInputEst.dCaliper" STRING(ttInputEst.dCaliper) VIEW-AS ALERT-BOX ERROR .
+            .  
         
     RUN est/CalcLayout.p ("C",
         ROWID(ef),

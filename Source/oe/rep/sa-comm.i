@@ -84,16 +84,16 @@
                          AND ar-cashl.cust-no  EQ cust.cust-no
                          AND ar-cashl.posted   EQ YES
                          AND ar-cashl.memo     EQ YES
-/*                          AND ar-cashl.inv-date GE v-date[1] */
-/*                          AND ar-cashl.inv-date LE v-date[2] */
+                         AND ar-cashl.inv-date GE v-date[1] 
+                         AND ar-cashl.inv-date LE v-date[2] 
                          AND CAN-FIND(FIRST account WHERE account.company EQ ar-cashl.company
                                                    AND account.actnum  EQ ar-cashl.actnum
                                                    AND account.type    EQ "R") NO-LOCK,
           EACH ar-cash WHERE ar-cash.c-no       EQ ar-cashl.c-no
                          AND ar-cash.company    EQ cocode
                          AND ar-cash.cust-no    EQ ar-cashl.cust-no
-                         AND ar-cash.check-date GE v-date[1]
-                         AND ar-cash.check-date LE v-date[2] 
+                         /*AND ar-cash.check-date GE v-date[1]  */
+                         /*AND ar-cash.check-date LE v-date[2]  */
                          AND ar-cash.posted     EQ YES NO-LOCK
                        USE-INDEX c-no:
 

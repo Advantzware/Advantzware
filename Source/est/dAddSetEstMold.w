@@ -26,6 +26,7 @@ CREATE WIDGET-POOL.
 
 
 DEFINE INPUT PARAMETER ipType AS CHARACTER NO-UNDO.  /* poup in edit or add mode */
+DEFINE INPUT PARAMETER ipcScreen AS CHARACTER NO-UNDO.  /* C for Corrected and F for Folding */
 DEFINE INPUT PARAMETER ipriRowid AS ROWID NO-UNDO .
 
 /* Local Variable Definitions ---                                       */
@@ -452,7 +453,7 @@ DO:
         RUN valid-ship-id(OUTPUT lError) NO-ERROR.
         IF lError THEN RETURN NO-APPLY . 
     
-        RUN est/dAddEditCompMold.w (?,ROWID(eb),"Add",cCustPart:SCREEN-VALUE IN FRAME {&frame-name},
+        RUN est/dAddEditMoldComp.w (?,ROWID(eb),"Add", ipcScreen,cCustPart:SCREEN-VALUE IN FRAME {&frame-name},
             item-name:SCREEN-VALUE IN FRAME {&frame-name},
             cCustPart:SCREEN-VALUE IN FRAME {&frame-name},
             fg-cat:SCREEN-VALUE IN FRAME {&frame-name},
@@ -480,7 +481,7 @@ DO:
         DO:   
             BUFFER-COPY ttInputEst  TO bff-ttInputEst .
             lv-rowid = IF AVAILABLE eb THEN ROWID(eb) ELSE ?.
-            RUN est/dAddEditCompMold.w (RECID(ttInputEst),lv-rowid,"Copy",cCustPart:SCREEN-VALUE IN FRAME {&frame-name},
+            RUN est/dAddEditMoldComp.w (RECID(ttInputEst),lv-rowid,"Copy", ipcScreen, cCustPart:SCREEN-VALUE IN FRAME {&frame-name},
                 item-name:SCREEN-VALUE IN FRAME {&frame-name},
                 cCustPart:SCREEN-VALUE IN FRAME {&frame-name},
                 fg-cat:SCREEN-VALUE IN FRAME {&frame-name},
@@ -527,7 +528,7 @@ DO:
         IF AVAILABLE ttInputEst THEN 
         DO:
             rwRowidEb = IF AVAILABLE eb THEN ROWID(eb) ELSE ?.
-            RUN est/dAddEditCompMold.w (RECID(ttInputEst),rwRowidEb,"Update",cCustPart:SCREEN-VALUE IN FRAME {&frame-name},
+            RUN est/dAddEditMoldComp.w (RECID(ttInputEst),rwRowidEb,"Update", ipcScreen, cCustPart:SCREEN-VALUE IN FRAME {&frame-name},
                 item-name:SCREEN-VALUE IN FRAME {&frame-name},
                 cCustPart:SCREEN-VALUE IN FRAME {&frame-name},
                 fg-cat:SCREEN-VALUE IN FRAME {&frame-name},

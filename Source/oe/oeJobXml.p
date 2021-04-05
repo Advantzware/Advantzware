@@ -110,6 +110,8 @@ DEFINE TEMP-TABLE ttTempJob
     FIELD DockContact AS CHARACTER 
     FIELD MachLayout AS CHARACTER 
     FIELD MachPR AS CHARACTER 
+    FIELD CSRId AS CHARACTER 
+    FIELD PoReceivedDate AS DATE 
     .
  
 DEFINE VARIABLE cocode AS CHARACTER NO-UNDO.
@@ -316,6 +318,8 @@ FOR EACH EDDoc EXCLUSIVE-LOCK WHERE ROWID(EDDoc) EQ iprEdDoc,
                     ttTempJob.FreightClass = itemfg.frt-class
                     ttTempJob.FreightClassDesc = itemfg.frt-class-dscr
                     ttTempJob.Warehouse = itemfg.def-loc
+                    ttTempJob.CSRId     =  job.csrUser_id
+                    ttTempJob.PoReceivedDate = if avail oe-ord then oe-ord.poReceivedDate else ? 
                     .
                 
                 /* Override of itemfg.procat-desc to match logic in viewers/itemfg.w */    
@@ -501,6 +505,7 @@ DO:
             RUN XMLOutput (lXMLOutput,'NUMBER_UP',ttTempJob.NumUp,'Col').
             RUN XMLOutput (lXMLOutput,'QC_SPC',ttTempJob.QcSpc,'Col').
             RUN XMLOutput (lXMLOutput,'Category',ttTempJob.FgCategory,'Col').
+            RUN XMLOutput (lXMLOutput,'CSR_ID',ttTempJob.CSRId,'Col').
         RUN XMLOutput (lXMLOutput,'/JobTicketHeader','','Row').        
        
         RUN XMLOutput (lXMLOutput,'TicketPrinting','','Row'). 
@@ -605,6 +610,7 @@ DO:
         RUN XMLOutput (lXMLOutput,'/RollExamining','','Row').
            
         RUN XMLOutput (lXMLOutput,'TicketPrint','','Row').
+            RUN XMLOutput (lXMLOutput,'PO_Received_Date',ttTempJob.PoReceivedDate,'Col').
             RUN XMLOutput (lXMLOutput,'Requested_Date',ttTempJob.DateDue,'Col').
             RUN XMLOutput (lXMLOutput,'Ship_Due_Date',ttTempJob.DateLastShip,'Col').
             RUN XMLOutput (lXMLOutput,'Ship_id',ttTempJob.ShipID,'Col').

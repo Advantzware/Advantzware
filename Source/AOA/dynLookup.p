@@ -25,7 +25,6 @@ DEFINE VARIABLE cSourceField    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cSourceTable    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cTableName      AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cTitle          AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cWhereClause    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cWidths         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE dtDate          AS DATE      NO-UNDO.
 DEFINE VARIABLE hBusinessLogic  AS HANDLE    NO-UNDO.
@@ -60,23 +59,32 @@ ASSIGN
     cTitle       = dynParamValue.paramTitle
     iRecordLimit = dynParamValue.recordLimit
     .
-FOR EACH dynSubjectWhere NO-LOCK
-    WHERE dynSubjectWhere.subjectID EQ ipiSubjectID
-       BY dynSubjectWhere.sortOrder
-    :
-    cWhereClause = cWhereClause + dynSubjectWhere.whereElement + " ".
-END. /* each dynsubjecthwere */
-ASSIGN
-    cWhereClause = REPLACE(cWhereClause,"WHERE ","")
-    cWhereClause = TRIM(cWhereClause)
-    .
 
-IF INDEX(cWhereClause,"[[") NE 0 THEN
-RUN pInitParamValues (cWhereClause).
+cQueryStr = "FOR".
+FOR EACH dynSubjectTable
+    WHERE dynSubjectTable.subjectID EQ ipiSubjectID
+       BY dynSubjectTable.sortOrder
+    :
+    cQueryStr = cQueryStr + " "
+              + dynSubjectTable.tableFind + " "
+              + dynSubjectTable.tableName + " "
+              .
+    FOR EACH dynSubjectWhere
+        WHERE dynSubjectWhere.subjectID  EQ dynSubjectTable.subjectID
+          AND dynSubjectWhere.whereTable EQ dynSubjectTable.tableName
+           BY dynSubjectWhere.sortOrder
+        :
+        cQueryStr = cQueryStr + dynSubjectWhere.whereElement + " ".
+    END. /* each ttSubjectWhere */
+    cQueryStr = TRIM(cQueryStr) + ", ".
+END. /* each ttSubjectTable */
+cQueryStr = TRIM(cQueryStr,", ").
+    
+IF INDEX(cQueryStr,"[[") NE 0 THEN
+RUN pInitParamValues (cQueryStr).
 
 /* replace [[parameter]] with parameter value */
-{AOA/includes/cQueryStr.i cWhereClause}
-cWhereClause = cQueryStr.
+{AOA/includes/cQueryStr.i cQueryStr}
 
 FOR EACH dynValueColumn NO-LOCK
     WHERE dynValueColumn.subjectID    EQ dynParamValue.subjectID
@@ -85,32 +93,28 @@ FOR EACH dynValueColumn NO-LOCK
       AND dynValueColumn.paramValueID EQ dynParamValue.paramValueID
     BY dynValueColumn.sortOrder
     :
-    IF dynValueColumn.isCalcField THEN
-    cFieldName = dynValueColumn.colName.
-    ELSE
-    ASSIGN
-        cTableName = ENTRY(1,dynValueColumn.colName,".")
-        cFieldName = ENTRY(2,dynValueColumn.colName,".")
-        .
-    cRequiredFields = cRequiredFields + cFieldName + ",".
+
+    cRequiredFields = cRequiredFields + dynValueColumn.colName + ",".
+    
+    IF NOT dynValueColumn.isCalcField AND LOOKUP(ENTRY(1, dynValueColumn.colName, "."), cSourceTable) EQ 0 THEN
+        cSourceTable = cSourceTable + ENTRY(1, dynValueColumn.colName, ".") + ",".
+        
     IF dynValueColumn.sortOrder EQ 1 THEN
-    ASSIGN
-        cSourceTable = cTableName
-        cSourceField = cFieldName
-        .
+        cSourceField = dynValueColumn.colName.
+        
     IF dynValueColumn.isActive THEN DO:
         ASSIGN
-            cDisplayFields = cDisplayFields + cFieldName + ","
+            cDisplayFields = cDisplayFields + dynValueColumn.colName + ","
             cFormats       = cFormats       + REPLACE(dynValueColumn.colFormat,",","") + ","
             cLabels        = cLabels        + dynValueColumn.colLabel + ","
             cWidths        = cWidths        + (IF dynValueColumn.dataType EQ "Date" THEN "20" ELSE "") + ","
             .
         IF dynValueColumn.isReturnValue THEN
-        cReturnFields = cReturnFields + cFieldName + ",".
+        cReturnFields = cReturnFields + dynValueColumn.colName + ",".
         IF dynValueColumn.isSearchable THEN
-        cSearchFields = cSearchFields + cFieldName + ",".
+        cSearchFields = cSearchFields + dynValueColumn.colName + ",".
         IF dynValueColumn.isSortable THEN
-        cSortFields   = cSortFields   + cFieldName + ",".
+        cSortFields   = cSortFields   + dynValueColumn.colName + ",".
     END. /* if isactive */
 END. /* each dynvaluecolumn */
 
@@ -133,6 +137,7 @@ END. /* if begins */
 
 IF lRunLookup THEN DO:
     ASSIGN
+        cSourceTable    = TRIM(cSourceTable, ",")
         cDisplayFields  = TRIM(cDisplayFields,",")
         cFormats        = TRIM(cFormats,",")
         cLabels         = TRIM(cLabels,",")
@@ -141,14 +146,8 @@ IF lRunLookup THEN DO:
         cSearchFields   = TRIM(cSearchFields,",")
         cSortFields     = TRIM(cSortFields,",")
         cWidths         = SUBSTRING(cWidths,1,LENGTH(cWidths) - 1)
-        cDisplayFields  = REPLACE(cDisplayFields,cSourceTable + ".","")
-        cRequiredFields = REPLACE(cRequiredFields,cSourceTable + ".","")
-        cReturnFields   = REPLACE(cReturnFields,cSourceTable + ".","")
-        cSearchFields   = REPLACE(cSearchFields,cSourceTable + ".","")
-        cSortFields     = REPLACE(cSortFields,cSourceTable + ".","")
-        cSourceField    = REPLACE(cSourceField,cSourceTable + ".","")
         .
-    RUN windows/l-lookup.w (
+    RUN windows/l-lookup-mult.w (
         cTitle,
         cSourceField,
         cSourceTable,
@@ -159,7 +158,7 @@ IF lRunLookup THEN DO:
         cWidths,
         cSearchFields,
         cSortFields,
-        cWhereClause,
+        cQueryStr,
         cReturnFields,
         iRecordLimit,
         ipiSubjectID,
