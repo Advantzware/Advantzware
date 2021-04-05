@@ -916,6 +916,11 @@ PROCEDURE Outbound_UpdateGlobalFieldValues:
     
     DEFINE VARIABLE cAPITransactionCounter    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cClientTransactionCounter AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCompany                  AS CHARACTER NO-UNDO.
+    
+    cCompany = system.SessionConfig:Instance:GetValue("CompanyID").
+    
+    DEFINE BUFFER bf-cust FOR cust.
     
     ASSIGN
         cAPITransactionCounter    = STRING(fGetAPITransactionCounter(ipiAPIOutboundID))
@@ -926,6 +931,32 @@ PROCEDURE Outbound_UpdateGlobalFieldValues:
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ClientTransCounter", cClientTransactionCounter).
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CurrentDate", TODAY).
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CurrentTime", TIME).
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CompanyID", cCompany).
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CompanyName", system.SessionConfig:Instance:GetValue("CompanyName")).
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CompanyStreet1", system.SessionConfig:Instance:GetValue("CompanyStreet1")).
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CompanyStreet2", system.SessionConfig:Instance:GetValue("CompanyStreet2")).
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CompanyCity", system.SessionConfig:Instance:GetValue("CompanyCity")).
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CompanyState", system.SessionConfig:Instance:GetValue("CompanyState")).
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CompanyPostalCode", system.SessionConfig:Instance:GetValue("CompanyPostalCode")).
+
+    /* It seems referencing system.SessionConfig:Instance:GetValue in a query doesn't work. Using company variable instead */    
+    FIND FIRST bf-cust NO-LOCK
+         WHERE bf-cust.company EQ cCompany
+           AND bf-cust.active  EQ "X"
+         NO-ERROR.
+    IF AVAILABLE bf-cust THEN DO:
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CustomerXID", bf-cust.cust-no).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CustomerXName", bf-cust.name).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CustomerXAddress1", bf-cust.addr[1]).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CustomerXAddress2", bf-cust.addr[2]).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CustomerXCity", bf-cust.city).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CustomerXState", bf-cust.state).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CustomerXCountry", bf-cust.country).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CustomerXEmail", bf-cust.email).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CustomerXAreaCode", bf-cust.area-code).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CustomerXPhone", bf-cust.phone).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CustomerXFax", bf-cust.fax).        
+    END.
 END PROCEDURE.
 
 PROCEDURE Outbound_ValidateClientID:
