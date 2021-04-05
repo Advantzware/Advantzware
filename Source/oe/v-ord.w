@@ -125,7 +125,8 @@ DEFINE VARIABLE cOeShipChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFreightCalculationValue AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cMisEstimate AS CHARACTER NO-UNDO .
 DEFINE VARIABLE lLocalCancelRecords AS LOGICAL NO-UNDO .
-
+DEFINE VARIABLE deAutoOverRun  AS DECIMAL NO-UNDO.
+DEFINE VARIABLE deAutoUnderRun AS DECIMAL NO-UNDO.
 &Scoped-define sman-fields oe-ord.sman oe-ord.s-pct oe-ord.s-comm
 
 DEF NEW SHARED TEMP-TABLE w-ord NO-UNDO FIELD w-ord-no LIKE oe-ord.ord-no.
@@ -1699,6 +1700,24 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME oe-ord.over-pct
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ord.over-pct V-table-Win
+ON LEAVE OF oe-ord.over-pct IN FRAME F-Main /* Overrun % */
+DO:
+    DEFINE VARIABLE lCheckFlg AS LOGICAL.
+    IF deAutoOverRun NE  oe-ord.over-pct:INPUT-VALUE THEN
+        RUN displayMessageQuestion (INPUT "62", OUTPUT lCheckFlg).
+    IF lCheckFlg THEN   
+        FOR EACH oe-ordl WHERE oe-ordl.ord-no = oe-ord.ord-no:      
+            ASSIGN
+                oe-ordl.over-pct = oe-ord.over-pct:INPUT-VALUE.  
+        END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME oe-ord.po-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ord.po-no V-table-Win
 ON LEAVE OF oe-ord.po-no IN FRAME F-Main /* Cust PO# */
@@ -2008,6 +2027,24 @@ DO:
   DO li = 1 TO LENGTH(oe-ord.terms:SCREEN-VALUE):
     APPLY "cursor-right" TO oe-ord.terms.
   END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME oe-ord.under-pct
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ord.under-pct V-table-Win
+ON LEAVE OF oe-ord.under-pct IN FRAME F-Main /* Underrun % */
+DO:
+    DEFINE VARIABLE lCheckFlg AS LOGICAL.
+    IF deAutoUnderRun NE  oe-ord.under-pct:INPUT-VALUE THEN
+        RUN displayMessageQuestion (INPUT "62", OUTPUT lCheckFlg).
+    IF lCheckFlg THEN   
+        FOR EACH oe-ordl WHERE oe-ordl.ord-no = oe-ord.ord-no:      
+            ASSIGN 
+                oe-ordl.under-pct = oe-ord.under-pct:INPUT-VALUE .  
+        END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -6328,6 +6365,7 @@ PROCEDURE pGetOverUnderPct :
                            oe-ord.cust-no:SCREEN-VALUE ,
                            TRIM(oe-ord.ship-id:SCREEN-VALUE),
                            "", /* FG Item*/
+                           0,
                            OUTPUT dOverPer , OUTPUT dUnderPer, OUTPUT cTagDesc ) .  
       oe-ord.over-pct:SCREEN-VALUE = STRING(dOverPer).
       oe-ord.Under-pct:SCREEN-VALUE = STRING(dUnderPer). 
@@ -6354,7 +6392,8 @@ PROCEDURE pGetOverUnderPct :
           btnTagsOverrn:SENSITIVE = FALSE.
                            
   END.
-
+    deAutoOverRun = dOverPer.
+    deAutoUnderRun = dUnderPer.
   {methods/lValidateError.i NO}
 END PROCEDURE.
 

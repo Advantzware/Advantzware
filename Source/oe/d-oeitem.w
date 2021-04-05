@@ -1061,7 +1061,7 @@ DO:
                  RUN display-fgitem NO-ERROR.
                  IF NOT ERROR-STATUS:ERROR THEN DO:
                    IF AVAIL oe-ord THEN
-                   RUN pGetOverUnderPct(oe-ord.cust-no,oe-ord.ship-id) .
+                   RUN pGetOverUnderPct(oe-ord.cust-no,oe-ord.ship-id,0) .
                    ll-ok-i-no = YES.
                    IF oescreen-log AND asi.oe-ordl.est-no:SCREEN-VALUE EQ "" THEN DO:
                    
@@ -1792,8 +1792,8 @@ DO:
             cLocBin = shipto.loc-bin
             . 
             
-   IF avail oe-ord THEN
-      RUN pGetOverUnderPct(oe-ord.cust-no,oe-ord.ship-id) .
+   IF AVAIL oe-ord THEN
+      RUN pGetOverUnderPct(oe-ord.cust-no,oe-ord.ship-id,0) .
       
   IF ll-bypass THEN DO:
     ll-bypass = NO.
@@ -2789,6 +2789,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
          v-ship-id = bf-oe-rel.ship-id.
      END.
      RUN create-item.
+      RUN pGetOverUnderPct("", "", ip-ord-no) .
      /*find oe-ordl where recid(oe-ordl) = lv-item-recid no-error.*/
   END.
   ELSE DO:
@@ -4468,7 +4469,7 @@ PROCEDURE display-est-detail :
               DATE(oe-ordl.prom-date:SCREEN-VALUE) THEN
              oe-ordl.prom-date:SCREEN-VALUE = oe-ordl.req-date:SCREEN-VALUE.
         END.
-        RUN pGetOverUnderPct(b-eb.cust-no,b-eb.ship-id) .
+        RUN pGetOverUnderPct(b-eb.cust-no,b-eb.ship-id,0) .
      END. /*avail b-eb*/
 
      IF lastship-cha = "Stock/Custom" THEN DO:
@@ -7591,6 +7592,7 @@ PROCEDURE pGetOverUnderPct :
 ------------------------------------------------------------------------------*/
    DEFINE INPUT PARAMETER ipcCustNo AS CHARACTER NO-UNDO .
    DEFINE INPUT PARAMETER ipcShipID AS CHARACTER NO-UNDO .
+   DEFINE INPUT PARAMETER ipiOrdNo  AS INTEGER   NO-UNDO .
    DEFINE VARIABLE dOverPer AS DECIMAL NO-UNDO.
    DEFINE VARIABLE dUnderPer AS DECIMAL NO-UNDO.
    DEFINE BUFFER bf-shipto FOR shipto .
@@ -7600,8 +7602,9 @@ PROCEDURE pGetOverUnderPct :
   DO WITH FRAME {&FRAME-NAME}:                   
         RUN oe/GetOverUnderPct.p(g_company, 
                                ipcCustNo,
-                               TRIM(ipcShipID),
+        TRIM(ipcShipID),
                                oe-ordl.i-no:SCREEN-VALUE,
+                               ipiOrdNo,
                                OUTPUT dOverPer , OUTPUT dUnderPer,  OUTPUT cTagDesc  ) .
                                oe-ordl.over-pct:SCREEN-VALUE = STRING(dOverPer).
                                oe-ordl.Under-pct:SCREEN-VALUE = STRING(dUnderPer). 
@@ -7624,8 +7627,6 @@ PROCEDURE pGetOverUnderPct :
           INPUT "OverPct-Source",
           OUTPUT lAvailable
           ).
-          MESSAGE lAvailable "lAvailable"
-          VIEW-AS ALERT-BOX.
       IF lAvailable THEN  
           btnTagsOverrn:SENSITIVE = TRUE.
       ELSE 

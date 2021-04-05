@@ -8,17 +8,23 @@ DEFINE INPUT  PARAMETER ipcCompany      AS   CHARACTER               NO-UNDO.
 DEFINE INPUT  PARAMETER ipcCustomerID   AS   CHARACTER               NO-UNDO.
 DEFINE INPUT  PARAMETER ipcShipToId     AS   CHARACTER               NO-UNDO.
 DEFINE INPUT  PARAMETER ipcFGItem       AS   CHARACTER               NO-UNDO.
+DEFINE INPUT  PARAMETER ipiOrderNo      AS   INTEGER                 NO-UNDO.
 DEFINE OUTPUT PARAMETER opdOverPer      AS   DECIMAL                 NO-UNDO.
 DEFINE OUTPUT PARAMETER opdUnderPer     AS   DECIMAL                 NO-UNDO.
-DEFINE OUTPUT PARAMETER opcTagDesc      AS   CHARACTER                  NO-UNDO.
+DEFINE OUTPUT PARAMETER opcTagDesc      AS   CHARACTER               NO-UNDO.
 DEFINE VARIABLE cRtnChar        AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound       AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cFGOversDefault AS CHARACTER NO-UNDO.
 
-RUN sys/ref/nk1look.p (ipcCompany, "FGOversDefault", "C", NO, NO, "", "", 
-    OUTPUT cRtnChar, OUTPUT lRecFound).
-IF lRecFound THEN
-    cFGOversDefault = STRING(cRtnChar) NO-ERROR. 
+IF  ipiOrderNo NE 0 THEN 
+DO:
+    RUN sys/ref/nk1look.p (ipcCompany, "FGOversDefault", "C", NO, NO, "", "", 
+        OUTPUT cRtnChar, OUTPUT lRecFound).
+    IF lRecFound THEN
+        cFGOversDefault = STRING(cRtnChar) NO-ERROR. 
+END.
+ELSE 
+    cFGOversDefault = "Order".
 
 CASE cFGOversDefault:
     WHEN "Customer" THEN 
@@ -106,6 +112,17 @@ CASE cFGOversDefault:
                     opdUnderPer = cust.under-pct
                     opcTagDesc  = "Customer no. - " + ipcCustomerID + " Ship ID - " + ipcShipToId.            
             END.
+        END. 
+    WHEN "Order" THEN 
+        DO:       
+            FIND FIRST oe-ord NO-LOCK
+                WHERE oe-ord.ord-no EQ ipiOrderNo NO-ERROR . 
+                
+            IF AVAILABLE oe-ord THEN
+                ASSIGN
+                    opdOverPer  = oe-ord.over-pct
+                    opdUnderPer = oe-ord.under-pct 
+                    opcTagDesc  = "Order no. - " + string(ipiOrderNo)  .                              
         END.           
 END CASE.
 
