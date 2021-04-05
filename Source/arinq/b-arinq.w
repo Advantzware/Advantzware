@@ -146,10 +146,10 @@ DEF VAR ll-first AS LOG INIT YES NO-UNDO.
 /* Definitions for BROWSE Browser-Table                                 */
 &Scoped-define FIELDS-IN-QUERY-Browser-Table ar-invl.inv-no ar-invl.bol-no ~
 ar-invl.cust-no ar-inv.inv-date ar-invl.actnum ar-invl.i-no ar-invl.part-no ~
-ar-invl.ord-no ar-invl.po-no ar-invl.est-no ar-invl.i-name 
+ar-invl.ord-no ar-invl.po-no ar-invl.est-no ar-invl.i-name ar-inv.gross ar-inv.due
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table ar-invl.inv-no ~
 ar-invl.bol-no ar-invl.cust-no ar-inv.inv-date ar-invl.actnum ar-invl.i-no ~
-ar-invl.part-no ar-invl.ord-no ar-invl.po-no ar-invl.est-no 
+ar-invl.part-no ar-invl.ord-no ar-invl.po-no ar-invl.est-no ar-inv.gross ar-inv.due
 &Scoped-define ENABLED-TABLES-IN-QUERY-Browser-Table ar-invl ar-inv
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-Browser-Table ar-invl
 &Scoped-define SECOND-ENABLED-TABLE-IN-QUERY-Browser-Table ar-inv
@@ -343,6 +343,8 @@ DEFINE BROWSE Browser-Table
       ar-invl.est-no COLUMN-LABEL "Est#" FORMAT "x(8)":U WIDTH 12
             LABEL-BGCOLOR 14
       ar-invl.i-name FORMAT "x(30)":U LABEL-BGCOLOR 14
+      ar-inv.gross COLUMN-LABEL "Inv Amount" FORMAT "->>,>>>,>>9.99":U LABEL-BGCOLOR 14
+      ar-inv.due COLUMN-LABEL "Amt Due" FORMAT "->>,>>>,>>9.99":U LABEL-BGCOLOR 14
   ENABLE
       ar-invl.inv-no
       ar-invl.bol-no
@@ -354,6 +356,8 @@ DEFINE BROWSE Browser-Table
       ar-invl.ord-no
       ar-invl.po-no
       ar-invl.est-no
+      ar-inv.gross
+      ar-inv.due
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 148 BY 15
@@ -493,6 +497,10 @@ ASSIGN
 "ar-invl.est-no" "Est#" "x(8)" "character" ? ? ? 14 ? ? yes ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[11]   > ASI.ar-invl.i-name
 "ar-invl.i-name" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[12]   > ASI.ar-inv.gross
+"ar-inv.gross" "Inv Amount" "->>,>>>,>>9.99" "decimal" ? ? ? 14 ? ? yes ? no no "9" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[13]   > ASI.ar-inv.due
+"ar-inv.due" "Amt Due" "->>,>>>,>>9.99" "decimal" ? ? ? 14 ? ? yes ? no no "9" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
@@ -1224,6 +1232,8 @@ PROCEDURE local-initialize :
    ar-invl.actnum:READ-ONLY IN BROWSE {&browse-name} = YES
    ar-invl.part-no:READ-ONLY IN BROWSE {&browse-name} = YES
    ar-invl.po-no:READ-ONLY IN BROWSE {&browse-name} = YES
+   ar-inv.gross:READ-ONLY IN BROWSE {&browse-name} = YES
+   ar-inv.due:READ-ONLY IN BROWSE {&browse-name} = YES
    .
 
  /* FI_moveCol = "Sort".
