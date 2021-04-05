@@ -519,11 +519,13 @@ ELSE lv-comp-color = "BLACK".
                 AND itemfg.i-no = ar-invl.i-no NO-ERROR.
 
             do v = 1 to 4:
-              v-part-info = if v eq 1 then (IF ar-invl.part-dscr1 <> "" THEN ar-invl.part-dscr1 ELSE ar-invl.i-dscr)
-                            else
-                            if v eq 2 then ar-invl.part-dscr2
-                            ELSE IF v EQ 3 AND AVAIL itemfg THEN itemfg.part-dscr3
-                            else           trim(lv-inv-list).
+              CASE v:
+                WHEN 1 THEN ASSIGN v-part-info = IF ar-invl.part-dscr1 <> "" THEN ar-invl.part-dscr1 ELSE ar-invl.i-dscr.
+                WHEN 2 THEN ASSIGN v-part-info = IF ar-invl.part-dscr2 NE "" THEN ar-invl.part-dscr2 ELSE
+                                                 IF AVAIL itemfg THEN itemfg.part-dscr2 ELSE "".
+                WHEN 3 THEN ASSIGN v-part-info = IF AVAIL itemfg THEN itemfg.part-dscr3 ELSE "".
+                WHEN 4 THEN ASSIGN v-part-info = "".
+              END CASE.
 
               if v-part-info ne "" OR (v = 1 AND ar-invl.part-no <> "") then do:
                  IF v = 1 THEN DO:
@@ -550,7 +552,7 @@ ELSE lv-comp-color = "BLACK".
                  END.
                  ELSE 
                  IF v = 2 THEN PUT SPACE(45) v-part-info SKIP.
-                 ELSE          PUT SPACE(24) "Previous Invoice(s): " v-part-info SKIP.
+                 ELSE          PUT SPACE(45) v-part-info SKIP.
                  v-printline = v-printline + 1.
               end.
             end.
