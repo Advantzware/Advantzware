@@ -863,7 +863,7 @@ DO:
             IF cFoundValue <> "" THEN 
                 ASSIGN 
                     lw-focus:SCREEN-VALUE  = cFoundValue
-                    v-gl-desc:SCREEN-VALUE = DYNAMIC-FUNCTION("sfDynLookupValue", "dscr", cFieldsValue).
+                    v-gl-desc:SCREEN-VALUE = DYNAMIC-FUNCTION("sfDynLookupValue", "account.dscr", cFieldsValue).
         END.
         WHEN "cust-no" THEN DO:
             RUN windows/l-cust.w (g_company, po-ordl.cust-no:SCREEN-VALUE, OUTPUT char-val).

@@ -442,10 +442,10 @@ DO:
             
         IF cbScopeType:SCREEN-VALUE EQ "ShipTo" THEN DO:
             DO iIndex = 1 TO NUM-ENTRIES(cReturnFields, "|"):
-                IF ENTRY(iIndex, cReturnFields, "|") EQ "ship-id" THEN
+                IF ENTRY(iIndex, cReturnFields, "|") EQ "shipto.ship-id" THEN
                     cShipToID = ENTRY(iIndex + 1, cReturnFields, "|").
                 
-                IF ENTRY(iIndex, cReturnFields, "|") EQ "cust-no" THEN
+                IF ENTRY(iIndex, cReturnFields, "|") EQ "shipto.cust-no" THEN
                     cCustomerID = ENTRY(iIndex + 1, cReturnFields, "|").
                  
             END.
