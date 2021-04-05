@@ -659,6 +659,8 @@ ON VALUE-CHANGED OF br_table IN FRAME F-Main
 DO:
   DEF VAR char-hdl AS CHAR NO-UNDO.
   DEF VAR li AS INT NO-UNDO.
+  DEFINE VARIABLE phandle AS HANDLE NO-UNDO.
+  DEFINE VARIABLE lEnableButton AS LOGICAL NO-UNDO.
 
 
   /* This ADM trigger code must be preserved in order to notify other
@@ -670,6 +672,10 @@ DO:
     IF VALID-HANDLE(WIDGET-HANDLE(ENTRY(li,char-hdl))) THEN
       RUN dispatch IN WIDGET-HANDLE(ENTRY(li,char-hdl)) ("open-query"). 
   END.
+  
+  RUN pGetInvoiceFlag(OUTPUT lEnableButton) .
+  {methods/run_link.i "container-source" "pSetInvoiceButton" "(lEnableButton)" }
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1245,7 +1251,8 @@ PROCEDURE local-initialize :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-
+  DEFINE VARIABLE phandle AS HANDLE NO-UNDO.
+  DEFINE VARIABLE lEnableButton AS LOGICAL NO-UNDO.
   /* Code placed here will execute AFTER standard behavior.    */
   find first period
       where period.company eq cocode
@@ -1269,6 +1276,9 @@ PROCEDURE local-initialize :
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
     RUN setCellColumns.
     /* Code placed here will execute AFTER standard behavior.    */
+    
+    RUN pGetInvoiceFlag(OUTPUT lEnableButton) .
+    {methods/run_link.i "container-source" "pSetInvoiceButton" "(lEnableButton)" }
 
     ASSIGN tt-glinq.tr-date:READ-ONLY IN BROWSE {&browse-name} = YES
            tt-glinq.jrnl:READ-ONLY IN BROWSE {&browse-name} = YES
@@ -1418,6 +1428,37 @@ PROCEDURE pUpdate :
          WHERE tt-glinq.riRowid EQ riRowid NO-ERROR .         
        reposition {&browse-name} to recid recid(tt-glinq) NO-ERROR  .           
    END.
+  
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME   
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetInvoiceFlag B-table-Win 
+PROCEDURE pGetInvoiceFlag :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DEFINE OUTPUT PARAMETER oplEnableButton AS LOGICAL NO-UNDO.
+   DEF VAR iInvNo AS INT NO-UNDO.
+   DEF VAR cInvNo AS CHARACTER NO-UNDO.
+    IF avail tt-glinq THEN
+    cInvNo = TRIM(SUBSTR(tt-glinq.tr-dscr,INDEX(tt-glinq.tr-dscr,"Inv# ") + 5,8)) NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN cInvNo = "".
+
+    iInvNo = INT(cInvNo) NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN iInvNo = 0.
+
+    IF iInvNo NE 0                              AND
+       CAN-FIND(FIRST ar-inv
+                WHERE ar-inv.company EQ cocode
+                  AND ar-inv.inv-no  EQ iInvNo) THEN DO:  
+        oplEnableButton = YES.       
+    END.
   
 
 END PROCEDURE.

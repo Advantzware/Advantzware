@@ -90,6 +90,8 @@ DEFINE VARIABLE h_smartmsg AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_w-glinvl AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_movecol AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_b-glbal AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_b-glunbal AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_movecol-2 AS HANDLE NO-UNDO.
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -308,7 +310,7 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/folder.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'FOLDER-LABELS = ':U + 'Browse|Detail|Balance|Invoices' + ',
+             INPUT  'FOLDER-LABELS = ':U + 'Browse|Detail|Balance|Invoices|UnBalance' + ',
                      FOLDER-TAB-TYPE = 2':U ,
              OUTPUT h_folder ).
        RUN set-position IN h_folder ( 3.14 , 2.00 ) NO-ERROR.
@@ -406,6 +408,31 @@ PROCEDURE adm-create-objects :
 
        /* Adjust the tab order of the smart objects. */
     END. /* Page 4 */
+    WHEN 5 THEN DO:
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'gl/b-glunbal.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_b-glunbal ).
+       RUN set-position IN h_b-glunbal ( 5.05 , 5.00 ) NO-ERROR.
+       RUN set-size IN h_b-glunbal ( 19.57 , 173.00 ) NO-ERROR.
+
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'viewers/movecol.w':U ,
+             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_movecol-2 ).
+       RUN set-position IN h_movecol-2 ( 1.00 , 96.60 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 7.80 ) */
+
+       
+       /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_b-glunbal ,
+             h_folder , 'AFTER':U ).
+       /* Links to SmartViewer h_movecol. */
+       RUN add-link IN adm-broker-hdl ( h_b-glunbal , 'move-columns':U , h_movecol-2 ).
+
+    END. /* Page 1 */
 
   END CASE.
   /* Select a Startup page. */
@@ -490,6 +517,29 @@ PROCEDURE hide-estimate :
 ------------------------------------------------------------------------------*/
   
   RUN select-page (li-prev-page).
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetInvoiceButton W-Win 
+PROCEDURE pSetInvoiceButton :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   
+  
+  DEFINE INPUT PARAM ipInvoiced AS LOGICAL NO-UNDO. 
+  DEFINE VARIABLE tabNo AS INTEGER INIT 4 NO-UNDO.
+                          
+  IF tabNo NE 0 THEN DO:
+     IF ipInvoiced THEN RUN enable-folder-page IN h_folder (tabNo) NO-ERROR.
+     ELSE RUN disable-folder-page IN h_folder (tabNo) NO-ERROR.
+  END.
+  
 
 END PROCEDURE.
 
