@@ -1699,7 +1699,7 @@ PROCEDURE pAPInvoiceLength :
                    begin_vend:WIDTH-CHARS = 20
                    end_inv:WIDTH-CHARS = 20
                    end_vend:WIDTH-CHARS = 20
-                   end_inv:INITIAL = "zzzzzzzzzzzz"
+                   end_inv:INITIAL = "zzzzzzzzzzzz".
         END.    
     END.
 END PROCEDURE.
