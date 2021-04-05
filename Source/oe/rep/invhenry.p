@@ -662,7 +662,7 @@ find first company where company.company eq cocode NO-LOCK.
                  ELSE IF v EQ 4 THEN
                   PUT SPACE(26) "Previous Invoices: " v-part-info SKIP.
                  ELSE
-                  PUT SPACE(47)  v-part-info SKIP.
+                  PUT SPACE(46) v-part-info SKIP.
                  v-printline = v-printline + 1.
               end.
             end.
