@@ -525,7 +525,7 @@ DEFINE FRAME F-Main
           FONT 6*/
      "PO#" VIEW-AS TEXT
           SIZE 6 BY .95 AT ROW 1.24 COL 6.4
-          BGCOLOR 8 FGCOLOR 9 
+          FGCOLOR 9 
      "RM/FG Item#" VIEW-AS TEXT
           SIZE 16 BY .95 AT ROW 1.24 COL 33.4
           FGCOLOR 9 

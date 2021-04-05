@@ -119,6 +119,8 @@ DEFINE VARIABLE h_b-posum       AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_vp-clspo      AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_vp-clsp2      AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_vp-viewp      AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_movecol-2     AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_vi-poord-4    AS HANDLE NO-UNDO.
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
@@ -683,13 +685,34 @@ PROCEDURE adm-create-objects :
     END. /* Page 5 */
     WHEN 6 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
+             INPUT  'po/vi-poord1.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_vi-poord-4 ).
+       RUN set-position IN h_vi-poord-4 ( 5.05 , 4.00 ) NO-ERROR.
+       /* Size in UIB:  ( 4.38 , 144.00 ) */
+    
+       RUN init-object IN THIS-PROCEDURE (
              INPUT  'poinq/f-porec.w':U ,
              INPUT  {&WINDOW-NAME} ,
              INPUT  'Layout = ':U ,
              OUTPUT h_f-porec ).
-       RUN set-position IN h_f-porec ( 5.05 , 3.60 ) NO-ERROR.
-       /* Size in UIB:  ( 19.00 , 113.80 ) */
+       RUN set-position IN h_f-porec ( 8.00 , 4.00 ) NO-ERROR.
+      RUN set-size IN h_f-porec ( 12.38 , 146.00 ) NO-ERROR. 
        
+        RUN init-object IN THIS-PROCEDURE (
+             INPUT  'viewers/movecol.w':U ,
+             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_movecol-2 ).
+       RUN set-position IN h_movecol-2 ( 1.00 , 24.80 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 7.80 ) */
+       
+       /* Links to SmartViewer h_movecol. */
+       RUN add-link IN adm-broker-hdl ( h_f-porec , 'move-columns':U , h_movecol-2 ). 
+       
+       /* Links to SmartViewer h_vi-poord-3. */
+       RUN add-link IN adm-broker-hdl ( h_b-po-inq , 'Record':U , h_vi-poord-4 ).
 
        /* Adjust the tab order of the smart objects. */
     END. /* Page 6 */
