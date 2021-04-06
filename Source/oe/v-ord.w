@@ -1731,11 +1731,15 @@ DO:
     DEFINE VARIABLE lCheckFlg AS LOGICAL.
     IF deAutoOverRun NE  oe-ord.over-pct:INPUT-VALUE THEN
     DO:
-        RUN pAddTag ("OverPct-Source","Entered manualy"  ).
-        
+        RUN pAddTag ("OverPct-Source","Entered Manualy"  ).
+        IF CAN-FIND (FIRST oe-ordl WHERE oe-ordl.company EQ g_company 
+                                    AND oe-ordl.ord-no EQ oe-ord.ord-no
+                                    AND oe-ordl.line GT 0) THEN 
         RUN displayMessageQuestion (INPUT "62", OUTPUT lCheckFlg).
         IF lCheckFlg THEN   
-        FOR EACH oe-ordl WHERE oe-ordl.ord-no = oe-ord.ord-no:      
+        FOR EACH oe-ordl WHERE oe-ordl.company EQ g_company 
+                           AND oe-ordl.ord-no EQ oe-ord.ord-no
+                           AND oe-ordl.line GT 0:      
             ASSIGN
                 oe-ordl.over-pct = oe-ord.over-pct:INPUT-VALUE.  
            RUN ClearTagsForGroup(
@@ -2077,15 +2081,32 @@ END.
 ON LEAVE OF oe-ord.under-pct IN FRAME F-Main /* Underrun % */
 DO:
     DEFINE VARIABLE lCheckFlg AS LOGICAL.
+
     IF deAutoUnderRun NE  oe-ord.under-pct:INPUT-VALUE THEN
     DO:
         RUN pAddTag ("UnderPct-Source","Enterd Manualy" ).
+        IF CAN-FIND (FIRST oe-ordl WHERE oe-ordl.company EQ g_company 
+                                    AND oe-ordl.ord-no EQ oe-ord.ord-no
+                                    AND oe-ordl.line GT 0) THEN 
         RUN displayMessageQuestion (INPUT "62", OUTPUT lCheckFlg).
         IF lCheckFlg THEN   
-            FOR EACH oe-ordl WHERE oe-ordl.ord-no = oe-ord.ord-no:      
+            FOR EACH oe-ordl WHERE oe-ordl.company EQ g_company 
+                AND oe-ordl.ord-no EQ oe-ord.ord-no
+                AND oe-ordl.line GT 0:     
                 ASSIGN 
                     oe-ordl.under-pct = oe-ord.under-pct:INPUT-VALUE .  
-                
+                RUN ClearTagsForGroup(
+                    INPUT oe-ordl.rec_key,
+                    INPUT "UnderPct-Source"
+                    ).
+                RUN AddTagInfoForGroup(
+                    INPUT oe-ordl.rec_key,
+                    INPUT "oe-ordl",
+                    INPUT "Order no. - " + string(oe-ord.ord-no) ,
+                    INPUT "",
+                    INPUT "UnderPct-Source"
+                    ). /*From TagProcs Super Proc*/
+         
             END.
         END.
 END.
@@ -5578,7 +5599,9 @@ PROCEDURE local-display-fields :
             btnTagsUnder:SENSITIVE = TRUE
                 .
         ELSE 
-            btnTagsUnder:SENSITIVE = FALSE.             
+            btnTagsUnder:SENSITIVE = FALSE. 
+        deAutoUnderRun =  oe-ord.under-pct:INPUT-VALUE.
+        deAutoOverRun =  oe-ord.over-pct:INPUT-VALUE.         
     END.
 
   RUN pDisplayAddresses.
