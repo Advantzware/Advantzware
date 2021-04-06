@@ -92,6 +92,7 @@ DEFINE VARIABLE h_exit AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_f-add AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_folder AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_impexcel AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_import AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_options AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-arinv AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-cashl AS HANDLE NO-UNDO.
@@ -308,6 +309,14 @@ PROCEDURE adm-create-objects :
              OUTPUT h_smartmsg ).
        RUN set-position IN h_smartmsg ( 1.00 , 52.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.14 , 32.00 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'import.w':U ,
+             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_import ).
+       /* Position in AB:  ( 1.00 , 61.80 ) */
+       /* Size in UIB:  ( 1.81 , 7.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'smartobj/f-add.w':U ,
@@ -653,6 +662,22 @@ PROCEDURE get-current-page :
    DEFINE OUTPUT PARAM adm-current-page AS INTEGER NO-UNDO.
    RUN get-attribute IN THIS-PROCEDURE ('Current-Page':U).
    adm-current-page = INTEGER(RETURN-VALUE).
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE import-file W-Win 
+PROCEDURE import-file :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    RUN util/dev/impgljrn.p .
+    IF VALID-HANDLE(h_b-gljrn1) THEN
+    RUN local-open-query IN h_b-gljrn1 .
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
