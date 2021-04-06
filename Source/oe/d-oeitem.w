@@ -2838,7 +2838,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
          v-ship-id = bf-oe-rel.ship-id.
      END.
      RUN create-item.
-      RUN pGetOverUnderPct("", "", ip-ord-no) .
+      RUN pGetOverUnderPct("", "", ip-ord-no) .     
+      deAutoOver = oe-ordl.over-pct:INPUT-VALUE IN FRAME {&frame-name}.
+      deAutoUnder = oe-ordl.under-pct:INPUT-VALUE IN FRAME {&frame-name}.
      /*find oe-ordl where recid(oe-ordl) = lv-item-recid no-error.*/
   END.
   ELSE DO:
@@ -2900,6 +2902,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
           btnTagsUnder:SENSITIVE IN FRAME {&frame-name}  = TRUE.
       ELSE 
           btnTagsUnder:SENSITIVE IN FRAME {&frame-name}  = FALSE.
+      deAutoOver = oe-ordl.over-pct:INPUT-VALUE IN FRAME {&frame-name}.
+      deAutoUnder = oe-ordl.under-pct:INPUT-VALUE IN FRAME {&frame-name}.
 /*     IF runship-log EQ YES THEN          */
 /*     DO:                                 */
 /*        ASSIGN                           */
@@ -3019,6 +3023,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       ll-ok-i-no = CAN-FIND(FIRST itemfg
                             WHERE itemfg.company EQ oe-ordl.company
                               AND itemfg.i-no    EQ oe-ordl.i-no).
+                                  
+        deAutoOver = oe-ordl.over-pct:INPUT-VALUE IN FRAME {&frame-name}.
+        deAutoUnder = oe-ordl.under-pct:INPUT-VALUE IN FRAME {&frame-name}.
     END.
 
 /*     IF runship-char EQ "RUN&SHIP Prompt" THEN DO: */
