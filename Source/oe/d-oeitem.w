@@ -167,6 +167,9 @@ DEFINE VARIABLE lAvailable AS LOGICAL NO-UNDO.
 
 DEFINE VARIABLE deAutoOver AS DECIMAL NO-UNDO.
 DEFINE VARIABLE deAutoUnder AS DECIMAL NO-UNDO.
+DEFINE VARIABLE cRtnChar        AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound       AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cFGOversDefault AS CHARACTER NO-UNDO.
   
 RUN salrep/SalesManProcs.p PERSISTENT SET hdSalesManProcs.
 
@@ -1222,7 +1225,7 @@ DO:
     RUN system/d-TagViewer.w (
         INPUT oe-ordl.rec_key,
         INPUT "",
-        INPUT "OverPct-Source"
+        INPUT "Over Percentage"
         ).
 END.
 
@@ -1237,7 +1240,7 @@ DO:
     RUN system/d-TagViewer.w (
         INPUT oe-ordl.rec_key,
         INPUT "",
-        INPUT "UnderPct-Source"
+        INPUT "Under Percentage"
         ).
 END.
 
@@ -1998,7 +2001,7 @@ END.
 ON LEAVE OF oe-ordl.over-pct IN FRAME d-oeitem /* Overrun % */
 DO:
   IF deAutoOver NE oe-ordl.over-pct:INPUT-VALUE THEN 
-      RUN pAddTag("OverPct-Source", "Enter Manualy").
+      RUN pAddTag("Over Percentage", "Enter Manualy").
 
 END.
 
@@ -2716,7 +2719,7 @@ END.
 ON LEAVE OF oe-ordl.under-pct IN FRAME d-oeitem /* Underrun % */
 DO:
     IF deAutoUnder NE oe-ordl.under-pct:INPUT-VALUE THEN 
-    RUN pAddTag("UnderPct-Source", "Enter Manualy").
+    RUN pAddTag("Under Percentage", "Enter Manualy").
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2838,7 +2841,16 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
          v-ship-id = bf-oe-rel.ship-id.
      END.
      RUN create-item.
-      RUN pGetOverUnderPct("", "", ip-ord-no) .     
+      RUN sys/ref/nk1look.p (g_company, "FGOversDefault", "C", NO, NO, "", "", 
+          OUTPUT cRtnChar, OUTPUT lRecFound).
+      IF lRecFound THEN
+      DO:         
+          cFGOversDefault = STRING(cRtnChar) NO-ERROR. 
+          MESSAGE cFGOversDefault
+          VIEW-AS ALERT-BOX.     
+          IF cFGOversDefault NE  "FG category" THEN 
+            RUN pGetOverUnderPct("", "", ip-ord-no) .  
+      END.   
       deAutoOver = oe-ordl.over-pct:INPUT-VALUE IN FRAME {&frame-name}.
       deAutoUnder = oe-ordl.under-pct:INPUT-VALUE IN FRAME {&frame-name}.
      /*find oe-ordl where recid(oe-ordl) = lv-item-recid no-error.*/
@@ -2884,7 +2896,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       RUN Tag_IsTagRecordAvailableForGroup(
           INPUT oe-ordl.rec_key,
           INPUT "oe-ordl",
-          INPUT "OverPct-Source",
+          INPUT "Over Percentage",
           OUTPUT lAvailable
           ).
       IF lAvailable THEN          
@@ -2895,7 +2907,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       RUN Tag_IsTagRecordAvailableForGroup(
           INPUT oe-ordl.rec_key,
           INPUT "oe-ordl",
-          INPUT "UnderPct-Source",
+          INPUT "Under Percentage",
           OUTPUT lAvailable
           ).
       IF lAvailable THEN
@@ -7603,16 +7615,16 @@ PROCEDURE pAddTag :
             ).
         IF lAvailable THEN  
         DO:
-            IF ipcSource = "OverPct-Source" THEN         
+            IF ipcSource = "Over Percentage" THEN         
                 btnTagsOverrn:SENSITIVE = TRUE.
-            ELSE IF ipcSource = "UnderPct-Source" THEN 
+            ELSE IF ipcSource = "Under Percentage" THEN 
                 btnTagsUnder:SENSITIVE = TRUE.
         END.
         ELSE 
         DO:
-            IF ipcSource = "OverPct-Source" THEN 
+            IF ipcSource = "Over Percentage" THEN 
                 btnTagsOverrn:SENSITIVE = FALSE.
-            ELSE IF ipcSource = "UnderPct-Source" THEN 
+            ELSE IF ipcSource = "Under Percentage" THEN 
                 btnTagsUnder:SENSITIVE = FALSE.
         END.
    
@@ -7735,9 +7747,9 @@ PROCEDURE pGetOverUnderPct :
                                OUTPUT dOverPer , OUTPUT dUnderPer,  OUTPUT cTagDesc  ) .
                                oe-ordl.over-pct:SCREEN-VALUE = STRING(dOverPer).
                                oe-ordl.Under-pct:SCREEN-VALUE = STRING(dUnderPer). 
-         RUN pAddTag("OverPct-Source", cTagDesc).
-         RUN pAddTag("UnderPct-Source", cTagDesc).
-            deAutoOver = dOverPer.
+         RUN pAddTag("Over Percentage", cTagDesc).
+         RUN pAddTag("Under Percentage", cTagDesc).
+         deAutoOver = dOverPer.
    deAutoUnder =  dUnderPer.                                                   
   END.
 

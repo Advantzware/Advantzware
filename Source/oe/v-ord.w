@@ -187,6 +187,7 @@ RUN methods/prgsecur.p
 DEF VAR cRtnChar AS CHAR NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE lCEAddCustomerOption AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cFGOversDefault AS CHARACTER NO-UNDO.
 
 RUN sys/ref/nk1look.p (cocode, "OEJobHold", "L", NO, NO, "", "", 
     OUTPUT lcReturn, OUTPUT llRecFound).
@@ -1286,7 +1287,7 @@ DO:
     RUN system/d-TagViewer.w (
         INPUT oe-ord.rec_key,
         INPUT "",
-        INPUT "OverPct-Source"
+        INPUT "Over Percentage"
         ).
 END.
 
@@ -1301,7 +1302,7 @@ DO:
     RUN system/d-TagViewer.w (
         INPUT oe-ord.rec_key,
         INPUT "",
-        INPUT "OverPct-Source"
+        INPUT "Over Percentage"
         ).
 END.
 
@@ -1731,10 +1732,16 @@ DO:
     DEFINE VARIABLE lCheckFlg AS LOGICAL.
     IF deAutoOverRun NE  oe-ord.over-pct:INPUT-VALUE THEN
     DO:
-        RUN pAddTag ("OverPct-Source","Entered Manualy"  ).
-        IF CAN-FIND (FIRST oe-ordl WHERE oe-ordl.company EQ g_company 
-                                    AND oe-ordl.ord-no EQ oe-ord.ord-no
-                                    AND oe-ordl.line GT 0) THEN 
+        RUN pAddTag ("Over Percentage","Entered Manualy"  ).
+        RUN sys/ref/nk1look.p (g_company, "FGOversDefault", "C", NO, NO, "", "", 
+            OUTPUT cRtnChar, OUTPUT lRecFound).
+        IF lRecFound THEN
+        DO:         
+            cFGOversDefault = STRING(cRtnChar) NO-ERROR.      
+            IF cFGOversDefault NE  "FG category" AND  
+                CAN-FIND (FIRST oe-ordl WHERE oe-ordl.company EQ g_company 
+                  AND oe-ordl.ord-no EQ oe-ord.ord-no
+                  AND oe-ordl.line GT 0) THEN 
         RUN displayMessageQuestion (INPUT "62", OUTPUT lCheckFlg).
         IF lCheckFlg THEN   
         FOR EACH oe-ordl WHERE oe-ordl.company EQ g_company 
@@ -1744,15 +1751,16 @@ DO:
                 oe-ordl.over-pct = oe-ord.over-pct:INPUT-VALUE.  
            RUN ClearTagsForGroup(
                 INPUT oe-ordl.rec_key,
-                INPUT "OverPct-Source"
+                INPUT "Over Percentage"
                 ).
             RUN AddTagInfoForGroup(
                 INPUT oe-ordl.rec_key,
                 INPUT "oe-ordl",
                 INPUT "Order no. - " + string(oe-ord.ord-no) ,
                 INPUT "",
-                INPUT "OverPct-Source"
+                INPUT "Over Percentage"
                 ). /*From TagProcs Super Proc*/
+        END.
         END.
     END.
 END.
@@ -2084,12 +2092,18 @@ DO:
 
     IF deAutoUnderRun NE  oe-ord.under-pct:INPUT-VALUE THEN
     DO:
-        RUN pAddTag ("UnderPct-Source","Enterd Manualy" ).
-        IF CAN-FIND (FIRST oe-ordl WHERE oe-ordl.company EQ g_company 
-                                    AND oe-ordl.ord-no EQ oe-ord.ord-no
-                                    AND oe-ordl.line GT 0) THEN 
+        RUN pAddTag ("Under Percentage","Enterd Manualy" ).
+        RUN sys/ref/nk1look.p (g_company, "FGOversDefault", "C", NO, NO, "", "", 
+          OUTPUT cRtnChar, OUTPUT lRecFound).
+        IF lRecFound THEN
+        DO:         
+          cFGOversDefault = STRING(cRtnChar) NO-ERROR.      
+          IF cFGOversDefault NE  "FG category" AND  
+        CAN-FIND (FIRST oe-ordl WHERE oe-ordl.company EQ g_company 
+                  AND oe-ordl.ord-no EQ oe-ord.ord-no
+                  AND oe-ordl.line GT 0) THEN 
         RUN displayMessageQuestion (INPUT "62", OUTPUT lCheckFlg).
-        IF lCheckFlg THEN   
+          IF lCheckFlg THEN   
             FOR EACH oe-ordl WHERE oe-ordl.company EQ g_company 
                 AND oe-ordl.ord-no EQ oe-ord.ord-no
                 AND oe-ordl.line GT 0:     
@@ -2097,17 +2111,18 @@ DO:
                     oe-ordl.under-pct = oe-ord.under-pct:INPUT-VALUE .  
                 RUN ClearTagsForGroup(
                     INPUT oe-ordl.rec_key,
-                    INPUT "UnderPct-Source"
+                    INPUT "Under Percentage"
                     ).
                 RUN AddTagInfoForGroup(
                     INPUT oe-ordl.rec_key,
                     INPUT "oe-ordl",
                     INPUT "Order no. - " + string(oe-ord.ord-no) ,
                     INPUT "",
-                    INPUT "UnderPct-Source"
+                    INPUT "Under Percentage"
                     ). /*From TagProcs Super Proc*/
          
             END.
+        END.
         END.
 END.
 
@@ -5581,7 +5596,7 @@ PROCEDURE local-display-fields :
          RUN Tag_IsTagRecordAvailableForGroup(
              INPUT oe-ord.rec_key,
              INPUT "oe-ord",
-             INPUT "OverPct-Source",
+             INPUT "Over Percentage",
              OUTPUT lAvailable
              ).
            IF lAvailable THEN  
@@ -5592,7 +5607,7 @@ PROCEDURE local-display-fields :
          RUN Tag_IsTagRecordAvailableForGroup(
             INPUT oe-ord.rec_key,
             INPUT "oe-ord",
-            INPUT "UnderPct-Source",
+            INPUT "Under Percentage",
             OUTPUT lAvailable
             ).
         IF lAvailable THEN  
@@ -6325,16 +6340,16 @@ PROCEDURE pAddTag :
             ).
         IF lAvailable THEN  
         DO:
-            IF ipcSource = "OverPct-Source" THEN        
+            IF ipcSource = "Over Percentage" THEN        
                 btnTagsOverrn:SENSITIVE = TRUE.
-            ELSE IF ipcSource = "UnderPct-Source" THEN 
+            ELSE IF ipcSource = "Under Percentage" THEN 
                 btnTagsUnder:SENSITIVE = TRUE.
         END.
         ELSE 
         DO:
-            IF ipcSource = "OverPct-Source" THEN        
+            IF ipcSource = "Over Percentage" THEN        
                 btnTagsOverrn:SENSITIVE = FALSE.
-            ELSE IF ipcSource = "UnderPct-Source" THEN 
+            ELSE IF ipcSource = "Under Percentage" THEN 
                 btnTagsUnder:SENSITIVE = FALSE.
         END.
                            
@@ -6509,9 +6524,9 @@ PROCEDURE pGetOverUnderPct :
                            OUTPUT dOverPer , OUTPUT dUnderPer, OUTPUT cTagDesc ) .  
       oe-ord.over-pct:SCREEN-VALUE = STRING(dOverPer).
       oe-ord.Under-pct:SCREEN-VALUE = STRING(dUnderPer). 
-      RUN pAddTag ("OverPct-Source",cTagDesc ).
-      RUN pAddTag ("UnderPct-Source",cTagDesc ).
-        END.
+      RUN pAddTag ("Over Percentage",cTagDesc ).
+      RUN pAddTag ("Under Percentage",cTagDesc ).
+  END.
     deAutoOverRun = dOverPer.
     deAutoUnderRun = dUnderPer.
   {methods/lValidateError.i NO}
