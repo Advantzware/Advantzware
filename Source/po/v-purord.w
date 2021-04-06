@@ -1939,6 +1939,8 @@ PROCEDURE local-cancel-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
+  lManualStatuschange = FALSE.
+  
   DISABLE po-ord.ship-id WITH FRAME {&FRAME-NAME}.
     lNewOrd = FALSE.
     lUpdateMode = FALSE.
@@ -2214,14 +2216,7 @@ PROCEDURE local-update-record :
   
     /* 97404 Ticket 95260 PO change order flag */
     IF lManualStatusChange THEN DO:
-        ASSIGN
-            po-ord.printed:SCREEN-VALUE = "N".
-        FOR EACH po-ordl EXCLUSIVE-LOCK WHERE
-            po-ordl.company = po-ord.company AND
-            po-ordl.po-no = po-ord.po-no:
-            ASSIGN 
-                po-ordl.stat = po-ord.stat:SCREEN-VALUE. 
-        END.
+        RUN pManualStatusChange.
     END.    
     
   /* Dispatch standard ADM method.                             */
@@ -2598,6 +2593,39 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pManualStatusChange V-table-Win
+PROCEDURE pManualStatusChange PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DISABLE TRIGGERS FOR LOAD OF po-ordl.
+    
+    DEFINE BUFFER bf-po-ordl FOR po-ordl.
+    
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+    
+    /* 97404 Ticket 95260 PO change order flag */
+    IF lManualStatusChange THEN DO:
+        po-ord.printed:SCREEN-VALUE = "N".
+        
+        FOR EACH bf-po-ordl EXCLUSIVE-LOCK 
+            WHERE bf-po-ordl.company EQ po-ord.company
+              AND bf-po-ordl.po-no   EQ po-ord.po-no:
+            bf-po-ordl.stat = po-ord.stat:SCREEN-VALUE. 
+        END.
+        
+        lManualStatusChange = FALSE.
+    END.
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE post-enable V-table-Win 
 PROCEDURE post-enable :
