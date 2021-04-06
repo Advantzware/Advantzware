@@ -46,6 +46,7 @@ PROCEDURE AddTagHold:
     DEFINE INPUT PARAMETER ipcLinkTable   AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcDescription AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcNotes       AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcGroup       AS CHARACTER NO-UNDO.
 
     IF NOT CAN-FIND(FIRST tag 
                     WHERE tag.linkRecKey  EQ ipcLinkRecKey
@@ -58,7 +59,7 @@ PROCEDURE AddTagHold:
         INPUT ipcLinkTable,
         INPUT ipcDescription,
         INPUT ipcNotes,
-        INPUT ""
+        INPUT ipcGroup
         ).
         
 END PROCEDURE.

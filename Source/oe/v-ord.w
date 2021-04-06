@@ -1270,7 +1270,8 @@ ON CHOOSE OF btnTags IN FRAME F-Main
 DO:
     RUN system/d-TagViewer.w (
         INPUT oe-ord.rec_key,
-        INPUT ""
+        INPUT "",
+        INPUT "STATUS-Source"
         ).
 END.
 
@@ -5555,7 +5556,29 @@ PROCEDURE local-display-fields :
                btnTags:SENSITIVE = TRUE
                .
            ELSE 
-               btnTags:SENSITIVE = FALSE.            
+               btnTags:SENSITIVE = FALSE. 
+         RUN Tag_IsTagRecordAvailableForGroup(
+             INPUT oe-ord.rec_key,
+             INPUT "oe-ord",
+             INPUT "OverPct-Source",
+             OUTPUT lAvailable
+             ).
+           IF lAvailable THEN  
+               btnTagsOverrn:SENSITIVE = TRUE
+               .
+           ELSE 
+               btnTagsOverrn:SENSITIVE = FALSE.  
+         RUN Tag_IsTagRecordAvailableForGroup(
+            INPUT oe-ord.rec_key,
+            INPUT "oe-ord",
+            INPUT "UnderPct-Source",
+            OUTPUT lAvailable
+            ).
+        IF lAvailable THEN  
+            btnTagsUnder:SENSITIVE = TRUE
+                .
+        ELSE 
+            btnTagsUnder:SENSITIVE = FALSE.             
     END.
 
   RUN pDisplayAddresses.

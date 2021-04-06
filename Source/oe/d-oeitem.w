@@ -2879,7 +2879,27 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    v-margin        = oe-ordl.q-qty.
 
   DO WITH FRAME {&FRAME-NAME}:
-
+      RUN Tag_IsTagRecordAvailableForGroup(
+          INPUT oe-ordl.rec_key,
+          INPUT "oe-ordl",
+          INPUT "OverPct-Source",
+          OUTPUT lAvailable
+          ).
+      IF lAvailable THEN          
+          btnTagsOverrn:SENSITIVE IN FRAME {&frame-name} = TRUE.
+      ELSE 
+          btnTagsOverrn:SENSITIVE IN FRAME {&frame-name}  = FALSE.
+        
+      RUN Tag_IsTagRecordAvailableForGroup(
+          INPUT oe-ordl.rec_key,
+          INPUT "oe-ordl",
+          INPUT "UnderPct-Source",
+          OUTPUT lAvailable
+          ).
+      IF lAvailable THEN
+          btnTagsUnder:SENSITIVE IN FRAME {&frame-name}  = TRUE.
+      ELSE 
+          btnTagsUnder:SENSITIVE IN FRAME {&frame-name}  = FALSE.
 /*     IF runship-log EQ YES THEN          */
 /*     DO:                                 */
 /*        ASSIGN                           */
@@ -7557,39 +7577,37 @@ PROCEDURE pAddTag :
    DEFINE VARIABLE  lAvailable AS LOGICAL NO-UNDO.
    
    DO WITH FRAME {&frame-name}:   
-    RUN ClearTagsForGroup(
-        INPUT oe-ordl.rec_key,
-        INPUT ipcSource
-        ).
-    RUN AddTagInfoForGroup(
-        INPUT oe-ordl.rec_key,
-        INPUT "oe-ordl",
-        INPUT ipcDesc,
-        INPUT "",
-        INPUT ipcSource
-        ). /*From TagProcs Super Proc*/ 
-    RUN Tag_IsTagRecordAvailableForGroup(
-        INPUT oe-ordl.rec_key,
-        INPUT "oe-ordl",
-        INPUT ipcSource,
-        OUTPUT lAvailable
-        ).
-    IF lAvailable THEN  
-    DO:
-         IF ipcSource = "OverPct-Source" THEN 
-         
-        btnTagsOverrn:SENSITIVE = TRUE.
-        ELSE  IF ipcSource = "UnderPct-Source" THEN 
-          btnTagsUnder:SENSITIVE = TRUE.
-    END.
-    ELSE 
-    DO:
-        IF ipcSource = "OverPct-Source" THEN 
-         
-            btnTagsOverrn:SENSITIVE = FALSE.
-        ELSE  IF ipcSource = "UnderPct-Source" THEN 
+        RUN ClearTagsForGroup(
+            INPUT oe-ordl.rec_key,
+            INPUT ipcSource
+            ).
+        RUN AddTagInfoForGroup(
+            INPUT oe-ordl.rec_key,
+            INPUT "oe-ordl",
+            INPUT ipcDesc,
+            INPUT "",
+            INPUT ipcSource
+            ). /*From TagProcs Super Proc*/ 
+        RUN Tag_IsTagRecordAvailableForGroup(
+            INPUT oe-ordl.rec_key,
+            INPUT "oe-ordl",
+            INPUT ipcSource,
+            OUTPUT lAvailable
+            ).
+        IF lAvailable THEN  
+        DO:
+            IF ipcSource = "OverPct-Source" THEN         
+                btnTagsOverrn:SENSITIVE = TRUE.
+            ELSE IF ipcSource = "UnderPct-Source" THEN 
+                btnTagsUnder:SENSITIVE = TRUE.
+        END.
+        ELSE 
+        DO:
+            IF ipcSource = "OverPct-Source" THEN 
+                btnTagsOverrn:SENSITIVE = FALSE.
+            ELSE IF ipcSource = "UnderPct-Source" THEN 
                 btnTagsUnder:SENSITIVE = FALSE.
-                END.
+        END.
    
     END.  
 END PROCEDURE.

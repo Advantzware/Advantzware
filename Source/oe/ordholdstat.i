@@ -190,7 +190,7 @@ PROCEDURE os-Process-Hold-Status :
        ASSIGN vcStatus = "N"
               vcHoldType = "".
               
-       RUN ClearTagsHold (b-oe-ord.rec_key).       
+       RUN ClearTagsForGroup (b-oe-ord.rec_key, "STATUS-Source").       
 
        /* Prompt to update items if more than one. */
        IF vi > 1 THEN
@@ -220,7 +220,8 @@ PROCEDURE os-Process-Hold-Status :
             INPUT b-oe-ord.rec_key,
             INPUT "oe-ord",
             INPUT getOrdStatDescr(vcHoldType),
-            INPUT ""
+            INPUT "",
+            INPUT "STATUS-Source"
             ).
         
        /* Prompt to update items if more than one. */

@@ -631,15 +631,16 @@ PROCEDURE ValidateOrder:
             INPUT bf-oe-ord.rec_key,
             INPUT "oe-ord",
             INPUT opcMessage,
-            INPUT ""
+            INPUT "",
+            INPUT "STATUS-Source"
             ).
         RETURN.  
     END.
    
     RUN pBuildValidationsToRun(bf-oe-ord.company).    
                     
-    RUN ClearTagsHold (
-        INPUT bf-oe-ord.rec_key
+    RUN ClearTagsForGroup (
+        INPUT bf-oe-ord.rec_key, "STATUS-Source"
         ).
     iCountHold = 0.
     FOR EACH ttValidation NO-LOCK:
@@ -657,7 +658,8 @@ PROCEDURE ValidateOrder:
                     INPUT bf-oe-ord.rec_key,
                     INPUT "oe-ord",
                     INPUT ttValidation.cHoldMessage,
-                    INPUT ttValidation.cNotes
+                    INPUT ttValidation.cNotes,
+                    INPUT "STATUS-Source"
                     ).
                 ASSIGN
                     iCountHold = iCountHold + 1
@@ -665,12 +667,13 @@ PROCEDURE ValidateOrder:
                     opcMessage = opcMessage + "|" + ttValidation.cHoldMessage.
             END.    
             ELSE 
-            DO:
-                RUN AddTagInfo (
+            DO:  
+                RUN AddTagInfoForGroup (
                     INPUT bf-oe-ord.rec_key,
                     INPUT "oe-ord",
                     INPUT ttValidation.cHoldMessage,
-                    INPUT ttValidation.cNotes
+                    INPUT ttValidation.cNotes,
+                    INPUT "STATUS-Source"
                     ).
                 ttValidation.lHoldResult = FALSE. 
             END.          
