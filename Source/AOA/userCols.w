@@ -133,7 +133,7 @@ DEFINE TEMP-TABLE ttGroup NO-UNDO
 groupBrowse btnColMoveDown btnColMoveUp btnAdvanced btnGroupCalc btnSave ~
 btnAddGroup btnAddSort btnRemoveGroup btnRemoveSort btnSortMoveDown ~
 btnSortMoveUp 
-&Scoped-Define DISPLAYED-OBJECTS searchBar udfGroups udfGroupsLabel 
+&Scoped-Define DISPLAYED-OBJECTS searchBar 
 
 /* Custom List Definitions                                              */
 /* SortGroupButtons,List-2,List-3,List-4,List-5,List-6                  */
@@ -411,9 +411,15 @@ ASSIGN
 /* SETTINGS FOR BUTTON btnSortMoveUp IN FRAME F-Main
    1                                                                    */
 /* SETTINGS FOR COMBO-BOX udfGroups IN FRAME F-Main
-   NO-ENABLE                                                            */
+   NO-DISPLAY NO-ENABLE                                                 */
+ASSIGN 
+       udfGroups:HIDDEN IN FRAME F-Main           = TRUE.
+
 /* SETTINGS FOR FILL-IN udfGroupsLabel IN FRAME F-Main
-   NO-ENABLE                                                            */
+   NO-DISPLAY NO-ENABLE                                                 */
+ASSIGN 
+       udfGroupsLabel:HIDDEN IN FRAME F-Main           = TRUE.
+
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -1253,10 +1259,10 @@ PROCEDURE pWinReSize :
         FRAME {&FRAME-NAME}:VIRTUAL-WIDTH  = ipdWidth
         FRAME {&FRAME-NAME}:HEIGHT         = ipdHeight
         FRAME {&FRAME-NAME}:WIDTH          = ipdWidth
-        udfGroups:ROW                      = FRAME {&FRAME-NAME}:HEIGHT
-        udfGroupsLabel:SCREEN-VALUE        = "UDF Groups:"
-        udfGroupsLabel:ROW                 = udfGroups:ROW
-        BROWSE subjectColumnBrowse:HEIGHT  = ipdHeight - BROWSE subjectColumnBrowse:ROW - udfGroups:HEIGHT + .82
+/*        udfGroups:ROW                      = FRAME {&FRAME-NAME}:HEIGHT*/
+/*        udfGroupsLabel:SCREEN-VALUE        = "UDF Groups:"             */
+/*        udfGroupsLabel:ROW                 = udfGroups:ROW             */
+        BROWSE subjectColumnBrowse:HEIGHT  = ipdHeight - BROWSE subjectColumnBrowse:ROW + 1 /* - udfGroups:HEIGHT + .82 */
         BROWSE groupBrowse:HEIGHT          = ipdHeight - BROWSE groupBrowse:ROW + 1
         btnRemoveGroup:ROW                 = ipdHeight - btnRemoveGroup:HEIGHT + 1
         .
