@@ -239,20 +239,11 @@ PROCEDURE pExpireOldPrices PRIVATE:
                         ttOePrmtxCsv.Quantity9     = bf-oe-prmtx.qty[9]
                         ttOePrmtxCsv.Quantity10    = bf-oe-prmtx.qty[10]
                         .
-                END.     
-                /* Make sure effective date is GE expiry date */ 
-                IF ttOeprmtx.oldExpiryDate - 1  LT bf-oe-prmtx.eff-date THEN DO:
-                    IF iplExpire THEN
-                        bf-oe-prmtx.exp-date = ttOeprmtx.oldExpiryDate.
+                END.                     
+                IF iplExpire THEN 
+                        bf-oe-prmtx.exp-date = TODAY - 1.
                     ELSE 
-                        ttOePrmtxCsv.newExpiryDate = ttOeprmtx.oldExpiryDate.    
-                END.                 
-                ELSE DO:
-                    IF iplExpire THEN 
-                        bf-oe-prmtx.exp-date = ttOeprmtx.effectiveDate - 1.
-                    ELSE 
-                        ttOePrmtxCsv.newExpiryDate = ttOeprmtx.effectiveDate - 1.        
-                END.    
+                        ttOePrmtxCsv.newExpiryDate = TODAY - 1. 
                 LEAVE.  
             END.                              
         END.                                        

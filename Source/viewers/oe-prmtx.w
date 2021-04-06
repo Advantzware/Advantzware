@@ -1217,7 +1217,7 @@ PROCEDURE local-update-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-
+   DEFINE VARIABLE lNewRecord AS LOGICAL NO-UNDO.
   /* Code placed here will execute PRIOR to standard behavior. */
   IF  oe-prmtx.cust-no:SCREEN-VALUE IN frame {&FRAME-NAME} <> "" THEN DO:
       RUN valid-cust-no NO-ERROR.
@@ -1280,9 +1280,9 @@ PROCEDURE local-update-record :
   if v-invalid then return no-apply.
 
   disable all with frame {&frame-name}.
-
+     
   IF adm-adding-record THEN lv-cust-no = oe-prmtx.cust-no:SCREEN-VALUE.
-
+  lNewRecord =  adm-new-record.
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
@@ -1296,8 +1296,15 @@ PROCEDURE local-update-record :
           ).
 
   /* Code placed here will execute AFTER standard behavior.    */
+  
+  IF lNewRecord THEN DO:
+      RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source",OUTPUT char-hdl).
+      RUN repo-query IN WIDGET-HANDLE(char-hdl) (ROWID(oe-prmtx)). 
+  END.
+  
   RUN set-panel (1).
   lEditMode = NO.
+    
 
 END PROCEDURE.
 
