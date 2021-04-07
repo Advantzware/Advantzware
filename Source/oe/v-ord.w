@@ -6836,6 +6836,7 @@ PROCEDURE pValidate :
 ------------------------------------------------------------------------------*/
     DEFINE BUFFER bf-oe-ord FOR oe-ord. 
     DEFINE VAR cStatDesc AS CHAR NO-UNDO. 
+    DEFINE VARIABLE lAvailable AS LOGICAL NO-UNDO.
     
     RUN validateOrder IN spOeValidate (ROWID(oe-ord),OUTPUT lHoldError,OUTPUT cErrMessage).
     
