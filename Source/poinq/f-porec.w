@@ -314,6 +314,11 @@ END.
 
 /* ***************************  Main Block  *************************** */
 {methods/template/brwcustom.i}
+
+&SCOPED-DEFINE cellColumnDat poinq-po-rec
+
+{methods/browsers/setCellColumns.i}
+
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN
    /* Now enable the interface  if in test mode - otherwise this happens when
       the object is explicitly initialized from its container. */
@@ -400,6 +405,29 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-initialize F-Frame-Win 
+PROCEDURE local-initialize :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEF VAR char-hdl AS CHAR NO-UNDO.
+  DEF VAR lv-rowid AS ROWID NO-UNDO.
+  DEF VAR ll-open AS LOG INIT ? NO-UNDO.
+  DEFINE VARIABLE cScreenType AS CHARACTER NO-UNDO.
+    
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+
+  RUN setCellColumns.  
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE populate-tt F-Frame-Win 
 PROCEDURE populate-tt :
 /*------------------------------------------------------------------------------
@@ -419,8 +447,7 @@ PROCEDURE populate-tt :
    FOR EACH rm-rcpth fields(r-no rita-code i-no job-no job-no2 trans-date po-line pur-uom)NO-LOCK
        WHERE rm-rcpth.company  EQ cocode 
        AND rm-rcpth.po-no      EQ v-po-no 
-       AND rm-rcpth.rita-code  EQ "R" 
-       AND rm-rcpth.po-line    EQ ipiPOLine,
+       AND rm-rcpth.rita-code  EQ "R",
        EACH rm-rdtlh FIELDS(loc loc-bin qty tag cost)NO-LOCK
        WHERE rm-rdtlh.r-no      EQ rm-rcpth.r-no 
          AND rm-rdtlh.rita-code EQ rm-rcpth.rita-code:
@@ -451,14 +478,13 @@ PROCEDURE populate-tt :
    IF AVAIL b-po-ord THEN DO:
       FOR EACH b-po-ordl NO-LOCK 
          WHERE b-po-ordl.company EQ cocode
-           AND b-po-ordl.po-no   EQ ip-po-no
-           AND b-po-ordl.line    EQ ipiPOLine,
+           AND b-po-ordl.po-no   EQ ip-po-no,
           EACH  fg-rcpth FIELDS(r-no rita-code i-no job-no job-no2 trans-date po-line pur-uom) NO-LOCK
           WHERE fg-rcpth.company                 EQ cocode 
             AND fg-rcpth.po-no                   EQ v-po-no 
             AND fg-rcpth.i-no                    EQ b-po-ordl.i-no 
             AND LOOKUP(fg-rcpth.rita-code,"R,E") GT 0
-            AND fg-rcpth.po-line                 EQ ipiPOLine,
+            AND fg-rcpth.po-line                 EQ b-po-ordl.LINE,
           EACH  fg-rdtlh FIELDS(loc loc-bin qty tag cost) NO-LOCK
           WHERE fg-rdtlh.r-no      EQ fg-rcpth.r-no 
             AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code :
