@@ -14,6 +14,7 @@
 
 DEFINE TEMP-TABLE ttValidation
     FIELD cProgram     AS CHARACTER
+    FIELD cCategory     AS CHARACTER
     FIELD cHoldOrInfo  AS CHARACTER
     FIELD lHoldResult  AS LOGICAL 
     FIELD cHoldMessage AS CHARACTER 
@@ -78,6 +79,7 @@ PROCEDURE pBuildValidationsToRun PRIVATE:
             ASSIGN 
                 ttValidation.cProgram    = "p" + sys-ctrl.name
                 ttValidation.cHoldOrInfo = sys-ctrl.char-fld
+                ttValidation.cCategory = sys-ctrl.name 
                 .
         END.
     END.
@@ -632,7 +634,7 @@ PROCEDURE ValidateOrder:
             INPUT "oe-ord",
             INPUT opcMessage,
             INPUT "",
-            INPUT "STATUS-Source"
+            INPUT "Reason Code"
             ).
         RETURN.  
     END.
@@ -640,7 +642,7 @@ PROCEDURE ValidateOrder:
     RUN pBuildValidationsToRun(bf-oe-ord.company).    
                     
     RUN ClearTagsForGroup (
-        INPUT bf-oe-ord.rec_key, "STATUS-Source"
+        INPUT bf-oe-ord.rec_key, "Reason Code"
         ).
     iCountHold = 0.
     FOR EACH ttValidation NO-LOCK:
@@ -657,9 +659,9 @@ PROCEDURE ValidateOrder:
                 RUN AddTagHold (
                     INPUT bf-oe-ord.rec_key,
                     INPUT "oe-ord",
-                    INPUT ttValidation.cHoldMessage,
+                    INPUT ttValidation.cCategory + " - " + ttValidation.cHoldMessage,
                     INPUT ttValidation.cNotes,
-                    INPUT "STATUS-Source"
+                    INPUT "Reason Code"
                     ).
                 ASSIGN
                     iCountHold = iCountHold + 1
@@ -671,9 +673,9 @@ PROCEDURE ValidateOrder:
                 RUN AddTagInfoForGroup (
                     INPUT bf-oe-ord.rec_key,
                     INPUT "oe-ord",
-                    INPUT ttValidation.cHoldMessage,
+                    INPUT ttValidation.cCategory + " - " + ttValidation.cHoldMessage,
                     INPUT ttValidation.cNotes,
-                    INPUT "STATUS-Source"
+                    INPUT "Reason Code"
                     ).
                 ttValidation.lHoldResult = FALSE. 
             END.          

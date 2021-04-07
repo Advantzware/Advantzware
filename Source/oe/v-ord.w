@@ -1272,7 +1272,7 @@ DO:
     RUN system/d-TagViewer.w (
         INPUT oe-ord.rec_key,
         INPUT "",
-        INPUT "STATUS-Source"
+        INPUT "Reason Code"
         ).
 END.
 
@@ -5585,7 +5585,7 @@ PROCEDURE local-display-fields :
          RUN Tag_IsTagRecordAvailableForGroup(
              INPUT oe-ord.rec_key,
              INPUT "oe-ord",
-             INPUT "Status-Source",
+             INPUT "Reason Code",
              OUTPUT lAvailable
              ).
            IF lAvailable THEN  
@@ -6888,7 +6888,17 @@ PROCEDURE pValidate :
     ASSIGN 
         fiStatDesc:SCREEN-VALUE IN FRAME {&frame-name} = cStatDesc
         oe-ord.spare-char-2:SCREEN-VALUE IN FRAME {&frame-name} = cStatDesc.
-
+    RUN Tag_IsTagRecordAvailableForGroup(
+        INPUT oe-ord.rec_key,
+        INPUT "oe-ord",
+        INPUT "Reason Code",
+        OUTPUT lAvailable
+        ).
+    IF lAvailable THEN  
+        btnTags:SENSITIVE = TRUE
+            .
+    ELSE 
+        btnTags:SENSITIVE = FALSE. 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
