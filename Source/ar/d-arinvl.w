@@ -789,7 +789,13 @@ DO:
            FIND FIRST fgcat NO-LOCK 
                WHERE fgcat.company EQ itemfg.company 
                  AND fgcat.procat EQ  itemfg.procat NO-ERROR .
-           IF AVAIL fgcat THEN
+           IF AVAILABLE fgcat THEN
+                FIND FIRST surcharge WHERE surcharge.company EQ fgcat.company
+                                        AND surcharge.charge EQ fgcat.miscCharge
+                                        NO-ERROR.
+           IF AVAIL surcharge THEN
+               ASSIGN ar-invl.actnum:SCREEN-VALUE  = surcharge.account .
+           ELSE   
                ASSIGN ar-invl.actnum:SCREEN-VALUE  = fgcat.glacc .
 
            FIND FIRST account WHERE account.company = g_company AND
