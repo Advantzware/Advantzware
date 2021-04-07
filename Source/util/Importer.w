@@ -787,10 +787,6 @@ PROCEDURE pInitializeTypes :
 
     iphdCombo:LIST-ITEM-PAIRS = ?.
 
-
-  MESSAGE " ipcTypesList " ipcTypesList skip 
-      " gcTypeList " gcTypeList
-  VIEW-AS ALERT-BOX.
     DO iIndex = 1 TO NUM-ENTRIES(ipcTypesList):
         jIndex = LOOKUP(ENTRY(iIndex,ipcTypesList),gcTypeList).
         IF jIndex GT 0 THEN 

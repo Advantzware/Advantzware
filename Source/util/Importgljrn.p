@@ -55,12 +55,21 @@ PROCEDURE pValidate PRIVATE:
 
     
     oplValid = YES.
+    
     IF oplValid THEN 
     DO:
         IF ipbf-ttImportgljrn.Company EQ '' THEN 
             ASSIGN 
                 oplValid = NO
                 opcNote  = "Key Field Blank: Company".
+    END.
+    
+    IF oplValid THEN 
+    DO:
+        IF ipbf-ttImportgljrn.Date EQ '' THEN 
+            ASSIGN 
+                oplValid = NO
+                opcNote  = "Key Field Blank: Date ".
     END.
     
     IF oplValid THEN
@@ -78,20 +87,14 @@ PROCEDURE pValidate PRIVATE:
     
     IF oplValid THEN
     DO:
-        FOR EACH ipbf-ttImportgljrn NO-LOCK:
-            
-            FIND FIRST period 
-                WHERE period.company  =  ipbf-ttImportgljrn.Company  
-                AND period.pst  <= ipbf-ttImportgljrn.Date 
-                AND period.pend >= ipbf-ttImportgljrn.Date
-                NO-LOCK NO-ERROR.
-            IF AVAIL period AND period.pstat THEN
-            DO:
-                FIND CURRENT ipbf-ttImportgljrn EXCLUSIVE-LOCK NO-WAIT NO-ERROR.
-                ASSIGN ipbf-ttImportgljrn.period = period.pnum. 
-            END.
-            ELSE
-                ASSIGN 
+        FIND FIRST period 
+             WHERE period.company  =  ipbf-ttImportgljrn.Company  
+               AND period.pst  <= ipbf-ttImportgljrn.Date 
+               AND period.pend >= ipbf-ttImportgljrn.Date
+               NO-LOCK NO-ERROR.
+        IF NOT (AVAIL period AND period.pstat) THEN
+        DO:
+            ASSIGN 
                 oplValid = NO
                 opcNote  = "Period is not OPEN !".
         END.
@@ -121,7 +124,7 @@ PROCEDURE pCreateNewCashHeader:
         gl-jrn.tr-date = ipdDate
         gl-jrn.company = ipcCompany
         gl-jrn.period  = ipiperiod
-        //gl-jrn.recur   = ll-recur
+        gl-jrn.recur   = NO
         gl-jrn.from-reverse = NO
         oprigljrn    = ROWID(gl-jrn)  
         opiJournalNo = gl-jrn.j-no.
@@ -144,7 +147,6 @@ PROCEDURE pCreateNewCashLine:
     DEFINE OUTPUT PARAMETER oprigljrnl        AS ROWID.
     
     DEFINE VARIABLE iNextLine AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE cAccount  AS CHARACTER NO-UNDO.
     DEFINE BUFFER bf-gl-jrnl FOR gl-jrnl.
     
     FIND gl-jrn NO-LOCK 
@@ -223,9 +225,10 @@ PROCEDURE pProcessRecord PRIVATE:
         
        
     END. /*not available bf-gl-jrn*/
+    
     RUN pCreateNewGeneralLine(
         ROWID(bf-gl-jrn),
-        ipbf-ttImportgljrn.j-no,
+        iJournalNo,
         ipbf-ttImportgljrn.actnum,
         ipbf-ttImportgljrn.dscr,
         ipbf-ttImportgljrn.tr-amt,
