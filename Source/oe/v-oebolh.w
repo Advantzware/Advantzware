@@ -1677,7 +1677,7 @@ PROCEDURE local-assign-record :
   END.
   IF lFreightEntered THEN 
   DO:
-      RUN ClearTagsByRecKeyForGroup(oe-bolh.rec_key,"FreightCost" ).  /*Clear all hold tags - TagProcs.p*/
+      RUN ClearTagsForGroup(oe-bolh.rec_key,"FreightCost" ).  /*Clear all hold tags - TagProcs.p*/
       RUN AddTagInfoForGroup(
             INPUT oe-bolh.rec_key,
             INPUT "oe-bolh",
