@@ -114,6 +114,8 @@ DEFINE VARIABLE lRowSelectable  AS LOGICAL   NO-UNDO EXTENT 1000 INITIAL YES.
 DEFINE VARIABLE lUseCustList    AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE rDynValueColumn AS ROWID     NO-UNDO EXTENT 1000.
 
+DEFINE VARIABLE gcFilterQuery AS CHARACTER NO-UNDO.
+
 RUN AOA/spDynCalcField.p PERSISTENT SET hDynCalcField.
 
 {sys/ref/CustList.i NEW}
@@ -158,6 +160,16 @@ FUNCTION generateFilterQuery RETURNS CHARACTER
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD generateQueryWithSharedParameters Dialog-Frame
+FUNCTION generateQueryWithSharedParameters RETURNS CHARACTER PRIVATE
+  (  ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD generateSearchQuery Dialog-Frame 
 FUNCTION generateSearchQuery RETURNS CHARACTER
@@ -717,11 +729,7 @@ PROCEDURE addFilterObjects :
                     ASSIGN
                         hFilterField[li-count] = h_browseCol
                         cFilterValue[li-count] = dynValueColumn.filterInitValue
-                        .
-
-                IF cFilterValue[li-count] EQ "" THEN
-                    cFilterValue[li-count] = system.LookupSharedConfig:Instance:GetValue(ip-programName, h_field:COLUMN-LABEL).  
-                                 
+                        .      
             END.
 
             IF VALID-HANDLE(h_field) THEN DO:
@@ -905,17 +913,7 @@ PROCEDURE buildTempTable :
     DEFINE VARIABLE ls-allData AS CHARACTER NO-UNDO.
     DEFINE VARIABLE iBuffer    AS INTEGER   NO-UNDO.
     
-    DEFINE VARIABLE cSearchValue AS CHARACTER NO-UNDO EXTENT 100.
-    DEFINE VARIABLE lSearchMatch AS LOGICAL   NO-UNDO.
-    
-    IF ip-filterList NE "" THEN DO:
-        DO li-count = 1 TO NUM-ENTRIES(ip-filterList):      
-            h_field = h_ttbuffer:BUFFER-FIELD(REPLACE(ENTRY(li-count,ip-filterList), ".","&")).
-            cSearchValue[li-count] = system.LookupSharedConfig:Instance:GetValue(ip-programName, h_field:COLUMN-LABEL).  
-        END.
-    END.
-        
-    ls-queryString = ip-queryString. 
+    ls-queryString = gcFilterQuery. 
     h_query:QUERY-PREPARE (ls-queryString).
     
     h_query:QUERY-OPEN().        
@@ -925,8 +923,6 @@ PROCEDURE buildTempTable :
     MESSAGE "No records found for table" h_buffer[1]:NAME VIEW-AS ALERT-BOX.    
     SESSION:SET-WAIT-STATE("GENERAL").
     REPEAT:
-        lSearchMatch = TRUE.
-        
         IF h_query:QUERY-OFF-END THEN LEAVE.
         ls-allData = "".
         h_ttbuffer:BUFFER-CREATE().
@@ -947,6 +943,12 @@ PROCEDURE buildTempTable :
             iBuffer = LOOKUP(ENTRY(1, ENTRY(li-count, ip-displayList), "."), ip-table-list). 
             
             h_field = h_buffer[iBuffer]:BUFFER-FIELD(ENTRY(2, ENTRY(li-count, ip-displayList), ".")):HANDLE NO-ERROR.
+            
+            IF h_field:BUFFER-VALUE EQ ? THEN DO:
+                ls-allData = ls-allData + "|".
+                NEXT.
+            END.
+            
             IF VALID-HANDLE(h_field) THEN DO:
                 IF h_field:DATA-TYPE = "LOGICAL" THEN 
                 ls-allData = ls-allData + STRING(h_field:BUFFER-VALUE, h_field:FORMAT) + "|".
@@ -961,18 +963,6 @@ PROCEDURE buildTempTable :
             h_ttbuffer:BUFFER-FIELD("allData"):BUFFER-VALUE = ls-allData
             h_ttbuffer:BUFFER-FIELD("recid"):BUFFER-VALUE   = h_buffer[iBuffer]:RECID
             .
-        
-        DO li-count = 1 TO NUM-ENTRIES(ip-filterList): 
-            IF cSearchValue[li-count] NE "" AND LOOKUP(cSearchValue[li-count], ls-allData, "|") EQ 0 THEN DO:   
-                lSearchMatch = FALSE.
-                LEAVE. 
-            END.
-        END.
-                   
-        IF NOT lSearchMatch THEN DO:
-            h_ttbuffer:BUFFER-DELETE().
-        END.
-            
         h_query:GET-NEXT().
     END.    
     SESSION:SET-WAIT-STATE("").    
@@ -1237,6 +1227,15 @@ PROCEDURE init :
             lContainsWhere[iBuffer] = TRUE.
     END.
 
+    gcFilterQuery = generateQueryWithSharedParameters().
+
+    DO iBuffer = 1 TO NUM-ENTRIES(gcFilterQuery):        
+        lContainsWhere[iBuffer] = FALSE.
+        
+        IF INDEX(ENTRY(iBuffer, gcFilterQuery), "WHERE") GT 0 THEN
+            lContainsWhere[iBuffer] = TRUE.
+    END.
+    
     IF lUseCustList THEN
     h_query:ADD-BUFFER(BUFFER ttCustList:HANDLE).
     CREATE QUERY h_ttquery.    
@@ -1864,7 +1863,7 @@ PROCEDURE validateRecordLimit :
         RETURN.
     END.
 
-    ls-lqueryString = ip-queryString.
+    ls-lqueryString = gcFilterQuery.
     
     CREATE QUERY h_lquery.
     
@@ -1979,7 +1978,7 @@ FUNCTION generateFilterQuery RETURNS CHARACTER
     
     DO iBuffer = 1 TO EXTENT(h_buffer):
         ls-returnQueryString = ls-returnQueryString 
-                             + ENTRY(iBuffer, ip-queryString) + " " 
+                             + ENTRY(iBuffer, gcFilterQuery) + " " 
                              + ls-QueryString[iBuffer] + ",".
     END.
     
@@ -1995,6 +1994,75 @@ END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION generateQueryWithSharedParameters Dialog-Frame
+FUNCTION generateQueryWithSharedParameters RETURNS CHARACTER PRIVATE
+  (  ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cQueryString         AS CHARACTER NO-UNDO EXTENT.
+    DEFINE VARIABLE cReturnQueryString   AS CHARACTER NO-UNDO.    
+    DEFINE VARIABLE iBuffer              AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cFilterValue         AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cField               AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cTable               AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iLabelCount          AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cBufferFieldDataType AS CHARACTER NO-UNDO.
+    
+    EXTENT(cQueryString) = EXTENT(h_buffer).
+
+    DO iLabelCount = 1 TO NUM-ENTRIES(ip-labelList):      
+        cFilterValue = system.LookupSharedConfig:Instance:GetValue(ip-programName, ENTRY(iLabelCount,ip-labelList)).
+        
+        IF cFilterValue NE "" THEN DO:
+            ASSIGN
+                cTable = ENTRY(1, ENTRY(iLabelCount,ip-fieldList), ".")
+                cField = ENTRY(2, ENTRY(iLabelCount,ip-fieldList), ".")
+                NO-ERROR.
+            
+            IF cTable EQ "" OR cField EQ "" THEN
+                NEXT.
+            
+            iBuffer = LOOKUP(cTable, ip-table-list).
+            
+            IF iBuffer EQ 0 THEN
+                NEXT.
+
+            cBufferFieldDataType = h_buffer[iBuffer]:BUFFER-FIELD (cField):DATA-TYPE NO-ERROR.
+            
+            IF cBufferFieldDataType EQ "" THEN
+                NEXT.
+            
+            cQueryString[iBuffer] = cQueryString[iBuffer] + " " 
+                                  + (IF cQueryString[iBuffer] = "" AND NOT lContainsWhere[iBuffer] THEN "WHERE" ELSE "AND") + " " 
+                                  + cTable + "." + cField
+                                  + " = ".
+
+            IF cBufferFieldDataType EQ "CHARACTER" THEN
+                cQueryString[iBuffer] = cQueryString[iBuffer] + "'" + cFilterValue + "'".
+            ELSE
+                cQueryString[iBuffer] = cQueryString[iBuffer] + REPLACE(cFilterValue, ",", "").
+        END.
+    END.
+
+    DO iBuffer = 1 TO EXTENT(h_buffer):
+        cReturnQueryString = cReturnQueryString
+                           + ENTRY(iBuffer, ip-queryString) + " " 
+                           + cQueryString[iBuffer] + ",".
+    END.
+    
+    cReturnQueryString = TRIM(cReturnQueryString, ",").
+
+	RETURN cReturnQueryString.
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION generateSearchQuery Dialog-Frame 
 FUNCTION generateSearchQuery RETURNS CHARACTER
