@@ -234,7 +234,7 @@ PROCEDURE GetTags:
     DEFINE INPUT  PARAMETER ipcLinkTable  AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcGroup      AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER TABLE FOR ttTag.
-    
+    EMPTY TEMP-TABLE ttTag.
     FOR EACH tag NO-LOCK 
         WHERE tag.linkRecKey EQ ipcLinkRecKey
         AND tag.linkTable  EQ ipcLinkTable
