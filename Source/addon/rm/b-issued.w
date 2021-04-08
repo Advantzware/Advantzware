@@ -994,6 +994,10 @@ DO:
      ASSIGN rm-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(v-job-no-2).
             gv-job-no2 = v-job-no-2.
 
+   IF adm-new-record AND rm-rctd.i-no NE rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name} AND
+      rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name} NE "" AND NOT lParse THEN
+       RUN set-s-b-proc.
+
    IF LASTKEY NE -1 AND v-single-job THEN
    DO:
       RUN valid-job-no NO-ERROR.
@@ -1005,11 +1009,6 @@ DO:
       RUN valid-i-no NO-ERROR.
       IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
       
-      IF adm-new-record AND rm-rctd.i-no NE rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name} AND
-         rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name} NE "" 
-         AND NOT lParse THEN
-         RUN set-s-b-proc.
-
       RUN validate-jobmat (YES) NO-ERROR.
       IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
       
