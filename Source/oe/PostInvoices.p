@@ -373,10 +373,9 @@ PROCEDURE pAddInvoiceLineToPost PRIVATE:
     DEFINE OUTPUT PARAMETER oplError   AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
     
-    DEFINE BUFFER bf-itemfg     FOR itemfg.
-    DEFINE BUFFER bf-fgcat      FOR fgcat.
-    DEFINE BUFFER bf-surcharge  FOR surcharge.
-    DEFINE BUFFER bf-sman       FOR sman.
+    DEFINE BUFFER bf-itemfg FOR itemfg.
+    DEFINE BUFFER bf-fgcat  FOR fgcat.
+    DEFINE BUFFER bf-sman   FOR sman.
     
     DEFINE VARIABLE lAccountError        AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cAccountErrorMessage AS CHARACTER NO-UNDO.
@@ -462,21 +461,24 @@ PROCEDURE pAddInvoiceLineToPost PRIVATE:
     FIND FIRST bf-fgcat NO-LOCK
         WHERE bf-fgcat.company EQ bf-itemfg.company
         AND bf-fgcat.procat  EQ bf-itemfg.procat
-        AND bf-fgcat.miscCharge <> ""
         NO-ERROR.
-    IF AVAILABLE bf-fgcat THEN
-    FIND FIRST bf-surcharge WHERE bf-surcharge.company EQ bf-fgcat.company
-                            AND bf-surcharge.charge    EQ bf-fgcat.miscCharge
-                            NO-ERROR.
-                            
-    IF AVAILABLE bf-surcharge THEN 
+    IF AVAILABLE bf-fgcat THEN 
     DO:
         /*Override default GL account for sales*/
-        RUN pCheckAccount(bf-surcharge.company, bf-surcharge.account, "Surcharge of " + bf-surcharge.charge, "GL Account", OUTPUT lAccountError, OUTPUT cAccountErrorMessage). 
+        RUN pCheckAccount(bf-fgcat.company, bf-fgcat.glacc, "FG Category of " + bf-fgcat.procat, "GL Account", OUTPUT lAccountError, OUTPUT cAccountErrorMessage). 
         IF NOT lAccountError THEN
-            ttInvoiceLineToPost.accountARSales = bf-surcharge.account.
-            
-    END. /*AVailb bf-surcharge */
+            ttInvoiceLineToPost.accountARSales = bf-fgcat.glacc.
+        ELSE 
+        DO:
+            ASSIGN 
+                ttInvoiceLineToPost.isOKToPost     = NO
+                ttInvoiceLineToPost.problemMessage = cAccountErrorMessage
+                oplError                           = YES
+                opcMessage                         = ttInvoiceLineToPost.problemMessage
+                .
+            RETURN.
+        END.
+    END. /*AVailb bf-fgcat - FGCat dependencies*/
         
                             
     RUN oe/GetCostInvl.p (ROWID(ipbf-inv-line),
