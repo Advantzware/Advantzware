@@ -46,8 +46,8 @@ DEF VAR v-seq AS INT FORM ">>>9"  NO-UNDO.
 DEF VAR li-line-num AS INT NO-UNDO.  /* for seq# */
 DEF VAR v-vend-act AS cha NO-UNDO.
 DEF VAR lv-pol-rowid AS ROWID NO-UNDO.
-def var lv-uom-list as cha init "C,CS,EA,L,LB,LF,LOT,M,MSF,SHT,TON,BF" no-undo.
-DEF VAR pr-uom-list AS cha NO-UNDO INIT "EA,LB,M,MSF,TON,BF".
+def var lv-uom-list as cha init "C,CS,EA,L,LB,LF,LOT,M,MSF,SHT,TON,BF,MSH" no-undo.
+DEF VAR pr-uom-list AS cha NO-UNDO INIT "EA,LB,M,MSF,TON,BF,MSH".
 DEF VAR cons-uom-list AS CHA NO-UNDO INIT "M,LF,EA,LB,TON".
 DEF VAR v-po-qty as log initial true no-undo.
 DEF VAR v-ap-pur AS CHAR NO-UNDO.
