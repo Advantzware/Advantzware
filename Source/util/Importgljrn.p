@@ -120,9 +120,6 @@ PROCEDURE pCreateNewGeneralHeader:
     DEFINE VARIABLE iPeriod  AS INTEGER NO-UNDO.
     DEFINE BUFFER bf-gl-jrn FOR gl-jrn.
     
-    MESSAGE "12"
-    VIEW-AS ALERT-BOX.
-    
     FIND FIRST period 
          WHERE period.company  =  ipcCompany 
            AND period.pst  <= ipdDate 
@@ -161,9 +158,6 @@ PROCEDURE pCreateNewGeneralLine:
     
     DEFINE VARIABLE iNextLine AS INTEGER   NO-UNDO.
     DEFINE BUFFER bf-gl-jrnl FOR gl-jrnl.
-    
-    MESSAGE "22" 
-    VIEW-AS ALERT-BOX.
     
     FIND gl-jrn NO-LOCK 
         WHERE ROWID(gl-jrn) EQ iprigljrn
@@ -225,8 +219,6 @@ PROCEDURE pProcessRecord PRIVATE:
     
     iopiAdded = iopiAdded + 1.
     
-    MESSAGE "giJournalNumber " giJournalNumber 
-    VIEW-AS ALERT-BOX.    
     /*if found, add another line to existing header - otherwise, create a new header*/
     IF giLastIdentifier = 0 OR giLastIdentifier NE ipbf-ttImportgljrn.Identifier THEN
     DO:
