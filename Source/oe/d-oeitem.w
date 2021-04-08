@@ -2917,9 +2917,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
           OUTPUT cRtnChar, OUTPUT lRecFound).
       IF lRecFound THEN
       DO:         
-          cFGOversDefault = STRING(cRtnChar) NO-ERROR. 
-          MESSAGE cFGOversDefault
-          VIEW-AS ALERT-BOX.     
+          cFGOversDefault = STRING(cRtnChar) NO-ERROR.      
           IF cFGOversDefault NE  "FG category" THEN 
             RUN pGetOverUnderPct("", "", ip-ord-no) .  
       END.   
@@ -9832,8 +9830,8 @@ PROCEDURE valid-s-man :
             OUTPUT cMessage
             ).
         IF NOT lSuccess THEN DO:    
-            MESSAGE cMessage 
-                VIEW-AS ALERT-BOX ERROR.
+          /*  MESSAGE cMessage 
+                VIEW-AS ALERT-BOX ERROR.*/
             IF ip-int EQ 3 THEN APPLY "entry" TO oe-ordl.s-man[3].
             ELSE
             IF ip-int EQ 2 THEN APPLY "entry" TO oe-ordl.s-man[2].
