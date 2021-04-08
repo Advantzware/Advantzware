@@ -905,7 +905,7 @@ PROCEDURE close-month :
        glhist.postedBy = USERID(LDBNAME(1)).           
    end.
    RELEASE glhist.
-   for each cust where cust.company eq cocode transaction:
+   /*for each cust where cust.company eq cocode transaction:
       assign
        cust.cost[1] = 0
        cust.comm[1] = 0.
@@ -931,7 +931,7 @@ PROCEDURE close-month :
           cust.comm[1] = cust.comm[1] +
                          if ar-inv.t-comm eq ? then 0 else ar-inv.t-comm.
       end.                
-   end.
+   end.*/
 
    IF period.pnum EQ company.num-per THEN DO:
      lv-rowid = ROWID(period).
