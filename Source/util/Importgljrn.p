@@ -17,7 +17,7 @@
 DEFINE TEMP-TABLE ttImportgljrn NO-UNDO
     FIELD Company         AS CHARACTER FORMAT "x(3)"
     FIELD Location        AS CHARACTER FORMAT "x(5)"
-    FIELD identifier      AS CHARACTER FORMAT "x(10)" LABEL "Identifier"
+    FIELD identifier      AS INTEGER                  LABEL "Identifier"
     FIELD Date            AS DATE                     LABEL "Date"
     FIELD actnum          AS CHARACTER                LABEL "Account Number"
     FIELD dscr            AS CHARACTER                LABEL "Description"
@@ -27,8 +27,10 @@ DEFINE TEMP-TABLE ttImportgljrn NO-UNDO
     FIELD period          AS INTEGER                  LABEL "Period"
     .
 
-DEFINE VARIABLE giIndexOffset AS INTEGER NO-UNDO INIT 2. /*Set to 1 if there is a Company field in temp-table since this will not be part of the import data*/
-DEFINE VARIABLE iPeriod       AS INTEGER NO-UNDO.
+DEFINE VARIABLE giIndexOffset    AS INTEGER NO-UNDO INIT 2. /*Set to 1 if there is a Company field in temp-table since this will not be part of the import data*/
+DEFINE VARIABLE iPeriod          AS INTEGER NO-UNDO.
+DEFINE VARIABLE giLastIdentifier AS INTEGER NO-UNDO.
+DEFINE VARIABLE giJournalNumber  AS INTEGER NO-UNDO.
 
 /* ********************  Preprocessor Definitions  ******************** */
 
@@ -66,7 +68,7 @@ PROCEDURE pValidate PRIVATE:
     
     IF oplValid THEN 
     DO:
-        IF ipbf-ttImportgljrn.Date EQ '' THEN 
+        IF ipbf-ttImportgljrn.Date EQ ? THEN 
             ASSIGN 
                 oplValid = NO
                 opcNote  = "Key Field Blank: Date ".
@@ -74,14 +76,14 @@ PROCEDURE pValidate PRIVATE:
     
     IF oplValid THEN
     DO:
-        IF CAN-FIND(FIRST account 
+        IF NOT CAN-FIND(FIRST account 
                     WHERE account.company EQ ipbf-ttImportgljrn.Company 
                     AND account.type    NE "T" 
                     AND account.actnum  EQ ipbf-ttImportgljrn.actnum) THEN
     
         ASSIGN 
                 oplValid = NO
-                opcNote  = "Key Field Blank: Company".
+                opcNote  = "Key Field Blank: Account".
         
     END.
     
@@ -103,38 +105,49 @@ PROCEDURE pValidate PRIVATE:
     
 END PROCEDURE.
 
-PROCEDURE pCreateNewCashHeader:
+PROCEDURE pCreateNewGeneralHeader:
     /*------------------------------------------------------------------------------
-     Purpose: Creates a new AR Cash Header, setting defaults based on key values
+     Purpose: Creates a new General Header, setting defaults based on key values
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcCompany     AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipdDate        AS DATE      NO-UNDO.
-    DEFINE INPUT PARAMETER ipiperiod      AS INTEGER   NO-UNDO.
     DEFINE INPUT PARAMETER iplreverse     AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER oprigljrn     AS ROWID     NO-UNDO.
     DEFINE OUTPUT PARAMETER opiJournalNo  AS INTEGER   NO-UNDO.
     
     DEFINE VARIABLE iNextCNo AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iPeriod  AS INTEGER NO-UNDO.
     DEFINE BUFFER bf-gl-jrn FOR gl-jrn.
     
+    MESSAGE "12"
+    VIEW-AS ALERT-BOX.
+    
+    FIND FIRST period 
+         WHERE period.company  =  ipcCompany 
+           AND period.pst  <= ipdDate 
+           AND period.pend >= ipdDate
+           NO-LOCK NO-ERROR.
+    IF AVAIL period AND period.pstat THEN
+        iPeriod = period.pnum.
+            
     CREATE gl-jrn.
     ASSIGN
         gl-jrn.reverse = iplreverse
         gl-jrn.tr-date = ipdDate
         gl-jrn.company = ipcCompany
-        gl-jrn.period  = ipiperiod
+        gl-jrn.period  = iPeriod
         gl-jrn.recur   = NO
         gl-jrn.from-reverse = NO
-        oprigljrn    = ROWID(gl-jrn)  
         opiJournalNo = gl-jrn.j-no.
         .
-   
+    
+    oprigljrn    = ROWID(gl-jrn). 
     RELEASE gl-jrn.
 
 END PROCEDURE.
 
-PROCEDURE pCreateNewCashLine:
+PROCEDURE pCreateNewGeneralLine:
     /*------------------------------------------------------------------------------
         Purpose: Creates a new line, setting defaults based on key values
         Notes:
@@ -148,6 +161,9 @@ PROCEDURE pCreateNewCashLine:
     
     DEFINE VARIABLE iNextLine AS INTEGER   NO-UNDO.
     DEFINE BUFFER bf-gl-jrnl FOR gl-jrnl.
+    
+    MESSAGE "22" 
+    VIEW-AS ALERT-BOX.
     
     FIND gl-jrn NO-LOCK 
         WHERE ROWID(gl-jrn) EQ iprigljrn
@@ -204,36 +220,58 @@ PROCEDURE pProcessRecord PRIVATE:
     DEFINE VARIABLE rigljrnl   AS ROWID   NO-UNDO.
     DEFINE VARIABLE iJournalNo AS INTEGER NO-UNDO.
       
-    DEFINE BUFFER bf-gl-jrn  FOR gl-jrnl.
+    DEFINE BUFFER bf-gl-jrn  FOR gl-jrn.
     DEFINE BUFFER bf-gl-jrnl FOR gl-jrnl.
     
     iopiAdded = iopiAdded + 1.
-        
+    
+    MESSAGE "giJournalNumber " giJournalNumber 
+    VIEW-AS ALERT-BOX.    
     /*if found, add another line to existing header - otherwise, create a new header*/
-    FIND FIRST bf-gl-jrn NO-LOCK
-        WHERE bf-gl-jrn.j-no EQ ipbf-ttImportgljrn.j-no
-        NO-ERROR.
-    IF NOT AVAILABLE bf-gl-jrn THEN /*create a new one*/
+    IF giLastIdentifier = 0 OR giLastIdentifier NE ipbf-ttImportgljrn.Identifier THEN
     DO:
-        RUN pCreateNewGeneralHeader(
-            ipbf-ttImportgljrn.Company, 
-            ipbf-ttImportgljrn.Date, 
-            ipbf-ttImportgljrn.period, 
-            ipbf-ttImportgljrn.reverse,
-            OUTPUT rigljrn,
-            OUTPUT iJournalNo).
+        giJournalNumber = 0.
         
-       
-    END. /*not available bf-gl-jrn*/
+        FIND FIRST bf-gl-jrn NO-LOCK
+            WHERE bf-gl-jrn.j-no EQ giJournalNumber
+            NO-ERROR.
+        IF NOT AVAILABLE bf-gl-jrn THEN /*create a new one*/
+        DO:
+        
+            RUN pCreateNewGeneralHeader(
+                ipbf-ttImportgljrn.Company, 
+                ipbf-ttImportgljrn.Date, 
+                ipbf-ttImportgljrn.reverse,
+                OUTPUT rigljrn,
+                OUTPUT iJournalNo).
+            
+            giJournalNumber = iJournalNo.
+        
+            FIND FIRST bf-gl-jrn NO-LOCK
+                WHERE ROWID(bf-gl-jrn) EQ rigljrn NO-ERROR.
+            
+            IF NOT AVAILABLE(bf-gl-jrn) THEN 
+                NEXT.
+        END. /*not available bf-gl-jrn*/
+    END.
+    ELSE
+    DO:
+        FIND FIRST bf-gl-jrn NO-LOCK
+            WHERE bf-gl-jrn.j-no EQ giJournalNumber
+            NO-ERROR.
+        IF NOT AVAILABLE bf-gl-jrn THEN NEXT.
+    
+    END.
     
     RUN pCreateNewGeneralLine(
         ROWID(bf-gl-jrn),
-        iJournalNo,
+        giJournalNumber,
         ipbf-ttImportgljrn.actnum,
         ipbf-ttImportgljrn.dscr,
         ipbf-ttImportgljrn.tr-amt,
         OUTPUT rigljrnl).
         
-                                         
+   ASSIGN giLastIdentifier = ipbf-ttImportgljrn.Identifier.
+                                          
 END PROCEDURE.
     
