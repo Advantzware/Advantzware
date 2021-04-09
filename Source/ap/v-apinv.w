@@ -684,6 +684,7 @@ PROCEDURE hold-ap :
 ------------------------------------------------------------------------------*/
   DEFINE BUFFER bf-ap-inv FOR ap-inv.
   DEFINE VARIABLE hdTagProcs AS HANDLE NO-UNDO.
+  DEFINE VARIABLE cTagDescription AS CHARACTER NO-UNDO.
   
   RUN system/TagProcs.p PERSISTENT SET hdTagProcs.
   {&methods/lValidateError.i YES}
@@ -707,7 +708,19 @@ PROCEDURE hold-ap :
                     ).
             END.                        
 
-            bf-ap-inv.stat = if bf-ap-inv.stat eq "H" then "R" else "H".  
+            bf-ap-inv.stat = if bf-ap-inv.stat eq "H" then "R" else "H". 
+            IF bf-ap-inv.stat EQ "H" THEN 
+            do: 
+                cTagDescription = "Hold Status manually entered" .             
+                RUN AddTagHold (
+                                INPUT bf-ap-inv.rec_key,
+                                INPUT "ap-inv",
+                                INPUT cTagDescription,
+                                INPUT ""
+                                ).
+                     btTags:SENSITIVE = TRUE.
+            END.
+            
          END.
 
          FIND CURRENT ap-inv NO-LOCK NO-ERROR.
