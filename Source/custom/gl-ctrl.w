@@ -54,6 +54,8 @@ ASSIGN
  cocode = gcompany
  locode = gloc.
 
+ DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO. 
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -65,21 +67,26 @@ ASSIGN
 &Scoped-define PROCEDURE-TYPE Window
 &Scoped-define DB-AWARE no
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME DEFAULT-FRAME
 
-/* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Btn_Update Btn_Close RECT-15 RECT-16 
+/* Standard List Definitions                                           */
+ 
+&Scoped-define ENABLED-TABLES gl-ctrl
+&Scoped-define FIRST-ENABLED-TABLE gl-ctrl
+&Scoped-Define ENABLED-OBJECTS RECT-15 RECT-16 Btn_Update Btn_Close 
 &Scoped-Define DISPLAYED-FIELDS gl-ctrl.journal gl-ctrl.trnum gl-ctrl.ret ~
-gl-ctrl.ret-dscr gl-ctrl.contra gl-ctrl.con-dscr 
+gl-ctrl.contra gl-ctrl.retainedEarnings gl-ctrl.balanceAccount 
 &Scoped-define DISPLAYED-TABLES gl-ctrl
 &Scoped-define FIRST-DISPLAYED-TABLE gl-ctrl
-
+&Scoped-Define DISPLAYED-OBJECTS cRetAccDscr cContAccDscr cRetEarAccDscr ~
+cBalAccDscr 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
-&Scoped-define List-1 gl-ctrl.journal gl-ctrl.ret gl-ctrl.contra 
-&Scoped-define List-2 gl-ctrl.ret-dscr gl-ctrl.con-dscr 
+&Scoped-define List-1 gl-ctrl.journal gl-ctrl.ret gl-ctrl.contra ~
+gl-ctrl.retainedEarnings gl-ctrl.balanceAccount 
+
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -100,13 +107,33 @@ DEFINE BUTTON Btn_Update
      LABEL "&Update" 
      SIZE 15 BY 1.14.
 
+DEFINE VARIABLE cBalAccDscr AS CHARACTER FORMAT "X(35)":U 
+     VIEW-AS FILL-IN 
+     SIZE 37 BY 1
+     BGCOLOR 7 FGCOLOR 15  NO-UNDO.
+
+DEFINE VARIABLE cContAccDscr AS CHARACTER FORMAT "X(35)":U 
+     VIEW-AS FILL-IN 
+     SIZE 37 BY 1
+     BGCOLOR 7 FGCOLOR 15  NO-UNDO.
+
+DEFINE VARIABLE cRetAccDscr AS CHARACTER FORMAT "X(35)":U 
+     VIEW-AS FILL-IN 
+     SIZE 37 BY 1
+     BGCOLOR 7 FGCOLOR 15  NO-UNDO.
+
+DEFINE VARIABLE cRetEarAccDscr AS CHARACTER FORMAT "X(35)":U 
+     VIEW-AS FILL-IN 
+     SIZE 37 BY 1
+     BGCOLOR 7 FGCOLOR 15  NO-UNDO.
+
 DEFINE RECTANGLE RECT-15
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 33 BY 1.67.
 
 DEFINE RECTANGLE RECT-16
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
-     SIZE 93 BY 5.
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 93 BY 7.62.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -127,24 +154,28 @@ DEFINE FRAME DEFAULT-FRAME
           VIEW-AS FILL-IN 
           SIZE 27 BY 1
           BGCOLOR 15 
-     gl-ctrl.ret-dscr AT ROW 3.62 COL 53 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 37 BY 1
-          BGCOLOR 7 FGCOLOR 15 
+     cRetAccDscr AT ROW 3.62 COL 53 COLON-ALIGNED NO-LABEL
      gl-ctrl.contra AT ROW 4.81 COL 26 COLON-ALIGNED
           LABEL "Profit Contra"
           VIEW-AS FILL-IN 
           SIZE 27 BY 1
           BGCOLOR 15 
-     gl-ctrl.con-dscr AT ROW 4.81 COL 53 COLON-ALIGNED NO-LABEL
+     cContAccDscr AT ROW 4.81 COL 53 COLON-ALIGNED NO-LABEL
+     gl-ctrl.retainedEarnings AT ROW 6 COL 26 COLON-ALIGNED
           VIEW-AS FILL-IN 
-          SIZE 37 BY 1
-          BGCOLOR 7 FGCOLOR 15 
-     Btn_Update AT ROW 6.48 COL 28 HELP
+          SIZE 27 BY 1 TOOLTIP "Retained earnings to auto-post upon closing final period"
+          BGCOLOR 15 
+     cRetEarAccDscr AT ROW 6 COL 53 COLON-ALIGNED NO-LABEL WIDGET-ID 4
+     gl-ctrl.balanceAccount AT ROW 7.19 COL 26 COLON-ALIGNED
+          VIEW-AS FILL-IN 
+          SIZE 27 BY 1 TOOLTIP "Account for out of balance postings"
+          BGCOLOR 15 
+     cBalAccDscr AT ROW 7.19 COL 53 COLON-ALIGNED NO-LABEL WIDGET-ID 2
+     Btn_Update AT ROW 9.19 COL 28 HELP
           "Update/Save System Configurations"
-     Btn_Close AT ROW 6.48 COL 44 HELP
+     Btn_Close AT ROW 9.19 COL 44 HELP
           "Cancel Update or Close Window"
-     RECT-15 AT ROW 6.24 COL 27
+     RECT-15 AT ROW 8.95 COL 27
      RECT-16 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -202,27 +233,32 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
 /* SETTINGS FOR WINDOW C-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME DEFAULT-FRAME
-                                                                        */
-ASSIGN
+   FRAME-NAME                                                           */
+ASSIGN 
        Btn_Close:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
                 "ribbon-button".
 
-
-ASSIGN
+ASSIGN 
        Btn_Update:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
                 "ribbon-button".
-
-
-/* SETTINGS FOR FILL-IN gl-ctrl.con-dscr IN FRAME DEFAULT-FRAME
+/* SETTINGS FOR FILL-IN gl-ctrl.retainedEarnings IN FRAME DEFAULT-FRAME
+   NO-ENABLE 1 EXP-LABEL                                                */
+/* SETTINGS FOR FILL-IN gl-ctrl.balanceAccount IN FRAME DEFAULT-FRAME
+   NO-ENABLE 1 EXP-LABEL                                                */   
+/* SETTINGS FOR FILL-IN cBalAccDscr IN FRAME DEFAULT-FRAME
+   NO-ENABLE 2                                                          */
+/* SETTINGS FOR FILL-IN cContAccDscr IN FRAME DEFAULT-FRAME
    NO-ENABLE 2                                                          */
 /* SETTINGS FOR FILL-IN gl-ctrl.contra IN FRAME DEFAULT-FRAME
    NO-ENABLE 1 EXP-LABEL                                                */
+/* SETTINGS FOR FILL-IN cRetAccDscr IN FRAME DEFAULT-FRAME
+   NO-ENABLE 2                                                          */
+/* SETTINGS FOR FILL-IN cRetEarAccDscr IN FRAME DEFAULT-FRAME
+   NO-ENABLE 2                                                          */
 /* SETTINGS FOR FILL-IN gl-ctrl.journal IN FRAME DEFAULT-FRAME
    NO-ENABLE 1 EXP-LABEL                                                */
 /* SETTINGS FOR FILL-IN gl-ctrl.ret IN FRAME DEFAULT-FRAME
    NO-ENABLE 1 EXP-LABEL                                                */
-/* SETTINGS FOR FILL-IN gl-ctrl.ret-dscr IN FRAME DEFAULT-FRAME
-   NO-ENABLE 2                                                          */
 /* SETTINGS FOR FILL-IN gl-ctrl.trnum IN FRAME DEFAULT-FRAME
    NO-ENABLE EXP-LABEL                                                  */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
@@ -240,7 +276,7 @@ THEN C-Win:HIDDEN = no.
 */  /* FRAME DEFAULT-FRAME */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -266,6 +302,37 @@ DO:
 /* This event will close the window and terminate the procedure.  */
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME gl-ctrl.balanceAccount
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL gl-ctrl.balanceAccount C-Win
+ON LEAVE OF gl-ctrl.balanceAccount IN FRAME DEFAULT-FRAME /* Balancing Account */
+DO:
+  IF LASTKEY NE -1 THEN DO:
+    RUN valid-glacct ("ret") NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL gl-ctrl.balanceAccount C-Win
+ON VALUE-CHANGED OF gl-ctrl.balanceAccount IN FRAME DEFAULT-FRAME /* Balancing Account */
+DO:
+  FIND account
+      WHERE account.company EQ cocode
+        AND account.actnum  BEGINS {&self-name}:SCREEN-VALUE          
+      NO-LOCK NO-ERROR.
+  IF AVAIL account THEN DO:
+    {&self-name}:SCREEN-VALUE = account.actnum.
+    APPLY "tab" TO {&self-name}.
+  END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -312,13 +379,19 @@ DO:
 
     RUN valid-glacct ("contra") NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    
+    RUN valid-acct (1,OUTPUT lReturnError) NO-ERROR.
+    IF lReturnError THEN RETURN NO-APPLY.
+    
+    RUN valid-acct (2,OUTPUT lReturnError) NO-ERROR.
+    IF lReturnError THEN RETURN NO-APPLY.
 
     DISABLE {&LIST-1}.
     ASSIGN
       {&SELF-NAME}:LABEL = "&Update"
       Btn_Close:LABEL = "&Close".
     FIND CURRENT gl-ctrl EXCLUSIVE-LOCK.
-    ASSIGN {&LIST-1} {&LIST-2}.
+    ASSIGN {&LIST-1} .
     FIND CURRENT gl-ctrl NO-LOCK.
   END.
 END.
@@ -402,6 +475,67 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME gl-ctrl.retainedEarnings
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL gl-ctrl.retainedEarnings C-Win
+ON LEAVE OF gl-ctrl.retainedEarnings IN FRAME DEFAULT-FRAME /* Retained Earnings */
+DO:
+  IF LASTKEY NE -1 THEN DO:
+    RUN valid-acct (1,OUTPUT lReturnError) NO-ERROR.
+    IF lReturnError THEN RETURN NO-APPLY.
+  END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL gl-ctrl.retainedEarnings C-Win
+ON VALUE-CHANGED OF gl-ctrl.retainedEarnings IN FRAME DEFAULT-FRAME /* Retained Earnings */
+DO:
+  FIND account
+      WHERE account.company EQ cocode
+        AND account.actnum  BEGINS {&self-name}:SCREEN-VALUE          
+      NO-LOCK NO-ERROR.
+  IF AVAIL account THEN DO:
+    {&self-name}:SCREEN-VALUE = account.actnum.
+    APPLY "tab" TO {&self-name}.
+  END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME gl-ctrl.balanceAccount
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL gl-ctrl.balanceAccount C-Win
+ON LEAVE OF gl-ctrl.balanceAccount IN FRAME DEFAULT-FRAME /* Balance Account */
+DO:
+  IF LASTKEY NE -1 THEN DO:
+    RUN valid-acct (2,OUTPUT lReturnError) NO-ERROR.
+    IF lReturnError THEN RETURN NO-APPLY.
+  END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL gl-ctrl.balanceAccount C-Win
+ON VALUE-CHANGED OF gl-ctrl.balanceAccount IN FRAME DEFAULT-FRAME /*Balance Account */
+DO:
+  FIND account
+      WHERE account.company EQ cocode
+        AND account.actnum  BEGINS {&self-name}:SCREEN-VALUE          
+      NO-LOCK NO-ERROR.
+  IF AVAIL account THEN DO:
+    {&self-name}:SCREEN-VALUE = account.actnum.
+    APPLY "tab" TO {&self-name}.
+  END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK C-Win 
@@ -436,9 +570,14 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     CREATE gl-ctrl.
     gl-ctrl.company = gcompany.
   END.
-  FIND FIRST gl-ctrl WHERE gl-ctrl.company EQ gcompany NO-LOCK NO-ERROR.
+  FIND FIRST gl-ctrl WHERE gl-ctrl.company EQ gcompany NO-LOCK NO-ERROR.   
 
   RUN enable_UI.
+  
+  RUN pDisplayAccountDscr("ret").
+  RUN pDisplayAccountDscr("contra"). 
+  RUN pDisplayAccountDscr("RetEarn").
+  RUN pDisplayAccountDscr("bal").
 
   {methods/nowait.i}
 
@@ -482,14 +621,68 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  IF AVAILABLE gl-ctrl THEN 
-    DISPLAY gl-ctrl.journal gl-ctrl.trnum gl-ctrl.ret gl-ctrl.ret-dscr 
-          gl-ctrl.contra gl-ctrl.con-dscr 
+  DISPLAY cRetAccDscr cContAccDscr cRetEarAccDscr cBalAccDscr 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE Btn_Update Btn_Close RECT-15 RECT-16 
+  IF AVAILABLE gl-ctrl THEN 
+    DISPLAY gl-ctrl.journal gl-ctrl.trnum gl-ctrl.ret gl-ctrl.contra 
+          gl-ctrl.retainedEarnings gl-ctrl.balanceAccount 
+      WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
+  ENABLE RECT-15 RECT-16 Btn_Update Btn_Close 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pDisplayAccountDscr C-Win 
+PROCEDURE pDisplayAccountDscr :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  DEFINE INPUT PARAMETER ip-field LIKE account.TYPE NO-UNDO.
+
+  DEFINE VAR cAccount LIKE account.actnum NO-UNDO.
+   
+  DO WITH FRAME {&FRAME-NAME}:
+    IF ip-field EQ "ret" THEN
+      ASSIGN
+       cAccount = gl-ctrl.ret
+       .
+    ELSE
+    IF ip-field EQ "contra" THEN
+      ASSIGN
+       cAccount = gl-ctrl.contra
+       .
+    ELSE IF ip-field EQ "RetEarn" THEN
+      ASSIGN
+       cAccount = gl-ctrl.retainedEarnings
+       .
+    ELSE IF ip-field EQ "Bal" THEN
+      ASSIGN
+       cAccount = gl-ctrl.balanceAccount
+       .          
+
+    FIND FIRST account
+        WHERE account.company EQ cocode
+          AND account.actnum  EQ cAccount            
+        NO-LOCK NO-ERROR.
+    IF AVAIL account THEN DO:
+      IF ip-field EQ "ret" THEN cRetAccDscr:SCREEN-VALUE = account.dscr.
+      ELSE
+      IF ip-field EQ "contra" THEN cContAccDscr:SCREEN-VALUE = account.dscr.
+      ELSE
+      IF ip-field EQ "RetEarn" THEN cRetEarAccDscr:SCREEN-VALUE = account.dscr.
+      ELSE
+      IF ip-field EQ "Bal" THEN cBalAccDscr:SCREEN-VALUE = account.dscr.
+    END.   
+    
+  END.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -529,9 +722,9 @@ PROCEDURE valid-glacct :
           AND account.TYPE    EQ lv-type
         NO-LOCK NO-ERROR.
     IF AVAIL account THEN DO:
-      IF ip-field EQ "ret"    THEN gl-ctrl.ret-dscr:SCREEN-VALUE = account.dscr.
+      IF ip-field EQ "ret"    THEN cRetAccDscr:SCREEN-VALUE = account.dscr.
       ELSE
-      IF ip-field EQ "contra" THEN gl-ctrl.con-dscr:SCREEN-VALUE = account.dscr.
+      IF ip-field EQ "contra" THEN cContAccDscr:SCREEN-VALUE = account.dscr.
     END.
 
     ELSE DO:
@@ -543,6 +736,59 @@ PROCEDURE valid-glacct :
       ELSE
       IF ip-field EQ "contra" THEN APPLY "entry" TO gl-ctrl.contra.
       RETURN ERROR.
+    END.
+  END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-acct C-Win 
+PROCEDURE valid-acct :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  DEFINE INPUT PARAMETER ipiField AS INTEGER NO-UNDO.
+  DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
+
+  DEF VAR lv-acct LIKE account.actnum NO-UNDO.
+  DEF VAR lv-type AS CHAR NO-UNDO.
+  DEF VAR lv-types AS CHAR INIT "ACELRT" NO-UNDO.
+  DEF VAR lv-type-dscr AS CHAR INIT
+      "Asset,Capital,Expense,Liability,Revenue,Total" NO-UNDO. 
+
+  DO WITH FRAME {&FRAME-NAME}:
+    IF ipiField EQ 1 THEN
+      ASSIGN
+       lv-acct = gl-ctrl.retainedEarnings:SCREEN-VALUE .      
+    ELSE
+    IF ipiField EQ 2 THEN
+      ASSIGN
+       lv-acct = gl-ctrl.balanceAccount:SCREEN-VALUE
+       .
+
+    FIND FIRST account
+        WHERE account.company EQ cocode
+          AND account.actnum  EQ lv-acct          
+        NO-LOCK NO-ERROR.
+    IF AVAIL account THEN DO:
+      IF ipiField EQ 1 THEN cRetEarAccDscr:SCREEN-VALUE = account.dscr.
+      ELSE
+      IF ipiField EQ 2 THEN cBalAccDscr:SCREEN-VALUE = account.dscr.
+    END.
+
+    ELSE DO:
+      MESSAGE "Invalid " +              
+              " account#, try help..."
+              VIEW-AS ALERT-BOX ERROR.
+      IF ipiField EQ 1    THEN APPLY "entry" TO gl-ctrl.retainedEarnings.
+      ELSE
+      IF ipiField EQ 2 THEN APPLY "entry" TO gl-ctrl.balanceAccount.
+      oplReturnError = YES.
     END.
   END.
 

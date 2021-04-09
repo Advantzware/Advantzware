@@ -836,7 +836,10 @@ PROCEDURE close-month :
 ------------------------------------------------------------------------------*/
    DEF VAR li AS INT NO-UNDO.
    DEF VAR lv-rowid AS ROWID NO-UNDO.
-
+   DEFINE VARIABLE lLastPeriod AS LOGICAL NO-UNDO.
+   DEFINE VARIABLE iTransNum AS INTEGER NO-UNDO.
+   DEFINE VARIABLE dNetIncome AS DECIMAL NO-UNDO.
+   
    DEF BUFFER b-period FOR period.   
 
    SESSION:SET-WAIT-STATE ("general").
@@ -935,7 +938,7 @@ PROCEDURE close-month :
 
    IF period.pnum EQ company.num-per THEN DO:
      lv-rowid = ROWID(period).
-
+     lLastPeriod = YES.
      FIND NEXT period
          WHERE period.company EQ cocode
            AND period.pstat   EQ YES
@@ -1126,7 +1129,7 @@ PROCEDURE close-month :
             and period.pstat   eq yes
           exclusive-lock.
       period.pstat = false.
-      if period.pnum eq company.num-per then company.yend-per = no.
+      if period.pnum eq company.num-per then company.yend-per = YES.
    end.
 
    find next period
@@ -1135,6 +1138,31 @@ PROCEDURE close-month :
        no-lock.
    if avail period then ASSIGN tran-period = period.pnum
                                uperiod = period.pnum.
+                               
+   IF lLastPeriod THEN
+   DO:
+       FIND FIRST gl-ctrl EXCLUSIVE-LOCK
+            WHERE gl-ctrl.company EQ cocode NO-ERROR NO-WAIT.
+       IF AVAIL gl-ctrl THEN DO:
+          ASSIGN iTransNum = gl-ctrl.trnum + 1.
+                 gl-ctrl.trnum = iTransNum.
+       END.          
+       FIND CURRENT gl-ctrl NO-LOCK NO-ERROR .
+                   
+       RUN pGetNetIncome(INPUT gl-ctrl.contra, OUTPUT dNetIncome). 
+       RUN GL_SpCreateGLHist(cocode,
+                             gl-ctrl.retainedEarnings,
+                             "CLOSE",
+                             STRING("Auto Posted Net Income for Year ") + STRING(period.yr),
+                             period.pst,
+                             dNetIncome,                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
+                             iTransNum,
+                             period.pnum,
+                             "A",
+                             date(TODAY),
+                             "",
+                             "").          
+   END.    
 
    SESSION:SET-WAIT-STATE ("").
 
@@ -1516,6 +1544,30 @@ end procedure.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetNetIncome C-Win 
+PROCEDURE pGetNetIncome :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+DEFINE INPUT PARAMETER ipcAccount AS CHARACTER NO-UNDO.
+DEFINE OUTPUT PARAMETER opdNetAmount AS DECIMAL NO-UNDO.
+
+find first b-cacct NO-LOCK
+            where b-cacct.company eq cocode
+            and b-cacct.actnum  eq ipcAccount NO-ERROR.
+ DO i = 1 TO 13:
+   opdNetAmount = opdNetAmount + b-cacct.cyr[i].
+ END.
+ 
+            
+end procedure.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME            
+            
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE show-param C-Win 
 PROCEDURE show-param :
