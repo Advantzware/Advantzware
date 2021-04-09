@@ -548,7 +548,7 @@ FOR each report
          IF v-i-dscr2 = "" THEN v-i-dscr2 = ar-invl.i-dscr.
 
          IF v-ord-no = 0 AND v-ship-qty = 0 THEN v-ship-qty = v-inv-qty.
-         IF v-ship-qty NE 0 OR  v-inv-qty NE 0 THEN
+         IF v-ship-qty NE 0 OR  v-inv-qty NE 0 OR ar-invl.misc THEN
          DO:
              PUT 
                SPACE(1)
