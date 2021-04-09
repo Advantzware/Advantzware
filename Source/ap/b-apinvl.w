@@ -3165,7 +3165,8 @@ PROCEDURE valid-po-no :
   DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
   DEF VAR lv-msg AS CHAR NO-UNDO.
   DEF VAR lv-msg2 AS CHAR NO-UNDO.
-  DEFINE VARIABLE lMessage AS LOGICAL NO-UNDO.
+  DEFINE VARIABLE lMessage  AS LOGICAL NO-UNDO.
+  DEFINE VARIABLE lResponse AS LOGICAL   NO-UNDO.
   DEF BUFFER b-ap-invl FOR ap-invl.
   
 
@@ -3175,10 +3176,24 @@ PROCEDURE valid-po-no :
 
       FIND FIRST po-ord
           WHERE po-ord.company EQ g_company
-            AND po-ord.vend-no EQ ap-inv.vend-no
             AND po-ord.po-no   EQ INT(ap-invl.po-no:SCREEN-VALUE IN BROWSE {&browse-name})
           USE-INDEX vend-no NO-LOCK NO-ERROR.
       IF NOT AVAIL po-ord THEN lv-msg = "Invalid PO, try help".
+      IF lv-msg EQ "" THEN
+      DO: 
+        IF po-ord.vend-no NE ap-inv.vend-no THEN 
+        DO:
+            RUN displayMessageQuestion (
+              INPUT  "64",
+              OUTPUT lResponse
+              ).
+           IF NOT lResponse THEN DO:
+              APPLY "ENTRY" TO ap-invl.po-no IN BROWSE {&browse-name}.
+              oplReturnError = YES.
+              RETURN.
+           END. /* IF NOT lResponse */
+        END.
+      END.
 
       IF lv-msg EQ "" THEN DO:
 
