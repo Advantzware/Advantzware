@@ -13,6 +13,8 @@
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
 
+USING system.SharedConfig.
+
 /* ***************************  Definitions  ************************** */
 
 /*Gets rid of stack trace window when pressing F1*/
@@ -62,7 +64,7 @@ DEFINE VARIABLE lValueChangedRM AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lValueChangedFG AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lValueChangedBR AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lValueChangedAR AS LOGICAL NO-UNDO.
-
+DEFINE VARIABLE scInstance AS CLASS system.SharedConfig NO-UNDO.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -641,9 +643,15 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_ReOpen Dialog-Frame
 ON CHOOSE OF Btn_ReOpen IN FRAME Dialog-Frame /* Reopen Period */
 DO:
-    RUN spProgressBar ("Reopen Period", 1, 1).
+    
+    scInstance = SharedConfig:instance.
+    scInstance:SetValue("ReOpenPeriodCompany",TRIM(company.company)).
+              
     RUN util/reopenyr.p.   
     RUN display-item.
+    
+    scInstance = SharedConfig:instance.
+    scInstance:DeleteValue(INPUT "ReOpenPeriodCompany").  
 
     END.
 
@@ -1026,7 +1034,7 @@ PROCEDURE display-item :
     IF AVAIL period AND period.pstat EQ NO AND period.pnum EQ company.num-per  THEN
     DO:
        FIND LAST bf-period  no-lock
-            where bf-period.company eq cocode            
+            where bf-period.company eq company.company            
             and bf-period.pstat   eq no
               no-error.
        IF AVAIL bf-period AND bf-period.yr EQ period.yr THEN

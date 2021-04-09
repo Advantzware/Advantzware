@@ -3,6 +3,7 @@
 /* g/l year end re-open                                                       */
 /*                                                                            */
 /* -------------------------------------------------------------------------- */
+USING system.SharedConfig.
 {custom/globdefs.i}
 {sys/inc/var.i NEW shared}
 {sys/form/s-top.f}
@@ -12,15 +13,20 @@ def var end-date   like start-date NO-UNDO.
 def var ret-bal    as   DEC NO-UNDO.
 def var fisc-yr    as   int format "9999" NO-UNDO.
 DEF VAR choice AS LOG NO-UNDO.
+DEFINE VARIABLE scInstance AS CLASS system.SharedConfig NO-UNDO.
 
 def buffer b-acc for account.
 DEFINE BUFFER bf-period FOR period.
 DEFINE BUFFER bf-account FOR account.
 DEFINE BUFFER bf-glhist FOR glhist.
 
-ASSIGN cocode = g_company
-       locode = g_loc.
-
+ ASSIGN 
+        scInstance           = SharedConfig:instance
+        cocode =  STRING(scInstance:GetValue("ReOpenPeriodCompany")) NO-ERROR.  
+    IF cocode EQ "" THEN
+    ASSIGN cocode = g_company .
+    locode = g_loc. 
+    
 /*form skip(18)
      with title "                  G / L    Y E A R - E N D    R E - O P E N                     "
      frame yclo row 2 width 80 no-labels overlay.
