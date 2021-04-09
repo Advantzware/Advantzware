@@ -143,8 +143,37 @@ PROCEDURE pCreateOePrmtxTT PRIVATE:
           AND oe-prmtx.i-no       EQ ipcItemID
           AND oe-prmtx.custype    EQ ipcCustType
           AND oe-prmtx.custShipID EQ ipcShipID:
-        CREATE ttOePrmtx.
-        BUFFER-COPY oe-prmtx TO ttOePrmtx.        
+        CREATE ttOePrmtx.        
+        ASSIGN
+            ttOePrmtx.company       = oe-prmtx.company       
+            ttOePrmtx.custNo        = oe-prmtx.cust-no
+            ttOePrmtx.custype       = oe-prmtx.custype
+            ttOePrmtx.custShipId    = oe-prmtx.custShipID
+            ttOePrmtx.itemID        = oe-prmtx.i-no
+            ttOePrmtx.procat        = oe-prmtx.procat
+            ttOePrmtx.effectiveDate = oe-prmtx.eff-date
+            ttOePrmtx.oldExpiryDate = oe-prmtx.exp-date
+            ttOePrmtx.newExpiryDate = TODAY - 1
+            ttOePrmtx.quantity1     = oe-prmtx.qty[1]
+            ttOePrmtx.price1        = oe-prmtx.price[1]
+            ttOePrmtx.quantity2     = oe-prmtx.qty[2]
+            ttOePrmtx.price2        = oe-prmtx.price[2]
+            ttOePrmtx.quantity3     = oe-prmtx.qty[3]
+            ttOePrmtx.price3        = oe-prmtx.price[3]
+            ttOePrmtx.quantity4     = oe-prmtx.qty[4]
+            ttOePrmtx.price4        = oe-prmtx.price[4]
+            ttOePrmtx.quantity5     = oe-prmtx.qty[5]
+            ttOePrmtx.price5        = oe-prmtx.price[5]
+            ttOePrmtx.quantity6     = oe-prmtx.qty[6]
+            ttOePrmtx.price6        = oe-prmtx.price[6]
+            ttOePrmtx.quantity7     = oe-prmtx.qty[7]
+            ttOePrmtx.price7        = oe-prmtx.price[7]
+            ttOePrmtx.quantity8     = oe-prmtx.qty[8]
+            ttOePrmtx.price8        = oe-prmtx.price[8]
+            ttOePrmtx.quantity9     = oe-prmtx.qty[9]
+            ttOePrmtx.price9        = oe-prmtx.price[9]
+            ttOePrmtx.quantity10    = oe-prmtx.qty[10]
+            ttOePrmtx.price10       = oe-prmtx.price[10].
     END.              
 
 END PROCEDURE.
@@ -239,11 +268,11 @@ PROCEDURE pExpireOldPrices PRIVATE:
                         ttOePrmtxCsv.Quantity9     = bf-oe-prmtx.qty[9]
                         ttOePrmtxCsv.Quantity10    = bf-oe-prmtx.qty[10]
                         .
-                END.                     
+                END.                
                 IF iplExpire THEN 
                         bf-oe-prmtx.exp-date = TODAY - 1.
                     ELSE 
-                        ttOePrmtxCsv.newExpiryDate = TODAY - 1. 
+                        ttOePrmtxCsv.newExpiryDate = TODAY - 1.
                 LEAVE.  
             END.                              
         END.                                        
