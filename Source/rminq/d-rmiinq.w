@@ -79,12 +79,12 @@ DEFINE VARIABLE hPgmReason AS HANDLE NO-UNDO.
 rm-rcpth.job-no rm-rcpth.job-no2 rm-rdtlh.s-num rm-rcpth.trans-date ~
 rm-rcpth.rita-code rm-rdtlh.loc rm-rdtlh.loc-bin rm-rdtlh.tag rm-rdtlh.qty ~
 rm-rcpth.pur-uom rm-rdtlh.cost  ~
-rm-rdtlh.tag2 rm-rdtlh.user-id rm-rdtlh.receiver-no rm-rcpth.adjustmentCode 
+rm-rdtlh.tag2 rm-rdtlh.user-id rm-rcpth.adjustmentCode 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Dialog-Frame rm-rcpth.i-no ~
 rm-rcpth.po-no rm-rcpth.job-no rm-rcpth.job-no2 rm-rdtlh.s-num ~
 rm-rcpth.trans-date rm-rcpth.rita-code rm-rdtlh.loc rm-rdtlh.loc-bin ~
 rm-rdtlh.tag rm-rdtlh.qty rm-rcpth.pur-uom rm-rdtlh.cost rm-rdtlh.tag2 ~
-rm-rdtlh.user-id rm-rdtlh.receiver-no rm-rcpth.adjustmentCode 
+rm-rdtlh.user-id rm-rcpth.adjustmentCode 
 &Scoped-define ENABLED-TABLES-IN-QUERY-Dialog-Frame rm-rcpth rm-rdtlh
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-Dialog-Frame rm-rcpth
 &Scoped-define SECOND-ENABLED-TABLE-IN-QUERY-Dialog-Frame rm-rdtlh
@@ -102,7 +102,7 @@ rm-rdtlh.user-id rm-rdtlh.receiver-no rm-rcpth.adjustmentCode
 rm-rcpth.job-no rm-rcpth.job-no2 rm-rdtlh.s-num rm-rcpth.trans-date ~
 rm-rcpth.rita-code rm-rdtlh.loc rm-rdtlh.loc-bin rm-rdtlh.tag rm-rdtlh.qty ~
 rm-rcpth.pur-uom rm-rdtlh.cost  ~
-rm-rdtlh.tag2 rm-rdtlh.user-id rm-rdtlh.receiver-no rm-rcpth.adjustmentCode 
+rm-rdtlh.tag2 rm-rdtlh.user-id rm-rcpth.adjustmentCode 
 &Scoped-define ENABLED-TABLES rm-rcpth rm-rdtlh
 &Scoped-define FIRST-ENABLED-TABLE rm-rcpth
 &Scoped-define second-ENABLED-TABLE rm-rcpth
@@ -112,7 +112,7 @@ RECT-21 RECT-38
 rm-rcpth.job-no rm-rcpth.job-no2 rm-rdtlh.s-num rm-rcpth.trans-date ~
 rm-rcpth.rita-code rm-rdtlh.loc rm-rdtlh.loc-bin rm-rdtlh.tag rm-rdtlh.qty ~
 rm-rcpth.pur-uom rm-rdtlh.cost  ~
-rm-rdtlh.tag2 rm-rdtlh.user-id rm-rdtlh.receiver-no rm-rcpth.adjustmentCode 
+rm-rdtlh.tag2 rm-rdtlh.user-id rm-rcpth.adjustmentCode 
 &Scoped-define DISPLAYED-TABLES rm-rcpth rm-rdtlh
 &Scoped-define FIRST-DISPLAYED-TABLE rm-rcpth
 &Scoped-define SECOND-DISPLAYED-TABLE rm-rdtlh
@@ -260,12 +260,7 @@ DEFINE FRAME Dialog-Frame
           LABEL "UserID" FORMAT "x(8)"
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
-          BGCOLOR 15 FONT 1
-     rm-rdtlh.receiver-no AT ROW 8.38 COL 63 COLON-ALIGNED
-          LABEL "Invoice Link" FORMAT "x(20)"
-          VIEW-AS FILL-IN 
-          SIZE 17 BY 1
-          BGCOLOR 15 FONT 1
+          BGCOLOR 15 FONT 1     
      rm-rcpth.adjustmentCode AT ROW 8.38 COL 105 COLON-ALIGNED
      LABEL "Adjustment Reason" 
      VIEW-AS COMBO-BOX INNER-LINES 10
@@ -349,8 +344,6 @@ ASSIGN
 /* SETTINGS FOR FILL-IN rm-rdtlh.tag2 IN FRAME Dialog-Frame
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN rm-rdtlh.user-id IN FRAME Dialog-Frame
-   EXP-LABEL EXP-FORMAT                                                 */
-/* SETTINGS FOR FILL-IN rm-rdtlh.receiver-no IN FRAME Dialog-Frame
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN rm-rcpth.adjustmentCode IN FRAME Dialog-Frame
    EXP-LABEL EXP-FORMAT                                                 */
@@ -827,7 +820,7 @@ PROCEDURE display-item :
             rm-rcpth.job-no rm-rcpth.job-no2 rm-rdtlh.s-num rm-rcpth.trans-date 
             rm-rcpth.rita-code rm-rdtlh.loc rm-rdtlh.loc-bin rm-rdtlh.tag rm-rdtlh.qty 
             rm-rcpth.pur-uom rm-rdtlh.cost   
-            rm-rdtlh.tag2 rm-rdtlh.user-id rm-rdtlh.receiver-no  */
+            rm-rdtlh.tag2 rm-rdtlh.user-id  */
             fi_cost-uom fi_ext-cost rm-rcpth.adjustmentCode
             WITH FRAME Dialog-Frame.
     END.
@@ -864,13 +857,13 @@ PROCEDURE enable_UI :
       rm-rcpth.job-no rm-rcpth.job-no2 rm-rdtlh.s-num rm-rcpth.trans-date 
       rm-rcpth.rita-code rm-rdtlh.loc rm-rdtlh.loc-bin rm-rdtlh.tag rm-rdtlh.qty 
       rm-rcpth.pur-uom rm-rdtlh.cost  
-      rm-rdtlh.tag2 rm-rdtlh.user-id rm-rdtlh.receiver-no rm-rcpth.adjustmentCode
+      rm-rdtlh.tag2 rm-rdtlh.USER-ID rm-rcpth.adjustmentCode
       WITH FRAME Dialog-Frame.
   ENABLE rm-rcpth.i-no rm-rcpth.po-no 
       rm-rcpth.job-no rm-rcpth.job-no2 rm-rdtlh.s-num rm-rcpth.trans-date 
       rm-rcpth.rita-code rm-rdtlh.loc rm-rdtlh.loc-bin rm-rdtlh.tag rm-rdtlh.qty 
       rm-rcpth.pur-uom rm-rdtlh.cost  
-      rm-rdtlh.tag2 rm-rdtlh.user-id rm-rdtlh.receiver-no rm-rcpth.adjustmentCode 
+      rm-rdtlh.tag2 rm-rdtlh.USER-ID  rm-rcpth.adjustmentCode 
       fi_cost-uom fi_ext-cost Btn_OK Btn_Done Btn_Cancel RECT-21 RECT-38 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
@@ -1217,7 +1210,6 @@ PROCEDURE update-record :
      b-rdtlh.cost       = DEC(rm-rdtlh.cost:SCREEN-VALUE )
      b-rdtlh.tag2       = rm-rdtlh.tag2:SCREEN-VALUE 
      b-rdtlh.user-id    = rm-rdtlh.user-id:SCREEN-VALUE 
-     b-rdtlh.receiver-no = rm-rdtlh.receiver-no:SCREEN-VALUE 
      b-rdtlh.job-no     = b-rcpth.job-no
      b-rdtlh.job-no2    = b-rcpth.job-no2
      b-rdtlh.rita-code  = b-rcpth.rita-code

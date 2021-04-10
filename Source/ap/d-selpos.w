@@ -567,13 +567,13 @@ FOR EACH tt-pol,
           tt-rec.r-no       = 0
           tt-rec.qty-rec    = IF rd_qty EQ 1 THEN v-qty
                               ELSE po-ordl.t-rec-qty
-          tt-rec.qty-rec-uom = IF rd_qty EQ 1 THEN po-ordl.cons-uom
+          tt-rec.qty-rec-uom = IF rd_qty EQ 1 THEN po-ordl.pr-qty-uom
                                ELSE ITEM.cons-uom
           tt-rec.qty-inv    = IF rd_qty EQ 1 THEN v-qty
                               ELSE po-ordl.t-rec-qty
           tt-rec.qty-inv-uom = po-ordl.pr-qty-uom
           tt-rec.row-id     = ROWID(tt-pol).
-                   
+
           FIND FIRST rm-rcpth WHERE
               rm-rcpth.company   EQ cocode AND
               rm-rcpth.i-no      EQ po-ordl.i-no AND
@@ -592,7 +592,6 @@ FOR EACH tt-pol,
         WHERE rm-rcpth.company   EQ cocode
           AND rm-rcpth.i-no      EQ po-ordl.i-no
           AND rm-rcpth.po-no     EQ TRIM(STRING(po-ordl.po-no,">>>>>>>>>>"))
-          AND rm-rcpth.po-line   EQ po-ordl.LINE
           AND rm-rcpth.job-no    EQ po-ordl.job-no
           AND rm-rcpth.job-no2   EQ po-ordl.job-no2
           AND rm-rcpth.rita-code EQ "R"
@@ -672,9 +671,7 @@ FOR EACH tt-pol,
       IF NOT CAN-FIND(FIRST tt-rec WHERE tt-rec.rec-id EQ RECID(rm-rcpth) ) THEN DO:
           CREATE tt-rec.
           ASSIGN
-           tt-rec.rec-id     = RECID(rm-rcpth)
-           tt-rec.selekt     = SUBSTR(rm-rdtlh.receiver-no,1,10) EQ
-                               STRING(ap-inv.i-no,"9999999999")
+           tt-rec.rec-id     = RECID(rm-rcpth)            
            tt-rec.po-date   = po-ord.po-date
            tt-rec.rcpt-date = rm-rcpth.trans-date
            tt-rec.r-no       = rm-rcpth.r-no
@@ -697,7 +694,6 @@ FOR EACH tt-pol,
       WHERE fg-rcpth.company   EQ cocode
         AND fg-rcpth.i-no      EQ po-ordl.i-no
         AND fg-rcpth.po-no     EQ TRIM(STRING(po-ordl.po-no,">>>>>>>>>>"))
-        AND fg-rcpth.po-line   EQ po-ordl.LINE
         AND fg-rcpth.rita-code EQ "R"
       USE-INDEX item-po NO-LOCK,
 
@@ -720,18 +716,14 @@ FOR EACH tt-pol,
         
         CREATE tt-rec.
         ASSIGN
-         tt-rec.rec-id     = RECID(fg-rcpth)
-         tt-rec.selekt     = SUBSTR(fg-rdtlh.receiver-no,1,10) EQ
-                             STRING(ap-inv.i-no,"9999999999")
+         tt-rec.rec-id     = RECID(fg-rcpth)          
          tt-rec.po-date   = po-ord.po-date
          tt-rec.rcpt-date = fg-rcpth.trans-date
          tt-rec.r-no       = fg-rcpth.r-no
          tt-rec.qty-rec    = fg-rdtlh.qty
          tt-rec.qty-inv    = fg-rdtlh.qty - dQuantityInvoiced
          tt-rec.s-len      = IF po-ordl.pr-qty-uom EQ "ROLL" THEN 12 ELSE po-ordl.s-len
-         tt-rec.qty-rec-uom = po-ordl.cons-uom
-         tt-rec.qty-inv-uom = po-ordl.pr-qty-uom                       
-         tt-rec.row-id      = ROWID(tt-pol).  
+         tt-rec.row-id     = ROWID(tt-pol).
     END.
   END.
 
