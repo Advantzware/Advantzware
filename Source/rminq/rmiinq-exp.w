@@ -63,17 +63,17 @@ DEF VAR cTextListToDefault AS cha NO-UNDO.
 
 ASSIGN cTextListToSelect = "Item#,TR Date,C,Tag,Vendor Po#,Job#,S,WHS," +
                            "Bin,Qty,Qty/UOM,Cost,Cost/UOM,Ext Cost,Cert/Lot/Mill#," +
-                           "UserID,Invoice Link,Item Name,OH: EA,TON,LF,MSF" 
+                           "UserID,Item Name,OH: EA,TON,LF,MSF" 
 
       cFieldListToSelect = "item,tr-date,c,tag,vendor-po,job,s,whs," +
                            "bin,qty,qty-uom,cost,cost-uom,ext-cost,cert-lot," +
-                           "userid,inv-link,item-name,oh-ea,ton,lf,msf" .
+                           "userid,item-name,oh-ea,ton,lf,msf" .
 
 {sys/inc/ttRptSel.i}
 
     ASSIGN cTextListToDefault  = "Item#,TR Date,C,Tag,Vendor Po#,Job#,S,WHS," +
                            "Bin,Qty,Qty/UOM,Cost,Cost/UOM,Ext Cost,Cert/Lot/Mill#," +
-                           "UserID,Invoice Link" .
+                           "UserID" .
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1068,9 +1068,6 @@ cJobNo[2]   = FILL(" ",6 - length(TRIM(end_job)))   +
                 v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(rm-rdtlh.tag2)). 
             WHEN "userid" THEN                                                              
                 v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(rm-rdtlh.user-id)). 
-            WHEN "inv-link" THEN                                                              
-                v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(rm-rdtlh.receiver-no)). 
-
             WHEN "item-name" THEN                                                              
                 v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(fi_name)). 
             WHEN "oh-ea" THEN                                                              
