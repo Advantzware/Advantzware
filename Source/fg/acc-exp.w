@@ -901,8 +901,7 @@ FOR EACH b-account WHERE b-account.company = cocode
           and glhist.actnum  eq b-account.actnum
           and glhist.period  eq period.pnum
           and glhist.tr-date ge period.pst
-          and glhist.tr-date le period.pend
-          and glhist.posted  eq NO
+          and glhist.tr-date le period.pend          
           no-lock:
 
           d-period$[period.pnum] = d-period$[period.pnum] + glhist.tr-amt.

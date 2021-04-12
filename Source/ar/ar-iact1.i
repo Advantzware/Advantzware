@@ -142,8 +142,7 @@ IF ll-valid THEN DO:
             can-find(FIRST glhist WHERE
                glhist.company EQ cocode AND
                glhist.jrnl EQ "CASHRVD" AND
-               glhist.tr-dscr EQ v-gltrans-desc AND 
-               glhist.posted EQ NO) THEN
+               glhist.tr-dscr EQ v-gltrans-desc ) THEN
                t-check-no = "Void".
 
          IF ar-cashl.inv-no EQ 0 AND t-check-no EQ "Payment" AND t-credits LT 0 THEN
@@ -194,8 +193,7 @@ IF ll-valid THEN DO:
               FIND FIRST glhist WHERE
                    glhist.company EQ cocode AND
                    glhist.jrnl EQ "CASHRVD" AND
-                   glhist.tr-dscr EQ v-gltrans-desc AND 
-                   glhist.posted EQ NO
+                   glhist.tr-dscr EQ v-gltrans-desc 
                    NO-LOCK NO-ERROR.
 
               IF AVAIL glhist THEN
@@ -237,8 +235,7 @@ IF ll-valid THEN DO:
               FIND FIRST glhist WHERE
                    glhist.company EQ cocode AND
                    glhist.jrnl EQ "CASHRVD" AND
-                   glhist.tr-dscr EQ v-gltrans-desc AND
-                   glhist.posted EQ NO
+                   glhist.tr-dscr EQ v-gltrans-desc 
                    NO-LOCK NO-ERROR.
 
               IF AVAIL glhist THEN
