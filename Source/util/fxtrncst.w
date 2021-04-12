@@ -548,7 +548,7 @@ DISABLE TRIGGERS FOR LOAD OF fg-bin.
                 lv-cost[6]  = 0
                 cJobNo      = fg-rcpth.job-no
                 iJobNo2     = fg-rcpth.job-no2
-                cPoNo       = fg-rcpth.job-no
+                cPoNo       = fg-rcpth.po-no
                 .
                 
                 FIND FIRST fg-bin NO-LOCK
