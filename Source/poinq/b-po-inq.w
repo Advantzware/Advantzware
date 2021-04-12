@@ -102,7 +102,9 @@ DEFINE VARIABLE cQueryBuffers      AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFieldBuffer       AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFieldName         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lIsBreakByUsed     AS LOGICAL   NO-UNDO.
-
+DEFINE VARIABLE cFormattedJobno    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hdJobProcs         AS HANDLE    NO-UNDO.
+RUN jc/JobProcs.p PERSISTENT SET hdJobProcs.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -824,6 +826,12 @@ END.*/
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_go B-table-Win
 ON CHOOSE OF btn_go IN FRAME F-Main /* Go */
 DO:
+    cFormattedJobno      = DYNAMIC-FUNCTION (
+                                       "fAddSpacesToString" IN hdJobProcs, fi_job-no:SCREEN-VALUE, 6, TRUE
+                                   )
+            .
+    fi_job-no:SCREEN-VALUE = cFormattedJobno .    
+    
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN
      tb_unpaid
