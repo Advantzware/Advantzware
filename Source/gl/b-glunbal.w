@@ -119,14 +119,14 @@ DEFINE            VARIABLE dTotalBalance  AS DECIMAL FORMAT "->>>,>>>,>>>,>>9.99
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS btn-go btn-all lv-period-fr lv-period-to ~
-iRunFrom iRunTo dtDateFrom dtDateTo begin_acct lv-year br_table 
+iRunFrom iRunTo dtDateFrom dtDateTo lv-year br_table 
 &Scoped-Define DISPLAYED-OBJECTS lv-period-fr lv-period-to iRunFrom iRunTo ~
-dtDateFrom dtDateTo begin_acct lv-year   
+dtDateFrom dtDateTo lv-year   
 //FI_moveCol
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
 &Scoped-define List-1 lv-period-fr lv-period-to iRunFrom iRunTo dtDateFrom ~
-dtDateTo begin_acct lv-year 
+dtDateTo lv-year 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -187,11 +187,6 @@ DEFINE BUTTON btn-go
     LABEL "&Go" 
     SIZE 12 BY 1.
 
-DEFINE VARIABLE begin_acct   AS CHARACTER FORMAT "X(25)":U 
-    VIEW-AS FILL-IN 
-    SIZE 30 BY 1
-    BGCOLOR 15 NO-UNDO.
-
 DEFINE VARIABLE dtDateFrom   AS DATE      FORMAT "99/99/9999":U 
     VIEW-AS FILL-IN 
     SIZE 15 BY 1
@@ -231,9 +226,6 @@ DEFINE RECTANGLE RECT-9
     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
     SIZE 167 BY 2.9.         
  
-DEFINE VARIABLE acct_dscr AS CHARACTER FORMAT "x(30)":U INITIAL "" 
-    VIEW-AS FILL-IN 
-    SIZE 28.8 BY 1 NO-UNDO.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -267,41 +259,36 @@ DEFINE BROWSE br_table
 
 /* ************************  Frame Definitions  *********************** */
 
-DEFINE FRAME F-Main
-    begin_acct AT ROW 2.1 COL 1 COLON-ALIGNED NO-LABELS
-    lv-year AT ROW 2.1 COL 33.4 COLON-ALIGNED NO-LABELS
-    lv-period-fr AT ROW 2.05 COL 45 COLON-ALIGNED NO-LABELS
-    lv-period-to AT ROW 2.05 COL 54.8 COLON-ALIGNED NO-LABELS
-    iRunFrom AT ROW 2.05 COL 63 COLON-ALIGNED NO-LABELS WIDGET-ID 56
-    iRunTo AT ROW 2.05 COL 76 COLON-ALIGNED NO-LABELS WIDGET-ID 58
-    dtDateFrom AT ROW 2.05 COL 90.6 COLON-ALIGNED NO-LABELS WIDGET-ID 66
-    dtDateTo AT ROW 2.05 COL 107.5 COLON-ALIGNED NO-LABELS WIDGET-ID 68
-    btn-go AT ROW 2 COL 138.2
-    btn-all AT ROW 2 COL 154.6     
-      
-    br_table AT ROW 4.05 COL 1
-    "Date" VIEW-AS TEXT
-    SIZE 15.6 BY .71 AT ROW 1.19 COL 92.6 WIDGET-ID 72
-    FGCOLOR 9 FONT 6
-    "Period Range" VIEW-AS TEXT
-    SIZE 15.6 BY .71 AT ROW 1.19 COL 46.8 WIDGET-ID 54
-    FGCOLOR 9 FONT 6
-    "__" VIEW-AS TEXT
-    SIZE 1.6 BY .67 AT ROW 1.91 COL 76.2 WIDGET-ID 64     
-    "__" VIEW-AS TEXT
-    SIZE 1.6 BY .67 AT ROW 1.95 COL 54.2 WIDGET-ID 62
-    "Run #" VIEW-AS TEXT
-    SIZE 15.6 BY .71 AT ROW 1.19 COL 65.2 WIDGET-ID 60
-    FGCOLOR 9 FONT 6
-    "Account Number" VIEW-AS TEXT
-    SIZE 23.8 BY .71 AT ROW 1.19 COL 3.4 WIDGET-ID 48
-    FGCOLOR 9 FONT 6       
-    "Year" VIEW-AS TEXT
-    SIZE 8.6 BY .71 AT ROW 1.19 COL 35.4 WIDGET-ID 52
-    FGCOLOR 9 FONT 6
-    "__" VIEW-AS TEXT
-    SIZE 1.6 BY .67 AT ROW 1.91 COL 107.5 WIDGET-ID 70
-    RECT-9 AT ROW 1 COL 1 WIDGET-ID 4     
+DEFINE FRAME F-Main    
+     lv-year AT ROW 2.1 COL 2.2 COLON-ALIGNED NO-LABEL
+     lv-period-fr AT ROW 2.05 COL 13.8 COLON-ALIGNED NO-LABEL
+     lv-period-to AT ROW 2.05 COL 23.6 COLON-ALIGNED NO-LABEL
+     iRunFrom AT ROW 2.05 COL 31.8 COLON-ALIGNED NO-LABEL WIDGET-ID 56
+     iRunTo AT ROW 2.05 COL 44.8 COLON-ALIGNED NO-LABEL WIDGET-ID 58
+     dtDateFrom AT ROW 2.05 COL 59.4 COLON-ALIGNED NO-LABEL WIDGET-ID 66
+     dtDateTo AT ROW 2.05 COL 76.4 COLON-ALIGNED NO-LABEL WIDGET-ID 68       
+     btn-go AT ROW 2 COL 138.2
+     btn-all AT ROW 2 COL 154.6
+     br_table AT ROW 4.05 COL 1
+     "__" VIEW-AS TEXT
+          SIZE 1.6 BY .67 AT ROW 1.91 COL 76.4 WIDGET-ID 70
+     "Year" VIEW-AS TEXT
+          SIZE 8.6 BY .71 AT ROW 1.19 COL 4.2 WIDGET-ID 52
+          FGCOLOR 9 FONT 6
+     "Run #" VIEW-AS TEXT
+          SIZE 15.6 BY .71 AT ROW 1.19 COL 34 WIDGET-ID 60
+          FGCOLOR 9 FONT 6
+     "__" VIEW-AS TEXT
+          SIZE 1.6 BY .67 AT ROW 1.95 COL 23 WIDGET-ID 62
+     "__" VIEW-AS TEXT
+          SIZE 1.6 BY .67 AT ROW 1.91 COL 45 WIDGET-ID 64
+     "Period Range" VIEW-AS TEXT
+          SIZE 15.6 BY .71 AT ROW 1.19 COL 15.6 WIDGET-ID 54
+          FGCOLOR 9 FONT 6
+     "Date" VIEW-AS TEXT
+          SIZE 15.6 BY .71 AT ROW 1.19 COL 61.4 WIDGET-ID 72
+          FGCOLOR 9 FONT 6
+     RECT-9 AT ROW 1 COL 1 WIDGET-ID 4     
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
     SIDE-LABELS NO-UNDERLINE THREE-D 
     AT COL 1 ROW 1 SCROLLABLE 
@@ -336,7 +323,7 @@ END.
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW B-table-Win ASSIGN
          HEIGHT             = 18.71
-         WIDTH              = 159.2.
+         WIDTH              = 169.2.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -367,8 +354,6 @@ ASSIGN
 ASSIGN 
     br_table:NUM-LOCKED-COLUMNS IN FRAME F-Main = 2.       
 
-/* SETTINGS FOR FILL-IN begin_acct IN FRAME F-Main
-   1                                                                    */
 /* SETTINGS FOR FILL-IN dtDateFrom IN FRAME F-Main
    1                                                                    */
 /* SETTINGS FOR FILL-IN dtDateTo IN FRAME F-Main
@@ -415,65 +400,6 @@ OPEN QUERY {&SELF-NAME} FOR EACH tt-glinq.
 
 
 /* ************************  Control Triggers  ************************ */
-
-&Scoped-define SELF-NAME begin_acct
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_acct B-table-Win
-ON ENTRY OF begin_acct IN FRAME F-Main
-    DO:
-        RUN new-begin_acct.
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_acct B-table-Win
-ON HELP OF begin_acct IN FRAME F-Main
-    DO:
-        DEFINE VARIABLE char-val AS CHARACTER NO-UNDO.
-
-
-        RUN windows/l-acct.w (cocode, "", {&self-name}:SCREEN-VALUE, OUTPUT char-val).
-        IF char-val NE "" AND ENTRY(1,char-val) NE {&self-name}:SCREEN-VALUE THEN 
-        DO:
-            {&self-name}:SCREEN-VALUE = ENTRY(1,char-val).
-            RUN new-begin_acct.
-        END.
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_acct B-table-Win
-ON LEAVE OF begin_acct IN FRAME F-Main
-    DO:
-        IF LASTKEY = -1 THEN RETURN.
-        ASSIGN {&self-name}.
-
-        IF begin_acct NE "" AND NOT CAN-FIND(FIRST account WHERE account.company = g_company
-            AND account.actnum = begin_acct) THEN 
-        DO:
-            MESSAGE "Invalid Account Number. Try Help." VIEW-AS ALERT-BOX ERROR.
-            RETURN NO-APPLY.
-        END.
-
-        RUN new-begin_acct.
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_acct B-table-Win
-ON VALUE-CHANGED OF begin_acct IN FRAME F-Main
-    DO:
-        RUN new-begin_acct.
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
 &Scoped-define BROWSE-NAME br_table
 &Scoped-define SELF-NAME br_table
@@ -640,8 +566,7 @@ ON ROW-DISPLAY OF br_table IN FRAME F-Main
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-all B-table-Win
 ON CHOOSE OF btn-all IN FRAME F-Main /* Show All */
     DO:
-        ASSIGN 
-            begin_acct   = ""
+        ASSIGN             
             lv-period-fr = 1
             lv-period-to = 12
             iRunFrom     = 0
@@ -653,7 +578,7 @@ ON CHOOSE OF btn-all IN FRAME F-Main /* Show All */
       
         RUN GetDefaultValue.                 
       
-        DISPLAY begin_acct lv-year lv-period-fr lv-period-to iRunFrom iRunTo WITH FRAME {&FRAME-NAME}.
+        DISPLAY lv-year lv-period-fr lv-period-to iRunFrom iRunTo WITH FRAME {&FRAME-NAME}.
       
         ASSIGN {&list-1}.
       
@@ -901,9 +826,7 @@ PROCEDURE build-inquiry :
         lv-close-bal      = 0
         lv-open-bal       = 0
         dTotalBalance     = 0 .
-    FIND FIRST account WHERE account.company = g_company
-        AND account.actnum = begin_acct NO-LOCK NO-ERROR.
-
+    
     FIND FIRST period WHERE period.company = g_company
         AND period.yr = lv-year
         AND (period.pnum = lv-period-fr OR lv-period-fr EQ 0 ) NO-LOCK NO-ERROR.
@@ -914,16 +837,11 @@ PROCEDURE build-inquiry :
     tmp-end = IF AVAILABLE period THEN period.pend ELSE 12/31/9999 /*01/01/0001*/ .
                 
     IF lv-year EQ 0 THEN
-        tmp-start = dtDateFrom .
-    IF AVAILABLE account THEN
-        acct_dscr = account.dscr .
-    ELSE acct_dscr = "" .
-                            
+        tmp-start = dtDateFrom .                                
      
     MainLoop:  
     FOR EACH glhist NO-LOCK
-        WHERE glhist.company EQ cocode
-        AND (glhist.actnum  EQ begin_acct OR begin_acct = "")
+        WHERE glhist.company EQ cocode        
         AND (glhist.period  GE lv-period-fr OR lv-period-fr EQ 0)
         AND (glhist.period  LE lv-period-to  OR lv-period-to EQ 0)        
         /* AND (glhist.glYear EQ  lv-year OR lv-year EQ 0) */
@@ -1021,26 +939,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE get-account B-table-Win 
-PROCEDURE get-account :
-    /*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       
-    ------------------------------------------------------------------------------*/
-    DEFINE OUTPUT PARAMETER op-company LIKE glhist.company NO-UNDO.
-    DEFINE OUTPUT PARAMETER op-act-num  LIKE glhist.actnum  NO-UNDO.
-    DEFINE OUTPUT PARAMETER op-year  AS INTEGER  NO-UNDO.
-
-    ASSIGN
-        op-company = g_company
-        op-act-num = begin_acct
-        op-year    = lv-year.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-initialize B-table-Win 
 PROCEDURE local-initialize :
@@ -1077,7 +975,7 @@ PROCEDURE local-initialize :
         tt-glinq.jrnl:READ-ONLY IN BROWSE {&browse-name}    = YES        
         .
     
-    APPLY 'ENTRY':U TO begin_acct IN FRAME {&FRAME-NAME}.
+    APPLY 'ENTRY':U TO lv-year IN FRAME {&FRAME-NAME}.
 
 
 END PROCEDURE.
@@ -1103,27 +1001,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE new-begin_acct B-table-Win 
-PROCEDURE new-begin_acct :
-    /*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       
-    ------------------------------------------------------------------------------*/
-
-    DO WITH FRAME {&FRAME-NAME}:
-        FIND account
-            WHERE account.company EQ g_company
-            AND account.actnum  EQ begin_acct:SCREEN-VALUE
-            NO-LOCK NO-ERROR.        
-    END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetDefaultValue B-table-Win 
 PROCEDURE GetDefaultValue :

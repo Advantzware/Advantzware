@@ -648,6 +648,7 @@ DO:
       END.
   END CASE.
   {methods/template/sortindicatorend.i} 
+  APPLY "VALUE-CHANGED" TO BROWSE {&browse-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -718,6 +719,7 @@ DO:
       RUN build-inquiry.
       {&open-query-{&browse-name}}
       DISPLAY lv-open-bal lv-close-bal acct_dscr dTotalBalance WITH FRAME {&FRAME-NAME}.
+      APPLY "VALUE-CHANGED" TO BROWSE {&browse-name}.
 
 END.
 
@@ -734,8 +736,7 @@ DO:
       RUN build-inquiry.
       {&open-query-{&browse-name}}
           DISPLAY lv-open-bal lv-close-bal acct_dscr dTotalBalance WITH FRAME {&FRAME-NAME}.
-      
-      
+          APPLY "VALUE-CHANGED" TO BROWSE {&browse-name}.      
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1105,7 +1106,7 @@ PROCEDURE build-inquiry :
         AND (glhist.tr-num ge iRunFrom  OR iRunFrom EQ 0)
         AND (glhist.tr-num le iRunTo  OR  iRunTo EQ 0)
           
-      by glhist.tr-date :    
+      by glhist.tr-date DESC BY glhist.tr-num :    
       CREATE tt-glinq.
       ASSIGN tt-glinq.tr-date = glhist.tr-date
              tt-glinq.jrnl = glhist.jrnl
@@ -1426,7 +1427,8 @@ PROCEDURE pUpdate :
        
        FIND FIRST tt-glinq NO-LOCK
          WHERE tt-glinq.riRowid EQ riRowid NO-ERROR .         
-       reposition {&browse-name} to recid recid(tt-glinq) NO-ERROR  .           
+       reposition {&browse-name} to recid recid(tt-glinq) NO-ERROR  .  
+       APPLY "VALUE-CHANGED" TO BROWSE {&browse-name}.
    END.
   
 
