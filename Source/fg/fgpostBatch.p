@@ -1539,7 +1539,9 @@ PROCEDURE pCloseJobs:
             FIND FIRST job NO-LOCK 
                  WHERE RECID(job) EQ w-job.rec-id 
                  NO-ERROR.
-                 
+            
+            close_date = TODAY.     
+            
             IF AVAILABLE job AND job.opened THEN
                 
                 FOR EACH job-hdr NO-LOCK
