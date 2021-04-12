@@ -1798,6 +1798,7 @@ PROCEDURE pTagScan :
     DEFINE VARIABLE iBlankNo    AS INTEGER   NO-UNDO.
     DEFINE VARIABLE lValidInv   AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lSuccess    AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lChoice     AS LOGICAL   NO-UNDO.
     
     DO WITH FRAME {&FRAME-NAME}:
     END.
@@ -1830,8 +1831,10 @@ PROCEDURE pTagScan :
                 .
         
         IF cbRMItem:SCREEN-VALUE NE cRMItem THEN DO:
-            MESSAGE "Tag (" + ipcTag + ") belongs to a different item # (" + cRMItem + "). Do you want to continue?"  
-                VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE lChoice AS LOGICAL.
+            system.SharedConfig:Instance:SetValue("Tag", ipcTag).
+            system.SharedConfig:Instance:SetValue("RMItemID", cRMItem).
+            
+            RUN displayMessageQuestionLOG("65",OUTPUT lChoice). 
             
             IF NOT lChoice THEN
                 RETURN.
