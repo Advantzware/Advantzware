@@ -1653,7 +1653,7 @@ PROCEDURE CopyVendItemCost :
         
         FOR EACH vendItemCostLevel WHERE vendItemCostLevel.vendItemCostID = vendItemCost.vendItemCostID:
             create b-vendItemCostLevel.
-            buffer-copy vendItemCostLevel except vendItemCostLevel.vendItemCostID venditemcostlevel.rec_key to b-vendItemCostLevel.
+            buffer-copy vendItemCostLevel except vendItemCostLevel.vendItemCostID venditemcostlevel.rec_key vendItemCostLevel.vendItemCostLevelID to b-vendItemCostLevel.
             assign 
                 b-vendItemCostLevel.vendItemCostID = b-vendItemCost.vendItemCostID
                 .

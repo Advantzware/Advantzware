@@ -1240,7 +1240,29 @@ PROCEDURE pOrderProcsMakeBOLLinesFromSSRelBol PRIVATE:
             CREATE ttOeBoll.
             BUFFER-COPY bf-oe-boll TO ttOeBoll.
             
-            DELETE bf-oe-boll.
+            FIND FIRST bf-ssrelbol NO-LOCK
+                 WHERE bf-ssrelbol.company  EQ bf-oe-boll.company
+                   AND bf-ssrelbol.release# EQ bf-oe-relh.release#
+                   AND bf-ssrelbol.i-no     EQ bf-oe-boll.i-no
+                   AND bf-ssrelbol.ord-no   EQ bf-oe-boll.ord-no
+                 NO-ERROR.
+            IF NOT AVAILABLE bf-ssrelbol THEN
+                FIND FIRST bf-ssrelbol NO-LOCK
+                     WHERE bf-ssrelbol.company  EQ bf-oe-boll.company
+                       AND bf-ssrelbol.release# EQ bf-oe-relh.release#
+                       AND bf-ssrelbol.i-no     EQ bf-oe-boll.i-no
+                     NO-ERROR.
+            
+            IF AVAILABLE bf-ssrelbol THEN
+                DELETE bf-oe-boll.
+            ELSE
+                ASSIGN
+                    bf-oe-boll.tag      = ""
+                    bf-oe-boll.cases    = 0
+                    bf-oe-boll.qty-case = 0
+                    bf-oe-boll.partial  = 0
+                    bf-oe-boll.qty      = 0
+                    .
         END.
          
         FOR EACH bf-ssrelbol EXCLUSIVE-LOCK

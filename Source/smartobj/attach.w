@@ -191,6 +191,22 @@ RUN Tool_Tips IN Persistent-Handle (FRAME {&FRAME-NAME}:HANDLE).
 
 
 /* **********************  Internal Procedures  *********************** */
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable-button s-object 
+PROCEDURE disable-button :
+/* -----------------------------------------------------------
+  Purpose:     Receive and process 'state-changed' methods
+               (issued by 'new-state' event).
+  Parameters:  <none>
+  Notes:       
+-------------------------------------------------------------*/
+ DO WITH FRAME {&FRAME-NAME}:
+  Select_att:SENSITIVE = NO.
+ END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI s-object  _DEFAULT-DISABLE
 PROCEDURE disable_UI :

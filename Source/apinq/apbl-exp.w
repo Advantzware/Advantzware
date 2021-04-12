@@ -85,6 +85,15 @@ DEF VAR lv-save-char AS CHAR INIT "" NO-UNDO.
 
 DEFINE STREAM excel.
 
+DEFINE VARIABLE lRecFound           AS LOGICAL          NO-UNDO.
+DEFINE VARIABLE lAPInvoiceLength    AS LOGICAL          NO-UNDO.
+DEFINE VARIABLE cNK1Value           AS CHARACTER        NO-UNDO.
+
+RUN sys/ref/nk1look.p (INPUT cocode, "APInvoiceLength", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cNK1Value, OUTPUT lRecFound).
+IF lRecFound THEN
+    lAPInvoiceLength = logical(cNK1Value) NO-ERROR.
 
 DEF VAR ldummy AS LOG NO-UNDO.
 DEF VAR cTextListToSelect AS cha NO-UNDO.
@@ -189,7 +198,7 @@ DEFINE BUTTON btn_Up
      LABEL "Move Up" 
      SIZE 16 BY 1.
 
-DEFINE VARIABLE begin_inv AS CHARACTER FORMAT "x(10)" 
+DEFINE VARIABLE begin_inv AS CHARACTER /*FORMAT "x(10)"*/ 
      LABEL "From Invoice#" 
      VIEW-AS FILL-IN 
      SIZE 20 BY 1.
@@ -199,7 +208,7 @@ DEFINE VARIABLE begin_vend AS CHARACTER FORMAT "x(10)"
      VIEW-AS FILL-IN 
      SIZE 20 BY 1.
 
-DEFINE VARIABLE end_inv AS CHARACTER FORMAT "X(10)" INITIAL "zzzzzzzzzzz" 
+DEFINE VARIABLE end_inv AS CHARACTER /*FORMAT "X(10)" INITIAL "zzzzzzzzzz"*/ 
      LABEL "To Invoice#" 
      VIEW-AS FILL-IN 
      SIZE 21 BY 1.
@@ -251,11 +260,11 @@ DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL yes
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME rd-fgnq-exp
-     begin_vend AT ROW 4.05 COL 25.6 COLON-ALIGNED HELP
+     begin_vend AT ROW 4.05 COL 23.6 COLON-ALIGNED HELP
           "Enter Beginning Vendor#" WIDGET-ID 142
      end_vend AT ROW 4.05 COL 67.6 COLON-ALIGNED HELP
           "Enter Ending Vendor#" WIDGET-ID 144
-     begin_inv AT ROW 5.81 COL 25.6 COLON-ALIGNED HELP
+     begin_inv AT ROW 5.81 COL 23.6 COLON-ALIGNED HELP
           "Enter Beginning Vendor#" WIDGET-ID 150
      end_inv AT ROW 5.81 COL 67.6 COLON-ALIGNED HELP
           "Enter Ending Vendor#" WIDGET-ID 152
@@ -664,15 +673,16 @@ THEN FRAME {&FRAME-NAME}:PARENT = ACTIVE-WINDOW.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-    
+  
   RUN DisplaySelectionList.
   RUN enable_UI.
    {methods/nowait.i}
   DO WITH FRAME {&FRAME-NAME}:
+    RUN pAPInvoiceLength.
     {custom/usrprint.i}
     RUN DisplaySelectionList2.
     RUN Set-Sort-Data.
-
+    
     APPLY "entry" TO begin_vend.
   END. 
   WAIT-FOR GO OF FRAME {&FRAME-NAME}.
@@ -1331,7 +1341,7 @@ RUN create-tempfile.
 
        PUT STREAM excel UNFORMATTED v-excel-detail-lines SKIP.
 
-    END. /* for each phone */
+    END. /* for each phone */ 
 
 IF tb_excel THEN DO:
    OUTPUT STREAM excel CLOSE.
@@ -1663,3 +1673,36 @@ END FUNCTION.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pAPInvoiceLength  B-table-Win 
+PROCEDURE pAPInvoiceLength :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    IF lAPInvoiceLength THEN DO:
+        DO WITH FRAME {&FRAME-NAME}:
+            ASSIGN begin_inv:FORMAT = "x(20)"
+                   end_inv:FORMAT = "x(20)"
+                   begin_inv:WIDTH-CHARS = 30
+                   begin_vend:WIDTH-CHARS = 30
+                   end_inv:WIDTH-CHARS = 30
+                   end_vend:WIDTH-CHARS = 30
+                   end_inv:INITIAL = "zzzzzzzzzzzzzzzzzzzz".                   
+        END.
+    END.
+    ELSE DO: 
+        DO WITH FRAME {&FRAME-NAME}:
+            ASSIGN begin_inv:FORMAT = "x(12)"
+                   end_inv:FORMAT = "x(12)"
+                   begin_inv:WIDTH-CHARS = 20
+                   begin_vend:WIDTH-CHARS = 20
+                   end_inv:WIDTH-CHARS = 20
+                   end_vend:WIDTH-CHARS = 20
+                   end_inv:INITIAL = "zzzzzzzzzzzz".
+        END.    
+    END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME

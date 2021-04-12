@@ -1187,6 +1187,7 @@ PROCEDURE pCheckPOFGUnderOver :
                 INPUT INT(w-ord.job-no2),
                 INPUT po-ordl.i-no,
                 INPUT po-ordl.po-no,
+                INPUT po-ordl.line,
                 INPUT iGrandTotalQty,
                 INPUT NO,
                 INPUT gcFGUnderOver,

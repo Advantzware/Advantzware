@@ -131,7 +131,7 @@ FOR EACH ap-sel NO-LOCK
         ttPaymentData.netAmt      = ap-sel.amt-paid
         ttPaymentData.paymentType = vend.payment-type
         ttPaymentData.invDate     = ap-inv.inv-date
-        ttPaymentData.checkDate   = TODAY                      
+        ttPaymentData.checkDate   = TODAY + iAPCheckFile                      
         .
 
     FIND FIRST currency NO-LOCK

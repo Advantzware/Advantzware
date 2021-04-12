@@ -92,7 +92,7 @@ job-hdr.std-fix-cost job-hdr.std-var-cost get-total-cost () @ ld-total-cost job-
 job-hdr.job-no2 job-hdr.keyItem
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table job-hdr.frm ~
 job-hdr.blank-no job-hdr.cust-no job-hdr.i-no job-hdr.qty job-hdr.ord-no ~
-job-hdr.po-no job-hdr.due-date 
+job-hdr.po-no job-hdr.due-date job-hdr.keyItem 
 &Scoped-define ENABLED-TABLES-IN-QUERY-Browser-Table job-hdr
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-Browser-Table job-hdr
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH job-hdr OF job WHERE ~{&KEY-PHRASE} NO-LOCK ~
@@ -209,6 +209,7 @@ DEFINE BROWSE Browser-Table
       job-hdr.ord-no
       job-hdr.po-no
       job-hdr.due-date
+      job-hdr.keyItem
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 143 BY 7.62

@@ -63,7 +63,7 @@ DEFINE VARIABLE cCustomerPart AS CHARACTER NO-UNDO.
 &Scoped-define PROCEDURE-TYPE SmartBrowser
 &Scoped-define DB-AWARE no
 
-&Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target
+&Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target,Navigation-Target
 
 /* Name of first Frame and/or Browse and/or first Query                 */
 &Scoped-define FRAME-NAME F-Main

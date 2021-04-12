@@ -1803,6 +1803,7 @@ PROCEDURE get-matrix-all :
                INPUT INT(fg-rctd.job-no2:SCREEN-VALUE),
                INPUT fg-rctd.i-no:SCREEN-VALUE,
                INPUT fg-rctd.po-no:SCREEN-VALUE,
+               INPUT po-ordl.line,
                INPUT INTEGER(fg-rctd.t-qty:SCREEN-VALUE),
                INPUT (adm-new-record AND NOT adm-adding-record), /*Copied Record */
                INPUT cFGUnderOver,

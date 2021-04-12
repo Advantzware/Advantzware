@@ -57,10 +57,12 @@ DEFINE VARIABLE hdTagProcs                AS HANDLE    NO-UNDO.
 DEFINE VARIABLE lHold                     AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cHoldMessage              AS CHARACTER NO-UNDO. 
 DEFINE VARIABLE cAPInvLineDescr           AS CHARACTER NO-UNDO. 
+DEFINE VARIABLE hdAPInvoiceProcs          AS HANDLE    NO-UNDO.
 
 DEFINE BUFFER bf-ap-inv FOR ap-inv. 
 
 RUN system/TagProcs.p PERSISTENT SET hdTagProcs.                    
+RUN ap/APInvoiceProcs.p PERSISTENT SET hdAPInvoiceProcs.
 
 ASSIGN
     oplSuccess                      = YES
@@ -243,6 +245,17 @@ IF AVAILABLE ap-inv THEN DO:
         ).  
 END.
 
+FINALLY:
+    IF VALID-HANDLE(hdAPInvoiceProcs) THEN
+        DELETE PROCEDURE hdAPInvoiceProcs. 
+    
+    IF VALID-HANDLE(hdTagProcs) THEN
+        DELETE PROCEDURE hdTagProcs.    
+    
+    IF VALID-HANDLE(hdCommonProcs) THEN
+        DELETE PROCEDURE hdCommonProcs.       
+END FINALLY.
+    
 /* Validates required fields */
 PROCEDURE pValidations:
     /*------------------------------------------------------------------------------
@@ -641,6 +654,11 @@ PROCEDURE pValidateFGItemReceiptQtyPrice:
     DEFINE VARIABLE lPriceMatch       AS LOGICAL   NO-UNDO INITIAL TRUE.
     DEFINE VARIABLE cMessage          AS CHARACTER NO-UNDO.
     DEFINE VARIABLE dCostFromHistory  AS DECIMAL   NO-UNDO.
+
+    DEFINE VARIABLE lRecordsFound               AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lHasNegativeReceipts        AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE dQuantityAvailableToInvoice AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE lError                      AS LOGICAL   NO-UNDO.
     
     FIND FIRST po-ord NO-LOCK
          WHERE po-ord.company EQ ipcCompany
@@ -662,29 +680,30 @@ PROCEDURE pValidateFGItemReceiptQtyPrice:
          WHERE ROWID(ap-invl) EQ ipriAPInvl NO-ERROR.
     IF NOT AVAILABLE ap-invl THEN
         RETURN.
-        
-    FOR EACH fg-rcpth NO-LOCK
+ 
+    RUN APInvoice_GetReceiptsQtyAvailable IN hdAPInvoiceProcs (
+        INPUT  ap-invl.rec_key,
+        INPUT  ap-invl.cons-uom,
+        OUTPUT lRecordsFound,
+        OUTPUT lHasNegativeReceipts,
+        OUTPUT dQuantityAvailableToInvoice
+        ).
+                 
+    FOR FIRST fg-rcpth NO-LOCK
        WHERE fg-rcpth.company   EQ ipcCompany
          AND fg-rcpth.i-no      EQ po-ordl.i-no
          AND fg-rcpth.po-no     EQ TRIM(STRING(po-ordl.po-no,">>>>>>>>>>"))
          AND fg-rcpth.rita-code EQ "R"
        USE-INDEX item-po,
-       EACH fg-rdtlh EXCLUSIVE-LOCK
+       FIRST fg-rdtlh EXCLUSIVE-LOCK
        WHERE fg-rdtlh.r-no      EQ fg-rcpth.r-no
          AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code
-         AND NOT CAN-FIND(
-                          FIRST ap-invl 
-                          WHERE ap-invl.i-no EQ INT(SUBSTR(fg-rdtlh.receiver-no,1,10))
-                            AND ap-invl.line EQ (po-ordl.po-no * 1000) + po-ordl.line
-                         ):
-        ASSIGN 
-            dQuantity = dQuantity + fg-rdtlh.qty
-            dCostFromHistory = fg-rdtlh.cost
-            .
-        IF dQuantity GT ipdQuantity THEN
-            LEAVE.        
+         AND NOT CAN-FIND(FIRST POReceiptLink 
+                          WHERE POReceiptLink.inventoryStockRecKey EQ fg-rdtlh.rec_key):
+        dCostFromHistory = fg-rdtlh.cost.
     END.
-    IF dQuantity EQ ipdQuantity THEN DO:
+    
+    IF dQuantityAvailableToInvoice EQ ipdQuantity THEN DO:
         IF dCostFromHistory EQ ipdPrice THEN
             lPriceMatch = TRUE.
         ELSE
@@ -692,24 +711,13 @@ PROCEDURE pValidateFGItemReceiptQtyPrice:
             
         lQtyMatch = TRUE.
         
-        FOR EACH fg-rcpth NO-LOCK
-            WHERE fg-rcpth.company   EQ ipcCompany
-              AND fg-rcpth.i-no      EQ po-ordl.i-no
-              AND fg-rcpth.po-no     EQ TRIM(STRING(po-ordl.po-no,">>>>>>>>>>"))
-              AND fg-rcpth.rita-code EQ "R"
-            USE-INDEX item-po,
-            EACH fg-rdtlh EXCLUSIVE-LOCK
-            WHERE fg-rdtlh.r-no      EQ fg-rcpth.r-no
-              AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code
-              AND NOT CAN-FIND(
-                          FIRST ap-invl 
-                          WHERE ap-invl.i-no EQ INT(SUBSTR(fg-rdtlh.receiver-no,1,10))
-                            AND ap-invl.line EQ (po-ordl.po-no * 1000) + po-ordl.line
-                         ):
-            fg-rdtlh.receiver-no = (STRING(ap-invl.i-no,"9999999999") +
-                                    STRING(ipdQuantity,"-9999999999.99999")).           
-            
-        END.
+        RUN APInvoice_AutoSelectReceipts IN hdAPInvoiceProcs (
+            INPUT  ap-invl.rec_key,
+            INPUT  ap-invl.qty,
+            INPUT  ap-invl.cons-uom,
+            OUTPUT lError,
+            OUTPUT cMessage
+            ).
     END.
     IF NOT lQtyMatch THEN
         ASSIGN
@@ -734,7 +742,17 @@ PROCEDURE pValidateFGItemReceiptQtyPrice:
                            ELSE
                                iopcHoldNote + "|" + cMessage
             .
-    
+
+    IF lHasNegativeReceipts THEN
+        ASSIGN
+            ioplHold     = YES
+            cMessage     = "PO # " + STRING(ipiPoNo) + 
+                           "-" + STRING(po-ordl.line) + " Has negative receipts"
+            iopcHoldNote = IF iopcHoldNote EQ '' THEN
+                               cMessage
+                           ELSE
+                               iopcHoldNote + "|" + cMessage
+            .    
 END PROCEDURE.
 
 PROCEDURE pValidateRMItemReceiptQtyPrice:
@@ -755,6 +773,12 @@ PROCEDURE pValidateRMItemReceiptQtyPrice:
     DEFINE VARIABLE lQtyMatch   AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lPriceMatch AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cMessage    AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE lRecordsFound               AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lHasNegativeReceipts        AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE dQuantityAvailableToInvoice AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE lError                      AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE dCostFromHistory            AS DECIMAL NO-UNDO.
     
     FIND FIRST po-ord NO-LOCK
          WHERE po-ord.company EQ ipcCompany
@@ -777,35 +801,44 @@ PROCEDURE pValidateRMItemReceiptQtyPrice:
     IF NOT AVAILABLE ap-invl THEN
         RETURN.
         
-    FOR EACH rm-rcpth NO-LOCK
+    RUN APInvoice_GetReceiptsQtyAvailable IN hdAPInvoiceProcs (
+        INPUT  ap-invl.rec_key,
+        INPUT  ap-invl.cons-uom,
+        OUTPUT lRecordsFound,
+        OUTPUT lHasNegativeReceipts,
+        OUTPUT dQuantityAvailableToInvoice
+        ).
+                 
+    FOR FIRST rm-rcpth NO-LOCK
        WHERE rm-rcpth.company   EQ ipcCompany
          AND rm-rcpth.i-no      EQ po-ordl.i-no
          AND rm-rcpth.po-no     EQ TRIM(STRING(po-ordl.po-no,">>>>>>>>>>"))
-         AND rm-rcpth.job-no    EQ po-ordl.job-no
-         AND rm-rcpth.job-no2   EQ po-ordl.job-no2
          AND rm-rcpth.rita-code EQ "R"
        USE-INDEX item-po,
-       EACH rm-rdtlh EXCLUSIVE-LOCK
+       FIRST rm-rdtlh EXCLUSIVE-LOCK
        WHERE rm-rdtlh.r-no      EQ rm-rcpth.r-no
          AND rm-rdtlh.rita-code EQ rm-rcpth.rita-code
-         AND (rm-rdtlh.s-num    EQ po-ordl.s-num OR po-ordl.s-num EQ 0):
-         
-        dQuantity = dQuantity + rm-rdtlh.qty.
-        
-        IF dQuantity EQ ipdQuantity THEN DO:
-       
-            IF rm-rdtlh.cost EQ ipdPrice THEN
-                lPriceMatch = TRUE.
-                
-            ASSIGN
-                lQtyMatch            = TRUE
-                rm-rdtlh.receiver-no = (STRING(ap-invl.i-no,"9999999999") +
-                                        STRING(ipdQuantity,"-9999999999.99999"))
-                .           
-            LEAVE.
-        END.        
+         AND NOT CAN-FIND(FIRST POReceiptLink 
+                          WHERE POReceiptLink.inventoryStockRecKey EQ rm-rdtlh.rec_key):
+        dCostFromHistory = rm-rdtlh.cost.
     END.
-
+    
+    IF dQuantityAvailableToInvoice EQ ipdQuantity THEN DO:
+        IF dCostFromHistory EQ ipdPrice THEN
+            lPriceMatch = TRUE.
+        ELSE
+            lPriceMatch = FALSE.
+            
+        lQtyMatch = TRUE.
+        
+        RUN APInvoice_AutoSelectReceipts IN hdAPInvoiceProcs (
+            INPUT  ap-invl.rec_key,
+            INPUT  ap-invl.qty,
+            INPUT  ap-invl.cons-uom,
+            OUTPUT lError,
+            OUTPUT cMessage
+            ).
+    END.
     IF NOT lQtyMatch THEN
         ASSIGN
             ioplHold    = YES
@@ -824,6 +857,17 @@ PROCEDURE pValidateRMItemReceiptQtyPrice:
             cMessage     = "PO # " + STRING(ipiPoNo) + 
                            "-" + STRING(po-ordl.line,"999") + ", Price " + STRING(ipdPrice)  + 
                            " does not match"
+            iopcHoldNote = IF iopcHoldNote EQ '' THEN
+                               cMessage
+                           ELSE
+                               iopcHoldNote + "|" + cMessage
+            .
+
+    IF lHasNegativeReceipts THEN
+        ASSIGN
+            ioplHold     = YES
+            cMessage     = "PO # " + STRING(ipiPoNo) + 
+                           "-" + STRING(po-ordl.line) + " Has negative receipts"
             iopcHoldNote = IF iopcHoldNote EQ '' THEN
                                cMessage
                            ELSE

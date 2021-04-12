@@ -75,13 +75,26 @@ DEF VAR iColumnLength AS INT NO-UNDO.
 DEF BUFFER b-itemfg FOR itemfg .
 DEF VAR cTextListToDefault AS cha NO-UNDO.
 
+DEFINE VARIABLE lRecFound           AS LOGICAL          NO-UNDO.
+DEFINE VARIABLE lAPInvoiceLength    AS LOGICAL          NO-UNDO.
+DEFINE VARIABLE cNK1Value           AS CHARACTER        NO-UNDO.
+
+RUN sys/ref/nk1look.p (INPUT cocode, "APInvoiceLength", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cNK1Value, OUTPUT lRecFound).
+IF lRecFound THEN
+    lAPInvoiceLength = logical(cNK1Value) NO-ERROR.
 
 ASSIGN cTextListToSelect = "GL Acct#,Description,Vendor,Inv#,Journal,Run#,Date,Amount"
        cFieldListToSelect = "glact,act-dscr,vend,inv,jrnl,run,date,amt"
-       cFieldLength = "25,30,8,12,9,7,10,19"
        cFieldType = "c,c,c,c,c,c,c,i" 
     .
-
+IF lAPInvoiceLength THEN
+    ASSIGN cFieldLength = "25,30,8,20,9,7,10,19" .
+ELSE
+    ASSIGN cFieldLength = "25,30,8,12,9,7,10,19" .
+       
+       
 {sys/inc/ttRptSel.i}
 ASSIGN cTextListToDefault  = "GL Acct#,Description,Vendor,Inv#,Journal,Run#,Date,Amount".
 
@@ -1710,14 +1723,14 @@ FOR EACH tt-report
             DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
                cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
                     CASE cTmpField:             
-                         WHEN "glact"                THEN cVarValue = STRING(tt-report.actnum).
+                         WHEN "glact"           THEN cVarValue = STRING(tt-report.actnum).
                          WHEN "act-dscr"        THEN cVarValue = STRING(lv-excel-descr,"x(30)").
-                         WHEN "vend"      THEN  cVarValue = STRING(tt-report.vend-no).
-                         WHEN "inv"             THEN cVarValue = STRING(tt-report.inv-no).
-                         WHEN "jrnl"                   THEN cVarValue = STRING(tt-report.jrnl).
-                         WHEN "run"              THEN cVarValue = STRING(tt-report.trnum).
-                         WHEN "date"               THEN cVarValue = STRING(tt-report.tr-date).
-                         WHEN "amt"         THEN cVarValue = STRING(tt-report.amt,"->>>,>>>,>>>,>>9.99").
+                         WHEN "vend"            THEN cVarValue = STRING(tt-report.vend-no).
+                         WHEN "inv"             THEN cVarValue = IF lAPInvoiceLength THEN STRING(tt-report.inv-no,"x(20)") ELSE STRING(tt-report.inv-no,"x(12)").
+                         WHEN "jrnl"            THEN cVarValue = STRING(tt-report.jrnl).
+                         WHEN "run"             THEN cVarValue = STRING(tt-report.trnum).
+                         WHEN "date"            THEN cVarValue = STRING(tt-report.tr-date).
+                         WHEN "amt"             THEN cVarValue = STRING(tt-report.amt,"->>>,>>>,>>>,>>9.99").
                     END CASE.
 
                     cExcelVarValue = cVarValue.

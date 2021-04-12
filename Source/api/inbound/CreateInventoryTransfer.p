@@ -13,6 +13,7 @@
 
 {inventory/ttinventory.i "NEW SHARED"}.
 {jc/jcgl-sh.i  NEW}
+{fg/fg-post3.i NEW}
 
 DEFINE INPUT  PARAMETER ipcCompany              AS CHARACTER  NO-UNDO.
 DEFINE INPUT  PARAMETER ipcWareHouseID          AS CHARACTER  NO-UNDO.

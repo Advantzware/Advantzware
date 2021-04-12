@@ -231,6 +231,11 @@
              v-program      = "oe/rep/bolfibci.p"
              is-xprint-form = YES
              lines-per-page = 66.
+       WHEN "Henry" THEN
+          ASSIGN
+             v-program = "oe/rep/bolhenry.p"
+             is-xprint-form = YES
+             lines-per-page = 80.
        WHEN "APC" THEN ASSIGN v-program = "oe/rep/bolxapc.p" is-xprint-form = YES lines-per-page = 66.
        WHEN "P&PX" THEN ASSIGN v-program = "oe/rep/bolpnpx.p" is-xprint-form = YES lines-per-page = 66.
        WHEN "Delta2" THEN ASSIGN v-program = "oe/rep/boldelta.p" is-xprint-form = YES lines-per-page = 71.
@@ -485,10 +490,9 @@
 
        OTHERWISE
           ASSIGN
-             v-print-mode   = "PROD"
-             v-program      = "oe/rep/oe-lad" +
-                              (if v-print-fmt eq "c" then "c" else "s") + ".p"
-             lines-per-page = 62.
+             is-xprint-form = YES
+             v-program      = "oe/rep/bolxprnt10.p"
+             lines-per-page = 80.
    END CASE.
 
 

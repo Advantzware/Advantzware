@@ -68,6 +68,9 @@ DEF VAR iColumnLength AS INT NO-UNDO.
 DEF BUFFER b-itemfg FOR itemfg .
 DEF VAR cTextListToDefault AS cha NO-UNDO.
 
+DEFINE TEMP-TABLE tt-glhist LIKE glhist
+                  FIELD lNonZero AS LOGICAL.
+
 
 ASSIGN cTextListToSelect = "Run#,Account Number,Account Description,Journal,Reference," +  
                            "Date,Balance,Account Status,Period,Date Outside Period,Transaction Number" 
@@ -98,12 +101,12 @@ ASSIGN cTextListToDefault  =  "Run#,Account Number,Account Description,Journal,R
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 begin_run-no end_run-no ~
-begin_date end_date sl_avail Btn_Def sl_selected Btn_Add Btn_Remove btn_Up ~
-btn_down rd-dest lv-ornt lines-per-page lv-font-no td-show-parm tb_excel ~
-tb_runExcel fi_file btn-ok btn-cancel 
+begin_date end_date tb_non-zero sl_avail Btn_Def sl_selected Btn_Add ~
+Btn_Remove btn_Up btn_down rd-dest lv-ornt lines-per-page lv-font-no ~
+td-show-parm tb_excel tb_runExcel fi_file btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_run-no end_run-no begin_date ~
-end_date sl_avail sl_selected rd-dest lv-ornt lines-per-page lv-font-no ~
-lv-font-name td-show-parm tb_excel tb_runExcel fi_file 
+end_date tb_non-zero sl_avail sl_selected rd-dest lv-ornt lines-per-page ~
+lv-font-no lv-font-name td-show-parm tb_excel tb_runExcel fi_file 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -220,7 +223,7 @@ DEFINE RECTANGLE RECT-6
 
 DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 94 BY 4.76.
+     SIZE 94 BY 5.48.
 
 DEFINE VARIABLE sl_avail AS CHARACTER 
      VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
@@ -235,6 +238,11 @@ DEFINE VARIABLE tb_excel AS LOGICAL INITIAL no
      VIEW-AS TOGGLE-BOX
      SIZE 21 BY .81
      BGCOLOR 3  NO-UNDO.
+
+DEFINE VARIABLE tb_non-zero AS LOGICAL INITIAL no 
+     LABEL "Non-Zero Batches" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 32 BY 1 NO-UNDO.
 
 DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL no 
      LABEL "Auto Run Excel?" 
@@ -251,51 +259,52 @@ DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL no
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
-     begin_run-no AT ROW 2.81 COL 25 COLON-ALIGNED HELP
+     begin_run-no AT ROW 2.52 COL 25 COLON-ALIGNED HELP
           "Enter Beginning Run Number"
-     end_run-no AT ROW 2.81 COL 63 COLON-ALIGNED HELP
+     end_run-no AT ROW 2.52 COL 63 COLON-ALIGNED HELP
           "Enter Ending Run Number"
-     begin_date AT ROW 4.24 COL 25 COLON-ALIGNED
-     end_date AT ROW 4.24 COL 63 COLON-ALIGNED HELP
+     begin_date AT ROW 3.95 COL 25 COLON-ALIGNED
+     end_date AT ROW 3.95 COL 63 COLON-ALIGNED HELP
           "Enter Ending Due Date"
-     sl_avail AT ROW 6.86 COL 5 NO-LABEL WIDGET-ID 26
-     Btn_Def AT ROW 6.86 COL 41 HELP
+     tb_non-zero AT ROW 5.19 COL 27.2 WIDGET-ID 58
+     sl_avail AT ROW 7.43 COL 5 NO-LABEL WIDGET-ID 26
+     Btn_Def AT ROW 7.43 COL 41 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 56
-     sl_selected AT ROW 6.86 COL 60.4 NO-LABEL WIDGET-ID 28
-     Btn_Add AT ROW 7.86 COL 41 HELP
+     sl_selected AT ROW 7.43 COL 60.4 NO-LABEL WIDGET-ID 28
+     Btn_Add AT ROW 8.43 COL 41 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 32
-     Btn_Remove AT ROW 8.86 COL 41 HELP
+     Btn_Remove AT ROW 9.43 COL 41 HELP
           "Remove Selected Table from Tables to Audit" WIDGET-ID 34
-     btn_Up AT ROW 9.91 COL 41 WIDGET-ID 40
-     btn_down AT ROW 10.95 COL 41 WIDGET-ID 42
-     rd-dest AT ROW 13.24 COL 7 NO-LABEL
-     lv-ornt AT ROW 13.43 COL 30 NO-LABEL
-     lines-per-page AT ROW 13.43 COL 84 COLON-ALIGNED
-     lv-font-no AT ROW 15.52 COL 34 COLON-ALIGNED
-     lv-font-name AT ROW 16.48 COL 28 COLON-ALIGNED NO-LABEL
-     td-show-parm AT ROW 17.57 COL 30
-     tb_excel AT ROW 18.57 COL 30 WIDGET-ID 2
-     tb_runExcel AT ROW 18.57 COL 52 WIDGET-ID 4
-     fi_file AT ROW 19.71 COL 28 COLON-ALIGNED HELP
+     btn_Up AT ROW 10.48 COL 41 WIDGET-ID 40
+     btn_down AT ROW 11.52 COL 41 WIDGET-ID 42
+     rd-dest AT ROW 13.81 COL 7 NO-LABEL
+     lv-ornt AT ROW 14 COL 30 NO-LABEL
+     lines-per-page AT ROW 14 COL 84 COLON-ALIGNED
+     lv-font-no AT ROW 16.1 COL 34 COLON-ALIGNED
+     lv-font-name AT ROW 17.05 COL 28 COLON-ALIGNED NO-LABEL
+     td-show-parm AT ROW 18.14 COL 30
+     tb_excel AT ROW 19.14 COL 30 WIDGET-ID 2
+     tb_runExcel AT ROW 19.14 COL 52 WIDGET-ID 4
+     fi_file AT ROW 20.29 COL 28 COLON-ALIGNED HELP
           "Enter File Name" WIDGET-ID 6
-     btn-ok AT ROW 22 COL 19
-     btn-cancel AT ROW 22 COL 58
+     btn-ok AT ROW 22.57 COL 19
+     btn-cancel AT ROW 22.57 COL 58
      "Available Columns" VIEW-AS TEXT
-          SIZE 29 BY .62 AT ROW 6.05 COL 5.8 WIDGET-ID 38
+          SIZE 29 BY .62 AT ROW 6.62 COL 5.8 WIDGET-ID 38
+     "Selected Columns(In Display Order)" VIEW-AS TEXT
+          SIZE 34 BY .62 AT ROW 6.71 COL 60.4 WIDGET-ID 44
+     "Output Destination" VIEW-AS TEXT
+          SIZE 21 BY .62 AT ROW 12.86 COL 5
+          FGCOLOR 9 
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.24 COL 5
           BGCOLOR 2 
-     "Output Destination" VIEW-AS TEXT
-          SIZE 21 BY .62 AT ROW 12.29 COL 5
-          FGCOLOR 9 
-     "Selected Columns(In Display Order)" VIEW-AS TEXT
-          SIZE 34 BY .62 AT ROW 6.14 COL 60.4 WIDGET-ID 44
-     RECT-6 AT ROW 12.67 COL 1
+     RECT-6 AT ROW 13.24 COL 1
      RECT-7 AT ROW 1 COL 1
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1.6 ROW 1.24
-         SIZE 95.2 BY 22.86.
+         SIZE 95.2 BY 23.48.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -315,7 +324,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "GL Posting Register"
-         HEIGHT             = 23.1
+         HEIGHT             = 23.86
          WIDTH              = 95.8
          MAX-HEIGHT         = 33.29
          MAX-WIDTH          = 204.8
@@ -349,16 +358,6 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
-ASSIGN
-       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
-ASSIGN
-       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
 ASSIGN 
        begin_date:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -366,6 +365,14 @@ ASSIGN
 ASSIGN 
        begin_run-no:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
+
+ASSIGN 
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+ASSIGN 
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
 
 ASSIGN 
        end_date:PRIVATE-DATA IN FRAME FRAME-A     = 
@@ -387,6 +394,10 @@ ASSIGN
                 "parm".
 
 ASSIGN 
+       tb_non-zero:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
        tb_runExcel:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
@@ -396,7 +407,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -795,6 +806,17 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME tb_non-zero
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_non-zero C-Win
+ON VALUE-CHANGED OF tb_non-zero IN FRAME FRAME-A /* Non-Zero batches */
+DO:
+  assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME tb_runExcel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_runExcel C-Win
 ON VALUE-CHANGED OF tb_runExcel IN FRAME FRAME-A /* Auto Run Excel? */
@@ -1010,14 +1032,14 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY begin_run-no end_run-no begin_date end_date sl_avail sl_selected 
-          rd-dest lv-ornt lines-per-page lv-font-no lv-font-name td-show-parm 
-          tb_excel tb_runExcel fi_file 
+  DISPLAY begin_run-no end_run-no begin_date end_date tb_non-zero sl_avail 
+          sl_selected rd-dest lv-ornt lines-per-page lv-font-no lv-font-name 
+          td-show-parm tb_excel tb_runExcel fi_file 
       WITH FRAME FRAME-A IN WINDOW C-Win.
-  ENABLE RECT-6 RECT-7 begin_run-no end_run-no begin_date end_date sl_avail 
-         Btn_Def sl_selected Btn_Add Btn_Remove btn_Up btn_down rd-dest lv-ornt 
-         lines-per-page lv-font-no td-show-parm tb_excel tb_runExcel fi_file 
-         btn-ok btn-cancel 
+  ENABLE RECT-6 RECT-7 begin_run-no end_run-no begin_date end_date tb_non-zero 
+         sl_avail Btn_Def sl_selected Btn_Add Btn_Remove btn_Up btn_down 
+         rd-dest lv-ornt lines-per-page lv-font-no td-show-parm tb_excel 
+         tb_runExcel fi_file btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -1241,6 +1263,8 @@ DEF VAR str-line AS cha FORM "x(300)" NO-UNDO.
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 DEFINE VARIABLE excelheader AS CHARACTER  NO-UNDO.
 DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+DEFINE VARIABLE dTotalAmount AS DECIMAL NO-UNDO.
+DEFINE VARIABLE lCheckZero AS LOGICAL NO-UNDO.
 
 RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
@@ -1304,53 +1328,75 @@ IF v-export THEN DO:
    PUT STREAM s-temp UNFORMATTED 
       excelheader                 
    SKIP.
-END. 
+END.
 
-FOR EACH glhist WHERE 
-         glhist.company EQ cocode
+EMPTY TEMP-TABLE tt-glhist.
+
+FOR EACH glhist NO-LOCK
+        WHERE glhist.company EQ cocode
         AND glhist.tr-num  ge v-s-run
         AND glhist.tr-num  le v-e-run
         AND glhist.tr-date ge v-s-dat
         AND glhist.tr-date le v-e-dat 
-      NO-LOCK
+      
       BREAK BY glhist.tr-num 
-            BY glhist.actnum:
+            BY glhist.actnum:            
 
      {custom/statusMsg.i " 'Processing Run #  '  + string(glhist.tr-num) "}
+     
+     CREATE tt-glhist.
+     BUFFER-COPY glhist TO tt-glhist.
+     IF FIRST-OF(glhist.tr-num) THEN
+     DO:
+        dTotalAmount = 0. 
+     END.   
+     
+     dTotalAmount = dTotalAmount + glhist.tr-amt.
+     
+     IF LAST-OF(glhist.tr-num) THEN
+     DO:
+          IF dTotalAmount NE 0 THEN
+          tt-glhist.lNonZero = YES.
+     END.
+END.
+
+FOR EACH tt-glhist NO-LOCK
+         BREAK BY tt-glhist.tr-num
+               BY tt-glhist.lNonZero DESC:
+               
+      IF FIRST-OF(tt-glhist.tr-num) AND tt-glhist.lNonZero THEN
+      DO:
+        lCheckZero = YES.  
+      END.
+      IF lCheckZero THEN 
+      tt-glhist.lNonZero = YES.
+       
+      IF LAST-OF(tt-glhist.tr-num) THEN
+      DO:
+        lCheckZero = NO.  
+      END.      
+END.
+
+FOR EACH tt-glhist NO-LOCK
+         WHERE  ((tt-glhist.lNonZero AND tb_non-zero) OR NOT tb_non-zero)
+         BREAK BY tt-glhist.tr-num
+               BY tt-glhist.actnum :
+
+     {custom/statusMsg.i " 'Processing Run #  '  + string(tt-glhist.tr-num) "}
 
    ASSIGN
       v-print = yes
-      tot-all = tot-all + glhist.tr-amt.
+      tot-all = tot-all + (IF tt-glhist.tr-amt NE ? THEN tt-glhist.tr-amt ELSE 0).
 
    FIND  FIRST account WHERE
          account.company EQ cocode 
-     AND account.actnum  EQ glhist.actnum
-     NO-LOCK NO-ERROR .
-
-   /*DISPLAY 
-      glhist.tr-num WHEN FIRST-OF(glhist.tr-num) FORMAT "9999999" SPACE(5) 
-      glhist.actnum SPACE(5)
-      glhist.jrnl SPACE(5)
-      glhist.tr-dscr
-      /* tmp-dscr*/
-      glhist.tr-date SPACE(6)
-      glhist.tr-amt
-      WITH FRAME yyy NO-LABELS STREAM-IO WIDTH 200 NO-BOX.*/
-
-   IF FIRST-OF(glhist.tr-num) THEN
-      v-tr-num = STRING(glhist.tr-num).
+     AND account.actnum  EQ tt-glhist.actnum
+     NO-LOCK NO-ERROR .  
+   
+   IF FIRST-OF(tt-glhist.tr-num) THEN
+      v-tr-num = STRING(tt-glhist.tr-num).
    ELSE
-      v-tr-num = "".       
-
-   /*IF v-export THEN
-      PUT STREAM s-temp UNFORMATTED
-         '"' v-tr-num        '",'
-         '"' glhist.actnum   '",'
-         '"' glhist.jrnl     '",'
-         '"' glhist.tr-dscr  '",'
-         '"' glhist.tr-date  '",'
-         '"' glhist.tr-amt   '",'
-         SKIP .*/     
+      v-tr-num = "".      
 
       ASSIGN cDisplay = ""
                    cTmpField = ""
@@ -1361,17 +1407,17 @@ FOR EACH glhist WHERE
             DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
                cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
                     CASE cTmpField:             
-                         WHEN "run"    THEN cVarValue = IF  FIRST-OF(glhist.tr-num) THEN string(glhist.tr-num,"9999999") ELSE "" .
-                         WHEN "acc"   THEN cVarValue = string(glhist.actnum,"x(25)").
+                         WHEN "run"    THEN cVarValue = IF  FIRST-OF(tt-glhist.tr-num) THEN string(tt-glhist.tr-num,"9999999") ELSE "" .
+                         WHEN "acc"   THEN cVarValue = string(tt-glhist.actnum,"x(25)").
                          WHEN "acc-desc"  THEN cVarValue = IF AVAIL account THEN  STRING(account.dscr,"x(30)") ELSE "" .
-                         WHEN "jour"   THEN cVarValue = string(glhist.jrnl,"x(12)") .
-                         WHEN "ref"   THEN cVarValue = STRING(glhist.tr-dscr,"x(30)").
-                         WHEN "date"   THEN cVarValue = STRING(glhist.tr-date,"99/99/9999").
-                         WHEN "bal"   THEN cVarValue = STRING(glhist.tr-amt,"->>>,>>>,>>9.99").
+                         WHEN "jour"   THEN cVarValue = string(tt-glhist.jrnl,"x(12)") .
+                         WHEN "ref"   THEN cVarValue = STRING(tt-glhist.tr-dscr,"x(30)").
+                         WHEN "date"   THEN cVarValue = STRING(tt-glhist.tr-date,"99/99/9999").
+                         WHEN "bal"   THEN cVarValue = STRING(tt-glhist.tr-amt,"->>>,>>>,>>9.99").
                          WHEN "acc-stat"   THEN cVarValue = IF AVAIL account AND account.inactive  THEN STRING("Inactive") ELSE "Active".
-                         WHEN "period"   THEN cVarValue = STRING(glhist.period,">>>>>9").
-                         WHEN "out-per"   THEN cVarValue = IF glhist.period NE MONTH(glhist.tr-date) THEN STRING("Yes") ELSE "".
-                         WHEN "trans"   THEN cVarValue = STRING(glhist.tr-num,"->>>,>>>,>>9.99").
+                         WHEN "period"   THEN cVarValue = STRING(tt-glhist.period,">>>>>9").
+                         WHEN "out-per"   THEN cVarValue = IF tt-glhist.period NE MONTH(tt-glhist.tr-date) THEN STRING("Yes") ELSE "".
+                         WHEN "trans"   THEN cVarValue = STRING(tt-glhist.tr-num,"->>>,>>>,>>9.99").
 
                     END CASE.
 
@@ -1387,9 +1433,8 @@ FOR EACH glhist WHERE
                        cExcelDisplay SKIP.
              END.
 
-   IF LAST-OF(glhist.tr-num) THEN DO:
-      /*PUT "---------------------" TO 120 SKIP
-          "Total:" AT 81 tot-all  TO 120 SKIP(1).*/
+   IF LAST-OF(tt-glhist.tr-num) THEN DO:
+      
         PUT str-line SKIP .
         ASSIGN cDisplay = ""
                    cTmpField = ""
@@ -1430,10 +1475,7 @@ END.
 
 
 IF v-print THEN
-   /*PUT "============"      TO 132 SKIP
-       "Grand Total:"      AT 109 
-       tot-tot             TO 132
-       SKIP(1).*/
+   
     PUT str-line SKIP .
     ASSIGN cDisplay = ""
                    cTmpField = ""

@@ -52,6 +52,15 @@ DEF VAR lv-num-rec AS INT NO-UNDO.
 DEF VAR v-prgmname LIKE prgrms.prgmname NO-UNDO.
 DEF VAR period_pos AS INTEGER NO-UNDO.
 
+DEFINE VARIABLE lRecFound           AS LOGICAL          NO-UNDO.
+DEFINE VARIABLE lAPInvoiceLength    AS LOGICAL          NO-UNDO.
+DEFINE VARIABLE cNK1Value           AS CHARACTER        NO-UNDO.
+
+RUN sys/ref/nk1look.p (INPUT g_company, "APInvoiceLength", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cNK1Value, OUTPUT lRecFound).
+IF lRecFound THEN
+    lAPInvoiceLength = logical(cNK1Value) NO-ERROR.
 
 
 IF INDEX(PROGRAM-NAME(1),".uib") NE 0 OR
@@ -145,7 +154,7 @@ DEFINE VARIABLE rd-sort AS INTEGER INITIAL 1
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 85 BY 1.43.
+     SIZE 95 BY 1.43.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -165,7 +174,7 @@ DEFINE BROWSE BROWSE-2
       ap-inv.due        LABEL "Balance Due"
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS MULTIPLE SIZE 85 BY 12.38
+    WITH NO-ROW-MARKERS SEPARATORS MULTIPLE SIZE 95 BY 12.38
          BGCOLOR 8  FIT-LAST-COLUMN.
 
 
@@ -269,6 +278,11 @@ DO:
   
   IF AVAIL ap-inv AND ap-inv.stat EQ "H" THEN
       ap-inv.inv-no:BGCOLOR IN BROWSE {&browse-name} = 11.
+
+  IF lAPInvoiceLength THEN
+      ASSIGN ap-inv.inv-no:FORMAT IN BROWSE {&browse-name} = "x(20)".
+  ELSE
+      ASSIGN ap-inv.inv-no:FORMAT IN BROWSE {&browse-name} = "x(12)".
 
 END.
 
@@ -523,6 +537,8 @@ PROCEDURE local-initialize :
     
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
 
+  RUN pAPInvoiceLength.
+  
   /* Code placed here will execute AFTER standard behavior.    */
   DO WITH FRAME {&FRAME-NAME}:
     {custom/usrprint.i}
@@ -599,3 +615,19 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pAPInvoiceLength  D-Dialog 
+PROCEDURE pAPInvoiceLength :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    IF lAPInvoiceLength THEN
+        ASSIGN ap-inv.inv-no:WIDTH IN BROWSE {&browse-name} = 30.
+    ELSE 
+        ASSIGN ap-inv.inv-no:WIDTH IN BROWSE {&browse-name} = 20.    
+        
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME

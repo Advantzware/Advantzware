@@ -733,6 +733,9 @@ RETURN.
 
 /* **********************  Internal Procedures  *********************** */
 
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI C-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
 /*------------------------------------------------------------------------------
@@ -2715,6 +2718,8 @@ PROCEDURE ipDataFix :
         RUN ipDataFix210001.
     IF iCurrentVersion LT 21000300 THEN
         RUN ipDataFix210003.
+    IF iCurrentVersion LT 21010000 THEN
+        RUN ipDataFix210100.
     IF iCurrentVersion LT 99999999 THEN
         RUN ipDataFix999999.
 
@@ -3459,6 +3464,26 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix210100 C-Win
+PROCEDURE ipDataFix210100:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEF VAR cOrigPropath AS CHAR NO-UNDO.
+    DEF VAR cNewPropath AS CHAR NO-UNDO.
+
+    RUN ipStatus ("  Data Fix 210100...").
+
+    RUN ipConvertGLTrans.
+    RUN ipFixForeignAccount.
+    RUN ipResetProbeMSF.
+    
+END PROCEDURE.
+    
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix999999 C-Win 
@@ -3480,7 +3505,6 @@ PROCEDURE ipDataFix999999 :
     RUN ipChangeCostMethod.
     RUN ipSetDepartmentRequired.
     RUN ipAddDbmsFonts.
-    RUN ipConvertGLTrans.
     RUN ipDeleteAudit.
     
 END PROCEDURE.
@@ -3993,6 +4017,62 @@ PROCEDURE ipFixBlankOrdlShipIDs:
         IF AVAIL oe-ord THEN ASSIGN 
             oe-ordl.ship-id = oe-ord.ship-id.
     END.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipFixForeignAccount C-Win
+PROCEDURE ipFixForeignAccount:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEF VAR lIsInvalidAcct AS LOG NO-UNDO.
+    
+    RUN ipStatus ("    Validating currency foreign accounts").
+
+    DEF BUFFER bCurrency FOR currency.
+    
+    DISABLE TRIGGERS FOR LOAD OF currency.
+    DISABLE TRIGGERS FOR LOAD OF bcurrency.
+    
+    FOR EACH currency NO-LOCK:
+        FIND FIRST account NO-LOCK WHERE
+            account.company EQ currency.company AND  
+            account.actnum EQ currency.ar-ast-acct
+            NO-ERROR.
+        ASSIGN 
+            lIsInvalidAcct = IF (currency.ar-ast-acct EQ "")
+                             OR (NOT AVAIL account) 
+                             OR (AVAIL account AND account.inActive) THEN TRUE ELSE FALSE.
+        IF NOT lIsInvalidAcct THEN NEXT.
+        ELSE DO:
+            FIND FIRST ar-ctrl NO-LOCK WHERE 
+                ar-ctrl.company EQ currency.company 
+                NO-ERROR.
+            IF NOT AVAIL ar-ctrl THEN NEXT.
+            ELSE DO:
+                FIND FIRST account NO-LOCK WHERE
+                    account.company EQ currency.company AND  
+                    account.actnum EQ ar-ctrl.onac
+                    NO-ERROR.
+                IF AVAIL account 
+                AND NOT account.inActive THEN DO:
+                    FIND bcurrency EXCLUSIVE WHERE 
+                        ROWID(bcurrency) EQ ROWID(currency)
+                        NO-ERROR.
+                    ASSIGN 
+                       bCurrency.ar-ast-acct = account.actnum.
+                    RELEASE bcurrency.
+                END. 
+            END.
+        END.
+    END.            
 
 END PROCEDURE.
 	
@@ -6318,6 +6398,41 @@ PROCEDURE ipResetCostGroups:
     ASSIGN 
         PROPATH = cOrigPropath.     
 
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipResetProbeMSF C-Win
+PROCEDURE ipResetProbeMSF:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:     Ticket 98252
+------------------------------------------------------------------------------*/
+    RUN ipStatus ("    Resetting zero quantity probe MSF values").
+
+    DISABLE TRIGGERS FOR LOAD OF probe.
+    
+    /* at least give it a shot at using indexing */
+    FOR EACH company NO-LOCK,
+        EACH loc OF company NO-LOCK:
+        FOR EACH eb NO-LOCK WHERE 
+            eb.company EQ company.company AND
+            eb.loc EQ loc.loc AND  
+            eb.est-type GE 5 USE-INDEX etype,
+            EACH probe EXCLUSIVE WHERE 
+                probe.company EQ eb.company AND 
+                probe.est-no EQ eb.est-no AND 
+                probe.probe-date NE ? AND 
+                probe.gshQtyInSF EQ 0:
+            ASSIGN 
+                probe.gshQtyInSF = probe.tot-lbs.
+        END.
+    END. 
 
 END PROCEDURE.
 	

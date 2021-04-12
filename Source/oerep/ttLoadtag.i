@@ -10,12 +10,16 @@ DEFINE TEMP-TABLE ttLoadTag
     FIELD   bolID                        LIKE    oe-bolh.bol-no     
     FIELD   custID                       LIKE    oe-ord.cust-no      
     FIELD   custName                     LIKE    oe-ord.cust-name        
-    FIELD   custAddrees1                 AS      CHARACTER   FORMAT  "X(30)"
+    FIELD   custAddress1                 AS      CHARACTER   FORMAT  "X(30)"
     FIELD   custAddress2                 AS      CHARACTER   FORMAT  "X(30)"
     FIELD   custCity                     LIKE    cust.city       
     FIELD   custState                    LIKE    cust.state      
     FIELD   custZip                      LIKE    cust.zip        
-    FIELD   custCountry                  LIKE    cust.country        
+    FIELD   custCountry                  LIKE    cust.country 
+    FIELD   custAreaCode                 LIKE    cust.area-code
+    FIELD   custPhone                    LIKE    cust.phone
+    FIELD   custEmail                    LIKE    cust.email
+    FIELD   custFax                      LIKE    cust.fax       
     FIELD   itemID                       LIKE    oe-ordl.i-no        
     FIELD   custPartNo                   LIKE    oe-ordl.part-no     
     FIELD   custPONO                     LIKE    oe-ordl.po-no   

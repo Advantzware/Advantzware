@@ -44,6 +44,16 @@ assign
 
 &SCOPED-DEFINE browse2 ap/j-apinv.i
 
+DEFINE VARIABLE lRecFound           AS LOGICAL          NO-UNDO.
+DEFINE VARIABLE lAPInvoiceLength    AS LOGICAL          NO-UNDO.
+DEFINE VARIABLE cNK1Value           AS CHARACTER        NO-UNDO.
+
+RUN sys/ref/nk1look.p (INPUT cocode, "APInvoiceLength", "L" /* Logical */, NO /* check by cust */,
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cNK1Value, OUTPUT lRecFound).
+IF lRecFound THEN
+    lAPInvoiceLength = logical(cNK1Value) NO-ERROR.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -302,6 +312,21 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
+ON ROW-DISPLAY OF Browser-Table IN FRAME F-Main
+DO:
+    &SCOPED-DEFINE exclude-row-display true
+    {methods/template/brwRowDisplay.i} 
+    IF lAPInvoiceLength THEN
+        ASSIGN ap-inv.inv-no:FORMAT IN BROWSE {&browse-name} = "x(20)".
+    ELSE
+        ASSIGN ap-inv.inv-no:FORMAT IN BROWSE {&browse-name} = "x(12)".
+
+END.
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON VALUE-CHANGED OF Browser-Table IN FRAME F-Main
 DO:
   /* This ADM trigger code must be preserved in order to notify other
@@ -327,6 +352,8 @@ BROWSE {&browse-name}:HELP = "Message located at bottom of brower, not sure how 
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF
+
+RUN pAPInvoiceLength.
 
 {custom/resizmn.i}
 
@@ -439,3 +466,20 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pAPInvoiceLength  B-table-Win 
+PROCEDURE pAPInvoiceLength :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    IF lAPInvoiceLength THEN DO:
+        ASSIGN ap-inv.inv-no:WIDTH IN BROWSE {&browse-name} = 30.
+    END.
+    ELSE DO: 
+        ASSIGN ap-inv.inv-no:WIDTH IN BROWSE {&browse-name} = 20.    
+    END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
