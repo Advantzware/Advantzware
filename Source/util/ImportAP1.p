@@ -890,7 +890,11 @@ PROCEDURE pProcessRecord PRIVATE:
         ap-inv.due-date = (terms.net-day + ipbf-ttImportAP1.InvoiceDate).
         END.    
     END.
-        
+
+    /* Set receiver-no eq 0 so VU# won't try to create a manual check - 54241 - MYT */
+    ASSIGN 
+        ap-inv.receiver-no = "0".
+    
     RUN pFetchInvoiceDetails (
         INPUT  TEMP-TABLE ttImportAP1:HANDLE,
         OUTPUT cPOLineDetails
