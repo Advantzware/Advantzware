@@ -1830,9 +1830,11 @@ PROCEDURE pTagScan :
                 .
         
         IF cbRMItem:SCREEN-VALUE NE cRMItem THEN DO:
-            MESSAGE "Tag belongs to a different item #"  
-                VIEW-AS ALERT-BOX.
-            RETURN.
+            MESSAGE "Tag (" + ipcTag + ") belongs to a different item # (" + cRMItem + "). Do you want to continue?"  
+                VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE lChoice AS LOGICAL.
+            
+            IF NOT lChoice THEN
+                RETURN.
         END.
         
         IF ttInventoryStockDetails.itemCode EQ "E" AND
