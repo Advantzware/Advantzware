@@ -1062,7 +1062,7 @@ PROCEDURE Outbound_GetAPIsForScopeID:
                     NEXT.
                 
                 IF bf-apiClientXref.scopeID NE cAPIClientXrefAny AND 
-                   NOT bf-apiClientXref.scopeID BEGINS ipcScopeID THEN
+                   LOOKUP(ipcScopeID,bf-apiClientXref.scopeID,"|") EQ 0 THEN
                 NEXT.                
             END.
             
