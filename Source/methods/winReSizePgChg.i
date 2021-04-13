@@ -180,6 +180,58 @@ IF NOT AVAILABLE pagewinsize THEN
         toreposition.widtype   = "moveright".
     &endif
 &endif
+&IF DEFINED(h_Object12) NE 0 &THEN
+FIND FIRST toreposition WHERE toreposition.widhand =  STRING({&h_Object12}) NO-ERROR.
+IF NOT AVAILABLE toreposition THEN
+    CREATE toreposition.
+ASSIGN 
+    toreposition.widhand    = STRING({&h_Object12})
+    toreposition.resizepage = pgno.
+toreposition.widtype   = "movedown".
+    &IF DEFINED(moveRight) NE 0 &THEN 
+IF LOOKUP('{&h_Object12}',"{&moveRight}",",") > 0 THEN
+    toreposition.widtype   = "moveright".
+    &endif
+&endif
+&IF DEFINED(h_Object13) NE 0 &THEN
+FIND FIRST toreposition WHERE toreposition.widhand =  STRING({&h_Object13}) NO-ERROR.
+IF NOT AVAILABLE toreposition THEN
+    CREATE toreposition.
+ASSIGN 
+    toreposition.widhand    = STRING({&h_Object13})
+    toreposition.resizepage = pgno.
+toreposition.widtype   = "movedown".
+    &IF DEFINED(moveRight) NE 0 &THEN 
+IF LOOKUP('{&h_Object13}',"{&moveRight}",",") > 0 THEN
+    toreposition.widtype   = "moveright".
+    &endif
+&endif
+&IF DEFINED(h_Object14) NE 0 &THEN
+FIND FIRST toreposition WHERE toreposition.widhand =  STRING({&h_Object14}) NO-ERROR.
+IF NOT AVAILABLE toreposition THEN
+    CREATE toreposition.
+ASSIGN 
+    toreposition.widhand    = STRING({&h_Object14})
+    toreposition.resizepage = pgno.
+toreposition.widtype   = "movedown".
+    &IF DEFINED(moveRight) NE 0 &THEN 
+IF LOOKUP('{&h_Object14}',"{&moveRight}",",") > 0 THEN
+    toreposition.widtype   = "moveright".
+    &endif
+&endif
+&IF DEFINED(h_Object15) NE 0 &THEN
+FIND FIRST toreposition WHERE toreposition.widhand =  STRING({&h_Object15}) NO-ERROR.
+IF NOT AVAILABLE toreposition THEN
+    CREATE toreposition.
+ASSIGN 
+    toreposition.widhand    = STRING({&h_Object15})
+    toreposition.resizepage = pgno.
+toreposition.widtype   = "movedown".
+    &IF DEFINED(moveRight) NE 0 &THEN 
+IF LOOKUP('{&h_Object15}',"{&moveRight}",",") > 0 THEN
+    toreposition.widtype   = "moveright".
+    &endif
+&endif
 
  // get the handels of all objects initialized with page "Objects linked with page(browse,buttons)" and needs to be shifted 
 RUN get-link-handle IN adm-broker-hdl (INPUT THIS-PROCEDURE,INPUT "PAGE" + pgno + "-TARGET", OUTPUT cSmartObjList) NO-ERROR.
