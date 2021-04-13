@@ -231,6 +231,22 @@ ASSIGN
  
 
 
+
+&Scoped-define SELF-NAME arClass.currencyCode
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL currency.ar-ast-acct V-table-Win
+ON LEAVE OF currency.ar-ast-acct IN FRAME F-Main /* currencyCode */
+DO:
+    DEFINE VARIABLE lCheckReturnError AS LOGICAL NO-UNDO.
+    IF LASTKEY NE -1 THEN DO:
+      RUN valid-account(OUTPUT lCheckReturnError) NO-ERROR.
+      IF lCheckReturnError THEN RETURN NO-APPLY.
+    END.     
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK V-table-Win 
 
 
@@ -241,7 +257,7 @@ ASSIGN
   &ENDIF         
   
   /************************ INTERNAL PROCEDURES ********************/
-
+  
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -344,6 +360,30 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record V-table-Win 
+PROCEDURE local-update-record :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  DEFINE VARIABLE lCheckReturnError AS LOGICAL NO-UNDO.
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+
+  RUN valid-account(OUTPUT lCheckReturnError) NO-ERROR.
+      IF lCheckReturnError THEN RETURN NO-APPLY.  
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+ 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-key V-table-Win  adm/support/_key-snd.p
 PROCEDURE send-key :
 /*------------------------------------------------------------------------------
@@ -403,6 +443,31 @@ PROCEDURE state-changed :
          or add new cases. */
       {src/adm/template/vstates.i}
   END CASE.
+END PROCEDURE.
+
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-account V-table-Win 
+PROCEDURE valid-account :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE OUTPUT PARAMETER opReturnError AS LOGICAL NO-UNDO .
+  {methods/lValidateError.i YES}
+ FIND FIRST account WHERE account.company = g_company
+                       AND account.actnum = currency.ar-ast-acct:SCREEN-VALUE IN FRAME {&FRAME-NAME}
+                       NO-LOCK NO-ERROR.
+ IF NOT AVAIL account THEN DO:
+    MESSAGE "Please enter a vaild account number. Try help" VIEW-AS ALERT-BOX ERROR.
+    APPLY "entry" TO currency.ar-ast-acct.
+    opReturnError = TRUE.
+ END.
+
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
