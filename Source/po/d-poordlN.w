@@ -2632,19 +2632,15 @@ PROCEDURE create-item :
                  WHERE loc.company EQ cocode
                  AND loc.loc EQ po-ord.ship-id
                  NO-ERROR.
-            IF AVAIL loc THEN 
+            FIND FIRST company NO-LOCK
+                 WHERE company.company EQ po-ord.ship-id 
+                 NO-ERROR.
+            IF AVAIL loc OR AVAIL company THEN 
             DO:
                 FIND FIRST cust NO-LOCK
                      WHERE cust.company EQ cocode
-                     AND cust.active = "X" NO-ERROR.
-                IF avail cust THEN     
-                FIND FIRST shipto NO-LOCK
-                WHERE shipto.company EQ cocode
-                AND shipto.cust-no EQ cust.cust-no
-                AND shipto.ship-id EQ po-ord.ship-id
-                NO-ERROR.
-                
-                IF AVAIL shipto AND AVAIL cust THEN
+                     AND cust.active = "X" NO-ERROR.                
+                IF AVAIL cust THEN
                 ASSIGN
                    po-ordl.cust-no   = cust.cust-no.
             END.              
