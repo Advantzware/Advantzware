@@ -76,9 +76,9 @@ account.type account.inactive account.salesReport account.commReport
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH account WHERE ~{&KEY-PHRASE} ~
       AND account.company EQ gcompany AND ~
-account.actnum MATCHES cAccount AND ~
-account.dscr MATCHES cDescription AND ~
-account.type MATCHES cType AND ~
+account.actnum MATCHES cAccount + "*" AND ~
+account.dscr MATCHES cDescription + "*" AND ~
+account.type MATCHES cType + "*" AND ~
 (account.inactive EQ lInactive OR ~
 lInactive EQ NO) AND ~
 (account.salesReport EQ lSalesReport OR ~
@@ -88,9 +88,9 @@ lCommReport EQ NO) NO-LOCK ~
     ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY Browser-Table FOR EACH account WHERE ~{&KEY-PHRASE} ~
       AND account.company EQ gcompany AND ~
-account.actnum MATCHES cAccount AND ~
-account.dscr MATCHES cDescription AND ~
-account.type MATCHES cType AND ~
+account.actnum MATCHES cAccount + "*" AND ~
+account.dscr MATCHES cDescription + "*" AND ~
+account.type MATCHES cType + "*" AND ~
 (account.inactive EQ lInactive OR ~
 lInactive EQ NO) AND ~
 (account.salesReport EQ lSalesReport OR ~
@@ -362,9 +362,9 @@ ASSIGN
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = "USED"
      _Where[1]         = "account.company EQ gcompany AND
-account.actnum MATCHES cAccount AND
-account.dscr MATCHES cDescription AND
-account.type MATCHES cType AND
+account.actnum MATCHES cAccount + ""*"" AND
+account.dscr MATCHES cDescription + ""*"" AND
+account.type MATCHES cType + ""*"" AND
 (account.inactive EQ lInactive OR
 lInactive EQ NO) AND
 (account.salesReport EQ lSalesReport OR
