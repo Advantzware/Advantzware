@@ -69,7 +69,9 @@ DEFINE TEMP-TABLE ttOePrmtxCsv
     FIELD price9        AS DECIMAL   LABEL "Price 9"     FORMAT "->>,>>>,>>9.99<<<<"
     FIELD quantity10    AS INTEGER   LABEL "Quantity 10" FORMAT ">>,>>>,>>9" 
     FIELD price10       AS DECIMAL   LABEL "Price 10"    FORMAT "->>,>>>,>>9.99<<<<"
-    .                                      
+    .  
+    
+DEFINE TEMP-TABLE ttOePrmtxCsvDisplay LIKE ttOePrmtxCsv .    
 RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
 
     
@@ -473,6 +475,8 @@ PROCEDURE pRunProcess PRIVATE :
     DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lSuccess AS LOGICAL   NO-UNDO.
     
+    EMPTY TEMP-TABLE ttOePrmtxCsvDisplay.
+    
     MESSAGE "Do you want to start the process with the selected parameters?"
         VIEW-AS ALERT-BOX QUESTION
         BUTTON YES-NO
@@ -526,13 +530,17 @@ PROCEDURE pRunProcess PRIVATE :
                     INPUT oe-prmtx.custype,
                     INPUT oe-prmtx.procat,
                     INPUT-OUTPUT TABLE ttOePrmtxCsv
-                    ).                      
+                    ).     
+                   FOR EACH ttOePrmtxCsv NO-LOCK:
+                     CREATE ttOePrmtxCsvDisplay.
+                     BUFFER-COPY ttOePrmtxCsv TO ttOePrmtxCsvDisplay.
+                   END.
             END.                
         END.                
     END.
     IF NOT iplExpire THEN DO:
         RUN Output_TempTableToCSV IN hdOutputProcs (
-            INPUT TEMP-TABLE ttOePrmtxCsv:HANDLE,
+            INPUT TEMP-TABLE ttOePrmtxCsvDisplay:HANDLE,
             INPUT cLocation + "\PriceMatrix.csv",
             INPUT TRUE,  /* Export Header */
             INPUT FALSE, /* Auto increment File name */
@@ -553,7 +561,8 @@ PROCEDURE pRunProcess PRIVATE :
             VIEW-AS ALERT-BOX INFORMATION.  
     
     pfSetDirectory().  
-    EMPTY TEMP-TABLE ttOePrmtxCsv.           
+    EMPTY TEMP-TABLE ttOePrmtxCsv.
+    EMPTY TEMP-TABLE ttOePrmtxCsvDisplay.
     SESSION:SET-WAIT-STATE("").   
     STATUS DEFAULT "".                          
 END PROCEDURE.

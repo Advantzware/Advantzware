@@ -142,7 +142,14 @@ PROCEDURE pCreateOePrmtxTT PRIVATE:
           AND oe-prmtx.cust-no    EQ ipcCustNo
           AND oe-prmtx.i-no       EQ ipcItemID
           AND oe-prmtx.custype    EQ ipcCustType
-          AND oe-prmtx.custShipID EQ ipcShipID:
+          AND oe-prmtx.custShipID EQ ipcShipID:          
+          
+          IF NOT(oe-prmtx.exp-date EQ ? OR oe-prmtx.exp-date GT TODAY) THEN 
+            NEXT.
+            
+          IF oe-prmtx.eff-date GT TODAY THEN 
+            NEXT.  
+            
         CREATE ttOePrmtx.        
         ASSIGN
             ttOePrmtx.company       = oe-prmtx.company       
@@ -212,17 +219,20 @@ PROCEDURE pExpireOldPrices PRIVATE:
           AND bf-oe-prmtx.i-no       EQ ipcItemID
           AND bf-oe-prmtx.custype    EQ ipcCustType
           AND bf-oe-prmtx.custShipID EQ ipcShipID
-          AND bf-oe-prmtx.procat     EQ ipcProcat
+          AND bf-oe-prmtx.procat     EQ ipcProcat         
           BY bf-oe-prmtx.eff-date
-          BY bf-oe-prmtx.exp-date:
-              
+          BY bf-oe-prmtx.exp-date:        
+            
+        IF NOT(bf-oe-prmtx.exp-date EQ ? OR bf-oe-prmtx.exp-date GT TODAY) THEN 
+            NEXT.
+            
+        IF bf-oe-prmtx.eff-date GT TODAY THEN 
+            NEXT.            
+               
         ASSIGN 
             iCount = iCount + 1
             iCount1 = 0
             .
-            
-        IF NOT(bf-oe-prmtx.exp-date EQ ? OR bf-oe-prmtx.exp-date GT TODAY) THEN 
-            NEXT.
             
         FOR EACH ttOePrmtx NO-LOCK
             WHERE ttOePrmtx.company    EQ ipcCompany
