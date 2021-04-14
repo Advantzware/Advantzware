@@ -779,7 +779,7 @@ DO v-local-loop = 1 TO v-local-copies:
                 FILE-INFO:FILE-NAME = "Images\quality-check.jpg" .
         
         PUT UNFORMATTED "<=#1><R+1><C160>"
-                        "<#71><C25><R+47.5>"
+                        "<#71><C10><R+42>"
                         "<IMAGE#71=" FILE-INFO:FULL-PATHNAME ">"
                         "<R+1>"  
                         .
