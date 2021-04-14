@@ -49,11 +49,11 @@ PROCEDURE AssessSelections:
             opdTotalCyclesRequired = IF opdTotalCyclesRequired EQ 0 THEN ttFGReorderSelection.quantityCyclesRequired ELSE IF ttFGReorderSelection.quantityCyclesRequired  LT opdTotalCyclesRequired  THEN ttFGReorderSelection.quantityCyclesRequired  ELSE  opdTotalCyclesRequired 
             .  
     END.
-    FOR EACH ttFGReorderSelection:
+    FOR EACH ttFGReorderSelection:    
         ASSIGN 
             ttFGReorderSelection.quantityCyclesSurplus = opdTotalCyclesRequired - ttFGReorderSelection.quantityCyclesRequired
             ttFGReorderSelection.quantityToOrderSurplus = ttFGReorderSelection.quantityCyclesSurplus * (MAXIMUM(1,ttFGReorderSelection.multiplier))
-            ttFGReorderSelection.KeyItem = ttFGReorderSelection.quantityToOrder EQ (MAXIMUM(1,ttFGReorderSelection.multiplier) *  opdTotalCyclesRequired ) 
+            ttFGReorderSelection.KeyItem = ttFGReorderSelection.quantityToOrder EQ ROUND((MAXIMUM(1,ttFGReorderSelection.multiplier) *  opdTotalCyclesRequired ),0) 
             .   
             
     END.
@@ -84,7 +84,7 @@ PROCEDURE BuildReport:
             dQuantityAllocated = itemfg.q-alloc
             dQuantityMinimum = itemfg.ord-level
             .
-        IF dQuantityOnHand NE 0 OR dQuantityOnOrder NE 0 OR dQuantityAllocated NE 0 OR dQuantityMinimum NE 0 THEN DO:
+        
             CREATE ttFGReorder.
             ASSIGN 
                 ttFGReorder.company = itemfg.company
@@ -132,9 +132,7 @@ PROCEDURE BuildReport:
             IF ttFGReorder.quantityMaxOrder NE 0 AND ttFGReorder.quantityToOrderSuggested GT ttFGReorder.quantityMaxOrder THEN 
                 ttFGReorder.quantityToOrderSuggested = ttFGReorder.quantityMaxOrder.
                 
-            ttFGReorder.quantityToOrder = MAX(-(dQuantityOnHand + dQuantityOnOrder - dQuantityAllocated),0) .              
-            
-        END.
+            ttFGReorder.quantityToOrder = MAX(-(dQuantityOnHand + dQuantityOnOrder - dQuantityAllocated),0) .                  
     END.
 
 END PROCEDURE.

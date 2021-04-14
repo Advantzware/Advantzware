@@ -576,7 +576,8 @@ DO:
        RUN jc/dMultiSelectItem.w (OUTPUT dTotalCyclesRequired, OUTPUT TABLE ttFGReorderSelection) . 
        
        ASSIGN 
-           iTargetCyl:SCREEN-VALUE =  STRING(dTotalCyclesRequired) .
+           iTargetCyl:SCREEN-VALUE =  STRING(dTotalCyclesRequired) 
+           dtDueDate:SCREEN-VALUE  = string(TODAY).
        EMPTY TEMP-TABLE ttInputEst.
        FOR EACH ttFGReorderSelection NO-LOCK
            WHERE ttFGReorderSelection.isSelect:           
@@ -592,8 +593,9 @@ DO:
                     bf-ttInputEst.lKeyItem = ttFGReorderSelection.KeyItem 
                     lv-rowid               = ROWID(bf-ttInputEst).
                     IF ttFGReorderSelection.dateDueDateEarliest NE ? AND (ttFGReorderSelection.dateDueDateEarliest LT date(dtDueDate:SCREEN-VALUE) OR date(dtDueDate:SCREEN-VALUE) EQ ?)
-                       AND tb_runnow:SCREEN-VALUE NE "Yes" THEN
+                       AND tb_runnow:SCREEN-VALUE NE "Yes" THEN                        
                     dtDueDate:SCREEN-VALUE = string(ttFGReorderSelection.dateDueDateEarliest) .
+                    
                     cBoard:SCREEN-VALUE = ttFGReorderSelection.board.
                     FIND FIRST itemfg NO-LOCK 
                          WHERE itemfg.company EQ cocode
