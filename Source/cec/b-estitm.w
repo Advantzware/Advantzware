@@ -7357,19 +7357,8 @@ PROCEDURE reset-est-type :
               bf-eb.yld-qty = bf-eb.bl-qty.
         ELSE
            IF bf-eb.yld-qty LE 1 THEN bf-eb.yld-qty = bf-eb.bl-qty.
-     END.
-
-     IF v-set-header THEN
-     DO:
-        FIND FIRST bf-set WHERE
-             bf-set.company EQ bf-est.company AND
-             bf-set.est-no  EQ bf-est.est-no AND
-             bf-set.form-no EQ 0
-             NO-ERROR.
-
-        IF AVAIL bf-set THEN
-           DELETE bf-set.
-     END.
+     END.  
+     
   END.
 
   ELSE
@@ -7379,7 +7368,27 @@ PROCEDURE reset-est-type :
         AND bf-eb.est-no  EQ bf-est.est-no:
     bf-eb.quantityPerSet = 1.
   END.
-  
+        
+        
+  IF op-est-type NE 6 THEN
+  DO:
+    v-set-header = CAN-FIND(FIRST bf-set WHERE
+                               bf-set.company EQ bf-est.company AND
+                               bf-set.est-no  EQ bf-est.est-no AND
+                               bf-set.form-no EQ 0).
+    IF v-set-header THEN
+    DO:
+        FIND FIRST bf-set WHERE
+             bf-set.company EQ bf-est.company AND
+             bf-set.est-no  EQ bf-est.est-no AND
+             bf-set.form-no EQ 0
+             NO-ERROR.
+
+        IF AVAIL bf-set THEN
+           DELETE bf-set.
+    END.                                     
+  END.  /* op-est-type NE 6*/
+              
   IF op-est-type <> ? THEN DO:  
     bf-est.est-type = op-est-type.
     FOR EACH bf-ef
@@ -7391,9 +7400,9 @@ PROCEDURE reset-est-type :
       bf-ef.est-type = op-est-type.
     END.
   END.
-
+               
   RUN est/resetops.p (ROWID(bf-est)).
-
+                     
   FIND CURRENT bf-est NO-LOCK.
 
 END PROCEDURE.

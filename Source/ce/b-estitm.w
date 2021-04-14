@@ -5263,6 +5263,18 @@ PROCEDURE reset-est-type :
     ELSE
     IF bf-eb.yld-qty EQ 0 THEN bf-eb.yld-qty = bf-eb.bl-qty.
   END.
+  
+  IF op-est-type NE 2 THEN 
+  DO:
+     FIND FIRST bf-set WHERE
+             bf-set.company EQ bf-est.company AND
+             bf-set.est-no  EQ bf-est.est-no AND
+             bf-set.form-no EQ 0
+             NO-ERROR.
+
+     IF AVAIL bf-set THEN
+        DELETE bf-set.  
+  END.  /* op-est-type NE 2 */
 
   bf-est.est-type = op-est-type.
   FOR EACH bf-ef
