@@ -1635,7 +1635,7 @@ dMaxCompQty = maxComponentQty().
 IF AVAIL bfFgBin  THEN DO:
   
   /* dTotalQty is the qty in other lines with the same item number */
-  RUN get-selected-full-qty (INPUT bfFgBin.std-tot-cost, INPUT NO, OUTPUT dTotalQty).
+  RUN get-set-full-qty (INPUT bfFgBin.std-tot-cost, INPUT NO, OUTPUT dTotalQty).
   
   dTotalQty = ABS(dTotalQty).
   IF iprFgRctd EQ ? THEN
