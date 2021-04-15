@@ -1,4 +1,4 @@
-/* ---------------------------------------------- oe/rep/bolacpi.p 05/18 RES */
+/* ---------------------------------------------- oe/rep/bolacpix.p 05/18 RES */
 /* PRINT ACPI BOL (from Elite)                                                */ 
 /* -------------------------------------------------------------------------- */
 
@@ -51,7 +51,7 @@ DEFINE VARIABLE v-frt-terms AS CHARACTER FORMAT "x(10)" NO-UNDO.
 DEFINE VARIABLE v-zone LIKE carr-mtx.del-zone NO-UNDO.
 DEFINE VARIABLE v-lines AS INTEGER NO-UNDO.
 DEFINE VARIABLE v-job-po            AS   CHARACTER NO-UNDO.
-DEFINE VARIABLE cTrailer            AS   CHARACTER FORMAT "x(20)" NO-UNDO.
+DEFINE VARIABLE v-trailer           AS   CHARACTER FORMAT "x(20)" NO-UNDO.
 DEFINE TEMP-TABLE w2 NO-UNDO
     FIELD cases            AS   INTEGER FORMAT ">9"
     FIELD cas-cnt          AS   INTEGER FORMAT ">>>>9"
@@ -267,7 +267,7 @@ FOR EACH xxreport WHERE xxreport.term-id EQ v-term-id,
      v-salesman = ""
      v-fob      = ""
      v-terms    = ""
-     cTrailer   = "".
+     v-trailer  = "".
 
     FOR EACH oe-boll NO-LOCK WHERE oe-boll.company EQ oe-bolh.company AND oe-boll.b-no EQ oe-bolh.b-no ,
         FIRST oe-ord NO-LOCK
@@ -309,7 +309,7 @@ FOR EACH xxreport WHERE xxreport.term-id EQ v-term-id,
           substr(v-salesman,LENGTH(TRIM(v-salesman)),1) = "".
 
       v-fob = IF oe-ord.fob-code BEGINS "ORIG" THEN "Origin" ELSE "Destination".
-      cTrailer = oe-bolh.trailer.
+      v-trailer = oe-bolh.trailer.
       LEAVE.
     END.
 
@@ -425,8 +425,8 @@ FOR EACH xxreport WHERE xxreport.term-id EQ v-term-id,
       lv-tot-pg = lv-tot-pg + TRUNC( ln-cnt / 27,0) .  /* 23->47 25 po detail lines */
       /*  end of getting total page per po */
 
-     {oe/rep/bolacpi.i}
-     {oe/rep/bolacpi2.i}
+     {oe/rep/bolacpix.i}
+     {oe/rep/bolacpix2.i}
 
   v-last-page = PAGE-NUMBER.
 
