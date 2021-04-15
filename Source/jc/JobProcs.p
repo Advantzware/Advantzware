@@ -16,6 +16,9 @@
 
 DEFINE VARIABLE iJobFormatLength AS INTEGER NO-UNDO INITIAL 6.
 
+DEFINE TEMP-TABLE w-job NO-UNDO 
+    FIELD job like job.job.
+
 /* ********************  Preprocessor Definitions  ******************** */
 
 /* ************************  Function Prototypes ********************** */
@@ -268,6 +271,90 @@ PROCEDURE GetFormnoForJob:
     RELEASE bf-job.
     RELEASE bf-job-mat.
 END PROCEDURE.
+
+PROCEDURE job_CloseJob_DCPost:
+    /*------------------------------------------------------------------------------
+     Purpose: Returns blank no list for a given jobID
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany      AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER TABLE FOR w-job.
+      
+    RUN CloseJob_DCPost(INPUT ipcCompany,TABLE w-job).
+   
+    
+END PROCEDURE.
+
+
+PROCEDURE CloseJob_DCPost PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Returns blank no list for a given jobID
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany      AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER TABLE FOR w-job.
+    DEFINE VARIABLE close_date AS DATE    NO-UNDO.
+    DEFINE VARIABLE v-fin-qty  AS INTEGER NO-UNDO.
+    DEFINE VARIABLE lRecFound  AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE cCloseJob AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cocode    AS CHARACTER NO-UNDO.
+    
+    cocode = ipcCompany.
+    RUN sys/ref/nk1look.p (
+        INPUT ipcCompany,         /* Company Code */ 
+        INPUT "CLOSEJOB", /* sys-ctrl name */
+        INPUT "C",                /* Output return value */
+        INPUT NO,                 /* Use ship-to */
+        INPUT NO,                 /* ship-to vendor */
+        INPUT "",                 /* ship-to vendor value */
+        INPUT "",                 /* shi-id value */
+        OUTPUT cCloseJob, 
+        OUTPUT lRecFound
+        ).
+    
+    IF cCloseJob EQ "DCPost" THEN
+    DO:
+       close_date = TODAY.  
+        for each w-job,
+        first job
+        where job.company eq ipcCompany
+        and job.job     eq w-job.job
+        AND(job.stat    EQ "W" OR
+             CAN-FIND(FIRST mat-act
+                        WHERE mat-act.company EQ job.company
+                          AND mat-act.job     EQ job.job
+                          AND mat-act.job-no  EQ job.job-no
+                          AND mat-act.job-no2 EQ job.job-no2)  OR
+               CAN-FIND(FIRST mch-act
+                        WHERE mch-act.company EQ job.company
+                          AND mch-act.job     EQ job.job
+                          AND mch-act.job-no  EQ job.job-no
+                          AND mch-act.job-no2 EQ job.job-no2)  OR
+               CAN-FIND(FIRST misc-act
+                        WHERE misc-act.company EQ job.company
+                          AND misc-act.job     EQ job.job
+                          AND misc-act.job-no  EQ job.job-no
+                          AND misc-act.job-no2 EQ job.job-no2))
+        NO-LOCK,
+        EACH job-hdr
+        where job-hdr.company eq ipcCompany
+          and job-hdr.job     eq job.job
+          and job-hdr.job-no  eq job.job-no
+          and job-hdr.job-no2 eq job.job-no2          
+        use-index job 
+        TRANSACTION:
+
+      {jc/job-clos.i}
+
+      FIND CURRENT reftable NO-LOCK NO-ERROR.
+
+      job-hdr.opened = job.opened.
+
+        END.         
+    END. 
+    
+END PROCEDURE.
+
 
 PROCEDURE GetBlanknoForJob:
     /*------------------------------------------------------------------------------

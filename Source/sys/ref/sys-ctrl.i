@@ -101,7 +101,7 @@ ASSIGN
  str-init[16] = ",Net Shts"
  str-init[17] = ",Order#,YYMMSEQ#,PLine&Order#,Estimate#"
  str-init[18] = "FG BIN,SHIPTO,FIFO,ShipFromWhse"
- str-init[19] = "Manually,FGPost,OrdClose,TS"
+ str-init[19] = "Manually,FGPost,OrdClose,TS,DCPost"
  str-init[20] = "Nothing,Invoice,BOL,BOL/TAG,BOL/REL"
  str-init[21] = "JobFile,Vendor,Vendor/MSH"
  str-init[22] = "ASI,Triad,BarOne,SSBarOne,SSLabel,CentBox"
