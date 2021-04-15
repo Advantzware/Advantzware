@@ -203,7 +203,7 @@ DEFINE VARIABLE ld-tot-wt AS DECIMAL FORMAT ">>,>>9.99" INITIAL 0
      SIZE 12.8 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE ld-v1 AS DECIMAL FORMAT "->>>,>>9":U INITIAL 0 
+DEFINE VARIABLE ld-v1 AS DECIMAL FORMAT "->>>,>>9":U INITIAL 1 
      LABEL "Units" 
      VIEW-AS FILL-IN 
      SIZE 14 BY 1
@@ -508,6 +508,7 @@ DO:
     DISABLE TRIGGERS FOR LOAD OF loadtag.
   
     DO WITH FRAME {&frame-name}:
+        IF INTEGER(ld-v1:SCREEN-VALUE) EQ 0 THEN ld-v1:SCREEN-VALUE = "1".
         ASSIGN
             ld-v1 ld-v3 ld-v4 ld-v5 ld-v6 ld-v7 ld-v8 ld-v9 ld-v10 ld-v11
             ld-v2 = (ld-v1 * ld-v4) + ld-v11
@@ -690,9 +691,7 @@ DO:
     
                 ll-changed = NO.    
                 
-            END.
-
-            RUN fg/d-reqtys.w (ROWID(itemfg), NO).
+            END.             
         END.    
     END.
     
