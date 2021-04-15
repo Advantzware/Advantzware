@@ -741,7 +741,42 @@ MESSAGE "lv-test22 " + STRING(lv-text) + "    " + STRING(tt-formtext.tt-text) VI
                 i        = i + 1
                 v-shp[i] = trim(bf-shipto.ship-city) + ", " +
                            bf-shipto.ship-state + "  " + bf-shipto.ship-zip.
-          END.             
+          END.
+          
+          IF v-whs-ship-id EQ "WHSE" THEN
+          DO:          
+              FIND FIRST bf-shipto WHERE
+                          bf-shipto.company EQ cust.company AND
+                          bf-shipto.cust-no EQ cust.cust-no AND
+                          bf-shipto.ship-id EQ v-whs-ship-id
+                          NO-LOCK NO-ERROR.
+              IF AVAIL bf-shipto THEN
+              DO:             
+                assign
+                  i     = 0
+                  v-shp = ""  .
+            
+                 if bf-shipto.ship-name ne "" then
+                     assign
+                      i        = i + 1
+                      v-shp[i] = bf-shipto.ship-name.
+                        
+                   if bf-shipto.ship-addr[1] ne "" then
+                     assign
+                      i        = i + 1
+                      v-shp[i] = bf-shipto.ship-addr[1].
+                        
+                   if bf-shipto.ship-addr[2] ne "" then
+                     assign
+                      i        = i + 1
+                      v-shp[i] = bf-shipto.ship-addr[2].
+                   
+                   assign
+                    i        = i + 1
+                    v-shp[i] = trim(bf-shipto.ship-city) + ", " +
+                               bf-shipto.ship-state + "  " + bf-shipto.ship-zip.
+              END.
+          END.
         
         DISPLAY "<=7><C30><B> SHIP NOTES / COMMENTS </B>" AT 2
                 "<B>Shipping Info: </B><P10>" AT 79 SKIP
