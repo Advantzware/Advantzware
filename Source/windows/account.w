@@ -370,7 +370,7 @@ PROCEDURE adm-create-objects :
        RUN set-size IN h_account ( 17.52 , 110.00 ) NO-ERROR.
 
        /* Initialize other pages that this page requires. */
-       RUN init-pages IN THIS-PROCEDURE ('2,3':U) NO-ERROR.
+       RUN init-pages IN THIS-PROCEDURE ('2':U) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'viewers/export.w':U ,
