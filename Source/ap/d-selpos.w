@@ -56,6 +56,8 @@ DEF TEMP-TABLE tt-rec NO-UNDO
     FIELD rcpt-date LIKE fg-rcpth.trans-date LABEL "Receipt Date"
     FIELD r-no AS INT
     FIELD qty-rec AS DEC FORM "->>>,>>>,>>9.9<<"  LABEL "Qty Received"
+    FIELD qty-pur AS DECIMAL FORMAT "->>>,>>>,>>9.9<<"  LABEL "Qty Purchased"
+    FIELD qty-pur-uom AS CHARACTER
     FIELD qty-rec-uom AS CHAR
     FIELD qty-inv AS DEC FORM "->>>,>>>,>>9.9<<"  LABEL "Qty To Invoice"
     FIELD qty-inv-uom AS CHAR
@@ -101,7 +103,7 @@ END.
 &Scoped-define INTERNAL-TABLES tt-pol po-ordl tt-rec
 
 /* Definitions for BROWSE BROWSE-2                                      */
-&Scoped-define FIELDS-IN-QUERY-BROWSE-2 tt-rec.selekt tt-rec.qty-inv tt-rec.qty-inv-uom tt-rec.qty-rec tt-rec.qty-rec-uom tt-rec.rcpt-date po-ordl.line po-ordl.job-no po-ordl.job-no2 po-ordl.s-num po-ordl.i-no tt-rec.s-len po-ordl.s-wid tt-rec.po-date po-ordl.cost po-ordl.pr-uom po-ordl.t-cost po-ordl.i-name   
+&Scoped-define FIELDS-IN-QUERY-BROWSE-2 tt-rec.selekt tt-rec.qty-inv tt-rec.qty-inv-uom tt-rec.qty-rec tt-rec.qty-rec-uom tt-rec.qty-pur tt-rec.qty-pur-uom tt-rec.rcpt-date po-ordl.line po-ordl.job-no po-ordl.job-no2 po-ordl.s-num po-ordl.i-no tt-rec.s-len po-ordl.s-wid tt-rec.po-date po-ordl.cost po-ordl.pr-uom po-ordl.t-cost po-ordl.i-name   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-2 tt-rec.selekt tt-rec.qty-inv   
 &Scoped-define ENABLED-TABLES-IN-QUERY-BROWSE-2 tt-rec
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-BROWSE-2 tt-rec
@@ -123,8 +125,7 @@ END.
     ~{&OPEN-QUERY-BROWSE-2}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS BROWSE-2 rd_qty Btn_OK Btn_Cancel 
-&Scoped-Define DISPLAYED-OBJECTS rd_qty 
+&Scoped-Define ENABLED-OBJECTS BROWSE-2 Btn_OK Btn_Cancel 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -140,21 +141,16 @@ END.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON Btn_Cancel AUTO-END-KEY 
+     IMAGE-UP FILE "Graphics/32x32/exit_white.png":U
      LABEL "Cancel" 
-     SIZE 15 BY 1.14
+     SIZE 8 BY 1.91
      BGCOLOR 8 .
 
 DEFINE BUTTON Btn_OK AUTO-GO 
+     IMAGE-UP FILE "Graphics/32x32/navigate_check.png":U
      LABEL "OK" 
-     SIZE 15 BY 1.14
+     SIZE 8 BY 1.91
      BGCOLOR 8 .
-
-DEFINE VARIABLE rd_qty AS INTEGER 
-     VIEW-AS RADIO-SET HORIZONTAL
-     RADIO-BUTTONS 
-          "Purchased Qty", 1,
-"Receipt Qty", 2
-     SIZE 58 BY .95 NO-UNDO.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -171,8 +167,10 @@ DEFINE BROWSE BROWSE-2
       tt-rec.selekt
      tt-rec.qty-inv   LABEL "Qty To Invoice" 
      tt-rec.qty-inv-uom LABEL "U/M" FORMAT "X(4)"
-     tt-rec.qty-rec
+     tt-rec.qty-rec     LABEL "Qty Received"
      tt-rec.qty-rec-uom LABEL "U/M" FORMAT "X(4)"
+     tt-rec.qty-pur     LABEL "Qty Purchased"
+     tt-rec.qty-pur-uom LABEL "U/M" FORMAT "X(4)"
      tt-rec.rcpt-date
      po-ordl.line
      po-ordl.job-no
@@ -189,20 +187,20 @@ DEFINE BROWSE BROWSE-2
      ENABLE tt-rec.selekt tt-rec.qty-inv
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 135 BY 12.38
-         BGCOLOR 8  ROW-HEIGHT-CHARS .52 FIT-LAST-COLUMN.
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 136 BY 12.38
+         BGCOLOR 15  ROW-HEIGHT-CHARS .52 FIT-LAST-COLUMN.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME D-Dialog
-     BROWSE-2 AT ROW 1.24 COL 2
-     rd_qty AT ROW 13.86 COL 2 NO-LABEL WIDGET-ID 2
-     Btn_OK AT ROW 15.48 COL 41
-     Btn_Cancel AT ROW 15.48 COL 84
-     SPACE(38.19) SKIP(0.47)
+     BROWSE-2 AT ROW 1 COL 1
+     Btn_OK AT ROW 13.57 COL 120
+     Btn_Cancel AT ROW 13.57 COL 128.8
+     SPACE(0.19) SKIP(0.08)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
+         BGCOLOR 21 
          TITLE "Select Items for PO:"
          CANCEL-BUTTON Btn_Cancel.
 
@@ -270,6 +268,29 @@ OPEN QUERY {&SELF-NAME} FOR EACH tt-pol ,
 
 
 /* ************************  Control Triggers  ************************ */
+
+&Scoped-define BROWSE-NAME BROWSE-2
+&Scoped-define SELF-NAME BROWSE-2
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-2 D-Dialog
+ON START-SEARCH OF BROWSE-2 IN FRAME D-Dialog
+DO: 
+                {methods/template/sortindicator.i} 
+        IF SELF:CURRENT-COLUMN:NAME EQ "selekt" THEN 
+        DO:
+            lReTrigger = NOT lReTrigger.
+        
+            FOR EACH tt-rec:
+                tt-rec.selekt = lReTrigger.
+            END.
+
+            {&OPEN-QUERY-BROWSE-2}
+        END.
+                {methods/template/sortindicatorend.i}           
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME Btn_OK
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_OK D-Dialog
@@ -343,41 +364,6 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME rd_qty
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd_qty D-Dialog
-ON VALUE-CHANGED OF rd_qty IN FRAME D-Dialog
-DO:
-    ASSIGN {&SELF-NAME}.
-
-    RUN build-table.
-
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-2 D-Dialog
-ON START-SEARCH OF BROWSE-2 IN FRAME D-Dialog
-    DO: 
-		{methods/template/sortindicator.i} 
-        IF SELF:CURRENT-COLUMN:NAME EQ "selekt" THEN 
-        DO:
-            lReTrigger = NOT lReTrigger.
-        
-            FOR EACH tt-rec:
-                tt-rec.selekt = lReTrigger.
-            END.
-
-            {&OPEN-QUERY-BROWSE-2}
-        END.
-		{methods/template/sortindicatorend.i}		
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define BROWSE-NAME BROWSE-2
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK D-Dialog 
@@ -399,13 +385,6 @@ END.
 /* ***************************  Main Block  *************************** */
 DO WITH FRAME {&FRAME-NAME}:
  {custom/usrprint.i}
- APPLY 'ENTRY' TO rd_qty.  
-
-IF rd_qty:SCREEN-VALUE EQ ? THEN
-   rd_qty:SCREEN-VALUE = "1".
-
-ASSIGN rd_qty = INT(rd_qty:SCREEN-VALUE).
-
 FIND ap-inv WHERE RECID(ap-inv) EQ ip-ap-recid NO-LOCK NO-ERROR.
 IF NOT AVAIL ap-inv THEN RETURN.
 
@@ -520,13 +499,6 @@ FOR EACH tt-pol,
           po-ord.company EQ po-ordl.company AND
           po-ord.po-no EQ po-ordl.po-no NO-LOCK:
 
-  /* gdm - 05200908 */
-  IF rd_qty EQ 1 THEN 
-     ASSIGN tt-rec.qty-rec:LABEL IN BROWSE {&BROWSE-NAME} = "Purchased Qty".
-  ELSE 
-     ASSIGN  tt-rec.qty-rec:LABEL IN BROWSE {&BROWSE-NAME} = "Qty Received".
-  /* gdm - 05200908 end */
-
   IF po-ordl.item-type THEN DO:
     ASSIGN
      v-bwt = 0
@@ -561,19 +533,19 @@ FOR EACH tt-pol,
        IF v-qty GT 0 THEN DO:
           CREATE tt-rec.
           ASSIGN
-          tt-rec.rec-id     = ?
-          tt-rec.selekt     = NO
-          tt-rec.po-date = po-ord.po-date
-          tt-rec.r-no       = 0
-          tt-rec.qty-rec    = IF rd_qty EQ 1 THEN v-qty
-                              ELSE po-ordl.t-rec-qty
-          tt-rec.qty-rec-uom = IF rd_qty EQ 1 THEN po-ordl.cons-uom
-                               ELSE ITEM.cons-uom
-          tt-rec.qty-inv    = IF rd_qty EQ 1 THEN v-qty
-                              ELSE po-ordl.t-rec-qty
-          tt-rec.qty-inv-uom = po-ordl.pr-qty-uom
-          tt-rec.row-id     = ROWID(tt-pol).
-                   
+              tt-rec.rec-id      = ?
+              tt-rec.selekt      = NO
+              tt-rec.po-date     = po-ord.po-date
+              tt-rec.r-no        = 0
+              tt-rec.qty-rec     = po-ordl.t-rec-qty
+              tt-rec.qty-pur     = v-qty
+              tt-rec.qty-pur-uom = po-ordl.pr-qty-uom
+              tt-rec.qty-rec-uom = item.cons-uom
+              tt-rec.qty-inv     = v-qty
+              tt-rec.qty-inv-uom = po-ordl.pr-qty-uom
+              tt-rec.row-id      = ROWID(tt-pol)
+              .
+
           FIND FIRST rm-rcpth WHERE
               rm-rcpth.company   EQ cocode AND
               rm-rcpth.i-no      EQ po-ordl.i-no AND
@@ -592,7 +564,6 @@ FOR EACH tt-pol,
         WHERE rm-rcpth.company   EQ cocode
           AND rm-rcpth.i-no      EQ po-ordl.i-no
           AND rm-rcpth.po-no     EQ TRIM(STRING(po-ordl.po-no,">>>>>>>>>>"))
-          AND rm-rcpth.po-line   EQ po-ordl.LINE
           AND rm-rcpth.job-no    EQ po-ordl.job-no
           AND rm-rcpth.job-no2   EQ po-ordl.job-no2
           AND rm-rcpth.rita-code EQ "R"
@@ -631,18 +602,16 @@ FOR EACH tt-pol,
        lv-uom = appaper-chr.
 
      ASSIGN
-        v-rec-qty = rm-rdtlh.qty
-        v-qty = rm-rdtlh.qty.
-
-      IF rd_qty EQ 1 THEN
-      DO:
-         v-pur-qty = po-ordl.cons-qty.
+         v-rec-qty = rm-rdtlh.qty
+         v-qty     = rm-rdtlh.qty
+         v-pur-qty = po-ordl.cons-qty
+         .
       
-         IF po-ordl.cons-uom NE lv-uom THEN
-            RUN sys/ref/convquom.p (po-ordl.cons-uom, lv-uom,
-                                    v-bwt, v-len, v-wid, v-dep,
-                                    v-pur-qty, OUTPUT v-pur-qty).
-      END.
+     IF po-ordl.cons-uom NE lv-uom THEN
+        RUN sys/ref/convquom.p (po-ordl.cons-uom, lv-uom,
+                                v-bwt, v-len, v-wid, v-dep,
+                                v-pur-qty, OUTPUT v-pur-qty).
+
 
       IF rm-rcpth.pur-uom NE lv-uom THEN DO:
          RUN sys/ref/convquom.p (rm-rcpth.pur-uom, lv-uom,
@@ -672,22 +641,20 @@ FOR EACH tt-pol,
       IF NOT CAN-FIND(FIRST tt-rec WHERE tt-rec.rec-id EQ RECID(rm-rcpth) ) THEN DO:
           CREATE tt-rec.
           ASSIGN
-           tt-rec.rec-id     = RECID(rm-rcpth)
-           tt-rec.selekt     = SUBSTR(rm-rdtlh.receiver-no,1,10) EQ
-                               STRING(ap-inv.i-no,"9999999999")
-           tt-rec.po-date   = po-ord.po-date
-           tt-rec.rcpt-date = rm-rcpth.trans-date
-           tt-rec.r-no       = rm-rcpth.r-no
+           tt-rec.rec-id      = RECID(rm-rcpth)            
+           tt-rec.po-date     = po-ord.po-date
+           tt-rec.rcpt-date   = rm-rcpth.trans-date
+           tt-rec.r-no        = rm-rcpth.r-no
            /* gdm - 05200908  */ 
-           tt-rec.qty-rec    = IF rd_qty EQ 1 THEN v-pur-qty
-                                              ELSE v-rec-qty
-           tt-rec.qty-rec-uom = IF rd_qty EQ 1 THEN lv-uom
-                                ELSE rm-rcpth.pur-uom
-           tt-rec.qty-inv    =  v-qty - dQuantityInvoiced
+           tt-rec.qty-rec     = v-rec-qty
+           tt-rec.qty-pur     = v-pur-qty
+           tt-rec.qty-pur-uom = lv-uom
+           tt-rec.qty-rec-uom = rm-rcpth.pur-uom
+           tt-rec.qty-inv     =  v-qty - dQuantityInvoiced
            tt-rec.qty-inv-uom = lv-uom
            /* gdm - 05200908 end */ 
-           tt-rec.s-len      = v-len
-           tt-rec.row-id     = ROWID(tt-pol).
+           tt-rec.s-len        = v-len
+           tt-rec.row-id       = ROWID(tt-pol).
        END.
     END.
   END.
@@ -697,7 +664,6 @@ FOR EACH tt-pol,
       WHERE fg-rcpth.company   EQ cocode
         AND fg-rcpth.i-no      EQ po-ordl.i-no
         AND fg-rcpth.po-no     EQ TRIM(STRING(po-ordl.po-no,">>>>>>>>>>"))
-        AND fg-rcpth.po-line   EQ po-ordl.LINE
         AND fg-rcpth.rita-code EQ "R"
       USE-INDEX item-po NO-LOCK,
 
@@ -720,9 +686,7 @@ FOR EACH tt-pol,
         
         CREATE tt-rec.
         ASSIGN
-         tt-rec.rec-id     = RECID(fg-rcpth)
-         tt-rec.selekt     = SUBSTR(fg-rdtlh.receiver-no,1,10) EQ
-                             STRING(ap-inv.i-no,"9999999999")
+         tt-rec.rec-id     = RECID(fg-rcpth)          
          tt-rec.po-date   = po-ord.po-date
          tt-rec.rcpt-date = fg-rcpth.trans-date
          tt-rec.r-no       = fg-rcpth.r-no
@@ -730,8 +694,10 @@ FOR EACH tt-pol,
          tt-rec.qty-inv    = fg-rdtlh.qty - dQuantityInvoiced
          tt-rec.s-len      = IF po-ordl.pr-qty-uom EQ "ROLL" THEN 12 ELSE po-ordl.s-len
          tt-rec.qty-rec-uom = po-ordl.cons-uom
-         tt-rec.qty-inv-uom = po-ordl.pr-qty-uom                       
-         tt-rec.row-id      = ROWID(tt-pol).  
+         tt-rec.qty-inv-uom = po-ordl.pr-qty-uom    
+         tt-rec.qty-pur     = po-ordl.cons-qty
+         tt-rec.qty-pur-uom = po-ordl.pr-qty-uom
+         tt-rec.row-id     = ROWID(tt-pol).
     END.
   END.
 
@@ -796,9 +762,7 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY rd_qty 
-      WITH FRAME D-Dialog.
-  ENABLE BROWSE-2 rd_qty Btn_OK Btn_Cancel 
+  ENABLE BROWSE-2 Btn_OK Btn_Cancel 
       WITH FRAME D-Dialog.
   VIEW FRAME D-Dialog.
   {&OPEN-BROWSERS-IN-QUERY-D-Dialog}
@@ -807,9 +771,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy D-Dialog
-PROCEDURE local-destroy:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy D-Dialog 
+PROCEDURE local-destroy :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -824,11 +787,9 @@ PROCEDURE local-destroy:
     /* Code placed here will execute AFTER standard behavior.    */
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-initialize D-Dialog 
 PROCEDURE local-initialize :
