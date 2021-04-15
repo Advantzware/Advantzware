@@ -776,7 +776,7 @@ DO v-local-loop = 1 TO v-local-copies:
         PAGE.
 
         ASSIGN
-                FILE-INFO:FILE-NAME = "Images\quality-check.jpg" .
+                FILE-INFO:FILE-NAME = ".\custfiles\Images\quality-check.jpg" .
         
         PUT UNFORMATTED "<=#1><R+1><C160>"
                         "<#71><C10><R+42>"
