@@ -51,6 +51,8 @@ DEFINE VARIABLE gcParentProgram   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lSuccess             AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage             AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lAPIOutboundTestMode AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cRequestFile         AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cResponseFile        AS CHARACTER NO-UNDO.
 DEFINE VARIABLE scInstance           AS CLASS System.SharedConfig NO-UNDO. 
 DEFINE VARIABLE hdFTPProcs AS HANDLE    NO-UNDO.
 
@@ -157,20 +159,33 @@ IF glSaveFile THEN DO:
         .
 
     ASSIGN
-        gcResponseFile = gcRequestFile + "\"      /* Save Folder */
-                       + gcAPIID       + "_"      /* API ID    */
+        cResponseFile  = gcAPIID       + "_"      /* API ID    */
                        + gcClientID    + "_"      /* Client ID */
                        + ipcPrimaryID  + "_"      /* i.e. GET, POST, PUT? */
                        + gcDateTime               /* Date and Time */
                        + "." + "log"
-        gcRequestFile  = gcRequestFile + "\"      /* Save Folder */
-                       + gcAPIID       + "_"      /* API ID    */
+        cRequestFile   = gcAPIID       + "_"      /* API ID    */
                        + gcClientID    + "_"      /* Client ID */
                        + ipcPrimaryID  + "_"      /* i.e. GET, POST, PUT? */
                        + gcDateTime               /* Date and Time */
                        + "." + lc(gcRequestDataType). /* File Extentions */
         .
 
+    RUN FileSys_FileNameCleanup (
+        INPUT-OUTPUT cResponseFile
+        ).
+
+    RUN FileSys_FileNameCleanup (
+        INPUT-OUTPUT cRequestFile
+        ).
+
+    ASSIGN
+        gcResponseFile = gcRequestFile + "\"      /* Save Folder */
+                       + cResponseFile
+        gcRequestFile  = gcRequestFile + "\"      /* Save Folder */
+                       + cRequestFile
+        .
+        
     COPY-LOB iplcRequestData TO FILE gcRequestFile.
     OS-COPY VALUE (gcRequestFile) VALUE (gcSaveFileFolder).    
 END.
