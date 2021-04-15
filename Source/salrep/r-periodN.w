@@ -1404,7 +1404,8 @@ DEFINE VARIABLE dPerAmt AS DECIMAL FORMAT "99.99" NO-UNDO.
 DEF VAR ld-inv-pct AS DEC NO-UNDO.
 DEF VAR ld-amt-msf AS DEC NO-UNDO.
 DEF VAR ld-wgt-msf AS DEC NO-UNDO.
-DEF VAR dtFirstInvDate AS DATE NO-UNDO.
+DEF VAR dtFirstInvDate      AS DATE NO-UNDO.
+DEF VAR dtCheckFirstInvDate AS DATE NO-UNDO.
 
 def buffer xar-inv for ar-inv.
 DEF BUFFER b-ar-invl FOR ar-invl.

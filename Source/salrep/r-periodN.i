@@ -40,6 +40,7 @@
   END.
   
   if slct-by-inv then do:
+    MAIN-LOOP:
     for each ar-inv
         where ar-inv.company  eq cocode
           and ar-inv.posted   eq yes
@@ -58,15 +59,19 @@
           and (ar-invl.billable or not ar-invl.misc)
         no-lock:
         
-        FIND FIRST bf-ar-inv NO-LOCK
+        FOR EACH bf-ar-inv NO-LOCK
             WHERE bf-ar-inv.company  EQ cocode
-            AND bf-ar-inv.cust-no    EQ cust.cust-no NO-ERROR.
+            AND bf-ar-inv.cust-no    EQ cust.cust-no BY bf-ar-inv.inv-date:
             
-            IF AVAILABLE bf-ar-inv AND tb_firstinvdate THEN DO:
-                IF NOT (bf-ar-inv.inv-date GE ld[1]
-                AND bf-ar-inv.inv-date     LE ld[3]) THEN NEXT.
-                
-            END.
+            ASSIGN dtCheckFirstInvDate = bf-ar-inv.inv-date .
+        LEAVE.
+        END.
+            
+        IF tb_firstinvdate THEN DO:
+            IF NOT (dtCheckFirstInvDate GE ld[1]
+            AND dtCheckFirstInvDate     LE ld[3]) THEN NEXT MAIN-LOOP.
+            
+        END.
             
           
       do i = 1 to 3:
@@ -108,15 +113,6 @@
                          AND account.actnum  EQ ar-cashl.actnum
                          AND account.type    EQ "R")
         NO-LOCK:
-        
-        FIND FIRST bf-ar-cash NO-LOCK
-            WHERE bf-ar-cash.company  EQ cocode
-            AND bf-ar-cash.cust-no    EQ cust.cust-no NO-ERROR.
-            
-            IF AVAILABLE bf-ar-cash AND tb_firstinvdate THEN DO:
-                IF NOT (bf-ar-cash.check-date GE ld[1]
-                AND bf-ar-cash.check-date     LE ld[3]) THEN NEXT.
-            END.
 
       RELEASE tt-report.
       RELEASE ar-invl.
@@ -183,6 +179,7 @@
   end.
 
   else do:
+    MAIN-LOOP:
     for each cust where cust.company eq cocode no-lock:
       for each ar-inv
           where ar-inv.company  eq cocode
@@ -204,14 +201,19 @@
             and (ar-invl.billable or not ar-invl.misc)
           no-lock:
           
-        FIND FIRST bf-ar-inv NO-LOCK
+        FOR EACH bf-ar-inv NO-LOCK
             WHERE bf-ar-inv.company  EQ cocode
-            AND bf-ar-inv.cust-no    EQ cust.cust-no NO-ERROR.
+            AND bf-ar-inv.cust-no    EQ cust.cust-no BY bf-ar-inv.inv-date:
             
-            IF AVAILABLE bf-ar-inv AND tb_firstinvdate THEN DO:
-                IF NOT (bf-ar-inv.inv-date GE ld[1]
-                AND bf-ar-inv.inv-date     LE ld[3]) THEN NEXT.
-            END.  
+            ASSIGN dtCheckFirstInvDate = bf-ar-inv.inv-date .
+        LEAVE.
+        END.
+            
+        IF tb_firstinvdate THEN DO:
+            IF NOT (dtCheckFirstInvDate GE ld[1]
+            AND dtCheckFirstInvDate     LE ld[3]) THEN NEXT MAIN-LOOP.
+            
+        END.  
                 
         do i = 1 to 3:
           v-sman-no = if ar-invl.sman[i] eq "" and i eq 1 then cust.sman
@@ -258,15 +260,6 @@
                            AND account.actnum  EQ ar-cashl.actnum
                            AND account.type    EQ "R")
           NO-LOCK:
-          
-          FIND FIRST bf-ar-cash NO-LOCK
-            WHERE bf-ar-cash.company  EQ cocode
-            AND bf-ar-cash.cust-no    EQ cust.cust-no NO-ERROR.
-            
-            IF AVAILABLE bf-ar-cash AND tb_firstinvdate THEN DO:
-                IF NOT (bf-ar-cash.check-date GE ld[1]
-                AND bf-ar-cash.check-date     LE ld[3]) THEN NEXT.
-            END.
 
         RELEASE tt-report.
         RELEASE ar-invl.
@@ -400,17 +393,17 @@
        w-inv.pst-date = if avail ar-ledger then ar-ledger.tr-date
                         else ar-inv.inv-date.
                         
-      FIND FIRST bf-ar-inv NO-LOCK
+      FOR EACH bf-ar-inv NO-LOCK
             WHERE bf-ar-inv.company  EQ cocode
-            AND bf-ar-inv.cust-no    EQ cust.cust-no NO-ERROR.
-      IF AVAILABLE bf-ar-inv THEN DO:
+            AND bf-ar-inv.cust-no    EQ cust.cust-no BY bf-ar-inv.inv-date:
         ASSIGN dtFirstInvDate = bf-ar-inv.inv-date .
-        
+      LEAVE.
+      END.  
         IF tb_firstinvdate THEN
               ASSIGN w-inv.firstInvDate = dtFirstInvDate .
         ELSE 
               ASSIGN w-inv.firstInvDate = ar-inv.inv-date .
-      END.  
+        
        
 
 
@@ -488,18 +481,6 @@
        w-inv.pst-date = if avail ar-ledger then ar-ledger.tr-date
                         else ar-cash.check-date.
 
-      FIND FIRST bf-ar-cash NO-LOCK
-            WHERE bf-ar-cash.company  EQ cocode
-            AND bf-ar-cash.cust-no    EQ ar-cash.cust-no NO-ERROR.
-            
-      IF AVAILABLE bf-ar-cash THEN DO:
-        ASSIGN dtFirstInvDate     = bf-ar-cash.check-date . 
-        IF tb_firstinvdate THEN
-              ASSIGN w-inv.firstInvDate = dtFirstInvDate .
-        ELSE 
-              ASSIGN w-inv.firstInvDate = ar-cash.check-date .  
-      END.
-      
       assign
        v-amt  = ar-cashl.amt-paid - ar-cashl.amt-disc
        v-sqft = 0
