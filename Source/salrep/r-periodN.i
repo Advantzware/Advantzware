@@ -91,6 +91,7 @@
          tt-report.key-10   = "ar-invl"
          tt-report.rec-id   = recid(ar-invl)
          tt-report.ytd-only = ar-inv.inv-date LT ld[2].
+         LEAVE.
       end.
     end.
 
@@ -159,6 +160,7 @@
            tt-report.rec-id   = recid(ar-cashl)
            tt-report.row-id   = ROWID(b-ar-invl)
            tt-report.ytd-only = ar-cash.check-date LT ld[2].
+           LEAVE.
         end.
       END.
 
@@ -232,6 +234,7 @@
            tt-report.key-10   = "ar-invl"
            tt-report.rec-id   = recid(ar-invl)
            tt-report.ytd-only = ar-ledger.tr-date LT ld[2].
+           LEAVE.
         end.
       end.
 
@@ -306,6 +309,7 @@
              tt-report.rec-id   = recid(ar-cashl)
              tt-report.row-id   = ROWID(b-ar-invl)
              tt-report.ytd-only = ar-ledger.tr-date LT ld[2].
+             LEAVE.
           end.
         END.
 
@@ -392,7 +396,7 @@
        w-inv.inv-date = ar-inv.inv-date
        w-inv.pst-date = if avail ar-ledger then ar-ledger.tr-date
                         else ar-inv.inv-date.
-                        
+      
       FOR EACH bf-ar-inv NO-LOCK
             WHERE bf-ar-inv.company  EQ cocode
             AND bf-ar-inv.cust-no    EQ cust.cust-no BY bf-ar-inv.inv-date:
@@ -403,9 +407,6 @@
               ASSIGN w-inv.firstInvDate = dtFirstInvDate .
         ELSE 
               ASSIGN w-inv.firstInvDate = ar-inv.inv-date .
-        
-       
-
 
       find first itemfg
           where itemfg.company eq cocode
@@ -481,6 +482,18 @@
        w-inv.pst-date = if avail ar-ledger then ar-ledger.tr-date
                         else ar-cash.check-date.
 
+      FOR EACH bf-ar-cash NO-LOCK
+            WHERE bf-ar-cash.company  EQ cocode
+            AND bf-ar-cash.cust-no    EQ ar-cash.cust-no:
+        ASSIGN dtFirstInvDate     = bf-ar-cash.check-date . 
+      LEAVE.
+      END.
+        
+        IF tb_firstinvdate THEN
+              ASSIGN w-inv.firstInvDate = dtFirstInvDate .
+        ELSE 
+              ASSIGN w-inv.firstInvDate = ar-cash.check-date .  
+                        
       assign
        v-amt  = ar-cashl.amt-paid - ar-cashl.amt-disc
        v-sqft = 0
