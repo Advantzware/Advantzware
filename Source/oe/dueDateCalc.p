@@ -112,7 +112,7 @@ FUNCTION get-date RETURNS DATE
           ELSE
             ctr = ctr - 1.       
           
-          IF oeDateAuto-chr NE "Colonial" AND ( WEEKDAY(last-date) EQ 1 OR WEEKDAY(last-date) EQ 7 ) THEN NEXT.         
+          IF WEEKDAY(last-date) EQ 1 OR WEEKDAY(last-date) EQ 7 THEN NEXT.     
           IF CAN-FIND(FIRST reftable WHERE reftable.reftable EQ "Holiday" AND DATE(reftable.loc) EQ last-date) THEN
               NEXT.
               
