@@ -201,14 +201,27 @@ DEFINE        VARIABLE cJobMachRunQty   AS CHARACTER NO-UNDO.
 DEFINE        VARIABLE cCycleValue      AS CHARACTER NO-UNDO.
 DEFINE        VARIABLE cTotalCount      AS CHARACTER NO-UNDO.
 DEFINE        VARIABLE cExpectedPallets AS CHARACTER NO-UNDO.
+DEFINE        VARIABLE cEstRecKey       AS CHARACTER NO-UNDO.
 
 {cec/msfcalc.i}
 DEFINE BUFFER bf-eb     FOR eb.
 DEFINE BUFFER bf-jobhdr FOR job-hdr.
 v-fill = FILL("=",132).
 
+
+
+/* ************************  Function Prototypes ********************** */
+
+FUNCTION fGetKeyItemEstimateRecKey RETURNS CHARACTER PRIVATE
+	(ipcCompany AS CHARACTER,
+	 ipcJobID AS CHARACTER,
+	 ipcJobID2 AS INTEGER) FORWARD.
+
 FUNCTION fGetMiscFields RETURNS CHARACTER
   (iRecKey AS CHARACTER,iId AS CHARACTER)  FORWARD.
+
+FUNCTION fHasMiscFields RETURNS LOGICAL PRIVATE
+	(ipcRecKey AS CHARACTER) FORWARD.
             
 DEFINE NEW SHARED FRAME head.
 
@@ -558,13 +571,21 @@ FOR EACH ef
                 "<#3><R-10><C+42><RECT#3><|3>"
                 "<#4><R+10><C+27><RECT#4><|3>" SKIP.
             
+            IF fHasMiscFields(est.rec_key) THEN 
+                cEstRecKey = est.rec_key.
+            ELSE DO:
+                cEstRecKey = fGetKeyItemEstimateRecKey(job-hdr.company, job-hdr.job-no, job-hdr.job-no2).
+                IF cEstRecKey EQ "" THEN 
+                    cEstRecKey = est.rec_key.
+            END.
+            
             PUT "<=#2> <C3>" cFurnish FORMAT "x(18)"  cBoardDscr  FORMAT "x(40)" SKIP
-                "<C3>" cMoldTime    FORMAT "x(20)"    "<C15><B>" STRING(fGetMiscFields(est.rec_key,"00008")) "</B>"    "<C21>" cConsistency FORMAT "x(25)" "<C37><B>" STRING(fGetMiscFields(est.rec_key,"00007")) "</B>" SKIP
-                "<C3>" cPreAgitate  FORMAT "x(20)"    "<C15><B>" STRING(fGetMiscFields(est.rec_key,"00009")) "</B>"    "<C21>" cDryTime     FORMAT "x(25)" "<C37><B>" STRING(fGetMiscFields(est.rec_key,"00014")) "</B>" SKIP
-                "<C3>" cUpAgitate   FORMAT "x(20)"    "<C15><B>" STRING(fGetMiscFields(est.rec_key,"00010")) "</B>"    "<C21>" cBeltSpeed   FORMAT "x(25)" "<C37><B>" STRING(fGetMiscFields(est.rec_key,"00015")) "</B>" SKIP
-                "<C3>" cDownAgitate FORMAT "x(20)"    "<C15><B>" STRING(fGetMiscFields(est.rec_key,"00011")) "</B>"    "<C21>" cOvenTemp1   FORMAT "x(25)" "<C37><B>" STRING(fGetMiscFields(est.rec_key,"00016")) "</B>" SKIP
-                "<C3>" cAgitation   FORMAT "x(20)"    "<C15><B>" STRING(fGetMiscFields(est.rec_key,"00012")) "</B>"    "<C21>" cOvenTemp2   FORMAT "x(25)" "<C37><B>" STRING(fGetMiscFields(est.rec_key,"00017")) "</B>" SKIP
-                "<C3>" cDelay       FORMAT "x(20)"    "<C15><B>" STRING(fGetMiscFields(est.rec_key,"00013")) "</B>"    "<C21>" cOvenTemp3   FORMAT "x(25)" "<C37><B>" STRING(fGetMiscFields(est.rec_key,"00018")) "</B>" SKIP
+                "<C3>" cMoldTime    FORMAT "x(20)"    "<C15><B>" STRING(fGetMiscFields(cEstRecKey,"00008")) "</B>"    "<C21>" cConsistency FORMAT "x(25)" "<C37><B>" STRING(fGetMiscFields(cEstRecKey,"00007")) "</B>" SKIP
+                "<C3>" cPreAgitate  FORMAT "x(20)"    "<C15><B>" STRING(fGetMiscFields(cEstRecKey,"00009")) "</B>"    "<C21>" cDryTime     FORMAT "x(25)" "<C37><B>" STRING(fGetMiscFields(cEstRecKey,"00014")) "</B>" SKIP
+                "<C3>" cUpAgitate   FORMAT "x(20)"    "<C15><B>" STRING(fGetMiscFields(cEstRecKey,"00010")) "</B>"    "<C21>" cBeltSpeed   FORMAT "x(25)" "<C37><B>" STRING(fGetMiscFields(cEstRecKey,"00015")) "</B>" SKIP
+                "<C3>" cDownAgitate FORMAT "x(20)"    "<C15><B>" STRING(fGetMiscFields(cEstRecKey,"00011")) "</B>"    "<C21>" cOvenTemp1   FORMAT "x(25)" "<C37><B>" STRING(fGetMiscFields(cEstRecKey,"00016")) "</B>" SKIP
+                "<C3>" cAgitation   FORMAT "x(20)"    "<C15><B>" STRING(fGetMiscFields(cEstRecKey,"00012")) "</B>"    "<C21>" cOvenTemp2   FORMAT "x(25)" "<C37><B>" STRING(fGetMiscFields(cEstRecKey,"00017")) "</B>" SKIP
+                "<C3>" cDelay       FORMAT "x(20)"    "<C15><B>" STRING(fGetMiscFields(cEstRecKey,"00013")) "</B>"    "<C21>" cOvenTemp3   FORMAT "x(25)" "<C37><B>" STRING(fGetMiscFields(cEstRecKey,"00018")) "</B>" SKIP
                 .
    
             PUT "<=#3><R-10> <C41.3><B>" cItemList FORMAT "x(30)"  "</b> "  SKIP
@@ -1129,6 +1150,50 @@ END PROCEDURE.
     
 IF v-format EQ "Fibre" THEN PAGE.
 
+
+
+/* ************************  Function Implementations ***************** */
+
+FUNCTION fGetKeyItemEstimateRecKey RETURNS CHARACTER PRIVATE
+	(ipcCompany AS CHARACTER, ipcJobID AS CHARACTER, ipcJobID2 AS INTEGER) :
+/*------------------------------------------------------------------------------
+ Purpose:  Given a job, return the rec_key for the key item's estimate
+ Notes:
+------------------------------------------------------------------------------*/	
+    DEFINE VARIABLE cKeyItemEstimateRecKey AS CHARACTER NO-UNDO.
+    DEFINE BUFFER bf-job-hdr FOR job-hdr.
+    DEFINE BUFFER bf-itemfg FOR itemfg.
+    DEFINE BUFFER bf-est FOR est.
+    
+    FIND FIRST bf-job-hdr NO-LOCK
+        WHERE bf-job-hdr.company EQ ipcCompany
+        AND bf-job-hdr.job-no EQ ipcJobID
+        AND bf-job-hdr.job-no2 EQ ipcJobID2
+        AND bf-job-hdr.keyItem EQ YES
+        NO-ERROR.
+    IF NOT AVAILABLE bf-job-hdr THEN 
+        FIND FIRST bf-job-hdr NO-LOCK 
+            WHERE bf-job-hdr.company EQ ipcCompany
+            AND bf-job-hdr.job-no EQ ipcJobID
+            AND bf-job-hdr.job-no2 EQ ipcJobID2
+            NO-ERROR.     
+    IF AVAILABLE bf-job-hdr THEN 
+        FIND FIRST bf-itemfg NO-LOCK 
+            WHERE bf-itemfg.company EQ bf-job-hdr.company
+            AND bf-itemfg.i-no EQ bf-job-hdr.i-no
+            NO-ERROR.
+    IF AVAILABLE bf-itemfg AND bf-itemfg.est-no NE "" THEN 
+        FIND FIRST bf-est NO-LOCK 
+            WHERE bf-est.company EQ ipcCompany
+            AND bf-est.est-no EQ bf-itemfg.est-no
+            NO-ERROR.
+    IF AVAILABLE est THEN 
+        cKeyItemEstimateRecKey = bf-est.rec_key.
+     
+    RETURN cKeyItemEstimateRecKey.
+    	
+END FUNCTION.
+
 FUNCTION fGetMiscFields RETURNS CHARACTER
   (iRecKey AS CHARACTER,iId AS CHARACTER) :
 /*------------------------------------------------------------------------------
@@ -1146,6 +1211,18 @@ FUNCTION fGetMiscFields RETURNS CHARACTER
         ELSE 
             RETURN "".
    
+END FUNCTION.
+
+FUNCTION fHasMiscFields RETURNS LOGICAL PRIVATE
+	(ipcRecKey AS CHARACTER):
+/*------------------------------------------------------------------------------
+ Purpose:  Given a rec_key - determine if there are misc fields assigned to it
+ Notes:
+------------------------------------------------------------------------------*/	
+
+    RETURN CAN-FIND(FIRST mfvalues WHERE mfvalues.rec_key EQ ipcRecKey).
+
+		
 END FUNCTION.
 
 /* end ---------------------------------- copr. 1994  advanced software, inc. */
