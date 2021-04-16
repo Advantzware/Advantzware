@@ -69,12 +69,25 @@ DEF VAR iColumnLength AS INT NO-UNDO.
 DEF BUFFER b-itemfg FOR itemfg .
 DEF VAR cTextListToDefault AS cha NO-UNDO.
 
+DEFINE VARIABLE lRecFound           AS LOGICAL          NO-UNDO.
+DEFINE VARIABLE lAPInvoiceLength    AS LOGICAL          NO-UNDO.
+DEFINE VARIABLE cNK1Value           AS CHARACTER        NO-UNDO.
+
+RUN sys/ref/nk1look.p (INPUT cocode, "APInvoiceLength", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cNK1Value, OUTPUT lRecFound).
+IF lRecFound THEN
+    lAPInvoiceLength = logical(cNK1Value) NO-ERROR.
+
 
 ASSIGN cTextListToSelect = "Inv#,Account,Vendor,Name,Description,Date,Amount,Line Amount,Currency Code"
-       cFieldListToSelect = "inv,act,vend,ven-nam,dscr,date,amt,line-amt,curr-code"
-       cFieldLength = "12,25,8,30,30,10,19,19,13"
-       cFieldType = "c,c,c,c,c,c,i,i,c" 
-    .
+       cFieldListToSelect = "inv,act,vend,ven-nam,dscr,date,amt,line-amt,curr-code" 
+       cFieldType         = "c,c,c,c,c,c,i,i,c".
+IF lAPInvoiceLength THEN
+   ASSIGN cFieldLength    = "20,25,8,30,30,10,19,19,13" .
+ELSE
+   ASSIGN cFieldLength    = "12,25,8,30,30,10,19,19,13" .
+
 
 {sys/inc/ttRptSel.i}
 ASSIGN cTextListToDefault  = "Inv#,Account,Vendor,Name,Description,Date,Amount,Line Amount".
@@ -1334,7 +1347,7 @@ END.
             DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
                cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
                     CASE cTmpField:             
-                         WHEN "inv"                  THEN cVarValue = STRING(tt-ap-inv.inv-no).
+                         WHEN "inv"                  THEN cVarValue = IF lAPInvoiceLength THEN STRING(tt-ap-inv.inv-no,"x(20)") ELSE STRING(tt-ap-inv.inv-no,"x(12)").
                          WHEN "act"             THEN cVarValue = STRING(ap-invl.actnum).
                          WHEN "vend"                THEN cVarValue = STRING(tt-ap-inv.vend-no).
                          WHEN "ven-nam"   THEN  cVarValue = STRING(tt-ap-inv.NAME,"x(30)").

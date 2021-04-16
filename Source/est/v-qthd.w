@@ -471,7 +471,7 @@ DO:
            IF cFoundValue NE "" THEN 
                ASSIGN 
                    quotehd.sman:SCREEN-VALUE = cFoundValue
-                   sman_desc:SCREEN-VALUE    =  DYNAMIC-FUNCTION("sfDynLookupValue", "sname", cFieldsValue).
+                   sman_desc:SCREEN-VALUE    =  DYNAMIC-FUNCTION("sfDynLookupValue", "sman.sname", cFieldsValue).
        END.
        when "del-zone" then do:
            run windows/l-delzon.w 

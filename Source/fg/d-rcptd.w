@@ -2862,7 +2862,8 @@ PROCEDURE get-matrix-all :
     IF fg-rctd.i-no:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" THEN DO: /* in update mode - use screen-value */
         FIND FIRST po-ordl NO-LOCK 
              WHERE po-ordl.company   EQ cocode
-               AND po-ordl.po-no     EQ INTEGER(fg-rctd.po-no:screen-value) 
+               AND po-ordl.po-no     EQ INTEGER(fg-rctd.po-no:screen-value)
+               AND po-ordl.LINE      EQ INTEGER(fg-rctd.po-line:screen-value)
                AND po-ordl.i-no      EQ fg-rctd.i-no:screen-value
                AND po-ordl.job-no    EQ (fg-rctd.job-no:screen-value)
                AND po-ordl.job-no2   EQ INTEGER(fg-rctd.job-no2:screen-value)
@@ -2876,6 +2877,7 @@ PROCEDURE get-matrix-all :
                 INPUT INTEGER(fg-rctd.job-no2:SCREEN-VALUE),
                 INPUT fg-rctd.i-no:SCREEN-VALUE,
                 INPUT fg-rctd.po-no:SCREEN-VALUE,
+                INPUT integer(fg-rctd.po-line:SCREEN-VALUE),
                 INPUT INTEGER(fg-rctd.t-qty:SCREEN-VALUE),
                 INPUT (adm-new-record AND NOT adm-adding-record), /* Copied Record */
                 INPUT gcFGUnderOver,

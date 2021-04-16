@@ -129,6 +129,16 @@ DO TRANSACTION:
 END.      
       lv-fgpost-dir = sys-ctrl.log-fld .
 
+DEFINE VARIABLE lRecFound           AS LOGICAL          NO-UNDO.
+DEFINE VARIABLE lAPInvoiceLength    AS LOGICAL          NO-UNDO.
+DEFINE VARIABLE cNK1Value           AS CHARACTER        NO-UNDO.
+
+RUN sys/ref/nk1look.p (INPUT cocode, "APInvoiceLength", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cNK1Value, OUTPUT lRecFound).
+IF lRecFound THEN
+    lAPInvoiceLength = logical(cNK1Value) NO-ERROR.      
+
 DEF TEMP-TABLE tt-ap-invl NO-UNDO
                           FIELD row-id AS ROWID
                           FIELD actnum LIKE account.actnum
@@ -1768,6 +1778,11 @@ form header
      "VENDOR#  Name                              INVOICE #       INV.DATE    DUE DATE         AMOUNT " 
      "    G/L DISTRIBUTION" skip fill("_",136) format "x(136)"
     with no-labels no-box no-underline frame f-top page-top width 136 STREAM-IO.
+    
+form header
+     "VENDOR#  Name                              INVOICE #               INV.DATE    DUE DATE         AMOUNT " 
+     "    G/L DISTRIBUTION" skip fill("_",144) format "x(145)"
+    with no-labels no-box no-underline frame f-top3 page-top width 145 STREAM-IO.
 
 form v-disp-actnum label "G/L ACCOUNT NUMBER"
      v-dscr        label "DESCRIPTION"
@@ -1822,7 +1837,11 @@ EMPTY TEMP-TABLE tt-ap-invl.
 EMPTY TEMP-TABLE tt-ap-tax.
 
 display "" with frame r-top.
-display "" with frame f-top.
+
+IF lAPInvoiceLength THEN
+    display "" with frame f-top3.
+ELSE
+    display "" with frame f-top.
 
 {ap/r-apve&p.i}
 

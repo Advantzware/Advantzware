@@ -41,19 +41,20 @@ ASSIGN
  cocode = g_company
  locode = g_loc.
 
-DEF VAR ls-status AS cha NO-UNDO.
+DEFINE VARIABLE ls-status AS CHARACTER          NO-UNDO.
+DEFINE VARIABLE lMoveCol  AS LOGICAL INIT TRUE  NO-UNDO.
 
 
-DEF VAR li-ord-no LIKE inv-line.ord-no NO-UNDO.
-DEF VAR vcText    AS CHAR NO-UNDO INIT 'By:'.
-DEF VAR li-cust-Po LIKE oe-ord.po-no NO-UNDO.
+DEFINE VARIABLE li-ord-no  LIKE inv-line.ord-no NO-UNDO.
+DEFINE VARIABLE vcText     AS CHARACTER         NO-UNDO INIT 'By:'.
+DEFINE VARIABLE li-cust-Po LIKE oe-ord.po-no    NO-UNDO.
 
 DEF SHARED VARIABLE vfWinOrigW      AS DECIMAL  NO-UNDO.
 DEF SHARED VARIABLE vfWinOrigH      AS DECIMAL  NO-UNDO.
 
 /* gdm - 11180901*/
-DEF VAR v-sort-name  AS LOG NO-UNDO.
-DEF VAR invcopys-cha AS CHAR NO-UNDO.
+DEFINE VARIABLE v-sort-name  AS LOGICAL         NO-UNDO.
+DEFINE VARIABLE invcopys-cha AS CHARACTER       NO-UNDO.
 
 DEF BUFFER b-cust FOR cust.
 
@@ -65,7 +66,7 @@ DEFINE VARIABLE dMargin  AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE lFirst   AS LOGICAL   NO-UNDO INITIAL YES.
 DEFINE VARIABLE cFreight AS CHARACTER NO-UNDO.
 
-DEFINE VARIABLE cSortBy  AS CHARACTER NO-UNDO INITIAL "inv-no".
+DEFINE VARIABLE cSortBy  AS CHARACTER NO-UNDO INITIAL "r-no".
 DEFINE VARIABLE lSortAsc AS LOGICAL   NO-UNDO.
 
 &SCOPED-DEFINE for-each1                             ~
@@ -139,10 +140,10 @@ DEFINE VARIABLE lSortAsc AS LOGICAL   NO-UNDO.
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE Browser-Table                                 */
-&Scoped-define FIELDS-IN-QUERY-Browser-Table inv-head.inv-no ~
+&Scoped-define FIELDS-IN-QUERY-Browser-Table inv-head.r-no inv-head.inv-no ~
 inv-head.cust-no inv-head.cust-name inv-head.inv-date inv-head.bol-no ~
 f-ordno() @ li-ord-no inv-head.printed inv-head.t-inv-rev ~
-getStatus() @ ls-status inv-head.autoApproved inv-head.r-no ~
+getStatus() @ ls-status inv-head.autoApproved ~
 inv-head.company f-cust-Po() @ li-cust-Po inv-head.t-inv-tax ~
 inv-head.t-inv-freight inv-head.fob-code pGetFreightTerms() @ cFreight ~
 inv-head.multi-invoice inv-head.multi-inv-no inv-head.ediInvoice ~
@@ -337,6 +338,8 @@ DEFINE QUERY Browser-Table FOR
 DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
+      inv-head.r-no COLUMN-LABEL "InvoiceId" FORMAT ">>>>>>>9":U
+            LABEL-BGCOLOR 14
       inv-head.inv-no COLUMN-LABEL "Invoice#" FORMAT ">>>>>>9":U
             LABEL-BGCOLOR 14
       inv-head.cust-no COLUMN-LABEL "Cust #" FORMAT "x(8)":U WIDTH 10.6
@@ -354,7 +357,6 @@ DEFINE BROWSE Browser-Table
             WIDTH 11.6 LABEL-BGCOLOR 14
       inv-head.autoApproved COLUMN-LABEL "Auto" FORMAT "Yes/No":U
             WIDTH 9.6 LABEL-BGCOLOR 14
-      inv-head.r-no FORMAT ">>>>>>>9":U LABEL-BGCOLOR 14
       inv-head.company FORMAT "x(3)":U
       f-cust-Po() @ li-cust-Po COLUMN-LABEL "PO#" LABEL-BGCOLOR 14
       inv-head.t-inv-tax COLUMN-LABEL "Tax Amt" FORMAT "->>,>>>,>>9.99":U
@@ -487,7 +489,6 @@ ASSIGN
        Browser-Table:ALLOW-COLUMN-SEARCHING IN FRAME F-Main = TRUE.
 
 ASSIGN 
-       inv-head.r-no:VISIBLE IN BROWSE Browser-Table = FALSE
        inv-head.company:VISIBLE IN BROWSE Browser-Table = FALSE.
 
 /* SETTINGS FOR BUTTON Btn_Clear_Find IN FRAME F-Main
@@ -524,28 +525,28 @@ ASSIGN
      _OrdList          = "ASI.inv-head.inv-no|yes"
      _Where[1]         = "ASI.inv-head.company = cocode and
 ASI.inv-head.multi-invoice = no"
-     _FldNameList[1]   > ASI.inv-head.inv-no
+     _FldNameList[1]   > ASI.inv-head.r-no
+"inv-head.r-no" "InvoiceId" ">>>>>>>9" "integer" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[2]   > ASI.inv-head.inv-no
 "inv-head.inv-no" "Invoice#" ">>>>>>9" "integer" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[2]   > ASI.inv-head.cust-no
+     _FldNameList[3]   > ASI.inv-head.cust-no
 "inv-head.cust-no" "Cust #" ? "character" ? ? ? 14 ? ? no ? no no "10.6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[3]   > ASI.inv-head.cust-name
+     _FldNameList[4]   > ASI.inv-head.cust-name
 "inv-head.cust-name" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[4]   > ASI.inv-head.inv-date
+     _FldNameList[5]   > ASI.inv-head.inv-date
 "inv-head.inv-date" "Inv Date" ? "date" ? ? ? 14 ? ? no ? no no "14.6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[5]   > ASI.inv-head.bol-no
+     _FldNameList[6]   > ASI.inv-head.bol-no
 "inv-head.bol-no" "BOL #" ? "integer" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[6]   > "_<CALC>"
+     _FldNameList[7]   > "_<CALC>"
 "f-ordno() @ li-ord-no" "Order#" ? ? ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[7]   > ASI.inv-head.printed
+     _FldNameList[8]   > ASI.inv-head.printed
 "inv-head.printed" ? "Yes/No" "logical" ? ? ? 14 ? ? no ? no no "9.6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[8]   > ASI.inv-head.t-inv-rev
+     _FldNameList[9]   > ASI.inv-head.t-inv-rev
 "inv-head.t-inv-rev" "Invoice Amt" ? "decimal" ? ? ? 14 ? ? no ? no no "16.6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[9]   > "_<CALC>"
+     _FldNameList[10]   > "_<CALC>"
 "getStatus() @ ls-status" "Status" "x(8)" ? ? ? ? 14 ? ? no ? no no "11.6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[10]   > ASI.inv-head.autoApproved
+     _FldNameList[11]   > ASI.inv-head.autoApproved
 "inv-head.autoApproved" "Auto" "Yes/No" "logical" ? ? ? 14 ? ? no ? no no "9.6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[11]   > ASI.inv-head.r-no
-"inv-head.r-no" ? ? "integer" ? ? ? 14 ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[12]   > ASI.inv-head.company
 "inv-head.company" ? ? "character" ? ? ? ? ? ? no "" no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[13]   > "_<CALC>"
@@ -956,6 +957,27 @@ PROCEDURE local-open-query :
   RUN dispatch ("row-changed").
 
   IF AVAIL inv-head THEN APPLY "value-changed" TO BROWSE {&browse-name}.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE move-columns B-table-Win 
+PROCEDURE move-columns :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+DO WITH FRAME {&FRAME-NAME}:
+  ASSIGN
+     Browser-Table:COLUMN-MOVABLE = lMoveCol
+     Browser-Table:COLUMN-RESIZABLE = lMoveCol
+     lMoveCol = NOT lMoveCol.
+	 /*
+     FI_moveCol = IF lMoveCol = NO THEN "Move" ELSE "Sort".
+  DISPLAY FI_moveCol.*/
+END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

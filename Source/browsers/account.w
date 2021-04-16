@@ -637,6 +637,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-open-query B-table-Win 
 PROCEDURE local-open-query :
 /*------------------------------------------------------------------------------
@@ -656,6 +657,8 @@ PROCEDURE local-open-query :
       .
       RUN pReopenBrowse.
 
+  APPLY 'ENTRY':U TO cAccount IN FRAME {&frame-name}.
+ 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -695,6 +698,7 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records B-table-Win  _ADM-SEND-RECORDS
 PROCEDURE send-records :

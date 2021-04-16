@@ -36,6 +36,7 @@ DEF TEMP-TABLE tt-pol FIELD selekt AS LOG LABEL "Selected"
 
 DEFINE TEMP-TABLE ttInventoryStock NO-UNDO
     FIELD ttPOLRowID AS ROWID
+    FIELD quantity AS DECIMAL
     FIELD inventoryStockRecKey AS CHARACTER
     .
     
@@ -299,6 +300,7 @@ DO:
             ASSIGN
                 ttInventoryStock.ttPOLRowID           = ROWID(tt-pol)
                 ttInventoryStock.inventoryStockRecKey = rm-rdtlh.rec_key
+                ttInventoryStock.quantity             = tt-rec.qty-inv
                 .
 
             ASSIGN
@@ -322,6 +324,7 @@ DO:
           ASSIGN
               ttInventoryStock.ttPOLRowID           = ROWID(tt-pol)
               ttInventoryStock.inventoryStockRecKey = fg-rdtlh.rec_key
+              ttInventoryStock.quantity             = tt-rec.qty-inv
               .
         
           ASSIGN
@@ -491,6 +494,8 @@ DEF VAR v-pur-qty AS DEC NO-UNDO.
 DEFINE VARIABLE cMatExceptionList AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lFound AS LOGICAL NO-UNDO.
 
+DEFINE VARIABLE lError   AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
 
 DEF BUFFER b-ap-invl FOR ap-invl.
 
@@ -562,13 +567,13 @@ FOR EACH tt-pol,
           tt-rec.r-no       = 0
           tt-rec.qty-rec    = IF rd_qty EQ 1 THEN v-qty
                               ELSE po-ordl.t-rec-qty
-          tt-rec.qty-rec-uom = IF rd_qty EQ 1 THEN po-ordl.pr-qty-uom
+          tt-rec.qty-rec-uom = IF rd_qty EQ 1 THEN po-ordl.cons-uom
                                ELSE ITEM.cons-uom
           tt-rec.qty-inv    = IF rd_qty EQ 1 THEN v-qty
                               ELSE po-ordl.t-rec-qty
           tt-rec.qty-inv-uom = po-ordl.pr-qty-uom
           tt-rec.row-id     = ROWID(tt-pol).
-
+                   
           FIND FIRST rm-rcpth WHERE
               rm-rcpth.company   EQ cocode AND
               rm-rcpth.i-no      EQ po-ordl.i-no AND
@@ -587,6 +592,7 @@ FOR EACH tt-pol,
         WHERE rm-rcpth.company   EQ cocode
           AND rm-rcpth.i-no      EQ po-ordl.i-no
           AND rm-rcpth.po-no     EQ TRIM(STRING(po-ordl.po-no,">>>>>>>>>>"))
+          AND rm-rcpth.po-line   EQ po-ordl.LINE
           AND rm-rcpth.job-no    EQ po-ordl.job-no
           AND rm-rcpth.job-no2   EQ po-ordl.job-no2
           AND rm-rcpth.rita-code EQ "R"
@@ -605,7 +611,9 @@ FOR EACH tt-pol,
           INPUT  rm-rdtlh.rec_key,
           OUTPUT dQuantityInvoiced
           ).
-      IF dQuantityInvoiced GE rm-rdtlh.qty THEN
+      IF rm-rdtlh.qty LT 0 AND dQuantityInvoiced LE rm-rdtlh.qty THEN
+          NEXT.
+      ELSE IF rm-rdtlh.qty GT 0 AND dQuantityInvoiced GE rm-rdtlh.qty THEN
           NEXT.
         
      lv-uom = po-ordl.pr-qty-uom.
@@ -636,11 +644,28 @@ FOR EACH tt-pol,
                                     v-pur-qty, OUTPUT v-pur-qty).
       END.
 
-      IF rm-rcpth.pur-uom NE lv-uom THEN
+      IF rm-rcpth.pur-uom NE lv-uom THEN DO:
          RUN sys/ref/convquom.p (rm-rcpth.pur-uom, lv-uom,
                                  v-bwt, v-len, v-wid, v-dep,
                                  v-qty, OUTPUT v-qty).
-
+          
+         RUN Conv_QuantityFromUOMToUOM (
+             INPUT  po-ordl.company,
+             INPUT  po-ordl.i-no,
+             INPUT  "RM",
+             INPUT  dQuantityInvoiced,
+             INPUT  rm-rcpth.pur-uom, 
+             INPUT  lv-uom,
+             INPUT  0,  /* Item Basis Weight */
+             INPUT  v-len,
+             INPUT  v-wid,
+             INPUT  v-dep,
+             INPUT  0,
+             OUTPUT dQuantityInvoiced,
+             OUTPUT lError,
+             OUTPUT cMessage
+             ).
+      END.
       /* gdm - 05200908 end */  
       
       /*24963 - Prevent the re-use of the same receipt, multiple times*/
@@ -672,6 +697,7 @@ FOR EACH tt-pol,
       WHERE fg-rcpth.company   EQ cocode
         AND fg-rcpth.i-no      EQ po-ordl.i-no
         AND fg-rcpth.po-no     EQ TRIM(STRING(po-ordl.po-no,">>>>>>>>>>"))
+        AND fg-rcpth.po-line   EQ po-ordl.LINE
         AND fg-rcpth.rita-code EQ "R"
       USE-INDEX item-po NO-LOCK,
 
@@ -684,7 +710,10 @@ FOR EACH tt-pol,
         INPUT  fg-rdtlh.rec_key,
         OUTPUT dQuantityInvoiced
         ).
-    IF dQuantityInvoiced GE fg-rdtlh.qty THEN
+
+    IF fg-rdtlh.qty LT 0 AND dQuantityInvoiced LE fg-rdtlh.qty THEN
+        NEXT.
+    ELSE IF fg-rdtlh.qty GT 0 AND dQuantityInvoiced GE fg-rdtlh.qty THEN
         NEXT.
 
     IF NOT CAN-FIND(FIRST tt-rec WHERE tt-rec.rec-id EQ RECID(fg-rcpth)) THEN DO:
@@ -700,7 +729,9 @@ FOR EACH tt-pol,
          tt-rec.qty-rec    = fg-rdtlh.qty
          tt-rec.qty-inv    = fg-rdtlh.qty - dQuantityInvoiced
          tt-rec.s-len      = IF po-ordl.pr-qty-uom EQ "ROLL" THEN 12 ELSE po-ordl.s-len
-         tt-rec.row-id     = ROWID(tt-pol).
+         tt-rec.qty-rec-uom = po-ordl.cons-uom
+         tt-rec.qty-inv-uom = po-ordl.pr-qty-uom                       
+         tt-rec.row-id      = ROWID(tt-pol).  
     END.
   END.
 

@@ -53,10 +53,10 @@ FOR EACH AuditTbl NO-LOCK:
 END.
 OUTPUT TO N:\Build\allfiles.SQL.
 FOR EACH _file WHERE _file._file-num GT 0 AND _file._file-num LT 32000 NO-LOCK:
-     PUT UNFORMATTED 'grant select on pub."' + _file._file-name + '" to public ~;'
-     SKIP.
+     PUT UNFORMATTED 'grant select on pub."' + _file._file-name + '" to public ~;' + CHR(10).
 END.
-PUT UNFORMATTED 'COMMIT;'
-SKIP.
+PUT UNFORMATTED 'grant all on pub.dmiTrans to public ~;' + CHR(10).
+PUT UNFORMATTED 'grant all on pub.job-mch to public ~;' + CHR(10).
+PUT UNFORMATTED 'COMMIT;' + CHR(10).
 output close.
 

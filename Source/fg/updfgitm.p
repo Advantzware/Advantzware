@@ -375,6 +375,13 @@ FOR EACH reftable
   {fg/updfgitm.i reftable code2 NO}
 END.
 
+FOR EACH vendItemCost
+        WHERE vendItemCost.company EQ itemfg.company
+        AND vendItemCost.itemID    EQ itemfg.i-no
+        AND vendItemCost.itemType  EQ "FG"
+        NO-LOCK:
+{fg/updfgitm.i vendItemCost itemID NO}
+END.
 /*FOR EACH reftable                            */
 /*    WHERE reftable.reftable EQ "FGSTATUS"    */
 /*      AND reftable.company  EQ itemfg.company*/

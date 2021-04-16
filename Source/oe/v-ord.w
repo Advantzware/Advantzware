@@ -6889,6 +6889,7 @@ PROCEDURE pValidate :
     ASSIGN 
         fiStatDesc:SCREEN-VALUE IN FRAME {&frame-name} = cStatDesc
         oe-ord.spare-char-2:SCREEN-VALUE IN FRAME {&frame-name} = cStatDesc.
+
     RUN Tag_IsTagRecordAvailableForGroup(
         INPUT oe-ord.rec_key,
         INPUT "oe-ord",
@@ -6900,6 +6901,9 @@ PROCEDURE pValidate :
             .
     ELSE 
         btnTags:SENSITIVE = FALSE. 
+     
+    {methods/run_link.i "container-source" "pSetHoldButton" }
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

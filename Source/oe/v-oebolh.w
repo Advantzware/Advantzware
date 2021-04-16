@@ -276,7 +276,10 @@ DEFINE FRAME F-Main
      oe-bolh.frt-pay AT ROW 2.33 COL 113.4 COLON-ALIGNED
           LABEL "Freight Terms" FORMAT "x(1)"
           VIEW-AS FILL-IN 
-          SIZE 6.6 BY 1  
+          SIZE 6.6 BY 1
+     oe-bolh.release# AT ROW 3.43 COL 14 COLON-ALIGNED FORMAT ">>>>>>>9"
+          VIEW-AS FILL-IN 
+          SIZE 14 BY 1
      oe-bolh.carrier AT ROW 3.43 COL 38 COLON-ALIGNED FORMAT "x(5)"
           VIEW-AS FILL-IN 
           SIZE 15 BY 1     
@@ -295,10 +298,12 @@ DEFINE FRAME F-Main
      oe-bolh.quoteNote AT ROW 3.43 COL 108.6 COLON-ALIGNED
           LABEL "Quoted Note" FORMAT "x(32)"
           VIEW-AS FILL-IN 
-          SIZE 33 BY 1          
-     oe-bolh.release# AT ROW 3.43 COL 14 COLON-ALIGNED FORMAT ">>>>>>>9"
+          SIZE 33 BY 1
+     oe-bolh.cust-no AT ROW 4.52 COL 14 COLON-ALIGNED HELP
+          "Enter customer number."
+          LABEL "Customer#" FORMAT "x(8)"
           VIEW-AS FILL-IN 
-          SIZE 14 BY 1
+          SIZE 15 BY 1 
      oe-bolh.loc AT ROW 4.52 COL 38 COLON-ALIGNED
           LABEL "Loc" FORMAT "x(5)"
           VIEW-AS FILL-IN 
@@ -307,11 +312,6 @@ DEFINE FRAME F-Main
           LABEL "Trailer#"
           VIEW-AS FILL-IN 
           SIZE 30 BY 1      
-     oe-bolh.cust-no AT ROW 4.52 COL 14 COLON-ALIGNED HELP
-          "Enter customer number."
-          LABEL "Customer#" FORMAT "x(8)"
-          VIEW-AS FILL-IN 
-          SIZE 15 BY 1      
      oe-bolh.ship-id AT ROW 5.48 COL 14 COLON-ALIGNED
           LABEL "Ship To#"
           VIEW-AS FILL-IN 
@@ -323,7 +323,11 @@ DEFINE FRAME F-Main
      oe-bolh.quotedFreight AT ROW 5.95 COL 122.4 COLON-ALIGNED
           LABEL "Quoted Freight"
           VIEW-AS FILL-IN 
-          SIZE 15.2 BY 1     
+          SIZE 15.2 BY 1
+     oe-bolh.tot-wt AT ROW 6.67 COL 69.6 COLON-ALIGNED
+          LABEL "Total Weight" FORMAT "->,>>>,>>9"
+          VIEW-AS FILL-IN 
+          SIZE 15.2 BY 1
      oe-bolh.freight AT ROW 7 COL 122.4 COLON-ALIGNED
           LABEL "Freight Cost" FORMAT "->,>>,>>9.99"
           VIEW-AS FILL-IN 
@@ -337,10 +341,6 @@ DEFINE FRAME F-Main
      cust_addr1 AT ROW 7.43 COL 58 COLON-ALIGNED NO-LABEL      
      ship_addr1 AT ROW 7.38 COL 14 COLON-ALIGNED NO-LABEL
      cust_addr2 AT ROW 8.38 COL 58 COLON-ALIGNED NO-LABEL
-     oe-bolh.tot-wt AT ROW 9.1 COL 122.4 COLON-ALIGNED
-          LABEL "Total Weight" FORMAT "->,>>>,>>9"
-          VIEW-AS FILL-IN 
-          SIZE 15.2 BY 1
      ship_addr2 AT ROW 8.33 COL 14 COLON-ALIGNED NO-LABEL
      cust_city AT ROW 9.33 COL 58 COLON-ALIGNED NO-LABEL
      cust_state AT ROW 9.33 COL 78 COLON-ALIGNED NO-LABEL
@@ -348,7 +348,7 @@ DEFINE FRAME F-Main
      ship_city AT ROW 9.19 COL 14 COLON-ALIGNED NO-LABEL
      ship_state AT ROW 9.19 COL 34 COLON-ALIGNED NO-LABEL
      ship_zip AT ROW 9.19 COL 38 COLON-ALIGNED NO-LABEL
-     oe-bolh.tot-pallets AT ROW 10.14 COL 122.4 COLON-ALIGNED
+     oe-bolh.tot-pallets AT ROW 7.77 COL 69.6 COLON-ALIGNED
           LABEL "Total Pallets" FORMAT "->,>>>,>>9"
           VIEW-AS FILL-IN 
           SIZE 15.2 BY 1

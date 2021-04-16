@@ -133,8 +133,11 @@ FOR EACH ttInputEst NO-LOCK BREAK BY ttInputEst.iFormNo
             FIND FIRST est NO-LOCK
                 WHERE est.company EQ bf-est.company 
                 AND est.est-no EQ bf-est.est-no NO-ERROR.
-              
-            RUN est/NewEstimateForm.p ('C', ROWID(est), OUTPUT rwRowid). 
+            IF est.est-type LT 5 THEN
+             RUN est/NewEstimateForm.p ('F', ROWID(est), OUTPUT rwRowid). 
+            ELSE
+             RUN est/NewEstimateForm.p ('C', ROWID(est), OUTPUT rwRowid). 
+            
             FIND FIRST eb 
                 WHERE ROWID(eb) EQ rwRowid  
                 NO-ERROR.            
@@ -291,6 +294,20 @@ FOR EACH ttInputEst NO-LOCK BREAK BY ttInputEst.iFormNo
         eb.yld-qty      = ttInputEst.iQuantityYield.
     ELSE 
         eb.yld-qty      = eb.eqty.
+        
+    IF bf-est.estimateTypeID EQ "SingleMold" THEN DO:       
+      IF eb.est-type EQ 1 THEN
+      eb.bl-qty      = ttInputEst.iQuantity.
+                     
+    END.
+    ELSE IF  bf-est.estimateTypeID EQ "SetMold" THEN DO:
+      IF eb.est-type EQ 2 THEN 
+      ASSIGN
+         eb.bl-qty      = ttInputEst.iQuantity
+         eb.yld-qty     = ttInputEst.iQuantity
+         eb.cust-%      = ttInputEst.dQtyPerSet.              
+    END.        
+        
         
     IF ttInputEst.cCustomer NE "" THEN 
         FIND FIRST cust NO-LOCK 

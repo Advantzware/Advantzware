@@ -43,6 +43,8 @@ DEFINE VARIABLE lHasAccess AS LOGICAL NO-UNDO.
 
 {Inventory/ttInventory.i "NEW SHARED"}
 {jc/jcgl-sh.i  NEW}
+{fg/fg-post3.i NEW}
+
 {methods/defines/sortByDefs.i}
 &SCOPED-DEFINE exclude-brwCustom
 DEFINE VARIABLE hdInventoryProcs AS HANDLE NO-UNDO.

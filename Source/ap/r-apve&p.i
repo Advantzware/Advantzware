@@ -105,10 +105,19 @@ FOR EACH tt-report,
 
   tt-report.curr-amt = (ap-inv.net + ap-inv.freight) * tt-report.ex-rate.
   
-  PUT ap-inv.inv-no         TO 55
-      ap-inv.inv-date       AT 60 FORMAT "99/99/99"
-      ap-inv.due-date       AT 71 FORMAT "99/99/99"                       
-      tt-report.curr-amt    TO 94 FORMAT "->>,>>>,>>9.99".
+    IF lAPInvoiceLength THEN DO:
+        PUT ap-inv.inv-no FORMAT "x(20)" TO 63 
+            ap-inv.inv-date       AT 68 FORMAT "99/99/99"
+            ap-inv.due-date       AT 79 FORMAT "99/99/99"                       
+            tt-report.curr-amt    TO 102 FORMAT "->>,>>>,>>9.99".
+    END.
+    ELSE DO:
+        PUT ap-inv.inv-no FORMAT "x(12)" TO 55
+            ap-inv.inv-date       AT 60 FORMAT "99/99/99"
+            ap-inv.due-date       AT 71 FORMAT "99/99/99"                       
+            tt-report.curr-amt    TO 94 FORMAT "->>,>>>,>>9.99".
+    END.
+        
 
   ASSIGN
    v2 = v2 + tt-report.curr-amt
@@ -240,6 +249,7 @@ display  "** GRAND TOTAL "  to 113  g2 to 127 "**"
     with no-labels no-underline width 132 frame GT STREAM-IO.
 
 hide frame f-top.
+hide frame f-top3.
 
 ASSIGN
    str-tit3 = "Period " + string(tran-period,"99") + " - " + "Summary by Account"
@@ -254,8 +264,18 @@ form header
      fill("_",136) format "x(136)"
   
     with no-labels no-box no-underline frame f-top2 page-top width 136 STREAM-IO .
+    
+form header
+     "ACCOUNT                             PO#   DATE   VENDOR#  INVOICE#             "
+     "LINE DESCRIPTION              QTY    UNIT PRICE       AMOUNT" skip
+     fill("_",144) format "x(145)"
+  
+    with no-labels no-box no-underline frame f-top4 page-top width 145 STREAM-IO .
 
-display "" with frame f-top2.
+IF lAPInvoiceLength THEN
+    display "" with frame f-top4.
+ELSE
+    display "" with frame f-top2.
 
 v-loop = 1.
 
@@ -313,9 +333,13 @@ for each tt-report,
       put v-frt-acct + " - " + account.dscr format "x(40)".
     end.
     
-    put ap-inv.inv-date at 41 FORMAT "99/99/99"       space(1)
-        ap-inv.vend-no              space(1)
-        ap-inv.inv-no               space(6)
+    PUT ap-inv.inv-date at 41 FORMAT "99/99/99"       space(1)
+        ap-inv.vend-no              space(1).
+    IF lAPInvoiceLength THEN
+        PUT ap-inv.inv-no FORMAT "x(20)" .
+    ELSE 
+        PUT ap-inv.inv-no FORMAT "x(12)" .
+    PUT SPACE(6)
         "Freight"    format "x(18)" space(7)
         1.0          format "9.9"   space(1)
         ap-inv.freight              to 118
@@ -348,8 +372,12 @@ FOR EACH tt-ap-tax,
   END.
     
   PUT ap-inv.inv-date at 41 FORMAT "99/99/99"       SPACE(1)
-      ap-inv.vend-no              SPACE(1)
-      ap-inv.inv-no               SPACE(6)
+      ap-inv.vend-no              SPACE(1).
+  IF lAPInvoiceLength THEN
+      PUT ap-inv.inv-no FORMAT "x(20)" .
+  ELSE 
+      PUT ap-inv.inv-no FORMAT "x(12)" .
+  PUT SPACE(6)
       "Tax"        FORMAT "x(18)" SPACE(7)
       1.0          FORMAT "9.9"   SPACE(1)
       tt-ap-tax.amt FORMAT "->>,>>>,>>9.99"  TO 119
@@ -398,9 +426,12 @@ for each tt-report,
       ap-inv.inv-date       FORMAT "99/99/99"
       space(1)
       ap-inv.vend-no
-      space(1)
-      ap-inv.inv-no
-      space(1)
+      space(1).
+  IF lAPInvoiceLength THEN
+      PUT ap-inv.inv-no FORMAT "x(20)" .
+  ELSE 
+      PUT ap-inv.inv-no FORMAT "x(12)" .
+  PUT space(1)
       {ap/invlline.i -1}    format ">>>>"
       space(1)
       ap-invl.dscr          format "x(18)"
@@ -446,9 +477,12 @@ for each tt-report WHERE tt-report.actnum NE "",
   put ap-inv.inv-date       AT 41 FORMAT "99/99/99"
       space(1)
       ap-inv.vend-no
-      space(1)
-      ap-inv.inv-no
-      space(51)
+      space(1).
+  IF lAPInvoiceLength THEN
+      PUT ap-inv.inv-no FORMAT "x(20)" .
+  ELSE 
+      PUT ap-inv.inv-no FORMAT "x(12)" .
+  PUT space(51)
       tt-report.curr-amt - (ap-inv.net + ap-inv.freight)
       space(1)
       skip.
@@ -472,3 +506,4 @@ put "***** TOTAL for ALL ACCOUNTS " to 113
 lv-frt-total = (accum total ap-inv.freight).
 
 HIDE FRAME f-top.
+HIDE FRAME f-top3.

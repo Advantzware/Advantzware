@@ -44,6 +44,11 @@ DO:
 END.    
      
 FOR EACH ttInputEst NO-LOCK:
+       IF ttInputEst.cFgEstNo NE "" AND ttInputEst.lKeyItem AND NOT lUpdateEstQty THEN
+       DO:
+          RUN pUpdateMfValues(ROWID(est),ttInputEst.cFgEstNo). 
+       END.
+       
        IF ttInputEst.cFgEstNo NE "" THEN 
        DO:
           FIND FIRST bf-eb NO-LOCK
@@ -320,4 +325,40 @@ PROCEDURE pUpdateEstimateQty:
     RELEASE est-qty.
     
 END PROCEDURE.   
+
+PROCEDURE pUpdateMfValues:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iprwRowid AS ROWID NO-UNDO.
+    DEFINE INPUT PARAMETER cFgItemEst AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-est FOR est.
+    DEFINE BUFFER bf-fg-est FOR est.
+    DEFINE BUFFER bf-mfvalues FOR mfvalues.
+    
+    FIND FIRST bf-est NO-LOCK
+    WHERE ROWID(bf-est) EQ iprwRowid
+    NO-ERROR.
+         
+    FIND FIRST bf-fg-est NO-LOCK
+         WHERE bf-fg-est.company EQ bf-est.company
+         AND bf-fg-est.est-no EQ cFgItemEst NO-ERROR.
+    IF AVAIL bf-fg-est THEN
+    DO:
+        FOR EACH bf-mfvalues EXCLUSIVE
+             WHERE bf-mfvalues.rec_key EQ bf-est.rec_key :
+             DELETE bf-mfvalues.
+        END.
+        FOR EACH mfvalues no-lock
+            WHERE mfvalues.rec_key EQ bf-fg-est.rec_key :
+            CREATE bf-mfvalues.
+            BUFFER-COPY mfvalues EXCEPT rec_key TO bf-mfvalues .  
+            ASSIGN 
+                bf-mfvalues.rec_key = bf-est.rec_key.
+        END.          
+    END.
+    RELEASE bf-mfvalues.
+END PROCEDURE.      
      

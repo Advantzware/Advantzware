@@ -484,16 +484,16 @@ DO:
              IF cFoundValue <> "" THEN DO:
                 CASE FOCUS:INDEX:
                      WHEN 1 THEN ASSIGN inv-line.sman[1]:screen-value     = cFoundValue
-                                        inv-line.sname[1]:screen-value    = DYNAMIC-FUNCTION("sfDynLookupValue", "sname",  cFieldsValue) 
-                                        inv-line.comm-amt[1]:screen-value = DYNAMIC-FUNCTION("sfDynLookupValue", "scomm",  cFieldsValue)
+                                        inv-line.sname[1]:screen-value    = DYNAMIC-FUNCTION("sfDynLookupValue", "sman.sname",  cFieldsValue) 
+                                        inv-line.comm-amt[1]:screen-value = DYNAMIC-FUNCTION("sfDynLookupValue", "sman.scomm",  cFieldsValue)
                                         .
                      WHEN 2 THEN ASSIGN inv-line.sman[2]:screen-value     = cFoundValue
-                                        inv-line.sname[2]:screen-value    = DYNAMIC-FUNCTION("sfDynLookupValue", "sname",  cFieldsValue)
-                                        inv-line.comm-amt[2]:screen-value = DYNAMIC-FUNCTION("sfDynLookupValue", "scomm",  cFieldsValue)
+                                        inv-line.sname[2]:screen-value    = DYNAMIC-FUNCTION("sfDynLookupValue", "sman.sname",  cFieldsValue)
+                                        inv-line.comm-amt[2]:screen-value = DYNAMIC-FUNCTION("sfDynLookupValue", "sman.scomm",  cFieldsValue)
                                         .
                      WHEN 3 THEN ASSIGN inv-line.sman[3]:screen-value     = cFoundValue
-                                        inv-line.sname[3]:screen-value    = DYNAMIC-FUNCTION("sfDynLookupValue", "sname",  cFieldsValue) 
-                                        inv-line.comm-amt[3]:screen-value = DYNAMIC-FUNCTION("sfDynLookupValue", "scomm",  cFieldsValue)
+                                        inv-line.sname[3]:screen-value    = DYNAMIC-FUNCTION("sfDynLookupValue", "sman.sname",  cFieldsValue) 
+                                        inv-line.comm-amt[3]:screen-value = DYNAMIC-FUNCTION("sfDynLookupValue", "sman.scomm",  cFieldsValue)
                                         .
                 END.
              END.

@@ -70,6 +70,16 @@ DEF VAR lv-num-rec AS INT NO-UNDO.
 DEF VAR lv-in-add AS LOG NO-UNDO.
 DEF VAR lv-in-update AS LOG NO-UNDO.
 
+DEFINE VARIABLE lRecFound           AS LOGICAL          NO-UNDO.
+DEFINE VARIABLE lAPInvoiceLength    AS LOGICAL          NO-UNDO.
+DEFINE VARIABLE cNK1Value           AS CHARACTER        NO-UNDO.
+
+RUN sys/ref/nk1look.p (INPUT cocode, "APInvoiceLength", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cNK1Value, OUTPUT lRecFound).
+IF lRecFound THEN
+    lAPInvoiceLength = logical(cNK1Value) NO-ERROR.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -477,7 +487,11 @@ DO:
                         AND ap-inv.vend-no = tt-sel.vend-no
                         AND ap-inv.posted  = YES
                         AND ap-inv.inv-no = tt-sel.inv-no NO-LOCK NO-ERROR.
-  
+
+  IF lAPInvoiceLength THEN
+      ASSIGN tt-sel.inv-no:FORMAT IN BROWSE {&browse-name} = "x(20)".
+  ELSE
+      ASSIGN tt-sel.inv-no:FORMAT IN BROWSE {&browse-name} = "x(12)".
   
   IF AVAIL ap-inv AND ap-inv.stat EQ "H" THEN
   tt-sel.inv-no:BGCOLOR IN BROWSE {&browse-name} = 11.
@@ -500,6 +514,11 @@ DO:
                   tt-sel.disc-amt:READ-ONLY = YES
                   tt-sel.amt-paid:READ-ONLY = YES.
 
+    IF lAPInvoiceLength THEN
+        ASSIGN tt-sel.inv-no:FORMAT IN BROWSE {&browse-name} = "x(20)".
+    ELSE
+        ASSIGN tt-sel.inv-no:FORMAT IN BROWSE {&browse-name} = "x(12)".
+        
       /*  ELSE IF lv-in-update THEN  ASSIGN  tt-sel.disc-amt:READ-ONLY = NO
                                          tt-sel.amt-due:READ-ONLY = no
                                          tt-sel.amt-paid:READ-ONLY = no
@@ -1650,6 +1669,8 @@ PROCEDURE local-initialize :
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
 
+  RUN pAPInvoiceLength.
+  
   /* Code placed here will execute AFTER standard behavior.    */
   IF access-close THEN DO:
      APPLY "window-close" TO current-window.
@@ -1904,3 +1925,19 @@ END FUNCTION.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pAPInvoiceLength W-Win 
+PROCEDURE pAPInvoiceLength :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    IF lAPInvoiceLength THEN
+        ASSIGN tt-sel.inv-no:WIDTH IN BROWSE {&browse-name} = 30.
+    ELSE 
+        ASSIGN tt-sel.inv-no:WIDTH IN BROWSE {&browse-name} = 20.
+        
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME

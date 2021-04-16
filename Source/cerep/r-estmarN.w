@@ -1422,7 +1422,7 @@ FOR EACH est
       AND eb.cust-no  LE end_cust-no
       AND eb.sman     GE begin_slsmn
       AND eb.sman     LE end_slsmn
-      AND (eb.form-no EQ 0 OR (eb.est-type NE 2 AND eb.est-type NE 6))
+      /*AND (eb.form-no EQ 0 OR (eb.est-type NE 2 AND eb.est-type NE 6))*/
     NO-LOCK,
 
     FIRST ef

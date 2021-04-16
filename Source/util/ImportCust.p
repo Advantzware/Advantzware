@@ -377,6 +377,10 @@ PROCEDURE pValidate PRIVATE:
             
         IF oplValid AND ipbf-ttImportCust.classId NE 0 THEN 
             RUN pIsValidARClass IN hdValidator (string(ipbf-ttImportCust.classId), YES, OUTPUT oplValid, OUTPUT cValidNote).
+        
+        IF oplValid AND ipbf-ttImportCust.industryID NE "" THEN 
+            RUN pIsValidIndustry IN hdValidator (ipbf-ttImportCust.industryID, NO, ipbf-ttImportCust.Company, OUTPUT oplValid, OUTPUT cValidNote).
+        
     END.
     IF NOT oplValid AND cValidNote NE "" THEN opcNote = cValidNote.
     IF ipbf-ttImportCust.cFrtPay EQ "Collect" THEN 
