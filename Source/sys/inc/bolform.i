@@ -487,6 +487,11 @@
            ASSIGN v-program = "oe/rep/bolsolmed.p" 
                   is-xprint-form = YES 
                   lines-per-page = 62.
+         WHEN "ACPIX" THEN
+          ASSIGN
+             v-program      = "oe/rep/bolacpix.p"
+             is-xprint-form = YES
+             lines-per-page = 66.
 
        OTHERWISE
           ASSIGN

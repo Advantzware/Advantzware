@@ -1,19 +1,19 @@
-/* oe/rep/bolacpi.i  */  
+/* oe/rep/bolacpix.i  */  
  
 PUT
   "<FArial>"  SKIP
   "<P14><C+40><B>Bill Of Lading</B>     Page: " STRING(PAGE-NUM - lv-pg-num,">>9") + " of " + STRING(lv-tot-pg) FORM "x(20)" SKIP
-  "<C1><R-1><#1><R+5><C+25>" "<IMAGE#1=" + ls-full-img1 FORM "x(200)" SKIP 
-  "<=1><R+2>" "<FGCOLOR=" + TRIM(lv-comp-color) + ">" FORM "x(15)"
-  "<P10><=1><R+4>"
-  v-comp-add1 AT 8 SKIP
+  /*"<C1><R-1><#1><R+5><C+25>" "<IMAGE#1=" + ls-full-img1 FORM "x(200)" SKIP 
+  "<=1><R+2>" "<FGCOLOR=" + TRIM(lv-comp-color) + ">" FORM "x(15)"*/
+  "<P10><=1><R+12>"
+  /*v-comp-add1 AT 8 SKIP
   v-comp-add2 AT 8 SKIP
   v-comp-add3 AT 8 SKIP
   v-comp-add4 AT 8 SKIP
   v-comp-add5 AT 8 "<FGCOLOR=" + TRIM(lv-other-color) + ">" FORM "x(15)" SKIP
-  lv-email AT 8 SKIP(1)
+  lv-email AT 8 SKIP(1)*/
   "<FCourier New>"
-  SPACE(30) "Ship To:" AT 59  SKIP
+  SPACE(30) "Ship To:" AT 45  SKIP
   SPACE(5) v-comp-name v-ship-name AT 45 skip
   SPACE(5) v-comp-addr[1] v-ship-addr[1] AT 45 SKIP
   SPACE(5) v-comp-addr[2] v-ship-addr[2] AT 45 SKIP
