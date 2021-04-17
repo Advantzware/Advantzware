@@ -53,6 +53,8 @@ DEF VAR v-postable AS LOG NO-UNDO.
 DEF VAR v-print-fmt AS CHARACTER NO-UNDO.
 DEF VAR is-xprint-form AS LOGICAL.
 DEF VAR ls-fax-file AS CHAR NO-UNDO.
+DEFINE VARIABLE dtDateRange1 AS DATE NO-UNDO.
+DEFINE VARIABLE dtDateRange2 AS DATE NO-UNDO.
 
 DEF STREAM excel.
 
@@ -786,7 +788,11 @@ PROCEDURE check-date :
           and period.pst     le tran-date
           and period.pend    ge tran-date
         no-lock no-error.
-    if avail period then tran-period:SCREEN-VALUE = string(period.pnum).
+    if avail period THEN DO: 
+        tran-period:SCREEN-VALUE = string(period.pnum).
+        dtDateRange1 = period.pst.
+        dtDateRange2 = period.pend.
+    END.
 
     ELSE DO:
       message "No Defined Period Exists for" tran-date view-as alert-box error.
@@ -1062,7 +1068,7 @@ DO:
    assign
      str-tit  = company.name
      str-tit2 = "TRIAL  BALANCE AS OF " + STRING(tran-date,"99/99/99")
-     str-tit3 = "Period " + string(tran-period,"99") + " Date Range:" + STRING(period.pst) + "-" + STRING(period.pend)
+     str-tit3 = "Period " + string(tran-period,"99") + " Date Range:" + STRING(dtDateRange1) + "-" + STRING(dtDateRange2)
      v-rep-tot = 0
      {sys/inc/ctrtext.i str-tit  112}
      {sys/inc/ctrtext.i str-tit2 112}
