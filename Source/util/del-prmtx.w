@@ -415,7 +415,6 @@ DO:
              AND oe-prmtx.eff-date GE begin_date
              AND oe-prmtx.eff-date LE end_date
              EXCLUSIVE-LOCK:
-             
              FIND FIRST reftable
                  WHERE reftable.rec_key  EQ oe-prmtx.rec_key
                  AND reftable.company  EQ "oe-prmtx"
