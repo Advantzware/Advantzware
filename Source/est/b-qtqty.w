@@ -604,6 +604,32 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-open-query B-table-Win 
+PROCEDURE local-open-query :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE VARIABLE rwRowid AS ROWID NO-UNDO.
+  DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+  IF AVAIL quoteitm THEN rwRowid = ROWID(quoteitm).
+  RUN get-link-handle in adm-broker-hdl(THIS-PROCEDURE, "record-source", OUTPUT char-hdl).
+  IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+    RUN pGetRowidItem IN WIDGET-HANDLE(char-hdl) (OUTPUT rwRowid).
+  FIND FIRST quoteitm WHERE ROWID(quoteitm) EQ rwRowid NO-LOCK NO-ERROR. 
+                
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record B-table-Win 
 PROCEDURE local-update-record :
 /*------------------------------------------------------------------------------
