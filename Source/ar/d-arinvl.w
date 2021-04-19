@@ -306,7 +306,7 @@ DEFINE FRAME Dialog-Frame
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
      ar-invl.e-num AT ROW 14.39 COL 115.2 COLON-ALIGNED
-          LABEL "Line Ref#" FORMAT ">>>>9"
+          LABEL "Ln#" FORMAT ">>9"
           VIEW-AS FILL-IN 
           SIZE 10 BY 1
      fi_acc-desc AT ROW 3.95 COL 29 COLON-ALIGNED
