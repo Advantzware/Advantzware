@@ -345,7 +345,7 @@ FOR EACH job-hdr NO-LOCK
         ASSIGN 
             cJobMachCode = TRIM(job-mch.m-code)
             cCycleValue  = TRIM(STRING(job-mch.run-qty)) .
-        v-due-date = IF AVAILABLE oe-ord THEN oe-ord.due-date ELSE ?.
+        v-due-date = IF AVAILABLE oe-ord THEN oe-ord.due-date ELSE job.due-date.
         
         IF NOT FIRST(job-hdr.job-no) THEN PAGE.
         PUT "<FCalibri>" .
