@@ -3431,6 +3431,7 @@ PROCEDURE pCreateValidationTags PRIVATE:
             INPUT bf-inv-head.rec_key,
             INPUT "inv-head",
             INPUT ttInvoiceError.problemMessage,
+            INPUT "",
             INPUT ""
             ). /*From TagProcs Super Proc*/
 

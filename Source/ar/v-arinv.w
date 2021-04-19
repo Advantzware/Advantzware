@@ -843,6 +843,7 @@ PROCEDURE local-assign-record :
    DEFINE VARIABLE dOverPer AS DECIMAL NO-UNDO.
    DEFINE VARIABLE dUnderPer AS DECIMAL NO-UNDO.
    DEFINE VARIABLE cOldShipto AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cTagDesc AS CHARACTER NO-UNDO.
    
   /* Code placed here will execute PRIOR to standard behavior. */
    cOldShipto = IF AVAIL ar-inv THEN ar-inv.ship-id ELSE "" . 
@@ -864,7 +865,7 @@ PROCEDURE local-assign-record :
                            ar-inv.cust-no,
                            ar-inv.ship-id,
                            "", /* FG Item*/
-                           OUTPUT dOverPer , OUTPUT dUnderPer ) .
+                           OUTPUT dOverPer , OUTPUT dUnderPer, OUTPUT cTagDesc ) .
                            ar-inv.over-pct = dOverPer.
                            ar-inv.Under-pct = dUnderPer. 
     END.
