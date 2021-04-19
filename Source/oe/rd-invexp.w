@@ -1351,9 +1351,9 @@ IF tb_print-del  THEN do:
                               OUTPUT  TABLE  ttTag 
                               ).
                           FOR EACH ttTag:
-                              cVarValue = cVarValue + "," + STRING(ttTag.description).
+                              cVarValue = cVarValue + ";" + STRING(ttTag.description).
                           END. 
-                          cVarValue = TRIM(cVarValue, ",").
+                          cVarValue = TRIM(cVarValue, ";").
                       END.
                       ELSE  cVarValue = "".                       
                   END.
@@ -1530,9 +1530,9 @@ ELSE DO:
                               OUTPUT  TABLE  ttTag 
                               ).
                           FOR EACH ttTag:
-                              cVarValue = cVarValue + "," + STRING(ttTag.description).
+                              cVarValue = cVarValue + ";" + STRING(ttTag.description).
                           END. 
-                          cVarValue = TRIM(cVarValue, ",").
+                          cVarValue = TRIM(cVarValue, ";").
                       END.
                       ELSE  cVarValue = "".                      
                   END.
