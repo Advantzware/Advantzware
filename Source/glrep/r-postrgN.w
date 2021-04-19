@@ -1272,15 +1272,20 @@ DEF VAR cslist AS cha NO-UNDO.
  FOR EACH ttRptSelected BY ttRptSelected.DisplayOrder:
 
    IF LENGTH(ttRptSelected.TextList) = ttRptSelected.FieldLength 
-   THEN ASSIGN str-tit4 = str-tit4 + ttRptSelected.TextList + " "
-               str-tit5 = str-tit5 + FILL("-",ttRptSelected.FieldLength) + " "
-               excelheader = excelHeader + ttRptSelected.TextList + "," .        
-   ELSE 
+   THEN DO: 
+    IF ttRptSelected.TextList NE "Transaction Number" THEN    
+   ASSIGN str-tit4 = str-tit4 + ttRptSelected.TextList + " "   
+               str-tit5 = str-tit5 + FILL("-",ttRptSelected.FieldLength) + " " .
+               excelheader = excelHeader + ttRptSelected.TextList + "," . 
+   END.
+   ELSE DO:
+   IF ttRptSelected.TextList NE "Transaction Number" THEN 
    ASSIGN str-tit4 = str-tit4 + 
             (IF ttRptSelected.HeadingFromLeft THEN
                 ttRptSelected.TextList + FILL(" ",ttRptSelected.FieldLength - LENGTH(ttRptSelected.TextList))
             ELSE FILL(" ",ttRptSelected.FieldLength - LENGTH(ttRptSelected.TextList)) + ttRptSelected.TextList) + " "
-          str-tit5 = str-tit5 + FILL("-",ttRptSelected.FieldLength) + " "
+          str-tit5 = str-tit5 + FILL("-",ttRptSelected.FieldLength) + " " .
+          
           excelheader = excelHeader + ttRptSelected.TextList + ","
           .        
           cSlist = cSlist + ttRptSelected.FieldList + ",".
@@ -1289,7 +1294,8 @@ DEF VAR cslist AS cha NO-UNDO.
          ASSIGN
          str-line = str-line + FILL("-",ttRptSelected.FieldLength) + " " .
         ELSE
-         str-line = str-line + FILL(" ",ttRptSelected.FieldLength) + " " . 
+         str-line = str-line + FILL(" ",ttRptSelected.FieldLength) + " " .
+   END.     
  END.
 
 
@@ -1407,7 +1413,7 @@ FOR EACH tt-glhist NO-LOCK
             DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
                cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
                     CASE cTmpField:             
-                         WHEN "run"    THEN cVarValue = IF  FIRST-OF(tt-glhist.tr-num) THEN string(tt-glhist.tr-num,"9999999") ELSE "" .
+                         WHEN "run"    THEN cVarValue = string(tt-glhist.tr-num,"9999999") .
                          WHEN "acc"   THEN cVarValue = string(tt-glhist.actnum,"x(25)").
                          WHEN "acc-desc"  THEN cVarValue = IF AVAIL account THEN  STRING(account.dscr,"x(30)") ELSE "" .
                          WHEN "jour"   THEN cVarValue = string(tt-glhist.jrnl,"x(12)") .
@@ -1421,10 +1427,12 @@ FOR EACH tt-glhist NO-LOCK
 
                     END CASE.
 
-                    cExcelVarValue = cVarValue.
+                    cExcelVarValue = cVarValue.                    
+                    cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",". 
+                    IF cTmpField NE "TRANS" THEN 
                     cDisplay = cDisplay + cVarValue +
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-                    cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+                     
             END.
 
             PUT UNFORMATTED cDisplay SKIP.
@@ -1460,6 +1468,7 @@ FOR EACH tt-glhist NO-LOCK
                     END CASE.
 
                     cExcelVarValue = cVarValue.
+                    IF cTmpField NE "TRANS" THEN 
                     cDisplay = cDisplay + cVarValue +
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
@@ -1501,6 +1510,7 @@ IF v-print THEN
                     END CASE.
 
                     cExcelVarValue = cVarValue.
+                    IF cTmpField NE "TRANS" THEN 
                     cDisplay = cDisplay + cVarValue +
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
