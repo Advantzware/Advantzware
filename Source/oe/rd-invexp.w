@@ -64,7 +64,9 @@ DEF VAR cFieldListToSelect AS cha NO-UNDO.
 DEF VAR cFieldLength AS cha NO-UNDO.
 DEF VAR cFieldType AS cha NO-UNDO.
 DEF VAR iColumnLength AS INT NO-UNDO.
-
+DEFINE TEMP-TABLE ttTag LIKE tag.
+DEFINE VARIABLE cReason AS CHARACTER NO-UNDO. 
+DEFINE VARIABLE lAvailable AS LOGICAL NO-UNDO.
 /*
 DEF TEMP-TABLE tt-report NO-UNDO
     FIELD i-no    AS CHAR
@@ -1333,13 +1335,27 @@ IF tb_print-del  THEN do:
                   WHEN "auto" THEN cVarValue = STRING(inv-head.autoApproved) .
                   WHEN "reason" THEN
                   DO:
-                     FIND FIRST tag NO-LOCK 
-                          WHERE tag.linkRecKey  EQ inv-head.rec_key
-                          AND tag.tagType     EQ "Hold" 
-                          AND tag.linkTable   EQ "inv-head"                          
-                          NO-ERROR. 
-                      IF avail tag AND NOT inv-head.autoApproved THEN cVarValue = STRING(tag.description) .
-                      ELSE  cVarValue = "".                      
+
+                      RUN Tag_IsTagRecordAvailable(
+                          INPUT inv-head.rec_key,
+                          INPUT "inv-head",
+                          OUTPUT lAvailable
+                          ).
+                      IF lAvailable THEN  
+                      DO:
+                          EMPTY TEMP-TABLE ttTag.
+                          RUN GetTags(
+                              INPUT  inv-head.rec_key, 
+                              INPUT  "inv-head", 
+                              INPUT  "",   
+                              OUTPUT  TABLE  ttTag 
+                              ).
+                          FOR EACH ttTag:
+                              cVarValue = cVarValue + "," + STRING(ttTag.description).
+                          END. 
+                          cVarValue = TRIM(cVarValue, ",").
+                      END.
+                      ELSE  cVarValue = "".                       
                   END.
                   WHEN "cAccountant"            THEN cVarValue = STRING(cust.accountant).
                   WHEN "cInvComment"            THEN cVarValue = STRING(inv-head.spare-char-5).
@@ -1499,12 +1515,25 @@ ELSE DO:
                   WHEN "auto" THEN cVarValue = STRING(inv-head.autoApproved) .
                   WHEN "reason" THEN
                   DO:
-                     FIND FIRST tag NO-LOCK 
-                          WHERE tag.linkRecKey  EQ inv-head.rec_key
-                          AND tag.tagType     EQ "Hold" 
-                          AND tag.linkTable   EQ "inv-head"                          
-                          NO-ERROR. 
-                      IF avail tag AND NOT inv-head.autoApproved THEN cVarValue = STRING(tag.description) .
+                      RUN Tag_IsTagRecordAvailable(
+                          INPUT inv-head.rec_key,
+                          INPUT "inv-head",
+                          OUTPUT lAvailable
+                          ).
+                      IF lAvailable THEN  
+                      DO:
+                          EMPTY TEMP-TABLE ttTag.
+                          RUN GetTags(
+                              INPUT  inv-head.rec_key, 
+                              INPUT  "inv-head", 
+                              INPUT  "",   
+                              OUTPUT  TABLE  ttTag 
+                              ).
+                          FOR EACH ttTag:
+                              cVarValue = cVarValue + "," + STRING(ttTag.description).
+                          END. 
+                          cVarValue = TRIM(cVarValue, ",").
+                      END.
                       ELSE  cVarValue = "".                      
                   END.
                   WHEN "cAccountant"            THEN cVarValue = STRING(cust.accountant).
