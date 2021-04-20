@@ -154,15 +154,23 @@ DEFINE VARIABLE cAccount AS CHARACTER FORMAT "X(256)":U
 DEFINE VARIABLE cDescription AS CHARACTER FORMAT "X(256)":U 
      LABEL "Description" 
      VIEW-AS FILL-IN 
-     SIZE 51 BY 1
+     SIZE 45 BY 1
      BGCOLOR 15  NO-UNDO.
-
-DEFINE VARIABLE cType AS CHARACTER FORMAT "X(256)":U 
+     
+DEFINE VARIABLE cType AS CHARACTER FORMAT "X(256)":U INITIAL "*"
      LABEL "Type" 
-     VIEW-AS FILL-IN 
-     SIZE 7 BY 1
-     BGCOLOR 15  NO-UNDO.
-
+     VIEW-AS COMBO-BOX INNER-LINES 5
+     LIST-ITEM-PAIRS "All","*",
+                     "Asset","A",
+                     "Capital","C",
+                     "Expense","E",
+                     "Liability","L",
+                     "Revenue","R",
+                     "Title","T"
+     DROP-DOWN-LIST
+     SIZE 13 BY 1
+     FONT 4 NO-UNDO.
+     
 DEFINE VARIABLE fi_sortby AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
      SIZE 51 BY .71
@@ -233,7 +241,7 @@ DEFINE BROWSE Browser-Table
 DEFINE FRAME F-Main
      cAccount AT ROW 1.24 COL 9 COLON-ALIGNED WIDGET-ID 6
      cDescription AT ROW 1.24 COL 48 COLON-ALIGNED WIDGET-ID 8
-     cType AT ROW 1.24 COL 106 COLON-ALIGNED WIDGET-ID 10
+     cType AT ROW 1.24 COL 100 COLON-ALIGNED WIDGET-ID 10
      lCommReport AT ROW 1.24 COL 116 WIDGET-ID 16
      lSalesReport AT ROW 2.19 COL 116 WIDGET-ID 14
      lInactive AT ROW 2.19 COL 132 WIDGET-ID 12
