@@ -178,8 +178,7 @@ DO:
 /*    RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,'excel-source':U,OUTPUT char-hdl). */
 /*                                                                                             */
 /*    RUN export-excel in WIDGET-HANDLE(char-hdl).                                             */
- 
-  IF v-whereamI MATCHES "*oe/wOrderEntryMaster*" THEN DO: 
+  IF (v-whereamI MATCHES "*oe/wOrderEntryMaster*") OR (v-whereamI MATCHES "*Oeinq/w-ordinq*") THEN DO: 
       /* If order inquiry, then pass current sort data to the report window. */
       {methods/run_link.i "container-source" "GetScreenType" "(Output cScreenType)"}
       IF cScreenType EQ "OQ1" THEN DO:
