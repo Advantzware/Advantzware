@@ -76,9 +76,9 @@ account.type account.inactive account.salesReport account.commReport
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH account WHERE ~{&KEY-PHRASE} ~
       AND account.company EQ gcompany AND ~
-account.actnum MATCHES cAccount + "*" AND ~
-account.dscr MATCHES cDescription + "*" AND ~
-account.type MATCHES cType + "*" AND ~
+account.actnum BEGINS cAccount AND ~
+account.dscr BEGINS cDescription AND ~
+account.type BEGINS cType AND ~
 (account.inactive EQ lInactive OR ~
 lInactive EQ NO) AND ~
 (account.salesReport EQ lSalesReport OR ~
@@ -88,9 +88,9 @@ lCommReport EQ NO) NO-LOCK ~
     ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY Browser-Table FOR EACH account WHERE ~{&KEY-PHRASE} ~
       AND account.company EQ gcompany AND ~
-account.actnum MATCHES cAccount + "*" AND ~
-account.dscr MATCHES cDescription + "*" AND ~
-account.type MATCHES cType + "*" AND ~
+account.actnum BEGINS cAccount AND ~
+account.dscr BEGINS cDescription AND ~
+account.type BEGINS cType AND ~
 (account.inactive EQ lInactive OR ~
 lInactive EQ NO) AND ~
 (account.salesReport EQ lSalesReport OR ~
@@ -362,9 +362,9 @@ ASSIGN
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = "USED"
      _Where[1]         = "account.company EQ gcompany AND
-account.actnum MATCHES cAccount + ""*"" AND
-account.dscr MATCHES cDescription + ""*"" AND
-account.type MATCHES cType + ""*"" AND
+account.actnum BEGINS cAccount AND
+account.dscr BEGINS cDescription AND
+account.type BEGINS cType AND
 (account.inactive EQ lInactive OR
 lInactive EQ NO) AND
 (account.salesReport EQ lSalesReport OR
@@ -443,9 +443,9 @@ ON CHOOSE OF btnGO IN FRAME F-Main /* GO */
 DO:
     ASSIGN
         {&FilterFields}
-        cAccount     = cAccount + "*"
-        cDescription = cDescription + "*"
-        cType        = cType + "*"
+       // cAccount     = cAccount + "*"
+       // cDescription = cDescription + "*"
+       // cType        = cType + "*"
         .
     RUN pReopenBrowse.
 END.
@@ -466,9 +466,9 @@ DO:
         lSalesReport:SCREEN-VALUE = "NO"
         lInactive:SCREEN-VALUE    = "NO"
         {&FilterFields}
-        cAccount                  = "*"
-        cDescription              = "*"
-        cType                     = "*"
+      //  cAccount                  = "*"
+      //  cDescription              = "*"
+      //  cType                     = "*"
         .
     RUN pReopenBrowse.
 END.
