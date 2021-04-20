@@ -5129,7 +5129,7 @@ PROCEDURE pGetAccountForJobCat:
              b-job-hdr.company EQ g_company AND
              b-job-hdr.job-no  EQ po-ordl.job-no:SCREEN-VALUE AND
              b-job-hdr.job-no2 EQ INT(po-ordl.job-no2:SCREEN-VALUE)  AND
-             b-job-hdr.frm     EQ INT(po-ordl.s-num:SCREEN-VALUE) NO-LOCK NO-ERROR. MESSAGE "b-job-hdr.i-no " b-job-hdr.i-no VIEW-AS ALERT-BOX ERROR.
+             b-job-hdr.frm     EQ INT(po-ordl.s-num:SCREEN-VALUE) NO-LOCK NO-ERROR. 
         IF AVAILABLE b-job-hdr THEN
         RUN get-itemfg-gl (INPUT b-job-hdr.company, b-job-hdr.i-no, OUTPUT cAccountNo).
         IF cAccountNo <> "" THEN 
