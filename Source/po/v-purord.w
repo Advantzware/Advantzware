@@ -169,7 +169,7 @@ DEFINE QUERY external_tables FOR po-ord.
 po-ord.cust-no po-ord.ship-id po-ord.buyer po-ord.contact po-ord.due-date ~
 po-ord.last-ship-date po-ord.under-pct po-ord.over-pct po-ord.carrier ~
 po-ord.excludeFromVoucher po-ord.tax-gr po-ord.terms po-ord.frt-pay ~
-po-ord.fob-code po-ord.priceHold po-ord.t-freight 
+po-ord.fob-code po-ord.priceHold po-ord.t-freight po-ord.loc
 &Scoped-define ENABLED-TABLES po-ord
 &Scoped-define FIRST-ENABLED-TABLE po-ord
 &Scoped-Define ENABLED-OBJECTS btnCalendar-1 rd_drop-shipment btnCalendar-2 ~
@@ -181,7 +181,7 @@ po-ord.ship-zip po-ord.buyer po-ord.contact po-ord.due-date ~
 po-ord.last-ship-date po-ord.under-pct po-ord.over-pct po-ord.carrier ~
 po-ord.excludeFromVoucher po-ord.tax-gr po-ord.terms po-ord.frt-pay ~
 po-ord.fob-code po-ord.priceHold po-ord.t-freight po-ord.tax po-ord.t-cost ~
-po-ord.approved-date po-ord.approved-id 
+po-ord.approved-date po-ord.approved-id po-ord.loc 
 &Scoped-define DISPLAYED-TABLES po-ord
 &Scoped-define FIRST-DISPLAYED-TABLE po-ord
 &Scoped-Define DISPLAYED-OBJECTS fc_app_time rd_drop-shipment lv_vend-name ~
@@ -441,6 +441,10 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
           BGCOLOR 15 
+     po-ord.loc AT ROW 9.95 COL 50.0 COLON-ALIGNED FORMAT "x(5)"
+          VIEW-AS FILL-IN 
+          SIZE 9 BY 1
+          BGCOLOR 15      
      po-ord.carrier AT ROW 9.95 COL 81.8 COLON-ALIGNED FORMAT "x(5)"
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
@@ -584,6 +588,8 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN po-ord.carrier IN FRAME F-Main
    EXP-FORMAT                                                           */
+/* SETTINGS FOR FILL-IN po-ord.loc IN FRAME F-Main
+   EXP-FORMAT                                                           */   
 /* SETTINGS FOR FILL-IN po-ord.cust-no IN FRAME F-Main
    EXP-LABEL                                                            */
 /* SETTINGS FOR TOGGLE-BOX po-ord.excludeFromVoucher IN FRAME F-Main
@@ -748,7 +754,11 @@ DO:
             IF char-val NE "" THEN lw-focus:SCREEN-VALUE = ENTRY(1,char-val).
         END.
         WHEN "carrier" THEN DO:
-            RUN windows/l-carrie.w (g_company, g_loc, lw-focus:SCREEN-VALUE, OUTPUT char-val).
+            RUN windows/l-carrie.w (g_company, po-ord.loc:SCREEN-VALUE, lw-focus:SCREEN-VALUE, OUTPUT char-val).
+            IF char-val NE "" THEN lw-focus:SCREEN-VALUE = ENTRY(1,char-val).
+        END.
+        WHEN "loc" THEN DO:
+            RUN windows/l-loc.w (g_company,lw-focus:SCREEN-VALUE, OUTPUT char-val).
             IF char-val NE "" THEN lw-focus:SCREEN-VALUE = ENTRY(1,char-val).
         END. 
         WHEN "tax-gr" THEN DO:
@@ -826,16 +836,30 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL po-ord.carrier V-table-Win
 ON LEAVE OF po-ord.carrier IN FRAME F-Main /* Shipping Carrier */
 DO:
+    DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
     IF LASTKEY = -1 THEN RETURN.
     {&methods/lValidateError.i YES}
-    IF SELF:MODIFIED THEN DO:
-       FIND FIRST carrier WHERE carrier.company = g_company AND
-                                carrier.carrier = SELF:SCREEN-VALUE
-                   NO-LOCK NO-ERROR.
-       IF NOT AVAILABLE carrier THEN DO:
-          MESSAGE "Invalid Carrier. Try Help. " VIEW-AS ALERT-BOX ERROR.
-          RETURN NO-APPLY.
-       END.
+    IF SELF:SCREEN-VALUE NE "" THEN DO:
+       RUN valid-carrier(OUTPUT lReturnError) NO-ERROR.
+       IF lReturnError THEN RETURN NO-APPLY.       
+    END.
+    {&methods/lValidateError.i NO}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME po-ord.loc
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL po-ord.loc V-table-Win
+ON LEAVE OF po-ord.loc IN FRAME F-Main /* Loc */
+DO:
+    DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
+    IF LASTKEY = -1 THEN RETURN.
+    {&methods/lValidateError.i YES}
+    IF SELF:MODIFIED THEN DO:       
+       RUN valid-loc(OUTPUT lReturnError) NO-ERROR.
+       IF lReturnError THEN RETURN NO-APPLY.
     END.
     {&methods/lValidateError.i NO}
 END.
@@ -1557,7 +1581,9 @@ PROCEDURE display-vend-to :
        po-ord.ship-state:SCREEN-VALUE  = IF AVAILABLE vend THEN vend.state ELSE ''
        po-ord.ship-zip:SCREEN-VALUE    = IF AVAILABLE vend THEN vend.zip ELSE ''
        shipAreaCode:SCREEN-VALUE       = IF AVAILABLE vend THEN vend.area-code ELSE ''
-       shipPhone:SCREEN-VALUE          = IF AVAILABLE vend THEN vend.phone ELSE ''.
+       shipPhone:SCREEN-VALUE          = IF AVAILABLE vend THEN vend.phone ELSE ''
+       po-ord.loc:SCREEN-VALUE         = IF AVAILABLE vend AND vend.loc NE "" THEN vend.loc ELSE locode.
+    RUN pCheckCarrierLoc.   
   END.
 
 END PROCEDURE.
@@ -1744,40 +1770,7 @@ PROCEDURE local-assign-record :
              po-ord.stat    = "H" .
   END.
 
-  /* 10021210 */
-  IF rd_drop-shipment EQ "S" THEN DO:
-      FIND FIRST cust NO-LOCK
-           WHERE cust.company EQ cocode
-             AND cust.active = "X" NO-ERROR.
-      IF AVAIL company AND company.company EQ po-ord.ship-id AND AVAIL cust AND cust.loc NE "" THEN
-          ASSIGN po-ord.loc = cust.loc .
-      ELSE  ASSIGN po-ord.loc = po-ord.ship-id .   
-  END.
-  ELSE DO:
-      IF ls-drop-custno NE "" THEN DO:
-          FIND FIRST shipto WHERE shipto.company EQ cocode
-              AND shipto.cust-no EQ ls-drop-custno
-              AND shipto.ship-id EQ po-ord.ship-id
-              NO-LOCK NO-ERROR.
-          IF AVAILABLE shipto AND shipto.loc GT "" THEN
-              po-ord.loc = shipto.loc.
-          ELSE DO:
-              FIND FIRST cust NO-LOCK
-                  WHERE cust.company EQ cocode
-                    AND cust.cust-no = ls-drop-custno NO-ERROR.
-              IF AVAIL cust AND cust.loc NE "" THEN
-                  po-ord.loc = cust.loc.
-          END.     
-      END.
-      ELSE DO:
-          FIND FIRST vend NO-LOCK WHERE vend.company EQ cocode
-              AND vend.vend-no EQ INPUT po-ord.ship-id
-              NO-ERROR.
-          IF AVAILABLE vend AND vend.loc NE "" THEN 
-              po-ord.loc = vend.loc.   
-      END.
-  END.
-  
+     
   IF cOldLoc NE po-ord.loc THEN
   DO:
      RUN pRunResetFGQty .
@@ -2172,7 +2165,13 @@ PROCEDURE local-update-record :
     IF lReturnError THEN RETURN NO-APPLY.
     
     RUN valid-is-dropship(OUTPUT lReturnError) NO-ERROR.
-    IF lReturnError THEN RETURN NO-APPLY.    
+    IF lReturnError THEN RETURN NO-APPLY.  
+    
+    RUN valid-loc(OUTPUT lReturnError) NO-ERROR.
+    IF lReturnError THEN RETURN NO-APPLY.
+    
+    RUN valid-carrier(OUTPUT lReturnError) NO-ERROR.
+    IF lReturnError THEN RETURN NO-APPLY.
             
     IF /*adm-new-record and ??*/
        NOT ll-got-vendor AND po-ord.vend-no <> po-ord.vend-no:SCREEN-VALUE
@@ -2180,18 +2179,7 @@ PROCEDURE local-update-record :
 
     RUN valid-type NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
-    IF po-ord.carrier:MODIFIED THEN DO:
-       FIND FIRST carrier WHERE carrier.company = g_company AND
-                                carrier.carrier = po-ord.carrier:SCREEN-VALUE
-                   NO-LOCK NO-ERROR.
-       IF NOT AVAILABLE carrier THEN DO:
-          MESSAGE "Invalid Carrier. Try Help. " VIEW-AS ALERT-BOX ERROR.
-          APPLY "entry" TO po-ord.carrier.
-          RETURN NO-APPLY.
-       END.
-    END.   
-
+        
     IF po-ord.terms:MODIFIED THEN DO:
        FIND FIRST terms WHERE terms.company = g_company AND
                               terms.t-code = po-ord.terms:SCREEN-VALUE
@@ -2430,7 +2418,8 @@ PROCEDURE new-vend-no :
        po-ord.frt-pay:SCREEN-VALUE   = IF vend.frt-pay NE "" THEN vend.frt-pay ELSE "B"
        po-ord.over-pct:SCREEN-VALUE  = STRING(vend.over-pct)   
        po-ord.under-pct:SCREEN-VALUE = STRING(vend.under-pct)
-       po-ord.tax-gr:SCREEN-VALUE    = vend.tax-gr.
+       po-ord.tax-gr:SCREEN-VALUE    = vend.tax-gr
+       .
        
        IF ls-ship-choice EQ "S" THEN
        DO:
@@ -2472,15 +2461,20 @@ PROCEDURE pAssignAddressFromCompany :
             po-ord.ship-addr[2] = company.addr[2]
             po-ord.ship-city    = company.city
             po-ord.ship-state   = company.state
-            po-ord.ship-zip     = company.zip.
-  ELSE IF AVAIL company THEN 
+            po-ord.ship-zip     = company.zip
+            po-ord.loc          = locode.
+  ELSE IF AVAIL company THEN
+  DO:  
      ASSIGN po-ord.ship-id:SCREEN-VALUE      = company.company
             po-ord.ship-name:SCREEN-VALUE    = company.NAME
             po-ord.ship-addr[1]:SCREEN-VALUE = company.addr[1]
             po-ord.ship-addr[2]:SCREEN-VALUE = company.addr[2]
             po-ord.ship-city:SCREEN-VALUE    = company.city
             po-ord.ship-state:SCREEN-VALUE   = company.state
-            po-ord.ship-zip:SCREEN-VALUE     = company.zip.   
+            po-ord.ship-zip:SCREEN-VALUE     = company.zip
+            po-ord.loc:SCREEN-VALUE          = locode. 
+     RUN pCheckCarrierLoc.       
+  END.          
  END.                                  
 END PROCEDURE.
 
@@ -2512,7 +2506,9 @@ PROCEDURE pAssignAddressFromLocation :
              po-ord.ship-addr[2]:SCREEN-VALUE = IF AVAIL location THEN location.streetAddr[2] ELSE ""
              po-ord.ship-city:SCREEN-VALUE    = IF AVAIL location THEN location.subCode3 ELSE ""
              po-ord.ship-state:SCREEN-VALUE   = IF AVAIL location THEN location.subCode1 ELSE ""
-             po-ord.ship-zip:SCREEN-VALUE     = IF AVAIL location THEN location.subCode4 ELSE "".
+             po-ord.ship-zip:SCREEN-VALUE     = IF AVAIL location THEN location.subCode4 ELSE ""
+             po-ord.loc:SCREEN-VALUE          = loc.loc.
+             RUN pCheckCarrierLoc.
        END.
   END.    
   
@@ -2546,10 +2542,14 @@ PROCEDURE pAssignAddressFromShipto :
                     po-ord.ship-zip:SCREEN-VALUE     = shipto.ship-zip
                     lv-ship-no                       = shipto.ship-no
                     shipAreaCode:SCREEN-VALUE        = IF AVAILABLE cust THEN cust.area-code ELSE ""
-                    shipPhone:SCREEN-VALUE           = IF AVAILABLE cust THEN cust.phone ELSE "".
+                    shipPhone:SCREEN-VALUE           = IF AVAILABLE cust THEN cust.phone ELSE ""
+                    po-ord.loc:SCREEN-VALUE          = IF shipto.loc NE "" THEN shipto.loc ELSE cust.loc.
              ASSIGN fil_id = RECID(shipto).
              IF po-ord.frt-pay:SCREEN-VALUE NE "P" THEN
-             po-ord.carrier:SCREEN-VALUE = shipto.carrier.
+             ASSIGN
+              po-ord.carrier:SCREEN-VALUE = shipto.carrier
+              .
+             RUN pCheckCarrierLoc. 
          END.
   END.    
   
@@ -2588,6 +2588,29 @@ PROCEDURE pClearPriceHoldManually PRIVATE :
         "Price Hold Cleared Manually",
         ""
         ).
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckCarrierLoc V-table-Win 
+PROCEDURE pCheckCarrierLoc PRIVATE :
+/*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DO WITH FRAME {&FRAME-NAME}:
+     FIND FIRST carrier NO-LOCK
+          WHERE carrier.company EQ cocode            
+          AND carrier.carrier EQ po-ord.carrier:SCREEN-VALUE             
+          AND carrier.loc EQ po-ord.loc:SCREEN-VALUE 
+          NO-ERROR.
+     IF not AVAIL carrier THEN 
+     po-ord.carrier:SCREEN-VALUE = "" .
+     
+    END.                                   
 
 END PROCEDURE.
 
@@ -2923,6 +2946,66 @@ PROCEDURE valid-cust-no :
           APPLY "entry" TO po-ord.cust-no.
         END.
     END.
+  END.
+  {methods/lValidateError.i NO}
+    
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-loc V-table-Win 
+PROCEDURE valid-loc :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
+  {methods/lValidateError.i YES}
+  DO WITH FRAME {&FRAME-NAME}:           
+        FIND FIRST loc NO-LOCK
+            WHERE loc.company EQ cocode
+              AND loc.loc EQ po-ord.loc:SCREEN-VALUE               
+              NO-ERROR.
+        IF NOT AVAILABLE loc   THEN DO:
+          
+            MESSAGE "Invalid " + TRIM(po-ord.loc:LABEL) + ", try help..."
+                VIEW-AS ALERT-BOX ERROR.
+          oplReturnError = TRUE.
+          APPLY "entry" TO po-ord.loc.
+        END.    
+  END.
+  {methods/lValidateError.i NO}
+    
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-carrier V-table-Win 
+PROCEDURE valid-carrier :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
+  {methods/lValidateError.i YES}
+  DO WITH FRAME {&FRAME-NAME}:           
+    FIND FIRST carrier NO-LOCK
+        WHERE carrier.company EQ cocode            
+          AND carrier.carrier EQ po-ord.carrier:SCREEN-VALUE             
+          NO-ERROR.
+    IF NOT AVAILABLE carrier   THEN DO:       
+        MESSAGE "Invalid " + TRIM(po-ord.carrier:LABEL) + ", try help..."
+            VIEW-AS ALERT-BOX ERROR.
+      oplReturnError = TRUE.
+      APPLY "entry" TO po-ord.carrier.
+    END.
+    
   END.
   {methods/lValidateError.i NO}
     
