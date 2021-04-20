@@ -4,9 +4,10 @@ DEFINE VARIABLE cPhone AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFax   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cTagno AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cVendorTagno AS CHARACTER NO-UNDO.
-
+DEFINE VARIABLE cSize AS CHARACTER NO-UNDO.
 ASSIGN cTagno = tt-po-print.tag-no 
-       cVendorTagno = tt-po-print.vend-tag  .
+       cVendorTagno = tt-po-print.vend-tag 
+       cSize = "W: " + STRING(tt-po-print.s-wid) + " x L: " + STRING(tt-po-print.s-len) .
 
 PUT "<FArial>".
 PUT "<C+25><#1>".
@@ -27,7 +28,8 @@ PUT "<R16><C3><#5><FROM><R16><C83><RECT><||3>" SKIP
     "<R16><C83><FROM><R23><C83><LINE><||3>" SKIP.
 
 PUT "<FArial><R19><C5><P18><B>" tt-po-print.i-no FORMAT "x(20)" "</B>".
-PUT "<FArial><R19><C30><P18><B>" tt-po-print.i-name FORMAT "x(30)" "</B>" SKIP.
+PUT "<FArial><R19><C20><P18><B>" tt-po-print.i-name FORMAT "x(30)" "</B>" .
+PUT "<FArial><R19><C50><P18><B>" cSize FORMAT "x(30)" "</B>" SKIP.
 
 PUT "<FArial><R24><C5><P16><B>" "Purchase Order No"  "</B>" SKIP.
 PUT "<FArial><R24><C40><P16><B>" "Quantity"  "</B>" SKIP.
