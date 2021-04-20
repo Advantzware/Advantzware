@@ -173,6 +173,7 @@ DEFINE TEMP-TABLE ttLines
     FIELD orderID                  AS INTEGER   
     FIELD orderLine                AS INTEGER   
     FIELD orderLineOverride        AS INTEGER
+    FIELD orderLineOverridden      AS INTEGER
     FIELD taxRateFreight           AS DECIMAL   
     FIELD customerPONo             AS CHARACTER           
     .
@@ -571,8 +572,7 @@ DO:
                 ttLines.company                = ttInv.company
                 ttLines.lineNo                 = inv-line.line
                 ttLines.orderID                = inv-line.ord-no
-                ttLines.orderLine              = inv-line.line
-                ttLines.orderLineOverride      = IF inv-line.e-num GT 0 THEN inv-line.e-num ELSE inv-line.LINE
+                ttLines.orderLineOverride      = inv-line.e-num
                 ttLines.quantityInvoiced       = inv-line.inv-qty
                 ttLines.quantityInvoicedUOM    = "EA"
                 ttLines.pricePerUOM            = inv-line.price * (1 - (inv-line.disc / 100))
@@ -604,8 +604,13 @@ DO:
                  NO-ERROR.
 
             IF AVAILABLE oe-ordl THEN 
-                ttLines.orderLineOverride = IF inv-line.e-num GT 0 THEN inv-line.e-num ELSE oe-ordl.LINE.
+                ttLines.orderLine = oe-ordl.line.
             
+            ttLines.orderLineOverridden = IF ttLines.orderLineOverride GT 0 THEN
+                                              ttLines.orderLineOverride
+                                          ELSE
+                                              ttLines.orderLine.
+
             RUN pAssignCommonLineData(
                 BUFFER ttInv, 
                 BUFFER ttLines
@@ -712,8 +717,7 @@ DO:
                 ttLines.company                = ttInv.company
                 ttLines.lineNo                 = ar-invl.line
                 ttLines.orderID                = ar-invl.ord-no
-                ttLines.orderLine              = ar-invl.ord-line
-                ttLines.orderLineOverride      = IF ar-invl.e-num NE 0 THEN ar-invl.e-num ELSE ar-invl.ord-line
+                ttLines.orderLineOverride      = ar-invl.e-num
                 ttLines.quantityInvoiced       = ar-invl.inv-qty
                 ttLines.quantityInvoicedUOM    = "EA"
                 ttLines.pricePerUOM            = ar-invl.unit-pr * (1 - (ar-invl.disc / 100))
@@ -745,7 +749,12 @@ DO:
                  NO-ERROR.
 
             IF AVAILABLE oe-ordl THEN 
-                ttLines.orderLineOverride = IF ar-invl.e-num NE 0 THEN ar-invl.e-num ELSE oe-ordl.line.
+                ttLines.orderLine = oe-ordl.line.
+
+            ttLines.orderLineOverridden = IF ttLines.orderLineOverride GT 0 THEN
+                                              ttLines.orderLineOverride
+                                          ELSE
+                                              ttLines.orderLine.
             
             RUN pAssignCommonLineData(
                 BUFFER ttInv, 
@@ -1489,8 +1498,10 @@ PROCEDURE pUpdateLineRequestData PRIVATE:
     DEFINE INPUT-OUTPUT PARAMETER ioplcLineData AS LONGCHAR.
     DEFINE INPUT-OUTPUT PARAMETER ioplgFirst    AS LOGICAL.
         
-    RUN updateRequestData(INPUT-OUTPUT ioplcLineData, "LineNumber",STRING(ipbf-ttLines.orderLine)). 
-    RUN updateRequestData(INPUT-OUTPUT ioplcLineData, "OrderLineNumber",STRING(ipbf-ttLines.orderLineOverride)). 
+    RUN updateRequestData(INPUT-OUTPUT ioplcLineData, "LineNumber",STRING(ipbf-ttLines.lineNo)). 
+    RUN updateRequestData(INPUT-OUTPUT ioplcLineData, "OrderLineNumber",STRING(ipbf-ttLines.orderLine)). 
+    RUN updateRequestData(INPUT-OUTPUT ioplcLineData, "OrderLineNumberOverride",STRING(ipbf-ttLines.orderLineOverride)). 
+    RUN updateRequestData(INPUT-OUTPUT ioplcLineData, "OrderLineNumberOverridden",STRING(ipbf-ttLines.orderLineOverridden)).
     RUN updateRequestData(INPUT-OUTPUT ioplcLineData, "InvoiceQty",STRING(ipbf-ttLines.quantity)). 
     RUN updateRequestData(INPUT-OUTPUT ioplcLineData, "UOM",DYNAMIC-FUNCTION("fReplaceExceptionCharacters",ipbf-ttLines.priceUOM)).
     RUN updateRequestData(INPUT-OUTPUT ioplcLineData, "UnitPrice",DYNAMIC-FUNCTION("fReplaceExceptionCharacters",STRING(ttLines.pricePerUOM))). 
