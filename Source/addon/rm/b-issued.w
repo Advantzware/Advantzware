@@ -2781,8 +2781,8 @@ PROCEDURE set-s-b-proc :
          AND b-item.i-no     EQ job-mat.i-no
          AND b-item.mat-type EQ item.mat-type
        NO-LOCK
-       BREAK BY job-mat.frm      DESC
-             BY job-mat.blank-no DESC:
+       BREAK BY job-mat.frm      
+             BY job-mat.blank-no:
 
        IF job-mat.i-no EQ rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} OR
           LAST(job-mat.frm)                                                  THEN DO:
