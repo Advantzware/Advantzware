@@ -403,10 +403,7 @@
         ASSIGN dtFirstInvDate = bf-ar-inv.inv-date .
       LEAVE.
       END.  
-        IF tb_firstinvdate THEN
-              ASSIGN w-inv.firstInvDate = dtFirstInvDate .
-        ELSE 
-              ASSIGN w-inv.firstInvDate = ar-inv.inv-date .
+         ASSIGN w-inv.firstInvDate = dtFirstInvDate .
 
       find first itemfg
           where itemfg.company eq cocode
@@ -482,17 +479,13 @@
        w-inv.pst-date = if avail ar-ledger then ar-ledger.tr-date
                         else ar-cash.check-date.
 
-      FOR EACH bf-ar-cash NO-LOCK
-            WHERE bf-ar-cash.company  EQ cocode
-            AND bf-ar-cash.cust-no    EQ ar-cash.cust-no:
-        ASSIGN dtFirstInvDate     = bf-ar-cash.check-date . 
+      FOR EACH bf-ar-inv NO-LOCK
+            WHERE bf-ar-inv.company  EQ cocode
+            AND bf-ar-inv.cust-no    EQ ar-cash.cust-no BY bf-ar-inv.inv-date:
+        ASSIGN dtFirstInvDate = bf-ar-inv.inv-date .
       LEAVE.
-      END.
-        
-        IF tb_firstinvdate THEN
-              ASSIGN w-inv.firstInvDate = dtFirstInvDate .
-        ELSE 
-              ASSIGN w-inv.firstInvDate = ar-cash.check-date .  
+      END.  
+         ASSIGN w-inv.firstInvDate = dtFirstInvDate .  
                         
       assign
        v-amt  = ar-cashl.amt-paid - ar-cashl.amt-disc
