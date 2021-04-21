@@ -73,12 +73,12 @@ DEFINE TEMP-TABLE tt-glhist LIKE glhist
 
 
 ASSIGN cTextListToSelect = "Run#,Account Number,Account Description,Journal,Reference," +  
-                           "Date,Balance,Account Status,Period,Date Outside Period,Transaction Number" 
+                           "Date,Balance,Account Status,Period,Date Outside Period" 
 
        cFieldListToSelect = "run,acc,acc-desc,jour,ref," +
-                            "date,bal,acc-stat,period,out-per,trans"  
-       cFieldLength = "7,25,30,12,30," + "10,15,14,6,19,18" 
-       cFieldType = "i,c,c,c,c," + "c,i,c,c,c,c" 
+                            "date,bal,acc-stat,period,out-per"  
+       cFieldLength = "7,25,30,12,30," + "10,15,14,6,19" 
+       cFieldType = "i,c,c,c,c," + "c,i,c,c,c" 
     .
 
 {sys/inc/ttRptSel.i}
@@ -1272,20 +1272,15 @@ DEF VAR cslist AS cha NO-UNDO.
  FOR EACH ttRptSelected BY ttRptSelected.DisplayOrder:
 
    IF LENGTH(ttRptSelected.TextList) = ttRptSelected.FieldLength 
-   THEN DO: 
-    IF ttRptSelected.TextList NE "Transaction Number" THEN    
-   ASSIGN str-tit4 = str-tit4 + ttRptSelected.TextList + " "   
-               str-tit5 = str-tit5 + FILL("-",ttRptSelected.FieldLength) + " " .
-               excelheader = excelHeader + ttRptSelected.TextList + "," . 
-   END.
-   ELSE DO:
-   IF ttRptSelected.TextList NE "Transaction Number" THEN 
+   THEN ASSIGN str-tit4 = str-tit4 + ttRptSelected.TextList + " "
+               str-tit5 = str-tit5 + FILL("-",ttRptSelected.FieldLength) + " "
+               excelheader = excelHeader + ttRptSelected.TextList + "," .        
+   ELSE 
    ASSIGN str-tit4 = str-tit4 + 
             (IF ttRptSelected.HeadingFromLeft THEN
                 ttRptSelected.TextList + FILL(" ",ttRptSelected.FieldLength - LENGTH(ttRptSelected.TextList))
             ELSE FILL(" ",ttRptSelected.FieldLength - LENGTH(ttRptSelected.TextList)) + ttRptSelected.TextList) + " "
-          str-tit5 = str-tit5 + FILL("-",ttRptSelected.FieldLength) + " " .
-          
+          str-tit5 = str-tit5 + FILL("-",ttRptSelected.FieldLength) + " "
           excelheader = excelHeader + ttRptSelected.TextList + ","
           .        
           cSlist = cSlist + ttRptSelected.FieldList + ",".
@@ -1294,8 +1289,7 @@ DEF VAR cslist AS cha NO-UNDO.
          ASSIGN
          str-line = str-line + FILL("-",ttRptSelected.FieldLength) + " " .
         ELSE
-         str-line = str-line + FILL(" ",ttRptSelected.FieldLength) + " " .
-   END.     
+         str-line = str-line + FILL(" ",ttRptSelected.FieldLength) + " " . 
  END.
 
 
@@ -1422,17 +1416,14 @@ FOR EACH tt-glhist NO-LOCK
                          WHEN "bal"   THEN cVarValue = STRING(tt-glhist.tr-amt,"->>>,>>>,>>9.99").
                          WHEN "acc-stat"   THEN cVarValue = IF AVAIL account AND account.inactive  THEN STRING("Inactive") ELSE "Active".
                          WHEN "period"   THEN cVarValue = STRING(tt-glhist.period,">>>>>9").
-                         WHEN "out-per"   THEN cVarValue = IF tt-glhist.period NE MONTH(tt-glhist.tr-date) THEN STRING("Yes") ELSE "".
-                         WHEN "trans"   THEN cVarValue = STRING(tt-glhist.tr-num,"->>>,>>>,>>9.99").
+                         WHEN "out-per"   THEN cVarValue = IF tt-glhist.period NE MONTH(tt-glhist.tr-date) THEN STRING("Yes") ELSE "".                        
 
                     END CASE.
 
-                    cExcelVarValue = cVarValue.                    
-                    cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",". 
-                    IF cTmpField NE "TRANS" THEN 
+                    cExcelVarValue = cVarValue.
                     cDisplay = cDisplay + cVarValue +
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-                     
+                    cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
             END.
 
             PUT UNFORMATTED cDisplay SKIP.
@@ -1462,13 +1453,11 @@ FOR EACH tt-glhist NO-LOCK
                          WHEN "bal"   THEN cVarValue = STRING(tot-all,"->>>,>>>,>>9.99").
                          WHEN "acc-stat"   THEN cVarValue = "" .
                          WHEN "period"   THEN cVarValue = "".
-                         WHEN "out-per"   THEN cVarValue = "".
-                         WHEN "trans"   THEN cVarValue = "".
+                         WHEN "out-per"   THEN cVarValue = "".                        
 
                     END CASE.
 
                     cExcelVarValue = cVarValue.
-                    IF cTmpField NE "TRANS" THEN 
                     cDisplay = cDisplay + cVarValue +
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
@@ -1504,13 +1493,11 @@ IF v-print THEN
                          WHEN "bal"   THEN cVarValue = STRING(tot-tot,"->>>,>>>,>>9.99").
                          WHEN "acc-stat"   THEN cVarValue = "" .
                          WHEN "period"   THEN cVarValue = "".
-                         WHEN "out-per"   THEN cVarValue = "".
-                         WHEN "trans"   THEN cVarValue = "".
+                         WHEN "out-per"   THEN cVarValue = "".                         
 
                     END CASE.
 
                     cExcelVarValue = cVarValue.
-                    IF cTmpField NE "TRANS" THEN 
                     cDisplay = cDisplay + cVarValue +
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
