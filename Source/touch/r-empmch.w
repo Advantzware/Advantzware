@@ -858,23 +858,30 @@ if td-show-parm then run show-param.
 
 VIEW FRAME r-top.
 
-FOR EACH employee FIELDS(employee) WHERE
-    employee.company = cocode AND
-    employee.employee GE begin_emp-no AND
-    employee.employee LE end_emp-no
-    NO-LOCK,
-    EACH machemp NO-LOCK WHERE machemp.employee = employee.employee,      
-    EACH machtran NO-LOCK WHERE machtran.rec_key = machemp.TABLE_rec_key 
-                              AND machtran.end_date >= begin_date
-                              AND machtran.end_date <= END_date,
-      FIRST mach NO-LOCK WHERE mach.company EQ cocode AND
-            mach.m-code = machtran.machine AND
-            mach.industry NE "X" AND
-            ((LOOKUP(mach.industry,",1") GT 0 AND tb_fold) OR
-            (LOOKUP(mach.industry,",2") GT 0 AND tb_corr))
-            BREAK BY machemp.employee BY machtran.machine BY machtran.job_number BY machtran.job_sub by machtran.end_date
-                  by machemp.end_time by machtran.charge_code:
-
+FOR EACH employee FIELDS(employee) NO-LOCK
+    WHERE employee.company  EQ cocode
+      AND employee.employee GE begin_emp-no
+      AND employee.employee LE end_emp-no,
+    EACH machemp NO-LOCK
+    WHERE machemp.employee  EQ employee.employee,      
+    EACH machtran NO-LOCK
+    WHERE machtran.rec_key  EQ machemp.table_rec_key 
+      AND machtran.end_date GE begin_date
+      AND machtran.end_date LE END_date,
+    FIRST mach NO-LOCK
+    WHERE mach.company  EQ machtran.company
+      AND mach.m-code   EQ machtran.machine
+      AND mach.industry NE "X"
+      AND ((LOOKUP(mach.industry,",1") GT 0 AND tb_fold)
+       OR  (LOOKUP(mach.industry,",2") GT 0 AND tb_corr))
+    BREAK BY machemp.employee
+          BY machtran.machine
+          BY machtran.job_number
+          BY machtran.job_sub
+          BY machtran.end_date
+          BY machemp.end_time
+          BY machtran.charge_code
+    :
       /*Employee#, MachineCode, Job#, Start Date, Start Time, Stop Time,
        ChargeCode, MR Time, Run Time, Total Time, Run Qty, Waste Qty. */
       ASSIGN ld-mr-time = 0
@@ -921,17 +928,16 @@ FOR EACH employee FIELDS(employee) WHERE
 
       DISPLAY machemp.employee
               machtran.machine
-              machtran.job_number + "-" + string(machtran.job_sub,"99") FORM "x(10)"  @ machtran.job_number LABEL "Job#"
+              machtran.job_number + "-" + STRING(machtran.job_sub,"99") FORM "x(10)"  @ machtran.job_number LABEL "Job#"
               /* machtran.form_number
               machtran.blank_number
               machtran.pass_sequence*/
               machtran.start_date
-              STRING(machtran.start_time,'HH:MM am') LABEL 'Start Time'
+              STRING(machemp.start_time,'HH:MM am') LABEL 'Start Time'
               machtran.end_date
-              STRING(machtran.end_time,'HH:MM am') LABEL 'End Time'
+              STRING(machemp.end_time,'HH:MM am') LABEL 'End Time'
               /*machtran.shift */
               machtran.charge_code
-
               STRING(ld-mr-time,"HH:MM") WHEN ld-mr-time > 0   @ ld-mr-time LABEL "MR Time"
               STRING(ld-run-time,"HH:MM") WHEN ld-run-time > 0 @ ld-run-time LABEL "Run Time"
               STRING(machemp.total_time,'HH:MM')  @ ld-total-time LABEL 'Total Time' 
@@ -943,11 +949,11 @@ FOR EACH employee FIELDS(employee) WHERE
         PUT STREAM excel UNFORMATTED
             '"' machemp.employee                       '",'
             '"' machtran.machine                       '",'
-            '"' machtran.job_number + "-" + string(machtran.job_sub,"99") '",'
+            '"' machtran.job_number + "-" + STRING(machtran.job_sub,"99") '",'
             '"' machtran.start_date                    '",'
-            '"' trim(STRING(machtran.start_time,'HH:MM am'))  '",'
+            '"' TRIM(STRING(machemp.start_time,'HH:MM am'))  '",'
             '"' machtran.end_date '",'
-            '"' trim(STRING(machtran.end_time,'HH:MM am')) '",'
+            '"' TRIM(STRING(machemp.end_time,'HH:MM am')) '",'
             '"' machtran.charge_code '",'
             '"' (IF ld-mr-time > 0 THEN trim(STRING(ld-mr-time,"HH:MM")) ELSE "") '",'
             '"' (IF ld-run-time > 0 THEN trim(STRING(ld-run-time,"HH:MM")) ELSE "") '",'
