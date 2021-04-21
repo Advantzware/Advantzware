@@ -1068,7 +1068,7 @@ for each job-hdr NO-LOCK
          
          FOR EACH wrk-op WHERE /*wrk-op.s-num = job-hdr.frm*/ BREAK by wrk-op.d-seq by wrk-op.b-num:             
 
-            IF NOT can-do("RS,PR,DC,GL,FP",wrk-op.dept)  THEN NEXT.            
+            IF NOT can-do("RC,RS,PR,DC,GL,FP",wrk-op.dept)  THEN NEXT.            
 
             IF FIRST-OF(wrk-op.d-seq) THEN DO:
                ASSIGN dOpMr = 0
@@ -1082,6 +1082,8 @@ for each job-hdr NO-LOCK
             IF LAST-OF(wrk-op.d-seq) THEN DO:
                CASE wrk-op.dept:
                    WHEN "RS" THEN ASSIGN cOpDscr2[1] = wrk-op.m-dscr
+                                         cOpRun2[1] =  string(dOpMr) + "/" + STRING(dOpRun) .
+                   WHEN "RC" THEN ASSIGN cOpDscr2[1] = wrk-op.m-dscr
                                          cOpRun2[1] =  string(dOpMr) + "/" + STRING(dOpRun) .
                    WHEN "PR" THEN ASSIGN cOpDscr2[2] = wrk-op.m-dscr
                                          cOpRun2[2] =  string(dOpMr) + "/" + STRING(dOpRun) .

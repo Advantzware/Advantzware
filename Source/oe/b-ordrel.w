@@ -3977,7 +3977,10 @@ end.
          ).
          
      IF NOT lMsgResponse THEN 
+     DO:
+         SESSION:SET-WAIT-STATE ('').
          RETURN.
+     END.
   END. 
         
    RUN Outbound_IsApiScopeActive IN hdOutboundProcs(

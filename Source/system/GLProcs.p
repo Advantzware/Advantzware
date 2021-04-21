@@ -344,29 +344,33 @@ PROCEDURE GL_SpCreateGLHist :
     
     
     DEFINE BUFFER bf-glhist FOR glhist.
-    FIND FIRST period NO-LOCK
-         WHERE period.company EQ ipcCompany
-         AND period.pst LE ipdtTrDate
-         AND period.pend GE ipdtTrDate NO-ERROR.
     
-    CREATE bf-glhist.
-      ASSIGN
-       bf-glhist.company    = ipcCompany
-       bf-glhist.actnum     = ipcActnum
-       bf-glhist.jrnl       = ipcJrnl
-       bf-glhist.tr-dscr    = ipcTrDscr
-       bf-glhist.tr-date    = ipdtTrDate
-       bf-glhist.tr-amt     = ipdTrAmount
-       bf-glhist.tr-num     = ipiTrNumber
-       bf-glhist.period     = ipiPeriod  
-       bf-glhist.glYear     = IF AVAIL period THEN period.yr ELSE YEAR(ipdtTrDate)         
-       bf-glhist.entryType  = ipcEntryType
-       bf-glhist.sourceDate = ipdtSourceDate
-       bf-glhist.documentID = ipcDocumentID
-       bf-glhist.module     = ipcModule        
-       bf-glhist.posted     = NO.
-                          
-    RELEASE bf-glhist.
+    IF ipdTrAmount NE 0 THEN
+    DO:      
+        FIND FIRST period NO-LOCK
+             WHERE period.company EQ ipcCompany
+             AND period.pst LE ipdtTrDate
+             AND period.pend GE ipdtTrDate NO-ERROR.
+        
+        CREATE bf-glhist.
+          ASSIGN
+           bf-glhist.company    = ipcCompany
+           bf-glhist.actnum     = ipcActnum
+           bf-glhist.jrnl       = ipcJrnl
+           bf-glhist.tr-dscr    = ipcTrDscr
+           bf-glhist.tr-date    = ipdtTrDate
+           bf-glhist.tr-amt     = ipdTrAmount
+           bf-glhist.tr-num     = ipiTrNumber
+           bf-glhist.period     = ipiPeriod  
+           bf-glhist.glYear     = IF AVAIL period THEN period.yr ELSE YEAR(ipdtTrDate)         
+           bf-glhist.entryType  = ipcEntryType
+           bf-glhist.sourceDate = ipdtSourceDate
+           bf-glhist.documentID = ipcDocumentID
+           bf-glhist.module     = ipcModule        
+           bf-glhist.posted     = NO.
+                              
+        RELEASE bf-glhist.
+    END.
 
 END PROCEDURE.
 
@@ -392,6 +396,7 @@ PROCEDURE GL_GetAccountOpenBal :
     DEFINE BUFFER bf-first-open-period FOR period.
     DEFINE BUFFER bf-first-open-year-period FOR period.
     DEFINE BUFFER bf-account FOR account.
+    DEFINE BUFFER bf-company FOR company.
 
     FIND account WHERE ROWID(account) EQ ipriAccount NO-LOCK NO-ERROR.
     IF NOT AVAILABLE account THEN RETURN.
@@ -416,17 +421,30 @@ PROCEDURE GL_GetAccountOpenBal :
             AND bf-first-period.pnum EQ 1
             NO-ERROR.   
 
+    FIND FIRST bf-company NO-LOCK 
+        WHERE bf-company.company EQ account.company
+        NO-ERROR.
+    
     FIND FIRST bf-first-open-period NO-LOCK
         WHERE bf-first-open-period.company EQ account.company
         AND bf-first-open-period.pstat   EQ YES
         NO-ERROR.
+    
     IF AVAILABLE bf-first-open-period THEN 
         FIND FIRST bf-first-open-year-period NO-LOCK 
             WHERE bf-first-open-year-period.company EQ account.company
             AND bf-first-open-year-period.yr EQ bf-first-open-period.yr
             AND bf-first-open-year-period.pnum EQ 1
             NO-ERROR.
-        
+            
+    /*Needed if last period is closed but year is not yet closed*/        
+    IF AVAILABLE bf-company AND bf-first-open-period.pnum EQ 1 AND bf-company.yend-per EQ NO THEN 
+        FIND FIRST bf-first-open-year-period NO-LOCK 
+            WHERE bf-first-open-year-period.company EQ account.company
+            AND bf-first-open-year-period.yr EQ bf-first-open-period.yr - 1
+            AND bf-first-open-year-period.pnum EQ 1
+            NO-ERROR.
+            
     lIsAsOfDateInClosedYear = ipdtAsOf LT bf-first-open-year-period.pst.
     lIsBalanceSheet = INDEX("ALCT",account.type) GT 0.
 

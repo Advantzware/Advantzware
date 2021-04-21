@@ -48,6 +48,8 @@ ASSIGN
 DEF VAR char-val AS CHAR NO-UNDO.
 DEF VAR lw-focus AS WIDGET-HANDLE NO-UNDO.
 
+DEFINE {&NEW} SHARED VARIABLE g_lookup-var AS CHARACTER NO-UNDO.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -410,6 +412,52 @@ DO:
     lw-focus:SCREEN-VALUE = ENTRY(1,char-val).
     RUN new-actnum (lw-focus).
   END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME F-Main
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL F-Main V-table-Win
+ON HELP OF FRAME F-Main
+DO:
+   DEFINE VARIABLE cFieldsValue AS CHARACTER NO-UNDO.
+   DEFINE VARIABLE cFoundValue  AS CHARACTER NO-UNDO.
+   DEFINE VARIABLE recRecordID  AS RECID     NO-UNDO.
+   
+   CASE Focus:name :
+       WHEN "state" THEN DO:
+           RUN system/openLookup.p (
+               INPUT  gcompany, 
+               INPUT  "", /* Lookup ID */
+               INPUT  169,  /* Subject ID */
+               INPUT  "", /* User ID */
+               INPUT  0,  /* Param Value ID */
+               OUTPUT cFieldsValue, 
+               OUTPUT cFoundValue, 
+               OUTPUT recRecordID ).  
+       
+           IF cFoundValue NE "" THEN    
+               bank.state:SCREEN-VALUE IN FRAME {&frame-name} = cFoundValue.
+           RETURN NO-APPLY.
+           
+       END.
+       WHEN "curr-code" THEN DO:
+           RUN system/openLookup.p (
+               INPUT  gcompany, 
+               INPUT  "", /* Lookup ID */
+               INPUT  118,  /* Subject ID */
+               INPUT  "", /* User ID */
+               INPUT  0,  /* Param Value ID */
+               OUTPUT cFieldsValue, 
+               OUTPUT cFoundValue, 
+               OUTPUT recRecordID ).  
+       
+           IF cFoundValue NE "" THEN    
+               bank.curr-code[1]:SCREEN-VALUE IN FRAME {&frame-name} = cFoundValue.
+           RETURN NO-APPLY.
+       END.
+    END CASE.
 END.
 
 /* _UIB-CODE-BLOCK-END */

@@ -999,12 +999,11 @@ DO:
                       ).                                  
 
     IF lParse THEN
-        ASSIGN
-            fiJobNo:SCREEN-VALUE = cJobNo   
-            cFormattedJobno      = DYNAMIC-FUNCTION (
-                                       "fAddSpacesToString" IN hdJobProcs, cJobNo, 6, TRUE
-                                   )
-            .
+        cFormattedJobno = DYNAMIC-FUNCTION (
+                              "fAddSpacesToString" IN hdJobProcs, cJobNo, 6, TRUE
+                          ).
+
+    fiJobNo:SCREEN-VALUE = cFormattedJobno.   
             
     RUN GetSecondaryJobForJob IN hdJobProcs (
         INPUT cCompany,

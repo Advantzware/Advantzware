@@ -733,6 +733,9 @@ RETURN.
 
 /* **********************  Internal Procedures  *********************** */
 
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI C-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
 /*------------------------------------------------------------------------------
@@ -3474,6 +3477,7 @@ PROCEDURE ipDataFix210100:
 
     RUN ipConvertGLTrans.
     RUN ipFixForeignAccount.
+    RUN ipResetProbeMSF.
     
 END PROCEDURE.
     
@@ -6394,6 +6398,41 @@ PROCEDURE ipResetCostGroups:
     ASSIGN 
         PROPATH = cOrigPropath.     
 
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipResetProbeMSF C-Win
+PROCEDURE ipResetProbeMSF:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:     Ticket 98252
+------------------------------------------------------------------------------*/
+    RUN ipStatus ("    Resetting zero quantity probe MSF values").
+
+    DISABLE TRIGGERS FOR LOAD OF probe.
+    
+    /* at least give it a shot at using indexing */
+    FOR EACH company NO-LOCK,
+        EACH loc OF company NO-LOCK:
+        FOR EACH eb NO-LOCK WHERE 
+            eb.company EQ company.company AND
+            eb.loc EQ loc.loc AND  
+            eb.est-type GE 5 USE-INDEX etype,
+            EACH probe EXCLUSIVE WHERE 
+                probe.company EQ eb.company AND 
+                probe.est-no EQ eb.est-no AND 
+                probe.probe-date NE ? AND 
+                probe.gshQtyInSF EQ 0:
+            ASSIGN 
+                probe.gshQtyInSF = probe.tot-lbs.
+        END.
+    END. 
 
 END PROCEDURE.
 	

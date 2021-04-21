@@ -3,6 +3,11 @@
 /* -------------------------------------------------------------------------- */
 /* Mode : 001, Task # - 01171305 */
 
+&IF DEFINED(tagDesc) EQ 0 &THEN
+DEFINE VARIABLE cTagDesc AS CHARACTER NO-UNDO.
+&GLOBAL-DEFINE tagDesc
+&ENDIF
+
 logSetPrinting = FALSE.
 FIND FIRST est WHERE est.company EQ xquo.company
     AND est.est-no  EQ xquo.est-no
@@ -84,7 +89,8 @@ FOR EACH xqitm OF xquo NO-LOCK
                              TRIM(eb.ship-id),
                              eb.stock-no,
                              OUTPUT cOverRun , 
-                             OUTPUT cUnderRun ) .
+                             OUTPUT cUnderRun,
+                             OUTPUT cTagDesc ) .
                              
      IF lMultiItem THEN
        v-over-under = "Over-Under%: " + TRIM(STRING(decimal(cOverRun),">>9%")) + "-" +

@@ -1940,7 +1940,8 @@ FUNCTION generateFilterQuery RETURNS CHARACTER
                                        (IF ls-QueryString[iBuffer] = "" AND NOT lContainsWhere[iBuffer] THEN "WHERE" ELSE "AND") + " " +
                                        REPLACE(h_widget:PRIVATE-DATA, "&", ".") + " " +
                                        "=" + " " + 
-                                       IF ls-comboboxValue = "2" THEN "TRUE" ELSE "FALSE".
+                                       (IF ls-comboboxValue = "2" THEN "TRUE" ELSE "FALSE")
+                                       + " ".
         END.
         h_widget = h_widget:NEXT-SIBLING.
     END.

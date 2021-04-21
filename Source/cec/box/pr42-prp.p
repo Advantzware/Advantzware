@@ -186,7 +186,7 @@ for each est-prep where est-prep.company = xest.company
              xprep.qty      = est-prep.qty
              xprep.std-cost = est-prep.cost
              xprep.ml       = est-prep.ml
-             xprep.cost-m   = prep-tot / (qty / 1000)
+             xprep.cost-m   = est-prep.cost / (qty / 1000)
              xprep.simon    = est-prep.simon
              xprep.code     = est-prep.code.
 

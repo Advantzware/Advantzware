@@ -743,6 +743,10 @@ ELSE IF ip-industry EQ "Corr" THEN DO:
   ELSE IF lv-format-c = "Allwest" THEN do:
      PUT UNFORMATTED "<OLANDSCAPE><P10></PROGRESS>" .
      RUN cecrep/joballws.p (lv-format-c).
+  END.
+  ELSE IF lv-format-c = "McElroy" THEN do:
+     PUT UNFORMATTED "<OLANDSCAPE><P10></PROGRESS>" .
+     RUN cecrep/jobMcElroy.p (lv-format-c).
   END. 
   ELSE IF lv-format-c = "PQP" THEN do:
       PUT UNFORMATTED "</PROGRESS><P13>" skip.

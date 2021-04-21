@@ -104,6 +104,8 @@ DEFINE VARIABLE h_w-invest AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_w-invfg AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_export AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_checkinv AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_movecol AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_movecol-2 AS HANDLE NO-UNDO.
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -360,7 +362,15 @@ PROCEDURE adm-create-objects :
              FRAME message-frame:HANDLE , 'AFTER':U ).
     END. /* Page 0 */
     WHEN 1 THEN DO:
-        RUN init-object IN THIS-PROCEDURE (
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'viewers/movecol.w':U ,
+             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_movecol ).
+       RUN set-position IN h_movecol ( 1.00 , 20.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 7.80 ) */
+       
+       RUN init-object IN THIS-PROCEDURE (
              INPUT  'viewers/checkinv.w':U ,
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  'Layout = ':U ,
@@ -397,6 +407,9 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_b-oeinv , 'export-xl':U , h_export ).
        RUN add-link IN adm-broker-hdl ( h_b-oeinv , 'checkinv':U , h_checkinv ).
 
+       /* Links to SmartViewer h_movecol. */
+       RUN add-link IN adm-broker-hdl ( h_b-oeinv , 'move-columns':U , h_movecol ).
+       
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_b-oeinv ,
              h_folder , 'AFTER':U ).
@@ -466,6 +479,14 @@ PROCEDURE adm-create-objects :
     END. /* Page 2 */
     WHEN 3 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
+             INPUT  'viewers/movecol.w':U ,
+             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_movecol-2 ).
+       RUN set-position IN h_movecol-2 ( 1.00 , 20.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 7.80 ) */
+       
+       RUN init-object IN THIS-PROCEDURE (
              INPUT  'oe/vp-initm.w':U ,
              INPUT  {&WINDOW-NAME} ,
              INPUT  'Layout = ':U ,
@@ -491,6 +512,8 @@ PROCEDURE adm-create-objects :
        /* Links to SmartNavBrowser h_b-invitm. */
        RUN add-link IN adm-broker-hdl ( h_v-oeinv , 'Record':U , h_b-invitm ).
        RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'estimate':U , h_b-invitm ).
+       /* Links to SmartViewer h_movecol-2. */
+       RUN add-link IN adm-broker-hdl ( h_b-invitm , 'move-columns':U , h_movecol-2 ).
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_b-invitm ,
@@ -616,7 +639,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_v-oebolh ).
-       RUN set-position IN h_v-oebolh ( 5.05 , 4.00 ) NO-ERROR.
+       RUN set-position IN h_v-oebolh ( 4.55 , 4.00 ) NO-ERROR.
        /* Size in UIB:  ( 8.33 , 143.60 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -624,7 +647,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_b-oeboll ).
-       RUN set-position IN h_b-oeboll ( 13.86 , 4.00 ) NO-ERROR.
+       RUN set-position IN h_b-oeboll ( 14.96 , 3.00 ) NO-ERROR.
        RUN set-size IN h_b-oeboll ( 7.86 , 145.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
@@ -634,7 +657,7 @@ PROCEDURE adm-create-objects :
                      SmartPanelType = Update,
                      AddFunction = One-Record':U ,
              OUTPUT h_p-bolitm ).
-       RUN set-position IN h_p-bolitm ( 22.43 , 37.00 ) NO-ERROR.
+       RUN set-position IN h_p-bolitm ( 22.93 , 37.00 ) NO-ERROR.
        RUN set-size IN h_p-bolitm ( 1.76 , 82.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
@@ -1161,14 +1184,16 @@ PROCEDURE setUserPrint :
     /* Dates default to users last report run if no date is set */
     IF dtFromBolDate EQ ? THEN dtFromBolDate = 1/1/0001.
     IF dtToBolDate EQ ? THEN dtToBolDate = 12/31/2999.
-
+                           
     RUN custom/setUserPrint.p (inv-head.company,'inv-hea_.',
-                             'begin_cust-no,end_cust-no,begin_inv,end_inv,begin_date,end_date,begin_bol,end_bol,tb_reprint,tb_posted',
+                             'begin_cust-no,end_cust-no,begin_inv,end_inv,begin_date,end_date,begin_inv-id,end_inv-id,begin_bol,end_bol,tb_reprint,tb_posted',
                              inv-head.cust-no + ',' + inv-head.cust-no + ',' +
                              STRING(inv-head.inv-no) + ',' + STRING(inv-head.inv-no) + ',' +
                              STRING(dtFromBolDate) + ',' + STRING(dtToBolDate) + ',' +
+                             STRING(inv-head.r-no) + ',' + STRING(inv-head.r-no) + ',' +
                              STRING(inv-head.bol-no) + ',' + STRING(inv-head.bol-no) + ',' +
-                             STRING(inv-head.printed) + ',' + STRING(inv-head.posted)).
+                             STRING(inv-head.printed) + ',' + STRING(inv-head.posted) 
+                             ). 
   END.
 
 END PROCEDURE.

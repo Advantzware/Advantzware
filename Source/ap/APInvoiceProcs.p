@@ -327,12 +327,14 @@ PROCEDURE APInvoice_GetReceiptsQtyAvailable:
     DEFINE INPUT  PARAMETER ipcAPInvoiceLineRecKey AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcQuantityUOM         AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER oplRecordsFound        AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplHasNegativeReceipts AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opdQuantityAvailable   AS DECIMAL   NO-UNDO.
 
     RUN pGetReceiptsQtyAvailable (
         INPUT  ipcAPInvoiceLineRecKey,
         INPUT  ipcQuantityUOM,
         OUTPUT oplRecordsFound,
+        OUTPUT oplHasNegativeReceipts,
         OUTPUT opdQuantityAvailable
         ).
 END PROCEDURE.
@@ -345,6 +347,7 @@ PROCEDURE pGetReceiptsQtyAvailable PRIVATE:
     DEFINE INPUT  PARAMETER ipcAPInvoiceLineRecKey AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcQuantityUOM         AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER oplRecordsFound        AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplHasNegativeReceipts AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opdQuantityAvailable   AS DECIMAL   NO-UNDO.
 
     DEFINE VARIABLE lError               AS LOGICAL   NO-UNDO.
@@ -355,6 +358,7 @@ PROCEDURE pGetReceiptsQtyAvailable PRIVATE:
     DEFINE VARIABLE cItemType            AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cReceiptUOM          AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cQuantityInvoicedUOM AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lLinked              AS LOGICAL   NO-UNDO.
     
     DEFINE BUFFER bf-ap-invl  FOR ap-invl.
     DEFINE BUFFER bf-po-ord   FOR po-ord.
@@ -415,6 +419,17 @@ PROCEDURE pGetReceiptsQtyAvailable PRIVATE:
                 ).
                  
             dQuantityAvailable = bf-rm-rdtlh.qty - dQuantityInvoiced.
+
+            IF NOT oplHasNegativeReceipts THEN DO:
+                RUN pIsInvoiceReceiptLinked(
+                    INPUT  bf-ap-invl.rec_key,
+                    INPUT  bf-rm-rdtlh.rec_key,
+                    OUTPUT lLinked
+                    ).
+                
+                IF bf-rm-rdtlh.qty LT 0 AND (dQuantityAvailable NE 0 OR lLinked) THEN
+                    oplHasNegativeReceipts = TRUE.
+            END.
             
             IF ipcQuantityUOM NE "" AND cReceiptUOM NE "" AND ipcQuantityUOM NE cReceiptUOM AND dQuantityAvailable NE 0 THEN DO:
                 RUN Conv_QuantityFromUOMToUOM (
@@ -463,6 +478,17 @@ PROCEDURE pGetReceiptsQtyAvailable PRIVATE:
             oplRecordsFound = TRUE.
             
             dQuantityAvailable = bf-fg-rdtlh.qty - dQuantityInvoiced.
+
+            IF NOT oplHasNegativeReceipts THEN DO:
+                RUN pIsInvoiceReceiptLinked(
+                    INPUT  bf-ap-invl.rec_key,
+                    INPUT  bf-fg-rdtlh.rec_key,
+                    OUTPUT lLinked
+                    ).
+                
+                IF bf-fg-rdtlh.qty LT 0 AND (dQuantityAvailable NE 0 OR lLinked) THEN
+                    oplHasNegativeReceipts = TRUE.
+            END.
             
             IF ipcQuantityUOM NE "" AND cReceiptUOM NE "" AND ipcQuantityUOM NE cReceiptUOM AND dQuantityAvailable NE 0 THEN
                 RUN Conv_QuantityFromUOMToUOM (
@@ -536,6 +562,20 @@ PROCEDURE pGetRMReceiptQuantityUOM PRIVATE:
     IF AVAILABLE bf-rm-rcpth THEN
         opcQuantityUOM = bf-rm-rcpth.pur-uom.
 
+END PROCEDURE.
+
+PROCEDURE pIsInvoiceReceiptLinked PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcInvoiceLineRecKey    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcInventoryStockRecKey AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplLinked               AS LOGICAL   NO-UNDO.
+
+    oplLinked = CAN-FIND(FIRST POReceiptLink
+                         WHERE POReceiptLink.apInvoiceLineRecKey  EQ ipcInvoiceLineRecKey
+                           AND POReceiptLink.inventoryStockRecKey EQ ipcInventoryStockRecKey).
 END PROCEDURE.
 
 PROCEDURE pUpdatePOReceiptLink PRIVATE:

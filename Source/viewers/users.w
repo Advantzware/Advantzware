@@ -1370,6 +1370,27 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME users.user_program[2]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL users.user_program[2] V-table-Win
+ON HELP OF users.user_program[2] IN FRAME F-Main /* Document Path */
+DO:
+    DEF VAR ls-filename AS CHAR NO-UNDO.
+    DEF VAR ll-ok AS LOG NO-UNDO.
+
+    SYSTEM-DIALOG GET-DIR ls-filename 
+        TITLE "Select Path to save"
+        INITIAL-DIR users.USER_program[2]
+        UPDATE ll-ok.
+
+    IF ll-ok THEN ASSIGN
+        SELF:SCREEN-VALUE = ls-filename.
+    
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK V-table-Win 
@@ -2002,7 +2023,7 @@ PROCEDURE local-display-fields :
             cbUserType:screen-value = users.userType
             slEnvironments:screen-value = if ttUsers.ttfEnvList <> "" THEN ttUsers.ttfEnvList else slEnvironments:list-items
             slDatabases:screen-value = if ttUsers.ttfDbList <> "" THEN ttUsers.ttfDbList else slDatabases:list-items
-            users.userAlias:SCREEN-VALUE = ttUsers.ttfUserAlias
+            users.userAlias:SCREEN-VALUE = users.userAlias
             users.userAlias:modified = FALSE
             FGColor-1:BGCOLOR = users.menuFGColor[1]
             FGColor-2:BGCOLOR = users.menuFGColor[2]
@@ -2092,23 +2113,26 @@ PROCEDURE local-update-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEF BUFFER bf-usercust FOR usercust .
-    DEF BUFFER bf-usrx FOR usrx .
-    DEF BUFFER bf-usercomp FOR usercomp.
+    DEFINE BUFFER bf-usercust FOR usercust .
+    DEFINE BUFFER bf-usrx     FOR usrx .
+    DEFINE BUFFER bf-usercomp FOR usercomp.
     
-    DEF VAR lv-default-comp AS cha NO-UNDO.
-    DEF VAR lv-default-loc AS cha NO-UNDO.
-    DEF VAR ll-ans AS LOG NO-UNDO.
-    DEF VAR ll-dummy AS LOG NO-UNDO.
-    DEF VAR v-old-pass AS cha FORM "x(30)" NO-UNDO.
-    DEF VAR v-new-pass AS cha FORM "x(30)" NO-UNDO.
-    DEF VAR cNewPwd AS CHAR NO-UNDO.
-    DEF VAR lPwdOK AS LOG NO-UNDO.
-    DEF VAR cCurrentDir AS CHAR NO-UNDO.
-    DEF VAR iStat AS INT NO-UNDO.
-    DEFINE VARIABLE hMainMenu AS HANDLE NO-UNDO.
-    DEFINE VARIABLE iSecLevel AS INTEGER NO-UNDO .
-  
+    DEFINE VARIABLE lv-default-comp     AS CHARACTER                NO-UNDO.
+    DEFINE VARIABLE lv-default-loc      AS CHARACTER                NO-UNDO.
+    DEFINE VARIABLE ll-ans              AS LOGICAL                  NO-UNDO.
+    DEFINE VARIABLE ll-dummy            AS LOGICAL                  NO-UNDO.
+    DEFINE VARIABLE v-old-pass          AS CHARACTER FORM "x(30)"   NO-UNDO.
+    DEFINE VARIABLE v-new-pass          AS CHARACTER FORM "x(30)"   NO-UNDO.
+    DEFINE VARIABLE cNewPwd             AS CHARACTER                NO-UNDO.
+    DEFINE VARIABLE lPwdOK              AS LOGICAL                  NO-UNDO.
+    DEFINE VARIABLE cCurrentDir         AS CHARACTER                NO-UNDO.
+    DEFINE VARIABLE iStat               AS INTEGER                  NO-UNDO.
+    DEFINE VARIABLE hMainMenu           AS HANDLE                   NO-UNDO.
+    DEFINE VARIABLE iSecLevel           AS INTEGER                  NO-UNDO.
+    DEFINE VARIABLE cFilePath           AS CHARACTER                NO-UNDO.
+    DEFINE VARIABLE lCreated            AS LOGICAL                  NO-UNDO.
+    DEFINE VARIABLE cMessage            AS CHARACTER                NO-UNDO.
+    
     ASSIGN 
         cOldUserID = users.user_id
         .
@@ -2134,30 +2158,54 @@ PROCEDURE local-update-record :
                 users.user_program[2]:SCREEN-VALUE = SUBSTRING(users.user_program[2]:SCREEN-VALUE,1,LENGTH(users.user_program[2]:SCREEN-VALUE) - 1).
         END.
 
-        FILE-INFO:FILE-NAME = users.user_program[2].
+        FILE-INFO:FILE-NAME = users.user_program[2]:SCREEN-VALUE.
+        cFilePath = FILE-INFO:FILE-NAME.
         IF FILE-INFO:FILE-type eq ? then do:
             MESSAGE 
                 "Document Path does not exist. Do you want to create it?" 
                 VIEW-AS ALERT-BOX ERROR BUTTON YES-NO UPDATE v-ans AS LOG.
-            IF v-ans THEN OS-CREATE-DIR VALUE(file-info:file-name).
-        END.
-    END.
+            IF v-ans THEN DO:
+              RUN FileSys_CreateDirectory(
+              INPUT  cFilePath,
+              OUTPUT lCreated,
+              OUTPUT cMessage
+              ) NO-ERROR.
+              IF NOT lCreated THEN DO:
+                  MESSAGE "Unable to find report path '" + cFilePath + "' to export report file"
+                      VIEW-AS ALERT-BOX ERROR.
+                  RETURN.
+              END. /* IF NOT lCreated */
+            END.  /* IF v-ans */
+        END.   /* IF FILE-INFO:FILE-type */
+    END.     /* IF users.user_program[2] */
 
-    IF users.user_program[3]:SCREEN-VALUE NE "" THEN DO:
+    IF users.user_program[3]:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" THEN DO:
         IF SUBSTRING(users.user_program[3]:SCREEN-VALUE,LENGTH(users.user_program[3]:SCREEN-VALUE),1) EQ "\" 
         OR SUBSTRING(users.user_program[3]:SCREEN-VALUE,LENGTH(users.user_program[3]:SCREEN-VALUE),1) EQ "/" THEN DO:
             ASSIGN
                 users.user_program[3]:SCREEN-VALUE = SUBSTRING(users.user_program[3]:SCREEN-VALUE,1,LENGTH(users.user_program[3]:SCREEN-VALUE) - 1).
         END.
          
-        FILE-INFO:FILE-NAME = users.USER_program[3].
+        FILE-INFO:FILE-NAME = users.USER_program[3]:SCREEN-VALUE.
+        cFilePath = FILE-INFO:FILE-NAME.
         IF FILE-INFO:FILE-type eq ? then do:
             MESSAGE 
                 "Document Path does not exist. Do you want to create it?" 
                 VIEW-AS ALERT-BOX ERROR BUTTON YES-NO UPDATE v-ans2 AS LOG.
-            IF v-ans2 THEN OS-CREATE-DIR VALUE(file-info:file-name).
-        END.
-    END.  
+            IF v-ans2 THEN DO:
+              RUN FileSys_CreateDirectory(
+              INPUT  cFilePath,
+              OUTPUT lCreated,
+              OUTPUT cMessage
+              ) NO-ERROR.
+              IF NOT lCreated THEN DO:
+                  MESSAGE "Unable to find report path '" + cFilePath + "' to export report file"
+                      VIEW-AS ALERT-BOX ERROR.
+                  RETURN.
+              END. /* IF NOT lCreated */
+            END.   /* IF v-ans2 */
+        END.     /* IF FILE-INFO:FILE-type */
+    END.        /* IF users.user_program[3] */
 
     IF fiPassword:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "" THEN DO:
         MESSAGE

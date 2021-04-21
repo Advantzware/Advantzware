@@ -172,6 +172,8 @@ DEFINE TEMP-TABLE ttLines
     FIELD taxGroup                 AS CHARACTER 
     FIELD orderID                  AS INTEGER   
     FIELD orderLine                AS INTEGER   
+    FIELD orderLineOverride        AS INTEGER
+    FIELD orderLineOverridden      AS INTEGER
     FIELD taxRateFreight           AS DECIMAL   
     FIELD customerPONo             AS CHARACTER           
     .
@@ -199,7 +201,12 @@ DEFINE TEMP-TABLE ttInv NO-UNDO
     FIELD shiptoState                 AS CHARACTER 
     FIELD shiptoPostalCode            AS CHARACTER
     FIELD siteID                      AS CHARACTER 
-    FIELD termsDays                   AS INTEGER
+    FIELD termNetDays                 AS INTEGER
+    FIELD termDiscountDays            AS INTEGER    
+    FIELD termNetDueDate              AS DATE
+    FIELD termDiscountDueDate         AS DATE
+    FIELD termDiscountPercent         AS DECIMAL
+    FIELD termDiscountAmount          AS DECIMAL
     FIELD customerPO                  AS CHARACTER
     FIELD payloadID                   AS CHARACTER
     FIELD amountTotalLines            AS DECIMAL 
@@ -380,7 +387,10 @@ DO:
         .
         CREATE ttInv.
         ASSIGN             
-            ttInv.invoiceDate        = dtInvDate 
+            ttInv.invoiceDate        = IF dtInvDate EQ ? THEN
+                                           inv-head.inv-date
+                                       ELSE
+                                           dtInvDate 
             ttInv.invoiceID          = inv-head.inv-no
             ttInv.customerID         = inv-head.cust-no
             ttInv.customerName       = inv-head.cust-name
@@ -448,7 +458,10 @@ DO:
              
         CREATE ttInv.
         ASSIGN             
-            ttInv.invoiceDate        = dtInvDate 
+            ttInv.invoiceDate        = IF dtInvDate EQ ? THEN
+                                           ar-inv.inv-date
+                                       ELSE
+                                           dtInvDate 
             ttInv.invoiceID          = ar-inv.inv-no
             ttInv.customerID         = ar-inv.cust-no
             ttInv.customerName       = ar-inv.cust-name
@@ -559,7 +572,7 @@ DO:
                 ttLines.company                = ttInv.company
                 ttLines.lineNo                 = inv-line.line
                 ttLines.orderID                = inv-line.ord-no
-                ttLines.orderLine              = inv-line.line
+                ttLines.orderLineOverride      = inv-line.e-num
                 ttLines.quantityInvoiced       = inv-line.inv-qty
                 ttLines.quantityInvoicedUOM    = "EA"
                 ttLines.pricePerUOM            = inv-line.price * (1 - (inv-line.disc / 100))
@@ -593,6 +606,11 @@ DO:
             IF AVAILABLE oe-ordl THEN 
                 ttLines.orderLine = oe-ordl.line.
             
+            ttLines.orderLineOverridden = IF ttLines.orderLineOverride GT 0 THEN
+                                              ttLines.orderLineOverride
+                                          ELSE
+                                              ttLines.orderLine.
+
             RUN pAssignCommonLineData(
                 BUFFER ttInv, 
                 BUFFER ttLines
@@ -699,7 +717,7 @@ DO:
                 ttLines.company                = ttInv.company
                 ttLines.lineNo                 = ar-invl.line
                 ttLines.orderID                = ar-invl.ord-no
-                ttLines.orderLine              = ar-invl.ord-line
+                ttLines.orderLineOverride      = ar-invl.e-num
                 ttLines.quantityInvoiced       = ar-invl.inv-qty
                 ttLines.quantityInvoicedUOM    = "EA"
                 ttLines.pricePerUOM            = ar-invl.unit-pr * (1 - (ar-invl.disc / 100))
@@ -732,6 +750,11 @@ DO:
 
             IF AVAILABLE oe-ordl THEN 
                 ttLines.orderLine = oe-ordl.line.
+
+            ttLines.orderLineOverridden = IF ttLines.orderLineOverride GT 0 THEN
+                                              ttLines.orderLineOverride
+                                          ELSE
+                                              ttLines.orderLine.
             
             RUN pAssignCommonLineData(
                 BUFFER ttInv, 
@@ -1029,7 +1052,13 @@ DO:
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CompanyPostalCode",DYNAMIC-FUNCTION("fReplaceExceptionCharacters",sessionInstance:GetValue("CompanyPostalCode"))).
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CompanyStreet1",DYNAMIC-FUNCTION("fReplaceExceptionCharacters",sessionInstance:GetValue("CompanyStreet1"))).
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CompanyStreet2",DYNAMIC-FUNCTION("fReplaceExceptionCharacters",sessionInstance:GetValue("CompanyStreet2"))).
-    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "Terms", STRING(ttInv.termsDays)).
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "Terms", STRING(ttInv.termNetDays)).
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "TermNetDays", STRING(ttInv.termNetDays)).
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "TermDiscountDays", STRING(ttInv.termDiscountDays)).
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "TermNetDueDate", STRING(ttInv.termNetDueDate)).
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "TermDiscountDueDate", STRING(ttInv.termDiscountDueDate)).
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "TermDiscountPercent", STRING(ttInv.termDiscountPercent)).
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "TermDiscountAmount", STRING(ttInv.termDiscountAmount)).
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "OrderID", ttInv.customerPO).
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "PayloadID", ttInv.payloadID).  
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "SubtotalAmount", STRING(ttInv.amountTotalLines)).
@@ -1098,11 +1127,17 @@ PROCEDURE pAssignCommonHeaderData PRIVATE:
     DEFINE INPUT PARAMETER ipcCustomerID AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcShipToID   AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcTermsCode  AS CHARACTER NO-UNDO.
-    
+
+    DEFINE VARIABLE iDueOnMonth AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iDueOnDay   AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iNetDays    AS INTEGER NO-UNDO.
+    DEFINE VARIABLE dDiscPct    AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE iDiscDays   AS DECIMAL NO-UNDO. 
+    DEFINE VARIABLE lError      AS LOGICAL NO-UNDO.
+        
     DEFINE BUFFER bf-company FOR company.
     DEFINE BUFFER bf-cust    FOR cust.
     DEFINE BUFFER bf-shipto  FOR shipto.
-    DEFINE BUFFER bf-terms   FOR terms.
     
     ASSIGN 
         ipbf-ttInv.deploymentMode    = gcCXMLDeploymentMode
@@ -1142,13 +1177,25 @@ PROCEDURE pAssignCommonHeaderData PRIVATE:
             ipbf-ttinv.siteID           = bf-shipto.siteID
             .
 
-    FIND FIRST bf-terms NO-LOCK 
-         WHERE bf-terms.company EQ ipcCompany
-           AND bf-terms.t-code  EQ ipcTermsCode
-        NO-ERROR.
-    IF AVAILABLE bf-terms THEN 
-        ipbf-ttInv.termsDays = bf-terms.net-days.
-
+    RUN Credit_GetTerms (
+        INPUT  ipcCompany,
+        INPUT  ipcTermsCode,
+        OUTPUT iDueOnMonth,
+        OUTPUT iDueOnDay,
+        OUTPUT iNetDays, 
+        OUTPUT dDiscPct,  
+        OUTPUT iDiscDays, 
+        OUTPUT lError         
+        ).
+    IF NOT lError THEN
+        ASSIGN
+            ipbf-ttInv.termNetDays         = iNetDays
+            ipbf-ttInv.termNetDueDate      = ipbf-ttInv.invoiceDate + ipbf-ttInv.termNetDays
+            ipbf-ttInv.termDiscountDays    = iDiscDays
+            ipbf-ttInv.termDiscountDueDate = ipbf-ttInv.invoiceDate + ipbf-ttInv.termDiscountDays
+            ipbf-ttInv.termDiscountPercent = dDiscPct
+            ipbf-ttInv.termDiscountAmount  = ipbf-ttInv.amountTotal * (ipbf-ttInv.termDiscountPercent / 100)
+            .
 END PROCEDURE.
 
 PROCEDURE pAssignCommonLineData PRIVATE:
@@ -1451,7 +1498,10 @@ PROCEDURE pUpdateLineRequestData PRIVATE:
     DEFINE INPUT-OUTPUT PARAMETER ioplcLineData AS LONGCHAR.
     DEFINE INPUT-OUTPUT PARAMETER ioplgFirst    AS LOGICAL.
         
-    RUN updateRequestData(INPUT-OUTPUT ioplcLineData, "LineNumber",STRING(ipbf-ttLines.orderLine)). 
+    RUN updateRequestData(INPUT-OUTPUT ioplcLineData, "LineNumber",STRING(ipbf-ttLines.lineNo)). 
+    RUN updateRequestData(INPUT-OUTPUT ioplcLineData, "OrderLineNumber",STRING(ipbf-ttLines.orderLine)). 
+    RUN updateRequestData(INPUT-OUTPUT ioplcLineData, "OrderLineNumberOverride",STRING(ipbf-ttLines.orderLineOverride)). 
+    RUN updateRequestData(INPUT-OUTPUT ioplcLineData, "OrderLineNumberOverridden",STRING(ipbf-ttLines.orderLineOverridden)).
     RUN updateRequestData(INPUT-OUTPUT ioplcLineData, "InvoiceQty",STRING(ipbf-ttLines.quantity)). 
     RUN updateRequestData(INPUT-OUTPUT ioplcLineData, "UOM",DYNAMIC-FUNCTION("fReplaceExceptionCharacters",ipbf-ttLines.priceUOM)).
     RUN updateRequestData(INPUT-OUTPUT ioplcLineData, "UnitPrice",DYNAMIC-FUNCTION("fReplaceExceptionCharacters",STRING(ttLines.pricePerUOM))). 

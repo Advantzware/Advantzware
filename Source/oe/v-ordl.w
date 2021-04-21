@@ -546,7 +546,7 @@ DO:
                  apply "entry" to oe-ordl.price.
               end.             
          end.
-         WHEN "sman" THEN DO:
+         WHEN "s-man" THEN DO:
               RUN system/openLookup.p (
                   INPUT  gcompany, 
                   INPUT  "",  /* Lookup ID */
@@ -561,15 +561,15 @@ DO:
                  CASE FOCUS:INDEX:
                       WHEN 1 THEN ASSIGN oe-ordl.s-man[1]:screen-value = cFoundValue
                                          /*oe-ordl.sname[1]:screen-value = entry(2,char-val) */
-                                         oe-ordl.s-comm[1]:screen-value = DYNAMIC-FUNCTION("sfDynLookupValue", "scomm", cFieldsValue)
+                                         oe-ordl.s-comm[1]:screen-value = DYNAMIC-FUNCTION("sfDynLookupValue", "sman.scomm", cFieldsValue)
                                          v-margin = 0.
                       WHEN 2 THEN ASSIGN oe-ordl.s-man[2]:screen-value = cFoundValue
                                          /*oe-ordl.sname[2]:screen-value = entry(2,char-val)*/
-                                         oe-ordl.s-comm[2]:screen-value = DYNAMIC-FUNCTION("sfDynLookupValue", "scomm", cFieldsValue)
+                                         oe-ordl.s-comm[2]:screen-value = DYNAMIC-FUNCTION("sfDynLookupValue", "sman.scomm", cFieldsValue)
                                          .
                       WHEN 3 THEN ASSIGN oe-ordl.s-man[3]:screen-value = cFoundValue
                                         /* oe-ordl.sname[3]:screen-value = entry(2,char-val) */
-                                         oe-ordl.s-comm[3]:screen-value = DYNAMIC-FUNCTION("sfDynLookupValue", "scomm", cFieldsValue)
+                                         oe-ordl.s-comm[3]:screen-value = DYNAMIC-FUNCTION("sfDynLookupValue", "sman.scomm", cFieldsValue)
                                          .
                  END.
               END.

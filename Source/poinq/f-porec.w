@@ -22,11 +22,13 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
+
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
 
 {custom/globdefs.i}
+{methods/template/brwcustomdef.i}
 
 {sys/inc/VAR.i NEW SHARED}
 
@@ -41,10 +43,21 @@ DEF TEMP-TABLE temp-rec NO-UNDO
     FIELD bin AS CHAR
     FIELD qty AS DEC
     FIELD tag AS CHARACTER
+    FIELD po-line AS INTEGER
+    FIELD qty-uom AS CHARACTER
+    FIELD po-price AS DECIMAL 
+    FIELD po-price-uom AS CHARACTER
     INDEX temp-rec-idx trans-date ASC.
 
 DEF BUFFER b-po-ord FOR po-ord.
 DEF BUFFER b-po-ordl FOR po-ordl.
+DEF VAR lv-sort-by AS cha NO-UNDO.
+DEF VAR ll-sort-asc AS LOG NO-UNDO.
+DEF VAR lv-sort-by-lab AS cha NO-UNDO.
+DEF VAR v-col-move AS LOG INIT YES NO-UNDO.
+
+&SCOPED-DEFINE SORTBY-ASC ASCENDING
+&SCOPED-DEFINE SORTBY-DES DESCENDING
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -66,11 +79,14 @@ DEF BUFFER b-po-ordl FOR po-ordl.
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
 &Scoped-define INTERNAL-TABLES temp-rec
 
+/* Define KEY-PHRASE in case it is used by any query. */
+&Scoped-define KEY-PHRASE TRUE
+
 /* Definitions for BROWSE BROWSE-4                                      */
-&Scoped-define FIELDS-IN-QUERY-BROWSE-4 temp-rec.item-no temp-rec.trans-date temp-rec.job-no temp-rec.job-no2 temp-rec.whs temp-rec.bin temp-rec.qty temp-rec.tag  
+&Scoped-define FIELDS-IN-QUERY-BROWSE-4 temp-rec.po-line temp-rec.item-no temp-rec.trans-date temp-rec.job-no temp-rec.job-no2 temp-rec.whs temp-rec.bin temp-rec.qty temp-rec.tag  temp-rec.qty-uom temp-rec.po-price temp-rec.po-price-uom
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-4   
 &Scoped-define SELF-NAME BROWSE-4
-&Scoped-define QUERY-STRING-BROWSE-4 FOR EACH temp-rec
+&Scoped-define QUERY-STRING-BROWSE-4 FOR EACH temp-rec  
 &Scoped-define OPEN-QUERY-BROWSE-4 OPEN QUERY {&SELF-NAME} FOR EACH temp-rec.
 &Scoped-define TABLES-IN-QUERY-BROWSE-4 temp-rec
 &Scoped-define FIRST-TABLE-IN-QUERY-BROWSE-4 temp-rec
@@ -105,6 +121,7 @@ DEFINE QUERY BROWSE-4 FOR
 DEFINE BROWSE BROWSE-4
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-4 F-Frame-Win _FREEFORM
   QUERY BROWSE-4 DISPLAY
+    temp-rec.po-line COLUMN-LABEL "PO Line" LABEL-FONT 6 FORMAT ">>9" WIDTH 10
     temp-rec.item-no COLUMN-LABEL "Item No" LABEL-FONT 6 FORMAT "X(15)" WIDTH 20
     temp-rec.trans-date COLUMN-LABEL "Receipt Date" LABEL-FONT 6 FORMAT "99/99/9999" WIDTH 15
     temp-rec.job-no COLUMN-LABEL "Job #" FORMAT "X(6)" LABEL-FONT 6 WIDTH 8
@@ -113,10 +130,13 @@ DEFINE BROWSE BROWSE-4
     temp-rec.bin COLUMN-LABEL "Bin" FORMAT "X(8)" LABEL-FONT 6
     temp-rec.qty COLUMN-LABEL "Qty." FORMAT "->,>>>,>>9.9<<" LABEL-FONT 6 WIDTH 20
     temp-rec.tag COLUMN-LABEL "Tag" FORMAT "X(20)" LABEL-FONT 6 
+    temp-rec.qty-uom COLUMN-LABEL "Qty UOM" LABEL-FONT 6 FORMAT "x(3)" WIDTH 10
+    temp-rec.po-price COLUMN-LABEL "PO Price" LABEL-FONT 6 FORMAT "->>,>>>,>>9.99<<" WIDTH 20
+    temp-rec.po-price-uom COLUMN-LABEL "Price UOM" LABEL-FONT 6 FORMAT "x(3)" WIDTH 15
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 140 BY 18.33
-         BGCOLOR 8  FIT-LAST-COLUMN.
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 145 BY 16.33
+         FONT 2.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -125,9 +145,9 @@ DEFINE FRAME F-Main
      BROWSE-4 AT ROW 1.48 COL 3
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1
-         SIZE 165.8 BY 19
-         BGCOLOR 8 .
+         AT COL 1 ROW 1  
+         SIZE 148.8 BY 17.00
+         BGCOLOR 8 FGCOLOR 0 .
 
 
 /* *********************** Procedure Settings ************************ */
@@ -154,8 +174,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW F-Frame-Win ASSIGN
-         HEIGHT             = 19
-         WIDTH              = 114.4.
+         HEIGHT             = 17
+         WIDTH              = 149.4.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -179,6 +199,8 @@ END.
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE FRAME-NAME                                               */
 /* BROWSE-TAB BROWSE-4 1 F-Main */
+
+   BROWSE-4:ALLOW-COLUMN-SEARCHING IN FRAME F-Main = TRUE.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -201,7 +223,89 @@ OPEN QUERY {&SELF-NAME} FOR EACH temp-rec.
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+/* ************************  Control Triggers  ************************ */
+&Scoped-define BROWSE-NAME BROWSE-4
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-4 F-Frame-Win
+ON START-SEARCH OF BROWSE-4 IN FRAME F-Main
+DO:
+    {methods/template/sortindicator.i} 
+  DEF VAR lh-column AS HANDLE NO-UNDO.
+  DEF VAR lv-column-nam AS CHAR NO-UNDO.
+  DEF VAR lv-column-lab AS CHAR NO-UNDO.
+
+  
+  ASSIGN
+   lh-column     = {&BROWSE-NAME}:CURRENT-COLUMN 
+   lv-column-nam = lh-column:NAME
+   lv-column-lab = lh-column:LABEL.
+
+  IF lv-sort-by = lv-column-nam THEN ll-sort-asc = NOT ll-sort-asc.
+
+  ASSIGN
+     lv-sort-by     = lv-column-nam.
+ /*    lv-sort-by-lab = lv-column-lab.
+*/    
+    
+  APPLY 'END-SEARCH' TO {&BROWSE-NAME}.
+
+  /*APPLY "choose" TO btn-inq. */
+  CASE lv-column-nam:
+      WHEN "item-no" THEN DO:
+           IF ll-sort-asc THEN OPEN QUERY {&SELF-NAME} FOR EACH temp-rec BY temp-rec.item-no.
+           ELSE OPEN QUERY {&SELF-NAME} FOR EACH temp-rec BY temp-rec.item-no {&sortby-des}.           
+      END.
+      WHEN "trans-date" THEN DO:
+           IF ll-sort-asc THEN OPEN QUERY {&SELF-NAME} FOR EACH temp-rec BY temp-rec.trans-date.
+           ELSE OPEN QUERY {&SELF-NAME} FOR EACH temp-rec BY temp-rec.trans-date {&sortby-des}.           
+      END.
+      WHEN "job-no" THEN DO:
+           IF ll-sort-asc THEN OPEN QUERY {&SELF-NAME} FOR EACH temp-rec BY temp-rec.job-no.
+           ELSE OPEN QUERY {&SELF-NAME} FOR EACH temp-rec BY temp-rec.job-no {&sortby-des}.
+      END.
+      WHEN "job-no2" THEN DO:
+           IF ll-sort-asc THEN OPEN QUERY {&SELF-NAME} FOR EACH temp-rec BY temp-rec.job-no2.
+           ELSE OPEN QUERY {&SELF-NAME} FOR EACH temp-rec BY temp-rec.job-no2 {&sortby-des}.
+      END.
+      WHEN "whs" THEN DO:
+           IF ll-sort-asc THEN OPEN QUERY {&SELF-NAME} FOR EACH temp-rec BY temp-rec.whs.
+           ELSE OPEN QUERY {&SELF-NAME} FOR EACH temp-rec BY temp-rec.whs {&sortby-des}.
+      END.
+      WHEN "bin" THEN DO:
+           IF ll-sort-asc THEN OPEN QUERY {&SELF-NAME} FOR EACH temp-rec BY temp-rec.bin.
+           ELSE OPEN QUERY {&SELF-NAME} FOR EACH temp-rec BY temp-rec.bin {&sortby-des}.
+      END.
+      WHEN "qty" THEN DO:
+           IF ll-sort-asc THEN OPEN QUERY {&SELF-NAME} FOR EACH temp-rec BY temp-rec.qty.
+           ELSE OPEN QUERY {&SELF-NAME} FOR EACH temp-rec BY temp-rec.qty {&sortby-des}.
+      END.
+      WHEN "tag" THEN DO:
+           IF ll-sort-asc THEN OPEN QUERY {&SELF-NAME} FOR EACH temp-rec BY temp-rec.tag.
+           ELSE OPEN QUERY {&SELF-NAME} FOR EACH temp-rec BY temp-rec.tag {&sortby-des}.
+      END.  
+      WHEN "po-line" THEN DO:
+           IF ll-sort-asc THEN OPEN QUERY {&SELF-NAME} FOR EACH temp-rec BY temp-rec.po-line.
+           ELSE OPEN QUERY {&SELF-NAME} FOR EACH temp-rec BY temp-rec.po-line {&sortby-des}.
+      END. 
+      WHEN "qty-uom" THEN DO:
+           IF ll-sort-asc THEN OPEN QUERY {&SELF-NAME} FOR EACH temp-rec BY temp-rec.qty-uom.
+           ELSE OPEN QUERY {&SELF-NAME} FOR EACH temp-rec BY temp-rec.qty-uom {&sortby-des}.
+      END.
+      WHEN "po-price" THEN DO:
+           IF ll-sort-asc THEN OPEN QUERY {&SELF-NAME} FOR EACH temp-rec BY temp-rec.po-price.
+           ELSE OPEN QUERY {&SELF-NAME} FOR EACH temp-rec BY temp-rec.po-price {&sortby-des}.
+      END.
+      WHEN "po-price-uom" THEN DO:
+           IF ll-sort-asc THEN OPEN QUERY {&SELF-NAME} FOR EACH temp-rec BY temp-rec.po-price-uom.
+           ELSE OPEN QUERY {&SELF-NAME} FOR EACH temp-rec BY temp-rec.po-price-uom {&sortby-des}.
+      END.  
+      
+  END CASE.
+  {methods/template/sortindicatorend.i}         
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &Scoped-define BROWSE-NAME BROWSE-4
 
@@ -210,6 +314,11 @@ OPEN QUERY {&SELF-NAME} FOR EACH temp-rec.
 
 /* ***************************  Main Block  *************************** */
 {methods/template/brwcustom.i}
+
+&SCOPED-DEFINE cellColumnDat poinq-po-rec
+
+{methods/browsers/setCellColumns.i}
+
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN
    /* Now enable the interface  if in test mode - otherwise this happens when
       the object is explicitly initialized from its container. */
@@ -296,6 +405,29 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-initialize F-Frame-Win 
+PROCEDURE local-initialize :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEF VAR char-hdl AS CHAR NO-UNDO.
+  DEF VAR lv-rowid AS ROWID NO-UNDO.
+  DEF VAR ll-open AS LOG INIT ? NO-UNDO.
+  DEFINE VARIABLE cScreenType AS CHARACTER NO-UNDO.
+    
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+
+  RUN setCellColumns.  
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE populate-tt F-Frame-Win 
 PROCEDURE populate-tt :
 /*------------------------------------------------------------------------------
@@ -312,12 +444,11 @@ PROCEDURE populate-tt :
 
    EMPTY TEMP-TABLE temp-rec.
 
-   FOR EACH rm-rcpth fields(r-no rita-code i-no job-no job-no2 trans-date)NO-LOCK
+   FOR EACH rm-rcpth fields(r-no rita-code i-no job-no job-no2 trans-date po-line pur-uom)NO-LOCK
        WHERE rm-rcpth.company  EQ cocode 
        AND rm-rcpth.po-no      EQ v-po-no 
-       AND rm-rcpth.rita-code  EQ "R" 
-       AND rm-rcpth.po-line    EQ ipiPOLine,
-       EACH rm-rdtlh FIELDS(loc loc-bin qty tag)NO-LOCK
+       AND rm-rcpth.rita-code  EQ "R",
+       EACH rm-rdtlh FIELDS(loc loc-bin qty tag cost)NO-LOCK
        WHERE rm-rdtlh.r-no      EQ rm-rcpth.r-no 
          AND rm-rdtlh.rita-code EQ rm-rcpth.rita-code:
    
@@ -329,7 +460,11 @@ PROCEDURE populate-tt :
               temp-rec.whs = rm-rdtlh.loc
               temp-rec.bin = rm-rdtlh.loc-bin
               temp-rec.qty = rm-rdtlh.qty
-              temp-rec.tag = rm-rdtlh.tag.
+              temp-rec.tag = rm-rdtlh.tag
+              temp-rec.po-line = rm-rcpth.po-line
+              temp-rec.qty-uom = rm-rcpth.pur-uom
+              temp-rec.po-price = rm-rdtlh.cost
+              temp-rec.po-price-uom = rm-rcpth.pur-uom.
            .
 
        RELEASE temp-rec.
@@ -343,15 +478,14 @@ PROCEDURE populate-tt :
    IF AVAIL b-po-ord THEN DO:
       FOR EACH b-po-ordl NO-LOCK 
          WHERE b-po-ordl.company EQ cocode
-           AND b-po-ordl.po-no   EQ ip-po-no
-           AND b-po-ordl.line    EQ ipiPOLine,
-          EACH  fg-rcpth FIELDS(r-no rita-code i-no job-no job-no2 trans-date) NO-LOCK
+           AND b-po-ordl.po-no   EQ ip-po-no,
+          EACH  fg-rcpth FIELDS(r-no rita-code i-no job-no job-no2 trans-date po-line pur-uom) NO-LOCK
           WHERE fg-rcpth.company                 EQ cocode 
             AND fg-rcpth.po-no                   EQ v-po-no 
             AND fg-rcpth.i-no                    EQ b-po-ordl.i-no 
             AND LOOKUP(fg-rcpth.rita-code,"R,E") GT 0
-            AND fg-rcpth.po-line                 EQ ipiPOLine,
-          EACH  fg-rdtlh FIELDS(loc loc-bin qty tag) NO-LOCK
+            AND fg-rcpth.po-line                 EQ b-po-ordl.LINE,
+          EACH  fg-rdtlh FIELDS(loc loc-bin qty tag cost) NO-LOCK
           WHERE fg-rdtlh.r-no      EQ fg-rcpth.r-no 
             AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code :
 
@@ -363,7 +497,11 @@ PROCEDURE populate-tt :
                  temp-rec.whs = fg-rdtlh.loc
                  temp-rec.bin = fg-rdtlh.loc-bin
                  temp-rec.qty = fg-rdtlh.qty
-                 temp-rec.tag = fg-rdtlh.tag.
+                 temp-rec.tag = fg-rdtlh.tag
+                 temp-rec.po-line = fg-rcpth.po-line
+                 temp-rec.qty-uom = fg-rcpth.pur-uom
+                 temp-rec.po-price = fg-rdtlh.cost
+                 temp-rec.po-price-uom = fg-rcpth.pur-uom.
 
           RELEASE temp-rec.
       END.
@@ -410,3 +548,22 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE move-columns F-Frame-Win 
+PROCEDURE move-columns :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DO WITH FRAME {&FRAME-NAME}:
+     ASSIGN
+        BROWSE-4:COLUMN-MOVABLE = v-col-move
+        BROWSE-4:COLUMN-RESIZABLE = v-col-move
+        v-col-move = NOT v-col-move.
+       
+  END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME

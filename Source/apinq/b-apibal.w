@@ -75,7 +75,16 @@ DEF TEMP-TABLE tt-report NO-UNDO /*LIKE report*/
   INDEX balance balance
   INDEX po-no po-no.
 
-DEF VAR lv-save-char AS CHAR INIT "" NO-UNDO.
+DEFINE VARIABLE lv-save-char        AS CHARACTER INIT "" NO-UNDO.
+DEFINE VARIABLE lRecFound           AS LOGICAL           NO-UNDO.
+DEFINE VARIABLE lAPInvoiceLength    AS LOGICAL           NO-UNDO.
+DEFINE VARIABLE cNK1Value           AS CHARACTER         NO-UNDO.
+
+RUN sys/ref/nk1look.p (INPUT cocode, "APInvoiceLength", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cNK1Value, OUTPUT lRecFound).
+IF lRecFound THEN
+    lAPInvoiceLength = logical(cNK1Value) NO-ERROR.
 
 {sa/sa-sls01.i}
 
@@ -194,7 +203,7 @@ DEFINE QUERY Browser-Table FOR
 DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _FREEFORM
   QUERY Browser-Table NO-LOCK DISPLAY
-      tt-report.key-02     FORMAT "x(12)"          COLUMN-LABEL "Invoice#"    LABEL-BGCOLOR 14
+      tt-report.key-02     /*FORMAT "x(12)" */         COLUMN-LABEL "Invoice#"    LABEL-BGCOLOR 14
       tt-report.check-no                           COLUMN-LABEL "Check#"      LABEL-BGCOLOR 14
       tt-report.trans-date                         COLUMN-LABEL "Date"        LABEL-BGCOLOR 14
       tt-report.dscr       FORMAT "x(8)"           COLUMN-LABEL "Description" LABEL-BGCOLOR 14
@@ -378,6 +387,21 @@ DO:
    {src/adm/template/brsleave.i}
 END.
 
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
+ON ROW-DISPLAY OF Browser-Table IN FRAME F-Main
+DO:
+    &SCOPED-DEFINE exclude-row-display true
+    {methods/template/brwRowDisplay.i} 
+    IF lAPInvoiceLength THEN
+        ASSIGN tt-report.key-02:FORMAT IN BROWSE {&browse-name} = "x(20)".
+    ELSE
+        ASSIGN tt-report.key-02:FORMAT IN BROWSE {&browse-name} = "x(12)".
+
+END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1065,6 +1089,8 @@ PROCEDURE local-initialize :
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
 
+  RUN pAPInvoiceLength.
+  
   /* Code placed here will execute AFTER standard behavior.    */
   DO WITH FRAME {&FRAME-NAME}:
     APPLY "entry" TO fi_vend.
@@ -1279,3 +1305,19 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pAPInvoiceLength B-table-Win 
+PROCEDURE pAPInvoiceLength :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    IF lAPInvoiceLength THEN
+        ASSIGN tt-report.key-02:WIDTH IN BROWSE {&browse-name} = 30.
+    ELSE 
+        ASSIGN tt-report.key-02:WIDTH IN BROWSE {&browse-name} = 20.
+        
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME

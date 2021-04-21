@@ -51,7 +51,7 @@ ASSIGN
     bf-job.company    = eb.company
     bf-job.loc        = est.loc
     bf-job.due-date   = ipdtDueDate 
-    bf-job.stat       = "P"
+    bf-job.stat       = "R"
     bf-job.est-no     = est.est-no 
     bf-job.csrUser_id = est.csrUser_id 
     bf-job.priority   = ipiPriority.

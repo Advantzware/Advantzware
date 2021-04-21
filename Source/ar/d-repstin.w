@@ -264,17 +264,17 @@ ON HELP OF  FRAME Dialog-Frame
             WHEN "sman_first" THEN 
                 DO:
                     sman_first:screen-value      = cFoundValue.
-                    sman_first-dscr:screen-value = DYNAMIC-FUNCTION("sfDynLookupValue", "sname", cFieldsValue).
+                    sman_first-dscr:screen-value = DYNAMIC-FUNCTION("sfDynLookupValue", "sman.sname", cFieldsValue).
                 END.
             WHEN "sman_sec" THEN 
                 DO:
                     sman_sec:screen-value      = cFoundValue.
-                    sman_sec-dscr:screen-value = DYNAMIC-FUNCTION("sfDynLookupValue", "sname", cFieldsValue).
+                    sman_sec-dscr:screen-value = DYNAMIC-FUNCTION("sfDynLookupValue", "sman.sname", cFieldsValue).
                 END.
             WHEN "sman_third" THEN 
                 DO:
                     sman_third:screen-value      = cFoundValue.
-                    sman_third-dscr:screen-value = DYNAMIC-FUNCTION("sfDynLookupValue", "sname", cFieldsValue).
+                    sman_third-dscr:screen-value = DYNAMIC-FUNCTION("sfDynLookupValue", "sman.sname", cFieldsValue).
                 END.
         END CASE.
 

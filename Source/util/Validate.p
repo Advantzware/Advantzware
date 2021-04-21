@@ -555,3 +555,15 @@ PROCEDURE pIsValidMachCode:
         &ValidateMessage = "Machine Code"}
         
 END PROCEDURE.
+
+PROCEDURE pIsValidIndustry:
+    /*------------------------------------------------------------------------------
+    Purpose:  Validates Industry
+    Notes: Input 1 = IndustryID
+    ------------------------------------------------------------------------------*/
+    {util/dev/validate.i
+        &ValidateTable = "customerindustry" 
+        &ValidateField = "industryID"        
+        &ValidateMessage = "Industry Id"}
+        
+END PROCEDURE.

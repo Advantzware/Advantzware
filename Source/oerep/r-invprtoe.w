@@ -193,17 +193,17 @@ DEFINE VARIABLE cInvMessage5 AS CHARACTER NO-UNDO.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 tb_cust-list btnCustList ~
-begin_cust end_cust begin_inv end_inv begin_date end_date tb_reprint ~
-tb_setcomp tb_prt-inst tb_qty-all tb_open-inv rd_sort tb_BatchMail ~
-tb_HideDialog tb_attachBOL rd-dest lv-ornt lines-per-page lv-font-no ~
-tb_email-orig tb_override-email td-show-parm run_format btnInvoiceMessage ~
-btn-ok btn-cancel 
+begin_cust end_cust begin_inv end_inv begin_date end_date begin_Inv-id ~
+end_inv-id tb_reprint tb_setcomp tb_prt-inst tb_open-inv rd_sort tb_qty-all ~
+btnInvoiceMessage tb_BatchMail tb_HideDialog tb_attachBOL rd-dest ~
+lines-per-page lv-ornt lv-font-no tb_email-orig tb_override-email ~
+td-show-parm run_format btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS tb_cust-list begin_cust end_cust begin_inv ~
-end_inv begin_date end_date tb_reprint tb_setcomp tb_prt-inst tb_qty-all ~
-tb_open-inv lbl_sort rd_sort tb_BatchMail tb_HideDialog tb_attachBOL ~
-rd-dest lv-ornt lines-per-page lv-font-no lv-font-name tb_email-orig ~
-tb_override-email td-show-parm run_format tb_splitPDF fiEndDateLabel ~
-fiBeginDateLabel 
+end_inv begin_date end_date begin_Inv-id end_inv-id tb_reprint tb_setcomp ~
+tb_prt-inst tb_open-inv lbl_sort rd_sort tb_qty-all tb_BatchMail ~
+tb_HideDialog tb_attachBOL rd-dest lines-per-page lv-ornt lv-font-no ~
+lv-font-name tb_email-orig tb_override-email td-show-parm run_format ~
+tb_splitPDF fiEndDateLabel fiBeginDateLabel 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -242,8 +242,8 @@ DEFINE BUTTON btnCustList
 
 DEFINE BUTTON btnInvoiceMessage 
      LABEL "Invoice Message" 
-     SIZE 18.5 BY .91.
-     
+     SIZE 18.6 BY .91.
+
 DEFINE VARIABLE begin_bol AS INTEGER FORMAT ">>>>>>>>" INITIAL 0 
      LABEL "Beginning BOL#" 
      VIEW-AS FILL-IN 
@@ -263,6 +263,11 @@ DEFINE VARIABLE begin_inv AS INTEGER FORMAT ">>>>>>>>" INITIAL 0
      VIEW-AS FILL-IN 
      SIZE 17 BY 1.
 
+DEFINE VARIABLE begin_Inv-id AS INTEGER FORMAT ">>>>>>>>" INITIAL 0 
+     LABEL "Beginning Invoice ID#" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1.
+
 DEFINE VARIABLE end_bol AS INTEGER FORMAT ">>>>>>>9" INITIAL 99999999 
      LABEL "Ending BOL#" 
      VIEW-AS FILL-IN 
@@ -279,6 +284,11 @@ DEFINE VARIABLE end_date AS DATE FORMAT "99/99/9999":U INITIAL 12/31/9999
 
 DEFINE VARIABLE end_inv AS INTEGER FORMAT ">>>>>>>>" INITIAL 99999999 
      LABEL "Ending Invoice#" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1.
+
+DEFINE VARIABLE end_inv-id AS INTEGER FORMAT ">>>>>>>9" INITIAL 99999999 
+     LABEL "Ending Invoice ID#" 
      VIEW-AS FILL-IN 
      SIZE 17 BY 1.
 
@@ -365,7 +375,7 @@ DEFINE RECTANGLE RECT-6
 
 DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 94 BY 13.81.
+     SIZE 94 BY 14.76.
 
 DEFINE VARIABLE tb_attachBOL AS LOGICAL INITIAL no 
      LABEL "Attach Signed BOL" 
@@ -490,60 +500,71 @@ DEFINE FRAME FRAME-A
           "Enter Beginning BOL Date" NO-LABEL
      end_date AT ROW 4.43 COL 69 COLON-ALIGNED HELP
           "Enter Ending BOL Date" NO-LABEL
-     begin_bol AT ROW 5.38 COL 26 COLON-ALIGNED HELP
+     begin_Inv-id AT ROW 5.33 COL 26 COLON-ALIGNED HELP
+          "Enter Beginning BOL Number" WIDGET-ID 36
+     end_inv-id AT ROW 5.38 COL 69 COLON-ALIGNED HELP
+          "Enter Ending BOL Number" WIDGET-ID 38
+     begin_bol AT ROW 6.29 COL 26 COLON-ALIGNED HELP
           "Enter Beginning BOL Number"
-     end_bol AT ROW 5.38 COL 69 COLON-ALIGNED HELP
+     end_bol AT ROW 6.33 COL 69 COLON-ALIGNED HELP
           "Enter Ending BOL Number"
-     tb_reprint AT ROW 6.62 COL 28.2       
-     lv-scr-num-copies AT ROW 6.62 COL 69.8 COLON-ALIGNED
-     tb_posted AT ROW 7.48 COL 28.2
-     tb_collate AT ROW 7.48 COL 59.4
-     tb_setcomp AT ROW 8.43 COL 59.2 WIDGET-ID 2
-     tb_prt-inst AT ROW 9.1 COL 49 RIGHT-ALIGNED
+     tb_reprint AT ROW 7.67 COL 28.2
+     lv-scr-num-copies AT ROW 7.67 COL 69.8 COLON-ALIGNED
+     tb_posted AT ROW 8.52 COL 28.2
+     tb_collate AT ROW 8.52 COL 59.4
+     tb_setcomp AT ROW 9.48 COL 59.2 WIDGET-ID 2
      tb_prt-dupl AT ROW 9.95 COL 59.2 RIGHT-ALIGNED
-     tb_print-dept AT ROW 9.95 COL 49 RIGHT-ALIGNED
-     fi_depts AT ROW 9.95 COL 48.4 COLON-ALIGNED HELP
-          "Enter Departments separated by commas" NO-LABEL      
-     tb_prt-zero-qty AT ROW 10.95 COL 56 RIGHT-ALIGNED WIDGET-ID 12
-     tb_open-inv AT ROW 10.95 COL 87.4 RIGHT-ALIGNED WIDGET-ID 34
-     lbl_sort AT ROW 12 COL 26.2 COLON-ALIGNED NO-LABEL
-     rd_sort AT ROW 12 COL 39 NO-LABEL
-     tb_qty-all AT ROW 13.00 COL 28 WIDGET-ID 28
-     fi_broker-bol AT ROW 12 COL 75 COLON-ALIGNED HELP
+     tb_print-dept AT ROW 11 COL 49 RIGHT-ALIGNED
+     fi_depts AT ROW 11 COL 48.4 COLON-ALIGNED HELP
+          "Enter Departments separated by commas" NO-LABEL
+     tb_prt-inst AT ROW 11.1 COL 49 RIGHT-ALIGNED
+     tb_prt-zero-qty AT ROW 12 COL 56 RIGHT-ALIGNED WIDGET-ID 12
+     tb_open-inv AT ROW 12 COL 87.4 RIGHT-ALIGNED WIDGET-ID 34
+     lbl_sort AT ROW 13.05 COL 26.2 COLON-ALIGNED NO-LABEL
+     rd_sort AT ROW 13.05 COL 39 NO-LABEL
+     fi_broker-bol AT ROW 13.05 COL 75 COLON-ALIGNED HELP
           "Enter Beginning Invoice Number" WIDGET-ID 6
-     rs_no_PN AT ROW 13 COL 28.2 NO-LABEL WIDGET-ID 8
-     tb_cust-copy AT ROW 13.91 COL 12
-     tb_office-copy AT ROW 13.91 COL 39
-     tb_sman-copy AT ROW 13.91 COL 64
-     btnInvoiceMessage AT ROW 13.91 COL 74.4
-     tb_BatchMail AT ROW 15.86 COL 48.8 RIGHT-ALIGNED
-     tb_HideDialog AT ROW 15.86 COL 48
-     tb_attachBOL AT ROW 15.86 COL 69 WIDGET-ID 16
-     rd-dest AT ROW 16.33 COL 5 NO-LABEL
-     lv-ornt AT ROW 17.05 COL 30 NO-LABEL
-     lines-per-page AT ROW 17.05 COL 83 COLON-ALIGNED
-     lv-font-no AT ROW 18.29 COL 33 COLON-ALIGNED
-     lv-font-name AT ROW 19.24 COL 27 COLON-ALIGNED NO-LABEL
-     tb_email-orig AT ROW 20.33 COL 30 WIDGET-ID 14
-     tb_override-email AT ROW 20.62 COL 60 WIDGET-ID 18
-     td-show-parm AT ROW 21.43 COL 30
-     run_format AT ROW 22.19 COL 66 COLON-ALIGNED WIDGET-ID 12
-     tb_splitPDF AT ROW 22.48 COL 30 WIDGET-ID 26
-     btn-ok AT ROW 23.86 COL 23
-     btn-cancel AT ROW 23.86 COL 56
+     tb_qty-all AT ROW 14.05 COL 28 WIDGET-ID 28
+     rs_no_PN AT ROW 14.05 COL 28.2 NO-LABEL WIDGET-ID 8
+     tb_cust-copy AT ROW 14.95 COL 12
+     tb_office-copy AT ROW 14.95 COL 39
+     tb_sman-copy AT ROW 14.95 COL 64
+     btnInvoiceMessage AT ROW 14.95 COL 74.4
+     tb_BatchMail AT ROW 16.81 COL 48.8 RIGHT-ALIGNED
+     tb_HideDialog AT ROW 16.81 COL 48
+     tb_attachBOL AT ROW 16.81 COL 69 WIDGET-ID 16
+     rd-dest AT ROW 17.29 COL 5 NO-LABEL
+     lines-per-page AT ROW 17.86 COL 83 COLON-ALIGNED
+     lv-ornt AT ROW 18 COL 30 NO-LABEL
+     lv-font-no AT ROW 19.24 COL 33 COLON-ALIGNED
+     lv-font-name AT ROW 20.19 COL 27 COLON-ALIGNED NO-LABEL
+     tb_email-orig AT ROW 21.29 COL 30 WIDGET-ID 14
+     tb_override-email AT ROW 21.57 COL 60 WIDGET-ID 18
+     td-show-parm AT ROW 22.38 COL 30
+     run_format AT ROW 23.14 COL 66 COLON-ALIGNED WIDGET-ID 12
+     tb_splitPDF AT ROW 23.43 COL 30 WIDGET-ID 26
+     btn-ok AT ROW 24.81 COL 23
+     btn-cancel AT ROW 24.81 COL 56
      fiEndDateLabel AT ROW 4.52 COL 51.4 COLON-ALIGNED NO-LABEL WIDGET-ID 22
      fiBeginDateLabel AT ROW 4.57 COL 6.8 COLON-ALIGNED NO-LABEL WIDGET-ID 20
      "Output Destination" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 15.38 COL 4
+          SIZE 18 BY .62 AT ROW 16.33 COL 4
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.43 COL 4
           BGCOLOR 2 
-     RECT-6 AT ROW 15.19 COL 1.4
+     RECT-6 AT ROW 16.14 COL 1.4
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1.6 ROW 1.24
+         SIZE 95.2 BY 25.48.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME FRAME-A
      RECT-7 AT ROW 1.24 COL 1
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1.6 ROW 1.24
-         SIZE 95.2 BY 24.43.
+         SIZE 95.2 BY 25.48.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -563,12 +584,12 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Invoicing"
-         HEIGHT             = 24.67
+         HEIGHT             = 25.71
          WIDTH              = 96.2
          MAX-HEIGHT         = 33.29
-         MAX-WIDTH          = 204.8
+         MAX-WIDTH          = 273.2
          VIRTUAL-HEIGHT     = 33.29
-         VIRTUAL-WIDTH      = 204.8
+         VIRTUAL-WIDTH      = 273.2
          RESIZE             = yes
          SCROLL-BARS        = no
          STATUS-AREA        = yes
@@ -617,6 +638,10 @@ ASSIGN
                 "parm".
 
 ASSIGN 
+       begin_Inv-id:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
        btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "ribbon-button".
 
@@ -641,6 +666,10 @@ ASSIGN
 
 ASSIGN 
        end_inv:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       end_inv-id:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 /* SETTINGS FOR FILL-IN fiBeginDateLabel IN FRAME FRAME-A
@@ -877,6 +906,17 @@ DO:
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME begin_Inv-id
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_Inv-id C-Win
+ON LEAVE OF begin_Inv-id IN FRAME FRAME-A /* Beginning Invoice ID# */
+DO:
+        ASSIGN {&self-name}.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME btn-cancel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
@@ -988,6 +1028,8 @@ DO:
                      AND (bf-ar-inv.cust-no LE end_cust )
                      AND (bf-ar-inv.inv-no GE begin_inv )
                      AND (bf-ar-inv.inv-no LE end_inv )
+                     AND (bf-ar-inv.x-no GE begin_inv-id )
+                     AND (bf-ar-inv.x-no LE end_inv-id )
                      AND (bf-ar-inv.inv-date GE begin_date )
                      AND (bf-ar-inv.inv-date LE end_date )
                      /*AND (bf-ar-inv.b-no GE begin_bol )
@@ -1003,6 +1045,8 @@ DO:
                      AND (bf-inv-head.cust-no LE end_cust )
                      AND (bf-inv-head.inv-no GE begin_inv )
                      AND (bf-inv-head.inv-no LE end_inv )
+                     AND (bf-inv-head.r-no GE begin_inv-id )
+                     AND (bf-inv-head.r-no LE end_inv-id )
                      AND (bf-inv-head.inv-date GE begin_date )
                      AND (bf-inv-head.inv-date LE end_date )
                      AND (bf-inv-head.bol-no GE begin_bol )
@@ -1052,10 +1096,12 @@ DO:
             begin_cust         ,
             begin_date         ,
             begin_inv          ,
+            begin_inv-id       ,
             end_bol            ,
             end_cust           ,
             end_date           ,
             end_inv            ,
+            end_inv-id         ,
             fi_broker-bol      ,
             fi_depts           ,
             lbl_sort           ,
@@ -1203,10 +1249,12 @@ DO:
         begin_cust         ,
         begin_date         ,
         begin_inv          ,
+        begin_inv-id       ,
         end_bol            ,
         end_cust           ,
         end_date           ,
         end_inv            ,
+        end_inv-id         ,
         fi_broker-bol      ,
         fi_depts           ,
         lbl_sort           ,
@@ -1297,7 +1345,7 @@ END.
 
 &Scoped-define SELF-NAME btnInvoiceMessage
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnInvoiceMessage C-Win
-ON CHOOSE OF btnInvoiceMessage IN FRAME FRAME-A /* Preview */
+ON CHOOSE OF btnInvoiceMessage IN FRAME FRAME-A /* Invoice Message */
 DO:
   RUN custom/d-invmesssage.w (
         "update" ,
@@ -1311,6 +1359,7 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME end_bol
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_bol C-Win
@@ -1375,6 +1424,17 @@ DO:
        END.
 
 END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME end_inv-id
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_inv-id C-Win
+ON LEAVE OF end_inv-id IN FRAME FRAME-A /* Ending Invoice ID# */
+DO:
+        ASSIGN {&self-name}.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1925,7 +1985,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         RUN  pRunFormatValueChanged .
 
         {custom/usrprint.i}
-        
+                       
         IF ipcInvoiceType EQ "inv-head" THEN
           ASSIGN tb_posted:SCREEN-VALUE = "NO"
                  fiBeginDateLabel:SCREEN-VALUE = "Beginning Bol Date:"
@@ -1968,7 +2028,9 @@ IF glPaperless THEN
                     INPUT tb_reprint:SCREEN-VALUE,
                     INPUT begin_date:SCREEN-VALUE,
                     INPUT end_date:SCREEN-VALUE,
-                    INPUT tb_posted:SCREEN-VALUE ,                        
+                    INPUT tb_posted:SCREEN-VALUE ,
+                    INPUT begin_inv-id:SCREEN-VALUE ,
+                    INPUT end_inv-id:SCREEN-VALUE ,
                     OUTPUT begin_cust-screen-value ,
                     OUTPUT end_cust-screen-value,
                     OUTPUT tb_reprint-screen-value,
@@ -2146,16 +2208,18 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY tb_cust-list begin_cust end_cust begin_inv end_inv begin_date end_date 
-          tb_reprint tb_setcomp tb_prt-inst tb_qty-all tb_open-inv lbl_sort 
-          rd_sort tb_BatchMail tb_HideDialog tb_attachBOL rd-dest lv-ornt 
-          lines-per-page lv-font-no lv-font-name tb_email-orig tb_override-email 
-          td-show-parm run_format tb_splitPDF fiEndDateLabel fiBeginDateLabel 
+          begin_Inv-id end_inv-id tb_reprint tb_setcomp tb_prt-inst tb_open-inv 
+          lbl_sort rd_sort tb_qty-all tb_BatchMail tb_HideDialog tb_attachBOL 
+          rd-dest lines-per-page lv-ornt lv-font-no lv-font-name tb_email-orig 
+          tb_override-email td-show-parm run_format tb_splitPDF fiEndDateLabel 
+          fiBeginDateLabel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 tb_cust-list btnCustList begin_cust end_cust begin_inv 
-         end_inv begin_date end_date tb_reprint tb_setcomp tb_prt-inst 
-         tb_qty-all tb_open-inv rd_sort tb_BatchMail tb_HideDialog tb_attachBOL 
-         rd-dest lv-ornt lines-per-page lv-font-no tb_email-orig btnInvoiceMessage
-         tb_override-email td-show-parm run_format btn-ok btn-cancel 
+         end_inv begin_date end_date begin_Inv-id end_inv-id tb_reprint 
+         tb_setcomp tb_prt-inst tb_open-inv rd_sort tb_qty-all 
+         btnInvoiceMessage tb_BatchMail tb_HideDialog tb_attachBOL rd-dest 
+         lines-per-page lv-ornt lv-font-no tb_email-orig tb_override-email 
+         td-show-parm run_format btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -2208,6 +2272,30 @@ PROCEDURE GenerateReport :
             WHEN 6 THEN RUN OUTPUT-to-port.
         END CASE.
     END.
+
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetInvMessage C-Win 
+PROCEDURE pGetInvMessage :
+/*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    FIND FIRST ar-ctrl
+        WHERE ar-ctrl.company EQ cocode
+        NO-LOCK NO-ERROR.
+
+    IF AVAILABLE ar-ctrl THEN
+      ASSIGN
+           cInvMessage1 = ar-ctrl.invoiceMessage1
+           cInvMessage2 = ar-ctrl.invoiceMessage2
+           cInvMessage3 = ar-ctrl.invoiceMessage3
+           cInvMessage4 = ar-ctrl.invoiceMessage4
+           cInvMessage5 = ar-ctrl.invoiceMessage5 .
 
 
 END PROCEDURE.
@@ -2442,26 +2530,3 @@ END FUNCTION.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetInvMessage C-Win 
-PROCEDURE pGetInvMessage :
-/*------------------------------------------------------------------------------
-     Purpose:
-     Notes:
-    ------------------------------------------------------------------------------*/
-    FIND FIRST ar-ctrl
-        WHERE ar-ctrl.company EQ cocode
-        NO-LOCK NO-ERROR.
-
-    IF AVAILABLE ar-ctrl THEN
-      ASSIGN
-           cInvMessage1 = ar-ctrl.invoiceMessage1
-           cInvMessage2 = ar-ctrl.invoiceMessage2
-           cInvMessage3 = ar-ctrl.invoiceMessage3
-           cInvMessage4 = ar-ctrl.invoiceMessage4
-           cInvMessage5 = ar-ctrl.invoiceMessage5 .
-
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME

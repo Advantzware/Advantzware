@@ -102,7 +102,7 @@ DEFINE FRAME F-Main
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 150 BY 24
+         SIZE 155 BY 24
          BGCOLOR 15 .
 
 DEFINE FRAME message-frame
@@ -140,7 +140,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          HIDDEN             = YES
          TITLE              = "Vendor Invoices"
          HEIGHT             = 24
-         WIDTH              = 150
+         WIDTH              = 155
          MAX-HEIGHT         = 320
          MAX-WIDTH          = 320
          VIRTUAL-HEIGHT     = 320
@@ -315,7 +315,7 @@ PROCEDURE adm-create-objects :
                      FOLDER-TAB-TYPE = 2':U ,
              OUTPUT h_folder ).
        RUN set-position IN h_folder ( 3.14 , 2.00 ) NO-ERROR.
-       RUN set-size IN h_folder ( 21.67 , 148.00 ) NO-ERROR.
+       RUN set-size IN h_folder ( 21.67 , 153.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'smartobj/f-add.w':U ,
@@ -424,7 +424,7 @@ PROCEDURE adm-create-objects :
                      Create-On-Add = No':U ,
              OUTPUT h_v-apinv ).
        RUN set-position IN h_v-apinv ( 4.81 , 4.00 ) NO-ERROR.
-       /* Size in UIB:  ( 5.95 , 144.00 ) */
+       /* Size in UIB:  ( 5.95 , 149.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'est/v-navest.w':U ,
@@ -449,7 +449,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_vp-aphld ).
-       RUN set-position IN h_vp-aphld ( 11.00 , 126.00 ) NO-ERROR.
+       RUN set-position IN h_vp-aphld ( 11.00 , 128.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.67 , 17.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -462,7 +462,7 @@ PROCEDURE adm-create-objects :
                      Create-On-Add = Yes':U ,
              OUTPUT h_b-apinvl ).
        RUN set-position IN h_b-apinvl ( 12.91 , 3.00 ) NO-ERROR.
-       RUN set-size IN h_b-apinvl ( 9.05 , 145.00 ) NO-ERROR.
+       RUN set-size IN h_b-apinvl ( 9.05 , 150.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'panels/p-cashl.w':U ,

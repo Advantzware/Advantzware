@@ -45,6 +45,8 @@ DEFINE TEMP-TABLE ttImportUsers
     FIELD cEnvironments      AS CHARACTER FORMAT "X(120)" COLUMN-LABEL "Environments" HELP "Optional - PipeSeparated - Character - Size:120"
     FIELD cDatabases         AS CHARACTER FORMAT "X(120)" COLUMN-LABEL "Databases" HELP "Optional - PipeSeparated - Character - Size:120"
     FIELD dPurchaseLimit     AS DECIMAL   FORMAT ">>>,>>>,>>9.99" COLUMN-LABEL "PO Limit" HELP "Optional - Decimal"
+    FIELD cShowMenuImages    AS CHARACTER FORMAT "X(3)" COLUMN-LABEL "Show Menu Images" HELP "Optional - Yes or N0"
+    FIELD cShowCueCards      AS CHARACTER FORMAT "X(3)" COLUMN-LABEL "Show Cue Cards" HELP "Optional - Yes or N0"
     .
 
 DEFINE VARIABLE giIndexOffset AS INTEGER NO-UNDO INIT 2. /*Set to 1 if there is a Company field in temp-table since this will not be part of the mport data*/
@@ -230,8 +232,10 @@ PROCEDURE pProcessRecord PRIVATE:
     RUN pAssignValueC (ipbf-ttImportUsers.cModes, iplIgnoreBlanks, INPUT-OUTPUT   bf-users.modeList).
     RUN pAssignValueC (ipbf-ttImportUsers.cEnvironments, iplIgnoreBlanks, INPUT-OUTPUT bf-users.envList).
     RUN pAssignValueC (ipbf-ttImportUsers.cDatabases, iplIgnoreBlanks, INPUT-OUTPUT bf-users.dbList).
-    RUN pAssignValueD (ipbf-ttImportUsers.dPurchaseLimit, iplIgnoreBlanks, INPUT-OUTPUT bf-users.PurchaseLimit).     
-
+    RUN pAssignValueD (ipbf-ttImportUsers.dPurchaseLimit, iplIgnoreBlanks, INPUT-OUTPUT bf-users.PurchaseLimit).
+    RUN pAssignValueC (ipbf-ttImportUsers.cShowMenuImages, YES, INPUT-OUTPUT bf-users.showMenuImages).
+    RUN pAssignValueC (ipbf-ttImportUsers.cShowCueCards, YES, INPUT-OUTPUT bf-users.showCueCards).    
+    
     FIND FIRST _user EXCLUSIVE WHERE
         _user._userid = bf-users.user_id
         NO-ERROR.

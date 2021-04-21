@@ -80,7 +80,7 @@ DEFINE VARIABLE h_v-apinv AS HANDLE NO-UNDO.
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     SPACE(149.01) SKIP(23.82)
+     SPACE(154.01) SKIP(23.82)
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -120,7 +120,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          HIDDEN             = YES
          TITLE              = "Vendor Invoices"
          HEIGHT             = 23.95
-         WIDTH              = 150
+         WIDTH              = 155
          MAX-HEIGHT         = 24
          MAX-WIDTH          = 150
          VIRTUAL-HEIGHT     = 24
@@ -309,7 +309,7 @@ PROCEDURE adm-create-objects :
                      FOLDER-TAB-TYPE = 2':U ,
              OUTPUT h_folder ).
        RUN set-position IN h_folder ( 3.14 , 2.00 ) NO-ERROR.
-       RUN set-size IN h_folder ( 21.67 , 148.00 ) NO-ERROR.
+       RUN set-size IN h_folder ( 21.67 , 153.00 ) NO-ERROR.
 
        /* Links to SmartFolder h_folder. */
        RUN add-link IN adm-broker-hdl ( h_folder , 'Page':U , THIS-PROCEDURE ).
@@ -344,7 +344,7 @@ PROCEDURE adm-create-objects :
                      Create-On-Add = Yes':U ,
              OUTPUT h_v-apinv ).
        RUN set-position IN h_v-apinv ( 4.81 , 5.00 ) NO-ERROR.
-       /* Size in UIB:  ( 5.95 , 144.00 ) */
+       /* Size in UIB:  ( 5.95 , 149.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'panels/p-arinv.w':U ,
@@ -366,7 +366,7 @@ PROCEDURE adm-create-objects :
                      Create-On-Add = ?':U ,
              OUTPUT h_b-apinvl ).
        RUN set-position IN h_b-apinvl ( 12.91 , 4.00 ) NO-ERROR.
-       RUN set-size IN h_b-apinvl ( 9.05 , 145.00 ) NO-ERROR.
+       RUN set-size IN h_b-apinvl ( 9.05 , 150.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/p-navico.r':U ,

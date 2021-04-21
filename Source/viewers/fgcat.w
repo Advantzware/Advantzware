@@ -175,7 +175,7 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 11 BY 1
           BGCOLOR 15 FONT 4
-     fgcat.miscCharge AT ROW 5.05 COL 17 COLON-ALIGNED
+     fgcat.miscCharge AT ROW 5.05 COL 17 COLON-ALIGNED FORMAT "x(20)"
           VIEW-AS FILL-IN 
           SIZE 34 BY 1
           BGCOLOR 15 FONT 4

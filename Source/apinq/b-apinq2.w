@@ -84,8 +84,18 @@ DEF VAR v-col-move AS LOG INIT TRUE NO-UNDO.
     BY ({&sortby-log}) DESC       ~
     {&sortby}
 
-DEF VAR ll-first AS LOG INIT YES NO-UNDO.
-DEF BUFFER b-vend FOR vend.
+DEFINE VARIABLE ll-first            AS LOGICAL INIT YES NO-UNDO.
+DEFINE VARIABLE lRecFound           AS LOGICAL          NO-UNDO.
+DEFINE VARIABLE lAPInvoiceLength    AS LOGICAL          NO-UNDO.
+DEFINE VARIABLE cNK1Value           AS CHARACTER        NO-UNDO.
+DEFINE BUFFER b-vend FOR vend.
+
+
+RUN sys/ref/nk1look.p (INPUT cocode, "APInvoiceLength", "L" /* Logical */, NO /* check by cust */,
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cNK1Value, OUTPUT lRecFound).
+IF lRecFound THEN
+    lAPInvoiceLength = logical(cNK1Value) NO-ERROR.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -180,7 +190,7 @@ DEFINE VARIABLE fi_date-to AS DATE FORMAT "99/99/9999":U INITIAL 12/31/9999
      SIZE 16 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE fi_finv AS CHARACTER FORMAT "x(12)" 
+DEFINE VARIABLE fi_finv AS CHARACTER /*FORMAT "x(12)"*/ 
      LABEL "Invoice#" 
      VIEW-AS FILL-IN 
      SIZE 24 BY 1
@@ -201,7 +211,7 @@ DEFINE VARIABLE fi_vend AS CHARACTER FORMAT "X(8)":U
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 145 BY 4.29.
+     SIZE 150 BY 4.29.
 
 DEFINE VARIABLE tb_posted AS LOGICAL INITIAL NO 
      LABEL "Posted" 
@@ -223,7 +233,7 @@ DEFINE QUERY Browser-Table FOR
 DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
-      ap-inv.inv-no COLUMN-LABEL "Invoice#" FORMAT "x(12)":U WIDTH 18.2
+      ap-inv.inv-no COLUMN-LABEL "Invoice#" /*FORMAT "x(12)":U WIDTH 18.2*/
             LABEL-BGCOLOR 14
       ap-inv.vend-no COLUMN-LABEL "Vendor#" FORMAT "x(8)":U WIDTH 17.2
             LABEL-BGCOLOR 14
@@ -247,20 +257,20 @@ DEFINE BROWSE Browser-Table
       ap-inv.user-id
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 145 BY 15.24
+    WITH NO-ASSIGN SEPARATORS SIZE 150 BY 15.24
          FONT 2.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     fi_date AT ROW 1.19 COL 120.2 COLON-ALIGNED
-     btnCalendar-1 AT ROW 1.19 COL 138
+     fi_date AT ROW 1.19 COL 125.2 COLON-ALIGNED
+     btnCalendar-1 AT ROW 1.19 COL 143
      tb_posted AT ROW 1.24 COL 4
      fi_finv AT ROW 1.95 COL 39 COLON-ALIGNED
-     fi_vend AT ROW 1.95 COL 82 COLON-ALIGNED
-     fi_date-to AT ROW 2.29 COL 120.2 COLON-ALIGNED WIDGET-ID 8
-     btnCalendar-2 AT ROW 2.29 COL 138
+     fi_vend AT ROW 1.95 COL 84 COLON-ALIGNED
+     fi_date-to AT ROW 2.29 COL 125.2 COLON-ALIGNED WIDGET-ID 8
+     btnCalendar-2 AT ROW 2.29 COL 143
      tb_unposted AT ROW 2.43 COL 4
      fi_sort-by AT ROW 3.76 COL 61 COLON-ALIGNED
      btn_go AT ROW 3.86 COL 12
@@ -305,7 +315,7 @@ END.
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW B-table-Win ASSIGN
          HEIGHT             = 19.52
-         WIDTH              = 145.
+         WIDTH              = 150.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -877,6 +887,20 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
+ON ROW-DISPLAY OF Browser-Table IN FRAME F-Main
+DO:
+    &SCOPED-DEFINE exclude-row-display true
+    {methods/template/brwRowDisplay.i} 
+    IF lAPInvoiceLength THEN
+        ASSIGN ap-inv.inv-no:FORMAT IN BROWSE {&browse-name} = "x(20)".
+    ELSE
+        ASSIGN ap-inv.inv-no:FORMAT IN BROWSE {&browse-name} = "x(12)".
+
+END.
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-initialize B-table-Win 
 PROCEDURE local-initialize :
 /*------------------------------------------------------------------------------
@@ -890,6 +914,8 @@ PROCEDURE local-initialize :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
 
   RUN setCellColumns.
+  
+  RUN pAPInvoiceLength.
 
   /* Code placed here will execute AFTER standard behavior.    */
   ASSIGN 
@@ -1229,3 +1255,28 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pAPInvoiceLength  B-table-Win 
+PROCEDURE pAPInvoiceLength :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    IF lAPInvoiceLength THEN DO:
+        ASSIGN ap-inv.inv-no:WIDTH IN BROWSE {&browse-name} = 30.
+        DO WITH FRAME {&FRAME-NAME}:
+            ASSIGN fi_finv:FORMAT = "x(20)". 
+            fi_finv:WIDTH-CHARS = 30.
+        END.
+    END.
+    ELSE DO: 
+        ASSIGN ap-inv.inv-no:WIDTH IN BROWSE {&browse-name} = 20.
+        DO WITH FRAME {&FRAME-NAME}:
+            ASSIGN fi_finv:FORMAT = "x(12)".
+            fi_finv:WIDTH-CHARS = 20.
+        END.    
+    END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME

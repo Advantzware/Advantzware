@@ -68,7 +68,7 @@ CREATE WIDGET-POOL.
 DEFINE BUTTON btn-import 
      IMAGE-UP FILE "Graphics/32x32/import.png":U
      IMAGE-DOWN FILE "Graphics/32x32/import_hover.png":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/import_disabled.png":U NO-FOCUS FLAT-BUTTON
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/import_disable.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 7.8 BY 1.81 TOOLTIP "Import".
 
