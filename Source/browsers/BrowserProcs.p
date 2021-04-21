@@ -48,11 +48,18 @@ PROCEDURE Browse_PrepareAndExecuteBrowseQuery:
     DEFINE VARIABLE lResponse     AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE iStartTime    AS INTEGER   NO-UNDO.
      
-    hdQuery = iphdBrowseQuery.
-        
+/*    DEFINE VARIABLE ttime AS INTEGER NO-UNDO.*/
+/*    ttime = TIME.                            */
+    RUN spProgressBar ("Running Browse_PrepareAndExecuteBrowseQuery", 90, 100).
+    hdQuery = iphdBrowseQuery.        
     hdQuery:QUERY-PREPARE(ipcQueryString). 
     hdQuery:QUERY-OPEN().
-    
+/*    ttime = TIME - ttime.                                         */
+/*    MESSAGE                                                       */
+/*    "ttime:" STRING(ttime,"hh:mm:ss") SKIP(1)                     */
+/*    "ipcQueryString:" ipcQueryString                              */
+/*    VIEW-AS ALERT-BOX TITLE "Browse_PrepareAndExecuteBrowseQuery".*/
+
     /* Convert seconds in milliseconds */
     ipdQueryTimeLimit = ipdQueryTimeLimit * 1000.  
     
@@ -116,7 +123,8 @@ PROCEDURE Browse_PrepareAndExecuteBrowseQuery:
             END. /* End of Else IF */         
         END.
     END. 
-        
+    RUN spProgressBar (?, ?, 100).    
+
 END PROCEDURE.
 
 PROCEDURE Browse_PrepareAndExecuteLimitingQuery:
@@ -149,6 +157,10 @@ PROCEDURE Browse_PrepareAndExecuteLimitingQuery:
     DEFINE VARIABLE lResponse     AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE iStartTime    AS INTEGER   NO-UNDO.
     
+/*    DEFINE VARIABLE ttime AS INTEGER NO-UNDO.*/
+/*    ttime = TIME.                            */
+    RUN spProgressBar ("Running Browse_PrepareAndExecuteLimitingQuery", 50, 100).
+
     /* Convert seconds in milliseconds */
     ipdTimeLimit = ipdTimeLimit * 1000.
     
@@ -160,8 +172,15 @@ PROCEDURE Browse_PrepareAndExecuteLimitingQuery:
         IF hdBuffer:NAME EQ ipcTableName THEN
             hdTableBuffer = hdBuffer.                                    
     END.  
-    hdQuery:QUERY-PREPARE(ipcQueryString). 
+    hdQuery:QUERY-PREPARE(ipcQueryString).
     hdQuery:QUERY-OPEN().
+/*    ttime = TIME - ttime.                                           */
+/*    MESSAGE                                                         */
+/*    "iplInitialQuery:" iplInitialQuery SKIP                         */
+/*    "ttime:" STRING(ttime,"hh:mm:ss") SKIP(1)                       */
+/*    "ipcQueryString:" ipcQueryString                                */
+/*    VIEW-AS ALERT-BOX TITLE "Browse_PrepareAndExecuteLimitingQuery".*/
+
     hdQuery:GET-NEXT().
     
     MainLoop:    
@@ -240,6 +259,8 @@ PROCEDURE Browse_PrepareAndExecuteLimitingQuery:
             hdQuery:QUERY-CLOSE().
         DELETE OBJECT hdQuery.
     END.
+    RUN spProgressBar (?, ?, 100).
+
 END PROCEDURE.
 
 PROCEDURE Browser_GetRecordAndTimeLimit:
