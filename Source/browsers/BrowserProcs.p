@@ -48,17 +48,10 @@ PROCEDURE Browse_PrepareAndExecuteBrowseQuery:
     DEFINE VARIABLE lResponse     AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE iStartTime    AS INTEGER   NO-UNDO.
      
-/*    DEFINE VARIABLE ttime AS INTEGER NO-UNDO.*/
-/*    ttime = TIME.                            */
     RUN spProgressBar ("Running Browse_PrepareAndExecuteBrowseQuery", 90, 100).
     hdQuery = iphdBrowseQuery.        
     hdQuery:QUERY-PREPARE(ipcQueryString). 
     hdQuery:QUERY-OPEN().
-/*    ttime = TIME - ttime.                                         */
-/*    MESSAGE                                                       */
-/*    "ttime:" STRING(ttime,"hh:mm:ss") SKIP(1)                     */
-/*    "ipcQueryString:" ipcQueryString                              */
-/*    VIEW-AS ALERT-BOX TITLE "Browse_PrepareAndExecuteBrowseQuery".*/
 
     /* Convert seconds in milliseconds */
     ipdQueryTimeLimit = ipdQueryTimeLimit * 1000.  
@@ -157,8 +150,6 @@ PROCEDURE Browse_PrepareAndExecuteLimitingQuery:
     DEFINE VARIABLE lResponse     AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE iStartTime    AS INTEGER   NO-UNDO.
     
-/*    DEFINE VARIABLE ttime AS INTEGER NO-UNDO.*/
-/*    ttime = TIME.                            */
     RUN spProgressBar ("Running Browse_PrepareAndExecuteLimitingQuery", 50, 100).
 
     /* Convert seconds in milliseconds */
@@ -174,13 +165,6 @@ PROCEDURE Browse_PrepareAndExecuteLimitingQuery:
     END.  
     hdQuery:QUERY-PREPARE(ipcQueryString).
     hdQuery:QUERY-OPEN().
-/*    ttime = TIME - ttime.                                           */
-/*    MESSAGE                                                         */
-/*    "iplInitialQuery:" iplInitialQuery SKIP                         */
-/*    "ttime:" STRING(ttime,"hh:mm:ss") SKIP(1)                       */
-/*    "ipcQueryString:" ipcQueryString                                */
-/*    VIEW-AS ALERT-BOX TITLE "Browse_PrepareAndExecuteLimitingQuery".*/
-
     hdQuery:GET-NEXT().
     
     MainLoop:    
