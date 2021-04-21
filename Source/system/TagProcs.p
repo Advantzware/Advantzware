@@ -247,6 +247,28 @@ PROCEDURE GetTags:
         
 END PROCEDURE.
 
+PROCEDURE GetTagsList:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcLinkRecKey AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcLinkTable  AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcGroup      AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcDelimiter  AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcTagsList   AS CHARACTER NO-UNDO.
+    EMPTY TEMP-TABLE ttTag.
+    FOR EACH tag NO-LOCK 
+        WHERE tag.linkRecKey EQ ipcLinkRecKey
+        AND tag.linkTable  EQ ipcLinkTable
+        AND tag.groupCode  EQ (IF ipcGroup EQ "" THEN tag.groupCode ELSE ipcGroup ):            
+        opcTagsList = opcTagsList + ipcDelimiter + STRING(tag.description).              
+    END.
+    opcTagsList = TRIM(opcTagsList, ipcDelimiter).
+        
+END PROCEDURE.
+
+
 PROCEDURE pAddTag PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose:   Adds a tag to a given reckey based on provided parameters
