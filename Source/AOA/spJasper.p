@@ -959,6 +959,13 @@ PROCEDURE pJasperJSON:
                     cFullName    = REPLACE(cFullName,"[","")
                     cFullName    = REPLACE(cFullName,"]","")
                     .
+                /* handle how jasper auto multiplies % formatted fields by 100 */
+                IF INDEX(ttColumn.ttFormat,"%") NE 0 THEN
+                ASSIGN
+                    cBufferValue = REPLACE(cBufferValue,"%","")
+                    cBufferValue = STRING(DECIMAL(cBufferValue) / 100)
+                    cBufferValue = cBufferValue + "%"
+                    .
                 PUT STREAM sJasper UNFORMATTED
                     FILL(" ",8)
                     "~"" cFullName "~": ~""
@@ -1792,6 +1799,8 @@ PROCEDURE pLocalCSV:
                     cBufferValue = fFormatValue(hQueryBuf, cFieldName, dynValueColumn.colFormat)
                     cBufferValue = DYNAMIC-FUNCTION("FormatForCSV" IN hOutputProcs, cBufferValue, lReplaceQuote, lAddTab)
                     .
+                IF cBufferValue EQ ? THEN
+                cBufferValue = "".
                 PUT STREAM sLocalCSV UNFORMATTED REPLACE(cBufferValue,",","") + ",".
             END. /* each dynvaluecolumn */
             PUT STREAM sLocalCSV UNFORMATTED SKIP.
