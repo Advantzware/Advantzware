@@ -74,13 +74,13 @@ DEF STREAM excel.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-10 RECT-6 RECT-7 tran-date ~
-begin_acct-no end_acct-no tb_sup-zero tb_sub-acct begin_sub-acct ~
+begin_acct-no end_acct-no tb_sup-zero tb_show-detail tb_sub-acct begin_sub-acct ~
 end_sub-acct rd-dest lv-ornt lines-per-page lv-font-no td-show-parm ~
 tb_excel tb_runExcel fi_file btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS tran-date tran-period begin_acct-no ~
-end_acct-no lbl_paid tb_sup-zero lbl_paid-2 tb_sub-acct v-sub-acct-lvl ~
+end_acct-no lbl_paid tb_sup-zero tb_show-detail lbl_paid-2 tb_sub-acct v-sub-acct-lvl ~
 begin_sub-acct end_sub-acct rd-dest lv-ornt lines-per-page lv-font-no ~
-lv-font-name td-show-parm tb_excel tb_runExcel fi_file 
+lv-font-name td-show-parm tb_excel tb_runExcel fi_file lbl_show-detail
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -132,6 +132,10 @@ DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\r-tribal.c
 DEFINE VARIABLE lbl_paid AS CHARACTER FORMAT "X(256)":U INITIAL "Suppress Zero Balances?" 
      VIEW-AS FILL-IN 
      SIZE 27 BY 1 NO-UNDO.
+     
+DEFINE VARIABLE lbl_show-detail AS CHARACTER FORMAT "X(256)":U INITIAL "Show Detail:" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1 NO-UNDO.
 
 DEFINE VARIABLE lbl_paid-2 AS CHARACTER FORMAT "X(256)":U INITIAL "Sort by Sub Account Level?" 
      VIEW-AS FILL-IN 
@@ -217,6 +221,11 @@ DEFINE VARIABLE tb_sup-zero AS LOGICAL INITIAL yes
      LABEL "Suppress Zero Balance" 
      VIEW-AS TOGGLE-BOX
      SIZE 3 BY 1 NO-UNDO.
+ 
+DEFINE VARIABLE tb_show-detail AS LOGICAL INITIAL NO 
+     LABEL "Show Detail" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 3 BY 1 NO-UNDO.
 
 DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL no 
      LABEL "Show Parameters?" 
@@ -235,6 +244,8 @@ DEFINE FRAME FRAME-A
           "Enter Ending Account Number"
      lbl_paid AT ROW 6.48 COL 12 COLON-ALIGNED NO-LABEL
      tb_sup-zero AT ROW 6.48 COL 41
+     lbl_show-detail AT ROW 7.48 COL 25.5 COLON-ALIGNED NO-LABEL
+     tb_show-detail AT ROW 7.48 COL 41
      lbl_paid-2 AT ROW 9.1 COL 10 COLON-ALIGNED NO-LABEL
      tb_sub-acct AT ROW 9.1 COL 41
      v-sub-acct-lvl AT ROW 10.29 COL 39 COLON-ALIGNED
@@ -354,6 +365,8 @@ ASSIGN
 
 /* SETTINGS FOR FILL-IN lbl_paid IN FRAME FRAME-A
    NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN lbl_show-detail IN FRAME FRAME-A
+   NO-ENABLE                                                            */    
 /* SETTINGS FOR FILL-IN lbl_paid-2 IN FRAME FRAME-A
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN lv-font-name IN FRAME FRAME-A
@@ -478,8 +491,11 @@ DO:
   IF v-print-fmt EQ "Pacific" OR v-print-fmt EQ "Xprint" OR v-print-fmt = "southpak"
        THEN is-xprint-form = YES.     
   ELSE is-xprint-form = NO.
-
-  run run-report. 
+  
+  IF tb_show-detail THEN
+  RUN run-report-detail .
+  ELSE 
+  RUN run-report. 
 
   SESSION:SET-WAIT-STATE ("").
 
@@ -670,6 +686,16 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME tb_show-detail
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_show-detail C-Win
+ON VALUE-CHANGED OF tb_show-detail IN FRAME FRAME-A /* Suppress Zero Balance */
+DO:
+  assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME td-show-parm
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL td-show-parm C-Win
@@ -838,11 +864,12 @@ PROCEDURE enable_UI :
   DISPLAY tran-date tran-period begin_acct-no end_acct-no lbl_paid tb_sup-zero 
           lbl_paid-2 tb_sub-acct v-sub-acct-lvl begin_sub-acct end_sub-acct 
           rd-dest lv-ornt lines-per-page lv-font-no lv-font-name td-show-parm 
-          tb_excel tb_runExcel fi_file 
+          tb_excel tb_runExcel fi_file tb_show-detail lbl_show-detail
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-10 RECT-6 RECT-7 tran-date begin_acct-no end_acct-no tb_sup-zero 
          tb_sub-acct begin_sub-acct end_sub-acct rd-dest lv-ornt lines-per-page 
-         lv-font-no td-show-parm tb_excel tb_runExcel fi_file btn-ok btn-cancel 
+         lv-font-no td-show-parm tb_excel tb_runExcel fi_file btn-ok btn-cancel
+         tb_show-detail
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -1012,6 +1039,21 @@ def var v-hdr as char initial
 "Account#,Description,PTD,YTD,DB Adjust,CR Adjust,Bal Sheet,Income Stat" no-undo.
 def var v-comma as char format "x" initial "," no-undo.
 DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+DEFINE VARIABLE cPeriodLabel AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cYtdLabel AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cAsofDateLabel AS CHARACTER NO-UNDO.
+DEFINE VARIABLE dAssetAmountPTD AS DECIMAL NO-UNDO.
+DEFINE VARIABLE dAssetAmountYTD AS DECIMAL NO-UNDO. 
+DEFINE VARIABLE dCapitalAmountPTD AS DECIMAL NO-UNDO.
+DEFINE VARIABLE dCapitalAmountYTD AS DECIMAL NO-UNDO.
+DEFINE VARIABLE dExpenseAmountPTD AS DECIMAL NO-UNDO.
+DEFINE VARIABLE dExpenseAmountYTD AS DECIMAL NO-UNDO. 
+DEFINE VARIABLE dLiabilityAmountPTD AS DECIMAL NO-UNDO.
+DEFINE VARIABLE dLiabilityAmountYTD AS DECIMAL NO-UNDO. 
+DEFINE VARIABLE dRevenueAmountPTD AS DECIMAL NO-UNDO.
+DEFINE VARIABLE dRevenueAmountYTD AS DECIMAL NO-UNDO.  
+DEFINE VARIABLE dTitleAmountPTD AS DECIMAL NO-UNDO.
+DEFINE VARIABLE dTitleAmountYTD AS DECIMAL NO-UNDO. 
 
     DEFINE VARIABLE dTotPTD         AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE dTotYTD         AS DECIMAL   NO-UNDO.
@@ -1024,18 +1066,19 @@ RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
  IF td-show-parm THEN RUN show-param.
 
  SESSION:SET-WAIT-STATE("general").
+ 
+ cPeriodLabel = " Period " + string(MONTH(tran-date),"99") + " Total".
+ cYtdLabel = "  " + string(YEAR(tran-date)) + " YTD Total".
+ cAsofDateLabel = "As of Date: " + string(tran-date) .
 
 IF tb_excel THEN DO:
    OUTPUT STREAM excel TO VALUE(cFileName).
    EXPORT STREAM excel DELIMITER ","
        "Account Number"
        "Description"
-       "PTD"
-       "YTD"
-       "DB Adjust"
-       "CR Adjust"
-       "Bal Sheet"
-       "Income Stat"
+       cPeriodLabel
+       cYtdLabel
+       cAsofDateLabel        
        SKIP.
 END. 
 
@@ -1059,7 +1102,7 @@ ASSIGN facct = begin_acct-no
        suppress-zero = tb_sup-zero
        dTotYTD = 0
        dTotPTD = 0.
-
+       
 EMPTY TEMP-TABLE ttTrialBalance.
 RUN gl\TrialBalance.p(company.company, tran-date, facct, tacct, INPUT-OUTPUT TABLE ttTrialBalance).
 
@@ -1073,8 +1116,10 @@ DO:
      {sys/inc/ctrtext.i str-tit  112}
      {sys/inc/ctrtext.i str-tit2 112}
      {sys/inc/ctrtext.i str-tit3 132}.
+         
 
-    display str-tit3 format "x(130)" skip(1) with frame r-top STREAM-IO.
+    display str-tit3 format "x(130)" SKIP(1)      
+     SKIP with frame r-top STREAM-IO.
 
     if break-flag and subac-lvl ne 1 then do:
       start-lvl = 0.
@@ -1097,7 +1142,7 @@ DO:
     FOR EACH ttTrialBalance, 
         FIRST account NO-LOCK 
         WHERE account.company EQ company.company
-            AND account.actnum EQ ttTrialBalance.accountID
+            AND account.actnum EQ ttTrialBalance.accountID        
         BY SUBSTRING(account.actnum,start-lvl) WITH WIDTH 132: 
 
 
@@ -1107,8 +1152,35 @@ DO:
             IF subac-lvl EQ 4 THEN account.n4 ELSE account.n5.
         IF subac LT fsubac OR subac GT tsubac THEN NEXT.
         
+        IF account.TYPE EQ "A" THEN
+        ASSIGN
+        dAssetAmountPTD = dAssetAmountPTD + ttTrialBalance.amountPTD 
+        dAssetAmountYTD = dAssetAmountYTD + ttTrialBalance.amountYTD.
+        ELSE IF account.TYPE EQ "C" THEN
+        ASSIGN
+        dCapitalAmountPTD = dCapitalAmountPTD + ttTrialBalance.amountPTD 
+        dCapitalAmountYTD = dCapitalAmountYTD + ttTrialBalance.amountYTD.
+        ELSE IF account.TYPE EQ "E" THEN
+        ASSIGN
+        dExpenseAmountPTD = dExpenseAmountPTD + ttTrialBalance.amountPTD 
+        dExpenseAmountYTD = dExpenseAmountYTD + ttTrialBalance.amountYTD.
+        ELSE IF account.TYPE EQ "L" THEN
+        ASSIGN
+        dLiabilityAmountPTD = dLiabilityAmountPTD + ttTrialBalance.amountPTD 
+        dLiabilityAmountYTD = dLiabilityAmountYTD + ttTrialBalance.amountYTD.
+        ELSE IF account.TYPE EQ "R" THEN
+        ASSIGN
+        dRevenueAmountPTD = dRevenueAmountPTD + ttTrialBalance.amountPTD 
+        dRevenueAmountYTD = dRevenueAmountYTD + ttTrialBalance.amountYTD.
+        ELSE IF account.TYPE EQ "T" THEN
+        ASSIGN
+        dTitleAmountPTD = dTitleAmountPTD + ttTrialBalance.amountPTD 
+        dTitleAmountYTD = dTitleAmountYTD + ttTrialBalance.amountYTD.
+        
+        
         dTotPTD = dTotPTD + ttTrialBalance.amountPTD.
         dTotYTD = dTotYTD + ttTrialBalance.amountYTD.
+       
         IF NOT suppress-zero OR ttTrialBalance.amountYTD NE 0 OR ttTrialBalance.amountPTD NE 0 THEN
         DO:
             DISPLAY SKIP(1)
@@ -1117,14 +1189,15 @@ DO:
                 ttTrialBalance.amountPTD  FORMAT "->>>,>>>,>>9.99" LABEL "PTD      "
                 ttTrialBalance.amountYTD FORMAT "->>>,>>>,>>>,>>9.99" LABEL "YTD       "
                 dadj cadj bsht incs
-                WITH CENTERED WIDTH 132 STREAM-IO.
-
+                WITH CENTERED WIDTH 132 STREAM-IO.                
+              
             IF tb_excel THEN 
                 EXPORT STREAM excel DELIMITER ","
                     account.actnum
                     account.dscr
                     ttTrialBalance.amountPTD    
                     ttTrialBalance.amountYTD
+                    tran-date
                     SKIP.
 
             IF v-download THEN
@@ -1147,14 +1220,352 @@ DO:
         "TRIAL BALANCE:" AT 10 dTotPTD format "->>>,>>>,>>9.99" to 61
                                   dTotYTD format "->>>,>>>,>>>,>>9.99" to 81
         " " dadj " " cadj " " bsht " " incs skip(1).
-
-    if dTotYTD eq 0 then message "TRIAL BALANCE IN BALANCE" VIEW-AS ALERT-BOX.
-    else              message "TRIAL BALANCE NOT IN BALANCE BY " dTotYTD VIEW-AS ALERT-BOX.
-
+        
+    put SKIP "===============" to 61 "===================" to 81 skip
+        "Total Assets:" AT 10 dAssetAmountPTD format "->>>,>>>,>>9.99" to 61
+                                  dAssetAmountYTD format "->>>,>>>,>>>,>>9.99" to 81 SKIP.       
+                                  
+    put SKIP "===============" to 61 "===================" to 81 skip
+        "Total Liabilities:" AT 10 dLiabilityAmountPTD format "->>>,>>>,>>9.99" to 61
+                                   dLiabilityAmountYTD format "->>>,>>>,>>>,>>9.99" to 81 SKIP.  
+                                   
+   put SKIP "===============" to 61 "===================" to 81 skip
+        "Total Capital:" AT 10 dCapitalAmountPTD format "->>>,>>>,>>9.99" to 61
+                                   dCapitalAmountYTD format "->>>,>>>,>>>,>>9.99" to 81 SKIP. 
+                                   
+   put SKIP "===============" to 61 "===================" to 81 skip
+        "Net Income:" AT 10 (dRevenueAmountPTD - dExpenseAmountPTD) format "->>>,>>>,>>9.99" to 61
+                            (dRevenueAmountYTD - dExpenseAmountYTD) format "->>>,>>>,>>>,>>9.99" to 81 SKIP.                                   
+                            
+   put SKIP "===============" to 61 "===================" to 81 skip
+        "Balance Sheet Total:" AT 10 (dAssetAmountPTD + dLiabilityAmountPTD + dCapitalAmountPTD + (dRevenueAmountPTD - dExpenseAmountPTD) ) format "->>>,>>>,>>9.99" to 61
+                                     (dAssetAmountYTD + dLiabilityAmountYTD + dCapitalAmountYTD + (dRevenueAmountYTD - dExpenseAmountYTD) ) format "->>>,>>>,>>>,>>9.99" to 81 SKIP(1).  
+                                     
+    put SKIP "===============" to 61 "===================" to 81 skip
+        "Total Revenue:" AT 10 dRevenueAmountPTD format "->>>,>>>,>>9.99" to 61
+                                   dRevenueAmountYTD format "->>>,>>>,>>>,>>9.99" to 81 SKIP. 
+                                   
+   put SKIP "===============" to 61 "===================" to 81 skip
+        "Total Expenses:" AT 10 dExpenseAmountPTD format "->>>,>>>,>>9.99" to 61
+                                   dExpenseAmountYTD format "->>>,>>>,>>>,>>9.99" to 81 SKIP.  
+                                   
+   IF tb_excel THEN 
+   DO: 
+        EXPORT STREAM excel DELIMITER ","
+            "Total Assets:"
+            ""
+            dAssetAmountPTD
+            dAssetAmountYTD SKIP .
+            EXPORT STREAM excel DELIMITER ","
+             "Total Liabilities:"
+             ""
+            dLiabilityAmountPTD
+            dLiabilityAmountYTD SKIP.
+            EXPORT STREAM excel DELIMITER ","
+            "Total Capital:"
+            ""
+            dCapitalAmountPTD
+            dCapitalAmountYTD SKIP.
+            EXPORT STREAM excel DELIMITER ","
+            "Net Income:"
+            ""
+            (dRevenueAmountPTD - dExpenseAmountPTD)
+            (dRevenueAmountYTD - dExpenseAmountYTD) SKIP.
+            EXPORT STREAM excel DELIMITER ","
+            "Balance Sheet Total:"
+            ""
+            (dAssetAmountPTD + dLiabilityAmountPTD + dCapitalAmountPTD + (dRevenueAmountPTD - dExpenseAmountPTD) )
+            (dAssetAmountYTD + dLiabilityAmountYTD + dCapitalAmountYTD + (dRevenueAmountYTD - dExpenseAmountYTD) ) SKIP(1)  .
+            EXPORT STREAM excel DELIMITER ","
+            "Total Revenue:"
+            ""
+            dRevenueAmountPTD
+            dRevenueAmountYTD SKIP.
+            EXPORT STREAM excel DELIMITER ","
+            "Total Expenses:"
+            ""
+            dExpenseAmountPTD
+            dExpenseAmountYTD                     
+            SKIP.                                   
+       END.             
+    IF begin_acct-no EQ "" AND (end_acct-no EQ "zzzzzzzzzzzzzzzzzzzzzzzzz" OR end_acct-no EQ "9999999999999999999999999") THEN
+    DO:   
+        if dTotYTD eq 0 then message "TRIAL BALANCE IN BALANCE" VIEW-AS ALERT-BOX.
+        else              message "TRIAL BALANCE NOT IN BALANCE BY " dTotYTD VIEW-AS ALERT-BOX.
+    END.
     /*if v-download then  */
        output stream s-temp close.
 
 
+ end.
+
+  IF tb_excel THEN DO:
+     OUTPUT STREAM excel CLOSE.
+     IF tb_runExcel THEN
+         OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
+ END.
+ RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
+SESSION:SET-WAIT-STATE("").
+
+ end procedure.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE run-report-detail C-Win 
+PROCEDURE run-report-detail :
+def var save_id as RECID NO-UNDO.
+def var time_stamp as ch NO-UNDO.
+def var subac as int format ">>>>>>>>9" NO-UNDO.
+def var subac-lvl as int format "9" NO-UNDO.
+def var fsubac as int format ">>>>>>>>9" init 0 NO-UNDO.
+def var tsubac as int format ">>>>>>>>9" init 999999999 NO-UNDO.
+def var aclevel as INT NO-UNDO.
+def var cyr as dec format "->>>,>>>,>>>,>>9.99" NO-UNDO.
+def var tcyr as DEC NO-UNDO.
+def var dadj as char label "DB Adjust" format "x(10)" init "__________" NO-UNDO.
+def var cadj as char label "CR Adjust" format "x(10)" init "__________" NO-UNDO.
+def var bsht as char label "Bal Sheet" format "x(10)" init "__________" NO-UNDO.
+def var incs as char label "Income Stat" format "x(11)" init "___________" NO-UNDO.
+def var v-rep-tot as dec no-undo.
+def var vyear like period.yr no-undo.
+def var dtPeriodStart like glhist.tr-date no-undo.
+def var v-fisc-yr like period.yr no-undo.
+
+def var tacct like glhist.actnum  label "      To Account Number" NO-UNDO.
+def var facct like glhist.actnum  label "    From Account Number" NO-UNDO.
+def var ptd-value as dec format "->>>,>>>,>>9.99" init 0 no-undo.
+def var tot-ptd as dec format "->>>,>>>,>>9.99" init 0 no-undo.
+def var suppress-zero as logical no-undo init true
+    label "Suppress Zero Balances?".
+def var break-flag as log init no no-undo.
+def var start-lvl as int init 0 no-undo.
+def var temp_fid as char no-undo.
+
+def var str_buffa as char no-undo.
+def var v-first as log init yes no-undo.
+def var v-hdr as char initial
+"Account#,Description,PTD,YTD,DB Adjust,CR Adjust,Bal Sheet,Income Stat" no-undo.
+def var v-comma as char format "x" initial "," no-undo.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+DEFINE VARIABLE cPeriodLabel AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cYtdLabel AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cAsofDateLabel AS CHARACTER NO-UNDO.
+DEFINE VARIABLE dDebitAmt AS DECIMAL NO-UNDO.
+DEFINE VARIABLE dCreditAmt AS DECIMAL NO-UNDO.  
+DEFINE VARIABLE dPeriodTotal AS DECIMAL NO-UNDO.
+DEFINE VARIABLE dYtdAmount AS DECIMAL NO-UNDO.
+DEFINE VARIABLE dTotalOpenBalance AS DECIMAL NO-UNDO.
+DEFINE VARIABLE dTotalYtdAmount AS DECIMAL NO-UNDO.
+DEFINE VARIABLE dTotYTD         AS DECIMAL   NO-UNDO.
+       
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
+
+ {sys/inc/print1.i}
+ {sys/inc/outprint.i VALUE(lines-per-page)}
+
+ IF td-show-parm THEN RUN show-param.
+
+ SESSION:SET-WAIT-STATE("general").
+ 
+ cPeriodLabel = " Period " + string(MONTH(tran-date),"99") + " Total".
+ cYtdLabel = "  " + string(YEAR(tran-date)) + " YTD Total".
+ cAsofDateLabel = "As of Date: " + string(tran-date) .
+
+IF tb_excel THEN DO:
+   OUTPUT STREAM excel TO VALUE(cFileName).
+   EXPORT STREAM excel DELIMITER ","
+       "Account Number"
+       "Description"
+       "Opening Balance"
+       "Date"
+       "Ref#"
+       "Description"
+       "Debit Amt"
+       "Credit Amt"
+       cPeriodLabel
+       "Document id"
+       "Source Date"
+       "Run Number"
+       cYtdLabel                
+       SKIP.
+END.      
+
+/* create a unique filename ... */
+temp_fid = 
+IF OPSYS eq 'win32' THEN
+"TryB" + substring(string(TODAY,"999999"),1,6) + ".csv"
+  ELSE
+"TryB" + substring(string(TODAY,"999999"),1,4) + ".csv".
+
+time_stamp = string(TIME, "hh:mmam").
+
+{sys/form/r-topw.f}
+
+ASSIGN facct = begin_acct-no
+       tacct = END_acct-no
+       subac-lvl = v-sub-acct-lvl
+       fsubac = begin_sub-acct
+       tsubac = END_sub-acct
+       break-flag = tb_sub-acct
+       suppress-zero = tb_sup-zero
+       dTotYTD = 0
+       .
+       
+EMPTY TEMP-TABLE ttTrialBalance.
+RUN gl\TrialBalance.p(company.company, tran-date, facct, tacct, INPUT-OUTPUT TABLE ttTrialBalance).
+
+blok:
+DO:
+   assign
+     str-tit  = company.name
+     str-tit2 = "TRIAL  BALANCE AS OF " + STRING(tran-date,"99/99/99")
+     str-tit3 = "Period " + string(tran-period,"99") + " Date Range:" + STRING(dtDateRange1) + "-" + STRING(dtDateRange2)
+     v-rep-tot = 0
+     {sys/inc/ctrtext.i str-tit  112}
+     {sys/inc/ctrtext.i str-tit2 112}
+     {sys/inc/ctrtext.i str-tit3 132}.
+         
+
+    display str-tit3 format "x(130)" SKIP(1)     
+     SKIP with frame r-top STREAM-IO.
+
+    if break-flag and subac-lvl ne 1 then do:
+      start-lvl = 0.
+      do i = 1 to (subac-lvl - 1):
+        start-lvl = start-lvl + company.acc-dig[i].
+      end.
+      start-lvl = start-lvl + subac-lvl - 1.
+    end.
+    if start-lvl le 1 then start-lvl = 1.
+
+    if v-download /*and v-first*/  then
+    do:         
+          assign str_buffa = ""
+                 v-first = no.        
+          output stream s-temp TO VALUE(temp_fid). 
+          {gl/outstr.i v-hdr 1 70}.
+          PUT STREAM s-temp UNFORMATTED str_buffa SKIP.
+    end.
+    
+    FIND LAST period NO-LOCK 
+            WHERE period.company EQ cocode
+            AND period.pst     LE tran-date
+            AND period.pend    GE tran-date
+            NO-ERROR.
+    
+    FOR EACH ttTrialBalance, 
+        FIRST account NO-LOCK 
+        WHERE account.company EQ company.company
+            AND account.actnum EQ ttTrialBalance.accountID        
+        BY SUBSTRING(account.actnum,start-lvl) WITH WIDTH 132: 
+
+
+        subac = IF subac-lvl EQ 1 THEN account.n1 ELSE
+            IF subac-lvl EQ 2 THEN account.n2 ELSE
+            IF subac-lvl EQ 3 THEN account.n3 ELSE
+            IF subac-lvl EQ 4 THEN account.n4 ELSE account.n5.
+        IF subac LT fsubac OR subac GT tsubac THEN NEXT.
+                        
+        dTotYTD = dTotYTD + ttTrialBalance.amountYTD.
+        
+        IF NOT suppress-zero OR ttTrialBalance.amountYTD NE 0 OR ttTrialBalance.amountPTD NE 0 THEN
+        DO:
+           dTotalYtdAmount = dTotalYtdAmount + ttTrialBalance.amountYTDOpen .
+           dYtdAmount = ttTrialBalance.amountYTDOpen.
+           dTotalOpenBalance = dTotalOpenBalance + ttTrialBalance.amountYTDOpen.
+           
+           FOR EACH glhist NO-LOCK 
+               WHERE glhist.company EQ account.company
+               AND glhist.actnum  EQ account.actnum
+               AND glhist.tr-date GE period.pst 
+               AND glhist.tr-date LE tran-date BY glhist.tr-date  :
+            dDebitAmt = 0.
+            dCreditAmt = 0.
+            IF glhist.tr-amt GT 0 THEN
+            dDebitAmt = glhist.tr-amt.
+            ELSE dCreditAmt = glhist.tr-amt.
+            
+            dPeriodTotal = dPeriodTotal + glhist.tr-amt. 
+            dYtdAmount = dYtdAmount + glhist.tr-amt.
+            dTotalYtdAmount = dTotalYtdAmount + glhist.tr-amt.
+            
+            DISPLAY SKIP
+                account.actnum + "  " + account.dscr FORMAT "x(45)"
+                LABEL "Account Number           Description"
+                ttTrialBalance.amountYTDOpen  FORMAT "->>>,>>>,>>9.99" LABEL "Opening Balance "
+                glhist.tr-date FORMAT "99/99/9999" LABEL "Date  "
+                glhist.jrnl FORMAT "x(8)" LABEL "Ref  "
+                glhist.tr-dscr FORMAT "x(30)" LABEL "Description  "
+                dDebitAmt FORMAT "->>,>>>,>>9.99" LABEL "Debit Amt  "
+                dCreditAmt FORMAT "->>,>>>,>>9.99" LABEL "Credit Amt"
+                dPeriodTotal FORMAT "->>,>>>,>>9.99"  LABEL "PTD Total"
+                glhist.documentID FORMAT "x(32)" LABEL "Document id"
+                glhist.sourceDate FORMAT "99/99/9999" LABEL "Source Date"
+                glhist.tr-num FORMAT ">>>>>>" LABEL "Run Number"
+                dYtdAmount FORMAT "->,>>>,>>>,>>9.99" LABEL "YTD"                                 
+                WITH CENTERED WIDTH 272 STREAM-IO.                
+                          
+            IF tb_excel THEN 
+                EXPORT STREAM excel DELIMITER ","
+                    account.actnum
+                    account.dscr
+                    ttTrialBalance.amountYTDOpen    
+                    glhist.tr-date
+                    glhist.jrnl
+                    glhist.tr-dscr
+                    dDebitAmt
+                    dCreditAmt
+                    dPeriodTotal
+                    glhist.documentID
+                    glhist.sourceDate
+                    glhist.tr-num
+                    dYtdAmount
+                    SKIP.                     
+           END.
+
+            IF v-download THEN
+            DO:
+                ASSIGN 
+                    str_buffa = "".
+                ASSIGN 
+                    str_buffa = TRIM(account.actnum) + v-comma 
+                           + trim(account.dscr)   + v-comma
+                           + trim(STRING(ttTrialBalance.amountPTD,'->>>>>>>>9.99')) + v-comma
+                           + trim(STRING(ttTrialBalance.amountYTD,'->>>>>>>>9.99'))       + v-comma 
+                           + v-comma + v-comma + v-comma.
+                PUT STREAM s-temp UNFORMATTED str_buffa SKIP.
+            END.
+        END.  
+            
+    end. /* each account */
+
+    put skip(1) "===================" to 61  skip
+        "Opening Balance Total:" AT 10 dTotalOpenBalance format "->>>,>>>,>>>,>>9.99" to 61 SKIP
+         "====================" to 61 SKIP
+         "YTD Balance Total:" AT 10  dTotalYtdAmount format "->>>,>>>,>>>,>>9.99" TO 61
+         skip(1).       
+                                   
+   IF tb_excel THEN 
+   DO:          
+        EXPORT STREAM excel DELIMITER ","
+            SKIP
+            "Opening Balance Total:"
+            ""
+            dTotalOpenBalance SKIP .
+            EXPORT STREAM excel DELIMITER ","
+             SKIP
+            "Ytd Balance Total:"
+            ""
+            dTotalYtdAmount SKIP .                     
+                                                     
+       END.             
+    IF begin_acct-no EQ "" AND (end_acct-no EQ "zzzzzzzzzzzzzzzzzzzzzzzzz" OR end_acct-no EQ "9999999999999999999999999") THEN
+    DO:   
+        if dTotYTD eq 0 then message "TRIAL BALANCE IN BALANCE" VIEW-AS ALERT-BOX.
+        else              message "TRIAL BALANCE NOT IN BALANCE BY " dTotYTD VIEW-AS ALERT-BOX.
+    END.     
+       output stream s-temp close. 
  end.
 
   IF tb_excel THEN DO:
