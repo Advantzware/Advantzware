@@ -3505,16 +3505,37 @@ PROCEDURE validate-tag-status :
   DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
   DEFINE VARIABLE lTagStatusOnHold AS LOGICAL NO-UNDO. 
   DEFINE VARIABLE lMessageValue    AS LOGICAL NO-UNDO.
+  DEFINE VARIABLE cTagStatus       AS CHARACTER NO-UNDO.
       
   {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
-    IF tt-relbol.tag#:SCREEN-VALUE IN BROWSE {&browse-name} NE "" AND NOT lCheckTagHoldMessage 
-    THEN DO:
-      lTagStatusOnHold = LOGICAL(DYNAMIC-FUNCTION(
+  
+    FIND FIRST oe-relh NO-LOCK 
+         WHERE oe-relh.company  EQ cocode 
+         AND oe-relh.release# EQ INT(tt-relbol.release#:SCREEN-VALUE IN BROWSE {&browse-name})
+         NO-ERROR.
+    IF avail oe-relh THEN
+    FIND FIRST cust NO-LOCK
+         WHERE cust.company EQ cocode
+         AND cust.cust-no EQ oe-bolh.cust-no NO-ERROR.
+    IF AVAIL cust AND AVAIL oe-relh THEN
+    cTagStatus = cust.tagStatus.
+  
+    lTagStatusOnHold = LOGICAL(DYNAMIC-FUNCTION(
                                "fCheckFgBinTagOnHold" IN hInventoryProcs,
                                cocode,
                                tt-relbol.i-no:SCREEN-VALUE IN BROWSE {&browse-name}, 
                                tt-relbol.tag#:SCREEN-VALUE IN BROWSE {&browse-name})).
+    IF tt-relbol.tag#:SCREEN-VALUE IN BROWSE {&browse-name} NE "" AND ((cTagStatus EQ "" AND lTagStatusOnHold) OR (cTagStatus EQ "H" AND NOT lTagStatusOnHold)) THEN
+    DO:
+       MESSAGE "Bin Tag status did not match with Customer Tag status.."  VIEW-AS ALERT-BOX ERROR.
+       APPLY "ENTRY":U TO tt-relbol.tag# IN BROWSE {&browse-name}.
+       oplReturnError = YES.
+       RETURN .
+    END.     
+  
+    IF tt-relbol.tag#:SCREEN-VALUE IN BROWSE {&browse-name} NE "" AND NOT lCheckTagHoldMessage 
+    THEN DO:        
         IF lTagStatusOnHold THEN do:
           RUN displayMessageQuestion ("53", OUTPUT lMessageValue).
           IF NOT lMessageValue then

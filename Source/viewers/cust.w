@@ -151,10 +151,11 @@ cust.tax-id cust.date-field[2] cust.frt-pay cust.fob-code cust.ship-part ~
 cust.loc cust.carrier cust.del-zone cust.terr cust.under-pct cust.over-pct ~
 cust.markup cust.ship-days cust.manf-day cust.classID cust.spare-int-1 ~
 cust.pallet cust.case-bundle cust.int-field[1] cust.po-mandatory ~
-cust.imported cust.show-set cust.nationalAcct cust.log-field[1] 
+cust.imported cust.show-set cust.nationalAcct cust.log-field[1] ~
+cust.tagStatus 
 &Scoped-define ENABLED-TABLES cust
 &Scoped-define FIRST-ENABLED-TABLE cust
-&Scoped-Define ENABLED-OBJECTS btn_bank-info RECT-5 
+&Scoped-Define ENABLED-OBJECTS btn_bank-info RECT-5 RECT-6 
 &Scoped-Define DISPLAYED-FIELDS cust.cust-no cust.active cust.name ~
 cust.addr[1] cust.addr[2] cust.spare-char-3 cust.city cust.state cust.zip ~
 cust.fax-country cust.spare-char-2 cust.type cust.date-field[1] ~
@@ -167,7 +168,8 @@ cust.tax-id cust.date-field[2] cust.frt-pay cust.fob-code cust.ship-part ~
 cust.loc cust.carrier cust.del-zone cust.terr cust.under-pct cust.over-pct ~
 cust.markup cust.ship-days cust.manf-day cust.classID cust.spare-int-1 ~
 cust.pallet cust.case-bundle cust.int-field[1] cust.po-mandatory ~
-cust.imported cust.show-set cust.nationalAcct cust.log-field[1] 
+cust.imported cust.show-set cust.nationalAcct cust.log-field[1] ~
+cust.tagStatus 
 &Scoped-define DISPLAYED-TABLES cust
 &Scoped-define FIRST-DISPLAYED-TABLE cust
 &Scoped-Define DISPLAYED-OBJECTS cbMatrixPrecision cbMatrixRounding ~
@@ -331,6 +333,10 @@ DEFINE RECTANGLE RECT-5
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
      SIZE 71 BY 2.57.
 
+DEFINE RECTANGLE RECT-6
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 79.4 BY 2.57.
+
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -421,12 +427,6 @@ DEFINE FRAME F-Main
           SIZE 16 BY 1
           BGCOLOR 15 FONT 4
      faxAreaCode AT ROW 6.71 COL 79.4 COLON-ALIGNED AUTO-RETURN 
-     faxNumber AT ROW 6.71 COL 87.4 COLON-ALIGNED NO-LABEL
-     cust.fax-prefix AT ROW 6.71 COL 112.4 COLON-ALIGNED
-          LABEL "Prefix"
-          VIEW-AS FILL-IN 
-          SIZE 5.6 BY 1
-          BGCOLOR 15 
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -434,6 +434,12 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
+     faxNumber AT ROW 6.71 COL 87.4 COLON-ALIGNED NO-LABEL
+     cust.fax-prefix AT ROW 6.71 COL 112.4 COLON-ALIGNED
+          LABEL "Prefix"
+          VIEW-AS FILL-IN 
+          SIZE 5.6 BY 1
+          BGCOLOR 15 
      cust.accountant AT ROW 6.71 COL 136.8 COLON-ALIGNED WIDGET-ID 18
           LABEL "Accountant"
           VIEW-AS FILL-IN 
@@ -516,6 +522,13 @@ DEFINE FRAME F-Main
           LABEL "EDI"
           VIEW-AS TOGGLE-BOX
           SIZE 9 BY .81
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1 SCROLLABLE 
+         FGCOLOR 1 FONT 6.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME F-Main
      cust.factored AT ROW 14.67 COL 47
           LABEL "Factored"
           VIEW-AS TOGGLE-BOX
@@ -526,13 +539,6 @@ DEFINE FRAME F-Main
                     "Yes", "Y":U,
 "No", "N":U
           SIZE 20 BY .62
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE 
-         FGCOLOR 1 FONT 6.
-
-/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
-DEFINE FRAME F-Main
      cust.tax-gr AT ROW 17.86 COL 16 COLON-ALIGNED
           LABEL "Tax Code"
           VIEW-AS FILL-IN 
@@ -615,11 +621,6 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 11 BY .81
           BGCOLOR 15 FONT 4
-     cust.spare-int-1 AT ROW 13.43 COL 135 COLON-ALIGNED WIDGET-ID 12
-          LABEL "Pallet ID" FORMAT ">>>>>>>>9"
-          VIEW-AS FILL-IN 
-          SIZE 12.2 BY .95
-          BGCOLOR 15 FONT 4
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -627,6 +628,11 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
+     cust.spare-int-1 AT ROW 13.43 COL 135 COLON-ALIGNED WIDGET-ID 12
+          LABEL "Pallet ID" FORMAT ">>>>>>>>9"
+          VIEW-AS FILL-IN 
+          SIZE 12.2 BY .95
+          BGCOLOR 15 FONT 4
      terr_dscr AT ROW 13.43 COL 100 COLON-ALIGNED NO-LABEL NO-TAB-STOP 
      cust.pallet AT ROW 14.33 COL 128.4 COLON-ALIGNED
           VIEW-AS FILL-IN 
@@ -663,6 +669,13 @@ DEFINE FRAME F-Main
           VIEW-AS TOGGLE-BOX
           SIZE 16 BY .81
      stax_tax-dscr AT ROW 17.86 COL 28 COLON-ALIGNED NO-LABEL NO-TAB-STOP 
+     cust.tagStatus AT ROW 20.38 COL 94.4 COLON-ALIGNED
+          VIEW-AS COMBO-BOX INNER-LINES 3
+          LIST-ITEM-PAIRS "Only tags that are not on hold","",
+                     "Only on Hold tags","H",
+                     "Any tag status","A"
+          DROP-DOWN-LIST
+          SIZE 40 BY 1
      " Credit Information" VIEW-AS TEXT
           SIZE 19 BY .62 AT ROW 7.91 COL 5
           FGCOLOR 9 FONT 4
@@ -689,6 +702,7 @@ DEFINE FRAME F-Main
      RECT-3 AT ROW 16.48 COL 1
      RECT-4 AT ROW 8.14 COL 73
      RECT-5 AT ROW 20.05 COL 1 WIDGET-ID 28
+     RECT-6 AT ROW 20.05 COL 73.6 WIDGET-ID 42
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -751,6 +765,8 @@ ASSIGN
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
+/* SETTINGS FOR FILL-IN cust.accountant IN FRAME F-Main
+   EXP-LABEL                                                            */
 /* SETTINGS FOR COMBO-BOX cust.active IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN cust.addr[1] IN FRAME F-Main
@@ -789,8 +805,6 @@ ASSIGN
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN cust.csrUser_id IN FRAME F-Main
    4 EXP-LABEL                                                          */
-/* SETTINGS FOR FILL-IN cust.accountant IN FRAME F-Main
-   EXP-LABEL                                                          */   
 /* SETTINGS FOR FILL-IN cust.curr-code IN FRAME F-Main
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN cust.cust-level IN FRAME F-Main
@@ -999,6 +1013,22 @@ DO:
 
      end.  /* otherwise */
   end case.  
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME cust.accountant
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cust.accountant V-table-Win
+ON LEAVE OF cust.accountant IN FRAME F-Main /* Accountant */
+DO:
+   DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
+  IF LASTKEY <> -1 THEN DO:
+     RUN valid-bill-owner(OUTPUT lReturnError) NO-ERROR.
+     IF lReturnError THEN RETURN NO-APPLY.
+  END.
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1274,21 +1304,6 @@ DO:
   IF LASTKEY <> -1 THEN DO:
      RUN valid-custcsr NO-ERROR.
      IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  END.
-
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&Scoped-define SELF-NAME cust.accountant
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cust.accountant V-table-Win
-ON LEAVE OF cust.accountant IN FRAME F-Main /* Billing Owner */
-DO:
-   DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
-  IF LASTKEY <> -1 THEN DO:
-     RUN valid-bill-owner(OUTPUT lReturnError) NO-ERROR.
-     IF lReturnError THEN RETURN NO-APPLY.
   END.
 
 END.
@@ -2820,6 +2835,31 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-bill-owner V-table-Win 
+PROCEDURE valid-bill-owner :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
+  {methods/lValidateError.i YES}
+
+   IF cust.accountant:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" THEN DO:
+       IF NOT CAN-FIND(FIRST users WHERE users.USER_ID EQ cust.accountant:SCREEN-VALUE IN FRAME {&FRAME-NAME})
+       THEN DO:
+           MESSAGE "Invalid customer Accountant. Try help." VIEW-AS ALERT-BOX ERROR.
+           APPLY "entry" TO cust.accountant.
+           oplReturnError = YES.
+       END.
+   END.
+
+  {methods/lValidateError.i NO}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-carrier V-table-Win 
 PROCEDURE valid-carrier :
 /*------------------------------------------------------------------------------
@@ -3072,31 +3112,6 @@ PROCEDURE valid-custcsr :
        THEN DO:
            MESSAGE "Invalid customer CSR. Try help." VIEW-AS ALERT-BOX ERROR.
            RETURN ERROR.
-       END.
-   END.
-
-  {methods/lValidateError.i NO}
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-bill-owner V-table-Win 
-PROCEDURE valid-bill-owner :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
-  {methods/lValidateError.i YES}
-
-   IF cust.accountant:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" THEN DO:
-       IF NOT CAN-FIND(FIRST users WHERE users.USER_ID EQ cust.accountant:SCREEN-VALUE IN FRAME {&FRAME-NAME})
-       THEN DO:
-           MESSAGE "Invalid customer Accountant. Try help." VIEW-AS ALERT-BOX ERROR.
-           APPLY "entry" TO cust.accountant.
-           oplReturnError = YES.
        END.
    END.
 
