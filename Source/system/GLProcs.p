@@ -344,29 +344,33 @@ PROCEDURE GL_SpCreateGLHist :
     
     
     DEFINE BUFFER bf-glhist FOR glhist.
-    FIND FIRST period NO-LOCK
-         WHERE period.company EQ ipcCompany
-         AND period.pst LE ipdtTrDate
-         AND period.pend GE ipdtTrDate NO-ERROR.
     
-    CREATE bf-glhist.
-      ASSIGN
-       bf-glhist.company    = ipcCompany
-       bf-glhist.actnum     = ipcActnum
-       bf-glhist.jrnl       = ipcJrnl
-       bf-glhist.tr-dscr    = ipcTrDscr
-       bf-glhist.tr-date    = ipdtTrDate
-       bf-glhist.tr-amt     = ipdTrAmount
-       bf-glhist.tr-num     = ipiTrNumber
-       bf-glhist.period     = ipiPeriod  
-       bf-glhist.glYear     = IF AVAIL period THEN period.yr ELSE YEAR(ipdtTrDate)         
-       bf-glhist.entryType  = ipcEntryType
-       bf-glhist.sourceDate = ipdtSourceDate
-       bf-glhist.documentID = ipcDocumentID
-       bf-glhist.module     = ipcModule        
-       bf-glhist.posted     = NO.
-                          
-    RELEASE bf-glhist.
+    IF ipdTrAmount NE 0 THEN
+    DO:      
+        FIND FIRST period NO-LOCK
+             WHERE period.company EQ ipcCompany
+             AND period.pst LE ipdtTrDate
+             AND period.pend GE ipdtTrDate NO-ERROR.
+        
+        CREATE bf-glhist.
+          ASSIGN
+           bf-glhist.company    = ipcCompany
+           bf-glhist.actnum     = ipcActnum
+           bf-glhist.jrnl       = ipcJrnl
+           bf-glhist.tr-dscr    = ipcTrDscr
+           bf-glhist.tr-date    = ipdtTrDate
+           bf-glhist.tr-amt     = ipdTrAmount
+           bf-glhist.tr-num     = ipiTrNumber
+           bf-glhist.period     = ipiPeriod  
+           bf-glhist.glYear     = IF AVAIL period THEN period.yr ELSE YEAR(ipdtTrDate)         
+           bf-glhist.entryType  = ipcEntryType
+           bf-glhist.sourceDate = ipdtSourceDate
+           bf-glhist.documentID = ipcDocumentID
+           bf-glhist.module     = ipcModule        
+           bf-glhist.posted     = NO.
+                              
+        RELEASE bf-glhist.
+    END.
 
 END PROCEDURE.
 
