@@ -2362,12 +2362,18 @@ DO:
       /* Used to update due-date on header */
       IF gcLastDateChange EQ "" THEN
         gcLastDateChange = "prom-date".
-        
-        cPromManualChanged = YES.
-
-  
     END.
 
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ordl.prom-date d-oeitem
+ON VALUE-CHANGED OF oe-ordl.prom-date IN FRAME d-oeitem /* Prom. Date */
+DO:
+  cPromManualChanged = YES.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2480,10 +2486,18 @@ DO:
     /* Used to set date on header */
     IF gcLastDateChange EQ "" THEN
       gcLastDateChange = "req-date".
-      
-      cDueManualChanged = YES.
 
   END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ordl.req-date d-oeitem
+ON VALUE-CHANGED OF oe-ordl.req-date IN FRAME d-oeitem /* Due Date */
+DO:
+  cDueManualChanged = YES.
 END.
 
 /* _UIB-CODE-BLOCK-END */
