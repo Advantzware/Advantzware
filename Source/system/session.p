@@ -2578,7 +2578,7 @@ FUNCTION sfWebCharacters RETURNS CHARACTER
 
     cWebString = ipcWebString.
     IF ipiLevel GE 1 THEN
-    cWebString = REPLACE(cWebString,"~&",IF ipcType EQ "Web" THEN "~&amp;"  ELSE "").
+    cWebString = REPLACE(cWebString,"~&",IF ipcType EQ "Web" THEN "~&amp;"  ELSE "and").
     IF ipiLevel GE 2 THEN
     cWebString = REPLACE(cWebString,"~'",IF ipcType EQ "Web" THEN "~&apos;" ELSE "").
     IF ipiLevel GE 3 THEN
