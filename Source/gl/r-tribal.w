@@ -1420,8 +1420,8 @@ DO:
             EXPORT STREAM excel DELIMITER ","
             "Net Income:"
             ""
-            (-dRevenueAmountPTD - dExpenseAmountPTD)
-            (-dRevenueAmountYTD - dExpenseAmountYTD) SKIP.
+            (-1 * dRevenueAmountPTD - dExpenseAmountPTD)
+            (-1 * dRevenueAmountYTD - dExpenseAmountYTD) SKIP.
       END.
    END.   
    
