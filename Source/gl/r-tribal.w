@@ -1365,8 +1365,8 @@ DO:
                                        dCapitalAmountYTD format "->>>,>>>,>>>,>>9.99" to 81 SKIP.        
                                 
         put SKIP "===============" to 61 "===================" to 81 skip
-            "Balance Sheet Total:" AT 10 (dAssetAmountPTD + dLiabilityAmountPTD + dCapitalAmountPTD + (dRevenueAmountPTD - dExpenseAmountPTD) ) format "->>>,>>>,>>9.99" to 61
-                                         (dAssetAmountYTD + dLiabilityAmountYTD + dCapitalAmountYTD + (dRevenueAmountYTD - dExpenseAmountYTD) ) format "->>>,>>>,>>>,>>9.99" to 81 SKIP(1).  
+            "Balance Sheet Total:" AT 10 (dAssetAmountPTD + dLiabilityAmountPTD + dCapitalAmountPTD ) format "->>>,>>>,>>9.99" to 61
+                                         (dAssetAmountYTD + dLiabilityAmountYTD + dCapitalAmountYTD ) format "->>>,>>>,>>>,>>9.99" to 81 SKIP(1).  
                                          
         put SKIP "===============" to 61 "===================" to 81 skip
             "Total Revenue:" AT 10 dRevenueAmountPTD format "->>>,>>>,>>9.99" to 61
@@ -1404,8 +1404,8 @@ DO:
             EXPORT STREAM excel DELIMITER ","
             "Balance Sheet Total:"
             ""
-            (dAssetAmountPTD + dLiabilityAmountPTD + dCapitalAmountPTD + (dRevenueAmountPTD - dExpenseAmountPTD) )
-            (dAssetAmountYTD + dLiabilityAmountYTD + dCapitalAmountYTD + (dRevenueAmountYTD - dExpenseAmountYTD) ) SKIP(1)  .
+            (dAssetAmountPTD + dLiabilityAmountPTD + dCapitalAmountPTD  )
+            (dAssetAmountYTD + dLiabilityAmountYTD + dCapitalAmountYTD  ) SKIP(1)  .
             EXPORT STREAM excel DELIMITER ","
             "Total Revenue:"
             ""
