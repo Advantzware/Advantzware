@@ -1377,8 +1377,8 @@ DO:
                                        dExpenseAmountYTD format "->>>,>>>,>>>,>>9.99" to 81 SKIP.  
                                        
         put SKIP "===============" to 61 "===================" to 81 skip
-            "Net Income:" AT 10 (dRevenueAmountPTD + dExpenseAmountPTD) format "->>>,>>>,>>9.99" to 61
-                                (dRevenueAmountYTD + dExpenseAmountYTD) format "->>>,>>>,>>>,>>9.99" to 81 SKIP.                                                                  
+            "Net Income:" AT 10 (-dRevenueAmountPTD - dExpenseAmountPTD) format "->>>,>>>,>>9.99" to 61
+                                (-dRevenueAmountYTD - dExpenseAmountYTD) format "->>>,>>>,>>>,>>9.99" to 81 SKIP.                                                                  
     END.                                
                                    
    IF tb_excel THEN 
@@ -1420,8 +1420,8 @@ DO:
             EXPORT STREAM excel DELIMITER ","
             "Net Income:"
             ""
-            (dRevenueAmountPTD + dExpenseAmountPTD)
-            (dRevenueAmountYTD + dExpenseAmountYTD) SKIP.
+            (-dRevenueAmountPTD - dExpenseAmountPTD)
+            (-dRevenueAmountYTD - dExpenseAmountYTD) SKIP.
       END.
    END.   
    
