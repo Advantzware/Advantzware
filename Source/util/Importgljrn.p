@@ -17,14 +17,14 @@
 DEFINE TEMP-TABLE ttImportgljrn NO-UNDO
     FIELD Company         AS CHARACTER FORMAT "x(3)"
     FIELD Location        AS CHARACTER FORMAT "x(5)"
-    FIELD identifier      AS INTEGER                  LABEL "Identifier"
-    FIELD Date            AS DATE                     LABEL "Date"
-    FIELD actnum          AS CHARACTER                LABEL "Account Number"
-    FIELD dscr            AS CHARACTER                LABEL "Description"
-    FIELD tr-amt          AS CHARACTER                LABEL "Transaction Amount"
-    FIELD reverse         AS LOGICAL                  LABEL "Reverse"
-    FIELD j-no            AS INTEGER                  LABEL "Journal Number"
-    FIELD period          AS INTEGER                  LABEL "Period"
+    FIELD identifier      AS INTEGER                  LABEL "Identifier"             HELP "Required - Integer"
+    FIELD dtDate          AS DATE                     LABEL "Date"                   HELP "Required - Date"
+    FIELD actnum          AS CHARACTER                LABEL "Account Number"         HELP "Required - Size:25"
+    FIELD dscr            AS CHARACTER                LABEL "Description"            HELP "Required - Size:30"
+    FIELD tr-amt          AS CHARACTER                LABEL "Transaction Amount"     HELP "Required - Decimal"
+    FIELD reverse         AS LOGICAL                  LABEL "Reverse"                HELP "Required - Logical Format Yes/No"
+    FIELD j-no            AS INTEGER                  LABEL "Journal Number"         HELP "Required - Integer"
+    FIELD period          AS INTEGER                  LABEL "Period"                 HELP "Required - Integer"
     .
 
 DEFINE VARIABLE giIndexOffset    AS INTEGER NO-UNDO INIT 2. /*Set to 1 if there is a Company field in temp-table since this will not be part of the import data*/
@@ -68,7 +68,7 @@ PROCEDURE pValidate PRIVATE:
     
     IF oplValid THEN 
     DO:
-        IF ipbf-ttImportgljrn.Date EQ ? THEN 
+        IF ipbf-ttImportgljrn.dtDate EQ ? THEN 
             ASSIGN 
                 oplValid = NO
                 opcNote  = "Key Field Blank: Date ".
@@ -83,7 +83,7 @@ PROCEDURE pValidate PRIVATE:
     
         ASSIGN 
                 oplValid = NO
-                opcNote  = "Key Field Blank: Account".
+                opcNote  = "Invalid Account".
         
     END.
     
@@ -91,8 +91,8 @@ PROCEDURE pValidate PRIVATE:
     DO:
         FIND FIRST period 
              WHERE period.company  =  ipbf-ttImportgljrn.Company  
-               AND period.pst  <= ipbf-ttImportgljrn.Date 
-               AND period.pend >= ipbf-ttImportgljrn.Date
+               AND period.pst  <= ipbf-ttImportgljrn.dtDate 
+               AND period.pend >= ipbf-ttImportgljrn.dtDate
                NO-LOCK NO-ERROR.
         IF NOT (AVAIL period AND period.pstat) THEN
         DO:
@@ -232,7 +232,7 @@ PROCEDURE pProcessRecord PRIVATE:
         
             RUN pCreateNewGeneralHeader(
                 ipbf-ttImportgljrn.Company, 
-                ipbf-ttImportgljrn.Date, 
+                ipbf-ttImportgljrn.dtDate, 
                 ipbf-ttImportgljrn.reverse,
                 OUTPUT rigljrn,
                 OUTPUT iJournalNo).
