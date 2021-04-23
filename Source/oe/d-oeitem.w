@@ -3942,7 +3942,7 @@ IF TRUE OR ( NOT AVAIL xoe-rel OR oe-ordl.est-no NE "" ) THEN DO:
       
       IF oeDateAuto-log AND OeDateAuto-Char = "Colonial" THEN
       DO:
-          IF cPromManualChanged AND NOT cDueManualChanged THEN 
+          IF NOT cPromManualChanged AND  cDueManualChanged THEN 
           DO:
                 
               RUN oe/dueDateCalc.p (INPUT oe-ord.cust-no,
@@ -3956,7 +3956,7 @@ IF TRUE OR ( NOT AVAIL xoe-rel OR oe-ordl.est-no NE "" ) THEN DO:
               oe-ordl.prom-date = dCalcPromDate.
               FIND CURRENT oe-ordl NO-LOCK.
           END.
-          ELSE IF cDueManualChanged AND NOT cPromManualChanged THEN 
+          ELSE IF NOT cDueManualChanged AND  cPromManualChanged THEN 
               DO:
                 
                   RUN oe/dueDateCalc.p (INPUT oe-ord.cust-no,
@@ -7117,7 +7117,7 @@ PROCEDURE OnSaveButton :
         
         IF oeDateAuto-log AND OeDateAuto-Char = "Colonial" THEN 
         DO:
-            IF cPromManualChanged AND NOT cDueManualChanged THEN 
+            IF NOT cPromManualChanged AND cDueManualChanged THEN 
             DO:
                 
             RUN oe/dueDateCalc.p (INPUT oe-ord.cust-no,
@@ -7130,7 +7130,7 @@ PROCEDURE OnSaveButton :
       
             oe-ordl.prom-date = dCalcPromDate.
             END.
-            ELSE IF cDueManualChanged AND NOT cPromManualChanged THEN 
+            ELSE IF NOT cDueManualChanged AND cPromManualChanged THEN 
             DO:
                 
             RUN oe/dueDateCalc.p (INPUT oe-ord.cust-no,
