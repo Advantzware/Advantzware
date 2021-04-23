@@ -80,6 +80,9 @@ DEFINE VARIABLE v-shink-wrap AS LOGICAL NO-UNDO.
 DEFINE VARIABLE v-shrink-wrap AS LOGICAL NO-UNDO.
 DEFINE VARIABLE v-sample-on-cnt AS LOGICAL NO-UNDO.
 DEFINE VARIABLE v-cas-wt AS DECIMAL FORMAT ">>>>9.99" NO-UNDO.
+DEFINE VARIABLE v-due-qty   LIKE oe-rel.tot-qty EXTENT 4  NO-UNDO.
+DEFINE VARIABLE v-ship-date AS DATE             EXTENT 4  NO-UNDO.
+DEFINE VARIABLE icount      AS INTEGER          INITIAL 0 NO-UNDO.
 DEFINE BUFFER b-est FOR est.
 DEFINE BUFFER b-oe-ordl FOR oe-ordl.
 DEFINE BUFFER b-oe-rel FOR oe-rel.
@@ -184,7 +187,7 @@ DEFINE VARIABLE v-item AS CHARACTER EXTENT 100 NO-UNDO.
 DEFINE VARIABLE v-i-qty AS DECIMAL EXTENT 100 NO-UNDO.
 DEFINE VARIABLE v-ink1 AS CHARACTER EXTENT 100 NO-UNDO.
 DEFINE VARIABLE v-ink2 AS CHARACTER EXTENT 100 NO-UNDO.
-DEFINE VARIABLE v-po-no LIKE oe-ordl.po-no NO-UNDO.
+DEFINE VARIABLE v-po-no LIKE oe-ordl.po-no EXTENT 4 NO-UNDO.
 DEFINE VARIABLE lv-mat-dept-list AS CHARACTER INITIAL "FB,FS,WN,WS,GL" NO-UNDO.
 DEFINE VARIABLE v-mat-for-mach AS CHARACTER NO-UNDO.
 DEFINE BUFFER xjob-mat FOR job-mat.
@@ -476,6 +479,40 @@ FOR EACH job-hdr NO-LOCK
                      v-shipto[4] = TRIM(oe-rel.ship-city) + ", " +
                                    oe-rel.ship-state + "  " + oe-rel.ship-zip.          
         END.
+        
+        icount = 0.
+        FOR EACH b-oe-rel NO-LOCK WHERE  b-oe-rel.company EQ cocode
+            AND b-oe-rel.ord-no  EQ oe-rel.ord-no
+            AND b-oe-rel.i-no    EQ oe-rel.i-no
+            AND b-oe-rel.line    EQ oe-rel.LINE :
+           
+            icount =  icount + 1 .
+            IF icount = 1 THEN  
+                ASSIGN 
+                    v-ship-date[1] = IF b-oe-rel.rel-date NE ?  THEN  b-oe-rel.rel-date ELSE ? 
+                    v-due-qty[1]   = IF b-oe-rel.tot-qty NE 0 THEN b-oe-rel.tot-qty ELSE 0 
+                    v-po-no[1]     = IF b-oe-rel.po-no NE "" THEN  b-oe-rel.po-no ELSE "" .
+                      
+            IF icount = 2 THEN  
+                ASSIGN 
+                    v-ship-date[2] = IF b-oe-rel.rel-date NE ?  THEN  b-oe-rel.rel-date ELSE ? 
+                    v-due-qty[2]   = IF b-oe-rel.tot-qty NE 0 THEN b-oe-rel.tot-qty ELSE 0 
+                    v-po-no[2]     = IF b-oe-rel.po-no NE "" THEN  b-oe-rel.po-no ELSE "" .
+
+            IF icount = 3 THEN  
+                ASSIGN 
+                    v-ship-date[3] = IF b-oe-rel.rel-date NE ?  THEN  b-oe-rel.rel-date ELSE ? 
+                    v-due-qty[3]   = IF b-oe-rel.tot-qty NE 0 THEN b-oe-rel.tot-qty ELSE 0 
+                    v-po-no[3]     = IF b-oe-rel.po-no NE "" THEN  b-oe-rel.po-no ELSE "" .
+
+            IF icount = 4 THEN  
+                ASSIGN 
+                    v-ship-date[4] = IF b-oe-rel.rel-date NE ?  THEN  b-oe-rel.rel-date ELSE ?  
+                    v-due-qty[4]   = IF b-oe-rel.tot-qty NE 0 THEN b-oe-rel.tot-qty ELSE 0 
+                    v-po-no[4]     = IF b-oe-rel.po-no NE "" THEN  b-oe-rel.po-no ELSE "" . 
+            
+        END. /* FOR EACH */
+        
         FIND FIRST cust NO-LOCK WHERE cust.company EQ job-hdr.company AND
                                       cust.cust-no EQ job-hdr.cust-no NO-ERROR.
 
@@ -521,14 +558,14 @@ FOR EACH job-hdr NO-LOCK
 
         cBarCode = TRIM(v-job-no) + "-" + STRING(v-job-no2,"99").
         PUT "<AT=-.5,6.3><FROM><AT=+.3,+1.7><BARCODE,TYPE=39,CHECKSUM=NONE,BarHeightPixels=2,VALUE=" cBarCode FORMAT "X(11)" ">"
-            "<C1><R4><B>Customer Name:</B>" v-cust-name  "Code: " job-hdr.cust-no 
-            "   <B>REQ DATE:   MFG DATE:   Estimate:            Print Date:" SKIP
-            "Shipto:</B>" v-shipto[1] SPACE(6) "Prev.Ord#:" v-per-ord v-req-date AT 67 v-due-date AT 79 TRIM(job-hdr.est-no) FORMAT "x(8)" AT 92
+            "<C1><R4><B>Customer Name:</B>" v-cust-name  "Code: " job-hdr.cust-no
+            "   <B>    REL.DATE:    QTY DUE:     PO#:           Print Date:" SKIP                       
+            "Shipto:</B>" v-shipto[1] SPACE(6) "Prev.Ord#:" v-per-ord v-ship-date[1] AT 70 v-due-qty[2] AT 80 v-po-no[1] FORMAT "x(12)" AT 93
             TODAY FORMAT "99/99/9999" AT 112
             SKIP
-            v-shipto[2] AT 7 /*"Order Qty:" AT 62   "Job Qty:" AT 87*/  STRING(TIME,"HH:MM am/pm") AT 107 " by " USERID("nosweat")
-            v-shipto[4] AT 7  /*"QC/SPC#:" AT 38 v-spc-no*/
-            /*ord-qty format "->,>>>,>>9" AT 62 v-job-qty format "->,>>>,>>9" AT 85*/  SKIP
+            v-shipto[2] AT 7 /*"Order Qty:" AT 62   "Job Qty:" AT 87*/ "REQ DATE:" AT 45  v-req-date v-ship-date[2] AT 66 v-due-qty[2] AT 76 v-po-no[2] AT 89 STRING(TIME,"HH:MM am/pm") AT 107 " by " USERID("nosweat")
+            v-shipto[4] AT 7  /*"QC/SPC#:" AT 38 v-spc-no*/ "MFG DATE:" AT 45 v-due-date v-ship-date[3] AT 66 v-due-qty[3] AT 76 v-po-no[3] AT 89
+            /*ord-qty format "->,>>>,>>9" AT 62 v-job-qty format "->,>>>,>>9" AT 85*/ "Estimate:" AT 45 job-hdr.est-no FORMAT "x(8)" SKIP
             /*"Pharma Code:" AT 38 v-upc-no*/ "Overrun: " AT 65 lv-over-run "Underrun: " AT 86 lv-under-run SKIP
             v-fill SKIP.     
 
