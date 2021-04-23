@@ -560,7 +560,7 @@ FOR EACH job-hdr NO-LOCK
         PUT "<AT=-.5,6.3><FROM><AT=+.3,+1.7><BARCODE,TYPE=39,CHECKSUM=NONE,BarHeightPixels=2,VALUE=" cBarCode FORMAT "X(11)" ">"
             "<C1><R4><B>Customer Name:</B>" v-cust-name  "Code: " job-hdr.cust-no
             "   <B>    REL.DATE:    QTY DUE:     PO#:           Print Date:" SKIP                       
-            "Shipto:</B>" v-shipto[1] SPACE(6) "Prev.Ord#:" v-per-ord v-ship-date[1] AT 70 v-due-qty[2] AT 80 v-po-no[1] FORMAT "x(12)" AT 93
+            "Shipto:</B>" v-shipto[1] SPACE(6) "Prev.Ord#:" v-per-ord v-ship-date[1] AT 70 v-due-qty[1] AT 80 v-po-no[1] FORMAT "x(12)" AT 93
             TODAY FORMAT "99/99/9999" AT 112
             SKIP
             v-shipto[2] AT 7 /*"Order Qty:" AT 62   "Job Qty:" AT 87*/ "REQ DATE:" AT 45  v-req-date v-ship-date[2] AT 66 v-due-qty[2] AT 76 v-po-no[2] AT 89 STRING(TIME,"HH:MM am/pm") AT 107 " by " USERID("nosweat")
