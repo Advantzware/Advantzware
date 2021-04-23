@@ -659,6 +659,7 @@ DO:
        FIND FIRST account WHERE account.company = gcompany
                             AND account.actnum = SELF:SCREEN-VALUE NO-LOCK NO-ERROR.
        IF AVAIL account THEN vend.actdscr:SCREEN-VALUE = account.dscr.
+                        ELSE vend.actdscr:SCREEN-VALUE = "".
     END.
   end.
 
@@ -1528,6 +1529,7 @@ DEFINE VARIABLE container-hdl AS CHARACTER     NO-UNDO.
        FIND FIRST account WHERE account.company = gcompany
                             AND account.actnum = vend.actnum:SCREEN-VALUE NO-LOCK NO-ERROR.
        IF AVAIL account THEN vend.actdscr:SCREEN-VALUE = account.dscr.
+                        ELSE vend.actdscr:SCREEN-VALUE = "".
   END.
 
   run valid-buyer NO-ERROR.
