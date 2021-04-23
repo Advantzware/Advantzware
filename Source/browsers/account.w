@@ -157,10 +157,10 @@ DEFINE VARIABLE cDescription AS CHARACTER FORMAT "X(256)":U
      SIZE 45 BY 1
      BGCOLOR 15  NO-UNDO.
      
-DEFINE VARIABLE cType AS CHARACTER FORMAT "X(256)":U INITIAL "*"
+DEFINE VARIABLE cType AS CHARACTER FORMAT "X(256)":U INITIAL ""
      LABEL "Type" 
      VIEW-AS COMBO-BOX INNER-LINES 5
-     LIST-ITEM-PAIRS "All","*",
+     LIST-ITEM-PAIRS "All","",
                      "Asset","A",
                      "Capital","C",
                      "Expense","E",
