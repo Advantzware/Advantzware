@@ -2,6 +2,8 @@
   DEF VAR ld AS DATE EXTENT 3 NO-UNDO.
   DEF VAR li AS INT NO-UNDO.
   DEFINE VARIABLE cCustomerList AS CHARACTER NO-UNDO.  
+  DEFINE BUFFER bf-ar-inv  FOR ar-inv  . 
+  DEFINE BUFFER bf-ar-cash FOR ar-cash . 
 
   ASSIGN
    li = YEAR(as-of-date)
@@ -28,8 +30,17 @@
     ld[1] = period.pst.
     LEAVE.
   END.
-
+  IF tb_firstinvdate THEN
+  DO:
+    
+     ASSIGN 
+          ld[1] = begin_firstinvdate
+          ld[2] = begin_firstinvdate
+          ld[3] = end_firstinvdate .   
+  END.
+  
   if slct-by-inv then do:
+    MAIN-LOOP:
     for each ar-inv
         where ar-inv.company  eq cocode
           and ar-inv.posted   eq yes
@@ -47,6 +58,21 @@
         where ar-invl.x-no eq ar-inv.x-no
           and (ar-invl.billable or not ar-invl.misc)
         no-lock:
+        
+        FOR EACH bf-ar-inv NO-LOCK
+            WHERE bf-ar-inv.company  EQ cocode
+            AND bf-ar-inv.cust-no    EQ cust.cust-no BY bf-ar-inv.inv-date:
+            
+            ASSIGN dtCheckFirstInvDate = bf-ar-inv.inv-date .
+        LEAVE.
+        END.
+            
+        IF tb_firstinvdate THEN DO:
+            IF NOT (dtCheckFirstInvDate GE ld[1]
+            AND dtCheckFirstInvDate     LE ld[3]) THEN NEXT MAIN-LOOP.
+            
+        END.
+            
           
       do i = 1 to 3:
         v-sman-no = if ar-invl.sman[i] eq "" and i eq 1 then cust.sman
@@ -65,6 +91,7 @@
          tt-report.key-10   = "ar-invl"
          tt-report.rec-id   = recid(ar-invl)
          tt-report.ytd-only = ar-inv.inv-date LT ld[2].
+         LEAVE.
       end.
     end.
 
@@ -133,6 +160,7 @@
            tt-report.rec-id   = recid(ar-cashl)
            tt-report.row-id   = ROWID(b-ar-invl)
            tt-report.ytd-only = ar-cash.check-date LT ld[2].
+           LEAVE.
         end.
       END.
 
@@ -153,6 +181,7 @@
   end.
 
   else do:
+    MAIN-LOOP:
     for each cust where cust.company eq cocode no-lock:
       for each ar-inv
           where ar-inv.company  eq cocode
@@ -174,6 +203,20 @@
             and (ar-invl.billable or not ar-invl.misc)
           no-lock:
           
+        FOR EACH bf-ar-inv NO-LOCK
+            WHERE bf-ar-inv.company  EQ cocode
+            AND bf-ar-inv.cust-no    EQ cust.cust-no BY bf-ar-inv.inv-date:
+            
+            ASSIGN dtCheckFirstInvDate = bf-ar-inv.inv-date .
+        LEAVE.
+        END.
+            
+        IF tb_firstinvdate THEN DO:
+            IF NOT (dtCheckFirstInvDate GE ld[1]
+            AND dtCheckFirstInvDate     LE ld[3]) THEN NEXT MAIN-LOOP.
+            
+        END.  
+                
         do i = 1 to 3:
           v-sman-no = if ar-invl.sman[i] eq "" and i eq 1 then cust.sman
                       else ar-invl.sman[i].
@@ -191,6 +234,7 @@
            tt-report.key-10   = "ar-invl"
            tt-report.rec-id   = recid(ar-invl)
            tt-report.ytd-only = ar-ledger.tr-date LT ld[2].
+           LEAVE.
         end.
       end.
 
@@ -265,6 +309,7 @@
              tt-report.rec-id   = recid(ar-cashl)
              tt-report.row-id   = ROWID(b-ar-invl)
              tt-report.ytd-only = ar-ledger.tr-date LT ld[2].
+             LEAVE.
           end.
         END.
 
@@ -351,6 +396,14 @@
        w-inv.inv-date = ar-inv.inv-date
        w-inv.pst-date = if avail ar-ledger then ar-ledger.tr-date
                         else ar-inv.inv-date.
+      
+      FOR EACH bf-ar-inv NO-LOCK
+            WHERE bf-ar-inv.company  EQ cocode
+            AND bf-ar-inv.cust-no    EQ cust.cust-no BY bf-ar-inv.inv-date:
+        ASSIGN dtFirstInvDate = bf-ar-inv.inv-date .
+      LEAVE.
+      END.  
+         ASSIGN w-inv.firstInvDate = dtFirstInvDate .
 
       find first itemfg
           where itemfg.company eq cocode
@@ -425,7 +478,15 @@
        w-inv.inv-date = ar-cash.check-date
        w-inv.pst-date = if avail ar-ledger then ar-ledger.tr-date
                         else ar-cash.check-date.
-       
+
+      FOR EACH bf-ar-inv NO-LOCK
+            WHERE bf-ar-inv.company  EQ cocode
+            AND bf-ar-inv.cust-no    EQ ar-cash.cust-no BY bf-ar-inv.inv-date:
+        ASSIGN dtFirstInvDate = bf-ar-inv.inv-date .
+      LEAVE.
+      END.  
+         ASSIGN w-inv.firstInvDate = dtFirstInvDate .  
+                        
       assign
        v-amt  = ar-cashl.amt-paid - ar-cashl.amt-disc
        v-sqft = 0
@@ -530,14 +591,15 @@
             DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
                cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
                     CASE cTmpField:             
-                         WHEN "inv"    THEN cVarValue = string(w-inv.inv-no,">>>>>>>") .
-                         WHEN "inv-date"   THEN cVarValue = string(w-inv.inv-date,"99/99/9999").
-                         WHEN "post-date"   THEN cVarValue = STRING(w-inv.pst-date,"99/99/9999").
-                         WHEN "cust"  THEN cVarValue = STRING(w-inv.cust-no,"x(8)") .
-                         WHEN "cust-name"   THEN cVarValue = STRING(w-inv.NAME,"x(30)") .
-                         WHEN "net"  THEN cVarValue = STRING(w-inv.amt,"->,>>>,>>9.99") .
-                         WHEN "msf"   THEN cVarValue = STRING(w-inv.msf,"->,>>>,>>9.99") .
-                         WHEN "msf$"  THEN cVarValue = STRING(ld-amt-msf,"->,>>>,>>9.99") .
+                         WHEN "inv"           THEN cVarValue = STRING(w-inv.inv-no,">>>>>>>") .
+                         WHEN "inv-date"      THEN cVarValue = STRING(w-inv.inv-date,"99/99/9999").
+                         WHEN "firstInvDate"  THEN cVarValue = STRING(w-inv.firstInvDate,"99/99/9999") .
+                         WHEN "post-date"     THEN cVarValue = STRING(w-inv.pst-date,"99/99/9999").
+                         WHEN "cust"          THEN cVarValue = STRING(w-inv.cust-no,"x(8)") .
+                         WHEN "cust-name"     THEN cVarValue = STRING(w-inv.NAME,"x(30)") .
+                         WHEN "net"           THEN cVarValue = STRING(w-inv.amt,"->,>>>,>>9.99") .
+                         WHEN "msf"           THEN cVarValue = STRING(w-inv.msf,"->,>>>,>>9.99") .
+                         WHEN "msf$"          THEN cVarValue = STRING(ld-amt-msf,"->,>>>,>>9.99") .
                         
                     END CASE.
                       
@@ -592,14 +654,15 @@
             DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
                cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
                     CASE cTmpField:             
-                         WHEN "inv"    THEN cVarValue = "" .
-                         WHEN "inv-date"   THEN cVarValue = "".
-                         WHEN "post-date"   THEN cVarValue = "".
-                         WHEN "cust"  THEN cVarValue = "" .
-                         WHEN "cust-name"   THEN cVarValue = "" .
-                         WHEN "net"  THEN cVarValue = STRING(v-tot,"->,>>>,>>9.99") .
-                         WHEN "msf"   THEN cVarValue = STRING(v-msf,"->,>>>,>>9.99") .
-                         WHEN "msf$"  THEN cVarValue = STRING(ld-amt-msf,"->,>>>,>>9.99") .
+                         WHEN "inv"           THEN cVarValue = "" .
+                         WHEN "inv-date"      THEN cVarValue = "" .
+                         WHEN "firstInvDate"  THEN cVarValue = "" .
+                         WHEN "post-date"     THEN cVarValue = "" .
+                         WHEN "cust"          THEN cVarValue = "" .
+                         WHEN "cust-name"     THEN cVarValue = "" .
+                         WHEN "net"           THEN cVarValue = STRING(v-tot,"->,>>>,>>9.99") .
+                         WHEN "msf"           THEN cVarValue = STRING(v-msf,"->,>>>,>>9.99") .
+                         WHEN "msf$"          THEN cVarValue = STRING(ld-amt-msf,"->,>>>,>>9.99") .
                         
                     END CASE.
                       
