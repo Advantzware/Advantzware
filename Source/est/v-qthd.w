@@ -32,6 +32,7 @@ CREATE WIDGET-POOL.
 DEFINE {&NEW} SHARED VARIABLE g_lookup-var AS CHARACTER NO-UNDO.
 &scoped-define proc-enable  ENABLE-detail
 &scoped-define proc-delete  proc-delete
+&scoped-define copy-proc  copy-proc 
 
 {custom/gcompany.i}
 {custom/gloc.i}
@@ -53,6 +54,11 @@ DEFINE VARIABLE hdCustomerProcs AS HANDLE             NO-UNDO.
 DEFINE VARIABLE hdSalesManProcs AS HANDLE             NO-UNDO.
 DEFINE VARIABLE lSuccess        AS LOGICAL            NO-UNDO.
 DEFINE VARIABLE cMessage        AS CHARACTER          NO-UNDO.
+DEFINE VARIABLE lQuotePriceMatrix AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cRtnChar          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound         AS LOGICAL NO-UNDO.
+DEFINE VARIABLE iQuoteExpirationDays AS INTEGER NO-UNDO. 
+DEFINE VARIABLE cQuoteExpirationDays AS CHARACTER NO-UNDO.
 
 RUN salrep/SalesManProcs.p PERSISTENT SET hdSalesManProcs.
 
@@ -545,7 +551,8 @@ ON CHOOSE OF btTags IN FRAME F-Main
 DO:
     RUN system/d-TagViewer.w (
         INPUT quotehd.rec_key,
-        INPUT ""
+        INPUT "",
+        INPUT "quotehd"
         ).  
 END.
 
@@ -738,6 +745,24 @@ END.
 ASSIGN cocode = gcompany
        locode = gloc.
  {sys/inc/custlistform.i ""EQ"" }
+ 
+ RUN sys/ref/nk1look.p (INPUT cocode, "QuotePriceMatrix", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    lQuotePriceMatrix = logical(cRtnChar) NO-ERROR. 
+    
+RUN sys/ref/nk1look.p (INPUT cocode, "QuoteExpirationDays", "I" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    iQuoteExpirationDays = INTEGER(cRtnChar) NO-ERROR.  
+    
+RUN sys/ref/nk1look.p (INPUT cocode, "QuoteExpirationDays", "C" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    cQuoteExpirationDays = STRING(cRtnChar) NO-ERROR.    
 
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
@@ -933,9 +958,30 @@ PROCEDURE enable-detail :
               quotehd.est-no quotehd.expireDate quotehd.sman quotehd.terms
               quotehd.carrier quotehd.del-zone
        WITH FRAME {&FRAME-NAME}.
+ IF lQuotePriceMatrix AND quotehd.approved AND NOT adm-new-record THEN
+ DO:
+     DISABLE {&list-5}
+              quotehd.est-no quotehd.quo-date quotehd.del-date quotehd.sman quotehd.terms
+              quotehd.contact quotehd.carrier quotehd.del-zone quotehd.ship-id 
+              quotehd.sold-id quotehd.pricingMethod WITH FRAME {&FRAME-NAME}.
+ END.  
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 
-
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE copy-proc V-table-Win 
+PROCEDURE copy-proc :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/  
+ 
+      quotehd.approved:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "Unapproved".
+ 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -957,11 +1003,14 @@ PROCEDURE local-assign-record :
   DEF BUFFER bf-quoteqty FOR quoteqty.
   DEF BUFFER bf-quotechg FOR quotechg.
   DEF VAR v-prev-q-no AS INT NO-UNDO.
+  DEFINE VARIABLE dtOldExpDate AS DATE NO-UNDO.
+  DEFINE BUFFER bf-oe-prmtx FOR oe-prmtx.
 
   /* Code placed here will execute PRIOR to standard behavior. */
   ASSIGN lv-ship-id = quotehd.ship-id
          lv-sman = quotehd.sman
-         v-prev-q-no = quotehd.q-no.
+         v-prev-q-no = quotehd.q-no
+         dtOldExpDate = quotehd.expireDate.
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
@@ -969,6 +1018,23 @@ PROCEDURE local-assign-record :
   /* Code placed here will execute AFTER standard behavior.    */
 
   quotehd.est-no = FILL(" ",8 - LENGTH(TRIM(quotehd.est-no))) + TRIM(quotehd.est-no).
+    
+  IF cQuoteExpirationDays EQ "Update" AND dtOldExpDate EQ quotehd.expireDate THEN
+  DO:
+     quotehd.expireDate = TODAY + iQuoteExpirationDays. 
+  END.
+  IF lQuotePriceMatrix AND quotehd.approved AND dtOldExpDate NE quotehd.expireDate THEN
+  DO:
+       FOR EACH bf-oe-prmtx EXCLUSIVE-LOCK
+             WHERE bf-oe-prmtx.company EQ cocode
+             AND bf-oe-prmtx.quoteId  EQ quotehd.q-no:
+        
+           bf-oe-prmtx.exp-date = quotehd.expireDate. 
+        END. 
+        RELEASE bf-oe-prmtx.
+  END.
+  IF NOT lQuotePriceMatrix THEN
+   quotehd.approved = NO.
 
   IF quotehd.est-no <> "" THEN DO:
      IF /*lv-ship-no <> 0 AND*/ lv-ship-id <> quotehd.ship-id AND
@@ -1133,7 +1199,7 @@ PROCEDURE local-create-record :
 /*                              quotehd.comment[4] = bf-hd.comment[4] */
 /*                              quotehd.comment[5] = bf-hd.comment[5] */
                              .          
-
+  quotehd.expireDate = TODAY + iQuoteExpirationDays.
   IF adm-new-record AND NOT adm-adding-record THEN DO WITH FRAME {&FRAME-NAME}:
      ASSIGN {&ENABLED-FIELDS}.
   END.
@@ -1216,6 +1282,9 @@ PROCEDURE local-display-fields :
   
   IF quotehd.pricingMethod EQ "" THEN
       quotehd.pricingMethod:SCREEN-VALUE = " ".
+  
+  IF NOT lQuotePriceMatrix THEN
+   quotehd.pricingMethod:HIDDEN IN FRAME {&FRAME-NAME}.
       
 END PROCEDURE.
 
@@ -1334,7 +1403,7 @@ PROCEDURE new-cust-no :
   Notes:       
 ------------------------------------------------------------------------------*/
     DEFINE VARIABLE riShipTo AS ROWID NO-UNDO.
-
+    DEFINE BUFFER bf-cust FOR cust.
     DO WITH FRAME {&FRAME-NAME}:
 
         IF quotehd.cust-no:SCREEN-VALUE NE "TEMP" THEN DO:
@@ -1356,6 +1425,12 @@ PROCEDURE new-cust-no :
                     quotehd.del-zone:SCREEN-VALUE  = cust.del-zone
                     quotehd.carrier:SCREEN-VALUE   = cust.carrier
                     .
+                    FIND FIRST bf-cust NO-LOCK
+                         WHERE bf-cust.company EQ cocode
+                         AND bf-cust.ACTIVE EQ "X" NO-ERROR.
+                        
+                    IF lQuotePriceMatrix  THEN
+                    quotehd.pricingMethod:SCREEN-VALUE = IF cust.pricingMethod NE "" THEN cust.pricingMethod ELSE IF AVAIL bf-cust AND bf-cust.pricingMethod NE "" THEN bf-cust.pricingMethod ELSE "Ship to".
                
                 RUN Customer_GetDefaultShipTo IN hdCustomerProcs(
                     INPUT  cocode,
@@ -1539,6 +1614,27 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckUpdate V-table-Win 
+PROCEDURE pCheckUpdate :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DEFINE OUTPUT PARAMETER oplNotAllowedUpdate AS LOGICAL NO-UNDO.
+   IF AVAIL quotehd AND quotehd.approved AND lQuotePriceMatrix THEN
+   DO:
+    MESSAGE "Quote is approved update not allowed." VIEW-AS ALERT-BOX INFO.
+     oplNotAllowedUpdate = YES.     
+   END.                                                        
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE quoteitm-exists V-table-Win 
 PROCEDURE quoteitm-exists :

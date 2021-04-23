@@ -235,6 +235,10 @@ DO:
     */
     RUN est/dPrcMtxQ.w (OUTPUT ll-ans, OUTPUT cTransQ).
     IF ll-ans THEN RUN oe/updprmtx2.p (ROWID(quotehd), "", 0, "", 0, cTransQ).
+    
+    run get-link-handle in adm-broker-hdl(this-procedure, "Record-source", OUTPUT char-hdl).
+    IF valid-handle(widget-handle(char-hdl)) THEN
+    run local-display-fields in widget-handle(char-hdl). 
   END.
 END.
 

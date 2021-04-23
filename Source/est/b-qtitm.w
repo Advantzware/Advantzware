@@ -42,7 +42,9 @@ def var ll-enable-fields as log no-undo.  /* bug with set-focus */
 DEF VAR ll-new-file AS LOG NO-UNDO.
 DEF VAR lv-part-no LIKE quoteitm.part-no NO-UNDO.
 DEF VAR lv-rowid AS ROWID NO-UNDO.
-
+DEFINE VARIABLE lQuotePriceMatrix AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cRtnChar          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound         AS LOGICAL NO-UNDO.
 
 {custom/globdefs.i}
 
@@ -59,6 +61,12 @@ FIND FIRST sys-ctrl NO-LOCK
       AND sys-ctrl.name    EQ "QUOITEM" no-error.
 
 IF AVAIL sys-ctrl   THEN ASSIGN v-quoflg = sys-ctrl.log-fld.
+
+RUN sys/ref/nk1look.p (INPUT cocode, "QuotePriceMatrix", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    lQuotePriceMatrix = logical(cRtnChar) NO-ERROR. 
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1288,6 +1296,25 @@ PROCEDURE pGetRowidItem :
   def output param oprwRowid AS ROWID NO-UNDO.
   
   oprwRowid = ROWID(quoteitm).
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckUpdate V-table-Win 
+PROCEDURE pCheckUpdate :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DEFINE OUTPUT PARAMETER oplNotAllowedUpdate AS LOGICAL NO-UNDO.
+   IF AVAIL quotehd AND quotehd.approved AND lQuotePriceMatrix THEN
+   DO:
+    MESSAGE "Quote is approved process not allowed." VIEW-AS ALERT-BOX INFO.
+     oplNotAllowedUpdate = YES.     
+   END.                                                        
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

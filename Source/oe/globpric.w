@@ -74,8 +74,10 @@ DEFINE VARIABLE cExcelHeader  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lReplaceQuote AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lAddTab       AS LOGICAL NO-UNDO.      
 DEFINE VARIABLE hdOutputProcs AS HANDLE  NO-UNDO.
+DEFINE VARIABLE hdQuoteProcs  AS HANDLE  NO-UNDO.
 
 RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
+RUN est/QuoteProcs.p PERSISTENT SET hdQuoteProcs.
 
 RUN Output_GetValueNK1OutputCSV IN hdOutputProcs(
     INPUT cocode,
@@ -1278,6 +1280,7 @@ REPEAT PRESELECT EACH oe-prmtx EXCLUSIVE-LOCK
                         INPUT  cRoundingType,
                         INPUT  iRoundingLevel
                         ).
+                  RUN UpdateQuotePriceFromMatrix IN hdQuoteProcs(ROWID(bf-oe-prmtx)).       
               END.                       
           END.
 /*        END. */

@@ -199,6 +199,7 @@ DEFINE VARIABLE llOEDiscount AS LOGICAL NO-UNDO.
 DEF TEMP-TABLE w-est-no NO-UNDO FIELD w-est-no LIKE itemfg.est-no FIELD w-run AS LOG.
 DEFINE VARIABLE cFreightCalculationValue AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lCheckMessage AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lQuotePriceMatrix AS LOGICAL NO-UNDO.
 ll-new-file = CAN-FIND(FIRST asi._file WHERE asi._file._file-name EQ "cust-part").
 
 FIND FIRST sys-ctrl
@@ -273,6 +274,12 @@ RUN sys/ref/nk1look.p (INPUT cocode, "FreightCalculation", "C" /* Logical */, NO
                      OUTPUT v-rtn-char, OUTPUT v-rec-found).
 IF v-rec-found THEN
     cFreightCalculationValue = v-rtn-char NO-ERROR.
+    
+RUN sys/ref/nk1look.p (INPUT cocode, "QuotePriceMatrix", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT v-rtn-char, OUTPUT v-rec-found).
+IF v-rec-found THEN
+    lQuotePriceMatrix = logical(v-rtn-char) NO-ERROR.    
 
 DO TRANSACTION:
  {sys/inc/oeship.i}
@@ -5814,6 +5821,8 @@ DEFINE VARIABLE lMsgResponse AS LOGICAL NO-UNDO.
             FIND CURRENT oe-ordl.
             ASSIGN 
                 oe-ordl.q-no = lv-q-no.
+             IF lQuotePriceMatrix THEN   
+             RUN pUpdateQuoteApprovedField(INPUT lv-q-no).    
         END.
     END.
     ELSE IF oe-ordl.est-no EQ ""            /* Est-no on line is blank and not a transfer order */
@@ -8330,6 +8339,37 @@ DEFINE BUFFER bf-itemfg FOR itemfg.
 
 END PROCEDURE.
 	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateQuoteApprovedField d-oeitem 
+PROCEDURE pUpdateQuoteApprovedField :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE INPUT PARAMETER ipiQuote AS INTEGER NO-UNDO.
+  DEFINE BUFFER bf-quotehd FOR quotehd .
+  
+  FIND FIRST bf-quotehd EXCLUSIVE-LOCK
+       WHERE bf-quotehd.company EQ cocode 
+       AND bf-quotehd.q-no EQ  ipiQuote NO-ERROR .
+  IF AVAIL bf-quotehd THEN
+  DO:   
+    quotehd.approved = YES.
+    RUN AddTagInfo (
+                INPUT bf-quotehd.rec_key,
+                INPUT "quotehd",
+                INPUT "The status is set to Approved ",
+                INPUT ""
+                ). /*From TagProcs Super Proc*/
+  END.
+  RELEASE bf-quotehd.
+  
+END PROCEDURE.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

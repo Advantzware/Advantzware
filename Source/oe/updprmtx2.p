@@ -16,6 +16,16 @@ DEF VAR lv-qty LIKE quoteqty.qty NO-UNDO.
 DEF VAR ll-msg AS LOG INIT YES NO-UNDO.
 DEF VAR lv-date AS CHAR NO-UNDO.
 DEF VAR vdPrevPrice AS DEC NO-UNDO.
+DEFINE VARIABLE lQuotePriceMatrix AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cRtnChar          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound         AS LOGICAL NO-UNDO.
+DEFINE VARIABLE iQuoteNo          AS INTEGER NO-UNDO.
+DEFINE VARIABLE lQuoteExpireDuplicates AS LOGICAL NO-UNDO.
+DEFINE VARIABLE hdupdQuoteProcs AS HANDLE NO-UNDO.
+DEFINE VARIABLE lRunForQuote AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cRunMethods AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cShipId AS CHARACTER NO-UNDO.
+RUN util/updQuoteProcs.p PERSISTENT SET hdupdQuoteProcs.
 
 DEF TEMP-TABLE w-matrix NO-UNDO
     FIELD qty     AS DEC
@@ -25,6 +35,23 @@ DEF TEMP-TABLE w-matrix NO-UNDO
 
 DEF BUFFER b-matrix FOR w-matrix.
 
+RUN sys/ref/nk1look.p (INPUT cocode, "QuotePriceMatrix", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    lQuotePriceMatrix = logical(cRtnChar) NO-ERROR.
+    
+RUN sys/ref/nk1look.p (INPUT cocode, "QuoteExpireDuplicates", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    lQuoteExpireDuplicates = logical(cRtnChar) NO-ERROR.   
+
+IF PROGRAM-NAME(2) MATCHES "*vp-prmtx.*" OR PROGRAM-NAME(2) MATCHES "*ImportQuote.*" THEN
+DO:
+    lRunForQuote = YES.
+END.
+        
 SESSION:SET-WAIT-STATE ("general").
     
 lv-date = STRING(YEAR(TODAY),"9999") +
@@ -59,12 +86,14 @@ ELSE DO:
     END.
   END.
 END.
-
+        
 RELEASE quoteitm.
 
 IF AVAIL quotehd THEN DO:
   ip-cust-no = quotehd.cust-no.
-
+  iQuoteNo   = quotehd.q-no.
+  cRunMethods = quotehd.pricingMethod. 
+  cShipId = quotehd.ship-id.
   FOR EACH quoteitm
       WHERE quoteitm.company EQ quotehd.company
         AND quoteitm.loc     EQ quotehd.loc
@@ -92,14 +121,23 @@ IF AVAIL quotehd THEN DO:
        w-matrix.uom   = quoteqty.uom
        w-matrix.price = quoteqty.price.
     END.
-    
+         
     IF ip-TransQ = "Q" THEN RUN update-matrix.
     ELSE IF ip-TransQ = "1" THEN RUN update-matrix-minus.
-
+    FIND CURRENT quotehd EXCLUSIVE-LOCK NO-ERROR.
+    IF lQuotePriceMatrix THEN
+      ASSIGN
+       quotehd.approved = YES.
+       
+    FIND CURRENT quotehd NO-LOCK NO-ERROR. 
+     
+    IF lQuoteExpireDuplicates THEN
+    RUN UpdateExpireDate_allQuote IN hdupdQuoteProcs(ROWID(quoteitm), quotehd.quo-date - 1) .
+     
   END.
 END.
 
-IF ll-msg THEN DO:
+IF ll-msg AND lRunForQuote AND NOT PROGRAM-NAME(2) MATCHES "*ImportQuote.*" THEN DO:
   SESSION:SET-WAIT-STATE ("").
 
   MESSAGE "Create/update of FG price matrix completed..."
@@ -111,26 +149,53 @@ RETURN.
 PROCEDURE update-matrix.
   FOR EACH oe-prmtx
       WHERE oe-prmtx.company            EQ itemfg.company
-        AND oe-prmtx.cust-no            EQ ip-cust-no
+        AND (oe-prmtx.cust-no            EQ ip-cust-no OR (cRunMethods EQ "Type"))
         AND oe-prmtx.i-no               BEGINS itemfg.i-no
         AND SUBSTR(oe-prmtx.i-no,1,100) EQ itemfg.i-no
+        AND (oe-prmtx.quoteId           EQ iQuoteNo OR NOT lQuotePriceMatrix )
 /*         AND SUBSTR(oe-prmtx.i-no,101,8) LE lv-date */
 /*       BY SUBSTR(oe-prmtx.i-no,101,8) DESC:         */
       BY oe-prmtx.eff-date DESC:
     LEAVE.
   END.
-
+       
   IF NOT AVAIL oe-prmtx THEN DO:
     CREATE oe-prmtx.
     ASSIGN
-     oe-prmtx.company = itemfg.company
-     oe-prmtx.cust-no = ip-cust-no
+     oe-prmtx.company = itemfg.company      
      oe-prmtx.eff-date = TODAY
      oe-prmtx.i-no = itemfg.i-no.
-/*      oe-prmtx.i-no    = STRING(itemfg.i-no,"x(100)") + lv-date. */
-  END.
-  oe-prmtx.meth = YES.
+     IF lQuotePriceMatrix AND cRunMethods EQ "Type" THEN
+     DO:
+         FIND FIRST cust NO-LOCK
+              WHERE cust.company EQ itemfg.company
+              AND cust.cust-no EQ ip-cust-no NO-ERROR.
+         IF AVAIL cust THEN
+          oe-prmtx.custype = cust.type.
+     END.
+     ELSE IF lQuotePriceMatrix AND cRunMethods EQ "Ship To" THEN
+     DO:
+         ASSIGN
+          oe-prmtx.cust-no = ip-cust-no
+          oe-prmtx.custShipID = cShipId.
+     END.
+     ELSE
+     ASSIGN     
+     oe-prmtx.cust-no = ip-cust-no.
 
+  END.   
+  oe-prmtx.meth = YES.
+  IF lQuotePriceMatrix THEN
+  DO:  
+      oe-prmtx.quoteID = iQuoteNo.
+      oe-prmtx.exp-date = 12/31/2099.
+      RUN AddTagInfo (
+                INPUT quotehd.rec_key,
+                INPUT "quotehd",
+                INPUT "status is set to Approved",
+                INPUT ""
+                ). /*From TagProcs Super Proc*/     
+  END.
   DO li = 1 TO EXTENT(oe-prmtx.qty):
     IF oe-prmtx.qty[li] NE 0 THEN DO:
       CREATE w-matrix.
@@ -199,9 +264,10 @@ END PROCEDURE.
 PROCEDURE update-matrix-minus.
   FOR EACH oe-prmtx
       WHERE oe-prmtx.company            EQ itemfg.company
-        AND oe-prmtx.cust-no            EQ ip-cust-no
+        AND (oe-prmtx.cust-no            EQ ip-cust-no OR (cRunMethods EQ "Type"))
         AND oe-prmtx.i-no               BEGINS itemfg.i-no
         AND SUBSTR(oe-prmtx.i-no,1,100) EQ itemfg.i-no
+        AND (oe-prmtx.quoteId           EQ iQuoteNo OR NOT lQuotePriceMatrix )
 /*         AND SUBSTR(oe-prmtx.i-no,101,8) LE lv-date */
 /*       BY SUBSTR(oe-prmtx.i-no,101,8) DESC:         */
       BY oe-prmtx.eff-date DESC:
@@ -211,14 +277,42 @@ PROCEDURE update-matrix-minus.
   IF NOT AVAIL oe-prmtx THEN DO:
     CREATE oe-prmtx.
     ASSIGN
-     oe-prmtx.company = itemfg.company
-     oe-prmtx.cust-no = ip-cust-no
+     oe-prmtx.company = itemfg.company       
      oe-prmtx.eff-date = TODAY
      oe-prmtx.i-no = itemfg.i-no.
-/*      oe-prmtx.i-no    = STRING(itemfg.i-no,"x(100)") + lv-date. */
+     
+     IF lQuotePriceMatrix AND cRunMethods EQ "Type" THEN
+     DO:
+         FIND FIRST cust NO-LOCK
+              WHERE cust.company EQ itemfg.company
+              AND cust.cust-no EQ ip-cust-no NO-ERROR.
+         IF AVAIL cust THEN
+          oe-prmtx.custype = cust.type.
+     END.
+     ELSE IF lQuotePriceMatrix AND cRunMethods EQ "Ship To" THEN
+     DO:
+         ASSIGN
+          oe-prmtx.cust-no = ip-cust-no
+          oe-prmtx.custShipID = cShipId.
+     END.
+     ELSE
+     ASSIGN     
+     oe-prmtx.cust-no = ip-cust-no.
+
   END.
   oe-prmtx.meth = YES.
-
+  IF lQuotePriceMatrix THEN
+  DO:
+      oe-prmtx.quoteID = iQuoteNo.
+      oe-prmtx.exp-date = 12/31/2099.
+      RUN AddTagInfo (
+                INPUT quotehd.rec_key,
+                INPUT "quotehd",
+                INPUT "The status is set to Approved ",
+                INPUT ""
+                ). /*From TagProcs Super Proc*/
+  END.
+  
   DO li = 1 TO EXTENT(oe-prmtx.qty):
     IF oe-prmtx.qty[li] NE 0 THEN DO:
       CREATE w-matrix.

@@ -54,6 +54,19 @@ def var v-invalid as log no-undo.
 DEF VAR lv-cust-no AS cha NO-UNDO.
 DEFINE VARIABLE lEditMode AS LOGICAL NO-UNDO.
 DEFINE BUFFER bf-oe-prmtx FOR oe-prmtx .
+DEFINE VARIABLE hdQuoteProcs  AS HANDLE  NO-UNDO.
+DEFINE VARIABLE lQuotePriceMatrix AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cRtnChar          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound         AS LOGICAL NO-UNDO.
+
+RUN est/QuoteProcs.p PERSISTENT SET hdQuoteProcs.
+
+RUN sys/ref/nk1look.p (INPUT cocode, "QuotePriceMatrix", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    lQuotePriceMatrix = logical(cRtnChar) NO-ERROR. 
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1294,6 +1307,9 @@ PROCEDURE local-update-record :
           INPUT oe-prmtx.custype,
           INPUT oe-prmtx.procat
           ).
+   
+   IF lQuotePriceMatrix  THEN
+   RUN UpdateQuotePriceFromMatrix IN hdQuoteProcs (ROWID(oe-prmtx)).   
 
   /* Code placed here will execute AFTER standard behavior.    */
   
@@ -1309,7 +1325,8 @@ PROCEDURE local-update-record :
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
+&ANALYZE-RESUME  
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE reftable-values V-table-Win 
 PROCEDURE reftable-values :

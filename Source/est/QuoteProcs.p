@@ -620,6 +620,68 @@ PROCEDURE pSetGlobalSettings PRIVATE:
             
 END PROCEDURE.
 
+PROCEDURE pUpdateQuotePriceFromMatrix PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:  Procedure for updating quotes from matrix 
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER oprwRowid AS ROWID NO-UNDO.
+    DEFINE BUFFER bf-oe-prmtx FOR oe-prmtx.
+    DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
+    
+      FIND FIRST bf-oe-prmtx NO-LOCK WHERE ROWID(bf-oe-prmtx) EQ oprwRowid NO-ERROR.
+      IF bf-oe-prmtx.quoteID NE 0 THEN
+      DO:      
+         FIND FIRST quotehd
+              WHERE quotehd.company EQ bf-oe-prmtx.company                
+                AND quotehd.q-no    EQ bf-oe-prmtx.quoteID
+              NO-LOCK NO-ERROR.
+         IF AVAIL quotehd THEN
+         DO:
+            FOR EACH quoteitm
+                WHERE quoteitm.company EQ quotehd.company
+                AND quoteitm.loc     EQ quotehd.loc
+                AND quoteitm.q-no    EQ quotehd.q-no
+                AND quoteitm.i-no    EQ bf-oe-prmtx.i-no 
+                NO-LOCK :
+                
+                iCount = 0.
+                FOR EACH quoteqty WHERE quoteqty.company = quoteitm.company 
+                    AND quoteqty.loc = quoteitm.loc 
+                    AND quoteqty.q-no = quoteitm.q-no 
+                    AND quoteqty.line = quoteitm.LINE EXCLUSIVE-LOCK BY quoteqty.qty : 
+                    
+                    iCount = iCount + 1.
+                    
+                    IF bf-oe-prmtx.qty[iCount] NE 0 THEN DO: 
+                      ASSIGN
+                       quoteqty.qty   = bf-oe-prmtx.qty[iCount]
+                       quoteqty.uom   = bf-oe-prmtx.uom[iCount]
+                       quoteqty.price = bf-oe-prmtx.price[iCount].
+                    END.
+                END.     
+            END. 
+         END.  /* AVAIL quotehd*/      
+      END.   /* bf-oe-prmtx.quoteID NE 0*/
+
+      RELEASE quoteqty.
+       
+   
+END PROCEDURE.
+
+PROCEDURE UpdateQuotePriceFromMatrix:
+    /*------------------------------------------------------------------------------
+     Purpose: Primary Public Procedure for calculating the estimate
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER oprwRowid AS ROWID NO-UNDO.
+                 
+    RUN pUpdateQuotePriceFromMatrix(oprwRowid ).        
+   
+END PROCEDURE.
+
+
+
 
 /* ************************  Function Implementations ***************** */
 
