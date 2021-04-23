@@ -89,18 +89,20 @@ PROCEDURE GetCostForFGItemHist:
     DO:
         opcCostSource = "Invalid Item: " + ipcFGItemID.
         RETURN.
-    END. 
-    IF opdCostPerUOMTotal EQ 0 AND ipcJobNo NE "" THEN 
+    END.
+     
+    IF oplSourceFound AND ipcJobNo NE "" THEN
     DO:
         RUN GetCostForJob(ipcCompany, ipcFGItemID, ipcJobNo, ipiJobNo2, 
             OUTPUT opdCostPerUOMTotal, OUTPUT opdCostPerUOMDL, OUTPUT opdCostPerUOMFO, OUTPUT opdCostPerUOMVO, OUTPUT opdCostPerUOMDM, OUTPUT opcCostUOM, OUTPUT oplSourceFound).
         opcCostSource = "Job: " + ipcJobNo + "-" + STRING(ipiJobNo2,"99").
-        IF NOT oplSourceFound OR opdCostPerUOMTotal EQ 0 THEN 
+        
+        IF NOT oplSourceFound  THEN
             ASSIGN 
-                opcCostSource  = opcCostSource + " not found or 0. "
+                opcCostSource  = opcCostSource + " not found. "
                 oplSourceFound = NO.
     END.
-    IF opdCostPerUOMTotal EQ 0 AND ipiPONo GT 0 THEN 
+    IF oplSourceFound AND ipiPONo GT 0 THEN 
     DO:
         RUN GetCostForPOLine(ipcCompany, ipiPoNo, ipiPoLine, ipcFGItemID,
             OUTPUT opdCostPerUOMTotal, OUTPUT opcCostUOM, OUTPUT opdCostPerUOMFreight, OUTPUT oplSourceFound).
@@ -124,22 +126,22 @@ PROCEDURE GetCostForFGItemHist:
                 END.
             END.
         END.
-        IF NOT oplSourceFound OR opdCostPerUOMTotal EQ 0 THEN 
+       IF NOT oplSourceFound  THEN 
             ASSIGN 
-                opcCostSource  = opcCostSource + " not found or 0. "
+                opcCostSource  = opcCostSource + " not found. "
                 oplSourceFound = NO.
     END.
-    IF opdCostPerUOMTotal EQ 0 AND ipcTag NE "" AND ipiPONo EQ 0 THEN 
+    IF oplSourceFound AND ipcTag NE "" AND ipiPONo EQ 0 THEN 
     DO:
         RUN GetCostForReceipt(ipcCompany, ipcFGItemID, ipcTag, ipcJobNo, ipiJobNo2, 
             OUTPUT opdCostPerUOMTotal, OUTPUT opdCostPerUOMDL, OUTPUT opdCostPerUOMFO, OUTPUT opdCostPerUOMVO, OUTPUT opdCostPerUOMDM, OUTPUT opcCostUOM, OUTPUT oplSourceFound).
         opcCostSource = "Receipt for tag: " + ipcTag.
-        IF NOT lFound OR opdCostPerUOMTotal EQ 0 THEN 
+        IF NOT lFound THEN 
             ASSIGN 
-                opcCostSource  = opcCostSource + " not found or 0. "
+                opcCostSource  = opcCostSource + " not found. "
                 oplSourceFound = NO.
     END.
-    IF opdCostPerUOMTotal EQ 0 AND ipiPONo EQ 0 THEN 
+    IF oplSourceFound AND ipiPONo EQ 0 THEN 
     DO:
         ASSIGN 
             opcCostSource      = opcCostSource + "Item Fallback: " + ipcFGItemID
@@ -149,7 +151,8 @@ PROCEDURE GetCostForFGItemHist:
             opdCostPerUOMVO    = dCostPerUOMVODef
             opdCostPerUOMDM    = dCostPerUOMDMDef
             opcCostUOM         = cCostUOMDef
-            .
+            opcCostSource      = "Item Fallback - Not found setting to item cost."
+            oplSourceFound     = NO.
     END.
     IF opcCostUOM NE cCostUOMDef THEN 
     DO: 
