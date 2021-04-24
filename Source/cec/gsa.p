@@ -588,7 +588,7 @@ DO:
   RUN update-pcts.
 
   RUN update-probe.
-
+  FIND CURRENT probe NO-LOCK NO-ERROR.
   ASSIGN
      iop-update-qtys = ld-update-qty
      iop-gsa-brd = ld-gsa-brd
@@ -935,7 +935,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                 END.
              
                 probe-ref.val[1] = iop-gsa-brd.             
-                
+                FIND CURRENT probe NO-LOCK NO-ERROR.
+                FIND CURRENT probe-ref NO-LOCK NO-ERROR.
               END.
           END.
        END.
@@ -1187,7 +1188,8 @@ PROCEDURE update-probe :
     END.
 
     probe-ref.val[1] = ld-gsa-brd.
-    
+    FIND CURRENT probe NO-LOCK NO-ERROR.
+    FIND CURRENT probe-ref NO-LOCK NO-ERROR.
   END.
 
 END PROCEDURE.

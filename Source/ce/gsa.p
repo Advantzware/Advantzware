@@ -640,6 +640,8 @@ PROCEDURE update-probe :
     END.
     probe-ref.val[1] = ld-gsa-brd.
   END.
+  FIND CURRENT probe NO-LOCK NO-ERROR.
+  FIND CURRENT probe-ref NO-LOCK NO-ERROR.
 
 END PROCEDURE.
 
