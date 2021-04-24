@@ -104,8 +104,7 @@ IF AVAIL quotehd THEN DO:
 
       FIRST itemfg
       WHERE itemfg.company  EQ quoteitm.company
-        AND itemfg.part-no  EQ quoteitm.part-no
-        AND itemfg.part-no  NE ""
+        AND itemfg.i-no     EQ quoteitm.i-no         
         AND (itemfg.cust-no EQ quotehd.cust-no OR
              itemfg.i-code  EQ "S")
       NO-LOCK:

@@ -1284,7 +1284,10 @@ PROCEDURE local-display-fields :
       quotehd.pricingMethod:SCREEN-VALUE = " ".
   
   IF NOT lQuotePriceMatrix THEN
-   quotehd.pricingMethod:HIDDEN IN FRAME {&FRAME-NAME}.
+  ASSIGN
+   quotehd.pricingMethod:HIDDEN IN FRAME {&FRAME-NAME} = YES
+   quotehd.approved:HIDDEN IN FRAME {&FRAME-NAME} = YES
+   btTags:HIDDEN IN FRAME {&FRAME-NAME} = YES.
       
 END PROCEDURE.
 

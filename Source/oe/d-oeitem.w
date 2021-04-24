@@ -5822,7 +5822,7 @@ DEFINE VARIABLE lMsgResponse AS LOGICAL NO-UNDO.
             ASSIGN 
                 oe-ordl.q-no = lv-q-no.
              IF lQuotePriceMatrix THEN   
-             RUN pUpdateQuoteApprovedField(INPUT lv-q-no).    
+             RUN pUpdateQuoteApprovedField(INPUT lv-q-no, INPUT oe-ordl.i-no).    
         END.
     END.
     ELSE IF oe-ordl.est-no EQ ""            /* Est-no on line is blank and not a transfer order */
@@ -8351,6 +8351,7 @@ PROCEDURE pUpdateQuoteApprovedField :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEFINE INPUT PARAMETER ipiQuote AS INTEGER NO-UNDO.
+  DEFINE INPUT PARAMETER ipcFGItem AS CHARACTER NO-UNDO.
   DEFINE BUFFER bf-quotehd FOR quotehd .
   
   FIND FIRST bf-quotehd EXCLUSIVE-LOCK
@@ -8358,13 +8359,21 @@ PROCEDURE pUpdateQuoteApprovedField :
        AND bf-quotehd.q-no EQ  ipiQuote NO-ERROR .
   IF AVAIL bf-quotehd THEN
   DO:   
-    quotehd.approved = YES.
+    bf-quotehd.approved = YES.
     RUN AddTagInfo (
                 INPUT bf-quotehd.rec_key,
                 INPUT "quotehd",
                 INPUT "The status is set to Approved ",
                 INPUT ""
                 ). /*From TagProcs Super Proc*/
+                
+    FIND FIRST oe-prmtx NO-LOCK
+         WHERE oe-prmtx.company EQ bf-quotehd.company           
+         AND oe-prmtx.i-no EQ ipcFGItem        
+         AND oe-prmtx.quoteId EQ bf-quotehd.q-no NO-ERROR.
+         
+    IF NOT AVAIL oe-prmtx THEN     
+    RUN oe/updprmtx2.p (ROWID(bf-quotehd), "", 0, "", 0, "Q").             
   END.
   RELEASE bf-quotehd.
   
