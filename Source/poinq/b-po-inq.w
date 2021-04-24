@@ -30,7 +30,9 @@ CREATE WIDGET-POOL.
 
 &SCOPED-DEFINE winReSize
 &SCOPED-DEFINE browseOnly
+&SCOPED-DEFINE exclude-row-display
 
+{methods/template/brwcustomdef.i}
 {methods/defines/winReSize.i}
 
 /* Parameters Definitions ---                                           */
@@ -149,16 +151,16 @@ po-ordl.pr-uom po-ord.buyer po-ordl.cust-no
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-Browser-Table po-ordl
 &Scoped-define SECOND-ENABLED-TABLE-IN-QUERY-Browser-Table po-ord
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH po-ordl WHERE ~{&KEY-PHRASE} ~
-      AND po-ordl.company = g_company ~
-and po-ordl.po-no = 9999999 NO-LOCK, ~
-      FIRST po-ord WHERE po-ord.company eq po-ordl.company and ~
-po-ord.po-no eq po-ordl.po-no NO-LOCK ~
+      AND po-ordl.company EQ g_company AND ~
+po-ordl.po-no EQ 9999999 NO-LOCK, ~
+      FIRST po-ord WHERE po-ord.company EQ po-ordl.company AND ~
+po-ord.po-no EQ po-ordl.po-no NO-LOCK ~
     ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY Browser-Table FOR EACH po-ordl WHERE ~{&KEY-PHRASE} ~
-      AND po-ordl.company = g_company ~
-and po-ordl.po-no = 9999999 NO-LOCK, ~
-      FIRST po-ord WHERE po-ord.company eq po-ordl.company and ~
-po-ord.po-no eq po-ordl.po-no NO-LOCK ~
+      AND po-ordl.company EQ g_company AND ~
+po-ordl.po-no EQ 9999999 NO-LOCK, ~
+      FIRST po-ord WHERE po-ord.company EQ po-ordl.company AND ~
+po-ord.po-no EQ po-ordl.po-no NO-LOCK ~
     ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-Browser-Table po-ordl po-ord
 &Scoped-define FIRST-TABLE-IN-QUERY-Browser-Table po-ordl
@@ -169,8 +171,8 @@ po-ord.po-no eq po-ordl.po-no NO-LOCK ~
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS Browser-Table tb_approved fi_po-no ~
-fi_vend-no fi_i-no fi_vend-i-no fi_due-date fi_job-no fi_job-no2 tb_unpaid ~
-tb_paid btn_go btn_show btn_prev tb_open tb_closed tb_hold RECT-1 
+fi_vend-no fi_i-no fi_vend-i-no fi_due-date fi_job-no fi_job-no2 btn_go ~
+btn_show btn_prev tb_open tb_closed tb_hold RECT-1 
 &Scoped-Define DISPLAYED-OBJECTS tb_approved fi_po-no fi_vend-no fi_i-no ~
 fi_vend-i-no fi_due-date fi_job-no fi_job-no2 tb_unpaid tb_paid fi_sort-by ~
 tb_open tb_closed tb_hold 
@@ -344,7 +346,7 @@ DEFINE VARIABLE tb_open AS LOGICAL INITIAL yes
      SIZE 10.6 BY 1
      FGCOLOR 9  NO-UNDO.
 
-DEFINE VARIABLE tb_paid AS LOGICAL INITIAL no 
+DEFINE VARIABLE tb_paid AS LOGICAL INITIAL yes 
      LABEL "Paid" 
      VIEW-AS TOGGLE-BOX
      SIZE 10 BY 1
@@ -573,6 +575,10 @@ ASSIGN
    ALIGN-L                                                              */
 /* SETTINGS FOR FILL-IN fi_sort-by IN FRAME F-Main
    NO-ENABLE                                                            */
+/* SETTINGS FOR TOGGLE-BOX tb_paid IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR TOGGLE-BOX tb_unpaid IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -584,10 +590,10 @@ ASSIGN
      _TblList          = "ASI.po-ordl,ASI.po-ord WHERE ASI.po-ordl ..."
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = "USED, FIRST, FIRST OUTER, OUTER, OUTER,"
-     _Where[1]         = "ASI.po-ordl.company = g_company
-and po-ordl.po-no = 9999999"
-     _JoinCode[2]      = "po-ord.company eq po-ordl.company and
-po-ord.po-no eq po-ordl.po-no"
+     _Where[1]         = "po-ordl.company EQ g_company AND
+po-ordl.po-no EQ 9999999"
+     _JoinCode[2]      = "po-ord.company EQ po-ordl.company AND
+po-ord.po-no EQ po-ordl.po-no"
      _FldNameList[1]   > ASI.po-ordl.po-no
 "po-ordl.po-no" "PO#" ">>>>>>>" "integer" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.po-ord.vend-no
@@ -669,8 +675,17 @@ DO:
   DEF VAR phandle AS HANDLE NO-UNDO.
   DEF VAR char-hdl AS cha NO-UNDO.
 
-
   {methods/run_link.i "container-source" "select-page" "(2)"}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
+ON ROW-DISPLAY OF Browser-Table IN FRAME F-Main
+DO:
+    {methods/template/brwrowdisplay.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1760,6 +1775,7 @@ PROCEDURE pAssignCommonRecords PRIVATE :
         iopcFieldName     = "po-no" 
         ioplIsBreakByUsed = YES 
         .
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1935,7 +1951,7 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pQueryString B-table-Win 
-PROCEDURE pQueryString :
+PROCEDURE pQueryString PRIVATE :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -1944,6 +1960,9 @@ PROCEDURE pQueryString :
     DEFINE INPUT  PARAMETER ipcSortPhrase  AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opcQueryString AS CHARACTER NO-UNDO.
 
+    IF (tb_paid EQ NO AND tb_unpaid EQ NO) OR
+       (tb_open EQ NO AND tb_closed EQ NO) THEN
+    ipcWhereClause = ipcWhereClause + " AND FALSE".
     opcQueryString = "FOR EACH po-ordl NO-LOCK"
                    + " WHERE po-ordl.company EQ " + QUOTER(cocode)
                    + ipcWhereClause
@@ -1951,7 +1970,7 @@ PROCEDURE pQueryString :
                    + ", FIRST po-ord NO-LOCK"
                    + " WHERE po-ord.company EQ po-ordl.company AND po-ord.po-no EQ po-ordl.po-no " 
                    + pGetWhereCriteria("po-ord")
-/*                   + ", FIRST reftable " +  "OUTER-JOIN" + " NO-LOCK"                                */
+/*                   + ", FIRST reftable OUTER-JOIN NO-LOCK"                                           */
 /*                   + " WHERE reftable.reftable EQ 'AP-INVL'"                                         */
 /*                   + " AND reftable.company EQ ''"                                                   */
 /*                   + " AND reftable.loc EQ ''"                                                       */
@@ -2743,30 +2762,59 @@ FUNCTION isPaidCheck RETURNS LOGICAL
   Purpose:  
     Notes:  
 ------------------------------------------------------------------------------*/
-DEF VAR v-flg AS LOG NO-UNDO.
+/*    FOR EACH reftable NO-LOCK                                         */
+/*        WHERE reftable.reftable EQ "AP-INVL"                          */
+/*          AND reftable.company  EQ ""                                 */
+/*          AND reftable.loc      EQ ""                                 */
+/*          AND reftable.code     EQ STRING(po-ordl.po-no,"9999999999"),*/
+/*        EACH ap-invl NO-LOCK                                          */
+/*        WHERE ap-invl.company   EQ po-ordl.company                    */
+/*          AND ap-invl.i-no      EQ INTEGER(reftable.code2)            */
+/*          AND ap-invl.po-no     EQ po-ordl.po-no                      */
+/*          AND (ap-invl.line +                                         */
+/*                  (ap-invl.po-no * -1000)) EQ po-ordl.line,           */
+/*        EACH ap-inv                                                   */
+/*        WHERE ap-inv.company EQ ap-invl.company                       */
+/*          AND ap-inv.i-no    EQ ap-invl.i-no                          */
+/*          AND ap-inv.due     EQ 0                                     */
+/*        :                                                             */
+/*        RETURN TRUE.                                                  */
+/*    END. /* each reftable */                                          */
+/*    RETURN FALSE.                                                     */
 
-
-v-flg = FALSE.
-FOR EACH  reftable NO-LOCK
-    WHERE reftable.reftable EQ "AP-INVL" 
-      AND reftable.company  EQ ""        
-      AND reftable.loc      EQ ""        
-      AND reftable.code     EQ STRING(po-ordl.po-no,"9999999999"),
-    EACH  ap-invl NO-LOCK
-    WHERE ap-invl.company           EQ po-ordl.company
-      AND ap-invl.i-no              EQ int(reftable.code2) 
-      AND ap-invl.po-no             EQ po-ordl.po-no 
-      AND (ap-invl.line + 
-           (ap-invl.po-no * -1000)) EQ po-ordl.line,
-    EACH  ap-inv NO-LOCK
-    WHERE ap-inv.company EQ ap-invl.company 
-      AND ap-inv.i-no EQ ap-invl.i-no 
-      AND ap-inv.due  EQ 0:
-
-   v-flg = TRUE.
-END.
-
-RETURN v-flg.   /* Function return value. */
+    IF CAN-FIND(FIRST reftable
+                WHERE reftable.reftable EQ "AP-INVL"
+                  AND reftable.company  EQ ""
+                  AND reftable.loc      EQ ""
+                  AND reftable.code     EQ STRING(po-ordl.po-no,"9999999999")) THEN DO:
+        FIND FIRST reftable NO-LOCK
+             WHERE reftable.reftable EQ "AP-INVL"
+               AND reftable.company  EQ ""
+               AND reftable.loc      EQ ""
+               AND reftable.code     EQ STRING(po-ordl.po-no,"9999999999")
+             NO-ERROR.
+        IF AVAILABLE reftable THEN DO:
+            IF CAN-FIND(FIRST ap-invl
+                        WHERE ap-invl.company EQ po-ordl.company
+                          AND ap-invl.i-no    EQ INTEGER(reftable.code2)
+                          AND ap-invl.po-no   EQ po-ordl.po-no
+                          AND (ap-invl.line +
+                              (ap-invl.po-no * -1000)) EQ po-ordl.line) THEN
+            FOR EACH ap-invl NO-LOCK
+                WHERE ap-invl.company   EQ po-ordl.company
+                  AND ap-invl.i-no      EQ INTEGER(reftable.code2)
+                  AND ap-invl.po-no     EQ po-ordl.po-no
+                  AND (ap-invl.line +
+                      (ap-invl.po-no * -1000)) EQ po-ordl.line
+                :
+                RETURN CAN-FIND(FIRST ap-inv
+                                WHERE ap-inv.company EQ ap-invl.company
+                                  AND ap-inv.i-no    EQ ap-invl.i-no
+                                  AND ap-inv.due     EQ 0).
+            END. /* each ap-invl */
+        END. /* if can-find */
+    END. /* if can-find */
+    RETURN FALSE.
 
 END FUNCTION.
 
