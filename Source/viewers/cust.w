@@ -55,6 +55,9 @@ DEFINE VARIABLE cAccount AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cShift   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cRouting AS INTEGER NO-UNDO.
 DEFINE VARIABLE lCheckMessage AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lQuotePriceMatrix AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cRtnChar          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound         AS LOGICAL NO-UNDO.
 
 /* gdm - 05050903 */
 DEF BUFFER bf-cust FOR cust.
@@ -114,6 +117,12 @@ DEF VAR v-zipflg AS LOG NO-UNDO.
 DEFINE VARIABLE hdSalesManProcs AS HANDLE    NO-UNDO.
 
 RUN salrep/SalesManProcs.p PERSISTENT SET hdSalesManProcs.
+
+ RUN sys/ref/nk1look.p (INPUT g_company, "QuotePriceMatrix", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    lQuotePriceMatrix = logical(cRtnChar) NO-ERROR.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -2463,6 +2472,8 @@ PROCEDURE local-display-fields :
       
       IF cust.pricingMethod EQ "" THEN
           cust.pricingMethod:SCREEN-VALUE = " ".
+      IF NOT lQuotePriceMatrix THEN
+      cust.pricingMethod:HIDDEN IN FRAME {&FRAME-NAME} = YES. 
   END.    
 
 END PROCEDURE.
