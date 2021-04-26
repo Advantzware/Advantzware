@@ -3441,6 +3441,14 @@ PROCEDURE printProbe :
   DEFINE VARIABLE v-probe-fmt AS CHARACTER NO-UNDO.
   
   {est/checkuse.i}
+   FIND FIRST probe WHERE probe.company = eb.company 
+   AND probe.est-no = eb.est-no
+   AND probe.probe-date ne ? NO-LOCK NO-ERROR.
+   IF NOT AVAIL probe THEN
+   DO:
+      MESSAGE "Estimate view of the results can not be found." VIEW-AS ALERT-BOX INFO.
+      RETURN NO-APPLY.
+   END.
   
   IF probe.spare-char-2 NE "" THEN DO: 
     RUN pPrintEstimate(BUFFER probe).
