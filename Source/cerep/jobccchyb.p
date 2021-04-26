@@ -1109,7 +1109,7 @@ FOR EACH job-hdr NO-LOCK
                                 est-op.dept = "SW").
 
             PUT "<B> UNIT SIZE:  </B>" STRING(eb.t-len) + " x " + STRING(eb.t-wid) FORMAT "X(38)"
-                "  <B>#UP</B> :"   STRING(v-upnew)     "<B>Speed(FPM)        MR</B>" SKIP.
+                "  <B>#UP</B> :"   STRING(v-upnew)     "<B>Speed(FPH)        MR</B>" SKIP.
                 
             FOR FIRST wrk-op WHERE
                 wrk-op.s-num EQ job-hdr.frm AND

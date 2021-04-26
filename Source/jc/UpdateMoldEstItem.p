@@ -44,6 +44,11 @@ DO:
 END.    
      
 FOR EACH ttInputEst NO-LOCK:
+       IF ttInputEst.cFgEstNo NE "" AND ttInputEst.lKeyItem AND NOT lUpdateEstQty THEN
+       DO:
+          RUN pUpdateMfValues(ROWID(est),ttInputEst.cFgEstNo). 
+       END.
+       
        IF ttInputEst.cFgEstNo NE "" THEN 
        DO:
           FIND FIRST bf-eb NO-LOCK
@@ -65,19 +70,21 @@ FOR EACH ttInputEst NO-LOCK:
                   DO:                  
                       ASSIGN
                         bff-eb.cas-no     = bf-eb.cas-no
-                        bff-eb.tr-no      = bf-eb.tr-no
+                        bff-eb.cas-cnt    = bf-eb.cas-cnt
                         bff-eb.cas-len    = bf-eb.cas-len
                         bff-eb.cas-wid    = bf-eb.cas-wid
                         bff-eb.cas-dep    = bf-eb.cas-dep
                         bff-eb.cas-wt     = bf-eb.cas-wt
+                        bff-eb.cas-pal    = bf-eb.cas-pal
+                        bff-eb.tr-no      = bf-eb.tr-no
                         bff-eb.tr-len     = bf-eb.tr-len
                         bff-eb.tr-wid     = bf-eb.tr-wid
                         bff-eb.tr-dep     = bf-eb.tr-dep
                         bff-eb.tr-cas     = bf-eb.tr-cas
                         bff-eb.stacks     = bf-eb.stacks
                         bff-eb.stack-code = bf-eb.stack-code
-                        bff-eb.cas-pal    = bf-eb.cas-pal
-                        bff-eb.tr-cnt     = bf-eb.tr-cnt  .
+                        bff-eb.tr-cnt     = bf-eb.tr-cnt
+                          .
                         
                       FIND FIRST bf-ef EXCLUSIVE-LOCK
                            WHERE bf-ef.company EQ bff-eb.company
@@ -318,4 +325,40 @@ PROCEDURE pUpdateEstimateQty:
     RELEASE est-qty.
     
 END PROCEDURE.   
+
+PROCEDURE pUpdateMfValues:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iprwRowid AS ROWID NO-UNDO.
+    DEFINE INPUT PARAMETER cFgItemEst AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-est FOR est.
+    DEFINE BUFFER bf-fg-est FOR est.
+    DEFINE BUFFER bf-mfvalues FOR mfvalues.
+    
+    FIND FIRST bf-est NO-LOCK
+    WHERE ROWID(bf-est) EQ iprwRowid
+    NO-ERROR.
+         
+    FIND FIRST bf-fg-est NO-LOCK
+         WHERE bf-fg-est.company EQ bf-est.company
+         AND bf-fg-est.est-no EQ cFgItemEst NO-ERROR.
+    IF AVAIL bf-fg-est THEN
+    DO:
+        FOR EACH bf-mfvalues EXCLUSIVE
+             WHERE bf-mfvalues.rec_key EQ bf-est.rec_key :
+             DELETE bf-mfvalues.
+        END.
+        FOR EACH mfvalues no-lock
+            WHERE mfvalues.rec_key EQ bf-fg-est.rec_key :
+            CREATE bf-mfvalues.
+            BUFFER-COPY mfvalues EXCEPT rec_key TO bf-mfvalues .  
+            ASSIGN 
+                bf-mfvalues.rec_key = bf-est.rec_key.
+        END.          
+    END.
+    RELEASE bf-mfvalues.
+END PROCEDURE.      
      

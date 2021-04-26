@@ -211,6 +211,71 @@ PROCEDURE beforeinitialize:
         toreposition.widtype   = "moveright".
         &endif 
     &endif
+&IF DEFINED(h_Object11) NE 0 &THEN
+    FIND FIRST toreposition WHERE toreposition.widhand =  STRING({&h_Object11}) NO-ERROR.
+    IF NOT AVAILABLE toreposition THEN
+        CREATE toreposition.
+    ASSIGN 
+        toreposition.widhand    = STRING({&h_Object11})
+        toreposition.resizepage = pgno.
+    toreposition.widtype   = "movedown".
+    &IF DEFINED(moveRight) NE 0 &THEN 
+    IF LOOKUP('{&h_Object11}',"{&moveRight}",",") > 0 THEN
+        toreposition.widtype   = "moveright".
+    &endif
+&endif
+&IF DEFINED(h_Object12) NE 0 &THEN
+    FIND FIRST toreposition WHERE toreposition.widhand =  STRING({&h_Object12}) NO-ERROR.
+    IF NOT AVAILABLE toreposition THEN
+        CREATE toreposition.
+    ASSIGN 
+        toreposition.widhand    = STRING({&h_Object12})
+        toreposition.resizepage = pgno.
+    toreposition.widtype   = "movedown".
+    &IF DEFINED(moveRight) NE 0 &THEN 
+    IF LOOKUP('{&h_Object12}',"{&moveRight}",",") > 0 THEN
+        toreposition.widtype   = "moveright".
+    &endif
+&endif
+&IF DEFINED(h_Object13) NE 0 &THEN
+    FIND FIRST toreposition WHERE toreposition.widhand =  STRING({&h_Object13}) NO-ERROR.
+    IF NOT AVAILABLE toreposition THEN
+        CREATE toreposition.
+    ASSIGN 
+        toreposition.widhand    = STRING({&h_Object13})
+        toreposition.resizepage = pgno.
+    toreposition.widtype   = "movedown".
+    &IF DEFINED(moveRight) NE 0 &THEN 
+    IF LOOKUP('{&h_Object13}',"{&moveRight}",",") > 0 THEN
+        toreposition.widtype   = "moveright".
+    &endif
+&endif
+&IF DEFINED(h_Object14) NE 0 &THEN
+    FIND FIRST toreposition WHERE toreposition.widhand =  STRING({&h_Object14}) NO-ERROR.
+    IF NOT AVAILABLE toreposition THEN
+        CREATE toreposition.
+    ASSIGN 
+        toreposition.widhand    = STRING({&h_Object14})
+        toreposition.resizepage = pgno.
+    toreposition.widtype   = "movedown".
+    &IF DEFINED(moveRight) NE 0 &THEN 
+    IF LOOKUP('{&h_Object14}',"{&moveRight}",",") > 0 THEN
+        toreposition.widtype   = "moveright".
+    &endif
+&endif
+&IF DEFINED(h_Object15) NE 0 &THEN
+    FIND FIRST toreposition WHERE toreposition.widhand =  STRING({&h_Object15}) NO-ERROR.
+    IF NOT AVAILABLE toreposition THEN
+        CREATE toreposition.
+    ASSIGN 
+        toreposition.widhand    = STRING({&h_Object15})
+        toreposition.resizepage = pgno.
+    toreposition.widtype   = "movedown".
+    &IF DEFINED(moveRight) NE 0 &THEN 
+    IF LOOKUP('{&h_Object15}',"{&moveRight}",",") > 0 THEN
+        toreposition.widtype   = "moveright".
+    &endif
+&endif
 
 END PROCEDURE.   
 
@@ -283,8 +348,10 @@ PROCEDURE afterinitialize:
     // set the window size to last captured size
     RUN setCapturedWindowSize.
     // if window size have been changed the apply window resize trigger to repositioned or resize objects
-    IF  deOrigWinWidth NE  {&WINDOW-NAME}:WIDTH OR
-    deOrigWinHeight NE {&WINDOW-NAME}:HEIGHT
+    
+    IF  VALID-HANDLE({&WINDOW-NAME}) AND 
+        (deOrigWinWidth NE  {&WINDOW-NAME}:WIDTH OR
+        deOrigWinHeight NE {&WINDOW-NAME}:HEIGHT)
     THEN
     APPLY "WINDOW-RESIZED" TO {&WINDOW-NAME}. 
     
@@ -335,15 +402,19 @@ PROCEDURE setCapturedWindowSize:
                 {&WINDOW-NAME}:HEIGHT-PIXELS = {&WINDOW-NAME}:HEIGHT-PIXELS - (userWindow.sessionHeight - SESSION:HEIGHT-PIXELS)
                     NO-ERROR . 
            
-        IF deOrigWinWidth > {&WINDOW-NAME}:WIDTH THEN
-            {&WINDOW-NAME}:WIDTH = deOrigWinWidth.
-        IF deOrigWinHeight > {&WINDOW-NAME}:HEIGHT THEN
-            {&WINDOW-NAME}:HEIGHT = deOrigWinHeight. 
+        IF VALID-HANDLE({&WINDOW-NAME}) AND 
+            deOrigWinWidth > {&WINDOW-NAME}:WIDTH THEN
+            ASSIGN 
+            {&WINDOW-NAME}:WIDTH = deOrigWinWidth NO-ERROR.
+        IF  VALID-HANDLE({&WINDOW-NAME}) AND 
+            deOrigWinHeight > {&WINDOW-NAME}:HEIGHT THEN
+            ASSIGN 
+            {&WINDOW-NAME}:HEIGHT = deOrigWinHeight NO-ERROR. 
             
         ASSIGN                 
             {&WINDOW-NAME}:VIRTUAL-HEIGHT-PIXELS = {&WINDOW-NAME}:HEIGHT-PIXELS
             {&WINDOW-NAME}:VIRTUAL-WIDTH-PIXELS  = {&WINDOW-NAME}:WIDTH-PIXELS 
-            {&window-name}:window-state          = userWindow.state
+            {&window-name}:window-state          = IF userWindow.state = 0 THEN 3 ELSE userWindow.state
               NO-ERROR 
             . 
             
@@ -393,8 +464,10 @@ VIEW-AS ALERT-BOX.
        {&WINDOW-NAME}:Y > (SESSION:WORK-AREA-HEIGHT-PIXELS - {&WINDOW-NAME}:HEIGHT-PIXELS)
         THEN
         ASSIGN  {&WINDOW-NAME}:X = (SESSION:WORK-AREA-WIDTH-PIXELS - {&WINDOW-NAME}:WIDTH-PIXELS) / 2
-                {&WINDOW-NAME}:Y = (SESSION:WORK-AREA-HEIGHT-PIXELS - {&WINDOW-NAME}:HEIGHT-PIXELS) / 2.
-    
-    {&WINDOW-NAME}:WIDTH         = deOrigWinWidth.
-    {&WINDOW-NAME}:HEIGHT        = deOrigWinHeight.
+                {&WINDOW-NAME}:Y = (SESSION:WORK-AREA-HEIGHT-PIXELS - {&WINDOW-NAME}:HEIGHT-PIXELS) / 2
+                NO-ERROR.
+    ASSIGN
+    {&WINDOW-NAME}:WIDTH         = deOrigWinWidth
+    {&WINDOW-NAME}:HEIGHT        = deOrigWinHeight
+    NO-ERROR.
 END PROCEDURE.

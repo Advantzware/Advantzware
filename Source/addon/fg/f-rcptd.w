@@ -24,7 +24,8 @@ CREATE WIDGET-POOL.
 /* ***************************  Definitions  ************************** */
 
 &SCOPED-DEFINE yellowColumnsName f-rcptd-fg
-
+&SCOPED-DEFINE winReSize
+{methods/defines/winReSize.i}
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
@@ -1183,7 +1184,7 @@ END.
 
 /* ***************************  Main Block  *************************** */
 {sys/inc/f3help.i}
-
+{methods/winReSize.i}
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF

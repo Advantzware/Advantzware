@@ -28,9 +28,9 @@
         find first po-ordl where po-ordl.company   eq cocode
                              and po-ordl.po-no     eq po-ord.po-no
                              and po-ordl.i-no      eq {1}.i-no
+                             and po-ordl.LINE      eq {1}.po-line
                              and po-ordl.deleted   eq no
-                             and po-ordl.item-type eq no
-                             AND po-ordl.stat NE "C"
+                             and po-ordl.item-type eq NO                              
              USE-INDEX po-no no-error.
         IF NOT AVAIL po-ordl THEN
         find first po-ordl  where po-ordl.company   eq cocode

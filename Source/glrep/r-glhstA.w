@@ -1044,10 +1044,9 @@ SESSION:SET-WAIT-STATE ("general").
       if line-counter > page-size - 2 then page.
 
       acct-hdr-printed = NO.
-
-      run gl/gl-open1.p (recid(account), v-s-yr, v-s-date, uperiod,
-                         output open-amt).
-
+            
+      RUN GL_GetAccountOpenBal(ROWID(account),v-s-date, OUTPUT open-amt).
+      
       FOR EACH glhist fields(tr-amt) NO-LOCK
           WHERE glhist.company EQ account.company
             AND glhist.actnum  EQ account.actnum

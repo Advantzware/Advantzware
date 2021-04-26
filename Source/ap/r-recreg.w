@@ -747,7 +747,8 @@ IF AVAIL period THEN DO:
           NO-ERROR.
 
       IF AVAIL account THEN
-        RUN gl/gl-open2.p (ROWID(account), period.pst, end_date, OUTPUT v-bnk-tot).
+          RUN GL_GetAccountOpenBal(ROWID(account), end_date + 1, OUTPUT v-bnk-tot).
+        //RUN gl/gl-open2.p (ROWID(account), period.pst, end_date, OUTPUT v-bnk-tot).
 
       ELSE v-bnk-tot = 0.
 

@@ -208,7 +208,7 @@ DEFINE QUERY Browser-Table FOR
 DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
-      pc-prdd.job-no COLUMN-LABEL "  Job#" FORMAT "x(6)":U WIDTH 8
+      pc-prdd.job-no COLUMN-LABEL "  Job#" FORMAT "x(6)":U WIDTH 12
             LABEL-BGCOLOR 14
       pc-prdd.job-no2 COLUMN-LABEL "" FORMAT "99":U
       pc-prdd.frm COLUMN-LABEL "Sheet" FORMAT ">>>":U LABEL-BGCOLOR 14

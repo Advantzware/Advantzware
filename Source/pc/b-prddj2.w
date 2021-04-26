@@ -748,6 +748,7 @@ PROCEDURE auto-add-next :
   ASSIGN tt-prdd.m-code:SCREEN-VALUE IN BROWSE {&browse-name} = bf-prev.m-code         
          tt-prdd.blank-no:SCREEN-VALUE = STRING(bf-prev.blank-no)
          tt-prdd.frm:SCREEN-VALUE = STRING(bf-prev.frm)
+         tt-prdd.pass:SCREEN-VALUE = STRING(bf-prev.pass)
          tt-prdd.i-no:SCREEN-VALUE = bf-prev.i-no
          tt-prdd.i-name:SCREEN-VALUE = bf-prev.i-name
          tt-prdd.job = bf-prev.job
@@ -1701,7 +1702,7 @@ PROCEDURE new-m-code :
     END.
 
     ASSIGN
-     tt-prdd.frm:SCREEN-VALUE IN BROWSE {&browse-name}      = STRING(lv-frm)
+     
      tt-prdd.blank-no:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(lv-blk).
 
     RUN new-job-hdr.

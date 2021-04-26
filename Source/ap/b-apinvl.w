@@ -46,19 +46,25 @@ DEF VAR v-seq AS INT FORM ">>>9"  NO-UNDO.
 DEF VAR li-line-num AS INT NO-UNDO.  /* for seq# */
 DEF VAR v-vend-act AS cha NO-UNDO.
 DEF VAR lv-pol-rowid AS ROWID NO-UNDO.
-def var lv-uom-list as cha init "C,CS,EA,L,LB,LF,LOT,M,MSF,SHT,TON,BF" no-undo.
-DEF VAR pr-uom-list AS cha NO-UNDO INIT "EA,LB,M,MSF,TON,BF".
+def var lv-uom-list as cha init "C,CS,EA,L,LB,LF,LOT,M,MSF,SHT,TON,BF,MSH" no-undo.
+DEF VAR pr-uom-list AS cha NO-UNDO INIT "EA,LB,M,MSF,TON,BF,MSH".
 DEF VAR cons-uom-list AS CHA NO-UNDO INIT "M,LF,EA,LB,TON".
 DEF VAR v-po-qty as log initial true no-undo.
 DEF VAR v-ap-pur AS CHAR NO-UNDO.
 
-DEF NEW SHARED TEMP-TABLE tt-pol FIELD selekt AS LOG LABEL "Selected"
+DEF TEMP-TABLE tt-pol FIELD selekt AS LOG LABEL "Selected"
                       FIELD rec-id AS RECID                      
                       FIELD qty-inv AS log
                       FIELD amt-inv AS LOG
                       FIELD qty-to-inv LIKE ap-invl.qty
-                      FIELD qty-to-inv-uom AS CHAR.
-
+                      FIELD qty-to-inv-uom AS CHAR
+                      .
+DEFINE TEMP-TABLE ttInventoryStock NO-UNDO
+    FIELD ttPOLRowID AS ROWID
+    FIELD quantity AS DECIMAL
+    FIELD inventoryStockRecKey AS CHARACTER
+    .
+    
 DEF TEMP-TABLE tt-ei NO-UNDO LIKE e-item.
 DEF TEMP-TABLE tt-eiv NO-UNDO
     FIELD rec_key LIKE e-item-vend.rec_key
@@ -90,12 +96,21 @@ DEFINE VARIABLE hGLProcs  AS HANDLE  NO-UNDO.
 DEFINE VARIABLE cMatExceptionList AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lFound AS LOGICAL NO-UNDO.
 
+DEFINE VARIABLE lQuantityExceededWarned AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lReselectingReceipts    AS LOGICAL NO-UNDO.
+
 RUN system/GLProcs.p PERSISTENT SET hGLProcs.
 
 DEF TEMP-TABLE tt-ap-invl NO-UNDO LIKE ap-invl
-    FIELD tt-rowid AS ROWID.
+    FIELD tt-rowid AS ROWID
+    FIELD ttPOLRowID AS ROWID
+    .
 
 DEF BUFFER b-tt FOR tt-ap-invl.
+
+DEFINE VARIABLE hdAPInvoiceProcs AS HANDLE NO-UNDO.
+
+RUN ap/APInvoiceProcs.p PERSISTENT SET hdAPInvoiceProcs.
 
 DO TRANSACTION:
   {sys/inc/apdesc.i}
@@ -267,7 +282,7 @@ DEFINE VARIABLE browse-order AS INTEGER
 
 DEFINE RECTANGLE RECT-4
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 145 BY 1.43.
+     SIZE 150 BY 1.43.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -317,7 +332,7 @@ DEFINE BROWSE Browser-Table
       ap-invl.dscr
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 145 BY 7.62
+    WITH NO-ASSIGN SEPARATORS SIZE 150 BY 7.62
          FONT 2.
 
 
@@ -370,7 +385,7 @@ END.
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW B-table-Win ASSIGN
          HEIGHT             = 9.14
-         WIDTH              = 145.
+         WIDTH              = 150.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -645,7 +660,8 @@ END.
 ON LEAVE OF ap-invl.po-no IN BROWSE Browser-Table /* PO Number */
 DO:
    DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
-  IF LASTKEY NE -1 THEN DO:
+  IF LASTKEY NE -1 OR lReselectingReceipts THEN DO:
+    lReselectingReceipts = FALSE.
     RUN valid-po-no(OUTPUT lReturnError) NO-ERROR.    
     IF lReturnError THEN RETURN NO-APPLY.
 
@@ -679,14 +695,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ap-invl.qty Browser-Table _BROWSE-COLUMN B-table-Win
 ON ENTRY OF ap-invl.qty IN BROWSE Browser-Table /* Quantity */
 DO:
-  IF LASTKEY NE -1 THEN DO:
-    RUN ap/d-selrec.w (ROWID(ap-inv), lv-pol-rowid, OUTPUT lv-invl-qty).
-
-    IF lv-invl-qty NE 0 THEN DO WITH FRAME {&FRAME-NAME}: 
-      {&self-name}:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(lv-invl-qty).
-      APPLY "leave" TO {&self-name} IN BROWSE {&browse-name}.
-      RETURN NO-APPLY.
-    END.
+  IF LASTKEY NE -1 THEN DO:   
   END.
 END.
 
@@ -1318,6 +1327,7 @@ PROCEDURE create-ap-from-po :
             tt-ap-invl.period = ap-inv.period
             tt-ap-invl.posted = ap-inv.posted
             tt-ap-invl.tax = ap-inv.tax-gr NE ""
+            tt-ap-invl.ttPOLRowID = ROWID(tt-pol)
             .
       IF aptax-chr = "ITEM" THEN DO:
         FIND ITEM WHERE ITEM.company = g_company
@@ -1331,6 +1341,7 @@ PROCEDURE create-ap-from-po :
             tt-ap-invl.unit-pr = (po-ordl.cost)
             tt-ap-invl.pr-qty-uom = po-ordl.pr-uom
             tt-ap-invl.cons-uom = po-ordl.pr-qty-uom
+            tt-ap-invl.item-type = po-ordl.item-type
             v-wid = po-ordl.s-wid
             v-len = IF po-ordl.pr-qty-uom EQ "ROLL" THEN 12 ELSE po-ordl.s-len
             v-dep = 0
@@ -1796,14 +1807,7 @@ PROCEDURE display-po :
             ap-invl.qty:SCREEN-VALUE = string(v-qty - po-ordl.t-inv-qty).
           end.  
       end.
-      /*RUN ap/d-selrec.p (RECID(ap-invl), OUTPUT lv-invl-qty).*/
-
-     /* gdm - 05290903  
-      RUN ap/d-selrec.w (ROWID(ap-inv), lv-pol-rowid, OUTPUT lv-invl-qty).
-      gdm - 05290903 end */
-    
-  /*    FIND CURRENT ap-invl NO-LOCK NO-ERROR.  */
-   
+         
       if ap-invl.pr-qty-uom:SCREEN-VALUE eq ap-invl.cons-uom:SCREEN-VALUE
           THEN v-temp-pr = dec(ap-invl.unit-pr:SCREEN-VALUE).          
       else
@@ -2036,7 +2040,9 @@ PROCEDURE local-create-record :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF VAR z AS INT NO-UNDO.
-
+    
+    DEFINE VARIABLE lError   AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
 
   /* Code placed here will execute PRIOR to standard behavior. */
   FIND LAST bf-invl
@@ -2065,6 +2071,18 @@ PROCEDURE local-create-record :
   IF AVAIL tt-ap-invl THEN DO:
     BUFFER-COPY tt-ap-invl EXCEPT rec_key TO ap-invl.
     tt-ap-invl.tt-rowid = ROWID(ap-invl).
+       FOR EACH ttInventoryStock 
+           WHERE ttInventoryStock.ttPOLRowID EQ tt-ap-invl.ttPOLRowID:
+           RUN APInvoice_UpdateReceiptsQty IN hdAPInvoiceProcs (
+               INPUT  ap-invl.rec_key,
+               INPUT  ttInventoryStock.inventoryStockRecKey,
+               INPUT  ttInventoryStock.quantity,
+               INPUT  ap-invl.cons-uom,
+               OUTPUT lError,
+               OUTPUT cMessage
+               ).
+          DELETE ttInventoryStock.
+      END.       
   END.
 
   ELSE DO:
@@ -2104,6 +2122,8 @@ PROCEDURE local-delete-record :
 ------------------------------------------------------------------------------*/
  DEF VAR lv-invamt LIKE ap-invl.amt NO-UNDO.
 
+    DEFINE VARIABLE lError   AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
   /* Code placed here will execute PRIOR to standard behavior. */
   IF ap-inv.posted THEN do:
     MESSAGE "This invoice has been posted, no deletion allowed!"  VIEW-AS ALERT-BOX ERROR.
@@ -2136,33 +2156,7 @@ PROCEDURE local-delete-record :
                use-index item-po:
 
            fg-rcpth.b-no = 0.
-       end.
-       
-       FOR EACH rm-rcpth NO-LOCK
-           WHERE rm-rcpth.company EQ ap-inv.company
-             AND rm-rcpth.i-no    EQ po-ordl.i-no
-             AND rm-rcpth.po-no   EQ trim(string(po-ordl.po-no,">>>>>>>>>>"))
-             AND rm-rcpth.job-no    EQ po-ordl.job-no 
-             AND rm-rcpth.job-no2   EQ po-ordl.job-no2 
-             AND rm-rcpth.rita-code EQ "R" ,
-           EACH rm-rdtlh OF rm-rcpth WHERE
-           substring(rm-rdtlh.receiver-no,1,10) EQ STRING(ap-inv.i-no,"9999999999") EXCLUSIVE-LOCK :
-           ASSIGN rm-rdtlh.receiver-no = "" .
-      END.
-
-      FOR EACH fg-rcpth NO-LOCK
-          WHERE fg-rcpth.company   EQ cocode
-          AND fg-rcpth.i-no      EQ po-ordl.i-no
-          AND fg-rcpth.po-no     EQ TRIM(STRING(po-ordl.po-no,">>>>>>>>>>"))
-          AND fg-rcpth.rita-code EQ "R"
-          USE-INDEX item-po ,
-          EACH fg-rdtlh EXCLUSIVE-LOCK
-          WHERE fg-rdtlh.r-no      EQ fg-rcpth.r-no
-          AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code
-          AND substring(fg-rdtlh.receiver-no,1,10) EQ STRING(ap-inv.i-no,"9999999999") :
-
-          ASSIGN fg-rdtlh.receiver-no = "" .
-      END.
+       end.       
    END.
 
   RUN delete-tt.
@@ -2179,6 +2173,27 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy B-table-Win
+PROCEDURE local-destroy:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    /* Code placed here will execute PRIOR to standard behavior. */
+    IF VALID-HANDLE(hdAPInvoiceProcs) THEN
+        DELETE PROCEDURE hdAPInvoiceProcs.
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
+
+    /* Code placed here will execute AFTER standard behavior.    */
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-display-fields B-table-Win 
 PROCEDURE local-display-fields :
@@ -2219,6 +2234,8 @@ PROCEDURE local-enable-fields :
   /* Code placed here will execute PRIOR to standard behavior. */
   v-msg = "".
 
+  lQuantityExceededWarned = FALSE.
+  
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"clear-source",OUTPUT char-hdl).
   RUN is-in-update IN WIDGET-HANDLE(char-hdl) (OUTPUT v-is-in-update).
   IF v-is-in-update THEN v-msg = "Save or Cancel Invoice Heading Update First." .
@@ -2306,6 +2323,9 @@ PROCEDURE local-update-record :
   DEF VAR lv-rowid AS ROWID NO-UNDO.
   DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO .
 
+    DEFINE VARIABLE lError   AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+    
   /* Code placed here will execute PRIOR to standard behavior. */
   /* === validation ---- */
   IF adm-adding-record THEN do:
@@ -2355,11 +2375,32 @@ PROCEDURE local-update-record :
    adm-adding-record = NO
    lv-rowid          = ROWID(ap-invl).
 
+  RUN APInvoice_AutoSelectReceipts IN hdAPInvoiceProcs (
+      INPUT  ap-invl.rec_key,
+      INPUT  ap-invl.qty,
+      INPUT  ap-invl.cons-uom,
+      OUTPUT lError,
+      OUTPUT cMessage
+      ).   
+              
   IF CAN-FIND(FIRST tt-ap-invl) THEN
   FOR EACH tt-ap-invl:
     CREATE bf-invl.
     BUFFER-COPY tt-ap-invl EXCEPT rec_key TO bf-invl.
+    
     FIND CURRENT bf-invl NO-LOCK.
+    FOR EACH ttInventoryStock 
+        WHERE ttInventoryStock.ttPOLRowID EQ tt-ap-invl.ttPOLRowID:
+        RUN APInvoice_UpdateReceiptsQty IN hdAPInvoiceProcs (
+            INPUT  bf-invl.rec_key,
+            INPUT  ttInventoryStock.inventoryStockRecKey,
+            INPUT  ttInventoryStock.quantity,
+            INPUT  bf-invl.cons-uom,
+            OUTPUT lError,
+            OUTPUT cMessage
+            ).
+        DELETE ttInventoryStock.
+    END.    
     DELETE tt-ap-invl.
     RUN update-header (ROWID(ap-inv), NO).
   END.
@@ -2530,6 +2571,45 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pReselectReceipts B-table-Win
+PROCEDURE pReselectReceipts PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipiPOID AS INTEGER NO-UNDO.
+
+    DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
+
+    IF AVAILABLE ap-invl THEN DO:
+        FIND CURRENT ap-invl EXCLUSIVE-LOCK NO-ERROR.
+        IF AVAILABLE ap-invl THEN DO:
+            DELETE ap-invl.
+
+            RUN dispatch (
+                INPUT "open-query"
+                ).            
+            {methods/run_link.i "TableIO-Source" "auto-line-add"}
+
+            IF AVAILABLE ap-invl THEN DO:
+                APPLY "ENTRY" TO ap-invl.po-no IN BROWSE {&BROWSE-NAME}.
+
+                ap-invl.po-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} = STRING(ipiPOID).
+                
+                lReselectingReceipts = TRUE.
+                
+                APPLY "LEAVE" TO ap-invl.po-no IN BROWSE {&BROWSE-NAME}.
+            END.   
+        END.
+    END.
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE presetColor B-table-Win
@@ -2935,20 +3015,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE update-receipts B-table-Win 
-PROCEDURE update-receipts :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-
-  IF AVAIL ap-invl THEN RUN ap/d-selrec.w (RECID(ap-invl), OUTPUT lv-invl-qty).
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE update-tt B-table-Win 
 PROCEDURE update-tt :
@@ -2975,6 +3041,8 @@ PROCEDURE update-ttt :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lError   AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
     
    FIND FIRST tt-ap-invl WHERE tt-ap-invl.i-no EQ ap-inv.i-no NO-ERROR.
 
@@ -2982,6 +3050,20 @@ PROCEDURE update-ttt :
      FIND CURRENT ap-invl.
      BUFFER-COPY tt-ap-invl EXCEPT rec_key TO ap-invl.
      tt-rowid = ROWID(ap-invl).
+       FOR EACH ttInventoryStock 
+           WHERE ttInventoryStock.ttPOLRowID EQ tt-ap-invl.ttPOLRowID:
+           RUN APInvoice_UpdateReceiptsQty IN hdAPInvoiceProcs (
+             INPUT  ap-invl.rec_key,
+             INPUT  ttInventoryStock.inventoryStockRecKey,
+             INPUT  ttInventoryStock.quantity,
+             INPUT  ap-invl.cons-uom,             
+             OUTPUT lError,
+             OUTPUT cMessage
+             ).
+
+          DELETE ttInventoryStock.
+      END.
+
      FIND CURRENT ap-invl NO-LOCK.
      RUN dispatch ("display-fields").
    END.
@@ -3055,7 +3137,8 @@ PROCEDURE valid-po-no :
   DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
   DEF VAR lv-msg AS CHAR NO-UNDO.
   DEF VAR lv-msg2 AS CHAR NO-UNDO.
-  DEFINE VARIABLE lMessage AS LOGICAL NO-UNDO.
+  DEFINE VARIABLE lMessage  AS LOGICAL NO-UNDO.
+  DEFINE VARIABLE lResponse AS LOGICAL   NO-UNDO.
   DEF BUFFER b-ap-invl FOR ap-invl.
   
 
@@ -3065,10 +3148,24 @@ PROCEDURE valid-po-no :
 
       FIND FIRST po-ord
           WHERE po-ord.company EQ g_company
-            AND po-ord.vend-no EQ ap-inv.vend-no
             AND po-ord.po-no   EQ INT(ap-invl.po-no:SCREEN-VALUE IN BROWSE {&browse-name})
           USE-INDEX vend-no NO-LOCK NO-ERROR.
       IF NOT AVAIL po-ord THEN lv-msg = "Invalid PO, try help".
+      IF lv-msg EQ "" THEN
+      DO: 
+        IF po-ord.vend-no NE ap-inv.vend-no THEN 
+        DO:
+            RUN displayMessageQuestion (
+              INPUT  "64",
+              OUTPUT lResponse
+              ).
+           IF NOT lResponse THEN DO:
+              APPLY "ENTRY" TO ap-invl.po-no IN BROWSE {&browse-name}.
+              oplReturnError = YES.
+              RETURN.
+           END. /* IF NOT lResponse */
+        END.
+      END.
 
       IF lv-msg EQ "" THEN DO:
 
@@ -3124,7 +3221,13 @@ PROCEDURE valid-po-no :
           lv-msg = "All receipts for this PO have been invoiced already".
 
         ELSE DO:
-          RUN ap/d-selpos.w (RECID(ap-inv)).
+            EMPTY TEMP-TABLE ttInventoryStock.
+            
+            RUN ap/d-selpos.w (
+                INPUT  RECID(ap-inv),
+                INPUT-OUTPUT TABLE tt-pol BY-REFERENCE,
+                INPUT-OUTPUT TABLE ttInventoryStock BY-REFERENCE
+                ).
 
           IF CAN-FIND(FIRST tt-pol
                       WHERE tt-pol.selekt
@@ -3189,6 +3292,14 @@ PROCEDURE valid-qty :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
+
+    DEFINE VARIABLE lRecordsFound               AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lHasNegativeReceipts        AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE dQuantityAvailableToInvoice AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE lError                      AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage                    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lResponse                   AS LOGICAL   NO-UNDO.
+    
   DO WITH FRAME {&FRAME-NAME}:
     IF DEC(ap-invl.qty:SCREEN-VALUE IN BROWSE {&browse-name}) EQ 0 THEN DO:
       MESSAGE "The QUANTITY you enter must be greater than 0, please re-enter..."
@@ -3196,6 +3307,49 @@ PROCEDURE valid-qty :
       APPLY "entry" TO ap-invl.qty IN BROWSE {&browse-name}.
       oplReturnError = YES.
     END.
+      
+      RUN APInvoice_GetReceiptsQtyAvailable IN hdAPInvoiceProcs (
+          INPUT  ap-invl.rec_key,
+          INPUT  ap-invl.cons-uom:SCREEN-VALUE IN BROWSE {&browse-name},
+          OUTPUT lRecordsFound,
+          OUTPUT lHasNegativeReceipts,
+          OUTPUT dQuantityAvailableToInvoice
+          ). 
+      /* If the PO has negative receipts and quantity is updated then pop-up an error to select the receipts manually */
+      IF lHasNegativeReceipts AND 
+         (ap-invl.qty NE DECIMAL(ap-invl.qty:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}) OR ap-invl.cons-uom:SCREEN-VALUE IN BROWSE {&browse-name} NE ap-invl.cons-uom) THEN DO:
+          RUN displayMessageQuestion (
+              INPUT  "63",
+              OUTPUT lResponse
+              ).
+          IF NOT lResponse THEN DO:
+              APPLY "ENTRY" TO ap-invl.qty IN BROWSE {&browse-name}.
+              oplReturnError = YES.
+              RETURN.
+          END.
+          ELSE DO:
+              RUN dispatch (
+                  INPUT "cancel-record"
+                  ).
+                
+              RUN pReselectReceipts(
+                  INPUT INTEGER(ap-invl.po-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})
+                  ).
+          END.
+      END.
+      ELSE IF lRecordsFound AND DECIMAL(ap-invl.qty:SCREEN-VALUE IN BROWSE {&browse-name}) GT dQuantityAvailableToInvoice AND NOT lQuantityExceededWarned AND NOT lHasNegativeReceipts THEN DO:
+          RUN displayMessageQuestion (
+              INPUT  "61",
+              OUTPUT lResponse
+              ).
+          IF NOT lResponse THEN DO:
+              APPLY "entry" TO ap-invl.qty IN BROWSE {&browse-name}.
+              oplReturnError = YES.
+              RETURN.
+          END.
+          ELSE
+              lQuantityExceededWarned = TRUE.          
+      END.
   END.
 
 END PROCEDURE.
@@ -3603,10 +3757,8 @@ PROCEDURE pReCalculateRecQty :
                                 v-bwt, v-len, v-wid, v-dep,
                                 v-qty, OUTPUT v-qty).
         FIND CURRENT po-ordl EXCLUSIVE-LOCK NO-ERROR .                           
-         ASSIGN                            
-          lCheckRec     = SUBSTR(rm-rdtlh.receiver-no,1,10) EQ
-                                 STRING(ap-inv.i-no,"9999999999")                           
-          po-ordl.t-rec-qty    = po-ordl.t-rec-qty + (IF lCheckRec THEN DEC(SUBSTR(rm-rdtlh.receiver-no,11,17)) ELSE v-qty)  .  
+         ASSIGN                                                                
+          po-ordl.t-rec-qty    = po-ordl.t-rec-qty + v-qty  .  
         FIND CURRENT po-ordl NO-LOCK NO-ERROR .
     END.                                  
   END.
@@ -3622,11 +3774,8 @@ PROCEDURE pReCalculateRecQty :
         AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code        
       NO-LOCK:    
          FIND CURRENT po-ordl EXCLUSIVE-LOCK NO-ERROR .
-         ASSIGN
-         lCheckRec     = SUBSTR(fg-rdtlh.receiver-no,1,10) EQ
-                             STRING(ap-inv.i-no,"9999999999")          
-         po-ordl.t-rec-qty    = po-ordl.t-rec-qty + ( IF lCheckRec THEN DEC(SUBSTR(fg-rdtlh.receiver-no,11,17))
-                                              ELSE fg-rdtlh.qty ).
+         ASSIGN                     
+         po-ordl.t-rec-qty    = po-ordl.t-rec-qty + fg-rdtlh.qty .
          FIND CURRENT po-ordl NO-LOCK NO-ERROR .                                     
     END.
   END.

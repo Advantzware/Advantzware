@@ -12,9 +12,9 @@
 *********************************************************************/
 /*------------------------------------------------------------------------
 
-  File:  
+  File: sharpshooter/smartobj/b-loadtags.w
 
-  Description: from BROWSER.W - Basic SmartBrowser Object Template
+  Description:
 
   Input Parameters:
       <none>
@@ -43,17 +43,16 @@ CREATE WIDGET-POOL.
 {sys/inc/var.i "NEW SHARED"}
 {sys/inc/varasgn.i}
 
-{oerep/ttLoadTag.i "NEW SHARED"}
+{oerep/ttLoadTag.i}
 {oerep/r-loadtg.i NEW}
 DEFINE NEW SHARED TEMP-TABLE tt-word-print LIKE w-ord 
        FIELD tag-no AS CHARACTER.
 
-DEFINE VARIABLE iTotalQty AS INTEGER NO-UNDO.
-
 DEFINE VARIABLE char-hdl  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE pHandle   AS HANDLE    NO-UNDO.
 
-DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCompany  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cLocation AS CHARACTER NO-UNDO.
 
 DEFINE VARIABLE hdLoadTagProcs AS HANDLE NO-UNDO.
 
@@ -81,8 +80,10 @@ DEFINE VARIABLE hdLoadTagProcs AS HANDLE NO-UNDO.
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE br_table                                      */
-&Scoped-define FIELDS-IN-QUERY-br_table ttLoadTag.orderID ttLoadTag.jobID ttLoadTag.jobID2 NO-LABEL ttLoadTag.custID ttLoadTag.itemID ttLoadTag.ordQuantity ttLoadTag.relQuantity ttLoadTag.overPct ttLoadTag.pcs ttLoadTag.bundle ttLoadTag.partial ttLoadTag.totalUnit ttLoadTag.totalTags ttLoadTag.totalUnit * ttLoadTag.totalTags @ iTotalQty ttLoadTag.unitWeight ttLoadTag.palletWeight ttLoadTag.lotID ttLoadTag.itemName ttLoadTag.custPONo ttLoadTag.poline   
-&Scoped-define ENABLED-FIELDS-IN-QUERY-br_table   
+&Scoped-define FIELDS-IN-QUERY-br_table ttLoadTag.isSelected ttLoadTag.tagStatus ttLoadTag.custID ttLoadTag.orderID ttLoadTag.jobID ttLoadTag.jobID2 NO-LABEL ttLoadTag.itemID ttLoadTag.itemName ttLoadTag.tag ttLoadTag.quantityInUnit ttLoadTag.subUnitsPerUnit ttLoadTag.quantityInSubUnit ttLoadTag.quantityOfSubUnits ttLoadTag.jobQuantity ttLoadTag.printCopies ttLoadTag.ordQuantity ttLoadTag.relQuantity ttLoadTag.overPct ttLoadTag.partial ttLoadTag.totalTags ttLoadTag.quantityTotal ttLoadTag.unitWeight ttLoadTag.palletWeight ttLoadTag.lotID ttLoadTag.custPONo ttLoadTag.poline   
+&Scoped-define ENABLED-FIELDS-IN-QUERY-br_table ttLoadTag.isSelected   
+&Scoped-define ENABLED-TABLES-IN-QUERY-br_table ttLoadTag
+&Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-br_table ttLoadTag
 &Scoped-define SELF-NAME br_table
 &Scoped-define QUERY-STRING-br_table FOR EACH ttLoadTag BY ttLoadTag.scannedDateTime DESC
 &Scoped-define OPEN-QUERY-br_table OPEN QUERY {&SELF-NAME} FOR EACH ttLoadTag BY ttLoadTag.scannedDateTime DESC.
@@ -159,32 +160,36 @@ DEFINE QUERY br_table FOR
 DEFINE BROWSE br_table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br_table B-table-Win _FREEFORM
   QUERY br_table NO-LOCK DISPLAY
+      ttLoadTag.isSelected COLUMN-LABEL "" VIEW-AS TOGGLE-BOX
       ttLoadTag.tagStatus COLUMN-LABEL "Status" WIDTH 15
-      ttLoadTag.totalUnit FORMAT ">,>>>,>>9" COLUMN-LABEL "Total Qty!Per Pallet" WIDTH 15
-      ttLoadTag.bundle FORMAT ">>>,>>9" COLUMN-LABEL "Units/!Pallet" WIDTH 12
-      ttLoadTag.pcs FORMAT ">>>,>>9" COLUMN-LABEL "Unit!Count" WIDTH 12
-      ttLoadTag.itemID COLUMN-LABEL "Item #" WIDTH 30
+      ttLoadTag.custID COLUMN-LABEL "Cust #" WIDTH 30
+      ttLoadTag.orderID  COLUMN-LABEL "Order#" WIDTH 15
       ttLoadTag.jobID COLUMN-LABEL "  Job#" WIDTH 15
       ttLoadTag.jobID2 NO-LABEL FORMAT "99" WIDTH 4
+      ttLoadTag.itemID COLUMN-LABEL "Item #" WIDTH 30
+      ttLoadTag.itemName COLUMN-LABEL "Item!Name" WIDTH 40
+      ttLoadTag.tag COLUMN-LABEL "Tag#" WIDTH 32
+      ttLoadTag.quantityInUnit FORMAT ">,>>>,>>9" COLUMN-LABEL "Total Qty!Per Pallet" WIDTH 15
+      ttLoadTag.subUnitsPerUnit FORMAT ">>>,>>9" COLUMN-LABEL "Units/!Pallet" WIDTH 12
+      ttLoadTag.quantityInSubUnit FORMAT ">>>,>>9" COLUMN-LABEL "Unit!Count" WIDTH 12
+      ttLoadTag.quantityOfSubUnits FORMAT ">>>,>>9" COLUMN-LABEL "Total!Units" WIDTH 12
       ttLoadTag.jobQuantity COLUMN-LABEL "Job!Quantity" WIDTH 15
       ttLoadTag.printCopies COLUMN-LABEL "Print!Copies" WIDTH 15
-      ttLoadTag.orderID  COLUMN-LABEL "Order#" WIDTH 15
-      ttLoadTag.custID COLUMN-LABEL "Cust #" WIDTH 30
       ttLoadTag.ordQuantity COLUMN-LABEL "Ord Qty" WIDTH 15
       ttLoadTag.relQuantity COLUMN-LABEL "Rel Qty" WIDTH 15
       ttLoadTag.overPct FORMAT ">>9.99" COLUMN-LABEL "Overrun%" WIDTH 15
       ttLoadTag.partial COLUMN-LABEL "Partial" WIDTH 12
       ttLoadTag.totalTags COLUMN-LABEL "No. of!Tags" WIDTH 12
-      ttLoadTag.totalUnit * ttLoadTag.totalTags @ iTotalQty FORMAT ">,>>>,>>9" COLUMN-LABEL "Total Qty"
+      ttLoadTag.quantityTotal FORMAT ">,>>>,>>9" COLUMN-LABEL "Total Qty"
       ttLoadTag.unitWeight COLUMN-LABEL "Unit!Wt" WIDTH 12
       ttLoadTag.palletWeight COLUMN-LABEL "Pallet!Wt" WIDTH 12
       ttLoadTag.lotID FORMAT "X(20)" COLUMN-LABEL "FG Lot#" WIDTH 30
-      ttLoadTag.itemName COLUMN-LABEL "Item!Name" WIDTH 40
       ttLoadTag.custPONo COLUMN-LABEL "Customer!PO#" WIDTH 15
       ttLoadTag.poline COLUMN-LABEL "Ln" WIDTH 10
+      ENABLE ttLoadTag.isSelected
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 150 BY 6.71.
+    WITH SEPARATORS SIZE 150 BY 6.71.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -356,6 +361,37 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE BuildLoadTagsFromBOL B-table-Win 
+PROCEDURE BuildLoadTagsFromBOL :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiBOLID   AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiCopies  AS INTEGER   NO-UNDO.
+    
+    EMPTY TEMP-TABLE ttLoadTag.
+    
+    SESSION:SET-WAIT-STATE("GENERAL").
+    
+    RUN BuildLoadTagsFromBOL IN hdLoadTagProcs (
+        INPUT  ipcCompany,
+        INPUT  ipiBOLID,
+        INPUT  ipiCopies,
+        INPUT-OUTPUT TABLE ttLoadTag BY-REFERENCE
+        ).
+    
+    RUN dispatch (
+        INPUT "open-query"
+        ).
+    
+    SESSION:SET-WAIT-STATE("").
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE BuildLoadTagsFromJob B-table-Win 
 PROCEDURE BuildLoadTagsFromJob :
 /*------------------------------------------------------------------------------
@@ -379,28 +415,33 @@ PROCEDURE BuildLoadTagsFromJob :
     DEFINE INPUT  PARAMETER ipcUserFieldValue2   AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcUserFieldValue3   AS CHARACTER NO-UNDO.
     
+    SESSION:SET-WAIT-STATE("GENERAL").
+    
     RUN BuildLoadTagsFromJob IN hdLoadTagProcs (
-        INPUT ipcCompany,
-        INPUT ipcJobno,
-        INPUT ipiJobno2,
-        INPUT ipiFormNo,
-        INPUT ipiBlankNo,
-        INPUT ipcItemID,
-        INPUT ipiQuantity,
-        INPUT ipiQuantityInSubUnit,
-        INPUT ipiSubUnitsPerUnit,
-        INPUT ipiCopies,
-        INPUT ipcUserField1,
-        INPUT ipcUserField2,
-        INPUT ipcUserField3,
-        INPUT ipcUserFieldValue1,
-        INPUT ipcUserFieldValue2,
-        INPUT ipcUserFieldValue3
+        INPUT  ipcCompany,
+        INPUT  ipcJobno,
+        INPUT  ipiJobno2,
+        INPUT  ipiFormNo,
+        INPUT  ipiBlankNo,
+        INPUT  ipcItemID,
+        INPUT  ipiQuantity,
+        INPUT  ipiQuantityInSubUnit,
+        INPUT  ipiSubUnitsPerUnit,
+        INPUT  ipiCopies,
+        INPUT  ipcUserField1,
+        INPUT  ipcUserField2,
+        INPUT  ipcUserField3,
+        INPUT  ipcUserFieldValue1,
+        INPUT  ipcUserFieldValue2,
+        INPUT  ipcUserFieldValue3,
+        INPUT-OUTPUT TABLE ttLoadTag BY-REFERENCE
         ).    
     
     RUN dispatch (
         INPUT "open-query"
         ).
+    
+    SESSION:SET-WAIT-STATE("").
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -414,7 +455,10 @@ PROCEDURE CreateLoadTagFromTT :
 ------------------------------------------------------------------------------*/
     RUN CreateLoadTagFromTT IN hdLoadTagProcs (
         INPUT cCompany,
-        INPUT FALSE /* Empty ttLoadtag temp-table */
+        INPUT cLocation,
+        INPUT TRUE, /* Print loadtag */
+        INPUT FALSE, /* Empty ttLoadtag temp-table */
+        INPUT-OUTPUT TABLE ttLoadTag BY-REFERENCE 
         ).
 
     RUN dispatch (
@@ -469,9 +513,44 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE EmptyTTLoadTag B-table-Win 
+PROCEDURE EmptyTTLoadTag :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    EMPTY TEMP-TABLE ttLoadTag.
+    
+    RUN dispatch (
+        INPUT "open-query"
+        ).
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable B-table-Win
-PROCEDURE local-enable:
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy B-table-Win 
+PROCEDURE local-destroy :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    /* Code placed here will execute PRIOR to standard behavior. */
+    IF VALID-HANDLE(hdLoadTagProcs) THEN
+        DELETE PROCEDURE hdLoadTagProcs.
+        
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
+
+    /* Code placed here will execute AFTER standard behavior.    */
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable B-table-Win 
+PROCEDURE local-enable :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -486,11 +565,9 @@ PROCEDURE local-enable:
     RUN pInit.
     
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE No-Resize B-table-Win 
 PROCEDURE No-Resize :
@@ -505,9 +582,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pInit B-table-Win
-PROCEDURE pInit PRIVATE:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pInit B-table-Win 
+PROCEDURE pInit PRIVATE :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -516,18 +592,19 @@ PROCEDURE pInit PRIVATE:
     DEFINE VARIABLE iColumn  AS INTEGER NO-UNDO.
     DEFINE VARIABLE hdColumn AS HANDLE  NO-UNDO.
     
-    DEFINE VARIABLE oSSLoadTagJobDesignConfig AS system.Config NO-UNDO.
+    DEFINE VARIABLE oSSLoadTagDesignConfig AS system.Config NO-UNDO.
      
     DO WITH FRAME {&FRAME-NAME}:
     END.
     
     RUN spGetSessionParam ("Company", OUTPUT cCompany).
+    RUN spGetSessionParam ("Location", OUTPUT cLocation).
     
     RUN oerep/LoadTagProcs.p PERSISTENT SET hdLoadTagProcs.
     
-    {methods/run_link.i "CONTAINER-SOURCE" "GetDesignConfig" "(OUTPUT oSSLoadTagJobDesignConfig)"}
+    {methods/run_link.i "CONTAINER-SOURCE" "GetDesignConfig" "(OUTPUT oSSLoadTagDesignConfig)"}
     
-    IF VALID-OBJECT(oSSLoadTagJobDesignConfig) THEN DO:
+    IF VALID-OBJECT(oSSLoadTagDesignConfig) THEN DO:
         hdBrowse = BROWSE {&BROWSE-NAME}:HANDLE.
     
         DO iColumn = 1 TO hdBrowse:NUM-COLUMNS :
@@ -535,175 +612,221 @@ PROCEDURE pInit PRIVATE:
             
             CASE hdColumn:NAME:
                 WHEN 'orderID' THEN DO:
-                    IF oSSLoadTagJobDesignConfig:IsAttributeAvailable("LoadtagBrowse", "OrderID", "label") THEN
-                        hdColumn:LABEL = oSSLoadTagJobDesignConfig:GetAttributeValue("LoadtagBrowse", "OrderID", "label").
+                    IF oSSLoadTagDesignConfig:IsAttributeAvailable("LoadtagBrowse", "OrderID", "label") THEN
+                        hdColumn:LABEL = oSSLoadTagDesignConfig:GetAttributeValue("LoadtagBrowse", "OrderID", "label").
 
-                    IF oSSLoadTagJobDesignConfig:IsAttributeAvailable("LoadtagBrowse", "OrderID", "visible") THEN
-                        hdColumn:VISIBLE = LOGICAL(oSSLoadTagJobDesignConfig:GetAttributeValue("LoadtagBrowse", "OrderID", "visible")).
+                    IF oSSLoadTagDesignConfig:IsAttributeAvailable("LoadtagBrowse", "OrderID", "visible") THEN
+                        hdColumn:VISIBLE = LOGICAL(oSSLoadTagDesignConfig:GetAttributeValue("LoadtagBrowse", "OrderID", "visible")).
                 END.
                 WHEN 'jobID' THEN DO:
-                    IF oSSLoadTagJobDesignConfig:IsAttributeAvailable("LoadtagBrowse", "JobID", "label") THEN
-                        hdColumn:LABEL = oSSLoadTagJobDesignConfig:GetAttributeValue("LoadtagBrowse", "JobID", "label").
+                    IF oSSLoadTagDesignConfig:IsAttributeAvailable("LoadtagBrowse", "JobID", "label") THEN
+                        hdColumn:LABEL = oSSLoadTagDesignConfig:GetAttributeValue("LoadtagBrowse", "JobID", "label").
 
-                    IF oSSLoadTagJobDesignConfig:IsAttributeAvailable("LoadtagBrowse", "JobID", "visible") THEN
-                        hdColumn:VISIBLE = LOGICAL(oSSLoadTagJobDesignConfig:GetAttributeValue("LoadtagBrowse", "JobID", "visible")).
+                    IF oSSLoadTagDesignConfig:IsAttributeAvailable("LoadtagBrowse", "JobID", "visible") THEN
+                        hdColumn:VISIBLE = LOGICAL(oSSLoadTagDesignConfig:GetAttributeValue("LoadtagBrowse", "JobID", "visible")).
                 END.
                 WHEN 'jobID2' THEN DO:
-                    IF oSSLoadTagJobDesignConfig:IsAttributeAvailable("LoadtagBrowse", "JobID2", "label") THEN
-                        hdColumn:LABEL = oSSLoadTagJobDesignConfig:GetAttributeValue("LoadtagBrowse", "JobID2", "label").
+                    IF oSSLoadTagDesignConfig:IsAttributeAvailable("LoadtagBrowse", "JobID2", "label") THEN
+                        hdColumn:LABEL = oSSLoadTagDesignConfig:GetAttributeValue("LoadtagBrowse", "JobID2", "label").
 
-                    IF oSSLoadTagJobDesignConfig:IsAttributeAvailable("LoadtagBrowse", "JobID2", "visible") THEN
-                        hdColumn:VISIBLE = LOGICAL(oSSLoadTagJobDesignConfig:GetAttributeValue("LoadtagBrowse", "JobID2", "visible")).
+                    IF oSSLoadTagDesignConfig:IsAttributeAvailable("LoadtagBrowse", "JobID2", "visible") THEN
+                        hdColumn:VISIBLE = LOGICAL(oSSLoadTagDesignConfig:GetAttributeValue("LoadtagBrowse", "JobID2", "visible")).
                 END.
                 WHEN 'custID' THEN DO:
-                    IF oSSLoadTagJobDesignConfig:IsAttributeAvailable("LoadtagBrowse", "CustomerID", "label") THEN
-                        hdColumn:LABEL = oSSLoadTagJobDesignConfig:GetAttributeValue("LoadtagBrowse", "CustomerID", "label").
+                    IF oSSLoadTagDesignConfig:IsAttributeAvailable("LoadtagBrowse", "CustomerID", "label") THEN
+                        hdColumn:LABEL = oSSLoadTagDesignConfig:GetAttributeValue("LoadtagBrowse", "CustomerID", "label").
 
-                    IF oSSLoadTagJobDesignConfig:IsAttributeAvailable("LoadtagBrowse", "CustomerID", "visible") THEN
-                        hdColumn:VISIBLE = LOGICAL(oSSLoadTagJobDesignConfig:GetAttributeValue("LoadtagBrowse", "CustomerID", "visible")).
+                    IF oSSLoadTagDesignConfig:IsAttributeAvailable("LoadtagBrowse", "CustomerID", "visible") THEN
+                        hdColumn:VISIBLE = LOGICAL(oSSLoadTagDesignConfig:GetAttributeValue("LoadtagBrowse", "CustomerID", "visible")).
                 END.
                 WHEN 'itemID' THEN DO:
-                    IF oSSLoadTagJobDesignConfig:IsAttributeAvailable("LoadtagBrowse", "ItemID", "label") THEN
-                        hdColumn:LABEL = oSSLoadTagJobDesignConfig:GetAttributeValue("LoadtagBrowse", "ItemID", "label").
+                    IF oSSLoadTagDesignConfig:IsAttributeAvailable("LoadtagBrowse", "ItemID", "label") THEN
+                        hdColumn:LABEL = oSSLoadTagDesignConfig:GetAttributeValue("LoadtagBrowse", "ItemID", "label").
 
-                    IF oSSLoadTagJobDesignConfig:IsAttributeAvailable("LoadtagBrowse", "ItemID", "visible") THEN
-                        hdColumn:VISIBLE = LOGICAL(oSSLoadTagJobDesignConfig:GetAttributeValue("LoadtagBrowse", "ItemID", "visible")).
+                    IF oSSLoadTagDesignConfig:IsAttributeAvailable("LoadtagBrowse", "ItemID", "visible") THEN
+                        hdColumn:VISIBLE = LOGICAL(oSSLoadTagDesignConfig:GetAttributeValue("LoadtagBrowse", "ItemID", "visible")).
                 END.
                 WHEN 'ordQuantity' THEN DO:
-                    IF oSSLoadTagJobDesignConfig:IsAttributeAvailable("LoadtagBrowse", "OrderQuantity", "label") THEN
-                        hdColumn:LABEL = oSSLoadTagJobDesignConfig:GetAttributeValue("LoadtagBrowse", "OrderQuantity", "label").
+                    IF oSSLoadTagDesignConfig:IsAttributeAvailable("LoadtagBrowse", "OrderQuantity", "label") THEN
+                        hdColumn:LABEL = oSSLoadTagDesignConfig:GetAttributeValue("LoadtagBrowse", "OrderQuantity", "label").
 
-                    IF oSSLoadTagJobDesignConfig:IsAttributeAvailable("LoadtagBrowse", "OrderQuantity", "visible") THEN
-                        hdColumn:VISIBLE = LOGICAL(oSSLoadTagJobDesignConfig:GetAttributeValue("LoadtagBrowse", "OrderQuantity", "visible")).
+                    IF oSSLoadTagDesignConfig:IsAttributeAvailable("LoadtagBrowse", "OrderQuantity", "visible") THEN
+                        hdColumn:VISIBLE = LOGICAL(oSSLoadTagDesignConfig:GetAttributeValue("LoadtagBrowse", "OrderQuantity", "visible")).
                 END.
                 WHEN 'relQuantity' THEN DO:
-                    IF oSSLoadTagJobDesignConfig:IsAttributeAvailable("LoadtagBrowse", "ReleaseQuantity", "label") THEN
-                        hdColumn:LABEL = oSSLoadTagJobDesignConfig:GetAttributeValue("LoadtagBrowse", "ReleaseQuantity", "label").
+                    IF oSSLoadTagDesignConfig:IsAttributeAvailable("LoadtagBrowse", "ReleaseQuantity", "label") THEN
+                        hdColumn:LABEL = oSSLoadTagDesignConfig:GetAttributeValue("LoadtagBrowse", "ReleaseQuantity", "label").
 
-                    IF oSSLoadTagJobDesignConfig:IsAttributeAvailable("LoadtagBrowse", "ReleaseQuantity", "visible") THEN
-                        hdColumn:VISIBLE = LOGICAL(oSSLoadTagJobDesignConfig:GetAttributeValue("LoadtagBrowse", "ReleaseQuantity", "visible")).
+                    IF oSSLoadTagDesignConfig:IsAttributeAvailable("LoadtagBrowse", "ReleaseQuantity", "visible") THEN
+                        hdColumn:VISIBLE = LOGICAL(oSSLoadTagDesignConfig:GetAttributeValue("LoadtagBrowse", "ReleaseQuantity", "visible")).
                 END.
                 WHEN 'overPct' THEN DO:
-                    IF oSSLoadTagJobDesignConfig:IsAttributeAvailable("LoadtagBrowse", "OversPercent", "label") THEN
-                        hdColumn:LABEL = oSSLoadTagJobDesignConfig:GetAttributeValue("LoadtagBrowse", "OversPercent", "label").
+                    IF oSSLoadTagDesignConfig:IsAttributeAvailable("LoadtagBrowse", "OversPercent", "label") THEN
+                        hdColumn:LABEL = oSSLoadTagDesignConfig:GetAttributeValue("LoadtagBrowse", "OversPercent", "label").
 
-                    IF oSSLoadTagJobDesignConfig:IsAttributeAvailable("LoadtagBrowse", "OversPercent", "visible") THEN
-                        hdColumn:VISIBLE = LOGICAL(oSSLoadTagJobDesignConfig:GetAttributeValue("LoadtagBrowse", "OversPercent", "visible")).
+                    IF oSSLoadTagDesignConfig:IsAttributeAvailable("LoadtagBrowse", "OversPercent", "visible") THEN
+                        hdColumn:VISIBLE = LOGICAL(oSSLoadTagDesignConfig:GetAttributeValue("LoadtagBrowse", "OversPercent", "visible")).
                 END.
-                WHEN 'pcs' THEN DO:
-                    IF oSSLoadTagJobDesignConfig:IsAttributeAvailable("LoadtagBrowse", "QuantityInSubUnit", "label") THEN
-                        hdColumn:LABEL = oSSLoadTagJobDesignConfig:GetAttributeValue("LoadtagBrowse", "QuantityInSubUnit", "label").
+                WHEN 'quantityInSubUnit' THEN DO:
+                    IF oSSLoadTagDesignConfig:IsAttributeAvailable("LoadtagBrowse", "QuantityInSubUnit", "label") THEN
+                        hdColumn:LABEL = oSSLoadTagDesignConfig:GetAttributeValue("LoadtagBrowse", "QuantityInSubUnit", "label").
 
-                    IF oSSLoadTagJobDesignConfig:IsAttributeAvailable("LoadtagBrowse", "QuantityInSubUnit", "visible") THEN
-                        hdColumn:VISIBLE = LOGICAL(oSSLoadTagJobDesignConfig:GetAttributeValue("LoadtagBrowse", "QuantityInSubUnit", "visible")).
+                    IF oSSLoadTagDesignConfig:IsAttributeAvailable("LoadtagBrowse", "QuantityInSubUnit", "visible") THEN
+                        hdColumn:VISIBLE = LOGICAL(oSSLoadTagDesignConfig:GetAttributeValue("LoadtagBrowse", "QuantityInSubUnit", "visible")).
                 END.
-                WHEN 'bundle' THEN DO:
-                    IF oSSLoadTagJobDesignConfig:IsAttributeAvailable("LoadtagBrowse", "SubUnitsPerUnit", "label") THEN
-                        hdColumn:LABEL = oSSLoadTagJobDesignConfig:GetAttributeValue("LoadtagBrowse", "SubUnitsPerUnit", "label").
+                WHEN 'subUnitsPerUnit' THEN DO:
+                    IF oSSLoadTagDesignConfig:IsAttributeAvailable("LoadtagBrowse", "SubUnitsPerUnit", "label") THEN
+                        hdColumn:LABEL = oSSLoadTagDesignConfig:GetAttributeValue("LoadtagBrowse", "SubUnitsPerUnit", "label").
 
-                    IF oSSLoadTagJobDesignConfig:IsAttributeAvailable("LoadtagBrowse", "SubUnitsPerUnit", "visible") THEN
-                        hdColumn:VISIBLE = LOGICAL(oSSLoadTagJobDesignConfig:GetAttributeValue("LoadtagBrowse", "SubUnitsPerUnit", "visible")).
+                    IF oSSLoadTagDesignConfig:IsAttributeAvailable("LoadtagBrowse", "SubUnitsPerUnit", "visible") THEN
+                        hdColumn:VISIBLE = LOGICAL(oSSLoadTagDesignConfig:GetAttributeValue("LoadtagBrowse", "SubUnitsPerUnit", "visible")).
                 END.
                 WHEN 'partial' THEN DO:
-                    IF oSSLoadTagJobDesignConfig:IsAttributeAvailable("LoadtagBrowse", "Partial", "label") THEN
-                        hdColumn:LABEL = oSSLoadTagJobDesignConfig:GetAttributeValue("LoadtagBrowse", "Partial", "label").
+                    IF oSSLoadTagDesignConfig:IsAttributeAvailable("LoadtagBrowse", "Partial", "label") THEN
+                        hdColumn:LABEL = oSSLoadTagDesignConfig:GetAttributeValue("LoadtagBrowse", "Partial", "label").
 
-                    IF oSSLoadTagJobDesignConfig:IsAttributeAvailable("LoadtagBrowse", "Partial", "visible") THEN
-                        hdColumn:VISIBLE = LOGICAL(oSSLoadTagJobDesignConfig:GetAttributeValue("LoadtagBrowse", "Partial", "visible")).
+                    IF oSSLoadTagDesignConfig:IsAttributeAvailable("LoadtagBrowse", "Partial", "visible") THEN
+                        hdColumn:VISIBLE = LOGICAL(oSSLoadTagDesignConfig:GetAttributeValue("LoadtagBrowse", "Partial", "visible")).
                 END.
-                WHEN 'totalUnit' THEN DO:
-                    IF oSSLoadTagJobDesignConfig:IsAttributeAvailable("LoadtagBrowse", "QuantityInUnit", "label") THEN
-                        hdColumn:LABEL = oSSLoadTagJobDesignConfig:GetAttributeValue("LoadtagBrowse", "QuantityInUnit", "label").
+                WHEN 'quantityInUnit' THEN DO:
+                    IF oSSLoadTagDesignConfig:IsAttributeAvailable("LoadtagBrowse", "QuantityInUnit", "label") THEN
+                        hdColumn:LABEL = oSSLoadTagDesignConfig:GetAttributeValue("LoadtagBrowse", "QuantityInUnit", "label").
 
-                    IF oSSLoadTagJobDesignConfig:IsAttributeAvailable("LoadtagBrowse", "QuantityInUnit", "visible") THEN
-                        hdColumn:VISIBLE = LOGICAL(oSSLoadTagJobDesignConfig:GetAttributeValue("LoadtagBrowse", "QuantityInUnit", "visible")).
+                    IF oSSLoadTagDesignConfig:IsAttributeAvailable("LoadtagBrowse", "QuantityInUnit", "visible") THEN
+                        hdColumn:VISIBLE = LOGICAL(oSSLoadTagDesignConfig:GetAttributeValue("LoadtagBrowse", "QuantityInUnit", "visible")).
                 END.
                 WHEN 'totalTags' THEN DO:
-                    IF oSSLoadTagJobDesignConfig:IsAttributeAvailable("LoadtagBrowse", "TotalTags", "label") THEN
-                        hdColumn:LABEL = oSSLoadTagJobDesignConfig:GetAttributeValue("LoadtagBrowse", "TotalTags", "label").
+                    IF oSSLoadTagDesignConfig:IsAttributeAvailable("LoadtagBrowse", "TotalTags", "label") THEN
+                        hdColumn:LABEL = oSSLoadTagDesignConfig:GetAttributeValue("LoadtagBrowse", "TotalTags", "label").
 
-                    IF oSSLoadTagJobDesignConfig:IsAttributeAvailable("LoadtagBrowse", "TotalTags", "visible") THEN
-                        hdColumn:VISIBLE = LOGICAL(oSSLoadTagJobDesignConfig:GetAttributeValue("LoadtagBrowse", "TotalTags", "visible")).
+                    IF oSSLoadTagDesignConfig:IsAttributeAvailable("LoadtagBrowse", "TotalTags", "visible") THEN
+                        hdColumn:VISIBLE = LOGICAL(oSSLoadTagDesignConfig:GetAttributeValue("LoadtagBrowse", "TotalTags", "visible")).
                 END.
                 WHEN 'unitWeight' THEN DO:
-                    IF oSSLoadTagJobDesignConfig:IsAttributeAvailable("LoadtagBrowse", "UnitWeight", "label") THEN
-                        hdColumn:LABEL = oSSLoadTagJobDesignConfig:GetAttributeValue("LoadtagBrowse", "UnitWeight", "label").
+                    IF oSSLoadTagDesignConfig:IsAttributeAvailable("LoadtagBrowse", "UnitWeight", "label") THEN
+                        hdColumn:LABEL = oSSLoadTagDesignConfig:GetAttributeValue("LoadtagBrowse", "UnitWeight", "label").
 
-                    IF oSSLoadTagJobDesignConfig:IsAttributeAvailable("LoadtagBrowse", "UnitWeight", "visible") THEN
-                        hdColumn:VISIBLE = LOGICAL(oSSLoadTagJobDesignConfig:GetAttributeValue("LoadtagBrowse", "UnitWeight", "visible")).
+                    IF oSSLoadTagDesignConfig:IsAttributeAvailable("LoadtagBrowse", "UnitWeight", "visible") THEN
+                        hdColumn:VISIBLE = LOGICAL(oSSLoadTagDesignConfig:GetAttributeValue("LoadtagBrowse", "UnitWeight", "visible")).
                 END.
                 WHEN 'palletWeight' THEN DO:
-                    IF oSSLoadTagJobDesignConfig:IsAttributeAvailable("LoadtagBrowse", "PalletWeight", "label") THEN
-                        hdColumn:LABEL = oSSLoadTagJobDesignConfig:GetAttributeValue("LoadtagBrowse", "PalletWeight", "label").
+                    IF oSSLoadTagDesignConfig:IsAttributeAvailable("LoadtagBrowse", "PalletWeight", "label") THEN
+                        hdColumn:LABEL = oSSLoadTagDesignConfig:GetAttributeValue("LoadtagBrowse", "PalletWeight", "label").
 
-                    IF oSSLoadTagJobDesignConfig:IsAttributeAvailable("LoadtagBrowse", "PalletWeight", "visible") THEN
-                        hdColumn:VISIBLE = LOGICAL(oSSLoadTagJobDesignConfig:GetAttributeValue("LoadtagBrowse", "PalletWeight", "visible")).
+                    IF oSSLoadTagDesignConfig:IsAttributeAvailable("LoadtagBrowse", "PalletWeight", "visible") THEN
+                        hdColumn:VISIBLE = LOGICAL(oSSLoadTagDesignConfig:GetAttributeValue("LoadtagBrowse", "PalletWeight", "visible")).
                 END.
                 WHEN 'lotID' THEN DO:
-                    IF oSSLoadTagJobDesignConfig:IsAttributeAvailable("LoadtagBrowse", "LotID", "label") THEN
-                        hdColumn:LABEL = oSSLoadTagJobDesignConfig:GetAttributeValue("LoadtagBrowse", "LotID", "label").
+                    IF oSSLoadTagDesignConfig:IsAttributeAvailable("LoadtagBrowse", "LotID", "label") THEN
+                        hdColumn:LABEL = oSSLoadTagDesignConfig:GetAttributeValue("LoadtagBrowse", "LotID", "label").
 
-                    IF oSSLoadTagJobDesignConfig:IsAttributeAvailable("LoadtagBrowse", "LotID", "visible") THEN
-                        hdColumn:VISIBLE = LOGICAL(oSSLoadTagJobDesignConfig:GetAttributeValue("LoadtagBrowse", "LotID", "visible")).
+                    IF oSSLoadTagDesignConfig:IsAttributeAvailable("LoadtagBrowse", "LotID", "visible") THEN
+                        hdColumn:VISIBLE = LOGICAL(oSSLoadTagDesignConfig:GetAttributeValue("LoadtagBrowse", "LotID", "visible")).
                 END.
                 WHEN 'itemName' THEN DO:
-                    IF oSSLoadTagJobDesignConfig:IsAttributeAvailable("LoadtagBrowse", "ItemName", "label") THEN
-                        hdColumn:LABEL = oSSLoadTagJobDesignConfig:GetAttributeValue("LoadtagBrowse", "ItemName", "label").
+                    IF oSSLoadTagDesignConfig:IsAttributeAvailable("LoadtagBrowse", "ItemName", "label") THEN
+                        hdColumn:LABEL = oSSLoadTagDesignConfig:GetAttributeValue("LoadtagBrowse", "ItemName", "label").
 
-                    IF oSSLoadTagJobDesignConfig:IsAttributeAvailable("LoadtagBrowse", "ItemName", "visible") THEN
-                        hdColumn:VISIBLE = LOGICAL(oSSLoadTagJobDesignConfig:GetAttributeValue("LoadtagBrowse", "ItemName", "visible")).
+                    IF oSSLoadTagDesignConfig:IsAttributeAvailable("LoadtagBrowse", "ItemName", "visible") THEN
+                        hdColumn:VISIBLE = LOGICAL(oSSLoadTagDesignConfig:GetAttributeValue("LoadtagBrowse", "ItemName", "visible")).
                 END.
                 WHEN 'custPONo' THEN DO:
-                    IF oSSLoadTagJobDesignConfig:IsAttributeAvailable("LoadtagBrowse", "CustomerPO", "label") THEN
-                        hdColumn:LABEL = oSSLoadTagJobDesignConfig:GetAttributeValue("LoadtagBrowse", "CustomerPO", "label").
+                    IF oSSLoadTagDesignConfig:IsAttributeAvailable("LoadtagBrowse", "CustomerPO", "label") THEN
+                        hdColumn:LABEL = oSSLoadTagDesignConfig:GetAttributeValue("LoadtagBrowse", "CustomerPO", "label").
 
-                    IF oSSLoadTagJobDesignConfig:IsAttributeAvailable("LoadtagBrowse", "CustomerPO", "visible") THEN
-                        hdColumn:VISIBLE = LOGICAL(oSSLoadTagJobDesignConfig:GetAttributeValue("LoadtagBrowse", "CustomerPO", "visible")).
+                    IF oSSLoadTagDesignConfig:IsAttributeAvailable("LoadtagBrowse", "CustomerPO", "visible") THEN
+                        hdColumn:VISIBLE = LOGICAL(oSSLoadTagDesignConfig:GetAttributeValue("LoadtagBrowse", "CustomerPO", "visible")).
                 END.
                 WHEN 'poLineID' THEN DO:
-                    IF oSSLoadTagJobDesignConfig:IsAttributeAvailable("LoadtagBrowse", "POLine", "label") THEN
-                        hdColumn:LABEL = oSSLoadTagJobDesignConfig:GetAttributeValue("LoadtagBrowse", "POLine", "label").
+                    IF oSSLoadTagDesignConfig:IsAttributeAvailable("LoadtagBrowse", "POLine", "label") THEN
+                        hdColumn:LABEL = oSSLoadTagDesignConfig:GetAttributeValue("LoadtagBrowse", "POLine", "label").
 
-                    IF oSSLoadTagJobDesignConfig:IsAttributeAvailable("LoadtagBrowse", "POLine", "visible") THEN
-                        hdColumn:VISIBLE = LOGICAL(oSSLoadTagJobDesignConfig:GetAttributeValue("LoadtagBrowse", "POLine", "visible")).
+                    IF oSSLoadTagDesignConfig:IsAttributeAvailable("LoadtagBrowse", "POLine", "visible") THEN
+                        hdColumn:VISIBLE = LOGICAL(oSSLoadTagDesignConfig:GetAttributeValue("LoadtagBrowse", "POLine", "visible")).
                 END.
                 WHEN 'printCopies' THEN DO:
-                    IF oSSLoadTagJobDesignConfig:IsAttributeAvailable("LoadtagBrowse", "PrintCopies", "label") THEN
-                        hdColumn:LABEL = oSSLoadTagJobDesignConfig:GetAttributeValue("LoadtagBrowse", "PrintCopies", "label").
+                    IF oSSLoadTagDesignConfig:IsAttributeAvailable("LoadtagBrowse", "PrintCopies", "label") THEN
+                        hdColumn:LABEL = oSSLoadTagDesignConfig:GetAttributeValue("LoadtagBrowse", "PrintCopies", "label").
 
-                    IF oSSLoadTagJobDesignConfig:IsAttributeAvailable("LoadtagBrowse", "PrintCopies", "visible") THEN
-                        hdColumn:VISIBLE = LOGICAL(oSSLoadTagJobDesignConfig:GetAttributeValue("LoadtagBrowse", "PrintCopies", "visible")).
+                    IF oSSLoadTagDesignConfig:IsAttributeAvailable("LoadtagBrowse", "PrintCopies", "visible") THEN
+                        hdColumn:VISIBLE = LOGICAL(oSSLoadTagDesignConfig:GetAttributeValue("LoadtagBrowse", "PrintCopies", "visible")).
                 END.
                 WHEN 'tagStatus' THEN DO:
-                    IF oSSLoadTagJobDesignConfig:IsAttributeAvailable("LoadtagBrowse", "Status", "label") THEN
-                        hdColumn:LABEL = oSSLoadTagJobDesignConfig:GetAttributeValue("LoadtagBrowse", "Status", "label").
+                    IF oSSLoadTagDesignConfig:IsAttributeAvailable("LoadtagBrowse", "Status", "label") THEN
+                        hdColumn:LABEL = oSSLoadTagDesignConfig:GetAttributeValue("LoadtagBrowse", "Status", "label").
 
-                    IF oSSLoadTagJobDesignConfig:IsAttributeAvailable("LoadtagBrowse", "Status", "visible") THEN
-                        hdColumn:VISIBLE = LOGICAL(oSSLoadTagJobDesignConfig:GetAttributeValue("LoadtagBrowse", "Status", "visible")).
+                    IF oSSLoadTagDesignConfig:IsAttributeAvailable("LoadtagBrowse", "Status", "visible") THEN
+                        hdColumn:VISIBLE = LOGICAL(oSSLoadTagDesignConfig:GetAttributeValue("LoadtagBrowse", "Status", "visible")).
                 END.
                 WHEN 'jobQuantity' THEN DO:
-                    IF oSSLoadTagJobDesignConfig:IsAttributeAvailable("LoadtagBrowse", "JobQuantity", "label") THEN
-                        hdColumn:LABEL = oSSLoadTagJobDesignConfig:GetAttributeValue("LoadtagBrowse", "JobQuantity", "label").
+                    IF oSSLoadTagDesignConfig:IsAttributeAvailable("LoadtagBrowse", "JobQuantity", "label") THEN
+                        hdColumn:LABEL = oSSLoadTagDesignConfig:GetAttributeValue("LoadtagBrowse", "JobQuantity", "label").
 
-                    IF oSSLoadTagJobDesignConfig:IsAttributeAvailable("LoadtagBrowse", "JobQuantity", "visible") THEN
-                        hdColumn:VISIBLE = LOGICAL(oSSLoadTagJobDesignConfig:GetAttributeValue("LoadtagBrowse", "JobQuantity", "visible")).
+                    IF oSSLoadTagDesignConfig:IsAttributeAvailable("LoadtagBrowse", "JobQuantity", "visible") THEN
+                        hdColumn:VISIBLE = LOGICAL(oSSLoadTagDesignConfig:GetAttributeValue("LoadtagBrowse", "JobQuantity", "visible")).
                 END.
-                WHEN 'iTotalQty' THEN DO:
-                    IF oSSLoadTagJobDesignConfig:IsAttributeAvailable("LoadtagBrowse", "TotalQuantity", "label") THEN
-                        hdColumn:LABEL = oSSLoadTagJobDesignConfig:GetAttributeValue("LoadtagBrowse", "TotalQuantity", "label").
+                WHEN 'quantityTotal' THEN DO:
+                    IF oSSLoadTagDesignConfig:IsAttributeAvailable("LoadtagBrowse", "TotalQuantity", "label") THEN
+                        hdColumn:LABEL = oSSLoadTagDesignConfig:GetAttributeValue("LoadtagBrowse", "TotalQuantity", "label").
 
-                    IF oSSLoadTagJobDesignConfig:IsAttributeAvailable("LoadtagBrowse", "TotalQuantity", "visible") THEN
-                        hdColumn:VISIBLE = LOGICAL(oSSLoadTagJobDesignConfig:GetAttributeValue("LoadtagBrowse", "TotalQuantity", "visible")).
+                    IF oSSLoadTagDesignConfig:IsAttributeAvailable("LoadtagBrowse", "TotalQuantity", "visible") THEN
+                        hdColumn:VISIBLE = LOGICAL(oSSLoadTagDesignConfig:GetAttributeValue("LoadtagBrowse", "TotalQuantity", "visible")).
                 END.
+                WHEN 'isSelected' THEN DO:
+                    IF oSSLoadTagDesignConfig:IsAttributeAvailable("LoadtagBrowse", "Select", "label") THEN
+                        hdColumn:LABEL = oSSLoadTagDesignConfig:GetAttributeValue("LoadtagBrowse", "Select", "label").
+
+                    IF oSSLoadTagDesignConfig:IsAttributeAvailable("LoadtagBrowse", "Select", "visible") THEN
+                        hdColumn:VISIBLE = LOGICAL(oSSLoadTagDesignConfig:GetAttributeValue("LoadtagBrowse", "Select", "visible")).
+                END.                
+                WHEN 'tag' THEN DO:
+                    IF oSSLoadTagDesignConfig:IsAttributeAvailable("LoadtagBrowse", "Tag", "label") THEN
+                        hdColumn:LABEL = oSSLoadTagDesignConfig:GetAttributeValue("LoadtagBrowse", "Tag", "label").
+
+                    IF oSSLoadTagDesignConfig:IsAttributeAvailable("LoadtagBrowse", "Tag", "visible") THEN
+                        hdColumn:VISIBLE = LOGICAL(oSSLoadTagDesignConfig:GetAttributeValue("LoadtagBrowse", "Tag", "visible")).
+                END.   
+                WHEN 'quantityOfSubUnit' THEN DO:
+                    IF oSSLoadTagDesignConfig:IsAttributeAvailable("LoadtagBrowse", "QuantityOfSubUnit", "label") THEN
+                        hdColumn:LABEL = oSSLoadTagDesignConfig:GetAttributeValue("LoadtagBrowse", "QuantityOfSubUnit", "label").
+
+                    IF oSSLoadTagDesignConfig:IsAttributeAvailable("LoadtagBrowse", "QuantityOfSubUnit", "visible") THEN
+                        hdColumn:VISIBLE = LOGICAL(oSSLoadTagDesignConfig:GetAttributeValue("LoadtagBrowse", "QuantityOfSubUnit", "visible")).
+                END.             
             END CASE.
         END.
     END.
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE PrintTTLoadTags B-table-Win 
+PROCEDURE PrintTTLoadTags :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    SESSION:SET-WAIT-STATE("GENERAL").
+    
+    RUN PrintTTLoadTags IN hdLoadTagProcs (
+        INPUT cCompany,
+        INPUT cLocation,
+        INPUT-OUTPUT TABLE ttLoadTag BY-REFERENCE
+        ).
 
+    RUN dispatch (
+        INPUT "open-query"
+        ).
+    
+    SESSION:SET-WAIT-STATE("").
+    
+    MESSAGE "Printing complete!"
+        VIEW-AS ALERT-BOX INFORMATION.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records B-table-Win  _ADM-SEND-RECORDS
 PROCEDURE send-records :

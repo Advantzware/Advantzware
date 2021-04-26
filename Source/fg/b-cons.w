@@ -233,7 +233,7 @@ DEFINE BROWSE Browser-Table
       fg-rctd.tag COLUMN-LABEL "From!Tag" FORMAT "x(24)":U
       fg-rctd.loc COLUMN-LABEL "From!Whse" FORMAT "x(5)":U
       fg-rctd.loc-bin COLUMN-LABEL "From!Bin" FORMAT "x(8)":U
-      fg-rctd.cases COLUMN-LABEL "Units" FORMAT ">>>,>>9":U
+      fg-rctd.cases COLUMN-LABEL "Units" FORMAT "->>>,>>9":U
       fg-rctd.qty-case COLUMN-LABEL "Unit!Count" FORMAT ">>>,>>9":U
       fg-rctd.partial COLUMN-LABEL "Partial" FORMAT ">>>,>>9":U
             WIDTH 10
@@ -2099,25 +2099,26 @@ PROCEDURE post-finish-goods :
        gl-ctrl.trnum = v-trnum.
       FIND CURRENT gl-ctrl NO-LOCK.
       FOR EACH work-job BREAK BY work-job.actnum:
-         CREATE gltrans.
+        
+        CREATE glhist.
         ASSIGN
-         gltrans.company = cocode
-         gltrans.actnum  = work-job.actnum
-         gltrans.jrnl    = "ADJUST"
-         gltrans.tr-date = v-post-date
-         gltrans.period  = period.pnum
-         gltrans.trnum   = v-trnum.
+         glhist.company = cocode
+         glhist.actnum  = work-job.actnum
+         glhist.jrnl    = "ADJUST"
+         glhist.tr-date = v-post-date
+         glhist.period  = period.pnum
+         glhist.tr-num   = v-trnum.
 
         IF work-job.fg THEN
           ASSIGN
-           gltrans.tr-amt  = - work-job.amt
-           gltrans.tr-dscr = "ADJUSTMENT FG".
+           glhist.tr-amt  = - work-job.amt
+           glhist.tr-dscr = "ADJUSTMENT FG".
         ELSE
           ASSIGN
-           gltrans.tr-amt  = work-job.amt
-           gltrans.tr-dscr = "ADJUSTMENT COGS".
+           glhist.tr-amt  = work-job.amt
+           glhist.tr-dscr = "ADJUSTMENT COGS".
 
-        RELEASE gltrans.
+        RELEASE glhist.
       END. /* each work-job */
     END.
     IF v-got-fgemail THEN DO:

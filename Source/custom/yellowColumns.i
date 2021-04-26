@@ -33,7 +33,15 @@ PROCEDURE openQuery:
   IF sortColumn EQ 'Check#' THEN account.type ELSE ~
   account.actnum ~{&SORTED}
 
-&ELSEIF '{&yellowColumnsName}' EQ 'b-reconc' &THEN
+&ELSEIF '{&yellowColumnsName}' EQ 'customerPart' &THEN
+  &SCOPED-DEFINE SORTBY-PHRASE BY ~
+  IF sortColumn EQ 'Customer' THEN customerID ELSE ~
+  IF sortColumn EQ 'Ship To' THEN shipToID ELSE ~
+  IF sortColumn EQ 'Item #' THEN itemID ELSE ~
+   customerPart  ~{&SORTED}
+  
+  
+  &ELSEIF '{&yellowColumnsName}' EQ 'b-reconc' &THEN
   &SCOPED-DEFINE SORTBY-PHRASE BY ~
   IF sortColumn EQ 'Check/Journal#' THEN tt-number ELSE ~
   IF sortColumn EQ 'Trans Date' THEN STRING(YEAR(tt-date),'9999') + ~

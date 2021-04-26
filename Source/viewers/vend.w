@@ -659,6 +659,7 @@ DO:
        FIND FIRST account WHERE account.company = gcompany
                             AND account.actnum = SELF:SCREEN-VALUE NO-LOCK NO-ERROR.
        IF AVAIL account THEN vend.actdscr:SCREEN-VALUE = account.dscr.
+                        ELSE vend.actdscr:SCREEN-VALUE = "".
     END.
   end.
 
@@ -697,9 +698,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL vend.Bank-Acct V-table-Win
 ON LEAVE OF vend.Bank-Acct IN FRAME F-Main /* Account# */
 DO:
-    IF LASTKEY = -1 THEN RETURN.
+    /* IF LASTKEY = -1 THEN RETURN.
     RUN valid-actnum(FOCUS) NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.*/
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1528,6 +1529,7 @@ DEFINE VARIABLE container-hdl AS CHARACTER     NO-UNDO.
        FIND FIRST account WHERE account.company = gcompany
                             AND account.actnum = vend.actnum:SCREEN-VALUE NO-LOCK NO-ERROR.
        IF AVAIL account THEN vend.actdscr:SCREEN-VALUE = account.dscr.
+                        ELSE vend.actdscr:SCREEN-VALUE = "".
   END.
 
   run valid-buyer NO-ERROR.
@@ -1536,10 +1538,10 @@ DEFINE VARIABLE container-hdl AS CHARACTER     NO-UNDO.
   run valid-state NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
-  run valid-actnum(vend.Bank-Acct:HANDLE) NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  
-  run valid-actnum(vend.actnum:HANDLE) NO-ERROR.
+ // RUN valid-actnum(vend.Bank-Acct:HANDLE) NO-ERROR.
+ // IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+
+  RUN valid-actnum(vend.actnum:HANDLE) NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
   run valid-stax NO-ERROR.

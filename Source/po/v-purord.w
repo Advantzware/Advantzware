@@ -40,6 +40,7 @@ DEFINE            VARIABLE ls-drop-custno      AS cha       NO-UNDO.
 DEFINE            VARIABLE ls-ship-choice      AS cha       NO-UNDO.
 DEFINE            VARIABLE lv-ship-no          LIKE shipto.ship-no NO-UNDO.
 DEFINE            VARIABLE ll-got-vendor       AS LOG       NO-UNDO.
+DEFINE            VARIABLE lManualStatuschange AS LOG       NO-UNDO.
 DEFINE            VARIABLE lv-type             LIKE po-ord.type NO-UNDO.
 DEFINE            VARIABLE lv-prev-val         AS CHARACTER NO-UNDO.
 DEFINE            VARIABLE lv-copy-from-po-num AS INTEGER   NO-UNDO.
@@ -498,6 +499,9 @@ DEFINE FRAME F-Main
           BGCOLOR 15 
      approved_text AT ROW 1.24 COL 127 COLON-ALIGNED NO-LABEL WIDGET-ID 12
      lbl_sort AT ROW 2.43 COL 60 COLON-ALIGNED NO-LABEL WIDGET-ID 14
+     po-ord.printed AT ROW 6.24 COL 140 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 3.2 BY 1 NO-TAB-STOP 
      "FOB:" VIEW-AS TEXT
           SIZE 6 BY .81 AT ROW 15.05 COL 76.8
      "Freight Payment:" VIEW-AS TEXT
@@ -612,6 +616,11 @@ ASSIGN
    NO-ENABLE 2                                                          */
 /* SETTINGS FOR TOGGLE-BOX po-ord.priceHold IN FRAME F-Main
    ALIGN-R                                                              */
+/* SETTINGS FOR FILL-IN po-ord.printed IN FRAME F-Main
+   NO-DISPLAY NO-ENABLE                                                 */
+ASSIGN 
+       po-ord.printed:HIDDEN IN FRAME F-Main           = TRUE.
+
 ASSIGN 
        rd_drop-shipment:PRIVATE-DATA IN FRAME F-Main     = 
                 "parm".
@@ -1133,6 +1142,8 @@ DO:
     RUN valid-po-status(OUTPUT lReturnError) NO-ERROR.
     IF lReturnError THEN RETURN NO-APPLY.    
   END.
+  ASSIGN 
+    lManualStatusChange = TRUE.
   
 END.
 
@@ -1607,6 +1618,8 @@ PROCEDURE hold-release :
      IF choice THEN DO:  
         DEFINE BUFFER bf-po-ord FOR po-ord.
         FIND bf-po-ord EXCLUSIVE-LOCK WHERE RECID(bf-po-ord) EQ recid(po-ord) NO-ERROR.
+        ASSIGN 
+            bf-po-ord.printed = FALSE.
         IF bf-po-ord.stat = "H" THEN DO:                    
             RUN pRunAPIOutboundTrigger (
                 BUFFER po-ord,
@@ -1646,6 +1659,8 @@ PROCEDURE hold-release :
         approved_text:HIDDEN = IF AVAILABLE po-ord AND po-ord.stat EQ "H" THEN TRUE ELSE FALSE .
      END.        
  END.
+ 
+ 
 
 END PROCEDURE.
 
@@ -1924,6 +1939,8 @@ PROCEDURE local-cancel-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
+  lManualStatuschange = FALSE.
+  
   DISABLE po-ord.ship-id WITH FRAME {&FRAME-NAME}.
     lNewOrd = FALSE.
     lUpdateMode = FALSE.
@@ -2016,11 +2033,10 @@ PROCEDURE local-create-record :
     
   RUN pAssignAddressFromCompany(YES). 
 
- RELEASE po-ctrl.
- FIND CURRENT po-ord NO-LOCK NO-ERROR.
- FIND CURRENT po-ordl NO-LOCK NO-ERROR.
- FIND CURRENT b-po-ordl NO-LOCK NO-ERROR.
- 
+  RELEASE po-ctrl.
+  FIND CURRENT po-ord    NO-LOCK NO-ERROR.
+  FIND CURRENT po-ordl   NO-LOCK NO-ERROR.
+  FIND CURRENT b-po-ordl NO-LOCK NO-ERROR.
 
 END PROCEDURE.
 
@@ -2196,6 +2212,11 @@ PROCEDURE local-update-record :
     RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source",OUTPUT char-hdl).
     RUN record-added IN WIDGET-HANDLE(char-hdl).
   END.
+  
+    /* 97404 Ticket 95260 PO change order flag */
+    IF lManualStatusChange THEN DO:
+        RUN pManualStatusChange.
+    END.    
     
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
@@ -2268,6 +2289,7 @@ PROCEDURE local-update-record :
       
   /* ===  don't go item page yet. -> move page to 2 */
   IF ll-is-new-rec THEN DO:
+    {methods/run_link.i "RECORD-SOURCE" "clearFilters" "(po-ord.po-no)"}
     RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source",OUTPUT char-hdl).
     RUN record-added IN WIDGET-HANDLE(char-hdl).
     RUN reopen-query1 IN WIDGET-HANDLE(char-hdl) (lv-rowid).
@@ -2551,10 +2573,9 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pClearPriceHoldManually V-table-Win
-PROCEDURE pClearPriceHoldManually PRIVATE:
-    /*------------------------------------------------------------------------------
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pClearPriceHoldManually V-table-Win 
+PROCEDURE pClearPriceHoldManually PRIVATE :
+/*------------------------------------------------------------------------------
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
@@ -2568,6 +2589,37 @@ PROCEDURE pClearPriceHoldManually PRIVATE:
         ""
         ).
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pManualStatusChange V-table-Win
+PROCEDURE pManualStatusChange PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DISABLE TRIGGERS FOR LOAD OF po-ordl.
+    
+    DEFINE BUFFER bf-po-ordl FOR po-ordl.
+    
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+    
+    /* 97404 Ticket 95260 PO change order flag */
+    IF lManualStatusChange THEN DO:
+        po-ord.printed:SCREEN-VALUE = "N".
+        
+        FOR EACH bf-po-ordl EXCLUSIVE-LOCK 
+            WHERE bf-po-ordl.company EQ po-ord.company
+              AND bf-po-ordl.po-no   EQ po-ord.po-no:
+            bf-po-ordl.stat = po-ord.stat:SCREEN-VALUE. 
+        END.
+        
+        lManualStatusChange = FALSE.
+    END.
 END PROCEDURE.
 	
 /* _UIB-CODE-BLOCK-END */
@@ -2916,15 +2968,13 @@ PROCEDURE valid-po-date :
   {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
         IF DATE(po-ord.po-date:SCREEN-VALUE) EQ ? THEN DO:        
-               MESSAGE "Please enter PO Date. " VIEW-AS ALERT-BOX INFO.
+               MESSAGE "Please enter PO Date. " VIEW-AS ALERT-BOX WARNING.
                APPLY "entry" TO po-ord.po-date.
                oplReturnError = YES.
-               lCheckError = YES .
+               lCheckError = YES .               
         END.
         IF DATE(po-ord.po-date:SCREEN-VALUE) LT (TODAY - 90) AND NOT lCheckError THEN DO:        
-               MESSAGE "PO Date cannot be more then 90 days earlier than today" VIEW-AS ALERT-BOX INFO.
-               APPLY "entry" TO po-ord.po-date.
-               oplReturnError = YES.
+            MESSAGE "PO Date is more than 90 days earlier than today" VIEW-AS ALERT-BOX INFO.
         END.  
   END.
   {methods/lValidateError.i NO}

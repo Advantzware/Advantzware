@@ -114,6 +114,7 @@ DEFINE VARIABLE iPOLoadtagInt AS INTEGER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lPrintPrice AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cShiptoCustomer AS CHARACTER NO-UNDO.
 
 RUN sys/ref/nk1look.p (INPUT cocode,
                        INPUT "POLoadtag",
@@ -805,9 +806,14 @@ v-printline = 0.
   end. /* for each po-ordl record */
 
   IF po-ord.TYPE = "D" THEN do:
+  
+   FIND FIRST cust NO-LOCK
+        WHERE cust.company = cocode 
+        AND cust.active = "X" NO-ERROR.
+  cShiptoCustomer = IF po-ord.cust-no NE "" THEN po-ord.cust-no ELSE cust.cust-no . 
      
   FIND FIRST shipto WHERE shipto.company = cocode AND 
-                           shipto.cust-no = po-ord.cust-no AND 
+                           shipto.cust-no = cShiptoCustomer AND 
                           shipto.ship-id = po-ord.ship-id NO-LOCK NO-ERROR.
 
    IF v-printline > 46 THEN DO:                  

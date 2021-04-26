@@ -232,13 +232,14 @@ PROCEDURE pDeleteJobRecords PRIVATE:
             
         IF iplPurge AND NOT iplCalledFromTrigger THEN 
             OUTPUT STREAM datafiles TO VALUE (cOutDir + "\DataFiles\" + cTableName + ".d") APPEND.
-               
+
         DO WHILE NOT hdQuery:QUERY-OFF-END:                
             IF cTableName = "job-hdr" AND iplPurge THEN DO:
                 DO iIndex = 1 TO NUM-ENTRIES(cJobHdrRefTbl):
                     FOR EACH reftable EXCLUSIVE-LOCK
                         WHERE reftable.reftable EQ ENTRY(iIndex,cJobHdrRefTbl) + ipcCompany
                           AND reftable.code2    EQ hdBuffer:BUFFER-FIELD ("j-no"):BUFFER-VALUE:
+                        IF iplPurge AND NOT iplCalledFromTrigger THEN
                         EXPORT STREAM sReftable reftable.                                
                         DELETE reftable.
                     END.
@@ -290,15 +291,15 @@ END PROCEDURE.
 &ENDIF
 
 
-&IF DEFINED(EXCLUDE-pPurgeJob) = 0 &THEN
+&IF DEFINED(EXCLUDE-Purge_SimulateAndPurgeJobRecords) = 0 &THEN
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pPurgeJob Procedure
-PROCEDURE pPurgeJob PRIVATE:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Purge_SimulateAndPurgeJobRecords Procedure
+PROCEDURE Purge_SimulateAndPurgeJobRecords:
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER iprRowid             AS ROWID.
+    DEFINE PARAMETER BUFFER ip-bf-job            FOR job.
     DEFINE INPUT  PARAMETER iplPurge             AS LOGICAL NO-UNDO.
     DEFINE INPUT  PARAMETER iplgLogChildRecords  AS LOGICAL NO-UNDO.
     DEFINE INPUT  PARAMETER iplCalledFromTrigger AS LOGICAL NO-UNDO.
@@ -313,6 +314,9 @@ PROCEDURE pPurgeJob PRIVATE:
     DEFINE VARIABLE lSuccess         AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cMessage         AS CHARACTER NO-UNDO.
     
+    RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
+    RUN util/PurgeProcs.p    PERSISTENT SET hdPurgeProcs.
+            
     ASSIGN     
         cTableList       = "job-hdr,job-mat,job-mch,job-prep,job-farm,job-farm-rctd,mat-act,mch-act,misc-act"        
         cOrphanTableList = "sbStatus,sbNote,jobMatl,jobMach,sbJob,jobItems,jobStack,jobSheet,jobCad,jobPrep," +
@@ -325,115 +329,60 @@ PROCEDURE pPurgeJob PRIVATE:
     END.        
         
     DO TRANSACTION:
-        FIND FIRST bf-job NO-LOCK WHERE
-            ROWID(bf-job) EQ iprRowid
-            NO-ERROR.
-        IF NOT AVAIL bf-job THEN 
-        DO:
-            ASSIGN 
-                oplSuccess = FALSE 
-                opcMessage = "Job not found by rowid".
-            RETURN.
-        END.
         IF iplPurge THEN DO:
-            RUN jc/jc-dall.p (RECID(bf-job)).
-            IF NOT iplCalledFromTrigger THEN 
-                OUTPUT STREAM sReftable TO VALUE(cOutDir + "\DataFiles\reftable.d") APPEND.
+            IF NOT iplCalledFromTrigger THEN DO:
+                RUN jc/jc-dall.p (RECID(ip-bf-job)).
+                OUTPUT STREAM sReftable TO VALUE (cOutDir + "\DataFiles\reftable.d") APPEND.
+            END.    
             FOR EACH reftable EXCLUSIVE-LOCK
                 WHERE reftable.reftable EQ "jc/jc-calc.p"
-                 AND reftable.company   EQ bf-Job.company
+                 AND reftable.company   EQ ip-bf-Job.company
                  AND reftable.loc       EQ ""
-                 AND reftable.code      EQ STRING(bf-Job.job,"999999999"):
+                 AND reftable.code      EQ STRING(ip-bf-Job.job,"999999999"):
+                IF NOT iplCalledFromTrigger THEN
                 EXPORT STREAM sReftable reftable.     
                 DELETE reftable.
             END.
             FOR EACH reftable EXCLUSIVE-LOCK
                 WHERE reftable.reftable EQ "job.create-time"
-                  AND reftable.company  EQ bf-Job.company
+                  AND reftable.company  EQ ip-bf-Job.company
                   AND reftable.loc      EQ ""
-                  AND reftable.code     EQ STRING(bf-Job.job,"9999999999"):
+                  AND reftable.code     EQ STRING(ip-bf-Job.job,"9999999999"):
+                IF NOT iplCalledFromTrigger THEN
                 EXPORT STREAM sReftable reftable.                      
                 DELETE reftable.
             END.
             
             FOR EACH reftable EXCLUSIVE-LOCK
                 WHERE reftable.reftable EQ "job.qty-changed"
-                  AND reftable.company  EQ bf-Job.company
+                  AND reftable.company  EQ ip-bf-Job.company
                   AND reftable.loc      EQ ""
-                  AND reftable.code     EQ STRING(bf-Job.job,"9999999999"):
+                  AND reftable.code     EQ STRING(ip-bf-Job.job,"9999999999"):
+                IF NOT iplCalledFromTrigger THEN
                 EXPORT STREAM sReftable reftable.                      
                 DELETE reftable.
             END.
-        END. 
+        END.
         RUN pDeleteJobRecords(
-            INPUT bf-job.company,
-            INPUT bf-job.job,
-            INPUT bf-job.job-no,
-            INPUT bf-job.job-no2,
-            INPUT cTableList,            /* Table List */
+            INPUT ip-bf-job.company,
+            INPUT ip-bf-job.job,
+            INPUT ip-bf-job.job-no,
+            INPUT ip-bf-job.job-no2,
+            INPUT IF iplCalledFromTrigger THEN cTableList ELSE cTableList + "," + cOrphanTableList, /* Table List */
             INPUT iplPurge,              /* Purge records? */   
             INPUT iplgLogChildRecords,   /* Create .csv files for child tables ? */
             INPUT iplCalledFromTrigger   /* Called from trigger? */
             ).
-        IF NOT iplCalledFromTrigger THEN 
-            RUN pDeleteJobRecords(
-                INPUT bf-job.company,
-                INPUT bf-job.job,
-                INPUT bf-job.job-no,
-                INPUT bf-job.job-no2,
-                INPUT cOrphanTableList,
-                INPUT iplPurge,
-                INPUT iplgLogChildRecords,
-                INPUT iplCalledFromTrigger
-                ). 
         IF iplPurge AND NOT iplCalledFromTrigger THEN
-            OUTPUT STREAM sReftable CLOSE.                              
+        OUTPUT STREAM sReftable CLOSE.                              
     END. /* Transaction */    
     PROCESS EVENTS.
-END PROCEDURE.
-	
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ENDIF
-&IF DEFINED(EXCLUDE-Purge_SimulateOrDeleteRecordsByTable) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Purge_SimulateOrDeleteRecordsByTable Procedure
-PROCEDURE Purge_SimulateOrDeleteRecordsByTable:
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER ipcTable             AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER iprRowid             AS ROWID     NO-UNDO.
-    DEFINE INPUT  PARAMETER iplPurge             AS LOGICAL   NO-UNDO.
-    DEFINE INPUT  PARAMETER iplLogChildRecord    AS LOGICAL   NO-UNDO.
-    DEFINE INPUT  PARAMETER iplCalledFromTrigger AS LOGICAL   NO-UNDO.
-    DEFINE OUTPUT PARAMETER oplSuccess           AS LOGICAL   NO-UNDO.
-    DEFINE OUTPUT PARAMETER opcMessage           AS CHARACTER NO-UNDO.
     
-    RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
-    RUN util/PurgeProcs.p    PERSISTENT SET hdPurgeProcs.
-        
-    CASE ipcTable:
-        WHEN "job" THEN 
-            RUN pPurgeJob(
-                INPUT  iprRowid,
-                INPUT  iplPurge,
-                INPUT  iplLogChildRecord,
-                INPUT  iplCalledFromTrigger,
-                OUTPUT oplSuccess,
-                OUTPUT opcMessage
-                ).
-    END CASE.
     IF VALID-HANDLE(hdOutputProcs) THEN 
         DELETE PROCEDURE hdOutputProcs.
         
     IF VALID-HANDLE(hdPurgeProcs) THEN 
-        DELETE PROCEDURE hdPurgeProcs.
-        
-        
+        DELETE PROCEDURE hdPurgeProcs.    
 END PROCEDURE.
 	
 /* _UIB-CODE-BLOCK-END */

@@ -15,6 +15,7 @@
 {inventory/ttinventory.i "NEW SHARED"}.
 {fg/invrecpt.i NEW}
 {jc/jcgl-sh.i  NEW}
+{fg/fg-post3.i NEW}
 
 DEFINE INPUT  PARAMETER ipcCompany            AS CHARACTER NO-UNDO.
 DEFINE INPUT  PARAMETER ipiPONo               AS INTEGER   NO-UNDO.
@@ -61,19 +62,7 @@ DEFINE VARIABLE lPromptForClose  AS LOGICAL   NO-UNDO.
 {api\inbound\ttRctd.i} 
                          
 /* This will eventually move to setsession - START >>>*/
-&SCOPED-DEFINE NEW NEW
 {methods/defines/globdefs.i}
-{methods/defines/hndldefs.i}
-  
-DEFINE VARIABLE hdSession AS HANDLE NO-UNDO.
-DEFINE VARIABLE hdTags    AS HANDLE NO-UNDO.
- 
-RUN nosweat/persist.p  PERSISTENT SET Persistent-Handle.
-RUN lstlogic/persist.p PERSISTENT SET ListLogic-Handle.
-RUN system/session.p  PERSISTENT SET hdSession.
-SESSION:ADD-SUPER-PROCEDURE (hdSession).
-RUN system/TagProcs.p PERSISTENT SET hdTags.
-SESSION:ADD-SUPER-PROCEDURE (hdTags).
 {sys/inc/var.i "new shared"}
 ASSIGN
     g_company = ipcCompany
@@ -843,11 +832,4 @@ PROCEDURE pRMReceiptCreation PRIVATE:
 END PROCEDURE.
 
 DELETE PROCEDURE hdReceipt.
-DELETE PROCEDURE hdSession.
-DELETE PROCEDURE hdTags.
 DELETE PROCEDURE hdInventoryProcs.
-
-    
-    
-
-

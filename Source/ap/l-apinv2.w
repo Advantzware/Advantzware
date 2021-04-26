@@ -147,7 +147,7 @@ DEFINE BROWSE BROWSE-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-1 Dialog-Frame _STRUCTURED
   QUERY BROWSE-1 NO-LOCK DISPLAY
       ap-inv.vend-no FORMAT "x(8)":U
-      ap-inv.inv-no FORMAT "x(12)":U
+      ap-inv.inv-no FORMAT "x(20)":U
       ap-inv.inv-date FORMAT "99/99/9999":U
       ap-inv.net FORMAT "->,>>>,>>9.99":U
       ap-inv.paid FORMAT "->,>>>,>>9.99":U

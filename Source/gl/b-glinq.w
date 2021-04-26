@@ -56,6 +56,8 @@ DEF TEMP-TABLE tt-glinq NO-UNDO
     FIELD posted LIKE glhist.posted LABEL "Posted"
     FIELD tr-period LIKE glhist.period LABEL "Pd"
     FIELD tr-yr LIKE glhist.yr LABEL "Year"
+    FIELD documentID LIKE glhist.documentID LABEL "Document Id"
+    FIELD sourceDate LIKE glhist.sourceDate LABEL "Source Date" 
     FIELD riRowid AS ROWID 
     INDEX tr-date IS PRIMARY tr-date.
 
@@ -112,7 +114,7 @@ RUN methods/prgsecur.p
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE br_table                                      */
-&Scoped-define FIELDS-IN-QUERY-br_table tt-glinq.actnum tt-glinq.tr-date tt-glinq.jrnl tt-glinq.tr-dscr tt-glinq.db-amt tt-glinq.cr-amt tt-glinq.tr-from tt-glinq.createdBy tt-glinq.createdDate tt-glinq.posted tt-glinq.tr-num  tt-glinq.tr-period tt-glinq.tr-yr 
+&Scoped-define FIELDS-IN-QUERY-br_table tt-glinq.actnum tt-glinq.tr-date tt-glinq.jrnl tt-glinq.tr-dscr tt-glinq.db-amt tt-glinq.cr-amt tt-glinq.documentID tt-glinq.sourceDate tt-glinq.createdBy tt-glinq.createdDate tt-glinq.posted tt-glinq.tr-num  tt-glinq.tr-period tt-glinq.tr-yr 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br_table tt-glinq.actnum tt-glinq.tr-date tt-glinq.jrnl tt-glinq.tr-dscr    
 &Scoped-define ENABLED-TABLES-IN-QUERY-br_table tt-glinq
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-br_table tt-glinq
@@ -131,7 +133,7 @@ RUN methods/prgsecur.p
 iRunFrom iRunTo dtDateFrom dtDateTo begin_acct lv-year btn-print br_table 
 &Scoped-Define DISPLAYED-OBJECTS lv-period-fr lv-period-to iRunFrom iRunTo ~
 dtDateFrom dtDateTo begin_acct lv-year  lv-open-bal lv-close-bal ~
-acct_dscr
+acct_dscr dTotalBalance 
 //FI_moveCol
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -231,15 +233,20 @@ DEFINE VARIABLE iRunTo AS INTEGER FORMAT ">>>>>>9":U INITIAL 0
      SIZE 11 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE lv-close-bal AS DECIMAL FORMAT "->>,>>>,>>>,>>9.99":U INITIAL 0 
+DEFINE VARIABLE lv-close-bal AS DECIMAL FORMAT "->>>,>>>,>>>,>>9.99":U INITIAL 0 
      LABEL "Total Credits" 
      VIEW-AS FILL-IN 
-     SIZE 24 BY 1 NO-UNDO.
+     SIZE 27 BY 1 NO-UNDO.
 
-DEFINE VARIABLE lv-open-bal AS DECIMAL FORMAT "->>,>>>,>>>,>>9.99":U INITIAL 0 
+DEFINE VARIABLE lv-open-bal AS DECIMAL FORMAT "->>>,>>>,>>>,>>9.99":U INITIAL 0 
      LABEL "Total Debits" 
      VIEW-AS FILL-IN 
-     SIZE 23.8 BY 1 NO-UNDO.
+     SIZE 27 BY 1 NO-UNDO.
+     
+DEFINE VARIABLE dTotalBalance AS DECIMAL FORMAT "->>>,>>>,>>>,>>9.99":U INITIAL 0 
+     LABEL "Sum Total" 
+     VIEW-AS FILL-IN 
+     SIZE 27 BY 1 NO-UNDO.     
 
 DEFINE VARIABLE lv-period-fr AS INTEGER FORMAT ">9":U INITIAL 0 
      VIEW-AS FILL-IN 
@@ -258,11 +265,11 @@ DEFINE VARIABLE lv-year AS INTEGER FORMAT ">>>9":U INITIAL 0
      
 DEFINE RECTANGLE RECT-9
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 159 BY 4.0.         
+     SIZE 167 BY 4.0.         
  
 DEFINE VARIABLE acct_dscr AS CHARACTER FORMAT "x(30)":U INITIAL "" 
      VIEW-AS FILL-IN 
-     SIZE 30.8 BY 1 NO-UNDO.
+     SIZE 28.8 BY 1 NO-UNDO.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -277,10 +284,11 @@ DEFINE BROWSE br_table
       tt-glinq.actnum LABEL-BGCOLOR 14 
       tt-glinq.tr-date LABEL-BGCOLOR 14
       tt-glinq.jrnl LABEL-BGCOLOR 14
-      tt-glinq.tr-dscr FORM "X(60)" LABEL-BGCOLOR 14 
+      tt-glinq.tr-dscr FORM "X(60)" LABEL-BGCOLOR 14 WIDTH 50
       tt-glinq.db-amt FORM "->>,>>>,>>9.99" LABEL-BGCOLOR 14
       tt-glinq.cr-amt FORM "->>,>>>,>>9.99" LABEL-BGCOLOR 14
-      tt-glinq.tr-from FORM "x(30)" LABEL-BGCOLOR 14
+      tt-glinq.documentID LABEL-BGCOLOR 14
+      tt-glinq.sourceDate LABEL-BGCOLOR 14
       tt-glinq.createdBy  LABEL-BGCOLOR 14
       tt-glinq.createdDate LABEL-BGCOLOR 14
       tt-glinq.posted LABEL-BGCOLOR 14
@@ -290,7 +298,7 @@ DEFINE BROWSE br_table
      ENABLE tt-glinq.actnum tt-glinq.tr-date  tt-glinq.jrnl tt-glinq.tr-dscr 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 160 BY 15.52
+    WITH NO-ASSIGN SEPARATORS SIZE 167 BY 15.52
          FONT 2.
 
 
@@ -305,12 +313,13 @@ DEFINE FRAME F-Main
      iRunTo AT ROW 2.05 COL 76 COLON-ALIGNED NO-LABEL WIDGET-ID 58
      dtDateFrom AT ROW 2.05 COL 90.6 COLON-ALIGNED NO-LABEL WIDGET-ID 66
      dtDateTo AT ROW 2.05 COL 107.5 COLON-ALIGNED NO-LABEL WIDGET-ID 68
-     btn-go AT ROW 2 COL 128.2
-     btn-all AT ROW 2 COL 144.6     
-     btn-print AT ROW 3.33 COL 111.2
+     btn-go AT ROW 2 COL 138.2
+     btn-all AT ROW 2 COL 154.6     
+     btn-print AT ROW 3.33 COL 154.6
   //   FI_moveCol AT ROW 3.33 COL 145.4 COLON-ALIGNED NO-LABEL WIDGET-ID 46
-     lv-open-bal AT ROW 3.38 COL 48.8 COLON-ALIGNED
+     lv-open-bal AT ROW 3.38 COL 44.6 COLON-ALIGNED
      lv-close-bal AT ROW 3.38 COL 86.2 COLON-ALIGNED
+     dTotalBalance AT ROW 3.38 COL 124.2 COLON-ALIGNED
      acct_dscr AT ROW 3.43 COL 1 COLON-ALIGNED NO-LABEL
      br_table AT ROW 5.05 COL 1
      "Date" VIEW-AS TEXT
@@ -417,6 +426,8 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN lv-open-bal IN FRAME F-Main
    NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN dTotalBalance IN FRAME F-Main
+   NO-ENABLE                                                            */   
 /* SETTINGS FOR FILL-IN acct_dscr IN FRAME F-Main
    NO-ENABLE EXP-FORMAT                                                 */    
 /* SETTINGS FOR FILL-IN lv-period-fr IN FRAME F-Main
@@ -607,6 +618,14 @@ DO:
            IF ll-sort-asc THEN OPEN QUERY {&SELF-NAME} FOR EACH tt-glinq BY tt-glinq.createdBy.
            ELSE OPEN QUERY {&SELF-NAME} FOR EACH tt-glinq BY tt-glinq.createdBy {&sortby-des}.
       END.
+      WHEN "sourceDate" THEN DO:
+           IF ll-sort-asc THEN OPEN QUERY {&SELF-NAME} FOR EACH tt-glinq BY tt-glinq.sourceDate.
+           ELSE OPEN QUERY {&SELF-NAME} FOR EACH tt-glinq BY tt-glinq.sourceDate {&sortby-des}.
+      END.  
+      WHEN "documentID" THEN DO:
+           IF ll-sort-asc THEN OPEN QUERY {&SELF-NAME} FOR EACH tt-glinq BY tt-glinq.documentID.
+           ELSE OPEN QUERY {&SELF-NAME} FOR EACH tt-glinq BY tt-glinq.documentID {&sortby-des}.
+      END. 
       WHEN "createdDate" THEN DO:
            IF ll-sort-asc THEN OPEN QUERY {&SELF-NAME} FOR EACH tt-glinq BY tt-glinq.createdDate.
            ELSE OPEN QUERY {&SELF-NAME} FOR EACH tt-glinq BY tt-glinq.createdDate {&sortby-des}.
@@ -629,6 +648,7 @@ DO:
       END.
   END CASE.
   {methods/template/sortindicatorend.i} 
+  APPLY "VALUE-CHANGED" TO BROWSE {&browse-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -640,6 +660,8 @@ ON VALUE-CHANGED OF br_table IN FRAME F-Main
 DO:
   DEF VAR char-hdl AS CHAR NO-UNDO.
   DEF VAR li AS INT NO-UNDO.
+  DEFINE VARIABLE phandle AS HANDLE NO-UNDO.
+  DEFINE VARIABLE lEnableButton AS LOGICAL NO-UNDO.
 
 
   /* This ADM trigger code must be preserved in order to notify other
@@ -651,6 +673,10 @@ DO:
     IF VALID-HANDLE(WIDGET-HANDLE(ENTRY(li,char-hdl))) THEN
       RUN dispatch IN WIDGET-HANDLE(ENTRY(li,char-hdl)) ("open-query"). 
   END.
+  
+  RUN pGetInvoiceFlag(OUTPUT lEnableButton) .
+  {methods/run_link.i "container-source" "pSetInvoiceButton" "(lEnableButton)" }
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -692,7 +718,8 @@ DO:
       
       RUN build-inquiry.
       {&open-query-{&browse-name}}
-      DISPLAY lv-open-bal lv-close-bal acct_dscr WITH FRAME {&FRAME-NAME}.
+      DISPLAY lv-open-bal lv-close-bal acct_dscr dTotalBalance WITH FRAME {&FRAME-NAME}.
+      APPLY "VALUE-CHANGED" TO BROWSE {&browse-name}.
 
 END.
 
@@ -708,9 +735,8 @@ DO:
                   
       RUN build-inquiry.
       {&open-query-{&browse-name}}
-          DISPLAY lv-open-bal lv-close-bal acct_dscr WITH FRAME {&FRAME-NAME}.
-      
-      
+          DISPLAY lv-open-bal lv-close-bal acct_dscr dTotalBalance WITH FRAME {&FRAME-NAME}.
+          APPLY "VALUE-CHANGED" TO BROWSE {&browse-name}.      
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1012,13 +1038,37 @@ PROCEDURE build-inquiry :
 ------------------------------------------------------------------------------*/
   DEF VAR tmp-start AS DATE NO-UNDO.
   DEF VAR tmp-end AS DATE NO-UNDO.
-
+  DEFINE VARIABLE iRecordLimit    AS INTEGER INIT 1000 NO-UNDO.
+  DEFINE VARIABLE iTotalCount     AS INTEGER   NO-UNDO.
+  DEFINE VARIABLE iCount          AS INTEGER   NO-UNDO.
+  DEFINE VARIABLE cTitle          AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cResponse       AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE lResponse       AS LOGICAL   NO-UNDO.
+  DEFINE VARIABLE iStartTime      AS INTEGER   NO-UNDO.
+  DEFINE VARIABLE lTimeCheck      AS LOGICAL   NO-UNDO.
+  DEFINE VARIABLE iIndex          AS INTEGER   NO-UNDO.
+  DEFINE VARIABLE dQueryTimeLimit AS DECIMAL   NO-UNDO.
+  DEFINE VARIABLE iTimeTaken      AS INTEGER   NO-UNDO.
+  DEFINE VARIABLE lEnableShowAll  AS LOGICAL NO-UNDO.
+  DEFINE VARIABLE cMessage        AS CHARACTER NO-UNDO.    
+  
+   RUN Browser_GetRecordAndTimeLimit(
+    INPUT  cocode,
+    INPUT  "GQ",
+    OUTPUT iRecordLimit,
+    OUTPUT dQueryTimeLimit,
+    OUTPUT lEnableShowAll
+    ).
+    
+  dQueryTimeLimit =  dQueryTimeLimit * 1000. 
+  
   EMPTY TEMP-TABLE tt-glinq.
   ASSIGN
      v-max-dscr-length = 0
      uperiod = lv-period-fr
      lv-close-bal = 0
-     lv-open-bal = 0.
+     lv-open-bal = 0
+     dTotalBalance = 0 .
   FIND first account WHERE account.company = g_company
                        AND account.actnum = begin_acct NO-LOCK NO-ERROR.
 
@@ -1040,19 +1090,23 @@ PROCEDURE build-inquiry :
  /* RUN gl/gl-opend.p (ROWID(account), tmp-start, OUTPUT lv-open-bal).*/
                      
  /* lv-close-bal = lv-open-bal. */
-      
+  ASSIGN  
+    iCount     = 0
+    iStartTime = ETIME   . 
+    
+  MainLoop:  
   for each glhist NO-LOCK
       where glhist.company eq cocode
         and (glhist.actnum  eq begin_acct OR begin_acct = "")
         and (glhist.period  ge lv-period-fr OR lv-period-fr EQ 0)
         and (glhist.period  le lv-period-to  OR lv-period-to EQ 0)        
-        AND (YEAR(glhist.tr-date) EQ lv-year OR lv-year EQ 0)
+       /* AND (glhist.glYear EQ  lv-year OR lv-year EQ 0) */
         AND glhist.tr-date ge dtDateFrom 
         AND glhist.tr-date le dtDateTo 
         AND (glhist.tr-num ge iRunFrom  OR iRunFrom EQ 0)
         AND (glhist.tr-num le iRunTo  OR  iRunTo EQ 0)
           
-      by glhist.tr-date :    
+      by glhist.tr-date DESC BY glhist.tr-num :    
       CREATE tt-glinq.
       ASSIGN tt-glinq.tr-date = glhist.tr-date
              tt-glinq.jrnl = glhist.jrnl
@@ -1067,6 +1121,8 @@ PROCEDURE build-inquiry :
              tt-glinq.tr-num = glhist.tr-num
              tt-glinq.tr-period = glhist.period
              tt-glinq.tr-yr = glhist.glYear
+             tt-glinq.documentID = glhist.documentID
+             tt-glinq.sourceDate = glhist.sourceDate
              tt-glinq.riRowid = ROWID(glhist).
         IF glhist.tr-amt GT 0 THEN
         ASSIGN
@@ -1076,11 +1132,57 @@ PROCEDURE build-inquiry :
         ASSIGN
            tt-glinq.cr-amt = glhist.tr-amt * - 1
            lv-close-bal = lv-close-bal + ( glhist.tr-amt * - 1) .   
+           
+         dTotalBalance = dTotalBalance +  ( IF glhist.tr-amt NE ? THEN glhist.tr-amt ELSE 0).    
                 
       IF LENGTH(glhist.tr-dscr) GT v-max-dscr-length THEN
          v-max-dscr-length = LENGTH(glhist.tr-dscr).  
+         
+       ASSIGN 
+        iTotalCount = iTotalCount + 1
+        iCount      = iCount      + 1
+        .
+        
+       IF iCount GE iRecordLimit OR (ETIME - iStartTime) EQ dQueryTimeLimit THEN DO:                   
+            iTimeTaken = iTimeTaken + (ETIME - iStartTime).
+            lTimeCheck = YES .
+       END. 
+        
+       IF lTimeCheck THEN
+       DO:        
+            IF iCount GE iRecordLimit THEN 
+                ASSIGN 
+                    cMessage = "You have reached a limit of " + STRING(iTotalCount) + " records in " + STRING(iTimeTaken / 1000) + " seconds" + ". Continue searching?"
+                    cTitle   = "Record Limit Reached"
+                    .
+            ELSE 
+                ASSIGN 
+                    iIndex   = iIndex + 1
+                    cMessage = "You have reached a limit of " + STRING((dQueryTimeLimit * iIndex) / 1000) + " seconds, Records searched= " + STRING(iTotalCount) + ". Continue searching?"        
+                    cTitle   = "Time Limit Reached"
+                    .   
+            RUN system/d-QueryLimitAlert.w(
+                    INPUT  cMessage,
+                    INPUT  cTitle,
+                    INPUT  NO,
+                    OUTPUT cResponse
+                    ) NO-ERROR.
+            lResponse = LOGICAL(cResponse) NO-ERROR.
+               
+            ASSIGN  
+               iCount     = 0
+               iStartTime = ETIME
+               lTimeCheck = NO
+                .
+                
+            IF lResponse THEN 
+               NEXT MainLoop. 
+            ELSE 
+               LEAVE MainLoop.                 
+       END.           
   end.
-              
+  
+      
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1150,7 +1252,8 @@ PROCEDURE local-initialize :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-
+  DEFINE VARIABLE phandle AS HANDLE NO-UNDO.
+  DEFINE VARIABLE lEnableButton AS LOGICAL NO-UNDO.
   /* Code placed here will execute AFTER standard behavior.    */
   find first period
       where period.company eq cocode
@@ -1163,6 +1266,10 @@ PROCEDURE local-initialize :
    lv-period-to = g_period
    uperiod      = g_period.
   RUN GetDefaultValue.
+  dtDateFrom = TODAY . 
+  dtDateFrom:SCREEN-VALUE IN FRAME {&FRAME-NAME} = STRING(TODAY) .
+  dtDateTo = TODAY . 
+  dtDateTo:SCREEN-VALUE IN FRAME {&FRAME-NAME} = STRING(TODAY)  .
   RUN build-inquiry.
   tt-glinq.tr-dscr:WIDTH-CHARS IN BROWSE {&browse-name} = v-max-dscr-length + 20.
 
@@ -1170,6 +1277,9 @@ PROCEDURE local-initialize :
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
     RUN setCellColumns.
     /* Code placed here will execute AFTER standard behavior.    */
+    
+    RUN pGetInvoiceFlag(OUTPUT lEnableButton) .
+    {methods/run_link.i "container-source" "pSetInvoiceButton" "(lEnableButton)" }
 
     ASSIGN tt-glinq.tr-date:READ-ONLY IN BROWSE {&browse-name} = YES
            tt-glinq.jrnl:READ-ONLY IN BROWSE {&browse-name} = YES
@@ -1261,7 +1371,38 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-   
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCallAudit B-table-Win
+PROCEDURE pCallAudit:
+    DEFINE INPUT PARAMETER ipcType AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE cMsgResponse AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE hTable AS HANDLE NO-UNDO.
+
+    IF AVAILABLE tt-glinq THEN DO:
+        IF NOT CAN-FIND(FIRST AuditTbl
+                        WHERE AuditTbl.AuditTable   EQ "glhist"
+                          AND (AuditTbl.AuditCreate EQ YES
+                           OR  AuditTbl.AuditDelete EQ YES
+                           OR  AuditTbl.AuditUpdate EQ YES)) THEN DO:
+            RUN displayMessageQuestion ("17", OUTPUT cMsgResponse).
+            IF cMsgResponse EQ "no" THEN DO:
+                RETURN NO-APPLY.
+            END. /* if no */
+        END. /* if audittble */
+        FIND FIRST glhist NO-LOCK
+             WHERE ROWID(glhist) EQ tt-glinq.riRowid
+             NO-ERROR.
+        IF AVAILABLE glhist THEN DO:
+            hTable = BUFFER glhist:HANDLE.
+            RUN system/CallAudit.p ("glhist", hTable, ipcType, PROGRAM-NAME(1)).
+        END. /* avail glhist */
+    END. /* avail tt-glinq */
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdate B-table-Win 
 PROCEDURE pUpdate :
 /*------------------------------------------------------------------------------
@@ -1286,8 +1427,40 @@ PROCEDURE pUpdate :
        
        FIND FIRST tt-glinq NO-LOCK
          WHERE tt-glinq.riRowid EQ riRowid NO-ERROR .         
-       reposition {&browse-name} to recid recid(tt-glinq) NO-ERROR  .           
+       reposition {&browse-name} to recid recid(tt-glinq) NO-ERROR  .  
+       APPLY "VALUE-CHANGED" TO BROWSE {&browse-name}.
    END.
+  
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME   
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetInvoiceFlag B-table-Win 
+PROCEDURE pGetInvoiceFlag :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DEFINE OUTPUT PARAMETER oplEnableButton AS LOGICAL NO-UNDO.
+   DEF VAR iInvNo AS INT NO-UNDO.
+   DEF VAR cInvNo AS CHARACTER NO-UNDO.
+    IF avail tt-glinq THEN
+    cInvNo = TRIM(SUBSTR(tt-glinq.tr-dscr,INDEX(tt-glinq.tr-dscr,"Inv# ") + 5,8)) NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN cInvNo = "".
+
+    iInvNo = INT(cInvNo) NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN iInvNo = 0.
+
+    IF iInvNo NE 0                              AND
+       CAN-FIND(FIRST ar-inv
+                WHERE ar-inv.company EQ cocode
+                  AND ar-inv.inv-no  EQ iInvNo) THEN DO:  
+        oplEnableButton = YES.       
+    END.
   
 
 END PROCEDURE.

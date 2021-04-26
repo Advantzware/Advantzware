@@ -1,0 +1,537 @@
+ADD TABLE "customerIndustry"
+  AREA "Data"
+  LABEL "Customer Industry Master"
+  DUMP-NAME "customerindustry"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg/customerIndustry.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg/customerIndustry.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg/customerIndustry.p" CRC "?" 
+
+ADD FIELD "rec_key" OF "customerIndustry" AS character 
+  FORMAT "x(21)"
+  INITIAL ""
+  LABEL "Record Key"
+  POSITION 2
+  MAX-WIDTH 42
+  ORDER 10
+
+ADD FIELD "customerIndustryID" OF "customerIndustry" AS int64 
+  FORMAT ">,>>>,>>9"
+  INITIAL "0"
+  LABEL "Customer Industry ID"
+  POSITION 3
+  MAX-WIDTH 8
+  ORDER 20
+
+ADD FIELD "industryID" OF "customerIndustry" AS character 
+  FORMAT "x(16)"
+  INITIAL ""
+  LABEL "Industry"
+  POSITION 4
+  MAX-WIDTH 32
+  ORDER 30
+
+ADD FIELD "inActive" OF "customerIndustry" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Inactive"
+  POSITION 5
+  MAX-WIDTH 1
+  ORDER 40
+
+ADD FIELD "company" OF "customerIndustry" AS character 
+  FORMAT "x(3)"
+  INITIAL ""
+  LABEL "Company"
+  POSITION 6
+  MAX-WIDTH 6
+  ORDER 50
+
+ADD FIELD "industryName" OF "customerIndustry" AS character 
+  FORMAT "x(16)"
+  INITIAL ""
+  LABEL "Industry Name"
+  POSITION 7
+  MAX-WIDTH 32
+  ORDER 60
+
+ADD INDEX "idxIndustryID" ON "customerIndustry" 
+  AREA "Index"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "industryID" ASCENDING 
+
+ADD INDEX "idxCustomerIndustryID" ON "customerIndustry" 
+  AREA "Index"
+  UNIQUE
+  INDEX-FIELD "customerIndustryID" ASCENDING 
+
+ADD INDEX "rec_key" ON "customerIndustry" 
+  AREA "Index"
+  UNIQUE
+  INDEX-FIELD "rec_key" ASCENDING 
+
+ADD TABLE "customerPart"
+  AREA "Data"
+  DUMP-NAME "customerpart"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg\customerPart.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg\customerPart.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg\customerPart.p" CRC "?" 
+
+ADD FIELD "company" OF "customerPart" AS character 
+  FORMAT "x(3)"
+  INITIAL ""
+  LABEL "Company"
+  POSITION 2
+  MAX-WIDTH 6
+  ORDER 10
+
+ADD FIELD "customerID" OF "customerPart" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Customer"
+  POSITION 3
+  MAX-WIDTH 16
+  ORDER 20
+
+ADD FIELD "shipToID" OF "customerPart" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Ship To"
+  POSITION 4
+  MAX-WIDTH 16
+  ORDER 30
+
+ADD FIELD "customerPart" OF "customerPart" AS character 
+  FORMAT "x(32)"
+  INITIAL ""
+  LABEL "Customer Part #"
+  POSITION 5
+  MAX-WIDTH 64
+  ORDER 40
+
+ADD FIELD "rec_key" OF "customerPart" AS character 
+  FORMAT "x(21)"
+  INITIAL ""
+  LABEL "Record Key"
+  POSITION 6
+  MAX-WIDTH 42
+  ORDER 50
+
+ADD FIELD "itemID" OF "customerPart" AS character 
+  FORMAT "x(15)"
+  INITIAL ""
+  LABEL "Item #"
+  POSITION 7
+  MAX-WIDTH 30
+  ORDER 60
+
+ADD FIELD "customerPartID" OF "customerPart" AS int64 
+  FORMAT ">,>>>,>>9"
+  INITIAL "0"
+  LABEL "Customer Part ID"
+  POSITION 8
+  MAX-WIDTH 8
+  ORDER 70
+
+ADD INDEX "idxCustomerPart" ON "customerPart" 
+  AREA "Index"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "customerID" ASCENDING 
+  INDEX-FIELD "shipToID" ASCENDING 
+  INDEX-FIELD "customerPart" ASCENDING 
+  INDEX-FIELD "itemID" ASCENDING 
+
+ADD INDEX "idxCustomerPartID" ON "customerPart" 
+  AREA "Index"
+  UNIQUE
+  INDEX-FIELD "customerPartID" ASCENDING 
+
+ADD INDEX "rec_key" ON "customerPart" 
+  AREA "Index"
+  UNIQUE
+  INDEX-FIELD "itemID" ASCENDING 
+
+ADD TABLE "materialType"
+  AREA "Data"
+  LABEL "Material Type"
+  DESCRIPTION "Stores the material types"
+  DUMP-NAME "materialtype"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg\materialType.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg\materialType.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" NO-OVERRIDE PROCEDURE "write.trg\materialType.p" CRC "?" 
+
+ADD FIELD "materialType" OF "materialType" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Material Type"
+  POSITION 2
+  MAX-WIDTH 16
+  COLUMN-LABEL "Material Type"
+  ORDER 10
+
+ADD FIELD "rec_key" OF "materialType" AS character 
+  FORMAT "x(21)"
+  INITIAL ""
+  LABEL "Record Key"
+  POSITION 3
+  MAX-WIDTH 42
+  COLUMN-LABEL "Record Key"
+  ORDER 20
+
+ADD FIELD "company" OF "materialType" AS character 
+  FORMAT "x(3)"
+  INITIAL ""
+  LABEL "Company"
+  POSITION 4
+  MAX-WIDTH 6
+  COLUMN-LABEL "Company"
+  ORDER 30
+
+ADD FIELD "materialTypeID" OF "materialType" AS int64 
+  FORMAT ">,>>>,>>9"
+  INITIAL "0"
+  LABEL "Material Type ID"
+  POSITION 5
+  MAX-WIDTH 8
+  COLUMN-LABEL "Material Type ID"
+  ORDER 40
+
+ADD FIELD "materialDescription" OF "materialType" AS character 
+  DESCRIPTION "Material Description"
+  FORMAT "x(40)"
+  INITIAL ""
+  LABEL "Material Description"
+  POSITION 6
+  MAX-WIDTH 80
+  COLUMN-LABEL "Material Description"
+  ORDER 50
+
+ADD FIELD "calculationType" OF "materialType" AS character 
+  DESCRIPTION "Calculation Type"
+  FORMAT "x(32)"
+  INITIAL ""
+  LABEL "Calculation Type"
+  POSITION 7
+  MAX-WIDTH 64
+  COLUMN-LABEL "Calculation Type"
+  ORDER 60
+
+ADD FIELD "autoIssue" OF "materialType" AS logical 
+  DESCRIPTION "Auto Issue Material"
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Auto Issue"
+  POSITION 8
+  MAX-WIDTH 1
+  VIEW-AS "VIEW-AS TOGGLE-BOX"
+  COLUMN-LABEL "Auto Issue"
+  ORDER 70
+
+ADD INDEX "idxMaterialType" ON "materialType" 
+  AREA "Index"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "materialType" ASCENDING 
+
+ADD INDEX "idxMaterialTypeID" ON "materialType" 
+  AREA "Index"
+  UNIQUE
+  INDEX-FIELD "materialTypeID" ASCENDING 
+
+ADD INDEX "rec_key" ON "materialType" 
+  AREA "Index"
+  UNIQUE
+  INDEX-FIELD "rec_key" ASCENDING 
+
+ADD TABLE "POReceiptLink"
+  AREA "Data"
+  LABEL "PO Receipt Linker"
+  DUMP-NAME "poreceiptlink"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg\poReceiptLink.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg/poReceiptLink.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg/poReceiptLink.p" CRC "?" 
+
+ADD FIELD "rec_key" OF "POReceiptLink" AS character 
+  FORMAT "x(21)"
+  INITIAL ""
+  LABEL "Record Key"
+  POSITION 2
+  MAX-WIDTH 42
+  ORDER 10
+
+ADD FIELD "poReceiptLinkID" OF "POReceiptLink" AS int64 
+  FORMAT ">,>>>,>>9"
+  INITIAL "0"
+  LABEL "PO Receipt Link ID"
+  POSITION 3
+  MAX-WIDTH 8
+  ORDER 20
+
+ADD FIELD "inventoryStockRecKey" OF "POReceiptLink" AS character 
+  FORMAT "x(21)"
+  INITIAL ""
+  LABEL "Inventory Stock Record Key"
+  POSITION 4
+  MAX-WIDTH 42
+  ORDER 30
+
+ADD FIELD "apInvoiceLineRecKey" OF "POReceiptLink" AS character 
+  DESCRIPTION "AP Invoice Line Record Key"
+  FORMAT "x(21)"
+  INITIAL ""
+  LABEL "AP Invoice Line Record Key"
+  POSITION 5
+  MAX-WIDTH 42
+  ORDER 40
+
+ADD FIELD "quantityInvoiced" OF "POReceiptLink" AS decimal 
+  FORMAT "->,>>>,>>9.99<<<<"
+  INITIAL "0"
+  LABEL "Quantity Invoiced"
+  POSITION 6
+  MAX-WIDTH 17
+  DECIMALS 2
+  ORDER 50
+
+ADD FIELD "quantityInvoicedUOM" OF "POReceiptLink" AS character 
+  FORMAT "x(3)"
+  INITIAL ""
+  LABEL "Quantity Invoiced UOM"
+  POSITION 7
+  MAX-WIDTH 6
+  ORDER 60
+
+ADD INDEX "idxInventoryInvoiceLine" ON "POReceiptLink" 
+  AREA "Index"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "inventoryStockRecKey" ASCENDING 
+  INDEX-FIELD "apInvoiceLineRecKey" ASCENDING 
+
+ADD INDEX "idxAPInvoiceLineRecKey" ON "POReceiptLink" 
+  AREA "Index"
+  INDEX-FIELD "apInvoiceLineRecKey" ASCENDING 
+
+ADD INDEX "idxInventoryStockRecKey" ON "POReceiptLink" 
+  AREA "Index"
+  INDEX-FIELD "inventoryStockRecKey" ASCENDING 
+
+ADD INDEX "idxPOReceiptLinkID" ON "POReceiptLink" 
+  AREA "Index"
+  UNIQUE
+  INDEX-FIELD "poReceiptLinkID" ASCENDING 
+
+ADD INDEX "rec_key" ON "POReceiptLink" 
+  AREA "Index"
+  UNIQUE
+  INDEX-FIELD "rec_key" ASCENDING 
+
+ADD FIELD "invoiceMessage1" OF "ar-ctrl" AS character
+  FORMAT "x(40)"
+  POSITION 26
+  INITIAL ""
+  LABEL "Invoice Message 1"
+  ORDER 230
+  MAX-WIDTH 16
+
+ADD FIELD "invoiceMessage2" OF "ar-ctrl" AS character
+  FORMAT "x(40)"
+  POSITION 27
+  INITIAL ""
+  LABEL "Invoice Message 2"
+  ORDER 240
+  MAX-WIDTH 16
+
+ADD FIELD "invoiceMessage3" OF "ar-ctrl" AS character
+  FORMAT "x(40)"
+  POSITION 28
+  INITIAL ""
+  LABEL "Invoice Message 3"
+  ORDER 250
+  MAX-WIDTH 16
+
+ADD FIELD "invoiceMessage4" OF "ar-ctrl" AS character
+  FORMAT "x(40)"
+  POSITION 29
+  INITIAL ""
+  LABEL "Invoice Message 4"
+  ORDER 260
+  MAX-WIDTH 16
+
+ADD FIELD "invoiceMessage5" OF "ar-ctrl" AS character
+  FORMAT "x(40)"
+  POSITION 30
+  INITIAL ""
+  LABEL "Invoice Message 5"
+  ORDER 270
+  MAX-WIDTH 16
+
+DROP FIELD "spare-char-1" OF "ar-ctrl"
+DROP FIELD "spare-char-2" OF "ar-ctrl"
+DROP FIELD "spare-char-3" OF "ar-ctrl"
+DROP FIELD "spare-char-4" OF "ar-ctrl"
+DROP FIELD "spare-char-5" OF "ar-ctrl"
+
+ADD FIELD "industryID" OF "cust" AS character
+  FORMAT "x(16)"
+  POSITION 176
+  INITIAL ""
+  LABEL "Industry"
+  ORDER 1740
+  MAX-WIDTH 32
+
+ADD FIELD "jobStatus" OF "dmiTrans" AS character
+  FORMAT "x"
+  POSITION 33
+  INITIAL ""
+  HELP "Enter Job Status (P)artial, (R)un, (C)complete"
+  LABEL "Job Status"
+  COLUMN-LABEL "Status"
+  ORDER 320
+  MAX-WIDTH 2
+
+ADD FIELD "udfGroup" OF "dynParamValue" AS character
+  FORMAT "x(30)"
+  POSITION 62
+  INITIAL ""
+  HELP "Enter UDF Group"
+  LABEL "UDF Group"
+  ORDER 540
+  MAX-WIDTH 60
+
+ADD FIELD "udfGroup" OF "dynSubject" AS character
+  FORMAT "x(30)"
+  POSITION 33
+  INITIAL ""
+  HELP "Enter UDF Group"
+  LABEL "UDF Group"
+  ORDER 290
+  MAX-WIDTH 60
+
+ADD FIELD "udfID" OF "dynSubjectColumn" AS character
+  FORMAT "x(5)"
+  POSITION 35
+  INITIAL ""
+  HELP "Enter UDF ID"
+  LABEL "UDF ID"
+  ORDER 330
+  MAX-WIDTH 10
+
+ADD FIELD "udfID" OF "dynValueColumn" AS character
+  FORMAT "x(5)"
+  POSITION 35
+  INITIAL ""
+  HELP "Enter UDF ID"
+  LABEL "UDF ID"
+  ORDER 340
+  MAX-WIDTH 10
+
+ADD FIELD "weightNetPerEA" OF "itemfg" AS decimal
+  FORMAT "->>,>>9.99<<<<"
+  POSITION 228
+  INITIAL "0"
+  HELP "Weight Per Each Net of Packing"
+  LABEL "Net Wgt/EA"
+  DECIMALS 2
+  ORDER 2240
+  MAX-WIDTH 17
+
+ADD FIELD "weightUOM" OF "itemfg" AS character
+  FORMAT "x(8)"
+  POSITION 229
+  INITIAL "LB"
+  HELP "Unit of Measure for Weight Fields"
+  LABEL "Wgt UoM"
+  ORDER 2250
+  MAX-WIDTH 16
+
+ADD FIELD "weightTarePerUnit" OF "itemfg" AS decimal
+  FORMAT "->>,>>9.99<<<<"
+  POSITION 230
+  INITIAL "0"
+  HELP "Packing Weight Per Each Unit/Pallet"
+  LABEL "Tare Wgt/Unit"
+  DECIMALS 2
+  ORDER 2260
+  MAX-WIDTH 17
+
+ADD FIELD "weightTarePerSubunit" OF "itemfg" AS decimal
+  FORMAT "->>,>>9.99<<<<"
+  POSITION 231
+  INITIAL "0"
+  HELP "Packing Weight Per Each SubUnit/Cas"
+  LABEL "Tare Wgt/Subunit"
+  DECIMALS 2
+  ORDER 2270
+  MAX-WIDTH 17
+
+ADD FIELD "weightPerEA" OF "itemfg" AS decimal
+  DESCRIPTION "Weight of the finished good per unit."
+  FORMAT ">>,>>9.99<<<<"
+  POSITION 232
+  INITIAL "0"
+  HELP "Enter weight of the finished good per unit."
+  LABEL "Weight Per Each"
+  COLUMN-LABEL "Weight Per Each"
+  DECIMALS 2
+  ORDER 2280
+  MAX-WIDTH 17
+
+ADD FIELD "priority" OF "job" AS integer
+  DESCRIPTION "Job Priority for AMS Scheduling - 0 (default) will apply automatic scheduling rules to the job.  1 - Prioritize the job on the schedule as next to run.  2 - Auto add the job to the schedule at next available spot"
+  FORMAT ">>9"
+  POSITION 69
+  INITIAL "0"
+  LABEL "Job Priority"
+  ORDER 680
+  MAX-WIDTH 4
+
+ADD FIELD "freightCalculationAmount" OF "oe-bolh" AS decimal
+  FORMAT "->,>>>,>>9.99<<<"
+  POSITION 95
+  INITIAL "0"
+  LABEL "Freight Calculation Amount"
+  DECIMALS 2
+  ORDER 900
+  MAX-WIDTH 17
+
+UPDATE FIELD "archived" OF "taskResult"
+  LABEL "Archived"
+
+ADD SEQUENCE "customerIndustryID_seq"
+  INITIAL 0
+  INCREMENT 1
+  CYCLE-ON-LIMIT no
+  MIN-VAL ?
+  MAX-VAL ?
+
+ADD SEQUENCE "customerPartID_seq"
+  INITIAL 0
+  INCREMENT 1
+  CYCLE-ON-LIMIT no
+  MIN-VAL ?
+  MAX-VAL ?
+
+ADD SEQUENCE "materialTypeID_seq"
+  INITIAL 0
+  INCREMENT 1
+  CYCLE-ON-LIMIT no
+  MIN-VAL ?
+  MAX-VAL ?
+
+ADD SEQUENCE "poReceiptLinkID_seq"
+  INITIAL 0
+  INCREMENT 1
+  CYCLE-ON-LIMIT no
+  MIN-VAL ?
+  MAX-VAL ?
+
+.
+PSC
+cpstream=ISO8859-1
+.
+0000012343

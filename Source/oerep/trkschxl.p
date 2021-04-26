@@ -78,7 +78,13 @@ RUN sys/ref/nk1look.p (INPUT cocode, "TruckPlan", "C" /* Logical */, NO /* check
                      OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
     cTruckPlan = cRtnChar NO-ERROR.                              
-
+    
+IF cTruckPlan EQ "Item Name"
+THEN  
+    ASSIGN cTruckPlan = "Item Name".
+ELSE 
+    ASSIGN cTruckPlan = "Item #".
+    
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -262,6 +268,7 @@ PROCEDURE MainLoop :
         /* Go to the Active Sheet. */
         chWorkbook:WorkSheets(viWorkSheetCount):Activate no-error.
 
+        RUN SetCellValue ("G4",cTruckPlan).
         /*Populate Truck Code and Route*/
         RUN SetCellValue ("L1",tt-report.truck-code).
         RUN SetCellValue ("B3",tt-report.load-no).

@@ -49,6 +49,16 @@ DO WITH TRANSACTION:
    {sys/inc/apautocheck.i}
 END.
 
+DEFINE VARIABLE lRecFound           AS LOGICAL          NO-UNDO.
+DEFINE VARIABLE lAPInvoiceLength    AS LOGICAL          NO-UNDO.
+DEFINE VARIABLE cNK1Value           AS CHARACTER        NO-UNDO.
+
+RUN sys/ref/nk1look.p (INPUT cocode, "APInvoiceLength", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cNK1Value, OUTPUT lRecFound).
+IF lRecFound THEN
+    lAPInvoiceLength = logical(cNK1Value) NO-ERROR.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -144,11 +154,11 @@ DEFINE VARIABLE scr-manual-check-no AS INTEGER FORMAT "999999":U INITIAL 0
 
 DEFINE VARIABLE vend_name AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
-     SIZE 42 BY 1 NO-UNDO.
+     SIZE 50 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 144 BY 5.95.
+     SIZE 150 BY 5.95.
 
 DEFINE RECTANGLE RECT-5
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -157,7 +167,7 @@ DEFINE RECTANGLE RECT-5
 DEFINE VARIABLE tg_overwrite-tax AS LOGICAL INITIAL no 
      LABEL "Overwrite Tax?" 
      VIEW-AS TOGGLE-BOX
-     SIZE 22 BY .81 NO-UNDO.
+     SIZE 21 BY .81 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -167,7 +177,7 @@ DEFINE FRAME F-Main
           LABEL "Vendor#"
           VIEW-AS FILL-IN 
           SIZE 20 BY 1
-     vend_name AT ROW 1.24 COL 37 COLON-ALIGNED NO-LABEL
+     vend_name AT ROW 1.24 COL 37.2 COLON-ALIGNED NO-LABEL
      ap-inv.inv-no AT ROW 2.19 COL 17 COLON-ALIGNED
           LABEL "Invoice#"
           VIEW-AS FILL-IN 
@@ -178,49 +188,49 @@ DEFINE FRAME F-Main
      ap-inv.due-date AT ROW 4.1 COL 17 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 20 BY 1
-     ap-inv.tax-gr AT ROW 2.43 COL 51.2 COLON-ALIGNED
+     ap-inv.tax-gr AT ROW 2.43 COL 59.8 COLON-ALIGNED
           LABEL "Tax Code"
           VIEW-AS FILL-IN 
           SIZE 10 BY 1
      btn-exrate AT ROW 5.52 COL 2 NO-TAB-STOP 
-     ap-inv.disc-% AT ROW 3.43 COL 51.2 COLON-ALIGNED
+     ap-inv.disc-% AT ROW 3.43 COL 59.8 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
-     ap-inv.disc-days AT ROW 4.43 COL 51.2 COLON-ALIGNED
+     ap-inv.disc-days AT ROW 4.43 COL 59.8 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 10 BY 1
      cb_freq AT ROW 5.52 COL 28.8 COLON-ALIGNED HELP
           "Please enter how often this journal entry will be applied"
-     scr-manual-check-no AT ROW 5.52 COL 61.4 COLON-ALIGNED NO-LABEL WIDGET-ID 10
-     ap-inv.stat AT ROW 2.43 COL 71 COLON-ALIGNED WIDGET-ID 2
+     scr-manual-check-no AT ROW 5.52 COL 71 COLON-ALIGNED NO-LABEL WIDGET-ID 10
+     ap-inv.stat AT ROW 2.43 COL 79.8 COLON-ALIGNED WIDGET-ID 2
           VIEW-AS FILL-IN 
           SIZE 3.2 BY 1
-     ap-inv.tax-amt AT ROW 1.48 COL 98 COLON-ALIGNED FORMAT "->>,>>>,>>9.99"
+     ap-inv.tax-amt AT ROW 1.48 COL 105.8 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 20.2 BY 1
-     ap-inv.net AT ROW 2.43 COL 98 COLON-ALIGNED FORMAT "->>,>>>,>>9.99"
+     ap-inv.net AT ROW 2.43 COL 105.8 COLON-ALIGNED FORMAT "->>,>>>,>>9.99"
           VIEW-AS FILL-IN 
           SIZE 20 BY 1
-     ap-inv.paid AT ROW 3.43 COL 98 COLON-ALIGNED FORMAT "->>,>>>,>>9.99"
+     ap-inv.paid AT ROW 3.43 COL 105.8 COLON-ALIGNED FORMAT "->>,>>>,>>9.99"
           VIEW-AS FILL-IN 
           SIZE 20 BY 1
-     ap-inv.freight AT ROW 4.43 COL 98 COLON-ALIGNED
+     ap-inv.freight AT ROW 4.43 COL 105.8 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 20 BY 1
-     ap-inv.due AT ROW 5.43 COL 98 COLON-ALIGNED FORMAT "->>,>>>,>>9.99"
-          LABEL "Balance Due"
+     ap-inv.due AT ROW 5.43 COL 105.8 COLON-ALIGNED
+          LABEL "Balance Due" FORMAT "->>,>>>,>>9.99"
           VIEW-AS FILL-IN 
           SIZE 20 BY 1
-     ap-inv.user-id AT ROW 1.24 COL 129 COLON-ALIGNED
+     ap-inv.user-id AT ROW 1.24 COL 135.6 COLON-ALIGNED
           LABEL "User"
           VIEW-AS FILL-IN 
           SIZE 11.6 BY 1
-     tg_overwrite-tax AT ROW 2.67 COL 122
-     btTags AT ROW 2.43 COL 76.4 WIDGET-ID 12
+     tg_overwrite-tax AT ROW 2.67 COL 129.4
+     btTags AT ROW 2.43 COL 85.2 WIDGET-ID 12
      "Manual Check#" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 4.76 COL 63 WIDGET-ID 8
+          SIZE 18 BY .62 AT ROW 4.76 COL 72 WIDGET-ID 8
      RECT-1 AT ROW 1 COL 1
-     RECT-5 AT ROW 1.24 COL 82
+     RECT-5 AT ROW 1.24 COL 90
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE NO-VALIDATE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -255,7 +265,7 @@ END.
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW V-table-Win ASSIGN
          HEIGHT             = 17
-         WIDTH              = 144.
+         WIDTH              = 150.6.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -290,15 +300,15 @@ ASSIGN
 /* SETTINGS FOR COMBO-BOX cb_freq IN FRAME F-Main
    NO-ENABLE 2                                                          */
 /* SETTINGS FOR FILL-IN ap-inv.due IN FRAME F-Main
-   NO-ENABLE EXP-LABEL  Exp-Format                                      */
+   NO-ENABLE EXP-LABEL EXP-FORMAT                                       */
 /* SETTINGS FOR FILL-IN ap-inv.freight IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN ap-inv.inv-no IN FRAME F-Main
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN ap-inv.net IN FRAME F-Main
-   NO-ENABLE  Exp-Format                                                 */
+   NO-ENABLE EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN ap-inv.paid IN FRAME F-Main
-   NO-ENABLE Exp-Format                                                  */
+   NO-ENABLE EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN scr-manual-check-no IN FRAME F-Main
    NO-ENABLE 1 2                                                        */
 /* SETTINGS FOR FILL-IN ap-inv.stat IN FRAME F-Main
@@ -375,7 +385,8 @@ ON CHOOSE OF btTags IN FRAME F-Main
 DO:
     RUN system/d-TagViewer.w (
         INPUT ap-inv.rec_key,
-        INPUT "HOLD"
+        INPUT "HOLD",
+        INPUT ""
         ).  
 END.
 
@@ -674,6 +685,7 @@ PROCEDURE hold-ap :
 ------------------------------------------------------------------------------*/
   DEFINE BUFFER bf-ap-inv FOR ap-inv.
   DEFINE VARIABLE hdTagProcs AS HANDLE NO-UNDO.
+  DEFINE VARIABLE cTagDescription AS CHARACTER NO-UNDO.
   
   RUN system/TagProcs.p PERSISTENT SET hdTagProcs.
   {&methods/lValidateError.i YES}
@@ -697,7 +709,19 @@ PROCEDURE hold-ap :
                     ).
             END.                        
 
-            bf-ap-inv.stat = if bf-ap-inv.stat eq "H" then "R" else "H".  
+            bf-ap-inv.stat = if bf-ap-inv.stat eq "H" then "R" else "H". 
+            IF bf-ap-inv.stat EQ "H" THEN 
+            do: 
+                cTagDescription = "Hold Status manually entered" .             
+                RUN AddTagHold (
+                                INPUT bf-ap-inv.rec_key,
+                                INPUT "ap-inv",
+                                INPUT cTagDescription,
+                                INPUT ""
+                                ).
+                     btTags:SENSITIVE = TRUE.
+            END.
+            
          END.
 
          FIND CURRENT ap-inv NO-LOCK NO-ERROR.
@@ -947,9 +971,11 @@ PROCEDURE local-initialize :
 
   /* Code placed here will execute PRIOR to standard behavior. */
 
+  RUN pAPInvoiceLength.
+  
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
-
+      
   /* Code placed here will execute AFTER standard behavior.    */
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"recurring-source",OUTPUT char-hdl).
 
@@ -974,7 +1000,7 @@ PROCEDURE local-initialize :
           scr-manual-check-no:HIDDEN = YES
           scr-manual-check-no:SENSITIVE = NO.
   END.
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1409,3 +1435,26 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pAPInvoiceLength V-table-Win 
+PROCEDURE pAPInvoiceLength :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    IF lAPInvoiceLength THEN DO:
+        DO WITH FRAME {&FRAME-NAME}:
+            ASSIGN ap-inv.inv-no:FORMAT = "x(20)".
+                ap-inv.inv-no:WIDTH-CHARS = 30.
+        END.
+    END.
+    ELSE DO: 
+        DO WITH FRAME {&FRAME-NAME}:
+            ASSIGN ap-inv.inv-no:FORMAT = "x(12)".
+            ap-inv.inv-no:WIDTH-CHARS = 20.
+        END.    
+    END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME

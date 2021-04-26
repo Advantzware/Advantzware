@@ -161,12 +161,20 @@ DEFINE VARIABLE OEPO#Xfer-log AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE oeDateChange-log AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE oeDateChange-chr AS CHARACTER   NO-UNDO.
 DEFINE VARIABLE gcLastDateChange AS CHARACTER   NO-UNDO.
-DEFINE VARIABLE hdPriceProcs AS HANDLE NO-UNDO.
+
 DEFINE VARIABLE hdSalesManProcs AS HANDLE NO-UNDO.
+DEFINE VARIABLE lAvailable AS LOGICAL NO-UNDO.
+DEF NEW SHARED VAR matrixTag AS CHARACTER NO-UNDO.
+DEFINE TEMP-TABLE ttTag LIKE tag.
+DEFINE TEMP-TABLE ttTempTag LIKE tag.
 
+DEFINE VARIABLE deAutoOver AS DECIMAL NO-UNDO.
+DEFINE VARIABLE deAutoUnder AS DECIMAL NO-UNDO.
+DEFINE VARIABLE cRtnChar        AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound       AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cFGOversDefault AS CHARACTER NO-UNDO.
+  
 RUN salrep/SalesManProcs.p PERSISTENT SET hdSalesManProcs.
-
-RUN oe/PriceProcs.p PERSISTENT SET hdPriceProcs.
 
 cocode = g_company.
 
@@ -536,6 +544,21 @@ DEFINE BUTTON btn-quotes
      SIZE 18 BY 1.14
      FONT 1.
 
+DEFINE BUTTON btnTags 
+     IMAGE-UP FILE "Graphics/16x16/question.png":U
+     LABEL "" 
+     SIZE 4.2 BY .95 TOOLTIP "Show Details".
+
+DEFINE BUTTON btnTagsOverrn 
+     IMAGE-UP FILE "Graphics/16x16/question.png":U
+     LABEL "" 
+     SIZE 4.2 BY .95 TOOLTIP "Show Details".
+
+DEFINE BUTTON btnTagsUnder 
+     IMAGE-UP FILE "Graphics/16x16/question.png":U
+     LABEL "" 
+     SIZE 4.2 BY .95 TOOLTIP "Show Details".
+
 DEFINE BUTTON Btn_Cancel AUTO-END-KEY 
      LABEL "Ca&ncel" 
      SIZE 15 BY 1.14
@@ -835,6 +858,9 @@ DEFINE FRAME d-oeitem
           SIZE 7 BY 1
      fi_jobStartDate AT ROW 15.67 COL 121 COLON-ALIGNED WIDGET-ID 22
      btn-quotes AT ROW 17.38 COL 6.4 WIDGET-ID 20
+     btnTagsOverrn AT ROW 11.33 COL 137.6 WIDGET-ID 36
+     btnTagsUnder AT ROW 12.33 COL 137.6 WIDGET-ID 38
+     btnTags AT ROW 2.52 COL 113 WIDGET-ID 40
      RECT-31 AT ROW 12.1 COL 1.8
      RECT-39 AT ROW 1 COL 1.8
      RECT-40 AT ROW 1 COL 80 WIDGET-ID 8
@@ -868,6 +894,10 @@ ASSIGN
        FRAME d-oeitem:SCROLLABLE       = FALSE
        FRAME d-oeitem:HIDDEN           = TRUE.
 
+/* SETTINGS FOR BUTTON btnTags IN FRAME d-oeitem
+   NO-ENABLE                                                            */
+/* SETTINGS FOR BUTTON btnTagsOverrn IN FRAME d-oeitem
+   NO-ENABLE                                                            */
 ASSIGN 
        Btn_Done:HIDDEN IN FRAME d-oeitem           = TRUE.
 
@@ -1054,7 +1084,7 @@ DO:
                  RUN display-fgitem NO-ERROR.
                  IF NOT ERROR-STATUS:ERROR THEN DO:
                    IF AVAIL oe-ord THEN
-                   RUN pGetOverUnderPct(oe-ord.cust-no,oe-ord.ship-id) .
+                   RUN pGetOverUnderPct(oe-ord.cust-no,oe-ord.ship-id,0) .
                    ll-ok-i-no = YES.
                    IF oescreen-log AND asi.oe-ordl.est-no:SCREEN-VALUE EQ "" THEN DO:
                    
@@ -1199,12 +1229,78 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME btnTags
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnTags d-oeitem
+ON CHOOSE OF btnTags IN FRAME d-oeitem
+DO:
+    RUN system/d-TagViewer.w (
+        INPUT oe-ordl.rec_key,
+        INPUT "",
+        INPUT "Price-Source"
+        ).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnTagsOverrn
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnTagsOverrn d-oeitem
+ON CHOOSE OF btnTagsOverrn IN FRAME d-oeitem
+DO:
+    RUN system/d-TagViewer.w (
+        INPUT oe-ordl.rec_key,
+        INPUT "",
+        INPUT "Over Percentage"
+        ).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnTagsUnder
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnTagsUnder d-oeitem
+ON CHOOSE OF btnTagsUnder IN FRAME d-oeitem
+DO:
+    RUN system/d-TagViewer.w (
+        INPUT oe-ordl.rec_key,
+        INPUT "",
+        INPUT "Under Percentage"
+        ).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME Btn_Cancel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Cancel d-oeitem
 ON CHOOSE OF Btn_Cancel IN FRAME d-oeitem /* Cancel */
 DO:
   lv-add-mode = NO.
-
+    RUN ClearTagsForGroup(
+        INPUT oe-ordl.rec_key,
+        INPUT "Price-Source"
+        ).
+    RUN ClearTagsForGroup(
+        INPUT oe-ordl.rec_key,
+        INPUT "Under Percentage"
+        ).
+    RUN ClearTagsForGroup(
+        INPUT oe-ordl.rec_key,
+        INPUT "Over Percentage"
+        ).
+    IF ip-type EQ  'Update' THEN       
+        FOR EACH ttTag:
+            RUN AddTagInfoForGroup(
+                INPUT ttTag.linkRecKey,
+                INPUT ttTag.linkTable,
+                INPUT ttTag.description,
+                INPUT "",
+                INPUT ttTag.groupCode
+                ). /*From TagProcs Super Proc*/
+        END.
   RUN exit-delete.
 
   IF lv-new-tandem NE ? THEN DO:
@@ -1349,8 +1445,12 @@ DO:
             price-ent                   = YES.
             
             IF oe-ordl.est-no:SCREEN-VALUE NE "" AND
-            oeestcom-log = YES THEN
-            RUN get-est-comm (INPUT ROWID(oe-ordl), INPUT YES).
+                  oeestcom-log = YES THEN
+                  RUN get-est-comm (INPUT ROWID(oe-ordl), INPUT YES).
+              RUN pAddTagInfoForGroup(
+                  oe-ordl.rec_key,
+                  INPUT "History Price"
+                    ).
           END.
           
         END. /* not matrixexits */
@@ -1742,6 +1842,7 @@ DO:
   DEF VAR ll-secure AS LOG NO-UNDO.
   DEFINE VARIABLE cLoc AS CHARACTER NO-UNDO.
   DEFINE VARIABLE cLocBin AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE lAvailable AS LOGICAL. 
 
 
   IF LASTKEY EQ -1 AND NOT historyButton THEN DO:
@@ -1770,8 +1871,8 @@ DO:
             cLocBin = shipto.loc-bin
             . 
             
-   IF avail oe-ord THEN
-      RUN pGetOverUnderPct(oe-ord.cust-no,oe-ord.ship-id) .
+   IF AVAIL oe-ord THEN
+      RUN pGetOverUnderPct(oe-ord.cust-no,oe-ord.ship-id,0) .
       
   IF ll-bypass THEN DO:
     ll-bypass = NO.
@@ -1877,17 +1978,29 @@ DO:
 
     IF oescreen-cha NE "item-qty" 
       AND oescreen-log 
-      AND asi.oe-ordl.est-no:SCREEN-VALUE EQ "" THEN DO:
-      IF oe-ordl.price:SENSITIVE  THEN
-        APPLY "entry" TO oe-ordl.price.
-      ELSE 
-        APPLY "entry" TO oe-ordl.pr-uom.
-      RETURN NO-APPLY.
-    END.
-    IF ll-new-record THEN
-      RUN itemfg-sman.    
+      AND asi.oe-ordl.est-no:SCREEN-VALUE EQ "" THEN 
+        DO:
+            IF oe-ordl.price:SENSITIVE  THEN
+                APPLY "entry" TO oe-ordl.price.
+            ELSE 
+                APPLY "entry" TO oe-ordl.pr-uom.
+            RETURN NO-APPLY.
+        END.
+        IF ll-new-record THEN
+            RUN itemfg-sman.    
 
- END. /* modified */
+    END. /* modified */
+    RUN Tag_IsTagRecordAvailableForGroup(
+        INPUT oe-ordl.rec_key,
+        INPUT "oe-ordl",
+        INPUT "Price-Source",
+        OUTPUT lAvailable
+        ).
+    IF lAvailable THEN  
+        btnTags:SENSITIVE = TRUE
+            .
+           ELSE 
+               btnTags:SENSITIVE = FALSE.  
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1941,6 +2054,20 @@ DO:
           RETURN NO-APPLY.
     END.        
     
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME oe-ordl.over-pct
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ordl.over-pct d-oeitem
+ON LEAVE OF oe-ordl.over-pct IN FRAME d-oeitem /* Overrun % */
+DO:
+  IF LASTKEY NE -1 AND 
+     deAutoOver NE oe-ordl.over-pct:INPUT-VALUE THEN 
+      RUN pAddTag("Over Percentage", "Enter Manualy").
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2294,16 +2421,22 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ordl.price d-oeitem
 ON LEAVE OF oe-ordl.price IN FRAME d-oeitem /* Price */
 DO:
+    DEFINE VARIABLE lAvailable AS LOGICAL.
   IF LASTKEY NE -1 THEN DO:
     IF DEC({&self-name}:SCREEN-VALUE) NE ld-prev-price THEN
     DO:
-       price-ent = YES.
+      price-ent = YES.
 
-       IF oe-ordl.est-no:SCREEN-VALUE NE "" AND
+      IF oe-ordl.est-no:SCREEN-VALUE NE "" AND
           oeestcom-log = YES THEN
           RUN get-est-comm (INPUT ROWID(oe-ordl), INPUT YES).
+      RUN pAddTagInfoForGroup(
+          INPUT oe-ordl.rec_key,
+          INPUT "Price was manually entered"
+          ).
     END.
-  END.
+    
+    END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2652,6 +2785,19 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME oe-ordl.under-pct
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ordl.under-pct d-oeitem
+ON LEAVE OF oe-ordl.under-pct IN FRAME d-oeitem /* Underrun % */
+DO:
+    IF LASTKEY NE -1 AND 
+    deAutoUnder NE oe-ordl.under-pct:INPUT-VALUE THEN 
+    RUN pAddTag("Under Percentage", "Enter Manualy").
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME oe-ordl.vend-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ordl.vend-no d-oeitem
 ON LEAVE OF oe-ordl.vend-no IN FRAME d-oeitem /* Vendor */
@@ -2705,7 +2851,7 @@ THEN FRAME {&FRAME-NAME}:PARENT = ACTIVE-WINDOW.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-
+    EMPTY TEMP-TABLE ttTag.
   DEF VAR ll-master AS LOG NO-UNDO.
 
   IF oe-ordl.vend-no:SCREEN-VALUE EQ "0" THEN
@@ -2767,6 +2913,16 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
          v-ship-id = bf-oe-rel.ship-id.
      END.
      RUN create-item.
+      RUN sys/ref/nk1look.p (g_company, "FGOversDefault", "C", NO, NO, "", "", 
+          OUTPUT cRtnChar, OUTPUT lRecFound).
+      IF lRecFound THEN
+      DO:         
+          cFGOversDefault = STRING(cRtnChar) NO-ERROR.      
+          IF cFGOversDefault NE  "FG category" THEN 
+            RUN pGetOverUnderPct("", "", ip-ord-no) .  
+      END.   
+      deAutoOver = oe-ordl.over-pct:INPUT-VALUE IN FRAME {&frame-name}.
+      deAutoUnder = oe-ordl.under-pct:INPUT-VALUE IN FRAME {&frame-name}.
      /*find oe-ordl where recid(oe-ordl) = lv-item-recid no-error.*/
   END.
   ELSE DO:
@@ -2797,7 +2953,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   FIND FIRST itemfg OF oe-ordl NO-LOCK WHERE
       itemfg.company EQ oe-ordl.company AND
       itemfg.i-no EQ oe-ordl.i-no NO-ERROR.
-
+    RUN getTagsToReset.
+    
   ASSIGN
    v-rel = oe-ordl.rel
    ld-prev-t-price = oe-ordl.t-price
@@ -2808,6 +2965,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
   DO WITH FRAME {&FRAME-NAME}:
 
+      deAutoOver = oe-ordl.over-pct:INPUT-VALUE IN FRAME {&frame-name}.
+      deAutoUnder = oe-ordl.under-pct:INPUT-VALUE IN FRAME {&frame-name}.
 /*     IF runship-log EQ YES THEN          */
 /*     DO:                                 */
 /*        ASSIGN                           */
@@ -2927,6 +3086,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       ll-ok-i-no = CAN-FIND(FIRST itemfg
                             WHERE itemfg.company EQ oe-ordl.company
                               AND itemfg.i-no    EQ oe-ordl.i-no).
+                                  
+        deAutoOver = oe-ordl.over-pct:INPUT-VALUE IN FRAME {&frame-name}.
+        deAutoUnder = oe-ordl.under-pct:INPUT-VALUE IN FRAME {&frame-name}.
     END.
 
 /*     IF runship-char EQ "RUN&SHIP Prompt" THEN DO: */
@@ -3415,18 +3577,26 @@ DO WITH FRAME {&FRAME-NAME}:
 
     CASE lcChoice:
         WHEN "PRICE" THEN DO:
-            ASSIGN 
-                oe-ordl.price:SCREEN-VALUE = STRING(lxPrice,">>>,>>>,>99.99<<<")
-                oe-ordl.pr-uom:SCREEN-VALUE = lxUom
-                .
-        END.
+        ASSIGN 
+            oe-ordl.price:SCREEN-VALUE  = STRING(lxPrice,">>>,>>>,>99.99<<<")
+            oe-ordl.pr-uom:SCREEN-VALUE = lxUom
+            .
+                RUN pAddTagInfoForGroup(
+            INPUT oe-ordl.rec_key,
+            INPUT "Quoted Price - Quote Number:" + string(iQutNo) + " Quantity:" + string(lxQty)
+            ).
+    END.
         WHEN "PRICEQTY" THEN DO:
             ASSIGN
                 oe-ordl.price:SCREEN-VALUE = STRING(lxPrice,">>>,>>>,>99.99<<<")                
-                oe-ordl.pr-uom:SCREEN-VALUE = lxUom
-                oe-ordl.qty:SCREEN-VALUE = STRING(lxQty,">>>,>>>,>>9")
-                .
-        END.
+            oe-ordl.pr-uom:SCREEN-VALUE = lxUom
+            oe-ordl.qty:SCREEN-VALUE = STRING(lxQty,">>>,>>>,>>9")
+            .
+                RUN pAddTagInfoForGroup(
+            INPUT oe-ordl.rec_key,
+            INPUT "Quoted Price - Quote Number:" + string(iQutNo) + " Quantity:" + string(lxQty)
+            ).
+    END.
     END CASE.
     RUN Conv_CalcTotalPrice(cocode, 
                         oe-ordl.i-no:SCREEN-VALUE,
@@ -4365,10 +4535,17 @@ PROCEDURE display-est-detail :
         oe-ordl.tax:SCREEN-VALUE = STRING(fGetTaxable(itemfg.company, eb.cust-no, eb.ship-id, itemfg.i-no),"Y/N")
         .
         IF DECIMAL(oe-ordl.price:SCREEN-VALUE) = 0 THEN
+        DO:
             ASSIGN
             oe-ordl.price:SCREEN-VALUE      = STRING(itemfg.sell-price) 
             oe-ordl.pr-uom:SCREEN-VALUE     = itemfg.sell-uom
             .  
+            
+            RUN pAddTagInfoForGroup(
+                INPUT oe-ordl.rec_key,
+                INPUT "Item fg sell price Item-No:" + string(itemfg.i-no)
+                ).
+        END.
           
      END.
 
@@ -4446,7 +4623,7 @@ PROCEDURE display-est-detail :
               DATE(oe-ordl.prom-date:SCREEN-VALUE) THEN
              oe-ordl.prom-date:SCREEN-VALUE = oe-ordl.req-date:SCREEN-VALUE.
         END.
-        RUN pGetOverUnderPct(b-eb.cust-no,b-eb.ship-id) .
+        RUN pGetOverUnderPct(b-eb.cust-no,b-eb.ship-id,0) .
      END. /*avail b-eb*/
 
      IF lastship-cha = "Stock/Custom" THEN DO:
@@ -4509,12 +4686,19 @@ PROCEDURE display-est-detail :
           END.
 
            IF op-error EQ NO THEN
+           DO:
               ASSIGN
                  oe-ordl.price:SCREEN-VALUE = STRING(lv-price)
                  oe-ordl.qty:SCREEN-VALUE = STRING(lv-qty)
                  oe-ordl.pr-uom:SCREEN-VALUE = lv-pr-uom
                  ll-got-qtprice = YES
                  v-rel = lv-rel.
+               RUN pAddTagInfoForGroup(
+                   INPUT oe-ordl.rec_key,
+                   INPUT "EST - Detail Quote EST No: " + STRING(quotehd.est-no) + " Quantity:" + string(lv-qty) + "Expiration Date: " + string(quotehd.expireDate)
+                   ). 
+           END.
+                 
         END.
      ELSE IF CAN-FIND(FIRST tt-item-qty-price WHERE
           tt-item-qty-price.tt-selected = YES AND
@@ -4534,9 +4718,13 @@ PROCEDURE display-est-detail :
            v-rel     = lv-rel
            op-error = NO
            oe-ordl.price:SCREEN-VALUE = STRING(lv-price)
-           oe-ordl.qty:SCREEN-VALUE = STRING(lv-qty)
-           oe-ordl.pr-uom:SCREEN-VALUE = lv-pr-uom
-           ll-got-qtprice = YES.
+             oe-ordl.qty:SCREEN-VALUE = STRING(lv-qty)
+             oe-ordl.pr-uom:SCREEN-VALUE = lv-pr-uom
+             ll-got-qtprice = YES.
+         RUN pAddTagInfoForGroup(
+             INPUT oe-ordl.rec_key,
+             INPUT "Item Qty Price"  + " Quantity:" + string(lv-qty)
+             ).
      END.
 
      ELSE
@@ -4597,6 +4785,10 @@ PROCEDURE display-est-detail :
                       INPUT-OUTPUT lv-qty).
 
      oe-ordl.qty:SCREEN-VALUE  = STRING(lv-qty).
+      RUN pAddTagInfoForGroup(
+          INPUT oe-ordl.rec_key,
+          INPUT "Quoted Price Quote Est:" + STRING(cQuoteEst) + " Quote No:" + STRING(lv-q-no) + " Quantity:" + string(lv-qty)
+          ).
   END.
   IF lv-qty GT 0 AND AVAILABLE est-qty THEN DO:
         DO iCount = 1 TO EXTENT(est-qty.qty):
@@ -4619,9 +4811,13 @@ PROCEDURE display-est-detail :
      IF AVAIL tt-item-qty-price THEN
         ASSIGN
            ll-got-qtprice = YES
-           lv-price = tt-item-qty-price.price
-           lv-pr-uom = tt-item-qty-price.uom
-           lv-q-no = tt-item-qty-price.q-no.
+              lv-price = tt-item-qty-price.price
+              lv-pr-uom = tt-item-qty-price.uom
+              lv-q-no = tt-item-qty-price.q-no.
+      RUN pAddTagInfoForGroup(
+          INPUT oe-ordl.rec_key,
+          INPUT "Item Qty Price Quote No:" + STRING(lv-q-no)  + " Quantity:" + string(lv-qty)
+          ).
   END.
 
   ASSIGN
@@ -4851,6 +5047,10 @@ DO WITH FRAME {&FRAME-NAME}:
                                      INPUT-OUTPUT lv-qty).
                     
                     oe-ordl.qty:SCREEN-VALUE = STRING(lv-qty).
+                     RUN pAddTagInfoForGroup(
+                         INPUT oe-ordl.rec_key,
+                         INPUT "Quoted Price Quote No:" + string(lv-q-no) + " Quantity:" + string(lv-qty)
+                         ).
                  END.
               ELSE
               DO:
@@ -4860,11 +5060,17 @@ DO WITH FRAME {&FRAME-NAME}:
                       (tt-item-qty-price.part-no EQ v-tmp-part AND v-tmp-part EQ ""))
                       NO-ERROR.
                  
-                 IF AVAIL tt-item-qty-price THEN
-                    ASSIGN
-                       lv-price = tt-item-qty-price.price
-                       lv-pr-uom = tt-item-qty-price.uom
-                       lv-q-no = tt-item-qty-price.q-no.
+                  IF AVAIL tt-item-qty-price THEN
+                  DO:
+                      ASSIGN
+                          lv-price  = tt-item-qty-price.price
+                          lv-pr-uom = tt-item-qty-price.uom
+                          lv-q-no   = tt-item-qty-price.q-no.
+                      RUN pAddTagInfoForGroup(
+                          INPUT oe-ordl.rec_key,
+                          INPUT "Item Qty Price Quote No:" + string(lv-q-no) + " Quantity:" + string(lv-qty)
+                          ).
+                  END.
               END.
 
               ASSIGN 
@@ -4933,9 +5139,20 @@ DO WITH FRAME {&FRAME-NAME}:
      IF oe-ordl.part-no:SCREEN-VALUE EQ "" THEN
          ASSIGN oe-ordl.part-no:SCREEN-VALUE = oe-ordl.i-no:SCREEN-VALUE .
 
-     IF oe-ordl.est-no:SCREEN-VALUE NE "" AND
-        oeestcom-log = YES THEN
-        RUN get-est-comm (INPUT ROWID(oe-ordl), INPUT YES).
+      IF oe-ordl.est-no:SCREEN-VALUE NE "" AND
+          oeestcom-log = YES THEN
+          RUN get-est-comm (INPUT ROWID(oe-ordl), INPUT YES).
+      
+          IF setFromHistory THEN 
+              RUN pAddTagInfoForGroup(
+                  INPUT oe-ordl.rec_key,
+                  INPUT "History Price"
+                  ).
+         ELSE IF itemfg.sell-price <> 0 THEN 
+              RUN pAddTagInfoForGroup(
+                  INPUT oe-ordl.rec_key,
+                  INPUT "Item Sell Price"
+                  ).
   END.
 
   IF oe-ordl.est-no:screen-value EQ "" THEN DO:
@@ -5116,9 +5333,19 @@ DO WITH FRAME {&frame-name}:
             oe-ordl.part-dscr2:screen-value = itemfg.part-dscr2
             oe-ordl.part-dscr3:screen-value = itemfg.part-dscr3    .
 
-     IF oe-ordl.est-no:SCREEN-VALUE NE "" AND
-        oeestcom-log = YES THEN
-        RUN get-est-comm (INPUT ROWID(oe-ordl), INPUT YES).
+      IF oe-ordl.est-no:SCREEN-VALUE NE "" AND
+          oeestcom-log = YES THEN
+          RUN get-est-comm (INPUT ROWID(oe-ordl), INPUT YES).
+      IF setFromHistory THEN 
+          RUN pAddTagInfoForGroup(
+              INPUT oe-ordl.rec_key,
+              INPUT "History Price "
+              ). 
+      ELSE IF itemfg.sell-price <> 0 THEN 
+          RUN pAddTagInfoForGroup(
+              INPUT oe-ordl.rec_key,
+              INPUT "Item Sell Price"
+              ). 
   END.
 
   IF oe-ordl.est-no:screen-value EQ "" THEN DO:
@@ -6059,7 +6286,13 @@ PROCEDURE get-price :
           NO-LOCK NO-ERROR.
       IF AVAIL itemfg THEN DO:          
         RUN oe/oe-price.p.
-
+        IF matrixExists THEN 
+        DO:  
+            RUN pAddTagInfoForGroup(
+                INPUT oe-ordl.rec_key,
+                INPUT "Price Matrix " + matrixTag
+                ). 
+        END.
         FIND oe-ordl WHERE ROWID(oe-ordl) EQ lv-rowid NO-ERROR.
         DISPLAY oe-ordl.price oe-ordl.pr-uom oe-ordl.t-price.
         RUN Conv_CalcTotalPrice(cocode, 
@@ -6249,6 +6482,94 @@ PROCEDURE getQtyPrice :
              historyPrUOM = tt-historyPrUOM
              setFromHistory = tt-setFromHistory.
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE getTagsToReset d-oeitem 
+PROCEDURE getTagsToReset :
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lAvailable AS LOGICAL NO-UNDO.
+    
+    EMPTY TEMP-TABLE ttTag.
+
+    RUN Tag_IsTagRecordAvailableForGroup(
+        INPUT oe-ordl.rec_key,
+        INPUT "oe-ordl",
+        INPUT "Price-Source",
+        OUTPUT lAvailable
+        ).
+    IF lAvailable THEN  
+    DO:
+        EMPTY TEMP-TABLE ttTempTag.
+        RUN GetTags(
+            INPUT  oe-ordl.rec_key, 
+            INPUT  "oe-ordl", 
+            INPUT  "Price-Source",   
+            OUTPUT  TABLE  ttTempTag
+            ).
+        FOR EACH ttTempTag:
+            CREATE ttTag.
+            BUFFER-COPY ttTempTag TO ttTag.
+        END.      
+        btnTags:SENSITIVE IN FRAME {&frame-name}  = TRUE.
+    END.
+    ELSE     
+        btnTags:SENSITIVE IN FRAME {&frame-name}  = FALSE.
+        
+    RUN Tag_IsTagRecordAvailableForGroup(
+        INPUT oe-ordl.rec_key,
+        INPUT "oe-ordl",
+        INPUT "Over Percentage",
+        OUTPUT lAvailable
+        ).
+    IF lAvailable THEN  
+    DO:
+        EMPTY TEMP-TABLE ttTempTag.
+        RUN GetTags(
+            INPUT  oe-ordl.rec_key, 
+            INPUT  "oe-ordl", 
+            INPUT  "Over Percentage",   
+            OUTPUT  TABLE  ttTempTag
+            ).
+        FOR EACH ttTempTag:
+            CREATE ttTag.
+            BUFFER-COPY ttTempTag TO ttTag.
+        END.
+        btnTagsOverrn:SENSITIVE IN FRAME {&frame-name} = TRUE.
+    END.
+    ELSE 
+        btnTagsOverrn:SENSITIVE IN FRAME {&frame-name} = FALSE.
+        
+    RUN Tag_IsTagRecordAvailableForGroup(
+        INPUT oe-ordl.rec_key,
+        INPUT "oe-ordl",
+        INPUT "Under Percentage",
+        OUTPUT lAvailable
+        ).
+    IF lAvailable THEN  
+    DO:
+        EMPTY TEMP-TABLE ttTempTag.
+        RUN GetTags(
+            INPUT  oe-ordl.rec_key, 
+            INPUT  "oe-ordl", 
+            INPUT  "Under Percentage",   
+            OUTPUT  TABLE  ttTempTag
+            ).
+        FOR EACH ttTempTag:
+            CREATE ttTag.
+            BUFFER-COPY ttTempTag TO ttTag.
+        END.       
+        btnTagsUnder:SENSITIVE IN FRAME {&frame-name}  = TRUE.
+    END.
+    ELSE 
+    
+        btnTagsUnder:SENSITIVE IN FRAME {&frame-name}  = FALSE.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -6506,6 +6827,11 @@ PROCEDURE leave-qty :
                             OUTPUT lv-q-no,
                             INPUT-OUTPUT lv-qty).
              oe-ordl.qty:SCREEN-VALUE = STRING(lv-qty).
+              
+              RUN pAddTagInfoForGroup(
+                  INPUT oe-ordl.rec_key,
+                  INPUT "Quoted Price Quote No:" + string(lv-q-no) + " Quantity: " + string(lv-qty) 
+                  ).
           END.
           ELSE
           DO:
@@ -6516,11 +6842,15 @@ PROCEDURE leave-qty :
              ASSIGN
                 lv-price = tt-item-qty-price.price
                 lv-pr-uom = tt-item-qty-price.uom
-                lv-q-no = tt-item-qty-price.q-no.
-             IF llGotLowerPrice THEN DO:
-                llGotLowerPrice = NO.
-                DELETE tt-item-qty-price.
-
+                  lv-q-no = tt-item-qty-price.q-no.
+              IF llGotLowerPrice THEN 
+              DO:
+                  llGotLowerPrice = NO.
+                  DELETE tt-item-qty-price.
+                  RUN pAddTagInfoForGroup(
+                      INPUT oe-ordl.rec_key,
+                      INPUT "Item Qty Price Quote No:" + string(lv-q-no)
+                      ).
              END.
           END.
 
@@ -6941,7 +7271,7 @@ PROCEDURE OnSaveButton :
             lPMPrompt = NO 
             lPMBlock  = NO.
       
-    RUN CheckPriceMatrix IN hdPriceProcs ( cocode, oe-ordl.i-no:SCREEN-VALUE,  oe-ord.cust-no, oe-ord.ship-id, DEC(oe-ordl.qty:SCREEN-VALUE),DEC(oe-ordl.price:SCREEN-VALUE),
+    RUN Price_CheckPriceMatrix ( cocode, oe-ordl.i-no:SCREEN-VALUE,  oe-ord.cust-no, oe-ord.ship-id, DEC(oe-ordl.qty:SCREEN-VALUE),DEC(oe-ordl.price:SCREEN-VALUE),
         OUTPUT lPMPrompt, OUTPUT cPMMessage, OUTPUT lPMBlock).
     IF lPMPrompt THEN 
     DO: 
@@ -7007,7 +7337,7 @@ PROCEDURE OnSaveButton :
 
         END.
 
-        RUN CheckPriceHoldForOrder IN hdPriceProcs(ROWID(oe-ord),
+        RUN Price_CheckPriceHoldForOrder(ROWID(oe-ord),
                                               YES, /*Prompt*/
                                               YES, /*Set oe-ord hold fields*/
                                               OUTPUT lPriceHold, 
@@ -7472,6 +7802,106 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pAddTag d-oeitem 
+PROCEDURE pAddTag :
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+   DEFINE INPUT PARAMETER ipcSource AS CHARACTER NO-UNDO.
+   DEFINE INPUT PARAMETER ipcDesc AS CHARACTER NO-UNDO.
+   
+   DEFINE VARIABLE  lAvailable AS LOGICAL NO-UNDO.
+   
+   DO WITH FRAME {&frame-name}:   
+        RUN ClearTagsForGroup(
+            INPUT oe-ordl.rec_key,
+            INPUT ipcSource
+            ).
+        RUN AddTagInfoForGroup(
+            INPUT oe-ordl.rec_key,
+            INPUT "oe-ordl",
+            INPUT ipcDesc,
+            INPUT "",
+            INPUT ipcSource
+            ). /*From TagProcs Super Proc*/ 
+        RUN Tag_IsTagRecordAvailableForGroup(
+            INPUT oe-ordl.rec_key,
+            INPUT "oe-ordl",
+            INPUT ipcSource,
+            OUTPUT lAvailable
+            ).
+        IF lAvailable THEN  
+        DO:
+            IF ipcSource = "Over Percentage" THEN         
+                btnTagsOverrn:SENSITIVE = TRUE.
+            ELSE IF ipcSource = "Under Percentage" THEN 
+                btnTagsUnder:SENSITIVE = TRUE.
+        END.
+        ELSE 
+        DO:
+            IF ipcSource = "Over Percentage" THEN 
+                btnTagsOverrn:SENSITIVE = FALSE.
+            ELSE IF ipcSource = "Under Percentage" THEN 
+                btnTagsUnder:SENSITIVE = FALSE.
+        END.
+   
+    END.  
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pAddTagInfoForGroup d-oeitem 
+PROCEDURE pAddTagInfoForGroup PRIVATE :
+/*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcRecKey AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcMessage AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE lAvailable AS LOGICAL NO-UNDO.
+    
+    DEFINE BUFFER bf-oe-ordl FOR oe-ordl.
+    
+    DO WITH FRAME {&frame-name}:
+    END.
+    
+    FIND FIRST bf-oe-ordl NO-LOCK 
+        WHERE bf-oe-ordl.rec_key EQ ipcRecKey NO-ERROR .
+    IF AVAIL bf-oe-ordl THEN
+    DO:
+        
+        RUN ClearTagsForGroup(
+            INPUT bf-oe-ordl.rec_key,
+            INPUT "Price-Source"
+            ).
+        RUN AddTagInfoForGroup(
+            INPUT bf-oe-ordl.rec_key,
+            INPUT "oe-ordl",
+            INPUT ipcMessage,
+            INPUT "",
+            INPUT "Price-Source"
+            ). /*From TagProcs Super Proc*/ 
+        RUN Tag_IsTagRecordAvailableForGroup(
+            INPUT bf-oe-ordl.rec_key,
+            INPUT "oe-ordl",
+            INPUT "Price-Source",
+            OUTPUT lAvailable
+            ).
+        IF lAvailable THEN  
+            btnTags:SENSITIVE = TRUE.
+        ELSE 
+            btnTags:SENSITIVE = FALSE.
+    END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCrtPart d-oeitem 
 PROCEDURE pCrtPart :
 /*------------------------------------------------------------------------------
@@ -7519,6 +7949,79 @@ PROCEDURE pCrtPart :
         END.
         
     END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetMiscEst d-oeitem 
+PROCEDURE pGetMiscEst :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+     DEFINE INPUT-OUTPUT PARAMETER ipo-Recid AS RECID NO-UNDO.
+     DEFINE BUFFER bff-est FOR est .
+     DEFINE BUFFER bff-eb FOR eb.
+   
+     FIND FIRST bff-eb WHERE RECID(bff-eb) = ipo-Recid NO-LOCK NO-ERROR.
+     IF AVAIL bff-eb THEN
+     FIND FIRST bff-est WHERE bff-est.company = bff-eb.company
+                AND bff-est.est-no = bff-eb.est-no NO-LOCK NO-ERROR.
+                
+     DO WITH FRAME {&FRAME-NAME}:                
+         IF AVAIL bff-eb AND AVAIL bff-est AND bff-est.estimateTypeID EQ "MISC" THEN DO:
+         
+         FIND FIRST eb NO-LOCK
+             WHERE eb.company EQ bff-eb.company
+               AND trim(eb.est-no) EQ trim(bff-eb.sourceEstimate)  /*trim(bff-eb.est-no)*/
+               AND eb.stock-no EQ bff-eb.stock-no NO-ERROR. 
+               IF AVAIL eb THEN DO:
+                 ipo-Recid = RECID(eb) .                 
+                 oe-ordl.SourceEstimateID:SCREEN-VALUE = bff-eb.est-no .
+                 oe-ordl.est-no:SCREEN-VALUE = bff-eb.sourceEstimate.
+               END.
+         END.
+     END.
+     
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetOverUnderPct d-oeitem 
+PROCEDURE pGetOverUnderPct :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DEFINE INPUT PARAMETER ipcCustNo AS CHARACTER NO-UNDO .
+   DEFINE INPUT PARAMETER ipcShipID AS CHARACTER NO-UNDO .
+   DEFINE INPUT PARAMETER ipiOrdNo  AS INTEGER   NO-UNDO .
+   DEFINE VARIABLE dOverPer AS DECIMAL NO-UNDO.
+   DEFINE VARIABLE dUnderPer AS DECIMAL NO-UNDO.
+   DEFINE BUFFER bf-shipto FOR shipto .
+   DEFINE VARIABLE cTagDesc   AS CHARACTER NO-UNDO.
+   DEFINE VARIABLE lAvailable AS LOGICAL   NO-UNDO.
+
+  DO WITH FRAME {&FRAME-NAME}:                   
+        RUN oe/GetOverUnderPct.p(g_company, 
+                               ipcCustNo,
+                               TRIM(ipcShipID),
+                               oe-ordl.i-no:SCREEN-VALUE,
+                               ipiOrdNo,
+                               OUTPUT dOverPer , OUTPUT dUnderPer,  OUTPUT cTagDesc  ) .
+                               oe-ordl.over-pct:SCREEN-VALUE = STRING(dOverPer).
+                               oe-ordl.Under-pct:SCREEN-VALUE = STRING(dUnderPer). 
+         RUN pAddTag("Over Percentage", cTagDesc).
+         RUN pAddTag("Under Percentage", cTagDesc).
+         deAutoOver = dOverPer.
+   deAutoUnder =  dUnderPer.                                                   
+  END.
+
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -7697,9 +8200,13 @@ PROCEDURE prev-quote-proc :
                     WHEN "PRICE" THEN DO:
                         ASSIGN 
                             oe-ordl.price:SCREEN-VALUE = STRING(lxPrice,">>>,>>>,>99.99<<<")
-                            oe-ordl.pr-uom:SCREEN-VALUE = lxUom                                      
-                            lv-price = STRING(lxPrice,">>>,>>>,>99.99<<<")
-                            lv-pruom = lxUom.
+                        oe-ordl.pr-uom:SCREEN-VALUE = lxUom                                      
+                        lv-price = STRING(lxPrice,">>>,>>>,>99.99<<<")
+                        lv-pruom = lxUom.
+                    RUN pAddTagInfoForGroup(
+                        INPUT oe-ordl.rec_key,
+                        INPUT "Quoted Price Quote No:" + string(lxQno) + " Quantity: " + string(lxQty)
+                        ).
                     END.
                     WHEN "PRICEQTY" THEN DO:
                         ASSIGN
@@ -8981,35 +9488,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetOverUnderPct d-oeitem 
-PROCEDURE pGetOverUnderPct :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-   DEFINE INPUT PARAMETER ipcCustNo AS CHARACTER NO-UNDO .
-   DEFINE INPUT PARAMETER ipcShipID AS CHARACTER NO-UNDO .
-   DEFINE VARIABLE dOverPer AS DECIMAL NO-UNDO.
-   DEFINE VARIABLE dUnderPer AS DECIMAL NO-UNDO.
-   DEFINE BUFFER bf-shipto FOR shipto .
-
-  DO WITH FRAME {&FRAME-NAME}:                   
-        RUN oe/GetOverUnderPct.p(g_company, 
-                               ipcCustNo,
-                               TRIM(ipcShipID),
-                               oe-ordl.i-no:SCREEN-VALUE,
-                               OUTPUT dOverPer , OUTPUT dUnderPer ) .
-                               oe-ordl.over-pct:SCREEN-VALUE = STRING(dOverPer).
-                               oe-ordl.Under-pct:SCREEN-VALUE = STRING(dUnderPer).                         
-  END.
-
-  {methods/lValidateError.i NO}
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-cas-cnt d-oeitem 
 PROCEDURE valid-cas-cnt :
 /*------------------------------------------------------------------------------
@@ -9352,8 +9830,8 @@ PROCEDURE valid-s-man :
             OUTPUT cMessage
             ).
         IF NOT lSuccess THEN DO:    
-            MESSAGE cMessage 
-                VIEW-AS ALERT-BOX ERROR.
+          /*  MESSAGE cMessage 
+                VIEW-AS ALERT-BOX ERROR.*/
             IF ip-int EQ 3 THEN APPLY "entry" TO oe-ordl.s-man[3].
             ELSE
             IF ip-int EQ 2 THEN APPLY "entry" TO oe-ordl.s-man[2].
@@ -10122,42 +10600,6 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetMiscEst d-oeitem 
-PROCEDURE pGetMiscEst :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-     DEFINE INPUT-OUTPUT PARAMETER ipo-Recid AS RECID NO-UNDO.
-     DEFINE BUFFER bff-est FOR est .
-     DEFINE BUFFER bff-eb FOR eb.
-   
-     FIND FIRST bff-eb WHERE RECID(bff-eb) = ipo-Recid NO-LOCK NO-ERROR.
-     IF AVAIL bff-eb THEN
-     FIND FIRST bff-est WHERE bff-est.company = bff-eb.company
-                AND bff-est.est-no = bff-eb.est-no NO-LOCK NO-ERROR.
-                
-     DO WITH FRAME {&FRAME-NAME}:                
-         IF AVAIL bff-eb AND AVAIL bff-est AND bff-est.estimateTypeID EQ "MISC" THEN DO:
-         
-         FIND FIRST eb NO-LOCK
-             WHERE eb.company EQ bff-eb.company
-               AND trim(eb.est-no) EQ trim(bff-eb.sourceEstimate)  /*trim(bff-eb.est-no)*/
-               AND eb.stock-no EQ bff-eb.stock-no NO-ERROR. 
-               IF AVAIL eb THEN do:
-                 ipo-Recid = RECID(eb) .                 
-                 oe-ordl.SourceEstimateID:SCREEN-VALUE = bff-eb.est-no .
-                 oe-ordl.est-no:SCREEN-VALUE = bff-eb.sourceEstimate.
-               END.
-         END.
-     END.
-     
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME    
-
 /* ************************  Function Implementations ***************** */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetTaxable d-oeitem 
@@ -10189,7 +10631,7 @@ FUNCTION fIsCustPriceHoldExempt RETURNS LOGICAL PRIVATE
     DEFINE VARIABLE lPriceHold AS LOGICAL NO-UNDO.
     DEFINE VARIABLE lPriceHoldActive AS LOGICAL NO-UNDO.
         
-        RUN CheckPriceHoldForCustShip IN hdPriceProcs (ipcCompany, ipcCustomerID, ipcShipToID, OUTPUT lPriceHold, OUTPUT lPriceHoldActive).
+        RUN Price_CheckPriceHoldForCustShip (ipcCompany, ipcCustomerID, ipcShipToID, OUTPUT lPriceHold, OUTPUT lPriceHoldActive).
 
     lCustExempt = NOT lPriceHold AND lPriceHoldActive.
     

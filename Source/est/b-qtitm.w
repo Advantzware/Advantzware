@@ -51,9 +51,6 @@ cocode = g_company.
 
 DEF TEMP-TABLE tt-quoteitm FIELD row-id AS ROWID INDEX row-id row-id.
 DEF VAR v-quoflg AS LOG NO-UNDO.
-DEFINE VARIABLE hdPriceProcs AS HANDLE.
-
-RUN oe/PriceProcs.p PERSISTENT SET hdPriceProcs.
 
 ll-new-file = CAN-FIND(FIRST asi._file WHERE asi._file._file-name EQ "cust-part").
 
@@ -191,12 +188,12 @@ DEFINE BROWSE Browser-Table
       quoteitm.part-dscr2 COLUMN-LABEL "Item Description 2" FORMAT "x(30)":U
       quoteitm.style COLUMN-LABEL "Style" FORMAT "x(4)":U
       display-qty() @ quoteitm.qty
-      quoteitm.qty FORMAT ">>>,>>>,>>9":U
-      quoteitm.price FORMAT ">>,>>>,>>9.999999":U WIDTH 19.2
+      quoteitm.qty FORMAT ">>>,>>>,>>9":U        
       display-price() @ quoteitm.price
-      quoteitm.uom FORMAT "x(3)":U
-      quoteitm.size FORMAT "x(30)":U
+      quoteitm.price FORMAT ">>,>>>,>>9.999999":U WIDTH 19.2
       display-uom() @ quoteitm.uom
+      quoteitm.uom FORMAT "x(3)":U
+      quoteitm.size FORMAT "x(30)":U       
       quoteitm.i-dscr COLUMN-LABEL "Board" FORMAT "x(30)":U
       quoteitm.i-coldscr COLUMN-LABEL "Color" FORMAT "x(20)":U
   ENABLE
@@ -319,16 +316,16 @@ ASSIGN
 "display-qty() @ quoteitm.qty" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   > ASI.quoteitm.qty
 "quoteitm.qty" ? ">>>,>>>,>>9" "decimal" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[8]   > ASI.quoteitm.price
-"quoteitm.price" ? ">>,>>>,>>9.999999" "decimal" ? ? ? ? ? ? yes ? no no "19.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[9]   > "_<CALC>"
+    _FldNameList[8]   > "_<CALC>"
 "display-price() @ quoteitm.price" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[10]   > ASI.quoteitm.uom
-"quoteitm.uom" ? ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[11]   > ASI.quoteitm.size
-"quoteitm.size" ? ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[12]   > "_<CALC>"
+     _FldNameList[9]   > ASI.quoteitm.price
+"quoteitm.price" ? ">>,>>>,>>9.999999" "decimal" ? ? ? ? ? ? yes ? no no "19.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[10]   > "_<CALC>"
 "display-uom() @ quoteitm.uom" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[11]   > ASI.quoteitm.uom
+"quoteitm.uom" ? ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[12]   > ASI.quoteitm.size
+"quoteitm.size" ? ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no    
      _FldNameList[13]   > ASI.quoteitm.i-dscr
 "quoteitm.i-dscr" "Board" ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[14]   > ASI.quoteitm.i-coldscr
@@ -457,6 +454,7 @@ DO:
       
    {src/adm/template/brschnge.i}
    /*{methods/template/local/setvalue.i}*/
+   {methods/run_link.i "container-source" "pReOpenQuery" }
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1186,7 +1184,7 @@ PROCEDURE new-part-no :
         FIND FIRST cust WHERE cust.company = itemfg.company
             AND cust.cust-no = itemfg.cust-no NO-LOCK NO-ERROR.
         IF AVAIL cust THEN
-            RUN GetPriceMatrixPriceSimple IN hdPriceProcs (itemfg.company, itemfg.i-no, cust.cust-no, "", DECIMAL(v-i-qty),
+            RUN Price_GetPriceMatrixPriceSimple(itemfg.company, itemfg.i-no, cust.cust-no, "", DECIMAL(v-i-qty),
                                           OUTPUT lMatrixExists, INPUT-OUTPUT v-i-price, INPUT-OUTPUT v-i-uom).
       ASSIGN
        quoteitm.part-dscr1:SCREEN-VALUE IN BROWSE {&browse-name} = itemfg.i-name
@@ -1275,6 +1273,21 @@ PROCEDURE state-changed :
       {src/adm/template/bstates.i}
   END CASE.
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetRowidItem B-table-Win 
+PROCEDURE pGetRowidItem :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  def output param oprwRowid AS ROWID NO-UNDO.
+  
+  oprwRowid = ROWID(quoteitm).
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

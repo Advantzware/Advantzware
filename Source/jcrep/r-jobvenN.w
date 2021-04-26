@@ -64,15 +64,28 @@ DEF VAR cFieldType AS cha NO-UNDO.
 DEF VAR iColumnLength AS INT NO-UNDO.
 DEF VAR cTextListToDefault AS cha NO-UNDO.
 
+DEFINE VARIABLE lRecFound           AS LOGICAL          NO-UNDO.
+DEFINE VARIABLE lAPInvoiceLength    AS LOGICAL          NO-UNDO.
+DEFINE VARIABLE cNK1Value           AS CHARACTER        NO-UNDO.
 
-ASSIGN cTextListToSelect = "CUST #,CUST NAME,JOB #,FG ITEM,QUANTITY,PRICE,UOM,VENDOR NAME,INVOICE," +
-                       "INV QTY,REC QTY,P & P QTY PRODUCED,DIFF,VEND $ W/O SETUP,$ PER SHEET"
+RUN sys/ref/nk1look.p (INPUT cocode, "APInvoiceLength", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cNK1Value, OUTPUT lRecFound).
+IF lRecFound THEN
+    lAPInvoiceLength = logical(cNK1Value) NO-ERROR.
+
+ASSIGN cTextListToSelect  = "CUST #,CUST NAME,JOB #,FG ITEM,QUANTITY,PRICE,UOM,VENDOR NAME,INVOICE," +
+                            "INV QTY,REC QTY,P & P QTY PRODUCED,DIFF,VEND $ W/O SETUP,$ PER SHEET"
        cFieldListToSelect = "cust,cust-name,job,fgitem,qty,price,uom,vend-name,inv," +
                             "inv-qty,rec-qty,qty-prod,diff,vend-setup,per-sheet"
-       cFieldLength = "8,30,9,15,8,10,3,30,8," + "10,10,8,6,10,5"
-       cFieldType = "c,c,c,c,i,i,c,c,i," + "i,i,i,i,i,i" 
+       cFieldType         = "c,c,c,c,i,i,c,c,c," + "i,i,i,i,i,i" 
     .
-
+IF lAPInvoiceLength THEN
+      ASSIGN cFieldLength = "8,30,9,15,8,10,3,30,20," + "10,10,8,6,10,5".
+ELSE
+      ASSIGN cFieldLength = "8,30,9,15,8,10,3,30,12," + "10,10,8,6,10,5".
+      
+      
 {sys/inc/ttRptSel.i}
 ASSIGN cTextListToDefault  = "CUST #,CUST NAME,JOB #,FG ITEM,QUANTITY,PRICE,UOM,VENDOR NAME,INVOICE," +
                              "INV QTY,REC QTY,P & P QTY PRODUCED,DIFF,VEND $ W/O SETUP,$ PER SHEET" .
@@ -1760,7 +1773,7 @@ display "" with frame r-top.
                          WHEN "price"  THEN cVarValue = /*IF AVAIL oe-ordl THEN STRING(oe-ordl.price,">>>>>>9.99<<<<") ELSE*/ "".
                          WHEN "uom"   THEN cVarValue = /*IF AVAIL oe-ordl THEN STRING(oe-ordl.pr-uom,"x(3)") ELSE*/ "" .
                          WHEN "vend-name"  THEN cVarValue = STRING(vend.name) .
-                         WHEN "inv"    THEN cVarValue = STRING(ap-inv.inv-no,"x(8)").
+                         WHEN "inv"    THEN cVarValue = IF lAPInvoiceLength THEN STRING(ap-inv.inv-no,"x(20)") ELSE STRING(ap-inv.inv-no,"x(12)").
                          WHEN "inv-qty"   THEN cVarValue = STRING(v-inv-qty,"->>>>>>>>9").
                          WHEN "rec-qty"   THEN cVarValue = STRING(v-mat-qty,"->>>>>>>>9") .
                          WHEN "qty-prod"  THEN cVarValue = STRING(v-fg-qty,">>>>>>>9") .

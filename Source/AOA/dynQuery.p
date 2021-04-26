@@ -12,6 +12,7 @@ DEFINE VARIABLE cCompany       AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCustListField AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cDate          AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cEndCustList   AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cUDFField      AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cParam         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cQueryStr      AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cStartCustList AS CHARACTER NO-UNDO.
@@ -20,6 +21,7 @@ DEFINE VARIABLE hBuffer        AS HANDLE    NO-UNDO EXTENT 200.
 DEFINE VARIABLE hDynCalcField  AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hQuery         AS HANDLE    NO-UNDO.
 DEFINE VARIABLE idx            AS INTEGER   NO-UNDO.
+DEFINE VARIABLE lUDF           AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lUseCustList   AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lOK            AS LOGICAL   NO-UNDO.
 
@@ -68,6 +70,54 @@ cQueryStr = cQueryStr
           + " AND ttCustList.log-fld EQ YES"
           .
 
+DEFINE VARIABLE ttUDF AS HANDLE NO-UNDO.
+DEFINE VARIABLE httUDF AS HANDLE NO-UNDO.
+DEFINE VARIABLE cUDFID AS CHARACTER NO-UNDO.
+
+FIND FIRST dynSubject
+     WHERE dynSubject.subjectID EQ dynParamValue.subjectID
+       AND dynSubject.udfGroup  NE ""
+     NO-ERROR.
+lUDF = AVAILABLE dynSubject AND dynSubject.udfGroup NE "".
+IF lUDF THEN DO:
+    CREATE TEMP-TABLE ttUDF.
+    ttUDF:ADD-NEW-FIELD ("rec_key","character",0,"x(21)","","RecKey").
+    FOR EACH dynValueColumn NO-LOCK
+        WHERE dynValueColumn.subjectID    EQ dynParamValue.subjectID
+          AND dynValueColumn.user-id      EQ dynParamValue.user-id
+          AND dynValueColumn.prgmName     EQ dynParamValue.prgmName
+          AND dynValueColumn.paramValueID EQ dynParamValue.paramValueID
+          AND dynValueColumn.colName  BEGINS "ttUDF"
+        :
+        cUDFField = ENTRY(2,dynValueColumn.colName,".").
+        ttUDF:ADD-NEW-FIELD (cUDFField,dynValueColumn.dataType,0,dynValueColumn.colFormat,"",dynValueColumn.colLabel).
+    END. /* each dynvaluecolumn */
+    ttUDF:TEMP-TABLE-PREPARE("ttUDF").
+    httUDF = ttUDF:DEFAULT-BUFFER-HANDLE.
+    FOR EACH mfvalues NO-LOCK,
+        FIRST dynValueColumn NO-LOCK
+        WHERE dynValueColumn.subjectID    EQ dynParamValue.subjectID
+          AND dynValueColumn.user-id      EQ dynParamValue.user-id
+          AND dynValueColumn.prgmName     EQ dynParamValue.prgmName
+          AND dynValueColumn.paramValueID EQ dynParamValue.paramValueID
+          AND dynValueColumn.colName  BEGINS "ttUDF"
+          AND dynValueColumn.udfID        EQ mfvalues.mf_id
+        BREAK BY mfvalues.rec_key
+        :
+        IF FIRST-OF(mfvalues.rec_key) THEN DO:
+            httUDF:BUFFER-CREATE.
+            httUDF:BUFFER-FIELD("rec_key"):BUFFER-VALUE() = mfvalues.rec_key.
+        END. /* if first-of */
+        httUDF:BUFFER-FIELD(ENTRY(2,dynValueColumn.colName,".")):BUFFER-VALUE() = mfvalues.mf_value.
+    END. /* each dynvaluecolumn */
+    ASSIGN
+        ipcTableName = ipcTableName + ",ttUDF"
+        cQueryStr    = cQueryStr
+                     + ", FIRST ttUDF OUTER-JOIN WHERE ttUDF.rec_key EQ "
+                     + ENTRY(1,ipcTableName) + ".rec_key"
+                     .
+END. /* if ludf */
+
 /* append sort by option to query */
 RUN AOA/dynSortBy.p (BUFFER dynParamValue, INPUT-OUTPUT cQueryStr).
 
@@ -76,6 +126,9 @@ IF ipiRecordLimit NE 0 THEN
 cQueryStr = cQueryStr + " MAX-ROWS " + STRING(ipiRecordLimit).
 CREATE QUERY hQuery.
 DO idx = 1 TO NUM-ENTRIES(ipcTableName):
+    IF ENTRY(idx,ipcTableName) EQ "ttUDF" THEN
+    CREATE BUFFER hBuffer[idx] FOR TABLE ttUDF.
+    ELSE
     CREATE BUFFER hBuffer[idx] FOR TABLE ENTRY(idx,ipcTableName).
     hQuery:ADD-BUFFER(hBuffer[idx]).
 END. /* do idx */

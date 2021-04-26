@@ -92,9 +92,9 @@ getSubLedger(period.SubLedgerOP) @ cSubLedgerOP getSubLedger(period.SubLedgerWIP
 getSubLedger(period.SubLedgerFG) @ cSubLedgerFG getSubLedger(period.SubLedgerBR) @ cSubLedgerBR getSubLedger(period.SubLedgerAR) @ cSubLedgerAR 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
 &Scoped-define ENABLED-TABLES-IN-QUERY-Browser-Table period
-&Scoped-define QUERY-STRING-Browser-Table FOR EACH period OF company WHERE ~{&KEY-PHRASE} NO-LOCK ~
+&Scoped-define QUERY-STRING-Browser-Table FOR EACH period OF company WHERE ~{&KEY-PHRASE} and ((period.pstat and rd_status eq 1) or (not period.pstat and rd_status eq 2) or rd_status eq 3) NO-LOCK ~
     ~{&SORTBY-PHRASE}
-&Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY Browser-Table FOR EACH period OF company WHERE ~{&KEY-PHRASE} NO-LOCK ~
+&Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY Browser-Table FOR EACH period OF company WHERE ~{&KEY-PHRASE} and ((period.pstat and rd_status eq 1) or (not period.pstat and rd_status eq 2) or rd_status eq 3) NO-LOCK ~
     ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-Browser-Table period
 &Scoped-define FIRST-TABLE-IN-QUERY-Browser-Table period
@@ -104,8 +104,8 @@ getSubLedger(period.SubLedgerFG) @ cSubLedgerFG getSubLedger(period.SubLedgerBR)
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS Browser-Table RECT-4 browse-order auto_find ~
-Btn_Clear_Find 
-&Scoped-Define DISPLAYED-OBJECTS browse-order auto_find fi_sortby
+Btn_Clear_Find rd_status
+&Scoped-Define DISPLAYED-OBJECTS browse-order auto_find fi_sortby rd_status
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -145,11 +145,20 @@ DEFINE VARIABLE browse-order AS INTEGER
      VIEW-AS RADIO-SET HORIZONTAL
      RADIO-BUTTONS 
           "N/A", 1
-     SIZE 30 BY 1 NO-UNDO.
+     SIZE 13 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-4
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 83 BY 1.43.
+     
+DEFINE VARIABLE rd_status AS INTEGER FORMAT ">":U INITIAL 1 
+     LABEL "Status"  
+     VIEW-AS COMBO-BOX INNER-LINES 3
+     LIST-ITEM-PAIRS "Opened",1,
+                     "Closed",2,
+                     "All",3
+     DROP-DOWN-LIST
+     SIZE 13 BY 1 NO-UNDO.     
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -201,6 +210,7 @@ DEFINE FRAME F-Main
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
      browse-order AT ROW 16.71 COL 6 HELP
           "Select Browser Sort Order" NO-LABEL
+     rd_status AT ROW 16.71 COL 25 COLON-ALIGNED      
      auto_find AT ROW 16.71 COL 51 COLON-ALIGNED HELP
           "Enter Auto Find Value"
      fi_sortby AT ROW 16.33 COL 46 COLON-ALIGNED NO-LABEL WIDGET-ID 2          
@@ -277,6 +287,8 @@ Browser-Table:ALLOW-COLUMN-SEARCHING IN FRAME F-Main = TRUE.
        
 /* SETTINGS FOR FILL-IN fi_sortby IN FRAME F-Main
    NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN rd_status IN FRAME F-Main
+   ALIGN-L 1                                                            */   
 ASSIGN 
        fi_sortby:HIDDEN IN FRAME F-Main           = TRUE
        fi_sortby:READ-ONLY IN FRAME F-Main        = TRUE.       
@@ -292,6 +304,7 @@ ASSIGN
      _TblList          = "ASI.period OF ASI.company"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = "USED"
+     _Where[1]         = "((period.pstat and rd_status eq 1) or (not period.pstat and rd_status eq 2) or rd_status eq 3)"
      _FldNameList[1]   = ASI.period.yr
      _FldNameList[2]   = ASI.period.pnum
      _FldNameList[3]   > ASI.period.pst
@@ -391,6 +404,17 @@ DO:
   {src/adm/template/brschnge.i}
   {methods/template/local/setvalue.i}
       
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd_status B-table-Win
+ON VALUE-CHANGED OF rd_status IN FRAME F-Main /* Periods */
+DO:
+   DEFINE VARIABLE lv-rowid AS ROWID   NO-UNDO.
+   ASSIGN rd_status = integer(rd_status:SCREEN-VALUE) .
+   RUN repo-query (lv-rowid).
 END.
 
 /* _UIB-CODE-BLOCK-END */

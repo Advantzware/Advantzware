@@ -20,9 +20,6 @@
 {AOA/includes/subjectID{&subjectID}Defs.i}
 
 DEFINE NEW SHARED VARIABLE cocode       AS CHARACTER NO-UNDO.
-DEFINE            VARIABLE hdPriceProcs AS HANDLE    NO-UNDO.
-
-RUN oe/PriceProcs.p PERSISTENT SET hdPriceProcs.
 
 /* subject business logic */
 /* **********************  Internal Procedures  *********************** */
@@ -307,6 +304,10 @@ PROCEDURE pBusinessLogic:
                 ttOrdersBookedByOrderNo.invoiceNo    = iInv#
                 .
             /*===== end of new ===== */
+            IF ttOrdersBookedByOrderNo.fgCost EQ ? THEN
+            ttOrdersBookedByOrderNo.fgCost = 0.
+            IF ttOrdersBookedByOrderNo.fgItemProfit EQ ? THEN
+            ttOrdersBookedByOrderNo.fgItemProfit = 0.
             IF lPrtCont THEN
                 IF dMargin NE ? THEN
                 dMarginTot = dMarginTot + dMargin.

@@ -513,8 +513,8 @@ DO:
                 ). 
              IF cFoundValue <> "" THEN 
                 ASSIGN FOCUS:SCREEN-VALUE = cFoundValue
-                       sman_sname:screen-value = DYNAMIC-FUNCTION("sfDynLookupValue", "sname", cFieldsValue)
-                       eb.comm:screen-value = DYNAMIC-FUNCTION("sfDynLookupValue", "scomm", cFieldsValue).
+                       sman_sname:screen-value = DYNAMIC-FUNCTION("sfDynLookupValue", "sman.sname", cFieldsValue)
+                       eb.comm:screen-value = DYNAMIC-FUNCTION("sfDynLookupValue", "sman.scomm", cFieldsValue).
              RETURN NO-APPLY.          
         END.
         WHEN "req-date" OR WHEN "due-date" THEN DO:

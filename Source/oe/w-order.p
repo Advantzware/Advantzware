@@ -1,6 +1,6 @@
 
 /*------------------------------------------------------------------------
-    File        : oe/w-orderN.p
+    File        : oe/w-order.p
     Purpose     : 
 
     Syntax      :
@@ -20,13 +20,4 @@
 
 /* ***************************  Main Block  *************************** */
 
-    {methods/prgsecur.i}
-    
-    IF access-close THEN 
-        RETURN.
-       
-    RUN oe/wOrderEntryMaster.w(
-        INPUT "OU1"
-        ).
-    IF VALID-HANDLE(THIS-PROCEDURE) THEN     
-        DELETE PROCEDURE THIS-PROCEDURE.
+{oe/wOrderEntryMaster.i OU1}

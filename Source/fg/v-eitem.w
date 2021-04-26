@@ -798,6 +798,23 @@ DO:
     END.
 END.
 
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME e-item-vend.vend-item
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL e-item-vend.vend-item V-table-Win
+ON LEAVE OF e-itemfg-vend.vend-item IN FRAME F-Main
+DO:    
+    IF LASTKEY NE -1 THEN
+    DO:
+        RUN valid-itemnumber(e-itemfg-vend.vend-item:SCREEN-VALUE) NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN
+            RETURN NO-APPLY.
+    END.
+
+END.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1812,6 +1829,9 @@ PROCEDURE local-update-record :
 
         RUN valid-vend-no (e-itemfg-vend.vend-no:HANDLE) NO-ERROR.
         IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+        
+        RUN valid-itemnumber(e-itemfg-vend.vend-item:SCREEN-VALUE) NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
         RUN valid-std-uom NO-ERROR.
         IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
@@ -2212,6 +2232,38 @@ PROCEDURE valid-vend-no :
     END.
     {methods/lValidateError.i NO}
     
+END PROCEDURE.
+
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-itemnumber V-table-Win 
+PROCEDURE valid-itemnumber:
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE INPUT PARAMETER ipcItemNumber AS CHARACTER NO-UNDO.
+   
+  DO WITH FRAME {&FRAME-NAME}: 
+  {methods/lValidateError.i YES}
+  IF INDEX(ipcItemNumber, "?") GT 0 THEN
+  DO:
+      MESSAGE TRIM(ipcItemNumber) + 
+              " is invalid, ? can not be entered as item number."
+          VIEW-AS ALERT-BOX ERROR.
+      
+      APPLY "entry" TO e-itemfg-vend.vend-item.
+      
+      RETURN ERROR.
+    
+  END.
+
+  {methods/lValidateError.i NO}
+  END.
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

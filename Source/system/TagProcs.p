@@ -21,6 +21,8 @@ DEFINE VARIABLE gcTypeRelease  AS CHARACTER NO-UNDO INITIAL "RELEASE".
 DEFINE VARIABLE iCtr  AS INTEGER    NO-UNDO.
 DEFINE VARIABLE cNote LIKE tag.note NO-UNDO.
 
+DEFINE TEMP-TABLE ttTag LIKE tag.
+
 /* ********************  Preprocessor Definitions  ******************** */
 
 /* ************************  Function Prototypes ********************** */
@@ -44,6 +46,7 @@ PROCEDURE AddTagHold:
     DEFINE INPUT PARAMETER ipcLinkTable   AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcDescription AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcNotes       AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcGroup       AS CHARACTER NO-UNDO.
 
     IF NOT CAN-FIND(FIRST tag 
                     WHERE tag.linkRecKey  EQ ipcLinkRecKey
@@ -55,7 +58,8 @@ PROCEDURE AddTagHold:
         INPUT gcTypeHold,
         INPUT ipcLinkTable,
         INPUT ipcDescription,
-        INPUT ipcNotes
+        INPUT ipcNotes,
+        INPUT ipcGroup
         ).
         
 END PROCEDURE.
@@ -80,8 +84,37 @@ PROCEDURE AddTagInfo:
         INPUT gcTypeInfo,
         INPUT ipcLinkTable,
         INPUT ipcDescription,
-        INPUT ipcNotes
+        INPUT ipcNotes,
+        INPUT ""
         ).
+        
+END PROCEDURE.
+
+PROCEDURE AddTagInfoForGroup:
+    /*------------------------------------------------------------------------------
+     Purpose: Wrapper to Add tag, specifically for INFO
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcLinkRecKey  AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcLinkTable   AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcDescription AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcNotes       AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcGroup       AS CHARACTER NO-UNDO.
+
+    IF NOT CAN-FIND(FIRST tag 
+        WHERE tag.linkRecKey  EQ ipcLinkRecKey
+        AND tag.tagType     EQ gcTypeInfo 
+        AND tag.linkTable   EQ ipcLinkTable
+        AND tag.description EQ ipcDescription
+        AND tag.groupCode   EQ ipcGroup) THEN 
+        RUN pAddTag(
+            INPUT ipcLinkRecKey,
+            INPUT gcTypeInfo,
+            INPUT ipcLinkTable,
+            INPUT ipcDescription,
+            INPUT ipcNotes,
+            INPUT ipcGroup
+            ).
         
 END PROCEDURE.
 
@@ -101,7 +134,7 @@ PROCEDURE AddTagInactive:
                     WHERE tag.linkRecKey EQ ipcLinkRecKey 
                       AND tag.tagType    EQ gcTypeInactive 
                       AND tag.linkTable  EQ ipcLinkTable) THEN 
-    RUN pAddTag (ipcLinkRecKey, gcTypeInactive, ipcLinkTable, "Record is inactive").
+    RUN pAddTag (ipcLinkRecKey, gcTypeInactive, ipcLinkTable, "Record is inactive","").
 
 END PROCEDURE.
 
@@ -117,7 +150,7 @@ PROCEDURE AddTagRelease:
                     WHERE tag.linkRecKey EQ ipcLinkRecKey 
                       AND tag.tagType    EQ gcTypeRelease
                       AND tag.linkTable  EQ ipcLinkTable) THEN 
-    RUN pAddTag (ipcLinkRecKey, gcTypeRelease, "Record is manually released from hold").
+    RUN pAddTag (ipcLinkRecKey, gcTypeRelease, "Record is manually released from hold","").
                                        
 END PROCEDURE.
 
@@ -131,6 +164,19 @@ PROCEDURE ClearTagsByRecKey:
     RUN pDeleteTags (ipcLinkRecKey, "RecKey", "").
 
 END PROCEDURE.
+
+PROCEDURE ClearTagsForGroup:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcLinkRecKey AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcGroup      AS CHARACTER NO-UNDO.
+
+    RUN pDeleteTags (ipcLinkRecKey, "Group", ipcGroup).
+
+END PROCEDURE.
+
 
 PROCEDURE ClearTagsHold:
 /*------------------------------------------------------------------------------
@@ -178,6 +224,29 @@ PROCEDURE ClearTagsRelease:
     
 END PROCEDURE.
 
+
+PROCEDURE GetTags:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcLinkRecKey AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcLinkTable  AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcGroup      AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER TABLE FOR ttTag.
+    EMPTY TEMP-TABLE ttTag.
+    FOR EACH tag NO-LOCK 
+        WHERE tag.linkRecKey EQ ipcLinkRecKey
+        AND tag.linkTable  EQ ipcLinkTable
+        AND tag.groupCode  EQ (IF ipcGroup EQ "" THEN tag.groupCode ELSE ipcGroup ):
+            
+       CREATE ttTag.
+       BUFFER-COPY tag TO ttTag.    
+            
+    END.
+        
+END PROCEDURE.
+
 PROCEDURE pAddTag PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose:   Adds a tag to a given reckey based on provided parameters
@@ -188,6 +257,7 @@ PROCEDURE pAddTag PRIVATE:
     DEFINE INPUT PARAMETER ipcLinkTable   AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcDescription AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcNotes       AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcGroup       AS CHARACTER NO-UNDO.
     
     CREATE tag.
     ASSIGN 
@@ -200,6 +270,7 @@ PROCEDURE pAddTag PRIVATE:
         tag.createUser  = USERID("ASI")
         tag.updateUser  = tag.createUser
         tag.note[1]     = ipcNotes
+        tag.groupCode   = ipcGroup
         .    
     RELEASE tag.
         
@@ -236,6 +307,13 @@ PROCEDURE pDeleteTags PRIVATE:
             :
             DELETE tag.
         END.
+        WHEN "Group" THEN 
+        FOR EACH tag EXCLUSIVE-LOCK
+            WHERE tag.linkRecKey EQ ipcLinkRecKey
+            AND tag.groupCode EQ ipcValue
+            :
+            DELETE tag.
+        END.
     END CASE.
 
 END PROCEDURE.
@@ -253,6 +331,23 @@ PROCEDURE Tag_IsTagRecordAvailable:
                             WHERE tag.linkRecKey EQ ipcLinkRecKey
                               AND tag.linkTable  EQ ipcLinkTable
                             ).
+END PROCEDURE.
+
+PROCEDURE Tag_IsTagRecordAvailableForGroup:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcLinkRecKey AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcLinkTable  AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcGroup      AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplAvailable  AS LOGICAL   NO-UNDO.
+    
+    oplAvailable = CAN-FIND(FIRST tag 
+        WHERE tag.linkRecKey EQ ipcLinkRecKey
+        AND tag.linkTable  EQ ipcLinkTable
+        AND tag.groupCode  EQ ipcGroup
+        ).
 END PROCEDURE.
 
 /* ************************  Function Implementations ***************** */

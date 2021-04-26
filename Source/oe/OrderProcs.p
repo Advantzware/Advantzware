@@ -28,6 +28,7 @@ DEFINE VARIABLE gcTagSelectionCode  AS CHARACTER NO-UNDO. /* Tag selection code 
 DEFINE VARIABLE glUseItemfgLoc      AS LOGICAL   NO-UNDO. /* Get location from itemfg? */
 DEFINE VARIABLE gcCompanyDefaultBin AS CHARACTER NO-UNDO.  /* default bin */
 DEFINE VARIABLE cFreightCalculationValue AS CHARACTER NO-UNDO.
+DEFINE VARIABLE dTotFreight AS DECIMAL NO-UNDO.
 
 DEFINE VARIABLE scInstance AS CLASS system.SharedConfig NO-UNDO.
 
@@ -1239,7 +1240,29 @@ PROCEDURE pOrderProcsMakeBOLLinesFromSSRelBol PRIVATE:
             CREATE ttOeBoll.
             BUFFER-COPY bf-oe-boll TO ttOeBoll.
             
-            DELETE bf-oe-boll.
+            FIND FIRST bf-ssrelbol NO-LOCK
+                 WHERE bf-ssrelbol.company  EQ bf-oe-boll.company
+                   AND bf-ssrelbol.release# EQ bf-oe-relh.release#
+                   AND bf-ssrelbol.i-no     EQ bf-oe-boll.i-no
+                   AND bf-ssrelbol.ord-no   EQ bf-oe-boll.ord-no
+                 NO-ERROR.
+            IF NOT AVAILABLE bf-ssrelbol THEN
+                FIND FIRST bf-ssrelbol NO-LOCK
+                     WHERE bf-ssrelbol.company  EQ bf-oe-boll.company
+                       AND bf-ssrelbol.release# EQ bf-oe-relh.release#
+                       AND bf-ssrelbol.i-no     EQ bf-oe-boll.i-no
+                     NO-ERROR.
+            
+            IF AVAILABLE bf-ssrelbol THEN
+                DELETE bf-oe-boll.
+            ELSE
+                ASSIGN
+                    bf-oe-boll.tag      = ""
+                    bf-oe-boll.cases    = 0
+                    bf-oe-boll.qty-case = 0
+                    bf-oe-boll.partial  = 0
+                    bf-oe-boll.qty      = 0
+                    .
         END.
          
         FOR EACH bf-ssrelbol EXCLUSIVE-LOCK
@@ -1338,9 +1361,18 @@ PROCEDURE pOrderProcsMakeBOLLinesFromSSRelBol PRIVATE:
         
         IF (cFreightCalculationValue EQ "ALL" OR cFreightCalculationValue EQ "Bol Processing") THEN do:
             RUN oe/calcBolFrt.p (
-                INPUT  ROWID(oe-bolh), 
+                INPUT  ROWID(oe-bolh),
+                INPUT  YES,
                 OUTPUT bf-oe-bolh.freight
                 ).
+        END.
+        ELSE DO:
+            RUN oe/calcBolFrt.p (
+	        INPUT  ROWID(oe-bolh), 
+	        INPUT  NO,
+	        OUTPUT dTotFreight
+                ).
+        
         END.
     END.
 
@@ -3257,8 +3289,17 @@ PROCEDURE pOrderProcsCreateBOLLines PRIVATE:
         IF (cFreightCalculationValue EQ "ALL" OR cFreightCalculationValue EQ "Bol Processing") THEN do:       
             RUN oe/calcBolFrt.p (
                 INPUT ROWID(oe-bolh), 
+                INPUT YES,
                 OUTPUT oe-bolh.freight
                 ).
+        END.
+        ELSE DO:
+	    RUN oe/calcBolFrt.p (
+		INPUT  ROWID(oe-bolh), 
+		INPUT  NO,
+		OUTPUT dTotFreight
+		).
+	        
         END.
       
         IF oe-bolh.freight EQ ? THEN 
@@ -3464,9 +3505,18 @@ PROCEDURE pOrderProcsMakeBOLLs PRIVATE:
     END. /* each oe-rell */
     IF (cFreightCalculationValue EQ "ALL" OR cFreightCalculationValue EQ "Bol Processing") THEN do:
         RUN oe/calcBolFrt.p (
-            INPUT ROWID(oe-bolh), 
+            INPUT ROWID(oe-bolh),
+            INPUT YES,
             OUTPUT oe-bolh.freight
             ).
+    END.
+    ELSE DO:
+	RUN oe/calcBolFrt.p (
+	INPUT  ROWID(oe-bolh), 
+	INPUT  NO,
+	OUTPUT dTotFreight
+	).
+            
     END.
                
 END PROCEDURE.

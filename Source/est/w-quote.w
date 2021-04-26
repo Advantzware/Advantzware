@@ -924,6 +924,24 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pReOpenQuery W-Win 
+PROCEDURE pReOpenQuery :
+/* -----------------------------------------------------------
+  Purpose:  
+  Parameters:  <none>
+  Notes:       
+-------------------------------------------------------------*/      
+   
+   IF VALID-HANDLE(h_b-qtqty) THEN DO:
+    RUN local-display-fields IN h_vi-qtitm .
+    RUN local-open-query IN h_b-qtqty.
+   END.      
+       
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records W-Win  _ADM-SEND-RECORDS
 PROCEDURE send-records :
 /*------------------------------------------------------------------------------

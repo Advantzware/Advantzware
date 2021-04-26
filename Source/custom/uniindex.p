@@ -40,7 +40,7 @@ itemfg-bom,~
 itemfg-ink,~
 itemfg-loc,~
 itemfgdtl,~
-jc-ctrl,~
+materialType,~
 loadtag,~
 loc,~
 mach,~

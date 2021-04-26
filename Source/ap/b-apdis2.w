@@ -299,7 +299,7 @@ DO:
             RUN system/openLookup.p (
                 INPUT  g_company, 
                 INPUT  "",  /* Lookup ID */  
-                INPUT  87,  /* Subject ID */
+                INPUT  107,  /* Subject ID */
                 INPUT  "",  /* User ID */
                 INPUT  0,   /* Param Value ID */
                 OUTPUT cFieldsValue, 
@@ -310,6 +310,21 @@ DO:
                 ASSIGN FOCUS:SCREEN-VALUE = cFoundValue.                                        
         END.
     END CASE.
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
+ON DEFAULT-ACTION OF Browser-Table IN FRAME F-Main
+DO:
+   DEFINE VARIABLE phandle AS WIDGET-HANDLE NO-UNDO.
+   DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.   
+   RUN get-link-handle IN adm-broker-hdl
+      (THIS-PROCEDURE,'TableIO-source':U,OUTPUT char-hdl).
+   phandle = WIDGET-HANDLE(char-hdl).
+   RUN new-state IN phandle ('update-begin':U).
 
 END.
 

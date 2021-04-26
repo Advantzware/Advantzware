@@ -1240,7 +1240,7 @@ PROCEDURE pPostGL:
                                     iPeriod,
                                     "A",
                                     dtPostDate,
-                                    string(ap-invl.inv-no),
+                                    string(ap-inv.inv-no),
                                     "AP").
 
             END. /* last-of actnum */
@@ -1257,7 +1257,7 @@ PROCEDURE pPostGL:
                                iPeriod,
                                "A",
                                dtPostDate,
-                               string(ap-invl.inv-no),
+                               string(ap-inv.inv-no),
                                "AP").
 
         END. /* dfrttotal ne 0 */
@@ -1276,7 +1276,7 @@ PROCEDURE pPostGL:
                                iPeriod,
                                "A",
                                dtPostDate,
-                               string(ap-invl.inv-no),
+                               string(ap-inv.inv-no),
                                "AP").
 
             END. /* last-of actnum */
@@ -1291,7 +1291,7 @@ PROCEDURE pPostGL:
                           iPeriod,
                           "A",
                           dtPostDate,
-                          string(ap-invl.inv-no),
+                          string(ap-inv.inv-no),
                           "AP").
 
     END. /* postit: transaction */

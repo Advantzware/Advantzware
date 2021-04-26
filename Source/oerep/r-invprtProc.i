@@ -192,10 +192,12 @@ DEFINE VARIABLE begin_bol         AS INTEGER   FORMAT ">>>>>>>>"      .
 DEFINE VARIABLE begin_cust        AS CHARACTER FORMAT "X(8)"          .
 DEFINE VARIABLE begin_date        AS DATE      FORMAT "99/99/9999":U  .
 DEFINE VARIABLE begin_inv         AS INTEGER   FORMAT ">>>>>>>>"      .
+DEFINE VARIABLE begin_inv-id      AS INTEGER   FORMAT ">>>>>>>>"      .
 DEFINE VARIABLE end_bol           AS INTEGER   FORMAT ">>>>>>>9"      .
 DEFINE VARIABLE end_cust          AS CHARACTER FORMAT "X(8)"          .
 DEFINE VARIABLE end_date          AS DATE      FORMAT "99/99/9999":U  .
 DEFINE VARIABLE end_inv           AS INTEGER   FORMAT ">>>>>>>>"      .
+DEFINE VARIABLE end_inv-id        AS INTEGER   FORMAT ">>>>>>>>"      .
 DEFINE VARIABLE fi_broker-bol     AS INTEGER   FORMAT ">>>>>>>>"      .
 DEFINE VARIABLE fi_depts          AS CHARACTER FORMAT "X(100)"        .
 DEFINE VARIABLE lbl_sort          AS CHARACTER FORMAT "X(256)":U      .
@@ -234,10 +236,12 @@ PROCEDURE assignSelections:
     DEFINE INPUT PARAMETER ipbegin_cust         AS CHARACTER FORMAT "X(8)"          .
     DEFINE INPUT PARAMETER ipbegin_date         AS DATE      FORMAT "99/99/9999":U  .
     DEFINE INPUT PARAMETER ipbegin_inv          AS INTEGER   FORMAT ">>>>>>>>"      .
+    DEFINE INPUT PARAMETER ipbegin_inv-id       AS INTEGER   FORMAT ">>>>>>>>"      .
     DEFINE INPUT PARAMETER ipend_bol            AS INTEGER   FORMAT ">>>>>>>9"      .
     DEFINE INPUT PARAMETER ipend_cust           AS CHARACTER FORMAT "X(8)"          .
     DEFINE INPUT PARAMETER ipend_date           AS DATE      FORMAT "99/99/9999":U  .
     DEFINE INPUT PARAMETER ipend_inv            AS INTEGER   FORMAT ">>>>>>>>"      .
+    DEFINE INPUT PARAMETER ipend_inv-id         AS INTEGER   FORMAT ">>>>>>>>"      .
     DEFINE INPUT PARAMETER ipfi_broker-bol      AS INTEGER   FORMAT ">>>>>>>>"      .
     DEFINE INPUT PARAMETER ipfi_depts           AS CHARACTER FORMAT "X(100)"        .
     DEFINE INPUT PARAMETER iplbl_sort           AS CHARACTER FORMAT "X(256)":U      .
@@ -273,16 +277,23 @@ PROCEDURE assignSelections:
     DEFINE INPUT PARAMETER iptb_prt-dupl        AS LOGICAL INITIAL NO               .
     DEFINE INPUT PARAMETER iptbPdfOnly          AS LOGICAL INITIAL NO               .
     DEFINE INPUT PARAMETER iptbOpenInvOnly      AS LOGICAL INITIAL NO               .
+    DEFINE INPUT PARAMETER ipcInvMessage1       AS CHARACTER FORMAT "X(40)"         .
+    DEFINE INPUT PARAMETER ipcInvMessage2       AS CHARACTER FORMAT "X(40)"         .
+    DEFINE INPUT PARAMETER ipcInvMessage3       AS CHARACTER FORMAT "X(40)"         .
+    DEFINE INPUT PARAMETER ipcInvMessage4       AS CHARACTER FORMAT "X(40)"         .
+    DEFINE INPUT PARAMETER ipcInvMessage5       AS CHARACTER FORMAT "X(40)"         .
     
     ASSIGN
         begin_bol         = ipbegin_bol        
         begin_cust        = ipbegin_cust       
         begin_date        = ipbegin_date       
-        begin_inv         = ipbegin_inv        
+        begin_inv         = ipbegin_inv 
+        begin_inv-id      = ipbegin_inv-id
         end_bol           = ipend_bol          
         end_cust          = ipend_cust         
         end_date          = ipend_date         
-        end_inv           = ipend_inv          
+        end_inv           = ipend_inv 
+        end_inv-id        = ipend_inv-id
         fi_broker-bol     = ipfi_broker-bol    
         fi_depts          = ipfi_depts         
         lbl_sort          = iplbl_sort         
@@ -321,6 +332,11 @@ PROCEDURE assignSelections:
         tb_prt-dupl      = iptb_prt-dupl
         tb_PdfOnly       = iptbPdfOnly
         tb_open-inv      = iptbOpenInvOnly
+        cInvMessage[1]   = ipcInvMessage1
+        cInvMessage[2]   = ipcInvMessage2
+        cInvMessage[3]   = ipcInvMessage3
+        cInvMessage[4]   = ipcInvMessage4
+        cInvMessage[5]   = ipcInvMessage5
         .
         
         CASE rd-dest:
@@ -458,6 +474,8 @@ PROCEDURE BatchMail :
         AND ttCustList.log-fld no-lock) else true)
         AND b1-{&head}2.inv-no GE finv
         AND b1-{&head}2.inv-no LE tinv 
+        AND b1-{&head}2.{&rno} GE begin_inv-id 
+        AND b1-{&head}2.{&rno} LE end_inv-id 
         
         AND (INDEX(vcHoldStats, b1-{&head}2.stat) EQ 0 OR "{&head}" EQ "ar-inv")
         AND ("{&head}" NE "ar-inv" 
@@ -550,6 +568,8 @@ PROCEDURE bolValidate:
         (tb_reprint AND buf-{&head}.inv-no NE 0 AND
         buf-{&head}.inv-no GE begin_inv AND
         buf-{&head}.inv-no LE end_inv)) AND
+        buf-{&head}.{&rno} GE begin_inv-id AND
+        buf-{&head}.{&rno} LE end_inv-id AND
         buf-{&head}.{&bolno} EQ begin_bol
         NO-LOCK:
                 
@@ -570,6 +590,8 @@ PROCEDURE bolValidate:
             (tb_reprint AND buf-{&head}.inv-no NE 0 AND
             buf-{&head}.inv-no GE begin_inv AND
             buf-{&head}.inv-no LE end_inv)) AND
+            buf-{&head}.{&rno} GE begin_inv-id AND
+            buf-{&head}.{&rno} LE end_inv-id AND
             buf-{&head}.{&bolno} EQ begin_bol
             NO-LOCK:
             ASSIGN                         
@@ -812,6 +834,9 @@ PROCEDURE runReport5:
             (tb_reprint AND buf-{&head}.inv-no NE 0 AND
             buf-{&head}.inv-no GE begin_inv AND
             buf-{&head}.inv-no LE end_inv)) AND
+            buf-{&head}.{&rno} GE begin_inv-id AND
+            buf-{&head}.{&rno} LE end_inv-id AND
+            
             (IF "{&head}" EQ "ar-inv" THEN buf-{&head}.inv-date GE begin_date
             AND buf-{&head}.inv-date LE end_date ELSE TRUE) AND                        
             buf-{&head}.{&bolno} GE begin_bol AND
@@ -909,7 +934,9 @@ PROCEDURE runReport1:
         ((NOT tb_reprint AND buf-{&head}.inv-no EQ 0) OR
         (tb_reprint AND buf-{&head}.inv-no NE 0 AND
         buf-{&head}.inv-no GE begin_inv AND
-        buf-{&head}.inv-no LE end_inv))
+        buf-{&head}.inv-no LE end_inv)) AND
+        buf-{&head}.{&rno} GE begin_inv-id AND
+        buf-{&head}.{&rno} LE end_inv-id  
         NO-LOCK NO-ERROR.
 
     FIND FIRST sys-ctrl-shipto WHERE
@@ -985,7 +1012,9 @@ PROCEDURE output-to-mail :
                 (IF "{&head}" EQ "ar-inv" THEN buf-{&head}.inv-date GE begin_date
                 AND buf-{&head}.inv-date LE end_date ELSE TRUE) AND                    
                 buf-{&head}.inv-no GE begin_inv AND
-                buf-{&head}.inv-no LE end_inv))
+                buf-{&head}.inv-no LE end_inv)) AND 
+                buf-{&head}.{&rno} GE begin_inv-id AND
+                buf-{&head}.{&rno} LE end_inv-id 
                 NO-LOCK,
                 FIRST b-cust WHERE
                 b-cust.company EQ cocode AND
@@ -1102,7 +1131,9 @@ PROCEDURE output-to-mail :
                 (IF "{&head}" EQ "ar-inv" THEN buf-{&head}.inv-date GE begin_date
                 AND buf-{&head}.inv-date LE end_date ELSE TRUE) AND                    
                 buf-{&head}.inv-no GE begin_inv AND
-                buf-{&head}.inv-no LE end_inv))
+                buf-{&head}.inv-no LE end_inv)) AND
+                buf-{&head}.{&rno} GE begin_inv-id AND
+                buf-{&head}.{&rno} LE end_inv-id 
                 NO-LOCK,
                 FIRST b-cust WHERE
                     b-cust.company EQ cocode AND
@@ -1239,6 +1270,8 @@ PROCEDURE build-list1:
                AND ttCustList.log-fld no-lock) else true)
                AND {&head}.inv-no GE finv
                AND {&head}.inv-no LE tinv 
+               AND {&head}.{&rno} GE begin_inv-id 
+               AND {&head}.{&rno} LE end_inv-id   
                AND (STRING({&head}.sold-no)         EQ ip-sold-no OR ip-sold-no = "")
                AND (INDEX(vcHoldStats, {&head}.stat) EQ 0 OR "{&head}" EQ "ar-inv")
                AND ("{&head}" NE "ar-inv" 
@@ -1751,9 +1784,9 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
         vcInvNums = RIGHT-TRIM (SUBSTRING (vcInvNums, 1, INDEX (vcInvNums,'-')), '-') +     
             SUBSTRING (vcInvNums, R-INDEX (vcInvNums, '-')).
     
-    IF "{&head}" EQ "inv-head" THEN
+    IF NOT tb_PdfOnly THEN
         RUN pRunAPIOutboundTrigger (
-            BUFFER {&head},
+            INPUT  ROWID({&head}),
             INPUT  LOGICAL(report.key-04)
             ).
 END.
@@ -1972,6 +2005,8 @@ PROCEDURE setBOLRange:
     DEFINE INPUT PARAMETER begin_date-screen-value   AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER end_date-screen-value     AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER tb_posted-screen-value    AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER begin_inv-id-SCREEN-VALUE AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER end_inv-id-SCREEN-VALUE   AS CHARACTER NO-UNDO.
         
     DEFINE OUTPUT PARAMETER opbegin_cust-screen-value  AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opend_cust-screen-value    AS CHARACTER NO-UNDO.
@@ -2014,28 +2049,13 @@ PROCEDURE setBOLRange:
                     AND {&head}.cust-no EQ oe-bolh.cust-no
                     AND {&head}.inv-no GE INT(begin_inv-SCREEN-VALUE)
                     AND {&head}.inv-no LE INT(end_inv-SCREEN-VALUE)                    
-                    AND INDEX(vcHoldStats, {&head}.stat) EQ 0:
+                    AND {&head}.{&rno} GE INT(begin_inv-id-SCREEN-VALUE)
+                    AND {&head}.{&rno} LE INT(end_inv-id-SCREEN-VALUE) :
 
     
                     ASSIGN
                         optb_reprint-SCREEN-VALUE = STRING({&head}.printed)
-                        optb_posted-SCREEN-VALUE  = STRING({&head}.posted).
-
-                    FOR EACH b-{&head}1 NO-LOCK
-                        WHERE b-{&head}1.company EQ {&head}.company
-                        AND b-{&head}1.cust-no EQ {&head}.cust-no
-                        AND b-{&head}1.inv-no  EQ {&head}.inv-no
-                        AND b-{&head}1.{&multiinvoice} EQ NO                
-                        AND INDEX(vcHoldStats, b-{&head}1.stat) EQ 0:
-
-                        IF b-{&head}1.{&bolno} LT INT(begin_bol-SCREEN-VALUE) THEN
-                        DO:
-                          ASSIGN
-                            opbegin_bol-SCREEN-VALUE = STRING(b-{&head}1.{&bolno})
-                            opend_bol-SCREEN-VALUE = STRING(b-{&head}1.{&bolno}).
-                            LEAVE.
-                        END.                          
-                    END.
+                        optb_posted-SCREEN-VALUE  = STRING({&head}.posted).                     
                     
                     IF int(begin_bol-SCREEN-VALUE) EQ 0 THEN opbegin_bol-SCREEN-VALUE = "0".
                     IF int(end_bol-SCREEN-VALUE) EQ 0 THEN opend_bol-SCREEN-VALUE = "99999999".
@@ -2737,6 +2757,11 @@ PROCEDURE SetInvForm:
                 v-program      = "oe/rep/invptreelot.p"
                 lines-per-page = 66
                 is-xprint-form = YES.
+        WHEN "Henry" THEN
+            ASSIGN
+                v-program      = "oe/rep/invhenry.p"
+                lines-per-page = 66
+                is-xprint-form = YES.
         OTHERWISE
         ASSIGN
             v-program      = "oe/rep/invasi.p"
@@ -3326,6 +3351,11 @@ PROCEDURE SetInvPostForm:
                 v-program      = "ar/rep/invptreelot.p"
                 lines-per-page = 66
                 is-xprint-form = YES.
+        WHEN "Henry" THEN
+            ASSIGN
+                v-program      = "ar/rep/invhenry.p"
+                lines-per-page = 66
+                is-xprint-form = YES.
         OTHERWISE
         ASSIGN
             v-program      = "ar/rep/invasi.p"
@@ -3352,6 +3382,9 @@ PROCEDURE validateCustPaper:
         (tb_reprint AND buf-{&head}.inv-no NE 0 AND
         buf-{&head}.inv-no GE begin_inv AND
         buf-{&head}.inv-no LE end_inv)) AND
+        buf-{&head}.{&rno} GE begin_inv-id AND
+        buf-{&head}.{&rno} LE end_inv-id  AND
+        
         (IF "{&head}" EQ "ar-inv" THEN buf-{&head}.inv-date GE begin_date
         AND buf-{&head}.inv-date LE end_date ELSE TRUE) AND
         buf-{&head}.{&bolno} GE begin_bol AND
@@ -3417,40 +3450,70 @@ PROCEDURE pRunAPIOutboundTrigger PRIVATE:
      Notes:
     ------------------------------------------------------------------------------*/
     
-    DEFINE PARAMETER BUFFER ipbf-inv-head FOR inv-head.
+    DEFINE INPUT PARAMETER ipriRowID  AS ROWID   NO-UNDO.
     DEFINE INPUT PARAMETER lIsRePrint AS LOGICAL NO-UNDO.
     
     DEFINE VARIABLE lSuccess     AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cMessage     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCompany     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cAPIID       AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cTriggerID   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCustomerID  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cTable       AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cDescription AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cPrimaryID   AS CHARACTER NO-UNDO.
 
     DEFINE VARIABLE hdOutboundProcs AS HANDLE NO-UNDO.
     RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
     
-    IF AVAILABLE ipbf-inv-head THEN DO:
+    DEFINE BUFFER bf-inv-head FOR inv-head.
+    DEFINE BUFFER bf-ar-inv   FOR ar-inv.
     
-        ASSIGN 
-            cAPIID       = "SendInvoice"
-            cTriggerID   = IF lIsRePrint THEN 
-                               "RePrintInvoice"
-                           ELSE
-                               "PrintInvoice"
-            cPrimaryID   = STRING(ipbf-inv-head.inv-no)
-            cDescription = cAPIID + " triggered by " + cTriggerID + " from PostInvoices.p for invoice: " + cPrimaryID
-            .
+    FIND FIRST bf-inv-head NO-LOCK
+         WHERE ROWID(bf-inv-head) EQ ipriRowID
+         NO-ERROR.
+    IF NOT AVAILABLE bf-inv-head THEN
+        FIND FIRST bf-ar-inv NO-LOCK
+             WHERE ROWID(bf-ar-inv) EQ ipriRowID
+             NO-ERROR.
 
+    IF NOT AVAILABLE bf-inv-head AND NOT AVAILABLE bf-ar-inv THEN
+        RETURN.
+                      
+    ASSIGN 
+        cAPIID       = "SendInvoice"
+        cTriggerID   = IF lIsRePrint THEN 
+                           "RePrintInvoice"
+                       ELSE
+                           "PrintInvoice"
+        cDescription = cAPIID + " triggered by " + cTriggerID + " from PostInvoices.p for invoice: " + cPrimaryID
+        .
+
+    IF AVAILABLE bf-inv-head THEN  
+        ASSIGN
+            cCompany     = bf-inv-head.company
+            cPrimaryID   = STRING(bf-inv-head.inv-no)
+            cCustomerID  = bf-inv-head.cust-no 
+            cTable       = "inv-head"           
+            .
+    ELSE IF AVAILABLE bf-ar-inv THEN   
+        ASSIGN
+            cCompany     = bf-ar-inv.company
+            cPrimaryID   = STRING(bf-ar-inv.inv-no)   
+            cCustomerID  = bf-ar-inv.cust-no   
+            cTable       = "ar-inv"      
+            .
+            
+    IF AVAILABLE bf-inv-head OR AVAILABLE bf-ar-inv THEN DO:
         RUN Outbound_PrepareAndExecuteForScope IN hdOutboundProcs (
-            INPUT  ipbf-inv-head.company,         /* Company Code (Mandatory) */
+            INPUT  cCompany,                      /* Company Code (Mandatory) */
             INPUT  locode,                        /* Location Code (Mandatory) */
             INPUT  cAPIID,                        /* API ID (Mandatory) */
-            INPUT  ipbf-inv-head.cust-no,         /* Scope ID */
+            INPUT  cCustomerID,                   /* Scope ID */
             INPUT  "Customer",                    /* Scope Type */
             INPUT  cTriggerID,                    /* Trigger ID (Mandatory) */
-            INPUT  "inv-head",                    /* Comma separated list of table names for which data being sent (Mandatory) */
-            INPUT  STRING(ROWID(ipbf-inv-head)),  /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
+            INPUT  cTable,                        /* Comma separated list of table names for which data being sent (Mandatory) */
+            INPUT  STRING(ipriRowID),             /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
             INPUT  cPrimaryID,                    /* Primary ID for which API is called for (Mandatory) */   
             INPUT  cDescription,                  /* Event's description (Optional) */
             OUTPUT lSuccess,                      /* Success/Failure flag */

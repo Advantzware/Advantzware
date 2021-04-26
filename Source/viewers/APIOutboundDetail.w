@@ -49,6 +49,8 @@ DEFINE VARIABLE pHandle  AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hdPgmMstrSecur AS HANDLE NO-UNDO.
 RUN system/PgmMstrSecur.p PERSISTENT SET hdPgmMstrSecur.
 
+DEFINE VARIABLE lUpdatingRecord AS LOGICAL NO-UNDO.
+
 RUN epCanAccess IN hdPgmMstrSecur (
     INPUT  "viewers/APIOutboundDetail.w", /* Program Name */
     INPUT  "",                            /* Function */
@@ -160,7 +162,7 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 40.4 BY 1
           BGCOLOR 15 
-     edData AT ROW 6.95 COL 15 NO-LABEL WIDGET-ID 8
+     edData AT ROW 6.95 COL 15 NO-LABEL WIDGET-ID 8 NO-TAB-STOP 
      "Data:" VIEW-AS TEXT
           SIZE 7 BY .62 AT ROW 6.95 COL 8 WIDGET-ID 10
      RECT-6 AT ROW 1 COL 1 WIDGET-ID 12
@@ -256,6 +258,40 @@ ASSIGN
 
  
 
+
+
+/* ************************  Control Triggers  ************************ */
+
+&Scoped-define SELF-NAME edData
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL edData V-table-Win
+ON ENTRY OF edData IN FRAME F-Main
+DO:
+    DEFINE VARIABLE lcRequestData AS LONGCHAR  NO-UNDO.
+    DEFINE VARIABLE lSave         AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cAction       AS CHARACTER NO-UNDO.
+    
+    lcRequestData = SELF:SCREEN-VALUE.
+
+    IF lUpdatingRecord THEN
+        cAction = "Update".
+    ELSE
+        cAction = "View".
+        
+    RUN api/d-dataViewer.w (
+        INPUT-OUTPUT lcRequestData,
+        INPUT        cAction,
+        OUTPUT       lSave   
+        ).
+        
+    IF lSave AND cAction EQ "Update" THEN
+        SELF:SCREEN-VALUE = lcRequestData.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK V-table-Win 
 
@@ -522,8 +558,8 @@ PROCEDURE pDisableFields :
     DO WITH FRAME {&FRAME-NAME}:
     END.
     
-    edData:READ-ONLY = TRUE.
-    
+    lUpdatingRecord = FALSE.
+
     {methods/run_link.i "CONTAINER-SOURCE" "SetUpdateEnd"}    
 END PROCEDURE.
 
@@ -564,14 +600,14 @@ PROCEDURE pEnableFields :
     RUN pGetRowState (
         OUTPUT cRowState
         ).
-    
+
+    lUpdatingRecord = TRUE.
+        
     IF cRowState EQ "update-only" THEN
         ASSIGN
             apiOutboundDetail.detailID:SENSITIVE = FALSE
             apiOutboundDetail.parentID:SENSITIVE = FALSE
             .
-
-    edData:READ-ONLY = FALSE.
 
     {methods/run_link.i "CONTAINER-SOURCE" "SetUpdateBegin"}    
 END PROCEDURE.

@@ -79,7 +79,7 @@ DEFINE QUERY external_tables FOR inv-head.
 &Scoped-Define ENABLED-FIELDS inv-head.inv-date inv-head.cust-no ~
 inv-head.sold-no inv-head.autoApproved inv-head.contact inv-head.tax-gr ~
 inv-head.terms inv-head.carrier inv-head.frt-pay inv-head.fob-code ~
-inv-head.t-inv-weight inv-head.t-inv-freight inv-head.t-comm 
+inv-head.t-inv-weight inv-head.t-comm  inv-head.t-inv-freight 
 &Scoped-define ENABLED-TABLES inv-head
 &Scoped-define FIRST-ENABLED-TABLE inv-head
 &Scoped-Define ENABLED-OBJECTS RECT-1 RECT-41 btnCalendar-1 
@@ -91,11 +91,12 @@ inv-head.addr[2] inv-head.sold-addr[2] inv-head.city inv-head.state ~
 inv-head.zip inv-head.sold-city inv-head.sold-state inv-head.sold-zip ~
 inv-head.contact inv-head.tax-gr inv-head.terms inv-head.terms-d ~
 inv-head.carrier inv-head.frt-pay inv-head.fob-code inv-head.t-inv-weight ~
-inv-head.t-inv-tax inv-head.t-inv-freight inv-head.t-inv-rev ~
-inv-head.t-comm inv-head.t-inv-cost 
+inv-head.t-inv-rev inv-head.t-comm inv-head.t-inv-tax inv-head.f-bill ~
+inv-head.t-inv-freight inv-head.t-inv-cost 
 &Scoped-define DISPLAYED-TABLES inv-head
 &Scoped-define FIRST-DISPLAYED-TABLE inv-head
-&Scoped-Define DISPLAYED-OBJECTS inv-status fi_PO 
+&Scoped-Define DISPLAYED-OBJECTS inv-status fi_PO cBillFreightDscr ~
+dBillableFreight  
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,List-5,F1 */
@@ -164,6 +165,15 @@ DEFINE BUTTON btnTags
      LABEL "" 
      SIZE 4.4 BY 1.05 TOOLTIP "Show Details".
 
+DEFINE VARIABLE cBillFreightDscr AS CHARACTER FORMAT "x(15)" 
+     VIEW-AS FILL-IN 
+     SIZE 16.8 BY 1.
+
+DEFINE VARIABLE dBillableFreight AS DECIMAL FORMAT "->,>>>,>>9.99" INITIAL 0 
+     LABEL "Total Billable Freight" 
+     VIEW-AS FILL-IN 
+     SIZE 19 BY 1.
+
 DEFINE VARIABLE fi_PO AS CHARACTER FORMAT "X(256)":U 
      LABEL "Cust PO#" 
      VIEW-AS FILL-IN 
@@ -180,7 +190,7 @@ DEFINE RECTANGLE RECT-1
 
 DEFINE RECTANGLE RECT-41
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 131 BY 4.52.
+     SIZE 131 BY 5.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -272,9 +282,6 @@ DEFINE FRAME F-Main
      inv-head.carrier AT ROW 10.29 COL 113 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 10 BY 1
-     inv-head.frt-pay AT ROW 11.24 COL 25.6 COLON-ALIGNED
-          VIEW-AS FILL-IN 
-          SIZE 4 BY 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -282,29 +289,37 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
+     inv-head.frt-pay AT ROW 11.24 COL 25.6 COLON-ALIGNED
+          VIEW-AS FILL-IN 
+          SIZE 4 BY 1
+     cBillFreightDscr AT ROW 11.24 COL 36 COLON-ALIGNED NO-LABEL WIDGET-ID 300
      inv-head.fob-code AT ROW 11.24 COL 113 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 10 BY 1
-     inv-head.t-inv-weight AT ROW 13.38 COL 41 COLON-ALIGNED
+     inv-head.t-inv-weight AT ROW 13.19 COL 39.2 COLON-ALIGNED
           LABEL "Total Weight"
           VIEW-AS FILL-IN 
           SIZE 15 BY 1
-     inv-head.t-inv-tax AT ROW 13.38 COL 105 COLON-ALIGNED
+     inv-head.t-inv-rev AT ROW 13.19 COL 113.4 COLON-ALIGNED
+          VIEW-AS FILL-IN 
+          SIZE 18.8 BY 1
+     inv-head.t-comm AT ROW 14.14 COL 39.2 COLON-ALIGNED
+          VIEW-AS FILL-IN 
+          SIZE 15.2 BY 1
+     inv-head.t-inv-tax AT ROW 14.14 COL 113.4 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 19 BY 1
-     inv-head.t-inv-freight AT ROW 14.33 COL 41 COLON-ALIGNED
+     inv-head.f-bill AT ROW 14.29 COL 63.8
+          VIEW-AS TOGGLE-BOX
+          SIZE 18.8 BY 1 NO-TAB-STOP 
+     inv-head.t-inv-freight AT ROW 15.05 COL 39.2 COLON-ALIGNED
           LABEL "Total Freight"
           VIEW-AS FILL-IN 
           SIZE 15 BY 1
-     inv-head.t-inv-rev AT ROW 14.38 COL 105 COLON-ALIGNED
+     dBillableFreight AT ROW 15.1 COL 113.4 COLON-ALIGNED WIDGET-ID 302
+     inv-head.t-inv-cost AT ROW 16 COL 39.2 COLON-ALIGNED
           VIEW-AS FILL-IN 
-          SIZE 18.8 BY 1
-     inv-head.t-comm AT ROW 15.29 COL 41 COLON-ALIGNED
-          VIEW-AS FILL-IN 
-          SIZE 15.2 BY 1
-     inv-head.t-inv-cost AT ROW 15.29 COL 105 COLON-ALIGNED
-          VIEW-AS FILL-IN 
-          SIZE 18.8 BY 1
+          SIZE 18.8 BY 1     
      "I N V O I C E  T O T A L S" VIEW-AS TEXT
           SIZE 32 BY 1.19 AT ROW 11.95 COL 84 RIGHT-ALIGNED
           FGCOLOR 9 
@@ -384,12 +399,16 @@ ASSIGN
    3                                                                    */
 /* SETTINGS FOR BUTTON btnTags IN FRAME F-Main
    NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN cBillFreightDscr IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN inv-head.city IN FRAME F-Main
    NO-ENABLE 2                                                          */
 /* SETTINGS FOR FILL-IN inv-head.contact IN FRAME F-Main
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN inv-head.cust-name IN FRAME F-Main
    NO-ENABLE 2                                                          */
+/* SETTINGS FOR FILL-IN dBillableFreight IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fi_PO IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN inv-head.inv-date IN FRAME F-Main
@@ -424,6 +443,8 @@ ASSIGN
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN inv-head.t-inv-rev IN FRAME F-Main
    NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN inv-head.f-bill IN FRAME F-Main
+   NO-ENABLE                                                            */      
 /* SETTINGS FOR FILL-IN inv-head.t-inv-tax IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN inv-head.t-inv-weight IN FRAME F-Main
@@ -558,6 +579,7 @@ ON CHOOSE OF btnTags IN FRAME F-Main
 DO:
     RUN system/d-TagViewer.w(
         INPUT inv-head.rec_key,
+        INPUT "",
         INPUT ""
         ).
 END.
@@ -775,6 +797,16 @@ DO:
   DO li = 1 TO LENGTH(inv-head.terms:SCREEN-VALUE):
     APPLY "cursor-right" TO inv-head.terms.
   END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL inv-head.frt-pay V-table-Win
+ON VALUE-CHANGED OF inv-head.frt-pay IN FRAME F-Main /* Freight Pay Code */
+DO:
+  RUN Display-freight-dscr.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1523,6 +1555,8 @@ PROCEDURE local-display-fields :
         IF AVAIL b-oe-ord THEN
             fi_PO:SCREEN-VALUE IN FRAME {&FRAME-NAME} = b-oe-ord.po-no.
      END.
+     
+     RUN Display-freight-dscr.
      RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"hold-source", OUTPUT char-hdl).
 
      IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
@@ -1609,6 +1643,22 @@ PROCEDURE local-update-record :
    adm-adding-record = NO
    adm-new-record    = NO.
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCombineInvoice V-table-Win 
+PROCEDURE pCombineInvoice :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE INPUT PARAMETER ipriRowid AS ROWID NO-UNDO.     
+  
+  RUN oe/CombineMultiInv.p(INPUT ipriRowid) .  
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1731,6 +1781,33 @@ PROCEDURE state-changed :
          or add new cases. */
       {src/adm/template/vstates.i}
   END CASE.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Display-freight-dscr V-table-Win 
+PROCEDURE Display-freight-dscr :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  IF AVAIL inv-head THEN
+  DO WITH FRAME {&FRAME-NAME}:
+    CASE inv-head.frt-pay:SCREEN-VALUE:
+      WHEN "P" THEN cBillFreightDscr:SCREEN-VALUE = "Prepaid".
+      WHEN "C" THEN cBillFreightDscr:SCREEN-VALUE = "Collect".
+      WHEN "T" THEN cBillFreightDscr:SCREEN-VALUE = "Third Party".
+      WHEN "B" THEN cBillFreightDscr:SCREEN-VALUE = "Billable".
+          OTHERWISE cBillFreightDscr:SCREEN-VALUE = "".
+    END CASE.
+    IF inv-head.frt-pay:SCREEN-VALUE EQ "B" THEN 
+       dBillableFreight:SCREEN-VALUE = inv-head.t-inv-freight:SCREEN-VALUE  .
+       ELSE dBillableFreight:SCREEN-VALUE = "0" .
+  END.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2015,23 +2092,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCombineInvoice V-table-Win 
-PROCEDURE pCombineInvoice :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEFINE INPUT PARAMETER ipriRowid AS ROWID NO-UNDO.     
-  
-  RUN oe/CombineMultiInv.p(INPUT ipriRowid) .  
-  
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
 /* ************************  Function Implementations ***************** */
 

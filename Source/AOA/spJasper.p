@@ -289,8 +289,10 @@ PROCEDURE pGetUserParamValue:
                 cTemp = cField.
                 IF INDEX(cTemp,"[") NE 0 THEN
                 cTemp = SUBSTRING(cTemp,1,INDEX(cTemp,"[") - 1).
-                CREATE BUFFER hTable FOR TABLE cTable.
-                dWidth = hTable:BUFFER-FIELD(cTemp):WIDTH.
+                IF cTable NE "ttUDF" THEN DO:
+                    CREATE BUFFER hTable FOR TABLE cTable.
+                    dWidth = hTable:BUFFER-FIELD(cTemp):WIDTH.
+                END. /* if ctable */
             END. /* if not business logic */
             ELSE
             IF VALID-HANDLE(hTable) THEN
@@ -959,10 +961,19 @@ PROCEDURE pJasperJSON:
                     cFullName    = REPLACE(cFullName,"[","")
                     cFullName    = REPLACE(cFullName,"]","")
                     .
+                /* handle how jasper auto multiplies % formatted fields by 100 */
+                IF INDEX(ttColumn.ttFormat,"%") NE 0 THEN
+                ASSIGN
+                    cBufferValue = REPLACE(cBufferValue,"%","")
+                    cBufferValue = STRING(DECIMAL(cBufferValue) / 100)
+                    cBufferValue = cBufferValue + "%"
+                    .
                 PUT STREAM sJasper UNFORMATTED
                     FILL(" ",8)
                     "~"" cFullName "~": ~""
-                    IF cBufferValue NE "" THEN cBufferValue ELSE " "
+                    IF cBufferValue EQ ? AND dynValueColumn.dataType EQ "Character" THEN " "
+                    ELSE IF cBufferValue EQ ? AND dynValueColumn.dataType NE "Character" THEN "0"
+                    ELSE IF cBufferValue NE "" THEN cBufferValue ELSE " "
                     "~""
                     .
                 IF NOT LAST(ttColumn.ttField) THEN
@@ -1716,6 +1727,8 @@ PROCEDURE pLocalCSV:
         OUTPUT cCustListField,
         OUTPUT lUseCustList
         ).
+    OS-CREATE-DIR "users".
+    OS-CREATE-DIR VALUE("users\" + aoaUserID).
     cExcelFile = "users\" + aoaUserID + "\"
                + REPLACE(aoaTitle," ","") + "."
                + STRING(TODAY,"99999999") + "."
@@ -1789,7 +1802,10 @@ PROCEDURE pLocalCSV:
                     cFieldName   = ENTRY(2,dynValueColumn.colName,".")
                     cBufferValue = fFormatValue(hQueryBuf, cFieldName, dynValueColumn.colFormat)
                     cBufferValue = DYNAMIC-FUNCTION("FormatForCSV" IN hOutputProcs, cBufferValue, lReplaceQuote, lAddTab)
+                    cBufferValue = REPLACE(cBufferValue,",","")
                     .
+                IF cBufferValue EQ ? THEN
+                cBufferValue = "".
                 PUT STREAM sLocalCSV UNFORMATTED REPLACE(cBufferValue,",","") + ",".
             END. /* each dynvaluecolumn */
             PUT STREAM sLocalCSV UNFORMATTED SKIP.

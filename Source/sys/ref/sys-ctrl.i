@@ -48,7 +48,7 @@ ASSIGN
                 "Peachtreefgl3,Peachtree,DEE,CSC-GASummary,TrilakesBroker,Accord,NStock,LoylangBSF,PremierS,Printers," +
                 "Protagon,Protagon2,SoulePO,RFCX,Central,Bell,PrestigeLLB,Axis,Boss,CSCINStamp,PrystupExcel,Coburn," +
                 "invprint 1,invprint 2,invprint 10,invprint 20,Lovepac,invprint10-CAN,Shamrock,nStockLogo,LancoYork,InvPrint-Mex," +
-		        "invprint 21,CCCACH,Delta,NStockLogo1,NStockLogo2" 
+		        "invprint 21,CCCACH,Delta,NStockLogo1,NStockLogo2,Henry" 
  str-init[3]  = "ASI,Clevelnd,McLean,Suthrlnd,HOP,Brick,Peachtre"
  str-init[4]  = "Foldware,Corrware"
  str-init[5]  = "D Pallet,Z Trailr"
@@ -77,7 +77,7 @@ ASSIGN
                 "PremierCX,PeachTreeBC,ACCORDBC,Soule,NSTOCK,TrilakesLot#,Multicell,MetroTags,AllPkg2,PremierBroker,SouleMed,Chillicothe," +
                 "CapitolBC,CardedBC,Axis,BadgerSoldTo,PeachtreeLotPO,Lakeside,CSCINStamp,CCCWPP,Prystup-Excel,Printers,Printers2,RFCX," +
                 "bolfmt 1,bolfmt 2,bolfmt 10,bolfmt 20,bolfmt10-CAN,PremierXFooter,Wingate-BOL,BOLfmt15,LancoYork,Delta2,GPI2,bolfmt 30," +
-                "BOLFMT-Mex,PREMDSG,PremCAN,Mclean-Excel"    
+                "BOLFMT-Mex,PREMDSG,PremCAN,Mclean-Excel,Henry"    
  str-init[11] = "ASI,Laser,P&P,n,Raritan,ContSrvc,Royal,Triad,Rudd,"   +
                 "Hartford,AIHalper,Brick,Fibre,Herman,ASILaser,TriadLas,"      +
                 "Chillic,Middlesx,Hughes,ASI2000,Unipak,RFC,Inland,Prefered,"  +
@@ -111,7 +111,7 @@ ASSIGN
  str-init[27] = "QOH>QEst,AllItems,QAvail>0"
  str-init[28] = "Penny,Dollar"
  str-init[29] = ",Brick,Xprint,Unipak-XL,PremierPkg,ACPI,PremierPkgU,PremierPkgM,PremierBroker,CCC,LoyLang,CCCWPP,Prystup," +
-                "bolcert 1,bolcert 2,BOLCERT10,CCC2,LancoYork,CCC3,CCC4,CCC5,BOLCERT-Mex,Soule,PackSlip,PrystupXLS"
+                "bolcert 1,bolcert 2,BOLCERT10,CCC2,LancoYork,CCC3,CCC4,CCC5,BOLCERT-Mex,Soule,PackSlip,PrystupXLS,CCCEss"
  str-init[30] = "ASI,Clevelnd,McLean,Suthrlnd,Brick,Fibre,Protagon,cerunc 1,cerunc 2,cerunc 3,Atlantic"
  str-init[31] = "ASI,McLean,HOP,Dee,Fibre,cerunf 1,cerunf 2"
  str-init[32] = "XPRINT,Pacific,RFC,Hughes,HPB,MWFIBRE,ARTIOS,P&,MWBox," +
@@ -120,7 +120,7 @@ ASSIGN
                 "Allwest,LoyLang,Badger,Delta,PQP,RFC2,Peachtree,BlueRidg," +
                 "Oklahoma,Protagon,TriState,Soule,Adapt,Freedman,BELL,VINELAND,Axis,Lakeside,PFS," +
                 "jobcardc 1,jobcardc 2,Printers,Valley,jobcardc 20,Valley20,Delta10,HoneyCell,AtlanticBox,PkgAtlanta,AmCarton," +
-                "Fluted,PreCorr" 
+                "Fluted,PreCorr,McElroy" 
  str-init[33] = "ASI,HOP,Fibre,Century,Interpac,FibreFC,HPB,Dayton,Livngstn,CentBox,Metro,Keystone,Frankstn,Colonial,Unipak,OTTPkg,Shelby,CCC,Indiana-XL,PPI,Accord,Knight,MidYork,Dee,Badger,Rosmar,Carded,Carded2,PackRite,Prystup,Knight***,Coburn," + /*MWFibre=Keystone*/
                 "jobcardf 1,jobcardf 2,xml,Wingate,Ruffino,McLean,Henry"
  str-init[34] = "Manual,Matrix"
@@ -198,7 +198,7 @@ ASSIGN
  str-init[103] = "Item,Vendor,All,NoTax"   /* aptax */ 
  str-init[104] = "None,Overrun,Receipts"  /* rmemails */     
  str-init[105] = ",loadtag"
- str-init[106] = "Fibrex,BOLFMTX15"
+ str-init[106] = "Fibrex,BOLFMTX15,ACPIX"
  str-init[107] = ",Indiana,Dee,ScheduleCard1"
  str-init[108] = "Workstation,Server"  
  str-init[109] = "Reorder Point"   

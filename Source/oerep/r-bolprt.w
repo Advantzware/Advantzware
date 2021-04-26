@@ -3028,7 +3028,7 @@ PROCEDURE build-work :
     status default 'Now Processing BOL: ' + string (oe-bolh.bol-no) + '....'.
 
     lv-run-bol        = IF lv-run-bol = "" AND report.key-04 = "FIBRECI" THEN  "NO" ELSE  "Yes" .
-    IF lv-run-commercial = "" AND report.key-03 <> "N" AND v-coc-fmt <> "CCC" AND v-coc-fmt <> "CCCWPP" AND v-coc-fmt <> "CCC3" AND v-coc-fmt <> "CCC2" AND v-coc-fmt <> "CCC4" AND v-coc-fmt <> "CCC5" THEN
+    IF lv-run-commercial = "" AND report.key-03 <> "N" AND v-coc-fmt <> "CCC" AND v-coc-fmt <> "CCCWPP" AND v-coc-fmt <> "CCC3" AND v-coc-fmt <> "CCC2" AND v-coc-fmt <> "CCC4" AND v-coc-fmt <> "CCC5" AND v-coc-fmt <> "CCCEss" THEN
          lv-run-commercial = "YES".
 
     IF NOT CAN-FIND(FIRST tt-post WHERE tt-post.row-id = ROWID(oe-bolh)) THEN
@@ -3577,7 +3577,7 @@ PROCEDURE GenerateReport :
    DEFINE INPUT PARAMETER ip-sys-ctrl-shipto AS LOG NO-UNDO.
 
    IF (v-print-bol AND v-print-fmt <> "SouthPak-XL" AND v-print-fmt <> "Prystup-Excel" AND v-print-fmt <> "Mclean-Excel") OR
-      (NOT v-print-bol AND v-print-fmt <> "Unipak-XL" AND v-print-fmt <> "PrystupXLS" AND v-print-fmt <> "ACPI" AND v-print-fmt <> "Soule" AND v-print-fmt <> "CCC" AND v-print-fmt <> "CCCWPP" AND v-print-fmt <> "CCC3" AND v-print-fmt <> "CCC2" AND v-print-fmt <> "CCC4" AND v-print-fmt <> "CCC5") THEN
+      (NOT v-print-bol AND v-print-fmt <> "Unipak-XL" AND v-print-fmt <> "PrystupXLS" AND v-print-fmt <> "ACPI" AND v-print-fmt <> "Soule" AND v-print-fmt <> "CCC" AND v-print-fmt <> "CCCWPP" AND v-print-fmt <> "CCC3" AND v-print-fmt <> "CCC2" AND v-print-fmt <> "CCC4" AND v-print-fmt <> "CCC5" AND v-print-fmt <> "CCCEss") THEN
       case rd-dest:
          when 1 then run output-to-printer(INPUT ip-cust-no, INPUT ip-sys-ctrl-shipto).
          when 2 then run output-to-screen(INPUT ip-cust-no, INPUT ip-sys-ctrl-shipto).
@@ -3885,7 +3885,7 @@ PROCEDURE output-to-mail :
                            INPUT 1,
                            INPUT v-printed).
 
-      IF NOT v-print-bol AND (v-coc-fmt EQ "Unipak-XL" OR v-coc-fmt eq "PrystupXLS" OR v-coc-fmt EQ "CCC" OR v-coc-fmt EQ "CCCWPP" OR v-coc-fmt EQ "CCC3" OR v-coc-fmt EQ "CCC2" OR v-coc-fmt EQ "CCC4" OR v-coc-fmt EQ "CCC5")  THEN
+      IF NOT v-print-bol AND (v-coc-fmt EQ "Unipak-XL" OR v-coc-fmt eq "PrystupXLS" OR v-coc-fmt EQ "CCC" OR v-coc-fmt EQ "CCCWPP" OR v-coc-fmt EQ "CCC3" OR v-coc-fmt EQ "CCC2" OR v-coc-fmt EQ "CCC4" OR v-coc-fmt EQ "CCC5" OR v-coc-fmt EQ "CCCEss") THEN
       DO:
          lv-pdf-file = init-dir + "\cofc.pdf".
 
@@ -4621,25 +4621,26 @@ PROCEDURE pRunFormatValueChanged :
   Notes:       
 ------------------------------------------------------------------------------*/
     DO WITH FRAME {&FRAME-NAME}:
-        IF v-print-fmt EQ "XPRINT"   OR
-            v-print-fmt EQ "bolfmt 1"   OR
-            v-print-fmt EQ "bolfmt 10"   OR
-            v-print-fmt EQ "Wingate-BOL"   OR
-            v-print-fmt EQ "bolfmt10-CAN"   OR
-            v-print-fmt EQ "Lakeside"   OR
-            v-print-fmt EQ "ACCORDBC"   OR
-            v-print-fmt EQ "Protagon" OR
-            v-print-fmt = "CapCityIN" OR 
-            v-print-fmt = "Axis" OR 
-            v-print-fmt EQ "Allwest"  OR
-            v-print-fmt EQ "PackRite"  OR
-            v-print-fmt EQ "Badger"   OR
-            v-print-fmt EQ "BadgerSoldTo"   OR
-            v-print-fmt EQ "MidwestX"   OR
-            v-print-fmt EQ "Loylang"  OR
-            v-print-fmt EQ "Printers"  OR
-            v-print-fmt EQ "Printers2"  OR
-            v-print-fmt EQ "Multicell"
+        IF v-print-fmt EQ "XPRINT"           OR
+            v-print-fmt EQ "bolfmt 1"        OR
+            v-print-fmt EQ "bolfmt 10"       OR
+            v-print-fmt EQ "Wingate-BOL"     OR
+            v-print-fmt EQ "bolfmt10-CAN"    OR
+            v-print-fmt EQ "Lakeside"        OR
+            v-print-fmt EQ "ACCORDBC"        OR
+            v-print-fmt EQ "Protagon"        OR
+            v-print-fmt = "CapCityIN"        OR 
+            v-print-fmt = "Axis"             OR 
+            v-print-fmt EQ "Allwest"         OR
+            v-print-fmt EQ "PackRite"        OR
+            v-print-fmt EQ "Badger"          OR
+            v-print-fmt EQ "BadgerSoldTo"    OR
+            v-print-fmt EQ "MidwestX"        OR
+            v-print-fmt EQ "Loylang"         OR
+            v-print-fmt EQ "Printers"        OR
+            v-print-fmt EQ "Printers2"       OR
+            v-print-fmt EQ "Multicell"       OR
+            v-print-fmt EQ "Henry"
             THEN 
             ASSIGN
             tb_print-dept:HIDDEN IN FRAME {&FRAME-NAME} = NO
@@ -4651,36 +4652,37 @@ PROCEDURE pRunFormatValueChanged :
             ASSIGN END_bol#:HIDDEN IN FRAME {&FRAME-NAME} = NO
             END_bol#:SENSITIVE IN FRAME {&FRAME-NAME} = YES.
 
-        IF LOOKUP(v-print-fmt,"SouthPak,Xprint,bolfmt 1,bolfmt 10,Wingate-BOL,bolfmt10-CAN,Lakeside,Soule,SouleMed,Accordbc,Protagon,Delta2,Xprint2,bolfmt 2,bolfmt 20,bolfmt 30,LancoYork,Chillicothe,NSTOCK,Frankstn,Fibre,Ottpkg,Consbox,CapitolBC,ContSrvc,CapCityIN,Axis,Allwest,COLOR,AllPkg2,Loylang,Printers,Printers2,PEACHTREE,PeachTreeBC,Multicell") LE 0 THEN DO:
+        IF LOOKUP(v-print-fmt,"SouthPak,Xprint,bolfmt 1,bolfmt 10,Wingate-BOL,bolfmt10-CAN,Lakeside,Soule,SouleMed,Accordbc,Protagon,Delta2,Xprint2,bolfmt 2,bolfmt 20,bolfmt 30,LancoYork,Chillicothe,NSTOCK,Frankstn,Fibre,Ottpkg,Consbox,CapitolBC,ContSrvc,CapCityIN,Axis,Allwest,COLOR,AllPkg2,Loylang,Printers,Printers2,PEACHTREE,PeachTreeBC,Multicell,Henry") LE 0 THEN DO:
             tb_print-component:SCREEN-VALUE = "no".
             DISABLE tb_print-component.
             tb_print-unassemble-component:SCREEN-VALUE = "no".
             DISABLE tb_print-unassemble-component.
         END.
 
-        IF v-print-fmt = "Xprint"    or
-           v-print-fmt = "Delta2"    or
-            v-print-fmt = "bolfmt 1"    or
-            v-print-fmt = "bolfmt 10"    or
-            v-print-fmt = "Wingate-BOL"    or
+        IF v-print-fmt = "Xprint"           or
+           v-print-fmt = "Delta2"           or
+            v-print-fmt = "bolfmt 1"        or
+            v-print-fmt = "bolfmt 10"       or
+            v-print-fmt = "Wingate-BOL"     or
             v-print-fmt = "bolfmt10-CAN"    or
-            v-print-fmt = "Lakeside"    or
-            v-print-fmt = "Accordbc"    or
-            v-print-fmt = "Protagon"  or
-            v-print-fmt = "CapCityIN" or 
-            v-print-fmt = "Axis" or 
-            v-print-fmt = "Peachtree" OR
-            v-print-fmt = "PeachtreeBC" OR
-            v-print-fmt = "MidwestX" or
-            v-print-fmt = "Allwest"   or 
-            v-print-fmt = "Badger"    OR
-            v-print-fmt = "BadgerSoldTo"   OR
-            v-print-fmt = "Loylang"   OR
-            v-print-fmt EQ "Printers" OR
-            v-print-fmt EQ "Printers2" OR
-            v-print-fmt = "Multicell" OR 
-            v-print-fmt = "SouleMed"  OR
-            v-print-fmt = "Soule"
+            v-print-fmt = "Lakeside"        or
+            v-print-fmt = "Accordbc"        or
+            v-print-fmt = "Protagon"        or
+            v-print-fmt = "CapCityIN"       or 
+            v-print-fmt = "Axis"            or 
+            v-print-fmt = "Peachtree"       OR
+            v-print-fmt = "PeachtreeBC"     OR
+            v-print-fmt = "MidwestX"        or
+            v-print-fmt = "Allwest"         or 
+            v-print-fmt = "Badger"          OR
+            v-print-fmt = "BadgerSoldTo"    OR
+            v-print-fmt = "Loylang"         OR
+            v-print-fmt EQ "Printers"       OR
+            v-print-fmt EQ "Printers2"      OR
+            v-print-fmt = "Multicell"       OR 
+            v-print-fmt = "SouleMed"        OR
+            v-print-fmt = "Soule"           OR
+            v-print-fmt = "Henry"           
 
             THEN tb_print-shipnote:SENSITIVE = YES.
         ELSE tb_print-shipnote:SENSITIVE = NO.
@@ -5823,6 +5825,12 @@ PROCEDURE SetBOLForm :
               ASSIGN 
                 is-xprint-form = NO
                 v-program = "oe/rep/cocccc.p".
+                
+         WHEN "CCCEss" THEN
+              ASSIGN 
+                is-xprint-form = NO
+                v-program = "oe/rep/cocEss.p".
+                
          WHEN "BOLCERT10" THEN
             ASSIGN
                is-xprint-form = YES

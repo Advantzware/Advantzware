@@ -75,8 +75,8 @@ DEF VAR vlSkipRec       AS LOG NO-UNDO.
 DEF NEW SHARED VAR LvOutputSelection AS CHAR NO-UNDO.
 DEF VAR v-stmt-char AS cha NO-UNDO.
 
-def var v-print-hdr like sys-ctrl.log-fld no-undo.
-def var v-use-cust as log no-undo.
+DEF VAR v-print-hdr LIKE sys-ctrl.log-fld NO-UNDO.
+//DEF VAR v-use-cust AS LOG NO-UNDO.
 DEF VAR vcDefaultForm AS CHAR NO-UNDO.
 DEF VAR v-dir AS CHAR FORMAT "X(80)" NO-UNDO.
 DEFINE VARIABLE glCustListActive AS LOGICAL     NO-UNDO.
@@ -1091,7 +1091,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
     ASSIGN
        v-print-hdr = sys-ctrl.log-fld
-       v-use-cust  = sys-ctrl.char-fld eq "CUST S"
+       //v-use-cust  = sys-ctrl.char-fld EQ "CUST S"
        v-stmt-char = sys-ctrl.char-fld
        d-print-fmt-dec = sys-ctrl.dec-fld
        vcDefaultForm = v-stmt-char.
@@ -1704,12 +1704,13 @@ ASSIGN ls-image1 = IF v-stmt-char = "Premier" THEN "images\premierinv.jpg"
                    ELSE "images\asilogo.jpg"
        FILE-INFO:FILE-NAME = ls-image1
        ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">".
+/*
+IF v-use-cust THEN
+   FIND FIRST cust WHERE
+        cust.company EQ cocode AND
+        cust.active  EQ "S"
+        NO-LOCK NO-ERROR.*/
 
-if v-use-cust then
-   find first cust WHERE
-        cust.company eq cocode AND
-        cust.active  eq "S"
-        no-lock no-error.
 
 if v-print-hdr and avail company then do:
   yy = 1.
@@ -2615,12 +2616,13 @@ form
 
       ls-full-img2 = FILE-INFO:FULL-PATHNAME + ">".
 
+/*
+IF v-use-cust THEN
+FIND FIRST cust
+    WHERE cust.company EQ cocode
+      AND cust.active  EQ "S"
+    NO-LOCK NO-ERROR.*/
 
-if v-use-cust then
-find first cust
-    where cust.company eq cocode
-      and cust.active  eq "S"
-    no-lock no-error.
 
 if v-print-hdr and avail company then do:
   yy = 1.
@@ -3452,12 +3454,13 @@ ASSIGN ls-image1 = (IF v-stmt-char = "Protagon" THEN "images\protinv.jpg"
 ASSIGN ls-image2 = "images\protinvfoot.jpg"
        FILE-INFO:FILE-NAME = ls-image2
        ls-full-img2 = FILE-INFO:FULL-PATHNAME + ">".
+/*
+IF v-use-cust THEN
+   FIND FIRST cust WHERE
+        cust.company EQ cocode AND
+        cust.active  EQ "S"
+        NO-LOCK NO-ERROR.*/
 
-if v-use-cust then
-   find first cust WHERE
-        cust.company eq cocode AND
-        cust.active  eq "S"
-        no-lock no-error.
 
 find first company where company.company eq cocode no-lock no-error.
 
@@ -4372,11 +4375,11 @@ form
   code-legend skip
   with frame no-stmt-total no-box no-labels stream-io width 80.
 
-if v-use-cust then
+/*if v-use-cust then
    find first cust WHERE
         cust.company eq cocode AND
         cust.active  eq "S"
-        no-lock no-error.
+        no-lock no-error.*/
 
 find first company where company.company eq cocode no-lock no-error.
 
@@ -4928,11 +4931,11 @@ form
   code-legend skip
   with frame no-stmt-total no-box no-labels stream-io width 80.
 
-if v-use-cust then
+/*if v-use-cust then
    find first cust WHERE
         cust.company eq cocode AND
         cust.active  eq "S"
-        no-lock no-error.
+        no-lock no-error.*/
 
 find first company where company.company eq cocode no-lock no-error.
 

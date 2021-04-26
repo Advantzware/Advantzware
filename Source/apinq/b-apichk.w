@@ -63,6 +63,16 @@ DEF BUFFER b-vend FOR vend.
 DEF VAR char-hdl AS CHAR NO-UNDO.
 def var phandle as widget-handle no-undo.
 
+DEFINE VARIABLE lRecFound           AS LOGICAL          NO-UNDO.
+DEFINE VARIABLE lAPInvoiceLength    AS LOGICAL          NO-UNDO.
+DEFINE VARIABLE cNK1Value           AS CHARACTER        NO-UNDO.
+
+RUN sys/ref/nk1look.p (INPUT cocode, "APInvoiceLength", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cNK1Value, OUTPUT lRecFound).
+IF lRecFound THEN
+    lAPInvoiceLength = logical(cNK1Value) NO-ERROR.
+
 DEF BUFFER b-ap-inv FOR ap-inv.
 
 /* _UIB-CODE-BLOCK-END */
@@ -381,6 +391,21 @@ DO:
    {src/adm/template/brsleave.i}
 END.
 
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
+ON ROW-DISPLAY OF Browser-Table IN FRAME F-Main
+DO:
+    &SCOPED-DEFINE exclude-row-display true
+    {methods/template/brwRowDisplay.i} 
+    IF lAPInvoiceLength THEN
+        ASSIGN tt-report.inv-no:FORMAT IN BROWSE {&browse-name} = "x(20)".
+    ELSE
+        ASSIGN tt-report.inv-no:FORMAT IN BROWSE {&browse-name} = "x(12)".
+
+END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -876,6 +901,7 @@ PROCEDURE local-initialize :
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
   
+  RUN pAPInvoiceLength.
 
   /* Code placed here will execute AFTER standard behavior.    */
   DO WITH FRAME {&FRAME-NAME}:
@@ -1128,3 +1154,19 @@ END FUNCTION.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pAPInvoiceLength B-table-Win 
+PROCEDURE pAPInvoiceLength :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    IF lAPInvoiceLength THEN
+        ASSIGN tt-report.inv-no:WIDTH IN BROWSE {&browse-name} = 30.
+    ELSE 
+        ASSIGN tt-report.inv-no:WIDTH IN BROWSE {&browse-name} = 20.
+        
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME

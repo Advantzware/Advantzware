@@ -60,7 +60,7 @@ DO TRANSACTION:
 END.
 
 {jc/jcgl-sh.i }
-{fg/fg-post3.i NEW}
+{fg/fg-post3.i}
 
 
 DO TRANSACTION:
@@ -1539,7 +1539,9 @@ PROCEDURE pCloseJobs:
             FIND FIRST job NO-LOCK 
                  WHERE RECID(job) EQ w-job.rec-id 
                  NO-ERROR.
-                 
+            
+            close_date = TODAY.     
+            
             IF AVAILABLE job AND job.opened THEN
                 
                 FOR EACH job-hdr NO-LOCK

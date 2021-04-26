@@ -28,6 +28,8 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+&SCOPED-DEFINE winReSize
+{methods/defines/winReSize.i}
 {custom/globdefs.i}
 {sys/inc/VAR.i "new shared" }
 ASSIGN cocode = g_company
@@ -1366,7 +1368,7 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
-
+{methods/winReSize.i}
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF
@@ -1801,6 +1803,7 @@ PROCEDURE get-matrix-all :
                INPUT INT(fg-rctd.job-no2:SCREEN-VALUE),
                INPUT fg-rctd.i-no:SCREEN-VALUE,
                INPUT fg-rctd.po-no:SCREEN-VALUE,
+               INPUT po-ordl.line,
                INPUT INTEGER(fg-rctd.t-qty:SCREEN-VALUE),
                INPUT (adm-new-record AND NOT adm-adding-record), /*Copied Record */
                INPUT cFGUnderOver,

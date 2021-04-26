@@ -329,7 +329,7 @@ PROCEDURE adm-create-objects :
                      FOLDER-TAB-TYPE = 2':U ,
              OUTPUT h_folder ).
        RUN set-position IN h_folder ( 3.48 , 1.80 ) NO-ERROR.
-       RUN set-size IN h_folder ( 25.86 , 158.20 ) NO-ERROR.
+       RUN set-size IN h_folder ( 24.86 , 157.20 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'panels/p-crm.w':U ,
@@ -538,7 +538,11 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'viewers/shipto.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Layout = ':U ,
+             INPUT  'Initial-Lock = NO-LOCK,
+                     Hide-on-Init = no,
+                     Disable-on-Init = no,
+                     Layout = ,
+                     Create-On-Add = Yes':U ,
              OUTPUT h_shipto-2 ).
        RUN set-position IN h_shipto-2 ( 5.52 , 4.60 ) NO-ERROR.
        /* Size in UIB:  ( 20.24 , 149.00 ) */

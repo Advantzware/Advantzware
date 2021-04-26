@@ -18,29 +18,30 @@
 /*----------------------------------------------------------------------*/
 
 /* ***************************  Definitions  ************************** */
-
-{methods/template/brwcustomdef.i}
-
-ASSIGN
-    FRAME {&FRAME-NAME}:BGCOLOR      = 15
-    {&BROWSE-NAME}:BGCOLOR           = 25
-    {&BROWSE-NAME}:FGCOLOR           = 0
-    {&BROWSE-NAME}:SEPARATOR-FGCOLOR = 15
-    {&BROWSE-NAME}:ROW-HEIGHT-CHARS  = 0.84
-    {&BROWSE-NAME}:FONT              = 22
-    {&BROWSE-NAME}:FIT-LAST-COLUMN   = TRUE
-    .
-hColumnRowColor = {&BROWSE-NAME}:FIRST-COLUMN.
-DO WHILE VALID-HANDLE(hColumnRowColor):
+&IF DEFINED(exclude-brwCustom) EQ 0 &THEN
+    {methods/template/brwcustomdef.i}
+    
     ASSIGN
-        cColHandList    = cColHandList + ","  + string(hColumnRowColor)
-        hColumnRowColor = hColumnRowColor:NEXT-COLUMN
+        FRAME {&FRAME-NAME}:BGCOLOR      = 15
+        {&BROWSE-NAME}:BGCOLOR           = 25
+        {&BROWSE-NAME}:FGCOLOR           = 0
+        {&BROWSE-NAME}:SEPARATOR-FGCOLOR = 15
+        {&BROWSE-NAME}:ROW-HEIGHT-CHARS  = 0.84
+        {&BROWSE-NAME}:FONT              = 22
+    //    {&BROWSE-NAME}:FIT-LAST-COLUMN   = TRUE
         .
-END. /* do while */
-cColHandList = TRIM(cColHandList, ",").
-
-&IF DEFINED(exclude-row-display) EQ 0 &THEN
-ON ROW-DISPLAY OF {&BROWSE-NAME} DO:
-    {methods/template/brwrowdisplay.i}
-END.
+    hColumnRowColor = {&BROWSE-NAME}:FIRST-COLUMN.
+    DO WHILE VALID-HANDLE(hColumnRowColor):
+        ASSIGN
+            cColHandList    = cColHandList + ","  + string(hColumnRowColor)
+            hColumnRowColor = hColumnRowColor:NEXT-COLUMN
+            .
+    END. /* do while */
+    cColHandList = TRIM(cColHandList, ",").
+    
+    &IF DEFINED(exclude-row-display) EQ 0 &THEN
+    ON ROW-DISPLAY OF {&BROWSE-NAME} DO:
+        {methods/template/brwrowdisplay.i}
+    END.
+    &ENDIF
 &ENDIF

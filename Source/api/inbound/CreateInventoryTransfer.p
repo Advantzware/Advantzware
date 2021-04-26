@@ -13,6 +13,7 @@
 
 {inventory/ttinventory.i "NEW SHARED"}.
 {jc/jcgl-sh.i  NEW}
+{fg/fg-post3.i NEW}
 
 DEFINE INPUT  PARAMETER ipcCompany              AS CHARACTER  NO-UNDO.
 DEFINE INPUT  PARAMETER ipcWareHouseID          AS CHARACTER  NO-UNDO.
@@ -27,22 +28,10 @@ DEFINE OUTPUT PARAMETER oplSuccess              AS LOGICAL    NO-UNDO.
 DEFINE OUTPUT PARAMETER opcMessage              AS CHARACTER  NO-UNDO.
 
 /* This will eventually move to setsession approach */
-&SCOPED-DEFINE NEW NEW
 {methods/defines/globdefs.i}
-{methods/defines/hndldefs.i}
-
-DEFINE VARIABLE hSession AS HANDLE NO-UNDO.
-DEFINE VARIABLE hTags    AS HANDLE NO-UNDO.
 
 g_company=ipcCompany.
 
-RUN nosweat/persist.p  PERSISTENT SET Persistent-Handle.
-RUN lstlogic/persist.p PERSISTENT SET ListLogic-Handle.
-
-RUN system/session.p  PERSISTENT SET hSession.
-SESSION:ADD-SUPER-PROCEDURE (hSession).
-RUN system/TagProcs.p PERSISTENT SET hTags.
-SESSION:ADD-SUPER-PROCEDURE (hTags).
 {sys/inc/var.i "new shared"}
 
 DEFINE VARIABLE hdInventoryProcs AS HANDLE    NO-UNDO.

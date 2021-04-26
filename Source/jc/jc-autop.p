@@ -43,7 +43,6 @@ v-avg-cst = rm-ctrl.avg-lst-cst.
 {jc/job-cls3.i NEW}
 
 
-FIND FIRST jc-ctrl WHERE jc-ctrl.company EQ cocode NO-LOCK NO-ERROR.
 FIND job-mat WHERE ROWID(job-mat) EQ ip-rowid NO-LOCK NO-ERROR.
 
 IF AVAIL job-mat AND job-mat.post THEN DO:

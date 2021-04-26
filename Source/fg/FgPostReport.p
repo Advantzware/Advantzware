@@ -106,7 +106,7 @@ ASSIGN
     locode = gloc.
     
 {fg/fullset.i NEW}
-{fg/fg-post3.i NEW}
+{fg/fg-post3.i}
 {jc/jcgl-sh.i }
 {sys/inc/adjustgl.i}
 

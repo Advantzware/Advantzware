@@ -47,9 +47,7 @@ DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
 {custom/getloc.i}
 
 {sys/inc/var.i new shared}
-DEFINE VARIABLE hdPriceProcs  AS HANDLE.
 
-RUN oe/PriceProcs.p PERSISTENT SET hdPriceProcs.
 ASSIGN
  cocode = gcompany
  locode = gloc.

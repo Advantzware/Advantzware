@@ -173,15 +173,15 @@ DO:
    DEF VAR vdDate-From  AS DATE NO-UNDO INIT ?.
    DEF VAR vdDate-To    AS DATE NO-UNDO INIT ?.
   
+  DEFINE VARIABLE cScreenType AS CHARACTER NO-UNDO.
 
 /*    RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,'excel-source':U,OUTPUT char-hdl). */
 /*                                                                                             */
 /*    RUN export-excel in WIDGET-HANDLE(char-hdl).                                             */
- 
-  IF v-whereamI MATCHES "*oeinq/w-ordinq*" OR v-whereamI MATCHES "*oe/w-order*" OR v-whereamI MATCHES "*oe/w-cloord*"
-  THEN DO: 
+  IF (v-whereamI MATCHES "*oe/wOrderEntryMaster*") OR (v-whereamI MATCHES "*Oeinq/w-ordinq*") THEN DO: 
       /* If order inquiry, then pass current sort data to the report window. */
-      IF v-whereamI MATCHES "*oeinq/w-ordinq*" THEN DO:
+      {methods/run_link.i "container-source" "GetScreenType" "(Output cScreenType)"}
+      IF cScreenType EQ "OQ1" THEN DO:
 
           /* Get handle to b-ordinq.w */
           RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,'sort-data-target':U,OUTPUT char-hdl).

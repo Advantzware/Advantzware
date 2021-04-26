@@ -55,15 +55,30 @@ DEF VAR iColumnLength AS INT NO-UNDO.
 DEF VAR cFieldType AS cha NO-UNDO.
 DEF VAR cTextListToDefault AS cha NO-UNDO.
 
+DEFINE VARIABLE lRecFound           AS LOGICAL          NO-UNDO.
+DEFINE VARIABLE lAPInvoiceLength    AS LOGICAL          NO-UNDO.
+DEFINE VARIABLE cNK1Value           AS CHARACTER        NO-UNDO.
 
-ASSIGN cTextListToSelect = "Vendor,Vendor Name,Invoice#,Inv Date,Due Date,1Gross,1Disc,2Gross,2Disc," +
-                           "3Gross,3Disc,Old Gross,Old Disc,Total Gross,Total Disc,Company,Terms,Days Old,CC/ACH"
+RUN sys/ref/nk1look.p (INPUT cocode, "APInvoiceLength", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cNK1Value, OUTPUT lRecFound).
+IF lRecFound THEN
+    lAPInvoiceLength = logical(cNK1Value) NO-ERROR.
+
+
+ASSIGN cTextListToSelect  = "Vendor,Vendor Name,Invoice#,Inv Date,Due Date,1Gross,1Disc,2Gross,2Disc," +
+                            "3Gross,3Disc,Old Gross,Old Disc,Total Gross,Total Disc,Company,Terms,Days Old,CC/ACH"
        cFieldListToSelect = "ap-inv.vend-no,vend-name,ap-inv.inv-no,ap-inv.inv-date,due-date,inv-t1,inv-d1,inv-t2,inv-d2," +
                             "inv-t3,inv-d3,inv-t4,inv-d4,ws_gross,ws_disc-avail,ap-inv.company,terms,dy-old,cc-ach"
-       cFieldLength = "8,30,12,10,10,11,8,11,8," +
-                      "11,8,11,8,13,10,7,5,8,6"
-       cFieldType   = "c,c,c,c,c,i,i,i,i," + "i,i,i,i,i,i,c,c,c,c"
+       cFieldType         = "c,c,c,c,c,i,i,i,i," + "i,i,i,i,i,i,c,c,c,c"
        .
+IF lAPInvoiceLength THEN
+    ASSIGN cFieldLength   = "8,30,20,10,10,11,8,11,8," +
+                            "11,8,11,8,13,10,7,5,8,6".
+ELSE
+    ASSIGN cFieldLength   = "8,30,12,10,10,11,8,11,8," +
+                            "11,8,11,8,13,10,7,5,8,6".
+                            
 ASSIGN cTextListToDefault  = "Vendor,Vendor Name,Invoice#,Inv Date,Due Date,1Gross,1Disc,2Gross,2Disc," +
                              "3Gross,3Disc,Old Gross,Old Disc,Total Gross,Total Disc,Company".
 {sys/inc/ttRptSel.i}
@@ -1224,7 +1239,7 @@ form ap-inv.inv-no
 
     with page-top frame f-top stream-io width 137 no-box.*/
 
-form ap-inv.inv-no
+FORM ap-inv.inv-no
      ap-inv.inv-date format "99/99/99"
      ap-inv.due-date format "99/99/99"
      inv-t[1]

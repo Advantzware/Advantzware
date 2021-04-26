@@ -35,10 +35,6 @@ DEFINE TEMP-TABLE ttQtyRestore NO-UNDO
 FUNCTION fSetHeaderOnly RETURNS LOGICAL PRIVATE
 	(ipcCompany AS CHARACTER ) FORWARD.
 
-FUNCTION fIsAutoIssue RETURNS LOGICAL PRIVATE
-	(iplAutoIssueArray LIKE jc-ctrl.post,
-	 ipcMaterialType AS CHARACTER) FORWARD.
-
 DEFINE TEMP-TABLE ttJobHdrToKeep
     FIELD riJobHdr AS ROWID.
 
@@ -365,11 +361,6 @@ PROCEDURE pBuildMaterials PRIVATE:
     DEFINE PARAMETER BUFFER ipbf-job   FOR job.
     
     DEFINE BUFFER bf-job-mat FOR job-mat.
-    DEFINE BUFFER bf-jc-ctrl FOR jc-ctrl.        
-    
-    FIND FIRST bf-jc-ctrl NO-LOCK 
-        WHERE bf-jc-ctrl.company EQ ipbf-job.company
-        NO-ERROR.
     
     FOR EACH estCostMaterial NO-LOCK
         WHERE estCostMaterial.estCostHeaderID EQ ipiEstCostHeaderID
@@ -416,8 +407,7 @@ PROCEDURE pBuildMaterials PRIVATE:
             bf-job-mat.basis-w      = estCostForm.basisWeight
             .
 
-        bf-job-mat.post = fIsAutoIssue(bf-jc-ctrl.post, estCostMaterial.materialType) OR 
-                          CAN-FIND(FIRST materialType 
+        bf-job-mat.post = CAN-FIND(FIRST materialType 
                                    WHERE materialType.company      EQ bf-job-mat.company 
                                      AND materialType.materialType EQ estCostMaterial.materialType 
                                      AND materialType.autoIssue    EQ TRUE).
@@ -557,6 +547,7 @@ PROCEDURE pCalcEstimateForJob PRIVATE:
         DO:  
             FIND FIRST bf-job-hdr NO-LOCK 
                 WHERE bf-job-hdr.company EQ ipbf-job.company
+                AND bf-job-hdr.job EQ ipbf-job.job
                 AND bf-job-hdr.job-no EQ ipbf-job.job-no
                 AND bf-job-hdr.job-no2 EQ ipbf-job.job-no2
                 NO-ERROR.
@@ -567,6 +558,7 @@ PROCEDURE pCalcEstimateForJob PRIVATE:
         DO:
             FOR EACH bf-job-hdr NO-LOCK
                 WHERE bf-job-hdr.company EQ ipbf-job.company
+                AND bf-job-hdr.job EQ ipbf-job.job
                 AND bf-job-hdr.job-no EQ ipbf-job.job-no
                 AND bf-job-hdr.job-no2 EQ ipbf-job.job-no2
                 ,
@@ -720,23 +712,6 @@ FUNCTION fSetHeaderOnly RETURNS LOGICAL PRIVATE
     RETURN lSetHeaderOnly.
 
 
-		
-END FUNCTION.
-
-FUNCTION fIsAutoIssue RETURNS LOGICAL PRIVATE
-	(iplAutoIssueArray LIKE jc-ctrl.post, ipcMaterialType AS CHARACTER):
-    /*------------------------------------------------------------------------------
-    Purpose: Given the array of auto issues from control file and material type, return
-    where the auto issue is selected.
-    Notes:
-    ------------------------------------------------------------------------------*/	
-    DEFINE VARIABLE lAutoIssue AS LOGICAL NO-UNDO.
-    DEFINE VARIABLE iIndex AS INTEGER NO-UNDO.
-    
-    iIndex = LOOKUP(ipcMaterialType,gcAutoIssueTypes).
-    lAutoIssue = iIndex GT 0 AND iplAutoIssueArray[iIndex] OR CAN-DO("J",ipcMaterialType).
-	
-	RETURN lAutoIssue.
 		
 END FUNCTION.
 

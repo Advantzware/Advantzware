@@ -34,6 +34,7 @@ CREATE WIDGET-POOL.
 
 &SCOPED-DEFINE winReSize
 &SCOPED-DEFINE h_Browse01 h_b-glinq
+/*&SCOPED-DEFINE AuditTableList glhist*/
 
 /* Parameters Definitions ---                                           */
 
@@ -59,6 +60,13 @@ DEF VAR li-last-page AS INT NO-UNDO.  /* for folding estimate page */
 /* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 
+/* External Tables                                                      */
+&Scoped-define EXTERNAL-TABLES glhist
+&Scoped-define FIRST-EXTERNAL-TABLE glhist
+
+
+/* Need to scope the external tables to this procedure                  */
+DEFINE QUERY external_tables FOR glhist.
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
 
@@ -82,6 +90,8 @@ DEFINE VARIABLE h_smartmsg AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_w-glinvl AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_movecol AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_b-glbal AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_b-glunbal AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_movecol-2 AS HANDLE NO-UNDO.
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -89,7 +99,7 @@ DEFINE FRAME F-Main
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 170 BY 24
+         SIZE 177 BY 24
          BGCOLOR 15 .
 
 DEFINE FRAME OPTIONS-FRAME
@@ -126,7 +136,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          HIDDEN             = YES
          TITLE              = "GL Inquiry"
          HEIGHT             = 24
-         WIDTH              = 170
+         WIDTH              = 177
          MAX-HEIGHT         = 320
          MAX-WIDTH          = 320
          VIRTUAL-HEIGHT     = 320
@@ -300,7 +310,7 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/folder.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'FOLDER-LABELS = ':U + 'Browse|Detail|Balance|Invoices' + ',
+             INPUT  'FOLDER-LABELS = ':U + 'Browse|Detail|Balance|Invoices|Problems' + ',
                      FOLDER-TAB-TYPE = 2':U ,
              OUTPUT h_folder ).
        RUN set-position IN h_folder ( 3.14 , 2.00 ) NO-ERROR.
@@ -332,6 +342,9 @@ PROCEDURE adm-create-objects :
        RUN set-position IN h_movecol ( 1.00 , 96.60 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.80 ) */
 
+       /* Links to SmartNavBrowser h_mach. */
+       RUN add-link IN adm-broker-hdl ( h_b-glinq , 'Record':U , THIS-PROCEDURE ).
+
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_b-glinq ,
              h_folder , 'AFTER':U ).
@@ -346,7 +359,7 @@ PROCEDURE adm-create-objects :
              INPUT  'Layout = ':U ,
              OUTPUT h_b-glrun ).
        RUN set-position IN h_b-glrun ( 4.57 , 3.00 ) NO-ERROR.
-       RUN set-size IN h_b-glrun ( 20.00 , 164.00 ) NO-ERROR.
+       RUN set-size IN h_b-glrun ( 20.00 , 172.00 ) NO-ERROR.
 
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
@@ -395,6 +408,31 @@ PROCEDURE adm-create-objects :
 
        /* Adjust the tab order of the smart objects. */
     END. /* Page 4 */
+    WHEN 5 THEN DO:
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'gl/b-glunbal.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_b-glunbal ).
+       RUN set-position IN h_b-glunbal ( 5.05 , 5.00 ) NO-ERROR.
+       RUN set-size IN h_b-glunbal ( 19.57 , 173.00 ) NO-ERROR.
+
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'viewers/movecol.w':U ,
+             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_movecol-2 ).
+       RUN set-position IN h_movecol-2 ( 1.00 , 96.60 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 7.80 ) */
+
+       
+       /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_b-glunbal ,
+             h_folder , 'AFTER':U ).
+       /* Links to SmartViewer h_movecol. */
+       RUN add-link IN adm-broker-hdl ( h_b-glunbal , 'move-columns':U , h_movecol-2 ).
+
+    END. /* Page 1 */
 
   END CASE.
   /* Select a Startup page. */
@@ -479,6 +517,29 @@ PROCEDURE hide-estimate :
 ------------------------------------------------------------------------------*/
   
   RUN select-page (li-prev-page).
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetInvoiceButton W-Win 
+PROCEDURE pSetInvoiceButton :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   
+  
+  DEFINE INPUT PARAM ipInvoiced AS LOGICAL NO-UNDO. 
+  DEFINE VARIABLE tabNo AS INTEGER INIT 4 NO-UNDO.
+                          
+  IF tabNo NE 0 THEN DO:
+     IF ipInvoiced THEN RUN enable-folder-page IN h_folder (tabNo) NO-ERROR.
+     ELSE RUN disable-folder-page IN h_folder (tabNo) NO-ERROR.
+  END.
+  
 
 END PROCEDURE.
 

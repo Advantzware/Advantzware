@@ -184,21 +184,18 @@ PROCEDURE pBuildQuantitiesAndCostsFromQuote PRIVATE:
        
     FOR EACH quotehd NO-LOCK
         WHERE quotehd.company  EQ ipbf-eb.company
-        AND (quotehd.q-no EQ iQuoteNo OR iQuoteNo EQ 0) 
-        AND quotehd.loc EQ ipbf-eb.loc
+        AND (quotehd.q-no EQ iQuoteNo OR iQuoteNo EQ 0)        
         AND quotehd.est-no    EQ cEstNo 
         AND (quotehd.expireDate GE TODAY OR quotehd.expireDate EQ ?)
         AND quotehd.quo-date LE TODAY
         ,
         FIRST quoteitm NO-LOCK 
-        WHERE quoteitm.company EQ quotehd.company
-        AND quoteitm.loc EQ quotehd.loc
+        WHERE quoteitm.company EQ quotehd.company         
         AND quoteitm.q-no EQ quotehd.q-no
         AND quoteitm.part-no EQ ipbf-eb.part-no
         ,
         EACH quoteqty NO-LOCK
-        WHERE quoteqty.company EQ quoteitm.company
-        AND quoteqty.loc EQ quoteitm.loc
+        WHERE quoteqty.company EQ quoteitm.company         
         AND quoteqty.q-no EQ quoteitm.q-no
         AND quoteqty.line EQ quoteitm.line
         BY quotehd.quo-date DESCENDING:
@@ -247,8 +244,7 @@ PROCEDURE pGetLastQuoteNO PRIVATE:
     DEFINE OUTPUT PARAMETER opiQuoteNO AS INTEGER   NO-UNDO.    
         
     FOR EACH quotehd FIELDS(q-no) NO-LOCK  
-        WHERE quotehd.company EQ ipcCompany 
-        AND quotehd.loc EQ ipcloc
+        WHERE quotehd.company EQ ipcCompany         
         AND quotehd.quo-date LE TODAY 
         AND (quotehd.expireDate GE TODAY OR quotehd.expireDate EQ ?)
         AND quotehd.est-no EQ ipcEstimate  

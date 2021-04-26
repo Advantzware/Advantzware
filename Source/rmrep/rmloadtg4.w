@@ -2490,21 +2490,32 @@ PROCEDURE run-report :
         IF i EQ 1 THEN RUN create-loadtag (j,w-po.rcpt-qty,lv-itemOnly).
           IF cBarCodeProgram EQ "" THEN
              RUN outputTagLine (w-po.rcpt-qty).
+          ELSE 
+              IF cBarCodeProgram EQ "xprint" THEN 
+              do:
+                  CREATE tt-po-print .
+                  BUFFER-COPY w-po TO tt-po-print .
+                  ASSIGN 
+                      tt-po-print.tag-no   = IF AVAIL loadtag THEN loadtag.tag-no ELSE ""
+                      tt-po-print.vend-tag = IF AVAIL loadtag THEN loadtag.misc-char[1] ELSE "" .
+              END.
       END. /* do i */
     END. /* do j */
     IF w-po.partial NE 0 THEN
     DO i = 1 TO v-mult: /* for partial print */
       IF i EQ 1 THEN RUN create-loadtag (j,w-po.partial,lv-itemOnly).
          IF cBarCodeProgram EQ "" THEN
-         RUN outputTagLine (w-po.rcpt-qty).
+            RUN outputTagLine (w-po.rcpt-qty).
+         ELSE 
+             IF cBarCodeProgram EQ "xprint" THEN 
+             do:
+                 CREATE tt-po-print .
+                 BUFFER-COPY w-po TO tt-po-print .
+                 ASSIGN 
+                     tt-po-print.tag-no   = IF AVAIL loadtag THEN loadtag.tag-no ELSE ""
+                     tt-po-print.vend-tag = IF AVAIL loadtag THEN loadtag.misc-char[1] ELSE "" .
+             END.
     END. /* do i */
-    IF cBarCodeProgram EQ "xprint" THEN do:
-            CREATE tt-po-print .
-            BUFFER-COPY w-po TO tt-po-print .
-            ASSIGN 
-                tt-po-print.tag-no = IF AVAIL loadtag THEN loadtag.tag-no ELSE ""
-                tt-po-print.vend-tag = IF AVAIL loadtag THEN loadtag.misc-char[1] ELSE "" .
-    END.
     DELETE w-po.
   END. /* each w-po */
   OUTPUT CLOSE.

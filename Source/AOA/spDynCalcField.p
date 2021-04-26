@@ -355,6 +355,16 @@ PROCEDURE Calculator : /* shunting yard algorithm */
 
 END PROCEDURE.
 
+PROCEDURE calcBlankDate:
+    DEFINE INPUT  PARAMETER ipdtDate     AS DATE      NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcCalcValue AS CHARACTER NO-UNDO.
+    
+    IF ipdtDate EQ ? THEN
+        ASSIGN opcCalcValue = "".
+    ELSE
+    opcCalcValue = STRING(DATE(ipdtDate)).
+END PROCEDURE.
+
 PROCEDURE spDynCalcField:
     DEFINE INPUT  PARAMETER iphQuery     AS HANDLE    NO-UNDO.
     DEFINE INPUT  PARAMETER ipcCalcProc  AS CHARACTER NO-UNDO.
@@ -466,6 +476,10 @@ PROCEDURE spDynCalcField:
         RUN VALUE(ipcCalcProc) (
             ipcCalcParam,
             ipcFormat,
+            OUTPUT opcCalcValue).
+        WHEN "calcBlankDate" THEN
+        RUN VALUE(ipcCalcProc) (
+            DATE(ipcCalcParam),
             OUTPUT opcCalcValue).
     END CASE.
 END PROCEDURE.

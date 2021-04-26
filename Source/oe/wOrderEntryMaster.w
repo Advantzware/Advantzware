@@ -7,7 +7,7 @@
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS W-Win 
 /*------------------------------------------------------------------------
 
-  File: oe\w-order.w
+  File: oe\wOrderEntryMaster.w
   
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
@@ -28,13 +28,17 @@ CREATE WIDGET-POOL.
 &SCOPED-DEFINE h_Object02 h_vp-oeitm
 &SCOPED-DEFINE h_Object03 h_p-orel
 &SCOPED-DEFINE h_Object04 h_p-obol-2
-&SCOPED-DEFINE h_Object05 h_v-navest-2
-&SCOPED-DEFINE h_Object06 h_p-ordmis
-&SCOPED-DEFINE h_Object07 h_v-ordt-2
-&SCOPED-DEFINE h_Object08 h_p-navico
+&SCOPED-DEFINE h_Object05 h_vp-clsoe-2
+&SCOPED-DEFINE h_Object06 h_v-navest-2
+&SCOPED-DEFINE h_Object07 h_p-ordmis
+&SCOPED-DEFINE h_Object08 h_v-ordt-2 
 &SCOPED-DEFINE h_Object09 h_p-ordrel
+&SCOPED-DEFINE h_Object12 h_p-navico
 &SCOPED-DEFINE h_Object10 h_p-orel-2
-&SCOPED-DEFINE h_Object11 h_p-obol
+&SCOPED-DEFINE h_Object11 h_p-obol 
+
+
+
 &SCOPED-DEFINE setUserExit TRUE
 &SCOPED-DEFINE LocalInit
 
@@ -144,6 +148,7 @@ DEFINE VARIABLE h_w-ordesf AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_w-ordest AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_w-ordfg AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_w-ordjob AS HANDLE NO-UNDO. 
+DEFINE VARIABLE h_vp-clsoe-2 AS HANDLE NO-UNDO.
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -462,6 +467,8 @@ END.
 
 /* ***************************  Main Block  *************************** */
 
+SESSION:SET-WAIT-STATE("").
+
 // Ticket #96577: To fix the icon issue need to increase the height of window do that all icon fit on the window.
 //seting the width in main block as window resize trigger will resize all objects wrt. window width 
 {&WINDOW-NAME}:WIDTH = 185.
@@ -711,7 +718,7 @@ PROCEDURE adm-create-objects :
              INPUT  'Layout = ':U ,
              OUTPUT h_vp-clsoe ).
        RUN set-position IN h_vp-clsoe ( 22.91 , 142.00 ) NO-ERROR.
-       /* Size in UIB:  ( 1.91 , 13.00 ) */
+       RUN set-size IN h_vp-clsoe ( 1.88 , 13.50 ) NO-ERROR.           
 
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('1,3':U) NO-ERROR.
@@ -838,6 +845,14 @@ PROCEDURE adm-create-objects :
              OUTPUT h_p-obol-2 ).
        RUN set-position IN h_p-obol-2 ( 23.14 , 143.00 ) NO-ERROR.
        RUN set-size IN h_p-obol-2 ( 1.67 , 12.00 ) NO-ERROR.
+       
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'oe/vp-clsoe.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_vp-clsoe-2 ).
+       RUN set-position IN h_vp-clsoe-2 ( 23.14 , 155.00 ) NO-ERROR.
+       RUN set-size IN h_vp-clsoe-2 ( 1.67 , 15.00 ) NO-ERROR.
 
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('2,5':U) NO-ERROR.
@@ -866,6 +881,10 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_b-ordlt , 'Record':U , h_vp-oeitm ).
        RUN add-link IN adm-broker-hdl ( h_b-ordlt , 'update':U , h_vp-oeitm ).
        RUN add-link IN adm-broker-hdl ( h_v-ord , 'oeitem':U , h_vp-oeitm ).
+       
+       /* Links to SmartViewer h_vp-clsoe-2. */
+       RUN add-link IN adm-broker-hdl ( h_b-ordlt , 'line-item':U , h_vp-clsoe-2 ).
+       RUN add-link IN adm-broker-hdl ( h_b-ordlt , 'Record':U , h_vp-clsoe-2 ).
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_miscflds ,
@@ -886,6 +905,9 @@ PROCEDURE adm-create-objects :
              h_vp-oeitm , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_p-obol-2 ,
              h_p-orel , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_vp-clsoe-2 ,
+             h_p-obol-2 , 'AFTER':U ).      
+             
     END. /* Page 3 */
     WHEN 4 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
@@ -2036,6 +2058,20 @@ PROCEDURE select_add :
   run select-page(2).
   run get-link-handle in adm-broker-hdl(this-procedure,"add-ord-target", output char-hdl).
   run add-order in widget-handle(char-hdl).
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetHoldButton W-Win 
+PROCEDURE pSetHoldButton :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  
+  RUN dispatch IN h_oe-hold ( INPUT 'row-available':U ) . 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

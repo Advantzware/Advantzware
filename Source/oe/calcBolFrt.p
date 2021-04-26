@@ -2,6 +2,7 @@ DISABLE TRIGGERS FOR LOAD OF oe-boll.
 DISABLE TRIGGERS FOR LOAD OF oe-bolh.
 
 DEF INPUT PARAMETER iprBolhRow AS ROWID NO-UNDO.
+DEF INPUT PARAMETER iplFreightCostCalc AS LOGICAL NO-UNDO.
 DEF OUTPUT PARAMETER opdFreight AS DECIMAL DECIMALS 6 NO-UNDO.
 
 
@@ -16,6 +17,9 @@ DEF VAR tot-other-freight AS DEC NO-UNDO DECIMALS 10.
 DEF VAR ldMinRate AS DEC NO-UNDO.
 DEF VAR dTotFreight AS DEC NO-UNDO DECIMALS 10.
 DEFINE VARIABLE cCustID AS CHARACTER NO-UNDO.
+DEFINE VARIABLE dRatePerPallet AS DECIMAL NO-UNDO.
+DEFINE VARIABLE cTagDescription AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lForceFreight AS LOGICAL NO-UNDO.
 DEF BUFFER bf-oe-boll FOR oe-boll.
 
 
@@ -26,7 +30,17 @@ DEF BUFFER bf-oe-boll FOR oe-boll.
  ASSIGN oe-bolh.tot-pallets = 0
         dTotFreight         = 0
         tot-other-freight   = 0.
- 
+        
+IF oe-bolh.cwt NE 0 THEN
+DO:
+  lForceFreight = YES.
+  opdFreight =  oe-bolh.cwt / 100 * oe-bolh.tot-wt . 
+  cTagDescription = "Freight cost forced at $" + string(oe-bolh.cwt) + "/ 100 lbs x " + string(oe-bolh.tot-wt) + " lbs = $" + string(opdFreight). 
+END.
+
+IF NOT lForceFreight THEN
+DO:    
+
  /* Obtain total basis weight for all lines on the BOL */
  FOR EACH bf-oe-boll
      WHERE bf-oe-boll.company EQ oe-bolh.company
@@ -87,7 +101,7 @@ DEF BUFFER bf-oe-boll FOR oe-boll.
 
 
    RUN oe/getLineFrt.p (oe-bolh.company, 
-                        bf-oe-boll.loc, 
+                        oe-bolh.loc, 
                         oe-bolh.carrier, 
                         v-del-zone,
                         shipto.ship-zip, 
@@ -95,9 +109,12 @@ DEF BUFFER bf-oe-boll FOR oe-boll.
                         tot-other-freight, 
                         1, 
                         OUTPUT dFreight, 
-                        OUTPUT ldMinRate).
-
+                        OUTPUT ldMinRate,
+                        OUTPUT dRatePerPallet).
+   
+   IF iplFreightCostCalc THEN
    ASSIGN bf-oe-boll.freight = dFreight. 
+   
           dTotFreight = dTotFreight + dFreight.
           dTotBasis = dTotBasis + v-other-freight.
           oe-bolh.tot-pallets = oe-bolh.tot-pallets + bf-oe-boll.tot-pallets.
@@ -124,6 +141,7 @@ DEF BUFFER bf-oe-boll FOR oe-boll.
                OUTPUT v-other-freight). 
  
      /* line freight is total / (basis  / total basis */
+     IF iplFreightCostCalc THEN
      bf-oe-boll.freight = dTotFreight * v-other-freight / dTotBasis.
 
    END. /* each bol */
@@ -131,8 +149,65 @@ DEF BUFFER bf-oe-boll FOR oe-boll.
  END. /* if below minimum */
 
  /*oe-bolh.freight = dTotFreight.*/ /* task NO 5051503 */
+ oe-bolh.freightCalculationAmount = dTotFreight.
  FIND CURRENT oe-bolh NO-LOCK.
  opdFreight = dTotFreight.
+
+ 
+ FIND FIRST carrier NO-LOCK
+      WHERE carrier.company EQ oe-bolh.company
+      AND carrier.carrier EQ oe-bolh.carrier
+      AND carrier.loc EQ oe-bolh.loc NO-ERROR .
+ IF AVAIL carrier THEN
+ DO:    
+   IF carrier.chg-method EQ "P" THEN
+   cTagDescription = "Loc = " + oe-bolh.loc + ", Carrier = Pallet, Zone = " + v-del-zone + ", Pallet = " +  string(oe-bolh.tot-pallet) + " @ $" + string(dRatePerPallet) + "/Pallet".
+   ELSE IF carrier.chg-method EQ "W" THEN
+   cTagDescription = "Loc = " + oe-bolh.loc + ", Carrier = Weight, Zone = " + v-del-zone + ", Weight = " +  string(oe-bolh.tot-wt) + " @ $" + string(dRatePerPallet) + "/100 Lbs".
+   ELSE IF carrier.chg-method EQ "M" THEN
+   cTagDescription = "Loc = " + oe-bolh.loc + ", Carrier = Msf, Zone = " + v-del-zone + ", MSF = @ $" + string(dRatePerPallet) + "/Msf".
+   
+   IF dTotFreight LT ldMinRate THEN 
+    cTagDescription = cTagDescription + ", Minimum applied @ $" + STRING(ldMinRate) .
+ END.  
+ ELSE cTagDescription = "Carrier not found".
+END.
+ELSE DO:
+
+ IF iplFreightCostCalc THEN
+ RUN oe/bolfrteq.p (BUFFER oe-bolh, opdFreight, 0). 
+ 
+ oe-bolh.freightCalculationAmount = opdFreight.   
+ /* Obtain the total freight for all lines on BOL */
+ FOR EACH bf-oe-boll
+     WHERE bf-oe-boll.company EQ oe-bolh.company
+       AND bf-oe-boll.b-no    EQ oe-bolh.b-no:
+          oe-bolh.tot-pallets = oe-bolh.tot-pallets + bf-oe-boll.tot-pallets.           
+ END. /* each oe-boll */
+END.
+      
+   IF iplFreightCostCalc AND opdFreight GT 0 THEN
+   DO:
+       RUN ClearTagsForGroup(oe-bolh.rec_key,"FreightCost" ).  /*Clear all hold tags - TagProcs.p*/
+       RUN AddTagInfoForGroup(
+           INPUT oe-bolh.rec_key,
+           INPUT "oe-bolh",
+           INPUT cTagDescription,
+           INPUT "",
+           INPUT "FreightCost"
+           ). /*From TagProcs Super Proc*/      
+   END.
+      
+   RUN ClearTagsForGroup(oe-bolh.rec_key , "CalcFreight").  /*Clear all hold tags - TagProcs.p*/  
+   RUN AddTagInfoForGroup(
+    INPUT oe-bolh.rec_key,
+    INPUT "oe-bolh",
+    INPUT cTagDescription,
+    INPUT "",
+    INPUT "CalcFreight"
+    ). /*From TagProcs Super Proc*/   
+  
+
 
 
 /* **********************  Internal Procedures  *********************** */

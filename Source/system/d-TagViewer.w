@@ -43,6 +43,8 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
     DEFINE INPUT PARAMETER ipcRecKey  AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcTagType AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcGroup AS CHARACTER NO-UNDO.
+
 
 /* Local Variable Definitions ---                                       */
 
@@ -63,7 +65,7 @@ CREATE WIDGET-POOL.
 &Scoped-define FRAME-NAME D-Dialog
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnOk 
+&Scoped-Define ENABLED-OBJECTS btnOk btnViewAll 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -71,13 +73,6 @@ CREATE WIDGET-POOL.
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _XFTR "SmartDialogCues" D-Dialog _INLINE
-/* Actions: adecomm/_so-cue.w ? adecomm/_so-cued.p ? adecomm/_so-cuew.p */
-/* SmartDialog,ab,49267
-Destroy on next read */
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 
 /* ***********************  Control Definitions  ********************** */
@@ -91,14 +86,20 @@ DEFINE VARIABLE h_tag AS HANDLE NO-UNDO.
 DEFINE BUTTON btnOk AUTO-GO 
      IMAGE-UP FILE "Graphics/32x32/ok-normal-btn.png":U
      LABEL "Button 1" 
-     SIZE 14.5 BY 1.43.
+     SIZE 14.6 BY 1.43.
+
+DEFINE BUTTON btnViewAll 
+     IMAGE-UP FILE "Graphics/32x32/viewAll.png":U
+     LABEL "View All" 
+     SIZE 14.6 BY 1.43.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME D-Dialog
-     btnOk AT ROW 16.05 COL 56 WIDGET-ID 2
-     SPACE(62.29) SKIP(0.13)
+     btnOk AT ROW 16.05 COL 46.4 WIDGET-ID 2
+     btnViewAll AT ROW 16.05 COL 63.4 WIDGET-ID 4
+     SPACE(54.79) SKIP(0.13)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          TITLE "Tag Viewer" WIDGET-ID 100.
@@ -158,6 +159,21 @@ ON WINDOW-CLOSE OF FRAME D-Dialog /* Tag Viewer */
 DO:  
   /* Add Trigger to equate WINDOW-CLOSE to END-ERROR. */
   APPLY "END-ERROR":U TO SELF.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnViewAll
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnViewAll D-Dialog
+ON CHOOSE OF btnViewAll IN FRAME D-Dialog /* View All */
+DO:
+    RUN pReopenQueryBrowse(
+        INPUT ipcRecKey,
+        INPUT ipcTagType,
+        INPUT ""
+        ). 
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -267,7 +283,7 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  ENABLE btnOk 
+  ENABLE btnOk btnViewAll 
       WITH FRAME D-Dialog.
   VIEW FRAME D-Dialog.
   {&OPEN-BROWSERS-IN-QUERY-D-Dialog}
@@ -289,7 +305,8 @@ PROCEDURE local-initialize :
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
     RUN pReopenQueryBrowse(
         INPUT ipcRecKey,
-        INPUT ipcTagType
+        INPUT ipcTagType,
+        INPUT ipcGroup
         ).   
 
   /* Code placed here will execute AFTER standard behavior.    */
@@ -308,6 +325,7 @@ PROCEDURE pReopenQueryBrowse PRIVATE :
 ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcRecKey  AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcTagType AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcGroup AS CHARACTER NO-UNDO.
     
     DEFINE VARIABLE hdBrowse    AS HANDLE    NO-UNDO.
     DEFINE VARIABLE cCharHandle AS CHARACTER NO-UNDO.
@@ -320,9 +338,10 @@ PROCEDURE pReopenQueryBrowse PRIVATE :
     hdBrowse = HANDLE(cCharHandle).
     
     IF VALID-HANDLE(hdBrowse) THEN 
-        RUN ReopenQuery in hdBrowse(
+        RUN ReopenQuery IN hdBrowse(
             INPUT ipcRecKey,
-            INPUT ipcTagType
+            INPUT ipcTagType,
+            INPUT ipcGroup
             ).    
 END PROCEDURE.
 
