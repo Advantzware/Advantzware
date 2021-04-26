@@ -77,10 +77,10 @@ FUNCTION fHasDataCollected RETURNS LOGICAL PRIVATE
     (BUFFER ipbf-job-mch FOR job-mch) FORWARD.
 
 FUNCTION fIsAssemblyFeed RETURNS LOGICAL PRIVATE
-    (  ) FORWARD.
+    (ipcFeedType AS CHARACTER) FORWARD.
 
 FUNCTION fIsAssemblyPartFeed RETURNS LOGICAL PRIVATE
-    (  ) FORWARD.
+    (ipcFeedType AS CHARACTER) FORWARD.
 
 FUNCTION fIsDepartment RETURNS LOGICAL PRIVATE
     (ipcDepartment AS CHARACTER,
@@ -1640,10 +1640,10 @@ PROCEDURE SetAttributesFromJobMch:
     DO:
         RUN pSetAttributesBlank(BUFFER bf-eb).
         RUN pSetAttributeForColor(BUFFER bf-eb, bf-job-mch.blank-no, bf-job-mch.pass).  //Maxco
-        RUN pSetAttributeFromStandard(bf-eb.company,  13, STRING(fGetDieNumberUp(BUFFER bf-eb,ipcMachine))). //v-up  
-        RUN pSetAttributeFromStandard(bf-eb.company,  18, STRING(fGetOperationsQty(BUFFER bf-eb, ipcMachine, ipiPass))).  //qty
-        RUN pSetAttributeFromStandard(bf-eb.company,  20, STRING(fGetOperationsEstSheet(BUFFER bf-eb, ipcMachine, ipiPass))). //(qty * v-yld / xeb.num-up / v-n-out)   not found
-        RUN pSetAttributeFromStandard(bf-eb.company,  25, STRING(fGetOperationsGrsShtWid(BUFFER bf-eb, ipcMachine, ipiPass))). //v-out
+        RUN pSetAttributeFromStandard(bf-eb.company,  13, STRING(fGetDieNumberUp(BUFFER bf-eb,bf-job-mch.m-code))). //v-up  
+        RUN pSetAttributeFromStandard(bf-eb.company,  18, STRING(fGetOperationsQty(BUFFER bf-eb, bf-job-mch.m-code, iPass))).  //qty
+        RUN pSetAttributeFromStandard(bf-eb.company,  20, STRING(fGetOperationsEstSheet(BUFFER bf-eb, bf-job-mch.m-code, iPass))). //(qty * v-yld / xeb.num-up / v-n-out)   not found
+        RUN pSetAttributeFromStandard(bf-eb.company,  25, STRING(fGetOperationsGrsShtWid(BUFFER bf-eb, bf-job-mch.m-code, iPass))). //v-out
         RUN pSetAttributeFromStandard(bf-eb.company,  27, STRING(fGetOperationsPartPerSet(BUFFER bf-eb,2,""))). //ld-parts[2]
         RUN pSetAttributeFromStandard(bf-eb.company,  28, STRING(fGetOperationsInkCoverage(BUFFER bf-eb))). //ld-ink-frm
         RUN pSetAttributeFromStandard(bf-eb.company,  29, STRING(fGetOperationsPartPerSet(BUFFER bf-eb,1,""))). //ld-parts[1]
