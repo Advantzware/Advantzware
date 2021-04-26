@@ -1351,7 +1351,8 @@ DO:
         " " dadj " " cadj " " bsht " " incs skip(1).
         
     IF tb_include-summary-total THEN
-    DO:     
+    DO: 
+        PAGE.
         put SKIP "===============" to 61 "===================" to 81 skip
             "Total Assets:" AT 10 dAssetAmountPTD format "->>>,>>>,>>9.99" to 61
                                       dAssetAmountYTD format "->>>,>>>,>>>,>>9.99" to 81 SKIP.       
@@ -1604,7 +1605,7 @@ DO:
                         
         dTotYTD = dTotYTD + ttTrialBalance.amountYTD.
         
-        IF NOT suppress-zero OR ttTrialBalance.amountYTD NE 0 OR ttTrialBalance.amountPTD NE 0 THEN
+        IF NOT suppress-zero /*OR ttTrialBalance.amountYTD NE 0 OR ttTrialBalance.amountPTD NE 0*/ THEN
         DO:
            dTotalYtdAmount = dTotalYtdAmount + ttTrialBalance.amountYTDOpen .
            dYtdAmount = ttTrialBalance.amountYTDOpen.
@@ -1637,7 +1638,7 @@ DO:
                 dPeriodTotal FORMAT "->>,>>>,>>9.99"  LABEL "PTD Total"
                 glhist.documentID FORMAT "x(32)" LABEL "Document id"
                 glhist.sourceDate FORMAT "99/99/9999" LABEL "Source Date"
-                glhist.tr-num FORMAT ">>>>>>" LABEL "Run Number"
+                glhist.tr-num FORMAT ">>>>>>>>" LABEL "Run Number"
                 dYtdAmount FORMAT "->,>>>,>>>,>>9.99" LABEL "YTD"                                 
                 WITH CENTERED WIDTH 272 STREAM-IO.                
                           
