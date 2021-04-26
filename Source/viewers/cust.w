@@ -236,7 +236,7 @@ DEFINE VARIABLE cbMatrixPrecision AS INTEGER FORMAT "9":U INITIAL 0
 DEFINE VARIABLE cbMatrixRounding AS CHARACTER FORMAT "X(256)":U 
      LABEL "Matrix Rounding" 
      VIEW-AS COMBO-BOX INNER-LINES 5
-     LIST-ITEM-PAIRS "Nomal Round","N",
+     LIST-ITEM-PAIRS "Normal Round","N",
                      "Round Up","U",
                      "Round Down","D",
                      "<None>","None"

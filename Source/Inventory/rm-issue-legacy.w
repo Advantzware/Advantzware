@@ -999,12 +999,11 @@ DO:
                       ).                                  
 
     IF lParse THEN
-        ASSIGN
-            fiJobNo:SCREEN-VALUE = cJobNo   
-            cFormattedJobno      = DYNAMIC-FUNCTION (
-                                       "fAddSpacesToString" IN hdJobProcs, cJobNo, 6, TRUE
-                                   )
-            .
+        cFormattedJobno = DYNAMIC-FUNCTION (
+                              "fAddSpacesToString" IN hdJobProcs, cJobNo, 6, TRUE
+                          ).
+
+    fiJobNo:SCREEN-VALUE = cFormattedJobno.   
             
     RUN GetSecondaryJobForJob IN hdJobProcs (
         INPUT cCompany,
@@ -1798,6 +1797,7 @@ PROCEDURE pTagScan :
     DEFINE VARIABLE iBlankNo    AS INTEGER   NO-UNDO.
     DEFINE VARIABLE lValidInv   AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lSuccess    AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lChoice     AS LOGICAL   NO-UNDO.
     
     DO WITH FRAME {&FRAME-NAME}:
     END.
@@ -1830,9 +1830,13 @@ PROCEDURE pTagScan :
                 .
         
         IF cbRMItem:SCREEN-VALUE NE cRMItem THEN DO:
-            MESSAGE "Tag belongs to a different item #"  
-                VIEW-AS ALERT-BOX.
-            RETURN.
+            system.SharedConfig:Instance:SetValue("Tag", ipcTag).
+            system.SharedConfig:Instance:SetValue("RMItemID", cRMItem).
+            
+            RUN displayMessageQuestionLOG("65",OUTPUT lChoice). 
+            
+            IF NOT lChoice THEN
+                RETURN.
         END.
         
         IF ttInventoryStockDetails.itemCode EQ "E" AND

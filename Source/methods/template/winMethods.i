@@ -372,7 +372,8 @@ PROCEDURE local-initialize :
       "{&FIRST-EXTERNAL-TABLE}" EQ "notes"   OR
       "{&FIRST-EXTERNAL-TABLE}" EQ "phone"   OR
       "{&FIRST-EXTERNAL-TABLE}" EQ "oe-ord"  OR 
-      "{&FIRST-EXTERNAL-TABLE}" EQ "oe-ordl" &THEN
+      "{&FIRST-EXTERNAL-TABLE}" EQ "oe-ordl" OR 
+      "{&FIRST-EXTERNAL-TABLE}" EQ "po-ordl" &THEN
     {methods/windows/initial/{&FIRST-EXTERNAL-TABLE}.i}
   &ENDIF
   /*
@@ -786,9 +787,10 @@ PROCEDURE UDF :
 
     IF AVAILABLE(mfgroup) THEN DO:
         RUN Running_Procedures IN Persistent-Handle ("mfvalues.",OUTPUT isRunning).
+        IF AVAILABLE {&FIRST-EXTERNAL-TABLE} THEN
         RUN UDF/mfvalues.w (ENTRY(1,mfgroup.mfgroup_data,"|"),
-                            rec_key_value,
-                            header_value,
+                            {&FIRST-EXTERNAL-TABLE}.rec_key,
+                            {methods/headers/{&FIRST-EXTERNAL-TABLE}.i},
                             h_smartmsg).
     END. /* avail mfgroup */
 

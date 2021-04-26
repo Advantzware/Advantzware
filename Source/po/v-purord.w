@@ -1939,6 +1939,8 @@ PROCEDURE local-cancel-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
+  lManualStatuschange = FALSE.
+  
   DISABLE po-ord.ship-id WITH FRAME {&FRAME-NAME}.
     lNewOrd = FALSE.
     lUpdateMode = FALSE.
@@ -2031,11 +2033,10 @@ PROCEDURE local-create-record :
     
   RUN pAssignAddressFromCompany(YES). 
 
- RELEASE po-ctrl.
- FIND CURRENT po-ord NO-LOCK NO-ERROR.
- FIND CURRENT po-ordl NO-LOCK NO-ERROR.
- FIND CURRENT b-po-ordl NO-LOCK NO-ERROR.
- 
+  RELEASE po-ctrl.
+  FIND CURRENT po-ord    NO-LOCK NO-ERROR.
+  FIND CURRENT po-ordl   NO-LOCK NO-ERROR.
+  FIND CURRENT b-po-ordl NO-LOCK NO-ERROR.
 
 END PROCEDURE.
 
@@ -2214,14 +2215,7 @@ PROCEDURE local-update-record :
   
     /* 97404 Ticket 95260 PO change order flag */
     IF lManualStatusChange THEN DO:
-        ASSIGN
-            po-ord.printed:SCREEN-VALUE = "N".
-        FOR EACH po-ordl EXCLUSIVE-LOCK WHERE
-            po-ordl.company = po-ord.company AND
-            po-ordl.po-no = po-ord.po-no:
-            ASSIGN 
-                po-ordl.stat = po-ord.stat:SCREEN-VALUE. 
-        END.
+        RUN pManualStatusChange.
     END.    
     
   /* Dispatch standard ADM method.                             */
@@ -2295,6 +2289,7 @@ PROCEDURE local-update-record :
       
   /* ===  don't go item page yet. -> move page to 2 */
   IF ll-is-new-rec THEN DO:
+    {methods/run_link.i "RECORD-SOURCE" "clearFilters" "(po-ord.po-no)"}
     RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source",OUTPUT char-hdl).
     RUN record-added IN WIDGET-HANDLE(char-hdl).
     RUN reopen-query1 IN WIDGET-HANDLE(char-hdl) (lv-rowid).
@@ -2598,6 +2593,39 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pManualStatusChange V-table-Win
+PROCEDURE pManualStatusChange PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DISABLE TRIGGERS FOR LOAD OF po-ordl.
+    
+    DEFINE BUFFER bf-po-ordl FOR po-ordl.
+    
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+    
+    /* 97404 Ticket 95260 PO change order flag */
+    IF lManualStatusChange THEN DO:
+        po-ord.printed:SCREEN-VALUE = "N".
+        
+        FOR EACH bf-po-ordl EXCLUSIVE-LOCK 
+            WHERE bf-po-ordl.company EQ po-ord.company
+              AND bf-po-ordl.po-no   EQ po-ord.po-no:
+            bf-po-ordl.stat = po-ord.stat:SCREEN-VALUE. 
+        END.
+        
+        lManualStatusChange = FALSE.
+    END.
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE post-enable V-table-Win 
 PROCEDURE post-enable :

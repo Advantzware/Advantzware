@@ -44,6 +44,7 @@ CREATE WIDGET-POOL.
 
 {inventory/ttInventory.i "NEW SHARED"}
 {jc/jcgl-sh.i  NEW}
+{fg/fg-post3.i NEW}
 
 DEFINE VARIABLE oLoadTag         AS Inventory.Loadtag NO-UNDO.
 DEFINE VARIABLE oFGBin           AS fg.FGBin          NO-UNDO.

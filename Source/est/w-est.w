@@ -526,6 +526,7 @@ PROCEDURE adm-create-objects :
 
        /* Links to SmartViewer h_v-navest. */
        RUN add-link IN adm-broker-hdl ( h_b-estq , 'nav-itm':U , h_v-navest ).
+       RUN add-link IN adm-broker-hdl (h_p-fest1, 'upd-viewtab-eb':U , h_b-estitm ).
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_b-estitm ,

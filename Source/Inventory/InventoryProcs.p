@@ -2082,6 +2082,7 @@ PROCEDURE Inventory_CheckPOUnderOver:
     DEFINE INPUT PARAMETER ipiJobNo2      AS INTEGER   NO-UNDO.
     DEFINE INPUT PARAMETER ipcItem        AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcPoNo        AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiPoLine      AS INTEGER NO-UNDO.
     DEFINE INPUT PARAMETER ipiReceivedQty AS INTEGER NO-UNDO.
     DEFINE INPUT PARAMETER lCopied        AS LOGICAL   NO-UNDO.
     DEFINE INPUT PARAMETER ipcFGUnderOver AS CHARACTER NO-UNDO.
@@ -2103,6 +2104,7 @@ PROCEDURE Inventory_CheckPOUnderOver:
           AND fg-rctd.job-no2     EQ ipiJobNo2
           AND fg-rctd.i-no        EQ ipcItem
           AND fg-rctd.po-no       EQ ipcPoNo
+          AND fg-rctd.po-line     EQ ipiPoLine
           AND(ROWID(fg-rctd)      NE ipriFgRctd OR lCopied):
         dReceivedQty = dReceivedQty + fg-rctd.t-qty.     
     END.
@@ -2112,6 +2114,7 @@ PROCEDURE Inventory_CheckPOUnderOver:
     FIND FIRST po-ordl NO-LOCK 
          WHERE po-ordl.company  EQ ipcCompany
           AND po-ordl.po-no     EQ INTEGER(ipcPoNo)
+          AND po-ordl.LINE      EQ ipiPoLine
           AND po-ordl.i-no      EQ ipcItem
           AND po-ordl.job-no    EQ ipcJobNo
           AND po-ordl.job-no2   EQ ipiJobNo2
@@ -2125,6 +2128,7 @@ PROCEDURE Inventory_CheckPOUnderOver:
             INPUT ipiJobNo2,
             INPUT ipcItem,
             INPUT ipcPoNo,
+            INPUT ipiPoLine,
             OUTPUT dPostedPOQty
             ).
         
@@ -2339,6 +2343,7 @@ PROCEDURE Inventory_GetReceivedQuantityPO:
     DEFINE INPUT  PARAMETER ipiJobNo2   AS INTEGER   NO-UNDO.
     DEFINE INPUT  PARAMETER ipcItem     AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcPoNo     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiPoLine   AS INTEGER NO-UNDO.
     DEFINE OUTPUT PARAMETER opdQuantity AS DECIMAL   NO-UNDO.
     
    FOR EACH fg-rcpth FIELDS(r-no rita-code) NO-LOCK 
@@ -2346,6 +2351,7 @@ PROCEDURE Inventory_GetReceivedQuantityPO:
          AND fg-rcpth.job-no    EQ ipcJobNo
          AND fg-rcpth.job-no2   EQ ipiJobNo2
          AND fg-rcpth.po-no     EQ ipcPoNo
+         AND fg-rcpth.po-line   EQ ipiPoLine
          AND fg-rcpth.i-no      EQ ipcItem
          AND fg-rcpth.rita-code EQ "R" 
        USE-INDEX item-po,

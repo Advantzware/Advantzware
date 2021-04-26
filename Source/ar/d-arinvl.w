@@ -306,7 +306,7 @@ DEFINE FRAME Dialog-Frame
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
      ar-invl.e-num AT ROW 14.39 COL 115.2 COLON-ALIGNED
-          LABEL "Line Ref#" FORMAT ">>>>9"
+          LABEL "Ln#" FORMAT ">>9"
           VIEW-AS FILL-IN 
           SIZE 10 BY 1
      fi_acc-desc AT ROW 3.95 COL 29 COLON-ALIGNED
@@ -789,7 +789,13 @@ DO:
            FIND FIRST fgcat NO-LOCK 
                WHERE fgcat.company EQ itemfg.company 
                  AND fgcat.procat EQ  itemfg.procat NO-ERROR .
-           IF AVAIL fgcat THEN
+           IF AVAILABLE fgcat THEN
+                FIND FIRST surcharge WHERE surcharge.company EQ fgcat.company
+                                        AND surcharge.charge EQ fgcat.miscCharge
+                                        NO-ERROR.
+           IF AVAIL surcharge THEN
+               ASSIGN ar-invl.actnum:SCREEN-VALUE  = surcharge.account .
+           ELSE   
                ASSIGN ar-invl.actnum:SCREEN-VALUE  = fgcat.glacc .
 
            FIND FIRST account WHERE account.company = g_company AND

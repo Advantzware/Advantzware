@@ -57,15 +57,28 @@ DEF BUFFER b-itemfg FOR itemfg .
 DEF VAR cTextListToDefault AS cha NO-UNDO.
 DEF VAR cColumnInit AS LOG INIT YES NO-UNDO.
 
+DEFINE VARIABLE lRecFound           AS LOGICAL          NO-UNDO.
+DEFINE VARIABLE lAPInvoiceLength    AS LOGICAL          NO-UNDO.
+DEFINE VARIABLE cNK1Value           AS CHARACTER        NO-UNDO.
 
-ASSIGN cTextListToSelect = "Account,Account Description,Journal,Vendor,Name,Date,Inv#,Check#,Order#,Quantity," +
-                           "Amt MSF,Discount,Amount,Currency Code,Created By,Created Date,Posted,Run#" 
+RUN sys/ref/nk1look.p (INPUT cocode, "APInvoiceLength", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cNK1Value, OUTPUT lRecFound).
+IF lRecFound THEN
+    lAPInvoiceLength = logical(cNK1Value) NO-ERROR.
+
+ASSIGN cTextListToSelect  = "Account,Account Description,Journal,Vendor,Name,Date,Inv#,Check#,Order#,Quantity," +
+                            "Amt MSF,Discount,Amount,Currency Code,Created By,Created Date,Posted,Run#" 
        cFieldListToSelect = "account,acc-desc,jou,vend,name,date,inv,chk,ord,qty," +
                             "msf,dis,amt,curr-code,createdby,createddate,posted,run"
-       cFieldLength = "25,30,8,8,35,8,12,7,7,13," + "10,10,14,13,10,12,6,7"
-       cFieldType = "c,c,c,c,c,c,i,i,i,i," + "i,i,i,c,c,c,c,i" 
+       cFieldType         = "c,c,c,c,c,c,i,i,i,i," + "i,i,i,c,c,c,c,i" 
     .
-
+IF lAPInvoiceLength THEN
+      ASSIGN cFieldLength = "25,30,8,8,35,8,20,7,7,13," + "10,10,14,13,10,12,6,7".
+ELSE
+      ASSIGN cFieldLength = "25,30,8,8,35,8,12,7,7,13," + "10,10,14,13,10,12,6,7".
+      
+           
 {sys/inc/ttRptSel.i}
 ASSIGN cTextListToDefault  = "Journal,Vendor,Name,Date,Inv#,Check#,Order#,Quantity," +
                            "Amt MSF,Discount,Amount" .
@@ -1895,7 +1908,7 @@ do:
                          WHEN "vend"   THEN cVarValue = STRING(ap-inv.vend-no,"x(8)").
                          WHEN "name"   THEN cVarValue = IF AVAIL vend THEN string(vend.name,"x(35)") ELSE "".
                          WHEN "date"  THEN cVarValue = STRING(ap-inv.inv-date,"99/99/99") .
-                         WHEN "inv"   THEN cVarValue = STRING(ap-inv.inv-no,"x(12)") .
+                         WHEN "inv"   THEN cVarValue = IF lAPInvoiceLength THEN STRING(ap-inv.inv-no,"x(20)") ELSE STRING(ap-inv.inv-no,"x(12)") .
                          WHEN "chk"  THEN cVarValue = STRING(ws_check-no,">>>>>>>") .
                          WHEN "ord"   THEN cVarValue = STRING(ws_order-no,">>>>>>>") .
                          WHEN "qty"  THEN cVarValue = IF ap-invl.qty <> 0 THEN STRING(ap-invl.qty,"->,>>>,>>9.99") ELSE "" .

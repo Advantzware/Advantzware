@@ -189,6 +189,38 @@ PROCEDURE pClickMenuTree:
             ttMenuTree.hLevel:LOAD-IMAGE(cImage).
         END.
     END. /* if ismenu */
+    ELSE 
+    DO:
+      FOR EACH bttMenuTree
+            WHERE ROWID(bttMenuTree) NE rRowID
+            AND bttMenuTree.isMenu EQ YES
+            AND bttMenuTree.isOpen EQ YES
+            AND bttMenuTree.level  GE ttMenuTree.level
+            :
+            IF NOT bttMenuTree.lWidgetExist THEN NEXT.
+            bttMenuTree.hLevel:LOAD-IMAGE(SEARCH(cImageFolder + "plus.ico")).
+            bttMenuTree.isOpen = NO.
+        END. /* each bttmenutree */
+        RUN pDisplayMenuTree (
+            iphWidget:FRAME:HANDLE,
+            ttMenuTree.treeChild,
+            ttMenuTree.isOpen,
+            ttMenuTree.level
+            ).  
+        FOR FIRST ttMenuTree WHERE ROWID(ttMenuTree) EQ rRowID :
+            FOR EACH bttMenuTree
+                WHERE ROWID(bttMenuTree) NE rRowID
+                AND bttMenuTree.isMenu EQ YES
+                AND bttMenuTree.isOpen EQ YES
+                AND bttMenuTree.level  LT ttMenuTree.level
+                :
+                IF NOT bttMenuTree.lWidgetExist THEN NEXT.
+                bttMenuTree.hLevel:LOAD-IMAGE(SEARCH(cImageFolder + "minus.ico")).
+            END. /* each bttmenutree */
+        END.
+       
+    END.
+        
     FIND FIRST ttMenuTree WHERE ROWID(ttMenuTree) EQ rRowID NO-ERROR.
 
     FOR EACH bttMenuTree

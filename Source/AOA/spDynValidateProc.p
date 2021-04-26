@@ -522,6 +522,15 @@ PROCEDURE dynValVendor:
         ).
 END PROCEDURE.
 
+PROCEDURE dynValVendorType:
+    {&defInputParam}
+    {&checkRange}
+        CAN-FIND(FIRST ventype
+                 WHERE ventype.company EQ cCompany
+                   AND ventype.type    EQ iphWidget:SCREEN-VALUE)
+        ).
+END PROCEDURE.
+
 PROCEDURE pGetWidgetByName PRIVATE:
     DEFINE INPUT  PARAMETER iphWidget AS HANDLE    NO-UNDO.
     DEFINE INPUT  PARAMETER ipcName   AS CHARACTER NO-UNDO.

@@ -99,7 +99,8 @@ DEF NEW SHARED BUFFER xqty           FOR est-qty.
 DEFINE TEMP-TABLE ttCompareEst NO-UNDO
        FIELD est-no AS CHARACTER
        FIELD stock-no AS CHARACTER
-       FIELD num-len AS DECIMAL .
+       FIELD num-len AS DECIMAL
+       FIELD m-code AS CHARACTER.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -575,7 +576,8 @@ DO:
        RUN jc/dMultiSelectItem.w (OUTPUT dTotalCyclesRequired, OUTPUT TABLE ttFGReorderSelection) . 
        
        ASSIGN 
-           iTargetCyl:SCREEN-VALUE =  STRING(dTotalCyclesRequired) .
+           iTargetCyl:SCREEN-VALUE =  STRING(dTotalCyclesRequired) 
+           dtDueDate:SCREEN-VALUE  = string(TODAY).
        EMPTY TEMP-TABLE ttInputEst.
        FOR EACH ttFGReorderSelection NO-LOCK
            WHERE ttFGReorderSelection.isSelect:           
@@ -591,8 +593,9 @@ DO:
                     bf-ttInputEst.lKeyItem = ttFGReorderSelection.KeyItem 
                     lv-rowid               = ROWID(bf-ttInputEst).
                     IF ttFGReorderSelection.dateDueDateEarliest NE ? AND (ttFGReorderSelection.dateDueDateEarliest LT date(dtDueDate:SCREEN-VALUE) OR date(dtDueDate:SCREEN-VALUE) EQ ?)
-                       AND tb_runnow:SCREEN-VALUE NE "Yes" THEN
+                       AND tb_runnow:SCREEN-VALUE NE "Yes" THEN                        
                     dtDueDate:SCREEN-VALUE = string(ttFGReorderSelection.dateDueDateEarliest) .
+                    
                     cBoard:SCREEN-VALUE = ttFGReorderSelection.board.
                     FIND FIRST itemfg NO-LOCK 
                          WHERE itemfg.company EQ cocode
@@ -794,7 +797,7 @@ DO:
   
         RUN create-ttfrmout.
         
-        RUN pCheckEstimate(INPUT iCount, OUTPUT lEstimateCreate, OUTPUT riEb).
+        RUN pCheckEstimate(INPUT iCount, cMachCode, OUTPUT lEstimateCreate, OUTPUT riEb).
               
         IF NOT lEstimateCreate THEN
         RUN est/BuildEstimate.p ("F", OUTPUT riEb).
@@ -1209,6 +1212,7 @@ PROCEDURE pCheckEstimate :
           Notes:       
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipiCount AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcMachineID AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER oplEstimateCreate AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opriRowid AS ROWID NO-UNDO.
     DEFINE BUFFER bf-eb FOR eb.
@@ -1243,6 +1247,13 @@ PROCEDURE pCheckEstimate :
                  WHERE bff-ttInputEst.cStockNo EQ  bf-eb.stock-no 
                  AND bff-ttInputEst.iMolds EQ  bf-eb.num-len NO-ERROR.
              IF NOT AVAIL bff-ttInputEst THEN NEXT MAIN-COMPARE. 
+             FIND FIRST est-op NO-LOCK
+                WHERE est-op.company EQ bf-eb.company
+                AND est-op.est-no EQ bf-eb.est-no
+                AND est-op.s-num EQ bf-eb.form-no
+                AND est-op.m-code EQ ipcMachineID
+                NO-ERROR.
+             IF NOT AVAILABLE est-op THEN NEXT MAIN-COMPARE.
              j = j + 1 .  
              opriRowid = ROWID(bf-eb) .
         END.

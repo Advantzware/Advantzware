@@ -30,6 +30,7 @@ CREATE WIDGET-POOL.
 
 &SCOPED-DEFINE winReSize
 &SCOPED-DEFINE browseOnly
+
 {methods/defines/winReSize.i}
 
 /* Parameters Definitions ---                                           */
@@ -75,6 +76,7 @@ DEF NEW SHARED VAR fil_id AS RECID NO-UNDO.
 DEF VAR v-prgmname LIKE prgrms.prgmname NO-UNDO.
 DEF VAR period_pos AS INTEGER NO-UNDO.
 DEFINE VARIABLE lInquery AS LOGICAL INIT NO NO-UNDO .
+DEFINE VARIABLE lButtongoPressed AS LOGICAL   NO-UNDO.
 
     IF INDEX(PROGRAM-NAME(1),".uib") NE 0 OR
        INDEX(PROGRAM-NAME(1),".ab")  NE 0 OR
@@ -91,126 +93,18 @@ DEF VAR v-paidflg AS LOG NO-UNDO.
 DEFINE VARIABLE cPoStatus     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cPoLineStatus AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lIsMatches    AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lEnableShowAll     AS LOGICAL   NO-UNDO.
 
-
-&SCOPED-DEFINE key-phrase po-ordl.company EQ cocode
-
-&SCOPED-DEFINE for-each1                            ~
-    FOR EACH po-ordl                                ~
-        WHERE {&key-phrase}                         ~
-          AND {system/brMatches.i po-ordl.vend-no fi_vend-no}   ~
-          AND {system/brMatches.i po-ordl.i-no fi_i-no} ~
-          AND {system/brMatches.i po-ordl.vend-i-no fi_vend-i-no} ~
-          AND po-ordl.job-no    BEGINS fi_job-no    ~
-          AND po-ordl.due-date  GE fi_due-date      ~
-          AND ((po-ordl.opened  AND tb_open)   OR    ~
-               (NOT po-ordl.opened AND tb_closed))  ~
-          AND (po-ordl.job-no2  EQ fi_job-no2 OR fi_job-no2 EQ 0 OR fi_job-no EQ "")
-
-&SCOPED-DEFINE for-each8                            ~
-    FOR EACH po-ordl                                ~
-        WHERE {&key-phrase}                         ~
-          AND po-ordl.vend-no   BEGINS fi_vend-no   ~
-          AND po-ordl.i-no      BEGINS fi_i-no ~
-          AND po-ordl.vend-i-no BEGINS fi_vend-i-no ~
-          AND po-ordl.job-no    BEGINS fi_job-no    ~
-          AND po-ordl.due-date  GE fi_due-date      ~
-          AND ((po-ordl.opened  AND tb_open)   OR    ~
-               (NOT po-ordl.opened AND tb_closed))  ~
-          AND (po-ordl.job-no2  EQ fi_job-no2 OR fi_job-no2 EQ 0 OR fi_job-no EQ "")          
-
-&SCOPED-DEFINE for-each11                           ~
-    FOR EACH po-ordl                                ~
-        WHERE {&key-phrase}                         ~
-          AND po-ordl.opened
-
-&SCOPED-DEFINE for-each2                   ~
-    FIRST po-ord NO-LOCK WHERE                ~
-          po-ord.company EQ po-ordl.company AND ~
-          po-ord.po-no EQ po-ordl.po-no ~
-          AND (( tb_hold AND po-ord.stat = "H" ) ~
-          OR (tb_approved AND po-ord.stat <> "H" ))
-
-&SCOPED-DEFINE for-each3                   ~
-    FIRST reftable NO-LOCK                 ~
-    WHERE reftable.reftable EQ "AP-INVL"   ~
-      AND reftable.company  EQ ""          ~
-      AND reftable.loc      EQ ""          ~
-      AND reftable.code     EQ STRING(po-ordl.po-no,"9999999999") ~
-      AND (reftable.spare-char-1 EQ "" OR reftable.spare-char-1 EQ po-ordl.company) OUTER-JOIN
-
-&SCOPED-DEFINE for-each4                                           ~
-    FIRST  ap-invl NO-LOCK                                          ~
-    WHERE ap-invl.i-no              EQ int(reftable.code2)         ~
-      AND ap-invl.company           EQ cocode                      ~
-      AND ap-invl.po-no             EQ po-ordl.po-no               ~
-      AND (ap-invl.line +                                          ~
-           (ap-invl.po-no * -1000)) EQ po-ordl.LINE OUTER-JOIN 
-
-&SCOPED-DEFINE for-each5                                           ~
-    FIRST ap-inv NO-LOCK                                           ~
-    WHERE ap-inv.i-no EQ ap-invl.i-no                              ~
-      AND ap-inv.company EQ cocode                                 ~
-      AND ap-inv.due EQ 0  ~
-      OUTER-JOIN  
-
-&SCOPED-DEFINE for-each6                                           ~
-    FIRST  ap-ctrl NO-LOCK                                         ~
-    WHERE ap-ctrl.company EQ po-ordl.company                       ~
-      AND (   (tb_unpaid AND tb_paid)                            ~
-           OR (tb_paid AND AVAIL(ap-inv))                          ~
-           OR (tb_unpaid AND NOT AVAIL(ap-inv)))                
-
-&SCOPED-DEFINE for-each7 ~
-    FOR EACH po-ordl                                ~
-        WHERE {&key-phrase}                         ~
-          AND po-ordl.due-date  GE fi_due-date      ~
-          AND ((po-ordl.opened  AND tb_open)   OR   ~
-               (NOT po-ordl.opened AND tb_closed))  
-               
-
-&SCOPED-DEFINE sortby-log1                                                                                                             ~
-    IF lv-sort-by EQ "ord-qty"    THEN STRING(9999999999.99999 + po-ordl.ord-qty,"-9999999999.99999")                             ELSE ~
-    IF lv-sort-by EQ "pr-qty-uom" THEN po-ordl.pr-qty-uom                                                                         ELSE ~
-    IF lv-sort-by EQ "pr-uom"     THEN po-ordl.pr-uom                                                                             ELSE ~
-    IF lv-sort-by EQ "t-rec-qty"  THEN STRING(9999999999.99999 + po-ordl.t-rec-qty,"-9999999999.99999")                           ELSE ~
-    IF lv-sort-by EQ "cons-uom"   THEN po-ordl.cons-uom                                                                           ELSE ~
-    IF lv-sort-by EQ "cost"       THEN STRING(po-ordl.cost,"99999.99999")                                                         ELSE ~
-    IF lv-sort-by EQ "s-wid"      THEN STRING(po-ordl.s-wid,"99999.99999")                                                        ELSE ~
-                                       STRING(po-ordl.s-len,"99999.99999")
-&SCOPED-DEFINE sortby-log2                                                                                                             ~
-    IF lv-sort-by EQ "po-no"     THEN STRING(po-ordl.po-no,"9999999999")                                                          ELSE ~
-    IF lv-sort-by EQ "vend-no"   THEN po-ord.vend-no                                                                              ELSE ~
-    IF lv-sort-by EQ "ship-id"   THEN po-ord.ship-id                                                                              ELSE ~
-    IF lv-sort-by EQ "ship-name"   THEN po-ord.ship-name                                                                          ELSE ~
-    IF lv-sort-by EQ "job-no"    THEN STRING(po-ordl.job-no,"x(6)") + STRING(po-ordl.job-no2,"99") + STRING(po-ordl.s-num,"999")  ELSE ~
-    IF lv-sort-by EQ "i-no"      THEN po-ordl.i-no                                                                                ELSE ~
-    IF lv-sort-by EQ "i-name"    THEN po-ordl.i-name                                                                              ELSE ~
-    IF lv-sort-by EQ "vend-i-no" THEN po-ordl.vend-i-no                                                                           ELSE ~
-    IF lv-sort-by EQ "buyer"     THEN po-ord.buyer                                                                                ELSE ~
-    IF lv-sort-by EQ "cPoStatus" THEN po-ord.stat                                                                                 ELSE ~
-    IF lv-sort-by EQ "cust-no"      THEN po-ordl.cust-no                                                                                 ELSE ~
-    IF lv-sort-by EQ "cPolineStatus"       THEN STRING(po-ordl.stat)                                                         ELSE ~
-    IF lv-sort-by EQ "line"     THEN (STRING(po-ordl.po-no,"9999999999") + STRING(po-ordl.LINE,"9999"))                           ELSE ~
-                                      STRING(YEAR(po-ordl.due-date),"9999") + STRING(MONTH(po-ordl.due-date),"99") + STRING(DAY(po-ordl.due-date),"99")
-
-&SCOPED-DEFINE sortby BY po-ordl.po-no BY po-ordl.LINE BY po-ordl.i-no 
-
-&SCOPED-DEFINE sortby-phrase-asc1  ~
-    BY ({&sortby-log1})            ~
-    {&sortby}
-
-&SCOPED-DEFINE sortby-phrase-desc1 ~
-    BY ({&sortby-log1}) DESC       ~
-    {&sortby}
-
-&SCOPED-DEFINE sortby-phrase-asc2  ~
-    BY ({&sortby-log2})            ~
-    {&sortby}
-
-&SCOPED-DEFINE sortby-phrase-desc2 ~
-    BY ({&sortby-log2}) DESC       ~
-    {&sortby}
+DEFINE VARIABLE iRecordLimit       AS INTEGER   NO-UNDO.
+DEFINE VARIABLE cBrowseWhereClause AS CHARACTER NO-UNDO.
+DEFINE VARIABLE dQueryTimeLimit    AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE cQueryBuffers      AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cFieldBuffer       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cFieldName         AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lIsBreakByUsed     AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cFormattedJobno    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hdJobProcs         AS HANDLE    NO-UNDO.
+RUN jc/JobProcs.p PERSISTENT SET hdJobProcs.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -372,6 +266,20 @@ FUNCTION isPaidCheck RETURNS LOGICAL
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD qty-in-ord-uom B-table-Win 
 FUNCTION qty-in-ord-uom RETURNS DECIMAL
   ( /* parameter-definitions */ )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD pGetSortCondition B-table-Win
+FUNCTION pGetSortCondition RETURNS CHARACTER 
+  (ipcSortBy AS CHARACTER,ipcSortLabel AS CHARACTER) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD pGetWhereCriteria B-table-Win
+FUNCTION pGetWhereCriteria RETURNS CHARACTER 
+  (ipcTable AS CHARACTER) FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -619,7 +527,7 @@ DEFINE FRAME F-Main
           FONT 6*/
      "PO#" VIEW-AS TEXT
           SIZE 6 BY .95 AT ROW 1.24 COL 6.4
-          BGCOLOR 8 FGCOLOR 9 
+          FGCOLOR 9 
      "RM/FG Item#" VIEW-AS TEXT
           SIZE 16 BY .95 AT ROW 1.24 COL 33.4
           FGCOLOR 9 
@@ -918,6 +826,12 @@ END.*/
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_go B-table-Win
 ON CHOOSE OF btn_go IN FRAME F-Main /* Go */
 DO:
+    cFormattedJobno      = DYNAMIC-FUNCTION (
+                                       "fAddSpacesToString" IN hdJobProcs, fi_job-no:SCREEN-VALUE, 6, TRUE
+                                   )
+            .
+    fi_job-no:SCREEN-VALUE = cFormattedJobno .    
+    
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN
      tb_unpaid
@@ -933,7 +847,8 @@ DO:
      tb_open
      tb_closed
      tb_hold
-     tb_approved.
+     tb_approved
+     lButtongoPressed = YES.
 
     RUN dispatch ("open-query").
 
@@ -953,7 +868,9 @@ DO:
    SESSION:SET-WAIT-STATE("general").
   DO WITH FRAME {&FRAME-NAME}:
 
+    RUN set-defaults.
     lv-show-next = YES.
+    ENABLE btn_next .
 
     APPLY "choose" TO btn_go.
   END.
@@ -971,7 +888,7 @@ ON CHOOSE OF btn_prev IN FRAME F-Main /* Show Previous */
 DO:
    SESSION:SET-WAIT-STATE("general").
   DO WITH FRAME {&FRAME-NAME}:
-
+    RUN set-defaults.
     lv-show-prev = YES.
     ENABLE btn_next .
     APPLY "choose" TO btn_go.
@@ -1561,9 +1478,18 @@ PROCEDURE local-initialize :
   DEF VAR char-hdl AS CHAR NO-UNDO.
   DEF VAR lv-rowid AS ROWID NO-UNDO.
   DEF VAR ll-open AS LOG INIT ? NO-UNDO.
-
+  DEFINE VARIABLE cScreenType AS CHARACTER NO-UNDO.
 
   /* Code placed here will execute PRIOR to standard behavior. */
+  {methods/run_link.i "container-source" "GetScreenType" "(Output cScreenType)"}
+  
+  RUN Browser_GetRecordAndTimeLimit(
+    INPUT  cocode,
+    INPUT  cScreenType,
+    OUTPUT iRecordLimit,
+    OUTPUT dQueryTimeLimit,
+    OUTPUT lEnableShowAll
+    ).
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
@@ -1635,7 +1561,7 @@ PROCEDURE local-open-query :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-
+          
   /* Code placed here will execute PRIOR to standard behavior. */
 
   /* Dispatch standard ADM method.                             */
@@ -1644,66 +1570,57 @@ PROCEDURE local-open-query :
      INDEX(fi_vend-i-no,"*") GT 0 THEN
      lIsMatches = YES.
   ELSE lIsMatches = NO.   
-        
+     
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  IF ll-show-all THEN DO:
-    {poinq/j-po-inq.i}
+  IF ll-show-all THEN 
+      RUN pPrepareAndExecuteQueryForShowAll.
+      
+  ELSE IF lv-show-prev OR lv-show-next THEN
+  DO:
+      //RUN show-prev-next.
+      RUN pPrepareAndExecuteQueryForPrevNext(
+            IF lv-show-prev THEN lv-last-show-po-no ELSE lv-first-show-po-no,
+            INPUT lv-show-prev
+            ).
   END.
-  ELSE IF lv-show-prev OR lv-show-next THEN RUN show-prev-next.
-  ELSE /*first query or go button */ RUN first-query.
+  ELSE /*first query or go button */ /*RUN first-query.*/
+  RUN pPrepareAndExecuteQuery(
+      INPUT IF lButtongoPressed THEN NO ELSE YES /* If Button go is pressed then only show the limit alert */ 
+      ).
 
+  IF lButtongoPressed THEN 
+        lButtongoPressed = NO.  
+    
   IF AVAIL {&FIRST-TABLE-IN-QUERY-{&browse-name}} THEN DO:
     RUN dispatch ("display-fields").
 
-    RUN dispatch ("row-changed").
-
-    /*RUN dispatch ('get-last':U).*/
+    RUN dispatch ("row-changed"). 
+    
     GET LAST {&browse-name}.
     IF AVAIL {&FIRST-TABLE-IN-QUERY-{&browse-name}} THEN DO:
-      IF NOT ll-sort-asc THEN
+     
         ASSIGN
           lv-last-rowid  = ROWID({&FIRST-TABLE-IN-QUERY-{&browse-name}})
-          lv-last-show-po-no = po-ordl.po-no.
-      ELSE
-        ASSIGN
-          lv-frst-rowid = ROWID({&FIRST-TABLE-IN-QUERY-{&browse-name}})
-          lv-first-show-po-no = po-ordl.po-no.
+          lv-last-show-po-no = po-ordl.po-no.     
     END.
 
-    IF AVAIL {&SECOND-TABLE-IN-QUERY-{&browse-name}} THEN DO:
-      IF NOT ll-sort-asc THEN
-        lv-last-rowid2 = ROWID({&SECOND-TABLE-IN-QUERY-{&browse-name}}).
-      ELSE
-        lv-frst-rowid2 = ROWID({&SECOND-TABLE-IN-QUERY-{&browse-name}}).
-    END.
-
-    /*RUN dispatch ('get-first':U).*/
+  
     GET FIRST {&browse-name}.
     IF AVAIL {&FIRST-TABLE-IN-QUERY-{&browse-name}} THEN DO:
-      IF ll-sort-asc = NO THEN
+     
         ASSIGN
           lv-frst-rowid  = ROWID({&FIRST-TABLE-IN-QUERY-{&browse-name}})
-          lv-first-show-po-no = po-ordl.po-no.
-      ELSE
-        ASSIGN
-          lv-last-rowid  = ROWID({&FIRST-TABLE-IN-QUERY-{&browse-name}})
-          lv-last-show-po-no = po-ordl.po-no.
-    END.
-
-    IF AVAIL {&SECOND-TABLE-IN-QUERY-{&browse-name}} THEN DO:
-      IF NOT ll-sort-asc THEN
-        lv-frst-rowid2 = ROWID({&SECOND-TABLE-IN-QUERY-{&browse-name}}).
-      ELSE
-        lv-last-rowid2 = ROWID({&SECOND-TABLE-IN-QUERY-{&browse-name}}).
-    END.
+          lv-first-show-po-no = po-ordl.po-no.         
+    END. 
+   
   END.
 
   ASSIGN
     lv-show-prev = NO
     lv-show-next = NO
-    ll-show-all = NO.
+    .
 
 END PROCEDURE.
 
@@ -1761,11 +1678,7 @@ PROCEDURE navigate-browser :
 
   DEF INPUT  PARAMETER ip-nav-type AS CHAR.
   DEF OUTPUT PARAMETER op-nav-type AS CHAR.
-
-
-  RUN navigate-browser2 (ip-nav-type, OUTPUT op-nav-type).
-
-  /*
+  
   IF ip-nav-type NE "" THEN
   CASE ip-nav-type:
     WHEN "F" THEN RUN dispatch ('get-first':U).
@@ -1779,51 +1692,80 @@ PROCEDURE navigate-browser :
 
   IF ROWID({&FIRST-TABLE-IN-QUERY-{&browse-name}}) EQ lv-frst-rowid THEN
     op-nav-type = IF op-nav-type EQ "L" THEN "B" ELSE "F".
-  */
+  
 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE navigate-browser2 B-table-Win 
-PROCEDURE navigate-browser2 :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE one-row-query B-table-Win 
+PROCEDURE one-row-query :
 /*------------------------------------------------------------------------------
   Purpose:     
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ip-rowid AS ROWID NO-UNDO.
 
-  DEF INPUT  PARAMETER ip-nav-type AS CHAR.
-  DEF OUTPUT PARAMETER op-nav-type AS CHAR.
+    DEFINE VARIABLE cQuery    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cResponse AS CHARACTER NO-UNDO.
+    
+    IF fi_due-date LE  10/01/2018 AND lv-sort-by EQ "rec_key" THEN 
+        lv-sort-by = "po-no".          
+   
+    cQuery = "FOR EACH po-ordl NO-LOCK"
+            + " WHERE po-ordl.company EQ " + QUOTER(cocode)
+            + " AND ROWID(po-ordl) EQ " + "TO-ROWID(" + "'" + STRING(ip-rowid) + "')"
+            + pGetWhereCriteria("po-ordl")
 
-  DEF VAR hld-rowid AS ROWID NO-UNDO.
+            + ", FIRST po-ord NO-LOCK"
+            + " WHERE po-ord.company eq po-ordl.company and po-ord.po-no eq po-ordl.po-no "
+            + pGetWhereCriteria("po-ord")
+/*            + " AND (( " + QUOTER(tb_hold) + " AND po-ord.stat EQ 'H' ) "  */
+/*            + " OR ( " + QUOTER(tb_approved) + " AND po-ord.stat NE 'H' ))"*/
 
-
-  hld-rowid = ROWID({&SECOND-TABLE-IN-QUERY-{&browse-name}}).
-
-  IF ip-nav-type NE "" THEN
-  CASE ip-nav-type:
-    WHEN "F" THEN RUN dispatch ('get-first':U).
-    WHEN "L" THEN RUN dispatch ('get-last':U).
-    WHEN "N" THEN DO WHILE ROWID({&SECOND-TABLE-IN-QUERY-{&browse-name}}) EQ hld-rowid:
-                    RUN dispatch ('get-next':U).
-                  END.
-    WHEN "P" THEN DO WHILE ROWID({&SECOND-TABLE-IN-QUERY-{&browse-name}}) EQ hld-rowid:
-                    RUN dispatch ('get-prev':U).
-                  END.
-  END CASE.
-
-  IF ROWID({&SECOND-TABLE-IN-QUERY-{&browse-name}}) EQ lv-last-rowid2 THEN
-    op-nav-type = "L".
-
-  IF ROWID({&SECOND-TABLE-IN-QUERY-{&browse-name}}) EQ lv-frst-rowid2 THEN
-    op-nav-type = IF op-nav-type EQ "L" THEN "B" ELSE "F".
-
+            + ",FIRST reftable " + "OUTER-JOIN" + " NO-LOCK"
+            + " WHERE reftable.reftable EQ 'AP-INVL' "
+            + " AND reftable.company EQ '' "
+            + " AND reftable.loc EQ '' "                     
+            + " AND reftable.code EQ STRING(po-ordl.po-no,'9999999999')"
+            + " AND (reftable.spare-char-1 EQ '' OR reftable.spare-char-1 EQ po-ordl.company) " 
+            
+            + ",FIRST  ap-invl OUTER-JOIN NO-LOCK "
+            + " WHERE ap-invl.i-no EQ int(reftable.code2)"
+            + " AND ap-invl.company EQ " + QUOTER(cocode)
+            + " AND ap-invl.po-no EQ po-ordl.po-no "
+            + " AND (ap-invl.line + (ap-invl.po-no * -1000)) EQ po-ordl.line"  
+            
+            + ", FIRST ap-inv OUTER-JOIN NO-LOCK " 
+            + " WHERE ap-inv.i-no EQ ap-invl.i-no"
+            + " AND ap-inv.company EQ " +  QUOTER(cocode)
+            + " AND ap-inv.due EQ 0 "
+            
+            + ",FIRST  ap-ctrl NO-LOCK "
+            + " WHERE ap-ctrl.company EQ po-ordl.company"
+            + " AND (( " + QUOTER(tb_unpaid) + " AND " +  QUOTER(tb_paid) + ")" 
+            + " OR (" + QUOTER(tb_paid) + " AND AVAIL(ap-inv)) "
+            + " OR (" + QUOTER(tb_unpaid) + " AND NOT AVAIL(ap-inv))) "        
+            
+            + " BY " + pGetSortCondition(lv-sort-by,lv-sort-by-lab) + ( IF ll-sort-asc THEN  "" ELSE " DESC") +  " BY po-ordl.line BY po-ordl.i-no"
+            .            
+                 
+    RUN Browse_PrepareAndExecuteBrowseQuery(
+        INPUT  BROWSE {&BROWSE-NAME}:QUERY, /* Browse Query Handle */      
+        INPUT  cQuery,                      /* BRowse Query */             
+        INPUT  NO,                          /* Show limit alert? */        
+        INPUT  0,                           /* Record limit */             
+        INPUT  0,                           /* Time Limit */               
+        INPUT  lEnableShowAll,              /* Enable ShowAll Button */    
+        OUTPUT cResponse
+        ).               
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE paper-clip-image-proc B-table-Win 
 PROCEDURE paper-clip-image-proc :
@@ -1856,134 +1798,6 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pPrepareAndExecute B-table-Win
-PROCEDURE pPrepareAndExecute:
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipiPoNO AS INTEGER NO-UNDO.
-  
-    IF lIsMatches THEN DO:
-        &SCOPED-DEFINE open-query          ~
-          OPEN QUERY {&browse-name}        ~
-          {&for-each1}                     ~
-            AND po-ordl.po-no GE ipiPoNo   ~
-            USE-INDEX po-no NO-LOCK,       ~
-            {&for-each2},                  ~
-            {&for-each3},                  ~
-            {&for-each4},                  ~
-            {&for-each5},                  ~
-            {&for-each6}
-    
-        IF LOOKUP(lv-sort-by,lv-sort-list1) GT 0 THEN
-            IF ll-sort-asc THEN 
-                {&open-query} {&sortby-phrase-asc1}.
-            ELSE 
-                {&open-query} {&sortby-phrase-desc1}.
-        ELSE
-            IF ll-sort-asc THEN 
-                {&open-query} {&sortby-phrase-asc2}.
-            ELSE 
-                {&open-query} {&sortby-phrase-desc2}.            
-    END.
-    ELSE DO:
-        &SCOPED-DEFINE open-query          ~
-          OPEN QUERY {&browse-name}        ~
-          {&for-each8}                     ~
-            AND po-ordl.po-no GE ipiPoNo   ~
-            USE-INDEX po-no NO-LOCK,       ~
-            {&for-each2},                  ~
-            {&for-each3},                  ~
-            {&for-each4},                  ~
-            {&for-each5},                  ~
-            {&for-each6}
-    
-        IF LOOKUP(lv-sort-by,lv-sort-list1) GT 0 THEN
-            IF ll-sort-asc THEN 
-                {&open-query} {&sortby-phrase-asc1}.
-            ELSE 
-                {&open-query} {&sortby-phrase-desc1}.
-        ELSE
-            IF ll-sort-asc THEN 
-                {&open-query} {&sortby-phrase-asc2}.
-            ELSE 
-                {&open-query} {&sortby-phrase-desc2}.            
-    END. 
-
-END PROCEDURE.
-	
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pPrepareAndExecutePrevNext B-table-Win
-PROCEDURE pPrepareAndExecutePrevNext:
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipiBeginPoNO AS INTEGER NO-UNDO.
-    DEFINE INPUT PARAMETER ipiEndPoNo   AS INTEGER NO-UNDO.
-    
-    IF lIsMatches THEN DO:
-        &SCOPED-DEFINE open-query             ~
-          OPEN QUERY {&browse-name}           ~
-          {&for-each1}                        ~
-            AND po-ordl.po-no GE ipiBeginPoNo ~
-            AND po-ordl.po-no LE ipiEndPoNo   ~
-            USE-INDEX po-no NO-LOCK,          ~
-            {&for-each2},                     ~
-            {&for-each3},                     ~
-            {&for-each4},                     ~
-            {&for-each5},                     ~
-            {&for-each6}
-    
-        IF LOOKUP(lv-sort-by,lv-sort-list1) GT 0 THEN
-            IF ll-sort-asc THEN 
-                {&open-query} {&sortby-phrase-asc1}.
-            ELSE 
-                {&open-query} {&sortby-phrase-desc1}.
-        ELSE
-            IF ll-sort-asc THEN 
-                {&open-query} {&sortby-phrase-asc2}.
-            ELSE 
-                {&open-query} {&sortby-phrase-desc2}.            
-    END.
-    ELSE DO:
-        &SCOPED-DEFINE open-query             ~
-          OPEN QUERY {&browse-name}           ~
-          {&for-each8}                        ~
-            AND po-ordl.po-no GE ipiBeginPoNo ~
-            AND po-ordl.po-no LE ipiEndPoNo   ~
-            USE-INDEX po-no NO-LOCK,          ~
-            {&for-each2},                     ~
-            {&for-each3},                     ~
-            {&for-each4},                     ~
-            {&for-each5},                     ~
-            {&for-each6}
-    
-        IF LOOKUP(lv-sort-by,lv-sort-list1) GT 0 THEN
-            IF ll-sort-asc THEN 
-                {&open-query} {&sortby-phrase-asc1}.
-            ELSE 
-                {&open-query} {&sortby-phrase-desc1}.
-        ELSE
-            IF ll-sort-asc THEN 
-                {&open-query} {&sortby-phrase-asc2}.
-            ELSE 
-                {&open-query} {&sortby-phrase-desc2}.            
-    END.     
-
-END PROCEDURE.
-	
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE printPO B-table-Win 
 PROCEDURE printPO :
 /*------------------------------------------------------------------------------
@@ -2001,256 +1815,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE query-first B-table-Win 
-PROCEDURE query-first :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEF VAR lv-po-no AS INT NO-UNDO.
-  DEF VAR li AS INT NO-UNDO.
-
-  FIND FIRST sys-ctrl WHERE sys-ctrl.company EQ cocode
-       AND sys-ctrl.name    EQ "POBROWSE"
-       NO-LOCK NO-ERROR.
-
-  IF NOT AVAIL sys-ctrl THEN DO TRANSACTION:
-    CREATE sys-ctrl.
-    ASSIGN sys-ctrl.company = cocode
-           sys-ctrl.name    = "POBROWSE"
-           sys-ctrl.descrip = "# of Records to be displayed in PO browser"
-           sys-ctrl.log-fld = YES
-           sys-ctrl.char-fld = ""
-           sys-ctrl.int-fld = 10.
-  END.
-
-  IF sys-ctrl.date-fld NE ? THEN
-      ASSIGN
-      fi_due-date:SCREEN-VALUE IN FRAME {&FRAME-NAME} = STRING(sys-ctrl.date-fld) 
-      fi_due-date = sys-ctrl.date-fld .
-
-  IF fi_job-no NE "" THEN fi_job-no = FILL(" ",6 - LENGTH(TRIM(fi_job-no))) + TRIM(fi_job-no).
-
-  {&for-each11}
-    USE-INDEX opened NO-LOCK,
-  {&for-each2}
-
-    BREAK BY po-ordl.po-no DESC:
-
-
-    IF FIRST-OF(po-ordl.po-no)  THEN li = li + 1.
-    lv-po-no = po-ordl.po-no.
-    IF li GE sys-ctrl.int-fld THEN LEAVE.
-  END.
-
-  &SCOPED-DEFINE open-query                 ~
-      OPEN QUERY {&browse-name}             ~
-           {&for-each11}                    ~
-              AND po-ordl.po-no GE lv-po-no ~
-              AND po-ordl.due-date  GE fi_due-date ~
-           USE-INDEX opened NO-LOCK,        ~
-           {&for-each2}, ~
-           {&for-each3}, ~
-           {&for-each4}, ~
-           {&for-each5}, ~
-           {&for-each6}
-
-  IF LOOKUP(lv-sort-by,lv-sort-list1) GT 0 THEN
-    IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc1}.
-                   ELSE {&open-query} {&sortby-phrase-desc1}.
-  ELSE
-    IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc2}.
-                   ELSE {&open-query} {&sortby-phrase-desc2}.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE query-go B-table-Win 
-PROCEDURE query-go :
-    /*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       
-    ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE li       AS INTEGER NO-UNDO.
-    DEFINE VARIABLE lv-po-no AS INTEGER NO-UNDO.
-
-    IF fi_job-no NE "" 
-        THEN fi_job-no = FILL(" ",6 - LENGTH(TRIM(fi_job-no))) + TRIM(fi_job-no).
-
-    FIND FIRST sys-ctrl NO-LOCK
-         WHERE sys-ctrl.company EQ cocode
-         AND sys-ctrl.name    EQ "POBROWSE"
-         NO-ERROR.
-
-    IF NOT AVAILABLE sys-ctrl THEN DO TRANSACTION:
-        CREATE sys-ctrl.
-        ASSIGN
-            sys-ctrl.company = cocode
-            sys-ctrl.name    = "POBROWSE"
-            sys-ctrl.descrip = "# of Records to be displayed in PO browser"
-            sys-ctrl.log-fld = YES
-            sys-ctrl.char-fld = ""
-            sys-ctrl.int-fld = 10
-            .     
-    END.
-
-    IF fi_po-no NE 0 THEN DO:
-        IF lIsMatches THEN DO:
-            &SCOPED-DEFINE open-query          ~
-              OPEN QUERY {&browse-name}        ~
-              {&for-each1}                     ~
-                AND po-ordl.po-no EQ fi_po-no  ~
-                USE-INDEX po-no NO-LOCK,       ~
-                {&for-each2},                  ~
-                {&for-each3},                  ~
-                {&for-each4},                  ~
-                {&for-each5},                  ~
-                {&for-each6}
-    
-    
-            IF LOOKUP(lv-sort-by,lv-sort-list1) GT 0 THEN
-                IF ll-sort-asc THEN 
-                    {&open-query} {&sortby-phrase-asc1}.
-                ELSE 
-                    {&open-query} {&sortby-phrase-desc1}.
-            ELSE
-                IF ll-sort-asc THEN 
-                    {&open-query} {&sortby-phrase-asc2}.
-                ELSE 
-                    {&open-query} {&sortby-phrase-desc2}.
-        END. 
-        ELSE DO:  
-            &SCOPED-DEFINE open-query          ~
-              OPEN QUERY {&browse-name}        ~
-              {&for-each8}                     ~
-                AND po-ordl.po-no EQ fi_po-no  ~
-                USE-INDEX po-no NO-LOCK,       ~
-                {&for-each2},                  ~
-                {&for-each3},                  ~
-                {&for-each4},                  ~
-                {&for-each5},                  ~
-                {&for-each6}
-    
-    
-            IF LOOKUP(lv-sort-by,lv-sort-list1) GT 0 THEN
-                IF ll-sort-asc THEN 
-                    {&open-query} {&sortby-phrase-asc1}.
-                ELSE 
-                    {&open-query} {&sortby-phrase-desc1}.
-            ELSE
-                IF ll-sort-asc THEN 
-                    {&open-query} {&sortby-phrase-asc2}.
-                ELSE 
-                    {&open-query} {&sortby-phrase-desc2}.                 
-        END.    
-    END.
-
-    ELSE IF fi_job-no NE ""  THEN DO:
-        {&for-each1} 
-        NO-LOCK USE-INDEX job-no,
-        {&for-each2}    
-        BREAK BY po-ordl.po-no DESCENDING:
-            IF FIRST-OF(po-ordl.po-no) THEN 
-                li = li + 1.
-            lv-po-no = po-ordl.po-no.
-            IF li GE sys-ctrl.int-fld THEN 
-                LEAVE.
-        END.
-        RUN pPrepareAndExecute(
-            INPUT lv-po-no
-            ).    
-    END.
-
-    ELSE IF fi_i-no NE "" THEN DO:
-        {&for-each1} 
-        NO-LOCK USE-INDEX item,
-        {&for-each2}
-        BREAK BY po-ordl.po-no DESCENDING:
-            IF FIRST-OF(po-ordl.po-no) THEN 
-                li = li + 1.
-            lv-po-no = po-ordl.po-no.
-            IF li GE sys-ctrl.int-fld THEN 
-                LEAVE.
-        END.
-        RUN pPrepareAndExecute(
-            INPUT lv-po-no
-            ).
-                 
-    END.
-
-    ELSE IF fi_vend-i-no NE "" THEN DO:
-        {&for-each1}   
-        NO-LOCK USE-INDEX vend-i-no ,
-        {&for-each2}
-        BREAK BY po-ordl.po-no DESC:
-            IF FIRST-OF(po-ordl.po-no) THEN 
-                li = li + 1.
-            lv-po-no = po-ordl.po-no.
-            IF li GE sys-ctrl.int-fld THEN 
-                LEAVE.
-        END. 
-        RUN pPrepareAndExecute(
-            INPUT lv-po-no
-            ).                
-    END.
-
-    ELSE IF fi_vend-no NE "" THEN DO:
-        {&for-each1}
-        NO-LOCK USE-INDEX vend-no,
-        {&for-each2}
-        BREAK BY po-ordl.po-no DESCENDING:
-            IF FIRST-OF(po-ordl.po-no)  THEN 
-                li = li + 1.
-            lv-po-no = po-ordl.po-no.
-            IF li GE sys-ctrl.int-fld THEN 
-                LEAVE.
-        END.
-        RUN pPrepareAndExecute(
-            INPUT lv-po-no
-            ).                
-    END.
-    ELSE DO:
-        {&for-each7} 
-        NO-LOCK USE-INDEX opened,
-        {&for-each2}    
-        BREAK BY po-ordl.po-no DESCENDING:
-            IF FIRST-OF(po-ordl.po-no) THEN 
-                li = li + 1.
-            lv-po-no = po-ordl.po-no.
-            IF li GE sys-ctrl.int-fld THEN 
-                LEAVE.
-        END.
-
-        &SCOPED-DEFINE open-query          ~
-          OPEN QUERY {&browse-name}        ~
-          {&for-each7}                     ~
-            AND po-ordl.po-no GE lv-po-no  ~
-            USE-INDEX po-no NO-LOCK,      ~
-            {&for-each2},                  ~
-            {&for-each3},                  ~
-            {&for-each4},                  ~
-            {&for-each5},                  ~
-            {&for-each6}
-
-        IF LOOKUP(lv-sort-by,lv-sort-list1) GT 0 THEN
-            IF ll-sort-asc THEN 
-                {&open-query} {&sortby-phrase-asc1}.
-            ELSE 
-                {&open-query} {&sortby-phrase-desc1}.
-        ELSE
-            IF ll-sort-asc THEN 
-                {&open-query} {&sortby-phrase-asc2}.
-            ELSE 
-                {&open-query} {&sortby-phrase-desc2}.   
-    END.         
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE record-added B-table-Win 
 PROCEDURE record-added :
@@ -2263,6 +1827,7 @@ PROCEDURE record-added :
   ASSIGN
    ll-first      = YES
    ll-new-record = YES.
+   RUN set-defaults.
 
 END PROCEDURE.
 
@@ -2294,9 +1859,9 @@ PROCEDURE reopen-query1 :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF INPUT PARAMETER ip-rowid AS ROWID NO-UNDO.
-
+ 
   DEF BUFFER b-po-ordl FOR po-ordl.
-  DEF BUFFER b-po-ord  FOR po-ord.
+  DEF BUFFER b-po-ord  FOR po-ord.   
 
   FIND b-po-ord WHERE ROWID(b-po-ord) EQ ip-rowid NO-LOCK NO-ERROR.
   IF AVAIL b-po-ord THEN DO:
@@ -2305,26 +1870,13 @@ PROCEDURE reopen-query1 :
          b-po-ordl.po-no EQ b-po-ord.po-no
          NO-LOCK.
     ip-rowid = ROWID(b-po-ordl).
-  END.
-
+  END. 
+  
   DO WITH FRAME {&FRAME-NAME}:
     RUN dispatch ("open-query").
-    REPOSITION {&browse-name} TO ROWID ip-rowid NO-ERROR.
-
-    IF ERROR-STATUS:ERROR THEN DO:
-      FIND FIRST b-po-ordl WHERE ROWID(b-po-ordl) EQ ip-rowid NO-LOCK NO-ERROR.
-      IF AVAIL b-po-ordl THEN DO:
-        ASSIGN fi_po-no:SCREEN-VALUE = STRING(b-po-ordl.po-no)
-               fi_i-no:SCREEN-VALUE  = "".
-        APPLY "choose" TO btn_go.
-      END.
-    END.
-    ELSE DO:
-        RUN dispatch ("row-changed").
-        APPLY "value-changed" TO BROWSE {&browse-name}.
-    END.
+    RUN repo-query (ip-rowid).
   END.
-
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2338,13 +1890,15 @@ PROCEDURE repo-query :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF INPUT PARAM ip-rowid AS ROWID NO-UNDO.
-
-
-  RUN dispatch ("open-query").
-
-  REPOSITION {&browse-name} TO ROWID ip-rowid NO-ERROR.
-
-  RUN dispatch ("row-changed").
+  
+  DO WITH FRAME {&FRAME-NAME}:
+    REPOSITION {&browse-name} TO ROWID ip-rowid NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN DO:
+      RUN one-row-query (ip-rowid).
+      REPOSITION {&browse-name} TO ROWID ip-rowid NO-ERROR.
+    END.
+    IF NOT ERROR-STATUS:ERROR THEN RUN dispatch ("row-changed").
+  END.
 
 END PROCEDURE.
 
@@ -2377,6 +1931,363 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pPrepareAndExecuteQueryForShowAll B-table-Win 
+PROCEDURE pPrepareAndExecuteQueryForShowAll PRIVATE :
+/*------------------------------------------------------------------------------
+ Purpose: Private procedure to show all records in browse
+ Notes:
+------------------------------------------------------------------------------*/    
+    DEFINE VARIABLE cShowAllQuery AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cResponse     AS CHARACTER NO-UNDO.
+               
+    cShowAllQuery = "FOR EACH po-ordl NO-LOCK"
+                    + " WHERE po-ordl.company EQ " + QUOTER(cocode)
+                    + pGetWhereCriteria("po-ordl") 
+                    + ", FIRST po-ord NO-LOCK"
+                    + " WHERE po-ord.company EQ po-ordl.company AND po-ord.po-no EQ po-ordl.po-no " 
+                    + pGetWhereCriteria("po-ord")
+/*                    + " AND (( " + quoter(tb_hold) + " AND po-ord.stat = 'H' ) "   */
+/*                    + " OR ( " + QUOTER(tb_approved) + " AND po-ord.stat <> 'H' ))"*/
+
+                    + ",FIRST reftable " +  "OUTER-JOIN" + " NO-LOCK"
+                    + " WHERE reftable.reftable EQ 'AP-INVL' "
+                    + " AND reftable.company EQ '' "
+                    + " AND reftable.loc EQ '' "                     
+                    + " AND reftable.code EQ  STRING(po-ordl.po-no,'9999999999')"
+                    + " AND (reftable.spare-char-1 EQ '' OR reftable.spare-char-1 EQ po-ordl.company) " 
+                    
+                    + ",FIRST  ap-invl OUTER-JOIN NO-LOCK "
+                    + " WHERE ap-invl.i-no EQ int(reftable.code2)"
+                    + " AND ap-invl.company EQ " + QUOTER(cocode)
+                    + " AND ap-invl.po-no  EQ po-ordl.po-no "
+                    + " AND (ap-invl.line + (ap-invl.po-no * -1000)) EQ po-ordl.line"  
+                    
+                    + ", FIRST ap-inv OUTER-JOIN NO-LOCK " 
+                    + " WHERE ap-inv.i-no EQ ap-invl.i-no"
+                    + " AND ap-inv.company EQ " +  QUOTER(cocode)
+                    + " AND ap-inv.due EQ 0 "
+                    
+                    + ",FIRST  ap-ctrl NO-LOCK "
+                    + " WHERE ap-ctrl.company EQ po-ordl.company"
+                    + " AND (( " + QUOTER(tb_unpaid) + " AND " +  QUOTER(tb_paid) + ")" 
+                    + " OR (" + QUOTER(tb_paid) + " AND AVAIL(ap-inv)) "
+                    + " OR (" + QUOTER(tb_unpaid) + " AND NOT AVAIL(ap-inv))) "        
+                    
+                    + " BY " + pGetSortCondition(lv-sort-by,lv-sort-by-lab) + ( IF ll-sort-asc THEN  "" ELSE " DESC") +  " BY po-ordl.po-no BY po-ordl.line BY po-ordl.i-no"
+                    .   
+                   
+    RUN Browse_PrepareAndExecuteBrowseQuery(
+        INPUT  BROWSE {&BROWSE-NAME}:QUERY, /* Browse Query Handle */      
+        INPUT  cShowAllQuery,               /* BRowse Query */             
+        INPUT  NO,                          /* Show limit alert? */        
+        INPUT  0,                           /* Record limit */             
+        INPUT  0,                           /* Time Limit */               
+        INPUT  lEnableShowAll,              /* Enable ShowAll Button */    
+        OUTPUT cResponse                                                  
+        ).
+    ll-show-all = NO.    
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pPrepareAndExecuteQueryForPrevNext B-table-Win 
+PROCEDURE pPrepareAndExecuteQueryForPrevNext PRIVATE :
+/*------------------------------------------------------------------------------
+ Purpose: Private procedure to parepare an execute query for prev and next 
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcValue    AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER iplPrevious AS LOGICAL   NO-UNDO.
+    
+    DEFINE VARIABLE cLimitingQuery AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cBrowseQuery   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cResponse      AS CHARACTER NO-UNDO. 
+           
+    RUN pAssignCommonRecords(
+        INPUT-OUTPUT cQueryBuffers,
+        INPUT-OUTPUT cFieldBuffer,
+        INPUT-OUTPUT cFieldName,
+        INPUT-OUTPUT lIsBreakByUsed
+        ).   
+                                
+   
+     cLimitingQuery = "FOR EACH po-ordl NO-LOCK"
+                    + " WHERE po-ordl.company EQ " + QUOTER(cocode)  + " AND po-ordl.po-no " + (IF iplPrevious THEN "LE " ELSE "GE ") + STRING(INTEGER(ipcValue))
+                    + pGetWhereCriteria("po-ordl") 
+                    + ", FIRST po-ord NO-LOCK"
+                    + " WHERE po-ord.company EQ po-ordl.company AND po-ord.po-no EQ po-ordl.po-no " 
+                    + pGetWhereCriteria("po-ord")
+/*                    + " AND (( " + quoter(tb_hold) + " AND po-ord.stat = 'H' ) "   */
+/*                    + " OR ( " + QUOTER(tb_approved) + " AND po-ord.stat <> 'H' ))"*/
+
+                    + ",FIRST reftable " +  "OUTER-JOIN" + " NO-LOCK"
+                    + " WHERE reftable.reftable EQ 'AP-INVL' "
+                    + " AND reftable.company EQ '' "
+                    + " AND reftable.loc EQ '' "                     
+                    + " AND reftable.code EQ  STRING(po-ordl.po-no,'9999999999')"
+                    + " AND (reftable.spare-char-1 EQ '' OR reftable.spare-char-1 EQ po-ordl.company) " 
+                    
+                    + ",FIRST  ap-invl OUTER-JOIN NO-LOCK "
+                    + " WHERE ap-invl.i-no EQ int(reftable.code2)"
+                    + " AND ap-invl.company EQ " + QUOTER(cocode)
+                    + " AND ap-invl.po-no EQ po-ordl.po-no "
+                    + " AND (ap-invl.line + (ap-invl.po-no * -1000)) EQ po-ordl.line"  
+                    
+                    + ", FIRST ap-inv OUTER-JOIN NO-LOCK " 
+                    + " WHERE ap-inv.i-no EQ ap-invl.i-no"
+                    + " AND ap-inv.company EQ " + QUOTER(cocode)
+                    + " AND ap-inv.due EQ 0 "
+                    
+                    + ",FIRST  ap-ctrl NO-LOCK "
+                    + " WHERE ap-ctrl.company EQ po-ordl.company"
+                    + " AND (( " + QUOTER(tb_unpaid) + " AND " +  QUOTER(tb_paid) + ")" 
+                    + " OR (" + QUOTER(tb_paid) + " AND AVAIL(ap-inv)) "
+                    + " OR (" + QUOTER(tb_unpaid) + " AND NOT AVAIL(ap-inv))) "        
+                    
+                    + " BREAK BY po-ordl.po-no " + (IF iplPrevious THEN "DESCENDING" ELSE "" )
+                    .                    
+                     
+
+    RUN Browse_PrepareAndExecuteLimitingQuery(
+        INPUT  cLimitingQuery,   /* Query */
+        INPUT  cQueryBuffers,    /* Buffers Name */
+        INPUT  iRecordLimit,     /* Record Limit */
+        INPUT  dQueryTimeLimit,  /* Time Limit*/
+        INPUT  lEnableShowAll,   /* Enable ShowAll Button? */
+        INPUT  cFieldBuffer,     /* Buffer name to fetch the field's value*/
+        INPUT  cFieldName,       /* Field Name*/
+        INPUT  NO,               /* Initial Query*/
+        INPUT  lIsBreakByUsed,   /* Is breakby used */
+        OUTPUT cResponse           
+        ). 
+    
+    IF cResponse EQ "" THEN
+        MESSAGE "No Records Found..."
+            VIEW-AS ALERT-BOX ERROR. 
+              
+    ELSE IF cResponse EQ "ShowAll" THEN
+        RUN pPrepareAndExecuteQueryForShowAll.
+    
+    ELSE DO:
+          ASSIGN 
+          cBrowseWhereClause = " AND po-ordl.po-no "   + (IF iplPrevious THEN "LE " ELSE "GE ") + STRING(INTEGER(ipcValue))
+                             + " AND po-ordl.po-no " + (IF iplPrevious THEN "GE " ELSE "LE ") + STRING (INTEGER(cResponse))               
+          cBrowseQuery = "FOR EACH po-ordl NO-LOCK"
+                    + " WHERE po-ordl.company EQ " + QUOTER(cocode)
+                    + cBrowseWhereClause
+                    + pGetWhereCriteria("po-ordl") 
+                    + ", FIRST po-ord NO-LOCK"
+                    + " WHERE po-ord.company EQ po-ordl.company AND po-ord.po-no EQ po-ordl.po-no " 
+                    + pGetWhereCriteria("po-ord")
+/*                    + " AND (( " + quoter(tb_hold) + " AND po-ord.stat = 'H' ) "   */
+/*                    + " OR ( " + QUOTER(tb_approved) + " AND po-ord.stat <> 'H' ))"*/
+
+                    + ",FIRST reftable " +  "OUTER-JOIN" + " NO-LOCK"
+                    + " WHERE reftable.reftable EQ 'AP-INVL' "
+                    + " AND reftable.company EQ '' "
+                    + " AND reftable.loc EQ '' "                     
+                    + " AND reftable.code EQ  STRING(po-ordl.po-no,'9999999999')"
+                    + " AND (reftable.spare-char-1 EQ '' OR reftable.spare-char-1 EQ po-ordl.company) " 
+                    
+                    + ",FIRST  ap-invl OUTER-JOIN NO-LOCK "
+                    + " WHERE ap-invl.i-no EQ int(reftable.code2)"
+                    + " AND ap-invl.company EQ " + QUOTER(cocode)
+                    + " AND ap-invl.po-no EQ po-ordl.po-no "
+                    + " AND (ap-invl.line + (ap-invl.po-no * -1000)) EQ po-ordl.line"  
+                    
+                    + ", FIRST ap-inv OUTER-JOIN NO-LOCK " 
+                    + " WHERE ap-inv.i-no EQ ap-invl.i-no"
+                    + " AND ap-inv.company EQ " + QUOTER(cocode)
+                    + " AND ap-inv.due EQ 0 "
+                    
+                    + ",FIRST  ap-ctrl NO-LOCK "
+                    + " WHERE ap-ctrl.company EQ po-ordl.company"
+                    + " AND (( " + QUOTER(tb_unpaid) + " AND " +  QUOTER(tb_paid) + ")" 
+                    + " OR (" + QUOTER(tb_paid) + " AND AVAIL(ap-inv)) "
+                    + " OR (" + QUOTER(tb_unpaid) + " AND NOT AVAIL(ap-inv))) "        
+                    
+                    + " BY " + pGetSortCondition(lv-sort-by,lv-sort-by-lab) + ( IF ll-sort-asc THEN  "" ELSE " DESC") +  " BY po-ordl.po-no BY po-ordl.line BY po-ordl.i-no"
+                    .                 
+                        
+        RUN Browse_PrepareAndExecuteBrowseQuery(
+            INPUT  BROWSE {&BROWSE-NAME}:QUERY, /* Browse Query Handle */
+            INPUT  cBrowseQuery,                /* BRowse Query */
+            INPUT  NO,                          /* Show limit alert? */
+            INPUT  0,                           /* Record limit */
+            INPUT  0,                           /* Time Limit */
+            INPUT  lEnableShowAll,              /* Enable ShowAll Button */
+            OUTPUT cResponse
+            ).
+    END. 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pPrepareAndExecuteQuery B-table-Win 
+PROCEDURE pPrepareAndExecuteQuery :
+/*------------------------------------------------------------------------------
+ Purpose: Private procedure to prepare and execute query in browse
+ Notes:
+------------------------------------------------------------------------------*/   
+    DEFINE INPUT PARAMETER iplInitialLoad    AS LOGICAL NO-UNDO.
+    
+    DEFINE VARIABLE cLimitingQuery        AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cBrowseQuery          AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cResponse             AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cOrderTypeWhereClause AS CHARACTER NO-UNDO.
+    
+    RUN pAssignCommonRecords(
+        INPUT-OUTPUT cQueryBuffers,
+        INPUT-OUTPUT cFieldBuffer,
+        INPUT-OUTPUT cFieldName,
+        INPUT-OUTPUT lIsBreakByUsed
+        ).           
+                       
+    cLimitingQuery = "FOR EACH po-ordl NO-LOCK"
+                    + " WHERE po-ordl.company EQ " + QUOTER(cocode)
+                    + pGetWhereCriteria("po-ordl") 
+                    + ", FIRST po-ord NO-LOCK"
+                    + " WHERE po-ord.company EQ po-ordl.company AND po-ord.po-no EQ po-ordl.po-no " 
+                    + pGetWhereCriteria("po-ord")
+/*                    + " AND (( " + QUOTER(tb_hold) + " AND po-ord.stat = 'H' ) "   */
+/*                    + " OR ( " + QUOTER(tb_approved) + " AND po-ord.stat <> 'H' ))"*/
+
+                    + ", FIRST reftable " +  "OUTER-JOIN" + " NO-LOCK"
+                    + " WHERE reftable.reftable EQ 'AP-INVL' "
+                    + " AND reftable.company EQ '' "
+                    + " AND reftable.loc EQ '' "                     
+                    + " AND reftable.code EQ  STRING(po-ordl.po-no,'9999999999')"
+                    + " AND (reftable.spare-char-1 EQ '' OR reftable.spare-char-1 EQ po-ordl.company) " 
+                    
+                    + ", FIRST  ap-invl OUTER-JOIN NO-LOCK "
+                    + " WHERE ap-invl.i-no EQ int(reftable.code2)"
+                    + " AND ap-invl.company EQ " + QUOTER(cocode)
+                    + " AND ap-invl.po-no EQ po-ordl.po-no "
+                    + " AND (ap-invl.line + (ap-invl.po-no * -1000)) EQ po-ordl.line"  
+                    
+                    + ", FIRST ap-inv OUTER-JOIN NO-LOCK " 
+                    + " WHERE ap-inv.i-no EQ ap-invl.i-no"
+                    + " AND ap-inv.company EQ " + QUOTER(cocode)
+                    + " AND ap-inv.due EQ 0 "
+                    
+                    + ", FIRST  ap-ctrl NO-LOCK "
+                    + " WHERE ap-ctrl.company EQ po-ordl.company"
+                    + " AND (( " + QUOTER(tb_unpaid) + " AND " +  QUOTER(tb_paid) + ")" 
+                    + " OR (" + QUOTER(tb_paid) + " AND AVAIL(ap-inv)) "
+                    + " OR (" + QUOTER(tb_unpaid) + " AND NOT AVAIL(ap-inv))) "        
+                    
+                    + " BREAK BY po-ordl.po-no DESC "
+                    .                  
+             
+    /* Limit the query if order no is 0 or cadd No is Blank */                    
+    IF fi_po-no EQ 0 THEN
+        RUN Browse_PrepareAndExecuteLimitingQuery(
+            INPUT  cLimitingQuery,   /* Query */
+            INPUT  cQueryBuffers,    /* Buffers Name */
+            INPUT  iRecordLimit,     /* Record Limit */
+            INPUT  dQueryTimeLimit,  /* Time Limit*/
+            INPUT  lEnableShowAll,   /* Enable ShowAll Button? */
+            INPUT  cFieldBuffer,     /* Buffer name to fetch the field's value*/
+            INPUT  cFieldName,       /* Field Name*/
+            INPUT  iplInitialLoad,   /* Initial Query*/
+            INPUT  lIsBreakByUsed,   /* Is breakby used */
+            OUTPUT cResponse           
+            ).       
+  
+    ELSE 
+        cResponse = "PurchaseNo". /* For identification purpose */
+            
+    IF cResponse EQ "" AND lButtongoPressed THEN  
+        MESSAGE "No Records Found..."
+            VIEW-AS ALERT-BOX ERROR.
+              
+    ELSE IF cResponse EQ "ShowALL" THEN 
+        RUN pPrepareAndExecuteQueryForShowAll.
+            
+    ELSE DO:
+                
+        cBrowseWhereClause = (IF fi_po-no EQ 0 THEN " AND po-ordl.po-no  GE " + STRING(INTEGER(cResponse)) ELSE "").                 
+        
+        cBrowseQuery = "FOR EACH po-ordl NO-LOCK"
+                    + " WHERE po-ordl.company EQ " + QUOTER(cocode)  
+                    + cBrowseWhereClause  
+                    + pGetWhereCriteria("po-ordl") 
+                    + ", FIRST po-ord NO-LOCK"
+                    + " WHERE po-ord.company EQ po-ordl.company AND po-ord.po-no EQ po-ordl.po-no "
+                    + pGetWhereCriteria("po-ord")
+/*                    + " AND (( " + quoter(tb_hold) + " AND po-ord.stat = 'H' ) "   */
+/*                    + " OR ( " + QUOTER(tb_approved) + " AND po-ord.stat <> 'H' ))"*/
+
+                    + ",FIRST reftable " +  "OUTER-JOIN" + " NO-LOCK"
+                    + " WHERE reftable.reftable EQ 'AP-INVL' "
+                    + " AND reftable.company EQ '' "
+                    + " AND reftable.loc EQ '' "                     
+                    + " AND reftable.code EQ  STRING(po-ordl.po-no,'9999999999')"
+                    + " AND (reftable.spare-char-1 EQ '' OR reftable.spare-char-1 EQ po-ordl.company) " 
+                    
+                    + ",FIRST  ap-invl OUTER-JOIN NO-LOCK "
+                    + " WHERE ap-invl.i-no EQ int(reftable.code2)"
+                    + " AND ap-invl.company EQ " + QUOTER(cocode)
+                    + " AND ap-invl.po-no EQ po-ordl.po-no "
+                    + " AND (ap-invl.line + (ap-invl.po-no * -1000)) EQ po-ordl.line"  
+                    
+                    + ", FIRST ap-inv OUTER-JOIN NO-LOCK " 
+                    + " WHERE ap-inv.i-no EQ ap-invl.i-no"
+                    + " AND ap-inv.company EQ " + QUOTER(cocode)
+                    + " AND ap-inv.due EQ 0 "
+                    
+                    + ",FIRST  ap-ctrl NO-LOCK "
+                    + " WHERE ap-ctrl.company EQ po-ordl.company"
+                    + " AND (( " + QUOTER(tb_unpaid) + " AND " +  QUOTER(tb_paid) + ")" 
+                    + " OR (" + QUOTER(tb_paid) + " AND AVAIL(ap-inv)) "
+                    + " OR (" + QUOTER(tb_unpaid) + " AND NOT AVAIL(ap-inv))) "        
+                    
+                    + " BY " + pGetSortCondition(lv-sort-by,lv-sort-by-lab) + ( IF ll-sort-asc THEN  "" ELSE " DESC") +  " BY po-ordl.po-no BY po-ordl.line BY po-ordl.i-no"
+                    .                
+                      
+        RUN Browse_PrepareAndExecuteBrowseQuery(
+            INPUT  BROWSE {&BROWSE-NAME}:QUERY, /* Browse Query Handle */      
+            INPUT  cBrowseQuery,                /* BRowse Query */             
+            INPUT  NO,                          /* Show limit alert? */        
+            INPUT  0,                           /* Record limit */             
+            INPUT  0,                           /* Time Limit */               
+            INPUT  lEnableShowAll,              /* Enable ShowAll Button */    
+            OUTPUT cResponse                                                   
+            ).
+    END.                                     
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pAssignCommonRecords B-table-Win
+PROCEDURE pAssignCommonRecords PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: Assign Common Records for the query
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT-OUTPUT PARAMETER iopcQueryBuffer      AS CHARACTER NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER iopcFieldBuffer      AS CHARACTER NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER iopcFieldName        AS CHARACTER NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER ioplIsBreakByUsed    AS LOGICAL   NO-UNDO.
+   
+    ASSIGN         
+        iopcQueryBuffer   = "po-ordl,po-ord,reftable,ap-invl,ap-inv,ap-ctrl"
+        iopcFieldBuffer   = "po-ordl"
+        iopcFieldName     = "po-no" 
+        ioplIsBreakByUsed = YES 
+        .
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE set-defaults B-table-Win 
 PROCEDURE set-defaults :
@@ -2455,6 +2366,36 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE clearFilters B-table-Win
+PROCEDURE clearFilters:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipiPONo AS INTEGER NO-UNDO.
+
+    DO WITH FRAME {&FRAME-NAME}:
+      ASSIGN
+          fi_vend-no:SCREEN-VALUE = ""
+          fi_i-no:SCREEN-VALUE = ""
+          fi_vend-i-no:SCREEN-VALUE = ""
+          fi_po-no:SCREEN-VALUE = ""
+          fi_job-no:SCREEN-VALUE = ""
+          fi_job-no2:SCREEN-VALUE = ""
+          fi_vend-no
+          fi_i-no
+          fi_vend-i-no
+          fi_po-no
+          fi_job-no
+          fi_job-no2
+          .
+  END.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE setUserPrint B-table-Win 
 PROCEDURE setUserPrint :
 /*------------------------------------------------------------------------------
@@ -2481,6 +2422,7 @@ PROCEDURE show-prev-next :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+/*
 DEF VAR li AS INT NO-UNDO.
 DEF VAR lv-po-no AS INT NO-UNDO.
 
@@ -2791,6 +2733,7 @@ ELSE /*IF lv-show-next THEN*/ DO:
         ).
   END.
 END.
+*/
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3030,6 +2973,7 @@ FUNCTION qty-in-ord-uom RETURNS DECIMAL
     FOR EACH rm-rcpth
         WHERE rm-rcpth.company   EQ b-po-ordl.company
           AND rm-rcpth.po-no     EQ STRING(b-po-ordl.po-no)
+          AND rm-rcpth.po-line   EQ b-po-ordl.line
           AND rm-rcpth.i-no      EQ b-po-ordl.i-no
           AND rm-rcpth.rita-code EQ "R" NO-LOCK,
         EACH rm-rdtlh
@@ -3074,3 +3018,80 @@ END FUNCTION.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION pGetSortCondition B-table-Win
+FUNCTION pGetSortCondition RETURNS CHARACTER 
+  (ipcSortBy AS CHARACTER,ipcSortLabel AS CHARACTER):
+/*------------------------------------------------------------------------------
+ Purpose: Retuns the sort condition based on the input 
+ Notes:
+------------------------------------------------------------------------------*/
+    
+     RETURN (IF ipcSortBy EQ "po-no"                 THEN "STRING(po-ordl.po-no,'9999999999')"                                                           ELSE ~
+            IF ipcSortBy EQ "vend-no"               THEN "po-ord.vend-no"                                                                               ELSE ~
+            IF ipcSortBy EQ "ship-id"               THEN "po-ord.ship-id"                                                                               ELSE ~
+            IF ipcSortBy EQ "ship-name"             THEN "po-ord.ship-name"                                                                             ELSE ~
+            IF ipcSortBy EQ "job-no"                THEN "STRING(po-ordl.job-no,'x(6)') + STRING(po-ordl.job-no2,'99') + STRING(po-ordl.s-num,'999')"   ELSE ~
+            IF ipcSortBy EQ "i-no"                  THEN "po-ordl.i-no"                                                                                 ELSE ~
+            IF ipcSortBy EQ "i-name"                THEN "po-ordl.i-name"                                                                               ELSE ~
+            IF ipcSortBy EQ "vend-i-no"             THEN "po-ordl.vend-i-no"                                                                            ELSE ~
+            IF ipcSortBy EQ "buyer"                 THEN "po-ord.buyer"                                                                                 ELSE ~
+            IF ipcSortBy EQ "cPoStatus"             THEN "po-ord.stat"                                                                                  ELSE ~
+            IF ipcSortBy EQ "cust-no"               THEN "po-ordl.cust-no"                                                                              ELSE ~
+            IF ipcSortBy EQ "cPolineStatus"         THEN "STRING(po-ordl.stat)"                                                                         ELSE ~
+            IF ipcSortBy EQ "line"                  THEN "(STRING(po-ordl.po-no,'9999999999') + STRING(po-ordl.LINE,'9999'))"                           ELSE ~
+            IF ipcSortBy EQ "ord-qty"               THEN "STRING(9999999999.99999 + po-ordl.ord-qty,'-9999999999.99999')"                               ELSE ~
+            IF ipcSortBy EQ "pr-qty-uom"            THEN "po-ordl.pr-qty-uom"                                                                           ELSE ~
+            IF ipcSortBy EQ "pr-uom"                THEN "po-ordl.pr-uom"                                                                               ELSE ~
+            IF ipcSortBy EQ "t-rec-qty"             THEN "STRING(9999999999.99999 + po-ordl.t-rec-qty,'-9999999999.99999')"                             ELSE ~
+            IF ipcSortBy EQ "cons-uom"              THEN "po-ordl.cons-uom"                                                                             ELSE ~
+            IF ipcSortBy EQ "cost"                  THEN "STRING(po-ordl.cost,'99999.99999')"                                                           ELSE ~
+            IF ipcSortBy EQ "s-wid"                 THEN "STRING(po-ordl.s-wid,'99999.99999')"                                                          ELSE ~
+            IF ipcSortBy EQ "s-len"                 THEN "STRING(po-ordl.s-len,'99999.99999')"                                                          ELSE ~
+                                                         "STRING(YEAR(po-ordl.due-date),'9999')
+                                                         + STRING(MONTH(po-ordl.due-date),'99')
+                                                         + STRING(DAY(po-ordl.due-date),'99')"
+            ).
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION pGetWhereCriteria B-table-Win
+FUNCTION pGetWhereCriteria RETURNS CHARACTER 
+  ( ipcTable AS CHARACTER ):
+/*------------------------------------------------------------------------------
+ Purpose: Prepares and returns the where clause criteria based on table name
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cWhereCriteria AS CHARACTER NO-UNDO.
+    
+    IF ipcTable EQ "po-ord" THEN DO:
+        IF tb_approved NE tb_hold THEN DO:
+            IF tb_approved THEN 
+            cWhereCriteria = " AND po-ord.stat NE 'H'".
+            ELSE            
+            IF tb_hold THEN
+            cWhereCriteria = cWhereCriteria + " AND po-ord.stat EQ 'H'".
+        END.
+    END. 
+    ELSE DO:         
+        IF tb_open NE tb_closed THEN
+        cWhereCriteria = cWhereCriteria + " AND po-ordl.opened EQ " + STRING(tb_open).
+                       
+        ASSIGN
+            cWhereCriteria = cWhereCriteria + " AND po-ordl.due-date GE " + STRING(fi_due-date,"99/99/9999")   
+            cWhereCriteria = cWhereCriteria  
+                           + (IF fi_po-no NE 0 THEN " AND po-ordl.po-no EQ " + STRING(fi_po-no) ELSE "")
+                           + (IF fi_vend-no NE "" THEN " AND po-ordl.vend-no BEGINS " + QUOTER(fi_vend-no) ELSE "")
+                           + (IF fi_i-no NE "" THEN " AND po-ordl.i-no BEGINS " + QUOTER(fi_i-no) ELSE "")
+                           + (IF fi_vend-i-no NE "" THEN " AND po-ordl.vend-i-no BEGINS " + QUOTER(fi_vend-i-no) ELSE "")
+                           + (IF fi_job-no NE "" THEN " AND po-ordl.job-no BEGINS " + QUOTER(fi_job-no) ELSE "")
+                           + (IF fi_job-no NE "" AND fi_job-no2 NE 0 THEN " AND po-ordl.job-no2 EQ " + STRING(fi_job-no2) ELSE "")
+                           . 
+    END.     
+    RETURN cWhereCriteria.      
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME

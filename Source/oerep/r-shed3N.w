@@ -107,7 +107,8 @@ def TEMP-TABLE w-ord
   FIELD xls-rel-date  LIKE oe-rel.rel-date format "99/99/99"
   FIELD xls-status    AS CHAR
   FIELD iPro-qty  AS INTEGER
-  FIELD cDueDate AS CHARACTER FORMAT "x(10)" .
+  FIELD cDueDate AS CHARACTER FORMAT "x(10)" 
+  FIELD lot-no   AS CHARACTER .
 
 def buffer b-w-ord for w-ord.
 
@@ -146,11 +147,11 @@ DEFINE VARIABLE glCustListActive AS LOGICAL     NO-UNDO.
 
 
 ASSIGN cTextListToSelect = "Customer#,Rel Date,Rel Num,Ship To,Carrier,Order #,Cust Part#,Descrption,Fg Item#," +
-                           "Po Number,Qty On Hand,Release Qty,Sales Value,Skids,Status,Projected Qty,Due Date"
+                           "Po Number,Qty On Hand,Release Qty,Sales Value,Skids,Status,Projected Qty,Due Date,Customer Lot #"
        cFieldListToSelect = "cust,rel-date,rel-num,ship,carr,ord,cust-part,desc,fg-item," +
-                            "po-num,Qty-hand,rel-qty,sales,skid,stat,proj-qty,due-date"
-       cFieldLength = "9,8,7,8,7,8,15,25,15," + "15,11,11,15,7,6,13,8"
-       cFieldType = "c,c,i,c,c,i,c,c,c," + "c,i,i,i,i,c,i,c" 
+                            "po-num,Qty-hand,rel-qty,sales,skid,stat,proj-qty,due-date,lot-no"
+       cFieldLength = "9,8,7,8,7,8,15,25,15," + "15,11,11,15,7,6,13,8,15"
+       cFieldType = "c,c,i,c,c,i,c,c,c," + "c,i,i,i,i,c,i,c,c" 
     .
 
 {sys/inc/ttRptSel.i}
@@ -1734,8 +1735,8 @@ DEF VAR cVarValue AS cha NO-UNDO.
 DEF VAR cExcelVarValue AS cha NO-UNDO.
 DEF VAR cSelectedList AS cha NO-UNDO.
 DEF VAR cFieldName AS cha NO-UNDO.
-DEF VAR str-tit4 AS cha FORM "x(200)" NO-UNDO.
-DEF VAR str-tit5 AS cha FORM "x(200)" NO-UNDO.
+DEF VAR str-tit4 AS cha FORM "x(220)" NO-UNDO.
+DEF VAR str-tit5 AS cha FORM "x(220)" NO-UNDO.
 DEF VAR str-line AS cha FORM "x(300)" NO-UNDO.
 DEFINE VARIABLE iProjQty AS INTEGER NO-UNDO .
 DEFINE VARIABLE iRelqty AS INTEGER NO-UNDO .
@@ -1760,7 +1761,7 @@ RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
         str-tit4 SKIP
         str-tit5 SKIP 
 
-       WITH FRAME r-top ROW 1 COLUMN 1 STREAM-IO WIDTH 200
+       WITH FRAME r-top ROW 1 COLUMN 1 STREAM-IO WIDTH 220
             NO-LABELS NO-BOX NO-UNDERLINE PAGE-TOP.
 
   FORM HEADER
@@ -1768,7 +1769,7 @@ RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
        lv-cr-rating
        SKIP(1)
 
-      WITH FRAME r-top2 PAGE-TOP NO-ATTR-SPACE NO-BOX WIDTH 200 STREAM-IO.
+      WITH FRAME r-top2 PAGE-TOP NO-ATTR-SPACE NO-BOX WIDTH 220 STREAM-IO.
 
 
 
@@ -2131,7 +2132,8 @@ SESSION:SET-WAIT-STATE ("general").
      ld-palls        = w-ord.rel-qty /
                        ((IF oe-ordl.cas-cnt    EQ 0 THEN 1 ELSE oe-ordl.cas-cnt) *
                         (IF oe-ordl.cases-unit EQ 0 THEN 1 ELSE oe-ordl.cases-unit))
-     w-ord.cDueDate = IF oe-ordl.req-date NE ? THEN string(oe-ordl.req-date) ELSE "".
+     w-ord.cDueDate = IF oe-ordl.req-date NE ? THEN string(oe-ordl.req-date) ELSE ""
+     w-ord.lot-no   = oe-rell.lot-no.
 
     {sys/inc/roundup.i ld-palls}
 
@@ -2216,6 +2218,7 @@ SESSION:SET-WAIT-STATE ("general").
                          WHEN "stat"   THEN cVarValue = STRING(lv-issue,"x(6)") .
                          WHEN "proj-qty"   THEN cVarValue = IF tb_pro-qty THEN STRING(w-ord.iPro-qty,"->>>>,>>>,>>9") ELSE "" .
                          WHEN "due-date"   THEN cVarValue = string(w-ord.cDueDate,"x(8)") .
+                         WHEN "lot-no"     THEN cVarValue = string(w-ord.lot-no,"x(15)").
                     END CASE.
 
                     cExcelVarValue = cVarValue.
@@ -2283,6 +2286,7 @@ SESSION:SET-WAIT-STATE ("general").
                          WHEN "stat"   THEN cVarValue = "" .
                          WHEN "proj-qty"   THEN cVarValue = "" .
                          WHEN "due-date"   THEN cVarValue = "" .
+                         WHEN "lot-no"     THEN cVarValue = "".
                     END CASE.
 
                     cExcelVarValue = cVarValue.
@@ -2344,8 +2348,9 @@ SESSION:SET-WAIT-STATE ("general").
                          WHEN "sales"   THEN cVarValue = IF ll-secure THEN STRING(v-tot-val[2],"$->>,>>>,>>9.99") ELSE "" .
                          WHEN "skid"  THEN cVarValue = STRING(v-tot-pal[2],">>>,>>9") .
                          WHEN "stat"   THEN cVarValue = "" .
-                          WHEN "proj-qty"   THEN cVarValue = "" .
-                          WHEN "due-date"   THEN cVarValue = "" .
+                         WHEN "proj-qty"   THEN cVarValue = "" .
+                         WHEN "due-date"   THEN cVarValue = "" .
+                         WHEN "lot-no"     THEN cVarValue = "".
                     END CASE.
 
                     cExcelVarValue = cVarValue.

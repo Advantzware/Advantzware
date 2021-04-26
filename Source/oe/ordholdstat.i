@@ -190,7 +190,7 @@ PROCEDURE os-Process-Hold-Status :
        ASSIGN vcStatus = "N"
               vcHoldType = "".
               
-       RUN ClearTagsHold (b-oe-ord.rec_key).       
+       RUN ClearTagsForGroup (b-oe-ord.rec_key, "Reason Code").       
 
        /* Prompt to update items if more than one. */
        IF vi > 1 THEN
@@ -220,7 +220,8 @@ PROCEDURE os-Process-Hold-Status :
             INPUT b-oe-ord.rec_key,
             INPUT "oe-ord",
             INPUT getOrdStatDescr(vcHoldType),
-            INPUT ""
+            INPUT "",
+            INPUT "Reason Code"
             ).
         
        /* Prompt to update items if more than one. */
@@ -241,7 +242,10 @@ PROCEDURE os-Process-Hold-Status :
            ASSIGN b-oe-ord.stat = vcStatus
                   b-oe-ord.spare-char-2 = vcHoldType.
        IF AVAILABLE b-oe-ord AND vcStatus = "N" THEN
-           b-oe-ord.approved-id   = USERID("nosweat").
+         ASSIGN
+           b-oe-ord.approved-id   = USERID("nosweat")
+           oe-ord.priceHold       = NO
+           oe-ord.priceHoldReason = "".
             
        b-oe-ord.approved-date = TODAY.
        RUN oe/syncJobHold.p (INPUT b-oe-ord.company, INPUT b-oe-ord.ord-no, INPUT (IF b-oe-ord.stat EQ "H" THEN "Hold" ELSE "Release")).

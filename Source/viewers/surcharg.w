@@ -68,12 +68,12 @@ ASSIGN
 DEFINE QUERY external_tables FOR surcharge.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-FIELDS surcharge.dscr surcharge.cust-no ~
-surcharge.amt 
+surcharge.account surcharge.amt 
 &Scoped-define ENABLED-TABLES surcharge
 &Scoped-define FIRST-ENABLED-TABLE surcharge
 &Scoped-Define ENABLED-OBJECTS RECT-1 
 &Scoped-Define DISPLAYED-FIELDS surcharge.charge surcharge.dscr ~
-surcharge.cust-no surcharge.amt 
+surcharge.cust-no surcharge.account surcharge.amt 
 &Scoped-define DISPLAYED-TABLES surcharge
 &Scoped-define FIRST-DISPLAYED-TABLE surcharge
 &Scoped-Define DISPLAYED-OBJECTS cb_calcon 
@@ -130,15 +130,18 @@ DEFINE RECTANGLE RECT-1
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     surcharge.charge AT ROW 1.48 COL 16 COLON-ALIGNED
+     surcharge.charge AT ROW 1.48 COL 12 COLON-ALIGNED
           VIEW-AS FILL-IN 
-          SIZE 26 BY 1
+          SIZE 30 BY 1
      surcharge.dscr AT ROW 1.48 COL 43 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 53 BY 1
      surcharge.cust-no AT ROW 2.67 COL 21 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 21 BY 1
+     surcharge.account AT ROW 2.67 COL 62 COLON-ALIGNED
+          VIEW-AS FILL-IN 
+          SIZE 34 BY 1
      surcharge.amt AT ROW 3.86 COL 21 COLON-ALIGNED
           LABEL "Dollar/% Markup" FORMAT "->>>,>>9.99<<<"
           VIEW-AS FILL-IN 
@@ -252,6 +255,38 @@ ON LEAVE OF surcharge.cust-no IN FRAME F-Main /* Customer */
 DO:
    IF LASTKEY <> -1 THEN do:
       RUN valid-cust-no NO-ERROR.
+      IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+   END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME surcharge.account
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL surcharge.account V-table-Win
+ON VALUE-CHANGED OF surcharge.account IN FRAME F-Main /* GL Account */
+DO:
+  FIND account
+        WHERE account.company EQ cocode
+          AND account.actnum  BEGINS {&self-name}:SCREEN-VALUE
+        NO-LOCK NO-ERROR.
+  IF AVAIL account THEN DO:
+    {&self-name}:SCREEN-VALUE = account.actnum.
+    APPLY "tab" TO {&self-name}.
+  END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME surcharge.account
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL surcharge.account V-table-Win
+ON LEAVE OF surcharge.account IN FRAME F-Main /* GL Account */
+DO:
+   IF LASTKEY <> -1 THEN do:
+      RUN valid-glacc NO-ERROR.
       IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
    END.
 END.
@@ -413,6 +448,9 @@ PROCEDURE local-create-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'create-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
+  FIND FIRST ar-ctrl WHERE ar-ctrl.company = cocode NO-LOCK NO-ERROR.
+        IF AVAILABLE ar-ctrl THEN surcharge.account = ar-ctrl.sales.
+  
   surcharge.company = cocode.
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -461,6 +499,9 @@ PROCEDURE local-update-record :
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
   RUN valid-cust-no NO-ERROR.
+  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  
+  RUN valid-glacc NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
   /* Dispatch standard ADM method.                             */
@@ -570,6 +611,35 @@ PROCEDURE valid-cust-no :
      APPLY "entry" TO surcharge.cust-no .
      RETURN ERROR.
   END.
+  {methods/lValidateError.i NO}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-glacc V-table-Win 
+PROCEDURE valid-glacc :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  {methods/lValidateError.i YES}
+  
+  DO WITH FRAME {&FRAME-NAME}:
+    IF NOT CAN-FIND(FIRST account
+                    WHERE account.company EQ cocode
+                    AND account.actnum  EQ surcharge.account:SCREEN-VALUE) 
+                    THEN DO:                              
+      MESSAGE "Invalid GL Account#, try help..." VIEW-AS ALERT-BOX ERROR.
+              
+      FIND FIRST ar-ctrl WHERE ar-ctrl.company = cocode NO-LOCK NO-ERROR.
+      IF AVAILABLE ar-ctrl THEN surcharge.account:SCREEN-VALUE = ar-ctrl.sales.
+      
+      APPLY "entry" TO surcharge.account.
+      RETURN.
+    END.
+  END. 
   {methods/lValidateError.i NO}
 END PROCEDURE.
 

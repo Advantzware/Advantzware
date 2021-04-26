@@ -80,8 +80,10 @@ DEF VAR gv-job-no2 LIKE job.job-no2 NO-UNDO INIT 0.
 DEF VAR gv-item-no LIKE itemfg.i-no NO-UNDO INIT "".
 DEFINE VARIABLE hdInventoryProcs AS HANDLE NO-UNDO.
 DEFINE VARIABLE iWarehouseLength  AS INTEGER   NO-UNDO.
+DEFINE VARIABLE hdJobProcs AS HANDLE NO-UNDO.
 
 RUN Inventory/InventoryProcs.p PERSISTENT SET hdInventoryProcs.
+RUN jc/Jobprocs.p   PERSISTENT SET hdJobProcs.
 
 DEF BUFFER br-tmp FOR rm-rctd.  /* for tag validation */
 DEF BUFFER xrm-rdtlh FOR rm-rdtlh. /* for tag validation */
@@ -300,7 +302,7 @@ DEFINE BROWSE Browser-Table
       rm-rctd.rct-date COLUMN-LABEL "Issue Date" FORMAT "99/99/9999":U
             LABEL-BGCOLOR 14
       rm-rctd.po-no FORMAT "x(6)":U LABEL-BGCOLOR 14
-      rm-rctd.job-no COLUMN-LABEL "Job" FORMAT "x(9)":U LABEL-BGCOLOR 14
+      rm-rctd.job-no COLUMN-LABEL "Job" FORMAT "x(15)":U LABEL-BGCOLOR 14
       rm-rctd.job-no2 FORMAT "99":U
       rm-rctd.i-no COLUMN-LABEL "Item" FORMAT "x(10)":U LABEL-BGCOLOR 14
       rm-rctd.i-name COLUMN-LABEL "Name/Desc" FORMAT "x(30)":U
@@ -447,7 +449,7 @@ AND rm-rctd.tag NE ''"
      _FldNameList[6]   > asi.rm-rctd.po-no
 "po-no" ? "x(6)" "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   > asi.rm-rctd.job-no
-"job-no" "Job" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"job-no" "Job" "x(15)" "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > asi.rm-rctd.job-no2
 "job-no2" ? ? "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[9]   > asi.rm-rctd.i-no
@@ -714,6 +716,8 @@ DO:
 
   DEF BUFFER b-rm-rctd-2 FOR rm-rctd.
 
+  DEFINE BUFFER bf-rm-bin FOR rm-bin.
+  
   IF LASTKEY NE -1 THEN DO:
       IF adm-new-record OR
           rm-rctd.tag NE rm-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} THEN
@@ -722,24 +726,50 @@ DO:
     {addon/loadtags/disptagr2.i "RMItem" lvTag}
     ASSIGN
       rm-rctd.po-no:SCREEN-VALUE = ''
-          /*rm-rctd.job-no:READ-ONLY = loadtag.job-no NE ''*/.
+                /*rm-rctd.job-no:READ-ONLY = loadtag.job-no NE ''*/.
 
     RUN valid-loc-bin-tag (3) NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
     IF adm-new-record OR rm-rctd.tag NE rm-rctd.tag:SCREEN-VALUE THEN
     DO:
-       FIND FIRST rm-bin NO-LOCK
-            WHERE rm-bin.company EQ cocode
-              AND rm-bin.i-no    EQ loadtag.i-no
-              AND rm-bin.loc     EQ loadtag.loc
-              AND rm-bin.loc-bin EQ loadtag.loc-bin
-              AND rm-bin.tag     EQ loadtag.tag-no NO-ERROR.
+       /* Find if an rm-bin record available for the loadtag's location and bin with quantity grater than 0 */
+       FIND FIRST bf-rm-bin NO-LOCK
+            WHERE bf-rm-bin.company EQ cocode
+              AND bf-rm-bin.loc     EQ loadtag.loc
+              AND bf-rm-bin.i-no    EQ loadtag.i-no
+              AND bf-rm-bin.loc-bin EQ loadtag.loc-bin
+              AND bf-rm-bin.tag     EQ loadtag.tag-no 
+              AND bf-rm-bin.qty     GT 0
+            NO-ERROR.
+        
+       /* Find if an rm-bin record available with quantity grater than 0 */
+       IF NOT AVAILABLE bf-rm-bin THEN
+           FIND FIRST bf-rm-bin NO-LOCK
+                WHERE bf-rm-bin.company EQ cocode
+                  AND bf-rm-bin.tag     EQ loadtag.tag-no 
+                  AND bf-rm-bin.i-no    EQ loadtag.i-no
+                  AND bf-rm-bin.qty     GT 0
+                NO-ERROR.
 
-       IF AVAILABLE rm-bin THEN
+       /* The below query is just to make sure procedure valid-qty throws an error, so that user can figure out there are
+          no bins for the tag which has on hand quantity */
+       IF NOT AVAILABLE bf-rm-bin THEN
+           FIND FIRST bf-rm-bin NO-LOCK
+                WHERE bf-rm-bin.company EQ cocode
+                  AND bf-rm-bin.loc     EQ loadtag.loc
+                  AND bf-rm-bin.i-no    EQ loadtag.i-no
+                  AND bf-rm-bin.loc-bin EQ loadtag.loc-bin
+                  AND bf-rm-bin.tag     EQ loadtag.tag-no 
+                NO-ERROR.
+
+       IF AVAILABLE bf-rm-bin THEN
           ASSIGN
-             rm-rctd.qty:SCREEN-VALUE = STRING(rm-bin.qty)
-             rm-rctd.cost:SCREEN-VALUE = STRING(rm-bin.cost).
+             rm-rctd.qty:SCREEN-VALUE     = STRING(bf-rm-bin.qty)
+             rm-rctd.loc:SCREEN-VALUE     = bf-rm-bin.loc
+             rm-rctd.loc-bin:SCREEN-VALUE = bf-rm-bin.loc-bin
+             rm-rctd.cost:SCREEN-VALUE    = STRING(bf-rm-bin.cost)
+             .
     END.
 
     RUN valid-qty NO-ERROR.
@@ -830,7 +860,6 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 
 &Scoped-define SELF-NAME rm-rctd.loc
@@ -935,18 +964,36 @@ DO:
    DEF VAR v-job-no AS CHAR NO-UNDO.
    DEFINE VARIABLE cJobNo AS CHARACTER NO-UNDO .
    DEFINE VARIABLE iCheckIndex AS INTEGER NO-UNDO .
+   DEFINE VARIABLE lParse AS LOGICAL NO-UNDO.
+   DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+   DEFINE VARIABLE cJobNo2 AS CHARACTER NO-UNDO.
+   DEFINE VARIABLE cFormNo AS CHARACTER NO-UNDO.
+   DEFINE VARIABLE cBlankNo AS CHARACTER NO-UNDO.
 
    IF rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} NE "" THEN
    DO:
        IF SELF:MODIFIED THEN DO:
                
                
-           IF SELF:SCREEN-VALUE NE "" THEN DO:
-               iCheckIndex = INDEX(SELF:SCREEN-VALUE,"-") .
-               cJobNo = SELF:SCREEN-VALUE.
-               IF iCheckIndex GT 0 THEN
-                   ASSIGN rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} = SUBSTRING(cJobNo,1,iCheckIndex - 1)
-                   rm-rctd.job-no2:SCREEN-VALUE = SUBSTRING(cJobNo,iCheckIndex + 1,2) .
+           IF SELF:SCREEN-VALUE NE "" THEN 
+           DO:
+               RUN JobParser IN hdJobProcs (
+                   INPUT  SELF:SCREEN-VALUE,
+                   OUTPUT cJobNo, 
+                   OUTPUT cJobNo2,
+                   OUTPUT cFormNo,
+                   OUTPUT cBlankNo,
+                   OUTPUT lParse,
+                   OUTPUT cMessage
+                   ).
+               IF lParse THEN 
+                    ASSIGN 
+                        rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} = cJobNo
+                        rm-rctd.job-no2:SCREEN-VALUE = IF cJobNo2 NE "" THEN cJobNo2 ELSE rm-rctd.job-no2:SCREEN-VALUE  
+                        rm-rctd.s-num:SCREEN-VALUE = IF cFormNo NE "" THEN cFormNo ELSE rm-rctd.s-num:SCREEN-VALUE
+                        rm-rctd.b-num:SCREEN-VALUE = IF cBlankNo NE "" THEN cBlankNo ELSE rm-rctd.b-num:SCREEN-VALUE 
+                       .
+                   
            END.
        END.
       ASSIGN gv-job-no = trim(rm-rctd.job-no:SCREEN-VALUE) /* stacey */
@@ -975,6 +1022,10 @@ DO:
      ASSIGN rm-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(v-job-no-2).
             gv-job-no2 = v-job-no-2.
 
+   IF adm-new-record AND rm-rctd.i-no NE rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name} AND
+      rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name} NE "" AND NOT lParse THEN
+       RUN set-s-b-proc.
+
    IF LASTKEY NE -1 AND v-single-job THEN
    DO:
       RUN valid-job-no NO-ERROR.
@@ -986,10 +1037,6 @@ DO:
       RUN valid-i-no NO-ERROR.
       IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
       
-      IF adm-new-record AND rm-rctd.i-no NE rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name} AND
-         rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name} NE "" THEN
-         RUN set-s-b-proc.
-
       RUN validate-jobmat (YES) NO-ERROR.
       IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
       
@@ -2762,8 +2809,8 @@ PROCEDURE set-s-b-proc :
          AND b-item.i-no     EQ job-mat.i-no
          AND b-item.mat-type EQ item.mat-type
        NO-LOCK
-       BREAK BY job-mat.frm      DESC
-             BY job-mat.blank-no DESC:
+       BREAK BY job-mat.frm      
+             BY job-mat.blank-no:
 
        IF job-mat.i-no EQ rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} OR
           LAST(job-mat.frm)                                                  THEN DO:

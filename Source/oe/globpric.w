@@ -43,6 +43,9 @@ def var v-process as log no-undo.
 def var start-cust-no   like oe-prmtx.cust-no NO-UNDO.
 def var end-cust-no     like oe-prmtx.cust-no init "zzzzzzzz" NO-UNDO.
 
+DEFINE VARIABLE start-ship-to  LIKE oe-prmtx.custShipID NO-UNDO.
+DEFINE VARIABLE end-ship-to    LIKE oe-prmtx.custShipID NO-UNDO.
+
 def var start-cust-type like oe-prmtx.custype NO-UNDO.
 def var end-cust-type   like oe-prmtx.custype init "zzzzzzzz" NO-UNDO.
 
@@ -100,13 +103,13 @@ cExcelHeader = "Eff. Date,Customer,Type,Category,Item Code,Price Basis,Minimum O
 &Scoped-define FRAME-NAME FRAME-A
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-17 tbPurge begin_cust end_cust ~
-begin_cust-type end_cust-type begin_i-no end_i-no begin_cat end_cat ~
+&Scoped-Define ENABLED-OBJECTS RECT-17 tbPurge begin_cust begin_ship-to end_cust ~
+end_ship-to begin_cust-type end_cust-type begin_i-no end_i-no begin_cat end_cat ~
 begin_level end_level beg_eff_date end_eff_date tg_new_eff_date td_imported ~
 cbPriceBasis cbUse cbMatrixPrecision cbMatrixRounding percent_chg ~
 btSimulate btn-process btn-cancel 
-&Scoped-Define DISPLAYED-OBJECTS tbPurge begin_cust end_cust ~
-begin_cust-type end_cust-type begin_i-no end_i-no begin_cat end_cat ~
+&Scoped-Define DISPLAYED-OBJECTS tbPurge begin_cust begin_ship-to end_cust ~
+end_ship-to begin_cust-type end_cust-type begin_i-no end_i-no begin_cat end_cat ~
 begin_level end_level beg_eff_date end_eff_date new_eff_date ~
 tg_new_eff_date tg_newmatrix td_imported cbPriceBasis cbUse ~
 cbMatrixPrecision cbMatrixRounding percent_chg 
@@ -195,6 +198,11 @@ DEFINE VARIABLE begin_cust AS CHARACTER FORMAT "X(8)":U
      VIEW-AS FILL-IN 
      SIZE 18 BY 1 NO-UNDO.
 
+DEFINE VARIABLE begin_ship-to AS CHARACTER FORMAT "X(8)":U 
+     LABEL "Ship To" 
+     VIEW-AS FILL-IN 
+     SIZE 12 BY 1 NO-UNDO.     
+
 DEFINE VARIABLE begin_cust-type AS CHARACTER FORMAT "X(8)":U 
      LABEL "Beginning Type" 
      VIEW-AS FILL-IN 
@@ -225,6 +233,11 @@ DEFINE VARIABLE end_cust AS CHARACTER FORMAT "X(8)":U INITIAL "zzzzzzzz"
      VIEW-AS FILL-IN 
      SIZE 18 BY 1 NO-UNDO.
 
+DEFINE VARIABLE end_ship-to AS CHARACTER FORMAT "X(8)":U 
+     LABEL "Ship To" 
+     VIEW-AS FILL-IN 
+     SIZE 12 BY 1 NO-UNDO.     
+     
 DEFINE VARIABLE end_cust-type AS CHARACTER FORMAT "X(8)":U INITIAL "zzzzzzzz" 
      LABEL "Ending Type" 
      VIEW-AS FILL-IN 
@@ -257,7 +270,7 @@ DEFINE VARIABLE percent_chg AS DECIMAL FORMAT "->>>>9.99":U INITIAL 0
 
 DEFINE RECTANGLE RECT-17
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 89 BY 15.24.
+     SIZE 130.4 BY 15.24.
 
 DEFINE VARIABLE tbPurge AS LOGICAL INITIAL no 
      LABEL "Purge?" 
@@ -283,52 +296,56 @@ DEFINE VARIABLE tg_new_eff_date AS LOGICAL INITIAL no
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
-     tbPurge AT ROW 1.48 COL 67
+     tbPurge AT ROW 1.48 COL 88.6
      begin_cust AT ROW 2.67 COL 25 COLON-ALIGNED HELP
           "Enter Beginning Customer Number"
-     end_cust AT ROW 2.67 COL 65 COLON-ALIGNED HELP
+     begin_ship-to AT ROW 2.67 COL 53 COLON-ALIGNED HELP
+          "Enter Beginning Ship To"
+     end_cust AT ROW 2.67 COL 86.4 COLON-ALIGNED HELP
           "Enter Ending Customer Number"
+     end_ship-to AT ROW 2.67 COL 115 COLON-ALIGNED HELP
+          "Enter Ending Ship To"
      begin_cust-type AT ROW 3.86 COL 25 COLON-ALIGNED HELP
           "Enter Beginning Customer Type"
-     end_cust-type AT ROW 3.86 COL 65 COLON-ALIGNED HELP
+     end_cust-type AT ROW 3.86 COL 86.4 COLON-ALIGNED HELP
           "Enter Ending Customer Type"
      begin_i-no AT ROW 5.05 COL 25 COLON-ALIGNED HELP
           "Enter Beginning Item Number"
-     end_i-no AT ROW 5.05 COL 65 COLON-ALIGNED HELP
+     end_i-no AT ROW 5.05 COL 86.4 COLON-ALIGNED HELP
           "Enter Ending Item Number"
      begin_cat AT ROW 6.24 COL 25 COLON-ALIGNED HELP
           "Enter Beginning Category"
-     end_cat AT ROW 6.24 COL 65 COLON-ALIGNED HELP
+     end_cat AT ROW 6.24 COL 86.4 COLON-ALIGNED HELP
           "Enter Ending Category"
      begin_level AT ROW 7.43 COL 25 COLON-ALIGNED HELP
           "Enter Beginning Level"
-     end_level AT ROW 7.43 COL 65 COLON-ALIGNED HELP
+     end_level AT ROW 7.43 COL 86.4 COLON-ALIGNED HELP
           "Enter Ending Level"
      beg_eff_date AT ROW 8.62 COL 25 COLON-ALIGNED HELP
           "Enter Beginning Effective Date"
-     end_eff_date AT ROW 8.62 COL 65 COLON-ALIGNED HELP
+     end_eff_date AT ROW 8.62 COL 86.4 COLON-ALIGNED HELP
           "Enter Ending Effective Date"
-     new_eff_date AT ROW 9.95 COL 65 COLON-ALIGNED HELP
+     new_eff_date AT ROW 9.95 COL 86.4 COLON-ALIGNED HELP
           "Enter Beginning Effective Date"
      tg_new_eff_date AT ROW 10.1 COL 19.2
      tg_newmatrix AT ROW 11 COL 19.2 WIDGET-ID 8
-     td_imported AT ROW 11 COL 45
+     td_imported AT ROW 11 COL 66.4
      cbPriceBasis AT ROW 11.95 COL 24.8 COLON-ALIGNED WIDGET-ID 10
-     cbUse AT ROW 11.95 COL 65.2 COLON-ALIGNED WIDGET-ID 12
+     cbUse AT ROW 11.95 COL 86.6 COLON-ALIGNED WIDGET-ID 12
      cbMatrixPrecision AT ROW 13.33 COL 25 COLON-ALIGNED WIDGET-ID 16
-     cbMatrixRounding AT ROW 13.33 COL 65.4 COLON-ALIGNED WIDGET-ID 14
-     percent_chg AT ROW 14.81 COL 43 COLON-ALIGNED HELP
+     cbMatrixRounding AT ROW 13.33 COL 86.8 COLON-ALIGNED WIDGET-ID 14
+     percent_chg AT ROW 14.81 COL 55.8 COLON-ALIGNED HELP
           "Enter a Negative or Positive Percentage"
-     btSimulate AT ROW 16.71 COL 15.6 WIDGET-ID 18
-     btn-process AT ROW 16.71 COL 36.2
-     btn-cancel AT ROW 16.71 COL 57.8
+     btSimulate AT ROW 16.71 COL 35.4 WIDGET-ID 18
+     btn-process AT ROW 16.71 COL 56
+     btn-cancel AT ROW 16.71 COL 77.6
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY 1 AT ROW 1.48 COL 5
      RECT-17 AT ROW 1 COL 1
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 89.6 BY 17.52.
+         SIZE 130.8 BY 17.52.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -349,11 +366,11 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          HIDDEN             = YES
          TITLE              = "Global Price Matrix Change"
          HEIGHT             = 17.71
-         WIDTH              = 90.2
+         WIDTH              = 130.8
          MAX-HEIGHT         = 19.76
-         MAX-WIDTH          = 98.2
+         MAX-WIDTH          = 130.8
          VIRTUAL-HEIGHT     = 19.76
-         VIRTUAL-WIDTH      = 98.2
+         VIRTUAL-WIDTH      = 130.8
          RESIZE             = yes
          SCROLL-BARS        = no
          STATUS-AREA        = yes
@@ -406,6 +423,41 @@ THEN C-Win:HIDDEN = no.
 
 /* ************************  Control Triggers  ************************ */
 
+&Scoped-define SELF-NAME begin_ship-to
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_ship-to FRAME-A
+ON HELP OF begin_ship-to IN FRAME FRAME-A /* Ship ID */
+DO:
+    DEFINE VARIABLE char-val   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE look-recid AS RECID     NO-UNDO.
+    
+    RUN windows/l-shipt2.w (g_company,g_loc, begin_cust:SCREEN-VALUE IN FRAME {&frame-name}, FOCUS:SCREEN-VALUE, OUTPUT char-val, OUTPUT look-recid).
+    FIND shipto WHERE RECID(shipto) EQ look-recid NO-LOCK NO-ERROR.
+    IF AVAIL shipto AND shipto.ship-id NE FOCUS:SCREEN-VALUE IN FRAME {&FRAME-NAME} THEN DO:
+        FOCUS:SCREEN-VALUE IN FRAME {&FRAME-NAME} = shipto.ship-id.
+    END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME end_ship-to
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_ship-to FRAME-A
+ON HELP OF end_ship-to IN FRAME FRAME-A /* Ship ID */
+DO:
+    DEFINE VARIABLE char-val   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE look-recid AS RECID     NO-UNDO.
+    
+    RUN windows/l-shipt2.w (g_company,g_loc, end_cust:SCREEN-VALUE IN FRAME {&frame-name}, FOCUS:SCREEN-VALUE, OUTPUT char-val, OUTPUT look-recid).
+    FIND shipto WHERE RECID(shipto) EQ look-recid NO-LOCK NO-ERROR.
+    IF AVAIL shipto AND shipto.ship-id NE FOCUS:SCREEN-VALUE IN FRAME {&FRAME-NAME} THEN DO:
+        FOCUS:SCREEN-VALUE IN FRAME {&FRAME-NAME} = shipto.ship-id.
+    END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+    
 &Scoped-define SELF-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON END-ERROR OF C-Win /* Global Price Matrix Change */
@@ -675,13 +727,13 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY tbPurge begin_cust end_cust begin_cust-type end_cust-type begin_i-no 
-          end_i-no begin_cat end_cat begin_level end_level beg_eff_date 
-          end_eff_date new_eff_date tg_new_eff_date tg_newmatrix td_imported 
-          cbPriceBasis cbUse cbMatrixPrecision cbMatrixRounding percent_chg 
+  DISPLAY tbPurge begin_cust begin_ship-to end_cust end_ship-to begin_cust-type
+          end_cust-type begin_i-no end_i-no begin_cat end_cat begin_level end_level
+          beg_eff_date end_eff_date new_eff_date tg_new_eff_date tg_newmatrix 
+          td_imported cbPriceBasis cbUse cbMatrixPrecision cbMatrixRounding percent_chg 
       WITH FRAME FRAME-A IN WINDOW C-Win.
-  ENABLE RECT-17 tbPurge begin_cust end_cust begin_cust-type end_cust-type 
-         begin_i-no end_i-no begin_cat end_cat begin_level end_level 
+  ENABLE RECT-17 tbPurge begin_cust begin_ship-to end_cust end_ship-to begin_cust-type
+         end_cust-type begin_i-no end_i-no begin_cat end_cat begin_level end_level 
          beg_eff_date end_eff_date tg_new_eff_date td_imported cbPriceBasis 
          cbUse cbMatrixPrecision cbMatrixRounding percent_chg btSimulate 
          btn-process btn-cancel 
@@ -889,6 +941,8 @@ PROCEDURE pPurgePhase1 :
     ASSIGN 
         start-cust-no   = begin_cust
         end-cust-no     = end_cust
+        start-ship-to   = begin_ship-to
+        end-ship-to     = end_ship-to
         start-cust-type = begin_cust-type
         end-cust-type   = end_cust-type
         start-item-no   = begin_i-no
@@ -912,7 +966,9 @@ PROCEDURE pPurgePhase1 :
     
     FOR EACH b-oe-prmtx WHERE b-oe-prmtx.company = cocode 
         AND b-oe-prmtx.cust-no GE begin_cust
-        AND b-oe-prmtx.cust-no LE end_cust 
+        AND b-oe-prmtx.cust-no LE end_cust
+        AND b-oe-prmtx.custShipID GE begin_ship-to
+        AND b-oe-prmtx.custShipID LE end_ship-to
         AND b-oe-prmtx.procat GE begin_cat
         AND b-oe-prmtx.procat LE end_cat 
         AND b-oe-prmtx.i-no GE begin_i-no 
@@ -1062,6 +1118,8 @@ DEF BUFFER bf-oe-prmtx FOR oe-prmtx.
 ASSIGN
  start-cust-no   = begin_cust
  end-cust-no     = end_cust
+ start-ship-to   = begin_ship-to
+ end-ship-to     = end_ship-to
  start-cust-type = begin_cust-type
  end-cust-type   = end_cust-type
  start-item-no   = begin_i-no
@@ -1103,6 +1161,8 @@ REPEAT PRESELECT EACH oe-prmtx EXCLUSIVE-LOCK
     WHERE oe-prmtx.company    EQ cocode 
       AND oe-prmtx.cust-no    GE start-cust-no
       AND oe-prmtx.cust-no    LE end-cust-no
+      AND oe-prmtx.custShipID GE start-ship-to
+      AND oe-prmtx.custShipID LE end-ship-to
       AND oe-prmtx.custype    GE start-cust-type
       AND oe-prmtx.custype    LE end-cust-type
       AND oe-prmtx.procat     GE start-prod-cat

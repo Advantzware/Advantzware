@@ -14,6 +14,9 @@
   DEFINE BUFFER bf-period FOR period.
   DEFINE BUFFER bf-first-open-period FOR period.
   
+  DISABLE TRIGGERS FOR LOAD OF glhist.
+  DISABLE TRIGGERS FOR LOAD OF bf-glhist.
+
   /* Only process records where the glyear has not been set OR record is not posted 
      Otherwise, this will try to lock and process EVERY glhist */
   FOR EACH bf-glhist EXCLUSIVE WHERE

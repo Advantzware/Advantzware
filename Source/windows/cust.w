@@ -329,7 +329,7 @@ PROCEDURE adm-create-objects :
                      FOLDER-TAB-TYPE = 2':U ,
              OUTPUT h_folder ).
        RUN set-position IN h_folder ( 3.48 , 1.80 ) NO-ERROR.
-       RUN set-size IN h_folder ( 25.86 , 158.20 ) NO-ERROR.
+       RUN set-size IN h_folder ( 24.86 , 157.20 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'panels/p-crm.w':U ,

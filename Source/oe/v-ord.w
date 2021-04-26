@@ -125,7 +125,8 @@ DEFINE VARIABLE cOeShipChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFreightCalculationValue AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cMisEstimate AS CHARACTER NO-UNDO .
 DEFINE VARIABLE lLocalCancelRecords AS LOGICAL NO-UNDO .
-
+DEFINE VARIABLE deAutoOverRun  AS DECIMAL NO-UNDO.
+DEFINE VARIABLE deAutoUnderRun AS DECIMAL NO-UNDO.
 &Scoped-define sman-fields oe-ord.sman oe-ord.s-pct oe-ord.s-comm
 
 DEF NEW SHARED TEMP-TABLE w-ord NO-UNDO FIELD w-ord-no LIKE oe-ord.ord-no.
@@ -186,6 +187,7 @@ RUN methods/prgsecur.p
 DEF VAR cRtnChar AS CHAR NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE lCEAddCustomerOption AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cFGOversDefault AS CHARACTER NO-UNDO.
 
 RUN sys/ref/nk1look.p (cocode, "OEJobHold", "L", NO, NO, "", "", 
     OUTPUT lcReturn, OUTPUT llRecFound).
@@ -432,6 +434,16 @@ DEFINE BUTTON btnCalendar-6
      SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
 
 DEFINE BUTTON btnTags 
+     IMAGE-UP FILE "Graphics/16x16/question.png":U
+     LABEL "" 
+     SIZE 4.2 BY .95 TOOLTIP "Show Details".
+
+DEFINE BUTTON btnTagsOverrn 
+     IMAGE-UP FILE "Graphics/16x16/question.png":U
+     LABEL "" 
+     SIZE 4.2 BY .95 TOOLTIP "Show Details".
+
+DEFINE BUTTON btnTagsUnder 
      IMAGE-UP FILE "Graphics/16x16/question.png":U
      LABEL "" 
      SIZE 4.2 BY .95 TOOLTIP "Show Details".
@@ -762,6 +774,8 @@ DEFINE FRAME F-Main
      oe-ord.spare-char-2 AT ROW 11 COL 78 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 3.6 BY 1 NO-TAB-STOP 
+     btnTagsOverrn AT ROW 9.33 COL 29.6 WIDGET-ID 36
+     btnTagsUnder AT ROW 10.38 COL 29.6 WIDGET-ID 38
      RECT-30 AT ROW 9.1 COL 1.6
      RECT-33 AT ROW 12.67 COL 78
      RECT-35 AT ROW 15.33 COL 78
@@ -846,6 +860,10 @@ ASSIGN
 /* SETTINGS FOR BUTTON btnCalendar-6 IN FRAME F-Main
    3                                                                    */
 /* SETTINGS FOR BUTTON btnTags IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR BUTTON btnTagsOverrn IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR BUTTON btnTagsUnder IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR BUTTON btnValidate IN FRAME F-Main
    3                                                                    */
@@ -1253,7 +1271,38 @@ ON CHOOSE OF btnTags IN FRAME F-Main
 DO:
     RUN system/d-TagViewer.w (
         INPUT oe-ord.rec_key,
-        INPUT ""
+        INPUT "",
+        INPUT "Reason Code"
+        ).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnTagsOverrn
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnTagsOverrn V-table-Win
+ON CHOOSE OF btnTagsOverrn IN FRAME F-Main
+DO:
+    RUN system/d-TagViewer.w (
+        INPUT oe-ord.rec_key,
+        INPUT "",
+        INPUT "Over Percentage"
+        ).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnTagsUnder
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnTagsUnder V-table-Win
+ON CHOOSE OF btnTagsUnder IN FRAME F-Main
+DO:
+    RUN system/d-TagViewer.w (
+        INPUT oe-ord.rec_key,
+        INPUT "",
+        INPUT "Over Percentage"
         ).
 END.
 
@@ -1676,6 +1725,50 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME oe-ord.over-pct
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ord.over-pct V-table-Win
+ON LEAVE OF oe-ord.over-pct IN FRAME F-Main /* Overrun % */
+DO:
+    DEFINE VARIABLE lCheckFlg AS LOGICAL.
+    IF deAutoOverRun NE  oe-ord.over-pct:INPUT-VALUE THEN
+    DO:
+        RUN pAddTag ("Over Percentage","Entered Manualy"  ).
+        RUN sys/ref/nk1look.p (g_company, "FGOversDefault", "C", NO, NO, "", "", 
+            OUTPUT cRtnChar, OUTPUT lRecFound).
+        IF lRecFound THEN
+        DO:         
+            cFGOversDefault = STRING(cRtnChar) NO-ERROR.      
+            IF cFGOversDefault NE  "FG category" AND  
+                CAN-FIND (FIRST oe-ordl WHERE oe-ordl.company EQ g_company 
+                  AND oe-ordl.ord-no EQ oe-ord.ord-no
+                  AND oe-ordl.line GT 0) THEN 
+        RUN displayMessageQuestion (INPUT "62", OUTPUT lCheckFlg).
+        IF lCheckFlg THEN   
+        FOR EACH oe-ordl WHERE oe-ordl.company EQ g_company 
+                           AND oe-ordl.ord-no EQ oe-ord.ord-no
+                           AND oe-ordl.line GT 0:      
+            ASSIGN
+                oe-ordl.over-pct = oe-ord.over-pct:INPUT-VALUE.  
+           RUN ClearTagsForGroup(
+                INPUT oe-ordl.rec_key,
+                INPUT "Over Percentage"
+                ).
+            RUN AddTagInfoForGroup(
+                INPUT oe-ordl.rec_key,
+                INPUT "oe-ordl",
+                INPUT "Order no. - " + string(oe-ord.ord-no) ,
+                INPUT "",
+                INPUT "Over Percentage"
+                ). /*From TagProcs Super Proc*/
+        END.
+        END.
+    END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME oe-ord.po-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ord.po-no V-table-Win
 ON LEAVE OF oe-ord.po-no IN FRAME F-Main /* Cust PO# */
@@ -1985,6 +2078,52 @@ DO:
   DO li = 1 TO LENGTH(oe-ord.terms:SCREEN-VALUE):
     APPLY "cursor-right" TO oe-ord.terms.
   END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME oe-ord.under-pct
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ord.under-pct V-table-Win
+ON LEAVE OF oe-ord.under-pct IN FRAME F-Main /* Underrun % */
+DO:
+    DEFINE VARIABLE lCheckFlg AS LOGICAL.
+
+    IF deAutoUnderRun NE  oe-ord.under-pct:INPUT-VALUE THEN
+    DO:
+        RUN pAddTag ("Under Percentage","Enterd Manualy" ).
+        RUN sys/ref/nk1look.p (g_company, "FGOversDefault", "C", NO, NO, "", "", 
+          OUTPUT cRtnChar, OUTPUT lRecFound).
+        IF lRecFound THEN
+        DO:         
+          cFGOversDefault = STRING(cRtnChar) NO-ERROR.      
+          IF cFGOversDefault NE  "FG category" AND  
+        CAN-FIND (FIRST oe-ordl WHERE oe-ordl.company EQ g_company 
+                  AND oe-ordl.ord-no EQ oe-ord.ord-no
+                  AND oe-ordl.line GT 0) THEN 
+        RUN displayMessageQuestion (INPUT "62", OUTPUT lCheckFlg).
+          IF lCheckFlg THEN   
+            FOR EACH oe-ordl WHERE oe-ordl.company EQ g_company 
+                AND oe-ordl.ord-no EQ oe-ord.ord-no
+                AND oe-ordl.line GT 0:     
+                ASSIGN 
+                    oe-ordl.under-pct = oe-ord.under-pct:INPUT-VALUE .  
+                RUN ClearTagsForGroup(
+                    INPUT oe-ordl.rec_key,
+                    INPUT "Under Percentage"
+                    ).
+                RUN AddTagInfoForGroup(
+                    INPUT oe-ordl.rec_key,
+                    INPUT "oe-ordl",
+                    INPUT "Order no. - " + string(oe-ord.ord-no) ,
+                    INPUT "",
+                    INPUT "Under Percentage"
+                    ). /*From TagProcs Super Proc*/
+         
+            END.
+        END.
+        END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -5443,16 +5582,41 @@ PROCEDURE local-display-fields :
             fiStatDesc:SCREEN-VALUE IN FRAME {&frame-name} = cStatDesc
             oe-ord.spare-char-2:SCREEN-VALUE = cStatDesc.
             
-         RUN Tag_IsTagRecordAvailable(
+         RUN Tag_IsTagRecordAvailableForGroup(
              INPUT oe-ord.rec_key,
              INPUT "oe-ord",
+             INPUT "Reason Code",
              OUTPUT lAvailable
              ).
            IF lAvailable THEN  
                btnTags:SENSITIVE = TRUE
                .
            ELSE 
-               btnTags:SENSITIVE = FALSE.            
+               btnTags:SENSITIVE = FALSE. 
+         RUN Tag_IsTagRecordAvailableForGroup(
+             INPUT oe-ord.rec_key,
+             INPUT "oe-ord",
+             INPUT "Over Percentage",
+             OUTPUT lAvailable
+             ).
+           IF lAvailable THEN  
+               btnTagsOverrn:SENSITIVE = TRUE
+               .
+           ELSE 
+               btnTagsOverrn:SENSITIVE = FALSE.  
+         RUN Tag_IsTagRecordAvailableForGroup(
+            INPUT oe-ord.rec_key,
+            INPUT "oe-ord",
+            INPUT "Under Percentage",
+            OUTPUT lAvailable
+            ).
+        IF lAvailable THEN  
+            btnTagsUnder:SENSITIVE = TRUE
+                .
+        ELSE 
+            btnTagsUnder:SENSITIVE = FALSE. 
+        deAutoUnderRun =  oe-ord.under-pct:INPUT-VALUE.
+        deAutoOverRun =  oe-ord.over-pct:INPUT-VALUE.         
     END.
 
   RUN pDisplayAddresses.
@@ -6146,6 +6310,57 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pAddTag V-table-Win 
+PROCEDURE pAddTag :
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcSource AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcDesc AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lAvailable AS LOGICAL NO-UNDO.
+    DO WITH FRAME {&FRAME-NAME}:          
+        RUN ClearTagsForGroup(
+            INPUT oe-ord.rec_key,
+            INPUT ipcSource
+            ).
+        RUN AddTagInfoForGroup(
+            INPUT oe-ord.rec_key,
+            INPUT "oe-ord",
+            INPUT ipcDesc,
+            INPUT "",
+            INPUT ipcSource
+            ). /*From TagProcs Super Proc*/ 
+        RUN Tag_IsTagRecordAvailableForGroup(
+            INPUT oe-ord.rec_key,
+            INPUT "oe-ord",
+            INPUT ipcSource,
+            OUTPUT lAvailable
+            ).
+        IF lAvailable THEN  
+        DO:
+            IF ipcSource = "Over Percentage" THEN        
+                btnTagsOverrn:SENSITIVE = TRUE.
+            ELSE IF ipcSource = "Under Percentage" THEN 
+                btnTagsUnder:SENSITIVE = TRUE.
+        END.
+        ELSE 
+        DO:
+            IF ipcSource = "Over Percentage" THEN        
+                btnTagsOverrn:SENSITIVE = FALSE.
+            ELSE IF ipcSource = "Under Percentage" THEN 
+                btnTagsUnder:SENSITIVE = FALSE.
+        END.
+                           
+    END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pAssignHoldReason V-table-Win 
 PROCEDURE pAssignHoldReason :
 /*------------------------------------------------------------------------------
@@ -6297,17 +6512,23 @@ PROCEDURE pGetOverUnderPct :
 ------------------------------------------------------------------------------*/
    DEFINE VARIABLE dOverPer AS DECIMAL NO-UNDO.
    DEFINE VARIABLE dUnderPer AS DECIMAL NO-UNDO.
+   DEFINE VARIABLE cTagDesc AS CHARACTER NO-UNDO.
+   DEFINE VARIABLE lAvailable AS LOGICAL NO-UNDO.
   
   DO WITH FRAME {&FRAME-NAME}:          
     RUN oe/GetOverUnderPct.p(g_company,
                            oe-ord.cust-no:SCREEN-VALUE ,
                            TRIM(oe-ord.ship-id:SCREEN-VALUE),
                            "", /* FG Item*/
-                           OUTPUT dOverPer , OUTPUT dUnderPer ) .  
-                           oe-ord.over-pct:SCREEN-VALUE = STRING(dOverPer).
-                           oe-ord.Under-pct:SCREEN-VALUE = STRING(dUnderPer). 
+                           0,
+                           OUTPUT dOverPer , OUTPUT dUnderPer, OUTPUT cTagDesc ) .  
+      oe-ord.over-pct:SCREEN-VALUE = STRING(dOverPer).
+      oe-ord.Under-pct:SCREEN-VALUE = STRING(dUnderPer). 
+      RUN pAddTag ("Over Percentage",cTagDesc ).
+      RUN pAddTag ("Under Percentage",cTagDesc ).
   END.
-
+    deAutoOverRun = dOverPer.
+    deAutoUnderRun = dUnderPer.
   {methods/lValidateError.i NO}
 END PROCEDURE.
 
@@ -6615,6 +6836,7 @@ PROCEDURE pValidate :
 ------------------------------------------------------------------------------*/
     DEFINE BUFFER bf-oe-ord FOR oe-ord. 
     DEFINE VAR cStatDesc AS CHAR NO-UNDO. 
+    DEFINE VARIABLE lAvailable AS LOGICAL NO-UNDO.
     
     RUN validateOrder IN spOeValidate (ROWID(oe-ord),OUTPUT lHoldError,OUTPUT cErrMessage).
     
@@ -6667,6 +6889,20 @@ PROCEDURE pValidate :
     ASSIGN 
         fiStatDesc:SCREEN-VALUE IN FRAME {&frame-name} = cStatDesc
         oe-ord.spare-char-2:SCREEN-VALUE IN FRAME {&frame-name} = cStatDesc.
+
+    RUN Tag_IsTagRecordAvailableForGroup(
+        INPUT oe-ord.rec_key,
+        INPUT "oe-ord",
+        INPUT "Reason Code",
+        OUTPUT lAvailable
+        ).
+    IF lAvailable THEN  
+        btnTags:SENSITIVE = TRUE
+            .
+    ELSE 
+        btnTags:SENSITIVE = FALSE. 
+     
+    {methods/run_link.i "container-source" "pSetHoldButton" }
 
 END PROCEDURE.
 

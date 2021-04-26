@@ -149,6 +149,7 @@ PROCEDURE pBusinessLogic:
                                 INPUT cust.rec_key,
                                 INPUT "cust",
                                 INPUT ENTRY(idx, cCreditHoldStatus),
+                                INPUT "",
                                 INPUT ""
                                 ).
                         END. /* do idx */

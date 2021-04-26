@@ -27,6 +27,47 @@ FUNCTION fFormatFilePath RETURNS CHARACTER
 FUNCTION get64BitValue RETURNS DECIMAL
     ( INPUT m64 AS MEMPTR ) FORWARD.
 
+PROCEDURE FileSys_FileNameCleanup:
+/*------------------------------------------------------------------------------
+ Purpose: Replaces forbidden characters in file name with underscore
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT-OUTPUT PARAMETER iopcFileName AS CHARACTER NO-UNDO.
+
+    RUN pFileNameCleanup (
+        INPUT-OUTPUT iopcFileName
+        ).
+END PROCEDURE.
+
+PROCEDURE pFileNameCleanup PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: Replaces forbidden characters in file name with underscore
+ Notes: The following characters will be replaced
+  < (less than)
+  > (greater than)
+  : (colon - sometimes works, but is actually NTFS Alternate Data Streams)
+  " (double quote)
+  / (forward slash)
+  \ (backslash)
+  | (vertical bar or pipe)
+  ? (question mark)
+  * (asterisk)
+------------------------------------------------------------------------------*/
+    DEFINE INPUT-OUTPUT PARAMETER iopcFileName AS CHARACTER NO-UNDO.
+
+    ASSIGN
+        iopcFileName = REPLACE(iopcFileName, '<', '_')  
+        iopcFileName = REPLACE(iopcFileName, '>', '_')
+        iopcFileName = REPLACE(iopcFileName, ':', '_')
+        iopcFileName = REPLACE(iopcFileName, '"', '_')
+        iopcFileName = REPLACE(iopcFileName, '/', '_')
+        iopcFileName = REPLACE(iopcFileName, '\', '_')
+        iopcFileName = REPLACE(iopcFileName, '|', '_')
+        iopcFileName = REPLACE(iopcFileName, '?', '_')
+        iopcFileName = REPLACE(iopcFileName, '*', '_')
+        .
+END PROCEDURE.
+
 PROCEDURE GetDiskFreeSpaceExA EXTERNAL "kernel32.dll" :
     DEFINE  INPUT  PARAMETER  lpDirectoryName        AS CHARACTER NO-UNDO.
     DEFINE OUTPUT  PARAMETER  FreeBytesAvailable     AS MEMPTR    NO-UNDO.
@@ -481,6 +522,7 @@ PROCEDURE pGetFilePath PRIVATE:
     /* Extract path name from the given input file */
     IF NUM-ENTRIES(opcFilePath, cBackwardSlash) GT 1 THEN DO:
         /* Replace the file name portion from the input file */
+        IF ENTRY(NUM-ENTRIES(opcFilePath, cBackwardSlash), opcFilePath, cBackwardSlash)  NE "" THEN
         opcFilePath = REPLACE(opcFilePath, ENTRY(NUM-ENTRIES(opcFilePath, cBackwardSlash), opcFilePath, cBackwardSlash), "").
 
         /* Validate if the extracted path is a directory */

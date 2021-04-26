@@ -76,9 +76,9 @@ account.type account.inactive account.salesReport account.commReport
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH account WHERE ~{&KEY-PHRASE} ~
       AND account.company EQ gcompany AND ~
-account.actnum MATCHES cAccount AND ~
-account.dscr MATCHES cDescription AND ~
-account.type MATCHES cType AND ~
+account.actnum BEGINS cAccount AND ~
+account.dscr BEGINS cDescription AND ~
+account.type BEGINS cType AND ~
 (account.inactive EQ lInactive OR ~
 lInactive EQ NO) AND ~
 (account.salesReport EQ lSalesReport OR ~
@@ -88,9 +88,9 @@ lCommReport EQ NO) NO-LOCK ~
     ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY Browser-Table FOR EACH account WHERE ~{&KEY-PHRASE} ~
       AND account.company EQ gcompany AND ~
-account.actnum MATCHES cAccount AND ~
-account.dscr MATCHES cDescription AND ~
-account.type MATCHES cType AND ~
+account.actnum BEGINS cAccount AND ~
+account.dscr BEGINS cDescription AND ~
+account.type BEGINS cType AND ~
 (account.inactive EQ lInactive OR ~
 lInactive EQ NO) AND ~
 (account.salesReport EQ lSalesReport OR ~
@@ -154,15 +154,23 @@ DEFINE VARIABLE cAccount AS CHARACTER FORMAT "X(256)":U
 DEFINE VARIABLE cDescription AS CHARACTER FORMAT "X(256)":U 
      LABEL "Description" 
      VIEW-AS FILL-IN 
-     SIZE 51 BY 1
+     SIZE 45 BY 1
      BGCOLOR 15  NO-UNDO.
-
-DEFINE VARIABLE cType AS CHARACTER FORMAT "X(256)":U 
+     
+DEFINE VARIABLE cType AS CHARACTER FORMAT "X(256)":U INITIAL "*"
      LABEL "Type" 
-     VIEW-AS FILL-IN 
-     SIZE 7 BY 1
-     BGCOLOR 15  NO-UNDO.
-
+     VIEW-AS COMBO-BOX INNER-LINES 5
+     LIST-ITEM-PAIRS "All","*",
+                     "Asset","A",
+                     "Capital","C",
+                     "Expense","E",
+                     "Liability","L",
+                     "Revenue","R",
+                     "Title","T"
+     DROP-DOWN-LIST
+     SIZE 13 BY 1
+     FONT 4 NO-UNDO.
+     
 DEFINE VARIABLE fi_sortby AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
      SIZE 51 BY .71
@@ -233,7 +241,7 @@ DEFINE BROWSE Browser-Table
 DEFINE FRAME F-Main
      cAccount AT ROW 1.24 COL 9 COLON-ALIGNED WIDGET-ID 6
      cDescription AT ROW 1.24 COL 48 COLON-ALIGNED WIDGET-ID 8
-     cType AT ROW 1.24 COL 106 COLON-ALIGNED WIDGET-ID 10
+     cType AT ROW 1.24 COL 100 COLON-ALIGNED WIDGET-ID 10
      lCommReport AT ROW 1.24 COL 116 WIDGET-ID 16
      lSalesReport AT ROW 2.19 COL 116 WIDGET-ID 14
      lInactive AT ROW 2.19 COL 132 WIDGET-ID 12
@@ -362,9 +370,9 @@ ASSIGN
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = "USED"
      _Where[1]         = "account.company EQ gcompany AND
-account.actnum MATCHES cAccount AND
-account.dscr MATCHES cDescription AND
-account.type MATCHES cType AND
+account.actnum BEGINS cAccount AND
+account.dscr BEGINS cDescription AND
+account.type BEGINS cType AND
 (account.inactive EQ lInactive OR
 lInactive EQ NO) AND
 (account.salesReport EQ lSalesReport OR
@@ -443,9 +451,9 @@ ON CHOOSE OF btnGO IN FRAME F-Main /* GO */
 DO:
     ASSIGN
         {&FilterFields}
-        cAccount     = cAccount + "*"
-        cDescription = cDescription + "*"
-        cType        = cType + "*"
+       // cAccount     = cAccount + "*"
+       // cDescription = cDescription + "*"
+       // cType        = cType + "*"
         .
     RUN pReopenBrowse.
 END.
@@ -466,9 +474,9 @@ DO:
         lSalesReport:SCREEN-VALUE = "NO"
         lInactive:SCREEN-VALUE    = "NO"
         {&FilterFields}
-        cAccount                  = "*"
-        cDescription              = "*"
-        cType                     = "*"
+      //  cAccount                  = "*"
+      //  cDescription              = "*"
+      //  cType                     = "*"
         .
     RUN pReopenBrowse.
 END.
@@ -637,6 +645,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-open-query B-table-Win 
 PROCEDURE local-open-query :
 /*------------------------------------------------------------------------------
@@ -656,6 +665,8 @@ PROCEDURE local-open-query :
       .
       RUN pReopenBrowse.
 
+  APPLY 'ENTRY':U TO cAccount IN FRAME {&frame-name}.
+ 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -695,6 +706,7 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records B-table-Win  _ADM-SEND-RECORDS
 PROCEDURE send-records :
