@@ -2415,9 +2415,11 @@ PROCEDURE pSearchSelections :
             searchSelections:LIST-ITEM-PAIRS = ?
             .
         FOR EACH ttMenuTree
-            WHERE ttMenuTree.baseText MATCHES "*" + menuTreeFilter + "*"
-              AND ttMenuTree.isActive EQ YES
-              AND ttMenuTree.isMenu   EQ NO
+            WHERE ttMenuTree.isActive   EQ YES
+              AND ttMenuTree.isMenu     EQ NO
+              AND (ttMenuTree.baseText  MATCHES "*" + menuTreeFilter + "*"
+               OR  ttMenuTree.mnemonic  MATCHES "*" + menuTreeFilter + "*"
+               OR  ttMenuTree.treeChild MATCHES "*" + menuTreeFilter + "*")
             :
             IF NOT CAN-FIND(FIRST xUserMenu
                             WHERE xUserMenu.user_id  EQ USERID("ASI")
