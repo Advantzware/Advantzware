@@ -1494,6 +1494,9 @@ DEFINE VARIABLE dYtdAmount AS DECIMAL NO-UNDO.
 DEFINE VARIABLE dTotalOpenBalance AS DECIMAL NO-UNDO.
 DEFINE VARIABLE dTotalYtdAmount AS DECIMAL NO-UNDO.
 DEFINE VARIABLE dTotYTD         AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE lRecordExist    AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE str-tit4        AS CHARACTER FORMAT "x(240)" NO-UNDO.
+DEFINE VARIABLE str-tit5        AS CHARACTER FORMAT "x(240)" NO-UNDO.
        
 RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
@@ -1536,7 +1539,7 @@ IF OPSYS eq 'win32' THEN
 
 time_stamp = string(TIME, "hh:mmam").
 
-{sys/form/r-topw.f}
+{sys/form/r-topw3.f}
 
 ASSIGN facct = begin_acct-no
        tacct = END_acct-no
@@ -1562,9 +1565,10 @@ DO:
      {sys/inc/ctrtext.i str-tit2 112}
      {sys/inc/ctrtext.i str-tit3 132}.
          
-
+    str-tit4 = "Account Number           Description          Opening Balance  Date       Ref      Description                    Debit Amt      Credit Amt     PTD Total      Document ID                      Source Date Run Number YTD".
+    str-tit5 = "--------------------------------------------- ---------------- ---------- -------- ------------------------------ -------------- -------------- -------------- -------------------------------- ----------- ---------- -----------------".
     display str-tit3 format "x(130)" SKIP(1)     
-     SKIP with frame r-top STREAM-IO.
+     SKIP str-tit4 SKIP str-tit5 SKIP with frame r-top STREAM-IO.
 
     if break-flag and subac-lvl ne 1 then do:
       start-lvl = 0.
@@ -1605,12 +1609,12 @@ DO:
                         
         dTotYTD = dTotYTD + ttTrialBalance.amountYTD.
         
-        IF NOT suppress-zero /*OR ttTrialBalance.amountYTD NE 0 OR ttTrialBalance.amountPTD NE 0*/ THEN
+        IF NOT suppress-zero OR ttTrialBalance.amountYTD NE 0 OR ttTrialBalance.amountPTD NE 0 THEN
         DO:
            dTotalYtdAmount = dTotalYtdAmount + ttTrialBalance.amountYTDOpen .
            dYtdAmount = ttTrialBalance.amountYTDOpen.
            dTotalOpenBalance = dTotalOpenBalance + ttTrialBalance.amountYTDOpen.
-           
+           lRecordExist = NO.
            FOR EACH glhist NO-LOCK 
                WHERE glhist.company EQ account.company
                AND glhist.actnum  EQ account.actnum
@@ -1625,22 +1629,22 @@ DO:
             dPeriodTotal = dPeriodTotal + glhist.tr-amt. 
             dYtdAmount = dYtdAmount + glhist.tr-amt.
             dTotalYtdAmount = dTotalYtdAmount + glhist.tr-amt.
+            lRecordExist = YES.
             
-            DISPLAY SKIP
-                account.actnum + "  " + account.dscr FORMAT "x(45)"
-                LABEL "Account Number           Description"
-                ttTrialBalance.amountYTDOpen  FORMAT "->>>,>>>,>>9.99" LABEL "Opening Balance "
-                glhist.tr-date FORMAT "99/99/9999" LABEL "Date  "
-                glhist.jrnl FORMAT "x(8)" LABEL "Ref  "
-                glhist.tr-dscr FORMAT "x(30)" LABEL "Description  "
-                dDebitAmt FORMAT "->>,>>>,>>9.99" LABEL "Debit Amt  "
-                dCreditAmt FORMAT "->>,>>>,>>9.99" LABEL "Credit Amt"
-                dPeriodTotal FORMAT "->>,>>>,>>9.99"  LABEL "PTD Total"
-                glhist.documentID FORMAT "x(32)" LABEL "Document id"
-                glhist.sourceDate FORMAT "99/99/9999" LABEL "Source Date"
-                glhist.tr-num FORMAT ">>>>>>>>" LABEL "Run Number"
-                dYtdAmount FORMAT "->,>>>,>>>,>>9.99" LABEL "YTD"                                 
-                WITH CENTERED WIDTH 272 STREAM-IO.                
+            PUT 
+                account.actnum + "  " + account.dscr FORMAT "x(45)" SPACE(2)                
+                ttTrialBalance.amountYTDOpen  FORMAT "->>>,>>>,>>9.99" SPACE(1)
+                glhist.tr-date FORMAT "99/99/9999" SPACE(1)
+                glhist.jrnl FORMAT "x(8)" SPACE(1)
+                glhist.tr-dscr FORMAT "x(30)" SPACE(1)
+                dDebitAmt FORMAT "->>,>>>,>>9.99" SPACE(1)
+                dCreditAmt FORMAT "->>,>>>,>>9.99" SPACE(1)
+                dPeriodTotal FORMAT "->>,>>>,>>9.99"  SPACE(1)
+                glhist.documentID FORMAT "x(32)" SPACE(1)
+                glhist.sourceDate FORMAT "99/99/9999" SPACE(2)
+                glhist.tr-num FORMAT ">>>>>>>>>>" SPACE(1)
+                dYtdAmount FORMAT "->,>>>,>>>,>>9.99" SPACE(1)
+               SKIP.                
                           
             IF tb_excel THEN 
                 EXPORT STREAM excel DELIMITER ","
@@ -1657,7 +1661,34 @@ DO:
                     glhist.sourceDate
                     glhist.tr-num
                     dYtdAmount
+                    dYtdAmount
                     SKIP.                     
+           END.
+           
+           IF NOT lRecordExist THEN
+           DO:                  
+                PUT SKIP
+                account.actnum + "  " + account.dscr FORMAT "x(45)" SPACE(2)
+                ttTrialBalance.amountYTDOpen FORMAT "->>>,>>>,>>9.99" SPACE(1)
+                "" FORMAT "x(152)" 
+                dYtdAmount FORMAT "->,>>>,>>>,>>9.99" SKIP .
+                
+                          
+            IF tb_excel THEN 
+                EXPORT STREAM excel DELIMITER ","
+                    account.actnum
+                    account.dscr
+                    ttTrialBalance.amountYTDOpen
+                    ""
+                    ""
+                    ""
+                    ""
+                    ""
+                    ""
+                    ""
+                    ""
+                    ""                     
+                    SKIP.               
            END.
 
             IF v-download THEN
