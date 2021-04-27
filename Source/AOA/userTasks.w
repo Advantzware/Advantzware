@@ -1408,7 +1408,7 @@ PROCEDURE pRunTask :
 
     IF iplParameters EQ YES OR
       (iplParameters EQ NO AND
-       CAN-DO("Grid,LocalCSV,View",ttDynParamValue.outputFormat)) THEN DO:
+       CAN-DO("Grid,LocalCSV,Print -d,View",ttDynParamValue.outputFormat)) THEN DO:
         CASE ipcOutputFormat:
             WHEN "Grid" THEN
             RUN AOA/Jasper.p (
