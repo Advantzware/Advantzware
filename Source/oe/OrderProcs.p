@@ -660,7 +660,7 @@ PROCEDURE pCreateMiscChargeByDeliveryDate PRIVATE:
     DEFINE VARIABLE cPrepCode            AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lFound               AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cOrderPriority       AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE iOrderPrioriry       AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iOrderPriority       AS INTEGER   NO-UNDO.
     
     DEFINE BUFFER bf-oe-ord FOR oe-ord.
     
@@ -713,13 +713,13 @@ PROCEDURE pCreateMiscChargeByDeliveryDate PRIVATE:
         OUTPUT lFound
         ).
     IF lFound THEN
-        iOrderPrioriry = INTEGER(cOrderPriority).
+        iOrderPriority = INTEGER(cOrderPriority).
 
     RUN pCreateMiscSurcharge (
         INPUT  ipcCompany,
         INPUT  ipiOrderID,
         INPUT  cPrepCode,
-        INPUT  iOrderPrioriry,
+        INPUT  iOrderPriority,
         OUTPUT oplError,
         OUTPUT opcMessage
         ).
