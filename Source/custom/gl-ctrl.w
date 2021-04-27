@@ -156,7 +156,7 @@ DEFINE FRAME DEFAULT-FRAME
           BGCOLOR 15 
      cRetAccDscr AT ROW 3.62 COL 53 COLON-ALIGNED NO-LABEL
      gl-ctrl.contra AT ROW 4.81 COL 26 COLON-ALIGNED
-          LABEL "Profit Contra"
+          LABEL "Net Income Account"
           VIEW-AS FILL-IN 
           SIZE 27 BY 1
           BGCOLOR 15 
@@ -402,7 +402,7 @@ END.
 
 &Scoped-define SELF-NAME gl-ctrl.contra
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL gl-ctrl.contra C-Win
-ON LEAVE OF gl-ctrl.contra IN FRAME DEFAULT-FRAME /* Profit Contra */
+ON LEAVE OF gl-ctrl.contra IN FRAME DEFAULT-FRAME /* Net Income Account */
 DO:
   IF LASTKEY NE -1 THEN DO:
     RUN valid-glacct ("contra") NO-ERROR.
@@ -415,7 +415,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL gl-ctrl.contra C-Win
-ON VALUE-CHANGED OF gl-ctrl.contra IN FRAME DEFAULT-FRAME /* Profit Contra */
+ON VALUE-CHANGED OF gl-ctrl.contra IN FRAME DEFAULT-FRAME /* Net Income Account */
 DO:
   FIND account
       WHERE account.company EQ cocode

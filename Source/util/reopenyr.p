@@ -99,14 +99,23 @@ if choice then do on error undo, leave:
     bf-period.pstat = YES.
     FIND CURRENT bf-period NO-LOCK NO-ERROR.
     
-    FIND FIRST bf-glhist EXCLUSIVE-LOCK
+    FOR EACH bf-glhist EXCLUSIVE-LOCK
          WHERE bf-glhist.company EQ cocode
          AND bf-glhist.jrnl EQ "CLOSE" 
-         AND bf-glhist.glYear EQ (bf-period.yr + 1) NO-ERROR.
-    IF AVAIL bf-glhist THEN DELETE bf-glhist.
+         AND bf-glhist.glYear EQ (bf-period.yr + 1) :
+       DELETE bf-glhist.
+    END.   
     RUN spProgressBar ("Reopen Period", 4, 4).
     RELEASE glhist.
     RELEASE bf-account.
+    
+    IF bf-period.pnum EQ company.num-per THEN
+    DO:
+        FIND CURRENT company EXCLUSIVE-LOCK NO-ERROR.
+        company.yend-per = NO.
+        FIND CURRENT company EXCLUSIVE-LOCK NO-ERROR.
+    END.    
+    
   END.      
  
   message " Process Complete"  VIEW-AS ALERT-BOX.

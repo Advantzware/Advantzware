@@ -452,6 +452,8 @@ DO:
                v-msg2 = ""
                v-msg1:BGCOLOR = ?
                v-msg2:BGCOLOR = ?.
+               
+        APPLY "close" TO THIS-PROCEDURE.       
 
      END.
   END.
@@ -696,16 +698,19 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
             VIEW-AS ALERT-BOX ERROR.
         RETURN.
     END.
-    if NOT company.yend-per then do:
+    
+    FIND FIRST period NO-LOCK WHERE 
+        period.company EQ company.company AND
+        period.pstat EQ TRUE 
+        NO-ERROR.
+        
+    if NOT company.yend-per AND NOT(period.pnum EQ company.num-per) then do:
         MESSAGE 
             "PRIOR YEAR NOT CLOSED.  MUST CLOSE PRIOR YEAR!!!" 
             VIEW-AS ALERT-BOX ERROR.
         RETURN.
     end.
-    FIND FIRST period NO-LOCK WHERE 
-        period.company EQ company.company AND
-        period.pstat EQ TRUE 
-        NO-ERROR.
+    
     IF AVAIL period THEN ASSIGN 
         tran-year = period.yr
         tran-period = period.pnum.
@@ -851,7 +856,7 @@ PROCEDURE close-month :
          and b-racct.actnum  eq gl-ctrl.ret
        no-lock no-error.
    if not avail b-racct then do on endkey undo, return:
-      message "Unable to Find Retained Earnings Account from G/L Control File."
+      message "Unable to Find Current Year Earnings Account from G/L Control File."
               VIEW-AS ALERT-BOX ERROR.
       return.
    end.
@@ -864,6 +869,18 @@ PROCEDURE close-month :
       message "Unable to Find Profit Contra Account from G/L Control File." VIEW-AS ALERT-BOX ERROR.
       return.
    end.
+   
+   find first b-racct
+       where b-racct.company eq cocode
+         and b-racct.actnum  eq gl-ctrl.retainedEarnings
+       no-lock no-error.
+   if not avail b-racct AND period.pnum EQ company.num-per then do on endkey undo, return:
+      message "Closing the last period of the year will create a journal entry moving Current Years Earnings to Retained Earnings account, so enter a valid retained earnings account in G-F-3."
+              VIEW-AS ALERT-BOX ERROR.
+      return.
+   end.
+   
+   
 
    ASSIGN v-msg1:HIDDEN IN FRAME {&FRAME-NAME} = NO
           v-msg2:HIDDEN = NO
@@ -1129,7 +1146,7 @@ PROCEDURE close-month :
             and period.pstat   eq yes
           exclusive-lock.
       period.pstat = false.
-      if period.pnum eq company.num-per then company.yend-per = YES.
+      if period.pnum eq company.num-per then company.yend-per = NO.
    end.
 
    find next period
@@ -1161,7 +1178,20 @@ PROCEDURE close-month :
                              "A",
                              date(TODAY),
                              "",
-                             "").          
+                             "").  
+       RUN pGetNetIncome(INPUT gl-ctrl.ret, OUTPUT dNetIncome). 
+       RUN GL_SpCreateGLHist(cocode,
+                             gl-ctrl.ret,
+                             "CLOSE",
+                             STRING("Auto Posted Current Years Earnings for Year ") + STRING(period.yr),
+                             period.pst,
+                             dNetIncome,                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
+                             iTransNum,
+                             period.pnum,
+                             "A",
+                             date(TODAY),
+                             "",
+                             "").                      
    END.    
 
    SESSION:SET-WAIT-STATE ("").
