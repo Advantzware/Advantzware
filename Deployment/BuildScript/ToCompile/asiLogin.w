@@ -508,7 +508,13 @@ DO:
     RUN ipAssignSV.
     CASE SELF:NAME:
         WHEN "cbDatabase" THEN RUN ipChangeDatabase.
-        WHEN "cbEnvironment" THEN RUN ipChangeEnvironment.
+        WHEN "cbEnvironment" THEN DO:
+            RUN ipChangeEnvironment.
+            IF NUM-ENTRIES(cDbValidList) GT 1 THEN DO:
+                APPLY 'entry' TO cbDatabase.
+                RETURN NO-APPLY.
+            END.
+        END.
         WHEN "cbMode" THEN RUN ipChangeMode.
     END CASE.
 END.
@@ -528,6 +534,7 @@ DO:
     IF NOT AVAIL ttUsers THEN FIND FIRST ttUsers NO-LOCK WHERE
         ttUsers.ttfUserAlias = fiUserID
         NO-ERROR.
+
     IF NOT AVAIL ttUsers THEN DO:
         IF fwd-embedded-mode THEN 
             RETURN NO-APPLY 
@@ -557,6 +564,8 @@ DO:
         RETURN NO-APPLY.
     END.
     
+
+    
     ASSIGN
         /* set the combo box possible values */
         cbMode:LIST-ITEMS = cModeValidList
@@ -578,6 +587,8 @@ DO:
         cModeSelected = cbMode:SCREEN-VALUE 
         cDbSelected = cbDatabase:SCREEN-VALUE 
         .
+        
+    APPLY 'value-changed' TO cbEnvironment.
     
 END.
 
@@ -635,10 +646,12 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
             cbDatabase:SENSITIVE = FALSE 
             cbMode:VISIBLE = TRUE
             cbEnvironment:VISIBLE = TRUE 
-            cbDatabase:VISIBLE = TRUE. 
+            cbDatabase:VISIBLE = TRUE
+            cEnvSelected = cbEnvironment:SCREEN-VALUE. 
         RUN enable_UI.
         ASSIGN
             fiUserID:SCREEN-VALUE = OS-GETENV("USERNAME").
+        APPLY 'value-changed' TO cbEnvironment.    
         APPLY 'entry' TO fiUserID.
     END. /* If there is a UI */
     ELSE DO:
@@ -728,6 +741,7 @@ PROCEDURE ipAutoLogin :
 ------------------------------------------------------------------------------*/
     ASSIGN 
         fiUserID = ENTRY(1, cSessionParam)
+        cLoginUser = fiUserID
         fiPassword = ENTRY(2, cSessionParam)
         cEnvSelected = ENTRY(3, cSessionParam)
         cModeSelected = REPLACE(ENTRY(4, cSessionParam),"_"," ")
@@ -772,9 +786,9 @@ PROCEDURE ipChangeDatabase :
         cAsiConnectString = "-db " + asiDbName + 
                             " -H " + chostName +
                             " -S " + asiDbPort +
-                            " -N tcp -ld ASI -U " +
+                            " -N tcp -ld ASI -U '" +
                             cLoginUser + 
-                            " -P '" +
+                            "' -P '" +
                             fiPassword + 
                             "' -ct 2".
     ELSE DO:
@@ -823,8 +837,9 @@ PROCEDURE ipChangeEnvironment :
         ASSIGN
             cTop = cMapDir + "\" + cEnvDir + "\" + cEnvSelected + "\" 
             preProPath = cTop + "," +
-                         (IF iEnvLevel GE 21000000 THEN cTop + "asiObjects.pl," ELSE "") +
-                         (IF iEnvLevel GE 21000000 THEN cTop + "asigraphics.pl," ELSE "") +
+                         cTop + "asiObjects.pl," +
+                         cTop + "asigraphics.pl," +
+                         cTop + "asiDataDigger.pl," +
                          cTop + cEnvCustomerDir + "," +
                          cTop + cEnvOverrideDir + "," +
                          cTop + cEnvProgramsDir + "," +
@@ -832,7 +847,7 @@ PROCEDURE ipChangeEnvironment :
                          cTop + cEnvResourceDir + "," +
                          cTop + cEnvCustFiles + "," +
                          cMapDir + "\" + cAdminDir + "\" + cEnvAdmin + ","
-            PROPATH = preProPath + origPropath.      
+                PROPATH = preProPath + origPropath.      
         RETURN.
     END.
     ELSE DO: /* Normal processing, with changes to drop downs */
@@ -864,8 +879,9 @@ PROCEDURE ipChangeEnvironment :
             cbDatabase:VISIBLE = TRUE /* NUM-ENTRIES(cDbValidList) NE 1 */
             cTop = cMapDir + "\" + cEnvDir + "\" + cEnvSelected + "\" 
             preProPath = cTop + "," +
-                         (IF iEnvLevel GE 21000000 THEN cTop + "asiObjects.pl," ELSE "") +
-                         (IF iEnvLevel GE 21000000 THEN cTop + "asigraphics.pl," ELSE "") +
+                         cTop + "asiObjects.pl," +
+                         cTop + "asigraphics.pl," +
+                         cTop + "asiDataDigger.pl," +
                          cTop + cEnvCustomerDir + "," +
                          cTop + cEnvOverrideDir + "," +
                          cTop + cEnvProgramsDir + "," +
@@ -873,8 +889,7 @@ PROCEDURE ipChangeEnvironment :
                          cTop + cEnvResourceDir + "," +
                          cTop + cEnvCustFiles + "," +
                          cMapDir + "\" + cAdminDir + "\" + cEnvAdmin + ","
-            PROPATH = preProPath + origPropath.
-
+                PROPATH = preProPath + origPropath.
         IF NUM-ENTRIES(cDbValidList) EQ 1 THEN DO:
             ASSIGN
                 cDBSelected = cDbValidList
@@ -888,7 +903,7 @@ PROCEDURE ipChangeEnvironment :
                 cbDatabase:LIST-ITEMS = cDbValidList
                 cbDatabase:SCREEN-VALUE = IF NOT CAN-DO(cDbValidList,cDbSelected) THEN ENTRY(1,cDbValidList) ELSE cDbSelected
                 cbDatabase:SENSITIVE = TRUE.
-            RETURN NO-APPLY.
+            RETURN.
         END.
 
     END.
@@ -933,7 +948,17 @@ PROCEDURE ipClickOk :
     DEFINE VARIABLE cDLC AS CHAR NO-UNDO.
     DEFINE VARIABLE cBitness AS CHAR NO-UNDO.
     DEFINE VARIABLE cVersion AS CHAR NO-UNDO.
- 
+    DEFINE VARIABLE cTop AS CHAR NO-UNDO.
+    
+    IF cIsHyperV EQ "YES" 
+    OR cIsHyperV EQ "Y" THEN DO:
+        cTop = cMapDir + "\" + cEnvDir + "\" + cEnvSelected + "\".
+        OS-COPY VALUE(cTop + "asiObjects.pl") VALUE("c:\tmp").
+        OS-COPY VALUE(cTop + "asigraphics.pl") VALUE("c:\tmp").
+        PROPATH = REPLACE (ProPath, cTop + "asiObjects.pl", "C:\tmp\asiObjects.pl").
+        PROPATH = REPLACE (ProPath, cTop + "asigraphics.pl", "C:\tmp\asigraphics.pl").
+    END.
+    
     IF cAsiConnectString <> "" 
     AND cbMode NE "Monitor Users" THEN 
     DO:
@@ -1503,4 +1528,3 @@ END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
