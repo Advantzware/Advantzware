@@ -870,15 +870,18 @@ PROCEDURE close-month :
    DISPLAY v-msg1 WITH FRAME {&FRAME-NAME}.
    
    FOR EACH account EXCLUSIVE-LOCK
-          where account.company eq cocode,          
-   EACH glhist
+          where account.company eq cocode
+            BREAK BY account.actnum:
+            
+    IF FIRST-OF(account.actnum)  THEN
+       account.cyr[uperiod]  = 0. 
+       
+    FOR EACH glhist
         where glhist.company eq cocode
         and glhist.tr-date ge period.pst
         and glhist.tr-date le period.pend
         and glhist.actnum  EQ account.actnum          
-       TRANSACTION BREAK BY account.actnum :
-       IF FIRST-OF(account.actnum)  THEN
-       account.cyr[uperiod]  = 0.
+       TRANSACTION :  
        
        v-msg2 = "Account: " + glhist.actnum + "   " + glhist.jrnl.
        DISP v-msg2 WITH FRAME {&FRAME-NAME}.          
@@ -902,6 +905,7 @@ PROCEDURE close-month :
       assign
        glhist.posted   = YES
        glhist.postedBy = USERID(LDBNAME(1)).           
+    END. /* FOR EACH glhist*/  
    end.
    RELEASE glhist.
 /*   for each cust where cust.company eq cocode transaction:                 */
