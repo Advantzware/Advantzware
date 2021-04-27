@@ -25,7 +25,7 @@ FIND FIRST mfgroup NO-LOCK
      NO-ERROR.
 IF NOT AVAILABLE mfgroup THEN RETURN.
 
-RUN pGetMFData (ipcMFGroup).
+RUN pGetMFData  (ipcMFGroup).
 RUN pBuildttUDF (ipcRecKey).
 
 {UDF/pGetMFData.i}
@@ -55,18 +55,19 @@ PROCEDURE pBuildttUDF:
                 cFormat = "x(" + STRING(MAX(LENGTH(cLabel),LENGTH(cValue))) + ")"
                 idx     = 0
                 .
-            RUN pCreate_ttUDF (ipcRecKey,
-                              ttAttrb.attr_tab,
-                              idx,
-                              "tab",
-                              "character",
-                              cFormat,
-                              cLabel,
-                              cValue,
-                              "Tab",
-                              0,
-                              NO
-                              ).
+            RUN pCreate_ttUDF (
+                ipcRecKey,
+                ttAttrb.attr_tab,
+                idx,
+                "tab",
+                "character",
+                cFormat,
+                cLabel,
+                cValue,
+                "Tab",
+                0,
+                NO
+                ).
         END. /* first of tab */
         IF NOT CAN-DO("Rectangle,Text",ttAttrb.attr_type) THEN DO:
             FIND FIRST mfvalues
@@ -89,18 +90,19 @@ PROCEDURE pBuildttUDF:
                 cFormat = "x(" + STRING(MAX(LENGTH(cLabel),LENGTH(cValue))) + ")".
                 IF ttAttrb.attr_datatype EQ "logical" THEN
                 cFormat = "yes/no".
-                RUN pCreate_ttUDF (ipcRecKey,
-                                  ttAttrb.attr_tab,
-                                  idx,
-                                  ttAttrb.attr_id,
-                                  LC(ttAttrb.attr_datatype),
-                                  cFormat,
-                                  cLabel,
-                                  cValue,
-                                  ttAttrb.attr_colLabel,
-                                  ttAttrb.attr_sbField,
-                                  ttAttrb.attr_Esko
-                                  ).
+                RUN pCreate_ttUDF (
+                    ipcRecKey,
+                    ttAttrb.attr_tab,
+                    idx,
+                    ttAttrb.attr_id,
+                    LC(ttAttrb.attr_datatype),
+                    cFormat,
+                    cLabel,
+                    cValue,
+                    ttAttrb.attr_colLabel,
+                    ttAttrb.attr_sbField,
+                    ttAttrb.attr_Esko
+                    ).
             END. /* avail mfvalues */
         END. /* not rect or text */
     END. /* each ttAttrb */

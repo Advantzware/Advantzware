@@ -220,6 +220,8 @@ DO:
     DEFINE VARIABLE recFoundRecID AS RECID     NO-UNDO.
     DEFINE VARIABLE cCharVal      AS CHARACTER NO-UNDO.
 
+    DEFINE BUFFER bf-cust FOR cust.
+    
     CASE FOCUS:NAME :
         WHEN "customerID"  THEN DO:
             RUN system/openLookup.p (
@@ -235,12 +237,32 @@ DO:
             IF cFoundValue <> "" THEN 
                 ASSIGN FOCUS:SCREEN-VALUE = cFoundValue.         
         END.
-        WHEN "shipToID"  THEN DO:             
-           RUN windows/l-shipto.w (g_company,g_loc,customerpart.customerID:SCREEN-VALUE,customerpart.shipToID:SCREEN-VALUE, OUTPUT cCharVal).
-           IF cCharVal NE "" AND customerpart.shipToID:SCREEN-VALUE NE ENTRY(1,cCharVal) THEN DO:
-              customerpart.shipToID:SCREEN-VALUE = ENTRY(1,cCharVal).                
-           END.
-           RETURN NO-APPLY.                     
+        WHEN "shipToID"  THEN DO:
+            IF customerPart.customerID:SCREEN-VALUE NE "" THEN             
+                FIND FIRST bf-cust NO-LOCK
+                     WHERE bf-cust.company EQ g_company
+                       AND bf-cust.cust-no EQ customerPart.customerID:SCREEN-VALUE
+                     NO-ERROR.
+            IF AVAILABLE bf-cust THEN
+                RUN AOA/dynLookupSetParam.p (
+                    INPUT  171, 
+                    INPUT  ROWID(bf-cust), 
+                    OUTPUT cFieldsValue
+                    ).
+            ELSE
+                RUN system/openLookup.p (
+                    INPUT  g_company, 
+                    INPUT  "",  /* Lookup ID */
+                    INPUT  122, /* Subject ID */
+                    INPUT  "",  /* User ID */
+                    INPUT  0,   /* Param Value ID */
+                    OUTPUT cFieldsValue, 
+                    OUTPUT cFoundValue, 
+                    OUTPUT recFoundRecID
+                    ).  
+
+            IF cFieldsValue <> "" THEN 
+                FOCUS:SCREEN-VALUE = DYNAMIC-FUNCTION("sfDynLookupValue", "shipto.ship-id", cFieldsValue).                    
         END.
         WHEN "itemID"  THEN DO:
             RUN system/openLookup.p (

@@ -362,7 +362,9 @@ PROCEDURE create-new-order.
       xest buffer
       
     */
-          /*************** create ORDER HEADER ******************/
+    /*************** create ORDER HEADER ******************/
+          
+    DEFINE VARIABLE cTagDesc AS CHARACTER NO-UNDO.
           {oe/oe-ord.a} 
           v-n-ord = xoe-ord.ord-no.
           ASSIGN
@@ -421,8 +423,10 @@ PROCEDURE create-new-order.
                                xoe-ord.cust-no,
                                TRIM(xoe-ord.ship-id),
                                "",
+                               0,
                                OUTPUT xoe-ord.over-pct , 
-                               OUTPUT xoe-ord.Under-pct ) .
+                               OUTPUT xoe-ord.Under-pct, 
+                               OUTPUT cTagDesc) .
                                  
 END PROCEDURE.
 
@@ -433,6 +437,7 @@ PROCEDURE create-order-lines.
     DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
     DEFINE VARIABLE lcChoice AS CHARACTER NO-UNDO .
     DEFINE VARIABLE cPriceEst AS CHARACTER NO-UNDO .
+    DEFINE VARIABLE cTagDesc AS CHARACTER NO-UNDO.
   /* dependencies ...
     cocode
     xoe-ord buffer
@@ -528,8 +533,10 @@ PROCEDURE create-order-lines.
                                xoe-ord.cust-no,
                                TRIM(xoe-ord.ship-id),
                                oe-ordl.i-no,
+                               0,
                                OUTPUT oe-ordl.over-pct ,
-                               OUTPUT oe-ordl.Under-pct ) .   
+                               OUTPUT oe-ordl.Under-pct,
+                               OUTPUT cTagDesc ) .   
             
        END.  /* not avail oe-ordl */
 

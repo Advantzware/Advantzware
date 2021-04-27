@@ -120,7 +120,7 @@ ASSIGN
                 "Allwest,LoyLang,Badger,Delta,PQP,RFC2,Peachtree,BlueRidg," +
                 "Oklahoma,Protagon,TriState,Soule,Adapt,Freedman,BELL,VINELAND,Axis,Lakeside,PFS," +
                 "jobcardc 1,jobcardc 2,Printers,Valley,jobcardc 20,Valley20,Delta10,HoneyCell,AtlanticBox,PkgAtlanta,AmCarton," +
-                "Fluted,PreCorr" 
+                "Fluted,PreCorr,McElroy" 
  str-init[33] = "ASI,HOP,Fibre,Century,Interpac,FibreFC,HPB,Dayton,Livngstn,CentBox,Metro,Keystone,Frankstn,Colonial,Unipak,OTTPkg,Shelby,CCC,Indiana-XL,PPI,Accord,Knight,MidYork,Dee,Badger,Rosmar,Carded,Carded2,PackRite,Prystup,Knight***,Coburn," + /*MWFibre=Keystone*/
                 "jobcardf 1,jobcardf 2,xml,Wingate,Ruffino,McLean,Henry"
  str-init[34] = "Manual,Matrix"
@@ -198,7 +198,7 @@ ASSIGN
  str-init[103] = "Item,Vendor,All,NoTax"   /* aptax */ 
  str-init[104] = "None,Overrun,Receipts"  /* rmemails */     
  str-init[105] = ",loadtag"
- str-init[106] = "Fibrex,BOLFMTX15"
+ str-init[106] = "Fibrex,BOLFMTX15,ACPIX"
  str-init[107] = ",Indiana,Dee,ScheduleCard1"
  str-init[108] = "Workstation,Server"  
  str-init[109] = "Reorder Point"   
@@ -287,7 +287,7 @@ ASSIGN str-init[125] = "Ship Only,Invoice Only,Bill and Ship,Transfer Only"
        str-init[191] = "FG Item number,Item Name"
        str-init[192] = "Simple with options,Simple - Reduce Only,Unitization with options"
        str-init[193] = "With options,Reduce Only"
-       str-init[194] = "Replace double quotes with symbol,Add leading tab"
+       str-init[194] = "Add leading tab"
        str-init[195] = "First Board,First Item,User Select".
 	
 IF PROGRAM-NAME(1) MATCHES "*windows/l-syschr.w*" THEN DO:

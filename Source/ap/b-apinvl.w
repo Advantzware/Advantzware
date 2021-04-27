@@ -46,8 +46,8 @@ DEF VAR v-seq AS INT FORM ">>>9"  NO-UNDO.
 DEF VAR li-line-num AS INT NO-UNDO.  /* for seq# */
 DEF VAR v-vend-act AS cha NO-UNDO.
 DEF VAR lv-pol-rowid AS ROWID NO-UNDO.
-def var lv-uom-list as cha init "C,CS,EA,L,LB,LF,LOT,M,MSF,SHT,TON,BF" no-undo.
-DEF VAR pr-uom-list AS cha NO-UNDO INIT "EA,LB,M,MSF,TON,BF".
+def var lv-uom-list as cha init "C,CS,EA,L,LB,LF,LOT,M,MSF,SHT,TON,BF,MSH" no-undo.
+DEF VAR pr-uom-list AS cha NO-UNDO INIT "EA,LB,M,MSF,TON,BF,MSH".
 DEF VAR cons-uom-list AS CHA NO-UNDO INIT "M,LF,EA,LB,TON".
 DEF VAR v-po-qty as log initial true no-undo.
 DEF VAR v-ap-pur AS CHAR NO-UNDO.
@@ -695,14 +695,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ap-invl.qty Browser-Table _BROWSE-COLUMN B-table-Win
 ON ENTRY OF ap-invl.qty IN BROWSE Browser-Table /* Quantity */
 DO:
-  IF LASTKEY NE -1 THEN DO:
-    RUN ap/d-selrec.w (ROWID(ap-inv), lv-pol-rowid, OUTPUT lv-invl-qty).
-
-    IF lv-invl-qty NE 0 THEN DO WITH FRAME {&FRAME-NAME}: 
-      {&self-name}:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(lv-invl-qty).
-      APPLY "leave" TO {&self-name} IN BROWSE {&browse-name}.
-      RETURN NO-APPLY.
-    END.
+  IF LASTKEY NE -1 THEN DO:   
   END.
 END.
 
@@ -1814,14 +1807,7 @@ PROCEDURE display-po :
             ap-invl.qty:SCREEN-VALUE = string(v-qty - po-ordl.t-inv-qty).
           end.  
       end.
-      /*RUN ap/d-selrec.p (RECID(ap-invl), OUTPUT lv-invl-qty).*/
-
-     /* gdm - 05290903  
-      RUN ap/d-selrec.w (ROWID(ap-inv), lv-pol-rowid, OUTPUT lv-invl-qty).
-      gdm - 05290903 end */
-    
-  /*    FIND CURRENT ap-invl NO-LOCK NO-ERROR.  */
-   
+         
       if ap-invl.pr-qty-uom:SCREEN-VALUE eq ap-invl.cons-uom:SCREEN-VALUE
           THEN v-temp-pr = dec(ap-invl.unit-pr:SCREEN-VALUE).          
       else
@@ -3029,20 +3015,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE update-receipts B-table-Win 
-PROCEDURE update-receipts :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-
-  IF AVAIL ap-invl THEN RUN ap/d-selrec.w (RECID(ap-invl), OUTPUT lv-invl-qty).
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE update-tt B-table-Win 
 PROCEDURE update-tt :
@@ -3165,7 +3137,8 @@ PROCEDURE valid-po-no :
   DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
   DEF VAR lv-msg AS CHAR NO-UNDO.
   DEF VAR lv-msg2 AS CHAR NO-UNDO.
-  DEFINE VARIABLE lMessage AS LOGICAL NO-UNDO.
+  DEFINE VARIABLE lMessage  AS LOGICAL NO-UNDO.
+  DEFINE VARIABLE lResponse AS LOGICAL   NO-UNDO.
   DEF BUFFER b-ap-invl FOR ap-invl.
   
 
@@ -3175,10 +3148,24 @@ PROCEDURE valid-po-no :
 
       FIND FIRST po-ord
           WHERE po-ord.company EQ g_company
-            AND po-ord.vend-no EQ ap-inv.vend-no
             AND po-ord.po-no   EQ INT(ap-invl.po-no:SCREEN-VALUE IN BROWSE {&browse-name})
           USE-INDEX vend-no NO-LOCK NO-ERROR.
       IF NOT AVAIL po-ord THEN lv-msg = "Invalid PO, try help".
+      IF lv-msg EQ "" THEN
+      DO: 
+        IF po-ord.vend-no NE ap-inv.vend-no THEN 
+        DO:
+            RUN displayMessageQuestion (
+              INPUT  "64",
+              OUTPUT lResponse
+              ).
+           IF NOT lResponse THEN DO:
+              APPLY "ENTRY" TO ap-invl.po-no IN BROWSE {&browse-name}.
+              oplReturnError = YES.
+              RETURN.
+           END. /* IF NOT lResponse */
+        END.
+      END.
 
       IF lv-msg EQ "" THEN DO:
 
@@ -3770,10 +3757,8 @@ PROCEDURE pReCalculateRecQty :
                                 v-bwt, v-len, v-wid, v-dep,
                                 v-qty, OUTPUT v-qty).
         FIND CURRENT po-ordl EXCLUSIVE-LOCK NO-ERROR .                           
-         ASSIGN                            
-          lCheckRec     = SUBSTR(rm-rdtlh.receiver-no,1,10) EQ
-                                 STRING(ap-inv.i-no,"9999999999")                           
-          po-ordl.t-rec-qty    = po-ordl.t-rec-qty + (IF lCheckRec THEN DEC(SUBSTR(rm-rdtlh.receiver-no,11,17)) ELSE v-qty)  .  
+         ASSIGN                                                                
+          po-ordl.t-rec-qty    = po-ordl.t-rec-qty + v-qty  .  
         FIND CURRENT po-ordl NO-LOCK NO-ERROR .
     END.                                  
   END.
@@ -3789,11 +3774,8 @@ PROCEDURE pReCalculateRecQty :
         AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code        
       NO-LOCK:    
          FIND CURRENT po-ordl EXCLUSIVE-LOCK NO-ERROR .
-         ASSIGN
-         lCheckRec     = SUBSTR(fg-rdtlh.receiver-no,1,10) EQ
-                             STRING(ap-inv.i-no,"9999999999")          
-         po-ordl.t-rec-qty    = po-ordl.t-rec-qty + ( IF lCheckRec THEN DEC(SUBSTR(fg-rdtlh.receiver-no,11,17))
-                                              ELSE fg-rdtlh.qty ).
+         ASSIGN                     
+         po-ordl.t-rec-qty    = po-ordl.t-rec-qty + fg-rdtlh.qty .
          FIND CURRENT po-ordl NO-LOCK NO-ERROR .                                     
     END.
   END.

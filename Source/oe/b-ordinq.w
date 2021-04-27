@@ -2472,7 +2472,8 @@ PROCEDURE reopen-query :
 ------------------------------------------------------------------------------*/
  DEFINE VARIABLE lv-tmp-rowid AS ROWID NO-UNDO.
  lv-tmp-rowid = ROWID(oe-ordl).
-
+    
+ IF AVAIL oe-ordl THEN   
  RUN reopen-query1 (lv-tmp-rowid).
 END PROCEDURE.
 

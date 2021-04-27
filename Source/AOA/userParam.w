@@ -43,6 +43,7 @@ DEFINE VARIABLE hAppSrvBin      AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hDynDescripProc AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hDynInitProc    AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hDynValProc     AS HANDLE    NO-UNDO.
+DEFINE VARIABLE lRunTask        AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lSave           AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE pHandle         AS HANDLE    NO-UNDO.
 DEFINE VARIABLE rRowID          AS ROWID     NO-UNDO.
@@ -377,7 +378,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnSave s-object
 ON CHOOSE OF btnSave IN FRAME outputFrame /* Update/Save Columns */
 DO:
-    RUN pSave.
+    RUN pSave (OUTPUT lRunTask).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -574,9 +575,14 @@ PROCEDURE local-view :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'view':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
+  ASSIGN
+      lInitialized = NO
+      lModified    = NO
+      .
   RUN pShowParameterSets.
   IF AVAILABLE dynParamValue AND dynParamValue.user-id EQ USERID("ASI") THEN
   ENABLE {&outputObjects} WITH FRAME outputFrame.
+  lInitialized = YES.  
 
 END PROCEDURE.
 
@@ -622,13 +628,41 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pModified s-object
+PROCEDURE pCheckIfModified:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER oplRunTask AS LOGICAL NO-UNDO.
+
+    IF lModified THEN DO:
+        RUN pSave (OUTPUT oplRunTask).
+        IF oplRunTask AND lModified EQ YES THEN
+        MESSAGE 
+            "Auto Saved Parameter Setting Changes"
+        VIEW-AS ALERT-BOX WARNING.
+    END. /* if lmodified */
+    ELSE
+    oplRunTask = YES.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pReset s-object 
 PROCEDURE pReset :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
+    ASSIGN
+        lInitialized = NO
+        lModified    = NO
+        .
     RUN pShowParameterSets.
+    lInitialized = YES.    
 
 END PROCEDURE.
 
@@ -641,9 +675,43 @@ PROCEDURE pSave :
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER oplRunTask AS LOGICAL NO-UNDO.
+
     IF NOT AVAILABLE dynParamValue THEN RETURN.
+    IF CAN-FIND(FIRST Task
+                WHERE Task.subjectID    EQ dynParamValue.subjectID
+                  AND Task.user-id      EQ dynParamValue.user-id
+                  AND Task.prgmName     EQ dynParamValue.prgmName
+                  AND Task.paramValueID EQ dynParamValue.paramValueID
+                  AND Task.runNow       EQ YES) THEN DO:
+        MESSAGE 
+            "Unable to SAVE Parameter Changes, this Task is currently Running"
+        VIEW-AS ALERT-BOX WARNING.
+        RETURN.
+    END. /* if run now */
+    ELSE IF CAN-FIND(FIRST Task
+                     WHERE Task.subjectID    EQ dynParamValue.subjectID
+                       AND Task.user-id      EQ dynParamValue.user-id
+                       AND Task.prgmName     EQ dynParamValue.prgmName
+                       AND Task.paramValueID EQ dynParamValue.paramValueID
+                       AND Task.scheduled    EQ YES) THEN DO:
+        MESSAGE 
+            "This Task is currently Scheduled, SAVE Parameter Changes?"
+        VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO
+        UPDATE lSaveParameters AS LOGICAL.
+        IF lSaveParameters EQ NO THEN
+        RETURN.
+    END. /* if run now */
+    ASSIGN
+        lInitialized = NO
+        lModified    = NO
+        .
     RUN spSetSessionParam ("DefaultOutputFormat", defaultOutputFormat).
     RUN pSaveDynParamValues (defaultOutputFormat).
+    ASSIGN
+        lInitialized = YES
+        oplRunTask   = YES
+        .    
 
 END PROCEDURE.
 
