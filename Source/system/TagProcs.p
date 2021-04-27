@@ -235,16 +235,12 @@ PROCEDURE GetTags:
     DEFINE INPUT  PARAMETER ipcGroup      AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER TABLE FOR ttTag.
     EMPTY TEMP-TABLE ttTag.
-    FOR EACH tag NO-LOCK 
-        WHERE tag.linkRecKey EQ ipcLinkRecKey
-        AND tag.linkTable  EQ ipcLinkTable
-        AND tag.groupCode  EQ (IF ipcGroup EQ "" THEN tag.groupCode ELSE ipcGroup ):
-            
-       CREATE ttTag.
-       BUFFER-COPY tag TO ttTag.    
-            
-    END.
-        
+    
+    RUN pGetTags(INPUT ipcLinkRecKey,
+                 INPUT ipcLinkTable,
+                 INPUT ipcGroup,
+                 OUTPUT TABLE ttTag).
+              
 END PROCEDURE.
 
 PROCEDURE GetTagsList:
@@ -257,12 +253,16 @@ PROCEDURE GetTagsList:
     DEFINE INPUT  PARAMETER ipcGroup      AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcDelimiter  AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opcTagsList   AS CHARACTER NO-UNDO.
+    
     EMPTY TEMP-TABLE ttTag.
-    FOR EACH tag NO-LOCK 
-        WHERE tag.linkRecKey EQ ipcLinkRecKey
-        AND tag.linkTable  EQ ipcLinkTable
-        AND tag.groupCode  EQ (IF ipcGroup EQ "" THEN tag.groupCode ELSE ipcGroup ):            
-        opcTagsList = opcTagsList + ipcDelimiter + STRING(tag.description).              
+    
+    RUN pGetTags(INPUT ipcLinkRecKey,
+        INPUT ipcLinkTable,
+        INPUT ipcGroup,
+        OUTPUT TABLE ttTag).
+        
+    FOR EACH ttTag:            
+        opcTagsList = opcTagsList + ipcDelimiter + STRING(ttTag.description).              
     END.
     opcTagsList = TRIM(opcTagsList, ipcDelimiter).
         
@@ -337,6 +337,28 @@ PROCEDURE pDeleteTags PRIVATE:
             DELETE tag.
         END.
     END CASE.
+
+END PROCEDURE.
+
+PROCEDURE pGetTags PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcLinkRecKey AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcLinkTable  AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcGroup      AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER TABLE FOR ttTag.
+    EMPTY TEMP-TABLE ttTag.
+    FOR EACH tag NO-LOCK 
+        WHERE tag.linkRecKey EQ ipcLinkRecKey
+        AND tag.linkTable  EQ ipcLinkTable
+        AND tag.groupCode  EQ (IF ipcGroup EQ "" THEN tag.groupCode ELSE ipcGroup ):
+
+        CREATE ttTag.
+        BUFFER-COPY tag TO ttTag.    
+            
+    END.
 
 END PROCEDURE.
 
