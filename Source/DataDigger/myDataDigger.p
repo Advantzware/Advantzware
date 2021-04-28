@@ -25,6 +25,8 @@
 
 /* All functions of DataDigger, see DataDiggerLib for a full list */
 {datadigger.i}
+setRegistry("DataDigger:Update","UpdateChannel", "{&CHECK-MANUAL}").
+setRegistry("DataDigger:Update","PingBack", "NO").
 
 /* 
 /* global_domain definition for #QAD usage */

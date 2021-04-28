@@ -191,6 +191,9 @@ PROCEDURE pParamValidate :
         END. /* if descriptionProc */
     END. /* each ttDynAction */
 
+    IF lModified EQ NO AND lInitialized EQ YES THEN
+    lModified = iphWidget:MODIFIED.
+
 END PROCEDURE.
 
 PROCEDURE pRecipients :

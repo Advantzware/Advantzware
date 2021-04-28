@@ -834,8 +834,8 @@ PROCEDURE addFilterObjects :
     CLEAR FRAME filter-frame NO-PAUSE.
     /* set any filter init values */
     DO li-count = 1 TO NUM-ENTRIES(ip-filterList):
-        IF VALID-HANDLE(hFilterField[li-count]) THEN
-        hWidget[li-count]:SCREEN-VALUE = cFilterValue[li-count].
+        IF VALID-HANDLE(hWidget[li-count]) THEN
+            hWidget[li-count]:SCREEN-VALUE = cFilterValue[li-count].
     END. /* do li-count */
 .
     IF cFocusValue NE "0" AND cFocusValue NE  "" AND h_focus:DATA-TYPE = "Integer" THEN 
@@ -930,6 +930,12 @@ PROCEDURE buildTempTable :
             iBuffer = LOOKUP(ENTRY(1, ENTRY(li-count, ip-displayList), "."), ip-table-list). 
             
             h_field = h_buffer[iBuffer]:BUFFER-FIELD(ENTRY(2, ENTRY(li-count, ip-displayList), ".")):HANDLE NO-ERROR.
+
+            IF h_field:BUFFER-VALUE EQ ? THEN DO:
+                ls-allData = ls-allData + "|".
+                NEXT.
+            END.
+                        
             IF VALID-HANDLE(h_field) THEN DO:
                 IF h_field:DATA-TYPE = "LOGICAL" THEN 
                 ls-allData = ls-allData + STRING(h_field:BUFFER-VALUE, h_field:FORMAT) + "|".
@@ -1012,7 +1018,7 @@ PROCEDURE createTempTables :
                    ls-format = h_field:FORMAT
                    li-lookup = 0
                    .    
-            li-lookup = LOOKUP(h_field:NAME, ip-displayList).
+            li-lookup = LOOKUP(h_buffer[iBuffer]:NAME + "." + h_field:NAME, ip-displayList).
     
             IF li-lookup > 0 THEN DO:
                 IF ip-labelList <> "" AND 
@@ -1266,7 +1272,8 @@ PROCEDURE nextPage PRIVATE:
         DO iFieldCount = 1 TO NUM-ENTRIES(ip-fieldList):
             iBuffer = LOOKUP(ENTRY(1, ENTRY(iFieldCount, ip-fieldList), "."), ip-table-list). 
             
-            h_brbuffer:BUFFER-FIELD (REPLACE(ENTRY(iFieldCount, ip-fieldList), ".", "&")):BUFFER-VALUE = h_ipbuffer:BUFFER-FIELD(REPLACE(ENTRY(iFieldCount, ip-fieldList), ".", "&")):BUFFER-VALUE.
+            IF iBuffer GT 0 THEN
+                h_brbuffer:BUFFER-FIELD (REPLACE(ENTRY(iFieldCount, ip-fieldList), ".", "&")):BUFFER-VALUE = h_ipbuffer:BUFFER-FIELD(REPLACE(ENTRY(iFieldCount, ip-fieldList), ".", "&")):BUFFER-VALUE.
         END.
 
         RUN pCalcFields (h_brquery, h_brbuffer).
@@ -1320,7 +1327,8 @@ PROCEDURE nextPageFilter :
         DO iFieldCount = 1 TO NUM-ENTRIES(ip-fieldList):
             iBuffer = LOOKUP(ENTRY(1, ENTRY(iFieldCount, ip-fieldList), "."), ip-table-list). 
             
-            h_brbuffer:BUFFER-FIELD (REPLACE(ENTRY(iFieldCount, ip-fieldList), ".", "&")):BUFFER-VALUE = h_ipbuffer[iBuffer]:BUFFER-FIELD(ENTRY(2, ENTRY(iFieldCount, ip-fieldList), ".")):BUFFER-VALUE.
+            IF iBuffer GT 0 THEN
+                h_brbuffer:BUFFER-FIELD (REPLACE(ENTRY(iFieldCount, ip-fieldList), ".", "&")):BUFFER-VALUE = h_ipbuffer[iBuffer]:BUFFER-FIELD(ENTRY(2, ENTRY(iFieldCount, ip-fieldList), ".")):BUFFER-VALUE.
         END.
 
         RUN pCalcFields (h_brquery, h_brbuffer).
@@ -1461,7 +1469,8 @@ PROCEDURE prevPage PRIVATE:
         DO iFieldCount = 1 TO NUM-ENTRIES(ip-fieldList):
             iBuffer = LOOKUP(ENTRY(1, ENTRY(iFieldCount, ip-fieldList), "."), ip-table-list). 
             
-            h_brbuffer:BUFFER-FIELD (REPLACE(ENTRY(iFieldCount, ip-fieldList), ".", "&")):BUFFER-VALUE = h_ipbuffer:BUFFER-FIELD(REPLACE(ENTRY(iFieldCount, ip-fieldList), ".", "&")):BUFFER-VALUE.
+            IF iBuffer GT 0 THEN
+                h_brbuffer:BUFFER-FIELD (REPLACE(ENTRY(iFieldCount, ip-fieldList), ".", "&")):BUFFER-VALUE = h_ipbuffer:BUFFER-FIELD(REPLACE(ENTRY(iFieldCount, ip-fieldList), ".", "&")):BUFFER-VALUE.
         END.
 
         RUN pCalcFields (h_brquery, h_brbuffer).
@@ -1517,7 +1526,8 @@ PROCEDURE prevPageFilter :
         DO iFieldCount = 1 TO NUM-ENTRIES(ip-fieldList):
             iBuffer = LOOKUP(ENTRY(1, ENTRY(iFieldCount, ip-fieldList), "."), ip-table-list). 
             
-            h_brbuffer:BUFFER-FIELD (REPLACE(ENTRY(iFieldCount, ip-fieldList), ".", "&")):BUFFER-VALUE = h_ipbuffer[iBuffer]:BUFFER-FIELD(ENTRY(2, ENTRY(iFieldCount, ip-fieldList), ".")):BUFFER-VALUE.
+            IF iBuffer GT 0 THEN
+                h_brbuffer:BUFFER-FIELD (REPLACE(ENTRY(iFieldCount, ip-fieldList), ".", "&")):BUFFER-VALUE = h_ipbuffer[iBuffer]:BUFFER-FIELD(ENTRY(2, ENTRY(iFieldCount, ip-fieldList), ".")):BUFFER-VALUE.
         END.
 
         RUN pCalcFields (h_brquery, h_brbuffer).

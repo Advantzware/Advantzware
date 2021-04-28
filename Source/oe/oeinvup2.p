@@ -269,6 +269,8 @@ PROCEDURE inv-surcharge:
         IF AVAIL prep THEN
             ASSIGN
             inv-misc.actnum = prep.actnum .
+        ELSE
+            ASSIGN inv-misc.actnum = surcharge.account .
      END.
      
      inv-misc.amt = inv-misc.amt + ld-charge.

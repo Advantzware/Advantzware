@@ -709,7 +709,7 @@ FORMAT wkrecap.procat
                  WHEN "v-margin" THEN cVarValue = STRING(v-margin,"->>,>>9.9").
                  WHEN "t-tons" THEN cVarValue = STRING(w-data.t-tons,"->,>>>.9").
                  WHEN "v-profit" THEN cVarValue = IF prt-profit THEN STRING(v-profit,"->>,>>9.9") ELSE "".
-                 WHEN "v-price-per-t" THEN cVarValue = STRING(v-price-per-t,"->>,>>9.99").
+                 WHEN "v-price-per-t" THEN cVarValue = STRING(v-price-per-t,"->>>,>>>,>>9.99").
                  WHEN "cust-po" THEN cVarValue = IF AVAILABLE oe-ordl AND oe-ordl.cust-no NE "" THEN STRING(oe-ordl.po-no,"x(15)") ELSE STRING(oe-ord.po-no,"x(15)") . /* ticket 14966*/
                  WHEN "die-no" THEN cVarValue = IF AVAILABLE itemfg AND itemfg.die-no NE "" THEN STRING(itemfg.die-no,"x(15)") ELSE IF AVAILABLE eb THEN STRING(eb.die-no,"x(15)") ELSE "" . /* ticket 16188*/
                  WHEN "v-net-prct" THEN cVarValue = STRING(dNetprct,"->>9.99"). 

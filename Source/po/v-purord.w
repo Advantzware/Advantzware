@@ -2033,11 +2033,10 @@ PROCEDURE local-create-record :
     
   RUN pAssignAddressFromCompany(YES). 
 
- RELEASE po-ctrl.
- FIND CURRENT po-ord NO-LOCK NO-ERROR.
- FIND CURRENT po-ordl NO-LOCK NO-ERROR.
- FIND CURRENT b-po-ordl NO-LOCK NO-ERROR.
- 
+  RELEASE po-ctrl.
+  FIND CURRENT po-ord    NO-LOCK NO-ERROR.
+  FIND CURRENT po-ordl   NO-LOCK NO-ERROR.
+  FIND CURRENT b-po-ordl NO-LOCK NO-ERROR.
 
 END PROCEDURE.
 
@@ -2290,6 +2289,7 @@ PROCEDURE local-update-record :
       
   /* ===  don't go item page yet. -> move page to 2 */
   IF ll-is-new-rec THEN DO:
+    {methods/run_link.i "RECORD-SOURCE" "clearFilters" "(po-ord.po-no)"}
     RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source",OUTPUT char-hdl).
     RUN record-added IN WIDGET-HANDLE(char-hdl).
     RUN reopen-query1 IN WIDGET-HANDLE(char-hdl) (lv-rowid).

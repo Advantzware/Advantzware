@@ -102,12 +102,21 @@ REPEAT:
             cFullName    = REPLACE(cFullName,"[","")
             cFullName    = REPLACE(cFullName,"]","")
             .
+        /* handle how jasper auto multiplies % formatted fields by 100 */
+        IF INDEX(dynValueColumn.colFormat,"%") NE 0 THEN
+        ASSIGN
+            cBufferValue = REPLACE(cBufferValue,"%","")
+            cBufferValue = STRING(DECIMAL(cBufferValue) / 100)
+            cBufferValue = cBufferValue + "%"
+            .
         IF dynValueColumn.sortOrder GT 1 THEN
         PUT STREAM sJasperJSON UNFORMATTED "," SKIP.
         PUT STREAM sJasperJSON UNFORMATTED
             FILL(" ",8)
             "~"" cFullName "~": ~""
-            IF cBufferValue NE "" THEN cBufferValue ELSE " "
+            IF cBufferValue EQ ? AND dynValueColumn.dataType EQ "Character" THEN " "
+            ELSE IF cBufferValue EQ ? AND dynValueColumn.dataType NE "Character" THEN "0"
+            ELSE IF cBufferValue NE "" THEN cBufferValue ELSE " "
             "~""
             .
     END. /* each dynvaluecolumn */

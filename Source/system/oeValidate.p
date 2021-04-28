@@ -14,6 +14,7 @@
 
 DEFINE TEMP-TABLE ttValidation
     FIELD cProgram     AS CHARACTER
+    FIELD cCategory     AS CHARACTER
     FIELD cHoldOrInfo  AS CHARACTER
     FIELD lHoldResult  AS LOGICAL 
     FIELD cHoldMessage AS CHARACTER 
@@ -78,6 +79,7 @@ PROCEDURE pBuildValidationsToRun PRIVATE:
             ASSIGN 
                 ttValidation.cProgram    = "p" + sys-ctrl.name
                 ttValidation.cHoldOrInfo = sys-ctrl.char-fld
+                ttValidation.cCategory = sys-ctrl.name 
                 .
         END.
     END.
@@ -631,15 +633,16 @@ PROCEDURE ValidateOrder:
             INPUT bf-oe-ord.rec_key,
             INPUT "oe-ord",
             INPUT opcMessage,
-            INPUT ""
+            INPUT "",
+            INPUT "Reason Code"
             ).
         RETURN.  
     END.
    
     RUN pBuildValidationsToRun(bf-oe-ord.company).    
                     
-    RUN ClearTagsHold (
-        INPUT bf-oe-ord.rec_key
+    RUN ClearTagsForGroup (
+        INPUT bf-oe-ord.rec_key, "Reason Code"
         ).
     iCountHold = 0.
     FOR EACH ttValidation NO-LOCK:
@@ -656,8 +659,9 @@ PROCEDURE ValidateOrder:
                 RUN AddTagHold (
                     INPUT bf-oe-ord.rec_key,
                     INPUT "oe-ord",
-                    INPUT ttValidation.cHoldMessage,
-                    INPUT ttValidation.cNotes
+                    INPUT ttValidation.cCategory + " - " + ttValidation.cHoldMessage,
+                    INPUT ttValidation.cNotes,
+                    INPUT "Reason Code"
                     ).
                 ASSIGN
                     iCountHold = iCountHold + 1
@@ -665,12 +669,13 @@ PROCEDURE ValidateOrder:
                     opcMessage = opcMessage + "|" + ttValidation.cHoldMessage.
             END.    
             ELSE 
-            DO:
-                RUN AddTagInfo (
+            DO:  
+                RUN AddTagInfoForGroup (
                     INPUT bf-oe-ord.rec_key,
                     INPUT "oe-ord",
-                    INPUT ttValidation.cHoldMessage,
-                    INPUT ttValidation.cNotes
+                    INPUT ttValidation.cCategory + " - " + ttValidation.cHoldMessage,
+                    INPUT ttValidation.cNotes,
+                    INPUT "Reason Code"
                     ).
                 ttValidation.lHoldResult = FALSE. 
             END.          

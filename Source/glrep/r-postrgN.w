@@ -73,12 +73,12 @@ DEFINE TEMP-TABLE tt-glhist LIKE glhist
 
 
 ASSIGN cTextListToSelect = "Run#,Account Number,Account Description,Journal,Reference," +  
-                           "Date,Balance,Account Status,Period,Date Outside Period,Transaction Number" 
+                           "Date,Balance,Account Status,Period,Date Outside Period" 
 
        cFieldListToSelect = "run,acc,acc-desc,jour,ref," +
-                            "date,bal,acc-stat,period,out-per,trans"  
-       cFieldLength = "7,25,30,12,30," + "10,15,14,6,19,18" 
-       cFieldType = "i,c,c,c,c," + "c,i,c,c,c,c" 
+                            "date,bal,acc-stat,period,out-per"  
+       cFieldLength = "7,25,30,12,30," + "10,15,14,6,19" 
+       cFieldType = "i,c,c,c,c," + "c,i,c,c,c" 
     .
 
 {sys/inc/ttRptSel.i}
@@ -1407,7 +1407,7 @@ FOR EACH tt-glhist NO-LOCK
             DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
                cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
                     CASE cTmpField:             
-                         WHEN "run"    THEN cVarValue = IF  FIRST-OF(tt-glhist.tr-num) THEN string(tt-glhist.tr-num,"9999999") ELSE "" .
+                         WHEN "run"    THEN cVarValue = string(tt-glhist.tr-num,"9999999") .
                          WHEN "acc"   THEN cVarValue = string(tt-glhist.actnum,"x(25)").
                          WHEN "acc-desc"  THEN cVarValue = IF AVAIL account THEN  STRING(account.dscr,"x(30)") ELSE "" .
                          WHEN "jour"   THEN cVarValue = string(tt-glhist.jrnl,"x(12)") .
@@ -1416,8 +1416,7 @@ FOR EACH tt-glhist NO-LOCK
                          WHEN "bal"   THEN cVarValue = STRING(tt-glhist.tr-amt,"->>>,>>>,>>9.99").
                          WHEN "acc-stat"   THEN cVarValue = IF AVAIL account AND account.inactive  THEN STRING("Inactive") ELSE "Active".
                          WHEN "period"   THEN cVarValue = STRING(tt-glhist.period,">>>>>9").
-                         WHEN "out-per"   THEN cVarValue = IF tt-glhist.period NE MONTH(tt-glhist.tr-date) THEN STRING("Yes") ELSE "".
-                         WHEN "trans"   THEN cVarValue = STRING(tt-glhist.tr-num,"->>>,>>>,>>9.99").
+                         WHEN "out-per"   THEN cVarValue = IF tt-glhist.period NE MONTH(tt-glhist.tr-date) THEN STRING("Yes") ELSE "".                        
 
                     END CASE.
 
@@ -1454,8 +1453,7 @@ FOR EACH tt-glhist NO-LOCK
                          WHEN "bal"   THEN cVarValue = STRING(tot-all,"->>>,>>>,>>9.99").
                          WHEN "acc-stat"   THEN cVarValue = "" .
                          WHEN "period"   THEN cVarValue = "".
-                         WHEN "out-per"   THEN cVarValue = "".
-                         WHEN "trans"   THEN cVarValue = "".
+                         WHEN "out-per"   THEN cVarValue = "".                        
 
                     END CASE.
 
@@ -1495,8 +1493,7 @@ IF v-print THEN
                          WHEN "bal"   THEN cVarValue = STRING(tot-tot,"->>>,>>>,>>9.99").
                          WHEN "acc-stat"   THEN cVarValue = "" .
                          WHEN "period"   THEN cVarValue = "".
-                         WHEN "out-per"   THEN cVarValue = "".
-                         WHEN "trans"   THEN cVarValue = "".
+                         WHEN "out-per"   THEN cVarValue = "".                         
 
                     END CASE.
 
