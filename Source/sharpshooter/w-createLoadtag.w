@@ -55,6 +55,7 @@ RUN spGetSessionParam ("Company", OUTPUT cCompany).
 DEFINE VARIABLE glAutoCreateLoadtagOnJobScan AS LOGICAL NO-UNDO.
 DEFINE VARIABLE glAutoPrintLoadtagOnJobScan  AS LOGICAL NO-UNDO.
 DEFINE VARIABLE giDefaultPrintCopies         AS INTEGER NO-UNDO INITIAL 1.
+DEFINE VARIABLE giNK1PrintCopies             AS INTEGER NO-UNDO INITIAL 1.
     
 oCustomer = NEW Inventory.Customer().
 
@@ -674,6 +675,9 @@ PROCEDURE pInit :
  Notes:
 ------------------------------------------------------------------------------*/
     DEFINE VARIABLE oSSLoadTagConfig AS system.Config NO-UNDO.
+    DEFINE VARIABLE cReturnValue AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lRecFound    AS LOGICAL   NO-UNDO.
+    
 
     DO WITH FRAME {&FRAME-NAME}:
     END.
@@ -696,9 +700,20 @@ PROCEDURE pInit :
         IF oSSLoadTagConfig:IsAttributeAvailable("DefaultPrintCopies", "Copies") THEN
             giDefaultPrintCopies = INTEGER(oSSLoadTagConfig:GetAttributeValue("DefaultPrintCopies", "Copies")).
     END.
-    
-    IF giDefaultPrintCopies EQ 0 THEN
-        giDefaultPrintCopies = 1.
+
+    RUN sys/ref/nk1look.p (
+        INPUT  cCompany,           /* Company Code */ 
+        INPUT  "LOADTAG",          /* sys-ctrl name */
+        INPUT  "I",                /* Output return value */
+        INPUT  NO,                 /* Use ship-to */
+        INPUT  NO,                 /* ship-to vendor */
+        INPUT  "",                 /* ship-to vendor value */
+        INPUT  "",                 /* shi-id value */
+        OUTPUT cReturnValue, 
+        OUTPUT lRecFound
+        ).    
+    IF lRecFound THEN 
+        giNK1PrintCopies = INTEGER(cReturnValue).   
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -807,6 +822,9 @@ PROCEDURE state-changed :
             IF VALID-OBJECT(oCustomer) THEN
                 iCopies = INTEGER(oCustomer:GetValue("PrintCopies")).
                         
+            IF iCopies LE 0 THEN
+                iCopies = giNK1PrintCopies.
+                
             IF iCopies LE 0 THEN
                 iCopies = giDefaultPrintCopies.
 
