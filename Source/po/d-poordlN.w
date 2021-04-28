@@ -4222,7 +4222,7 @@ PROCEDURE GetVendItem :
   DEFINE OUTPUT PARAMETER opcVendorItemId AS Character NO-UNDO.
           
 
- FIND FIRST vendItemCost EXCLUSIVE-LOCK
+ FIND FIRST vendItemCost NO-LOCK
         WHERE vendItemCost.company EQ ipcCompany
         AND vendItemCost.itemID EQ ipcItemID /*itemfg.i-no*/
         AND vendItemCost.itemType EQ ipcItemType  /* "FG" "RM" */ 
