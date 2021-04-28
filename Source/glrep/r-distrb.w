@@ -1137,7 +1137,7 @@ v-distribute = NO.
       CREATE tt-trans.
       ASSIGN
        tt-trans.tt-recid = RECID(glhist)
-       tt-trans.type     = IF glhist.posted  EQ NO THEN "GLTRANS" ELSE "GLHIST"
+       tt-trans.type     = "GLHIST"
        tt-trans.c-rate   = acctcost.c-rate
        tt-trans.tr-amt   = ROUND(glhist.tr-amt * acctcost.c-rate / 100,2)
        tt-trans.costacct = acctcost.costacct
