@@ -1875,7 +1875,9 @@ PROCEDURE local-initialize :
       oe-ordl.job-no2:READ-ONLY IN BROWSE {&browse-name} = YES.
     /*  FI_moveCol = "Sort"
       .*/
-
+      oe-ordl.cust-no:WIDTH IN BROWSE {&BROWSE-NAME} = 14 .
+      oe-ordl.po-no:WIDTH IN BROWSE {&BROWSE-NAME}   = 25 .
+      oe-ordl.job-no:WIDTH IN BROWSE {&BROWSE-NAME}  = 12 .
   {methods/winReSizeLocInit.i}
 
  // DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}.
