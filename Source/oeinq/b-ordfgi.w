@@ -951,10 +951,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_del B-table-Win
 ON CHOOSE OF btn_del IN FRAME F-Main /* Delete */
 DO:
-   DEF VAR confirm AS LOG NO-UNDO.
-   DEFINE VARIABLE lRecExist AS LOGICAL NO-UNDO.
-   DEFINE VARIABLE lMsgResponse AS LOGICAL NO-UNDO.
+   DEF VAR confirm AS LOG NO-UNDO.       
    DEFINE BUFFER bf-fg-rdtlh FOR fg-rdtlh.
+   
    IF v-upd-perms THEN DO:
      IF AVAIL fg-rcpth THEN
      DO:
@@ -975,15 +974,8 @@ DO:
 
               DELETE fg-rcpth.
               
-          END.
+          END.                     
           
-          lMsgResponse = YES.
-          RUN pCheckTransaction( itemfg.i-no, OUTPUT lRecExist).
-          
-          IF lRecExist THEN 
-          RUN displayMessageQuestion ("66", OUTPUT lMsgResponse).
-          
-          IF lMsgResponse THEN
           RUN fg/d-reqtys.w (ROWID(itemfg), NO).
 
           RUN local-open-query.
@@ -1759,27 +1751,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckTransaction B-table-Win 
-PROCEDURE pCheckTransaction :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEFINE INPUT PARAM ipcItem AS CHARACTER NO-UNDO.
-  DEFINE OUTPUT PARAM oplRecExist AS LOG NO-UNDO.
-  DEFINE BUFFER bf-fg-rctd FOR fg-rctd.
-  FIND FIRST bf-fg-rctd NO-LOCK 
-        WHERE bf-fg-rctd.company EQ cocode
-        AND bf-fg-rctd.i-no EQ ipcItem NO-ERROR. 
-  IF avail bf-fg-rctd THEN
-  oplRecExist = YES.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE set-read-only B-table-Win 
 PROCEDURE set-read-only :
