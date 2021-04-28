@@ -279,7 +279,7 @@ DEFINE BROWSE Browser-Table
     fg-rctd.cost-uom        COLUMN-LABEL "UOM"          FORMAT "x(3)":U         WIDTH 5     LABEL-BGCOLOR 14
     fg-rctd.t-qty           COLUMN-LABEL "Total!Qty"    FORMAT "->>>,>>>,>>9.99":U WIDTH 16 LABEL-BGCOLOR 14
     fg-rctd.frt-cost        COLUMN-LABEL "Freight Cost" FORMAT ">>>,>>9.99<<":U WIDTH 18    LABEL-BGCOLOR 14
-    fg-rctd.ext-cost        COLUMN-LABEL "Extended Cost" FORMAT "->,>>>,>>9.99":U WIDTH 18  LABEL-BGCOLOR 14
+    fg-rctd.ext-cost        COLUMN-LABEL "Extended Cost" FORMAT "->>>,>>>,>>9.99":U WIDTH 18  LABEL-BGCOLOR 14
     fg-rctd.stack-code      COLUMN-LABEL "FG Lot#"      FORMAT "X(20)":U        WIDTH 22  LABEL-BGCOLOR 14
     fg-rctd.tot-wt          COLUMN-LABEL "Tot. Wgt."    FORMAT ">>,>>9.99":U    WIDTH 13
     fg-rctd.created-by      COLUMN-LABEL "Created By"   FORMAT "x(8)":U         WIDTH 14    LABEL-BGCOLOR 14
@@ -454,7 +454,7 @@ use-index fg-rctd"
      _FldNameList[20]   > ASI.fg-rctd.frt-cost
 "fg-rctd.frt-cost" "Freight Cost" ? "decimal" ? ? ? 14 ? ? yes ? no no "18" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[21]   > ASI.fg-rctd.ext-cost
-"fg-rctd.ext-cost" "Extended Cost" "->,>>>,>>9.99" "decimal" ? ? ? 14 ? ? no ? no no "18" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fg-rctd.ext-cost" "Extended Cost" "->>>,>>>,>>9.99" "decimal" ? ? ? 14 ? ? no ? no no "18" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[22]   > ASI.fg-rctd.stack-code
 "fg-rctd.stack-code" "FG Lot#" "X(20)" "character" ? ? ? 14 ? ? yes ? no no "21.8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[23]   = ASI.fg-rctd.tot-wt
@@ -2151,6 +2151,30 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetItemSetAll B-table-Win 
+PROCEDURE pGetItemSetAll :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE OUTPUT PARAMETER oplAlloc AS LOGICAL NO-UNDO . 
+  IF AVAIL fg-rctd THEN
+  DO:
+   
+    FIND itemfg WHERE itemfg.company EQ cocode
+                          AND itemfg.i-no  EQ fg-rctd.i-no
+                        USE-INDEX i-no NO-LOCK NO-ERROR.
+    IF AVAIL itemfg AND itemfg.alloc EQ ? THEN
+    oplAlloc = YES.
+  END .                      
+                        
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME                        
+                        
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE get-current-qty B-table-Win 
 PROCEDURE get-current-qty :

@@ -285,7 +285,7 @@ PROCEDURE local-row-available :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-
+  DEFINE VARIABLE lAssemWithPart AS LOGICAL NO-UNDO.
   /* Code placed here will execute PRIOR to standard behavior. */
 
   /* Dispatch standard ADM method.                             */
@@ -293,7 +293,13 @@ PROCEDURE local-row-available :
 
   /* Code placed here will execute AFTER standard behavior.    */
   DO WITH FRAME {&FRAME-NAME}:
-    ENABLE btn-update.
+    RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"itemReceipt-target",OUTPUT char-hdl).
+    IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN 
+     RUN pGetItemSetAll IN WIDGET-HANDLE(char-hdl)(OUTPUT lAssemWithPart).
+    IF lAssemWithPart THEN
+      ENABLE btn-update.
+    ELSE DISABLE btn-update.  
+     
     /* IF NOT AVAIL fg-rctd OR fg-rctd.posted THEN DISABLE btn-update. */
   END.
 
