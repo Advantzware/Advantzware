@@ -298,6 +298,7 @@ PROCEDURE CloseJob_DCPost PRIVATE:
     DEFINE VARIABLE lRecFound  AS LOGICAL NO-UNDO.
     DEFINE VARIABLE cCloseJob AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cocode    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lLastOpAllRunComplete AS LOGICAL NO-UNDO.
     
     cocode = ipcCompany.
     RUN sys/ref/nk1look.p (
@@ -311,45 +312,33 @@ PROCEDURE CloseJob_DCPost PRIVATE:
         OUTPUT cCloseJob, 
         OUTPUT lRecFound
         ).
-    
+        
     IF cCloseJob EQ "DCPost" THEN
     DO:
        close_date = TODAY.  
-        for each w-job,
-        first job
-        where job.company eq ipcCompany
-        and job.job     eq w-job.job
-        AND(job.stat    EQ "W" OR
-             CAN-FIND(FIRST mat-act
-                        WHERE mat-act.company EQ job.company
-                          AND mat-act.job     EQ job.job
-                          AND mat-act.job-no  EQ job.job-no
-                          AND mat-act.job-no2 EQ job.job-no2)  OR
-               CAN-FIND(FIRST mch-act
-                        WHERE mch-act.company EQ job.company
-                          AND mch-act.job     EQ job.job
-                          AND mch-act.job-no  EQ job.job-no
-                          AND mch-act.job-no2 EQ job.job-no2)  OR
-               CAN-FIND(FIRST misc-act
-                        WHERE misc-act.company EQ job.company
-                          AND misc-act.job     EQ job.job
-                          AND misc-act.job-no  EQ job.job-no
-                          AND misc-act.job-no2 EQ job.job-no2))
+        FOR EACH w-job,
+        FIRST job
+        WHERE job.company eq ipcCompany
+        and job.job     eq w-job.job       
         NO-LOCK,
         EACH job-hdr
-        where job-hdr.company eq ipcCompany
-          and job-hdr.job     eq job.job
-          and job-hdr.job-no  eq job.job-no
-          and job-hdr.job-no2 eq job.job-no2          
-        use-index job 
+        WHERE job-hdr.company eq ipcCompany
+          AND job-hdr.job     eq job.job
+          AND job-hdr.job-no  eq job.job-no
+          AND job-hdr.job-no2 eq job.job-no2          
+        USE-INDEX job 
         TRANSACTION:
+        
+            RUN pGetMachRunComplete(INPUT ipcCompany, INPUT job.job-no, INPUT job.job-no2,  OUTPUT lLastOpAllRunComplete).
+           
+            IF lLastOpAllRunComplete THEN
+            DO:         
+               {jc/job-clos.i}
 
-      {jc/job-clos.i}
+               FIND CURRENT reftable NO-LOCK NO-ERROR.
 
-      FIND CURRENT reftable NO-LOCK NO-ERROR.
-
-      job-hdr.opened = job.opened.
-
+               job-hdr.opened = job.opened.
+            END.
         END.         
     END. 
     
@@ -832,6 +821,36 @@ PROCEDURE GetRecalcJobCostForJobHdr:
     END.
 
 END PROCEDURE.
+
+PROCEDURE pGetMachRunComplete PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:  get job machine is completed or not (job-mch.run-complete)
+     Notes:  
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcJobNo AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiJobNo2 AS INTEGER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplLastOpAllRunComplete AS LOGICAL NO-UNDO.
+    
+    FOR EACH job-mch NO-LOCK
+        WHERE job-mch.company EQ ipcCompany
+        AND job-mch.job-no EQ ipcJobNo
+        AND job-mch.job-no2 EQ ipiJobNo2
+        BREAK BY job-mch.frm
+        BY job-mch.line:
+        
+        IF LAST-OF(job-mch.frm) THEN DO:
+          IF job-mch.run-complete THEN
+              oplLastOpAllRunComplete = YES.
+          ELSE DO:
+              oplLastOpAllRunComplete = NO.
+              LEAVE.
+          END.    
+        END.    
+    END.
+       
+END PROCEDURE.
+
 
 PROCEDURE RecalcJobCostForJob:
     /*------------------------------------------------------------------------------
