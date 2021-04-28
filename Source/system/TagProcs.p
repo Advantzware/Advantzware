@@ -21,7 +21,7 @@ DEFINE VARIABLE gcTypeRelease  AS CHARACTER NO-UNDO INITIAL "RELEASE".
 DEFINE VARIABLE iCtr  AS INTEGER    NO-UNDO.
 DEFINE VARIABLE cNote LIKE tag.note NO-UNDO.
 
-DEFINE TEMP-TABLE ttTag LIKE tag.
+{system/ttTag.i &Table-Name=ttTag}
 
 /* ********************  Preprocessor Definitions  ******************** */
 
