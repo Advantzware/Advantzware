@@ -778,6 +778,7 @@ PROCEDURE UDF :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+    &IF LOOKUP("{&FIRST-EXTERNAL-TABLE}","utilities") EQ 0 &THEN
     DEFINE VARIABLE isRunning AS LOGICAL NO-UNDO.
 
     FOR EACH mfgroup NO-LOCK:
@@ -793,6 +794,7 @@ PROCEDURE UDF :
                             {methods/headers/{&FIRST-EXTERNAL-TABLE}.i},
                             h_smartmsg).
     END. /* avail mfgroup */
+    &ENDIF
 
 END PROCEDURE.
 
