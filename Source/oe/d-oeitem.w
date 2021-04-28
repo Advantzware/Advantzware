@@ -168,6 +168,7 @@ DEFINE VARIABLE hdSalesManProcs AS HANDLE NO-UNDO.
 DEFINE VARIABLE lAvailable AS LOGICAL NO-UNDO.
 DEF NEW SHARED VAR matrixTag AS CHARACTER NO-UNDO.
 {system/ttTag.i &Table-Name=ttTag}
+{system/ttTag.i &Table-Name=ttTempTag}
 
 DEFINE VARIABLE deAutoOver AS DECIMAL NO-UNDO.
 DEFINE VARIABLE deAutoUnder AS DECIMAL NO-UNDO.
