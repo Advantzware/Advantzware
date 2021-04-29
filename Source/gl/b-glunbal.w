@@ -41,7 +41,7 @@ DEFINE SHARED VARIABLE g_period          AS INTEGER   NO-UNDO.
 
 DEFINE TEMP-TABLE tt-glinq NO-UNDO
     FIELD tr-date     LIKE glhist.tr-date LABEL "Date"
-    FIELD jrnl        LIKE glhist.jrnl LABEL "Ref#"
+    FIELD jrnl        LIKE glhist.jrnl FORMAT "x(9)" LABEL "Ref#"
     FIELD tr-dscr     AS CHARACTER FORMAT "X(60)" LABEL "Description"
     FIELD tr-amt      LIKE glhist.tr-amt LABEL "Amount"
     FIELD db-amt      LIKE glhist.tr-amt LABEL "Total Debit"
@@ -239,7 +239,7 @@ DEFINE BROWSE br_table
     QUERY br_table NO-LOCK DISPLAY
     tt-glinq.tr-num FORMAT "9999999" LABEL-BGCOLOR 14  WIDTH 12       
     tt-glinq.tr-date LABEL-BGCOLOR 14
-    tt-glinq.jrnl LABEL-BGCOLOR 14      
+    tt-glinq.jrnl FORMAT "x(9)" LABEL-BGCOLOR 14      
     tt-glinq.db-amt FORM "->>,>>>,>>9.99" LABEL-BGCOLOR 14
     tt-glinq.cr-amt FORM "->>,>>>,>>9.99" LABEL-BGCOLOR 14
     tt-glinq.net-amt FORM "->>,>>>,>>9.99" LABEL-BGCOLOR 14      

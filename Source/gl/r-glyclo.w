@@ -556,7 +556,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   
   FIND FIRST glhist NO-LOCK
          WHERE glhist.company EQ cocode
-         AND glhist.jrnl EQ "CLOSE" 
+         AND glhist.jrnl EQ "AutoClose" 
          AND glhist.glYear EQ (fisc-yr + 1) NO-ERROR.
   IF NOT AVAIL glhist THEN
   DO:

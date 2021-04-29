@@ -283,7 +283,7 @@ DEFINE BROWSE br_table
   QUERY br_table NO-LOCK DISPLAY
       tt-glinq.actnum LABEL-BGCOLOR 14 
       tt-glinq.tr-date LABEL-BGCOLOR 14
-      tt-glinq.jrnl LABEL-BGCOLOR 14
+      tt-glinq.jrnl FORMAT "x(9)" LABEL-BGCOLOR 14
       tt-glinq.tr-dscr FORM "X(60)" LABEL-BGCOLOR 14 WIDTH 50
       tt-glinq.db-amt FORM "->>,>>>,>>9.99" LABEL-BGCOLOR 14
       tt-glinq.cr-amt FORM "->>,>>>,>>9.99" LABEL-BGCOLOR 14
@@ -772,7 +772,7 @@ FORM SKIP(1)
 
 format space(4)
        tt-glinq.tr-date column-label "Date"  space(2)
-       tt-glinq.jrnl    column-label "Ref#"  space(2)
+       tt-glinq.jrnl    column-label "Ref#" FORMAT "x(9)"  space(2)
        tt-glinq.tr-dscr label "Description" format "x(33)" space(2)
        tt-glinq.tr-period label "Period" format ">9" space(2)
        tt-glinq.tr-yr label "Year" format ">>>9" space(2)

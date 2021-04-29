@@ -101,7 +101,7 @@ if choice then do on error undo, leave:
     
     FOR EACH bf-glhist EXCLUSIVE-LOCK
          WHERE bf-glhist.company EQ cocode
-         AND bf-glhist.jrnl EQ "CLOSE" 
+         AND bf-glhist.jrnl EQ "AutoClose" 
          AND bf-glhist.glYear EQ (bf-period.yr + 1) :
        DELETE bf-glhist.
     END.   
