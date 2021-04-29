@@ -1,0 +1,1 @@
+'Account: ' + glhist.actnum
