@@ -69,10 +69,10 @@ ASSIGN
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS bExit RECT-1 bTest eInstructions fiEndDate ~
-fiOutputDir tbInventory slCompleted tbOrders tbInvoices tbPurchasing 
+fiOutputDir tbInventory slCompleted tbOrders tbInvoices tbPurchasing tbJobs 
 &Scoped-Define DISPLAYED-OBJECTS fiInstructionsLabel eInstructions ~
 fiEndDate fiOutputDir tbInventory slCompleted tbOrders tbInvoices ~
-tbPurchasing tbEstimating tbAccounting fiGroups fiCompleted 
+tbPurchasing tbJobs tbAccounting fiGroups fiCompleted 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -148,11 +148,6 @@ DEFINE VARIABLE tbAccounting AS LOGICAL INITIAL no
      VIEW-AS TOGGLE-BOX
      SIZE 80 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tbEstimating AS LOGICAL INITIAL no 
-     LABEL "Estimating/Job Files (Estimates, Job Lines)" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 83 BY .81 NO-UNDO.
-
 DEFINE VARIABLE tbInventory AS LOGICAL INITIAL yes 
      LABEL "Inventory Files (FG, RM, Locations, Bins, Txns, etc.)" 
      VIEW-AS TOGGLE-BOX
@@ -162,6 +157,11 @@ DEFINE VARIABLE tbInvoices AS LOGICAL INITIAL no
      LABEL "Invoicing Files (OE and AR Invoices, Invc Lines, etc.)" 
      VIEW-AS TOGGLE-BOX
      SIZE 71 BY .81 NO-UNDO.
+
+DEFINE VARIABLE tbJobs AS LOGICAL INITIAL no 
+     LABEL "Job Files (Job Lines. Job Machine, etc.)" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 83 BY .81 NO-UNDO.
 
 DEFINE VARIABLE tbOrders AS LOGICAL INITIAL no 
      LABEL "Order Processing Files (Order Lines, Releases, BoLs, etc.)" 
@@ -190,7 +190,7 @@ DEFINE FRAME fMain
      tbOrders AT ROW 14.57 COL 17
      tbInvoices AT ROW 15.76 COL 17
      tbPurchasing AT ROW 16.95 COL 17
-     tbEstimating AT ROW 18.14 COL 17
+     tbJobs AT ROW 18.14 COL 17
      tbAccounting AT ROW 19.33 COL 17
      fiGroups AT ROW 12.43 COL 7 COLON-ALIGNED NO-LABEL NO-TAB-STOP 
      fiCompleted AT ROW 13.14 COL 107 COLON-ALIGNED NO-LABEL NO-TAB-STOP 
@@ -276,8 +276,6 @@ ASSIGN
 
 /* SETTINGS FOR TOGGLE-BOX tbAccounting IN FRAME fMain
    NO-ENABLE                                                            */
-/* SETTINGS FOR TOGGLE-BOX tbEstimating IN FRAME fMain
-   NO-ENABLE                                                            */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(wWin)
 THEN wWin:HIDDEN = yes.
 
@@ -340,7 +338,8 @@ DO:
                                             STRING(DAY(TODAY),"99") +
                                             "-" + STRING(TIME,"99999")  
                 cFileList = (IF tbAccounting:CHECKED THEN "" ELSE "") +
-                            (IF tbEstimating:CHECKED THEN "" ELSE "") +  
+                            (IF tbJobs:CHECKED THEN "job-mat,job-mch,job-prep,job-farm,job-hdr,job-all,job-brd,job-sch," + 
+                                "jobcad,jobitems,jobmach,jobmatl,jobnotes,jobprep,jobseq,jobsheet,jobstack,jobs" ELSE "") +  
                             (IF tbInventory:CHECKED THEN  
                                 "fg-act,fg-bin,fg-hist,fg-rcpth,fg-rcpts,fg-rctd,fg-rdtl,fg-rdtlh,fg-set,fgcat," +     
                                 "item,itemfg,itemfg-loc,itemfgdtl," + 
@@ -593,11 +592,11 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY fiInstructionsLabel eInstructions fiEndDate fiOutputDir tbInventory 
-          slCompleted tbOrders tbInvoices tbPurchasing tbEstimating tbAccounting 
+          slCompleted tbOrders tbInvoices tbPurchasing tbJobs tbAccounting 
           fiGroups fiCompleted 
       WITH FRAME fMain IN WINDOW wWin.
   ENABLE bExit RECT-1 bTest eInstructions fiEndDate fiOutputDir tbInventory 
-         slCompleted tbOrders tbInvoices tbPurchasing 
+         slCompleted tbOrders tbInvoices tbPurchasing tbJobs 
       WITH FRAME fMain IN WINDOW wWin.
   {&OPEN-BROWSERS-IN-QUERY-fMain}
   VIEW wWin.

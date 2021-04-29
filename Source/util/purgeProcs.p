@@ -59,6 +59,9 @@ DEF VAR hInvNoField AS HANDLE NO-UNDO.
 DEF VAR hLocField AS HANDLE NO-UNDO.
 DEF VAR hOrdNoField AS HANDLE NO-UNDO.
 DEF VAR hPoNoField AS HANDLE NO-UNDO.
+DEF VAR hJobField AS HANDLE NO-UNDO.
+DEF VAR hJobNoField AS HANDLE NO-UNDO.
+DEF VAR hJobNo2Field AS HANDLE NO-UNDO.
 DEF VAR hQuery AS HANDLE NO-UNDO.
 DEF VAR hRecKey AS HANDLE NO-UNDO.
 DEF VAR hRnoField AS HANDLE NO-UNDO.
@@ -431,7 +434,10 @@ PROCEDURE pTestOneFile:
         hPoNoField = ?
         hRnoField = ?
         hTestField = ?
-        hXnoField = ?.
+        hXnoField = ?
+        hJobField = ?
+        hJobNoField = ?
+        hJobNo2Field = ?.
     
     /* Assign buffer-field names IF they are indexed fields */
     DO ictr = 1 TO hBuffer:NUM-FIELDS:
@@ -467,6 +473,12 @@ PROCEDURE pTestOneFile:
             hRNoField = hBuffer:BUFFER-FIELD(iCtr).
         ELSE IF hTestField:NAME EQ "x-no" THEN ASSIGN
             hXnoField = hBuffer:BUFFER-FIELD(iCtr).
+        ELSE IF hTestField:NAME EQ "job" THEN ASSIGN
+            hJobField = hBuffer:BUFFER-FIELD(iCtr).
+        ELSE IF hTestField:NAME EQ "job-no" THEN ASSIGN
+            hJobNoField = hBuffer:BUFFER-FIELD(iCtr).
+        ELSE IF hTestField:NAME EQ "job-no2" THEN ASSIGN
+            hJobNo2Field = hBuffer:BUFFER-FIELD(iCtr).
     END.
 
     hQuery:ADD-BUFFER(hBuffer).
@@ -539,7 +551,7 @@ PROCEDURE pTestOneFile:
         /* Cust-no tests */
         IF hCustNoField NE ? THEN DO:
             IF hCustNoField:BUFFER-VALUE EQ "" 
-            AND NOT CAN-DO("fg-bin,fg-rdtlh,item,itemfg,rm-bin,fg-rcpts,",ipcFileName) THEN ASSIGN 
+            AND NOT CAN-DO("fg-bin,fg-rdtlh,item,itemfg,rm-bin,fg-rcpts,job-hdr",ipcFileName) THEN ASSIGN 
                 lWarning = IF NOT CAN-DO("oe-rel,oe-relh,oe-rell,oe-bolh,oe-boll,oe-ord,oe-ordl,oe-ordm",ipcFileName) THEN TRUE ELSE lWarning 
                 lError = IF CAN-DO("oe-rel,oe-relh,oe-rell,oe-bolh,oe-boll,oe-ord,oe-ordl,oe-ordm",ipcFileName) THEN TRUE ELSE lError 
                 cRule = cRule + ",Blank Cust-No"
@@ -651,7 +663,7 @@ PROCEDURE pTestOneFile:
             ELSE IF NOT CAN-FIND(FIRST oe-ord WHERE 
                                 oe-ord.company EQ hCompanyField:BUFFER-VALUE AND 
                                 oe-ord.ord-no EQ hOrdNoField:BUFFER-VALUE) 
-            AND NOT CAN-DO("fg-rcpth,fg-rcpts,fg-rctd,fg-rdtlh,rm-rctd",ipcFileName) 
+            AND NOT CAN-DO("fg-rcpth,fg-rcpts,fg-rctd,fg-rdtlh,rm-rctd,job-hdr",ipcFileName) 
             THEN ASSIGN 
                 lError = IF NOT CAN-DO("ar-inv,ar-invl,ar-invm",ipcFileName) THEN TRUE ELSE lError 
                 cRule = cRule + ",Invalid Order No"
@@ -661,7 +673,8 @@ PROCEDURE pTestOneFile:
         /* Po-no tests */
         IF hPoNoField NE ? THEN 
         DO:
-            IF hPoNoField:BUFFER-VALUE EQ "" THEN ASSIGN 
+            IF hPoNoField:BUFFER-VALUE EQ "" 
+            AND NOT CAN-DO("job-hdr",ipcFileName) THEN ASSIGN  
                     lError = TRUE 
                     cRule = cRule + ",Blank PO No"
                     cMessage = cMessage + ",<blank>".
@@ -705,6 +718,35 @@ PROCEDURE pTestOneFile:
                 cMessage = cMessage + ",X-no=" + hXNoField:BUFFER-VALUE.  
         END.
         
+        /* Job tests */
+        IF hJobField NE ? THEN DO:
+            IF hJobField:BUFFER-VALUE EQ "" THEN ASSIGN 
+                    lError = TRUE 
+                    cRule = cRule + ",Blank job"
+                    cMessage = cMessage + ",<blank>".
+            ELSE IF NOT CAN-FIND(FIRST job WHERE 
+                    job.company EQ hCompanyField:BUFFER-VALUE AND     
+                    job.job EQ hJobField:BUFFER-VALUE) THEN ASSIGN 
+                        lError = TRUE 
+                        cRule = cRule + ",Invalid job"
+                        cMessage = cMessage + ",job=" + hJobField:BUFFER-VALUE.  
+        END.
+        
+        /* JobNo/JobNo2 tests */
+        IF hJobNoField NE ? THEN DO:
+            IF hJobField:BUFFER-VALUE EQ "" THEN ASSIGN 
+                    lError = TRUE 
+                    cRule = cRule + ",Blank job-no"
+                    cMessage = cMessage + ",<blank>".
+            ELSE IF NOT CAN-FIND(FIRST job WHERE 
+                    job.company EQ hCompanyField:BUFFER-VALUE AND     
+                    job.job-no EQ hJobNoField:BUFFER-VALUE AND 
+                    job.job-no2 EQ hJobNo2Field:BUFFER-VALUE) THEN ASSIGN 
+                        lError = TRUE 
+                        cRule = cRule + ",Invalid job-no"
+                        cMessage = cMessage + ",job-no=" + hJobNoField:BUFFER-VALUE + " and job-no2=" + hJobNo2Field:BUFFER-VALUE.  
+        END.
+        
         /* No matter what, don't delete fg-bin or rm-bin */
         IF CAN-DO("fg-bin,rm-bin",ipcFileName)
         AND lError THEN ASSIGN 
@@ -734,7 +776,10 @@ PROCEDURE pTestOneFile:
                                           (IF hInvNoField NE ? THEN hInvNoField:BUFFER-VALUE ELSE "") + "," +
                                           (IF hINoField NE ? THEN hINoField:BUFFER-VALUE ELSE "") + "," +
                                           (IF hXNoField NE ? THEN hXNoField:BUFFER-VALUE ELSE "") + "," +
-                                          (IF hActNumField NE ? THEN hActNumField:BUFFER-VALUE ELSE "")
+                                          (IF hActNumField NE ? THEN hActNumField:BUFFER-VALUE ELSE "") + "," + 
+                                          (IF hJobField NE ? THEN hJobField:BUFFER-VALUE ELSE "") + "," +
+                                          (IF hJobNoField NE ? THEN hJobNoField:BUFFER-VALUE ELSE "") + "," +
+                                          (IF hJobNo2Field NE ? THEN hJobNo2Field:BUFFER-VALUE ELSE "")
                 iErrorCount             = IF ttFileList.cError EQ "Error" THEN iErrorCount + 1 ELSE iErrorCount
                 iWarningCount           = IF ttFileList.cError EQ "Warning" THEN iWarningCount + 1 ELSE iWarningCount
                 .
@@ -768,7 +813,7 @@ PROCEDURE outputOrphanFile:
     OUTPUT STREAM sReport TO VALUE (cOutputDir + "\" + "_PurgeReport.csv").
     
     PUT STREAM sReport UNFORMATTED 
-        "Purge (Y/N)?,ErrLevel,Table Name,Reckey,Rowid,Company,Cust-no,Loc,Ord-no,Po-no,R-no,Bol-no,B-no,Inv-no,I-no,X-no,Acctnum" + CHR(10).
+        "Purge (Y/N)?,ErrLevel,Table Name,Reckey,Rowid,Company,Cust-no,Loc,Ord-no,Po-no,R-no,Bol-no,B-no,Inv-no,I-no,X-no,Acctnum,Job,Job-No,Job-No2" + CHR(10).
     FOR EACH ttFileList
         BY ttFileList.cError
         BY ttFileList.cFileName 
