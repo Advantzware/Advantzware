@@ -97,12 +97,12 @@ REPEAT:
             hQueryBuf    = iphQuery:GET-BUFFER-HANDLE(ENTRY(1,dynValueColumn.colName,"."))
             cFieldName   = ENTRY(2,dynValueColumn.colName,".")
             cBufferValue = fFormatValue(hQueryBuf, cFieldName, dynValueColumn.colFormat)
-            cBufferValue = IF dynParamValue.outputFormat EQ "HTML" THEN DYNAMIC-FUNCTION("sfWebCharacters", cBufferValue, 8, "Web")
-                           ELSE DYNAMIC-FUNCTION("sfWebCharacters", cBufferValue, 8, "")
             cFullName    = REPLACE(dynValueColumn.colName,".","__")
             cFullName    = REPLACE(cFullName,"[","")
             cFullName    = REPLACE(cFullName,"]","")
             .
+        IF dynParamValue.outputFormat EQ "HTML" THEN
+        cBufferValue = DYNAMIC-FUNCTION("sfWebCharacters", cBufferValue, 8, "Web").
         /* handle how jasper auto multiplies % formatted fields by 100 */
         IF INDEX(dynValueColumn.colFormat,"%") NE 0 THEN
         ASSIGN
