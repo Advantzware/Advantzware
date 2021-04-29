@@ -198,7 +198,7 @@ ASSIGN
  str-init[103] = "Item,Vendor,All,NoTax"   /* aptax */ 
  str-init[104] = "None,Overrun,Receipts"  /* rmemails */     
  str-init[105] = ",loadtag"
- str-init[106] = "Fibrex,BOLFMTX15"
+ str-init[106] = "Fibrex,BOLFMTX15,ACPIX"
  str-init[107] = ",Indiana,Dee,ScheduleCard1"
  str-init[108] = "Workstation,Server"  
  str-init[109] = "Reorder Point"   
@@ -287,7 +287,7 @@ ASSIGN str-init[125] = "Ship Only,Invoice Only,Bill and Ship,Transfer Only"
        str-init[191] = "FG Item number,Item Name"
        str-init[192] = "Simple with options,Simple - Reduce Only,Unitization with options"
        str-init[193] = "With options,Reduce Only"
-       str-init[194] = "Replace double quotes with symbol,Add leading tab"
+       str-init[194] = "Add leading tab"
        str-init[195] = "First Board,First Item,User Select".
 	
 IF PROGRAM-NAME(1) MATCHES "*windows/l-syschr.w*" THEN DO:

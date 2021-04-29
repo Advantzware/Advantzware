@@ -188,22 +188,26 @@ END.
       
    IF iplFreightCostCalc AND opdFreight GT 0 THEN
    DO:
-      RUN ClearTagsByRecKey(oe-bolh.rec_key).  /*Clear all hold tags - TagProcs.p*/ 
-      RUN AddTagInfo(
-          INPUT oe-bolh.rec_key,
-          INPUT "oe-bolh",
-          INPUT cTagDescription,
-          INPUT ""
-          ). /*From TagProcs Super Proc*/       
+       RUN ClearTagsForGroup(oe-bolh.rec_key,"FreightCost" ).  /*Clear all hold tags - TagProcs.p*/
+       RUN AddTagInfoForGroup(
+           INPUT oe-bolh.rec_key,
+           INPUT "oe-bolh",
+           INPUT cTagDescription,
+           INPUT "",
+           INPUT "FreightCost"
+           ). /*From TagProcs Super Proc*/      
    END.
       
-   RUN ClearTagsByRecKey(oe-bolh.rec_key + "CalcFreight").  /*Clear all hold tags - TagProcs.p*/     
-   RUN AddTagInfo(
-        INPUT oe-bolh.rec_key + "CalcFreight",
-        INPUT "oe-bolh",
-        INPUT cTagDescription,
-        INPUT ""
-        ). /*From TagProcs Super Proc*/
+   RUN ClearTagsForGroup(oe-bolh.rec_key , "CalcFreight").  /*Clear all hold tags - TagProcs.p*/  
+   RUN AddTagInfoForGroup(
+    INPUT oe-bolh.rec_key,
+    INPUT "oe-bolh",
+    INPUT cTagDescription,
+    INPUT "",
+    INPUT "CalcFreight"
+    ). /*From TagProcs Super Proc*/   
+  
+
 
 
 /* **********************  Internal Procedures  *********************** */

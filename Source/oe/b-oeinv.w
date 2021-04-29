@@ -771,6 +771,9 @@ END.
 
 /* ***************************  Main Block  *************************** */
 
+&SCOPED-DEFINE cellColumnDat oeb-oeinv
+{methods/browsers/setCellColumns.i}
+
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF
@@ -889,7 +892,7 @@ PROCEDURE proc-init :
   Purpose:     
   Notes:       
 ------------------------------------------------------------------------------*/   
-
+   RUN setCellColumns.
 
 END PROCEDURE.
 

@@ -579,6 +579,7 @@ ON CHOOSE OF btnTags IN FRAME F-Main
 DO:
     RUN system/d-TagViewer.w(
         INPUT inv-head.rec_key,
+        INPUT "",
         INPUT ""
         ).
 END.

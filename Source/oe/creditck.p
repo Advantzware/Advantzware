@@ -72,7 +72,8 @@ DO:
             INPUT oe-ord.rec_key,
             INPUT "oe-ord",
             INPUT "Customer on credit hold",
-            INPUT ""
+            INPUT "",
+            INPUT "Reason Code"
             ).      
     END.
     ELSE 
@@ -206,7 +207,8 @@ DO:
                                 INPUT oe-ord.rec_key,
                                 INPUT "oe-ord",
                                 INPUT oe-ord.spare-char-2,
-                                INPUT ""
+                                INPUT "",
+                                INPUT "Reason Code"
                                 ).
                             RUN oe/syncJobHold.p (INPUT oe-ord.company, INPUT oe-ord.ord-no, INPUT "Hold").
                         END.

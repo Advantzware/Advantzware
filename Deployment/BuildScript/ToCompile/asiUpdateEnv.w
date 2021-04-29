@@ -3478,6 +3478,7 @@ PROCEDURE ipDataFix210100:
     RUN ipConvertGLTrans.
     RUN ipFixForeignAccount.
     RUN ipResetProbeMSF.
+    RUN ipUpdateSurchargeAccounts.
     
 END PROCEDURE.
     
@@ -7092,6 +7093,34 @@ PROCEDURE ipUpdateSQLSettings:
     PUT UNFORMATTED "cpassword=Boxco2020" + CHR(10).         
     OUTPUT CLOSE.    
     
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipUpdateSurchargeAccounts C-Win
+PROCEDURE ipUpdateSurchargeAccounts:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEF VAR cOrigPropath AS CHAR NO-UNDO.
+    DEF VAR cNewPropath AS CHAR NO-UNDO.
+
+    ASSIGN
+        cOrigPropath = PROPATH
+        cNewPropath  = cEnvDir + "\" + fiEnvironment:{&SV} + "\Programs," + PROPATH
+        PROPATH = cNewPropath.
+        
+    RUN ipStatus ("    Updating surcharge accounts").
+    RUN util/UpdateSurAccount.p.
+
+    ASSIGN 
+        PROPATH = cOrigPropath.     
+
 END PROCEDURE.
 	
 /* _UIB-CODE-BLOCK-END */

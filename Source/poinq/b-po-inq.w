@@ -1716,24 +1716,27 @@ PROCEDURE one-row-query :
    
     cQuery = "FOR EACH po-ordl NO-LOCK"
             + " WHERE po-ordl.company EQ " + QUOTER(cocode)
-            + " AND ROWID(po-ordl)    EQ " + "TO-ROWID(" + "'" + STRING(ip-rowid) + "')"
-            + pGetWhereCriteria("po-ordl") 
+            + " AND ROWID(po-ordl) EQ " + "TO-ROWID(" + "'" + STRING(ip-rowid) + "')"
+            + pGetWhereCriteria("po-ordl")
+
             + ", FIRST po-ord NO-LOCK"
-            + " WHERE po-ord.company eq po-ordl.company and po-ord.po-no eq po-ordl.po-no " 
-            + " AND (( " + quoter(tb_hold) + " AND po-ord.stat = 'H' ) "
-            + " OR ( " + QUOTER(tb_approved) + " AND po-ord.stat <> 'H' ))"
-            + ",FIRST reftable " +  "OUTER-JOIN" + " NO-LOCK"
+            + " WHERE po-ord.company eq po-ordl.company and po-ord.po-no eq po-ordl.po-no "
+            + pGetWhereCriteria("po-ord")
+/*            + " AND (( " + QUOTER(tb_hold) + " AND po-ord.stat EQ 'H' ) "  */
+/*            + " OR ( " + QUOTER(tb_approved) + " AND po-ord.stat NE 'H' ))"*/
+
+            + ",FIRST reftable " + "OUTER-JOIN" + " NO-LOCK"
             + " WHERE reftable.reftable EQ 'AP-INVL' "
-            + " AND reftable.company  EQ '' "
-            + " AND reftable.loc      EQ '' "                     
-            + " AND reftable.code     EQ  STRING(po-ordl.po-no,'9999999999')"
+            + " AND reftable.company EQ '' "
+            + " AND reftable.loc EQ '' "                     
+            + " AND reftable.code EQ STRING(po-ordl.po-no,'9999999999')"
             + " AND (reftable.spare-char-1 EQ '' OR reftable.spare-char-1 EQ po-ordl.company) " 
             
             + ",FIRST  ap-invl OUTER-JOIN NO-LOCK "
-            + " WHERE ap-invl.i-no    EQ int(reftable.code2)"
-            + " AND ap-invl.company   EQ " + QUOTER(cocode)
-            + " AND ap-invl.po-no     EQ po-ordl.po-no "
-            + " AND (ap-invl.line + (ap-invl.po-no * -1000)) EQ po-ordl.LINE"  
+            + " WHERE ap-invl.i-no EQ int(reftable.code2)"
+            + " AND ap-invl.company EQ " + QUOTER(cocode)
+            + " AND ap-invl.po-no EQ po-ordl.po-no "
+            + " AND (ap-invl.line + (ap-invl.po-no * -1000)) EQ po-ordl.line"  
             
             + ", FIRST ap-inv OUTER-JOIN NO-LOCK " 
             + " WHERE ap-inv.i-no EQ ap-invl.i-no"
@@ -1743,10 +1746,10 @@ PROCEDURE one-row-query :
             + ",FIRST  ap-ctrl NO-LOCK "
             + " WHERE ap-ctrl.company EQ po-ordl.company"
             + " AND (( " + QUOTER(tb_unpaid) + " AND " +  QUOTER(tb_paid) + ")" 
-            + " OR ( " + QUOTER(tb_paid) + " AND AVAIL(ap-inv)) "
-            + " OR ( " + quoter(tb_unpaid) + " AND NOT AVAIL(ap-inv))) "        
+            + " OR (" + QUOTER(tb_paid) + " AND AVAIL(ap-inv)) "
+            + " OR (" + QUOTER(tb_unpaid) + " AND NOT AVAIL(ap-inv))) "        
             
-            + " BY " + pGetSortCondition(lv-sort-by,lv-sort-by-lab) + ( IF ll-sort-asc THEN  "" ELSE " DESC") +  " BY po-ordl.LINE BY po-ordl.i-no"
+            + " BY " + pGetSortCondition(lv-sort-by,lv-sort-by-lab) + ( IF ll-sort-asc THEN  "" ELSE " DESC") +  " BY po-ordl.line BY po-ordl.i-no"
             .            
                  
     RUN Browse_PrepareAndExecuteBrowseQuery(
@@ -1942,21 +1945,23 @@ PROCEDURE pPrepareAndExecuteQueryForShowAll PRIVATE :
                     + " WHERE po-ordl.company EQ " + QUOTER(cocode)
                     + pGetWhereCriteria("po-ordl") 
                     + ", FIRST po-ord NO-LOCK"
-                    + " WHERE po-ord.company eq po-ordl.company and po-ord.po-no eq po-ordl.po-no " 
-                    + " AND (( " + quoter(tb_hold) + " AND po-ord.stat = 'H' ) "
-                    + " OR ( " + QUOTER(tb_approved) + " AND po-ord.stat <> 'H' ))"
+                    + " WHERE po-ord.company EQ po-ordl.company AND po-ord.po-no EQ po-ordl.po-no " 
+                    + pGetWhereCriteria("po-ord")
+/*                    + " AND (( " + quoter(tb_hold) + " AND po-ord.stat = 'H' ) "   */
+/*                    + " OR ( " + QUOTER(tb_approved) + " AND po-ord.stat <> 'H' ))"*/
+
                     + ",FIRST reftable " +  "OUTER-JOIN" + " NO-LOCK"
                     + " WHERE reftable.reftable EQ 'AP-INVL' "
-                    + " AND reftable.company  EQ '' "
-                    + " AND reftable.loc      EQ '' "                     
-                    + " AND reftable.code     EQ  STRING(po-ordl.po-no,'9999999999')"
+                    + " AND reftable.company EQ '' "
+                    + " AND reftable.loc EQ '' "                     
+                    + " AND reftable.code EQ  STRING(po-ordl.po-no,'9999999999')"
                     + " AND (reftable.spare-char-1 EQ '' OR reftable.spare-char-1 EQ po-ordl.company) " 
                     
                     + ",FIRST  ap-invl OUTER-JOIN NO-LOCK "
-                    + " WHERE ap-invl.i-no    EQ int(reftable.code2)"
-                    + " AND ap-invl.company   EQ " + QUOTER(cocode)
-                    + " AND ap-invl.po-no     EQ po-ordl.po-no "
-                    + " AND (ap-invl.line + (ap-invl.po-no * -1000)) EQ po-ordl.LINE"  
+                    + " WHERE ap-invl.i-no EQ int(reftable.code2)"
+                    + " AND ap-invl.company EQ " + QUOTER(cocode)
+                    + " AND ap-invl.po-no  EQ po-ordl.po-no "
+                    + " AND (ap-invl.line + (ap-invl.po-no * -1000)) EQ po-ordl.line"  
                     
                     + ", FIRST ap-inv OUTER-JOIN NO-LOCK " 
                     + " WHERE ap-inv.i-no EQ ap-invl.i-no"
@@ -1966,10 +1971,10 @@ PROCEDURE pPrepareAndExecuteQueryForShowAll PRIVATE :
                     + ",FIRST  ap-ctrl NO-LOCK "
                     + " WHERE ap-ctrl.company EQ po-ordl.company"
                     + " AND (( " + QUOTER(tb_unpaid) + " AND " +  QUOTER(tb_paid) + ")" 
-                    + " OR ( " + QUOTER(tb_paid) + " AND AVAIL(ap-inv)) "
-                    + " OR ( " + quoter(tb_unpaid) + " AND NOT AVAIL(ap-inv))) "        
+                    + " OR (" + QUOTER(tb_paid) + " AND AVAIL(ap-inv)) "
+                    + " OR (" + QUOTER(tb_unpaid) + " AND NOT AVAIL(ap-inv))) "        
                     
-                    + " BY " + pGetSortCondition(lv-sort-by,lv-sort-by-lab) + ( IF ll-sort-asc THEN  "" ELSE " DESC") +  " BY po-ordl.po-no BY po-ordl.LINE BY po-ordl.i-no"
+                    + " BY " + pGetSortCondition(lv-sort-by,lv-sort-by-lab) + ( IF ll-sort-asc THEN  "" ELSE " DESC") +  " BY po-ordl.po-no BY po-ordl.line BY po-ordl.i-no"
                     .   
                    
     RUN Browse_PrepareAndExecuteBrowseQuery(
@@ -2009,39 +2014,42 @@ PROCEDURE pPrepareAndExecuteQueryForPrevNext PRIVATE :
                                 
    
      cLimitingQuery = "FOR EACH po-ordl NO-LOCK"
-                    + " WHERE po-ordl.company EQ " + QUOTER(cocode)  + " and po-ordl.po-no " + (IF iplPrevious THEN "LE " ELSE "GE ") + STRING(INTEGER(ipcValue))
+                    + " WHERE po-ordl.company EQ " + QUOTER(cocode)  + " AND po-ordl.po-no " + (IF iplPrevious THEN "LE " ELSE "GE ") + STRING(INTEGER(ipcValue))
                     + pGetWhereCriteria("po-ordl") 
                     + ", FIRST po-ord NO-LOCK"
-                    + " WHERE po-ord.company eq po-ordl.company and po-ord.po-no eq po-ordl.po-no " 
-                    + " AND (( " + quoter(tb_hold) + " AND po-ord.stat = 'H' ) "
-                    + " OR ( " + QUOTER(tb_approved) + " AND po-ord.stat <> 'H' ))"
+                    + " WHERE po-ord.company EQ po-ordl.company AND po-ord.po-no EQ po-ordl.po-no " 
+                    + pGetWhereCriteria("po-ord")
+/*                    + " AND (( " + quoter(tb_hold) + " AND po-ord.stat = 'H' ) "   */
+/*                    + " OR ( " + QUOTER(tb_approved) + " AND po-ord.stat <> 'H' ))"*/
+
                     + ",FIRST reftable " +  "OUTER-JOIN" + " NO-LOCK"
                     + " WHERE reftable.reftable EQ 'AP-INVL' "
-                    + " AND reftable.company  EQ '' "
-                    + " AND reftable.loc      EQ '' "                     
-                    + " AND reftable.code     EQ  STRING(po-ordl.po-no,'9999999999')"
+                    + " AND reftable.company EQ '' "
+                    + " AND reftable.loc EQ '' "                     
+                    + " AND reftable.code EQ  STRING(po-ordl.po-no,'9999999999')"
                     + " AND (reftable.spare-char-1 EQ '' OR reftable.spare-char-1 EQ po-ordl.company) " 
                     
                     + ",FIRST  ap-invl OUTER-JOIN NO-LOCK "
-                    + " WHERE ap-invl.i-no    EQ int(reftable.code2)"
-                    + " AND ap-invl.company   EQ " + QUOTER(cocode)
-                    + " AND ap-invl.po-no     EQ po-ordl.po-no "
-                    + " AND (ap-invl.line + (ap-invl.po-no * -1000)) EQ po-ordl.LINE"  
+                    + " WHERE ap-invl.i-no EQ int(reftable.code2)"
+                    + " AND ap-invl.company EQ " + QUOTER(cocode)
+                    + " AND ap-invl.po-no EQ po-ordl.po-no "
+                    + " AND (ap-invl.line + (ap-invl.po-no * -1000)) EQ po-ordl.line"  
                     
                     + ", FIRST ap-inv OUTER-JOIN NO-LOCK " 
                     + " WHERE ap-inv.i-no EQ ap-invl.i-no"
-                    + " AND ap-inv.company EQ " +  QUOTER(cocode)
+                    + " AND ap-inv.company EQ " + QUOTER(cocode)
                     + " AND ap-inv.due EQ 0 "
                     
                     + ",FIRST  ap-ctrl NO-LOCK "
                     + " WHERE ap-ctrl.company EQ po-ordl.company"
                     + " AND (( " + QUOTER(tb_unpaid) + " AND " +  QUOTER(tb_paid) + ")" 
-                    + " OR ( " + QUOTER(tb_paid) + " AND AVAIL(ap-inv)) "
-                    + " OR ( " + quoter(tb_unpaid) + " AND NOT AVAIL(ap-inv))) "        
+                    + " OR (" + QUOTER(tb_paid) + " AND AVAIL(ap-inv)) "
+                    + " OR (" + QUOTER(tb_unpaid) + " AND NOT AVAIL(ap-inv))) "        
                     
                     + " BREAK BY po-ordl.po-no " + (IF iplPrevious THEN "DESCENDING" ELSE "" )
                     .                    
                      
+
     RUN Browse_PrepareAndExecuteLimitingQuery(
         INPUT  cLimitingQuery,   /* Query */
         INPUT  cQueryBuffers,    /* Buffers Name */
@@ -2063,43 +2071,44 @@ PROCEDURE pPrepareAndExecuteQueryForPrevNext PRIVATE :
         RUN pPrepareAndExecuteQueryForShowAll.
     
     ELSE DO:
-                                             
-            cBrowseWhereClause = " AND po-ordl.po-no "   + (IF iplPrevious THEN "LE " ELSE "GE ") + STRING(INTEGER(ipcValue))
-                                 + " AND po-ordl.po-no " + (IF iplPrevious THEN "GE " ELSE "LE ") + STRING (INTEGER(cResponse)).                
-        
+          ASSIGN 
+          cBrowseWhereClause = " AND po-ordl.po-no "   + (IF iplPrevious THEN "LE " ELSE "GE ") + STRING(INTEGER(ipcValue))
+                             + " AND po-ordl.po-no " + (IF iplPrevious THEN "GE " ELSE "LE ") + STRING (INTEGER(cResponse))               
           cBrowseQuery = "FOR EACH po-ordl NO-LOCK"
                     + " WHERE po-ordl.company EQ " + QUOTER(cocode)
                     + cBrowseWhereClause
                     + pGetWhereCriteria("po-ordl") 
                     + ", FIRST po-ord NO-LOCK"
-                    + " WHERE po-ord.company eq po-ordl.company and po-ord.po-no eq po-ordl.po-no " 
-                    + " AND (( " + quoter(tb_hold) + " AND po-ord.stat = 'H' ) "
-                    + " OR ( " + QUOTER(tb_approved) + " AND po-ord.stat <> 'H' ))"
+                    + " WHERE po-ord.company EQ po-ordl.company AND po-ord.po-no EQ po-ordl.po-no " 
+                    + pGetWhereCriteria("po-ord")
+/*                    + " AND (( " + quoter(tb_hold) + " AND po-ord.stat = 'H' ) "   */
+/*                    + " OR ( " + QUOTER(tb_approved) + " AND po-ord.stat <> 'H' ))"*/
+
                     + ",FIRST reftable " +  "OUTER-JOIN" + " NO-LOCK"
                     + " WHERE reftable.reftable EQ 'AP-INVL' "
-                    + " AND reftable.company  EQ '' "
-                    + " AND reftable.loc      EQ '' "                     
-                    + " AND reftable.code     EQ  STRING(po-ordl.po-no,'9999999999')"
+                    + " AND reftable.company EQ '' "
+                    + " AND reftable.loc EQ '' "                     
+                    + " AND reftable.code EQ  STRING(po-ordl.po-no,'9999999999')"
                     + " AND (reftable.spare-char-1 EQ '' OR reftable.spare-char-1 EQ po-ordl.company) " 
                     
                     + ",FIRST  ap-invl OUTER-JOIN NO-LOCK "
-                    + " WHERE ap-invl.i-no    EQ int(reftable.code2)"
-                    + " AND ap-invl.company   EQ " + QUOTER(cocode)
-                    + " AND ap-invl.po-no     EQ po-ordl.po-no "
-                    + " AND (ap-invl.line + (ap-invl.po-no * -1000)) EQ po-ordl.LINE"  
+                    + " WHERE ap-invl.i-no EQ int(reftable.code2)"
+                    + " AND ap-invl.company EQ " + QUOTER(cocode)
+                    + " AND ap-invl.po-no EQ po-ordl.po-no "
+                    + " AND (ap-invl.line + (ap-invl.po-no * -1000)) EQ po-ordl.line"  
                     
                     + ", FIRST ap-inv OUTER-JOIN NO-LOCK " 
                     + " WHERE ap-inv.i-no EQ ap-invl.i-no"
-                    + " AND ap-inv.company EQ " +  QUOTER(cocode)
+                    + " AND ap-inv.company EQ " + QUOTER(cocode)
                     + " AND ap-inv.due EQ 0 "
                     
                     + ",FIRST  ap-ctrl NO-LOCK "
                     + " WHERE ap-ctrl.company EQ po-ordl.company"
                     + " AND (( " + QUOTER(tb_unpaid) + " AND " +  QUOTER(tb_paid) + ")" 
-                    + " OR ( " + QUOTER(tb_paid) + " AND AVAIL(ap-inv)) "
-                    + " OR ( " + quoter(tb_unpaid) + " AND NOT AVAIL(ap-inv))) "        
+                    + " OR (" + QUOTER(tb_paid) + " AND AVAIL(ap-inv)) "
+                    + " OR (" + QUOTER(tb_unpaid) + " AND NOT AVAIL(ap-inv))) "        
                     
-                    + " BY " + pGetSortCondition(lv-sort-by,lv-sort-by-lab) + ( IF ll-sort-asc THEN  "" ELSE " DESC") +  " BY po-ordl.po-no BY po-ordl.LINE BY po-ordl.i-no"
+                    + " BY " + pGetSortCondition(lv-sort-by,lv-sort-by-lab) + ( IF ll-sort-asc THEN  "" ELSE " DESC") +  " BY po-ordl.po-no BY po-ordl.line BY po-ordl.i-no"
                     .                 
                         
         RUN Browse_PrepareAndExecuteBrowseQuery(
@@ -2143,38 +2152,40 @@ PROCEDURE pPrepareAndExecuteQuery :
                     + " WHERE po-ordl.company EQ " + QUOTER(cocode)
                     + pGetWhereCriteria("po-ordl") 
                     + ", FIRST po-ord NO-LOCK"
-                    + " WHERE po-ord.company eq po-ordl.company and po-ord.po-no eq po-ordl.po-no " 
-                    + " AND (( " + quoter(tb_hold) + " AND po-ord.stat = 'H' ) "
-                    + " OR ( " + QUOTER(tb_approved) + " AND po-ord.stat <> 'H' ))"
+                    + " WHERE po-ord.company EQ po-ordl.company AND po-ord.po-no EQ po-ordl.po-no " 
+                    + pGetWhereCriteria("po-ord")
+/*                    + " AND (( " + QUOTER(tb_hold) + " AND po-ord.stat = 'H' ) "   */
+/*                    + " OR ( " + QUOTER(tb_approved) + " AND po-ord.stat <> 'H' ))"*/
+
                     + ", FIRST reftable " +  "OUTER-JOIN" + " NO-LOCK"
                     + " WHERE reftable.reftable EQ 'AP-INVL' "
-                    + " AND reftable.company  EQ '' "
-                    + " AND reftable.loc      EQ '' "                     
-                    + " AND reftable.code     EQ  STRING(po-ordl.po-no,'9999999999')"
+                    + " AND reftable.company EQ '' "
+                    + " AND reftable.loc EQ '' "                     
+                    + " AND reftable.code EQ  STRING(po-ordl.po-no,'9999999999')"
                     + " AND (reftable.spare-char-1 EQ '' OR reftable.spare-char-1 EQ po-ordl.company) " 
                     
                     + ", FIRST  ap-invl OUTER-JOIN NO-LOCK "
-                    + " WHERE ap-invl.i-no    EQ int(reftable.code2)"
-                    + " AND ap-invl.company   EQ " + QUOTER(cocode)
-                    + " AND ap-invl.po-no     EQ po-ordl.po-no "
-                    + " AND (ap-invl.line + (ap-invl.po-no * -1000)) EQ po-ordl.LINE"  
+                    + " WHERE ap-invl.i-no EQ int(reftable.code2)"
+                    + " AND ap-invl.company EQ " + QUOTER(cocode)
+                    + " AND ap-invl.po-no EQ po-ordl.po-no "
+                    + " AND (ap-invl.line + (ap-invl.po-no * -1000)) EQ po-ordl.line"  
                     
                     + ", FIRST ap-inv OUTER-JOIN NO-LOCK " 
                     + " WHERE ap-inv.i-no EQ ap-invl.i-no"
-                    + " AND ap-inv.company EQ " +  QUOTER(cocode)
+                    + " AND ap-inv.company EQ " + QUOTER(cocode)
                     + " AND ap-inv.due EQ 0 "
                     
                     + ", FIRST  ap-ctrl NO-LOCK "
                     + " WHERE ap-ctrl.company EQ po-ordl.company"
                     + " AND (( " + QUOTER(tb_unpaid) + " AND " +  QUOTER(tb_paid) + ")" 
-                    + " OR ( " + QUOTER(tb_paid) + " AND AVAIL(ap-inv)) "
-                    + " OR ( " + quoter(tb_unpaid) + " AND NOT AVAIL(ap-inv))) "        
+                    + " OR (" + QUOTER(tb_paid) + " AND AVAIL(ap-inv)) "
+                    + " OR (" + QUOTER(tb_unpaid) + " AND NOT AVAIL(ap-inv))) "        
                     
                     + " BREAK BY po-ordl.po-no DESC "
                     .                  
              
     /* Limit the query if order no is 0 or cadd No is Blank */                    
-    IF fi_po-no EQ 0 THEN             
+    IF fi_po-no EQ 0 THEN
         RUN Browse_PrepareAndExecuteLimitingQuery(
             INPUT  cLimitingQuery,   /* Query */
             INPUT  cQueryBuffers,    /* Buffers Name */
@@ -2207,34 +2218,36 @@ PROCEDURE pPrepareAndExecuteQuery :
                     + cBrowseWhereClause  
                     + pGetWhereCriteria("po-ordl") 
                     + ", FIRST po-ord NO-LOCK"
-                    + " WHERE po-ord.company eq po-ordl.company and po-ord.po-no eq po-ordl.po-no "
-                    + " AND (( " + quoter(tb_hold) + " AND po-ord.stat = 'H' ) "
-                    + " OR ( " + QUOTER(tb_approved) + " AND po-ord.stat <> 'H' ))"  
+                    + " WHERE po-ord.company EQ po-ordl.company AND po-ord.po-no EQ po-ordl.po-no "
+                    + pGetWhereCriteria("po-ord")
+/*                    + " AND (( " + quoter(tb_hold) + " AND po-ord.stat = 'H' ) "   */
+/*                    + " OR ( " + QUOTER(tb_approved) + " AND po-ord.stat <> 'H' ))"*/
+
                     + ",FIRST reftable " +  "OUTER-JOIN" + " NO-LOCK"
                     + " WHERE reftable.reftable EQ 'AP-INVL' "
-                    + " AND reftable.company  EQ '' "
-                    + " AND reftable.loc      EQ '' "                     
-                    + " AND reftable.code     EQ  STRING(po-ordl.po-no,'9999999999')"
+                    + " AND reftable.company EQ '' "
+                    + " AND reftable.loc EQ '' "                     
+                    + " AND reftable.code EQ  STRING(po-ordl.po-no,'9999999999')"
                     + " AND (reftable.spare-char-1 EQ '' OR reftable.spare-char-1 EQ po-ordl.company) " 
                     
                     + ",FIRST  ap-invl OUTER-JOIN NO-LOCK "
-                    + " WHERE ap-invl.i-no    EQ int(reftable.code2)"
-                    + " AND ap-invl.company   EQ " + QUOTER(cocode)
-                    + " AND ap-invl.po-no     EQ po-ordl.po-no "
-                    + " AND (ap-invl.line + (ap-invl.po-no * -1000)) EQ po-ordl.LINE"  
+                    + " WHERE ap-invl.i-no EQ int(reftable.code2)"
+                    + " AND ap-invl.company EQ " + QUOTER(cocode)
+                    + " AND ap-invl.po-no EQ po-ordl.po-no "
+                    + " AND (ap-invl.line + (ap-invl.po-no * -1000)) EQ po-ordl.line"  
                     
                     + ", FIRST ap-inv OUTER-JOIN NO-LOCK " 
                     + " WHERE ap-inv.i-no EQ ap-invl.i-no"
-                    + " AND ap-inv.company EQ " +  QUOTER(cocode)
+                    + " AND ap-inv.company EQ " + QUOTER(cocode)
                     + " AND ap-inv.due EQ 0 "
                     
                     + ",FIRST  ap-ctrl NO-LOCK "
                     + " WHERE ap-ctrl.company EQ po-ordl.company"
                     + " AND (( " + QUOTER(tb_unpaid) + " AND " +  QUOTER(tb_paid) + ")" 
-                    + " OR ( " + QUOTER(tb_paid) + " AND AVAIL(ap-inv)) "
-                    + " OR ( " + quoter(tb_unpaid) + " AND NOT AVAIL(ap-inv))) "        
+                    + " OR (" + QUOTER(tb_paid) + " AND AVAIL(ap-inv)) "
+                    + " OR (" + QUOTER(tb_unpaid) + " AND NOT AVAIL(ap-inv))) "        
                     
-                    + " BY " + pGetSortCondition(lv-sort-by,lv-sort-by-lab) + ( IF ll-sort-asc THEN  "" ELSE " DESC") +  " BY po-ordl.po-no BY po-ordl.LINE BY po-ordl.i-no"
+                    + " BY " + pGetSortCondition(lv-sort-by,lv-sort-by-lab) + ( IF ll-sort-asc THEN  "" ELSE " DESC") +  " BY po-ordl.po-no BY po-ordl.line BY po-ordl.i-no"
                     .                
                       
         RUN Browse_PrepareAndExecuteBrowseQuery(
@@ -2353,6 +2366,36 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE clearFilters B-table-Win
+PROCEDURE clearFilters:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipiPONo AS INTEGER NO-UNDO.
+
+    DO WITH FRAME {&FRAME-NAME}:
+      ASSIGN
+          fi_vend-no:SCREEN-VALUE = ""
+          fi_i-no:SCREEN-VALUE = ""
+          fi_vend-i-no:SCREEN-VALUE = ""
+          fi_po-no:SCREEN-VALUE = ""
+          fi_job-no:SCREEN-VALUE = ""
+          fi_job-no2:SCREEN-VALUE = ""
+          fi_vend-no
+          fi_i-no
+          fi_vend-i-no
+          fi_po-no
+          fi_job-no
+          fi_job-no2
+          .
+  END.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE setUserPrint B-table-Win 
 PROCEDURE setUserPrint :
 /*------------------------------------------------------------------------------
@@ -2372,13 +2415,14 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-/*&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE show-prev-next B-table-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE show-prev-next B-table-Win 
 PROCEDURE show-prev-next :
 /*------------------------------------------------------------------------------
   Purpose:     
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+/*
 DEF VAR li AS INT NO-UNDO.
 DEF VAR lv-po-no AS INT NO-UNDO.
 
@@ -2689,10 +2733,11 @@ ELSE /*IF lv-show-next THEN*/ DO:
         ).
   END.
 END.
+*/
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME       */
+&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed B-table-Win 
 PROCEDURE state-changed :
@@ -3021,32 +3066,29 @@ FUNCTION pGetWhereCriteria RETURNS CHARACTER
 ------------------------------------------------------------------------------*/
     DEFINE VARIABLE cWhereCriteria AS CHARACTER NO-UNDO.
     
-    IF ipcTable EQ "po-ord" THEN DO: 
-        IF tb_approved  THEN 
-            cWhereCriteria = " and po-ord.stat NE 'H'".
-            
-        IF tb_hold  THEN DO:    
-            IF cWhereCriteria EQ "" THEN 
-            cWhereCriteria = " and po-ord.stat EQ 'H'".
-            ELSE cWhereCriteria = " and po-ord.stat EQ 'H'".
-        END.                          
+    IF ipcTable EQ "po-ord" THEN DO:
+        IF tb_approved NE tb_hold THEN DO:
+            IF tb_approved THEN 
+            cWhereCriteria = " AND po-ord.stat NE 'H'".
+            ELSE            
+            IF tb_hold THEN
+            cWhereCriteria = cWhereCriteria + " AND po-ord.stat EQ 'H'".
+        END.
     END. 
-    ELSE DO:
-         
-        cWhereCriteria = " AND ((po-ordl.opened  AND " + quoter(tb_open) + " ) OR "
-                       + "(NOT po-ordl.opened AND " + quoter(tb_closed) + " )) ".
+    ELSE DO:         
+        IF tb_open NE tb_closed THEN
+        cWhereCriteria = cWhereCriteria + " AND po-ordl.opened EQ " + STRING(tb_open).
                        
-        cWhereCriteria = cWhereCriteria + " AND po-ordl.due-date  GE " + quoter(fi_due-date).   
-          
-        cWhereCriteria = cWhereCriteria  
-                         + (IF fi_po-no  NE 0  THEN " AND po-ordl.po-no  EQ "       + STRING(fi_po-no)   ELSE "")
-                         + (IF fi_vend-no NE "" THEN " AND po-ordl.vend-no  BEGINS "      + QUOTER(fi_vend-no)   ELSE "")
-                         + (IF fi_i-no    NE "" THEN " AND po-ordl.i-no BEGINS "          + QUOTER(fi_i-no)  ELSE "")
-                         + (IF fi_vend-i-no  NE "" THEN " AND po-ordl.vend-i-no BEGINS "    + QUOTER(fi_vend-i-no)   ELSE "")
-                         + (IF fi_job-no  NE "" THEN " AND po-ordl.job-no BEGINS "    + QUOTER(fi_job-no)   ELSE "")
-                         + (IF fi_job-no  NE "" AND fi_job-no2 NE 0 THEN " AND po-ordl.job-no2 EQ " + STRING(fi_job-no2)  ELSE "")
-                         . 
-     
+        ASSIGN
+            cWhereCriteria = cWhereCriteria + " AND po-ordl.due-date GE " + STRING(fi_due-date,"99/99/9999")   
+            cWhereCriteria = cWhereCriteria  
+                           + (IF fi_po-no NE 0 THEN " AND po-ordl.po-no EQ " + STRING(fi_po-no) ELSE "")
+                           + (IF fi_vend-no NE "" THEN " AND po-ordl.vend-no BEGINS " + QUOTER(fi_vend-no) ELSE "")
+                           + (IF fi_i-no NE "" THEN " AND po-ordl.i-no BEGINS " + QUOTER(fi_i-no) ELSE "")
+                           + (IF fi_vend-i-no NE "" THEN " AND po-ordl.vend-i-no BEGINS " + QUOTER(fi_vend-i-no) ELSE "")
+                           + (IF fi_job-no NE "" THEN " AND po-ordl.job-no BEGINS " + QUOTER(fi_job-no) ELSE "")
+                           + (IF fi_job-no NE "" AND fi_job-no2 NE 0 THEN " AND po-ordl.job-no2 EQ " + STRING(fi_job-no2) ELSE "")
+                           . 
     END.     
     RETURN cWhereCriteria.      
 END FUNCTION.

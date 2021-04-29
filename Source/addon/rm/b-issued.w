@@ -716,6 +716,8 @@ DO:
 
   DEF BUFFER b-rm-rctd-2 FOR rm-rctd.
 
+  DEFINE BUFFER bf-rm-bin FOR rm-bin.
+  
   IF LASTKEY NE -1 THEN DO:
       IF adm-new-record OR
           rm-rctd.tag NE rm-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} THEN
@@ -731,17 +733,43 @@ DO:
 
     IF adm-new-record OR rm-rctd.tag NE rm-rctd.tag:SCREEN-VALUE THEN
     DO:
-       FIND FIRST rm-bin NO-LOCK
-            WHERE rm-bin.company EQ cocode
-              AND rm-bin.i-no    EQ loadtag.i-no
-              AND rm-bin.loc     EQ loadtag.loc
-              AND rm-bin.loc-bin EQ loadtag.loc-bin
-              AND rm-bin.tag     EQ loadtag.tag-no NO-ERROR.
+       /* Find if an rm-bin record available for the loadtag's location and bin with quantity grater than 0 */
+       FIND FIRST bf-rm-bin NO-LOCK
+            WHERE bf-rm-bin.company EQ cocode
+              AND bf-rm-bin.loc     EQ loadtag.loc
+              AND bf-rm-bin.i-no    EQ loadtag.i-no
+              AND bf-rm-bin.loc-bin EQ loadtag.loc-bin
+              AND bf-rm-bin.tag     EQ loadtag.tag-no 
+              AND bf-rm-bin.qty     GT 0
+            NO-ERROR.
+        
+       /* Find if an rm-bin record available with quantity grater than 0 */
+       IF NOT AVAILABLE bf-rm-bin THEN
+           FIND FIRST bf-rm-bin NO-LOCK
+                WHERE bf-rm-bin.company EQ cocode
+                  AND bf-rm-bin.tag     EQ loadtag.tag-no 
+                  AND bf-rm-bin.i-no    EQ loadtag.i-no
+                  AND bf-rm-bin.qty     GT 0
+                NO-ERROR.
 
-       IF AVAILABLE rm-bin THEN
+       /* The below query is just to make sure procedure valid-qty throws an error, so that user can figure out there are
+          no bins for the tag which has on hand quantity */
+       IF NOT AVAILABLE bf-rm-bin THEN
+           FIND FIRST bf-rm-bin NO-LOCK
+                WHERE bf-rm-bin.company EQ cocode
+                  AND bf-rm-bin.loc     EQ loadtag.loc
+                  AND bf-rm-bin.i-no    EQ loadtag.i-no
+                  AND bf-rm-bin.loc-bin EQ loadtag.loc-bin
+                  AND bf-rm-bin.tag     EQ loadtag.tag-no 
+                NO-ERROR.
+
+       IF AVAILABLE bf-rm-bin THEN
           ASSIGN
-             rm-rctd.qty:SCREEN-VALUE = STRING(rm-bin.qty)
-             rm-rctd.cost:SCREEN-VALUE = STRING(rm-bin.cost).
+             rm-rctd.qty:SCREEN-VALUE     = STRING(bf-rm-bin.qty)
+             rm-rctd.loc:SCREEN-VALUE     = bf-rm-bin.loc
+             rm-rctd.loc-bin:SCREEN-VALUE = bf-rm-bin.loc-bin
+             rm-rctd.cost:SCREEN-VALUE    = STRING(bf-rm-bin.cost)
+             .
     END.
 
     RUN valid-qty NO-ERROR.
@@ -994,6 +1022,10 @@ DO:
      ASSIGN rm-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(v-job-no-2).
             gv-job-no2 = v-job-no-2.
 
+   IF adm-new-record AND rm-rctd.i-no NE rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name} AND
+      rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name} NE "" AND NOT lParse THEN
+       RUN set-s-b-proc.
+
    IF LASTKEY NE -1 AND v-single-job THEN
    DO:
       RUN valid-job-no NO-ERROR.
@@ -1005,11 +1037,6 @@ DO:
       RUN valid-i-no NO-ERROR.
       IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
       
-      IF adm-new-record AND rm-rctd.i-no NE rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name} AND
-         rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name} NE "" 
-         AND NOT lParse THEN
-         RUN set-s-b-proc.
-
       RUN validate-jobmat (YES) NO-ERROR.
       IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
       
@@ -2782,8 +2809,8 @@ PROCEDURE set-s-b-proc :
          AND b-item.i-no     EQ job-mat.i-no
          AND b-item.mat-type EQ item.mat-type
        NO-LOCK
-       BREAK BY job-mat.frm      DESC
-             BY job-mat.blank-no DESC:
+       BREAK BY job-mat.frm      
+             BY job-mat.blank-no:
 
        IF job-mat.i-no EQ rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} OR
           LAST(job-mat.frm)                                                  THEN DO:

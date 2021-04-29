@@ -48,7 +48,7 @@ v-std-list = "LoadTagSSCC,IR12,OEDateChange,FGRecptPassWord,InvStatus,BOLQtyPopu
            + "InvoiceApprovalTaxableCheck,CalcJobDueDate,FGBOLTransferPost,FGMasterLoc,FGOversDefault,InvoiceApprovalTaxCalc,SSTagStatus,CEWindow,"            
            + "ZohoRefreshToken,ZohoClientID,ZohoClientSecret,cXMLCustomerPartSource,CEAddCustomerOption,TruckPlan,SSJobInquiryAdjust,SSJobInquiryIssue,"
            + "InvoiceApprovalExpectZero,CEFormatConfig,JobType,ApplyInvoiceApprovals,APIOrderSurchargeSameDay,APIOrderSurchargeWeekendDelivery,APIOrderSurchargeWeekendOrder,APIOrderSurchargeNextDay,"
-           + "OutputCSV,JobQueueURL,SSLocationScan,EstimateLocDefault,POPriceHold,SearchLimits,SSIssueDefaultRM,PlateFile,APInvoiceLength,DeleteBinsAllowed"
+           + "OutputCSV,JobQueueURL,SSLocationScan,EstimateLocDefault,POPriceHold,SearchLimits,SSIssueDefaultRM,PlateFile,APInvoiceLength,DeleteBinsAllowed,InvoiceApprovalOrderlineChange"
            .
 IF CAN-DO(v-std-list,ip-nk1-value) THEN
 CASE ip-nk1-value:
@@ -1509,8 +1509,8 @@ CASE ip-nk1-value:
             INPUT NO,                                   /* Logical value */ 
             INPUT 0                                     /* Dec value*/
             ).
-    WHEN "DeleteBinsAllowed" THEN    
-        RUN sys/inc/addnk1.p (
+    WHEN "DeleteBinsAllowed" THEN   
+          RUN sys/inc/addnk1.p (
             INPUT cocode, 
             INPUT ip-nk1-value, 
             INPUT NO,           
@@ -1519,7 +1519,18 @@ CASE ip-nk1-value:
             INPUT 0,                                    /* Int value */
             INPUT NO,                                   /* Logical value */ 
             INPUT 0                                     /* Dec value*/
-            ).        
+            ).
+    WHEN "InvoiceApprovalOrderlineChange" THEN    
+        RUN sys/inc/addnk1.p (
+            INPUT cocode, 
+            INPUT ip-nk1-value, 
+            INPUT NO,    
+            INPUT "Order line manually overridden",     /* Description */
+            INPUT "",                                   /* Char Value */
+            INPUT 0,                                    /* Int value */
+            INPUT NO,                                   /* Logical value */ 
+            INPUT 0                                     /* Dec value*/
+            ). 
 END CASE.
 ELSE
 CASE ip-nk1-value:

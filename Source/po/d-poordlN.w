@@ -3171,8 +3171,8 @@ PROCEDURE display-item :
             po-ordl.i-name po-ordl.ord-qty po-ordl.pr-qty-uom po-ordl.dscr[1] 
             po-ordl.dscr[2] po-ordl.cost po-ordl.pr-uom po-ordl.disc po-ordl.s-wid 
             po-ordl.s-len po-ordl.actnum po-ordl.vend-i-no po-ordl.tax 
-            po-ordl.under-pct po-ordl.over-pct po-ordl.stat po-ordl.cust-no 
-            po-ordl.ord-no po-ordl.item-type po-ordl.setup po-ordl.s-num
+            po-ordl.under-pct po-ordl.excludeFromVoucher po-ordl.over-pct po-ordl.stat
+            po-ordl.cust-no po-ordl.ord-no po-ordl.item-type po-ordl.setup po-ordl.s-num
             po-ordl.b-num cFirstMach
             WITH FRAME Dialog-Frame.
 

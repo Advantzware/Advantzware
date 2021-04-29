@@ -31,6 +31,8 @@ DEFINE NEW SHARED VARIABLE nufile AS LOG NO-UNDO.   /* for jc-calc.p */
 
 DEFINE VARIABLE dQty     AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE lProdQty AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE iQty     AS INTEGER   NO-UNDO.
+DEFINE BUFFER bf-job-hdr FOR job-hdr.
 /* ********************  Preprocessor Definitions  ******************** */
 
 /* ************************  Function Prototypes ********************** */
@@ -75,11 +77,28 @@ FUNCTION fJobIsOK RETURNS LOGICAL PRIVATE
                 opiCountProcess = opiCountProcess + 1.
                 IF ipcRunMethods EQ "Rebuild" THEN
                 DO:
-                    RUN jc/jc-calc.p (RECID(job), YES) NO-ERROR.                    
+                    ASSIGN
+                     nufile   = YES .
+                    
+                    RUN jc/jc-calc.p (RECID(job), YES) NO-ERROR. 
+                    nufile   = NO .
                 END.                  
                 ELSE 
-                DO:                  
-                    RUN jc/jc-calc.p (RECID(job), NO) NO-ERROR.          
+                DO:
+                
+                    ASSIGN
+                    nufile   = NO.
+                    iQty = 0.
+                    FOR EACH bf-job-hdr NO-LOCK 
+                        WHERE bf-job-hdr.company EQ job.company 
+                        AND bf-job-hdr.job     EQ job.job
+                        AND bf-job-hdr.job-no  EQ job.job-no
+                        AND bf-job-hdr.job-no2 EQ job.job-no2 :
+                        iQty = iQty + bf-job-hdr.qty .
+                    END.
+                    IF iQty EQ 0 THEN nufile = YES .
+                    RUN jc/jc-calc.p (RECID(job), NO) NO-ERROR.                           
+                    nufile = NO.   
                 END.
                 
             END. /* first of job-no2 */    

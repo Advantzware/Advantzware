@@ -60,6 +60,8 @@ DEFINE VARIABLE iRecordLimit        AS INTEGER   NO-UNDO.
 DEFINE VARIABLE dQueryTimeLimit     AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE lEnableShowAll      AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lShowAll            AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE char-hdl            AS CHARACTER NO-UNDO.
+DEFINE VARIABLE pHandle             AS HANDLE    NO-UNDO.
 
 RUN Browser_GetRecordAndTimeLimit(
   INPUT  cocode,
@@ -160,11 +162,11 @@ DEFINE BUTTON btSHowAll
      LABEL "Show All" 
      SIZE 13.6 BY 1.14.
 
-DEFINE VARIABLE cbStatus AS CHARACTER FORMAT "X(256)":U INITIAL "All" 
+DEFINE VARIABLE cbStatus AS CHARACTER FORMAT "X(256)":U INITIAL "Active" 
      VIEW-AS COMBO-BOX INNER-LINES 5
      LIST-ITEMS "All","Inactive","Active" 
      DROP-DOWN-LIST
-     SIZE 12.2 BY 1 NO-UNDO.
+     SIZE 12.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE auto_find AS CHARACTER FORMAT "X(256)":U 
      LABEL "Auto Find" 
@@ -353,8 +355,6 @@ END.
 
 {src/adm/method/browser.i}
 {src/adm/method/query.i}
-{methods/template/browser.i}
-{custom/yellowColumns.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -763,6 +763,65 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE one-row-query B-table-Win 
+PROCEDURE one-row-query :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ip-rowid AS ROWID NO-UNDO.
+
+    DEFINE VARIABLE cQuery    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cResponse AS CHARACTER NO-UNDO.        
+    
+    cQuery = "FOR EACH oe-prmtx NO-LOCK" 
+             + " WHERE oe-prmtx.company EQ " + QUOTER(cocode)
+             + " AND ROWID(oe-prmtx)    EQ " + "TO-ROWID(" + "'" + STRING(ip-rowid) + "')"                     
+             + pfGetWhereConditions() 
+             + (IF cSortBY NE "" THEN " BY oe-prmtx." + cSortBY + (IF NOT lSortAsc THEN " DESC" ELSE "")  ELSE "")
+                   .             
+                 
+    RUN Browse_PrepareAndExecuteBrowseQuery(
+        INPUT  BROWSE {&BROWSE-NAME}:QUERY, /* Browse Query Handle */      
+        INPUT  cQuery,                      /* BRowse Query */             
+        INPUT  NO,                          /* Show limit alert? */        
+        INPUT  0,                           /* Record limit */             
+        INPUT  0,                           /* Time Limit */               
+        INPUT  lEnableShowAll,              /* Enable ShowAll Button */    
+        OUTPUT cResponse
+        ).               
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE repo-query B-table-Win 
+PROCEDURE repo-query :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE INPUT PARAMETER ip-rowid AS ROWID NO-UNDO. 
+                               
+  DO WITH FRAME {&FRAME-NAME}: 
+      ASSIGN
+          cbStatus:SCREEN-VALUE = "Active"
+          cbStatus = "Active".
+      RUN one-row-query (ip-rowid).
+      REPOSITION {&browse-name} TO ROWID ip-rowid NO-ERROR.    
+    IF AVAILABLE {&first-table-in-query-{&browse-name}} THEN DO:
+        RUN dispatch ("display-fields").
+        RUN dispatch ("row-changed"). 
+    END. 
+  END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records B-table-Win  _ADM-SEND-RECORDS
 PROCEDURE send-records :
 /*------------------------------------------------------------------------------
@@ -784,6 +843,22 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Set-Focus B-table-Win
+PROCEDURE Set-Focus PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: To avoid error message when moving to new row in browse
+ Notes:
+------------------------------------------------------------------------------*/
+
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed B-table-Win 
 PROCEDURE state-changed :
@@ -820,7 +895,7 @@ FUNCTION pfGetWhereConditions RETURNS CHARACTER PRIVATE
            + (IF fiCategory NE "" THEN " AND oe-prmtx.procat   BEGINS " + QUOTER(fiCategory) ELSE "")
            + (IF fiEffDate  NE ?  THEN " AND oe-prmtx.eff-date GE "     + STRING(fiEffDate)  ELSE "")
            + (IF cbStatus   EQ "Active"   THEN " AND (oe-prmtx.exp-date GT TODAY OR oe-prmtx.exp-date EQ ?)"
-           ELSE IF cbStatus EQ "Inactive" THEN " AND oe-prmtx.exp-date  GT TODAY"
+           ELSE IF cbStatus EQ "Inactive" THEN " AND oe-prmtx.exp-date  LE TODAY"
            ELSE "")
               .
   
