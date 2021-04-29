@@ -713,7 +713,10 @@ PROCEDURE pInit :
         OUTPUT lRecFound
         ).    
     IF lRecFound THEN 
-        giNK1PrintCopies = INTEGER(cReturnValue).   
+        giNK1PrintCopies = INTEGER(cReturnValue).
+    
+    IF giNK1PrintCopies GT 0 THEN
+        {methods/run_link.i "COPIES-SOURCE" "SetCopies" "(INPUT giNK1PrintCopies)"}.   
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
