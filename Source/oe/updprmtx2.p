@@ -22,10 +22,12 @@ DEFINE VARIABLE lRecFound         AS LOGICAL NO-UNDO.
 DEFINE VARIABLE iQuoteNo          AS INTEGER NO-UNDO.
 DEFINE VARIABLE lQuoteExpireDuplicates AS LOGICAL NO-UNDO.
 DEFINE VARIABLE hdupdQuoteProcs AS HANDLE NO-UNDO.
+DEFINE VARIABLE hdQuoteProcs AS HANDLE NO-UNDO.
 DEFINE VARIABLE lRunForQuote AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cRunMethods AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cShipId AS CHARACTER NO-UNDO.
 RUN util/updQuoteProcs.p PERSISTENT SET hdupdQuoteProcs.
+RUN est/QuoteProcs.p PERSISTENT SET hdQuoteProcs.
 
 DEF TEMP-TABLE w-matrix NO-UNDO
     FIELD qty     AS DEC
@@ -125,9 +127,11 @@ IF AVAIL quotehd THEN DO:
     ELSE IF ip-TransQ = "1" THEN RUN update-matrix-minus.
     FIND CURRENT quotehd EXCLUSIVE-LOCK NO-ERROR.
     IF lQuotePriceMatrix THEN
+    DO:    
       ASSIGN
-       quotehd.approved = YES.
-       
+       quotehd.approved = YES.   
+       RUN unApprovedDuplicateQuote IN hdQuoteProcs (ROWID(quotehd),quotehd.company,ip-cust-no,quoteitm.i-no). 
+    END.   
     FIND CURRENT quotehd NO-LOCK NO-ERROR. 
      
     IF lQuoteExpireDuplicates THEN

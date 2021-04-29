@@ -628,7 +628,7 @@ PROCEDURE pUpdateQuotePriceFromMatrix PRIVATE:
     DEFINE INPUT PARAMETER oprwRowid AS ROWID NO-UNDO.
     DEFINE BUFFER bf-oe-prmtx FOR oe-prmtx.
     DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
-    
+    DEFINE BUFFER bf-quoteqty FOR quoteqty.
       FIND FIRST bf-oe-prmtx NO-LOCK WHERE ROWID(bf-oe-prmtx) EQ oprwRowid NO-ERROR.
       IF bf-oe-prmtx.quoteID NE 0 THEN
       DO:      
@@ -643,29 +643,66 @@ PROCEDURE pUpdateQuotePriceFromMatrix PRIVATE:
                 AND quoteitm.loc     EQ quotehd.loc
                 AND quoteitm.q-no    EQ quotehd.q-no
                 AND quoteitm.i-no    EQ bf-oe-prmtx.i-no 
-                NO-LOCK :
+                EXCLUSIVE-LOCK :
                 
                 iCount = 0.
-                FOR EACH quoteqty WHERE quoteqty.company = quoteitm.company 
-                    AND quoteqty.loc = quoteitm.loc 
-                    AND quoteqty.q-no = quoteitm.q-no 
-                    AND quoteqty.line = quoteitm.LINE EXCLUSIVE-LOCK BY quoteqty.qty : 
+                
+                FOR EACH bf-quoteqty WHERE bf-quoteqty.company = quoteitm.company 
+                    AND bf-quoteqty.loc = quoteitm.loc 
+                    AND bf-quoteqty.q-no = quoteitm.q-no 
+                    AND bf-quoteqty.line = quoteitm.LINE EXCLUSIVE-LOCK BREAK BY bf-quoteqty.qty : 
                     
                     iCount = iCount + 1.
-                    
+                     
+                    IF FIRST-OF(bf-quoteqty.qty) AND bf-oe-prmtx.qty[iCount] NE 0 THEN
+                    DO:
+                       ASSIGN
+                        quoteitm.qty   = bf-oe-prmtx.qty[iCount]
+                        quoteitm.uom   = bf-oe-prmtx.uom[iCount]
+                        quoteitm.price = bf-oe-prmtx.price[iCount]   .
+                    END.
                     IF bf-oe-prmtx.qty[iCount] NE 0 THEN DO: 
                       ASSIGN
-                       quoteqty.qty   = bf-oe-prmtx.qty[iCount]
-                       quoteqty.uom   = bf-oe-prmtx.uom[iCount]
-                       quoteqty.price = bf-oe-prmtx.price[iCount].
+                       bf-quoteqty.qty   = bf-oe-prmtx.qty[iCount]
+                       bf-quoteqty.uom   = bf-oe-prmtx.uom[iCount]
+                       bf-quoteqty.price = bf-oe-prmtx.price[iCount].
                     END.
                 END.     
             END. 
          END.  /* AVAIL quotehd*/      
       END.   /* bf-oe-prmtx.quoteID NE 0*/
 
-      RELEASE quoteqty.
+      RELEASE bf-quoteqty.
        
+   
+END PROCEDURE.
+
+PROCEDURE pUnApprovedDuplicateQuote:
+    /*------------------------------------------------------------------------------
+     Purpose: Primary Public Procedure for calculating the estimate
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iprwRowid AS ROWID NO-UNDO.
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcCustomer AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcFgItem AS CHARACTER NO-UNDO.
+    DEFINE BUFFER bf-quotehd FOR quotehd.
+           
+    FOR EACH bf-quotehd EXCLUSIVE-LOCK
+        WHERE bf-quotehd.company EQ ipcCompany
+        AND bf-quotehd.cust-no EQ ipcCustomer
+        AND rowid(bf-quotehd) NE iprwRowid ,
+        EACH quoteitm NO-LOCK
+             WHERE quoteitm.company EQ bf-quotehd.company
+             AND quoteitm.loc     EQ bf-quotehd.loc
+             AND quoteitm.q-no    EQ bf-quotehd.q-no
+             AND quoteitm.i-no    EQ ipcFgItem :                  
+        IF bf-quotehd.approved THEN do:
+          bf-quotehd.approved = NO.
+          RUN ClearTagsByRecKey(bf-quotehd.rec_key).  /*Clear all hold tags - TagProcs.p*/
+        END.  
+    END.
+    RELEASE bf-quotehd.
    
 END PROCEDURE.
 
@@ -677,6 +714,20 @@ PROCEDURE UpdateQuotePriceFromMatrix:
     DEFINE INPUT PARAMETER oprwRowid AS ROWID NO-UNDO.
                  
     RUN pUpdateQuotePriceFromMatrix(oprwRowid ).        
+   
+END PROCEDURE.
+
+PROCEDURE unApprovedDuplicateQuote:
+    /*------------------------------------------------------------------------------
+     Purpose: Primary Public Procedure for calculating the estimate
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iprwRowid AS ROWID NO-UNDO.
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcCustomer AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcFgItem AS CHARACTER NO-UNDO.
+                 
+    RUN pUnApprovedDuplicateQuote(INPUT iprwRowid, INPUT ipcCompany, INPUT ipcCustomer, INPUT ipcFgItem).        
    
 END PROCEDURE.
 

@@ -105,7 +105,7 @@ quotehd.soldto[2] quotehd.soldto[3] quotehd.soldto[4] quotehd.sman ~
 quotehd.terms quotehd.carrier quotehd.del-zone 
 &Scoped-define ENABLED-TABLES quotehd
 &Scoped-define FIRST-ENABLED-TABLE quotehd
-&Scoped-Define ENABLED-OBJECTS btTags RECT-5 
+&Scoped-Define ENABLED-OBJECTS btTags RECT-5 btnCalendar-1
 &Scoped-Define DISPLAYED-FIELDS quotehd.approved quotehd.pricingMethod ~
 quotehd.q-no quotehd.quo-date quotehd.est-no quotehd.expireDate ~
 quotehd.del-date quotehd.cust-no quotehd.billto[1] quotehd.billto[2] ~
@@ -117,7 +117,7 @@ quotehd.del-zone
 &Scoped-define DISPLAYED-TABLES quotehd
 &Scoped-define FIRST-DISPLAYED-TABLE quotehd
 &Scoped-Define DISPLAYED-OBJECTS ls-status sman_desc term_desc carrier_desc ~
-zon_desc 
+zon_desc btnCalendar-1
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,List-5,F1 */
@@ -165,6 +165,11 @@ FUNCTION are-items-for-cust RETURNS LOGICAL
 
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON btnCalendar-1 
+     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
+     LABEL "" 
+     SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
+     
 DEFINE BUTTON btTags 
      IMAGE-UP FILE "Graphics/16x16/question.png":U
      LABEL "" 
@@ -177,7 +182,7 @@ DEFINE VARIABLE carrier_desc AS CHARACTER FORMAT "X(256)":U
 DEFINE VARIABLE ls-status AS CHARACTER FORMAT "X(256)":U 
      LABEL "Order Status" 
      VIEW-AS FILL-IN 
-     SIZE 14 BY 1 NO-UNDO.
+     SIZE 13.5 BY 1 NO-UNDO.
 
 DEFINE VARIABLE sman_desc AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
@@ -219,8 +224,9 @@ DEFINE FRAME F-Main
           SIZE 13 BY 1
      quotehd.expireDate AT ROW 1.19 COL 96.8 COLON-ALIGNED
           VIEW-AS FILL-IN 
-          SIZE 15 BY 1
-     ls-status AT ROW 1.19 COL 128.4 COLON-ALIGNED
+          SIZE 12 BY 1
+     btnCalendar-1 AT ROW 1.19 COL 110.60     
+     ls-status AT ROW 1.19 COL 129.0 COLON-ALIGNED
      quotehd.del-date AT ROW 2.19 COL 40 COLON-ALIGNED
           LABEL "Delivery Date"
           VIEW-AS FILL-IN 
@@ -370,6 +376,8 @@ ASSIGN
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
+/* SETTINGS FOR BUTTON btnCalendar-1 IN FRAME F-Main
+   3                                                                    */       
 /* SETTINGS FOR FILL-IN quotehd.approved IN FRAME F-Main
    NO-ENABLE EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN quotehd.billto[1] IN FRAME F-Main
@@ -733,6 +741,26 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME quotehd.expireDate
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL quotehd.expireDate V-table-Win
+ON HELP OF quotehd.expireDate IN FRAME F-Main /* Expire Date */
+DO:
+  {methods/calendar.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME btnCalendar-1
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalendar-1 V-table-Win
+ON CHOOSE OF btnCalendar-1 IN FRAME F-Main
+DO:
+  {methods/btnCalendar.i quotehd.expireDate}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &UNDEFINE SELF-NAME
 
@@ -964,7 +992,8 @@ PROCEDURE enable-detail :
               quotehd.est-no quotehd.quo-date quotehd.del-date quotehd.sman quotehd.terms
               quotehd.contact quotehd.carrier quotehd.del-zone quotehd.ship-id 
               quotehd.sold-id quotehd.pricingMethod WITH FRAME {&FRAME-NAME}.
- END.  
+ END.
+ ENABLE btnCalendar-1 WITH FRAME {&FRAME-NAME}.
 
 END PROCEDURE.
 
@@ -1200,6 +1229,8 @@ PROCEDURE local-create-record :
 /*                              quotehd.comment[5] = bf-hd.comment[5] */
                              .          
   quotehd.expireDate = TODAY + iQuoteExpirationDays.
+  IF lQuotePriceMatrix  THEN
+  quotehd.pricingMethod = "Ship to".
   IF adm-new-record AND NOT adm-adding-record THEN DO WITH FRAME {&FRAME-NAME}:
      ASSIGN {&ENABLED-FIELDS}.
   END.
