@@ -59,6 +59,7 @@ DEFINE VARIABLE cRtnChar          AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound         AS LOGICAL NO-UNDO.
 DEFINE VARIABLE iQuoteExpirationDays AS INTEGER NO-UNDO. 
 DEFINE VARIABLE cQuoteExpirationDays AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lQuoteExpirationDays AS LOGICAL NO-UNDO.
 
 RUN salrep/SalesManProcs.p PERSISTENT SET hdSalesManProcs.
 
@@ -560,7 +561,7 @@ DO:
     RUN system/d-TagViewer.w (
         INPUT quotehd.rec_key,
         INPUT "",
-        INPUT "quotehd"
+        INPUT ""
         ).  
 END.
 
@@ -790,7 +791,13 @@ RUN sys/ref/nk1look.p (INPUT cocode, "QuoteExpirationDays", "C" /* Logical */, N
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
     OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
-    cQuoteExpirationDays = STRING(cRtnChar) NO-ERROR.    
+    cQuoteExpirationDays = STRING(cRtnChar) NO-ERROR.
+
+RUN sys/ref/nk1look.p (INPUT cocode, "QuoteExpirationDays", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    lQuoteExpirationDays = LOGICAL(cRtnChar) NO-ERROR.    
 
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
@@ -1048,7 +1055,7 @@ PROCEDURE local-assign-record :
 
   quotehd.est-no = FILL(" ",8 - LENGTH(TRIM(quotehd.est-no))) + TRIM(quotehd.est-no).
     
-  IF cQuoteExpirationDays EQ "Update" AND dtOldExpDate EQ quotehd.expireDate THEN
+  IF lQuoteExpirationDays AND cQuoteExpirationDays EQ "Update" AND dtOldExpDate EQ quotehd.expireDate THEN
   DO:
      quotehd.expireDate = TODAY + iQuoteExpirationDays. 
   END.
@@ -1227,8 +1234,8 @@ PROCEDURE local-create-record :
 /*                              quotehd.comment[3] = bf-hd.comment[3] */
 /*                              quotehd.comment[4] = bf-hd.comment[4] */
 /*                              quotehd.comment[5] = bf-hd.comment[5] */
-                             .          
-  quotehd.expireDate = TODAY + iQuoteExpirationDays.
+  IF lQuoteExpirationDays THEN                                      
+  quotehd.expireDate = TODAY + (IF cQuoteExpirationDays EQ "Entry" THEN iQuoteExpirationDays ELSE 0).
   IF lQuotePriceMatrix  THEN
   quotehd.pricingMethod = "Ship to".
   IF adm-new-record AND NOT adm-adding-record THEN DO WITH FRAME {&FRAME-NAME}:

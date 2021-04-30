@@ -1538,7 +1538,7 @@ CASE ip-nk1-value:
             INPUT ip-nk1-value, 
             INPUT NO,           
             INPUT "Default quote expiration days ",     /* Description */
-            INPUT "",                                   /* Char Value */
+            INPUT "Entry",                              /* Char Value */
             INPUT 0,                                    /* Int value */
             INPUT NO,                                   /* Logical value */ 
             INPUT 0                                     /* Dec value*/

@@ -699,6 +699,7 @@ PROCEDURE pUnApprovedDuplicateQuote:
              AND quoteitm.i-no    EQ ipcFgItem :                  
         IF bf-quotehd.approved THEN do:
           bf-quotehd.approved = NO.
+          bf-quotehd.expireDate = TODAY - 1.          
           RUN ClearTagsByRecKey(bf-quotehd.rec_key).  /*Clear all hold tags - TagProcs.p*/
         END.  
     END.
