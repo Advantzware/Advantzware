@@ -511,7 +511,8 @@ DO:
         WHEN "cbEnvironment" THEN DO:
             RUN ipChangeEnvironment.
             ASSIGN 
-                cbDatabase:SENSITIVE = NUM-ENTRIES(cDbValidList) GT 1.
+                cbDatabase:SENSITIVE = NUM-ENTRIES(cDbValidList) GT 1
+                cbDatabase:SCREEN-VALUE = ENTRY(1,cbDatabase:LIST-ITEMS).
         END.
         WHEN "cbMode" THEN RUN ipChangeMode.
     END CASE.
