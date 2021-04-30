@@ -830,19 +830,19 @@ FOR EACH ef
         
         PUT "<=#5> <C3>" cFGItemLabel FORMAT "x(10)" "<C8>" TRIM(STRING(job-hdr.i-no,"x(18)"))  "<C20><B>" cKeyItemLabel FORMAT "x(15)" "</B> " job-hdr.keyItem  
             "<C35>" cMoldsLabel FORMAT "x(8)" "<C44><B>" TRIM(STRING(eb.num-up)) "</B>"   
-            "<C55>" cWetWeightLabel FORMAT "x(13)" "<C64><B>" STRING(fGetMiscFields(itemfg.rec_key,"00001")) "</B>" 
-            "<C75>" cFirstDryLabel FORMAT "x(14)" "<C84><B>" STRING(fGetMiscFields(itemfg.rec_key,"00003")) "</B>" SKIP
+            "<C50>" cWetWeightLabel FORMAT "x(13)" "<C59><B>" STRING(fGetMiscFields(itemfg.rec_key,"00001")) "</B>" 
+            "<C65>" cFirstDryLabel FORMAT "x(14)" "<C74><B>" STRING(fGetMiscFields(itemfg.rec_key,"00003")) "</B>" SKIP
             "<C3>" cDscrLabel FORMAT "x(13)" "<C8>" TRIM(IF AVAILABLE itemfg THEN itemfg.part-dscr1 ELSE "") FORMAT "x(30)"    
             "<C35>" cMoldIDsLabel FORMAT "x(25)"  
-            "<C55>" cBoneDryLabel FORMAT "x(10)" "<C64><B>"( IF AVAILABLE itemfg THEN TRIM(STRING(itemfg.weightPerEA,">>>>9.99")) ELSE "") FORMAT "x(30)" "</B>" 
-            "<C75>" cMoistureLabel FORMAT "X(9)" "<C84><B>" STRING(fGetMiscFields(itemfg.rec_key,"00005")) "</B>" SKIP
+            "<C50>" cBoneDryLabel FORMAT "x(10)" "<C59><B>"( IF AVAILABLE itemfg THEN TRIM(STRING(itemfg.weightPerEA,">>>>9.99")) ELSE "") FORMAT "x(30)" "</B>" 
+            "<C65>" cMoistureLabel FORMAT "X(9)" "<C74><B>" STRING(fGetMiscFields(itemfg.rec_key,"00005")) "</B>" SKIP
             "<C3>" cSizeLabel FORMAT "x(8)" "<C8>" TRIM(STRING(eb.len) + " x " + STRING(eb.wid) + " x " + STRING(eb.dep))  
             "<C35>" cJigAvailableLabel FORMAT "x(21)" "<C44><B>" STRING(fGetMiscFields(itemfg.rec_key,"00004")) "</B>"  
-            "<C55>" cMinWeightLabel FORMAT "x(12)" "<C64><B>" STRING(fGetMiscFields(itemfg.rec_key,"00002")) "</B>" 
-            "<C75>" cFiberContentLabel FORMAT "x(20)" "<C84><B>" STRING(fGetMiscFields(itemfg.rec_key,"00006")) "</B>" SKIP
+            "<C50>" cMinWeightLabel FORMAT "x(12)" "<C59><B>" STRING(fGetMiscFields(itemfg.rec_key,"00002")) "</B>" 
+            "<C65>" cFiberContentLabel FORMAT "x(20)" "<C74><B>" STRING(fGetMiscFields(itemfg.rec_key,"00006")) "</B>" SKIP
             .
                
-        PUT "<=#5><R+0.5><UNITS=INCHES><C88><FROM><C109><r+2><BARCODE,TYPE=128B,CHECKSUM=NONE,VALUE=" 
+        PUT "<=#5><R+0.5><UNITS=INCHES><C80><FROM><C105><r+2><BARCODE,TYPE=128B,CHECKSUM=NONE,VALUE=" 
         STRING(TRIM(job-hdr.job-no) + "-" + STRING(job-hdr.job-no2,"99") + "-" + STRING(job-hdr.frm,"99") + "-" + STRING(job-hdr.blank-no,"99")) FORMAT "x(15)" "><R-3>" . 
                
         PUT "<=#6><R-1> <C3><B>" cPackingLabel FORMAT "x(8)"  "</B>" SKIP
