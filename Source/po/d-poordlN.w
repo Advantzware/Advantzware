@@ -2625,6 +2625,27 @@ PROCEDURE create-item :
             po-ordl.under-pct = po-ord.under-pct
             po-ordl.vend-no   = po-ord.vend-no
             po-ordl.cust-no   = po-ord.cust-no.
+        
+        IF  po-ordl.cust-no EQ "" THEN
+        DO:
+            FIND FIRST loc NO-LOCK 
+                 WHERE loc.company EQ cocode
+                 AND loc.loc EQ po-ord.ship-id
+                 NO-ERROR.
+            FIND FIRST company NO-LOCK
+                 WHERE company.company EQ po-ord.ship-id 
+                 NO-ERROR.
+            IF AVAIL loc OR AVAIL company THEN 
+            DO:
+                FIND FIRST cust NO-LOCK
+                     WHERE cust.company EQ cocode
+                     AND cust.active = "X" NO-ERROR.                
+                IF AVAIL cust THEN
+                ASSIGN
+                   po-ordl.cust-no   = cust.cust-no.
+            END.              
+        END.
+            
 
         IF AVAILABLE bf-itemfg 
             THEN
