@@ -510,10 +510,8 @@ DO:
         WHEN "cbDatabase" THEN RUN ipChangeDatabase.
         WHEN "cbEnvironment" THEN DO:
             RUN ipChangeEnvironment.
-            IF NUM-ENTRIES(cDbValidList) GT 1 THEN DO:
-                APPLY 'entry' TO cbDatabase.
-                RETURN NO-APPLY.
-            END.
+            ASSIGN 
+                cbDatabase:SENSITIVE = NUM-ENTRIES(cDbValidList) GT 1.
         END.
         WHEN "cbMode" THEN RUN ipChangeMode.
     END CASE.
@@ -776,6 +774,7 @@ PROCEDURE ipChangeDatabase :
         cAudConnectString = ""
         iDbPos = LOOKUP(cDbSelected,cDbList)
         iDbLevel = intVer(ENTRY(iDbPos,cDbVerList))
+        iTruncLevel = iDbLevel / 100
         asidbName = cDbSelected
         asiDbPort = ENTRY(iDbPos,cDbPortList)
         audDbName = ENTRY(iDbPos,cAudDbList)
@@ -949,12 +948,35 @@ PROCEDURE ipClickOk :
     DEFINE VARIABLE cBitness AS CHAR NO-UNDO.
     DEFINE VARIABLE cVersion AS CHAR NO-UNDO.
     DEFINE VARIABLE cTop AS CHAR NO-UNDO.
-    
+    DEFINE VARIABLE cLocalPlFile AS CHAR NO-UNDO.
+    DEFINE VARIABLE cRemotePlFile AS CHAR NO-UNDO.
+    DEFINE VARIABLE daLocalPlFileDate AS DATE NO-UNDO.
+    DEFINE VARIABLE daRemotePlFileDate AS DATE NO-UNDO.
+    DEFINE VARIABLE lUpdatePlFiles AS LOG NO-UNDO.
+
+    /* If this is a Hyper-V server (flagged in advantzware.ini file), test if user has current
+        pl files on his workstation.  If not, update the workstation from the server */
     IF cIsHyperV EQ "YES" 
     OR cIsHyperV EQ "Y" THEN DO:
+        ASSIGN 
+            lUpdatePlFiles = FALSE.
+        IF SEARCH("c:\tmp\asiObjects.pl") NE ? THEN DO:
+            ASSIGN 
+                FILE-INFO:FILE-NAME = SEARCH("c:\tmp\asiObjects.pl")
+                daLocalPlFileDate = FILE-INFO:FILE-MOD-DATE.
+            ASSIGN 
+                FILE-INFO:FILE-NAME = SEARCH(cTop + "asiObjects.pl")
+                daRemotePlFileDate = FILE-INFO:FILE-MOD-DATE.
+            IF daRemotePlFileDate GT daLocalPlFileDate THEN ASSIGN 
+                lUpdatePlFiles = TRUE.
+        END.
+        ELSE ASSIGN 
+            lUpdatePlFiles = TRUE.
         cTop = cMapDir + "\" + cEnvDir + "\" + cEnvSelected + "\".
-        OS-COPY VALUE(cTop + "asiObjects.pl") VALUE("c:\tmp").
-        OS-COPY VALUE(cTop + "asigraphics.pl") VALUE("c:\tmp").
+        IF lUpdatePlFiles THEN DO:
+            OS-COPY VALUE(cTop + "asiObjects.pl") VALUE("c:\tmp").
+            OS-COPY VALUE(cTop + "asigraphics.pl") VALUE("c:\tmp").
+        END.
         PROPATH = REPLACE (ProPath, cTop + "asiObjects.pl", "C:\tmp\asiObjects.pl").
         PROPATH = REPLACE (ProPath, cTop + "asigraphics.pl", "C:\tmp\asigraphics.pl").
     END.
@@ -1140,7 +1162,9 @@ PROCEDURE ipConnectDbs :
         CREATE ALIAS asihlp FOR DATABASE VALUE(LDBNAME(1)).
         CREATE ALIAS asinos FOR DATABASE VALUE(LDBNAME(1)).
 
-        IF SEARCH(origDirectoryName + "\preRun" + STRING(iTruncLevel,"999999") + ".r") NE ? THEN
+        IF SEARCH(origDirectoryName + "\preRun" + STRING(iTruncLevel,"999999") + ".r") NE ? 
+        OR SEARCH(origDirectoryName + "\preRun" + STRING(iTruncLevel,"999999") + ".p") NE ? 
+        THEN
             RUN VALUE(origDirectoryName + "\preRun" + STRING(iTruncLevel,"999999") + ".p") PERSISTENT SET hPreRun.
         ELSE RUN VALUE("prerun.p") PERSISTENT SET hPreRun.
     END.
@@ -1234,9 +1258,8 @@ PROCEDURE ipPreRun :
         iEnvLevel = intVer(ENTRY(iEnvPos,cEnvVerList))
         iDbPos = LOOKUP(cDbSelected,cDbList)
         iDbLevel = intVer(ENTRY(iDbPos,cDbVerList))
-        iTruncLevel = iDbLevel
+        iTruncLevel = iDbLevel / 100
         .
-    
     /* Run various procedures and programs DEPENDING ON ENV OR DB LEVEL */
     /* Here the format for both is 16070400 */
     IF USERID(LDBNAME(1)) NE "asi" THEN DO:
