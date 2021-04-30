@@ -255,7 +255,18 @@ PROCEDURE pValidate PRIVATE:
     
     IF oplValid THEN 
     DO:
-        IF ipbf-ttImportVendCostMtx.itemID EQ '' THEN 
+        IF ( 
+                ipbf-ttImportVendCostMtx.estimateNo EQ ""   AND 
+                ipbf-ttImportVendCostMtx.formNo     EQ 0    AND   
+                ipbf-ttImportVendCostMtx.blankNo    EQ 0    AND  
+                ipbf-ttImportVendCostMtx.itemType   EQ "FG" AND
+                ipbf-ttImportVendCostMtx.itemID     EQ ''
+            ) OR 
+            (
+                ipbf-ttImportVendCostMtx.itemType   EQ "RM" AND
+                ipbf-ttImportVendCostMtx.itemID     EQ ''
+            )       
+         THEN 
             ASSIGN 
                 oplValid = NO
                 opcNote  = "Item is Blank".
@@ -319,7 +330,9 @@ PROCEDURE pValidate PRIVATE:
     /*Field Level Validation*/
     IF oplValid AND iplFieldValidation THEN 
     DO:     
-        IF oplValid AND ipbf-ttImportVendCostMtx.itemType EQ  "FG" THEN 
+        IF oplValid AND ipbf-ttImportVendCostMtx.itemType EQ  "FG" AND
+            ipbf-ttImportVendCostMtx.itemID NE ''
+        THEN         
             RUN pIsValidFGITemID IN hdValidator (ipbf-ttImportVendCostMtx.itemID, NO, ipbf-ttImportVendCostMtx.Company, OUTPUT oplValid, OUTPUT cValidNote).
 
         IF oplValid AND ipbf-ttImportVendCostMtx.itemType EQ  "RM" THEN 
