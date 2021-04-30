@@ -107,14 +107,7 @@ if choice then do on error undo, leave:
     END.   
     RUN spProgressBar ("Reopen Period", 4, 4).
     RELEASE glhist.
-    RELEASE bf-account.
-    
-    IF bf-period.pnum EQ company.num-per THEN
-    DO:
-        FIND CURRENT company EXCLUSIVE-LOCK NO-ERROR.
-        company.yend-per = NO.
-        FIND CURRENT company EXCLUSIVE-LOCK NO-ERROR.
-    END.    
+    RELEASE bf-account.       
     
   END.      
  

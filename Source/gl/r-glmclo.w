@@ -704,7 +704,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         period.pstat EQ TRUE 
         NO-ERROR.
         
-    if NOT company.yend-per AND NOT(period.pnum EQ company.num-per) then do:
+    if NOT company.yend-per then do:
         MESSAGE 
             "Prior year not closed.  Must close Prior year!!!" 
             VIEW-AS ALERT-BOX ERROR.
