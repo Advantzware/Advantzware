@@ -182,7 +182,7 @@ DEFINE VARIABLE begin_name AS CHARACTER FORMAT "x(8)"
     VIEW-AS FILL-IN 
     SIZE 20 BY 1.
 
-DEFINE VARIABLE end_Company   AS CHARACTER FORMAT "X(8)" INITIAL "zzzzzzzzzzz" 
+DEFINE VARIABLE end_Company   AS CHARACTER FORMAT "X(8)"  
     LABEL "To Company" 
     VIEW-AS FILL-IN 
     SIZE 21 BY 1.
@@ -626,6 +626,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
     RUN DisplaySelectionList.
     RUN enable_UI.
+    ASSIGN
+        begin_Company:SCREEN-VALUE = cocode 
+        end_Company:SCREEN-VALUE   = cocode .
     {methods/nowait.i}
     DO WITH FRAME {&FRAME-NAME}:
         {custom/usrprint.i}
