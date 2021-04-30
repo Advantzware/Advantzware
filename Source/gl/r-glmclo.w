@@ -452,6 +452,8 @@ DO:
                v-msg2 = ""
                v-msg1:BGCOLOR = ?
                v-msg2:BGCOLOR = ?.
+               
+        APPLY "close" TO THIS-PROCEDURE.       
 
      END.
   END.
@@ -696,16 +698,19 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
             VIEW-AS ALERT-BOX ERROR.
         RETURN.
     END.
+    
+    FIND FIRST period NO-LOCK WHERE 
+        period.company EQ company.company AND
+        period.pstat EQ TRUE 
+        NO-ERROR.
+        
     if NOT company.yend-per then do:
         MESSAGE 
             "Prior year not closed.  Must close Prior year!!!" 
             VIEW-AS ALERT-BOX ERROR.
         RETURN.
     end.
-    FIND FIRST period NO-LOCK WHERE 
-        period.company EQ company.company AND
-        period.pstat EQ TRUE 
-        NO-ERROR.
+    
     IF AVAIL period THEN ASSIGN 
         tran-year = period.yr
         tran-period = period.pnum.
@@ -836,7 +841,10 @@ PROCEDURE close-month :
 ------------------------------------------------------------------------------*/
    DEF VAR li AS INT NO-UNDO.
    DEF VAR lv-rowid AS ROWID NO-UNDO.
-
+   DEFINE VARIABLE lLastPeriod AS LOGICAL NO-UNDO.
+   DEFINE VARIABLE iTransNum AS INTEGER NO-UNDO.
+   DEFINE VARIABLE dNetIncome AS DECIMAL NO-UNDO.
+   
    DEF BUFFER b-period FOR period.   
 
    SESSION:SET-WAIT-STATE ("general").
@@ -848,7 +856,7 @@ PROCEDURE close-month :
          and b-racct.actnum  eq gl-ctrl.ret
        no-lock no-error.
    if not avail b-racct then do on endkey undo, return:
-      message "Unable to find Retained Earnings Account from G/L Control File."
+      message "Unable to Find Current Year Earnings Account from G/L Control File."
               VIEW-AS ALERT-BOX ERROR.
       return.
    end.
@@ -861,6 +869,18 @@ PROCEDURE close-month :
       message "Unable to find Profit Contra Account from G/L Control File." VIEW-AS ALERT-BOX ERROR.
       return.
    end.
+   
+   find first b-racct
+       where b-racct.company eq cocode
+         and b-racct.actnum  eq gl-ctrl.retainedEarnings
+       no-lock no-error.
+   if not avail b-racct AND period.pnum EQ company.num-per then do on endkey undo, return:
+      message "Closing the last period of the year will create a journal entry moving Current Years Earnings to Retained Earnings account, so enter a valid retained earnings account in G-F-3."
+              VIEW-AS ALERT-BOX ERROR.
+      return.
+   end.
+   
+   
 
    ASSIGN v-msg1:HIDDEN IN FRAME {&FRAME-NAME} = NO
           v-msg2:HIDDEN = NO
@@ -938,6 +958,7 @@ PROCEDURE close-month :
 
    IF period.pnum EQ company.num-per THEN DO:
      lv-rowid = ROWID(period).
+     lLastPeriod = YES.
 
 /*     FIND NEXT period                                                        */
 /*         WHERE period.company EQ cocode                                      */
@@ -1129,7 +1150,7 @@ PROCEDURE close-month :
             and period.pstat   eq yes
           exclusive-lock.
       period.pstat = false.
-      if period.pnum eq company.num-per then company.yend-per = no.
+      if period.pnum eq company.num-per then company.yend-per = NO.
    end.
 
    find next period
@@ -1138,6 +1159,44 @@ PROCEDURE close-month :
        no-lock.
    if avail period then ASSIGN tran-period = period.pnum
                                uperiod = period.pnum.
+                               
+   IF lLastPeriod THEN
+   DO:
+       FIND FIRST gl-ctrl EXCLUSIVE-LOCK
+            WHERE gl-ctrl.company EQ cocode NO-ERROR NO-WAIT.
+       IF AVAIL gl-ctrl THEN DO:
+          ASSIGN iTransNum = gl-ctrl.trnum + 1.
+                 gl-ctrl.trnum = iTransNum.
+       END.          
+       FIND CURRENT gl-ctrl NO-LOCK NO-ERROR .
+                  
+       RUN pGetNetIncome(INPUT gl-ctrl.contra, OUTPUT dNetIncome). 
+       RUN GL_SpCreateGLHist(cocode,
+                             gl-ctrl.retainedEarnings,
+                             "AutoClose",
+                             STRING("Auto Posted Net Income for ") + STRING(period.yr),
+                             period.pst,
+                             dNetIncome,                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
+                             iTransNum,
+                             period.pnum,
+                             "A",
+                             date(TODAY),
+                             "",
+                             "").  
+       RUN pGetNetIncome(INPUT gl-ctrl.ret, OUTPUT dNetIncome). 
+       RUN GL_SpCreateGLHist(cocode,
+                             gl-ctrl.ret,
+                             "AutoClose",
+                             STRING("Auto Posted Current Years Earnings for ") + STRING(period.yr),
+                             period.pst,
+                             dNetIncome,                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
+                             iTransNum,
+                             period.pnum,
+                             "A",
+                             date(TODAY),
+                             "",
+                             "").                      
+   END.    
 
    SESSION:SET-WAIT-STATE ("").
 
@@ -1519,6 +1578,30 @@ end procedure.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetNetIncome C-Win 
+PROCEDURE pGetNetIncome :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+DEFINE INPUT PARAMETER ipcAccount AS CHARACTER NO-UNDO.
+DEFINE OUTPUT PARAMETER opdNetAmount AS DECIMAL NO-UNDO.
+
+find first b-cacct NO-LOCK
+            where b-cacct.company eq cocode
+            and b-cacct.actnum  eq ipcAccount NO-ERROR.
+ DO i = 1 TO 13:
+   opdNetAmount = opdNetAmount + b-cacct.cyr[i].
+ END.
+ 
+            
+end procedure.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME            
+            
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE show-param C-Win 
 PROCEDURE show-param :

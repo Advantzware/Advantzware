@@ -64,16 +64,17 @@ CREATE WIDGET-POOL.
 
 /* Definitions for FRAME DEFAULT-FRAME                                  */
 &Scoped-define FIELDS-IN-QUERY-DEFAULT-FRAME gl-ctrl.journal gl-ctrl.trnum ~
-gl-ctrl.ret gl-ctrl.ret-dscr gl-ctrl.contra gl-ctrl.con-dscr 
+gl-ctrl.ret gl-ctrl.contra 
 &Scoped-define OPEN-QUERY-DEFAULT-FRAME OPEN QUERY DEFAULT-FRAME FOR EACH gl-ctrl SHARE-LOCK.
 &Scoped-define TABLES-IN-QUERY-DEFAULT-FRAME gl-ctrl
 &Scoped-define FIRST-TABLE-IN-QUERY-DEFAULT-FRAME gl-ctrl
 
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-15 RECT-16 Btn_Update Btn_Close 
+&Scoped-Define ENABLED-OBJECTS RECT-15 RECT-16 cRetAccDscr cContAccDscr ~
+Btn_Update Btn_Close 
 &Scoped-Define DISPLAYED-FIELDS gl-ctrl.journal gl-ctrl.trnum gl-ctrl.ret ~
-gl-ctrl.ret-dscr gl-ctrl.contra gl-ctrl.con-dscr 
+gl-ctrl.contra 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -109,6 +110,16 @@ DEFINE VARIABLE F1 AS CHARACTER FORMAT "X(256)":U INITIAL "F1"
       VIEW-AS TEXT 
      SIZE 2.2 BY .52
      BGCOLOR 0 FGCOLOR 15 FONT 4 NO-UNDO.
+     
+DEFINE VARIABLE cRetAccDscr AS CHARACTER FORMAT "X(35)":U 
+     VIEW-AS FILL-IN 
+     SIZE 37 BY 1
+     BGCOLOR 15 NO-UNDO.    
+     
+DEFINE VARIABLE cContAccDscr AS CHARACTER FORMAT "X(35)":U 
+     VIEW-AS FILL-IN 
+     SIZE 37 BY 1
+     BGCOLOR 15 NO-UNDO.     
 
 DEFINE RECTANGLE RECT-15
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
@@ -141,15 +152,8 @@ DEFINE FRAME DEFAULT-FRAME
           VIEW-AS FILL-IN 
           SIZE 27 BY 1
           BGCOLOR 15 
-     gl-ctrl.ret-dscr AT ROW 3.62 COL 54 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 37 BY 1
-          BGCOLOR 7 FGCOLOR 15 
-     gl-ctrl.contra AT ROW 4.81 COL 25 COLON-ALIGNED
-          LABEL "Profit Contra"
-          VIEW-AS FILL-IN 
-          SIZE 27 BY 1
-          BGCOLOR 15 
+     cRetAccDscr AT ROW 3.62 COL 54 COLON-ALIGNED NO-LABEL            
+     cContAccDscr AT ROW 4.81 COL 25 COLON-ALIGNED           
      gl-ctrl.con-dscr AT ROW 4.81 COL 54 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 37 BY 1
@@ -226,8 +230,8 @@ ASSIGN
                 "ribbon-button".
 
 
-/* SETTINGS FOR FILL-IN gl-ctrl.con-dscr IN FRAME DEFAULT-FRAME
-   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN cContAccDscr IN FRAME DEFAULT-FRAME
+   NO-ENABLE 2                                                           */
 /* SETTINGS FOR FILL-IN gl-ctrl.contra IN FRAME DEFAULT-FRAME
    NO-ENABLE 1 EXP-LABEL                                                */
 /* SETTINGS FOR FILL-IN F-2 IN FRAME DEFAULT-FRAME
@@ -244,8 +248,8 @@ ASSIGN
    NO-ENABLE 1 EXP-LABEL                                                */
 /* SETTINGS FOR FILL-IN gl-ctrl.ret IN FRAME DEFAULT-FRAME
    NO-ENABLE 1                                                          */
-/* SETTINGS FOR FILL-IN gl-ctrl.ret-dscr IN FRAME DEFAULT-FRAME
-   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN cContAccDscr IN FRAME DEFAULT-FRAME
+   NO-ENABLE 2                                                           */
 /* SETTINGS FOR FILL-IN gl-ctrl.trnum IN FRAME DEFAULT-FRAME
    NO-ENABLE 1 EXP-LABEL                                                */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
@@ -459,8 +463,8 @@ PROCEDURE enable_UI :
   {&OPEN-QUERY-DEFAULT-FRAME}
   GET FIRST DEFAULT-FRAME.
   IF AVAILABLE gl-ctrl THEN 
-    DISPLAY gl-ctrl.journal gl-ctrl.trnum gl-ctrl.ret gl-ctrl.ret-dscr 
-          gl-ctrl.contra gl-ctrl.con-dscr 
+    DISPLAY gl-ctrl.journal gl-ctrl.trnum gl-ctrl.ret  
+          gl-ctrl.contra  
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   ENABLE RECT-15 RECT-16 Btn_Update Btn_Close 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.

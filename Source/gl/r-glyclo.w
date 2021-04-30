@@ -368,6 +368,7 @@ DO:
       IF ll-ans THEN do:
          RUN close-year.
          MESSAGE "Completed closing year. " VIEW-AS ALERT-BOX INFO.
+         APPLY "close" TO THIS-PROCEDURE.
       END.
   END.
 END.
@@ -524,6 +525,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
   if company.yend-per then do :
      MESSAGE "This fiscal year is already closed. " VIEW-AS ALERT-BOX ERROR.
+     APPLY "close" TO THIS-PROCEDURE.
      return.
   END.
   find first period where period.company eq cocode
@@ -533,6 +535,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   if avail period then do with frame error:
      MESSAGE "ALL MONTHS IN CLOSING FISCAL YEAR ARE NOT CLOSED!!!!" 
           VIEW-AS ALERT-BOX ERROR.
+     APPLY "close" TO THIS-PROCEDURE.     
      return.  
   end.
 
@@ -547,8 +550,22 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      "  Maintenance, Company File Open Periods (L-F-Company File-O) "  skip
      "  before you continue. "
         VIEW-AS ALERT-BOX ERROR.
+     APPLY "close" TO THIS-PROCEDURE.   
      RETURN.        
   end.
+  
+  FIND FIRST glhist NO-LOCK
+         WHERE glhist.company EQ cocode
+         AND glhist.jrnl EQ "AutoClose" 
+         AND glhist.glYear EQ (fisc-yr + 1) NO-ERROR.
+  IF NOT AVAIL glhist THEN
+  DO:
+     MESSAGE "AutoClose journal entry is not found.." 
+          VIEW-AS ALERT-BOX ERROR.
+     APPLY "close" TO THIS-PROCEDURE.     
+     RETURN NO-APPLY.        
+  END.
+         
 
 
   RUN enable_UI.

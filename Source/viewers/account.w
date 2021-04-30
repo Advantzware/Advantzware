@@ -1272,7 +1272,7 @@ PROCEDURE local-display-fields :
     IF AVAIL account THEN
     do:
         find first company where company.company eq g_company no-lock no-error.
-                      
+
         for each period
             where period.company eq account.company
               and period.pstat   eq yes
@@ -1283,9 +1283,9 @@ PROCEDURE local-display-fields :
               and glhist.actnum  eq account.actnum
               and glhist.period  eq period.pnum
               and glhist.tr-date ge period.pst
-              and glhist.tr-date le period.pend              
+              and glhist.tr-date le period.pend                
                 no-lock:
-
+               
               ld-period$[period.pnum] = ld-period$[period.pnum] + glhist.tr-amt.
         end.
     END.
