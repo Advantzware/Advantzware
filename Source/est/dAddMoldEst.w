@@ -140,10 +140,10 @@ OUTPUT cRtnChar, OUTPUT lRecFound).
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS quantity cCustNo ship-to cCustPart item-name ~
-len wid dep style-cod board fg-cat Btn_OK Btn_Cancel rd_pur caliper 
+item-descr len wid dep style-cod board fg-cat Btn_OK Btn_Cancel rd_pur caliper 
 &Scoped-Define DISPLAYED-OBJECTS quantity cCustNo ship-to cCustPart ~
 item-name len wid dep style-cod style-dscr board fg-cat cust-name ship-name ~
-board-dscr cat-dscr rd_pur caliper 
+item-descr board-dscr cat-dscr rd_pur caliper 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -224,6 +224,12 @@ DEFINE VARIABLE item-name AS CHARACTER FORMAT "X(30)":U
      SIZE 42 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
+DEFINE VARIABLE item-descr AS CHARACTER FORMAT "X(30)":U 
+     LABEL "Item Descr" 
+     VIEW-AS FILL-IN 
+     SIZE 42 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
+
 DEFINE VARIABLE len AS DECIMAL FORMAT ">>>>9.99":U INITIAL 0 
      LABEL "Length" 
      VIEW-AS FILL-IN 
@@ -284,7 +290,8 @@ DEFINE FRAME D-Dialog
      ship-to AT ROW 4.14 COL 17 COLON-ALIGNED WIDGET-ID 178
      cCustPart AT ROW 5.57 COL 17 COLON-ALIGNED WIDGET-ID 88
      item-name AT ROW 7.1 COL 17 COLON-ALIGNED WIDGET-ID 208
-     quantity AT ROW 8.67 COL 17 COLON-ALIGNED WIDGET-ID 198
+     item-descr AT ROW 8.67 COL 17 COLON-ALIGNED WIDGET-ID 288
+     quantity AT ROW 10.24 COL 17 COLON-ALIGNED WIDGET-ID 198
      style-cod AT ROW 2.67 COL 81.2 COLON-ALIGNED WIDGET-ID 180
      style-dscr AT ROW 2.67 COL 95.8 COLON-ALIGNED NO-LABEL WIDGET-ID 182       
      fg-cat AT ROW 4.14 COL 81.2 COLON-ALIGNED WIDGET-ID 196
@@ -782,6 +789,21 @@ DO:
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME item-descr
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL item-descr D-Dialog
+ON LEAVE OF item-descr IN FRAME D-Dialog /* Item Description */
+DO:
+       DEFINE VARIABLE lError AS LOGICAL NO-UNDO  .
+        IF LASTKEY NE -1 THEN 
+        DO:
+           
+        END.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME len
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL len D-Dialog
 ON LEAVE OF len IN FRAME D-Dialog /* Length */
@@ -1213,6 +1235,7 @@ PROCEDURE create-ttfrmout :
         ttInputEst.cCompany         = cocode
         ttInputEst.cPartID          = cCustPart
         ttInputEst.cPartName        = item-name        
+        ttInputEst.cPartDescription = item-descr        
         ttInputEst.iFormNo          = iFormNumber
         ttInputEst.iBlankNo         = iBlankNumber 
 
@@ -1369,10 +1392,10 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY quantity cCustNo ship-to cCustPart item-name len wid dep style-cod 
           style-dscr board fg-cat cust-name ship-name board-dscr cat-dscr rd_pur 
-          caliper 
+          item-descr caliper 
       WITH FRAME D-Dialog.
   ENABLE quantity cCustNo ship-to cCustPart item-name len wid dep style-cod 
-         board fg-cat Btn_OK Btn_Cancel rd_pur caliper 
+         item-descr board fg-cat Btn_OK Btn_Cancel rd_pur caliper 
       WITH FRAME D-Dialog.
   VIEW FRAME D-Dialog.
   {&OPEN-BROWSERS-IN-QUERY-D-Dialog}
@@ -1662,6 +1685,7 @@ PROCEDURE pDisplayValue :
              ship-to:SCREEN-VALUE    = eb.ship-id
              cCustPart:SCREEN-VALUE  = eb.part-no             
              item-name:SCREEN-VALUE  = eb.part-dscr1            
+             item-descr:SCREEN-VALUE = eb.part-dscr2            
              len:SCREEN-VALUE        = string(eb.len)
              wid:SCREEN-VALUE        = string(eb.wid)
              dep:SCREEN-VALUE        = string(eb.dep)
