@@ -1273,7 +1273,6 @@ PROCEDURE local-display-fields :
     do:
         find first company where company.company eq g_company no-lock no-error.
 
-               
         for each period
             where period.company eq account.company
               and period.pstat   eq yes

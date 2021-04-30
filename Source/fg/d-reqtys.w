@@ -32,6 +32,15 @@ def input parameter ip-mkbin as log no-undo.
 {custom/globdefs.i}
 
 {sys/inc/var.i new shared}
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO. 
+DEFINE VARIABLE lDeleteBinsAllowed AS LOGICAL NO-UNDO.
+
+RUN sys/ref/nk1look.p (INPUT g_company, "DeleteBinsAllowed", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    lDeleteBinsAllowed = LOGICAL(cRtnChar) NO-ERROR.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -263,6 +272,11 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     locode      = g_loc.
 
   RUN enable_UI.
+  IF NOT lDeleteBinsAllowed THEN
+  ASSIGN
+  tb_neg:HIDDEN IN FRAME {&FRAME-NAME} = YES
+  tb_zer:HIDDEN IN FRAME {&FRAME-NAME} = YES.
+  
   WAIT-FOR GO OF FRAME {&FRAME-NAME}.
 END.
 RUN disable_UI.

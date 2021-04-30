@@ -778,7 +778,10 @@ PROCEDURE UDF :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    &IF LOOKUP("{&FIRST-EXTERNAL-TABLE}","utilities") EQ 0 &THEN
+    /* not applicable if the window container has no data source from it's browser */
+    &IF "{&FIRST-EXTERNAL-TABLE}" NE "" &THEN
+    /* avoid tables without a rec_key field */
+    &IF LOOKUP("{&FIRST-EXTERNAL-TABLE}","{&NORECKEY}"," ") EQ 0 &THEN
     DEFINE VARIABLE isRunning AS LOGICAL NO-UNDO.
 
     FOR EACH mfgroup NO-LOCK:
@@ -794,6 +797,7 @@ PROCEDURE UDF :
                             {methods/headers/{&FIRST-EXTERNAL-TABLE}.i},
                             h_smartmsg).
     END. /* avail mfgroup */
+    &ENDIF
     &ENDIF
 
 END PROCEDURE.

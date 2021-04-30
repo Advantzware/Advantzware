@@ -158,7 +158,6 @@ DEF TEMP-TABLE tt-inv NO-UNDO  FIELD sorter    LIKE ar-inv.inv-no
               glhist.company EQ cust.company AND ~
               glhist.jrnl EQ "CASHRVD" AND ~
               glhist.tr-dscr EQ v-gltrans-desc ~
-              AND glhist.posted EQ NO ~
               NO-LOCK NO-ERROR. ~
          IF AVAIL glhist THEN ~
             v-check-date = glhist.tr-date. ~
@@ -446,8 +445,7 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
               FIND FIRST glhist WHERE 
                    glhist.company EQ cust.company AND
                    glhist.jrnl EQ "CASHRVD" AND
-                   glhist.tr-dscr EQ v-gltrans-desc AND
-                   glhist.posted EQ NO
+                   glhist.tr-dscr EQ v-gltrans-desc 
                    NO-LOCK NO-ERROR.
               IF AVAIL glhist THEN
                  v-check-date = glhist.tr-date.
@@ -642,8 +640,7 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
               FIND FIRST glhist WHERE 
                    glhist.company EQ cust.company AND
                    glhist.jrnl EQ "CASHRVD" AND
-                   glhist.tr-dscr EQ v-gltrans-desc AND
-                   glhist.posted EQ NO
+                   glhist.tr-dscr EQ v-gltrans-desc 
                    NO-LOCK NO-ERROR.
               IF AVAIL glhist THEN
                  v-check-date = glhist.tr-date.
@@ -686,8 +683,7 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
               CAN-FIND(FIRST glhist WHERE
               glhist.company EQ cust.company AND
               glhist.jrnl EQ "CASHRVD" AND
-              glhist.tr-dscr EQ v-tr-dscr AND
-              glhist.posted EQ NO)) THEN
+              glhist.tr-dscr EQ v-tr-dscr )) THEN
               v-type = "VD".
            ELSE
               v-type = "PY".
@@ -870,8 +866,7 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
                  FIND FIRST glhist WHERE
                       glhist.company EQ cust.company AND
                       glhist.jrnl EQ "CASHRVD" AND
-                      glhist.tr-dscr EQ v-gltrans-desc AND 
-                      glhist.posted EQ NO
+                      glhist.tr-dscr EQ v-gltrans-desc 
                       NO-LOCK NO-ERROR.
                 
                  IF AVAIL glhist THEN
@@ -1059,8 +1054,7 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
             CAN-FIND(FIRST glhist WHERE
             glhist.company EQ cust.company AND
             glhist.jrnl EQ "CASHRVD" AND
-            glhist.tr-dscr EQ v-tr-dscr AND
-            glhist.posted EQ NO) THEN
+            glhist.tr-dscr EQ v-tr-dscr ) THEN
             DO:
               ASSIGN
                  v-type = "VD"
@@ -1094,8 +1088,7 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
                FIND FIRST glhist WHERE
                     glhist.company EQ cust.company AND
                     glhist.jrnl EQ "CASHRVD" AND
-                    glhist.tr-dscr EQ v-gltrans-desc AND 
-                    glhist.posted EQ NO
+                    glhist.tr-dscr EQ v-gltrans-desc 
                     NO-LOCK NO-ERROR.
               
                IF AVAIL glhist THEN
@@ -1212,8 +1205,7 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
               FIND FIRST glhist WHERE
                    glhist.company EQ cust.company AND
                    glhist.jrnl EQ "CASHRVD" AND
-                   glhist.tr-dscr EQ v-gltrans-desc AND 
-                   glhist.posted EQ NO
+                   glhist.tr-dscr EQ v-gltrans-desc 
                    NO-LOCK NO-ERROR.
              
               IF AVAIL glhist THEN

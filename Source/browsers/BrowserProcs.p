@@ -48,11 +48,11 @@ PROCEDURE Browse_PrepareAndExecuteBrowseQuery:
     DEFINE VARIABLE lResponse     AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE iStartTime    AS INTEGER   NO-UNDO.
      
-    hdQuery = iphdBrowseQuery.
-        
+    RUN spProgressBar ("Running Browse_PrepareAndExecuteBrowseQuery", 90, 100).
+    hdQuery = iphdBrowseQuery.        
     hdQuery:QUERY-PREPARE(ipcQueryString). 
     hdQuery:QUERY-OPEN().
-    
+
     /* Convert seconds in milliseconds */
     ipdQueryTimeLimit = ipdQueryTimeLimit * 1000.  
     
@@ -116,7 +116,8 @@ PROCEDURE Browse_PrepareAndExecuteBrowseQuery:
             END. /* End of Else IF */         
         END.
     END. 
-        
+    RUN spProgressBar (?, ?, 100).    
+
 END PROCEDURE.
 
 PROCEDURE Browse_PrepareAndExecuteLimitingQuery:
@@ -149,6 +150,8 @@ PROCEDURE Browse_PrepareAndExecuteLimitingQuery:
     DEFINE VARIABLE lResponse     AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE iStartTime    AS INTEGER   NO-UNDO.
     
+    RUN spProgressBar ("Running Browse_PrepareAndExecuteLimitingQuery", 50, 100).
+
     /* Convert seconds in milliseconds */
     ipdTimeLimit = ipdTimeLimit * 1000.
     
@@ -160,7 +163,7 @@ PROCEDURE Browse_PrepareAndExecuteLimitingQuery:
         IF hdBuffer:NAME EQ ipcTableName THEN
             hdTableBuffer = hdBuffer.                                    
     END.  
-    hdQuery:QUERY-PREPARE(ipcQueryString). 
+    hdQuery:QUERY-PREPARE(ipcQueryString).
     hdQuery:QUERY-OPEN().
     hdQuery:GET-NEXT().
     
@@ -240,6 +243,8 @@ PROCEDURE Browse_PrepareAndExecuteLimitingQuery:
             hdQuery:QUERY-CLOSE().
         DELETE OBJECT hdQuery.
     END.
+    RUN spProgressBar (?, ?, 100).
+
 END PROCEDURE.
 
 PROCEDURE Browser_GetRecordAndTimeLimit:

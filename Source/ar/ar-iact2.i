@@ -57,8 +57,7 @@ if ar-cashl.amt-paid ne 0 then do:
         can-find(FIRST glhist WHERE
            glhist.company EQ cocode AND
            glhist.jrnl EQ "CASHRVD" AND
-           glhist.tr-dscr EQ v-gltrans-desc AND 
-           glhist.posted EQ NO) THEN
+           glhist.tr-dscr EQ v-gltrans-desc ) THEN
         t-check-no = "Void".
   END.
      
@@ -92,8 +91,7 @@ if ar-cashl.amt-paid ne 0 then do:
             FIND FIRST glhist WHERE
                  glhist.company EQ cocode AND
                  glhist.jrnl EQ "CASHRVD" AND
-                 glhist.tr-dscr EQ v-gltrans-desc AND 
-                 glhist.posted EQ NO
+                 glhist.tr-dscr EQ v-gltrans-desc 
                  NO-LOCK NO-ERROR.
 
             IF AVAIL glhist THEN
@@ -149,8 +147,7 @@ if ar-cashl.amt-paid ne 0 then do:
              FIND FIRST glhist WHERE
                   glhist.company EQ cocode AND
                   glhist.jrnl EQ "CASHRVD" AND
-                  glhist.tr-dscr EQ v-gltrans-desc AND
-                  glhist.posted EQ NO
+                  glhist.tr-dscr EQ v-gltrans-desc  
                   NO-LOCK NO-ERROR.
 
              IF AVAIL glhist THEN

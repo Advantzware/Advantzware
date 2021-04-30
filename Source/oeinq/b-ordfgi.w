@@ -950,8 +950,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_del B-table-Win
 ON CHOOSE OF btn_del IN FRAME F-Main /* Delete */
 DO:
-   DEF VAR confirm AS LOG NO-UNDO.
+   DEF VAR confirm AS LOG NO-UNDO.       
    DEFINE BUFFER bf-fg-rdtlh FOR fg-rdtlh.
+   
    IF v-upd-perms THEN DO:
      IF AVAIL fg-rcpth THEN
      DO:
@@ -971,8 +972,10 @@ DO:
               END.
 
               DELETE fg-rcpth.
-
-          END.
+              
+          END.                     
+          
+          RUN fg/d-reqtys.w (ROWID(itemfg), NO).
 
           RUN local-open-query.
         END.
@@ -1746,6 +1749,7 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE set-read-only B-table-Win 
 PROCEDURE set-read-only :
