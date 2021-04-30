@@ -861,6 +861,17 @@ DO:
             INPUT "",
             INPUT "Cost"
             ). /*From TagProcs Super Proc*/
+        RUN Tag_IsTagRecordAvailableForGroup(
+            INPUT fg-rcpth.rec_key,
+            INPUT "fg-rcpth",
+            INPUT "Cost",
+            OUTPUT lAvailable
+            ).
+
+        IF lAvailable THEN       
+            btnTags:SENSITIVE IN FRAME {&frame-name}  = TRUE.
+        ELSE     
+            btnTags:SENSITIVE IN FRAME {&frame-name}  = FALSE.
 
     END.
                 
