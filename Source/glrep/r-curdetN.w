@@ -1329,8 +1329,7 @@ v-jrnl-no = "" .
         where glhist.company eq cocode
           and glhist.actnum  eq account.actnum
           and glhist.period  eq tran-period
-          AND glhist.posted  EQ NO
-        no-error.
+         no-error.
 
   /*  if avail gltrans or inc then do:
       if line-counter gt page-size - 2 then page.
@@ -1347,7 +1346,6 @@ v-jrnl-no = "" .
         where glhist.company eq cocode
           and glhist.actnum  eq account.actnum
           and glhist.period  eq tran-period
-          AND glhist.posted  EQ NO
         break by glhist.tr-num
               by glhist.tr-date
               by glhist.jrnl:
