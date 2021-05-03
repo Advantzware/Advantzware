@@ -97,6 +97,32 @@ if choice then do on error undo, leave:
         status default "Processing Account: " + bf-account.actnum.        
     END.
     bf-period.pstat = YES.
+    ASSIGN
+        bf-period.APClosedBy  = USERID(LDBNAME(1))
+        bf-period.POClosedBy  = USERID(LDBNAME(1))
+        bf-period.OPClosedBy  = USERID(LDBNAME(1))
+        bf-period.WIPClosedBy = USERID(LDBNAME(1))
+        bf-period.RMClosedBy  = USERID(LDBNAME(1))
+        bf-period.FGClosedBy  = USERID(LDBNAME(1))
+        bf-period.BRClosedBy  = USERID(LDBNAME(1))
+        bf-period.ARClosedBy  = USERID(LDBNAME(1))        
+        bf-period.subLedgerAP  = "O"
+        bf-period.subLedgerPO  = "O"
+        bf-period.subLedgerOP  = "O"
+        bf-period.subLedgerWIP = "O"
+        bf-period.subLedgerRM  = "O"
+        bf-period.subLedgerFG  = "O"
+        bf-period.subLedgerBR  = "O"
+        bf-period.subLedgerAR  = "O"      
+        bf-period.APClosed  = TODAY
+        bf-period.POClosed  = TODAY
+        bf-period.OPClosed  = TODAY
+        bf-period.WIPClosed = TODAY
+        bf-period.RMClosed  = TODAY
+        bf-period.FGClosed  = TODAY
+        bf-period.BRClosed  = TODAY
+        bf-period.ARClosed  = TODAY
+        .
     FIND CURRENT bf-period NO-LOCK NO-ERROR.
     
     FOR EACH bf-glhist EXCLUSIVE-LOCK

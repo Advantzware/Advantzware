@@ -95,12 +95,12 @@ DEF STREAM excel.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 tb_inact tb_prior-period-data ~
-tb_out-bal tb_invalid-period tb_post-out-period fi_file rd-dest ~
-lines-per-page lv-ornt lv-font-no td-show-parm btn-ok btn-cancel 
+tb_out-bal tb_invalid-period tb_post-out-period tb_excel tb_runExcel fi_file  ~
+rd-dest lines-per-page lv-ornt lv-font-no td-show-parm btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS fiText tran-year tran-period tb_inact ~
 tb_prior-period-data tb_out-bal tb_invalid-period tb_post-out-period ~
-fi_file rd-dest lines-per-page lv-ornt lv-font-no lv-font-name td-show-parm ~
-v-msg1 v-msg2 
+tb_excel tb_runExcel fi_file rd-dest lines-per-page lv-ornt lv-font-no ~
+lv-font-name td-show-parm v-msg1 v-msg2 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -219,6 +219,17 @@ DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL no
      LABEL "Show Parameters?" 
      VIEW-AS TOGGLE-BOX
      SIZE 24 BY .81 NO-UNDO.
+     
+DEFINE VARIABLE tb_excel AS LOGICAL INITIAL yes 
+     LABEL "Export To Excel?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 21 BY .81
+     FGCOLOR 8  NO-UNDO. 
+     
+DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL no 
+     LABEL "Auto Run Excel?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 21 BY .81 NO-UNDO.     
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -232,7 +243,9 @@ DEFINE FRAME FRAME-A
      tb_out-bal AT ROW 6.43 COL 21.8 WIDGET-ID 12
      tb_invalid-period AT ROW 7.52 COL 21.8 WIDGET-ID 14
      tb_post-out-period AT ROW 8.57 COL 21.8 WIDGET-ID 16
-     fi_file AT ROW 10.29 COL 19.4 COLON-ALIGNED HELP
+     tb_excel AT ROW 9.81 COL 41.8 RIGHT-ALIGNED WIDGET-ID 44
+     tb_runExcel AT ROW 9.81 COL 67.4 RIGHT-ALIGNED WIDGET-ID 42
+     fi_file AT ROW 10.62 COL 19.4 COLON-ALIGNED HELP
           "Enter Beginning Customer Number" WIDGET-ID 18
      rd-dest AT ROW 16.1 COL 9 NO-LABEL
      lines-per-page AT ROW 16.1 COL 83 COLON-ALIGNED
@@ -242,8 +255,8 @@ DEFINE FRAME FRAME-A
      td-show-parm AT ROW 21.33 COL 10
      btn-ok AT ROW 23.05 COL 18
      btn-cancel AT ROW 23.05 COL 57
-     v-msg1 AT ROW 11.52 COL 3.2 NO-LABEL WIDGET-ID 2
-     v-msg2 AT ROW 13.05 COL 2 COLON-ALIGNED NO-LABEL WIDGET-ID 4
+     v-msg1 AT ROW 11.71 COL 3.2 NO-LABEL WIDGET-ID 2
+     v-msg2 AT ROW 13.14 COL 2 COLON-ALIGNED NO-LABEL WIDGET-ID 4
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.24 COL 5
      "Output Destination" VIEW-AS TEXT
@@ -322,6 +335,12 @@ ASSIGN
 
 /* SETTINGS FOR FILL-IN lv-font-name IN FRAME FRAME-A
    NO-ENABLE                                                            */
+/* SETTINGS FOR TOGGLE-BOX tb_excel IN FRAME FRAME-A
+   ALIGN-R                                                              */
+ASSIGN 
+       tb_excel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+   
 ASSIGN 
        tb_inact:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -340,6 +359,12 @@ ASSIGN
 
 ASSIGN 
        tb_prior-period-data:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+                
+/* SETTINGS FOR TOGGLE-BOX tb_runExcel IN FRAME FRAME-A
+   ALIGN-R                                                              */
+ASSIGN 
+       tb_runExcel:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 /* SETTINGS FOR FILL-IN tran-period IN FRAME FRAME-A
@@ -445,7 +470,7 @@ DO:
            UPDATE choice.
      IF choice THEN do:
         RUN close-month.
-        MESSAGE "Closing G/L Period is completed. " VIEW-AS ALERT-BOX INFO.
+        
         ASSIGN v-msg1:HIDDEN = YES
                v-msg2:HIDDEN = YES
                v-msg1 = ""
@@ -559,6 +584,16 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME tb_excel
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_excel C-Win
+ON VALUE-CHANGED OF tb_excel IN FRAME FRAME-A /* Export To Excel? */
+DO:
+  assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME tb_inact
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_inact C-Win
@@ -614,6 +649,15 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME tb_runExcel
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_runExcel C-Win
+ON VALUE-CHANGED OF tb_runExcel IN FRAME FRAME-A /* Auto Run Excel? */
+DO:
+  assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &Scoped-define SELF-NAME td-show-parm
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL td-show-parm C-Win
@@ -844,6 +888,7 @@ PROCEDURE close-month :
    DEFINE VARIABLE lLastPeriod AS LOGICAL NO-UNDO.
    DEFINE VARIABLE iTransNum AS INTEGER NO-UNDO.
    DEFINE VARIABLE dNetIncome AS DECIMAL NO-UNDO.
+   DEFINE VARIABLE iClosedPeriod AS INTEGER NO-UNDO.
    
    DEF BUFFER b-period FOR period.   
 
@@ -874,8 +919,8 @@ PROCEDURE close-month :
        where b-racct.company eq cocode
          and b-racct.actnum  eq gl-ctrl.retainedEarnings
        no-lock no-error.
-   if not avail b-racct AND period.pnum EQ company.num-per then do on endkey undo, return:
-      message "Closing the last period of the year will create a journal entry moving Current Years Earnings to Retained Earnings account, so enter a valid retained earnings account in G-F-3."
+   if not avail b-racct then do on endkey undo, return:
+      message "No Retained Earnings account defined. Set up Retained Earnings account in G-F-3"
               VIEW-AS ALERT-BOX ERROR.
       return.
    end.
@@ -1151,6 +1196,7 @@ PROCEDURE close-month :
           exclusive-lock.
       period.pstat = false.
       if period.pnum eq company.num-per then company.yend-per = NO.
+      iClosedPeriod = period.pnum.
    end.
 
    find next period
@@ -1200,7 +1246,9 @@ PROCEDURE close-month :
 
    SESSION:SET-WAIT-STATE ("").
 
-   message "Current accounting period changed to " uperiod VIEW-AS ALERT-BOX.
+   message "Period " string(iClosedPeriod) " is closed." SKIP
+   "Current accounting period changed to " uperiod SKIP
+   "Closing G/L Period is completed." VIEW-AS ALERT-BOX INFO.
 
 END PROCEDURE.
 
@@ -1271,12 +1319,14 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY fiText tran-year tran-period tb_inact tb_prior-period-data tb_out-bal 
-          tb_invalid-period tb_post-out-period fi_file rd-dest lines-per-page 
-          lv-ornt lv-font-no lv-font-name td-show-parm v-msg1 v-msg2 
+          tb_invalid-period tb_post-out-period tb_excel tb_runExcel fi_file 
+          rd-dest lines-per-page lv-ornt lv-font-no lv-font-name td-show-parm 
+          v-msg1 v-msg2 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 tb_inact tb_prior-period-data tb_out-bal 
-         tb_invalid-period tb_post-out-period fi_file rd-dest lines-per-page 
-         lv-ornt lv-font-no td-show-parm btn-ok btn-cancel 
+         tb_invalid-period tb_post-out-period tb_excel tb_runExcel fi_file 
+         rd-dest lines-per-page lv-ornt lv-font-no td-show-parm btn-ok 
+         btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -1362,10 +1412,12 @@ DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
  DEFINE VARIABLE excelheader AS CHARACTER NO-UNDO.
 
  RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
-
- OUTPUT STREAM excel TO VALUE(cFileName).
- excelheader = "Account,Description,Reason" .
- PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' skip.
+ IF tb_excel THEN
+ DO:
+     OUTPUT STREAM excel TO VALUE(cFileName).
+     excelheader = "Account,Description,Reason" .
+     PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' skip.
+ END.
 
  
 form account.actnum label "Account Number"
@@ -1405,7 +1457,8 @@ form account.actnum label "Account Number"
    display str-tit3 format "x(130)" skip(1) with frame r-top.
 
    SESSION:SET-WAIT-STATE ("general").
-
+ IF tb_excel THEN
+ DO:
    for each account where account.company eq cocode NO-LOCK :
        IF tb_inact AND account.inactive THEN do:
            PUT STREAM excel UNFORMATTED
@@ -1415,7 +1468,7 @@ form account.actnum label "Account Number"
                        SKIP.
        END.
    END.
-
+   
    PUT STREAM excel UNFORMATTED SKIP(1) .
 
    PUT STREAM excel UNFORMATTED
@@ -1428,13 +1481,14 @@ form account.actnum label "Account Number"
        '"' "Amount"                   '",'
        '"' "Reason  "                 '",'
        SKIP.
-
-   for each account where account.company eq cocode no-lock with frame r-mclo:
+ END.
+ for each account where account.company eq cocode no-lock with frame r-mclo:
        
        IF tb_out-bal THEN DO:
 
        END.
-
+    IF tb_excel THEN
+    DO:
        IF tb_invalid-period THEN DO:
           FOR EACH glhist no-lock 
               where glhist.company eq cocode
@@ -1498,7 +1552,7 @@ form account.actnum label "Account Number"
                   SKIP.
           END.
        END.
-
+    END. /* tb_excel*/
 
       if line-counter gt page-size - 3 then page.
       open-amt = account.cyr-open.
@@ -1567,10 +1621,13 @@ form account.actnum label "Account Number"
            tot-all @ open-amt
            with frame r-mclo.
 
+   IF tb_excel THEN
+   DO:
+       OUTPUT STREAM excel CLOSE.
+       IF tb_runExcel THEN 
+       OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 
-   OUTPUT STREAM excel CLOSE.
-   OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
-
+   END.
 
  SESSION:SET-WAIT-STATE("").
 
