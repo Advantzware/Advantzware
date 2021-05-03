@@ -1358,8 +1358,7 @@ PROCEDURE dso-proc :
              glhist.actnum  eq account.actnum AND
              glhist.period  eq period.pnum AND
              glhist.tr-date ge period.pst AND
-             glhist.tr-date le period.pend AND
-             glhist.posted  EQ NO
+             glhist.tr-date le period.pend
              no-lock:
 
              v-total-period-bal = v-total-period-bal + glhist.tr-amt.
