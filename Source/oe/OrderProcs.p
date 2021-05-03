@@ -659,6 +659,8 @@ PROCEDURE pCreateMiscChargeByDeliveryDate PRIVATE:
     DEFINE VARIABLE cSurchargeConfig     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cPrepCode            AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lFound               AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cOrderPriority       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iOrderPriority       AS INTEGER   NO-UNDO.
     
     DEFINE BUFFER bf-oe-ord FOR oe-ord.
     
@@ -699,10 +701,25 @@ PROCEDURE pCreateMiscChargeByDeliveryDate PRIVATE:
     IF NOT lFound OR cPrepCode EQ "" THEN
         RETURN.
 
+    RUN sys/ref/nk1look.p (
+        INPUT  ipcCompany,
+        INPUT  cSurchargeConfig,
+        INPUT  "I",
+        INPUT  YES,
+        INPUT  YES,
+        INPUT  bf-oe-ord.cust-no,
+        INPUT  bf-oe-ord.ship-id,
+        OUTPUT cOrderPriority,
+        OUTPUT lFound
+        ).
+    IF lFound THEN
+        iOrderPriority = INTEGER(cOrderPriority).
+
     RUN pCreateMiscSurcharge (
         INPUT  ipcCompany,
         INPUT  ipiOrderID,
         INPUT  cPrepCode,
+        INPUT  iOrderPriority,
         OUTPUT oplError,
         OUTPUT opcMessage
         ).
@@ -716,7 +733,8 @@ PROCEDURE pCreateMiscSurcharge PRIVATE:
 ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ipcCompany  AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipiOrderID  AS INTEGER   NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcPrepCode AS CHARACTER NO-UNDO.    
+    DEFINE INPUT  PARAMETER ipcPrepCode AS CHARACTER NO-UNDO.   
+    DEFINE INPUT  PARAMETER ipiPriority AS INTEGER   NO-UNDO. 
     DEFINE OUTPUT PARAMETER oplError    AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage  AS CHARACTER NO-UNDO.
     
@@ -737,7 +755,7 @@ PROCEDURE pCreateMiscSurcharge PRIVATE:
     DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
     
-        FIND FIRST bf-oe-ord NO-LOCK
+        FIND FIRST bf-oe-ord EXCLUSIVE-LOCK
              WHERE bf-oe-ord.company EQ ipcCompany
                AND bf-oe-ord.ord-no  EQ ipiOrderID
              NO-ERROR.
@@ -748,6 +766,9 @@ PROCEDURE pCreateMiscSurcharge PRIVATE:
                 .     
             RETURN.
         END.
+        
+        /* Set the order priority */
+        bf-oe-ord.priority = ipiPriority.
         
         FIND FIRST bf-prep NO-LOCK
              WHERE bf-prep.company EQ bf-oe-ord.company
