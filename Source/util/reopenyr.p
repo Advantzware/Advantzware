@@ -114,14 +114,14 @@ if choice then do on error undo, leave:
         bf-period.subLedgerFG  = "O"
         bf-period.subLedgerBR  = "O"
         bf-period.subLedgerAR  = "O"      
-        bf-period.APClosed  = TODAY
-        bf-period.POClosed  = TODAY
-        bf-period.OPClosed  = TODAY
-        bf-period.WIPClosed = TODAY
-        bf-period.RMClosed  = TODAY
-        bf-period.FGClosed  = TODAY
-        bf-period.BRClosed  = TODAY
-        bf-period.ARClosed  = TODAY
+        bf-period.APClosed  = NOW
+        bf-period.POClosed  = NOW
+        bf-period.OPClosed  = NOW
+        bf-period.WIPClosed = NOW
+        bf-period.RMClosed  = NOW
+        bf-period.FGClosed  = NOW
+        bf-period.BRClosed  = NOW
+        bf-period.ARClosed  = NOW
         .
     FIND CURRENT bf-period NO-LOCK NO-ERROR.
     
