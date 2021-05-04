@@ -638,7 +638,8 @@ FOR EACH job-hdr NO-LOCK
                                          
                                          "<C2><B>Blank | </B>" STRING(bff-eb.blank-no,"99")  
                                          "<P10><C20><b>Size: </B>" (string(bff-eb.len,">9.9999") + " x " + STRING(bff-eb.wid,">9.9999") + " x " + STRING(bff-eb.dep,">9.9999")) FORMAT "x(40)" 
-                                          "<C45>" bff-eb.spc-no FORMAT "x(30)" SKIP .
+                                          "<C45>" bff-eb.spc-no FORMAT "x(30)" SKIP 
+                                        "<P10><C20><b>Blank Size: </B>" (string(bff-eb.t-len,">9.9999") + " x " + STRING(bff-eb.t-wid,">9.9999") ) FORMAT "x(40)" SKIP.
                                          IF LINE-COUNTER > 70 THEN DO: 
                                              PUT "<C74><R64>Page: " string(PAGE-NUM - lv-pg-num,">>9") + " of <#PAGES>"  FORM "x(20)" .
                                              PAGE.
@@ -646,14 +647,12 @@ FOR EACH job-hdr NO-LOCK
                                          END.
                                        RUN pGetCaseItem(BUFFER bff-eb, BUFFER job-hdr, OUTPUT cCaseItem, OUTPUT cCaseSize, OUTPUT cCaseCount, OUTPUT cCasePerPallet).
                                        PUT  
-                                         "<C19.5><FROM><R+3><C65><RECT><R-3>"
+                                         "<C19.5><FROM><R+2><C65><RECT><R-2>"
                                          "<P10><C20><b>Packing: </B>" cCaseItem FORMAT "x(15)"  
                                          "<C45><b>Pallet: </b>" bff-eb.tr-no FORMAT "x(15)" SKIP
 
                                          "<P10><C20><b>Case Size: </B>" cCaseSize FORMAT "x(40)"  
-                                         "<C45><b>Ctn/Bdl.Per: </b>" cCasePerPallet SKIP
-
-                                         "<P10><C20><b>Count: </B>" cCaseCount  SKIP  .
+                                         "<C45><b>Count: </B>" cCaseCount " <b>Ctn/Bdl.Per: </b>" cCasePerPallet SKIP.
                                          RUN pPrintMiscItems(bff-eb.est-no,bff-eb.form-no,bff-eb.blank-no,"5,6,M").
                                         PUT v-fill SKIP .
                                         PUT "<R-1>" .
@@ -671,13 +670,13 @@ FOR EACH job-hdr NO-LOCK
                                     "<C1.5><FROM><R+1><C12><RECT><R-1>"
                                     "<P10><B><C2>Form " TRIM(STRING(eb.form-no,"99")) "</B>"
                                     "<C34><b>Sheet: </b>" ef.gsh-wid  SPACE(3) ef.gsh-len 
-                                    "<C54><b># Out:</b>" ef.n-out  "<C66><b>Total Req Qty: </b>" STRING(iTotalReqQty) SKIP
+                                    "<C51><b># Out:</b>" ef.n-out  "<C62><b>Total Req Qty: </b>" STRING(iTotalReqQty) SKIP
                                     "<C2><b>Material: </b>" (IF AVAILABLE ITEM THEN ITEM.i-no ELSE "") FORMAT "x(10)"
                                     "<C20><FROM><C+13><R+2><BARCODE,TYPE=128A,CHECKSUM=NONE,VALUE=" + string((job-hdr.job-no) + "-" + STRING(job-hdr.job-no2) + "-" + STRING( eb.form-no)) + "><R-2>" FORMAT "x(250)"
-                                    "<C34><b>Press: </b>" ef.nsh-wid  SPACE(3) ef.nsh-len  "<C66><b>Total Job Qty: </b>" STRING(iTotalJobQty)  SKIP
+                                    "<C34><b>Press: </b>" ef.nsh-wid  SPACE(3) ef.nsh-len  "<C62><b>Total Job Qty: </b>" STRING(iTotalJobQty)  SKIP
                                     "<C2>" (IF AVAILABLE ITEM THEN ITEM.i-dscr ELSE "") FORMAT "x(30)"
-                                    "<C34><b>Die:    </b>" ef.trim-w FORMAT ">>9.9999" SPACE(3) ef.trim-l FORMAT ">>9.9999"  "<C54><b>Total # Up: </b>" STRING(iEbTotalUpQty)  
-                                     "<C65>   <b>Die#: </b>" eb.die-no FORMAT "x(20)" SKIP(1) .
+                                    "<C34><b>Die:    </b>" ef.trim-w FORMAT ">>9.9999" SPACE(3) ef.trim-l FORMAT ">>9.9999"  "<C51><b>Total # Up: </b>" STRING(iEbTotalUpQty)  
+                                     "<C62><b>Die#: </b>" eb.die-no FORMAT "x(25)" SKIP(1) .
                                 
                               RUN pPrintOperationsForForm(ef.company, job-hdr.job-no, job-hdr.job-no2,ef.form-no).
                                                                 
@@ -700,7 +699,8 @@ FOR EACH job-hdr NO-LOCK
                                   "<C2><B>Blank | </B>" STRING(eb.blank-no,"99")  "<C10><B># Up: </b>" string(eb.num-up)
                                   "<P10><C20><b>Size: </B>" (string(eb.len,">9.9999") + " x " + STRING(eb.wid,">9.9999") + " x " + STRING(eb.dep,">9.9999")) FORMAT "x(40)" 
                                   "<C45>" eb.spc-no FORMAT "x(30)"
-                                  SKIP .
+                                  SKIP 
+                                  "<P10><C20><b>Blank Size: </B>" (string(eb.t-len,">9.9999") + " x " + STRING(eb.t-wid,">9.9999") ) FORMAT "x(40)" SKIP.
                         
                                   IF LINE-COUNTER > 70 THEN 
                                     DO:
@@ -711,15 +711,12 @@ FOR EACH job-hdr NO-LOCK
                               IF NOT lAssembled THEN do:
                                RUN pGetCaseItem(BUFFER eb, BUFFER job-hdr, OUTPUT cCaseItem, OUTPUT cCaseSize, OUTPUT cCaseCount, OUTPUT cCasePerPallet).
                                PUT   
-                                  "<C19.5><FROM><R+3><C65><RECT><R-3>"
+                                  "<C19.5><FROM><R+2><C65><RECT><R-2>"
                                   "<P10><C20><b>Packing: </B>" cCaseItem FORMAT "x(15)"  
                                   "<C45><b>Pallet: </b>" eb.tr-no FORMAT "x(15)" SKIP
 
                                   "<P10><C20><b>Case Size: </B>" cCaseSize FORMAT "x(40)"
-                                  "<C45><b>Ctn/Bdl.Per: </b>" cCasePerPallet SKIP
-
-                                  "<P10><C20><b>Count: </B>" cCaseCount 
-                                   SKIP  .
+                                  "<C45><b>Count: </B>" cCaseCount " <b>Ctn/Bdl.Per: </b>" cCasePerPallet SKIP.
                              
                                    RUN pPrintMiscItems(eb.est-no,eb.form-no,eb.blank-no,"5,6,M").
                               END.
@@ -760,7 +757,8 @@ FOR EACH job-hdr NO-LOCK
                                          
                                          "<C2><B>Blank | </B>" STRING(bff-eb.blank-no,"99")  "<C10><B># Up: </B>" string(bff-eb.num-up)
                                          "<P10><C20><b>Size: </B>" (string(bff-eb.len,">9.9999") + " x " + STRING(bff-eb.wid,">9.9999") + " x " + STRING(bff-eb.dep,">9.9999")) FORMAT "x(40)" 
-                                         "<C45>" bff-eb.spc-no FORMAT "x(30)" SKIP .
+                                         "<C45>" bff-eb.spc-no FORMAT "x(30)" SKIP 
+                                         "<P10><C20><b>Blank Size: </B>" (string(bff-eb.t-len,">9.9999") + " x " + STRING(bff-eb.t-wid,">9.9999") ) FORMAT "x(40)" SKIP.
 
                                         IF LINE-COUNTER > 70 THEN DO:
                                             PUT "<C74><R64>Page: " string(PAGE-NUM - lv-pg-num,">>9") + " of <#PAGES>"  FORM "x(20)" .
@@ -770,15 +768,12 @@ FOR EACH job-hdr NO-LOCK
                                       IF NOT lAssembled THEN do:
                                        RUN pGetCaseItem(BUFFER bff-eb, BUFFER job-hdr, OUTPUT cCaseItem, OUTPUT cCaseSize, OUTPUT cCaseCount, OUTPUT cCasePerPallet).
                                        PUT  
-                                         "<C19.5><FROM><R+3><C65><RECT><R-3>"
+                                         "<C19.5><FROM><R+2><C65><RECT><R-2>"
                                          "<P10><C20><b>Packing: </B>" cCaseItem FORMAT "x(15)"  
                                          "<C45><b>Pallet: </b>" bff-eb.tr-no FORMAT "x(15)" SKIP
 
                                          "<P10><C20><b>Case Size: </B>" cCaseSize FORMAT "x(40)"  
-                                         "<C45><b>Ctn/Bdl.Per: </b>" cCasePerPallet SKIP
-
-                                         "<P10><C20><b>Count: </B>" cCaseCount  
-                                         SKIP  .
+                                       "<C45><b>Count: </B>" cCaseCount " <b>Ctn/Bdl.Per: </b>" cCasePerPallet SKIP.
                                          RUN pPrintMiscItems(bff-eb.est-no,bff-eb.form-no,bff-eb.blank-no,"5,6,M").
                                       END.
                                       ELSE 

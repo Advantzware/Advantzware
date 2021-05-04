@@ -83,8 +83,12 @@ DEFINE SHARED VARIABLE lFSC     AS LOGICAL   NO-UNDO .
 &Scoped-define INTERNAL-TABLES ttItemList
 
 /* Definitions for BROWSE BROWSE-4                                      */
-&Scoped-define FIELDS-IN-QUERY-BROWSE-4 ttItemList.IS-SELECTED ttItemList.frm ttItemList.combo ttItemList.i-no ttItemList.part-no ttItemList.itemName ttItemList.lDie ttItemList.lCad ttItemList.lPlate ttItemList.lImage 
-&Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-4 ttItemList.IS-SELECTED ttItemList.lDie ttItemList.lCad ttItemList.lPlate ttItemList.lImage 
+&Scoped-define FIELDS-IN-QUERY-BROWSE-4 ttItemList.IS-SELECTED ttItemList.frm ttItemList.blank-no ttItemList.i-no ttItemList.part-no ttItemList.itemName ttItemList.lDie ttItemList.lCad ttItemList.lPlate ttItemList.lImage   
+&Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-4 ttItemList.IS-SELECTED ~
+  ttItemList.lDie ~
+  ttItemList.lCad ~
+  ttItemList.lPlate ~
+  ttItemList.lImage   
 &Scoped-define ENABLED-TABLES-IN-QUERY-BROWSE-4 ttItemList
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-BROWSE-4 ttItemList
 &Scoped-define SELF-NAME BROWSE-4
@@ -99,8 +103,9 @@ DEFINE SHARED VARIABLE lFSC     AS LOGICAL   NO-UNDO .
     ~{&OPEN-QUERY-BROWSE-4}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS BROWSE-4 cbJobType rd_active tb_include-page ~
-Btn_OK Btn_Cancel tb_fsc RECT-42 
+&Scoped-Define ENABLED-OBJECTS BROWSE-4 btnSelectAllItems cbJobType ~
+rd_active tb_include-page Btn_OK Btn_Cancel tb_fsc btnDeselectAllItems ~
+btnSelectAllImages btnDeselectAllImages RECT-42 
 &Scoped-Define DISPLAYED-OBJECTS cbJobType fi_job-no rd_active ~
 tb_include-page tb_fsc 
 
@@ -117,6 +122,22 @@ tb_include-page tb_fsc
 /* Define a dialog box                                                  */
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON btnDeselectAllImages 
+     LABEL "Deselect All Images" 
+     SIZE 23.8 BY 1.19.
+
+DEFINE BUTTON btnDeselectAllItems 
+     LABEL "Deselect All Items" 
+     SIZE 22.8 BY 1.19.
+
+DEFINE BUTTON btnSelectAllImages 
+     LABEL "Select All Images" 
+     SIZE 21 BY 1.19.
+
+DEFINE BUTTON btnSelectAllItems 
+     LABEL "Select All Items" 
+     SIZE 21 BY 1.19.
+
 DEFINE BUTTON Btn_Cancel AUTO-END-KEY 
      LABEL "Cancel" 
      SIZE 15 BY 1.14
@@ -172,10 +193,10 @@ DEFINE BROWSE BROWSE-4
   QUERY BROWSE-4 DISPLAY
       ttItemList.IS-SELECTED COLUMN-LABEL ''  VIEW-AS TOGGLE-BOX
       ttItemList.frm COLUMN-LABEL 'Frm' WIDTH 5  
-      ttItemList.combo COLUMN-LABEL 'Combo' 
-      ttItemList.i-no FORMAT "X(15)" LABEL "FG Item #" WIDTH 19
-      ttItemList.part-no FORMAT "X(15)" LABEL "Customer Part #" WIDTH 19
-      ttItemList.itemName FORMAT "X(30)" LABEL "Item Name"
+      ttItemList.blank-no COLUMN-LABEL 'Blk' WIDTH 5 
+      ttItemList.i-no FORMAT "X(15)" LABEL "FG Item #" WIDTH 20
+      ttItemList.part-no FORMAT "X(15)" LABEL "Customer Part #" WIDTH 20
+      ttItemList.itemName FORMAT "X(30)" LABEL "Item Name" WIDTH 30
       ttItemList.lDie COLUMN-LABEL 'Die'  VIEW-AS TOGGLE-BOX
       ttItemList.lCad COLUMN-LABEL 'Cad'  VIEW-AS TOGGLE-BOX
       ttItemList.lPlate COLUMN-LABEL 'Plate'  VIEW-AS TOGGLE-BOX
@@ -187,24 +208,28 @@ DEFINE BROWSE BROWSE-4
            ttItemList.lImage
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 59 BY 9.29
-         FONT 6 FIT-LAST-COLUMN.
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 115 BY 9.29
+         FONT 6.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Dialog-Frame
      BROWSE-4 AT ROW 1.24 COL 52 WIDGET-ID 100
+     btnSelectAllItems AT ROW 10.62 COL 52 WIDGET-ID 28
      cbJobType AT ROW 7.62 COL 18.4 COLON-ALIGNED WIDGET-ID 24
      fi_job-no AT ROW 1.95 COL 13 COLON-ALIGNED HELP
           "Enter Job Number."
      rd_active AT ROW 3.67 COL 13.6 NO-LABEL WIDGET-ID 16
      tb_include-page AT ROW 5.14 COL 13.6 WIDGET-ID 22
-     Btn_OK AT ROW 11 COL 36
-     Btn_Cancel AT ROW 11 COL 64
+     Btn_OK AT ROW 13.86 COL 64
+     Btn_Cancel AT ROW 13.86 COL 85
      tb_fsc AT ROW 6.29 COL 13.6 WIDGET-ID 26
+     btnDeselectAllItems AT ROW 10.62 COL 74.2 WIDGET-ID 30
+     btnSelectAllImages AT ROW 10.67 COL 114 WIDGET-ID 38
+     btnDeselectAllImages AT ROW 10.67 COL 136.2 WIDGET-ID 36
      RECT-42 AT ROW 1.24 COL 5
-     SPACE(60.00) SKIP(6.71)
+     SPACE(117.59) SKIP(6.75)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          FONT 6
@@ -265,6 +290,50 @@ OPEN QUERY {&SELF-NAME} FOR EACH ttItemList.
 ON WINDOW-CLOSE OF FRAME Dialog-Frame /* Edit Estimated Sheets for Job/Form */
 DO:
   APPLY "END-ERROR":U TO SELF.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnDeselectAllImages
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnDeselectAllImages Dialog-Frame
+ON CHOOSE OF btnDeselectAllImages IN FRAME Dialog-Frame /* Deselect All Images */
+DO:
+    RUN pSelectAllImages(NO).  
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnDeselectAllItems
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnDeselectAllItems Dialog-Frame
+ON CHOOSE OF btnDeselectAllItems IN FRAME Dialog-Frame /* Deselect All Items */
+DO:
+    RUN pSelectAllItems(NO).  
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnSelectAllImages
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnSelectAllImages Dialog-Frame
+ON CHOOSE OF btnSelectAllImages IN FRAME Dialog-Frame /* Select All Images */
+DO:
+    RUN pSelectAllImages(YES).  
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnSelectAllItems
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnSelectAllItems Dialog-Frame
+ON CHOOSE OF btnSelectAllItems IN FRAME Dialog-Frame /* Select All Items */
+DO:
+    RUN pSelectAllItems(YES).  
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -419,8 +488,9 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY cbJobType fi_job-no rd_active tb_include-page tb_fsc 
       WITH FRAME Dialog-Frame.
-  ENABLE BROWSE-4 cbJobType rd_active tb_include-page Btn_OK Btn_Cancel tb_fsc 
-         RECT-42 
+  ENABLE BROWSE-4 btnSelectAllItems cbJobType rd_active tb_include-page Btn_OK 
+         Btn_Cancel tb_fsc btnDeselectAllItems btnSelectAllImages 
+         btnDeselectAllImages RECT-42 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
@@ -470,6 +540,47 @@ PROCEDURE pCreateTempTable :
             ttSoule.i-no = ipcStock
             ttSoule.runForm = YES.
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSelectAllImages Dialog-Frame 
+PROCEDURE pSelectAllImages PRIVATE :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------  ------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iplSelect AS LOGICAL NO-UNDO.
+    
+    FOR EACH ttItemList:
+        ASSIGN 
+            ttItemList.lCad = iplSelect
+            ttItemList.lDie = iplSelect
+            ttItemList.lImage = iplSelect
+            ttItemList.lPlate = iplSelect
+            .
+    END.
+    {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSelectAllItems Dialog-Frame 
+PROCEDURE pSelectAllItems PRIVATE :
+/*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iplSelect AS LOGICAL NO-UNDO.
+    
+    FOR EACH ttItemList:
+        ASSIGN 
+            ttItemList.is-selected = iplSelect
+            .
+    END.
+    {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
