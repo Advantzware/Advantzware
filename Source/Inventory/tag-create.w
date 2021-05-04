@@ -71,7 +71,10 @@ DEFINE VARIABLE rsValue                 AS CHARACTER NO-UNDO INITIAL "FG".
 DEFINE VARIABLE gcPathDataFileDefault AS CHARACTER INITIAL "C:\BA\LABEL".
 
 {system/sysconst.i}
-{Inventory/ttInventory.i "NEW SHARED"}
+{Inventory/ttBrowseInventory.i}
+{Inventory/ttInventory.i}
+{Inventory/ttPrintInventoryStock.i}
+{Inventory/ttPrintInventoryStockFG.i}
 {methods/defines/sortByDefs.i}
 {wip/keyboardDefs.i}
 
@@ -850,7 +853,8 @@ DO:
             ).
 
         RUN CreatePrintInventoryForFG IN hdInventoryProcs (
-            INPUT ttBrowseInventory.inventoryStockID
+            INPUT ttBrowseInventory.inventoryStockID,
+            INPUT-OUTPUT TABLE ttPrintInventoryStockFG BY-REFERENCE
             ).
     END.
     
@@ -875,7 +879,8 @@ DO:
                 ).
     
         RUN CreatePrintInventoryForFG in hdInventoryProcs (
-            INPUT ttBrowseInventory.inventoryStockID
+            INPUT ttBrowseInventory.inventoryStockID,
+            INPUT-OUTPUT TABLE ttPrintInventoryStockFG BY-REFERENCE
             ).
     
         RUN pPrintLabels.
@@ -1660,7 +1665,8 @@ PROCEDURE pRebuildBrowse :
         ipiFormno,
         ipiBlankno,
         OUTPUT iTotTags,
-        OUTPUT iTotOnHand
+        OUTPUT iTotOnHand,
+        INPUT-OUTPUT TABLE ttBrowseInventory BY-REFERENCE
         ).
             
     {&OPEN-BROWSERS-IN-QUERY-F-Main}

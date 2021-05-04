@@ -75,8 +75,6 @@ DEFINE VARIABLE glPOModified AS LOG NO-UNDO.
 DEFINE VARIABLE lCheckTagHoldMessage AS LOGICAL NO-UNDO.
 DEFINE VARIABLE hInventoryProcs AS HANDLE NO-UNDO.
 
-{inventory/ttInventory.i "NEW SHARED"}
-
 DEFINE TEMP-TABLE w-rowid FIELD w-rowid AS CHAR
           INDEX w-rowid IS PRIMARY w-rowid.
 

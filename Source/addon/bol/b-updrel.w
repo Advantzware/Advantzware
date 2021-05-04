@@ -178,7 +178,7 @@ DEFINE VARIABLE dTotFreight AS DECIMAL NO-UNDO.
 DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lCheckTagHoldMessage AS LOGICAL NO-UNDO.
 DEFINE VARIABLE hInventoryProcs AS HANDLE NO-UNDO.
-{inventory/ttInventory.i "NEW SHARED"}
+
 RUN inventory\InventoryProcs.p PERSISTENT SET hInventoryProcs.
 
 v-hold-list = "Royal,Superior,ContSrvc,BlueRidg,Danbury".

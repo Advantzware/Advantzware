@@ -66,7 +66,6 @@ DEFINE VARIABLE hdFGProcs        AS HANDLE  NO-UNDO.
 
 RUN fg/FGProcs.p PERSISTENT SET hdFGProcs.
 
-{Inventory/ttInventory.i "NEW SHARED"}
 DEFINE TEMP-TABLE w-est-no
     FIELD w-est-no LIKE itemfg.est-no
     FIELD w-run    AS LOG.

@@ -5,7 +5,6 @@ DEFINE INPUT PARAMETER ipcItemID LIKE itemfg.i-no.
 DEFINE INPUT PARAMETER iplCalcCostFromHist AS LOGICAL NO-UNDO.
 
 {sys/inc/var.i shared}
-{Inventory/ttInventory.i "NEW SHARED"}
 DEFINE BUFFER bf-itemfg FOR itemfg.
 
 DEFINE VARIABLE hdInventoryProcs AS HANDLE.

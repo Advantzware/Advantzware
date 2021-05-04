@@ -50,7 +50,6 @@ DEF VAR lr-rel-lib AS HANDLE NO-UNDO.
 {oe/closchk.i NEW}
 {custom/formtext.i NEW}
 {oerep/r-bolx.i NEW}
-{Inventory/ttInventory.i "NEW SHARED"}
 
 ASSIGN
   cocode = gcompany

@@ -53,7 +53,8 @@ DEFINE VARIABLE cColumnHandles        AS CHARACTER NO-UNDO.
 
 {system/sysconst.i}
 {wip/keyboardDefs.i}
-{Inventory/ttInventory.i "NEW SHARED"}
+{Inventory/ttPhysicalBrowseInventory.i}
+{Inventory/ttInventory.i}
 {methods/template/brwcustomdef.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -947,7 +948,8 @@ PROCEDURE init :
     RUN BuildPhyScanBrowseFromTransactionUser IN hdInventoryProcs (
         ipcCompany,
         USERID(gcDBUser),           /* User ID */
-        gcTransactionTypeCompare /* Compare Transaction Type */
+        gcTransactionTypeCompare, /* Compare Transaction Type */
+        INPUT-OUTPUT TABLE ttPhysicalBrowseInventory BY-REFERENCE
         ).
             
     RUN pStoreColHandles.
@@ -1054,7 +1056,8 @@ PROCEDURE pAdjustQuantity :
         ipcTag,
         ipdQuantity, /* Zeroing out */
         OUTPUT lCreated,
-        OUTPUT cMessage
+        OUTPUT cMessage,
+        INPUT-OUTPUT TABLE ttPhysicalBrowseInventory BY-REFERENCE
         ).
         
     {&OPEN-BROWSERS-IN-QUERY-F-Main}
@@ -1231,7 +1234,8 @@ PROCEDURE pSubmitScan :
         ipcTag,
         TRUE, /* Set input parameter location to record */
         OUTPUT lCreated,
-        OUTPUT cMessage
+        OUTPUT cMessage,
+        INPUT-OUTPUT TABLE ttPhysicalBrowseInventory BY-REFERENCE
         ).
     
     IF NOT lCreated AND cMessage NE "" THEN DO:

@@ -167,7 +167,7 @@ DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lCheckTagHoldMessage AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lRecordUpdating AS LOGICAL NO-UNDO.
 DEFINE VARIABLE hInventoryProcs AS HANDLE NO-UNDO.
-{inventory/ttInventory.i "NEW SHARED"}
+
 RUN inventory\InventoryProcs.p PERSISTENT SET hInventoryProcs.
 
 RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.  

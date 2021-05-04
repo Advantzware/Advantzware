@@ -14,7 +14,7 @@
   ----------------------------------------------------------------------*/
 
 /* ***************************  Definitions  ************************** */
-{inventory/ttInventory.i "NEW SHARED"}
+{inventory/ttInventory.i}
 {fg/ttFGBins.i "SHARED"}
 {fg/ttInventoryTables.i}
 

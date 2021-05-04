@@ -13,10 +13,24 @@
   ----------------------------------------------------------------------*/
 
 /* ***************************  Definitions  ************************** */
-{Inventory/ttInventory.i SHARED}
+{Inventory/ttInventory.i}
 {custom/formtext.i NEW}
 {fg/invrecpt.i NEW}
 {fg/fgPostBatch.i}
+
+{inventory/ttInventoryStockPreLoadtag.i}
+{inventory/ttInventoryStockLoadtag.i}
+{inventory/ttInventoryStockLoadtagWIP.i}
+{inventory/ttPrintInventoryStock.i}
+{inventory/ttBrowseInventory.i}
+{inventory/ttPhysicalBrowseInventory.i}
+{inventory/ttInventoryStockDetails.i}
+{inventory/ttPOOrderLineDetails.i}
+{inventory/ttPrintInventoryStockFG.i}
+{inventory/ttPrintInventoryStockRM.i}
+{inventory/ttFGBin.i}
+{inventory/ttRawMaterialsToPost.i}
+{inventory/ttRawMaterialsGLTransToPost.i}
 
 DEFINE VARIABLE giLengthUniquePrefix       AS INTEGER   INITIAL 20.
 DEFINE VARIABLE giLengthAlias              AS INTEGER   INITIAL 25.
@@ -79,12 +93,6 @@ FUNCTION fCalculateQuantityTotal RETURNS DECIMAL
     (ipdQuantitySubUnits AS DECIMAL, 
      ipdSubUnitCount AS DECIMAL,
      ipdQuantityPartialSubUnit AS DECIMAL) FORWARD.
-
-FUNCTION fCalculateTagCountInTTbrowse RETURNS INTEGER
-    (ipcInventoryStatus AS CHARACTER) FORWARD.
-
-FUNCTION fCalculateTagQuantityInTTbrowse RETURNS DECIMAL
-    (ipcInventoryStatus AS CHARACTER) FORWARD.
 
 FUNCTION fGetVendorTagFromLoadTag RETURNS CHARACTER
     (ipcCompany  AS CHARACTER,
@@ -154,7 +162,8 @@ PROCEDURE Inventory_AdjustRawMaterialBinQty:
             INPUT  bf-rm-bin.company,
             INPUT  TODAY,
             OUTPUT oplSuccess,
-            OUTPUT opcMessage
+            OUTPUT opcMessage,
+            INPUT-OUTPUT TABLE bf-ttBrowseInventory
             ).
         
         FOR EACH bf-ttBrowseInventory
@@ -220,7 +229,8 @@ PROCEDURE Inventory_BuildFGBinForItem:
     DEFINE OUTPUT PARAMETER opcConsUOM     AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER oplError       AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage     AS CHARACTER NO-UNDO.
-
+    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttBrowseInventory.
+    
     RUN pBuildFGBinForItem (
         INPUT  ipcCompany,
         INPUT  ipcWarehouseID,
@@ -232,7 +242,8 @@ PROCEDURE Inventory_BuildFGBinForItem:
         INPUT  iplEmptyTags,
         OUTPUT opcConsUOM,
         OUTPUT oplError,
-        OUTPUT opcMessage    
+        OUTPUT opcMessage,
+        INPUT-OUTPUT TABLE ttBrowseInventory    
         ).
 END PROCEDURE.
 
@@ -249,6 +260,7 @@ PROCEDURE Inventory_BuildRMHistory:
     DEFINE INPUT  PARAMETER ipiJobNo2          AS INTEGER   NO-UNDO.
     DEFINE INPUT  PARAMETER ipcTransactionType AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER iplEmptyRecords    AS LOGICAL   NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttBrowseInventory.
     
     IF iplEmptyRecords THEN
         EMPTY TEMP-TABLE ttBrowseInventory.
@@ -260,8 +272,45 @@ PROCEDURE Inventory_BuildRMHistory:
         INPUT ipcLocation,
         INPUT ipcJobNo,
         INPUT ipiJobNo2,
-        INPUT ipcTransactionType
+        INPUT ipcTransactionType,
+        INPUT-OUTPUT TABLE ttBrowseInventory
         ).
+END PROCEDURE.
+
+PROCEDURE Inventory_CalculateTagCountInTTbrowse:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcInventoryStatus AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiCount           AS INTEGER   NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttBrowseInventory.
+
+    FOR EACH ttBrowseInventory
+        WHERE (IF ipcInventoryStatus EQ "" THEN
+                   TRUE
+               ELSE
+                   ttBrowseInventory.inventoryStatus EQ ipcInventoryStatus):
+        opiCount = opiCount + 1.
+    END.    
+END PROCEDURE.
+
+PROCEDURE Inventory_CalculateTagQuantityInTTbrowse:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcInventoryStatus AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdQuantity        AS INTEGER   NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttBrowseInventory.
+    
+    FOR EACH ttBrowseInventory
+        WHERE (IF ipcInventoryStatus EQ "" THEN
+                   TRUE
+               ELSE
+                   ttBrowseInventory.inventoryStatus EQ ipcInventoryStatus):
+        opdQuantity = opdQuantity + ttBrowseInventory.quantity.
+    END.
 END PROCEDURE.
 
 PROCEDURE Inventory_GetAverageCostFG:
@@ -383,7 +432,8 @@ PROCEDURE pBuildRMHistory PRIVATE:
     DEFINE INPUT  PARAMETER ipcJobNo           AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipiJobNo2          AS INTEGER   NO-UNDO.
     DEFINE INPUT  PARAMETER ipcTransactionType AS CHARACTER NO-UNDO.
-
+    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttBrowseInventory.
+    
     DEFINE BUFFER bf-rm-rcpth FOR rm-rcpth. 
     DEFINE BUFFER bf-rm-rdtlh FOR rm-rdtlh.
     
@@ -935,7 +985,8 @@ PROCEDURE Inventory_BuildFGBinSummaryForItem:
     DEFINE INPUT  PARAMETER ipcItemID    AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER oplError     AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage   AS CHARACTER NO-UNDO.
-
+    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttBrowseInventory.
+    
     DEFINE VARIABLE iTotOnHand  AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iTotOnOrder AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iTotAlloc   AS INTEGER   NO-UNDO.
@@ -952,7 +1003,8 @@ PROCEDURE Inventory_BuildFGBinSummaryForItem:
         OUTPUT iTotBack,   
         OUTPUT iTotAvail,          
         OUTPUT oplError,
-        OUTPUT opcMessage        
+        OUTPUT opcMessage,
+        INPUT-OUTPUT TABLE ttBrowseInventory      
         ).
 END PROCEDURE.
 
@@ -981,7 +1033,8 @@ PROCEDURE Inventory_BuildFGBinTotalsForItem:
         OUTPUT opiTotBack,   
         OUTPUT opiTotAvail,          
         OUTPUT oplError,
-        OUTPUT opcMessage        
+        OUTPUT opcMessage,
+        INPUT-OUTPUT TABLE ttBrowseInventory       
         ).
 END PROCEDURE.
 
@@ -1000,6 +1053,7 @@ PROCEDURE pBuildFGBinSummaryForItem PRIVATE:
     DEFINE OUTPUT PARAMETER opiTotAvail   AS INTEGER   NO-UNDO.
     DEFINE OUTPUT PARAMETER oplError      AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage    AS CHARACTER NO-UNDO.    
+    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttBrowseInventory.
     
     DEFINE BUFFER bf-itemfg     FOR itemfg.
     DEFINE BUFFER bf-itemfg-loc FOR itemfg-loc.
@@ -1126,7 +1180,8 @@ PROCEDURE Inventory_BuildRMBinSummaryForItem:
     DEFINE INPUT  PARAMETER ipcItemID    AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER oplError     AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage   AS CHARACTER NO-UNDO.
-
+    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttBrowseInventory.
+    
     DEFINE VARIABLE iTotOnHand  AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iTotOnOrder AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iTotAlloc   AS INTEGER   NO-UNDO.
@@ -1143,7 +1198,8 @@ PROCEDURE Inventory_BuildRMBinSummaryForItem:
         OUTPUT iTotBack,   
         OUTPUT iTotAvail,          
         OUTPUT oplError,
-        OUTPUT opcMessage        
+        OUTPUT opcMessage,
+        INPUT-OUTPUT TABLE ttBrowseInventory        
         ).
 END PROCEDURE.
 
@@ -1162,7 +1218,8 @@ PROCEDURE pBuildRMBinSummaryForItem PRIVATE:
     DEFINE OUTPUT PARAMETER opiTotAvail   AS INTEGER   NO-UNDO.
     DEFINE OUTPUT PARAMETER oplError      AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage    AS CHARACTER NO-UNDO.    
-    
+    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttBrowseInventory.
+        
     DEFINE BUFFER bf-item FOR item.
     
     IF ipcItemID EQ "" THEN DO:
@@ -1234,6 +1291,7 @@ PROCEDURE pBuildFGBinForItem PRIVATE:
     DEFINE OUTPUT PARAMETER opcConsUOM     AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER oplError       AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage     AS CHARACTER NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttBrowseInventory.
     
     DEFINE VARIABLE lRecAvail         AS LOGICAL NO-UNDO.
     DEFINE VARIABLE lIsWarehouseEmpty AS LOGICAL NO-UNDO.
@@ -1332,6 +1390,7 @@ PROCEDURE Inventory_BuildRMBinForItem:
     DEFINE OUTPUT       PARAMETER opcConsUOM     AS CHARACTER NO-UNDO.
     DEFINE OUTPUT       PARAMETER oplError       AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT       PARAMETER opcMessage     AS CHARACTER NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttBrowseInventory.
     
     EMPTY TEMP-TABLE ttBrowseInventory.
     
@@ -1347,7 +1406,8 @@ PROCEDURE Inventory_BuildRMBinForItem:
         INPUT        iplEmptyTags,
         OUTPUT       opcConsUOM,
         OUTPUT       oplError,
-        OUTPUT       opcMessage    
+        OUTPUT       opcMessage,
+        INPUT-OUTPUT TABLE ttBrowseInventory   
         ).
 END PROCEDURE.
 
@@ -1368,6 +1428,7 @@ PROCEDURE pBuildRMBinForItem PRIVATE:
     DEFINE OUTPUT       PARAMETER opcConsUOM     AS CHARACTER NO-UNDO.
     DEFINE OUTPUT       PARAMETER oplError       AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT       PARAMETER opcMessage     AS CHARACTER NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttBrowseInventory.
     
     DEFINE VARIABLE lRecAvail         AS LOGICAL NO-UNDO.
     DEFINE VARIABLE lIsWarehouseEmpty AS LOGICAL NO-UNDO.
@@ -1535,7 +1596,8 @@ PROCEDURE Inventory_PostRawMaterials:
     DEFINE INPUT  PARAMETER ipdtPostingDate AS DATE      NO-UNDO.
     DEFINE OUTPUT PARAMETER oplSuccess      AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage      AS CHARACTER NO-UNDO.
-
+    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttBrowseInventory.
+    
     DEFINE BUFFER bf-rm-rctd              FOR rm-rctd.
     DEFINE BUFFER bf-item                 FOR item.
     DEFINE BUFFER bf-create-rm-rctd       FOR rm-rctd.
@@ -1699,6 +1761,7 @@ PROCEDURE Inventory_CreateRMIssueFromTag:
     DEFINE INPUT  PARAMETER iplPost     AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER oplSuccess  AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage  AS CHARACTER NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttBrowseInventory.
     
     RUN pCreateRMIssueFromTag (
         INPUT  ipcCompany,
@@ -1708,7 +1771,8 @@ PROCEDURE Inventory_CreateRMIssueFromTag:
         INPUT  ipiFormNo,
         INPUT  ipiBlankNo,
         OUTPUT oplSuccess,
-        OUTPUT opcMessage
+        OUTPUT opcMessage,
+        INPUT-OUTPUT TABLE ttBrowseInventory
         ).
 
     IF iplPost AND oplSuccess THEN
@@ -1716,7 +1780,8 @@ PROCEDURE Inventory_CreateRMIssueFromTag:
             INPUT  ipcCompany,
             INPUT  TODAY,
             OUTPUT oplSuccess,
-            OUTPUT opcMessage
+            OUTPUT opcMessage,
+            INPUT-OUTPUT TABLE ttBrowseInventory
             ).
     
 END PROCEDURE.
@@ -1880,6 +1945,7 @@ PROCEDURE pCreateRMIssueFromTag PRIVATE:
     DEFINE INPUT  PARAMETER ipiBlankNo  AS INTEGER   NO-UNDO.
     DEFINE OUTPUT PARAMETER oplSuccess  AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage  AS CHARACTER NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttBrowseInventory.
     
     DEFINE BUFFER bf-loadtag FOR loadtag.
     DEFINE BUFFER bf-rm-rctd FOR rm-rctd.
@@ -2063,7 +2129,8 @@ PROCEDURE pCreateRMIssueFromTag PRIVATE:
         INPUT  bf-rm-rctd.b-num,
         INPUT  bf-rm-rctd.i-no,
         INPUT  bf-rm-rctd.rita-code,
-        INPUT  FALSE     /* Use new inventory tables */
+        INPUT  FALSE,     /* Use new inventory tables */
+        INPUT-OUTPUT TABLE ttBrowseInventory
         ).
     
     ASSIGN
@@ -2691,7 +2758,8 @@ PROCEDURE Inventory_BuildRawMaterialToPost:
  Notes:
 ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ipriRmRctd      AS ROWID     NO-UNDO.
-
+    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttBrowseInventory.
+    
     CREATE ttBrowseInventory.
     ASSIGN
         ttBrowseInventory.inventoryStatus  = gcStatusStockScanned
@@ -4750,7 +4818,8 @@ PROCEDURE CreatePrintInventoryForRM:
      Notes: 
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcInventoryStockID LIKE inventoryTransaction.inventoryStockID NO-UNDO.
-
+    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttPrintInventoryStockRM.
+    
     DEFINE VARIABLE hdJobProcs AS HANDLE NO-UNDO.
     
     RUN jc/JobProcs.p PERSISTENT SET hdJobProcs.
@@ -4923,6 +4992,7 @@ PROCEDURE CreatePrintInventoryForFG:
      Notes: 
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcInventoryStockID LIKE inventoryTransaction.inventoryStockID NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttPrintInventoryStockFG.
         
     DEFINE VARIABLE iIndex     AS INTEGER   NO-UNDO.
     DEFINE VARIABLE cJobNumber AS CHARACTER NO-UNDO.
@@ -5763,7 +5833,8 @@ PROCEDURE BuildPhyScanBrowseFromSnapshotLocation:
     DEFINE INPUT PARAMETER ipcWarehouseID      AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcLocationID       AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcTransactionType  AS CHARACTER NO-UNDO.
-
+    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttPhysicalBrowseInventory.
+    
     FOR EACH inventoryStockSnapshot NO-LOCK
         WHERE inventoryStockSnapshot.company     EQ ipcCompany
           AND inventoryStockSnapshot.warehouseID EQ ipcWarehouseID
@@ -5843,7 +5914,8 @@ PROCEDURE BuildPhyScanBrowseFromTransactionLocation:
     DEFINE INPUT PARAMETER ipcWarehouseID      AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcLocationID       AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcTransactionType  AS CHARACTER NO-UNDO.
-
+    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttPhysicalBrowseInventory.
+    
     FOR EACH inventoryTransaction NO-LOCK
         WHERE inventoryTransaction.company         EQ ipcCompany
           AND inventoryTransaction.transactionType EQ ipcTransactionType 
@@ -5923,7 +5995,8 @@ PROCEDURE BuildPhyScanBrowseFromTransactionUser:
     DEFINE INPUT PARAMETER ipcCompany          AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcUser             AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcTransactionType  AS CHARACTER NO-UNDO.
-
+    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttPhysicalBrowseInventory.
+    
     FOR EACH inventoryTransaction NO-LOCK
         WHERE inventoryTransaction.company         EQ ipcCompany
           AND inventoryTransaction.transactionType EQ ipcTransactionType 
@@ -6004,6 +6077,7 @@ PROCEDURE pAdjustTransactionQuantity:
     DEFINE INPUT  PARAMETER ipdQuantity         AS DECIMAL   NO-UNDO.    
     DEFINE OUTPUT PARAMETER oplCreated          AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage          AS CHARACTER NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttPhysicalBrowseInventory.
     
     FIND FIRST ttPhysicalBrowseInventory EXCLUSIVE-LOCK
          WHERE ttPhysicalBrowseInventory.company EQ ipcCompany
@@ -6248,6 +6322,7 @@ PROCEDURE SubmitPhysicalCountScan:
     DEFINE INPUT  PARAMETER iplSetParamLoc AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER oplCreated     AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage     AS CHARACTER NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttPhysicalBrowseInventory.
     
     FIND FIRST inventoryStockSnapshot NO-LOCK
          WHERE inventoryStockSnapshot.company EQ ipcCompany
@@ -6372,6 +6447,7 @@ PROCEDURE RebuildRMBrowse:
     DEFINE INPUT  PARAMETER ipiFormno    AS INTEGER   NO-UNDO.
     DEFINE INPUT  PARAMETER ipiBlankno   AS INTEGER   NO-UNDO.
     DEFINE INPUT  PARAMETER ipcRMItem    AS CHARACTER NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttBrowseInventory.
     
     EMPTY TEMP-TABLE ttBrowseInventory.
     
@@ -6384,7 +6460,8 @@ PROCEDURE RebuildRMBrowse:
         INPUT  ipiBlankno,
         INPUT  ipcRMItem,
         INPUT  "",
-        INPUT  TRUE /* Use new inventory tables */
+        INPUT  TRUE, /* Use new inventory tables */
+        INPUT-OUTPUT TABLE ttBrowseInventory
         ).
         
 END PROCEDURE.
@@ -6403,6 +6480,7 @@ PROCEDURE Inventory_BuildRMTransactions:
     DEFINE INPUT  PARAMETER ipcRMItem          AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcTransactionType AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER iplEmptyRecords    AS LOGICAL   NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttBrowseInventory.
     
     IF iplEmptyRecords THEN
         EMPTY TEMP-TABLE ttBrowseInventory.
@@ -6416,7 +6494,8 @@ PROCEDURE Inventory_BuildRMTransactions:
         INPUT  ipiBlankno,
         INPUT  ipcRMItem,
         INPUT  ipcTransactionType,
-        INPUT  FALSE     /* Use new inventory tables */
+        INPUT  FALSE,     /* Use new inventory tables */
+        INPUT-OUTPUT TABLE ttBrowseInventory
         ).
         
 END PROCEDURE.
@@ -6435,6 +6514,7 @@ PROCEDURE pBuildRMTransactions PRIVATE:
     DEFINE INPUT  PARAMETER ipcRMItem             AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcTransactionType    AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER iplUseInventoryTables AS LOGICAL   NO-UNDO.    
+    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttBrowseInventory.
         
     DEFINE BUFFER bf-rm-rctd FOR rm-rctd.
     
@@ -6509,6 +6589,7 @@ PROCEDURE RebuildBrowseTTFromPO:
     DEFINE INPUT  PARAMETER ipiLine       AS INTEGER   NO-UNDO.
     DEFINE INPUT  PARAMETER ipcItem       AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcItemType   AS CHARACTER NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttBrowseInventory.
     
     EMPTY TEMP-TABLE ttBrowseInventory.
     
@@ -6554,6 +6635,7 @@ PROCEDURE RebuildWIPBrowseTT:
     DEFINE INPUT  PARAMETER ipiBlankno    AS INTEGER   NO-UNDO.
     DEFINE OUTPUT PARAMETER opiTotTags    AS INTEGER   NO-UNDO.
     DEFINE OUTPUT PARAMETER opiTotOnHand  AS INTEGER   NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttBrowseInventory.
     
     EMPTY TEMP-TABLE ttBrowseInventory.
     
@@ -8160,37 +8242,7 @@ END FUNCTION.
 FUNCTION fCalculateQuantityTotal RETURNS DECIMAL
     (ipdQuantitySubUnits AS DECIMAL, ipdSubUnitCount AS DECIMAL, ipdQuantityPartialSubUnit AS DECIMAL):
      RETURN (ipdQuantitySubUnits * ipdSubUnitCount) + ipdQuantityPartialSubUnit.
-END FUNCTION.
-
-FUNCTION fCalculateTagCountInTTbrowse RETURNS INTEGER
-    (ipcInventoryStatus AS CHARACTER):
-    DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
-    
-    FOR EACH ttBrowseInventory
-        WHERE (IF ipcInventoryStatus EQ "" THEN
-                   TRUE
-               ELSE
-                   ttBrowseInventory.inventoryStatus EQ ipcInventoryStatus):
-        iCount = iCount + 1.
-    END.
-    
-    RETURN iCount.
-END FUNCTION.    
-
-FUNCTION fCalculateTagQuantityInTTbrowse RETURNS DECIMAL
-    (ipcInventoryStatus AS CHARACTER):
-    DEFINE VARIABLE dQuantity AS DECIMAL NO-UNDO.
-    
-    FOR EACH ttBrowseInventory
-        WHERE (IF ipcInventoryStatus EQ "" THEN
-                   TRUE
-               ELSE
-                   ttBrowseInventory.inventoryStatus EQ ipcInventoryStatus):
-        dQuantity = dQuantity + ttBrowseInventory.quantity.
-    END.
-    
-    RETURN dQuantity.
-END FUNCTION. 
+END FUNCTION.  
 
 FUNCTION fGetVendorTagFromLoadTag RETURNS CHARACTER
     (ipcCompany AS CHARACTER, iplItemType AS LOGICAL, ipcTag AS CHARACTER):

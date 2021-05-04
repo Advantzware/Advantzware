@@ -131,7 +131,6 @@ DEFINE VARIABLE hdInventoryProcs AS HANDLE NO-UNDO.
 DEFINE VARIABLE iWarehouseLength  AS INTEGER   NO-UNDO.
 
 RUN Inventory/InventoryProcs.p PERSISTENT SET hdInventoryProcs.
-{Inventory/ttInventory.i "NEW SHARED"}
 {rm/avgcost.i}
 
 DEF BUFFER b-company FOR company.

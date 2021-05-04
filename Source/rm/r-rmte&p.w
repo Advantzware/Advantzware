@@ -55,7 +55,6 @@ DEF VAR init-dir AS CHA NO-UNDO.
 {custom/getloc.i}
 
 {sys/inc/VAR.i new shared}
-{Inventory/ttInventory.i "NEW SHARED"}
 
 ASSIGN
  cocode = gcompany
