@@ -667,7 +667,7 @@ PROCEDURE close-month :
       return.
    end.
            
-   RUN GL_pCloseMonthModule(cocode, tran-year, uperiod, ipcModule). /* Company,Year,Period,Module*/ 
+   RUN GL_CloseMonthModule(cocode, tran-year, uperiod, ipcModule). /* Company,Year,Period,Module*/ 
       
   
    SESSION:SET-WAIT-STATE ("").
