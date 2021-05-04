@@ -948,8 +948,6 @@ PROCEDURE pShowHideCostFiled :
       OverrideExist:HIDDEN = TRUE .
       estMaterial.costOverridePerUOM:HIDDEN = FALSE.
       estMaterial.costOverrideUOM:HIDDEN = FALSE.
-      estMaterial.costOverridePerUOM:SENSITIVE = FALSE.
-      estMaterial.costOverrideUOM:SENSITIVE = FALSE.
     END.      
   END.
   DELETE OBJECT hdVendorCostProcs.
