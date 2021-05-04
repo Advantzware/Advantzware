@@ -531,11 +531,26 @@ PROCEDURE GL_ReOpenPeriod :
      Syntax:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ipcCompany  AS CHARACTER   NO-UNDO.    
+    DEFINE INPUT  PARAMETER iprwRowid   AS ROWID       NO-UNDO.  
+    
+    RUN pReOpenPeriod(INPUT ipcCompany, INPUT iprwRowid).
+    
+END PROCEDURE.      
+    
+
+PROCEDURE pReOpenPeriod PRIVATE :
+    /*------------------------------------------------------------------------------
+     Purpose: Reopen Period 
+     Notes:
+     Syntax:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany  AS CHARACTER   NO-UNDO.    
     DEFINE INPUT  PARAMETER iprwRowid   AS ROWID       NO-UNDO.    
     
     DEFINE BUFFER bf-period FOR period.
     DEFINE BUFFER bf-account FOR account.
     
+    FIND FIRST company NO-LOCK where company.company eq ipcCompany NO-ERROR.
     FIND FIRST bf-period EXCLUSIVE-LOCK 
          WHERE bf-period.company EQ ipcCompany
          AND ROWID(bf-period) EQ iprwRowid NO-ERROR.
@@ -564,14 +579,14 @@ PROCEDURE GL_ReOpenPeriod :
         bf-period.FGClosedBy  = USERID(LDBNAME(1))
         bf-period.BRClosedBy  = USERID(LDBNAME(1))
         bf-period.ARClosedBy  = USERID(LDBNAME(1))        
-        bf-period.subLedgerAP  = "O"
-        bf-period.subLedgerPO  = "O"
-        bf-period.subLedgerOP  = "O"
-        bf-period.subLedgerWIP = "O"
-        bf-period.subLedgerRM  = "O"
-        bf-period.subLedgerFG  = "O"
-        bf-period.subLedgerBR  = "O"
-        bf-period.subLedgerAR  = "O"      
+        bf-period.subLedgerAP  = IF company.subLedgerAP EQ YES THEN "O" ELSE "A"
+        bf-period.subLedgerPO  = IF company.subLedgerPO EQ YES THEN "O" ELSE "A"
+        bf-period.subLedgerOP  = IF company.subLedgerOP EQ YES THEN "O" ELSE "A"
+        bf-period.subLedgerWIP = IF company.subLedgerWIP EQ YES THEN "O" ELSE "A"
+        bf-period.subLedgerRM  = IF company.subLedgerRM EQ YES THEN "O" ELSE "A"
+        bf-period.subLedgerFG  = IF company.subLedgerFG EQ YES THEN "O" ELSE "A"
+        bf-period.subLedgerBR  = IF company.subLedgerBR EQ YES THEN "O" ELSE "A"
+        bf-period.subLedgerAR  = IF company.subLedgerAR EQ YES THEN "O" ELSE "A"       
         bf-period.APClosed  = NOW
         bf-period.POClosed  = NOW
         bf-period.OPClosed  = NOW
