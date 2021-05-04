@@ -106,8 +106,8 @@ estMaterial.noCharge estMaterial.costOverridePerUOM ~
 estMaterial.costOverrideUOM estMaterial.weightPerEA 
 &Scoped-define ENABLED-TABLES estMaterial
 &Scoped-define FIRST-ENABLED-TABLE estMaterial
-&Scoped-Define ENABLED-OBJECTS Btn_OK Btn_Done Btn_Cancel Btn_CostPerQty ~
-OverrideExist RECT-21 RECT-38 RECT-39 
+&Scoped-Define ENABLED-OBJECTS OverrideExist Btn_OK Btn_Done Btn_Cancel ~
+RECT-21 RECT-38 RECT-39 
 &Scoped-Define DISPLAYED-FIELDS estMaterial.formNo estMaterial.blankNo ~
 estMaterial.itemID estMaterial.materialTypeID estMaterial.quantity ~
 estMaterial.quantityUOM estMaterial.quantityPer estMaterial.dimLength ~
@@ -154,11 +154,11 @@ FUNCTION fGetTypeName RETURNS CHARACTER
 /* Define a dialog box                                                  */
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON Btn_CostPerQty 
+/*DEFINE BUTTON Btn_CostPerQty 
      NO-FOCUS
      LABEL "Override Cost Per Qty" 
      SIZE 30 BY 1.91
-     BGCOLOR 8 .
+     BGCOLOR 8 .*/
 
 DEFINE BUTTON OverrideExist 
      NO-FOCUS FLAT-BUTTON
@@ -267,7 +267,7 @@ DEFINE FRAME Dialog-Frame
           DROP-DOWN-LIST
           SIZE 12 BY 1
           BGCOLOR 15 FONT 1
-     Btn_CostPerQty AT ROW 8 COL 13.6
+   //  Btn_CostPerQty AT ROW 8 COL 13.6
      OverrideExist AT ROW 5.91 COL 13.6
      Btn_OK AT ROW 11.24 COL 88.2
      Btn_Done AT ROW 11.52 COL 89.2
@@ -560,7 +560,7 @@ DO:
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
+/*
 &Scoped-define SELF-NAME Btn_CostPerQty
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_CostPerQty Dialog-Frame
 ON CHOOSE OF Btn_CostPerQty IN FRAME Dialog-Frame /* Override Cost Per Qty */
@@ -586,7 +586,7 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
+*/
 
 &Scoped-define SELF-NAME estMaterial.itemID
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL estMaterial.itemID Dialog-Frame
@@ -744,11 +744,11 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
     IF lUseVendItemCost AND cCEVersion EQ "New" THEN
     DO:
-      Btn_CostPerQty:HIDDEN IN FRAME {&FRAME-NAME}  = FALSE .
+     // Btn_CostPerQty:HIDDEN IN FRAME {&FRAME-NAME}  = FALSE .
       RUN pShowHideCostFiled.      
     END.                                    
     ELSE ASSIGN
-         Btn_CostPerQty:HIDDEN IN FRAME {&FRAME-NAME} = TRUE
+       //  Btn_CostPerQty:HIDDEN IN FRAME {&FRAME-NAME} = TRUE
          OverrideExist:HIDDEN IN FRAME {&FRAME-NAME} = TRUE .  
     
     FIND CURRENT estMaterial NO-LOCK NO-ERROR .
@@ -890,12 +890,11 @@ PROCEDURE enable_UI :
           estMaterial.weightPerEA 
       WITH FRAME Dialog-Frame.
   ENABLE estMaterial.formNo estMaterial.blankNo estMaterial.itemID 
-         estMaterial.quantity estMaterial.quantityPer estMaterial.dimLength 
-         estMaterial.dimWidth estMaterial.dimDepth 
-         Btn_CostPerQty Btn_OK Btn_Done Btn_Cancel 
-         estMaterial.noCharge estMaterial.costOverridePerUOM  
-         estMaterial.costOverrideUOM estMaterial.weightPerEA 
-         RECT-21 RECT-38 RECT-39
+         estMaterial.quantity estMaterial.quantityPer OverrideExist Btn_OK 
+         Btn_Done Btn_Cancel estMaterial.costOverridePerUOM 
+         estMaterial.costOverrideUOM estMaterial.noCharge estMaterial.dimLength 
+         estMaterial.dimWidth estMaterial.dimDepth estMaterial.weightPerEA 
+         RECT-21 RECT-38 RECT-39 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
@@ -949,6 +948,8 @@ PROCEDURE pShowHideCostFiled :
       OverrideExist:HIDDEN = TRUE .
       estMaterial.costOverridePerUOM:HIDDEN = FALSE.
       estMaterial.costOverrideUOM:HIDDEN = FALSE.
+      estMaterial.costOverridePerUOM:SENSITIVE = FALSE.
+      estMaterial.costOverrideUOM:SENSITIVE = FALSE.
     END.      
   END.
   DELETE OBJECT hdVendorCostProcs.

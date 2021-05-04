@@ -96,9 +96,9 @@ DEFINE QUERY external_tables FOR eb.
     ~{&OPEN-QUERY-BROWSE-1}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS BROWSE-1 btn-update btn-add btn-copy btn-ok ~
-btn-delete RECT-1  
-&Scoped-Define DISPLAYED-OBJECTS est-no  
+&Scoped-Define ENABLED-OBJECTS Btn_CostPerQty BROWSE-1 btn-add btn-copy ~
+btn-update btn-delete btn-ok RECT-1 
+&Scoped-Define DISPLAYED-OBJECTS est-no 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -156,6 +156,10 @@ DEFINE BUTTON btn-update
 DEFINE BUTTON btn-delete 
     LABEL "Delete" 
     SIZE 9.5 BY 1.14.
+DEFINE BUTTON Btn_CostPerQty  NO-FOCUS
+     LABEL "Override Cost Per Qty" 
+     SIZE 27 BY 1.14
+     BGCOLOR 8 .
 
 DEFINE VARIABLE est-no    AS CHARACTER FORMAT "X(8)":U 
     LABEL "Estimate#" 
@@ -205,6 +209,7 @@ DEFINE FRAME F-Main
     "Main Input" VIEW-AS TEXT
     SIZE 13 BY 1 AT ROW 1.14 COL 6 WIDGET-ID 206
     RECT-1 AT ROW 1.71 COL 1.8 WIDGET-ID 82
+     Btn_CostPerQty AT ROW 3.95 COL 42.4 WIDGET-ID 208
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
     SIDE-LABELS NO-UNDERLINE THREE-D 
     AT COL 1.2 ROW 1
@@ -504,6 +509,33 @@ ON CHOOSE OF btn-delete IN FRAME F-Main /* Update Selected */
             RUN repo-query (lv-rowid).
         END.
     END.
+&Scoped-define SELF-NAME Btn_CostPerQty
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_CostPerQty W-Win
+ON CHOOSE OF Btn_CostPerQty IN FRAME F-Main /* Override Cost Per Qty */
+DO:
+   DEFINE VARIABLE phandle AS HANDLE.
+   FIND FIRST ITEM WHERE ITEM.company  = cocode
+       AND ITEM.i-no = estMaterial.itemID NO-LOCK NO-ERROR.
+
+   IF AVAIL ITEM THEN DO:
+      RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostSourceFrom = "MF"' ).
+      RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostEst# = ' + QUOTER(est-no:SCREEN-VALUE)).
+      RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCost = ' + item.i-no).          
+      RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostType = "RM" ' ).      
+      RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostVendor = ' + item.vend-no).
+      RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostCustomer = ""').  
+      RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostForm# = ' + ( STRING(estMaterial.formNo)) ).
+      RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostBlank# = 0').
+      RUN windows/vendcostmtx.w  PERSISTENT SET phandle  .
+      /* Set the option frame size and colour to give blue background to icons and 
+         add the handle of scope define object to temptable for resizizng */
+      RUN beforeinitialize IN phandle NO-ERROR.
+      RUN dispatch IN phandle ('initialize':U) NO-ERROR.
+      /* Add the handle of all smart object to be resized/shifted on resize to the temptable and 
+         Shift all the icons towards right */
+      RUN afterinitialize IN phandle NO-ERROR.
+   END.
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
