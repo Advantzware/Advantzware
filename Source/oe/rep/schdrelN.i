@@ -62,7 +62,26 @@ if chosen eq 2 then DO:
                ASSIGN cReasonCode = job.reason
                      cReasonDesc  =  rejct-cd.dscr.      
        END.
-       IF AVAIL job-hdr THEN DO:                 
+       
+       IF AVAILABLE job AND w-ord.is-a-component AND
+        CAN-FIND(FIRST reftable
+                 WHERE reftable.reftable EQ "jc/jc-calc.p"
+                 AND reftable.company  EQ job.company
+                 AND reftable.loc      EQ ""
+                 AND reftable.code     EQ STRING(job.job,"999999999")) THEN
+        FOR EACH reftable
+        WHERE reftable.reftable EQ "jc/jc-calc.p"
+        AND reftable.company  EQ job-hdr.company
+        AND reftable.loc      EQ ""
+        AND reftable.code     EQ STRING(job-hdr.job,"999999999")
+        AND ((reftable.code2  EQ w-ord.i-no AND w-ord.is-a-component) OR
+             (job-hdr.i-no    EQ w-ord.i-no AND NOT w-ord.is-a-component))
+        NO-LOCK:
+         ASSIGN
+           iFormNo   = reftable.val[12]
+           iBlankNo  = reftable.val[13].        
+       END .
+       ELSE IF AVAIL job-hdr THEN DO:                 
             assign
               iFormNo = job-hdr.frm
               iBlankNo = job-hdr.blank-no .
