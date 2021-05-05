@@ -36,6 +36,10 @@ DEFINE VARIABLE i           AS INTEGER NO-UNDO.
 DEFINE VARIABLE dtCheckDate AS DATE    NO-UNDO.
 DEFINE VARIABLE hdValidate AS HANDLE    NO-UNDO.
 RUN util/Validate.p PERSISTENT SET hdValidate.
+DEFINE VARIABLE lCheckPage AS LOGICAL INIT NO NO-UNDO .
+
+IF  PROGRAM-NAME(2) MATCHES "*/fixglhistory.*"  THEN
+    lCheckPage = YES .
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -195,16 +199,20 @@ ON CHOOSE OF Btn_save IN FRAME Dialog-Frame /* Save */
         DO WITH FRAME {&FRAME-NAME}:
             ASSIGN {&displayed-objects}.
         END.
-        
+          
         RUN pCheckAccount(OUTPUT lReturnError) .
         IF lReturnError THEN RETURN NO-APPLY .
-    
+                       
         RUN pCheckTransDate(OUTPUT lReturnError) .
         IF lReturnError THEN RETURN NO-APPLY .
-    
+                             
         RUN pCheckPeriod(OUTPUT lReturnError) .
         IF lReturnError THEN RETURN NO-APPLY .
-    
+                      
+        RUN pCheckYear(OUTPUT lReturnError) .
+        IF lReturnError THEN RETURN NO-APPLY .
+        
+                      
         RUN pAssignValue.
     
         APPLY "go" TO FRAME {&FRAME-NAME}.
@@ -235,9 +243,7 @@ ON HELP OF bank_account IN FRAME Dialog-Frame
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL dtDate Dialog-Frame
 ON LEAVE OF dtDate IN FRAME Dialog-Frame
     DO:
-        DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
-        RUN pCheckTransDate(OUTPUT lReturnError) .
-        IF lReturnError THEN RETURN NO-APPLY .
+       
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -247,9 +253,7 @@ ON LEAVE OF dtDate IN FRAME Dialog-Frame
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL iPeriod Dialog-Frame
 ON LEAVE OF iPeriod IN FRAME Dialog-Frame
     DO:
-        DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
-        RUN pCheckPeriod(OUTPUT lReturnError) .
-        IF lReturnError THEN RETURN NO-APPLY .
+        
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -259,9 +263,7 @@ ON LEAVE OF iPeriod IN FRAME Dialog-Frame
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL bank_account Dialog-Frame
 ON LEAVE OF bank_account IN FRAME Dialog-Frame
     DO:
-        DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
-        RUN pCheckAccount(OUTPUT lReturnError) .
-        IF lReturnError THEN RETURN NO-APPLY .
+       
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -288,6 +290,13 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    
     RUN pDisplayValue.
     RUN enable_UI.
+    
+    DO WITH FRAME {&FRAME-NAME}:        
+        IF lCheckPage THEN
+        DO:
+          DISABLE dtDate iPeriod iYear.             
+        END.            
+    END.
  
     WAIT-FOR GO OF FRAME {&FRAME-NAME}.
 END.
@@ -359,8 +368,8 @@ PROCEDURE pDisplayValue :
                 iPeriod      = glhist.period
                 iYear        = glhist.glYear  .          
             dtCheckDate  = glhist.tr-date .
-        END.      
-       
+        END.   
+               
         APPLY "entry" TO bank_account .            
     END.
 
@@ -424,6 +433,28 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckYear Dialog-Frame 
+PROCEDURE pCheckYear :
+    /*------------------------------------------------------------------------------
+                  Purpose:     
+                  Parameters:  <none>
+                  Notes:       
+                ------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
+    DO WITH FRAME {&FRAME-NAME}:
+        IF YEAR(dtCheckDate) NE INTEGER(iYear:SCREEN-VALUE) THEN
+        DO:
+            MESSAGE "Please enter transaction year of date .." 
+                VIEW-AS ALERT-BOX INFORMATION .
+            oplReturnError = TRUE .
+        END.               
+    END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckPeriod Dialog-Frame 
 PROCEDURE pCheckPeriod :
@@ -434,9 +465,9 @@ PROCEDURE pCheckPeriod :
                 ------------------------------------------------------------------------------*/
     DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
     DO WITH FRAME {&FRAME-NAME}:
-        IF INTEGER(iPeriod:SCREEN-VALUE) GT 12 OR integer(iPeriod:SCREEN-VALUE) LE 0 THEN
+        IF INTEGER(iPeriod:SCREEN-VALUE) NE MONTH(dtCheckDate) THEN
         DO:
-            MESSAGE "Please enter a vaild period .." 
+            MESSAGE "Please enter a vaild period of transaction date .." 
                 VIEW-AS ALERT-BOX INFORMATION .
             oplReturnError = TRUE .
         END.               

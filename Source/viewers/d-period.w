@@ -643,17 +643,34 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_ReOpen Dialog-Frame
 ON CHOOSE OF Btn_ReOpen IN FRAME Dialog-Frame /* Reopen Period */
 DO:
-    
-    scInstance = SharedConfig:instance.
-    scInstance:SetValue("ReOpenPeriodCompany",TRIM(company.company)).
-              
-    RUN util/reopenyr.p.   
-    RUN display-item.
-    
-    scInstance = SharedConfig:instance.
-    scInstance:DeleteValue(INPUT "ReOpenPeriodCompany").  
-
+    DEFINE VARIABLE lChoice AS LOGICAL NO-UNDO.
+    IF period.pnum EQ company.num-per THEN
+    DO:      
+        scInstance = SharedConfig:instance.
+        scInstance:SetValue("ReOpenPeriodCompany",TRIM(company.company)).
+                  
+        RUN util/reopenyr.p.   
+        RUN display-item.
+        
+        scInstance = SharedConfig:instance.
+        scInstance:DeleteValue(INPUT "ReOpenPeriodCompany"). 
     END.
+    ELSE DO:
+    
+       message "Are you sure you wish to reopen this period"
+                                VIEW-AS ALERT-BOX QUESTION
+                                BUTTONS OK-CANCEL UPDATE lChoice .
+       IF lChoice THEN
+       DO:
+           RUN GL_ReOpenPeriod(TRIM(company.company), ROWID(period) ) .
+           
+           RUN display-item.
+       END.
+      
+      
+    END.
+
+   END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1031,13 +1048,13 @@ PROCEDURE display-item :
     Btn_ReOpen:HIDDEN IN FRAME Dialog-Frame = YES.
     RECT-20:HIDDEN IN FRAME Dialog-Frame = YES.
     
-    IF AVAIL period AND period.pstat EQ NO AND period.pnum EQ company.num-per  THEN
+    IF AVAIL period AND period.pstat EQ NO /*AND period.pnum EQ company.num-per */ THEN
     DO:
        FIND LAST bf-period  no-lock
             where bf-period.company eq company.company            
             and bf-period.pstat   eq no
               no-error.
-       IF AVAIL bf-period AND bf-period.yr EQ period.yr THEN
+       IF AVAIL bf-period AND bf-period.yr EQ period.yr AND bf-period.pnum EQ period.pnum THEN
        ASSIGN
         Btn_ReOpen:HIDDEN IN FRAME Dialog-Frame = NO
         RECT-20:HIDDEN IN FRAME Dialog-Frame = NO.

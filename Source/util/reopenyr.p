@@ -97,6 +97,32 @@ if choice then do on error undo, leave:
         status default "Processing Account: " + bf-account.actnum.        
     END.
     bf-period.pstat = YES.
+    ASSIGN
+        bf-period.APClosedBy  = USERID(LDBNAME(1))
+        bf-period.POClosedBy  = USERID(LDBNAME(1))
+        bf-period.OPClosedBy  = USERID(LDBNAME(1))
+        bf-period.WIPClosedBy = USERID(LDBNAME(1))
+        bf-period.RMClosedBy  = USERID(LDBNAME(1))
+        bf-period.FGClosedBy  = USERID(LDBNAME(1))
+        bf-period.BRClosedBy  = USERID(LDBNAME(1))
+        bf-period.ARClosedBy  = USERID(LDBNAME(1))        
+        bf-period.subLedgerAP  = IF company.subLedgerAP EQ YES THEN "O" ELSE "A"
+        bf-period.subLedgerPO  = IF company.subLedgerPO EQ YES THEN "O" ELSE "A"
+        bf-period.subLedgerOP  = IF company.subLedgerOP EQ YES THEN "O" ELSE "A"
+        bf-period.subLedgerWIP = IF company.subLedgerWIP EQ YES THEN "O" ELSE "A"
+        bf-period.subLedgerRM  = IF company.subLedgerRM EQ YES THEN "O" ELSE "A"
+        bf-period.subLedgerFG  = IF company.subLedgerFG EQ YES THEN "O" ELSE "A"
+        bf-period.subLedgerBR  = IF company.subLedgerBR EQ YES THEN "O" ELSE "A"
+        bf-period.subLedgerAR  = IF company.subLedgerAR EQ YES THEN "O" ELSE "A"     
+        bf-period.APClosed  = NOW
+        bf-period.POClosed  = NOW
+        bf-period.OPClosed  = NOW
+        bf-period.WIPClosed = NOW
+        bf-period.RMClosed  = NOW
+        bf-period.FGClosed  = NOW
+        bf-period.BRClosed  = NOW
+        bf-period.ARClosed  = NOW
+        .
     FIND CURRENT bf-period NO-LOCK NO-ERROR.
     
     FOR EACH bf-glhist EXCLUSIVE-LOCK

@@ -524,6 +524,85 @@ PROCEDURE GL_GetAccountOpenBal :
     END.
 END PROCEDURE.
 
+PROCEDURE GL_ReOpenPeriod :
+    /*------------------------------------------------------------------------------
+     Purpose: Reopen Period 
+     Notes:
+     Syntax:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany  AS CHARACTER   NO-UNDO.    
+    DEFINE INPUT  PARAMETER iprwRowid   AS ROWID       NO-UNDO.  
+    
+    RUN pReOpenPeriod(INPUT ipcCompany, INPUT iprwRowid).
+    
+END PROCEDURE.      
+    
+
+PROCEDURE pReOpenPeriod PRIVATE :
+    /*------------------------------------------------------------------------------
+     Purpose: Reopen Period 
+     Notes:
+     Syntax:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany  AS CHARACTER   NO-UNDO.    
+    DEFINE INPUT  PARAMETER iprwRowid   AS ROWID       NO-UNDO.    
+    
+    DEFINE BUFFER bf-period FOR period.
+    DEFINE BUFFER bf-account FOR account.
+    
+    FIND FIRST company NO-LOCK where company.company eq ipcCompany NO-ERROR.
+    FIND FIRST bf-period EXCLUSIVE-LOCK 
+         WHERE bf-period.company EQ ipcCompany
+         AND ROWID(bf-period) EQ iprwRowid NO-ERROR.
+    IF AVAIL bf-period THEN
+    DO:
+        for each glhist
+            where glhist.company eq ipcCompany         
+            and glhist.tr-date ge bf-period.pst
+            and glhist.tr-date le bf-period.pend
+            and glhist.period  eq bf-period.pnum          
+            :
+            glhist.posted = NO.        
+        END.  
+        
+        FOR EACH bf-account
+            where bf-account.company EQ ipcCompany:
+            bf-account.cyr[bf-period.pnum] = 0.
+        END.
+        bf-period.pstat = YES.
+        ASSIGN
+        bf-period.APClosedBy  = USERID(LDBNAME(1))
+        bf-period.POClosedBy  = USERID(LDBNAME(1))
+        bf-period.OPClosedBy  = USERID(LDBNAME(1))
+        bf-period.WIPClosedBy = USERID(LDBNAME(1))
+        bf-period.RMClosedBy  = USERID(LDBNAME(1))
+        bf-period.FGClosedBy  = USERID(LDBNAME(1))
+        bf-period.BRClosedBy  = USERID(LDBNAME(1))
+        bf-period.ARClosedBy  = USERID(LDBNAME(1))        
+        bf-period.subLedgerAP  = IF company.subLedgerAP EQ YES THEN "O" ELSE "A"
+        bf-period.subLedgerPO  = IF company.subLedgerPO EQ YES THEN "O" ELSE "A"
+        bf-period.subLedgerOP  = IF company.subLedgerOP EQ YES THEN "O" ELSE "A"
+        bf-period.subLedgerWIP = IF company.subLedgerWIP EQ YES THEN "O" ELSE "A"
+        bf-period.subLedgerRM  = IF company.subLedgerRM EQ YES THEN "O" ELSE "A"
+        bf-period.subLedgerFG  = IF company.subLedgerFG EQ YES THEN "O" ELSE "A"
+        bf-period.subLedgerBR  = IF company.subLedgerBR EQ YES THEN "O" ELSE "A"
+        bf-period.subLedgerAR  = IF company.subLedgerAR EQ YES THEN "O" ELSE "A"       
+        bf-period.APClosed  = NOW
+        bf-period.POClosed  = NOW
+        bf-period.OPClosed  = NOW
+        bf-period.WIPClosed = NOW
+        bf-period.RMClosed  = NOW
+        bf-period.FGClosed  = NOW
+        bf-period.BRClosed  = NOW
+        bf-period.ARClosed  = NOW
+        .
+        
+    END.
+    RELEASE bf-period.
+    
+END PROCEDURE.    
+
+
 /* ************************  Function Implementations ***************** */
 
 
