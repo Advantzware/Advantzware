@@ -178,6 +178,7 @@ DEFINE VARIABLE dTotFreight AS DECIMAL NO-UNDO.
 DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lCheckTagHoldMessage AS LOGICAL NO-UNDO.
 DEFINE VARIABLE hInventoryProcs AS HANDLE NO-UNDO.
+DEFINE VARIABLE lBOLQtyPopup AS LOGICAL NO-UNDO.
 {inventory/ttInventory.i "NEW SHARED"}
 RUN inventory\InventoryProcs.p PERSISTENT SET hInventoryProcs.
 
@@ -205,6 +206,12 @@ RUN sys/ref/nk1look.p (INPUT g_company, "FreightCalculation", "C" /* Logical */,
                        OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
     cFreightCalculationValue = cRtnChar NO-ERROR.
+    
+RUN sys/ref/nk1look.p (INPUT g_company, "BOLQtyPopup", "L" /* Logical */, NO /* check by cust */, 
+                       INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+                       OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    lBOLQtyPopup = logical(cRtnChar) NO-ERROR.     
     
 /* Include file contains transaction keyword */ 
   {sys/ref/relpost.i}
@@ -894,6 +901,9 @@ DO:
      IF (fg-bin.cust-no EQ oe-relh.cust-no AND LAST-OF(fg-bin.cust-no)) OR
         LAST(fg-bin.cust-no) THEN LEAVE.
    END.
+   
+   RUN pCheckReleaseQty(OUTPUT lReturnError).
+   IF lReturnError THEN RETURN NO-APPLY.
    
    /* Code moved since with section was too long */
    RUN assign-ttrel.
@@ -2571,6 +2581,59 @@ IF lIsOnHold THEN
   MESSAGE cHoldMessage SKIP "Bill of Lading cannot be created!" VIEW-AS ALERT-BOX
    WARNING .
 oplOnHold = lIsOnHold.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckReleaseQty B-table-Win 
+PROCEDURE pCheckReleaseQty :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
+DEFINE VARIABLE iReleaseQty AS INTEGER NO-UNDO.
+DEFINE VARIABLE iScanQty AS INTEGER NO-UNDO.
+
+IF lBOLQtyPopup THEN
+DO:
+  DO WITH FRAME {&FRAME-NAME}:
+    FOR EACH oe-relh NO-LOCK 
+        WHERE oe-relh.company = cocode 
+        AND oe-relh.release# = INT(tt-relbol.release#:SCREEN-VALUE IN BROWSE {&browse-name} )
+        AND oe-relh.printed AND NOT oe-relh.posted ,
+        EACH oe-rell
+        WHERE oe-rell.company EQ oe-relh.company
+        AND oe-rell.r-no    EQ oe-relh.r-no
+        USE-INDEX r-no NO-LOCK BREAK BY oe-rell.i-no BY oe-rell.LINE:             
+        iReleaseQty = iReleaseQty + oe-rell.qty.                
+    END. 
+    FOR EACH bf-tmp NO-LOCK
+        WHERE bf-tmp.release# EQ INT(tt-relbol.release#:SCREEN-VALUE IN BROWSE {&browse-name} )
+        AND bf-tmp.i-no EQ tt-relbol.i-no:SCREEN-VALUE IN BROWSE {&browse-name} :
+            iScanQty = iScanQty + bf-tmp.qty.
+    END.
+    
+    iScanQty = iScanQty + (IF AVAIL fg-bin THEN fg-bin.qty ELSE loadtag.pallet-count). 
+    
+    IF iScanQty GT iReleaseQty THEN
+    DO:
+       MESSAGE  "Tag qty exceeds Scheduled Release Qty " SKIP  
+                 "YES to continue.." SKIP                 
+            VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
+            UPDATE ll-change-qty AS LOG.
+       IF NOT ll-change-qty  THEN
+       DO:
+        tt-relbol.tag:SCREEN-VALUE IN BROWSE {&browse-name} = "".
+        APPLY "entry" TO  tt-relbol.tag.
+       oplReturnError = YES.
+       END.          
+    END.     
+  END.  
+END.
 
 END PROCEDURE.
 
