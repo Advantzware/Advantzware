@@ -81,17 +81,18 @@ RUN sys/ref/nk1look.p (
 &Scoped-define INTERNAL-TABLES estMaterial
 
 /* Definitions for DIALOG-BOX Dialog-Frame                              */
-&Scoped-define FIELDS-IN-QUERY-Dialog-Frame estMaterial.formNo ~
-estMaterial.blankNo estMaterial.itemID estMaterial.materialTypeID ~
-estMaterial.quantity estMaterial.quantityUOM estMaterial.quantityPer ~
-estMaterial.dimLength estMaterial.dimWidth estMaterial.dimDepth ~
-estMaterial.noCharge estMaterial.costOverridePerUOM ~
-estMaterial.costOverrideUOM estMaterial.weightPerEA 
-&Scoped-define ENABLED-FIELDS-IN-QUERY-Dialog-Frame estMaterial.formNo ~
-estMaterial.blankNo estMaterial.itemID estMaterial.quantity ~
-estMaterial.quantityPer estMaterial.dimLength estMaterial.dimWidth ~
-estMaterial.dimDepth estMaterial.noCharge estMaterial.costOverridePerUOM ~
-estMaterial.costOverrideUOM estMaterial.weightPerEA 
+&Scoped-define FIELDS-IN-QUERY-Dialog-Frame estMaterial.wastePercent ~
+estMaterial.formNo estMaterial.blankNo estMaterial.itemID ~
+estMaterial.materialTypeID estMaterial.quantity estMaterial.quantityUOM ~
+estMaterial.quantityPer estMaterial.costOverridePerUOM ~
+estMaterial.costOverrideUOM estMaterial.noCharge estMaterial.dimLength ~
+estMaterial.dimWidth estMaterial.dimDepth estMaterial.weightPerEA 
+&Scoped-define ENABLED-FIELDS-IN-QUERY-Dialog-Frame ~
+estMaterial.wastePercent estMaterial.formNo estMaterial.blankNo ~
+estMaterial.itemID estMaterial.quantity estMaterial.quantityPer ~
+estMaterial.costOverridePerUOM estMaterial.costOverrideUOM ~
+estMaterial.noCharge estMaterial.dimLength estMaterial.dimWidth ~
+estMaterial.dimDepth estMaterial.weightPerEA 
 &Scoped-define ENABLED-TABLES-IN-QUERY-Dialog-Frame estMaterial
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-Dialog-Frame estMaterial
 &Scoped-define TABLES-IN-QUERY-Dialog-Frame estMaterial
@@ -99,21 +100,21 @@ estMaterial.costOverrideUOM estMaterial.weightPerEA
 
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS estMaterial.formNo estMaterial.blankNo ~
-estMaterial.itemID estMaterial.quantity estMaterial.quantityPer ~
-estMaterial.dimLength estMaterial.dimWidth estMaterial.dimDepth ~
-estMaterial.noCharge estMaterial.costOverridePerUOM ~
-estMaterial.costOverrideUOM estMaterial.weightPerEA 
+&Scoped-Define ENABLED-FIELDS estMaterial.wastePercent estMaterial.formNo ~
+estMaterial.blankNo estMaterial.itemID estMaterial.quantity ~
+estMaterial.quantityPer estMaterial.costOverridePerUOM ~
+estMaterial.costOverrideUOM estMaterial.noCharge estMaterial.dimLength ~
+estMaterial.dimWidth estMaterial.dimDepth estMaterial.weightPerEA 
 &Scoped-define ENABLED-TABLES estMaterial
 &Scoped-define FIRST-ENABLED-TABLE estMaterial
 &Scoped-Define ENABLED-OBJECTS OverrideExist Btn_OK Btn_Done Btn_Cancel ~
 RECT-21 RECT-38 RECT-39 
-&Scoped-Define DISPLAYED-FIELDS estMaterial.formNo estMaterial.blankNo ~
-estMaterial.itemID estMaterial.materialTypeID estMaterial.quantity ~
-estMaterial.quantityUOM estMaterial.quantityPer estMaterial.dimLength ~
-estMaterial.dimWidth estMaterial.dimDepth estMaterial.noCharge ~
+&Scoped-Define DISPLAYED-FIELDS estMaterial.wastePercent estMaterial.formNo ~
+estMaterial.blankNo estMaterial.itemID estMaterial.materialTypeID ~
+estMaterial.quantity estMaterial.quantityUOM estMaterial.quantityPer ~
 estMaterial.costOverridePerUOM estMaterial.costOverrideUOM ~
-estMaterial.weightPerEA 
+estMaterial.noCharge estMaterial.dimLength estMaterial.dimWidth ~
+estMaterial.dimDepth estMaterial.weightPerEA 
 &Scoped-define DISPLAYED-TABLES estMaterial
 &Scoped-define FIRST-DISPLAYED-TABLE estMaterial
 &Scoped-Define DISPLAYED-OBJECTS est-no fi_mat-name fi_type-name 
@@ -154,18 +155,6 @@ FUNCTION fGetTypeName RETURNS CHARACTER
 /* Define a dialog box                                                  */
 
 /* Definitions of the field level widgets                               */
-/*DEFINE BUTTON Btn_CostPerQty 
-     NO-FOCUS
-     LABEL "Override Cost Per Qty" 
-     SIZE 30 BY 1.91
-     BGCOLOR 8 .*/
-
-DEFINE BUTTON OverrideExist 
-     NO-FOCUS FLAT-BUTTON
-     LABEL "OverrideExist" 
-     SIZE 30 BY 1.91
-     BGCOLOR 8 .
-
 DEFINE BUTTON Btn_Cancel 
      IMAGE-UP FILE "Graphics/32x32/exit_white.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Cancel" 
@@ -181,6 +170,11 @@ DEFINE BUTTON Btn_OK
      IMAGE-UP FILE "Graphics/32x32/floppy_disk.png":U NO-FOCUS FLAT-BUTTON
      LABEL "&Save" 
      SIZE 8 BY 1.91
+     BGCOLOR 8 .
+
+DEFINE BUTTON OverrideExist  NO-FOCUS FLAT-BUTTON
+     LABEL "OverrideExist" 
+     SIZE 30 BY 1.91
      BGCOLOR 8 .
 
 DEFINE VARIABLE est-no AS CHARACTER FORMAT "X(8)":U 
@@ -223,6 +217,11 @@ DEFINE QUERY Dialog-Frame FOR
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Dialog-Frame
+     estMaterial.wastePercent AT ROW 4.1 COL 84 COLON-ALIGNED WIDGET-ID 322
+          LABEL "Waste %"
+          VIEW-AS FILL-IN 
+          SIZE 16.4 BY 1
+          FONT 1
      est-no AT ROW 1.43 COL 13.8 COLON-ALIGNED WIDGET-ID 200
      estMaterial.formNo AT ROW 1.43 COL 37.4 COLON-ALIGNED
           LABEL "Form#" FORMAT "9"
@@ -251,8 +250,7 @@ DEFINE FRAME Dialog-Frame
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
           BGCOLOR 15 FONT 1
-     estMaterial.quantityUOM AT ROW 4 COL 31.6 COLON-ALIGNED WIDGET-ID 318
-          NO-LABEL FORMAT "x(8)"
+     estMaterial.quantityUOM AT ROW 4 COL 31.6 COLON-ALIGNED NO-LABEL WIDGET-ID 318
           VIEW-AS FILL-IN 
           SIZE 5 BY 1
           BGCOLOR 15 FONT 1
@@ -260,29 +258,28 @@ DEFINE FRAME Dialog-Frame
           LABEL "Per"
           VIEW-AS COMBO-BOX INNER-LINES 4
           LIST-ITEM-PAIRS "Case","C",
-                     "Pallet","P",
+                     "Each","E",
                      "Lot","L",
-                     "EACH","E",
+                     "Pallet","P",
                      "Set","S"
           DROP-DOWN-LIST
           SIZE 12 BY 1
           BGCOLOR 15 FONT 1
-   //  Btn_CostPerQty AT ROW 8 COL 13.6
      OverrideExist AT ROW 5.91 COL 13.6
      Btn_OK AT ROW 11.24 COL 88.2
      Btn_Done AT ROW 11.52 COL 89.2
      Btn_Cancel AT ROW 11.24 COL 97.2
-     estMaterial.costOverridePerUOM AT ROW 6.61 COL 13.6 COLON-ALIGNED WIDGET-ID 318
+     estMaterial.costOverridePerUOM AT ROW 6.62 COL 13.6 COLON-ALIGNED WIDGET-ID 318
           LABEL "Cost" FORMAT "->>,>>9.99"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
           BGCOLOR 15 FONT 1
-     estMaterial.costOverrideUOM AT ROW 6.61 COL 42.6 COLON-ALIGNED WIDGET-ID 318
+     estMaterial.costOverrideUOM AT ROW 6.62 COL 42.6 COLON-ALIGNED WIDGET-ID 318
           LABEL "Per" FORMAT "x(8)"
           VIEW-AS FILL-IN 
           SIZE 5 BY 1
           BGCOLOR 15 FONT 1
-     estMaterial.noCharge AT ROW 6.61 COL 53.61 WIDGET-ID 320
+     estMaterial.noCharge AT ROW 6.62 COL 53.6 WIDGET-ID 320
           LABEL "NC"
           VIEW-AS TOGGLE-BOX
           SIZE 12 BY 1
@@ -307,13 +304,19 @@ DEFINE FRAME Dialog-Frame
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
           BGCOLOR 15 FONT 1
+    WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
+         SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
+         FGCOLOR 1 FONT 6.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME Dialog-Frame
      " Item Overrides" VIEW-AS TEXT
-          SIZE 19 BY .71 AT ROW 5.2 COL 4
+          SIZE 19 BY .71 AT ROW 5.19 COL 4
           FGCOLOR 1 FONT 6
      RECT-21 AT ROW 11 COL 87.2
      RECT-38 AT ROW 1.14 COL 1.2
      RECT-39 AT ROW 5.57 COL 1.2 WIDGET-ID 2
-     SPACE(1.79) SKIP(3.48)
+     SPACE(1.79) SKIP(5.60)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          FGCOLOR 1 FONT 6
@@ -374,13 +377,19 @@ ASSIGN
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN estMaterial.materialTypeID IN FRAME Dialog-Frame
    NO-ENABLE EXP-LABEL                                                  */
+/* SETTINGS FOR TOGGLE-BOX estMaterial.noCharge IN FRAME Dialog-Frame
+   EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN estMaterial.quantity IN FRAME Dialog-Frame
    EXP-LABEL EXP-FORMAT                                                 */
+/* SETTINGS FOR COMBO-BOX estMaterial.quantityPer IN FRAME Dialog-Frame
+   EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN estMaterial.quantityUOM IN FRAME Dialog-Frame
    NO-ENABLE                                                            */
 ASSIGN 
        RECT-39:HIDDEN IN FRAME Dialog-Frame           = TRUE.
 
+/* SETTINGS FOR FILL-IN estMaterial.wastePercent IN FRAME Dialog-Frame
+   EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN estMaterial.weightPerEA IN FRAME Dialog-Frame
    EXP-LABEL EXP-FORMAT                                                 */
 /* _RUN-TIME-ATTRIBUTES-END */
@@ -467,6 +476,23 @@ DO:
         APPLY 'GO':U TO FRAME {&FRAME-NAME}.
 
     /*APPLY "END-ERROR":U TO SELF.*/
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME estMaterial.blankNo
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL estMaterial.blankNo Dialog-Frame
+ON LEAVE OF estMaterial.blankNo IN FRAME Dialog-Frame /* Blank# */
+DO:
+        DEFINE VARIABLE lValidateResult AS LOGICAL NO-UNDO.
+        IF LASTKEY NE -1 THEN 
+        DO:
+            RUN valid-blank( OUTPUT lValidateResult) NO-ERROR.
+            IF lValidateResult THEN RETURN NO-APPLY.
+           
+        END.
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -560,33 +586,23 @@ DO:
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-/*
-&Scoped-define SELF-NAME Btn_CostPerQty
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_CostPerQty Dialog-Frame
-ON CHOOSE OF Btn_CostPerQty IN FRAME Dialog-Frame /* Override Cost Per Qty */
-DO:
-   
-   FIND FIRST ITEM WHERE ITEM.company  = cocode
-       AND ITEM.i-no = estMaterial.itemID:SCREEN-VALUE NO-LOCK NO-ERROR.
 
-   IF AVAIL ITEM THEN do:
-      RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostSourceFrom = "MF"' ).
-      RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostEst# = ' + QUOTER(est-no:SCREEN-VALUE)).
-      RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCost = ' + item.i-no).          
-      RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostType = "RM" ' ).      
-      /*RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostVendor = ' + item.vend-no).*/
-      RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostCustomer = ""').  
-      RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostForm# = ' + ( estMaterial.formNo:SCREEN-VALUE ) ).
-      RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostBlank# = 0').
-     
-      RUN windows/vendcostmtx.w .
-      RUN pShowHideCostFiled.
-   END.
-END.
+&Scoped-define SELF-NAME estMaterial.formNo
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL estMaterial.formNo Dialog-Frame
+ON LEAVE OF estMaterial.formNo IN FRAME Dialog-Frame /* Form# */
+DO:
+        DEFINE VARIABLE lValidateResult AS LOGICAL NO-UNDO.
+        IF LASTKEY NE -1 THEN 
+        DO:
+            RUN valid-form( OUTPUT lValidateResult) NO-ERROR.
+            IF lValidateResult THEN RETURN NO-APPLY.
+           
+        END.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-*/
+
 
 &Scoped-define SELF-NAME estMaterial.itemID
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL estMaterial.itemID Dialog-Frame
@@ -622,40 +638,6 @@ DO:
                 fi_mat-name:SCREEN-VALUE = fGetItemName(estMaterial.itemID:SCREEN-VALUE) . 
             estMaterial.materialTypeID:SCREEN-VALUE = fGetType(estMaterial.itemID:SCREEN-VALUE) .
             fi_type-name:SCREEN-VALUE = fGetTypeName(estMaterial.materialTypeID:SCREEN-VALUE) .
-           
-        END.
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME estMaterial.formNo
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL estMaterial.formNo Dialog-Frame
-ON LEAVE OF estMaterial.formNo IN FRAME Dialog-Frame /* Form No */
-DO:
-        DEFINE VARIABLE lValidateResult AS LOGICAL NO-UNDO.
-        IF LASTKEY NE -1 THEN 
-        DO:
-            RUN valid-form( OUTPUT lValidateResult) NO-ERROR.
-            IF lValidateResult THEN RETURN NO-APPLY.
-           
-        END.
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME estMaterial.blankNo
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL estMaterial.blankNo Dialog-Frame
-ON LEAVE OF estMaterial.blankNo IN FRAME Dialog-Frame /* Blank No */
-DO:
-        DEFINE VARIABLE lValidateResult AS LOGICAL NO-UNDO.
-        IF LASTKEY NE -1 THEN 
-        DO:
-            RUN valid-blank( OUTPUT lValidateResult) NO-ERROR.
-            IF lValidateResult THEN RETURN NO-APPLY.
            
         END.
     END.
@@ -882,19 +864,19 @@ PROCEDURE enable_UI :
   DISPLAY est-no fi_mat-name fi_type-name 
       WITH FRAME Dialog-Frame.
   IF AVAILABLE estMaterial THEN 
-    DISPLAY estMaterial.formNo estMaterial.blankNo estMaterial.itemID 
-          estMaterial.materialTypeID estMaterial.quantity 
-          estMaterial.quantityUOM estMaterial.quantityPer estMaterial.dimLength 
-          estMaterial.dimWidth estMaterial.dimDepth estMaterial.noCharge 
+    DISPLAY estMaterial.wastePercent estMaterial.formNo estMaterial.blankNo 
+          estMaterial.itemID estMaterial.materialTypeID estMaterial.quantity 
+          estMaterial.quantityUOM estMaterial.quantityPer 
           estMaterial.costOverridePerUOM estMaterial.costOverrideUOM 
-          estMaterial.weightPerEA 
+          estMaterial.noCharge estMaterial.dimLength estMaterial.dimWidth 
+          estMaterial.dimDepth estMaterial.weightPerEA 
       WITH FRAME Dialog-Frame.
-  ENABLE estMaterial.formNo estMaterial.blankNo estMaterial.itemID 
-         estMaterial.quantity estMaterial.quantityPer OverrideExist Btn_OK 
-         Btn_Done Btn_Cancel estMaterial.costOverridePerUOM 
-         estMaterial.costOverrideUOM estMaterial.noCharge estMaterial.dimLength 
-         estMaterial.dimWidth estMaterial.dimDepth estMaterial.weightPerEA 
-         RECT-21 RECT-38 RECT-39 
+  ENABLE estMaterial.wastePercent estMaterial.formNo estMaterial.blankNo 
+         estMaterial.itemID estMaterial.quantity estMaterial.quantityPer 
+         OverrideExist Btn_OK Btn_Done Btn_Cancel 
+         estMaterial.costOverridePerUOM estMaterial.costOverrideUOM 
+         estMaterial.noCharge estMaterial.dimLength estMaterial.dimWidth 
+         estMaterial.dimDepth estMaterial.weightPerEA RECT-21 RECT-38 RECT-39 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
@@ -925,7 +907,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pShowHideCostFiled Dialog-Frame
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pShowHideCostFiled Dialog-Frame 
 PROCEDURE pShowHideCostFiled :
 /*------------------------------------------------------------------------------
   Purpose:    
@@ -955,10 +937,10 @@ PROCEDURE pShowHideCostFiled :
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME  
+&ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-material Dialog-Frame 
-PROCEDURE valid-material :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-blank Dialog-Frame 
+PROCEDURE valid-blank :
 /*------------------------------------------------------------------------------
               Purpose:     
               Parameters:  <none>
@@ -966,14 +948,16 @@ PROCEDURE valid-material :
             ------------------------------------------------------------------------------*/
     DEFINE OUTPUT PARAMETER opcValidError AS LOGICAL NO-UNDO .
     DO WITH FRAME {&FRAME-NAME}:
-        FIND FIRST item NO-LOCK
-            WHERE item.company EQ cocode
-            AND item.i-no    EQ estMaterial.itemID:SCREEN-VALUE 
-            AND lookup(item.mat-type,cmaterialTypeID) > 0 NO-ERROR.
-        IF NOT AVAILABLE ITEM THEN 
+        FIND FIRST eb NO-LOCK
+            WHERE eb.company EQ cocode
+            AND eb.est-no    EQ est-no:SCREEN-VALUE
+            AND eb.form-no   EQ INTEGER(estMaterial.formNo:SCREEN-VALUE)
+            AND eb.blank-no  EQ INTEGER(estMaterial.blankNo:SCREEN-VALUE)
+            NO-ERROR.
+        IF NOT AVAILABLE eb THEN 
         DO:
-            MESSAGE "Invalid Item Id, try help..." VIEW-AS ALERT-BOX.
-            APPLY "entry" TO estMaterial.itemID .
+            MESSAGE "Invalid Blank No..." VIEW-AS ALERT-BOX.
+            APPLY "entry" TO estMaterial.blankNo .
             opcValidError = YES .
         END.
     END.
@@ -1010,8 +994,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-blank Dialog-Frame 
-PROCEDURE valid-blank :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-material Dialog-Frame 
+PROCEDURE valid-material :
 /*------------------------------------------------------------------------------
               Purpose:     
               Parameters:  <none>
@@ -1019,16 +1003,14 @@ PROCEDURE valid-blank :
             ------------------------------------------------------------------------------*/
     DEFINE OUTPUT PARAMETER opcValidError AS LOGICAL NO-UNDO .
     DO WITH FRAME {&FRAME-NAME}:
-        FIND FIRST eb NO-LOCK
-            WHERE eb.company EQ cocode
-            AND eb.est-no    EQ est-no:SCREEN-VALUE
-            AND eb.form-no   EQ INTEGER(estMaterial.formNo:SCREEN-VALUE)
-            AND eb.blank-no  EQ INTEGER(estMaterial.blankNo:SCREEN-VALUE)
-            NO-ERROR.
-        IF NOT AVAILABLE eb THEN 
+        FIND FIRST item NO-LOCK
+            WHERE item.company EQ cocode
+            AND item.i-no    EQ estMaterial.itemID:SCREEN-VALUE 
+            AND lookup(item.mat-type,cmaterialTypeID) > 0 NO-ERROR.
+        IF NOT AVAILABLE ITEM THEN 
         DO:
-            MESSAGE "Invalid Blank No..." VIEW-AS ALERT-BOX.
-            APPLY "entry" TO estMaterial.blankNo .
+            MESSAGE "Invalid Item Id, try help..." VIEW-AS ALERT-BOX.
+            APPLY "entry" TO estMaterial.itemID .
             opcValidError = YES .
         END.
     END.
