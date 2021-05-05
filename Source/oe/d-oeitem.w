@@ -421,7 +421,7 @@ oe-ordl.s-man[2] oe-ordl.s-pct[2] oe-ordl.s-comm[2] oe-ordl.s-man[3] ~
 oe-ordl.s-pct[3] oe-ordl.s-comm[3] oe-ordl.over-pct oe-ordl.under-pct ~
 oe-ordl.req-code oe-ordl.prom-code oe-ordl.req-date oe-ordl.prom-date ~
 oe-ordl.spare-char-1 oe-ordl.spare-dec-1 oe-ordl.spare-char-2 ~
-oe-ordl.SourceEstimateID
+oe-ordl.customField oe-ordl.SourceEstimateID
 &Scoped-define ENABLED-FIELDS-IN-QUERY-d-oeitem oe-ordl.est-no oe-ordl.qty ~
 oe-ordl.i-no oe-ordl.part-no oe-ordl.i-name oe-ordl.part-dscr1 ~
 oe-ordl.part-dscr2 oe-ordl.part-dscr3 oe-ordl.po-no oe-ordl.e-num ~
@@ -432,7 +432,7 @@ oe-ordl.s-comm[1] oe-ordl.s-man[2] oe-ordl.s-pct[2] oe-ordl.s-comm[2] ~
 oe-ordl.s-man[3] oe-ordl.s-pct[3] oe-ordl.s-comm[3] oe-ordl.over-pct ~
 oe-ordl.under-pct oe-ordl.req-code oe-ordl.prom-code oe-ordl.req-date ~
 oe-ordl.prom-date oe-ordl.spare-char-1 oe-ordl.spare-dec-1  ~
-oe-ordl.spare-char-2 oe-ordl.SourceEstimateID
+oe-ordl.spare-char-2 oe-ordl.customField oe-ordl.SourceEstimateID
 &Scoped-define ENABLED-TABLES-IN-QUERY-d-oeitem oe-ordl
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-d-oeitem oe-ordl
 &Scoped-define QUERY-STRING-d-oeitem FOR EACH oe-ordl SHARE-LOCK, ~
@@ -458,7 +458,7 @@ oe-ordl.s-man[2] oe-ordl.s-pct[2] oe-ordl.s-comm[2] oe-ordl.s-man[3] ~
 oe-ordl.s-pct[3] oe-ordl.s-comm[3] oe-ordl.over-pct oe-ordl.under-pct ~
 oe-ordl.req-code oe-ordl.prom-code oe-ordl.req-date oe-ordl.prom-date ~
 oe-ordl.spare-char-1 oe-ordl.spare-dec-1 oe-ordl.spare-char-2 ~
-oe-ordl.SourceEstimateID
+oe-ordl.customField oe-ordl.SourceEstimateID
 &Scoped-define ENABLED-TABLES oe-ordl
 &Scoped-define FIRST-ENABLED-TABLE oe-ordl
 &Scoped-Define ENABLED-OBJECTS fi_qty-uom Btn_OK Btn_Done Btn_Cancel ~
@@ -474,7 +474,7 @@ oe-ordl.s-man[2] oe-ordl.s-pct[2] oe-ordl.s-comm[2] oe-ordl.s-man[3] ~
 oe-ordl.s-pct[3] oe-ordl.s-comm[3] oe-ordl.over-pct oe-ordl.under-pct ~
 oe-ordl.req-code oe-ordl.prom-code oe-ordl.req-date oe-ordl.prom-date ~
 oe-ordl.spare-char-1 oe-ordl.spare-dec-1 oe-ordl.spare-char-2 ~
-oe-ordl.SourceEstimateID
+oe-ordl.customField oe-ordl.SourceEstimateID
 &Scoped-define DISPLAYED-TABLES oe-ordl
 &Scoped-define FIRST-DISPLAYED-TABLE oe-ordl
 &Scoped-Define DISPLAYED-OBJECTS fiPrevOrder fiPromDtLabel fi_type-dscr ~
@@ -669,7 +669,7 @@ DEFINE QUERY d-oeitem FOR
 DEFINE FRAME d-oeitem
      fiPrevOrder AT ROW 9.33 COL 93.4 COLON-ALIGNED WIDGET-ID 28
      fiPromDtLabel AT ROW 14.57 COL 103.8 COLON-ALIGNED NO-LABEL WIDGET-ID 26
-     fi_type-dscr AT ROW 7.67 COL 119.4 COLON-ALIGNED NO-LABEL
+     fi_type-dscr AT ROW 6.48 COL 119.4 COLON-ALIGNED NO-LABEL
      oe-ordl.est-no AT ROW 1.24 COL 15.6 COLON-ALIGNED FORMAT "x(8)"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
@@ -704,11 +704,11 @@ DEFINE FRAME d-oeitem
      oe-ordl.part-dscr1 AT ROW 6 COL 15.4 COLON-ALIGNED
           LABEL "Desc 1" FORMAT "x(30)"
           VIEW-AS FILL-IN 
-          SIZE 51 BY 1
+          SIZE 51 BY 1.05
      oe-ordl.part-dscr2 AT ROW 7 COL 15.4 COLON-ALIGNED
           LABEL "Desc 2"
           VIEW-AS FILL-IN 
-          SIZE 51 BY 1
+          SIZE 51 BY 1.05
      oe-ordl.part-dscr3 AT ROW 8 COL 15.4 COLON-ALIGNED WIDGET-ID 14
           LABEL "Desc 3"
           VIEW-AS FILL-IN 
@@ -771,9 +771,13 @@ DEFINE FRAME d-oeitem
      spare-dec-1 AT ROW 6.48 COL 93 COLON-ALIGNED HELP
           "" WIDGET-ID 4
           LABEL "Full Cost" FORMAT "->>,>>9.99"
-     oe-ordl.type-code AT ROW 7.67 COL 113.6 COLON-ALIGNED NO-LABEL
+     oe-ordl.type-code AT ROW 6.48 COL 113.6 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 4.4 BY 1 TOOLTIP "(O)riginal, (R)epeat, Repeat with (C)hange, inhouse (T)ransfer"
+     oe-ordl.customField AT ROW 7.67 COL 93 COLON-ALIGNED
+          LABEL "Custom1" FORMAT "x(32)"
+          VIEW-AS FILL-IN 
+          SIZE 47 BY 1
      oe-ordl.managed AT ROW 9 COL 115.6
           VIEW-AS TOGGLE-BOX
           SIZE 27 BY .81
@@ -979,6 +983,8 @@ ASSIGN
 /* SETTINGS FOR FILL-IN oe-ordl.spare-char-1 IN FRAME d-oeitem
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN oe-ordl.spare-char-2 IN FRAME d-oeitem
+   EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN oe-ordl.customField IN FRAME d-oeitem
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN oe-ordl.spare-dec-1 IN FRAME d-oeitem
    EXP-LABEL EXP-FORMAT                                                 */
@@ -5577,6 +5583,7 @@ PROCEDURE display-item :
             oe-ordl.s-comm[3] 
             oe-ordl.over-pct oe-ordl.under-pct
             oe-ordl.spare-char-1
+            oe-ordl.customField
             oe-ordl.whsed
             fi_sman-lbl 
             fi_sname-1
@@ -5640,7 +5647,7 @@ PROCEDURE enable_UI :
           oe-ordl.s-comm[3] oe-ordl.over-pct oe-ordl.under-pct oe-ordl.req-code 
           oe-ordl.prom-code oe-ordl.req-date oe-ordl.prom-date 
           oe-ordl.spare-char-1 oe-ordl.spare-dec-1 oe-ordl.spare-char-2 
-          oe-ordl.SourceEstimateID
+          oe-ordl.customField oe-ordl.SourceEstimateID
       WITH FRAME d-oeitem.
   ENABLE oe-ordl.est-no oe-ordl.qty fi_qty-uom oe-ordl.i-no oe-ordl.part-no 
          oe-ordl.i-name oe-ordl.part-dscr1 oe-ordl.part-dscr2 
@@ -5652,8 +5659,9 @@ PROCEDURE enable_UI :
          oe-ordl.s-pct[3] oe-ordl.s-comm[3] oe-ordl.over-pct oe-ordl.under-pct 
          oe-ordl.req-code oe-ordl.prom-code oe-ordl.req-date oe-ordl.prom-date 
          Btn_OK Btn_Done Btn_Cancel Btn_hist oe-ordl.spare-char-1 
-         oe-ordl.spare-dec-1 oe-ordl.spare-char-2 oe-ordl.SourceEstimateID  
-         fi_jobStartDate btn-quotes RECT-31 RECT-39 RECT-40 RECT-41  
+         oe-ordl.spare-dec-1 oe-ordl.spare-char-2 oe-ordl.customField 
+         oe-ordl.SourceEstimateID fi_jobStartDate btn-quotes 
+         RECT-31 RECT-39 RECT-40 RECT-41  
       WITH FRAME d-oeitem.
   VIEW FRAME d-oeitem.
   {&OPEN-BROWSERS-IN-QUERY-d-oeitem}
