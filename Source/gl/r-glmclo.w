@@ -889,9 +889,10 @@ PROCEDURE close-month :
    DEFINE VARIABLE iTransNum AS INTEGER NO-UNDO.
    DEFINE VARIABLE dNetIncome AS DECIMAL NO-UNDO.
    DEFINE VARIABLE iClosedPeriod AS INTEGER NO-UNDO.
+   DEFINE VARIABLE dAccountTotal AS DECIMAL NO-UNDO.   
    
-   DEF BUFFER b-period FOR period.   
-
+   DEF BUFFER b-period FOR period. 
+      
    SESSION:SET-WAIT-STATE ("general").
 
    find first gl-ctrl where gl-ctrl.company eq cocode no-lock no-error.
@@ -939,7 +940,9 @@ PROCEDURE close-month :
             BREAK BY account.actnum:
             
     IF FIRST-OF(account.actnum)  THEN
-       account.cyr[uperiod]  = 0. 
+       ASSIGN
+         account.cyr[uperiod]  = 0
+         dAccountTotal  = 0. 
        
     FOR EACH glhist
         where glhist.company eq cocode
@@ -951,26 +954,29 @@ PROCEDURE close-month :
        v-msg2 = "Account: " + glhist.actnum + "   " + glhist.jrnl.
        DISP v-msg2 WITH FRAME {&FRAME-NAME}.          
       
-         account.cyr[uperiod] = account.cyr[uperiod] + glhist.tr-amt.
-
-         if index("RE",account.type) gt 0 then do:
-            find first b-racct
-                where b-racct.company eq cocode
-                  and b-racct.actnum  eq gl-ctrl.ret.
-
-            b-racct.cyr[uperiod] = b-racct.cyr[uperiod] + glhist.tr-amt.
-
-            find first b-cacct
-                where b-cacct.company eq cocode
-                  and b-cacct.actnum  eq gl-ctrl.contra.
-
-            b-cacct.cyr[uperiod] = b-cacct.cyr[uperiod] - glhist.tr-amt.
-         end.      
-
+         dAccountTotal = dAccountTotal + glhist.tr-amt.
+         
       assign
        glhist.posted   = YES
        glhist.postedBy = USERID(LDBNAME(1)).           
-    END. /* FOR EACH glhist*/  
+    END. /* FOR EACH glhist*/ 
+    
+    account.cyr[uperiod] = dAccountTotal.
+
+     if index("RE",account.type) gt 0 then do:
+        find first b-racct
+            where b-racct.company eq cocode
+              and b-racct.actnum  eq gl-ctrl.ret.
+
+        b-racct.cyr[uperiod] = b-racct.cyr[uperiod] + dAccountTotal.
+
+        find first b-cacct
+            where b-cacct.company eq cocode
+              and b-cacct.actnum  eq gl-ctrl.contra.
+
+        b-cacct.cyr[uperiod] = b-cacct.cyr[uperiod] - dAccountTotal.
+     end.      
+    
    end.
    RELEASE glhist.
 /*   for each cust where cust.company eq cocode transaction:                 */
@@ -1228,14 +1234,13 @@ PROCEDURE close-month :
                              "A",
                              date(TODAY),
                              "",
-                             "").  
-       RUN pGetNetIncome(INPUT gl-ctrl.ret, OUTPUT dNetIncome). 
+                             "").        
        RUN GL_SpCreateGLHist(cocode,
                              gl-ctrl.ret,
                              "AutoClose",
                              STRING("Auto Posted Current Years Earnings for ") + STRING(period.yr),
                              period.pst,
-                             dNetIncome,                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
+                             - dNetIncome,                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
                              iTransNum,
                              period.pnum,
                              "A",

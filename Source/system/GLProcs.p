@@ -524,8 +524,18 @@ PROCEDURE pReOpenPeriod PRIVATE :
     DEFINE INPUT  PARAMETER ipcCompany  AS CHARACTER   NO-UNDO.    
     DEFINE INPUT  PARAMETER iprwRowid   AS ROWID       NO-UNDO.    
     
+    DEFINE VARIABLE cTmpDir AS CHARACTER NO-UNDO.
     DEFINE BUFFER bf-period FOR period.
     DEFINE BUFFER bf-account FOR account.
+    
+    FIND FIRST users NO-LOCK
+        WHERE users.user_id EQ USERID(LDBNAME(1))
+        NO-ERROR.
+
+    IF AVAIL users AND users.user_program[2] NE "" THEN
+       cTmpDir = users.user_program[2].
+    ELSE
+       cTmpDir = "c:\tmp".
     
     FIND FIRST company NO-LOCK where company.company eq ipcCompany NO-ERROR.
     FIND FIRST bf-period EXCLUSIVE-LOCK 
@@ -541,11 +551,15 @@ PROCEDURE pReOpenPeriod PRIVATE :
             :
             glhist.posted = NO.        
         END.  
-        
+       
+        OUTPUT TO value(cTmpDir + "\account.d") . 
         FOR EACH bf-account
             where bf-account.company EQ ipcCompany:
+            EXPORT bf-account.
             bf-account.cyr[bf-period.pnum] = 0.
         END.
+        OUTPUT CLOSE. 
+        
         bf-period.pstat = YES.
         ASSIGN
         bf-period.APClosedBy  = USERID(LDBNAME(1))
