@@ -525,7 +525,7 @@ DO:
       RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostVendor = ' + item.vend-no).
       RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostCustomer = ""').  
       RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostForm# = ' + ( STRING(estMaterial.formNo)) ).
-      RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostBlank# = 0').
+      RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostBlank# = ' + ( STRING(estMaterial.blankNo))).
       RUN windows/vendcostmtx.w  PERSISTENT SET phandle  .
       /* Set the option frame size and colour to give blue background to icons and 
          add the handle of scope define object to temptable for resizizng */
