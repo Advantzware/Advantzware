@@ -702,8 +702,7 @@ PROCEDURE pExpireOldCost PRIVATE:
         BREAK BY vendItemCost.effectiveDate  DESCENDING
               BY vendItemCost.expirationDate DESCENDING
         :
-        dtExpirationDate = vendItemCost.effectiveDate - 1.
-        IF NOT FIRST-OF(vendItemCost.effectiveDate) AND
+        IF NOT FIRST(vendItemCost.effectiveDate) AND
            vendItemCost.expirationDate NE dtExpirationDate THEN
         DO TRANSACTION:
             FIND FIRST bfVendItemCost EXCLUSIVE-LOCK
@@ -711,6 +710,7 @@ PROCEDURE pExpireOldCost PRIVATE:
             bfVendItemCost.expirationDate = dtExpirationDate.
             RELEASE bfVendItemCost.
         END. /* if not first-of */
+        dtExpirationDate = vendItemCost.effectiveDate - 1.
     END. /* each venditemcost */
 
 END PROCEDURE.

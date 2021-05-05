@@ -202,8 +202,8 @@ PROCEDURE pProcessRecord PRIVATE:
     RUN RecalculateFromAndTo IN hVendorCostProcs (bf-vendItemCost.vendItemCostID, OUTPUT lReturnError ,OUTPUT cReturnMessage).
     RUN Vendor_ExpireOldCost IN hVendorCostProcs (
         bf-vendItemCost.company, 
-        bf-vendItemCost.itemType,
         bf-vendItemCost.itemID,
+        bf-vendItemCost.itemType,
         bf-vendItemCost.vendorID,
         bf-vendItemCost.customerID,
         bf-vendItemCost.estimateNo,
