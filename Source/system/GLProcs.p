@@ -180,7 +180,23 @@ PROCEDURE GL_CheckModClosePeriod:
     
 END PROCEDURE.
 
-PROCEDURE GL_pCloseMonthModule:
+PROCEDURE GL_CloseMonthModule:
+    /*------------------------------------------------------------------------------
+     Purpose: close sub ledger of month 
+     Notes:
+     Syntax:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany         AS CHARACTER   NO-UNDO.    
+    DEFINE INPUT PARAMETER ipiPeriodYear      AS INTEGER     NO-UNDO.    
+    DEFINE INPUT PARAMETER ipiPeriod          AS INTEGER     NO-UNDO.     
+    DEFINE INPUT PARAMETER ipcModule          AS CHARACTER   NO-UNDO.
+    
+    RUN pCloseMonthModule(INPUT ipcCompany, INPUT ipiPeriodYear, INPUT ipiPeriod, INPUT ipcModule).       
+    
+
+END PROCEDURE.
+
+PROCEDURE pCloseMonthModule PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose: close sub ledger of month 
      Notes:
@@ -194,51 +210,12 @@ PROCEDURE GL_pCloseMonthModule:
     DEFINE BUFFER bf-account for account.
     DEFINE BUFFER bff-account for account.
     
-    FIND FIRST period NO-LOCK
+    FIND FIRST period EXCLUSIVE-LOCK
          WHERE period.company EQ ipcCompany 
          AND period.yr EQ ipiPeriodYear
          AND period.pnum EQ ipiPeriod
-        NO-ERROR.
-        
-    FIND FIRST gl-ctrl NO-LOCK
-         WHERE gl-ctrl.company eq ipcCompany no-error.    
-            
-    FOR EACH glhist
-       where glhist.company eq ipcCompany
-         and glhist.tr-date ge period.pst
-         and glhist.tr-date le period.pend
-         and glhist.period  eq ipiPeriod
-         AND glhist.posted  EQ NO
-         AND glhist.module  EQ ipcModule
-       transaction:
-       
-      FIND FIRST account
-           WHERE account.company eq ipcCompany
-           and account.actnum  eq glhist.actnum
-           NO-ERROR.
-      IF AVAIL account THEN DO:
-         account.cyr[ipiPeriod] = account.cyr[ipiPeriod] + glhist.tr-amt.
-
-         IF INDEX("RE",account.type) GT 0 then do:
-            FIND FIRST bf-account
-                 WHERE bf-account.company eq ipcCompany
-                 AND bf-account.actnum  eq gl-ctrl.ret.
-
-            bf-account.cyr[ipiPeriod] = bf-account.cyr[ipiPeriod] + glhist.tr-amt.
-
-            FIND FIRST bff-account
-                 WHERE bff-account.company eq ipcCompany
-                 AND bff-account.actnum  eq gl-ctrl.contra.
-
-            bff-account.cyr[ipiPeriod] = bff-account.cyr[ipiPeriod] - glhist.tr-amt.
-         END.
-      END.
-             
-      ASSIGN
-      glhist.posted = YES
-      glhist.postedBy = USERID(LDBNAME(1)) .
-    END.
-    FIND CURRENT period EXCLUSIVE-LOCK NO-ERROR.
+        NO-ERROR.     
+    
     IF ipcModule EQ "AP" THEN
      ASSIGN
        period.subLedgerAP = "C"
