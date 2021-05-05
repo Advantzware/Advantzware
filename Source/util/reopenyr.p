@@ -14,11 +14,21 @@ def var ret-bal    as   DEC NO-UNDO.
 def var fisc-yr    as   int format "9999" NO-UNDO.
 DEF VAR choice AS LOG NO-UNDO.
 DEFINE VARIABLE scInstance AS CLASS system.SharedConfig NO-UNDO.
+DEFINE VARIABLE cTmpDir AS CHARACTER NO-UNDO.
 
 def buffer b-acc for account.
 DEFINE BUFFER bf-period FOR period.
 DEFINE BUFFER bf-account FOR account.
 DEFINE BUFFER bf-glhist FOR glhist.
+
+FIND FIRST users NO-LOCK
+     WHERE users.user_id EQ USERID(LDBNAME(1))
+     NO-ERROR.
+
+IF AVAIL users AND users.user_program[2] NE "" THEN
+  cTmpDir = users.user_program[2].
+ELSE
+  cTmpDir = "c:\tmp".
 
  ASSIGN 
         scInstance           = SharedConfig:instance
@@ -91,11 +101,16 @@ if choice then do on error undo, leave:
         status default "Processing glhist: " + glhist.actnum.
     END.  
     RUN spProgressBar ("Reopen Period", 3, 4).
+    
+    OUTPUT TO value(cTmpDir + "\account.d") . 
     FOR EACH bf-account
         where bf-account.company EQ cocode:
+        EXPORT bf-account.
         bf-account.cyr[bf-period.pnum] = 0.
         status default "Processing Account: " + bf-account.actnum.        
     END.
+    OUTPUT CLOSE.
+    
     bf-period.pstat = YES.
     ASSIGN
         bf-period.APClosedBy  = USERID(LDBNAME(1))
