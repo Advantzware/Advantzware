@@ -60,6 +60,7 @@ DEFINE VARIABLE lRecFound         AS LOGICAL NO-UNDO.
 DEFINE VARIABLE iQuoteExpirationDays AS INTEGER NO-UNDO. 
 DEFINE VARIABLE cQuoteExpirationDays AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lQuoteExpirationDays AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cQuoteEstimate       AS CHARACTER NO-UNDO.
 
 RUN salrep/SalesManProcs.p PERSISTENT SET hdSalesManProcs.
 
@@ -1235,7 +1236,7 @@ PROCEDURE local-create-record :
 /*                              quotehd.comment[4] = bf-hd.comment[4] */
 /*                              quotehd.comment[5] = bf-hd.comment[5] */
   IF lQuoteExpirationDays THEN                                      
-  quotehd.expireDate = TODAY + (IF cQuoteExpirationDays EQ "Entry" THEN iQuoteExpirationDays ELSE 0).
+  quotehd.expireDate = TODAY + iQuoteExpirationDays .
   IF lQuotePriceMatrix  THEN
   quotehd.pricingMethod = "Ship to".
   IF adm-new-record AND NOT adm-adding-record THEN DO WITH FRAME {&FRAME-NAME}:
@@ -1263,9 +1264,10 @@ PROCEDURE local-display-fields :
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
-
+       
   /* Code placed here will execute AFTER standard behavior.    */
   if not avail quotehd then return.
+  cQuoteEstimate = quotehd.est-no. 
   if quotehd.sman <> "" then do:
      find first sman where sman.sman = quotehd.sman:screen-value in frame {&frame-name}
           no-lock no-error.
@@ -1326,6 +1328,8 @@ PROCEDURE local-display-fields :
    quotehd.pricingMethod:HIDDEN IN FRAME {&FRAME-NAME} = YES
    quotehd.approved:HIDDEN IN FRAME {&FRAME-NAME} = YES
    btTags:HIDDEN IN FRAME {&FRAME-NAME} = YES.
+   
+   RUN pDisablePriceMatrix.
       
 END PROCEDURE.
 
@@ -1645,11 +1649,20 @@ PROCEDURE proc-delete :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-   
+   DEFINE BUFFER bf-probe FOR probe.
    IF NOT AVAIL quotehd THEN
    DO:      
      {methods/run_link.i "RECORD-SOURCE" "resetQueryForDelete" }      
-   END.                                                        
+   END.  
+   IF cQuoteEstimate NE "" THEN
+   DO:
+      FIND FIRST bf-probe EXCLUSIVE-LOCK
+           WHERE bf-probe.company EQ cocode
+           AND bf-probe.est-no EQ cQuoteEstimate NO-ERROR.
+      IF AVAIL bf-probe THEN
+       bf-probe.do-quote = YES.
+       RELEASE bf-probe.       
+   END.   
 
 END PROCEDURE.
 
@@ -1675,6 +1688,31 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pDisablePriceMatrix V-table-Win 
+PROCEDURE pDisablePriceMatrix :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DEFINE VARIABLE  lNotAllowedUpdate AS LOGICAL NO-UNDO.
+   IF AVAIL quotehd THEN
+   DO:
+      IF CAN-FIND ( FIRST quoteitm
+                 WHERE quoteitm.company EQ cocode
+                 AND quoteitm.q-no  EQ quotehd.q-no
+                 AND quoteitm.i-no  EQ "" ) THEN
+                 lNotAllowedUpdate = YES.       
+    run get-link-handle in adm-broker-hdl(this-procedure, "priceMatrix-target", OUTPUT char-hdl).
+    IF valid-handle(widget-handle(char-hdl)) THEN
+    run pDisableButton in widget-handle(char-hdl)(lNotAllowedUpdate).  
+   END.                                                        
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE quoteitm-exists V-table-Win 

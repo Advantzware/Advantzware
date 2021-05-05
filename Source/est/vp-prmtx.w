@@ -314,6 +314,25 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pDisableButton V-table-Win 
+PROCEDURE pDisableButton :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE INPUT PARAMETER iplDisable AS LOGICAL NO-UNDO.  
+  
+  DO WITH FRAME {&FRAME-NAME}:
+    IF iplDisable THEN
+    DISABLE btn-update.
+    ELSE ENABLE btn-update.
+  END. 
+       
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-initialize V-table-Win 
 PROCEDURE local-initialize :
 /*------------------------------------------------------------------------------
@@ -347,10 +366,7 @@ PROCEDURE local-row-available :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'row-available':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  DO WITH FRAME {&FRAME-NAME}:
-    ENABLE btn-update.
-    IF NOT AVAIL quotehd THEN DISABLE btn-update.
-  END.
+  
 
 END PROCEDURE.
 

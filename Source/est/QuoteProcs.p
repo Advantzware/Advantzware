@@ -687,6 +687,7 @@ PROCEDURE pUnApprovedDuplicateQuote:
     DEFINE INPUT PARAMETER ipcCustomer AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcFgItem AS CHARACTER NO-UNDO.
     DEFINE BUFFER bf-quotehd FOR quotehd.
+    DEFINE BUFFER bf-oe-prmtx FOR oe-prmtx.
            
     FOR EACH bf-quotehd EXCLUSIVE-LOCK
         WHERE bf-quotehd.company EQ ipcCompany
@@ -701,9 +702,17 @@ PROCEDURE pUnApprovedDuplicateQuote:
           bf-quotehd.approved = NO.
           bf-quotehd.expireDate = TODAY - 1.          
           RUN ClearTagsByRecKey(bf-quotehd.rec_key).  /*Clear all hold tags - TagProcs.p*/
+          FIND FIRST bf-oe-prmtx EXCLUSIVE-LOCK
+              WHERE bf-oe-prmtx.company EQ bf-quotehd.company                
+              AND bf-oe-prmtx.quoteID  EQ  bf-quotehd.q-no   
+              NO-ERROR.
+          IF avail bf-oe-prmtx THEN
+           bf-oe-prmtx.exp-date = bf-quotehd.expireDate.           
+                    
         END.  
     END.
     RELEASE bf-quotehd.
+    RELEASE bf-oe-prmtx.
    
 END PROCEDURE.
 
