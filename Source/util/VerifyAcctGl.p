@@ -13,8 +13,8 @@ find first company where company.company eq cocode no-lock.
 
 
 
-DEFINE VARIABLE iAccountAmt AS INTEGER  NO-UNDO.
-DEFINE VARIABLE iGlHistAmt  AS INTEGER  NO-UNDO.
+DEFINE VARIABLE dAccountAmt AS DECIMAL  NO-UNDO.
+DEFINE VARIABLE dGlHistAmt  AS DECIMAL  NO-UNDO.
 DEFINE VARIABLE cTmpDir     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE v-fisc-yr LIKE period.yr NO-UNDO.
 
@@ -49,7 +49,7 @@ FOR EACH account WHERE account.company EQ cocode:
         AND period.yr      EQ v-fisc-yr
       NO-LOCK by period.yr BY period.pst:
       
-      iGlHistAmt = 0.
+      dGlHistAmt = 0.
       
       FOR each glhist
           where glhist.company EQ account.company
@@ -58,10 +58,10 @@ FOR EACH account WHERE account.company EQ cocode:
             AND glhist.tr-date LE period.pend         
           NO-LOCK :  
        
-         iGlHistAmt = iGlHistAmt + glhist.tr-amt  .
+         dGlHistAmt = dGlHistAmt + glhist.tr-amt  .
       END. 
        
-     IF  account.cyr[period.pnum] NE iGlHistAmt  THEN DO:
+     IF  account.cyr[period.pnum] NE dGlHistAmt  THEN DO:
      
         CREATE tt_diff.
          ASSIGN 
@@ -69,8 +69,8 @@ FOR EACH account WHERE account.company EQ cocode:
              tt_diff.cAcctDescr  = account.dscr
              tt_diff.iPeriod     = period.pnum
              tt_diff.dAccountAmt = account.cyr[period.pnum]
-             tt_diff.dGlHistAmt  = iGlHistAmt
-             tt_diff.dDiffAmt  = account.cyr[period.pnum] - iGlHistAmt.
+             tt_diff.dGlHistAmt  = dGlHistAmt
+             tt_diff.dDiffAmt  = account.cyr[period.pnum] - dGlHistAmt.
              
      END.   /*IF  account.cyr[period.pnum] NE*/
   END.  /* for each period  */
