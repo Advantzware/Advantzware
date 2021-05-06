@@ -1328,9 +1328,7 @@ PROCEDURE local-display-fields :
    quotehd.pricingMethod:HIDDEN IN FRAME {&FRAME-NAME} = YES
    quotehd.approved:HIDDEN IN FRAME {&FRAME-NAME} = YES
    btTags:HIDDEN IN FRAME {&FRAME-NAME} = YES.
-   
-   RUN pDisablePriceMatrix.
-      
+            
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1687,33 +1685,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pDisablePriceMatrix V-table-Win 
-PROCEDURE pDisablePriceMatrix :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-   DEFINE VARIABLE  lNotAllowedUpdate AS LOGICAL NO-UNDO.
-   IF AVAIL quotehd THEN
-   DO:
-      IF CAN-FIND ( FIRST quoteitm
-                 WHERE quoteitm.company EQ cocode
-                 AND quoteitm.q-no  EQ quotehd.q-no
-                 AND quoteitm.i-no  EQ "" ) THEN
-                 lNotAllowedUpdate = YES.       
-    run get-link-handle in adm-broker-hdl(this-procedure, "priceMatrix-target", OUTPUT char-hdl).
-    IF valid-handle(widget-handle(char-hdl)) THEN
-    run pDisableButton in widget-handle(char-hdl)(lNotAllowedUpdate).  
-   END.                                                        
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE quoteitm-exists V-table-Win 
 PROCEDURE quoteitm-exists :
