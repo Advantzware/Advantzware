@@ -422,7 +422,7 @@ DEFINE BROWSE Browser-Table
       fg-rdtlh.loc COLUMN-LABEL "Ware-!house" FORMAT "x(5)":U LABEL-BGCOLOR 14
       fg-rdtlh.loc-bin COLUMN-LABEL "Bin" FORMAT "x(8)":U WIDTH 12
             LABEL-BGCOLOR 14
-      fg-rdtlh.qty COLUMN-LABEL "Quantity" FORMAT "->>>>,>>9":U
+      fg-rdtlh.qty COLUMN-LABEL "Quantity" FORMAT "->>>,>>>,>>9":U
             LABEL-BGCOLOR 14
       fg-rdtlh.tag COLUMN-LABEL "Tag#" FORMAT "x(25)":U WIDTH 30
             LABEL-BGCOLOR 14
@@ -649,7 +649,7 @@ AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code"
      _FldNameList[11]   > ASI.fg-rdtlh.loc-bin
 "fg-rdtlh.loc-bin" "Bin" ? "character" ? ? ? 14 ? ? yes ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[12]   > ASI.fg-rdtlh.qty
-"fg-rdtlh.qty" "Quantity" "->>>>,>>9" "decimal" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fg-rdtlh.qty" "Quantity" "->>>,>>>,>>9" "decimal" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[13]   > ASI.fg-rdtlh.tag
 "fg-rdtlh.tag" "Tag#" "x(25)" "character" ? ? ? 14 ? ? yes ? no no "30" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[14]   > ASI.fg-rdtlh.cost

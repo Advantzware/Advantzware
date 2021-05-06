@@ -664,6 +664,7 @@ FOR EACH tt-pol,
       WHERE fg-rcpth.company   EQ cocode
         AND fg-rcpth.i-no      EQ po-ordl.i-no
         AND fg-rcpth.po-no     EQ TRIM(STRING(po-ordl.po-no,">>>>>>>>>>"))
+        AND fg-rcpth.po-line   EQ po-ordl.LINE
         AND fg-rcpth.rita-code EQ "R"
       USE-INDEX item-po NO-LOCK,
 
