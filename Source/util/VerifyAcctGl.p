@@ -2,104 +2,110 @@
 
 {sys/inc/var.i new shared}
 
+DEFINE TEMP-TABLE ttAccountDiff
+    FIELD cAccount    AS CHARACTER LABEL "Account #" 
+    FIELD cAcctDescr  AS CHARACTER LABEL "Account Descr"
+    FIELD iPeriod     AS INTEGER   LABEL "Period"
+    FIELD iYear       AS INTEGER   LABEL "Year"
+    FIELD dAccountAmt AS DECIMAL   LABEL "Account Period Amount"
+    FIELD dGlHistAmt  AS DECIMAL   LABEL "GL Transaction Period Amount"
+    FIELD dDiffAmt    AS DECIMAL   LABEL "Variance"
+    .
+
+DEFINE VARIABLE dAccountAmt AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE dGlHistAmt  AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE cTmpDir     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iFiscalYear LIKE period.yr NO-UNDO.
+
 
 SESSION:SET-WAIT-STATE("general").
 
-assign
- cocode = g_company
- locode = g_loc.
+ASSIGN 
+    cocode = g_company
+    locode = g_loc.
 
-find first company where company.company eq cocode no-lock.  
-
-
-
-DEFINE VARIABLE dAccountAmt AS DECIMAL  NO-UNDO.
-DEFINE VARIABLE dGlHistAmt  AS DECIMAL  NO-UNDO.
-DEFINE VARIABLE cTmpDir     AS CHARACTER NO-UNDO.
-DEFINE VARIABLE v-fisc-yr LIKE period.yr NO-UNDO.
-
-
-DEFINE TEMP-TABLE tt_labels
-    FIELD vLabel  AS CHARACTER FORMAT "X(30)"
-    EXTENT 6
-    INITIAL ["Account#","Account Descr","Period","Account Period Amount",
-    "GL Hist Period Amount","Variance"].
-CREATE tt_labels.
+FIND FIRST company NO-LOCK 
+    WHERE company.company EQ cocode 
+    NO-ERROR.  
+FIND FIRST gl-ctrl NO-LOCK
+    WHERE gl-ctrl.company EQ cocode 
+    NO-ERROR.
+IF NOT AVAILABLE company OR NOT AVAILABLE gl-ctrl THEN RETURN.
 
 
-DEFINE TEMP-TABLE tt_diff
-    FIELD cAccount     AS CHARACTER 
-    FIELD cAcctDescr   AS CHARACTER
-    FIELD iPeriod      AS INTEGER
-    FIELD dAccountAmt  AS DECIMAL
-    FIELD dGlHistAmt   AS DECIMAL
-    FIELD dDiffAmt     AS DECIMAL
-         .
-find first period
-    where period.company eq cocode
-      and period.pstat   eq yes
-    no-lock no-error.
-v-fisc-yr = (if avail period then period.yr else year(today)) -
-            int(not company.yend-per).         
+FIND FIRST period NO-LOCK
+    WHERE period.company EQ cocode
+    AND period.pstat   EQ YES
+    NO-ERROR.
+
+iFiscalYear = (IF AVAILABLE period THEN period.yr ELSE  YEAR(TODAY)) -
+    INTEGER(NOT company.yend-per).         
  
-FOR EACH account WHERE account.company EQ cocode:
-     
-  FOR EACH period
-      WHERE period.company EQ account.company
-        AND period.yr      EQ v-fisc-yr
-      NO-LOCK by period.yr BY period.pst:
+FOR EACH account NO-LOCK 
+    WHERE account.company EQ cocode
+    AND account.actnum NE gl-ctrl.ret
+    AND account.actnum NE gl-ctrl.contra,
+    EACH period NO-LOCK
+    WHERE period.company EQ account.company
+    AND period.yr      EQ iFiscalYear
+    BY period.yr BY period.pst:
       
-      dGlHistAmt = 0.
+    dGlHistAmt = 0.
       
-      FOR each glhist
-          where glhist.company EQ account.company
-            AND glhist.actnum  EQ account.actnum
-            AND glhist.tr-date GE period.pst
-            AND glhist.tr-date LE period.pend         
-          NO-LOCK :  
+    FOR EACH glhist
+        WHERE glhist.company EQ account.company
+        AND glhist.actnum  EQ account.actnum
+        AND glhist.tr-date GE period.pst
+        AND glhist.tr-date LE period.pend         
+        NO-LOCK :  
        
-         dGlHistAmt = dGlHistAmt + glhist.tr-amt  .
-      END. 
+        dGlHistAmt = dGlHistAmt + glhist.tr-amt  .
+    END. 
        
-     IF  account.cyr[period.pnum] NE dGlHistAmt  THEN DO:
+    IF  account.cyr[period.pnum] NE dGlHistAmt  THEN 
+    DO:
      
-        CREATE tt_diff.
-         ASSIGN 
-             tt_diff.cAccount    = account.actnum
-             tt_diff.cAcctDescr  = account.dscr
-             tt_diff.iPeriod     = period.pnum
-             tt_diff.dAccountAmt = account.cyr[period.pnum]
-             tt_diff.dGlHistAmt  = dGlHistAmt
-             tt_diff.dDiffAmt  = account.cyr[period.pnum] - dGlHistAmt.
+        CREATE ttAccountDiff.
+        ASSIGN 
+            ttAccountDiff.cAccount    = account.actnum
+            ttAccountDiff.cAcctDescr  = account.dscr
+            ttAccountDiff.iPeriod     = period.pnum
+            ttAccountDiff.iYear       = period.yr
+            ttAccountDiff.dAccountAmt = account.cyr[period.pnum]
+            ttAccountDiff.dGlHistAmt  = dGlHistAmt
+            ttAccountDiff.dDiffAmt    = account.cyr[period.pnum] - dGlHistAmt.
              
-     END.   /*IF  account.cyr[period.pnum] NE*/
-  END.  /* for each period  */
-END. 
+    END.   /*IF  account.cyr[period.pnum] NE*/
+END.  /* for each account-period  */ 
 
-     FIND FIRST users NO-LOCK
-		  WHERE users.user_id EQ USERID(LDBNAME(1))
-		  NO-ERROR.
-		
-		IF AVAIL users AND users.user_program[2] NE "" THEN
-		       cTmpDir = users.user_program[2].
-		    ELSE
-		       cTmpDir = "c:\tmp".
+IF CAN-FIND(FIRST ttAccountDiff) THEN 
+    RUN pOutputTable(TEMP-TABLE ttAccountDiff:HANDLE).
 
 
-
-
-    FIND FIRST tt_diff NO-LOCK NO-ERROR.
-    IF AVAILABLE tt_diff THEN DO:
-                              
-        OUTPUT TO VALUE(cTmpDir + "\acct_variance_list.csv") .
-        
-        FOR EACH tt_labels:
-            EXPORT DELIMITER "," tt_labels.
-        END.
-        FOR EACH tt_diff NO-LOCK BY tt_diff.cAccount BY tt_diff.iPeriod:
-            EXPORT DELIMITER "," tt_diff .
-        END.
-        OUTPUT CLOSE.
-    END.    
     
-  SESSION:SET-WAIT-STATE(""). 
+SESSION:SET-WAIT-STATE(""). 
+
+
+/* **********************  Internal Procedures  *********************** */
+
+PROCEDURE pOutputTable PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:  Given a temp-table, output a file to the user temp directory.
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iphdTempTable AS HANDLE NO-UNDO.
+    DEFINE VARIABLE hdOutput AS HANDLE    NO-UNDO.
+    
+    DEFINE VARIABLE cTmpDir  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lError   AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+    
+    RUN system\outputProcs.p PERSISTENT SET hdOutput.
+    
+    RUN FileSys_GetTempDirectory(OUTPUT cTmpDir).
+    
+    RUN Output_TempTableToCSV IN hdOutput (iphdTempTable, cTmpDir + "\GLAccountVarianceList.csv", YES, YES, OUTPUT lError, OUTPUT cMessage).
+    
+    DELETE OBJECT hdOutput.
+    
+END PROCEDURE.
