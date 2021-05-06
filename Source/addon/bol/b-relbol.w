@@ -1189,7 +1189,7 @@ DO WITH FRAME {&FRAME-NAME}:
            tt-relbol.cases tt-relbol.qty-case
            tt-relbol.cases-unit tt-relbol.partial
            WITH BROWSE {&browse-name}.
-                MESSAGE "sdf " STRING(tt-relbol.qty) VIEW-AS ALERT-BOX ERROR .
+
    IF TRIM(ssbolscan-cha) NE "" AND AVAIL oe-relh THEN
    DO:
       tt-relbol.trailer# = oe-relh.trailer.
