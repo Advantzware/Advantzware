@@ -52,10 +52,11 @@ DEF VAR v-process AS LOG NO-UNDO.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS begin_run-no new_date fi_fr-year ~
-fi_fr-period fi_to-year fi_to-period btn-process btn-cancel RECT-17 ~
-tb_gl-tot tb_cust-per tb_vend-per 
+fi_fr-period fi_to-year fi_to-period tb_gl-tot tb_cust-per ~
+tb_vend-per tb_verify-gl-tot btn-process btn-cancel RECT-17 
 &Scoped-Define DISPLAYED-OBJECTS begin_run-no old_date new_date fi_fr-year ~
-fi_fr-period fi_to-year fi_to-period tb_gl-tot tb_cust-per tb_vend-per 
+fi_fr-period fi_to-year fi_to-period tb_gl-tot tb_cust-per tb_vend-per ~
+tb_verify-gl-tot fi_file 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -116,7 +117,7 @@ DEFINE VARIABLE old_date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001
 
 DEFINE RECTANGLE RECT-17
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 89 BY 9.76.
+     SIZE 89 BY 11.43.
 
 DEFINE VARIABLE tb_cust-per AS LOGICAL INITIAL yes 
      LABEL "Recalculate Customer Period Totals?" 
@@ -132,6 +133,17 @@ DEFINE VARIABLE tb_vend-per AS LOGICAL INITIAL yes
      LABEL "Recalculate Vendor Period Totals?" 
      VIEW-AS TOGGLE-BOX
      SIZE 40 BY 1 NO-UNDO.
+
+DEFINE VARIABLE tb_verify-gl-tot AS LOGICAL INITIAL yes 
+     LABEL "Verify G/L Period Totals?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 35 BY 1 NO-UNDO.
+
+DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\acct_variance_list.csv" 
+     LABEL "If Yes, File Name" 
+     VIEW-AS FILL-IN 
+     SIZE 43 BY 1
+     FGCOLOR 9 BGCOLOR 15.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -153,8 +165,10 @@ DEFINE FRAME FRAME-A
      tb_gl-tot AT ROW 10.81 COL 30.2 WIDGET-ID 2
      tb_cust-per AT ROW 11.95 COL 30.2 WIDGET-ID 4
      tb_vend-per AT ROW 13.1 COL 30.2 WIDGET-ID 6
-     btn-process AT ROW 18.1 COL 21
-     btn-cancel AT ROW 18.1 COL 53
+     tb_verify-gl-tot AT ROW 14.20 COL 30.2 WIDGET-ID 8
+     fi_file AT ROW 15.05 COL 28.2 COLON-ALIGNED
+     btn-process AT ROW 19.81 COL 21
+     btn-cancel AT ROW 19.81 COL 53
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .62 AT ROW 5.29 COL 5
      "" VIEW-AS TEXT
@@ -170,7 +184,14 @@ DEFINE FRAME FRAME-A
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 89.6 BY 19.19.
+         SIZE 89.6 BY 20.52.
+
+DEFINE FRAME FRAME-H
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 16.29
+         SIZE 89 BY 2.86
+         BGCOLOR 12 FGCOLOR 14 .
 
 DEFINE FRAME FRAME-B
      "This process may take hours.  Please let the process complete!" VIEW-AS TEXT
@@ -184,13 +205,6 @@ DEFINE FRAME FRAME-B
          AT COL 1 ROW 1
          SIZE 89.2 BY 3.81
          BGCOLOR 11 .
-
-DEFINE FRAME FRAME-H
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 14.62
-         SIZE 89 BY 2.86
-         BGCOLOR 12 FGCOLOR 14 .
 
 
 /* *********************** Procedure Settings ************************ */
@@ -209,12 +223,12 @@ DEFINE FRAME FRAME-H
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
-         TITLE              = "Change Period and/or Post Date"
-         HEIGHT             = 19.43
+         TITLE              = "G/L Admin Tool"
+         HEIGHT             = 20.57
          WIDTH              = 90.2
-         MAX-HEIGHT         = 19.76
+         MAX-HEIGHT         = 20.57
          MAX-WIDTH          = 98.2
-         VIRTUAL-HEIGHT     = 19.76
+         VIRTUAL-HEIGHT     = 20.57
          VIRTUAL-WIDTH      = 98.2
          RESIZE             = yes
          SCROLL-BARS        = no
@@ -290,6 +304,14 @@ ASSIGN
        tb_vend-per:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
+ASSIGN 
+       tb_verify-gl-tot:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       fi_file:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
 /* SETTINGS FOR FRAME FRAME-B
                                                                         */
 /* SETTINGS FOR FRAME FRAME-H
@@ -308,7 +330,7 @@ THEN C-Win:HIDDEN = no.
 
 &Scoped-define SELF-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON END-ERROR OF C-Win /* Change Period and/or Post Date */
+ON END-ERROR OF C-Win /* G/L Admin Tool */
 OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
   /* This case occurs when the user presses the "Esc" key.
      In a persistently run window, just ignore this.  If we did not, the
@@ -321,7 +343,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON WINDOW-CLOSE OF C-Win /* Change Period and/or Post Date */
+ON WINDOW-CLOSE OF C-Win /* G/L Admin Tool */
 DO:
   /* This event will close the window and terminate the procedure.  */
   APPLY "CLOSE":U TO THIS-PROCEDURE.
@@ -614,6 +636,35 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME tb_verify-gl-tot
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_verify-gl-tot C-Win
+ON VALUE-CHANGED OF tb_verify-gl-tot IN FRAME FRAME-A /* Verify G/L Period Totals? */
+DO:
+  ASSIGN {&self-name}.
+  DO WITH FRAME {&FRAME-NAME}:
+    IF tb_verify-gl-tot THEN
+        ASSIGN fi_file:HIDDEN = FALSE.
+    ELSE
+        ASSIGN fi_file:HIDDEN = TRUE.
+    
+  END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME fi_file
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_file C-Win
+ON LEAVE OF fi_file IN FRAME FRAME-A /* If Yes, File Name */
+DO:
+     ASSIGN {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK C-Win 
@@ -827,7 +878,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI C-Win  _DEFAULT-ENABLE
 PROCEDURE enable_UI :
 /*------------------------------------------------------------------------------
@@ -840,10 +890,12 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY begin_run-no old_date new_date fi_fr-year fi_fr-period fi_to-year 
-          fi_to-period tb_gl-tot tb_cust-per tb_vend-per 
+          fi_to-period tb_gl-tot tb_cust-per tb_vend-per tb_verify-gl-tot
+          fi_file
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE begin_run-no new_date fi_fr-year fi_fr-period fi_to-year fi_to-period 
-         btn-process btn-cancel RECT-17 tb_gl-tot tb_cust-per tb_vend-per 
+         tb_gl-tot tb_cust-per tb_vend-per tb_verify-gl-tot btn-process 
+         btn-cancel RECT-17 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW FRAME FRAME-B IN WINDOW C-Win.
@@ -1022,6 +1074,9 @@ IF AVAIL gl-ctrl THEN DO TRANSACTION:
 
  IF tb_gl-tot THEN
      RUN util/fxacctg2.p.
+     
+ IF tb_verify-gl-tot THEN
+     RUN util/VerifyAcctGl.p .
 
   /*FOR EACH account
       WHERE account.company EQ cocode

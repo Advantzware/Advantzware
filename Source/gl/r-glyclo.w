@@ -552,21 +552,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         VIEW-AS ALERT-BOX ERROR.
      APPLY "close" TO THIS-PROCEDURE.   
      RETURN.        
-  end.
-  
-  FIND FIRST glhist NO-LOCK
-         WHERE glhist.company EQ cocode
-         AND glhist.jrnl EQ "AutoClose" 
-         AND glhist.glYear EQ (fisc-yr + 1) NO-ERROR.
-  IF NOT AVAIL glhist THEN
-  DO:
-     MESSAGE "AutoClose journal entry is not found.." 
-          VIEW-AS ALERT-BOX ERROR.
-     APPLY "close" TO THIS-PROCEDURE.     
-     RETURN NO-APPLY.        
-  END.
-         
-
+  END.       
 
   RUN enable_UI.
   RUN check-date.
