@@ -2407,6 +2407,7 @@ PROCEDURE pSearchSelections :
  Notes:
 ------------------------------------------------------------------------------*/
     DEFINE VARIABLE cSearchSelectionsValue AS CHARACTER NO-UNDO.
+
     DO WITH FRAME searchFrame:
         IF searchSelections:SCREEN-VALUE NE ? THEN
         cSearchSelectionsValue = searchSelections:SCREEN-VALUE.
@@ -2415,11 +2416,9 @@ PROCEDURE pSearchSelections :
             searchSelections:LIST-ITEM-PAIRS = ?
             .
         FOR EACH ttMenuTree
-            WHERE ttMenuTree.isActive   EQ YES
-              AND ttMenuTree.isMenu     EQ NO
-              AND (ttMenuTree.baseText  MATCHES "*" + menuTreeFilter + "*"
-               OR  ttMenuTree.mnemonic  MATCHES "*" + menuTreeFilter + "*"
-               OR  ttMenuTree.treeChild MATCHES "*" + menuTreeFilter + "*")
+            WHERE ttMenuTree.baseText MATCHES "*" + menuTreeFilter + "*"
+              AND ttMenuTree.isActive EQ YES
+              AND ttMenuTree.isMenu   EQ NO
             :
             IF NOT CAN-FIND(FIRST xUserMenu
                             WHERE xUserMenu.user_id  EQ USERID("ASI")
@@ -2436,10 +2435,13 @@ PROCEDURE pSearchSelections :
                 )
                 .
         END. /* each ttmenutree */
+        IF cSearchSelectionsValue NE "" THEN
+        ASSIGN
+            ENTRY(2,cSearchSelectionsValue,"|") = STRING(NOT ENTRY(2,cSearchSelectionsValue,"|") EQ "yes")
+            searchSelections:SCREEN-VALUE = cSearchSelectionsValue
+            .
     END. /* with frame */
 
-    IF cSearchSelectionsValue NE "" THEN
-    searchSelections:SCREEN-VALUE = cSearchSelectionsValue.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
