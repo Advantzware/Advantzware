@@ -24,6 +24,7 @@ CREATE WIDGET-POOL.
 /* ***************************  Definitions  ************************** */
 &SCOPED-DEFINE yellowColumnsName b-invitm
 &SCOPED-DEFINE winReSize
+&SCOPED-DEFINE proc-init proc-init
 {methods/defines/winReSize.i}
 {methods/template/brwcustomdef.i}
 
@@ -44,6 +45,7 @@ DEF VAR lv-lot-no AS CHAR NO-UNDO.
 /* gdm - 11180901*/
 DEF VAR v-sort-name  AS LOG NO-UNDO.
 DEF VAR invcopys-cha AS CHAR NO-UNDO.
+DEFINE VARIABLE lMoveCol  AS LOGICAL INIT TRUE  NO-UNDO.
 
 {sys/inc/invcopys.i}
 IF AVAIL sys-ctrl THEN
@@ -84,7 +86,7 @@ DEFINE QUERY external_tables FOR inv-head.
 &Scoped-define FIELDS-IN-QUERY-Browser-Table inv-line.line inv-line.i-no ~
 inv-line.i-name inv-line.inv-qty inv-line.ord-no display-bolno() @ lv-bolno ~
 inv-line.price inv-line.pr-uom inv-line.t-price inv-line.est-no ~
-get-lot-no() @ lv-lot-no inv-line.sman[1] inv-line.sname[1] 
+get-lot-no() @ lv-lot-no inv-line.sman[1] inv-line.sname[1] inv-line.e-num 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH inv-line OF inv-head WHERE ~{&KEY-PHRASE} NO-LOCK ~
     ~{&SORTBY-PHRASE}
@@ -187,6 +189,7 @@ DEFINE BROWSE Browser-Table
             WIDTH 21.8 LABEL-BGCOLOR 14
       inv-line.sman[1] COLUMN-LABEL "Sales Rep" FORMAT "x(3)":U LABEL-BGCOLOR 14
       inv-line.sname[1] COLUMN-LABEL "Sales Rep Name" FORMAT "x(20)":U LABEL-BGCOLOR 14
+      inv-line.e-num COLUMN-LABEL "Ln#" FORMAT ">>9":U LABEL-BGCOLOR 14
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 145 BY 16.43
@@ -319,6 +322,9 @@ ASSIGN
 "inv-line.sman[1]" "Sales Rep" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[13]   > ASI.inv-line.sname[1]
 "inv-line.sname[1]" "Sales Rep Name" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[14]   > ASI.inv-line.e-num
+"inv-line.e-num" "Ln#" ">>9" "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
@@ -343,7 +349,7 @@ ON DEFAULT-ACTION OF Browser-Table IN FRAME F-Main
 DO:
     run oe/d-invitm.w (recid(inv-line), inv-line.r-no,"Update").
     run get-link-handle in adm-broker-hdl(this-procedure,"record-source", output char-hdl).
-    RUN refresh-value.
+    RUN reopen-query(recid(inv-line)).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -416,6 +422,9 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
+
+&SCOPED-DEFINE cellColumnDat oeb-invitm
+{methods/browsers/setCellColumns.i}
 
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
@@ -559,6 +568,27 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE move-columns B-table-Win 
+PROCEDURE move-columns :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+DO WITH FRAME {&FRAME-NAME}:
+  ASSIGN
+     Browser-Table:COLUMN-MOVABLE = lMoveCol
+     Browser-Table:COLUMN-RESIZABLE = lMoveCol
+     lMoveCol = NOT lMoveCol.
+	 /*
+     FI_moveCol = IF lMoveCol = NO THEN "Move" ELSE "Sort".
+  DISPLAY FI_moveCol.*/
+END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE refresh-value B-table-Win 
 PROCEDURE refresh-value :
 /*------------------------------------------------------------------------------
@@ -610,6 +640,23 @@ PROCEDURE reopen-query :
   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"record-source", OUTPUT char-hdl).
   RUN refresh-value IN WIDGET-HANDLE(char-hdl). 
 
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE proc-init B-table-Win 
+PROCEDURE proc-init :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+  
+  RUN setCellColumns. 
+ 
+ /* FI_moveCol = "Sort".
+  DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}.*/
 
 END PROCEDURE.
 

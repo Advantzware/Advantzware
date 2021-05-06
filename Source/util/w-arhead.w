@@ -1911,7 +1911,7 @@ PROCEDURE get-gltrans-record :
 DEF VAR v-error AS LOG.
 
 FOR EACH glhist WHERE
-         glhist.jrnl = "OEINV" AND glhist.posted EQ NO NO-LOCK:
+         glhist.jrnl = "OEINV" NO-LOCK:
 
    v-pos = R-INDEX(glhist.tr-dscr,"Inv#").
 
@@ -1978,7 +1978,7 @@ v-ref-arl = ar-invl.x-no + 1.
 
 GLHIST-LOOP:
 FOR EACH glhist WHERE
-         glhist.jrnl = "OEINV" AND glhist.posted EQ NO
+         glhist.jrnl = "OEINV"
          NO-LOCK:
 
    v-pos = R-INDEX(glhist.tr-dscr,"Inv#").

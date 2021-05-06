@@ -24,8 +24,7 @@ for each {2}account
           and glhist.actnum  eq {2}account.actnum
           and glhist.tr-date ge period.pst
           and glhist.tr-date le period.pend
-          and glhist.period  eq period.pnum
-          and glhist.posted  eq yes
+          and glhist.period  eq period.pnum          
         no-lock:
        
       {2}account.lyr[i] = {2}account.lyr[i] + glhist.tr-amt.    

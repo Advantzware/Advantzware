@@ -26,6 +26,7 @@ DEFINE TEMP-TABLE ttGLAccount NO-UNDO
     FIELD period10    AS DECIMAL   LABEL "Period 10"    FORMAT "->>>,>>>,>>>,>>>,>>9.99"
     FIELD period11    AS DECIMAL   LABEL "Period 11"    FORMAT "->>>,>>>,>>>,>>>,>>9.99"
     FIELD period12    AS DECIMAL   LABEL "Period 12"    FORMAT "->>>,>>>,>>>,>>>,>>9.99"
+    FIELD period13    AS DECIMAL   LABEL "Period 13"    FORMAT "->>>,>>>,>>>,>>>,>>9.99"
     FIELD endBalance  AS DECIMAL   LABEL "End Balance"  FORMAT "->>>,>>>,>>>,>>>,>>9.99"
     .
 /* Parameters Definitions ---                                           */
@@ -40,7 +41,7 @@ DEFINE TEMP-TABLE ttGLAccount NO-UNDO
 PROCEDURE pBusinessLogic:
     DEFINE VARIABLE dBalStart      AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE dEndBalance    AS DECIMAL   NO-UNDO.
-    DEFINE VARIABLE dPeriod        AS DECIMAL   NO-UNDO EXTENT 12.
+    DEFINE VARIABLE dPeriod        AS DECIMAL   NO-UNDO EXTENT 13.
     DEFINE VARIABLE dOpenBalance   AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE dtYearStart    AS DATE      NO-UNDO.
     DEFINE VARIABLE iCount         AS INTEGER   NO-UNDO.
@@ -100,7 +101,7 @@ PROCEDURE pBusinessLogic:
             .
         END.
         ELSE DO:
-            RUN GL_GetAccountOpenBal (ROWID(account), dtAsOfDate, OUTPUT dEndBalance).
+            RUN GL_GetAccountOpenBal (ROWID(account), dtAsOfDate + 1, OUTPUT dEndBalance).
             dOpenBalance = dEndBalance.
         END. /* else */
         DO idx = 1 TO EXTENT(dPeriod):
@@ -123,7 +124,8 @@ PROCEDURE pBusinessLogic:
            dPeriod[9]   EQ 0 AND
            dPeriod[10]  EQ 0 AND
            dPeriod[11]  EQ 0 AND
-           dPeriod[12]  EQ 0 THEN
+           dPeriod[12]  EQ 0 AND
+           dPeriod[13]  EQ 0 THEN
         NEXT.
         CREATE ttGLAccount.
         ASSIGN
@@ -142,6 +144,7 @@ PROCEDURE pBusinessLogic:
             ttGLAccount.period10    = dPeriod[10]
             ttGLAccount.period11    = dPeriod[11]
             ttGLAccount.period12    = dPeriod[12]
+            ttGLAccount.period13    = dPeriod[13]
             ttGLAccount.endBalance  = dEndBalance
             .
     END. /* each account */

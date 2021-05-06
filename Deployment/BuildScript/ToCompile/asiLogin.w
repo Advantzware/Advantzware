@@ -508,7 +508,12 @@ DO:
     RUN ipAssignSV.
     CASE SELF:NAME:
         WHEN "cbDatabase" THEN RUN ipChangeDatabase.
-        WHEN "cbEnvironment" THEN RUN ipChangeEnvironment.
+        WHEN "cbEnvironment" THEN DO:
+            RUN ipChangeEnvironment.
+            ASSIGN 
+                cbDatabase:SENSITIVE = NUM-ENTRIES(cDbValidList) GT 1
+                cbDatabase:SCREEN-VALUE = ENTRY(1,cbDatabase:LIST-ITEMS).
+        END.
         WHEN "cbMode" THEN RUN ipChangeMode.
     END CASE.
 END.
@@ -528,6 +533,7 @@ DO:
     IF NOT AVAIL ttUsers THEN FIND FIRST ttUsers NO-LOCK WHERE
         ttUsers.ttfUserAlias = fiUserID
         NO-ERROR.
+
     IF NOT AVAIL ttUsers THEN DO:
         IF fwd-embedded-mode THEN 
             RETURN NO-APPLY 
@@ -557,6 +563,8 @@ DO:
         RETURN NO-APPLY.
     END.
     
+
+    
     ASSIGN
         /* set the combo box possible values */
         cbMode:LIST-ITEMS = cModeValidList
@@ -578,6 +586,8 @@ DO:
         cModeSelected = cbMode:SCREEN-VALUE 
         cDbSelected = cbDatabase:SCREEN-VALUE 
         .
+        
+    APPLY 'value-changed' TO cbEnvironment.
     
 END.
 
@@ -635,10 +645,12 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
             cbDatabase:SENSITIVE = FALSE 
             cbMode:VISIBLE = TRUE
             cbEnvironment:VISIBLE = TRUE 
-            cbDatabase:VISIBLE = TRUE. 
+            cbDatabase:VISIBLE = TRUE
+            cEnvSelected = cbEnvironment:SCREEN-VALUE. 
         RUN enable_UI.
         ASSIGN
             fiUserID:SCREEN-VALUE = OS-GETENV("USERNAME").
+        APPLY 'value-changed' TO cbEnvironment.    
         APPLY 'entry' TO fiUserID.
     END. /* If there is a UI */
     ELSE DO:
@@ -728,6 +740,7 @@ PROCEDURE ipAutoLogin :
 ------------------------------------------------------------------------------*/
     ASSIGN 
         fiUserID = ENTRY(1, cSessionParam)
+        cLoginUser = fiUserID
         fiPassword = ENTRY(2, cSessionParam)
         cEnvSelected = ENTRY(3, cSessionParam)
         cModeSelected = REPLACE(ENTRY(4, cSessionParam),"_"," ")
@@ -762,6 +775,7 @@ PROCEDURE ipChangeDatabase :
         cAudConnectString = ""
         iDbPos = LOOKUP(cDbSelected,cDbList)
         iDbLevel = intVer(ENTRY(iDbPos,cDbVerList))
+        iTruncLevel = iDbLevel / 100
         asidbName = cDbSelected
         asiDbPort = ENTRY(iDbPos,cDbPortList)
         audDbName = ENTRY(iDbPos,cAudDbList)
@@ -772,9 +786,9 @@ PROCEDURE ipChangeDatabase :
         cAsiConnectString = "-db " + asiDbName + 
                             " -H " + chostName +
                             " -S " + asiDbPort +
-                            " -N tcp -ld ASI -U " +
+                            " -N tcp -ld ASI -U '" +
                             cLoginUser + 
-                            " -P '" +
+                            "' -P '" +
                             fiPassword + 
                             "' -ct 2".
     ELSE DO:
@@ -823,8 +837,9 @@ PROCEDURE ipChangeEnvironment :
         ASSIGN
             cTop = cMapDir + "\" + cEnvDir + "\" + cEnvSelected + "\" 
             preProPath = cTop + "," +
-                         (IF iEnvLevel GE 21000000 THEN cTop + "asiObjects.pl," ELSE "") +
-                         (IF iEnvLevel GE 21000000 THEN cTop + "asigraphics.pl," ELSE "") +
+                         cTop + "asiObjects.pl," +
+                         cTop + "asigraphics.pl," +
+                         cTop + "asiDataDigger.pl," +
                          cTop + cEnvCustomerDir + "," +
                          cTop + cEnvOverrideDir + "," +
                          cTop + cEnvProgramsDir + "," +
@@ -832,7 +847,7 @@ PROCEDURE ipChangeEnvironment :
                          cTop + cEnvResourceDir + "," +
                          cTop + cEnvCustFiles + "," +
                          cMapDir + "\" + cAdminDir + "\" + cEnvAdmin + ","
-            PROPATH = preProPath + origPropath.      
+                PROPATH = preProPath + origPropath.      
         RETURN.
     END.
     ELSE DO: /* Normal processing, with changes to drop downs */
@@ -864,8 +879,9 @@ PROCEDURE ipChangeEnvironment :
             cbDatabase:VISIBLE = TRUE /* NUM-ENTRIES(cDbValidList) NE 1 */
             cTop = cMapDir + "\" + cEnvDir + "\" + cEnvSelected + "\" 
             preProPath = cTop + "," +
-                         (IF iEnvLevel GE 21000000 THEN cTop + "asiObjects.pl," ELSE "") +
-                         (IF iEnvLevel GE 21000000 THEN cTop + "asigraphics.pl," ELSE "") +
+                         cTop + "asiObjects.pl," +
+                         cTop + "asigraphics.pl," +
+                         cTop + "asiDataDigger.pl," +
                          cTop + cEnvCustomerDir + "," +
                          cTop + cEnvOverrideDir + "," +
                          cTop + cEnvProgramsDir + "," +
@@ -873,8 +889,7 @@ PROCEDURE ipChangeEnvironment :
                          cTop + cEnvResourceDir + "," +
                          cTop + cEnvCustFiles + "," +
                          cMapDir + "\" + cAdminDir + "\" + cEnvAdmin + ","
-            PROPATH = preProPath + origPropath.
-
+                PROPATH = preProPath + origPropath.
         IF NUM-ENTRIES(cDbValidList) EQ 1 THEN DO:
             ASSIGN
                 cDBSelected = cDbValidList
@@ -888,7 +903,7 @@ PROCEDURE ipChangeEnvironment :
                 cbDatabase:LIST-ITEMS = cDbValidList
                 cbDatabase:SCREEN-VALUE = IF NOT CAN-DO(cDbValidList,cDbSelected) THEN ENTRY(1,cDbValidList) ELSE cDbSelected
                 cbDatabase:SENSITIVE = TRUE.
-            RETURN NO-APPLY.
+            RETURN.
         END.
 
     END.
@@ -933,7 +948,40 @@ PROCEDURE ipClickOk :
     DEFINE VARIABLE cDLC AS CHAR NO-UNDO.
     DEFINE VARIABLE cBitness AS CHAR NO-UNDO.
     DEFINE VARIABLE cVersion AS CHAR NO-UNDO.
- 
+    DEFINE VARIABLE cTop AS CHAR NO-UNDO.
+    DEFINE VARIABLE cLocalPlFile AS CHAR NO-UNDO.
+    DEFINE VARIABLE cRemotePlFile AS CHAR NO-UNDO.
+    DEFINE VARIABLE daLocalPlFileDate AS DATE NO-UNDO.
+    DEFINE VARIABLE daRemotePlFileDate AS DATE NO-UNDO.
+    DEFINE VARIABLE lUpdatePlFiles AS LOG NO-UNDO.
+
+    /* If this is a Hyper-V server (flagged in advantzware.ini file), test if user has current
+        pl files on his workstation.  If not, update the workstation from the server */
+    IF cIsHyperV EQ "YES" 
+    OR cIsHyperV EQ "Y" THEN DO:
+        ASSIGN 
+            lUpdatePlFiles = FALSE.
+        IF SEARCH("c:\tmp\asiObjects.pl") NE ? THEN DO:
+            ASSIGN 
+                FILE-INFO:FILE-NAME = SEARCH("c:\tmp\asiObjects.pl")
+                daLocalPlFileDate = FILE-INFO:FILE-MOD-DATE.
+            ASSIGN 
+                FILE-INFO:FILE-NAME = SEARCH(cTop + "asiObjects.pl")
+                daRemotePlFileDate = FILE-INFO:FILE-MOD-DATE.
+            IF daRemotePlFileDate GT daLocalPlFileDate THEN ASSIGN 
+                lUpdatePlFiles = TRUE.
+        END.
+        ELSE ASSIGN 
+            lUpdatePlFiles = TRUE.
+        cTop = cMapDir + "\" + cEnvDir + "\" + cEnvSelected + "\".
+        IF lUpdatePlFiles THEN DO:
+            OS-COPY VALUE(cTop + "asiObjects.pl") VALUE("c:\tmp").
+            OS-COPY VALUE(cTop + "asigraphics.pl") VALUE("c:\tmp").
+        END.
+        PROPATH = REPLACE (ProPath, cTop + "asiObjects.pl", "C:\tmp\asiObjects.pl").
+        PROPATH = REPLACE (ProPath, cTop + "asigraphics.pl", "C:\tmp\asigraphics.pl").
+    END.
+    
     IF cAsiConnectString <> "" 
     AND cbMode NE "Monitor Users" THEN 
     DO:
@@ -1115,7 +1163,9 @@ PROCEDURE ipConnectDbs :
         CREATE ALIAS asihlp FOR DATABASE VALUE(LDBNAME(1)).
         CREATE ALIAS asinos FOR DATABASE VALUE(LDBNAME(1)).
 
-        IF SEARCH(origDirectoryName + "\preRun" + STRING(iTruncLevel,"999999") + ".r") NE ? THEN
+        IF SEARCH(origDirectoryName + "\preRun" + STRING(iTruncLevel,"999999") + ".r") NE ? 
+        OR SEARCH(origDirectoryName + "\preRun" + STRING(iTruncLevel,"999999") + ".p") NE ? 
+        THEN
             RUN VALUE(origDirectoryName + "\preRun" + STRING(iTruncLevel,"999999") + ".p") PERSISTENT SET hPreRun.
         ELSE RUN VALUE("prerun.p") PERSISTENT SET hPreRun.
     END.
@@ -1209,9 +1259,8 @@ PROCEDURE ipPreRun :
         iEnvLevel = intVer(ENTRY(iEnvPos,cEnvVerList))
         iDbPos = LOOKUP(cDbSelected,cDbList)
         iDbLevel = intVer(ENTRY(iDbPos,cDbVerList))
-        iTruncLevel = iDbLevel
+        iTruncLevel = iDbLevel / 100
         .
-    
     /* Run various procedures and programs DEPENDING ON ENV OR DB LEVEL */
     /* Here the format for both is 16070400 */
     IF USERID(LDBNAME(1)) NE "asi" THEN DO:
@@ -1503,4 +1552,3 @@ END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-

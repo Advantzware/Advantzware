@@ -43,7 +43,7 @@ do with frame po-ordlf:
        leave.
     end.
 
-    if {1} po-ordl.job-no ne "" then v-cost = tt-eiv.run-cost[j].
+    if j LE 20 and {1} po-ordl.job-no ne "" then v-cost = tt-eiv.run-cost[j].
 
     RUN est/dim-charge.p (tt-eiv.rec_key,
                           ({1} v-wid),

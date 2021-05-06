@@ -233,7 +233,7 @@ DEFINE BROWSE Browser-Table
       fg-rctd.tag COLUMN-LABEL "From!Tag" FORMAT "x(24)":U
       fg-rctd.loc COLUMN-LABEL "From!Whse" FORMAT "x(5)":U
       fg-rctd.loc-bin COLUMN-LABEL "From!Bin" FORMAT "x(8)":U
-      fg-rctd.cases COLUMN-LABEL "Units" FORMAT ">>>,>>9":U
+      fg-rctd.cases COLUMN-LABEL "Units" FORMAT "->>>,>>9":U
       fg-rctd.qty-case COLUMN-LABEL "Unit!Count" FORMAT ">>>,>>9":U
       fg-rctd.partial COLUMN-LABEL "Partial" FORMAT ">>>,>>9":U
             WIDTH 10

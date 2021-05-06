@@ -1875,7 +1875,9 @@ PROCEDURE local-initialize :
       oe-ordl.job-no2:READ-ONLY IN BROWSE {&browse-name} = YES.
     /*  FI_moveCol = "Sort"
       .*/
-
+      oe-ordl.cust-no:WIDTH IN BROWSE {&BROWSE-NAME} = 20 .
+      oe-ordl.po-no:WIDTH IN BROWSE {&BROWSE-NAME}   = 30 .
+      oe-ordl.job-no:WIDTH IN BROWSE {&BROWSE-NAME}  = 12 .
   {methods/winReSizeLocInit.i}
 
  // DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}.
@@ -2472,7 +2474,8 @@ PROCEDURE reopen-query :
 ------------------------------------------------------------------------------*/
  DEFINE VARIABLE lv-tmp-rowid AS ROWID NO-UNDO.
  lv-tmp-rowid = ROWID(oe-ordl).
-
+    
+ IF AVAIL oe-ordl THEN   
  RUN reopen-query1 (lv-tmp-rowid).
 END PROCEDURE.
 

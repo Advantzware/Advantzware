@@ -1186,8 +1186,7 @@ PROCEDURE local-assign-record :
               AND glhist.period  EQ ar-inv.period
               AND glhist.tr-num  EQ ar-ledger.tr-num
               AND glhist.tr-dscr EQ v-dscr
-              AND glhist.tr-amt  EQ v-old-ar-invl-amount
-              AND glhist.posted  EQ NO
+              AND glhist.tr-amt  EQ v-old-ar-invl-amount              
             NO-ERROR.
         
         IF NOT AVAIL glhist THEN
@@ -1199,8 +1198,7 @@ PROCEDURE local-assign-record :
               AND glhist.tr-date EQ ar-ledger.tr-date
               AND glhist.period  EQ ar-inv.period
               AND glhist.tr-num  EQ ar-ledger.tr-num
-              AND glhist.tr-dscr EQ v-dscr
-              AND glhist.posted  EQ NO
+              AND glhist.tr-dscr EQ v-dscr              
             NO-ERROR.
        
         IF AVAIL glhist THEN
@@ -1247,8 +1245,7 @@ PROCEDURE local-assign-record :
                    AND glhist.tr-date EQ ar-ledger.tr-date
                    AND glhist.period  EQ ar-inv.period
                    AND glhist.tr-num  EQ ar-ledger.tr-num
-                   AND glhist.tr-dscr EQ "ORDER ENTRY INVOICE DISCOUNT"
-                   AND glhist.posted  EQ NO
+                   AND glhist.tr-dscr EQ "ORDER ENTRY INVOICE DISCOUNT"                   
                  NO-ERROR.
        
              IF AVAIL glhist THEN
@@ -1267,8 +1264,7 @@ PROCEDURE local-assign-record :
               AND glhist.period  EQ ar-inv.period
               AND glhist.tr-num  EQ ar-ledger.tr-num
               AND glhist.tr-amt  EQ v-old-ar-invl-amount
-              AND glhist.tr-dscr EQ v-dscr
-              AND glhist.posted  EQ NO
+              AND glhist.tr-dscr EQ v-dscr              
             NO-ERROR.
            
            IF AVAIL glhist THEN
@@ -1630,8 +1626,7 @@ PROCEDURE update-gl-tax :
         AND glhist.tr-date EQ ar-ledger.tr-date
         AND glhist.period  EQ ar-inv.period
         AND glhist.tr-num  EQ ar-ledger.tr-num
-        AND glhist.tr-dscr EQ v-dscr
-        AND glhist.posted  EQ NO
+        AND glhist.tr-dscr EQ v-dscr        
       NO-ERROR.
 
   IF AVAIL glhist THEN
@@ -1694,8 +1689,7 @@ PROCEDURE update-gl-tax :
                    glhist.period  EQ ar-inv.period AND
                    glhist.tr-num  EQ ar-ledger.tr-num AND
                    glhist.tr-amt  EQ v-old-jd-taxamt * -1 AND
-                   glhist.tr-dscr EQ v-dscr AND
-                   glhist.posted  EQ NO
+                   glhist.tr-dscr EQ v-dscr                    
                    
                    NO-ERROR.
 
@@ -1715,8 +1709,7 @@ PROCEDURE update-gl-tax :
              glhist.tr-date EQ ar-ledger.tr-date AND
              glhist.period  EQ ar-inv.period AND
              glhist.tr-num  EQ ar-ledger.tr-num AND
-             glhist.tr-dscr EQ v-dscr AND 
-             glhist.posted  EQ NO
+             glhist.tr-dscr EQ v-dscr 
              NO-ERROR.
         
         IF AVAIL glhist THEN
@@ -1766,8 +1759,7 @@ PROCEDURE update-gl-tot :
         AND glhist.jrnl    EQ "OEINV"
         AND glhist.tr-date EQ ar-ledger.tr-date
         AND glhist.period  EQ ar-inv.period
-        AND glhist.tr-num  EQ ar-ledger.tr-num
-        AND glhist.posted  EQ NO
+        AND glhist.tr-num  EQ ar-ledger.tr-num        
       NO-ERROR.
 
   IF AVAIL glhist THEN
@@ -1780,8 +1772,7 @@ PROCEDURE update-gl-tot :
           glhist.jrnl    EQ "ARINV" AND
           glhist.tr-date EQ ar-ledger.tr-date AND
           glhist.period  EQ ar-inv.period AND
-          glhist.tr-num  EQ ar-ledger.tr-num AND 
-          glhist.posted  EQ NO
+          glhist.tr-num  EQ ar-ledger.tr-num           
           NO-ERROR.
 
      IF AVAIL glhist THEN
@@ -1969,8 +1960,7 @@ PROCEDURE valid-inv-no :
       IF period.pstat EQ NO OR
          NOT CAN-FIND(FIRST glhist
                       WHERE glhist.company EQ ar-ledger.company
-                        AND glhist.tr-num  EQ ar-ledger.tr-num
-                        AND glhist.posted  EQ NO) THEN
+                        AND glhist.tr-num  EQ ar-ledger.tr-num) THEN
                     l-enable-price = NO . 
        /*lv-msg = "Sorry, you must reopen year/period "                     +
                 STRING(period.yr,"9999") + "/" + STRING(period.pnum,"99") +

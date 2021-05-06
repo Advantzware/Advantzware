@@ -64,7 +64,6 @@ DEF VAR cFieldListToSelect AS cha NO-UNDO.
 DEF VAR cFieldLength AS cha NO-UNDO.
 DEF VAR cFieldType AS cha NO-UNDO.
 DEF VAR iColumnLength AS INT NO-UNDO.
-
 /*
 DEF TEMP-TABLE tt-report NO-UNDO
     FIELD i-no    AS CHAR
@@ -1331,16 +1330,13 @@ IF tb_print-del  THEN do:
                      cVarValue =  inv-head.bill-i[1] + " "  + inv-head.bill-i[2] + " " + inv-head.bill-i[3] + "  " + inv-head.bill-i[4] .
                   END.
                   WHEN "auto" THEN cVarValue = STRING(inv-head.autoApproved) .
-                  WHEN "reason" THEN
-                  DO:
-                     FIND FIRST tag NO-LOCK 
-                          WHERE tag.linkRecKey  EQ inv-head.rec_key
-                          AND tag.tagType     EQ "Hold" 
-                          AND tag.linkTable   EQ "inv-head"                          
-                          NO-ERROR. 
-                      IF avail tag AND NOT inv-head.autoApproved THEN cVarValue = STRING(tag.description) .
-                      ELSE  cVarValue = "".                      
-                  END.
+                  WHEN "reason" THEN RUN GetTagsList(
+                                            INPUT  inv-head.rec_key, 
+                                            INPUT  "inv-head", 
+                                            INPUT  "",   
+                                            INPUT ";",
+                                            OUTPUT cVarValue 
+                                            ).  
                   WHEN "cAccountant"            THEN cVarValue = STRING(cust.accountant).
                   WHEN "cInvComment"            THEN cVarValue = STRING(inv-head.spare-char-5).
              END CASE.
@@ -1497,16 +1493,13 @@ ELSE DO:
                   WHEN "tax" THEN cVarValue = "".
                   WHEN "t-price" THEN cVarValue = "".
                   WHEN "auto" THEN cVarValue = STRING(inv-head.autoApproved) .
-                  WHEN "reason" THEN
-                  DO:
-                     FIND FIRST tag NO-LOCK 
-                          WHERE tag.linkRecKey  EQ inv-head.rec_key
-                          AND tag.tagType     EQ "Hold" 
-                          AND tag.linkTable   EQ "inv-head"                          
-                          NO-ERROR. 
-                      IF avail tag AND NOT inv-head.autoApproved THEN cVarValue = STRING(tag.description) .
-                      ELSE  cVarValue = "".                      
-                  END.
+                  WHEN "reason" THEN RUN GetTagsList(
+                                        INPUT  inv-head.rec_key, 
+                                        INPUT  "inv-head", 
+                                        INPUT  "",   
+                                        INPUT ";",
+                                        OUTPUT cVarValue 
+                                        ).  
                   WHEN "cAccountant"            THEN cVarValue = STRING(cust.accountant).
                   WHEN "cInvComment"            THEN cVarValue = STRING(inv-head.spare-char-5).
              END CASE.

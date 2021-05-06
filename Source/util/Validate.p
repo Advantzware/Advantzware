@@ -123,6 +123,21 @@ PROCEDURE pIsValidShiptoID:
 
 END PROCEDURE.
 
+PROCEDURE pIsValidEstimateFormBlank:
+    /*------------------------------------------------------------------------------
+     Purpose:  Validates shipto ID
+     Notes: Input 1 = customer id, input 2 = ship to id
+    ------------------------------------------------------------------------------*/
+    {util/dev/ValidateEstFormBlank.i 
+        &ValidateTable = "eb" 
+        &ValidateField1 = "est-no"
+        &ValidateField2 = "form-no" 
+        &ValidateField3 = "blank-no"
+        &ValidateMessage = "Estimate Form or Blank"}
+    
+
+END PROCEDURE.
+
 PROCEDURE pIsValidCustPartID:
     /*------------------------------------------------------------------------------
      Purpose:  Validates Cust Part ID 

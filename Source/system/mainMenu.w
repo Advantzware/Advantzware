@@ -2407,6 +2407,7 @@ PROCEDURE pSearchSelections :
  Notes:
 ------------------------------------------------------------------------------*/
     DEFINE VARIABLE cSearchSelectionsValue AS CHARACTER NO-UNDO.
+
     DO WITH FRAME searchFrame:
         IF searchSelections:SCREEN-VALUE NE ? THEN
         cSearchSelectionsValue = searchSelections:SCREEN-VALUE.
@@ -2434,10 +2435,13 @@ PROCEDURE pSearchSelections :
                 )
                 .
         END. /* each ttmenutree */
+        IF cSearchSelectionsValue NE "" THEN
+        ASSIGN
+            ENTRY(2,cSearchSelectionsValue,"|") = STRING(NOT ENTRY(2,cSearchSelectionsValue,"|") EQ "yes")
+            searchSelections:SCREEN-VALUE = cSearchSelectionsValue
+            .
     END. /* with frame */
 
-    IF cSearchSelectionsValue NE "" THEN
-    searchSelections:SCREEN-VALUE = cSearchSelectionsValue.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

@@ -304,6 +304,10 @@ PROCEDURE pBusinessLogic:
                 ttOrdersBookedByOrderNo.invoiceNo    = iInv#
                 .
             /*===== end of new ===== */
+            IF ttOrdersBookedByOrderNo.fgCost EQ ? THEN
+            ttOrdersBookedByOrderNo.fgCost = 0.
+            IF ttOrdersBookedByOrderNo.fgItemProfit EQ ? THEN
+            ttOrdersBookedByOrderNo.fgItemProfit = 0.
             IF lPrtCont THEN
                 IF dMargin NE ? THEN
                 dMarginTot = dMarginTot + dMargin.

@@ -40,6 +40,11 @@ assign
 
 def var v-process as log no-undo.
 
+DEFINE TEMP-TABLE tt_cust    
+    FIELD existCust AS CHARACTER
+    FIELD newCust AS CHARACTER
+    .
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -55,9 +60,9 @@ def var v-process as log no-undo.
 &Scoped-define FRAME-NAME FRAME-A
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-17 begin_cust end_cust btn-process ~
-btn-cancel 
-&Scoped-Define DISPLAYED-OBJECTS begin_cust end_cust 
+&Scoped-Define ENABLED-OBJECTS RECT-17 begin_cust end_cust tb_import ~
+fi_file btn-process btn-cancel 
+&Scoped-Define DISPLAYED-OBJECTS begin_cust end_cust tb_import fi_file 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -91,16 +96,30 @@ DEFINE VARIABLE end_cust AS CHARACTER FORMAT "x(8)":U
      VIEW-AS FILL-IN 
      SIZE 14 BY 1 NO-UNDO.
 
+DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\cust.csv" 
+     LABEL "If Yes, File Name" 
+     VIEW-AS FILL-IN 
+     SIZE 43 BY 1
+     FGCOLOR 9 .
+
 DEFINE RECTANGLE RECT-17
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 89 BY 9.52.
+
+DEFINE VARIABLE tb_import AS LOGICAL INITIAL no 
+     LABEL "Import CSV Files" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 35 BY .81 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
-     begin_cust AT ROW 7.67 COL 37 COLON-ALIGNED
-     end_cust AT ROW 10.52 COL 37 COLON-ALIGNED
+     begin_cust AT ROW 7.14 COL 37 COLON-ALIGNED
+     end_cust AT ROW 9.19 COL 37 COLON-ALIGNED
+     tb_import AT ROW 11.19 COL 24.4 WIDGET-ID 2
+     fi_file AT ROW 12.76 COL 22 COLON-ALIGNED HELP
+          "Enter File Name" WIDGET-ID 4
      btn-process AT ROW 15.76 COL 21
      btn-cancel AT ROW 15.76 COL 53
      "Selection Parameters" VIEW-AS TEXT
@@ -194,15 +213,17 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
-ASSIGN
+ASSIGN 
        btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "ribbon-button".
 
-
-ASSIGN
+ASSIGN 
        btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "ribbon-button".
 
+ASSIGN 
+       fi_file:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 /* SETTINGS FOR FRAME FRAME-B
                                                                         */
@@ -212,7 +233,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -272,40 +293,105 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-process C-Win
 ON CHOOSE OF btn-process IN FRAME FRAME-A /* Start Process */
 DO:
-  if not can-find(first cust
+  DEFINE VARIABLE lProcessItem AS LOGICAL NO-UNDO. 
+  IF NOT tb_import THEN
+  DO:    
+      if not can-find(first cust
+                      where cust.company eq cocode
+                        and cust.cust-no eq begin_cust) then do:
+        message "You must enter a valid customer number" view-as alert-box error.
+        apply "entry" to begin_cust.
+        return no-apply.
+      end.
+
+      IF begin_cust EQ end_cust THEN
+      DO:
+        MESSAGE "Old and New Customer #s are the same.  Cannot Process."
+            VIEW-AS ALERT-BOX ERROR BUTTONS OK.
+        apply "entry" to end_cust.
+        return no-apply.
+      END.
+
+      if can-find(first cust
                   where cust.company eq cocode
-                    and cust.cust-no eq begin_cust) then do:
-    message "You must enter a valid customer number" view-as alert-box error.
-    apply "entry" to begin_cust.
-    return no-apply.
-  end.
+                    and cust.cust-no eq end_cust) then do:
+        v-process = no.
 
-  IF begin_cust EQ end_cust THEN
-  DO:
-    MESSAGE "Old and New Customer #s are the same.  Cannot Process."
-        VIEW-AS ALERT-BOX ERROR BUTTONS OK.
-    apply "entry" to end_cust.
-    return no-apply.
+        message "The new Cust# already exists, merge old Cust# into new Cust#?"
+                view-as alert-box question button yes-no update v-process.
+
+        if not v-process then return no-apply.
+      end.
+
+      v-process  = no.
+
+      message "Are you sure you want change customer number" trim(caps(begin_cust))
+              "to" trim(caps(end_cust)) + "?"       
+              view-as alert-box question button yes-no update v-process.
+
+      if v-process then run run-process(NO).
   END.
+  ELSE DO:
+        EMPTY TEMP-TABLE tt_cust.
+        INPUT FROM VALUE(fi_file).
+        REPEAT:
+            CREATE tt_cust.
+            IMPORT DELIMITER "," tt_cust.
+        END.
+        INPUT CLOSE.  
+        
+        FOR EACH tt_cust:
+         IF tt_cust.newCust EQ "" THEN DELETE tt_cust. 
+        END.
+        
+        FOR EACH tt_cust NO-LOCK:
+                            
+              if not can-find(first cust
+                      where cust.company eq cocode
+                        and cust.cust-no eq tt_cust.existCust) then do:
+                message "Customer number '" + tt_cust.existCust + "' is not valid in csv file.."   view-as alert-box error.
+                apply "entry" to fi_file.
+                return no-apply.
+              end.
 
-  if can-find(first cust
-              where cust.company eq cocode
-                and cust.cust-no eq end_cust) then do:
-    v-process = no.
-
-    message "The new Cust# already exists, merge old Cust# into new Cust#?"
-            view-as alert-box question button yes-no update v-process.
-
-    if not v-process then return no-apply.
-  end.
-
-  v-process  = no.
-
-  message "Are you sure you want change customer number" trim(caps(begin_cust))
-          "to" trim(caps(end_cust)) + "?"       
-          view-as alert-box question button yes-no update v-process.
-
-  if v-process then run run-process.
+              IF tt_cust.existCust EQ tt_cust.newCust THEN
+              DO:
+                MESSAGE "Old and New Customer '" + tt_cust.existCust + "' are the same.  Cannot Process."
+                    VIEW-AS ALERT-BOX ERROR BUTTONS OK.
+                apply "entry" to fi_file.
+                return no-apply.
+              END.   
+            
+              lProcessItem = YES.          
+           
+        END.  /* for each tt_cust*/
+        
+        IF lProcessItem THEN
+        DO:
+           v-process  = no. 
+              message "Are you sure you want change customer number"       
+                      view-as alert-box question button yes-no update v-process.
+            
+        END.
+        IF v-process THEN
+        DO:
+         FOR EACH tt_cust NO-LOCK :            
+            begin_cust = tt_cust.existCust .
+            end_cust = tt_cust.newCust .
+            
+            run run-process(YES).         
+         END.
+            
+         begin_cust = "".
+         end_cust = "".
+         MESSAGE trim(c-win:title) + " Process Complete..." view-as alert-box.
+         EMPTY TEMP-TABLE tt_cust.
+         apply "close" to this-procedure.
+        END.
+        
+        
+  END.
+  
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -319,6 +405,56 @@ DO:
   assign {&self-name}.
 
   {&self-name}:screen-value = caps({&self-name}).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME fi_file
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_file C-Win
+ON LEAVE OF fi_file IN FRAME FRAME-A /* If Yes, File Name */
+DO:
+     assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME fi_file
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_file C-Win
+ON HELP OF fi_file IN FRAME FRAME-A /* Font */
+DO:
+     DEF VAR okClicked AS LOGICAL NO-UNDO.
+     SYSTEM-DIALOG GET-FILE fi_file 
+                TITLE 'Select Image File to insert'
+                FILTERS 'CSV Files    (*.csv)' '*.csv'
+                INITIAL-DIR fi_file
+                MUST-EXIST USE-FILENAME UPDATE okClicked.
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME tb_import
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_import C-Win
+ON VALUE-CHANGED OF tb_import IN FRAME FRAME-A /* Import CSV Files */
+DO:
+     assign {&self-name}.
+     IF logical(tb_import:SCREEN-VALUE) EQ YES THEN
+     DO:
+         end_cust:SENSITIVE = NO.
+         begin_cust:SENSITIVE = NO.
+         fi_file:SENSITIVE = YES.
+     END.
+     ELSE 
+     ASSIGN
+       end_cust:SENSITIVE = YES
+       begin_cust:SENSITIVE = YES
+       fi_file:SENSITIVE = NO.
+     
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -355,6 +491,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   END.
 
   RUN enable_UI.
+  fi_file:SENSITIVE = NO.
   apply "entry" to begin_cust.
   {methods/nowait.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
@@ -397,9 +534,9 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY begin_cust end_cust 
+  DISPLAY begin_cust end_cust tb_import fi_file 
       WITH FRAME FRAME-A IN WINDOW C-Win.
-  ENABLE RECT-17 begin_cust end_cust btn-process btn-cancel 
+  ENABLE RECT-17 begin_cust end_cust tb_import fi_file btn-process btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW FRAME FRAME-B IN WINDOW C-Win.
@@ -415,7 +552,7 @@ PROCEDURE run-process :
 /* ------------------------------------------------ util/updcust#.p 05/01 JLF */
 /*  Update Customer with a new cust-no                                        */
 /* -------------------------------------------------------------------------- */
-
+DEFINE INPUT PARAMETER ipclRunMulti AS LOGICAL NO-UNDO.   
 def buffer b-cust for cust.
 def buffer b-ship for shipto.
 def buffer b-sold for soldto.
@@ -1254,10 +1391,12 @@ do transaction:
 end.
 
 session:set-wait-state("").
+IF ipclRunMulti EQ NO THEN
+DO:
+    message trim(c-win:title) + " Process Complete..." view-as alert-box.
 
-message trim(c-win:title) + " Process Complete..." view-as alert-box.
-
-apply "close" to this-procedure.
+    apply "close" to this-procedure.
+END.
 
 /* end ---------------------------------- copr. 2001  advanced software, inc. */
 

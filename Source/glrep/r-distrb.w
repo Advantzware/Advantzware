@@ -1121,8 +1121,7 @@ v-distribute = NO.
         WHERE glhist.company EQ cocode
           AND glhist.actnum  EQ account.actnum
           AND glhist.tr-date GE lo_trandate
-          AND glhist.tr-date LE hi_trandate
-          AND glhist.posted  EQ NO
+          AND glhist.tr-date LE hi_trandate          
           AND CAN-DO(gl_jrnl_list,glhist.jrnl),
 
         EACH acctcost NO-LOCK
@@ -1138,7 +1137,7 @@ v-distribute = NO.
       CREATE tt-trans.
       ASSIGN
        tt-trans.tt-recid = RECID(glhist)
-       tt-trans.type     = "GLTRANS"
+       tt-trans.type     = IF glhist.posted  EQ NO THEN "GLTRANS" ELSE "GLHIST"
        tt-trans.c-rate   = acctcost.c-rate
        tt-trans.tr-amt   = ROUND(glhist.tr-amt * acctcost.c-rate / 100,2)
        tt-trans.costacct = acctcost.costacct
@@ -1153,57 +1152,13 @@ v-distribute = NO.
         CREATE tt-trans.
         ASSIGN
          tt-trans.tt-recid = RECID(glhist)
-         tt-trans.type     = "GLTRANS"
+         tt-trans.type     = IF glhist.posted  EQ NO THEN "GLTRANS" ELSE "GLHIST"
          tt-trans.c-rate   = 100
          tt-trans.tr-amt   = v-tot-amt * -1 /*gltrans.tr-amt * -1*/
          tt-trans.costacct = glhist.actnum
          tt-trans.jrnl     = "Cost Distribution".           
       END.               
-    END. /* glhist */
-
-    FOR EACH glhist NO-LOCK
-        WHERE glhist.company EQ cocode
-          AND glhist.actnum  EQ account.actnum
-          AND glhist.tr-date GE lo_trandate
-          AND glhist.tr-date LE hi_trandate
-          AND glhist.posted  EQ YES
-          AND CAN-DO(gl_jrnl_list,glhist.jrnl),
-
-        EACH acctcost NO-LOCK
-        WHERE acctcost.company EQ account.company
-          AND acctcost.actnum  EQ account.actnum
-
-        BREAK BY glhist.actnum
-              BY acctcost.costacct:
-
-      IF FIRST-OF(glhist.actnum) THEN v-tot-amt = 0.
-
-      /* auto distribution to sub cost account */
-      CREATE tt-trans.
-      ASSIGN
-       tt-trans.tt-recid = RECID(glhist)
-       tt-trans.type     = "GLHIST"
-       tt-trans.c-rate   = acctcost.c-rate
-       tt-trans.tr-amt   = ROUND(glhist.tr-amt * acctcost.c-rate / 100,2)
-       tt-trans.costacct = acctcost.costacct
-       tt-trans.jrnl     = glhist.jrnl.
-
-      v-tot-amt = v-tot-amt + tt-trans.tr-amt.
-
-      IF LAST-OF(glhist.actnum) THEN DO:
-       /* IF v-tot-amt NE glhist.tr-amt THEN
-          tt-trans.tr-amt = tt-trans.tr-amt + (glhist.tr-amt - v-tot-amt).
-       */
-        CREATE tt-trans.
-        ASSIGN
-         tt-trans.tt-recid = RECID(glhist)
-         tt-trans.type     = "GLHIST"
-         tt-trans.c-rate   = 100
-         tt-trans.tr-amt   = v-tot-amt * -1 /*glhist.tr-amt * -1*/
-         tt-trans.costacct = glhist.actnum
-         tt-trans.jrnl     = "Cost Distribution".           
-      END.               
-    END. /* glhist */
+    END. /* glhist */    
   END. /* account*/
 
 /*======*/

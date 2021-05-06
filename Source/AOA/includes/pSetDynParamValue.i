@@ -105,6 +105,7 @@ PROCEDURE pSetDynParamValue:
                 dynValueColumn.sortCol           = {1}SubjectColumn.sortCol
                 dynValueColumn.sortDescending    = {1}SubjectColumn.sortDescending
                 dynValueColumn.textColor         = {1}SubjectColumn.textColor
+                dynValueColumn.udfID             = {1}SubjectColumn.udfID
                 .
         END. /* each {1}SubjectColumn */
         RELEASE dynValueColumn.

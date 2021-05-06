@@ -95,12 +95,12 @@ DEF STREAM excel.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 tb_inact tb_prior-period-data ~
-tb_out-bal tb_invalid-period tb_post-out-period fi_file rd-dest ~
-lines-per-page lv-ornt lv-font-no td-show-parm btn-ok btn-cancel 
+tb_out-bal tb_invalid-period tb_post-out-period tb_excel tb_runExcel fi_file  ~
+rd-dest lines-per-page lv-ornt lv-font-no td-show-parm btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS fiText tran-year tran-period tb_inact ~
 tb_prior-period-data tb_out-bal tb_invalid-period tb_post-out-period ~
-fi_file rd-dest lines-per-page lv-ornt lv-font-no lv-font-name td-show-parm ~
-v-msg1 v-msg2 
+tb_excel tb_runExcel fi_file rd-dest lines-per-page lv-ornt lv-font-no ~
+lv-font-name td-show-parm v-msg1 v-msg2 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -219,6 +219,17 @@ DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL no
      LABEL "Show Parameters?" 
      VIEW-AS TOGGLE-BOX
      SIZE 24 BY .81 NO-UNDO.
+     
+DEFINE VARIABLE tb_excel AS LOGICAL INITIAL yes 
+     LABEL "Export To Excel?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 21 BY .81
+     FGCOLOR 8  NO-UNDO. 
+     
+DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL no 
+     LABEL "Auto Run Excel?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 21 BY .81 NO-UNDO.     
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -232,7 +243,9 @@ DEFINE FRAME FRAME-A
      tb_out-bal AT ROW 6.43 COL 21.8 WIDGET-ID 12
      tb_invalid-period AT ROW 7.52 COL 21.8 WIDGET-ID 14
      tb_post-out-period AT ROW 8.57 COL 21.8 WIDGET-ID 16
-     fi_file AT ROW 10.29 COL 19.4 COLON-ALIGNED HELP
+     tb_excel AT ROW 9.81 COL 41.8 RIGHT-ALIGNED WIDGET-ID 44
+     tb_runExcel AT ROW 9.81 COL 67.4 RIGHT-ALIGNED WIDGET-ID 42
+     fi_file AT ROW 10.62 COL 19.4 COLON-ALIGNED HELP
           "Enter Beginning Customer Number" WIDGET-ID 18
      rd-dest AT ROW 16.1 COL 9 NO-LABEL
      lines-per-page AT ROW 16.1 COL 83 COLON-ALIGNED
@@ -242,8 +255,8 @@ DEFINE FRAME FRAME-A
      td-show-parm AT ROW 21.33 COL 10
      btn-ok AT ROW 23.05 COL 18
      btn-cancel AT ROW 23.05 COL 57
-     v-msg1 AT ROW 11.52 COL 3.2 NO-LABEL WIDGET-ID 2
-     v-msg2 AT ROW 13.05 COL 2 COLON-ALIGNED NO-LABEL WIDGET-ID 4
+     v-msg1 AT ROW 11.71 COL 3.2 NO-LABEL WIDGET-ID 2
+     v-msg2 AT ROW 13.14 COL 2 COLON-ALIGNED NO-LABEL WIDGET-ID 4
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.24 COL 5
      "Output Destination" VIEW-AS TEXT
@@ -322,6 +335,12 @@ ASSIGN
 
 /* SETTINGS FOR FILL-IN lv-font-name IN FRAME FRAME-A
    NO-ENABLE                                                            */
+/* SETTINGS FOR TOGGLE-BOX tb_excel IN FRAME FRAME-A
+   ALIGN-R                                                              */
+ASSIGN 
+       tb_excel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+   
 ASSIGN 
        tb_inact:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -340,6 +359,12 @@ ASSIGN
 
 ASSIGN 
        tb_prior-period-data:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+                
+/* SETTINGS FOR TOGGLE-BOX tb_runExcel IN FRAME FRAME-A
+   ALIGN-R                                                              */
+ASSIGN 
+       tb_runExcel:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 /* SETTINGS FOR FILL-IN tran-period IN FRAME FRAME-A
@@ -445,13 +470,15 @@ DO:
            UPDATE choice.
      IF choice THEN do:
         RUN close-month.
-        MESSAGE "Closing G/L Period is completed. " VIEW-AS ALERT-BOX INFO.
+        
         ASSIGN v-msg1:HIDDEN = YES
                v-msg2:HIDDEN = YES
                v-msg1 = ""
                v-msg2 = ""
                v-msg1:BGCOLOR = ?
                v-msg2:BGCOLOR = ?.
+               
+        APPLY "close" TO THIS-PROCEDURE.       
 
      END.
   END.
@@ -557,6 +584,16 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME tb_excel
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_excel C-Win
+ON VALUE-CHANGED OF tb_excel IN FRAME FRAME-A /* Export To Excel? */
+DO:
+  assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME tb_inact
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_inact C-Win
@@ -612,6 +649,15 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME tb_runExcel
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_runExcel C-Win
+ON VALUE-CHANGED OF tb_runExcel IN FRAME FRAME-A /* Auto Run Excel? */
+DO:
+  assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &Scoped-define SELF-NAME td-show-parm
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL td-show-parm C-Win
@@ -696,16 +742,19 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
             VIEW-AS ALERT-BOX ERROR.
         RETURN.
     END.
-    if NOT company.yend-per then do:
-        MESSAGE 
-            "PRIOR YEAR NOT CLOSED.  MUST CLOSE PRIOR YEAR!!!" 
-            VIEW-AS ALERT-BOX ERROR.
-        RETURN.
-    end.
+    
     FIND FIRST period NO-LOCK WHERE 
         period.company EQ company.company AND
         period.pstat EQ TRUE 
         NO-ERROR.
+        
+    if NOT company.yend-per then do:
+        MESSAGE 
+            "Prior year not closed.  Must close Prior year!!!" 
+            VIEW-AS ALERT-BOX ERROR.
+        RETURN.
+    end.
+    
     IF AVAIL period THEN ASSIGN 
         tran-year = period.yr
         tran-period = period.pnum.
@@ -779,7 +828,7 @@ PROCEDURE check-date :
                and alt-period.pstat               eq yes
            no-lock no-error.
          if not avail alt-period then do:
-           MESSAGE "NEXT PERIOD NOT DEFINED.  MUST DEFINE NEXT PERIOD!!!"
+           MESSAGE "Next Period not defined.  Must define next Period !!!"
                VIEW-AS ALERT-BOX ERROR.
            v-invalid = YES.
          end.
@@ -799,16 +848,16 @@ PROCEDURE check-date :
            if avail alt-period then do:
              ASSIGN per-open   = alt-period.pnum
                     per-status = alt-period.pstat.
-             MESSAGE "PRIOR MONTH(S) NOT CLOSED.  MUST CLOSE ALL PRIOR MONTHS!!!"
+             MESSAGE "Prior Month(S) not closed.  Must close all prior months!!!"
                    VIEW-AS ALERT-BOX ERROR.
              v-invalid = YES.
            end.
            ELSE
            if period.pnum eq 1 AND ip-oktogo then do:
-             MESSAGE "YOU ARE ABOUT TO CLOSE PERIOD 1." skip(1)
-                     "YOU MUST MAKE SURE THE PRIOR FISCAL YEAR END PROCEDURE HAS BEEN RUN!!!"
+             MESSAGE "You are about to close period 1." skip(1)
+                     "You must make sure the prior fiscal year end procedure has been run!!!"
                      skip(2)
-                     "Do You Want to Continue and Close the Month? " VIEW-AS ALERT-BOX BUTTON YES-NO
+                     "Do you want to continue and close the month? " VIEW-AS ALERT-BOX BUTTON YES-NO
                      update choice .
            end.
          end.
@@ -817,7 +866,7 @@ PROCEDURE check-date :
     END.
 
     ELSE DO:
-      message "No Defined Period Exists for" tran-period view-as alert-box error.
+      message "No defined Period exists for" tran-period view-as alert-box error.
       v-invalid = yes.
     END.
   END.
@@ -836,9 +885,14 @@ PROCEDURE close-month :
 ------------------------------------------------------------------------------*/
    DEF VAR li AS INT NO-UNDO.
    DEF VAR lv-rowid AS ROWID NO-UNDO.
-
-   DEF BUFFER b-period FOR period.   
-
+   DEFINE VARIABLE lLastPeriod AS LOGICAL NO-UNDO.
+   DEFINE VARIABLE iTransNum AS INTEGER NO-UNDO.
+   DEFINE VARIABLE dNetIncome AS DECIMAL NO-UNDO.
+   DEFINE VARIABLE iClosedPeriod AS INTEGER NO-UNDO.
+   DEFINE VARIABLE dAccountTotal AS DECIMAL NO-UNDO.   
+   
+   DEF BUFFER b-period FOR period. 
+      
    SESSION:SET-WAIT-STATE ("general").
 
    find first gl-ctrl where gl-ctrl.company eq cocode no-lock no-error.
@@ -848,7 +902,7 @@ PROCEDURE close-month :
          and b-racct.actnum  eq gl-ctrl.ret
        no-lock no-error.
    if not avail b-racct then do on endkey undo, return:
-      message "Unable to Find Retained Earnings Account from G/L Control File."
+      message "Unable to Find Current Year Earnings Account from G/L Control File."
               VIEW-AS ALERT-BOX ERROR.
       return.
    end.
@@ -858,264 +912,285 @@ PROCEDURE close-month :
          and b-cacct.actnum  eq gl-ctrl.contra
        no-lock no-error.
    if not avail b-cacct then do on endkey undo, return:
-      message "Unable to Find Profit Contra Account from G/L Control File." VIEW-AS ALERT-BOX ERROR.
+      message "Unable to find Profit Contra Account from G/L Control File." VIEW-AS ALERT-BOX ERROR.
       return.
    end.
+   
+   find first b-racct
+       where b-racct.company eq cocode
+         and b-racct.actnum  eq gl-ctrl.retainedEarnings
+       no-lock no-error.
+   if not avail b-racct then do on endkey undo, return:
+      message "No Retained Earnings account defined. Set up Retained Earnings account in G-F-3"
+              VIEW-AS ALERT-BOX ERROR.
+      return.
+   end.
+   
+   
 
    ASSIGN v-msg1:HIDDEN IN FRAME {&FRAME-NAME} = NO
           v-msg2:HIDDEN = NO
           v-msg1:BGCOLOR = 4
           v-msg2:BGCOLOR = 4
-          v-msg1 = "PROCESSING... PLEASE WAIT and DO NOT CANCEL OUT OF SCREEN!". 
+          v-msg1 = "Processing... Please wait and do not cancel out of screen!". 
    DISPLAY v-msg1 WITH FRAME {&FRAME-NAME}.
-
-   for each glhist
-       where glhist.company eq cocode
-         and glhist.tr-date ge period.pst
-         and glhist.tr-date le period.pend
-         and glhist.period  eq uperiod          
-       transaction:
-       v-msg2 = "Account: " + glhist.actnum + "   " + glhist.jrnl.
-       DISP v-msg2 WITH FRAME {&FRAME-NAME}.
-
-      find first account
+   
+   FOR EACH account EXCLUSIVE-LOCK
           where account.company eq cocode
-            and account.actnum  eq glhist.actnum
-          no-error.
-      if avail account then do:
-         account.cyr[uperiod] = account.cyr[uperiod] + glhist.tr-amt.
-
-         if index("RE",account.type) gt 0 then do:
-            find first b-racct
-                where b-racct.company eq cocode
-                  and b-racct.actnum  eq gl-ctrl.ret.
-
-            b-racct.cyr[uperiod] = b-racct.cyr[uperiod] + glhist.tr-amt.
-
-            find first b-cacct
-                where b-cacct.company eq cocode
-                  and b-cacct.actnum  eq gl-ctrl.contra.
-
-            b-cacct.cyr[uperiod] = b-cacct.cyr[uperiod] - glhist.tr-amt.
-         end.
-      end.
-
+            BREAK BY account.actnum:
+            
+    IF FIRST-OF(account.actnum)  THEN
+       ASSIGN
+         account.cyr[uperiod]  = 0
+         dAccountTotal  = 0. 
+       
+    FOR EACH glhist
+        where glhist.company eq cocode
+        and glhist.tr-date ge period.pst
+        and glhist.tr-date le period.pend
+        and glhist.actnum  EQ account.actnum          
+       TRANSACTION :  
+       
+       v-msg2 = "Account: " + glhist.actnum + "   " + glhist.jrnl.
+       DISP v-msg2 WITH FRAME {&FRAME-NAME}.          
+      
+         dAccountTotal = dAccountTotal + glhist.tr-amt.
+         
       assign
        glhist.posted   = YES
        glhist.postedBy = USERID(LDBNAME(1)).           
+    END. /* FOR EACH glhist*/ 
+    
+    account.cyr[uperiod] = dAccountTotal.
+
+     if index("RE",account.type) gt 0 then do:
+        find first b-racct
+            where b-racct.company eq cocode
+              and b-racct.actnum  eq gl-ctrl.ret.
+
+        b-racct.cyr[uperiod] = b-racct.cyr[uperiod] + dAccountTotal.
+
+        find first b-cacct
+            where b-cacct.company eq cocode
+              and b-cacct.actnum  eq gl-ctrl.contra.
+
+        b-cacct.cyr[uperiod] = b-cacct.cyr[uperiod] - dAccountTotal.
+     end.      
+    
    end.
    RELEASE glhist.
-   for each cust where cust.company eq cocode transaction:
-      assign
-       cust.cost[1] = 0
-       cust.comm[1] = 0.
-
-      for each ar-ledger
-          where ar-ledger.company eq cocode
-            and ar-ledger.cust-no eq cust.cust-no
-            and ar-ledger.tr-date gt period.pend
-            and ar-ledger.ref-num begins "INV#"
-          no-lock,
-
-          first ar-inv
-          where ar-inv.company eq cocode
-            and ar-inv.posted  eq yes
-            and ar-inv.cust-no eq cust.cust-no
-            and ar-inv.inv-no  eq int(substr(ar-ledger.ref-num,6,
-                                                length(ar-ledger.ref-num)))
-          use-index posted no-lock:
-
-         assign
-          cust.cost[1] = cust.cost[1] +
-                         if ar-inv.t-cost eq ? then 0 else ar-inv.t-cost
-          cust.comm[1] = cust.comm[1] +
-                         if ar-inv.t-comm eq ? then 0 else ar-inv.t-comm.
-      end.                
-   end.
+/*   for each cust where cust.company eq cocode transaction:                 */
+/*     assign                                                                */
+/*       cust.cost[1] = 0                                                    */
+/*       cust.comm[1] = 0.                                                   */
+/*                                                                           */
+/*      for each ar-ledger                                                   */
+/*          where ar-ledger.company eq cocode                                */
+/*            and ar-ledger.cust-no eq cust.cust-no                          */
+/*            and ar-ledger.tr-date gt period.pend                           */
+/*            and ar-ledger.ref-num begins "INV#"                            */
+/*          no-lock,                                                         */
+/*                                                                           */
+/*          first ar-inv                                                     */
+/*          where ar-inv.company eq cocode                                   */
+/*            and ar-inv.posted  eq yes                                      */
+/*            and ar-inv.cust-no eq cust.cust-no                             */
+/*            and ar-inv.inv-no  eq int(substr(ar-ledger.ref-num,6,          */
+/*                                                length(ar-ledger.ref-num)))*/
+/*          use-index posted no-lock:                                        */
+/*                                                                           */
+/*         assign                                                            */
+/*          cust.cost[1] = cust.cost[1] +                                    */
+/*                         if ar-inv.t-cost eq ? then 0 else ar-inv.t-cost   */
+/*          cust.comm[1] = cust.comm[1] +                                    */
+/*                         if ar-inv.t-comm eq ? then 0 else ar-inv.t-comm.  */
+/*      end.                                                                 */
+/*   end.                                                                    */
 
    IF period.pnum EQ company.num-per THEN DO:
      lv-rowid = ROWID(period).
+     lLastPeriod = YES.
 
-     FIND NEXT period
-         WHERE period.company EQ cocode
-           AND period.pstat   EQ YES
-         NO-LOCK NO-ERROR.
-
-     IF AVAIL period THEN DO:
-       /* Cust Processing  */
-       FOR EACH cust WHERE cust.company eq cocode:
-         STATUS DEFAULT "Please Wait...Updating Customer: " + TRIM(cust.cust-no).
-
-         {util/reopeny1.i 1 lyytd lyr 6}
-
-         {util/reopeny1.i 0 ytd ytd 5}
-       END.
-
-       /* Vend Processing  */
-       FOR EACH vend WHERE vend.company eq cocode:
-         STATUS DEFAULT "Please Wait...Updating Vendor: " + TRIM(vend.vend-no).
-
-         {util/reopeny2.i 1 lyytd last-year}
-
-         {util/reopeny2.i 0 ytd-msf purch[13]}
-       END. /* for each vend */
-     END.
+/*     FIND NEXT period                                                        */
+/*         WHERE period.company EQ cocode                                      */
+/*           AND period.pstat   EQ YES                                         */
+/*         NO-LOCK NO-ERROR.                                                   */
+                                                                               
+/*     IF AVAIL period THEN DO:                                                    */
+/*       /* Cust Processing  */                                                    */
+/*       FOR EACH cust WHERE cust.company eq cocode:                               */
+/*         STATUS DEFAULT "Please Wait...Updating Customer: " + TRIM(cust.cust-no).*/
+/*                                                                                 */
+/*         {util/reopeny1.i 1 lyytd lyr 6}                                         */
+/*                                                                                 */
+/*         {util/reopeny1.i 0 ytd ytd 5}                                           */
+/*       END.                                                                      */
+/*                                                                                 */
+/*       /* Vend Processing  */                                                    */
+/*       FOR EACH vend WHERE vend.company eq cocode:                               */
+/*         STATUS DEFAULT "Please Wait...Updating Vendor: " + TRIM(vend.vend-no).  */
+/*                                                                                 */
+/*         {util/reopeny2.i 1 lyytd last-year}                                     */
+/*                                                                                 */
+/*         {util/reopeny2.i 0 ytd-msf purch[13]}                                   */
+/*       END. /* for each vend */                                                  */
+/*     END.                                                                        */
 
      FIND period WHERE ROWID(period) EQ lv-rowid NO-LOCK NO-ERROR.
 
-     /*FIND FIRST b-period
-         WHERE b-period.company EQ cocode
-           AND b-period.yr      EQ period.yr
-         NO-LOCK NO-ERROR.
-     start-date = IF AVAIL b-period THEN b-period.pst ELSE ?.
-
-     FIND LAST b-period
-         WHERE b-period.company EQ cocode
-           AND b-period.yr      EQ period.yr
-         NO-LOCK NO-ERROR.
-     end-date = IF AVAIL b-period THEN b-period.pend ELSE ?.
-
-     /* Cust Processing  */
-     IF start-date NE ? AND end-date NE ? THEN
-     for each cust where cust.company eq cocode transaction:
-
-       status default "Please Wait...Updating Customer: " + trim(cust.cust-no).
-
-       cust.lyr-sales = 0.
-
-       for each ar-ledger
-           where ar-ledger.company eq cocode
-             and ar-ledger.tr-date ge start-date
-             and ar-ledger.tr-date le end-date
-             and ar-ledger.cust-no eq cust.cust-no
-             and ar-ledger.ref-num begins "INV#"
-           no-lock:
-
-         find first ar-inv
-             where ar-inv.company eq cocode
-               and ar-inv.cust-no eq cust.cust-no
-               and ar-inv.posted  eq yes
-               and ar-inv.inv-no eq int(substr(ar-ledger.ref-num,6,LENGTH(ar-ledger.ref-num)))
-             USE-INDEX posted no-lock no-error.
-
-         if avail ar-inv THEN do:
-           for each ar-invl where ar-invl.company eq cocode and
-                                  ar-invl.cust-no eq ar-inv.cust-no and
-                                  ar-invl.inv-no eq ar-inv.inv-no
-                            use-index inv-no no-lock:
-             if ar-invl.amt-msf ne 0 then
-               assign cust.lyytd-msf = cust.lyytd-msf + ar-invl.amt-msf
-                      cust.ytd-msf = cust.ytd-msf - ar-invl.amt-msf.
-             ELSE do:
-               find first itemfg where itemfg.company eq cocode and
-                                       itemfg.i-no eq ar-invl.i-no
-                                 use-index i-no no-lock no-error.
-               if avail itemfg then
-                 assign cust.lyytd-msf = cust.lyytd-msf +
-                                         ((ar-invl.inv-qty / 1000) * itemfg.t-sqft)
-                        cust.ytd-msf   = cust.ytd-msf -
-                                         ((ar-invl.inv-qty / 1000) * itemfg.t-sqft).
-             end.
-           end.
-
-/*         assign cust.sales[6] = cust.sales[6] + (ar-inv.net - ar-inv.tax-amt)
-                  cust.sales[13] = cust.sales[13] - (ar-inv.net - ar-inv.tax-amt)
-*/
-           assign cust.lyr-sales = cust.lyr-sales + (ar-inv.net - ar-inv.tax-amt)
-                  cust.ytd-sales = cust.ytd-sales - (ar-inv.net - ar-inv.tax-amt)
-                  cust.cost[6]  = cust.cost[6] + ar-inv.t-cost
-                  cust.cost[5] = cust.cost[5] - ar-inv.t-cost
-                  cust.comm[6]  = cust.comm[6] + ar-inv.t-comm
-                  cust.comm[5] = cust.comm[5] - ar-inv.t-comm.
-         end. /* if avail ar-inv */
-       end. /* for each ar-ledger INV */
-
-       for each ar-ledger where ar-ledger.company eq cocode and
-                                ar-ledger.tr-date ge start-date and
-                                ar-ledger.tr-date le end-date and
-                                ar-ledger.cust-no eq cust.cust-no and
-                                ar-ledger.ref-num begins "Memo#" no-lock:
-
-         find first ar-cash where ar-cash.company eq cocode and
-                                  ar-cash.cust-no eq cust.cust-no and
-                                  ar-cash.posted and
-                                  ar-cash.check-no eq int(substr(ar-ledger.ref-num,6,8))
-                            USE-INDEX posted no-lock no-error.
-
-         for each ar-cashl where ar-cashl.company eq cocode and
-                                 ar-cashl.c-no eq ar-cash.c-no
-                           use-index c-no no-lock:
-/*         assign cust.sales[6] = cust.sales[6] +
-                                  (ar-cashl.amt-paid - ar-cashl.amt-disc)
-                  cust.sales[5] = cust.sales[5] -
-                                  (ar-cashl.amt-paid - ar-cashl.amt-disc).
-*/
-           assign cust.lyr-sales = cust.lyr-sales +
-                                   (ar-cashl.amt-paid - ar-cashl.amt-disc)
-                  cust.ytd-sales = cust.ytd-sales -
-                                   (ar-cashl.amt-paid - ar-cashl.amt-disc).
-         end.
-       end. /* for each ar-ledger MEMO */
-     end. /* for each cust */
-
-     /* Vend Processing  */
-     IF start-date NE ? AND end-date NE ? THEN
-     for each vend where vend.company eq cocode transaction:
-
-       status default "Please Wait...Updating Vendor: " + trim(vend.vend-no).
-
-       vend.last-year = 0.
-
-       for each ap-ledger where ap-ledger.company eq cocode and
-                                ap-ledger.tr-date ge start-date and
-                                ap-ledger.tr-date le end-date and
-                                ap-ledger.vend-no eq vend.vend-no and
-                                ap-ledger.refnum begins "INV#" no-lock:
-
-         find first ap-inv where ap-inv.company eq cocode and
-                                 ap-inv.vend-no eq vend.vend-no and
-                                 ap-inv.posted  eq yes and
-                                 ap-inv.inv-no eq substr(ap-ledger.refnum,6,length(ap-ledger.refnum))
-                           USE-INDEX ap-inv no-lock no-error.
-
-         if avail ap-inv THEN do:
-           FOR each ap-invl where ap-invl.company eq cocode and
-                                  ap-invl.inv-no eq ap-inv.inv-no and
-                                  ap-invl.i-no eq ap-inv.i-no
-                            use-index i-no no-lock:
-             if ap-invl.amt-msf ne 0 then
-               assign vend.lyytd = vend.lyytd + ap-invl.amt-msf
-                      vend.ytd-msf = vend.ytd-msf - ap-invl.amt-msf.
-             else do:
-               find first itemfg where itemfg.company eq cocode and
-                                       itemfg.i-no eq string(ap-invl.i-no)
-                                 use-index i-no no-lock no-error.
-               if avail itemfg then
-                 assign vend.lyytd   = vend.lyytd +
-                                       ((ap-invl.qty / 1000) * itemfg.t-sqft)
-                        vend.ytd-msf = vend.ytd-msf -
-                                       ((ap-invl.qty / 1000) * itemfg.t-sqft).
-             end.
-           end.
-         end. /* if avail ap-inv */
-
-         assign vend.purch[13] = vend.purch[13] - ap-ledger.amt
-                vend.last-year = vend.last-year + ap-ledger.amt.
-       end. /* for each ap-ledger INV */
-
-       for each ap-ledger where ap-ledger.company eq cocode and
-                                ap-ledger.tr-date ge start-date and
-                                ap-ledger.tr-date le end-date and
-                                ap-ledger.vend-no eq vend.vend-no and
-                                (ap-ledger.refnum begins "Memo#" or
-                                 ap-ledger.refnum begins "Chk#") no-lock:
-
-         assign vend.purch[13] = vend.purch[13] - ap-ledger.amt
-                vend.last-year = vend.last-year + ap-ledger.amt.
-       end. /* for each ap-ledger MEMO */
-     end. /* for each vend */
-
-     status default "".*/
+/*     FIND FIRST b-period                                                                             */
+/*         WHERE b-period.company EQ cocode                                                            */
+/*           AND b-period.yr      EQ period.yr                                                         */
+/*         NO-LOCK NO-ERROR.                                                                           */
+/*     start-date = IF AVAIL b-period THEN b-period.pst ELSE ?.                                        */
+/*                                                                                                     */
+/*     FIND LAST b-period                                                                              */
+/*         WHERE b-period.company EQ cocode                                                            */
+/*           AND b-period.yr      EQ period.yr                                                         */
+/*         NO-LOCK NO-ERROR.                                                                           */
+/*     end-date = IF AVAIL b-period THEN b-period.pend ELSE ?.                                         */
+/*                                                                                                     */
+/*     /* Cust Processing  */                                                                          */
+/*     IF start-date NE ? AND end-date NE ? THEN                                                       */
+/*     for each cust where cust.company eq cocode transaction:                                         */
+/*                                                                                                     */
+/*       status default "Please Wait...Updating Customer: " + trim(cust.cust-no).                      */
+/*                                                                                                     */
+/*       cust.lyr-sales = 0.                                                                           */
+/*                                                                                                     */
+/*       for each ar-ledger                                                                            */
+/*           where ar-ledger.company eq cocode                                                         */
+/*             and ar-ledger.tr-date ge start-date                                                     */
+/*             and ar-ledger.tr-date le end-date                                                       */
+/*             and ar-ledger.cust-no eq cust.cust-no                                                   */
+/*             and ar-ledger.ref-num begins "INV#"                                                     */
+/*           no-lock:                                                                                  */
+/*                                                                                                     */
+/*         find first ar-inv                                                                           */
+/*             where ar-inv.company eq cocode                                                          */
+/*               and ar-inv.cust-no eq cust.cust-no                                                    */
+/*               and ar-inv.posted  eq yes                                                             */
+/*               and ar-inv.inv-no eq int(substr(ar-ledger.ref-num,6,LENGTH(ar-ledger.ref-num)))       */
+/*             USE-INDEX posted no-lock no-error.                                                      */
+/*                                                                                                     */
+/*         if avail ar-inv THEN do:                                                                    */
+/*           for each ar-invl where ar-invl.company eq cocode and                                      */
+/*                                  ar-invl.cust-no eq ar-inv.cust-no and                              */
+/*                                  ar-invl.inv-no eq ar-inv.inv-no                                    */
+/*                            use-index inv-no no-lock:                                                */
+/*             if ar-invl.amt-msf ne 0 then                                                            */
+/*               assign cust.lyytd-msf = cust.lyytd-msf + ar-invl.amt-msf                              */
+/*                      cust.ytd-msf = cust.ytd-msf - ar-invl.amt-msf.                                 */
+/*             ELSE do:                                                                                */
+/*               find first itemfg where itemfg.company eq cocode and                                  */
+/*                                       itemfg.i-no eq ar-invl.i-no                                   */
+/*                                 use-index i-no no-lock no-error.                                    */
+/*               if avail itemfg then                                                                  */
+/*                 assign cust.lyytd-msf = cust.lyytd-msf +                                            */
+/*                                         ((ar-invl.inv-qty / 1000) * itemfg.t-sqft)                  */
+/*                        cust.ytd-msf   = cust.ytd-msf -                                              */
+/*                                         ((ar-invl.inv-qty / 1000) * itemfg.t-sqft).                 */
+/*             end.                                                                                    */
+/*           end.                                                                                      */
+/*                                                                                                     */
+/*/*         assign cust.sales[6] = cust.sales[6] + (ar-inv.net - ar-inv.tax-amt)                      */
+/*                  cust.sales[13] = cust.sales[13] - (ar-inv.net - ar-inv.tax-amt)                    */
+/**/                                                                                                   */
+/*           assign cust.lyr-sales = cust.lyr-sales + (ar-inv.net - ar-inv.tax-amt)                    */
+/*                  cust.ytd-sales = cust.ytd-sales - (ar-inv.net - ar-inv.tax-amt)                    */
+/*                  cust.cost[6]  = cust.cost[6] + ar-inv.t-cost                                       */
+/*                  cust.cost[5] = cust.cost[5] - ar-inv.t-cost                                        */
+/*                  cust.comm[6]  = cust.comm[6] + ar-inv.t-comm                                       */
+/*                  cust.comm[5] = cust.comm[5] - ar-inv.t-comm.                                       */
+/*         end. /* if avail ar-inv */                                                                  */
+/*       end. /* for each ar-ledger INV */                                                             */
+/*                                                                                                     */
+/*       for each ar-ledger where ar-ledger.company eq cocode and                                      */
+/*                                ar-ledger.tr-date ge start-date and                                  */
+/*                                ar-ledger.tr-date le end-date and                                    */
+/*                                ar-ledger.cust-no eq cust.cust-no and                                */
+/*                                ar-ledger.ref-num begins "Memo#" no-lock:                            */
+/*                                                                                                     */
+/*         find first ar-cash where ar-cash.company eq cocode and                                      */
+/*                                  ar-cash.cust-no eq cust.cust-no and                                */
+/*                                  ar-cash.posted and                                                 */
+/*                                  ar-cash.check-no eq int(substr(ar-ledger.ref-num,6,8))             */
+/*                            USE-INDEX posted no-lock no-error.                                       */
+/*                                                                                                     */
+/*         for each ar-cashl where ar-cashl.company eq cocode and                                      */
+/*                                 ar-cashl.c-no eq ar-cash.c-no                                       */
+/*                           use-index c-no no-lock:                                                   */
+/*/*         assign cust.sales[6] = cust.sales[6] +                                                    */
+/*                                  (ar-cashl.amt-paid - ar-cashl.amt-disc)                            */
+/*                  cust.sales[5] = cust.sales[5] -                                                    */
+/*                                  (ar-cashl.amt-paid - ar-cashl.amt-disc).                           */
+/**/                                                                                                   */
+/*           assign cust.lyr-sales = cust.lyr-sales +                                                  */
+/*                                   (ar-cashl.amt-paid - ar-cashl.amt-disc)                           */
+/*                  cust.ytd-sales = cust.ytd-sales -                                                  */
+/*                                   (ar-cashl.amt-paid - ar-cashl.amt-disc).                          */
+/*         end.                                                                                        */
+/*       end. /* for each ar-ledger MEMO */                                                            */
+/*     end. /* for each cust */                                                                        */
+/*                                                                                                     */
+/*     /* Vend Processing  */                                                                          */
+/*     IF start-date NE ? AND end-date NE ? THEN                                                       */
+/*     for each vend where vend.company eq cocode transaction:                                         */
+/*                                                                                                     */
+/*       status default "Please Wait...Updating Vendor: " + trim(vend.vend-no).                        */
+/*                                                                                                     */
+/*       vend.last-year = 0.                                                                           */
+/*                                                                                                     */
+/*       for each ap-ledger where ap-ledger.company eq cocode and                                      */
+/*                                ap-ledger.tr-date ge start-date and                                  */
+/*                                ap-ledger.tr-date le end-date and                                    */
+/*                                ap-ledger.vend-no eq vend.vend-no and                                */
+/*                                ap-ledger.refnum begins "INV#" no-lock:                              */
+/*                                                                                                     */
+/*         find first ap-inv where ap-inv.company eq cocode and                                        */
+/*                                 ap-inv.vend-no eq vend.vend-no and                                  */
+/*                                 ap-inv.posted  eq yes and                                           */
+/*                                 ap-inv.inv-no eq substr(ap-ledger.refnum,6,length(ap-ledger.refnum))*/
+/*                           USE-INDEX ap-inv no-lock no-error.                                        */
+/*                                                                                                     */
+/*         if avail ap-inv THEN do:                                                                    */
+/*           FOR each ap-invl where ap-invl.company eq cocode and                                      */
+/*                                  ap-invl.inv-no eq ap-inv.inv-no and                                */
+/*                                  ap-invl.i-no eq ap-inv.i-no                                        */
+/*                            use-index i-no no-lock:                                                  */
+/*             if ap-invl.amt-msf ne 0 then                                                            */
+/*               assign vend.lyytd = vend.lyytd + ap-invl.amt-msf                                      */
+/*                      vend.ytd-msf = vend.ytd-msf - ap-invl.amt-msf.                                 */
+/*             else do:                                                                                */
+/*               find first itemfg where itemfg.company eq cocode and                                  */
+/*                                       itemfg.i-no eq string(ap-invl.i-no)                           */
+/*                                 use-index i-no no-lock no-error.                                    */
+/*               if avail itemfg then                                                                  */
+/*                 assign vend.lyytd   = vend.lyytd +                                                  */
+/*                                       ((ap-invl.qty / 1000) * itemfg.t-sqft)                        */
+/*                        vend.ytd-msf = vend.ytd-msf -                                                */
+/*                                       ((ap-invl.qty / 1000) * itemfg.t-sqft).                       */
+/*             end.                                                                                    */
+/*           end.                                                                                      */
+/*         end. /* if avail ap-inv */                                                                  */
+/*                                                                                                     */
+/*         assign vend.purch[13] = vend.purch[13] - ap-ledger.amt                                      */
+/*                vend.last-year = vend.last-year + ap-ledger.amt.                                     */
+/*       end. /* for each ap-ledger INV */                                                             */
+/*                                                                                                     */
+/*       for each ap-ledger where ap-ledger.company eq cocode and                                      */
+/*                                ap-ledger.tr-date ge start-date and                                  */
+/*                                ap-ledger.tr-date le end-date and                                    */
+/*                                ap-ledger.vend-no eq vend.vend-no and                                */
+/*                                (ap-ledger.refnum begins "Memo#" or                                  */
+/*                                 ap-ledger.refnum begins "Chk#") no-lock:                            */
+/*                                                                                                     */
+/*         assign vend.purch[13] = vend.purch[13] - ap-ledger.amt                                      */
+/*                vend.last-year = vend.last-year + ap-ledger.amt.                                     */
+/*       end. /* for each ap-ledger MEMO */                                                            */
+/*     end. /* for each vend */                                                                        */
+/*                                                                                                     */
+/*     status default "".                                                                              */
    end.
 
    do transaction:
@@ -1126,7 +1201,8 @@ PROCEDURE close-month :
             and period.pstat   eq yes
           exclusive-lock.
       period.pstat = false.
-      if period.pnum eq company.num-per then company.yend-per = no.
+      if period.pnum eq company.num-per then company.yend-per = NO.
+      iClosedPeriod = period.pnum.
    end.
 
    find next period
@@ -1135,10 +1211,49 @@ PROCEDURE close-month :
        no-lock.
    if avail period then ASSIGN tran-period = period.pnum
                                uperiod = period.pnum.
+                               
+   IF lLastPeriod THEN
+   DO:
+       FIND FIRST gl-ctrl EXCLUSIVE-LOCK
+            WHERE gl-ctrl.company EQ cocode NO-ERROR NO-WAIT.
+       IF AVAIL gl-ctrl THEN DO:
+          ASSIGN iTransNum = gl-ctrl.trnum + 1.
+                 gl-ctrl.trnum = iTransNum.
+       END.          
+       FIND CURRENT gl-ctrl NO-LOCK NO-ERROR .
+                  
+       RUN pGetNetIncome(INPUT gl-ctrl.contra, OUTPUT dNetIncome). 
+       RUN GL_SpCreateGLHist(cocode,
+                             gl-ctrl.retainedEarnings,
+                             "AutoClose",
+                             STRING("Auto Posted Net Income for ") + STRING(period.yr),
+                             period.pst,
+                             dNetIncome,                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
+                             iTransNum,
+                             period.pnum,
+                             "A",
+                             date(TODAY),
+                             "",
+                             "").        
+       RUN GL_SpCreateGLHist(cocode,
+                             gl-ctrl.ret,
+                             "AutoClose",
+                             STRING("Auto Posted Current Years Earnings for ") + STRING(period.yr),
+                             period.pst,
+                             - dNetIncome,                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
+                             iTransNum,
+                             period.pnum,
+                             "A",
+                             date(TODAY),
+                             "",
+                             "").                      
+   END.    
 
    SESSION:SET-WAIT-STATE ("").
 
-   message "Current accounting period changed to " uperiod VIEW-AS ALERT-BOX.
+   message "Period " string(iClosedPeriod) " is closed." SKIP
+   "Current accounting period changed to " uperiod SKIP
+   "Closing G/L Period is completed." VIEW-AS ALERT-BOX INFO.
 
 END PROCEDURE.
 
@@ -1155,7 +1270,7 @@ PROCEDURE close-test :
 ASSIGN v-msg1:HIDDEN IN FRAME {&FRAME-NAME} = NO
           v-msg2:HIDDEN = NO
        v-msg1:BGCOLOR = 4
-          v-msg1 = "PROCESSING... PLEASE WAIT and DO NOT CANCEL OUT OF SCREEN!". 
+          v-msg1 = "Processing... Please wait and do not cancel out of screen!". 
    DISPLAY v-msg1 WITH FRAME {&FRAME-NAME}.
 
  for each glhist
@@ -1209,12 +1324,14 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY fiText tran-year tran-period tb_inact tb_prior-period-data tb_out-bal 
-          tb_invalid-period tb_post-out-period fi_file rd-dest lines-per-page 
-          lv-ornt lv-font-no lv-font-name td-show-parm v-msg1 v-msg2 
+          tb_invalid-period tb_post-out-period tb_excel tb_runExcel fi_file 
+          rd-dest lines-per-page lv-ornt lv-font-no lv-font-name td-show-parm 
+          v-msg1 v-msg2 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 tb_inact tb_prior-period-data tb_out-bal 
-         tb_invalid-period tb_post-out-period fi_file rd-dest lines-per-page 
-         lv-ornt lv-font-no td-show-parm btn-ok btn-cancel 
+         tb_invalid-period tb_post-out-period tb_excel tb_runExcel fi_file 
+         rd-dest lines-per-page lv-ornt lv-font-no td-show-parm btn-ok 
+         btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -1300,10 +1417,12 @@ DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
  DEFINE VARIABLE excelheader AS CHARACTER NO-UNDO.
 
  RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
-
- OUTPUT STREAM excel TO VALUE(cFileName).
- excelheader = "Account,Description,Reason" .
- PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' skip.
+ IF tb_excel THEN
+ DO:
+     OUTPUT STREAM excel TO VALUE(cFileName).
+     excelheader = "Account,Description,Reason" .
+     PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' skip.
+ END.
 
  
 form account.actnum label "Account Number"
@@ -1343,7 +1462,8 @@ form account.actnum label "Account Number"
    display str-tit3 format "x(130)" skip(1) with frame r-top.
 
    SESSION:SET-WAIT-STATE ("general").
-
+ IF tb_excel THEN
+ DO:
    for each account where account.company eq cocode NO-LOCK :
        IF tb_inact AND account.inactive THEN do:
            PUT STREAM excel UNFORMATTED
@@ -1353,7 +1473,7 @@ form account.actnum label "Account Number"
                        SKIP.
        END.
    END.
-
+   
    PUT STREAM excel UNFORMATTED SKIP(1) .
 
    PUT STREAM excel UNFORMATTED
@@ -1366,13 +1486,14 @@ form account.actnum label "Account Number"
        '"' "Amount"                   '",'
        '"' "Reason  "                 '",'
        SKIP.
-
-   for each account where account.company eq cocode no-lock with frame r-mclo:
+ END.
+ for each account where account.company eq cocode no-lock with frame r-mclo:
        
        IF tb_out-bal THEN DO:
 
        END.
-
+    IF tb_excel THEN
+    DO:
        IF tb_invalid-period THEN DO:
           FOR EACH glhist no-lock 
               where glhist.company eq cocode
@@ -1436,7 +1557,7 @@ form account.actnum label "Account Number"
                   SKIP.
           END.
        END.
-
+    END. /* tb_excel*/
 
       if line-counter gt page-size - 3 then page.
       open-amt = account.cyr-open.
@@ -1505,10 +1626,13 @@ form account.actnum label "Account Number"
            tot-all @ open-amt
            with frame r-mclo.
 
+   IF tb_excel THEN
+   DO:
+       OUTPUT STREAM excel CLOSE.
+       IF tb_runExcel THEN 
+       OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 
-   OUTPUT STREAM excel CLOSE.
-   OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
-
+   END.
 
  SESSION:SET-WAIT-STATE("").
 
@@ -1516,6 +1640,30 @@ end procedure.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetNetIncome C-Win 
+PROCEDURE pGetNetIncome :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+DEFINE INPUT PARAMETER ipcAccount AS CHARACTER NO-UNDO.
+DEFINE OUTPUT PARAMETER opdNetAmount AS DECIMAL NO-UNDO.
+
+find first b-cacct NO-LOCK
+            where b-cacct.company eq cocode
+            and b-cacct.actnum  eq ipcAccount NO-ERROR.
+ DO i = 1 TO 13:
+   opdNetAmount = opdNetAmount + b-cacct.cyr[i].
+ END.
+ 
+            
+end procedure.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME            
+            
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE show-param C-Win 
 PROCEDURE show-param :
