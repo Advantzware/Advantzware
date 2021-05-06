@@ -34,13 +34,13 @@ ON CTRL-P HELP.
 
 ON 'CTRL-ALT-D':U ANYWHERE
 DO:
-    RUN aoa/aoaLauncher.w PERSISTENT ("Dashboard").
+    RUN AOA/aoaLauncher.w PERSISTENT ("Dashboard").
     RETURN.
 END.
 
 ON 'CTRL-ALT-R':U ANYWHERE
 DO:
-    RUN aoa/aoaLauncher.w PERSISTENT ("Report").
+    RUN AOA/aoaLauncher.w PERSISTENT ("Report").
     RETURN.
 END.
 
@@ -48,7 +48,25 @@ ON 'CTRL-ALT-P':U ANYWHERE
 DO: 
     RUN util/wPgmrToolbox.w.
 END.    
-   
+
+ON 'CTRL-ALT-T':U ANYWHERE
+DO:
+    IF DYNAMIC-FUNCTION("sfIsUserSuperAdmin") THEN
+    RUN AOA/Tasker.w PERSISTENT.
+END.
+
+ON 'CTRL-ALT-S':U ANYWHERE
+DO:
+    IF DYNAMIC-FUNCTION("sfIsUserSuperAdmin") THEN
+    RUN AOA/dynSubjct.w PERSISTENT.
+END.
+
+ON 'CTRL-ALT-Y':U ANYWHERE
+DO:
+    IF DYNAMIC-FUNCTION("sfIsUserSuperAdmin") THEN
+    RUN AOA/dynSync.w PERSISTENT.
+END.
+
 /* ***************************  Definitions  ************************** */
 
 /* Parameters Definitions ---                                           */
