@@ -53,8 +53,7 @@ find first period
       and period.pstat   eq yes
     no-lock no-error.
 assign
- fisc-yr = (if avail period then period.yr else year(today))
- fisc-yr = fisc-yr - int(not company.yend-per) - 1
+ fisc-yr = (if avail period then period.yr else year(today)) - 1.
  choice  = no.
 RUN spProgressBar ("Reopen Period", 1, ?). 
 find first period
@@ -63,12 +62,13 @@ find first period
       and period.pstat   eq no
     no-lock no-error.  
 if avail period then do:
-  message "ERROR: Cannot reopen year when a period in a " +
-          "subsequent year has been closed." VIEW-AS ALERT-BOX ERROR.
-  
+  message "Cannot reopen year when a period in a " +
+          "subsequent year has been closed." VIEW-AS ALERT-BOX ERROR.  
 end. 
-
-else  
+ELSE IF company.yend-per EQ NO THEN DO:
+    message "Cannot reopen year when previous year is not closed" VIEW-AS ALERT-BOX ERROR.
+    END.
+else   
 do on endkey undo, leave:
   pause 0.
          /*display skip(1) "  Which Year?" fisc-yr space(3) skip(1)
@@ -160,3 +160,42 @@ RUN spProgressBar ("Reopen Period", 1, 1).
 status default "".  
 
 /* end ---------------------------------- copr. 1992  advanced software, inc. */
+
+
+/* **********************  Internal Procedures  *********************** */
+
+PROCEDURE pCanReopenYear PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER.
+    
+    DEFINE VARIABLE cMessage              AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iLastClosedFiscalYear AS INTEGER   NO-UNDO.
+    
+    FIND FIRST company NO-LOCK
+        WHERE company.company EQ ipcCompany
+        NO-ERROR.
+    IF NOT AVAILABLE company THEN LEAVE.
+    FIND FIRST period
+        WHERE period.company EQ ipcCompany
+        AND period.pstat   EQ YES
+        NO-LOCK NO-ERROR.
+    ASSIGN
+        iLastClosedFiscalYear = (IF AVAILABLE period THEN period.yr ELSE YEAR(TODAY)) - 1.
+       
+    FIND FIRST period
+        WHERE period.company EQ ipcCompany
+        AND period.yr      GT iLastClosedFiscalYear
+        AND period.pstat   EQ NO
+        NO-LOCK NO-ERROR.  
+    IF AVAILABLE period THEN
+        cMessage = "Cannot reopen year when a period in a subsequent year has been closed.". 
+    ELSE IF company.yend-per EQ NO THEN 
+            cMessage = "Cannot reopen year because previous year is not closed.". 
+
+    IF cMessage NE "" THEN 
+        MESSAGE cMessage VIEW-AS ALERT-BOX.
+          
+END PROCEDURE.
