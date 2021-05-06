@@ -154,7 +154,9 @@ PROCEDURE Browse_PrepareAndExecuteLimitingQuery:
 
     /* Convert seconds in milliseconds */
     ipdTimeLimit = ipdTimeLimit * 1000.
-    
+    IF ipiRecordLimit EQ 0 THEN
+        ipiRecordLimit = 20.
+        
     /* If is a limiting query then create query and set the buffers */    
     CREATE QUERY hdQuery.       
     DO iCount = 1 TO NUM-ENTRIES(ipcBufferString):
@@ -178,7 +180,7 @@ PROCEDURE Browse_PrepareAndExecuteLimitingQuery:
             IF NOT iplIsBreakByUsed OR hdQuery:FIRST-OF(1) THEN DO:
                 opcReturnValue = STRING(hdTableBuffer:BUFFER-FIELD(ipcFieldName):BUFFER-VALUE).
                 iCount = iCount + 1.
-                IF iCount GE 20 THEN  /* Initial Load Record Limit*/                 
+                IF iCount GE ipiRecordLimit THEN  /* Initial Load Record Limit*/                 
                     LEAVE.              
             END. 
             hdQuery:GET-NEXT().                         
