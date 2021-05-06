@@ -185,7 +185,8 @@ PROCEDURE postMonitor:
         FOR EACH asi._connect NO-LOCK WHERE 
             CAN-DO("REMC,SELF",asi._connect._connect-type) AND
             asi._connect._connect-clienttype NE "SQLC" AND
-            asi._connect._connect-clienttype NE "APSV":
+            asi._connect._connect-clienttype NE "APSV" AND 
+            asi._connect._connect-name NE "" :
             IF INTERVAL(DATETIME(TODAY, MTIME),fGetDtTmFromConnectTime(asi._connect._connect-time),"seconds") LE 30 THEN 
                 NEXT.                
             IF CAN-FIND (FIRST userLog WHERE 
@@ -203,7 +204,8 @@ PROCEDURE postMonitor:
         FOR EACH asi._connect NO-LOCK WHERE 
             CAN-DO("REMC,SELF",asi._connect._connect-type) AND
             asi._connect._connect-clienttype NE "SQLC" AND 
-            asi._connect._connect-clienttype NE "APSV":
+            asi._connect._connect-clienttype NE "APSV" AND 
+            asi._connect._connect-name NE "":
             IF INTERVAL(DATETIME(TODAY, MTIME),fGetDtTmFromConnectTime(asi._connect._connect-time),"seconds") LE 30 THEN 
                 NEXT.                
             IF CAN-FIND (FIRST userLog WHERE 
@@ -218,13 +220,15 @@ PROCEDURE postMonitor:
         FOR EACH audit._connect NO-LOCK WHERE 
             CAN-DO("REMC,SELF",audit._connect._connect-type) AND
             audit._connect._connect-clienttype NE "SQLC" AND 
-            audit._connect._connect-clienttype NE "APSV": 
+            audit._connect._connect-clienttype NE "APSV" AND 
+            audit._connect._connect-name NE "": 
             IF INTERVAL(DATETIME(TODAY, MTIME),fGetDtTmFromConnectTime(audit._connect._connect-time),"seconds") LE 30 THEN 
                 NEXT.                
             IF CAN-FIND (FIRST userLog WHERE 
                             userLog.audUsrNo = audit._connect._Connect-Usr AND 
                             userLog.audPID   = audit._connect._Connect-Pid AND 
-                            userLog.userStatus = "Logged In") THEN NEXT testaudit.
+                            userLog.userStatus = "Logged In") 
+            OR asi._connect._connect-device EQ "CON" THEN NEXT testAudit.
             ASSIGN 
                 cdb = fnGetPhysicalDb("audit").
             RUN disconnectUser (cDb, audit._connect._Connect-Usr, audit._connect._connect-name).
