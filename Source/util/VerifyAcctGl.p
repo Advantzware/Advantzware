@@ -31,9 +31,9 @@ DEFINE TEMP-TABLE tt_diff
     FIELD cAccount     AS CHARACTER 
     FIELD cAcctDescr   AS CHARACTER
     FIELD iPeriod      AS INTEGER
-    FIELD iAccountAmt  AS INTEGER
-    FIELD iGlHistAmt   AS INTEGER
-    FIELD iDiffAmt     AS INTEGER
+    FIELD dAccountAmt  AS DECIMAL
+    FIELD dGlHistAmt   AS DECIMAL
+    FIELD dDiffAmt     AS DECIMAL
          .
 find first period
     where period.company eq cocode
@@ -46,8 +46,7 @@ FOR EACH account WHERE account.company EQ cocode:
      
   FOR EACH period
       WHERE period.company EQ account.company
-        AND period.yr      GE v-fisc-yr - 1
-        AND period.yr      LE v-fisc-yr
+        AND period.yr      EQ v-fisc-yr
       NO-LOCK by period.yr BY period.pst:
       
       iGlHistAmt = 0.
@@ -69,9 +68,9 @@ FOR EACH account WHERE account.company EQ cocode:
              tt_diff.cAccount    = account.actnum
              tt_diff.cAcctDescr  = account.dscr
              tt_diff.iPeriod     = period.pnum
-             tt_diff.iAccountAmt = account.cyr[period.pnum]
-             tt_diff.iGlHistAmt  = iGlHistAmt
-             tt_diff.iDiffAmt  = account.cyr[period.pnum] - iGlHistAmt.
+             tt_diff.dAccountAmt = account.cyr[period.pnum]
+             tt_diff.dGlHistAmt  = iGlHistAmt
+             tt_diff.dDiffAmt  = account.cyr[period.pnum] - iGlHistAmt.
              
      END.   /*IF  account.cyr[period.pnum] NE*/
   END.  /* for each period  */
