@@ -97,10 +97,10 @@ RUN Browser_GetRecordAndTimeLimit(
 /* Definitions for BROWSE Browser-Table                                 */
 &Scoped-define FIELDS-IN-QUERY-Browser-Table oe-prmtx.cust-no ~
 oe-prmtx.custype oe-prmtx.custShipID oe-prmtx.i-no oe-prmtx.procat ~
-oe-prmtx.eff-date oe-prmtx.exp-date oe-prmtx.price[1] oe-prmtx.price[2] ~
-oe-prmtx.price[3] oe-prmtx.price[4] oe-prmtx.price[5] oe-prmtx.price[6] ~
-oe-prmtx.price[7] oe-prmtx.price[8] oe-prmtx.price[9] oe-prmtx.price[10] ~
-oe-prmtx.online 
+oe-prmtx.eff-date oe-prmtx.exp-date oe-prmtx.quoteID oe-prmtx.price[1] ~
+oe-prmtx.price[2] oe-prmtx.price[3] oe-prmtx.price[4] oe-prmtx.price[5] ~
+oe-prmtx.price[6] oe-prmtx.price[7] oe-prmtx.price[8] oe-prmtx.price[9] ~
+oe-prmtx.price[10] oe-prmtx.online 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH oe-prmtx WHERE ~{&KEY-PHRASE} ~
       AND oe-prmtx.company = cocode ~
@@ -227,6 +227,7 @@ DEFINE QUERY Browser-Table FOR
       oe-prmtx.procat
       oe-prmtx.eff-date
       oe-prmtx.exp-date
+      oe-prmtx.quoteID
       oe-prmtx.price[1]
       oe-prmtx.price[2]
       oe-prmtx.price[3]
@@ -254,6 +255,7 @@ DEFINE BROWSE Browser-Table
       oe-prmtx.procat COLUMN-LABEL "Cat" FORMAT "x(5)":U LABEL-BGCOLOR 14
       oe-prmtx.eff-date FORMAT "99/99/9999":U LABEL-BGCOLOR 14
       oe-prmtx.exp-date FORMAT "99/99/9999":U LABEL-BGCOLOR 14
+      oe-prmtx.quoteID FORMAT ">>>>>>>>>":U
       oe-prmtx.price[1] COLUMN-LABEL "Price01" FORMAT ">>>,>>9.99<<":U
       oe-prmtx.price[2] COLUMN-LABEL "Price02" FORMAT ">>>,>>9.99<<":U
       oe-prmtx.price[3] COLUMN-LABEL "Price03" FORMAT ">>>,>>9.99<<":U
@@ -294,20 +296,20 @@ DEFINE FRAME F-Main
      "Status" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 1.19 COL 103 WIDGET-ID 32
           BGCOLOR 23 FGCOLOR 24 FONT 22
-     "Customer#" VIEW-AS TEXT
-          SIZE 12.2 BY .62 AT ROW 1.19 COL 3.4 WIDGET-ID 16
-          BGCOLOR 23 FGCOLOR 24 FONT 22
-     "Type" VIEW-AS TEXT
-          SIZE 6 BY .62 AT ROW 1.19 COL 24.8 WIDGET-ID 18
-          BGCOLOR 23 FGCOLOR 24 FONT 22
-     "Item No#" VIEW-AS TEXT
-          SIZE 12 BY .62 AT ROW 1.19 COL 41.8 WIDGET-ID 20
+     "From Eff. Date" VIEW-AS TEXT
+          SIZE 15 BY .62 AT ROW 1.19 COL 81.2 WIDGET-ID 26
           BGCOLOR 23 FGCOLOR 24 FONT 22
      "Category" VIEW-AS TEXT
           SIZE 11 BY .62 AT ROW 1.19 COL 62 WIDGET-ID 22
           BGCOLOR 23 FGCOLOR 24 FONT 22
-     "From Eff. Date" VIEW-AS TEXT
-          SIZE 15 BY .62 AT ROW 1.19 COL 81.2 WIDGET-ID 26
+     "Item No#" VIEW-AS TEXT
+          SIZE 12 BY .62 AT ROW 1.19 COL 41.8 WIDGET-ID 20
+          BGCOLOR 23 FGCOLOR 24 FONT 22
+     "Type" VIEW-AS TEXT
+          SIZE 6 BY .62 AT ROW 1.19 COL 24.8 WIDGET-ID 18
+          BGCOLOR 23 FGCOLOR 24 FONT 22
+     "Customer#" VIEW-AS TEXT
+          SIZE 12.2 BY .62 AT ROW 1.19 COL 3.4 WIDGET-ID 16
           BGCOLOR 23 FGCOLOR 24 FONT 22
      RECT-4 AT ROW 19.1 COL 1
      RECT-5 AT ROW 1.05 COL 1 WIDGET-ID 14
@@ -415,41 +417,43 @@ ASSIGN
      _Where[1]         = "ASI.oe-prmtx.company = cocode
 AND ASI.oe-prmtx.cust-no EQ ""zzzzzzzz"""
      _FldNameList[1]   > ASI.oe-prmtx.cust-no
-"oe-prmtx.cust-no" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"cust-no" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.oe-prmtx.custype
-"oe-prmtx.custype" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"custype" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.oe-prmtx.custShipID
-"oe-prmtx.custShipID" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"custShipID" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > ASI.oe-prmtx.i-no
-"oe-prmtx.i-no" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"i-no" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > ASI.oe-prmtx.procat
-"oe-prmtx.procat" "Cat" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"procat" "Cat" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > ASI.oe-prmtx.eff-date
-"oe-prmtx.eff-date" ? ? "date" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"eff-date" ? ? "date" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   > ASI.oe-prmtx.exp-date
-"oe-prmtx.exp-date" ? ? "date" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[8]   > ASI.oe-prmtx.price[1]
-"oe-prmtx.price[1]" "Price01" ">>>,>>9.99<<" "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[9]   > ASI.oe-prmtx.price[2]
-"oe-prmtx.price[2]" "Price02" ">>>,>>9.99<<" "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[10]   > ASI.oe-prmtx.price[3]
-"oe-prmtx.price[3]" "Price03" ">>>,>>9.99<<" "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[11]   > ASI.oe-prmtx.price[4]
-"oe-prmtx.price[4]" "Price04" ">>>,>>9.99<<" "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[12]   > ASI.oe-prmtx.price[5]
-"oe-prmtx.price[5]" "Price05" ">>>,>>9.99<<" "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[13]   > ASI.oe-prmtx.price[6]
-"oe-prmtx.price[6]" "Price06" ">>>,>>9.99<<" "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[14]   > ASI.oe-prmtx.price[7]
-"oe-prmtx.price[7]" "Price07" ">>>,>>9.99<<" "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[15]   > ASI.oe-prmtx.price[8]
-"oe-prmtx.price[8]" "Price08" ">>>,>>9.99<<" "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[16]   > ASI.oe-prmtx.price[9]
-"oe-prmtx.price[9]" "Price09" ">>>,>>9.99<<" "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[17]   > ASI.oe-prmtx.price[10]
-"oe-prmtx.price[10]" "Price10" ">>>,>>9.99<<" "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[18]   > ASI.oe-prmtx.online
-"oe-prmtx.online" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"exp-date" ? ? "date" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[8]   > ASI.oe-prmtx.quoteID
+"quoteID" ? ">>>>>>>>>" "int64" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[9]   > ASI.oe-prmtx.price[1]
+"price[1]" "Price01" ">>>,>>9.99<<" "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[10]   > ASI.oe-prmtx.price[2]
+"price[2]" "Price02" ">>>,>>9.99<<" "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[11]   > ASI.oe-prmtx.price[3]
+"price[3]" "Price03" ">>>,>>9.99<<" "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[12]   > ASI.oe-prmtx.price[4]
+"price[4]" "Price04" ">>>,>>9.99<<" "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[13]   > ASI.oe-prmtx.price[5]
+"price[5]" "Price05" ">>>,>>9.99<<" "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[14]   > ASI.oe-prmtx.price[6]
+"price[6]" "Price06" ">>>,>>9.99<<" "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[15]   > ASI.oe-prmtx.price[7]
+"price[7]" "Price07" ">>>,>>9.99<<" "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[16]   > ASI.oe-prmtx.price[8]
+"price[8]" "Price08" ">>>,>>9.99<<" "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[17]   > ASI.oe-prmtx.price[9]
+"price[9]" "Price09" ">>>,>>9.99<<" "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[18]   > ASI.oe-prmtx.price[10]
+"price[10]" "Price10" ">>>,>>9.99<<" "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[19]   > ASI.oe-prmtx.online
+"online" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
@@ -704,6 +708,39 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE one-row-query B-table-Win 
+PROCEDURE one-row-query :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ip-rowid AS ROWID NO-UNDO.
+
+    DEFINE VARIABLE cQuery    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cResponse AS CHARACTER NO-UNDO.        
+    
+    cQuery = "FOR EACH oe-prmtx NO-LOCK" 
+             + " WHERE oe-prmtx.company EQ " + QUOTER(cocode)
+             + " AND ROWID(oe-prmtx)    EQ " + "TO-ROWID(" + "'" + STRING(ip-rowid) + "')"                     
+             + pfGetWhereConditions() 
+             + (IF cSortBY NE "" THEN " BY oe-prmtx." + cSortBY + (IF NOT lSortAsc THEN " DESC" ELSE "")  ELSE "")
+                   .             
+                 
+    RUN Browse_PrepareAndExecuteBrowseQuery(
+        INPUT  BROWSE {&BROWSE-NAME}:QUERY, /* Browse Query Handle */      
+        INPUT  cQuery,                      /* BRowse Query */             
+        INPUT  NO,                          /* Show limit alert? */        
+        INPUT  0,                           /* Record limit */             
+        INPUT  0,                           /* Time Limit */               
+        INPUT  lEnableShowAll,              /* Enable ShowAll Button */    
+        OUTPUT cResponse
+        ).               
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pPrepareAndExecuteQuery B-table-Win 
 PROCEDURE pPrepareAndExecuteQuery PRIVATE :
 /*------------------------------------------------------------------------------
@@ -763,39 +800,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE one-row-query B-table-Win 
-PROCEDURE one-row-query :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ip-rowid AS ROWID NO-UNDO.
-
-    DEFINE VARIABLE cQuery    AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cResponse AS CHARACTER NO-UNDO.        
-    
-    cQuery = "FOR EACH oe-prmtx NO-LOCK" 
-             + " WHERE oe-prmtx.company EQ " + QUOTER(cocode)
-             + " AND ROWID(oe-prmtx)    EQ " + "TO-ROWID(" + "'" + STRING(ip-rowid) + "')"                     
-             + pfGetWhereConditions() 
-             + (IF cSortBY NE "" THEN " BY oe-prmtx." + cSortBY + (IF NOT lSortAsc THEN " DESC" ELSE "")  ELSE "")
-                   .             
-                 
-    RUN Browse_PrepareAndExecuteBrowseQuery(
-        INPUT  BROWSE {&BROWSE-NAME}:QUERY, /* Browse Query Handle */      
-        INPUT  cQuery,                      /* BRowse Query */             
-        INPUT  NO,                          /* Show limit alert? */        
-        INPUT  0,                           /* Record limit */             
-        INPUT  0,                           /* Time Limit */               
-        INPUT  lEnableShowAll,              /* Enable ShowAll Button */    
-        OUTPUT cResponse
-        ).               
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE repo-query B-table-Win 
 PROCEDURE repo-query :
 /*------------------------------------------------------------------------------
@@ -844,9 +848,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Set-Focus B-table-Win
-PROCEDURE Set-Focus PRIVATE:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Set-Focus B-table-Win 
+PROCEDURE Set-Focus PRIVATE :
 /*------------------------------------------------------------------------------
  Purpose: To avoid error message when moving to new row in browse
  Notes:
@@ -854,11 +857,9 @@ PROCEDURE Set-Focus PRIVATE:
 
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed B-table-Win 
 PROCEDURE state-changed :

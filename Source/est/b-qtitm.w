@@ -42,7 +42,9 @@ def var ll-enable-fields as log no-undo.  /* bug with set-focus */
 DEF VAR ll-new-file AS LOG NO-UNDO.
 DEF VAR lv-part-no LIKE quoteitm.part-no NO-UNDO.
 DEF VAR lv-rowid AS ROWID NO-UNDO.
-
+DEFINE VARIABLE lQuotePriceMatrix AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cRtnChar          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound         AS LOGICAL NO-UNDO.
 
 {custom/globdefs.i}
 
@@ -59,6 +61,12 @@ FIND FIRST sys-ctrl NO-LOCK
       AND sys-ctrl.name    EQ "QUOITEM" no-error.
 
 IF AVAIL sys-ctrl   THEN ASSIGN v-quoflg = sys-ctrl.log-fld.
+
+RUN sys/ref/nk1look.p (INPUT cocode, "QuotePriceMatrix", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    lQuotePriceMatrix = logical(cRtnChar) NO-ERROR. 
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1145,6 +1153,27 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-display-fields V-table-Win 
+PROCEDURE local-display-fields :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+   
+  /* Code placed here will execute PRIOR to standard behavior. */
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
+       
+  /* Code placed here will execute AFTER standard behavior.    */
+   RUN pDisablePriceMatrix.
+  
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE new-part-no B-table-Win 
 PROCEDURE new-part-no :
 /*------------------------------------------------------------------------------
@@ -1212,6 +1241,32 @@ PROCEDURE new-part-no :
 
     END. /* avail itemfg */
   END. /* with frame {&frame-name} */
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pDisablePriceMatrix V-table-Win 
+PROCEDURE pDisablePriceMatrix :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DEFINE VARIABLE  lNotAllowedUpdate AS LOGICAL NO-UNDO.
+   DEFINE BUFFER bf-quoteitm FOR quoteitm.
+   IF AVAIL quotehd THEN
+   DO:
+      IF CAN-FIND ( FIRST bf-quoteitm
+                 WHERE bf-quoteitm.company EQ cocode
+                 AND bf-quoteitm.q-no  EQ quotehd.q-no
+                 AND bf-quoteitm.i-no  EQ "" ) THEN
+                 lNotAllowedUpdate = YES.   
+    run get-link-handle in adm-broker-hdl(this-procedure, "priceMatrix-target", OUTPUT char-hdl).
+    IF valid-handle(widget-handle(char-hdl)) THEN
+    run pDisableButton in widget-handle(char-hdl)(lNotAllowedUpdate).  
+   END.                                                        
 
 END PROCEDURE.
 
@@ -1288,6 +1343,25 @@ PROCEDURE pGetRowidItem :
   def output param oprwRowid AS ROWID NO-UNDO.
   
   oprwRowid = ROWID(quoteitm).
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckUpdate V-table-Win 
+PROCEDURE pCheckUpdate :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DEFINE OUTPUT PARAMETER oplNotAllowedUpdate AS LOGICAL NO-UNDO.
+   IF AVAIL quotehd AND quotehd.approved AND lQuotePriceMatrix THEN
+   DO:
+    MESSAGE "Quote is approved process not allowed." VIEW-AS ALERT-BOX INFO.
+     oplNotAllowedUpdate = YES.     
+   END.                                                        
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

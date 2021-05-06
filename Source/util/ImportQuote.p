@@ -231,7 +231,9 @@ PROCEDURE pProcessRecord PRIVATE:
     DEFINE VARIABLE cQuoteGroup AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lAutoNumber AS LOGICAL NO-UNDO.
     DEFINE VARIABLE lNewGroup AS LOGICAL NO-UNDO.
-    DEFINE VARIABLE dTotCost AS DECIMAL NO-UNDO .     
+    DEFINE VARIABLE dTotCost AS DECIMAL NO-UNDO .   
+    DEFINE VARIABLE lEditRecord AS LOGICAL INIT YES NO-UNDO.
+    DEFINE VARIABLE lQuotePriceMatrix AS LOGICAL NO-UNDO.
     DEFINE BUFFER bQuoteItm FOR quoteitm.
     DEFINE BUFFER bf-ttImportQuote FOR ttImportQuote.
     DEFINE VARIABLE hdupdQuoteProcs AS HANDLE NO-UNDO.
@@ -259,6 +261,7 @@ PROCEDURE pProcessRecord PRIVATE:
             cQuoteNumber = bf-ttImportQuote.Quote.
         ELSE 
             lAutoNumber = YES.
+        lEditRecord = NO.    
     END.
     FIND FIRST bf-quotehd EXCLUSIVE-LOCK
         WHERE bf-quotehd.company  EQ ipbf-ttImportQuote.Company
@@ -282,44 +285,48 @@ PROCEDURE pProcessRecord PRIVATE:
                 .                
             FIND CURRENT ipbf-ttImportQuote NO-LOCK.
         END.
+        lEditRecord = NO.
     END.
     
+    RUN pGetNk1Settings(INPUT ipbf-ttImportQuote.Company, OUTPUT lQuotePriceMatrix).
+    
     /*Main assignments - Blanks ignored if it is valid to blank- or zero-out a field */
+    IF NOT bf-quotehd.approved  THEN DO:    
+        RUN pAssignValueC (ipbf-ttImportQuote.CustNo, YES, INPUT-OUTPUT bf-quotehd.cust-no).
+        RUN pAssignValueC (ipbf-ttImportQuote.ShipTo, iplIgnoreBlanks, INPUT-OUTPUT bf-quotehd.ship-id).
+        RUN pAssignValueC (ipbf-ttImportQuote.SoldTo, iplIgnoreBlanks, INPUT-OUTPUT bf-quotehd.sold-id).
+        RUN pAssignValueDate (DATE(ipbf-ttImportQuote.QuoteDate), iplIgnoreBlanks, INPUT-OUTPUT bf-quotehd.quo-date).
+        RUN pAssignValueDate (DATE(ipbf-ttImportQuote.DeliveryDate), iplIgnoreBlanks, INPUT-OUTPUT bf-quotehd.del-date).
+        RUN pAssignValueDate (DATE(ipbf-ttImportQuote.ExpirationDate), iplIgnoreBlanks, INPUT-OUTPUT bf-quotehd.expireDate).
+        RUN pAssignValueC (ipbf-ttImportQuote.EstNo, iplIgnoreBlanks, INPUT-OUTPUT bf-quotehd.est-no).
+        RUN pAssignValueC (ipbf-ttImportQuote.contact, iplIgnoreBlanks, INPUT-OUTPUT bf-quotehd.contact).
+        RUN pAssignValueC (ipbf-ttImportQuote.SalesGroup, iplIgnoreBlanks, INPUT-OUTPUT bf-quotehd.sman).
+        RUN pAssignValueC (ipbf-ttImportQuote.terms, iplIgnoreBlanks, INPUT-OUTPUT bf-quotehd.terms).
+        RUN pAssignValueC (ipbf-ttImportQuote.carrier, iplIgnoreBlanks, INPUT-OUTPUT bf-quotehd.carrier).
+        RUN pAssignValueC (ipbf-ttImportQuote.zone, iplIgnoreBlanks, INPUT-OUTPUT bf-quotehd.del-zone).
 
-    RUN pAssignValueC (ipbf-ttImportQuote.CustNo, YES, INPUT-OUTPUT bf-quotehd.cust-no).
-    RUN pAssignValueC (ipbf-ttImportQuote.ShipTo, iplIgnoreBlanks, INPUT-OUTPUT bf-quotehd.ship-id).
-    RUN pAssignValueC (ipbf-ttImportQuote.SoldTo, iplIgnoreBlanks, INPUT-OUTPUT bf-quotehd.sold-id).
-    RUN pAssignValueDate (DATE(ipbf-ttImportQuote.QuoteDate), iplIgnoreBlanks, INPUT-OUTPUT bf-quotehd.quo-date).
-    RUN pAssignValueDate (DATE(ipbf-ttImportQuote.DeliveryDate), iplIgnoreBlanks, INPUT-OUTPUT bf-quotehd.del-date).
-    RUN pAssignValueDate (DATE(ipbf-ttImportQuote.ExpirationDate), iplIgnoreBlanks, INPUT-OUTPUT bf-quotehd.expireDate).
-    RUN pAssignValueC (ipbf-ttImportQuote.EstNo, iplIgnoreBlanks, INPUT-OUTPUT bf-quotehd.est-no).
-    RUN pAssignValueC (ipbf-ttImportQuote.contact, iplIgnoreBlanks, INPUT-OUTPUT bf-quotehd.contact).
-    RUN pAssignValueC (ipbf-ttImportQuote.SalesGroup, iplIgnoreBlanks, INPUT-OUTPUT bf-quotehd.sman).
-    RUN pAssignValueC (ipbf-ttImportQuote.terms, iplIgnoreBlanks, INPUT-OUTPUT bf-quotehd.terms).
-    RUN pAssignValueC (ipbf-ttImportQuote.carrier, iplIgnoreBlanks, INPUT-OUTPUT bf-quotehd.carrier).
-    RUN pAssignValueC (ipbf-ttImportQuote.zone, iplIgnoreBlanks, INPUT-OUTPUT bf-quotehd.del-zone).
+         FIND FIRST cust WHERE cust.company = bf-quotehd.company
+                AND cust.cust-no = bf-quotehd.cust-no NO-LOCK NO-ERROR.
 
-     FIND FIRST cust WHERE cust.company = bf-quotehd.company
-            AND cust.cust-no = bf-quotehd.cust-no NO-LOCK NO-ERROR.
-
-    IF bf-quotehd.sman EQ "" THEN
-        bf-quotehd.sman = IF AVAILABLE cust THEN cust.sman ELSE "".
-    IF bf-quotehd.terms EQ "" THEN
-        bf-quotehd.terms = IF AVAILABLE cust THEN cust.terms ELSE "".
-   IF bf-quotehd.carrier EQ "" THEN DO:
-    FIND FIRST shipto NO-LOCK
-        WHERE shipto.company  = bf-quotehd.company
-        AND shipto.cust-no  = bf-quotehd.cust-no
-        AND shipto.ship-id  = bf-quotehd.ship-id
-        NO-ERROR.
-    IF NOT AVAIL shipto THEN
-    FIND FIRST shipto NO-LOCK
-        WHERE shipto.company  = bf-quotehd.company
-        AND shipto.cust-no  = bf-quotehd.cust-no
-        NO-ERROR.
-      IF AVAILABLE shipto THEN
-          ASSIGN bf-quotehd.carrier = IF AVAILABLE shipto THEN shipto.carrier ELSE ""
-                 bf-quotehd.del-zone = IF AVAILABLE shipto THEN shipto.dest-code ELSE "".
+        IF bf-quotehd.sman EQ "" THEN
+            bf-quotehd.sman = IF AVAILABLE cust THEN cust.sman ELSE "".
+        IF bf-quotehd.terms EQ "" THEN
+            bf-quotehd.terms = IF AVAILABLE cust THEN cust.terms ELSE "".
+       IF bf-quotehd.carrier EQ "" THEN DO:
+        FIND FIRST shipto NO-LOCK
+            WHERE shipto.company  = bf-quotehd.company
+            AND shipto.cust-no  = bf-quotehd.cust-no
+            AND shipto.ship-id  = bf-quotehd.ship-id
+            NO-ERROR.
+        IF NOT AVAIL shipto THEN
+        FIND FIRST shipto NO-LOCK
+            WHERE shipto.company  = bf-quotehd.company
+            AND shipto.cust-no  = bf-quotehd.cust-no
+            NO-ERROR.
+          IF AVAILABLE shipto THEN
+              ASSIGN bf-quotehd.carrier = IF AVAILABLE shipto THEN shipto.carrier ELSE ""
+                     bf-quotehd.del-zone = IF AVAILABLE shipto THEN shipto.dest-code ELSE "".
+       END.
    END.
   
   FIND LAST bQuoteItm USE-INDEX q-line WHERE bQuoteItm.company = bf-quotehd.company
@@ -341,7 +348,14 @@ PROCEDURE pProcessRecord PRIVATE:
          bf-quoteitm.upd-date = TODAY
          bf-quoteitm.upd-user = USERID(LDBNAME(1)) .
     END.
-
+    
+    IF lQuotePriceMatrix AND bf-quotehd.approved  THEN
+    DO:
+      RUN pAssignValueI (ipbf-ttImportQuote.Qty, YES, INPUT-OUTPUT bf-quoteitm.qty).
+      RUN pAssignValueD (ipbf-ttImportQuote.price, iplIgnoreBlanks, INPUT-OUTPUT bf-quoteitm.price).
+      RUN pAssignValueC (ipbf-ttImportQuote.UOM, iplIgnoreBlanks, INPUT-OUTPUT bf-quoteitm.uom).  
+    END.
+    ELSE do:
       RUN pAssignValueC (ipbf-ttImportQuote.CustPart, YES, INPUT-OUTPUT bf-quoteitm.part-no).
       RUN pAssignValueI (ipbf-ttImportQuote.Qty, YES, INPUT-OUTPUT bf-quoteitm.qty).
       RUN pAssignValueD (ipbf-ttImportQuote.price, iplIgnoreBlanks, INPUT-OUTPUT bf-quoteitm.price).
@@ -376,7 +390,7 @@ PROCEDURE pProcessRecord PRIVATE:
              bf-quoteitm.part-dscr1 = IF AVAILABLE itemfg THEN itemfg.i-name ELSE "" .
          IF bf-quoteitm.SIZE EQ "" THEN
              bf-quoteitm.SIZE = IF AVAILABLE itemfg THEN  (STRING(itemfg.l-score[50]) + "X" + STRING(itemfg.w-score[50]) + "X" + STRING(itemfg.d-score[50])) ELSE "" .
-        
+    END.    
       FIND FIRST bf-quoteqty EXCLUSIVE-LOCK
           WHERE bf-quoteqty.company EQ bf-quoteitm.company 
           AND bf-quoteqty.loc EQ bf-quoteitm.loc 
@@ -431,9 +445,34 @@ PROCEDURE pProcessRecord PRIVATE:
          END CASE.           
      
       IF lookup(STRING(bf-quotehd.q-no),cAddedNewQuote) NE 0 THEN 
-      RUN UpdateExpireDate_allQuote IN hdupdQuoteProcs(ROWID(bf-quoteitm), bf-quotehd.quo-date - 1) .      
+      RUN UpdateExpireDate_allQuote IN hdupdQuoteProcs(ROWID(bf-quoteitm), bf-quotehd.quo-date - 1) .  
+      
+      IF lQuotePriceMatrix AND bf-quotehd.approved AND lEditRecord THEN
+      RUN oe/updprmtx2.p (ROWID(quotehd), "", 0, "", 0, "Q") .
+      
       RELEASE bf-quoteitm.
       RELEASE bf-quotehd.
       RELEASE bf-quoteqty.
+END PROCEDURE.
+
+PROCEDURE pGetNk1Settings PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: 
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.     
+    DEFINE OUTPUT PARAMETER iplFound  AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
+    
+    RUN sys/ref/nk1look.p  (INPUT ipcCompany,
+        INPUT "QuotePriceMatrix", 
+        INPUT "L", 
+        INPUT NO, 
+        INPUT NO, 
+        INPUT "",
+        INPUT "", 
+        OUTPUT cReturn, 
+        OUTPUT iplFound ).
+                     
 END PROCEDURE.
 
