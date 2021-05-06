@@ -4856,12 +4856,12 @@ PROCEDURE ipLoadDAOAData :
         dynParamValue.user-id EQ "_default":
         DELETE dynParamValue.
     END.
-    /* Ticket 99703 */
-    FOR EACH dynParamValue EXCLUSIVE WHERE 
-        dynParamValue.user-id NE "_default" AND 
-        dynParamValue.paramvalueid EQ 0:
-        DELETE dynParamValue.
-    END.
+/* Ticket 99703  - disabled until 21.01.01 */
+/*    FOR EACH dynParamValue EXCLUSIVE WHERE     */
+/*        dynParamValue.user-id NE "_default" AND*/
+/*        dynParamValue.paramvalueid EQ 0:       */
+/*        DELETE dynParamValue.                  */
+/*    END.                                       */
 
     FOR EACH dynPrgrmsPage EXCLUSIVE:
         DELETE dynPrgrmsPage.
