@@ -903,94 +903,95 @@ END.
 
     
 /* print die# image */
-IF print-box THEN 
-DO:    
-    MAIN-PRINT-BOX:
-    FOR EACH bf-jobhdr NO-LOCK WHERE bf-jobhdr.company = job-hdr.company
-        AND bf-jobhdr.job-no = job-hdr.job-no
-        AND bf-jobhdr.job-no2 = job-hdr.job-no2
-        BREAK BY bf-jobhdr.frm:
-       
-        IF est.est-type NE 1 AND NOT CAN-FIND(FIRST ttSoule NO-LOCK
-                        WHERE  ttSoule.frm EQ bf-jobhdr.frm
-                         AND   ttSoule.runForm EQ YES
-                         AND   ttSoule.lPrintDieImage ) THEN NEXT MAIN-PRINT-BOX.
+/*IF print-box THEN                                                                                         */
+/*DO:                                                                                                       */
+/*    MAIN-PRINT-BOX:                                                                                       */
+/*    FOR EACH bf-jobhdr NO-LOCK WHERE bf-jobhdr.company = job-hdr.company                                  */
+/*        AND bf-jobhdr.job-no = job-hdr.job-no                                                             */
+/*        AND bf-jobhdr.job-no2 = job-hdr.job-no2                                                           */
+/*        BREAK BY bf-jobhdr.frm:                                                                           */
+/*                                                                                                          */
+/*        IF est.est-type NE 1 AND NOT CAN-FIND(FIRST ttSoule NO-LOCK                                       */
+/*                        WHERE  ttSoule.frm EQ bf-jobhdr.frm                                               */
+/*                         AND   ttSoule.runForm EQ YES                                                     */
+/*                         AND   ttSoule.lPrintDieImage ) THEN NEXT MAIN-PRINT-BOX.                         */
+/*                                                                                                          */
+/*        IF FIRST-OF(bf-jobhdr.frm) THEN                                                                   */
+/*        DO:                                                                                               */
+/*            FIND FIRST b-ef WHERE b-ef.company = bf-jobhdr.company                                        */
+/*                AND b-ef.est-no = bf-jobhdr.est-no                                                        */
+/*                AND b-ef.form-no = bf-jobhdr.frm NO-LOCK NO-ERROR.                                        */
+/*            FIND FIRST sys-ctrl WHERE sys-ctrl.company = job-hdr.company                                  */
+/*                AND sys-ctrl.NAME = "DIEFILE" NO-LOCK NO-ERROR.                                           */
+/*            IF AVAILABLE b-ef AND b-ef.cad-image <> ""                                                    */
+/*                AND LOOKUP(b-ef.cad-image,lv-cad-image-list) <= 0                                         */
+/*                THEN                                                                                      */
+/*            DO:                                                                                           */
+/*                DO li = LENGTH(TRIM(b-ef.cad-image)) TO 1 BY -1:                                          */
+/*                    IF SUBSTR(b-ef.cad-image,li,1) EQ "/" OR                                              */
+/*                        SUBSTR(b-ef.cad-image,li,1) EQ "\" OR                                             */
+/*                        SUBSTR(b-ef.cad-image,li,1) EQ ":" THEN LEAVE.                                    */
+/*                    cImageBoxDesign = SUBSTR(b-ef.cad-image,li,1) + TRIM(cImageBoxDesign).                */
+/*                END.                                                                                      */
+/*                                                                                                          */
+/*                lv-cad-image =  (IF AVAILABLE sys-ctrl THEN sys-ctrl.char-fld ELSE "") + "\" +            */
+/*                    cImageBoxDesign  .                                                                    */
+/*                lv-cad-image-list = lv-cad-image-list + b-ef.cad-image + ",".                             */
+/*                PUT "<C74><R64>Page: " string(PAGE-NUM - lv-pg-num,">>9") + " of <#PAGES>"  FORM "x(20)" .*/
+/*                PAGE.                                                                                     */
+/*                RUN pPrintHeader .                                                                        */
+/*                                                                                                          */
+/*                PUT UNFORMATTED                                                                           */
+/*                    "<#12><C2><R8><FROM><C80><R+52><RECT><||3><C80>" /*v-qa-text*/ SKIP                   */
+/*                    "<=12><R+1><C5>Image: Die        "    "Form No:" bf-jobhdr.frm FORMAT ">99"           */
+/*                    "<=12><R+2><C2><FROM><C80><LINE><||3>"                                                */
+/*                    "<=12><R+3><C3><#21><R+46><C+76><IMAGE#21=" lv-cad-image ">" SKIP.                    */
+/*            END.                                                                                          */
+/*        END.                                                                                              */
+/*    END. /*each bf-jobhdr*/                                                                               */
+/*END.  /* print-box*/                                                                                      */
+/*                                                                                                          */
+/*RUN pPrintCadPlateImage("CADFILE",job-hdr.company,job-hdr.job-no,job-hdr.job-no2).                        */
+/*                                                                                                          */
+/*RUN pPrintCadPlateImage("PLATEFILE",job-hdr.company,job-hdr.job-no,job-hdr.job-no2).                      */
+/*                                                                                                          */
+/*/* print fgitem image */                                                                                  */
+/*IF s-prt-fgimage THEN                                                                                     */
+/*DO:                                                                                                       */
+/*    MAIN-PRINT-IMAGE:                                                                                     */
+/*    FOR EACH bf-jobhdr NO-LOCK WHERE bf-jobhdr.company = job-hdr.company                                  */
+/*        AND bf-jobhdr.job-no = job-hdr.job-no                                                             */
+/*        AND bf-jobhdr.job-no2 = job-hdr.job-no2                                                           */
+/*        BREAK BY bf-jobhdr.frm:                                                                           */
+/*                                                                                                          */
+/*        IF est.est-type NE 1 AND NOT CAN-FIND(FIRST ttSoule NO-LOCK                                       */
+/*                        WHERE  ttSoule.frm EQ bf-jobhdr.frm                                               */
+/*                         AND   ttSoule.i-no EQ bf-jobhdr.i-no                                             */
+/*                         AND   ttSoule.runForm EQ YES                                                     */
+/*                         AND   ttSoule.lPrintFGImage) THEN NEXT MAIN-PRINT-IMAGE.                         */
+/*                                                                                                          */
+/*        IF FIRST-OF(bf-jobhdr.frm) THEN                                                                   */
+/*        DO:                                                                                               */
+/*            FIND FIRST itemfg NO-LOCK                                                                     */
+/*                WHERE itemfg.company EQ job-hdr.company                                                   */
+/*                AND itemfg.i-no    EQ bf-jobhdr.i-no NO-ERROR.                                            */
+/*            clsFGitemImg = IF AVAILABLE itemfg THEN itemfg.box-image ELSE "" .                            */
+/*            IF clsFGitemImg NE "" THEN                                                                    */
+/*            DO:                                                                                           */
+/*                PUT "<C74><R64>Page: " string(PAGE-NUM - lv-pg-num,">>9") + " of <#PAGES>"  FORM "x(20)" .*/
+/*                PAGE.                                                                                     */
+/*                RUN pPrintHeader .                                                                        */
+/*                PUT UNFORMATTED                                                                           */
+/*                    "<#12><C2><R8><FROM><C80><R+52><RECT><||3><C80>" /*v-qa-text*/ SKIP                   */
+/*                    "<=12><R+1><C5>FG Item: " itemfg.i-no " " itemfg.i-name                               */
+/*                    "<=12><R+2><C2><FROM><C80><LINE><||3>"                                                */
+/*                    "<=12><R+3><C5><#21><R+46><C+80><IMAGE#21=" clsFGitemImg ">" SKIP.                    */
+/*            END.                                                                                          */
+/*        END.                                                                                              */
+/*    END. /*each bf-jobhdr*/                                                                               */
+/*END.  /* print fg item*/                                                                                  */
 
-        IF FIRST-OF(bf-jobhdr.frm) THEN 
-        DO:
-            FIND FIRST b-ef WHERE b-ef.company = bf-jobhdr.company
-                AND b-ef.est-no = bf-jobhdr.est-no
-                AND b-ef.form-no = bf-jobhdr.frm NO-LOCK NO-ERROR.
-            FIND FIRST sys-ctrl WHERE sys-ctrl.company = job-hdr.company
-                AND sys-ctrl.NAME = "DIEFILE" NO-LOCK NO-ERROR.
-            IF AVAILABLE b-ef AND b-ef.cad-image <> "" 
-                AND LOOKUP(b-ef.cad-image,lv-cad-image-list) <= 0
-                THEN 
-            DO:    
-                DO li = LENGTH(TRIM(b-ef.cad-image)) TO 1 BY -1:
-                    IF SUBSTR(b-ef.cad-image,li,1) EQ "/" OR
-                        SUBSTR(b-ef.cad-image,li,1) EQ "\" OR
-                        SUBSTR(b-ef.cad-image,li,1) EQ ":" THEN LEAVE.
-                    cImageBoxDesign = SUBSTR(b-ef.cad-image,li,1) + TRIM(cImageBoxDesign).
-                END.
-               
-                lv-cad-image =  (IF AVAILABLE sys-ctrl THEN sys-ctrl.char-fld ELSE "") + "\" +
-                    cImageBoxDesign  .
-                lv-cad-image-list = lv-cad-image-list + b-ef.cad-image + ",". 
-                PUT "<C74><R64>Page: " string(PAGE-NUM - lv-pg-num,">>9") + " of <#PAGES>"  FORM "x(20)" .
-                PAGE.
-                RUN pPrintHeader .
-            
-                PUT UNFORMATTED 
-                    "<#12><C2><R8><FROM><C80><R+52><RECT><||3><C80>" /*v-qa-text*/ SKIP
-                    "<=12><R+1><C5>Image: Die        "    "Form No:" bf-jobhdr.frm FORMAT ">99"  
-                    "<=12><R+2><C2><FROM><C80><LINE><||3>"
-                    "<=12><R+3><C3><#21><R+46><C+76><IMAGE#21=" lv-cad-image ">" SKIP. 
-            END.
-        END.
-    END. /*each bf-jobhdr*/
-END.  /* print-box*/
-
-RUN pPrintCadPlateImage("CADFILE",job-hdr.company,job-hdr.job-no,job-hdr.job-no2).
-
-RUN pPrintCadPlateImage("PLATEFILE",job-hdr.company,job-hdr.job-no,job-hdr.job-no2).
-
-/* print fgitem image */
-IF s-prt-fgimage THEN 
-DO:      
-    MAIN-PRINT-IMAGE:
-    FOR EACH bf-jobhdr NO-LOCK WHERE bf-jobhdr.company = job-hdr.company
-        AND bf-jobhdr.job-no = job-hdr.job-no
-        AND bf-jobhdr.job-no2 = job-hdr.job-no2
-        BREAK BY bf-jobhdr.frm:
-
-        IF est.est-type NE 1 AND NOT CAN-FIND(FIRST ttSoule NO-LOCK
-                        WHERE  ttSoule.frm EQ bf-jobhdr.frm
-                         AND   ttSoule.i-no EQ bf-jobhdr.i-no
-                         AND   ttSoule.runForm EQ YES
-                         AND   ttSoule.lPrintFGImage) THEN NEXT MAIN-PRINT-IMAGE.
-        
-        IF FIRST-OF(bf-jobhdr.frm) THEN 
-        DO:
-            FIND FIRST itemfg NO-LOCK
-                WHERE itemfg.company EQ job-hdr.company 
-                AND itemfg.i-no    EQ bf-jobhdr.i-no NO-ERROR.
-            clsFGitemImg = IF AVAILABLE itemfg THEN itemfg.box-image ELSE "" .
-            IF clsFGitemImg NE "" THEN 
-            DO:
-                PUT "<C74><R64>Page: " string(PAGE-NUM - lv-pg-num,">>9") + " of <#PAGES>"  FORM "x(20)" .
-                PAGE.
-                RUN pPrintHeader .
-                PUT UNFORMATTED 
-                    "<#12><C2><R8><FROM><C80><R+52><RECT><||3><C80>" /*v-qa-text*/ SKIP
-                    "<=12><R+1><C5>FG Item: " itemfg.i-no " " itemfg.i-name
-                    "<=12><R+2><C2><FROM><C80><LINE><||3>"
-                    "<=12><R+3><C5><#21><R+46><C+80><IMAGE#21=" clsFGitemImg ">" SKIP. 
-            END.
-        END.
-    END. /*each bf-jobhdr*/
-END.  /* print fg item*/
-
+RUN pPrintImages(est.company, est.est-no).
 /* print include page */
 IF lIncludeLastPage THEN 
 DO:          
@@ -1301,6 +1302,134 @@ PROCEDURE pPrintHeader :
 END PROCEDURE.
 
 
+PROCEDURE pPrintImage PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcImageType AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiForm AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiBlank AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcImageFile AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER iplAddExtension AS LOGICAL NO-UNDO.
+    
+    DEFINE VARIABLE cImageFile AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lValid AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+    
+    IF iplAddExtension THEN DO:
+        cImageFile = ipcImageFile + ".pdf".
+        RUN FileSys_ValidateFile(cImageFile, OUTPUT lValid, OUTPUT cMessage).
+        IF NOT lValid THEN DO:
+            cImageFile = ipcImageFile + ".jpg".
+            RUN FileSys_ValidateFile(cImageFile, OUTPUT lValid, OUTPUT cMessage).
+        END.
+        IF NOT lValid THEN 
+        DO:
+            cImageFile = ipcImageFile + ".png".
+            RUN FileSys_ValidateFile(cImageFile, OUTPUT lValid, OUTPUT cMessage).
+        END.
+    END.
+    ELSE DO:     
+        cImageFile = ipcImageFile.
+        RUN FileSys_ValidateFile(cImageFile, OUTPUT lValid, OUTPUT cMessage).
+        IF NOT lValid THEN RETURN.
+    END.
+    PAGE.
+    RUN pPrintHeader .
+                
+    PUT UNFORMATTED 
+        "<#12><C2><R8><FROM><C80><R+52><RECT><||3><C80>" SKIP
+        "<=12><R+1><C5>Image: " ipcImageType         "          Form No:" ipiForm FORMAT ">99"  " Blank No:" ipiBlank FORMAT ">99"
+        "<=12><R+2><C2><FROM><C80><LINE><||3>"
+        "<=12><R+3><C3><#21><R+46><C+76><IMAGE#21=" cImageFile ">" SKIP.
+    PUT "<C74><R64>Page: " STRING(PAGE-NUM - lv-pg-num,">>9") + " of <#PAGES>"  FORM "x(20)".  
+    
+END PROCEDURE.
+
+PROCEDURE pPrintImages PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcEstNo AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE cPlateFolder AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cDieFolder AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCadFolder AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE lRecFound  AS LOGICAL   NO-UNDO. 
+    
+    RUN sys/ref/nk1look.p(
+        INPUT ipcCompany,
+        INPUT "PlateFile",
+        INPUT "C",
+        INPUT NO,
+        INPUT NO,
+        INPUT "",
+        INPUT "",
+        OUTPUT cPlateFolder,
+        OUTPUT lRecFound
+        ).       
+    IF SUBSTRING(cPlateFolder, LENGTH(cPlateFolder), 1) NE "\" THEN 
+        cPlateFolder = cPlateFolder + "\".   
+    RUN sys/ref/nk1look.p(
+        INPUT ipcCompany,
+        INPUT "DieFile",
+        INPUT "C",
+        INPUT NO,
+        INPUT NO,
+        INPUT "",
+        INPUT "",
+        OUTPUT cDieFolder,
+        OUTPUT lRecFound
+        ).
+    IF SUBSTRING(cDieFolder, LENGTH(cDieFolder), 1) NE "\" THEN 
+        cDieFolder = cDieFolder + "\".
+    RUN sys/ref/nk1look.p(
+        INPUT ipcCompany,
+        INPUT "CadFile",
+        INPUT "C",
+        INPUT NO,
+        INPUT NO,
+        INPUT "",
+        INPUT "",
+        OUTPUT cCadFolder,
+        OUTPUT lRecFound
+        ).
+    IF SUBSTRING(cCadFolder, LENGTH(cCadFolder), 1) NE "\" THEN 
+        cCadFolder = cCadFolder + "\".
+    FOR EACH ttSoule NO-LOCK,        
+        FIRST itemfg NO-LOCK
+        WHERE itemfg.company EQ ipcCompany
+        AND itemfg.i-no EQ ttSoule.i-no,
+        FIRST eb NO-LOCK 
+        WHERE eb.company EQ itemfg.company
+        AND eb.est-no EQ ipcEstNo
+        AND eb.form-no EQ ttSoule.frm
+        AND eb.blank-no EQ ttSoule.blank-no:
+            
+        IF ttSoule.lPrintFGImage AND itemfg.box-image NE "" THEN 
+        DO:
+            RUN pPrintImage("FG Item Image for: " + ttSoule.i-no,ttSoule.frm, ttSoule.blank-no, itemfg.box-image, NO).
+        END.
+        IF ttSoule.lPrintCadImage AND eb.cad-no NE "" AND cCadFolder NE "" THEN 
+        DO:
+            RUN pPrintImage("CAD Image : " + eb.cad-no, ttSoule.frm, ttSoule.blank-no, cCadFolder + eb.cad-no, YES).
+        END.
+        IF ttSoule.lPrintDieImage AND eb.die-no NE "" AND cDieFolder NE "" THEN 
+        DO:
+            RUN pPrintImage("Die Image : " + eb.die-no, ttSoule.frm, ttSoule.blank-no, cDieFolder + eb.die-no, YES).
+        END.
+        IF ttSoule.lPrintPlateImage AND eb.plate-no NE "" AND cPlateFolder NE "" THEN 
+        DO:
+            RUN pPrintImage("Plate Image : " + eb.plate-no, ttSoule.frm, ttSoule.blank-no, cPlateFolder + eb.plate-no, YES).
+        END.    
+    END. 
+
+END PROCEDURE.
+
 PROCEDURE pPrintMiscItems :
     /*------------------------------------------------------------------------------
       Purpose:     Print header
@@ -1552,14 +1681,15 @@ PROCEDURE pPrintCadPlateImage PRIVATE:
                     lv-cad-image-list = lv-cad-image-list + b-eb.cad-no + ",". 
                     cPlateImageList = cPlateImageList + b-eb.plate-no + ",".
                     PUT "<C74><R64>Page: " string(PAGE-NUM - lv-pg-num,">>9") + " of <#PAGES>"  FORM "x(20)" .
-                    PAGE.
-                    RUN pPrintHeader .
-                
-                    PUT UNFORMATTED 
-                        "<#12><C2><R8><FROM><C80><R+52><RECT><||3><C80>" /*v-qa-text*/ SKIP
-                        "<=12><R+1><C5>Image: " (IF ipcType = "PLATEFILE" THEN "Plate" ELSE "CAD")         "          Form No:" bf-jobhdr.frm FORMAT ">99"  
-                        "<=12><R+2><C2><FROM><C80><LINE><||3>"
-                        "<=12><R+3><C3><#21><R+46><C+76><IMAGE#21=" cPrintImage ">" SKIP. 
+                    RUN pPrintImage((IF ipcType = "PLATEFILE" THEN "Plate" ELSE "CAD"), bf-jobhdr.frm, cPrintImage).
+/*                    PAGE.                                                                                                                                 */
+/*                    RUN pPrintHeader .                                                                                                                    */
+/*                                                                                                                                                          */
+/*                    PUT UNFORMATTED                                                                                                                       */
+/*                        "<#12><C2><R8><FROM><C80><R+52><RECT><||3><C80>" /*v-qa-text*/ SKIP                                                               */
+/*                        "<=12><R+1><C5>Image: " (IF ipcType = "PLATEFILE" THEN "Plate" ELSE "CAD")         "          Form No:" bf-jobhdr.frm FORMAT ">99"*/
+/*                        "<=12><R+2><C2><FROM><C80><LINE><||3>"                                                                                            */
+/*                        "<=12><R+3><C3><#21><R+46><C+76><IMAGE#21=" cPrintImage ">" SKIP.                                                                 */
                 END.
             END.
         END. /*each bf-jobhdr*/

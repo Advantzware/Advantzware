@@ -366,7 +366,14 @@ DO:
               ttSoule.lPrintCadImage = ttItemList.lCad
               ttSoule.lPrintPlateImage = ttItemList.lPlate
               ttSoule.lPrintFGImage = ttItemList.lImage.
-          ELSE IF AVAIL ttSoule THEN ttSoule.RunForm = NO.
+          ELSE IF AVAIL ttSoule THEN 
+            ASSIGN 
+                ttSoule.RunForm = NO
+                ttSoule.lPrintDieImage = NO 
+                ttSoule.lPrintCadImage = NO 
+                ttSoule.lPrintPlateImage = NO 
+                ttSoule.lPrintFGImage = NO 
+                .
                      
       END.
   END.
