@@ -1052,6 +1052,10 @@ PROCEDURE local-update-record :
     DEFINE VARIABLE rdRowidLevel AS ROWID NO-UNDO .
     DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
     DEFINE VARIABLE cReturnMessage AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
+    DEFINE VARIABLE cQtyList AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER vendItemCostLevel FOR vendItemCostLevel.
     
   /* Code placed here will execute PRIOR to standard behavior. */
   DO WITH FRAME {&FRAME-NAME}:
@@ -1102,7 +1106,22 @@ PROCEDURE local-update-record :
   /* Code placed here will execute AFTER standard behavior.    */
   RUN set-panel (0).
 
-  IF lNewRecord THEN
+    
+    RUN Estimate_GetQuantities(INPUT cocode,
+        INPUT vendItemCost.EstimateNo:SCREEN-VALUE IN FRAME {&frame-name}, 
+        INPUT ",",
+        OUTPUT cQtyList ).
+        
+    IF cQtyList NE '' THEN 
+    DO iCount = 1 TO NUM-ENTRIES(cQtyList, ','):
+         
+        CREATE vendItemCostLevel .
+        ASSIGN 
+            vendItemCostLevel.vendItemCostID = vendItemCost.vendItemCostID .
+            vendItemCostLevel.quantityBase = DECIMAL(ENTRY(iCount, cQtyList, ','))
+        .  
+    END.
+  ELSE IF lNewRecord THEN
       RUN viewers/dVendCostLevel.w(
           INPUT ROWID(vendItemCost),
           INPUT lv-rowid,
