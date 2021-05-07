@@ -62,8 +62,8 @@ DEFINE VARIABLE sessionInstance     AS CLASS system.SessionConfig NO-UNDO.
 /* vv alphabetical list of super-procedures comma delimited vv */
 ASSIGN 
     cSuperProcedure = "browsers/BrowserProcs.p,"
-                    + "oe/PriceProcs.p,"
                     + "est/EstimateProcs.p,"
+                    + "oe/PriceProcs.p,"
                     + "system/CommonProcs.p,"
                     + "system/ConversionProcs.p,"
                     + "system/CreditProcs.p,"
