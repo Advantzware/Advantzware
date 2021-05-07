@@ -1039,8 +1039,13 @@ PROCEDURE close-month :
         ASSIGN 
             period.pstat = FALSE
             iClosedPeriod = period.pnum.
-        IF period.pnum EQ company.num-per THEN ASSIGN 
-            company.yend-per = NO.
+            
+        IF period.pnum EQ company.num-per THEN DO:
+            FIND CURRENT company EXCLUSIVE.
+            ASSIGN 
+                company.yend-per = NO.
+            FIND CURRENT company NO-LOCK.
+        END.
     END.
 
     FIND NEXT period NO-LOCK WHERE 
