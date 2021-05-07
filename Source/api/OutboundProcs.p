@@ -951,6 +951,7 @@ PROCEDURE Outbound_UpdateGlobalFieldValues:
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CustomerXAddress2", bf-cust.addr[2]).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CustomerXCity", bf-cust.city).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CustomerXState", bf-cust.state).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CustomerXPostalCode", bf-cust.zip).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CustomerXCountry", bf-cust.country).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CustomerXEmail", bf-cust.email).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CustomerXAreaCode", bf-cust.area-code).
