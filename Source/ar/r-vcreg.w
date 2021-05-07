@@ -904,6 +904,7 @@ PROCEDURE post-gl :
              glhist.period  = tran-period
              glhist.tr-num  = v-trnum   
              glhist.glYear  = IF AVAIL period THEN period.yr ELSE YEAR(tran-date)
+             glhist.yr      = YEAR(tran-date)
              glhist.module  = "AR"
              glhist.posted  = NO
              glhist.entryType = "A"

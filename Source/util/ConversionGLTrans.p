@@ -66,13 +66,18 @@
             glhist.tr-num    = gltrans.trnum
             glhist.tr-amt    = gltrans.tr-amt
             glhist.entryType = "A"
-            glhist.glYear    = YEAR(gltrans.tr-date)
+            glhist.yr        = YEAR(gltrans.tr-date)
             glhist.createdBy = gltrans.createdBy
             glhist.curr-code = gltrans.curr-code
             glhist.ex-rate   = gltrans.ex-rate
             glhist.posted    = IF gltrans.tr-date LT ttOpenPeriodStartDateByCompany.daStartDate THEN TRUE ELSE FALSE
             glhist.postedby  = IF glhist.posted THEN USERID(LDBNAME(1)) ELSE ""
             .
+        FIND FIRST period NO-LOCK
+             WHERE period.company EQ gltrans.company
+             AND period.pst LE gltrans.tr-date
+             AND period.pend GE gltrans.tr-date NO-ERROR.        
+        glhist.glYear = IF AVAIL period THEN period.yr ELSE YEAR(gltrans.tr-date)     .
         DELETE GLTrans.        
     END.
     RELEASE glhist.

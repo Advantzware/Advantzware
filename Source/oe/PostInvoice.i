@@ -28,6 +28,7 @@ DEFINE TEMP-TABLE ttPostingMaster NO-UNDO
     FIELD periodID              AS INTEGER 
     FIELD periodDateStart       AS DATE
     FIELD periodDateEnd         AS DATE 
+    FIELD periodGLYear          AS INTEGER 
     FIELD accountAR             AS CHARACTER
     FIELD accountARFreight      AS CHARACTER
     FIELD accountARSales        AS CHARACTER

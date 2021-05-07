@@ -662,6 +662,7 @@ DO:
                                 BUTTONS OK-CANCEL UPDATE lChoice .
        IF lChoice THEN
        DO:
+                      
            RUN GL_ReOpenPeriod(TRIM(company.company), ROWID(period) ) .
            
            RUN display-item.
