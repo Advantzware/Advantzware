@@ -67,7 +67,7 @@ DEFINE TEMP-TABLE ttImportPo
     FIELD last-ship-date          AS DATE   FORMAT "99/99/9999" COLUMN-LABEL "Last Ship Date" HELP "Optional - Date"
     FIELD setup                   AS DECIMAL FORMAT ">>,>>9.99" COLUMN-LABEL "Setup" HELP "Optional - Decimal"
     FIELD disc                    AS DECIMAL FORMAT "->>>,>>9.99" COLUMN-LABEL "Discount" HELP "Optional - Decimal"
-    FIELD actnum                  AS CHARACTER FORMAT "x(25)" COLUMN-LABEL "GL Number" HELP "Optional - Size:25"
+    FIELD actnum                  AS CHARACTER FORMAT "x(25)" COLUMN-LABEL "GL Number" HELP "Required - Size:25"
     FIELD over-pct                AS DECIMAL FORMAT ">>9.99%" COLUMN-LABEL "Overrun" HELP "Optional - Decimal"
     FIELD under-pct               AS DECIMAL   FORMAT ">>9.99%" COLUMN-LABEL "Underrun" HELP "Optional - Decimal"
     FIELD cust-no                 AS CHARACTER   FORMAT "x(8)" COLUMN-LABEL "Customer #" HELP "Optional - Size:8"
@@ -404,6 +404,13 @@ PROCEDURE pValidate PRIVATE:
             ASSIGN 
                 oplValid = NO
                 opcNote  = "Po Date is Blank ".
+    END.
+    IF oplValid THEN 
+    DO:
+        IF ipbf-ttImportPo.actnum EQ "" THEN 
+            ASSIGN 
+                oplValid = NO
+                opcNote  = "GL Account is Blank".
     END.
     
     /*Determine if Add or Update*/ 
