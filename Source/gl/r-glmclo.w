@@ -976,7 +976,9 @@ PROCEDURE close-month :
     
     /* Calculate account total for month we're about to close */
     FOR EACH account EXCLUSIVE WHERE 
-        account.company EQ cocode
+        account.company EQ cocode AND 
+        account.actnum NE b-cacct.actnum AND 
+        account.actnum NE b-racct.actnum
         BY account.actnum:
         
         iProgressCount = iProgressCount + 1.
@@ -984,6 +986,7 @@ PROCEDURE close-month :
     
         /* Zero out any existing account balance for the month */
         ASSIGN
+            account.cyr[uperiod] = 0
             dAccountTotal  = 0. 
        
         /* Recalculate account balance based on glhist txns for the month */
