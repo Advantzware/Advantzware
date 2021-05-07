@@ -514,6 +514,7 @@ ON CHOOSE OF btn-delete IN FRAME F-Main /* Update Selected */
 ON CHOOSE OF Btn_CostPerQty IN FRAME F-Main /* Override Cost Per Qty */
 DO:
    DEFINE VARIABLE phandle AS HANDLE.
+   DEFINE VARIABLE cQtyList AS CHARACTER NO-UNDO.
    FIND FIRST ITEM WHERE ITEM.company  = cocode
        AND ITEM.i-no = estMaterial.itemID NO-LOCK NO-ERROR.
 
@@ -526,6 +527,12 @@ DO:
       RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostCustomer = ""').  
       RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostForm# = ' + ( STRING(estMaterial.formNo)) ).
       RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostBlank# = ' + ( STRING(estMaterial.blankNo))).
+
+      RUN Estimate_GetQuantities(INPUT cocode,
+        INPUT est-no:SCREEN-VALUE, 
+        INPUT "|",
+        OUTPUT cQtyList ).
+      RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostQtyList = ' + cQtyList ).
       RUN windows/vendcostmtx.w  PERSISTENT SET phandle  .
       /* Set the option frame size and colour to give blue background to icons and 
          add the handle of scope define object to temptable for resizizng */

@@ -1107,11 +1107,10 @@ PROCEDURE local-update-record :
   RUN set-panel (0).
 
     
-    RUN Estimate_GetQuantities(INPUT cocode,
-        INPUT vendItemCost.EstimateNo:SCREEN-VALUE IN FRAME {&frame-name}, 
-        INPUT ",",
-        OUTPUT cQtyList ).
-        
+  IF lNewRecord THEN
+  DO:
+    RUN get-attribute IN adm-broker-hdl ('OneVendItemCostQtyList' ).
+    cQtyList = IF RETURN-VALUE EQ ? THEN "" ELSE RETURN-VALUE.     
     IF cQtyList NE '' THEN 
     DO iCount = 1 TO NUM-ENTRIES(cQtyList, ','):
          
@@ -1121,7 +1120,7 @@ PROCEDURE local-update-record :
             vendItemCostLevel.quantityBase = DECIMAL(ENTRY(iCount, cQtyList, ','))
         .  
     END.
-  ELSE IF lNewRecord THEN
+    ELSE 
       RUN viewers/dVendCostLevel.w(
           INPUT ROWID(vendItemCost),
           INPUT lv-rowid,
@@ -1129,7 +1128,7 @@ PROCEDURE local-update-record :
           INPUT NO, /* Do not Change quantityFrom */
           OUTPUT rdRowidLevel
           ) .
-  
+  END.
   RUN RecalculateFromAndTo IN hVendorCostProcs (vendItemCost.vendItemCostID, OUTPUT lReturnError ,OUTPUT cReturnMessage).
        
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"reopen-target",OUTPUT char-hdl).
