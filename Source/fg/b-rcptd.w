@@ -1446,8 +1446,9 @@ gvcCurrentItem = fg-rctd.i-no.
       bfFgRctd.r-no      = lv-rno
       bfFgRctd.rita-code = "R"
       bfFgRctd.trans-time   = TIME
+      bfFgRctd.SetHeaderRno = INTEGER(SUBSTRING(lv-linker, 10, 10)) 
       .   
-            
+         
       /* as in local-assign logic */
       IF ll-set-parts THEN DO:
         FIND FIRST fg-rcpts WHERE fg-rcpts.r-no EQ bfFgRctd.r-no NO-ERROR.
@@ -2160,21 +2161,44 @@ PROCEDURE pGetItemSetAll :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEFINE OUTPUT PARAMETER oplAlloc AS LOGICAL NO-UNDO . 
+  DEFINE VARIABLE dTotalQty AS DECIMAL NO-UNDO.
   IF AVAIL fg-rctd THEN
-  DO:
-   
+  DO:         
     FIND itemfg WHERE itemfg.company EQ cocode
                           AND itemfg.i-no  EQ fg-rctd.i-no
                         USE-INDEX i-no NO-LOCK NO-ERROR.
-    IF AVAIL itemfg AND itemfg.alloc EQ ? THEN
-    oplAlloc = YES.
+                        
+    RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"linker-target",OUTPUT char-hdl).
+    IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN 
+    RUN pGetReceiptQty IN WIDGET-HANDLE(char-hdl)(OUTPUT dTotalQty).                   
+                        
+    IF AVAIL itemfg AND itemfg.alloc EQ ? AND dTotalQty GT 0 THEN
+    oplAlloc = YES.    
   END .                      
                         
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME                        
+&ANALYZE-RESUME   
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetReceiptQty B-table-Win 
+PROCEDURE pGetReceiptQty :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE OUTPUT PARAMETER opdTotalQty AS DECIMAL NO-UNDO . 
+  
+  IF AVAIL fg-rctd THEN
+  DO:         
+     opdTotalQty = fg-rctd.t-qty.
+  END .                      
                         
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME                           
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE get-current-qty B-table-Win 
 PROCEDURE get-current-qty :

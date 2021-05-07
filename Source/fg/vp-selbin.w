@@ -297,8 +297,8 @@ PROCEDURE local-row-available :
     IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN 
      RUN pGetItemSetAll IN WIDGET-HANDLE(char-hdl)(OUTPUT lAssemWithPart).
     IF lAssemWithPart THEN
-      ENABLE btn-update.
-    ELSE DISABLE btn-update.  
+      DISABLE btn-update.
+    ELSE ENABLE btn-update.  
      
     /* IF NOT AVAIL fg-rctd OR fg-rctd.posted THEN DISABLE btn-update. */
   END.
