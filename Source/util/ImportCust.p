@@ -102,6 +102,7 @@ DEFINE TEMP-TABLE ttImportCust
     FIELD matrixPrecision AS INTEGER FORMAT "9"   COLUMN-LABEL "Matrix Precision" HELP "Optional - default 0"
     FIELD matrixRounding  AS CHARACTER FORMAT "X" COLUMN-LABEL "Matrix Rounding"  HELP "Optional - N/U/D (Default 'U' if 'write blank and zero' flag is selected)"
     FIELD industryID      AS CHArACTER FORMAT "x(16)" COLUMN-LABEL "Industry"  HELP "Industry name"
+    FIELD tagStatus      AS CHArACTER FORMAT "x(40)" COLUMN-LABEL "Tag Status"  HELP "Optional- Only tags that are not on hold, Only on Hold tags, Any tag status"
     .
 
 DEFINE VARIABLE giIndexOffset AS INTEGER NO-UNDO INIT 2. /*Set to 1 if there is a Company field in temp-table since this will not be part of the mport data*/
@@ -412,6 +413,12 @@ PROCEDURE pValidate PRIVATE:
         ipbf-ttImportCust.CustStatus = "X".
     ELSE IF ipbf-ttImportCust.CustStatus EQ "Service" THEN 
         ipbf-ttImportCust.CustStatus = "E".
+        
+   IF ipbf-ttImportCust.tagStatus EQ "Only tags that are not on hold" THEN 
+        ipbf-ttImportCust.tagStatus = "".
+    ELSE IF ipbf-ttImportCust.tagStatus EQ "Only on Hold tags" THEN 
+        ipbf-ttImportCust.tagStatus = "H".
+    ELSE ipbf-ttImportCust.tagStatus = "A".          
        
 END PROCEDURE.
 
@@ -520,6 +527,7 @@ PROCEDURE pProcessRecord PRIVATE:
     RUN pAssignValueC (ipbf-ttImportCust.classId, iplIgnoreBlanks, INPUT-OUTPUT bf-cust.classId).
     RUN pAssignValueC (ipbf-ttImportCust.accountant, iplIgnoreBlanks, INPUT-OUTPUT bf-cust.accountant).
     RUN pAssignValueI (ipbf-ttImportCust.matrixPrecision, iplIgnoreBlanks, INPUT-OUTPUT bf-cust.matrixPrecision).
+    RUN pAssignValueC (ipbf-ttImportCust.tagStatus, iplIgnoreBlanks, INPUT-OUTPUT bf-cust.tagStatus).
     
     /* Set to round up if write blank and zero is selected */
     IF NOT iplIgnoreBlanks AND ipbf-ttImportCust.matrixRounding EQ "" THEN

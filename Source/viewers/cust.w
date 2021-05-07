@@ -160,7 +160,8 @@ cust.tax-id cust.date-field[2] cust.frt-pay cust.fob-code cust.ship-part ~
 cust.loc cust.carrier cust.del-zone cust.terr cust.under-pct cust.over-pct ~
 cust.markup cust.ship-days cust.manf-day cust.classID cust.spare-int-1 ~
 cust.pallet cust.case-bundle cust.int-field[1] cust.po-mandatory ~
-cust.imported cust.show-set cust.nationalAcct cust.log-field[1] 
+cust.imported cust.show-set cust.nationalAcct cust.log-field[1] ~
+cust.tagStatus 
 &Scoped-define ENABLED-TABLES cust
 &Scoped-define FIRST-ENABLED-TABLE cust
 &Scoped-Define ENABLED-OBJECTS btn_bank-info RECT-5 
@@ -176,7 +177,8 @@ cust.tax-id cust.date-field[2] cust.frt-pay cust.fob-code cust.ship-part ~
 cust.loc cust.carrier cust.del-zone cust.terr cust.under-pct cust.over-pct ~
 cust.markup cust.ship-days cust.manf-day cust.classID cust.spare-int-1 ~
 cust.pallet cust.case-bundle cust.int-field[1] cust.po-mandatory ~
-cust.imported cust.show-set cust.nationalAcct cust.log-field[1] 
+cust.imported cust.show-set cust.nationalAcct cust.log-field[1] ~
+cust.tagStatus 
 &Scoped-define DISPLAYED-TABLES cust
 &Scoped-define FIRST-DISPLAYED-TABLE cust
 &Scoped-Define DISPLAYED-OBJECTS cbMatrixPrecision cbMatrixRounding ~
@@ -339,6 +341,10 @@ DEFINE RECTANGLE RECT-4
 DEFINE RECTANGLE RECT-5
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
      SIZE 152 BY 2.57.
+
+DEFINE RECTANGLE RECT-6
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 79.4 BY 2.57.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -537,6 +543,13 @@ DEFINE FRAME F-Main
           LABEL "EDI"
           VIEW-AS TOGGLE-BOX
           SIZE 9 BY .81
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1 SCROLLABLE 
+         FGCOLOR 1 FONT 6.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME F-Main
      cust.factored AT ROW 14.67 COL 47
           LABEL "Factored"
           VIEW-AS TOGGLE-BOX
@@ -677,6 +690,13 @@ DEFINE FRAME F-Main
           VIEW-AS TOGGLE-BOX
           SIZE 16 BY .81
      stax_tax-dscr AT ROW 17.86 COL 28 COLON-ALIGNED NO-LABEL NO-TAB-STOP 
+     cust.tagStatus AT ROW 20.38 COL 94.4 COLON-ALIGNED
+          VIEW-AS COMBO-BOX INNER-LINES 3
+          LIST-ITEM-PAIRS "Only tags that are not on hold","",
+                     "Only on Hold tags","H",
+                     "Any tag status","A"
+          DROP-DOWN-LIST
+          SIZE 40 BY 1
      " Credit Information" VIEW-AS TEXT
           SIZE 19 BY .62 AT ROW 7.91 COL 5
           FGCOLOR 9 FONT 4
@@ -703,6 +723,7 @@ DEFINE FRAME F-Main
      RECT-3 AT ROW 16.48 COL 1
      RECT-4 AT ROW 8.14 COL 73
      RECT-5 AT ROW 20.05 COL 1 WIDGET-ID 28
+     RECT-6 AT ROW 20.05 COL 73.6 WIDGET-ID 42
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
