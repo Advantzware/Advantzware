@@ -339,7 +339,8 @@ PROCEDURE GL_SpCreateGLHist :
            bf-glhist.tr-amt     = ipdTrAmount
            bf-glhist.tr-num     = ipiTrNumber
            bf-glhist.period     = ipiPeriod  
-           bf-glhist.glYear     = IF AVAIL period THEN period.yr ELSE YEAR(ipdtTrDate)         
+           bf-glhist.glYear     = IF AVAIL period THEN period.yr ELSE YEAR(ipdtTrDate)
+           bf-glhist.yr         = YEAR(ipdtTrDate)
            bf-glhist.entryType  = ipcEntryType
            bf-glhist.sourceDate = ipdtSourceDate
            bf-glhist.documentID = ipcDocumentID
@@ -536,7 +537,8 @@ PROCEDURE pReOpenPeriod PRIVATE :
        cTmpDir = users.user_program[2].
     ELSE
        cTmpDir = "c:\tmp".
-    
+       
+    RUN spProgressBar ("Reopen Period", 1, 3).
     FIND FIRST company NO-LOCK where company.company eq ipcCompany NO-ERROR.
     FIND FIRST bf-period EXCLUSIVE-LOCK 
          WHERE bf-period.company EQ ipcCompany
@@ -559,7 +561,7 @@ PROCEDURE pReOpenPeriod PRIVATE :
             bf-account.cyr[bf-period.pnum] = 0.
         END.
         OUTPUT CLOSE. 
-        
+        RUN spProgressBar ("Reopen Period", 2, 3).
         bf-period.pstat = YES.
         ASSIGN
         bf-period.APClosedBy  = USERID(LDBNAME(1))
@@ -590,7 +592,7 @@ PROCEDURE pReOpenPeriod PRIVATE :
         
     END.
     RELEASE bf-period.
-    
+    RUN spProgressBar ("Reopen Period", 3, 3).
 END PROCEDURE.    
 
 

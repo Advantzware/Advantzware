@@ -889,8 +889,9 @@ PROCEDURE close-month :
    DEFINE VARIABLE iTransNum AS INTEGER NO-UNDO.
    DEFINE VARIABLE dNetIncome AS DECIMAL NO-UNDO.
    DEFINE VARIABLE iClosedPeriod AS INTEGER NO-UNDO.
-   DEFINE VARIABLE dAccountTotal AS DECIMAL NO-UNDO.   
-   
+   DEFINE VARIABLE dAccountTotal AS DECIMAL NO-UNDO.
+   DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
+   DEFINE VARIABLE iProgressCount AS INTEGER NO-UNDO.
    DEF BUFFER b-period FOR period. 
       
    SESSION:SET-WAIT-STATE ("general").
@@ -934,11 +935,19 @@ PROCEDURE close-month :
           v-msg2:BGCOLOR = 4
           v-msg1 = "Processing... Please wait and do not cancel out of screen!". 
    DISPLAY v-msg1 WITH FRAME {&FRAME-NAME}.
-   
+   iCount = 0.
+   FOR EACH account NO-LOCK
+          where account.company eq cocode
+            BREAK BY account.actnum:
+            iCount = iCount + 1.
+   END.
+   iProgressCount = 0.
    FOR EACH account EXCLUSIVE-LOCK
           where account.company eq cocode
             BREAK BY account.actnum:
-            
+    iProgressCount = iProgressCount + 1.
+    RUN spProgressBar ("Close Period", iProgressCount, iCount).
+    
     IF FIRST-OF(account.actnum)  THEN
        ASSIGN
          account.cyr[uperiod]  = 0
@@ -1248,9 +1257,9 @@ PROCEDURE close-month :
                              "",
                              "").                      
    END.    
-
+    
    SESSION:SET-WAIT-STATE ("").
-
+   RUN spProgressBar ("Close Period", 1, 1).
    message "Period " string(iClosedPeriod) " is closed." SKIP
    "Current accounting period changed to " uperiod SKIP
    "Closing G/L Period is completed." VIEW-AS ALERT-BOX INFO.
@@ -1653,8 +1662,8 @@ DEFINE OUTPUT PARAMETER opdNetAmount AS DECIMAL NO-UNDO.
 
 find first b-cacct NO-LOCK
             where b-cacct.company eq cocode
-            and b-cacct.actnum  eq ipcAccount NO-ERROR.
- DO i = 1 TO 13:
+            and b-cacct.actnum  eq ipcAccount NO-ERROR. 
+ DO i = 1 TO company.num-per:
    opdNetAmount = opdNetAmount + b-cacct.cyr[i].
  END.
  

@@ -10,8 +10,7 @@ assign
  cocode = g_company
  locode = g_loc.
 
-for each glhist where glhist.company eq cocode
-                AND glhist.posted EQ NO,
+for each glhist where glhist.company eq cocode,
     first period
     where period.company eq glhist.company
       and period.pst     le glhist.tr-date
