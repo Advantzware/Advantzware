@@ -27,7 +27,7 @@ DEFINE INPUT PARAMETER iplIgnoreBlanks AS LOGICAL NO-UNDO.
 DEFINE INPUT-OUTPUT PARAMETER iopcValueAssigned AS CHARACTER NO-UNDO.
 
 IF ipcValueToAssign NE "" OR NOT iplIgnoreBlanks THEN 
-    iopcValueAssigned = ipcValueToAssign. 
+    iopcValueAssigned = TRIM(ipcValueToAssign). 
 
 
 END PROCEDURE.

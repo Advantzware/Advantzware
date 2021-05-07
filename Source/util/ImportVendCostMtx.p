@@ -123,16 +123,16 @@ PROCEDURE pProcessRecord PRIVATE:
     RUN system\VendorCostProcs.p PERSISTENT SET hVendorCostProcs.
 
     FIND FIRST bf-vendItemCost EXCLUSIVE-LOCK 
-        WHERE bf-vendItemCost.company EQ ipbf-ttImportVendCostMtx.Company
-        AND bf-vendItemCost.itemType EQ ipbf-ttImportVendCostMtx.itemType
-        AND bf-vendItemCost.itemID EQ ipbf-ttImportVendCostMtx.itemID
-        AND bf-vendItemCost.vendorID EQ ipbf-ttImportVendCostMtx.vendorID
-        AND bf-vendItemCost.customerID EQ ipbf-ttImportVendCostMtx.customerID
-        AND bf-vendItemCost.estimateNo EQ ipbf-ttImportVendCostMtx.estimateNo
-        AND bf-vendItemCost.formNo EQ ipbf-ttImportVendCostMtx.formNo
-        AND bf-vendItemCost.blankNo EQ ipbf-ttImportVendCostMtx.blankNo
-        AND bf-vendItemCost.expirationDate EQ date(ipbf-ttImportVendCostMtx.expirationDate)
-        AND bf-vendItemCost.effectiveDate EQ date(ipbf-ttImportVendCostMtx.effectiveDate)
+        WHERE bf-vendItemCost.company       EQ ipbf-ttImportVendCostMtx.Company
+        AND bf-vendItemCost.itemType        EQ TRIM(ipbf-ttImportVendCostMtx.itemType)
+        AND bf-vendItemCost.itemID          EQ TRIM(ipbf-ttImportVendCostMtx.itemID)
+        AND bf-vendItemCost.vendorID        EQ TRIM(ipbf-ttImportVendCostMtx.vendorID)
+        AND bf-vendItemCost.customerID      EQ TRIM(ipbf-ttImportVendCostMtx.customerID)
+        AND bf-vendItemCost.estimateNo      EQ TRIM(ipbf-ttImportVendCostMtx.estimateNo)
+        AND bf-vendItemCost.formNo          EQ ipbf-ttImportVendCostMtx.formNo
+        AND bf-vendItemCost.blankNo         EQ ipbf-ttImportVendCostMtx.blankNo
+        AND bf-vendItemCost.expirationDate  EQ date(ipbf-ttImportVendCostMtx.expirationDate)
+        AND bf-vendItemCost.effectiveDate   EQ date(ipbf-ttImportVendCostMtx.effectiveDate)
         NO-ERROR.
 
     IF NOT AVAILABLE bf-vendItemCost THEN 
@@ -303,17 +303,17 @@ PROCEDURE pValidate PRIVATE:
     IF oplValid THEN 
     DO:
         FIND FIRST vendItemCost NO-LOCK 
-            WHERE vendItemCost.company EQ ipbf-ttImportVendCostMtx.Company
-            AND vendItemCost.itemID EQ ipbf-ttImportVendCostMtx.itemID
-            AND vendItemCost.itemType EQ ipbf-ttImportVendCostMtx.itemType
-            AND vendItemCost.vendorID EQ ipbf-ttImportVendCostMtx.vendorID
-            AND vendItemCost.customerID EQ ipbf-ttImportVendCostMtx.customerID
-            AND vendItemCost.estimateNo EQ ipbf-ttImportVendCostMtx.estimateNo
-            AND vendItemCost.formNo EQ ipbf-ttImportVendCostMtx.formNo
-            AND vendItemCost.blankNo EQ ipbf-ttImportVendCostMtx.blankNo
+            WHERE vendItemCost.company      EQ ipbf-ttImportVendCostMtx.Company
+            AND vendItemCost.itemID         EQ TRIM(ipbf-ttImportVendCostMtx.itemID)
+            AND vendItemCost.itemType       EQ TRIM(ipbf-ttImportVendCostMtx.itemType)
+            AND vendItemCost.vendorID       EQ TRIM(ipbf-ttImportVendCostMtx.vendorID)
+            AND vendItemCost.customerID     EQ TRIM(ipbf-ttImportVendCostMtx.customerID)
+            AND vendItemCost.estimateNo     EQ TRIM(ipbf-ttImportVendCostMtx.estimateNo)
+            AND vendItemCost.formNo         EQ ipbf-ttImportVendCostMtx.formNo
+            AND vendItemCost.blankNo        EQ ipbf-ttImportVendCostMtx.blankNo
             AND vendItemCost.expirationDate EQ DATE(ipbf-ttImportVendCostMtx.expirationDate)
             AND (vendItemCost.effectiveDate EQ DATE(ipbf-ttImportVendCostMtx.effectiveDate)
-            OR vendItemCost.effectiveDate LT 01/01/1900) NO-ERROR .
+            OR vendItemCost.effectiveDate   LT 01/01/1900) NO-ERROR .
 
         IF AVAIL vendItemCost THEN
         DO: 
@@ -342,24 +342,24 @@ PROCEDURE pValidate PRIVATE:
         IF oplValid AND ipbf-ttImportVendCostMtx.itemType EQ  "FG" AND
             ipbf-ttImportVendCostMtx.itemID NE ''
         THEN         
-            RUN pIsValidFGITemID IN hdValidator (ipbf-ttImportVendCostMtx.itemID, NO, ipbf-ttImportVendCostMtx.Company, OUTPUT oplValid, OUTPUT cValidNote).
+            RUN pIsValidFGITemID IN hdValidator (TRIM(ipbf-ttImportVendCostMtx.itemID), NO, ipbf-ttImportVendCostMtx.Company, OUTPUT oplValid, OUTPUT cValidNote).
 
         IF oplValid AND ipbf-ttImportVendCostMtx.itemType EQ  "RM" THEN 
-            RUN pIsValidRMITemID IN hdValidator (ipbf-ttImportVendCostMtx.itemID, NO, ipbf-ttImportVendCostMtx.Company, OUTPUT oplValid, OUTPUT cValidNote).
+            RUN pIsValidRMITemID IN hdValidator (TRIM(ipbf-ttImportVendCostMtx.itemID), NO, ipbf-ttImportVendCostMtx.Company, OUTPUT oplValid, OUTPUT cValidNote).
 
         IF oplValid AND ipbf-ttImportVendCostMtx.vendorID NE "" THEN 
-            RUN pIsValidVendor IN hdValidator (ipbf-ttImportVendCostMtx.vendorID, NO, ipbf-ttImportVendCostMtx.Company, OUTPUT oplValid, OUTPUT cValidNote).
+            RUN pIsValidVendor IN hdValidator (TRIM(ipbf-ttImportVendCostMtx.vendorID), NO, ipbf-ttImportVendCostMtx.Company, OUTPUT oplValid, OUTPUT cValidNote).
 
         IF oplValid AND ipbf-ttImportVendCostMtx.customerID NE "" THEN 
-            RUN pIsValidCustomerID IN hdValidator (ipbf-ttImportVendCostMtx.customerID, NO, ipbf-ttImportVendCostMtx.Company, OUTPUT oplValid, OUTPUT cValidNote).
+            RUN pIsValidCustomerID IN hdValidator (TRIM(ipbf-ttImportVendCostMtx.customerID), NO, ipbf-ttImportVendCostMtx.Company, OUTPUT oplValid, OUTPUT cValidNote).
 
         IF oplValid AND ipbf-ttImportVendCostMtx.estimateNo NE "" THEN 
-            RUN pIsValidEstID IN hdValidator (ipbf-ttImportVendCostMtx.estimateNo, NO, ipbf-ttImportVendCostMtx.Company, OUTPUT oplValid, OUTPUT cValidNote).
+            RUN pIsValidEstID IN hdValidator (TRIM(ipbf-ttImportVendCostMtx.estimateNo), NO, ipbf-ttImportVendCostMtx.Company, OUTPUT oplValid, OUTPUT cValidNote).
 
         IF ipbf-ttImportVendCostMtx.itemType EQ "RM" THEN DO:
             FIND FIRST ITEM NO-LOCK
                 WHERE ITEM.company EQ ipbf-ttImportVendCostMtx.Company
-                AND ITEM.i-no EQ  ipbf-ttImportVendCostMtx.itemID NO-ERROR.
+                AND ITEM.i-no      EQ  TRIM(ipbf-ttImportVendCostMtx.itemID) NO-ERROR.
             IF AVAILABLE ITEM THEN
                 RUN sys/ref/uom-rm.p  (ITEM.mat-type, OUTPUT uom-list).
             END.
@@ -368,12 +368,12 @@ PROCEDURE pValidate PRIVATE:
             END.
 
         IF oplValid THEN 
-            RUN pIsValidUOM IN hdValidator (ipbf-ttImportVendCostMtx.vendorUOM, YES, OUTPUT oplValid, OUTPUT cValidNote).
+            RUN pIsValidUOM IN hdValidator (TRIM(ipbf-ttImportVendCostMtx.vendorUOM), YES, OUTPUT oplValid, OUTPUT cValidNote).
 
         IF oplValid THEN 
-            RUN pIsValidFromList IN hdValidator ("UOM",ipbf-ttImportVendCostMtx.vendorUOM,uom-list, OUTPUT oplValid, OUTPUT cValidNote).
+            RUN pIsValidFromList IN hdValidator ("UOM",TRIM(ipbf-ttImportVendCostMtx.vendorUOM),uom-list, OUTPUT oplValid, OUTPUT cValidNote).
         IF oplValid AND ipbf-ttImportVendCostMtx.useQuantityFromBase NE "" THEN  
-           RUN pIsValidFromList ("Quantity Basis", ipbf-ttImportVendCostMtx.useQuantityFromBase, "From,Up To", OUTPUT oplValid, OUTPUT cValidNote). 
+           RUN pIsValidFromList ("Quantity Basis", TRIM(ipbf-ttImportVendCostMtx.useQuantityFromBase), "From,Up To", OUTPUT oplValid, OUTPUT cValidNote). 
         
         IF oplValid AND ipbf-ttImportVendCostMtx.estimateNo NE "" THEN
            RUN pIsValidEstimateFormBlank IN hdValidator (ipbf-ttImportVendCostMtx.estimateNo, ipbf-ttImportVendCostMtx.formNo, ipbf-ttImportVendCostMtx.blankNo, NO, ipbf-ttImportVendCostMtx.Company, OUTPUT oplValid, OUTPUT cValidNote).

@@ -64,11 +64,11 @@ DEFINE TEMP-TABLE ttImportPriceMatrix
     FIELD Price10       AS DECIMAL   FORMAT "->>,>>>,>>9.99<<" COLUMN-LABEL "Price10" HELP "Optional - Decimal"
     FIELD Discount10    AS DECIMAL   FORMAT "->>>9.99<<<" COLUMN-LABEL "Dsc10" HELP "Optional - Decimal"
     FIELD UOM10         AS CHARACTER FORMAT "x(3)" COLUMN-LABEL "UOM10" HELP "Optional - must be Valid"
-    FIELD ExpireDate      AS DATE      FORMAT "99/99/9999" INITIAL "12/31/2099" COLUMN-LABEL "Exp Date" HELP "validated - must be greater than eff date"
-    FIELD ShipTo       AS CHARACTER FORMAT "x(8)" COLUMN-LABEL "ShipTo" HELP "Optional - Size:8"
-    FIELD cOnline      AS CHARACTER FORMAT "X(3)" COLUMN-LABEL "Online" HELP "Optional - Yes or N0" 
-    FIELD minOrderQty  AS CHARACTER FORMAT "->>>,>>>,>>9.<<<" COLUMN-LABEL "Minimum Order Qty" HELP "Optional - Decimal" 
-    FIELD quoteID      AS INTEGER   FORMAT ">>>>>>9" COLUMN-LABEL "Quote" HELP "Optional - Integer".
+    FIELD ExpireDate    AS DATE      FORMAT "99/99/9999" INITIAL "12/31/2099" COLUMN-LABEL "Exp Date" HELP "validated - must be greater than eff date"
+    FIELD ShipTo        AS CHARACTER FORMAT "x(8)" COLUMN-LABEL "ShipTo" HELP "Optional - Size:8"
+    FIELD cOnline       AS CHARACTER FORMAT "X(3)" COLUMN-LABEL "Online" HELP "Optional - Yes or N0" 
+    FIELD minOrderQty   AS CHARACTER FORMAT "->>>,>>>,>>9.<<<" COLUMN-LABEL "Minimum Order Qty" HELP "Optional - Decimal" 
+    FIELD quoteID       AS INTEGER   FORMAT ">>>>>>9" COLUMN-LABEL "Quote" HELP "Optional - Integer".
 
 DEFINE VARIABLE giIndexOffset AS INTEGER NO-UNDO INIT 2. /*Set to 1 if there is a Company field in temp-table since this will not be part of the import data*/
 
@@ -116,14 +116,14 @@ PROCEDURE pValidate PRIVATE:
     IF oplValid THEN 
     DO:     
         dtEffDate = IF ipbf-ttImportPriceMatrix.EffectiveDate NE ? THEN ipbf-ttImportPriceMatrix.EffectiveDate ELSE TODAY.
-        FIND FIRST oe-prmtx EXCLUSIVE-LOCK
-             WHERE oe-prmtx.company  EQ ipbf-ttImportPriceMatrix.Company
-                AND oe-prmtx.cust-no EQ  ipbf-ttImportPriceMatrix.CustomerID
-                AND oe-prmtx.custype EQ  ipbf-ttImportPriceMatrix.CustomerType
-                AND oe-prmtx.procat  EQ  ipbf-ttImportPriceMatrix.Category
-                AND oe-prmtx.i-no    EQ  ipbf-ttImportPriceMatrix.FGItemID
-                AND oe-prmtx.custShipID  EQ  ipbf-ttImportPriceMatrix.shipto
-                AND oe-prmtx.eff-date EQ dtEffDate
+        FIND FIRST oe-prmtx NO-LOCK
+             WHERE oe-prmtx.company         EQ  ipbf-ttImportPriceMatrix.Company
+                AND oe-prmtx.cust-no        EQ  TRIM(ipbf-ttImportPriceMatrix.CustomerID)
+                AND oe-prmtx.custype        EQ  TRIM(ipbf-ttImportPriceMatrix.CustomerType)
+                AND oe-prmtx.procat         EQ  TRIM(ipbf-ttImportPriceMatrix.Category)
+                AND oe-prmtx.i-no           EQ  TRIM(ipbf-ttImportPriceMatrix.FGItemID)
+                AND oe-prmtx.custShipID     EQ  TRIM(ipbf-ttImportPriceMatrix.shipto)
+                AND oe-prmtx.eff-date       EQ  dtEffDate
              NO-ERROR.
         IF AVAIL oe-prmtx THEN
         DO: 
@@ -148,19 +148,19 @@ PROCEDURE pValidate PRIVATE:
     IF oplValid AND iplFieldValidation THEN 
     DO:
         IF oplValid AND ipbf-ttImportPriceMatrix.CustomerID NE "" THEN 
-            RUN pIsValidCustomerID IN hdValidator (ipbf-ttImportPriceMatrix.CustomerID, NO, ipbf-ttImportPriceMatrix.Company, OUTPUT oplValid, OUTPUT cValidNote).
+            RUN pIsValidCustomerID IN hdValidator (TRIM(ipbf-ttImportPriceMatrix.CustomerID), NO, ipbf-ttImportPriceMatrix.Company, OUTPUT oplValid, OUTPUT cValidNote).
         
         IF oplValid AND ipbf-ttImportPriceMatrix.CustomerType NE "" THEN 
-            RUN pIsValidCustomerType IN hdValidator (ipbf-ttImportPriceMatrix.CustomerType, NO, ipbf-ttImportPriceMatrix.Company, OUTPUT oplValid, OUTPUT cValidNote).
+            RUN pIsValidCustomerType IN hdValidator (TRIM(ipbf-ttImportPriceMatrix.CustomerType), NO, ipbf-ttImportPriceMatrix.Company, OUTPUT oplValid, OUTPUT cValidNote).
         
         IF oplValid AND ipbf-ttImportPriceMatrix.Category NE "" THEN
-            RUN pIsValidFGCategory IN hdValidator (ipbf-ttImportPriceMatrix.Category, NO, ipbf-ttImportPriceMatrix.Company, OUTPUT oplValid, OUTPUT cValidNote). 
+            RUN pIsValidFGCategory IN hdValidator (TRIM(ipbf-ttImportPriceMatrix.Category), NO, ipbf-ttImportPriceMatrix.Company, OUTPUT oplValid, OUTPUT cValidNote). 
         
         IF oplValid AND ipbf-ttImportPriceMatrix.FGItemID NE "" THEN 
-            RUN pIsValidFGItemID IN hdValidator (ipbf-ttImportPriceMatrix.FGItemID, NO, ipbf-ttImportPriceMatrix.Company, OUTPUT oplValid, OUTPUT cValidNote).
+            RUN pIsValidFGItemID IN hdValidator (TRIM(ipbf-ttImportPriceMatrix.FGItemID), NO, ipbf-ttImportPriceMatrix.Company, OUTPUT oplValid, OUTPUT cValidNote).
         
         IF oplValid THEN 
-        RUN pSetValidUOMList(ipbf-ttImportPriceMatrix.company, ipbf-ttImportPriceMatrix.FGItemID, OUTPUT cUOMList ).
+        RUN pSetValidUOMList(ipbf-ttImportPriceMatrix.company, TRIM(ipbf-ttImportPriceMatrix.FGItemID), OUTPUT cUOMList ).
         
         IF oplValid AND ipbf-ttImportPriceMatrix.UOM1 NE "" THEN 
         DO:
@@ -298,13 +298,13 @@ PROCEDURE pProcessRecord PRIVATE:
     dtEffDate = IF ipbf-ttImportPriceMatrix.EffectiveDate NE ? THEN ipbf-ttImportPriceMatrix.EffectiveDate ELSE TODAY.
     
     FIND FIRST bf-oe-prmtx EXCLUSIVE-LOCK
-        WHERE bf-oe-prmtx.company EQ ipbf-ttImportPriceMatrix.Company
-        AND bf-oe-prmtx.cust-no EQ  ipbf-ttImportPriceMatrix.CustomerID
-        AND bf-oe-prmtx.custype EQ  ipbf-ttImportPriceMatrix.CustomerType
-        AND bf-oe-prmtx.procat  EQ  ipbf-ttImportPriceMatrix.Category
-        AND bf-oe-prmtx.i-no  EQ  ipbf-ttImportPriceMatrix.FGItemID 
-        AND bf-oe-prmtx.custShipID  EQ  ipbf-ttImportPriceMatrix.shipto
-        AND bf-oe-prmtx.eff-date EQ dtEffDate
+        WHERE bf-oe-prmtx.company   EQ  ipbf-ttImportPriceMatrix.Company
+        AND bf-oe-prmtx.cust-no     EQ  TRIM(ipbf-ttImportPriceMatrix.CustomerID)
+        AND bf-oe-prmtx.custype     EQ  TRIM(ipbf-ttImportPriceMatrix.CustomerType)
+        AND bf-oe-prmtx.procat      EQ  TRIM(ipbf-ttImportPriceMatrix.Category)
+        AND bf-oe-prmtx.i-no        EQ  TRIM(ipbf-ttImportPriceMatrix.FGItemID) 
+        AND bf-oe-prmtx.custShipID  EQ  TRIM(ipbf-ttImportPriceMatrix.shipto)
+        AND bf-oe-prmtx.eff-date    EQ  dtEffDate
         NO-ERROR.
     IF NOT AVAILABLE bf-oe-prmtx THEN 
     DO: 
@@ -314,10 +314,10 @@ PROCEDURE pProcessRecord PRIVATE:
         ASSIGN 
             bf-oe-prmtx.company  = ipbf-ttImportPriceMatrix.Company
             bf-oe-prmtx.eff-date = dtEffDate
-            bf-oe-prmtx.cust-no  = ipbf-ttImportPriceMatrix.CustomerID 
-            bf-oe-prmtx.custype  = ipbf-ttImportPriceMatrix.CustomerType         
-            bf-oe-prmtx.procat   = ipbf-ttImportPriceMatrix.Category     
-            bf-oe-prmtx.i-no     = ipbf-ttImportPriceMatrix.FGItemID
+            bf-oe-prmtx.cust-no  = TRIM(ipbf-ttImportPriceMatrix.CustomerID) 
+            bf-oe-prmtx.custype  = TRIM(ipbf-ttImportPriceMatrix.CustomerType)         
+            bf-oe-prmtx.procat   = TRIM(ipbf-ttImportPriceMatrix.Category)     
+            bf-oe-prmtx.i-no     = TRIM(ipbf-ttImportPriceMatrix.FGItemID)
             bf-oe-prmtx.meth     = YES         
             .
     END. 
