@@ -1,11 +1,10 @@
-
 /*------------------------------------------------------------------------
     File        : ImportVendCostMtx.p
     Purpose     : 
 
     Syntax      :
 
-    Description : Import Program (Persistent) for Configuring and Processing the Import for Prep and Die	
+    Description : Import Program (Persistent) for Vendor Cost Matrix	
 
     Author(s)   : Sewa Singh
     Created     : Wed Sept 11
@@ -23,23 +22,22 @@ DEFINE TEMP-TABLE ttImportVendCostMtx
     FIELD vendorID                AS CHARACTER FORMAT "x(8)" COLUMN-LABEL "Vendor" HELP "Optional - - Size:8"
     FIELD customerID              AS CHARACTER FORMAT "x(8)" COLUMN-LABEL "Customer" HELP "Optional - Size:8"
     FIELD estimateNo              AS CHARACTER FORMAT "x(8)" COLUMN-LABEL "Estimate" HELP "Optional - Size:8"
-    FIELD formNo                  AS INTEGER FORMAT ">>" INITIAL 0 COLUMN-LABEL "Form" HELP "Optional - Integer"
-    FIELD blankNo                 AS INTEGER FORMAT ">>" INITIAL 0 COLUMN-LABEL "Blank" HELP "Optional - Integer"
+    FIELD formNo                  AS INTEGER   FORMAT ">>" INITIAL 0 COLUMN-LABEL "Form" HELP "Optional - Integer"
+    FIELD blankNo                 AS INTEGER   FORMAT ">>" INITIAL 0 COLUMN-LABEL "Blank" HELP "Optional - Integer"
     FIELD vendorItemID            AS CHARACTER FORMAT "x(16)" COLUMN-LABEL "Vendor Item" HELP "Optional - Size:16"
-    FIELD effectiveDate           AS DATE COLUMN-LABEL "Effective" HELP "Optional - Date"
-    FIELD expirationDate          AS DATE COLUMN-LABEL "Expires" HELP "Optional - Date"
+    FIELD effectiveDate           AS DATE      COLUMN-LABEL "Effective" HELP "Optional - Date"
+    FIELD expirationDate          AS DATE      COLUMN-LABEL "Expires" HELP "Optional - Date"
     FIELD vendorUOM               AS CHARACTER FORMAT "x(3)" COLUMN-LABEL "Vendor Uom" HELP "Required - Size:3"
-    FIELD dimWidthMinimum         AS DECIMAL FORMAT "->>,>>9.9999" INITIAL 0 COLUMN-LABEL "Width Minimum" HELP "Optional - Decimal"
-    FIELD dimWidthMaximum         AS DECIMAL FORMAT "->>,>>9.9999" INITIAL 0 COLUMN-LABEL "Width Maximum" HELP "Optional - Decimal"
-    FIELD dimLengthMinimum        AS DECIMAL FORMAT "->>,>>9.9999" INITIAL 0 COLUMN-LABEL "Length Minimum" HELP "Optional - Decimal"
-    FIELD dimLengthMaximum        AS DECIMAL FORMAT "->>,>>9.9999" INITIAL 0 COLUMN-LABEL "Length Maximum" HELP "Optional - Decimal"
-    FIELD dimLengthUnder          AS DECIMAL FORMAT "->>,>>9.9999" INITIAL 0 COLUMN-LABEL "Length Under" HELP "Optional - Decimal"
-    FIELD dimWidthUnder           AS DECIMAL FORMAT "->>,>>9.9999" INITIAL 0 COLUMN-LABEL "Width Under" HELP "Optional - Decimal"
-    FIELD dimWidthOver            AS DECIMAL FORMAT "->>,>>9.9999" INITIAL 0 COLUMN-LABEL "Width Upcharge" HELP "Optional - Decimal"
-    FIELD dimLengthOver           AS DECIMAL FORMAT "->>,>>9.9999" INITIAL 0 COLUMN-LABEL "Length Upcharge" HELP "Optional - Decimal"
-    FIELD quantityMinimumOrder    AS DECIMAL FORMAT "->>,>>>,>>9" INITIAL 0 COLUMN-LABEL "Min Order Qty" HELP "Optional - Decimal"
-    FIELD quantityMaximumOrder    AS DECIMAL FORMAT "->>,>>>,>>9" INITIAL 0 COLUMN-LABEL "Max Order Qty" HELP "Optional - Decimal" 
-    
+    FIELD dimWidthMinimum         AS DECIMAL   FORMAT "->>,>>9.9999" INITIAL 0 COLUMN-LABEL "Width Minimum" HELP "Optional - Decimal"
+    FIELD dimWidthMaximum         AS DECIMAL   FORMAT "->>,>>9.9999" INITIAL 0 COLUMN-LABEL "Width Maximum" HELP "Optional - Decimal"
+    FIELD dimLengthMinimum        AS DECIMAL   FORMAT "->>,>>9.9999" INITIAL 0 COLUMN-LABEL "Length Minimum" HELP "Optional - Decimal"
+    FIELD dimLengthMaximum        AS DECIMAL   FORMAT "->>,>>9.9999" INITIAL 0 COLUMN-LABEL "Length Maximum" HELP "Optional - Decimal"
+    FIELD dimLengthUnder          AS DECIMAL   FORMAT "->>,>>9.9999" INITIAL 0 COLUMN-LABEL "Length Under" HELP "Optional - Decimal"
+    FIELD dimWidthUnder           AS DECIMAL   FORMAT "->>,>>9.9999" INITIAL 0 COLUMN-LABEL "Width Under" HELP "Optional - Decimal"
+    FIELD dimWidthOver            AS DECIMAL   FORMAT "->>,>>9.9999" INITIAL 0 COLUMN-LABEL "Width Upcharge" HELP "Optional - Decimal"
+    FIELD dimLengthOver           AS DECIMAL   FORMAT "->>,>>9.9999" INITIAL 0 COLUMN-LABEL "Length Upcharge" HELP "Optional - Decimal"
+    FIELD quantityMinimumOrder    AS DECIMAL   FORMAT "->>,>>>,>>9" INITIAL 0 COLUMN-LABEL "Min Order Qty" HELP "Optional - Decimal"
+    FIELD quantityMaximumOrder    AS DECIMAL   FORMAT "->>,>>>,>>9" INITIAL 0 COLUMN-LABEL "Max Order Qty" HELP "Optional - Decimal"     
     FIELD LevelQuantity01         AS DECIMAL   FORMAT ">,>>>,>>9.9<<" INITIAL 0 COLUMN-LABEL "Level Quantity 1" HELP "Optional - decimal" 
     FIELD LevelCostPerUOM01       AS DECIMAL   FORMAT ">>,>>9.9999" INITIAL 0 COLUMN-LABEL "Cost Per 1" HELP "Optional - decimal"
     FIELD LevelSetup01            AS DECIMAL   FORMAT "->>,>>9.99" INITIAL 0 COLUMN-LABEL "Setup 1" HELP "Optional - decimal" 
@@ -91,21 +89,20 @@ DEFINE TEMP-TABLE ttImportVendCostMtx
     FIELD DeviationCost10         AS DECIMAL   FORMAT "->,>>>,>>9.99":U INITIAL 0 COLUMN-LABEL "Deviation Cost 10" HELP "Optional - Decimal"
     FIELD LeadTime10              AS INTEGER   FORMAT ">,>>>,>>9":U INITIAL 0 COLUMN-LABEL "Lead Time 10" HELP "Optional - Integer"
     FIELD useQuantityFromBase     AS CHARACTER FORMAT "x(8)" COLUMN-LABEL "Quantity Basis" HELP "Optional - From/Up To"
-        
     .
 DEFINE VARIABLE giIndexOffset AS INTEGER NO-UNDO INIT 2. /*Set to 2 to skip Company and Location field in temp-table since this will not be part of the import data*/
+DEFINE VARIABLE hVendorProcs  AS HANDLE  NO-UNDO.
  
-
 /* ********************  Preprocessor Definitions  ******************** */
-
 
 /* ***************************  Main Block  *************************** */
 
+RUN system/VendorProcs.p PERSISTENT SET hVendorProcs.
 
 /* **********************  Internal Procedures  *********************** */
- /*This Includes Procedures with the expected parameters.  Includes pInitialize, pAddRecord, pProcessImport*/
-{util/ImportProcs.i &ImportTempTable = "ttImportVendCostMtx"}
 
+/*This Includes Procedures with the expected parameters.  Includes pInitialize, pAddRecord, pProcessImport*/
+{util/ImportProcs.i &ImportTempTable = "ttImportVendCostMtx"}
 
 PROCEDURE pProcessRecord PRIVATE:
     /*------------------------------------------------------------------------------
@@ -115,13 +112,15 @@ PROCEDURE pProcessRecord PRIVATE:
     DEFINE PARAMETER BUFFER ipbf-ttImportVendCostMtx FOR ttImportVendCostMtx.
     DEFINE INPUT PARAMETER iplIgnoreBlanks AS LOGICAL NO-UNDO.
     DEFINE INPUT-OUTPUT PARAMETER iopiAdded AS INTEGER NO-UNDO.
+
     DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO .
     DEFINE VARIABLE cReturnMessage AS CHARACTER NO-UNDO .
     DEFINE VARIABLE iCount AS INTEGER NO-UNDO .
     DEFINE VARIABLE hVendorCostProcs AS HANDLE NO-UNDO.
     DEFINE BUFFER bf-vendItemCost FOR vendItemCost.
     DEFINE BUFFER bf-vendItemCostLevel FOR vendItemCostLevel.
-     RUN system\VendorCostProcs.p PERSISTENT SET hVendorCostProcs.
+    
+    RUN system\VendorCostProcs.p PERSISTENT SET hVendorCostProcs.
 
     FIND FIRST bf-vendItemCost EXCLUSIVE-LOCK 
         WHERE bf-vendItemCost.company EQ ipbf-ttImportVendCostMtx.Company
@@ -200,7 +199,17 @@ PROCEDURE pProcessRecord PRIVATE:
               
     FIND CURRENT bf-vendItemCost NO-LOCK NO-ERROR .
     
-    RUN RecalculateFromAndTo IN hVendorCostProcs (bf-vendItemCost.vendItemCostID, OUTPUT lReturnError ,OUTPUT cReturnMessage ) .
+    RUN RecalculateFromAndTo IN hVendorCostProcs (bf-vendItemCost.vendItemCostID, OUTPUT lReturnError ,OUTPUT cReturnMessage).
+    RUN Vendor_ExpireOldCost IN hVendorCostProcs (
+        bf-vendItemCost.company, 
+        bf-vendItemCost.itemID,
+        bf-vendItemCost.itemType,
+        bf-vendItemCost.vendorID,
+        bf-vendItemCost.customerID,
+        bf-vendItemCost.estimateNo,
+        bf-vendItemCost.formNo,
+        bf-vendItemCost.blankNo
+        ).
 
     RELEASE bf-vendItemCostLevel.
     RELEASE bf-vendItemCost .
@@ -255,7 +264,18 @@ PROCEDURE pValidate PRIVATE:
     
     IF oplValid THEN 
     DO:
-        IF ipbf-ttImportVendCostMtx.itemID EQ '' THEN 
+        IF ( 
+                ipbf-ttImportVendCostMtx.estimateNo EQ ""   AND 
+                ipbf-ttImportVendCostMtx.formNo     EQ 0    AND   
+                ipbf-ttImportVendCostMtx.blankNo    EQ 0    AND  
+                ipbf-ttImportVendCostMtx.itemType   EQ "FG" AND
+                ipbf-ttImportVendCostMtx.itemID     EQ ''
+            ) OR 
+            (
+                ipbf-ttImportVendCostMtx.itemType   EQ "RM" AND
+                ipbf-ttImportVendCostMtx.itemID     EQ ''
+            )       
+         THEN 
             ASSIGN 
                 oplValid = NO
                 opcNote  = "Item is Blank".
@@ -284,15 +304,15 @@ PROCEDURE pValidate PRIVATE:
     DO:
         FIND FIRST vendItemCost NO-LOCK 
             WHERE vendItemCost.company EQ ipbf-ttImportVendCostMtx.Company
-            AND vendItemCost.itemType EQ ipbf-ttImportVendCostMtx.itemType
             AND vendItemCost.itemID EQ ipbf-ttImportVendCostMtx.itemID
+            AND vendItemCost.itemType EQ ipbf-ttImportVendCostMtx.itemType
             AND vendItemCost.vendorID EQ ipbf-ttImportVendCostMtx.vendorID
             AND vendItemCost.customerID EQ ipbf-ttImportVendCostMtx.customerID
             AND vendItemCost.estimateNo EQ ipbf-ttImportVendCostMtx.estimateNo
             AND vendItemCost.formNo EQ ipbf-ttImportVendCostMtx.formNo
             AND vendItemCost.blankNo EQ ipbf-ttImportVendCostMtx.blankNo
-            AND vendItemCost.expirationDate EQ date(ipbf-ttImportVendCostMtx.expirationDate)
-            AND (vendItemCost.effectiveDate EQ date(ipbf-ttImportVendCostMtx.effectiveDate)
+            AND vendItemCost.expirationDate EQ DATE(ipbf-ttImportVendCostMtx.expirationDate)
+            AND (vendItemCost.effectiveDate EQ DATE(ipbf-ttImportVendCostMtx.effectiveDate)
             OR vendItemCost.effectiveDate LT 01/01/1900) NO-ERROR .
 
         IF AVAIL vendItemCost THEN
@@ -319,7 +339,9 @@ PROCEDURE pValidate PRIVATE:
     /*Field Level Validation*/
     IF oplValid AND iplFieldValidation THEN 
     DO:     
-        IF oplValid AND ipbf-ttImportVendCostMtx.itemType EQ  "FG" THEN 
+        IF oplValid AND ipbf-ttImportVendCostMtx.itemType EQ  "FG" AND
+            ipbf-ttImportVendCostMtx.itemID NE ''
+        THEN         
             RUN pIsValidFGITemID IN hdValidator (ipbf-ttImportVendCostMtx.itemID, NO, ipbf-ttImportVendCostMtx.Company, OUTPUT oplValid, OUTPUT cValidNote).
 
         IF oplValid AND ipbf-ttImportVendCostMtx.itemType EQ  "RM" THEN 
@@ -353,6 +375,9 @@ PROCEDURE pValidate PRIVATE:
         IF oplValid AND ipbf-ttImportVendCostMtx.useQuantityFromBase NE "" THEN  
            RUN pIsValidFromList ("Quantity Basis", ipbf-ttImportVendCostMtx.useQuantityFromBase, "From,Up To", OUTPUT oplValid, OUTPUT cValidNote). 
         
+        IF oplValid AND ipbf-ttImportVendCostMtx.estimateNo NE "" THEN
+           RUN pIsValidEstimateFormBlank IN hdValidator (ipbf-ttImportVendCostMtx.estimateNo, ipbf-ttImportVendCostMtx.formNo, ipbf-ttImportVendCostMtx.blankNo, NO, ipbf-ttImportVendCostMtx.Company, OUTPUT oplValid, OUTPUT cValidNote).
+         
     END.
     
     IF NOT oplValid AND cValidNote NE "" THEN opcNote = cValidNote.

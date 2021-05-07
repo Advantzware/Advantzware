@@ -123,10 +123,10 @@ DEFINE BUFFER bttJob FOR ttJob.
 /* Definitions for FRAME DEFAULT-FRAME                                  */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS svResource iHTMLColumns lScanCodes ~
-lResources btnHTML btnJobSeqScan lScheduled lPending 
-&Scoped-Define DISPLAYED-OBJECTS svResource iHTMLColumns lScanCodes ~
-lResources pendingText lScheduled lPending 
+&Scoped-Define ENABLED-OBJECTS cPendingFilter svResource iHTMLColumns ~
+lScanCodes lResources btnHTML btnJobSeqScan lScheduled lPending 
+&Scoped-Define DISPLAYED-OBJECTS cPendingFilter svResource iHTMLColumns ~
+lScanCodes lResources pendingText lScheduled lPending 
 
 /* Custom List Definitions                                              */
 /* jobMode,List-2,List-3,List-4,List-5,List-6                           */
@@ -241,12 +241,17 @@ DEFINE BUTTON btnUp
      LABEL "" 
      SIZE 9.6 BY 2.29 TOOLTIP "Move Up".
 
+DEFINE VARIABLE cPendingFilter AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS FILL-IN 
+     SIZE 22 BY .71
+     FGCOLOR 1  NO-UNDO.
+
 DEFINE VARIABLE iHTMLColumns AS INTEGER FORMAT ">9":U INITIAL 4 
      LABEL "HTML Columns" 
      VIEW-AS FILL-IN 
      SIZE 5 BY .95 TOOLTIP "HTML Columns" NO-UNDO.
 
-DEFINE VARIABLE pendingText AS CHARACTER FORMAT "X(256)":U INITIAL "  Pending" 
+DEFINE VARIABLE pendingText AS CHARACTER FORMAT "X(256)":U INITIAL "  Pending Jobs Filter" 
       VIEW-AS TEXT 
      SIZE 22 BY .62
      BGCOLOR 8 FGCOLOR 1  NO-UNDO.
@@ -269,11 +274,11 @@ DEFINE VARIABLE svResource AS CHARACTER FORMAT "X(256)":U
      BGCOLOR 15  NO-UNDO.
 
 DEFINE RECTANGLE RECT-1
-     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
      SIZE 52 BY 28.57.
 
 DEFINE RECTANGLE RECT-2
-     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 50 BY .48
      BGCOLOR 0 .
 
@@ -319,6 +324,7 @@ ttJob.job
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
+     cPendingFilter AT ROW 6.24 COL 75 COLON-ALIGNED NO-LABEL WIDGET-ID 66
      btnSave AT ROW 4.81 COL 42 WIDGET-ID 18
      svResource AT ROW 1.24 COL 23 COLON-ALIGNED HELP
           "Scan/Enter Resource" WIDGET-ID 4
@@ -778,6 +784,18 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME cPendingFilter
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cPendingFilter C-Win
+ON LEAVE OF cPendingFilter IN FRAME DEFAULT-FRAME
+DO:
+    ASSIGN {&SELF-NAME}.
+    APPLY "LEAVE":U TO svResource.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME iHTMLColumns
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL iHTMLColumns C-Win
 ON VALUE-CHANGED OF iHTMLColumns IN FRAME DEFAULT-FRAME /* HTML Columns */
@@ -988,7 +1006,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
   ASSIGN
       cTitle = {&WINDOW-NAME}:TITLE
-      pendingText = "  Pending Jobs"
+      pendingText = "  Pending Jobs Filter:"
       .
   RUN winReSize.
   RUN enable_UI.
@@ -1234,11 +1252,11 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY svResource iHTMLColumns lScanCodes lResources pendingText lScheduled 
-          lPending 
+  DISPLAY cPendingFilter svResource iHTMLColumns lScanCodes lResources 
+          pendingText lScheduled lPending 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE svResource iHTMLColumns lScanCodes lResources btnHTML btnJobSeqScan 
-         lScheduled lPending 
+  ENABLE cPendingFilter svResource iHTMLColumns lScanCodes lResources btnHTML 
+         btnJobSeqScan lScheduled lPending 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
@@ -1269,11 +1287,13 @@ PROCEDURE getJobs :
     
     ASSIGN
         pendingText:Y IN FRAME {&FRAME-NAME} = iJobYCoord
+        cPendingFilter:Y = pendingText:Y
         iYCoord = iJobYCoord + pendingText:HEIGHT-PIXELS + 2
         .
     FOR EACH ttJob
         WHERE ttJob.jobType EQ "P"
           AND ttJob.resource EQ ipcResource
+          AND ttJob.job BEGINS cPendingFilter
         BY ttJob.job
         :
         RUN createButton ("jobScanPool","Job", ttJob.job,iXCoord,iYCoord,ROWID(ttJob)).
@@ -1329,6 +1349,7 @@ PROCEDURE getResources :
     ASSIGN
         iJobYCoord = iYCoord + 90
         pendingText:Y IN FRAME {&FRAME-NAME} = iJobYCoord
+        cPendingFilter:Y = pendingText:Y
         .
 
     RUN LockWindowUpdate (0,OUTPUT i).
@@ -2067,6 +2088,7 @@ PROCEDURE winReSize :
         BROWSE jobs:HEIGHT-PIXELS = FRAME {&FRAME-NAME}:HEIGHT-PIXELS
                                   - BROWSE jobs:Y
         .
+    cPendingFilter:MOVE-TO-TOP().
 
 END PROCEDURE.
 

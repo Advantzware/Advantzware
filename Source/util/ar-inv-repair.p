@@ -73,8 +73,7 @@ v-ref-arl = ar-invl.x-no + 1.
 FOR EACH glhist WHERE
          glhist.jrnl = "OEINV" AND
         (glhist.tr-date >= ip-beg-date AND 
-         glhist.tr-date <= ip-end-date) AND
-         glhist.posted  EQ NO NO-LOCK:
+         glhist.tr-date <= ip-end-date) NO-LOCK:
 
    v-pos = R-INDEX(glhist.tr-dscr,"Inv#").
 

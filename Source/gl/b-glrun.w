@@ -151,7 +151,7 @@ DEFINE BROWSE br_table
   QUERY br_table NO-LOCK DISPLAY
       tt-glhist.tr-num  LABEL "Run#"        FORMAT "9999999"
       tt-glhist.actnum  LABEL "Account#"    
-      tt-glhist.jrnl    LABEL "Journal"
+      tt-glhist.jrnl    LABEL "Journal"     FORMAT "x(9)"
       tt-glhist.tr-dscr LABEL "Reference"   FORMAT "x(40)"
       tt-glhist.db-amt FORM "->>,>>>,>>9.99" 
       tt-glhist.cr-amt FORM "->>,>>>,>>9.99" 

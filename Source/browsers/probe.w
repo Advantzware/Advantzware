@@ -168,6 +168,9 @@ DEFINE VARIABLE hdEstimateCalcProcs AS HANDLE.
 DEFINE VARIABLE iLinePerPage AS INTEGER NO-UNDO .
 DEFINE VARIABLE hdEstimateProcs AS HANDLE NO-UNDO.
 DEFINE VARIABLE lCEVersion AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lQuotePriceMatrix AS LOGICAL NO-UNDO.
+DEFINE VARIABLE iQuoteExpirationDays AS INTEGER NO-UNDO. 
+DEFINE VARIABLE lQuoteExpirationDays AS LOGICAL NO-UNDO.
              
 DEFINE VARIABLE hdSalesManProcs AS HANDLE NO-UNDO.
 
@@ -180,7 +183,25 @@ IF lRecFound THEN
  RUN sys/ref/nk1look.p (cocode, "CEVersion", "C" /* Character */, NO /* check by cust */, 
         INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
         OUTPUT cRtnChar, OUTPUT lRecFound).
-    lCEVersion = lRecFound AND cRtnChar EQ "New".   
+    lCEVersion = lRecFound AND cRtnChar EQ "New". 
+    
+RUN sys/ref/nk1look.p (INPUT cocode, "QuotePriceMatrix", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    lQuotePriceMatrix = logical(cRtnChar) NO-ERROR.    
+    
+RUN sys/ref/nk1look.p (INPUT cocode, "QuoteExpirationDays", "I" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    iQuoteExpirationDays = INTEGER(cRtnChar) NO-ERROR. 
+    
+RUN sys/ref/nk1look.p (INPUT cocode, "QuoteExpirationDays", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    lQuoteExpirationDays = LOGICAL(cRtnChar) NO-ERROR.    
     
 FIND FIRST sys-ctrl NO-LOCK WHERE
     sys-ctrl.company EQ cocode AND
@@ -1555,6 +1576,7 @@ DEFINE VARIABLE lv-cust LIKE eb.cust-no NO-UNDO.
 DEFINE VARIABLE cNotes LIKE quotehd.comment NO-UNDO.
 DEFINE VARIABLE lSuccess AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+DEFINE BUFFER bf-cust FOR cust.
 {est/checkuse.i}
 
 SESSION:SET-WAIT-STATE("general").
@@ -1695,6 +1717,11 @@ IF CAN-FIND(FIRST xprobe
 
       {custom/getrfq.i}
       
+       IF lQuoteExpirationDays THEN                                      
+       quotehd.expireDate = TODAY + iQuoteExpirationDays .
+       IF lQuotePriceMatrix  THEN
+       quotehd.pricingMethod = "Ship to".
+      
       FIND FIRST cust
           {sys/look/custW.i}
             AND cust.cust-no EQ quotehd.cust-no
@@ -1718,6 +1745,10 @@ IF CAN-FIND(FIRST xprobe
        quotehd.del-zone  = eb.dest-code  /* bf-eb.dest-code */
        quotehd.terms     = cust.terms
        quotehd.contact   = cust.contact.
+       FIND FIRST bf-cust NO-LOCK
+            WHERE bf-cust.company EQ cocode
+            AND bf-cust.ACTIVE EQ "X" NO-ERROR.
+       quotehd.pricingMethod = IF cust.pricingMethod NE "" THEN cust.pricingMethod ELSE IF AVAIL bf-cust AND bf-cust.pricingMethod NE "" THEN bf-cust.pricingMethod ELSE "Ship to".
 
       IF cust.cust-no EQ "TEMP" THEN
         ASSIGN
@@ -3441,6 +3472,14 @@ PROCEDURE printProbe :
   DEFINE VARIABLE v-probe-fmt AS CHARACTER NO-UNDO.
   
   {est/checkuse.i}
+   FIND FIRST probe WHERE probe.company = eb.company 
+   AND probe.est-no = eb.est-no
+   AND probe.probe-date ne ? NO-LOCK NO-ERROR.
+   IF NOT AVAIL probe THEN
+   DO:
+      MESSAGE "Estimate view of the results can not be found." VIEW-AS ALERT-BOX INFO.
+      RETURN NO-APPLY.
+   END.
   
   IF probe.spare-char-2 NE "" THEN DO: 
     RUN pPrintEstimate(BUFFER probe).

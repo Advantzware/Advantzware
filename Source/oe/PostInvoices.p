@@ -1473,7 +1473,8 @@ PROCEDURE pCreateGLTrans PRIVATE:
             bf-glhist.tr-num     = ipiRun
             bf-glhist.curr-code = ipcCurrCode
             bf-glhist.ex-rate   = ipdExRate
-            bf-glhist.glYear    = IF ipdtTransactionDate EQ ? THEN year(ipbf-ttPostingMaster.postDate) ELSE YEAR(ipdtTransactionDate)
+            bf-glhist.glYear    = ipbf-ttPostingMaster.periodGLYear
+            bf-glhist.yr        = IF ipdtTransactionDate EQ ? THEN year(ipbf-ttPostingMaster.postDate) ELSE YEAR(ipdtTransactionDate)
             bf-glhist.entryType = "A"
             bf-glhist.module    = "AR"
             bf-glhist.posted    =  NO
@@ -2118,6 +2119,7 @@ PROCEDURE pInitialize PRIVATE:
             ttPostingMaster.periodID        = bf-period.pnum
             ttPostingMaster.periodDateStart = bf-period.pst
             ttPostingMaster.periodDateEnd   = bf-period.pend
+            ttPostingMaster.periodGLYear    = bf-period.yr
             .                    
     ELSE 
     DO:

@@ -167,8 +167,8 @@ DEFINE VARIABLE cDueManualChanged AS LOGICAL NO-UNDO. //97238 MFG Date - Weekend
 DEFINE VARIABLE hdSalesManProcs AS HANDLE NO-UNDO.
 DEFINE VARIABLE lAvailable AS LOGICAL NO-UNDO.
 DEF NEW SHARED VAR matrixTag AS CHARACTER NO-UNDO.
-DEFINE TEMP-TABLE ttTag LIKE tag.
-DEFINE TEMP-TABLE ttTempTag LIKE tag.
+{system/ttTag.i &Table-Name=ttTag}
+{system/ttTag.i &Table-Name=ttTempTag}
 
 DEFINE VARIABLE deAutoOver AS DECIMAL NO-UNDO.
 DEFINE VARIABLE deAutoUnder AS DECIMAL NO-UNDO.
@@ -201,6 +201,7 @@ DEFINE VARIABLE llOEDiscount AS LOGICAL NO-UNDO.
 DEF TEMP-TABLE w-est-no NO-UNDO FIELD w-est-no LIKE itemfg.est-no FIELD w-run AS LOG.
 DEFINE VARIABLE cFreightCalculationValue AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lCheckMessage AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lQuotePriceMatrix AS LOGICAL NO-UNDO.
 ll-new-file = CAN-FIND(FIRST asi._file WHERE asi._file._file-name EQ "cust-part").
 
 FIND FIRST sys-ctrl
@@ -275,6 +276,12 @@ RUN sys/ref/nk1look.p (INPUT cocode, "FreightCalculation", "C" /* Logical */, NO
                      OUTPUT v-rtn-char, OUTPUT v-rec-found).
 IF v-rec-found THEN
     cFreightCalculationValue = v-rtn-char NO-ERROR.
+    
+RUN sys/ref/nk1look.p (INPUT cocode, "QuotePriceMatrix", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT v-rtn-char, OUTPUT v-rec-found).
+IF v-rec-found THEN
+    lQuotePriceMatrix = logical(v-rtn-char) NO-ERROR.    
 
 DO TRANSACTION:
  {sys/inc/oeship.i}
@@ -5854,6 +5861,8 @@ DEFINE VARIABLE lMsgResponse AS LOGICAL NO-UNDO.
             FIND CURRENT oe-ordl.
             ASSIGN 
                 oe-ordl.q-no = lv-q-no.
+             IF lQuotePriceMatrix THEN   
+             RUN pUpdateQuoteApprovedField(INPUT lv-q-no, INPUT oe-ordl.i-no).    
         END.
     END.
     ELSE IF oe-ordl.est-no EQ ""            /* Est-no on line is blank and not a transfer order */
@@ -8383,6 +8392,46 @@ DEFINE BUFFER bf-itemfg FOR itemfg.
 
 END PROCEDURE.
 	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateQuoteApprovedField d-oeitem 
+PROCEDURE pUpdateQuoteApprovedField :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE INPUT PARAMETER ipiQuote AS INTEGER NO-UNDO.
+  DEFINE INPUT PARAMETER ipcFGItem AS CHARACTER NO-UNDO.
+  DEFINE BUFFER bf-quotehd FOR quotehd .
+  
+  FIND FIRST bf-quotehd EXCLUSIVE-LOCK
+       WHERE bf-quotehd.company EQ cocode 
+       AND bf-quotehd.q-no EQ  ipiQuote NO-ERROR .
+  IF AVAIL bf-quotehd THEN
+  DO:   
+    bf-quotehd.approved = YES.
+    RUN AddTagInfo (
+                INPUT bf-quotehd.rec_key,
+                INPUT "quotehd",
+                INPUT "The status is set to Approved ",
+                INPUT ""
+                ). /*From TagProcs Super Proc*/
+                
+    FIND FIRST oe-prmtx NO-LOCK
+         WHERE oe-prmtx.company EQ bf-quotehd.company           
+         AND oe-prmtx.i-no EQ ipcFGItem        
+         AND oe-prmtx.quoteId EQ bf-quotehd.q-no NO-ERROR.
+         
+    IF NOT AVAIL oe-prmtx THEN     
+    RUN oe/updprmtx2.p (ROWID(bf-quotehd), "", 0, "", 0, "Q").             
+  END.
+  RELEASE bf-quotehd.
+  
+END PROCEDURE.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

@@ -20,6 +20,7 @@ DEFINE VARIABLE dtDate         AS DATE      NO-UNDO.
 DEFINE VARIABLE hBuffer        AS HANDLE    NO-UNDO EXTENT 200.
 DEFINE VARIABLE hDynCalcField  AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hQuery         AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hAppSrvBin     AS HANDLE    NO-UNDO.
 DEFINE VARIABLE idx            AS INTEGER   NO-UNDO.
 DEFINE VARIABLE lUDF           AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lUseCustList   AS LOGICAL   NO-UNDO.
@@ -28,7 +29,8 @@ DEFINE VARIABLE lOK            AS LOGICAL   NO-UNDO.
 {sys/ref/CustList.i NEW}
 {AOA/BL/pBuildCustList.i}
 
-RUN AOA/spDynCalcField.p PERSISTENT SET hDynCalcField.
+RUN AOA/appServer/aoaBin.p PERSISTENT SET hAppSrvBin.
+RUN AOA/spDynCalcField.p   PERSISTENT SET hDynCalcField.
 
 FIND FIRST dynParamValue NO-LOCK
      WHERE ROWID(dynParamValue) EQ iprRowID
@@ -59,6 +61,9 @@ IF dynParamValue.useCustList OR dynParamValue.CustListID NE "" THEN DO:
             .
     END. /* if avail */
 END. /* if custlistid */
+
+IF INDEX(ipcQueryStr,"[[") NE 0 THEN
+RUN pSetValueParam (ipcQueryStr).
 
 /* replace [[parameter]] with parameter value */
 {AOA/includes/cQueryStr.i ipcQueryStr}
@@ -197,5 +202,48 @@ PROCEDURE pGetWhereCalcFields:
         cQueryStr = REPLACE(cQueryStr,cCalcField,cBufferValue).
     END. /* do while */
     iopcQueryStr = cQueryStr.
+
+END PROCEDURE.
+
+PROCEDURE pSetValueParam:
+    DEFINE INPUT PARAMETER ipcWhereClause AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE cParam AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cValue AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE dtDate AS DATE      NO-UNDO.
+
+    DEFINE BUFFER bDynValueParam FOR dynValueParam.
+
+    FOR EACH dynValueParam NO-LOCK
+        WHERE dynValueParam.subjectID    EQ dynParamValue.subjectID
+          AND dynValueParam.user-id      EQ dynParamValue.user-id
+          AND dynValueParam.prgmName     EQ dynParamValue.prgmName
+          AND dynValueParam.paramValueID EQ dynParamValue.paramValueID
+        :
+        cParam = "[[" + dynValueParam.paramName + "]]".
+        IF INDEX(ipcWhereClause,cParam) EQ 0 THEN NEXT.
+        cValue = dynValueParam.paramValue.
+        FIND FIRST bDynValueParam NO-LOCK
+             WHERE bDynValueParam.subjectID    EQ dynValueParam.subjectID
+               AND bDynValueParam.user-id      EQ dynValueParam.user-id
+               AND bDynValueParam.prgmName     EQ dynValueParam.prgmName
+               AND bDynValueParam.paramValueID EQ dynValueParam.paramValueID
+               AND bDynValueParam.sortOrder    EQ dynValueParam.sortOrder + 1
+             NO-ERROR.
+        IF AVAILABLE bDynValueParam AND
+           bDynValueParam.paramLabel EQ ? AND
+           INDEX(bDynValueParam.paramName,"DatePickList") NE 0 THEN DO:
+            dtDate = DATE(dynValueParam.paramValue) NO-ERROR.
+            IF ERROR-STATUS:ERROR THEN
+            dtDate = ?.
+            cValue = STRING(DYNAMIC-FUNCTION("fDateOptionDate" IN hAppSrvBin, bDynValueParam.paramValue, dtDate),"99/99/9999").
+        END. /* if avail */
+        DO TRANSACTION:
+            FIND FIRST bDynValueParam EXCLUSIVE-LOCK
+                 WHERE ROWID(bDynValueParam) EQ ROWID(dynValueParam).
+            bDynValueParam.paramValue = cValue.
+            RELEASE bDynValueParam.
+        END. /* do trans */
+    END. /* each dynvalueparam */
 
 END PROCEDURE.

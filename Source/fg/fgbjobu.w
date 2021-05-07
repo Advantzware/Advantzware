@@ -203,7 +203,7 @@ DEFINE VARIABLE ld-tot-wt AS DECIMAL FORMAT ">>,>>9.99" INITIAL 0
      SIZE 12.8 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE ld-v1 AS DECIMAL FORMAT "->>>,>>9":U INITIAL 0 
+DEFINE VARIABLE ld-v1 AS DECIMAL FORMAT "->>>,>>9":U INITIAL 1 
      LABEL "Units" 
      VIEW-AS FILL-IN 
      SIZE 14 BY 1
@@ -508,6 +508,7 @@ DO:
     DISABLE TRIGGERS FOR LOAD OF loadtag.
   
     DO WITH FRAME {&frame-name}:
+       
         ASSIGN
             ld-v1 ld-v3 ld-v4 ld-v5 ld-v6 ld-v7 ld-v8 ld-v9 ld-v10 ld-v11
             ld-v2 = (ld-v1 * ld-v4) + ld-v11
@@ -523,7 +524,10 @@ DO:
          
         RUN valid-status(OUTPUT lCheckError).
         IF lCheckError THEN RETURN NO-APPLY.           
-    END.    
+    END.  
+    
+     RUN pValidUnitCount( OUTPUT lCheckError).
+     IF lCheckError THEN RETURN NO-APPLY.
 
     IF NOT AVAILABLE w-job THEN RETURN.
 
@@ -690,9 +694,7 @@ DO:
     
                 ll-changed = NO.    
                 
-            END.
-
-            RUN fg/d-reqtys.w (ROWID(itemfg), NO).
+            END.             
         END.    
     END.
     
@@ -891,6 +893,20 @@ END.
 ON VALUE-CHANGED OF ld-v4 IN FRAME D-Dialog /* Unit Count */
 DO:
     IF LASTKEY NE -1 THEN RUN calc-tot-qty.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ld-v4 D-Dialog
+ON LEAVE OF ld-v4 IN FRAME D-Dialog /* Unit Count */
+DO:
+    DEFINE VARIABLE lCheckError AS LOGICAL NO-UNDO.
+    IF LASTKEY NE -1 THEN
+    DO:    
+        RUN pValidUnitCount( OUTPUT lCheckError).
+        IF lCheckError THEN RETURN NO-APPLY.
+    END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1232,6 +1248,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-status D-Dialog 
 PROCEDURE valid-status :
 /*------------------------------------------------------------------------------
@@ -1240,8 +1257,7 @@ PROCEDURE valid-status :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
-  {methods/lValidateError.i YES}
-  
+  {methods/lValidateError.i YES}   
 
   DO WITH FRAME {&frame-name}:
     FIND FIRST inventoryStatusType NO-LOCK
@@ -1261,6 +1277,32 @@ PROCEDURE valid-status :
              APPLY "entry" TO fiStatusID .
            END.
            
+  END.       
+  {methods/lValidateError.i NO}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pValidUnitCount D-Dialog 
+PROCEDURE pValidUnitCount :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
+  {methods/lValidateError.i YES}
+  
+
+  DO WITH FRAME {&frame-name}:
+    IF integer(ld-v4:SCREEN-VALUE) EQ 0 THEN DO:
+                
+       MESSAGE "Unit Count cannot be 0.  To remove this bin's quantity, set the Units and Partial to 0. "
+               "Unit Count will not matter if Units is 0." VIEW-AS ALERT-BOX INFO.
+       oplReturnError = TRUE.
+       APPLY "entry" TO ld-v4 .
+    END.           
   END.       
   {methods/lValidateError.i NO}
 END PROCEDURE.

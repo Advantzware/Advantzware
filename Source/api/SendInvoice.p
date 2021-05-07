@@ -61,6 +61,7 @@ DEFINE VARIABLE cInvoiceDueDate       AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cInvoiceType          AS CHARACTER NO-UNDO.
            
 DEFINE VARIABLE cTotalAmount          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cTotalInvoiceAmount   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE dInvoiceTotalAmt      AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE dLineTotalAmt         AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE cSELineCount          AS CHARACTER NO-UNDO.
@@ -385,6 +386,9 @@ DO:
             dtInvoiceDate  = inv-head.inv-date
             cShipToCode    = IF inv-head.sold-no NE "" THEN inv-head.sold-no ELSE inv-head.bill-to.
         .
+        
+        cTotalInvoiceAmount = IF inv-head.t-inv-rev GT 0 THEN STRING(inv-head.t-inv-rev) ELSE "0".
+         
         CREATE ttInv.
         ASSIGN             
             ttInv.invoiceDate        = IF dtInvDate EQ ? THEN
@@ -450,6 +454,9 @@ DO:
             dtInvoiceDate    = ar-inv.inv-date
             cInvoiceType     = IF dInvoiceTotalAmt LT 0 THEN "CR" ELSE ""
             .
+         
+        cTotalInvoiceAmount = IF dInvoiceTotalAmt GT 0 THEN STRING(dInvoiceTotalAmt) ELSE "0".
+        
         RUN pGetSettings(
             INPUT ar-inv.company,
             INPUT ar-inv.cust-no,
@@ -1022,6 +1029,7 @@ DO:
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "InvoiceNum", cInvoiceNumber ). 
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "Currency", "USD" ).
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "TotalAmount", cTotalAmount ).
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "TotalInvoiceAmount", cTotalInvoiceAmount ).
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "PayloadID", TRIM(ttInv.payloadID)).
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "TimeStamp", gcCXMLTimeStamp ).
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "cXMLPayloadID", gcCXMLPayLoadID).

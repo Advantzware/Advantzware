@@ -34,13 +34,13 @@ ON CTRL-P HELP.
 
 ON 'CTRL-ALT-D':U ANYWHERE
 DO:
-    RUN aoa/aoaLauncher.w PERSISTENT ("Dashboard").
+    RUN AOA/aoaLauncher.w PERSISTENT ("Dashboard").
     RETURN.
 END.
 
 ON 'CTRL-ALT-R':U ANYWHERE
 DO:
-    RUN aoa/aoaLauncher.w PERSISTENT ("Report").
+    RUN AOA/aoaLauncher.w PERSISTENT ("Report").
     RETURN.
 END.
 
@@ -48,7 +48,25 @@ ON 'CTRL-ALT-P':U ANYWHERE
 DO: 
     RUN util/wPgmrToolbox.w.
 END.    
-   
+
+ON 'CTRL-ALT-T':U ANYWHERE
+DO:
+    IF DYNAMIC-FUNCTION("sfIsUserSuperAdmin") THEN
+    RUN AOA/Tasker.w PERSISTENT.
+END.
+
+ON 'CTRL-ALT-S':U ANYWHERE
+DO:
+    IF DYNAMIC-FUNCTION("sfIsUserSuperAdmin") THEN
+    RUN AOA/dynSubjct.w PERSISTENT.
+END.
+
+ON 'CTRL-ALT-Y':U ANYWHERE
+DO:
+    IF DYNAMIC-FUNCTION("sfIsUserSuperAdmin") THEN
+    RUN AOA/dynSync.w PERSISTENT.
+END.
+
 /* ***************************  Definitions  ************************** */
 
 /* Parameters Definitions ---                                           */
@@ -2407,6 +2425,7 @@ PROCEDURE pSearchSelections :
  Notes:
 ------------------------------------------------------------------------------*/
     DEFINE VARIABLE cSearchSelectionsValue AS CHARACTER NO-UNDO.
+
     DO WITH FRAME searchFrame:
         IF searchSelections:SCREEN-VALUE NE ? THEN
         cSearchSelectionsValue = searchSelections:SCREEN-VALUE.
@@ -2434,10 +2453,13 @@ PROCEDURE pSearchSelections :
                 )
                 .
         END. /* each ttmenutree */
+        IF cSearchSelectionsValue NE "" THEN
+        ASSIGN
+            ENTRY(2,cSearchSelectionsValue,"|") = STRING(NOT ENTRY(2,cSearchSelectionsValue,"|") EQ "yes")
+            searchSelections:SCREEN-VALUE = cSearchSelectionsValue
+            .
     END. /* with frame */
 
-    IF cSearchSelectionsValue NE "" THEN
-    searchSelections:SCREEN-VALUE = cSearchSelectionsValue.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

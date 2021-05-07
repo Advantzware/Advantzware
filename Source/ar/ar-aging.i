@@ -123,7 +123,6 @@ DEF TEMP-TABLE tt-inv NO-UNDO
                     glhist.company EQ cust.company AND ~
                     glhist.jrnl EQ "CASHRVD" AND ~
                     glhist.tr-dscr EQ v-gltrans-desc ~
-                    AND glhist.posted EQ NO ~
                     NO-LOCK NO-ERROR. ~
                 IF AVAIL glhist THEN ~
                     v-check-date = glhist.tr-date. ~
@@ -365,8 +364,7 @@ DEF TEMP-TABLE tt-factored
                                         " Inv# " + STRING(ar-cashl.inv-no).
                         FIND FIRST glhist WHERE glhist.company     EQ cust.company 
                                                 AND glhist.jrnl    EQ "CASHRVD" 
-                                                AND glhist.tr-dscr EQ v-gltrans-desc
-                                                AND glhist.posted  EQ NO
+                                                AND glhist.tr-dscr EQ v-gltrans-desc                                                
                                                 NO-LOCK NO-ERROR.
                         IF AVAIL glhist THEN
                             v-check-date = glhist.tr-date.
@@ -549,8 +547,7 @@ DEF TEMP-TABLE tt-factored
                               " Inv# " + STRING(ar-cashl.inv-no).
               FIND FIRST glhist WHERE glhist.company EQ cust.company
                                   AND glhist.jrnl    EQ "CASHRVD"
-                                  AND glhist.tr-dscr EQ v-gltrans-desc
-                                  AND glhist.posted  EQ NO
+                                  AND glhist.tr-dscr EQ v-gltrans-desc                                  
                                   NO-LOCK NO-ERROR.
               IF AVAIL glhist THEN
                  v-check-date = glhist.tr-date.
@@ -593,8 +590,7 @@ DEF TEMP-TABLE tt-factored
               CAN-FIND(FIRST glhist WHERE
               glhist.company EQ cust.company AND
               glhist.jrnl EQ "CASHRVD" AND
-              glhist.tr-dscr EQ v-tr-dscr AND
-              glhist.posted EQ NO)) THEN
+              glhist.tr-dscr EQ v-tr-dscr)) THEN
               v-type = "VD".
            ELSE
               v-type = "PY".
@@ -664,8 +660,7 @@ DEF TEMP-TABLE tt-factored
                  FIND FIRST glhist WHERE
                       glhist.company EQ cust.company AND
                       glhist.jrnl EQ "CASHRVD" AND
-                      glhist.tr-dscr EQ v-gltrans-desc AND 
-                      glhist.posted EQ NO
+                      glhist.tr-dscr EQ v-gltrans-desc 
                       NO-LOCK NO-ERROR.
                 
                  IF AVAIL glhist THEN
@@ -807,8 +802,7 @@ DEF TEMP-TABLE tt-factored
             CAN-FIND(FIRST glhist WHERE
             glhist.company EQ cust.company AND
             glhist.jrnl EQ "CASHRVD" AND
-            glhist.tr-dscr EQ v-tr-dscr AND 
-            glhist.posted EQ NO) THEN
+            glhist.tr-dscr EQ v-tr-dscr ) THEN
             DO:
               ASSIGN
                  v-type = "VD"
@@ -842,8 +836,7 @@ DEF TEMP-TABLE tt-factored
                FIND FIRST glhist WHERE
                     glhist.company EQ cust.company AND
                     glhist.jrnl EQ "CASHRVD" AND
-                    glhist.tr-dscr EQ v-gltrans-desc AND 
-                    glhist.posted EQ NO
+                    glhist.tr-dscr EQ v-gltrans-desc 
                     NO-LOCK NO-ERROR.
               
                IF AVAIL glhist THEN
@@ -907,8 +900,7 @@ DEF TEMP-TABLE tt-factored
               FIND FIRST glhist WHERE
                    glhist.company EQ cust.company AND
                    glhist.jrnl EQ "CASHRVD" AND
-                   glhist.tr-dscr EQ v-gltrans-desc AND 
-                   glhist.posted EQ NO
+                   glhist.tr-dscr EQ v-gltrans-desc 
                    NO-LOCK NO-ERROR.
              
               IF AVAIL glhist THEN
