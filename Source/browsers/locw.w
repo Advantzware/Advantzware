@@ -51,6 +51,7 @@ DEFINE VARIABLE lRecalcOnHand     AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lRecalcOnOrder    AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lRecalcAllocated  AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lRecalcBackOrder  AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE v-col-move        AS LOGICAL   NO-UNDO INIT TRUE.
 {sys/inc/oeinq.i}
  
 DEFINE NEW SHARED TEMP-TABLE w-job NO-UNDO
@@ -989,6 +990,27 @@ PROCEDURE local-open-query :
         OPEN QUERY {&browse-name} {&for-each1}.    
         lFirst = NO.  
     END. 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE move-columns B-table-Win 
+PROCEDURE move-columns :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DO WITH FRAME {&FRAME-NAME}:
+     ASSIGN
+      {&BROWSE-NAME}:COLUMN-MOVABLE = v-col-move
+         {&BROWSE-NAME}:COLUMN-RESIZABLE = v-col-move
+        v-col-move = NOT v-col-move.
+     /*   FI_moveCol = IF v-col-move = NO THEN "Move" ELSE "Sort".
+     DISPLAY FI_moveCol.*/
+  END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
