@@ -164,7 +164,7 @@ cust.imported cust.show-set cust.nationalAcct cust.log-field[1] ~
 cust.tagStatus 
 &Scoped-define ENABLED-TABLES cust
 &Scoped-define FIRST-ENABLED-TABLE cust
-&Scoped-Define ENABLED-OBJECTS btn_bank-info RECT-5 
+&Scoped-Define ENABLED-OBJECTS btn_bank-info RECT-5 RECT-6 
 &Scoped-Define DISPLAYED-FIELDS cust.pricingMethod cust.cust-no cust.active ~
 cust.name cust.addr[1] cust.addr[2] cust.spare-char-3 cust.city cust.state ~
 cust.zip cust.fax-country cust.spare-char-2 cust.type cust.date-field[1] ~
@@ -340,23 +340,23 @@ DEFINE RECTANGLE RECT-4
 
 DEFINE RECTANGLE RECT-5
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 152 BY 2.57.
+     SIZE 71 BY 2.57.
 
 DEFINE RECTANGLE RECT-6
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 79.4 BY 2.57.
+     SIZE 80 BY 2.57.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     cust.pricingMethod AT ROW 20.38 COL 124 COLON-ALIGNED WIDGET-ID 42
+     cust.pricingMethod AT ROW 21.48 COL 94 COLON-ALIGNED WIDGET-ID 42
           VIEW-AS COMBO-BOX INNER-LINES 5
-          LIST-ITEMS " ","Type","Customer","Ship To" 
+          LIST-ITEMS "?","?","?","?" 
           DROP-DOWN-LIST
           SIZE 20 BY 1
-     cbMatrixPrecision AT ROW 20.38 COL 20 COLON-ALIGNED WIDGET-ID 38
-     cbMatrixRounding AT ROW 20.38 COL 69.6 COLON-ALIGNED WIDGET-ID 40
+     cbMatrixPrecision AT ROW 20.29 COL 20 COLON-ALIGNED WIDGET-ID 38
+     cbMatrixRounding AT ROW 21.48 COL 20 COLON-ALIGNED WIDGET-ID 40
      btnTags AT ROW 11.57 COL 64 WIDGET-ID 26
      cust.cust-no AT ROW 1 COL 12 COLON-ALIGNED
           LABEL "Customer"
@@ -543,13 +543,6 @@ DEFINE FRAME F-Main
           LABEL "EDI"
           VIEW-AS TOGGLE-BOX
           SIZE 9 BY .81
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE 
-         FGCOLOR 1 FONT 6.
-
-/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
-DEFINE FRAME F-Main
      cust.factored AT ROW 14.67 COL 47
           LABEL "Factored"
           VIEW-AS TOGGLE-BOX
@@ -690,7 +683,7 @@ DEFINE FRAME F-Main
           VIEW-AS TOGGLE-BOX
           SIZE 16 BY .81
      stax_tax-dscr AT ROW 17.86 COL 28 COLON-ALIGNED NO-LABEL NO-TAB-STOP 
-     cust.tagStatus AT ROW 20.38 COL 94.4 COLON-ALIGNED
+     cust.tagStatus AT ROW 20.29 COL 94 COLON-ALIGNED
           VIEW-AS COMBO-BOX INNER-LINES 3
           LIST-ITEM-PAIRS "Only tags that are not on hold","",
                      "Only on Hold tags","H",
@@ -723,7 +716,7 @@ DEFINE FRAME F-Main
      RECT-3 AT ROW 16.48 COL 1
      RECT-4 AT ROW 8.14 COL 73
      RECT-5 AT ROW 20.05 COL 1 WIDGET-ID 28
-     RECT-6 AT ROW 20.05 COL 73.6 WIDGET-ID 42
+     RECT-6 AT ROW 20.05 COL 73 WIDGET-ID 42
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -757,7 +750,7 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW V-table-Win ASSIGN
-         HEIGHT             = 21.71
+         HEIGHT             = 21.62
          WIDTH              = 152.4.
 /* END WINDOW DEFINITION */
                                                                         */
