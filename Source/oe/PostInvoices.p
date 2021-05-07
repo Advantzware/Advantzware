@@ -422,7 +422,10 @@ PROCEDURE pAddInvoiceLineToPost PRIVATE:
         ttInvoiceLineToPost.currencyExRate    = ipbf-ttInvoiceToPost.currencyExRate
         ttInvoiceLineToPost.termsCode         = ipbf-ttInvoiceToPost.terms
         ttInvoiceLineToPost.isFreightBillable = ipbf-ttInvoiceToPost.isFreightBillable
-        
+        ttInvoiceLineToPost.orderLine         = ipbf-inv-line.line
+        ttInvoiceLineToPost.iEnum             = ipbf-inv-line.e-num
+         
+         
         .
     FIND FIRST bf-sman NO-LOCK 
         WHERE bf-sman.company EQ ipbf-inv-line.company
@@ -537,7 +540,7 @@ PROCEDURE pAddInvoiceLineToPost PRIVATE:
     DO:
         RUN pAddFGItemToUpdate(ROWID(bf-itemfg), ipbf-ttInvoiceToPost.isInvoiceDateInCurrentPeriod, BUFFER ttInvoiceLineToPost).
         RUN pAddBOLToUpdate(BUFFER ipbf-inv-line, ttInvoiceLineToPost.invoiceID, OUTPUT ttInvoiceLineToPost.bolID, OUTPUT ttInvoiceLineToPost.locationID, OUTPUT ttInvoiceLineToPost.shipID).
-        RUN pAddOrderToUpdate(BUFFER ipbf-inv-line, OUTPUT ttInvoiceLineToPost.quantityPerSubUnit).
+        RUN pAddOrderToUpdate(BUFFER ipbf-inv-line, OUTPUT ttInvoiceLineToPost.quantityPerSubUnit, OUTPUT ttInvoiceLineToPost.orderLine).
         
         IF ipbf-inv-line.cas-cnt NE 0 THEN 
             ttInvoiceLineToPost.quantityPerSubUnit = ipbf-inv-line.cas-cnt.
@@ -1855,6 +1858,7 @@ PROCEDURE pAddOrderToUpdate PRIVATE:
     ------------------------------------------------------------------------------*/
     DEFINE PARAMETER BUFFER ipbf-inv-line FOR inv-line.
     DEFINE OUTPUT PARAMETER iopdQuantityPerSubUnit AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER iopiOrderLine AS INTEGER NO-UNDO.
     
     DEFINE BUFFER bf-oe-ordl FOR oe-ordl.
     DEFINE BUFFER bf-oe-ord  FOR oe-ord.
@@ -1876,6 +1880,7 @@ PROCEDURE pAddOrderToUpdate PRIVATE:
             NO-ERROR.
         IF bf-oe-ordl.cas-cnt NE 0 THEN 
             iopdQuantityPerSubUnit = bf-oe-ordl.cas-cnt.
+            iopiOrderLine = bf-oe-ordl.LINE.
              
         FIND FIRST ttOrderLineToUpdate EXCLUSIVE-LOCK
             WHERE ttOrderLineToUpdate.riOeOrdl EQ ROWID(bf-oe-ordl)
@@ -1939,6 +1944,7 @@ PROCEDURE pGetSettings PRIVATE:
          ipbf-ttPostingMaster.exportPath = cReturn + "\OB4\" . /* created sub folder*/             
     END.
        
+    RUN sys/ref/nk1look.p (ipbf-ttPostingMaster.company, "InvoiceApprovalOrderlineChange", "L", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).   
 END PROCEDURE.
 
 PROCEDURE pBuildInvoiceTaxDetail PRIVATE:
@@ -3347,10 +3353,19 @@ PROCEDURE pValidateInvoicesToPost PRIVATE:
                 
             END. 
         END.
-        dTotalLineRev = 0 .
+        dTotalLineRev = 0 . 
         FOR EACH bf-ttInvoiceLineToPost WHERE
-            bf-ttInvoiceLineToPost.rNo EQ bf-inv-head.r-no:          
+            bf-ttInvoiceLineToPost.rNo EQ bf-inv-head.r-no:            
+            
             IF lAutoInvoiceApproval THEN DO:
+            
+                 lValidateRequired = fGetInvoiceApprovalVal(bf-inv-head.company, "InvoiceApprovalOrderlineChange", bf-inv-head.cust-no,iplIsValidateOnly). 
+                 
+                IF lValidateRequired AND bf-ttInvoiceLineToPost.iEnum NE 0 THEN
+                DO:                             
+                    RUN pAddValidationError(BUFFER bf-ttInvoiceToPost,"Order Line "  + STRING(bf-ttInvoiceLineToPost.orderLine) + " was changed to Ln#:" + STRING(bf-ttInvoiceLineToPost.iEnum)).
+                    lAutoApprove = NO.
+                END. 
                 lValidateRequired = fGetInvoiceApprovalVal(bf-inv-head.company, "InvoiceApprovalPriceGTCost", bf-inv-head.cust-no,iplIsValidateOnly).        
                 IF lValidateRequired AND bf-ttInvoiceLineToPost.amountBilled LT bf-ttInvoiceLineToPost.costTotal THEN
                 DO:                             

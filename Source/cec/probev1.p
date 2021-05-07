@@ -39,7 +39,7 @@ find probe where recid(probe) eq v-recid no-lock.
 
 assign
  voverall = round(probe.sell-price / probe.bsf,2)
- vtot-msf = probe.tot-lbs / 1000.
+ vtot-msf = probe.gshQtyInSF / 1000 .
  dFGPricePerMsf =  round(probe.sell-price * ( probe.est-qty / 1000) / vtot-msf,2) .
 
 IF sys-ctrl.char-fld NE "PEACHTRE" THEN

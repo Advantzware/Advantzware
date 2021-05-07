@@ -23,7 +23,7 @@ DEFINE INPUT PARAMETER ip-recid  AS RECID     NO-UNDO.
 DEFINE INPUT PARAMETER ip-recid2 AS RECID     NO-UNDO.
 DEFINE INPUT PARAMETER ip-type   AS CHARACTER NO-UNDO .   /* add,update,view */
 DEFINE OUTPUT PARAMETER op-rowid AS ROWID     NO-UNDO.
-
+DEFINE VARIABLE lAvailable AS LOGICAL NO-UNDO.
 {custom/globdefs.i}
 
 {sys/inc/var.i new shared}
@@ -45,7 +45,7 @@ DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE lAdjustReason-log AS LOGICAL NO-UNDO .
 DEFINE VARIABLE lCheckError AS LOGICAL NO-UNDO .
 DEFINE VARIABLE cComboList AS CHARACTER NO-UNDO .
-
+DEFINE VARIABLE lCostManualChange AS LOGICAL NO-UNDO.
 RUN sys/ref/nk1look.p (INPUT cocode, "AdjustReason", "L" /* Logical */, NO /* check by cust */, 
                        INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
                        OUTPUT cRtnChar, OUTPUT lRecFound).
@@ -181,6 +181,11 @@ DEFINE BUTTON btnCalendar-1
      IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
      LABEL "" 
      SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
+
+DEFINE BUTTON btnTags 
+     IMAGE-UP FILE "Graphics/16x16/question.png":U
+     LABEL "" 
+     SIZE 4.2 BY .95 TOOLTIP "Show Details".
 
 DEFINE BUTTON Btn_Cancel 
      IMAGE-UP FILE "Graphics/32x32/exit_white.png":U NO-FOCUS FLAT-BUTTON
@@ -451,6 +456,7 @@ DEFINE FRAME Dialog-Frame
      Btn_OK AT ROW 18.19 COL 116
      Btn_Done AT ROW 18.48 COL 117
      Btn_Cancel AT ROW 18.19 COL 125
+     btnTags AT ROW 13.14 COL 86 WIDGET-ID 40
      "Scan Date/Time" VIEW-AS TEXT
           SIZE 20 BY .95 AT ROW 5.33 COL 107.6 WIDGET-ID 6
      RECT-21 AT ROW 17.95 COL 115
@@ -499,6 +505,8 @@ ASSIGN
 
 /* SETTINGS FOR BUTTON btnCalendar-1 IN FRAME Dialog-Frame
    3                                                                    */
+/* SETTINGS FOR BUTTON btnTags IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fg-rdtlh.cases IN FRAME Dialog-Frame
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN fg-rdtlh.cost IN FRAME Dialog-Frame
@@ -704,6 +712,22 @@ DO:
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME btnTags
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnTags Dialog-Frame
+ON CHOOSE OF btnTags IN FRAME Dialog-Frame
+DO:
+    
+    RUN system/d-TagViewer.w (
+        INPUT fg-rcpth.rec_key,
+        INPUT "",
+        INPUT "Cost"
+        ).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME Btn_Cancel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Cancel Dialog-Frame
 ON CHOOSE OF Btn_Cancel IN FRAME Dialog-Frame /* Cancel */
@@ -821,6 +845,52 @@ END.
 
 
 &Scoped-define SELF-NAME fg-rdtlh.cost
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rdtlh.cost Dialog-Frame
+ON LEAVE OF fg-rdtlh.cost IN FRAME Dialog-Frame /* Cost */
+DO:
+    IF LASTKEY NE -1 AND lCostManualChange THEN 
+    DO:      
+        RUN ClearTagsForGroup(
+            INPUT fg-rcpth.rec_key,
+            INPUT "Cost"
+            ).
+        RUN AddTagInfoForGroup(
+            INPUT fg-rcpth.rec_key,
+            INPUT "fg-rcpth",
+            INPUT "Cost manually changed.",
+            INPUT "",
+            INPUT "Cost"
+            ). /*From TagProcs Super Proc*/
+        RUN Tag_IsTagRecordAvailableForGroup(
+            INPUT fg-rcpth.rec_key,
+            INPUT "fg-rcpth",
+            INPUT "Cost",
+            OUTPUT lAvailable
+            ).
+
+        IF lAvailable THEN       
+            btnTags:SENSITIVE IN FRAME {&frame-name}  = TRUE.
+        ELSE     
+            btnTags:SENSITIVE IN FRAME {&frame-name}  = FALSE.
+
+    END.
+                
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rdtlh.cost Dialog-Frame
+ON VALUE-CHANGED OF fg-rdtlh.cost IN FRAME Dialog-Frame /* Cost */
+DO:
+ lCostManualChange = YES. 
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME fg-rdtlh.cust-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rdtlh.cust-no Dialog-Frame
 ON LEAVE OF fg-rdtlh.cust-no IN FRAME Dialog-Frame /* Customer */
@@ -1122,6 +1192,17 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
             AND itemfg.i-no EQ fg-rcpth.i-no NO-ERROR .
     
 
+    RUN Tag_IsTagRecordAvailableForGroup(
+        INPUT fg-rcpth.rec_key,
+        INPUT "fg-rcpth",
+        INPUT "Cost",
+        OUTPUT lAvailable
+        ).
+
+    IF lAvailable THEN       
+        btnTags:SENSITIVE IN FRAME {&frame-name}  = TRUE.
+    ELSE     
+        btnTags:SENSITIVE IN FRAME {&frame-name}  = FALSE.
     IF ip-type NE "view" THEN 
     DO: 
         RUN enable_UI.

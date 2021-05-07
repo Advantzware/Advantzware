@@ -13,6 +13,8 @@
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
 
+USING system.SharedConfig.
+
 /* ***************************  Definitions  ************************** */
 
 /*Gets rid of stack trace window when pressing F1*/
@@ -62,7 +64,7 @@ DEFINE VARIABLE lValueChangedRM AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lValueChangedFG AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lValueChangedBR AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lValueChangedAR AS LOGICAL NO-UNDO.
-
+DEFINE VARIABLE scInstance AS CLASS system.SharedConfig NO-UNDO.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -105,8 +107,8 @@ period.subLedgerWIP period.subLedgerRM period.subLedgerFG ~
 period.subLedgerBR period.subLedgerAR
 &Scoped-define ENABLED-TABLES period
 &Scoped-define FIRST-ENABLED-TABLE period
-&Scoped-Define ENABLED-OBJECTS btnCalendar-1 Btn_OK Btn_Done Btn_Cancel ~
-btnCalendar-2 RECT-21 RECT-38 RECT-39 RECT-40 RECT-41 
+&Scoped-Define ENABLED-OBJECTS btnCalendar-1 Btn_ReOpen Btn_OK Btn_Done Btn_Cancel ~
+btnCalendar-2 RECT-21 RECT-38 RECT-39 RECT-40 RECT-41 RECT-20
 &Scoped-Define DISPLAYED-FIELDS period.yr period.pnum period.pst ~
 period.pend period.pstat period.subLedgerAP period.subLedgerPO ~
 period.subLedgerOP period.subLedgerWIP period.subLedgerRM ~
@@ -168,6 +170,11 @@ DEFINE BUTTON Btn_OK
      LABEL "&Save" 
      SIZE 8 BY 1.91
      BGCOLOR 8 .
+ 
+DEFINE BUTTON Btn_ReOpen      
+     LABEL "Reopen Period" 
+     SIZE 20 BY 1.14
+     BGCOLOR 8 .
      
 DEFINE VARIABLE fi_tr-time AS CHARACTER FORMAT "X(15)":U 
      LABEL "Tr Time" 
@@ -179,6 +186,11 @@ DEFINE RECTANGLE RECT-21
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
      SIZE 19 BY 2.38
      BGCOLOR 15 .
+     
+DEFINE RECTANGLE RECT-20
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 22 BY 2.38
+     BGCOLOR 15 .     
 
 DEFINE RECTANGLE RECT-38
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
@@ -319,6 +331,7 @@ DEFINE FRAME Dialog-Frame
           DROP-DOWN-LIST
           SIZE 19 BY 1
           BGCOLOR 15 FONT 1
+     Btn_ReOpen AT ROW 16.88 COL 89    
      Btn_OK AT ROW 16.38 COL 116
      Btn_Done AT ROW 16.67 COL 117
      Btn_Cancel AT ROW 16.38 COL 125        
@@ -421,6 +434,7 @@ DEFINE FRAME Dialog-Frame
      "Status Changed By" VIEW-AS TEXT
           SIZE 25.6 BY 1.19 AT ROW 2.91 COL 72.2 WIDGET-ID 210
      RECT-21 AT ROW 16.14 COL 115
+     RECT-20 AT ROW 16.14 COL 88
      RECT-38 AT ROW 1 COL 1
      RECT-39 AT ROW 2.67 COL 1 WIDGET-ID 2
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
@@ -625,6 +639,43 @@ DO:
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME Btn_ReOpen
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_ReOpen Dialog-Frame
+ON CHOOSE OF Btn_ReOpen IN FRAME Dialog-Frame /* Reopen Period */
+DO:
+    DEFINE VARIABLE lChoice AS LOGICAL NO-UNDO.
+    IF period.pnum EQ company.num-per THEN
+    DO:      
+        scInstance = SharedConfig:instance.
+        scInstance:SetValue("ReOpenPeriodCompany",TRIM(company.company)).
+                  
+        RUN util/reopenyr.p.   
+        RUN display-item.
+        
+        scInstance = SharedConfig:instance.
+        scInstance:DeleteValue(INPUT "ReOpenPeriodCompany"). 
+    END.
+    ELSE DO:
+    
+       message "Are you sure you wish to reopen this period"
+                                VIEW-AS ALERT-BOX QUESTION
+                                BUTTONS OK-CANCEL UPDATE lChoice .
+       IF lChoice THEN
+       DO:
+           RUN GL_ReOpenPeriod(TRIM(company.company), ROWID(period) ) .
+           
+           RUN display-item.
+       END.
+      
+      
+    END.
+
+   END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME Btn_OK
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_OK Dialog-Frame
 ON CHOOSE OF Btn_OK IN FRAME Dialog-Frame /* Save */
@@ -640,6 +691,7 @@ DO:
         DEFINE VARIABLE cFGStatus AS CHARACTER NO-UNDO.
         DEFINE VARIABLE cBRStatus AS CHARACTER NO-UNDO.
         DEFINE VARIABLE cARStatus AS CHARACTER NO-UNDO.
+        DEFINE VARIABLE lOldPStat AS LOGICAL   NO-UNDO.
 
         IF ip-type EQ "view" THEN 
         DO: 
@@ -665,7 +717,9 @@ DO:
              cRMStatus = period.subLedgerRM
              cFGStatus = period.subLedgerFG
              cBRStatus = period.subLedgerBR
-             cARStatus = period.subLedgerAR.
+             cARStatus = period.subLedgerAR
+             lOldPStat = period.pstat
+             .
             FIND CURRENT period EXCLUSIVE-LOCK NO-ERROR.
 
             DO WITH FRAME {&FRAME-NAME}:
@@ -706,17 +760,7 @@ DO:
                period.ARClosed   = NOW.
             cocode = period.company.   
         END.
-        
-        
-        IF ip-type EQ "update" THEN
-         RUN gl/reopenpr.p (RECID(period)).
-         
-        DO TRANSACTION:
-          FIND CURRENT company.    
-          IF period.pnum EQ company.num-per THEN company.yend-per = YES.
-          FIND CURRENT company NO-LOCK.
-        END. 
-
+                
         FIND CURRENT period NO-LOCK NO-ERROR .
         op-rowid = ROWID(period).
 
@@ -897,7 +941,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
             btn_done:HIDDEN IN FRAME {&FRAME-NAME} = NO.
         btn_done:SENSITIVE                        = YES.
         btn_ok:HIDDEN                             = YES.
-        btn_cancel:HIDDEN                         = YES.
+        btn_cancel:HIDDEN                         = YES.        
     END.
 
     WAIT-FOR GO OF FRAME {&FRAME-NAME}.
@@ -948,6 +992,7 @@ PROCEDURE display-item :
           PARAMs:  <none>
           Notes:       
         ------------------------------------------------------------------------------*/
+    DEFINE BUFFER bf-period FOR period.    
     IF AVAILABLE period  THEN 
     DO: 
         /*ASSIGN 
@@ -999,8 +1044,21 @@ PROCEDURE display-item :
             period.pstat period.SubLedgerAP period.SubLedgerPO period.SubLedgerOP period.SubLedgerWIP 
             period.SubLedgerRM period.SubLedgerFG period.SubLedgerBR period.SubLedgerAR WITH FRAME Dialog-Frame.
     END.
-    fi_tr-time:HIDDEN IN FRAME Dialog-Frame           = TRUE.
-
+    fi_tr-time:HIDDEN IN FRAME Dialog-Frame = TRUE.
+    Btn_ReOpen:HIDDEN IN FRAME Dialog-Frame = YES.
+    RECT-20:HIDDEN IN FRAME Dialog-Frame = YES.
+    
+    IF AVAIL period AND period.pstat EQ NO /*AND period.pnum EQ company.num-per */ THEN
+    DO:
+       FIND LAST bf-period  no-lock
+            where bf-period.company eq company.company            
+            and bf-period.pstat   eq no
+              no-error.
+       IF AVAIL bf-period AND bf-period.yr EQ period.yr AND bf-period.pnum EQ period.pnum THEN
+       ASSIGN
+        Btn_ReOpen:HIDDEN IN FRAME Dialog-Frame = NO
+        RECT-20:HIDDEN IN FRAME Dialog-Frame = NO.
+    END.
     VIEW FRAME {&FRAME-NAME}. 
     APPLY "entry" TO FRAME {&FRAME-NAME}.
 
@@ -1036,8 +1094,8 @@ PROCEDURE enable_UI :
          period.pstat period.subLedgerAP period.subLedgerPO period.subLedgerOP 
          period.subLedgerWIP period.subLedgerRM period.subLedgerFG 
          period.subLedgerBR period.subLedgerAR 
-          Btn_OK Btn_Done Btn_Cancel 
-         btnCalendar-2 RECT-21 RECT-38 RECT-39 RECT-40 RECT-41 
+          Btn_OK Btn_Done Btn_Cancel Btn_ReOpen
+         btnCalendar-2 RECT-21 RECT-20 RECT-38 RECT-39 RECT-40 RECT-41 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}

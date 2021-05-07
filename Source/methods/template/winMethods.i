@@ -778,6 +778,10 @@ PROCEDURE UDF :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+    /* not applicable if the window container has no data source from it's browser */
+    &IF "{&FIRST-EXTERNAL-TABLE}" NE "" &THEN
+    /* avoid tables without a rec_key field */
+    &IF LOOKUP("{&FIRST-EXTERNAL-TABLE}","{&NORECKEY}"," ") EQ 0 &THEN
     DEFINE VARIABLE isRunning AS LOGICAL NO-UNDO.
 
     FOR EACH mfgroup NO-LOCK:
@@ -787,11 +791,14 @@ PROCEDURE UDF :
 
     IF AVAILABLE(mfgroup) THEN DO:
         RUN Running_Procedures IN Persistent-Handle ("mfvalues.",OUTPUT isRunning).
+        IF AVAILABLE {&FIRST-EXTERNAL-TABLE} THEN
         RUN UDF/mfvalues.w (ENTRY(1,mfgroup.mfgroup_data,"|"),
-                            rec_key_value,
-                            header_value,
+                            {&FIRST-EXTERNAL-TABLE}.rec_key,
+                            {methods/headers/{&FIRST-EXTERNAL-TABLE}.i},
                             h_smartmsg).
     END. /* avail mfgroup */
+    &ENDIF
+    &ENDIF
 
 END PROCEDURE.
 

@@ -8,7 +8,7 @@ DEFINE TEMP-TABLE ttAPInvoicePostingSummary NO-UNDO
     FIELD poNo      AS INTEGER   LABEL "PO"             FORMAT ">>>>>9"
     FIELD invDate   AS DATE      LABEL "Inv Date"       FORMAT "99/99/9999"
     FIELD vendor    AS CHARACTER LABEL "Vendor"         FORMAT "x(8)"
-    FIELD invoice   AS CHARACTER LABEL "Invoice"        FORMAT "x(12)"
+    FIELD invoice   AS CHARACTER LABEL "Invoice"        FORMAT "x(20)"
     FIELD lineNo    AS DECIMAL   LABEL "Line"           FORMAT ">>9.9"
     FIELD dscr      AS CHARACTER LABEL "Description"    FORMAT "x(35)"
     FIELD qty       AS INTEGER   LABEL "Qty"            FORMAT "->>>,>>>,>>9.9<<<<<"

@@ -8,10 +8,13 @@ emailcod ~
 hlp-head ~
 item ~
 itemfg ~
+hlp-head ~
 job-sch ~
 mfvalues ~
 notes ~
 prgmxref ~
 quoteitm ~
 reconcile ~
-rm-bin
+rm-bin ~
+utilities ~
+zMessage

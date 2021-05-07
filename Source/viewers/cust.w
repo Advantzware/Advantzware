@@ -55,6 +55,9 @@ DEFINE VARIABLE cAccount AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cShift   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cRouting AS INTEGER NO-UNDO.
 DEFINE VARIABLE lCheckMessage AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lQuotePriceMatrix AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cRtnChar          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound         AS LOGICAL NO-UNDO.
 
 /* gdm - 05050903 */
 DEF BUFFER bf-cust FOR cust.
@@ -115,6 +118,12 @@ DEFINE VARIABLE hdSalesManProcs AS HANDLE    NO-UNDO.
 
 RUN salrep/SalesManProcs.p PERSISTENT SET hdSalesManProcs.
 
+ RUN sys/ref/nk1look.p (INPUT g_company, "QuotePriceMatrix", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    lQuotePriceMatrix = logical(cRtnChar) NO-ERROR.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -139,8 +148,8 @@ RUN salrep/SalesManProcs.p PERSISTENT SET hdSalesManProcs.
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR cust.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS cust.active cust.name cust.addr[1] ~
-cust.addr[2] cust.spare-char-3 cust.city cust.state cust.zip ~
+&Scoped-Define ENABLED-FIELDS cust.pricingMethod cust.active cust.name ~
+cust.addr[1] cust.addr[2] cust.spare-char-3 cust.city cust.state cust.zip ~
 cust.fax-country cust.spare-char-2 cust.type cust.date-field[1] ~
 cust.contact cust.sman cust.area-code cust.phone cust.fax-prefix ~
 cust.accountant cust.csrUser_id cust.scomm cust.terms cust.cr-use ~
@@ -155,10 +164,10 @@ cust.imported cust.show-set cust.nationalAcct cust.log-field[1] ~
 cust.tagStatus 
 &Scoped-define ENABLED-TABLES cust
 &Scoped-define FIRST-ENABLED-TABLE cust
-&Scoped-Define ENABLED-OBJECTS btn_bank-info RECT-5 RECT-6 
-&Scoped-Define DISPLAYED-FIELDS cust.cust-no cust.active cust.name ~
-cust.addr[1] cust.addr[2] cust.spare-char-3 cust.city cust.state cust.zip ~
-cust.fax-country cust.spare-char-2 cust.type cust.date-field[1] ~
+&Scoped-Define ENABLED-OBJECTS btn_bank-info RECT-5 
+&Scoped-Define DISPLAYED-FIELDS cust.pricingMethod cust.cust-no cust.active ~
+cust.name cust.addr[1] cust.addr[2] cust.spare-char-3 cust.city cust.state ~
+cust.zip cust.fax-country cust.spare-char-2 cust.type cust.date-field[1] ~
 cust.contact cust.sman cust.area-code cust.phone cust.fax-prefix ~
 cust.accountant cust.csrUser_id cust.scomm cust.terms cust.cr-use ~
 cust.cr-hold-invdays cust.cr-hold-invdue cust.cr-rating cust.cust-level ~
@@ -331,7 +340,7 @@ DEFINE RECTANGLE RECT-4
 
 DEFINE RECTANGLE RECT-5
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 71 BY 2.57.
+     SIZE 152 BY 2.57.
 
 DEFINE RECTANGLE RECT-6
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
@@ -341,8 +350,13 @@ DEFINE RECTANGLE RECT-6
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
+     cust.pricingMethod AT ROW 20.38 COL 124 COLON-ALIGNED WIDGET-ID 42
+          VIEW-AS COMBO-BOX INNER-LINES 5
+          LIST-ITEMS " ","Type","Customer","Ship To" 
+          DROP-DOWN-LIST
+          SIZE 20 BY 1
      cbMatrixPrecision AT ROW 20.38 COL 20 COLON-ALIGNED WIDGET-ID 38
-     cbMatrixRounding AT ROW 21.48 COL 20 COLON-ALIGNED WIDGET-ID 40
+     cbMatrixRounding AT ROW 20.38 COL 69.6 COLON-ALIGNED WIDGET-ID 40
      btnTags AT ROW 11.57 COL 64 WIDGET-ID 26
      cust.cust-no AT ROW 1 COL 12 COLON-ALIGNED
           LABEL "Customer"
@@ -422,11 +436,6 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 7 BY 1
           BGCOLOR 15 FONT 4
-     cust.phone AT ROW 5.81 COL 87.4 COLON-ALIGNED NO-LABEL FORMAT "xxx-xxxx"
-          VIEW-AS FILL-IN 
-          SIZE 16 BY 1
-          BGCOLOR 15 FONT 4
-     faxAreaCode AT ROW 6.71 COL 79.4 COLON-ALIGNED AUTO-RETURN 
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -434,6 +443,11 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
+     cust.phone AT ROW 5.81 COL 87.4 COLON-ALIGNED NO-LABEL FORMAT "xxx-xxxx"
+          VIEW-AS FILL-IN 
+          SIZE 16 BY 1
+          BGCOLOR 15 FONT 4
+     faxAreaCode AT ROW 6.71 COL 79.4 COLON-ALIGNED AUTO-RETURN 
      faxNumber AT ROW 6.71 COL 87.4 COLON-ALIGNED NO-LABEL
      cust.fax-prefix AT ROW 6.71 COL 112.4 COLON-ALIGNED
           LABEL "Prefix"
@@ -515,6 +529,13 @@ DEFINE FRAME F-Main
      cust.fin-chg AT ROW 12.43 COL 47
           VIEW-AS TOGGLE-BOX
           SIZE 23 BY .81
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1 SCROLLABLE 
+         FGCOLOR 1 FONT 6.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME F-Main
      cust.auto-reprice AT ROW 13.24 COL 47
           VIEW-AS TOGGLE-BOX
           SIZE 23.2 BY .81
@@ -616,11 +637,6 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 11 BY 1
           BGCOLOR 15 FONT 4
-     cust.classID AT ROW 18.95 COL 94.4 COLON-ALIGNED
-          LABEL "AR ClassID" FORMAT ">>"
-          VIEW-AS FILL-IN 
-          SIZE 11 BY .81
-          BGCOLOR 15 FONT 4
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -628,6 +644,11 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
+     cust.classID AT ROW 18.95 COL 94.4 COLON-ALIGNED
+          LABEL "AR ClassID" FORMAT ">>"
+          VIEW-AS FILL-IN 
+          SIZE 11 BY .81
+          BGCOLOR 15 FONT 4
      cust.spare-int-1 AT ROW 13.43 COL 135 COLON-ALIGNED WIDGET-ID 12
           LABEL "Pallet ID" FORMAT ">>>>>>>>9"
           VIEW-AS FILL-IN 
@@ -2469,7 +2490,12 @@ PROCEDURE local-display-fields :
              .
          ELSE 
              btnTags:SENSITIVE = FALSE.           
-   END.    
+      
+      IF cust.pricingMethod EQ "" THEN
+          cust.pricingMethod:SCREEN-VALUE = " ".
+      IF NOT lQuotePriceMatrix THEN
+      cust.pricingMethod:HIDDEN IN FRAME {&FRAME-NAME} = YES. 
+  END.    
 
 END PROCEDURE.
 

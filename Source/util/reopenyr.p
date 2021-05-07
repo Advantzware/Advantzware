@@ -3,6 +3,7 @@
 /* g/l year end re-open                                                       */
 /*                                                                            */
 /* -------------------------------------------------------------------------- */
+USING system.SharedConfig.
 {custom/globdefs.i}
 {sys/inc/var.i NEW shared}
 {sys/form/s-top.f}
@@ -12,18 +13,36 @@ def var end-date   like start-date NO-UNDO.
 def var ret-bal    as   DEC NO-UNDO.
 def var fisc-yr    as   int format "9999" NO-UNDO.
 DEF VAR choice AS LOG NO-UNDO.
+DEFINE VARIABLE scInstance AS CLASS system.SharedConfig NO-UNDO.
+DEFINE VARIABLE cTmpDir AS CHARACTER NO-UNDO.
 
 def buffer b-acc for account.
+DEFINE BUFFER bf-period FOR period.
+DEFINE BUFFER bf-account FOR account.
+DEFINE BUFFER bf-glhist FOR glhist.
 
-ASSIGN cocode = g_company
-       locode = g_loc.
+FIND FIRST users NO-LOCK
+     WHERE users.user_id EQ USERID(LDBNAME(1))
+     NO-ERROR.
 
-form skip(18)
+IF AVAIL users AND users.user_program[2] NE "" THEN
+  cTmpDir = users.user_program[2].
+ELSE
+  cTmpDir = "c:\tmp".
+
+ ASSIGN 
+        scInstance           = SharedConfig:instance
+        cocode =  STRING(scInstance:GetValue("ReOpenPeriodCompany")) NO-ERROR.  
+    IF cocode EQ "" THEN
+    ASSIGN cocode = g_company .
+    locode = g_loc. 
+    
+/*form skip(18)
      with title "                  G / L    Y E A R - E N D    R E - O P E N                     "
      frame yclo row 2 width 80 no-labels overlay.
      
 
-view frame yclo.
+view frame yclo.  */
 
 find first company where company.company eq cocode.
 
@@ -34,37 +53,149 @@ find first period
       and period.pstat   eq yes
     no-lock no-error.
 assign
- fisc-yr = (if avail period then period.yr else year(today))
- fisc-yr = fisc-yr - int(not company.yend-per) - 1
+ fisc-yr = (if avail period then period.yr else year(today)) - 1.
  choice  = no.
- 
+RUN spProgressBar ("Reopen Period", 1, ?). 
 find first period
     where period.company eq cocode
       and period.yr      gt fisc-yr
       and period.pstat   eq no
-    no-lock no-error.
+    no-lock no-error.  
 if avail period then do:
-  message "ERROR: Cannot reopen year when a period in a " +
-          "subsequent year has been closed." VIEW-AS ALERT-BOX ERROR.
-  
-end.
-
-else 
+  message "Cannot reopen year when a period in a " +
+          "subsequent year has been closed." VIEW-AS ALERT-BOX ERROR.  
+end. 
+ELSE IF company.yend-per EQ NO THEN DO:
+    message "Cannot reopen year when previous year is not closed" VIEW-AS ALERT-BOX ERROR.
+    END.
+else   
 do on endkey undo, leave:
   pause 0.
-  display skip(1) "  Which Year?" fisc-yr space(3) skip(1)
-         with frame fisc-yr row 5 centered no-labels no-box OVERLAY              .
-  message "Are you sure you wish to reopen this fiscal year?" update choice VIEW-AS ALERT-BOX.
+         /*display skip(1) "  Which Year?" fisc-yr space(3) skip(1)
+         with frame fisc-yr row 5 centered no-labels no-box OVERLAY              . */
+  message "Are you sure you wish to reopen this fiscal year?" VIEW-AS ALERT-BOX QUESTION
+                                                            BUTTONS OK-CANCEL UPDATE choice .
 end.
-
+  
 if choice then do on error undo, leave:
+  RUN spProgressBar ("Reopen Period", 1, 4).
   {util/reopenyr.i cocode}
   
-  company.yend-per = no.
-end.
+  RUN spProgressBar ("Reopen Period", 2, 4).
+  FIND LAST bf-period
+       where bf-period.company eq cocode
+       and bf-period.yr      EQ fisc-yr
+       and bf-period.pstat   eq no
+       no-lock no-error.
+  IF AVAIL bf-period THEN
+  DO:
+    FIND CURRENT bf-period EXCLUSIVE-LOCK NO-ERROR.
 
-status default "".
+    for each glhist
+        where glhist.company eq cocode         
+        and glhist.tr-date ge bf-period.pst
+        and glhist.tr-date le bf-period.pend
+        and glhist.period  eq bf-period.pnum          
+        :
+        glhist.posted = NO.
+        status default "Processing glhist: " + glhist.actnum.
+    END.  
+    RUN spProgressBar ("Reopen Period", 3, 4).
+    
+    OUTPUT TO value(cTmpDir + "\account.d") . 
+    FOR EACH bf-account
+        where bf-account.company EQ cocode:
+        EXPORT bf-account.
+        bf-account.cyr[bf-period.pnum] = 0.
+        status default "Processing Account: " + bf-account.actnum.        
+    END.
+    OUTPUT CLOSE.
+    
+    bf-period.pstat = YES.
+    ASSIGN
+        bf-period.APClosedBy  = USERID(LDBNAME(1))
+        bf-period.POClosedBy  = USERID(LDBNAME(1))
+        bf-period.OPClosedBy  = USERID(LDBNAME(1))
+        bf-period.WIPClosedBy = USERID(LDBNAME(1))
+        bf-period.RMClosedBy  = USERID(LDBNAME(1))
+        bf-period.FGClosedBy  = USERID(LDBNAME(1))
+        bf-period.BRClosedBy  = USERID(LDBNAME(1))
+        bf-period.ARClosedBy  = USERID(LDBNAME(1))        
+        bf-period.subLedgerAP  = IF company.subLedgerAP EQ YES THEN "O" ELSE "A"
+        bf-period.subLedgerPO  = IF company.subLedgerPO EQ YES THEN "O" ELSE "A"
+        bf-period.subLedgerOP  = IF company.subLedgerOP EQ YES THEN "O" ELSE "A"
+        bf-period.subLedgerWIP = IF company.subLedgerWIP EQ YES THEN "O" ELSE "A"
+        bf-period.subLedgerRM  = IF company.subLedgerRM EQ YES THEN "O" ELSE "A"
+        bf-period.subLedgerFG  = IF company.subLedgerFG EQ YES THEN "O" ELSE "A"
+        bf-period.subLedgerBR  = IF company.subLedgerBR EQ YES THEN "O" ELSE "A"
+        bf-period.subLedgerAR  = IF company.subLedgerAR EQ YES THEN "O" ELSE "A"     
+        bf-period.APClosed  = NOW
+        bf-period.POClosed  = NOW
+        bf-period.OPClosed  = NOW
+        bf-period.WIPClosed = NOW
+        bf-period.RMClosed  = NOW
+        bf-period.FGClosed  = NOW
+        bf-period.BRClosed  = NOW
+        bf-period.ARClosed  = NOW
+        .
+    FIND CURRENT bf-period NO-LOCK NO-ERROR.
+    
+    FOR EACH bf-glhist EXCLUSIVE-LOCK
+         WHERE bf-glhist.company EQ cocode
+         AND bf-glhist.jrnl EQ "AutoClose" 
+         AND bf-glhist.glYear EQ (bf-period.yr + 1) :
+       DELETE bf-glhist.
+    END.   
+    RUN spProgressBar ("Reopen Period", 4, 4).
+    RELEASE glhist.
+    RELEASE bf-account.       
+    
+  END.      
+ 
+  message " Process Complete"  VIEW-AS ALERT-BOX.
+  
+end.  
 
-hide all no-pause.
+RUN spProgressBar ("Reopen Period", 1, 1).
+status default "".  
 
 /* end ---------------------------------- copr. 1992  advanced software, inc. */
+
+
+/* **********************  Internal Procedures  *********************** */
+
+PROCEDURE pCanReopenYear PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER.
+    
+    DEFINE VARIABLE cMessage              AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iLastClosedFiscalYear AS INTEGER   NO-UNDO.
+    
+    FIND FIRST company NO-LOCK
+        WHERE company.company EQ ipcCompany
+        NO-ERROR.
+    IF NOT AVAILABLE company THEN LEAVE.
+    FIND FIRST period
+        WHERE period.company EQ ipcCompany
+        AND period.pstat   EQ YES
+        NO-LOCK NO-ERROR.
+    ASSIGN
+        iLastClosedFiscalYear = (IF AVAILABLE period THEN period.yr ELSE YEAR(TODAY)) - 1.
+       
+    FIND FIRST period
+        WHERE period.company EQ ipcCompany
+        AND period.yr      GT iLastClosedFiscalYear
+        AND period.pstat   EQ NO
+        NO-LOCK NO-ERROR.  
+    IF AVAILABLE period THEN
+        cMessage = "Cannot reopen year when a period in a subsequent year has been closed.". 
+    ELSE IF company.yend-per EQ NO THEN 
+            cMessage = "Cannot reopen year because previous year is not closed.". 
+
+    IF cMessage NE "" THEN 
+        MESSAGE cMessage VIEW-AS ALERT-BOX.
+          
+END PROCEDURE.

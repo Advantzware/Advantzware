@@ -865,6 +865,7 @@ PROCEDURE local-assign-record :
                            ar-inv.cust-no,
                            ar-inv.ship-id,
                            "", /* FG Item*/
+                           0, /*order No.*/
                            OUTPUT dOverPer , OUTPUT dUnderPer, OUTPUT cTagDesc ) .
                            ar-inv.over-pct = dOverPer.
                            ar-inv.Under-pct = dUnderPer. 

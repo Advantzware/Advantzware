@@ -672,6 +672,49 @@ PROCEDURE GetDimCharge:
     
 END PROCEDURE.
 
+PROCEDURE pExpireOldCost PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany    AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcItemID     AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcItemType   AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcVendorID   AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcCustomerID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcEstimateNo AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiFormNo     AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER ipiBlankNo    AS INTEGER   NO-UNDO.
+
+    DEFINE VARIABLE dtExpirationDate AS DATE NO-UNDO.
+
+    DEFINE BUFFER bfVendItemCost FOR vendItemCost.
+
+    FOR EACH vendItemCost NO-LOCK 
+        WHERE vendItemCost.company    EQ ipcCompany
+          AND vendItemCost.itemID     EQ ipcItemID
+          AND vendItemCost.itemType   EQ ipcItemType
+          AND vendItemCost.vendorID   EQ ipcVendorID
+          AND vendItemCost.customerID EQ ipcCustomerID
+          AND vendItemCost.estimateNo EQ ipcEstimateNo
+          AND vendItemCost.formNo     EQ ipiFormNo
+          AND vendItemCost.blankNo    EQ ipiBlankNo
+        BREAK BY vendItemCost.effectiveDate  DESCENDING
+              BY vendItemCost.expirationDate DESCENDING
+        :
+        IF NOT FIRST(vendItemCost.effectiveDate) AND
+           vendItemCost.expirationDate NE dtExpirationDate THEN
+        DO TRANSACTION:
+            FIND FIRST bfVendItemCost EXCLUSIVE-LOCK
+                 WHERE ROWID(bfVendItemCost) EQ ROWID(vendItemCost).
+            bfVendItemCost.expirationDate = dtExpirationDate.
+            RELEASE bfVendItemCost.
+        END. /* if not first-of */
+        dtExpirationDate = vendItemCost.effectiveDate - 1.
+    END. /* each venditemcost */
+
+END PROCEDURE.
+
 PROCEDURE pExpirePriceByCust PRIVATE:
 /*------------------------------------------------------------------------------
  Purpose:
@@ -893,6 +936,33 @@ PROCEDURE Vendor_CheckPriceHoldForPo:
     END.
     RELEASE bf-po-ord.
     
+END PROCEDURE.
+
+PROCEDURE Vendor_ExpireOldCost:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany    AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcItemID     AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcItemType   AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcVendorID   AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcCustomerID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcEstimateNo AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiFormNo     AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER ipiBlankNo    AS INTEGER   NO-UNDO.
+
+    RUN pExpireOldCost (
+        ipcCompany,
+        ipcItemID,
+        ipcItemType,
+        ipcVendorID,
+        ipcCustomerID,
+        ipcEstimateNo,
+        ipiFormNo,
+        ipiBlankNo   
+        ).
+
 END PROCEDURE.
 
 PROCEDURE Vendor_ExpirePriceByCust:

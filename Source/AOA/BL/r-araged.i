@@ -48,7 +48,6 @@ FOR EACH ar-cash ~
                  WHERE glhist.company EQ cust.company ~
                    AND glhist.jrnl    EQ "CASHRVD" ~
                    AND glhist.tr-dscr EQ cGltransDesc ~
-                   AND glhist.posted  EQ NO ~
                  NO-ERROR. ~
             dtInvoiceDate = IF AVAILABLE glhist THEN glhist.tr-date ~
                             ELSE ar-cash.check-date. ~
@@ -287,8 +286,7 @@ PROCEDURE pBusinessLogic:
                         FIND FIRST glhist NO-LOCK
                              WHERE glhist.company EQ cust.company
                                AND glhist.jrnl    EQ "CASHRVD"
-                               AND glhist.tr-dscr EQ cGltransDesc
-                               AND glhist.posted  EQ NO 
+                               AND glhist.tr-dscr EQ cGltransDesc                                
                              NO-ERROR.
                         dtInvoiceDate = IF AVAILABLE glhist THEN glhist.tr-date
                                         ELSE ar-cash.check-date.
@@ -425,8 +423,7 @@ PROCEDURE pBusinessLogic:
                             FIND FIRST glhist NO-LOCK
                                  WHERE glhist.company EQ cust.company
                                    AND glhist.jrnl    EQ "CASHRVD"
-                                   AND glhist.tr-dscr EQ cGltransDesc
-                                   AND glhist.posted  EQ NO
+                                   AND glhist.tr-dscr EQ cGltransDesc                                   
                                  NO-ERROR.
                             dtInvoiceDate = IF AVAILABLE glhist THEN glhist.tr-date
                                             ELSE ar-cash.check-date.
@@ -457,8 +454,7 @@ PROCEDURE pBusinessLogic:
                            CAN-FIND(FIRST glhist
                                     WHERE glhist.company EQ cust.company
                                       AND glhist.jrnl    EQ "CASHRVD"
-                                      AND glhist.tr-dscr EQ cTrDscr
-                                      AND glhist.posted  EQ NO)) THEN
+                                      AND glhist.tr-dscr EQ cTrDscr)) THEN
                         cvType = "VD".
                         ELSE cvType = "PY".
                         ASSIGN
@@ -577,8 +573,7 @@ PROCEDURE pBusinessLogic:
                                 FIND FIRST glhist NO-LOCK
                                      WHERE glhist.company EQ cust.company
                                        AND glhist.jrnl    EQ "CASHRVD"
-                                       AND glhist.tr-dscr EQ cGltransDesc
-                                       AND glhist.posted  EQ NO
+                                       AND glhist.tr-dscr EQ cGltransDesc                                       
                                      NO-ERROR.
                                 dtInvoiceDate = IF AVAILABLE glhist THEN glhist.tr-date
                                                 ELSE ar-cash.check-date.
@@ -715,8 +710,7 @@ PROCEDURE pBusinessLogic:
                    CAN-FIND(FIRST glhist
                             WHERE glhist.company EQ cust.company
                               AND glhist.jrnl    EQ "CASHRVD"
-                              AND glhist.tr-dscr EQ cTrDscr
-                              AND glhist.posted  EQ NO) THEN DO:
+                              AND glhist.tr-dscr EQ cTrDscr) THEN DO:
                     ASSIGN
                         cvType       = "VD"
                         cInvoiceNote = "VOID"
@@ -743,8 +737,7 @@ PROCEDURE pBusinessLogic:
                         FIND FIRST glhist NO-LOCK
                              WHERE glhist.company EQ cust.company
                                AND glhist.jrnl    EQ "CASHRVD"
-                               AND glhist.tr-dscr EQ cGltransDesc
-                               AND glhist.posted  EQ NO
+                               AND glhist.tr-dscr EQ cGltransDesc                               
                              NO-ERROR.
                         dtInvoiceDate = IF AVAILABLE glhist THEN glhist.tr-date
                                         ELSE ar-cash.check-date.
@@ -821,8 +814,7 @@ PROCEDURE pBusinessLogic:
                         FIND FIRST glhist NO-LOCK
                              WHERE glhist.company EQ cust.company
                                AND glhist.jrnl EQ "CASHRVD"
-                               AND glhist.tr-dscr EQ cGltransDesc
-                               AND glhist.posted  EQ NO
+                               AND glhist.tr-dscr EQ cGltransDesc                               
                              NO-ERROR.                         
                         dtInvoiceDate = IF AVAILABLE glhist THEN glhist.tr-date
                                         ELSE ar-cash.check-date.

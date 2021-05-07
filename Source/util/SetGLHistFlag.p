@@ -1,44 +1,73 @@
 /*------------------------------------------------------------------------
     File        : util/SetGLHistFlag.p
     Purpose     : populate year field in GLHist and fix posted field in old data
-
     Syntax      : 
-
     Description :  
-
-    Author(s)   : Sewa Singh
+    Author(s)   : Sewa Singh, Mark Tyndall
     Created     : 03.01.2021
-    Notes       :
+    Notes       :   Updated 21.04.20 - MYT
   ----------------------------------------------------------------------*/
-  DEFINE BUFFER bf-glhist FOR glhist.
-  DEFINE BUFFER bf-period FOR period.
-  DEFINE BUFFER bf-first-open-period FOR period.
-  
-  DISABLE TRIGGERS FOR LOAD OF glhist.
-  DISABLE TRIGGERS FOR LOAD OF bf-glhist.
+    DEFINE TEMP-TABLE ttPeriod LIKE period.
+    DEFINE TEMP-TABLE ttOpenPeriodStartDateByCompany
+        FIELD company LIKE period.company
+        FIELD daStartDate LIKE period.pst.
+            
+    DEFINE BUFFER b-glhist FOR glhist.
+    
+    DEFINE VARIABLE iLocked AS INT NO-UNDO.
+        
+    /* Optional - prevents create of audit records */
+    DISABLE TRIGGERS FOR LOAD OF glhist.
+    DISABLE TRIGGERS FOR LOAD OF b-glhist.
+        
+    /* If no glTrans, just leave */
+    FIND FIRST glTrans NO-LOCK NO-ERROR.
+    IF NOT AVAIL glTrans THEN RETURN.
+    
+    /* First, copy the period table into temp-table to prevent further DB reads */
+    FOR EACH period NO-LOCK:
+        CREATE ttPeriod.
+        IMPORT ttPeriod.
+    END.
+        
+    /* Next, find the first open period start date for each company */
+    companyLoop:
+    FOR EACH company NO-LOCK:
+        CREATE ttOpenPeriodStartDateByCompany.
+        ASSIGN 
+            ttOpenPeriodStartDateByCompany.company = company.company.
+        FOR EACH ttPeriod WHERE 
+            ttPeriod.company EQ company.company:
+            IF ttPeriod.pstat EQ TRUE THEN 
+            DO:
+                ASSIGN 
+                    ttOpenPeriodStartDateByCompany.daStartDate = ttPeriod.pst.
+                NEXT companyLoop.
+            END.
+        END.
+    END.  
 
-  /* Only process records where the glyear has not been set OR record is not posted 
-     Otherwise, this will try to lock and process EVERY glhist */
-  FOR EACH bf-glhist EXCLUSIVE WHERE
-    bf-glhist.glYear EQ 0 OR 
-    bf-glhist.posted EQ NO:
+    /* Only process records where the glyear has not been set OR record is not posted 
+       Otherwise, this will try to lock and process EVERY glhist */
+    FOR EACH b-glhist EXCLUSIVE WHERE
+        b-glhist.glYear EQ 0 OR 
+        b-glhist.posted EQ NO:
        
-    FIND FIRST bf-period NO-LOCK
-        WHERE bf-period.company EQ bf-glhist.company
-        AND bf-period.pst  LE bf-glhist.tr-date
-        AND bf-period.pend GE bf-glhist.tr-date          
-        NO-ERROR.             
-     IF AVAIL bf-period THEN ASSIGN  
-        bf-glhist.glYear = bf-period.yr.
-     
-     FIND FIRST bf-first-open-period NO-LOCK
-        WHERE bf-first-open-period.company EQ bf-glhist.company
-        AND bf-first-open-period.pstat   EQ YES
-        NO-ERROR.
-     IF (AVAIL bf-first-open-period AND bf-glhist.tr-date LT bf-first-open-period.pst) 
-     OR NOT AVAIL bf-period THEN ASSIGN
-         bf-glhist.posted = YES
-         bf-glhist.entryType = "A".      
-     
-  END.
-  RELEASE bf-glhist.
+        FIND FIRST ttPeriod NO-LOCK
+            WHERE ttperiod.company EQ b-glhist.company
+            AND ttPeriod.pst  LE b-glhist.tr-date
+            AND ttPeriod.pend GE b-glhist.tr-date          
+            NO-ERROR.             
+         IF AVAIL ttPeriod THEN ASSIGN  
+            b-glhist.glYear = ttPeriod.yr.
+         
+         FIND FIRST ttOpenPeriodStartDateByCompany NO-LOCK
+            WHERE ttOpenPeriodStartDateByCompany.company EQ b-glhist.company
+            NO-ERROR.
+         IF (AVAIL ttOpenPeriodStartDateByCompany AND b-glhist.tr-date LT ttOpenPeriodStartDateByCompany.daStartDate) 
+         OR NOT AVAIL ttOpenPeriodStartDateByCompany THEN ASSIGN
+             b-glhist.posted = YES
+             b-glhist.entryType = "A".      
+         
+    END.
+    RELEASE b-glhist.

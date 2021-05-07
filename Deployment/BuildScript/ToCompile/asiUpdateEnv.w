@@ -1835,6 +1835,29 @@ END PROCEDURE.
 
 
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipCleanUserWindow C-Win
+PROCEDURE ipCleanUserWindow:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RUN ipStatus ("    Cleaning userWindow table").
+
+    DISABLE TRIGGERS FOR LOAD OF userWindow.
+    
+    FOR EACH userWindow EXCLUSIVE WHERE
+        userWindow.state EQ 3:
+        DELETE userWindow.
+    END. 
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipConfirmAdminUser C-Win 
 PROCEDURE ipConfirmAdminUser :
 /*------------------------------------------------------------------------------
@@ -3478,6 +3501,8 @@ PROCEDURE ipDataFix210100:
     RUN ipConvertGLTrans.
     RUN ipFixForeignAccount.
     RUN ipResetProbeMSF.
+    RUN ipUpdateSurchargeAccounts.
+    RUN ipCleanUserWindow.
     
 END PROCEDURE.
     
@@ -7058,8 +7083,8 @@ PROCEDURE ipUpdateSQLSettings:
             Output some values to a file /Admin/SQLParms.txt. This contains
                 dbname=<dbname>
                 dbport=<port>
-                cusername=asi
-                cpassword=Boxco2020
+                cusername=sysprogress
+                cpassword=sysprogress
             This file will be used later by the batch file to ensure SQL permissions are given to all files
             It will then be deleted as part of the normal upgrade
             
@@ -7088,10 +7113,64 @@ PROCEDURE ipUpdateSQLSettings:
     OUTPUT TO VALUE(cAdminDir + "\SQLParms.txt").
     PUT UNFORMATTED "dbname=" + ipcName + CHR(10).         
     PUT UNFORMATTED "dbport=" + cSQLDbPort + CHR(10).         
-    PUT UNFORMATTED "cusername=asi" + CHR(10).         
-    PUT UNFORMATTED "cpassword=Boxco2020" + CHR(10).         
+    PUT UNFORMATTED "cusername=sysprogress" + CHR(10).         
+    PUT UNFORMATTED "cpassword=sysprogress" + CHR(10).         
     OUTPUT CLOSE.    
     
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+ &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipUpdateSurchargeAccounts C-Win
+PROCEDURE ipUpdateSurchargeAccounts:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEF VAR cOrigPropath AS CHAR NO-UNDO.
+    DEF VAR cNewPropath AS CHAR NO-UNDO.
+
+    ASSIGN
+        cOrigPropath = PROPATH
+        cNewPropath  = cEnvDir + "\" + fiEnvironment:{&SV} + "\Programs," + PROPATH
+        PROPATH = cNewPropath.
+        
+    RUN ipStatus ("    Updating surcharge accounts").
+    RUN util/UpdateSurAccount.p.
+
+    ASSIGN 
+        PROPATH = cOrigPropath.     
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipUpdateSurchargeAccounts C-Win
+PROCEDURE ipUpdateSurchargeAccounts:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEF VAR cOrigPropath AS CHAR NO-UNDO.
+    DEF VAR cNewPropath AS CHAR NO-UNDO.
+
+    ASSIGN
+        cOrigPropath = PROPATH
+        cNewPropath  = cEnvDir + "\" + fiEnvironment:{&SV} + "\Programs," + PROPATH
+        PROPATH = cNewPropath.
+        
+    RUN ipStatus ("    Updating surcharge accounts").
+    RUN util/UpdateSurAccount.p.
+
+    ASSIGN 
+        PROPATH = cOrigPropath.     
+
 END PROCEDURE.
 	
 /* _UIB-CODE-BLOCK-END */

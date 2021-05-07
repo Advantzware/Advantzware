@@ -88,6 +88,7 @@ FOR EACH xqitm OF xquo NO-LOCK
                              eb.cust-no,
                              TRIM(eb.ship-id),
                              eb.stock-no,
+                             0,
                              OUTPUT cOverRun , 
                              OUTPUT cUnderRun,
                              OUTPUT cTagDesc ) .

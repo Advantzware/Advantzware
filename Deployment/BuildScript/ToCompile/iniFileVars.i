@@ -39,7 +39,7 @@ ASSIGN cIniVarList =
     "# Audit DB List,audDbList,audVerList,audDirList,audPortList," +
     "# Basic DB Elements,audDbName,audDbPort,audDbStFile,prodDbName,prodDbPort,prodDbStFile,shipDbName,shipDbPort,shipDbStFile,testDbName,testDbPort,testDbStFile," +
     "# API Elements,apiIPAddress,apiPort,adminPort,nameServerName,nameServerPort,appServerName,appServerPort," +
-    "# Misc Elements,dfFileName,deltaFileName".
+    "# Misc Elements,dfFileName,deltaFileName,isHyperV".
 
 /* # Setup Variables */
 DEF VAR cSitename AS CHAR INITIAL "ASI" NO-UNDO.
@@ -155,7 +155,7 @@ DEF VAR cAppServerPort AS CHAR INITIAL "3092" NO-UNDO.
 /* # Misc Elements */
 DEF VAR cDfFileName AS CHAR INITIAL "asi167.df" NO-UNDO.
 DEF VAR cDeltaFileName AS CHAR INITIAL "asi166167.df" NO-UNDO.
-
+DEF VAR cIsHyperV AS CHAR INITIAL "NO" NO-UNDO.
 DEF VAR cOutAdminPort AS CHAR NO-UNDO.
 DEF VAR cOutAppServerName AS CHAR INITIAL "Advantzware_API" NO-UNDO.
 DEF VAR cOutAppServerPort AS CHAR NO-UNDO.
@@ -491,6 +491,7 @@ PROCEDURE ipReadIniFile:
                 WHEN "testDbStFile" THEN ASSIGN      ttIniFile.cVarValue = cTestDbStFile.
                 WHEN "dfFileName" THEN ASSIGN        ttIniFile.cVarValue = cDfFileName.
                 WHEN "deltaFileName" THEN ASSIGN     ttIniFile.cVarValue = cDeltaFileName.
+                WHEN "isHyperV" THEN ASSIGN          ttIniFile.cVarValue = cIsHyperV.
                 WHEN "apiIPAddress" THEN ASSIGN      ttIniFile.cVarValue = cAPIIpAddress.
                 WHEN "apiPort" THEN ASSIGN           ttIniFile.cVarValue = cAPIPort.
                 WHEN "adminPort" THEN ASSIGN         ttIniFile.cVarValue = cAdminPort.
@@ -591,6 +592,7 @@ PROCEDURE ipReadIniFile:
             WHEN "testDbStFile" THEN ASSIGN     cTestDbStFile       = ttIniFile.cVarValue.
             WHEN "dfFileName" THEN ASSIGN       cDfFileName         = ttIniFile.cVarValue.
             WHEN "deltaFileName" THEN ASSIGN    cDeltaFileName      = ttIniFile.cVarValue.
+            WHEN "isHyperV" THEN ASSIGN         cIsHyperV           = ttIniFile.cVarValue.
             WHEN "apiIPAddress" THEN ASSIGN     cAPIIpAddress       = ttIniFile.cVarValue.
             WHEN "apiPort" THEN ASSIGN          cAPIPort            = ttIniFile.cVarValue.
             WHEN "adminPort" THEN ASSIGN        cAdminPort          = ttIniFile.cVarValue.
