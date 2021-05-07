@@ -1317,7 +1317,7 @@ PROCEDURE pReopenBrowse :
   Notes:       
 ------------------------------------------------------------------------------*/
     CASE cColumnLabel:
-        WHEN "hotkey" THEN
+        WHEN "mnemonic" THEN
         RUN pByHotkey.
         WHEN "lastRunDateTime" THEN
         RUN pByLastRunDateTime.
@@ -1416,8 +1416,10 @@ PROCEDURE pRunTask :
     
     IF ttDynParamValue.user-id NE "{&defaultUser}" AND
        ttDynParamValue.user-id NE USERID("ASI") AND
-       ttDynParamValue.paramValueID NE 0 THEN
-    RUN pCopyTask.
+       ttDynParamValue.paramValueID NE 0 THEN DO:
+        RUN pCopyTask.
+        IF NOT lOK THEN RETURN.
+    END. /* if */
 
     DO TRANSACTION:
         FIND FIRST dynParamValue EXCLUSIVE-LOCK
@@ -1538,8 +1540,10 @@ PROCEDURE pScheduleTask :
 ------------------------------------------------------------------------------*/
     IF NOT AVAILABLE ttDynParamValue THEN RETURN.
 
-    IF ttDynParamValue.paramValueID EQ 0 THEN
-    RUN pCopyTask.
+    IF ttDynParamValue.paramValueID EQ 0 THEN DO:
+        RUN pCopyTask.
+        IF NOT lOK THEN RETURN.
+    END. /* if eq 0 */
     RUN spSetSessionParam ("ParamValueID", STRING(ttDynParamValue.paramValueID)).
     RUN AOA/dynSched.w.
     ttDynParamValue.scheduled = fIsScheduled().
