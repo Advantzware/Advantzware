@@ -407,8 +407,7 @@ DO li-loop = 1 TO NUM-ENTRIES(v-postlst):
         AND fg-rctd.rct-date  GE ldt-from
         AND fg-rctd.rct-date  LE ldt-to
         AND fg-rctd.job-no    GE begin_job-no
-        AND fg-rctd.job-no    LE end_job-no
-        AND fg-rctd.loc-bin   NE ""
+        AND fg-rctd.job-no    LE end_job-no        
         AND fg-rctd.loc       GE begin_whs
         AND fg-rctd.loc       LE end_whs
         AND ((begin_userid    LE "" AND
