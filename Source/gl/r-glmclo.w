@@ -1663,7 +1663,7 @@ DEFINE OUTPUT PARAMETER opdNetAmount AS DECIMAL NO-UNDO.
 find first b-cacct NO-LOCK
             where b-cacct.company eq cocode
             and b-cacct.actnum  eq ipcAccount NO-ERROR. 
- IF index("RE",account.type) gt 0 then do:           
+ IF index("RE",b-cacct.type) gt 0 then do:           
      DO i = 1 TO company.num-per:
        opdNetAmount = opdNetAmount + b-cacct.cyr[i].
      END.
