@@ -981,6 +981,27 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pDeleteDynParamValue s-object
+PROCEDURE pDeleteDynParamValue:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    IF ttDynParamValue.user-id NE "{&defaultUser}" THEN
+    FOR EACH dynParamValue EXCLUSIVE-LOCK
+        WHERE dynParamValue.subjectID    EQ ttDynParamValue.subjectID
+          AND dynParamValue.user-id      EQ ttDynParamValue.user-id
+          AND dynParamValue.prgmName     EQ ttDynParamValue.prgmName
+          AND dynParamValue.paramValueID EQ 0
+        :
+        DELETE dynParamValue.
+    END. /* each dynparamvalue */
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pDeleteTask s-object 
 PROCEDURE pDeleteTask :
 /*------------------------------------------------------------------------------
@@ -1014,6 +1035,7 @@ PROCEDURE pDeleteTask :
         FIND FIRST dynParamValue EXCLUSIVE-LOCK
              WHERE ROWID(dynParamValue) EQ ttDynParamValue.paramValueRowID.
         DELETE dynParamValue.
+        RUN pDeleteDynParamValue.
         DELETE ttDynParamValue.
     END. /* if delete */
     IF lDelete THEN
@@ -1295,7 +1317,7 @@ PROCEDURE pReopenBrowse :
   Notes:       
 ------------------------------------------------------------------------------*/
     CASE cColumnLabel:
-        WHEN "hotkey" THEN
+        WHEN "mnemonic" THEN
         RUN pByHotkey.
         WHEN "lastRunDateTime" THEN
         RUN pByLastRunDateTime.
@@ -1392,6 +1414,13 @@ PROCEDURE pRunTask :
     
     DEFINE VARIABLE rRowID AS ROWID NO-UNDO.
     
+    IF ttDynParamValue.user-id NE "{&defaultUser}" AND
+       ttDynParamValue.user-id NE USERID("ASI") AND
+       ttDynParamValue.paramValueID NE 0 THEN DO:
+        RUN pCopyTask.
+        IF NOT lOK THEN RETURN.
+    END. /* if */
+
     DO TRANSACTION:
         FIND FIRST dynParamValue EXCLUSIVE-LOCK
              WHERE ROWID(dynParamValue) EQ ttDynParamValue.paramValueRowID
@@ -1430,6 +1459,7 @@ PROCEDURE pRunTask :
             rRowID = ROWID(ttDynParamValue).
             REPOSITION {&BROWSE-NAME} TO ROWID rRowID.
         END. /* if avail */
+        RUN pDeleteDynParamValue.
     END. /* if */
     ELSE
     RUN pRunNow (
@@ -1510,8 +1540,10 @@ PROCEDURE pScheduleTask :
 ------------------------------------------------------------------------------*/
     IF NOT AVAILABLE ttDynParamValue THEN RETURN.
 
-    IF ttDynParamValue.paramValueID EQ 0 THEN
-    RUN pCopyTask.
+    IF ttDynParamValue.paramValueID EQ 0 THEN DO:
+        RUN pCopyTask.
+        IF NOT lOK THEN RETURN.
+    END. /* if eq 0 */
     RUN spSetSessionParam ("ParamValueID", STRING(ttDynParamValue.paramValueID)).
     RUN AOA/dynSched.w.
     ttDynParamValue.scheduled = fIsScheduled().
