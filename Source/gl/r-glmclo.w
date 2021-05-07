@@ -1031,14 +1031,11 @@ PROCEDURE close-month :
     END.
 
     DO TRANSACTION:
-        FIND FIRST period EXCLUSIVE WHERE 
-            period.company EQ cocode AND 
-            period.yr      EQ tran-year AND 
-            period.pnum    EQ uperiod AND 
-            period.pstat   EQ YES.
+        FIND CURRENT period EXCLUSIVE.
         ASSIGN 
             period.pstat = FALSE
             iClosedPeriod = period.pnum.
+        FIND CURRENT period NO-LOCK.
             
         IF period.pnum EQ company.num-per THEN DO:
             FIND CURRENT company EXCLUSIVE.
