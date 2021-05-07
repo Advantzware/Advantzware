@@ -1660,14 +1660,19 @@ PROCEDURE pGetNetIncome :
 DEFINE INPUT PARAMETER ipcAccount AS CHARACTER NO-UNDO.
 DEFINE OUTPUT PARAMETER opdNetAmount AS DECIMAL NO-UNDO.
 
-find first b-cacct NO-LOCK
-            where b-cacct.company eq cocode
-            and b-cacct.actnum  eq ipcAccount NO-ERROR. 
- IF index("RE",b-cacct.type) gt 0 then do:           
-     DO i = 1 TO company.num-per:
-       opdNetAmount = opdNetAmount + b-cacct.cyr[i].
-     END.
- END.
+    FIND FIRST gl-ctrl NO-LOCK WHERE 
+        gl-ctrl.company EQ cocode
+        NO-ERROR.
+
+    FIND FIRST b-cacct NO-LOCK WHERE 
+        b-cacct.company EQ cocode AND 
+        b-cacct.actnum  EQ ipcAccount NO-ERROR. 
+    IF INDEX("RE",b-cacct.type) GT 0 
+    AND b-cacct.actnum NE gl-ctrl.contra THEN DO:           
+        DO i = 1 TO company.num-per:
+            opdNetAmount = opdNetAmount + b-cacct.cyr[i].
+        END.
+    END.
  
             
 end procedure.
