@@ -1243,20 +1243,20 @@ PROCEDURE pPrintImage PRIVATE:
     
     IF iplAddExtension THEN DO:
         cImageFile = ipcImageFile + ".pdf".
-        RUN FileSys_GetFilePath(cImageFile, OUTPUT cImageFile, OUTPUT lValid, OUTPUT cMessage).
+        RUN FileSys_ValidateFile(cImageFile, OUTPUT lValid, OUTPUT cMessage).
         IF NOT lValid THEN DO:
             cImageFile = ipcImageFile + ".jpg".
-            RUN FileSys_GetFilePath(cImageFile, OUTPUT cImageFile, OUTPUT lValid, OUTPUT cMessage).
+            RUN FileSys_ValidateFile(cImageFile, OUTPUT lValid, OUTPUT cMessage).
         END.
         IF NOT lValid THEN 
         DO:
             cImageFile = ipcImageFile + ".png".
-            RUN FileSys_GetFilePath(cImageFile, OUTPUT cImageFile, OUTPUT lValid, OUTPUT cMessage).
+            RUN FileSys_ValidateFile(cImageFile, OUTPUT lValid, OUTPUT cMessage).
         END.
     END.
     ELSE DO:     
         cImageFile = ipcImageFile.
-        RUN FileSys_GetFilePath(cImageFile, OUTPUT cImageFile, OUTPUT lValid, OUTPUT cMessage).
+        RUN FileSys_ValidateFile(cImageFile, OUTPUT lValid, OUTPUT cMessage).
     END.
     PAGE.
     RUN pPrintHeader .
@@ -1304,8 +1304,9 @@ PROCEDURE pPrintImages PRIVATE:
         OUTPUT lRecFound
         ).       
     RUN FileSys_GetFilePath(cPlateFolder, OUTPUT cPlateFolder, OUTPUT lValidPlateFolder, OUTPUT cMessage).
-/*    IF SUBSTRING(cPlateFolder, LENGTH(cPlateFolder), 1) NE "\" THEN*/
-/*        cPlateFolder = cPlateFolder + "\".                         */
+    IF SUBSTRING(cPlateFolder, LENGTH(cPlateFolder), 1) NE "\" THEN
+        cPlateFolder = cPlateFolder + "\".                         
+
     RUN sys/ref/nk1look.p(
         INPUT ipcCompany,
         INPUT "DieFile",
@@ -1318,6 +1319,9 @@ PROCEDURE pPrintImages PRIVATE:
         OUTPUT lRecFound
         ).
     RUN FileSys_GetFilePath(cDieFolder, OUTPUT cDieFolder, OUTPUT lValidDieFolder, OUTPUT cMessage).
+    IF SUBSTRING(cDieFolder, LENGTH(cDieFolder), 1) NE "\" THEN
+        cDieFolder = cDieFolder + "\".                         
+
     RUN sys/ref/nk1look.p(
         INPUT ipcCompany,
         INPUT "CadFile",
@@ -1330,6 +1334,8 @@ PROCEDURE pPrintImages PRIVATE:
         OUTPUT lRecFound
         ).
     RUN FileSys_GetFilePath(cCADFolder, OUTPUT cCADFolder, OUTPUT lValidCADFolder, OUTPUT cMessage).    
+    IF SUBSTRING(cCadFolder, LENGTH(cCadFolder), 1) NE "\" THEN
+        cCadFolder = cCadFolder + "\".                         
     
     FOR EACH ttSoule NO-LOCK,        
         FIRST itemfg NO-LOCK
