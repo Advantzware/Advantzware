@@ -217,22 +217,7 @@ DEFINE QUERY Dialog-Frame FOR
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Dialog-Frame
-     estMaterial.wastePercent AT ROW 4.1 COL 84 COLON-ALIGNED WIDGET-ID 322
-          LABEL "Waste %"
-          VIEW-AS FILL-IN 
-          SIZE 16.4 BY 1
-          FONT 1
-     est-no AT ROW 1.43 COL 13.8 COLON-ALIGNED WIDGET-ID 200
-     estMaterial.formNo AT ROW 1.43 COL 37.4 COLON-ALIGNED
-          LABEL "Form#" FORMAT "9"
-          VIEW-AS FILL-IN 
-          SIZE 5.8 BY 1
-          BGCOLOR 15 FONT 1
-     estMaterial.blankNo AT ROW 1.43 COL 55.2 COLON-ALIGNED
-          LABEL "Blank#" FORMAT "9"
-          VIEW-AS FILL-IN 
-          SIZE 5.8 BY 1
-          BGCOLOR 15 FONT 1
+     
      estMaterial.itemID AT ROW 2.91 COL 13.6 COLON-ALIGNED
           LABEL "Item ID" FORMAT "x(10)"
           VIEW-AS FILL-IN 
@@ -265,6 +250,11 @@ DEFINE FRAME Dialog-Frame
           DROP-DOWN-LIST
           SIZE 12 BY 1
           BGCOLOR 15 FONT 1
+     estMaterial.wastePercent AT ROW 4.1 COL 84 COLON-ALIGNED WIDGET-ID 322
+          LABEL "Waste %"
+          VIEW-AS FILL-IN 
+          SIZE 16.4 BY 1
+          FONT 1
      OverrideExist AT ROW 5.91 COL 13.6
      Btn_OK AT ROW 11.24 COL 88.2
      Btn_Done AT ROW 11.52 COL 89.2
@@ -304,6 +294,17 @@ DEFINE FRAME Dialog-Frame
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
           BGCOLOR 15 FONT 1
+     est-no AT ROW 1.43 COL 13.8 COLON-ALIGNED WIDGET-ID 200
+     estMaterial.formNo AT ROW 1.43 COL 37.4 COLON-ALIGNED
+          LABEL "Form#" FORMAT "9"
+          VIEW-AS FILL-IN 
+          SIZE 5.8 BY 1
+          BGCOLOR 15 FONT 1
+     estMaterial.blankNo AT ROW 1.43 COL 55.2 COLON-ALIGNED
+          LABEL "Blank#" FORMAT "9"
+          VIEW-AS FILL-IN 
+          SIZE 5.8 BY 1
+          BGCOLOR 15 FONT 1          
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          FGCOLOR 1 FONT 6.

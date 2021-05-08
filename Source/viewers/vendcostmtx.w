@@ -1112,12 +1112,12 @@ PROCEDURE local-update-record :
     RUN get-attribute IN adm-broker-hdl ('OneVendItemCostQtyList' ).
     cQtyList = IF RETURN-VALUE EQ ? THEN "" ELSE RETURN-VALUE.     
     IF cQtyList NE '' THEN 
-    DO iCount = 1 TO NUM-ENTRIES(cQtyList, ','):
+    DO iCount = 1 TO NUM-ENTRIES(cQtyList, '|'):
          
         CREATE vendItemCostLevel .
         ASSIGN 
             vendItemCostLevel.vendItemCostID = vendItemCost.vendItemCostID .
-            vendItemCostLevel.quantityBase = DECIMAL(ENTRY(iCount, cQtyList, ','))
+            vendItemCostLevel.quantityBase = DECIMAL(ENTRY(iCount, cQtyList, '|'))
         .  
     END.
     ELSE 

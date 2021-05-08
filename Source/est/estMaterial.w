@@ -515,15 +515,28 @@ ON CHOOSE OF Btn_CostPerQty IN FRAME F-Main /* Override Cost Per Qty */
 DO:
    DEFINE VARIABLE phandle AS HANDLE.
    DEFINE VARIABLE cQtyList AS CHARACTER NO-UNDO.
-   FIND FIRST ITEM WHERE ITEM.company  = cocode
-       AND ITEM.i-no = estMaterial.itemID NO-LOCK NO-ERROR.
+   DEFINE BUFFER bf-estMaterial FOR estMaterial.
+   
+   IF AVAILABLE estMaterial AND estMaterial.costOverridePerUOM NE 0 THEN DO: 
+        FIND FIRST bf-estMaterial EXCLUSIVE-LOCK 
+            WHERE ROWID(bf-estMaterial) EQ ROWID(estMaterial)
+            NO-ERROR.
+        IF AVAILABLE bf-estMaterial THEN 
+            bf-estMaterial.costOverridePerUOM = 0.
+        RELEASE bf-estMaterial.
+   END.
+   IF AVAILABLE estMaterial THEN 
+        FIND FIRST ITEM NO-LOCK 
+        WHERE ITEM.company  EQ cocode
+        AND ITEM.i-no EQ estMaterial.itemID 
+        NO-ERROR.
 
    IF AVAIL ITEM THEN DO:
       RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostSourceFrom = "MF"' ).
       RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostEst# = ' + QUOTER(est-no:SCREEN-VALUE)).
       RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCost = ' + item.i-no).          
       RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostType = "RM" ' ).      
-      RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostVendor = ' + item.vend-no).
+      RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostVendor = ""').
       RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostCustomer = ""').  
       RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostForm# = ' + ( STRING(estMaterial.formNo)) ).
       RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostBlank# = ' + ( STRING(estMaterial.blankNo))).
