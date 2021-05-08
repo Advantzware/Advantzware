@@ -61,6 +61,9 @@ RUN methods/prgsecur.p
 	     OUTPUT lAccessClose, /* used in template/windows.i  */
 	     OUTPUT cAccessList). /* list 1's and 0's indicating yes or no to run, create, update, delete */
 
+DEFINE VARIABLE cRtnChar        AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound       AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lCEVersion      AS LOGICAL   NO-UNDO.    
 DEF VAR li-pageb4VendCost AS INT INIT 1 NO-UNDO.
 &SCOPED-DEFINE SetUserExit SetUserExit
 
@@ -165,6 +168,7 @@ DEFINE VARIABLE h_xferjobdata AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_fgadd AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-cadimg AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_vendcostmtx AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_btn-add-mat AS HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 /*DEFINE BUTTON btNextItemfg 
@@ -365,6 +369,13 @@ SESSION:DATA-ENTRY-RETURN = YES.
 {src/adm/template/windowmn.i}
 {sys/inc/f3helpw.i}
 {custom/initializeprocs.i}
+
+RUN sys/ref/nk1look.p (cocode, "CEVersion", "C" /* Character */, NO /* check by cust */, 
+        INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+        OUTPUT cRtnChar, OUTPUT lRecFound).
+   IF cRtnChar EQ "New" THEN lCEVersion = YES.
+   ELSE lCEVersion = NO.
+   
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -855,6 +866,16 @@ PROCEDURE adm-create-objects :
        RUN set-position IN h_v-navef-2 ( 22.47 , 117.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.43 , 42.00 ) */
 
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'est/btn_addmaterials.w':U ,
+             INPUT  FRAME est:HANDLE ,
+             INPUT  'Edge-Pixels = 2,
+                     SmartPanelType = Update,
+                     AddFunction = One-Record':U ,
+             OUTPUT h_btn-add-mat ).
+       RUN set-position IN h_btn-add-mat ( 20.71 , 122.00 ) NO-ERROR.
+       RUN set-size IN h_btn-add-mat ( 4.67  , 20.00 ) NO-ERROR.
+
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('2':U) NO-ERROR.
 
@@ -864,6 +885,9 @@ PROCEDURE adm-create-objects :
        /* Links to SmartViewer h_v-est4. */
        RUN add-link IN adm-broker-hdl ( h_b-estitm , 'Record':U , h_v-est4 ).
        RUN add-link IN adm-broker-hdl ( h_p-updc&c , 'TableIO':U , h_v-est4 ).
+       
+       /* Links to SmartViewer h_btn-add-mat. */
+       RUN add-link IN adm-broker-hdl ( h_btn-add-mat , 'addMaterials':U , h_b-estitm ).
 
        /* Links to SmartViewer h_v-navef-2. */
        RUN add-link IN adm-broker-hdl ( h_b-estitm , 'nav-itm':U , h_v-navef-2 ).
@@ -1474,6 +1498,11 @@ ELSE
          RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"initbtn-target",OUTPUT char-hdl).
          IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
           RUN reopen-init IN WIDGET-HANDLE(char-hdl) .
+  END.
+  IF li-page[1] = 7 THEN DO:
+    IF NOT lCEVersion THEN
+    RUN phideButton IN h_btn-add-mat .
+        
   END.
 
   DO WITH FRAME {&FRAME-NAME}:
