@@ -1269,7 +1269,7 @@ PROCEDURE pPrintImage PRIVATE:
         PUT UNFORMATTED
         "<=12><R+3><C3><#21><R+46><C+76><IMAGE#21=" cImageFile ">" SKIP.
     ELSE 
-        PUT UNFORMATTED "Invalid File: " cImageFile SKIP.
+        PUT UNFORMATTED "<C5>Invalid File: " ipcImageFile SKIP.
     PUT "<C74><R64>Page: " STRING(PAGE-NUM - lv-pg-num,">>9") + " of <#PAGES>"  FORM "x(20)".  
     
 END PROCEDURE.
@@ -1283,10 +1283,14 @@ PROCEDURE pPrintImages PRIVATE:
     DEFINE INPUT PARAMETER ipcEstNo AS CHARACTER NO-UNDO.
     
     DEFINE VARIABLE cPlateFolder AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cDieFolder AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cCadFolder AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cDieFolder   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCadFolder   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lValidPlateFolder AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lValidDieFolder AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lValidCadFolder AS LOGICAL NO-UNDO.
     DEFINE VARIABLE cImageFile AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lRecFound  AS LOGICAL   NO-UNDO. 
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
     
     RUN sys/ref/nk1look.p(
         INPUT ipcCompany,
@@ -1299,8 +1303,9 @@ PROCEDURE pPrintImages PRIVATE:
         OUTPUT cPlateFolder,
         OUTPUT lRecFound
         ).       
-    IF SUBSTRING(cPlateFolder, LENGTH(cPlateFolder), 1) NE "\" THEN 
-        cPlateFolder = cPlateFolder + "\".   
+    RUN FileSys_GetFilePath(cPlateFolder, OUTPUT cPlateFolder, OUTPUT lValidPlateFolder, OUTPUT cMessage).
+/*    IF SUBSTRING(cPlateFolder, LENGTH(cPlateFolder), 1) NE "\" THEN*/
+/*        cPlateFolder = cPlateFolder + "\".                         */
     RUN sys/ref/nk1look.p(
         INPUT ipcCompany,
         INPUT "DieFile",
@@ -1312,8 +1317,7 @@ PROCEDURE pPrintImages PRIVATE:
         OUTPUT cDieFolder,
         OUTPUT lRecFound
         ).
-    IF SUBSTRING(cDieFolder, LENGTH(cDieFolder), 1) NE "\" THEN 
-        cDieFolder = cDieFolder + "\".
+    RUN FileSys_GetFilePath(cDieFolder, OUTPUT cDieFolder, OUTPUT lValidDieFolder, OUTPUT cMessage).
     RUN sys/ref/nk1look.p(
         INPUT ipcCompany,
         INPUT "CadFile",
@@ -1325,8 +1329,8 @@ PROCEDURE pPrintImages PRIVATE:
         OUTPUT cCadFolder,
         OUTPUT lRecFound
         ).
-    IF SUBSTRING(cCadFolder, LENGTH(cCadFolder), 1) NE "\" THEN 
-        cCadFolder = cCadFolder + "\".
+    RUN FileSys_GetFilePath(cCADFolder, OUTPUT cCADFolder, OUTPUT lValidCADFolder, OUTPUT cMessage).    
+    
     FOR EACH ttSoule NO-LOCK,        
         FIRST itemfg NO-LOCK
         WHERE itemfg.company EQ ipcCompany
@@ -1341,15 +1345,15 @@ PROCEDURE pPrintImages PRIVATE:
         DO:
             RUN pPrintImage("FG Item Image for: " + ttSoule.i-no,ttSoule.frm, ttSoule.blank-no, itemfg.box-image, NO).
         END.
-        IF ttSoule.lPrintCadImage AND eb.cad-no NE "" AND cCadFolder NE "" THEN 
+        IF ttSoule.lPrintCadImage AND eb.cad-no NE "" AND lValidCadFolder THEN 
         DO:
             RUN pPrintImage("CAD Image : " + eb.cad-no, ttSoule.frm, ttSoule.blank-no, cCadFolder + eb.cad-no, YES).
         END.
-        IF ttSoule.lPrintDieImage AND eb.die-no NE "" AND cDieFolder NE "" THEN 
+        IF ttSoule.lPrintDieImage AND eb.die-no NE "" AND lValidDieFolder THEN 
         DO:
             RUN pPrintImage("Die Image : " + eb.die-no, ttSoule.frm, ttSoule.blank-no, cDieFolder + eb.die-no, YES).
         END.
-        IF ttSoule.lPrintPlateImage AND eb.plate-no NE "" AND cPlateFolder NE "" THEN 
+        IF ttSoule.lPrintPlateImage AND eb.plate-no NE "" AND lValidPlateFolder THEN 
         DO:
             cImageFile = cPlateFolder + eb.plate-no.
             IF eb.spc-no NE "" THEN 
