@@ -1128,6 +1128,19 @@ PROCEDURE pGetCaseItem PRIVATE:
     
 END PROCEDURE.
 
+PROCEDURE pGetFilePath PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcFilePath AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcFilePath AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplValid AS LOGICAL NO-UNDO.
+    
+   
+
+END PROCEDURE.
+
 PROCEDURE pGetFormQtys PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose: Given a form, return the total yield and request quantity for the job
@@ -1230,21 +1243,20 @@ PROCEDURE pPrintImage PRIVATE:
     
     IF iplAddExtension THEN DO:
         cImageFile = ipcImageFile + ".pdf".
-        RUN FileSys_ValidateFile(cImageFile, OUTPUT lValid, OUTPUT cMessage).
+        RUN FileSys_GetFilePath(cImageFile, OUTPUT cImageFile, OUTPUT lValid, OUTPUT cMessage).
         IF NOT lValid THEN DO:
             cImageFile = ipcImageFile + ".jpg".
-            RUN FileSys_ValidateFile(cImageFile, OUTPUT lValid, OUTPUT cMessage).
+            RUN FileSys_GetFilePath(cImageFile, OUTPUT cImageFile, OUTPUT lValid, OUTPUT cMessage).
         END.
         IF NOT lValid THEN 
         DO:
             cImageFile = ipcImageFile + ".png".
-            RUN FileSys_ValidateFile(cImageFile, OUTPUT lValid, OUTPUT cMessage).
+            RUN FileSys_GetFilePath(cImageFile, OUTPUT cImageFile, OUTPUT lValid, OUTPUT cMessage).
         END.
     END.
     ELSE DO:     
         cImageFile = ipcImageFile.
-        RUN FileSys_ValidateFile(cImageFile, OUTPUT lValid, OUTPUT cMessage).
-        IF NOT lValid THEN RETURN.
+        RUN FileSys_GetFilePath(cImageFile, OUTPUT cImageFile, OUTPUT lValid, OUTPUT cMessage).
     END.
     PAGE.
     RUN pPrintHeader .
@@ -1252,8 +1264,12 @@ PROCEDURE pPrintImage PRIVATE:
     PUT UNFORMATTED 
         "<#12><C2><R8><FROM><C80><R+52><RECT><||3><C80>" SKIP
         "<=12><R+1><C5>Image: " ipcImageType         "          Form No:" ipiForm FORMAT ">99"  " Blank No:" ipiBlank FORMAT ">99"
-        "<=12><R+2><C2><FROM><C80><LINE><||3>"
+        "<=12><R+2><C2><FROM><C80><LINE><||3>".
+    IF lValid THEN 
+        PUT UNFORMATTED
         "<=12><R+3><C3><#21><R+46><C+76><IMAGE#21=" cImageFile ">" SKIP.
+    ELSE 
+        PUT UNFORMATTED "Invalid File: " cImageFile SKIP.
     PUT "<C74><R64>Page: " STRING(PAGE-NUM - lv-pg-num,">>9") + " of <#PAGES>"  FORM "x(20)".  
     
 END PROCEDURE.
@@ -1269,7 +1285,7 @@ PROCEDURE pPrintImages PRIVATE:
     DEFINE VARIABLE cPlateFolder AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cDieFolder AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cCadFolder AS CHARACTER NO-UNDO.
-    
+    DEFINE VARIABLE cImageFile AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lRecFound  AS LOGICAL   NO-UNDO. 
     
     RUN sys/ref/nk1look.p(
@@ -1335,7 +1351,10 @@ PROCEDURE pPrintImages PRIVATE:
         END.
         IF ttSoule.lPrintPlateImage AND eb.plate-no NE "" AND cPlateFolder NE "" THEN 
         DO:
-            RUN pPrintImage("Plate Image : " + eb.plate-no, ttSoule.frm, ttSoule.blank-no, cPlateFolder + eb.plate-no, YES).
+            cImageFile = cPlateFolder + eb.plate-no.
+            IF eb.spc-no NE "" THEN 
+                cImageFile = cImageFile + eb.spc-no.
+            RUN pPrintImage("Plate Image : " + eb.plate-no, ttSoule.frm, ttSoule.blank-no, cImageFile, YES).
         END.    
     END. 
 
