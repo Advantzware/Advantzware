@@ -108,7 +108,7 @@ FOR EACH mch-act NO-LOCK
                 tt-srt.gotReceipts    = NO
                 lGotRmRct             = NO
                 tt-srt.i-no      = mch-act.i-no
-                tt-srt.entryNotes = mch-act.spare-char-1
+                tt-srt.entryNotes = mch-act.notes[1]
                 .
             
             RUN pro-rate-mr.
