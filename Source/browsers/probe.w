@@ -2945,12 +2945,10 @@ PROCEDURE pCalculateEstimate PRIVATE:
     ------------------------------------------------------------------------------*/
     DEFINE VARIABLE lPurge AS LOGICAL NO-UNDO.
         
-    FIND FIRST probe NO-LOCK 
-        WHERE probe.company EQ est.company
-        AND probe.est-no EQ est.est-no
-        NO-ERROR.
-    IF AVAIL probe THEN 
-        RUN est/d-probeu.w (OUTPUT lPurge).
+    IF CAN-FIND(FIRST probe 
+                WHERE probe.company EQ est.company
+                  AND probe.est-no  EQ est.est-no) THEN
+    RUN est/d-probeu.w (OUTPUT lPurge).
     
     IF NOT VALID-HANDLE(hdEstimateCalcProcs) THEN 
         RUN est\EstimateCalcProcs.p PERSISTENT SET hdEstimateCalcProcs.
