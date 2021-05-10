@@ -180,8 +180,10 @@ DEFINE BUFFER bf-shipto FOR shipto.
          used in cXMLOrderProc.i procedures(genOrderHeader,touchOrder,assignOrderHeader
          and genTempOrderHeader) */
       ASSIGN
-          cocode = ipcCompany
-          locode = ipcWarehouseID
+          g_company = ipcCompany
+          g_loc     = ipcWarehouseID
+          cocode    = ipcCompany
+          locode    = ipcWarehouseID
           .
       RUN sys/ref/nk1look.p(
           INPUT  cocode,
@@ -303,8 +305,10 @@ DEFINE BUFFER bf-shipto FOR shipto.
          used in cXMLOrderProc.i procedures(genOrderHeader,touchOrder,assignOrderHeader
          and genTempOrderHeader) */
       ASSIGN
-          cocode = ipcCompany
-          locode = ipcWarehouseID
+          g_company = ipcCompany
+          g_loc     = ipcWarehouseID
+          cocode    = ipcCompany
+          locode    = ipcWarehouseID
           .
       IF payLoadID EQ "" OR
          fromIdentity EQ "" OR
