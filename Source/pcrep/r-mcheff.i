@@ -108,6 +108,7 @@ FOR EACH mch-act NO-LOCK
                 tt-srt.gotReceipts    = NO
                 lGotRmRct             = NO
                 tt-srt.i-no      = mch-act.i-no
+                tt-srt.entryNotes = mch-act.spare-char-1
                 .
             
             RUN pro-rate-mr.
@@ -476,15 +477,7 @@ FOR EACH tt-srt USE-INDEX dept-idx
         IF dt-eff = ? THEN dt-eff = 0.
     END.
     
-    FIND FIRST pc-prdd NO-LOCK
-       WHERE pc-prdd.company EQ cocode
-       AND pc-prdd.m-code EQ tt-srt.m-code
-       AND pc-prdd.op-date EQ tt-srt.job-date       
-       AND pc-prdd.shift EQ tt-srt.shift
-       NO-ERROR.
-       IF AVAILABLE pc-prdd THEN 
-       ASSIGN 
-       tt-srt.entryNotes = pc-prdd.notes[1].
+       
               
     FIND FIRST itemfg NO-LOCK
          WHERE itemfg.company EQ cocode
