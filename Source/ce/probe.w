@@ -3121,10 +3121,10 @@ PROCEDURE printProbe :
   DEF VAR v-probe-fmt AS CHAR NO-UNDO.
 
   {est/checkuse.i}
-  IF CAN-FIND(FIRST probe
-              WHERE probe.company EQ eb.company
-                AND probe.est-no  EQ eb.est-no
-                AND probe.probe-date NE ?) THEN
+  IF NOT CAN-FIND(FIRST probe
+                  WHERE probe.company EQ eb.company
+                    AND probe.est-no  EQ eb.est-no
+                    AND probe.probe-date NE ?) THEN
   DO:
       MESSAGE "Estimate view of the results can not be found." VIEW-AS ALERT-BOX INFO.
       RETURN NO-APPLY.
