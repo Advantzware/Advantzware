@@ -901,10 +901,7 @@ DO:
      IF (fg-bin.cust-no EQ oe-relh.cust-no AND LAST-OF(fg-bin.cust-no)) OR
         LAST(fg-bin.cust-no) THEN LEAVE.
    END.
-   
-   RUN pCheckReleaseQty(OUTPUT lReturnError).
-   IF lReturnError THEN RETURN NO-APPLY.
-   
+              
    /* Code moved since with section was too long */
    RUN assign-ttrel.
    
@@ -1139,6 +1136,7 @@ PROCEDURE assign-ttrel :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+DEFINE VARIABLE rwRowid AS ROWID NO-UNDO.
 DO WITH FRAME {&FRAME-NAME}:
 
    ASSIGN tt-relbol.tag# = tt-relbol.tag#:SCREEN-VALUE IN BROWSE br_table
@@ -1149,15 +1147,32 @@ DO WITH FRAME {&FRAME-NAME}:
           tt-relbol.job-no2 = loadtag.job-no2
           tt-relbol.loc = IF AVAIL fg-bin THEN fg-bin.loc ELSE loadtag.loc
           tt-relbol.loc-bin = IF AVAIL fg-bin THEN fg-bin.loc-bin ELSE loadtag.loc-bin
-          tt-relbol.cust-no = IF AVAIL fg-bin THEN fg-bin.cust-no ELSE ""  
+          tt-relbol.cust-no = IF AVAIL fg-bin THEN fg-bin.cust-no ELSE ""           
+          tt-relbol.line = IF AVAIL oe-ordl THEN oe-ordl.LINE ELSE 0
+          tt-relbol.po-no = lv-po-no
+          tt-relbol.warned = ll.
+          
+       RUN pCheckReleaseQty(OUTPUT lReturnError, OUTPUT rwRowid).
+       
+      IF lReturnError EQ YES THEN    
+      ASSIGN
           tt-relbol.qty = IF AVAIL fg-bin THEN fg-bin.qty ELSE loadtag.pallet-count  /* loadtag.qty */
           tt-relbol.cases  = IF AVAIL fg-bin THEN TRUNC((fg-bin.qty - fg-bin.partial-count) / fg-bin.case-count,0) ELSE loadtag.case-bundle
           tt-relbol.qty-case = IF AVAIL fg-bin THEN fg-bin.case-count ELSE loadtag.qty-case
           tt-relbol.cases-unit = IF AVAIL fg-bin THEN fg-bin.cases-unit ELSE loadtag.case-bundle
-          tt-relbol.partial = IF AVAIL fg-bin THEN fg-bin.partial-count ELSE loadtag.partial
-          tt-relbol.line = IF AVAIL oe-ordl THEN oe-ordl.LINE ELSE 0
-          tt-relbol.po-no = lv-po-no
-          tt-relbol.warned = ll.
+          tt-relbol.partial = IF AVAIL fg-bin THEN fg-bin.partial-count ELSE loadtag.partial .
+      ELSE DO:     
+        FIND FIRST oe-rell WHERE ROWID(oe-rell) EQ rwRowid NO-LOCK NO-ERROR.
+        IF AVAIL oe-rell THEN
+        DO:
+            ASSIGN
+              tt-relbol.qty = oe-rell.qty
+              tt-relbol.cases  = oe-rell.cases
+              tt-relbol.qty-case = oe-rell.qty-case
+              tt-relbol.cases-unit = IF oe-rell.cases-unit GT 0 THEN oe-rell.cases-unit ELSE 1
+              tt-relbol.partial = oe-rell.partial.             
+        END.
+      END.     
    
    DISPLAY tt-relbol.release#
            tt-relbol.tag# 
@@ -2594,12 +2609,12 @@ PROCEDURE pCheckReleaseQty :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
+DEFINE OUTPUT PARAMETER oplReturn AS LOGICAL NO-UNDO.
+DEFINE OUTPUT PARAMETER oprwRowid AS ROWID NO-UNDO.
 DEFINE VARIABLE iReleaseQty AS INTEGER NO-UNDO.
 DEFINE VARIABLE iScanQty AS INTEGER NO-UNDO.
 
-IF lBOLQtyPopup THEN
-DO:
+
   DO WITH FRAME {&FRAME-NAME}:
     FOR EACH oe-relh NO-LOCK 
         WHERE oe-relh.company = cocode 
@@ -2608,31 +2623,33 @@ DO:
         EACH oe-rell
         WHERE oe-rell.company EQ oe-relh.company
         AND oe-rell.r-no    EQ oe-relh.r-no
+        AND oe-rell.i-no    EQ loadtag.i-no
         USE-INDEX r-no NO-LOCK BREAK BY oe-rell.i-no BY oe-rell.LINE:             
-        iReleaseQty = iReleaseQty + oe-rell.qty.                
+        iReleaseQty = iReleaseQty + oe-rell.qty.    
+        oprwRowid =  ROWID(oe-rell).
     END. 
-    FOR EACH bf-tmp NO-LOCK
-        WHERE bf-tmp.release# EQ INT(tt-relbol.release#:SCREEN-VALUE IN BROWSE {&browse-name} )
-        AND bf-tmp.i-no EQ tt-relbol.i-no:SCREEN-VALUE IN BROWSE {&browse-name} :
-            iScanQty = iScanQty + bf-tmp.qty.
-    END.
-    
-    iScanQty = iScanQty + (IF AVAIL fg-bin THEN fg-bin.qty ELSE loadtag.pallet-count). 
-    
-    IF iScanQty GT iReleaseQty THEN
+    IF lBOLQtyPopup THEN
     DO:
-       MESSAGE  "Tag qty exceeds Scheduled Release Qty " SKIP  
-                 "YES to continue.." SKIP                 
-            VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
-            UPDATE ll-change-qty AS LOG.
-       IF NOT ll-change-qty  THEN
-       DO:
-        tt-relbol.tag:SCREEN-VALUE IN BROWSE {&browse-name} = "".
-        APPLY "entry" TO  tt-relbol.tag.
-       oplReturnError = YES.
-       END.          
-    END.     
-  END.  
+        oplReturn = YES.
+        FOR EACH bf-tmp NO-LOCK
+            WHERE bf-tmp.release# EQ INT(tt-relbol.release#:SCREEN-VALUE IN BROWSE {&browse-name} )
+            AND bf-tmp.i-no EQ tt-relbol.i-no:SCREEN-VALUE IN BROWSE {&browse-name} :
+                iScanQty = iScanQty + bf-tmp.qty.
+        END.
+        
+        iScanQty = iScanQty + (IF AVAIL fg-bin THEN fg-bin.qty ELSE loadtag.pallet-count). 
+        
+        IF iScanQty GT iReleaseQty THEN
+        DO:
+           MESSAGE  "Tag qty exceeds Scheduled Release Qty " SKIP  
+                     "YES to import entire Pallet Quantity for the Selected Tag#." SKIP
+                     "NO to import just the Release Quantity for the Selected Tag#."
+                VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
+                UPDATE ll-change-qty AS LOG.
+           oplReturn = ll-change-qty.      
+        END.     
+    END.
+    ELSE oplReturn = NO.
 END.
 
 END PROCEDURE.
