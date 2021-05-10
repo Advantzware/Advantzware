@@ -81,7 +81,7 @@ DEFINE VARIABLE lTagFormat AS LOGICAL NO-UNDO .
 
 ASSIGN cTextListToSelect = "Whse,Item,Description,Bin,Tag,Rolls," +
                            "Last Trans Date,Quantity,Unit Cost,Cost Value,MSF,Tons,Cost/MSF,Vendor Tag,Vendor Po#,Cert/Lot/Mill#,Vendor,Last Recd,Caliper," +
-                           "Wt/Msf,PO GL Account,Item Name,Job#,Width,Length,Depth,Roll Wid,Sheet Size,Adders,Cycle count"
+                           "Wt/Msf,PO GL Account,Item Name,Job#,Width,Length,Depth,Roll Wid,Sheet Size,Adders,Cycle Count Code"
        cFieldListToSelect = "tt-rm-bin.loc,tt-rm-bin.i-no,v-itemname,loc-bin,tag,rolls," +
                             "trans-date,qty,v-cost,v-total,v-msf,v-tons,v-costMSF,cVendTag,cVendPo,crtlot,cVendCode,cLstRcd,cali," +
                             "wt-msf,po-gl-act,cItemName,job-no,wid,len,dep,roll-wid,sht-size,adder,cycle-count"
