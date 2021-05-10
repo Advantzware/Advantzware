@@ -77,7 +77,7 @@ DEF STREAM s2.
 DEF STREAM apiFiles.
 DEF STREAM sOutput.
 
-DEF NEW SHARED TEMP-TABLE ttUpdateHist
+DEF SHARED TEMP-TABLE ttUpdateHist
     FIELD fromVersion AS CHAR 
     FIELD toVersion AS CHAR 
     FIELD applyDate AS DATE 
