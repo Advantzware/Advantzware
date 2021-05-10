@@ -81,12 +81,12 @@ DEFINE VARIABLE lTagFormat AS LOGICAL NO-UNDO .
 
 ASSIGN cTextListToSelect = "Whse,Item,Description,Bin,Tag,Rolls," +
                            "Last Trans Date,Quantity,Unit Cost,Cost Value,MSF,Tons,Cost/MSF,Vendor Tag,Vendor Po#,Cert/Lot/Mill#,Vendor,Last Recd,Caliper," +
-                           "Wt/Msf,PO GL Account,Item Name,Job#,Width,Length,Depth,Roll Wid,Sheet Size,Adders"
+                           "Wt/Msf,PO GL Account,Item Name,Job#,Width,Length,Depth,Roll Wid,Sheet Size,Adders,Cycle count"
        cFieldListToSelect = "tt-rm-bin.loc,tt-rm-bin.i-no,v-itemname,loc-bin,tag,rolls," +
                             "trans-date,qty,v-cost,v-total,v-msf,v-tons,v-costMSF,cVendTag,cVendPo,crtlot,cVendCode,cLstRcd,cali," +
-                            "wt-msf,po-gl-act,cItemName,job-no,wid,len,dep,roll-wid,sht-size,adder"
-       cFieldLength = "5,10,30,8,22,5," + "15,16,10,13,11,11,11,30,10,30,8,9,7," + "6,25,30,10,10,10,10,10,20,30"
-       cFieldType = "c,c,c,c,c,i," + "c,i,i,i,i,i,i,c,i,c,c,c,i," + "i,c,c,c,i,i,i,i,c,c"
+                            "wt-msf,po-gl-act,cItemName,job-no,wid,len,dep,roll-wid,sht-size,adder,cycle-count"
+       cFieldLength = "5,10,30,8,22,5," + "15,16,10,13,11,11,11,30,10,30,8,9,7," + "6,25,30,10,10,10,10,10,20,30,11"
+       cFieldType = "c,c,c,c,c,i," + "c,i,i,i,i,i,i,c,i,c,c,c,i," + "i,c,c,c,i,i,i,i,c,c,c"
        .
 
 {sys/inc/ttRptSel.i}
@@ -2147,6 +2147,7 @@ SESSION:SET-WAIT-STATE ("general").
                 WHEN "roll-wid" THEN cVarValue = STRING(dShtRollWid,">,>>99.999").
                 WHEN "sht-size" THEN cVarValue = STRING(cShtSize,"x(20)").
                 WHEN "adder" THEN cVarValue = STRING(cAdder,"x(30)").
+                WHEN "cycle-count" THEN cVarValue = STRING(item.cc-code,"x(2)").
           END CASE.
           cExcelVarValue = cVarValue.  
           IF cTmpField = "tag" OR cTmpField = "cVendTag" THEN do:
@@ -2209,6 +2210,7 @@ SESSION:SET-WAIT-STATE ("general").
                  WHEN "roll-wid" THEN cVarValue = "". 
                  WHEN "sht-size" THEN cVarValue = "".
                  WHEN "adder" THEN cVarValue = "".
+                 WHEN "cycle-count" THEN cVarValue = STRING(item.cc-code,"x(2)").
                      
            END CASE.
 
@@ -2269,6 +2271,7 @@ SESSION:SET-WAIT-STATE ("general").
                  WHEN "roll-wid" THEN cVarValue = "". 
                  WHEN "sht-size" THEN cVarValue = "".
                  WHEN "adder" THEN cVarValue = "".
+                 WHEN "cycle-count" THEN cVarValue = "".
            END CASE.
            cExcelVarValue = cVarValue.  
            cDisplay = cDisplay + cVarValue +
@@ -2347,6 +2350,7 @@ SESSION:SET-WAIT-STATE ("general").
                  WHEN "roll-wid" THEN cVarValue = "".
                  WHEN "sht-size" THEN cVarValue = "".
                  WHEN "adder" THEN cVarValue = "".
+                 WHEN "cycle-count" THEN cVarValue = "".
            END CASE.
            cExcelVarValue = cVarValue.  
            cDisplay = cDisplay + cVarValue +
@@ -2406,6 +2410,7 @@ SESSION:SET-WAIT-STATE ("general").
                  WHEN "roll-wid" THEN cVarValue = "". 
                  WHEN "sht-size" THEN cVarValue = "".
                  WHEN "adder" THEN cVarValue = "".
+                 WHEN "cycle-count" THEN cVarValue = "".
            END CASE.
         
            cExcelVarValue = cVarValue.  
@@ -2484,6 +2489,7 @@ SESSION:SET-WAIT-STATE ("general").
                  WHEN "roll-wid" THEN cVarValue = "".
                  WHEN "sht-size" THEN cVarValue = "".
                  WHEN "adder" THEN cVarValue = "".
+                 WHEN "cycle-count" THEN cVarValue = "".
            END CASE.
         
            cExcelVarValue = cVarValue.  
@@ -2545,6 +2551,7 @@ SESSION:SET-WAIT-STATE ("general").
                  WHEN "roll-wid" THEN cVarValue = "".
                  WHEN "sht-size" THEN cVarValue = "".
                  WHEN "adder" THEN cVarValue = "".
+                 WHEN "cycle-count" THEN cVarValue = "".
            END CASE.
         
            cExcelVarValue = cVarValue.  
@@ -2965,6 +2972,7 @@ IF LAST-OF(tt-rm-bin.i-no) THEN DO:
                 WHEN "roll-wid" THEN cVarValue = STRING(dShtRollWid,">,>>99.999").
                 WHEN "sht-size" THEN cVarValue = STRING(cShtSize,"x(20)").
                 WHEN "adder" THEN cVarValue = STRING(cAdder,"x(30)").
+                WHEN "cycle-count" THEN cVarValue = STRING(item.cc-code,"x(2)").
           END CASE.
           cExcelVarValue = cVarValue.  
           cDisplay = cDisplay + cVarValue +
@@ -3029,6 +3037,7 @@ END.
                  WHEN "roll-wid" THEN cVarValue = "". 
                  WHEN "sht-size" THEN cVarValue = "".
                  WHEN "adder" THEN cVarValue = "".
+                 WHEN "cycle-count" THEN cVarValue = "".
            END CASE.
         
            cExcelVarValue = cVarValue.  
@@ -3105,6 +3114,7 @@ END.
                  WHEN "roll-wid" THEN cVarValue = "". 
                  WHEN "sht-size" THEN cVarValue = "".
                  WHEN "adder" THEN cVarValue = "".
+                 WHEN "cycle-count" THEN cVarValue = "".
            END CASE.
         
            cExcelVarValue = cVarValue.  
