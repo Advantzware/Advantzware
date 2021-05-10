@@ -45,7 +45,6 @@ IF AVAILABLE job THEN DO:
         mch-act.bc-crew-id = pc-prdd.bc-crew-id
         mch-act.bc-emp-id  = pc-prdd.bc-emp-id
         mch-act.user-id    = IF pc-prdd.user-id NE "" THEN pc-prdd.user-id ELSE USERID("ASI")
-        mch-act.spare-char-1 = pc-prdd.notes[1]
         .
     IF mch-act.crew EQ 0 THEN mch-act.crew = 1.
     FIND job-code WHERE job-code.code EQ mch-act.CODE NO-LOCK NO-ERROR.
