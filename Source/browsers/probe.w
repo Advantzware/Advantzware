@@ -2945,10 +2945,12 @@ PROCEDURE pCalculateEstimate PRIVATE:
     ------------------------------------------------------------------------------*/
     DEFINE VARIABLE lPurge AS LOGICAL NO-UNDO.
         
-    IF CAN-FIND(FIRST probe 
-                WHERE probe.company EQ est.company
-                  AND probe.est-no  EQ est.est-no) THEN
-    RUN est/d-probeu.w (OUTPUT lPurge).
+    FIND FIRST probe NO-LOCK 
+        WHERE probe.company EQ est.company
+        AND probe.est-no EQ est.est-no
+        NO-ERROR.
+    IF AVAIL probe THEN 
+        RUN est/d-probeu.w (OUTPUT lPurge).
     
     IF NOT VALID-HANDLE(hdEstimateCalcProcs) THEN 
         RUN est\EstimateCalcProcs.p PERSISTENT SET hdEstimateCalcProcs.
@@ -3470,10 +3472,10 @@ PROCEDURE printProbe :
   DEFINE VARIABLE v-probe-fmt AS CHARACTER NO-UNDO.
   
   {est/checkuse.i}
-   FIND FIRST probe WHERE probe.company = eb.company 
-   AND probe.est-no = eb.est-no
-   AND probe.probe-date ne ? NO-LOCK NO-ERROR.
-   IF NOT AVAIL probe THEN
+   IF CAN-FIND(FIRST probe
+               WHERE probe.company EQ eb.company
+                 AND probe.est-no  EQ eb.est-no
+                 AND probe.probe-date NE ?) THEN 
    DO:
       MESSAGE "Estimate view of the results can not be found." VIEW-AS ALERT-BOX INFO.
       RETURN NO-APPLY.
