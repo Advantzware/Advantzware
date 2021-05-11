@@ -168,3 +168,7 @@
 165 1 "EACH" "ttVendorAging" "" "" "ASI" "202103116650806404988"
 166 1 "EACH" "ventype" "Vendor Type Master" "" "ASI" "202103097382906073740"
 167 1 "EACH" "ttGLAccount" "" "" "ASI" "202103110239306403302"
+169 1 "EACH" "statecod" "State Codes" "" "ASI" "202103304629607109850"
+171 1 "EACH" "shipto" "A/R Customer Ship To Master" "" "ASI" "202104214557607179027"
+172 1 "EACH" "APIInboundEvent" "API Inbound Events" "" "ASI" "202104268090707176931"
+172 2 "FIRST" "oe-ord" "OE Order Master" "" "ASI" "202104268090707176932"
