@@ -246,12 +246,12 @@ DO:
       OUTPUT TO value("c:\tmp\specnote" + STRING(TIME) + ".txt").
       FOR EACH itemfg NO-LOCK WHERE itemfg.company = g_company
                     AND itemfg.i-no >= begin_fgitem
-                    AND itemfg.i-no<= end_fgitem
-                    AND itemfg.request-date >= begin_date
-                    AND itemfg.request-date <= end_date,
+                    AND itemfg.i-no<= end_fgitem,
           EACH notes WHERE notes.rec_key = itemfg.rec_key
                     AND notes.note_code >= begin_spec
-                    AND notes.note_code <= END_spec:
+                    AND notes.note_code <= END_spec
+                    AND notes.note_date >= begin_date
+                    AND notes.note_date <= end_date:
           EXPORT notes.
           DELETE notes.
       END.
