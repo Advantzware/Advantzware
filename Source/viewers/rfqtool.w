@@ -335,8 +335,8 @@ DO:
                  ).
              IF cFoundValue <> "" THEN 
                 ASSIGN rfq.sman:screen-value = cFoundValue
-                       sman_sname:screen-value = DYNAMIC-FUNCTION("sfDynLookupValue", "sname", cFieldsValue)
-                       rfq.comm:screen-value = DYNAMIC-FUNCTION("sfDynLookupValue", "scomm", cFieldsValue).
+                       sman_sname:screen-value = DYNAMIC-FUNCTION("sfDynLookupValue", "sman.sname", cFieldsValue)
+                       rfq.comm:screen-value = DYNAMIC-FUNCTION("sfDynLookupValue", "sman.scomm", cFieldsValue).
                 FIND FIRST sman 
                      WHERE sman.company  EQ gcompany 
                        AND sman.sman     EQ FOCUS:SCREEN-VALUE

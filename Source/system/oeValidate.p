@@ -14,6 +14,7 @@
 
 DEFINE TEMP-TABLE ttValidation
     FIELD cProgram     AS CHARACTER
+    FIELD cCategory     AS CHARACTER
     FIELD cHoldOrInfo  AS CHARACTER
     FIELD lHoldResult  AS LOGICAL 
     FIELD cHoldMessage AS CHARACTER 
@@ -49,10 +50,10 @@ PROCEDURE pBuildValidationsToRun PRIVATE:
     /* Create/setup NK1s if not already there */
     /* I know there is a "standard" for this, but we're pulling two values from eight records,
        This is much more compact. */
-    DEFINE VARIABLE cTestList AS CHARACTER INITIAL "CreditHold,CustomerPN,CustomerPO,PriceGtCost,PriceHold,UniquePO,ValidShipTo,ValidUom,OnHandInventory,ItemHold,DuplicateItem,EstimateExists" NO-UNDO.    
-    DEFINE VARIABLE cReqdList AS CHARACTER INITIAL "TRUE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE" NO-UNDO.    
-    DEFINE VARIABLE cTypeList AS CHARACTER INITIAL "HOLD,HOLD,HOLD,HOLD,HOLD,HOLD,HOLD,HOLD,HOLD,HOLD,HOLD,INFO" NO-UNDO.
-    DEFINE VARIABLE cDescList AS CHARACTER INITIAL "Credit check fails,Customer Part # invalid,PO number is blank,Extended Sell < Extended Cost,Order is on Price Hold,Customer PO number is not unique,Shipto is invalid,Price UOM is invalid,Sufficient Inventory OH,Items review hold,Duplicate line item Hold,Estimate Exists" NO-UNDO.    
+    DEFINE VARIABLE cTestList AS CHARACTER INITIAL "CreditHold,CustomerPN,CustomerPO,PriceGtCost,PriceHold,UniquePO,ValidShipTo,ValidUom,OnHandInventory,ItemHold,DuplicateItem,EstimateExists,FullPalletOnly" NO-UNDO.    
+    DEFINE VARIABLE cReqdList AS CHARACTER INITIAL "TRUE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE" NO-UNDO.    
+    DEFINE VARIABLE cTypeList AS CHARACTER INITIAL "HOLD,HOLD,HOLD,HOLD,HOLD,HOLD,HOLD,HOLD,HOLD,HOLD,HOLD,INFO,HOLD" NO-UNDO.
+    DEFINE VARIABLE cDescList AS CHARACTER INITIAL "Credit check fails,Customer Part # invalid,PO number is blank,Extended Sell < Extended Cost,Order is on Price Hold,Customer PO number is not unique,Shipto is invalid,Price UOM is invalid,Sufficient Inventory OH,Items review hold,Duplicate line item Hold,Estimate Exists,Customer Orders must be full pallet quantity" NO-UNDO.    
     
     EMPTY TEMP-TABLE ttValidation.
     DO iCtr = 1 TO NUM-ENTRIES(cTestList):
@@ -78,6 +79,7 @@ PROCEDURE pBuildValidationsToRun PRIVATE:
             ASSIGN 
                 ttValidation.cProgram    = "p" + sys-ctrl.name
                 ttValidation.cHoldOrInfo = sys-ctrl.char-fld
+                ttValidation.cCategory = sys-ctrl.name 
                 .
         END.
     END.
@@ -203,6 +205,67 @@ PROCEDURE pCustomerPO PRIVATE:
 
 END PROCEDURE.
 
+
+PROCEDURE pFullPalletOnly PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: Verifies if the quantity in order line is a multiplier of full pallet quantity
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-oe-ord FOR oe-ord.
+    DEFINE OUTPUT PARAMETER oplHold AS LOG NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcNotes   AS CHARACTER NO-UNDO.
+
+    DEFINE BUFFER bf-oe-ordl FOR oe-ordl.
+    DEFINE BUFFER bf-itemfg  FOR itemfg.
+    
+    DEFINE VARIABLE cFullPalletOnly   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lFullPalletOnly   AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lRecFound         AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cQtyMismatchLines AS CHARACTER NO-UNDO.
+
+    RUN sys/ref/nk1look.p (
+        INPUT  ipbf-oe-ord.company, /* Company Code */ 
+        INPUT  "FullPalletOnly",    /* sys-ctrl name */
+        INPUT  "L",                 /* Output return value */
+        INPUT  TRUE,                /* Use ship-to */
+        INPUT  YES,                 /* ship-to vendor */
+        INPUT  ipbf-oe-ord.cust-no, /* ship-to vendor value */
+        INPUT  "",                  /* shi-id value */
+        OUTPUT cFullPalletOnly, 
+        OUTPUT lRecFound
+        ).
+    IF lRecFound THEN
+        lFullPalletOnly = LOGICAL(cFullPalletOnly).
+    
+    IF NOT lFullPalletOnly THEN
+        RETURN.
+        
+    FOR EACH bf-oe-ordl NO-LOCK 
+        WHERE bf-oe-ordl.company EQ ipbf-oe-ord.company
+          AND bf-oe-ordl.ord-no  EQ ipbf-oe-ord.ord-no
+          AND bf-oe-ordl.line    NE 0:               
+        FIND FIRST bf-itemfg NO-LOCK
+             WHERE bf-itemfg.company EQ bf-oe-ordl.company
+               AND bf-itemfg.i-no    EQ bf-oe-ordl.i-no
+             NO-ERROR.
+        IF NOT AVAILABLE bf-itemfg THEN
+            NEXT.
+        
+        IF bf-oe-ordl.qty MOD ((bf-itemfg.case-count * bf-itemfg.case-pall) + bf-itemfg.quantityPartial) EQ 0 THEN
+            NEXT.
+
+        cQtyMismatchLines = cQtyMismatchLines + "Item:" + STRING(bf-oe-ordl.i-no) + " " 
+                  + "Quantity:" + STRING(bf-oe-ordl.qty) + ",".
+    END.
+
+    IF cQtyMismatchLines NE "" THEN 
+        ASSIGN 
+            cQtyMismatchLines = TRIM(cQtyMismatchLines,",")
+            oplHold           = TRUE 
+            opcMessage        = cQtyMismatchLines + " does not have full pallet quantity"
+            .
+END PROCEDURE.
 
 PROCEDURE pItemHold PRIVATE:
 /*------------------------------------------------------------------------------
@@ -631,15 +694,16 @@ PROCEDURE ValidateOrder:
             INPUT bf-oe-ord.rec_key,
             INPUT "oe-ord",
             INPUT opcMessage,
-            INPUT ""
+            INPUT "",
+            INPUT "Reason Code"
             ).
         RETURN.  
     END.
    
     RUN pBuildValidationsToRun(bf-oe-ord.company).    
                     
-    RUN ClearTagsHold (
-        INPUT bf-oe-ord.rec_key
+    RUN ClearTagsForGroup (
+        INPUT bf-oe-ord.rec_key, "Reason Code"
         ).
     iCountHold = 0.
     FOR EACH ttValidation NO-LOCK:
@@ -656,8 +720,9 @@ PROCEDURE ValidateOrder:
                 RUN AddTagHold (
                     INPUT bf-oe-ord.rec_key,
                     INPUT "oe-ord",
-                    INPUT ttValidation.cHoldMessage,
-                    INPUT ttValidation.cNotes
+                    INPUT ttValidation.cCategory + " - " + ttValidation.cHoldMessage,
+                    INPUT ttValidation.cNotes,
+                    INPUT "Reason Code"
                     ).
                 ASSIGN
                     iCountHold = iCountHold + 1
@@ -665,12 +730,13 @@ PROCEDURE ValidateOrder:
                     opcMessage = opcMessage + "|" + ttValidation.cHoldMessage.
             END.    
             ELSE 
-            DO:
-                RUN AddTagInfo (
+            DO:  
+                RUN AddTagInfoForGroup (
                     INPUT bf-oe-ord.rec_key,
                     INPUT "oe-ord",
-                    INPUT ttValidation.cHoldMessage,
-                    INPUT ttValidation.cNotes
+                    INPUT ttValidation.cCategory + " - " + ttValidation.cHoldMessage,
+                    INPUT ttValidation.cNotes,
+                    INPUT "Reason Code"
                     ).
                 ttValidation.lHoldResult = FALSE. 
             END.          

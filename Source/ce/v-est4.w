@@ -1397,7 +1397,7 @@ DO:
       if lastkey = -1 then return.
 {&methods/lValidateError.i YES}
     find first item where item.company = ef.company and
-                          item.indus = "2" and
+                          item.indus = "1" and
                           INDEX("MOXY789",ITEM.mat-type) GT 0 and
                           item.i-no = self:screen-value
                           no-lock no-error.

@@ -1052,6 +1052,10 @@ PROCEDURE local-update-record :
     DEFINE VARIABLE rdRowidLevel AS ROWID NO-UNDO .
     DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
     DEFINE VARIABLE cReturnMessage AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
+    DEFINE VARIABLE cQtyList AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER vendItemCostLevel FOR vendItemCostLevel.
     
   /* Code placed here will execute PRIOR to standard behavior. */
   DO WITH FRAME {&FRAME-NAME}:
@@ -1102,7 +1106,21 @@ PROCEDURE local-update-record :
   /* Code placed here will execute AFTER standard behavior.    */
   RUN set-panel (0).
 
+    
   IF lNewRecord THEN
+  DO:
+    RUN get-attribute IN adm-broker-hdl ('OneVendItemCostQtyList' ).
+    cQtyList = IF RETURN-VALUE EQ ? THEN "" ELSE RETURN-VALUE.     
+    IF cQtyList NE '' THEN 
+    DO iCount = 1 TO NUM-ENTRIES(cQtyList, '|'):
+         
+        CREATE vendItemCostLevel .
+        ASSIGN 
+            vendItemCostLevel.vendItemCostID = vendItemCost.vendItemCostID .
+            vendItemCostLevel.quantityBase = DECIMAL(ENTRY(iCount, cQtyList, '|'))
+        .  
+    END.
+    ELSE 
       RUN viewers/dVendCostLevel.w(
           INPUT ROWID(vendItemCost),
           INPUT lv-rowid,
@@ -1110,7 +1128,7 @@ PROCEDURE local-update-record :
           INPUT NO, /* Do not Change quantityFrom */
           OUTPUT rdRowidLevel
           ) .
-  
+  END.
   RUN RecalculateFromAndTo IN hVendorCostProcs (vendItemCost.vendItemCostID, OUTPUT lReturnError ,OUTPUT cReturnMessage).
        
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"reopen-target",OUTPUT char-hdl).

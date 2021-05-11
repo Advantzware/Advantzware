@@ -154,7 +154,7 @@ DEFINE RECTANGLE RECT-4
 DEFINE VARIABLE rd_status AS INTEGER FORMAT ">":U INITIAL 1 
      LABEL "Status"  
      VIEW-AS COMBO-BOX INNER-LINES 3
-     LIST-ITEM-PAIRS "Opened",1,
+     LIST-ITEM-PAIRS "Open",1,
                      "Closed",2,
                      "All",3
      DROP-DOWN-LIST

@@ -42,7 +42,9 @@ def var ll-enable-fields as log no-undo.  /* bug with set-focus */
 DEF VAR ll-new-file AS LOG NO-UNDO.
 DEF VAR lv-part-no LIKE quoteitm.part-no NO-UNDO.
 DEF VAR lv-rowid AS ROWID NO-UNDO.
-
+DEFINE VARIABLE lQuotePriceMatrix AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cRtnChar          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound         AS LOGICAL NO-UNDO.
 
 {custom/globdefs.i}
 
@@ -59,6 +61,12 @@ FIND FIRST sys-ctrl NO-LOCK
       AND sys-ctrl.name    EQ "QUOITEM" no-error.
 
 IF AVAIL sys-ctrl   THEN ASSIGN v-quoflg = sys-ctrl.log-fld.
+
+RUN sys/ref/nk1look.p (INPUT cocode, "QuotePriceMatrix", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    lQuotePriceMatrix = logical(cRtnChar) NO-ERROR. 
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -188,12 +196,12 @@ DEFINE BROWSE Browser-Table
       quoteitm.part-dscr2 COLUMN-LABEL "Item Description 2" FORMAT "x(30)":U
       quoteitm.style COLUMN-LABEL "Style" FORMAT "x(4)":U
       display-qty() @ quoteitm.qty
-      quoteitm.qty FORMAT ">>>,>>>,>>9":U
-      quoteitm.price FORMAT ">>,>>>,>>9.999999":U WIDTH 19.2
+      quoteitm.qty FORMAT ">>>,>>>,>>9":U        
       display-price() @ quoteitm.price
-      quoteitm.uom FORMAT "x(3)":U
-      quoteitm.size FORMAT "x(30)":U
+      quoteitm.price FORMAT ">>,>>>,>>9.999999":U WIDTH 19.2
       display-uom() @ quoteitm.uom
+      quoteitm.uom FORMAT "x(3)":U
+      quoteitm.size FORMAT "x(30)":U       
       quoteitm.i-dscr COLUMN-LABEL "Board" FORMAT "x(30)":U
       quoteitm.i-coldscr COLUMN-LABEL "Color" FORMAT "x(20)":U
   ENABLE
@@ -316,16 +324,16 @@ ASSIGN
 "display-qty() @ quoteitm.qty" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   > ASI.quoteitm.qty
 "quoteitm.qty" ? ">>>,>>>,>>9" "decimal" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[8]   > ASI.quoteitm.price
-"quoteitm.price" ? ">>,>>>,>>9.999999" "decimal" ? ? ? ? ? ? yes ? no no "19.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[9]   > "_<CALC>"
+    _FldNameList[8]   > "_<CALC>"
 "display-price() @ quoteitm.price" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[10]   > ASI.quoteitm.uom
-"quoteitm.uom" ? ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[11]   > ASI.quoteitm.size
-"quoteitm.size" ? ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[12]   > "_<CALC>"
+     _FldNameList[9]   > ASI.quoteitm.price
+"quoteitm.price" ? ">>,>>>,>>9.999999" "decimal" ? ? ? ? ? ? yes ? no no "19.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[10]   > "_<CALC>"
 "display-uom() @ quoteitm.uom" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[11]   > ASI.quoteitm.uom
+"quoteitm.uom" ? ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[12]   > ASI.quoteitm.size
+"quoteitm.size" ? ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no    
      _FldNameList[13]   > ASI.quoteitm.i-dscr
 "quoteitm.i-dscr" "Board" ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[14]   > ASI.quoteitm.i-coldscr
@@ -454,6 +462,7 @@ DO:
       
    {src/adm/template/brschnge.i}
    /*{methods/template/local/setvalue.i}*/
+   {methods/run_link.i "container-source" "pReOpenQuery" }
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1144,6 +1153,27 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-display-fields V-table-Win 
+PROCEDURE local-display-fields :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+   
+  /* Code placed here will execute PRIOR to standard behavior. */
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
+       
+  /* Code placed here will execute AFTER standard behavior.    */
+   RUN pDisablePriceMatrix.
+  
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE new-part-no B-table-Win 
 PROCEDURE new-part-no :
 /*------------------------------------------------------------------------------
@@ -1217,6 +1247,32 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pDisablePriceMatrix V-table-Win 
+PROCEDURE pDisablePriceMatrix :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DEFINE VARIABLE  lNotAllowedUpdate AS LOGICAL NO-UNDO.
+   DEFINE BUFFER bf-quoteitm FOR quoteitm.
+   IF AVAIL quotehd THEN
+   DO:
+      IF CAN-FIND ( FIRST bf-quoteitm
+                 WHERE bf-quoteitm.company EQ cocode
+                 AND bf-quoteitm.q-no  EQ quotehd.q-no
+                 AND bf-quoteitm.i-no  EQ "" ) THEN
+                 lNotAllowedUpdate = YES.   
+    run get-link-handle in adm-broker-hdl(this-procedure, "priceMatrix-target", OUTPUT char-hdl).
+    IF valid-handle(widget-handle(char-hdl)) THEN
+    run pDisableButton in widget-handle(char-hdl)(lNotAllowedUpdate).  
+   END.                                                        
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE quoteitm-check-new B-table-Win 
 PROCEDURE quoteitm-check-new :
 /*------------------------------------------------------------------------------
@@ -1271,6 +1327,40 @@ PROCEDURE state-changed :
          or add new cases. */
       {src/adm/template/bstates.i}
   END CASE.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetRowidItem B-table-Win 
+PROCEDURE pGetRowidItem :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  def output param oprwRowid AS ROWID NO-UNDO.
+  
+  oprwRowid = ROWID(quoteitm).
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckUpdate V-table-Win 
+PROCEDURE pCheckUpdate :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DEFINE OUTPUT PARAMETER oplNotAllowedUpdate AS LOGICAL NO-UNDO.
+   IF AVAIL quotehd AND quotehd.approved AND lQuotePriceMatrix THEN
+   DO:
+    MESSAGE "Quote is approved process not allowed." VIEW-AS ALERT-BOX INFO.
+     oplNotAllowedUpdate = YES.     
+   END.                                                        
 
 END PROCEDURE.
 

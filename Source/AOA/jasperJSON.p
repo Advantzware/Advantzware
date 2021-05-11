@@ -97,17 +97,28 @@ REPEAT:
             hQueryBuf    = iphQuery:GET-BUFFER-HANDLE(ENTRY(1,dynValueColumn.colName,"."))
             cFieldName   = ENTRY(2,dynValueColumn.colName,".")
             cBufferValue = fFormatValue(hQueryBuf, cFieldName, dynValueColumn.colFormat)
-            cBufferValue = DYNAMIC-FUNCTION("sfWebCharacters", cBufferValue, 8, "Web")
+            cBufferValue = REPLACE(cBufferValue,"~"","''")
             cFullName    = REPLACE(dynValueColumn.colName,".","__")
             cFullName    = REPLACE(cFullName,"[","")
             cFullName    = REPLACE(cFullName,"]","")
+            .
+        IF dynParamValue.outputFormat EQ "HTML" THEN
+        cBufferValue = DYNAMIC-FUNCTION("sfWebCharacters", cBufferValue, 8, "Web").
+        /* handle how jasper auto multiplies % formatted fields by 100 */
+        IF INDEX(dynValueColumn.colFormat,"%") NE 0 THEN
+        ASSIGN
+            cBufferValue = REPLACE(cBufferValue,"%","")
+            cBufferValue = STRING(DECIMAL(cBufferValue) / 100)
+            cBufferValue = cBufferValue + "%"
             .
         IF dynValueColumn.sortOrder GT 1 THEN
         PUT STREAM sJasperJSON UNFORMATTED "," SKIP.
         PUT STREAM sJasperJSON UNFORMATTED
             FILL(" ",8)
             "~"" cFullName "~": ~""
-            IF cBufferValue NE "" THEN cBufferValue ELSE " "
+            IF cBufferValue EQ ? AND dynValueColumn.dataType EQ "Character" THEN " "
+            ELSE IF cBufferValue EQ ? AND dynValueColumn.dataType NE "Character" THEN "0"
+            ELSE IF cBufferValue NE "" THEN cBufferValue ELSE " "
             "~""
             .
     END. /* each dynvaluecolumn */

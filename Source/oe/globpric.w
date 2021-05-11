@@ -70,18 +70,13 @@ def var ctr             as INT NO-UNDO.
 DEF VAR iPurgeCount AS INT NO-UNDO.
 DEF VAR cFileName AS CHAR FORMAT "x(30)" NO-UNDO .
 DEFINE VARIABLE lProcess      AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE cExcelHeader  AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lReplaceQuote AS LOGICAL NO-UNDO.
-DEFINE VARIABLE lAddTab       AS LOGICAL NO-UNDO.      
+DEFINE VARIABLE cExcelHeader  AS CHARACTER NO-UNDO.     
 DEFINE VARIABLE hdOutputProcs AS HANDLE  NO-UNDO.
+DEFINE VARIABLE hdQuoteProcs  AS HANDLE  NO-UNDO.
 
 RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
+RUN est/QuoteProcs.p PERSISTENT SET hdQuoteProcs.
 
-RUN Output_GetValueNK1OutputCSV IN hdOutputProcs(
-    INPUT cocode,
-    OUTPUT lReplaceQuote,
-    OUTPUT lAddTab
-    ).
 DEF TEMP-TABLE ttRowidsToPurge
     FIELD ttRowid AS ROWID.
 DEF STREAM excel.
@@ -1278,6 +1273,7 @@ REPEAT PRESELECT EACH oe-prmtx EXCLUSIVE-LOCK
                         INPUT  cRoundingType,
                         INPUT  iRoundingLevel
                         ).
+                  RUN UpdateQuotePriceFromMatrix IN hdQuoteProcs(ROWID(bf-oe-prmtx)).       
               END.                       
           END.
 /*        END. */
@@ -1308,7 +1304,7 @@ FUNCTION appendXLLine RETURNS CHARACTER
     ------------------------------------------------------------------------------*/
     DEF VAR lc-line AS CHAR NO-UNDO.
     
-    ipc-append = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, ipc-append,lReplaceQuote,lAddTab).
+    ipc-append = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, ipc-append).
     
     lc-line = lc-line + '"' + ipc-append + '",'.
     RETURN lc-line.   /* Function return value. */

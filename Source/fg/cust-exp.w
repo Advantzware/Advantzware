@@ -67,18 +67,10 @@ DEF VAR ldummy AS LOG NO-UNDO.
 DEF VAR cTextListToSelect AS cha NO-UNDO.
 DEF VAR cFieldListToSelect AS cha NO-UNDO.
 DEF VAR cTextListToDefault AS cha NO-UNDO.
-
-DEFINE VARIABLE lReplaceQuote AS LOGICAL NO-UNDO.
-DEFINE VARIABLE lAddTab       AS LOGICAL NO-UNDO.      
+     
 DEFINE VARIABLE hdOutputProcs AS HANDLE  NO-UNDO.
 
 RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
-
-RUN Output_GetValueNK1OutputCSV IN hdOutputProcs(
-    INPUT cocode,
-    OUTPUT lReplaceQuote,
-    OUTPUT lAddTab
-    ).
 
 /* Removed Prep Tax Code - 16.8.9 - Tkt#48289 - MYT - 4/30/19 */
 ASSIGN cTextListToSelect = "Customer,Name,Status,Address1,Address2,City,State,Zip,Email,Group,Date Added,Type,Type Dscr,Contact,Sales Rep,Sales Rep Name," +
@@ -91,7 +83,7 @@ ASSIGN cTextListToSelect = "Customer,Name,Status,Address1,Address2,City,State,Zi
                            "High Balance,On,Last Payment,On Date,Total# of Inv Paid,Avg# Days to Pay,Open Orders Balance,Account Balance,On Account,Title,CPhone,Ext,CSR," +
                            "Note 1,Note 2,Note 3,Note 4,ShipTo Name,ShipTo Address 1,ShipTo Address 2,ShipTo City,ShipTo State,ShipTo Zip,Paperless Invoice?,Contract Pricing," +
                            "Bank Account,Swift Code,Routing,Account Type,Split Type,Parent Cust,Market segment,NAICS Code,AR ClassId,Accountant,Matrix Precision,Matrix Rounding," +
-                           "Industry"
+                           "Industry,Tag Status"
 
       cFieldListToSelect = "cust-no,name,active,addr[1],addr[2],city,state,zip,email,spare-char-2,date-field[1],type,custype-dscr,contact,sman,sname," +
                            "flat-comm,area-code,phone,scomm,fax,fax-prefix,fax-country,terms,terms-dscr,cr-use,cr-hold-invdays,cr-hold-invdue,cr-rating," +
@@ -103,7 +95,7 @@ ASSIGN cTextListToSelect = "Customer,Name,Status,Address1,Address2,City,State,Zi
                            "hibal,hibal-date,lpay,lpay-date,num-inv,avg-pay,ord-bal,acc-bal,on-account,title,cphone,ext,csrUser_id," +
                            "note1,note2,note3,note4,ship-name,ship-addr1,ship-addr2,ship-city,ship-state,ship-zip,log-field[1],cnt-price," +
                            "bank-acct,SwiftBIC,Bank-RTN,accountType,splitType,parentCust,marketSegment,naicsCode,classId,accountant,matrixPrecision,matrixRounding," +
-                           "industryID" .
+                           "industryID,tag-status" .
 {sys/inc/ttRptSel.i}
 
     ASSIGN cTextListToDefault  = "Customer,Name,Address1,Address2,City,State,Country,Zip,Sales Rep,Area Code,Phone#," +
@@ -115,7 +107,7 @@ ASSIGN cTextListToSelect = "Customer,Name,Status,Address1,Address2,City,State,Zi
                                  "PO# Mandatory,Show Set Parts,Paperless Invoice?,Partial Ship,Taxable,Tax Prep Code,Tax Code,Tax Resale#,Exp," +
                                  "Email,Group,Broker Comm%,Flat Comm%,Prefix,Contract Pricing,Bank Account,Swift Code,Routing,Account Type," + 
                                  "Split Type,Parent Cust,Market segment,NAICS Code,AR ClassId,Accountant,Matrix Precision,Matrix Rounding," +
-                                 "Industry" .
+                                 "Industry,Tag Status" .
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1124,7 +1116,7 @@ FUNCTION appendXLLine RETURNS CHARACTER
 ------------------------------------------------------------------------------*/
     DEF VAR lc-line AS CHAR NO-UNDO.
     
-    ipc-append = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, ipc-append,lReplaceQuote,lAddTab).
+    ipc-append = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, ipc-append).
     
     lc-line = lc-line + '"' + ipc-append + '",'.
     RETURN lc-line.   /* Function return value. */
@@ -1425,6 +1417,17 @@ FUNCTION getValue-itemfg RETURNS CHARACTER
                     lc-return = "Origin".
             END CASE.
         END.
+        WHEN "tag-status"  THEN DO:
+            CASE ipb-itemfg.tagStatus :
+                WHEN "" THEN
+                    lc-return = "Only tags that are not on hold".
+                WHEN "H" THEN
+                    lc-return = "Only on Hold tags".
+               WHEN "A" THEN
+                    lc-return = "Any tag status".     
+            END CASE.
+        END.
+        
         WHEN "active" THEN DO:
             CASE ipb-itemfg.active :
                 WHEN "A" THEN

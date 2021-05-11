@@ -95,7 +95,6 @@ def var tot-ptd-exp as dec format "->>,>>>,>>9.99" no-undo.
 def var tot-ytd-exp as dec format "->>,>>>,>>9.99" no-undo.
 def var v-ptd-per as dec format "->>9.99" no-undo.
 def var v-ytd-per as dec format "->>9.99" no-undo.
-def var pre-close as logical initial no no-undo.
 def var v-year like period.yr.
 def var v-period like period.pnum.
 def var per-loop as int no-undo.
@@ -121,11 +120,11 @@ time_stamp = string(time, "HH:MMam").
 &Scoped-define FRAME-NAME FRAME-A
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS tran-date tb_pre beg_acct-1 end_acct-1 ~
+&Scoped-Define ENABLED-OBJECTS tran-date beg_acct-1 end_acct-1 ~
 beg_acct-2 end_acct-2 beg_acct-3 end_acct-3 beg_acct-4 end_acct-4 ~
 beg_acct-5 end_acct-5 rd-dest lv-ornt lines-per-page lv-font-no ~
 td-show-parm btn-ok btn-cancel RECT-11 RECT-6 RECT-7 
-&Scoped-Define DISPLAYED-OBJECTS tran-date tran-period lbl_pre tb_pre ~
+&Scoped-Define DISPLAYED-OBJECTS tran-date tran-period ~
 beg_acct-1 end_acct-1 beg_acct-2 end_acct-2 beg_acct-3 end_acct-3 ~
 beg_acct-4 end_acct-4 beg_acct-5 end_acct-5 rd-dest lv-ornt lines-per-page ~
 lv-font-no lv-font-name td-show-parm 
@@ -197,10 +196,6 @@ DEFINE VARIABLE end_acct-5 AS CHARACTER FORMAT "X(25)":U
      VIEW-AS FILL-IN 
      SIZE 36.4 BY 1 NO-UNDO.
 
-DEFINE VARIABLE lbl_pre AS CHARACTER FORMAT "X(256)":U INITIAL "Pre Close Period?" 
-     VIEW-AS FILL-IN 
-     SIZE 19 BY 1 NO-UNDO.
-
 DEFINE VARIABLE lines-per-page AS INTEGER FORMAT ">>":U INITIAL 99 
      LABEL "Lines Per Page" 
      VIEW-AS FILL-IN 
@@ -252,11 +247,6 @@ DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
      SIZE 103 BY 13.33.
 
-DEFINE VARIABLE tb_pre AS LOGICAL INITIAL yes 
-     LABEL "Pre Close Period?" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 3 BY 1 NO-UNDO.
-
 DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL no 
      LABEL "Show Parameters?" 
      VIEW-AS TOGGLE-BOX
@@ -267,9 +257,7 @@ DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL no
 
 DEFINE FRAME FRAME-A
      tran-date AT ROW 2.67 COL 39 COLON-ALIGNED
-     tran-period AT ROW 3.62 COL 39 COLON-ALIGNED
-     lbl_pre AT ROW 4.81 COL 20 COLON-ALIGNED NO-LABEL
-     tb_pre AT ROW 4.81 COL 41
+     tran-period AT ROW 3.67 COL 39 COLON-ALIGNED
      beg_acct-1 AT ROW 8.62 COL 20 COLON-ALIGNED
      end_acct-1 AT ROW 8.62 COL 58 COLON-ALIGNED NO-LABEL
      beg_acct-2 AT ROW 9.57 COL 20 COLON-ALIGNED
@@ -368,15 +356,8 @@ ASSIGN
        btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "ribbon-button".
 
-
-/* SETTINGS FOR FILL-IN lbl_pre IN FRAME FRAME-A
-   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN lv-font-name IN FRAME FRAME-A
    NO-ENABLE                                                            */
-ASSIGN 
-       tb_pre:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "parm".
-
 ASSIGN 
        tran-date:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -468,7 +449,6 @@ DO:
   assign rd-dest
          tran-date
          tran-period
-         tb_pre
          beg_acct-1 END_acct-1
          beg_acct-2 END_acct-2
          beg_acct-3 END_acct-3
@@ -554,17 +534,6 @@ END.
 &Scoped-define SELF-NAME rd-dest
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd-dest C-Win
 ON VALUE-CHANGED OF rd-dest IN FRAME FRAME-A
-DO:
-  assign {&self-name}.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME tb_pre
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_pre C-Win
-ON VALUE-CHANGED OF tb_pre IN FRAME FRAME-A /* Pre Close Period? */
 DO:
   assign {&self-name}.
 END.
@@ -719,12 +688,12 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY tran-date tran-period lbl_pre tb_pre beg_acct-1 end_acct-1 beg_acct-2 
+  DISPLAY tran-date tran-period beg_acct-1 end_acct-1 beg_acct-2 
           end_acct-2 beg_acct-3 end_acct-3 beg_acct-4 end_acct-4 beg_acct-5 
           end_acct-5 rd-dest lv-ornt lines-per-page lv-font-no lv-font-name 
           td-show-parm 
       WITH FRAME FRAME-A IN WINDOW C-Win.
-  ENABLE tran-date tb_pre beg_acct-1 end_acct-1 beg_acct-2 end_acct-2 
+  ENABLE tran-date beg_acct-1 end_acct-1 beg_acct-2 end_acct-2 
          beg_acct-3 end_acct-3 beg_acct-4 end_acct-4 beg_acct-5 end_acct-5 
          rd-dest lv-ornt lines-per-page lv-font-no td-show-parm btn-ok 
          btn-cancel RECT-11 RECT-6 RECT-7 
@@ -848,7 +817,6 @@ FORM
   with frame line-item down no-box no-labels width 80 STREAM-IO.
 
   assign v-ptd = tran-date
-         pre-close = tb_pre
          v-s-cos-no = beg_acct-1
          v-e-cos-no = END_acct-1
          v-s-oper-no = beg_acct-2
@@ -887,10 +855,7 @@ FORM
    str-tit  = coname + " - " + loname.
    str-tit2 = "INCOME STATEMENT" .
 
-   if pre-close then
-     str-tit3 = "From " + string(period.pst) + "  Thru " + string(v-ptd).
-   else
-     str-tit3 = "From " + string(period.pst) + "  Thru " + string(period.pend).
+   str-tit3 = "From " + string(period.pst) + "  Thru " + string(period.pend).
 
    x = (56 - length(str-tit)) / 2.
    str-tit  = fill(" ",x) + str-tit .
@@ -912,10 +877,7 @@ FORM
    str-tit  = coname + " - " + loname.
    str-tit2 = "INCOME STATEMENT" .
 
-   if pre-close then
-     str-tit3 = "From " + string(period.pst) + "  Thru " + string(v-ptd).
-   else
-     str-tit3 = "From " + string(period.pst) + "  Thru " + string(period.pend).
+   str-tit3 = "From " + string(period.pst) + "  Thru " + string(period.pend).
 
    x = (56 - length(str-tit)) / 2.
    str-tit  = fill(" ",x) + str-tit .
@@ -937,26 +899,10 @@ FORM
           AND glhist.period  EQ v-period
           AND glhist.tr-date GE period.pst
           AND glhist.tr-date LE period.pend
-          AND glhist.posted  EQ YES:
+          :
       tot-ptd-sales = tot-ptd-sales + glhist.tr-amt.
     END.
 
-    if pre-close then
-    do:
-
-      for EACH glhist no-lock where glhist.actnum eq account.actnum and
-				     glhist.company eq cocode AND
-                     glhist.posted EQ NO:
-	if glhist.tr-date le v-ptd and
-	   glhist.tr-date >= period.pst and
-	   glhist.tr-date <= period.pend then
-	do:
-	  if glhist.period <> period.pnum then
-	    next.
-	  assign tot-ptd-sales = tot-ptd-sales + glhist.tr-amt.
-	end.
-      end.
-    end.
 
     do per-loop = 1 to (v-period - 1):
       find first xperiod where xperiod.company = cocode and
@@ -970,7 +916,7 @@ FORM
             AND glhist.period  EQ per-loop
 		    AND glhist.tr-date GE xperiod.pst
 	        AND glhist.tr-date LE xperiod.pend
-            AND glhist.posted  EQ YES:
+            :
 	    tot-ytd-sales = tot-ytd-sales + glhist.tr-amt.
 	  END.
     end.
@@ -996,26 +942,10 @@ FORM
           AND glhist.period  EQ v-period
           AND glhist.tr-date GE period.pst
 		  AND glhist.tr-date LE period.pend
-          AND glhist.posted  EQ YES:
+          :
       ptd-sales = ptd-sales + glhist.tr-amt.
     END.
 
-
-    if pre-close then
-    do:
-      for each glhist no-lock where glhist.actnum = account.actnum and
-				     glhist.company = cocode AND
-                     glhist.posted EQ NO:
-	if glhist.tr-date le v-ptd and
-	     glhist.tr-date >= period.pst and
-	     glhist.tr-date <= period.pend then
-	do:
-	  if glhist.period <> period.pnum then
-	    next.
-	  assign ptd-sales = ptd-sales + glhist.tr-amt.
-	end.
-      end.
-    end.
 
     if last-of(account.actnum) then
     do:
@@ -1032,7 +962,7 @@ FORM
               AND glhist.period  EQ per-loop
 		      AND glhist.tr-date GE xperiod.pst
 	          AND glhist.tr-date LE xperiod.pend
-              AND glhist.posted  EQ YES:
+              :
 	      ytd-sales = ytd-sales + glhist.tr-amt.
 	    END.
       END.
@@ -1070,25 +1000,9 @@ FORM
           AND glhist.period  EQ v-period
 		  AND glhist.tr-date GE period.pst
 		  AND glhist.tr-date LE period.pend
-          AND glhist.posted  EQ YES:
+          :
       ptd-cos = ptd-cos + glhist.tr-amt.
     END.
-
-    if pre-close then
-    do:
-	for each glhist no-lock where glhist.actnum = account.actnum and
-				       glhist.company = cocode AND
-                       glhist.posted EQ NO:
-	  if glhist.tr-date le v-ptd and
-	     glhist.tr-date >= period.pst and
-	     glhist.tr-date <= period.pend then
-	  do:
-	    if glhist.period <> period.pnum then
-	      next.
-	    assign ptd-cos = ptd-cos + glhist.tr-amt.
-	  end.
-	end.
-    end.
 
     if last-of(account.actnum) then
     do:
@@ -1105,7 +1019,7 @@ FORM
               AND glhist.period  EQ per-loop
 		      AND glhist.tr-date GE xperiod.pst
 		      AND glhist.tr-date LE xperiod.pend
-              AND glhist.posted  EQ YES:
+              :
 	      ytd-cos = ytd-cos + glhist.tr-amt.
 	    END.
       END.
@@ -1153,25 +1067,9 @@ FORM
           AND glhist.period  EQ v-period
 		  AND glhist.tr-date GE period.pst
 		  AND glhist.tr-date LE period.pend
-          AND glhist.posted  EQ YES:
+          :
       ptd-oper = ptd-oper + glhist.tr-amt.
     END.
-
-    if pre-close then
-    do:
-	for each glhist no-lock where glhist.actnum = account.actnum and
-				       glhist.company = cocode AND 
-                       glhist.posted EQ NO:
-	  if glhist.tr-date le v-ptd and
-	     glhist.tr-date >= period.pst and
-	     glhist.tr-date <= period.pend then
-	  do:
-	    if glhist.period <> period.pnum then
-	      next.
-	    assign ptd-oper = ptd-oper + glhist.tr-amt.
-	  end.
-	end.
-    end.
 
     if last-of(account.actnum) then
     do:
@@ -1188,7 +1086,7 @@ FORM
               AND glhist.period  EQ per-loop
 			  AND glhist.tr-date GE xperiod.pst
 			  AND glhist.tr-date LE xperiod.pend
-              AND glhist.posted  EQ YES:
+              :
    	      ytd-oper = ytd-oper + glhist.tr-amt.
 	    END.
       END.
@@ -1231,25 +1129,9 @@ FORM
           AND glhist.period  EQ v-period
 		  AND glhist.tr-date GE period.pst
 		  AND glhist.tr-date LE period.pend
-          AND glhist.posted  EQ YES:
+          :
       ptd-gen = ptd-gen + glhist.tr-amt.
     END.
-
-    if pre-close then
-    do:
-	for each glhist no-lock where glhist.actnum = account.actnum and
-				       glhist.company = cocode AND
-                       glhist.posted EQ NO:
-	  if glhist.tr-date le v-ptd and
-	     glhist.tr-date >= period.pst and
-	     glhist.tr-date <= period.pend then
-	  do:
-	    if glhist.period <> period.pnum then
-	      next.
-	    assign ptd-gen = ptd-gen + glhist.tr-amt.
-	  end.
-	end.
-    end.
 
     if last-of(account.actnum) then
     do:
@@ -1266,7 +1148,7 @@ FORM
               AND glhist.period  EQ per-loop
 			  AND glhist.tr-date GE xperiod.pst
 			  AND glhist.tr-date LE xperiod.pend
-              AND glhist.posted  EQ YES:
+              :
 	      ytd-gen = ytd-gen + glhist.tr-amt.
 	    END.
       end.
@@ -1309,25 +1191,9 @@ FORM
           AND glhist.period  EQ v-period
 		  AND glhist.tr-date GE period.pst
 		  AND glhist.tr-date LE period.pend
-          AND glhist.posted  EQ YES:
+          :
       ptd-inc = ptd-inc + glhist.tr-amt.
     END.
-
-    if pre-close then
-    do:
-      for each glhist no-lock where glhist.actnum = account.actnum and
-				       glhist.company = cocode AND 
-                       glhist.posted EQ NO:
-	if glhist.tr-date le v-ptd and
-	   glhist.tr-date >= period.pst and
-	   glhist.tr-date <= period.pend then
-	do:
-	  if glhist.period <> period.pnum then
-	    next.
-	  assign ptd-inc = ptd-inc + glhist.tr-amt.
-	end.
-      end.
-    end.
 
     if last-of(account.actnum) then
     do:
@@ -1344,7 +1210,7 @@ FORM
               AND glhist.period  EQ per-loop
 			  AND glhist.tr-date GE xperiod.pst
 			  AND glhist.tr-date LE xperiod.pend
-              AND glhist.posted  EQ YES:
+              :
 	      ytd-inc = ytd-inc + glhist.tr-amt.
 	    END.
       END.
@@ -1403,25 +1269,9 @@ FORM
           AND glhist.period  EQ v-period 
 		  AND glhist.tr-date GE period.pst
 		  AND glhist.tr-date LE period.pend
-          AND glhist.posted  EQ YES:
+          :
       ptd-oth = ptd-oth + glhist.tr-amt.
     END.
-
-    if pre-close then
-    do:
-      for each glhist no-lock where glhist.actnum = account.actnum and
-				       glhist.company = cocode AND 
-                       glhist.posted EQ NO:
-	if glhist.tr-date le v-ptd and
-	   glhist.tr-date >= period.pst and
-	   glhist.tr-date <= period.pend then
-	do:
-	  if glhist.period <> period.pnum then
-	    next.
-	  assign ptd-oth = ptd-oth + glhist.tr-amt.
-	end.
-      end.
-    end.
 
     if last-of(account.actnum) then
     do:
@@ -1438,7 +1288,7 @@ FORM
               AND glhist.period  EQ per-loop
 			  AND glhist.tr-date GE xperiod.pst
 			  AND glhist.tr-date LE xperiod.pend
-              AND glhist.posted  EQ YES:
+              :
 	      ytd-oth = ytd-oth + glhist.tr-amt.
 	    END.
       END.
@@ -1503,8 +1353,7 @@ FORM
   with frame line-item down no-box no-labels width 80 STREAM-IO.
 
   assign v-ptd = tran-date
-         pre-close = tb_pre
-             v-s-cos-no = beg_acct-1
+         v-s-cos-no = beg_acct-1
          v-e-cos-no = END_acct-1
          v-s-oper-no = beg_acct-2
          v-e-oper-no = END_acct-2
@@ -1542,10 +1391,7 @@ FORM
    str-tit  = coname + " - " + loname.
    str-tit2 = "INCOME STATEMENT" .
 
-   if pre-close then
-     str-tit3 = "From " + string(period.pst) + "  Thru " + string(v-ptd).
-   else
-     str-tit3 = "From " + string(period.pst) + "  Thru " + string(period.pend).
+   str-tit3 = "From " + string(period.pst) + "  Thru " + string(period.pend).
 
    x = (56 - length(str-tit)) / 2.
    str-tit  = fill(" ",x) + str-tit .
@@ -1567,26 +1413,9 @@ FORM
           AND glhist.period  EQ v-period
           AND glhist.tr-date GE period.pst
           AND glhist.tr-date LE period.pend
-          AND glhist.posted  EQ YES:
+          :
       tot-ptd-sales = tot-ptd-sales + glhist.tr-amt.
     END.
-
-    if pre-close then
-    do:
-
-      for each glhist no-lock where glhist.actnum eq account.actnum and
-                                     glhist.company eq cocode AND
-                                     glhist.posted EQ NO:
-        if glhist.tr-date le v-ptd and
-           glhist.tr-date >= period.pst and
-           glhist.tr-date <= period.pend then
-        do:
-          if glhist.period <> period.pnum then
-            next.
-          assign tot-ptd-sales = tot-ptd-sales + glhist.tr-amt.
-        end.
-      end.
-    end.
 
     do per-loop = 1 to (v-period - 1):
       find first xperiod where xperiod.company = cocode and
@@ -1600,7 +1429,7 @@ FORM
             AND glhist.period  EQ per-loop
             AND glhist.tr-date GE xperiod.pst
             AND glhist.tr-date LE xperiod.pend
-            AND glhist.posted  EQ YES:
+            :
           tot-ytd-sales = tot-ytd-sales + glhist.tr-amt.
       END.
     end.
@@ -1626,25 +1455,9 @@ FORM
           AND glhist.period  EQ v-period
           AND glhist.tr-date GE period.pst
           AND glhist.tr-date LE period.pend
-          AND glhist.posted  EQ YES:
+          :
       ptd-sales = ptd-sales + glhist.tr-amt.
     END.
-
-    if pre-close then
-    do:
-      for each glhist no-lock where glhist.actnum = account.actnum and
-                                     glhist.company = cocode AND
-                                     glhist.posted EQ NO:
-        if glhist.tr-date le v-ptd and
-             glhist.tr-date >= period.pst and
-             glhist.tr-date <= period.pend then
-        do:
-          if glhist.period <> period.pnum then
-            next.
-          assign ptd-sales = ptd-sales + glhist.tr-amt.
-        end.
-      end.
-    end.
 
     if last-of(account.actnum) then
     do:
@@ -1661,7 +1474,7 @@ FORM
               AND glhist.period  EQ per-loop
               AND glhist.tr-date GE xperiod.pst
               AND glhist.tr-date LE xperiod.pend
-              AND glhist.posted  EQ YES:
+              :
           ytd-sales = ytd-sales + glhist.tr-amt.
         END.
       END.
@@ -1702,25 +1515,9 @@ FORM
           AND glhist.period  EQ v-period
           AND glhist.tr-date GE period.pst
           AND glhist.tr-date LE period.pend
-          AND glhist.posted  EQ YES:
+          :
       ptd-cos = ptd-cos + glhist.tr-amt.
     END.
-
-    if pre-close then
-    do:
-        for each glhist no-lock where glhist.actnum = account.actnum and
-                                       glhist.company = cocode AND
-                                       glhist.posted EQ NO:
-          if glhist.tr-date le v-ptd and
-             glhist.tr-date >= period.pst and
-             glhist.tr-date <= period.pend then
-          do:
-            if glhist.period <> period.pnum then
-              next.
-            assign ptd-cos = ptd-cos + glhist.tr-amt.
-          end.
-        end.
-    end.
 
     if last-of(account.actnum) then
     do:
@@ -1737,7 +1534,7 @@ FORM
               AND glhist.period  EQ per-loop
               AND glhist.tr-date GE xperiod.pst
               AND glhist.tr-date LE xperiod.pend
-              AND glhist.posted  EQ YES:
+              :
           ytd-cos = ytd-cos + glhist.tr-amt.
         END.
       end.
@@ -1786,25 +1583,9 @@ for each account where account.company eq cocode and
         AND glhist.period  EQ v-period
         AND glhist.tr-date GE period.pst
         AND glhist.tr-date LE period.pend
-        AND glhist.posted  EQ YES:
+        :
     ptd-oper = ptd-oper + glhist.tr-amt.
   END.
-
- if pre-close then
- do:
-     for each glhist no-lock where glhist.actnum = account.actnum and
-                                    glhist.company = cocode AND 
-                                    glhist.posted EQ NO:
-       if glhist.tr-date le v-ptd and
-          glhist.tr-date >= period.pst and
-          glhist.tr-date <= period.pend then
-       do:
-         if glhist.period <> period.pnum then
-           next.
-         assign ptd-oper = ptd-oper + glhist.tr-amt.
-       end.
-     end.
- end.
 
  if last-of(account.actnum) then
   do:
@@ -1821,7 +1602,7 @@ for each account where account.company eq cocode and
             AND glhist.period  EQ per-loop
             AND glhist.tr-date GE xperiod.pst
             AND glhist.tr-date LE xperiod.pend
-            AND glhist.posted  EQ YES:
+            :
         ytd-gen = ytd-gen + glhist.tr-amt.
       END.
     end.
@@ -1866,25 +1647,9 @@ for each account where account.company eq cocode and
         AND glhist.period  EQ v-period
         AND glhist.tr-date GE period.pst
         AND glhist.tr-date LE period.pend
-        AND glhist.posted  EQ YES:
+        :
     ptd-inc = ptd-inc + glhist.tr-amt.
   END.
-
-  if pre-close then
-  do:
-    for each glhist no-lock where glhist.actnum = account.actnum and
-                                     glhist.company = cocode AND
-                                     glhist.posted EQ NO:
-      if glhist.tr-date le v-ptd and
-         glhist.tr-date >= period.pst and
-         glhist.tr-date <= period.pend then
-      do:
-        if glhist.period <> period.pnum then
-          next.
-        assign ptd-inc = ptd-inc + glhist.tr-amt.
-      end.
-    end.
-  end.
 
   if last-of(account.actnum) then
   do:
@@ -1901,7 +1666,7 @@ for each account where account.company eq cocode and
             AND glhist.period  EQ per-loop
             AND glhist.tr-date GE xperiod.pst
             AND glhist.tr-date LE xperiod.pend
-            AND glhist.posted  EQ YES:
+            :
         ytd-inc = ytd-inc + glhist.tr-amt.
       END.
     end.
@@ -1963,25 +1728,9 @@ end.  /* Operating Expenses */
           AND glhist.period  EQ v-period
           AND glhist.tr-date GE period.pst
           AND glhist.tr-date LE period.pend
-          AND glhist.posted  EQ YES:
+          :
       ptd-oth = ptd-oth + glhist.tr-amt.
     END.
-
-    if pre-close then
-    do:
-      for each glhist no-lock where glhist.actnum = account.actnum and
-                                       glhist.company = cocode AND
-                                       glhist.posted EQ NO:
-        if glhist.tr-date le v-ptd and
-           glhist.tr-date >= period.pst and
-           glhist.tr-date <= period.pend then
-        do:
-          if glhist.period <> period.pnum then
-            next.
-          assign ptd-oth = ptd-oth + glhist.tr-amt.
-        end.
-      end.
-    end.
 
     if last-of(account.actnum) then
     do:
@@ -1998,7 +1747,7 @@ end.  /* Operating Expenses */
               AND glhist.period  EQ per-loop
               AND glhist.tr-date GE xperiod.pst
               AND glhist.tr-date LE xperiod.pend
-              AND glhist.posted  EQ YES:
+              :
           ytd-oth = ytd-oth + glhist.tr-amt.
         END.
       end.

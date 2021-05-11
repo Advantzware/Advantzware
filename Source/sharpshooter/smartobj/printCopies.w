@@ -290,7 +290,8 @@ PROCEDURE pInit :
     DEFINE VARIABLE oSSLoadTagJobDesignConfig AS system.Config NO-UNDO.
 
     DEFINE VARIABLE hdWidget AS HANDLE NO-UNDO.
-
+    DEFINE VARIABLE hdSideLabel AS HANDLE NO-UNDO.
+    
     DO WITH FRAME {&FRAME-NAME}:
     END.
     
@@ -322,6 +323,10 @@ PROCEDURE pInit :
             hdWidget = hdWidget:NEXT-SIBLING.
         END.
     END.    
+    
+    hdSideLabel = fiCopies:SIDE-LABEL-HANDLE.
+    
+    hdSideLabel:Y = fiCopies:Y - 4.
     
     RUN DisableCopies.
     

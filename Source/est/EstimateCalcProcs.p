@@ -60,6 +60,8 @@ DEFINE VARIABLE gcDefaultBasisWeightUOM               AS CHARACTER NO-UNDO INITI
 
 DEFINE VARIABLE gdWindowDimOverlap                    AS DECIMAL   NO-UNDO INITIAL 0.5.
 
+DEFINE VARIABLE gcMaterialTypeCalcDefault             AS CHARACTER NO-UNDO INITIAL "ByDefault".
+
 /*Settings Globals*/
 DEFINE VARIABLE gcPrepRoundTo                         AS CHARACTER NO-UNDO.  /*CEPREP - char val - potentially deprecate*/
 DEFINE VARIABLE gcPrepMarkupOrMargin                  AS CHARACTER NO-UNDO.  /*CEPrepPrice - char val*/
@@ -82,6 +84,10 @@ FUNCTION fGetEstBlankID RETURNS INT64 PRIVATE
     (ipiEstHeaderID AS INT64,
     ipiEstFormID AS INT64,
     ipiBlankNo AS INTEGER) FORWARD.
+
+FUNCTION fGetMatTypeCalc RETURNS CHARACTER PRIVATE
+	(ipcCompany AS CHARACTER,
+	 ipcMaterialType AS CHARACTER) FORWARD.
 
 FUNCTION fGetNetSheetOut RETURNS INTEGER PRIVATE
     (ipiEstCostOperationID AS INT64,
@@ -2093,6 +2099,7 @@ PROCEDURE pCalculateHeader PRIVATE:
                 RUN pProcessGlues(BUFFER bf-estCostHeader, BUFFER bf-estCostForm).
             END.
             RUN pProcessSpecialMaterials(BUFFER ef, BUFFER bf-estCostHeader, BUFFER bf-estCostForm).  
+            
             RUN pProcessMiscPrep(BUFFER ef, BUFFER bf-estCostForm).
             RUN pProcessMiscNonPrep(BUFFER ef, BUFFER bf-estCostForm).
 
@@ -2107,6 +2114,7 @@ PROCEDURE pCalculateHeader PRIVATE:
         END.                            
         RUN pCalculateWeightsAndSizes(bf-estCostHeader.estCostHeaderID).
         RUN pProcessPacking(BUFFER bf-estCostHeader).
+        RUN pProcessEstMaterial(BUFFER bf-estCostHeader).
         RUN pBuildFactoryCostDetails(bf-estCostHeader.estCostHeaderID).
         RUN pBuildNonFactoryCostDetails(bf-estCostHeader.estCostHeaderID).
         RUN pBuildFreightCostDetails(bf-estCostHeader.estCostHeaderID).
@@ -3202,6 +3210,141 @@ PROCEDURE pProcessBoardBOMLaminate PRIVATE:
 
 END PROCEDURE.
 
+PROCEDURE pProcessEstMaterial PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:  Processes Additional Materials listing in Misc / Sub tab for 
+     given form 
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-estCostHeader FOR estCostHeader.
+    
+    DEFINE BUFFER bf-estCostForm FOR estCostForm.
+    DEFINE BUFFER bf-estMaterial FOR estMaterial.
+    DEFINE BUFFER bf-estCostMaterial FOR estCostMaterial.
+    DEFINE BUFFER bf-estCostBlank FOR estCostBlank.
+    
+    DEFINE VARIABLE dSqFtPerEA AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE iCases AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iPallets AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iQuantityInEA AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iMultiplier AS INTEGER NO-UNDO.
+    
+    
+    FOR EACH bf-estMaterial NO-LOCK 
+        WHERE bf-estMaterial.company EQ ipbf-estCostHeader.company
+        AND bf-estMaterial.estimateNo EQ ipbf-estCostHeader.estimateNo,
+        FIRST bf-estCostForm NO-LOCK 
+        WHERE bf-estCostForm.estCostHeaderID EQ ipbf-estCostHeader.estCostheaderID
+        AND bf-estCostForm.formNo EQ bf-estMaterial.formNo:
+        ASSIGN 
+            iCases = 0
+            iPallets = 0
+            iQuantityInEA = 0
+            .
+        IF bf-estMaterial.blankNo NE 0 THEN
+            FIND FIRST bf-estCostBlank NO-LOCK
+                WHERE bf-estCostBlank.estCostHeaderID EQ ipbf-estCostHeader.estCostHeaderID
+                AND bf-estCostBlank.formNo EQ bf-estCostForm.formNo
+                AND bf-estCostBlank.blankNo EQ bf-estMaterial.blankNo
+                NO-ERROR.
+        IF AVAILABLE bf-estCostBlank THEN DO: 
+            RUN pAddEstMaterial(BUFFER ipbf-estCostHeader, BUFFER bf-estCostForm, bf-estMaterial.itemID, bf-estCostBlank.estCostBlankID, BUFFER bf-estCostMaterial).
+            ASSIGN 
+                iCases = bf-estCostBlank.quantityOfSubUnits
+                iPallets = bf-estCostBlank.quantityOfUnits
+                iQuantityInEA = bf-estCostBlank.quantityRequired
+                .
+        END.
+        ELSE 
+        DO:
+            RUN pAddEstMaterial(BUFFER ipbf-estCostHeader, BUFFER bf-estCostForm, bf-estMaterial.itemID, 0, BUFFER bf-estCostMaterial).
+            FOR EACH bf-estCostBlank NO-LOCK
+                WHERE bf-estCostBlank.estCostHeaderID EQ ipbf-estCostHeader.estCostHeaderID
+                AND bf-estCostBlank.formNo EQ bf-estCostForm.formNo:
+                ASSIGN 
+                    iCases = iCases + bf-estCostBlank.quantityOfSubUnits
+                    iPallets = iPallets + bf-estCostBlank.quantityOfUnits
+                    iQuantityInEA = iQuantityInEA + bf-estCostBlank.quantityRequired. 
+            END.            
+        END.
+        ASSIGN  
+            bf-estCostMaterial.addToWeightNET          = YES 
+            bf-estCostMaterial.quantityUOM             = bf-estMaterial.quantityUOM
+            bf-estCostMaterial.dimDepth                = bf-estMaterial.dimDepth
+            bf-estCostMaterial.dimWidth                = bf-estMaterial.dimWidth
+            bf-estCostMaterial.dimLength               = bf-estMaterial.dimLength
+            bf-estCostMaterial.dimUOM                  = "IN"  //Refactor - add dimUOM to estMaterial 
+            bf-estCostMaterial.weightUOM               = bf-estMaterial.weightUOM
+            bf-estCostMaterial.costOverridePerUOM      = bf-estMaterial.costOverridePerUOM
+            bf-estCostMaterial.noCharge                = bf-estMaterial.noCharge
+            dSqFtPerEa                                 = DYNAMIC-FUNCTION("Conv_GetSqft",bf-estCostMaterial.dimLength, bf-estCostMaterial.dimWidth, bf-estCostMaterial.dimUOM).
+            
+            .            
+        IF dSqFtPerEA NE 0 AND bf-estMaterial.weightPerEA NE 0 THEN 
+            bf-estCostMaterial.basisWeight = bf-estMaterial.weightPerEA / (dSqFtPerEA / 1000).
+            
+        CASE bf-estMaterial.quantityPer:
+            WHEN "L" THEN 
+                iMultiplier = 1.
+            WHEN "C" THEN 
+                iMultiplier = iCases.
+            WHEN "P" THEN 
+                iMultiplier = iPallets.
+            WHEN "E" THEN 
+                iMultiplier = iQuantityInEA.
+            WHEN "S" THEN 
+                iMultiplier = ipbf-estCostHeader.quantityMaster.
+        END CASE.
+        ASSIGN 
+            bf-estCostMaterial.quantityRequiredNoWaste = bf-estMaterial.quantity * iMultiplier
+            bf-estCostMaterial.quantityRequiredSetupWaste = (bf-estMaterial.wastePercent / 100) * bf-estCostMaterial.quantityRequiredNoWaste
+            bf-estCostMaterial.weightTotal = bf-estMaterial.weightPerEA * bf-estCostMaterial.quantityRequiredNoWaste
+            .
+        RUN pCalcEstMaterial(BUFFER ipbf-estCostHeader, BUFFER bf-estCostMaterial, BUFFER bf-estCostForm).
+        
+    END.
+    
+END PROCEDURE.    
+
+PROCEDURE pProcessMaterialTypeCalc PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:  For special material type calculations (non default)
+ Notes:  Will process the estCostMaterial buffer accordingly.
+------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-estCostMaterial FOR estCostMaterial.
+    DEFINE INPUT PARAMETER ipcCalculationType AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-estCostBlank FOR estCostBlank.
+    DEFINE BUFFER bf-estCostItem FOR estCostItem.
+    DEFINE BUFFER bf-itemfg FOR itemfg.
+    
+    DEFINE VARIABLE dTotWeightPerForm AS DECIMAL NO-UNDO.
+    
+    CASE ipcCalculationType:
+        WHEN "ByFGWeight" THEN DO:
+            FOR EACH bf-estCostBlank NO-LOCK 
+                WHERE bf-estCostBlank.estCostHeaderID EQ ipbf-estCostMaterial.estCostHeaderID
+                AND bf-estCostBlank.estCostFormID EQ ipbf-estCostMaterial.estCostFormID,
+                FIRST bf-estCostItem NO-LOCK
+                WHERE bf-estCostItem.estCostItemID EQ bf-estCostBlank.estCostItemID,
+                FIRST bf-itemfg NO-LOCK 
+                WHERE bf-itemfg.company EQ bf-estCostItem.company
+                AND bf-itemfg.i-no EQ bf-estCostItem.itemID:
+                dTotWeightPerForm = dTotWeightPerForm + bf-itemfg.weightPerEA * bf-estCostBlank.numOut.
+            END.        
+            IF dTotWeightPerForm GT 0 THEN 
+                ASSIGN 
+                    ipbf-estCostMaterial.quantityRequiredNoWaste = ipbf-estCostMaterial.quantityRequiredNoWaste * dTotWeightPerForm
+                    ipbf-estCostMaterial.quantityRequiredRunWaste = ipbf-estCostMaterial.quantityRequiredRunWaste * dTotWeightPerForm
+                    ipbf-estCostMaterial.quantityRequiredSetupWaste = ipbf-estCostMaterial.quantityRequiredSetupWaste * dTotWeightPerForm
+                    ipbf-estCostMaterial.quantityUOM = "LB"
+                    ipbf-estCostMaterial.quantityUOMWaste = "LB"
+                    . 
+        END.
+    END CASE.
+    
+END PROCEDURE.
+
 PROCEDURE pProcessMiscNonPrep PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose: Given an ef buffer, build the estCostMisc for non-prep mis items
@@ -3700,6 +3843,7 @@ PROCEDURE pProcessBoard PRIVATE:
     
     DEFINE VARIABLE lFoundBOM AS LOGICAL NO-UNDO.
     DEFINE VARIABLE lValidBOM AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE cMaterialTypeCalculation AS CHARACTER NO-UNDO.
     
     FIND FIRST bf-item NO-LOCK 
         WHERE bf-item.company EQ ipbf-estCostForm.company
@@ -3750,6 +3894,10 @@ PROCEDURE pProcessBoard PRIVATE:
             bf-estCostMaterial.dimDepth                   = ipbf-estCostForm.grossDepth
             bf-estCostMaterial.noCharge                   = ipbf-estCostForm.noCost
             .
+        cMaterialTypeCalculation = fGetMatTypeCalc(bf-estCostMaterial.company, bf-estCostMaterial.materialType).
+        IF cMaterialTypeCalculation NE gcMaterialTypeCalcDefault THEN
+            RUN pProcessMaterialTypeCalc(BUFFER bf-estCostMaterial, cMaterialTypeCalculation).
+            
         IF ipbf-estCostForm.costOverridePerUOM NE 0 THEN 
             ASSIGN 
                 bf-estCostMaterial.costOverridePerUOM = ipbf-estCostForm.costOverridePerUOM
@@ -4908,6 +5056,27 @@ FUNCTION fGetEstBlankID RETURNS INT64 PRIVATE
     IF AVAILABLE estCostBlank THEN 
         RETURN estCostBlank.estCostBlankID.
 
+END FUNCTION.
+
+FUNCTION fGetMatTypeCalc RETURNS CHARACTER PRIVATE
+	(ipcCompany AS CHARACTER, ipcMaterialType AS CHARACTER):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/	
+    DEFINE VARIABLE cCalculationType AS CHARACTER NO-UNDO.
+    
+    FIND FIRST materialType NO-LOCK 
+        WHERE materialType.company EQ ipcCompany
+        AND materialType.materialType EQ ipcMaterialType
+        NO-ERROR.
+    IF AVAILABLE materialType THEN 
+        cCalculationType = materialType.calculationType.
+    ELSE 
+        cCalculationType = gcMaterialTypeCalcDefault.
+    
+	RETURN cCalculationType.
+	
 END FUNCTION.
 
 FUNCTION fGetNetSheetOut RETURNS INTEGER PRIVATE

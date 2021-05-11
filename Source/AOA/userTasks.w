@@ -54,6 +54,7 @@ DEFINE VARIABLE cScheduled     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cSubjectID     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cSubjectTitle  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cTaskDescrip   AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cUDFGroup      AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cUserGroups    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cUserID        AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lEmail         AS LOGICAL   NO-UNDO.
@@ -91,6 +92,7 @@ DEFINE TEMP-TABLE ttDynParamValue NO-UNDO
     FIELD subjectGroup     LIKE dynParamValue.subjectGroup
     FIELD titleDescription   AS CHARACTER FORMAT "x(80)" LABEL "Title / Description"
     FIELD user-id          LIKE dynParamValue.user-id
+    FIELD udfGroup         LIKE dynParamValue.udfGroup
     FIELD paramValueRowID    AS ROWID
     FIELD allData            AS CHARACTER
         INDEX ttDynParamValue IS PRIMARY paramTitle user-id paramValueID
@@ -714,6 +716,7 @@ END.
 {AOA/includes/pGetDynParamValue.i}
 {AOA/includes/pSetDynParamValue.i "dyn"}
 {AOA/includes/pRunBusinessLogic.i}
+{AOA/includes/pGetRecipients.i "tt"}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -804,12 +807,14 @@ PROCEDURE pAttribute :
         cExternalForm = ttDynParamValue.externalForm
         iRecordLimit  = ttDynParamValue.recordLimit
         lFavorite     = ttDynParamValue.favorite
+        cUDFGroup     = ttDynParamValue.udfGroup
         .
     RUN AOA/dynSubjctAttr.w (
         INPUT-OUTPUT cTaskDescrip,
         INPUT-OUTPUT cExternalForm,
         INPUT-OUTPUT iRecordLimit,
         INPUT-OUTPUT lFavorite,
+        INPUT-OUTPUT cUDFGroup,
         OUTPUT lOK
         ).
     IF lOK THEN DO TRANSACTION WITH FRAME {&FRAME-NAME}:
@@ -825,12 +830,14 @@ PROCEDURE pAttribute :
             dynParamValue.externalForm       = cExternalForm
             dynParamValue.recordLimit        = iRecordLimit
             dynParamValue.favorite           = lFavorite
+            dynParamValue.udfGroup           = cUDFGroup
             ttDynParamValue.titleDescription = ttDynParamValue.paramTitle + " - "
                                              + cTaskDescrip
             ttDynParamValue.paramDescription = cTaskDescrip
             ttDynParamValue.externalForm     = cExternalForm
             ttDynParamValue.recordLimit      = iRecordLimit
             ttDynParamValue.favorite         = lFavorite
+            ttDynParamValue.udfGroup         = cUDFGroup
             .
         RELEASE dynParamValue.
         BROWSE {&BROWSE-NAME}:REFRESH().
@@ -974,6 +981,27 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pDeleteDynParamValue s-object
+PROCEDURE pDeleteDynParamValue:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    IF ttDynParamValue.user-id NE "{&defaultUser}" THEN
+    FOR EACH dynParamValue EXCLUSIVE-LOCK
+        WHERE dynParamValue.subjectID    EQ ttDynParamValue.subjectID
+          AND dynParamValue.user-id      EQ ttDynParamValue.user-id
+          AND dynParamValue.prgmName     EQ ttDynParamValue.prgmName
+          AND dynParamValue.paramValueID EQ 0
+        :
+        DELETE dynParamValue.
+    END. /* each dynparamvalue */
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pDeleteTask s-object 
 PROCEDURE pDeleteTask :
 /*------------------------------------------------------------------------------
@@ -1007,6 +1035,7 @@ PROCEDURE pDeleteTask :
         FIND FIRST dynParamValue EXCLUSIVE-LOCK
              WHERE ROWID(dynParamValue) EQ ttDynParamValue.paramValueRowID.
         DELETE dynParamValue.
+        RUN pDeleteDynParamValue.
         DELETE ttDynParamValue.
     END. /* if delete */
     IF lDelete THEN
@@ -1288,7 +1317,7 @@ PROCEDURE pReopenBrowse :
   Notes:       
 ------------------------------------------------------------------------------*/
     CASE cColumnLabel:
-        WHEN "hotkey" THEN
+        WHEN "mnemonic" THEN
         RUN pByHotkey.
         WHEN "lastRunDateTime" THEN
         RUN pByLastRunDateTime.
@@ -1385,6 +1414,13 @@ PROCEDURE pRunTask :
     
     DEFINE VARIABLE rRowID AS ROWID NO-UNDO.
     
+    IF ttDynParamValue.user-id NE "{&defaultUser}" AND
+       ttDynParamValue.user-id NE USERID("ASI") AND
+       ttDynParamValue.paramValueID NE 0 THEN DO:
+        RUN pCopyTask.
+        IF NOT lOK THEN RETURN.
+    END. /* if */
+
     DO TRANSACTION:
         FIND FIRST dynParamValue EXCLUSIVE-LOCK
              WHERE ROWID(dynParamValue) EQ ttDynParamValue.paramValueRowID
@@ -1401,7 +1437,7 @@ PROCEDURE pRunTask :
 
     IF iplParameters EQ YES OR
       (iplParameters EQ NO AND
-       CAN-DO("Grid,LocalCSV,View",ttDynParamValue.outputFormat)) THEN DO:
+       CAN-DO("Grid,LocalCSV,Print -d,View",ttDynParamValue.outputFormat)) THEN DO:
         CASE ipcOutputFormat:
             WHEN "Grid" THEN
             RUN AOA/Jasper.p (
@@ -1423,12 +1459,13 @@ PROCEDURE pRunTask :
             rRowID = ROWID(ttDynParamValue).
             REPOSITION {&BROWSE-NAME} TO ROWID rRowID.
         END. /* if avail */
+        RUN pDeleteDynParamValue.
     END. /* if */
     ELSE
     RUN pRunNow (
         ttDynParamValue.outputFormat,
         ttDynParamValue.paramTitle,
-        NO
+        YES
         ).
 
 END PROCEDURE.
@@ -1503,8 +1540,10 @@ PROCEDURE pScheduleTask :
 ------------------------------------------------------------------------------*/
     IF NOT AVAILABLE ttDynParamValue THEN RETURN.
 
-    IF ttDynParamValue.paramValueID EQ 0 THEN
-    RUN pCopyTask.
+    IF ttDynParamValue.paramValueID EQ 0 THEN DO:
+        RUN pCopyTask.
+        IF NOT lOK THEN RETURN.
+    END. /* if eq 0 */
     RUN spSetSessionParam ("ParamValueID", STRING(ttDynParamValue.paramValueID)).
     RUN AOA/dynSched.w.
     ttDynParamValue.scheduled = fIsScheduled().

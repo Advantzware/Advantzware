@@ -3443,6 +3443,7 @@ PROCEDURE valid-tag :
 ------------------------------------------------------------------------------*/
   DEFINE VARIABLE lTagStatusOnHold AS LOGICAL NO-UNDO.
   DEFINE VARIABLE lMessageValue    AS LOGICAL NO-UNDO.
+  DEFINE VARIABLE cTagStatus       AS CHARACTER NO-UNDO.
   
   RUN inventory\InventoryProcs.p PERSISTENT SET hInventoryProcs.
   
@@ -3484,13 +3485,28 @@ PROCEDURE valid-tag :
          RETURN ERROR.
     END.
     
-    IF NOT lCheckTagHoldMessage AND lv-tag NE "" THEN
-    DO:     
-        lTagStatusOnHold = LOGICAL(DYNAMIC-FUNCTION(
+    lTagStatusOnHold = LOGICAL(DYNAMIC-FUNCTION(
                                    "fCheckFgBinTagOnHold" IN hInventoryProcs,
                                    cocode,
                                    lv-i-no, 
                                    lv-tag)).
+                                   
+    FIND FIRST cust NO-LOCK
+         WHERE cust.company EQ cocode
+         AND cust.cust-no EQ oe-bolh.cust-no NO-ERROR.
+    IF AVAIL cust THEN
+    cTagStatus = cust.tagStatus.  
+    
+    IF oe-boll.tag:SCREEN-VALUE IN BROWSE {&browse-name} NE "" AND ((cTagStatus EQ "" AND lTagStatusOnHold) OR (cTagStatus EQ "H" AND NOT lTagStatusOnHold)) THEN
+    DO:
+       MESSAGE "Bin Tag status did not match with Customer Tag status.."  VIEW-AS ALERT-BOX ERROR.
+       APPLY "ENTRY":U TO oe-boll.tag IN BROWSE {&browse-name}.
+       RETURN ERROR.
+    END.
+    
+    
+    IF NOT lCheckTagHoldMessage AND lv-tag NE "" THEN
+    DO:         
         IF lTagStatusOnHold THEN do:
           RUN displayMessageQuestion ("53", OUTPUT lMessageValue).
           IF NOT lMessageValue then

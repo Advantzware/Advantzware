@@ -3459,6 +3459,16 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetEstRowid B-table-Win 
+PROCEDURE pGetEstRowid :
+  DEFINE OUTPUT PARAMETER iprwRowid AS ROWID NO-UNDO.
+  IF AVAIL eb THEN iprwRowid = ROWID(eb).
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-add-record B-table-Win 
 PROCEDURE local-add-record :
 /*------------------------------------------------------------------------------
@@ -4329,6 +4339,7 @@ PROCEDURE local-delete-record :
   FIND CURRENT est NO-LOCK NO-ERROR.
   IF AVAIL est THEN DO:
     RUN est/resetf&b.p (ROWID(est), ll-mass-del).
+    RUN pResetQtySet(ROWID(est)).
     RUN reset-est-type (OUTPUT li-est-type).
 
     IF AVAIL eb THEN RUN dispatch ("open-query").
@@ -5270,6 +5281,18 @@ PROCEDURE reset-est-type :
     ELSE
     IF bf-eb.yld-qty EQ 0 THEN bf-eb.yld-qty = bf-eb.bl-qty.
   END.
+  
+  IF op-est-type NE 2 THEN 
+  DO:
+     FIND FIRST bf-set WHERE
+             bf-set.company EQ bf-est.company AND
+             bf-set.est-no  EQ bf-est.est-no AND
+             bf-set.form-no EQ 0
+             NO-ERROR.
+
+     IF AVAIL bf-set THEN
+        DELETE bf-set.  
+  END.  /* op-est-type NE 2 */
 
   bf-est.est-type = op-est-type.
   FOR EACH bf-ef
@@ -5548,6 +5571,43 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pResetQtySet B-table-Win 
+PROCEDURE pResetQtySet:
+    DEFINE INPUT PARAMETER iprwRowid as ROWID NO-UNDO.
+    DEFINE VARIABLE iBlankCount AS INTEGER NO-UNDO.
+    DEFINE BUFFER bf-est FOR est.
+    DEFINE BUFFER bf-eb FOR eb.
+    
+    FIND FIRST bf-est no-lock
+         WHERE bf-est.company eq cocode
+         and rowid(bf-est) eq iprwRowid NO-ERROR.
+    
+    IF AVAIL bf-est THEN
+    DO:
+        FOR EACH bf-eb NO-LOCK
+            WHERE bf-eb.company eq cocode
+            and bf-eb.est-no eq bf-est.est-no
+            and bf-eb.form-no NE 0:
+            iBlankCount = iBlankCount + 1.
+        END.
+        IF iBlankCount EQ 1 and bf-est.est-type EQ 2 THEN
+        DO:
+          FIND FIRST bf-eb EXCLUSIVE-LOCK
+            WHERE bf-eb.company eq cocode
+            and bf-eb.est-no eq bf-est.est-no
+            and bf-eb.form-no NE 0 NO-ERROR.
+          IF AVAIL bf-eb THEN
+                bf-eb.cust-%  = 1.
+          RELEASE bf-eb.      
+        END.    
+    END.      
+            
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME  
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE update-e-itemfg-vend B-table-Win 
 PROCEDURE update-e-itemfg-vend :

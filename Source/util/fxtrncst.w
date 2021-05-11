@@ -562,6 +562,19 @@ DISABLE TRIGGERS FOR LOAD OF fg-bin.
                 RUN GetCostForFGItemHist IN hdCostProcs (fg-rcpth.company, fg-rcpth.i-no, fg-rcpth.job-no, fg-rcpth.job-no2, fg-rcpth.po-no, fg-rcpth.po-line, fg-rdtlh.tag, fg-rcpth.rita-code,
                     OUTPUT lv-cost[1], OUTPUT lv-cost[4], OUTPUT lv-cost[3], OUTPUT lv-cost[2], OUTPUT lv-cost[5], OUTPUT lv-cost[6], OUTPUT lv-uom, OUTPUT cSource, OUTPUT lSourceFound).
         
+                RUN ClearTagsForGroup(
+                    INPUT fg-rcpth.rec_key,
+                    INPUT "Cost"
+                    ).
+                    
+                RUN AddTagInfoForGroup(
+                    INPUT fg-rcpth.rec_key,
+                    INPUT "fg-rcpth",
+                    INPUT cSource,
+                    INPUT "",
+                    INPUT "Cost"
+                    ). /*From TagProcs Super Proc*/
+                    
                 IF lv-cost[5] EQ ? THEN lv-cost[5] = 0.
     
                 IF (lv-cost[5] NE 0 OR fg-rcpth.po-no NE "") AND (lSourceFound OR tb_FallBack) THEN 

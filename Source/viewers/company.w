@@ -197,7 +197,7 @@ DEFINE FRAME F-Main
           LABEL "A/P - Payables"
           VIEW-AS COMBO-BOX INNER-LINES 5
           LIST-ITEM-PAIRS "Yes",YES,
-                     "NO",NO
+                     "No",NO
           DROP-DOWN-LIST
           SIZE 11 BY 1
           BGCOLOR 15 FONT 1
@@ -213,7 +213,7 @@ DEFINE FRAME F-Main
           LABEL "P/O - Purchasing"
           VIEW-AS COMBO-BOX INNER-LINES 5
           LIST-ITEM-PAIRS "Yes",YES,
-                     "NO",NO
+                     "No",NO
           DROP-DOWN-LIST
           SIZE 11 BY 1
           BGCOLOR 15 FONT 1
@@ -221,7 +221,7 @@ DEFINE FRAME F-Main
           LABEL "O/P - Order Processing"
           VIEW-AS COMBO-BOX INNER-LINES 5
           LIST-ITEM-PAIRS "Yes",YES,
-                     "NO",NO
+                     "No",NO
           DROP-DOWN-LIST
           SIZE 11 BY 1
           BGCOLOR 15 FONT 1
@@ -262,7 +262,7 @@ DEFINE FRAME F-Main
           LABEL "WIP - Work In Process"
           VIEW-AS COMBO-BOX INNER-LINES 5
           LIST-ITEM-PAIRS "Yes",YES,
-                     "NO",NO
+                     "No",NO
           DROP-DOWN-LIST
           SIZE 11 BY 1
           BGCOLOR 15 FONT 1
@@ -280,7 +280,7 @@ DEFINE FRAME F-Main
           LABEL "R/M - Close Inventory"
           VIEW-AS COMBO-BOX INNER-LINES 5
           LIST-ITEM-PAIRS "Yes",YES,
-                     "NO",NO
+                     "No",NO
           DROP-DOWN-LIST
           SIZE 11 BY 1
           BGCOLOR 15 FONT 1
@@ -289,7 +289,7 @@ DEFINE FRAME F-Main
           LABEL "F/G - Close Inventory" 
           VIEW-AS COMBO-BOX INNER-LINES 5
           LIST-ITEM-PAIRS "Yes",YES,
-                     "NO",NO
+                     "No",NO
           DROP-DOWN-LIST
           SIZE 11 BY 1
           BGCOLOR 15 FONT 1
@@ -304,7 +304,7 @@ DEFINE FRAME F-Main
           LABEL "B/R - Bank Reconciliation"
           VIEW-AS COMBO-BOX INNER-LINES 5
           LIST-ITEM-PAIRS "Yes",YES,
-                     "NO",NO
+                     "No",NO
           DROP-DOWN-LIST
           SIZE 11 BY 1
           BGCOLOR 15 FONT 1
@@ -316,7 +316,7 @@ DEFINE FRAME F-Main
           LABEL "A/R - Receivables"
           VIEW-AS COMBO-BOX INNER-LINES 5
           LIST-ITEM-PAIRS "Yes",YES,
-                     "NO",NO
+                     "No",NO
           DROP-DOWN-LIST
           SIZE 11 BY 1
           BGCOLOR 15 FONT 1

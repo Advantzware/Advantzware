@@ -450,8 +450,7 @@ PROCEDURE CheckHistory :
         FIND FIRST bf-glhist 
             WHERE bf-glhist.company EQ gbf-company.company
               AND SUBSTRING(bf-glhist.actnum, iStart, iLength) EQ ipcAccount
-              AND bf-glhist.posted EQ NO
-            NO-LOCK NO-ERROR.
+             NO-LOCK NO-ERROR.
         oplOK = NOT AVAIL bf-glhist.
     END.
 

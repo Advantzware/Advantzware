@@ -42,7 +42,7 @@ CREATE WIDGET-POOL.
 DEFINE {&NEW} SHARED VARIABLE g_lookup-var AS CHARACTER NO-UNDO.
 
 &scoped-def oe-prmtx-maint oe-prmtx
-
+&SCOPED-DEFINE OePrmtxCopy
 {sys/inc/var.i new shared}
 
 assign
@@ -54,6 +54,19 @@ def var v-invalid as log no-undo.
 DEF VAR lv-cust-no AS cha NO-UNDO.
 DEFINE VARIABLE lEditMode AS LOGICAL NO-UNDO.
 DEFINE BUFFER bf-oe-prmtx FOR oe-prmtx .
+DEFINE VARIABLE hdQuoteProcs  AS HANDLE  NO-UNDO.
+DEFINE VARIABLE lQuotePriceMatrix AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cRtnChar          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound         AS LOGICAL NO-UNDO.
+
+RUN est/QuoteProcs.p PERSISTENT SET hdQuoteProcs.
+
+RUN sys/ref/nk1look.p (INPUT cocode, "QuotePriceMatrix", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    lQuotePriceMatrix = logical(cRtnChar) NO-ERROR. 
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -100,7 +113,8 @@ oe-prmtx.discount[6] oe-prmtx.uom[6] oe-prmtx.qty[7] oe-prmtx.price[7] ~
 oe-prmtx.discount[7] oe-prmtx.uom[7] oe-prmtx.qty[8] oe-prmtx.price[8] ~
 oe-prmtx.discount[8] oe-prmtx.uom[8] oe-prmtx.qty[9] oe-prmtx.price[9] ~
 oe-prmtx.discount[9] oe-prmtx.uom[9] oe-prmtx.qty[10] oe-prmtx.price[10] ~
-oe-prmtx.discount[10] oe-prmtx.uom[10] oe-prmtx.online oe-prmtx.minOrderQty 
+oe-prmtx.discount[10] oe-prmtx.uom[10] oe-prmtx.online oe-prmtx.minOrderQty ~
+oe-prmtx.quoteID
 &Scoped-define DISPLAYED-TABLES oe-prmtx
 &Scoped-define FIRST-DISPLAYED-TABLE oe-prmtx
 
@@ -325,7 +339,10 @@ DEFINE FRAME F-Main
           SIZE 8.6 BY 1
      oe-prmtx.minOrderQty  AT ROW 4.57 COL 123 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
-          SIZE 14.6 BY 1    
+          SIZE 14.6 BY 1        
+     oe-prmtx.quoteID AT ROW 6.57 COL 123 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 14.6 BY 1
      "Discount" VIEW-AS TEXT
           SIZE 12 BY .62 AT ROW 3.86 COL 89
      "Price" VIEW-AS TEXT
@@ -343,7 +360,9 @@ DEFINE FRAME F-Main
      "7" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 11.95 COL 20
      "Min Order Qty" VIEW-AS TEXT
-          SIZE 16 BY .62 AT ROW 3.86 COL 125     
+          SIZE 16 BY .62 AT ROW 3.86 COL 125 
+     "Quote ID" VIEW-AS TEXT
+          SIZE 16 BY .62 AT ROW 5.86 COL 125    
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -1003,6 +1022,7 @@ PROCEDURE enable-oe-prmtx-field :
     IF AVAIL oe-prmtx AND oe-prmtx.cust-no NE "" THEN DISABLE oe-prmtx.custype.
 
     IF AVAIL oe-prmtx AND oe-prmtx.i-no NE "" THEN DISABLE oe-prmtx.procat.
+    DISABLE oe-prmtx.quoteID.
   END.
   RUN set-panel (0).
   lEditMode = YES .
@@ -1217,7 +1237,7 @@ PROCEDURE local-update-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-
+   DEFINE VARIABLE lNewRecord AS LOGICAL NO-UNDO.
   /* Code placed here will execute PRIOR to standard behavior. */
   IF  oe-prmtx.cust-no:SCREEN-VALUE IN frame {&FRAME-NAME} <> "" THEN DO:
       RUN valid-cust-no NO-ERROR.
@@ -1280,20 +1300,40 @@ PROCEDURE local-update-record :
   if v-invalid then return no-apply.
 
   disable all with frame {&frame-name}.
-
+     
   IF adm-adding-record THEN lv-cust-no = oe-prmtx.cust-no:SCREEN-VALUE.
-
+  lNewRecord =  adm-new-record.
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
+      RUN Price_ExpireOldPrice(
+          INPUT oe-prmtx.company,
+          INPUT oe-prmtx.i-no,
+          INPUT oe-prmtx.custshipid,
+          INPUT oe-prmtx.cust-no,
+          INPUT oe-prmtx.custype,
+          INPUT oe-prmtx.procat
+          ).
+   
+   IF lQuotePriceMatrix  THEN
+   RUN UpdateQuotePriceFromMatrix IN hdQuoteProcs (ROWID(oe-prmtx)).   
+
   /* Code placed here will execute AFTER standard behavior.    */
+  
+  IF lNewRecord THEN DO:
+      RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source",OUTPUT char-hdl).
+      RUN repo-query IN WIDGET-HANDLE(char-hdl) (ROWID(oe-prmtx)). 
+  END.
+  
   RUN set-panel (1).
   lEditMode = NO.
+    
 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
+&ANALYZE-RESUME  
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE reftable-values V-table-Win 
 PROCEDURE reftable-values :

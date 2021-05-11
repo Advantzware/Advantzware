@@ -46,13 +46,14 @@ DEF TEMP-TABLE tt-report LIKE report
     INDEX ytd-only ytd-only key-09.
 
  def TEMP-TABLE w-inv NO-UNDO
-    field inv-no    like ar-inv.inv-no
-    field inv-date  like ar-inv.inv-date
-    field pst-date  like ar-ledger.tr-date label "Post Date"
-    field cust-no   like ar-inv.cust-no
-    field name      like cust.name
-    field amt       like ar-inv.net format "->,>>>,>>9.99" label "Net"
-    field msf       as   dec        format "->,>>>,>>9.99" label "MSF".
+    field inv-no        like ar-inv.inv-no
+    field inv-date      like ar-inv.inv-date
+    field pst-date      like ar-ledger.tr-date label "Post Date"
+    field cust-no       like ar-inv.cust-no
+    field name          like cust.name
+    field amt           like ar-inv.net format "->,>>>,>>9.99" label "Net"
+    field msf           as   dec        format "->,>>>,>>9.99" label "MSF"
+    FIELD firstInvDate  like ar-inv.inv-date .
 
 def TEMP-TABLE w-sum NO-UNDO
     field cust-no   like cust.cust-no
@@ -78,16 +79,16 @@ DEF VAR iColumnLength AS INT NO-UNDO.
 DEF VAR cTextListToDefault AS cha NO-UNDO.
 
 
-ASSIGN cTextListToSelect = "Inv #,Inv# Date,Post Date,Cust. #,Customer Name,Net,MSF,$/MSF"  /*+
+ASSIGN cTextListToSelect = "Inv #,Inv# Date,First Invoice Date,Post Date,Cust. #,Customer Name,Net,MSF,$/MSF"  /*+
                            "PTD AMT,WGT/MSF"*/
-       cFieldListToSelect = "inv,inv-date,post-date,cust,cust-name,net,msf,msf$" /*+ 
+       cFieldListToSelect = "inv,inv-date,firstInvDate,post-date,cust,cust-name,net,msf,msf$" /*+ 
                             "ptd-amt,wgt-msf"*/
-       cFieldLength = "7,10,10,8,30,13,13,13" /*+ "13,13" */
-       cFieldType = "i,c,c,c,c,i,i,i" /*+ "13,13"  */
+       cFieldLength = "7,10,19,10,8,30,13,13,13" /*+ "13,13" */
+       cFieldType = "i,c,c,c,c,c,i,i,i" /*+ "13,13"  */
     .
 
 {sys/inc/ttRptSel.i}
-ASSIGN cTextListToDefault  = "Inv #,Inv# Date,Post Date,Cust. #,Customer Name,Net,MSF,$/MSF" .
+ASSIGN cTextListToDefault  = "Inv #,Inv# Date,First Invoice Date,Post Date,Cust. #,Customer Name,Net,MSF,$/MSF" .
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -104,15 +105,16 @@ ASSIGN cTextListToDefault  = "Inv #,Inv# Date,Post Date,Cust. #,Customer Name,Ne
 &Scoped-define FRAME-NAME FRAME-A
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-7 RECT-9 as-of-date end_slsmn ~
-begin_slsmn rd_select rd_sort tb_detailed tb_ytd tb_fin-chg sl_avail ~
-Btn_Def sl_selected Btn_Add Btn_Remove btn_Up btn_down lv-ornt ~
-lines-per-page rd-dest lv-font-no td-show-parm tb_excel tb_runExcel fi_file ~
-fi_file-2 btn-ok btn-cancel 
-&Scoped-Define DISPLAYED-OBJECTS as-of-date end_slsmn begin_slsmn ~
-lbl_select rd_select lbl_sort rd_sort tb_detailed tb_ytd tb_fin-chg ~
-sl_avail sl_selected lv-ornt lines-per-page rd-dest lv-font-no lv-font-name ~
-td-show-parm tb_excel tb_runExcel fi_file fi_file-2 
+&Scoped-Define ENABLED-OBJECTS RECT-7 RECT-9 tb_firstinvdate as-of-date ~
+begin_slsmn end_slsmn begin_firstinvdate end_firstinvdate rd_select rd_sort ~
+tb_detailed tb_ytd tb_fin-chg sl_avail Btn_Def sl_selected Btn_Add ~
+Btn_Remove btn_Up btn_down lv-ornt lines-per-page rd-dest lv-font-no ~
+td-show-parm tb_excel tb_runExcel fi_file fi_file-2 btn-ok btn-cancel 
+&Scoped-Define DISPLAYED-OBJECTS tb_firstinvdate as-of-date begin_slsmn ~
+end_slsmn begin_firstinvdate end_firstinvdate lbl_select rd_select lbl_sort ~
+rd_sort tb_detailed tb_ytd tb_fin-chg sl_avail sl_selected lv-ornt ~
+lines-per-page rd-dest lv-font-no lv-font-name td-show-parm tb_excel ~
+tb_runExcel fi_file fi_file-2 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -170,8 +172,18 @@ DEFINE VARIABLE as-of-date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001
      VIEW-AS FILL-IN 
      SIZE 17 BY .95 NO-UNDO.
 
+DEFINE VARIABLE begin_firstinvdate AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001 
+     LABEL "Beginning First Inv Date" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1.
+
 DEFINE VARIABLE begin_slsmn AS CHARACTER FORMAT "XXX" 
      LABEL "Beginning Salesrep#" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1.
+
+DEFINE VARIABLE end_firstinvdate AS DATE FORMAT "99/99/9999":U INITIAL 01/01/9999 
+     LABEL "Ending First Inv Date" 
      VIEW-AS FILL-IN 
      SIZE 17 BY 1.
 
@@ -276,6 +288,11 @@ DEFINE VARIABLE tb_fin-chg AS LOGICAL INITIAL no
      VIEW-AS TOGGLE-BOX
      SIZE 30 BY 1 NO-UNDO.
 
+DEFINE VARIABLE tb_firstinvdate AS LOGICAL INITIAL no 
+     LABEL "First invoice date" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 20 BY 1 NO-UNDO.
+
 DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL no 
      LABEL "Auto Run Excel?" 
      VIEW-AS TOGGLE-BOX
@@ -296,11 +313,14 @@ DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL no
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
-     as-of-date AT ROW 2.48 COL 27 COLON-ALIGNED
-     begin_slsmn AT ROW 3.67 COL 27 COLON-ALIGNED HELP
+     tb_firstinvdate AT ROW 1.91 COL 74.4 RIGHT-ALIGNED
+     as-of-date AT ROW 2 COL 27 COLON-ALIGNED
+     begin_slsmn AT ROW 3 COL 27 COLON-ALIGNED HELP
           "Enter Beginning Sales Rep Number"
-     end_slsmn AT ROW 3.67 COL 70 COLON-ALIGNED HELP
+     end_slsmn AT ROW 3 COL 70 COLON-ALIGNED HELP
           "Enter Ending Sales Rep Number"
+     begin_firstinvdate AT ROW 4.05 COL 27 COLON-ALIGNED
+     end_firstinvdate AT ROW 4.05 COL 70 COLON-ALIGNED
      lbl_select AT ROW 5.1 COL 22 COLON-ALIGNED NO-LABEL
      rd_select AT ROW 5.1 COL 36 NO-LABEL
      lbl_sort AT ROW 6.05 COL 27 COLON-ALIGNED NO-LABEL
@@ -332,15 +352,15 @@ DEFINE FRAME FRAME-A
           "Enter File Name"
      btn-ok AT ROW 28.52 COL 20
      btn-cancel AT ROW 28.52 COL 58
-     "Selected Columns(In Display Order)" VIEW-AS TEXT
-          SIZE 34 BY .62 AT ROW 10.57 COL 58.4 WIDGET-ID 44
-     "Available Columns" VIEW-AS TEXT
-          SIZE 29 BY .62 AT ROW 10.57 COL 3.8 WIDGET-ID 38
+     "Output Destination" VIEW-AS TEXT
+          SIZE 18 BY .62 AT ROW 16.86 COL 4
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.24 COL 5
           BGCOLOR 2 
-     "Output Destination" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 16.86 COL 4
+     "Available Columns" VIEW-AS TEXT
+          SIZE 29 BY .62 AT ROW 10.57 COL 3.8 WIDGET-ID 38
+     "Selected Columns(In Display Order)" VIEW-AS TEXT
+          SIZE 34 BY .62 AT ROW 10.57 COL 58.4 WIDGET-ID 44
      RECT-7 AT ROW 1 COL 1
      RECT-9 AT ROW 16.67 COL 2
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
@@ -400,22 +420,28 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
-ASSIGN
-       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
-ASSIGN
-       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
 ASSIGN 
        as-of-date:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 ASSIGN 
+       begin_firstinvdate:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
        begin_slsmn:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+ASSIGN 
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+ASSIGN 
+       end_firstinvdate:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 ASSIGN 
@@ -466,6 +492,12 @@ ASSIGN
 
 ASSIGN 
        tb_fin-chg:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+/* SETTINGS FOR TOGGLE-BOX tb_firstinvdate IN FRAME FRAME-A
+   ALIGN-R                                                              */
+ASSIGN 
+       tb_firstinvdate:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 /* SETTINGS FOR TOGGLE-BOX tb_runExcel IN FRAME FRAME-A
@@ -523,6 +555,17 @@ END.
 ON LEAVE OF as-of-date IN FRAME FRAME-A /* As Of Date */
 DO:
   assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME begin_firstinvdate
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_firstinvdate C-Win
+ON LEAVE OF begin_firstinvdate IN FRAME FRAME-A /* Beginning First Inv Date */
+DO:
+     assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -675,6 +718,17 @@ END.
 ON CHOOSE OF btn_Up IN FRAME FRAME-A /* Move Up */
 DO:
   RUN Move-Field ("Up").
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME end_firstinvdate
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_firstinvdate C-Win
+ON LEAVE OF end_firstinvdate IN FRAME FRAME-A /* Ending First Inv Date */
+DO:
+     assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -901,6 +955,18 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME tb_firstinvdate
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_firstinvdate C-Win
+ON VALUE-CHANGED OF tb_firstinvdate IN FRAME FRAME-A /* First invoice date */
+DO:
+  assign {&self-name}.
+  RUN pFirstInvDateValueChanged.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME tb_runExcel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_runExcel C-Win
 ON VALUE-CHANGED OF tb_runExcel IN FRAME FRAME-A /* Auto Run Excel? */
@@ -974,6 +1040,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
   DO WITH FRAME {&FRAME-NAME}:
     {custom/usrprint.i}
+    RUN pFirstInvDateValueChanged.
     RUN DisplaySelectionList2.
     APPLY "entry" TO as-of-date.
   END.
@@ -1130,15 +1197,17 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY as-of-date end_slsmn begin_slsmn lbl_select rd_select lbl_sort rd_sort 
-          tb_detailed tb_ytd tb_fin-chg sl_avail sl_selected lv-ornt 
-          lines-per-page rd-dest lv-font-no lv-font-name td-show-parm tb_excel 
-          tb_runExcel fi_file fi_file-2 
+  DISPLAY tb_firstinvdate as-of-date begin_slsmn end_slsmn begin_firstinvdate 
+          end_firstinvdate lbl_select rd_select lbl_sort rd_sort tb_detailed 
+          tb_ytd tb_fin-chg sl_avail sl_selected lv-ornt lines-per-page rd-dest 
+          lv-font-no lv-font-name td-show-parm tb_excel tb_runExcel fi_file 
+          fi_file-2 
       WITH FRAME FRAME-A IN WINDOW C-Win.
-  ENABLE RECT-7 RECT-9 as-of-date end_slsmn begin_slsmn rd_select rd_sort 
-         tb_detailed tb_ytd tb_fin-chg sl_avail Btn_Def sl_selected Btn_Add 
-         Btn_Remove btn_Up btn_down lv-ornt lines-per-page rd-dest lv-font-no 
-         td-show-parm tb_excel tb_runExcel fi_file fi_file-2 btn-ok btn-cancel 
+  ENABLE RECT-7 RECT-9 tb_firstinvdate as-of-date begin_slsmn end_slsmn 
+         begin_firstinvdate end_firstinvdate rd_select rd_sort tb_detailed 
+         tb_ytd tb_fin-chg sl_avail Btn_Def sl_selected Btn_Add Btn_Remove 
+         btn_Up btn_down lv-ornt lines-per-page rd-dest lv-font-no td-show-parm 
+         tb_excel tb_runExcel fi_file fi_file-2 btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -1335,6 +1404,8 @@ DEFINE VARIABLE dPerAmt AS DECIMAL FORMAT "99.99" NO-UNDO.
 DEF VAR ld-inv-pct AS DEC NO-UNDO.
 DEF VAR ld-amt-msf AS DEC NO-UNDO.
 DEF VAR ld-wgt-msf AS DEC NO-UNDO.
+DEF VAR dtFirstInvDate      AS DATE NO-UNDO.
+DEF VAR dtCheckFirstInvDate AS DATE NO-UNDO.
 
 def buffer xar-inv for ar-inv.
 DEF BUFFER b-ar-invl FOR ar-invl.
@@ -1538,6 +1609,32 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pFirstInvDateValueChanged C-Win 
+PROCEDURE pFirstInvDateValueChanged :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DO WITH FRAME {&FRAME-NAME}:
+    
+        IF LOGICAL(tb_firstinvdate:SCREEN-VALUE) EQ YES THEN DO:
+            begin_firstinvdate:HIDDEN = NO.
+            end_firstinvdate:HIDDEN   = NO.
+        END.
+        ELSE DO: 
+            begin_firstinvdate:HIDDEN = YES.
+            end_firstinvdate:HIDDEN   = YES.
+        END.
+    
+    END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 /* ************************  Function Implementations ***************** */
 

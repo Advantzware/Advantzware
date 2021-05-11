@@ -495,6 +495,8 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_p-qtitem , 'TableIO':U , h_b-qtitm ).
        RUN add-link IN adm-broker-hdl ( h_v-qthd , 'bottom':U , h_b-qtitm ).
        RUN add-link IN adm-broker-hdl ( h_v-qthd , 'Record':U , h_b-qtitm ).
+       
+       RUN add-link IN adm-broker-hdl ( h_b-qtitm , 'priceMatrix':U , h_vp-prmtx ).
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_v-qthd ,
@@ -919,6 +921,24 @@ PROCEDURE import-file :
  IF VALID-HANDLE(h_b-qthd) THEN
  RUN local-open-query IN h_b-qthd .
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pReOpenQuery W-Win 
+PROCEDURE pReOpenQuery :
+/* -----------------------------------------------------------
+  Purpose:  
+  Parameters:  <none>
+  Notes:       
+-------------------------------------------------------------*/      
+   
+   IF VALID-HANDLE(h_b-qtqty) THEN DO:
+    RUN local-display-fields IN h_vi-qtitm .
+    RUN local-open-query IN h_b-qtqty.
+   END.      
+       
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

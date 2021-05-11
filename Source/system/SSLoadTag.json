@@ -50,13 +50,13 @@
 		"Description" : "NK1 RFIDTag",
 		"Active" : false	
 	},
-	"LabelMatrixLoadTagOutputFilePath" : {
-		"Description" : "Path to save the label matrix output file",
+	"LoadTagOutputFilePath" : {
+		"Description" : "Path to save the output file",
 		"Path" : "C:\\BA\\Label\\",
 		"File" : "loadtag.txt"
 	},
-    "LabelMatrixBOLLoadTagOutputFilePath" : {
-        "Description" : "Path to save the BOL tag label matrix output file",
+    "BOLLoadTagOutputFilePath" : {
+        "Description" : "Path to save the BOL tag output file",
         "Path" : "C:\\BA\\Label\\BOL\\",
         "File" : "BOLTag.txt"
     },
@@ -72,8 +72,8 @@
         "Description" : "Create loadtags for BOL lines if BOL line's tag is empty while printing",
         "Active" : true    
     },
-	"LabelMatrixAutoPrint" : { 
-	   "Description" : "Print label matrix",
+	"AutoPrint" : { 
+	   "Description" : "Print loadtag",
 	   "Active" : true
 	},
     "CreateTagForPartial" : {

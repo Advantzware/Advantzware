@@ -8,6 +8,7 @@ TRIGGER PROCEDURE FOR DELETE OF {&TABLENAME}.
 
 {custom/globdefs.i}
 
+
 {sys/inc/var.i NEW SHARED}
 
 ASSIGN
@@ -40,15 +41,7 @@ for each ap-invl exclusive-lock where ap-invl.i-no = ap-inv.i-no:
               use-index item-po:
                    
             fg-rcpth.b-no = 0.
-          end.
-          FOR EACH rm-rcpth NO-LOCK
-               WHERE rm-rcpth.company EQ ap-inv.company
-                 AND rm-rcpth.i-no    EQ po-ordl.i-no
-                 AND rm-rcpth.po-no   EQ trim(string(po-ordl.po-no,">>>>>>>>>>"))
-                 AND rm-rcpth.rita-code EQ "R" ,
-               EACH rm-rdtlh OF rm-rcpth EXCLUSIVE-LOCK : 
-             ASSIGN rm-rdtlh.receiver-no = "" .
-          END.
+          end.          
       END.
       
       delete ap-invl.

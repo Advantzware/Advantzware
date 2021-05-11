@@ -28,6 +28,7 @@ DEFINE TEMP-TABLE ttPostingMaster NO-UNDO
     FIELD periodID              AS INTEGER 
     FIELD periodDateStart       AS DATE
     FIELD periodDateEnd         AS DATE 
+    FIELD periodGLYear          AS INTEGER 
     FIELD accountAR             AS CHARACTER
     FIELD accountARFreight      AS CHARACTER
     FIELD accountARSales        AS CHARACTER
@@ -174,6 +175,8 @@ DEFINE TEMP-TABLE ttInvoiceLineToPost NO-UNDO
     FIELD shipID                  AS CHARACTER LABEL "Ship To" FORMAT "x(10)"
     FIELD termsCode               AS CHARACTER LABEL "Terms" FORMAT "x(5)"
     FIELD isFreightBillable       AS LOGICAL   LABEL "Bill Freight"
+    FIELD orderLine               AS Integer   LABEL "Order Line"
+    FIELD iEnum                   AS Integer   LABEL "Ln#"
     .    
     
 DEFINE TEMP-TABLE ttInvoiceMiscToPost NO-UNDO 

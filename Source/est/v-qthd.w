@@ -32,6 +32,7 @@ CREATE WIDGET-POOL.
 DEFINE {&NEW} SHARED VARIABLE g_lookup-var AS CHARACTER NO-UNDO.
 &scoped-define proc-enable  ENABLE-detail
 &scoped-define proc-delete  proc-delete
+&scoped-define copy-proc  copy-proc 
 
 {custom/gcompany.i}
 {custom/gloc.i}
@@ -53,6 +54,13 @@ DEFINE VARIABLE hdCustomerProcs AS HANDLE             NO-UNDO.
 DEFINE VARIABLE hdSalesManProcs AS HANDLE             NO-UNDO.
 DEFINE VARIABLE lSuccess        AS LOGICAL            NO-UNDO.
 DEFINE VARIABLE cMessage        AS CHARACTER          NO-UNDO.
+DEFINE VARIABLE lQuotePriceMatrix AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cRtnChar          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound         AS LOGICAL NO-UNDO.
+DEFINE VARIABLE iQuoteExpirationDays AS INTEGER NO-UNDO. 
+DEFINE VARIABLE cQuoteExpirationDays AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lQuoteExpirationDays AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cQuoteEstimate       AS CHARACTER NO-UNDO.
 
 RUN salrep/SalesManProcs.p PERSISTENT SET hdSalesManProcs.
 
@@ -90,27 +98,28 @@ ll-new-file = CAN-FIND(FIRST asi._file WHERE asi._file._file-name EQ "cust-part"
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR quotehd.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS quotehd.quo-date quotehd.est-no quotehd.expireDate ~
-quotehd.del-date quotehd.cust-no quotehd.billto[1] quotehd.billto[2] ~
-quotehd.billto[3] quotehd.billto[4] quotehd.contact quotehd.ship-id ~
-quotehd.shipto[1] quotehd.shipto[2] quotehd.shipto[3] quotehd.shipto[4] ~
-quotehd.sold-id quotehd.soldto[1] quotehd.soldto[2] quotehd.soldto[3] ~
-quotehd.soldto[4] quotehd.sman quotehd.terms quotehd.carrier ~
-quotehd.del-zone 
-&Scoped-define ENABLED-TABLES quotehd
-&Scoped-define FIRST-ENABLED-TABLE quotehd
-&Scoped-Define ENABLED-OBJECTS RECT-5 
-&Scoped-Define DISPLAYED-FIELDS quotehd.q-no quotehd.quo-date ~
+&Scoped-Define ENABLED-FIELDS quotehd.pricingMethod quotehd.quo-date ~
 quotehd.est-no quotehd.expireDate quotehd.del-date quotehd.cust-no ~
 quotehd.billto[1] quotehd.billto[2] quotehd.billto[3] quotehd.billto[4] ~
 quotehd.contact quotehd.ship-id quotehd.shipto[1] quotehd.shipto[2] ~
 quotehd.shipto[3] quotehd.shipto[4] quotehd.sold-id quotehd.soldto[1] ~
 quotehd.soldto[2] quotehd.soldto[3] quotehd.soldto[4] quotehd.sman ~
 quotehd.terms quotehd.carrier quotehd.del-zone 
+&Scoped-define ENABLED-TABLES quotehd
+&Scoped-define FIRST-ENABLED-TABLE quotehd
+&Scoped-Define ENABLED-OBJECTS btTags RECT-5 btnCalendar-1
+&Scoped-Define DISPLAYED-FIELDS quotehd.approved quotehd.pricingMethod ~
+quotehd.q-no quotehd.quo-date quotehd.est-no quotehd.expireDate ~
+quotehd.del-date quotehd.cust-no quotehd.billto[1] quotehd.billto[2] ~
+quotehd.billto[3] quotehd.billto[4] quotehd.contact quotehd.ship-id ~
+quotehd.shipto[1] quotehd.shipto[2] quotehd.shipto[3] quotehd.shipto[4] ~
+quotehd.sold-id quotehd.soldto[1] quotehd.soldto[2] quotehd.soldto[3] ~
+quotehd.soldto[4] quotehd.sman quotehd.terms quotehd.carrier ~
+quotehd.del-zone 
 &Scoped-define DISPLAYED-TABLES quotehd
 &Scoped-define FIRST-DISPLAYED-TABLE quotehd
 &Scoped-Define DISPLAYED-OBJECTS ls-status sman_desc term_desc carrier_desc ~
-zon_desc 
+zon_desc btnCalendar-1
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,List-5,F1 */
@@ -121,19 +130,6 @@ quotehd.soldto[3] quotehd.soldto[4] quotehd.carrier
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
-
-/* ************************  Function Prototypes ********************** */
-
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD are-items-for-cust V-table-Win
-FUNCTION are-items-for-cust RETURNS LOGICAL 
-  (  ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _XFTR "Foreign Keys" V-table-Win _INLINE
@@ -157,11 +153,30 @@ RUN set-attribute-list (
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+/* ************************  Function Prototypes ********************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD are-items-for-cust V-table-Win 
+FUNCTION are-items-for-cust RETURNS LOGICAL
+  (  ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 /* ***********************  Control Definitions  ********************** */
 
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON btnCalendar-1 
+     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
+     LABEL "" 
+     SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
+     
+DEFINE BUTTON btTags 
+     IMAGE-UP FILE "Graphics/16x16/question.png":U
+     LABEL "" 
+     SIZE 4 BY .95.
+
 DEFINE VARIABLE carrier_desc AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
      SIZE 35 BY 1 NO-UNDO.
@@ -169,7 +184,7 @@ DEFINE VARIABLE carrier_desc AS CHARACTER FORMAT "X(256)":U
 DEFINE VARIABLE ls-status AS CHARACTER FORMAT "X(256)":U 
      LABEL "Order Status" 
      VIEW-AS FILL-IN 
-     SIZE 14 BY 1 NO-UNDO.
+     SIZE 13.5 BY 1 NO-UNDO.
 
 DEFINE VARIABLE sman_desc AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
@@ -185,26 +200,36 @@ DEFINE VARIABLE zon_desc AS CHARACTER FORMAT "X(256)":U
 
 DEFINE RECTANGLE RECT-5
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 143 BY 10.48.
+     SIZE 144 BY 10.48.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     quotehd.q-no AT ROW 1.24 COL 11 COLON-ALIGNED FORMAT ">>>>>9"
+     btTags AT ROW 3.24 COL 130.2 WIDGET-ID 8
+     quotehd.approved AT ROW 3.24 COL 112.8 COLON-ALIGNED NO-LABEL WIDGET-ID 6 FORMAT "Approved/Unapproved"
+          VIEW-AS FILL-IN 
+          SIZE 15.2 BY 1
+     quotehd.pricingMethod AT ROW 2.19 COL 128.4 COLON-ALIGNED WIDGET-ID 4
+          VIEW-AS COMBO-BOX INNER-LINES 5
+          LIST-ITEMS " ","Ship To","Customer","Type" 
+          DROP-DOWN-LIST
+          SIZE 14 BY 1
+     quotehd.q-no AT ROW 1.19 COL 10.4 COLON-ALIGNED FORMAT ">>>>>9"
           VIEW-AS FILL-IN 
           SIZE 14.6 BY 1
-     quotehd.quo-date AT ROW 1.24 COL 41.2 COLON-ALIGNED
+     quotehd.quo-date AT ROW 1.19 COL 40 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 15 BY 1
-     quotehd.est-no AT ROW 1.24 COL 70.8 COLON-ALIGNED FORMAT "x(8)"
+     quotehd.est-no AT ROW 1.19 COL 69.6 COLON-ALIGNED FORMAT "x(8)"
           VIEW-AS FILL-IN 
           SIZE 13 BY 1
-     quotehd.expireDate AT ROW 1.24 COL 97.9 COLON-ALIGNED FORMAT "99/99/9999"
+     quotehd.expireDate AT ROW 1.19 COL 96.8 COLON-ALIGNED
           VIEW-AS FILL-IN 
-          SIZE 15 BY 1
-     ls-status AT ROW 1.24 COL 128.8 COLON-ALIGNED
-     quotehd.del-date AT ROW 2.19 COL 41.2 COLON-ALIGNED
+          SIZE 12 BY 1
+     btnCalendar-1 AT ROW 1.19 COL 110.60     
+     ls-status AT ROW 1.19 COL 129.0 COLON-ALIGNED
+     quotehd.del-date AT ROW 2.19 COL 40 COLON-ALIGNED
           LABEL "Delivery Date"
           VIEW-AS FILL-IN 
           SIZE 15 BY 1
@@ -223,9 +248,9 @@ DEFINE FRAME F-Main
      quotehd.billto[4] AT ROW 8.14 COL 3 NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 45 BY 1
-     quotehd.contact AT ROW 2.19 COL 70.8 COLON-ALIGNED
+     quotehd.contact AT ROW 2.19 COL 69.6 COLON-ALIGNED
           VIEW-AS FILL-IN 
-          SIZE 68 BY 1
+          SIZE 40.4 BY 1
      quotehd.ship-id AT ROW 4.33 COL 48 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 20 BY 1
@@ -269,6 +294,13 @@ DEFINE FRAME F-Main
      quotehd.carrier AT ROW 9.33 COL 81 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 10 BY 1
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1 SCROLLABLE 
+         FONT 6.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME F-Main
      carrier_desc AT ROW 9.33 COL 92 COLON-ALIGNED NO-LABEL
      quotehd.del-zone AT ROW 10.29 COL 81 COLON-ALIGNED
           VIEW-AS FILL-IN 
@@ -280,13 +312,6 @@ DEFINE FRAME F-Main
      "Ship To" VIEW-AS TEXT
           SIZE 10 BY .95 AT ROW 3.38 COL 51
           FGCOLOR 9 
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE 
-         FONT 6.
-
-/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
-DEFINE FRAME F-Main
      "Sold To" VIEW-AS TEXT
           SIZE 10 BY .95 AT ROW 3.38 COL 98
           FGCOLOR 9 
@@ -353,6 +378,10 @@ ASSIGN
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
+/* SETTINGS FOR BUTTON btnCalendar-1 IN FRAME F-Main
+   3                                                                    */       
+/* SETTINGS FOR FILL-IN quotehd.approved IN FRAME F-Main
+   NO-ENABLE EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN quotehd.billto[1] IN FRAME F-Main
    ALIGN-L 5                                                            */
 /* SETTINGS FOR FILL-IN quotehd.billto[2] IN FRAME F-Main
@@ -414,7 +443,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -471,7 +500,7 @@ DO:
            IF cFoundValue NE "" THEN 
                ASSIGN 
                    quotehd.sman:SCREEN-VALUE = cFoundValue
-                   sman_desc:SCREEN-VALUE    =  DYNAMIC-FUNCTION("sfDynLookupValue", "sname", cFieldsValue).
+                   sman_desc:SCREEN-VALUE    =  DYNAMIC-FUNCTION("sfDynLookupValue", "sman.sname", cFieldsValue).
        END.
        when "del-zone" then do:
            run windows/l-delzon.w 
@@ -526,6 +555,21 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME btTags
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btTags V-table-Win
+ON CHOOSE OF btTags IN FRAME F-Main
+DO:
+    RUN system/d-TagViewer.w (
+        INPUT quotehd.rec_key,
+        INPUT "",
+        INPUT ""
+        ).  
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME quotehd.carrier
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL quotehd.carrier V-table-Win
 ON LEAVE OF quotehd.carrier IN FRAME F-Main /* Carrier */
@@ -545,7 +589,6 @@ DO:
   {&methods/lValidateError.i NO}
   END.
 END.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -599,7 +642,6 @@ DO:
   END.
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -630,7 +672,7 @@ END.
 
 &Scoped-define SELF-NAME quotehd.sman
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL quotehd.sman V-table-Win
-ON LEAVE OF quotehd.sman IN FRAME F-Main /* Sales Rep */
+ON LEAVE OF quotehd.sman IN FRAME F-Main /* SalesGrp */
 DO:
   IF LASTKEY NE -1 THEN DO:
   {&methods/lValidateError.i YES}
@@ -651,7 +693,6 @@ DO:
   {&methods/lValidateError.i NO}
   END.
 END.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -699,6 +740,25 @@ DO:
   END.
 END.
 
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME quotehd.expireDate
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL quotehd.expireDate V-table-Win
+ON HELP OF quotehd.expireDate IN FRAME F-Main /* Expire Date */
+DO:
+  {methods/calendar.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME btnCalendar-1
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalendar-1 V-table-Win
+ON CHOOSE OF btnCalendar-1 IN FRAME F-Main
+DO:
+  {methods/btnCalendar.i quotehd.expireDate}
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -715,6 +775,30 @@ END.
 ASSIGN cocode = gcompany
        locode = gloc.
  {sys/inc/custlistform.i ""EQ"" }
+ 
+ RUN sys/ref/nk1look.p (INPUT cocode, "QuotePriceMatrix", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    lQuotePriceMatrix = logical(cRtnChar) NO-ERROR. 
+    
+RUN sys/ref/nk1look.p (INPUT cocode, "QuoteExpirationDays", "I" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    iQuoteExpirationDays = INTEGER(cRtnChar) NO-ERROR.  
+    
+RUN sys/ref/nk1look.p (INPUT cocode, "QuoteExpirationDays", "C" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    cQuoteExpirationDays = STRING(cRtnChar) NO-ERROR.
+
+RUN sys/ref/nk1look.p (INPUT cocode, "QuoteExpirationDays", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    lQuoteExpirationDays = LOGICAL(cRtnChar) NO-ERROR.    
 
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
@@ -724,50 +808,6 @@ ASSIGN cocode = gcompany
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-/* ************************  Function Implementations ***************** */
-
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION are-items-for-cust V-table-Win
-FUNCTION are-items-for-cust RETURNS LOGICAL 
-  (  ):
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
- DEFINE VARIABLE result AS LOGICAL NO-UNDO.
- DEF BUFFER bfCust FOR cust.
-     FOR FIRST ar-invl WHERE
-         ar-invl.company EQ cocode AND
-         ar-invl.posted EQ YES AND
-         ar-invl.cust-no EQ cust.cust-no        
-         NO-LOCK:
-       RESULT = TRUE.
-       LEAVE.
-     END.
-
-    IF RESULT = FALSE THEN DO:
-    FOR EACH bfCust 
-      WHERE bfCust.company EQ cocode 
-        AND bfCust.ACTIVE = "X"
-      NO-LOCK,
-      FIRST ASI.itemfg WHERE itemfg.company = cocode 
-          AND itemfg.cust-no EQ ASI.bfCust.cust-no 
-          AND itemfg.stat = "A" NO-LOCK:
-        RESULT = TRUE.
-        LEAVE.
-      END.
-    END.
-
-    RETURN result.
-
-END FUNCTION.
-	
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 
 
 /* **********************  Internal Procedures  *********************** */
@@ -954,8 +994,14 @@ PROCEDURE enable-detail :
               quotehd.est-no quotehd.expireDate quotehd.sman quotehd.terms
               quotehd.carrier quotehd.del-zone
        WITH FRAME {&FRAME-NAME}.
-
-
+ IF lQuotePriceMatrix AND quotehd.approved AND NOT adm-new-record THEN
+ DO:
+     DISABLE {&list-5}
+              quotehd.est-no quotehd.quo-date quotehd.del-date quotehd.sman quotehd.terms
+              quotehd.contact quotehd.carrier quotehd.del-zone quotehd.ship-id 
+              quotehd.sold-id quotehd.pricingMethod WITH FRAME {&FRAME-NAME}.
+ END.
+ ENABLE btnCalendar-1 WITH FRAME {&FRAME-NAME}.
 
 END PROCEDURE.
 
@@ -963,41 +1009,16 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-cancel-record V-table-Win
-PROCEDURE local-cancel-record:
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-    
-    /* Code placed here will execute PRIOR to standard behavior. */
-    DO WITH FRAME {&frame-name}:
-        DISABLE ALL.
-    END.
-    
-    /* Dispatch standard ADM method.                             */
-    RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
-
-END PROCEDURE.
-	
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE proc-delete V-table-Win 
-PROCEDURE proc-delete :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE copy-proc V-table-Win 
+PROCEDURE copy-proc :
 /*------------------------------------------------------------------------------
   Purpose:     
   Parameters:  <none>
   Notes:       
-------------------------------------------------------------------------------*/
-   
-   IF NOT AVAIL quotehd THEN
-   DO:      
-     {methods/run_link.i "RECORD-SOURCE" "resetQueryForDelete" }      
-   END.                                                        
-
+------------------------------------------------------------------------------*/  
+ 
+      quotehd.approved:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "Unapproved".
+ 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1019,11 +1040,14 @@ PROCEDURE local-assign-record :
   DEF BUFFER bf-quoteqty FOR quoteqty.
   DEF BUFFER bf-quotechg FOR quotechg.
   DEF VAR v-prev-q-no AS INT NO-UNDO.
+  DEFINE VARIABLE dtOldExpDate AS DATE NO-UNDO.
+  DEFINE BUFFER bf-oe-prmtx FOR oe-prmtx.
 
   /* Code placed here will execute PRIOR to standard behavior. */
   ASSIGN lv-ship-id = quotehd.ship-id
          lv-sman = quotehd.sman
-         v-prev-q-no = quotehd.q-no.
+         v-prev-q-no = quotehd.q-no
+         dtOldExpDate = quotehd.expireDate.
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
@@ -1031,6 +1055,23 @@ PROCEDURE local-assign-record :
   /* Code placed here will execute AFTER standard behavior.    */
 
   quotehd.est-no = FILL(" ",8 - LENGTH(TRIM(quotehd.est-no))) + TRIM(quotehd.est-no).
+    
+  IF lQuoteExpirationDays AND cQuoteExpirationDays EQ "Update" AND dtOldExpDate EQ quotehd.expireDate THEN
+  DO:
+     quotehd.expireDate = TODAY + iQuoteExpirationDays. 
+  END.
+  IF lQuotePriceMatrix AND quotehd.approved AND dtOldExpDate NE quotehd.expireDate THEN
+  DO:
+       FOR EACH bf-oe-prmtx EXCLUSIVE-LOCK
+             WHERE bf-oe-prmtx.company EQ cocode
+             AND bf-oe-prmtx.quoteId  EQ quotehd.q-no:
+        
+           bf-oe-prmtx.exp-date = quotehd.expireDate. 
+        END. 
+        RELEASE bf-oe-prmtx.
+  END.
+  IF NOT lQuotePriceMatrix THEN
+   quotehd.approved = NO.
 
   IF quotehd.est-no <> "" THEN DO:
      IF /*lv-ship-no <> 0 AND*/ lv-ship-id <> quotehd.ship-id AND
@@ -1134,6 +1175,26 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-cancel-record V-table-Win 
+PROCEDURE local-cancel-record :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    
+    /* Code placed here will execute PRIOR to standard behavior. */
+    DO WITH FRAME {&frame-name}:
+        DISABLE ALL.
+    END.
+    
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-create-record V-table-Win 
 PROCEDURE local-create-record :
 /*------------------------------------------------------------------------------
@@ -1174,8 +1235,10 @@ PROCEDURE local-create-record :
 /*                              quotehd.comment[3] = bf-hd.comment[3] */
 /*                              quotehd.comment[4] = bf-hd.comment[4] */
 /*                              quotehd.comment[5] = bf-hd.comment[5] */
-                             .          
-
+  IF lQuoteExpirationDays THEN                                      
+  quotehd.expireDate = TODAY + iQuoteExpirationDays .
+  IF lQuotePriceMatrix  THEN
+  quotehd.pricingMethod = "Ship to".
   IF adm-new-record AND NOT adm-adding-record THEN DO WITH FRAME {&FRAME-NAME}:
      ASSIGN {&ENABLED-FIELDS}.
   END.
@@ -1195,13 +1258,16 @@ PROCEDURE local-display-fields :
 ------------------------------------------------------------------------------*/
   DEF VAR lv-ship-id LIKE quotehd.ship-id NO-UNDO.
 
+  DEFINE VARIABLE lAvailable AS LOGICAL NO-UNDO.
+  
   /* Code placed here will execute PRIOR to standard behavior. */
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
-
+       
   /* Code placed here will execute AFTER standard behavior.    */
   if not avail quotehd then return.
+  cQuoteEstimate = quotehd.est-no. 
   if quotehd.sman <> "" then do:
      find first sman where sman.sman = quotehd.sman:screen-value in frame {&frame-name}
           no-lock no-error.
@@ -1247,6 +1313,22 @@ PROCEDURE local-display-fields :
      quotehd.soldto[3]:SCREEN-VALUE = quotehd.billto[3]:SCREEN-VALUE
      quotehd.soldto[4]:SCREEN-VALUE = quotehd.billto[4]:SCREEN-VALUE.
 
+  RUN Tag_IsTagRecordAvailable(
+      INPUT quotehd.rec_key,
+      INPUT "quotehd",
+      OUTPUT lAvailable
+      ).
+  btTags:SENSITIVE = lAvailable.
+  
+  IF quotehd.pricingMethod EQ "" THEN
+      quotehd.pricingMethod:SCREEN-VALUE = " ".
+  
+  IF NOT lQuotePriceMatrix THEN
+  ASSIGN
+   quotehd.pricingMethod:HIDDEN IN FRAME {&FRAME-NAME} = YES
+   quotehd.approved:HIDDEN IN FRAME {&FRAME-NAME} = YES
+   btTags:HIDDEN IN FRAME {&FRAME-NAME} = YES.
+            
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1353,7 +1435,6 @@ PROCEDURE local-update-record :
 
 END PROCEDURE.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1365,7 +1446,7 @@ PROCEDURE new-cust-no :
   Notes:       
 ------------------------------------------------------------------------------*/
     DEFINE VARIABLE riShipTo AS ROWID NO-UNDO.
-
+    DEFINE BUFFER bf-cust FOR cust.
     DO WITH FRAME {&FRAME-NAME}:
 
         IF quotehd.cust-no:SCREEN-VALUE NE "TEMP" THEN DO:
@@ -1387,6 +1468,12 @@ PROCEDURE new-cust-no :
                     quotehd.del-zone:SCREEN-VALUE  = cust.del-zone
                     quotehd.carrier:SCREEN-VALUE   = cust.carrier
                     .
+                    FIND FIRST bf-cust NO-LOCK
+                         WHERE bf-cust.company EQ cocode
+                         AND bf-cust.ACTIVE EQ "X" NO-ERROR.
+                        
+                    IF lQuotePriceMatrix  THEN
+                    quotehd.pricingMethod:SCREEN-VALUE = IF cust.pricingMethod NE "" THEN cust.pricingMethod ELSE IF AVAIL bf-cust AND bf-cust.pricingMethod NE "" THEN bf-cust.pricingMethod ELSE "Ship to".
                
                 RUN Customer_GetDefaultShipTo IN hdCustomerProcs(
                     INPUT  cocode,
@@ -1550,6 +1637,51 @@ PROCEDURE print-quote :
   {&methods/lValidateError.i NO}
 END PROCEDURE.
 
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE proc-delete V-table-Win 
+PROCEDURE proc-delete :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DEFINE BUFFER bf-probe FOR probe.
+   IF NOT AVAIL quotehd THEN
+   DO:      
+     {methods/run_link.i "RECORD-SOURCE" "resetQueryForDelete" }      
+   END.  
+   IF cQuoteEstimate NE "" THEN
+   DO:
+      FIND FIRST bf-probe EXCLUSIVE-LOCK
+           WHERE bf-probe.company EQ cocode
+           AND bf-probe.est-no EQ cQuoteEstimate NO-ERROR.
+      IF AVAIL bf-probe THEN
+       bf-probe.do-quote = YES.
+       RELEASE bf-probe.       
+   END.   
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckUpdate V-table-Win 
+PROCEDURE pCheckUpdate :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DEFINE OUTPUT PARAMETER oplNotAllowedUpdate AS LOGICAL NO-UNDO.
+   IF AVAIL quotehd AND quotehd.approved AND lQuotePriceMatrix THEN
+   DO:
+    MESSAGE "Quote is approved update not allowed." VIEW-AS ALERT-BOX INFO.
+     oplNotAllowedUpdate = YES.     
+   END.                                                        
+
+END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1795,6 +1927,46 @@ PROCEDURE valid-sold-id :
 
   {methods/lValidateError.i NO}
 END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+/* ************************  Function Implementations ***************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION are-items-for-cust V-table-Win 
+FUNCTION are-items-for-cust RETURNS LOGICAL
+  (  ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+ DEFINE VARIABLE result AS LOGICAL NO-UNDO.
+ DEF BUFFER bfCust FOR cust.
+     FOR FIRST ar-invl WHERE
+         ar-invl.company EQ cocode AND
+         ar-invl.posted EQ YES AND
+         ar-invl.cust-no EQ cust.cust-no        
+         NO-LOCK:
+       RESULT = TRUE.
+       LEAVE.
+     END.
+
+    IF RESULT = FALSE THEN DO:
+    FOR EACH bfCust 
+      WHERE bfCust.company EQ cocode 
+        AND bfCust.ACTIVE = "X"
+      NO-LOCK,
+      FIRST ASI.itemfg WHERE itemfg.company = cocode 
+          AND itemfg.cust-no EQ ASI.bfCust.cust-no 
+          AND itemfg.stat = "A" NO-LOCK:
+        RESULT = TRUE.
+        LEAVE.
+      END.
+    END.
+
+    RETURN result.
+
+END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

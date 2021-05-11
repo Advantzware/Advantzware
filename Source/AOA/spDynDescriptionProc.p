@@ -331,6 +331,16 @@ PROCEDURE dynDescripVendor:
     iphWidgetTo:SCREEN-VALUE = vend.name.
 END PROCEDURE.
 
+PROCEDURE dynDescripVendorType:
+    {&defInputParam}
+    FIND FIRST ventype NO-LOCK
+         WHERE ventype.company EQ cCompany
+           AND ventype.type    EQ iphWidgetFrom:SCREEN-VALUE
+         NO-ERROR.
+    IF AVAILABLE ventype THEN
+    iphWidgetTo:SCREEN-VALUE = ventype.dscr.
+END PROCEDURE.
+
 PROCEDURE dynInitDBFieldList:
     DEFINE INPUT PARAMETER iphWidgetFrom AS HANDLE NO-UNDO.
     DEFINE INPUT PARAMETER iphWidgetTo   AS HANDLE NO-UNDO.

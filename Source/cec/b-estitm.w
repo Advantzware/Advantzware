@@ -231,6 +231,7 @@ DEFINE VARIABLE lAccessCreateFG AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lAccessClose    AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cAccessList     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lCEAddCustomerOption AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lQuotePriceMatrix AS LOGICAL NO-UNDO.
 RUN methods/prgsecur.p
 	    (INPUT "p-upditm.",
 	     INPUT "CREATE", /* based on run, create, update, delete or all */
@@ -252,6 +253,12 @@ RUN sys/ref/nk1look.p (INPUT cocode, "CEAddCustomerOption", "L" /* Logical */, N
     OUTPUT cRecValue, OUTPUT lRecFound).
 IF lRecFound THEN
     lCEAddCustomerOption = logical(cRecValue) NO-ERROR. 
+    
+ RUN sys/ref/nk1look.p (INPUT cocode, "QuotePriceMatrix", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cRecValue, OUTPUT lRecFound).
+IF lRecFound THEN
+    lQuotePriceMatrix = logical(cRecValue) NO-ERROR.    
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -6109,6 +6116,7 @@ PROCEDURE local-delete-record :
 
   IF AVAIL est THEN DO:
     RUN est/resetf&b.p (ROWID(est), ll-mass-del).
+    RUN pResetQtySet(ROWID(est)).
     RUN reset-est-type (OUTPUT li-est-type).
 
     IF AVAIL eb THEN RUN dispatch ("open-query").
@@ -7357,19 +7365,8 @@ PROCEDURE reset-est-type :
               bf-eb.yld-qty = bf-eb.bl-qty.
         ELSE
            IF bf-eb.yld-qty LE 1 THEN bf-eb.yld-qty = bf-eb.bl-qty.
-     END.
-
-     IF v-set-header THEN
-     DO:
-        FIND FIRST bf-set WHERE
-             bf-set.company EQ bf-est.company AND
-             bf-set.est-no  EQ bf-est.est-no AND
-             bf-set.form-no EQ 0
-             NO-ERROR.
-
-        IF AVAIL bf-set THEN
-           DELETE bf-set.
-     END.
+     END.  
+     
   END.
 
   ELSE
@@ -7379,7 +7376,27 @@ PROCEDURE reset-est-type :
         AND bf-eb.est-no  EQ bf-est.est-no:
     bf-eb.quantityPerSet = 1.
   END.
-  
+        
+        
+  IF op-est-type NE 6 THEN
+  DO:
+    v-set-header = CAN-FIND(FIRST bf-set WHERE
+                               bf-set.company EQ bf-est.company AND
+                               bf-set.est-no  EQ bf-est.est-no AND
+                               bf-set.form-no EQ 0).
+    IF v-set-header THEN
+    DO:
+        FIND FIRST bf-set WHERE
+             bf-set.company EQ bf-est.company AND
+             bf-set.est-no  EQ bf-est.est-no AND
+             bf-set.form-no EQ 0
+             NO-ERROR.
+
+        IF AVAIL bf-set THEN
+           DELETE bf-set.
+    END.                                     
+  END.  /* op-est-type NE 6*/
+              
   IF op-est-type <> ? THEN DO:  
     bf-est.est-type = op-est-type.
     FOR EACH bf-ef
@@ -7391,9 +7408,9 @@ PROCEDURE reset-est-type :
       bf-ef.est-type = op-est-type.
     END.
   END.
-
+               
   RUN est/resetops.p (ROWID(bf-est)).
-
+                     
   FIND CURRENT bf-est NO-LOCK.
 
 END PROCEDURE.
@@ -7705,6 +7722,9 @@ PROCEDURE set-auto-add-item :
             RUN fg/ce-addfg.p (xeb.stock-no).
       END.
   END.
+  
+  IF lQuotePriceMatrix AND AVAIL eb THEN
+  RUN pCreatePriceMatrixForQuote(INPUT cocode, INPUT eb.est-no, INPUT eb.part-no, INPUT eb.stock-no).
   
   RUN update-e-itemfg-vend.
   IF lv-num-created GT 0 THEN DO:
@@ -8662,6 +8682,39 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCreatePriceMatrixForQuote B-table-Win 
+PROCEDURE pCreatePriceMatrixForQuote :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+ define input PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+ define input PARAMETER ipcEstimate AS CHARACTER NO-UNDO.
+ define input PARAMETER ipcPartNo AS CHARACTER NO-UNDO.
+ define input PARAMETER ipcItemNo AS CHARACTER NO-UNDO.
+ 
+ FOR EACH quotehd NO-LOCK 
+        WHERE quotehd.company EQ ipcCompany
+        AND quotehd.est-no EQ ipcEstimate
+        ,
+        EACH quoteitm OF quotehd EXCLUSIVE-LOCK 
+        WHERE quoteitm.company EQ quotehd.company
+        AND quoteitm.part-no EQ ipcPartNo:
+    ASSIGN quoteitm.i-no = ipcItemNo .
+    LEAVE.
+ END.
+ RELEASE quoteitm.
+ IF AVAIL quotehd THEN
+ RUN oe/updprmtx2.p (ROWID(quotehd), "", 0, "", 0, "Q").
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateRecord B-table-Win 
 PROCEDURE pUpdateRecord :
 /*------------------------------------------------------------------------------
@@ -8730,6 +8783,17 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetEstRowid B-table-Win 
+PROCEDURE pGetEstRowid :
+  DEFINE OUTPUT PARAMETER iprwRowid AS ROWID NO-UNDO.
+  IF AVAIL eb THEN iprwRowid = ROWID(eb).
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateVendItemCost B-table-Win 
 PROCEDURE pUpdateVendItemCost:
     DEFINE INPUT PARAMETER ipcCompany as CHARACTER NO-UNDO.
@@ -8751,7 +8815,44 @@ PROCEDURE pUpdateVendItemCost:
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME        
+&ANALYZE-RESUME  
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pResetQtySet B-table-Win 
+PROCEDURE pResetQtySet:
+    DEFINE INPUT PARAMETER iprwRowid as ROWID NO-UNDO.
+    DEFINE VARIABLE iBlankCount AS INTEGER NO-UNDO.
+    DEFINE BUFFER bf-est FOR est.
+    DEFINE BUFFER bf-eb FOR eb.
+    
+    FIND FIRST bf-est no-lock
+         WHERE bf-est.company eq cocode
+         and rowid(bf-est) eq iprwRowid NO-ERROR.
+    
+    IF AVAIL bf-est THEN
+    DO:
+        FOR EACH bf-eb NO-LOCK
+            WHERE bf-eb.company eq cocode
+            and bf-eb.est-no eq bf-est.est-no
+            and bf-eb.form-no NE 0:
+            iBlankCount = iBlankCount + 1.
+        END.
+        IF iBlankCount EQ 1 and bf-est.est-type eq 6 THEN
+        DO:
+          FIND FIRST bf-eb EXCLUSIVE-LOCK
+            WHERE bf-eb.company eq cocode
+            and bf-eb.est-no eq bf-est.est-no
+            and bf-eb.form-no NE 0 NO-ERROR.
+          IF AVAIL bf-eb THEN
+                bf-eb.quantityPerSet  = 1.
+          RELEASE bf-eb.      
+        END.
+    
+    END.      
+            
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME  
 
 /* ************************  Function Implementations ***************** */
 

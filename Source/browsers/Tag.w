@@ -65,8 +65,8 @@ CREATE WIDGET-POOL.
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE br_table                                      */
-&Scoped-define FIELDS-IN-QUERY-br_table tag.tagType tag.description ~
-tag.Note[1] tag.createUser tag.createDT 
+&Scoped-define FIELDS-IN-QUERY-br_table tag.tagType tag.groupCode ~
+tag.description tag.Note[1] tag.createUser tag.createDT 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br_table 
 &Scoped-define QUERY-STRING-br_table FOR EACH tag WHERE ~{&KEY-PHRASE} NO-LOCK ~
     ~{&SORTBY-PHRASE}
@@ -146,6 +146,7 @@ DEFINE BROWSE br_table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br_table B-table-Win _STRUCTURED
   QUERY br_table NO-LOCK DISPLAY
       tag.tagType FORMAT "x(8)":U
+      tag.groupCode COLUMN-LABEL "Category" FORMAT "x(20)":U
       tag.description FORMAT "X(80)":U
       tag.Note[1] COLUMN-LABEL "Notes" FORMAT "X(80)":U
       tag.createUser COLUMN-LABEL "Create User" FORMAT "x(12)":U
@@ -230,14 +231,16 @@ ASSIGN
      _TblList          = "ASI.tag"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _FldNameList[1]   = ASI.tag.tagType
-     _FldNameList[2]   > ASI.tag.description
-"tag.description" ? "X(80)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[3]   > ASI.tag.Note[1]
-"tag.Note[1]" "Notes" "X(80)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[4]   > ASI.tag.createUser
-"tag.createUser" "Create User" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[5]   > ASI.tag.createDT
-"tag.createDT" "Create Date/Time" ? "datetime" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[2]   > ASI.tag.groupCode
+"groupCode" "Category" "x(20)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[3]   > ASI.tag.description
+"description" ? "X(80)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[4]   > ASI.tag.Note[1]
+"Note[1]" "Notes" "X(80)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[5]   > ASI.tag.createUser
+"createUser" "Create User" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[6]   > ASI.tag.createDT
+"createDT" "Create Date/Time" ? "datetime" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE br_table */
 &ANALYZE-RESUME
@@ -359,11 +362,13 @@ PROCEDURE ReopenQuery :
 ------------------------------------------------------------------------------*/    
     DEFINE INPUT PARAMETER ipcRecKey  AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcTagType AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcGroup AS CHARACTER NO-UNDO.
     
     OPEN QUERY {&BROWSE-NAME} 
         FOR EACH tag NO-LOCK
             WHERE tag.linkRecKey EQ ipcRecKey
               AND (IF ipcTagType NE "" THEN tag.tagType EQ ipcTagType ELSE YES)
+              AND (IF ipcGroup NE "" THEN tag.groupcode EQ ipcGroup ELSE YES)
               .
 
 END PROCEDURE.

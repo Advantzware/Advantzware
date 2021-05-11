@@ -312,8 +312,7 @@ DO:
              FOR EACH glhist FIELDS(tr-amt tr-dscr tr-num) WHERE
                  glhist.company = cocode AND
                  glhist.jrnl    = "OEINV" AND
-                 glhist.tr-dscr = v-dscr AND
-                 glhist.posted EQ NO
+                 glhist.tr-dscr = v-dscr                  
                  NO-LOCK
                  BREAK BY glhist.tr-dscr:
 

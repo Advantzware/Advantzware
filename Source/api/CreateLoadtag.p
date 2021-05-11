@@ -156,6 +156,7 @@
                     RUN updateRequestData(INPUT-OUTPUT lcTagData, "QuantityInSubUnit", STRING(hdTTBuffer:BUFFER-FIELD("quantityInSubUnit"):BUFFER-VALUE)).
                     RUN updateRequestData(INPUT-OUTPUT lcTagData, "SubUnitsPerUnit", STRING(hdTTBuffer:BUFFER-FIELD("subUnitsPerUnit"):BUFFER-VALUE)).
                     RUN updateRequestData(INPUT-OUTPUT lcTagData, "Total", STRING(hdTTBuffer:BUFFER-FIELD("quantityInUnit"):BUFFER-VALUE)).
+                    RUN updateRequestData(INPUT-OUTPUT lcTagData, "QuantityInUnit", STRING(hdTTBuffer:BUFFER-FIELD("quantityInUnit"):BUFFER-VALUE)).                    
                     RUN updateRequestData(INPUT-OUTPUT lcTagData, "ShipCode", hdTTBuffer:BUFFER-FIELD("shipID"):BUFFER-VALUE).
                     RUN updateRequestData(INPUT-OUTPUT lcTagData, "ShipName", hdTTBuffer:BUFFER-FIELD("shipName"):BUFFER-VALUE).
                     RUN updateRequestData(INPUT-OUTPUT lcTagData, "ShipAddress1", hdTTBuffer:BUFFER-FIELD("shipAddress1"):BUFFER-VALUE).
@@ -248,6 +249,17 @@
                     RUN updateRequestData(INPUT-OUTPUT lcTagData, "PrintDate", STRING(TODAY, "99/99/9999")).
                     RUN updateRequestData(INPUT-OUTPUT lcTagData, "PrintTime", STRING(TIME, "HH:MM AM")).
                     RUN updateRequestData(INPUT-OUTPUT lcTagData, "SSCC", hdTTBuffer:BUFFER-FIELD("sscc"):BUFFER-VALUE).
+                    RUN updateRequestData(INPUT-OUTPUT lcTagData, "CustomerID", hdTTBuffer:BUFFER-FIELD("custID"):BUFFER-VALUE).
+                    RUN updateRequestData(INPUT-OUTPUT lcTagData, "CustomerAddress1", hdTTBuffer:BUFFER-FIELD("custAddress1"):BUFFER-VALUE).
+                    RUN updateRequestData(INPUT-OUTPUT lcTagData, "CustomerAddress2", hdTTBuffer:BUFFER-FIELD("custAddress2"):BUFFER-VALUE).
+                    RUN updateRequestData(INPUT-OUTPUT lcTagData, "CustomerCity", hdTTBuffer:BUFFER-FIELD("custCity"):BUFFER-VALUE).
+                    RUN updateRequestData(INPUT-OUTPUT lcTagData, "CustomerState", hdTTBuffer:BUFFER-FIELD("custState"):BUFFER-VALUE).
+                    RUN updateRequestData(INPUT-OUTPUT lcTagData, "CustomerCountry", hdTTBuffer:BUFFER-FIELD("custCountry"):BUFFER-VALUE).
+                    RUN updateRequestData(INPUT-OUTPUT lcTagData, "CustomerEmail", hdTTBuffer:BUFFER-FIELD("custEmail"):BUFFER-VALUE).
+                    RUN updateRequestData(INPUT-OUTPUT lcTagData, "CustomerAreaCode", hdTTBuffer:BUFFER-FIELD("custAreaCode"):BUFFER-VALUE).
+                    RUN updateRequestData(INPUT-OUTPUT lcTagData, "CustomerPhone", hdTTBuffer:BUFFER-FIELD("custPhone"):BUFFER-VALUE).
+                    RUN updateRequestData(INPUT-OUTPUT lcTagData, "CustomerFax", hdTTBuffer:BUFFER-FIELD("custFax"):BUFFER-VALUE).
+                    RUN updateRequestData(INPUT-OUTPUT lcTagData, "CaseWeight", hdTTBuffer:BUFFER-FIELD("caseWeight"):BUFFER-VALUE).
                     
                     ASSIGN
                         iPalletCounter                                    = iPalletCounter + 1
@@ -261,7 +273,8 @@
 
         ioplcRequestData = REPLACE(ioplcRequestData, "$ItemTags$", lcConcatTagData).
         
-        COPY-LOB ioplcRequestData TO FILE cExportFile NO-ERROR.
+        /* Replaces $formfeed$ with form feed/CHR(12)*/
+        RUN pUpdateDelimiter(INPUT-OUTPUT ioplcRequestData, "").
         
         ASSIGN   
             opcMessage       = ""

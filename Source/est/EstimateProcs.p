@@ -19,6 +19,34 @@
 
 /* **********************  Internal Procedures  *********************** */
 
+PROCEDURE Estimate_GetQuantities:
+    /*------------------------------------------------------------------------------
+     Purpose: Load the eb table data to ttGoto temp-table
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany   AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcEstNo     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcDelemiter AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcQtyList   AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE iQtyCount AS INTEGER NO-UNDO.
+    
+    DEFINE BUFFER bf-est-qty  FOR est-qty.
+    
+    FIND FIRST bf-est-qty
+        WHERE bf-est-qty.company EQ ipcCompany
+        AND bf-est-qty.est-no  EQ ipcEstNo
+        NO-LOCK NO-ERROR.
+    IF AVAILABLE bf-est-qty THEN
+    DO iQtyCount = 1 TO 20:
+        IF bf-est-qty.qty[iQtyCount] NE 0 THEN
+            opcQtyList = opcQtyList + ipcDelemiter + STRING(bf-est-qty.qty[iQtyCount]).
+    END.
+    
+    opcQtyList = TRIM(opcQtyList, ipcDelemiter).
+END.
+
+
 PROCEDURE Estimate_LoadEstToTT:
 /*------------------------------------------------------------------------------
  Purpose: Load the eb table data to ttGoto temp-table

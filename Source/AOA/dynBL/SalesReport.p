@@ -593,8 +593,7 @@ PROCEDURE pBusinessLogic:
             IF AVAILABLE ar-inv AND AVAILABLE ar-ledger  THEN
                 FIND FIRST glhist NO-LOCK
                     WHERE  glhist.company EQ cocode 
-                    AND glhist.tr-num      EQ ar-ledger.tr-num 
-                    AND glhist.posted     EQ NO 
+                    AND glhist.tr-num      EQ ar-ledger.tr-num                     
                     NO-ERROR .   
              
             ASSIGN

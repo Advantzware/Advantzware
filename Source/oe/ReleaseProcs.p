@@ -397,6 +397,21 @@ PROCEDURE pCreateReleaseTag PRIVATE:
                      
             RETURN.        
         END.
+                   
+        FIND FIRST cust NO-LOCK
+             WHERE cust.company EQ bf-oe-relh.company
+               AND cust.cust-no EQ bf-oe-relh.cust-no NO-ERROR. 
+        IF AVAIL cust AND AVAIL bf-fg-bin THEN
+        DO:
+            IF ((cust.tagStatus EQ "" AND bf-fg-bin.onHold) OR (cust.tagStatus EQ "H" AND NOT bf-fg-bin.onHold)) THEN
+            DO:
+              ASSIGN
+                oplError   = TRUE
+                opcMessage = "Bin Tag status did not match with Customer Tag status.".
+       
+              RETURN .
+            END.              
+        END.
         /* Perform fg-bin on hold validation. Currently zMessage 53 is used to control the popup */
         
         FOR EACH bf-fg-bin NO-LOCK

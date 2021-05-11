@@ -51,6 +51,7 @@ DEFINE VARIABLE v-frt-terms AS CHARACTER FORMAT "x(10)" NO-UNDO.
 DEFINE VARIABLE v-zone LIKE carr-mtx.del-zone NO-UNDO.
 DEFINE VARIABLE v-lines AS INTEGER NO-UNDO.
 DEFINE VARIABLE v-job-po            AS   CHARACTER NO-UNDO.
+DEFINE VARIABLE cTrailer            AS   CHARACTER FORMAT "x(20)" NO-UNDO.
 DEFINE TEMP-TABLE w2 NO-UNDO
     FIELD cases            AS   INTEGER FORMAT ">9"
     FIELD cas-cnt          AS   INTEGER FORMAT ">>>>9"
@@ -265,7 +266,8 @@ FOR EACH xxreport WHERE xxreport.term-id EQ v-term-id,
     ASSIGN
      v-salesman = ""
      v-fob      = ""
-     v-terms    = "".
+     v-terms    = ""
+     cTrailer   = "".
 
     FOR EACH oe-boll NO-LOCK WHERE oe-boll.company EQ oe-bolh.company AND oe-boll.b-no EQ oe-bolh.b-no ,
         FIRST oe-ord NO-LOCK
@@ -307,6 +309,7 @@ FOR EACH xxreport WHERE xxreport.term-id EQ v-term-id,
           substr(v-salesman,LENGTH(TRIM(v-salesman)),1) = "".
 
       v-fob = IF oe-ord.fob-code BEGINS "ORIG" THEN "Origin" ELSE "Destination".
+      cTrailer = oe-bolh.trailer.
       LEAVE.
     END.
 

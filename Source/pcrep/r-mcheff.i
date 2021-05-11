@@ -108,6 +108,7 @@ FOR EACH mch-act NO-LOCK
                 tt-srt.gotReceipts    = NO
                 lGotRmRct             = NO
                 tt-srt.i-no      = mch-act.i-no
+                tt-srt.entryNotes = mch-act.notes[1]
                 .
             
             RUN pro-rate-mr.
@@ -475,7 +476,9 @@ FOR EACH tt-srt USE-INDEX dept-idx
         IF tot-eff = ? THEN tot-eff = 0.
         IF dt-eff = ? THEN dt-eff = 0.
     END.
-
+    
+       
+              
     FIND FIRST itemfg NO-LOCK
          WHERE itemfg.company EQ cocode
            AND itemfg.i-no EQ tt-srt.i-no
@@ -516,6 +519,7 @@ FOR EACH tt-srt USE-INDEX dept-idx
             '"' tt-srt.fgItemName '",'
             '"' STRING(tt-srt.qty-lin-ft / tt-srt.run-act-hr) '",'
             '"' tt-srt.notes '",'
+            '"' tt-srt.entryNotes '",'
             SKIP.
           
     END.
