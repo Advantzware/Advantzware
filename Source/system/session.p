@@ -31,6 +31,7 @@ DEFINE VARIABLE cMnemonic           AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cProgramID          AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cSuperProcedure     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cUserID             AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cVersion            AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hMainMenuHandle     AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hProgressBar        AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hSuperProcedure     AS HANDLE    NO-UNDO.
@@ -390,6 +391,9 @@ ASSIGN
     cUserID     = users.user_id
     .
 RUN spSetSessionParam("UserID",cUserID).
+/* get current ASI version */
+FIND LAST updateHist NO-LOCK NO-ERROR.
+cVersion = IF AVAILABLE updateHist THEN updateHist.toVersion ELSE "00.00.00".
 /* build temp-table of super-procedures */
 DO idx = 1 TO NUM-ENTRIES(cSuperProcedure):
     CREATE ttSuperProcedure.
@@ -2571,9 +2575,7 @@ FUNCTION sfVersion RETURNS CHARACTER
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    FIND LAST updateHist NO-LOCK NO-ERROR.
-    
-	RETURN IF AVAILABLE updateHist THEN updateHist.toVersion ELSE "00.00.00".
+	RETURN cVersion.
 
 END FUNCTION.
 	
