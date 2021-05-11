@@ -2571,7 +2571,9 @@ FUNCTION sfVersion RETURNS CHARACTER
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-	RETURN "DEVEL".
+    FIND LAST updateHist NO-LOCK NO-ERROR.
+    
+	RETURN IF AVAILABLE updateHist THEN updateHist.toVersion ELSE "00.00.00".
 
 END FUNCTION.
 	
