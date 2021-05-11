@@ -90,6 +90,7 @@ COMPILE VALUE(cDir + "\Deployment\BuildScript\ToCompile\asiUpdateDb.w") SAVE INT
 CONNECT VALUE(cConnectDb).
 COMPILE VALUE(cDir + "\Deployment\BuildScript\ToCompile\prerun.p") SAVE INTO value(cTarget).
 COMPILE VALUE(cDir + "\Deployment\BuildScript\ToCompile\asiAuditTest.p") SAVE INTO value(cTarget).
+COMPILE VALUE(cDir + "\Deployment\BuildScript\ToCompile\asiUpdateHist.p") SAVE INTO value(cTarget).
 
 CONNECT VALUE(cConnectAud).
 COMPILE VALUE(cDir + "\Deployment\BuildScript\ToCompile\asiUpdateEnv.w") SAVE INTO value(cTarget).
