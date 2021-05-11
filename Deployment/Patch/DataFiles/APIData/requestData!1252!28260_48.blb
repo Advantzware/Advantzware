@@ -1,0 +1,1 @@
+{"cod_company":"$vend.company$","cod_supplier":"$vend.vend-no$","supplier_name":"$vend.name$","groupcode":"$vend.type$"}
