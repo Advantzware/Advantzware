@@ -76,29 +76,29 @@ DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
 
 /* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME DEFAULT-FRAME
-&Scoped-define BROWSE-NAME ttVendItemCost
+&Scoped-define BROWSE-NAME brVendItemCost
 
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
 &Scoped-define INTERNAL-TABLES ttVendItemCost
 
-/* Definitions for BROWSE ttVendItemCost                                */
-&Scoped-define FIELDS-IN-QUERY-ttVendItemCost ttVendItemCost.vendorID ttVendItemCost.costPerVendorUOM ttVendItemCost.vendorUOM ttVendItemCost.costSetup ttVendItemCost.costSetup ttVendItemCost.costTotal ttVendItemCost.vendorItem // ttVendItemCost.note //   
-&Scoped-define ENABLED-FIELDS-IN-QUERY-ttVendItemCost   
-&Scoped-define SELF-NAME ttVendItemCost
-&Scoped-define QUERY-STRING-ttVendItemCost FOR EACH ttVendItemCost ~{&SORTBY-PHRASE}
-&Scoped-define OPEN-QUERY-ttVendItemCost OPEN QUERY {&SELF-NAME} FOR EACH ttVendItemCost ~{&SORTBY-PHRASE}.
-&Scoped-define TABLES-IN-QUERY-ttVendItemCost ttVendItemCost
-&Scoped-define FIRST-TABLE-IN-QUERY-ttVendItemCost ttVendItemCost
+/* Definitions for BROWSE brVendItemCost                                */
+&Scoped-define FIELDS-IN-QUERY-brVendItemCost ttVendItemCost.vendorID ttVendItemCost.costPerVendorUOM ttVendItemCost.vendorUOM ttVendItemCost.costSetup ttVendItemCost.costSetup ttVendItemCost.costTotal ttVendItemCost.vendorItem // ttVendItemCost.note //   
+&Scoped-define ENABLED-FIELDS-IN-QUERY-brVendItemCost   
+&Scoped-define SELF-NAME brVendItemCost
+&Scoped-define QUERY-STRING-brVendItemCost FOR EACH ttVendItemCost ~{&SORTBY-PHRASE}
+&Scoped-define OPEN-QUERY-brVendItemCost OPEN QUERY {&SELF-NAME} FOR EACH ttVendItemCost ~{&SORTBY-PHRASE}.
+&Scoped-define TABLES-IN-QUERY-brVendItemCost ttVendItemCost
+&Scoped-define FIRST-TABLE-IN-QUERY-brVendItemCost ttVendItemCost
 
 
 /* Definitions for FRAME DEFAULT-FRAME                                  */
 &Scoped-define OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME ~
-    ~{&OPEN-QUERY-ttVendItemCost}
+    ~{&OPEN-QUERY-brVendItemCost}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-13 TOGGLE-1 ttVendItemCost bOk bCancle ~
+&Scoped-Define ENABLED-OBJECTS RECT-13 tbShowAll brVendItemCost bOk bCancle ~
 fiItem fiHotKey fiTitle fiProgramName 
-&Scoped-Define DISPLAYED-OBJECTS TOGGLE-1 fiItem fiHotKey fiTitle lItem ~
+&Scoped-Define DISPLAYED-OBJECTS tbShowAll fiItem fiHotKey fiTitle lItem ~
 lSize lAddress fiProgramName lQuantity lShow 
 
 /* Custom List Definitions                                              */
@@ -158,7 +158,7 @@ DEFINE VARIABLE lQuantity AS CHARACTER FORMAT "X(256)":U INITIAL "Quantity Requi
      SIZE 23 BY .62
      BGCOLOR 23 FGCOLOR 24 FONT 6 NO-UNDO.
 
-DEFINE VARIABLE lShow AS CHARACTER FORMAT "X(256)":U INITIAL "Show Inactive/Invalid" 
+DEFINE VARIABLE lShow AS CHARACTER FORMAT "X(256)":U INITIAL "Show All" 
       VIEW-AS TEXT 
      SIZE 27.4 BY .62
      BGCOLOR 23 FGCOLOR 24 FONT 6 NO-UNDO.
@@ -173,22 +173,22 @@ DEFINE RECTANGLE RECT-13
      SIZE 147 BY 3.81
      BGCOLOR 23 FGCOLOR 24 .
 
-DEFINE VARIABLE TOGGLE-1 AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tbShowAll AS LOGICAL INITIAL NO 
      LABEL "" 
      VIEW-AS TOGGLE-BOX
-     SIZE 4 BY .81
+     SIZE 3 BY .81
      BGCOLOR 23  NO-UNDO.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
-DEFINE QUERY ttVendItemCost FOR 
+DEFINE QUERY brVendItemCost FOR 
       ttVendItemCost SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
-DEFINE BROWSE ttVendItemCost
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS ttVendItemCost C-Win _FREEFORM
-  QUERY ttVendItemCost NO-LOCK DISPLAY
+DEFINE BROWSE brVendItemCost
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS brVendItemCost C-Win _FREEFORM
+  QUERY brVendItemCost NO-LOCK DISPLAY
       ttVendItemCost.vendorID       COLUMN-LABEL "Vendor ID"       
             LABEL-BGCOLOR 14
       ttVendItemCost.costPerVendorUOM    COLUMN-LABEL "Cost"    
@@ -203,6 +203,10 @@ DEFINE BROWSE ttVendItemCost
              LABEL-BGCOLOR 14
       ttVendItemCost.vendorItem COLUMN-LABEL "Vendor Item"   FORMAT "x(32)":U
              LABEL-BGCOLOR 14 
+      ttVendItemCost.isValid      COLUMN-LABEL "Valid"        
+             LABEL-BGCOLOR 14
+      ttVendItemCost.reasonNotValid COLUMN-LABEL "Invalid Reason"   FORMAT "x(32)":U
+             LABEL-BGCOLOR 14 
           //  ttVendItemCost.note COLUMN-LABEL "Note"   FORMAT "x(32)":U
            // WIDTH 24 LABEL-BGCOLOR 14
 /* _UIB-CODE-BLOCK-END */
@@ -214,8 +218,8 @@ DEFINE BROWSE ttVendItemCost
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
-     TOGGLE-1 AT ROW 3.62 COL 116.2 WIDGET-ID 336
-     ttVendItemCost AT ROW 5.29 COL 148 RIGHT-ALIGNED WIDGET-ID 200
+     tbShowAll AT ROW 3.62 COL 116.2 WIDGET-ID 336
+     brVendItemCost AT ROW 5.29 COL 148 RIGHT-ALIGNED WIDGET-ID 200
      bOk AT ROW 21.05 COL 51.2 WIDGET-ID 342
      bCancle AT ROW 21.05 COL 75.2 WIDGET-ID 344
      fiItem AT ROW 1.86 COL 11.6 NO-LABEL WIDGET-ID 66
@@ -281,7 +285,12 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME DEFAULT-FRAME
    FRAME-NAME                                                           */
-/* BROWSE-TAB ttVendItemCost TOGGLE-1 DEFAULT-FRAME */
+/* BROWSE-TAB brVendItemCost tbShowAll DEFAULT-FRAME */
+/* SETTINGS FOR BROWSE brVendItemCost IN FRAME DEFAULT-FRAME
+   ALIGN-R                                                              */
+ASSIGN 
+       brVendItemCost:ALLOW-COLUMN-SEARCHING IN FRAME DEFAULT-FRAME = TRUE.
+
 ASSIGN 
        fiHotKey:READ-ONLY IN FRAME DEFAULT-FRAME        = TRUE.
 
@@ -306,11 +315,6 @@ ASSIGN
    NO-ENABLE ALIGN-L                                                    */
 /* SETTINGS FOR FILL-IN lSize IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
-/* SETTINGS FOR BROWSE ttVendItemCost IN FRAME DEFAULT-FRAME
-   ALIGN-R                                                              */
-ASSIGN 
-       ttVendItemCost:ALLOW-COLUMN-SEARCHING IN FRAME DEFAULT-FRAME = TRUE.
-
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = NO.
 
@@ -320,14 +324,14 @@ THEN C-Win:HIDDEN = NO.
 
 /* Setting information for Queries and Browse Widgets fields            */
 
-&ANALYZE-SUSPEND _QUERY-BLOCK BROWSE ttVendItemCost
-/* Query rebuild information for BROWSE ttVendItemCost
+&ANALYZE-SUSPEND _QUERY-BLOCK BROWSE brVendItemCost
+/* Query rebuild information for BROWSE brVendItemCost
      _START_FREEFORM
 OPEN QUERY {&SELF-NAME} FOR EACH ttVendItemCost ~{&SORTBY-PHRASE}.
      _END_FREEFORM
      _Options          = "NO-LOCK INDEXED-REPOSITION"
      _Query            is OPENED
-*/  /* BROWSE ttVendItemCost */
+*/  /* BROWSE brVendItemCost */
 &ANALYZE-RESUME
 
  
@@ -377,6 +381,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL bOk C-Win
 ON CHOOSE OF bOk IN FRAME DEFAULT-FRAME /* Ok */
 DO:
+    IF AVAILABLE ttVendItemCost THEN
     ttVendItemCost.isSelected = TRUE.
     APPLY 'CLOSE' TO THIS-PROCEDURE.
 END.
@@ -385,42 +390,10 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME TOGGLE-1
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL TOGGLE-1 C-Win
-ON VALUE-CHANGED OF TOGGLE-1 IN FRAME DEFAULT-FRAME
-DO:
-RUN BuildVendItemCosts(
-     INPUT  ipcCompany,
-     INPUT  ipcItemID,
-     INPUT  ipcItemType,
-     INPUT  "ALll",  // Scope
-     INPUT  iplIncludeBlankVendor,
-     INPUT  ipcEstimateNo,
-     INPUT  ipiFormNo,
-     INPUT  ipiBlankNo,
-     INPUT  ipdQuantity,
-     INPUT  ipcQuantityUOM,
-     INPUT  ipdDimLength,
-     INPUT  ipdDimWidth,
-     INPUT  ipdDimDepth,
-     INPUT  ipcDimUOM,
-     INPUT  ipdBasisWeight,
-     INPUT  ipcBasisWeightUOM,
-     OUTPUT  TABLE  ttVendItemCost,
-     OUTPUT  oplError,
-     OUTPUT  opcMessage).
-
-    {&OPEN-QUERY-ttVendItemCost}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define BROWSE-NAME ttVendItemCost
-&Scoped-define SELF-NAME ttVendItemCost
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ttVendItemCost C-Win
-ON START-SEARCH OF ttVendItemCost IN FRAME DEFAULT-FRAME
+&Scoped-define BROWSE-NAME brVendItemCost
+&Scoped-define SELF-NAME brVendItemCost
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL brVendItemCost C-Win
+ON START-SEARCH OF brVendItemCost IN FRAME DEFAULT-FRAME
 DO:
     IF {&BROWSE-NAME}:CURRENT-COLUMN:NAME NE ? THEN DO:
         cColumnLabel = BROWSE {&BROWSE-NAME}:CURRENT-COLUMN:NAME.
@@ -438,6 +411,20 @@ DO:
             .
         RUN pReopenBrowse.
     END.       
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME tbShowAll
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tbShowAll C-Win
+ON VALUE-CHANGED OF tbShowAll IN FRAME DEFAULT-FRAME
+DO:
+    IF tbShowAll:CHECKED THEN 
+    {&OPEN-QUERY-brVendItemCost}
+    ELSE 
+    OPEN QUERY brVendItemCost FOR EACH ttVendItemCost WHERE ttVendItemCost.isValid = TRUE.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -495,12 +482,15 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      
     RUN enable_UI.
     fiItem:screen-value IN FRAME {&frame-name} = ipcItemID.
-    {&OPEN-QUERY-ttVendItemCost}
+    IF tbShowAll:CHECKED THEN 
+        {&OPEN-QUERY-brVendItemCost}
+    ELSE 
+        OPEN QUERY brVendItemCost FOR EACH ttVendItemCost WHERE ttVendItemCost.isValid = TRUE.
     IF NOT THIS-PROCEDURE:PERSISTENT THEN
       WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
 
-&Scoped-define sdBrowseName ttVendItemCost
+&Scoped-define sdBrowseName brVendItemCost
 {methods/sortByProc.i "pByVendorID" "ttVendItemCost.vendorID"}
 {methods/sortByProc.i "pByCostPerVendorUOM" "ttVendItemCost.costPerVendorUOM"}
 {methods/sortByProc.i "pByCostSetup" "ttVendItemCost.costSetup"}
@@ -543,10 +533,10 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY TOGGLE-1 fiItem fiHotKey fiTitle lItem lSize lAddress fiProgramName 
+  DISPLAY tbShowAll fiItem fiHotKey fiTitle lItem lSize lAddress fiProgramName 
           lQuantity lShow 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE RECT-13 TOGGLE-1 ttVendItemCost bOk bCancle fiItem fiHotKey fiTitle 
+  ENABLE RECT-13 tbShowAll brVendItemCost bOk bCancle fiItem fiHotKey fiTitle 
          fiProgramName 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
