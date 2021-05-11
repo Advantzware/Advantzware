@@ -40,7 +40,7 @@ CREATE WIDGET-POOL.
 {custom/globdefs.i}
 {sys/inc/var.i "NEW SHARED"}
 {sys/inc/varasgn.i}
-{system/sysconst.i}
+// {system/sysconst.i}
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
@@ -592,7 +592,7 @@ PROCEDURE pInit :
     RUN spGetSessionParam (INPUT "Location", OUTPUT cLocation).
 
     {&WINDOW-NAME}:TITLE = {&WINDOW-NAME}:TITLE
-                         + " - {&awversion}" + " - " 
+                         + " - " + DYNAMIC-FUNCTION("sfVersion") + " - " 
                          + cCompanyName + " - " + cLocation.
                          
     fiTrailer:HIDDEN = NOT glScanTrailer.

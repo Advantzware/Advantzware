@@ -692,7 +692,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         NO-ERROR .
    IF AVAILABLE company THEN
    {&WINDOW-NAME}:TITLE = {&WINDOW-NAME}:TITLE
-                        + " - {&awversion}" + " - " 
+                        + " - " + DYNAMIC-FUNCTION("sfVersion") + " - " 
                         + STRING(company.name) + " - " + g_loc. 
   RUN enable_UI.
   RUN pInit.
