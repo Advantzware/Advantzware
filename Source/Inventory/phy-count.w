@@ -51,7 +51,7 @@ DEFINE VARIABLE cLocationID           AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cWarehouseID          AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cColumnHandles        AS CHARACTER NO-UNDO.
 
-{system/sysconst.i}
+// {system/sysconst.i}
 {wip/keyboardDefs.i}
 {Inventory/ttInventory.i "NEW SHARED"}
 {methods/template/brwcustomdef.i}
@@ -932,7 +932,7 @@ PROCEDURE init :
          NO-ERROR .
     IF AVAILABLE company THEN
     {&WINDOW-NAME}:TITLE = {&WINDOW-NAME}:TITLE
-                         + " - {&awversion}" + " - " 
+                         + " - " + DYNAMIC-FUNCTION("sfVersion") + " - " 
                          + STRING(company.name) + " - " + ipcLocation.
     RUN pAddLegend.
 

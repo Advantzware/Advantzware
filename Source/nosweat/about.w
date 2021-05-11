@@ -40,7 +40,6 @@ DEFINE VARIABLE winReSize    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE sizeRatio    AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE cWorkDir     AS CHARACTER NO-UNDO.
 
-{system/sysconst.i}
 {methods/defines/globdefs.i}
 
 &scoped-define HeightWithEditor 27
@@ -438,15 +437,15 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         autoMaximize:visible = FALSE.
     DO WITH FRAME {&FRAME-NAME}:
         ASSIGN
-            callingprgm = ENTRY(NUM-ENTRIES(callingprgm,' '),callingprgm,' ')
+            callingprgm   = ENTRY(NUM-ENTRIES(callingprgm,' '),callingprgm,' ')
             physical_file = callingprgm
-            callingprgm = SUBSTR(callingprgm,R-INDEX(callingprgm,'/') + 1)
-            callingprgm = SUBSTR(callingprgm,1,LENGTH(callingprgm) - 1)
-            winReSize = 'users/' + USERID('NOSWEAT') + '/' + callingprgm + 'winReSize'
-            winReSizeDat = 'users/' + USERID('NOSWEAT') + '/winReSize.dat'
-            copyrite = '{copyrite}'
-            asiVersion = '{&awversion}'
-            autoMaximize = SEARCH(winReSize) NE ?
+            callingprgm   = SUBSTR(callingprgm,R-INDEX(callingprgm,'/') + 1)
+            callingprgm   = SUBSTR(callingprgm,1,LENGTH(callingprgm) - 1)
+            winReSize     = 'users/' + USERID('NOSWEAT') + '/' + callingprgm + 'winReSize'
+            winReSizeDat  = 'users/' + USERID('NOSWEAT') + '/winReSize.dat'
+            copyrite      = '{copyrite}'
+            asiVersion    = DYNAMIC-FUNCTION("sfVersion")
+            autoMaximize  = SEARCH(winReSize) NE ?
             .
         FIND FIRST prgrms NO-LOCK
              WHERE prgrms.prgmname EQ callingprgm
