@@ -640,6 +640,9 @@ END.
 /* ***************************  Main Block  *************************** */
 {sys/inc/f3help.i}
 
+&SCOPED-DEFINE cellColumnDat locw.w 
+ {methods/browsers/setCellColumns.i}
+
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF
@@ -922,6 +925,8 @@ PROCEDURE local-initialize :
         ).
 
     /* Dispatch standard ADM method.                             */
+    RUN setCellColumns.
+    
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
 
     /* Code placed here will execute AFTER standard behavior.    */
