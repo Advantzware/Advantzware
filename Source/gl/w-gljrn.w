@@ -92,6 +92,7 @@ DEFINE VARIABLE h_exit AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_f-add AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_folder AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_impexcel AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_import AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_options AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-arinv AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-cashl AS HANDLE NO-UNDO.
@@ -314,7 +315,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_f-add ).
-       RUN set-position IN h_f-add ( 1.00 , 77.00 ) NO-ERROR.
+       RUN set-position IN h_f-add ( 1.00 , 69.60 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -326,14 +327,6 @@ PROCEDURE adm-create-objects :
        /* Size in UIB:  ( 1.81 , 55.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'smartobj/exit.w':U ,
-             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
-             INPUT  '':U ,
-             OUTPUT h_exit ).
-       RUN set-position IN h_exit ( 1.00 , 141.00 ) NO-ERROR.
-       /* Size in UIB:  ( 1.81 , 7.80 ) */
-
-       RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/folder.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'FOLDER-LABELS = ':U + 'Browse|Detail' + ',
@@ -342,18 +335,37 @@ PROCEDURE adm-create-objects :
        RUN set-position IN h_folder ( 3.14 , 2.00 ) NO-ERROR.
        RUN set-size IN h_folder ( 21.67 , 148.00 ) NO-ERROR.
 
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'smartobj/exit.w':U ,
+             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_exit ).
+       RUN set-position IN h_exit ( 1.00 , 141.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 7.80 ) */
+
+       /* Links to SmartObject h_options. */
+       RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'udficon':U , h_options ).
+
        /* Links to SmartFolder h_folder. */
        RUN add-link IN adm-broker-hdl ( h_folder , 'Page':U , THIS-PROCEDURE ).
-	   RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'udficon':U , h_options ).
+
        /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_folder ,
+             FRAME message-frame:HANDLE , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_options ,
              h_f-add , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_exit ,
              h_options , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_folder ,
-             FRAME message-frame:HANDLE , 'AFTER':U ).
     END. /* Page 0 */
     WHEN 1 THEN DO:
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'viewers/import.w':U ,
+             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_import ).
+       RUN set-position IN h_import ( 1.00 , 77.20 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 7.80 ) */
+
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'gl/b-gljrn1.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
@@ -364,13 +376,16 @@ PROCEDURE adm-create-objects :
 
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('2':U) NO-ERROR.
-
+/* Links to SmartViewer h_import. */
+       RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'import':U , h_import ).
        /* Links to SmartNavBrowser h_b-gljrn1. */
        RUN add-link IN adm-broker-hdl ( h_p-navico , 'Navigation':U , h_b-gljrn1 ).
        RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'win':U , h_b-gljrn1 ).
        RUN add-link IN adm-broker-hdl ( h_b-gljrn1 , 'Record':U , THIS-PROCEDURE ).
 
        /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_import ,
+             h_f-add , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_b-gljrn1 ,
              h_folder , 'AFTER':U ).
     END. /* Page 1 */
@@ -653,6 +668,30 @@ PROCEDURE get-current-page :
    DEFINE OUTPUT PARAM adm-current-page AS INTEGER NO-UNDO.
    RUN get-attribute IN THIS-PROCEDURE ('Current-Page':U).
    adm-current-page = INTEGER(RETURN-VALUE).
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE import-file W-Win 
+PROCEDURE import-file :
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cCharHdl AS CHARACTER NO-UNDO.
+    
+    RUN util/dev/ImpGLPRL.p.
+    
+    RUN get-link-handle IN adm-broker-hdl (
+        THIS-PROCEDURE, 
+        'import-target':U, 
+        OUTPUT cCharHdl
+        ).
+
+    IF VALID-HANDLE(WIDGET-HANDLE(cCharHdl)) THEN
+        RUN local-open-query IN h_b-gljrn1.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
