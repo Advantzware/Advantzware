@@ -1349,7 +1349,8 @@ gvcCurrentItem = fg-rctd.i-no.
        AND fg-bin.loc  EQ fg-rctd.loc
        AND fg-bin.loc-bin EQ fg-rctd.loc-bin
        NO-LOCK NO-ERROR.
-   
+     
+     RELEASE w-rowid.
      IF AVAIL fg-bin THEN
      FIND FIRST w-rowid WHERE w-rowid EQ STRING(ROWID(fg-bin)) NO-ERROR.
 
