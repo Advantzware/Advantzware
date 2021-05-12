@@ -356,6 +356,8 @@ DO:
         CREATE glhist .
         BUFFER-COPY tt-glhist EXCEPT rec_key  TO glhist.
         riNewRowid = ROWID(glhist).
+        glhist.actnum = "".
+        glhist.tr-amt = 0.
         RELEASE glhist.
         
         RUN gl/d-glinq.w (INPUT cocode,INPUT riNewRowid,INPUT "update",OUTPUT riRowid) .
