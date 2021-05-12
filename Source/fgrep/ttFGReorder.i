@@ -51,6 +51,8 @@ DEFINE TEMP-TABLE ttFGReorder NO-UNDO
     FIELD availOnHand AS INTEGER  
     FIELD board AS CHARACTER 
     FIELD orderQtyEarliest AS INTEGER
+    FIELD pallet AS INTEGER
+    FIELD itemCount AS INTEGER
     .  
     
 DEFINE TEMP-TABLE ttFGReorderSelection NO-UNDO 

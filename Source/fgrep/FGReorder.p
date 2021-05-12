@@ -114,6 +114,7 @@ PROCEDURE BuildReport:
                 ttFGReorder.quantityReorderLevel = dQuantityMinimum
                 ttFGReorder.quantityAvailable = dQuantityOnHand + dQuantityOnOrder - dQuantityAllocated
                 ttFGReorder.quantityToOrderSuggested = MAX(0,ttFGReorder.quantityReorderLevel - ttFGReorder.quantityAvailable)
+                ttFGReorder.itemCount = itemfg.case-count * itemfg.case-pall + itemfg.quantityPartial 
                 .
             FIND FIRST eb NO-LOCK
                  WHERE eb.company EQ itemfg.company
