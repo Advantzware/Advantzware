@@ -393,7 +393,7 @@ ASSIGN
 RUN spSetSessionParam("UserID",cUserID).
 /* get current ASI version */
 FIND LAST updateHist NO-LOCK NO-ERROR.
-cVersion = IF AVAILABLE updateHist THEN updateHist.toVersion ELSE "00.00.00".
+cVersion = IF AVAILABLE updateHist THEN updateHist.toVersion ELSE "Unknown".
 /* build temp-table of super-procedures */
 DO idx = 1 TO NUM-ENTRIES(cSuperProcedure):
     CREATE ttSuperProcedure.
