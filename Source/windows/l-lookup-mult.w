@@ -141,7 +141,6 @@ RUN AOA/spDynCalcField.p PERSISTENT SET hDynCalcField.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS bt-cancel bt-clear ls-search br-table ~
 bt-next bt-ok bt-prev 
-&Scoped-Define DISPLAYED-OBJECTS ls-search 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -257,11 +256,11 @@ DEFINE FRAME Dialog-Frame
 
 DEFINE FRAME filter-frame
      bt-filter AT ROW 1.24 COL 2 WIDGET-ID 2
-     firstFilter AT ROW 1.71 COL 2 NO-LABEL WIDGET-ID 4
+     firstFilter AT ROW 3.38 COL 2 NO-LABEL WIDGET-ID 4
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS THREE-D 
          AT COL 1 ROW 1
-         SIZE 10 BY 2.38 WIDGET-ID 300.
+         SIZE 10 BY 3.57 WIDGET-ID 300.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -292,6 +291,8 @@ ASSIGN
 ASSIGN 
        bt-clear:HIDDEN IN FRAME Dialog-Frame           = TRUE.
 
+/* SETTINGS FOR FILL-IN ls-search IN FRAME Dialog-Frame
+   NO-DISPLAY                                                           */
 ASSIGN 
        ls-search:HIDDEN IN FRAME Dialog-Frame           = TRUE.
 
@@ -300,10 +301,7 @@ ASSIGN
 /* SETTINGS FOR FRAME filter-frame
    UNDERLINE                                                            */
 /* SETTINGS FOR FILL-IN firstFilter IN FRAME filter-frame
-   NO-DISPLAY NO-ENABLE ALIGN-L                                         */
-ASSIGN 
-       firstFilter:HIDDEN IN FRAME filter-frame           = TRUE.
-
+   ALIGN-L                                                              */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -566,6 +564,39 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define FRAME-NAME filter-frame
+&Scoped-define SELF-NAME firstFilter
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL firstFilter Dialog-Frame
+ON ENTRY OF firstFilter IN FRAME filter-frame
+DO:
+    RUN pSetBGColor (SELF, 14).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL firstFilter Dialog-Frame
+ON LEAVE OF firstFilter IN FRAME filter-frame
+DO:
+    RUN pSetBGColor (SELF, ?).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL firstFilter Dialog-Frame
+ON RETURN OF firstFilter IN FRAME filter-frame
+DO:
+    RUN applyFilter.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define FRAME-NAME Dialog-Frame
 &Scoped-define SELF-NAME ls-search
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ls-search Dialog-Frame
 ON VALUE-CHANGED OF ls-search IN FRAME Dialog-Frame /* Search */
@@ -608,7 +639,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
     IF ll-filterFirst THEN DO:
         RUN resizeFilterFrame.        
-        RUN openFilterQuery.    
+        RUN openFilterQuery.
     END.    
     ELSE DO:
         RUN buildTempTable.
@@ -622,12 +653,12 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         bt-prev:SENSITIVE   = FALSE
         .  
     RUN customizeBrowse.
-    IF VALID-HANDLE(h_focus) THEN DO:
+/*    IF VALID-HANDLE(h_focus) THEN DO:*/
 /*        APPLY "ENTRY":U TO ls-search.*/
-/*        APPLY "TAB":U TO ls-search.*/
-/*        APPLY "TAB":U TO br-table.*/
-        APPLY "ENTRY":U TO h_focus.
-    END. /* if valid-handle */
+/*        APPLY "TAB":U TO ls-search.  */
+/*        APPLY "TAB":U TO br-table.   */
+        APPLY "ENTRY":U TO firstFilter IN FRAME filter-frame.
+/*    END. /* if valid-handle */*/
     WAIT-FOR GO OF FRAME {&FRAME-NAME}.
 END.
 RUN disable_UI.
@@ -742,10 +773,10 @@ PROCEDURE addFilterObjects :
             END.
 
             IF VALID-HANDLE(h_field) THEN DO:
-                IF h_field:DATA-TYPE = "CHARACTER" OR
-                    h_field:DATA-TYPE = "INTEGER"   OR
-                    h_field:DATA-TYPE = "DECIMAL"   OR
-                    h_field:DATA-TYPE = "DATE" THEN DO:
+                IF h_field:DATA-TYPE EQ "CHARACTER" OR
+                   h_field:DATA-TYPE EQ "INTEGER"   OR
+                   h_field:DATA-TYPE EQ "DECIMAL"   OR
+                   h_field:DATA-TYPE EQ "DATE" THEN DO:
                     IF li-count EQ 1 THEN DO:
                         ASSIGN
                             h_focus = firstFilter:HANDLE IN FRAME filter-frame
@@ -782,7 +813,7 @@ PROCEDURE addFilterObjects :
                         hWidget[li-count] = h_fillin:HANDLE.
                     END.
 
-                    IF h_field:DATA-TYPE = "DATE" THEN DO:
+                    IF h_field:DATA-TYPE EQ "DATE" THEN DO:
                         h_fillin:WIDTH-CHARS = 16.                      
                         CREATE BUTTON h_calendar
                             ASSIGN 
@@ -801,7 +832,7 @@ PROCEDURE addFilterObjects :
                         h_calendar:LOAD-IMAGE-UP("Graphics/16x16/calendar.bmp").          
                     END.
                 END.
-                ELSE IF h_field:DATA-TYPE = "LOGICAL" THEN DO:
+                ELSE IF h_field:DATA-TYPE EQ "LOGICAL" THEN DO:
                         CREATE COMBO-BOX h_combobox
                             ASSIGN 
                             FRAME       = h_filterFrame
@@ -880,7 +911,7 @@ PROCEDURE addFilterObjects :
         IF VALID-HANDLE(hFilterField[li-count]) THEN
             hWidget[li-count]:SCREEN-VALUE = cFilterValue[li-count].
     END. /* do li-count */
-    IF cFocusValue NE "0" AND cFocusValue NE  "" THEN 
+    IF cFocusValue NE "0" AND cFocusValue NE "" THEN 
         h_focus:SCREEN-VALUE = cFocusValue.
 
 END PROCEDURE.
@@ -1175,13 +1206,13 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY ls-search 
-      WITH FRAME Dialog-Frame.
   ENABLE bt-cancel bt-clear ls-search bt-next bt-ok bt-prev 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
-  ENABLE bt-filter 
+  DISPLAY firstFilter 
+      WITH FRAME filter-frame.
+  ENABLE bt-filter firstFilter 
       WITH FRAME filter-frame.
   {&OPEN-BROWSERS-IN-QUERY-filter-frame}
 END PROCEDURE.
@@ -1646,7 +1677,8 @@ PROCEDURE resizeFilterFrame :
             h_filterFrame:VIRTUAL-WIDTH  = 9.5
             h_filterFrame:HEIGHT = h_filterFrame:VIRTUAL-HEIGHT
             h_filterFrame:WIDTH  = h_filterFrame:VIRTUAL-WIDTH.
-            
+            MESSAGE 3
+            VIEW-AS ALERT-BOX.
         APPLY 'ENTRY' TO ls-search IN FRAME {&FRAME-NAME}.
     END.
   
