@@ -1,0 +1,413 @@
+ADD TABLE "estMaterial"
+  AREA "Data"
+  LABEL "Estimate Material"
+  DESCRIPTION "Estimate Material Details"
+  DUMP-NAME "estmaterial"
+  TABLE-TRIGGER "CREATE" NO-OVERRIDE PROCEDURE "create.trg\estMaterial.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" NO-OVERRIDE PROCEDURE "delete.trg\estMaterial.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" NO-OVERRIDE PROCEDURE "write.trg\estMaterial.p" CRC "?" 
+
+ADD FIELD "rec_key" OF "estMaterial" AS character 
+  FORMAT "X(21)"
+  INITIAL ""
+  LABEL "Record Key"
+  POSITION 2
+  MAX-WIDTH 42
+  HELP "Enter Record Key Value"
+  LENGTH 0
+  ORDER 10
+
+ADD FIELD "estMaterialID" OF "estMaterial" AS integer 
+  FORMAT ">>>>>>9"
+  INITIAL "0"
+  LABEL "Estimate Material ID"
+  POSITION 3
+  MAX-WIDTH 4
+  ORDER 20
+
+ADD FIELD "estHeaderID" OF "estMaterial" AS integer 
+  FORMAT ">>>>>>9"
+  INITIAL "0"
+  LABEL "Estimate Header ID"
+  POSITION 4
+  MAX-WIDTH 4
+  ORDER 30
+
+ADD FIELD "estFormID" OF "estMaterial" AS integer 
+  FORMAT ">>>>>>9"
+  INITIAL "0"
+  LABEL "Estimate Form ID"
+  POSITION 5
+  MAX-WIDTH 4
+  ORDER 40
+
+ADD FIELD "estBlankID" OF "estMaterial" AS integer 
+  FORMAT ">>>>>>9"
+  INITIAL "0"
+  LABEL "Estimate Blank ID"
+  POSITION 6
+  MAX-WIDTH 4
+  ORDER 50
+
+ADD FIELD "estOperationID" OF "estMaterial" AS integer 
+  FORMAT ">>>>>>9"
+  INITIAL "0"
+  LABEL "Estimate Opreation ID"
+  POSITION 7
+  MAX-WIDTH 4
+  ORDER 60
+
+ADD FIELD "company" OF "estMaterial" AS character 
+  FORMAT "x(3)"
+  INITIAL ""
+  LABEL "Company"
+  POSITION 8
+  MAX-WIDTH 6
+  HELP "Enter the company code."
+  ORDER 70
+  MANDATORY
+
+ADD FIELD "estimateNo" OF "estMaterial" AS character 
+  FORMAT "x(5)"
+  INITIAL ""
+  LABEL "Estimate #"
+  POSITION 9
+  MAX-WIDTH 10
+  HELP "Enter Estimate Number."
+  ORDER 80
+
+ADD FIELD "formNo" OF "estMaterial" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "Form No"
+  POSITION 10
+  MAX-WIDTH 4
+  ORDER 90
+
+ADD FIELD "blankNo" OF "estMaterial" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "Blank No"
+  POSITION 11
+  MAX-WIDTH 4
+  ORDER 100
+
+ADD FIELD "quantity" OF "estMaterial" AS decimal 
+  FORMAT "->,>>>,>>9.99"
+  INITIAL "0"
+  LABEL "Quantity"
+  POSITION 12
+  MAX-WIDTH 17
+  DECIMALS 2
+  ORDER 110
+
+ADD FIELD "quantityUOM" OF "estMaterial" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Quantity UOM"
+  POSITION 13
+  MAX-WIDTH 16
+  ORDER 120
+
+ADD FIELD "itemID" OF "estMaterial" AS character 
+  FORMAT "x(24)"
+  INITIAL ""
+  LABEL "RM Item ID"
+  POSITION 14
+  MAX-WIDTH 48
+  ORDER 130
+
+ADD FIELD "itemType" OF "estMaterial" AS character 
+  FORMAT "x(10)"
+  INITIAL ""
+  LABEL "Item Type"
+  POSITION 15
+  MAX-WIDTH 20
+  ORDER 140
+
+ADD FIELD "dimLength" OF "estMaterial" AS decimal 
+  FORMAT "->>,>>9.9999<<"
+  INITIAL "0"
+  LABEL "Dim Length"
+  POSITION 17
+  MAX-WIDTH 21
+  DECIMALS 6
+  ORDER 160
+
+ADD FIELD "dimWidth" OF "estMaterial" AS decimal 
+  FORMAT "->>,>>9.9999<<"
+  INITIAL "0"
+  LABEL "Dim Width"
+  POSITION 18
+  MAX-WIDTH 21
+  DECIMALS 6
+  ORDER 170
+
+ADD FIELD "dimDepth" OF "estMaterial" AS decimal 
+  FORMAT "->>,>>9.9999<<"
+  INITIAL "0"
+  LABEL "Dim Depth"
+  POSITION 19
+  MAX-WIDTH 21
+  DECIMALS 6
+  ORDER 180
+
+ADD FIELD "weightPerEA" OF "estMaterial" AS decimal 
+  FORMAT "->>,>>9.99"
+  INITIAL "0"
+  LABEL "Weight/EA"
+  POSITION 21
+  MAX-WIDTH 17
+  DECIMALS 2
+  ORDER 200
+
+ADD FIELD "weightUOM" OF "estMaterial" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Weight UOM"
+  POSITION 22
+  MAX-WIDTH 16
+  ORDER 210
+
+ADD FIELD "costOverrideSetup" OF "estMaterial" AS decimal 
+  FORMAT "->>,>>9.99"
+  INITIAL "0"
+  LABEL "Cost Over Setup"
+  POSITION 23
+  MAX-WIDTH 17
+  DECIMALS 2
+  ORDER 220
+
+ADD FIELD "costOverridePerUOM" OF "estMaterial" AS decimal 
+  FORMAT "->>,>>9.99"
+  INITIAL "0"
+  LABEL "Cost Over Per UOM"
+  POSITION 24
+  MAX-WIDTH 17
+  DECIMALS 2
+  ORDER 230
+
+ADD FIELD "costOverrideUOM" OF "estMaterial" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Cost Over UOM"
+  POSITION 25
+  MAX-WIDTH 16
+  ORDER 240
+
+ADD FIELD "quantityPer" OF "estMaterial" AS character 
+  FORMAT "x(1)"
+  INITIAL ""
+  LABEL "QtyPer"
+  POSITION 26
+  MAX-WIDTH 2
+  ORDER 250
+
+ADD FIELD "noCharge" OF "estMaterial" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Other Pkg NoCharge"
+  POSITION 27
+  MAX-WIDTH 1
+  ORDER 260
+
+ADD FIELD "markupPercent" OF "estMaterial" AS decimal 
+  FORMAT ">>9.99"
+  INITIAL "0"
+  LABEL "Markup %"
+  POSITION 28
+  MAX-WIDTH 17
+  DECIMALS 2
+  ORDER 270
+
+ADD FIELD "wastePercent" OF "estMaterial" AS decimal 
+  FORMAT ">>9.99"
+  INITIAL "0"
+  LABEL "Waste %"
+  POSITION 29
+  MAX-WIDTH 17
+  DECIMALS 2
+  ORDER 280
+
+ADD FIELD "simon" OF "estMaterial" AS character 
+  FORMAT "x(1)"
+  INITIAL ""
+  LABEL "Simon"
+  POSITION 30
+  MAX-WIDTH 2
+  ORDER 290
+
+ADD FIELD "description" OF "estMaterial" AS character 
+  FORMAT "x(30)"
+  INITIAL ""
+  LABEL "Description"
+  POSITION 31
+  MAX-WIDTH 60
+  ORDER 300
+
+ADD FIELD "prepID" OF "estMaterial" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Prep ID"
+  POSITION 32
+  MAX-WIDTH 40
+  ORDER 310
+
+ADD FIELD "materialTypeID" OF "estMaterial" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Material Type ID"
+  POSITION 33
+  MAX-WIDTH 16
+  ORDER 320
+
+ADD FIELD "materialSource" OF "estMaterial" AS logical 
+  FORMAT "User/System"
+  INITIAL "User"
+  LABEL "Material Source"
+  POSITION 34
+  MAX-WIDTH 1
+  ORDER 330
+
+ADD FIELD "vendorID" OF "estMaterial" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Vend. #"
+  POSITION 35
+  MAX-WIDTH 16
+  ORDER 340
+
+ADD FIELD "autoOrder" OF "estMaterial" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Auto Order"
+  POSITION 36
+  MAX-WIDTH 1
+  ORDER 350
+
+ADD INDEX "idxCompanyEstNo" ON "estMaterial" 
+  AREA "Index"
+  PRIMARY
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "estimateNo" ASCENDING 
+  INDEX-FIELD "formNo" ASCENDING 
+  INDEX-FIELD "blankNo" ASCENDING 
+
+ADD INDEX "idxEstMaterialID" ON "estMaterial" 
+  AREA "Index"
+  UNIQUE
+  INDEX-FIELD "estMaterialID" ASCENDING 
+
+ADD FIELD "pricingMethod" OF "cust" AS character
+  FORMAT "x(9)"
+  POSITION 177
+  INITIAL ""
+  LABEL "Pricing Method"
+  ORDER 1750
+  MAX-WIDTH 18
+
+ADD FIELD "tagStatus" OF "cust" AS character
+  FORMAT "x(1)"
+  POSITION 178
+  INITIAL ""
+  LABEL "Tag Status"
+  ORDER 1760
+  MAX-WIDTH 2
+
+ADD FIELD "udfID" OF "dynSubjectColumn" AS character
+  FORMAT "x(5)"
+  POSITION 35
+  INITIAL ""
+  HELP "Enter UDF ID"
+  LABEL "UDF ID"
+  ORDER 330
+  MAX-WIDTH 10
+
+ADD FIELD "udfID" OF "dynValueColumn" AS character
+  FORMAT "x(5)"
+  POSITION 35
+  INITIAL ""
+  HELP "Enter UDF ID"
+  LABEL "UDF ID"
+  ORDER 340
+  MAX-WIDTH 10
+
+ADD FIELD "retainedEarnings" OF "gl-ctrl" AS character
+  FORMAT "x(25)"
+  POSITION 29
+  INITIAL ""
+  HELP "Retained earnings to auto-post upon closing final period"
+  LABEL "Retained Earnings"
+  ORDER 105
+  MAX-WIDTH 50
+
+ADD FIELD "balanceAccount" OF "gl-ctrl" AS character
+  FORMAT "x(25)"
+  POSITION 30
+  INITIAL ""
+  HELP "Account for out of balance postings"
+  LABEL "Balancing Account"
+  ORDER 115
+  MAX-WIDTH 50
+
+ADD FIELD "customField" OF "oe-ordl" AS character
+  FORMAT "x(32)"
+  POSITION 137
+  INITIAL ""
+  LABEL "Custom Field"
+  ORDER 1310
+  MAX-WIDTH 64
+
+ADD FIELD "quoteID" OF "oe-prmtx" AS int64
+  FORMAT ">>>>>>>>>"
+  POSITION 27
+  INITIAL "0"
+  LABEL "Quote ID"
+  ORDER 470
+  MAX-WIDTH 8
+
+ADD FIELD "pricingMethod" OF "quotehd" AS character
+  FORMAT "x(9)"
+  POSITION 53
+  INITIAL ""
+  LABEL "Pricing Method"
+  ORDER 640
+  MAX-WIDTH 18
+
+ADD FIELD "approved" OF "quotehd" AS logical
+  FORMAT "yes/no"
+  POSITION 54
+  INITIAL "no"
+  LABEL "Approved"
+  ORDER 650
+  MAX-WIDTH 1
+
+ADD FIELD "effectiveDate" OF "quotehd" AS date
+  FORMAT "99/99/99"
+  POSITION 55
+  INITIAL ?
+  LABEL "Effective Date"
+  ORDER 660
+  MAX-WIDTH 4
+
+ADD FIELD "account" OF "surcharge" AS character
+  FORMAT "x(25)"
+  POSITION 25
+  INITIAL ""
+  HELP "Misc surcharge GL Account"
+  LABEL "GL Account"
+  ORDER 370
+  MAX-WIDTH 50
+
+ADD SEQUENCE "estMaterialID_seq"
+  INITIAL 0
+  INCREMENT 1
+  CYCLE-ON-LIMIT no
+  MIN-VAL ?
+  MAX-VAL ?
+
+.
+PSC
+cpstream=ISO8859-1
+.
+0000008307
