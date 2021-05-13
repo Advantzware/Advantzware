@@ -99,8 +99,7 @@ PROCEDURE pValidate PRIVATE:
     DEFINE VARIABLE cValidNote  AS CHARACTER NO-UNDO.
     DEFINE BUFFER bf-ttImportPriceMatrix FOR ttImportPriceMatrix.
     DEFINE VARIABLE cUOMList AS CHARACTER INITIAL "M,EA,L,CS,C,LB,DRM,ROL,PKG,SET,DOZ,BDL" NO-UNDO.
-    DEFINE VARIABLE dtEffDate AS DATE NO-UNDO.
-
+    
     RUN util/Validate.p PERSISTENT SET hdValidator.
     
     oplValid = YES.
@@ -114,16 +113,14 @@ PROCEDURE pValidate PRIVATE:
     
      /*Determine if Add or Update*/
     IF oplValid THEN 
-    DO:     
-        dtEffDate = IF ipbf-ttImportPriceMatrix.EffectiveDate NE ? THEN ipbf-ttImportPriceMatrix.EffectiveDate ELSE TODAY.
-        FIND FIRST oe-prmtx EXCLUSIVE-LOCK
+    DO: 
+         FIND FIRST oe-prmtx EXCLUSIVE-LOCK
              WHERE oe-prmtx.company  EQ ipbf-ttImportPriceMatrix.Company
                 AND oe-prmtx.cust-no EQ  ipbf-ttImportPriceMatrix.CustomerID
                 AND oe-prmtx.custype EQ  ipbf-ttImportPriceMatrix.CustomerType
                 AND oe-prmtx.procat  EQ  ipbf-ttImportPriceMatrix.Category
                 AND oe-prmtx.i-no    EQ  ipbf-ttImportPriceMatrix.FGItemID
-                AND oe-prmtx.custShipID  EQ  ipbf-ttImportPriceMatrix.shipto
-                AND oe-prmtx.eff-date EQ dtEffDate
+                AND oe-prmtx.custShipID  EQ  ipbf-ttImportPriceMatrix.shipto                
              NO-ERROR.
         IF AVAIL oe-prmtx THEN
         DO: 
@@ -303,8 +300,7 @@ PROCEDURE pProcessRecord PRIVATE:
         AND bf-oe-prmtx.custype EQ  ipbf-ttImportPriceMatrix.CustomerType
         AND bf-oe-prmtx.procat  EQ  ipbf-ttImportPriceMatrix.Category
         AND bf-oe-prmtx.i-no  EQ  ipbf-ttImportPriceMatrix.FGItemID 
-        AND bf-oe-prmtx.custShipID  EQ  ipbf-ttImportPriceMatrix.shipto
-        AND bf-oe-prmtx.eff-date EQ dtEffDate
+        AND bf-oe-prmtx.custShipID  EQ  ipbf-ttImportPriceMatrix.shipto        
         NO-ERROR.
     IF NOT AVAILABLE bf-oe-prmtx THEN 
     DO: 
@@ -321,6 +317,7 @@ PROCEDURE pProcessRecord PRIVATE:
             bf-oe-prmtx.meth     = YES         
             .
     END. 
+    RUN pAssignValueDate (dtEffDate, YES, INPUT-OUTPUT bf-oe-prmtx.eff-date).
     RUN pAssignValueDate (ipbf-ttImportPriceMatrix.ExpireDate, YES, INPUT-OUTPUT bf-oe-prmtx.exp-date).
     RUN pAssignValueCToL (ipbf-ttImportPriceMatrix.PriceBasis, "Price", YES, INPUT-OUTPUT bf-oe-prmtx.meth).
     RUN pAssignValueC (ipbf-ttImportPriceMatrix.ShipTo, iplIgnoreBlanks, INPUT-OUTPUT bf-oe-prmtx.custShipID).  
