@@ -1,35 +1,35 @@
 /* r-invstat.i - Brad Vigrass - 2.26.2020 */
 
 DEFINE TEMP-TABLE ttJobItem NO-UNDO
-    FIELD cCompany                   AS CHARACTER LABEL "Company" FORMAT "x(3)"
-    FIELD cCustomerID                AS CHARACTER LABEL "Cust ID" FORMAT "x(8)"
-    FIELD cCustomerName              AS CHARACTER LABEL "Customer Name" FORMAT "x(30)"
-    FIELD cItemID                    AS CHARACTER LABEL "Item ID" FORMAT "x(15)"
-    FIELD cItemDescription           AS CHARACTER LABEL "Item Description" FORMAT "x(20)"
-    FIELD cJob                       AS CHARACTER LABEL "Job" FORMAT "x(9)"
-    FIELD xxcJobID                   AS CHARACTER LABEL "Job" FORMAT "x(6)"
-    FIELD xxiJobID2                  AS INTEGER   LABEL "Job Rev" FORMAT "99"
-    FIELD cProductCategory           AS CHARACTER LABEL "Product" FORMAT "x(7)"
-    FIELD cProductDescription        AS CHARACTER LABEL "Product Description" FORMAT "x(20)"
-    FIELD dtOrderDate                AS DATE      LABEL "Order Date" FORMAT "99/99/9999"
-    FIELD dtDueDate                  AS DATE      LABEL "Due Date" FORMAT "99/99/9999"
-    FIELD cSalesRep                  AS CHARACTER LABEL "SalesRep" FORMAT "x(3)"
-    FIELD cSalesRepName              AS CHARACTER LABEL "Sales Rep Name" FORMAT "x(20)"
-    FIELD dQuantityOrdered           AS DECIMAL   LABEL "Qty Ordered" FORMAT "->,>>>,>>9.99"
-    FIELD dQuantityProduced          AS DECIMAL   LABEL "Qty Produced" FORMAT "->,>>>,>>9.99"
-    FIELD dQuantityShipped           AS DECIMAL   LABEL "Qty Shipped" FORMAT "->,>>>,>>9.99"
-    FIELD dQuantityInvoiced          AS DECIMAL   LABEL "Qty Invoiced" FORMAT "->,>>>,>>9.99"
-    FIELD dQuantityOnHand            AS DECIMAL   LABEL "Qty On-Hand" FORMAT "->,>>>,>>9.99"
-    FIELD dDisplayBalanceToRun       AS DECIMAL   LABEL "Qty On-Hand" FORMAT "->,>>>,>>9.99"
-    FIELD dQuantityBalanceToRun      AS DECIMAL   LABEL "Qty To Run" FORMAT "->,>>>,>>9.99"
-    FIELD dPricePerEA                AS DECIMAL   LABEL "Price Per EA" FORMAT "->,>>>,>>9.99"
-    FIELD dPriceTotalOnHand          AS DECIMAL   LABEL "Sell Value of On-Hand" FORMAT "->,>>>,>>9.99"
-    FIELD dPriceTotalOrdered         AS DECIMAL   LABEL "Sell Value of Ordered" FORMAT "->,>>>,>>9.99"
+    FIELD cCompany                   AS CHARACTER LABEL "Company"                FORMAT "x(3)"
+    FIELD cCustomerID                AS CHARACTER LABEL "Cust ID"                FORMAT "x(8)"
+    FIELD cCustomerName              AS CHARACTER LABEL "Customer Name"          FORMAT "x(30)"
+    FIELD cItemID                    AS CHARACTER LABEL "Item ID"                FORMAT "x(15)"
+    FIELD cItemDescription           AS CHARACTER LABEL "Item Description"       FORMAT "x(20)"
+    FIELD cJob                       AS CHARACTER LABEL "Job"                    FORMAT "x(9)"
+    FIELD xxcJobID                   AS CHARACTER LABEL "Job"                    FORMAT "x(6)"
+    FIELD xxiJobID2                  AS INTEGER   LABEL "Job Rev"                FORMAT "99"
+    FIELD cProductCategory           AS CHARACTER LABEL "Product"                FORMAT "x(7)"
+    FIELD cProductDescription        AS CHARACTER LABEL "Product Description"    FORMAT "x(20)"
+    FIELD dtOrderDate                AS DATE      LABEL "Order Date"             FORMAT "99/99/9999"
+    FIELD dtDueDate                  AS DATE      LABEL "Due Date"               FORMAT "99/99/9999"
+    FIELD cSalesRep                  AS CHARACTER LABEL "SalesRep"               FORMAT "x(3)"
+    FIELD cSalesRepName              AS CHARACTER LABEL "Sales Rep Name"         FORMAT "x(20)"
+    FIELD dQuantityOrdered           AS DECIMAL   LABEL "Qty Ordered"            FORMAT "->,>>>,>>9.99"
+    FIELD dQuantityProduced          AS DECIMAL   LABEL "Qty Produced"           FORMAT "->,>>>,>>9.99"
+    FIELD dQuantityShipped           AS DECIMAL   LABEL "Qty Shipped"            FORMAT "->,>>>,>>9.99"
+    FIELD dQuantityInvoiced          AS DECIMAL   LABEL "Qty Invoiced"           FORMAT "->,>>>,>>9.99"
+    FIELD dQuantityOnHand            AS DECIMAL   LABEL "Qty On-Hand"            FORMAT "->,>>>,>>9.99"
+    FIELD dDisplayBalanceToRun       AS DECIMAL   LABEL "Qty On-Hand"            FORMAT "->,>>>,>>9.99"
+    FIELD dQuantityBalanceToRun      AS DECIMAL   LABEL "Qty To Run"             FORMAT "->,>>>,>>9.99"
+    FIELD dPricePerEA                AS DECIMAL   LABEL "Price Per EA"           FORMAT "->,>>>,>>9.99"
+    FIELD dPriceTotalOnHand          AS DECIMAL   LABEL "Sell Value of On-Hand"  FORMAT "->,>>>,>>9.99"
+    FIELD dPriceTotalOrdered         AS DECIMAL   LABEL "Sell Value of Ordered"  FORMAT "->,>>>,>>9.99"
     FIELD dPriceTotalProduced        AS DECIMAL   LABEL "Sell Value of Produced" FORMAT "->,>>>,>>9.99"
-    FIELD dPriceTotalShipped         AS DECIMAL   LABEL "Sell Value of Shipped" FORMAT "->,>>>,>>9.99"
-    FIELD dPriceTotalBalanceToRun    AS DECIMAL   LABEL "Sell Value to Run" FORMAT "->,>>>,>>9.99"
-    FIELD dtAsOfDate                 AS DATE      LABEL "As Of Date" FORMAT "99/99/9999"
-    FIELD cAsOfDateOption            AS CHARACTER LABEL "As Of Date Option" FORMAT "x(20)"
+    FIELD dPriceTotalShipped         AS DECIMAL   LABEL "Sell Value of Shipped"  FORMAT "->,>>>,>>9.99"
+    FIELD dPriceTotalBalanceToRun    AS DECIMAL   LABEL "Sell Value to Run"      FORMAT "->,>>>,>>9.99"
+    FIELD dtAsOfDate                 AS DATE      LABEL "As Of Date"             FORMAT "99/99/9999"
+    FIELD cAsOfDateOption            AS CHARACTER LABEL "As Of Date Option"      FORMAT "x(20)"
     FIELD cSource                    AS CHARACTER
     FIELD cLineType                  AS CHARACTER
     FIELD lNoMake                    AS LOGICAL 
@@ -70,10 +70,11 @@ DEFINE TEMP-TABLE ttJobItem NO-UNDO
     FIELD dQuantityInvoicedOther     AS DECIMAL
     FIELD dQuantityOnHandOther       AS DECIMAL
     FIELD dQuantityBalanceToRunOther AS DECIMAL
-    FIELD dPricePerUOM               AS DECIMAL   LABEL "Price Per UOM" FORMAT "->,>>>,>>9.99"
-    FIELD cPriceUOM                  AS CHARACTER LABEL "Price UOM" FORMAT "X"
-    FIELD iFormNumber                AS INTEGER   LABEL "Form" FORMAT ">>9"
-    FIELD iBlankNumber               AS INTEGER   LABEL "Blank" FORMAT ">9"
+    FIELD dPricePerUOM               AS DECIMAL   LABEL "Price Per UOM"          FORMAT "->,>>>,>>9.99"
+    FIELD cPriceUOM                  AS CHARACTER LABEL "Price UOM"              FORMAT "X"
+    FIELD iFormNumber                AS INTEGER   LABEL "Form"                   FORMAT ">>9"
+    FIELD iBlankNumber               AS INTEGER   LABEL "Blank"                  FORMAT ">9"
+    FIELD cPONumber                  AS CHARACTER LABEL "PO Number"              FORMAT "x(15)"
     .
 DEFINE TEMP-TABLE ttProdSum NO-UNDO
     FIELD cCompany                LIKE ttJobItem.cCompany
@@ -91,6 +92,10 @@ DEFINE TEMP-TABLE ttProdSum NO-UNDO
 {AOA/includes/subjectID{&subjectID}Defs.i}
 
 /* Local Variable Definitions ---                                       */
+
+&IF "{&subjectID}" NE "96" &THEN
+DEFINE VARIABLE cPOSource AS CHARACTER NO-UNDO.
+&ENDIF
 
 FUNCTION fSalesRepName RETURNS CHARACTER PRIVATE
     (ipcCompany AS CHARACTER, ipcSalesRep AS CHARACTER):
@@ -206,6 +211,7 @@ PROCEDURE pAddJobItem PRIVATE:
     DEFINE INPUT PARAMETER iplHasOrder         AS LOGICAL   NO-UNDO.
     DEFINE INPUT PARAMETER ipdtOrderDate       AS DATE      NO-UNDO.
     DEFINE INPUT PARAMETER ipdtDueDate         AS DATE      NO-UNDO.
+    DEFINE INPUT PARAMETER ipcPONumber         AS CHARACTER NO-UNDO.
     DEFINE PARAMETER BUFFER opbf-ttJobItem FOR ttJobItem.
     
     DEFINE VARIABLE dPricePerEA AS DECIMAL NO-UNDO.
@@ -265,6 +271,7 @@ PROCEDURE pAddJobItem PRIVATE:
         opbf-ttJobItem.dtDueDate               = ipdtDueDate
         opbf-ttJobItem.dtAsOfDate              = dtAsOfDate
         opbf-ttJobItem.cAsOfDateOption         = cAsOfDateOption
+        opbf-ttJobItem.cPONumber               = ipcPONumber
         .
     FIND FIRST cust NO-LOCK
         WHERE cust.company EQ ipcCompany
@@ -384,6 +391,7 @@ PROCEDURE pBuildJobItem PRIVATE:
     DEFINE BUFFER bf-ttJobItem      FOR ttJobItem.
     DEFINE BUFFER bf-comp-ttJobItem FOR ttJobItem.
     
+    DEFINE VARIABLE cPONo        AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cSource      AS CHARACTER NO-UNDO.
     DEFINE VARIABLE dInvAmt      AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE dPricePerUOM AS DECIMAL   NO-UNDO.
@@ -427,6 +435,7 @@ PROCEDURE pBuildJobItem PRIVATE:
             lNoMake      = NO
             dtOrderDate  = ?
             dtDueDate    = ?
+            cPONo        = ""
             iCount       = iCount + 1
             .
         IF lProgressBar THEN
@@ -462,16 +471,21 @@ PROCEDURE pBuildJobItem PRIVATE:
                     lHasOrder    = YES
                     dQtyOrd      = oe-ordl.qty
                     .
+                IF cPOSource EQ "Line" THEN
+                cPONo = oe-ordl.po-no.
             END.
             FIND FIRST oe-ord NO-LOCK
                 WHERE oe-ord.company EQ job-hdr.company
                 AND oe-ord.ord-no  EQ job-hdr.ord-no
                 NO-ERROR.
-            IF AVAILABLE oe-ord THEN
+            IF AVAILABLE oe-ord THEN DO:
                 ASSIGN
                     dtOrderDate = oe-ord.ord-date
                     dtDueDate   = oe-ord.due-date
                     .
+                IF cPOSource EQ "Order" THEN
+                cPONo = oe-ord.po-no.
+            END.
         END.
         ELSE 
         DO:
@@ -519,6 +533,7 @@ PROCEDURE pBuildJobItem PRIVATE:
             lHasOrder,
             dtOrderDate,
             dtDueDate,
+            cPONo,
             BUFFER bf-ttJobItem
             ).
         IF itemfg.isaset AND iplOldJobBuild THEN 
@@ -588,6 +603,7 @@ PROCEDURE pBuildJobItem PRIVATE:
                     NO,
                     dtOrderDate,
                     dtDueDate,
+                    "",
                     BUFFER bf-comp-ttJobItem
                     ).
             END.            
@@ -630,6 +646,7 @@ PROCEDURE pBuildJobItem PRIVATE:
             lNoMake      = NO
             dtOrderDate  = oe-ord.ord-date
             dtDueDate    = oe-ord.due-date
+            cPONo        = IF cPOSource EQ "Order" THEN oe-ord.po-no ELSE ""
             iCount       = iCount + 1
             .
         IF lProgressBar THEN
@@ -666,6 +683,7 @@ PROCEDURE pBuildJobItem PRIVATE:
             lHasOrder,
             dtOrderDate,
             dtDueDate,
+            cPONo,
             BUFFER bf-ttJobItem
             ).
     END.
@@ -701,6 +719,9 @@ PROCEDURE pBuildJobItem PRIVATE:
             lNoMake      = NO
             dtOrderDate  = oe-ord.ord-date
             dtDueDate    = oe-ord.due-date
+            cPONo        = IF cPOSource EQ "Order" THEN oe-ord.po-no
+                      ELSE IF cPOSource EQ "Line"  THEN oe-ordl.po-no
+                      ELSE ""
             iCount       = iCount + 1
             .
         IF lProgressBar THEN
@@ -734,6 +755,7 @@ PROCEDURE pBuildJobItem PRIVATE:
             lHasOrder,
             dtOrderDate,
             dtDueDate,
+            cPONo,
             BUFFER bf-ttJobItem
             ).
             
