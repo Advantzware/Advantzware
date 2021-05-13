@@ -280,9 +280,9 @@ PROCEDURE pExpireOldPrices PRIVATE:
                         .
                 END.                
                 IF iplExpire THEN 
-                        bf-oe-prmtx.exp-date = TODAY - 1.
+                        bf-oe-prmtx.exp-date = bf-oe-prmtx.eff-date - 1.
                     ELSE 
-                        ttOePrmtxCsv.newExpiryDate = TODAY - 1.
+                        ttOePrmtxCsv.newExpiryDate = bf-oe-prmtx.eff-date - 1.
                 LEAVE.  
             END.                              
         END.                                        
