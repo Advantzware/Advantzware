@@ -139,7 +139,7 @@ DEFINE QUERY Browser-Table FOR
 DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
-      sys-ctrl.name FORMAT "x(12)":U LABEL-BGCOLOR 14
+      sys-ctrl.name FORMAT "x(20)":U LABEL-BGCOLOR 14
       sys-ctrl.descrip FORMAT "x(65)":U WIDTH 93.4 LABEL-BGCOLOR 14
       sys-ctrl.module COLUMN-LABEL "Sys!Mod" FORMAT "x(5)":U WIDTH 4
             LABEL-BGCOLOR 14
@@ -157,7 +157,7 @@ DEFINE BROWSE Browser-Table
             LABEL-BGCOLOR 14
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 145 BY 18.1
+    WITH NO-ASSIGN SEPARATORS SIZE 195 BY 18.1
          FONT 2.
 
 
@@ -209,7 +209,7 @@ END.
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW B-table-Win ASSIGN
          HEIGHT             = 19.52
-         WIDTH              = 145.
+         WIDTH              = 195.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -262,7 +262,7 @@ ASSIGN
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _Where[1]         = "ASI.sys-ctrl.company = g_company"
      _FldNameList[1]   > ASI.sys-ctrl.name
-"name" ? "x(12)" "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"name" ? "x(20)" "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.sys-ctrl.descrip
 "descrip" ? "x(65)" "character" ? ? ? 14 ? ? no ? no no "93.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.sys-ctrl.module
