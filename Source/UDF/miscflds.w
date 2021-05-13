@@ -3167,6 +3167,8 @@ PROCEDURE loadWidgetData :
     sizeList = TRIM(sizeList,",")
     .
 
+  OS-CREATE-DIR "users".
+  OS-CREATE-DIR VALUE("users\" + USERID("ASI")).
   OUTPUT TO VALUE("users/" + USERID("ASI") + "/mfgroup.dat").
   EXPORT groupList.
   EXPORT sizeList.

@@ -3,6 +3,8 @@
 PROCEDURE pGetMFData:
     DEFINE INPUT PARAMETER ipcMFGroup AS CHARACTER NO-UNDO.
 
+    OS-CREATE-DIR "users".
+    OS-CREATE-DIR VALUE("users\" + USERID("ASI")).
     OUTPUT TO VALUE("users/" + USERID("ASI") + "/miscflds.dat").
     FOR EACH mfdata NO-LOCK
         WHERE ENTRY(1,mfdata.mfgroup_data,"|") EQ ipcMFGroup
