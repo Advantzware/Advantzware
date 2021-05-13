@@ -112,6 +112,7 @@ DEFINE VARIABLE ll-useMatches   AS LOGICAL   NO-UNDO INITIAL FALSE.
 DEFINE VARIABLE lRowSelectable  AS LOGICAL   NO-UNDO EXTENT 1000 INITIAL YES.
 DEFINE VARIABLE lUseCustList    AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE rDynValueColumn AS ROWID     NO-UNDO EXTENT 1000.
+DEFINE VARIABLE h_focus         AS HANDLE    NO-UNDO.
 
 RUN AOA/spDynCalcField.p PERSISTENT SET hDynCalcField.
 
@@ -223,6 +224,10 @@ DEFINE BUTTON bt-filter
      LABEL "" 
      SIZE 8 BY 1.91 TOOLTIP "Toggle Column Filters".
 
+DEFINE VARIABLE firstFilter AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS FILL-IN 
+     SIZE 8 BY 1 NO-UNDO.
+
 
 /* Browse definitions                                                   */
 DEFINE BROWSE br-table
@@ -252,10 +257,12 @@ DEFINE FRAME Dialog-Frame
 
 DEFINE FRAME filter-frame
      bt-filter AT ROW 1.24 COL 2 WIDGET-ID 2
+     firstFilter AT ROW 1.71 COL 2 NO-LABEL WIDGET-ID 4
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS THREE-D 
          AT COL 1 ROW 1
          SIZE 10 BY 2.38 WIDGET-ID 300.
+
 
 /* *********************** Procedure Settings ************************ */
 
@@ -266,6 +273,8 @@ DEFINE FRAME filter-frame
    Other Settings: COMPILE
  */
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS
+
+
 
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
@@ -290,8 +299,17 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR FRAME filter-frame
    UNDERLINE                                                            */
+/* SETTINGS FOR FILL-IN firstFilter IN FRAME filter-frame
+   NO-DISPLAY NO-ENABLE ALIGN-L                                         */
+ASSIGN 
+       firstFilter:HIDDEN IN FRAME filter-frame           = TRUE.
+
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
+
+ 
+
+
 
 /* ************************  Control Triggers  ************************ */
 
@@ -594,7 +612,6 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     END.    
     ELSE DO:
         RUN buildTempTable.
-
         RUN openSearchQuery.
         APPLY 'ENTRY' TO ls-search IN FRAME {&FRAME-NAME}.
     END.  
@@ -604,7 +621,13 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         ls-search:SENSITIVE = TRUE
         bt-prev:SENSITIVE   = FALSE
         .  
-    RUN customizeBrowse.  
+    RUN customizeBrowse.
+    IF VALID-HANDLE(h_focus) THEN DO:
+/*        APPLY "ENTRY":U TO ls-search.*/
+/*        APPLY "TAB":U TO ls-search.*/
+/*        APPLY "TAB":U TO br-table.*/
+        APPLY "ENTRY":U TO h_focus.
+    END. /* if valid-handle */
     WAIT-FOR GO OF FRAME {&FRAME-NAME}.
 END.
 RUN disable_UI.
@@ -693,25 +716,24 @@ PROCEDURE addFilterObjects :
     DEFINE VARIABLE h_calendar  AS HANDLE  NO-UNDO.
     DEFINE VARIABLE h_btnClear  AS HANDLE  NO-UNDO.
     DEFINE VARIABLE h_colNum    AS INTEGER NO-UNDO.
-    DEFINE VARIABLE h_focus     AS HANDLE  NO-UNDO.
     DEFINE VARIABLE hWidget     AS HANDLE  NO-UNDO EXTENT 1000.
     
     IF ip-filterList NE "" THEN DO:
         DO li-count = 1 TO NUM-ENTRIES(ip-filterList):      
             ASSIGN 
-                h_field = h_ttbuffer:BUFFER-FIELD(REPLACE(ENTRY(li-count,ip-filterList), ".","&"))
-                h_colNum = LOOKUP(ENTRY(li-count,ip-filterList), ip-displayList)
+                h_field     = h_ttbuffer:BUFFER-FIELD(REPLACE(ENTRY(li-count,ip-filterList), ".","&"))
+                h_colNum    = LOOKUP(ENTRY(li-count,ip-filterList), ip-displayList)
                 h_browseCol = h_browser:GET-BROWSE-COL(h_colNum):HANDLE
                 .                
 
             IF ip-subjectID NE 0 THEN DO:
                 FIND FIRST dynValueColumn NO-LOCK
-                     WHERE dynValueColumn.subjectID         EQ ip-subjectID
-                       AND dynValueColumn.user-id           EQ ip-userID
-                       AND dynValueColumn.paramValueID      EQ ip-paramValueID
-                       AND dynValueColumn.isFilterInitField EQ YES
-                       AND dynValueColumn.colName           EQ ENTRY(li-count,ip-filterList)
-                     NO-ERROR.
+                    WHERE dynValueColumn.subjectID         EQ ip-subjectID
+                    AND dynValueColumn.user-id           EQ ip-userID
+                    AND dynValueColumn.paramValueID      EQ ip-paramValueID
+                    AND dynValueColumn.isFilterInitField EQ YES
+                    AND dynValueColumn.colName           EQ ENTRY(li-count,ip-filterList)
+                    NO-ERROR.
                 IF AVAILABLE dynValueColumn THEN
                     ASSIGN
                         hFilterField[li-count] = h_browseCol
@@ -721,71 +743,90 @@ PROCEDURE addFilterObjects :
 
             IF VALID-HANDLE(h_field) THEN DO:
                 IF h_field:DATA-TYPE = "CHARACTER" OR
-                   h_field:DATA-TYPE = "INTEGER"   OR
-                   h_field:DATA-TYPE = "DECIMAL"   OR
-                   h_field:DATA-TYPE = "DATE" THEN DO:
+                    h_field:DATA-TYPE = "INTEGER"   OR
+                    h_field:DATA-TYPE = "DECIMAL"   OR
+                    h_field:DATA-TYPE = "DATE" THEN DO:
+                    IF li-count EQ 1 THEN DO:
+                        ASSIGN
+                            h_focus = firstFilter:HANDLE IN FRAME filter-frame
+                            hWidget[li-count]        = h_focus
+                            firstFilter:ROW          = h_browser:ROW - 1.26
+                            firstFilter:X            = h_browseCol:X
+                            firstFilter:SENSITIVE    = TRUE
+                            firstFilter:WIDTH-PIXELS = h_browseCol:WIDTH-PIXELS + 4
+/*                            firstFilter:DATA-TYPE    = h_field:DATA-TYPE*/
+                            firstFilter:FORMAT       = h_field:FORMAT
+                            firstFilter:VISIBLE      = TRUE
+                            firstFilter:SCREEN-VALUE = ""
+                            firstFilter:PRIVATE-DATA = h_field:NAME
+                            .
+                    END.
+                    ELSE DO:
+                        CREATE FILL-IN h_fillin
+                            ASSIGN 
+                            FRAME        = h_filterFrame
+                            ROW          = h_browser:ROW - 1.26
+                            X            = h_browseCol:X
+                            SENSITIVE    = TRUE
+                            WIDTH-PIXELS = h_browseCol:WIDTH-PIXELS + 4
+                            DATA-TYPE    = h_field:DATA-TYPE
+                            FORMAT       = h_field:FORMAT
+                            VISIBLE      = TRUE
+                            SCREEN-VALUE = ""
+                            PRIVATE-DATA = h_field:NAME
+                            TRIGGERS:
+                                ON ENTRY  PERSISTENT RUN pSetBGColor (h_fillin, 14).
+                                ON LEAVE  PERSISTENT RUN pSetBGColor (h_fillin, ?).
+                                ON RETURN PERSISTENT RUN applyFilter.
+                            END TRIGGERS.
+                        hWidget[li-count] = h_fillin:HANDLE.
+                    END.
 
-                   CREATE FILL-IN h_fillin
-                   ASSIGN FRAME     = h_filterFrame
-                       ROW          = h_browser:ROW - 1.26
-                       X            = h_browseCol:X
-                       SENSITIVE    = TRUE
-                       WIDTH-PIXELS = h_browseCol:WIDTH-PIXELS + 4
-                       DATA-TYPE    = h_field:DATA-TYPE
-                       FORMAT       = h_field:FORMAT
-                       VISIBLE      = TRUE
-                       SCREEN-VALUE = ""
-                       PRIVATE-DATA = h_field:NAME
-                       TRIGGERS:
-                           ON RETURN PERSISTENT RUN applyFilter.
-                       END TRIGGERS.
-                   hWidget[li-count] = h_fillin:HANDLE.
-                   IF li-count EQ 1 THEN
-                   h_focus = h_fillin.
-
-                   IF h_field:DATA-TYPE = "DATE" THEN DO:
-                       h_fillin:WIDTH-CHARS = 16.
-                      
-                       CREATE BUTTON h_calendar
-                       ASSIGN FRAME    = h_filterFrame                          
-                           ROW          = h_browser:ROW - 1.28
-                           COLUMN       = h_fillin:COLUMN + h_fillin:WIDTH
-                           WIDTH        = 4.6
-                           HEIGHT       = h_fillin:HEIGHT                          
-                           SENSITIVE    = TRUE
-                           VISIBLE      = TRUE
-                           PRIVATE-DATA = h_field:NAME
-                           TRIGGERS:
-                               ON CHOOSE PERSISTENT RUN chooseDate (h_calendar:PRIVATE-DATA).
-                           END TRIGGERS.            
-                       hWidget[li-count] = h_fillin:HANDLE.
-                       h_calendar:LOAD-IMAGE-UP("Graphics/16x16/calendar.bmp").          
-                   END.
+                    IF h_field:DATA-TYPE = "DATE" THEN DO:
+                        h_fillin:WIDTH-CHARS = 16.                      
+                        CREATE BUTTON h_calendar
+                            ASSIGN 
+                            FRAME    = h_filterFrame                          
+                            ROW          = h_browser:ROW - 1.28
+                            COLUMN       = h_fillin:COLUMN + h_fillin:WIDTH
+                            WIDTH        = 4.6
+                            HEIGHT       = h_fillin:HEIGHT                          
+                            SENSITIVE    = TRUE
+                            VISIBLE      = TRUE
+                            PRIVATE-DATA = h_field:NAME
+                            TRIGGERS:
+                                ON CHOOSE PERSISTENT RUN chooseDate (h_calendar:PRIVATE-DATA).
+                            END TRIGGERS.            
+                        hWidget[li-count] = h_fillin:HANDLE.
+                        h_calendar:LOAD-IMAGE-UP("Graphics/16x16/calendar.bmp").          
+                    END.
                 END.
                 ELSE IF h_field:DATA-TYPE = "LOGICAL" THEN DO:
-                   CREATE COMBO-BOX h_combobox
-                   ASSIGN FRAME       = h_filterFrame
-                       ROW             = h_browser:ROW - 1.26
-                       X               = h_browseCol:X
-                       WIDTH-PIXELS    = h_browseCol:WIDTH-PIXELS + 4
-                       SENSITIVE       = TRUE
-                       VISIBLE         = TRUE
-                       INNER-LINES     = 3
-                       LIST-ITEM-PAIRS = "All,1,"
-                                       + ENTRY(1,h_field:FORMAT,"/") + ",2,"
-                                       + ENTRY(2,h_field:FORMAT,"/") + ",3"
-                       PRIVATE-DATA    = h_field:NAME
-                       SCREEN-VALUE    = "1"
-                       TRIGGERS:
-                           ON VALUE-CHANGED PERSISTENT RUN openFilterQuery.
-                       END TRIGGERS.
-                   hWidget[li-count] = h_fillin:HANDLE.
-                END.
+                        CREATE COMBO-BOX h_combobox
+                            ASSIGN 
+                            FRAME       = h_filterFrame
+                            ROW             = h_browser:ROW - 1.26
+                            X               = h_browseCol:X
+                            WIDTH-PIXELS    = h_browseCol:WIDTH-PIXELS + 4
+                            SENSITIVE       = TRUE
+                            VISIBLE         = TRUE
+                            INNER-LINES     = 3
+                            LIST-ITEM-PAIRS = "All,1,"
+                                    + ENTRY(1,h_field:FORMAT,"/") + ",2,"
+                                    + ENTRY(2,h_field:FORMAT,"/") + ",3"
+                            PRIVATE-DATA    = h_field:NAME
+                            SCREEN-VALUE    = "1"
+                            TRIGGERS:
+                                ON VALUE-CHANGED PERSISTENT RUN openFilterQuery.
+                            END TRIGGERS.
+                        hWidget[li-count] = h_fillin:HANDLE.
+                    END.
             END.
         END.
         
         CREATE TOGGLE-BOX h_togglebox
-        ASSIGN FRAME = h_filterFrame
+            ASSIGN 
+            FRAME = h_filterFrame
             LABEL     = "Use Wildcards"
             Y         = bt-filter:Y IN FRAME filter-frame + 10
             COLUMN    = 46
@@ -796,7 +837,8 @@ PROCEDURE addFilterObjects :
             END TRIGGERS.
            
         CREATE BUTTON h_btnClear
-        ASSIGN FRAME    = h_filterFrame
+            ASSIGN 
+            FRAME    = h_filterFrame
             LABEL       = "Reset"
             ROW         = bt-filter:ROW IN FRAME filter-frame
             COLUMN      = 24
@@ -806,23 +848,24 @@ PROCEDURE addFilterObjects :
             SENSITIVE   = TRUE
             VISIBLE     = TRUE
             TRIGGERS:
-               ON CHOOSE PERSISTENT RUN resetFilterObjects IN THIS-PROCEDURE.
+                ON CHOOSE PERSISTENT RUN resetFilterObjects IN THIS-PROCEDURE.
             END TRIGGERS.
         h_btnClear:LOAD-IMAGE("Graphics/32x32/undo_32.png").
 
         CREATE BUTTON h_btnOK
-        ASSIGN FRAME   = h_filterFrame
-           LABEL       = "Find"
-           ROW         = bt-filter:ROW IN FRAME filter-frame
-           COLUMN      = 11
-           WIDTH       = bt-ok:WIDTH IN FRAME {&FRAME-NAME}
-           HEIGHT      = bt-ok:HEIGHT IN FRAME {&FRAME-NAME}
-           FLAT-BUTTON = YES
-           SENSITIVE   = TRUE
-           VISIBLE     = TRUE
-           TRIGGERS:
-              ON CHOOSE PERSISTENT RUN openFilterQuery IN THIS-PROCEDURE.
-           END TRIGGERS.
+            ASSIGN 
+            FRAME   = h_filterFrame
+            LABEL       = "Find"
+            ROW         = bt-filter:ROW IN FRAME filter-frame
+            COLUMN      = 11
+            WIDTH       = bt-ok:WIDTH IN FRAME {&FRAME-NAME}
+            HEIGHT      = bt-ok:HEIGHT IN FRAME {&FRAME-NAME}
+            FLAT-BUTTON = YES
+            SENSITIVE   = TRUE
+            VISIBLE     = TRUE
+            TRIGGERS:
+                ON CHOOSE PERSISTENT RUN openFilterQuery IN THIS-PROCEDURE.
+            END TRIGGERS.
         h_btnOK:LOAD-IMAGE("Graphics/32x32/search_New.png").
 
         bt-ok:HANDLE:MOVE-TO-TOP().
@@ -834,12 +877,12 @@ PROCEDURE addFilterObjects :
     CLEAR FRAME filter-frame NO-PAUSE.
     /* set any filter init values */
     DO li-count = 1 TO NUM-ENTRIES(ip-filterList):
-        IF VALID-HANDLE(hWidget[li-count]) THEN
+        IF VALID-HANDLE(hFilterField[li-count]) THEN
             hWidget[li-count]:SCREEN-VALUE = cFilterValue[li-count].
     END. /* do li-count */
-.
-    IF cFocusValue NE "0" AND cFocusValue NE  "" AND h_focus:DATA-TYPE = "Integer" THEN 
+    IF cFocusValue NE "0" AND cFocusValue NE  "" THEN 
         h_focus:SCREEN-VALUE = cFocusValue.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -930,12 +973,6 @@ PROCEDURE buildTempTable :
             iBuffer = LOOKUP(ENTRY(1, ENTRY(li-count, ip-displayList), "."), ip-table-list). 
             
             h_field = h_buffer[iBuffer]:BUFFER-FIELD(ENTRY(2, ENTRY(li-count, ip-displayList), ".")):HANDLE NO-ERROR.
-
-            IF h_field:BUFFER-VALUE EQ ? THEN DO:
-                ls-allData = ls-allData + "|".
-                NEXT.
-            END.
-                        
             IF VALID-HANDLE(h_field) THEN DO:
                 IF h_field:DATA-TYPE = "LOGICAL" THEN 
                 ls-allData = ls-allData + STRING(h_field:BUFFER-VALUE, h_field:FORMAT) + "|".
@@ -1018,7 +1055,7 @@ PROCEDURE createTempTables :
                    ls-format = h_field:FORMAT
                    li-lookup = 0
                    .    
-            li-lookup = LOOKUP(h_buffer[iBuffer]:NAME + "." + h_field:NAME, ip-displayList).
+            li-lookup = LOOKUP(h_field:NAME, ip-displayList).
     
             IF li-lookup > 0 THEN DO:
                 IF ip-labelList <> "" AND 
@@ -1236,9 +1273,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE nextPage Dialog-Frame
-PROCEDURE nextPage PRIVATE:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE nextPage Dialog-Frame 
+PROCEDURE nextPage PRIVATE :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -1272,8 +1308,7 @@ PROCEDURE nextPage PRIVATE:
         DO iFieldCount = 1 TO NUM-ENTRIES(ip-fieldList):
             iBuffer = LOOKUP(ENTRY(1, ENTRY(iFieldCount, ip-fieldList), "."), ip-table-list). 
             
-            IF iBuffer GT 0 THEN
-                h_brbuffer:BUFFER-FIELD (REPLACE(ENTRY(iFieldCount, ip-fieldList), ".", "&")):BUFFER-VALUE = h_ipbuffer:BUFFER-FIELD(REPLACE(ENTRY(iFieldCount, ip-fieldList), ".", "&")):BUFFER-VALUE.
+            h_brbuffer:BUFFER-FIELD (REPLACE(ENTRY(iFieldCount, ip-fieldList), ".", "&")):BUFFER-VALUE = h_ipbuffer:BUFFER-FIELD(REPLACE(ENTRY(iFieldCount, ip-fieldList), ".", "&")):BUFFER-VALUE.
         END.
 
         RUN pCalcFields (h_brquery, h_brbuffer).
@@ -1285,13 +1320,11 @@ PROCEDURE nextPage PRIVATE:
     h_brquery:QUERY-OPEN().
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE nextPage Dialog-Frame 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE nextPageFilter Dialog-Frame 
 PROCEDURE nextPageFilter :
 /*------------------------------------------------------------------------------
       Purpose:     
@@ -1327,8 +1360,7 @@ PROCEDURE nextPageFilter :
         DO iFieldCount = 1 TO NUM-ENTRIES(ip-fieldList):
             iBuffer = LOOKUP(ENTRY(1, ENTRY(iFieldCount, ip-fieldList), "."), ip-table-list). 
             
-            IF iBuffer GT 0 THEN
-                h_brbuffer:BUFFER-FIELD (REPLACE(ENTRY(iFieldCount, ip-fieldList), ".", "&")):BUFFER-VALUE = h_ipbuffer[iBuffer]:BUFFER-FIELD(ENTRY(2, ENTRY(iFieldCount, ip-fieldList), ".")):BUFFER-VALUE.
+            h_brbuffer:BUFFER-FIELD (REPLACE(ENTRY(iFieldCount, ip-fieldList), ".", "&")):BUFFER-VALUE = h_ipbuffer[iBuffer]:BUFFER-FIELD(ENTRY(2, ENTRY(iFieldCount, ip-fieldList), ".")):BUFFER-VALUE.
         END.
 
         RUN pCalcFields (h_brquery, h_brbuffer).
@@ -1439,9 +1471,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE prevPage Dialog-Frame
-PROCEDURE prevPage PRIVATE:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE prevPage Dialog-Frame 
+PROCEDURE prevPage PRIVATE :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -1469,8 +1500,7 @@ PROCEDURE prevPage PRIVATE:
         DO iFieldCount = 1 TO NUM-ENTRIES(ip-fieldList):
             iBuffer = LOOKUP(ENTRY(1, ENTRY(iFieldCount, ip-fieldList), "."), ip-table-list). 
             
-            IF iBuffer GT 0 THEN
-                h_brbuffer:BUFFER-FIELD (REPLACE(ENTRY(iFieldCount, ip-fieldList), ".", "&")):BUFFER-VALUE = h_ipbuffer:BUFFER-FIELD(REPLACE(ENTRY(iFieldCount, ip-fieldList), ".", "&")):BUFFER-VALUE.
+            h_brbuffer:BUFFER-FIELD (REPLACE(ENTRY(iFieldCount, ip-fieldList), ".", "&")):BUFFER-VALUE = h_ipbuffer:BUFFER-FIELD(REPLACE(ENTRY(iFieldCount, ip-fieldList), ".", "&")):BUFFER-VALUE.
         END.
 
         RUN pCalcFields (h_brquery, h_brbuffer).
@@ -1490,13 +1520,11 @@ PROCEDURE prevPage PRIVATE:
 
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE prevPage Dialog-Frame 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE prevPageFilter Dialog-Frame 
 PROCEDURE prevPageFilter :
 /*------------------------------------------------------------------------------
       Purpose:     
@@ -1526,8 +1554,7 @@ PROCEDURE prevPageFilter :
         DO iFieldCount = 1 TO NUM-ENTRIES(ip-fieldList):
             iBuffer = LOOKUP(ENTRY(1, ENTRY(iFieldCount, ip-fieldList), "."), ip-table-list). 
             
-            IF iBuffer GT 0 THEN
-                h_brbuffer:BUFFER-FIELD (REPLACE(ENTRY(iFieldCount, ip-fieldList), ".", "&")):BUFFER-VALUE = h_ipbuffer[iBuffer]:BUFFER-FIELD(ENTRY(2, ENTRY(iFieldCount, ip-fieldList), ".")):BUFFER-VALUE.
+            h_brbuffer:BUFFER-FIELD (REPLACE(ENTRY(iFieldCount, ip-fieldList), ".", "&")):BUFFER-VALUE = h_ipbuffer[iBuffer]:BUFFER-FIELD(ENTRY(2, ENTRY(iFieldCount, ip-fieldList), ".")):BUFFER-VALUE.
         END.
 
         RUN pCalcFields (h_brquery, h_brbuffer).
@@ -1544,6 +1571,22 @@ PROCEDURE prevPageFilter :
         .    
     IF li-pageCount = 1 THEN
     bt-prev:SENSITIVE IN FRAME {&FRAME-NAME} = FALSE.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetBGColor Dialog-Frame 
+PROCEDURE pSetBGColor :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iphWidget  AS HANDLE  NO-UNDO.
+    DEFINE INPUT PARAMETER ipiBGColor AS INTEGER NO-UNDO.
+    
+    iphWidget:BGCOLOR = ipiBGColor.
 
 END PROCEDURE.
 
