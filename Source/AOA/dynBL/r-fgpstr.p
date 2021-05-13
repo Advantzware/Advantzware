@@ -631,7 +631,6 @@ PROCEDURE pBusinessLogic:
     DEFINE BUFFER bitemfg     FOR itemfg.
 
     RUN create-tt-report.
-
     FOR EACH tt-report
         WHERE tt-report.term-id EQ "",
         FIRST fg-rdtlh WHERE RECID(fg-rdtlh) EQ tt-report.rec-id NO-LOCK,
@@ -656,334 +655,334 @@ PROCEDURE pBusinessLogic:
         v-new-job = NO.
         IF FIRST-OF(tt-report.key-01) THEN
         v-whse = fg-rdtlh.loc.      
-    END.    
-    v-stnd-cost = 0.
-    IF fg-rcpth.rita-code EQ "S" THEN DO:
-      FIND FIRST fg-bin NO-LOCK
-           WHERE fg-bin.company EQ fg-rcpth.company
-             AND fg-bin.job-no  EQ fg-rcpth.job-no
-             AND fg-bin.job-no2 EQ fg-rcpth.job-no2
-             AND fg-bin.i-no    EQ fg-rcpth.i-no
-             AND fg-bin.loc     EQ fg-rdtlh.loc
-             AND fg-bin.loc-bin EQ fg-rdtlh.loc-bin
-             AND fg-bin.tag     EQ fg-rdtlh.tag
-          USE-INDEX job
-          NO-ERROR.
-        lv-cost-uom = IF AVAILABLE fg-bin THEN fg-bin.pur-uom ELSE "M".
-    END.
-    ELSE
-    lv-cost-uom = fg-rcpth.pur-uom.
-    FIND FIRST oe-bolh NO-LOCK
-         WHERE oe-bolh.company EQ cCompany
-           AND oe-bolh.b-no    EQ fg-rcpth.b-no
-         NO-ERROR.
-    IF AVAILABLE oe-bolh  THEN 
-    FIND FIRST shipto NO-LOCK
-         WHERE shipto.company EQ cCompany
-           AND shipto.cust-no EQ oe-bolh.cust-no
-           AND shipto.ship-id EQ oe-bolh.ship-id 
-         NO-ERROR.
-    IF AVAILABLE shipto THEN
-    ASSIGN 
-        v-shipto = shipto.ship-id
-        v-shipto-name =  shipto.ship-name
-        .
-    ELSE
-    ASSIGN 
-        v-shipto = ""
-        v-shipto-name = ""
-        .
-    IF fg-rcpth.rita-code EQ "S" THEN DO:
-        FIND FIRST oe-boll NO-LOCK
-             WHERE oe-boll.company EQ oe-bolh.company
-               AND oe-boll.b-no    EQ oe-bolh.b-no
+        v-stnd-cost = 0.
+        IF fg-rcpth.rita-code EQ "S" THEN DO:
+          FIND FIRST fg-bin NO-LOCK
+               WHERE fg-bin.company EQ fg-rcpth.company
+                 AND fg-bin.job-no  EQ fg-rcpth.job-no
+                 AND fg-bin.job-no2 EQ fg-rcpth.job-no2
+                 AND fg-bin.i-no    EQ fg-rcpth.i-no
+                 AND fg-bin.loc     EQ fg-rdtlh.loc
+                 AND fg-bin.loc-bin EQ fg-rdtlh.loc-bin
+                 AND fg-bin.tag     EQ fg-rdtlh.tag
+              USE-INDEX job
+              NO-ERROR.
+            lv-cost-uom = IF AVAILABLE fg-bin THEN fg-bin.pur-uom ELSE "M".
+        END.
+        ELSE
+        lv-cost-uom = fg-rcpth.pur-uom.
+        FIND FIRST oe-bolh NO-LOCK
+             WHERE oe-bolh.company EQ cCompany
+               AND oe-bolh.b-no    EQ fg-rcpth.b-no
              NO-ERROR.
-        IF AVAILABLE oe-boll THEN
-        iBol-no = IF AVAILABLE oe-boll THEN oe-boll.bol-no ELSE 0.
-    END.
-    ELSE iBol-no = 0.
-    FIND FIRST itemfg NO-LOCK
-        WHERE itemfg.company EQ cCompany
-          AND itemfg.i-no    EQ fg-rcpth.i-no
-        USE-INDEX i-no
-        NO-ERROR.
-    IF AVAILABLE itemfg THEN DO:
-        lv-cost-uom = itemfg.prod-uom.
-        /* calculate the cost based on fg-rcpth.pur-uom. */
+        IF AVAILABLE oe-bolh  THEN 
+        FIND FIRST shipto NO-LOCK
+             WHERE shipto.company EQ cCompany
+               AND shipto.cust-no EQ oe-bolh.cust-no
+               AND shipto.ship-id EQ oe-bolh.ship-id 
+             NO-ERROR.
+        IF AVAILABLE shipto THEN
+        ASSIGN 
+            v-shipto = shipto.ship-id
+            v-shipto-name =  shipto.ship-name
+            .
+        ELSE
+        ASSIGN 
+            v-shipto = ""
+            v-shipto-name = ""
+            .
+        IF fg-rcpth.rita-code EQ "S" THEN DO:
+            FIND FIRST oe-boll NO-LOCK
+                 WHERE oe-boll.company EQ oe-bolh.company
+                   AND oe-boll.b-no    EQ oe-bolh.b-no
+                 NO-ERROR.
+            IF AVAILABLE oe-boll THEN
+            iBol-no = IF AVAILABLE oe-boll THEN oe-boll.bol-no ELSE 0.
+        END.
+        ELSE iBol-no = 0.
+        FIND FIRST itemfg NO-LOCK
+            WHERE itemfg.company EQ cCompany
+              AND itemfg.i-no    EQ fg-rcpth.i-no
+            USE-INDEX i-no
+            NO-ERROR.
+        IF AVAILABLE itemfg THEN DO:
+            lv-cost-uom = itemfg.prod-uom.
+            /* calculate the cost based on fg-rcpth.pur-uom. */
+            ASSIGN
+                 v-fg-qty   = fg-rdtlh.qty
+                 v-fg-cost  = fg-rdtlh.cost * (v-fg-qty / IF lv-cost-uom EQ "M" THEN 1000 ELSE 1)
+                 v-fg-value = 0
+                 v-msf[1]   = 0
+                 v-msf[2]   = 0
+                 .        
+            RELEASE job-mat.
+            IF fg-rcpth.rita-code EQ "R" THEN
+            RUN calc-msf-for-r (
+                ROWID(fg-rcpth),
+                ROWID(fg-rdtlh),
+                // LAST-OF(tt-report.key-02),
+                v-corr,
+                OUTPUT v-on,
+                OUTPUT v-qty-pallet,
+                OUTPUT v-msf[1],
+                OUTPUT v-msf[2]
+                ).    
+            IF fg-rcpth.rita-code EQ "R" THEN DO:
+                IF v-msf[1] GT fg-rdtlh.qty * itemfg.t-sqft THEN
+                v-msf[2] = v-msf[2]
+                         + (v-msf[1] - (fg-rdtlh.qty * itemfg.t-sqft))
+                         .
+                v-msf[1] = fg-rdtlh.qty * itemfg.t-sqft.
+            END.
+            FIND FIRST eb NO-LOCK
+                 WHERE eb.company  EQ itemfg.company
+                   AND eb.est-no   EQ itemfg.est-no
+                   AND eb.stock-no EQ itemfg.i-no
+                 NO-ERROR.
+            FIND ef OF eb NO-LOCK NO-ERROR.
+            v-caliper = IF AVAILABLE ef THEN STRING(ef.cal) ELSE "".
+            IF AVAILABLE eb THEN
+            ASSIGN
+                v-numColors = eb.i-col
+                v-numup     = eb.num-up
+                v-sheetsize = IF AVAILABLE ef THEN STRING(ef.gsh-wid) + "x" + STRING(ef.gsh-len) ELSE ""
+                .
+        END.
+        job-start = ? .
+        FIND FIRST job NO-LOCK
+             WHERE job.company EQ fg-rcpth.company 
+               AND job.job-no  EQ fg-rcpth.job-no
+               AND job.job-no2 EQ fg-rcpth.job-no2
+             NO-ERROR.
+        IF AVAILABLE job THEN
+        job-start = job.start-date.
+        FIND FIRST job-hdr NO-LOCK
+             WHERE job-hdr.company EQ fg-rcpth.company
+               AND job-hdr.job-no  EQ fg-rcpth.job-no
+               AND job-hdr.job-no2 EQ fg-rcpth.job-no2
+               AND job-hdr.i-no    EQ fg-rcpth.i-no
+             NO-ERROR.
+        IF AVAILABLE job-hdr AND job-hdr.est-no NE "" THEN DO:
+            FIND FIRST eb NO-LOCK
+                 WHERE eb.company  EQ job-hdr.company
+                   AND eb.est-no   EQ job-hdr.est-no
+                   AND eb.stock-no EQ job-hdr.i-no
+                 NO-ERROR.
+            IF AVAILABLE eb THEN
+            ASSIGN
+                v-numColors = (eb.i-col)
+                v-numup     = (eb.num-up)
+                v-sheetsize = IF AVAILABLE ef THEN STRING(ef.gsh-wid) + "x" + string(ef.gsh-len) ELSE ""
+                .
+            FIND ef OF eb NO-LOCK NO-ERROR.
+            v-caliper = IF AVAILABLE ef THEN STRING(ef.cal) ELSE "".
+        END.
+        ASSIGN 
+            prom-date = ? 
+            due-date  = ?
+            order-no  = 0
+            .        
+        IF AVAILABLE job-hdr AND job-hdr.ord-no NE 0 THEN DO:
+            FIND FIRST oe-ordl NO-LOCK
+                 WHERE oe-ordl.company EQ cCompany
+                   AND oe-ordl.ord-no  EQ INTEGER(job-hdr.ord-no )
+                   AND oe-ordl.i-no    EQ itemfg.i-no
+                 NO-ERROR.
+            IF AVAILABLE oe-ordl THEN
+            ASSIGN
+                prom-date = oe-ordl.prom-date 
+                due-date  = oe-ordl.req-date 
+                order-no  = oe-ordl.ord-no
+                .
+        END.
+        ELSE
+        IF AVAILABLE oe-bolh THEN DO:
+            FIND FIRST oe-boll NO-LOCK
+                 WHERE oe-boll.company EQ oe-bolh.company 
+                   AND oe-boll.b-no    EQ oe-bolh.b-no
+                   AND oe-boll.i-no    EQ itemfg.i-no
+                 NO-ERROR.
+            IF AVAILABLE oe-boll THEN 
+            FIND FIRST oe-ordl NO-LOCK
+                 WHERE oe-ordl.company EQ cCompany
+                   AND oe-ordl.ord-no  EQ INTEGER(oe-boll.ord-no )
+                   AND oe-ordl.i-no    EQ itemfg.i-no
+                 NO-ERROR.
+            IF AVAILABLE oe-ordl THEN
+            ASSIGN
+                prom-date = oe-ordl.prom-date 
+                due-date  = oe-ordl.req-date 
+                order-no  = oe-ordl.ord-no
+                .
+        END.
+        RUN calc-sell-price (
+            ROWID(fg-rcpth), 
+            OUTPUT lv-sell-price, 
+            OUTPUT lv-sell-uom
+            ).
+        RUN calc-fg-value (
+            lv-sell-price,
+            lv-sell-uom,
+            ROWID(fg-rdtlh),
+            OUTPUT v-fg-value
+            ).
         ASSIGN
-             v-fg-qty   = fg-rdtlh.qty
-             v-fg-cost  = fg-rdtlh.cost * (v-fg-qty / IF lv-cost-uom EQ "M" THEN 1000 ELSE 1)
-             v-fg-value = 0
-             v-msf[1]   = 0
-             v-msf[2]   = 0
-             .        
-        RELEASE job-mat.
-        IF fg-rcpth.rita-code EQ "R" THEN
-        RUN calc-msf-for-r (
+            v-msf[1] = v-msf[1] / 1000
+            v-msf[2] = v-msf[2] / 1000
+            .
+        IF INDEX("RTASEC", fg-rcpth.rita-code) NE 0 THEN
+        v-tran-type = ENTRY(INDEX("RTASEC", fg-rcpth.rita-code),v-entrytype).
+        ELSE v-tran-type = "".
+        IF fg-rcpth.po-no NE " " THEN
+        FIND FIRST po-ord NO-LOCK
+             WHERE po-ord.company EQ cCompany
+               AND po-ord.po-no   EQ INTEGER(fg-rcpth.po-no)
+             NO-ERROR.   
+        IF AVAILABLE po-ord THEN
+        BUFFER bpo-ord:FIND-BY-ROWID(ROWID(po-ord), NO-LOCK).
+        RUN calc-case-and-tag (
             ROWID(fg-rcpth),
             ROWID(fg-rdtlh),
-            // LAST-OF(tt-report.key-02),
-            v-corr,
-            OUTPUT v-on,
-            OUTPUT v-qty-pallet,
-            OUTPUT v-msf[1],
-            OUTPUT v-msf[2]
-            ).    
-        IF fg-rcpth.rita-code EQ "R" THEN DO:
-            IF v-msf[1] GT fg-rdtlh.qty * itemfg.t-sqft THEN
-            v-msf[2] = v-msf[2]
-                     + (v-msf[1] - (fg-rdtlh.qty * itemfg.t-sqft))
-                     .
-            v-msf[1] = fg-rdtlh.qty * itemfg.t-sqft.
-        END.
-        FIND FIRST eb NO-LOCK
-             WHERE eb.company  EQ itemfg.company
-               AND eb.est-no   EQ itemfg.est-no
-               AND eb.stock-no EQ itemfg.i-no
+            v-fg-qty,
+            OUTPUT v-cases,
+            OUTPUT v-qty-case,
+            OUTPUT v-tag
+            ).
+        FIND FIRST loadtag NO-LOCK
+             WHERE loadtag.item-type EQ NO
+               AND loadtag.company   EQ cCompany
+               AND loadtag.i-no      EQ fg-rcpth.i-no
+               AND loadtag.tag-no    EQ fg-rdtlh.tag
              NO-ERROR.
-        FIND ef OF eb NO-LOCK NO-ERROR.
-        v-caliper = IF AVAILABLE ef THEN STRING(ef.cal) ELSE "".
-        IF AVAILABLE eb THEN
+        IF AVAILABLE loadtag THEN
+        FIND FIRST rfidtag OF loadtag NO-LOCK NO-ERROR.   
+        FIND FIRST fg-bin NO-LOCK
+              WHERE fg-bin.company EQ fg-rcpth.company
+                AND fg-bin.job-no  EQ fg-rcpth.job-no
+                AND fg-bin.job-no2 EQ fg-rcpth.job-no2
+                AND fg-bin.i-no    EQ fg-rcpth.i-no
+                AND fg-bin.loc     EQ fg-rdtlh.loc
+                AND fg-bin.loc-bin EQ fg-rdtlh.loc-bin
+                AND fg-bin.tag     EQ fg-rdtlh.tag
+                AND fg-bin.po-no   EQ fg-rcpth.po-no
+                AND fg-bin.bol-no  EQ fg-rdtlh.bol-no
+              USE-INDEX job
+              NO-ERROR.
+        IF NOT AVAILABLE fg-bin THEN 
+        FIND FIRST fg-bin NO-LOCK
+             WHERE fg-bin.company EQ fg-rcpth.company
+               AND fg-bin.job-no  EQ fg-rcpth.job-no
+               AND fg-bin.job-no2 EQ fg-rcpth.job-no2
+               AND fg-bin.i-no    EQ fg-rcpth.i-no
+               AND fg-bin.loc     EQ fg-rdtlh.loc
+               AND fg-bin.loc-bin EQ fg-rdtlh.loc-bin
+               AND fg-bin.tag     EQ fg-rdtlh.tag
+             USE-INDEX job 
+             NO-ERROR.
+        IF NOT AVAILABLE fg-bin THEN 
+        FIND FIRST fg-bin NO-LOCK
+             WHERE fg-bin.company EQ fg-rcpth.company
+               AND fg-bin.i-no    EQ fg-rcpth.i-no
+               AND fg-bin.po-no   EQ fg-rcpth.po-no
+               AND fg-bin.loc     EQ fg-rdtlh.loc
+               AND fg-bin.loc-bin EQ fg-rdtlh.loc-bin
+               AND fg-bin.tag     EQ fg-rdtlh.tag
+             USE-INDEX po-no
+             NO-ERROR.
+        IF NOT AVAILABLE fg-bin THEN 
+        FIND FIRST fg-bin NO-LOCK
+             WHERE fg-bin.company EQ fg-rcpth.company
+               AND fg-bin.i-no    EQ fg-rcpth.i-no
+               AND fg-bin.loc     EQ fg-rdtlh.loc
+               AND fg-bin.loc-bin EQ fg-rdtlh.loc-bin
+               AND fg-bin.tag     EQ fg-rdtlh.tag
+             USE-INDEX co-ino NO-ERROR.
+            IF AVAILABLE fg-bin THEN
+            v-stnd-cost = fg-bin.std-tot-cost.
+            ELSE
+            IF AVAILABLE itemfg THEN
+            v-stnd-cost = itemfg.total-std-cost.
+            iBinQtyb = 0.
+            IF fg-rcpth.rita-code = "C" THEN
+            FOR EACH bf-fg-rcpth NO-LOCK
+                WHERE bf-fg-rcpth.company   EQ cCompany 
+                  AND bf-fg-rcpth.i-no      EQ fg-rcpth.i-no
+                  AND bf-fg-rcpth.job-no    EQ fg-rcpth.job-no
+                  AND bf-fg-rcpth.job-no2   EQ fg-rcpth.job-no2
+                  AND bf-fg-rcpth.po-no     EQ fg-rcpth.po-no
+                  AND bf-fg-rcpth.rita-code NE "C",
+                 EACH bf-fg-rdtlh NO-LOCK
+                WHERE bf-fg-rdtlh.r-no    EQ bf-fg-rcpth.r-no
+                  AND bf-fg-rdtlh.loc     EQ fg-rdtlh.loc
+                  AND bf-fg-rdtlh.loc-bin EQ fg-rdtlh.loc-bin
+                  AND bf-fg-rdtlh.tag     EQ fg-rdtlh.tag
+                  AND bf-fg-rdtlh.cust-no EQ fg-rdtlh.cust-no 
+                  AND bf-fg-rdtlh.bol-no  EQ fg-rdtlh.bol-no
+                  AND bf-fg-rdtlh.inv-no  EQ fg-rdtlh.inv-no
+                BY fg-rcpth.trans-date DESCENDING
+                :
+                iBinQtyb = iBinQtyb +  bf-fg-rdtlh.qty.
+                LEAVE.
+            END.
+            cReason = "".
+            FIND FIRST rejct-cd NO-LOCK
+                 WHERE rejct-cd.CODE EQ fg-rdtlh.reject-code[1]
+                 NO-ERROR.
+            IF fg-rdtlh.reject-code[1] NE "" THEN
+            cReason = fg-rdtlh.reject-code[1] + IF AVAILABLE rejct-cd AND rejct-cd.dscr NE "" THEN ( " - " + rejct-cd.dscr) ELSE "".
+            ELSE cReason = "".
+       
+        BUFFER bitemfg:FIND-BY-ROWID(ROWID(itemfg), NO-LOCK).
+        CREATE ttFGPostHist.
         ASSIGN
-            v-numColors = eb.i-col
-            v-numup     = eb.num-up
-            v-sheetsize = IF AVAILABLE ef THEN STRING(ef.gsh-wid) + "x" + STRING(ef.gsh-len) ELSE ""
+            ttFGPostHist.transDate   = fg-rcpth.trans-date
+            ttFGPostHist.itemNo      = fg-rcpth.i-no      
+            ttFGPostHist.itemName    = fg-rcpth.i-name    
+            ttFGPostHist.poNo        = fg-rcpth.po-no     
+            ttFGPostHist.jobNo       = fg-rcpth.job-no    
+            ttFGPostHist.vendorNo    = IF AVAILABLE po-ord THEN po-ord.vend-no ELSE ""     
+            ttFGPostHist.bin         = fg-rdtlh.loc-bin   
+            ttFGPostHist.partNo      = itemfg.part-no     
+            ttFGPostHist.dieNo       = itemfg.die-no      
+            ttFGPostHist.cadNo       = itemfg.cad-no      
+            ttFGPostHist.plateNo     = itemfg.plate-no    
+            ttFGPostHist.user-id     = fg-rcpth.user-id   
+            ttFGPostHist.postDate    = fg-rcpth.post-date 
+            ttFGPostHist.ProdCat     = itemfg.procat      
+            ttFGPostHist.custName    = itemfg.cust-name   
+            ttFGPostHist.loc         = fg-rdtlh.loc 
+            ttFGPostHist.v-tran-type = SUBSTRING(v-tran-type,1,1)
+            ttFGPostHist.v-tag       = v-tag
+            ttFGPostHist.v-rfid#     = IF AVAILABLE rfidtag THEN SUBSTRING(rfidtag.rfidtag,13) ELSE ""
+            ttFGPostHist.v-cases     = v-cases
+            ttFGPostHist.v-qty-case  = v-qty-case
+            ttFGPostHist.lv-cost-uom = lv-cost-uom
+            ttFGPostHist.v-fg-qty    = v-fg-qty
+            ttFGPostHist.v-fg-cost   = v-fg-cost
+            ttFGPostHist.v-fg-value  = v-fg-value
+            ttFGPostHist.v-numUp     = v-numUP
+            ttFGPostHist.v-numColors = v-numColors
+            ttFGPostHist.v-SheetSize = v-SheetSize
+            ttFGPostHist.v-Caliper   = v-Caliper
+            ttFGPostHist.wt-h        = fg-rdtlh.tot-wt
+            ttFGPostHist.rec-time    = STRING(fg-rdtlh.trans-time,'HH:MM')
+            ttFGPostHist.unt-sel     = lv-sell-price
+            ttFGPostHist.suom        = lv-sell-uom
+            ttFGPostHist.unt-cst     = IF v-stnd-cost NE 0 THEN v-stnd-cost ELSE 0
+            ttFGPostHist.prom-date   = prom-date
+            ttFGPostHist.due-date    = due-date
+            ttFGPostHist.job-start   = job-start
+            ttFGPostHist.shipto      = v-shipto
+            ttFGPostHist.shipname    = v-shipto-name
+            ttFGPostHist.order-no    = order-no
+            ttFGPostHist.bef-qty     = iBinQtyb
+            ttFGPostHist.bin-qty     =  v-fg-qty - iBinQtyb
+            ttFGPostHist.bol-no      = iBol-no
+            ttFGPostHist.Reason      = cReason
+            ttFGPostHist.Reason-cd   = IF AVAILABLE fg-rdtlh AND fg-rdtlh.reject-code[1] NE "" THEN fg-rdtlh.reject-code[1] ELSE ""
+            ttFGPostHist.Reason-dscr = IF AVAILABLE rejct-cd AND rejct-cd.dscr NE "" THEN rejct-cd.dscr ELSE ""
             .
     END.
-    job-start = ? .
-    FIND FIRST job NO-LOCK
-         WHERE job.company EQ fg-rcpth.company 
-           AND job.job-no  EQ fg-rcpth.job-no
-           AND job.job-no2 EQ fg-rcpth.job-no2
-         NO-ERROR.
-    IF AVAILABLE job THEN
-    job-start = job.start-date.
-    FIND FIRST job-hdr NO-LOCK
-         WHERE job-hdr.company EQ fg-rcpth.company
-           AND job-hdr.job-no  EQ fg-rcpth.job-no
-           AND job-hdr.job-no2 EQ fg-rcpth.job-no2
-           AND job-hdr.i-no    EQ fg-rcpth.i-no
-         NO-ERROR.
-    IF AVAILABLE job-hdr AND job-hdr.est-no NE "" THEN DO:
-        FIND FIRST eb NO-LOCK
-             WHERE eb.company  EQ job-hdr.company
-               AND eb.est-no   EQ job-hdr.est-no
-               AND eb.stock-no EQ job-hdr.i-no
-             NO-ERROR.
-        IF AVAILABLE eb THEN
-        ASSIGN
-            v-numColors = (eb.i-col)
-            v-numup     = (eb.num-up)
-            v-sheetsize = IF AVAILABLE ef THEN STRING(ef.gsh-wid) + "x" + string(ef.gsh-len) ELSE ""
-            .
-        FIND ef OF eb NO-LOCK NO-ERROR.
-        v-caliper = IF AVAILABLE ef THEN STRING(ef.cal) ELSE "".
-    END.
-    ASSIGN 
-        prom-date = ? 
-        due-date  = ?
-        order-no  = 0
-        .        
-    IF AVAILABLE job-hdr AND job-hdr.ord-no NE 0 THEN DO:
-        FIND FIRST oe-ordl NO-LOCK
-             WHERE oe-ordl.company EQ cCompany
-               AND oe-ordl.ord-no  EQ INTEGER(job-hdr.ord-no )
-               AND oe-ordl.i-no    EQ itemfg.i-no
-             NO-ERROR.
-        IF AVAILABLE oe-ordl THEN
-        ASSIGN
-            prom-date = oe-ordl.prom-date 
-            due-date  = oe-ordl.req-date 
-            order-no  = oe-ordl.ord-no
-            .
-    END.
-    ELSE
-    IF AVAILABLE oe-bolh THEN DO:
-        FIND FIRST oe-boll NO-LOCK
-             WHERE oe-boll.company EQ oe-bolh.company 
-               AND oe-boll.b-no    EQ oe-bolh.b-no
-               AND oe-boll.i-no    EQ itemfg.i-no
-             NO-ERROR.
-        IF AVAILABLE oe-boll THEN 
-        FIND FIRST oe-ordl NO-LOCK
-             WHERE oe-ordl.company EQ cCompany
-               AND oe-ordl.ord-no  EQ INTEGER(oe-boll.ord-no )
-               AND oe-ordl.i-no    EQ itemfg.i-no
-             NO-ERROR.
-        IF AVAILABLE oe-ordl THEN
-        ASSIGN
-            prom-date = oe-ordl.prom-date 
-            due-date  = oe-ordl.req-date 
-            order-no  = oe-ordl.ord-no
-            .
-    END.
-    RUN calc-sell-price (
-        ROWID(fg-rcpth), 
-        OUTPUT lv-sell-price, 
-        OUTPUT lv-sell-uom
-        ).
-    RUN calc-fg-value (
-        lv-sell-price,
-        lv-sell-uom,
-        ROWID(fg-rdtlh),
-        OUTPUT v-fg-value
-        ).
-    ASSIGN
-        v-msf[1] = v-msf[1] / 1000
-        v-msf[2] = v-msf[2] / 1000
-        .
-    IF INDEX("RTASEC", fg-rcpth.rita-code) NE 0 THEN
-    v-tran-type = ENTRY(INDEX("RTASEC", fg-rcpth.rita-code),v-entrytype).
-    ELSE v-tran-type = "".
-    IF fg-rcpth.po-no NE " " THEN
-    FIND FIRST po-ord NO-LOCK
-         WHERE po-ord.company EQ cCompany
-           AND po-ord.po-no   EQ INTEGER(fg-rcpth.po-no)
-         NO-ERROR.   
-    IF AVAILABLE po-ord THEN
-    BUFFER bpo-ord:FIND-BY-ROWID(ROWID(po-ord), NO-LOCK).
-    RUN calc-case-and-tag (
-        ROWID(fg-rcpth),
-        ROWID(fg-rdtlh),
-        v-fg-qty,
-        OUTPUT v-cases,
-        OUTPUT v-qty-case,
-        OUTPUT v-tag
-        ).
-    FIND FIRST loadtag NO-LOCK
-         WHERE loadtag.item-type EQ NO
-           AND loadtag.company   EQ cCompany
-           AND loadtag.i-no      EQ fg-rcpth.i-no
-           AND loadtag.tag-no    EQ fg-rdtlh.tag
-         NO-ERROR.
-    IF AVAILABLE loadtag THEN
-    FIND FIRST rfidtag OF loadtag NO-LOCK NO-ERROR.   
-    FIND FIRST fg-bin NO-LOCK
-          WHERE fg-bin.company EQ fg-rcpth.company
-            AND fg-bin.job-no  EQ fg-rcpth.job-no
-            AND fg-bin.job-no2 EQ fg-rcpth.job-no2
-            AND fg-bin.i-no    EQ fg-rcpth.i-no
-            AND fg-bin.loc     EQ fg-rdtlh.loc
-            AND fg-bin.loc-bin EQ fg-rdtlh.loc-bin
-            AND fg-bin.tag     EQ fg-rdtlh.tag
-            AND fg-bin.po-no   EQ fg-rcpth.po-no
-            AND fg-bin.bol-no  EQ fg-rdtlh.bol-no
-          USE-INDEX job
-          NO-ERROR.
-    IF NOT AVAILABLE fg-bin THEN 
-    FIND FIRST fg-bin NO-LOCK
-         WHERE fg-bin.company EQ fg-rcpth.company
-           AND fg-bin.job-no  EQ fg-rcpth.job-no
-           AND fg-bin.job-no2 EQ fg-rcpth.job-no2
-           AND fg-bin.i-no    EQ fg-rcpth.i-no
-           AND fg-bin.loc     EQ fg-rdtlh.loc
-           AND fg-bin.loc-bin EQ fg-rdtlh.loc-bin
-           AND fg-bin.tag     EQ fg-rdtlh.tag
-         USE-INDEX job 
-         NO-ERROR.
-    IF NOT AVAILABLE fg-bin THEN 
-    FIND FIRST fg-bin NO-LOCK
-         WHERE fg-bin.company EQ fg-rcpth.company
-           AND fg-bin.i-no    EQ fg-rcpth.i-no
-           AND fg-bin.po-no   EQ fg-rcpth.po-no
-           AND fg-bin.loc     EQ fg-rdtlh.loc
-           AND fg-bin.loc-bin EQ fg-rdtlh.loc-bin
-           AND fg-bin.tag     EQ fg-rdtlh.tag
-         USE-INDEX po-no
-         NO-ERROR.
-    IF NOT AVAILABLE fg-bin THEN 
-    FIND FIRST fg-bin NO-LOCK
-         WHERE fg-bin.company EQ fg-rcpth.company
-           AND fg-bin.i-no    EQ fg-rcpth.i-no
-           AND fg-bin.loc     EQ fg-rdtlh.loc
-           AND fg-bin.loc-bin EQ fg-rdtlh.loc-bin
-           AND fg-bin.tag     EQ fg-rdtlh.tag
-         USE-INDEX co-ino NO-ERROR.
-        IF AVAILABLE fg-bin THEN
-        v-stnd-cost = fg-bin.std-tot-cost.
-        ELSE
-        IF AVAILABLE itemfg THEN
-        v-stnd-cost = itemfg.total-std-cost.
-        iBinQtyb = 0.
-        IF fg-rcpth.rita-code = "C" THEN
-        FOR EACH bf-fg-rcpth NO-LOCK
-            WHERE bf-fg-rcpth.company   EQ cCompany 
-              AND bf-fg-rcpth.i-no      EQ fg-rcpth.i-no
-              AND bf-fg-rcpth.job-no    EQ fg-rcpth.job-no
-              AND bf-fg-rcpth.job-no2   EQ fg-rcpth.job-no2
-              AND bf-fg-rcpth.po-no     EQ fg-rcpth.po-no
-              AND bf-fg-rcpth.rita-code NE "C",
-             EACH bf-fg-rdtlh NO-LOCK
-            WHERE bf-fg-rdtlh.r-no    EQ bf-fg-rcpth.r-no
-              AND bf-fg-rdtlh.loc     EQ fg-rdtlh.loc
-              AND bf-fg-rdtlh.loc-bin EQ fg-rdtlh.loc-bin
-              AND bf-fg-rdtlh.tag     EQ fg-rdtlh.tag
-              AND bf-fg-rdtlh.cust-no EQ fg-rdtlh.cust-no 
-              AND bf-fg-rdtlh.bol-no  EQ fg-rdtlh.bol-no
-              AND bf-fg-rdtlh.inv-no  EQ fg-rdtlh.inv-no
-            BY fg-rcpth.trans-date DESCENDING
-            :
-            iBinQtyb = iBinQtyb +  bf-fg-rdtlh.qty.
-            LEAVE.
-        END.
-        cReason = "".
-        FIND FIRST rejct-cd NO-LOCK
-             WHERE rejct-cd.CODE EQ fg-rdtlh.reject-code[1]
-             NO-ERROR.
-        IF fg-rdtlh.reject-code[1] NE "" THEN
-        cReason = fg-rdtlh.reject-code[1] + IF AVAILABLE rejct-cd AND rejct-cd.dscr NE "" THEN ( " - " + rejct-cd.dscr) ELSE "".
-        ELSE cReason = "".
-   
-    BUFFER bitemfg:FIND-BY-ROWID(ROWID(itemfg), NO-LOCK).
-    CREATE ttFGPostHist.
-    ASSIGN
-        ttFGPostHist.transDate   = fg-rcpth.trans-date
-        ttFGPostHist.itemNo      = fg-rcpth.i-no      
-        ttFGPostHist.itemName    = fg-rcpth.i-name    
-        ttFGPostHist.poNo        = fg-rcpth.po-no     
-        ttFGPostHist.jobNo       = fg-rcpth.job-no    
-        ttFGPostHist.vendorNo    = IF AVAILABLE po-ord THEN po-ord.vend-no ELSE ""     
-        ttFGPostHist.bin         = fg-rdtlh.loc-bin   
-        ttFGPostHist.partNo      = itemfg.part-no     
-        ttFGPostHist.dieNo       = itemfg.die-no      
-        ttFGPostHist.cadNo       = itemfg.cad-no      
-        ttFGPostHist.plateNo     = itemfg.plate-no    
-        ttFGPostHist.user-id     = fg-rcpth.user-id   
-        ttFGPostHist.postDate    = fg-rcpth.post-date 
-        ttFGPostHist.ProdCat     = itemfg.procat      
-        ttFGPostHist.custName    = itemfg.cust-name   
-        ttFGPostHist.loc         = fg-rdtlh.loc 
-        ttFGPostHist.v-tran-type = SUBSTRING(v-tran-type,1,1)
-        ttFGPostHist.v-tag       = v-tag
-        ttFGPostHist.v-rfid#     = IF AVAILABLE rfidtag THEN SUBSTRING(rfidtag.rfidtag,13) ELSE ""
-        ttFGPostHist.v-cases     = v-cases
-        ttFGPostHist.v-qty-case  = v-qty-case
-        ttFGPostHist.lv-cost-uom = lv-cost-uom
-        ttFGPostHist.v-fg-qty    = v-fg-qty
-        ttFGPostHist.v-fg-cost   = v-fg-cost
-        ttFGPostHist.v-fg-value  = v-fg-value
-        ttFGPostHist.v-numUp     = v-numUP
-        ttFGPostHist.v-numColors = v-numColors
-        ttFGPostHist.v-SheetSize = v-SheetSize
-        ttFGPostHist.v-Caliper   = v-Caliper
-        ttFGPostHist.wt-h        = fg-rdtlh.tot-wt
-        ttFGPostHist.rec-time    = STRING(fg-rdtlh.trans-time,'HH:MM')
-        ttFGPostHist.unt-sel     = lv-sell-price
-        ttFGPostHist.suom        = lv-sell-uom
-        ttFGPostHist.unt-cst     = IF v-stnd-cost NE 0 THEN v-stnd-cost ELSE 0
-        ttFGPostHist.prom-date   = prom-date
-        ttFGPostHist.due-date    = due-date
-        ttFGPostHist.job-start   = job-start
-        ttFGPostHist.shipto      = v-shipto
-        ttFGPostHist.shipname    = v-shipto-name
-        ttFGPostHist.order-no    = order-no
-        ttFGPostHist.bef-qty     = iBinQtyb
-        ttFGPostHist.bin-qty     =  v-fg-qty - iBinQtyb
-        ttFGPostHist.bol-no      = iBol-no
-        ttFGPostHist.Reason      = cReason
-        ttFGPostHist.Reason-cd   = IF AVAILABLE fg-rdtlh AND fg-rdtlh.reject-code[1] NE "" THEN fg-rdtlh.reject-code[1] ELSE ""
-        ttFGPostHist.Reason-dscr = IF AVAILABLE rejct-cd AND rejct-cd.dscr NE "" THEN rejct-cd.dscr ELSE ""
-        .
 
 END PROCEDURE.
 
