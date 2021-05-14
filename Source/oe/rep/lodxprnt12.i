@@ -92,14 +92,14 @@ IF iplPrintView THEN DO:
                "<C4><R2><#1><R+10><C+70><IMAGE#1=" ls-full-img1.
         END.
 
-        PUT UNFORMATTED "<r13.7><#1><B>" 
-         "<UNITS=INCHES><C39><FROM><c78><r16.2><BARCODE,TYPE=39,CHECKSUM=NONE,VALUE=" +
+        PUT UNFORMATTED "<r11.3><#1><B>" 
+         "<UNITS=INCHES><C39><FROM><c78><r17.4><BARCODE,TYPE=39,CHECKSUM=NONE,VALUE=" +
           STRING(tt-word-print.tag-no) + ">" FORM "x(100)" "</B><P10>"
-          "<C46>" STRING(tt-word-print.tag-no,"x(20)")  "<=#1><R+5>".
+          "<C46><r17.8>" STRING(tt-word-print.tag-no,"x(20)") .
         
-        PUT "<FArial><#1><R16.3><C39><C39><B><p15><b>Tag #  </b></B>" SKIP.
+        PUT "<FArial><#1><R17.5><C39><C39><B><p15><b>Tag #  </b></B>" SKIP.
 
-        PUT "<||><R13><C37><#2><FROM><R18><C80><RECT>" SKIP.
+        PUT "<||><R11><C37><#2><FROM><R19><C80><RECT>" SKIP.
 
         PUT "<||><R19><C3><#4><FROM><R22><C80><RECT>" SKIP.            
         
@@ -206,14 +206,14 @@ ELSE DO:
                "<C4><R2><#1><R+10><C+70><IMAGE#1=" ls-full-img1.
         END.
 
-        PUT UNFORMATTED "<r13.7><#1><B>" 
-         "<UNITS=INCHES><C39><FROM><c78><r16.2><BARCODE,TYPE=39,CHECKSUM=NONE,VALUE=" +
+        PUT UNFORMATTED "<r11.3><#1><B>" 
+         "<UNITS=INCHES><C39><FROM><c78><r17.4><BARCODE,TYPE=39,CHECKSUM=NONE,VALUE=" +
           STRING(tt-word-print.tag-no) + ">" FORM "x(100)" "</B><P10>"
-          "<C46>" string(tt-word-print.tag-no,"x(20)")  "<=#1><R+5>".
+          "<C46><17.8>" string(tt-word-print.tag-no,"x(20)") .
         
-        PUT "<FArial><#1><R16.3><C39><C39><B><p15><b>Tag #  </b></B>" SKIP.
+        PUT "<FArial><#1><R17.5><C39><C39><B><p15><b>Tag #  </b></B>" SKIP.
 
-        PUT "<||><R13><C37><#2><FROM><R18><C80><RECT>" SKIP.
+        PUT "<||><R11><C37><#2><FROM><R19><C80><RECT>" SKIP.
 
         PUT "<||><R19><C3><#4><FROM><R22><C80><RECT>" SKIP.            
         
