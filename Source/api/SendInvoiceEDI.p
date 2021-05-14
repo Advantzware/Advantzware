@@ -201,7 +201,10 @@ FOR EACH ttInv:
         RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "ItemPrice", STRING(ttInvLine.pricePerEach)).
         RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "BuyerPart", STRING(ttInvLine.customerPartID)).
         RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "PONum", STRING(ttInvLine.customerPONo)).
-        
+        RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "OrderLineNumber",STRING(ttInvLine.orderLine)). 
+        RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "OrderLineNumberOverride",STRING(ttInvLine.orderLineOverride)). 
+        RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "OrderLineNumberOverridden",STRING(ttInvLine.orderLineOverridden)).
+            
         IF ttInvLine.isMisc THEN
             RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "ItemDescription", STRING(ttInvLine.chargeDescription)).
         ELSE

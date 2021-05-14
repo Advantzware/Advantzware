@@ -285,7 +285,7 @@ PROCEDURE pBuildDataForPosted PRIVATE:
                 ttInvLine.company                = ttInv.company
                 ttInvLine.lineNo                 = bf-ar-invl.line
                 ttInvLine.orderID                = bf-ar-invl.ord-no
-                ttInvLine.orderLine              = bf-ar-invl.ord-line
+                ttInvLine.orderLineOverride      = bf-ar-invl.e-num
                 ttInvLine.quantityInvoiced       = bf-ar-invl.inv-qty
                 ttInvLine.quantityInvoicedUOM    = "EA"
                 ttInvLine.pricePerUOM            = bf-ar-invl.unit-pr * (1 - (bf-ar-invl.disc / 100))
@@ -374,7 +374,12 @@ PROCEDURE pBuildDataForPosted PRIVATE:
 
             IF AVAILABLE bf-oe-ordl THEN 
                 ttInvLine.orderLine = bf-oe-ordl.line.
-            
+
+            ttInvLine.orderLineOverridden = IF ttInvLine.orderLineOverride GT 0 THEN
+                                                ttInvLine.orderLineOverride
+                                            ELSE
+                                                ttInvLine.orderLine.  
+   
             RUN pAssignCommonLineData(
                 BUFFER ttInv, 
                 BUFFER ttInvLine
@@ -462,6 +467,7 @@ PROCEDURE pBuildDataForUnposted PRIVATE:
                 ttInvLine.invoiceID              = ttInv.invoiceID
                 ttInvLine.company                = ttInv.company
                 ttInvLine.lineNo                 = bf-inv-line.line
+                ttInvLine.orderLineOverride      = bf-inv-line.e-num
                 ttInvLine.orderID                = bf-inv-line.ord-no
                 ttInvLine.orderLine              = bf-inv-line.line
                 ttInvLine.quantityInvoiced       = bf-inv-line.inv-qty
@@ -511,7 +517,12 @@ PROCEDURE pBuildDataForUnposted PRIVATE:
 
             IF AVAILABLE bf-oe-ordl THEN 
                 ttInvLine.orderLine = bf-oe-ordl.line.
-            
+
+            ttInvLine.orderLineOverridden = IF ttInvLine.orderLineOverride GT 0 THEN
+                                                ttInvLine.orderLineOverride
+                                            ELSE
+                                                ttInvLine.orderLine. 
+
             RUN pAssignCommonLineData(
                 BUFFER ttInv, 
                 BUFFER ttInvLine
