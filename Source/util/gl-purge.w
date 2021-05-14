@@ -461,14 +461,6 @@ IF NOT tb_del-all THEN
    fr-acct = del_number
    to-acct = del_number.
 
-FOR EACH glhist
-    WHERE glhist.company EQ cocode
-      AND glhist.actnum  GE fr-acct
-      AND glhist.actnum  LE to-acct
-      AND glhist.tr-date LE del_date
-      AND glhist.posted EQ NO:
-  DELETE glhist.
-END.
 
 FOR EACH account
     WHERE account.company EQ cocode
@@ -478,9 +470,8 @@ FOR EACH account
     EACH glhist
     WHERE glhist.company EQ account.company
       AND glhist.actnum  EQ account.actnum
-      AND glhist.tr-date LE del_date
-      AND glhist.posted EQ YES,
-
+      AND glhist.tr-date LE del_date,
+      
     FIRST period
     WHERE period.company EQ glhist.company
       AND period.pst     LE glhist.tr-date
@@ -488,64 +479,60 @@ FOR EACH account
     NO-LOCK
 
     BREAK BY glhist.actnum:
+    
+ IF glhist.posted EQ YES THEN  DO:
+     
+     IF period.yr EQ lv-fisc-yr THEN
+        account.cyr[period.pnum] = account.cyr[period.pnum] - glhist.tr-amt.
 
-  IF period.yr EQ lv-fisc-yr THEN
-    account.cyr[period.pnum] = account.cyr[period.pnum] - glhist.tr-amt.
+      ELSE
+      IF period.yr EQ lv-fisc-yr - 1 THEN
+        account.lyr[period.pnum] = account.lyr[period.pnum] - glhist.tr-amt.
 
-  ELSE
-  IF period.yr EQ lv-fisc-yr - 1 THEN
-    account.lyr[period.pnum] = account.lyr[period.pnum] - glhist.tr-amt.
+      IF INDEX("RE",account.type) EQ 0 THEN DO:
+        IF period.yr LT lv-fisc-yr - 1 THEN
+          account.lyr-open = account.lyr-open - glhist.tr-amt.
 
-  IF INDEX("RE",account.type) EQ 0 THEN DO:
-    IF period.yr LT lv-fisc-yr - 1 THEN
-      account.lyr-open = account.lyr-open - glhist.tr-amt.
+        IF LAST-OF(glhist.actnum) THEN DO:
+          account.cyr-open = account.lyr-open.
 
-    IF LAST-OF(glhist.actnum) THEN DO:
-      account.cyr-open = account.lyr-open.
-
-      DO li = 1 TO EXTENT(account.lyr):
-        account.cyr-open = account.cyr-open + account.lyr[li].
+          DO li = 1 TO EXTENT(account.lyr):
+            account.cyr-open = account.cyr-open + account.lyr[li].
+          END.
+        END.
       END.
-    END.
-  END.
 
-  ELSE
-  IF AVAIL b-retain AND AVAIL b-contra THEN DO:
-    IF period.yr EQ lv-fisc-yr THEN
-      ASSIGN
-       b-retain.cyr[period.pnum] = b-retain.cyr[period.pnum] - glhist.tr-amt
-       b-contra.cyr[period.pnum] = b-contra.cyr[period.pnum] + glhist.tr-amt.
+      ELSE
+      IF AVAIL b-retain AND AVAIL b-contra THEN DO:
+        IF period.yr EQ lv-fisc-yr THEN
+          ASSIGN
+           b-retain.cyr[period.pnum] = b-retain.cyr[period.pnum] - glhist.tr-amt
+           b-contra.cyr[period.pnum] = b-contra.cyr[period.pnum] + glhist.tr-amt.
 
-    ELSE
-    IF period.yr EQ lv-fisc-yr - 1 THEN
-      ASSIGN
-       b-retain.lyr[period.pnum] = b-retain.lyr[period.pnum] - glhist.tr-amt
-       b-contra.lyr[period.pnum] = b-contra.lyr[period.pnum] + glhist.tr-amt.
+        ELSE
+        IF period.yr EQ lv-fisc-yr - 1 THEN
+          ASSIGN
+           b-retain.lyr[period.pnum] = b-retain.lyr[period.pnum] - glhist.tr-amt
+           b-contra.lyr[period.pnum] = b-contra.lyr[period.pnum] + glhist.tr-amt.
 
-    ELSE
-    IF period.yr LT lv-fisc-yr - 1 THEN
-      b-retain.lyr-open = b-retain.lyr-open - glhist.tr-amt.
-  END.
+        ELSE
+        IF period.yr LT lv-fisc-yr - 1 THEN
+          b-retain.lyr-open = b-retain.lyr-open - glhist.tr-amt.
+      END.
 
-  IF LAST(glhist.actnum) THEN DO:
-    b-retain.cyr-open = b-retain.lyr-open.
+      IF LAST(glhist.actnum) THEN DO:
+        b-retain.cyr-open = b-retain.lyr-open.
 
-    DO li = 1 TO EXTENT(b-retain.lyr):
-      b-retain.cyr-open = b-retain.cyr-open + b-retain.lyr[li].
-    END.
-  END.
+        DO li = 1 TO EXTENT(b-retain.lyr):
+          b-retain.cyr-open = b-retain.cyr-open + b-retain.lyr[li].
+        END.
+      END.
+  END. /*If glhist.posted EQ YES*/  
 
   DELETE glhist.
 END.
 
-FOR EACH glhist
-    WHERE glhist.company EQ cocode
-      AND glhist.actnum  GE fr-acct
-      AND glhist.actnum  LE to-acct
-      AND glhist.tr-date LE del_date
-      AND glhist.posted EQ YES :
-  DELETE glhist.
-END.
+
 
 SESSION:SET-WAIT-STATE("").
 
