@@ -15,13 +15,13 @@
 /* ***************************  Definitions  ************************** */
 {util\ttImport.i SHARED}
 
+        
 DEFINE TEMP-TABLE ttImportGLjrnl
-    FIELD Company             AS CHARACTER 
-    FIELD Location            AS CHARACTER 
-    FIELD AccountNo           AS CHARACTER FORMAT "x(30)" COLUMN-LABEL "Account #" HELP "Required - Size:30"
-    FIELD AccountDesc         AS CHARACTER FORMAT "x(50)" COLUMN-LABEL "Description" HELP "Optional - Size:50"
-    FIELD AccountType         AS CHARACTER FORMAT "x(1)" COLUMN-LABEL "Type" HELP "Required - Size:1"
-    FIELD Inactive            AS CHARACTER FORMAT "X(3)" COLUMN-LABEL "Inactive" HELP "Optional - Yes or No(Blank no)" 
+    FIELD j-no             AS INTEGER   FORMAT ">>>>>>9"        COLUMN-LABEL "Internal Journal#" 
+    FIELD line             AS INTEGER   FORMAT "999"  
+    FIELD actnum           AS CHARACTER FORMAT "x(25)"          COLUMN-LABEL "Account" 
+    FIELD dscr             AS CHARACTER FORMAT "x(30)"          COLUMN-LABEL "Description" 
+    FIELD tr-amt           AS DECIMAL   FORMAT "->>,>>>,>>9.99" COLUMN-LABEL "Amount" 
         .
 
 DEFINE VARIABLE giIndexOffset AS INTEGER NO-UNDO INIT 2. /*Set to 1 if there is a Company field in temp-table since this will not be part of the import data*/
@@ -46,36 +46,35 @@ PROCEDURE pValidate PRIVATE:
     DEFINE INPUT PARAMETER iplFieldValidation AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER oplValid AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opcNote AS CHARACTER NO-UNDO.
-/*
+
     DEFINE VARIABLE cValidNote  AS CHARACTER NO-UNDO.
-    DEFINE BUFFER bf-ttImportGL FOR ttImportGL.
+    DEFINE BUFFER bf-ttImportGLjrnl FOR ttImportGLjrnl.
 
     
     oplValid = YES.
     
-    ipbf-ttImportGL.AccountType = SUBSTRING(TRIM(ipbf-ttImportGL.AccountType),1,1).
     IF oplValid THEN 
     DO:
-        IF ipbf-ttImportGL.Company EQ '' THEN 
+        IF ipbf-ttImportGLjrnl.j-no EQ 0 THEN 
             ASSIGN 
                 oplValid = NO
-                opcNote  = "Key Field Blank: Company".
+                opcNote  = "Key Field Blank: Journal #".
     END.
     IF oplValid THEN 
     DO:
-        IF ipbf-ttImportGL.AccountNo EQ '' THEN 
+        IF ipbf-ttImportGLjrnl.line EQ 0 THEN 
             ASSIGN 
                 oplValid = NO
-                opcNote  = "Key Field Blank: Account #".
+                opcNote  = "Key Field Blank: Line #".
     END.
     IF oplValid THEN 
     DO:
-        FIND FIRST bf-ttImportGL NO-LOCK 
-            WHERE bf-ttImportGL.Company EQ ipbf-ttImportGL.Company
-            AND bf-ttImportGL.AccountNo EQ ipbf-ttImportGL.AccountNo
-            AND ROWID(bf-ttImportGL) NE ROWID(ipbf-ttImportGL)
+        FIND FIRST bf-ttImportGLjrnl NO-LOCK 
+            WHERE bf-ttImportGLjrnl.j-no EQ ipbf-ttImportGLjrnl.j-no
+            AND bf-ttImportGLjrnl.line EQ ipbf-ttImportGLjrnl.line
+            AND ROWID(bf-ttImportGLjrnl) NE ROWID(ipbf-ttImportGLjrnl)
             NO-ERROR.
-        IF AVAILABLE bf-ttImportGL THEN 
+        IF AVAILABLE bf-ttImportGLjrnl THEN 
             ASSIGN 
                 oplValid = NO 
                 opcNote  = "Duplicate Record in Import File"
@@ -83,11 +82,11 @@ PROCEDURE pValidate PRIVATE:
     END.
     IF oplValid THEN 
     DO:
-        FIND FIRST account NO-LOCK 
-            WHERE account.company EQ ipbf-ttImportGL.Company
-            AND account.actnum EQ ipbf-ttImportGL.AccountNo
+        FIND FIRST GL-jrnl NO-LOCK 
+            WHERE GL-jrnl.j-no EQ ipbf-ttImportGLjrnl.j-no
+            AND GL-jrnl.line EQ ipbf-ttImportGLjrnl.line
             NO-ERROR .
-        IF AVAILABLE account THEN 
+        IF AVAILABLE GL-jrnl THEN 
         DO:
             IF NOT iplUpdateDuplicates THEN 
                 ASSIGN 
@@ -105,9 +104,7 @@ PROCEDURE pValidate PRIVATE:
                 .
         
     END.
-    IF oplValid AND iplFieldValidation THEN 
-        RUN pIsValidFromList ("Account Type", ipbf-ttImportGL.AccountType, "A,C,E,L,R,T", OUTPUT oplValid, OUTPUT cValidNote).
-    IF NOT oplValid AND cValidNote NE "" THEN opcNote = cValidNote.*/
+
 END PROCEDURE.
 
 PROCEDURE pProcessRecord PRIVATE:
@@ -118,25 +115,32 @@ PROCEDURE pProcessRecord PRIVATE:
     DEFINE PARAMETER BUFFER ipbf-ttImportGLjrnl FOR ttImportGLjrnl.
     DEFINE INPUT PARAMETER iplIgnoreBlanks AS LOGICAL NO-UNDO. 
     DEFINE INPUT-OUTPUT PARAMETER iopiAdded AS INTEGER NO-UNDO.
-/*    DEFINE BUFFER bf-account FOR account.
+    DEFINE BUFFER bf-gl-jrnl FOR gl-jrnl.
 
-    FIND FIRST bf-account EXCLUSIVE-LOCK 
-        WHERE bf-account.company EQ ipbf-ttImportGL.Company
-        AND bf-account.actnum EQ ipbf-ttImportGL.AccountNo
+    FIND FIRST bf-gl-jrnl EXCLUSIVE-LOCK 
+        WHERE bf-gl-jrnl.j-no EQ ipbf-ttImportGLjrnl.j-no
+        AND bf-gl-jrnl.line EQ ipbf-ttImportGLjrnl.line
         NO-ERROR.
-    IF NOT AVAILABLE bf-account THEN DO:
+    IF NOT AVAILABLE bf-gl-jrnl THEN DO:
         iopiAdded = iopiAdded + 1.
-        CREATE bf-account.
+        CREATE bf-gl-jrnl.
         ASSIGN
-            bf-account.company = ipbf-ttImportGL.Company
-            bf-account.actnum = ipbf-ttImportGL.AccountNo
-            bf-account.type = "A". 
+        //   bf-gl-jrnl.j-no = gl-jrn.j-no
+        //    bf-gl-jrnl.line = v-line
+        //    bf-gl-jrnl.actnum = v-acct
+            bf-gl-jrnl.dscr = "Payroll G/L Entry Import".
+       //     bf-gl-jrnl.tr-amt = v-amount
+            bf-gl-jrnl.tr-amt = bf-gl-jrnl.tr-amt + bf-gl-jrnl.tr-amt.
+      //      bf-gl-jrnl.tcred = bf-gl-jrn.tcred +
+        //        (IF bf-gl-jrnl.tr-amt < 0 THEN bf-gl-jrnl.tr-amt ELSE 0).
+//            bf-gl-jrnl.tdeb = bf-gl-jrnl.tdeb +
+  //              (IF bf-gl-jrnl.tr-amt > 0 THEN bf-gl-jrnl.tr-amt ELSE 0). 
     END.
-    RUN pAssignValueC (ipbf-ttImportGL.AccountDesc, iplIgnoreBlanks, INPUT-OUTPUT bf-account.dscr).
-    RUN pAssignValueC (ipbf-ttImportGL.AccountType, YES, INPUT-OUTPUT bf-account.type).   
-    RUN pAssignValueCToL (ipbf-ttImportGL.Inactive, "Yes", iplIgnoreBlanks, INPUT-OUTPUT bf-account.Inactive).
+   // RUN pAssignValueC (ipbf-ttImportGLjrnl.AccountDesc, iplIgnoreBlanks, INPUT-OUTPUT bf-account.dscr).
+   // RUN pAssignValueC (ipbf-ttImportGLjrnl.AccountType, YES, INPUT-OUTPUT bf-account.type).   
+   // RUN pAssignValueCToL (ipbf-ttImportGLjrnl.Inactive, "Yes", iplIgnoreBlanks, INPUT-OUTPUT bf-account.Inactive).
     
-    RELEASE bf-account.*/
+    RELEASE bf-gl-jrnl.
 
 END PROCEDURE.
 
