@@ -17,13 +17,13 @@ DEFINE TEMP-TABLE ttFGPostHist NO-UNDO
     FIELD vendorNo    AS CHARACTER FORMAT "x(8)"               LABEL "Vendor"     
     FIELD v-tran-type AS CHARACTER FORMAT "x"                  LABEL "Transaction Type"
     FIELD v-tag       AS CHARACTER FORMAT "x(9)"               LABEL "Tag"
-    FIELD v-cases     AS INTEGER   FORMAT "->>,>>9"            LABEL "Units"
+    FIELD v-cases     AS INTEGER   FORMAT "->>>,>>9"           LABEL "Units"
     FIELD v-qty-case  AS INTEGER   FORMAT ">>>,>>9"            LABEL "Count"
     FIELD bin         AS CHARACTER FORMAT "x(8)"               LABEL "Bin"          
     FIELD lv-cost-uom AS CHARACTER FORMAT "x(3)"               LABEL "CUOM"
     FIELD v-fg-qty    AS INTEGER   FORMAT "->>>,>>>,>>9"       LABEL "Total QTY"
-    FIELD v-fg-cost   AS INTEGER   FORMAT "->>>,>>9.99<<"      LABEL "Total Cost"
-    FIELD v-fg-value  AS DECIMAL   FORMAT "->>>>>,>>9.99"      LABEL "Tot Sell Val"
+    FIELD v-fg-cost   AS DECIMAL   FORMAT "->>>,>>>,>>9.99"    LABEL "Total Cost"
+    FIELD v-fg-value  AS DECIMAL   FORMAT "->>>,>>>,>>9.99"    LABEL "Tot Sell Val"
     FIELD jobNo       AS CHARACTER FORMAT "x(6)"               LABEL "Job"        
     FIELD v-rfid#     AS CHARACTER FORMAT "x(10)"              LABEL "RFID"
     FIELD partNo      AS CHARACTER FORMAT "x(12)"              LABEL "Customer Part"
@@ -40,7 +40,7 @@ DEFINE TEMP-TABLE ttFGPostHist NO-UNDO
     FIELD rec-time    AS CHARACTER FORMAT "x(5)"               LABEL "Rec Time"
     FIELD postDate    AS DATE      FORMAT "99/99/9999"         LABEL "Posted"       
     FIELD ProdCat     AS CHARACTER FORMAT "x(5)"               LABEL "Catgy"        
-    FIELD unt-cst     AS DECIMAL   FORMAT "->>>,>>9.99<<"      LABEL "Unit Cost"
+    FIELD unt-cst     AS DECIMAL   FORMAT "->>>,>>>,>>9.99<<"  LABEL "Unit Cost"
     FIELD unt-sel     AS DECIMAL   FORMAT "->>,>>>,>>9.99<<<<" LABEL "Unit Sell"
     FIELD suom        AS CHARACTER FORMAT "x(5)"               LABEL "SUOM"
     FIELD prom-date   AS DATE      FORMAT "99/99/9999"         LABEL "Promise Date"
@@ -134,7 +134,7 @@ PROCEDURE calc-fg-value:
     DEFINE INPUT  PARAMETER ipv-sell-price AS DECIMAL   NO-UNDO.
     DEFINE INPUT  PARAMETER ipv-sell-uom   AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipr-fg-rdtlh   AS ROWID     NO-UNDO.
-    DEFINE OUTPUT PARAMETER opv-fg-value  AS DECIMAL    NO-UNDO.
+    DEFINE OUTPUT PARAMETER opv-fg-value   AS DECIMAL   NO-UNDO.
 
     DEFINE BUFFER bf-fg-rdtlh FOR fg-rdtlh.
 
@@ -169,7 +169,7 @@ PROCEDURE calc-msf-for-r:
     DEFINE INPUT PARAMETER ipv-corr          AS LOGICAL NO-UNDO.
 
     DEFINE OUTPUT PARAMETER opv-on         AS DECIMAL NO-UNDO.
-    DEFINE OUTPUT PARAMETER opv-qty-pallet AS INTEGER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opv-qty-pallet AS DECIMAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opv-msf-1      AS DECIMAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opv-msf-2      AS DECIMAL NO-UNDO.
 
@@ -612,7 +612,6 @@ PROCEDURE pBusinessLogic:
     DEFINE VARIABLE v-tag           AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lv-sell-price   LIKE itemfg.sell-price NO-UNDO.
     DEFINE VARIABLE lv-sell-uom     LIKE itemfg.sell-uom NO-UNDO.
-    DEFINE VARIABLE v-corr          AS CHARACTER NO-UNDO.
     DEFINE VARIABLE v-caliper       AS CHARACTER NO-UNDO.
     DEFINE VARIABLE v-numColors     LIKE eb.i-col NO-UNDO.
     DEFINE VARIABLE v-numup         LIKE eb.num-up NO-UNDO.
@@ -622,6 +621,7 @@ PROCEDURE pBusinessLogic:
     DEFINE VARIABLE due-date        AS DATE      NO-UNDO.
     DEFINE VARIABLE order-no        AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iBinQtyb        AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cocode          AS CHARACTER NO-UNDO.
 
     DEFINE BUFFER bfg-rcpth   FOR fg-rcpth.
     DEFINE BUFFER b-fgrdtlh   FOR fg-rdtlh.
@@ -630,6 +630,9 @@ PROCEDURE pBusinessLogic:
     DEFINE BUFFER bf-fg-rdtlh FOR fg-rdtlh.
     DEFINE BUFFER bitemfg     FOR itemfg.
 
+    cocode = cCompany.
+    {ce/msfcalc.i}
+    
     RUN create-tt-report.
     FOR EACH tt-report
         WHERE tt-report.term-id EQ "",
@@ -720,7 +723,7 @@ PROCEDURE pBusinessLogic:
             RUN calc-msf-for-r (
                 ROWID(fg-rcpth),
                 ROWID(fg-rdtlh),
-                // LAST-OF(tt-report.key-02),
+                LAST-OF(tt-report.key-02),
                 v-corr,
                 OUTPUT v-on,
                 OUTPUT v-qty-pallet,
