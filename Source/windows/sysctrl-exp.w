@@ -626,12 +626,13 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
     RUN DisplaySelectionList.
     RUN enable_UI.
-    ASSIGN
-        begin_Company:SCREEN-VALUE = cocode 
-        end_Company:SCREEN-VALUE   = cocode .
+    
     {methods/nowait.i}
     DO WITH FRAME {&FRAME-NAME}:
         {custom/usrprint.i}
+        ASSIGN
+        begin_Company:SCREEN-VALUE = cocode 
+        end_Company:SCREEN-VALUE   = cocode .
 RUN DisplaySelectionList2.
 APPLY "entry" TO begin_Company.
 END.
@@ -881,13 +882,15 @@ PROCEDURE run-report :
                 WHERE  users.user_id EQ USERID(LDBNAME(1)) 
                 NO-ERROR.
 
-        FOR EACH b-sys-ctrl WHERE b-sys-ctrl.company = cocode
+        FOR EACH b-sys-ctrl NO-LOCK
+            WHERE b-sys-ctrl.company GE begin_Company 
+            AND b-sys-ctrl.company LE end_Company
             AND b-sys-ctrl.NAME GE begin_name
             AND b-sys-ctrl.NAME LE end_name
             AND b-sys-ctrl.module GE begin_mod
             AND b-sys-ctrl.module LE end_mod
-            AND b-sys-ctrl.securityLevelUser LE users.securityLevel
-            NO-LOCK:
+            AND b-sys-ctrl.securityLevelUser LE users.securityLevel:
+            
 
             v-excel-detail-lines = "".
 
