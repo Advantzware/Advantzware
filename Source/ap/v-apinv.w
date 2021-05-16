@@ -717,6 +717,7 @@ PROCEDURE hold-ap :
                                 INPUT bf-ap-inv.rec_key,
                                 INPUT "ap-inv",
                                 INPUT cTagDescription,
+                                INPUT "",
                                 INPUT ""
                                 ).
                      btTags:SENSITIVE = TRUE.
