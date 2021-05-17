@@ -62,7 +62,6 @@ DEFINE OUTPUT PARAMETER TABLE FOR ttVendItemCost.
 DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
 DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -82,7 +81,7 @@ DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
 &Scoped-define INTERNAL-TABLES ttVendItemCost
 
 /* Definitions for BROWSE brVendItemCost                                */
-&Scoped-define FIELDS-IN-QUERY-brVendItemCost ttVendItemCost.vendorID ttVendItemCost.costPerVendorUOM ttVendItemCost.vendorUOM ttVendItemCost.costSetup ttVendItemCost.costSetup ttVendItemCost.costTotal ttVendItemCost.vendorItem // ttVendItemCost.note //   
+&Scoped-define FIELDS-IN-QUERY-brVendItemCost ttVendItemCost.vendorID ttVendItemCost.costPerVendorUOM ttVendItemCost.vendorUOM ttVendItemCost.costSetup ttVendItemCost.costSetup ttVendItemCost.costTotal ttVendItemCost.vendorItem ttVendItemCost.isValid ttVendItemCost.reasonNotValid // ttVendItemCost.note //   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-brVendItemCost   
 &Scoped-define SELF-NAME brVendItemCost
 &Scoped-define QUERY-STRING-brVendItemCost FOR EACH ttVendItemCost ~{&SORTBY-PHRASE}
@@ -96,7 +95,7 @@ DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
     ~{&OPEN-QUERY-brVendItemCost}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-13 tbShowAll brVendItemCost bOk bCancle ~
+&Scoped-Define ENABLED-OBJECTS RECT-13 tbShowAll brVendItemCost bOk bCancel ~
 fiItem fiHotKey fiTitle fiProgramName 
 &Scoped-Define DISPLAYED-OBJECTS tbShowAll fiItem fiHotKey fiTitle lItem ~
 lSize lAddress fiProgramName lQuantity lShow 
@@ -115,7 +114,7 @@ lSize lAddress fiProgramName lQuantity lShow
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON bCancle 
+DEFINE BUTTON bCancel 
      LABEL "Cancel" 
      SIZE 15 BY 1.29.
 
@@ -221,7 +220,7 @@ DEFINE FRAME DEFAULT-FRAME
      tbShowAll AT ROW 3.62 COL 116.2 WIDGET-ID 336
      brVendItemCost AT ROW 5.29 COL 148 RIGHT-ALIGNED WIDGET-ID 200
      bOk AT ROW 21.05 COL 51.2 WIDGET-ID 342
-     bCancle AT ROW 21.05 COL 75.2 WIDGET-ID 344
+     bCancel AT ROW 21.05 COL 75.2 WIDGET-ID 344
      fiItem AT ROW 1.86 COL 11.6 NO-LABEL WIDGET-ID 66
      fiHotKey AT ROW 1.86 COL 48.4 COLON-ALIGNED NO-LABEL WIDGET-ID 330
      fiTitle AT ROW 1.86 COL 84.2 COLON-ALIGNED NO-LABEL WIDGET-ID 332
@@ -366,9 +365,9 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME bCancle
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL bCancle C-Win
-ON CHOOSE OF bCancle IN FRAME DEFAULT-FRAME /* Cancel */
+&Scoped-define SELF-NAME bCancel
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL bCancel C-Win
+ON CHOOSE OF bCancel IN FRAME DEFAULT-FRAME /* Cancel */
 DO:
   APPLY 'CLOSE' TO THIS-PROCEDURE.
 END.
@@ -451,7 +450,7 @@ ON CLOSE OF THIS-PROCEDURE
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
 bOk:LOAD-IMAGE("Graphics/32x32/ok.png").
-bCancle:LOAD-IMAGE("Graphics/32x32/cancel.png").
+bCancel:LOAD-IMAGE("Graphics/32x32/cancel.png").
 /* Now enable the interface and wait for the exit condition.            */
 /* (NOTE: handle ERROR and END-KEY so cleanup code will always fire.    */
 MAIN-BLOCK:
@@ -536,7 +535,7 @@ PROCEDURE enable_UI :
   DISPLAY tbShowAll fiItem fiHotKey fiTitle lItem lSize lAddress fiProgramName 
           lQuantity lShow 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE RECT-13 tbShowAll brVendItemCost bOk bCancle fiItem fiHotKey fiTitle 
+  ENABLE RECT-13 tbShowAll brVendItemCost bOk bCancel fiItem fiHotKey fiTitle 
          fiProgramName 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
