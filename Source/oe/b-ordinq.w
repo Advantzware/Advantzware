@@ -275,7 +275,7 @@ oe-ordl.line oe-ordl.po-no-po oe-ordl.e-num oe-ordl.whsed ~
 getTotalReturned() @ dTotQtyRet getReturnedInv() @ dTotRetInv ~
 oe-ordl.s-man[1] oe-ordl.managed oe-ordl.cost pGetSellPrice() @ dSellPrice ~
 pGetExtendedPrice() @ dExtendedPrice pGetPriceUom() @ cPriceUom ~
-pGetCostUom() @ cCostUom 
+pGetCostUom() @ cCostUom oe-ord.entered-id
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table oe-ordl.ord-no ~
 oe-ordl.cust-no oe-ord.ord-date oe-ordl.req-date oe-ord.cust-name ~
 oe-ordl.i-no oe-ordl.part-no oe-ordl.po-no oe-ordl.est-no oe-ordl.job-no ~
@@ -738,6 +738,7 @@ DEFINE BROWSE Browser-Table
       pGetExtendedPrice() @ dExtendedPrice COLUMN-LABEL "Extended! Price" FORMAT "->>,>>>,>>9.99":U
       pGetPriceUom() @ cPriceUom COLUMN-LABEL "UOM" FORMAT "X(4)":U
       pGetCostUom() @ cCostUom COLUMN-LABEL "Cost!Uom" FORMAT "x(4)":U
+      oe-ord.entered-id COLUMN-LABEL "Entered By" FORMAT "x(8)":U
   ENABLE
       oe-ordl.ord-no
       oe-ordl.cust-no
@@ -986,6 +987,8 @@ AND itemfg.i-no EQ oe-ordl.i-no"
 "pGetPriceUom() @ cPriceUom" "UOM" "X(4)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[36]   > "_<CALC>"
 "pGetCostUom() @ cCostUom" "Cost!Uom" "x(4)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[37]   > ASI.oe-ord.entered-id
+"oe-ord.entered-id" "Entered By" "x(8)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
