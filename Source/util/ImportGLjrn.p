@@ -22,10 +22,10 @@ DEFINE TEMP-TABLE ttImportGLjrn
     FIELD tr-date         AS DATE    FORMAT "99/99/9999"     COLUMN-LABEL "Trx Date" 
     FIELD tr-amt          AS DECIMAL FORMAT "->>,>>>,>>9.99" COLUMN-LABEL "Amount" 
     FIELD tcred           AS DECIMAL FORMAT "->>,>>>,>>9.99" COLUMN-LABEL "Credits" 
+    FIELD tdeb            AS DECIMAL FORMAT "->>,>>>,>>9.99" COLUMN-LABEL "Debits" 
     FIELD period          AS INTEGER FORMAT "99"             COLUMN-LABEL "Period" 
     FIELD posted          AS LOGICAL FORMAT "Y/N"            COLUMN-LABEL "Posted" 
          .
-
 DEFINE VARIABLE giIndexOffset AS INTEGER NO-UNDO INIT 2. /*Set to 1 if there is a Company field in temp-table since this will not be part of the import data*/
 
 
@@ -76,6 +76,18 @@ PROCEDURE pValidate PRIVATE:
                 opcNote  = "Duplicate Record in Import File"
                 .
     END.
+    
+    FIND FIRST period                   
+        WHERE period.company EQ bf-ttImportGLjrn.Company
+        AND period.pst     LE bf-ttImportGLjrn.tr-date
+        AND period.pend    GE bf-ttImportGLjrn.tr-date
+        NO-LOCK NO-ERROR.
+    IF NOT AVAIL period THEN 
+        ASSIGN 
+            oplValid = NO 
+            opcNote  = "No Defined Period Exists for" + string(ipbf-ttImportGLjrn.tr-date)
+            .
+
 
 END PROCEDURE.
 
@@ -88,6 +100,15 @@ PROCEDURE pProcessRecord PRIVATE:
     DEFINE INPUT PARAMETER iplIgnoreBlanks AS LOGICAL NO-UNDO. 
     DEFINE INPUT-OUTPUT PARAMETER iopiAdded AS INTEGER NO-UNDO.
     DEFINE BUFFER bf-gl-jrn FOR gl-jrn.
+    DEFINE VARIABLE tran-period AS INTEGER NO-UNDO.
+
+    FIND FIRST period                   
+        WHERE period.company EQ ipbf-ttImportGLjrn.Company
+        AND period.pst     LE ipbf-ttImportGLjrn.tr-date
+        AND period.pend    GE ipbf-ttImportGLjrn.tr-date
+        NO-LOCK NO-ERROR.
+    IF AVAIL period THEN tran-period = period.pnum.
+
 
     FIND FIRST bf-gl-jrn EXCLUSIVE-LOCK 
         WHERE bf-gl-jrn.Company EQ ipbf-ttImportGLjrn.Company
@@ -100,18 +121,15 @@ PROCEDURE pProcessRecord PRIVATE:
         CREATE bf-gl-jrn.
         ASSIGN
         bf-gl-jrn.company = ipbf-ttImportGLjrn.Company
-      //  bf-gl-jrn.j-no = xtrnum
-      //  bf-gl-jrn.journal = xtrnum
+        bf-gl-jrn.j-no = ipbf-ttImportGLjrn.j-no  //
+        bf-gl-jrn.journal = ipbf-ttImportGLjrn.journal //
         bf-gl-jrn.tr-date = ipbf-ttImportGLjrn.tr-date
-        bf-gl-jrn.tr-amt = 0
-        bf-gl-jrn.tcred = 0
-        bf-gl-jrn.tdeb = 0
-      //  bf-gl-jrn.period = tran-period
-        bf-gl-jrn.posted = FALSE. 
+        bf-gl-jrn.tr-amt = ipbf-ttImportGLjrn.tr-amt
+        bf-gl-jrn.tcred = ipbf-ttImportGLjrn.tcred
+        bf-gl-jrn.tdeb = ipbf-ttImportGLjrn.tdeb
+        bf-gl-jrn.period = tran-period
+        bf-gl-jrn.posted = ipbf-ttImportGLjrn.posted. //
     END.
-   // RUN pAssignValueC (ipbf-ttImportGLjrn.AccountDesc, iplIgnoreBlanks, INPUT-OUTPUT bf-account.dscr).
-   // RUN pAssignValueC (ipbf-ttImportGLjrn.AccountType, YES, INPUT-OUTPUT bf-account.type).   
-  //  RUN pAssignValueCToL (ipbf-ttImportGLjrn.Inactive, "Yes", iplIgnoreBlanks, INPUT-OUTPUT bf-account.Inactive).
     
     RELEASE bf-gl-jrn.
 
