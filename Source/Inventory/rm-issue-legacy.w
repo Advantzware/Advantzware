@@ -66,7 +66,7 @@ DEFINE VARIABLE cSSIssueDefaultRM       AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hdQuantityColumnLabel   AS HANDLE    NO-UNDO.
 DEFINE VARIABLE iWarehouseLength        AS INTEGER   NO-UNDO.
 
-{system/sysconst.i}
+// {system/sysconst.i}
 {Inventory/ttInventory.i "NEW SHARED"}
 {methods/defines/sortByDefs.i}
 {wip/keyboardDefs.i}
@@ -1478,7 +1478,7 @@ PROCEDURE pInit :
     FIND FIRST company NO-LOCK 
          WHERE company.company EQ cCompany NO-ERROR .
     IF AVAILABLE company THEN
-        {&WINDOW-NAME}:TITLE = {&WINDOW-NAME}:TITLE + " - {&awversion}" + " - " 
+        {&WINDOW-NAME}:TITLE = {&WINDOW-NAME}:TITLE + " - " + DYNAMIC-FUNCTION("sfVersion") + " - " 
                              + STRING(company.name) + " - " + cLocation  .
     
     RUN Inventory_GetWarehouseLength IN hdInventoryProcs (

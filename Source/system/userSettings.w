@@ -1543,8 +1543,8 @@ PROCEDURE pReset :
 ------------------------------------------------------------------------------*/
     DEFINE VARIABLE i AS INTEGER NO-UNDO.
     
-    {&WINDOW-NAME}:TITLE = fTranslate({&WINDOW-NAME}:PRIVATE-DATA,NO)
-                         + " {&awversion}"
+    {&WINDOW-NAME}:TITLE = fTranslate({&WINDOW-NAME}:PRIVATE-DATA,NO) + " "
+                         + DYNAMIC-FUNCTION("sfVersion")
                          .
     SESSION:SET-WAIT-STATE("General").
     RUN LockWindowUpdate (ACTIVE-WINDOW:HWND,OUTPUT i).
