@@ -41,6 +41,24 @@ DEF VAR lv-update-est AS LOG NO-UNDO.
 DEF BUFFER b-quotechg FOR quotechg.
 DEF BUFFER b-quotehd FOR quotehd.
 
+DEFINE VARIABLE lQuotePriceMatrix AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cRtnChar          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound         AS LOGICAL   NO-UNDO.
+
+RUN sys/ref/nk1look.p (
+    INPUT  cocode, 
+    INPUT  "QuotePriceMatrix", 
+    INPUT  "L" /* Logical */, 
+    INPUT  NO /* check by cust */, 
+    INPUT  YES /* use cust not vendor */, 
+    INPUT  "" /* cust */, 
+    INPUT  "" /* ship-to*/,
+    OUTPUT cRtnChar, 
+    OUTPUT lRecFound
+    ).
+IF lRecFound THEN
+    lQuotePriceMatrix = LOGICAL(cRtnChar) NO-ERROR. 
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -889,6 +907,36 @@ PROCEDURE state-changed :
   END CASE.
 END PROCEDURE.
 
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckUpdate B-table-Win
+PROCEDURE pCheckUpdate:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER oplNotAllowedUpdate AS LOGICAL NO-UNDO.
+   
+    DEFINE BUFFER bf-quotehd FOR quotehd.
+    
+    FIND FIRST quoteitm NO-LOCK
+         WHERE quoteitm.company = quoteqty.company
+         AND quoteitm.loc = quoteqty.loc 
+         AND quoteitm.q-no = quoteqty.q-no 
+         AND quoteitm.line = quoteqty.line NO-ERROR.
+    
+    IF AVAILABLE quoteitm THEN
+        FIND FIRST bf-quotehd OF quoteitm NO-LOCK NO-ERROR.
+
+    IF AVAILABLE bf-quotehd AND bf-quotehd.approved AND lQuotePriceMatrix THEN DO:
+        MESSAGE "Quote is approved. Update not allowed." 
+            VIEW-AS ALERT-BOX INFO.
+        
+        oplNotAllowedUpdate = YES.     
+    END.                                                        
+END PROCEDURE.
+	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

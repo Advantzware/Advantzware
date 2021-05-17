@@ -60,6 +60,7 @@ DEFINE VARIABLE add-active   AS LOGICAL NO-UNDO INIT NO.
 
 DEF VAR add-valid AS LOG INIT YES NO-UNDO.
 DEF VAR del-valid AS LOG INIT YES NO-UNDO.
+DEFINE VARIABLE lDisableUpdate AS LOGICAL NO-UNDO. 
 
 {methods/defines/hndldefs.i}
 {methods/prgsecdt.i}
@@ -228,6 +229,10 @@ ASSIGN
 ON CHOOSE OF Btn-Add IN FRAME Panel-Frame /* Add */
 DO:
    IF NOT v-can-create THEN RETURN no-apply.
+   
+   {methods/run_link.i "TABLEIO-TARGET" "pCheckUpdate" "(OUTPUT lDisableUpdate)}
+   IF lDisableUpdate THEN
+       RETURN.
 
    add-active = yes.
 
@@ -258,6 +263,10 @@ END.
 ON CHOOSE OF Btn-Copy IN FRAME Panel-Frame /* Copy */
 DO:
    IF NOT v-can-create THEN RETURN no-apply.
+   
+   {methods/run_link.i "TABLEIO-TARGET" "pCheckUpdate" "(OUTPUT lDisableUpdate)}
+   IF lDisableUpdate THEN
+       RETURN.
 
    RUN notify ('copy-record':U).
 END.
@@ -271,6 +280,10 @@ END.
 ON CHOOSE OF Btn-Delete IN FRAME Panel-Frame /* Delete */
 DO:
    IF NOT v-can-delete THEN RETURN no-apply.
+   
+   {methods/run_link.i "TABLEIO-TARGET" "pCheckUpdate" "(OUTPUT lDisableUpdate)}
+   IF lDisableUpdate THEN
+       RETURN.
 
    RUN notify ('delete-record':U).  
 END.
@@ -311,6 +324,10 @@ DO:
      DO WITH FRAME Panel-Frame:
         IF Btn-Save:LABEL = '&Update' THEN 
         DO:
+           {methods/run_link.i "TABLEIO-TARGET" "pCheckUpdate" "(OUTPUT lDisableUpdate)}
+            IF lDisableUpdate THEN
+            RETURN.
+           
            RUN new-state('update-begin':U).
            ASSIGN add-active = no.
         END.

@@ -34,8 +34,8 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+DEFINE VARIABLE lDisableUpdate AS LOGICAL NO-UNDO.   
 
-  
 {methods/prgsecdt.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -199,8 +199,12 @@ ASSIGN
 ON CHOOSE OF btn_reprice IN FRAME F-Main /* Reprice */
 DO:
    DEF VAR char-hdl AS cha NO-UNDO.
-
+   
    RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"record-source", OUTPUT char-hdl).
+   
+   RUN CheckUpdate IN WIDGET-HANDLE(char-hdl)(OUTPUT lDisableUpdate).
+   IF lDisableUpdate THEN
+       RETURN.
    RUN reprice-quote IN WIDGET-HANDLE(char-hdl).
 
 END.
