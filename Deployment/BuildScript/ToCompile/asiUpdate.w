@@ -521,12 +521,12 @@ OR CHOOSE OF bUpdate
     
                     RUN ipProcess.
                     
-                    RUN ipStatus("Upgrade Complete.").
             
                     IF lSuccess THEN DO:
                         ASSIGN 
                             cOutFile = cOutDir + "-SUCCESS.txt".
                         RUN ipSendVerification.
+                        RUN ipStatus("Upgrade Complete.").
                         MESSAGE 
                             "Congratulations! Your Advantzware update completed successfully."
                             VIEW-AS ALERT-BOX.
@@ -536,6 +536,7 @@ OR CHOOSE OF bUpdate
                         ASSIGN 
                             cOutFile = cOutDir + "-FAILED.txt".
                         RUN ipSendVerification.
+                        RUN ipStatus("Upgrade Failed.").
                         MESSAGE 
                             "There was an issue with update processing." SKIP 
                             "Please contact Advantzware Support."
@@ -1514,7 +1515,8 @@ PROCEDURE ipStatus :
         END.
     END.
     
-    IF ipcStatus EQ "Upgrade Complete." THEN 
+    IF ipcStatus EQ "Upgrade Complete." 
+    AND CONNECTED(LDBNAME(1)) THEN 
         RUN asiUpdateHist.p (INPUT TABLE ttUpdateHist BY-REFERENCE).
                
     PROCESS EVENTS.

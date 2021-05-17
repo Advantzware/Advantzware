@@ -126,6 +126,35 @@ PROCEDURE pCreateProbeit PRIVATE:
 
 END PROCEDURE.
 
+
+PROCEDURE pCreatePriceMatrixForQuote PRIVATE:
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+ define input PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+ define input PARAMETER ipcEstimate AS CHARACTER NO-UNDO.
+ define input PARAMETER ipcPartNo AS CHARACTER NO-UNDO.
+ define input PARAMETER ipcItemNo AS CHARACTER NO-UNDO.
+ 
+ FOR EACH quotehd NO-LOCK 
+        WHERE quotehd.company EQ ipcCompany
+        AND quotehd.est-no EQ ipcEstimate
+        ,
+        EACH quoteitm OF quotehd EXCLUSIVE-LOCK 
+        WHERE quoteitm.company EQ quotehd.company
+        AND quoteitm.part-no EQ ipcPartNo:
+    ASSIGN quoteitm.i-no = ipcItemNo .
+    LEAVE.
+ END.
+ RELEASE quoteitm.
+ IF AVAIL quotehd THEN
+ RUN oe/updprmtx2.p (ROWID(quotehd), "", 0, "", 0, "Q").
+
+END PROCEDURE.
+
+
 PROCEDURE pCreateQuoteFromProbe PRIVATE:
     
     DEFINE PARAMETER BUFFER opbf-est FOR est.
@@ -714,6 +743,21 @@ PROCEDURE pUnApprovedDuplicateQuote:
     RELEASE bf-quotehd.
     RELEASE bf-oe-prmtx.
    
+END PROCEDURE.
+
+PROCEDURE quote_CreatePriceMatrixForQuote :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+ define input PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+ define input PARAMETER ipcEstimate AS CHARACTER NO-UNDO.
+ define input PARAMETER ipcPartNo AS CHARACTER NO-UNDO.
+ define input PARAMETER ipcItemNo AS CHARACTER NO-UNDO.
+ 
+  RUN pCreatePriceMatrixForQuote(INPUT ipcCompany, INPUT ipcEstimate, INPUT ipcPartNo, INPUT ipcItemNo).  
+
 END PROCEDURE.
 
 PROCEDURE UpdateQuotePriceFromMatrix:

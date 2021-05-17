@@ -97,6 +97,8 @@ REPEAT:
             hQueryBuf    = iphQuery:GET-BUFFER-HANDLE(ENTRY(1,dynValueColumn.colName,"."))
             cFieldName   = ENTRY(2,dynValueColumn.colName,".")
             cBufferValue = fFormatValue(hQueryBuf, cFieldName, dynValueColumn.colFormat)
+            cBufferValue = REPLACE(cBufferValue,"~"","''")
+            cBufferValue = REPLACE(cBufferValue,"~\","~\~\")
             cFullName    = REPLACE(dynValueColumn.colName,".","__")
             cFullName    = REPLACE(cFullName,"[","")
             cFullName    = REPLACE(cFullName,"]","")

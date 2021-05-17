@@ -92,6 +92,8 @@ DEFINE TEMP-TABLE ttInvLine NO-UNDO
     FIELD taxGroup                 AS CHARACTER 
     FIELD orderID                  AS INTEGER 
     FIELD orderLine                AS INTEGER 
+    FIELD orderLineOverride        AS INTEGER
+    FIELD orderLineOverridden      AS INTEGER
     FIELD taxRateFreight           AS DECIMAL 
     FIELD customerPONo             AS CHARACTER
     FIELD isMisc                   AS LOGICAL 

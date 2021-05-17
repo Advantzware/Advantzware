@@ -184,3 +184,8 @@
 "" "202103161651607065820" "SendJob" "CreateJobMolded" "Triggers when Job created with JobType Molded" no 2021-03-16T04:35:16.336 "rajesh" "_default1" 185 35
 "" "202103163290507065827" "CreateLoadtag" "PrintLoadTag" "Prints loadtag file" no 2021-03-16T09:08:25.465 "rajesh" "_default1" 186 36
 "" "202103163290507065828" "CreateLoadtag" "PrintBOLTag" "Prints BOltag file" no 2021-03-16T09:08:25.474 "rajesh" "_default1" 187 36
+"" "202105052213907157994" "SendAdvancedShipNotice" "ReprintBillOfLading" "Triggers when BOL is re-printed" no 2021-05-05T06:08:59.628 "rajesh" "_default2" 188 37
+"" "202105052213907157995" "SendAdvancedShipNotice" "PrintBillOfLading" "Triggers when BOL is printed" no 2021-05-05T06:08:59.869 "rajesh" "_default2" 189 37
+"" "202105052213907157996" "SendAdvancedShipNotice" "AddCustomer" "Adds a customer" yes 2021-05-05T06:08:59.879 "rajesh" "_default2" 190 37
+"" "202105052213907157997" "SendAdvancedShipNotice" "PrintRelease" "SendCustomer when Release is Printed First Time" no 2021-05-05T06:08:59.888 "rajesh" "_default2" 191 37
+"" "202105052213907157998" "SendAdvancedShipNotice" "ReprintRelease" "SendCustomer when Release is Reprinted" no 2021-05-05T06:08:59.897 "rajesh" "_default2" 192 37

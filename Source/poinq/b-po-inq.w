@@ -2847,9 +2847,9 @@ FUNCTION pGetWhereCriteria RETURNS CHARACTER
             cWhereCriteria = cWhereCriteria + " AND po-ordl.due-date GE " + STRING(fi_due-date,"99/99/9999")   
             cWhereCriteria = cWhereCriteria  
                            + (IF fi_po-no NE 0 THEN " AND po-ordl.po-no EQ " + STRING(fi_po-no) ELSE "")
-                           + (IF fi_vend-no NE "" THEN " AND po-ordl.vend-no BEGINS " + QUOTER(fi_vend-no) ELSE "")
-                           + (IF fi_i-no NE "" THEN " AND po-ordl.i-no BEGINS " + QUOTER(fi_i-no) ELSE "")
-                           + (IF fi_vend-i-no NE "" THEN " AND po-ordl.vend-i-no BEGINS " + QUOTER(fi_vend-i-no) ELSE "")
+                           + (IF INDEX(fi_vend-no,"*") GT 0 THEN " AND po-ordl.vend-no MATCHES " + QUOTER(fi_vend-no + "*") ELSE IF fi_vend-no NE "" THEN " AND po-ordl.vend-no BEGINS " + QUOTER(fi_vend-no) ELSE "")
+                           + (IF INDEX(fi_i-no,"*") GT 0 THEN " AND po-ordl.i-no MATCHES " + QUOTER(fi_i-no + "*") ELSE IF fi_i-no NE "" THEN " AND po-ordl.i-no BEGINS " + QUOTER(fi_i-no) ELSE "")
+                           + (IF INDEX(fi_vend-i-no,"*") GT 0 THEN " AND po-ordl.vend-i-no MATCHES " + QUOTER(fi_vend-i-no + "*") ELSE IF fi_vend-i-no NE "" THEN " AND po-ordl.vend-i-no BEGINS " + QUOTER(fi_vend-i-no) ELSE "")
                            + (IF fi_job-no NE "" THEN " AND po-ordl.job-no BEGINS " + QUOTER(fi_job-no) ELSE "")
                            + (IF fi_job-no NE "" AND fi_job-no2 NE 0 THEN " AND po-ordl.job-no2 EQ " + STRING(fi_job-no2) ELSE "")
                            . 

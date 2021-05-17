@@ -6734,7 +6734,10 @@ PROCEDURE ipStatus :
 ------------------------------------------------------------------------------*/
     DEF INPUT PARAMETER ipcStatus AS CHAR NO-UNDO.
     DEF VAR cLogFile AS CHAR NO-UNDO.
-                
+
+    /* Give the asiUpdate program time to close the log file */
+    PAUSE 1 BEFORE-HIDE NO-MESSAGE.
+                   
     IF INDEX(ipcStatus,"duplicate") EQ 0 THEN DO:
         ASSIGN
             eStatus:{&SV}       = eStatus:{&SV} + ipcStatus + CHR(10)

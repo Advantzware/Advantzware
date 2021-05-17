@@ -313,6 +313,8 @@ PROCEDURE GetOperationsForJob:
     DEFINE INPUT        PARAMETER ipcCompany      AS CHARACTER NO-UNDO.
     DEFINE INPUT        PARAMETER ipcJobno        AS CHARACTER NO-UNDO.
     DEFINE INPUT        PARAMETER ipiJobno2       AS INTEGER   NO-UNDO.
+    DEFINE INPUT        PARAMETER ipiFormNo       AS INTEGER   NO-UNDO.
+    DEFINE INPUT        PARAMETER ipiBlankNo      AS INTEGER   NO-UNDO.
     DEFINE INPUT-OUTPUT PARAMETER opcMachineList  AS CHARACTER NO-UNDO.
 
     DEFINE BUFFER bf-job     FOR job.
@@ -327,6 +329,8 @@ PROCEDURE GetOperationsForJob:
               AND bf-job-mch.job     EQ bf-job.job
               AND bf-job-mch.job-no  EQ bf-job.job-no
               AND bf-job-mch.job-no2 EQ bf-job.job-no2
+              AND bf-job-mch.frm     EQ ipiFormNo
+              AND (bf-job-mch.blank-no EQ ipiBlankNo OR bf-job-mch.blank-no EQ 0)
             USE-INDEX line-idx:
         opcMachineList = IF opcMachineList EQ "" THEN 
                              STRING(bf-job-mch.m-code)
@@ -348,6 +352,8 @@ PROCEDURE GetOperationsForJobNotCompleted:
     DEFINE INPUT        PARAMETER ipcCompany      AS CHARACTER NO-UNDO.
     DEFINE INPUT        PARAMETER ipcJobno        AS CHARACTER NO-UNDO.
     DEFINE INPUT        PARAMETER ipiJobno2       AS INTEGER   NO-UNDO.
+    DEFINE INPUT        PARAMETER ipiFormNo       AS INTEGER   NO-UNDO.
+    DEFINE INPUT        PARAMETER ipiBlankNo      AS INTEGER   NO-UNDO.
     DEFINE INPUT-OUTPUT PARAMETER opcMachineList  AS CHARACTER NO-UNDO.
 
     DEFINE BUFFER bf-job     FOR job.
@@ -362,6 +368,8 @@ PROCEDURE GetOperationsForJobNotCompleted:
               AND bf-job-mch.job     EQ bf-job.job
               AND bf-job-mch.job-no  EQ bf-job.job-no
               AND bf-job-mch.job-no2 EQ bf-job.job-no2
+              AND bf-job-mch.frm     EQ ipiFormNo
+              AND (bf-job-mch.blank-no EQ ipiBlankNo OR bf-job-mch.blank-no EQ 0)
               AND NOT bf-job-mch.run-complete
             USE-INDEX line-idx:
         opcMachineList = IF opcMachineList EQ "" THEN 

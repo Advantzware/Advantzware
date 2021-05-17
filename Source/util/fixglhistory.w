@@ -129,7 +129,7 @@ DEFINE BROWSE BROWSE-1
  ENABLE tt-glhist.tr-amt
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 125 BY 12.38.
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 145 BY 12.38.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -144,7 +144,7 @@ DEFINE FRAME FRAME-A
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 130 BY 15.38.
+         SIZE 150 BY 15.38.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -165,11 +165,11 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          HIDDEN             = YES
          TITLE              = "Fix G/L History"
          HEIGHT             = 15.38
-         WIDTH              = 130
+         WIDTH              = 150
          MAX-HEIGHT         = 15.38
-         MAX-WIDTH          = 130
+         MAX-WIDTH          = 150
          VIRTUAL-HEIGHT     = 15.38
-         VIRTUAL-WIDTH      = 130
+         VIRTUAL-WIDTH      = 150
          RESIZE             = yes
          SCROLL-BARS        = no
          STATUS-AREA        = yes

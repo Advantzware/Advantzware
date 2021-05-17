@@ -141,3 +141,6 @@
 157 "System" "Vendor Aging Misc" 6.67 67 yes "" yes "202103097102106073678"
 158 "System" "Vendor Types" 5.71 71 yes "Vendor Types" yes "202103097271506073720"
 159 "System" "Exclude Zero" 3.1 27 yes "" yes "202103117174806812637"
+161 "System" "Quote Range" 5.48 30 yes "Quote" yes "202104161831907163591"
+162 "System" "Program Range" 6.67 47 yes "Program Name" yes "202105122177607276910"
+163 "System" "Transaction Types" 21.43 119 yes "Transaction Types" yes "202105125666207282487"

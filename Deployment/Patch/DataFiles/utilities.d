@@ -8,7 +8,6 @@
 "autoCloseOrder.r" "OE" "" "Auto Close Order" "Close orders automatically based on a parameter settings used." 800
 "BOLweight.r" "OP" "OS1" "Fix Bill of Lading Weight per Line" "Update Bill of Lading weight for each line item on the bill of lading for a user selected range of Bill of Lading numbers.  The weight per 100 cartons in the I-F-1 finished goods file is used to update the weight for each bill of lading line.   " 900
 "BuildFluteMatrix.r" "CE" "" "Restore Flute Stacking Matrix that were Deleted" "Utility to Export and restore stack matrix table for pallets, which have deleted stacking patterns defined on their matric." 900
-"Changper.r" "GL" "" "Change Period of Run Number" "Change of a posted GL period and if the period is changed, that the customer and vendor as well as GL period totals can be recalculated." 900
 "chgapchk.r" "AP" "VC" "Change AP Check Number" "Change check number utility that will allow the change of check numbers in A/P, A/P Checks, Disbursements for a posted check to correct numbering." 900
 "chgorduser.r" "OP" "OU1" "Update Replace User ID on all Orders" "Updated orders to replace the user id on the orders from the old user id to the new user id.  OPtion for open orders only or all orders." 900
 "CloseOrderTester.r" "OE" "OU6" "Close Order Tester" "Tests orders to see why they are in current state" 900
@@ -97,10 +96,6 @@ This should not be needed and this should be done when the salesperson is change
 "FixWip.r" "JC" "JC" "Fix Posted Work In Process" "Creates Job machine records and makes sure the number up/on are both not zero." 900
 "ftpTester.r" "EDI" "FF" "Ftp Tester" "FTP Test utility to test sending using FTP." 900
 "fx0fgtrn.r" "FG" "IF1" "Fix FG Transfers with Wrong Quantity" "Calculates the total tranfer quantity for anything with a tag, then updates the load tag to represent the proper transferred quantity." 900
-"fxacctg2.r" "GL" "GC" "Update current year buckets" "** NO prompt **
-Recalculate the period balances of all GL accounts for the current year using the GL history file.
-
-Note: No prompt will be provided, so running this will execute immediately." 900
 "fxacctg3.r" "GL" "GY" "Update current & Last year buckets" "** NO Prompt **  Recalculate the period balances of all GL accounts for the current year & Last year using the GL history file.
 
 Note: No prompt will be provided, so running this will execute immediately." 900
@@ -115,7 +110,9 @@ Note: No prompt will be provided, so running this will execute immediately." 900
 
 Fixing orders will take a while to run.
 " 900
-"FxOpened.r" "JC" "JU" "Fix Open Orders, Jobs and PO Status" "Runs (3) other utilities together - FxOpnord, FxopnJob, FxopnPO together." 900
+"FxOpened.r" "JC" "JU" "Fix Open Orders, Jobs and PO Status" "** WARNING NO PROMPT **
+
+This runs and fixes the status of the Orders, Jobs and PO's based on the current status of each.  So orders that should be closed get closed, jobs that were received and PO received will all close based on the rules." 900
 "fxordcst.r" "OP" "OU1" "Fix Order Cost/Margin" "Fix an order cost and margin - User askes for order number, then displays the FG item and cost / margin for each and allows editing." 900
 "fxorinvq.r" "OP" "OU1" "Update Order Line Item's Invoiced Qty" "From order to order number with begin and end FG item.  Reads invoices and updates the order inveoiced quantity." 900
 "FxPMtxED.r" "OE" "OF3" "Fix Price Matrix Effective Date" "Sets an effective date based on invice date or todays date." 1000
@@ -123,6 +120,13 @@ Fixing orders will take a while to run.
 "FxRecKey.r" "AR" "AF1" "Fix Customer Record Keys to Fix Notes" "Fix rec key for customer notes and set a customer note date = customer setup or 01/01/2006." 1000
 "fxshpqty.r" "OP" "OU1" "Updates Orders Ship Quantity" "Prompts for Begin/End order number.  Updates order ship quantity based on the order range, recalculate the allocation and back order quantity." 900
 "FxTrncs2.r" "RM" "MF" "Updates RM History Cost from Purchase Order" "If purchased RM item, then reset the cost of RM item to that of the PO cost." 900
+"gl-purge.r" "GL" "NF5" "Purge GL Detail" "This program allows for the complete deletion of GL History records which should only be used if the G/L is being cleared in a startup excercise.  This removes all G/L History for an account or all accounts.
+
+* ASI Only utility *" 1000
+"gl-purge.w" "GL" "NF5" "Purge GL Detail" "This program allows for the complete deletion of GL History records which should only be used if the G/L is being cleared in a startup excercise.  This removes all G/L History for an account or all accounts.
+
+* ASI Only utility *" 1000
+"GLAdminUtility.r" "GL" "" "G/L Admin Tool" "Change of a posted GL period, verify totals and recalculate balances utility." 900
 "glinvdif.r" "GL" "" "Report differences in invoice amt vs posted" "Report compares invoice lines to the GL entries created to see if out of balance." 900
 "impest.r" "CE" "" "Import Estimate" "Import of estimates template." 900
 "ImpMaster.r" "IMP" "" "Import Master" "Import master that allows access to all the imports licensed." 900
@@ -179,6 +183,7 @@ Used to clear load tags from the load tag file." 1000
 "purgnote.r" "FG" "IF" "Purge FG Spec Notes Range" "Askes for a Spec note type and will delete all spec notes of that type from all FG items." 900
 "rctdpurg.r" "SA" "NR" "Purge FG Transactions by Type" "Allows for mass delete of FG transactions." 900
 "RebuildRecalcJobs.r" "JC" "JU1" "Rebuild / Recalculate Jobs" "Utility will allow the rebuild or recalc of jobs with no production quantity." 900
+"RebuildRecalcJobs.w" "JC" "JU1" "Rebuild / Recalculate Jobs" "Utility will allow the rebuild or recalc of jobs with no production quantity." 900
 "recalcJobs.r" "SA" "NR" "Recalc Jobs" "Utility to recalculate job standard costs with updates to the estimated rates in the machine files for jobs that have not started production (No production quantity)." 900
 "reopenyr.r" "GL" "" "Reopen year after closing" "Re-opens last year after closing and resets balances.
 
@@ -238,6 +243,7 @@ If no invoice, it will set BOL to unposted as well as all lines." 900
 "UpdateStatus.r" "OE" "NM" "Update Status based on line items" "This utility will update the status of Jobs, Orders, Releases and Purchase Orders based on the lines and the calculation of if the record should have a closed status." 900
 "UpdBinPO.r" "FG" "IF1" "Update Vendor PO# on I-F-1 Bin/Jobs Tab" "Update bins with a vendor PO# for a range of item numbers." 900
 "UpdBnPOR.r" "RM" "MF1" "Update Vendor PO# on M-F-1 Bin/Jobs Tab" "Update the vendor PO#  on RM bins." 900
+"updcust#.r" "AR" "AF1" "Update Customer Number" "Mass update of customer records to set credit limit and other fields with a rnge of customers." 900
 "updcust.r" "AR" "AF1" "Update Customer Fields" "Mass update of customer records to set credit limit and other fields with a rnge of customers." 900
 "updestink.r" "CE" "E" "Update Estimate Inks via Raw Goods" "Replace one estimate ink with a new ink for a range of estimates or customers." 900
 "updFgShp.r" "FG" "IF1" "Ship Method Default by Case or Pallet" "Mass update of FG items to default to be by case or pallet." 900
