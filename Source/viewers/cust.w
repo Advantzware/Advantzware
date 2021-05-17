@@ -1102,7 +1102,8 @@ ON CHOOSE OF btnTags IN FRAME F-Main
 DO:
     RUN system/d-TagViewer.w(
         INPUT cust.rec_key,
-        INPUT "HOLD"
+        INPUT "HOLD",
+        INPUT ""
         ). 
 END.
 
