@@ -521,8 +521,8 @@ DO:
   DO WITH FRAME {&FRAME-NAME}:
      ASSIGN {&displayed-objects}.
   END.
-
-  IF rd-dest = 4 OR (rd-dest = 5 AND NOT tb_BatchMail:CHECKED)
+  
+  IF (rd-dest = 4 OR rd-dest = 5) AND NOT tb_BatchMail:CHECKED 
      AND begin_cust-no <> end_cust-no THEN DO:
 
     IF rd-dest = 4 THEN
