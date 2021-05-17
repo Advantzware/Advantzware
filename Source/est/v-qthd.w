@@ -1432,7 +1432,8 @@ PROCEDURE local-update-record :
         {methods/run_link.i "bottom-TARGET" "local-add-record"}
     END.
   END.
-
+    
+  RUN dispatch ('row-changed').
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
