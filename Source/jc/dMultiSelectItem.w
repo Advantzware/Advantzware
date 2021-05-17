@@ -65,7 +65,7 @@ RUN fgrep\fgReorder.p PERSISTENT SET hdFGReorder.
 
 /* Definitions for BROWSE BROWSE-NAME                                      */
 &Scoped-define FIELDS-IN-QUERY-BROWSE-NAME ttMultiSelectItem.isSelected ttMultiSelectItem.multiplier ttMultiSelectItem.pallet ttMultiSelectItem.quantityToOrder ttMultiSelectItem.quantityToOrderSuggested ttMultiSelectItem.itemID ttMultiSelectItem.itemName ttMultiSelectItem.quantityReorderLevel ttMultiSelectItem.quantityOnHand ttMultiSelectItem.quantityOnOrder ttMultiSelectItem.quantityAllocated ttMultiSelectItem.quantityAvailable ttMultiSelectItem.availOnHand ttMultiSelectItem.dateDueDateEarliest ttMultiSelectItem.orderQtyEarliest ttMultiSelectItem.quantityReorderLevel ttMultiSelectItem.quantityMinOrder ttMultiSelectItem.quantityMaxOrder ttMultiSelectItem.itemCustPart ttMultiSelectItem.itemCust ttMultiSelectItem.itemCustName ttMultiSelectItem.itemEstNO ttMultiSelectItem.itemStyle ttMultiSelectItem.itemWhse ttMultiSelectItem.board  
-&Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-NAME ttMultiSelectItem.isSelected ttMultiSelectItem.multiplier ttMultiSelectItem.quantityToOrder   
+&Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-NAME ttMultiSelectItem.isSelected ttMultiSelectItem.multiplier ttMultiSelectItem.pallet ttMultiSelectItem.quantityToOrder   
 &Scoped-define ENABLED-TABLES-IN-QUERY-BROWSE-NAME ttMultiSelectItem
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-BROWSE-NAME ttMultiSelectItem
 &Scoped-define SELF-NAME BROWSE-NAME
@@ -233,6 +233,7 @@ DEFINE BROWSE BROWSE-NAME
 
       ENABLE ttMultiSelectItem.isSelected
              ttMultiSelectItem.multiplier 
+             ttMultiSelectItem.pallet
              ttMultiSelectItem.quantityToOrder
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -645,6 +646,19 @@ DO:
     dPallet = integer(ttMultiSelectItem.quantityToOrder:SCREEN-VALUE IN BROWSE {&browse-name}) / Max (ttMultiSelectItem.itemCount,1).     
     {sys/inc/roundup.i dPallet} 
     ttMultiSelectItem.pallet:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(dPallet).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME ttMultiSelectItem.pallet
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ttMultiSelectItem.pallet BROWSE-NAME _BROWSE-COLUMN Dialog-Frame
+ON VALUE-CHANGED OF ttMultiSelectItem.pallet IN BROWSE BROWSE-NAME /* Quantity To Order */
+DO:
+    DEFINE VARIABLE dPallet AS DECIMAL NO-UNDO.
+    dPallet = integer(ttMultiSelectItem.pallet:SCREEN-VALUE IN BROWSE {&browse-name}).        
+    ttMultiSelectItem.quantityToOrder:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(Max (ttMultiSelectItem.itemCount,1) *  dPallet ).
 END.
 
 /* _UIB-CODE-BLOCK-END */
