@@ -126,14 +126,25 @@ for each report where report.term-id eq v-term-id,
                     SKIP.
         END.
         ELSE DO: 
+          IF i EQ 2 THEN
             PUT {1} 
                  oe-ordl.ord-no AT 6 
 /*                  oe-ord.ord-no AT 17 */
                  oe-ordl.part-dscr1 FORM "x(30)" AT 38 
                  w2.cases  AT 71 FORM "->>>9" " @"
                  w2.cas-cnt FORM "->>>>>9" SKIP.
+                 
+          IF i EQ 3 THEN
+            PUT {1} 
+                 oe-boll.i-no AT 6 
+                 w2.cases  AT 71 FORM "->>>9" " @"
+                 w2.cas-cnt FORM "->>>>>9" SKIP. 
+                 
+           IF i GT 3 THEN
+            PUT {1} 
+                 w2.cases  AT 71 FORM "->>>9" " @"
+                 w2.cas-cnt FORM "->>>>>9" SKIP.        
         END.
-           PUT oe-boll.i-no AT 6 SKIP.
 
         ASSIGN v-printline = v-printline + 2.
         
