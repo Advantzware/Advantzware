@@ -233,7 +233,8 @@ IF AVAILABLE ap-inv THEN DO:
                     INPUT ap-inv.REC_KEY,
                     INPUT "ap-inv",
                     INPUT ENTRY(iIndex, cHoldMessage, "|"),
-                    INPUT STRING(ap-inv.inv-no)
+                    INPUT STRING(ap-inv.inv-no),
+                    INPUT ""
                     ).
             END.
         END.

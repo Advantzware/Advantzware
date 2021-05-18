@@ -42,7 +42,7 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-{system/sysconst.i}
+// {system/sysconst.i}
 {custom/globdefs.i}
 {sys/inc/var.i}
 {sys/inc/varasgn.i}
@@ -849,7 +849,7 @@ PROCEDURE local-enable :
     FIND FIRST company NO-LOCK 
          WHERE company.company EQ g_company NO-ERROR .
     IF AVAILABLE company THEN            
-        {&WINDOW-NAME}:TITLE = {&WINDOW-NAME}:TITLE + " - {&awversion}" + " - " 
+        {&WINDOW-NAME}:TITLE = {&WINDOW-NAME}:TITLE + " - " + DYNAMIC-FUNCTION("sfVersion") + " - " 
                              + STRING(company.name) + " - " + g_loc.
     cCompany = cocode.
 END PROCEDURE.

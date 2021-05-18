@@ -92,4 +92,5 @@ DEF {1} SHARED TEMP-TABLE w-ord
   FIELD zone as CHARACTER
   FIELD broker AS LOGICAL
   FIELD ipReturn AS LOGICAL 
+  FIELD customField AS CHARACTER 
   .

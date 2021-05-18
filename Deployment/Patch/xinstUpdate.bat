@@ -16,7 +16,7 @@ IF EXIST "..\..\DoNotDelete.txt" (
     )
 
 :: Check to ensure we're on the ASI server
-IF /I NOT !Hostname! == %computername% (
+IF /I NOT !Hostname! == %computername% IF /I NOT !Hostname! == %computername%.%userdnsdomain% (
     ECHO MSGBOX "You MUST run this program on the ASI server." > %temp%\TEMPmessage.vbs
     CALL %temp%\TEMPmessage.vbs
     DEL %temp%\TEMPmessage.vbs /f /q

@@ -39,6 +39,7 @@ DEF INPUT PARAMETER ipiCurrAudVer AS INT NO-UNDO.
 DEF INPUT PARAMETER ipiPatchAudVer AS INT NO-UNDO.
 DEF INPUT PARAMETER ipiLevel AS INT NO-UNDO.
 DEF INPUT PARAMETER iplMakeBackup AS LOG NO-UNDO.
+DEF INPUT PARAMETER ipcLogFile AS CHAR NO-UNDO.
 DEF OUTPUT PARAMETER oplSuccess AS LOG NO-UNDO.
 DEF INPUT-OUTPUT PARAMETER iopiStatus AS INT NO-UNDO.
 
@@ -1049,15 +1050,12 @@ PROCEDURE ipStatus :
   Notes:       
 ------------------------------------------------------------------------------*/
     DEF INPUT PARAMETER ipcStatus AS CHAR NO-UNDO.
-    DEF VAR cLogFile AS CHAR NO-UNDO.
-                
                 
     IF INDEX(ipcStatus,"duplicate") EQ 0 THEN DO:
         ASSIGN
             eStatus:{&SV}       = eStatus:{&SV} + ipcStatus + CHR(10)
             eStatus:CURSOR-LINE = eStatus:NUM-LINES.
         ASSIGN
-            cLogFile = cEnvAdmin + "\UpdateLog.txt"
             iMsgCtr = iMsgCtr + 1
             cMsgStr[iMsgCtr] = ipcStatus.
         FIND FIRST ttUpdateHist NO-LOCK NO-ERROR.
@@ -1066,7 +1064,7 @@ PROCEDURE ipStatus :
                 ttUpdateHist.endTimeInt = INT(TIME)
                 ttUpdateHist.endTime = STRING(time,"HH:MM:SS AM")        
                 ttUpdateHist.success = lSuccess.        
-        OUTPUT STREAM logStream TO VALUE(cLogFile) APPEND.
+        OUTPUT STREAM logStream TO VALUE(ipcLogFile) APPEND.
         PUT STREAM logStream
             STRING(TODAY,"99/99/99") AT 1
             STRING(TIME,"HH:MM:SS") AT 12
