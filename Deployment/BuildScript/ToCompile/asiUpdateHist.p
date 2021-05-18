@@ -14,7 +14,7 @@
 
 /* ***************************  Definitions  ************************** */
 
-DEF TEMP-TABLE ttUpdateHist
+DEF SHARED TEMP-TABLE ttUpdateHist
     FIELD fromVersion AS CHAR 
     FIELD toVersion AS CHAR 
     FIELD applyDate AS DATE 
@@ -26,7 +26,6 @@ DEF TEMP-TABLE ttUpdateHist
     FIELD success AS LOG INITIAL NO 
     FIELD updLog AS CHAR.     
 
-DEFINE INPUT PARAMETER TABLE FOR ttUpdateHist.
 
 /* ********************  Preprocessor Definitions  ******************** */
 

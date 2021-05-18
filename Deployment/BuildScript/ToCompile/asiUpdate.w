@@ -1520,9 +1520,8 @@ PROCEDURE ipStatus :
         END.
     END.
     
-    IF ipcStatus EQ "Upgrade Complete." 
-    AND CONNECTED(LDBNAME(1)) THEN 
-        RUN asiUpdateHist.p (INPUT TABLE ttUpdateHist BY-REFERENCE).
+    IF ipcStatus EQ "Upgrade Complete." THEN 
+        RUN asiUpdateHist.p.
                
     PROCESS EVENTS.
 
