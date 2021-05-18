@@ -534,7 +534,7 @@ DEFINE FRAME menuTreeFrame
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW MAINMENU ASSIGN
          HIDDEN             = YES
-         TITLE              = "Main Menu - Advantzware version {&awversion}"
+         TITLE              = "Main Menu - Advantzware Version"
          HEIGHT             = 28.57
          WIDTH              = 160
          MAX-HEIGHT         = 320
@@ -546,7 +546,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          STATUS-AREA        = yes
          BGCOLOR            = ?
          FGCOLOR            = ?
-         PRIVATE-DATA       = "Main Menu - Advantzware version"
+         PRIVATE-DATA       = "Main Menu - Advantzware Version"
          KEEP-FRAME-Z-ORDER = yes
          MESSAGE-AREA       = no
          SENSITIVE          = yes.
@@ -751,7 +751,7 @@ CREATE CONTROL-FRAME CtrlFrame ASSIGN
 
 &Scoped-define SELF-NAME MAINMENU
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL MAINMENU MAINMENU
-ON WINDOW-RESIZED OF MAINMENU /* Main Menu - Advantzware version {awversion} */
+ON WINDOW-RESIZED OF MAINMENU /* Main Menu - Advantzware Version */
 DO:
     RUN pWinReSize.
 END.
@@ -1627,7 +1627,7 @@ PROCEDURE pCheckUpgradeAdvantzware :
             RUN Service1Soap SET hSalesSoap ON hWebService .
             RUN HelpVersion IN hSalesSoap (OUTPUT cVersion).
             ASSIGN
-                cThisVer     = "{&awversion}"
+                cThisVer     = DYNAMIC-FUNCTION("sfVersion")
                 iThisVersion = fIntVer(cThisVer)
                 iLastVersion = fIntVer(cVersion).
                 
@@ -2027,10 +2027,12 @@ PROCEDURE pInit :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    RUN pMenuSize.
-    
+    RUN pMenuSize.    
     RUN pGetMenuSettings.
-    
+    {&WINDOW-NAME}:TITLE = fTranslate({&WINDOW-NAME}:PRIVATE-DATA,NO) + " "
+                         + DYNAMIC-FUNCTION("sfVersion")
+                         .
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2361,8 +2363,8 @@ PROCEDURE pReset :
 ------------------------------------------------------------------------------*/
     DEFINE VARIABLE i AS INTEGER NO-UNDO.
     
-    {&WINDOW-NAME}:TITLE = fTranslate({&WINDOW-NAME}:PRIVATE-DATA,NO)
-                         + " {&awversion}"
+    {&WINDOW-NAME}:TITLE = fTranslate({&WINDOW-NAME}:PRIVATE-DATA,NO) + " "
+                         + DYNAMIC-FUNCTION("sfVersion")
                          .
     SESSION:SET-WAIT-STATE("General").
     RUN LockWindowUpdate (ACTIVE-WINDOW:HWND,OUTPUT i).

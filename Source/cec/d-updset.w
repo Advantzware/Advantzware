@@ -34,6 +34,11 @@ DEF VAR ld-msf AS DEC NO-UNDO.
 DEF VAR lv-rowid AS ROWID NO-UNDO.
 DEF VAR ll-alloc AS LOG NO-UNDO.
 def var ll-crt-itemfg as log no-undo.
+DEFINE VARIABLE lQuotePriceMatrix AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cNK1Value         AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound         AS LOGICAL NO-UNDO.
+DEFINE VARIABLE hdQuoteProcs  AS HANDLE  NO-UNDO.
+RUN est/QuoteProcs.p PERSISTENT SET hdQuoteProcs.
 
 def shared buffer xest for est.
 def shared buffer xef for ef.
@@ -55,6 +60,12 @@ ll-alloc = IF ip-est-type LE 4 THEN v-allocf ELSE v-alloc.
 
 def var k_frac as dec init "6.25" no-undo.
 {sys/inc/f16to32.i}
+
+RUN sys/ref/nk1look.p (INPUT cocode, "QuotePriceMatrix", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cNK1Value, OUTPUT lRecFound).
+IF lRecFound THEN
+    lQuotePriceMatrix = logical(cNK1Value) NO-ERROR. 
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -407,6 +418,10 @@ DO:
              find xeb where recid(xeb) = recid(eb) no-lock no-error.
              find xef where recid(xef) = recid(ef) no-lock no-error.*/
              run fg/ce-addfg.p (xeb.stock-no).
+             
+             IF lQuotePriceMatrix AND AVAIL xeb THEN
+             RUN quote_CreatePriceMatrixForQuote IN hdQuoteProcs(INPUT xeb.company, INPUT xeb.est-no, INPUT xeb.part-no, INPUT xeb.stock-no).
+             
              FIND FIRST xeb NO-LOCK
                  WHERE xeb.company  EQ eb.company
                  AND xeb.est-no   EQ eb.est-no
@@ -416,7 +431,12 @@ DO:
                                   WHERE itemfg.company EQ xeb.company
                                   AND itemfg.i-no    EQ xeb.stock-no)
                  NO-ERROR.
-             IF AVAIL xeb THEN RUN fg/ce-addfg.p (xeb.stock-no).
+             IF AVAIL xeb THEN
+             do:
+                RUN fg/ce-addfg.p (xeb.stock-no).
+                IF lQuotePriceMatrix AND AVAIL xeb THEN
+                RUN quote_CreatePriceMatrixForQuote IN hdQuoteProcs(INPUT xeb.company, INPUT xeb.est-no, INPUT xeb.part-no, INPUT xeb.stock-no).
+             END.
              ll-crt-itemfg = no.
          end.
 

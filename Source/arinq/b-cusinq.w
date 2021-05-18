@@ -912,6 +912,10 @@ PROCEDURE local-open-query :
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .
 
+  DO WITH FRAME {&FRAME-NAME}:
+      APPLY "VALUE-CHANGED" TO BROWSE {&browse-name}.
+  END.
+  
   /* Code placed here will execute AFTER standard behavior.    */
 
 END PROCEDURE.

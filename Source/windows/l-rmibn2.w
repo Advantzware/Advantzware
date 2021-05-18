@@ -70,7 +70,7 @@ ASSIGN
     v-prgmname = SUBSTRING(PROGRAM-NAME(1), R-INDEX(PROGRAM-NAME(1), "/") + 1)
     v-prgmname = SUBSTRING(v-prgmname,1,INDEX(v-prgmname,"."))
     .   
-{system/sysconst.i}
+// {system/sysconst.i}
 {methods/defines/globdefs.i} 
 {sys/inc/var.i new shared}
 ASSIGN
