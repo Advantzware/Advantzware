@@ -493,7 +493,8 @@ OR CHOOSE OF bUpdate
                 END.
             WHEN "bUpdate" THEN 
                 DO:
-                    ASSIGN 
+                    FIND FIRST ttUpdateHist NO-ERROR.
+                    IF AVAIL ttUpdateHist THEN ASSIGN 
                         ttUpdateHist.toVersion = fiToVersion:{&SV}
                         ttUpdateHist.user_id = fiUserID:{&SV}.
                         
@@ -1222,6 +1223,7 @@ PROCEDURE ipProcess :
             iPatchAudVer,
             iUserLevel,
             lMakeBackup,
+            cLogFile,
             OUTPUT lSuccess,
             INPUT-OUTPUT iStatus).
         ASSIGN
@@ -1353,6 +1355,7 @@ PROCEDURE ipProcess :
         fiToVersion:{&SV},
         iUserLevel,
         lMakeBackup, /* Need backup? */
+        cLogFile,
         OUTPUT lSuccess,
         INPUT-OUTPUT iStatus).
         
@@ -1479,7 +1482,8 @@ PROCEDURE ipStatus :
         END.
         INPUT STREAM logStream CLOSE.
         FOR EACH ttUpdateLog:
-            ASSIGN 
+            FIND FIRST ttUpdateHist NO-ERROR.
+            IF AVAIL ttUpdateHist THEN ASSIGN 
                 ttUpdateHist.updLog = ttUpdateHist.updLog + ttUpdateLog.cLine + CHR(10).
         END.   
         EMPTY TEMP-TABLE ttUpdateLog.
@@ -1500,7 +1504,8 @@ PROCEDURE ipStatus :
             ASSIGN
                 iMsgCtr = iMsgCtr + 1
                 cMsgStr[iMsgCtr] = ipcStatus.
-            ASSIGN 
+            FIND FIRST ttUpdateHist NO-ERROR.
+            IF AVAIL ttUpdateHist THEN ASSIGN 
                 ttUpdateHist.updLog = ttUpdateHist.updLog + STRING(TODAY,"99/99/99") + "  " + STRING(TIME,"HH:MM:SS") + "  " + cMsgStr[iMsgCtr] + CHR(10)
                 ttUpdateHist.endTimeInt = INT(TIME)
                 ttUpdateHist.endTime = STRING(time,"HH:MM:SS AM")
