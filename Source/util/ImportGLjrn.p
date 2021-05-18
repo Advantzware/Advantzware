@@ -16,16 +16,16 @@
 {util\ttImport.i SHARED}
 
 DEFINE TEMP-TABLE ttImportGLjrn   
-    FIELD Location        AS CHARACTER                       COLUMN-LABEL "Location" 
-    FIELD Company         AS CHARACTER FORMAT "x(3)"         COLUMN-LABEL "Company"
-    FIELD j-no            AS INTEGER FORMAT ">>>>>>9"        COLUMN-LABEL "Internal Journal#"
-    FIELD journal         AS INTEGER FORMAT ">>>>>>9"        COLUMN-LABEL "Journal #" 
-    FIELD tr-date         AS DATE    FORMAT "99/99/9999"     COLUMN-LABEL "Trx Date" 
-    FIELD tr-amt          AS DECIMAL FORMAT "->>,>>>,>>9.99" COLUMN-LABEL "Amount" 
-    FIELD tcred           AS DECIMAL FORMAT "->>,>>>,>>9.99" COLUMN-LABEL "Credits" 
-    FIELD tdeb            AS DECIMAL FORMAT "->>,>>>,>>9.99" COLUMN-LABEL "Debits" 
-    FIELD period          AS INTEGER FORMAT "99"             COLUMN-LABEL "Period" 
-    FIELD posted          AS LOGICAL FORMAT "Y/N"            COLUMN-LABEL "Posted" 
+    FIELD Location        AS CHARACTER                       COLUMN-LABEL "Location"            HELP "Required - Size:8" 
+    FIELD Company         AS CHARACTER FORMAT "x(3)"         COLUMN-LABEL "Company"             HELP "Required - Size:3" 
+    FIELD j-no            AS INTEGER FORMAT ">>>>>>9"        COLUMN-LABEL "Internal Journal#"   HELP "Required - Integer" 
+    FIELD journal         AS INTEGER FORMAT ">>>>>>9"        COLUMN-LABEL "Journal #"           HELP "Required - Integer" 
+    FIELD tr-date         AS DATE    FORMAT "99/99/9999"     COLUMN-LABEL "Trx Date"            HELP "Required - Size:8" 
+    FIELD tr-amt          AS DECIMAL FORMAT "->>,>>>,>>9.99" COLUMN-LABEL "Amount"              HELP "Optional - Decimal" 
+    FIELD tcred           AS DECIMAL FORMAT "->>,>>>,>>9.99" COLUMN-LABEL "Credits"             HELP "Optional - Decimal"  
+    FIELD tdeb            AS DECIMAL FORMAT "->>,>>>,>>9.99" COLUMN-LABEL "Debits"              HELP "Optional - Decimal" 
+    FIELD period          AS INTEGER FORMAT "99"             COLUMN-LABEL "Period"              HELP "Optional - Integer" 
+    FIELD posted          AS LOGICAL FORMAT "Y/N"            COLUMN-LABEL "Posted"              HELP "Required - Y or N" 
          .
 DEFINE VARIABLE giIndexOffset AS INTEGER NO-UNDO INIT 1. /*Set to 1 if there is a Company field in temp-table since this will not be part of the import data*/
 
@@ -65,11 +65,11 @@ PROCEDURE pValidate PRIVATE:
     IF oplValid THEN 
     DO:
         FIND FIRST bf-ttImportGLjrn NO-LOCK 
-            WHERE bf-ttImportGLjrn.Company EQ bf-ttImportGLjrn.Company
-            AND bf-ttImportGLjrn.posted EQ bf-ttImportGLjrn.posted
-            AND bf-ttImportGLjrn.journal EQ bf-ttImportGLjrn.journal
-            AND bf-ttImportGLjrn.tr-date EQ bf-ttImportGLjrn.tr-Date           
-            AND ROWID(bf-ttImportGLjrn) NE ROWID(bf-ttImportGLjrn)
+            WHERE bf-ttImportGLjrn.Company EQ ipbf-ttImportGLjrn.Company
+            AND bf-ttImportGLjrn.posted EQ ipbf-ttImportGLjrn.posted
+            AND bf-ttImportGLjrn.journal EQ ipbf-ttImportGLjrn.journal
+            AND bf-ttImportGLjrn.tr-date EQ ipbf-ttImportGLjrn.tr-Date           
+            AND ROWID(bf-ttImportGLjrn) NE ROWID(ipbf-ttImportGLjrn)
             NO-ERROR.
         IF AVAILABLE bf-ttImportGLjrn THEN 
             ASSIGN 

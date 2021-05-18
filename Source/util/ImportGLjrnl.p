@@ -17,13 +17,13 @@
 
         
 DEFINE TEMP-TABLE ttImportGLjrnl
-    FIELD Company          AS CHARACTER FORMAT "x(3)"           COLUMN-LABEL "Company"
-    FIELD Location         AS CHARACTER                         COLUMN-LABEL "Location"
-    FIELD j-no             AS INTEGER   FORMAT ">>>>>>9"        COLUMN-LABEL "Internal Journal#" 
-    FIELD line             AS INTEGER   FORMAT "999"  
-    FIELD actnum           AS CHARACTER FORMAT "x(25)"          COLUMN-LABEL "Account" 
-    FIELD dscr             AS CHARACTER FORMAT "x(30)"          COLUMN-LABEL "Description" 
-    FIELD tr-amt           AS DECIMAL   FORMAT "->>,>>>,>>9.99" COLUMN-LABEL "Amount" 
+    FIELD Company          AS CHARACTER FORMAT "x(3)"           COLUMN-LABEL "Company"              HELP "Required - Size:3" 
+    FIELD Location         AS CHARACTER                         COLUMN-LABEL "Location"             HELP "Required - Size:8" 
+    FIELD j-no             AS INTEGER   FORMAT ">>>>>>9"        COLUMN-LABEL "Internal Journal#"    HELP "Required - Integer" 
+    FIELD line             AS INTEGER   FORMAT "999"            COLUMN-LABEL "Line#"                HELP "Optional - Integer" 
+    FIELD actnum           AS CHARACTER FORMAT "x(25)"          COLUMN-LABEL "Account"              HELP "Required - Size:25" 
+    FIELD dscr             AS CHARACTER FORMAT "x(30)"          COLUMN-LABEL "Description"          HELP "Optional - Size:30" 
+    FIELD tr-amt           AS DECIMAL   FORMAT "->>,>>>,>>9.99" COLUMN-LABEL "Amount"               HELP "Optional - Decimal" 
         .
 
 DEFINE VARIABLE giIndexOffset AS INTEGER NO-UNDO INIT 2. /*Set to 1 if there is a Company field in temp-table since this will not be part of the import data*/
