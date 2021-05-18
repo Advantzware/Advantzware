@@ -80,6 +80,8 @@ DEFINE {1} SHARED TEMP-TABLE ttInputEst
     FIELD lKeyItem AS LOGICAL /* Optional*/
     FIELD quantityToOrderSuggested AS DECIMAL /* Optional*/
     FIELD dCaliper AS DECIMAL /* Optional*/
+    FIELD iPalletRestore AS INTEGER /* Optional*/
+    FIELD iQtyRestore AS INTEGER /* Optional*/
     .
 
 

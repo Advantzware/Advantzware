@@ -809,6 +809,8 @@ PROCEDURE repo-query :
                    ASSIGN
                    ttMultiSelectItem.isSelected = YES
                    ttMultiSelectItem.multiplier = ttInputEst.iMolds
+                   ttMultiSelectItem.pallet = ttInputEst.iPalletRestore
+                   ttMultiSelectItem.quantityToOrder = ttInputEst.iQtyRestore
                    .                  
          END.
      END.
