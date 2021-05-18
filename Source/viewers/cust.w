@@ -1102,7 +1102,8 @@ ON CHOOSE OF btnTags IN FRAME F-Main
 DO:
     RUN system/d-TagViewer.w(
         INPUT cust.rec_key,
-        INPUT "HOLD"
+        INPUT "HOLD",
+        INPUT ""
         ). 
 END.
 
@@ -2711,6 +2712,7 @@ PROCEDURE local-update-record :
               INPUT cust.rec_key,
               INPUT "cust",
               INPUT "Released from Hold by " + USERID("ASI"),
+              INPUT "",
               INPUT ""
               ).
           WHEN YES THEN
@@ -2718,6 +2720,7 @@ PROCEDURE local-update-record :
               INPUT cust.rec_key,
               INPUT "cust",
               INPUT "Placed on Hold by " + USERID("ASI"),
+              INPUT "",
               INPUT ""
               ).
       END CASE.
