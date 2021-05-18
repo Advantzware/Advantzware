@@ -56,7 +56,7 @@ CREATE WIDGET-POOL.
 &Scoped-define FRAME-NAME fMain
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS BUTTON-1 
+&Scoped-Define ENABLED-OBJECTS BUTTON-1 bHotfix 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -77,6 +77,10 @@ DEFINE VARIABLE h_sdoupdatehist AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_vwrupdatehst AS HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON bHotfix 
+     LABEL "Install latest patches" 
+     SIZE 26 BY 1.14.
+
 DEFINE BUTTON BUTTON-1 AUTO-END-KEY 
      IMAGE-UP FILE "Graphics/32x32/exit_white.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Button 1" 
@@ -87,6 +91,7 @@ DEFINE BUTTON BUTTON-1 AUTO-END-KEY
 
 DEFINE FRAME fMain
      BUTTON-1 AT ROW 19.33 COL 160
+     bHotfix AT ROW 19.81 COL 113
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -185,6 +190,20 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME bHotfix
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL bHotfix wWin
+ON CHOOSE OF bHotfix IN FRAME fMain /* Install latest patches */
+DO:
+    
+    RUN ipInstallPatch.
+       
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 &UNDEFINE SELF-NAME
@@ -290,7 +309,7 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  ENABLE BUTTON-1 
+  ENABLE BUTTON-1 bHotfix 
       WITH FRAME fMain IN WINDOW wWin.
   {&OPEN-BROWSERS-IN-QUERY-fMain}
   VIEW wWin.
@@ -314,4 +333,178 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE initializeObject wWin
+PROCEDURE initializeObject:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+
+  RUN SUPER.
+
+  /* Code placed here will execute AFTER standard behavior.    */
+    FIND users NO-LOCK WHERE 
+        users.user_id EQ USERID(LDBNAME(1))
+        NO-ERROR.
+    IF users.securityLevel LT 900 THEN ASSIGN 
+        bHotFix:VISIBLE IN FRAME {&frame-name} = FALSE.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipInstallPatch wWin
+PROCEDURE ipInstallPatch:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEF VAR cCmd AS CHAR NO-UNDO.
+    DEF VAR cUserTempDir AS CHAR NO-UNDO.
+    DEF VAR cRawLine AS CHAR NO-UNDO.
+    DEF VAR cMyVersion AS CHAR NO-UNDO.
+    DEF VAR cMyLongVersion AS CHAR NO-UNDO.
+    DEF VAR cMyPatch AS CHAR NO-UNDO.
+    DEF VAR cNewVersion AS CHAR NO-UNDO.
+    DEF VAR cNewPatch AS CHAR NO-UNDO.
+    DEF VAR lUpgrade AS LOG NO-UNDO.
+    DEF VAR lUpdate AS LOG NO-UNDO.
+    DEF VAR cPatchToProcess AS CHAR NO-UNDO.
+    DEF VAR cLongName AS CHAR NO-UNDO.
+    DEF VAR cOverrideDir AS CHAR NO-UNDO.
+    DEF VAR cUpdatesDir AS CHAR NO-UNDO.
+    DEF VAR iIndex AS INT NO-UNDO.
+    DEF VAR deMyVersion AS DECIMAL NO-UNDO.
+    DEF VAR deNewVersion AS DECIMAL NO-UNDO.
+    DEF VAR iMyPatch AS INT NO-UNDO.
+    DEF VAR iNewPatch AS INT NO-UNDO.
+    DEF VAR lCanUpdate AS LOG NO-UNDO.
+    DEF VAR lCanUpgrade AS LOG NO-UNDO.
+    DEF VAR cHotfixLog AS CHAR NO-UNDO.
+    
+    
+    /* Get the current version already installed */
+    FIND LAST updateHist NO-LOCK NO-ERROR.
+    ASSIGN 
+        cMyLongVersion = updateHist.toVersion
+        cMyVersion = SUBSTRING(updateHist.toVersion,1,5)
+        cMyPatch = SUBSTRING(updateHist.toVersion,7,2)
+        deMyVersion = DECIMAL(cMyVersion)
+        iMyPatch = INTEGER(cMyPatch).
+        
+    /* Depending on choices, we need to know Override folder or Updates folder location */
+    ASSIGN 
+        FILE-INFO:FILE-NAME = PROGRAM-NAME(3)
+        cLongName = FILE-INFO:FULL-PATHNAME 
+        iIndex = INDEX(cLongName,"Programs")
+        iIndex = IF iIndex EQ 0 THEN INDEX(cLongName,"Override") ELSE iIndex
+        cOverrideDir = SUBSTRING(cLongName,1,iIndex - 1) + "Override"
+        iIndex = INDEX(cLongName,"Environments")
+        cUpdatesDir = SUBSTRING(cLongName,1,iIndex - 1) + "Updates".
+
+    /* first, pull the current patch list from the website */
+    ASSIGN 
+        cCmd = 'CALL CURL "helpsvr.advantzware.com/Patches/hotfixlist.txt"  -o c:\tmp\hotfixlist.txt -s'.
+    OS-COMMAND SILENT VALUE(cCmd).
+    PAUSE 5 BEFORE-HIDE NO-MESSAGE.
+        
+    /* Now parse the hotfixlist to see if there is a new hotfix (or upgrade) available */
+    IF SEARCH("c:\tmp\hotfixlist.txt") NE ? THEN DO:
+        INPUT FROM VALUE("c:\tmp\hotfixlist.txt").
+        SEARCH-BLOCK:
+        REPEAT:
+            IMPORT UNFORMATTED cRawLine.
+            ASSIGN 
+                deNewVersion = DECIMAL(SUBSTRING(cRawLine,1,5)) 
+                iNewPatch = INTEGER(SUBSTRING(cRawLine,7,2)).             
+            IF deNewVersion LT deMyVersion THEN NEXT.
+            ELSE IF deNewVersion GT deMyVersion THEN DO:
+                ASSIGN 
+                    lCanUpgrade = TRUE.
+                /* Newer VERSION available */
+            END.   
+            ELSE IF deNewVersion EQ deMyVersion 
+            AND iNewPatch GT iMyPatch THEN DO:
+                ASSIGN 
+                    lCanUpdate = TRUE.
+/*                MESSAGE                                                      */
+/*                    "There is a new PATCH available (" + cRawLine + ")" SKIP */
+/*                    "for this version.  Would you like to install it?"       */
+/*                    VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE lUpdate.*/
+                ASSIGN 
+                    lUpdate = TRUE.
+                IF lUpdate THEN DO:
+                    ASSIGN 
+                        cPatchToProcess = cRawLine.
+                    LEAVE SEARCH-BLOCK.
+                END.
+            END.
+        END.
+        INPUT CLOSE.
+        OS-DELETE "c:\tmp\hotfixlist.txt".
+    END. 
+    ELSE DO:
+        MESSAGE 
+            "Unable to access the Advantzware servers to" SKIP 
+            "check for patches.  Please try again later."
+            VIEW-AS ALERT-BOX ERROR.
+        RETURN.
+    END.
+    /* If user wants to UPDATE current version, download Hotfix file and open Explorer to allow unzip */
+    IF lUpdate THEN DO:
+        ASSIGN 
+            cCmd =  'CALL CURL "helpsvr.advantzware.com/Patches/Hotfix' + cPatchToProcess + '.zip"  -o ' + cOverrideDir + 
+                    '\Hotfix' + cPatchToProcess + '.zip -s'.
+        OS-COMMAND SILENT VALUE(cCmd).
+        ASSIGN 
+            cCmd =  'CALL "c:\program files\7-zip\7z.exe"  e ' + cOverrideDir + '\Hotfix' + cPatchToProcess + '.zip -o' + cOverrideDir + ' -aoa'. 
+        OS-COMMAND SILENT VALUE(cCmd).
+
+        INPUT FROM VALUE (cOverrideDir + "\HotfixList.txt").
+        REPEAT:
+            IMPORT UNFORMATTED cRawLine.
+            ASSIGN 
+                cHotFixLog = cHotFixLog + cRawLine + CHR(10).
+        END. 
+        INPUT CLOSE.
+        CREATE updateHist.
+        ASSIGN 
+            updateHist.fromVersion = cMyLongVersion
+            updateHist.toVersion = cPatchToProcess
+            updateHist.applyDate = today
+            updateHist.startTimeInt = time
+            updateHist.startTime = STRING(time,"HH:MM:SS")
+            updateHist.endTimeInt = time
+            updateHist.endTime = STRING(time,"HH:MM:SS")
+            updateHist.user_id = USERID(LDBNAME(1))
+            updateHist.success = TRUE 
+            updateHist.updLog = cHotFixLog.
+        MESSAGE 
+            "Version updated to " + cPatchToProcess + ".  Please log off and back on to use changes."
+            VIEW-AS ALERT-BOX.
+        RUN refreshQuery IN h_brwupdatehst.
+        RETURN.
+    END.
+    /* If user wants to UPGRADE current version, download Patch file and open Explorer to allow unzip/processing */
+    ELSE IF lUpgrade THEN DO:
+        /* Process upgrade here */
+        RETURN.
+    END.
+    
+    MESSAGE 
+        "Your Advantzware system is up to date!"
+        VIEW-AS ALERT-BOX INFO.
+    
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
