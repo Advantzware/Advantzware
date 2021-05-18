@@ -15,8 +15,9 @@
 /* ***************************  Definitions  ************************** */
 {util\ttImport.i SHARED}
 
-DEFINE TEMP-TABLE ttImportGLjrn
-    FIELD Company         AS CHARACTER 
+DEFINE TEMP-TABLE ttImportGLjrn   
+    FIELD Location        AS CHARACTER                       COLUMN-LABEL "Location" 
+    FIELD Company         AS CHARACTER FORMAT "x(3)"         COLUMN-LABEL "Company"
     FIELD j-no            AS INTEGER FORMAT ">>>>>>9"        COLUMN-LABEL "Internal Journal#"
     FIELD journal         AS INTEGER FORMAT ">>>>>>9"        COLUMN-LABEL "Journal #" 
     FIELD tr-date         AS DATE    FORMAT "99/99/9999"     COLUMN-LABEL "Trx Date" 
@@ -26,7 +27,7 @@ DEFINE TEMP-TABLE ttImportGLjrn
     FIELD period          AS INTEGER FORMAT "99"             COLUMN-LABEL "Period" 
     FIELD posted          AS LOGICAL FORMAT "Y/N"            COLUMN-LABEL "Posted" 
          .
-DEFINE VARIABLE giIndexOffset AS INTEGER NO-UNDO INIT 2. /*Set to 1 if there is a Company field in temp-table since this will not be part of the import data*/
+DEFINE VARIABLE giIndexOffset AS INTEGER NO-UNDO INIT 1. /*Set to 1 if there is a Company field in temp-table since this will not be part of the import data*/
 
 
 /* ********************  Preprocessor Definitions  ******************** */
@@ -104,31 +105,31 @@ PROCEDURE pProcessRecord PRIVATE:
 
     FIND FIRST period                   
         WHERE period.company EQ ipbf-ttImportGLjrn.Company
-        AND period.pst     LE ipbf-ttImportGLjrn.tr-date
-        AND period.pend    GE ipbf-ttImportGLjrn.tr-date
+        AND period.pst      LE ipbf-ttImportGLjrn.tr-date
+        AND period.pend     GE ipbf-ttImportGLjrn.tr-date
         NO-LOCK NO-ERROR.
     IF AVAIL period THEN tran-period = period.pnum.
 
 
     FIND FIRST bf-gl-jrn EXCLUSIVE-LOCK 
         WHERE bf-gl-jrn.Company EQ ipbf-ttImportGLjrn.Company
-        AND bf-gl-jrn.posted EQ ipbf-ttImportGLjrn.posted
-        AND bf-gl-jrn.journal EQ ipbf-ttImportGLjrn.journal
-        AND bf-gl-jrn.tr-date EQ ipbf-ttImportGLjrn.tr-Date  
+        AND bf-gl-jrn.posted    EQ ipbf-ttImportGLjrn.posted
+        AND bf-gl-jrn.journal   EQ ipbf-ttImportGLjrn.journal
+        AND bf-gl-jrn.tr-date   EQ ipbf-ttImportGLjrn.tr-Date  
         NO-ERROR.
     IF NOT AVAILABLE bf-gl-jrn THEN DO:
         iopiAdded = iopiAdded + 1.
         CREATE bf-gl-jrn.
         ASSIGN
-        bf-gl-jrn.company = ipbf-ttImportGLjrn.Company
-        bf-gl-jrn.j-no = ipbf-ttImportGLjrn.j-no  //
-        bf-gl-jrn.journal = ipbf-ttImportGLjrn.journal //
-        bf-gl-jrn.tr-date = ipbf-ttImportGLjrn.tr-date
-        bf-gl-jrn.tr-amt = ipbf-ttImportGLjrn.tr-amt
-        bf-gl-jrn.tcred = ipbf-ttImportGLjrn.tcred
-        bf-gl-jrn.tdeb = ipbf-ttImportGLjrn.tdeb
-        bf-gl-jrn.period = tran-period
-        bf-gl-jrn.posted = ipbf-ttImportGLjrn.posted. //
+        bf-gl-jrn.company   = ipbf-ttImportGLjrn.Company
+        bf-gl-jrn.j-no      = ipbf-ttImportGLjrn.j-no  
+        bf-gl-jrn.journal   = ipbf-ttImportGLjrn.journal 
+        bf-gl-jrn.tr-date   = ipbf-ttImportGLjrn.tr-date
+        bf-gl-jrn.tr-amt    = ipbf-ttImportGLjrn.tr-amt
+        bf-gl-jrn.tcred     = ipbf-ttImportGLjrn.tcred
+        bf-gl-jrn.tdeb      = ipbf-ttImportGLjrn.tdeb
+        bf-gl-jrn.period    = tran-period
+        bf-gl-jrn.posted    = ipbf-ttImportGLjrn.posted. 
     END.
     
     RELEASE bf-gl-jrn.
