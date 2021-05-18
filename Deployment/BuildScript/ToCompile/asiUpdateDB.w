@@ -53,7 +53,7 @@ DEF STREAM outStream.
 DEF STREAM logStream.
 DEF STREAM iniStream.
 
-DEF NEW SHARED TEMP-TABLE ttUpdateHist
+DEF SHARED TEMP-TABLE ttUpdateHist
     FIELD fromVersion AS CHAR 
     FIELD toVersion AS CHAR 
     FIELD applyDate AS DATE 

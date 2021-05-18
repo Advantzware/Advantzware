@@ -4854,7 +4854,8 @@ PROCEDURE ipLoadDAOAData :
     END.
     
     FOR EACH dynParamValue EXCLUSIVE WHERE 
-        dynParamValue.user-id EQ "_default":
+        dynParamValue.user-id EQ "_default" AND
+        dynParamValue.subjectID LT 5000:
         DELETE dynParamValue.
     END.
 
