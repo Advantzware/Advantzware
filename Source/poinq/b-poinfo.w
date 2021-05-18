@@ -40,7 +40,7 @@ DEFINE INPUT PARAMETER ipLocation AS CHARACTER NO-UNDO .
 /* Local Variable Definitions ---                                       */
 
 /*{methods/prgsecur.i}    */           
-{system/sysconst.i}
+// {system/sysconst.i}
 {methods/defines/globdefs.i}
 {methods/defines/hndldefs.i}               
 {sys/inc/VAR.i NEW SHARED}

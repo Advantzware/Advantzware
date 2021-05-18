@@ -37,8 +37,6 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 
-&glob DATA-LOGIC-PROCEDURE .p
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -46,6 +44,8 @@ CREATE WIDGET-POOL.
 &ANALYZE-SUSPEND _UIB-PREPROCESSOR-BLOCK 
 
 /* ********************  Preprocessor Definitions  ******************** */
+
+&Global-define DATA-LOGIC-PROCEDURE .p
 
 &Scoped-define PROCEDURE-TYPE SmartDataObject
 &Scoped-define DB-AWARE yes
@@ -80,9 +80,11 @@ fromVersion startTime startTimeInt success toVersion updLog user_id
 &Scoped-Define ASSIGN-LIST 
 &Scoped-Define DATA-FIELD-DEFS "sdo/sdoUpdateHist.i"
 &Scoped-Define DATA-TABLE-NO-UNDO NO-UNDO
-&Scoped-define QUERY-STRING-Query-Main FOR EACH updateHist NO-LOCK INDEXED-REPOSITION
+&Scoped-define QUERY-STRING-Query-Main FOR EACH updateHist NO-LOCK ~
+    BY updateHist.applyDate DESCENDING INDEXED-REPOSITION
 {&DB-REQUIRED-START}
-&Scoped-define OPEN-QUERY-Query-Main OPEN QUERY Query-Main FOR EACH updateHist NO-LOCK INDEXED-REPOSITION.
+&Scoped-define OPEN-QUERY-Query-Main OPEN QUERY Query-Main FOR EACH updateHist NO-LOCK ~
+    BY updateHist.applyDate DESCENDING INDEXED-REPOSITION.
 {&DB-REQUIRED-END}
 &Scoped-define TABLES-IN-QUERY-Query-Main updateHist
 &Scoped-define FIRST-TABLE-IN-QUERY-Query-Main updateHist
@@ -169,6 +171,7 @@ END.
 /* Query rebuild information for SmartDataObject Query-Main
      _TblList          = "asi.updateHist"
      _Options          = "NO-LOCK INDEXED-REPOSITION"
+     _OrdList          = "asi.updateHist.applyDate|no"
      _FldNameList[1]   > asi.updateHist.applyDate
 "applyDate" "applyDate" ? ? "date" ? ? ? ? ? ? yes ? no 11.2 yes ?
      _FldNameList[2]   > asi.updateHist.endTime

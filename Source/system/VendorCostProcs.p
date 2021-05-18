@@ -930,6 +930,7 @@ PROCEDURE Vendor_CheckPriceHoldForPo:
                 bf-po-ord.rec_key,
                 "po-ord",
                 ttPriceHold.cPriceHoldReason,
+                "",
                 ""
                 ).
         END.

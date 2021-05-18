@@ -75,7 +75,7 @@ DEFINE VARIABLE scr-auto-print    AS LOGICAL   INITIAL YES NO-UNDO.
 DEFINE VARIABLE loadtagFunction   AS CHARACTER INITIAL "Order" NO-UNDO.
 DEFINE VARIABLE g_company         AS CHARACTER NO-UNDO.
 
-{system/sysconst.i}
+// {system/sysconst.i}
 {Inventory/ttInventory.i "NEW SHARED"}
 {methods/defines/sortByDefs.i}
 {wip/keyboardDefs.i}
@@ -2543,7 +2543,7 @@ PROCEDURE init :
         NO-ERROR .
     IF AVAILABLE company THEN
         {&WINDOW-NAME}:TITLE = {&WINDOW-NAME}:TITLE
-            + " - {&awversion}" + " - " 
+            + " - " + DYNAMIC-FUNCTION("sfVersion") + " - " 
             + STRING(company.name) + " - " + ipcLocation.  
              
     RUN pGetSettings.

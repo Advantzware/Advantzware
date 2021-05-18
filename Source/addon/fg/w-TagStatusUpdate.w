@@ -53,7 +53,7 @@ CREATE WIDGET-POOL.
     
     RUN inventory/InventoryProcs.p PERSISTENT SET hdInventoryProcs.
     
-    {system/sysconst.i}
+    // {system/sysconst.i}
     {inventory/ttInventory.i "NEW SHARED"}
     {wip/keyboardDefs.i}
     {custom/globdefs.i}
