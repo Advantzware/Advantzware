@@ -132,24 +132,24 @@ DEFINE VARIABLE cb_itemType AS CHARACTER FORMAT "X(256)":U
      SIZE 10 BY 1 TOOLTIP "Select Type Filter" NO-UNDO.
 
 DEFINE VARIABLE fiBeginEst AS CHARACTER FORMAT "X(8)":U 
-     LABEL "Begining Estimate" 
+     LABEL "Beginning Estimate" 
      VIEW-AS FILL-IN 
      SIZE 20 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fiBeginingCustomer AS CHARACTER FORMAT "X(10)":U 
-     LABEL "Begining Customer" 
+     LABEL "Beginning Customer" 
      VIEW-AS FILL-IN 
      SIZE 20 BY 1
      BGCOLOR 15 FONT 22 NO-UNDO.
 
 DEFINE VARIABLE fiBeginingItem AS CHARACTER FORMAT "X(15)":U 
-     LABEL "Begining Item" 
+     LABEL "Beginning Item" 
      VIEW-AS FILL-IN 
      SIZE 20 BY 1
      BGCOLOR 15 FONT 22 NO-UNDO.
 
 DEFINE VARIABLE fiBeginVend AS CHARACTER FORMAT "X(8)":U 
-     LABEL "Begining Vendor" 
+     LABEL "Beginning Vendor" 
      VIEW-AS FILL-IN 
      SIZE 20 BY 1 NO-UNDO.
 
@@ -554,13 +554,16 @@ PROCEDURE pRunProcess PRIVATE :
             ). 
               
     FOR EACH vendItemCost NO-LOCK 
-        WHERE (vendItemCost.itemType BEGINS cb_itemType:SCREEN-VALUE OR cb_itemType:SCREEN-VALUE EQ "ALL")
+        WHERE vendItemCost.company EQ cocode
+          AND (vendItemCost.itemType BEGINS cb_itemType:SCREEN-VALUE OR cb_itemType:SCREEN-VALUE EQ "ALL")
           AND vendItemCost.customerID GE fiBeginingCustomer:SCREEN-VALUE
           AND vendItemCost.customerID LE fiEndingCustomer:SCREEN-VALUE 
           AND vendItemCost.itemID     GE fiBeginingItem:SCREEN-VALUE
           AND vendItemCost.itemID     LE fiEndingItem:SCREEN-VALUE
           AND vendItemCost.vendorID   GE fiBeginVend:SCREEN-VALUE
           AND vendItemCost.vendorID   LE fiEndVend:SCREEN-VALUE
+          AND trim(vendItemCost.estimateNo) GE trim(fiBeginEst:SCREEN-VALUE)
+          AND trim(vendItemCost.estimateNo) LE trim(fiEndEst:SCREEN-VALUE)
         BREAK BY vendItemCost.itemType               
               BY vendItemCost.itemID              
               BY vendItemCost.effectiveDate
