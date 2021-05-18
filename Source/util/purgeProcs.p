@@ -166,18 +166,34 @@ PROCEDURE outputGLaccountFile:
      Notes:
     ------------------------------------------------------------------------------*/
     DEF INPUT PARAMETER ipcOutputDir AS CHAR NO-UNDO.
+    DEF INPUT PARAMETER ipcFileName AS CHAR NO-UNDO.
+    DEF INPUT PARAMETER ipcCompany AS CHAR NO-UNDO.
+    DEFINE VARIABLE cWarning AS CHARACTER NO-UNDO.
     
-    OUTPUT STREAM sReport TO VALUE (ipcOutputDir + "\" + "_ConsolidationReport.csv").
+    OUTPUT STREAM sReport TO VALUE (ipcOutputDir + "\" + ipcFileName).
     
     PUT STREAM sReport UNFORMATTED 
         "Warning,Year,Period,Account,Journal,Txn Date,Amount,Currency,Description,Type,Created By,FileName,RecKey,Rowid" + CHR(10).
     FOR EACH ttGLHistList
-        BY ttGLHistList.iYear
+        BREAK BY ttGLHistList.iYear
         BY ttGLHistList.iPeriod
         BY ttGLHistList.cAccount
         BY ttGLHistList.daTxnDate:
+        
+        IF first-of(ttGLHistList.cAccount) THEN
+        DO:         
+            cWarning = "".
+            FIND FIRST account NO-LOCK
+                 WHERE account.company EQ ipcCompany 
+                 AND account.actnum EQ ttGLHistList.cAccount NO-ERROR .
+            IF NOT AVAIL account THEN
+            cWarning = " Invalid Account number".
+            ELSE IF account.inactive THEN
+            cWarning = " Account is inactive".              
+        END.     
+             
         PUT STREAM sReport UNFORMATTED
-            (IF ttGLHistList.lPosted THEN "" ELSE "UNPOSTED") + "," +
+            cWarning + "," +
             STRING(ttGLHistList.iYear,"9999") + "," +
             STRING(ttGLHistList.iPeriod,"99") + "," +
             ttGLHistList.cAccount + "," +
@@ -301,6 +317,7 @@ PROCEDURE pTestGlhist:
     DEF BUFFER bglHist FOR glHist.
     DEF BUFFER bPeriod FOR period.
     DEF BUFFER cPeriod FOR period.
+    DEF BUFFER bf-glhist FOR glHist.
     
     FIND company NO-LOCK WHERE 
         company.company EQ ipcCompany
@@ -379,7 +396,7 @@ PROCEDURE pTestGlhist:
             
         CREATE ttGLHistList.
         ASSIGN 
-            ttGLHistList.lPosted         = bglhist.posted
+            ttGLHistList.lPosted         = YES
             ttGLHistList.iYear           = IF bglhist.glyear NE 0 THEN bglhist.glyear ELSE          /* First choice = record.glyear */ 
                                            IF bglhist.yr NE 0 THEN bglhist.yr ELSE                  /* Second choice = record.year */ 
                                            IF AVAIL period AND period.pnum NE 0 THEN period.yr ELSE /* Third choice = period.pnum */   
@@ -397,6 +414,14 @@ PROCEDURE pTestGlhist:
             ttGLHistList.cReckey         = bglhist.rec_key
             ttGLHistList.rRowID          = ROWID(bglhist)
             .
+        IF NOT bglhist.posted THEN
+        DO:
+           FIND FIRST bf-glhist EXCLUSIVE-LOCK
+                WHERE rowid(bf-glhist) EQ ROWID(bglhist) NO-ERROR.
+           IF avail bf-glhist THEN
+           bf-glhist.posted = YES.
+           RELEASE bf-glhist.
+        END.
     END.
     
 END PROCEDURE.
@@ -1034,6 +1059,7 @@ PROCEDURE purgeGLhistFromFile:
      Notes:
     ------------------------------------------------------------------------------*/
     DEF INPUT PARAMETER ipcFileName AS CHAR.
+    DEF INPUT PARAMETER ipcFileNameExt AS CHAR.
     DEF INPUT PARAMETER ipcCompany AS CHAR.
     DEF OUTPUT PARAMETER oplError AS LOG.
     DEF OUTPUT PARAMETER opcMessage AS CHAR.
@@ -1049,7 +1075,7 @@ PROCEDURE purgeGLhistFromFile:
     DISABLE TRIGGERS FOR LOAD OF glhist.
     
     ASSIGN 
-        cOutputDir = REPLACE(ipcFileName,"\_ConsolidationReport.csv","").
+        cOutputDir = REPLACE(ipcFileName,"\" + ipcFileNameExt ,"").
     EMPTY TEMP-TABLE ttGLHistList.
     IF SEARCH (ipcFileName) EQ ? THEN 
     DO:
@@ -1133,8 +1159,8 @@ PROCEDURE purgeGLhistFromFile:
                     bglhist.jrnl        = ttGLHistList.cJournal
                     bglhist.module      = ""
                     bglhist.period      = ttGLHistList.iPeriod
-                    bglhist.posted      = ttGLHistList.lPosted
-                    bglhist.postedBy    = ""
+                    bglhist.posted      = YES
+                    bglhist.postedBy    = USERID(LDBNAME(1))
                     bglhist.rec_key     = STRING(YEAR(TODAY),"9999") + 
                                           STRING(MONTH(TODAY),"99") + 
                                           STRING(DAY(TODAY),"99") + 
@@ -1260,6 +1286,26 @@ PROCEDURE purgeOrphansFromFile:
         END.
     END.
 
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
+&IF DEFINED(EXCLUDE-purgeClearTempTable) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE purgeClearTempTable Procedure
+PROCEDURE purgeClearTempTable:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    
+  EMPTY TEMP-TABLE ttGLHistList.
+  
 END PROCEDURE.
 	
 /* _UIB-CODE-BLOCK-END */

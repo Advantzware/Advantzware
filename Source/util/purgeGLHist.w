@@ -51,7 +51,8 @@ DEF VAR lTested AS LOG NO-UNDO.
 DEF VAR lReviewed AS LOG NO-UNDO.
 DEF VAR lPurged AS LOG NO-UNDO.
 DEF VAR lWarned AS LOG NO-UNDO.
-
+DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cFileName AS CHARACTER NO-UNDO .
 {src/adm2/widgetprto.i}
 
 ASSIGN
@@ -311,15 +312,22 @@ DO:
                          STRING(YEAR(TODAY),"9999") +
                          STRING(MONTH(TODAY),"99") +
                          STRING(DAY(TODAY),"99") + "-" + 
-                         STRING(TIME,"99999").
-    
+                         STRING(TIME,"99999")  .
+        
+       
     CASE SELF:NAME:
         WHEN "bTest" THEN DO:
+        
+            RUN valid-year(OUTPUT lReturnError) NO-ERROR.
+            IF lReturnError THEN RETURN NO-APPLY.
+            
             STATUS DEFAULT "Analyzing files and running tests...".
             OS-CREATE-DIR VALUE (cOutputDirName).
             ASSIGN 
                 fiOutputDir:SCREEN-VALUE = cOutputDirName. 
-        
+                
+             cFileName     = "_ConsolidationReport" + "_" + STRING(year(TODAY)) + STRING(MONTH(TODAY)) + STRING(DAY(TODAY)) + "_" + STRING(TIME) + ".csv" .
+               
             /* Find the oldest glhist record in the table */
             FIND FIRST glHist NO-LOCK WHERE 
                 glHist.company EQ cocode
@@ -334,11 +342,13 @@ DO:
             END.
 
                 ASSIGN 
-                iStartYear = YEAR(glhist.tr-date) - 1
+                iStartYear = INTEGER(fiEndYear:SCREEN-VALUE)
                     iEndYear = INTEGER(fiEndYear:SCREEN-VALUE)
                     iEndPeriod = INTEGER(fiEndPeriod:SCREEN-VALUE).
 
                 STATUS DEFAULT "Analyzing GL account records...".
+                RUN purgeClearTempTable IN hPurge .
+                
                 DO iCtr = iStartYear TO iEndYear:
                     ASSIGN 
                         fiAnalyzingYear:SCREEN-VALUE = STRING(iCtr,"9999").
@@ -368,7 +378,8 @@ DO:
                 lPurged = TRUE.
             STATUS INPUT "Generating report...".
             STATUS DEFAULT "Generating report...".
-            RUN outputGLAccountFile IN hPurge (fiOutputDir:SCREEN-VALUE).
+            
+            RUN outputGLAccountFile IN hPurge (fiOutputDir:SCREEN-VALUE,cFileName,cocode).
             
             APPLY 'value-changed' TO fiOutputDir.
             STATUS DEFAULT "Analysis complete.  Press Review to open the results list.".
@@ -376,10 +387,10 @@ DO:
         WHEN "bReview" THEN DO:
             STATUS INPUT "Opening file for review...".
             STATUS DEFAULT "Opening file for review...".
-            OS-COMMAND SILENT VALUE ("START " + fiOutputDir:SCREEN-VALUE + "\" + "_ConsolidationReport.csv").
+            OS-COMMAND SILENT VALUE ("START " + fiOutputDir:SCREEN-VALUE + "\" + cFileName).
            
             /* Use opsys action to give Excel time to open */
-            OS-COMMAND SILENT VALUE ("PING 127.0.0.1 -n 5"). 
+           // OS-COMMAND SILENT VALUE ("PING 127.0.0.1 -n 5"). 
             
             STATUS DEFAULT "Review complete. Records can now be processed.".
             ASSIGN 
@@ -391,7 +402,8 @@ DO:
           
             STATUS DEFAULT "Consolidating records...".
             RUN purgeGLhistFromFile IN hPurge (
-                fiOutputDir:SCREEN-VALUE + "\" + "_ConsolidationReport.csv",
+                fiOutputDir:SCREEN-VALUE + "\" + cFileName,
+                cFileName,
                 cocode,
                 OUTPUT lError,
                 OUTPUT cMessage).
@@ -416,7 +428,7 @@ DO:
         END.
         WHEN "bReset" THEN DO:
             ASSIGN 
-                fiEndYear:SCREEN-VALUE = STRING(YEAR(TODAY) - 2)
+                fiEndYear:SCREEN-VALUE = STRING(YEAR(TODAY) - 7)
                 fiEndPeriod:SCREEN-VALUE = STRING(company.num-per)
                 fiOutputDir:SCREEN-VALUE = SESSION:TEMP-DIRECTORY
                 lTested = FALSE 
@@ -462,20 +474,11 @@ END.
 &Scoped-define SELF-NAME fiEndYear
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiEndYear wWin
 ON LEAVE OF fiEndYear IN FRAME fMain /* Consolidate/Purge GL Records Through...Year */
-DO:
-    IF INTEGER(SELF:SCREEN-VALUE) GT (YEAR(TODAY) - 2) 
-    AND NOT lWarned THEN DO:
-        ASSIGN 
-            lWarned = TRUE.
-        MESSAGE 
-            "Advantzware requires the last 2 years for prior period comparison purposes.  Are you sure?"
-            VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE lSure AS LOG.
-        IF NOT lSure THEN DO:
-            ASSIGN 
-                SELF:SCREEN-VALUE = STRING(YEAR(TODAY) - 2).
-            RETURN.
-        END.
-    END.  
+DO:     
+    IF LASTKEY = -1 THEN RETURN.
+    RUN valid-year(OUTPUT lReturnError) NO-ERROR.
+    IF lReturnError THEN RETURN NO-APPLY.
+     
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -569,7 +572,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
             "When 'PURGE' is selected, entries in the list file will be processed so that the original entries will be deleted, " +
             "and the consolidated entries will be added.  The original (deleted) items will be exported into the same directory, " + 
             "so that they can be restored if required."
-        fiEndYear:SCREEN-VALUE = STRING(YEAR(TODAY) - 2)
+        fiEndYear:SCREEN-VALUE = STRING(YEAR(TODAY) - 7)
         fiEndPeriod:SCREEN-VALUE = STRING(company.num-per)
         fiOutputDir:SCREEN-VALUE = SESSION:TEMP-DIRECTORY.  
         
@@ -651,6 +654,34 @@ PROCEDURE exitObject :
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN.
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-year wWin 
+PROCEDURE valid-year :
+/*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER oplReturn AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lValid    AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lContinue AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE ldDate    AS DATE    NO-UNDO.
+  
+  {methods/lValidateError.i YES}
+   DO WITH FRAME {&FRAME-NAME}:        
+    IF INTEGER(fiEndYear:SCREEN-VALUE) GT (YEAR(TODAY) - 7) 
+    THEN DO:         
+        MESSAGE 
+            "Advantzware requires the last 7 years for prior period comparison purposes. Process not allowed.."
+            VIEW-AS ALERT-BOX .
+       oplReturn = YES.
+       APPLY "entry" TO fiEndYear.        
+    END. 
+   END. 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
