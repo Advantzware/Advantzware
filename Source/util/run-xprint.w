@@ -26,7 +26,6 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 {methods/defines/hndldefs.i}
-{system/sysconst.i}
 {methods/defines/globdefs.i}
 
 DEFINE BUFFER b-prgrms FOR prgrms.
@@ -756,9 +755,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE output-to-printer C-Win 
 PROCEDURE output-to-printer :
 /*------------------------------------------------------------------------------
@@ -824,9 +820,8 @@ PROCEDURE pProgram :
     END.
 
     RUN ChangeXprintFont(begin_font,begin_font-size).
-    
-    
-    RUN Output_WriteToXprint(4,52,"Asi Version #: {&awversion} ",YES,NO,NO,NO) .
+        
+    RUN Output_WriteToXprint(4,52,"ASI Version #: " + DYNAMIC-FUNCTION("sfVersion"),YES,NO,NO,NO) .
 
     RUN Output_WriteToXprint(5,52,"Xprint Version #: " + xPrintVersion,YES,NO,NO,NO) .
 

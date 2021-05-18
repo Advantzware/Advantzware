@@ -27,7 +27,7 @@ DEFINE VARIABLE list-name AS cha       NO-UNDO.
 DEFINE VARIABLE init-dir  AS CHARACTER NO-UNDO.
 
 {methods/defines/hndldefs.i}
-{system/sysconst.i}
+// {system/sysconst.i}
 {methods/defines/globdefs.i}
 
 {custom/gcompany.i}

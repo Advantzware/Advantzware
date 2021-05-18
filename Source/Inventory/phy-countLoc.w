@@ -56,7 +56,7 @@ DEFINE VARIABLE scFilterOnlyScanned      AS CHARACTER NO-UNDO INITIAL "1".
 DEFINE VARIABLE scFilterOnlyNotScanned   AS CHARACTER NO-UNDO INITIAL "2".
 DEFINE VARIABLE scFilterAllTags          AS CHARACTER NO-UNDO INITIAL "3".
 
-{system/sysconst.i}
+// {system/sysconst.i}
 {wip/keyboardDefs.i}
 {Inventory/ttInventory.i "NEW SHARED"}
 {methods/template/brwcustomdef.i}
@@ -1060,7 +1060,7 @@ PROCEDURE init :
          NO-ERROR .
     IF AVAILABLE company THEN
     {&WINDOW-NAME}:TITLE = {&WINDOW-NAME}:TITLE
-                         + " - {&awversion}" + " - " 
+                         + " - " + DYNAMIC-FUNCTION("sfVersion") + " - " 
                          + STRING(company.name) + " - " + ipcLocation.
 
     RUN pEnableContext.
