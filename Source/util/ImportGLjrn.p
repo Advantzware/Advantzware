@@ -62,13 +62,15 @@ PROCEDURE pValidate PRIVATE:
                 oplValid = NO
                 opcNote  = "Key Field Blank: Company".
     END.
+    
     IF oplValid THEN 
     DO:
+        
         FIND FIRST bf-ttImportGLjrn NO-LOCK 
-            WHERE bf-ttImportGLjrn.Company EQ ipbf-ttImportGLjrn.Company
-            AND bf-ttImportGLjrn.posted EQ ipbf-ttImportGLjrn.posted
-            AND bf-ttImportGLjrn.journal EQ ipbf-ttImportGLjrn.journal
-            AND bf-ttImportGLjrn.tr-date EQ ipbf-ttImportGLjrn.tr-Date           
+            WHERE bf-ttImportGLjrn.Company  EQ ipbf-ttImportGLjrn.Company
+            AND bf-ttImportGLjrn.posted     EQ ipbf-ttImportGLjrn.posted
+            AND bf-ttImportGLjrn.journal    EQ ipbf-ttImportGLjrn.journal
+            AND bf-ttImportGLjrn.tr-date    EQ ipbf-ttImportGLjrn.tr-Date           
             AND ROWID(bf-ttImportGLjrn) NE ROWID(ipbf-ttImportGLjrn)
             NO-ERROR.
         IF AVAILABLE bf-ttImportGLjrn THEN 
@@ -78,17 +80,48 @@ PROCEDURE pValidate PRIVATE:
                 .
     END.
     
-    FIND FIRST period                   
-        WHERE period.company EQ bf-ttImportGLjrn.Company
-        AND period.pst     LE bf-ttImportGLjrn.tr-date
-        AND period.pend    GE bf-ttImportGLjrn.tr-date
-        NO-LOCK NO-ERROR.
-    IF NOT AVAIL period THEN 
+    IF oplValid THEN 
+    DO: 
+        FIND FIRST gl-jrn NO-LOCK 
+            WHERE (gl-jrn.Company  EQ ipbf-ttImportGLjrn.Company
+            AND gl-jrn.posted     EQ ipbf-ttImportGLjrn.posted
+            AND gl-jrn.journal    EQ ipbf-ttImportGLjrn.journal
+            AND gl-jrn.tr-date    EQ ipbf-ttImportGLjrn.tr-Date )
+            OR
+              (gl-jrn.j-no    EQ ipbf-ttImportGLjrn.j-no)   
+            NO-ERROR.
+        IF AVAILABLE gl-jrn THEN 
+        DO:
+            IF NOT iplUpdateDuplicates THEN 
+                ASSIGN 
+                    oplValid = NO
+                    opcNote  = "Duplicate Exists:  Will be skipped"
+                    .
+            ELSE
+                ASSIGN 
+                    opcNote = "Update record - All fields to be overwritten"
+                    .        
+        END.
+            ELSE 
+                ASSIGN 
+                    opcNote = "Add record"
+                    .
+        
+    END.
+    
+    IF oplValid THEN 
+    DO:
+        FIND FIRST period                   
+            WHERE period.company EQ ipbf-ttImportGLjrn.Company
+            AND period.pst     LE ipbf-ttImportGLjrn.tr-date
+            AND period.pend    GE ipbf-ttImportGLjrn.tr-date
+            NO-LOCK NO-ERROR.
+        IF NOT AVAIL period THEN 
         ASSIGN 
             oplValid = NO 
-            opcNote  = "No Defined Period Exists for" + string(ipbf-ttImportGLjrn.tr-date)
+            opcNote  = "No Defined Period Exists for " + string(ipbf-ttImportGLjrn.tr-date)
             .
-
+     END.
 
 END PROCEDURE.
 
