@@ -625,7 +625,7 @@ PROCEDURE local-update-record :
 ------------------------------------------------------------------------------*/
   DEF VAR char-hdl AS CHAR NO-UNDO.
   DEF VAR lv-prev-char-fld LIKE sys-ctrl.char-fld NO-UNDO.
-
+  DEFINE VARIABLE lNewRecord AS LOGICAL NO-UNDO.
 
   /* Code placed here will execute PRIOR to standard behavior. */ 
   RUN valid-char-fld NO-ERROR.
@@ -637,6 +637,8 @@ PROCEDURE local-update-record :
   lv-prev-char-fld = sys-ctrl.char-fld.
   IF sys-ctrl.name EQ "RELCREDT" AND sys-ctrl.log-fld:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "NO" THEN
      ASSIGN sys-ctrl.char-fld:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "".
+     
+  lNewRecord = adm-new-record .  
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
@@ -655,10 +657,14 @@ PROCEDURE local-update-record :
     po-ordl.tax = NO.
   END.
 
-  RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"record-source",OUTPUT char-hdl).  
+  IF lNewRecord THEN 
+  DO:
+      RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"record-source",OUTPUT char-hdl).  
 
-  IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
-    RUN repo-query IN WIDGET-HANDLE(char-hdl) (ROWID(sys-ctrl)).
+      IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+      RUN repo-query IN WIDGET-HANDLE(char-hdl) (ROWID(sys-ctrl)).
+  END.
+  
 
 END PROCEDURE.
 
