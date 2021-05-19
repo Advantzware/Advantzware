@@ -91,10 +91,10 @@ ASSIGN
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 RECT-8 begin_Company end_Company ~
-begin_name end_name begin_mod end_mod Btn_Def sl_avail sl_selected ~
+begin_name end_name begin_mod end_mod fi_compare_company Btn_Def sl_avail sl_selected ~
 Btn_Add Btn_Remove btn_Up btn_down tb_runExcel fi_file btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_Company end_Company begin_name end_name ~
-begin_mod end_mod sl_avail sl_selected tb_excel tb_runExcel fi_file 
+begin_mod end_mod fi_compare_company sl_avail sl_selected tb_excel tb_runExcel fi_file 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -196,6 +196,11 @@ DEFINE VARIABLE end_name   AS CHARACTER FORMAT "X(8)" INITIAL "zzzzzzzzzzz"
     LABEL "To Name" 
     VIEW-AS FILL-IN 
     SIZE 21 BY 1.
+    
+DEFINE VARIABLE fi_compare_company   AS CHARACTER FORMAT "X(8)"  
+    LABEL "Compare with Company" 
+    VIEW-AS FILL-IN 
+    SIZE 20 BY 1.    
 
 DEFINE VARIABLE fi_file    AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\r-sysctrl.csv" 
     LABEL "If Yes, File Name" 
@@ -251,6 +256,8 @@ DEFINE FRAME rd-sysexp
     "Enter Beginning Module" WIDGET-ID 150
     end_mod AT ROW 5.12 COL 71 COLON-ALIGNED HELP
     "Enter Ending Module" WIDGET-ID 152
+    fi_compare_company AT ROW 6.56 COL 28 COLON-ALIGNED HELP
+    "Compare with Company" 
     Btn_Def AT ROW 11.19 COL 44 HELP
     "Add Selected Table to Tables to Audit" WIDGET-ID 56
     sl_avail AT ROW 11.24 COL 9 NO-LABELS WIDGET-ID 26
@@ -323,6 +330,9 @@ ASSIGN
 
 ASSIGN 
     end_name:PRIVATE-DATA IN FRAME rd-sysexp = "parm".
+    
+ASSIGN    
+    fi_compare_company:PRIVATE-DATA IN FRAME rd-sysexp = "parm".
 
 ASSIGN 
     fi_file:PRIVATE-DATA IN FRAME rd-sysexp = "parm".
@@ -423,6 +433,9 @@ ON CHOOSE OF btn-cancel IN FRAME rd-sysexp /* Cancel */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-ok rd-sysexp
 ON CHOOSE OF btn-ok IN FRAME rd-sysexp /* OK */
     DO:
+        RUN valid-company NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+        
         DO WITH FRAME {&FRAME-NAME}:
             ASSIGN {&displayed-objects}.
         END.
@@ -530,6 +543,17 @@ ON LEAVE OF end_name IN FRAME rd-sysexp /* To Name */
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME fi_compare_company
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_compare_company rd-sysexp
+ON LEAVE OF fi_compare_company IN FRAME rd-sysexp /* To Compare with Company */
+DO:
+    RUN valid-company NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    ASSIGN {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &Scoped-define SELF-NAME fi_file
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_file rd-sysexp
@@ -783,10 +807,10 @@ PROCEDURE enable_UI :
                    Settings" section of the widget Property Sheets.
     ------------------------------------------------------------------------------*/
     DISPLAY begin_Company end_Company begin_name end_name begin_mod end_mod  
-        sl_avail sl_selected tb_excel tb_runExcel fi_file 
+        fi_compare_company sl_avail sl_selected tb_excel tb_runExcel fi_file 
         WITH FRAME rd-sysexp.
     ENABLE RECT-6 RECT-7 RECT-8 begin_Company end_Company begin_name end_name 
-        begin_mod end_mod Btn_Def sl_avail sl_selected Btn_Add Btn_Remove 
+        begin_mod end_mod fi_compare_company Btn_Def sl_avail sl_selected Btn_Add Btn_Remove 
         btn_Up btn_down tb_runExcel fi_file btn-ok btn-cancel 
         WITH FRAME rd-sysexp.
     VIEW FRAME rd-sysexp.
@@ -874,7 +898,7 @@ PROCEDURE run-report :
     SESSION:SET-WAIT-STATE ("general").
 
     IF tb_excel THEN OUTPUT STREAM excel TO VALUE(fi_file).
-    IF begin_Company EQ end_Company THEN
+    IF (begin_Company EQ end_Company) OR (fi_compare_company EQ "") THEN
     DO:
         IF v-excelheader NE "" THEN PUT STREAM excel UNFORMATTED v-excelheader SKIP.
 
@@ -930,16 +954,16 @@ PROCEDURE pCompareNK1Export :
 ------------------------------------------------------------------------------*/
 
 //DEFINE STREAM excel-dump.
-DEFINE BUFFER bf-sys-ctrl for sys-ctrl.
-DEFINE VARIABLE cCompany  AS CHAR.
+DEFINE BUFFER bf-sys-ctrl FOR sys-ctrl.
+DEFINE VARIABLE cCompany       AS CHAR.
 DEFINE VARIABLE cValleyNK1     AS CHAR.
-DEFINE VARIABLE cValleyDesc    as char.
-define VARIABLE cValleyChar    as char.
-define VARIABLE iValleyInt     as int.
-define VARIABLE dValleyDec     as dec.
-define VARIABLE dtValleyDate   as date.
-define VARIABLE lValleyLog     as log.
-define VARIABLE fi_file        as CHAR.
+DEFINE VARIABLE cValleyDesc    AS CHAR.
+DEFINE VARIABLE cValleyChar    AS CHAR.
+DEFINE VARIABLE iValleyInt     AS INT.
+DEFINE VARIABLE dValleyDec     AS DEC.
+DEFINE VARIABLE dtValleyDate   AS DATE.
+DEFINE VARIABLE lValleyLog     AS LOG.
+DEFINE VARIABLE fi_file        AS CHAR.
 
     
 EXPORT STREAM excel DELIMITER ","
@@ -962,25 +986,26 @@ EXPORT STREAM excel DELIMITER ","
 "Logical"
 .
 
-for each sys-ctrl no-lock
-where sys-ctrl.company GT begin_Company
-AND sys-ctrl.company LE end_Company
+FOR EACH sys-ctrl NO-LOCK
+WHERE sys-ctrl.company GE begin_Company
+  AND sys-ctrl.company LE end_Company
+  AND sys-ctrl.company NE fi_compare_company
 :
-    find first bf-sys-ctrl no-lock
-    where bf-sys-ctrl.company EQ begin_Company
-    and bf-sys-ctrl.name eq sys-ctrl.name
-    no-error.
-    assign
+    FIND FIRST bf-sys-ctrl NO-LOCK
+    WHERE bf-sys-ctrl.company EQ fi_compare_company
+    AND bf-sys-ctrl.name EQ sys-ctrl.name
+    NO-ERROR.
+    ASSIGN
     cValleyNK1 = "Not Created Yet"
     cValleyDesc = ""
     cValleyChar = ""
     iValleyInt = 0
     dValleyDec = 0
     dtValleyDate = ?
-    lValleyLog = no.
+    lValleyLog = NO.
 
-    if avail bf-sys-ctrl then
-    assign
+    IF AVAIL bf-sys-ctrl THEN
+    ASSIGN
     cCompany = bf-sys-ctrl.company
     cValleyNK1 = bf-sys-ctrl.NAME
     cValleyDesc = bf-sys-ctrl.descrip
@@ -1017,6 +1042,34 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-company rd-sysexp
+PROCEDURE valid-company :
+/*------------------------------------------------------------------------------
+  Purpose:    
+  Parameters:  <none>
+  Notes:      
+------------------------------------------------------------------------------*/
+  DEF VAR lv-msg AS CHAR INIT "" NO-UNDO.
+
+
+  DO WITH FRAME {&FRAME-NAME}:
+    IF fi_compare_company:SCREEN-VALUE NE "" THEN
+    DO:
+        IF NOT CAN-FIND(FIRST company WHERE company.company EQ fi_compare_company:SCREEN-VALUE) THEN
+          lv-msg = "Invalid company".
+
+        IF lv-msg NE "" THEN DO:
+          MESSAGE TRIM(lv-msg) + "..." VIEW-AS ALERT-BOX ERROR.
+          APPLY "entry" TO fi_compare_company.
+          RETURN ERROR.
+        END.
+    END. /* IF fi_compare_company:SCREEN-VALUE NE "" */
+  END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 /* ************************  Function Implementations ***************** */
 
