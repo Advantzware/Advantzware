@@ -1690,15 +1690,12 @@ FUNCTION fCanCloseJob RETURNS LOGICAL
                       AND job-hdr.job-no  EQ job.job-no
                       AND job-hdr.job-no2 EQ job.job-no2
                       AND ROWID(job-hdr)  NE lv-rowid
-                      AND NOT CAN-FIND(FIRST b-itemfg
+                      AND NOT CAN-FIND(FIRST b-itemfg //Exclude purchased items or unassembled set headers
                                        WHERE b-itemfg.company EQ job-hdr.company
                                          AND b-itemfg.i-no    EQ job-hdr.i-no
-                                         AND b-itemfg.pur-man EQ YES)
-                      AND NOT CAN-FIND(FIRST eb
-                                       WHERE eb.company  EQ job.company
-                                         AND eb.est-no   EQ job.est-no
-                                         AND eb.stock-no EQ job-hdr.i-no
-                                         AND eb.pur-man  EQ YES):
+                                         AND (b-itemfg.pur-man EQ YES OR 
+                                            (b-itemfg.isaset AND b-itemfg.alloc)))
+                      :
                   /* get underrun quantity, v-find-qty, uses ll-qty-changed */
                   {fg/closejob.i}
         
