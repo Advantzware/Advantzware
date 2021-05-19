@@ -22,6 +22,7 @@ DEFINE VARIABLE scenario        AS CHARACTER NO-UNDO INITIAL 'Actual'.
 
 DEFINE SHARED VARIABLE g_company AS CHARACTER NO-UNDO.
 DEFINE SHARED VARIABLE g_loc     AS CHARACTER NO-UNDO.
+DEFINE SHARED VARIABLE g_lookup  AS LOGICAL   NO-UNDO. 
 
 SESSION:SET-WAIT-STATE('').
 
@@ -111,6 +112,24 @@ HIDE FRAME fMsg2 NO-PAUSE.
 &ENDIF
 
 &IF '{&sbExternal}' EQ 'autoDMI' OR '{&sbExternal}' EQ 'sbDMI' &THEN
+/*DEFINE VARIABLE cCompany  AS CHARACTER NO-UNDO.          */
+/*DEFINE VARIABLE cLocation AS CHARACTER NO-UNDO.          */
+/*                                                         */
+/*MESSAGE               */
+/*"commaList:" commaList*/
+/*VIEW-AS ALERT-BOX.    */
+/*IF ENTRY(1,commaList) EQ "" THEN DO:                     */
+/*    RUN spGetSessionParam ("Company", OUTPUT cCompany).  */
+/*    ENTRY(1,commaList) = cCompany.                       */
+/*END.                                                     */
+/*IF ENTRY(2,commaList) EQ "" THEN DO:                     */
+/*    RUN spGetSessionParam ("Location", OUTPUT cLocation).*/
+/*    ENTRY(2,commaList) = cLocation.                      */
+/*END.                                                     */
+/*MESSAGE                                                  */
+/*"commaList:" commaList                                   */
+/*VIEW-AS ALERT-BOX.                                       */
+
 FOR EACH mach NO-LOCK 
     WHERE mach.company EQ ENTRY(1,commaList)
       AND mach.spare-int-2 NE 0

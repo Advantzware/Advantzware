@@ -1254,6 +1254,17 @@ PROCEDURE pExport :
             svEndJobNo
             svEndJobNo2
             .
+/*MESSAGE                                                         */
+/*    "selectedStartDueDate:" selectedStartDueDate SKIP           */
+/*    "selectedEndDueDate:" selectedEndDueDate SKIP               */
+/*    "svAllJobNo:" svAllJobNo SKIP                               */
+/*    "svStartJobNo:" svStartJobNo SKIP                           */
+/*    "svStartJobNo2:" svStartJobNo2 SKIP                         */
+/*    "svEndJobNo:" svEndJobNo SKIP                               */
+/*    "svEndJobNo2:" svEndJobNo2 SKIP                             */
+/*    "lvProdAceDir:" lvProdAceDir SKIP                           */
+/*    "CAN-FIND(FIRST ttblResource):" CAN-FIND(FIRST ttblResource)*/
+/*VIEW-AS ALERT-BOX.                                              */
         IF svAllJobNo THEN
         ASSIGN
             svStartJobNo = CHR(32)
@@ -1268,9 +1279,6 @@ PROCEDURE pExport :
                          + svEndJobNo + "-"
                          + STRING(svEndJobNo2)
                          .
-        MESSAGE 
-        "lvProdAceDir:" lvProdAceDir
-        VIEW-AS ALERT-BOX.
         FOR EACH ttblResource
             WHERE ttblResource.dmiID GT 0
             BREAK BY ttblResource.dmiID

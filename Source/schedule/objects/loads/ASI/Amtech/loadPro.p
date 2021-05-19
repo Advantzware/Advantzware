@@ -276,6 +276,8 @@ DEFINE VARIABLE jobToolTip AS CHARACTER NO-UNDO.
 DEFINE VARIABLE timeSpan AS INTEGER NO-UNDO.
 DEFINE VARIABLE unitFound AS LOGICAL NO-UNDO.
 DEFINE VARIABLE useDeptSort AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lProgressBar AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cADOSBJobs AS CHARACTER NO-UNDO.
 
 DEFINE BUFFER bMach FOR mach.
 
@@ -531,6 +533,9 @@ ASSIGN
 IF CONNECTED('emptrack') THEN
 prodQtyProgram = SEARCH(findProgram('{&loads}/',ID,'/prodQty.r')).
 
+RUN spGetSessionParam ("adoSBJobs", OUTPUT cADOSBJobs).
+lProgressBar = cADOSBJobs NE "NO".
+
 FOR EACH job-hdr NO-LOCK
     WHERE job-hdr.company EQ asiCompany
       AND job-hdr.opened EQ YES
@@ -564,6 +569,7 @@ FOR EACH job-hdr NO-LOCK
             BY job-mch.line
       :
     iJobCount = iJobCount + 1.
+    IF lProgressBar THEN
     RUN spProgressBar ("SB Job Load", iJobCount, ?).
 /*    IF est.est-type EQ 3 OR est.est-type EQ 4 OR                                  */
 /*       est.est-type EQ 7 OR est.est-type EQ 8 THEN DO:                            */
@@ -1379,6 +1385,7 @@ FOR EACH job-hdr NO-LOCK
       &keyValue=keyValues}
   END. /* each job-mch */
 END. /* each job-hdr */
+IF lProgressBar THEN
 RUN spProgressBar (?, ?, 100).
 
 /* **********************  Internal Procedures  *********************** */

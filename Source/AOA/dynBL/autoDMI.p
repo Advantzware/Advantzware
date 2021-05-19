@@ -32,6 +32,7 @@ PROCEDURE pBusinessLogic:
         ttAutoDMI.autoResult = "Export Successful".
         .
     RUN spSetSessionParam ("Company", cCompany).
+    RUN spSetSessionParam ("Location", cLocation).
     RUN spSetSessionParam ("adoSBJobs", "NO").
     RUN AOA/dynBL/adoSBJobs.p.
     IF RETURN-VALUE NE "" THEN

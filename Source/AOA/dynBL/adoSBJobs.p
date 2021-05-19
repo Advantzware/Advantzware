@@ -10,8 +10,6 @@
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-DEFINE NEW SHARED VARIABLE g_company AS CHARACTER NO-UNDO.
-DEFINE NEW SHARED VARIABLE g_loc     AS CHARACTER NO-UNDO.
 
 DEFINE VARIABLE cCompany     AS CHARACTER  NO-UNDO.
 DEFINE VARIABLE cCompare     AS CHARACTER  NO-UNDO.
@@ -84,6 +82,8 @@ RETURN "ERROR".
 /* **********************  Internal Procedures  *********************** */
 
 PROCEDURE pBusinessLogic:
+    DEFINE VARIABLE cADOSBJobs AS CHARACTER NO-UNDO.
+
     /* create ActiveX Data Object connection */
     CREATE "ADODB.Connection.6.0" hConnection.
     hConnection:ConnectionString = "{AOA/dynBL/IndepedentII.i}".
@@ -95,18 +95,16 @@ PROCEDURE pBusinessLogic:
     CREATE "ADODB.Recordset.6.0" hRecordSet.
     hRecordSet:LockType = 1. /* read only */
     
-    RUN spGetSessionParam ("Company",  OUTPUT cCompany).
-    RUN spGetSessionParam ("Location", OUTPUT cLocation).
-    ASSIGN
-        g_company = cCompany
-        g_loc     = cLocation
-        .    
+    RUN spGetSessionParam ("Company",   OUTPUT cCompany)   NO-ERROR.
+    RUN spGetSessionParam ("adoSBJobs", OUTPUT cADOSBJobs) NO-ERROR.
+    lProgressBar = cADOSBJobs NE "NO".
     RUN pADOSBJobs.
     
     hConnection:Close ().
     RELEASE OBJECT hRecordSet.
     RELEASE OBJECT hConnection.
 
+    IF lProgressBar THEN
     RUN spProgressBar (?, ?, 100).
     
     RETURN "".
@@ -208,6 +206,10 @@ PROCEDURE pSBJobs:
     DEFINE VARIABLE iJob      AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iJNo      AS INTEGER   NO-UNDO.
     DEFINE VARIABLE lCEMenu   AS LOGICAL   NO-UNDO.
+
+    DISABLE TRIGGERS FOR LOAD OF job.
+    DISABLE TRIGGERS FOR LOAD OF job-hdr.
+    DISABLE TRIGGERS FOR LOAD OF job-mch.                                                                                                                                 
 
     RUN sys/ref/nk1look.p (
         cCompany,"CEMENU","C",NO,NO,"","",
