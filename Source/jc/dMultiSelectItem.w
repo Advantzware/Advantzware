@@ -20,6 +20,8 @@ SESSION:DEBUG-ALERT = FALSE.
 {jc/ttMultiSelectItem.i}
 {est/ttInputEst.i }
 
+DEFINE TEMP-TABLE ttMultiSelectItemSelection LIKE ttMultiSelectItem
+                 . 
 /* PARAMs Definitions ---                                           */ 
 DEFINE OUTPUT PARAMETER opdTotalCyclesRequired AS DECIMAL NO-UNDO.
 DEFINE OUTPUT PARAMETER TABLE FOR ttFGReorderSelection .
@@ -39,6 +41,8 @@ RUN fgrep\fgReorder.p PERSISTENT SET hdFGReorder.
 
 /*{sys/inc/f16to32.i}*/
 {sys/inc/lastship.i}
+
+
 
 &SCOPED-DEFINE yellowColumnsName dMultiSelectItem
 
@@ -387,7 +391,8 @@ ON WINDOW-CLOSE OF FRAME Dialog-Frame /* Multiple Selet Item */
 DO:
         FOR EACH ttMultiSelectItem:
             ttMultiSelectItem.isSelected = NO.
-        END.      
+        END. 
+        EMPTY TEMP-TABLE ttMultiSelectItemSelection.
         
         APPLY "END-ERROR":U TO SELF.     
     END.
@@ -427,7 +432,16 @@ DO:
                                     ELSE
                                         "[ ] All".
 
-        RUN repo-query(NO).  
+        RUN repo-query(NO).
+        
+        IF lSelectTrigger THEN 
+        DO:
+           FOR EACH ttMultiSelectItem:
+            CREATE ttMultiSelectItemSelection.
+            BUFFER-COPY ttMultiSelectItem TO ttMultiSelectItemSelection.             
+               
+           END.
+        END.
     END.   
     
     RUN startSearch.        
@@ -478,9 +492,9 @@ DO:
     
     RUN pCheckFurnish(OUTPUT lReturnError).
     IF lReturnError THEN RETURN NO-APPLY.
-   
+        
     RUN AssessSelections IN hdFGReorder (
-                       INPUT TABLE ttMultiSelectItem,
+                       INPUT TABLE /*ttMultiSelectItem*/ ttMultiSelectItemSelection,
                        OUTPUT iCountSelected,
                        OUTPUT dTotalArea, 
                        OUTPUT opdTotalCyclesRequired,
@@ -636,6 +650,69 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME ttMultiSelectItem.isSelected
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ttMultiSelectItem.isSelected BROWSE-NAME _BROWSE-COLUMN Dialog-Frame
+ON VALUE-CHANGED OF ttMultiSelectItem.isSelected IN BROWSE BROWSE-NAME /* isSelected */
+DO:  
+        
+    ttMultiSelectItem.isSelected = logical(ttMultiSelectItem.isSelected:SCREEN-VALUE IN BROWSE BROWSE-NAME ).
+    IF logical(ttMultiSelectItem.isSelected:SCREEN-VALUE IN BROWSE BROWSE-NAME ) EQ YES  THEN 
+    DO:
+       FIND FIRST ttMultiSelectItemSelection NO-LOCK
+            WHERE ttMultiSelectItemSelection.itemID EQ ttMultiSelectItem.itemID NO-ERROR.
+       IF NOT AVAIL ttMultiSelectItemSelection THEN
+       DO:   
+            CREATE ttMultiSelectItemSelection.
+            BUFFER-COPY ttMultiSelectItem TO ttMultiSelectItemSelection.               
+       END.
+    END.
+    ELSE DO:
+      FIND FIRST ttMultiSelectItemSelection NO-LOCK
+           WHERE ttMultiSelectItemSelection.itemID EQ ttMultiSelectItem.itemID NO-ERROR.
+       IF AVAIL ttMultiSelectItemSelection THEN
+       DELETE ttMultiSelectItemSelection.      
+    END.
+    RELEASE ttMultiSelectItemSelection.
+    
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME ttMultiSelectItem.multiplier
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ttMultiSelectItem.multiplier BROWSE-NAME _BROWSE-COLUMN Dialog-Frame
+ON VALUE-CHANGED OF ttMultiSelectItem.multiplier IN BROWSE BROWSE-NAME /* Mode */
+DO:  
+    ttMultiSelectItem.multiplier = INTEGER(ttMultiSelectItem.multiplier:SCREEN-VALUE IN BROWSE BROWSE-NAME ).
+    FIND FIRST ttMultiSelectItemSelection NO-LOCK
+            WHERE ttMultiSelectItemSelection.itemID EQ ttMultiSelectItem.itemID NO-ERROR.
+    IF AVAIL ttMultiSelectItemSelection THEN
+    DO:
+        ttMultiSelectItemSelection.multiplier = INTEGER(ttMultiSelectItem.multiplier:SCREEN-VALUE IN BROWSE BROWSE-NAME ).
+    END.
+        
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME ttMultiSelectItem.quantityToOrder
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ttMultiSelectItem.quantityToOrder BROWSE-NAME _BROWSE-COLUMN Dialog-Frame
+ON VALUE-CHANGED OF ttMultiSelectItem.quantityToOrder IN BROWSE BROWSE-NAME /* Mode */
+DO:  
+    ttMultiSelectItem.quantityToOrder = INTEGER(ttMultiSelectItem.quantityToOrder:SCREEN-VALUE IN BROWSE BROWSE-NAME ).
+    FIND FIRST ttMultiSelectItemSelection NO-LOCK
+            WHERE ttMultiSelectItemSelection.itemID EQ ttMultiSelectItem.itemID NO-ERROR.
+    IF AVAIL ttMultiSelectItemSelection THEN
+    DO:
+        ttMultiSelectItemSelection.quantityToOrder = INTEGER(ttMultiSelectItem.quantityToOrder:SCREEN-VALUE IN BROWSE BROWSE-NAME ).
+    END.
+        
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK Dialog-Frame 
 
@@ -775,10 +852,22 @@ PROCEDURE repo-query :
                    FIND FIRST ttInputEst NO-LOCK 
                         WHERE ttInputEst.cStockNo EQ ttMultiSelectItem.itemID NO-ERROR.
                    IF AVAILABLE ttInputEst THEN 
+                   do: 
+                       ASSIGN
+                       ttMultiSelectItem.isSelected = YES
+                       ttMultiSelectItem.multiplier = ttInputEst.iMolds
+                       .
+                       CREATE ttMultiSelectItemSelection.
+                       BUFFER-COPY ttMultiSelectItem TO ttMultiSelectItemSelection. 
+                   END.
+                   FIND FIRST ttMultiSelectItemSelection NO-LOCK
+                   WHERE ttMultiSelectItemSelection.itemID EQ ttMultiSelectItem.itemID NO-ERROR.
+                   IF AVAIL ttMultiSelectItemSelection THEN
                    ASSIGN
-                   ttMultiSelectItem.isSelected = YES
-                   ttMultiSelectItem.multiplier = ttInputEst.iMolds
-                   .                  
+                     ttMultiSelectItem.isSelected = YES
+                     ttMultiSelectItem.multiplier = ttMultiSelectItemSelection.multiplier
+                     ttMultiSelectItem.quantityToOrder = ttMultiSelectItemSelection.quantityToOrder.                   
+                    
          END.
      END.
 
