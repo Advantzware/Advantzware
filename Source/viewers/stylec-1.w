@@ -193,7 +193,7 @@ DEFINE FRAME F-Main
           SIZE 36 BY 1
           BGCOLOR 15 
      style.formula[20] AT ROW 11.48 COL 24.4 COLON-ALIGNED WIDGET-ID 6
-          LABEL "2 Up W"
+          LABEL "PO Scores Width" FORMAT "x(80)"
           VIEW-AS FILL-IN 
           SIZE 36 BY 1
           BGCOLOR 15 
@@ -230,10 +230,6 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 3.2 BY 1
           BGCOLOR 15 FONT 4
-     style.use-w[6] AT ROW 11.48 COL 94 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 3.2 BY 1
-          BGCOLOR 15 FONT 4
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -241,6 +237,10 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
+     style.use-w[6] AT ROW 11.48 COL 94 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 3.2 BY 1
+          BGCOLOR 15 FONT 4
      style.use-w[7] AT ROW 11.48 COL 98 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 3.2 BY 1
@@ -320,12 +320,8 @@ DEFINE FRAME F-Main
           BGCOLOR 15 FONT 4
      "5" VIEW-AS TEXT
           SIZE 3 BY .62 AT ROW 10.76 COL 93
-     "5" VIEW-AS TEXT
-          SIZE 3 BY .62 AT ROW 12.67 COL 93
-     "11" VIEW-AS TEXT
-          SIZE 3 BY .62 AT ROW 12.67 COL 116
-     "2" VIEW-AS TEXT
-          SIZE 3 BY .62 AT ROW 12.67 COL 81
+     "8" VIEW-AS TEXT
+          SIZE 3 BY .62 AT ROW 12.67 COL 105
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -333,18 +329,6 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
-     "4" VIEW-AS TEXT
-          SIZE 3 BY .62 AT ROW 12.67 COL 89
-     "# On Wid" VIEW-AS TEXT
-          SIZE 12 BY .62 AT ROW 12.67 COL 67
-     "13" VIEW-AS TEXT
-          SIZE 3 BY .62 AT ROW 12.67 COL 124
-     "9" VIEW-AS TEXT
-          SIZE 3 BY .62 AT ROW 12.67 COL 109
-     "# On Len" VIEW-AS TEXT
-          SIZE 13 BY .62 AT ROW 10.76 COL 67
-     "8" VIEW-AS TEXT
-          SIZE 3 BY .62 AT ROW 12.67 COL 105
      "3" VIEW-AS TEXT
           SIZE 3 BY .62 AT ROW 10.76 COL 85
      "4" VIEW-AS TEXT
@@ -363,6 +347,8 @@ DEFINE FRAME F-Main
           SIZE 3 BY .62 AT ROW 12.67 COL 101
      "Nesting Formula" VIEW-AS TEXT
           SIZE 19 BY .62 AT ROW 8.62 COL 72
+     "5" VIEW-AS TEXT
+          SIZE 3 BY .62 AT ROW 12.67 COL 93
      "11" VIEW-AS TEXT
           SIZE 3 BY .62 AT ROW 10.76 COL 116
      "7" VIEW-AS TEXT
@@ -379,6 +365,20 @@ DEFINE FRAME F-Main
           SIZE 3 BY .62 AT ROW 10.76 COL 81
      "12" VIEW-AS TEXT
           SIZE 3 BY .62 AT ROW 10.76 COL 120
+     "11" VIEW-AS TEXT
+          SIZE 3 BY .62 AT ROW 12.67 COL 116
+     "2" VIEW-AS TEXT
+          SIZE 3 BY .62 AT ROW 12.67 COL 81
+     "4" VIEW-AS TEXT
+          SIZE 3 BY .62 AT ROW 12.67 COL 89
+     "# On Wid" VIEW-AS TEXT
+          SIZE 12 BY .62 AT ROW 12.67 COL 67
+     "13" VIEW-AS TEXT
+          SIZE 3 BY .62 AT ROW 12.67 COL 124
+     "9" VIEW-AS TEXT
+          SIZE 3 BY .62 AT ROW 12.67 COL 109
+     "# On Len" VIEW-AS TEXT
+          SIZE 13 BY .62 AT ROW 10.76 COL 67
      RECT-16 AT ROW 8.86 COL 65
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -447,7 +447,7 @@ ASSIGN
 /* SETTINGS FOR FILL-IN style.formula[1] IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN style.formula[20] IN FRAME F-Main
-   EXP-LABEL                                                            */
+   EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN style.formula[2] IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN style.formula[3] IN FRAME F-Main

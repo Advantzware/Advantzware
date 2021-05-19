@@ -2153,6 +2153,163 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipConvertPolScore C-Win
+PROCEDURE ipConvertPolScore PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE iIndex         AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cScoreOn       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE dPanelSize     AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE cScoreType     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cSizeFormat    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lRecFound      AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE hdFormulaProcs AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE cOrigPropath   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cNewPropath    AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-reftable1   FOR reftable.
+    DEFINE BUFFER bf-reftable2   FOR reftable.
+    DEFINE BUFFER bf-po-ordl     FOR po-ordl.
+    DEFINE BUFFER bf-panelHeader FOR panelHeader.
+    DEFINE BUFFER bf-panelDetail FOR panelDetail.
+    DEFINE BUFFER bf-company     FOR company.
+
+    RUN ipStatus ("    Creating panelHeader and panelDetail records.").
+
+    ASSIGN
+        cOrigPropath = PROPATH
+        cNewPropath  = cEnvDir + "\" + fiEnvironment:{&SV} + "\Programs," + PROPATH
+        PROPATH      = cNewPropath
+        .
+    
+    RUN system/FormulaProcs.p PERSISTENT SET hdFormulaProcs.
+    
+    FOR EACH bf-company NO-LOCK 
+        WHERE bf-company.company = "001":
+        RUN sys/ref/nk1look.p (
+            INPUT bf-company.company,     /* Company Code */ 
+            INPUT "CECSCRN",      /* sys-ctrl name */
+            INPUT "C",            /* Output return value */
+            INPUT NO,             /* Use ship-to */
+            INPUT NO,             /* ship-to vendor */
+            INPUT "",             /* ship-to vendor value */
+            INPUT "",             /* shi-id value */
+            OUTPUT cSizeFormat, 
+            OUTPUT lRecFound
+            ).
+        
+        FOR EACH bf-po-ordl NO-LOCK 
+            WHERE bf-po-ordl.company = bf-company.company:
+    
+            FIND FIRST bf-reftable1 NO-LOCK
+                WHERE bf-reftable1.reftable EQ "POLSCORE"
+                  AND bf-reftable1.company  EQ bf-po-ordl.company
+                  AND bf-reftable1.loc      EQ "1"
+                  AND bf-reftable1.code     EQ string(bf-po-ordl.po-no,"9999999999")
+                  AND bf-reftable1.code2    EQ string(bf-po-ordl.line, "9999999999")
+                NO-ERROR.
+            
+            FIND FIRST bf-reftable2 NO-LOCK
+                WHERE bf-reftable2.reftable EQ "POLSCORE"
+                  AND bf-reftable2.company  EQ bf-po-ordl.company
+                  AND bf-reftable2.loc      EQ "2"
+                  AND bf-reftable2.code     EQ string(bf-po-ordl.po-no,"9999999999")
+                  AND bf-reftable2.code2    EQ string(bf-po-ordl.line, "9999999999")
+                NO-ERROR.
+            IF NOT AVAILABLE bf-reftable1 AND NOT AVAILABLE bf-reftable2 THEN
+                NEXT.
+            
+            FIND FIRST bf-panelHeader NO-LOCK
+                WHERE bf-panelHeader.company  EQ bf-po-ordl.company
+                  AND bf-panelHeader.linkType EQ "P"
+                  AND bf-panelHeader.poID     EQ bf-po-ordl.po-no
+                  AND bf-panelHeader.poLine   EQ bf-po-ordl.line
+                NO-ERROR.
+            IF AVAILABLE bf-panelHeader THEN
+                NEXT.
+            
+            CREATE bf-panelHeader.
+            ASSIGN
+                bf-panelHeader.company  = bf-po-ordl.company
+                bf-panelHeader.linkType = "P"
+                bf-panelHeader.poID     = bf-po-ordl.po-no
+                bf-panelHeader.poLine   = bf-po-ordl.line
+                .   
+        
+            cScoreOn = IF bf-po-ordl.spare-char-1 EQ "LENGTH" THEN
+                           "L"
+                       ELSE
+                           "W".
+    
+            DO iIndex = 1 TO 20:
+                ASSIGN
+                    dPanelSize = 0
+                    cScoreType = ""
+                    .
+            
+                IF iIndex LE 12 THEN DO:
+                    IF NOT AVAILABLE bf-reftable1 THEN
+                        NEXT.
+                
+                    IF bf-reftable1.val[iIndex] EQ 0 AND TRIM(SUBSTRING(bf-reftable1.dscr, iIndex, 1)) EQ "" THEN
+                        NEXT.
+                    ELSE
+                        ASSIGN
+                            dPanelSize = bf-reftable1.val[iIndex]
+                            cScoreType = TRIM(SUBSTRING(bf-reftable1.dscr, iIndex, 1))
+                            .
+                END.
+                ELSE IF iIndex LE 20 THEN DO:
+                    IF NOT AVAILABLE bf-reftable2 THEN
+                        NEXT.
+    
+                    IF bf-reftable2.val[iIndex - 12] EQ 0 AND TRIM(SUBSTRING(bf-reftable2.dscr, iIndex - 12, 1)) EQ "" THEN
+                        NEXT.
+                    ELSE
+                        ASSIGN
+                            dPanelSize = bf-reftable2.val[iIndex - 12]
+                            cScoreType = TRIM(SUBSTRING(bf-reftable2.dscr, iIndex - 12, 1))
+                            .
+                END.
+        
+                IF cSizeFormat EQ "16th's" THEN 
+                    RUN Convert16thsToDecimal IN hdFormulaProcs (
+                        INPUT-OUTPUT dPanelSize
+                        ).
+                ELSE IF cSizeFormat EQ "32nd's" THEN 
+                    RUN Convert32ndsToDecimal IN hdFormulaProcs (
+                        INPUT-OUTPUT dPanelSize
+                        ).
+    
+                CREATE bf-panelDetail.
+                ASSIGN
+                    bf-panelDetail.company              = bf-panelHeader.company
+                    bf-panelDetail.panelHeaderID        = bf-panelHeader.panelHeaderID
+                    bf-panelDetail.panelType            = cScoreOn
+                    bf-panelDetail.panelNo              = iIndex
+                    bf-panelDetail.panelFormula         = ""
+                    bf-panelDetail.scoringAllowance     = 0
+                    bf-panelDetail.scoreType            = cScoreType
+                    bf-panelDetail.panelSize            = dPanelSize
+                    bf-panelDetail.panelSizeFromFormula = dPanelSize
+                    .               
+            END.
+        END.
+    END.
+    
+    DELETE PROCEDURE hdFormulaProcs.
+
+    PROPATH = cOrigPropath.
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipConvertPrepItems C-Win
 PROCEDURE ipConvertPrepItems:
 /*------------------------------------------------------------------------------
@@ -2744,6 +2901,8 @@ PROCEDURE ipDataFix :
         RUN ipDataFix210003.
     IF iCurrentVersion LT 21010000 THEN
         RUN ipDataFix210100.
+	IF iCurrentVersion LT 21020000 THEN
+		RUN ipDataFix210200.
     IF iCurrentVersion LT 99999999 THEN
         RUN ipDataFix999999.
 
@@ -3507,6 +3666,27 @@ PROCEDURE ipDataFix210100:
     
 END PROCEDURE.
     
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix210200 C-Win
+PROCEDURE ipDataFix210200 PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEF VAR cOrigPropath AS CHAR NO-UNDO.
+    DEF VAR cNewPropath AS CHAR NO-UNDO.
+
+    RUN ipStatus ("  Data Fix 210200...").
+
+    RUN ipConvertPolScore.
+
+END PROCEDURE.
+	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
