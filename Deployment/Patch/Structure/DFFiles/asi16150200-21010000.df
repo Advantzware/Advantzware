@@ -4823,6 +4823,14 @@ ADD FIELD "approved" OF "quotehd" AS logical
   ORDER 650
   MAX-WIDTH 1
 
+ADD FIELD "effectiveDate" OF "quotehd" AS date
+  FORMAT "99/99/99"
+  POSITION 55
+  INITIAL ?
+  LABEL "Effective Date"
+  ORDER 660
+  MAX-WIDTH 4
+
 ADD FIELD "postInProcess" OF "rm-ctrl" AS logical
   FORMAT "yes/no"
   POSITION 26
@@ -5126,4 +5134,4 @@ ADD SEQUENCE "poReceiptLinkID_seq"
 PSC
 cpstream=ISO8859-1
 .
-0000116194
+0000116347

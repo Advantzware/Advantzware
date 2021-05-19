@@ -5701,6 +5701,10 @@ PROCEDURE local-enable-fields :
   
 /*  ENABLE oe-ord.priority WITH FRAME {&FRAME-NAME}.*/
   {methods/run_link.i "CONTAINER-SOURCE" "SetUpdateBegin"}
+  {methods/run_link.i "tandem-target" "disable-all"}
+  {methods/run_link.i "status-target" "disable-all"}
+  {methods/run_link.i "line-item-target" "disable-all"}
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

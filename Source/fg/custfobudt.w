@@ -39,7 +39,7 @@ DEFINE VARIABLE ipRowID AS ROWID NO-UNDO.
 
 {sys/inc/var.i new shared}
 
-{system/sysconst.i}
+// {system/sysconst.i}
 {methods/defines/globdefs.i}
 
 DEFINE BUFFER b-prgrms FOR prgrms.

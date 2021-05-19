@@ -1278,7 +1278,7 @@ PROCEDURE local-enable :
          NO-ERROR .
     IF AVAILABLE company THEN
     {&WINDOW-NAME}:TITLE = {&WINDOW-NAME}:TITLE
-                         + " - {&awversion}" + " - " 
+                         + " - " + DYNAMIC-FUNCTION("sfVersion") + " - " 
                          + STRING(company.name) + " - " + cLocation.
   
     /* Dispatch standard ADM method.                             */

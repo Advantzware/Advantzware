@@ -61,7 +61,7 @@ DEFINE VARIABLE iCopies                 AS INTEGER   NO-UNDO.
 
 DEFINE VARIABLE gcPathDataFileDefault AS CHARACTER INITIAL "C:\BA\LABEL".
 
-{system/sysconst.i}
+// {system/sysconst.i}
 {Inventory/ttInventory.i "NEW SHARED"}
 {methods/defines/sortByDefs.i}
 {wip/keyboardDefs.i}
@@ -1549,7 +1549,7 @@ PROCEDURE pInit :
     
     FIND FIRST company NO-LOCK 
          WHERE company.company EQ ipcCompany NO-ERROR .
-    {&WINDOW-NAME}:TITLE = {&WINDOW-NAME}:TITLE + " - {&awversion}" + " - " 
+    {&WINDOW-NAME}:TITLE = {&WINDOW-NAME}:TITLE + " - " + DYNAMIC-FUNCTION("sfVersion") + " - " 
                          + STRING(company.name) + " - " + ipcLocation.          
             
     RUN pGetSettings (

@@ -9867,6 +9867,14 @@ ADD FIELD "approved" OF "quotehd" AS logical
   ORDER 650
   MAX-WIDTH 1
 
+ADD FIELD "effectiveDate" OF "quotehd" AS date
+  FORMAT "99/99/99"
+  POSITION 55
+  INITIAL ?
+  LABEL "Effective Date"
+  ORDER 660
+  MAX-WIDTH 4
+
 UPDATE TABLE "quoteit"
   LABEL "CE Quote Line"
 
@@ -10841,4 +10849,4 @@ ADD SEQUENCE "vendItemCostLevelID_seq"
 PSC
 cpstream=ISO8859-1
 .
-0000247402
+0000247555

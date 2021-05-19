@@ -54,12 +54,12 @@
 "001" "AUTOREL" "Prompt to Release all items on the order entry screen?" 0 0 "" ? yes "OU1" "1107200100023365" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no
 "001" "BACKLOG" "Print Cost & Profit on Order Backlog Report?" 0 0 "" ? yes "OR1" "0106200601452329" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no
 "001" "BankTransmittalLocation" "Enter Bank Transmittal Location" 0 0 ".\CustFiles\APChecks" ? no "AP" "201909245396004010681" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no
-"001" "BARDIR" "C:\BA\label" 0 0 "N:\Environments\Devel\loadtag.xpr" ? yes "OU7" "0531200200020108" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no
+"001" "BARDIR" "C:\BA\label" 0 0 "load12.xpr" ? yes "OU7" "0531200200020108" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no
 "001" "Batch" "Batch Output Destination" 0 0 "C:\tmp" ? no "" "0525201700553341" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no
 "001" "BitMap" ".\images\customersfirst.jpg" 0 0 "H:\PubUpdates\CurrentPatch\logo-advantzware.png" ? no "" "201812092383602739888" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no
 "001" "BOLCERT" "Print Certificate of Compliance / Commercial Invoice?" 0 0 "CCCRev" ? yes "OS3" "0106200601452328" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no
 "001" "BOLDATE" "When Posting Releases, set BOL Date to..." 0 0 "Current" ? yes "OP" "0106200601452444" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no
-"001" "BOLFMT" "BOL Format" 1 4 "ACPI" ? yes "OS3" "1107200100023366" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no
+"001" "BOLFMT" "BOL Format" 1 4 "Indiana" ? yes "OS3" "1107200100023366" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no
 "001" "BOLFMTTran" "Transfer Bill of Lading Creation" 0 0 "GPI" ? no "" "0525201700553342" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no
 "001" "BOLFMTX" "Brokers BIll of Lading Format." 0 0 "ACPIX" ? yes "OP" "1106200802968109" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no
 "001" "BOLFreight" "Bill of Lading Freight" 0 0 "Shipto Delivery Zone" ? yes "" "1128201107475551" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no
@@ -365,7 +365,7 @@
 "001" "OEAutoApproval" "Auto Approval of CXML Orders" 0 0 "" ? no "" "201908285099903774503" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no
 "001" "OEAutoDateUpdate" "Updates all orders and/or releases with any change to transit days or" 0 0 "Dock Appt Days" ? no "" "201906185187603588762" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no
 "001" "OEAUTOFG" "Automatically Create a purchase orders during OE for purchased FGs?" 1 0 "Any" ? yes "" "0106200601452445" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no
-"001" "OEAUTOPO" "Create PO during Order Entry? Multiple Jobs per PO?" 1 0 "Auto" ? yes "OU1" "0213200200037836" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no
+"001" "OEAUTOPO" "Create PO during Order Entry? Multiple Jobs per PO?" 0 0 "Auto" ? yes "OU1" "0213200200037836" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no
 "001" "OEAUTOPREP" "Auto Prep PO Creation from Order Entry?" 0 0 "" ? yes "" "0914201107351186" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no
 "001" "OEBlanketPO#" "User Define Default Customer Po#" 0 0 "" ? yes "" "0525201700553371" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no
 "001" "OEBOLLOG" "Generate log during BOL Posting" 0 0 ".\custfiles\logs" ? no "" "201912177146204535606" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no
@@ -451,7 +451,7 @@
 "001" "POQTY" "Auto PO to use Job Qty or Net Sheets?" 0 0 "Net Shts" ? no "PU1" "0219200200040204" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no
 "001" "POScreen" "PO Cursor Initial Position and Tab Order" 0 0 "Item-Job" ? no "" "0525201700553386" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no
 "001" "POSTATUS" "Set initial status of POs" 0 0 "Open" ? no "" "0525201700553387" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no
-"001" "POSTDATE" "Default Posting Date to Current date?" 0 0 "" ? no "" "0106200601452441" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no
+"001" "POSTDATE" "Default Posting Date to Current date?" 0 0 "" ? yes "" "0106200601452441" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no
 "001" "POUOM" "Default for PO Order Qty UOM to either Stock UOM or Purchase Qty UOM?" 1 0 "Purchase" ? yes "" "0106200601452451" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no
 "001" "Pratt" ".\CustFiles\DataXfer\Pratt\export" 0 0 "trepaper" ? yes "" "0525201106490789" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no
 "001" "PREPDIEBIN" "Default Prep Die Bin from Est." 0 0 "FLOOR" ? yes "" "0914201107351188" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no

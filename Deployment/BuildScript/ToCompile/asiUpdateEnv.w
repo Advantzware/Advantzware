@@ -48,6 +48,7 @@ DEF INPUT PARAMETER ipcFromVer AS CHAR NO-UNDO.
 DEF INPUT PARAMETER ipcToVer AS CHAR NO-UNDO.
 DEF INPUT PARAMETER ipiLevel AS INT NO-UNDO.
 DEF INPUT PARAMETER iplNeedBackup AS LOG NO-UNDO.
+DEF INPUT PARAMETER ipcLogFile AS CHAR NO-UNDO.
 DEF OUTPUT PARAMETER oplSuccess AS LOG NO-UNDO.
 DEF INPUT-OUTPUT PARAMETER iopiStatus AS INT NO-UNDO.
 
@@ -4853,7 +4854,8 @@ PROCEDURE ipLoadDAOAData :
     END.
     
     FOR EACH dynParamValue EXCLUSIVE WHERE 
-        dynParamValue.user-id EQ "_default":
+        dynParamValue.user-id EQ "_default" AND
+        dynParamValue.subjectID LT 5000:
         DELETE dynParamValue.
     END.
 
@@ -6733,7 +6735,6 @@ PROCEDURE ipStatus :
   Notes:       
 ------------------------------------------------------------------------------*/
     DEF INPUT PARAMETER ipcStatus AS CHAR NO-UNDO.
-    DEF VAR cLogFile AS CHAR NO-UNDO.
 
     /* Give the asiUpdate program time to close the log file */
     PAUSE 1 BEFORE-HIDE NO-MESSAGE.
@@ -6743,7 +6744,6 @@ PROCEDURE ipStatus :
             eStatus:{&SV}       = eStatus:{&SV} + ipcStatus + CHR(10)
             eStatus:CURSOR-LINE = eStatus:NUM-LINES.
         ASSIGN
-            cLogFile = cEnvAdmin + "\UpdateLog.txt"
             iMsgCtr = iMsgCtr + 1
             cMsgStr[iMsgCtr] = "  " + ipcStatus.
         FIND FIRST ttUpdateHist NO-LOCK NO-ERROR.
@@ -6752,7 +6752,7 @@ PROCEDURE ipStatus :
                 ttUpdateHist.endTimeInt = INT(TIME)
                 ttUpdateHist.endTime = STRING(time,"HH:MM:SS AM")        
                 ttUpdateHist.success = lSuccess.        
-        OUTPUT STREAM logStream TO VALUE(cLogFile) APPEND.
+        OUTPUT STREAM logStream TO VALUE(ipcLogFile) APPEND.
         PUT STREAM logStream
             STRING(TODAY,"99/99/99") AT 1
             STRING(TIME,"HH:MM:SS") AT 12

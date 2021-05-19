@@ -82,7 +82,7 @@ DEFINE VARIABLE gcPathDataFileDefault AS CHARACTER INITIAL "C:\BA\LABEL".
 
 &SCOPED-DEFINE SORTBY-PHRASE BY ttBrowseInventory.lastTransTime DESCENDING
 
-{system/sysconst.i}
+// {system/sysconst.i}
 {Inventory/ttInventory.i "NEW SHARED"}
 {methods/defines/sortByDefs.i}
 {wip/keyboardDefs.i}
@@ -1610,7 +1610,7 @@ PROCEDURE init :
          NO-ERROR .
     IF AVAILABLE company THEN
     {&WINDOW-NAME}:TITLE = {&WINDOW-NAME}:TITLE
-                         + " - {&awversion}" + " - " 
+                         + " - " + DYNAMIC-FUNCTION("sfVersion") + " - " 
                          + STRING(company.name) + " - " + ipcLocation.
 
     ASSIGN 

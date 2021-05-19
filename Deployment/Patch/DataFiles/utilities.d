@@ -120,6 +120,9 @@ This runs and fixes the status of the Orders, Jobs and PO's based on the current
 "FxRecKey.r" "AR" "AF1" "Fix Customer Record Keys to Fix Notes" "Fix rec key for customer notes and set a customer note date = customer setup or 01/01/2006." 1000
 "fxshpqty.r" "OP" "OU1" "Updates Orders Ship Quantity" "Prompts for Begin/End order number.  Updates order ship quantity based on the order range, recalculate the allocation and back order quantity." 900
 "FxTrncs2.r" "RM" "MF" "Updates RM History Cost from Purchase Order" "If purchased RM item, then reset the cost of RM item to that of the PO cost." 900
+"gl-purge.r" "GL" "NF5" "Purge GL Detail" "This program allows for the complete deletion of GL History records which should only be used if the G/L is being cleared in a startup excercise.  This removes all G/L History for an account or all accounts.
+
+* ASI Only utility *" 1000
 "gl-purge.w" "GL" "NF5" "Purge GL Detail" "This program allows for the complete deletion of GL History records which should only be used if the G/L is being cleared in a startup excercise.  This removes all G/L History for an account or all accounts.
 
 * ASI Only utility *" 1000

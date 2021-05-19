@@ -6384,6 +6384,14 @@ ADD FIELD "approved" OF "quotehd" AS logical
   ORDER 650
   MAX-WIDTH 1
 
+ADD FIELD "effectiveDate" OF "quotehd" AS date
+  FORMAT "99/99/99"
+  POSITION 55
+  INITIAL ?
+  LABEL "Effective Date"
+  ORDER 660
+  MAX-WIDTH 4
+
 UPDATE FIELD "price" OF "quoteitm"
   DECIMALS 6
 
@@ -6974,4 +6982,4 @@ ADD SEQUENCE "queryNr"
 PSC
 cpstream=ISO8859-1
 .
-0000156445
+0000156598

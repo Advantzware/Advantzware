@@ -9794,6 +9794,7 @@
 "quotehd" "del-date" no no
 "quotehd" "del-zone" no no
 "quotehd" "e-num" no no
+"quotehd" "effectiveDate" no no
 "quotehd" "est-no" no no
 "quotehd" "ex-rate" no no
 "quotehd" "expireDate" no no

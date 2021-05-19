@@ -163,7 +163,7 @@
 "001" "Reports" "Selectable Report Columns" 0 0 "HR4" ? yes "" "0216201509612314" yes "" "" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
 "001" "Reports" "Selectable Report Columns" 0 0 "HR6" ? yes "" "0216201509612328" yes "" "" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
 "001" "Reports" "Selectable Report Columns" 0 0 "HR10" ? yes "" "0216201509612506" yes "" "" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
-"001" "Reports" "Selectable Report Columns" 0 0 "HR13" ? yes "" "0216201509613069" yes "" "" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
+"001" "Reports" "Selectable Report Columns" 0 0 "HR13" ? no "" "0216201509613069" yes "" "" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
 "001" "Reports" "Selectable Report Columns" 0 0 "HR14" ? yes "" "0218201509615598" yes "" "" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
 "001" "Reports" "Selectable Report Columns" 0 0 "HW" ? yes "" "0217201509614581" yes "" "" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
 "001" "Reports" "Selectable Report Columns" 0 0 "HZ" ? yes "" "0217201509614627" yes "" "" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no

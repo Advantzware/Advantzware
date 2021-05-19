@@ -64,8 +64,8 @@ RUN fgrep\fgReorder.p PERSISTENT SET hdFGReorder.
 &Scoped-define INTERNAL-TABLES ttMultiSelectItem
 
 /* Definitions for BROWSE BROWSE-NAME                                      */
-&Scoped-define FIELDS-IN-QUERY-BROWSE-NAME ttMultiSelectItem.isSelected ttMultiSelectItem.multiplier ttMultiSelectItem.quantityToOrder ttMultiSelectItem.quantityToOrderSuggested ttMultiSelectItem.itemID ttMultiSelectItem.itemName ttMultiSelectItem.quantityReorderLevel ttMultiSelectItem.quantityOnHand ttMultiSelectItem.quantityOnOrder ttMultiSelectItem.quantityAllocated ttMultiSelectItem.quantityAvailable ttMultiSelectItem.availOnHand ttMultiSelectItem.dateDueDateEarliest ttMultiSelectItem.orderQtyEarliest ttMultiSelectItem.quantityReorderLevel ttMultiSelectItem.quantityMinOrder ttMultiSelectItem.quantityMaxOrder ttMultiSelectItem.itemCustPart ttMultiSelectItem.itemCust ttMultiSelectItem.itemCustName ttMultiSelectItem.itemEstNO ttMultiSelectItem.itemStyle ttMultiSelectItem.itemWhse ttMultiSelectItem.board  
-&Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-NAME ttMultiSelectItem.isSelected ttMultiSelectItem.multiplier ttMultiSelectItem.quantityToOrder   
+&Scoped-define FIELDS-IN-QUERY-BROWSE-NAME ttMultiSelectItem.isSelected ttMultiSelectItem.multiplier ttMultiSelectItem.pallet ttMultiSelectItem.quantityToOrder ttMultiSelectItem.quantityToOrderSuggested ttMultiSelectItem.itemID ttMultiSelectItem.itemName ttMultiSelectItem.quantityReorderLevel ttMultiSelectItem.quantityOnHand ttMultiSelectItem.quantityOnOrder ttMultiSelectItem.quantityAllocated ttMultiSelectItem.quantityAvailable ttMultiSelectItem.availOnHand ttMultiSelectItem.dateDueDateEarliest ttMultiSelectItem.orderQtyEarliest ttMultiSelectItem.quantityReorderLevel ttMultiSelectItem.quantityMinOrder ttMultiSelectItem.quantityMaxOrder ttMultiSelectItem.itemCustPart ttMultiSelectItem.itemCust ttMultiSelectItem.itemCustName ttMultiSelectItem.itemEstNO ttMultiSelectItem.itemStyle ttMultiSelectItem.itemWhse ttMultiSelectItem.board  
+&Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-NAME ttMultiSelectItem.isSelected ttMultiSelectItem.multiplier ttMultiSelectItem.pallet ttMultiSelectItem.quantityToOrder   
 &Scoped-define ENABLED-TABLES-IN-QUERY-BROWSE-NAME ttMultiSelectItem
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-BROWSE-NAME ttMultiSelectItem
 &Scoped-define SELF-NAME BROWSE-NAME
@@ -201,6 +201,7 @@ DEFINE BROWSE BROWSE-NAME
       ttMultiSelectItem.isSelected COLUMN-LABEL "[ ] All" 
             WIDTH 8 VIEW-AS TOGGLE-BOX
       ttMultiSelectItem.multiplier COLUMN-LABEL "Molds" FORMAT ">9" LABEL-BGCOLOR 14
+      ttMultiSelectItem.pallet COLUMN-LABEL "Pallet#" FORMAT "->>>,>>9" LABEL-BGCOLOR 14
       ttMultiSelectItem.quantityToOrder COLUMN-LABEL "Quantity To Order" FORMAT "->>>,>>>,>>9" LABEL-BGCOLOR 14
       ttMultiSelectItem.itemID COLUMN-LABEL "FG Item" FORMAT "x(15)":U WIDTH 24 LABEL-BGCOLOR 14
       ttMultiSelectItem.dateDueDateEarliest COLUMN-LABEL "Earliest Due Date" FORMAT "99/99/9999":U
@@ -232,6 +233,7 @@ DEFINE BROWSE BROWSE-NAME
 
       ENABLE ttMultiSelectItem.isSelected
              ttMultiSelectItem.multiplier 
+             ttMultiSelectItem.pallet
              ttMultiSelectItem.quantityToOrder
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -636,6 +638,32 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME ttMultiSelectItem.quantityToOrder
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ttMultiSelectItem.quantityToOrder BROWSE-NAME _BROWSE-COLUMN Dialog-Frame
+ON VALUE-CHANGED OF ttMultiSelectItem.quantityToOrder IN BROWSE BROWSE-NAME /* Quantity To Order */
+DO:
+    DEFINE VARIABLE dPallet AS DECIMAL NO-UNDO.
+    dPallet = integer(ttMultiSelectItem.quantityToOrder:SCREEN-VALUE IN BROWSE {&browse-name}) / Max (ttMultiSelectItem.itemCount,1).     
+    {sys/inc/roundup.i dPallet} 
+    ttMultiSelectItem.pallet:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(dPallet).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME ttMultiSelectItem.pallet
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ttMultiSelectItem.pallet BROWSE-NAME _BROWSE-COLUMN Dialog-Frame
+ON VALUE-CHANGED OF ttMultiSelectItem.pallet IN BROWSE BROWSE-NAME /* Quantity To Order */
+DO:
+    DEFINE VARIABLE dPallet AS DECIMAL NO-UNDO.
+    dPallet = integer(ttMultiSelectItem.pallet:SCREEN-VALUE IN BROWSE {&browse-name}).        
+    ttMultiSelectItem.quantityToOrder:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(Max (ttMultiSelectItem.itemCount,1) *  dPallet ).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK Dialog-Frame 
 
@@ -729,7 +757,7 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE repo-query Dialog-Frame 
 PROCEDURE repo-query :
      DEFINE INPUT PARAMETER iplOpenQuery AS LOGICAL NO-UNDO.
-               
+     DEFINE VARIABLE dPallet AS DECIMAL NO-UNDO.          
      IF iplOpenQuery THEN
      DO:          
          EMPTY TEMP-TABLE ttMultiSelectItem.
@@ -751,7 +779,10 @@ PROCEDURE repo-query :
              BUFFER-COPY ttFGReorder TO ttMultiSelectItem.
              
              ttMultiSelectItem.dateDueDateEarliest = TODAY.
-
+             dPallet = ttMultiSelectItem.quantityToOrder / Max (ttMultiSelectItem.itemCount,1).               
+             {sys/inc/roundup.i dPallet}
+             ttMultiSelectItem.pallet = dPallet.                         
+             
                 FIND FIRST cust NO-LOCK
                      WHERE cust.company EQ cocode 
                      AND cust.cust-no EQ ttFGReorder.itemCust 
@@ -778,6 +809,8 @@ PROCEDURE repo-query :
                    ASSIGN
                    ttMultiSelectItem.isSelected = YES
                    ttMultiSelectItem.multiplier = ttInputEst.iMolds
+                   ttMultiSelectItem.pallet = ttInputEst.iPalletRestore
+                   ttMultiSelectItem.quantityToOrder = ttInputEst.iQtyRestore
                    .                  
          END.
      END.

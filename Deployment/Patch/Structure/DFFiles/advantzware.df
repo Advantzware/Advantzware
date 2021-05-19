@@ -101644,6 +101644,14 @@ ADD FIELD "approved" OF "quotehd" AS logical
   MAX-WIDTH 1
   ORDER 650
 
+ADD FIELD "effectiveDate" OF "quotehd" AS date 
+  FORMAT "99/99/99"
+  INITIAL ?
+  LABEL "Effective Date"
+  POSITION 55
+  MAX-WIDTH 4
+  ORDER 660
+
 ADD INDEX "q-no" ON "quotehd" 
   AREA "Index"
   UNIQUE
@@ -128119,4 +128127,4 @@ ADD INDEX "si-rec_key" ON "zMessage"
 PSC
 cpstream=IBM850
 .
-0002766133
+0002766287

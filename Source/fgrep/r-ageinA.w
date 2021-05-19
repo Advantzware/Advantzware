@@ -2725,10 +2725,13 @@ FOR EACH tt-file WHERE
 
   /*if first-of(tt-cust-no) then*/ v-cus = IF AVAIL cust THEN cust.NAME ELSE "".
 
-  FIND LAST fg-rcpth NO-LOCK 
+  FOR EACH fg-rcpth NO-LOCK 
       WHERE fg-rcpth.company EQ cocode 
         AND fg-rcpth.i-no EQ itemfg.i-no 
-        AND fg-rcpth.rita-code EQ "S" NO-ERROR.
+        AND fg-rcpth.rita-code EQ "S" BY fg-rcpth.trans-date DESC :
+        v-shipdt = STRING(fg-rcpth.trans-date) . 
+      LEAVE.
+  END.
 
   ASSIGN
    v-cst[1]  = tt-cst[1]
@@ -2742,8 +2745,7 @@ FOR EACH tt-file WHERE
    tt-days = tt-file.tt-days
    lv-last-fld = IF rd_show2 BEGINS "Day" THEN STRING(tt-days,">>>9")
                                                ELSE ""
-   v-shipdt = IF AVAIL fg-rcpth AND v-sdate THEN STRING(fg-rcpth.trans-date) 
-                                               ELSE "" .  
+   v-shipdt = IF v-sdate THEN v-shipdt ELSE "" .  
 
    RUN reduce_negatives.
 

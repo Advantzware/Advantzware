@@ -23,17 +23,20 @@ PUT "<FArial><R10><C10><P20><B> P / N#: </B>" SKIP.
 PUT "<FArial><R10><C22><P20><B>  "  w-ord.cust-part-no FORMAT "x(15)"   "</B>" SKIP.
 
 PUT "<FArial><R15><C10><P16><B> PO#: </B>" SKIP.
-PUT "<FArial><R15><C17><P16><B>  "  w-ord.cust-po-no FORMAT "x(15)"  "</B>" SKIP.
+PUT "<FArial><R15><C22><P16><B>  "  w-ord.cust-po-no FORMAT "x(15)"  "</B>" SKIP.
 
 PUT "<FArial><R15><C67><P20><B> DATE: </B>" SKIP.
 
 
 PUT "<FArial><R17><C10><P20><B> IPI#: </B>" SKIP.
-PUT "<FArial><R17><C17><P20><B>  "  caps(w-ord.i-no) FORMAT "x(15)"   "</B>" SKIP.
+PUT "<FArial><R17><C22><P20><B>  "  caps(w-ord.i-no) FORMAT "x(15)"   "</B>" SKIP.
 PUT "<FArial><R17><C67><B>  "  TODAY    "</B>" SKIP.
 
 PUT "<FArial><R19><C10><P16><B> JOB#: </B>" SKIP.
-PUT "<FArial><R19><C17><P16><B>  "  w-ord.job-no FORMAT "x(6)" "-" STRING(w-ord.job-no2,"99")  "</B>" SKIP.
+PUT "<FArial><R19><C22><P16><B>  "  w-ord.job-no FORMAT "x(6)" "-" STRING(w-ord.job-no2,"99")  "</B>" SKIP.
+
+PUT "<FArial><R21><C10><P16><B> CUSTOM1: </B>" SKIP.
+PUT "<FArial><R21><C22><P16><B>  "  w-ord.customField FORMAT "x(32)"  "</B>" SKIP.
 
 PUT "<FArial><R23><C28><B> QTY: </B>" SKIP.
 PUT "<FArial><R23><C35><B>  "  w-ord.pcs " /CS"  "</B>" SKIP(5).
