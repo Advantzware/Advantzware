@@ -4858,6 +4858,14 @@ PROCEDURE ipLoadDAOAData :
         dynParamValue.subjectID LT 5000:
         DELETE dynParamValue.
     END.
+    
+    /* Ticket 99703 */
+    FOR EACH dynParamValue EXCLUSIVE-LOCK WHERE 
+        dynParamValue.user-id NE "_default" AND 
+        dynParamValue.paramvalueid EQ 0:
+        DELETE dynParamValue.
+    END.
+    /* End Ticket 99703 */
 
     FOR EACH dynPrgrmsPage EXCLUSIVE:
         DELETE dynPrgrmsPage.
