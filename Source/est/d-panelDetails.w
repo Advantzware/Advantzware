@@ -1695,10 +1695,16 @@ PROCEDURE pInit :
             OUTPUT TABLE ttPanel
             ).
     ELSE IF ipcType EQ "eb" THEN DO:        
-        RUN Formula_BuildPanelDetailsForEstimate IN hdFormulaProcs (
-            INPUT  ipriInput,
-            OUTPUT TABLE ttPanel BY-REFERENCE
+        RUN Formula_BuildAndSavePanelDetailsForEstimate IN hdFormulaProcs (
+            INPUT  ipriInput
             ).
+        RUN GetPanelDetailsForEstimate IN hdFormulaProcs (
+            INPUT  cCompany,
+            INPUT  cEstimateNo,
+            INPUT  iFormNo,
+            INPUT  iBlankNo,
+            OUTPUT TABLE ttPanel
+            ).        
     END.
     ELSE IF ipcType EQ "po-ordl" THEN DO:
         RUN Formula_BuildAndSavePanelDetailsForPO IN hdFormulaProcs (
