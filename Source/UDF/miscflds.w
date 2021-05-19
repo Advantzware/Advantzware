@@ -3137,6 +3137,8 @@ PROCEDURE loadWidgetData :
   DEFINE VARIABLE sizeList AS CHARACTER NO-UNDO.
   DEFINE VARIABLE i AS INTEGER NO-UNDO.
 
+  DEFINE VARIABLE cTempDirectory AS CHARACTER NO-UNDO.
+
   IF NOT CAN-FIND(FIRST mfgroup) THEN RETURN.
 
   EMPTY TEMP-TABLE ttMFPrgrms.
@@ -3167,9 +3169,8 @@ PROCEDURE loadWidgetData :
     sizeList = TRIM(sizeList,",")
     .
 
-  OS-CREATE-DIR "users".
-  OS-CREATE-DIR VALUE("users\" + USERID("ASI")).
-  OUTPUT TO VALUE("users/" + USERID("ASI") + "/mfgroup.dat").
+  RUN FileSys_GetTempDirectory (OUTPUT cTempDirectory).
+  OUTPUT TO VALUE(cTempDirectory + "/mfgroup.dat").
   EXPORT groupList.
   EXPORT sizeList.
   FOR EACH mfgroup NO-LOCK:
@@ -3177,7 +3178,7 @@ PROCEDURE loadWidgetData :
   END.
   OUTPUT CLOSE.
 
-  OUTPUT TO VALUE("users/" + USERID("ASI") + "/mfdata.dat").
+  OUTPUT TO VALUE(cTempDirectory + "/mfdata.dat").
   FOR EACH mfdata NO-LOCK:
     PUT UNFORMATTED mfdata.miscflds_data SKIP.
   END.
@@ -3187,7 +3188,7 @@ PROCEDURE loadWidgetData :
   EMPTY TEMP-TABLE ttAttrb.
   EMPTY TEMP-TABLE ttDeleteMFValues.
 
-  INPUT FROM VALUE("users/" + USERID("ASI") + "/mfdata.dat") NO-ECHO.
+  INPUT FROM VALUE(cTempDirectory + "/mfdata.dat") NO-ECHO.
   REPEAT:
     CREATE ttAttrb.
     IMPORT ttAttrb.
@@ -3195,7 +3196,7 @@ PROCEDURE loadWidgetData :
   INPUT CLOSE.
   IF ttAttrb.attr_type EQ "" THEN DELETE ttAttrb.
 
-  INPUT FROM VALUE("users/" + USERID("ASI") + "/mfgroup.dat").
+  INPUT FROM VALUE(cTempDirectory + "/mfgroup.dat").
   IMPORT cdummy.
   IMPORT sizeList.
   DO i = 1 TO NUM-ENTRIES(cdummy):
@@ -3602,6 +3603,9 @@ PROCEDURE saveLayout :
 ------------------------------------------------------------------------------*/
   DEFINE VARIABLE textstring AS CHARACTER NO-UNDO.
 
+  DEFINE VARIABLE cTempDirectory AS CHARACTER NO-UNDO.
+
+  RUN FileSys_GetTempDirectory (OUTPUT cTempDirectory).
   IF CAN-FIND(FIRST ttDeleteMFValues) THEN DO:
     ldummy = NO.
     MESSAGE "Attribute Value Records are marked for DELETION, Continue? (yes/no)"
@@ -3615,7 +3619,7 @@ PROCEDURE saveLayout :
     END. /* each ttdeletemfvalues */
   END. /* if can-find */
 
-  OUTPUT TO VALUE("users/" + USERID("ASI") + "/mfgroup.dat").
+  OUTPUT TO VALUE(cTempDirectory + "/mfgroup.dat").
   EXPORT mfgroupList:LIST-ITEMS IN FRAME {&FRAME-NAME}.
   DO i = 1 TO mfgroupList:NUM-ITEMS:
     FIND FIRST ttMFGroup
@@ -3643,7 +3647,7 @@ PROCEDURE saveLayout :
     mfgroup.mfgroup_data = mfgroup.mfgroup_data + textstring.
   END. /* each ttmfprgrms */
 
-  OUTPUT TO VALUE("users/" + USERID("ASI") + "/miscflds.dat").
+  OUTPUT TO VALUE(cTempDirectory + "/miscflds.dat").
   FOR EACH ttAttrb:
     EXPORT ttAttrb.attr_mfgroup.
     EXPORT ttAttrb.
@@ -3653,7 +3657,7 @@ PROCEDURE saveLayout :
   FOR EACH mfdata:
       DELETE mfdata.
   END. /* each mfdata */
-  INPUT FROM VALUE("users/" + USERID("ASI") + "/miscflds.dat").
+  INPUT FROM VALUE(cTempDirectory + "/miscflds.dat").
   REPEAT:
     IMPORT textstring.
     CREATE mfdata.

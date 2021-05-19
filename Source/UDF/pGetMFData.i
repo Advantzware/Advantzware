@@ -3,16 +3,17 @@
 PROCEDURE pGetMFData:
     DEFINE INPUT PARAMETER ipcMFGroup AS CHARACTER NO-UNDO.
 
-    OS-CREATE-DIR "users".
-    OS-CREATE-DIR VALUE("users\" + USERID("ASI")).
-    OUTPUT TO VALUE("users/" + USERID("ASI") + "/miscflds.dat").
+    DEFINE VARIABLE cTempDirectory AS CHARACTER NO-UNDO.
+
+    RUN FileSys_GetTempDirectory (OUTPUT cTempDirectory).
+    OUTPUT TO VALUE(cTempDirectory + "/miscflds.dat").
     FOR EACH mfdata NO-LOCK
         WHERE ENTRY(1,mfdata.mfgroup_data,"|") EQ ipcMFGroup
         :
         PUT UNFORMATTED mfdata.miscflds_data SKIP.
     END.
     OUTPUT CLOSE.
-    INPUT FROM VALUE("users/" + USERID("ASI") + "/miscflds.dat") NO-ECHO.
+    INPUT FROM VALUE(cTempDirectory + "/miscflds.dat") NO-ECHO.
     REPEAT:
         CREATE ttAttrb.
         IMPORT ttAttrb.
