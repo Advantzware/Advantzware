@@ -145,11 +145,8 @@ PROCEDURE pCreateOePrmtxTT PRIVATE:
           AND oe-prmtx.custShipID EQ ipcShipID:          
           
           IF NOT(oe-prmtx.exp-date EQ ? OR oe-prmtx.exp-date GT TODAY) THEN 
-            NEXT.
-            
-          IF oe-prmtx.eff-date GT TODAY THEN 
-            NEXT.  
-            
+            NEXT.             
+                      
         CREATE ttOePrmtx.        
         ASSIGN
             ttOePrmtx.company       = oe-prmtx.company       
@@ -225,10 +222,7 @@ PROCEDURE pExpireOldPrices PRIVATE:
             
         IF NOT(bf-oe-prmtx.exp-date EQ ? OR bf-oe-prmtx.exp-date GT TODAY) THEN 
             NEXT.
-            
-        IF bf-oe-prmtx.eff-date GT TODAY THEN 
-            NEXT.            
-               
+                       
         ASSIGN 
             iCount = iCount + 1
             iCount1 = 0
@@ -278,11 +272,25 @@ PROCEDURE pExpireOldPrices PRIVATE:
                         ttOePrmtxCsv.Quantity9     = bf-oe-prmtx.qty[9]
                         ttOePrmtxCsv.Quantity10    = bf-oe-prmtx.qty[10]
                         .
-                END.                
-                IF iplExpire THEN 
-                        bf-oe-prmtx.exp-date = TODAY - 1.
+                END.                  
+                      
+                IF ttOeprmtx.effectiveDate - 1  LT bf-oe-prmtx.eff-date THEN DO:
+                    IF iplExpire THEN
+                        bf-oe-prmtx.exp-date = ttOeprmtx.effectiveDate.
                     ELSE 
-                        ttOePrmtxCsv.newExpiryDate = TODAY - 1.
+                        ttOePrmtxCsv.newExpiryDate = ttOeprmtx.effectiveDate.                           
+                END.                 
+                ELSE DO:
+                    IF iplExpire THEN
+                    do:
+                     ASSIGN
+                        bf-oe-prmtx.exp-date = ttOeprmtx.effectiveDate - 1.
+                        IF ttOeprmtx.effectiveDate LE TODAY THEN
+                        bf-oe-prmtx.quoteID  = 0.
+                    END.    
+                    ELSE 
+                        ttOePrmtxCsv.newExpiryDate = ttOeprmtx.effectiveDate - 1.                         
+                END.            
                 LEAVE.  
             END.                              
         END.                                        
