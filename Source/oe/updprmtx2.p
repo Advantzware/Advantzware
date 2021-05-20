@@ -131,7 +131,9 @@ IF AVAIL quotehd THEN DO:
     IF lQuotePriceMatrix THEN
     DO:    
       ASSIGN
-       quotehd.approved = YES.   
+       quotehd.approved = YES.
+       IF dtEffectiveDate EQ ? THEN
+       quotehd.effectiveDate = TODAY.
        RUN unApprovedDuplicateQuote IN hdQuoteProcs (ROWID(quotehd),quotehd.company,ip-cust-no,quoteitm.i-no). 
     END.   
     FIND CURRENT quotehd NO-LOCK NO-ERROR. 
