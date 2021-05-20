@@ -1189,6 +1189,8 @@ END.
 {methods/browsers/setCellColumns.i}
 
 {sys/inc/f3help.i}  /* asi field contents help */
+{methods/ctrl-a_browser.i}
+
 SESSION:DATA-ENTRY-RETURN = YES.
 
 RUN sys/ref/nk1look.p (INPUT cocode, "FGHistoryDate", "DT" /* Logical */, NO /* check by cust */, 

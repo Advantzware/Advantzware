@@ -639,9 +639,10 @@ END.
 
 /* ***************************  Main Block  *************************** */
 {sys/inc/f3help.i}
+{methods/ctrl-a_browser.i}
 
 &SCOPED-DEFINE cellColumnDat locw.w 
- {methods/browsers/setCellColumns.i}
+{methods/browsers/setCellColumns.i}
 
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
