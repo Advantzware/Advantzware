@@ -5245,8 +5245,17 @@ PROCEDURE reset-est-type :
       RUN set-yld-qty (ROWID(bf-eb)).
     END.
   END.
-
-  IF (op-est-type EQ 2 AND li-form-no EQ 1 AND li-blank-no EQ 1) OR
+  
+  
+ IF op-est-type EQ 4 AND li-form-no EQ 1 AND li-blank-no EQ 1 
+    AND eb.bl-qty EQ eb.yld-qty THEN do:
+  
+   MESSAGE "Change this Tandem/Combo to a Single Estimate Type?" SKIP
+            VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
+            UPDATE ll.
+   IF ll THEN op-est-type = 1.           
+  END.
+  ELSE IF (op-est-type EQ 2 AND li-form-no EQ 1 AND li-blank-no EQ 1) OR
      (op-est-type EQ 1 AND eb.cust-% GE 2) THEN DO:
     /*MESSAGE "Is this estimate a two piece box set?"
             VIEW-AS ALERT-BOX QUESTION
