@@ -256,14 +256,10 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnRun V-table-Win
 ON CHOOSE OF btnRun IN FRAME F-Main /* Run */
 DO:
-    IF NOT AVAILABLE utilities THEN 
-        RETURN NO-APPLY.
-    IF SEARCH('util/' + utilities.programName) NE ? THEN
-        RUN VALUE('util/' + utilities.programName).
-    ELSE IF SEARCH('util/' + utilities.programName + '.r') NE ? THEN
-        RUN VALUE('util/' + utilities.programName + '.r').
+    IF SEARCH('util/' + utilities.programName:SCREEN-VALUE IN FRAME {&frame-name}) NE ? THEN
+        RUN VALUE('util/' + utilities.programName:SCREEN-VALUE).
     ELSE MESSAGE 
-        'Program: util/' + utilities.programName + ' does not exist!' VIEW-AS ALERT-BOX.
+        'Program: util/' + utilities.programName:SCREEN-VALUE + ' does not exist!' VIEW-AS ALERT-BOX.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -300,10 +296,10 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL utilities.programName V-table-Win
 ON LEAVE OF utilities.programName IN FRAME F-Main /* Program Name */
 DO:
-    IF INDEX(SELF:SCREEN-VALUE,'util/') NE 0 THEN ASSIGN 
+    ASSIGN  
         SELF:SCREEN-VALUE = REPLACE(SELF:SCREEN-VALUE,'util/','').
     IF SEARCH('util/' + SELF:SCREEN-VALUE) EQ ? 
-    AND SEARCH('util/' + SELF:SCREEN-VALUE + ".r") EQ ? THEN DO:
+    THEN DO:
         MESSAGE 
             "This program does not exist in the /util directory." SKIP 
             "Please correct this condition immediately."
@@ -642,6 +638,16 @@ PROCEDURE local-update-record :
             utilities.securityLevel:SCREEN-VALUE = STRING(iBaseLevel).
         RETURN NO-APPLY.
     END.
+    IF INDEX(utilities.programName:SCREEN-VALUE,".r") EQ 0 THEN DO:
+        MESSAGE 
+            "You are about to save an uncompiled program record." SKIP 
+            "This is not recommended.  Convert to compiled version?"
+            VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE lCompiled AS LOG.
+        IF lCompiled THEN ASSIGN 
+            SELF:SCREEN-VALUE = REPLACE(SELF:SCREEN-VALUE,".p",".r")
+            SELF:SCREEN-VALUE = REPLACE(SELF:SCREEN-VALUE,".w",".r")
+            .
+    END. 
     
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
     
