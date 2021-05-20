@@ -680,8 +680,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      RUN enable_UI.
      {methods/nowait.i}      
      
-     RUN repo-query(YES). 
-       
+     RUN open-query(YES).
+            
     IF NOT THIS-PROCEDURE:PERSISTENT THEN
        WAIT-FOR CLOSE OF THIS-PROCEDURE. 
 END.
@@ -754,8 +754,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE repo-query Dialog-Frame 
-PROCEDURE repo-query :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE open-query Dialog-Frame 
+PROCEDURE open-query :
      DEFINE INPUT PARAMETER iplOpenQuery AS LOGICAL NO-UNDO.
      DEFINE VARIABLE dPallet AS DECIMAL NO-UNDO.          
      IF iplOpenQuery THEN
@@ -767,21 +767,20 @@ PROCEDURE repo-query :
          RUN BuildReport IN hdFGReorder (cocode, OUTPUT TABLE ttFGReorder).
            
          FOR EACH ttFGReorder  NO-LOCK
-             WHERE ttFGReorder.company    eq cocode              
-             and (ttFGReorder.itemID BEGINS cFGItem OR cFGItem EQ "")         
-             and (ttFGReorder.productCategoryID BEGINS cCat OR cCat EQ "")
-             AND (ttFGReorder.itemStyle BEGINS cStyle OR cStyle EQ "")
-             AND (ttFGReorder.itemWhse BEGINS cLoc OR cLoc EQ "") 
-             AND (ttFGReorder.board BEGINS cBoard OR cBoard EQ "")
-             AND (ttFGReorder.quantityToOrderSuggested GT 0 OR NOT tb_sugg-qty) :
+             WHERE ttFGReorder.company    eq cocode           
+             :
                         
              CREATE ttMultiSelectItem.
              BUFFER-COPY ttFGReorder TO ttMultiSelectItem.
              
              ttMultiSelectItem.dateDueDateEarliest = TODAY.
-             dPallet = ttMultiSelectItem.quantityToOrder / Max (ttMultiSelectItem.itemCount,1).               
+             dPallet = ttMultiSelectItem.quantityToOrder / Max (ttMultiSelectItem.itemCount,1).              
+             
              {sys/inc/roundup.i dPallet}
-             ttMultiSelectItem.pallet = dPallet.                         
+             ttMultiSelectItem.pallet = dPallet.  
+             
+             IF ttMultiSelectItem.quantityToOrderSuggested GT 0 THEN
+             ttMultiSelectItem.isDisplayItem = YES.
              
                 FIND FIRST cust NO-LOCK
                      WHERE cust.company EQ cocode 
@@ -814,10 +813,45 @@ PROCEDURE repo-query :
                    .                  
          END.
      END.
+     
+     CLOSE QUERY BROWSE-NAME.
+     DO WITH FRAME {&FRAME-NAME}:      
+         OPEN QUERY BROWSE-NAME FOR EACH ttMultiSelectItem 
+             WHERE ttMultiSelectItem.isDisplayItem 
+             NO-LOCK BY ttMultiSelectItem.itemID.                
+     END. 
+    
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE repo-query Dialog-Frame 
+PROCEDURE repo-query :
+     DEFINE INPUT PARAMETER iplOpenQuery AS LOGICAL NO-UNDO.
+     DEFINE VARIABLE dPallet AS DECIMAL NO-UNDO.          
+     IF iplOpenQuery THEN
+     DO: 
+         FOR EACH ttMultiSelectItem NO-LOCK
+             WHERE ttMultiSelectItem.isDisplayItem:
+             ASSIGN ttMultiSelectItem.isDisplayItem = NO.     
+         END. 
+         FOR EACH ttMultiSelectItem  NO-LOCK
+             WHERE ttMultiSelectItem.company    eq cocode              
+             and (ttMultiSelectItem.itemID BEGINS cFGItem OR cFGItem EQ "")         
+             and (ttMultiSelectItem.productCategoryID BEGINS cCat OR cCat EQ "")
+             AND (ttMultiSelectItem.itemStyle BEGINS cStyle OR cStyle EQ "")
+             AND (ttMultiSelectItem.itemWhse BEGINS cLoc OR cLoc EQ "") 
+             AND (ttMultiSelectItem.board BEGINS cBoard OR cBoard EQ "")
+             AND (ttMultiSelectItem.quantityToOrderSuggested GT 0 OR NOT tb_sugg-qty) :                         
+             ASSIGN ttMultiSelectItem.isDisplayItem = YES.               
+         END.
+     END. 
 
     CLOSE QUERY BROWSE-NAME.
     DO WITH FRAME {&FRAME-NAME}:      
         OPEN QUERY BROWSE-NAME FOR EACH ttMultiSelectItem
+            WHERE ttMultiSelectItem.isDisplayItem
             NO-LOCK BY ttMultiSelectItem.itemID.                
     END.    
     
