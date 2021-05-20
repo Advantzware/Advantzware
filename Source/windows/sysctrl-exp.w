@@ -891,15 +891,20 @@ PROCEDURE run-report :
     ------------------------------------------------------------------------------*/
     DEFINE VARIABLE v-excelheader        AS CHARACTER NO-UNDO.
     DEFINE VARIABLE v-excel-detail-lines AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE v-excel-detail-lines2 AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cexcelheader         AS CHARACTER NO-UNDO .
     DEFINE BUFFER b-sys-ctrl FOR sys-ctrl.
+    DEFINE BUFFER bf-sys-ctrl FOR sys-ctrl.
 
     v-excelheader = buildHeader().
+    
+    IF fi_compare_company NE "" THEN
+    v-excelheader = v-excelheader + buildHeader().
+    
     SESSION:SET-WAIT-STATE ("general").
 
     IF tb_excel THEN OUTPUT STREAM excel TO VALUE(fi_file).
-    IF (begin_Company EQ end_Company) OR (fi_compare_company EQ "") THEN
-    DO:
+    
         IF v-excelheader NE "" THEN PUT STREAM excel UNFORMATTED v-excelheader SKIP.
 
         FIND FIRST users NO-LOCK
@@ -922,14 +927,27 @@ PROCEDURE run-report :
                 v-excel-detail-lines = v-excel-detail-lines + 
                     appendXLLine(fGetValueExternalToSysCtrl(BUFFER b-sys-ctrl,ttRptSelected.FieldList)).
             END.
-
+          IF fi_compare_company NE "" AND fi_compare_company NE b-sys-ctrl.company THEN DO:
+                FIND FIRST bf-sys-ctrl NO-LOCK
+                    WHERE bf-sys-ctrl.company EQ fi_compare_company
+                    AND bf-sys-ctrl.NAME EQ b-sys-ctrl.NAME
+                    NO-ERROR.
+                IF AVAILABLE bf-sys-ctrl THEN DO:
+                
+                    FOR EACH ttRptSelected:
+                       v-excel-detail-lines = v-excel-detail-lines + 
+                        appendXLLine(fGetValueExternalToSysCtrl(BUFFER bf-sys-ctrl,ttRptSelected.FieldList)).
+                    END.
+                 
+                END. /*IF AVAILABLE bf-sys-ctrl THEN DO*/
+            
+          END. /*IF fi_compare_company NE "" */
+          
             PUT STREAM excel UNFORMATTED v-excel-detail-lines SKIP. 
 
         END. /* b-sys-ctrl */
-    END. /* IF begin_Company EQ end_Company */
-    ELSE DO: 
-        RUN pCompareNK1Export.
-    END.
+   
+    
     IF tb_excel THEN 
     DO:
         OUTPUT STREAM excel CLOSE.
@@ -945,102 +963,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCompareNK1Export rd-sysexp 
-PROCEDURE pCompareNK1Export :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
 
-//DEFINE STREAM excel-dump.
-DEFINE BUFFER bf-sys-ctrl FOR sys-ctrl.
-DEFINE VARIABLE cCompany       AS CHAR.
-DEFINE VARIABLE cValleyNK1     AS CHAR.
-DEFINE VARIABLE cValleyDesc    AS CHAR.
-DEFINE VARIABLE cValleyChar    AS CHAR.
-DEFINE VARIABLE iValleyInt     AS INT.
-DEFINE VARIABLE dValleyDec     AS DEC.
-DEFINE VARIABLE dtValleyDate   AS DATE.
-DEFINE VARIABLE lValleyLog     AS LOG.
-DEFINE VARIABLE fi_file        AS CHAR.
-
-    
-EXPORT STREAM excel DELIMITER ","
-/*"NewCorr NK1"  */
-"Company"
-"NK1 Name"
-"Desc"
-"Char"
-"Int"
-"Dec"
-"Date"
-"Logical"
-"Company"
-"NK1 Name"
-"Desc"
-"Char"
-"Int"
-"Dec"
-"Date"
-"Logical"
-.
-
-FOR EACH sys-ctrl NO-LOCK
-WHERE sys-ctrl.company GE begin_Company
-  AND sys-ctrl.company LE end_Company
-  AND sys-ctrl.company NE fi_compare_company
-:
-    FIND FIRST bf-sys-ctrl NO-LOCK
-    WHERE bf-sys-ctrl.company EQ fi_compare_company
-    AND bf-sys-ctrl.name EQ sys-ctrl.name
-    NO-ERROR.
-    ASSIGN
-    cValleyNK1 = "Not Created Yet"
-    cValleyDesc = ""
-    cValleyChar = ""
-    iValleyInt = 0
-    dValleyDec = 0
-    dtValleyDate = ?
-    lValleyLog = NO.
-
-    IF AVAIL bf-sys-ctrl THEN
-    ASSIGN
-    cCompany = bf-sys-ctrl.company
-    cValleyNK1 = bf-sys-ctrl.NAME
-    cValleyDesc = bf-sys-ctrl.descrip
-    cValleyChar = bf-sys-ctrl.char-fld
-    iValleyInt = bf-sys-ctrl.int-fld
-    dValleyDec = bf-sys-ctrl.dec-fld
-    dtValleyDate = bf-sys-ctrl.date-fld
-    lValleyLog = bf-sys-ctrl.log-fld
-    .
-
-    EXPORT STREAM excel DELIMITER ","
-    sys-ctrl.company
-    sys-ctrl.name
-    sys-ctrl.descrip
-    sys-ctrl.char-fld
-    sys-ctrl.int-fld
-    sys-ctrl.dec-fld
-    sys-ctrl.date-fld
-    sys-ctrl.log-fld
-    cCompany
-    cValleyNK1
-    cValleyDesc
-    cValleyChar
-    iValleyInt
-    dValleyDec
-    dtValleyDate
-    lValleyLog
-    .
-
-END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-company rd-sysexp
 PROCEDURE valid-company :
