@@ -774,13 +774,13 @@ PROCEDURE open-query :
              BUFFER-COPY ttFGReorder TO ttMultiSelectItem.
              
              ttMultiSelectItem.dateDueDateEarliest = TODAY.
-             dPallet = ttMultiSelectItem.quantityToOrder / Max (ttMultiSelectItem.itemCount,1).
+             dPallet = ttMultiSelectItem.quantityToOrder / Max (ttMultiSelectItem.itemCount,1).              
+             
+             {sys/inc/roundup.i dPallet}
+             ttMultiSelectItem.pallet = dPallet.  
              
              IF ttMultiSelectItem.quantityToOrderSuggested GT 0 THEN
              ttMultiSelectItem.isDisplayItem = YES.
-             
-             {sys/inc/roundup.i dPallet}
-             ttMultiSelectItem.pallet = dPallet.                         
              
                 FIND FIRST cust NO-LOCK
                      WHERE cust.company EQ cocode 
