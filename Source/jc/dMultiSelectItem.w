@@ -20,8 +20,6 @@ SESSION:DEBUG-ALERT = FALSE.
 {jc/ttMultiSelectItem.i}
 {est/ttInputEst.i }
 
-DEFINE TEMP-TABLE ttMultiSelectItemSelection LIKE ttMultiSelectItem
-                 . 
 /* PARAMs Definitions ---                                           */ 
 DEFINE OUTPUT PARAMETER opdTotalCyclesRequired AS DECIMAL NO-UNDO.
 DEFINE OUTPUT PARAMETER TABLE FOR ttFGReorderSelection .
@@ -41,8 +39,6 @@ RUN fgrep\fgReorder.p PERSISTENT SET hdFGReorder.
 
 /*{sys/inc/f16to32.i}*/
 {sys/inc/lastship.i}
-
-
 
 &SCOPED-DEFINE yellowColumnsName dMultiSelectItem
 
@@ -68,8 +64,8 @@ RUN fgrep\fgReorder.p PERSISTENT SET hdFGReorder.
 &Scoped-define INTERNAL-TABLES ttMultiSelectItem
 
 /* Definitions for BROWSE BROWSE-NAME                                      */
-&Scoped-define FIELDS-IN-QUERY-BROWSE-NAME ttMultiSelectItem.isSelected ttMultiSelectItem.multiplier ttMultiSelectItem.quantityToOrder ttMultiSelectItem.quantityToOrderSuggested ttMultiSelectItem.itemID ttMultiSelectItem.itemName ttMultiSelectItem.quantityReorderLevel ttMultiSelectItem.quantityOnHand ttMultiSelectItem.quantityOnOrder ttMultiSelectItem.quantityAllocated ttMultiSelectItem.quantityAvailable ttMultiSelectItem.availOnHand ttMultiSelectItem.dateDueDateEarliest ttMultiSelectItem.orderQtyEarliest ttMultiSelectItem.quantityReorderLevel ttMultiSelectItem.quantityMinOrder ttMultiSelectItem.quantityMaxOrder ttMultiSelectItem.itemCustPart ttMultiSelectItem.itemCust ttMultiSelectItem.itemCustName ttMultiSelectItem.itemEstNO ttMultiSelectItem.itemStyle ttMultiSelectItem.itemWhse ttMultiSelectItem.board  
-&Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-NAME ttMultiSelectItem.isSelected ttMultiSelectItem.multiplier ttMultiSelectItem.quantityToOrder   
+&Scoped-define FIELDS-IN-QUERY-BROWSE-NAME ttMultiSelectItem.isSelected ttMultiSelectItem.multiplier ttMultiSelectItem.pallet ttMultiSelectItem.quantityToOrder ttMultiSelectItem.quantityToOrderSuggested ttMultiSelectItem.itemID ttMultiSelectItem.itemName ttMultiSelectItem.quantityReorderLevel ttMultiSelectItem.quantityOnHand ttMultiSelectItem.quantityOnOrder ttMultiSelectItem.quantityAllocated ttMultiSelectItem.quantityAvailable ttMultiSelectItem.availOnHand ttMultiSelectItem.dateDueDateEarliest ttMultiSelectItem.orderQtyEarliest ttMultiSelectItem.quantityReorderLevel ttMultiSelectItem.quantityMinOrder ttMultiSelectItem.quantityMaxOrder ttMultiSelectItem.itemCustPart ttMultiSelectItem.itemCust ttMultiSelectItem.itemCustName ttMultiSelectItem.itemEstNO ttMultiSelectItem.itemStyle ttMultiSelectItem.itemWhse ttMultiSelectItem.board  
+&Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-NAME ttMultiSelectItem.isSelected ttMultiSelectItem.multiplier ttMultiSelectItem.pallet ttMultiSelectItem.quantityToOrder   
 &Scoped-define ENABLED-TABLES-IN-QUERY-BROWSE-NAME ttMultiSelectItem
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-BROWSE-NAME ttMultiSelectItem
 &Scoped-define SELF-NAME BROWSE-NAME
@@ -205,6 +201,7 @@ DEFINE BROWSE BROWSE-NAME
       ttMultiSelectItem.isSelected COLUMN-LABEL "[ ] All" 
             WIDTH 8 VIEW-AS TOGGLE-BOX
       ttMultiSelectItem.multiplier COLUMN-LABEL "Molds" FORMAT ">9" LABEL-BGCOLOR 14
+      ttMultiSelectItem.pallet COLUMN-LABEL "Pallet#" FORMAT "->>>,>>9" LABEL-BGCOLOR 14
       ttMultiSelectItem.quantityToOrder COLUMN-LABEL "Quantity To Order" FORMAT "->>>,>>>,>>9" LABEL-BGCOLOR 14
       ttMultiSelectItem.itemID COLUMN-LABEL "FG Item" FORMAT "x(15)":U WIDTH 24 LABEL-BGCOLOR 14
       ttMultiSelectItem.dateDueDateEarliest COLUMN-LABEL "Earliest Due Date" FORMAT "99/99/9999":U
@@ -236,6 +233,7 @@ DEFINE BROWSE BROWSE-NAME
 
       ENABLE ttMultiSelectItem.isSelected
              ttMultiSelectItem.multiplier 
+             ttMultiSelectItem.pallet
              ttMultiSelectItem.quantityToOrder
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -339,7 +337,7 @@ ASSIGN
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE BROWSE-NAME
 /* Query rebuild information for BROWSE BROWSE-NAME
      _START_FREEFORM
-OPEN QUERY {&SELF-NAME} FOR EACH ttMultiSelectItem
+OPEN QUERY {&SELF-NAME} FOR EACH ttMultiSelectItem 
       ~{&SORTBY-PHRASE}.
      _END_FREEFORM
      _Options          = "NO-LOCK INDEXED-REPOSITION SORTBY-PHRASE"
@@ -391,8 +389,7 @@ ON WINDOW-CLOSE OF FRAME Dialog-Frame /* Multiple Selet Item */
 DO:
         FOR EACH ttMultiSelectItem:
             ttMultiSelectItem.isSelected = NO.
-        END. 
-        EMPTY TEMP-TABLE ttMultiSelectItemSelection.
+        END.      
         
         APPLY "END-ERROR":U TO SELF.     
     END.
@@ -432,16 +429,7 @@ DO:
                                     ELSE
                                         "[ ] All".
 
-        RUN repo-query(NO).
-        
-        IF lSelectTrigger THEN 
-        DO:
-           FOR EACH ttMultiSelectItem:
-            CREATE ttMultiSelectItemSelection.
-            BUFFER-COPY ttMultiSelectItem TO ttMultiSelectItemSelection.             
-               
-           END.
-        END.
+        RUN repo-query(NO).  
     END.   
     
     RUN startSearch.        
@@ -492,9 +480,9 @@ DO:
     
     RUN pCheckFurnish(OUTPUT lReturnError).
     IF lReturnError THEN RETURN NO-APPLY.
-        
+   
     RUN AssessSelections IN hdFGReorder (
-                       INPUT TABLE /*ttMultiSelectItem*/ ttMultiSelectItemSelection,
+                       INPUT TABLE ttMultiSelectItem,
                        OUTPUT iCountSelected,
                        OUTPUT dTotalArea, 
                        OUTPUT opdTotalCyclesRequired,
@@ -650,64 +638,27 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&Scoped-define SELF-NAME ttMultiSelectItem.isSelected
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ttMultiSelectItem.isSelected BROWSE-NAME _BROWSE-COLUMN Dialog-Frame
-ON VALUE-CHANGED OF ttMultiSelectItem.isSelected IN BROWSE BROWSE-NAME /* isSelected */
-DO:  
-        
-    ttMultiSelectItem.isSelected = logical(ttMultiSelectItem.isSelected:SCREEN-VALUE IN BROWSE BROWSE-NAME ).
-    IF logical(ttMultiSelectItem.isSelected:SCREEN-VALUE IN BROWSE BROWSE-NAME ) EQ YES  THEN 
-    DO:
-       FIND FIRST ttMultiSelectItemSelection NO-LOCK
-            WHERE ttMultiSelectItemSelection.itemID EQ ttMultiSelectItem.itemID NO-ERROR.
-       IF NOT AVAIL ttMultiSelectItemSelection THEN
-       DO:   
-            CREATE ttMultiSelectItemSelection.
-            BUFFER-COPY ttMultiSelectItem TO ttMultiSelectItemSelection.               
-       END.
-    END.
-    ELSE DO:
-      FIND FIRST ttMultiSelectItemSelection NO-LOCK
-           WHERE ttMultiSelectItemSelection.itemID EQ ttMultiSelectItem.itemID NO-ERROR.
-       IF AVAIL ttMultiSelectItemSelection THEN
-       DELETE ttMultiSelectItemSelection.      
-    END.
-    RELEASE ttMultiSelectItemSelection.
-    
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&Scoped-define SELF-NAME ttMultiSelectItem.multiplier
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ttMultiSelectItem.multiplier BROWSE-NAME _BROWSE-COLUMN Dialog-Frame
-ON VALUE-CHANGED OF ttMultiSelectItem.multiplier IN BROWSE BROWSE-NAME /* Mode */
-DO:  
-    ttMultiSelectItem.multiplier = INTEGER(ttMultiSelectItem.multiplier:SCREEN-VALUE IN BROWSE BROWSE-NAME ).
-    FIND FIRST ttMultiSelectItemSelection NO-LOCK
-            WHERE ttMultiSelectItemSelection.itemID EQ ttMultiSelectItem.itemID NO-ERROR.
-    IF AVAIL ttMultiSelectItemSelection THEN
-    DO:
-        ttMultiSelectItemSelection.multiplier = INTEGER(ttMultiSelectItem.multiplier:SCREEN-VALUE IN BROWSE BROWSE-NAME ).
-    END.
-        
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &Scoped-define SELF-NAME ttMultiSelectItem.quantityToOrder
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ttMultiSelectItem.quantityToOrder BROWSE-NAME _BROWSE-COLUMN Dialog-Frame
-ON VALUE-CHANGED OF ttMultiSelectItem.quantityToOrder IN BROWSE BROWSE-NAME /* Mode */
-DO:  
-    ttMultiSelectItem.quantityToOrder = INTEGER(ttMultiSelectItem.quantityToOrder:SCREEN-VALUE IN BROWSE BROWSE-NAME ).
-    FIND FIRST ttMultiSelectItemSelection NO-LOCK
-            WHERE ttMultiSelectItemSelection.itemID EQ ttMultiSelectItem.itemID NO-ERROR.
-    IF AVAIL ttMultiSelectItemSelection THEN
-    DO:
-        ttMultiSelectItemSelection.quantityToOrder = INTEGER(ttMultiSelectItem.quantityToOrder:SCREEN-VALUE IN BROWSE BROWSE-NAME ).
-    END.
-        
+ON VALUE-CHANGED OF ttMultiSelectItem.quantityToOrder IN BROWSE BROWSE-NAME /* Quantity To Order */
+DO:
+    DEFINE VARIABLE dPallet AS DECIMAL NO-UNDO.
+    dPallet = integer(ttMultiSelectItem.quantityToOrder:SCREEN-VALUE IN BROWSE {&browse-name}) / Max (ttMultiSelectItem.itemCount,1).     
+    {sys/inc/roundup.i dPallet} 
+    ttMultiSelectItem.pallet:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(dPallet).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME ttMultiSelectItem.pallet
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ttMultiSelectItem.pallet BROWSE-NAME _BROWSE-COLUMN Dialog-Frame
+ON VALUE-CHANGED OF ttMultiSelectItem.pallet IN BROWSE BROWSE-NAME /* Quantity To Order */
+DO:
+    DEFINE VARIABLE dPallet AS DECIMAL NO-UNDO.
+    dPallet = integer(ttMultiSelectItem.pallet:SCREEN-VALUE IN BROWSE {&browse-name}).        
+    ttMultiSelectItem.quantityToOrder:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(Max (ttMultiSelectItem.itemCount,1) *  dPallet ).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -729,8 +680,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      RUN enable_UI.
      {methods/nowait.i}      
      
-     RUN repo-query(YES). 
-       
+     RUN open-query(YES).
+            
     IF NOT THIS-PROCEDURE:PERSISTENT THEN
        WAIT-FOR CLOSE OF THIS-PROCEDURE. 
 END.
@@ -803,10 +754,10 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE repo-query Dialog-Frame 
-PROCEDURE repo-query :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE open-query Dialog-Frame 
+PROCEDURE open-query :
      DEFINE INPUT PARAMETER iplOpenQuery AS LOGICAL NO-UNDO.
-               
+     DEFINE VARIABLE dPallet AS DECIMAL NO-UNDO.          
      IF iplOpenQuery THEN
      DO:          
          EMPTY TEMP-TABLE ttMultiSelectItem.
@@ -816,19 +767,21 @@ PROCEDURE repo-query :
          RUN BuildReport IN hdFGReorder (cocode, OUTPUT TABLE ttFGReorder).
            
          FOR EACH ttFGReorder  NO-LOCK
-             WHERE ttFGReorder.company    eq cocode              
-             and (ttFGReorder.itemID BEGINS cFGItem OR cFGItem EQ "")         
-             and (ttFGReorder.productCategoryID BEGINS cCat OR cCat EQ "")
-             AND (ttFGReorder.itemStyle BEGINS cStyle OR cStyle EQ "")
-             AND (ttFGReorder.itemWhse BEGINS cLoc OR cLoc EQ "") 
-             AND (ttFGReorder.board BEGINS cBoard OR cBoard EQ "")
-             AND (ttFGReorder.quantityToOrderSuggested GT 0 OR NOT tb_sugg-qty) :
+             WHERE ttFGReorder.company    eq cocode           
+             :
                         
              CREATE ttMultiSelectItem.
              BUFFER-COPY ttFGReorder TO ttMultiSelectItem.
              
              ttMultiSelectItem.dateDueDateEarliest = TODAY.
-
+             dPallet = ttMultiSelectItem.quantityToOrder / Max (ttMultiSelectItem.itemCount,1).
+             
+             IF ttMultiSelectItem.quantityToOrderSuggested GT 0 THEN
+             ttMultiSelectItem.isDisplayItem = YES.
+             
+             {sys/inc/roundup.i dPallet}
+             ttMultiSelectItem.pallet = dPallet.                         
+             
                 FIND FIRST cust NO-LOCK
                      WHERE cust.company EQ cocode 
                      AND cust.cust-no EQ ttFGReorder.itemCust 
@@ -852,28 +805,53 @@ PROCEDURE repo-query :
                    FIND FIRST ttInputEst NO-LOCK 
                         WHERE ttInputEst.cStockNo EQ ttMultiSelectItem.itemID NO-ERROR.
                    IF AVAILABLE ttInputEst THEN 
-                   do: 
-                       ASSIGN
-                       ttMultiSelectItem.isSelected = YES
-                       ttMultiSelectItem.multiplier = ttInputEst.iMolds
-                       .
-                       CREATE ttMultiSelectItemSelection.
-                       BUFFER-COPY ttMultiSelectItem TO ttMultiSelectItemSelection. 
-                   END.
-                   FIND FIRST ttMultiSelectItemSelection NO-LOCK
-                   WHERE ttMultiSelectItemSelection.itemID EQ ttMultiSelectItem.itemID NO-ERROR.
-                   IF AVAIL ttMultiSelectItemSelection THEN
                    ASSIGN
-                     ttMultiSelectItem.isSelected = YES
-                     ttMultiSelectItem.multiplier = ttMultiSelectItemSelection.multiplier
-                     ttMultiSelectItem.quantityToOrder = ttMultiSelectItemSelection.quantityToOrder.                   
-                    
+                   ttMultiSelectItem.isSelected = YES
+                   ttMultiSelectItem.multiplier = ttInputEst.iMolds
+                   ttMultiSelectItem.pallet = ttInputEst.iPalletRestore
+                   ttMultiSelectItem.quantityToOrder = ttInputEst.iQtyRestore
+                   .                  
          END.
      END.
+     
+     CLOSE QUERY BROWSE-NAME.
+     DO WITH FRAME {&FRAME-NAME}:      
+         OPEN QUERY BROWSE-NAME FOR EACH ttMultiSelectItem 
+             WHERE ttMultiSelectItem.isDisplayItem 
+             NO-LOCK BY ttMultiSelectItem.itemID.                
+     END. 
+    
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE repo-query Dialog-Frame 
+PROCEDURE repo-query :
+     DEFINE INPUT PARAMETER iplOpenQuery AS LOGICAL NO-UNDO.
+     DEFINE VARIABLE dPallet AS DECIMAL NO-UNDO.          
+     IF iplOpenQuery THEN
+     DO: 
+         FOR EACH ttMultiSelectItem NO-LOCK
+             WHERE ttMultiSelectItem.isDisplayItem:
+             ASSIGN ttMultiSelectItem.isDisplayItem = NO.     
+         END. 
+         FOR EACH ttMultiSelectItem  NO-LOCK
+             WHERE ttMultiSelectItem.company    eq cocode              
+             and (ttMultiSelectItem.itemID BEGINS cFGItem OR cFGItem EQ "")         
+             and (ttMultiSelectItem.productCategoryID BEGINS cCat OR cCat EQ "")
+             AND (ttMultiSelectItem.itemStyle BEGINS cStyle OR cStyle EQ "")
+             AND (ttMultiSelectItem.itemWhse BEGINS cLoc OR cLoc EQ "") 
+             AND (ttMultiSelectItem.board BEGINS cBoard OR cBoard EQ "")
+             AND (ttMultiSelectItem.quantityToOrderSuggested GT 0 OR NOT tb_sugg-qty) :                         
+             ASSIGN ttMultiSelectItem.isDisplayItem = YES.               
+         END.
+     END. 
 
     CLOSE QUERY BROWSE-NAME.
     DO WITH FRAME {&FRAME-NAME}:      
         OPEN QUERY BROWSE-NAME FOR EACH ttMultiSelectItem
+            WHERE ttMultiSelectItem.isDisplayItem
             NO-LOCK BY ttMultiSelectItem.itemID.                
     END.    
     
@@ -881,6 +859,7 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+    
     
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckFurnish Dialog-Frame 
