@@ -174,7 +174,7 @@ display-dimension('L') @ lv-po-len display-setup() @ lv-setup ~
 display-adder() @ lv-adder display-msf() @ lv-msf rm-rctd.user-id ~
 rm-rctd.tag2 rm-rctd.enteredBy rm-rctd.enteredDT 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table rm-rctd.rct-date ~
-rm-rctd.po-no rm-rctd.job-no rm-rctd.job-no2 rm-rctd.s-num rm-rctd.b-num ~
+rm-rctd.po-no rm-rctd.po-line rm-rctd.job-no rm-rctd.job-no2 rm-rctd.s-num rm-rctd.b-num ~
 rm-rctd.i-no rm-rctd.i-name rm-rctd.loc rm-rctd.loc-bin rm-rctd.tag ~
 rm-rctd.qty rm-rctd.pur-uom rm-rctd.cost rm-rctd.cost-uom rm-rctd.tag2 rm-rctd.po-line 
 &Scoped-define ENABLED-TABLES-IN-QUERY-Browser-Table rm-rctd
@@ -350,6 +350,7 @@ DEFINE BROWSE Browser-Table
   ENABLE
       rm-rctd.rct-date
       rm-rctd.po-no
+      rm-rctd.po-line
       rm-rctd.job-no
       rm-rctd.job-no2
       rm-rctd.s-num
@@ -658,8 +659,8 @@ DO:
                                 lv-focus:SCREEN-VALUE                                 = po-ordl.i-no
                                 rm-rctd.i-name:SCREEN-VALUE IN BROWSE {&browse-name}  = po-ordl.i-name
                                 rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}  = po-ordl.job-no
-                                rm-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(po-ordl.job-no2)
-                                rm-rctd.po-line:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(po-ordl.LINE).
+                                rm-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(po-ordl.job-no2).
+                                
                             RUN update-from-po-line.
                         END.
                     END.
@@ -929,6 +930,20 @@ DO:
         IF INT({&self-name}:SCREEN-VALUE IN BROWSE {&browse-name}) EQ 0 THEN
     {&self-name}:SCREEN-VALUE IN BROWSE {&browse-name} = "".
     END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.po-line Browser-Table _BROWSE-COLUMN B-table-Win
+ON LEAVE OF rm-rctd.po-line IN BROWSE Browser-Table /* Line # */
+DO:     
+    IF LASTKEY NE -1 THEN 
+    DO:
+        RUN valid-po-line NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    END.
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -2232,7 +2247,6 @@ PROCEDURE display-po-info :
             rm-rctd.b-num:SCREEN-VALUE IN BROWSE {&browse-name}    = STRING(po-ordl.b-num)
             rm-rctd.pur-uom:SCREEN-VALUE IN BROWSE {&browse-name}  = po-ordl.pr-qty-uom
             rm-rctd.cost-uom:SCREEN-VALUE IN BROWSE {&browse-name} = po-ordl.pr-uom
-            rm-rctd.po-line:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(po-ordl.LINE)
             lv-setup                                               = po-ordl.setup
             ll-warned                                              = NO.
 
@@ -3699,6 +3713,9 @@ PROCEDURE valid-all :
     IF NOT CAN-FIND(FIRST tt-rm-rctd WHERE tt-rowid EQ ROWID(rm-rctd)) THEN
         RUN update-ttt.
 
+    RUN valid-po-line NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN RETURN ERROR.
+    
     RUN valid-job-no NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN ERROR.
 
@@ -3946,6 +3963,38 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-po-line B-table-Win 
+PROCEDURE valid-po-line :
+/*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+ 
+    DO WITH FRAME {&FRAME-NAME}:
+
+        FIND FIRST po-ordl
+            WHERE po-ordl.company EQ rm-rctd.company
+            AND po-ordl.po-no     EQ INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name})
+            AND po-ordl.LINE      EQ INT(rm-rctd.po-line:SCREEN-VALUE IN BROWSE {&browse-name})
+            NO-LOCK NO-ERROR.
+        IF NOT AVAILABLE po-ordl THEN ERROR-STATUS:ERROR = YES.
+
+        IF ERROR-STATUS:ERROR THEN 
+        DO:
+            MESSAGE "Invalid PO Line" VIEW-AS ALERT-BOX ERROR.
+            APPLY "entry" TO rm-rctd.po-line IN BROWSE {&browse-name}.
+            RETURN ERROR.
+        END.
+    END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-job-no B-table-Win 
 PROCEDURE valid-job-no :
