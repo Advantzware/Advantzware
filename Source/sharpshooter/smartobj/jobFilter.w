@@ -353,7 +353,7 @@ END.
 &ANALYZE-RESUME
 
 
-
+&Scoped-define SELF-NAME fiJobNo
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiJobNo s-object
 ON ENTRY OF fiJobNo IN FRAME F-Main
 DO:
@@ -365,7 +365,7 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
+&Scoped-define SELF-NAME fiJobNo
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiJobNo s-object
 ON LEAVE OF fiJobNo IN FRAME F-Main
 DO:
@@ -499,7 +499,7 @@ DO:
         INPUT cBlankNoListItems
         ).
 
-    RUN pValidateJob.
+    RUN pCheckStatusJob.
     
     /* Progress doesn't have an option to apply entry to field once leave event is triggered.
        If a case is necessary where an entry is required right after leave trigger RETURN with NO-APPLY
@@ -892,6 +892,39 @@ PROCEDURE pUpdateJobDetails PRIVATE :
             cbBlankNo:LIST-ITEMS    = ipcListItems
             cbBlankNo:SCREEN-VALUE  = STRING(INTEGER(ipcValue), "99")
             NO-ERROR.                    
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckStatusJob s-object 
+PROCEDURE pCheckStatusJob PRIVATE :
+/*------------------------------------------------------------------------------
+ Purpose:   Check Job status and ask for response
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lError      AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lResponse   AS LOGICAL   NO-UNDO.
+    
+    DO WITH FRAME {&FRAME-NAME}:
+    
+     RUN CheckJobStatus2 IN hdJobProcs (
+        INPUT cCompany,
+        INPUT fiJobNo:SCREEN-VALUE,
+        INPUT  INTEGER(cbJobNo2:SCREEN-VALUE),
+        OUTPUT lError
+        ).
+    IF lError THEN
+       RUN displayMessageQuestion (
+              INPUT  "67",
+              OUTPUT lResponse
+              ).
+           IF NOT lResponse THEN DO:
+              RETURN .
+           END. /* IF NOT lResponse */
+           ELSE RUN pValidateJob .
+
+    END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

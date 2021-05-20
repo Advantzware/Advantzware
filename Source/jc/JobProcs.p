@@ -50,6 +50,28 @@ PROCEDURE CheckJobStatus:
 
 END PROCEDURE.
 
+PROCEDURE CheckJobStatus2:
+/*------------------------------------------------------------------------------
+ Purpose: To check a job's close status
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcJobNo   AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiJobNo2  AS INTEGER   NO-UNDO.
+    DEFINE OUTPUT PARAMETER lResponse AS LOGICAL   NO-UNDO.
+    
+    FIND FIRST job NO-LOCK
+         WHERE job.company EQ ipcCompany
+           AND job.job-No  EQ ipcJobNo
+           AND job.job-No2 EQ ipiJobNo2
+         NO-ERROR. 
+    IF AVAILABLE job AND NOT job.opened THEN DO:
+       ASSIGN lResponse = YES.
+
+    END.
+
+END PROCEDURE.
+
 PROCEDURE GetFormAndBlankFromJobAndFGItem:
 /*------------------------------------------------------------------------------
  Purpose: Returns the list of form and blank no list for a given job and item
