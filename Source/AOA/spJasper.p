@@ -1425,7 +1425,7 @@ PROCEDURE pJasperStarter :
         SKIP.
     OUTPUT CLOSE.
     OS-DELETE VALUE(cJasperFile[3]).
-    OS-COMMAND NO-WAIT START VALUE(cJasperStarter).
+    OS-COMMAND SILENT CALL VALUE(cJasperStarter).
 
 END PROCEDURE.
 

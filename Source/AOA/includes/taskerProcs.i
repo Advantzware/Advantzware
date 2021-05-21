@@ -441,8 +441,10 @@ PROCEDURE pTaskEmails :
             ELSE DO:
                 cEmailBody = "This Email was sent to you by the Advantzware dAOA application."
                            + CHR(10) + CHR(10)
-                           + "The dAOA Report failed to run because of the following error:"
-                           + CHR(10)
+                           + "The dAOA Report "
+                           + bTaskEmail.attachment
+                           + " failed to run because of the following error:"
+                           + CHR(10) + CHR(10)
                            .
                 INPUT FROM VALUE(SEARCH(cErrorFile)) NO-ECHO.
                 REPEAT:
@@ -458,6 +460,7 @@ PROCEDURE pTaskEmails :
                     bTaskEmail.rec_key
                     ).                
             END. /* error else */
+            OS-DELETE VALUE(SEARCH(cErrorFile)).
             DELETE bTaskEmail.
             lRefresh = YES.
         END. /* if error search */
