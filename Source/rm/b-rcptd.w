@@ -659,8 +659,8 @@ DO:
                                 lv-focus:SCREEN-VALUE                                 = po-ordl.i-no
                                 rm-rctd.i-name:SCREEN-VALUE IN BROWSE {&browse-name}  = po-ordl.i-name
                                 rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}  = po-ordl.job-no
-                                rm-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(po-ordl.job-no2).
-                                
+                                rm-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(po-ordl.job-no2)
+                                rm-rctd.po-line:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(po-ordl.LINE).
                             RUN update-from-po-line.
                         END.
                     END.
