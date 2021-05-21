@@ -217,7 +217,7 @@ PROCEDURE pAddJobItem PRIVATE:
     DEFINE VARIABLE dPricePerEA AS DECIMAL NO-UNDO.
     DEFINE VARIABLE lLot        AS LOGICAL NO-UNDO.
     
-    &IF {&subjectID} EQ 94 &THEN
+    &IF {&subjectID} NE 95 &THEN
     IF lIncludeZeroPricePer EQ NO AND ipdPricePerUOM EQ 0 THEN RETURN.
     &ENDIF
     
