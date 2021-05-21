@@ -133,7 +133,7 @@ DEFINE VARIABLE fiAnalyzingPeriod AS INTEGER FORMAT ">9":U INITIAL 0
      SIZE 8 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fiAnalyzingYear AS INTEGER FORMAT "9999":U INITIAL 0 
-     LABEL "Analyzing....Year" 
+     LABEL "Year" 
      VIEW-AS FILL-IN 
      SIZE 8 BY 1 NO-UNDO.
 
