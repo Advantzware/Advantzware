@@ -44,8 +44,9 @@ DEFINE VARIABLE iMiscLineCount   AS INTEGER   NO-UNDO.
 DEFINE VARIABLE hdInvoiceProcs   AS HANDLE    NO-UNDO.
 DEFINE VARIABLE cCalcMethod      AS CHARACTER NO-UNDO.
 DEFINE VARIABLE dFreightTaxPct   AS DECIMAL   NO-UNDO.
-
-DEFINE VARIABLE cPartQualifier AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lFirstItemLine   AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lFirstMiscLine   AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cPartQualifier   AS CHARACTER NO-UNDO.
 
 DEFINE VARIABLE cCXMLIdentity        AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCXMLDeploymentMode  AS CHARACTER NO-UNDO.
@@ -219,7 +220,7 @@ FOR EACH ttInv:
         IF ttInvLine.isMisc THEN
             iMiscLineCount = iMiscLineCount + 1.            
         ELSE
-            iLineCount = iTotalLineCount + 1.
+            iLineCount = iLineCount + 1.
                                     
         IF AVAILABLE bf-line-APIOutboundDetail AND NOT ttInvLine.isMisc THEN
             lcLineItemsData = bf-line-APIOutboundDetail.data.
@@ -238,7 +239,13 @@ FOR EACH ttInv:
                              "BP" 
                          ELSE 
                              "".
+        ASSIGN
+            lFirstItemLine = iLineCount EQ 1
+            lFirstMiscLine = iMiscLineCount EQ 1
+            .
         
+        RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "FirstLineItem", STRING(lFirstItemLine)).  
+        RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "FirstMiscItem", STRING(lFirstMiscLine)).                   
         RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "ItemLineID", STRING(ttInvLine.lineNo)).        
         RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "LineNumber", STRING(ttInvLine.lineNo)).
         RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "ItemQuantity", STRING(ttInvLine.quantity)).
