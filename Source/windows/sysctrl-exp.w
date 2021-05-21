@@ -62,17 +62,17 @@ DEFINE VARIABLE cFieldListToSelect AS cha NO-UNDO.
 DEFINE VARIABLE cTextListToDefault AS cha NO-UNDO.
 
 ASSIGN 
-    cTextListToSelect  = "Config Name,Config Description,Category,Sub-category,Module,Allows Context,Character Value,Character Value - Default,Character Value - Description,Date Value,Date Value - Default,Date Value - Description," +
+    cTextListToSelect  = "Company,Config Name,Config Description,Category,Sub-category,Module,Allows Context,Character Value,Character Value - Default,Character Value - Description,Date Value,Date Value - Default,Date Value - Description," +
                           "Decimal Value,Decimal Value - Default,Decimal Value - Description,Integer Value,Integer Value - Default,Integer Value - Description,Logical Value,Logical Value - Default,Logical Value - Description,User Sec Level,User Sec Lev - Default," +
                           "Help Contents"
                            
-    cFieldListToSelect = "name,descrip,category,subCategory,module,allowsContext,char-fld,char_field_default,char-fld_descrip,date-fld,date-fld_default,date-fld_descrip," + 
+    cFieldListToSelect = "company,name,descrip,category,subCategory,module,allowsContext,char-fld,char_field_default,char-fld_descrip,date-fld,date-fld_default,date-fld_descrip," + 
                           "dec-fld,dec-fld_default,dec-fld_descrip,int-fld,int-fld_default,int-fld_descrip,log-fld,log-fld_default,log-fld_descrip,securityLevelUser,securityLevelDefault," +
                           "help-cont" .
 {sys/inc/ttRptSel.i}
 
 ASSIGN 
-    cTextListToDefault = "Config Name,Config Description,Category,Sub-category,Module,Allows Context,Character Value,Character Value - Default,Character Value - Description,Date Value,Date Value - Default,Date Value - Description," +
+    cTextListToDefault = "Company,Config Name,Config Description,Category,Sub-category,Module,Allows Context,Character Value,Character Value - Default,Character Value - Description,Date Value,Date Value - Default,Date Value - Description," +
                           "Decimal Value,Decimal Value - Default,Decimal Value - Description,Integer Value,Integer Value - Default,Integer Value - Description,Logical Value,Logical Value - Default,Logical Value - Description,User Sec Level,User Sec Lev - Default".
 
 /* _UIB-CODE-BLOCK-END */
