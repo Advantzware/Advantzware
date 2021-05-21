@@ -647,7 +647,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         RUN resizeFilterFrame.        
         RUN openFilterQuery.
     END.    
-    ELSE DO:
+    ELSE DO WITH FRAME {&FRAME-NAME}:
         RUN buildTempTable.
         RUN openSearchQuery.
         HIDE {&List-1}.
