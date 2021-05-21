@@ -711,22 +711,27 @@ PROCEDURE pUnApprovedDuplicateQuote:
      Purpose: Primary Public Procedure for calculating the estimate
      Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER iprwRowid AS ROWID NO-UNDO.
-    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcCustomer AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER iprwRowid AS ROWID NO-UNDO.       
+    DEFINE INPUT PARAMETER ipcPartNo AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcFgItem AS CHARACTER NO-UNDO.
     DEFINE BUFFER bf-quotehd FOR quotehd.
     DEFINE BUFFER bf-oe-prmtx FOR oe-prmtx.
+    
+    FIND FIRST quotehd NO-LOCK
+         WHERE ROWID(quotehd) EQ iprwRowid NO-ERROR .
            
     FOR EACH bf-quotehd EXCLUSIVE-LOCK
-        WHERE bf-quotehd.company EQ ipcCompany
-        AND bf-quotehd.cust-no EQ ipcCustomer
+        WHERE bf-quotehd.company EQ quotehd.company
+        AND bf-quotehd.cust-no EQ quotehd.cust-no
+        AND bf-quotehd.ship-id EQ quotehd.ship-id
+        AND bf-quotehd.pricingMethod EQ quotehd.pricingMethod
         AND rowid(bf-quotehd) NE iprwRowid ,
         EACH quoteitm NO-LOCK
              WHERE quoteitm.company EQ bf-quotehd.company
              AND quoteitm.loc     EQ bf-quotehd.loc
              AND quoteitm.q-no    EQ bf-quotehd.q-no
-             AND quoteitm.i-no    EQ ipcFgItem :                  
+             AND quoteitm.i-no    EQ ipcFgItem
+             AND quoteitm.part-no EQ ipcPartNo:                  
         IF bf-quotehd.approved THEN do:
           bf-quotehd.approved = NO.
           bf-quotehd.expireDate = TODAY - 1.          
@@ -777,11 +782,10 @@ PROCEDURE unApprovedDuplicateQuote:
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER iprwRowid AS ROWID NO-UNDO.
-    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcCustomer AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcPartNo AS CHARACTER NO-UNDO.   
     DEFINE INPUT PARAMETER ipcFgItem AS CHARACTER NO-UNDO.
                  
-    RUN pUnApprovedDuplicateQuote(INPUT iprwRowid, INPUT ipcCompany, INPUT ipcCustomer, INPUT ipcFgItem).        
+    RUN pUnApprovedDuplicateQuote(INPUT iprwRowid, INPUT ipcPartNo, INPUT ipcFgItem).        
    
 END PROCEDURE.
 
