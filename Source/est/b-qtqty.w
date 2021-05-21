@@ -673,6 +673,7 @@ PROCEDURE CheckUpdate:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iplAllowedMessage AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER oplNotAllowedUpdate AS LOGICAL NO-UNDO.
    
     DEFINE BUFFER bf-quotehd FOR quotehd.
@@ -681,6 +682,7 @@ PROCEDURE CheckUpdate:
         FIND FIRST bf-quotehd OF quoteitm NO-LOCK NO-ERROR.
 
     IF AVAILABLE bf-quotehd AND bf-quotehd.approved AND lQuotePriceMatrix THEN DO:
+        IF iplAllowedMessage THEN
         MESSAGE "Quote is approved. Update not allowed." 
             VIEW-AS ALERT-BOX INFO.
         

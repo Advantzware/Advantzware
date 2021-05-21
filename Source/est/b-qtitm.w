@@ -364,7 +364,7 @@ DO:
    def var char-hdl as cha no-undo.   
    DEFINE VARIABLE lNotAllow AS LOGICAL NO-UNDO.
    
-   RUN pCheckUpdate(OUTPUT lNotAllow).
+   RUN pCheckUpdate(INPUT YES,OUTPUT lNotAllow).
    IF lNotAllow THEN RETURN NO-APPLY.
    RUN get-link-handle IN adm-broker-hdl
       (THIS-PROCEDURE,'TableIO-source':U,OUTPUT char-hdl).
@@ -1359,9 +1359,11 @@ PROCEDURE pCheckUpdate :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+   DEFINE INPUT PARAMETER iplAllowedMessage AS LOGICAL NO-UNDO.
    DEFINE OUTPUT PARAMETER oplNotAllowedUpdate AS LOGICAL NO-UNDO.
    IF AVAIL quotehd AND quotehd.approved AND lQuotePriceMatrix THEN
    DO:
+    IF iplAllowedMessage THEN
     MESSAGE "Quote is approved process not allowed." VIEW-AS ALERT-BOX INFO.
      oplNotAllowedUpdate = YES.     
    END.                                                        
