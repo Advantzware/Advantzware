@@ -638,15 +638,25 @@ PROCEDURE local-update-record :
             utilities.securityLevel:SCREEN-VALUE = STRING(iBaseLevel).
         RETURN NO-APPLY.
     END.
-    IF INDEX(utilities.programName:SCREEN-VALUE,".r") EQ 0 THEN DO:
-        MESSAGE 
-            "You are about to save an uncompiled program record." SKIP 
-            "This is not recommended.  Convert to compiled version?"
-            VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE lCompiled AS LOG.
-        IF lCompiled THEN ASSIGN 
-            SELF:SCREEN-VALUE = REPLACE(SELF:SCREEN-VALUE,".p",".r")
-            SELF:SCREEN-VALUE = REPLACE(SELF:SCREEN-VALUE,".w",".r")
-            .
+    IF lAddRecord THEN DO:
+        IF CAN-FIND (FIRST utilities WHERE 
+            utilities.programName = utilities.programName:SCREEN-VALUE) THEN DO:
+            MESSAGE 
+                "You are trying to add a new utility with the same" SKIP 
+                "name as an existing utility.  This is not allowed."
+                VIEW-AS ALERT-BOX ERROR.
+            RETURN NO-APPLY.
+        END.
+        ELSE IF INDEX(utilities.programName:SCREEN-VALUE,".r") EQ 0 THEN DO:
+            MESSAGE 
+                "You are about to save an uncompiled program record." SKIP 
+                "This is not recommended.  Convert to compiled version?"
+                VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE lCompiled AS LOG.
+            IF lCompiled THEN ASSIGN 
+                utilities.programName:SCREEN-VALUE = REPLACE(utilities.programName:SCREEN-VALUE,".p",".r")
+                utilities.programName:SCREEN-VALUE = REPLACE(utilities.programName:SCREEN-VALUE,".w",".r")
+                .
+        END.
     END. 
     
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
