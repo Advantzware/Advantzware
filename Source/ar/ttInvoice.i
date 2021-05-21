@@ -96,6 +96,7 @@ DEFINE TEMP-TABLE ttInvLine NO-UNDO
     FIELD taxable                  AS LOGICAL
     FIELD billable                 AS LOGICAL
     FIELD taxGroup                 AS CHARACTER
+    FIELD bNo                      AS INTEGER
     FIELD bolID                    AS INTEGER 
     FIELD orderID                  AS INTEGER 
     FIELD orderLine                AS INTEGER 

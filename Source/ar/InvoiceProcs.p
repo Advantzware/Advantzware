@@ -111,14 +111,21 @@ PROCEDURE pAssignCommonLineData PRIVATE:
     DEFINE PARAMETER BUFFER ipbf-ttInv     FOR ttInv.
     DEFINE PARAMETER BUFFER ipbf-ttInvLine FOR ttInvLine.
     
-    DEFINE           BUFFER bf-oe-ord      FOR oe-ord.
-    DEFINE           BUFFER bf-oe-ordl     FOR oe-ordl.
+    DEFINE BUFFER bf-oe-ord  FOR oe-ord.
+    DEFINE BUFFER bf-oe-ordl FOR oe-ordl.
+    DEFINE BUFFER bf-oe-bolh FOR oe-bolh.
     
     DEFINE VARIABLE lError        AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cErrorMessage AS CHARACTER NO-UNDO.
     
     IF ipbf-ttInv.customerPONo EQ "" THEN 
         ipbf-ttInv.customerPONo = ipbf-ttInvLine.customerPONo.
+
+    FIND FIRST bf-oe-bolh NO-LOCK 
+         WHERE bf-oe-bolh.b-no EQ ipbf-ttInvLine.bNo 
+         NO-ERROR.
+    IF AVAILABLE bf-oe-bolh THEN
+        ipbf-ttInvLine.bolID = bf-oe-bolh.bol-no.
         
     FIND FIRST bf-oe-ord NO-LOCK
          WHERE bf-oe-ord.company EQ ipbf-ttInv.company
@@ -307,7 +314,7 @@ PROCEDURE pBuildDataForPosted PRIVATE:
                 ttInvLine.customerPONo           = bf-ar-invl.po-no
                 ttInvLine.taxGroup               = ttInv.taxGroup
                 ttInvLine.isMisc                 = bf-ar-invl.misc
-                ttInvLine.bolID                  = bf-ar-invl.b-no
+                ttInvLine.bNo                    = bf-ar-invl.b-no
                 .
             
             IF ttInvLine.isMisc THEN
@@ -498,7 +505,7 @@ PROCEDURE pBuildDataForUnposted PRIVATE:
                 ttInvLine.customerPONo           = bf-inv-line.po-no
                 ttInvLine.taxGroup               = ttInv.taxGroup
                 ttInvLine.isMisc                 = FALSE
-                ttInvLine.bolID                  = bf-inv-line.b-no
+                ttInvLine.bNo                    = bf-inv-line.b-no
                 .
 
             lFirst = TRUE.
