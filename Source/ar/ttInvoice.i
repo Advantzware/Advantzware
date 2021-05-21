@@ -23,7 +23,7 @@ DEFINE TEMP-TABLE ttInv NO-UNDO
     FIELD invoiceID                   AS INTEGER
     FIELD invoiceIDString             AS CHARACTER
     FIELD invoiceDate                 AS DATE
-    FIELD invoiceDateString           AS CHARACTER
+    FIELD invoiceDueDate              AS DATE
     FIELD customerID                  AS CHARACTER
     FIELD customerName                AS CHARACTER
     FIELD customerAddress1            AS CHARACTER
@@ -31,13 +31,8 @@ DEFINE TEMP-TABLE ttInv NO-UNDO
     FIELD customerCity                AS CHARACTER 
     FIELD customerState               AS CHARACTER 
     FIELD customerPostalCode          AS CHARACTER
+    FIELD customerEmail               AS CHARACTER
     FIELD company                     AS CHARACTER
-    FIELD companyName                 AS CHARACTER
-    FIELD companyAddress1             AS CHARACTER
-    FIELD companyAddress2             AS CHARACTER 
-    FIELD companyCity                 AS CHARACTER 
-    FIELD companyState                AS CHARACTER 
-    FIELD companyPostalCode           AS CHARACTER 
     FIELD shiptoID                    AS CHARACTER
     FIELD shiptoName                  AS CHARACTER
     FIELD shiptoAddress1              AS CHARACTER
@@ -45,8 +40,15 @@ DEFINE TEMP-TABLE ttInv NO-UNDO
     FIELD shiptoCity                  AS CHARACTER 
     FIELD shiptoState                 AS CHARACTER 
     FIELD shiptoPostalCode            AS CHARACTER 
-    FIELD termsDays                   AS INTEGER
-    FIELD customerPO                  AS CHARACTER
+    FIELD siteID                      AS CHARACTER 
+    FIELD terms                       AS CHARACTER   
+    FIELD termNetDays                 AS INTEGER
+    FIELD termDiscountDays            AS INTEGER    
+    FIELD termNetDueDate              AS DATE
+    FIELD termDiscountDueDate         AS DATE
+    FIELD termDiscountPercent         AS DECIMAL
+    FIELD termDiscountAmount          AS DECIMAL 
+    FIELD customerPONo                AS CHARACTER
     FIELD payloadID                   AS CHARACTER
     FIELD amountTotalLines            AS DECIMAL 
     FIELD amountTotalTax              AS DECIMAL 
@@ -60,6 +62,9 @@ DEFINE TEMP-TABLE ttInv NO-UNDO
     FIELD taxGroup                    AS CHARACTER
     FIELD billFreight                 AS LOGICAL
     FIELD frtTaxRate                  AS DECIMAL
+    FIELD invoiceRecKey               AS CHARACTER  
+    FIELD invoiceNotes                AS CHARACTER 
+    FIELD invoiceType                 AS CHARACTER
     .
 
 DEFINE TEMP-TABLE ttInvLine NO-UNDO     
@@ -79,6 +84,7 @@ DEFINE TEMP-TABLE ttInvLine NO-UNDO
     FIELD customerPartID           AS CHARACTER
     FIELD itemID                   AS CHARACTER 
     FIELD itemName                 AS CHARACTER 
+    FIELD itemDescription          AS CHARACTER
     FIELD amountTax                AS DECIMAL 
     FIELD amountTaxExFreightTax    AS DECIMAL
     FIELD amountFreightTax         AS DECIMAL 
@@ -89,7 +95,8 @@ DEFINE TEMP-TABLE ttInvLine NO-UNDO
     FIELD amountFreight            AS DECIMAL 
     FIELD taxable                  AS LOGICAL
     FIELD billable                 AS LOGICAL
-    FIELD taxGroup                 AS CHARACTER 
+    FIELD taxGroup                 AS CHARACTER
+    FIELD bolID                    AS INTEGER 
     FIELD orderID                  AS INTEGER 
     FIELD orderLine                AS INTEGER 
     FIELD orderLineOverride        AS INTEGER
