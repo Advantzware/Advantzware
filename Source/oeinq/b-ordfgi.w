@@ -395,6 +395,7 @@ DEFINE QUERY Browser-Table FOR
       fg-rcpth.b-no
       fg-rcpth.pur-uom
       fg-rcpth.post-date
+      fg-rcpth.r-no
       vend-no), 
       fg-rdtlh SCROLLING.
 &ANALYZE-RESUME
