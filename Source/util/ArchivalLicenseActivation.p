@@ -55,8 +55,8 @@ DEF VAR cOutputDir AS CHAR NO-UNDO.
     FOR EACH prgrms EXCLUSIVE:
         ASSIGN 
             prgrms.can_create = "ASI"
-            prgrms.can_delete = prgrms.can_delete /* should this be asi? */ 
-            prgrms.can_update = prgrms.can_update /* should this be asi? */
+            prgrms.can_delete = "ASI" 
+            prgrms.can_update = "ASI"
             .
         /* If the program master function, set ALL perms to asi-only */
         IF prgrms.prgmname EQ "prgrms." THEN ASSIGN 
