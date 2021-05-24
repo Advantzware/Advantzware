@@ -388,6 +388,7 @@ PROCEDURE ipInstallPatch:
     DEF VAR lCanUpdate AS LOG NO-UNDO.
     DEF VAR lCanUpgrade AS LOG NO-UNDO.
     DEF VAR cHotfixLog AS CHAR NO-UNDO.
+    DEF VAR cUpdateType AS CHAR NO-UNDO.
     
     
     /* Get the current version already installed */
@@ -422,15 +423,19 @@ PROCEDURE ipInstallPatch:
         REPEAT:
             IMPORT UNFORMATTED cRawLine.
             ASSIGN 
-                deNewVersion = DECIMAL(SUBSTRING(cRawLine,1,5)) 
-                iNewPatch = INTEGER(SUBSTRING(cRawLine,7,2)).             
-            IF deNewVersion LT deMyVersion THEN NEXT.
-            ELSE IF deNewVersion GT deMyVersion THEN DO:
+                cUpdateType = SUBSTRING(cRawLine,1,1)
+                deNewVersion = DECIMAL(SUBSTRING(cRawLine,2,5)) 
+                iNewPatch = INTEGER(SUBSTRING(cRawLine,8,2)).             
+            IF cUpdateType EQ "R"
+            AND deNewVersion LT deMyVersion THEN NEXT.
+            ELSE IF cUpdateType EQ "R"
+            AND deNewVersion GT deMyVersion THEN DO:
                 ASSIGN 
                     lCanUpgrade = TRUE.
                 /* Newer VERSION available */
             END.   
-            ELSE IF deNewVersion EQ deMyVersion 
+            ELSE IF cUpdateType NE "R"
+            AND deNewVersion EQ deMyVersion 
             AND iNewPatch GT iMyPatch THEN DO:
                 ASSIGN 
                     lCanUpdate = TRUE.
@@ -442,7 +447,7 @@ PROCEDURE ipInstallPatch:
                     lUpdate = TRUE.
                 IF lUpdate THEN DO:
                     ASSIGN 
-                        cPatchToProcess = cRawLine.
+                        cPatchToProcess = SUBSTRING(cRawLine,2).
                     LEAVE SEARCH-BLOCK.
                 END.
             END.
