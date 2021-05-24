@@ -305,7 +305,14 @@ DO:
     
     DEFINE VARIABLE cFormNoListItems  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cBlankNoListItems AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lError            AS LOGICAL   NO-UNDO.
     
+    RUN pValidateJobClosed (
+        OUTPUT lError
+        ).
+    IF lError THEN
+        RETURN NO-APPLY.
+            
     RUN pGetFormNo (
         INPUT  cCompany,
         INPUT  fiJobNo:SCREEN-VALUE,
@@ -499,7 +506,13 @@ DO:
         INPUT cBlankNoListItems
         ).
 
-    RUN pCheckStatusJob.
+    RUN pValidateJobClosed (
+        OUTPUT lError
+        ).
+    IF lError THEN
+        RETURN NO-APPLY.
+        
+    RUN pValidateJob.
     
     /* Progress doesn't have an option to apply entry to field once leave event is triggered.
        If a case is necessary where an entry is required right after leave trigger RETURN with NO-APPLY
@@ -695,10 +708,11 @@ PROCEDURE pGetBlankNo PRIVATE :
     DEFINE OUTPUT PARAMETER opiBlankNo          AS INTEGER   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcBlankNoListItems AS CHARACTER NO-UNDO.
 
-    RUN GetBlanknoForJobHeader IN hdJobProcs (
+    RUN GetBlanknoForJobHeaderByStatus IN hdJobProcs (
         INPUT ipcCompany,
         INPUT ipcJobNo,
         INPUT ipiJobNo2,
+        INPUT ?, /* Fetch both opened and closed jobs */
         INPUT-OUTPUT opcBlankNoListItems
         ).
 
@@ -724,10 +738,11 @@ PROCEDURE pGetFormNo PRIVATE :
     DEFINE OUTPUT PARAMETER opiFormNo          AS INTEGER   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcFormNoListItems AS CHARACTER NO-UNDO.
 
-    RUN GetFormnoForJobHeader IN hdJobProcs (
+    RUN GetFormnoForJobHeaderByStatus IN hdJobProcs (
         INPUT ipcCompany,
         INPUT ipcJobNo,
         INPUT ipiJobNo2,
+        INPUT ?, /* Fetch both opened and closed jobs */
         INPUT-OUTPUT opcFormNoListItems
         ).
 
@@ -752,9 +767,10 @@ PROCEDURE pGetJobNo2 PRIVATE :
     DEFINE OUTPUT PARAMETER opiJobNo2          AS INTEGER   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcJobno2ListItems AS CHARACTER NO-UNDO.
     
-    RUN GetSecondaryJobForJob IN hdJobProcs (
+    RUN GetSecondaryJobForJobByStatus IN hdJobProcs (
         INPUT ipcCompany,
         INPUT ipcJobNo,
+        INPUT ?, /* Fetch both opened and closed jobs */
         INPUT-OUTPUT opcJobno2ListItems
         ).
     
@@ -897,39 +913,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckStatusJob s-object 
-PROCEDURE pCheckStatusJob PRIVATE :
-/*------------------------------------------------------------------------------
- Purpose:   Check Job status and ask for response
- Notes:
-------------------------------------------------------------------------------*/
-    DEFINE VARIABLE lError      AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE lResponse   AS LOGICAL   NO-UNDO.
-    
-    DO WITH FRAME {&FRAME-NAME}:
-    
-     RUN CheckJobStatus2 IN hdJobProcs (
-        INPUT cCompany,
-        INPUT fiJobNo:SCREEN-VALUE,
-        INPUT  INTEGER(cbJobNo2:SCREEN-VALUE),
-        OUTPUT lError
-        ).
-    IF lError THEN
-       RUN displayMessageQuestion (
-              INPUT  "67",
-              OUTPUT lResponse
-              ).
-           IF NOT lResponse THEN DO:
-              RETURN .
-           END. /* IF NOT lResponse */
-           ELSE RUN pValidateJob .
-
-    END.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pValidateJob s-object 
 PROCEDURE pValidateJob PRIVATE :
 /*------------------------------------------------------------------------------
@@ -957,6 +940,43 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pValidateJobClosed s-object
+PROCEDURE pValidateJobClosed PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
+
+    DEFINE VARIABLE lJobClosed AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lResponse  AS LOGICAL NO-UNDO.
+    
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+    
+    RUN IsJobClosed IN hdJobProcs (
+        INPUT  cCompany,
+        INPUT  fiJobNo:SCREEN-VALUE,
+        INPUT  INTEGER(cbJobNo2:SCREEN-VALUE),
+        OUTPUT lJobClosed
+        ).
+    IF NOT lJobClosed THEN
+        RETURN.
+        
+    RUN displayMessageQuestion (
+        INPUT  "67",
+        OUTPUT lResponse
+        ).
+        
+    oplError = NOT lResponse.
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ScanNextJob s-object 
 PROCEDURE ScanNextJob :
