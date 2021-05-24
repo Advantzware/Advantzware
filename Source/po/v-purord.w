@@ -814,6 +814,7 @@ ON CHOOSE OF btnTags IN FRAME F-Main
 DO:
     RUN system/d-TagViewer.w (
         INPUT po-ord.rec_key,
+        INPUT "" ,
         INPUT ""
         ).
 END.
