@@ -540,12 +540,21 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnRun B-table-Win
 ON CHOOSE OF btnRun IN FRAME F-Main /* Run */
 DO:
-    IF NOT AVAILABLE utilities THEN 
-        RETURN NO-APPLY.
-    IF SEARCH('util/' + utilities.programName) NE ? THEN
-        RUN VALUE('util/' + utilities.programName).
-    ELSE IF SEARCH('util/' + utilities.programName + '.r') NE ? THEN
-        RUN VALUE('util/' + utilities.programName + '.r').
+    DEF VAR cUnExtended AS CHAR NO-UNDO.
+    /* removes any extenstion from the value entered, if any */
+    ASSIGN 
+        cUnextended = REPLACE(fi_pro-name:SCREEN-VALUE IN FRAME {&frame-name},".r","")
+        cUnextended = REPLACE(cUnextended,".w","")
+        cUnextended = REPLACE(cUnextended,".p","")
+        cUnextended = REPLACE(cUnextended,".","").
+
+    /* Searches for source code (and if found, runs it), THEN for r-code */
+    IF SEARCH('util/' + cUnextended + '.w') NE ? THEN
+        RUN VALUE('util/' + cUnextended + '.w').
+    ELSE IF SEARCH('util/' + cUnextended + '.p') NE ? THEN
+        RUN VALUE('util/' + cUnextended + '.p').
+    ELSE IF SEARCH('util/' + cUnextended + '.r') NE ? THEN
+        RUN VALUE('util/' + cUnextended + '.r').
     ELSE MESSAGE 
         'Program: util/' + utilities.programName + ' does not exist!' VIEW-AS ALERT-BOX.
 END.
