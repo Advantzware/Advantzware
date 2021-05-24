@@ -339,7 +339,6 @@ PROCEDURE local-initialize :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-
   /* Code placed here will execute PRIOR to standard behavior. */
 
   /* Dispatch standard ADM method.                             */
@@ -347,7 +346,11 @@ PROCEDURE local-initialize :
 
   /* Code placed here will execute AFTER standard behavior.    */
   
-  IF NOT v-can-update THEN btn-update:SENSITIVE IN FRAME {&FRAME-NAME} = NO.
+  IF NOT v-can-update THEN btn-update:SENSITIVE IN FRAME {&FRAME-NAME} = NO. 
+    
+    IF AVAIL quotehd AND quotehd.approved THEN
+        RUN pDisableButton.
+        
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -366,6 +369,8 @@ PROCEDURE local-row-available :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'row-available':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
+    IF AVAIL quotehd AND quotehd.approved THEN
+        RUN pDisableButton.
   
 
 END PROCEDURE.
