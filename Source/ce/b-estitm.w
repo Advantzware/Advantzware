@@ -167,6 +167,7 @@ DEFINE VARIABLE lAccessCreateFG AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lAccessClose    AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cAccessList     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lCEAddCustomerOption AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lQuotePriceMatrix AS LOGICAL NO-UNDO.
 RUN methods/prgsecur.p
             (INPUT "p-upditm.",
              INPUT "CREATE", /* based on run, create, update, delete or all */
@@ -179,15 +180,23 @@ RUN methods/prgsecur.p
              
 DEFINE VARIABLE hdCustomerProcs AS HANDLE NO-UNDO.
 DEFINE VARIABLE hdSalesManProcs AS HANDLE NO-UNDO.
+DEFINE VARIABLE hdQuoteProcs  AS HANDLE  NO-UNDO.
 
 RUN system/CustomerProcs.p PERSISTENT SET hdCustomerProcs. 
 RUN salrep/SalesManProcs.p PERSISTENT SET hdSalesManProcs.
+RUN est/QuoteProcs.p PERSISTENT SET hdQuoteProcs.
 
 RUN sys/ref/nk1look.p (INPUT cocode, "CEAddCustomerOption", "L" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
     OUTPUT cNK1Value, OUTPUT lRecFound).
 IF lRecFound THEN
     lCEAddCustomerOption = logical(cNK1Value) NO-ERROR.
+    
+RUN sys/ref/nk1look.p (INPUT cocode, "QuotePriceMatrix", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cNK1Value, OUTPUT lRecFound).
+IF lRecFound THEN
+    lQuotePriceMatrix = logical(cNK1Value) NO-ERROR.    
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -3738,6 +3747,10 @@ PROCEDURE local-assign-record :
      FIND xeb WHERE RECID(xeb) = recid(eb) NO-LOCK NO-ERROR.
      FIND xef WHERE RECID(xef) = recid(ef) NO-LOCK NO-ERROR.
      RUN fg/ce-addfg.p (xeb.stock-no).
+    
+     IF lQuotePriceMatrix AND AVAIL xeb THEN
+     RUN quote_CreatePriceMatrixForQuote IN hdQuoteProcs(INPUT cocode, INPUT xeb.est-no, INPUT xeb.part-no, INPUT xeb.stock-no). 
+     
      FIND FIRST xeb NO-LOCK
          WHERE xeb.company  EQ eb.company
            AND xeb.est-no   EQ eb.est-no
@@ -3747,7 +3760,11 @@ PROCEDURE local-assign-record :
                             WHERE itemfg.company EQ xeb.company
                               AND itemfg.i-no    EQ xeb.stock-no)
          NO-ERROR.
-     IF AVAIL xeb THEN RUN fg/ce-addfg.p (xeb.stock-no).
+     IF AVAIL xeb THEN
+     DO:
+       RUN fg/ce-addfg.p (xeb.stock-no).
+       RUN quote_CreatePriceMatrixForQuote IN hdQuoteProcs(INPUT cocode, INPUT xeb.est-no, INPUT xeb.part-no, INPUT xeb.stock-no).
+     END.  
      ll-crt-itemfg = NO.
   END.
 
@@ -5228,8 +5245,17 @@ PROCEDURE reset-est-type :
       RUN set-yld-qty (ROWID(bf-eb)).
     END.
   END.
-
-  IF (op-est-type EQ 2 AND li-form-no EQ 1 AND li-blank-no EQ 1) OR
+  
+  
+ IF op-est-type EQ 4 AND li-form-no EQ 1 AND li-blank-no EQ 1 
+    AND eb.bl-qty EQ eb.yld-qty THEN do:
+  
+   MESSAGE "Change this Tandem/Combo to a Single Estimate Type?" SKIP
+            VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
+            UPDATE ll.
+   IF ll THEN op-est-type = 1.           
+  END.
+  ELSE IF (op-est-type EQ 2 AND li-form-no EQ 1 AND li-blank-no EQ 1) OR
      (op-est-type EQ 1 AND eb.cust-% GE 2) THEN DO:
     /*MESSAGE "Is this estimate a two piece box set?"
             VIEW-AS ALERT-BOX QUESTION

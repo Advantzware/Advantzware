@@ -356,6 +356,8 @@ DO:
         CREATE glhist .
         BUFFER-COPY tt-glhist EXCEPT rec_key  TO glhist.
         riNewRowid = ROWID(glhist).
+        glhist.actnum = "".
+        glhist.tr-amt = 0.
         RELEASE glhist.
         
         RUN gl/d-glinq.w (INPUT cocode,INPUT riNewRowid,INPUT "update",OUTPUT riRowid) .
@@ -372,12 +374,12 @@ DO:
          END.
          IF NOT AVAIL bf-glhist THEN
          DO:
-             FIND FIRST bf-glhist NO-LOCK
+             FIND FIRST bf-glhist EXCLUSIVE-LOCK
                   WHERE rowid(bf-glhist) EQ riNewRowid NO-ERROR.
              IF avail bf-glhist THEN DELETE bf-glhist.             
          END.
          RELEASE account.
-        
+         RELEASE bf-glhist.
          PAUSE 0.         
          APPLY "choose" TO BUTTON-1.
     END.

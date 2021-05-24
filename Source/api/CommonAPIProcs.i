@@ -193,7 +193,15 @@ PROCEDURE updateRequestData:
             cFormat = ?.    
 
         IF cFormatType NE "" THEN DO:
-            IF cFormatType BEGINS "INT" THEN
+            /* To convert a decimal value into integer without losing the original value */
+            /* Decimal places will be rounded to Progress standard */
+            IF cFormatType EQ "DECIMAL-INTEGER" OR cFormatType EQ "DEC-INT" THEN
+                ASSIGN
+                    cTargetString = STRING(DECIMAL(ipcValue),cFormat)
+                    cTargetString = REPLACE(cTargetString, ".", "")
+                    cTargetString = TRIM(cTargetString)
+                    NO-ERROR.
+            ELSE IF cFormatType BEGINS "INT" THEN
                 ASSIGN
                     cTargetString = STRING(INTEGER(ipcValue),cFormat)
                     cTargetString = TRIM(cTargetString)

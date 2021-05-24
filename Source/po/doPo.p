@@ -1928,19 +1928,7 @@ PROCEDURE createPoOrdl :
         WHERE bf-itemfg.company EQ bf-ordl.company
         AND bf-itemfg.i-no    EQ /* wfk - 05281404 - bf-ordl.i-no */ bf-w-job-mat.rm-i-no
         NO-LOCK NO-ERROR.
-
-    IF gvlChoice THEN
-        FIND FIRST po-ordl
-            WHERE po-ordl.company    EQ cocode
-            AND po-ordl.job-no     EQ bf-w-job-mat.job-no
-            AND po-ordl.job-no2    EQ bf-w-job-mat.job-no2
-            AND (po-ordl.s-num      EQ bf-w-job-mat.frm OR AVAIL(bf-itemfg))
-            AND po-ordl.i-no       EQ bf-w-job-mat.rm-i-no
-            AND po-ordl.item-type  EQ bf-w-job-mat.this-is-a-rm
-            AND (bf-w-job-mat.job-no NE "" OR
-            po-ordl.ord-no    EQ v-ord-no)
-            NO-ERROR.
-        
+              
     IF NOT AVAILABLE po-ordl AND nk1-oeautopo-char EQ "AutoRM" AND v-autopo-sec AND bf-w-job-mat.this-is-a-rm THEN 
     DO:
         FIND FIRST po-ordl EXCLUSIVE-LOCK 

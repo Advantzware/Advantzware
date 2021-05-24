@@ -362,6 +362,10 @@ ON DEFAULT-ACTION OF Browser-Table IN FRAME F-Main
 DO:
    def var phandle as widget-handle no-undo.
    def var char-hdl as cha no-undo.   
+   DEFINE VARIABLE lNotAllow AS LOGICAL NO-UNDO.
+   
+   RUN pCheckUpdate(OUTPUT lNotAllow).
+   IF lNotAllow THEN RETURN NO-APPLY.
    RUN get-link-handle IN adm-broker-hdl
       (THIS-PROCEDURE,'TableIO-source':U,OUTPUT char-hdl).
    phandle = WIDGET-HANDLE(char-hdl).

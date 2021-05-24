@@ -1027,6 +1027,7 @@ for each quotehd
       and quotehd.cust-no  le tcust
       and quotehd.quo-date ge fdate
       and quotehd.quo-date le tdate
+      AND quotehd.approved EQ FALSE
     use-index cust2,
 
     each quoteitm
@@ -1189,6 +1190,7 @@ for each quotehd
       and quotehd.cust-no  le tcust
       and quotehd.quo-date ge fdate
       and quotehd.quo-date le tdate
+      AND quotehd.approved EQ FALSE
     use-index cust2,
 
     each quoteitm

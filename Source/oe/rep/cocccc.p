@@ -502,6 +502,11 @@ FOR EACH report
 
            IF cCertFormat EQ "CCC4" THEN
                 gchWorkSheet:Range("B36"):VALUE = itemfg.i-no .
+           
+           IF cCertFormat EQ "CCCRev" THEN DO: 
+               gchWorkSheet:Range("A37"):VALUE = "Customer Drawing Rev" .
+               gchWorkSheet:Range("B37"):VALUE = STRING(oe-ordl.customField) .
+           END.
 
         /*Get Notes*/
         iNoteLine = 1.
@@ -654,6 +659,8 @@ lCustomNotesMik = NO .
      cTemplateFile = SEARCH("template\CCC5BOLCert.xlt"). 
  IF cCertFormat EQ "CCCWPP"  THEN 
      cTemplateFile = SEARCH("template\WPPBOLCert.xlt").
+ IF cCertFormat EQ "CCCRev"  THEN 
+     cTemplateFile = SEARCH("template\CCCRevBOLCert.xlt").
 
  IF cCertFormat EQ "CCC" AND cCustomNotesTemplate EQ "CustNotes-ALF1001" THEN
     cTemplateFile = SEARCH("template\CCCBOLCertNote.xlt").

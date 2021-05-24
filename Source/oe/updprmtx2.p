@@ -26,6 +26,7 @@ DEFINE VARIABLE hdQuoteProcs AS HANDLE NO-UNDO.
 DEFINE VARIABLE lRunForQuote AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cRunMethods AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cShipId AS CHARACTER NO-UNDO.
+DEFINE VARIABLE dtEffectiveDate AS DATE NO-UNDO.
 RUN util/updQuoteProcs.p PERSISTENT SET hdupdQuoteProcs.
 RUN est/QuoteProcs.p PERSISTENT SET hdQuoteProcs.
 
@@ -96,6 +97,7 @@ IF AVAIL quotehd THEN DO:
   iQuoteNo   = quotehd.q-no.
   cRunMethods = quotehd.pricingMethod. 
   cShipId = quotehd.ship-id.
+  dtEffectiveDate = quotehd.effectiveDate.
   FOR EACH quoteitm
       WHERE quoteitm.company EQ quotehd.company
         AND quoteitm.loc     EQ quotehd.loc
@@ -129,8 +131,10 @@ IF AVAIL quotehd THEN DO:
     IF lQuotePriceMatrix THEN
     DO:    
       ASSIGN
-       quotehd.approved = YES.   
-       RUN unApprovedDuplicateQuote IN hdQuoteProcs (ROWID(quotehd),quotehd.company,ip-cust-no,quoteitm.i-no). 
+       quotehd.approved = YES.
+       IF dtEffectiveDate EQ ? THEN
+       quotehd.effectiveDate = TODAY.
+       RUN unApprovedDuplicateQuote IN hdQuoteProcs (ROWID(quotehd),quoteitm.part-no,quoteitm.i-no). 
     END.   
     FIND CURRENT quotehd NO-LOCK NO-ERROR. 
      
@@ -168,6 +172,8 @@ PROCEDURE update-matrix.
      oe-prmtx.company = itemfg.company      
      oe-prmtx.eff-date = TODAY
      oe-prmtx.i-no = itemfg.i-no.
+     IF dtEffectiveDate NE ? THEN 
+     oe-prmtx.eff-date = dtEffectiveDate.
      IF lQuotePriceMatrix AND cRunMethods EQ "Type" THEN
      DO:
          FIND FIRST cust NO-LOCK
@@ -283,6 +289,8 @@ PROCEDURE update-matrix-minus.
      oe-prmtx.company = itemfg.company       
      oe-prmtx.eff-date = TODAY
      oe-prmtx.i-no = itemfg.i-no.
+     IF dtEffectiveDate NE ? THEN 
+     oe-prmtx.eff-date = dtEffectiveDate.
      
      IF lQuotePriceMatrix AND cRunMethods EQ "Type" THEN
      DO:

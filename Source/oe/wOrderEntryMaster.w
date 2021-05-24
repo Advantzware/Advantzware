@@ -744,6 +744,7 @@ PROCEDURE adm-create-objects :
 
 
        /* Links to SmartViewer h_vp-clsoe. */
+       RUN add-link IN adm-broker-hdl ( h_v-ord , 'line-item':U , h_vp-clsoe ).
        RUN add-link IN adm-broker-hdl ( h_v-ord , 'Record':U , h_vp-clsoe ).
 
        /* Adjust the tab order of the smart objects. */

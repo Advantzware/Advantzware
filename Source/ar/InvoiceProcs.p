@@ -40,49 +40,30 @@ PROCEDURE pAssignCommonHeaderData PRIVATE:
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE PARAMETER BUFFER ipbf-ttInv FOR ttInv.
-    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcCustomerID AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcShipToID AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcTermsCode AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE iDueOnMonth AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iDueOnDay   AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iNetDays    AS INTEGER NO-UNDO.
+    DEFINE VARIABLE dDiscPct    AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE iDiscDays   AS DECIMAL NO-UNDO. 
+    DEFINE VARIABLE lError      AS LOGICAL NO-UNDO.
     
-    DEFINE BUFFER bf-company FOR company.
     DEFINE BUFFER bf-cust    FOR cust.
     DEFINE BUFFER bf-shipto  FOR shipto.
-    DEFINE BUFFER bf-terms   FOR terms.
-    
-    ASSIGN 
-        ipbf-ttInv.invoiceIDString   = STRING(ipbf-ttInv.invoiceID)
-        ipbf-ttInv.invoiceDateString = STRING(YEAR(ipbf-ttInv.invoiceDate),'9999')
-                                     + '-'
-                                     + STRING(MONTH(ipbf-ttInv.invoiceDate),'99')
-                                     + '-'
-                                     + STRING(DAY(ipbf-ttInv.invoiceDate),'99')
-                                     + 'T'
-                                     + STRING(0,'hh:mm:ss')
-                                     + '-05:00'.
-       .
-       
-    FIND FIRST bf-company NO-LOCK
-        WHERE bf-company.company EQ ipcCompany
-        NO-ERROR.
-    IF AVAILABLE bf-company THEN 
-        ASSIGN
-            ipbf-ttInv.companyName       = bf-company.name
-            ipbf-ttInv.companyAddress1   = bf-company.addr[1]
-            ipbf-ttInv.companyAddress2   = bf-company.addr[2]
-            ipbf-ttInv.companyCity       = bf-company.city
-            ipbf-ttInv.companyState      = bf-company.state
-            ipbf-ttInv.companyPostalCode = bf-company.zip 
-            .
+    DEFINE BUFFER bf-notes   FOR notes.
+
     FIND FIRST bf-cust NO-LOCK 
-        WHERE bf-cust.company EQ ipcCompany
-          AND bf-cust.cust-no EQ ipcCustomerID
+        WHERE bf-cust.company EQ ipbf-ttInv.company
+          AND bf-cust.cust-no EQ ipbf-ttInv.customerID
         NO-ERROR.
+    IF AVAILABLE bf-cust THEN 
+        ipbf-ttInv.customerEmail = bf-cust.email.
+        
     FIND FIRST bf-shipto NO-LOCK 
-        WHERE bf-shipto.company EQ ipcCompany
-          AND bf-shipto.cust-no EQ ipcCustomerID
-          AND bf-shipto.ship-id EQ ipcShipToID
-        NO-ERROR.
+         WHERE bf-shipto.company EQ ipbf-ttInv.company
+           AND bf-shipto.cust-no EQ ipbf-ttInv.customerID
+           AND bf-shipto.ship-id EQ ipbf-ttInv.shipToID
+         NO-ERROR.
     IF AVAILABLE bf-shipto THEN 
         ASSIGN 
             ipbf-ttInv.shipToID         = bf-shipto.ship-id
@@ -92,14 +73,34 @@ PROCEDURE pAssignCommonHeaderData PRIVATE:
             ipbf-ttInv.shiptoCity       = bf-shipto.ship-city
             ipbf-ttInv.shiptoState      = bf-shipto.ship-state
             ipbf-ttInv.shiptoPostalCode = bf-shipto.ship-zip
+            ipbf-ttInv.siteID           =  bf-shipto.siteId
             .
-    FIND FIRST bf-terms NO-LOCK 
-         WHERE bf-terms.company EQ ipcCompany
-           AND bf-terms.t-code EQ ipcTermsCode
-         NO-ERROR.
-    IF AVAILABLE bf-terms THEN 
-        ipbf-ttInv.termsDays = bf-terms.net-days.
+
+    RUN Credit_GetTerms (
+        INPUT  ipbf-ttInv.company,
+        INPUT  ipbf-ttInv.terms,
+        OUTPUT iDueOnMonth,
+        OUTPUT iDueOnDay,
+        OUTPUT iNetDays, 
+        OUTPUT dDiscPct,  
+        OUTPUT iDiscDays, 
+        OUTPUT lError         
+        ).
+    IF NOT lError THEN
+        ASSIGN
+            ipbf-ttInv.termNetDays         = iNetDays
+            ipbf-ttInv.termNetDueDate      = ipbf-ttInv.invoiceDate + ipbf-ttInv.termNetDays
+            ipbf-ttInv.termDiscountDays    = iDiscDays
+            ipbf-ttInv.termDiscountDueDate = ipbf-ttInv.invoiceDate + ipbf-ttInv.termDiscountDays
+            ipbf-ttInv.termDiscountPercent = dDiscPct
+            ipbf-ttInv.termDiscountAmount  = ipbf-ttInv.amountTotal * (ipbf-ttInv.termDiscountPercent / 100)
+            .
     
+    FOR EACH bf-notes NO-LOCK
+        WHERE bf-notes.rec_key EQ ipbf-ttInv.invoiceRecKey:
+        ipbf-ttInv.invoiceNotes = ipbf-ttInv.invoiceNotes + bf-notes.note_text.
+    END.
+                
 END PROCEDURE.
 
 PROCEDURE pAssignCommonLineData PRIVATE:
@@ -110,21 +111,29 @@ PROCEDURE pAssignCommonLineData PRIVATE:
     DEFINE PARAMETER BUFFER ipbf-ttInv     FOR ttInv.
     DEFINE PARAMETER BUFFER ipbf-ttInvLine FOR ttInvLine.
     
-    DEFINE           BUFFER bf-oe-ord      FOR oe-ord.
-    DEFINE           BUFFER bf-oe-ordl     FOR oe-ordl.
+    DEFINE BUFFER bf-oe-ord  FOR oe-ord.
+    DEFINE BUFFER bf-oe-ordl FOR oe-ordl.
+    DEFINE BUFFER bf-oe-bolh FOR oe-bolh.
     
     DEFINE VARIABLE lError        AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cErrorMessage AS CHARACTER NO-UNDO.
     
-    IF ipbf-ttInv.customerPO EQ "" THEN 
-        ipbf-ttInv.customerPO = ipbf-ttInvLine.customerPO.
+    IF ipbf-ttInv.customerPONo EQ "" THEN 
+        ipbf-ttInv.customerPONo = ipbf-ttInvLine.customerPONo.
+
+    FIND FIRST bf-oe-bolh NO-LOCK 
+         WHERE bf-oe-bolh.b-no EQ ipbf-ttInvLine.bNo 
+         NO-ERROR.
+    IF AVAILABLE bf-oe-bolh THEN
+        ipbf-ttInvLine.bolID = bf-oe-bolh.bol-no.
+        
     FIND FIRST bf-oe-ord NO-LOCK
          WHERE bf-oe-ord.company EQ ipbf-ttInv.company
            AND bf-oe-ord.ord-no EQ ipbf-ttInvLine.orderID
          NO-ERROR.
     IF AVAILABLE bf-oe-ord THEN DO:
-        IF ipbf-ttInv.customerPO EQ "" THEN 
-            ipbf-ttInv.customerPO EQ bf-oe-ord.po-no.
+        IF ipbf-ttInv.customerPONo EQ "" THEN 
+            ipbf-ttInv.customerPONo EQ bf-oe-ord.po-no.
             
         IF ipbf-ttInv.payloadID EQ "" THEN 
             ipbf-ttInv.payloadID = bf-oe-ord.spare-char-3.
@@ -221,9 +230,9 @@ PROCEDURE pBuildDataForPosted PRIVATE:
     ------------------------------------------------------------------------------*/
     DEFINE PARAMETER BUFFER ipbf-ar-inv FOR ar-inv.
     
-    DEFINE           BUFFER bf-ar-invl  FOR ar-invl.
-    DEFINE           BUFFER bf-oe-ordl  FOR oe-ordl.
-    
+    DEFINE BUFFER bf-ar-invl  FOR ar-invl.
+    DEFINE BUFFER bf-oe-ordl  FOR oe-ordl.
+        
     DEFINE VARIABLE dTaxTotal        AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE dInvoiceTotal    AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE dInvoiceSubTotal AS DECIMAL   NO-UNDO.
@@ -235,6 +244,7 @@ PROCEDURE pBuildDataForPosted PRIVATE:
     IF AVAILABLE ipbf-ar-inv THEN DO:
         CREATE ttInv.
         ASSIGN             
+            ttInv.invoiceRecKey      = ipbf-ar-inv.rec_key
             ttInv.invoiceDate        = ipbf-ar-inv.inv-date 
             ttInv.invoiceID          = ipbf-ar-inv.inv-no
             ttInv.customerID         = ipbf-ar-inv.cust-no
@@ -250,6 +260,9 @@ PROCEDURE pBuildDataForPosted PRIVATE:
             ttInv.billFreight        = ipbf-ar-inv.f-bill
             ttInv.amountTotalFreight = ipbf-ar-inv.freight 
             ttInv.amountTotalTax     = ipbf-ar-inv.tax-amt
+            ttInv.shiptoID           = ipbf-ar-inv.ship-id
+            ttInv.terms              = ipbf-ar-inv.terms            
+            ttInv.invoiceDueDate     = ipbf-ar-inv.due-date   
             . 
 
         RUN Tax_CalculateForARInvWithDetail(
@@ -267,11 +280,7 @@ PROCEDURE pBuildDataForPosted PRIVATE:
             ).
 
         RUN pAssignCommonHeaderData(
-            BUFFER ttInv, 
-            INPUT  ipbf-ar-inv.company, 
-            INPUT  ipbf-ar-inv.cust-no, 
-            INPUT  ipbf-ar-inv.ship-id,
-            INPUT  ipbf-ar-inv.terms
+            BUFFER ttInv
             ).
         
         lFirstLine = TRUE.
@@ -285,14 +294,18 @@ PROCEDURE pBuildDataForPosted PRIVATE:
                 ttInvLine.company                = ttInv.company
                 ttInvLine.lineNo                 = bf-ar-invl.line
                 ttInvLine.orderID                = bf-ar-invl.ord-no
-                ttInvLine.orderLine              = bf-ar-invl.ord-line
+                ttInvLine.orderLineOverride      = bf-ar-invl.e-num
                 ttInvLine.quantityInvoiced       = bf-ar-invl.inv-qty
-                ttInvLine.quantityInvoicedUOM    = "EA"
+                ttInvLine.quantityInvoicedUOM    = IF bf-ar-invl.pr-qty-uom NE "" THEN
+                                                       bf-ar-invl.pr-qty-uom
+                                                   ELSE
+                                                       "EA"
                 ttInvLine.pricePerUOM            = bf-ar-invl.unit-pr * (1 - (bf-ar-invl.disc / 100))
                 ttInvLine.priceUOM               = bf-ar-invl.pr-uom
                 ttInvLine.customerPartID         = bf-ar-invl.part-no
                 ttInvLine.itemID                 = bf-ar-invl.i-no
                 ttInvLine.itemName               = bf-ar-invl.i-name
+                ttInvLine.itemDescription        = bf-ar-invl.i-dscr
                 ttInvLine.priceTotal             = bf-ar-invl.amt
                 ttInvLine.taxable                = bf-ar-invl.tax
                 ttInvLine.billable               = TRUE
@@ -301,6 +314,7 @@ PROCEDURE pBuildDataForPosted PRIVATE:
                 ttInvLine.customerPONo           = bf-ar-invl.po-no
                 ttInvLine.taxGroup               = ttInv.taxGroup
                 ttInvLine.isMisc                 = bf-ar-invl.misc
+                ttInvLine.bNo                    = bf-ar-invl.b-no
                 .
             
             IF ttInvLine.isMisc THEN
@@ -374,7 +388,12 @@ PROCEDURE pBuildDataForPosted PRIVATE:
 
             IF AVAILABLE bf-oe-ordl THEN 
                 ttInvLine.orderLine = bf-oe-ordl.line.
-            
+
+            ttInvLine.orderLineOverridden = IF ttInvLine.orderLineOverride GT 0 THEN
+                                                ttInvLine.orderLineOverride
+                                            ELSE
+                                                ttInvLine.orderLine.  
+   
             RUN pAssignCommonLineData(
                 BUFFER ttInv, 
                 BUFFER ttInvLine
@@ -389,7 +408,10 @@ PROCEDURE pBuildDataForPosted PRIVATE:
         
         IF ttInv.billFreight THEN 
             ttInv.amountTotal = ttInv.amountTotal + ttInv.amountTotalFreight.
-            
+        
+        IF ttInv.amountTotal LT 0 THEN
+            ttInv.invoiceType = "CR".
+
     END.
 END PROCEDURE.
 
@@ -415,6 +437,7 @@ PROCEDURE pBuildDataForUnposted PRIVATE:
     IF AVAILABLE ipbf-inv-head THEN DO:
         CREATE ttInv.
         ASSIGN             
+            ttInv.invoiceRecKey      = ipbf-inv-head.rec_key
             ttInv.invoiceDate        = ipbf-inv-head.inv-date 
             ttInv.invoiceID          = ipbf-inv-head.inv-no
             ttInv.customerID         = ipbf-inv-head.cust-no
@@ -430,6 +453,9 @@ PROCEDURE pBuildDataForUnposted PRIVATE:
             ttInv.billFreight        = ipbf-inv-head.f-bill
             ttInv.amountTotalFreight = ipbf-inv-head.t-inv-freight 
             ttInv.amountTotalTax     = ipbf-inv-head.t-inv-tax
+            ttInv.shiptoID           = ipbf-inv-head.sold-no
+            ttInv.terms              = ipbf-inv-head.terms
+            ttInv.invoiceDueDate     = DYNAMIC-FUNCTION("GetInvDueDate", ttInv.invoiceDate, ttInv.company ,ttInv.terms).            
             . 
 
         RUN Tax_CalculateForInvHeadWithDetail(
@@ -447,11 +473,7 @@ PROCEDURE pBuildDataForUnposted PRIVATE:
             ).
 
         RUN pAssignCommonHeaderData(
-            BUFFER ttInv, 
-            INPUT  ipbf-inv-head.company, 
-            INPUT  ipbf-inv-head.cust-no, 
-            INPUT  ipbf-inv-head.sold-no,
-            INPUT  ipbf-inv-head.terms
+            BUFFER ttInv
             ).
                          
         FOR EACH bf-inv-line NO-LOCK
@@ -462,24 +484,30 @@ PROCEDURE pBuildDataForUnposted PRIVATE:
                 ttInvLine.invoiceID              = ttInv.invoiceID
                 ttInvLine.company                = ttInv.company
                 ttInvLine.lineNo                 = bf-inv-line.line
+                ttInvLine.orderLineOverride      = bf-inv-line.e-num
                 ttInvLine.orderID                = bf-inv-line.ord-no
                 ttInvLine.orderLine              = bf-inv-line.line
                 ttInvLine.quantityInvoiced       = bf-inv-line.inv-qty
-                ttInvLine.quantityInvoicedUOM    = bf-inv-line.pr-qty-uom
+                ttInvLine.quantityInvoicedUOM    = IF bf-inv-line.pr-qty-uom NE "" THEN
+                                                       bf-inv-line.pr-qty-uom
+                                                   ELSE
+                                                       "EA"
                 ttInvLine.pricePerUOM            = bf-inv-line.price * (1 - (bf-inv-line.disc / 100))
                 ttInvLine.pricePerEach           = bf-inv-line.t-price / bf-inv-line.inv-qty
                 ttInvLine.priceUOM               = bf-inv-line.pr-uom
                 ttInvLine.customerPartID         = bf-inv-line.part-no
                 ttInvLine.itemID                 = bf-inv-line.i-no
                 ttInvLine.itemName               = bf-inv-line.i-name
+                ttInvLine.itemDescription        = bf-inv-line.i-dscr
                 ttInvLine.priceTotal             = bf-inv-line.t-price
                 ttInvLine.taxable                = bf-inv-line.tax
                 ttInvLine.billable               = TRUE
                 ttInvLine.customerPONo           = bf-inv-line.po-no
                 ttInvLine.taxGroup               = ttInv.taxGroup
                 ttInvLine.isMisc                 = FALSE
+                ttInvLine.bNo                    = bf-inv-line.b-no
                 .
-            
+
             lFirst = TRUE.
             
             FOR EACH ttTaxDetail
@@ -511,7 +539,12 @@ PROCEDURE pBuildDataForUnposted PRIVATE:
 
             IF AVAILABLE bf-oe-ordl THEN 
                 ttInvLine.orderLine = bf-oe-ordl.line.
-            
+
+            ttInvLine.orderLineOverridden = IF ttInvLine.orderLineOverride GT 0 THEN
+                                                ttInvLine.orderLineOverride
+                                            ELSE
+                                                ttInvLine.orderLine. 
+
             RUN pAssignCommonLineData(
                 BUFFER ttInv, 
                 BUFFER ttInvLine
@@ -610,8 +643,9 @@ PROCEDURE pBuildDataForUnposted PRIVATE:
         
         IF ttInv.billFreight THEN 
             ttInv.amountTotal = ttInv.amountTotal + ttInv.amountTotalFreight.
-        
+
+        IF ttInv.amountTotal LT 0 THEN
+            ttInv.invoiceType = "CR".        
     END.
     
 END PROCEDURE.
-

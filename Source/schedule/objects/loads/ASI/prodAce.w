@@ -335,12 +335,12 @@ DEFINE RECTANGLE RECT-7
      SIZE 9 BY 2.14
      BGCOLOR 15 .
 
-DEFINE VARIABLE setAllResources AS LOGICAL INITIAL yes 
+DEFINE VARIABLE setAllResources AS LOGICAL INITIAL YES 
      LABEL "Toggle (On/Off) Resources Selected" 
      VIEW-AS TOGGLE-BOX
      SIZE 39 BY .81 NO-UNDO.
 
-DEFINE VARIABLE svAllJobNo AS LOGICAL INITIAL yes 
+DEFINE VARIABLE svAllJobNo AS LOGICAL INITIAL YES 
      LABEL "All Jobs" 
      VIEW-AS TOGGLE-BOX
      SIZE 12 BY .81 NO-UNDO.
@@ -890,6 +890,20 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     selectedStartDate = TODAY
     selectedEndDate = TODAY
     .
+  IF iplAutoMonitor EQ ? THEN DO:
+    ASSIGN
+        selectedStartDueDate = 01/01/1950
+        selectedEndDueDate   = 12/31/2049
+        svAllJobNo           = YES
+        svStartJobNo         = ""
+        svStartJobNo2        = 0
+        svEndJobNo           = CHR(254)
+        svEndJobNo2          = 999
+        .
+    RUN pExport ('Jobs').
+    APPLY "CLOSE":U TO THIS-PROCEDURE.
+    RETURN.
+  END. /* if ? */
   RUN enable_UI.
   RUN pPopulateOptions (hContainer).
   RUN createResourceToggleBoxes.
@@ -1240,6 +1254,17 @@ PROCEDURE pExport :
             svEndJobNo
             svEndJobNo2
             .
+/*MESSAGE                                                         */
+/*    "selectedStartDueDate:" selectedStartDueDate SKIP           */
+/*    "selectedEndDueDate:" selectedEndDueDate SKIP               */
+/*    "svAllJobNo:" svAllJobNo SKIP                               */
+/*    "svStartJobNo:" svStartJobNo SKIP                           */
+/*    "svStartJobNo2:" svStartJobNo2 SKIP                         */
+/*    "svEndJobNo:" svEndJobNo SKIP                               */
+/*    "svEndJobNo2:" svEndJobNo2 SKIP                             */
+/*    "lvProdAceDir:" lvProdAceDir SKIP                           */
+/*    "CAN-FIND(FIRST ttblResource):" CAN-FIND(FIRST ttblResource)*/
+/*VIEW-AS ALERT-BOX.                                              */
         IF svAllJobNo THEN
         ASSIGN
             svStartJobNo = CHR(32)
@@ -1255,17 +1280,8 @@ PROCEDURE pExport :
                          + STRING(svEndJobNo2)
                          .
         FOR EACH ttblResource
-            WHERE ttblResource.dmiID GT 0,
-            EACH ttblJob
-            WHERE ttblJob.resource     EQ ttblResource.resource
-              AND ttblJob.jobSort      GE svStartJobNo
-              AND ttblJob.jobSort      LE svEndJobNo
-              AND ttblJob.dueDate      GE selectedStartDueDate
-              AND ttblJob.dueDate      LE selectedEndDueDate
-              AND ttblJob.jobCompleted EQ NO
-              AND ttblJob.liveUpdate   EQ YES
+            WHERE ttblResource.dmiID GT 0
             BREAK BY ttblResource.dmiID
-                  BY ttblJob.jobSequence
             :
             IF FIRST-OF(ttblResource.dmiID) THEN DO:
                 ASSIGN
@@ -1276,68 +1292,81 @@ PROCEDURE pExport :
                     idx = 1
                     .
                 OUTPUT TO VALUE(cFile).
-                FIND FIRST ttToggleBox
-                     WHERE ttToggleBox.rResource EQ ROWID(ttblResource)
-                     .
-                IF ttToggleBox.hToggleBox:CHECKED THEN DO:
-                    IF lProdAceBarScan THEN DO:
-                        FIND FIRST job-mch NO-LOCK
-                             WHERE ROWID(job-mch) EQ TO-ROWID(ENTRY(2,ttblJob.rowIDs))
-                             NO-ERROR.
-                        IF AVAILABLE job-mch THEN
-                        cProdAceWO = ENTRY(1,ttblJob.job,'.') + '.'
-                                   + STRING(job-mch.job-mchID,'999999999')
+            END.
+            FOR EACH ttblJob
+                WHERE ttblJob.resource     EQ ttblResource.resource
+                  AND ttblJob.jobSort      GE svStartJobNo
+                  AND ttblJob.jobSort      LE svEndJobNo
+                  AND ttblJob.dueDate      GE selectedStartDueDate
+                  AND ttblJob.dueDate      LE selectedEndDueDate
+                  AND ttblJob.jobCompleted EQ NO
+                  AND ttblJob.liveUpdate   EQ YES
+                   BY ttblJob.jobSequence
+                :
+                IF ttblJob.jobSequence EQ 1 THEN DO:
+                    FIND FIRST ttToggleBox
+                         WHERE ttToggleBox.rResource EQ ROWID(ttblResource)
+                         .
+                    IF ttToggleBox.hToggleBox:CHECKED THEN DO:
+                        IF lProdAceBarScan THEN DO:
+                            FIND FIRST job-mch NO-LOCK
+                                 WHERE ROWID(job-mch) EQ TO-ROWID(ENTRY(2,ttblJob.rowIDs))
+                                 NO-ERROR.
+                            IF AVAILABLE job-mch THEN
+                            cProdAceWO = ENTRY(1,ttblJob.job,'.') + '.'
+                                       + STRING(job-mch.job-mchID,'999999999')
+                                       .
+                        END. /* if barscan */
+                        ELSE
+                        cProdAceWO = ttblJob.job + '.'
+                                   + STRING(INT(ttblJob.userField19)) + '.'
+                                   + STRING(INT(ttblJob.userField20)) + '.'
+                                   + ttblJob.resource
                                    .
-                    END. /* if barscan */
-                    ELSE
-                    cProdAceWO = ttblJob.job + '.'
-                               + STRING(INT(ttblJob.userField19)) + '.'
-                               + STRING(INT(ttblJob.userField20)) + '.'
-                               + ttblJob.resource
+                        firstJobsList = firstJobsList
+                                      + STRING(ttblResource.dmiID,'999') + '|'
+                                      + cProdAceWO
+                                      + ','
+                                      .
+                    END. /* if togglebox */
+                END. /* if first-of */
+                RUN pProductID (
+                    ttblResource.dmiID,
+                    ttblResource.resource,
+                    ttblJob.userField08,
+                    ttblJob.userField09,
+                    LEFT-TRIM(ttblJob.userField104),
+                    ttblJob.userField88,
+                    OUTPUT cProductID
+                    ).
+                IF lProdAceBarScan THEN DO:
+                    FIND FIRST job-mch NO-LOCK
+                         WHERE ROWID(job-mch) EQ TO-ROWID(ENTRY(2,ttblJob.rowIDs))
+                         NO-ERROR.
+                    IF AVAILABLE job-mch THEN
+                    cProdAceWO = ENTRY(1,ttblJob.job,'.') + '.'
+                               + STRING(job-mch.job-mchID,'999999999')
                                .
-                    firstJobsList = firstJobsList
-                                  + STRING(ttblResource.dmiID,'999') + '|'
-                                  + cProdAceWO
-                                  + ','
-                                  .
-                END. /* if togglebox */
-            END. /* if first-of */
-            RUN pProductID (
-                ttblResource.dmiID,
-                ttblResource.resource,
-                ttblJob.userField08,
-                ttblJob.userField09,
-                LEFT-TRIM(ttblJob.userField104),
-                ttblJob.userField88,
-                OUTPUT cProductID
-                ).
-            IF lProdAceBarScan THEN DO:
-                FIND FIRST job-mch NO-LOCK
-                     WHERE ROWID(job-mch) EQ TO-ROWID(ENTRY(2,ttblJob.rowIDs))
-                     NO-ERROR.
-                IF AVAILABLE job-mch THEN
-                cProdAceWO = ENTRY(1,ttblJob.job,'.') + '.'
-                           + STRING(job-mch.job-mchID,'999999999')
+                END. /* if barscan */
+                ELSE
+                cProdAceWO = ttblJob.job + '.'
+                           + STRING(INT(ttblJob.userField19)) + '.'
+                           + STRING(INT(ttblJob.userField20)) + '.'
+                           + ttblJob.resource
                            .
-            END. /* if barscan */
-            ELSE
-            cProdAceWO = ttblJob.job + '.'
-                       + STRING(INT(ttblJob.userField19)) + '.'
-                       + STRING(INT(ttblJob.userField20)) + '.'
-                       + ttblJob.resource
-                       .
-            idx = idx + 1.
-            PUT UNFORMATTED 
-                idx ','
-                STRING(ttblResource.dmiID,'999') ',"'
-                cProdAceWO '","'
-                cProductID '",'
-                REPLACE(ttblJob.userField15,',','') ',"",'
-                YEAR(ttblJob.dueDate)
-                STRING(MONTH(ttblJob.dueDate),'99')
-                STRING(DAY(ttblJob.dueDate),'99') ',""'
-                SKIP 
-                .
+                idx = idx + 1.
+                PUT UNFORMATTED 
+                    idx ','
+                    STRING(ttblResource.dmiID,'999') ',"'
+                    cProdAceWO '","'
+                    cProductID '",'
+                    REPLACE(ttblJob.userField15,',','') ',"",'
+                    YEAR(ttblJob.dueDate)
+                    STRING(MONTH(ttblJob.dueDate),'99')
+                    STRING(DAY(ttblJob.dueDate),'99') ',""'
+                    SKIP 
+                    .
+            END. /* each ttbljob */
             IF LAST-OF(ttblResource.dmiID) THEN DO:
                 /* tack on pending jobs to end of machine job queue */
                 FOR EACH pendingJob
@@ -1416,12 +1445,13 @@ PROCEDURE pExport :
         OUTPUT CLOSE.
         OS-APPEND VALUE(SEARCH(cFile)) VALUE(REPLACE(SEARCH(cFile),'.tmp','.dat')).
         OS-DELETE VALUE(SEARCH(cFile)).
-    END. /* jobs */
+    END. /* if jobs */
     ELSE DO:
         RUN asiCommaList IN iphContainerHandle ('Company',OUTPUT asiCompany).
         RUN VALUE(findProgram('{&loads}/',ID,'/prodAceExport.p'))
             (asiCompany,ID,lvProdAceDir,ipcType).
     END. /* else */    
+    IF iplAutoMonitor EQ NO THEN
     MESSAGE
         'Export of' ipcType 'Complete'
     VIEW-AS ALERT-BOX.
@@ -1456,6 +1486,7 @@ PROCEDURE postProdAce :
 ------------------------------------------------------------------------------*/
   lvProdAceFile = lvImportDir + '/adware.dat'.
   IF SEARCH(lvProdAceFile) EQ ? THEN DO:
+      IF iplAutoMonitor EQ NO THEN
       MESSAGE 
         'Production ACE File' lvProdAceFile 'does not exist'
       VIEW-AS ALERT-BOX.

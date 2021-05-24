@@ -367,7 +367,8 @@ PROCEDURE pProcessRecord PRIVATE:
     RUN pAssignValueC (ipbf-ttImportPriceMatrix.cOnline, YES, INPUT-OUTPUT bf-oe-prmtx.online).
     RUN pAssignValueD (ipbf-ttImportPriceMatrix.minOrderQty, iplIgnoreBlanks, INPUT-OUTPUT bf-oe-prmtx.minOrderQty). 
     RUN pAssignValueI (ipbf-ttImportPriceMatrix.quoteID, iplIgnoreBlanks, INPUT-OUTPUT bf-oe-prmtx.quoteID). 
-    
+      
+    FIND CURRENT bf-oe-prmtx NO-LOCK NO-ERROR.  
     RUN Price_ExpireOldPrice(
         INPUT bf-oe-prmtx.company,
         INPUT bf-oe-prmtx.i-no,

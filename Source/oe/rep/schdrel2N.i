@@ -485,9 +485,9 @@ form header
        w-ord.i-name        = oe-ordl.i-name
        w-ord.qty           = oe-ordl.qty
        w-ord.cost          = oe-ordl.cost
-       w-ord.price         = oe-ordl.t-price / oe-ordl.qty
-       w-ord.rel-qty       = v-qty
-       w-ord.t-price       = w-ord.price * w-ord.rel-qty
+       w-ord.price         = oe-ordl.price        
+       w-ord.rel-qty       = v-qty  
+       w-ord.t-price       = (oe-ordl.t-price / oe-ordl.qty) * w-ord.rel-qty
        w-ord.rel-date      = string(v-date) + tt-report.key-06
        w-ord.xls-rel-date  = v-date
        w-ord.xls-status    = tt-report.key-06

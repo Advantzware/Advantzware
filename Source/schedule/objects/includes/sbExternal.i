@@ -12,16 +12,17 @@
 /* configuration version procedures */
 {{&includes}/configVersion.i}
 
-DEFINE VARIABLE containerHandle AS HANDLE NO-UNDO.
-DEFINE VARIABLE loadProgram AS CHARACTER NO-UNDO.
-DEFINE VARIABLE reload AS LOGICAL NO-UNDO.
-DEFINE VARIABLE scenario AS CHARACTER NO-UNDO INITIAL 'Actual'.
-DEFINE VARIABLE lContinue AS LOGICAL NO-UNDO.
-DEFINE VARIABLE cProdAceDat AS CHARACTER NO-UNDO.
-DEFINE VARIABLE idx AS INTEGER NO-UNDO.
+DEFINE VARIABLE containerHandle AS HANDLE    NO-UNDO.
+DEFINE VARIABLE cProdAceDat     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE idx             AS INTEGER   NO-UNDO.
+DEFINE VARIABLE loadProgram     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lContinue       AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE reload          AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE scenario        AS CHARACTER NO-UNDO INITIAL 'Actual'.
 
 DEFINE SHARED VARIABLE g_company AS CHARACTER NO-UNDO.
-DEFINE SHARED VARIABLE g_loc AS CHARACTER NO-UNDO.
+DEFINE SHARED VARIABLE g_loc     AS CHARACTER NO-UNDO.
+DEFINE SHARED VARIABLE g_lookup  AS LOGICAL   NO-UNDO. 
 
 SESSION:SET-WAIT-STATE('').
 
@@ -46,15 +47,20 @@ END FUNCTION.
 
 /* *** main block ****************************************************** */
 
+&IF '{&sbExternal}' NE 'autoDMI' &THEN
 RUN {&prompts}/ID.w (OUTPUT ID).
 IF ID EQ '' THEN RETURN.
+&ELSE
+ID = "ASI/Amtech".
+&ENDIF
 {{&includes}/startUp.i}
 containerHandle = THIS-PROCEDURE:HANDLE.
 
 PROCESS EVENTS.
 
 RUN getConfiguration.
-reload = IF '{&sbExternal}' EQ 'sbDMI'    THEN YES
+reload = IF '{&sbExternal}' EQ 'autoDMI'  THEN YES
+    ELSE IF '{&sbExternal}' EQ 'sbDMI'    THEN YES
     ELSE IF '{&sbExternal}' EQ 'sbJScan'  THEN reloadStatus
     ELSE IF '{&sbExternal}' EQ 'sbNotes'  THEN reloadStatus
     ELSE IF '{&sbExternal}' EQ 'sbReport' THEN reloadReport
@@ -77,11 +83,12 @@ IF reload EQ ? THEN DO:
   IF reload EQ ? THEN RETURN.
 END.
 
+&IF '{&sbExternal}' NE 'autoDMI' &THEN
 DISPLAY SKIP(1) 'Getting Schedule Board Jobs' SKIP(1)
   WITH FRAME fMsg1 OVERLAY COL 10 ROW 10 BGCOLOR 14 FONT 6
   TITLE ' Schedule Board ({&sbExternal})'.
-
 PROCESS EVENTS.
+&ENDIF
 
 IF reload EQ NO THEN
 RUN VALUE(findProgram('{&loads}/',ID,'/loadView.p')) (containerHandle).
@@ -89,19 +96,40 @@ ELSE DO:
   {{&includes}/loadProgram.i} /* runs load{&Board}.p program */
 END. /* else do */
 
+&IF '{&sbExternal}' NE 'autoDMI' &THEN
 HIDE FRAME fMsg1 NO-PAUSE.
 DISPLAY SKIP(1) 'Loading Schedule Board Jobs' SKIP(1)
   WITH FRAME fMsg2 OVERLAY COL 10 ROW 10 BGCOLOR 14 FONT 6
-  TITLE ' Schedule Board ({&sbExternal})'.
-
+  TITLE ' Schedule Board ({&sbExternal})'.    
 PROCESS EVENTS.
+&ENDIF
 
 RUN getScenario.
 RUN getNotes.
 
+&IF '{&sbExternal}' NE 'autoDMI' &THEN
 HIDE FRAME fMsg2 NO-PAUSE.
+&ENDIF
 
-&IF '{&sbExternal}' EQ 'sbDMI' &THEN
+&IF '{&sbExternal}' EQ 'autoDMI' OR '{&sbExternal}' EQ 'sbDMI' &THEN
+/*DEFINE VARIABLE cCompany  AS CHARACTER NO-UNDO.          */
+/*DEFINE VARIABLE cLocation AS CHARACTER NO-UNDO.          */
+/*                                                         */
+/*MESSAGE               */
+/*"commaList:" commaList*/
+/*VIEW-AS ALERT-BOX.    */
+/*IF ENTRY(1,commaList) EQ "" THEN DO:                     */
+/*    RUN spGetSessionParam ("Company", OUTPUT cCompany).  */
+/*    ENTRY(1,commaList) = cCompany.                       */
+/*END.                                                     */
+/*IF ENTRY(2,commaList) EQ "" THEN DO:                     */
+/*    RUN spGetSessionParam ("Location", OUTPUT cLocation).*/
+/*    ENTRY(2,commaList) = cLocation.                      */
+/*END.                                                     */
+/*MESSAGE                                                  */
+/*"commaList:" commaList                                   */
+/*VIEW-AS ALERT-BOX.                                       */
+
 FOR EACH mach NO-LOCK 
     WHERE mach.company EQ ENTRY(1,commaList)
       AND mach.spare-int-2 NE 0
@@ -128,7 +156,10 @@ FOR EACH ttblJob
 END. /* each ttbljob */
 &ENDIF
 
-&IF '{&sbExternal}' EQ 'sbDMI' &THEN
+&IF '{&sbExternal}' EQ 'autoDMI' &THEN
+cProdAceDat = findProgram('{&data}/',ID,'/ProdAce.dat').
+RUN VALUE(findProgram('{&loads}/',ID,'/prodAce.w')) (cProdAceDat, THIS-PROCEDURE, ?, OUTPUT lContinue).
+&ELSEIF '{&sbExternal}' EQ 'sbDMI' &THEN
 cProdAceDat = findProgram('{&data}/',ID,'/ProdAce.dat').
 RUN VALUE(findProgram('{&loads}/',ID,'/prodAce.w')) (cProdAceDat, THIS-PROCEDURE, NO, OUTPUT lContinue).
 &ELSEIF '{&sbExternal}' EQ 'sbJScan' &THEN
@@ -142,18 +173,6 @@ RUN {&objects}/sbStatus.w.
 &ELSEIF '{&sbExternal}' EQ 'sbHTML' &THEN
 RUN {&objects}/sbHTML.p (g_company, 0, YES, YES, "Capacity HTML Page").
 &ENDIF
-
-/*&IF '{&sbExternal}' EQ 'sbDMI' &THEN                                                                               */
-/*RUN VALUE(findProgram('{&loads}/',ID,'/prodAce.w')) PERSISTENT (cProdAceDat, THIS-PROCEDURE, NO, OUTPUT lContinue).*/
-/*&ELSEIF '{&sbExternal}' EQ 'sbJScan' &THEN                                                                         */
-/*RUN {&prompts}/jobSeqScan.w PERSISTENT (THIS-PROCEDURE, ENTRY(1,commaList)).                                       */
-/*&ELSEIF '{&sbExternal}' EQ 'sbNotes' &THEN                                                                         */
-/*RUN {&objects}/sbNotes.w PERSISTENT.                                                                               */
-/*&ELSEIF '{&sbExternal}' EQ 'sbReport' &THEN                                                                        */
-/*RUN {&prompts}/fieldFilter.w PERSISTENT ('{&Board}','','',NO,NO,?,'print').                                        */
-/*&ELSEIF '{&sbExternal}' EQ 'sbStatus' &THEN                                                                        */
-/*RUN {&objects}/sbStatus.w PERSISTENT.                                                                              */
-/*&ENDIF                                                                                                             */
 
 /* *** internal procedures ********************************************* */
 
