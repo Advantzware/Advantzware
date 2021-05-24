@@ -1,0 +1,4 @@
+HL*$HLCount$*4*I
+LIN*$ItemLineID$*VP*$ItemID$
+SN1**$ItemQuantity$*$ItemQuantityUOM$
+PID*F****$ItemName$$linefeed$
