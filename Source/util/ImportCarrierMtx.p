@@ -159,6 +159,7 @@ PROCEDURE pProcessRecord PRIVATE:
     RUN pAssignValueC (ipbf-ttImportCarrierMtx.del-dscr, iplIgnoreBlanks, INPUT-OUTPUT bf-carr-mtx.del-dscr).
     RUN pAssignValueC (ipbf-ttImportCarrierMtx.del-zip, iplIgnoreBlanks, INPUT-OUTPUT bf-carr-mtx.del-zip).
     RUN pAssignValueD (ipbf-ttImportCarrierMtx.min-rate, YES, INPUT-OUTPUT bf-carr-mtx.min-rate).
+    RUN pAssignValueC (ipbf-ttImportCarrierMtx.loc, YES, INPUT-OUTPUT bf-carr-mtx.loc).
 
     RUN pAssignValueI (ipbf-ttImportCarrierMtx.weight1, YES, INPUT-OUTPUT bf-carr-mtx.weight[1]).
     RUN pAssignValueI (ipbf-ttImportCarrierMtx.weight2, YES, INPUT-OUTPUT bf-carr-mtx.weight[2]).
