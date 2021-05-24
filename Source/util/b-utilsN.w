@@ -544,11 +544,12 @@ DO:
     /* removes any extenstion from the value entered, if any */
     ASSIGN 
         cUnextended = REPLACE(fi_pro-name:SCREEN-VALUE IN FRAME {&frame-name},".r","")
-        cUnextended = REPLACE(fi_pro-name:SCREEN-VALUE,".w","")
-        cUnextended = REPLACE(fi_pro-name:SCREEN-VALUE,".p","")
-        cUnextended = REPLACE(fi_pro-name:SCREEN-VALUE,".","").
+        cUnextended = REPLACE(cUnextended,".w","")
+        cUnextended = REPLACE(cUnextended,".p","")
+        cUnextended = REPLACE(cUnextended,".","").
+
     /* Searches for source code (and if found, runs it), THEN for r-code */
-    IF SEARCH(cUnextended + '.w') NE ? THEN
+    IF SEARCH('util/' + cUnextended + '.w') NE ? THEN
         RUN VALUE('util/' + cUnextended + '.w').
     ELSE IF SEARCH('util/' + cUnextended + '.p') NE ? THEN
         RUN VALUE('util/' + cUnextended + '.p').

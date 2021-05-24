@@ -260,11 +260,12 @@ DO:
     /* removes any extenstion from the value entered, if any */
     ASSIGN 
         cUnextended = REPLACE(utilities.programName:SCREEN-VALUE IN FRAME {&frame-name},".r","")
-        cUnextended = REPLACE(utilities.programName:SCREEN-VALUE,".w","")
-        cUnextended = REPLACE(utilities.programName:SCREEN-VALUE,".p","")
-        cUnextended = REPLACE(utilities.programName:SCREEN-VALUE,".","").
+        cUnextended = REPLACE(cUnextended,".w","")
+        cUnextended = REPLACE(cUnextended,".p","")
+        cUnextended = REPLACE(cUnextended,".","").
+
     /* Searches for source code (and if found, runs it), THEN for r-code */
-    IF SEARCH(cUnextended + '.w') NE ? THEN
+    IF SEARCH('util/' + cUnextended + '.w') NE ? THEN
         RUN VALUE('util/' + cUnextended + '.w').
     ELSE IF SEARCH('util/' + cUnextended + '.p') NE ? THEN
         RUN VALUE('util/' + cUnextended + '.p').
@@ -274,7 +275,6 @@ DO:
         'Program: util/' + cUnextended + ' does not exist with any extension.' VIEW-AS ALERT-BOX.
 
 END.
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
