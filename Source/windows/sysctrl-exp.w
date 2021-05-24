@@ -72,8 +72,8 @@ ASSIGN
 {sys/inc/ttRptSel.i}
 
 ASSIGN 
-    cTextListToDefault = "Company,Config Name,Config Description,Category,Sub-category,Module,Allows Context,Character Value,Character Value - Description,Date Value,Date Value - Description," +
-                          "Decimal Value,Decimal Value - Description,Integer Value,Integer Value - Description,Logical Value,Logical Value - Description,User Sec Level".
+    cTextListToDefault = "Company,Config Name,Config Description,Category,Sub-category,Module,Allows Context,Character Value,Date Value," +
+                          "Decimal Value,Integer Value,Logical Value,User Sec Level".
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
