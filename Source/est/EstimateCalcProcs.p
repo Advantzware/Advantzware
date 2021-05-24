@@ -74,6 +74,7 @@ DEFINE VARIABLE glVendItemCost                        AS LOGICAL   NO-UNDO INITI
 DEFINE VARIABLE glApplyOperationMinimumCharge         AS LOGICAL   NO-UNDO. /*CEPRICE Logical*/
 DEFINE VARIABLE glApplyOperationMinimumChargeRunOnly  AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE glRoundPriceToDollar                  AS LOGICAL   NO-UNDO.  /*CEROUND*/
+DEFINE VARIABLE glPromptForMaterialVendor             AS LOGICAL   NO-UNDO.  /*CEVENDOR*/
 
 /* ********************  Preprocessor Definitions  ******************** */
 
@@ -153,14 +154,23 @@ PROCEDURE CalculateEstimate:
     
     DEFINE VARIABLE iEstCostHeaderID AS INT64 NO-UNDO.
     
-    RUN pSetGlobalSettings(ipcCompany).  
-    IF iplPurge THEN 
-        RUN pPurgeCalculation(ipcCompany, ipcEstimateNo).
-    RUN pBuildHeadersToProcess(ipcCompany, ipcEstimateNo, "", 0, 0, OUTPUT iEstCostHeaderID).
-    FOR EACH ttEstHeaderToCalc: 
-        RUN pCalculateHeader(ttEstHeaderToCalc.iEstCostHeaderID).
-    END.
+    RUN pCalcEstimate(ipcCompany, ipcEstimateNo, "", 0, 0, iplPurge, NO, OUTPUT iEstCostHeaderID).
 
+END PROCEDURE.
+
+PROCEDURE CalculateEstimateWithPrompts:
+    /*------------------------------------------------------------------------------
+    Purpose:  Public Procedure that calculates estimate and may include UI prompts
+    Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcEstimateNo AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER iplPurge AS LOGICAL NO-UNDO.
+    
+    DEFINE VARIABLE iEstCostHeaderID AS INT64 NO-UNDO.
+    
+    RUN pCalcEstimate(ipcCompany, ipcEstimateNo, "", 0, 0, iplPurge, YES, OUTPUT iEstCostHeaderID).
+    
 END PROCEDURE.
 
 PROCEDURE CalculateJob:
@@ -176,14 +186,24 @@ PROCEDURE CalculateJob:
     DEFINE INPUT PARAMETER iplPurge AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opiEstCostHeaderID AS INT64 NO-UNDO.
 
-    RUN pSetGlobalSettings(ipcCompany).  
-    IF iplPurge THEN 
-        RUN pPurgeJobCalculation(ipcCompany, ipcEstimateNo, ipcJobNo, ipiJobNo2).
-        
-    RUN pBuildHeadersToProcess(ipcCompany, ipcEstimateNo, ipcJobNo, ipiJobNo2, ipiQuantity, OUTPUT opiEstCostHeaderID).
-    FOR EACH ttEstHeaderToCalc: 
-        RUN pCalculateHeader(ttEstHeaderToCalc.iEstCostHeaderID).
-    END.
+    RUN pCalcEstimate(ipcCompany, ipcEstimateNo, ipcJobNo, ipiJobNo2, ipiQuantity, iplPurge, NO, OUTPUT opiEstCostHeaderID).
+
+END PROCEDURE.
+
+PROCEDURE CalculateJobWithPrompts:
+    /*------------------------------------------------------------------------------
+        Purpose: Primary Public Procedure for calculating the estimate
+        Notes:
+       ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcEstimateNo AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcJobNo AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiJobNo2 AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiQuantity AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER iplPurge AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiEstCostHeaderID AS INT64 NO-UNDO.
+
+    RUN pCalcEstimate(ipcCompany, ipcEstimateNo, ipcJobNo, ipiJobNo2, ipiQuantity, iplPurge, YES, OUTPUT opiEstCostHeaderID).
 
 END PROCEDURE.
 
@@ -1784,8 +1804,9 @@ PROCEDURE pBuildProbe PRIVATE:
      Purpose: Given a estCostHeader, make or update a probe record for display in Print tab
      Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE PARAMETER BUFFER ipbf-estCostHeader FOR estCostHeader.
-    
+    DEFINE INPUT PARAMETER ipiEstCostHeaderID AS INT64 NO-UNDO.
+        
+    DEFINE           BUFFER bf-estCostHeader   FOR estCostHeader.
     DEFINE           BUFFER bf-probe           FOR probe.
     DEFINE           BUFFER bf-probeit         FOR probeit.
     DEFINE           BUFFER bf-estimate-probe  FOR probe.
@@ -1797,21 +1818,24 @@ PROCEDURE pBuildProbe PRIVATE:
        
     DISABLE TRIGGERS FOR LOAD OF probe.
     
-    IF ipbf-estCostHeader.jobID NE "" THEN RETURN.
+    FIND bf-estCostHeader NO-LOCK 
+        WHERE bf-estCostHeader.estCostHeaderID EQ ipiEstCostHeaderID
+        NO-ERROR.
+    IF NOT AVAILABLE bf-estCostHeader OR bf-estCostHeader.jobID NE "" THEN RETURN.
     
-    dQtyInM    = ipbf-estCostHeader.quantityMaster / 1000.
+    dQtyInM    = bf-estCostHeader.quantityMaster / 1000.
     
     FIND FIRST bf-probe EXCLUSIVE-LOCK 
-        WHERE bf-probe.company EQ ipbf-estCostHeader.company
-        AND bf-probe.est-no EQ ipbf-estCostHeader.estimateNo
-        AND bf-probe.spare-char-2 EQ STRING(ipbf-estCostHeader.estCostHeaderID)
+        WHERE bf-probe.company EQ bf-estCostHeader.company
+        AND bf-probe.est-no EQ bf-estCostHeader.estimateNo
+        AND bf-probe.spare-char-2 EQ STRING(bf-estCostHeader.estCostHeaderID)
         NO-ERROR.
     
     IF NOT AVAILABLE bf-probe THEN 
     DO:        
         FOR EACH bf-estimate-probe NO-LOCK 
-            WHERE bf-estimate-probe.company EQ ipbf-estCostHeader.company
-            AND bf-estimate-probe.est-no EQ ipbf-estCostHeader.estimateNo
+            WHERE bf-estimate-probe.company EQ bf-estCostHeader.company
+            AND bf-estimate-probe.est-no EQ bf-estCostHeader.estimateNo
             AND bf-estimate-probe.probe-date <> ?
             BY bf-estimate-probe.LINE DESCENDING:
             iProbeLine = bf-estimate-probe.LINE.
@@ -1820,20 +1844,20 @@ PROCEDURE pBuildProbe PRIVATE:
         iProbeLine = iProbeLine + 1.
         CREATE bf-probe.
         ASSIGN 
-            bf-probe.company      = ipbf-estCostHeader.company
-            bf-probe.est-no       = ipbf-estCostHeader.estimateNo
+            bf-probe.company      = bf-estCostHeader.company
+            bf-probe.est-no       = bf-estCostHeader.estimateNo
             bf-probe.line         = iProbeLine
-            bf-probe.spare-char-2 = STRING(ipbf-estCostHeader.estCostHeaderID)
-            bf-probe.est-qty      = ipbf-estCostHeader.quantityMaster        
-            bf-probe.probe-date   = DATE(ipbf-estCostHeader.calcDateTime)
-            bf-probe.probe-time   = INTEGER(MTIME(ipbf-estCostHeader.calcDateTime) / 1000)
-            bf-probe.probe-user   = ipbf-estCostHeader.calculatedBy
-            bf-probe.freight      = ipbf-estCostHeader.releaseCount             /* Holds Number of Releases */
-            bf-probe.tot-lbs      = ipbf-estCostHeader.weightTotal
+            bf-probe.spare-char-2 = STRING(bf-estCostHeader.estCostHeaderID)
+            bf-probe.est-qty      = bf-estCostHeader.quantityMaster        
+            bf-probe.probe-date   = DATE(bf-estCostHeader.calcDateTime)
+            bf-probe.probe-time   = INTEGER(MTIME(bf-estCostHeader.calcDateTime) / 1000)
+            bf-probe.probe-user   = bf-estCostHeader.calculatedBy
+            bf-probe.freight      = bf-estCostHeader.releaseCount             /* Holds Number of Releases */
+            bf-probe.tot-lbs      = bf-estCostHeader.weightTotal
             .
             
         FOR EACH estCostForm NO-LOCK 
-            WHERE estCostForm.estCostHeaderID EQ ipbf-estCostHeader.estCostHeaderID
+            WHERE estCostForm.estCostHeaderID EQ bf-estCostHeader.estCostHeaderID
             :
             
             ASSIGN 
@@ -1842,7 +1866,7 @@ PROCEDURE pBuildProbe PRIVATE:
                 .                  
         END.    
         FOR EACH estCostBlank NO-LOCK 
-            WHERE estCostBlank.estCostHeaderID EQ ipbf-estCostHeader.estCostHeaderID
+            WHERE estCostBlank.estCostHeaderID EQ bf-estCostHeader.estCostHeaderID
             AND estCostBlank.formNo NE 0
             :
             ASSIGN 
@@ -1851,29 +1875,29 @@ PROCEDURE pBuildProbe PRIVATE:
         END.
     END.
     ASSIGN 
-        bf-probe.fact-cost      = ipbf-estCostHeader.costTotalFactory / dQtyInM
-        bf-probe.full-cost      = ipbf-estCostHeader.costTotalFull / dQtyInM
-        bf-probe.gross-profit   = ipbf-estCostHeader.profitPctGross
-        bf-probe.net-profit     = ipbf-estCostHeader.profitPctNet 
-        dPricePerM              = ipbf-estCostHeader.sellPrice / dQtyInM
+        bf-probe.fact-cost      = bf-estCostHeader.costTotalFactory / dQtyInM
+        bf-probe.full-cost      = bf-estCostHeader.costTotalFull / dQtyInM
+        bf-probe.gross-profit   = bf-estCostHeader.profitPctGross
+        bf-probe.net-profit     = bf-estCostHeader.profitPctNet 
+        dPricePerM              = bf-estCostHeader.sellPrice / dQtyInM
         bf-probe.sell-price     = IF glRoundPriceToDollar THEN ROUND(dPricePerM, 0) ELSE ROUND(dPricePerM, 2)
-        bf-probe.spare-dec-1    = ipbf-estCostHeader.costTotalMaterial / dQtyInM
-        bf-probe.boardCostTotal = ipbf-estCostHeader.costTotalBoard
-        bf-probe.boardCostPerM  = ipbf-estCostHeader.costTotalBoard / dQtyInM
+        bf-probe.spare-dec-1    = bf-estCostHeader.costTotalMaterial / dQtyInM
+        bf-probe.boardCostTotal = bf-estCostHeader.costTotalBoard
+        bf-probe.boardCostPerM  = bf-estCostHeader.costTotalBoard / dQtyInM
         .
-    IF ipbf-estCostHeader.sellPrice GT 0 THEN 
-        bf-probe.boardCostPct  = ipbf-estCostHeader.costTotalBoard / ipbf-estCostHeader.sellPrice * 100.
+    IF bf-estCostHeader.sellPrice GT 0 THEN 
+        bf-probe.boardCostPct  = bf-estCostHeader.costTotalBoard / bf-estCostHeader.sellPrice * 100.
                     
     FOR EACH estCostItem NO-LOCK
-        WHERE estCostItem.estCostHeaderID EQ ipbf-estCostHeader.estCostHeaderID
+        WHERE estCostItem.estCostHeaderID EQ bf-estCostHeader.estCostHeaderID
         AND NOT estCostItem.isSet:
             
         ASSIGN 
             dQtyInMForItem = estCostItem.quantityRequired / 1000
             .
         FIND FIRST bf-probeit EXCLUSIVE-LOCK 
-            WHERE bf-probeit.company EQ ipbf-estCostHeader.company
-            AND bf-probeit.est-no EQ ipbf-estCostHeader.estimateNo
+            WHERE bf-probeit.company EQ bf-estCostHeader.company
+            AND bf-probeit.est-no EQ bf-estCostHeader.estimateNo
             AND bf-probeit.part-no EQ estCostItem.customerPart
             AND bf-probeit.line EQ bf-probe.line
             NO-ERROR.            
@@ -2007,7 +2031,52 @@ PROCEDURE pBuildPriceRelatedCostDetails PRIVATE:
  
 END PROCEDURE.
 
-PROCEDURE pCalculateHeader PRIVATE:
+PROCEDURE pCalcHeaderCosts PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:  Calculates all costs for the cost header based on operations and materials
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipiEstCostHeaderID AS INT64 NO-UNDO.
+    
+    RUN pBuildFactoryCostDetails(ipiEstCostHeaderID).
+    RUN pBuildNonFactoryCostDetails(ipiEstCostHeaderID).
+    RUN pBuildFreightCostDetails(ipiEstCostHeaderID).
+    RUN pBuildPriceRelatedCostDetails(ipiEstCostHeaderID).
+    RUN pBuildCostSummary(ipiEstCostHeaderID).
+    RUN pCopyHeaderCostsToSetItem(ipiEstCostHeaderID).
+    RUN pBuildProbe(ipiEstCostHeaderID).
+
+END PROCEDURE.
+
+PROCEDURE pCalcEstimate PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:  Internal master procedure for calculating an estimate/job
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcEstimateNo AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcJobNo AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiJobNo2 AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiQuantity AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER iplPurge AS LOGICAL NO-UNDO.
+    DEFINE INPUT PARAMETER iplPrompt AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiEstCostHeaderID AS INT64 NO-UNDO.
+    
+    RUN pSetGlobalSettings(ipcCompany).  
+    IF iplPurge THEN 
+        RUN pPurgeCalculation(ipcCompany, ipcEstimateNo, ipcJobNo, ipiJobNo2).
+        
+    RUN pBuildHeadersToProcess(ipcCompany, ipcEstimateNo, ipcJobNo, ipiJobNo2, ipiQuantity, OUTPUT opiEstCostHeaderID).
+    FOR EACH ttEstHeaderToCalc: 
+        RUN pCalcHeader(ttEstHeaderToCalc.iEstCostHeaderID).
+    END.
+    IF iplPrompt THEN 
+        RUN pPromptForCalculationChanges(ipcCompany, ipcEstimateNo, ipcJobNo, ipiJobNo2).
+    
+
+END PROCEDURE.
+
+PROCEDURE pCalcHeader PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose: Main Build of data from Estimate
      Notes:
@@ -2112,19 +2181,14 @@ PROCEDURE pCalculateHeader PRIVATE:
             bf-estCostHeader.quantityMaster = dQtyMaster.
             FIND CURRENT bf-estCostHeader NO-LOCK.
         END.                            
-        RUN pCalculateWeightsAndSizes(bf-estCostHeader.estCostHeaderID).
+        RUN pCalcWeightsAndSizes(bf-estCostHeader.estCostHeaderID).
         RUN pProcessPacking(BUFFER bf-estCostHeader).
         RUN pProcessEstMaterial(BUFFER bf-estCostHeader).
-        RUN pBuildFactoryCostDetails(bf-estCostHeader.estCostHeaderID).
-        RUN pBuildNonFactoryCostDetails(bf-estCostHeader.estCostHeaderID).
-        RUN pBuildFreightCostDetails(bf-estCostHeader.estCostHeaderID).
-        RUN pBuildPriceRelatedCostDetails(bf-estCostHeader.estCostHeaderID).
-        RUN pBuildCostSummary(bf-estCostHeader.estCostHeaderID).
-        RUN pCopyHeaderCostsToSetItem(BUFFER bf-estCostHeader).
-        RUN pBuildProbe(BUFFER bf-estCostHeader).
+        
+        RUN pCalcHeaderCosts(bf-estCostHeader.estCostHeaderID).        
         
     END. /*each bf-estCostHeader*/
-
+    
 END PROCEDURE.
 
 PROCEDURE pBuildNonFactoryCostDetails PRIVATE:
@@ -2602,7 +2666,7 @@ PROCEDURE pCalcCostTotalsItem PRIVATE:
 
 END PROCEDURE.
 
-PROCEDURE pCalculateWeightsAndSizes PRIVATE:
+PROCEDURE pCalcWeightsAndSizes PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose: Given an estCostHeaderID, calculate weight for all blanks, items, forms
      and header based on weight of materials flagged for inclusion
@@ -2753,32 +2817,37 @@ PROCEDURE pCopyHeaderCostsToSetItem PRIVATE:
      Set Header Item
      Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE PARAMETER BUFFER ipbf-estCostHeader FOR estCostHeader.
+    DEFINE INPUT PARAMETER ipiEstCostHeaderID AS INT64 NO-UNDO.
 
+    DEFINE           BUFFER bf-estCostHeader   FOR estCostHeader.
     DEFINE           BUFFER bf-estCostBlank    FOR estCostBlank. 
     DEFINE           BUFFER bf-estCostItem     FOR estCostItem.
+    
+    FIND bf-estCostHeader NO-LOCK
+        WHERE bf-estCostHeader.estCostHeaderID EQ ipiEstCostHeaderID
+        NO-ERROR.
 
-    IF ipbf-estCostHeader.estType EQ gcTypeSet THEN 
+    IF AVAILABLE bf-estCostHeader AND bf-estCostHeader.estType EQ gcTypeSet THEN 
     DO:
         FOR EACH bf-estCostBlank NO-LOCK
-            WHERE bf-estCostBlank.estCostHeaderID EQ ipbf-estCostHeader.estCostHeaderID
+            WHERE bf-estCostBlank.estCostHeaderID EQ bf-estCostHeader.estCostHeaderID
             AND bf-estCostBlank.formNo EQ 0
             AND bf-estCostBlank.blankNo EQ 0,
             FIRST bf-estCostItem EXCLUSIVE-LOCK
             WHERE bf-estCostItem.estCostItemID EQ bf-estCostBlank.estCostItemID:
             ASSIGN 
-                bf-estCostItem.costTotalBoard            = ipbf-estCostHeader.costTotalBoard
-                bf-estCostItem.costTotalFactory          = ipbf-estCostheader.costTotalFactory
-                bf-estCostItem.costTotalFixedOverhead    = ipbf-estCostHeader.costTotalFixedOverhead
-                bf-estCostItem.costTotalFull             = ipbf-estCostHeader.costTotalFull
-                bf-estCostItem.costTotalGroupLevel       = ipbf-estCostHeader.costTotalGroupLevel
-                bf-estCostItem.costTotalLabor            = ipbf-estCostHeader.costTotalLabor
-                bf-estCostItem.costTotalMaterial         = ipbf-estCostHeader.costTotalMaterial
-                bf-estCostItem.costTotalNonFactory       = ipbf-estCostHeader.costTotalNonFactory
-                bf-estCostItem.costTotalVariableOverhead = ipbf-estCostHeader.costTotalVariableOverhead
-                bf-estCostItem.profitPctGross            = ipbf-estCostHeader.profitPctGross
-                bf-estCostItem.profitPctNet              = ipbf-estCostHeader.profitPctNet
-                bf-estCostItem.sellPrice                 = ipbf-estCostHeader.sellPrice
+                bf-estCostItem.costTotalBoard            = bf-estCostHeader.costTotalBoard
+                bf-estCostItem.costTotalFactory          = bf-estCostheader.costTotalFactory
+                bf-estCostItem.costTotalFixedOverhead    = bf-estCostHeader.costTotalFixedOverhead
+                bf-estCostItem.costTotalFull             = bf-estCostHeader.costTotalFull
+                bf-estCostItem.costTotalGroupLevel       = bf-estCostHeader.costTotalGroupLevel
+                bf-estCostItem.costTotalLabor            = bf-estCostHeader.costTotalLabor
+                bf-estCostItem.costTotalMaterial         = bf-estCostHeader.costTotalMaterial
+                bf-estCostItem.costTotalNonFactory       = bf-estCostHeader.costTotalNonFactory
+                bf-estCostItem.costTotalVariableOverhead = bf-estCostHeader.costTotalVariableOverhead
+                bf-estCostItem.profitPctGross            = bf-estCostHeader.profitPctGross
+                bf-estCostItem.profitPctNet              = bf-estCostHeader.profitPctNet
+                bf-estCostItem.sellPrice                 = bf-estCostHeader.sellPrice
                 .
         END.
     END.
@@ -4781,6 +4850,47 @@ PROCEDURE pProcessOperation PRIVATE:
     
 END PROCEDURE.
 
+PROCEDURE pPromptForCalculationChanges PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Create Prompt for Calculation Changes
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcEstimateNo AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcJobID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiJobID2 AS INTEGER NO-UNDO. 
+    
+    DEFINE VARIABLE lChangesMade AS LOGICAL NO-UNDO.
+    
+    IF glPromptForMaterialVendor THEN 
+    DO:
+        //run prompt for vendors
+        FOR EACH estCostHeader NO-LOCK 
+            WHERE estCostHeader.company EQ ipcCompany
+            AND estCostHeader.estimateNo EQ ipcEstimateNo
+            AND estCostHeader.jobID EQ ipcJobID
+            AND estCostHeader.jobID2 EQ ipiJobID2
+            ,
+            EACH estCostMaterial EXCLUSIVE-LOCK 
+            WHERE estCostMaterial.estCostHeaderID EQ estCostHeader.estCostHeaderID
+            AND estCostMaterial.isPrimarySubstrate:
+            
+            UPDATE estCostHeader.quantityMaster estCostMaterial.vendorID .
+            lChangesMade = YES.
+        END.
+        IF lChangesMade THEN
+            FOR EACH estCostHeader NO-LOCK 
+                WHERE estCostHeader.company EQ ipcCompany
+                AND estCostHeader.estimateNo EQ ipcEstimateNo
+                AND estCostHeader.jobID EQ ipcJobID
+                AND estCostHeader.jobID2 EQ ipiJobID2:
+                RUN pRecalcMaterials(estCostHeader.estCostHeaderID).
+                RUN pCalcHeaderCosts(estCostHeader.estCostHeaderID).
+            END.
+    END.
+    
+END PROCEDURE.
+
 PROCEDURE pPurgeCalculation PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose: Given a company and estimate number, purges all related data for 
@@ -4789,27 +4899,34 @@ PROCEDURE pPurgeCalculation PRIVATE:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcEstimateNo AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcJobNo AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiJobNo2 AS INTEGER NO-UNDO.
 
     DEFINE BUFFER bf-probe         FOR probe.
     DEFINE BUFFER bf-probeit       FOR probeit.
     DEFINE BUFFER bf-estCostHeader FOR estCostHeader.
     
-    FOR EACH bf-probe EXCLUSIVE-LOCK 
-        WHERE bf-probe.company EQ ipcCompany
-        AND bf-probe.est-no  EQ ipcEstimateNo:
-        DELETE bf-probe.                 
+    IF ipcJobNo EQ "" THEN DO:
+        FOR EACH bf-probe EXCLUSIVE-LOCK 
+            WHERE bf-probe.company EQ ipcCompany
+            AND bf-probe.est-no  EQ ipcEstimateNo:
+            DELETE bf-probe.                 
+        END.
+        FOR EACH bf-probeit EXCLUSIVE-LOCK 
+            WHERE bf-probeit.company EQ ipcCompany
+            AND bf-probeit.est-no  EQ ipcEstimateNo:
+            DELETE bf-probeit.                 
+        END.
     END.
-    FOR EACH bf-probeit EXCLUSIVE-LOCK 
-        WHERE bf-probeit.company EQ ipcCompany
-        AND bf-probeit.est-no  EQ ipcEstimateNo:
-        DELETE bf-probeit.                 
-    END.
-    FOR EACH bf-estCostHeader EXCLUSIVE-LOCK 
+    FOR EACH bf-estCostHeader
         WHERE bf-estCostHeader.company EQ ipcCompany
         AND bf-estCostHeader.estimateNo EQ ipcEstimateNo
-        AND bf-estCostHeader.jobID EQ "":
-        DELETE bf-estCostHeader.
+        AND bf-estCostHeader.jobID EQ ipcJobNo
+        AND bf-estCostHeader.jobID2 EQ ipiJobNo2:
+            
+        DELETE bf-estCostHeader.    
     END.
+    
     RELEASE bf-probe.
     RELEASE bf-probeit.
     RELEASE bf-estCostHeader.
@@ -4853,30 +4970,6 @@ PROCEDURE pPurgeCostSummary PRIVATE:
     END.
     
     RELEASE bf-estCostSummary.
-    
-END PROCEDURE.
-
-PROCEDURE pPurgeJobCalculation PRIVATE:
-    /*------------------------------------------------------------------------------
-     Purpose:  Removes any recalculation records for a specific job
-     Notes:
-    ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcEstimateNo AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcJobNo AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipiJobNo2 AS INTEGER NO-UNDO.
-    
-    DEFINE BUFFER bf-estCostHeader FOR estCostHeader. 
-    
-    FOR EACH bf-estCostHeader
-        WHERE bf-estCostHeader.company EQ ipcCompany
-        AND bf-estCostHeader.estimateNo EQ ipcEstimateNo
-        AND bf-estCostHeader.jobID EQ ipcJobNo
-        AND bf-estCostHeader.jobID2 EQ ipiJobNo2:
-        DELETE bf-estCostHeader.    
-    END.
-    
-    RELEASE bf-estCostHeader.
     
 END PROCEDURE.
 
@@ -4932,6 +5025,36 @@ PROCEDURE pRecalcEstOperationFromStandardsSetupWaste PRIVATE:
 /*REFACTOR To handle the "Plain Jobs only* function in EB1*/
 /*        RUN est/diewaste.p (BUFFER est-op).*/
 
+
+END PROCEDURE.
+
+PROCEDURE pRecalcMaterials PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:  Given an estCostHeaderID, recalculate all estCostMaterials (includes vendor selection)
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipiEstCostHeaderID AS INT64.
+    
+    DEFINE BUFFER bf-estCostHeader FOR estCostHeader.
+    DEFINE BUFFER bf-estCostMaterial FOR estCostMaterial.
+    DEFINE BUFFER bf-estCostForm FOR estCostForm.
+    
+    RUN pResetCostTotals(ipiEstCostHeaderID). 
+    RUN pPurgeCostDetail(ipiEstCostHeaderID, "").
+    RUN pPurgeCostSummary(ipiEstCostHeaderID).
+    FOR EACH bf-estCostForm NO-LOCK
+        WHERE bf-estCostForm.estCostHeaderID EQ ipiEstCostHeaderID,
+        FIRST bf-estCostHeader NO-LOCK 
+        WHERE bf-estCostHeader.estCostHeaderID EQ bf-estCostForm.estCostHeaderID:
+        
+        FOR EACH bf-estCostMaterial EXCLUSIVE-LOCK
+            WHERE bf-estCostMaterial.estCostHeaderID EQ bf-estCostForm.estCostHeaderID
+            AND bf-estCostMaterial.estCostFormID EQ bf-estCostForm.estCostFormID:
+                    
+            RUN pCalcEstMaterial(BUFFER bf-estCostHeader, BUFFER bf-estCostMaterial, BUFFER bf-estCostForm).
+        END.
+       // RUN pCalcCostTotals(bf-estCostForm.estCostHeaderID, bf-estCostForm.estCostFormID, YES).
+    END.
 
 END PROCEDURE.
 
@@ -5036,6 +5159,10 @@ PROCEDURE pSetGlobalSettings PRIVATE:
     
     RUN sys/ref/nk1look.p (ipcCompany, "CEWindow", "D", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
     IF lFound THEN gdWindowDimOverlap = DECIMAL(cReturn).
+    
+    RUN sys/ref/nk1look.p (ipcCompany, "CEVendor", "L", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
+    IF lFound THEN glPromptForMaterialVendor = cReturn EQ "YES".
+    
     
 END PROCEDURE.
 
