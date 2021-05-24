@@ -17,14 +17,12 @@
 DEFINE TEMP-TABLE ttImportgljrn NO-UNDO
     FIELD Company         AS CHARACTER FORMAT "x(3)"
     FIELD Location        AS CHARACTER FORMAT "x(5)"
-    FIELD identifier      AS INTEGER                  LABEL "Identifier"             HELP "Required - Integer"
+    FIELD identifier      AS INTEGER                  LABEL "Identifier"             HELP "Required - Integer and groups all lines with same identifier together in one batch"
     FIELD dtDate          AS DATE                     LABEL "Date"                   HELP "Required - Date"
     FIELD actnum          AS CHARACTER                LABEL "Account Number"         HELP "Required - Size:25"
     FIELD dscr            AS CHARACTER                LABEL "Description"            HELP "Required - Size:30"
     FIELD tr-amt          AS CHARACTER                LABEL "Transaction Amount"     HELP "Required - Decimal"
     FIELD reverse         AS LOGICAL                  LABEL "Reverse"                HELP "Required - Logical Format Yes/No"
-    FIELD j-no            AS INTEGER                  LABEL "Journal Number"         HELP "Required - Integer"
-    FIELD period          AS INTEGER                  LABEL "Period"                 HELP "Required - Integer"
     .
 
 DEFINE VARIABLE giIndexOffset    AS INTEGER NO-UNDO INIT 2. /*Set to 1 if there is a Company field in temp-table since this will not be part of the import data*/
@@ -78,9 +76,10 @@ PROCEDURE pValidate PRIVATE:
     DO:
         IF NOT CAN-FIND(FIRST account 
                     WHERE account.company EQ ipbf-ttImportgljrn.Company 
-                    AND account.type    NE "T" 
-                    AND account.actnum  EQ ipbf-ttImportgljrn.actnum) THEN
-    
+                    AND account.type      NE "T" 
+                    AND account.actnum    EQ ipbf-ttImportgljrn.actnum
+                    AND account.inactive  EQ FALSE) THEN
+        
         ASSIGN 
                 oplValid = NO
                 opcNote  = "Invalid Account".
@@ -134,6 +133,7 @@ PROCEDURE pCreateNewGeneralHeader:
         gl-jrn.tr-date = ipdDate
         gl-jrn.company = ipcCompany
         gl-jrn.period  = iPeriod
+        gl-jrn.yr      = YEAR(ipdDate)
         gl-jrn.recur   = NO
         gl-jrn.from-reverse = NO
         opiJournalNo = gl-jrn.j-no.
