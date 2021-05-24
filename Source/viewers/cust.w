@@ -352,7 +352,7 @@ DEFINE RECTANGLE RECT-6
 DEFINE FRAME F-Main
      cust.pricingMethod AT ROW 21.48 COL 94 COLON-ALIGNED WIDGET-ID 42
           VIEW-AS COMBO-BOX INNER-LINES 5
-          LIST-ITEMS "?","?","?","?" 
+          LIST-ITEMS " ","Type","Customer","Ship To" 
           DROP-DOWN-LIST
           SIZE 20 BY 1
      cbMatrixPrecision AT ROW 20.29 COL 20 COLON-ALIGNED WIDGET-ID 38
