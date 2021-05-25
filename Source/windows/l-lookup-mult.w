@@ -641,26 +641,19 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     IF ERROR-STATUS:ERROR THEN
     RETURN ERROR.
     RUN init.
-
     RUN enable_UI.
     RUN resizeWindow. 
-
     IF ll-filterFirst THEN DO:
         RUN resizeFilterFrame.        
         RUN openFilterQuery.
     END.    
-    ELSE DO:
+    ELSE DO WITH FRAME {&FRAME-NAME}:
         RUN buildTempTable.
         RUN openSearchQuery.
+        HIDE {&List-1}.
+        ENABLE {&List-2}.
         APPLY 'ENTRY' TO ls-search IN FRAME {&FRAME-NAME}.
     END.  
-
-    ASSIGN 
-        bt-clear:SENSITIVE  = FALSE
-        bt-prev:SENSITIVE   = FALSE
-        ls-search:SENSITIVE = FALSE
-        ls-search:HIDDEN    = TRUE
-        .  
     RUN customizeBrowse.
     IF VALID-HANDLE(h_focus) THEN
     APPLY "ENTRY":U TO h_focus.
@@ -1233,7 +1226,7 @@ PROCEDURE init :
         h_dialogFrame:TITLE = ip-title
         .    
         
-    RUN validateRecordLimit(OUTPUT ll-filterFirst).    
+    RUN validateRecordLimit (OUTPUT ll-filterFirst).    
     RUN createTempTables.
     RUN attachQuery.
     RUN addBrowseCols.
@@ -1329,13 +1322,13 @@ PROCEDURE nextPageFilter :
 
         DO iFieldCount = 1 TO NUM-ENTRIES(ip-fieldList):
             iBuffer = LOOKUP(ENTRY(1, ENTRY(iFieldCount, ip-fieldList), "."), ip-table-list). 
-            
+            IF iBuffer GT 0 THEN
             h_brbuffer:BUFFER-FIELD (REPLACE(ENTRY(iFieldCount, ip-fieldList), ".", "&")):BUFFER-VALUE = h_ipbuffer[iBuffer]:BUFFER-FIELD(ENTRY(2, ENTRY(iFieldCount, ip-fieldList), ".")):BUFFER-VALUE.
         END.
 
         RUN pCalcFields (h_brquery, h_brbuffer).
     
-        IF ll-filterOpen THEN
+        IF ll-filterOpen AND iBuffer GT 0 THEN
         h_brbuffer:BUFFER-FIELD("recid"):BUFFER-VALUE = h_ipbuffer[iBuffer]:RECID.               
     END.
     
