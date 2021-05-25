@@ -525,8 +525,7 @@ END.
 FOR EACH glhist
     WHERE glhist.company EQ cocode
       AND glhist.actnum  GE fr-acct
-      AND glhist.actnum  LE to-acct
-      AND glhist.tr-date GT del_date
+      AND glhist.actnum  LE to-acct      
       AND glhist.tr-amt  EQ 0 USE-INDEX glhist
       BREAK BY glhist.actnum:
       
