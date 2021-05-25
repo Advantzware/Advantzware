@@ -58,6 +58,7 @@ PROCEDURE pBusinessLogic:
     DEFINE VARIABLE dLoss%          AS DECIMAL          NO-UNDO.
     DEFINE VARIABLE iBOL#           AS INTEGER          NO-UNDO.
     DEFINE VARIABLE iInv#           AS INTEGER          NO-UNDO.
+    DEFINE VARIABLE iCount          AS INTEGER          NO-UNDO.
     
     DEFINE BUFFER bOEOrdl FOR oe-ordl.
 
@@ -302,7 +303,10 @@ PROCEDURE pBusinessLogic:
                 ttOrdersBookedByOrderNo.lossp        = dLoss%               
                 ttOrdersBookedByOrderNo.bolNo        = iBOL#                
                 ttOrdersBookedByOrderNo.invoiceNo    = iInv#
+                iCount = iCount + 1
                 .
+            IF lProgressBar THEN
+                RUN spProgressBar (cProgressBar, iCount, ?).
             /*===== end of new ===== */
             IF ttOrdersBookedByOrderNo.fgCost EQ ? THEN
             ttOrdersBookedByOrderNo.fgCost = 0.

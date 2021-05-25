@@ -57,6 +57,7 @@ PROCEDURE pBusinessLogic:
     DEFINE VARIABLE v-closed    AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE v-open      AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cHoldReason AS CHARACTER NO-UNDO .
+    DEFINE VARIABLE iCount      AS INTEGER   NO-UNDO.
 
     FOR EACH job-hdr  NO-LOCK
         WHERE job-hdr.company EQ cCompany
@@ -169,7 +170,11 @@ PROCEDURE pBusinessLogic:
             ttJobCosting.sales-rep   = IF AVAIL cust THEN STRING(cust.sman) ELSE ""
             ttJobCosting.job-hold    = STRING(cHoldReason)
             ttJobCosting.create-date = job.create-date 
-            ttJobCosting.due-date    = job.due-date  . 
+            ttJobCosting.due-date    = job.due-date  
+            iCount = iCount + 1
+            .
+        IF lProgressBar THEN
+            RUN spProgressBar (cProgressBar, iCount, ?).
     
     END. /* each item */
 END PROCEDURE.
