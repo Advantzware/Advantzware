@@ -320,14 +320,17 @@ PROCEDURE pDisableButton :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEFINE INPUT PARAMETER iplDisable AS LOGICAL NO-UNDO.  
+  DEFINE INPUT PARAMETER iplDisable AS LOGICAL NO-UNDO. 
+  
+  IF AVAIL quotehd AND quotehd.approved THEN
+  iplDisable = YES.
   
   DO WITH FRAME {&FRAME-NAME}:
     IF iplDisable THEN
     DISABLE btn-update.
     ELSE ENABLE btn-update.
   END. 
-       
+      
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -347,9 +350,7 @@ PROCEDURE local-initialize :
   /* Code placed here will execute AFTER standard behavior.    */
   
   IF NOT v-can-update THEN btn-update:SENSITIVE IN FRAME {&FRAME-NAME} = NO. 
-    
-    IF AVAIL quotehd AND quotehd.approved THEN
-        RUN pDisableButton.
+          
         
 END PROCEDURE.
 
@@ -369,8 +370,7 @@ PROCEDURE local-row-available :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'row-available':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-    IF AVAIL quotehd AND quotehd.approved THEN
-        RUN pDisableButton.
+    
   
 
 END PROCEDURE.
