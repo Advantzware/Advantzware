@@ -1,7 +1,7 @@
-&ANALYZE-SUSPEND _VERSION-NUMBER AB_v10r12 GUI ADM2
+&ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI
 &ANALYZE-RESUME
 &Scoped-define WINDOW-NAME wWin
-{adecomm/appserv.i}
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS wWin 
 /*------------------------------------------------------------------------
 
@@ -34,7 +34,7 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-
+{methods/defines/hndldefs.i}
 {custom/globdefs.i}
 {sys/inc/var.i "new shared"}
 
@@ -579,6 +579,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     APPLY 'entry' TO fiEndYear.
   
     /* IF NOT THIS-PROCEDURE:PERSISTENT THEN */
+    {methods/nowait.i}
+    IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
 
