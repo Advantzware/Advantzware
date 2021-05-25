@@ -166,7 +166,7 @@ DEFINE VARIABLE cDueManualChanged AS LOGICAL NO-UNDO. //97238 MFG Date - Weekend
 
 DEFINE VARIABLE hdSalesManProcs AS HANDLE NO-UNDO.
 DEFINE VARIABLE lAvailable AS LOGICAL NO-UNDO.
-DEF NEW SHARED VAR matrixTag AS CHARACTER NO-UNDO.
+DEF VAR matrixTag AS CHARACTER NO-UNDO.
 {system/ttTag.i &Table-Name=ttTag}
 {system/ttTag.i &Table-Name=ttTempTag}
 
@@ -6340,16 +6340,19 @@ PROCEDURE get-price :
       FIND FIRST itemfg
           WHERE itemfg.company EQ cocode
             AND itemfg.i-no    EQ v-i-item
-          NO-LOCK NO-ERROR.
-      IF AVAIL itemfg THEN DO:          
-        RUN oe/oe-price.p.
-        IF matrixExists THEN 
-        DO:  
-            RUN pAddTagInfoForGroup(
-                INPUT oe-ordl.rec_key,
-                INPUT "Price Matrix " + matrixTag
-                ). 
-        END.
+            NO-LOCK NO-ERROR.
+        IF AVAIL itemfg THEN 
+        DO:          
+            RUN oe/oe-price.p.
+            IF matrixExists THEN 
+            DO:  
+                matrixTag = "Item No:" + string(v-i-item) + " Customer No:" + string(cust.cust-no) + " Ship ID:" + oe-ordl.ship-id + " Quantity:" + string(v-i-qty). 
+
+                RUN pAddTagInfoForGroup(
+                    INPUT oe-ordl.rec_key,
+                    INPUT "Price Matrix " + matrixTag
+                    ). 
+            END.
         FIND oe-ordl WHERE ROWID(oe-ordl) EQ lv-rowid NO-ERROR.
         DISPLAY oe-ordl.price oe-ordl.pr-uom oe-ordl.t-price.
         RUN Conv_CalcTotalPrice(cocode, 
