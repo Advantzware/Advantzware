@@ -176,7 +176,7 @@ rm-rctd.tag2 rm-rctd.enteredBy rm-rctd.enteredDT
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table rm-rctd.rct-date ~
 rm-rctd.po-no rm-rctd.po-line rm-rctd.job-no rm-rctd.job-no2 rm-rctd.s-num rm-rctd.b-num ~
 rm-rctd.i-no rm-rctd.i-name rm-rctd.loc rm-rctd.loc-bin rm-rctd.tag ~
-rm-rctd.qty rm-rctd.pur-uom rm-rctd.cost rm-rctd.cost-uom rm-rctd.tag2 rm-rctd.po-line 
+rm-rctd.qty rm-rctd.pur-uom rm-rctd.cost rm-rctd.cost-uom rm-rctd.tag2 
 &Scoped-define ENABLED-TABLES-IN-QUERY-Browser-Table rm-rctd
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-Browser-Table rm-rctd
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH rm-rctd WHERE ~{&KEY-PHRASE} ~
@@ -934,6 +934,44 @@ DO:
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&Scoped-define SELF-NAME rm-rctd.po-line
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.po-line Browser-Table _BROWSE-COLUMN B-table-Win
+ON ENTRY OF rm-rctd.po-line IN BROWSE Browser-Table /* Line # */
+DO:     
+        {&self-name}:SCREEN-VALUE IN BROWSE {&browse-name}    = STRING(po-ordl.LINE).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.po-line Browser-Table _BROWSE-COLUMN B-table-Win
+ON VALUE-CHANGED OF rm-rctd.po-line IN BROWSE Browser-Table /* Line # */
+DO:
+    IF INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name}) NE 0 THEN 
+    DO:
+        FIND po-ordl WHERE po-ordl.company = rm-rctd.company AND
+                    po-ordl.po-no = INT(rm-rctd.po-NO:SCREEN-VALUE IN BROWSE {&browse-name}) AND
+                    po-ordl.line  = INT(rm-rctd.po-line:SCREEN-VALUE IN BROWSE {&browse-name})
+                    NO-LOCK NO-ERROR.
+            IF AVAILABLE po-ordl THEN 
+            DO:
+                ASSIGN 
+                    rm-rctd.i-no:SCREEN-VALUE  IN BROWSE {&browse-name}   = po-ordl.i-no
+                    rm-rctd.i-name:SCREEN-VALUE IN BROWSE {&browse-name}  = po-ordl.i-name
+                    rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}  = po-ordl.job-no
+                    rm-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(po-ordl.job-no2)
+                    {&self-name}:SCREEN-VALUE IN BROWSE {&browse-name}    = STRING(po-ordl.LINE).
+                RUN update-from-po-line.
+            END.
+    END.
+        
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+ 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.po-line Browser-Table _BROWSE-COLUMN B-table-Win
 ON LEAVE OF rm-rctd.po-line IN BROWSE Browser-Table /* Line # */
