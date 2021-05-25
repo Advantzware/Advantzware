@@ -913,8 +913,13 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_i-no B-table-Win
 ON VALUE-CHANGED OF fi_i-no IN FRAME F-Main
 DO:
-  IF LASTKEY <> 32 THEN {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
-  IF LASTKEY EQ 32 THEN {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 2. /* res */
+    /* Progress does not preserve trailing spaces in a fill-in's screen-value attribute */
+    /* So once the value is converted to upper case any trailing spaces will be removed in fill-in*/
+    /* So do not convert current value to uppercase when last key pressed is a space */
+    IF LASTKEY EQ 32 THEN 
+        RETURN.
+    
+    {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
 END.
 
 /* _UIB-CODE-BLOCK-END */
