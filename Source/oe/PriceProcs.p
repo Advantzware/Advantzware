@@ -284,8 +284,7 @@ PROCEDURE pExpireOldPrices PRIVATE:
                     IF iplExpire THEN
                     do:
                      ASSIGN
-                        bf-oe-prmtx.exp-date = ttOeprmtx.effectiveDate - 1.
-                        IF ttOeprmtx.effectiveDate LE TODAY THEN
+                        bf-oe-prmtx.exp-date = ttOeprmtx.effectiveDate - 1.                        
                         bf-oe-prmtx.quoteID  = 0.
                     END.    
                     ELSE 
