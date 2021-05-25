@@ -755,6 +755,7 @@ do v-local-loop = 1 to v-local-copies:
             DEF VAR v-shipto AS cha NO-UNDO.
 
             v-tmp-line = 0.
+            j = 0.
             FOR EACH xeb NO-LOCK 
                 WHERE xeb.company = est.company
                   AND xeb.est-no = est.est-no
@@ -834,6 +835,7 @@ do v-local-loop = 1 to v-local-copies:
                 "<=1><R+9><C30><P10><B>Set Components<P10></B> <C50>Set item: " v-fg-set SKIP
                 "<P10><C2>FINISHED GOOD #  DESCRIPTION                     RATIO PER SET     DIE #       Qty On Hand      STYLE" SKIP.             
                 END.
+                j = j + 1.
             END.
             v-tmp-line = v-tmp-line + 1.
             /* print raw materials from misc/fram of Est */ 
@@ -849,15 +851,30 @@ do v-local-loop = 1 to v-local-copies:
             END.
             PUT "<=1><R+10><C1><FROM><R+" + string(v-tmp-line) + "><#2><C105><RECT><||3>" FORM "x(150)" SKIP.
             v-tmp-line = v-tmp-line + 10.
-            
+             
+            IF j GE 20 THEN DO:
+              v-tmp-line = 0.
+              PAGE.
+            END.
             PUT SKIP.
             PUT "<C2>RAW MATERIAL #   DESCRIPTION                           SHEETS REQUIRED                 QTY ON HAND" SKIP.
             i = 0.
-            FOR EACH bf-job-mat 
+            FOR EACH bf-job-mat NO-LOCK 
                WHERE bf-job-mat.company = job.company
                  AND bf-job-mat.job     = job.job 
                  AND bf-job-mat.job-no  = job.job-no 
-                 AND bf-job-mat.job-no2 = job.job-no2 :
+                 AND bf-job-mat.job-no2 = job.job-no2,
+                 FIRST ITEM NO-LOCK
+                 WHERE ITEM.company EQ cocode
+                 AND ITEM.i-no EQ bf-job-mat.i-no
+                 AND INDEX("BW1234",item.mat-type) GT 0:
+                 
+                 IF v-tmp-line + 54 > PAGE-SIZE THEN DO: 
+                  PAGE.
+                  v-tmp-line = 0.
+                  PUT "<C2>RAW MATERIAL #   DESCRIPTION                           SHEETS REQUIRED                 QTY ON HAND" SKIP.
+                  v-tmp-line = v-tmp-line + 1.
+                 END.
                  
                  PUT  bf-job-mat.rm-i-no AT 2 .
                  PUT  getItemName(bf-job-mat.rm-i-no) FORMAT "x(30)" AT 20.
@@ -865,12 +882,22 @@ do v-local-loop = 1 to v-local-copies:
                  PUT  getQtyOnHand(bf-job-mat.rm-i-no) AT 90.  
                  
               i =  i + 1 .
+              v-tmp-line = v-tmp-line + 1 .
             END.
             i = i + 1 .
-            v-tmp-line = v-tmp-line + i .
-            PUT "<=2><R+1><C1><FROM><R+" + STRING(i) + "><C105><RECT><||3>" FORM "x(150)" SKIP.
+            v-tmp-line = v-tmp-line + 1 .  
+            IF j GE 20 THEN
+            PUT "<=2><R1><C1><FROM><R+" + STRING(v-tmp-line) + "><C105><RECT><||3>" FORM "x(150)" SKIP.
+            ELSE 
+            PUT "<=2><R+1><C1><FROM><R+" + STRING(v-tmp-line) + "><C105><RECT><||3>" FORM "x(150)" SKIP.
             
             v-tmp-line = v-tmp-line + 1 .
+              
+            IF v-tmp-line + 68 > PAGE-SIZE THEN DO: 
+             PAGE.
+             v-tmp-line = 0.             
+            END.
+            
             i = 0.
             
             PUT "<p10>".
@@ -936,6 +963,7 @@ do v-local-loop = 1 to v-local-copies:
                IF  i <= 15 THEN v-dept-inst[i] = tt-formtext.tt-text.      
             END.
             IF v-ship <> "" THEN v-dept-inst[15] = v-ship.  /* shipto notes */
+            
             PUT "<=1><R+" + string(v-tmp-line) + ">" form "X(20)".
             v-tmp-line = v-tmp-line + 1.
             PUT "Unitizing Bale <C44>Date <C62>Units <C79>Complete <C93>QA" AT 3 SKIP
