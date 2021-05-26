@@ -1984,8 +1984,13 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
         RUN  pRunFormatValueChanged .
 
-        {custom/usrprint.i}
-                       
+        {custom/usrprint.i}           
+               
+        IF PROGRAM-NAME(3) MATCHES "*w-cusinq.*" THEN
+        ASSIGN
+           begin_Inv-id:SCREEN-VALUE = ""
+           end_Inv-id:SCREEN-VALUE = "99999999".
+        
         IF ipcInvoiceType EQ "inv-head" THEN
           ASSIGN tb_posted:SCREEN-VALUE = "NO"
                  fiBeginDateLabel:SCREEN-VALUE = "Beginning Bol Date:"
