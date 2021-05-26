@@ -6,14 +6,26 @@ DEF INPUT PARAM ip-rowid AS ROWID NO-UNDO.
 
 {sys/inc/var.i shared}
 {sys/form/s-top.f}
+{methods/auditDefs.i}
+
+{methods/auditFunc.i}
 
 def var v-fin-qty as int no-undo.
 def var v as int no-undo.
 DEF VAR ll-set AS LOG NO-UNDO.
 
+&Scoped-define ACTION UPDATE
+&Scoped-define DBNAME ASI
+&Scoped-define TABLENAME job
+{methods/auditTrigProcs.i {&TABLENAME}}
+&Scoped-define TABLENAME job-hdr
+{methods/auditTrigProcs.i {&TABLENAME}}
 
 find job where rowid(job) eq ip-rowid exclusive-lock no-error.
 if not avail job then return.
+
+/* find original buffer for comparison of change later */
+BUFFER-COPY job TO old-job.
 
 find first sys-ctrl
     where sys-ctrl.company eq job.company
@@ -30,6 +42,7 @@ for each job-hdr
     FIRST itemfg EXCLUSIVE-LOCK
     WHERE itemfg.company eq cocode
       AND itemfg.i-no    eq job-hdr.i-no:
+
     RUN fg/chkfgloc.p (INPUT job-hdr.i-no, INPUT job-hdr.loc).
     FIND FIRST itemfg-loc 
         WHERE itemfg-loc.company EQ cocode
@@ -90,6 +103,7 @@ for each job-hdr
      IF NOT AVAIL sys-ctrl OR sys-ctrl.char-fld NE "FGPost" THEN
        RUN jc/autopc&p.p (BUFFER job, job-hdr.i-no,
                           job-hdr.frm, job-hdr.blank-no, -1).
+
 end.
 
 IF NOT AVAIL sys-ctrl OR sys-ctrl.char-fld NE "FGPost" THEN DO:
@@ -113,16 +127,19 @@ assign
  job.opened     = YES
  job.close-date = ?.
 
-
-
 run jc/job-cls1.p (recid(job), -1).
+
+/* run procedure to compare original buffer to current changes */
+RUN pAuditjob.
 
 for each job-hdr
     where job-hdr.company eq cocode
       and job-hdr.job     eq job.job
       and job-hdr.job-no  eq job.job-no
       and job-hdr.job-no2 eq job.job-no2:
-
+  /* find original buffer for comparison of change later */
+  BUFFER-COPY job-hdr TO old-job-hdr.
   job-hdr.opened = job.opened.
-
+  /* run procedure to compare original buffer to current changes */
+  RUN pAuditjob-hdr.
 end.

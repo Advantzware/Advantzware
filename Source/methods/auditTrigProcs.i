@@ -1,35 +1,47 @@
 /* auditTrigProcs.p - rstark - 5.20.2021 */
 
-PROCEDURE pAudit:
+&IF "{1}" NE "" &THEN
+DEFINE TEMP-TABLE old-{&TABLENAME} LIKE {&TABLENAME}.
+CREATE old-{&TABLENAME}.
+&ENDIF
+
+PROCEDURE pAudit{1}:
+/*    &IF "{1}" NE "" &THEN                             */
+/*    DEFINE VARIABLE lBufferCompare AS LOGICAL NO-UNDO.*/
+/*                                                      */
+/*    BUFFER-COMPARE {&TABLENAME} TO old-{&TABLENAME}   */
+/*        SAVE RESULT IN lBufferCompare.                */
+/*    IF lBufferCompare EQ NO THEN RETURN.              */
+/*    &ENDIF                                            */
     FIND FIRST AuditTbl NO-LOCK 
          WHERE AuditTbl.AuditTable EQ "{&TABLENAME}"
          NO-ERROR.
     IF AVAILABLE AuditTbl THEN DO: 
-        &IF "{&ACTION}" = "UPDATE" &THEN
+        &IF "{&ACTION}" EQ "UPDATE" &THEN
         IF old-{&TABLENAME}.rec_key NE "" THEN DO:
             /* update */
             IF AuditTbl.AuditUpdate THEN DO:
                 hTable[2] = BUFFER old-{&TABLENAME}:HANDLE.
-                RUN pCreateAuditHdr ("UPDATE").
-                RUN pAuditDetail ("UPDATE").
+                RUN pCreateAuditHdr{1} ("UPDATE").
+                RUN pAuditDetail{1} ("UPDATE").
             END. /* if can-find */
         END. /* if old-rec_key */
         ELSE IF AuditTbl.AuditCreate THEN DO:
             /* create */
-            RUN pCreateAuditHdr ("CREATE").
-            RUN pAuditDetail ("CREATE").
+            RUN pCreateAuditHdr{1} ("CREATE").
+            RUN pAuditDetail{1} ("CREATE").
         END. /* else */
         &ELSE
         IF AuditTbl.AuditDelete THEN DO:
             /* delete */
-            RUN pCreateAuditHdr ("DELETE").
-            RUN pAuditDetail ("DELETE").
+            RUN pCreateAuditHdr{1} ("DELETE").
+            RUN pAuditDetail{1} ("DELETE").
         END.
         &ENDIF
     END. /* avail audittbl */
 END PROCEDURE.
 
-PROCEDURE pAuditDetail:
+PROCEDURE pAuditDetail{1}:
     DEFINE INPUT PARAMETER ipcType AS CHARACTER NO-UNDO.
     
     /* get primary index fields */
@@ -44,16 +56,16 @@ PROCEDURE pAuditDetail:
         iExtentBase = IF hTable[1]:BUFFER-FIELD(iAuditIdx):EXTENT GT 0 THEN 1 ELSE 0.
         IF hTable[1]:BUFFER-FIELD(iAuditIdx):DATA-TYPE EQ "CLOB" OR
            hTable[1]:BUFFER-FIELD(iAuditIdx):DATA-TYPE EQ "BLOB" THEN
-            NEXT.
+        NEXT.
         DO iExtent = iExtentBase TO hTable[1]:BUFFER-FIELD(iAuditIdx):EXTENT:
             CASE ipcType:
                 WHEN "CREATE" THEN
                 IF CAN-DO(cIdxFields,hTable[1]:BUFFER-FIELD(iAuditIdx):NAME) THEN DO: 
-                    RUN pCreateAuditDtl.
+                    RUN pCreateAuditDtl{1}.
                     AuditDtl.AuditAfterValue = fFormatValue(hTable[1], hTable[1]:BUFFER-FIELD(iAuditIdx):NAME, iExtent).
                 END. /* if before and after difference or primary index field */
                 WHEN "DELETE" THEN DO:
-                    RUN pCreateAuditDtl.
+                    RUN pCreateAuditDtl{1}.
                     AuditDtl.AuditBeforeValue = fFormatValue(hTable[1], hTable[1]:BUFFER-FIELD(iAuditIdx):NAME, iExtent).
                 END.
                 WHEN "UPDATE" THEN 
@@ -64,7 +76,7 @@ PROCEDURE pAuditDetail:
                               AND AuditFld.Audit      EQ YES) AND
                    hTable[1]:BUFFER-FIELD(iAuditIdx):BUFFER-VALUE(iExtent) NE
                    hTable[2]:BUFFER-FIELD(iAuditIdx):BUFFER-VALUE(iExtent)) THEN DO: 
-                    RUN pCreateAuditDtl.
+                    RUN pCreateAuditDtl{1}.
                     ASSIGN 
                         AuditDtl.AuditBeforeValue = fFormatValue(hTable[2], hTable[2]:BUFFER-FIELD(iAuditIdx):NAME, iExtent)
                         AuditDtl.AuditAfterValue  = fFormatValue(hTable[1], hTable[1]:BUFFER-FIELD(iAuditIdx):NAME, iExtent)
@@ -75,7 +87,7 @@ PROCEDURE pAuditDetail:
     END. /* do */
 END PROCEDURE.
 
-PROCEDURE pCreateAuditDtl:
+PROCEDURE pCreateAuditDtl{1}:
     CREATE AuditDtl.
     ASSIGN 
         AuditDtl.AuditID       = AuditHdr.AuditID
@@ -85,7 +97,7 @@ PROCEDURE pCreateAuditDtl:
         .
 END PROCEDURE.
 
-PROCEDURE pCreateAuditHdr:
+PROCEDURE pCreateAuditHdr{1}:
     DEFINE INPUT PARAMETER ipcType AS CHARACTER NO-UNDO.
     
     DEFINE VARIABLE cStack AS CHARACTER NO-UNDO.
