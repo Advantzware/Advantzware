@@ -83,6 +83,7 @@ PROCEDURE pBusinessLogic:
     DEFINE VARIABLE dBlanks       AS DECIMAL   FORMAT "->>>>,>>>,>>9" .
     DEFINE VARIABLE lFoundJobHdr  AS LOGICAL NO-UNDO.
     DEFINE VARIABLE dQtyInMSF     AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE iCount        AS INTEGER NO-UNDO.
  
     DEFINE BUFFER b-mach FOR mach.
 
@@ -561,7 +562,11 @@ PROCEDURE pBusinessLogic:
             ttMachineEfficiency.scrMsf   = IF work-rep.msf-scrap-rec <> ? THEN work-rep.msf-scrap-rec ELSE 0
             ttMachineEfficiency.totScrap = IF work-rep.perc-total-scrap <> ? THEN work-rep.perc-total-scrap ELSE 0 
             ttMachineEfficiency.job      = work-rep.job-no
-            ttMachineEfficiency.job2     = work-rep.job-no2 .       
+            ttMachineEfficiency.job2     = work-rep.job-no2
+            iCount = iCount + 1
+            .
+        IF lProgressBar THEN
+            RUN spProgressBar (cProgressBar, iCount, ?).      
               
     END. /* EACH work-rep */  
  
