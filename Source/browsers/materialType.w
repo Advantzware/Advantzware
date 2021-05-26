@@ -99,8 +99,8 @@ AND (ASI.materialType.autoIssue EQ lAutoIssue OR lAutoIssue EQ ?) NO-LOCK ~
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btSearch fiMaterialType cbCalculationType ~
-cbAutoIssue materialType 
+&Scoped-Define ENABLED-OBJECTS RECT-1 RECT-2 btSearch fiMaterialType ~
+cbCalculationType cbAutoIssue materialType 
 &Scoped-Define DISPLAYED-OBJECTS fiMaterialType cbCalculationType ~
 cbAutoIssue 
 
@@ -161,7 +161,7 @@ RUN set-attribute-list (
 DEFINE BUTTON btSearch 
      IMAGE-UP FILE "Graphics/32x32/search_new.png":U
      LABEL "Search" 
-     SIZE 8 BY 1.91.
+     SIZE 6.5 BY 1.42.
 
 DEFINE VARIABLE cbAutoIssue AS CHARACTER FORMAT "X(256)":U INITIAL "All" 
      VIEW-AS COMBO-BOX INNER-LINES 5
@@ -179,6 +179,16 @@ DEFINE VARIABLE fiMaterialType AS CHARACTER FORMAT "X(32)":U
      VIEW-AS FILL-IN 
      SIZE 16 BY 1 NO-UNDO.
 
+DEFINE RECTANGLE RECT-1
+     EDGE-PIXELS 2 GRAPHIC-EDGE    
+     SIZE 68.8 BY 2.19
+     BGCOLOR 23 FGCOLOR 23 .
+
+DEFINE RECTANGLE RECT-2
+     EDGE-PIXELS 2 GRAPHIC-EDGE    
+     SIZE .6 BY 1.62
+     BGCOLOR 24 FGCOLOR 23 .
+
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY materialType FOR 
@@ -195,26 +205,28 @@ DEFINE BROWSE materialType
       materialType.autoIssue FORMAT "Enabled/Disabled":U LABEL-BGCOLOR 22 VIEW-AS TOGGLE-BOX
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 105 BY 12.62.
+    WITH NO-ASSIGN SEPARATORS SIZE 103 BY 12.62.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     btSearch AT ROW 1 COL 61 WIDGET-ID 16
-     fiMaterialType AT ROW 1.76 COL 1.4 NO-LABEL WIDGET-ID 2
-     cbCalculationType AT ROW 1.76 COL 17.6 COLON-ALIGNED NO-LABEL WIDGET-ID 12
-     cbAutoIssue AT ROW 1.76 COL 39 COLON-ALIGNED NO-LABEL WIDGET-ID 14
-     materialType AT ROW 3.33 COL 1
+     btSearch AT ROW 1.57 COL 61.4 WIDGET-ID 16
+     fiMaterialType AT ROW 2.1 COL 2.8 NO-LABEL WIDGET-ID 2
+     cbCalculationType AT ROW 2.1 COL 19 COLON-ALIGNED NO-LABEL WIDGET-ID 12
+     cbAutoIssue AT ROW 2.1 COL 40.4 COLON-ALIGNED NO-LABEL WIDGET-ID 14
+     materialType AT ROW 3.57 COL 1
      "Auto Issue" VIEW-AS TEXT
-          SIZE 13.6 BY .62 AT ROW 1.05 COL 41.2 WIDGET-ID 10
-          FONT 6
+          SIZE 13.6 BY .62 AT ROW 1.38 COL 42.6 WIDGET-ID 10
+          BGCOLOR 23 FGCOLOR 24 FONT 22
      "Calculation Type" VIEW-AS TEXT
-          SIZE 18.4 BY .62 AT ROW 1 COL 19.6 WIDGET-ID 8
-          FONT 6
+          SIZE 18.4 BY .62 AT ROW 1.33 COL 21 WIDGET-ID 8
+          BGCOLOR 23 FGCOLOR 24 FONT 22
      "Material Type" VIEW-AS TEXT
-          SIZE 16.8 BY .62 AT ROW 1 COL 1.6 WIDGET-ID 4
-          FONT 6
+          SIZE 16.8 BY .62 AT ROW 1.33 COL 3 WIDGET-ID 4
+          BGCOLOR 23 FGCOLOR 24 FONT 22
+     RECT-1 AT ROW 1.19 COL 1.6 WIDGET-ID 52
+     RECT-2 AT ROW 1.48 COL 59.8 WIDGET-ID 54
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -247,8 +259,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW B-table-Win ASSIGN
-         HEIGHT             = 14.95
-         WIDTH              = 105.4.
+         HEIGHT             = 15.24
+         WIDTH              = 103.6.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -271,7 +283,7 @@ END.
 /* SETTINGS FOR WINDOW B-table-Win
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE Size-to-Fit                                              */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 /* BROWSE-TAB materialType cbAutoIssue F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
