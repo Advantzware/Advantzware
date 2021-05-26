@@ -867,8 +867,8 @@ PROCEDURE Vendor_CheckPriceHoldForPo:
                     INPUT-OUTPUT cMessage
                     ).
                 dCostPerUOM = dCostPerUOM + dCostPerUOMUpcharge.
-                
-                IF dCostPerUOM NE bf-po-ordl.cost THEN
+                 
+                IF dCostPerUOM NE bf-po-ordl.cost OR bf-po-ordl.cost EQ 0 THEN
                 DO:
                     CREATE ttPriceHold.                 
                     ASSIGN                       
