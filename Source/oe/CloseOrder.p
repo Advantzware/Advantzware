@@ -396,6 +396,7 @@ PROCEDURE OrderLineCloseCheck :
     DEFINE VARIABLE iCountBoll               AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iCountTrans              AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iInvoicedQuantity        AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE lInvoiceUnPosted         AS LOGICAL   NO-UNDO.
 
     FIND FIRST oe-ord NO-LOCK OF ipbf-oe-ordl NO-ERROR.
     IF NOT AVAILABLE oe-ord THEN 
@@ -449,14 +450,16 @@ PROCEDURE OrderLineCloseCheck :
         
         /*Get invoiced quantity*/
         iInvoicedQuantity = ipbf-oe-ordl.inv-qty.
+        lInvoiceUnPosted = NO.
         /*Subtract the invoiced quantity that is still unposted*/
         FOR EACH inv-line NO-LOCK 
             WHERE inv-line.company EQ ipbf-oe-ordl.company
             AND inv-line.ord-no EQ ipbf-oe-ordl.ord-no
             AND inv-line.i-no EQ ipbf-oe-ordl.i-no:
             iInvoicedQuantity = iInvoicedQuantity - inv-line.inv-qty.
+            lInvoiceUnPosted = YES.
         END.
-        
+         
         ASSIGN
             dAllowableUnderrun       = ipbf-oe-ordl.qty * (1 - (ipbf-oe-ordl.under-pct / 100))
             lUnassembledSetComponent = ipbf-oe-ordl.is-a-component
@@ -507,7 +510,12 @@ PROCEDURE OrderLineCloseCheck :
                     opcReason = 'Closed. Requirements for allowable underrun met.' + cQtyMessage  
                     .
         END. /*Allowable underrun is met*/
-        ELSE
+        ELSE IF lInvoiceUnPosted  THEN
+            ASSIGN 
+                opcStatus = ''
+                opcReason = 'Not closed. The invoiced quantity is not posted.' + cQtyMessage
+                .
+        ELSE 
             ASSIGN 
                 opcStatus = ''
                 opcReason = 'Not closed. Requirements for allowable underrun not met.' + cQtyMessage
