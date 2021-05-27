@@ -392,6 +392,7 @@ for each xxreport where xxreport.term-id eq v-term-id,
           substr(v-salesman,length(trim(v-salesman)),1) = "".
 
       v-fob = if oe-ord.fob-code begins "ORIG" then "Origin" else "Destination".
+      IF v-print-fmt EQ "CardedBC_I" THEN ASSIGN v-fob = "EXW".
       LEAVE.
     end.
 

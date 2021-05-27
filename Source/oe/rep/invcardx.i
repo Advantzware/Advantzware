@@ -40,15 +40,8 @@ FIND FIRST sman WHERE sman.company = inv-head.company
                   NO-LOCK NO-ERROR.
 v-salesname = IF AVAIL sman THEN sman.sname ELSE "".
 
-IF v-print-fmt EQ "Carded2" THEN
-DO:
-   PUT "<FArial><=4>  SHIP DATE             EXW                      SHIP VIA                            TERMS                      SALESMAN NAME                   BOL#" SKIP. 
-END.
-ELSE DO:
-   PUT "<FArial><=4>  SHIP DATE             FOB                      SHIP VIA                            TERMS                      SALESMAN NAME                   BOL#" SKIP. 
-END.
-
-PUT  "<FCourier New><=4><R+2><B> " v-date-ship FORM "99/99/9999" space(2)
+PUT "<FArial><=4>  SHIP DATE             FOB                      SHIP VIA                            TERMS                      SALESMAN NAME                   BOL#" SKIP
+     "<FCourier New><=4><R+2><B> " v-date-ship FORM "99/99/9999" space(2)
      v-fob FORM "x(12)" SPACE(1)
      v-shipvia FORM "x(20)" SPACE(1)
      xinv-head.terms-d FORM "x(15)" space(1)

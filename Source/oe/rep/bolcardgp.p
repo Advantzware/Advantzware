@@ -367,6 +367,7 @@ FOR EACH xxreport WHERE xxreport.term-id EQ v-term-id,
                     substr(v-salesman,LENGTH(TRIM(v-salesman)),1) = "".
 
             v-fob = IF oe-ord.fob-code BEGINS "ORIG" THEN "Origin" ELSE "Destination".
+            IF v-print-fmt EQ "GPI2_I" THEN ASSIGN v-fob = "EXW".
             LEAVE.
         END.
 

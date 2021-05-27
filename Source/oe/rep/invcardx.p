@@ -146,6 +146,7 @@ DEF VAR v-comp-add4 AS cha FORM "x(30)" NO-UNDO.
          assign v-fob = "Origin".
         else
          assign v-fob = "Destination".
+        IF v-print-fmt EQ "Carded2" THEN ASSIGN v-fob = "EXW".
 
         find FIRST carrier where carrier.company = inv-head.company and
           carrier.carrier = inv-head.carrier no-lock no-error.
