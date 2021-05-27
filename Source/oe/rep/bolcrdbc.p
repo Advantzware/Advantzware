@@ -17,6 +17,7 @@ def var v-fob               as   char format "x(12)".
 def var v-tot-cases         as   int format "->,>>>,>>9".
 def var v-tot-palls         as   int format "->,>>>,>>9".
 def var v-tot-wt            as   dec format "->>,>>>,>>9".
+def var v-tot-wt2           as   dec format "->>,>>>,>>9".
 
 def var v-tot-pkgs          as   int format ">>9".
 def var v-pal-cnt           as   dec.
@@ -80,10 +81,43 @@ def workfile w3 no-undo
     field ship-i           as   char format "x(60)".
 
 /* === with xprint ====*/
-DEF VAR ls-image1 AS cha NO-UNDO.
-DEF VAR ls-image2 AS cha NO-UNDO.
-DEF VAR ls-full-img1 AS cha FORM "x(200)" NO-UNDO.
-DEF VAR ls-full-img2 AS cha FORM "x(200)" NO-UNDO.
+DEFINE VARIABLE ls-image1    AS CHARACTER               NO-UNDO.
+DEFINE VARIABLE ls-image2    AS CHARACTER               NO-UNDO.
+DEFINE VARIABLE ls-full-img1 AS CHARACTER FORM "x(200)" NO-UNDO.
+DEFINE VARIABLE ls-full-img2 AS CHARACTER FORM "x(200)" NO-UNDO.
+DEFINE VARIABLE ls-full-img3 AS CHARACTER FORM "x(200)" NO-UNDO.
+DEFINE VARIABLE cRtnChar     AS CHARACTER               NO-UNDO.
+DEFINE VARIABLE cMessage     AS CHARACTER               NO-UNDO.
+DEFINE VARIABLE lRecFound    AS LOGICAL                 NO-UNDO.
+DEFINE VARIABLE lValid       AS LOGICAL                 NO-UNDO.
+
+
+RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+
+IF lRecFound AND cRtnChar NE "" THEN DO:
+    cRtnChar = DYNAMIC-FUNCTION (
+                   "fFormatFilePath",
+                   cRtnChar
+                   ).
+                   
+    /* Validate the N-K-1 BusinessFormLogo image file */
+    RUN FileSys_ValidateFile(
+        INPUT  cRtnChar,
+        OUTPUT lValid,
+        OUTPUT cMessage
+        ) NO-ERROR.
+
+    IF NOT lValid THEN DO:
+        MESSAGE "Unable to find image file '" + cRtnChar + "' in N-K-1 setting for BusinessFormLogo"
+            VIEW-AS ALERT-BOX ERROR.
+    END.
+END.
+
+ASSIGN
+    ls-full-img3 = cRtnChar + ">" .
+    
 ASSIGN ls-image1 = "images\Carded.jpg"
        ls-image2 = "images\Carded.jpg".
 
@@ -127,7 +161,11 @@ DEF VAR lv-tot-pg AS INT NO-UNDO.
 DEF VAR ln-cnt AS INT NO-UNDO.
 def buffer b-itemfg     for itemfg.
 DEF BUFFER bf-ttboll FOR tt-boll.
-DEF VAR v-tot-case-qty AS INT NO-UNDO.
+DEFINE VARIABLE v-tot-case-qty AS INTEGER NO-UNDO.
+DEFINE VARIABLE iRelPallet     AS INTEGER NO-UNDO.
+DEFINE VARIABLE iRelCase       AS INTEGER NO-UNDO.
+DEFINE VARIABLE dTotalWeight   AS DECIMAL NO-UNDO.
+DEFINE VARIABLE v-qty    LIKE oe-boll.qty NO-UNDO.
 
 DEF TEMP-TABLE tt-boll2 FIELD rec-id AS RECID
                         FIELD pallets AS INT.
@@ -483,7 +521,15 @@ for each xxreport where xxreport.term-id eq v-term-id,
   PUT "<R54><C50><#8><FROM><R+4><C+30><RECT> " 
     "<=8><R+1> Total Pallets     :" /*v-tot-cases*/ v-tot-palls
     "<=8><R+2> Total Cases       :" v-tot-cases
-    "<=8><R+3> Total Weight      :" v-tot-wt /*fORM ">>,>>9.99"*/ .
+    .
+    IF v-print-fmt EQ "CardedBC_I" THEN
+    DO: 
+        v-tot-wt2 = v-tot-wt * 0.45 .
+        PUT "<=8><R+3> Total Weight      :" "<C61>" v-tot-wt " LBS / " "<C68>"v-tot-wt2 " Kg"  .
+    END.
+    ELSE DO:
+        PUT "<=8><R+3> Total Weight      :" v-tot-wt /*fORM ">>,>>9.99"*/ .
+    END.
     
   PUT "<FArial><R51><C1><P12><B>     Shipping Instructions: </B> <P9> " 
     "<R53><C1>" oe-bolh.ship-i[1] 
@@ -502,6 +548,16 @@ for each xxreport where xxreport.term-id eq v-term-id,
   IF last-of(oe-bolh.bol-no) THEN lv-pg-num = PAGE-NUM .
 
   PAGE.
+  
+  IF v-print-fmt EQ "CardedBC_I" THEN
+  DO:
+     v-printline = 0.
+     PAGE.
+     {oe/rep/bolcardX.i}
+     PAGE.
+  END.
+  
+  
   v-printline = 0.
 
   for each report where report.term-id eq v-term-id,

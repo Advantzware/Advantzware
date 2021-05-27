@@ -17,6 +17,7 @@ DEFINE VARIABLE v-fob        AS CHARACTER FORMAT "x(12)".
 DEFINE VARIABLE v-tot-cases  AS INTEGER   FORMAT "->,>>>,>>9".
 DEFINE VARIABLE v-tot-palls  AS INTEGER   FORMAT "->,>>>,>>9".
 DEFINE VARIABLE v-tot-wt     AS DECIMAL   FORMAT "->>,>>>,>>9".
+DEFINE VARIABLE v-tot-wt2    AS DECIMAL   FORMAT "->>,>>>,>>9".
 
 DEFINE VARIABLE v-tot-pkgs   AS INTEGER   FORMAT ">>9".
 DEFINE VARIABLE v-pal-cnt    AS DECIMAL.
@@ -67,11 +68,43 @@ DEFINE WORKFILE w3 NO-UNDO
     FIELD ship-i           AS   CHARACTER FORMAT "x(60)".
 
 /* === with xprint ====*/
-DEFINE VARIABLE ls-image1    AS cha NO-UNDO.
-DEFINE VARIABLE ls-image2    AS cha NO-UNDO.
-DEFINE VARIABLE ls-full-img1 AS cha FORM "x(200)" NO-UNDO.
-DEFINE VARIABLE ls-full-img2 AS cha FORM "x(200)" NO-UNDO.
-ASSIGN 
+DEFINE VARIABLE ls-image1    AS CHARACTER               NO-UNDO.
+DEFINE VARIABLE ls-image2    AS CHARACTER               NO-UNDO.
+DEFINE VARIABLE ls-full-img1 AS CHARACTER FORM "x(200)" NO-UNDO.
+DEFINE VARIABLE ls-full-img2 AS CHARACTER FORM "x(200)" NO-UNDO.
+DEFINE VARIABLE ls-full-img3 AS CHARACTER FORM "x(200)" NO-UNDO.
+DEFINE VARIABLE cRtnChar     AS CHARACTER               NO-UNDO.
+DEFINE VARIABLE cMessage     AS CHARACTER               NO-UNDO.
+DEFINE VARIABLE lRecFound    AS LOGICAL                 NO-UNDO.
+DEFINE VARIABLE lValid       AS LOGICAL                 NO-UNDO.
+
+RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+
+IF lRecFound AND cRtnChar NE "" THEN DO:
+    cRtnChar = DYNAMIC-FUNCTION (
+                   "fFormatFilePath",
+                   cRtnChar
+                   ).
+                   
+    /* Validate the N-K-1 BusinessFormLogo image file */
+    RUN FileSys_ValidateFile(
+        INPUT  cRtnChar,
+        OUTPUT lValid,
+        OUTPUT cMessage
+        ) NO-ERROR.
+
+    IF NOT lValid THEN DO:
+        MESSAGE "Unable to find image file '" + cRtnChar + "' in N-K-1 setting for BusinessFormLogo"
+            VIEW-AS ALERT-BOX ERROR.
+    END.
+END.
+
+ASSIGN
+    ls-full-img3 = cRtnChar + ">" .
+    
+ASSIGN
     ls-image1 = "images\Carded.jpg"
     ls-image2 = "images\Carded.jpg".
 
@@ -116,6 +149,11 @@ DEFINE VARIABLE ln-cnt          AS INTEGER   NO-UNDO.
 DEFINE BUFFER b-itemfg  FOR itemfg.
 DEFINE BUFFER bf-ttboll FOR tt-boll.
 DEFINE VARIABLE v-tot-case-qty AS INTEGER NO-UNDO.
+DEFINE VARIABLE iRelPallet     AS INTEGER NO-UNDO.
+DEFINE VARIABLE iRelCase       AS INTEGER NO-UNDO.
+DEFINE VARIABLE dTotalWeight   AS DECIMAL NO-UNDO.
+DEFINE VARIABLE v-qty    LIKE oe-boll.qty NO-UNDO.
+
 FORM w2.i-no                         FORMAT "x(15)"
     w2.job-po                       AT 17 FORMAT "x(15)"
     w2.dscr                    AT 33 FORMAT "x(27)"
@@ -453,7 +491,15 @@ FOR EACH xxreport WHERE xxreport.term-id EQ v-term-id,
         PUT "<R54><C50><#8><FROM><R+4><C+30><RECT> " 
             "<=8><R+1> Total Pallets     :" /*v-tot-cases*/ v-tot-palls
             "<=8><R+2> Total Cases       :" v-tot-cases
-            "<=8><R+3> Total Weight      :" v-tot-wt /*fORM ">>,>>9.99"*/ .
+            .
+        IF v-print-fmt EQ "GPI2_I" THEN
+        DO: 
+            v-tot-wt2 = v-tot-wt * 0.45 .
+            PUT "<=8><R+3> Total Weight      :" "<C61>" v-tot-wt " LBS / " "<C68>"v-tot-wt2 " Kg"  .
+        END.
+        ELSE DO:
+            PUT "<=8><R+3> Total Weight      :" v-tot-wt /*fORM ">>,>>9.99"*/ .
+        END.
     
         PUT "<FArial><R51><C1><P12><B>     Shipping Instructions: </B> <P9> " 
             "<R53><C1>" oe-bolh.ship-i[1] 
@@ -472,6 +518,15 @@ FOR EACH xxreport WHERE xxreport.term-id EQ v-term-id,
         IF LAST-OF(oe-bolh.bol-no) THEN lv-pg-num = PAGE-NUMBER .
 
         PAGE.
+        
+        IF v-print-fmt EQ "GPI2_I" THEN
+        DO:
+           v-printline = 0.
+           PAGE.
+           {oe/rep/bolcardX.i}
+           PAGE.
+        END.
+        
         v-printline = 0.
 
         FOR EACH report WHERE report.term-id EQ v-term-id,

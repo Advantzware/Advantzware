@@ -89,7 +89,6 @@ DEF TEMP-TABLE tt-packslip NO-UNDO
     
 DEFINE TEMP-TABLE ttPdfBOLs LIKE report.
 
-def var v-print-fmt     as char NO-UNDO.
 DEF VAR v-print-fmt-int AS INT  NO-UNDO.
 def var v-headers       as log  no-undo.
 def var v-print-coc     as log  no-undo.

@@ -40,7 +40,16 @@ PUT
   "<R19><C12><FROM><R23><C12><LINE>" SKIP
   "<R19><C46><FROM><R23><C46><LINE>" SKIP
   "<R19><C66><FROM><R23><C66><LINE>" SKIP
-  "<FArial><=4><R+1>    Date                    FOB                                                                                   Carrier                                            Freight Terms" SKIP 
+  .
+  IF v-print-fmt EQ "GPI2_I" THEN
+  DO:
+     PUT "<FArial><=4><R+1>    Date                    EXW                                                                                   Carrier                                            Freight Terms" SKIP.
+  END.
+  ELSE DO:
+     PUT "<FArial><=4><R+1>    Date                    FOB                                                                                   Carrier                                            Freight Terms" SKIP.
+  END.
+  
+PUT
   "<FCourier New><=4><R+3> " oe-bolh.bol-date SPACE(3) v-fob space(30) carrier.dscr v-frt-terms SKIP
   "<|10><R24><C1><#5><FROM><R26><C81><RECT>" SKIP    
   "<R24><C13><FROM><R26><C13><LINE>" SKIP
