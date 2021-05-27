@@ -527,7 +527,6 @@ PROCEDURE GetVendorCost:
             OUTPUT opdCostTotal, OUTPUT lIsSelected, 
             OUTPUT iLeadDays, OUTPUT dCostDeviation,
             OUTPUT oplError, INPUT-OUTPUT opcMessage).
-        opdCostPerUOM = opdCostPerUOM + dCostPerUOMUpcharge.
         
     END.
 END PROCEDURE.
@@ -866,7 +865,6 @@ PROCEDURE Vendor_CheckPriceHoldForPo:
                     OUTPUT lError,
                     INPUT-OUTPUT cMessage
                     ).
-                dCostPerUOM = dCostPerUOM + dCostPerUOMUpcharge.
                  
                 IF dCostPerUOM NE bf-po-ordl.cost OR bf-po-ordl.cost EQ 0 THEN
                 DO:
