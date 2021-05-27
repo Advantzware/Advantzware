@@ -6449,8 +6449,17 @@ PROCEDURE valid-uom :
         IF LOOKUP(lv-uom,uom-list) LE 0 THEN 
         DO:
             MESSAGE "UOM must be " + TRIM(uom-list) VIEW-AS ALERT-BOX ERROR.
-            IF ip-field EQ "pr-uom" THEN APPLY "entry" TO po-ordl.pr-uom.
-            ELSE APPLY "entry" TO po-ordl.pr-qty-uom.
+            IF ip-field EQ "pr-uom" THEN 
+            DO: 
+               IF po-ordl.pr-uom:SCREEN-VALUE EQ "" THEN
+               po-ordl.pr-uom:SCREEN-VALUE = "EA".
+               APPLY "entry" TO po-ordl.pr-uom.
+            END.
+            ELSE DO:
+               IF po-ordl.pr-qty-uom:SCREEN-VALUE EQ "" THEN
+               po-ordl.pr-qty-uom:SCREEN-VALUE = "EA".
+              APPLY "entry" TO po-ordl.pr-qty-uom.
+            END.
             RETURN ERROR.
         END.
     END.

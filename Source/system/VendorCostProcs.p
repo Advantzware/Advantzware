@@ -527,7 +527,6 @@ PROCEDURE GetVendorCost:
             OUTPUT opdCostTotal, OUTPUT lIsSelected, 
             OUTPUT iLeadDays, OUTPUT dCostDeviation,
             OUTPUT oplError, INPUT-OUTPUT opcMessage).
-        opdCostPerUOM = opdCostPerUOM + dCostPerUOMUpcharge.
         
     END.
 END PROCEDURE.
@@ -866,9 +865,8 @@ PROCEDURE Vendor_CheckPriceHoldForPo:
                     OUTPUT lError,
                     INPUT-OUTPUT cMessage
                     ).
-                dCostPerUOM = dCostPerUOM + dCostPerUOMUpcharge.
-                
-                IF dCostPerUOM NE bf-po-ordl.cost THEN
+                 
+                IF dCostPerUOM NE bf-po-ordl.cost OR bf-po-ordl.cost EQ 0 THEN
                 DO:
                     CREATE ttPriceHold.                 
                     ASSIGN                       
@@ -880,7 +878,22 @@ PROCEDURE Vendor_CheckPriceHoldForPo:
                         ttPriceHold.cPriceHoldDetail = ""
                         ttPriceHold.cPriceHoldReason = "Item Cost for " + ttPriceHold.cFGItemID + " not matched in Vendor Cost table"
                         .                                            
-                END.                  
+                END. 
+                
+                IF dQuantityInVendorUOM LT bf-vendItemCost.quantityMinimumOrder OR dQuantityInVendorUOM GT bf-vendItemCost.quantityMaximumOrder THEN
+                DO:
+                    CREATE ttPriceHold.                 
+                    ASSIGN                       
+                        ttPriceHold.cFGItemID        = bf-po-ordl.i-no
+                        ttPriceHold.cCustID          = bf-po-ord.cust-no
+                        ttPriceHold.cShipID          = ""
+                        ttPriceHold.dQuantity        = bf-po-ordl.ord-qty                
+                        ttPriceHold.lPriceHold       = YES
+                        ttPriceHold.cPriceHoldDetail = ""
+                        ttPriceHold.cPriceHoldReason = IF dQuantityInVendorUOM LT bf-vendItemCost.quantityMinimumOrder THEN "Item quantity is less then min order qty(Item - " + ttPriceHold.cFGItemID + "  Min Qty - " + STRING(bf-vendItemCost.quantityMinimumOrder) + ")"
+                                                       ELSE "Item quantity is greater then max order qty(Item - " + ttPriceHold.cFGItemID + "  Max Qty - " + STRING(bf-vendItemCost.quantityMaximumOrder) + ")"
+                        .                    
+                END.
             END.  
             ELSE 
             DO:             
