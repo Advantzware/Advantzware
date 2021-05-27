@@ -1377,8 +1377,8 @@ FOR EACH po-ordl WHERE po-ordl.company = cocode
          AND bf-ITEM.i-no EQ po-ordl.i-no NO-ERROR.     
     
     FOR EACH ttRptSelected:
-
-        IF lookup(ttRptSelected.FieldList,"cust-part,adders,rm-item,fg-item,style-job,shipto-cust,dropshipment,rm-cat,rm-cat-dscr,fg-cat,fg-cat-dscr") EQ 0 THEN do:
+       
+        IF lookup(ttRptSelected.FieldList,"po-ordl.job-no,cust-part,adders,rm-item,fg-item,style-job,shipto-cust,dropshipment,rm-cat,rm-cat-dscr,fg-cat,fg-cat-dscr") EQ 0 THEN do:
         v-excel-detail-lines = v-excel-detail-lines + 
             appendXLLine(getValue(BUFFER po-ordl,BUFFER po-ord,BUFFER vend,ttRptSelected.FieldList)).
         END.
@@ -1387,6 +1387,10 @@ FOR EACH po-ordl WHERE po-ordl.company = cocode
              WHEN "shipto-cust" THEN do:
                  v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(po-ord.cust-no)).
              END.
+             WHEN "po-ordl.job-no" THEN do:
+                 v-excel-detail-lines = v-excel-detail-lines + appendXLLine(po-ordl.job-no + "-" + STRING(po-ordl.job-no2,"99")).
+             END.
+             
              WHEN "dropshipment" THEN do:
                IF po-ord.TYPE EQ "D" THEN do:
                  IF po-ord.cust-no NE "" THEN
