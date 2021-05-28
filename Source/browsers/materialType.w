@@ -161,7 +161,7 @@ RUN set-attribute-list (
 DEFINE BUTTON btSearch 
      IMAGE-UP FILE "Graphics/32x32/search_new.png":U
      LABEL "Search" 
-     SIZE 6.5 BY 1.42.
+     SIZE 6.6 BY 1.43.
 
 DEFINE VARIABLE cbAutoIssue AS CHARACTER FORMAT "X(256)":U INITIAL "All" 
      VIEW-AS COMBO-BOX INNER-LINES 5
@@ -205,7 +205,7 @@ DEFINE BROWSE materialType
       materialType.autoIssue FORMAT "Enabled/Disabled":U LABEL-BGCOLOR 22 VIEW-AS TOGGLE-BOX
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 103 BY 12.62.
+    WITH NO-ASSIGN SEPARATORS SIZE 125 BY 12.62.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -259,8 +259,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW B-table-Win ASSIGN
-         HEIGHT             = 15.24
-         WIDTH              = 103.6.
+         HEIGHT             = 15.19
+         WIDTH              = 125.2.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME

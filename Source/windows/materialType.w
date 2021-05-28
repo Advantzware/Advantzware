@@ -88,7 +88,7 @@ DEFINE FRAME F-Main
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 136.6 BY 19.52
+         SIZE 136 BY 19.52
          BGCOLOR 15  WIDGET-ID 100.
 
 DEFINE FRAME OPTIONS-FRAME
@@ -124,9 +124,9 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          HIDDEN             = YES
          TITLE              = "Material Type Maintenance"
          HEIGHT             = 19.52
-         WIDTH              = 136.6
-         MAX-HEIGHT         = 23.33
-         MAX-WIDTH          = 136.6
+         WIDTH              = 136
+         MAX-HEIGHT         = 320
+         MAX-WIDTH          = 320
          VIRTUAL-HEIGHT     = 23.33
          VIRTUAL-WIDTH      = 136.6
          RESIZE             = yes
@@ -222,6 +222,7 @@ END.
 
 /* Include custom  Main Block code for SmartWindows. */
 {src/adm/template/windowmn.i}
+{custom/initializeprocs.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
