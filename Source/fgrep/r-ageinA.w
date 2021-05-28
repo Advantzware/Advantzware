@@ -2747,12 +2747,8 @@ FOR EACH tt-file WHERE
                                                ELSE ""
    .
   
-  IF v-sdate THEN 
-      ASSIGN 
-               v-shipdt[1]  = v-shipdt[1]
-               v-shipdt[2]  = v-shipdt[2].
-  ELSE              
-       ASSIGN
+  IF NOT v-sdate THEN               
+            ASSIGN
                v-shipdt[1]     = ""
                v-shipdt[2]     = ""  .
         
