@@ -679,22 +679,8 @@ do v-local-loop = 1 to v-local-copies:
                         
          END. /* IF s-prt-fgimage */
          
-         FIND FIRST bf-attach NO-LOCK
-                 WHERE bf-attach.company       EQ cocode
-                 AND  (TRIM(bf-attach.est-no)  EQ TRIM(job-hdr.est-no)) 
-                 AND  (TRIM(bf-attach.i-no)    EQ TRIM(v-fg))
-                 NO-ERROR.
-            IF AVAIL bf-attach THEN ASSIGN ls-attach-img = bf-attach.attach-file.
-            
-            IF AVAIL bf-attach AND ls-attach-img NE "" AND bf-attach.spare-int-1 EQ 1 THEN
-            DO:
-               PUT UNFORMATTED "<#12><C1><FROM><C91><R+55><RECT><||3><C91>" /*v-qa-text*/ SKIP
-                "<=12><R+1><C5><P11><B>Job #: " v-job-prt "  FG Item: " bf-itemfg.i-no " "  "</B>"
-                "<=12><R+3><C1><FROM><C91><LINE><||3>"
-                "<=12><R+5><C5><#21><R+45><C+80><IMAGE#21=" ls-attach-img ">" SKIP. 
-               PAGE. 
-            END.
-         
+         RUN pPrintAttachImage(v-fg).
+                  
       end.  /* for each w-ef */
 
       IF s-prt-set-header AND last-of(job.job-no2) AND est.est-type = 6 THEN DO: /* print set header */
@@ -1012,12 +998,34 @@ do v-local-loop = 1 to v-local-copies:
       END. /* set header printing  est.est-type = 6 */
 
 
+      RUN pPrintAttachImage(job-hdr.i-no).
+      
     end.  /* each job */
     end.  /* end v-local-loop  */
  
         hide all no-pause.
 
 
+PROCEDURE pPrintAttachImage:
+      DEFINE INPUT PARAMETER ipcItem AS CHARACTER NO-UNDO.
+      FOR EACH bf-attach NO-LOCK
+                 WHERE bf-attach.company       EQ cocode
+                 AND  (TRIM(bf-attach.est-no)  EQ TRIM(job-hdr.est-no)) 
+                 AND  (TRIM(bf-attach.i-no)    EQ TRIM(ipcItem))
+                 :
+            IF AVAIL bf-attach THEN ASSIGN ls-attach-img = bf-attach.attach-file.
+            
+        IF AVAIL bf-attach AND ls-attach-img NE "" AND bf-attach.spare-int-1 EQ 1 THEN
+        DO:  
+           PUT UNFORMATTED "<#12><C1><FROM><C91><R+55><RECT><||3><C91>" /*v-qa-text*/ SKIP
+            "<=12><R+1><C5><P14><B>Job #: </B>" v-job-prt "<B> Est #: </B>" TRIM(bf-attach.est-no) "<B> FG Item: </B>" CAPS(bf-attach.i-no) 
+            "<=12><R+3><C1><FROM><C91><LINE><||3>"
+            "<=12><R+5><C5><#21><R+45><C+80><IMAGE#21=" ls-attach-img ">" SKIP.  
+           PAGE. 
+        END.
+      END.  /* FOR EACH bf-attach */
+END PROCEDURE.
+        
 PROCEDURE stackImage:
   DEFINE BUFFER pattern FOR reftable.
   DEFINE BUFFER stackPattern FOR stackPattern.
