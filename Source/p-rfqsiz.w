@@ -239,6 +239,7 @@ DO:
      enable btn-cancel with frame {&frame-name}.
      btn-save:label = "&Save" .
      btn-auto-calc:sensitive = no.
+     btPOScores:SENSITIVE = FALSE.
      run auto-calc in widget-handle(source-str). 
   END.
 
@@ -255,6 +256,7 @@ DO:
   DO WITH FRAME Panel-Frame:
       add-active = no.
       btn-auto-calc:sensitive = yes.
+      btPOScores:SENSITIVE = TRUE.
       RUN notify ('cancel-record':U).
    END.
 END.
@@ -286,11 +288,13 @@ DO:
         DO:
            RUN new-state('update-begin':U).
            ASSIGN add-active = no.
+           btPOScores:SENSITIVE = FALSE.
         END.
         ELSE 
         DO: /* Save */
            RUN notify ('update-record':U).
            btn-auto-calc:sensitive = yes.
+           btPOScores:SENSITIVE = TRUE.
         END.                              
      END.
      ELSE 

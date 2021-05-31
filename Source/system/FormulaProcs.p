@@ -649,7 +649,7 @@ PROCEDURE ParsePanels:
                     .
             END.            
             ELSE IF lParentActive THEN DO:
-                cParentFormula = "+" + ttPanel.cPanelFormula.
+                cParentFormula = "+" + ttPanel.cPanelFormula + cParentFormula.
                 DELETE ttPanel.
             END.
         END.
