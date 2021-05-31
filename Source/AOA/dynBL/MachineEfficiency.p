@@ -83,8 +83,7 @@ PROCEDURE pBusinessLogic:
     DEFINE VARIABLE dBlanks       AS DECIMAL   FORMAT "->>>>,>>>,>>9" .
     DEFINE VARIABLE lFoundJobHdr  AS LOGICAL NO-UNDO.
     DEFINE VARIABLE dQtyInMSF     AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE iCount        AS INTEGER NO-UNDO.
- 
+    
     DEFINE BUFFER b-mach FOR mach.
 
     EMPTY TEMP-TABLE work-tmp.
@@ -95,7 +94,8 @@ PROCEDURE pBusinessLogic:
     tb_fold = lFolding .
     tb_corr = lCorrugated .
     cocode =  cCompany .
-
+    IF lProgressBar THEN
+        RUN spProgressBar (cProgressBar, 0, 100). 
     FOR EACH b-mach FIELDS(m-code) WHERE
         b-mach.company EQ cCompany AND    
         b-mach.m-code GE cStartMachine AND
@@ -120,7 +120,8 @@ PROCEDURE pBusinessLogic:
             END.
         END. /*do v-date*/
     END.
-
+    IF lProgressBar THEN
+        RUN spProgressBar (cProgressBar, 30, 100). 
     FOR EACH work-tmp
         BREAK BY work-tmp.m-code
         BY work-tmp.shift-sort
@@ -290,7 +291,10 @@ PROCEDURE pBusinessLogic:
      
         END. /*last-of(mch-act.frm)*/                     
     END. /*each work-tmp*/
-
+    
+    IF lProgressBar THEN
+        RUN spProgressBar (cProgressBar, 50, 100). 
+        
     FOR EACH work-tmp BREAK BY work-tmp.sort-field
         BY work-tmp.job-no 
         BY work-tmp.job-no2:
@@ -443,7 +447,8 @@ PROCEDURE pBusinessLogic:
 
           
     END. /*end each work-temp*/
-
+    IF lProgressBar THEN
+        RUN spProgressBar (cProgressBar, 70, 100). 
     IF cTotalBy EQ "2" THEN
     DO:
         FOR EACH work-rep:
@@ -508,7 +513,9 @@ PROCEDURE pBusinessLogic:
                                              * 100.
             RELEASE work-rep.
             DELETE work-rep-copy.
-        END.    
+        END. 
+        IF lProgressBar THEN
+            RUN spProgressBar (cProgressBar, 80, 100).    
     END.
 
     FOR EACH work-rep BREAK BY work-rep.sort-field
@@ -562,15 +569,12 @@ PROCEDURE pBusinessLogic:
             ttMachineEfficiency.scrMsf   = IF work-rep.msf-scrap-rec <> ? THEN work-rep.msf-scrap-rec ELSE 0
             ttMachineEfficiency.totScrap = IF work-rep.perc-total-scrap <> ? THEN work-rep.perc-total-scrap ELSE 0 
             ttMachineEfficiency.job      = work-rep.job-no
-            ttMachineEfficiency.job2     = work-rep.job-no2
-            iCount = iCount + 1
-            .
-        IF lProgressBar THEN
-            RUN spProgressBar (cProgressBar, iCount, ?).      
+            ttMachineEfficiency.job2     = work-rep.job-no2 .       
               
     END. /* EACH work-rep */  
  
     
-
+    IF lProgressBar THEN
+        RUN spProgressBar (cProgressBar, 100, 100). 
     
 END PROCEDURE.
