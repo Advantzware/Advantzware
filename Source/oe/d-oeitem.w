@@ -6244,7 +6244,7 @@ PROCEDURE getCostFromEstimate :
                     NO-ERROR. 
             IF AVAILABLE bf-estCostItem THEN 
                 oe-ordl.cost:SCREEN-VALUE = STRING((IF v-full-cost THEN bf-estCostItem.costTotalFull ELSE bf-estCostItem.costTotalFactory) /
-                    (INT(oe-ordl.qty:SCREEN-VALUE) / 1000)).
+                    (bf-estCostItem.quantityRequired / 1000)).
         END.
         ELSE DO:
             FIND FIRST xeb NO-LOCK
