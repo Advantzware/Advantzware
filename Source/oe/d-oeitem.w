@@ -528,6 +528,16 @@ FUNCTION fOEScreenUOMConvert RETURNS DECIMAL
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fUseNewEstimating d-oeitem
+FUNCTION fUseNewEstimating RETURNS LOGICAL PRIVATE
+  (ipcCompany AS CHARACTER) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD get-colonial-rel-date d-oeitem 
 FUNCTION get-colonial-rel-date RETURNS DATE
   ( iprRel AS ROWID)  FORWARD.
@@ -6180,69 +6190,113 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE get-est-cost d-oeitem 
-PROCEDURE get-est-cost :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-   DEF INPUT PARAM ip-est-no AS CHAR NO-UNDO.
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE getCostFromEstimate d-oeitem 
+PROCEDURE getCostFromEstimate :
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcEstimateNo AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE cProgramList AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iEbCnt       AS INTEGER   NO-UNDO.
+    
+    DEFINE BUFFER bf-estCostHeader FOR estCostHeader.
+    DEFINE BUFFER bf-estCostItem FOR estCostItem.
+    
+    IF ipcEstimateNo NE "" AND NOT AVAILABLE xest THEN
+        FIND FIRST xest NO-LOCK 
+            WHERE xest.company EQ cocode 
+            AND xest.est-no EQ ipcEstimateNo 
+            NO-ERROR.
 
-   DEF VAR v-run-list AS CHAR NO-UNDO.
-   DEF VAR iEbCnt AS INT NO-UNDO.
-   IF ip-est-no NE "" AND NOT AVAIL xest THEN
-        FIND FIRST xest WHERE xest.company EQ cocode AND
-                   xest.est-no EQ ip-est-no NO-LOCK NO-ERROR.
-
-   IF AVAIL xest THEN DO WITH FRAME {&FRAME-NAME}:
-     FIND FIRST xeb
-          WHERE xeb.company = g_company 
-            AND xeb.est-no = ip-est-no
-            AND xeb.part-no = oe-ordl.part-no:SCREEN-VALUE
-          NO-LOCK NO-ERROR.
-     IF NOT AVAIL xeb THEN DO:
-       iEbCnt = 0.
-       FOR EACH xeb 
-          WHERE xeb.company = g_company 
-            AND xeb.est-no = ip-est-no            
-          NO-LOCK:
-         iEbCnt = iEbCnt + 1.
-       END.
-       /* If there is only one record, use it 03191507 */
-       IF iEbCnt EQ 1 THEN
-         FIND FIRST xeb
-              WHERE xeb.company = g_company 
-                AND xeb.est-no = ip-est-no
-              NO-LOCK NO-ERROR.
-     END.
-     
-     IF AVAIL xeb THEN
-     FIND FIRST xef
-          WHERE xef.company = g_company 
-            AND xef.est-no = ip-est-no
-            AND (xef.form-no = xeb.form-no OR xeb.form-no = 0)
-          NO-LOCK NO-ERROR.
-
-     ASSIGN
-        v-run-list = "ce/print4.p,ce/box/print42.p,ce/tan/print4.p," +
-                     "ce/com/print4.p,cec/print4.p,cec/box/print42.p," +
-                     "cec/tan/print4.p,cec/com/print4.p"
-        qty = INT(oe-ordl.qty:SCREEN-VALUE)
-        v-shared-rel = v-rel.
-
-     IF AVAIL xeb AND AVAIL xef                                     AND
-        xest.est-type NE 3                                          AND
-        xest.est-type NE 4                                          AND
-        xest.est-type NE 8                                          AND
-        (oe-ordl.qty NE qty OR DEC(oe-ordl.cost:SCREEN-VALUE) EQ 0) THEN DO:
-
-        RUN VALUE(ENTRY(xest.est-type,v-run-list)).     
-
-        oe-ordl.cost:SCREEN-VALUE = STRING((IF v-full-cost THEN tt-tot ELSE ord-cost) /
-                                           (INT(oe-ordl.qty:SCREEN-VALUE) / 1000)).
-     END.
-   END.
+    IF AVAILABLE xest THEN 
+    DO WITH FRAME {&FRAME-NAME}:
+        IF fUseNewEstimating(cocode) THEN DO:
+            IF oe-ordl.job-no:SCREEN-VALUE NE "" THEN 
+                FIND FIRST bf-estCostHeader NO-LOCK 
+                    WHERE bf-estCostHeader.company EQ cocode
+                    AND bf-estCostHeader.estimateNo EQ ipcEstimateNo
+                    AND bf-estCostHeader.jobID EQ oe-ordl.job-no:SCREEN-VALUE
+                    AND bf-estCostHeader.jobID2 EQ INT(oe-ordl.job-no2:SCREEN-VALUE)
+                    NO-ERROR.
+            IF NOT AVAILABLE bf-estCostHeader THEN 
+                FIND FIRST bf-estCostHeader NO-LOCK 
+                    WHERE bf-estCostHeader.company EQ cocode
+                    AND bf-estCostHeader.estimateNo EQ ipcEstimateNo
+                    AND bf-estCostHeader.quantityMaster LE INT(oe-ordl.qty:SCREEN-VALUE)
+                    NO-ERROR.
+            IF NOT AVAILABLE bf-estCostHeader THEN 
+                FIND FIRST bf-estCostHeader NO-LOCK 
+                    WHERE bf-estCostHeader.company EQ cocode
+                    AND bf-estCostHeader.estimateNo EQ ipcEstimateNo
+                    NO-ERROR.
+            IF AVAILABLE bf-estCostHeader THEN 
+                FIND FIRST bf-estCostItem NO-LOCK 
+                    WHERE bf-estCostItem.estCostHeaderID EQ bf-estCostHeader.estCostHeaderID
+                    AND bf-estCostItem.itemID EQ oe-ordl.i-no:SCREEN-VALUE
+                    NO-ERROR.
+            IF NOT AVAILABLE bf-estCostItem THEN 
+                FIND FIRST bf-estCostItem NO-LOCK 
+                    WHERE bf-estCostItem.estCostHeaderID EQ bf-estCostHeader.estCostHeaderID
+                    AND bf-estCostItem.customerPart EQ oe-ordl.part-no:SCREEN-VALUE
+                    NO-ERROR. 
+            IF AVAILABLE bf-estCostItem THEN 
+                oe-ordl.cost:SCREEN-VALUE = STRING((IF v-full-cost THEN bf-estCostItem.costTotalFull ELSE bf-estCostItem.costTotalFactory) /
+                    (INT(oe-ordl.qty:SCREEN-VALUE) / 1000)).
+        END.
+        ELSE DO:
+            FIND FIRST xeb NO-LOCK
+                WHERE xeb.company EQ xest.company 
+                AND xeb.est-no EQ  xest.est-no
+                AND xeb.part-no = oe-ordl.part-no:SCREEN-VALUE
+                NO-ERROR.
+            IF NOT AVAILABLE xeb THEN 
+            DO:
+                iEbCnt = 0.
+                FOR EACH xeb 
+                    WHERE xeb.company = g_company 
+                    AND xeb.est-no = ipcEstimateNo            
+                    NO-LOCK:
+                    iEbCnt = iEbCnt + 1.
+                END.
+                /* If there is only one record, use it 03191507 */
+                IF iEbCnt EQ 1 THEN
+                    FIND FIRST xeb
+                        WHERE xeb.company = g_company 
+                        AND xeb.est-no = ipcEstimateNo
+                        NO-LOCK NO-ERROR.
+            END.
+         
+            IF AVAILABLE xeb THEN
+                FIND FIRST xef
+                    WHERE xef.company = g_company 
+                    AND xef.est-no = ipcEstimateNo
+                    AND (xef.form-no = xeb.form-no OR xeb.form-no = 0)
+                    NO-LOCK NO-ERROR.
+    
+            ASSIGN
+                cProgramList   = "ce/print4.p,ce/box/print42.p,ce/tan/print4.p," +
+                         "ce/com/print4.p,cec/print4.p,cec/box/print42.p," +
+                         "cec/tan/print4.p,cec/com/print4.p"
+                qty          = INT(oe-ordl.qty:SCREEN-VALUE)
+                v-shared-rel = v-rel.
+    
+            IF AVAILABLE xeb AND AVAILABLE xef                                     AND
+                xest.est-type NE 3                                          AND
+                xest.est-type NE 4                                          AND
+                xest.est-type NE 8                                          AND
+                (oe-ordl.qty NE qty OR DEC(oe-ordl.cost:SCREEN-VALUE) EQ 0) THEN 
+            DO:
+    
+                RUN VALUE(ENTRY(xest.est-type,cProgramList)).     
+    
+                oe-ordl.cost:SCREEN-VALUE = STRING((IF v-full-cost THEN tt-tot ELSE ord-cost) /
+                    (INT(oe-ordl.qty:SCREEN-VALUE) / 1000)).
+            END.
+        END.
+    END.
 
 END PROCEDURE.
 
@@ -6861,7 +6915,7 @@ PROCEDURE leave-qty :
         FIND FIRST xest WHERE xest.company EQ cocode AND
                    xest.est-no EQ lv-est-no NO-LOCK NO-ERROR.
 
-       RUN get-est-cost (lv-est-no).
+       RUN getCostFromEstimate (lv-est-no).
 
        IF AVAIL xest AND v-quo-price-log AND NOT ll-got-qtprice AND oe-ordl.sourceEstimateID:SCREEN-VALUE EQ "" THEN DO:
           ASSIGN lv-price = dec(oe-ordl.price:screen-value)
@@ -10298,7 +10352,7 @@ PROCEDURE validate-all :
 
     ls-est-no = oe-ordl.est-no:screen-value.
 
-    IF NOT ll-qty-leave-done THEN RUN get-est-cost (ls-est-no).
+    IF NOT ll-qty-leave-done THEN RUN getCostFromEstimate (ls-est-no).
 
     RUN valid-part-no NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN ERROR.
@@ -10796,6 +10850,29 @@ END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fUseNewEstimating d-oeitem
+FUNCTION fUseNewEstimating RETURNS LOGICAL PRIVATE
+  (ipcCompany AS CHARACTER ):
+/*------------------------------------------------------------------------------
+ Purpose:  Use new estimating
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lCEVersion AS LOGICAL NO-UNDO.
+
+    RUN sys/ref/nk1look.p (ipcCompany, "CEVersion", "C" /* Character */, NO /* check by cust */, 
+        INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+        OUTPUT cRtnChar, OUTPUT lRecFound).
+    lCEVersion = lRecFound AND cRtnChar EQ "New".
+    
+    RETURN lCEVersion. 
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION get-colonial-rel-date d-oeitem 
 FUNCTION get-colonial-rel-date RETURNS DATE
