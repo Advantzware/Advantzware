@@ -2016,6 +2016,8 @@ PROCEDURE pUpdateMachineList :
         ipcCompany,
         ipcJobNo,
         INT(ipcJobNo2),
+        ?,
+        ?,
         INPUT-OUTPUT opcMachineListItems 
         ).
 

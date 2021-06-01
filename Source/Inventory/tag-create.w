@@ -1711,6 +1711,8 @@ PROCEDURE pUpdateComboBoxes :
             ipcCompany,
             cFormattedJobno,
             INTEGER(ENTRY(iCount, cJobno2ListItems)),
+            ?,
+            ?,
             INPUT-OUTPUT cMachineListItems
             ).
     END.
