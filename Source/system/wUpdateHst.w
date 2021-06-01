@@ -464,7 +464,7 @@ PROCEDURE ipInstallPatch:
                     '\Hotfix' + cPatchToProcess + '.zip -s'.
         OS-COMMAND SILENT VALUE(cCmd).
         ASSIGN 
-            cCmd =  'CALL "c:\program files\7-zip\7z.exe"  e ' + cOverrideDir + '\Hotfix' + cPatchToProcess + '.zip -o' + cOverrideDir + ' -aoa'. 
+            cCmd =  'CALL "c:\program files\7-zip\7z.exe"  x ' + cOverrideDir + '\Hotfix' + cPatchToProcess + '.zip -o' + cOverrideDir + ' -aoa'. 
         OS-COMMAND SILENT VALUE(cCmd).
 
         INPUT FROM VALUE (cOverrideDir + "\HotfixList.txt").
