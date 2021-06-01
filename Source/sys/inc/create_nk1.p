@@ -1570,7 +1570,7 @@ CASE ip-nk1-value:
             INPUT cocode, 
             INPUT ip-nk1-value, 
             INPUT NO,           
-            INPUT "Prevent auto approved if invoice have billable misc line item",            /* Description */
+            INPUT "Do not auto approve if invoice has a misc item",            /* Description */
             INPUT "",                                   /* Char Value */
             INPUT 0,                                    /* Int value */
             INPUT NO,                                   /* Logical value */ 
