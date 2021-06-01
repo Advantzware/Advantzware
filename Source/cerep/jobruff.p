@@ -799,7 +799,7 @@ FOR EACH ef
     ELSE
         FOR EACH oe-ordl FIELDS(qty)
             WHERE oe-ordl.company EQ job-hdr.company
-            AND oe-ordl.ord-no  EQ job-hdr.ord-no
+            AND oe-ordl.ord-no  EQ eb.ord-no
             AND oe-ordl.job-no  EQ job-hdr.job-no
             AND oe-ordl.job-no2 EQ job-hdr.job-no2
             AND (oe-ordl.i-no EQ eb.stock-no OR est.est-type EQ 2)
@@ -1057,7 +1057,7 @@ PROCEDURE pPrintData:
 
                 FIND FIRST bf-oe-ordl NO-LOCK
                     WHERE bf-oe-ordl.company EQ job-hdr.company
-                    AND bf-oe-ordl.ord-no  EQ job-hdr.ord-no
+                    AND bf-oe-ordl.ord-no  EQ bf-eb.ord-no
                     AND bf-oe-ordl.job-no  EQ job-hdr.job-no
                     AND bf-oe-ordl.job-no2 EQ job-hdr.job-no2
                     AND bf-oe-ordl.i-no EQ bf-eb.stock-no 
@@ -1065,7 +1065,7 @@ PROCEDURE pPrintData:
                     NO-ERROR .
                 FIND FIRST bf-job-hdr  NO-LOCK
                     WHERE bf-job-hdr.company EQ job-hdr.company
-                    AND bf-job-hdr.ord-no  EQ job-hdr.ord-no
+                    AND bf-job-hdr.ord-no  EQ bf-eb.ord-no
                     AND bf-job-hdr.job-no  EQ job-hdr.job-no
                     AND bf-job-hdr.job-no2 EQ job-hdr.job-no2
                     AND bf-job-hdr.i-no EQ bf-eb.stock-no 
