@@ -6346,7 +6346,7 @@ PROCEDURE get-price :
             RUN oe/oe-price.p.
             IF matrixExists THEN 
             DO:  
-                matrixTag = "Item No:" + string(v-i-item) + " Customer No:" + string(cust.cust-no) + " Ship ID:" + oe-ordl.ship-id + " Quantity:" + string(v-i-qty). 
+                matrixTag = "Item No:" + string(v-i-item) + " Customer No:" + string(oe-ordl.cust-no) + " Ship ID:" + oe-ordl.ship-id + " Quantity:" + string(v-i-qty). 
 
                 RUN pAddTagInfoForGroup(
                     INPUT oe-ordl.rec_key,
