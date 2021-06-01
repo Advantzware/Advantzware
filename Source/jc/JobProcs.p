@@ -462,8 +462,8 @@ PROCEDURE GetOperationsForJob:
               AND bf-job-mch.job     EQ bf-job.job
               AND bf-job-mch.job-no  EQ bf-job.job-no
               AND bf-job-mch.job-no2 EQ bf-job.job-no2
-              AND bf-job-mch.frm     EQ ipiFormNo
-              AND (bf-job-mch.blank-no EQ ipiBlankNo OR bf-job-mch.blank-no EQ 0)
+              AND (bf-job-mch.frm     EQ ipiFormNo OR ipiFormNo EQ ?)
+              AND (bf-job-mch.blank-no EQ ipiBlankNo OR bf-job-mch.blank-no EQ 0 OR ipiBlankNO EQ ?)
             USE-INDEX line-idx:
         opcMachineList = IF opcMachineList EQ "" THEN 
                              STRING(bf-job-mch.m-code)
