@@ -66,6 +66,7 @@ PROCEDURE pBusinessLogic:
     DEFINE VARIABLE iFrm           AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iItemRolls     AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iJobNo2        AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iCount         AS INTEGER   NO-UNDO.
     
     cocode = cCompany.
     FIND FIRST ce-ctrl NO-LOCK WHERE ce-ctrl.company EQ cCompany NO-ERROR.
@@ -134,7 +135,10 @@ PROCEDURE pBusinessLogic:
             ttTempTable.caliper      = item.cal
             ttTempTable.weightMSF    = item.basis-w
             ttTempTable.itemName     = item.i-name
+            iCount = iCount + 1
             .
+        IF lProgressBar THEN
+            RUN spProgressBar (cProgressBar, iCount, ?).
         ttTempTable.costValue = ttTempTable.qty * ttTempTable.unitCost.
         IF ttRM-Bin.tag NE "" THEN DO:
             FIND FIRST loadTag NO-LOCK

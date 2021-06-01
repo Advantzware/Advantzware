@@ -151,7 +151,7 @@ PROCEDURE pBusinessLogic:
     DEFINE VARIABLE dProfit     AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE dOutQty     AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE dPer        AS DECIMAL   NO-UNDO.      
-
+    DEFINE VARIABLE iCount      AS INTEGER   NO-UNDO.
     
     fdate      = dtStartInvoiceDate .
     tdate      = dtEndInvoiceDate .
@@ -687,7 +687,10 @@ PROCEDURE pBusinessLogic:
             dTotalSqft = 0.
             dProfit = 0.          
         END.         
-
+        iCount = iCount + 1
+            .
+        IF lProgressBar THEN
+            RUN spProgressBar (cProgressBar, iCount, ?).
         DELETE w-data. 
     END.
               

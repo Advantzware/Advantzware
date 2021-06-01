@@ -26,6 +26,7 @@ PROCEDURE pBusinessLogic:
     DEFINE VARIABLE iPalletCount AS INTEGER   NO-UNDO.
     DEFINE VARIABLE rRowID       AS ROWID     NO-UNDO.
     DEFINE VARIABLE cStatus      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iCount       AS INTEGER   NO-UNDO.
 
     IF lCustList THEN
     RUN pBuildCustList (
@@ -107,7 +108,10 @@ PROCEDURE pBusinessLogic:
             ttCustomerInventory.qtyOnHand   = itemfg.q-onh
             ttCustomerInventory.palletCount = iPalletCount
             ttCustomerInventory.requestDate = oe-ordl.req-date WHEN AVAILABLE oe-rel
+            iCount = iCount + 1
             .
+        IF lProgressBar THEN
+            RUN spProgressBar (cProgressBar, iCount, ?).
     END. /* each cust */
 END PROCEDURE.
 
