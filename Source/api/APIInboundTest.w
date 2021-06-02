@@ -464,7 +464,7 @@ DO:
         OS-DELETE VALUE(cRequestFile).
         OS-DELETE VALUE(cResponseFile). 
     END.
-    ELSE IF cAPIRequestMethod EQ "Progress" THEN DO:
+    ELSE IF cAPIRequestMethod EQ "Internal" THEN DO:
         oAPIHandler = NEW API.APIHandler().
 
         oAPIHandler:ContentType = LC(cbRequestDataType:SCREEN-VALUE).

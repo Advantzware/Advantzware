@@ -311,7 +311,7 @@ IF cAPIRequestMethod EQ "cURL" THEN DO:
         
     oplcResponseData = glcResponseData.
 END.
-ELSE IF cAPIRequestMethod EQ "Progress" THEN DO:
+ELSE IF cAPIRequestMethod EQ "Internal" THEN DO:
     oAPIHandler = NEW API.APIHandler().
     
     oAPIHandler:ContentType = gcRequestDataType.

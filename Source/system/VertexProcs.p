@@ -224,7 +224,7 @@ PROCEDURE pUpdateAccessToken PRIVATE:
         
         COPY-LOB FILE cResponseFile TO lcResponse.
     END.    
-    ELSE IF cAPIReqMethod EQ "Progress" THEN DO:
+    ELSE IF cAPIReqMethod EQ "Internal" THEN DO:
         oAPIHandler = NEW API.APIHandler().
 
         oAPIHandler:ContentType = "x-www-form-urlencoded".

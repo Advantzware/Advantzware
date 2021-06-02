@@ -290,7 +290,7 @@ ASSIGN str-init[125] = "Ship Only,Invoice Only,Bill and Ship,Transfer Only"
        str-init[194] = "Add leading tab"
        str-init[195] = "First Board,First Item,User Select"
        str-init[196] = "Entry,Update"
-       str-init[197] = "cURL,Progress"
+       str-init[197] = "cURL,Internal"
        .
 	
 IF PROGRAM-NAME(1) MATCHES "*windows/l-syschr.w*" THEN DO:
